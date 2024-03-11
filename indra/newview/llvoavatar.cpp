@@ -1166,7 +1166,7 @@ void LLVOAvatar::cleanupClass()
 
 bool LLVOAvatar::handleVOAvatarPrefsChanged(const LLSD &newvalue)
 {
-    sLipSyncEnabled = gSavedSettings.getBOOL("LipSyncEnabled");
+	sLipSyncEnabled = gSavedSettings.getBOOL("LipSyncEnabled");
 	return true;
 }
 

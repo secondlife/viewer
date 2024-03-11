@@ -96,10 +96,10 @@ public:
 struct LLVoiceVersionInfo
 {
 	std::string voiceServerType;
-    std::string internalVoiceServerType;
-    int         majorVersion;
-    int         minorVersion;
-    std::string serverVersion;
+	std::string internalVoiceServerType;
+	int         majorVersion;
+	int         minorVersion;
+	std::string serverVersion;
 	std::string mBuildVersion;
 };
 
@@ -205,7 +205,7 @@ public:
 	virtual bool inProximalChannel()=0;
 
 	virtual void setNonSpatialChannel(const LLSD& channelInfo,
-		                              bool notify_on_first_join,
+									  bool notify_on_first_join,
 									  bool hangup_on_last_leave)=0;
 
 	virtual bool setSpatialChannel(const LLSD& channelInfo)=0;
@@ -474,13 +474,13 @@ public:
 	//@}
 
 	void setSpatialVoiceModule(const std::string& voice_server_type);
-    void setNonSpatialVoiceModule(const std::string &voice_server_type);
+	void setNonSpatialVoiceModule(const std::string &voice_server_type);
 
 	void userAuthorized(const std::string& user_id,
 						const LLUUID &agentID);
 
-    void onRegionChanged();
-    void onSimulatorFeaturesReceived(const LLUUID &region_id);
+	void onRegionChanged();
+	void onSimulatorFeaturesReceived(const LLUUID &region_id);
 
 	void addObserver(LLVoiceClientStatusObserver* observer);
 	void removeObserver(LLVoiceClientStatusObserver* observer);

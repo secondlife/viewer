@@ -92,7 +92,7 @@ LLVoiceChannel::~LLVoiceChannel()
 
 void LLVoiceChannel::setChannelInfo(const LLSD &channelInfo)
 {
-    mChannelInfo     = channelInfo;
+	mChannelInfo     = channelInfo;
 
 	if (mState == STATE_NO_CHANNEL_INFO)
 	{
@@ -120,15 +120,15 @@ void LLVoiceChannel::setChannelInfo(const LLSD &channelInfo)
 
 void LLVoiceChannel::onChange(EStatusType type, const LLSD& channelInfo, bool proximal)
 {
-    LL_WARNS("Voice") << channelInfo << LL_ENDL;
-    LL_WARNS("Voice") << mChannelInfo << LL_ENDL;
+	LL_DEBUGS("Voice") << "Incoming channel info: " << channelInfo << LL_ENDL;
+	LL_DEBUGS("Voice") << "Current channel info: " << mChannelInfo << LL_ENDL;
 	if (mChannelInfo.isUndefined())
 	{
-        mChannelInfo = channelInfo;
+		mChannelInfo = channelInfo;
 	}
-    if (!LLVoiceClient::getInstance()->compareChannels(mChannelInfo, channelInfo))
+	if (!LLVoiceClient::getInstance()->compareChannels(mChannelInfo, channelInfo))
 	{
-        return;
+		return;
 	}
 
 	if (type < BEGIN_ERROR_STATUS)
@@ -147,7 +147,7 @@ void LLVoiceChannel::handleStatusChange(EStatusType type)
 	switch(type)
 	{
 	case STATUS_LOGIN_RETRY:
-        // no user notice
+		// no user notice
 		break;
 	case STATUS_LOGGED_IN:
 		break;
@@ -382,10 +382,10 @@ boost::signals2::connection LLVoiceChannel::setCurrentVoiceChannelChangedCallbac
 //
 
 LLVoiceChannelGroup::LLVoiceChannelGroup(const LLUUID      &session_id,
-                                         const std::string &session_name,
-                                         bool               is_p2p) :
-    LLVoiceChannel(session_id, session_name),
-    mIsP2P(is_p2p)
+										 const std::string &session_name,
+										 bool               is_p2p) :
+										 LLVoiceChannel(session_id, session_name),
+										 mIsP2P(is_p2p)
 {
 	mRetries = DEFAULT_RETRIES_COUNT;
 	mIsRetrying = FALSE;
@@ -399,13 +399,13 @@ void LLVoiceChannelGroup::deactivate()
 	}
 	LLVoiceChannel::deactivate();
 
-    if (mIsP2P)
-    {
+	if (mIsP2P)
+	{
 		// void the channel info for p2p adhoc channels
 		// so we request it again, hence throwing up the 
 		// connect dialogue on the other side.
-        setState(STATE_NO_CHANNEL_INFO);
-    }
+		setState(STATE_NO_CHANNEL_INFO);
+	}
  }
 
 void LLVoiceChannelGroup::activate()
@@ -417,38 +417,38 @@ void LLVoiceChannelGroup::activate()
 	if (callStarted())
 	{
 		// we have the channel info, just need to use it now
-        LLVoiceClient::getInstance()->setNonSpatialChannel(mChannelInfo,
-			                                               mCallDirection == OUTGOING_CALL, 
-			                                               mIsP2P);
+		LLVoiceClient::getInstance()->setNonSpatialChannel(mChannelInfo,
+														   mCallDirection == OUTGOING_CALL, 
+														   mIsP2P);
 
 		if (mIsP2P)
-        {
-            LLIMModel::addSpeakersToRecent(mSessionID);
-        }
-        else
-        {
-            if (!gAgent.isInGroup(mSessionID))  // ad-hoc channel
-            {
-                LLIMModel::LLIMSession *session = LLIMModel::getInstance()->findIMSession(mSessionID);
-                // Adding ad-hoc call participants to Recent People List.
-                // If it's an outgoing ad-hoc, we can use mInitialTargetIDs that holds IDs of people we
-                // called(both online and offline) as source to get people for recent (STORM-210).
-                if (session->isOutgoingAdHoc())
-                {
-                    for (uuid_vec_t::iterator it = session->mInitialTargetIDs.begin(); it != session->mInitialTargetIDs.end(); ++it)
-                    {
-                        const LLUUID id = *it;
-                        LLRecentPeople::instance().add(id);
-                    }
-                }
-                // If this ad-hoc is incoming then trying to get ids of people from mInitialTargetIDs
-                // would lead to EXT-8246. So in this case we get them from speakers list.
-                else
-                {
-                    LLIMModel::addSpeakersToRecent(mSessionID);
-                }
-            }
-        }
+		{
+			LLIMModel::addSpeakersToRecent(mSessionID);
+		}
+		else
+		{
+			if (!gAgent.isInGroup(mSessionID))  // ad-hoc channel
+			{
+				LLIMModel::LLIMSession *session = LLIMModel::getInstance()->findIMSession(mSessionID);
+				// Adding ad-hoc call participants to Recent People List.
+				// If it's an outgoing ad-hoc, we can use mInitialTargetIDs that holds IDs of people we
+				// called(both online and offline) as source to get people for recent (STORM-210).
+				if (session->isOutgoingAdHoc())
+				{
+					for (uuid_vec_t::iterator it = session->mInitialTargetIDs.begin(); it != session->mInitialTargetIDs.end(); ++it)
+					{
+						const LLUUID id = *it;
+						LLRecentPeople::instance().add(id);
+					}
+				}
+				// If this ad-hoc is incoming then trying to get ids of people from mInitialTargetIDs
+				// would lead to EXT-8246. So in this case we get them from speakers list.
+				else
+				{
+					LLIMModel::addSpeakersToRecent(mSessionID);
+				}
+			}
+		}
 
 		// Mic default state is OFF on initiating/joining Ad-Hoc/Group calls.  It's on for P2P using the AdHoc infra.
 		 
@@ -463,14 +463,14 @@ void LLVoiceChannelGroup::requestChannelInfo()
 	{
 		std::string url = region->getCapability("ChatSessionRequest");
 
-        LLCoros::instance().launch("LLVoiceChannelGroup::voiceCallCapCoro",
-            boost::bind(&LLVoiceChannelGroup::voiceCallCapCoro, this, url));
+		LLCoros::instance().launch("LLVoiceChannelGroup::voiceCallCapCoro",
+			boost::bind(&LLVoiceChannelGroup::voiceCallCapCoro, this, url));
 	}
 }
 
 void LLVoiceChannelGroup::setChannelInfo(const LLSD& channelInfo)
 {
-    mChannelInfo     = channelInfo;
+	mChannelInfo     = channelInfo;
 
 	if (mState == STATE_NO_CHANNEL_INFO)
 	{
@@ -498,7 +498,7 @@ void LLVoiceChannelGroup::setChannelInfo(const LLSD& channelInfo)
 	{
 		// we have the channel info, just need to use it now
 		LLVoiceClient::getInstance()->setNonSpatialChannel(channelInfo,
-			                                               mCallDirection == OUTGOING_CALL,
+														   mCallDirection == OUTGOING_CALL,
 														   mIsP2P);
 	}
 }
@@ -585,62 +585,62 @@ void LLVoiceChannelGroup::setState(EState state)
 
 void LLVoiceChannelGroup::voiceCallCapCoro(std::string url)
 {
-    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
-    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
-        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("voiceCallCapCoro", httpPolicy));
-    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+	LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+	LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+		httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("voiceCallCapCoro", httpPolicy));
+	LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
 
-    LLSD postData;
-    postData["method"] = "call";
-    postData["session-id"] = mSessionID;
-    LLSD altParams;
-    altParams["preferred_voice_server_type"] = gSavedSettings.getString("VoiceServerType");
-    postData["alt_params"] = altParams;
+	LLSD postData;
+	postData["method"] = "call";
+	postData["session-id"] = mSessionID;
+	LLSD altParams;
+	altParams["preferred_voice_server_type"] = gSavedSettings.getString("VoiceServerType");
+	postData["alt_params"] = altParams;
 
-    LL_INFOS("Voice", "voiceCallCapCoro") << "Generic POST for " << url << LL_ENDL;
+	LL_INFOS("Voice", "voiceCallCapCoro") << "Generic POST for " << url << LL_ENDL;
 
-    LLSD result = httpAdapter->postAndSuspend(httpRequest, url, postData);
+	LLSD result = httpAdapter->postAndSuspend(httpRequest, url, postData);
 
-    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
-    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+	LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+	LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
-    LLVoiceChannel* channelp = LLVoiceChannel::getChannelByID(mSessionID);
-    if (!channelp)
-    {
-        LL_WARNS("Voice") << "Unable to retrieve channel with Id = " << mSessionID << LL_ENDL;
-        return;
-    }
+	LLVoiceChannel* channelp = LLVoiceChannel::getChannelByID(mSessionID);
+	if (!channelp)
+	{
+		LL_WARNS("Voice") << "Unable to retrieve channel with Id = " << mSessionID << LL_ENDL;
+		return;
+	}
 
-    if (!status)
-    {
-        if (status == LLCore::HttpStatus(HTTP_FORBIDDEN))
-        {
-            //403 == no ability
-            LLNotificationsUtil::add(
-                "VoiceNotAllowed",
-                channelp->getNotifyArgs());
-        }
-        else
-        {
-            LLNotificationsUtil::add(
-                "VoiceCallGenericError",
-                channelp->getNotifyArgs());
-        }
-        channelp->deactivate();
-        return;
-    }
+	if (!status)
+	{
+		if (status == LLCore::HttpStatus(HTTP_FORBIDDEN))
+		{
+			//403 == no ability
+			LLNotificationsUtil::add(
+				"VoiceNotAllowed",
+				channelp->getNotifyArgs());
+		}
+		else
+		{
+			LLNotificationsUtil::add(
+				"VoiceCallGenericError",
+				channelp->getNotifyArgs());
+		}
+		channelp->deactivate();
+		return;
+	}
 
-    result.erase(LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS);
+	result.erase(LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS);
 
-    LLSD::map_const_iterator iter;
-    for (iter = result.beginMap(); iter != result.endMap(); ++iter)
-    {
-        LL_DEBUGS("Voice") << "LLVoiceChannelGroup::voiceCallCapCoro got "
-            << iter->first << LL_ENDL;
-    }
-    LL_INFOS("Voice") << "LLVoiceChannelGroup::voiceCallCapCoro got " << result << LL_ENDL;
+	LLSD::map_const_iterator iter;
+	for (iter = result.beginMap(); iter != result.endMap(); ++iter)
+	{
+		LL_DEBUGS("Voice") << "LLVoiceChannelGroup::voiceCallCapCoro got "
+			<< iter->first << LL_ENDL;
+	}
+	LL_INFOS("Voice") << "LLVoiceChannelGroup::voiceCallCapCoro got " << result << LL_ENDL;
 
-    channelp->setChannelInfo(result["voice_credentials"]);
+	channelp->setChannelInfo(result["voice_credentials"]);
 }
 
 
@@ -666,7 +666,7 @@ void LLVoiceChannelProximal::activate()
 		// we're connected to a non-spatial channel, so disconnect.
 		LLVoiceClient::getInstance()->leaveNonSpatialChannel();
 	}
-    LLVoiceClient::getInstance()->activateSpatialChannel(true);
+	LLVoiceClient::getInstance()->activateSpatialChannel(true);
 	LLVoiceChannel::activate();
 	
 }
@@ -741,7 +741,7 @@ void LLVoiceChannelProximal::deactivate()
 	{
 		setState(STATE_HUNG_UP);
 	}
-    LLVoiceClient::getInstance()->activateSpatialChannel(false);
+	LLVoiceClient::getInstance()->activateSpatialChannel(false);
 }
 
 
@@ -749,13 +749,13 @@ void LLVoiceChannelProximal::deactivate()
 // LLVoiceChannelP2P
 //
 LLVoiceChannelP2P::LLVoiceChannelP2P(const LLUUID      &session_id,
-                                     const std::string &session_name,
-                                     const LLUUID      &other_user_id,
-	                                 LLVoiceP2POutgoingCallInterface* outgoing_call_interface) : 
-		LLVoiceChannelGroup(session_id, session_name, true), 
-		mOtherUserID(other_user_id),
-		mReceivedCall(FALSE),
-        mOutgoingCallInterface(outgoing_call_interface)
+									 const std::string &session_name,
+									 const LLUUID      &other_user_id,
+									LLVoiceP2POutgoingCallInterface* outgoing_call_interface) : 
+	LLVoiceChannelGroup(session_id, session_name, true), 
+	mOtherUserID(other_user_id),
+	mReceivedCall(FALSE),
+	mOutgoingCallInterface(outgoing_call_interface)
 {
 }
 
@@ -823,7 +823,7 @@ void LLVoiceChannelP2P::activate()
 	if (callStarted())
 	{
 		// no session handle yet, we're starting the call
-        if (mIncomingCallInterface == nullptr)
+		if (mIncomingCallInterface == nullptr)
 		{
 			mReceivedCall = FALSE;
 			mOutgoingCallInterface->callUser(mOtherUserID);
@@ -831,15 +831,15 @@ void LLVoiceChannelP2P::activate()
 		// otherwise answering the call
 		else
 		{
-            if (!mIncomingCallInterface->answerInvite())
+			if (!mIncomingCallInterface->answerInvite())
 			{
 				mCallEndedByAgent = false;
-                mIncomingCallInterface.reset();
+				mIncomingCallInterface.reset();
 				handleError(ERROR_UNKNOWN);
 				return;
 			}
 			// using the incoming call interface invalidates it.  Clear it out here so we can't reuse it by accident.
-            mIncomingCallInterface.reset();
+			mIncomingCallInterface.reset();
 		}
 
 		// Add the party to the list of people with which we've recently interacted.
@@ -855,11 +855,11 @@ void LLVoiceChannelP2P::activate()
 
 void LLVoiceChannelP2P::deactivate()
 {
-    if (callStarted())
-    {
-        mOutgoingCallInterface->hangup();
-    }
-    LLVoiceChannel::deactivate();
+	if (callStarted())
+	{
+		mOutgoingCallInterface->hangup();
+	}
+	LLVoiceChannel::deactivate();
 }
 
 
@@ -875,7 +875,7 @@ void LLVoiceChannelP2P::requestChannelInfo()
 // receiving session from other user who initiated call
 void LLVoiceChannelP2P::setChannelInfo(const LLSD& channel_info)
 { 
-    mChannelInfo        = channel_info;
+	mChannelInfo        = channel_info;
 	BOOL needs_activate = FALSE;
 	if (callStarted())
 	{
@@ -890,16 +890,16 @@ void LLVoiceChannelP2P::setChannelInfo(const LLSD& channel_info)
 		{
 			// we are active and have priority, invite the other user again
 			// under the assumption they will join this new session
-            mOutgoingCallInterface->callUser(mOtherUserID);
+			mOutgoingCallInterface->callUser(mOtherUserID);
 			return;
 		}
 	}
-	
+
 	mReceivedCall = TRUE;
-    if (!channel_info.isUndefined())
-    {
-        mIncomingCallInterface = LLVoiceClient::getInstance()->getIncomingCallInterface(channel_info);
-    }
+	if (!channel_info.isUndefined())
+	{
+		mIncomingCallInterface = LLVoiceClient::getInstance()->getIncomingCallInterface(channel_info);
+	}
 	if (needs_activate)
 	{
 		activate();
@@ -917,7 +917,7 @@ void LLVoiceChannelP2P::setState(EState state)
 		if (mReceivedCall && state == STATE_RINGING)
 		{
 			//TODO: remove or redirect this call status notification
-//			LLCallInfoDialog::show("answering", mNotifyArgs);
+	//			LLCallInfoDialog::show("answering", mNotifyArgs);
 			doSetState(state);
 			return;
 		}

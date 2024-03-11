@@ -380,7 +380,7 @@ public:
 	LLUUID addSession(const std::string& name,
 					  EInstantMessage dialog,
 					  const LLUUID& other_participant_id, 
-                      const LLSD& voiceChannelInfo = LLSD());
+					  const LLSD& voiceChannelInfo = LLSD());
 
 	// Adds a session using a specific group of starting agents
 	// the dialog type is assumed correct. Returns the uuid of the session.
@@ -388,8 +388,8 @@ public:
 	LLUUID addSession(const std::string& name,
 					  EInstantMessage dialog,
 					  const LLUUID& other_participant_id,
-                      const std::vector<LLUUID> &ids,
-                      const LLSD& voiceChannelInfo = LLSD(),
+					  const std::vector<LLUUID> &ids,
+					  const LLSD& voiceChannelInfo = LLSD(),
 					  const LLUUID& floater_id = LLUUID::null);
 
 	/**
@@ -415,7 +415,7 @@ public:
 		const std::string& caller_name,
 		EInstantMessage type,
 		EInvitationType inv_type,
-        const LLSD &voice_channel_info = LLSD()
+		const LLSD &voice_channel_info = LLSD()
 	);
 
 	void processIMTypingStart(const LLUUID& from_id, const EInstantMessage im_type);
