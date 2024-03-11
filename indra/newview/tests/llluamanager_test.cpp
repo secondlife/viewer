@@ -28,6 +28,7 @@
 #include "lluri.h"
 #include "lluuid.h"
 #include "lua_function.h"
+#include "lualistener.h"
 #include "stringize.h"
 
 class LLTestApp : public LLApp
@@ -309,10 +310,44 @@ namespace tut
         set_test_name("test leap.lua");
         const std::string lua(
             "-- test leap.lua\n"
+            "\n"
             "leap = require('leap')\n"
+            "\n"
+            "-- negative priority ensures catchall is always last\n"
+            "catchall = leap.WaitFor:new(-1, 'catchall')\n"
+            "function catchall:filter(pump, data)\n"
+            "    return data\n"
+            "end\n"
+            "\n"
+            "-- but first, catch events with 'special' key\n"
+            "catch_special = leap.WaitFor:new(2, 'catch_special')\n"
+            "function catch_special:filter(pump, data)\n"
+            "    return if data['special'] ~= nil then data else nil\n"
+            "end\n"
+            "\n"
+            "function drain(waitfor)\n"
+            "    print(waitfor.name .. ' start')\n"
+            "    for item in waitfor.wait, waitfor do\n"
+            "        print(waitfor.name .. ' caught', item)\n"
+            "    end\n"
+            "    print(waitfor.name .. ' done')\n"
+            "end\n"
+            "\n"
+            "co_all = coroutine.create(drain)\n"
+            "co_special = coroutine.create(drain)\n"
+            "coroutine.resume(co_all, catchall)\n"
+            "coroutine.resume(co_special, catch_special)\n"
+            "\n"
+            "leap.process()\n"
         );
         LuaState L;
         auto future = LLLUAmanager::startScriptLine(L, lua);
+        auto replyname{ L.obtainListener()->getReplyName() };
+        auto& replypump{ LLEventPumps::instance().obtain(replyname) };
+        replypump.post(llsd::map("special", "K"));
+        replypump.post(llsd::map("name", "not special"));
+        // tell leap.process() we're done
+        replypump.post(LLSD());
         auto [count, result] = future.get();
         ensure_equals("leap.lua: " + result.asString(), count, 0);
     }
