@@ -16,6 +16,27 @@
 -- was received and the received event data. When the queue is empty,
 -- get_event_next() blocks the calling Lua script until the next event is
 -- received.
+--
+-- Usage:
+-- 1. Launch some number of Lua coroutines. The code in each coroutine may
+--    call leap.send(), leap.request() or leap.generate(). leap.send() returns
+--    immediately ("fire and forget"). leap.request() blocks the calling
+--    coroutine until it receives and returns the viewer's response to its
+--    request. leap.generate() expects an arbitrary number of responses to the
+--    original request.
+-- 2. To handle events from the viewer other than direct responses to
+--    requests, instantiate a leap.WaitFor object with a filter(pump, data)
+--    override method that returns non-nil for desired events. A coroutine may
+--    call wait() on any such WaitFor.
+-- 3. Once the coroutines have been launched, call leap.process() on the main
+--    coroutine. process() retrieves incoming events from the viewer and
+--    dispatches them to waiting request() or generate() calls, or to
+--    appropriate WaitFor instances. process() returns when either
+--    get_event_next() raises an error or the viewer posts nil to the script's
+--    reply pump to indicate it's done.
+-- 4. Alternatively, a running coroutine may call leap.done() to break out of
+--    leap.process(). process() won't notice until the next event from the
+--    viewer, though.
 
 local ErrorQueue = require('ErrorQueue')
 
@@ -57,6 +78,8 @@ leap._waitfors = {}
 -- ["reqid"] values is our very own _reply pump, we can get away with
 -- an integer.
 leap._reqid = 0
+-- break leap.process() loop
+leap._done = false
 
 -- get the name of the reply pump
 function leap.replypump()
@@ -101,6 +124,8 @@ end
 -- Unless the request data already contains a ["reply"] key, we insert
 -- reply=self.replypump to try to ensure that the expected reply will be
 -- returned over the socket.
+--
+-- See also send(), generate().
 function leap.request(pump, data)
     local reqid = leap._requestSetup(pump, data)
     local ok, response = pcall(leap._pending[reqid].wait)
@@ -165,25 +190,37 @@ end
 -- While waiting for responses from the viewer, the C++ coroutine running the
 -- calling Lua script is blocked: no other Lua coroutine is running.
 function leap.process()
+    leap._done = false
     local ok, pump, data
-    while true do
+    while not leap._done do
         ok, pump, data = pcall(get_event_next)
-        if not ok then
+        print_debug('leap.process() got', ok, pump, data)
+        -- ok false means get_event_next() raised a Lua error
+        -- data nil means get_event_next() returned (pump, LLSD()) to indicate done
+        if not (ok and data) then
+            print_debug('leap.process() done')
             break
         end
         leap._dispatch(pump, data)
     end
     -- we're done: clean up all pending coroutines
+    -- if ok, then we're just done.
+    -- if not ok, then 'pump' is actually the error message.
+    message = if ok then 'done' else pump
     for i, waitfor in pairs(leap._pending) do
-        waitfor._exception(pump)
+        waitfor:_exception(message)
     end
     for i, waitfor in pairs(leap._waitfors) do
-        waitfor._exception(pump)
+        waitfor:_exception(message)
     end
     -- now that we're done with cleanup, propagate the error we caught above
     if not ok then
         error(pump)
     end
+end
+
+function leap.done()
+    leap._done = true
 end
 
 -- Route incoming (pump, data) event to the appropriate waiting coroutine.
@@ -200,7 +237,7 @@ function leap._dispatch(pump, data)
     end
     -- found the right WaitForReqid object, let it handle the event
     data['reqid'] = nil
-    waitfor._handle(pump, data)
+    waitfor:_handle(pump, data)
 end
 
 -- Handle an incoming (pump, data) event with no recognizable ['reqid']
@@ -208,7 +245,7 @@ function leap._unsolicited(pump, data)
     -- we maintain waitfors in descending priority order, so the first waitfor
     -- to claim this event is the one with the highest priority
     for i, waitfor in pairs(leap._waitfors) do
-        if waitfor._handle(pump, data) then
+        if waitfor:_handle(pump, data) then
             return
         end
     end
@@ -284,7 +321,10 @@ function leap.WaitFor:new(priority, name)
     end
     obj._queue = ErrorQueue:new()
     obj._registered = false
-    obj:enable()
+    -- if no priority, then don't enable() - remember 0 is truthy
+    if priority then
+        obj:enable()
+    end
 
     return obj
 end
@@ -314,7 +354,10 @@ end
 -- Block the calling coroutine until a suitable unsolicited event (one
 -- for which filter() returns the event) arrives.
 function leap.WaitFor:wait()
-    return self._queue:Dequeue()
+    print_debug(self.name .. ' about to wait')
+    item = self._queue:Dequeue()
+    print_debug(self.name .. ' got ', item)
+    return item
 end
 
 -- Loop over wait() calls.
@@ -335,7 +378,7 @@ end
 -- return {pump=pump, data=data}
 -- or some variation.
 function leap.WaitFor:filter(pump, data)
-    error('You must subclass WaitFor and override its filter() method')
+    error('You must override the WaitFor.filter() method')
 end
 
 -- called by leap._unsolicited() for each WaitFor in leap._waitfors
@@ -357,6 +400,7 @@ end
 
 -- called by leap.process() when get_event_next() raises an error
 function leap.WaitFor:_exception(message)
+    print_warning(self.name .. ' error: ' .. message)
     self._queue:Error(message)
 end
 
@@ -367,20 +411,11 @@ function leap.WaitForReqid:new(reqid)
     -- priority is meaningless, since this object won't be added to the
     -- priority-sorted ViewerClient.waitfors list. Use the reqid as the
     -- debugging name string.
-    local obj = leap.WaitFor:new(0, 'WaitForReqid(' .. reqid .. ')')
+    local obj = leap.WaitFor:new(nil, 'WaitForReqid(' .. reqid .. ')')
     setmetatable(obj, self)
     self.__index = self
 
     return obj
-end
-
-function leap.WaitForReqid:enable()
-    -- Do NOT self-register in the normal way. request() and generate()
-    -- have an entirely different registry that points directly to the
-    -- WaitForReqid object of interest.
-end
-
-function leap.WaitForReqid:disable()
 end
 
 function leap.WaitForReqid:filter(pump, data)
