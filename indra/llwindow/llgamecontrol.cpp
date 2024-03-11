@@ -355,6 +355,7 @@ LLGameControllerManager::LLGameControllerManager()
         { type::TYPE_AXIS, (U8)(LLGameControl::AXIS_RIGHTX),       1 }, // yaw
         { type::TYPE_NONE, 0                                         }  // zoom
     };
+    LL_DEBUGS("SDL2Events") << "Game controller startup" << LL_ENDL;
 }
 
 void LLGameControllerManager::addController(SDL_JoystickID id, SDL_GameController* controller)
@@ -374,7 +375,7 @@ void LLGameControllerManager::addController(SDL_JoystickID id, SDL_GameControlle
             mControllerIDs.push_back(id);
             mControllers.push_back(controller);
             mStates.push_back(LLGameControl::State());
-            LL_DEBUGS("SDL2") << "joystick=0x" << std::hex << id << std::dec
+            LL_DEBUGS("SDL2Events") << "Adding joystick=0x" << std::hex << id << std::dec
                 << " controller=" << controller
                 << LL_ENDL;
         }
@@ -389,13 +390,13 @@ void LLGameControllerManager::removeController(SDL_JoystickID id)
     {
         if (id == mControllerIDs[i])
         {
-            LL_DEBUGS("SDL2") << "joystick=0x" << std::hex << id << std::dec
+            LL_DEBUGS("SDL2Events") << "Removing joystick=0x" << std::hex << id << std::dec
                 << " controller=" << mControllers[i]
                 << LL_ENDL;
 
-            mControllerIDs[i] = mControllerIDs[num_controllers - 1];
-            mControllers[i] = mControllers[num_controllers - 1];
-            mStates[i] = mStates[num_controllers - 1];
+            mControllerIDs[i] = mControllerIDs.back();
+            mControllers[i] = mControllers.back();
+            mStates[i] = mStates.back();
 
             mControllerIDs.pop_back();
             mControllers.pop_back();
@@ -448,7 +449,7 @@ void LLGameControllerManager::onAxis(SDL_JoystickID id, U8 axis, S16 value)
             }
         }
 
-        LL_DEBUGS("SDL2") << "joystick=0x" << std::hex << id << std::dec
+        LL_DEBUGS("SDL2Data") << "joystick=0x" << std::hex << id << std::dec
             << " axis=" << (S32)(axis)
             << " value=" << (S32)(value) << LL_ENDL;
         mStates[index].mAxes[axis] = value;
@@ -462,7 +463,7 @@ void LLGameControllerManager::onButton(SDL_JoystickID id, U8 button, bool presse
     {
         if (mStates[index].onButton(button, pressed))
         {
-            LL_DEBUGS("SDL2") << "joystick=0x" << std::hex << id << std::dec
+            LL_DEBUGS("SDL2Data") << "joystick=0x" << std::hex << id << std::dec
                 << " button i=" << (S32)(button)
                 << " pressed=" <<  pressed << LL_ENDL;
         }
@@ -711,6 +712,7 @@ void LLGameControllerManager::setExternalActionFlags(U32 action_flags)
 
 void LLGameControllerManager::clear()
 {
+    LL_DEBUGS("SDL2Events") << "Game controller clearing data" << LL_ENDL;
     mControllerIDs.clear();
     mControllers.clear();
     mStates.clear();
@@ -767,24 +769,30 @@ void onControllerDeviceAdded(const SDL_Event& event)
     int device_index = event.cdevice.which;
     SDL_JoystickID id = SDL_JoystickGetDeviceInstanceID(device_index);
     SDL_GameController* controller = SDL_GameControllerOpen(device_index);
-
+    LL_DEBUGS("SDL2Events") << "Device added event " << (S32) id
+        << " : " << LL_ENDL;
     g_manager.addController(id, controller);
 }
 
 void onControllerDeviceRemoved(const SDL_Event& event)
 {
     SDL_JoystickID id = event.cdevice.which;
+    LL_DEBUGS("SDL2Events") << "Device removed id = " << (S32) id << LL_ENDL;
     g_manager.removeController(id);
 }
 
 void onControllerButton(const SDL_Event& event)
 {
+    LL_DEBUGS("SDL2Data") << "Button event "
+        << "which " << (S32) event.cbutton.which
+        << ", button " << (S32) event.cbutton.button
+        << ", state " << (S32) event.cbutton.state << LL_ENDL;
     g_manager.onButton(event.cbutton.which, event.cbutton.button, event.cbutton.state == SDL_PRESSED);
 }
 
 void onControllerAxis(const SDL_Event& event)
 {
-    LL_DEBUGS("SDL2") << "joystick=0x" << std::hex << event.caxis.which << std::dec
+    LL_DEBUGS("SDL2Data") << "joystick=0x" << std::hex << event.caxis.which << std::dec
         << " axis=" << (S32)(event.caxis.axis)
         << " value=" << (S32)(event.caxis.value) << LL_ENDL;
     g_manager.onAxis(event.caxis.which, event.caxis.axis, event.caxis.value);
@@ -798,7 +806,7 @@ bool LLGameControl::isInitialized()
 
 void sdl_logger(void *userdata, int category, SDL_LogPriority priority, const char *message)
 {
-    LL_DEBUGS("SDL2") << "log='" << message << "'" << LL_ENDL;
+    LL_DEBUGS("SDL2Events") << "log='" << message << "'" << LL_ENDL;
 }
 
 // static
