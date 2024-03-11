@@ -37,14 +37,21 @@ function WaitQueue:_wake_waiters()
     -- or Dequeue() calls, recheck every time around to see if we must resume
     -- another waiting coroutine.
     while not self:IsEmpty() and #self._waiters > 0 do
-        -- pop the oldest waiting coroutine instead of the most recent, for
-        -- more-or-less round robin fairness
+        -- Pop the oldest waiting coroutine instead of the most recent, for
+        -- more-or-less round robin fairness. But skip any coroutines that
+        -- have gone dead in the meantime.
         local waiter = table.remove(self._waiters, 1)
-        -- don't pass the head item: let the resumed coroutine retrieve it
-        local ok, message = coroutine.resume(waiter)
-        -- if resuming that waiter encountered an error, don't swallow it
-        if not ok then
-            error(message)
+        while waiter and coroutine.status(waiter) ~= "suspended" do
+            waiter = table.remove(self._waiters, 1)
+        end
+        -- do we still have at least one waiting coroutine?
+        if waiter then
+            -- don't pass the head item: let the resumed coroutine retrieve it
+            local ok, message = coroutine.resume(waiter)
+            -- if resuming that waiter encountered an error, don't swallow it
+            if not ok then
+                error(message)
+            end
         end
     end
 end
