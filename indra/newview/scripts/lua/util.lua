@@ -4,10 +4,7 @@ local util = {}
 
 -- cheap test whether table t is empty
 function util.empty(t)
-    for _ in pairs(t) do
-        return false
-    end
-    return true
+    return not next(t)
 end
 
 -- reliable count of the number of entries in table t
