@@ -62,8 +62,6 @@ protected:
 	LLIconCtrl(const Params&);
 	friend class LLUICtrlFactory;
 
-	void setValue(const LLSD& value, S32 priority);
-
 public:
 	virtual ~LLIconCtrl();
 
@@ -76,6 +74,7 @@ public:
 	// lluictrl overrides
 	void onVisibilityChange(BOOL new_visibility);
 	virtual void	setValue(const LLSD& value );
+    void setValue(const LLSD& value, S32 priority);
 
 	std::string	getImageName() const;
 

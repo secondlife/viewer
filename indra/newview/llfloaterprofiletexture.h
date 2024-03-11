@@ -34,7 +34,39 @@ class LLButton;
 class LLImageRaw;
 class LLIconCtrl;
 
-class LLFloaterProfileTexture : public LLFloater
+class LLProfileImageMonitor: public LLHandleProvider<LLProfileImageMonitor>
+{
+public:
+    LLProfileImageMonitor();
+    virtual ~LLProfileImageMonitor();
+
+    void setImageAssetId(const LLUUID& asset_id);
+    LLUUID getImageAssetId() { return mImageID; }
+    void refreshImageStats();
+    LLPointer<LLViewerFetchedTexture> getImage() {return mImage;}
+
+    virtual void onImageLoaded(BOOL success, LLViewerFetchedTexture* imagep) = 0;
+private:
+    static void onImageLoaded(BOOL success,
+                              LLViewerFetchedTexture* src_vi,
+                              LLImageRaw* src,
+                              LLImageRaw* aux_src,
+                              S32 discard_level,
+                              BOOL final,
+                              void* userdata);
+    void releaseTexture();
+protected:
+    LLPointer<LLViewerFetchedTexture> mImage;
+    S32 mAssetStatus;
+private:
+    LLUUID mImageID;
+    S32 mImageOldBoostLevel;
+    bool mWasNoDelete;
+    LLLoadedCallbackEntry::source_callback_list_t mCallbackTextureList;
+
+};
+
+class LLFloaterProfileTexture : public LLFloater, public LLProfileImageMonitor
 {
 public:
     LLFloaterProfileTexture(LLView* owner);
@@ -46,27 +78,17 @@ public:
     void resetAsset();
     void loadAsset(const LLUUID &image_id);
 
-
-    static void onTextureLoaded(
-        BOOL success,
-        LLViewerFetchedTexture *src_vi,
-        LLImageRaw* src,
-        LLImageRaw* aux_src,
-        S32 discard_level,
-        BOOL final,
-        void* userdata);
+    void onImageLoaded(BOOL success, LLViewerFetchedTexture* imagep) override;
 
     void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE) override;
+
+    LLHandle<LLFloater> getHandle() const { return LLFloater::getHandle(); }
 protected:
     BOOL postBuild() override;
 
 private:
     void updateDimensions();
 
-    LLUUID mImageID;
-    LLPointer<LLViewerFetchedTexture> mImage;
-    S32 mImageOldBoostLevel;
-    S32 mAssetStatus;
     F32 mContextConeOpacity;
     S32 mLastHeight;
     S32 mLastWidth;
@@ -75,7 +97,5 @@ private:
     LLHandle<LLView> mOwnerHandle;
     LLIconCtrl* mProfileIcon;
     LLButton* mCloseButton;
-
-    LLLoadedCallbackEntry::source_callback_list_t mCallbackTextureList;
 };
 #endif  // LL_LLFLOATERPROFILETEXTURE_H

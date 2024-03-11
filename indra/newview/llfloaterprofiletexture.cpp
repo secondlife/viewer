@@ -33,19 +33,127 @@
 #include "llpreview.h" // fors constants
 #include "lltrans.h"
 #include "llviewercontrol.h"
-#include "lltextureview.h"
 #include "llviewertexture.h"
 #include "llviewertexturelist.h"
 
 
+ //////////////////////////////////////////////////////////////////////////
+ // LLProfileImageMonitor
+ //////////////////////////////////////////////////////////////////////////
+
+LLProfileImageMonitor::LLProfileImageMonitor()
+    : mImage(NULL)
+    , mImageOldBoostLevel(LLGLTexture::BOOST_NONE)
+    , mWasNoDelete(false)
+    , mAssetStatus(LLPreview::PREVIEW_ASSET_LOADED)
+{
+
+}
+
+LLProfileImageMonitor::~LLProfileImageMonitor()
+{
+    LLLoadedCallbackEntry::cleanUpCallbackList(&mCallbackTextureList);
+    releaseTexture();
+}
+
+void LLProfileImageMonitor::releaseTexture()
+{
+    if (mImage.notNull())
+    {
+        mImage->setBoostLevel(mImageOldBoostLevel);
+        if (!mWasNoDelete)
+        {
+            // In most cases setBoostLevel marks images as NO_DELETE
+            mImage->forceActive();
+        }
+        mImage = NULL;
+    }
+}
+
+void LLProfileImageMonitor::setImageAssetId(const LLUUID& asset_id)
+{
+    if (mImageID == asset_id)
+    {
+        return;
+    }
+    else
+    {
+        releaseTexture();
+    }
+
+    mImageID = asset_id;
+    if (mImageID.notNull())
+    {
+        mImage = LLViewerTextureManager::getFetchedTexture(mImageID, FTT_DEFAULT, MIPMAP_YES, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+        mWasNoDelete = mImage->getTextureState() == LLGLTexture::NO_DELETE;
+        mImageOldBoostLevel = mImage->getBoostLevel();
+        mImage->setBoostLevel(LLGLTexture::BOOST_PREVIEW);
+        mImage->setKnownDrawSize(LLViewerTexture::MAX_IMAGE_SIZE_DEFAULT, LLViewerTexture::MAX_IMAGE_SIZE_DEFAULT);
+        mImage->forceToSaveRawImage(0);
+
+        if ((mImage->getFullWidth() * mImage->getFullHeight()) == 0)
+        {
+            mImage->setLoadedCallback(LLProfileImageMonitor::onImageLoaded,
+                                      0, TRUE, FALSE, new LLHandle<LLProfileImageMonitor>(getHandle()), &mCallbackTextureList);
+
+            mAssetStatus = LLPreview::PREVIEW_ASSET_LOADING;
+        }
+        else
+        {
+            onImageLoaded(true, mImage);
+            mAssetStatus = LLPreview::PREVIEW_ASSET_LOADED;
+        }
+    }
+}
+
+void LLProfileImageMonitor::refreshImageStats()
+{
+    if (mImage.notNull())
+    {
+        // Pump the texture priority
+        mImage->addTextureStats(MAX_IMAGE_AREA);
+        mImage->setKnownDrawSize(LLViewerTexture::MAX_IMAGE_SIZE_DEFAULT, LLViewerTexture::MAX_IMAGE_SIZE_DEFAULT);
+    }
+}
+
+// static
+void LLProfileImageMonitor::onImageLoaded(BOOL success,
+                                          LLViewerFetchedTexture* src_vi,
+                                          LLImageRaw* src,
+                                          LLImageRaw* aux_src,
+                                          S32 discard_level,
+                                          BOOL final,
+                                          void* userdata)
+{
+    if (!userdata) return;
+
+    LLHandle<LLProfileImageMonitor>* handle = (LLHandle<LLProfileImageMonitor>*)userdata;
+
+    if (!handle->isDead())
+    {
+        LLProfileImageMonitor* caller = handle->get();
+        if (caller)
+        {
+            caller->onImageLoaded(success, src_vi);
+        }
+    }
+
+    if (final || !success)
+    {
+        delete handle;
+    }
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+// LLFloaterProfileTexture
+ //////////////////////////////////////////////////////////////////////////
 
 LLFloaterProfileTexture::LLFloaterProfileTexture(LLView* owner)
     : LLFloater(LLSD())
     , mUpdateDimensions(TRUE)
     , mLastHeight(0)
     , mLastWidth(0)
-    , mImage(NULL)
-    , mImageOldBoostLevel(LLGLTexture::BOOST_NONE)
     , mOwnerHandle(owner->getHandle())
 {
     buildFromFile("floater_profile_texture.xml");
@@ -53,11 +161,6 @@ LLFloaterProfileTexture::LLFloaterProfileTexture(LLView* owner)
 
 LLFloaterProfileTexture::~LLFloaterProfileTexture()
 {
-    if (mImage.notNull())
-    {
-        mImage->setBoostLevel(mImageOldBoostLevel);
-        mImage = NULL;
-    }
 }
 
 // virtual
@@ -139,12 +242,7 @@ void LLFloaterProfileTexture::draw()
     static LLCachedControl<F32> max_opacity(gSavedSettings, "PickerContextOpacity", 0.4f);
     drawConeToOwner(mContextConeOpacity, max_opacity, owner);
 
-    if (mImage.notNull())
-    {
-        // Pump the texture priority
-        mImage->addTextureStats(MAX_IMAGE_AREA);
-        mImage->setKnownDrawSize(LLViewerTexture::MAX_IMAGE_SIZE_DEFAULT, LLViewerTexture::MAX_IMAGE_SIZE_DEFAULT);
-    }
+    refreshImageStats();
 
     LLFloater::draw();
 }
@@ -156,77 +254,35 @@ void LLFloaterProfileTexture::onOpen(const LLSD& key)
 
 void LLFloaterProfileTexture::resetAsset()
 {
-    mProfileIcon->setValue("Generic_Person_Large");
-    mImageID = LLUUID::null;
-    if (mImage.notNull())
-    {
-        mImage->setBoostLevel(mImageOldBoostLevel);
-        mImage = NULL;
-    }
+    mProfileIcon->setValue("Generic_Person_Large", LLGLTexture::BOOST_UI);
+    setImageAssetId(LLUUID::null);
 }
 void LLFloaterProfileTexture::loadAsset(const LLUUID &image_id)
 {
-    if (mImageID != image_id)
-    {
-        if (mImage.notNull())
-        {
-            mImage->setBoostLevel(mImageOldBoostLevel);
-            mImage = NULL;
-        }
-    }
-    else
+    if (getImageAssetId() == image_id)
     {
         return;
     }
 
-    mProfileIcon->setValue(image_id);
-    mImageID = image_id;
-    mImage = LLViewerTextureManager::getFetchedTexture(mImageID, FTT_DEFAULT, MIPMAP_TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
-    mImageOldBoostLevel = mImage->getBoostLevel();
-    mImage->setKnownDrawSize(LLViewerTexture::MAX_IMAGE_SIZE_DEFAULT, LLViewerTexture::MAX_IMAGE_SIZE_DEFAULT);
-    mImage->forceToSaveRawImage(0);
-
-    if ((mImage->getFullWidth() * mImage->getFullHeight()) == 0)
+    if (image_id.isNull())
     {
-        mImage->setLoadedCallback(LLFloaterProfileTexture::onTextureLoaded,
-            0, TRUE, FALSE, new LLHandle<LLFloater>(getHandle()), &mCallbackTextureList);
-
-        mImage->setBoostLevel(LLGLTexture::BOOST_PREVIEW);
-        mAssetStatus = LLPreview::PREVIEW_ASSET_LOADING;
+        resetAsset();
     }
     else
     {
-        mAssetStatus = LLPreview::PREVIEW_ASSET_LOADED;
-    }
+        mProfileIcon->setValue(image_id, LLGLTexture::BOOST_PREVIEW);
+        setImageAssetId(image_id);
 
-    mUpdateDimensions = TRUE;
-    updateDimensions();
+        mUpdateDimensions = TRUE;
+        updateDimensions();
+    }
 }
 
-// static
-void LLFloaterProfileTexture::onTextureLoaded(
-    BOOL success,
-    LLViewerFetchedTexture *src_vi,
-    LLImageRaw* src,
-    LLImageRaw* aux_src,
-    S32 discard_level,
-    BOOL final,
-    void* userdata)
+void LLFloaterProfileTexture::onImageLoaded(BOOL success, LLViewerFetchedTexture* imagep)
 {
-    LLHandle<LLFloater>* handle = (LLHandle<LLFloater>*)userdata;
-
-    if (!handle->isDead())
+    if (success)
     {
-        LLFloaterProfileTexture* floater = static_cast<LLFloaterProfileTexture*>(handle->get());
-        if (floater && success)
-        {
-            floater->mUpdateDimensions = TRUE;
-            floater->updateDimensions();
-        }
-    }
-
-    if (final || !success)
-    {
-        delete handle;
+        mUpdateDimensions = TRUE;
+        updateDimensions();
     }
 }

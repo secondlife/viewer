@@ -30,6 +30,7 @@
 #include "llavatarpropertiesprocessor.h"
 #include "llcallingcard.h"
 #include "llfloater.h"
+#include "llfloaterprofiletexture.h" //LLProfileImageMonitor
 #include "llpanel.h"
 #include "llpanelavatar.h"
 #include "llmediactrl.h"
@@ -58,7 +59,6 @@ class LLTextBase;
 class LLMenuButton;
 class LLLineEditor;
 class LLTextEditor;
-class LLThumbnailCtrl;
 class LLPanelProfileClassifieds;
 class LLPanelProfilePicks;
 class LLViewerFetchedTexture;
@@ -71,11 +71,13 @@ class LLPanelProfileSecondLife
 	: public LLPanelProfilePropertiesProcessorTab
 	, public LLFriendObserver
 	, public LLVoiceClientStatusObserver
+    , public LLProfileImageMonitor
 {
 public:
 	LLPanelProfileSecondLife();
 	/*virtual*/ ~LLPanelProfileSecondLife();
 
+    void draw() override;
 	void onOpen(const LLSD& key) override;
 
 	/**
@@ -136,14 +138,7 @@ protected:
      */
     void fillAgeData(const LLAvatarData* avatar_data);
 
-    void onImageLoaded(BOOL success, LLViewerFetchedTexture *imagep);
-    static void onImageLoaded(BOOL success,
-                              LLViewerFetchedTexture *src_vi,
-                              LLImageRaw* src,
-                              LLImageRaw* aux_src,
-                              S32 discard_level,
-                              BOOL final,
-                              void* userdata);
+    void onImageLoaded(BOOL success, LLViewerFetchedTexture *imagep) override;
 
 	/**
 	 * Displays avatar's online status if possible.
@@ -186,7 +181,7 @@ private:
 	LLGroupList*		mGroupList;
     LLComboBox*			mShowInSearchCombo;
     LLComboBox*			mHideAgeCombo;
-    LLThumbnailCtrl*	mSecondLifePic;
+    LLIconCtrl*			mSecondLifePic;
 	LLPanel*			mSecondLifePicLayout;
     LLTextEditor*		mDescriptionEdit;
     LLMenuButton*		mAgentActionMenuButton;
@@ -209,8 +204,6 @@ private:
     bool				mAllowPublish;
     bool				mHideAge;
     std::string			mDescriptionText;
-    LLUUID				mImageId;
-
 	boost::signals2::connection	mAvatarNameCacheConnection;
 };
 
@@ -259,12 +252,14 @@ private:
 * Panel for displaying Avatar's first life related info.
 */
 class LLPanelProfileFirstLife
-	: public LLPanelProfilePropertiesProcessorTab
+    : public LLPanelProfilePropertiesProcessorTab
+    , public LLProfileImageMonitor
 {
 public:
 	LLPanelProfileFirstLife();
 	/*virtual*/ ~LLPanelProfileFirstLife();
 
+    void draw() override;
 	void onOpen(const LLSD& key) override;
 
 	BOOL postBuild() override;
@@ -282,6 +277,7 @@ public:
 
 protected:
 	void setLoaded() override;
+    void onImageLoaded(BOOL success, LLViewerFetchedTexture* imagep) override {}
 
     void onUploadPhoto();
     void onChangePhoto();
@@ -293,7 +289,7 @@ protected:
     void onDiscardDescriptionChanges();
 
 	LLTextEditor*	mDescriptionEdit;
-    LLThumbnailCtrl* mPicture;
+    LLIconCtrl* mPicture;
     LLButton* mUploadPhoto;
     LLButton* mChangePhoto;
     LLButton* mRemovePhoto;
@@ -303,7 +299,6 @@ protected:
     LLHandle<LLFloater>	mFloaterTexturePickerHandle;
 
     std::string		mCurrentDescription;
-    LLUUID			mImageId;
     bool			mHasUnsavedChanges;
 };
 
