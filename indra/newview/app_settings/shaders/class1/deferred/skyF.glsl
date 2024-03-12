@@ -28,8 +28,10 @@ in vec3 vary_HazeColor;
 in float vary_LightNormPosDot;
 
 #ifdef HAS_HDRI
-in vec3 vary_position;
+in vec4 vary_position;
+in vec3 vary_rel_pos;
 uniform float sky_hdr_scale;
+uniform float hdri_split_screen;
 uniform mat3 env_mat;
 uniform sampler2D environmentMap;
 #endif
@@ -81,33 +83,39 @@ vec3 halo22(float d)
 
 void main()
 {
+    vec3 color;
 #ifdef HAS_HDRI
-    vec3 pos = normalize(vary_position);
-    pos = env_mat * pos;
-    vec2 texCoord = vec2(atan(pos.z, pos.x) + PI, acos(pos.y)) / vec2(2.0 * PI, PI);
-    vec3 color = textureLod(environmentMap, texCoord.xy, 0).rgb * sky_hdr_scale;
-    color = min(color, vec3(8192*8192*16)); // stupidly large value arrived at by binary search -- avoids framebuffer corruption from some HDRIs
+    vec3 frag_coord = vary_position.xyz/vary_position.w;
+    if (-frag_coord.x > ((1.0-hdri_split_screen)*2.0-1.0))
+    {
+        vec3 pos = normalize(vary_rel_pos);
+        pos = env_mat * pos;
+        vec2 texCoord = vec2(atan(pos.z, pos.x) + PI, acos(pos.y)) / vec2(2.0 * PI, PI);
+        color = textureLod(environmentMap, texCoord.xy, 0).rgb * sky_hdr_scale;
+        color = min(color, vec3(8192*8192*16)); // stupidly large value arrived at by binary search -- avoids framebuffer corruption from some HDRIs
 
-    frag_data[2] = vec4(0.0,0.0,0.0,GBUFFER_FLAG_HAS_HDRI);
-#else
-
-    // Potential Fill-rate optimization.  Add cloud calculation 
-    // back in and output alpha of 0 (so that alpha culling kills 
-    // the fragment) if the sky wouldn't show up because the clouds 
-    // are fully opaque.
-
-    vec3 color = vary_HazeColor;
-
-    float  rel_pos_lightnorm = vary_LightNormPosDot;
-    float optic_d = rel_pos_lightnorm;
-    vec3  halo_22 = halo22(optic_d);
-    color.rgb += rainbow(optic_d);
-    color.rgb += halo_22;
-    color.rgb *= 2.;
-    color.rgb = clamp(color.rgb, vec3(0), vec3(5));
-
-    frag_data[2] = vec4(0.0,0.0,0.0,GBUFFER_FLAG_SKIP_ATMOS);
+        frag_data[2] = vec4(0.0,0.0,0.0,GBUFFER_FLAG_HAS_HDRI);
+    }
+    else
 #endif
+    {
+        // Potential Fill-rate optimization.  Add cloud calculation 
+        // back in and output alpha of 0 (so that alpha culling kills 
+        // the fragment) if the sky wouldn't show up because the clouds 
+        // are fully opaque.
+
+        color = vary_HazeColor;
+
+        float  rel_pos_lightnorm = vary_LightNormPosDot;
+        float optic_d = rel_pos_lightnorm;
+        vec3  halo_22 = halo22(optic_d);
+        color.rgb += rainbow(optic_d);
+        color.rgb += halo_22;
+        color.rgb *= 2.;
+        color.rgb = clamp(color.rgb, vec3(0), vec3(5));
+
+        frag_data[2] = vec4(0.0,0.0,0.0,GBUFFER_FLAG_SKIP_ATMOS);
+    }
 
     frag_data[0] = vec4(0);
     frag_data[1] = vec4(0);

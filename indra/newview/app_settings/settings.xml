@@ -9373,6 +9373,17 @@
     <key>Value</key>
     <real>0.0</real>
   </map>
+  <key>RenderHDRISplitScreen</key>
+  <map>
+    <key>Comment</key>
+    <string>What percentage of screen to render using HDRI vs EEP sky.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>1.0</real>
+  </map>
   <key>RenderMaxOpenGLVersion</key>
   <map>
     <key>Comment</key>
