@@ -414,6 +414,54 @@ Initialization with the Marketplace failed because of a system or network error.
     </notification>
 
     <notification
+     icon="alertmodal.tga"
+     name="ValidatorInvalidInitialCharacter"
+     type="alertmodal">
+        Invalid initial character: '[CH]'.
+        <tag>fail</tag>
+    </notification>
+
+    <notification
+     icon="alertmodal.tga"
+     name="ValidatorInvalidNthCharacter"
+     type="alertmodal">
+        Invalid [NR]th character: '[CH]'.
+        <tag>fail</tag>
+    </notification>
+
+    <notification
+     icon="alertmodal.tga"
+     name="ValidatorInvalidNumberString"
+     type="alertmodal">
+        Invalid number string: "[STR]".
+        <tag>fail</tag>
+    </notification>
+
+    <notification
+     icon="alertmodal.tga"
+     name="ValidatorInvalidHours"
+     type="alertmodal">
+        Invalid hours: "[STR]".
+        <tag>fail</tag>
+    </notification>
+
+    <notification
+     icon="alertmodal.tga"
+     name="ValidatorInvalidMinutes"
+     type="alertmodal">
+        Invalid hours: "[STR]".
+        <tag>fail</tag>
+    </notification>
+
+    <notification
+     icon="alertmodal.tga"
+     name="ValidatorInvalidAMPM"
+     type="alertmodal">
+        Invalid AM/PM: "[STR]".
+        <tag>fail</tag>
+    </notification>
+
+    <notification
         icon="alertmodal.tga"
         name="MerchantForceValidateListing"
         type="alertmodal">

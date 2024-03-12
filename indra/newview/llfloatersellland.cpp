@@ -283,9 +283,7 @@ void LLFloaterSellLandUI::refreshUI()
 	getChild<LLUICtrl>("info_size")->setTextArg("[AREA]", llformat("%d", mParcelActualArea));
 
 	std::string price_str = getChild<LLUICtrl>("price")->getValue().asString();
-	bool valid_price = false;
-	valid_price = (price_str != "") && LLTextValidate::validateNonNegativeS32(utf8str_to_wstring(price_str));
-
+	bool valid_price = !price_str.empty() && LLTextValidate::validateNonNegativeS32.validate(price_str);
 	if (valid_price && mParcelActualArea > 0)
 	{
 		F32 per_meter_price = 0;
@@ -299,7 +297,7 @@ void LLFloaterSellLandUI::refreshUI()
 	{
 		getChildView("price_per_m")->setVisible(FALSE);
 
-		if ("" == price_str)
+		if (price_str.empty())
 		{
 			setBadge("step_price", BADGE_NOTE);
 		}
@@ -331,9 +329,7 @@ void LLFloaterSellLandUI::refreshUI()
 
 	// Must select Sell To: Anybody, or User (with a specified username)
 	std::string sell_to = getChild<LLUICtrl>("sell_to")->getValue().asString();
-	bool valid_sell_to = "select" != sell_to &&
-		("user" != sell_to || mAuthorizedBuyer.notNull());
-
+	bool valid_sell_to = "select" != sell_to && ("user" != sell_to || mAuthorizedBuyer.notNull());
 	if (!valid_sell_to)
 	{
 		setBadge("step_sell_to", BADGE_NOTE);
@@ -344,7 +340,6 @@ void LLFloaterSellLandUI::refreshUI()
 	}
 
 	bool valid_sell_objects = ("none" != getChild<LLUICtrl>("sell_objects")->getValue().asString());
-
 	if (!valid_sell_objects)
 	{
 		setBadge("step_sell_objects", BADGE_NOTE);

@@ -49,6 +49,36 @@ const U32 HOURS_MAX = 12;
 const U32 MINUTES_PER_HOUR = 60;
 const U32 MINUTES_PER_DAY = 24 * MINUTES_PER_HOUR;
 
+class LLTimeValidatorImpl : public LLTextValidate::ValidatorImpl
+{
+public:
+    // virtual
+    bool validate(const std::string& str) override
+    {
+        std::string hours = LLTimeCtrl::getHoursString(str);
+        if (!LLTimeCtrl::isHoursStringValid(hours))
+            return setError("ValidatorInvalidHours", LLSD().with("STR", hours));
+
+        std::string minutes = LLTimeCtrl::getMinutesString(str);
+        if (!LLTimeCtrl::isMinutesStringValid(minutes))
+            return setError("ValidatorInvalidMinutes", LLSD().with("STR", minutes));
+
+        std::string ampm = LLTimeCtrl::getAMPMString(str);
+        if (!LLTimeCtrl::isPMAMStringValid(ampm))
+            return setError("ValidatorInvalidAMPM", LLSD().with("STR", ampm));
+
+        return resetError();
+    }
+
+    // virtual
+    bool validate(const LLWString& wstr) override
+    {
+        std::string str = wstring_to_utf8str(wstr);
+
+        return validate(str);
+    }
+} validateTimeImpl;
+LLTextValidate::Validator validateTime(validateTimeImpl);
 
 LLTimeCtrl::Params::Params()
 :	label_width("label_width"),
@@ -111,7 +141,7 @@ LLTimeCtrl::LLTimeCtrl(const LLTimeCtrl::Params& p)
 	params.keystroke_callback(boost::bind(&LLTimeCtrl::onTextEntry, this, _1));
 	mEditor = LLUICtrlFactory::create<LLLineEditor> (params);
 	mEditor->setPrevalidateInput(LLTextValidate::validateNonNegativeS32NoSpace);
-	mEditor->setPrevalidate(boost::bind(&LLTimeCtrl::isTimeStringValid, this, _1));
+	mEditor->setPrevalidate(validateTime);
 	mEditor->setText(LLStringExplicit("12:00 AM"));
 	addChild(mEditor);
 
@@ -245,15 +275,6 @@ void LLTimeCtrl::onTextEntry(LLLineEditor* line_editor)
 	U32 h24 = pm ? h12 + 12 : h12;
 
 	mTime = h24 * MINUTES_PER_HOUR + m;
-}
-
-bool LLTimeCtrl::isTimeStringValid(const LLWString &wstr)
-{
-	std::string str = wstring_to_utf8str(wstr);
-
-	return isHoursStringValid(getHoursString(str)) &&
-		isMinutesStringValid(getMinutesString(str)) &&
-		isPMAMStringValid(getAMPMString(str));
 }
 
 void LLTimeCtrl::increaseMinutes()
