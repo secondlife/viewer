@@ -569,7 +569,9 @@ void LLVoiceClient::setMicGain(F32 gain)
 
 bool LLVoiceClient::voiceEnabled()
 {
-    return gSavedSettings.getBOOL("EnableVoiceChat") && !gSavedSettings.getBOOL("CmdLineDisableVoice") && !gNonInteractive;
+    static LLCachedControl<bool> enable_voice_chat(gSavedSettings, "EnableVoiceChat");
+    static LLCachedControl<bool> cmd_line_disable_voice(gSavedSettings, "CmdLineDisableVoice");
+    return enable_voice_chat && !cmd_line_disable_voice && !gNonInteractive;
 }
 
 void LLVoiceClient::setVoiceEnabled(bool enabled)
