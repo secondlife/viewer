@@ -28,25 +28,32 @@
 #define LL_LLFLOATERPROFILETEXTURE_H
 
 #include "llfloater.h"
+#include "lliconctrl.h"
 #include "llviewertexture.h"
 
 class LLButton;
 class LLImageRaw;
-class LLIconCtrl;
 
-class LLProfileImageMonitor: public LLHandleProvider<LLProfileImageMonitor>
+class LLProfileImageCtrl: public LLIconCtrl
 {
 public:
-    LLProfileImageMonitor();
-    virtual ~LLProfileImageMonitor();
+    struct Params: public LLInitParam::Block<Params, LLIconCtrl::Params>
+    {
+    };
 
-    void setImageAssetId(const LLUUID& asset_id);
+    LLProfileImageCtrl(const Params& p);
+    virtual ~LLProfileImageCtrl();
+
+
+    virtual void setValue(const LLSD& value) override;
     LLUUID getImageAssetId() { return mImageID; }
-    void refreshImageStats();
     LLPointer<LLViewerFetchedTexture> getImage() {return mImage;}
+    void draw() override;
 
-    virtual void onImageLoaded(BOOL success, LLViewerFetchedTexture* imagep) = 0;
+    typedef boost::signals2::signal<void(bool success, LLViewerFetchedTexture* imagep)> image_loaded_signal_t;
+    boost::signals2::connection setImageLoadedCallback(const image_loaded_signal_t::slot_type& cb);
 private:
+    void onImageLoaded(bool success, LLViewerFetchedTexture* src_vi);
     static void onImageLoaded(BOOL success,
                               LLViewerFetchedTexture* src_vi,
                               LLImageRaw* src,
@@ -55,18 +62,18 @@ private:
                               BOOL final,
                               void* userdata);
     void releaseTexture();
-protected:
-    LLPointer<LLViewerFetchedTexture> mImage;
-    S32 mAssetStatus;
+
+    void setImageAssetId(const LLUUID& asset_id);
 private:
+    LLPointer<LLViewerFetchedTexture> mImage;
     LLUUID mImageID;
     S32 mImageOldBoostLevel;
     bool mWasNoDelete;
+    image_loaded_signal_t* mImageLoadedSignal;
     LLLoadedCallbackEntry::source_callback_list_t mCallbackTextureList;
-
 };
 
-class LLFloaterProfileTexture : public LLFloater, public LLProfileImageMonitor
+class LLFloaterProfileTexture : public LLFloater
 {
 public:
     LLFloaterProfileTexture(LLView* owner);
@@ -78,7 +85,7 @@ public:
     void resetAsset();
     void loadAsset(const LLUUID &image_id);
 
-    void onImageLoaded(BOOL success, LLViewerFetchedTexture* imagep) override;
+    void onImageLoaded(BOOL success, LLViewerFetchedTexture* imagep);
 
     void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE) override;
 
@@ -92,10 +99,9 @@ private:
     F32 mContextConeOpacity;
     S32 mLastHeight;
     S32 mLastWidth;
-    BOOL mUpdateDimensions;
 
     LLHandle<LLView> mOwnerHandle;
-    LLIconCtrl* mProfileIcon;
+    LLProfileImageCtrl* mProfileIcon;
     LLButton* mCloseButton;
 };
 #endif  // LL_LLFLOATERPROFILETEXTURE_H

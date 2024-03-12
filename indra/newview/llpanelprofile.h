@@ -30,7 +30,6 @@
 #include "llavatarpropertiesprocessor.h"
 #include "llcallingcard.h"
 #include "llfloater.h"
-#include "llfloaterprofiletexture.h" //LLProfileImageMonitor
 #include "llpanel.h"
 #include "llpanelavatar.h"
 #include "llmediactrl.h"
@@ -61,6 +60,7 @@ class LLLineEditor;
 class LLTextEditor;
 class LLPanelProfileClassifieds;
 class LLPanelProfilePicks;
+class LLProfileImageCtrl;
 class LLViewerFetchedTexture;
 
 
@@ -71,13 +71,11 @@ class LLPanelProfileSecondLife
 	: public LLPanelProfilePropertiesProcessorTab
 	, public LLFriendObserver
 	, public LLVoiceClientStatusObserver
-    , public LLProfileImageMonitor
 {
 public:
 	LLPanelProfileSecondLife();
 	/*virtual*/ ~LLPanelProfileSecondLife();
 
-    void draw() override;
 	void onOpen(const LLSD& key) override;
 
 	/**
@@ -138,7 +136,7 @@ protected:
      */
     void fillAgeData(const LLAvatarData* avatar_data);
 
-    void onImageLoaded(BOOL success, LLViewerFetchedTexture *imagep) override;
+    void onImageLoaded(BOOL success, LLViewerFetchedTexture *imagep);
 
 	/**
 	 * Displays avatar's online status if possible.
@@ -181,7 +179,7 @@ private:
 	LLGroupList*		mGroupList;
     LLComboBox*			mShowInSearchCombo;
     LLComboBox*			mHideAgeCombo;
-    LLIconCtrl*			mSecondLifePic;
+    LLProfileImageCtrl*	mSecondLifePic;
 	LLPanel*			mSecondLifePicLayout;
     LLTextEditor*		mDescriptionEdit;
     LLMenuButton*		mAgentActionMenuButton;
@@ -253,13 +251,11 @@ private:
 */
 class LLPanelProfileFirstLife
     : public LLPanelProfilePropertiesProcessorTab
-    , public LLProfileImageMonitor
 {
 public:
 	LLPanelProfileFirstLife();
 	/*virtual*/ ~LLPanelProfileFirstLife();
 
-    void draw() override;
 	void onOpen(const LLSD& key) override;
 
 	BOOL postBuild() override;
@@ -277,7 +273,6 @@ public:
 
 protected:
 	void setLoaded() override;
-    void onImageLoaded(BOOL success, LLViewerFetchedTexture* imagep) override {}
 
     void onUploadPhoto();
     void onChangePhoto();
@@ -289,7 +284,7 @@ protected:
     void onDiscardDescriptionChanges();
 
 	LLTextEditor*	mDescriptionEdit;
-    LLIconCtrl* mPicture;
+    LLProfileImageCtrl* mPicture;
     LLButton* mUploadPhoto;
     LLButton* mChangePhoto;
     LLButton* mRemovePhoto;
