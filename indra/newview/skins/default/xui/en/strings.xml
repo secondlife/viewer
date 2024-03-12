@@ -581,7 +581,21 @@ http://secondlife.com/support for help fixing this problem.
 	<string name="script_files">Scripts</string>
 	<string name="dictionary_files">Dictionaries</string>
 
-  <!-- LSL Usage Hover Tips -->
+    <!-- Text validator error messages -->
+    <string name="Validator_InvalidNumericString">Invalid numeric string: "[STR]"</string>
+    <string name="Validator_ShouldNotBeMinus">Invalid initial character: '[CH]' (shouldn't be a minus)</string>
+    <string name="Validator_ShouldNotBeMinusOrZero">Invalid initial character: '[CH]' (shouldn't be either a minus or a zero)</string>
+    <string name="Validator_ShouldBeDigit">Invalid character [NR]: '[CH]' (should only be a digit)</string>
+    <string name="Validator_ShouldBeDigitOrDot">Invalid character [NR]: '[CH]' (should only be a digit or a decimal point)</string>
+    <string name="Validator_ShouldBeDigitOrAlpha">Invalid character [NR]: '[CH]' (should only be a digit or an alpha-numeric ASCII character)</string>
+    <string name="Validator_ShouldBeDigitOrAlphaOrSpace">Invalid character [NR]: '[CH]' (should only be a digit or an alpha-numeric ASCII character or a space)</string>
+    <string name="Validator_ShouldBeDigitOrAlphaOrPunct">Invalid character [NR]: '[CH]' (should only be a digit or an alpha-numeric ASCII character or a punctuation)</string>
+    <string name="Validator_ShouldBeDigitOrAlphaOrPunctNotSpace">Invalid character [NR]: '[CH]' (should only be a digit or an alpha-numeric ASCII character or a punctuation with no space)</string>
+    <string name="Validator_ShouldBeDigitNotSpace">Invalid character [NR]: '[CH]' (should only be a digit with no space)</string>
+    <string name="Validator_ShouldBeASCII">Invalid character [NR]: '[CH]' (should only be an ASCII character)</string>
+    <string name="Validator_ShouldBeNewLineOrASCII">Invalid character [NR]: '[CH]' (should only be an ASCII character or a new line)</string>
+
+    <!-- LSL Usage Hover Tips -->
   <!-- NOTE: For now these are set as translate="false", until DEV-40761 is implemented (to internationalize the rest of tooltips in the same window).
              This has no effect on viewer code, but prevents Linden Lab internal localization tool from scraping these strings.  -->
 	<string name="LSLTipSleepTime" translate="false">

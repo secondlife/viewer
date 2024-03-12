@@ -414,6 +414,15 @@ Initialization with the Marketplace failed because of a system or network error.
     </notification>
 
     <notification
+     icon="notifytip.tga"
+     name="InvalidKeystroke"
+     type="notifytip">
+There was an invalid keystroke entered.
+[REASON].
+Please input a valid text.
+    </notification>
+
+    <notification
         icon="alertmodal.tga"
         name="MerchantForceValidateListing"
         type="alertmodal">

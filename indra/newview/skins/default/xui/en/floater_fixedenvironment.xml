@@ -44,7 +44,7 @@
                     left_delta="45"
                     width="250"
                     name="settings_name"
-                    prevalidate_callback="ascii"
+                    prevalidator="ascii"
                     max_length_chars="63"
                     height="20"/>
             <button

@@ -76,8 +76,8 @@ public:
 		Optional<MaxLength>				max_length;
 		Optional<keystroke_callback_t>	keystroke_callback;
 
-		Optional<LLTextValidate::validate_func_t, LLTextValidate::ValidateTextNamedFuncs>	prevalidate_callback;
-		Optional<LLTextValidate::validate_func_t, LLTextValidate::ValidateTextNamedFuncs>	prevalidate_input_callback;
+		Optional<LLTextValidate::Validator, LLTextValidate::Validators>	prevalidator;
+		Optional<LLTextValidate::Validator, LLTextValidate::Validators>	input_prevalidator;
 		
 		Optional<LLViewBorder::Params>	border;
 
@@ -268,12 +268,12 @@ public:
 	void setTextPadding(S32 left, S32 right);
 
 	// Prevalidation controls which keystrokes can affect the editor
-	void			setPrevalidate( LLTextValidate::validate_func_t func );
+	void			setPrevalidate(LLTextValidate::Validator validator);
 	// This method sets callback that prevents from:
 	// - deleting, selecting, typing, cutting, pasting characters that are not valid.
 	// Also callback that this method sets differs from setPrevalidate in a way that it validates just inputed
 	// symbols, before existing text is modified, but setPrevalidate validates line after it was modified.
-	void			setPrevalidateInput(LLTextValidate::validate_func_t func);
+	void			setPrevalidateInput(LLTextValidate::Validator validator);
 	static BOOL		postvalidateFloat(const std::string &str);
 
 	bool			prevalidateInput(const LLWString& wstr);
@@ -375,8 +375,8 @@ protected:
 	std::list<std::pair<U32, U32> > mMisspellRanges;
 	std::vector<std::string>		mSuggestionList;
 
-	LLTextValidate::validate_func_t mPrevalidateFunc;
-	LLTextValidate::validate_func_t mPrevalidateInputFunc;
+	LLTextValidate::Validator mPrevalidator;
+	LLTextValidate::Validator mInputPrevalidator;
 
 	LLFrameTimer mKeystrokeTimer;
 	LLTimer		mTripleClickTimer;
