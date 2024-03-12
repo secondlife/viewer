@@ -71,7 +71,6 @@
 #include "llpanelblockedlist.h"
 #include "llpanelprofileclassifieds.h"
 #include "llpanelprofilepicks.h"
-#include "llthumbnailctrl.h"
 #include "lltrans.h"
 #include "llviewercontrol.h"
 #include "llviewermenu.h" //is_agent_mappable
@@ -719,7 +718,7 @@ BOOL LLPanelProfileSecondLife::postBuild()
     mGroupList              = getChild<LLGroupList>("group_list");
     mShowInSearchCombo      = getChild<LLComboBox>("show_in_search");
     mHideAgeCombo           = getChild<LLComboBox>("hide_age");
-    mSecondLifePic          = getChild<LLThumbnailCtrl>("2nd_life_pic");
+    mSecondLifePic          = getChild<LLProfileImageCtrl>("2nd_life_pic");
     mSecondLifePicLayout    = getChild<LLPanel>("image_panel");
     mDescriptionEdit        = getChild<LLTextEditor>("sl_description_edit");
     mAgentActionMenuButton  = getChild<LLMenuButton>("agent_actions_menu");
@@ -818,10 +817,9 @@ void LLPanelProfileSecondLife::resetData()
 
     // Set default image and 1:1 dimensions for it
     mSecondLifePic->setValue("Generic_Person_Large");
-    mImageId = LLUUID::null;
 
     LLRect imageRect = mSecondLifePicLayout->getRect();
-    mSecondLifePicLayout->reshape(imageRect.getHeight(), imageRect.getHeight());
+    mSecondLifePicLayout->reshape(imageRect.getWidth(), imageRect.getWidth());
 
     setDescriptionText(LLStringUtil::null);
     mGroups.clear();
@@ -923,36 +921,12 @@ void LLPanelProfileSecondLife::setProfileImageUploading(bool loading)
 void LLPanelProfileSecondLife::setProfileImageUploaded(const LLUUID &image_asset_id)
 {
     mSecondLifePic->setValue(image_asset_id);
-    mImageId = image_asset_id;
-
-    LLViewerFetchedTexture* imagep = LLViewerTextureManager::getFetchedTexture(image_asset_id);
-    if (imagep->getFullHeight())
-    {
-        onImageLoaded(true, imagep);
-    }
-    else
-    {
-        imagep->setLoadedCallback(onImageLoaded,
-            MAX_DISCARD_LEVEL,
-            FALSE,
-            FALSE,
-            new LLHandle<LLPanel>(getHandle()),
-            NULL,
-            FALSE);
-    }
 
     LLFloater *floater = mFloaterProfileTextureHandle.get();
     if (floater)
     {
         LLFloaterProfileTexture * texture_view = dynamic_cast<LLFloaterProfileTexture*>(floater);
-        if (mImageId.notNull())
-        {
-            texture_view->loadAsset(mImageId);
-        }
-        else
-        {
-            texture_view->resetAsset();
-        }
+        texture_view->loadAsset(mSecondLifePic->getImageAssetId());
     }
 
     setProfileImageUploading(false);
@@ -1000,33 +974,7 @@ void LLPanelProfileSecondLife::fillCommonData(const LLAvatarData* avatar_data)
 
     setDescriptionText(avatar_data->about_text);
 
-    if (avatar_data->image_id.notNull())
-    {
-        mSecondLifePic->setValue(avatar_data->image_id);
-        mImageId = avatar_data->image_id;
-    }
-    else
-    {
-        mSecondLifePic->setValue("Generic_Person_Large");
-        mImageId = LLUUID::null;
-    }
-
-    // Will be loaded as a LLViewerFetchedTexture::BOOST_UI due to mSecondLifePic
-    LLViewerFetchedTexture* imagep = LLViewerTextureManager::getFetchedTexture(avatar_data->image_id);
-    if (imagep->getFullHeight())
-    {
-        onImageLoaded(true, imagep);
-    }
-    else
-    {
-        imagep->setLoadedCallback(onImageLoaded,
-                                  MAX_DISCARD_LEVEL,
-                                  FALSE,
-                                  FALSE,
-                                  new LLHandle<LLPanel>(getHandle()),
-                                  NULL,
-                                  FALSE);
-    }
+    mSecondLifePic->setValue(avatar_data->image_id);
 
     if (getSelfProfile())
     {
@@ -1210,34 +1158,6 @@ void LLPanelProfileSecondLife::onImageLoaded(BOOL success, LLViewerFetchedTextur
     {
         // assume 3:4, for sake of firestorm
         mSecondLifePicLayout->reshape(imageRect.getWidth(), imageRect.getWidth() * 3 / 4);
-    }
-}
-
-//static
-void LLPanelProfileSecondLife::onImageLoaded(BOOL success,
-                                             LLViewerFetchedTexture *src_vi,
-                                             LLImageRaw* src,
-                                             LLImageRaw* aux_src,
-                                             S32 discard_level,
-                                             BOOL final,
-                                             void* userdata)
-{
-    if (!userdata) return;
-
-    LLHandle<LLPanel>* handle = (LLHandle<LLPanel>*)userdata;
-
-    if (!handle->isDead())
-    {
-        LLPanelProfileSecondLife* panel = static_cast<LLPanelProfileSecondLife*>(handle->get());
-        if (panel)
-        {
-            panel->onImageLoaded(success, src_vi);
-        }
-    }
-
-    if (final || !success)
-    {
-        delete handle;
     }
 }
 
@@ -1505,7 +1425,7 @@ void LLPanelProfileSecondLife::onCommitMenu(const LLSD& userdata)
     }
     else if (item_name == "upload_photo")
     {
-        (new LLProfileImagePicker(PROFILE_IMAGE_SL, new LLHandle<LLPanel>(getHandle())))->getFile();
+        (new LLProfileImagePicker(PROFILE_IMAGE_SL, new LLHandle<LLPanel>(LLPanel::getHandle())))->getFile();
 
         LLFloater* floaterp = mFloaterTexturePickerHandle.get();
         if (floaterp)
@@ -1580,7 +1500,7 @@ bool LLPanelProfileSecondLife::onEnableMenu(const LLSD& userdata)
     else if (item_name == "remove_photo")
     {
         std::string cap_url = gAgent.getRegionCapability(PROFILE_PROPERTIES_CAP);
-        return mImageId.notNull() && !cap_url.empty() && !mWaitingForImageUpload && getIsLoaded();
+        return mSecondLifePic->getImageAssetId().notNull() && !cap_url.empty() && !mWaitingForImageUpload && getIsLoaded();
     }
 
     return false;
@@ -1715,9 +1635,9 @@ void LLPanelProfileSecondLife::onShowAgentProfileTexture()
         {
             LLFloaterProfileTexture * texture_view = new LLFloaterProfileTexture(parent_floater);
             mFloaterProfileTextureHandle = texture_view->getHandle();
-            if (mImageId.notNull())
+            if (mSecondLifePic->getImageAssetId().notNull())
             {
-                texture_view->loadAsset(mImageId);
+                texture_view->loadAsset(mSecondLifePic->getImageAssetId());
             }
             else
             {
@@ -1734,9 +1654,9 @@ void LLPanelProfileSecondLife::onShowAgentProfileTexture()
         LLFloaterProfileTexture * texture_view = dynamic_cast<LLFloaterProfileTexture*>(floater);
         texture_view->setMinimized(FALSE);
         texture_view->setVisibleAndFrontmost(TRUE);
-        if (mImageId.notNull())
+        if (mSecondLifePic->getImageAssetId().notNull())
         {
-            texture_view->loadAsset(mImageId);
+            texture_view->loadAsset(mSecondLifePic->getImageAssetId());
         }
         else
         {
@@ -1759,9 +1679,9 @@ void LLPanelProfileSecondLife::onShowTexturePicker()
             getWindow()->setCursor(UI_CURSOR_WAIT);
             LLFloaterTexturePicker* texture_floaterp = new LLFloaterTexturePicker(
                 this,
-                mImageId,
+                mSecondLifePic->getImageAssetId(),
                 LLUUID::null,
-                mImageId,
+                mSecondLifePic->getImageAssetId(),
                 FALSE,
                 FALSE,
                 "SELECT PHOTO",
@@ -1798,7 +1718,7 @@ void LLPanelProfileSecondLife::onShowTexturePicker()
 
 void LLPanelProfileSecondLife::onCommitProfileImage(const LLUUID& id)
 {
-    if (mImageId == id)
+    if (mSecondLifePic->getImageAssetId() == id)
         return;
 
     std::function<void(bool)> callback = [id](bool result)
@@ -1814,27 +1734,19 @@ void LLPanelProfileSecondLife::onCommitProfileImage(const LLUUID& id)
     if (!saveAgentUserInfoCoro("sl_image_id", id, callback))
         return;
 
-    mImageId = id;
-    if (mImageId == LLUUID::null)
-    {
-        mSecondLifePic->setValue("Generic_Person_Large");
-    }
-    else
-    {
-        mSecondLifePic->setValue(mImageId);
-    }
+    mSecondLifePic->setValue(id);
 
     LLFloater *floater = mFloaterProfileTextureHandle.get();
     if (floater)
     {
         LLFloaterProfileTexture * texture_view = dynamic_cast<LLFloaterProfileTexture*>(floater);
-        if (mImageId == LLUUID::null)
+        if (id == LLUUID::null)
         {
             texture_view->resetAsset();
         }
         else
         {
-            texture_view->loadAsset(mImageId);
+            texture_view->loadAsset(id);
         }
     }
 }
@@ -1996,7 +1908,7 @@ LLPanelProfileFirstLife::~LLPanelProfileFirstLife()
 BOOL LLPanelProfileFirstLife::postBuild()
 {
     mDescriptionEdit = getChild<LLTextEditor>("fl_description_edit");
-    mPicture = getChild<LLThumbnailCtrl>("real_world_pic");
+    mPicture = getChild<LLProfileImageCtrl>("real_world_pic");
 
     mUploadPhoto = getChild<LLButton>("fl_upload_image");
     mChangePhoto = getChild<LLButton>("fl_change_image");
@@ -2031,7 +1943,7 @@ void LLPanelProfileFirstLife::setProfileImageUploading(bool loading)
 {
     mUploadPhoto->setEnabled(!loading);
     mChangePhoto->setEnabled(!loading);
-    mRemovePhoto->setEnabled(!loading && mImageId.notNull());
+    mRemovePhoto->setEnabled(!loading && mPicture->getImageAssetId().notNull());
 
     LLLoadingIndicator* indicator = getChild<LLLoadingIndicator>("image_upload_indicator");
     indicator->setVisible(loading);
@@ -2048,7 +1960,6 @@ void LLPanelProfileFirstLife::setProfileImageUploading(bool loading)
 void LLPanelProfileFirstLife::setProfileImageUploaded(const LLUUID &image_asset_id)
 {
     mPicture->setValue(image_asset_id);
-    mImageId = image_asset_id;
     setProfileImageUploading(false);
 }
 
@@ -2062,7 +1973,7 @@ void LLPanelProfileFirstLife::commitUnsavedChanges()
 
 void LLPanelProfileFirstLife::onUploadPhoto()
 {
-    (new LLProfileImagePicker(PROFILE_IMAGE_FL, new LLHandle<LLPanel>(getHandle())))->getFile();
+    (new LLProfileImagePicker(PROFILE_IMAGE_FL, new LLHandle<LLPanel>(LLPanel::getHandle())))->getFile();
 
     LLFloater* floaterp = mFloaterTexturePickerHandle.get();
     if (floaterp)
@@ -2085,9 +1996,9 @@ void LLPanelProfileFirstLife::onChangePhoto()
             getWindow()->setCursor(UI_CURSOR_WAIT);
             LLFloaterTexturePicker* texture_floaterp = new LLFloaterTexturePicker(
                 this,
-                mImageId,
+                mPicture->getImageAssetId(),
                 LLUUID::null,
-                mImageId,
+                mPicture->getImageAssetId(),
                 FALSE,
                 FALSE,
                 "SELECT PHOTO",
@@ -2134,23 +2045,15 @@ void LLPanelProfileFirstLife::onRemovePhoto()
 
 void LLPanelProfileFirstLife::onCommitPhoto(const LLUUID& id)
 {
-    if (mImageId == id)
+    if (mPicture->getImageAssetId()  == id)
         return;
 
     if (!saveAgentUserInfoCoro("fl_image_id", id))
         return;
 
-    mImageId = id;
-    if (mImageId.notNull())
-    {
-        mPicture->setValue(mImageId);
-    }
-    else
-    {
-        mPicture->setValue("Generic_Person_Large");
-    }
+    mPicture->setValue(id);
 
-    mRemovePhoto->setEnabled(mImageId.notNull());
+    mRemovePhoto->setEnabled(id.notNull());
 }
 
 void LLPanelProfileFirstLife::setDescriptionText(const std::string &text)
@@ -2201,16 +2104,7 @@ void LLPanelProfileFirstLife::processProperties(const LLAvatarData* avatar_data)
 {
     setDescriptionText(avatar_data->fl_about_text);
 
-    mImageId = avatar_data->fl_image_id;
-
-    if (mImageId.notNull())
-    {
-        mPicture->setValue(mImageId);
-    }
-    else
-    {
-        mPicture->setValue("Generic_Person_Large");
-    }
+    mPicture->setValue(avatar_data->fl_image_id);
 
     setLoaded();
 }
@@ -2218,8 +2112,7 @@ void LLPanelProfileFirstLife::processProperties(const LLAvatarData* avatar_data)
 void LLPanelProfileFirstLife::resetData()
 {
     setDescriptionText(std::string());
-    mPicture->setValue("Generic_Person_Large");
-    mImageId = LLUUID::null;
+    mPicture->setValue(LLUUID::null);
 
     mUploadPhoto->setVisible(getSelfProfile());
     mChangePhoto->setVisible(getSelfProfile());
@@ -2236,7 +2129,7 @@ void LLPanelProfileFirstLife::setLoaded()
     {
         mDescriptionEdit->setEnabled(TRUE);
         mPicture->setEnabled(TRUE);
-        mRemovePhoto->setEnabled(mImageId.notNull());
+        mRemovePhoto->setEnabled(mPicture->getImageAssetId().notNull());
     }
 }
 

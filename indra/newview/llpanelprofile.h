@@ -58,9 +58,9 @@ class LLTextBase;
 class LLMenuButton;
 class LLLineEditor;
 class LLTextEditor;
-class LLThumbnailCtrl;
 class LLPanelProfileClassifieds;
 class LLPanelProfilePicks;
+class LLProfileImageCtrl;
 class LLViewerFetchedTexture;
 
 
@@ -137,13 +137,6 @@ protected:
     void fillAgeData(const LLAvatarData* avatar_data);
 
     void onImageLoaded(BOOL success, LLViewerFetchedTexture *imagep);
-    static void onImageLoaded(BOOL success,
-                              LLViewerFetchedTexture *src_vi,
-                              LLImageRaw* src,
-                              LLImageRaw* aux_src,
-                              S32 discard_level,
-                              BOOL final,
-                              void* userdata);
 
 	/**
 	 * Displays avatar's online status if possible.
@@ -186,7 +179,7 @@ private:
 	LLGroupList*		mGroupList;
     LLComboBox*			mShowInSearchCombo;
     LLComboBox*			mHideAgeCombo;
-    LLThumbnailCtrl*	mSecondLifePic;
+    LLProfileImageCtrl*	mSecondLifePic;
 	LLPanel*			mSecondLifePicLayout;
     LLTextEditor*		mDescriptionEdit;
     LLMenuButton*		mAgentActionMenuButton;
@@ -209,8 +202,6 @@ private:
     bool				mAllowPublish;
     bool				mHideAge;
     std::string			mDescriptionText;
-    LLUUID				mImageId;
-
 	boost::signals2::connection	mAvatarNameCacheConnection;
 };
 
@@ -259,7 +250,7 @@ private:
 * Panel for displaying Avatar's first life related info.
 */
 class LLPanelProfileFirstLife
-	: public LLPanelProfilePropertiesProcessorTab
+    : public LLPanelProfilePropertiesProcessorTab
 {
 public:
 	LLPanelProfileFirstLife();
@@ -293,7 +284,7 @@ protected:
     void onDiscardDescriptionChanges();
 
 	LLTextEditor*	mDescriptionEdit;
-    LLThumbnailCtrl* mPicture;
+    LLProfileImageCtrl* mPicture;
     LLButton* mUploadPhoto;
     LLButton* mChangePhoto;
     LLButton* mRemovePhoto;
@@ -303,7 +294,6 @@ protected:
     LLHandle<LLFloater>	mFloaterTexturePickerHandle;
 
     std::string		mCurrentDescription;
-    LLUUID			mImageId;
     bool			mHasUnsavedChanges;
 };
 
