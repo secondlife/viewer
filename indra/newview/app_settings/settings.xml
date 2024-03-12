@@ -9153,6 +9153,17 @@
       <real>0.00</real>
     </array>
   </map>
+  <key>RenderTransmissionDetail</key>
+  <map>
+    <key>Comment</key>
+    <string>Controls the quality level of transmissive materials 0 is thin-film non-refractive transmission. 1 is basic refraction.  2 is "glossy" refraction.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>S32</string>
+    <key>Value</key>
+    <integer>2</integer>
+  </map>
   <key>RenderMirrors</key>
   <map>
     <key>Comment</key>
