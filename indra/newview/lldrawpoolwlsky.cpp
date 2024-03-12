@@ -470,8 +470,6 @@ void LLDrawPoolWLSky::renderDeferred(S32 pass)
 
     const F32 camHeightLocal = LLEnvironment::instance().getCamHeight();
 
-	gGL.setColorMask(true, false);
-
     LLVector3 const & origin = LLViewerCamera::getInstance()->getOrigin();
 
     if (gPipeline.canUseWindLightShaders())
@@ -488,7 +486,6 @@ void LLDrawPoolWLSky::renderDeferred(S32 pass)
             renderSkyCloudsDeferred(origin, camHeightLocal, cloud_shader);
         }
     }
-    gGL.setColorMask(true, true);
 }
 
 

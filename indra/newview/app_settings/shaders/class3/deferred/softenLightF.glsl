@@ -191,11 +191,12 @@ void main()
     }
     else if (GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_HDRI))
     {
+        // actual HDRI sky, just copy color value
         color = texture(emissiveRect, tc).rgb;
     }
-    else if (!GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_ATMOS))
+    else if (GET_GBUFFER_FLAG(GBUFFER_FLAG_SKIP_ATMOS))
     {
-        //should only be true of WL sky, just port over base color value
+        //should only be true of WL sky, port over base color value and scale for fake HDR
         color = texture(emissiveRect, tc).rgb;
         color = srgb_to_linear(color);
         color *= sky_hdr_scale;
