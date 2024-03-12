@@ -47,10 +47,10 @@ class LLToolPipette
 	virtual ~LLToolPipette();
 
 public:
-	virtual bool	handleMouseDown(S32 x, S32 y, MASK mask);
-	virtual bool	handleMouseUp(S32 x, S32 y, MASK mask);
-	virtual bool	handleHover(S32 x, S32 y, MASK mask);
-	virtual bool	handleToolTip(S32 x, S32 y, MASK mask);
+	virtual bool	handleMouseDown(S32 x, S32 y, MASK mask) override;
+	virtual bool	handleMouseUp(S32 x, S32 y, MASK mask) override;
+	virtual bool	handleHover(S32 x, S32 y, MASK mask) override;
+	virtual bool	handleToolTip(S32 x, S32 y, MASK mask) override;
 
 	// Note: Don't return connection; use boost::bind + boost::signals2::trackable to disconnect slots
 	typedef boost::signals2::signal<void (const LLTextureEntry& te)> signal_t;

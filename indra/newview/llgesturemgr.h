@@ -135,7 +135,7 @@ public:
 	void notifyObservers();
 
 	// Overriding so we can update active gesture names and notify observers 
-	void changed(U32 mask); 
+	void changed(U32 mask) override;
 
 	bool matchPrefix(const std::string& in_str, std::string* out_str);
 
@@ -150,7 +150,7 @@ protected:
 	void runStep(LLMultiGesture* gesture, LLGestureStep* step);
 
 	// LLInventoryCompletionObserver trigger
-	void done();
+	void done() override;
 
 	// Used by loadGesture
 	static void onLoadComplete(const LLUUID& asset_uuid,

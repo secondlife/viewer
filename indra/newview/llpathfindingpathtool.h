@@ -66,17 +66,17 @@ public:
 	typedef boost::signals2::signal<void (void)> path_event_signal_t;
 	typedef boost::signals2::connection          path_event_slot_t;
 
-	virtual bool      handleMouseDown(S32 pX, S32 pY, MASK pMask);
-	virtual bool      handleMouseUp(S32 pX, S32 pY, MASK pMask);
-	virtual bool      handleMiddleMouseDown(S32 pX, S32 pY, MASK pMask);
-	virtual bool      handleMiddleMouseUp(S32 pX, S32 pY, MASK pMask);
-	virtual bool      handleRightMouseDown(S32 pX, S32 pY, MASK pMask);
-	virtual bool      handleRightMouseUp(S32 pX, S32 pY, MASK pMask);
-	virtual bool      handleDoubleClick(S32 x, S32 y, MASK mask);
+	virtual bool      handleMouseDown(S32 pX, S32 pY, MASK pMask) override;
+	virtual bool      handleMouseUp(S32 pX, S32 pY, MASK pMask) override;
+	virtual bool      handleMiddleMouseDown(S32 pX, S32 pY, MASK pMask) override;
+	virtual bool      handleMiddleMouseUp(S32 pX, S32 pY, MASK pMask) override;
+	virtual bool      handleRightMouseDown(S32 pX, S32 pY, MASK pMask) override;
+	virtual bool      handleRightMouseUp(S32 pX, S32 pY, MASK pMask) override;
+	virtual bool      handleDoubleClick(S32 x, S32 y, MASK mask) override;
 
-	virtual bool      handleHover(S32 pX, S32 pY, MASK pMask);
+	virtual bool      handleHover(S32 pX, S32 pY, MASK pMask) override;
 
-	virtual bool      handleKey(KEY pKey, MASK pMask);
+	virtual bool      handleKey(KEY pKey, MASK pMask) override;
 
 	EPathStatus       getPathStatus() const;
 

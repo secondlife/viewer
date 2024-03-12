@@ -53,7 +53,7 @@ class SpeakingIndicatorManager : public LLSingleton<SpeakingIndicatorManager>, L
 	LOG_CLASS(SpeakingIndicatorManager);
 
 protected:
-    void                cleanupSingleton();
+    void                cleanupSingleton() override;
 
 public:
 
@@ -88,7 +88,7 @@ public:
 	 * So, method does not calculate difference between these list it only switches off already 
 	 * switched on indicators and switches on indicators of voice channel participants
 	 */
-	void onParticipantsChanged();
+	void onParticipantsChanged() override;
 	
 private:
 	typedef std::set<LLUUID> speaker_ids_t;

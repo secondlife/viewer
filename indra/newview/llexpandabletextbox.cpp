@@ -88,7 +88,7 @@ public:
 									mStyle->getShadowType(), 
 									end - start, draw_rect.getWidth(), 
 									&right_x, 
-									mEditor.getUseEllipses());
+									mEditor.getUseEllipses(), mEditor.getUseColor());
 		return right_x;
 	}
 	/*virtual*/ bool	canEdit() const { return false; }

@@ -42,26 +42,26 @@ class LLToolPie : public LLTool, public LLSingleton<LLToolPie>
 public:
 
 	// Virtual functions inherited from LLMouseHandler
-	virtual bool		handleAnyMouseClick(S32 x, S32 y, MASK mask, EMouseClickType clicktype, bool down);
-	virtual bool		handleMouseDown(S32 x, S32 y, MASK mask);
-	virtual bool		handleRightMouseDown(S32 x, S32 y, MASK mask);
-	virtual bool		handleMouseUp(S32 x, S32 y, MASK mask);
-	virtual bool		handleRightMouseUp(S32 x, S32 y, MASK mask);
-	virtual bool		handleHover(S32 x, S32 y, MASK mask);
-	virtual bool		handleDoubleClick(S32 x, S32 y, MASK mask);
+	virtual bool		handleAnyMouseClick(S32 x, S32 y, MASK mask, EMouseClickType clicktype, bool down) override;
+	virtual bool		handleMouseDown(S32 x, S32 y, MASK mask) override;
+	virtual bool		handleRightMouseDown(S32 x, S32 y, MASK mask) override;
+	virtual bool		handleMouseUp(S32 x, S32 y, MASK mask) override;
+	virtual bool		handleRightMouseUp(S32 x, S32 y, MASK mask) override;
+	virtual bool		handleHover(S32 x, S32 y, MASK mask) override;
+	virtual bool		handleDoubleClick(S32 x, S32 y, MASK mask) override;
 	bool				handleScrollWheelAny(S32 x, S32 y, S32 clicks_x, S32 clicks_y);
-	virtual bool		handleScrollWheel(S32 x, S32 y, S32 clicks);
-	virtual bool		handleScrollHWheel(S32 x, S32 y, S32 clicks);
-	virtual bool		handleToolTip(S32 x, S32 y, MASK mask);
+	virtual bool		handleScrollWheel(S32 x, S32 y, S32 clicks) override;
+	virtual bool		handleScrollHWheel(S32 x, S32 y, S32 clicks) override;
+	virtual bool		handleToolTip(S32 x, S32 y, MASK mask) override;
 
-	virtual void		render();
+	virtual void		render() override;
 
-	virtual void		stopEditing();
+	virtual void		stopEditing() override;
 
-	virtual void		onMouseCaptureLost();
-	virtual void		handleSelect();
-	virtual void		handleDeselect();
-	virtual LLTool*		getOverrideTool(MASK mask);
+	virtual void		onMouseCaptureLost() override;
+	virtual void		handleSelect() override;
+	virtual void		handleDeselect() override;
+	virtual LLTool*		getOverrideTool(MASK mask) override;
 
 	LLPickInfo&			getPick() { return mPick; }
 	U8					getClickAction() { return mClickAction; }

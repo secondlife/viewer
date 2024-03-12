@@ -49,27 +49,27 @@ class LLToolBrushLand : public LLTool, public LLEditMenuHandler, public LLSingle
 public:
 	
 	// x,y in window coords, 0,0 = left,bot
-	virtual bool handleMouseDown( S32 x, S32 y, MASK mask );
-	virtual bool handleMouseUp( S32 x, S32 y, MASK mask );
-	virtual bool handleHover( S32 x, S32 y, MASK mask );
-	virtual void handleSelect();
-	virtual void handleDeselect();
+	virtual bool handleMouseDown( S32 x, S32 y, MASK mask ) override;
+	virtual bool handleMouseUp( S32 x, S32 y, MASK mask ) override;
+	virtual bool handleHover( S32 x, S32 y, MASK mask ) override;
+	virtual void handleSelect() override;
+	virtual void handleDeselect() override;
 
 	// isAlwaysRendered() - return true if this is a tool that should
 	// always be rendered regardless of selection.
-	virtual bool isAlwaysRendered() { return true; }
+	virtual bool isAlwaysRendered()  override { return true; }
 
 	// Draw the area that will be affected.
-	virtual void render();
+	virtual void render() override;
 
 	// on Idle is where the land modification actually occurs
 	static void onIdle(void* brush_tool);  
 
-	void			onMouseCaptureLost();
+	void onMouseCaptureLost() override;
 
 	void modifyLandInSelectionGlobal();
-	virtual void	undo();
-	virtual bool	canUndo() const	{ return true; }
+	virtual void	undo() override;
+	virtual bool	canUndo() const	 override { return true; }
 
 protected:
 	void brush( void );
