@@ -45,18 +45,24 @@ public:
 
 
 /*
- * A set of panels that are displayed in a vertical sequence inside a scroll container.
+ * A set of panels that are displayed in a sequence inside a scroll container.
  */
 class LLScrollingPanelList : public LLUICtrl
 {
 public:
 	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
-	{};
-	LLScrollingPanelList(const Params& p)
-	:	LLUICtrl(p) 
-	{}
+	{
+		Optional<bool> is_horizontal;
+		Optional<S32> padding;
+		Optional<S32> spacing;
+
+		Params();
+	};
+
+	LLScrollingPanelList(const Params& p);
 	
-	static const S32 GAP_BETWEEN_PANELS = 6;
+	static const S32 DEFAULT_SPACING = 6;
+	static const S32 DEFAULT_PADDING = 2;
 
 	typedef std::deque<LLScrollingPanel*>	panel_list_t;
 
@@ -65,11 +71,18 @@ public:
 	virtual void		draw();
 
 	void				clearPanels();
-	S32					addPanel( LLScrollingPanel* panel );
-	void				removePanel( LLScrollingPanel* panel );
-	void				removePanel( U32 panel_index );
+	S32					addPanel(LLScrollingPanel* panel, bool back = false);
+	void				removePanel(LLScrollingPanel* panel);
+	void				removePanel(U32 panel_index);
 	void				updatePanels(bool allow_modify);
-	const panel_list_t&	getPanelList() { return mPanelList; }
+	void				rearrange();
+
+	const panel_list_t&	getPanelList() const { return mPanelList; }
+	bool				getIsHorizontal() const { return mIsHorizontal; }
+	void				setPadding(S32 padding) { mPadding = padding; rearrange(); }
+	void				setSpacing(S32 spacing) { mSpacing = spacing; rearrange(); }
+	S32					getPadding() const { return mPadding; }
+	S32					getSpacing() const { return mSpacing; }
 
 private:
 	void				updatePanelVisiblilty();
@@ -77,7 +90,11 @@ private:
 	/**
 	 * Notify parent about size change, makes sense when used inside accordion
 	 */
-	void				notifySizeChanged(S32 height);
+	void				notifySizeChanged();
+
+	bool				mIsHorizontal;
+	S32					mPadding;
+	S32					mSpacing;
 
 	panel_list_t		mPanelList;
 };

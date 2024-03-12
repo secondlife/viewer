@@ -573,6 +573,11 @@ void LLMenuItemGL::onVisibilityChange(bool new_visibility)
 //
 // This class represents a separator.
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+LLMenuItemSeparatorGL::Params::Params()
+    : on_visible("on_visible")
+{
+}
+
 LLMenuItemSeparatorGL::LLMenuItemSeparatorGL(const LLMenuItemSeparatorGL::Params& p) :
 	LLMenuItemGL( p )
 {

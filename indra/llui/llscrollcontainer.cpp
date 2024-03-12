@@ -70,6 +70,7 @@ LLScrollContainer::Params::Params()
 	bg_color("color"),
 	border_visible("border_visible"),
 	hide_scrollbar("hide_scrollbar"),
+	ignore_arrow_keys("ignore_arrow_keys"),
 	min_auto_scroll_rate("min_auto_scroll_rate", 100),
 	max_auto_scroll_rate("max_auto_scroll_rate", 1000),
 	max_auto_scroll_zone("max_auto_scroll_zone", 16),
@@ -86,6 +87,7 @@ LLScrollContainer::LLScrollContainer(const LLScrollContainer::Params& p)
 	mBackgroundColor(p.bg_color()),
 	mIsOpaque(p.is_opaque),
 	mHideScrollbar(p.hide_scrollbar),
+	mIgnoreArrowKeys(p.ignore_arrow_keys),
 	mReserveScrollCorner(p.reserve_scroll_corner),
 	mMinAutoScrollRate(p.min_auto_scroll_rate),
 	mMaxAutoScrollRate(p.max_auto_scroll_rate),
@@ -204,10 +206,29 @@ void LLScrollContainer::reshape(S32 width, S32 height,
 	}
 }
 
+// virtual
 bool LLScrollContainer::handleKeyHere(KEY key, MASK mask)
 {
+    if (mIgnoreArrowKeys)
+    {
+        switch(key)
+        {
+        case KEY_LEFT:
+        case KEY_RIGHT:
+        case KEY_UP:
+        case KEY_DOWN:
+        case KEY_PAGE_UP:
+        case KEY_PAGE_DOWN:
+        case KEY_HOME:
+        case KEY_END:
+            return false;
+        default:
+            break;
+        }
+    }
+
 	// allow scrolled view to handle keystrokes in case it delegated keyboard focus
-	// to the scroll container.  
+	// to the scroll container.
 	// NOTE: this should not recurse indefinitely as handleKeyHere
 	// should not propagate to parent controls, so mScrolledView should *not*
 	// call LLScrollContainer::handleKeyHere in turn

@@ -63,7 +63,8 @@ public:
 		Optional<bool>		is_opaque,
 							reserve_scroll_corner,
 							border_visible,
-							hide_scrollbar;
+							hide_scrollbar,
+							ignore_arrow_keys;
 		Optional<F32>		min_auto_scroll_rate,
 							max_auto_scroll_rate;
 		Optional<U32>		max_auto_scroll_zone;
@@ -149,6 +150,7 @@ private:
 	F32			mMaxAutoScrollRate;
 	U32			mMaxAutoScrollZone;
 	bool		mHideScrollbar;
+	bool		mIgnoreArrowKeys;
 };
 
 

@@ -185,6 +185,10 @@ void LLSearchEditor::setFocus( bool b )
 void LLSearchEditor::onClearButtonClick(const LLSD& data)
 {
 	setText(LLStringUtil::null);
+	if (mTextChangedCallback)
+	{
+		mTextChangedCallback(this, getValue());
+	}
 	mSearchEditor->onCommit(); // force keystroke callback
 }
 

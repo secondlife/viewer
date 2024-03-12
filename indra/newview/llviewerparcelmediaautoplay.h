@@ -35,7 +35,7 @@ class LLViewerParcelMediaAutoPlay : LLEventTimer, public LLSingleton<LLViewerPar
 {
 	LLSINGLETON(LLViewerParcelMediaAutoPlay);
 public:
-	virtual bool tick();
+	virtual bool tick() override;
 	static void playStarted();
 
  private:

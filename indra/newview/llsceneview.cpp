@@ -99,7 +99,6 @@ void LLSceneView::draw()
 	std::vector<F32> physics_cost[2];
 	F32 total_physics[] = { 0.f, 0.f };
 	
-
 	LLViewerRegion* region = gAgent.getRegion();
 	if (region)
 	{

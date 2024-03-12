@@ -54,10 +54,10 @@ public:
 	void setHoverFace(LLPointer<LLViewerObject> objectp, S32 face, viewer_media_t media_impl, LLVector3 pick_normal = LLVector3::zero);
 	void clearHover();
 	
-	/*virtual*/ bool	getFocus();
-	/*virtual*/ bool	handleKey(KEY key, MASK mask, bool called_from_parent);
-	/*virtual*/ bool	handleKeyUp(KEY key, MASK mask, bool called_from_parent);
-	/*virtual*/ bool	handleUnicodeChar(llwchar uni_char, bool called_from_parent);
+	bool	getFocus();
+	/*virtual*/ bool	handleKey(KEY key, MASK mask, bool called_from_parent) override;
+	/*virtual*/ bool	handleKeyUp(KEY key, MASK mask, bool called_from_parent) override;
+	/*virtual*/ bool	handleUnicodeChar(llwchar uni_char, bool called_from_parent) override;
 	bool handleScrollWheel(const LLVector2& texture_coords, S32 clicks_x, S32 clicks_y);
 	bool handleScrollWheel(S32 x, S32 y, S32 clicks_x, S32 clicks_y);
 
@@ -92,12 +92,12 @@ public:
 	LLUUID getControlsMediaID();
 
     // The MoaP object wants keyup and keydown events.  Overridden to return true.
-    virtual bool    wantsKeyUpKeyDown() const;
-    virtual bool    wantsReturnKey() const;
+    virtual bool    wantsKeyUpKeyDown() const override;
+    virtual bool    wantsReturnKey() const override;
 
 protected:
-	/*virtual*/ void	onFocusReceived();
-	/*virtual*/ void	onFocusLost();
+	/*virtual*/ void	onFocusReceived() override;
+	/*virtual*/ void	onFocusLost() override;
 
 private:
 	

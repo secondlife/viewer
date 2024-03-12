@@ -37,53 +37,44 @@ static LLDefaultChildRegistry::Register<LLScrollingPanelList> r("scrolling_panel
 
 // This could probably be integrated with LLScrollContainer -SJB
 
+LLScrollingPanelList::Params::Params()
+	: is_horizontal("is_horizontal")
+	, padding("padding")
+	, spacing("spacing")
+{
+}
+
+LLScrollingPanelList::LLScrollingPanelList(const Params& p)
+	: LLUICtrl(p)
+	, mIsHorizontal(p.is_horizontal)
+	, mPadding(p.padding.isProvided() ? p.padding : DEFAULT_PADDING)
+	, mSpacing(p.spacing.isProvided() ? p.spacing : DEFAULT_SPACING)
+{
+}
+
 void LLScrollingPanelList::clearPanels()
 {
 	deleteAllChildren();
 	mPanelList.clear();
-
-	LLRect rc = getRect();
-	rc.setLeftTopAndSize(rc.mLeft, rc.mTop, 1, 1);
-	setRect(rc);
-
-	notifySizeChanged(rc.getHeight());
+	rearrange();
 }
 
-S32 LLScrollingPanelList::addPanel( LLScrollingPanel* panel )
+S32 LLScrollingPanelList::addPanel(LLScrollingPanel* panel, bool back)
 {
-	addChildInBack( panel );
-	mPanelList.push_front( panel );
-
-	// Resize this view
-	S32 total_height = 0;
-	S32 max_width = 0;
-	S32 cur_gap = 0;
-	for (std::deque<LLScrollingPanel*>::iterator iter = mPanelList.begin();
-		 iter != mPanelList.end(); ++iter)
+	if (back)
 	{
-		LLScrollingPanel *childp = *iter;
-		total_height += childp->getRect().getHeight() + cur_gap;
-		max_width = llmax( max_width, childp->getRect().getWidth() );
-		cur_gap = GAP_BETWEEN_PANELS;
+		addChild(panel);
+		mPanelList.push_back(panel);
 	}
- 	LLRect rc = getRect();
- 	rc.setLeftTopAndSize(rc.mLeft, rc.mTop, max_width, total_height);
- 	setRect(rc);
-
-	notifySizeChanged(rc.getHeight());
-
-	// Reposition each of the child views
-	S32 cur_y = total_height;
-	for (std::deque<LLScrollingPanel*>::iterator iter = mPanelList.begin();
-		 iter != mPanelList.end(); ++iter)
+	else
 	{
-		LLScrollingPanel *childp = *iter;
-		cur_y -= childp->getRect().getHeight();
-		childp->translate( -childp->getRect().mLeft, cur_y - childp->getRect().mBottom);
-		cur_y -= GAP_BETWEEN_PANELS;
+		addChildInBack(panel);
+		mPanelList.push_front(panel);
 	}
 
-	return total_height;
+	rearrange();
+
+	return mIsHorizontal ? getRect().getWidth() : getRect().getHeight();
 }
 
 void LLScrollingPanelList::removePanel(LLScrollingPanel* panel) 
@@ -100,7 +91,7 @@ void LLScrollingPanelList::removePanel(LLScrollingPanel* panel)
 				break;
 			}
 		}
-		if(iter != mPanelList.end())
+		if (iter != mPanelList.end())
 		{
 			removePanel(index);
 		}
@@ -120,36 +111,7 @@ void LLScrollingPanelList::removePanel( U32 panel_index )
 		mPanelList.erase( mPanelList.begin() + panel_index );
 	}
 
-	const S32 GAP_BETWEEN_PANELS = 6;
-
-	// Resize this view
-	S32 total_height = 0;
-	S32 max_width = 0;
-	S32 cur_gap = 0;
-	for (std::deque<LLScrollingPanel*>::iterator iter = mPanelList.begin();
-		 iter != mPanelList.end(); ++iter)
-	{
-		LLScrollingPanel *childp = *iter;
-		total_height += childp->getRect().getHeight() + cur_gap;
-		max_width = llmax( max_width, childp->getRect().getWidth() );
-		cur_gap = GAP_BETWEEN_PANELS;
-	}
-	LLRect rc = getRect();
-	rc.setLeftTopAndSize(rc.mLeft, rc.mTop, max_width, total_height);
-	setRect(rc);
-
-	notifySizeChanged(rc.getHeight());
-
-	// Reposition each of the child views
-	S32 cur_y = total_height;
-	for (std::deque<LLScrollingPanel*>::iterator iter = mPanelList.begin();
-		 iter != mPanelList.end(); ++iter)
-	{
-		LLScrollingPanel *childp = *iter;
-		cur_y -= childp->getRect().getHeight();
-		childp->translate( -childp->getRect().mLeft, cur_y - childp->getRect().mBottom);
-		cur_y -= GAP_BETWEEN_PANELS;
-	}
+	rearrange();
 }
 
 void LLScrollingPanelList::updatePanels(bool allow_modify)
@@ -162,20 +124,91 @@ void LLScrollingPanelList::updatePanels(bool allow_modify)
     }
 }
 
+void LLScrollingPanelList::rearrange()
+{
+	// Resize this view
+	S32 new_width, new_height;
+	if (!mPanelList.empty())
+	{
+		new_width = new_height = mPadding * 2;
+		for (std::deque<LLScrollingPanel*>::iterator iter = mPanelList.begin();
+			iter != mPanelList.end(); ++iter)
+		{
+			LLScrollingPanel* childp = *iter;
+			const LLRect& rect = childp->getRect();
+			if (mIsHorizontal)
+			{
+				new_width += rect.getWidth() + mSpacing;
+				new_height = llmax(new_height, rect.getHeight());
+			}
+			else
+			{
+				new_height += rect.getHeight() + mSpacing;
+				new_width = llmax(new_width, rect.getWidth());
+			}
+		}
+
+		if (mIsHorizontal)
+		{
+			new_width -= mSpacing;
+		}
+		else
+		{
+			new_height -= mSpacing;
+		}
+	}
+	else
+	{
+		new_width = new_height = 1;
+	}
+
+	LLRect rc = getRect();
+	if (mIsHorizontal || !followsRight())
+	{
+		rc.mRight = rc.mLeft + new_width;
+	}
+	if (!mIsHorizontal || !followsBottom())
+	{
+		rc.mBottom = rc.mTop - new_height;
+	}
+
+	if (rc.mRight != getRect().mRight || rc.mBottom != getRect().mBottom)
+	{
+		setRect(rc);
+		notifySizeChanged();
+	}
+
+	// Reposition each of the child views
+	S32 pos = mIsHorizontal ? mPadding : rc.getHeight() - mPadding;
+	for (std::deque<LLScrollingPanel*>::iterator iter = mPanelList.begin();
+		iter != mPanelList.end(); ++iter)
+	{
+		LLScrollingPanel* childp = *iter;
+		const LLRect& rect = childp->getRect();
+		if (mIsHorizontal)
+		{
+			childp->translate(pos - rect.mLeft, rc.getHeight() - mPadding - rect.mTop);
+			pos += rect.getWidth() + mSpacing;
+		}
+		else
+		{
+			childp->translate(mPadding - rect.mLeft, pos - rect.mTop);
+			pos -= rect.getHeight() + mSpacing;
+		}
+	}
+}
+
 void LLScrollingPanelList::updatePanelVisiblilty()
 {
 	// Determine visibility of children.
-	S32 BORDER_WIDTH = 2;  // HACK
 
-	LLRect parent_local_rect = getParent()->getRect();
-	parent_local_rect.stretch( -BORDER_WIDTH );
-	
 	LLRect parent_screen_rect;
-	getParent()->localPointToScreen( 
-		BORDER_WIDTH, 0, 
+	getParent()->localPointToScreen(
+		mPadding, mPadding,
 		&parent_screen_rect.mLeft, &parent_screen_rect.mBottom );
-	getParent()->localPointToScreen( 
-		parent_local_rect.getWidth() - BORDER_WIDTH, parent_local_rect.getHeight() - BORDER_WIDTH,
+	getParent()->localPointToScreen(
+		getParent()->getRect().getWidth() - mPadding,
+		getParent()->getRect().getHeight() - mPadding,
 		&parent_screen_rect.mRight, &parent_screen_rect.mTop );
 
 	for (std::deque<LLScrollingPanel*>::iterator iter = mPanelList.begin();
@@ -207,11 +240,12 @@ void LLScrollingPanelList::draw()
 	LLUICtrl::draw();
 }
 
-void LLScrollingPanelList::notifySizeChanged(S32 height)
+void LLScrollingPanelList::notifySizeChanged()
 {
 	LLSD info;
 	info["action"] = "size_changes";
-	info["height"] = height;
+	info["height"] = getRect().getHeight();
+	info["width"] = getRect().getWidth();
 	notifyParent(info);
 }
 
