@@ -190,12 +190,6 @@ elseif(DARWIN)
         liburiparser.dylib
         liburiparser.1.dylib
         liburiparser.1.0.27.dylib
-        libIex-3_2.dylib
-        libIlmThread-3_2.dylib
-        libImath-3_1.dylib
-        libOpenEXR-3_2.dylib
-        libOpenEXRCore-3_2.dylib
-        libOpenEXRUtil-3_2.dylib
        )
 
     if (TARGET ll::fmodstudio)
