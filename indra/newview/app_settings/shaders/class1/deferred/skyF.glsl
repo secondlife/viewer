@@ -86,7 +86,9 @@ void main()
     pos = env_mat * pos;
     vec2 texCoord = vec2(atan(pos.z, pos.x) + PI, acos(pos.y)) / vec2(2.0 * PI, PI);
     vec3 color = textureLod(environmentMap, texCoord.xy, 0).rgb * sky_hdr_scale;
-    color = min(color, vec3(8192*8192*16));
+    color = min(color, vec3(8192*8192*16)); // stupidly large value arrived at by binary search -- avoids framebuffer corruption from some HDRIs
+
+    frag_data[2] = vec4(0.0,0.0,0.0,GBUFFER_FLAG_HAS_HDRI);
 #else
 
     // Potential Fill-rate optimization.  Add cloud calculation 
@@ -104,12 +106,11 @@ void main()
     color.rgb *= 2.;
     color.rgb = clamp(color.rgb, vec3(0), vec3(5));
 
+    frag_data[2] = vec4(0.0,0.0,0.0,GBUFFER_FLAG_SKIP_ATMOS);
 #endif
 
     frag_data[0] = vec4(0);
     frag_data[1] = vec4(0);
-    frag_data[2] = vec4(0.0,0.0,0.0,GBUFFER_FLAG_SKIP_ATMOS);
     frag_data[3] = vec4(color.rgb, 1.0);
-
 }
 
