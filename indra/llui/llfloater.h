@@ -372,6 +372,9 @@ public:
 	void			enableResizeCtrls(bool enable, bool width = true, bool height = true);
 
 	bool			isPositioning(LLFloaterEnums::EOpenPositioning p) const { return (p == mPositioning); }
+
+    static bool isDefaultBtnName(const std::string& name);
+
 protected:
 	void			applyControlsAndPosition(LLFloater* other);
 

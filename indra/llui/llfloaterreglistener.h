@@ -49,6 +49,8 @@ private:
     void toggleInstance(const LLSD& event) const;
     void instanceVisible(const LLSD& event) const;
     void clickButton(const LLSD& event) const;
+
+    void showLuaFloater(const LLSD &event) const;
 };
 
 #endif /* ! defined(LL_LLFLOATERREGLISTENER_H) */
