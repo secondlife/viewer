@@ -656,6 +656,14 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 	
 	if (!gDisconnected)
 	{
+		// Render mirrors and associated hero probes before we render the rest of the scene.
+		// This ensures the scene state in the hero probes are exactly the same as the rest of the scene before we render it.
+        if (gPipeline.RenderMirrors && !gSnapshot && (gPipeline.RenderHeroProbeUpdateRate == 0 || (gFrameCount % gPipeline.RenderHeroProbeUpdateRate) == 0))
+        {
+            LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("Update hero probes");
+            gPipeline.mHeroProbeManager.update();
+        }
+
 		LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("display - 1");
 		LLAppViewer::instance()->pingMainloopTimeout("Display:Update");
 		if (gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_HUD))
@@ -696,7 +704,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		}
 
 		gPipeline.updateGL();
-		
+
 		stop_glerror();
 
 		LLAppViewer::instance()->pingMainloopTimeout("Display:Cull");
@@ -730,8 +738,8 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("display - 2")
 			if (gResizeScreenTexture)
 			{
-				gResizeScreenTexture = FALSE;
 				gPipeline.resizeScreenTexture();
+                gResizeScreenTexture = FALSE;
 			}
 
 			gGL.setColorMask(true, true);
@@ -1064,7 +1072,7 @@ void display_cube_face()
     LLSpatialGroup::sNoDelete = TRUE;
         
     S32 occlusion = LLPipeline::sUseOcclusion;
-    LLPipeline::sUseOcclusion = 0; // occlusion data is from main camera point of view, don't read or write it during cube snapshots
+    LLPipeline::sUseOcclusion = 1; // occlusion data is from main camera point of view, don't read or write it during cube snapshots
     //gDepthDirty = TRUE; //let "real" render pipe know it can't trust the depth buffer for occlusion data
 
     static LLCullResult result;

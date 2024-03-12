@@ -27,6 +27,13 @@
 in vec3 vary_HazeColor;
 in float vary_LightNormPosDot;
 
+#ifdef HAS_HDRI
+in vec3 vary_position;
+uniform float sky_hdr_scale;
+uniform mat3 env_mat;
+uniform sampler2D environmentMap;
+#endif
+
 uniform sampler2D rainbow_map;
 uniform sampler2D halo_map;
 
@@ -37,6 +44,9 @@ uniform float ice_level;
 out vec4 frag_data[4];
 
 vec3 srgb_to_linear(vec3 c);
+vec3 linear_to_srgb(vec3 c);
+
+#define PI 3.14159265
 
 /////////////////////////////////////////////////////////////////////////
 // The fragment shader for the sky
@@ -71,6 +81,14 @@ vec3 halo22(float d)
 
 void main()
 {
+#ifdef HAS_HDRI
+    vec3 pos = normalize(vary_position);
+    pos = env_mat * pos;
+    vec2 texCoord = vec2(atan(pos.z, pos.x) + PI, acos(pos.y)) / vec2(2.0 * PI, PI);
+    vec3 color = textureLod(environmentMap, texCoord.xy, 0).rgb * sky_hdr_scale;
+    color = min(color, vec3(8192*8192*16));
+#else
+
     // Potential Fill-rate optimization.  Add cloud calculation 
     // back in and output alpha of 0 (so that alpha culling kills 
     // the fragment) if the sky wouldn't show up because the clouds 
@@ -86,9 +104,12 @@ void main()
     color.rgb *= 2.;
     color.rgb = clamp(color.rgb, vec3(0), vec3(5));
 
+#endif
+
     frag_data[0] = vec4(0);
     frag_data[1] = vec4(0);
-    frag_data[2] = vec4(0.0,0.0,0.0,GBUFFER_FLAG_SKIP_ATMOS); //1.0 in norm.w masks off fog
+    frag_data[2] = vec4(0.0,0.0,0.0,GBUFFER_FLAG_SKIP_ATMOS);
     frag_data[3] = vec4(color.rgb, 1.0);
+
 }
 

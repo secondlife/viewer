@@ -50,6 +50,7 @@ uniform float ssao_irradiance_max;
 #endif
 
 // Inputs
+uniform vec4 clipPlane;
 uniform mat3 env_mat;
 uniform mat3  ssao_effect_mat;
 uniform vec3 sun_dir;
@@ -178,7 +179,7 @@ void main()
         float gloss      = 1.0 - perceptualRoughness;
         
         sampleReflectionProbes(irradiance, radiance, tc, pos.xyz, norm.xyz, gloss, false, amblit_linear);
-        
+
         adjustIrradiance(irradiance, ambocc);
 
         vec3 diffuseColor;
@@ -187,6 +188,10 @@ void main()
 
         vec3 v = -normalize(pos.xyz);
         color = pbrBaseLight(diffuseColor, specularColor, metallic, v, norm.xyz, perceptualRoughness, light_dir, sunlit_linear, scol, radiance, irradiance, colorEmissive, ao, additive, atten);
+    }
+    else if (GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_HDRI))
+    {
+        color = texture(emissiveRect, tc).rgb;
     }
     else if (!GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_ATMOS))
     {
@@ -209,7 +214,7 @@ void main()
         vec3 legacyenv = vec3(0);
 
         sampleReflectionProbesLegacy(irradiance, glossenv, legacyenv, tc, pos.xyz, norm.xyz, spec.a, envIntensity, false, amblit_linear);
-        
+
         adjustIrradiance(irradiance, ambocc);
 
         // apply lambertian IBL only (see pbrIbl)
@@ -244,6 +249,7 @@ void main()
 
             // add radiance map
             applyGlossEnv(color, glossenv, spec, pos.xyz, norm.xyz);
+
         }
 
         color.rgb = mix(color.rgb, baseColor.rgb, baseColor.a);

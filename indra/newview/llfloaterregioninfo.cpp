@@ -86,7 +86,6 @@
 #include "llviewerstats.h"
 #include "llviewertexteditor.h"
 #include "llviewerwindow.h"
-#include "llvlcomposition.h"
 #include "lltrans.h"
 #include "llagentui.h"
 #include "llmeshrepository.h"
@@ -100,7 +99,6 @@
 #include "llavatarnamecache.h"
 #include "llenvironment.h"
 
-const S32 TERRAIN_TEXTURE_COUNT = 4;
 const S32 CORNER_COUNT = 4;
 
 const U32 MAX_LISTED_NAMES = 100;
@@ -340,7 +338,6 @@ void LLFloaterRegionInfo::onRegionChanged()
     }
 }
 
-// static
 void LLFloaterRegionInfo::requestRegionInfo()
 {
 	LLTabContainer* tab = findChild<LLTabContainer>("region_panels");
@@ -603,6 +600,16 @@ LLPanelRegionEnvironment* LLFloaterRegionInfo::getPanelEnvironment()
 	LLTabContainer* tab = floater->getChild<LLTabContainer>("region_panels");
 	LLPanelRegionEnvironment* panel = (LLPanelRegionEnvironment*)tab->getChild<LLPanel>("panel_env_info");
 	return panel;
+}
+
+LLTerrainMaterials::Type material_type_from_ctrl(LLCheckBoxCtrl* ctrl)
+{
+    return ctrl->get() ? LLTerrainMaterials::Type::PBR : LLTerrainMaterials::Type::TEXTURE;
+}
+
+void material_type_to_ctrl(LLCheckBoxCtrl* ctrl, LLTerrainMaterials::Type new_type)
+{
+    ctrl->set(new_type == LLTerrainMaterials::Type::PBR);
 }
 
 // static
@@ -1307,12 +1314,17 @@ void LLPanelRegionDebugInfo::onClickDebugConsole(void* data)
 
 BOOL LLPanelRegionTerrainInfo::validateTextureSizes()
 {
+    if (mMaterialTypeCtrl)
+    {
+        const LLTerrainMaterials::Type material_type = material_type_from_ctrl(mMaterialTypeCtrl);
+        const bool is_material_selected = material_type == LLTerrainMaterials::Type::PBR;
+        if (is_material_selected) { return TRUE; }
+    }
+
     static const S32 MAX_TERRAIN_TEXTURE_SIZE = 1024;
-	for(S32 i = 0; i < TERRAIN_TEXTURE_COUNT; ++i)
+	for(S32 i = 0; i < LLTerrainMaterials::ASSET_COUNT; ++i)
 	{
-		std::string buffer;
-		buffer = llformat("texture_detail_%d", i);
-		LLTextureCtrl* texture_ctrl = getChild<LLTextureCtrl>(buffer);
+        LLTextureCtrl* texture_ctrl = mTextureDetailCtrl[i];
 		if (!texture_ctrl) continue;
 
 		LLUUID image_asset_id = texture_ctrl->getImageAssetID();
@@ -1324,7 +1336,7 @@ BOOL LLPanelRegionTerrainInfo::validateTextureSizes()
 
 		//LL_INFOS() << "texture detail " << i << " is " << width << "x" << height << "x" << components << LL_ENDL;
 
-		if (components != 3)
+		if (components != 3 && components != 4)
 		{
 			LLSD args;
 			args["TEXTURE_NUM"] = i+1;
@@ -1370,6 +1382,21 @@ BOOL LLPanelRegionTerrainInfo::validateTextureHeights()
 /////////////////////////////////////////////////////////////////////////////
 // LLPanelRegionTerrainInfo
 /////////////////////////////////////////////////////////////////////////////
+
+LLPanelRegionTerrainInfo::LLPanelRegionTerrainInfo()
+: LLPanelRegionInfo()
+{
+    const LLUUID (&default_textures)[LLVLComposition::ASSET_COUNT] = LLVLComposition::getDefaultTextures();
+    for (S32 i = 0; i < LLTerrainMaterials::ASSET_COUNT; ++i)
+    {
+        mLastSetTextures[i] = default_textures[i];
+    }
+    for (S32 i = 0; i < LLTerrainMaterials::ASSET_COUNT; ++i)
+    {
+        mLastSetMaterials[i] = LLUUID::null;
+    }
+}
+
 // Initialize statics
 
 BOOL LLPanelRegionTerrainInfo::postBuild()
@@ -1380,11 +1407,22 @@ BOOL LLPanelRegionTerrainInfo::postBuild()
 	initCtrl("terrain_raise_spin");
 	initCtrl("terrain_lower_spin");
 
+    mMaterialTypeCtrl = findChild<LLCheckBoxCtrl>("terrain_material_type");
+    if (mMaterialTypeCtrl) { mMaterialTypeCtrl->setCommitCallback(boost::bind(&LLPanelRegionTerrainInfo::onSelectMaterialType, this)); }
+
 	std::string buffer;
-	for(S32 i = 0; i < TERRAIN_TEXTURE_COUNT; ++i)
+
+	for(S32 i = 0; i < LLTerrainMaterials::ASSET_COUNT; ++i)
 	{
 		buffer = llformat("texture_detail_%d", i);
 		initCtrl(buffer);
+        mTextureDetailCtrl[i] = findChild<LLTextureCtrl>(buffer);
+	}
+	for(S32 i = 0; i < LLTerrainMaterials::ASSET_COUNT; ++i)
+	{
+		buffer = llformat("material_detail_%d", i);
+		initCtrl(buffer);
+        mMaterialDetailCtrl[i] = findChild<LLTextureCtrl>(buffer);
 	}
 
 	for(S32 i = 0; i < CORNER_COUNT; ++i)
@@ -1405,6 +1443,44 @@ BOOL LLPanelRegionTerrainInfo::postBuild()
 	return LLPanelRegionInfo::postBuild();
 }
 
+void LLPanelRegionTerrainInfo::onSelectMaterialType()
+{
+    updateForMaterialType();
+    onChangeAnything();
+}
+
+void LLPanelRegionTerrainInfo::updateForMaterialType()
+{
+    if (!mMaterialTypeCtrl) { return; }
+    const LLTerrainMaterials::Type material_type = material_type_from_ctrl(mMaterialTypeCtrl);
+    const bool show_texture_controls = material_type == LLTerrainMaterials::Type::TEXTURE;
+    const bool show_material_controls = material_type == LLTerrainMaterials::Type::PBR;
+
+    // Toggle visibility of correct swatches
+    for(S32 i = 0; i < LLTerrainMaterials::ASSET_COUNT; ++i)
+    {
+        LLTextureCtrl* texture_ctrl = mTextureDetailCtrl[i];
+        if (texture_ctrl)
+        {
+            texture_ctrl->setVisible(show_texture_controls);
+        }
+    }
+    for(S32 i = 0; i < LLTerrainMaterials::ASSET_COUNT; ++i)
+    {
+        LLTextureCtrl* material_ctrl = mMaterialDetailCtrl[i];
+        if (material_ctrl)
+        {
+            material_ctrl->setVisible(show_material_controls);
+        }
+    }
+
+    // Toggle visibility of labels
+    LLUICtrl* texture_label = findChild<LLUICtrl>("detail_texture_text");
+	if (texture_label) { texture_label->setVisible(show_texture_controls); }
+    LLUICtrl* material_label = findChild<LLUICtrl>("detail_material_text");
+	if (material_label) { material_label->setVisible(show_material_controls); }
+}
+
 // virtual
 bool LLPanelRegionTerrainInfo::refreshFromRegion(LLViewerRegion* region)
 {
@@ -1421,21 +1497,99 @@ bool LLPanelRegionTerrainInfo::refreshFromRegion(LLViewerRegion* region)
 		getChild<LLUICtrl>("region_text")->setValue(LLSD(region->getName()));
 
 		LLVLComposition* compp = region->getComposition();
-		LLTextureCtrl* texture_ctrl;
-		std::string buffer;
-		for(S32 i = 0; i < TERRAIN_TEXTURE_COUNT; ++i)
-		{
-			buffer = llformat("texture_detail_%d", i);
-			texture_ctrl = getChild<LLTextureCtrl>(buffer);
-			if(texture_ctrl)
-			{
-				LL_DEBUGS() << "Detail Texture " << i << ": "
-						 << compp->getDetailTextureID(i) << LL_ENDL;
-				LLUUID tmp_id(compp->getDetailTextureID(i));
-				texture_ctrl->setImageAssetID(tmp_id);
-			}
-		}
 
+        static LLCachedControl<bool> feature_pbr_terrain_enabled(gSavedSettings, "RenderTerrainPBREnabled", false);
+
+        const bool textures_ready = compp->texturesReady(false, false);
+        const bool materials_ready = feature_pbr_terrain_enabled && compp->materialsReady(false, false);
+
+        bool set_texture_swatches;
+        bool set_material_swatches;
+        bool reset_texture_swatches;
+        bool reset_material_swatches;
+        LLTerrainMaterials::Type material_type;
+        if (!textures_ready && !materials_ready)
+        {
+            // Are these 4 texture IDs or 4 material IDs? Who knows! Let's set
+            // the IDs on both pickers for now.
+            material_type = LLTerrainMaterials::Type::TEXTURE;
+            set_texture_swatches = true;
+            set_material_swatches = true;
+            reset_texture_swatches = false;
+            reset_material_swatches = false;
+        }
+        else
+        {
+            material_type = compp->getMaterialType();
+            set_texture_swatches = material_type == LLTerrainMaterials::Type::TEXTURE;
+            set_material_swatches = !set_texture_swatches;
+            reset_texture_swatches = !set_texture_swatches;
+            reset_material_swatches = !set_material_swatches;
+        }
+
+        if (mMaterialTypeCtrl)
+        {
+            material_type_to_ctrl(mMaterialTypeCtrl, material_type);
+            updateForMaterialType();
+            mMaterialTypeCtrl->setVisible(feature_pbr_terrain_enabled);
+        }
+
+        if (set_texture_swatches)
+        {
+            for(S32 i = 0; i < LLTerrainMaterials::ASSET_COUNT; ++i)
+            {
+                LLTextureCtrl* asset_ctrl = mTextureDetailCtrl[i];
+                if(asset_ctrl)
+                {
+                    LL_DEBUGS("Terrain", "Texture") << "Detail Texture " << i << ": "
+                             << compp->getDetailAssetID(i) << LL_ENDL;
+                    LLUUID tmp_id(compp->getDetailAssetID(i));
+                    asset_ctrl->setImageAssetID(tmp_id);
+                }
+            }
+        }
+        if (set_material_swatches)
+        {
+            for(S32 i = 0; i < LLTerrainMaterials::ASSET_COUNT; ++i)
+            {
+                LLTextureCtrl* asset_ctrl = mMaterialDetailCtrl[i];
+                if(asset_ctrl)
+                {
+                    LL_DEBUGS("Terrain", "Material") << "Detail Material " << i << ": "
+                             << compp->getDetailAssetID(i) << LL_ENDL;
+                    LLUUID tmp_id(compp->getDetailAssetID(i));
+                    asset_ctrl->setImageAssetID(tmp_id);
+                }
+            }
+        }
+        if (reset_texture_swatches)
+        {
+            for(S32 i = 0; i < LLTerrainMaterials::ASSET_COUNT; ++i)
+            {
+                LL_DEBUGS("Terrain", "Texture") << "Reset Texture swatch " << i
+                         << LL_ENDL;
+                LLTextureCtrl* asset_ctrl = mTextureDetailCtrl[i];
+                if(asset_ctrl)
+                {
+                    asset_ctrl->setImageAssetID(mLastSetTextures[i]);
+                }
+            }
+        }
+        if (reset_material_swatches)
+        {
+            for(S32 i = 0; i < LLTerrainMaterials::ASSET_COUNT; ++i)
+            {
+                LL_DEBUGS("Terrain", "Material") << "Reset Material swatch " << i
+                         << LL_ENDL;
+                LLTextureCtrl* asset_ctrl = mMaterialDetailCtrl[i];
+                if(asset_ctrl)
+                {
+                    asset_ctrl->setImageAssetID(mLastSetMaterials[i]);
+                }
+            }
+        }
+
+		std::string buffer;
 		for(S32 i = 0; i < CORNER_COUNT; ++i)
     	{
 			buffer = llformat("height_start_spin_%d", i);
@@ -1449,6 +1603,9 @@ bool LLPanelRegionTerrainInfo::refreshFromRegion(LLViewerRegion* region)
 		LL_DEBUGS() << "no region set" << LL_ENDL;
 		getChild<LLUICtrl>("region_text")->setValue(LLSD(""));
 	}
+    
+    // Update visibility of terrain swatches, etc
+    refresh();
 
 	getChildView("download_raw_btn")->setEnabled(owner_or_god);
 	getChildView("upload_raw_btn")->setEnabled(owner_or_god);
@@ -1499,22 +1656,41 @@ BOOL LLPanelRegionTerrainInfo::sendUpdate()
 		}
 	}
 
-	LLTextureCtrl* texture_ctrl;
 	std::string id_str;
 	LLMessageSystem* msg = gMessageSystem;
 
-	for(S32 i = 0; i < TERRAIN_TEXTURE_COUNT; ++i)
-	{
-		buffer = llformat("texture_detail_%d", i);
-		texture_ctrl = getChild<LLTextureCtrl>(buffer);
-		if(texture_ctrl)
-		{
-			LLUUID tmp_id(texture_ctrl->getImageAssetID());
-			tmp_id.toString(id_str);
-			buffer = llformat("%d %s", i, id_str.c_str());
-			strings.push_back(buffer);
-		}
-	}
+    // Send either material IDs instead of texture IDs depending on
+    // material_type - they both occupy the same slot.
+    const LLTerrainMaterials::Type material_type = mMaterialTypeCtrl ? material_type_from_ctrl(mMaterialTypeCtrl) : LLTerrainMaterials::Type::TEXTURE;
+    for(S32 i = 0; i < LLTerrainMaterials::ASSET_COUNT; ++i)
+    {
+        LLTextureCtrl* asset_ctrl;
+        if (material_type == LLTerrainMaterials::Type::PBR)
+        {
+            asset_ctrl = mMaterialDetailCtrl[i];
+        }
+        else
+        {
+            asset_ctrl = mTextureDetailCtrl[i];
+        }
+
+        if (!asset_ctrl) { continue; }
+
+        LLUUID tmp_id(asset_ctrl->getImageAssetID());
+        tmp_id.toString(id_str);
+        buffer = llformat("%d %s", i, id_str.c_str());
+        strings.push_back(buffer);
+
+        // Store asset for later terrain editing
+        if (material_type == LLTerrainMaterials::Type::PBR)
+        {
+            mLastSetMaterials[i] = tmp_id;
+        }
+        else
+        {
+            mLastSetTextures[i] = tmp_id;
+        }
+    }
 	sendEstateOwnerMessage(msg, "texturedetail", invoice, strings);
 	strings.clear();
 

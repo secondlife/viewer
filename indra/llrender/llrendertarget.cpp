@@ -567,4 +567,31 @@ bool LLRenderTarget::isBoundInStack() const
     return cur == this;
 }
 
+void LLRenderTarget::swapFBORefs(LLRenderTarget& other)
+{
+    // Must be initialized
+    llassert(mFBO);
+    llassert(other.mFBO);
 
+    // Must be unbound
+    // *NOTE: mPreviousRT can be non-null even if this target is unbound - presumably for debugging purposes?
+    llassert(sCurFBO != mFBO);
+    llassert(sCurFBO != other.mFBO);
+    llassert(!isBoundInStack());
+    llassert(!other.isBoundInStack());
+
+    // Must be same type
+    llassert(sUseFBO == other.sUseFBO);
+    llassert(mResX == other.mResX);
+    llassert(mResY == other.mResY);
+    llassert(mInternalFormat == other.mInternalFormat);
+    llassert(mTex.size() == other.mTex.size());
+    llassert(mDepth == other.mDepth);
+    llassert(mUseDepth == other.mUseDepth);
+    llassert(mGenerateMipMaps == other.mGenerateMipMaps);
+    llassert(mMipLevels == other.mMipLevels);
+    llassert(mUsage == other.mUsage);
+
+    std::swap(mFBO, other.mFBO);
+    std::swap(mTex, other.mTex);
+}
