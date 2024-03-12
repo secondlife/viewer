@@ -480,7 +480,6 @@ public:
 						const LLUUID &agentID);
 
 	void onRegionChanged();
-	void onSimulatorFeaturesReceived(const LLUUID &region_id);
 
 	void addObserver(LLVoiceClientStatusObserver* observer);
 	void removeObserver(LLVoiceClientStatusObserver* observer);
@@ -500,12 +499,20 @@ public:
 	// Returns NULL if voice effects are not supported, or not enabled.
 	LLVoiceEffectInterface* getVoiceEffectInterface() const;
 	//@}
-private:
+
+    void handleSimulatorFeaturesReceived(const LLSD &simulatorFeatures);
+
+  private:
+
 	void init(LLPumpIO *pump);
 
 protected:
+
 	LLVoiceModuleInterface* mSpatialVoiceModule;
     LLVoiceModuleInterface* mNonSpatialVoiceModule;
+    LLSD                    mSpatialCredentials;  // used to store spatial credentials for vivox
+	                                              // so they're available when the region voice
+	                                              // server is retrieved.
 	LLPumpIO *m_servicePump;
 
     boost::signals2::connection  mSimulatorFeaturesReceivedSlot;

@@ -146,7 +146,8 @@ public:
 
     bool setSpatialChannel(const LLSD &channelInfo) override
     {
-        processChannels(true);
+        // we don't really have credentials for a spatial channel in webrtc,
+        // it's all handled by the sim.
         return true;
     }
 

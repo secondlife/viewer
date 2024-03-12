@@ -2101,12 +2101,12 @@ bool LLVivoxVoiceClient::runSession(const sessionStatePtr_t &session)
 {
     LL_INFOS("Voice") << "running new voice session " << session->mHandle << LL_ENDL;
 
-    bool joined_session = addAndJoinSession(session);
-
-    if (sShuttingDown)
+    if (sShuttingDown || !mProcessChannels)
     {
         return false;
     }
+
+    bool joined_session = addAndJoinSession(session);
 
     if (!joined_session)
     {
@@ -2137,7 +2137,8 @@ bool LLVivoxVoiceClient::runSession(const sessionStatePtr_t &session)
            && mVoiceEnabled
            && isGatewayRunning()
            && !mSessionTerminateRequested
-           && !mTuningMode)
+           && !mTuningMode
+           && mProcessChannels)
     {
         sendCaptureAndRenderDevices(); // suspends
 
@@ -4923,9 +4924,14 @@ void LLVivoxVoiceClient::setNonSpatialChannel(const LLSD& channelInfo, bool noti
 
 bool LLVivoxVoiceClient::setSpatialChannel(const LLSD& channelInfo)
 {
-    mProcessChannels = true;
-	mSpatialSessionURI = channelInfo["channel_uri"].asString();
+    mSpatialSessionURI         = channelInfo["channel_uri"].asString();
     mSpatialSessionCredentials = channelInfo["channel_credentials"].asString();
+	if (!mProcessChannels)
+	{
+		// we're not even processing channels (another provider is) so 
+		// save the credentials aside and exit
+		return false;
+	}
 
 	LL_DEBUGS("Voice") << "got spatial channel uri: \"" << mSpatialSessionURI << "\"" << LL_ENDL;
 
@@ -6227,6 +6233,12 @@ void LLVivoxVoiceClient::notifyStatusObservers(LLVoiceClientStatusObserver::ESta
 		<< ", proximal is " << inSpatialChannel()
         << LL_ENDL;
 
+	if (!mProcessChannels)
+	{
+		// we're not processing...another voice module is.
+		// so nobody wants to hear from us.
+        return;
+	}
 	for (status_observer_set_t::iterator it = mStatusObservers.begin();
 		it != mStatusObservers.end();
 		)

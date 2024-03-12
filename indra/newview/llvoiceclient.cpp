@@ -135,6 +135,7 @@ LLVoiceModuleInterface *getVoiceModule(const std::string &voice_server_type)
 LLVoiceClient::LLVoiceClient(LLPumpIO *pump)
 	:
 	mSpatialVoiceModule(NULL),
+	mNonSpatialVoiceModule(NULL),
 	m_servicePump(NULL),
 	mVoiceEffectEnabled(LLCachedControl<bool>(gSavedSettings, "VoiceMorphingEnabled", true)),
 	mVoiceEffectDefault(LLCachedControl<std::string>(gSavedPerAccountSettings, "VoiceEffectDefault", "00000000-0000-0000-0000-000000000000")),
@@ -174,14 +175,62 @@ void LLVoiceClient::userAuthorized(const std::string& user_id, const LLUUID &age
     LLVivoxVoiceClient::getInstance()->userAuthorized(user_id, agentID);
 }
 
+void LLVoiceClient::handleSimulatorFeaturesReceived(const LLSD &simulatorFeatures)
+{
+	std::string voiceServerType = simulatorFeatures["VoiceServerType"].asString();
+	if (voiceServerType.empty()) 
+	{
+		voiceServerType = VIVOX_VOICE_SERVER_TYPE;
+	}
+
+	if (mSpatialVoiceModule && !mNonSpatialVoiceModule)
+	{
+		// stop processing if we're going to change voice modules
+		// and we're not currently in non-spatial.
+		LLVoiceVersionInfo version = mSpatialVoiceModule->getVersion();
+		if (version.internalVoiceServerType != voiceServerType)
+		{
+			mSpatialVoiceModule->processChannels(false);
+		}
+	}
+	setSpatialVoiceModule(simulatorFeatures["VoiceServerType"].asString());
+
+	// if we should be in spatial voice, switch to it and set the creds
+	if (mSpatialVoiceModule && !mNonSpatialVoiceModule)
+	{
+		if (!mSpatialCredentials.isUndefined())
+		{
+			mSpatialVoiceModule->setSpatialChannel(mSpatialCredentials);
+		}
+		mSpatialVoiceModule->processChannels(true);
+	}
+}
+
+static void simulator_features_received_callback(const LLUUID& region_id)
+{
+	LLViewerRegion *region = gAgent.getRegion();
+	if (region && (region->getRegionID() == region_id))
+	{
+		LLSD simulatorFeatures;
+		region->getSimulatorFeatures(simulatorFeatures);
+		if (LLVoiceClient::getInstance())
+		{
+			LLVoiceClient::getInstance()->handleSimulatorFeaturesReceived(simulatorFeatures);
+		}
+	}
+}
+
 void LLVoiceClient::onRegionChanged()
 {
 	LLViewerRegion *region = gAgent.getRegion();
 	if (region && region->simulatorFeaturesReceived())
 	{
-			LLSD simulatorFeatures;
-			region->getSimulatorFeatures(simulatorFeatures);
-			setSpatialVoiceModule(simulatorFeatures["VoiceServerType"].asString());
+		LLSD simulatorFeatures;
+		region->getSimulatorFeatures(simulatorFeatures);
+		if (LLVoiceClient::getInstance())
+		{
+			LLVoiceClient::getInstance()->handleSimulatorFeaturesReceived(simulatorFeatures);
+		}
 	}
 	else if (region)
 	{
@@ -190,19 +239,7 @@ void LLVoiceClient::onRegionChanged()
 			mSimulatorFeaturesReceivedSlot.disconnect();
 		}
 		mSimulatorFeaturesReceivedSlot =
-				region->setSimulatorFeaturesReceivedCallback(
-				boost::bind(&LLVoiceClient::onSimulatorFeaturesReceived, this, _1));
-	}
-}
-
-void LLVoiceClient::onSimulatorFeaturesReceived(const LLUUID& region_id)
-{
-	LLViewerRegion *region = gAgent.getRegion();
-	if (region && (region->getRegionID() == region_id))
-	{
-		LLSD simulatorFeatures;
-		region->getSimulatorFeatures(simulatorFeatures);
-		setSpatialVoiceModule(simulatorFeatures["VoiceServerType"].asString());
+				region->setSimulatorFeaturesReceivedCallback(boost::bind(&simulator_features_received_callback, _1));
 	}
 }
 
@@ -419,37 +456,36 @@ void LLVoiceClient::setNonSpatialChannel(
 	bool hangup_on_last_leave)
 {
 	setNonSpatialVoiceModule(channelInfo["voice_server_type"].asString());
-	if (mSpatialVoiceModule)
+	if (mSpatialVoiceModule && mSpatialVoiceModule != mNonSpatialVoiceModule)
 	{
 		mSpatialVoiceModule->processChannels(false);
 	}
 	if (mNonSpatialVoiceModule)
 	{
-		mNonSpatialVoiceModule->setNonSpatialChannel(channelInfo, notify_on_first_join, hangup_on_last_leave);
 		mNonSpatialVoiceModule->processChannels(true);
+		mNonSpatialVoiceModule->setNonSpatialChannel(channelInfo, notify_on_first_join, hangup_on_last_leave);
 	}
-	}
+}
 
 void LLVoiceClient::setSpatialChannel(const LLSD &channelInfo)
 {
-    LLViewerRegion *region = gAgent.getRegion();
-    if (region && region->simulatorFeaturesReceived())
-    {
-        LLSD simulatorFeatures;
-        region->getSimulatorFeatures(simulatorFeatures);
-        setSpatialVoiceModule(simulatorFeatures["VoiceServerType"].asString());
-    }
-    if (mNonSpatialVoiceModule)
-    {
-        mNonSpatialVoiceModule->leaveNonSpatialChannel();
-        mNonSpatialVoiceModule->processChannels(false);
-        mNonSpatialVoiceModule = nullptr;
-    }
+	mSpatialCredentials    = channelInfo;
+	LLViewerRegion *region = gAgent.getRegion();
+	if (region && region->simulatorFeaturesReceived())
+	{
+		LLSD simulatorFeatures;
+		region->getSimulatorFeatures(simulatorFeatures);
+		setSpatialVoiceModule(simulatorFeatures["VoiceServerType"].asString());
+	}
+	else
+	{
+		return;
+	}
+
 	if (mSpatialVoiceModule)
-    {
-        mSpatialVoiceModule->setSpatialChannel(channelInfo);
-        mSpatialVoiceModule->processChannels(true);
-    }
+	{
+		mSpatialVoiceModule->setSpatialChannel(channelInfo);
+	}
 }
 
 void LLVoiceClient::leaveNonSpatialChannel()
@@ -564,9 +600,12 @@ void LLVoiceClient::updateMicMuteLogic()
 
 void LLVoiceClient::setMuteMic(bool muted)
 {
-	mMuteMic = muted;
-	updateMicMuteLogic();
-	mMicroChangedSignal();
+	if (mMuteMic != muted)
+	{
+		mMuteMic = muted;
+		updateMicMuteLogic();
+		mMicroChangedSignal();
+	}
 }
 
 

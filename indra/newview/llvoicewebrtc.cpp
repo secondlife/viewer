@@ -467,10 +467,7 @@ void LLWebRTCVoiceClient::voiceConnectionCoro()
                     if (useEstateVoice && !inEstateChannel())
                     {
                         // estate voice
-                        if (!inEstateChannel())
-                        {
-                            startEstateSession();
-                        }
+                        startEstateSession();
                     }
                 }
                 if (!voiceEnabled)
@@ -487,7 +484,7 @@ void LLWebRTCVoiceClient::voiceConnectionCoro()
             }
 
             sessionState::processSessionStates();
-            if (mProcessChannels && voiceEnabled)
+            if (mProcessChannels && voiceEnabled && !mHidden)
             {
                 sendPositionUpdate(true);
                 updateOwnVolume();
@@ -741,10 +738,13 @@ void LLWebRTCVoiceClient::setHidden(bool hidden)
         if (mHidden)
         {
             // get out of the channel entirely
-            leaveAudioSession();
+            // mute the microphone.
+            sessionState::for_each(boost::bind(predSetMuteMic, _1, true));
         }
         else
         {
+            // and put it back
+            sessionState::for_each(boost::bind(predSetMuteMic, _1, mMuteMic));
             updatePosition();
             sendPositionUpdate(true);
         }
@@ -1338,7 +1338,11 @@ bool LLWebRTCVoiceClient::compareChannels(const LLSD &channelInfo1, const LLSD &
 void LLWebRTCVoiceClient::setMuteMic(bool muted)
 {
     mMuteMic = muted;
-    sessionState::for_each(boost::bind(predSetMuteMic, _1, muted));
+    // when you're hidden, your mic is always muted.
+    if (!mHidden)
+    {
+        sessionState::for_each(boost::bind(predSetMuteMic, _1, muted));
+    }
 }
 
 void LLWebRTCVoiceClient::predSetMuteMic(const LLWebRTCVoiceClient::sessionStatePtr_t &session, bool muted)
@@ -2791,20 +2795,23 @@ LLVoiceWebRTCSpatialConnection::~LLVoiceWebRTCSpatialConnection()
 
 void LLVoiceWebRTCSpatialConnection::setMuteMic(bool muted)
 {
-    mMuted = muted;
-    if (mWebRTCAudioInterface)
+    if (mMuted != muted)
     {
-        LLViewerRegion *regionp = gAgent.getRegion();
-        if (regionp && mRegionID == regionp->getRegionID())
+        mMuted = muted;
+        if (mWebRTCAudioInterface)
         {
-            mWebRTCAudioInterface->setMute(muted);
-        }
-        else
-        {
-            // Always mute this agent with respect to neighboring regions.
-            // Peers don't want to hear this agent from multiple regions
-            // as that'll echo.
-            mWebRTCAudioInterface->setMute(true);
+            LLViewerRegion *regionp = gAgent.getRegion();
+            if (regionp && mRegionID == regionp->getRegionID())
+            {
+                mWebRTCAudioInterface->setMute(muted);
+            }
+            else
+            {
+                // Always mute this agent with respect to neighboring regions.
+                // Peers don't want to hear this agent from multiple regions
+                // as that'll echo.
+                mWebRTCAudioInterface->setMute(true);
+            }
         }
     }
 }
