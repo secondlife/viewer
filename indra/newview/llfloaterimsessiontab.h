@@ -41,10 +41,12 @@
 class LLPanelChatControlPanel;
 class LLChatEntry;
 class LLChatHistory;
+class LLPanelEmojiComplete;
 
 class LLFloaterIMSessionTab
 	: public LLTransientDockableFloater
 {
+	using super = LLTransientDockableFloater;
 
 public:
 	LOG_CLASS(LLFloaterIMSessionTab);
@@ -68,9 +70,8 @@ public:
 	bool isHostAttached() {return mIsHostAttached;}
 	void setHostAttached(bool is_attached) {mIsHostAttached = is_attached;}
 
-    static LLFloaterIMSessionTab* findConversation(const LLUUID& uuid);
-    static LLFloaterIMSessionTab* getConversation(const LLUUID& uuid);
-
+	static LLFloaterIMSessionTab* findConversation(const LLUUID& uuid);
+	static LLFloaterIMSessionTab* getConversation(const LLUUID& uuid);
 
 	bool isNearbyChat() {return mIsNearbyChat;}
 
@@ -80,6 +81,7 @@ public:
 	/*virtual*/ void draw();
 	/*virtual*/ void setVisible(BOOL visible);
 	/*virtual*/ void setFocus(BOOL focus);
+	/*virtual*/ void closeFloater(bool app_quitting = false);
 	
 	// Handle the left hand participant list widgets
 	void addConversationViewParticipant(LLConversationItem* item, bool update_view = true);
@@ -136,14 +138,16 @@ protected:
 	virtual void enableDisableCallBtn();
 
 	// process focus events to set a currently active session
-	/* virtual */ void onFocusLost();
 	/* virtual */ void onFocusReceived();
+	/* virtual */ void onFocusLost();
 
 	// prepare chat's params and out one message to chatHistory
-	void appendMessage(const LLChat& chat, const LLSD &args = 0);
+	void appendMessage(const LLChat& chat, const LLSD& args = LLSD());
 
 	std::string appendTime();
 	void assignResizeLimits();
+
+	void updateUsedEmojis(LLWString text);
 
 	S32  mFloaterExtraWidth;
 
@@ -152,8 +156,7 @@ protected:
 
 	bool mMessagePaneExpanded;
 	bool mIsParticipantListExpanded;
-    S32 mMinFloaterHeight;
-
+	S32 mMinFloaterHeight;
 
 	LLIMModel::LLIMSession* mSession;
 
@@ -168,32 +171,37 @@ protected:
 	LLLayoutPanel* mContentPanel;
 	LLLayoutPanel* mToolbarPanel;
 	LLLayoutPanel* mInputButtonPanel;
+	LLLayoutPanel* mEmojiRecentPanel;
+	LLTextBox* mEmojiRecentEmptyText;
+	LLPanelEmojiComplete* mEmojiRecentIconsCtrl;
 	LLParticipantList* getParticipantList();
 	conversations_widgets_map mConversationsWidgets;
 	LLConversationViewModel mConversationViewModel;
 	LLFolderView* mConversationsRoot;
 	LLScrollContainer* mScroller;
 
-    LLChatHistory* mChatHistory;
+	LLChatHistory* mChatHistory;
 	LLChatEntry* mInputEditor;
-	LLLayoutPanel * mChatLayoutPanel;
-	LLLayoutStack * mInputPanels;
+	LLLayoutPanel* mChatLayoutPanel;
+	LLLayoutStack* mInputPanels;
 	
 	LLButton* mExpandCollapseLineBtn;
 	LLButton* mExpandCollapseBtn;
 	LLButton* mTearOffBtn;
+	LLButton* mEmojiRecentPanelToggleBtn;
+	LLButton* mEmojiPickerShowBtn;
 	LLButton* mCloseBtn;
 	LLButton* mGearBtn;
 	LLButton* mAddBtn;
-    LLButton* mVoiceButton;
+	LLButton* mVoiceButton;
 
 private:
 	// Handling selection and contextual menu
-    void doToSelected(const LLSD& userdata);
-    bool enableContextMenuItem(const LLSD& userdata);
-    bool checkContextMenuItem(const LLSD& userdata);
+	void doToSelected(const LLSD& userdata);
+	bool enableContextMenuItem(const LLSD& userdata);
+	bool checkContextMenuItem(const LLSD& userdata);
 	
-    void getSelectedUUIDs(uuid_vec_t& selected_uuids);
+	void getSelectedUUIDs(uuid_vec_t& selected_uuids);
 	
 	/// Refreshes the floater at a constant rate.
 	virtual void refresh() = 0;
@@ -207,9 +215,14 @@ private:
 
 	void onInputEditorClicked();
 
+	void onEmojiRecentPanelToggleBtnClicked();
+	void onEmojiPickerShowBtnClicked();
+	void initEmojiRecentPanel();
+	void onRecentEmojiPicked(const LLSD& value);
+
 	bool checkIfTornOff();
-    bool mIsHostAttached;
-    bool mHasVisibleBeenInitialized;
+	bool mIsHostAttached;
+	bool mHasVisibleBeenInitialized;
 
 	LLTimer* mRefreshTimer; ///< Defines the rate at which refresh() is called.
 

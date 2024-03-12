@@ -3772,10 +3772,10 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>GameControlToAvatar</key>
+    <key>GameControlToAgent</key>
     <map>
       <key>Comment</key>
-      <string>GameControl data moves avatar</string>
+      <string>GameControl data moves avatar/flycam</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -3783,10 +3783,10 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>AvatarToGameControl</key>
+    <key>AgentToGameControl</key>
     <map>
       <key>Comment</key>
-      <string>Avatar movement produces GameControl data</string>
+      <string>Avatar/flycam movement produces GameControl data</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -11288,7 +11288,7 @@
 			<key>Type</key>
 			<string>String</string>
 			<key>Value</key>
-			<string>https://jira.secondlife.com/secure/CreateIssueDetails!init.jspa?pid=10610&amp;issuetype=1&amp;environment=[ENVIRONMENT]&amp;customfield_10253=[LOCATION]</string>
+			<string>https://feedback.secondlife.com/</string>
 		</map>
 	<key>RevokePermsOnStopAnimation</key>
     <map>

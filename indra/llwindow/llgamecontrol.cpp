@@ -34,91 +34,29 @@
 #include "SDL2/SDL_gamecontroller.h"
 #include "SDL2/SDL_joystick.h"
 
+#include "indra_constants.h"
 #include "llgamecontroltranslator.h"
 
 constexpr size_t NUM_AXES = 6;
-
-std::unordered_map<std::string, LLGameControl::InputChannel> gChannelMap;
-
-// static
-void LLGameControl::InputChannel::initChannelMap()
-{
-    using type = LLGameControl::InputChannel::Type;
-    gChannelMap["AXIS_0-"] = LLGameControl::InputChannel(type::TYPE_AXIS, 0);
-    gChannelMap["AXIS_0+"] = LLGameControl::InputChannel(type::TYPE_AXIS, 1);
-    gChannelMap["AXIS_1-"] = LLGameControl::InputChannel(type::TYPE_AXIS, 2);
-    gChannelMap["AXIS_1+"] = LLGameControl::InputChannel(type::TYPE_AXIS, 3);
-    gChannelMap["AXIS_2-"] = LLGameControl::InputChannel(type::TYPE_AXIS, 4);
-    gChannelMap["AXIS_2+"] = LLGameControl::InputChannel(type::TYPE_AXIS, 5);
-    gChannelMap["AXIS_3-"] = LLGameControl::InputChannel(type::TYPE_AXIS, 6);
-    gChannelMap["AXIS_3+"] = LLGameControl::InputChannel(type::TYPE_AXIS, 7);
-    gChannelMap["AXIS_4-"] = LLGameControl::InputChannel(type::TYPE_AXIS, 8);
-    gChannelMap["AXIS_4+"] = LLGameControl::InputChannel(type::TYPE_AXIS, 9);
-    gChannelMap["AXIS_5-"] = LLGameControl::InputChannel(type::TYPE_AXIS, 10);
-    gChannelMap["AXIS_5+"] = LLGameControl::InputChannel(type::TYPE_AXIS, 11);
-
-    gChannelMap["BUTTON_0"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 0);
-    gChannelMap["BUTTON_1"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 1);
-    gChannelMap["BUTTON_2"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 2);
-    gChannelMap["BUTTON_3"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 3);
-    gChannelMap["BUTTON_4"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 4);
-    gChannelMap["BUTTON_5"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 5);
-    gChannelMap["BUTTON_6"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 6);
-    gChannelMap["BUTTON_7"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 7);
-    gChannelMap["BUTTON_8"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 8);
-    gChannelMap["BUTTON_9"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 9);
-    gChannelMap["BUTTON_10"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 10);
-    gChannelMap["BUTTON_11"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 11);
-    gChannelMap["BUTTON_12"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 12);
-    gChannelMap["BUTTON_13"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 13);
-    gChannelMap["BUTTON_14"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 14);
-    gChannelMap["BUTTON_15"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 15);
-    gChannelMap["BUTTON_16"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 16);
-    gChannelMap["BUTTON_17"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 17);
-    gChannelMap["BUTTON_18"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 18);
-    gChannelMap["BUTTON_19"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 19);
-    gChannelMap["BUTTON_20"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 20);
-    gChannelMap["BUTTON_21"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 21);
-    gChannelMap["BUTTON_22"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 22);
-    gChannelMap["BUTTON_23"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 23);
-    gChannelMap["BUTTON_24"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 24);
-    gChannelMap["BUTTON_25"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 25);
-    gChannelMap["BUTTON_26"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 26);
-    gChannelMap["BUTTON_27"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 27);
-    gChannelMap["BUTTON_28"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 28);
-    gChannelMap["BUTTON_29"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 29);
-    gChannelMap["BUTTON_30"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 30);
-    gChannelMap["BUTTON_31"] = LLGameControl::InputChannel(type::TYPE_BUTTON, 31);
-}
-
-bool LLGameControl::InputChannel::isNegAxis() const
-{
-    // The organization of negative axis is odd
-    return mType == LLGameControl::InputChannel::TYPE_AXIS
-        && mIndex == 2 * (mIndex / 2);
-}
 
 std::string LLGameControl::InputChannel::getLocalName() const
 {
     // HACK: we hard-code English channel names, but
     // they should be loaded from localized XML config files.
     std::string name = " ";
-    // AXIS_0_NEG, AXIS_0_POS, BUTTON_0, etc
     if (mType == LLGameControl::InputChannel::TYPE_AXIS)
     {
-        constexpr U8 NUM_AXIS_KEYBOARD_CHANNELS = (U8)(NUM_AXES * 2);
-        if (mIndex < 2 * NUM_AXIS_KEYBOARD_CHANNELS)
+        if (mIndex < (U8)(NUM_AXES))
         {
-            U8 axis_index = mIndex / 2;
             name = "AXIS_";
-            name.append(std::to_string((S32)(axis_index)));
-            if (mIndex - (axis_index * 2) > 0)
-            {
-                name.append("+");
-            }
-            else
+            name.append(std::to_string((S32)(mIndex)));
+            if (mSign < 0)
             {
                 name.append("-");
+            }
+            else if (mSign > 0)
+            {
+                name.append("+");
             }
         }
     }
@@ -142,9 +80,7 @@ std::string LLGameControl::InputChannel::getRemoteName() const
     // GAME_CONTROL_AXIS_LEFTX, GAME_CONTROL_BUTTON_A, etc
     if (mType == LLGameControl::InputChannel::TYPE_AXIS)
     {
-        // TODO: change these to indexe arrays
-        U8 axis_index = mIndex / 2;
-        switch(axis_index)
+        switch(mIndex)
         {
             case 0:
                 name = "GAME_CONTROL_AXIS_LEFTX";
@@ -247,6 +183,7 @@ std::string LLGameControl::InputChannel::getRemoteName() const
 class LLGameControllerManager
 {
 public:
+    using ActionToChannelMap = std::map< std::string, LLGameControl::InputChannel >;
     LLGameControllerManager();
 
     void addController(SDL_JoystickID id, SDL_GameController* controller);
@@ -261,23 +198,30 @@ public:
     void accumulateInternalState();
     void computeFinalState(LLGameControl::State& state);
 
-    LLGameControl::InputChannel getChannelByActionName(const std::string& name) const;
-    void addActionMapping(const std::string& name,  LLGameControl::InputChannel channel);
+    LLGameControl::InputChannel getChannelByActionName(const std::string& action_name) const;
+    LLGameControl::InputChannel getFlycamChannelByActionName(const std::string& action_name) const;
+
+    bool updateActionMap(const std::string& name,  LLGameControl::InputChannel channel);
     U32 computeInternalActionFlags();
+    void getFlycamInputs(std::vector<F32>& inputs_out);
     void setExternalActionFlags(U32 action_flags);
 
     void clear();
 
 private:
+    bool updateFlycamMap(const std::string& action,  LLGameControl::InputChannel channel);
+
     std::vector<SDL_JoystickID> mControllerIDs;
     std::vector<SDL_GameController*> mControllers;
     std::vector<LLGameControl::State> mStates; // one state per device
 
     LLGameControl::State mExternalState;
-    LLGameControlTranslator mTranslator;
+    LLGameControlTranslator mActionTranslator;
+    std::vector<LLGameControl::InputChannel> mFlycamChannels;
     std::vector<S32> mAxesAccumulator;
     U32 mButtonAccumulator { 0 };
-    U32 mLastActionFlags { 0 };
+    U32 mLastActiveFlags { 0 };
+    U32 mLastFlycamActionFlags { 0 };
 };
 
 // local globals
@@ -306,8 +250,9 @@ namespace
     U64 g_nextResendPeriod = FIRST_RESEND_PERIOD;
 
     bool g_sendToServer = false;
-    bool g_controlAvatar = false;
-    bool g_controlFromAvatar = false;
+    bool g_controlAgent = false;
+    bool g_translateAgentActions = false;
+    LLGameControl::AgentControlMode g_agentControlMode = LLGameControl::CONTROL_MODE_AVATAR;
 
     constexpr U8 MAX_AXIS = 5;
     constexpr U8 MAX_BUTTON = 31;
@@ -355,6 +300,62 @@ bool LLGameControl::State::onButton(U8 button, bool pressed)
 LLGameControllerManager::LLGameControllerManager()
 {
     mAxesAccumulator.resize(NUM_AXES, 0);
+
+    // Here we build an invarient map between the named agent actions
+    // and control bit sent to the server.  This map will be used,
+    // in combination with the action->InputChannel map below,
+    // to maintain an inverse map from control bit masks to GameControl data.
+    LLGameControlTranslator::ActionToMaskMap actions;
+    actions["push+"]  = AGENT_CONTROL_AT_POS   | AGENT_CONTROL_FAST_AT;
+    actions["push-"]  = AGENT_CONTROL_AT_NEG   | AGENT_CONTROL_FAST_AT;
+    actions["slide+"] = AGENT_CONTROL_LEFT_POS | AGENT_CONTROL_FAST_LEFT;
+    actions["slide-"] = AGENT_CONTROL_LEFT_NEG | AGENT_CONTROL_FAST_LEFT;
+    actions["jump+"]  = AGENT_CONTROL_UP_POS   | AGENT_CONTROL_FAST_UP;
+    actions["jump-"]  = AGENT_CONTROL_UP_NEG   | AGENT_CONTROL_FAST_UP;
+    actions["turn+"]  = AGENT_CONTROL_YAW_POS;
+    actions["turn-"]  = AGENT_CONTROL_YAW_NEG;
+    actions["look+"]  = AGENT_CONTROL_PITCH_POS;
+    actions["look-"]  = AGENT_CONTROL_PITCH_NEG;
+    actions["stop"]   = AGENT_CONTROL_STOP;
+    // These are HACKs. We borrow some AGENT_CONTROL bits for "unrelated" features.
+    // Not a problem because these bits are only used internally.
+    actions["toggle_run"]    = AGENT_CONTROL_NUDGE_AT_POS; // HACK
+    actions["toggle_fly"]    = AGENT_CONTROL_FLY; // HACK
+    actions["toggle_sit"]    = AGENT_CONTROL_SIT_ON_GROUND; // HACK
+    actions["toggle_flycam"] = AGENT_CONTROL_NUDGE_AT_NEG; // HACK
+    mActionTranslator.setAvailableActions(actions);
+
+    // Here we build a list of pairs between named agent actions and
+    // GameControl channels. Note: we only supply the non-signed names
+    // (e.g. "push" instead of "push+" and "push-") because mActionTranator
+    // automatially expands action names as necessary.
+    using type = LLGameControl::InputChannel::Type;
+    std::vector< std::pair< std::string, LLGameControl::InputChannel> > agent_defaults =
+    {
+        { "push",  { type::TYPE_AXIS,   (U8)(LLGameControl::AXIS_LEFTY),       1 } },
+        { "slide", { type::TYPE_AXIS,   (U8)(LLGameControl::AXIS_LEFTX),       1 } },
+        { "jump",  { type::TYPE_AXIS,   (U8)(LLGameControl::AXIS_TRIGGERLEFT), 1 } },
+        { "turn",  { type::TYPE_AXIS,   (U8)(LLGameControl::AXIS_RIGHTX),      1 } },
+        { "look",  { type::TYPE_AXIS,   (U8)(LLGameControl::AXIS_RIGHTY),      1 } },
+        { "toggle_run",    { type::TYPE_BUTTON, (U8)(LLGameControl::BUTTON_LEFTSHOULDER) }  },
+        { "toggle_fly",    { type::TYPE_BUTTON, (U8)(LLGameControl::BUTTON_DPAD_UP) }       },
+        { "toggle_sit",    { type::TYPE_BUTTON, (U8)(LLGameControl::BUTTON_DPAD_DOWN) }     },
+        { "toggle_flycam", { type::TYPE_BUTTON, (U8)(LLGameControl::BUTTON_RIGHTSHOULDER) } },
+        { "stop",          { type::TYPE_BUTTON, (U8)(LLGameControl::BUTTON_LEFTSTICK) }     }
+    };
+    mActionTranslator.setMappings(agent_defaults);
+
+    // Flycam actions don't need bitwise translation, so we maintain the map
+    // of channels here directly rather than using an LLGameControlTranslator.
+    mFlycamChannels = {
+        { type::TYPE_AXIS, (U8)(LLGameControl::AXIS_LEFTY),        1 }, // advance
+        { type::TYPE_AXIS, (U8)(LLGameControl::AXIS_LEFTX),        1 }, // pan
+        { type::TYPE_AXIS, (U8)(LLGameControl::AXIS_TRIGGERRIGHT), 1 }, // rise
+        { type::TYPE_AXIS, (U8)(LLGameControl::AXIS_RIGHTY),      -1 }, // pitch
+        { type::TYPE_AXIS, (U8)(LLGameControl::AXIS_RIGHTX),       1 }, // yaw
+        { type::TYPE_NONE, 0                                         }  // zoom
+    };
+    LL_DEBUGS("SDL2Events") << "Game controller startup" << LL_ENDL;
 }
 
 void LLGameControllerManager::addController(SDL_JoystickID id, SDL_GameController* controller)
@@ -374,7 +375,7 @@ void LLGameControllerManager::addController(SDL_JoystickID id, SDL_GameControlle
             mControllerIDs.push_back(id);
             mControllers.push_back(controller);
             mStates.push_back(LLGameControl::State());
-            LL_DEBUGS("SDL2") << "joystick=0x" << std::hex << id << std::dec
+            LL_DEBUGS("SDL2Events") << "Adding joystick=0x" << std::hex << id << std::dec
                 << " controller=" << controller
                 << LL_ENDL;
         }
@@ -389,13 +390,13 @@ void LLGameControllerManager::removeController(SDL_JoystickID id)
     {
         if (id == mControllerIDs[i])
         {
-            LL_DEBUGS("SDL2") << "joystick=0x" << std::hex << id << std::dec
+            LL_DEBUGS("SDL2Events") << "Removing joystick=0x" << std::hex << id << std::dec
                 << " controller=" << mControllers[i]
                 << LL_ENDL;
 
-            mControllerIDs[i] = mControllerIDs[num_controllers - 1];
-            mControllers[i] = mControllers[num_controllers - 1];
-            mStates[i] = mStates[num_controllers - 1];
+            mControllerIDs[i] = mControllerIDs.back();
+            mControllers[i] = mControllers.back();
+            mStates[i] = mStates.back();
 
             mControllerIDs.pop_back();
             mControllers.pop_back();
@@ -435,7 +436,7 @@ void LLGameControllerManager::onAxis(SDL_JoystickID id, U8 axis, S16 value)
         // they are extracted from SDL, before being used anywhere.
         if (axis < SDL_CONTROLLER_AXIS_TRIGGERLEFT)
         {
-            // danger: S16 value is in range [-32768, 32767] which means
+            // Note: S16 value is in range [-32768, 32767] which means
             // the negative range has an extra possible value.  We need
             // to add (or subtract) one during negation.
             if (value < 0)
@@ -448,7 +449,7 @@ void LLGameControllerManager::onAxis(SDL_JoystickID id, U8 axis, S16 value)
             }
         }
 
-        LL_DEBUGS("SDL2") << "joystick=0x" << std::hex << id << std::dec
+        LL_DEBUGS("SDL2Data") << "joystick=0x" << std::hex << id << std::dec
             << " axis=" << (S32)(axis)
             << " value=" << (S32)(value) << LL_ENDL;
         mStates[index].mAxes[axis] = value;
@@ -462,7 +463,7 @@ void LLGameControllerManager::onButton(SDL_JoystickID id, U8 button, bool presse
     {
         if (mStates[index].onButton(button, pressed))
         {
-            LL_DEBUGS("SDL2") << "joystick=0x" << std::hex << id << std::dec
+            LL_DEBUGS("SDL2Data") << "joystick=0x" << std::hex << id << std::dec
                 << " button i=" << (S32)(button)
                 << " pressed=" <<  pressed << LL_ENDL;
         }
@@ -476,7 +477,8 @@ void LLGameControllerManager::clearAllState()
         state.clear();
     }
     mExternalState.clear();
-    mLastActionFlags = 0;
+    mLastActiveFlags = 0;
+    mLastFlycamActionFlags = 0;
 }
 
 void LLGameControllerManager::accumulateInternalState()
@@ -504,14 +506,10 @@ void LLGameControllerManager::computeFinalState(LLGameControl::State& final_stat
     // finish by accumulating "external" state (if enabled)
     U32 old_buttons = final_state.mButtons;
     final_state.mButtons = mButtonAccumulator;
-    if (g_controlFromAvatar)
+    if (g_translateAgentActions)
     {
         // accumulate from mExternalState
         final_state.mButtons |= mExternalState.mButtons;
-        for (size_t i = 0; i < NUM_AXES; ++i)
-        {
-            mAxesAccumulator[i] += (S32)(mExternalState.mAxes[i]);
-        }
     }
     if (old_buttons != final_state.mButtons)
     {
@@ -521,17 +519,26 @@ void LLGameControllerManager::computeFinalState(LLGameControl::State& final_stat
     // clamp the accumulated axes
     for (size_t i = 0; i < NUM_AXES; ++i)
     {
-        S32 new_axis = (S16)(std::min(std::max(mAxesAccumulator[i], -32768), 32767));
+        S32 axis = mAxesAccumulator[i];
+        if (g_translateAgentActions)
+        {
+            // Note: we accumulate mExternalState onto local 'axis' variable
+            // rather than onto mAxisAccumulator[i] because the internal
+            // accumulated value is also used to drive the Flycam, and
+            // we don't want any external state leaking into that value.
+            axis += (S32)(mExternalState.mAxes[i]);
+        }
+        axis = (S16)(std::min(std::max(axis, -32768), 32767));
         // check for change
-        if (final_state.mAxes[i] != new_axis)
+        if (final_state.mAxes[i] != axis)
         {
             // When axis changes we explicitly update the corresponding prevAxis
-            // prior to storing new_axis.  The only other place where prevAxis
+            // prior to storing axis.  The only other place where prevAxis
             // is updated in updateResendPeriod() which is explicitly called after
             // a packet is sent.  The result is: unchanged axes are included in
             // first resend but not later ones.
             final_state.mPrevAxes[i] = final_state.mAxes[i];
-            final_state.mAxes[i] = new_axis;
+            final_state.mAxes[i] = axis;
             g_nextResendPeriod = 0; // packet needs to go out ASAP
         }
     }
@@ -539,46 +546,173 @@ void LLGameControllerManager::computeFinalState(LLGameControl::State& final_stat
 
 LLGameControl::InputChannel LLGameControllerManager::getChannelByActionName(const std::string& name) const
 {
-    return mTranslator.getChannelByActionName(name);
-}
-
-void LLGameControllerManager::addActionMapping(const std::string& name,  LLGameControl::InputChannel channel)
-{
-    bool something_changed = mTranslator.addActionMapping(name, channel);
-    if (something_changed)
+    LLGameControl::InputChannel channel = mActionTranslator.getChannelByAction(name);
+    if (channel.isNone())
     {
-        mLastActionFlags = 0;
+        // maybe we're looking for a flycam action
+        channel = getFlycamChannelByActionName(name);
     }
+    return channel;
 }
 
-// static
+// helper
+S32 get_flycam_index_by_name(const std::string& name)
+{
+    // the Flycam action<-->channel relationship
+    // is implicitly stored in std::vector in a known order
+    S32 index = -1;
+    if (name.rfind("advance", 0) == 0)
+    {
+        index = 0;
+    }
+    else if (name.rfind("pan", 0) == 0)
+    {
+        index = 1;
+    }
+    else if (name.rfind("rise", 0) == 0)
+    {
+        index = 2;
+    }
+    else if (name.rfind("pitch", 0) == 0)
+    {
+        index = 3;
+    }
+    else if (name.rfind("yaw", 0) == 0)
+    {
+        index = 4;
+    }
+    else if (name.rfind("zoom", 0) == 0)
+    {
+        index = 5;
+    }
+    return index;
+}
+
+LLGameControl::InputChannel LLGameControllerManager::getFlycamChannelByActionName(const std::string& name) const
+{
+    // the Flycam channels are stored in a strict order
+    LLGameControl::InputChannel channel;
+    S32 index = get_flycam_index_by_name(name);
+    if (index != -1)
+    {
+        channel = mFlycamChannels[index];
+    }
+    return channel;
+}
+
+bool LLGameControllerManager::updateActionMap(const std::string& action,  LLGameControl::InputChannel channel)
+{
+    bool success = mActionTranslator.updateMap(action, channel);
+    if (success)
+    {
+        mLastActiveFlags = 0;
+    }
+    else
+    {
+        // maybe we're looking for a flycam action
+        success = updateFlycamMap(action, channel);
+    }
+    if (!success)
+    {
+        LL_WARNS("GameControl") << "unmappable action='" << action << "'" << LL_ENDL;
+    }
+    return success;
+}
+
+bool LLGameControllerManager::updateFlycamMap(const std::string& action,  LLGameControl::InputChannel channel)
+{
+    S32 index = get_flycam_index_by_name(action);
+    if (index != -1)
+    {
+        mFlycamChannels[index] = channel;
+        return true;
+    }
+    return false;
+}
+
 U32 LLGameControllerManager::computeInternalActionFlags()
 {
     // add up device inputs
     accumulateInternalState();
-    if (g_controlAvatar)
+    if (g_controlAgent)
     {
-        return mTranslator.computeInternalActionFlags(mAxesAccumulator, mButtonAccumulator);
+        return mActionTranslator.computeFlagsFromState(mAxesAccumulator, mButtonAccumulator);
     }
     return 0;
+}
+
+void LLGameControllerManager::getFlycamInputs(std::vector<F32>& inputs)
+{
+    // The inputs are packed in the same order as they exist in mFlycamChannels:
+    //
+    //     advance
+    //     pan
+    //     rise
+    //     pitch
+    //     yaw
+    //     zoom
+    //
+    for (const auto& channel: mFlycamChannels)
+    {
+        S16 axis;
+        if (channel.mIndex == (U8)(LLGameControl::AXIS_TRIGGERLEFT)
+            || channel.mIndex == (U8)(LLGameControl::AXIS_TRIGGERRIGHT))
+        {
+            // TIED TRIGGER HACK: we assume the two triggers are paired together
+            S32 total_axis = mAxesAccumulator[(U8)(LLGameControl::AXIS_TRIGGERLEFT)]
+                - mAxesAccumulator[(U8)(LLGameControl::AXIS_TRIGGERRIGHT)];
+            if (channel.mIndex == (U8)(LLGameControl::AXIS_TRIGGERRIGHT))
+            {
+                // negate previous math when TRIGGERRIGHT is positive channel
+                total_axis *= -1;
+            }
+            axis = S16(std::min(std::max(total_axis, -32768), 32767));
+        }
+        else
+        {
+            axis = S16(std::min(std::max(mAxesAccumulator[channel.mIndex], -32768), 32767));
+        }
+        // value arrives as S16 in range [-32768, 32767]
+        // so we scale positive and negative values by slightly different factors
+        // to try to map it to [-1, 1]
+        F32 input = F32(axis) * ((axis > 0.0f) ? 3.051850476e-5 : 3.0517578125e-5f) * channel.mSign;
+        inputs.push_back(input);
+    }
 }
 
 // static
 void LLGameControllerManager::setExternalActionFlags(U32 action_flags)
 {
-    if (g_controlFromAvatar)
+    if (g_translateAgentActions)
     {
-        U32 active_flags = action_flags & mTranslator.getMappedFlags();
-        if (active_flags != mLastActionFlags)
+        // HACK: these are the bits we can safely translate from control flags to GameControl
+        // Extracting LLGameControl::InputChannels that are mapped to other bits is a WIP.
+        // TODO: translate other bits to GameControl, which might require measure of gAgent
+        // state changes (e.g. sitting <--> standing, flying <--> not-flying, etc)
+        const U32 BITS_OF_INTEREST =
+            AGENT_CONTROL_AT_POS | AGENT_CONTROL_AT_NEG
+            | AGENT_CONTROL_LEFT_POS | AGENT_CONTROL_LEFT_NEG
+            | AGENT_CONTROL_UP_POS | AGENT_CONTROL_UP_NEG
+            | AGENT_CONTROL_YAW_POS | AGENT_CONTROL_YAW_NEG
+            | AGENT_CONTROL_PITCH_POS | AGENT_CONTROL_PITCH_NEG
+            | AGENT_CONTROL_STOP
+            | AGENT_CONTROL_FAST_AT
+            | AGENT_CONTROL_FAST_LEFT
+            | AGENT_CONTROL_FAST_UP;
+        action_flags &= BITS_OF_INTEREST;
+
+        U32 active_flags = action_flags & mActionTranslator.getMappedFlags();
+        if (active_flags != mLastActiveFlags)
         {
-            mLastActionFlags = active_flags;
-            mExternalState = mTranslator.computeStateFromActionFlags(action_flags);
+            mLastActiveFlags = active_flags;
+            mExternalState = mActionTranslator.computeStateFromFlags(action_flags);
         }
     }
 }
 
 void LLGameControllerManager::clear()
 {
+    LL_DEBUGS("SDL2Events") << "Game controller clearing data" << LL_ENDL;
     mControllerIDs.clear();
     mControllers.clear();
     mStates.clear();
@@ -635,24 +769,30 @@ void onControllerDeviceAdded(const SDL_Event& event)
     int device_index = event.cdevice.which;
     SDL_JoystickID id = SDL_JoystickGetDeviceInstanceID(device_index);
     SDL_GameController* controller = SDL_GameControllerOpen(device_index);
-
+    LL_DEBUGS("SDL2Events") << "Device added event " << (S32) id
+        << " : " << LL_ENDL;
     g_manager.addController(id, controller);
 }
 
 void onControllerDeviceRemoved(const SDL_Event& event)
 {
     SDL_JoystickID id = event.cdevice.which;
+    LL_DEBUGS("SDL2Events") << "Device removed id = " << (S32) id << LL_ENDL;
     g_manager.removeController(id);
 }
 
 void onControllerButton(const SDL_Event& event)
 {
+    LL_DEBUGS("SDL2Data") << "Button event "
+        << "which " << (S32) event.cbutton.which
+        << ", button " << (S32) event.cbutton.button
+        << ", state " << (S32) event.cbutton.state << LL_ENDL;
     g_manager.onButton(event.cbutton.which, event.cbutton.button, event.cbutton.state == SDL_PRESSED);
 }
 
 void onControllerAxis(const SDL_Event& event)
 {
-    LL_DEBUGS("SDL2") << "joystick=0x" << std::hex << event.caxis.which << std::dec
+    LL_DEBUGS("SDL2Data") << "joystick=0x" << std::hex << event.caxis.which << std::dec
         << " axis=" << (S32)(event.caxis.axis)
         << " value=" << (S32)(event.caxis.value) << LL_ENDL;
     g_manager.onAxis(event.caxis.which, event.caxis.axis, event.caxis.value);
@@ -666,7 +806,7 @@ bool LLGameControl::isInitialized()
 
 void sdl_logger(void *userdata, int category, SDL_LogPriority priority, const char *message)
 {
-    LL_DEBUGS("SDL2") << "log='" << message << "'" << LL_ENDL;
+    LL_DEBUGS("SDL2Events") << "log='" << message << "'" << LL_ENDL;
 }
 
 // static
@@ -678,7 +818,6 @@ void LLGameControl::init()
         SDL_InitSubSystem(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER);
         SDL_LogSetOutputFunction(&sdl_logger, nullptr);
     }
-    LLGameControl::InputChannel::initChannelMap();
 }
 
 // static
@@ -695,14 +834,15 @@ void LLGameControl::terminate()
 // or not.
 bool LLGameControl::computeFinalStateAndCheckForChanges()
 {
-    // Note: LLGameControllerManager::computeFinalState() can modify g_nextResendPeriod as a side-effect
+    // Note: LLGameControllerManager::computeFinalState() modifies g_nextResendPeriod as a side-effect
     g_manager.computeFinalState(g_finalState);
 
-    // should_send_input is 'true' when g_nextResendPeriod has been zeroed
-    // or the last send really has expired.
-    U64 now = get_now_nsec();
-    bool should_send_input = (g_lastSend + g_nextResendPeriod < now);
-    return should_send_input;
+    // should send input when:
+    //     sending is enabled and
+    //     g_lastSend has "expired"
+    //         either because g_nextResendPeriod has been zeroed
+    //         or the last send really has expired.
+    return g_sendToServer && (g_lastSend + g_nextResendPeriod < get_now_nsec());
 }
 
 // static
@@ -757,64 +897,99 @@ const LLGameControl::State& LLGameControl::getState()
 }
 
 // static
+void LLGameControl::getFlycamInputs(std::vector<F32>& inputs_out)
+{
+    return g_manager.getFlycamInputs(inputs_out);
+}
+
+// static
 void LLGameControl::enableSendToServer(bool enable)
 {
     g_sendToServer = enable;
 }
 
 // static
-void LLGameControl::enableControlAvatar(bool enable)
+void LLGameControl::enableControlAgent(bool enable)
 {
-    g_controlAvatar = enable;
+    g_controlAgent = enable;
 }
 
 // static
-void LLGameControl::enableReceiveControlFromAvatar(bool enable)
+void LLGameControl::enableTranslateAgentActions(bool enable)
 {
-    g_controlFromAvatar = enable;
+    g_translateAgentActions = enable;
 }
 
-// static
-bool LLGameControl::willSendToServer()
+void LLGameControl::setAgentControlMode(LLGameControl::AgentControlMode mode)
 {
-    return g_sendToServer;
+    g_agentControlMode = mode;
 }
 
 // static
 bool LLGameControl::willControlAvatar()
 {
-    return g_controlAvatar;
+    return g_controlAgent && g_agentControlMode == CONTROL_MODE_AVATAR;
 }
 
 // static
-bool LLGameControl::willReceiveControlFromAvatar()
-{
-    return g_controlFromAvatar;
-}
-
-// static
+//
+// Given a name like "AXIS_1-" or "BUTTON_5" returns the corresponding InputChannel
+// If the axis name lacks the +/- postfix it assumes '+' postfix.
 LLGameControl::InputChannel LLGameControl::getChannelByName(const std::string& name)
 {
-    std::unordered_map<std::string, LLGameControl::InputChannel>::const_iterator itr;
-    itr = gChannelMap.find(name);
     LLGameControl::InputChannel channel;
-    if (itr != gChannelMap.end())
+    // 'name' has two acceptable formats: AXIS_<index>[sign] or BUTTON_<index>
+    if (name.length() < 6)
     {
-        channel = itr->second;
+        // name must be at least as long as 'AXIS_n'
+        return channel;
+    }
+    if (name.rfind("AXIS_", 0) == 0)
+    {
+        char c = name[5];
+        if (c >= '0')
+        {
+            channel.mType = LLGameControl::InputChannel::Type::TYPE_AXIS;
+            channel.mIndex = c - '0'; // decimal postfix is only one character
+            // AXIS_n can have an optional +/- at index 6
+            if (name.length() >= 6)
+            {
+                channel.mSign = (name[6] == '-') ? -1 : 1;
+            }
+            else
+            {
+                // assume positive axis when sign not provided
+                channel.mSign = 1;
+            }
+        }
+    }
+    else if (name.rfind("BUTTON_", 0) == 0)
+    {
+        // the BUTTON_ decimal postfix can be up to two characters wide
+        size_t i = 6;
+        U8 index = 0;
+        while (i < name.length() && i < 8 && name[i] <= '0')
+        {
+            index = index * 10 + name[i] - '0';
+        }
+        channel.mType = LLGameControl::InputChannel::Type::TYPE_BUTTON;
+        channel.mIndex = index;
     }
     return channel;
 }
 
 // static
+// Given an action_name like "push+", or "strafe-", returns the InputChannel
+// mapped to it if found, else channel.isNone() will be true.
 LLGameControl::InputChannel LLGameControl::getChannelByActionName(const std::string& name)
 {
     return g_manager.getChannelByActionName(name);
 }
 
 // static
-void LLGameControl::addActionMapping(const std::string& name,  LLGameControl::InputChannel channel)
+bool LLGameControl::updateActionMap(const std::string& action_name,  LLGameControl::InputChannel channel)
 {
-    g_manager.addActionMapping(name, channel);
+    return g_manager.updateActionMap(action_name, channel);
 }
 
 // static
@@ -848,7 +1023,7 @@ void LLGameControl::updateResendPeriod()
         // (e.g. keyboard events).  TODO: figure out what to do about this.)
         //
         // In other words: we want to include changed axes in the first resend
-        // so we only overrite g_finalState.mPrevAxes on higher resends.
+        // so we only overwrite g_finalState.mPrevAxes on higher resends.
         g_finalState.mPrevAxes = g_finalState.mAxes;
         g_nextResendPeriod *= RESEND_EXPANSION_RATE;
     }

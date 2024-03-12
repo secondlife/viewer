@@ -2890,7 +2890,7 @@ void LLGLSyncFence::wait()
 	if (mSync)
 	{
 		while (glClientWaitSync(mSync, 0, FENCE_WAIT_TIME_NANOSECONDS) == GL_TIMEOUT_EXPIRED)
-		{
+		{ //track the number of times we've waited here
 		}
 	}
 }

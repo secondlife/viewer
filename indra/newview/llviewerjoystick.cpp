@@ -148,17 +148,11 @@ BOOL CALLBACK di8_devices_callback(LPCDIDEVICEINSTANCE device_instance_ptr, LPVO
 
         LLSD guid = LLViewerJoystick::getInstance()->getDeviceUUID();
 
-        bool init_device = false;
-        if (guid.isBinary())
+        bool init_device = LLViewerJoystick::is3DConnexionDevice(product_name);
+        if (init_device && guid.isBinary())
         {
             std::vector<U8> bin_bucket = guid.asBinary();
             init_device = memcmp(&bin_bucket[0], &device_instance_ptr->guidInstance, sizeof(GUID)) == 0;
-        }
-        else
-        {
-            // It might be better to init space navigator here, but if system doesn't has one,
-            // ndof will pick a random device, it is simpler to pick first device now to have an id
-            init_device = true;
         }
 
         if (init_device)

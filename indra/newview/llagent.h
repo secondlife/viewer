@@ -33,6 +33,7 @@
 #include "llcharacter.h"
 #include "llcoordframe.h"			// for mFrameAgent
 #include "llavatarappearancedefines.h"
+#include "llflycam.h"
 #include "llkeyboard.h"
 #include "llpermissionsflags.h"
 #include "llevents.h"
@@ -481,6 +482,7 @@ public:
 	void 			resetControlFlags();
 	BOOL			anyControlGrabbed() const; 		// True iff a script has taken over a control
 	BOOL			isControlGrabbed(S32 control_index) const;
+    bool            isUsingFlycam() const { return mUsingFlycam; }
 	// Send message to simulator to force grabbed controls to be
 	// released, in case of a poorly written script.
 	void			forceReleaseControls();
@@ -508,12 +510,18 @@ public:
     //
     void setExternalActionFlags(U32 flags);
     void applyExternalActionFlags();
+    void updateFlycam();
 
 private:
+
+    U64 mLastFlycamUpdate { 0 };
     U32 mExternalActionFlags { 0 };
+    LLFlycam mFlycam;
     bool mToggleFly { true };
     bool mToggleSit { true };
     bool mToggleRun { true };
+    bool mToggleFlycam { true };
+    bool mUsingFlycam { false };
 
 	//--------------------------------------------------------------------
 	// Animations
@@ -582,6 +590,7 @@ public:
 	void			roll(F32 angle);
 	void			yaw(F32 angle);
 	LLVector3		getReferenceUpVector();
+	//LLVector3		getReferenceLeftVector();
 
 	//--------------------------------------------------------------------
 	// Autopilot

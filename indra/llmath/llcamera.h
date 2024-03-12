@@ -48,8 +48,8 @@ const F32 MIN_NEAR_PLANE 	= 0.1f;
 const F32 MIN_FAR_PLANE 	= 0.2f;
 
 // Min/Max FOV values for square views. Call getMin/MaxView to get extremes based on current aspect ratio.
-static const F32 MIN_FIELD_OF_VIEW = 5.0f * DEG_TO_RAD;
-static const F32 MAX_FIELD_OF_VIEW = 175.f * DEG_TO_RAD;
+constexpr F32 MIN_FIELD_OF_VIEW = 5.0f * DEG_TO_RAD;
+constexpr F32 MAX_FIELD_OF_VIEW = 175.f * DEG_TO_RAD;
 
 // An LLCamera is an LLCoorFrame with a view frustum.
 // This means that it has several methods for moving it around 

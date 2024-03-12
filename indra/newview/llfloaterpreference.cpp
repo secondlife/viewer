@@ -3145,28 +3145,29 @@ void LLPanelPreferenceGameControl::onClickGameControlToServer(LLUICtrl* ctrl)
     LLGameControl::enableSendToServer(checked);
 }
 
-void LLPanelPreferenceGameControl::onClickGameControlToAvatar(LLUICtrl* ctrl)
+void LLPanelPreferenceGameControl::onClickGameControlToAgent(LLUICtrl* ctrl)
 {
-    BOOL checked = mCheckGameControlToAvatar->get();
-    gSavedSettings.setBOOL( "GameControlToAvatar", checked );
+    BOOL checked = mCheckGameControlToAgent->get();
+    gSavedSettings.setBOOL( "GameControlToAgent", checked );
+    LLGameControl::enableControlAgent(checked);
 
     mActionTable->deselectAllItems();
-    bool table_enabled = checked || mCheckAvatarToGameControl->get();
+    bool table_enabled = checked || mCheckAgentToGameControl->get();
     mActionTable->setEnabled(table_enabled);
     mChannelSelector->setEnabled(table_enabled);
-    LLGameControl::enableControlAvatar(checked);
+    LLGameControl::enableTranslateAgentActions(checked);
 }
 
-void LLPanelPreferenceGameControl::onClickAvatarToGameControl(LLUICtrl* ctrl)
+void LLPanelPreferenceGameControl::onClickAgentToGameControl(LLUICtrl* ctrl)
 {
-    BOOL checked = mCheckAvatarToGameControl->get();
-    gSavedSettings.setBOOL( "AvatarToGameControl", checked );
+    BOOL checked = mCheckAgentToGameControl->get();
+    gSavedSettings.setBOOL( "AgentToGameControl", checked );
 
     mActionTable->deselectAllItems();
-    bool table_enabled = checked || mCheckGameControlToAvatar->get();
+    bool table_enabled = checked || mCheckGameControlToAgent->get();
     mActionTable->setEnabled(table_enabled);
     mChannelSelector->setEnabled(table_enabled);
-    LLGameControl::enableReceiveControlFromAvatar(checked);
+    LLGameControl::enableTranslateAgentActions(checked);
 
 }
 
@@ -3232,19 +3233,25 @@ void LLPanelPreferenceGameControl::onCommitInputChannel()
 {
     if (gSelectedCell)
     {
-        std::string value = mChannelSelector->getSelectedItemLabel();
-        if (value == "NONE")
-        {
-            gSelectedCell->setValue(" ");
-        }
-        else
-        {
-            gSelectedCell->setValue(value);
-        }
-        LLGameControl::InputChannel channel = LLGameControl::getChannelByName(value);
-        LLGameControl::addActionMapping(gSelectedItem->getValue(), channel);
-        gGameControlPanel->updateTable();
+        std::string channel_name = mChannelSelector->getSelectedItemLabel();
+        LLGameControl::InputChannel channel = LLGameControl::getChannelByName(channel_name);
 
+        std::string action_name = gSelectedItem->getValue();
+        bool success = LLGameControl::updateActionMap(action_name, channel);
+        if (success)
+        {
+            if (channel_name == "NONE")
+            {
+                gSelectedCell->setValue(" ");
+                // TODO?: also clear cell to the right with script-relevant name
+            }
+            else
+            {
+                gSelectedCell->setValue(channel_name);
+                // TODO?: also update the cell to the right with script-relevant name
+            }
+        }
+        gGameControlPanel->updateTable();
         clearSelectionState();
     }
 }
@@ -3265,11 +3272,14 @@ void LLPanelPreferenceGameControl::applyGameControlInput(const LLGameControl::In
             LLScrollListCell* cell = gSelectedItem->getColumn(cell_index);
             if (cell)
             {
-                cell->setValue(channel.getLocalName());
-                LLGameControl::addActionMapping(gSelectedItem->getValue(), channel);
-                gGameControlPanel->updateTable();
+                bool success = LLGameControl::updateActionMap(gSelectedItem->getValue(), channel);
+                if (success)
+                {
+                    cell->setValue(channel.getLocalName());
+                    // TODO?: also update the cell to the right with script-relevant name
+                    gGameControlPanel->updateTable();
+                }
 
-                // TODO?: also update the cell to the right with script-relevant name
             }
         }
         gGameControlPanel->clearSelectionState();
@@ -3282,13 +3292,13 @@ BOOL LLPanelPreferenceGameControl::postBuild()
     mCheckGameControlToServer->setCommitCallback(boost::bind(&LLPanelPreferenceGameControl::onClickGameControlToServer, this, _1));
     //mCheckGameControlToServer->setEnabled(gSavedSettings.getBOOL( "GameControlToServer"));
 
-    mCheckGameControlToAvatar = getChild<LLCheckBoxCtrl>("game_control_to_avatar");
-    mCheckGameControlToAvatar->setCommitCallback(boost::bind(&LLPanelPreferenceGameControl::onClickGameControlToAvatar, this, _1));
-    //mCheckGameControlToAvatar->setEnabled(gSavedSettings.getBOOL( "GameControlToAvatar"));
+    mCheckGameControlToAgent = getChild<LLCheckBoxCtrl>("game_control_to_agent");
+    mCheckGameControlToAgent->setCommitCallback(boost::bind(&LLPanelPreferenceGameControl::onClickGameControlToAgent, this, _1));
+    //mCheckGameControlToAgent->setEnabled(gSavedSettings.getBOOL( "GameControlToAgent"));
 
-    mCheckAvatarToGameControl= getChild<LLCheckBoxCtrl>("avatar_to_game_control");
-    mCheckAvatarToGameControl->setCommitCallback(boost::bind(&LLPanelPreferenceGameControl::onClickAvatarToGameControl, this, _1));
-    //mCheckAvatarToGameControl->setEnabled(gSavedSettings.getBOOL( "AvatarToGameControl"));
+    mCheckAgentToGameControl= getChild<LLCheckBoxCtrl>("agent_to_game_control");
+    mCheckAgentToGameControl->setCommitCallback(boost::bind(&LLPanelPreferenceGameControl::onClickAgentToGameControl, this, _1));
+    //mCheckAgentToGameControl->setEnabled(gSavedSettings.getBOOL( "AgentToGameControl"));
 
     mActionTable = getChild<LLScrollListCtrl>("action_table");
     mActionTable->setCommitCallback(boost::bind(&LLPanelPreferenceGameControl::onActionSelect, this));
@@ -3296,7 +3306,7 @@ BOOL LLPanelPreferenceGameControl::postBuild()
     populateActionTable();
 
     // enable the table if at least one of the GameControl<-->Avatar options is enabled
-    mActionTable->setEnabled(mCheckGameControlToAvatar->get() || mCheckAvatarToGameControl->get());
+    mActionTable->setEnabled(mCheckGameControlToAgent->get() || mCheckAgentToGameControl->get());
 
     mChannelSelector = getChild<LLComboBox>("input_channel_combo");
     mChannelSelector->setVisible(FALSE);
@@ -3309,7 +3319,9 @@ void LLPanelPreferenceGameControl::populateActionTable()
 {
     loadSettings();
     populateColumns();
-    populateRows();
+    populateRows("game_control_table_rows.xml");
+    addTableSeparator();
+    populateRows("game_control_table_camera_rows.xml");
 }
 
 void LLPanelPreferenceGameControl::populateColumns()
@@ -3338,10 +3350,8 @@ void LLPanelPreferenceGameControl::populateColumns()
     }
 }
 
-void LLPanelPreferenceGameControl::populateRows()
+void LLPanelPreferenceGameControl::populateRows(const std::string& filename)
 {
-    // populate rows
-    std::string filename = "game_control_table_rows.xml";
     LLXMLNodePtr xmlNode;
     if (!LLUICtrlFactory::getLayeredXMLNode(filename, xmlNode))
     {
@@ -3376,8 +3386,8 @@ void LLPanelPreferenceGameControl::populateRows()
         row_it != contents.rows.end();
         ++row_it)
     {
-        std::string action = row_it->value.getValue().asString();
-        if (!action.empty() && action != "menu_separator")
+        std::string name = row_it->value.getValue().asString();
+        if (!name.empty() && name != "menu_separator")
         {
             LLScrollListItem::Params item_params(*row_it);
             item_params.enabled.setValue(true);
@@ -3386,17 +3396,16 @@ void LLPanelPreferenceGameControl::populateRows()
             // in XUI config file, and now we want to add two more
             if (num_columns > 0)
             {
-                LLGameControl::InputChannel channel = LLGameControl::getChannelByActionName(action);
+                LLGameControl::InputChannel channel = LLGameControl::getChannelByActionName(name);
 
                 cell_params.column = local_channel_column->mName;
                 cell_params.value = channel.getLocalName();
                 item_params.columns.add(cell_params);
 
-                /* TODO?: add a column with more human readable name
-                cell_params.column = remote_channel_column->mName;
-                cell_params.value = channel.getRemoteName();
-                item_params.columns.add(cell_params);
-                */
+                // TODO?: add a column with more human readable name
+                //cell_params.column = remote_channel_column->mName;
+                //cell_params.value = channel.getRemoteName();
+                //item_params.columns.add(cell_params);
             }
             mActionTable->addRow(item_params, EAddPosition::ADD_BOTTOM);
         }
@@ -3427,7 +3436,7 @@ void LLPanelPreferenceGameControl::clearSelectionState()
     gSelectedItem = nullptr;
 }
 
-void LLPanelPreferenceGameControl::addTableSeparator(LLScrollListCtrl* table)
+void LLPanelPreferenceGameControl::addTableSeparator()
 {
     LLScrollListItem::Params separator_params;
     separator_params.enabled(false);
@@ -3438,7 +3447,7 @@ void LLPanelPreferenceGameControl::addTableSeparator(LLScrollListCtrl* table)
     column_params.color = LLColor4(0.f, 0.f, 0.f, 0.7f);
     column_params.font_halign = LLFontGL::HCENTER;
     separator_params.columns.add(column_params);
-    table->addRow(separator_params, EAddPosition::ADD_BOTTOM);
+    mActionTable->addRow(separator_params, EAddPosition::ADD_BOTTOM);
 }
 
 void LLPanelPreferenceGameControl::updateTable()
