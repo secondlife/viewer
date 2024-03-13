@@ -37,7 +37,7 @@ class LLParcelChangeObserver;
 
 class LLPanelTopInfoBar : public LLPanel, public LLSingleton<LLPanelTopInfoBar>, private LLDestroyClass<LLPanelTopInfoBar>
 {
-	LLSINGLETON_C11(LLPanelTopInfoBar);
+	LLSINGLETON(LLPanelTopInfoBar);
 	~LLPanelTopInfoBar();
 	LOG_CLASS(LLPanelTopInfoBar);
 
