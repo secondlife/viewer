@@ -1770,8 +1770,10 @@ void LLEnvironment::updateGLVariablesForSettings(LLShaderUniforms* uniforms, con
         case LLSD::TypeArray:
         {
             LLVector4 vect4(value);
+            // always identify as a radiance pass if desaturating irradiance is disabled
+            static LLCachedControl<bool> desaturate_irradiance(gSavedSettings, "RenderDesaturateIrradiance", true);
 
-            if (gCubeSnapshot && !gPipeline.mReflectionMapManager.isRadiancePass())
+            if (desaturate_irradiance && gCubeSnapshot && !gPipeline.mReflectionMapManager.isRadiancePass())
             { // maximize and remove tinting if this is an irradiance map render pass and the parameter feeds into the sky background color
                 auto max_vec = [](LLVector4 col)
                 {
@@ -2966,7 +2968,7 @@ void LLEnvironment::DayTransition::animate()
 
 
     // pause probe updates and reset reflection maps on sky change
-    gPipeline.mReflectionMapManager.pause();
+    gPipeline.mReflectionMapManager.pause(mTransitionTime);
     gPipeline.mReflectionMapManager.reset();
 
     mSky = mStartSky->buildClone();
@@ -3569,7 +3571,7 @@ namespace
             mInjectedSky->setSource(target_sky);
 
             // clear reflection probes and pause updates during sky change
-            gPipeline.mReflectionMapManager.pause();
+            gPipeline.mReflectionMapManager.pause(transition);
             gPipeline.mReflectionMapManager.reset();
 
             mBlenderSky = std::make_shared<LLSettingsBlenderTimeDelta>(target_sky, start_sky, psky, transition);

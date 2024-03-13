@@ -266,6 +266,7 @@ extern LLGLSLShader			gHUDFullbrightAlphaMaskAlphaProgram;
 extern LLGLSLShader			gDeferredEmissiveProgram;
 extern LLGLSLShader			gDeferredAvatarEyesProgram;
 extern LLGLSLShader			gDeferredAvatarAlphaProgram;
+extern LLGLSLShader         gEnvironmentMapProgram;
 extern LLGLSLShader			gDeferredWLSkyProgram;
 extern LLGLSLShader			gDeferredWLCloudProgram;
 extern LLGLSLShader			gDeferredWLSunProgram;
