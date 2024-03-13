@@ -91,12 +91,15 @@ function leap.cmdpump()
     return leap._command
 end
 
+-- local inspect = require('inspect')
+
 -- Fire and forget. Send the specified request LLSD, expecting no reply.
 -- In fact, should the request produce an eventual reply, it will be
 -- treated as an unsolicited event.
 -- 
 -- See also request(), generate().
 function leap.send(pump, data, reqid)
+--  print_debug('leap.send('..pump..', '..inspect(data)..', '..reqid..') entry')
     local data = data
     if type(data) == 'table' then
         data = table.clone(data)
@@ -105,7 +108,8 @@ function leap.send(pump, data, reqid)
             data['reqid'] = reqid
         end
     end
-    post_to(pump, data)
+--  print_debug('leap.send('..pump..', '..inspect(data)..') calling post_on()')
+    post_on(pump, data)
 end
 
 -- Send the specified request LLSD, expecting exactly one reply. Block
@@ -128,7 +132,12 @@ end
 -- See also send(), generate().
 function leap.request(pump, data)
     local reqid = leap._requestSetup(pump, data)
-    local ok, response = pcall(leap._pending[reqid].wait)
+    waitfor = leap._pending[reqid]
+--  print_debug('leap.request('..tostring(pump)..', '..inspect(data)..') about to wait on '..
+--              tostring(waitfor))
+    local ok, response = pcall(waitfor.wait, waitfor)
+--  print_debug('leap.request('..tostring(pump)..', '..inspect(data)..') got '..
+--              tostring(ok)..': '..inspect(response))
     -- kill off temporary WaitForReqid object, even if error
     leap._pending[reqid] = nil
     if ok then
@@ -141,14 +150,15 @@ end
 -- common setup code shared by request() and generate()
 function leap._requestSetup(pump, data)
     -- invent a new, unique reqid
-    local reqid = leap._reqid
     leap._reqid += 1
+    local reqid = leap._reqid
     -- Instantiate a new WaitForReqid object. The priority is irrelevant
     -- because, unlike the WaitFor base class, WaitForReqid does not
     -- self-register on our leap._waitfors list. Instead, capture the new
     -- WaitForReqid object in leap._pending so _dispatch() can find it.
     leap._pending[reqid] = leap.WaitForReqid:new(reqid)
     -- Pass reqid to send() to stamp it into (a copy of) the request data.
+--  print_debug('leap._requestSetup('..tostring(pump)..', '..inspect(data)..')')
     leap.send(pump, data, reqid)
     return reqid
 end
@@ -193,16 +203,17 @@ function leap.process()
     leap._done = false
     local ok, pump, data
     while not leap._done do
+--      print_debug('leap.process() calling get_event_next()')
         ok, pump, data = pcall(get_event_next)
-        print_debug('leap.process() got', ok, pump, data)
+--      print_debug('leap.process() got '..tostring(ok)..': '..pump..', '..inspect(data))
         -- ok false means get_event_next() raised a Lua error
         -- data nil means get_event_next() returned (pump, LLSD()) to indicate done
         if not (ok and data) then
-            print_debug('leap.process() done')
             break
         end
         leap._dispatch(pump, data)
     end
+--  print_debug('leap.process() done')
     -- we're done: clean up all pending coroutines
     -- if ok, then we're just done.
     -- if not ok, then 'pump' is actually the error message.
@@ -249,7 +260,7 @@ function leap._unsolicited(pump, data)
             return
         end
     end
-    print_debug('_unsolicited(', pump, ', ', data, ') discarding unclaimed event')
+--  print_debug('_unsolicited(', pump, ', ', data, ') discarding unclaimed event')
 end
 
 -- called by WaitFor.enable()
@@ -354,9 +365,9 @@ end
 -- Block the calling coroutine until a suitable unsolicited event (one
 -- for which filter() returns the event) arrives.
 function leap.WaitFor:wait()
-    print_debug(self.name .. ' about to wait')
+--  print_debug(self.name .. ' about to wait')
     item = self._queue:Dequeue()
-    print_debug(self.name .. ' got ', item)
+--  print_debug(self.name .. ' got ', item)
     return item
 end
 
