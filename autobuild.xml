@@ -2219,25 +2219,39 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>158cbe79bef4ecafb870052bbaca541e07107228</string>
+              <string>17cd63922214b588d9a36137fadf927237ec0f25</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-openexr/releases/download/v1.8/openexr-3.2.2-darwin64-6501c65.tar.zst</string>
+              <string>https://github.com/secondlife/3p-openexr/releases/download/v1.10/openexr-3.2.2-darwin64-df7544d.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
+          </map>
+          <key>linux64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>b092658ab5ec009a5875e8b6e5b7109730ad6846</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://github.com/secondlife/3p-openexr/releases/download/v1.10/openexr-3.2.2-linux64-df7544d.tar.zst</string>
+            </map>
+            <key>name</key>
+            <string>linux64</string>
           </map>
           <key>windows64</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>924f6ddf6669af023d1f3832cb79b50b913ae0ca</string>
+              <string>c511ae9a3e401375af2199b498a75f32cebc010f</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-openexr/releases/download/v1.8/openexr-3.2.2-windows64-6501c65.tar.zst</string>
+              <string>https://github.com/secondlife/3p-openexr/releases/download/v1.10/openexr-3.2.2-windows64-df7544d.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
