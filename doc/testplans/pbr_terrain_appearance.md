@@ -1,4 +1,4 @@
-# PBR Terrain Feature Gating
+# PBR Terrain Appearance
 
 PBR terrain should have lower detail on lower graphics settings. PBR terrain will also not show emissive textures on some machines (like Macs) which do not support more than 16 textures.
 
