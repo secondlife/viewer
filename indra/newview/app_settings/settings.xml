@@ -9417,6 +9417,17 @@
     <key>Value</key>
     <integer>16</integer>
   </map>
+  <key>RenderMaxTextureResolution</key>
+  <map>
+    <key>Comment</key>
+    <string>Maximum texture resolution to download for non-boosted textures.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>2048</integer>
+  </map>
     <key>RenderDebugTextureBind</key>
     <map>
       <key>Comment</key>
@@ -10930,7 +10941,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>4.0</real>
+      <real>8.0</real>
     </map>
     <key>RenderTerrainPBRPlanarSampleCount</key>
     <map>
