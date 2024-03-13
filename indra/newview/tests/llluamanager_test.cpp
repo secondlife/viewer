@@ -312,6 +312,7 @@ namespace tut
             "-- test leap.lua\n"
             "\n"
             "leap = require('leap')\n"
+            "coro = require('coro')\n"
             "\n"
             "-- negative priority ensures catchall is always last\n"
             "catchall = leap.WaitFor:new(-1, 'catchall')\n"
@@ -327,25 +328,65 @@ namespace tut
             "\n"
             "function drain(waitfor)\n"
             "    print(waitfor.name .. ' start')\n"
-            "    for item in waitfor.wait, waitfor do\n"
+            "    -- It seems as though we ought to be able to code this loop\n"
+            "    -- over waitfor:wait() as:\n"
+            "    -- for item in waitfor.wait, waitfor do\n"
+            "    -- However, that seems to stitch a detour through C code into\n"
+            "    -- the coroutine call stack, which prohibits coroutine.yield():\n"
+            "    -- 'attempt to yield across metamethod/C-call boundary'\n"
+            "    -- So we resort to two different calls to waitfor:wait().\n"
+            "    item = waitfor:wait()\n"
+            "    while item do\n"
             "        print(waitfor.name .. ' caught', item)\n"
+            "        item = waitfor:wait()\n"
             "    end\n"
             "    print(waitfor.name .. ' done')\n"
             "end\n"
             "\n"
-            "co_all = coroutine.create(drain)\n"
-            "co_special = coroutine.create(drain)\n"
-            "coroutine.resume(co_all, catchall)\n"
-            "coroutine.resume(co_special, catch_special)\n"
+            "function requester(name)\n"
+            "    print('requester('..name..') start')\n"
+            "    response = leap.request('testpump', {name=name})\n"
+            "    print('requester('..name..') got '..tostring(response))\n"
+            "    -- verify that the correct response was dispatched to this coroutine\n"
+            "    assert(response.name == name)\n"
+            "end\n"
+            "\n"
+            "coro.launch(drain, catchall)\n"
+            "coro.launch(drain, catch_special)\n"
+            "coro.launch(requester, 'a')\n"
+            "coro.launch(requester, 'b')\n"
             "\n"
             "leap.process()\n"
         );
+
+        LLSD requests;
+        LLEventStream pump("testpump", false);
+        LLTempBoundListener conn{
+            pump.listen("test<5>()",
+                        listener([&requests](const LLSD& data)
+                        {
+                            LL_DEBUGS("Lua") << "testpump got: " << data << LL_ENDL;
+                            requests.append(data);
+                        }))
+        };
+
         LuaState L;
         auto future = LLLUAmanager::startScriptLine(L, lua);
         auto replyname{ L.obtainListener()->getReplyName() };
         auto& replypump{ LLEventPumps::instance().obtain(replyname) };
+        // By the time leap.process() calls get_event_next() and wakes us up,
+        // we expect that both requester() coroutines have posted and are
+        // waiting for a reply.
+        ensure_equals("didn't get both requests", requests.size(), 2);
+        // moreover, we expect they arrived in the order they were created
+        ensure_equals("a wasn't first",  requests[0]["name"].asString(), "a");
+        ensure_equals("b wasn't second", requests[1]["name"].asString(), "b");
         replypump.post(llsd::map("special", "K"));
+        // respond to requester(b) FIRST
+        replypump.post(requests[1]);
         replypump.post(llsd::map("name", "not special"));
+        // now respond to requester(a)
+        replypump.post(requests[0]);
         // tell leap.process() we're done
         replypump.post(LLSD());
         auto [count, result] = future.get();
