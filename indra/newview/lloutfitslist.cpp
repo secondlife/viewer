@@ -790,7 +790,7 @@ void LLOutfitListBase::onOpen(const LLSD& info)
 
         // Start observing changes in "My Outfits" category.
         mCategoriesObserver->addCategory(outfits,
-            boost::bind(&LLOutfitListBase::refreshList, this, outfits));
+            boost::bind(&LLOutfitListBase::observerCallback, this, outfits));
 
         //const LLUUID cof = gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
         // Start observing changes in Current Outfit category.
@@ -808,6 +808,13 @@ void LLOutfitListBase::onOpen(const LLSD& info)
 
         mIsInitialized = true;
     }
+}
+
+void LLOutfitListBase::observerCallback(const LLUUID& category_id)
+{
+    const LLInventoryModel::changed_items_t& changed_items = gInventory.getChangedIDs();
+    mChangedItems.insert(changed_items.begin(), changed_items.end());
+    refreshList(category_id);
 }
 
 void LLOutfitListBase::refreshList(const LLUUID& category_id)
@@ -905,24 +912,22 @@ void LLOutfitListBase::onIdleRefreshList()
 
     // Get changed items from inventory model and update outfit tabs
     // which might have been renamed.
-    const LLInventoryModel::changed_items_t& changed_items = gInventory.getChangedIDs();
-    for (LLInventoryModel::changed_items_t::const_iterator items_iter = changed_items.begin();
-        items_iter != changed_items.end();
-        ++items_iter)
+    while (!mChangedItems.empty())
     {
+        std::set<LLUUID>::const_iterator items_iter = mChangedItems.begin();
         LLViewerInventoryCategory *cat = gInventory.getCategory(*items_iter);
-        if (!cat)
-        {
-            LLInventoryObject* obj = gInventory.getObject(*items_iter);
-            if (!obj || (obj->getType() != LLAssetType::AT_CATEGORY))
-            {
-                break;
-            }
-            cat = (LLViewerInventoryCategory*)obj;
-        }
-        std::string name = cat->getName();
+        mChangedItems.erase(items_iter);
 
-        updateChangedCategoryName(cat, name);
+        // Links aren't supposed to be allowed here, check only cats
+        if (cat)
+        {
+            std::string name = cat->getName();
+            updateChangedCategoryName(cat, name);
+        }
+
+        curent_time = LLTimer::getTotalSeconds();
+        if (curent_time >= end_time)
+            return;
     }
 
     sortOutfits();

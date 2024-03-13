@@ -109,6 +109,7 @@ public:
     virtual bool getHasExpandableFolders() = 0;
 
 protected:
+    void observerCallback(const LLUUID& category_id);
     virtual LLOutfitListGearMenuBase* createGearMenu() = 0;
     virtual void onHighlightBaseOutfit(LLUUID base_id, LLUUID prev_id) = 0;
     virtual void onSetSelectedOutfitByUUID(const LLUUID& outfit_uuid) = 0;
@@ -127,6 +128,7 @@ protected:
         uuid_vec_t::const_iterator	AddedIterator;
         uuid_vec_t::const_iterator	RemovedIterator;
     } mRefreshListState;
+    std::set<LLUUID>                mChangedItems;
 
     bool                            mIsInitialized;
     LLInventoryCategoriesObserver* 	mCategoriesObserver;
