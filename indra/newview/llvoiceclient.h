@@ -492,7 +492,7 @@ protected:
  **/
 class LLSpeakerVolumeStorage : public LLSingleton<LLSpeakerVolumeStorage>
 {
-	LLSINGLETON_C11(LLSpeakerVolumeStorage);
+	LLSINGLETON(LLSpeakerVolumeStorage);
 	~LLSpeakerVolumeStorage();
 	LOG_CLASS(LLSpeakerVolumeStorage);
 
