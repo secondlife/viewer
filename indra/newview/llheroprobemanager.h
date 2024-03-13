@@ -146,8 +146,8 @@ private:
     
     U32 mCurrentProbeUpdateFrame = 0;
     
-    std::vector<LLVOVolume*>                       mHeroVOList;
-    LLVOVolume*                                 mNearestHero;
+    std::vector<LLPointer<LLVOVolume>>                       mHeroVOList;
+    LLPointer<LLVOVolume>                                 mNearestHero;
 
 };
 

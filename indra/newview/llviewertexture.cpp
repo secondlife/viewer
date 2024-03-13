@@ -3079,7 +3079,15 @@ void LLViewerLODTexture::processTextureStats()
 	updateVirtualSize();
 	
 	static LLCachedControl<bool> textures_fullres(gSavedSettings,"TextureLoadFullRes", false);
-	
+
+    { // restrict texture resolution to download based on RenderMaxTextureResolution
+        static LLCachedControl<U32> max_texture_resolution(gSavedSettings, "RenderMaxTextureResolution", 2048);
+        // sanity clamp debug setting to avoid settings hack shenanigans
+        F32 tex_res = (F32)llclamp((S32)max_texture_resolution, 512, 2048);
+        tex_res *= tex_res;
+        mMaxVirtualSize = llmin(mMaxVirtualSize, tex_res);
+    }
+
 	if (textures_fullres)
 	{
 		mDesiredDiscardLevel = 0;
