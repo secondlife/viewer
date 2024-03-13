@@ -92,6 +92,7 @@ namespace {
 
     // Don't send positional updates more frequently than this:
     const F32 UPDATE_THROTTLE_SECONDS = 0.1f;
+    const F32 MAX_RETRY_WAIT_SECONDS  = 10.0f;
 
     // Cosine of a "trivially" small angle
     const F32 FOUR_DEGREES = 4.0f * (F_PI / 180.0f);
@@ -1988,8 +1989,13 @@ LLVoiceWebRTCConnection::LLVoiceWebRTCConnection(const LLUUID &regionID, const s
     mMicGain(0.0),
     mOutstandingRequests(0),
     mChannelID(channelID),
-    mRegionID(regionID)
+    mRegionID(regionID),
+    mRetryWaitPeriod(0)
 {
+    // retries wait a short period...randomize it so
+    // all clients don't try to reconnect at once.
+    mRetryWaitSecs = ((F32) rand() / (RAND_MAX)) + 0.5;
+
     mWebRTCPeerConnectionInterface = llwebrtc::newPeerConnection();
     mWebRTCPeerConnectionInterface->setSignalingObserver(this);
 }
@@ -2567,6 +2573,9 @@ bool LLVoiceWebRTCConnection::connectionStateMachine()
 
         case VOICE_STATE_SESSION_UP:
         {
+            mRetryWaitPeriod = 0;
+            mRetryWaitSecs   = ((F32) rand() / (RAND_MAX)) + 0.5;
+
             // we'll stay here as long as the session remains up.
             if (mShutDown)
             {
@@ -2576,9 +2585,21 @@ bool LLVoiceWebRTCConnection::connectionStateMachine()
         }
 
         case VOICE_STATE_SESSION_RETRY:
-            // something went wrong, so notify that the connection has failed.
-            LLWebRTCVoiceClient::getInstance()->OnConnectionFailure(mChannelID, mRegionID);
-            setVoiceConnectionState(VOICE_STATE_DISCONNECT);
+            // only retry ever 'n' seconds
+            if (mRetryWaitPeriod++ * UPDATE_THROTTLE_SECONDS > mRetryWaitSecs)
+            {
+                // something went wrong, so notify that the connection has failed.
+                LLWebRTCVoiceClient::getInstance()->OnConnectionFailure(mChannelID, mRegionID);
+                setVoiceConnectionState(VOICE_STATE_DISCONNECT);
+                mRetryWaitPeriod = 0;
+                if (mRetryWaitSecs < MAX_RETRY_WAIT_SECONDS)
+                {
+                    // back off the retry period, and do it by a small random
+                    // bit so all clients don't reconnect at once.
+                    mRetryWaitSecs += ((F32) rand() / (RAND_MAX)) + 0.5;
+                    mRetryWaitPeriod = 0;
+                }
+            }
             break;
 
         case VOICE_STATE_DISCONNECT:
