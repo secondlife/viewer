@@ -43,6 +43,7 @@
 #include "m4math.h"					// LLMatrix4
 #include "llframetimer.h"
 #include "llreflectionmap.h"
+#include "llpointer.h"
 
 // Surface id's
 #define LAND  1
@@ -545,7 +546,7 @@ public:
 	U8		mCentralBakeVersion;
 	
 	LLVOCacheEntry* mLastVisitedEntry;
-	U32				mInvisibilityCheckHistory;	
+	U32				mInvisibilityCheckHistory;
 
 	// Information for Homestead / CR-53
 	S32 mClassID;

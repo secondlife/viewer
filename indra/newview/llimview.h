@@ -80,7 +80,7 @@ public:
 		} SType;
 
 		LLIMSession(const LLUUID& session_id, const std::string& name,
-			const EInstantMessage& type, const LLUUID& other_participant_id, const uuid_vec_t& ids, bool voice, bool has_offline_msg);
+			const EInstantMessage& type, const LLUUID& other_participant_id, const uuid_vec_t& ids, const LLSD& voiceChannelInfo, bool has_offline_msg);
 		virtual ~LLIMSession();
 
 		void sessionInitReplyReceived(const LLUUID& new_session_id);
@@ -199,10 +199,10 @@ public:
 	 * @param name session name should not be empty, will return false if empty
 	 */
 	bool newSession(const LLUUID& session_id, const std::string& name, const EInstantMessage& type, const LLUUID& other_participant_id, 
-		const uuid_vec_t& ids, bool voice = false, bool has_offline_msg = false);
+		const uuid_vec_t& ids, const LLSD& voiceChannelInfo = LLSD(), bool has_offline_msg = false);
 
-	bool newSession(const LLUUID& session_id, const std::string& name, const EInstantMessage& type,
-		const LLUUID& other_participant_id, bool voice = false, bool has_offline_msg = false);
+	bool newSession(const LLUUID& session_id, const std::string& name, const EInstantMessage& type, const LLUUID &other_participant_id,
+                    const LLSD &voiceChannelInfo = LLSD(), bool has_offline_msg = false);
 
 	/**
 	 * Remove all session data associated with a session specified by session_id
@@ -296,7 +296,7 @@ public:
 
 	static void sendLeaveSession(const LLUUID& session_id, const LLUUID& other_participant_id);
 	static bool sendStartSession(const LLUUID& temp_session_id, const LLUUID& other_participant_id,
-						  const uuid_vec_t& ids, EInstantMessage dialog);
+						  const uuid_vec_t& ids, EInstantMessage dialog, bool p2p_as_adhoc_call);
 	static void sendTypingState(LLUUID session_id, LLUUID other_participant_id, BOOL typing);
 	static void sendMessage(const std::string& utf8_text, const LLUUID& im_session_id,
 								const LLUUID& other_participant_id, EInstantMessage dialog);
@@ -379,7 +379,8 @@ public:
 	// session.
 	LLUUID addSession(const std::string& name,
 					  EInstantMessage dialog,
-					  const LLUUID& other_participant_id, bool voice = false);
+					  const LLUUID& other_participant_id, 
+					  const LLSD& voiceChannelInfo = LLSD());
 
 	// Adds a session using a specific group of starting agents
 	// the dialog type is assumed correct. Returns the uuid of the session.
@@ -387,7 +388,8 @@ public:
 	LLUUID addSession(const std::string& name,
 					  EInstantMessage dialog,
 					  const LLUUID& other_participant_id,
-					  const std::vector<LLUUID>& ids, bool voice = false,
+					  const std::vector<LLUUID> &ids,
+					  const LLSD& voiceChannelInfo = LLSD(),
 					  const LLUUID& floater_id = LLUUID::null);
 
 	/**
@@ -397,10 +399,7 @@ public:
 	 * @param caller_uri - sip URI of caller. It should be always be passed into the method to avoid
 	 * incorrect working of LLVoiceChannel instances. See EXT-2985.
 	 */	
-	LLUUID addP2PSession(const std::string& name,
-					  const LLUUID& other_participant_id,
-					  const std::string& voice_session_handle,
-					  const std::string& caller_uri);
+	LLUUID addP2PSession(const std::string &name, const LLUUID &other_participant_id, const LLSD &voice_call_info);
 
 	/**
 	 * Leave the session with session id. Send leave session notification
@@ -415,9 +414,9 @@ public:
 		const LLUUID& caller, 
 		const std::string& caller_name,
 		EInstantMessage type,
-		EInvitationType inv_type, 
-		const std::string& session_handle = LLStringUtil::null,
-		const std::string& session_uri = LLStringUtil::null);
+		EInvitationType inv_type,
+		const LLSD &voice_channel_info = LLSD()
+	);
 
 	void processIMTypingStart(const LLUUID& from_id, const EInstantMessage im_type);
 	void processIMTypingStop(const LLUUID& from_id, const EInstantMessage im_type);

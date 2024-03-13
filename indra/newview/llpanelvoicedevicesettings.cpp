@@ -236,43 +236,46 @@ void LLPanelVoiceDeviceSettings::refresh()
 		
 		if(mCtrlInputDevices)
 		{
-			mCtrlInputDevices->removeall();
-			mCtrlInputDevices->add(getLocalizedDeviceName(DEFAULT_DEVICE), DEFAULT_DEVICE, ADD_BOTTOM);
-
-			for(device=LLVoiceClient::getInstance()->getCaptureDevices().begin(); 
-				device != LLVoiceClient::getInstance()->getCaptureDevices().end();
-				device++)
+			LLVoiceDeviceList devices = LLVoiceClient::getInstance()->getCaptureDevices();
+			if (devices.size() > 0) // if zero, we've not received our devices yet
 			{
-				mCtrlInputDevices->add(getLocalizedDeviceName(device->display_name), device->full_name, ADD_BOTTOM);
-			}
+				mCtrlInputDevices->removeall();
+				mCtrlInputDevices->add(getLocalizedDeviceName(DEFAULT_DEVICE), DEFAULT_DEVICE, ADD_BOTTOM);
+				for (auto& device : devices)
+				{
+					mCtrlInputDevices->add(getLocalizedDeviceName(device.display_name), device.full_name, ADD_BOTTOM);
+				}
 
-			// Fix invalid input audio device preference.
-			if (!mCtrlInputDevices->setSelectedByValue(mInputDevice, TRUE))
-			{
-				mCtrlInputDevices->setValue(DEFAULT_DEVICE);
-				gSavedSettings.setString("VoiceInputAudioDevice", DEFAULT_DEVICE);
-				mInputDevice = DEFAULT_DEVICE;
+				// Fix invalid input audio device preference.
+				if (!mCtrlInputDevices->setSelectedByValue(mInputDevice, TRUE))
+				{
+					mCtrlInputDevices->setValue(DEFAULT_DEVICE);
+					gSavedSettings.setString("VoiceInputAudioDevice", DEFAULT_DEVICE);
+					mInputDevice = DEFAULT_DEVICE;
+				}
 			}
 		}
 		
 		if(mCtrlOutputDevices)
 		{
-			mCtrlOutputDevices->removeall();
-			mCtrlOutputDevices->add(getLocalizedDeviceName(DEFAULT_DEVICE), DEFAULT_DEVICE, ADD_BOTTOM);
-
-			for(device = LLVoiceClient::getInstance()->getRenderDevices().begin(); 
-				device !=  LLVoiceClient::getInstance()->getRenderDevices().end();
-                device++)
+			LLVoiceDeviceList devices = LLVoiceClient::getInstance()->getRenderDevices();
+			if (devices.size() > 0)  // if zero, we've not received our devices yet
 			{
-                mCtrlOutputDevices->add(getLocalizedDeviceName(device->display_name), device->full_name, ADD_BOTTOM);
-			}
+				mCtrlOutputDevices->removeall();
+				mCtrlOutputDevices->add(getLocalizedDeviceName(DEFAULT_DEVICE), DEFAULT_DEVICE, ADD_BOTTOM);
 
-			// Fix invalid output audio device preference.
-			if (!mCtrlOutputDevices->setSelectedByValue(mOutputDevice, TRUE))
-			{
-				mCtrlOutputDevices->setValue(DEFAULT_DEVICE);
-				gSavedSettings.setString("VoiceOutputAudioDevice", DEFAULT_DEVICE);
-				mOutputDevice = DEFAULT_DEVICE;
+				for (auto& device : devices)
+				{
+					mCtrlOutputDevices->add(getLocalizedDeviceName(device.display_name), device.full_name, ADD_BOTTOM);
+				}
+
+				// Fix invalid output audio device preference.
+				if (!mCtrlOutputDevices->setSelectedByValue(mOutputDevice, TRUE))
+				{
+					mCtrlOutputDevices->setValue(DEFAULT_DEVICE);
+					gSavedSettings.setString("VoiceOutputAudioDevice", DEFAULT_DEVICE);
+					mOutputDevice = DEFAULT_DEVICE;
+				}
 			}
 		}
 	}	
@@ -316,8 +319,11 @@ void LLPanelVoiceDeviceSettings::onCommitInputDevice()
 	if(LLVoiceClient::getInstance())
 	{
 		mInputDevice = mCtrlInputDevices->getValue().asString();
-		LLVoiceClient::getInstance()->setRenderDevice(mInputDevice);
+		LLVoiceClient::getInstance()->setCaptureDevice(mInputDevice);
 	}
+	// the preferences floater stuff is a mess, hence apply will never
+	// be called when 'ok' is pressed, so just force it for now.
+	apply();
 }
 
 void LLPanelVoiceDeviceSettings::onCommitOutputDevice()
@@ -328,6 +334,9 @@ void LLPanelVoiceDeviceSettings::onCommitOutputDevice()
 		mOutputDevice = mCtrlOutputDevices->getValue().asString(); 
 		LLVoiceClient::getInstance()->setRenderDevice(mOutputDevice);
 	}
+    // the preferences floater stuff is a mess, hence apply will never
+    // be called when 'ok' is pressed, so just force it for now.
+    apply();
 }
 
 void LLPanelVoiceDeviceSettings::onOutputDevicesClicked()

@@ -2946,6 +2946,62 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>version</key>
         <string>1</string>
       </map>
+      <key>webrtc-shim</key>
+      <map>
+        <key>platforms</key>
+        <map>
+          <key>darwin64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>creds</key>
+              <string>github</string>
+              <key>hash</key>
+              <string>a23ffe29c49f8fabb8c5f2de9879bed9d7e0e0ca</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://api.github.com/repos/secondlife/3p-webrtc-shim/releases/assets/155507516</string>
+            </map>
+            <key>name</key>
+            <string>darwin64</string>
+          </map>
+          <key>windows64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>creds</key>
+              <string>github</string>
+              <key>hash</key>
+              <string>b264c6ed008bd45c4687c5dc4d7532727c74624a</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://api.github.com/repos/secondlife/3p-webrtc-shim/releases/assets/155507520</string>
+            </map>
+            <key>name</key>
+            <string>windows64</string>
+          </map>
+        </map>
+        <key>license</key>
+        <string>MIT</string>
+        <key>license_file</key>
+        <string>LICENSES/webrtc-license.txt</string>
+        <key>copyright</key>
+        <string>Copyright (c) 2011, The WebRTC project authors. All rights reserved.</string>
+        <key>version</key>
+        <string>m114.0.26.d4b8b92</string>
+        <key>name</key>
+        <string>webrtc-shim</string>
+        <key>vcs_branch</key>
+        <string>main</string>
+        <key>vcs_revision</key>
+        <string>d4b8b921825ae4344d87fdb0c9179c358c6e3698</string>
+        <key>vcs_url</key>
+        <string>https://github.com/secondlife/3p-webrtc-shim</string>
+        <key>canonical_repo</key>
+        <string>https://github.com/secondlife/3p-webrtc-shim</string>
+      </map>
       <key>xxhash</key>
       <map>
         <key>platforms</key>
