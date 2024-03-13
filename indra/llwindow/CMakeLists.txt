@@ -117,18 +117,21 @@ if (WINDOWS)
        lldxhardware.cpp
        llkeyboardwin32.cpp
        lldragdropwin32.cpp
+       llxrmanager.cpp
        )
   list(APPEND llwindow_HEADER_FILES
        llwindowwin32.h
        lldxhardware.h
        llkeyboardwin32.h
        lldragdropwin32.h
+       llxrmanager.h
        )
   list(APPEND llwindow_LINK_LIBRARIES
        comdlg32     # Common Dialogs for ChooseColor
        ole32
        dxgi
        d3d9
+       openxr_loader
        )
 endif (WINDOWS)
 
