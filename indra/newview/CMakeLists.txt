@@ -18,7 +18,6 @@ include(DragDrop)
 include(EXPAT)
 include(FMODSTUDIO)
 include(Hunspell)
-include(ICU4C)
 include(JPEGEncoderBasic)
 include(JsonCpp)
 include(LLAppearance)
@@ -1932,7 +1931,6 @@ target_link_libraries(${VIEWER_BINARY_NAME}
         ${LLPHYSICSEXTENSIONS_LIBRARIES}
         ll::bugsplat
         ll::tracy
-        ll::icu4c
         )
 
 if( TARGET ll::intel_memops )
