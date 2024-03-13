@@ -732,7 +732,7 @@ void LLVoiceChannelProximal::handleError(EStatusType status)
 		LLNotificationsUtil::add(notify, mNotifyArgs);
 	}
 
-	LLVoiceChannel::handleError(status);
+	// proximal voice remains up and the provider will try to reconnect.
 }
 
 void LLVoiceChannelProximal::deactivate()
@@ -741,6 +741,7 @@ void LLVoiceChannelProximal::deactivate()
 	{
 		setState(STATE_HUNG_UP);
 	}
+
 	LLVoiceClient::getInstance()->activateSpatialChannel(false);
 }
 
