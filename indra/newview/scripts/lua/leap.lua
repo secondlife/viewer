@@ -132,7 +132,7 @@ end
 -- See also send(), generate().
 function leap.request(pump, data)
     local reqid = leap._requestSetup(pump, data)
-    waitfor = leap._pending[reqid]
+    local waitfor = leap._pending[reqid]
 --  print_debug('leap.request('..tostring(pump)..', '..inspect(data)..') about to wait on '..
 --              tostring(waitfor))
     local ok, response = pcall(waitfor.wait, waitfor)
@@ -141,6 +141,7 @@ function leap.request(pump, data)
     -- kill off temporary WaitForReqid object, even if error
     leap._pending[reqid] = nil
     if ok then
+        response.reqid = nil
         return response
     else
         error(response)
@@ -178,12 +179,14 @@ function leap.generate(pump, data, checklast)
     -- bearing that reqid. Stamp the outbound request with that reqid, and
     -- send it.
     local reqid = leap._requestSetup(pump, data)
+    local waitfor = leap._pending[reqid]
     local ok, response
     repeat
-        ok, response = pcall(leap._pending[reqid].wait)
+        ok, response = pcall(waitfor.wait, waitfor)
         if not ok then
             break
         end
+        response.reqid = nil
         coroutine.yield(response)
     until checklast and checklast(response)
     -- If we break the above loop, whether or not due to error, clean up.
