@@ -36,6 +36,7 @@ public:
     LLLuaFloater(const LLSD &key);
     BOOL postBuild();
 
+    void registerCallback(const std::string &ctrl_name, const std::string &event);
     void onClose(bool app_quitting);
 
     void post(const LLSD &data);
