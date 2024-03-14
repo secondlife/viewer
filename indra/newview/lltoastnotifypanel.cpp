@@ -298,8 +298,8 @@ void LLToastNotifyPanel::init( LLRect rect, bool show_images )
     // init font variables
     if (!sFont)
     {
-        sFont = LLFontGL::getFontEmojiMedium();
-        sFontSmall = LLFontGL::getFontEmojiSmall();
+        sFont = LLFontGL::getFontSansSerif();
+        sFontSmall = LLFontGL::getFontSansSerifSmall();
     }
     // initialize
     setFocusRoot(!mIsTip);
