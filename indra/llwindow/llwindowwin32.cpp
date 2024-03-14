@@ -351,6 +351,7 @@ struct LLWindowWin32::LLWindowWin32Thread : public LL::ThreadPool
     LLWindowWin32Thread();
 
     void run() override;
+    void close() override;
 
     // closes queue, wakes thread, waits until thread closes
     void wakeAndDestroy();
@@ -4562,10 +4563,24 @@ U32 LLWindowWin32::getAvailableVRAMMegabytes()
 #endif // LL_WINDOWS
 
 inline LLWindowWin32::LLWindowWin32Thread::LLWindowWin32Thread()
-    : LL::ThreadPool("Window Thread", 1, MAX_QUEUE_SIZE, false)
+    : LL::ThreadPool("Window Thread", 1, MAX_QUEUE_SIZE, true /*should be false, temporary workaround for SL-18721*/)
 {
     LL::ThreadPool::start();
 }
+
+void LLWindowWin32::LLWindowWin32Thread::close()
+{
+    if (!mQueue->isClosed())
+    {
+        LL_WARNS() << "Closing window thread without using destroy_window_handler" << LL_ENDL;
+        LL::ThreadPool::close();
+
+        // Workaround for SL-18721 in case window closes too early and abruptly
+        LLSplashScreen::show();
+        LLSplashScreen::update("..."); // will be updated later
+    }
+}
+
 
 /**
  * LogChange is to log changes in status while trying to avoid spamming the
@@ -4917,7 +4932,8 @@ void LLWindowWin32::LLWindowWin32Thread::wakeAndDestroy()
 {
     if (mQueue->isClosed())
     {
-        LL_WARNS() << "Tried to close Queue. Win32 thread Queue already closed." <<LL_ENDL;
+        LL_WARNS() << "Tried to close Queue. Win32 thread Queue already closed." << LL_ENDL;
+        return;
     }
 
     // Make sure we don't leave a blank toolbar button.
