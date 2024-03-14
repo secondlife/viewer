@@ -1479,6 +1479,19 @@ void LLPanelRegionTerrainInfo::updateForMaterialType()
 	if (texture_label) { texture_label->setVisible(show_texture_controls); }
     LLUICtrl* material_label = findChild<LLUICtrl>("detail_material_text");
 	if (material_label) { material_label->setVisible(show_material_controls); }
+
+    // Toggle visibility of documentation labels for terrain blending ranges
+    const std::vector<std::string> doc_suffixes { "5", "10", "11" };
+    std::string buffer;
+    for (const std::string& suffix : doc_suffixes)
+    {
+        buffer = "height_text_lbl" + suffix;
+        LLUICtrl* texture_doc_label = findChild<LLUICtrl>(buffer);
+        if (texture_doc_label) { texture_doc_label->setVisible(show_texture_controls); }
+        buffer += "_material";
+        LLUICtrl* material_doc_label = findChild<LLUICtrl>(buffer);
+        if (material_doc_label) { material_doc_label->setVisible(show_material_controls); }
+    }
 }
 
 // virtual
