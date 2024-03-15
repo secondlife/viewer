@@ -1321,7 +1321,8 @@ BOOL LLPanelRegionTerrainInfo::validateTextureSizes()
         if (is_material_selected) { return TRUE; }
     }
 
-    static const S32 MAX_TERRAIN_TEXTURE_SIZE = 1024;
+    static LLCachedControl<U32> max_texture_resolution(gSavedSettings, "RenderMaxTextureResolution", 2048);
+    const S32 max_terrain_texture_size = (S32)max_texture_resolution;
 	for(S32 i = 0; i < LLTerrainMaterials::ASSET_COUNT; ++i)
 	{
         LLTextureCtrl* texture_ctrl = mTextureDetailCtrl[i];
@@ -1341,19 +1342,19 @@ BOOL LLPanelRegionTerrainInfo::validateTextureSizes()
 			LLSD args;
 			args["TEXTURE_NUM"] = i+1;
 			args["TEXTURE_BIT_DEPTH"] = llformat("%d",components * 8);
-            args["MAX_SIZE"] = MAX_TERRAIN_TEXTURE_SIZE;
+            args["MAX_SIZE"] = max_terrain_texture_size;
 			LLNotificationsUtil::add("InvalidTerrainBitDepth", args);
 			return FALSE;
 		}
 
-		if (width > MAX_TERRAIN_TEXTURE_SIZE || height > MAX_TERRAIN_TEXTURE_SIZE)
+		if (width > max_terrain_texture_size || height > max_terrain_texture_size)
 		{
 
 			LLSD args;
 			args["TEXTURE_NUM"] = i+1;
 			args["TEXTURE_SIZE_X"] = width;
 			args["TEXTURE_SIZE_Y"] = height;
-            args["MAX_SIZE"] = MAX_TERRAIN_TEXTURE_SIZE;
+            args["MAX_SIZE"] = max_terrain_texture_size;
 			LLNotificationsUtil::add("InvalidTerrainSize", args);
 			return FALSE;
 			
