@@ -161,7 +161,7 @@
      left="10"
      name="material_detail_0"
      pick_type="material"
-     allow_no_texture="true"
+     default_image_id="968cbad0-4dad-d64e-71b5-72bf13ad051a"
      top_delta="0"
      width="100" />
     <texture_picker
@@ -172,7 +172,7 @@
      left_pad="10"
      name="material_detail_1"
      pick_type="material"
-     allow_no_texture="true"
+     default_image_id="968cbad0-4dad-d64e-71b5-72bf13ad051a"
      top_delta="0"
      width="100" />
     <texture_picker
@@ -183,7 +183,7 @@
      left_pad="10"
      name="material_detail_2"
      pick_type="material"
-     allow_no_texture="true"
+     default_image_id="968cbad0-4dad-d64e-71b5-72bf13ad051a"
      top_delta="0"
      width="100" />
     <texture_picker
@@ -194,7 +194,7 @@
      left_pad="10"
      name="material_detail_3"
      pick_type="material"
-     allow_no_texture="true"
+     default_image_id="968cbad0-4dad-d64e-71b5-72bf13ad051a"
      top_delta="0"
      width="100" />
     <text

@@ -62,6 +62,7 @@
 #include "llfloaterreg.h"
 #include "llfloaterregiondebugconsole.h"
 #include "llfloatertelehub.h"
+#include "llgltfmateriallist.h"
 #include "llinventorymodel.h"
 #include "lllineeditor.h"
 #include "llnamelistctrl.h"
@@ -1394,7 +1395,7 @@ LLPanelRegionTerrainInfo::LLPanelRegionTerrainInfo()
     }
     for (S32 i = 0; i < LLTerrainMaterials::ASSET_COUNT; ++i)
     {
-        mLastSetMaterials[i] = LLUUID::null;
+        mLastSetMaterials[i] = LLGLTFMaterialList::BLANK_MATERIAL_ASSET_ID;
     }
 }
 
