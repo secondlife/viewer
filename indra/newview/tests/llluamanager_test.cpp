@@ -28,6 +28,7 @@
 #include "lluri.h"
 #include "lluuid.h"
 #include "lua_function.h"
+#include "lualistener.h"
 #include "stringize.h"
 
 class LLTestApp : public LLApp
@@ -94,9 +95,10 @@ namespace tut
         {
             auto [count, result] =
                 LLLUAmanager::waitScriptLine(L, "return " + luax.expr);
-            auto desc{ stringize("waitScriptLine(", luax.desc, ")") };
-            ensure_equals(desc + ".count", count, 1);
-            ensure_equals(desc + ".result", result, luax.expect);
+            auto desc{ stringize("waitScriptLine(", luax.desc, "): ") };
+            // if count < 0, report Lua error message
+            ensure_equals(desc + result.asString(), count, 1);
+            ensure_equals(desc + "result", result, luax.expect);
         }
     }
 
@@ -116,7 +118,7 @@ namespace tut
         // We woke up again ourselves because the coroutine running Lua has
         // finished. But our Lua chunk didn't actually return anything, so we
         // expect count to be 0 and result to be undefined.
-        ensure_equals(desc + " count", count, 0);
+        ensure_equals(desc + ": " + result.asString(), count, 0);
         ensure_equals(desc, fromlua, expect);
     }
 
@@ -172,16 +174,13 @@ namespace tut
                     << "': post('" << expected[4] << "')" << LL_ENDL;
         luapump.post(expected[4]);
         auto [count, result] = future.get();
+        ensure_equals("post_on(): " + result.asString(), count, 0);
         ensure_equals("post_on() sequence", posts, expected);
     }
 
     void round_trip(const std::string& desc, const LLSD& send, const LLSD& expect)
     {
-        LLSD reply;
-        LLEventStream replypump("testpump");
-        LLTempBoundListener conn(
-            replypump.listen("llluamanager_test",
-                             listener([&reply](const LLSD& post){ reply = post; })));
+        LLEventMailDrop replypump("testpump");
         const std::string lua(
             "-- test LLSD round trip\n"
             "replypump, cmdpump = get_event_pumps()\n"
@@ -195,12 +194,12 @@ namespace tut
         // reached the get_event_next() call, which suspends the calling C++
         // coroutine (including the Lua code running on it) until we post
         // something to that reply pump.
-        auto luapump{ reply.asString() };
-        reply.clear();
+        auto luapump{ llcoro::suspendUntilEventOn(replypump).asString() };
         LLEventPumps::instance().post(luapump, send);
         // The C++ coroutine running the Lua script is now ready to run. Run
         // it so it will echo the LLSD back to us.
         auto [count, result] = future.get();
+        ensure_equals(stringize("round_trip(", desc, "): ", result.asString()), count, 1);
         ensure_equals(desc, result, expect);
     }
 
@@ -303,5 +302,94 @@ namespace tut
             expect_map = new_expect_map;
         }
         round_trip("nested map", send_map, expect_map);
+    }
+
+    template<> template<>
+    void object::test<5>()
+    {
+        set_test_name("test leap.lua");
+        const std::string lua(
+            "-- test leap.lua\n"
+            "\n"
+            "leap = require('leap')\n"
+            "coro = require('coro')\n"
+            "\n"
+            "-- negative priority ensures catchall is always last\n"
+            "catchall = leap.WaitFor:new(-1, 'catchall')\n"
+            "function catchall:filter(pump, data)\n"
+            "    return data\n"
+            "end\n"
+            "\n"
+            "-- but first, catch events with 'special' key\n"
+            "catch_special = leap.WaitFor:new(2, 'catch_special')\n"
+            "function catch_special:filter(pump, data)\n"
+            "    return if data['special'] ~= nil then data else nil\n"
+            "end\n"
+            "\n"
+            "function drain(waitfor)\n"
+            "    print(waitfor.name .. ' start')\n"
+            "    -- It seems as though we ought to be able to code this loop\n"
+            "    -- over waitfor:wait() as:\n"
+            "    -- for item in waitfor.wait, waitfor do\n"
+            "    -- However, that seems to stitch a detour through C code into\n"
+            "    -- the coroutine call stack, which prohibits coroutine.yield():\n"
+            "    -- 'attempt to yield across metamethod/C-call boundary'\n"
+            "    -- So we resort to two different calls to waitfor:wait().\n"
+            "    item = waitfor:wait()\n"
+            "    while item do\n"
+            "        print(waitfor.name .. ' caught', item)\n"
+            "        item = waitfor:wait()\n"
+            "    end\n"
+            "    print(waitfor.name .. ' done')\n"
+            "end\n"
+            "\n"
+            "function requester(name)\n"
+            "    print('requester('..name..') start')\n"
+            "    response = leap.request('testpump', {name=name})\n"
+            "    print('requester('..name..') got '..tostring(response))\n"
+            "    -- verify that the correct response was dispatched to this coroutine\n"
+            "    assert(response.name == name)\n"
+            "end\n"
+            "\n"
+            "coro.launch(drain, catchall)\n"
+            "coro.launch(drain, catch_special)\n"
+            "coro.launch(requester, 'a')\n"
+            "coro.launch(requester, 'b')\n"
+            "\n"
+            "leap.process()\n"
+        );
+
+        LLSD requests;
+        LLEventStream pump("testpump", false);
+        LLTempBoundListener conn{
+            pump.listen("test<5>()",
+                        listener([&requests](const LLSD& data)
+                        {
+                            LL_DEBUGS("Lua") << "testpump got: " << data << LL_ENDL;
+                            requests.append(data);
+                        }))
+        };
+
+        LuaState L;
+        auto future = LLLUAmanager::startScriptLine(L, lua);
+        auto replyname{ L.obtainListener()->getReplyName() };
+        auto& replypump{ LLEventPumps::instance().obtain(replyname) };
+        // By the time leap.process() calls get_event_next() and wakes us up,
+        // we expect that both requester() coroutines have posted and are
+        // waiting for a reply.
+        ensure_equals("didn't get both requests", requests.size(), 2);
+        // moreover, we expect they arrived in the order they were created
+        ensure_equals("a wasn't first",  requests[0]["name"].asString(), "a");
+        ensure_equals("b wasn't second", requests[1]["name"].asString(), "b");
+        replypump.post(llsd::map("special", "K"));
+        // respond to requester(b) FIRST
+        replypump.post(requests[1]);
+        replypump.post(llsd::map("name", "not special"));
+        // now respond to requester(a)
+        replypump.post(requests[0]);
+        // tell leap.process() we're done
+        replypump.post(LLSD());
+        auto [count, result] = future.get();
+        ensure_equals("leap.lua: " + result.asString(), count, 0);
     }
 } // namespace tut
