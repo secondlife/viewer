@@ -50,7 +50,7 @@ A user with appropriate permissions can change and save the textures or material
 Saving may fail for the following reasons:
 
 - A terrain or material texture is invalid or null
-- A terrain texture is greater than 1024 resolution (Subject to change. See https://github.com/secondlife/viewer/issues/760)
+- A terrain texture is greater than the max texture upload resolution
 
 Unlike a viewer without PBR terrain support, the new viewer will no longer treat textures with alpha channels as invalid.
 
