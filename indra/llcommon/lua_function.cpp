@@ -16,9 +16,11 @@
 // STL headers
 // std headers
 #include <algorithm>
+#include <exception>
 #include <iomanip>                  // std::quoted
 #include <map>
 #include <memory>                   // std::unique_ptr
+#include <typeinfo>
 // external library headers
 // other Linden headers
 #include "hexdump.h"
@@ -26,6 +28,7 @@
 #include "llsd.h"
 #include "llsdutil.h"
 #include "lualistener.h"
+#include "stringize.h"
 
 /*****************************************************************************
 *   luau namespace
@@ -496,16 +499,45 @@ std::pair<int, LLSD> LuaState::expr(const std::string& desc, const std::string& 
     // aha, at least one entry on the stack!
     if (result.first == 1)
     {
-        result.second = lua_tollsd(mState, 1);
+        // Don't forget that lua_tollsd() can throw Lua errors.
+        try
+        {
+            result.second = lua_tollsd(mState, 1);
+        }
+        catch (const std::exception& error)
+        {
+            // lua_tollsd() is designed to be called from a lua_function(),
+            // that is, from a C++ function called by Lua. In case of error,
+            // it throws a Lua error to be caught by the Lua runtime. expr()
+            // is a peculiar use case in which our C++ code is calling
+            // lua_tollsd() after return from the Lua runtime. We must catch
+            // the exception thrown for a Lua error, else it will propagate
+            // out to the main coroutine and terminate the viewer -- but since
+            // we instead of the Lua runtime catch it, our lua_State retains
+            // its internal error status. Any subsequent lua_pcall() calls
+            // with this lua_State will report error regardless of whether the
+            // chunk runs successfully. Get a new lua_State().
+            initLuaState();
+            return { -1, stringize(LLError::Log::classname(error), ": ", error.what()) };
+        }
         // pop the result we claimed
         lua_settop(mState, 0);
         return result;
     }
 
     // multiple entries on the stack
-    for (int index = 1; index <= result.first; ++index)
+    try
     {
-        result.second.append(lua_tollsd(mState, index));
+        for (int index = 1; index <= result.first; ++index)
+        {
+            result.second.append(lua_tollsd(mState, index));
+        }
+    }
+    catch (const std::exception& error)
+    {
+        // see above comments regarding lua_State's error status
+        initLuaState();
+        return { -1, stringize(LLError::Log::classname(error), ": ", error.what()) };
     }
     // pop everything
     lua_settop(mState, 0);
