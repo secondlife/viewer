@@ -694,6 +694,12 @@ class LLVoiceWebRTCConnection :
     bool mShutDown;
     S32  mOutstandingRequests;
 
+    S32  mRetryWaitPeriod; // number of UPDATE_THROTTLE_SECONDS we've
+                           // waited since our last attempt to connect.
+    F32  mRetryWaitSecs;   // number of seconds to wait before next retry
+
+
+
     std::vector<llwebrtc::LLWebRTCIceCandidate> mIceCandidates;
     bool                                        mIceCompleted;
     bool                                        mTrickling;

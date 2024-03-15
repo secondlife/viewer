@@ -74,12 +74,10 @@ class LLWebRTCVoiceDevice
   public:
     std::string mDisplayName;  // friendly name for user interface purposes
     std::string mID;           // internal value for selection
-    bool        mCurrent;      // current device
 
-    LLWebRTCVoiceDevice(const std::string &display_name, const std::string &id, bool current) :
+    LLWebRTCVoiceDevice(const std::string &display_name, const std::string &id) :
         mDisplayName(display_name),
-        mID(id),
-        mCurrent(current)
+        mID(id)
     {};
 };
 

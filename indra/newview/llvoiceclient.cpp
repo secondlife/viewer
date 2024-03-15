@@ -382,14 +382,14 @@ void LLVoiceClient::refreshDeviceLists(bool clearCurrentList)
 
 void LLVoiceClient::setCaptureDevice(const std::string& name)
 {
+    LLVivoxVoiceClient::getInstance()->setCaptureDevice(name);
 	LLWebRTCVoiceClient::getInstance()->setCaptureDevice(name);
-	LLVivoxVoiceClient::getInstance()->setCaptureDevice(name);
 }
 
 void LLVoiceClient::setRenderDevice(const std::string& name)
 {
+    LLVivoxVoiceClient::getInstance()->setRenderDevice(name);
 	LLWebRTCVoiceClient::getInstance()->setRenderDevice(name);
-	LLVivoxVoiceClient::getInstance()->setRenderDevice(name);
 }
 
 const LLVoiceDeviceList& LLVoiceClient::getCaptureDevices()

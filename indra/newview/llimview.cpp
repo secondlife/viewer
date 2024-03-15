@@ -87,7 +87,10 @@ const S32 XL8_PADDING = 3;  // XL8_START_TAG.size() + XL8_END_TAG.size()
 /** Timeout of outgoing session initialization (in seconds) */
 const static U32 SESSION_INITIALIZATION_TIMEOUT = 30;
 
-
+// This enum corresponds to the sim's and adds P2P_CHAT_SESSION,
+// as webrtc uses the multiagent chat mechanism for p2p calls,
+// instead of relying on vivox calling. 
+// Don't change this without consulting a server developer.
 enum EMultiAgentChatSessionType
 {
     GROUP_CHAT_SESSION = 0,

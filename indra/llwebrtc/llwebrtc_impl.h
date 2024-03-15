@@ -40,8 +40,11 @@
 #include "llwebrtc.h"
 // WebRTC Includes
 #ifdef WEBRTC_WIN
-#pragma warning(disable : 4996)
-#pragma warning(disable : 4068)
+#pragma warning(disable : 4996) // ignore 'deprecated.'  We don't use the functions marked
+                                // deprecated in the webrtc headers, but msvc complains anyway.
+                                // Clang doesn't, and that's generally what webrtc uses.
+#pragma warning(disable : 4068) // ignore 'invalid pragma.'  There are clang pragma's in
+                                // the webrtc headers, which msvc doesn't recognize.
 #endif // WEBRTC_WIN
 
 #include "api/scoped_refptr.h"
@@ -236,6 +239,7 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceS
     std::vector<LLWebRTCDevicesObserver *>                     mVoiceDevicesObserverList;
 
     // accessors in native webrtc for devices aren't apparently implemented yet.
+    bool                                                       mTuningMode;
     int32_t                                                    mPlayoutDevice;
     int32_t                                                    mRecordingDevice;
     bool                                                       mMute;
