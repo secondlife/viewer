@@ -34,14 +34,19 @@
 
 const std::string LISTENER_NAME("LLLuaFloater");
 
-const std::string COMMIT_EVENT("commit");
-const std::string MOUSE_ENTER_EVENT("mouse_enter");
-const std::string MOUSE_LEAVE_EVENT("mouse_leave");
-const std::string MOUSE_DOWN_EVENT("mouse_down");
-const std::string MOUSE_UP_EVENT("mouse_up");
-const std::string RIGHT_MOUSE_DOWN_EVENT("right_mouse_down");
-const std::string RIGHT_MOUSE_UP_EVENT("right_mouse_up");
-const std::string DOUBLE_CLICK_EVENT("double_click");
+std::map<std::string, std::string> EVENT_LIST = 
+{
+    {"COMMIT_EVENT", "commit"},
+    {"DOUBLE_CLICK_EVENT", "double_click"},
+    {"MOUSE_ENTER_EVENT", "mouse_enter"},
+    {"MOUSE_LEAVE_EVENT", "mouse_leave"},
+    {"MOUSE_DOWN_EVENT", "mouse_down"},
+    {"MOUSE_UP_EVENT", "mouse_up"},
+    {"RIGHT_MOUSE_DOWN_EVENT", "right_mouse_down"},
+    {"RIGHT_MOUSE_UP_EVENT", "right_mouse_up"},
+    {"POST_BUILD_EVENT", "post_build"},
+    {"CLOSE_EVENT", "floater_close"}
+};
 
 LLLuaFloater::LLLuaFloater(const LLSD &key) :
     LLFloater(key), 
@@ -108,36 +113,18 @@ BOOL LLLuaFloater::postBuild()
         LLView *view  = *iter;
         if (!view) continue;
 
-        LLSD data;
-        data["ctrl_name"] = view->getName();
-        data["event"] = COMMIT_EVENT;
+        LLUICtrl *ctrl = dynamic_cast<LLUICtrl*>(view);
+        if (ctrl)
+        {
+            LLSD data;
+            data["ctrl_name"] = view->getName();
+            data["event"] = EVENT_LIST["COMMIT_EVENT"];
 
-        LLButton* btn = dynamic_cast<LLButton*>(view);
-        if (btn && !isDefaultBtnName(btn->getName())) 
-        {
-            data["ctrl_type"] = "LLButton";
-            btn->setCommitCallback([this, data](LLUICtrl *ctrl, const LLSD &param) { post(data); });
-        }
-        LLCheckBoxCtrl* check = dynamic_cast<LLCheckBoxCtrl*>(view);
-        if (check)
-        {
-            data["ctrl_type"] = "LLCheckBoxCtrl";
-            check->setCommitCallback([this, data](LLUICtrl *ctrl, const LLSD &param)
+            ctrl->setCommitCallback([this, data](LLUICtrl *ctrl, const LLSD &param)
             {
                 LLSD event(data);
                 event["value"] = ctrl->getValue();
-                post(event); 
-            });
-        }
-        LLComboBox *combo = dynamic_cast<LLComboBox*>(view);
-        if (combo)
-        {
-            data["ctrl_type"] = "LLComboBox";
-            combo->setCommitCallback([this, data](LLUICtrl* ctrl, const LLSD &param)
-            {
-                LLSD event(data);
-                event["value"] = dynamic_cast<LLComboBox*>(ctrl)->getValue();
-                post(event); 
+                post(event);
             });
         }
     }
@@ -158,14 +145,15 @@ BOOL LLLuaFloater::postBuild()
         }
     }
 
-    post(LLSD().with("command_name", mListenerPumpName).with("event", "post_build"));
+    //send pump name to the script after the floater is built
+    post(LLSD().with("command_name", mListenerPumpName).with("event", EVENT_LIST["POST_BUILD_EVENT"]));
 
     return true;
 }
 
 void LLLuaFloater::onClose(bool app_quitting)
 {
-    post(LLSD().with("event", "floater_close"));
+    post(LLSD().with("event", EVENT_LIST["CLOSE_EVENT"]));
 }
 
 void LLLuaFloater::registerCallback(const std::string &ctrl_name, const std::string &event)
@@ -185,42 +173,43 @@ void LLLuaFloater::registerCallback(const std::string &ctrl_name, const std::str
         post(event.with("x", x).with("y", y)); 
     };
 
-    if (event == MOUSE_ENTER_EVENT)
+    if (event == EVENT_LIST["MOUSE_ENTER_EVENT"])
     {
         ctrl->setMouseEnterCallback(mouse_event_cb);
     }
-    else if (event == MOUSE_LEAVE_EVENT)
+    else if (event == EVENT_LIST["MOUSE_LEAVE_EVENT"])
     {
         ctrl->setMouseLeaveCallback(mouse_event_cb);
     }
-    else if (event == MOUSE_DOWN_EVENT)
+    else if (event == EVENT_LIST["MOUSE_DOWN_EVENT"])
     {
         ctrl->setMouseDownCallback(mouse_event_coords_cb);
     }
-    else if (event == MOUSE_UP_EVENT)
+    else if (event == EVENT_LIST["MOUSE_UP_EVENT"])
     {
         ctrl->setMouseUpCallback(mouse_event_coords_cb);
     }
-    else if (event == RIGHT_MOUSE_DOWN_EVENT)
+    else if (event == EVENT_LIST["RIGHT_MOUSE_DOWN_EVENT"])
     {
         ctrl->setRightMouseDownCallback(mouse_event_coords_cb);
     }
-    else if (event == RIGHT_MOUSE_UP_EVENT)
+    else if (event == EVENT_LIST["RIGHT_MOUSE_UP_EVENT"])
     {
         ctrl->setRightMouseUpCallback(mouse_event_coords_cb);
     }
-    else if (event == DOUBLE_CLICK_EVENT)
+    else if (event == EVENT_LIST["DOUBLE_CLICK_EVENT"])
     {
         ctrl->setDoubleClickCallback(mouse_event_coords_cb);
     }
     else 
     {
-        LL_WARNS("LuaFloater") << "Can't register callback for unknown event: " << event << " ,control: " << ctrl_name << LL_ENDL;
+        LL_WARNS("LuaFloater") << "Can't register callback for unknown event: " << event << " , control: " << ctrl_name << LL_ENDL;
     }
 }
 
 void LLLuaFloater::post(const LLSD &data)
 {
+    //send event data to the script signed with ["reqid"] key
     LLSD stamped_data(data);
     mReqID.stamp(stamped_data);
     LLEventPumps::instance().obtain(mCommandPumpName).post(stamped_data);
