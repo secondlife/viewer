@@ -1633,21 +1633,6 @@ bool LLPanelRegionTerrainInfo::refreshFromRegion(LLViewerRegion* region)
 BOOL LLPanelRegionTerrainInfo::sendUpdate()
 {
 	LL_INFOS() << "LLPanelRegionTerrainInfo::sendUpdate" << LL_ENDL;
-	std::string buffer;
-	strings_t strings;
-	LLUUID invoice(LLFloaterRegionInfo::getLastInvoice());
-
-	// update the model
-	LLRegionInfoModel& region_info = LLRegionInfoModel::instance();
-	region_info.mWaterHeight = (F32) getChild<LLUICtrl>("water_height_spin")->getValue().asReal();
-	region_info.mTerrainRaiseLimit = (F32) getChild<LLUICtrl>("terrain_raise_spin")->getValue().asReal();
-	region_info.mTerrainLowerLimit = (F32) getChild<LLUICtrl>("terrain_lower_spin")->getValue().asReal();
-
-	// and sync the region with it
-	region_info.sendRegionTerrain(invoice);
-	
-	// =======================================
-	// Assemble and send texturedetail message
 
 	// Make sure user hasn't chosen wacky textures.
 	if (!validateTextureSizes())
@@ -1669,6 +1654,22 @@ BOOL LLPanelRegionTerrainInfo::sendUpdate()
 			return FALSE;
 		}
 	}
+
+    std::string buffer;
+    strings_t strings;
+    LLUUID invoice(LLFloaterRegionInfo::getLastInvoice());
+
+    // update the model
+    LLRegionInfoModel& region_info = LLRegionInfoModel::instance();
+    region_info.mWaterHeight = (F32) getChild<LLUICtrl>("water_height_spin")->getValue().asReal();
+    region_info.mTerrainRaiseLimit = (F32) getChild<LLUICtrl>("terrain_raise_spin")->getValue().asReal();
+    region_info.mTerrainLowerLimit = (F32) getChild<LLUICtrl>("terrain_lower_spin")->getValue().asReal();
+
+    // and sync the region with it
+    region_info.sendRegionTerrain(invoice);
+
+    // =======================================
+    // Assemble and send texturedetail message
 
 	std::string id_str;
 	LLMessageSystem* msg = gMessageSystem;
