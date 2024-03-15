@@ -239,6 +239,7 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceS
     std::vector<LLWebRTCDevicesObserver *>                     mVoiceDevicesObserverList;
 
     // accessors in native webrtc for devices aren't apparently implemented yet.
+    bool                                                       mTuningMode;
     int32_t                                                    mPlayoutDevice;
     int32_t                                                    mRecordingDevice;
     bool                                                       mMute;

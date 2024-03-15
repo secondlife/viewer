@@ -591,14 +591,15 @@ void LLWebRTCVoiceClient::OnDevicesChanged(const llwebrtc::LLWebRTCVoiceDeviceLi
     std::string inputDevice = gSavedSettings.getString("VoiceInputAudioDevice");
     std::string outputDevice = gSavedSettings.getString("VoiceOutputAudioDevice");
 
+    LL_DEBUGS("Voice") << "Setting devices to-input: '" << inputDevice << "' output: '" << outputDevice << "'" << LL_ENDL;
     clearRenderDevices();
     bool renderDeviceSet = false;
     for (auto &device : render_devices)
     {
         addRenderDevice(LLVoiceDevice(device.mDisplayName, device.mID));
-        if (device.mCurrent && outputDevice == device.mID)
+        LL_DEBUGS("Voice") << "Checking render device" << "'" << device.mID << "'" << LL_ENDL;
+        if (outputDevice == device.mID)
         {
-            setRenderDevice(outputDevice);
             renderDeviceSet = true;
         }
     }
@@ -611,10 +612,11 @@ void LLWebRTCVoiceClient::OnDevicesChanged(const llwebrtc::LLWebRTCVoiceDeviceLi
     bool captureDeviceSet = false;
     for (auto &device : capture_devices)
     {
+        LL_DEBUGS("Voice") << "Checking capture device:'" << device.mID << "'" << LL_ENDL;
+ 
         addCaptureDevice(LLVoiceDevice(device.mDisplayName, device.mID));
-        if (device.mCurrent && inputDevice == device.mID)
+        if (inputDevice == device.mID)
         {
-            setCaptureDevice(outputDevice);
             captureDeviceSet = true;
         }
     }
@@ -2410,7 +2412,7 @@ bool LLVoiceWebRTCSpatialConnection::requestVoiceConnection()
     {
         body["parcel_local_id"] = mParcelLocalID;
     }
-
+    body["channel_type"]      = "local";
     body["voice_server_type"] = WEBRTC_VOICE_SERVER_TYPE;
 
     LLCoreHttpUtil::HttpCoroutineAdapter::callbackHttpPost(

@@ -418,7 +418,7 @@ void LLVoiceChannelGroup::activate()
 	{
 		// we have the channel info, just need to use it now
 		LLVoiceClient::getInstance()->setNonSpatialChannel(mChannelInfo,
-														   mCallDirection == OUTGOING_CALL, 
+														   mIsP2P && (mCallDirection == OUTGOING_CALL), 
 														   mIsP2P);
 
 		if (mIsP2P)
