@@ -41,6 +41,10 @@
 # include "llfilepicker.h"
 #endif
 
+#ifdef LL_FLTK
+  #include "FL/Fl.H"
+  #include "FL/Fl_Native_File_Chooser.H"
+#endif
 //
 // Globals
 //
@@ -193,20 +197,28 @@ LLDirPicker::LLDirPicker() :
 	mFileName(NULL),
 	mLocked(false)
 {
+#ifndef LL_FLTK
 	mFilePicker = new LLFilePicker();
+#endif
 	reset();
 }
 
 LLDirPicker::~LLDirPicker()
 {
+#ifndef LL_FLTK
 	delete mFilePicker;
+#endif
 }
 
 
 void LLDirPicker::reset()
 {
+#ifndef LL_FLTK
 	if (mFilePicker)
 		mFilePicker->reset();
+#else
+	mDir = "";
+#endif
 }
 
 BOOL LLDirPicker::getDir(std::string* filename, bool blocking)
@@ -219,6 +231,7 @@ BOOL LLDirPicker::getDir(std::string* filename, bool blocking)
 		return FALSE;
 	}
 
+#ifndef LL_FLTK
 #if !LL_MESA_HEADLESS
 
 	if (mFilePicker)
@@ -237,15 +250,38 @@ BOOL LLDirPicker::getDir(std::string* filename, bool blocking)
 #endif // !LL_MESA_HEADLESS
 
 	return FALSE;
+#else
+    gViewerWindow->getWindow()->beforeDialog();
+	Fl_Native_File_Chooser flDlg;
+	flDlg.title(LLTrans::getString("choose_the_directory").c_str());
+	flDlg.type(Fl_Native_File_Chooser::BROWSE_DIRECTORY );
+	int res = flDlg.show();
+    gViewerWindow->getWindow()->afterDialog();
+	if( res == 0 )
+	{
+		char const *pDir = flDlg.filename(0);
+		if( pDir )
+			mDir = pDir;
+	}
+	else if( res == -1 )
+	{
+		LL_WARNS() << "FLTK failed: " <<  flDlg.errmsg() << LL_ENDL;
+	}
+	return !mDir.empty();
+#endif
 }
 
 std::string LLDirPicker::getDirName()
 {
+#ifndef LL_FLTK
 	if (mFilePicker)
 	{
 		return mFilePicker->getFirstFile();
 	}
 	return "";
+#else
+	return mDir;
+#endif
 }
 
 #else // not implemented

@@ -17,6 +17,7 @@ include(LLImage)
 include(LLWindow)
 include(UI)
 include(ViewerMiscLibs)
+include(FetchContent)
 
 set(llwindow_SOURCE_FILES
     llcursortypes.cpp
@@ -62,7 +63,14 @@ set(llwindow_LINK_LIBRARIES
 # Libraries on which this library depends, needed for Linux builds
 # Sort by high-level to low-level
 if (LINUX)
-  list(APPEND viewer_SOURCE_FILES 
+  FetchContent_Declare( ndGPUInfo
+        GIT_REPOSITORY https://github.com/Nicky-D/ndGPUInfo.git
+        GIT_TAG main)
+  FetchContent_MakeAvailable( ndGPUInfo )
+
+  list(APPEND llwindow_LINK_LIBRARIES ndGPUInfo)
+
+  list(APPEND viewer_SOURCE_FILES
        llkeyboardsdl.cpp 
        llwindowsdl.cpp
        )
@@ -83,7 +91,6 @@ if (LINUX)
         fontconfig          # For FCInit and other FC* functions.
         )
   endif (BUILD_HEADLESS)
-
 endif (LINUX)
 
 if (DARWIN)

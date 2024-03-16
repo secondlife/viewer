@@ -1,31 +1,30 @@
 # -*- cmake -*-
 include(Prebuilt)
 include(FreeType)
+include(GLIB)
 
 add_library( ll::uilibraries INTERFACE IMPORTED )
 
 if (LINUX)
-  target_compile_definitions(ll::uilibraries INTERFACE LL_GTK=0 LL_X11=1 )
+  target_compile_definitions(ll::uilibraries INTERFACE LL_X11=1 )
 
   if( USE_CONAN )
     return()
   endif()
 
-  find_package(PkgConfig REQUIRED)
-  pkg_search_module(GLIB REQUIRED glib-2.0)
-  pkg_search_module(GLIB REQUIRED gio-2.0)
-
   find_package(FLTK REQUIRED )
 
-  target_include_directories( ll::uilibraries SYSTEM INTERFACE  ${GLIB_INCLUDE_DIRS}  ${FLTK_INCLUDE_DIR})
-
-  target_link_libraries(ll::uilibraries INTERFACE ${GLIB_LDFLAGS})
-  target_link_libraries(ll::uilibraries INTERFACE ${FLTK_BASE_LIBRARY_RELEASE})
-
+  target_include_directories( ll::uilibraries SYSTEM INTERFACE   ${FLTK_INCLUDE_DIR})
+  target_compile_definitions( ll::uilibraries INTERFACE LL_FLTK=1 )
   target_link_libraries( ll::uilibraries INTERFACE
           Xinerama
+          ll::fontconfig
           ll::freetype
-          )
+          ll::SDL
+          ll::glib
+          ll::gio
+          ${FLTK_BASE_LIBRARY_RELEASE}
+  )
 
 endif (LINUX)
 if( WINDOWS )

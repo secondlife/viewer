@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llkeyboard.h
  * @brief Handler for assignable key bindings
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -34,7 +34,7 @@
 #include "lltimer.h"
 #include "indra_constants.h"
 
-enum EKeystate 
+enum EKeystate
 {
 	KEYSTATE_DOWN,
 	KEYSTATE_LEVEL,
@@ -43,7 +43,7 @@ enum EKeystate
 
 typedef boost::function<bool(EKeystate keystate)> LLKeyFunc;
 typedef std::string (LLKeyStringTranslatorFunc)(const char *label);
-	
+
 enum EKeyboardInsertMode
 {
 	LL_KIM_INSERT,
@@ -55,6 +55,11 @@ class LLWindowCallbacks;
 class LLKeyboard
 {
 public:
+#ifndef LL_SDL
+    typedef U16 NATIVE_KEY_TYPE;
+#else
+    typedef U32 NATIVE_KEY_TYPE;
+#endif
 	LLKeyboard();
 	virtual ~LLKeyboard();
 
@@ -67,15 +72,14 @@ public:
 	BOOL			getKeyDown(const KEY key) { return mKeyLevel[key]; }
 	BOOL			getKeyRepeated(const KEY key) { return mKeyRepeated[key]; }
 
-	BOOL			translateKey(const U16 os_key, KEY *translated_key);
-	U16				inverseTranslateKey(const KEY translated_key);
+	BOOL			translateKey(const NATIVE_KEY_TYPE os_key, KEY *translated_key);
+    NATIVE_KEY_TYPE		inverseTranslateKey(const KEY translated_key);
 	BOOL			handleTranslatedKeyUp(KEY translated_key, U32 translated_mask);		// Translated into "Linden" keycodes
 	BOOL			handleTranslatedKeyDown(KEY translated_key, U32 translated_mask);	// Translated into "Linden" keycodes
 
+	virtual BOOL	handleKeyUp(const NATIVE_KEY_TYPE key, MASK mask) = 0;
+	virtual BOOL	handleKeyDown(const NATIVE_KEY_TYPE key, MASK mask) = 0;
 
-	virtual BOOL	handleKeyUp(const U16 key, MASK mask) = 0;
-	virtual BOOL	handleKeyDown(const U16 key, MASK mask) = 0;
-	
 #ifdef LL_DARWIN
 	// We only actually use this for OS X.
 	virtual void	handleModifier(MASK mask) = 0;
@@ -106,13 +110,13 @@ public:
 	S32				getKeyElapsedFrameCount( KEY key );  // Returns time in frames since key was pressed.
 
 	static void		setStringTranslatorFunc( LLKeyStringTranslatorFunc *trans_func );
-	
+
 protected:
 	void 			addKeyName(KEY key, const std::string& name);
 
 protected:
-	std::map<U16, KEY>	mTranslateKeyMap;		// Map of translations from OS keys to Linden KEYs
-	std::map<KEY, U16>	mInvTranslateKeyMap;	// Map of translations from Linden KEYs to OS keys
+	std::map<NATIVE_KEY_TYPE, KEY>	mTranslateKeyMap;		// Map of translations from OS keys to Linden KEYs
+	std::map<KEY, NATIVE_KEY_TYPE>	mInvTranslateKeyMap;	// Map of translations from Linden KEYs to OS keys
 	LLWindowCallbacks *mCallbacks;
 
 	LLTimer			mKeyLevelTimer[KEY_COUNT];	// Time since level was set
@@ -125,7 +129,7 @@ protected:
 	KEY				mCurScanKey;		// Used during the scanKeyboard()
 
 	static LLKeyStringTranslatorFunc*	mStringTranslator;	// Used for l10n + PC/Mac/Linux accelerator labeling
-	
+
 	EKeyboardInsertMode mInsertMode;
 
 	static std::map<KEY,std::string> sKeysToNames;
