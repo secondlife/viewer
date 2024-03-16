@@ -1,30 +1,30 @@
-/** 
+/**
  * @file llgl.cpp
  * @brief LLGL implementation
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
 
-// This file sets some global GL parameters, and implements some 
+// This file sets some global GL parameters, and implements some
 // useful functions for GL operations.
 
 #define GLH_EXT_SINGLE_FILE
@@ -148,7 +148,7 @@ void APIENTRY gl_debug_callback(GLenum source,
         glGetBufferParameteriv(GL_UNIFORM_BUFFER, GL_BUFFER_SIZE, &ubo_size);
         glGetBufferParameteriv(GL_UNIFORM_BUFFER, GL_BUFFER_IMMUTABLE_STORAGE, &ubo_immutable);
     }
-    
+
     if (severity == GL_DEBUG_SEVERITY_HIGH)
     {
         LL_ERRS() << "Halting on GL Error" << LL_ENDL;
@@ -166,7 +166,7 @@ void ll_init_fail_log(std::string filename)
 
 void ll_fail(std::string msg)
 {
-	
+
 	if (gDebugSession)
 	{
 		std::vector<std::string> lines;
@@ -176,7 +176,7 @@ void ll_fail(std::string msg)
 		gFailLog << "Stack Trace:" << std::endl;
 
 		ll_get_stack_trace(lines);
-		
+
 		for(size_t i = 0; i < lines.size(); ++i)
 		{
 			gFailLog << lines[i] << std::endl;
@@ -987,7 +987,7 @@ LLGLManager::LLGLManager() :
 	mDriverVersionRelease(0),
 	mGLVersion(1.0f),
 	mGLSLVersionMajor(0),
-	mGLSLVersionMinor(0),		
+	mGLSLVersionMinor(0),
 	mVRAM(0),
 	mGLMaxVertexRange(0),
 	mGLMaxIndexRange(0)
@@ -1014,7 +1014,7 @@ void LLGLManager::initWGL()
 		LL_WARNS("RenderInit") << "No ARB create context extensions" << LL_ENDL;
 	}
 
-	// For retreiving information per AMD adapter, 
+	// For retreiving information per AMD adapter,
 	// because we can't trust curently selected/default one when there are multiple
 	mHasAMDAssociations = ExtensionExists("WGL_AMD_gpu_association", gGLHExts.mSysExts);
 	if (mHasAMDAssociations)
@@ -1067,7 +1067,7 @@ bool LLGLManager::initGL()
 			str << ext << " ";
 			LL_DEBUGS("GLExtensions") << ext << LL_ENDL;
 		}
-		
+
 		{
 			PFNWGLGETEXTENSIONSSTRINGARBPROC wglGetExtensionsStringARB = 0;
 			wglGetExtensionsStringARB = (PFNWGLGETEXTENSIONSSTRINGARBPROC)wglGetProcAddress("wglGetExtensionsStringARB");
@@ -1082,7 +1082,7 @@ bool LLGLManager::initGL()
 		gGLHExts.mSysExts = strdup(extensions.c_str());
 	}
 #endif
-	
+
 	// Extract video card strings and convert to upper case to
 	// work around driver-to-driver variation in capitalization.
 	mGLVendor = ll_safe_string((const char *)glGetString(GL_VENDOR));
@@ -1091,9 +1091,9 @@ bool LLGLManager::initGL()
 	mGLRenderer = ll_safe_string((const char *)glGetString(GL_RENDERER));
 	LLStringUtil::toUpper(mGLRenderer);
 
-	parse_gl_version( &mDriverVersionMajor, 
-		&mDriverVersionMinor, 
-		&mDriverVersionRelease, 
+	parse_gl_version( &mDriverVersionMajor,
+		&mDriverVersionMinor,
+		&mDriverVersionRelease,
 		&mDriverVersionVendorString,
 		&mGLVersionString);
 
@@ -1123,7 +1123,7 @@ bool LLGLManager::initGL()
 	{ //GL version is < 3.0, always disable texture compression
 		LLImageGL::sCompressTextures = false;
 	}
-	
+
 	// Trailing space necessary to keep "nVidia Corpor_ati_on" cards
 	// from being recognized as ATI.
     // NOTE: AMD has been pretty good about not breaking this check, do not rename without good reason
@@ -1153,7 +1153,7 @@ bool LLGLManager::initGL()
 	{
 		mGLVendorShort = "MISC";
 	}
-	
+
 	// This is called here because it depends on the setting of mIsGF2or4MX, and sets up mHasMultitexture.
 	initExtensions();
 
@@ -1277,12 +1277,12 @@ std::string LLGLManager::getGLInfoString()
 		info_str += std::string("GL_VERSION     ") + ll_safe_string((const char *)glGetString(GL_VERSION)) + std::string("\n");
 	}
 
-#if !LL_MESA_HEADLESS 
+#if !LL_MESA_HEADLESS
 	std::string all_exts= ll_safe_string(((const char *)gGLHExts.mSysExts));
 	LLStringUtil::replaceChar(all_exts, ' ', '\n');
 	info_str += std::string("GL_EXTENSIONS:\n") + all_exts + std::string("\n");
 #endif
-	
+
 	return info_str;
 }
 
@@ -1385,9 +1385,9 @@ void LLGLManager::initExtensions()
 #endif
 
     // NOTE: version checks against mGLVersion should bias down by 0.01 because of F32 errors
-    
+
     // OpenGL 4.x capabilities
-    mHasCubeMapArray = mGLVersion >= 3.99f; 
+    mHasCubeMapArray = mGLVersion >= 3.99f;
     mHasTransformFeedback = mGLVersion >= 3.99f;
     mHasDebugOutput = mGLVersion >= 4.29f;
 
@@ -1400,7 +1400,7 @@ void LLGLManager::initExtensions()
 
 #if LL_WINDOWS
 	LL_DEBUGS("RenderInit") << "GL Probe: Getting symbols" << LL_ENDL;
-	
+
     // WGL_AMD_gpu_association
     wglGetGPUIDsAMD = (PFNWGLGETGPUIDSAMDPROC)GLH_EXT_GET_PROC_ADDRESS("wglGetGPUIDsAMD");
     wglGetGPUInfoAMD = (PFNWGLGETGPUINFOAMDPROC)GLH_EXT_GET_PROC_ADDRESS("wglGetGPUInfoAMD");
@@ -2233,7 +2233,7 @@ void LLGLManager::initExtensions()
     glMultiDrawArraysIndirectCount = (PFNGLMULTIDRAWARRAYSINDIRECTCOUNTPROC)GLH_EXT_GET_PROC_ADDRESS("glMultiDrawArraysIndirectCount");
     glMultiDrawElementsIndirectCount = (PFNGLMULTIDRAWELEMENTSINDIRECTCOUNTPROC)GLH_EXT_GET_PROC_ADDRESS("glMultiDrawElementsIndirectCount");
     glPolygonOffsetClamp = (PFNGLPOLYGONOFFSETCLAMPPROC)GLH_EXT_GET_PROC_ADDRESS("glPolygonOffsetClamp");
-    
+
 #endif
 }
 
@@ -2256,7 +2256,7 @@ void log_glerror()
 	{
 		return ;
 	}
-	//  Create or update texture to be used with this data 
+	//  Create or update texture to be used with this data
 	GLenum error;
 	error = glGetError();
 	while (LL_UNLIKELY(error))
@@ -2264,7 +2264,7 @@ void log_glerror()
 		GLubyte const * gl_error_msg = gluErrorString(error);
 		if (NULL != gl_error_msg)
 		{
-			LL_WARNS() << "GL Error: " << error << " GL Error String: " << gl_error_msg << LL_ENDL ;			
+			LL_WARNS() << "GL Error: " << error << " GL Error String: " << gl_error_msg << LL_ENDL ;
 		}
 		else
 		{
@@ -2278,7 +2278,7 @@ void log_glerror()
 
 void do_assert_glerror()
 {
-	//  Create or update texture to be used with this data 
+	//  Create or update texture to be used with this data
 	GLenum error;
 	error = glGetError();
 	BOOL quit = FALSE;
@@ -2335,7 +2335,7 @@ void assert_glerror()
 	}
 */
 
-	if (!gDebugGL) 
+	if (!gDebugGL)
 	{
 		//funny looking if for branch prediction -- gDebugGL is almost always false and assert_glerror is called often
 	}
@@ -2344,7 +2344,7 @@ void assert_glerror()
 		do_assert_glerror();
 	}
 }
-	
+
 
 void clear_glerror()
 {
@@ -2365,11 +2365,11 @@ GLenum LLGLDepthTest::sDepthFunc = GL_LESS; // OpenGL default
 GLboolean LLGLDepthTest::sWriteEnabled = GL_TRUE; // OpenGL default
 
 //static
-void LLGLState::initClass() 
+void LLGLState::initClass()
 {
 	sStateMap[GL_DITHER] = GL_TRUE;
 	// sStateMap[GL_TEXTURE_2D] = GL_TRUE;
-	
+
 	//make sure multisample defaults to disabled
 	sStateMap[GL_MULTISAMPLE] = GL_FALSE;
 	glDisable(GL_MULTISAMPLE);
@@ -2388,7 +2388,7 @@ void LLGLState::resetTextureStates()
 {
 	gGL.flush();
 	GLint maxTextureUnits;
-	
+
 	glGetIntegerv(GL_MAX_TEXTURE_UNITS_ARB, &maxTextureUnits);
 	for (S32 j = maxTextureUnits-1; j >=0; j--)
 	{
@@ -2398,7 +2398,7 @@ void LLGLState::resetTextureStates()
 	}
 }
 
-void LLGLState::dumpStates() 
+void LLGLState::dumpStates()
 {
 	LL_INFOS("RenderState") << "GL States:" << LL_ENDL;
 	for (boost::unordered_map<LLGLenum, LLGLboolean>::iterator iter = sStateMap.begin();
@@ -2421,15 +2421,15 @@ void LLGLState::checkStates(GLboolean writeAlpha)
 	glGetIntegerv(GL_BLEND_DST, &dst);
     llassert_always(src == GL_SRC_ALPHA);
     llassert_always(dst == GL_ONE_MINUS_SRC_ALPHA);
-  
+
     // disable for now until usage is consistent
     //GLboolean colorMask[4];
     //glGetBooleanv(GL_COLOR_WRITEMASK, colorMask);
     //llassert_always(colorMask[0]);
     //llassert_always(colorMask[1]);
     //llassert_always(colorMask[2]);
-    // llassert_always(colorMask[3] == writeAlpha);  
-	
+    // llassert_always(colorMask[3] == writeAlpha);
+
 	for (boost::unordered_map<LLGLenum, LLGLboolean>::iterator iter = sStateMap.begin();
 		 iter != sStateMap.end(); ++iter)
 	{
@@ -2483,7 +2483,7 @@ void LLGLState::setEnabled(S32 enabled)
 	mIsEnabled = enabled;
 }
 
-LLGLState::~LLGLState() 
+LLGLState::~LLGLState()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
 	if (mState)
@@ -2532,7 +2532,7 @@ void LLGLManager::initGLStates()
 
 void parse_gl_version( S32* major, S32* minor, S32* release, std::string* vendor_specific, std::string* version_string )
 {
-	// GL_VERSION returns a null-terminated string with the format: 
+	// GL_VERSION returns a null-terminated string with the format:
 	// <major>.<minor>[.<release>] [<vendor specific>]
 
 	const char* version = (const char*) glGetString(GL_VERSION);
@@ -2545,6 +2545,7 @@ void parse_gl_version( S32* major, S32* minor, S32* release, std::string* vendor
 	{
 		return;
 	}
+    LL_INFOS() << "GL: "  << version << LL_ENDL;
 
 	version_string->assign(version);
 
@@ -2615,13 +2616,13 @@ void parse_gl_version( S32* major, S32* minor, S32* release, std::string* vendor
 
 void parse_glsl_version(S32& major, S32& minor)
 {
-	// GL_SHADING_LANGUAGE_VERSION returns a null-terminated string with the format: 
+	// GL_SHADING_LANGUAGE_VERSION returns a null-terminated string with the format:
 	// <major>.<minor>[.<release>] [<vendor specific>]
 
 	const char* version = (const char*) glGetString(GL_SHADING_LANGUAGE_VERSION);
 	major = 0;
 	minor = 0;
-	
+
 	if( !version )
 	{
 		return;
@@ -2690,7 +2691,7 @@ void LLGLUserClipPlane::setPlane(F32 a, F32 b, F32 c, F32 d)
 {
 	glh::matrix4f& P = mProjection;
 	glh::matrix4f& M = mModelview;
-    
+
 	glh::matrix4f invtrans_MVP = (P * M).inverse().transpose();
     glh::vec4f oplane(a,b,c,d);
     glh::vec4f cplane;
@@ -2721,7 +2722,7 @@ LLGLDepthTest::LLGLDepthTest(GLboolean depth_enabled, GLboolean write_enabled, G
 : mPrevDepthEnabled(sDepthEnabled), mPrevDepthFunc(sDepthFunc), mPrevWriteEnabled(sWriteEnabled)
 {
 	stop_glerror();
-	
+
 	checkState();
 
 	if (!depth_enabled)
@@ -2844,7 +2845,7 @@ LLGLSquashToFarClip::~LLGLSquashToFarClip()
 }
 
 
-	
+
 LLGLSyncFence::LLGLSyncFence()
 {
 	mSync = 0;
@@ -2894,7 +2895,7 @@ void LLGLSyncFence::wait()
 LLGLSPipelineSkyBox::LLGLSPipelineSkyBox()
 : mCullFace(GL_CULL_FACE)
 , mSquashClip()
-{ 
+{
 }
 
 LLGLSPipelineSkyBox::~LLGLSPipelineSkyBox()
@@ -2909,20 +2910,18 @@ LLGLSPipelineDepthTestSkyBox::LLGLSPipelineDepthTestSkyBox(bool depth_test, bool
 }
 
 LLGLSPipelineBlendSkyBox::LLGLSPipelineBlendSkyBox(bool depth_test, bool depth_write)
-: LLGLSPipelineDepthTestSkyBox(depth_test, depth_write)    
+: LLGLSPipelineDepthTestSkyBox(depth_test, depth_write)
 , mBlend(GL_BLEND)
-{ 
+{
     gGL.setSceneBlendType(LLRender::BT_ALPHA);
 }
 
 #if LL_WINDOWS
 // Expose desired use of high-performance graphics processor to Optimus driver and to AMD driver
 // https://docs.nvidia.com/gameworks/content/technologies/desktop/optimus.htm
-extern "C" 
-{ 
+extern "C"
+{
     __declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;
     __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
 }
 #endif
-
-
