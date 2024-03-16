@@ -1,0 +1,59 @@
+<?xml version="1.0" ?>
+<llsd xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="llsd.xsd">
+  <array>
+    <map>
+      <key>Name</key>
+      <string>smileys and emotion</string>
+      <key>Category</key>
+      <string>スマイリーと感情</string>
+    </map>
+    <map>
+      <key>Name</key>
+      <string>people and body</string>
+      <key>Category</key>
+      <string>人体</string>
+    </map>
+    <map>
+      <key>Name</key>
+      <string>components</string>
+      <key>Category</key>
+      <string>コンポーネント</string>
+    </map>
+    <map>
+      <key>Name</key>
+      <string>animals and nature</string>
+      <key>Category</key>
+      <string>動物自然</string>
+    </map>
+    <map>
+      <key>Name</key>
+      <string>food and drink</string>
+      <key>Category</key>
+      <string>飲み物・食べ物</string>
+    </map>
+    <map>
+      <key>Name</key>
+      <string>travel and places</string>
+      <key>Category</key>
+      <string>旅行・場所</string>
+    </map>
+    <map>
+      <key>Name</key>
+      <string>activities</string>
+      <key>Category</key>
+      <string>有効化</string>
+    </map>
+    <map>
+      <key>Name</key>
+      <string>objects</string>
+      <key>Category</key>
+      <string>オブジェクト</string>
+    </map>
+    <map>
+      <key>Name</key>
+      <string>symbols</string>
+      <key>Category</key>
+      <string>シンボル</string>
+    </map>
+  </array>
+</llsd>

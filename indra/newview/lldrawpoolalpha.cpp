@@ -178,27 +178,24 @@ void LLDrawPoolAlpha::renderPostDeferred(S32 pass)
 
     fullbright_shader   = 
         (LLPipeline::sImpostorRender) ? &gDeferredFullbrightAlphaMaskProgram :
-        (LLPipeline::sUnderWaterRender) ? &gDeferredFullbrightWaterAlphaProgram : 
         (LLPipeline::sRenderingHUDs) ? &gHUDFullbrightAlphaMaskAlphaProgram :
         &gDeferredFullbrightAlphaMaskAlphaProgram;
     prepare_alpha_shader(fullbright_shader, true, true, water_sign);
 
     simple_shader   = 
         (LLPipeline::sImpostorRender) ? &gDeferredAlphaImpostorProgram :
-        (LLPipeline::sUnderWaterRender) ? &gDeferredAlphaWaterProgram : 
         (LLPipeline::sRenderingHUDs) ? &gHUDAlphaProgram :
         &gDeferredAlphaProgram;
 
     prepare_alpha_shader(simple_shader, false, true, water_sign); //prime simple shader (loads shadow relevant uniforms)
 
-    LLGLSLShader* materialShader = LLPipeline::sUnderWaterRender ? gDeferredMaterialWaterProgram : gDeferredMaterialProgram;
+    LLGLSLShader* materialShader = gDeferredMaterialProgram;
     for (int i = 0; i < LLMaterial::SHADER_COUNT*2; ++i)
     {
         prepare_alpha_shader(&materialShader[i], false, true, water_sign);
     }
 
     pbr_shader = 
-        (LLPipeline::sUnderWaterRender) ? &gDeferredPBRAlphaWaterProgram : 
         (LLPipeline::sRenderingHUDs) ? &gHUDPBRAlphaProgram : 
         &gDeferredPBRAlphaProgram;
 
@@ -727,11 +724,6 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
 
                         llassert(mask < LLMaterial::SHADER_COUNT);
                         target_shader = &(gDeferredMaterialProgram[mask]);
-
-                        if (LLPipeline::sUnderWaterRender)
-                        {
-                            target_shader = &(gDeferredMaterialWaterProgram[mask]);
-                        }
                     }
                     else if (!params.mFullbright)
                     {
