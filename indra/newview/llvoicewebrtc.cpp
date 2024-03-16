@@ -465,7 +465,7 @@ void LLWebRTCVoiceClient::voiceConnectionCoro()
                             }
                         }
                     }
-                    if (useEstateVoice && !inEstateChannel())
+                    if (voiceEnabled && useEstateVoice && !inEstateChannel())
                     {
                         // estate voice
                         startEstateSession();
@@ -2251,7 +2251,10 @@ void LLVoiceWebRTCConnection::setUserVolume(const LLUUID& id, F32 volume)
     root["ug"] = user_gain;
     Json::FastWriter writer;
     std::string json_data = writer.write(root);
-    mWebRTCDataInterface->sendData(json_data, false);
+    if (mWebRTCDataInterface)
+    {
+        mWebRTCDataInterface->sendData(json_data, false);
+    }
 }
 
 void LLVoiceWebRTCConnection::setUserMute(const LLUUID& id, bool mute)
@@ -2262,7 +2265,10 @@ void LLVoiceWebRTCConnection::setUserMute(const LLUUID& id, bool mute)
     root["m"] = muted;
     Json::FastWriter writer;
     std::string json_data = writer.write(root);
-    mWebRTCDataInterface->sendData(json_data, false);
+    if (mWebRTCDataInterface)
+    {
+        mWebRTCDataInterface->sendData(json_data, false);
+    }
 }
 
 
