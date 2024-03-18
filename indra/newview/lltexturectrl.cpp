@@ -230,7 +230,7 @@ void LLFloaterTexturePicker::setImageID(const LLUUID& image_id, bool set_selecti
                 LLInventoryItem* itemp = gInventory.getItem(inv_view->getUUID());
 
                 if (mInventoryPickType == PICK_MATERIAL
-                    && mImageAssetID == LLGLTFMaterialList::BLANK_MATERIAL_ASSET_ID
+                    && mImageAssetID == BLANK_MATERIAL_ASSET_ID
                     && itemp && itemp->getAssetUUID().isNull())
                 {
                     item_id = inv_view->getUUID();
@@ -273,7 +273,7 @@ void LLFloaterTexturePicker::setImageIDFromItem(const LLInventoryItem* itemp, bo
     if (mInventoryPickType == PICK_MATERIAL && asset_id.isNull())
     {
         // If an inventory item has a null asset, consider it a valid blank material(gltf)
-        asset_id = LLGLTFMaterialList::BLANK_MATERIAL_ASSET_ID;
+        asset_id = BLANK_MATERIAL_ASSET_ID;
     }
     setImageID(asset_id, set_selection);
 }
@@ -813,7 +813,7 @@ const LLUUID& LLFloaterTexturePicker::findItemID(const LLUUID& asset_id, BOOL co
 	}
 
     LLUUID loockup_id = asset_id;
-    if (mInventoryPickType == PICK_MATERIAL && loockup_id == LLGLTFMaterialList::BLANK_MATERIAL_ASSET_ID)
+    if (mInventoryPickType == PICK_MATERIAL && loockup_id == BLANK_MATERIAL_ASSET_ID)
     {
         // default asset id means we are looking for an inventory item with a default asset UUID (null)
         loockup_id = LLUUID::null;
@@ -908,7 +908,7 @@ void LLFloaterTexturePicker::commitCallback(LLTextureCtrl::ETexturePickOp op)
                     LLInventoryItem* itemp = gInventory.getItem(inv_view->getUUID());
 
                     if (mInventoryPickType == PICK_MATERIAL
-                        && mImageAssetID == LLGLTFMaterialList::BLANK_MATERIAL_ASSET_ID
+                        && mImageAssetID == BLANK_MATERIAL_ASSET_ID
                         && itemp && itemp->getAssetUUID().isNull())
                     {
                         inventory_id = inv_view->getUUID();
@@ -2395,7 +2395,7 @@ BOOL LLTextureCtrl::doDrop(LLInventoryItem* item)
     if (mInventoryPickType == PICK_MATERIAL && asset_id.isNull())
     {
         // If an inventory material has a null asset, consider it a valid blank material(gltf)
-        asset_id = LLGLTFMaterialList::BLANK_MATERIAL_ASSET_ID;
+        asset_id = BLANK_MATERIAL_ASSET_ID;
     }
 
 	setImageAssetID(asset_id);
