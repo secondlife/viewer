@@ -35,15 +35,16 @@ class LLLuaFloater : public LLFloater
 public:
     LLLuaFloater(const LLSD &key);
     BOOL postBuild();
+    virtual ~LLLuaFloater();
 
     void registerCallback(const std::string &ctrl_name, const std::string &event);
     void onClose(bool app_quitting);
 
     void post(const LLSD &data);
     static void showLuaFloater(const LLSD &data);
+    static LLSD getEventsData();
 
 private:
-    LLReqID mReqID;
     LLEventDispatcher mDispatcher;
     LLTempBoundListener mBoundListener;
 

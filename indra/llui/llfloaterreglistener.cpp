@@ -76,12 +76,12 @@ LLFloaterRegListener::LLFloaterRegListener():
 
     LLSD requiredParams;
     requiredParams["xml_path"] = LLSD();
-    requiredParams["command_pump"] = LLSD();
-    requiredParams["reqid"] = LLSD();
     add("showLuaFloater",
-        "Open the new floater using XML file specified in [\"xml_path\"]"
-        "with ID in [\"reqid\"], which sends UI events to even pump specified in [\"command_pump\"]",
+        "Open the new floater using XML file specified in [\"xml_path\"]",
         &LLFloaterRegListener::showLuaFloater, requiredParams);
+    add("getFloaterEvents",
+        "Return the table of Lua Floater events which are send to the script",
+        &LLFloaterRegListener::getLuaFloaterEvents);
 }
 
 void LLFloaterRegListener::getBuildMap(const LLSD& event) const
@@ -169,3 +169,16 @@ void LLFloaterRegListener::showLuaFloater(const LLSD &event) const
 {
     LLLuaFloater::showLuaFloater(event);
 }
+
+void LLFloaterRegListener::getLuaFloaterEvents(const LLSD &event) const
+{
+    if (event.has("reply"))
+    {
+        LLSD events_data = LLLuaFloater::getEventsData();
+
+        LLReqID reqID(event);
+        LLSD reply(reqID.makeResponse());
+        LLEventPumps::instance().obtain(event["reply"]).post(reply.with("events", events_data));
+    }
+}
+

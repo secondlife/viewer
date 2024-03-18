@@ -31,6 +31,7 @@
 
 #include "llcheckboxctrl.h"
 #include "llcombobox.h"
+#include "llscrolllistctrl.h"
 
 const std::string LISTENER_NAME("LLLuaFloater");
 
@@ -50,9 +51,8 @@ std::map<std::string, std::string> EVENT_LIST =
 
 LLLuaFloater::LLLuaFloater(const LLSD &key) :
     LLFloater(key), 
-    mCommandPumpName(key["command_pump"].asString()),
-    mDispatcher("LLLuaFloater", "action"),
-    mReqID(key)
+    mCommandPumpName(key["reply"].asString()),
+    mDispatcher("LLLuaFloater", "action")
 {
     mListenerPumpName = LLUUID::generateNewID().asString();
 
@@ -69,9 +69,7 @@ LLLuaFloater::LLLuaFloater(const LLSD &key) :
         return false;
     });
 
-    LLSD requiredParams;
-    requiredParams["ctrl_name"] = LLSD();
-    requiredParams["value"] = LLSD();
+    LLSD requiredParams = LLSD().with("ctrl_name", LLSD()).with("value", LLSD());
     mDispatcher.add("set_enabled", "", [this](const LLSD &event) 
     { 
         LLUICtrl *ctrl = getChild<LLUICtrl>(event["ctrl_name"].asString());
@@ -96,12 +94,39 @@ LLLuaFloater::LLLuaFloater(const LLSD &key) :
             ctrl->setValue(event["value"]);
         }
     }, requiredParams);
+    mDispatcher.add("add_list_element", "", [this](const LLSD &event) 
+    { 
+        LLScrollListCtrl *ctrl = getChild<LLScrollListCtrl>(event["ctrl_name"].asString());
+        if(ctrl) 
+        {
+            ctrl->addElement(event["value"]);
+        }
+    }, requiredParams);
 
     requiredParams = LLSD().with("value", LLSD());
     mDispatcher.add("set_title", "", [this](const LLSD &event) 
     { 
         setTitle(event["value"].asString());
-    });
+    }, requiredParams);
+
+    requiredParams = LLSD().with("ctrl_name", LLSD()).with("reqid", LLSD());
+    mDispatcher.add("get_value", "", [this](const LLSD &event) 
+    { 
+        LLUICtrl *ctrl = getChild<LLUICtrl>(event["ctrl_name"].asString());
+        if(ctrl) 
+        {
+            LLSD response;
+            response["value"] = ctrl->getValue();
+            response["reqid"] = event["reqid"];
+            post(response);
+        }
+    }, requiredParams);
+}
+
+LLLuaFloater::~LLLuaFloater()
+{
+    //post empty LLSD() to indicate done, in case it wasn't handled by the script after CLOSE_EVENT
+    post(LLSD());
 }
 
 BOOL LLLuaFloater::postBuild() 
@@ -199,7 +224,20 @@ void LLLuaFloater::registerCallback(const std::string &ctrl_name, const std::str
     }
     else if (event == EVENT_LIST["DOUBLE_CLICK_EVENT"])
     {
-        ctrl->setDoubleClickCallback(mouse_event_coords_cb);
+        LLScrollListCtrl *list = dynamic_cast<LLScrollListCtrl *>(ctrl);
+        if (list)
+        {
+            list->setDoubleClickCallback(
+                [this, data, list]()
+                {
+                    LLSD event(data);
+                    post(event.with("value", list->getCurrentID()));
+                });
+        }
+        else 
+        {
+            ctrl->setDoubleClickCallback(mouse_event_coords_cb);
+        }
     }
     else 
     {
@@ -209,10 +247,8 @@ void LLLuaFloater::registerCallback(const std::string &ctrl_name, const std::str
 
 void LLLuaFloater::post(const LLSD &data)
 {
-    //send event data to the script signed with ["reqid"] key
-    LLSD stamped_data(data);
-    mReqID.stamp(stamped_data);
-    LLEventPumps::instance().obtain(mCommandPumpName).post(stamped_data);
+    //send event data to the script
+    LLEventPumps::instance().obtain(mCommandPumpName).post(data);
 }
 
 void LLLuaFloater::showLuaFloater(const LLSD &data)
@@ -224,4 +260,12 @@ void LLLuaFloater::showLuaFloater(const LLSD &data)
     floater->openFloater(floater->getKey());
 }
 
-
+LLSD LLLuaFloater::getEventsData()
+{
+    LLSD event_data;
+    for (auto &it : EVENT_LIST)
+    {
+        event_data[it.first] = it.second;
+    }
+    return event_data;
+}
