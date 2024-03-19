@@ -902,7 +902,7 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
                     // scale desired texture resolution higher or lower depending on texture scale
                     const LLTextureEntry* te = face->getTextureEntry();
                     F32 min_scale = te ? llmin(fabsf(te->getScaleS()), fabsf(te->getScaleT())) : 1.f;
-                    min_scale = llmax(min_scale*min_scale, 0.1f);
+                    min_scale = llclamp(min_scale*min_scale, 0.1f, 25.f);
 
                     vsize /= min_scale;
                     vsize /= LLViewerTexture::sDesiredDiscardBias;
