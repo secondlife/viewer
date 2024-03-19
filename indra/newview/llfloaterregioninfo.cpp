@@ -1395,7 +1395,7 @@ LLPanelRegionTerrainInfo::LLPanelRegionTerrainInfo()
     }
     for (S32 i = 0; i < LLTerrainMaterials::ASSET_COUNT; ++i)
     {
-        mLastSetMaterials[i] = LLGLTFMaterialList::BLANK_MATERIAL_ASSET_ID;
+        mLastSetMaterials[i] = BLANK_MATERIAL_ASSET_ID;
     }
 }
 

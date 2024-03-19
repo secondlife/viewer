@@ -2124,7 +2124,7 @@ bool can_use_objects_material(LLSelectedTEGetMatData& func, const std::vector<Pe
 
     // Look for the item to base permissions off of
     item_out = nullptr;
-    const bool blank_material = func.mMaterialId == LLGLTFMaterialList::BLANK_MATERIAL_ASSET_ID;
+    const bool blank_material = func.mMaterialId == BLANK_MATERIAL_ASSET_ID;
     if (!blank_material)
     {
         LLAssetIDMatchesWithPerms item_has_perms(func.mMaterialId, ops);
