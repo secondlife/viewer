@@ -60,6 +60,6 @@ Unlike a viewer without PBR terrain support, the new viewer will no longer treat
 
 ## Graphics Features
 
-Texture terrain with transparency will render as opaque. Parts of the texture that would be partially transparent will instead display as a mix of the color and black, depending on how transparent the texture is.
+Texture terrain with transparency is not permitted to be applied in the viewer.
 
 See [PBR Terrain Appearance](./pbr_terrain_appearance.md) for supported PBR terrain features.
