@@ -588,15 +588,7 @@ class LLVoiceWebRTCConnection :
     void OnOfferAvailable(const std::string &sdp) override;
     void OnRenegotiationNeeded() override;
     void OnAudioEstablished(llwebrtc::LLWebRTCAudioInterface *audio_interface) override;
-    void OnPeerConnectionShutdown() override;
     //@}
-
-    void OnIceGatheringStateImpl(EIceGatheringState state);
-    void OnIceCandidateImpl(const llwebrtc::LLWebRTCIceCandidate &candidate);
-    void OnOfferAvailableImpl(const std::string &sdp);
-    void OnRenegotiationNeededImpl();
-    void OnAudioEstablishedImpl(llwebrtc::LLWebRTCAudioInterface *audio_interface);
-    void OnPeerConnectionShutdownImpl();
 
     /////////////////////////
     /// @name Data Notification
@@ -607,7 +599,6 @@ class LLVoiceWebRTCConnection :
     //@}
 
     void OnDataReceivedImpl(const std::string &data, bool binary);
-    void OnDataChannelReadyImpl(llwebrtc::LLWebRTCDataInterface *data_interface);
 
     void sendJoin();
     void sendData(const std::string &data);
@@ -635,7 +626,6 @@ class LLVoiceWebRTCConnection :
     }
 
     void OnVoiceConnectionRequestSuccess(const LLSD &body);
-    void OnVoiceConnectionRequestFailure(std::string url, int retries, LLSD body, const LLSD &result);
 
   protected:
     typedef enum e_voice_connection_state
@@ -680,11 +670,10 @@ class LLVoiceWebRTCConnection :
         return mVoiceConnectionState;
     }
 
-    virtual bool requestVoiceConnection() = 0;
+    virtual void requestVoiceConnection() = 0;
+    void requestVoiceConnectionCoro() { requestVoiceConnection(); }
 
-    bool breakVoiceConnection(bool wait);
-    void OnVoiceDisconnectionRequestSuccess(const LLSD &body);
-    void OnVoiceDisconnectionRequestFailure(std::string url, int retries, LLSD body, const LLSD &result);
+    void breakVoiceConnection();
 
     LLUUID mRegionID;
     LLUUID mViewerSession;
@@ -731,7 +720,7 @@ class LLVoiceWebRTCSpatialConnection :
 
 protected:
 
-    bool requestVoiceConnection() override;
+    void requestVoiceConnection() override;
 
     S32    mParcelLocalID;
 };
@@ -746,7 +735,7 @@ class LLVoiceWebRTCAdHocConnection : public LLVoiceWebRTCConnection
     bool isSpatial() override { return false; }
 
   protected:
-    bool requestVoiceConnection() override;
+    void requestVoiceConnection() override;
 
     std::string mCredentials;
 };

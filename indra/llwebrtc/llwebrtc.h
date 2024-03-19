@@ -192,9 +192,6 @@ class LLWebRTCSignalingObserver
     // Called when the data channel has been established and data
     // transfer can begin.
     virtual void OnDataChannelReady(LLWebRTCDataInterface *data_interface) = 0;
-
-    // Called when a peer connection has finished shutting down.
-    virtual void OnPeerConnectionShutdown() = 0;
 };
 
 
