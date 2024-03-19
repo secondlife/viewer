@@ -4010,6 +4010,32 @@ Replace texture [TEXTURE_NUM] with an RGB [MAX_SIZE]x[MAX_SIZE] or smaller image
 
   <notification
    icon="alertmodal.tga"
+   name="InvalidTerrainAlphaNotFullyLoaded"
+   type="alertmodal">
+Couldn&apos;t set region textures:
+Terrain texture [TEXTURE_NUM] is not fully loaded, but is assumed to contain transparency due to a bit depth of [TEXTURE_BIT_DEPTH]. Alpha is not currently supported for terrain textures.
+
+If texture [TEXTURE_NUM] is opaque, wait for the texture to fully load and then click &quot;Apply&quot; again.
+
+Alpha is only supported for terrain materials (PBR Metallic Roughness), when alphaMode="MASK" and doubleSided=false.
+  <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="InvalidTerrainAlpha"
+   type="alertmodal">
+Couldn&apos;t set region textures:
+Terrain texture [TEXTURE_NUM] contains transparency. Alpha is not currently supported for terrain textures.
+
+Replace texture [TEXTURE_NUM] with an RGB image, then click &quot;Apply&quot; again.
+
+Alpha is only supported for terrain materials (PBR Metallic Roughness), when alphaMode="MASK" and doubleSided=false.
+  <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="InvalidTerrainSize"
    type="alertmodal">
 Couldn&apos;t set region textures:

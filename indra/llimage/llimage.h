@@ -210,6 +210,8 @@ public:
 
 	void verticalFlip();
     
+    // Returns true if the image is not fully opaque
+    bool checkHasTransparentPixels();
     // if the alpha channel is all 100% opaque, delete it
     // returns true if alpha channel was deleted
     bool optimizeAwayAlpha();
