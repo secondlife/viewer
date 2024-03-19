@@ -254,9 +254,15 @@ void LLLuaFloater::post(const LLSD &data)
 void LLLuaFloater::showLuaFloater(const LLSD &data)
 {
     std::filesystem::path fs_path(data["xml_path"].asString());
-
+    std::string path = fs_path.lexically_normal().string();
+    if (!fs_path.is_absolute()) 
+    {
+        std::string lib_path = gDirUtilp->getExpandedFilename(LL_PATH_SCRIPTS, "lua");
+        path = (std::filesystem::path(lib_path) / path).u8string();
+    }
+    
     LLLuaFloater *floater = new LLLuaFloater(data);
-    floater->buildFromFile(fs_path.lexically_normal().string());
+    floater->buildFromFile(path);
     floater->openFloater(floater->getKey());
 }
 
