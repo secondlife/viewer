@@ -990,6 +990,28 @@ void LLImageRaw::verticalFlip()
 }
 
 
+bool LLImageRaw::checkHasTransparentPixels()
+{
+    if (getComponents() != 4)
+    {
+        return false;
+    }
+
+    U8* data = getData();
+    U32 pixels = getWidth() * getHeight();
+
+    // check alpha channel for all 255
+    for (U32 i = 0; i < pixels; ++i)
+    {
+        if (data[i * 4 + 3] != 255)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 bool LLImageRaw::optimizeAwayAlpha()
 {
     if (getComponents() == 4)
