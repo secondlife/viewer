@@ -225,7 +225,8 @@ public:
     void OnDevicesChanged(const llwebrtc::LLWebRTCVoiceDeviceList &render_devices,
                           const llwebrtc::LLWebRTCVoiceDeviceList &capture_devices) override;
     //@}
-
+    void OnDevicesChangedImpl(const llwebrtc::LLWebRTCVoiceDeviceList &render_devices,
+                              const llwebrtc::LLWebRTCVoiceDeviceList &capture_devices);
 
     struct participantState
     {
@@ -445,6 +446,8 @@ private:
     /// Clean up objects created during a voice session.
     void cleanUp();
 
+	LL::WorkQueue::weak_t mMainQueue;
+
     bool mTuningMode;
     F32 mTuningMicGain;
     int mTuningSpeakerVolume;
@@ -588,6 +591,13 @@ class LLVoiceWebRTCConnection :
     void OnPeerConnectionShutdown() override;
     //@}
 
+    void OnIceGatheringStateImpl(EIceGatheringState state);
+    void OnIceCandidateImpl(const llwebrtc::LLWebRTCIceCandidate &candidate);
+    void OnOfferAvailableImpl(const std::string &sdp);
+    void OnRenegotiationNeededImpl();
+    void OnAudioEstablishedImpl(llwebrtc::LLWebRTCAudioInterface *audio_interface);
+    void OnPeerConnectionShutdownImpl();
+
     /////////////////////////
     /// @name Data Notification
     /// LLWebRTCDataObserver
@@ -595,6 +605,9 @@ class LLVoiceWebRTCConnection :
     void OnDataReceived(const std::string &data, bool binary) override;
     void OnDataChannelReady(llwebrtc::LLWebRTCDataInterface *data_interface) override;
     //@}
+
+    void OnDataReceivedImpl(const std::string &data, bool binary);
+    void OnDataChannelReadyImpl(llwebrtc::LLWebRTCDataInterface *data_interface);
 
     void sendJoin();
     void sendData(const std::string &data);
@@ -618,7 +631,6 @@ class LLVoiceWebRTCConnection :
 
     void shutDown()
     {
-        LLMutexLock lock(&mVoiceStateMutex);
         mShutDown = true;
     }
 
@@ -644,11 +656,10 @@ class LLVoiceWebRTCConnection :
     } EVoiceConnectionState;
 
     EVoiceConnectionState mVoiceConnectionState;
-    LLMutex               mVoiceStateMutex;
+    LL::WorkQueue::weak_t mMainQueue;
+
     void                  setVoiceConnectionState(EVoiceConnectionState new_voice_connection_state)
     {
-        LLMutexLock lock(&mVoiceStateMutex);
-
         if (new_voice_connection_state & VOICE_STATE_SESSION_STOPPING)
         {
             // the new state is shutdown or restart.
@@ -666,11 +677,6 @@ class LLVoiceWebRTCConnection :
     }
     EVoiceConnectionState getVoiceConnectionState()
     {
-        if (mVoiceStateMutex.isLocked())
-        {
-            LL_WARNS("Voice") << "LOCKED." << LL_ENDL;
-        }
-        LLMutexLock lock(&mVoiceStateMutex);
         return mVoiceConnectionState;
     }
 

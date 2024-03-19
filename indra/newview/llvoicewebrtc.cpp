@@ -1,5 +1,5 @@
  /**
- * @file LLWebRTCVoiceClient.cpp
+ * @file llvoicewebrtc.cpp
  * @brief Implementation of LLWebRTCVoiceClient class which is the interface to the voice client process.
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
@@ -585,8 +585,19 @@ void LLWebRTCVoiceClient::setDevicesListUpdated(bool state)
     mDevicesListUpdated = state;
 }
 
-void LLWebRTCVoiceClient::OnDevicesChanged(const llwebrtc::LLWebRTCVoiceDeviceList &render_devices,
-                                           const llwebrtc::LLWebRTCVoiceDeviceList &capture_devices)
+// the singleton 'this' pointer will outlive the work queue.
+void LLWebRTCVoiceClient::OnDevicesChanged(const llwebrtc::LLWebRTCVoiceDeviceList& render_devices,
+                                           const llwebrtc::LLWebRTCVoiceDeviceList& capture_devices)
+{
+    LL::WorkQueue::postMaybe(mMainQueue,
+                             [=] 
+        { 
+            OnDevicesChangedImpl(render_devices, capture_devices);
+        });
+}
+
+void LLWebRTCVoiceClient::OnDevicesChangedImpl(const llwebrtc::LLWebRTCVoiceDeviceList &render_devices,
+                                               const llwebrtc::LLWebRTCVoiceDeviceList &capture_devices)
 {
     std::string inputDevice = gSavedSettings.getString("VoiceInputAudioDevice");
     std::string outputDevice = gSavedSettings.getString("VoiceOutputAudioDevice");
@@ -1412,6 +1423,7 @@ void LLWebRTCVoiceClient::setVoiceEnabled(bool enabled)
             updatePosition();
             if (!mIsCoroutineActive)
             {
+                mMainQueue = LL::WorkQueue::getInstance("mainloop");
                 LLCoros::instance().launch("LLWebRTCVoiceClient::voiceConnectionCoro",
                     boost::bind(&LLWebRTCVoiceClient::voiceConnectionCoro, LLWebRTCVoiceClient::getInstance()));
             }
@@ -2000,6 +2012,7 @@ LLVoiceWebRTCConnection::LLVoiceWebRTCConnection(const LLUUID &regionID, const s
 
     mWebRTCPeerConnectionInterface = llwebrtc::newPeerConnection();
     mWebRTCPeerConnectionInterface->setSignalingObserver(this);
+    mMainQueue = LL::WorkQueue::getInstance("mainloop");
 }
 
 LLVoiceWebRTCConnection::~LLVoiceWebRTCConnection()
@@ -2026,7 +2039,14 @@ LLVoiceWebRTCConnection::~LLVoiceWebRTCConnection()
 // negotiated, updates about the best connectivity paths may trickle in.  These need to be
 // sent to the Secondlife WebRTC server via the simulator so that both sides have a clear
 // view of the network environment.
+
+// callback from llwebrtc
 void LLVoiceWebRTCConnection::OnIceGatheringState(llwebrtc::LLWebRTCSignalingObserver::EIceGatheringState state)
+{
+    LL::WorkQueue::postMaybe(mMainQueue, [=] { OnIceGatheringStateImpl(state); });
+}
+
+void LLVoiceWebRTCConnection::OnIceGatheringStateImpl(llwebrtc::LLWebRTCSignalingObserver::EIceGatheringState state)
 {
     LL_DEBUGS("Voice") << "Ice Gathering voice account. " << state << LL_ENDL;
 
@@ -2034,13 +2054,11 @@ void LLVoiceWebRTCConnection::OnIceGatheringState(llwebrtc::LLWebRTCSignalingObs
     {
         case llwebrtc::LLWebRTCSignalingObserver::EIceGatheringState::ICE_GATHERING_COMPLETE:
         {
-            LLMutexLock lock(&mVoiceStateMutex);
             mIceCompleted = true;
             break;
         }
         case llwebrtc::LLWebRTCSignalingObserver::EIceGatheringState::ICE_GATHERING_NEW:
         {
-            LLMutexLock lock(&mVoiceStateMutex);
             mIceCompleted = false;
         }
         default:
@@ -2048,9 +2066,14 @@ void LLVoiceWebRTCConnection::OnIceGatheringState(llwebrtc::LLWebRTCSignalingObs
     }
 }
 
-void LLVoiceWebRTCConnection::OnIceCandidate(const llwebrtc::LLWebRTCIceCandidate &candidate)
+// callback from llwebrtc
+void LLVoiceWebRTCConnection::OnIceCandidate(const llwebrtc::LLWebRTCIceCandidate& candidate)
 {
-    LLMutexLock lock(&mVoiceStateMutex);
+    LL::WorkQueue::postMaybe(mMainQueue, [=] { OnIceCandidateImpl(candidate); });
+}
+
+void LLVoiceWebRTCConnection::OnIceCandidateImpl(const llwebrtc::LLWebRTCIceCandidate &candidate)
+{
     mIceCandidates.push_back(candidate);
 }
 
@@ -2182,10 +2205,24 @@ void LLVoiceWebRTCConnection::processIceUpdates()
 // and is passed to the simulator via a CAP, which then passes
 // it on to the Secondlife WebRTC server.
 
+// callback from llwebrtc
 void LLVoiceWebRTCConnection::OnOfferAvailable(const std::string &sdp)
 {
+    LL::WorkQueue::postMaybe(mMainQueue, [=] { OnOfferAvailableImpl(sdp); });
+}
+
+//
+// The LLWebRTCVoiceConnection object will not be deleted
+// before the webrtc connection itself is shut down, so
+// we shouldn't be getting this callback on a nonexistant
+// this pointer.
+void LLVoiceWebRTCConnection::OnOfferAvailableImpl(const std::string &sdp)
+{
+    if (mShutDown)
+    {
+        return;
+    }
     LL_DEBUGS("Voice") << "On Offer Available." << LL_ENDL;
-    LLMutexLock lock(&mVoiceStateMutex);
     mChannelSDP = sdp;
     if (mVoiceConnectionState == VOICE_STATE_WAIT_FOR_SESSION_START)
     {
@@ -2193,15 +2230,42 @@ void LLVoiceWebRTCConnection::OnOfferAvailable(const std::string &sdp)
     }
 }
 
-// Notifications from the webrtc library.
-void LLVoiceWebRTCConnection::OnAudioEstablished(llwebrtc::LLWebRTCAudioInterface *audio_interface)
+// callback from llwebrtc
+void LLVoiceWebRTCConnection::OnAudioEstablished(llwebrtc::LLWebRTCAudioInterface* audio_interface)
 {
+    LL::WorkQueue::postMaybe(mMainQueue, [=] { OnAudioEstablishedImpl(audio_interface); });
+}
+
+//
+// The LLWebRTCVoiceConnection object will not be deleted
+// before the webrtc connection itself is shut down, so
+// we shouldn't be getting this callback on a nonexistant
+// this pointer.
+// nor should audio_interface be invalid if the LLWebRTCVoiceConnection
+// is shut down.
+void LLVoiceWebRTCConnection::OnAudioEstablishedImpl(llwebrtc::LLWebRTCAudioInterface *audio_interface)
+{
+    if (mShutDown)
+    {
+        return;
+    }
     LL_DEBUGS("Voice") << "On AudioEstablished." << LL_ENDL;
     mWebRTCAudioInterface = audio_interface;
     setVoiceConnectionState(VOICE_STATE_SESSION_ESTABLISHED);
 }
 
+// callback from llwebrtc
 void LLVoiceWebRTCConnection::OnRenegotiationNeeded()
+{
+    LL::WorkQueue::postMaybe(mMainQueue, [=] { OnRenegotiationNeededImpl(); });
+}
+
+//
+// The LLWebRTCVoiceConnection object will not be deleted
+// before the webrtc connection itself is shut down, so
+// we shouldn't be getting this callback on a nonexistant
+// this pointer.
+void LLVoiceWebRTCConnection::OnRenegotiationNeededImpl()
 {
     LL_DEBUGS("Voice") << "Voice channel requires renegotiation." << LL_ENDL;
     if (!mShutDown)
@@ -2210,7 +2274,13 @@ void LLVoiceWebRTCConnection::OnRenegotiationNeeded()
     }
 }
 
+// callback from llwebrtc
 void LLVoiceWebRTCConnection::OnPeerConnectionShutdown()
+{
+    LL::WorkQueue::postMaybe(mMainQueue, [=] { OnPeerConnectionShutdownImpl(); });
+}
+
+void LLVoiceWebRTCConnection::OnPeerConnectionShutdownImpl()
 {
     setVoiceConnectionState(VOICE_STATE_SESSION_EXIT);
     mOutstandingRequests--;  // shut down is an async call which is handled on a webrtc thread.
@@ -2410,7 +2480,6 @@ bool LLVoiceWebRTCSpatialConnection::requestVoiceConnection()
     LLSD jsep;
     jsep["type"] = "offer";
     {
-        LLMutexLock lock(&mVoiceStateMutex);
         jsep["sdp"] = mChannelSDP;
     }
     body["jsep"] = jsep;
@@ -2620,7 +2689,6 @@ bool LLVoiceWebRTCConnection::connectionStateMachine()
         case VOICE_STATE_SESSION_EXIT:
         {
             {
-                LLMutexLock lock(&mVoiceStateMutex);
                 if (!mShutDown)
                 {
                     mVoiceConnectionState = VOICE_STATE_START_SESSION;
@@ -2649,19 +2717,35 @@ bool LLVoiceWebRTCConnection::connectionStateMachine()
 }
 
 // Data has been received on the webrtc data channel
-void LLVoiceWebRTCConnection::OnDataReceived(const std::string &data, bool binary)
+// incoming data will be a json structure (if it's not binary.)  We may pack
+// binary for size reasons.  Most of the keys in the json objects are
+// single or double characters for size reasons.
+// The primary element is:
+// An object where each key is an agent id.  (in the future, we may allow
+// integer indices into an agentid list, populated on join commands.  For size.
+// Each key will point to a json object with keys identifying what's updated.
+// 'p'  - audio source power (level/volume) (int8 as int)
+// 'j'  - object of join data (currently only a boolean 'p' marking a primary participant)
+// 'l'  - boolean, always true if exists.
+// 'v'  - boolean - voice activity has been detected.
+
+// llwebrtc callback
+void LLVoiceWebRTCConnection::OnDataReceived(const std::string& data, bool binary)
 {
-    // incoming data will be a json structure (if it's not binary.)  We may pack
-    // binary for size reasons.  Most of the keys in the json objects are
-    // single or double characters for size reasons.
-    // The primary element is:
-    // An object where each key is an agent id.  (in the future, we may allow
-    // integer indices into an agentid list, populated on join commands.  For size.
-    // Each key will point to a json object with keys identifying what's updated.
-    // 'p'  - audio source power (level/volume) (int8 as int)
-    // 'j'  - object of join data (currently only a boolean 'p' marking a primary participant)
-    // 'l'  - boolean, always true if exists.
-    // 'v'  - boolean - voice activity has been detected.
+    LL::WorkQueue::postMaybe(mMainQueue, [=] { OnDataReceivedImpl(data, binary); });
+}
+
+//
+// The LLWebRTCVoiceConnection object will not be deleted
+// before the webrtc connection itself is shut down, so 
+// we shouldn't be getting this callback on a nonexistant
+// this pointer.
+void LLVoiceWebRTCConnection::OnDataReceivedImpl(const std::string &data, bool binary)
+{
+    if (mShutDown)
+    {
+        return;
+    }
 
     if (binary)
     {
@@ -2769,8 +2853,26 @@ void LLVoiceWebRTCConnection::OnDataReceived(const std::string &data, bool binar
     }
 }
 
+// llwebrtc callback
 void LLVoiceWebRTCConnection::OnDataChannelReady(llwebrtc::LLWebRTCDataInterface *data_interface)
 {
+    LL::WorkQueue::postMaybe(mMainQueue, [=] { OnDataChannelReadyImpl(data_interface); });
+}
+
+//
+// The LLWebRTCVoiceConnection object will not be deleted
+// before the webrtc connection itself is shut down, so
+// we shouldn't be getting this callback on a nonexistant
+// this pointer.
+// nor should data_interface be invalid if the LLWebRTCVoiceConnection
+// is shut down.
+void LLVoiceWebRTCConnection::OnDataChannelReadyImpl(llwebrtc::LLWebRTCDataInterface *data_interface)
+{
+    if (mShutDown)
+    {
+        return;
+    }
+
     if (data_interface)
     {
         mWebRTCDataInterface = data_interface;
@@ -2894,7 +2996,6 @@ bool LLVoiceWebRTCAdHocConnection::requestVoiceConnection()
     LLSD jsep;
     jsep["type"] = "offer";
     {
-        LLMutexLock lock(&mVoiceStateMutex);
         jsep["sdp"] = mChannelSDP;
     }
     body["jsep"] = jsep;
