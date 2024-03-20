@@ -1313,15 +1313,16 @@ void LLPanelRegionDebugInfo::onClickDebugConsole(void* data)
 	LLFloaterReg::showInstance("region_debug_console");
 }
 
-BOOL LLPanelRegionTerrainInfo::validateTextureSizes()
+bool LLPanelRegionTerrainInfo::validateTextureSizes()
 {
     if (mMaterialTypeCtrl)
     {
         const LLTerrainMaterials::Type material_type = material_type_from_ctrl(mMaterialTypeCtrl);
         const bool is_material_selected = material_type == LLTerrainMaterials::Type::PBR;
-        if (is_material_selected) { return TRUE; }
+        if (is_material_selected) { return true; }
     }
 
+    bool valid = true;
     static LLCachedControl<U32> max_texture_resolution(gSavedSettings, "RenderMaxTextureResolution", 2048);
     const S32 max_terrain_texture_size = (S32)max_texture_resolution;
 	for(S32 i = 0; i < LLTerrainMaterials::ASSET_COUNT; ++i)
@@ -1345,7 +1346,8 @@ BOOL LLPanelRegionTerrainInfo::validateTextureSizes()
 			args["TEXTURE_BIT_DEPTH"] = llformat("%d",components * 8);
             args["MAX_SIZE"] = max_terrain_texture_size;
 			LLNotificationsUtil::add("InvalidTerrainBitDepth", args);
-			return FALSE;
+            valid = false;
+			continue;
 		}
 
         if (components == 4)
@@ -1358,21 +1360,24 @@ BOOL LLPanelRegionTerrainInfo::validateTextureSizes()
                 args["TEXTURE_NUM"] = i+1;
                 args["TEXTURE_BIT_DEPTH"] = llformat("%d",components * 8);
                 LLNotificationsUtil::add("InvalidTerrainAlphaNotFullyLoaded", args);
-                return FALSE;
+                valid = false;
             }
-            // Slower path: Calculate alpha from raw image pixels (not needed
-            // for GLTF materials, which use alphaMode to determine
-            // transparency)
-            // Raw image is pretty much guaranteed to be saved due to the texture swatches
-            LLImageRaw* raw = img->getSavedRawImage();
-            if (raw->checkHasTransparentPixels())
+            else
             {
-                LLSD args;
-                args["TEXTURE_NUM"] = i+1;
-                LLNotificationsUtil::add("InvalidTerrainAlpha", args);
-                return FALSE;
+                // Slower path: Calculate alpha from raw image pixels (not needed
+                // for GLTF materials, which use alphaMode to determine
+                // transparency)
+                // Raw image is pretty much guaranteed to be saved due to the texture swatches
+                LLImageRaw* raw = img->getSavedRawImage();
+                if (raw->checkHasTransparentPixels())
+                {
+                    LLSD args;
+                    args["TEXTURE_NUM"] = i+1;
+                    LLNotificationsUtil::add("InvalidTerrainAlpha", args);
+                    valid = false;
+                }
+                LL_WARNS() << "Terrain texture image in slot " << i << " with ID " << image_asset_id << " has alpha channel, but pixels are opaque. Is alpha being optimized away in the texture uploader?" << LL_ENDL;
             }
-            LL_WARNS() << "Terrain texture image in slot " << i << " with ID " << image_asset_id << " has alpha channel, but pixels are opaque. Is alpha being optimized away in the texture uploader?" << LL_ENDL;
         }
 
 		if (width > max_terrain_texture_size || height > max_terrain_texture_size)
@@ -1384,12 +1389,11 @@ BOOL LLPanelRegionTerrainInfo::validateTextureSizes()
 			args["TEXTURE_SIZE_Y"] = height;
             args["MAX_SIZE"] = max_terrain_texture_size;
 			LLNotificationsUtil::add("InvalidTerrainSize", args);
-			return FALSE;
-			
+			valid = false;
 		}
 	}
 
-	return TRUE;
+	return valid;
 }
 
 bool LLPanelRegionTerrainInfo::validateMaterials()
@@ -1401,6 +1405,7 @@ bool LLPanelRegionTerrainInfo::validateMaterials()
         if (is_texture_selected) { return true; }
     }
 
+    bool valid = true;
     for (S32 i = 0; i < LLTerrainMaterials::ASSET_COUNT; ++i)
     {
         LLTextureCtrl* material_ctrl = mMaterialDetailCtrl[i];
@@ -1424,7 +1429,8 @@ bool LLPanelRegionTerrainInfo::validateMaterials()
                 args["MATERIAL_NUM"] = i + 1;
                 LLNotificationsUtil::add("InvalidTerrainMaterialLoadFailed", args);
             }
-            return false;
+            valid = false;
+            continue;
         }
 
         if (material->mDoubleSided)
@@ -1432,7 +1438,7 @@ bool LLPanelRegionTerrainInfo::validateMaterials()
             LLSD args;
             args["MATERIAL_NUM"] = i + 1;
             LLNotificationsUtil::add("InvalidTerrainMaterialDoubleSided", args);
-            return false;
+            valid = false;
         }
         if (material->mAlphaMode != LLGLTFMaterial::ALPHA_MODE_OPAQUE && material->mAlphaMode != LLGLTFMaterial::ALPHA_MODE_MASK)
         {
@@ -1441,11 +1447,11 @@ bool LLPanelRegionTerrainInfo::validateMaterials()
             const char* alpha_mode = material->getAlphaMode();
             args["MATERIAL_ALPHA_MODE"] = alpha_mode;
             LLNotificationsUtil::add("InvalidTerrainMaterialAlphaMode", args);
-            return false;
+            valid = false;
         }
     }
 
-    return true;
+    return valid;
 }
 
 BOOL LLPanelRegionTerrainInfo::validateTextureHeights()

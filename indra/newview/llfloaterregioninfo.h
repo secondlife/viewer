@@ -253,7 +253,7 @@ public:
     bool refreshFromRegion(LLViewerRegion* region) override;                // refresh local settings from region update from simulator
 	void setEnvControls(bool available);									// Whether environment settings are available for this region
 
-	BOOL validateTextureSizes();
+    bool validateTextureSizes();
     bool validateMaterials();
 	BOOL validateTextureHeights();
 
