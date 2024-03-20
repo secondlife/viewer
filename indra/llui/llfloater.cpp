@@ -3623,10 +3623,6 @@ void LLFloater::applyRelativePosition()
 	translate(new_center.mX - cur_center.mX, new_center.mY - cur_center.mY);
 }
 
-bool LLFloater::isDefaultBtnName(const std::string& name)
-{
-    return (std::find(std::begin(sButtonNames), std::end(sButtonNames), name) != std::end(sButtonNames));
-}
 
 LLCoordFloater::LLCoordFloater(F32 x, F32 y, LLFloater& floater)
 :	coord_t((S32)x, (S32)y)

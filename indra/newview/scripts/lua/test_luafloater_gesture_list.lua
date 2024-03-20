@@ -56,7 +56,7 @@ end
 local key = {xml_path = XML_FILE_PATH, op = "showLuaFloater"}
 --receive additional events for defined control {<control_name>= {action1, action2, ...}}
 key.extra_events={gesture_list = {e.DOUBLE_CLICK_EVENT}}
-leap.send("LLFloaterReg", key)
+leap.send("LLFloaterReg", key, "floater1")
 
 coro.launch(process_events, catch_events)
 leap.process()

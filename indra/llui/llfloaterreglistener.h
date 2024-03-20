@@ -50,7 +50,6 @@ private:
     void instanceVisible(const LLSD& event) const;
     void clickButton(const LLSD& event) const;
 
-    void showLuaFloater(const LLSD &event) const;
     void getLuaFloaterEvents(const LLSD &event) const;
 };
 

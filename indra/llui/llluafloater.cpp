@@ -51,8 +51,9 @@ std::map<std::string, std::string> EVENT_LIST =
 
 LLLuaFloater::LLLuaFloater(const LLSD &key) :
     LLFloater(key), 
-    mCommandPumpName(key["reply"].asString()),
-    mDispatcher("LLLuaFloater", "action")
+    mReplyPumpName(key["reply"].asString()),
+    mDispatcher("LLLuaFloater", "action"),
+    mReqID(key)
 {
     mListenerPumpName = LLUUID::generateNewID().asString();
 
@@ -69,7 +70,7 @@ LLLuaFloater::LLLuaFloater(const LLSD &key) :
         return false;
     });
 
-    LLSD requiredParams = LLSD().with("ctrl_name", LLSD()).with("value", LLSD());
+    LLSD requiredParams = llsd::map("ctrl_name", LLSD(), "value", LLSD());
     mDispatcher.add("set_enabled", "", [this](const LLSD &event) 
     { 
         LLUICtrl *ctrl = getChild<LLUICtrl>(event["ctrl_name"].asString());
@@ -103,13 +104,11 @@ LLLuaFloater::LLLuaFloater(const LLSD &key) :
         }
     }, requiredParams);
 
-    requiredParams = LLSD().with("value", LLSD());
     mDispatcher.add("set_title", "", [this](const LLSD &event) 
     { 
         setTitle(event["value"].asString());
-    }, requiredParams);
+    }, llsd::map("value", LLSD()));
 
-    requiredParams = LLSD().with("ctrl_name", LLSD()).with("reqid", LLSD());
     mDispatcher.add("get_value", "", [this](const LLSD &event) 
     { 
         LLUICtrl *ctrl = getChild<LLUICtrl>(event["ctrl_name"].asString());
@@ -120,7 +119,7 @@ LLLuaFloater::LLLuaFloater(const LLSD &key) :
             response["reqid"] = event["reqid"];
             post(response);
         }
-    }, requiredParams);
+    }, llsd::map("ctrl_name", LLSD(), "reqid", LLSD()));
 }
 
 LLLuaFloater::~LLLuaFloater()
@@ -131,13 +130,8 @@ LLLuaFloater::~LLLuaFloater()
 
 BOOL LLLuaFloater::postBuild() 
 {
-    child_list_t::const_iterator iter = getChildList()->begin();
-    child_list_t::const_iterator end = getChildList()->end();
-    for (; iter != end; ++iter)
+    for (LLView *view : *getChildList())
     {
-        LLView *view  = *iter;
-        if (!view) continue;
-
         LLUICtrl *ctrl = dynamic_cast<LLUICtrl*>(view);
         if (ctrl)
         {
@@ -158,27 +152,24 @@ BOOL LLLuaFloater::postBuild()
     if (mKey.has("extra_events"))
     {
         //the first value is ctrl name, the second contains array of events to send
-        const LLSD &events_map = mKey["extra_events"];
-        for (LLSD::map_const_iterator it = events_map.beginMap(); it != events_map.endMap(); ++it)
+        for (const auto &[name, data] : llsd::inMap(mKey["extra_events"]))
         {
-            std::string name = (*it).first;
-            LLSD data = (*it).second;
-            for (LLSD::array_const_iterator events_it = data.beginArray(); events_it != data.endArray(); ++events_it)
+            for (const auto &event : llsd::inArray(data))
             {
-                registerCallback(name, events_it->asString());
+                registerCallback(name, event);
             }
         }
     }
 
     //send pump name to the script after the floater is built
-    post(LLSD().with("command_name", mListenerPumpName).with("event", EVENT_LIST["POST_BUILD_EVENT"]));
+    post(llsd::map("command_name", mListenerPumpName, "event", EVENT_LIST["POST_BUILD_EVENT"]));
 
     return true;
 }
 
 void LLLuaFloater::onClose(bool app_quitting)
 {
-    post(LLSD().with("event", EVENT_LIST["CLOSE_EVENT"]));
+    post(llsd::map("event", EVENT_LIST["CLOSE_EVENT"], "app_quitting", app_quitting));
 }
 
 void LLLuaFloater::registerCallback(const std::string &ctrl_name, const std::string &event)
@@ -247,8 +238,10 @@ void LLLuaFloater::registerCallback(const std::string &ctrl_name, const std::str
 
 void LLLuaFloater::post(const LLSD &data)
 {
-    //send event data to the script
-    LLEventPumps::instance().obtain(mCommandPumpName).post(data);
+    // send event data to the script signed with ["reqid"] key
+    LLSD stamped_data(data);
+    mReqID.stamp(stamped_data);
+    LLEventPumps::instance().obtain(mReplyPumpName).post(stamped_data);
 }
 
 void LLLuaFloater::showLuaFloater(const LLSD &data)

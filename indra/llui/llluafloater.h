@@ -45,10 +45,11 @@ public:
     static LLSD getEventsData();
 
 private:
+    LLReqID mReqID;
     LLEventDispatcher mDispatcher;
     LLTempBoundListener mBoundListener;
 
     std::string mListenerPumpName;
-    std::string mCommandPumpName;
+    std::string mReplyPumpName;
 };
 #endif
