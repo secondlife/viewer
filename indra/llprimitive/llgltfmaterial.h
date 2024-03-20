@@ -129,6 +129,17 @@ public:
     bool mOverrideDoubleSided = false;
     bool mOverrideAlphaMode = false;
 
+    // *TODO: If/when we implement additional GLTF extensions, they may not be
+    // compatible with our GLTF terrain implementation. We may want to disallow
+    // materials with some features from being set on terrain, if their
+    // implementation on terrain is not compliant with the spec:
+    //     - KHR_materials_transmission: Probably OK?
+    //     - KHR_materials_ior: Probably OK?
+    //     - KHR_materials_volume: Likely incompatible, as our terrain
+    //       heightmaps cannot currently be described as finite enclosed
+    //       volumes.
+    // See also LLPanelRegionTerrainInfo::validateMaterials
+
     // get a UUID based on a hash of this LLGLTFMaterial
     LLUUID getHash() const;
 

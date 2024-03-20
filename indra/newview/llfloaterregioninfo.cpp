@@ -1405,6 +1405,20 @@ bool LLPanelRegionTerrainInfo::validateMaterials()
         if (is_texture_selected) { return true; }
     }
 
+    // *TODO: If/when we implement additional GLTF extensions, they may not be
+    // compatible with our GLTF terrain implementation. We may want to disallow
+    // materials with some features from being set on terrain, if their
+    // implementation on terrain is not compliant with the spec:
+    //     - KHR_materials_transmission: Probably OK?
+    //     - KHR_materials_ior: Probably OK?
+    //     - KHR_materials_volume: Likely incompatible, as our terrain
+    //       heightmaps cannot currently be described as finite enclosed
+    //       volumes.
+    // See also LLGLTFMaterial
+#ifdef LL_WINDOWS
+    llassert(sizeof(LLGLTFMaterial) == 232);
+#endif
+
     bool valid = true;
     for (S32 i = 0; i < LLTerrainMaterials::ASSET_COUNT; ++i)
     {
