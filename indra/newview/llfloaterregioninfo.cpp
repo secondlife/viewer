@@ -1330,7 +1330,7 @@ BOOL LLPanelRegionTerrainInfo::validateTextureSizes()
 		if (!texture_ctrl) continue;
 
 		LLUUID image_asset_id = texture_ctrl->getImageAssetID();
-		LLViewerTexture* img = LLViewerTextureManager::getFetchedTexture(image_asset_id);
+		LLViewerFetchedTexture* img = LLViewerTextureManager::getFetchedTexture(image_asset_id);
 		S32 components = img->getComponents();
 		// Must ask for highest resolution version's width. JC
 		S32 width = img->getFullWidth();
@@ -1347,6 +1347,33 @@ BOOL LLPanelRegionTerrainInfo::validateTextureSizes()
 			LLNotificationsUtil::add("InvalidTerrainBitDepth", args);
 			return FALSE;
 		}
+
+        if (components == 4)
+        {
+            if (!img->hasSavedRawImage())
+            {
+                // Raw image isn't loaded yet
+                // Assume it's invalid due to presence of alpha channel
+                LLSD args;
+                args["TEXTURE_NUM"] = i+1;
+                args["TEXTURE_BIT_DEPTH"] = llformat("%d",components * 8);
+                LLNotificationsUtil::add("InvalidTerrainAlphaNotFullyLoaded", args);
+                return FALSE;
+            }
+            // Slower path: Calculate alpha from raw image pixels (not needed
+            // for GLTF materials, which use alphaMode to determine
+            // transparency)
+            // Raw image is pretty much guaranteed to be saved due to the texture swatches
+            LLImageRaw* raw = img->getSavedRawImage();
+            if (raw->checkHasTransparentPixels())
+            {
+                LLSD args;
+                args["TEXTURE_NUM"] = i+1;
+                LLNotificationsUtil::add("InvalidTerrainAlpha", args);
+                return FALSE;
+            }
+            LL_WARNS() << "Terrain texture image in slot " << i << " with ID " << image_asset_id << " has alpha channel, but pixels are opaque. Is alpha being optimized away in the texture uploader?" << LL_ENDL;
+        }
 
 		if (width > max_terrain_texture_size || height > max_terrain_texture_size)
 		{
