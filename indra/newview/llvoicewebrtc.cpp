@@ -1997,7 +1997,6 @@ LLVoiceWebRTCConnection::LLVoiceWebRTCConnection(const LLUUID &regionID, const s
     mVoiceConnectionState(VOICE_STATE_START_SESSION),
     mMuted(true),
     mShutDown(false),
-    mTrickling(false),
     mIceCompleted(false),
     mSpeakerVolume(0.0),
     mMicGain(0.0),
@@ -2070,123 +2069,90 @@ void LLVoiceWebRTCConnection::OnIceCandidate(const llwebrtc::LLWebRTCIceCandidat
     LL::WorkQueue::postMaybe(mMainQueue, [=] { mIceCandidates.push_back(candidate); });
 }
 
-void LLVoiceWebRTCConnection::onIceUpdateComplete(bool ice_completed, const LLSD &result)
+void LLVoiceWebRTCConnection::processIceUpdates()
 {
-    mOutstandingRequests--;
-    if (LLWebRTCVoiceClient::isShuttingDown())
-    {
-        return;
-    }
-    mTrickling = false;
+    mOutstandingRequests++;
+    LLCoros::getInstance()->launch("LLVoiceWebRTCConnection::requestVoiceConnectionCoro",
+                                   boost::bind(&LLVoiceWebRTCConnection::processIceUpdatesCoro, this));
 }
-
-void LLVoiceWebRTCConnection::onIceUpdateError(int retries, std::string url, LLSD body, bool ice_completed, const LLSD &result)
-{
-    if (LLWebRTCVoiceClient::isShuttingDown())
-    {
-        mOutstandingRequests--;
-        return;
-    }
-    LLCore::HttpRequest::policy_t               httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
-    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("voiceAccountProvision", httpPolicy));
-
-    if (retries >= 0)
-    {
-        LL_WARNS("Voice") << "Unable to complete ice trickling voice account, retrying.  " << result << LL_ENDL;
-        LLCoreHttpUtil::HttpCoroutineAdapter::callbackHttpPost(
-            url,
-            LLCore::HttpRequest::DEFAULT_POLICY_ID,
-            body,
-            boost::bind(&LLVoiceWebRTCConnection::onIceUpdateComplete, this, ice_completed, _1),
-            boost::bind(&LLVoiceWebRTCConnection::onIceUpdateError, this, retries - 1, url, body, ice_completed, _1));
-        return;
-    }
-
-    LL_WARNS("Voice") << "Unable to complete ice trickling voice account, restarting connection.  " << result << LL_ENDL;
-    if (!mShutDown)
-    {
-        setVoiceConnectionState(VOICE_STATE_SESSION_RETRY);
-    }
-    mTrickling = false;
-
-    mOutstandingRequests--;
-}
-
 
 // Ice candidates may be streamed in before or after the SDP offer is available (see below)
 // This function determines whether candidates are available to send to the Secondlife WebRTC
 // server via the simulator.  If so, and there are no more candidates, this code
 // will make the cap call to the server sending up the ICE candidates.
-void LLVoiceWebRTCConnection::processIceUpdates()
+void LLVoiceWebRTCConnection::processIceUpdatesCoro()
 {
     if (mShutDown || LLWebRTCVoiceClient::isShuttingDown())
     {
+        mOutstandingRequests--;
         return;
     }
 
     bool iceCompleted = false;
     LLSD body;
+    if (!mIceCandidates.empty() || mIceCompleted)
     {
-        if (!mTrickling)
+        LLViewerRegion *regionp = LLWorld::instance().getRegionFromID(mRegionID);
+        if (!regionp || !regionp->capabilitiesReceived())
         {
-            if (!mIceCandidates.empty() || mIceCompleted)
+            LL_DEBUGS("Voice") << "no capabilities for ice gathering; waiting " << LL_ENDL;
+            mOutstandingRequests--;
+            return;
+        }
+
+        std::string url = regionp->getCapability("VoiceSignalingRequest");
+        if (url.empty())
+        {
+            mOutstandingRequests--;
+            return;
+        }
+
+        LL_DEBUGS("Voice") << "region ready to complete voice signaling; url=" << url << LL_ENDL;
+        if (!mIceCandidates.empty())
+        {
+            LLSD candidates = LLSD::emptyArray();
+            for (auto &ice_candidate : mIceCandidates)
             {
-                LLViewerRegion *regionp = LLWorld::instance().getRegionFromID(mRegionID);
-                if (!regionp || !regionp->capabilitiesReceived())
-                {
-                    LL_DEBUGS("Voice") << "no capabilities for ice gathering; waiting " << LL_ENDL;
-                    return;
-                }
-
-                std::string url = regionp->getCapability("VoiceSignalingRequest");
-                if (url.empty())
-                {
-                    return;
-                }
-
-                LL_DEBUGS("Voice") << "region ready to complete voice signaling; url=" << url << LL_ENDL;
-                if (!mIceCandidates.empty())
-                {
-                    LLSD candidates = LLSD::emptyArray();
-                    for (auto &ice_candidate : mIceCandidates)
-                    {
-                        LLSD body_candidate;
-                        body_candidate["sdpMid"]        = ice_candidate.mSdpMid;
-                        body_candidate["sdpMLineIndex"] = ice_candidate.mMLineIndex;
-                        body_candidate["candidate"]     = ice_candidate.mCandidate;
-                        candidates.append(body_candidate);
-                    }
-                    body["candidates"] = candidates;
-                    mIceCandidates.clear();
-                }
-                else if (mIceCompleted)
-                {
-                    LLSD body_candidate;
-                    body_candidate["completed"] = true;
-                    body["candidate"]           = body_candidate;
-                    iceCompleted                = mIceCompleted;
-                    mIceCompleted               = false;
-                }
-
-                body["viewer_session"]    = mViewerSession;
-                body["voice_server_type"] = WEBRTC_VOICE_SERVER_TYPE;
-
-                LLCore::HttpRequest::policy_t               httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
-                LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter(
-                    new LLCoreHttpUtil::HttpCoroutineAdapter("voiceAccountProvision", httpPolicy));
-                LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
-                LLCore::HttpOptions::ptr_t httpOpts = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions);
-                LLCoreHttpUtil::HttpCoroutineAdapter::callbackHttpPost(
-                    url,
-                    LLCore::HttpRequest::DEFAULT_POLICY_ID,
-                    body,
-                    boost::bind(&LLVoiceWebRTCSpatialConnection::onIceUpdateComplete, this, iceCompleted, _1),
-                    boost::bind(&LLVoiceWebRTCSpatialConnection::onIceUpdateError, this, 3, url, body, iceCompleted, _1));
-                mOutstandingRequests++;
-                mTrickling = true;
+                LLSD body_candidate;
+                body_candidate["sdpMid"]        = ice_candidate.mSdpMid;
+                body_candidate["sdpMLineIndex"] = ice_candidate.mMLineIndex;
+                body_candidate["candidate"]     = ice_candidate.mCandidate;
+                candidates.append(body_candidate);
             }
+            body["candidates"] = candidates;
+            mIceCandidates.clear();
+        }
+        else if (mIceCompleted)
+        {
+            LLSD body_candidate;
+            body_candidate["completed"] = true;
+            body["candidate"]           = body_candidate;
+            iceCompleted                = mIceCompleted;
+            mIceCompleted               = false;
+        }
+
+        body["viewer_session"]    = mViewerSession;
+        body["voice_server_type"] = WEBRTC_VOICE_SERVER_TYPE;
+
+        LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter(
+            new LLCoreHttpUtil::HttpCoroutineAdapter("LLVoiceWebRTCAdHocConnection::breakVoiceConnection",
+                                                        LLCore::HttpRequest::DEFAULT_POLICY_ID));
+        LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+        LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
+
+        httpOpts->setWantHeaders(true);
+
+        LLSD result = httpAdapter->postAndSuspend(httpRequest, url, body, httpOpts);
+        LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+        LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+        if (!status)
+        {
+            // couldn't trickle the candidates, so restart the session.
+            setVoiceConnectionState(VOICE_STATE_SESSION_RETRY);
         }
     }
+    mOutstandingRequests--;
 }
 
 
@@ -2439,8 +2405,8 @@ void LLVoiceWebRTCSpatialConnection::requestVoiceConnection()
     mOutstandingRequests++;
     LLSD result = httpAdapter->postAndSuspend(httpRequest, url, body, httpOpts);
 
-    LLSD               httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
-    LLCore::HttpStatus status      = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
     if (!status)
     {
@@ -2497,7 +2463,6 @@ bool LLVoiceWebRTCConnection::connectionStateMachine()
                 setVoiceConnectionState(VOICE_STATE_DISCONNECT);
                 break;
             }
-            mTrickling    = false;
             mIceCompleted = false;
             setVoiceConnectionState(VOICE_STATE_WAIT_FOR_SESSION_START);
             // tell the webrtc library that we want a connection.  The library will
