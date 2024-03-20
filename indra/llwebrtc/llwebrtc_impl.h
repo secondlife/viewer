@@ -346,21 +346,23 @@ class LLWebRTCPeerConnectionImpl : public LLWebRTCPeerConnectionInterface,
 
     LLWebRTCImpl * mWebRTCImpl;
 
+    bool mClosing;
+
     rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> mPeerConnectionFactory;
 
-    bool                                                       mMute;
+    bool mMute;
 
     // signaling
-    std::vector<LLWebRTCSignalingObserver *>                   mSignalingObserverList;
+    std::vector<LLWebRTCSignalingObserver *>  mSignalingObserverList;
     std::vector<std::unique_ptr<webrtc::IceCandidateInterface>>  mCachedIceCandidates;
-    bool                                                       mAnswerReceived;
+    bool mAnswerReceived;
 
-    rtc::scoped_refptr<webrtc::PeerConnectionInterface>        mPeerConnection;
-    rtc::scoped_refptr<webrtc::MediaStreamInterface>           mLocalStream;
+    rtc::scoped_refptr<webrtc::PeerConnectionInterface> mPeerConnection;
+    rtc::scoped_refptr<webrtc::MediaStreamInterface> mLocalStream;
 
     // data
-    std::vector<LLWebRTCDataObserver *>                        mDataObserverList;
-    rtc::scoped_refptr<webrtc::DataChannelInterface>           mDataChannel;
+    std::vector<LLWebRTCDataObserver *> mDataObserverList;
+    rtc::scoped_refptr<webrtc::DataChannelInterface> mDataChannel;
 };
 
 }

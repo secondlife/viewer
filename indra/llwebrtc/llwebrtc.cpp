@@ -562,8 +562,10 @@ void LLWebRTCImpl::freePeerConnection(LLWebRTCPeerConnectionInterface* peer_conn
 // Most peer connection (signaling) happens on
 // the signaling thread.
 
-LLWebRTCPeerConnectionImpl::LLWebRTCPeerConnectionImpl() :
+LLWebRTCPeerConnectionImpl::LLWebRTCPeerConnectionImpl() : 
     mWebRTCImpl(nullptr),
+    mClosing(false),
+    mPeerConnection(nullptr),
     mMute(false),
     mAnswerReceived(false)
 {
@@ -580,13 +582,24 @@ void LLWebRTCPeerConnectionImpl::init(LLWebRTCImpl * webrtc_impl)
 }
 void LLWebRTCPeerConnectionImpl::terminate()
 {
-    mWebRTCImpl->SignalingBlockingCall(
-        [this]()
+    rtc::scoped_refptr<webrtc::PeerConnectionInterface> connection;
+    mPeerConnection.swap(connection);
+    rtc::scoped_refptr<webrtc::DataChannelInterface> dataChannel;
+    mDataChannel.swap(dataChannel);
+    rtc::scoped_refptr<webrtc::MediaStreamInterface> localStream;
+    mLocalStream.swap(localStream);
+
+    mWebRTCImpl->PostSignalingTask(
+        [=]()
         {
-            if (mPeerConnection)
+            if (connection)
             {
-                mPeerConnection->Close();
-                mPeerConnection = nullptr;
+                connection->Close();
+            }
+            if (dataChannel)
+            {
+                dataChannel->UnregisterObserver();
+                dataChannel->Close();
             }
         });
 }
@@ -710,24 +723,9 @@ bool LLWebRTCPeerConnectionImpl::initializeConnection()
 
 bool LLWebRTCPeerConnectionImpl::shutdownConnection()
 {
-    if (mPeerConnection)
-    {
-        mWebRTCImpl->PostSignalingTask(
-            [this]()
-            {
-                if (mPeerConnection)
-                {
-                    mPeerConnection->Close();
-                    mPeerConnection = nullptr;
-                }
-                for (auto &observer : mSignalingObserverList)
-                {
-                    observer->OnPeerConnectionShutdown();
-                }
-            });
-        return true;
-    }
-    return false;
+    mClosing = true;
+    terminate();
+    return true;
 }
 
 void LLWebRTCPeerConnectionImpl::enableSenderTracks(bool enable)
@@ -1057,14 +1055,16 @@ void LLWebRTCPeerConnectionImpl::OnSuccess(webrtc::SessionDescriptionInterface *
     }
 
     RTC_LOG(LS_INFO) << __FUNCTION__ << " Local SDP: " << sdp_mangled_stream.str();
-
+    std::string mangled_sdp = sdp_mangled_stream.str();
     for (auto &observer : mSignalingObserverList)
     {
-        observer->OnOfferAvailable(sdp_mangled_stream.str());
+        observer->OnOfferAvailable(mangled_sdp);
     }
+    
+   mPeerConnection->SetLocalDescription(std::unique_ptr<webrtc::SessionDescriptionInterface>(
+                                                     webrtc::CreateSessionDescription(webrtc::SdpType::kOffer, mangled_sdp)),
+                                                 rtc::scoped_refptr<webrtc::SetLocalDescriptionObserverInterface>(this));
 
-    mPeerConnection->SetLocalDescription(std::unique_ptr<webrtc::SessionDescriptionInterface>(webrtc::CreateSessionDescription(webrtc::SdpType::kOffer, sdp_mangled_stream.str())),
-                                         rtc::scoped_refptr<webrtc::SetLocalDescriptionObserverInterface>(this));
 }
 
 void LLWebRTCPeerConnectionImpl::OnFailure(webrtc::RTCError error)
