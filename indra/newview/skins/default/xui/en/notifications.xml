@@ -4001,6 +4001,7 @@ Are you sure you want to return objects owned by [USER_NAME]?
    icon="alertmodal.tga"
    name="InvalidTerrainBitDepth"
    type="alertmodal">
+    <unique combine="cancel_old" />
 Couldn&apos;t set region textures:
 Terrain texture [TEXTURE_NUM] has an invalid bit depth of [TEXTURE_BIT_DEPTH].
 
@@ -4012,6 +4013,7 @@ Replace texture [TEXTURE_NUM] with an RGB [MAX_SIZE]x[MAX_SIZE] or smaller image
    icon="alertmodal.tga"
    name="InvalidTerrainAlphaNotFullyLoaded"
    type="alertmodal">
+    <unique combine="cancel_old" />
 Couldn&apos;t set region textures:
 Terrain texture [TEXTURE_NUM] is not fully loaded, but is assumed to contain transparency due to a bit depth of [TEXTURE_BIT_DEPTH]. Transparency is not currently supported for terrain textures.
 
@@ -4025,6 +4027,7 @@ Alpha is only supported for terrain materials (PBR Metallic Roughness), when alp
    icon="alertmodal.tga"
    name="InvalidTerrainAlpha"
    type="alertmodal">
+    <unique combine="cancel_old" />
 Couldn&apos;t set region textures:
 Terrain texture [TEXTURE_NUM] contains transparency. Transparency is not currently supported for terrain textures.
 
@@ -4038,6 +4041,7 @@ Alpha is only supported for terrain materials (PBR Metallic Roughness), when alp
    icon="alertmodal.tga"
    name="InvalidTerrainSize"
    type="alertmodal">
+    <unique combine="cancel_old" />
 Couldn&apos;t set region textures:
 Terrain texture [TEXTURE_NUM] is too large at [TEXTURE_SIZE_X]x[TEXTURE_SIZE_Y].
 
@@ -4048,6 +4052,7 @@ Replace texture [TEXTURE_NUM] with an RGB [MAX_SIZE]x[MAX_SIZE] or smaller image
    icon="alertmodal.tga"
    name="InvalidTerrainMaterialNotLoaded"
    type="alertmodal">
+    <unique combine="cancel_old" />
 Couldn&apos;t set region materials:
 Terrain material [MATERIAL_NUM] is not loaded.
 
@@ -4058,6 +4063,7 @@ Wait for the material to load, or replace material [TEXTURE_NUM] with a valid ma
    icon="alertmodal.tga"
    name="InvalidTerrainMaterialLoadFailed"
    type="alertmodal">
+    <unique combine="cancel_old" />
 Couldn&apos;t set region materials:
 Terrain material [MATERIAL_NUM] failed to load.
 
@@ -4068,6 +4074,7 @@ Replace material [TEXTURE_NUM] with a valid material.
    icon="alertmodal.tga"
    name="InvalidTerrainMaterialDoubleSided"
    type="alertmodal">
+    <unique combine="cancel_old" />
 Couldn&apos;t set region materials:
 Terrain material [MATERIAL_NUM] is double-sided. Double-sided materials are not currently supported for PBR terrain.
 
@@ -4078,6 +4085,7 @@ Replace material [MATERIAL_NUM] with a material with doubleSided=false.
    icon="alertmodal.tga"
    name="InvalidTerrainMaterialAlphaMode"
    type="alertmodal">
+    <unique combine="cancel_old" />
 Couldn&apos;t set region materials:
 Terrain material [MATERIAL_NUM] is using the unsupported alphaMode="[MATERIAL_ALPHA_MODE]".
 
