@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <toggleable_menu name="Avatar Profile Menu">
-	<menu_item_call label="ＩＭ" name="im"/>
+	<menu_item_call label="IM" name="im"/>
 	<menu_item_call label="テレポートのオファー" name="offer_teleport"/>
 	<menu_item_call label="テレポートのリクエスト" name="request_teleport"/>
 	<menu_item_call label="ボイスコール" name="voice_call"/>
@@ -19,5 +19,5 @@
 	<menu_item_separator name="separator_copy_options"/>
 	<menu_item_call label="表示名をコピー" name="copy_display_name"/>
 	<menu_item_call label="エージェント名をコピー" name="copy_name"/>
-	<menu_item_call label="エージェントＩＤをコピー" name="copy_id"/>
+	<menu_item_call label="エージェントIDをコピー" name="copy_id"/>
 </toggleable_menu>

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater_translation_settings" title="チャットの翻訳設定">
 	<string name="azure_api_key_not_verified">
-		Azureサービス識別子の認証ができませんでした。ステータス：[STATUS]　設定をお確かめの上、もう一度やり直してください。
+		Azureサービス識別子の認証ができませんでした。ステータス：[STATUS] 設定をお確かめの上、もう一度やり直してください。
 	</string>
 	<string name="google_api_key_not_verified">
-		Google APIキーの認証ができませんでした。ステータス：[STATUS]　設定をお確かめの上、もう一度やり直してください。
+		Google APIキーの認証ができませんでした。ステータス：[STATUS] 設定をお確かめの上、もう一度やり直してください。
 	</string>
 	<string name="deepl_api_key_not_verified">
-		DeepL Authキーの認証ができませんでした。ステータス：[STATUS]　設定をお確かめの上、もう一度やり直してください。
+		DeepL Authキーの認証ができませんでした。ステータス：[STATUS] 設定をお確かめの上、もう一度やり直してください。
 	</string>
 	<string name="azure_api_key_verified">
 		Azureサービス識別子が認証されました。

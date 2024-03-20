@@ -19,7 +19,7 @@
                 <item label="名前" name="Name" value="search_by_name"/>
                 <item label="制作者" name="Creator" value="search_by_creator"/>
                 <item label="説明" name="Description" value="search_by_description"/>
-                <item label="ＵＵＩＤ" name="UUID" value="search_by_UUID"/>
+                <item label="UUID" name="UUID" value="search_by_UUID"/>
             </combo_box>
             <menu_button tool_tip="検索表示オプションを表示" name="options_visibility_btn"/>
             <filter_editor label="検索用語を入力する" name="inventory search editor"/>

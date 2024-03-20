@@ -20,17 +20,17 @@
 			<button label="地形を元に戻す" label_selected="地形を元に戻す" name="Revert Terrain" tool_tip="現在の地形をデフォルトに置換します。"/>
 			<button label="地形を交換" label_selected="地形を交換" name="Swap Terrain" tool_tip="現在の地形をデフォルトと入れ替えます。"/>
 			<text name="estate id">
-				不動産ＩＤ：
+				不動産ID：
 			</text>
 			<text name="parent id">
-				親ＩＤ：
+				親ID：
 			</text>
 			<line_editor name="parentestate" tool_tip="これは、このリージョン（地域）の親不動産です。"/>
 			<text name="Grid Pos: ">
 				グリッド位置：
 			</text>
-			<line_editor name="gridposx" tool_tip="これは、このリージョン（地域）のグリッドＸ座標です。"/>
-			<line_editor name="gridposy" tool_tip="これは、このリージョン（地域）のグリッドＹ座標です。"/>
+			<line_editor name="gridposx" tool_tip="これは、このリージョン（地域）のグリッドX座標です。"/>
+			<line_editor name="gridposy" tool_tip="これは、このリージョン（地域）のグリッドY座標です。"/>
 			<text name="Redirect to Grid: ">
 				グリッドにリダイレクト：
 			</text>
@@ -85,7 +85,7 @@
 				<combo_box.item label="コライダー＜ステップ＞" name="item1"/>
 				<combo_box.item label="スクリプト＜回数＞、＜オプション・パターン＞" name="item2"/>
 				<combo_box.item label="オブジェクト＜パターン＞" name="item3"/>
-				<combo_box.item label="rez ＜アセットＩＤ＞" name="item4"/>
+				<combo_box.item label="rez ＜アセットID＞" name="item4"/>
 			</combo_box>
 			<text name="Parameter:">
 				パラメーター：

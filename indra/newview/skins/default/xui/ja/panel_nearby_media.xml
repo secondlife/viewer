@@ -19,8 +19,8 @@
 		<button label="すべて停止" name="all_nearby_media_disable_btn" tool_tip="近隣のメディアをすべてオフにします"/>
 		<button label="すべて開始" name="all_nearby_media_enable_btn" tool_tip="近隣のメディアをすべてオンにします"/>
 		<button name="open_prefs_btn" tool_tip="メディアの設定を開きます"/>
-		<button label="詳細　≫" label_selected="≪　簡易" name="more_btn" tool_tip="拡張コントロール"/>
-		<button label="詳細　≫" label_selected="≪　簡易" name="less_btn" tool_tip="拡張コントロール"/>
+		<button label="詳細 &gt;&gt;" label_selected="&lt;&lt; 簡易" name="more_btn" tool_tip="拡張コントロール"/>
+		<button label="詳細 &gt;&gt;" label_selected="&lt;&lt; 簡易" name="less_btn" tool_tip="拡張コントロール"/>
 	</panel>
 	<panel name="nearby_media_panel">
 		<text name="nearby_media_title">
