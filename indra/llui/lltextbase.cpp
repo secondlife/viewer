@@ -845,7 +845,14 @@ S32 LLTextBase::insertStringNoUndo(S32 pos, const LLWString &wstr, LLTextBase::s
 	S32 old_len = getLength();		// length() returns character length
 	S32 insert_len = wstr.length();
 
-	pos = getEditableIndex(pos, true);
+    pos = getEditableIndex(pos, true);
+    if (pos > old_len)
+    {
+        pos = old_len;
+        // Should not happen,
+        // if you encounter this, check where wrong position comes from
+        llassert(false);
+    }
 
 	segment_set_t::iterator seg_iter = getEditableSegIterContaining(pos);
 
