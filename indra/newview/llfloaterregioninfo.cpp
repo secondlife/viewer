@@ -1392,6 +1392,62 @@ BOOL LLPanelRegionTerrainInfo::validateTextureSizes()
 	return TRUE;
 }
 
+bool LLPanelRegionTerrainInfo::validateMaterials()
+{
+    if (mMaterialTypeCtrl)
+    {
+        const LLTerrainMaterials::Type material_type = material_type_from_ctrl(mMaterialTypeCtrl);
+        const bool is_texture_selected = material_type == LLTerrainMaterials::Type::TEXTURE;
+        if (is_texture_selected) { return true; }
+    }
+
+    for (S32 i = 0; i < LLTerrainMaterials::ASSET_COUNT; ++i)
+    {
+        LLTextureCtrl* material_ctrl = mMaterialDetailCtrl[i];
+        if (!material_ctrl) { continue; }
+
+        const LLUUID& material_asset_id = material_ctrl->getImageAssetID();
+        llassert(material_asset_id.notNull());
+        if (material_asset_id.isNull()) { return false; }
+        const LLFetchedGLTFMaterial* material = gGLTFMaterialList.getMaterial(material_asset_id);
+        if (!material->isLoaded())
+        {
+            if (material->isFetching())
+            {
+                LLSD args;
+                args["MATERIAL_NUM"] = i + 1;
+                LLNotificationsUtil::add("InvalidTerrainMaterialNotLoaded", args);
+            }
+            else // Loading failed
+            {
+                LLSD args;
+                args["MATERIAL_NUM"] = i + 1;
+                LLNotificationsUtil::add("InvalidTerrainMaterialLoadFailed", args);
+            }
+            return false;
+        }
+
+        if (material->mDoubleSided)
+        {
+            LLSD args;
+            args["MATERIAL_NUM"] = i + 1;
+            LLNotificationsUtil::add("InvalidTerrainMaterialDoubleSided", args);
+            return false;
+        }
+        if (material->mAlphaMode != LLGLTFMaterial::ALPHA_MODE_OPAQUE && material->mAlphaMode != LLGLTFMaterial::ALPHA_MODE_MASK)
+        {
+            LLSD args;
+            args["MATERIAL_NUM"] = i + 1;
+            const char* alpha_mode = material->getAlphaMode();
+            args["MATERIAL_ALPHA_MODE"] = alpha_mode;
+            LLNotificationsUtil::add("InvalidTerrainMaterialAlphaMode", args);
+            return false;
+        }
+    }
+
+    return true;
+}
+
 BOOL LLPanelRegionTerrainInfo::validateTextureHeights()
 {
 	for (S32 i = 0; i < CORNER_COUNT; ++i)
@@ -1667,6 +1723,12 @@ BOOL LLPanelRegionTerrainInfo::sendUpdate()
 	{
 		return FALSE;
 	}
+
+    // Prevent applying unsupported alpha blend/double-sided materials
+    if (!validateMaterials())
+    {
+        return FALSE;
+    }
 
 	// Check if terrain Elevation Ranges are correct
 	if (gSavedSettings.getBOOL("RegionCheckTextureHeights") && !validateTextureHeights())

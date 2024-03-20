@@ -4046,6 +4046,46 @@ Replace texture [TEXTURE_NUM] with an RGB [MAX_SIZE]x[MAX_SIZE] or smaller image
 
   <notification
    icon="alertmodal.tga"
+   name="InvalidTerrainMaterialNotLoaded"
+   type="alertmodal">
+Couldn&apos;t set region materials:
+Terrain material [MATERIAL_NUM] is not loaded.
+
+Wait for the material to load, or replace material [TEXTURE_NUM] with a valid material.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="InvalidTerrainMaterialLoadFailed"
+   type="alertmodal">
+Couldn&apos;t set region materials:
+Terrain material [MATERIAL_NUM] failed to load.
+
+Replace material [TEXTURE_NUM] with a valid material.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="InvalidTerrainMaterialDoubleSided"
+   type="alertmodal">
+Couldn&apos;t set region materials:
+Terrain material [MATERIAL_NUM] is double-sided. Double-sided materials are not currently supported for PBR terrain.
+
+Replace material [MATERIAL_NUM] with a material with doubleSided=false.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="InvalidTerrainMaterialAlphaMode"
+   type="alertmodal">
+Couldn&apos;t set region materials:
+Terrain material [MATERIAL_NUM] is using the unsupported alphaMode="[MATERIAL_ALPHA_MODE]".
+
+Replace material [MATERIAL_NUM] with a material with alphaMode="OPAQUE" or alphaMode="MASK".
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="RawUploadStarted"
    type="alertmodal">
 Upload started. It may take up to two minutes, depending on your connection speed.

@@ -254,6 +254,7 @@ public:
 	void setEnvControls(bool available);									// Whether environment settings are available for this region
 
 	BOOL validateTextureSizes();
+    bool validateMaterials();
 	BOOL validateTextureHeights();
 
 	//static void onChangeAnything(LLUICtrl* ctrl, void* userData);			// callback for any change, to enable commit button
