@@ -1135,14 +1135,6 @@ void LLWebRTCPeerConnectionImpl::OnStateChange()
             break;
         case webrtc::DataChannelInterface::kClosed:
             RTC_LOG(LS_INFO) << __FUNCTION__ << " Data Channel State closed";
-            // if the data channel is up, we need to shut it down, holding off
-            // on termination of the peer connection until it's been closed.
-            if (mClosing)
-            {
-                // a close was requested, and the data channel has closed,
-                // so go ahead and call shutdownConnection again to clean up.
-                shutdownConnection();
-            }
             break;
         default:
             break;
