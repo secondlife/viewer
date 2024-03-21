@@ -40,6 +40,15 @@ function handleEvents(event_data)
   end
 end
 
+local key = {xml_path = XML_FILE_PATH, op = "showLuaFloater"}
+--receive additional events for defined control {<control_name>= {action1, action2, ...}}
+key.extra_events={gesture_list = {e.DOUBLE_CLICK_EVENT}}
+coro.launch(function ()
+  handleEvents(leap.request("LLFloaterReg", key))
+  leap.done()
+end)
+leap.process()
+
 catch_events = leap.WaitFor:new(-1, "all_events")
 function catch_events:filter(pump, data)
   return data
@@ -52,11 +61,6 @@ function process_events(waitfor)
     event_data = waitfor:wait()
   end
 end
-
-local key = {xml_path = XML_FILE_PATH, op = "showLuaFloater"}
---receive additional events for defined control {<control_name>= {action1, action2, ...}}
-key.extra_events={gesture_list = {e.DOUBLE_CLICK_EVENT}}
-leap.send("LLFloaterReg", key, "floater1")
 
 coro.launch(process_events, catch_events)
 leap.process()

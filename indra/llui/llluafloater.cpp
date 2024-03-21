@@ -49,53 +49,40 @@ std::map<std::string, std::string> EVENT_LIST =
     {"CLOSE_EVENT", "floater_close"}
 };
 
+
+
 LLLuaFloater::LLLuaFloater(const LLSD &key) :
-    LLFloater(key), 
+    LLFloater(key),
+    mDispatchListener(LLUUID::generateNewID().asString(), "action"),
     mReplyPumpName(key["reply"].asString()),
-    mDispatcher("LLLuaFloater", "action"),
     mReqID(key)
 {
-    mListenerPumpName = LLUUID::generateNewID().asString();
-
-    mBoundListener = LLEventPumps::instance().obtain(mListenerPumpName).listen(LISTENER_NAME, [this](const LLSD &event) 
-    { 
-        if (event.has("action")) 
+    auto ctrl_lookup = [this](const LLSD &event, std::function<LLSD(LLUICtrl*,const LLSD&)> cb)
+    {
+        LLUICtrl *ctrl = getChild<LLUICtrl>(event["ctrl_name"].asString());
+        if (!ctrl)
         {
-            mDispatcher.try_call(event);
+            LL_WARNS("LuaFloater") << "Control not found: " << event["ctrl_name"] << LL_ENDL;
+            return LLSD();
         }
-        else 
-        {
-            LL_WARNS("LuaFloater") << "Unknown message: " << event << LL_ENDL;
-        }
-        return false;
-    });
+        return cb(ctrl, event);
+    };
 
     LLSD requiredParams = llsd::map("ctrl_name", LLSD(), "value", LLSD());
-    mDispatcher.add("set_enabled", "", [this](const LLSD &event) 
+    mDispatchListener.add("set_enabled", "", [this, ctrl_lookup](const LLSD &event) 
     { 
-        LLUICtrl *ctrl = getChild<LLUICtrl>(event["ctrl_name"].asString());
-        if(ctrl) 
-        {
-            ctrl->setEnabled(event["value"].asBoolean());
-        }
+        return ctrl_lookup(event, [](LLUICtrl *ctrl, const LLSD &event) { ctrl->setEnabled(event["value"].asBoolean()); return LLSD(); });
     }, requiredParams);
-    mDispatcher.add("set_visible", "", [this](const LLSD &event) 
+    mDispatchListener.add("set_visible", "", [this, ctrl_lookup](const LLSD &event) 
     { 
-        LLUICtrl *ctrl = getChild<LLUICtrl>(event["ctrl_name"].asString());
-        if(ctrl) 
-        {
-            ctrl->setVisible(event["value"].asBoolean());
-        }
+        return ctrl_lookup(event, [](LLUICtrl *ctrl, const LLSD &event) { ctrl->setVisible(event["value"].asBoolean()); return LLSD(); });
     }, requiredParams);
-    mDispatcher.add("set_value", "", [this](const LLSD &event) 
+    mDispatchListener.add("set_value", "", [this, ctrl_lookup](const LLSD &event) 
     { 
-        LLUICtrl *ctrl = getChild<LLUICtrl>(event["ctrl_name"].asString());
-        if(ctrl) 
-        {
-            ctrl->setValue(event["value"]);
-        }
+        return ctrl_lookup(event, [](LLUICtrl *ctrl, const LLSD &event) { ctrl->setValue(event["value"]); return LLSD(); });
     }, requiredParams);
-    mDispatcher.add("add_list_element", "", [this](const LLSD &event) 
+
+    mDispatchListener.add("add_list_element", "", [this](const LLSD &event) 
     { 
         LLScrollListCtrl *ctrl = getChild<LLScrollListCtrl>(event["ctrl_name"].asString());
         if(ctrl) 
@@ -104,21 +91,14 @@ LLLuaFloater::LLLuaFloater(const LLSD &key) :
         }
     }, requiredParams);
 
-    mDispatcher.add("set_title", "", [this](const LLSD &event) 
+    mDispatchListener.add("set_title", "", [this](const LLSD &event) 
     { 
         setTitle(event["value"].asString());
     }, llsd::map("value", LLSD()));
 
-    mDispatcher.add("get_value", "", [this](const LLSD &event) 
+    mDispatchListener.add("get_value", "", [this, ctrl_lookup](const LLSD &event) 
     { 
-        LLUICtrl *ctrl = getChild<LLUICtrl>(event["ctrl_name"].asString());
-        if(ctrl) 
-        {
-            LLSD response;
-            response["value"] = ctrl->getValue();
-            response["reqid"] = event["reqid"];
-            post(response);
-        }
+        return ctrl_lookup(event, [](LLUICtrl *ctrl, const LLSD &event) { return llsd::map("value", ctrl->getValue()); });
     }, llsd::map("ctrl_name", LLSD(), "reqid", LLSD()));
 }
 
@@ -162,7 +142,7 @@ BOOL LLLuaFloater::postBuild()
     }
 
     //send pump name to the script after the floater is built
-    post(llsd::map("command_name", mListenerPumpName, "event", EVENT_LIST["POST_BUILD_EVENT"]));
+    post(llsd::map("command_name", mDispatchListener.getPumpName(), "event", EVENT_LIST["POST_BUILD_EVENT"]));
 
     return true;
 }

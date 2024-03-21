@@ -46,10 +46,8 @@ public:
 
 private:
     LLReqID mReqID;
-    LLEventDispatcher mDispatcher;
-    LLTempBoundListener mBoundListener;
+    LLDispatchListener mDispatchListener;
 
-    std::string mListenerPumpName;
     std::string mReplyPumpName;
 };
 #endif

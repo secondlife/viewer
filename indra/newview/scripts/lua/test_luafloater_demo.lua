@@ -39,11 +39,18 @@ function handleEvents(event_data)
   elseif event_data.event == e.CLOSE_EVENT then
     print_warning("Floater was closed")
     leap.done()
-  --script received event pump name, after floater was built
-  elseif event_data.event == e.POST_BUILD_EVENT then
-    COMMAND_PUMP_NAME = event_data.command_name
   end
 end
+
+local key = {xml_path = XML_FILE_PATH, op = "showLuaFloater"}
+--sign for additional events for defined control {<control_name>= {action1, action2, ...}}
+key.extra_events={show_time_lbl = {e.RIGHT_MOUSE_DOWN_EVENT, e.DOUBLE_CLICK_EVENT}}
+coro.launch(function ()
+  --script received event pump name, after floater was built
+  COMMAND_PUMP_NAME = leap.request("LLFloaterReg", key)["command_name"]
+  leap.done()
+end)
+leap.process()
 
 catch_events = leap.WaitFor:new(-1, "all_events")
 function catch_events:filter(pump, data)
@@ -57,12 +64,6 @@ function process_events(waitfor)
     event_data = waitfor:wait()
   end
 end
-
-local key = {xml_path = XML_FILE_PATH, op = "showLuaFloater"}
-
---sign for additional events for defined control {<control_name>= {action1, action2, ...}}
-key.extra_events={show_time_lbl = {e.RIGHT_MOUSE_DOWN_EVENT, e.DOUBLE_CLICK_EVENT}}
-leap.send("LLFloaterReg", key, "floater1")
 
 coro.launch(process_events, catch_events)
 leap.process()
