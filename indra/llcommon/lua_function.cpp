@@ -17,6 +17,7 @@
 // std headers
 #include <algorithm>
 #include <exception>
+#include <filesystem>
 #include <iomanip>                  // std::quoted
 #include <map>
 #include <memory>                   // std::unique_ptr
@@ -97,8 +98,6 @@ void lua_pushstdstring(lua_State* L, const std::string& str)
 // reached by that block raises a Lua error.
 LLSD lua_tollsd(lua_State* L, int index)
 {
-    LL_DEBUGS("Lua") << "lua_tollsd(" << index << ") of " << lua_gettop(L) << " stack entries: "
-                     << lua_what(L, index) << LL_ENDL;
     switch (lua_type(L, index))
     {
     case LUA_TNONE:
@@ -200,15 +199,12 @@ LLSD lua_tollsd(lua_State* L, int index)
         // we do, below: lua_tollsd(L, -1). If 'index' is -1, then when we
         // push nil, what we find at index -1 is nil, not the table!
         index = lua_absindex(L, index);
-        LL_DEBUGS("Lua") << "checking for empty table" << LL_ENDL;
         lua_pushnil(L);             // first key
-        LL_DEBUGS("Lua") << lua_stack(L) << LL_ENDL;
         if (! lua_next(L, index))
         {
             // it's a table, but the table is empty -- no idea if it should be
             // modeled as empty array or empty map -- return isUndefined(),
             // which can be consumed as either
-            LL_DEBUGS("Lua") << "empty table" << LL_ENDL;
             return {};
         }
         // key is at stack index -2, value at index -1
@@ -217,8 +213,6 @@ LLSD lua_tollsd(lua_State* L, int index)
         LuaPopper popper(L, 2);
         // Remember the type of the first key
         auto firstkeytype{ lua_type(L, -2) };
-        LL_DEBUGS("Lua") << "table not empty, first key type " << lua_typename(L, firstkeytype)
-                         << LL_ENDL;
         switch (firstkeytype)
         {
         case LUA_TNUMBER:
@@ -296,7 +290,6 @@ LLSD lua_tollsd(lua_State* L, int index)
                 // crazy key territory.
                 return lluau::error(L, "Gaps in Lua table too large for conversion to LLSD array");
             }
-            LL_DEBUGS("Lua") << "collected " << keys.size() << " keys, max " << highkey << LL_ENDL;
             // right away expand the result array to the size we'll need
             LLSD result{ LLSD::emptyArray() };
             result[highkey - 1] = LLSD();
@@ -307,7 +300,6 @@ LLSD lua_tollsd(lua_State* L, int index)
                 // key at stack index -2, value at index -1
                 // We've already validated lua_tointegerx() for each key.
                 auto key{ lua_tointeger(L, -2) };
-                LL_DEBUGS("Lua") << "key " << key << ':' << LL_ENDL;
                 // Don't forget to subtract 1 from Lua key for LLSD subscript!
                 result[LLSD::Integer(key) - 1] = lua_tollsd(L, -1);
                 // remove value, keep key for next iteration
@@ -330,7 +322,6 @@ LLSD lua_tollsd(lua_State* L, int index)
                 }
 
                 auto key{ lua_tostdstring(L, -2) };
-                LL_DEBUGS("Lua") << "map key " << std::quoted(key) << ':' << LL_ENDL;
                 result[key] = lua_tollsd(L, -1);
                 // remove value, keep key for next iteration
                 lua_pop(L, 1);
@@ -493,53 +484,100 @@ std::pair<int, LLSD> LuaState::expr(const std::string& desc, const std::string& 
     // here we believe there was no error -- did the Lua fragment leave
     // anything on the stack?
     std::pair<int, LLSD> result{ lua_gettop(mState), {} };
-    if (! result.first)
-        return result;
-
-    // aha, at least one entry on the stack!
-    if (result.first == 1)
+    if (result.first)
     {
-        // Don't forget that lua_tollsd() can throw Lua errors.
-        try
+        // aha, at least one entry on the stack!
+        if (result.first == 1)
         {
-            result.second = lua_tollsd(mState, 1);
+            // Don't forget that lua_tollsd() can throw Lua errors.
+            try
+            {
+                result.second = lua_tollsd(mState, 1);
+            }
+            catch (const std::exception& error)
+            {
+                // lua_tollsd() is designed to be called from a lua_function(),
+                // that is, from a C++ function called by Lua. In case of error,
+                // it throws a Lua error to be caught by the Lua runtime. expr()
+                // is a peculiar use case in which our C++ code is calling
+                // lua_tollsd() after return from the Lua runtime. We must catch
+                // the exception thrown for a Lua error, else it will propagate
+                // out to the main coroutine and terminate the viewer -- but since
+                // we instead of the Lua runtime catch it, our lua_State retains
+                // its internal error status. Any subsequent lua_pcall() calls
+                // with this lua_State will report error regardless of whether the
+                // chunk runs successfully. Get a new lua_State().
+                initLuaState();
+                return { -1, stringize(LLError::Log::classname(error), ": ", error.what()) };
+            }
         }
-        catch (const std::exception& error)
+        else
         {
-            // lua_tollsd() is designed to be called from a lua_function(),
-            // that is, from a C++ function called by Lua. In case of error,
-            // it throws a Lua error to be caught by the Lua runtime. expr()
-            // is a peculiar use case in which our C++ code is calling
-            // lua_tollsd() after return from the Lua runtime. We must catch
-            // the exception thrown for a Lua error, else it will propagate
-            // out to the main coroutine and terminate the viewer -- but since
-            // we instead of the Lua runtime catch it, our lua_State retains
-            // its internal error status. Any subsequent lua_pcall() calls
-            // with this lua_State will report error regardless of whether the
-            // chunk runs successfully. Get a new lua_State().
-            initLuaState();
-            return { -1, stringize(LLError::Log::classname(error), ": ", error.what()) };
+            // multiple entries on the stack
+            try
+            {
+                for (int index = 1; index <= result.first; ++index)
+                {
+                    result.second.append(lua_tollsd(mState, index));
+                }
+            }
+            catch (const std::exception& error)
+            {
+                // see above comments regarding lua_State's error status
+                initLuaState();
+                return { -1, stringize(LLError::Log::classname(error), ": ", error.what()) };
+            }
         }
-        // pop the result we claimed
-        lua_settop(mState, 0);
-        return result;
-    }
-
-    // multiple entries on the stack
-    try
-    {
-        for (int index = 1; index <= result.first; ++index)
-        {
-            result.second.append(lua_tollsd(mState, index));
-        }
-    }
-    catch (const std::exception& error)
-    {
-        // see above comments regarding lua_State's error status
-        initLuaState();
-        return { -1, stringize(LLError::Log::classname(error), ": ", error.what()) };
     }
     // pop everything
+    lua_settop(mState, 0);
+
+    // If we ran a script that loaded the fiber module, finish up with a call
+    // to fiber.run(). That allows a script to kick off some number of fibers,
+    // do some work on the main thread and then fall off the end of the script
+    // without explicitly appending a call to fiber.run(). run() ensures the
+    // rest of the fibers run to completion (or error).
+    luaL_checkstack(mState, 4, nullptr);
+    // Push _MODULES table on stack
+    luaL_findtable(mState, LUA_REGISTRYINDEX, "_MODULES", 1);
+    int index = lua_gettop(mState);
+    bool found = false;
+    // Did this chunk already require('fiber')? To find out, we must search
+    // the _MODULES table, because our require() implementation uses the
+    // pathname of the module file as the key. Push nil key to start.
+    lua_pushnil(mState);
+    while (lua_next(mState, index) != 0)
+    {
+        // key is at index -2, value at index -1
+        // "While traversing a table, do not call lua_tolstring directly on a
+        // key, unless you know that the key is actually a string. Recall that
+        // lua_tolstring changes the value at the given index; this confuses
+        // the next call to lua_next."
+        // https://www.lua.org/manual/5.1/manual.html#lua_next
+        if (lua_type(mState, -2) == LUA_TSTRING &&
+            std::filesystem::path(lua_tostdstring(mState, -2)).stem() == "fiber")
+        {
+            found = true;
+            break;
+        }
+        // pop value so key is at top for lua_next()
+        lua_pop(mState, 1);
+    }
+    if (found)
+    {
+        // okay, index -1 is a table loaded from a file 'fiber.xxx' --
+        // does it have a function named 'run'?
+        auto run_type{ lua_getfield(mState, -1, "run") };
+        if (run_type == LUA_TFUNCTION)
+        {
+            // there's a fiber.run() function sitting on the top of the stack
+            // -- call it with no arguments, discarding anything it returns
+            LL_DEBUGS("Lua") << "Calling fiber.run()" << LL_ENDL;
+            if (! checkLua(desc, lua_pcall(mState, 0, 0, 0)))
+                return { -1, mError };
+        }
+    }
+    // pop everything again
     lua_settop(mState, 0);
     return result;
 }

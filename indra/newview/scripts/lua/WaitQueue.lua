@@ -2,7 +2,11 @@
 -- the Dequeue() operation blocks the calling coroutine until some other
 -- coroutine Enqueue()s a new value.
 
+local fiber = require('fiber')
 local Queue = require('Queue')
+
+-- local debug = print_debug
+local function debug(...) end
 
 local WaitQueue = Queue:new()
 
@@ -32,11 +36,9 @@ function WaitQueue:_wake_waiters()
     -- cases. With multiple consumers, if more than one is trying to
     -- Dequeue() from an empty WaitQueue, we'll have multiple waiters.
     -- Unlike OS threads, with cooperative concurrency it doesn't make sense
-    -- to "notify all": we need resume only one of the waiting Dequeue()
-    -- callers. But since resuming that caller might entail either Enqueue()
-    -- or Dequeue() calls, recheck every time around to see if we must resume
-    -- another waiting coroutine.
-    while not self:IsEmpty() and #self._waiters > 0 do
+    -- to "notify all": we need wake only one of the waiting Dequeue()
+    -- callers.
+    if not self:IsEmpty() and next(self._waiters) then
         -- Pop the oldest waiting coroutine instead of the most recent, for
         -- more-or-less round robin fairness. But skip any coroutines that
         -- have gone dead in the meantime.
@@ -47,11 +49,7 @@ function WaitQueue:_wake_waiters()
         -- do we still have at least one waiting coroutine?
         if waiter then
             -- don't pass the head item: let the resumed coroutine retrieve it
-            local ok, message = coroutine.resume(waiter)
-            -- if resuming that waiter encountered an error, don't swallow it
-            if not ok then
-                error(message)
-            end
+            fiber.wake(waiter)
         end
     end
 end
@@ -62,18 +60,17 @@ function WaitQueue:Dequeue()
         -- the queue while there are still items left, and we want the
         -- consumer(s) to retrieve those last few items.
         if self._closed then
+            debug('WaitQueue:Dequeue(): closed')
             return nil
         end
-        local coro = coroutine.running()
-        if coro == nil then
-            error("WaitQueue:Dequeue() trying to suspend main coroutine")
-        end
+        debug('WaitQueue:Dequeue(): waiting')
         -- add the running coroutine to the list of waiters
-        table.insert(self._waiters, coro)
+        table.insert(self._waiters, fiber.running())
         -- then let somebody else run
-        coroutine.yield()
+        fiber.wait()
     end
     -- here we're sure this queue isn't empty
+    debug('WaitQueue:Dequeue() calling Queue.Dequeue()')
     return Queue.Dequeue(self)
 end
 
