@@ -60,6 +60,7 @@ static const S32 LINE_HEIGHT = 15;
 S32		LLView::sDepth = 0;
 bool	LLView::sDebugRects = false;
 bool	LLView::sDebugUnicode = false;
+bool	LLView::sDebugCamera = false;
 bool	LLView::sIsRectDirty = false;
 LLRect	LLView::sDirtyRect;
 bool	LLView::sDebugRectsShowNames = true;

@@ -1462,6 +1462,31 @@ class LLAdvancedCheckDebugUnicode : public view_listener_t
 
 
 
+//////////////////
+// DEBUG CAMERA //
+//////////////////
+
+
+class LLAdvancedToggleDebugCamera : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		LLView::sDebugCamera = !(LLView::sDebugCamera);
+		LLFloaterCamera::onDebugCameraToggled();
+		return true;
+	}
+};
+
+class LLAdvancedCheckDebugCamera : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		return LLView::sDebugCamera;
+	}
+};
+
+
+
 ///////////////////////
 // XUI NAME TOOLTIPS //
 ///////////////////////
@@ -9543,6 +9568,8 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedToggleDebugViews(), "Advanced.ToggleDebugViews");
 	view_listener_t::addMenu(new LLAdvancedCheckDebugUnicode(), "Advanced.CheckDebugUnicode");
 	view_listener_t::addMenu(new LLAdvancedToggleDebugUnicode(), "Advanced.ToggleDebugUnicode");
+	view_listener_t::addMenu(new LLAdvancedCheckDebugCamera(), "Advanced.CheckDebugCamera");
+	view_listener_t::addMenu(new LLAdvancedToggleDebugCamera(), "Advanced.ToggleDebugCamera");
 	view_listener_t::addMenu(new LLAdvancedToggleXUINameTooltips(), "Advanced.ToggleXUINameTooltips");
 	view_listener_t::addMenu(new LLAdvancedCheckXUINameTooltips(), "Advanced.CheckXUINameTooltips");
 	view_listener_t::addMenu(new LLAdvancedToggleDebugMouseEvents(), "Advanced.ToggleDebugMouseEvents");
