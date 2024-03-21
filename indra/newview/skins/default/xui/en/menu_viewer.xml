@@ -3634,6 +3634,14 @@ function="World.EnvPreset"
                  function="Advanced.ToggleDebugUnicode" />
             </menu_item_check>
             <menu_item_check
+             label="Debug Camera Controls"
+             name="Debug Camera Controls">
+                <menu_item_check.on_check
+                 function="Advanced.CheckDebugCamera" />
+                <menu_item_check.on_click
+                 function="Advanced.ToggleDebugCamera" />
+            </menu_item_check>
+            <menu_item_check
              label="Debug Name Tooltips"
              name="Debug Name Tooltips">
                 <menu_item_check.on_check
