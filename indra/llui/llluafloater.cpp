@@ -66,15 +66,15 @@ LLLuaFloater::LLLuaFloater(const LLSD &key) :
     };
 
     LLSD requiredParams = llsd::map("ctrl_name", LLSD(), "value", LLSD());
-    mDispatchListener.add("set_enabled", "", [this, ctrl_lookup](const LLSD &event) 
+    mDispatchListener.add("set_enabled", "", [ctrl_lookup](const LLSD &event) 
     { 
         return ctrl_lookup(event, [](LLUICtrl *ctrl, const LLSD &event) { ctrl->setEnabled(event["value"].asBoolean()); return LLSD(); });
     }, requiredParams);
-    mDispatchListener.add("set_visible", "", [this, ctrl_lookup](const LLSD &event) 
+    mDispatchListener.add("set_visible", "", [ctrl_lookup](const LLSD &event) 
     { 
         return ctrl_lookup(event, [](LLUICtrl *ctrl, const LLSD &event) { ctrl->setVisible(event["value"].asBoolean()); return LLSD(); });
     }, requiredParams);
-    mDispatchListener.add("set_value", "", [this, ctrl_lookup](const LLSD &event) 
+    mDispatchListener.add("set_value", "", [ctrl_lookup](const LLSD &event) 
     { 
         return ctrl_lookup(event, [](LLUICtrl *ctrl, const LLSD &event) { ctrl->setValue(event["value"]); return LLSD(); });
     }, requiredParams);
@@ -104,7 +104,7 @@ LLLuaFloater::LLLuaFloater(const LLSD &key) :
         setTitle(event["value"].asString());
     }, llsd::map("value", LLSD()));
 
-    mDispatchListener.add("get_value", "", [this, ctrl_lookup](const LLSD &event) 
+    mDispatchListener.add("get_value", "", [ctrl_lookup](const LLSD &event) 
     { 
         return ctrl_lookup(event, [](LLUICtrl *ctrl, const LLSD &event) { return llsd::map("value", ctrl->getValue()); });
     }, llsd::map("ctrl_name", LLSD(), "reqid", LLSD()));
