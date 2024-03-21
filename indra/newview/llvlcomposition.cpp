@@ -42,6 +42,8 @@
 #include "llviewercontrol.h"
 
 
+extern LLColor4U MAX_WATER_COLOR;
+
 static const U32 BASE_SIZE = 128;
 
 F32 bilinear(const F32 v00, const F32 v01, const F32 v10, const F32 v11, const F32 x_frac, const F32 y_frac)
@@ -480,6 +482,7 @@ BOOL LLVLComposition::generateMinimapTileLand(const F32 x, const F32 y,
             LLViewerFetchedTexture* tex_emissive; // Can be null
             bool has_base_color_factor;
             bool has_emissive_factor;
+            bool has_alpha;
             LLColor3 base_color_factor;
             LLColor3 emissive_factor;
             if (use_textures)
@@ -488,6 +491,7 @@ BOOL LLVLComposition::generateMinimapTileLand(const F32 x, const F32 y,
                 tex_emissive = nullptr;
                 has_base_color_factor = false;
                 has_emissive_factor = false;
+                has_alpha = false;
                 llassert(tex);
             }
             else
@@ -504,6 +508,7 @@ BOOL LLVLComposition::generateMinimapTileLand(const F32 x, const F32 y,
                 has_emissive_factor = (emissive_factor.mV[VX] != 1.f ||
                                        emissive_factor.mV[VY] != 1.f ||
                                        emissive_factor.mV[VZ] != 1.f);
+                has_alpha = mDetailMaterials[i]->mAlphaMode != LLGLTFMaterial::ALPHA_MODE_OPAQUE;
             }
 
             if (!tex) { tex = LLViewerFetchedTexture::sWhiteImagep; }
@@ -588,11 +593,21 @@ BOOL LLVLComposition::generateMinimapTileLand(const F32 x, const F32 y,
             }
 			if (has_base_color_factor ||
                 raw_emissive ||
+                has_alpha ||
                 tex->getWidth(ddiscard) != BASE_SIZE ||
 				tex->getHeight(ddiscard) != BASE_SIZE ||
 				tex->getComponents() != 3)
 			{
 				LLPointer<LLImageRaw> newraw = new LLImageRaw(BASE_SIZE, BASE_SIZE, 3);
+                if (has_alpha)
+                {
+                    // Approximate the water underneath terrain alpha with solid water color
+                    newraw->clear(
+                        MAX_WATER_COLOR.mV[VX],
+                        MAX_WATER_COLOR.mV[VY],
+                        MAX_WATER_COLOR.mV[VZ],
+                        255);
+                }
 				newraw->composite(mRawImages[i]);
                 if (has_base_color_factor)
                 {
