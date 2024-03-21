@@ -63,3 +63,7 @@ Unlike a viewer without PBR terrain support, the new viewer will no longer treat
 Texture terrain with transparency is not permitted to be applied in the viewer.
 
 See [PBR Terrain Appearance](./pbr_terrain_appearance.md) for supported PBR terrain features.
+
+## Minimap
+
+The minimap should display the terrain with appropriate textures and colors.
