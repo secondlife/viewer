@@ -13054,6 +13054,28 @@
       <key>Value</key>
       <string />
     </map>
+    <key>TextureScaleMinAreaFactor</key>
+    <map>
+        <key>Comment</key>
+        <string>Limits how texture scale affects area calculation.</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>F32</string>
+        <key>Value</key>
+        <real>0.04</real>
+    </map>
+    <key>TextureScaleMaxAreaFactor</key>
+    <map>
+        <key>Comment</key>
+        <string>Limits how texture scale affects area calculation.</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>F32</string>
+        <key>Value</key>
+        <real>25.0</real>
+    </map>
     <key>ThreadPoolSizes</key>
     <map>
       <key>Comment</key>

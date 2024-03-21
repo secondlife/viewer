@@ -886,6 +886,8 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
     llassert(!gCubeSnapshot);
 
     static LLCachedControl<F32> bias_distance_scale(gSavedSettings, "TextureBiasDistanceScale", 1.f);
+    static LLCachedControl<F32> texture_scale_min(gSavedSettings, "TextureScaleMinAreaFactor", 0.04f);
+    static LLCachedControl<F32> texture_scale_max(gSavedSettings, "TextureScaleMaxAreaFactor", 25.f);
 
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE
     {
@@ -899,10 +901,15 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
                 {
                     F32 vsize = face->getPixelArea();
 
-                    // scale desired texture resolution higher or lower depending on texture scale
+                    // Scale desired texture resolution higher or lower depending on texture scale
+                    // 
+                    // Minimum usage examples: a 1024x1024 texture with aplhabet, runing string
+                    // shows one letter at a time
+                    //
+                    // Maximum usage examples: huge chunk of terrain repeats texture
                     const LLTextureEntry* te = face->getTextureEntry();
                     F32 min_scale = te ? llmin(fabsf(te->getScaleS()), fabsf(te->getScaleT())) : 1.f;
-                    min_scale = llclamp(min_scale*min_scale, 0.1f, 25.f);
+                    min_scale = llclamp(min_scale*min_scale, texture_scale_min(), texture_scale_max());
 
                     vsize /= min_scale;
                     vsize /= LLViewerTexture::sDesiredDiscardBias;
