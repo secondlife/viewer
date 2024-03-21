@@ -41,6 +41,7 @@ public:
     void onClose(bool app_quitting);
 
     void post(const LLSD &data);
+    void postEvent(LLSD data, const std::string &event);
     static void showLuaFloater(const LLSD &data);
     static LLSD getEventsData();
 
