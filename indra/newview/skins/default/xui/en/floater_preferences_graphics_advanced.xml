@@ -534,7 +534,7 @@
     layout="topleft"
     left="420"
     name="TransparentWater"
-    top_delta="16"
+    top_delta="18"
     width="300">
     <check_box.commit_callback
       function="Pref.RenderOptionUpdate" />
@@ -555,7 +555,7 @@
     max_val="128"
     name="SkyMeshDetail"
     show_text="false"
-    top_delta="16"
+    top_delta="22"
     width="260">
     <slider.commit_callback
       function="Pref.UpdateSliderText"
@@ -583,7 +583,7 @@
     layout="topleft"
     left="420"
     name="UseSSAO"
-    top_delta="16"
+    top_delta="22"
     width="240">
     <check_box.commit_callback
       function="Pref.RenderOptionUpdate" />
@@ -597,7 +597,7 @@
     layout="topleft"
     left="420"
     name="UseDoF"
-    top_delta="16"
+    top_delta="20"
     width="240">
     <check_box.commit_callback
       function="Pref.RenderOptionUpdate" />
@@ -612,7 +612,7 @@
     left="420"
     name="RenderShadowDetailText"
     text_readonly_color="LabelDisabledColor"
-    top_delta="16"
+    top_delta="22"
     width="128">
       Shadows:
   </text>
@@ -646,7 +646,7 @@
     layout="topleft"
     left="420"
     name="ScreenSpaceReflections"
-    top_delta="16"
+    top_delta="24"
     width="240">
     <check_box.commit_callback
       function="Pref.RenderOptionUpdate" />
@@ -661,7 +661,7 @@
     left="420"
     name="ReflectionDetailText"
     text_readonly_color="LabelDisabledColor"
-    top_delta="16"
+    top_delta="22"
     width="128">
     Reflection Detail:
   </text>
@@ -697,7 +697,7 @@
     left="420"
     name="ReflectionProbeText"
     text_readonly_color="LabelDisabledColor"
-    top_delta="16"
+    top_delta="22"
     width="128">
     Reflection Coverage:
   </text>
@@ -743,7 +743,7 @@
     max_val="1.5"
     name="RenderExposure"
     show_text="true"
-    top_delta="20"
+    top_delta="24"
     width="260">
   </slider>
 
