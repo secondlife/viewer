@@ -607,7 +607,6 @@ public:
 	LLFloater* getFrontmostClosableFloater(); 
 
 	void setToolbarRect(LLToolBarEnums::EToolBarLocation tb, const LLRect& toolbar_rect);
-	void onDestroyFloater(LLFloater* floater);
 
 private:
 	void hiddenFloaterClosed(LLFloater* floater);
