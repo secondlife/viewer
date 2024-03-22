@@ -1103,7 +1103,10 @@ void LLWebRTCPeerConnectionImpl::OnSetRemoteDescriptionComplete(webrtc::RTCError
         }
     }
     mCachedIceCandidates.clear();
-    OnIceGatheringChange(mPeerConnection->ice_gathering_state());
+    if (mPeerConnection)
+    {
+        OnIceGatheringChange(mPeerConnection->ice_gathering_state());
+    }
 
 }
 
@@ -1120,6 +1123,10 @@ void LLWebRTCPeerConnectionImpl::OnSetLocalDescriptionComplete(webrtc::RTCError 
 
 void LLWebRTCPeerConnectionImpl::OnStateChange()
 {
+    if (!mDataChannel)
+    {
+        return;
+    }
     RTC_LOG(LS_INFO) << __FUNCTION__ << " Data Channel State: " << webrtc::DataChannelInterface::DataStateString(mDataChannel->state());
     switch (mDataChannel->state())
     {
@@ -1163,7 +1170,12 @@ void LLWebRTCPeerConnectionImpl::sendData(const std::string& data, bool binary)
     {
         rtc::CopyOnWriteBuffer cowBuffer(data.data(), data.length());
         webrtc::DataBuffer     buffer(cowBuffer, binary);
-        mDataChannel->Send(buffer);
+        mWebRTCImpl->PostNetworkTask([this, buffer]() {
+                if (mDataChannel)
+                {
+                    mDataChannel->Send(buffer);
+                }
+            });
     }
 }
 

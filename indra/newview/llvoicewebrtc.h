@@ -673,7 +673,7 @@ class LLVoiceWebRTCConnection :
     virtual void requestVoiceConnection() = 0;
     void requestVoiceConnectionCoro() { requestVoiceConnection(); }
 
-    void breakVoiceConnection();
+    void breakVoiceConnectionCoro();
 
     LLUUID mRegionID;
     LLUUID mViewerSession;
