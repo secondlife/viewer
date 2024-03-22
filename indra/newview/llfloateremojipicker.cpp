@@ -40,6 +40,7 @@
 #include "llscrolllistitem.h"
 #include "llsdserialize.h"
 #include "lltextbox.h" 
+#include "lltrans.h"
 #include "llviewerchat.h" 
 
 namespace {
@@ -388,9 +389,12 @@ void LLFloaterEmojiPicker::initialize()
         }
         else
         {
-            const std::string prompt("No emoji found for ");
-            std::string title(prompt + '"' + mFilterPattern.substr(1) + '"');
-            mPreview->setData(EMPTY_LIST_IMAGE_INDEX, title, prompt.size() + 1, title.size() - 1);
+            std::size_t begin, end;
+            LLStringUtil::format_map_t args;
+            args["[FILTER]"] = mFilterPattern.substr(1);
+            std::string title(getString("text_no_emoji_for_filter", args));
+            LLEmojiDictionary::searchInShortCode(begin, end, title, mFilterPattern);
+            mPreview->setData(EMPTY_LIST_IMAGE_INDEX, title, begin, end);
             showPreview(true);
         }
         return;
