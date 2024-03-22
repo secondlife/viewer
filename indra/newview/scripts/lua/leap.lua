@@ -198,10 +198,10 @@ end
 local function cleanup(message)
     -- we're done: clean up all pending coroutines
     for i, waitfor in pairs(leap._pending) do
-        waitfor:exception(message)
+        waitfor:close()
     end
     for i, waitfor in pairs(leap._waitfors) do
-        waitfor:exception(message)
+        waitfor:close()
     end
 end
 
@@ -405,6 +405,11 @@ end
 -- called by WaitFor:handle() for an accepted event
 function leap.WaitFor:process(item)
     self._queue:Enqueue(item)
+end
+
+-- called by cleanup() at end
+function leap.WaitFor:close()
+    self._queue:close()
 end
 
 -- called by leap.process() when get_event_next() raises an error

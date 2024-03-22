@@ -104,13 +104,7 @@ end
 
 -- Query a fiber's name (nil for the running fiber)
 function fiber.get_name(co)
-    if not co then
-        co = fiber.running()
-    end
-    if not names[co] then
-        return 'unknown'
-    end
-    return names[co]
+    return names[co or fiber.running()] or 'unknown'
 end
 
 -- Query status of the passed fiber
@@ -140,10 +134,8 @@ function fiber.status(co)
         return 'waiting'
     end
     -- not waiting should imply ready: sanity check
-    for _, maybe in pairs(ready) do
-        if maybe == co then
-            return 'ready'
-        end
+    if table.find(ready, co) then
+        return 'ready'
     end
     -- Calls within yield() between popping the next ready fiber and
     -- re-appending it to the list are in this state. Once we're done
@@ -158,11 +150,9 @@ local function set_waiting()
     -- if called from the main fiber, inject a 'main' marker into the list
     co = fiber.running()
     -- delete from ready list
-    for i, maybe in pairs(ready) do
-        if maybe == co then
-            table.remove(ready, i)
-            break
-        end
+    local i = table.find(ready, co)
+    if i then
+        table.remove(ready, i)
     end
     -- add to waiting list
     waiting[co] = true
@@ -191,11 +181,16 @@ end
 -- Run fibers until all but main have terminated: return nil.
 -- Or until configured idle() callback returns x ~= nil: return x.
 function fiber.run()
-    -- A fiber calling run() is not also doing other useful work. Tell yield()
-    -- that we're waiting. Otherwise it would keep seeing that our caller is
-    -- ready and return to us, instead of realizing that all coroutines are
-    -- waiting and call idle().
-    set_waiting()
+    -- A fiber calling run() is not also doing other useful work. Remove the
+    -- calling fiber from the ready list. Otherwise yield() would keep seeing
+    -- that our caller is ready and return to us, instead of realizing that
+    -- all coroutines are waiting and call idle(). But don't say we're
+    -- waiting, either, because then when all other fibers have terminated
+    -- we'd call idle() forever waiting for something to make us ready again.
+    local i = table.find(ready, fiber.running())
+    if i then
+        table.remove(ready, i)
+    end
     local others, idle_done
     repeat
         debug('%s calling fiber.run() calling yield()', fiber.get_name())
@@ -204,9 +199,10 @@ function fiber.run()
               tostring(others), tostring(idle_done))
     until (not others)
     debug('%s fiber.run() done', fiber.get_name())
-    fiber.wake(fiber.running())
+    -- For whatever it's worth, put our own fiber back in the ready list.
+    table.insert(ready, fiber.running())
     -- Once there are no more waiting fibers, and the only ready fiber is
-    -- main, return to main. All previously-launched fibers are done. Possibly
+    -- us, return to caller. All previously-launched fibers are done. Possibly
     -- the chunk is done, or the chunk may decide to launch a new batch of
     -- fibers.
     return idle_done

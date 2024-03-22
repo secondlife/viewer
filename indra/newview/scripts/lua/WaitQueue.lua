@@ -38,7 +38,7 @@ function WaitQueue:_wake_waiters()
     -- Unlike OS threads, with cooperative concurrency it doesn't make sense
     -- to "notify all": we need wake only one of the waiting Dequeue()
     -- callers.
-    if not self:IsEmpty() and next(self._waiters) then
+    if ((not self:IsEmpty()) or self._closed) and next(self._waiters) then
         -- Pop the oldest waiting coroutine instead of the most recent, for
         -- more-or-less round robin fairness. But skip any coroutines that
         -- have gone dead in the meantime.

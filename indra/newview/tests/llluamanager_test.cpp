@@ -361,8 +361,8 @@ namespace tut
             "fiber.launch('requester(a)', requester, 'a')\n"
             "-- requester(a)\n"
             "fiber.launch('requester(b)', requester, 'b')\n"
+            "fiber.run()\n"
             "-- fiber.print_all()\n"
-            "-- fiber.run()\n"
         );
 
         LLSD requests;
