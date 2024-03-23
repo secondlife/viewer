@@ -603,10 +603,10 @@ class LLVoiceWebRTCConnection :
     void sendJoin();
     void sendData(const std::string &data);
 
-    virtual void processIceUpdates();
-    virtual void onIceUpdateComplete(bool ice_completed, const LLSD &result);
-    virtual void onIceUpdateError(int retries, std::string url, LLSD body, bool ice_completed, const LLSD &result);
+    void processIceUpdates();
 
+    void processIceUpdatesCoro();
+ 
     virtual void setMuteMic(bool muted);
     virtual void setMicGain(F32 volume);
     virtual void setSpeakerVolume(F32 volume);
@@ -673,7 +673,7 @@ class LLVoiceWebRTCConnection :
     virtual void requestVoiceConnection() = 0;
     void requestVoiceConnectionCoro() { requestVoiceConnection(); }
 
-    void breakVoiceConnection();
+    void breakVoiceConnectionCoro();
 
     LLUUID mRegionID;
     LLUUID mViewerSession;
@@ -697,7 +697,6 @@ class LLVoiceWebRTCConnection :
 
     std::vector<llwebrtc::LLWebRTCIceCandidate> mIceCandidates;
     bool                                        mIceCompleted;
-    bool                                        mTrickling;
 
     llwebrtc::LLWebRTCPeerConnectionInterface *mWebRTCPeerConnectionInterface;
     llwebrtc::LLWebRTCAudioInterface *mWebRTCAudioInterface;
