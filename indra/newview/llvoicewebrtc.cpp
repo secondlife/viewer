@@ -2180,6 +2180,12 @@ void LLVoiceWebRTCConnection::processIceUpdatesCoro()
         httpOpts->setWantHeaders(true);
 
         LLSD result = httpAdapter->postAndSuspend(httpRequest, url, body, httpOpts);
+
+        if (LLWebRTCVoiceClient::isShuttingDown())
+        {
+            return;
+        }
+
         LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
         LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
@@ -2385,6 +2391,11 @@ void LLVoiceWebRTCConnection::breakVoiceConnectionCoro()
     // shutdownConnection will drop the WebRTC connection which will
     // also shut things down.
     LLSD result = httpAdapter->postAndSuspend(httpRequest, url, body, httpOpts);
+
+    if (LLWebRTCVoiceClient::isShuttingDown())
+    {
+        return;
+    }
 
     if (mWebRTCPeerConnectionInterface)
     {
