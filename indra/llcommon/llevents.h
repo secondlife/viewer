@@ -779,7 +779,7 @@ private:
  * Before sending the reply event, sendReply() copies the ["reqid"] item from
  * the request to the reply.
  */
-LL_COMMON_API bool sendReply(const LLSD& reply, const LLSD& request,
+LL_COMMON_API bool sendReply(LLSD reply, const LLSD& request,
                              const std::string& replyKey="reply");
 
 #endif /* ! defined(LL_LLEVENTS_H) */

@@ -726,7 +726,7 @@ void LLReqID::stamp(LLSD& response) const
     response["reqid"] = mReqid;
 }
 
-bool sendReply(const LLSD& reply, const LLSD& request, const std::string& replyKey)
+bool sendReply(LLSD reply, const LLSD& request, const std::string& replyKey)
 {
     // If the original request has no value for replyKey, it's pointless to
     // construct or send a reply event: on which LLEventPump should we send
@@ -739,13 +739,10 @@ bool sendReply(const LLSD& reply, const LLSD& request, const std::string& replyK
 
     // Here the request definitely contains replyKey; reasonable to proceed.
 
-    // Copy 'reply' to modify it.
-    LLSD newreply(reply);
     // Get the ["reqid"] element from request
     LLReqID reqID(request);
-    // and copy it to 'newreply'.
-    reqID.stamp(newreply);
-    // Send reply on LLEventPump named in request[replyKey]. Don't forget to
-    // send the modified 'newreply' instead of the original 'reply'.
-    return LLEventPumps::instance().obtain(request[replyKey]).post(newreply);
+    // and copy it to 'reply'.
+    reqID.stamp(reply);
+    // Send reply on LLEventPump named in request[replyKey].
+    return LLEventPumps::instance().obtain(request[replyKey]).post(reply);
 }
