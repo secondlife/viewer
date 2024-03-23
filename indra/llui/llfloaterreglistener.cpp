@@ -37,6 +37,7 @@
 #include "llfloaterreg.h"
 #include "llfloater.h"
 #include "llbutton.h"
+#include "llluafloater.h"
 
 LLFloaterRegListener::LLFloaterRegListener():
     LLEventAPI("LLFloaterReg",
@@ -72,6 +73,13 @@ LLFloaterRegListener::LLFloaterRegListener():
         "Simulate clicking the named [\"button\"] in the visible floater named in [\"name\"]",
         &LLFloaterRegListener::clickButton,
         requiredNameButton);
+
+    add("showLuaFloater",
+        "Open the new floater using XML file specified in [\"xml_path\"] with ID in [\"reqid\"]",
+        &LLLuaFloater::showLuaFloater, {llsd::map("xml_path", LLSD(), "reqid", LLSD())});
+    add("getFloaterEvents",
+        "Return the table of Lua Floater events which are send to the script",
+        &LLFloaterRegListener::getLuaFloaterEvents);
 }
 
 void LLFloaterRegListener::getBuildMap(const LLSD& event) const
@@ -154,3 +162,9 @@ void LLFloaterRegListener::clickButton(const LLSD& event) const
         LLEventPumps::instance().obtain(replyPump).post(reply);
     }
 }
+
+void LLFloaterRegListener::getLuaFloaterEvents(const LLSD &event) const
+{
+    Response response(llsd::map("events", LLLuaFloater::getEventsData()), event);
+}
+
