@@ -151,12 +151,31 @@ typedef boost::signals2::signal<bool(const LLSD&), LLStopWhenHandled, float>  LL
 /// Methods that forward listeners (e.g. constructed with
 /// <tt>boost::bind()</tt>) should accept (const LLEventListener&)
 typedef LLStandardSignal::slot_type LLEventListener;
+/// Accept a void listener too
+typedef std::function<void(const LLSD&)> LLVoidListener;
 /// Result of registering a listener, supports <tt>connected()</tt>,
 /// <tt>disconnect()</tt> and <tt>blocked()</tt>
 typedef boost::signals2::connection LLBoundListener;
 /// Storing an LLBoundListener in LLTempBoundListener will disconnect the
 /// referenced listener when the LLTempBoundListener instance is destroyed.
 typedef boost::signals2::scoped_connection LLTempBoundListener;
+
+/// Accepting (const LLListener&) allows either LLEventListener or LLVoidListener
+/// TODO: but compiler considers the constructor call ambiguous??
+class LLListener
+{
+public:
+    LLListener(const LLEventListener& listener):
+        mListener(listener)
+    {}
+    LLListener(const LLVoidListener& listener):
+        mListener([listener](const LLSD& data){ listener(data); return false; })
+    {}
+    operator LLEventListener() const { return mListener; }
+
+private:
+    LLEventListener mListener;
+};
 
 /**
  * A common idiom for event-based code is to accept either a callable --
@@ -686,6 +705,30 @@ private:
     typedef std::list<LLSD> EventList;
     EventList mEventHistory;
 };
+
+/*****************************************************************************
+*   LLNamedListener
+*****************************************************************************/
+/**
+ * LLNamedListener bundles a concrete LLEventPump subclass with a specific
+ * listener function, with an LLTempBoundListener to ensure that it's
+ * disconnected before destruction.
+ */
+template <class PUMP=LLEventStream>
+class LL_COMMON_API LLNamedListener: PUMP
+{
+    using pump_t = PUMP;
+public:
+    template <typename LISTENER>
+    LLNamedListener(const std::string& name, LISTENER&& listener):
+        pump_t(name, false),        // don't tweak the name
+        mConn(pump_t::listen("func", std::forward<LISTENER>(listener)))
+    {}
+
+private:
+    LLTempBoundListener mConn;
+};
+using LLStreamListener = LLNamedListener<>;
 
 /*****************************************************************************
 *   LLReqID
