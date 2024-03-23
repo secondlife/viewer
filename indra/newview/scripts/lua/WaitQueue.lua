@@ -43,7 +43,7 @@ function WaitQueue:_wake_waiters()
         -- more-or-less round robin fairness. But skip any coroutines that
         -- have gone dead in the meantime.
         local waiter = table.remove(self._waiters, 1)
-        while waiter and coroutine.status(waiter) ~= "suspended" do
+        while waiter and fiber.status(waiter) == "dead" do
             waiter = table.remove(self._waiters, 1)
         end
         -- do we still have at least one waiting coroutine?

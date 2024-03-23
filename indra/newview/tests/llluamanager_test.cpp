@@ -307,9 +307,43 @@ namespace tut
     template<> template<>
     void object::test<5>()
     {
-        set_test_name("test leap.lua");
+        set_test_name("leap.request() from main thread");
         const std::string lua(
-            "-- test leap.lua\n"
+            "-- leap.request() from main thread\n"
+            "\n"
+            "leap = require 'leap'\n"
+            "\n"
+            "return {\n"
+            "    a=leap.request('echo', {data='a'}).data,\n"
+            "    b=leap.request('echo', {data='b'}).data\n"
+            "}\n"
+        );
+
+        LLEventStream pump("echo", false);
+        LLTempBoundListener conn{
+            pump.listen(
+                "test<5>()",
+                listener([](const LLSD& data)
+                {
+                    LL_DEBUGS("Lua") << "echo pump got: " << data << LL_ENDL;
+                    LLEventPumps::instance().post(
+                        data["reply"],
+                        llsd::map("reqid", data["reqid"], "data", data["data"]));
+                }))
+        };
+
+        LuaState L;
+        auto [count, result] = LLLUAmanager::waitScriptLine(L, lua);
+        ensure_equals("Lua script didn't return item", count, 1);
+        ensure_equals("echo failed", result, llsd::map("a", "a", "b", "b"));
+    }
+
+    template<> template<>
+    void object::test<6>()
+    {
+        set_test_name("interleave leap.request() responses");
+        const std::string lua(
+            "-- interleave leap.request() responses\n"
             "\n"
             "fiber = require('fiber')\n"
             "leap = require('leap')\n"
@@ -359,16 +393,13 @@ namespace tut
             "fiber.launch('catchall', drain, catchall)\n"
             "fiber.launch('catch_special', drain, catch_special)\n"
             "fiber.launch('requester(a)', requester, 'a')\n"
-            "-- requester(a)\n"
             "fiber.launch('requester(b)', requester, 'b')\n"
-            "fiber.run()\n"
-            "-- fiber.print_all()\n"
         );
 
         LLSD requests;
         LLEventStream pump("testpump", false);
         LLTempBoundListener conn{
-            pump.listen("test<5>()",
+            pump.listen("test<6>()",
                         listener([&requests](const LLSD& data)
                         {
                             LL_DEBUGS("Lua") << "testpump got: " << data << LL_ENDL;

@@ -178,36 +178,6 @@ function fiber.wake(co)
     -- but don't yet resume it: that happens next time we reach yield()
 end
 
--- Run fibers until all but main have terminated: return nil.
--- Or until configured idle() callback returns x ~= nil: return x.
-function fiber.run()
-    -- A fiber calling run() is not also doing other useful work. Remove the
-    -- calling fiber from the ready list. Otherwise yield() would keep seeing
-    -- that our caller is ready and return to us, instead of realizing that
-    -- all coroutines are waiting and call idle(). But don't say we're
-    -- waiting, either, because then when all other fibers have terminated
-    -- we'd call idle() forever waiting for something to make us ready again.
-    local i = table.find(ready, fiber.running())
-    if i then
-        table.remove(ready, i)
-    end
-    local others, idle_done
-    repeat
-        debug('%s calling fiber.run() calling yield()', fiber.get_name())
-        others, idle_done = fiber.yield()
-        debug("%s fiber.run()'s yield() returned %s, %s", fiber.get_name(),
-              tostring(others), tostring(idle_done))
-    until (not others)
-    debug('%s fiber.run() done', fiber.get_name())
-    -- For whatever it's worth, put our own fiber back in the ready list.
-    table.insert(ready, fiber.running())
-    -- Once there are no more waiting fibers, and the only ready fiber is
-    -- us, return to caller. All previously-launched fibers are done. Possibly
-    -- the chunk is done, or the chunk may decide to launch a new batch of
-    -- fibers.
-    return idle_done
-end
-
 -- pop and return the next not-dead fiber in the ready list, or nil if none remain
 local function live_ready_iter()
     -- don't write
@@ -237,16 +207,24 @@ local function prune_waiting()
     end
 end
 
--- Give other ready fibers a chance to run, leaving this one ready, returning
--- after a cycle. Returns:
--- * true,  nil if there remain other live fibers, whether ready or waiting
+-- Run other ready fibers, leaving this one ready, returning after a cycle.
+-- Returns:
+-- * true, nil if there remain other live fibers, whether ready or waiting,
+--   but it's our turn to run
 -- * false, nil if this is the only remaining fiber
--- * nil,   x   if configured idle() callback returned non-nil x
-function fiber.yield()
+-- * nil,   x   if configured idle() callback returns non-nil x
+local function scheduler()
+    -- scheduler() is asymmetric because Lua distinguishes the main thread
+    -- from other coroutines. The main thread can't yield; it can only resume
+    -- other coroutines. So although an arbitrary coroutine could resume still
+    -- other arbitrary coroutines, it could NOT resume the main thread because
+    -- the main thread can't yield. Therefore, scheduler() delegates its real
+    -- processing to the main thread. If called from a coroutine, pass control
+    -- back to the main thread.
     if coroutine.running() then
         -- seize the opportunity to make sure the viewer isn't shutting down
 --      check_stop()
-        -- this is a real coroutine, yield normally to main or whoever
+        -- this is a real coroutine, yield normally to main thread
         coroutine.yield()
         -- main certainly still exists
         return true
@@ -292,6 +270,62 @@ function fiber.yield()
         -- * there are neither ready fibers nor waiting fibers, or
         -- * fiber._idle() returned non-nil
     until false
+end
+
+-- Let other fibers run. This is useful in either of two cases:
+-- * fiber.wait() calls this to run other fibers while this one is waiting.
+--   fiber.yield() (and therefore fiber.wait()) works from the main thread as
+--   well as from explicitly-launched fibers, without the caller having to
+--   care.
+-- * A long-running fiber that doesn't often call fiber.wait() should sprinkle
+--   in fiber.yield() calls to interleave processing on other fibers.
+function fiber.yield()
+    -- The difference between this and fiber.run() is that fiber.yield()
+    -- assumes its caller has work to do. yield() returns to its caller as
+    -- soon as scheduler() pops this fiber from the ready list. fiber.run()
+    -- continues looping until all other fibers have terminated, or the
+    -- set_idle() callback tells it to stop.
+    local others, idle_done = scheduler()
+    -- scheduler() returns either if we're ready, or if idle_done ~= nil.
+    if idle_done ~= nil then
+        -- Returning normally from yield() means the caller can carry on with
+        -- its pending work. But in this case scheduler() returned because the
+        -- configured set_idle() function interrupted it -- not because we're
+        -- actually ready. Don't return normally.
+        error('fiber.set_idle() interrupted yield() with: ' .. tostring(idle_done))
+    end
+    -- We're ready! Just return to caller. In this situation we don't care
+    -- whether there are other ready fibers.
+end
+
+-- Run fibers until all but main have terminated: return nil.
+-- Or until configured idle() callback returns x ~= nil: return x.
+function fiber.run()
+    -- A fiber calling run() is not also doing other useful work. Remove the
+    -- calling fiber from the ready list. Otherwise yield() would keep seeing
+    -- that our caller is ready and return to us, instead of realizing that
+    -- all coroutines are waiting and call idle(). But don't say we're
+    -- waiting, either, because then when all other fibers have terminated
+    -- we'd call idle() forever waiting for something to make us ready again.
+    local i = table.find(ready, fiber.running())
+    if i then
+        table.remove(ready, i)
+    end
+    local others, idle_done
+    repeat
+        debug('%s calling fiber.run() calling scheduler()', fiber.get_name())
+        others, idle_done = scheduler()
+        debug("%s fiber.run()'s scheduler() returned %s, %s", fiber.get_name(),
+              tostring(others), tostring(idle_done))
+    until (not others)
+    debug('%s fiber.run() done', fiber.get_name())
+    -- For whatever it's worth, put our own fiber back in the ready list.
+    table.insert(ready, fiber.running())
+    -- Once there are no more waiting fibers, and the only ready fiber is
+    -- us, return to caller. All previously-launched fibers are done. Possibly
+    -- the chunk is done, or the chunk may decide to launch a new batch of
+    -- fibers.
+    return idle_done
 end
 
 return fiber
