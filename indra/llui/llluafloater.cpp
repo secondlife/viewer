@@ -194,7 +194,7 @@ void LLLuaFloater::registerCallback(const std::string &ctrl_name, const std::str
         post(event.with("x", x).with("y", y)); 
     };
 
-    auto post_with_value = [this, data](LLSD& value)
+    auto post_with_value = [this, data](LLSD value)
     {
         LLSD event(data);
         post(event.with("value", value));
@@ -229,7 +229,7 @@ void LLLuaFloater::registerCallback(const std::string &ctrl_name, const std::str
         LLScrollListCtrl *list = dynamic_cast<LLScrollListCtrl *>(ctrl);
         if (list)
         {
-            list->setDoubleClickCallback( [this, post_with_value, list](){ post_with_value(LLSD(list->getCurrentID())); });
+            list->setDoubleClickCallback( [post_with_value, list](){ post_with_value(LLSD(list->getCurrentID())); });
         }
         else 
         {
@@ -241,12 +241,12 @@ void LLLuaFloater::registerCallback(const std::string &ctrl_name, const std::str
         LLTextEditor* text_editor = dynamic_cast<LLTextEditor*>(ctrl);
         if (text_editor)
         {
-            text_editor->setKeystrokeCallback([this, post_with_value](LLTextEditor *editor) { post_with_value(editor->getValue()); });
+            text_editor->setKeystrokeCallback([post_with_value](LLTextEditor *editor) { post_with_value(editor->getValue()); });
         }
         LLLineEditor* line_editor = dynamic_cast<LLLineEditor*>(ctrl);
         if (line_editor)
         {
-            line_editor->setKeystrokeCallback([this, post_with_value](LLLineEditor *editor, void* userdata) { post_with_value(editor->getValue()); }, NULL);
+            line_editor->setKeystrokeCallback([post_with_value](LLLineEditor *editor, void* userdata) { post_with_value(editor->getValue()); }, NULL);
         }
     }
     else 
