@@ -105,10 +105,8 @@ namespace tut
     void from_lua(const std::string& desc, const std::string_view& construct, const LLSD& expect)
     {
         LLSD fromlua;
-        LLEventStream replypump("testpump");
-        LLTempBoundListener conn(
-            replypump.listen("llluamanager_test",
-                             listener([&fromlua](const LLSD& data){ fromlua = data; })));
+        LLStreamListener pump("testpump",
+                              listener([&fromlua](const LLSD& data){ fromlua = data; }));
         const std::string lua(stringize(
             "data = ", construct, "\n"
             "post_on('testpump', data)\n"
@@ -137,11 +135,9 @@ namespace tut
     {
         set_test_name("test post_on(), get_event_pumps(), get_event_next()");
         StringVec posts;
-        LLEventStream replypump("testpump");
-        LLTempBoundListener conn(
-            replypump.listen("test<3>",
-                             listener([&posts](const LLSD& data)
-                             { posts.push_back(data.asString()); })));
+        LLStreamListener pump("testpump",
+                              listener([&posts](const LLSD& data)
+                              { posts.push_back(data.asString()); }));
         const std::string lua(
             "-- test post_on,get_event_pumps,get_event_next\n"
             "post_on('testpump', 'entry')\n"
@@ -180,7 +176,7 @@ namespace tut
 
     void round_trip(const std::string& desc, const LLSD& send, const LLSD& expect)
     {
-        LLEventMailDrop replypump("testpump");
+        LLEventMailDrop testpump("testpump");
         const std::string lua(
             "-- test LLSD round trip\n"
             "replypump, cmdpump = get_event_pumps()\n"
@@ -194,7 +190,7 @@ namespace tut
         // reached the get_event_next() call, which suspends the calling C++
         // coroutine (including the Lua code running on it) until we post
         // something to that reply pump.
-        auto luapump{ llcoro::suspendUntilEventOn(replypump).asString() };
+        auto luapump{ llcoro::suspendUntilEventOn(testpump).asString() };
         LLEventPumps::instance().post(luapump, send);
         // The C++ coroutine running the Lua script is now ready to run. Run
         // it so it will echo the LLSD back to us.
@@ -307,27 +303,60 @@ namespace tut
     template<> template<>
     void object::test<5>()
     {
-        set_test_name("test leap.lua");
+        set_test_name("leap.request() from main thread");
         const std::string lua(
-            "-- test leap.lua\n"
+            "-- leap.request() from main thread\n"
             "\n"
+            "leap = require 'leap'\n"
+            "\n"
+            "return {\n"
+            "    a=leap.request('echo', {data='a'}).data,\n"
+            "    b=leap.request('echo', {data='b'}).data\n"
+            "}\n"
+        );
+
+        LLStreamListener pump(
+            "echo",
+            listener([](const LLSD& data)
+            {
+                LL_DEBUGS("Lua") << "echo pump got: " << data << LL_ENDL;
+                sendReply(data, data);
+            }));
+
+        LuaState L;
+        auto [count, result] = LLLUAmanager::waitScriptLine(L, lua);
+        ensure_equals("Lua script didn't return item", count, 1);
+        ensure_equals("echo failed", result, llsd::map("a", "a", "b", "b"));
+    }
+
+    template<> template<>
+    void object::test<6>()
+    {
+        set_test_name("interleave leap.request() responses");
+        const std::string lua(
+            "-- interleave leap.request() responses\n"
+            "\n"
+            "fiber = require('fiber')\n"
             "leap = require('leap')\n"
-            "coro = require('coro')\n"
+            "-- debug = require('printf')\n"
+            "local function debug(...) end\n"
             "\n"
             "-- negative priority ensures catchall is always last\n"
             "catchall = leap.WaitFor:new(-1, 'catchall')\n"
             "function catchall:filter(pump, data)\n"
+            "    debug('catchall:filter(%s, %s)', pump, data)\n"
             "    return data\n"
             "end\n"
             "\n"
             "-- but first, catch events with 'special' key\n"
             "catch_special = leap.WaitFor:new(2, 'catch_special')\n"
             "function catch_special:filter(pump, data)\n"
+            "    debug('catch_special:filter(%s, %s)', pump, data)\n"
             "    return if data['special'] ~= nil then data else nil\n"
             "end\n"
             "\n"
             "function drain(waitfor)\n"
-            "    print(waitfor.name .. ' start')\n"
+            "    debug('%s start', waitfor.name)\n"
             "    -- It seems as though we ought to be able to code this loop\n"
             "    -- over waitfor:wait() as:\n"
             "    -- for item in waitfor.wait, waitfor do\n"
@@ -335,40 +364,37 @@ namespace tut
             "    -- the coroutine call stack, which prohibits coroutine.yield():\n"
             "    -- 'attempt to yield across metamethod/C-call boundary'\n"
             "    -- So we resort to two different calls to waitfor:wait().\n"
-            "    item = waitfor:wait()\n"
+            "    local item = waitfor:wait()\n"
             "    while item do\n"
-            "        print(waitfor.name .. ' caught', item)\n"
+            "        debug('%s caught %s', waitfor.name, item)\n"
             "        item = waitfor:wait()\n"
             "    end\n"
-            "    print(waitfor.name .. ' done')\n"
+            "    debug('%s done', waitfor.name)\n"
             "end\n"
             "\n"
             "function requester(name)\n"
-            "    print('requester('..name..') start')\n"
-            "    response = leap.request('testpump', {name=name})\n"
-            "    print('requester('..name..') got '..tostring(response))\n"
+            "    debug('requester(%s) start', name)\n"
+            "    local response = leap.request('testpump', {name=name})\n"
+            "    debug('requester(%s) got %s', name, response)\n"
             "    -- verify that the correct response was dispatched to this coroutine\n"
             "    assert(response.name == name)\n"
             "end\n"
             "\n"
-            "coro.launch(drain, catchall)\n"
-            "coro.launch(drain, catch_special)\n"
-            "coro.launch(requester, 'a')\n"
-            "coro.launch(requester, 'b')\n"
-            "\n"
-            "leap.process()\n"
+            "-- fiber.print_all()\n"
+            "fiber.launch('catchall', drain, catchall)\n"
+            "fiber.launch('catch_special', drain, catch_special)\n"
+            "fiber.launch('requester(a)', requester, 'a')\n"
+            "fiber.launch('requester(b)', requester, 'b')\n"
         );
 
         LLSD requests;
-        LLEventStream pump("testpump", false);
-        LLTempBoundListener conn{
-            pump.listen("test<5>()",
-                        listener([&requests](const LLSD& data)
-                        {
-                            LL_DEBUGS("Lua") << "testpump got: " << data << LL_ENDL;
-                            requests.append(data);
-                        }))
-        };
+        LLStreamListener pump(
+            "testpump",
+            listener([&requests](const LLSD& data)
+            {
+                LL_DEBUGS("Lua") << "testpump got: " << data << LL_ENDL;
+                requests.append(data);
+            }));
 
         LuaState L;
         auto future = LLLUAmanager::startScriptLine(L, lua);
