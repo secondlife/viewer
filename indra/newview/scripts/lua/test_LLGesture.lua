@@ -22,7 +22,7 @@ coro.launch(function()
             print(name)
             LLGesture.startGesture(uuid)
             repeat
-                sleep(1)
+                LL.sleep(1)
             until not LLGesture.isGesturePlaying(uuid)
         end
         print('Done.')

@@ -16,7 +16,7 @@ leap.process()
 
 local function _event(event_name)
   if not util.contains(event_list, event_name) then
-    print_warning("Incorrect event name: " .. event_name)
+    LL.print_warning("Incorrect event name: " .. event_name)
   end
   return event_name
 end
@@ -45,7 +45,7 @@ function handleEvents(event_data)
       post({action="set_value", ctrl_name="time_lbl", value= getCurrentTime()})
     end
   elseif event_data.event == _event("floater_close") then
-    print_warning("Floater was closed")
+    LL.print_warning("Floater was closed")
     leap.done()
   end
 end
@@ -75,4 +75,4 @@ end
 
 coro.launch(process_events, catch_events)
 leap.process()
-print_warning("End of the script")
+LL.print_warning("End of the script")
