@@ -6,12 +6,7 @@ coro = require 'coro'
 --event pump for sending actions to the floater
 COMMAND_PUMP_NAME = ""
 --table of floater UI events
-event_list={}
-coro.launch(function ()
-  event_list = leap.request("LLFloaterReg", {op="getFloaterEvents"})["events"]
-  leap.done()
-end)
-leap.process()
+event_list=leap.request("LLFloaterReg", {op="getFloaterEvents"}).events
 
 local function _event(event_name)
   if not table.find(event_list, event_name) then
@@ -53,12 +48,7 @@ end
 local key = {xml_path = XML_FILE_PATH, op = "showLuaFloater"}
 --sign for additional events for defined control {<control_name>= {action1, action2, ...}}
 key.extra_events={show_time_lbl = {_event("right_mouse_down"), _event("double_click")}}
-coro.launch(function ()
-  --script received event pump name, after floater was built
-  COMMAND_PUMP_NAME = leap.request("LLFloaterReg", key)["command_name"]
-  leap.done()
-end)
-leap.process()
+COMMAND_PUMP_NAME = leap.request("LLFloaterReg", key).command_name
 
 catch_events = leap.WaitFor:new(-1, "all_events")
 function catch_events:filter(pump, data)
@@ -74,5 +64,3 @@ function process_events(waitfor)
 end
 
 coro.launch(process_events, catch_events)
-leap.process()
-print_warning("End of the script")
