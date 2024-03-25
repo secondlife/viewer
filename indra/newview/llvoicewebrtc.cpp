@@ -2363,7 +2363,7 @@ void LLVoiceWebRTCConnection::breakVoiceConnection()
     LLSD body;
     body["logout"]         = TRUE;
     body["viewer_session"] = mViewerSession;
-    body["voice_server_type"] = REPORTED_VOICE_SERVER_TYPE;
+    body["voice_server_type"] = WEBRTC_VOICE_SERVER_TYPE;
 
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter(
         new LLCoreHttpUtil::HttpCoroutineAdapter("LLVoiceWebRTCAdHocConnection::breakVoiceConnection",
@@ -2419,9 +2419,7 @@ void LLVoiceWebRTCSpatialConnection::requestVoiceConnection()
     LLSD body;
     LLSD jsep;
     jsep["type"] = "offer";
-    {
-        jsep["sdp"] = mChannelSDP;
-    }
+    jsep["sdp"] = mChannelSDP;
     body["jsep"] = jsep;
     if (mParcelLocalID != INVALID_PARCEL_ID)
     {
