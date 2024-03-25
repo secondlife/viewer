@@ -160,23 +160,6 @@ typedef boost::signals2::connection LLBoundListener;
 /// referenced listener when the LLTempBoundListener instance is destroyed.
 typedef boost::signals2::scoped_connection LLTempBoundListener;
 
-/// Accepting (const LLListener&) allows either LLEventListener or LLVoidListener
-/// TODO: but compiler considers the constructor call ambiguous??
-class LLListener
-{
-public:
-    LLListener(const LLEventListener& listener):
-        mListener(listener)
-    {}
-    LLListener(const LLVoidListener& listener):
-        mListener([listener](const LLSD& data){ listener(data); return false; })
-    {}
-    operator LLEventListener() const { return mListener; }
-
-private:
-    LLEventListener mListener;
-};
-
 /**
  * A common idiom for event-based code is to accept either a callable --
  * directly called on completion -- or the string name of an LLEventPump on
