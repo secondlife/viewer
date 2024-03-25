@@ -32,6 +32,7 @@
 #include "llcheckboxctrl.h"
 #include "llcombobox.h"
 #include "llscrolllistctrl.h"
+#include "lltexteditor.h"
 
 const std::string LISTENER_NAME("LLLuaFloater");
 
@@ -45,7 +46,8 @@ std::set<std::string> EVENT_LIST = {
     "right_mouse_down",
     "right_mouse_up",
     "post_build",
-    "floater_close"
+    "floater_close",
+    "keystroke"
 };
 
 LLLuaFloater::LLLuaFloater(const LLSD &key) :
@@ -96,6 +98,16 @@ LLLuaFloater::LLLuaFloater(const LLSD &key) :
             {
                 ctrl->addElement(element_data);
             }
+        }
+    }, requiredParams);
+
+    mDispatchListener.add("add_text", "", [this](const LLSD &event) 
+    { 
+        LLTextEditor *editor = getChild<LLTextEditor>(event["ctrl_name"].asString());
+        if (editor) 
+        {
+            editor->pasteTextWithLinebreaks(stringize(event["value"]));
+            editor->addLineBreakChar(true);
         }
     }, requiredParams);
 
@@ -182,6 +194,12 @@ void LLLuaFloater::registerCallback(const std::string &ctrl_name, const std::str
         post(event.with("x", x).with("y", y)); 
     };
 
+    auto post_with_value = [this, data](LLSD& value)
+    {
+        LLSD event(data);
+        post(event.with("value", value));
+    };
+
     if (event_is(event, "mouse_enter"))
     {
         ctrl->setMouseEnterCallback(mouse_event_cb);
@@ -211,16 +229,24 @@ void LLLuaFloater::registerCallback(const std::string &ctrl_name, const std::str
         LLScrollListCtrl *list = dynamic_cast<LLScrollListCtrl *>(ctrl);
         if (list)
         {
-            list->setDoubleClickCallback(
-                [this, data, list]()
-                {
-                    LLSD event(data);
-                    post(event.with("value", list->getCurrentID()));
-                });
+            list->setDoubleClickCallback( [this, post_with_value, list](){ post_with_value(LLSD(list->getCurrentID())); });
         }
         else 
         {
             ctrl->setDoubleClickCallback(mouse_event_coords_cb);
+        }
+    }
+    else if (event_is(event, "keystroke")) 
+    {
+        LLTextEditor* text_editor = dynamic_cast<LLTextEditor*>(ctrl);
+        if (text_editor)
+        {
+            text_editor->setKeystrokeCallback([this, post_with_value](LLTextEditor *editor) { post_with_value(editor->getValue()); });
+        }
+        LLLineEditor* line_editor = dynamic_cast<LLLineEditor*>(ctrl);
+        if (line_editor)
+        {
+            line_editor->setKeystrokeCallback([this, post_with_value](LLLineEditor *editor, void* userdata) { post_with_value(editor->getValue()); }, NULL);
         }
     }
     else 

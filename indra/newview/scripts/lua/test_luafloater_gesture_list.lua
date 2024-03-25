@@ -2,7 +2,6 @@ XML_FILE_PATH = "luafloater_gesture_list.xml"
 
 leap = require 'leap'
 coro = require 'coro'
-util = require 'util'
 LLGesture = require 'LLGesture'
 
 --event pump for sending actions to the floater
@@ -16,7 +15,7 @@ end)
 leap.process()
 
 local function _event(event_name)
-  if not util.contains(event_list, event_name) then
+  if not table.find(event_list, event_name) then
     print_warning("Incorrect event name: " .. event_name)
   end
   return event_name

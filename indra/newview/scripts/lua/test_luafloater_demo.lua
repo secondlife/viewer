@@ -2,7 +2,6 @@ XML_FILE_PATH = "luafloater_demo.xml"
 
 leap = require 'leap'
 coro = require 'coro'
-util = require 'util'
 
 --event pump for sending actions to the floater
 COMMAND_PUMP_NAME = ""
@@ -15,7 +14,7 @@ end)
 leap.process()
 
 local function _event(event_name)
-  if not util.contains(event_list, event_name) then
+  if not table.find(event_list, event_name) then
     print_warning("Incorrect event name: " .. event_name)
   end
   return event_name
@@ -31,6 +30,7 @@ function getCurrentTime()
 end
 
 function handleEvents(event_data)
+  post({action="add_text", ctrl_name="events_editor", value = event_data})
   if event_data.event == _event("commit") then
     if event_data.ctrl_name == "disable_ctrl" then
       post({action="set_enabled", ctrl_name="open_btn", value = (1 - event_data.value)})
