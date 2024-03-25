@@ -2,9 +2,9 @@
 
 local util = {}
 
--- cheap test whether table t is empty
-function util.empty(t)
-    return not next(t)
+-- check if array-like table contains certain value
+function util.contains(t, v)
+    return table.find(t, v) ~= nil
 end
 
 -- reliable count of the number of entries in table t
@@ -15,6 +15,11 @@ function util.count(t)
         count += 1
     end
     return count
+end
+
+-- cheap test whether table t is empty
+function util.empty(t)
+    return not next(t)
 end
 
 -- recursive table equality
@@ -34,16 +39,6 @@ function util.equal(t1, t2)
     end
     -- All keys in t1 have equal values in t2; t2 == t1 if there are no extra keys in t2
     return util.empty(temp)
-end
-
--- check if array-like table contains certain value
-function util.contains(t, v)
-    for _, value in ipairs(t) do
-        if value == v then
-            return true
-        end
-    end
-    return false
 end
 
 return util
