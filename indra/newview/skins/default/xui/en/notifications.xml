@@ -4056,7 +4056,7 @@ Replace texture [TEXTURE_NUM] with an RGB [MAX_SIZE]x[MAX_SIZE] or smaller image
 Couldn&apos;t set region materials:
 Terrain material [MATERIAL_NUM] is not loaded.
 
-Wait for the material to load, or replace material [TEXTURE_NUM] with a valid material.
+Wait for the material to load, or replace material [MATERIAL_NUM] with a valid material.
   </notification>
 
   <notification
@@ -4067,7 +4067,7 @@ Wait for the material to load, or replace material [TEXTURE_NUM] with a valid ma
 Couldn&apos;t set region materials:
 Terrain material [MATERIAL_NUM] failed to load.
 
-Replace material [TEXTURE_NUM] with a valid material.
+Replace material [MATERIAL_NUM] with a valid material.
   </notification>
 
   <notification
