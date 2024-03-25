@@ -203,7 +203,9 @@ public:
 
     void OnConnectionEstablished(const std::string& channelID, const LLUUID& regionID);
     void OnConnectionShutDown(const std::string &channelID, const LLUUID &regionID);
-    void OnConnectionFailure(const std::string &channelID, const LLUUID& regionID);
+    void OnConnectionFailure(const std::string &channelID,
+        const LLUUID &regionID,
+        LLVoiceClientStatusObserver::EStatusType status_type = LLVoiceClientStatusObserver::ERROR_UNKNOWN);
     void sendPositionUpdate(bool force);
     void updateOwnVolume();
 
@@ -674,6 +676,8 @@ class LLVoiceWebRTCConnection :
     void requestVoiceConnectionCoro() { requestVoiceConnection(); }
 
     void breakVoiceConnectionCoro();
+
+    LLVoiceClientStatusObserver::EStatusType mCurrentStatus;
 
     LLUUID mRegionID;
     LLUUID mViewerSession;
