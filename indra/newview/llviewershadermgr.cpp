@@ -331,6 +331,7 @@ void LLViewerShaderMgr::finalizeShaderList()
     mShaderList.push_back(&gDeferredPBROpaqueProgram);
     mShaderList.push_back(&gDeferredAvatarProgram);
     mShaderList.push_back(&gDeferredTerrainProgram);
+    mShaderList.push_back(&gDeferredPBRTerrainProgram);
     mShaderList.push_back(&gDeferredDiffuseAlphaMaskProgram);
     mShaderList.push_back(&gDeferredNonIndexedDiffuseAlphaMaskProgram);
     mShaderList.push_back(&gDeferredTreeProgram);
