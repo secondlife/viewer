@@ -109,7 +109,7 @@ namespace tut
                               listener([&fromlua](const LLSD& data){ fromlua = data; }));
         const std::string lua(stringize(
             "data = ", construct, "\n"
-            "post_on('testpump', data)\n"
+            "LL.post_on('testpump', data)\n"
         ));
         LuaState L;
         auto [count, result] = LLLUAmanager::waitScriptLine(L, lua);
@@ -140,14 +140,14 @@ namespace tut
                               { posts.push_back(data.asString()); }));
         const std::string lua(
             "-- test post_on,get_event_pumps,get_event_next\n"
-            "post_on('testpump', 'entry')\n"
-            "post_on('testpump', 'get_event_pumps()')\n"
-            "replypump, cmdpump = get_event_pumps()\n"
-            "post_on('testpump', replypump)\n"
-            "post_on('testpump', 'get_event_next()')\n"
-            "pump, data = get_event_next()\n"
-            "post_on('testpump', data)\n"
-            "post_on('testpump', 'exit')\n"
+            "LL.post_on('testpump', 'entry')\n"
+            "LL.post_on('testpump', 'get_event_pumps()')\n"
+            "replypump, cmdpump = LL.get_event_pumps()\n"
+            "LL.post_on('testpump', replypump)\n"
+            "LL.post_on('testpump', 'get_event_next()')\n"
+            "pump, data = LL.get_event_next()\n"
+            "LL.post_on('testpump', data)\n"
+            "LL.post_on('testpump', 'exit')\n"
         );
         LuaState L;
         // It's important to let the startScriptLine() coroutine run
@@ -179,9 +179,9 @@ namespace tut
         LLEventMailDrop testpump("testpump");
         const std::string lua(
             "-- test LLSD round trip\n"
-            "replypump, cmdpump = get_event_pumps()\n"
-            "post_on('testpump', replypump)\n"
-            "pump, data = get_event_next()\n"
+            "replypump, cmdpump = LL.get_event_pumps()\n"
+            "LL.post_on('testpump', replypump)\n"
+            "pump, data = LL.get_event_next()\n"
             "return data\n"
         );
         LuaState L;

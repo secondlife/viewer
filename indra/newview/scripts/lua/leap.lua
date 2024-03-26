@@ -51,7 +51,7 @@ local leap = {}
 -- _command: string name of command LLEventPump. post_to(_command, ...)
 -- engages LLLeapListener operations such as listening on a specified other
 -- LLEventPump, etc.
-leap._reply, leap._command = get_event_pumps()
+leap._reply, leap._command = LL.get_event_pumps()
 -- Dict of features added to the LEAP protocol since baseline implementation.
 -- Before engaging a new feature that might break an older viewer, we can
 -- check for the presence of that feature key. This table is solely about the
@@ -112,7 +112,7 @@ function leap.send(pump, data, reqid)
         end
     end
     debug('leap.send(%s, %s) calling post_on()', pump, data)
-    post_on(pump, data)
+    LL.post_on(pump, data)
 end
 
 -- common setup code shared by request() and generate()
@@ -215,7 +215,7 @@ local function unsolicited(pump, data)
             return
         end
     end
-    print_debug(string.format('unsolicited(%s, %s) discarding unclaimed event', pump, data))
+    LL.print_debug(string.format('unsolicited(%s, %s) discarding unclaimed event', pump, data))
 end
 
 -- Route incoming (pump, data) event to the appropriate waiting coroutine.
@@ -244,7 +244,7 @@ fiber.set_idle(function ()
         return 'done'
     end
     debug('leap.idle() calling get_event_next()')
-    local ok, pump, data = pcall(get_event_next)
+    local ok, pump, data = pcall(LL.get_event_next)
     debug('leap.idle() got %s: %s, %s', ok, pump, data)
     -- ok false means get_event_next() raised a Lua error, pump is message
     if not ok then
@@ -414,7 +414,7 @@ end
 
 -- called by leap.process() when get_event_next() raises an error
 function leap.WaitFor:exception(message)
-    print_warning(self.name .. ' error: ' .. message)
+    LL.print_warning(self.name .. ' error: ' .. message)
     self._queue:Error(message)
 end
 

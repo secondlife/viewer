@@ -17,7 +17,7 @@ leap.process()
 
 local function _event(event_name)
   if not util.contains(event_list, event_name) then
-    print_warning("Incorrect event name: " .. event_name)
+    LL.print_warning("Incorrect event name: " .. event_name)
   end
   return event_name
 end
