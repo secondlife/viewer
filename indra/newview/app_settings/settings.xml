@@ -2325,7 +2325,18 @@
 	  <key>Value</key>
 	  <string>Male Shape &amp; Outfit</string>
 	</map>
-  <key>DefaultObjectTexture</key>
+    <key>DefaultUploadCost</key>
+    <map>
+      <key>Comment</key>
+      <string>Default sound/image/file upload cost(in case economy data is not available).</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>10</integer>
+    </map>
+    <key>DefaultObjectTexture</key>
     <map>
       <key>Comment</key>
       <string>Texture used as 'Default' in texture picker. (UUID texture reference)</string>
@@ -8942,7 +8953,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>2.0</real>
+    <real>1.0</real>
   </map>
   <key>RendeSkyAutoAdjustBlueHorizonScale</key>
   <map>
@@ -8986,7 +8997,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>0.001</real>
+    <real>0.01</real>
   </map>
   <key>RenderSkySunlightScale</key>
   <map>
@@ -11612,6 +11623,50 @@
       <string>String</string>
       <key>Value</key>
       <string>5748decc-f629-461c-9a36-a35a221fe21f</string>
+    </map>
+    <key>StartUpChannelUUID</key>
+    <map>
+      <key>Comment</key>
+      <string />
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>B56AF90D-6684-48E4-B1E4-722D3DEB2CB6</string>
+    </map>
+    <key>NearByChatChannelUUID</key>
+    <map>
+      <key>Comment</key>
+      <string />
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>E1158BD6-661C-4981-9DAD-4DCBFF062502</string>
+    </map>
+    <key>NotificationChannelUUID</key>
+    <map>
+      <key>Comment</key>
+      <string />
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>AEED3193-8709-4693-8558-7452CCA97AE5</string>
+    </map>
+    <key>AlertChannelUUID</key>
+    <map>
+      <key>Comment</key>
+      <string />
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>F3E07BC8-A973-476D-8C7F-F3B7293975D1</string>
     </map>
     <key>UILineEditorCursorThickness</key>
     <map>

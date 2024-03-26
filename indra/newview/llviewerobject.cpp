@@ -5033,11 +5033,6 @@ void LLViewerObject::updateTEMaterialTextures(U8 te)
                     LLViewerObject* obj = gObjectList.findObject(id);
                     if (obj)
                     {
-                        LLViewerRegion* region = obj->getRegion();
-                        if(region)
-                        {
-                            region->loadCacheMiscExtras(obj->getLocalID());
-                        }
                         obj->markForUpdate();
                     }
                 });

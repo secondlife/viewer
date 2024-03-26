@@ -72,12 +72,12 @@ enum LLPickerSource
     PICKER_UNKNOWN, // on cancel, default ids
 };
 
-const LLUUID DEFAULT_BLANK_NORMAL_TEXTURE("5b53359e-59dd-d8a2-04c3-9e65134da47a");
-const LLUUID DEFAULT_OBJECT_NORMAL_TEXTURE("85f28839-7a1c-b4e3-d71d-967792970a7b");
-const LLUUID DEFAULT_OBJECT_SPECULAR_TEXTURE("87e0e8f7-8729-1ea8-cfc9-8915773009db");
-const LLUUID DEFAULT_OBJECT_TEXTURE("89556747-24cb-43ed-920b-47caed15465f");
-const LLUUID UI_IMAGE_WHITE("5748decc-f629-461c-9a36-a35a221fe21f");
-const LLUUID UI_IMAGE_INVISIBLE("89556747-24cb-43ed-920b-47caed15465f");
+typedef enum e_pick_inventory_type
+{
+    PICK_TEXTURE_MATERIAL = 0,
+    PICK_TEXTURE = 1,
+    PICK_MATERIAL = 2,
+} EPickInventoryType;
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // LLTextureCtrl
@@ -93,13 +93,6 @@ public:
 		TEXTURE_SELECT,
 		TEXTURE_CANCEL
 	} ETexturePickOp;
-
-    typedef enum e_pick_inventory_type
-    {
-        PICK_TEXTURE_MATERIAL = 0,
-        PICK_TEXTURE = 1,
-        PICK_MATERIAL = 2,
-    } EPickInventoryType;
 
 public:
 	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
@@ -283,7 +276,7 @@ private:
 	S32						 	mLabelWidth;
 	bool						mOpenTexPreview;
 	bool						mBakeTextureEnabled;
-    LLTextureCtrl::EPickInventoryType mInventoryPickType;
+    EPickInventoryType mInventoryPickType;
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -307,8 +300,8 @@ public:
 		PermissionMask immediate_filter_perm_mask,
 		PermissionMask dnd_filter_perm_mask,
 		BOOL can_apply_immediately,
-		LLUIImagePtr fallback_image_name
-		);
+		LLUIImagePtr fallback_image_name,
+		EPickInventoryType pick_type);
 
 	virtual ~LLFloaterTexturePicker();
 
@@ -376,7 +369,7 @@ public:
 	void 			setLocalTextureEnabled(BOOL enabled);
 	void 			setBakeTextureEnabled(BOOL enabled);
 
-    void setInventoryPickType(LLTextureCtrl::EPickInventoryType type);
+    void setInventoryPickType(EPickInventoryType type);
     void setImmediateFilterPermMask(PermissionMask mask);
 
     static void		onPickerCallback(const std::vector<std::string>& filenames, LLHandle<LLFloater> handle);
@@ -435,7 +428,7 @@ private:
     bool mLimitsSet;
     S32 mMaxDim;
     S32 mMinDim;
-    LLTextureCtrl::EPickInventoryType mInventoryPickType;
+    EPickInventoryType mInventoryPickType;
 
 
 	texture_selected_callback mTextureSelectedCallback;
