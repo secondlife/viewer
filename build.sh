@@ -175,28 +175,6 @@ pre_build()
         VIEWER_SYMBOL_FILE="$(native_path "$abs_build_dir/newview/$variant/secondlife-symbols-$symplat-${AUTOBUILD_ADDRSIZE}.tar.bz2")"
     fi
 
-    # expect these variables to be set in the environment from GitHub secrets
-    if [[ -n "$BUGSPLAT_DB" ]]
-    then
-        # don't spew credentials into build log
-        set +x
-        if [[ -z "$BUGSPLAT_USER" || -z "$BUGSPLAT_PASS" ]]
-        then
-            # older mechanism involving build-secrets repo -
-            # if build_secrets_checkout isn't set, report its name
-            bugsplat_sh="${build_secrets_checkout:-\$build_secrets_checkout}/bugsplat/bugsplat.sh"
-            if [ -r "$bugsplat_sh" ]
-            then # show that we're doing this, just not the contents
-                echo source "$bugsplat_sh"
-                source "$bugsplat_sh"
-            else
-                fatal "BUGSPLAT_USER or BUGSPLAT_PASS missing, and no $bugsplat_sh"
-            fi
-        fi
-        set -x
-        export BUGSPLAT_USER BUGSPLAT_PASS
-    fi
-
     # honor autobuild_configure_parameters same as sling-buildscripts
     eval_autobuild_configure_parameters=$(eval $(echo echo $autobuild_configure_parameters))
 

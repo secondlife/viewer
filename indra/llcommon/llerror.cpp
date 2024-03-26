@@ -1601,6 +1601,48 @@ namespace LLError
     {
         return out << boost::stacktrace::stacktrace();
     }
+
+    // LLOutOfMemoryWarning
+    std::string LLUserWarningMsg::sLocalizedOutOfMemoryTitle;
+    std::string LLUserWarningMsg::sLocalizedOutOfMemoryWarning;
+    LLUserWarningMsg::Handler LLUserWarningMsg::sHandler;
+
+    void LLUserWarningMsg::show(const std::string& message)
+    {
+        if (sHandler)
+        {
+            sHandler(std::string(), message);
+        }
+    }
+
+    void LLUserWarningMsg::showOutOfMemory()
+    {
+        if (sHandler && !sLocalizedOutOfMemoryTitle.empty())
+        {
+            sHandler(sLocalizedOutOfMemoryTitle, sLocalizedOutOfMemoryWarning);
+        }
+    }
+
+    void LLUserWarningMsg::showMissingFiles()
+    {
+        // Files Are missing, likely can't localize.
+        const std::string error_string =
+            "Second Life viewer couldn't access some of the files it needs and will be closed."
+            "\n\nPlease reinstall viewer from  https://secondlife.com/support/downloads/ and "
+            "contact https://support.secondlife.com if issue persists after reinstall.";
+        sHandler("Missing Files", error_string);
+    }
+
+    void LLUserWarningMsg::setHandler(const LLUserWarningMsg::Handler &handler)
+    {
+        sHandler = handler;
+    }
+
+    void LLUserWarningMsg::setOutOfMemoryStrings(const std::string& title, const std::string& message)
+    {
+        sLocalizedOutOfMemoryTitle = title;
+        sLocalizedOutOfMemoryWarning = message;
+    }
 }
 
 void crashdriver(void (*callback)(int*))
