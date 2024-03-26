@@ -2,6 +2,7 @@ XML_FILE_PATH = "luafloater_gesture_list.xml"
 
 leap = require 'leap'
 coro = require 'coro'
+fiber = require 'fiber'
 LLGesture = require 'LLGesture'
 
 --event pump for sending actions to the floater
@@ -60,4 +61,4 @@ function process_events(waitfor)
   end
 end
 
-coro.launch(process_events, catch_events)
+fiber.launch("catch_events", process_events, catch_events)

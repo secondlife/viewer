@@ -2,6 +2,7 @@ XML_FILE_PATH = "luafloater_demo.xml"
 
 leap = require 'leap'
 coro = require 'coro'
+fiber = require 'fiber'
 
 --event pump for sending actions to the floater
 COMMAND_PUMP_NAME = ""
@@ -63,4 +64,4 @@ function process_events(waitfor)
   end
 end
 
-coro.launch(process_events, catch_events)
+fiber.launch("catch_events", process_events, catch_events)
