@@ -439,6 +439,8 @@ void LuaState::initLuaState()
     LuaFunction::init(mState);
     // Try to make print() write to our log.
     lua_register(mState, "print", LuaFunction::get("print_info"));
+    // We don't want to have to prefix require().
+    lua_register(mState, "require", LuaFunction::get("require"));
 }
 
 LuaState::~LuaState()
@@ -646,11 +648,20 @@ LuaFunction::LuaFunction(const std::string_view& name, lua_CFunction function,
 void LuaFunction::init(lua_State* L)
 {
     const auto& [registry, lookup] = getRState();
+    luaL_checkstack(L, 2, nullptr);
+    // create LL table --
+    // it happens that we know exactly how many non-array members we want
+    lua_createtable(L, 0, int(narrow(lookup.size())));
+    int idx = lua_gettop(L);
     for (const auto& [name, pair]: registry)
     {
         const auto& [funcptr, helptext] = pair;
-        lua_register(L, name.c_str(), funcptr);
+        // store funcptr in LL table with saved name
+        lua_pushcfunction(L, funcptr, name.c_str());
+        lua_setfield(L, idx, name.c_str());
     }
+    // store LL in new lua_State's globals
+    lua_setglobal(L, "LL");
 }
 
 lua_CFunction LuaFunction::get(const std::string& key)
@@ -668,6 +679,15 @@ std::pair<LuaFunction::Registry&, LuaFunction::Lookup&> LuaFunction::getState()
     static Registry registry;
     static Lookup lookup;
     return { registry, lookup };
+}
+
+/*****************************************************************************
+*   check_stop()
+*****************************************************************************/
+lua_function(check_stop, "ensure that a Lua script responds to viewer shutdown")
+{
+    LLCoros::checkStop();
+    return 0;
 }
 
 /*****************************************************************************

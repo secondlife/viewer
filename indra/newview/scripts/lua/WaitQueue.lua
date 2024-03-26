@@ -5,7 +5,7 @@
 local fiber = require('fiber')
 local Queue = require('Queue')
 
--- local debug = print_debug
+-- local debug = LL.print_debug
 local function debug(...) end
 
 local WaitQueue = Queue:new()

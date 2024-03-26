@@ -1,7 +1,6 @@
 XML_FILE_PATH = "luafloater_gesture_list.xml"
 
 leap = require 'leap'
-coro = require 'coro'
 fiber = require 'fiber'
 LLGesture = require 'LLGesture'
 
@@ -12,7 +11,7 @@ event_list=leap.request("LLFloaterReg", {op="getFloaterEvents"}).events
 
 local function _event(event_name)
   if not table.find(event_list, event_name) then
-    print_warning("Incorrect event name: " .. event_name)
+    LL.print_warning("Incorrect event name: " .. event_name)
   end
   return event_name
 end
