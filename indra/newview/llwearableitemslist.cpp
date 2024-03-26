@@ -781,35 +781,27 @@ void LLWearableItemsList::updateList(const LLUUID& category_id)
 void LLWearableItemsList::updateChangedItems(const uuid_vec_t& changed_items_uuids)
 {
 	// nothing to update
-	if (changed_items_uuids.empty()) return;
+	if (changed_items_uuids.empty())
+		return;
 
-	typedef std::vector<LLPanel*> item_panel_list_t;
-
-	item_panel_list_t items;
-	getItems(items);
-
-	for (item_panel_list_t::iterator items_iter = items.begin();
-			items_iter != items.end();
-			++items_iter)
+	uuid_vec_t::const_iterator uuids_begin = changed_items_uuids.begin(), uuids_end = changed_items_uuids.end();
+	pairs_const_iterator_t pairs_iter = getItemPairs().begin(), pairs_end = getItemPairs().end();
+	while (pairs_iter != pairs_end)
 	{
-		LLPanelInventoryListItemBase* item = dynamic_cast<LLPanelInventoryListItemBase*>(*items_iter);
-		if (!item) continue;
+		LLPanel* panel = (*(pairs_iter++))->first;
+		LLPanelInventoryListItemBase* item = dynamic_cast<LLPanelInventoryListItemBase*>(panel);
+		if (!item)
+			continue;
 
 		LLViewerInventoryItem* inv_item = item->getItem();
-		if (!inv_item) continue;
+		if (!inv_item)
+			continue;
 
-		LLUUID linked_uuid = inv_item->getLinkedUUID();
-
-		for (uuid_vec_t::const_iterator iter = changed_items_uuids.begin();
-				iter != changed_items_uuids.end();
-				++iter)
-		{
-			if (linked_uuid == *iter)
-			{
-				item->setNeedsRefresh(true);
-				break;
-			}
-		}
+        const LLUUID& linked_uuid = inv_item->getLinkedUUID();
+        if (std::find(uuids_begin, uuids_end, linked_uuid) != uuids_end)
+        {
+            item->setNeedsRefresh(true);
+        }
 	}
 }
 

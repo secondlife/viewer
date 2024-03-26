@@ -249,7 +249,7 @@ void LLModelPreview::updateDimentionsAndOffsets()
         {
             accounted.insert(instance.mModel);
 
-            //update instance skin info for each lods pelvisZoffset 
+            // update instance skin info for each lods pelvisZoffset
             for (int j = 0; j<LLModel::NUM_LODS; ++j)
             {
                 if (instance.mLOD[j])
@@ -271,6 +271,7 @@ void LLModelPreview::rebuildUploadData()
 {
     assert_main_thread();
 
+    mDefaultPhysicsShapeP = NULL;
     mUploadData.clear();
     mTextureSet.clear();
 
@@ -310,7 +311,7 @@ void LLModelPreview::rebuildUploadData()
         mat *= scale_mat;
 
         for (LLModelLoader::model_instance_list::iterator model_iter = iter->second.begin(); model_iter != iter->second.end();)
-        { //for each instance with said transform applied 
+        { // for each instance with said transform applied
             LLModelInstance instance = *model_iter++;
 
             LLModel* base_model = instance.mModel;
@@ -573,7 +574,7 @@ void LLModelPreview::rebuildUploadData()
     else if (getLoadState() == LLModelLoader::ERROR_MATERIALS
              || getLoadState() == LLModelLoader::WARNING_BIND_SHAPE_ORIENTATION)
     {
-        // This is only valid for these two error types because they are 
+        // This is only valid for these two error types because they are
         // only used inside rebuildUploadData() and updateStatusMessages()
         // updateStatusMessages() is called after rebuildUploadData()
         setLoadState(LLModelLoader::DONE);
@@ -798,7 +799,7 @@ void LLModelPreview::loadModel(std::string filename, S32 lod, bool force_disable
         // it tends to force the UI into strange checkbox options
         // which cannot be altered.
 
-        //only try to load from slm if viewer is configured to do so and this is the 
+        //only try to load from slm if viewer is configured to do so and this is the
         //initial model load (not an LoD or physics shape)
         mModelLoader->mTrySLM = gSavedSettings.getBOOL("MeshImportUseSLM") && mUploadData.empty();
     }
@@ -884,12 +885,13 @@ void LLModelPreview::clearIncompatible(S32 lod)
 
         // Check if already started
         bool subscribe_for_generation = mLodsQuery.empty();
-        
+
         // Remove previously scheduled work
         mLodsQuery.clear();
 
         LLFloaterModelPreview* fmp = LLFloaterModelPreview::sInstance;
-        if (!fmp) return;
+        if (!fmp)
+            return;
 
         // Schedule new work
         for (S32 i = LLModel::LOD_HIGH; i >= 0; --i)
@@ -1719,7 +1721,7 @@ F32 LLModelPreview::genMeshOptimizerPerFace(LLModel *base_model, LLModel *target
 
     ll_aligned_free_16(output_indices);
     ll_aligned_free_16(shadow_indices);
-     
+
     if (size_new_indices < 3)
     {
         // At least one triangle is needed
@@ -1912,7 +1914,7 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
                 {
                     precise_ratio = genMeshOptimizerPerModel(base, target_model, indices_decimator, lod_error_threshold, MESH_OPTIMIZER_NO_UVS);
                 }
-                
+
                 if (precise_ratio < 0 || (precise_ratio * allowed_ratio_drift < indices_decimator))
                 {
                     // Try sloppy variant if normal one failed to simplify model enough.

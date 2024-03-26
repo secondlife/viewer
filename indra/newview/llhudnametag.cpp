@@ -897,6 +897,15 @@ void LLHUDNameTag::shift(const LLVector3& offset)
 	mPositionAgent += offset;
 }
 
+F32 LLHUDNameTag::getWorldHeight() const
+{
+	const LLViewerCamera* camera = LLViewerCamera::getInstance();
+	F32 height_meters = mLastDistance * (F32)tan(camera->getView() / 2.f);
+	F32 height_pixels = camera->getViewHeightInPixels() / 2.f;
+	F32 meters_per_pixel = height_meters / height_pixels;
+	return mHeight * meters_per_pixel * gViewerWindow->getDisplayScale().mV[VY];
+}
+
 //static 
 void LLHUDNameTag::addPickable(std::set<LLViewerObject*> &pick_list)
 {

@@ -348,13 +348,13 @@ private:
 		}
 
 		// Threads:  Tid
-		virtual void completed(bool success, LLImageRaw* raw, LLImageRaw* aux)
+		virtual void completed(bool success, LLImageRaw* raw, LLImageRaw* aux, U32 request_id)
 		{
             LL_PROFILE_ZONE_SCOPED;
 			LLTextureFetchWorker* worker = mFetcher->getWorker(mID);
 			if (worker)
 			{
- 				worker->callbackDecoded(success, raw, aux);
+ 				worker->callbackDecoded(success, raw, aux, request_id);
 			}
 		}
 	private:
@@ -398,7 +398,7 @@ public:
 	void callbackCacheWrite(bool success);
 
 	// Threads:  Tid
-	void callbackDecoded(bool success, LLImageRaw* raw, LLImageRaw* aux);
+	void callbackDecoded(bool success, LLImageRaw* raw, LLImageRaw* aux, S32 decode_id);
 	
 	// Threads:  T*
 	void setGetStatus(LLCore::HttpStatus status, const std::string& reason)
@@ -1800,8 +1800,22 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		setState(DECODE_IMAGE_UPDATE);
 		LL_DEBUGS(LOG_TXT) << mID << ": Decoding. Bytes: " << mFormattedImage->getDataSize() << " Discard: " << discard
 						   << " All Data: " << mHaveAllData << LL_ENDL;
-		mDecodeHandle = LLAppViewer::getImageDecodeThread()->decodeImage(mFormattedImage, discard, mNeedsAux,
-																  new DecodeResponder(mFetcher, mID, this));
+
+        // In case worked manages to request decode, be shut down,
+        // then init and request decode again with first decode
+        // still in progress, assign a sufficiently unique id
+        mDecodeHandle = LLAppViewer::getImageDecodeThread()->decodeImage(mFormattedImage,
+                                                                       discard,
+                                                                       mNeedsAux,
+                                                                       new DecodeResponder(mFetcher, mID, this));
+        if (mDecodeHandle == 0)
+        {
+            // Abort, failed to put into queue.
+            // Happens if viewer is shutting down
+            setState(DONE);
+            LL_DEBUGS(LOG_TXT) << mID << " DECODE_IMAGE abort: failed to post for decoding" << LL_ENDL;
+            return true;
+        }
 		// fall though
 	}
 	
@@ -2305,16 +2319,24 @@ void LLTextureFetchWorker::callbackCacheWrite(bool success)
 //////////////////////////////////////////////////////////////////////////////
 
 // Threads:  Tid
-void LLTextureFetchWorker::callbackDecoded(bool success, LLImageRaw* raw, LLImageRaw* aux)
+void LLTextureFetchWorker::callbackDecoded(bool success, LLImageRaw* raw, LLImageRaw* aux, S32 decode_id)
 {
 	LLMutexLock lock(&mWorkMutex);										// +Mw
 	if (mDecodeHandle == 0)
 	{
 		return; // aborted, ignore
 	}
+    if (mDecodeHandle != decode_id)
+    {
+        // Queue doesn't support canceling old requests.
+        // This shouldn't normally happen, but in case it's possible that a worked
+        // will request decode, be aborted, reinited then start a new decode
+        LL_DEBUGS(LOG_TXT) << mID << " received obsolete decode's callback" << LL_ENDL;
+        return; // ignore
+    }
 	if (mState != DECODE_IMAGE_UPDATE)
 	{
-// 		LL_WARNS(LOG_TXT) << "Decode callback for " << mID << " with state = " << mState << LL_ENDL;
+		LL_DEBUGS(LOG_TXT) << "Decode callback for " << mID << " with state = " << mState << LL_ENDL;
 		mDecodeHandle = 0;
 		return;
 	}

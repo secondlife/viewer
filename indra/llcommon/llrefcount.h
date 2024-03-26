@@ -51,24 +51,20 @@ protected:
 public:
 	LLRefCount();
 
-    inline void validateRefCount() const
-    {
-        llassert(mRef > 0); // ref count below 0, likely corrupted
-        llassert(mRef < gMaxRefCount); // ref count excessive, likely memory leak
-    }
-
 	inline void ref() const
-	{ 
-		mRef++; 
-        validateRefCount();
-	} 
+	{
+		llassert(mRef != LL_REFCOUNT_FREE); // object is deleted
+		mRef++;
+		llassert(mRef < gMaxRefCount); // ref count excessive, likely memory leak
+	}
 
 	inline S32 unref() const
 	{
-        validateRefCount();
+		llassert(mRef != LL_REFCOUNT_FREE); // object is deleted
+		llassert(mRef > 0); // ref count below 1, likely corrupted
 		if (0 == --mRef)
 		{
-            mRef = LL_REFCOUNT_FREE; // set to nonsense yet recognizable value to aid in debugging
+			mRef = LL_REFCOUNT_FREE; // set to nonsense yet recognizable value to aid in debugging
 			delete this;
 			return 0;
 		}
@@ -82,8 +78,8 @@ public:
 		return mRef;
 	}
 
-private: 
-	mutable S32	mRef; 
+private:
+	mutable S32	mRef;
 };
 
 
@@ -106,7 +102,7 @@ protected:
 public:
 	LLThreadSafeRefCount();
 	LLThreadSafeRefCount(const LLThreadSafeRefCount&);
-	LLThreadSafeRefCount& operator=(const LLThreadSafeRefCount& ref) 
+	LLThreadSafeRefCount& operator=(const LLThreadSafeRefCount& ref)
 	{
 		mRef = 0;
 		return *this;
@@ -114,8 +110,8 @@ public:
 
 	void ref()
 	{
-		mRef++; 
-	} 
+		mRef++;
+	}
 
 	void unref()
 	{
@@ -136,36 +132,36 @@ public:
 		return currentVal;
 	}
 
-private: 
-	LLAtomicS32 mRef; 
+private:
+	LLAtomicS32 mRef;
 };
 
 /**
  * intrusive pointer support for LLThreadSafeRefCount
  * this allows you to use boost::intrusive_ptr with any LLThreadSafeRefCount-derived type
  */
-inline void intrusive_ptr_add_ref(LLThreadSafeRefCount* p) 
+inline void intrusive_ptr_add_ref(LLThreadSafeRefCount* p)
 {
 	p->ref();
 }
 
-inline void intrusive_ptr_release(LLThreadSafeRefCount* p) 
+inline void intrusive_ptr_release(LLThreadSafeRefCount* p)
 {
-	p->unref(); 
+	p->unref();
 }
 
 /**
  * intrusive pointer support
  * this allows you to use boost::intrusive_ptr with any LLRefCount-derived type
  */
-inline void intrusive_ptr_add_ref(LLRefCount* p) 
+inline void intrusive_ptr_add_ref(LLRefCount* p)
 {
 	p->ref();
 }
 
-inline void intrusive_ptr_release(LLRefCount* p) 
+inline void intrusive_ptr_release(LLRefCount* p)
 {
-	p->unref(); 
+	p->unref();
 }
 
 #endif

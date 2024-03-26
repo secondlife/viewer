@@ -692,7 +692,6 @@ void LLViewerTextureList::removeImageFromList(LLViewerFetchedTexture *image)
 	assert_main_thread();
 	llassert_always(mInitialized) ;
 	llassert(image);
-    image->validateRefCount();
 
 	S32 count = 0;
 	if (image->isInImageList())

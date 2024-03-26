@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<toggleable_menu
+ bottom="806"
+ layout="topleft"
+ left="0"
+ mouse_opaque="false"
+ name="menu_font_size"
+ visible="false">
+  <menu_item_check
+   label="Small"
+   layout="topleft"
+   name="font_small">
+    <on_click
+     function="FontSize.Set"
+     parameter="SmallLSL" />
+    <on_check
+     function="FontSize.Check"
+     parameter="SmallLSL" />
+  </menu_item_check>
+  <menu_item_check
+   label="Default"
+   layout="topleft"
+   name="font_monospace">
+    <on_click
+     function="FontSize.Set"
+     parameter="Monospace" />
+    <on_check
+     function="FontSize.Check"
+     parameter="Monospace" />
+    </menu_item_check>
+  <menu_item_check
+   label="Medium"
+   layout="topleft"
+   name="font_medium">
+    <on_click
+     function="FontSize.Set"
+     parameter="Medium" />
+    <on_check
+     function="FontSize.Check"
+     parameter="Medium" />
+  </menu_item_check>
+  <menu_item_check
+   label="Large"
+   layout="topleft"
+   name="font_large">
+    <on_click
+     function="FontSize.Set"
+     parameter="Large" />
+    <on_check
+     function="FontSize.Check"
+     parameter="Large" />
+  </menu_item_check>
+  <menu_item_check
+   label="Huge"
+   layout="topleft"
+   name="font_huge">
+    <on_click
+     function="FontSize.Set"
+     parameter="HugeLSL" />
+    <on_check
+     function="FontSize.Check"
+     parameter="HugeLSL" />
+  </menu_item_check>
+</toggleable_menu>

@@ -188,7 +188,7 @@ void LLOutfitsList::updateAddedCategory(LLUUID cat_id)
     list->setCommitCallback(boost::bind(&LLOutfitsList::onListSelectionChange, this, _1));
 
     // Setting list refresh callback to apply filter on list change.
-    list->setRefreshCompleteCallback(boost::bind(&LLOutfitsList::onFilteredWearableItemsListRefresh, this, _1));
+    list->setRefreshCompleteCallback(boost::bind(&LLOutfitsList::onRefreshComplete, this, _1));
 
     list->setRightMouseDownCallback(boost::bind(&LLOutfitsList::onWearableItemsListRightClick, this, _1, _2, _3));
 
@@ -199,19 +199,17 @@ void LLOutfitsList::updateAddedCategory(LLUUID cat_id)
     // Further list updates will be triggered by the category observer.
     list->updateList(cat_id);
 
-    // If filter is currently applied we store the initial tab state and
-    // open it to show matched items if any.
-    if (!sFilterSubString.empty())
+    // If filter is currently applied we store the initial tab state.
+    if (!getFilterSubString().empty())
     {
         tab->notifyChildren(LLSD().with("action", "store_state"));
-        tab->setDisplayChildren(true);
 
         // Setting mForceRefresh flag will make the list refresh its contents
         // even if it is not currently visible. This is required to apply the
         // filter to the newly added list.
         list->setForceRefresh(true);
 
-        list->setFilterSubString(sFilterSubString);
+        list->setFilterSubString(getFilterSubString(), false);
     }
 }
 
@@ -311,14 +309,6 @@ void LLOutfitsList::onSetSelectedOutfitByUUID(const LLUUID& outfit_uuid)
 			tab->changeOpenClose(false);
 		}
 	}
-}
-
-// virtual
-void LLOutfitsList::setFilterSubString(const std::string& string)
-{
-	applyFilter(string);
-
-	sFilterSubString = string;
 }
 
 // virtual
@@ -494,9 +484,9 @@ void LLOutfitsList::restoreOutfitSelection(LLAccordionCtrlTab* tab, const LLUUID
 	}
 }
 
-void LLOutfitsList::onFilteredWearableItemsListRefresh(LLUICtrl* ctrl)
+void LLOutfitsList::onRefreshComplete(LLUICtrl* ctrl)
 {
-	if (!ctrl || sFilterSubString.empty())
+	if (!ctrl || getFilterSubString().empty())
 		return;
 
 	for (outfits_map_t::iterator
@@ -510,57 +500,50 @@ void LLOutfitsList::onFilteredWearableItemsListRefresh(LLUICtrl* ctrl)
 		LLWearableItemsList* list = dynamic_cast<LLWearableItemsList*>(tab->getAccordionView());
 		if (list != ctrl) continue;
 
-		applyFilterToTab(iter->first, tab, sFilterSubString);
+		applyFilterToTab(iter->first, tab, getFilterSubString());
 	}
 }
 
-void LLOutfitsList::applyFilter(const std::string& new_filter_substring)
+// virtual
+void LLOutfitsList::onFilterSubStringChanged(const std::string& new_string, const std::string& old_string)
 {
-	mAccordion->setFilterSubString(new_filter_substring);
+	mAccordion->setFilterSubString(new_string);
 
-	for (outfits_map_t::iterator
-			 iter = mOutfitsMap.begin(),
-			 iter_end = mOutfitsMap.end();
-		 iter != iter_end; ++iter)
+	outfits_map_t::iterator iter = mOutfitsMap.begin(), iter_end = mOutfitsMap.end();
+	while (iter != iter_end)
 	{
-		LLAccordionCtrlTab* tab = iter->second;
+		const LLUUID& category_id = iter->first;
+		LLAccordionCtrlTab* tab = iter++->second;
 		if (!tab) continue;
-
-		bool more_restrictive = sFilterSubString.size() < new_filter_substring.size() && !new_filter_substring.substr(0, sFilterSubString.size()).compare(sFilterSubString);
-
-		// Restore tab visibility in case of less restrictive filter
-		// to compare it with updated string if it was previously hidden.
-		if (!more_restrictive)
-		{
-			tab->setVisible(TRUE);
-		}
 
 		LLWearableItemsList* list = dynamic_cast<LLWearableItemsList*>(tab->getAccordionView());
 		if (list)
 		{
-			list->setFilterSubString(new_filter_substring);
+			list->setFilterSubString(new_string, tab->getDisplayChildren());
 		}
 
-		if(sFilterSubString.empty() && !new_filter_substring.empty())
+		if (old_string.empty())
 		{
-			//store accordion tab state when filter is not empty
-			tab->notifyChildren(LLSD().with("action","store_state"));
+			// Store accordion tab state when filter is not empty
+			tab->notifyChildren(LLSD().with("action", "store_state"));
 		}
 
-		if (!new_filter_substring.empty())
+		if (!new_string.empty())
 		{
-			applyFilterToTab(iter->first, tab, new_filter_substring);
+			applyFilterToTab(category_id, tab, new_string);
 		}
 		else
 		{
-			// restore tab title when filter is empty
+			tab->setVisible(TRUE);
+
+			// Restore tab title when filter is empty
 			tab->setTitle(tab->getTitle());
 
-			//restore accordion state after all those accodrion tab manipulations
-			tab->notifyChildren(LLSD().with("action","restore_state"));
+			// Restore accordion state after all those accodrion tab manipulations
+			tab->notifyChildren(LLSD().with("action", "restore_state"));
 
 			// Try restoring the tab selection.
-			restoreOutfitSelection(tab, iter->first);
+			restoreOutfitSelection(tab, category_id);
 		}
 	}
 
@@ -586,11 +569,11 @@ void LLOutfitsList::applyFilterToTab(
 
 	if (std::string::npos == title.find(cur_filter))
 	{
-		// hide tab if its title doesn't pass filter
-		// and it has no visible items
+		// Hide tab if its title doesn't pass filter
+		// and it has no matched items
 		tab->setVisible(list->hasMatchedItems());
 
-		// remove title highlighting because it might
+		// Remove title highlighting because it might
 		// have been previously highlighted by less restrictive filter
 		tab->setTitle(tab->getTitle());
 
@@ -601,18 +584,6 @@ void LLOutfitsList::applyFilterToTab(
 	{
 		// Try restoring the tab selection.
 		restoreOutfitSelection(tab, category_id);
-	}
-
-	if (tab->getVisible())
-	{
-		// Open tab if it has passed the filter.
-		tab->setDisplayChildren(true);
-	}
-	else
-	{
-		// Set force refresh flag to refresh not visible list
-		// when some changes occur in it.
-		list->setForceRefresh(true);
 	}
 }
 
@@ -698,11 +669,10 @@ void LLOutfitsList::onCOFChanged()
 	// These links UUIDs are not the same UUIDs that we have in each wearable items list.
 	// So we collect base items' UUIDs to find them or links that point to them in wearable
 	// items lists and update their worn state there.
-	for (LLInventoryModel::item_array_t::const_iterator iter = item_array.begin();
-		iter != item_array.end();
-		++iter)
+	LLInventoryModel::item_array_t::const_iterator array_iter = item_array.begin(), array_end = item_array.end();
+	while (array_iter < array_end)
 	{
-		vnew.push_back((*iter)->getLinkedUUID());
+		vnew.push_back((*(array_iter++))->getLinkedUUID());
 	}
 
 	// We need to update only items that were added or removed from COF.
@@ -711,19 +681,19 @@ void LLOutfitsList::onCOFChanged()
 	// Store the ids of items currently linked from COF.
 	mCOFLinkedItems = vnew;
 
-	for (outfits_map_t::iterator iter = mOutfitsMap.begin();
-			iter != mOutfitsMap.end();
-			++iter)
+	// Append removed ids to added ids because we should update all of them.
+	vadded.reserve(vadded.size() + vremoved.size());
+	vadded.insert(vadded.end(), vremoved.begin(), vremoved.end());
+	vremoved.clear();
+
+	outfits_map_t::iterator map_iter = mOutfitsMap.begin(), map_end = mOutfitsMap.end();
+	while (map_iter != map_end)
 	{
-		LLAccordionCtrlTab* tab = iter->second;
+		LLAccordionCtrlTab* tab = (map_iter++)->second;
 		if (!tab) continue;
 
 		LLWearableItemsList* list = dynamic_cast<LLWearableItemsList*>(tab->getAccordionView());
 		if (!list) continue;
-
-		// Append removed ids to added ids because we should update all of them.
-		vadded.reserve(vadded.size() + vremoved.size());
-		vadded.insert(vadded.end(), vremoved.begin(), vremoved.end());
 
 		// Every list updates the labels of changed items  or
 		// the links that point to these items.
@@ -835,7 +805,6 @@ void LLOutfitListBase::onOpen(const LLSD& info)
         // arrive.
         category->fetch();
         refreshList(outfits);
-        highlightBaseOutfit();
 
         mIsInitialized = true;
     }
@@ -843,6 +812,9 @@ void LLOutfitListBase::onOpen(const LLSD& info)
 
 void LLOutfitListBase::refreshList(const LLUUID& category_id)
 {
+    bool wasNull = mRefreshListState.CategoryUUID.isNull();
+    mRefreshListState.CategoryUUID.setNull();
+
     LLInventoryModel::cat_array_t cat_array;
     LLInventoryModel::item_array_t item_array;
 
@@ -855,27 +827,81 @@ void LLOutfitListBase::refreshList(const LLUUID& category_id)
         LLInventoryModel::EXCLUDE_TRASH,
         is_category);
 
-    uuid_vec_t vadded;
-    uuid_vec_t vremoved;
+    // Memorize item names for each UUID
+    std::map<LLUUID, std::string> names;
+    for (const LLPointer<LLViewerInventoryCategory>& cat : cat_array)
+    {
+        names.emplace(std::make_pair(cat->getUUID(), cat->getName()));
+    }
 
-    // Create added and removed items vectors.
-    computeDifference(cat_array, vadded, vremoved);
+    // Fill added and removed items vectors.
+    mRefreshListState.Added.clear();
+    mRefreshListState.Removed.clear();
+    computeDifference(cat_array, mRefreshListState.Added, mRefreshListState.Removed);
+    // Sort added items vector by item name.
+    std::sort(mRefreshListState.Added.begin(), mRefreshListState.Added.end(),
+        [names](const LLUUID& a, const LLUUID& b)
+        {
+            return LLStringUtil::compareDict(names.at(a), names.at(b)) < 0;
+        });
+    // Initialize iterators for added and removed items vectors.
+    mRefreshListState.AddedIterator = mRefreshListState.Added.begin();
+    mRefreshListState.RemovedIterator = mRefreshListState.Removed.begin();
+
+    LL_INFOS() << "added: " << mRefreshListState.Added.size() <<
+        ", removed: " << mRefreshListState.Removed.size() <<
+        ", changed: " << gInventory.getChangedIDs().size() <<
+        LL_ENDL;
+
+    mRefreshListState.CategoryUUID = category_id;
+    if (wasNull)
+    {
+        gIdleCallbacks.addFunction(onIdle, this);
+    }
+}
+
+// static
+void LLOutfitListBase::onIdle(void* userdata)
+{
+    LLOutfitListBase* self = (LLOutfitListBase*)userdata;
+
+    self->onIdleRefreshList();
+}
+
+void LLOutfitListBase::onIdleRefreshList()
+{
+    if (mRefreshListState.CategoryUUID.isNull())
+        return;
+
+    const F64 MAX_TIME = 0.05f;
+    F64 curent_time = LLTimer::getTotalSeconds();
+    const F64 end_time = curent_time + MAX_TIME;
 
     // Handle added tabs.
-    for (uuid_vec_t::const_iterator iter = vadded.begin();
-        iter != vadded.end();
-        ++iter)
+    while (mRefreshListState.AddedIterator < mRefreshListState.Added.end())
     {
-        const LLUUID cat_id = (*iter);
+        const LLUUID cat_id = (*mRefreshListState.AddedIterator++);
         updateAddedCategory(cat_id);
+
+        curent_time = LLTimer::getTotalSeconds();
+        if (curent_time >= end_time)
+            return;
     }
+    mRefreshListState.Added.clear();
+    mRefreshListState.AddedIterator = mRefreshListState.Added.end();
 
     // Handle removed tabs.
-    for (uuid_vec_t::const_iterator iter = vremoved.begin(); iter != vremoved.end(); ++iter)
+    while (mRefreshListState.RemovedIterator < mRefreshListState.Removed.end())
     {
-        const LLUUID cat_id = (*iter);
+        const LLUUID cat_id = (*mRefreshListState.RemovedIterator++);
         updateRemovedCategory(cat_id);
+
+        curent_time = LLTimer::getTotalSeconds();
+        if (curent_time >= end_time)
+            return;
     }
+    mRefreshListState.Removed.clear();
+    mRefreshListState.RemovedIterator = mRefreshListState.Removed.end();
 
     // Get changed items from inventory model and update outfit tabs
     // which might have been renamed.
@@ -888,9 +914,9 @@ void LLOutfitListBase::refreshList(const LLUUID& category_id)
         if (!cat)
         {
             LLInventoryObject* obj = gInventory.getObject(*items_iter);
-            if(!obj || (obj->getType() != LLAssetType::AT_CATEGORY))
+            if (!obj || (obj->getType() != LLAssetType::AT_CATEGORY))
             {
-                return;
+                break;
             }
             cat = (LLViewerInventoryCategory*)obj;
         }
@@ -900,6 +926,12 @@ void LLOutfitListBase::refreshList(const LLUUID& category_id)
     }
 
     sortOutfits();
+    highlightBaseOutfit();
+
+    gIdleCallbacks.deleteFunction(onIdle, this);
+    mRefreshListState.CategoryUUID.setNull();
+
+    LL_INFOS() << "done" << LL_ENDL;
 }
 
 void LLOutfitListBase::computeDifference(
@@ -936,7 +968,6 @@ void LLOutfitListBase::highlightBaseOutfit()
         mHighlightedOutfitUUID = base_id;
         onHighlightBaseOutfit(base_id, prev_id);
     }
-
 }
 
 void LLOutfitListBase::removeSelected()

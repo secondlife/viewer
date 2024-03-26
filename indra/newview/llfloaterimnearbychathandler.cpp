@@ -522,6 +522,8 @@ void LLFloaterIMNearbyChatHandler::processChat(const LLChat& chat_msg,
 	// errors in separate window.
 	if (chat_msg.mChatType == CHAT_TYPE_DEBUG_MSG)
 	{
+        if (LLFloater::isQuitRequested()) return;
+
 		if(gSavedSettings.getBOOL("ShowScriptErrors") == FALSE)
 			return;
 

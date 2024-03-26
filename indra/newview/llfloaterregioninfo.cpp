@@ -144,7 +144,7 @@ public:
 		const LLUUID& invoice,
 		const sparam_t& strings);
 
-	LLSD getIDs( sparam_t::const_iterator it, sparam_t::const_iterator end, S32 count );
+	static LLSD getIDs( sparam_t::const_iterator it, sparam_t::const_iterator end, S32 count );
 };
 
 
@@ -2450,11 +2450,12 @@ bool LLDispatchSetEstateAccess::operator()(
 	return true;
 }
 
+// static
 LLSD LLDispatchSetEstateExperience::getIDs( sparam_t::const_iterator it, sparam_t::const_iterator end, S32 count )
 {
 	LLSD idList = LLSD::emptyArray();
 	LLUUID id;
-	while(count--> 0)
+	while (count-- > 0 && it < end)
 	{
 		memcpy(id.mData, (*(it++)).data(), UUID_BYTES);
 		idList.append(id);
@@ -2468,7 +2469,7 @@ LLSD LLDispatchSetEstateExperience::getIDs( sparam_t::const_iterator it, sparam_
 // strings[2] = str(num blocked)
 // strings[3] = str(num trusted)
 // strings[4] = str(num allowed)
-// strings[8] = bin(uuid) ...
+// strings[5] = bin(uuid) ...
 // ...
 bool LLDispatchSetEstateExperience::operator()(
 	const LLDispatcher* dispatcher,
@@ -2477,23 +2478,30 @@ bool LLDispatchSetEstateExperience::operator()(
 	const sparam_t& strings)
 {
 	LLPanelRegionExperiences* panel = LLFloaterRegionInfo::getPanelExperiences();
-	if (!panel) return true;
+	if (!panel)
+		return true;
 
+	const sparam_t::size_type MIN_SIZE = 5;
+	if (strings.size() < MIN_SIZE)
+		return true;
+
+	// Skip 2 parameters
 	sparam_t::const_iterator it = strings.begin();
 	++it; // U32 estate_id = strtol((*it).c_str(), NULL, 10);
 	++it; // U32 send_to_agent_only = strtoul((*(++it)).c_str(), NULL, 10);
 
+	// Read 3 parameters
 	LLUUID id;
 	S32 num_blocked = strtol((*(it++)).c_str(), NULL, 10);
 	S32 num_trusted = strtol((*(it++)).c_str(), NULL, 10);
 	S32 num_allowed = strtol((*(it++)).c_str(), NULL, 10);
 
 	LLSD ids = LLSD::emptyMap()
-		.with("blocked", getIDs(it,								strings.end(), num_blocked))
-		.with("trusted", getIDs(it + (num_blocked),				strings.end(), num_trusted))
-		.with("allowed", getIDs(it + (num_blocked+num_trusted),	strings.end(), num_allowed));
+		.with("blocked", getIDs(it, strings.end(), num_blocked))
+		.with("trusted", getIDs(it + num_blocked, strings.end(), num_trusted))
+		.with("allowed", getIDs(it + num_blocked + num_trusted, strings.end(), num_allowed));
 
-	panel->processResponse(ids);			
+	panel->processResponse(ids);
 
 	return true;
 }

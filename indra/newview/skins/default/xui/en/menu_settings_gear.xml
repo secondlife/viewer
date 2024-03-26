@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <toggleable_menu
         layout="topleft"
         mouse_opaque="false"
@@ -49,7 +49,7 @@
     </menu_item_call>
     <menu_item_separator
             layout="topleft" 
-            name="Separator" />
+            name="Separator1" />
     <menu_item_call
             label="Copy"
             layout="topleft"

@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel
  background_visible="false"
  bg_alpha_color="DkGray"
@@ -122,7 +123,7 @@
      layout="topleft"
      left_pad="5"
      name="wait_text"
-     top_delta="-1"
+     top_delta="2"
      width="110">
         Please wait
     </text>
@@ -132,7 +133,7 @@
      layout="topleft"
      left_delta="0"
      name="bar0"
-     top_delta="-2"
+     top_delta="-5"
      width="20" />
   <locate
      follows="right|top"
@@ -166,4 +167,26 @@
      name="bar4"
      top_delta="0"
      width="20" />
+    <text
+     type="string"
+     name="disabled_text"
+     text_color="EmphasisColor"
+     length="1"
+     follows="right|top"
+     height="18"
+     layout="topleft"
+     left_delta="-100"
+     top_delta="5"
+     width="110">
+        Disabled
+    </text>
+    <button
+       follows="right|top"
+       height="23"
+       layout="topleft"
+       left_delta="0"
+       name="unmute_btn"
+       label="Unmute"
+       top_delta="-6"
+       width="110" />
 </panel>

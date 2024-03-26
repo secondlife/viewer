@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel
  background_visible="true"
  height="152"
@@ -7,7 +7,7 @@
  left="0"
  name="im_panel"
  top="0"
- width="305">
+ width="310">
     <string
      name="message_max_lines_count">
         6
@@ -24,7 +24,7 @@
      mouse_opaque="false"
      name="im_header"
      top="5"
-     width="295">
+     width="300">
         <avatar_icon
          follows="right"
          height="18"
@@ -65,11 +65,11 @@
          name="user_name"
          parse_urls="false"
          text_color="White"
-         top="8"
+         top="7"
          translate="false"
          use_ellipses="true"
-         value="TestString PleaseIgnore"
-         width="205" />
+         value="TestString PleaseIgnore (testing plsignore)"
+         width="172" />
 	 <!-- TIME STAMP -->
         <text
         font="SansSerifSmall"
@@ -79,9 +79,9 @@
 	 halign="right"
          right="-5"
          name="time_box"
-         top="8"
-         value="23:30"
-         width="50" />
+         top="7"
+         value="2022/09/23 23:30"
+         width="96" />
     </panel>
     <text
         font="SansSerifSmall"
@@ -94,7 +94,7 @@
      top="33"
      use_ellipses="true"
      value=""
-     width="285"
+     width="290"
      word_wrap="true"
      max_length="350" />
 </panel>

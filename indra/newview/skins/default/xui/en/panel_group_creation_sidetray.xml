@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel
 background_visible="true"
  follows="all"
@@ -229,7 +229,7 @@ background_visible="true"
     <layout_panel
       background_visible="false"
       background_opaque="true"
-      name="create_actions"
+      name="create_actions1"
       follows="all"
       layout="topleft"
       auto_resize="false"
@@ -258,7 +258,7 @@ background_visible="true"
         <layout_panel
           follows="bottom|left|right"
           layout="bottomleft"
-          name="layout_crt"
+          name="layout_crt1"
           auto_resize="false"
           height="23"
           width="245">
@@ -287,7 +287,7 @@ background_visible="true"
         <layout_panel
           follows="bottom|left|right"
           layout="bottomleft"
-          name="layout_crt"
+          name="layout_crt2"
           auto_resize="true"
           height="23"
           width="91">

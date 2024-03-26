@@ -53,6 +53,7 @@ public:
 protected:
 	LLFavoritesBarCtrl(const Params&);
 	friend class LLUICtrlFactory;
+    friend class LLItemCopiedCallback;
 public:
 	virtual ~LLFavoritesBarCtrl();
 
@@ -84,7 +85,6 @@ protected:
 	void onButtonRightClick(LLUUID id,LLView* button,S32 x,S32 y,MASK mask);
 	
 	void onButtonMouseDown(LLUUID id, LLUICtrl* button, S32 x, S32 y, MASK mask);
-	void onOverflowMenuItemMouseDown(LLUUID id, LLUICtrl* item, S32 x, S32 y, MASK mask);
 	void onButtonMouseUp(LLUUID id, LLUICtrl* button, S32 x, S32 y, MASK mask);
 
 	void onEndDrag();
@@ -164,7 +164,8 @@ private:
 	BOOL mStartDrag;
 	LLInventoryModel::item_array_t mItems;
 
-	BOOL mTabsHighlightEnabled;
+    static F64 sWaitingForCallabck;
+    bool mItemsListDirty;
 
 	S32 mMouseX;
 	S32 mMouseY;

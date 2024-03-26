@@ -1788,7 +1788,8 @@ LLMenuGL::LLMenuGL(const LLMenuGL::Params& p)
 	mNeedsArrange(FALSE),
 	mAlwaysShowMenu(FALSE),
 	mResetScrollPositionOnShow(true),
-	mShortcutPad(p.shortcut_pad)
+	mShortcutPad(p.shortcut_pad),
+    mFont(p.font)
 {
 	typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
 	boost::char_separator<char> sep("_");
@@ -3647,6 +3648,7 @@ BOOL LLMenuBarGL::appendMenu( LLMenuGL* menu )
 	p.disabled_color=LLUIColorTable::instance().getColor("MenuItemDisabledColor");
 	p.highlight_bg_color=LLUIColorTable::instance().getColor("MenuItemHighlightBgColor");
 	p.highlight_fg_color=LLUIColorTable::instance().getColor("MenuItemHighlightFgColor");
+    p.font = menu->getFont();
 
 	LLMenuItemBranchDownGL* branch = LLUICtrlFactory::create<LLMenuItemBranchDownGL>(p);
 	success &= branch->addToAcceleratorList(&mAccelerators);

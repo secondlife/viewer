@@ -61,9 +61,6 @@ public:
 	void				onHintMouseDown( LLVisualParamHint* hint );
 	void				onHintHeldDown( LLVisualParamHint* hint );
 
-	F32					weightToPercent( F32 weight );
-	F32					percentToWeight( F32 percent );
-
 public:
 	// Constants for LLPanelVisualParam
 	const static F32 PARAM_STEP_TIME_THRESHOLD;

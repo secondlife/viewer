@@ -104,7 +104,6 @@ BOOL LLApp::sLogInSignal = FALSE;
 // Keeps track of application status
 LLScalarCond<LLApp::EAppStatus> LLApp::sStatus{LLApp::APP_STATUS_STOPPED};
 LLAppErrorHandler LLApp::sErrorHandler = NULL;
-BOOL LLApp::sErrorThreadRunning = FALSE;
 
 
 LLApp::LLApp()
@@ -787,13 +786,8 @@ void default_unix_signal_handler(int signum, siginfo_t *info, void *)
 				return;
 			}		
 			
-			// Flag status to ERROR, so thread_error does its work.
+			// Flag status to ERROR
 			LLApp::setError();
-			// Block in the signal handler until somebody says that we're done.
-			while (LLApp::sErrorThreadRunning && !LLApp::isStopped())
-			{
-				ms_sleep(10);
-			}
 			
 			if (LLApp::sLogInSignal)
 			{

@@ -94,6 +94,8 @@ public:
 									padding;
 		Optional<bool>				wrap;
 
+        Optional<bool> allow_paste_tooltip;
+
 		Params();
 	};
 	/*virtual*/ void draw();
@@ -109,6 +111,7 @@ public:
 	virtual void initFromParams(const LLToolTip::Params& params);
 
 	void getToolTipMessage(std::string & message);
+    bool isTooltipPastable() { return mIsTooltipPastable; }
 
 protected:
 	void updateTextBox();
@@ -125,6 +128,8 @@ protected:
 	bool			mHasClickCallback;
 	S32				mPadding;	// pixels
 	S32				mMaxWidth;
+
+    bool mIsTooltipPastable;
 };
 
 // used for the inspector tooltips which need different background images etc.
@@ -142,7 +147,7 @@ class LLToolTipMgr : public LLSingleton<LLToolTipMgr>
 
 public:
 	void show(const LLToolTip::Params& params);
-	void show(const std::string& message);
+	void show(const std::string& message, bool allow_paste_tooltip = false);
 
 	void unblockToolTips();
 	void blockToolTips();
@@ -154,6 +159,7 @@ public:
 	void updateToolTipVisibility();
 
 	void getToolTipMessage(std::string & message);
+    bool isTooltipPastable();
 
 private:
 	void createToolTip(const LLToolTip::Params& params);

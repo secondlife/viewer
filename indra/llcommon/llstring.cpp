@@ -1406,9 +1406,17 @@ bool LLStringUtil::formatDatetime(std::string& replacement, std::string token,
 		}
 		else
 		{
+#if 0
+			// EXT-1565 : Zai Lynch, James Linden : 15/Oct/09
+			// [BSI] Feedback: Viewer clock mentions SLT, but would prefer it to show PST/PDT
 			// "slt" = Second Life Time, which is deprecated.
 			// If not utc or user local time, fallback to Pacific time
 			replacement = LLStringOps::getPacificDaylightTime() ? "PDT" : "PST";
+#else
+			// SL-20370 : Steeltoe Linden : 29/Sep/23
+			// Change "PDT" to "SLT" on menu bar
+			replacement = "SLT";
+#endif
 		}
 		return true;
 	}

@@ -244,12 +244,12 @@ public:
 	// "Auto_open" determines if we open an inventory panel if none are open.
 	static LLInventoryPanel *getActiveInventoryPanel(BOOL auto_open = TRUE);
 
-	static void openInventoryPanelAndSetSelection(BOOL auto_open,
+	static void openInventoryPanelAndSetSelection(bool auto_open,
 													const LLUUID& obj_id,
-													BOOL use_main_panel = FALSE,
-													BOOL take_keyboard_focus = TAKE_FOCUS_YES,
-													BOOL reset_filter = FALSE);
-    static void setSFViewAndOpenFolder(const LLInventoryPanel* panel, const LLUUID& folder_id);
+													bool use_main_panel = false,
+													bool take_keyboard_focus = true,
+													bool reset_filter = false);
+	static void setSFViewAndOpenFolder(const LLInventoryPanel* panel, const LLUUID& folder_id);
 	void addItemID(const LLUUID& id, LLFolderViewItem* itemp);
 	void removeItemID(const LLUUID& id);
 	LLFolderViewItem* getItemByID(const LLUUID& id);

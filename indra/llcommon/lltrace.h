@@ -193,61 +193,6 @@ void add(CountStatHandle<T>& count, VALUE_T value)
 #endif
 }
 
-template<>
-class StatType<MemAccumulator::AllocationFacet>
-:	public StatType<MemAccumulator>
-{
-public:
-
-	StatType(const char* name, const char* description = "")
-	:	StatType<MemAccumulator>(name, description)
-	{}
-};
-
-template<>
-class StatType<MemAccumulator::DeallocationFacet>
-:	public StatType<MemAccumulator>
-{
-public:
-
-	StatType(const char* name, const char* description = "")
-	:	StatType<MemAccumulator>(name, description)
-	{}
-};
-
-class MemStatHandle : public StatType<MemAccumulator>
-{
-public:
-	typedef StatType<MemAccumulator> stat_t;
-	MemStatHandle(const char* name, const char* description = "")
-	:	stat_t(name, description)
-	{
-		mName = name;
-	}
-
-	void setName(const char* name)
-	{
-        LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
-		mName = name;
-		setKey(name);
-	}
-
-	/*virtual*/ const char* getUnitLabel() const { return "KB"; }
-
-	StatType<MemAccumulator::AllocationFacet>& allocations() 
-	{
-        LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
-		return static_cast<StatType<MemAccumulator::AllocationFacet>&>(*(StatType<MemAccumulator>*)this);
-	}
-
-	StatType<MemAccumulator::DeallocationFacet>& deallocations() 
-	{
-        LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
-		return static_cast<StatType<MemAccumulator::DeallocationFacet>&>(*(StatType<MemAccumulator>*)this);
-	}
-};
-
-
 // measures effective memory footprint of specified type
 // specialize to cover different types
 template<typename T, typename IS_MEM_TRACKABLE = void, typename IS_UNITS = void>
@@ -333,33 +278,6 @@ struct MeasureMem<std::basic_string<T>, IS_MEM_TRACKABLE, IS_BYTES>
 		return value.capacity() * sizeof(T);
 	}
 };
-
-
-template<typename T>
-inline void claim_alloc(MemStatHandle& measurement, const T& value)
-{
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
-#if LL_TRACE_ENABLED
-	auto size = MeasureMem<T>::measureFootprint(value);
-	if(size == 0) return;
-	MemAccumulator& accumulator = measurement.getCurrentAccumulator();
-	accumulator.mSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() + (F64)size : (F64)size);
-	accumulator.mAllocations.record(size);
-#endif
-}
-
-template<typename T>
-inline void disclaim_alloc(MemStatHandle& measurement, const T& value)
-{
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
-#if LL_TRACE_ENABLED
-	auto size = MeasureMem<T>::measureFootprint(value);
-	if(size == 0) return;
-	MemAccumulator& accumulator = measurement.getCurrentAccumulator();
-	accumulator.mSize.sample(accumulator.mSize.hasValue() ? accumulator.mSize.getLastValue() - (F64)size : -(F64)size);
-	accumulator.mDeallocations.add(size);
-#endif
-}
 
 }
 

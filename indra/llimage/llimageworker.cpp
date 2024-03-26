@@ -35,8 +35,10 @@ class ImageRequest
 {
 public:
 	ImageRequest(const LLPointer<LLImageFormatted>& image,
-				 S32 discard, BOOL needs_aux,
-				 const LLPointer<LLImageDecodeThread::Responder>& responder);
+                 S32 discard,
+                 BOOL needs_aux,
+                 const LLPointer<LLImageDecodeThread::Responder>& responder,
+                 U32 request_id);
 	virtual ~ImageRequest();
 
 	/*virtual*/ bool processRequest();
@@ -48,6 +50,7 @@ private:
 	// input
 	LLPointer<LLImageFormatted> mFormattedImage;
 	S32 mDiscardLevel;
+    U32 mRequestId;
 	BOOL mNeedsAux;
 	// output
 	LLPointer<LLImageRaw> mDecodedImageRaw;
@@ -62,6 +65,7 @@ private:
 
 // MAIN THREAD
 LLImageDecodeThread::LLImageDecodeThread(bool /*threaded*/)
+    : mDecodeCount(0)
 {
     mThreadPool.reset(new LL::ThreadPool("ImageDecode", 8));
     mThreadPool->start();
@@ -92,9 +96,10 @@ LLImageDecodeThread::handle_t LLImageDecodeThread::decodeImage(
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 
+    U32 decode_id = ++mDecodeCount;
     // Instantiate the ImageRequest right in the lambda, why not?
     bool posted = mThreadPool->getQueue().post(
-        [req = ImageRequest(image, discard, needs_aux, responder)]
+        [req = ImageRequest(image, discard, needs_aux, responder, decode_id)]
         () mutable
         {
             auto done = req.processRequest();
@@ -103,13 +108,10 @@ LLImageDecodeThread::handle_t LLImageDecodeThread::decodeImage(
     if (! posted)
     {
         LL_DEBUGS() << "Tried to start decoding on shutdown" << LL_ENDL;
-        // should this return 0?
+        return 0;
     }
 
-    // It's important to our consumer (LLTextureFetchWorker) that we return a
-    // nonzero handle. It is NOT important that the nonzero handle be unique:
-    // nothing is ever done with it except to compare it to zero, or zero it.
-    return 17;
+    return decode_id;
 }
 
 void LLImageDecodeThread::shutdown()
@@ -123,15 +125,18 @@ LLImageDecodeThread::Responder::~Responder()
 
 //----------------------------------------------------------------------------
 
-ImageRequest::ImageRequest(const LLPointer<LLImageFormatted>& image, 
-							S32 discard, BOOL needs_aux,
-							const LLPointer<LLImageDecodeThread::Responder>& responder)
+ImageRequest::ImageRequest(const LLPointer<LLImageFormatted>& image,
+                           S32 discard,
+                           BOOL needs_aux,
+                           const LLPointer<LLImageDecodeThread::Responder>& responder,
+                           U32 request_id)
 	: mFormattedImage(image),
 	  mDiscardLevel(discard),
 	  mNeedsAux(needs_aux),
 	  mDecodedRaw(FALSE),
 	  mDecodedAux(FALSE),
-	  mResponder(responder)
+	  mResponder(responder),
+	  mRequestId(request_id)
 {
 }
 
@@ -199,7 +204,7 @@ void ImageRequest::finishRequest(bool completed)
 	if (mResponder.notNull())
 	{
 		bool success = completed && mDecodedRaw && (!mNeedsAux || mDecodedAux);
-		mResponder->completed(success, mDecodedImageRaw, mDecodedImageAux);
+		mResponder->completed(success, mDecodedImageRaw, mDecodedImageAux, mRequestId);
 	}
 	// Will automatically be deleted
 }

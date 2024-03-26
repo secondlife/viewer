@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel
   bevel_style="none"
   border_style="line"
@@ -44,10 +44,12 @@
       layout="topleft"
       left="0"
       mouse_opaque="false"
+      font="SansSerif"
       name="File"
       width="138">
       <menu_item_call
         label="Save"
+        shortcut="control|S"
         layout="topleft"
         name="Save" />
       <menu_item_separator
@@ -66,16 +68,6 @@
         label="Save to file..."
         layout="topleft"
         name="SaveToFile" />
-          <menu_item_separator
-           layout="topleft" />
-          <menu_item_call
-           label="Colors..."
-           layout="topleft"
-           name="Colors">
-            <menu_item_call.on_click
-             function="Floater.Toggle"
-             parameter="script_colors"/>
-          </menu_item_call>
     </menu>
     <menu
       top="0"
@@ -83,6 +75,7 @@
       label="Edit"
       layout="topleft"
       mouse_opaque="false"
+      font="SansSerif"
       name="Edit"
       width="139">
       <menu_item_call
@@ -117,6 +110,7 @@
         name="separator2" />
       <menu_item_call
         label="Select All"
+        shortcut="control|A"
         layout="topleft"
         name="Select All" />
       <menu_item_call
@@ -142,6 +136,7 @@
       label="Help"
       layout="topleft"
       mouse_opaque="false"
+      font="SansSerif"
       name="Help"
       width="112">
       <menu_item_call
@@ -150,12 +145,34 @@
         name="Keyword Help..." />
     </menu>
   </menu_bar>
+  <menu_button
+   follows="right|top"
+   height="24"
+   image_overlay="Icon_Font_Size"
+   layout="topleft"
+   top_delta="-2"
+   right="453"
+   name="font_btn"
+   width="32" />
+  <button
+   follows="right|top"
+   height="24"
+   image_overlay="Icon_Color_Palette"
+   layout="topleft"
+   top_delta="0"
+   right="487"
+   name="color_btn"
+   width="32">
+    <button.commit_callback
+      function="Floater.Toggle"
+      parameter="script_colors"/>
+  </button>
     <script_editor
     left="0"
     type="string"
     length="1"
     follows="left|top|right|bottom"
-    font="Monospace"
+
      height="376"
     ignore_tab="false"
     layout="topleft"

@@ -5503,7 +5503,7 @@ void on_new_single_inventory_upload_complete(
         }
         else
         {
-            LLInventoryPanel::openInventoryPanelAndSetSelection(TRUE, server_response["new_inventory_item"].asUUID(), TRUE, TAKE_FOCUS_NO, TRUE);
+            LLInventoryPanel::openInventoryPanelAndSetSelection(true, server_response["new_inventory_item"].asUUID(), true, false, true);
         }
 
         // restore keyboard focus

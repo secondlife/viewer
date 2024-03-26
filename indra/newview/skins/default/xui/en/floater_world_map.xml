@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater
  legacy_header_height="18"
  can_resize="true"
@@ -241,7 +241,7 @@
      image_name="legend.tga"
      layout="topleft"
      mouse_opaque="true"
-     name="square2"
+     name="square2_auction"
      left="20"
      top_pad="2"
      width="16" />
@@ -264,7 +264,7 @@
      image_name="legend.tga"
      layout="topleft"
      mouse_opaque="true"
-     name="square2"
+     name="square2_owner"
      left="20"
      top_pad="-5"
      width="16" />

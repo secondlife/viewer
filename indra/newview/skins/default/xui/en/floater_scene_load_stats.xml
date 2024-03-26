@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater legacy_header_height="18"
          can_resize="true"
          height="400"
@@ -119,7 +119,7 @@
                     tick_spacing="100"
                     show_history="true"
                     show_bar="false"/>
-          <stat_bar name="texture_decode_latency"
+          <stat_bar name="texture_write_latency"
                     label="Cache Write Latency"
                     orientation="horizontal"
                     unit_label="sec"

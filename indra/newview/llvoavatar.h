@@ -277,7 +277,7 @@ public:
     void			updateTimeStep();
     void			updateRootPositionAndRotation(LLAgent &agent, F32 speed, bool was_sit_ground_constrained);
     
-	void 			idleUpdateVoiceVisualizer(bool voice_enabled);
+	void            idleUpdateVoiceVisualizer(bool voice_enabled, const LLVector3 &position);
 	void 			idleUpdateMisc(bool detailed_update);
 	virtual void	idleUpdateAppearanceAnimation();
 	void 			idleUpdateLipSync(bool voice_enabled);
@@ -285,7 +285,6 @@ public:
 	void 			idleUpdateWindEffect();
 	void 			idleUpdateNameTag(const LLVector3& root_pos_last);
 	void			idleUpdateNameTagText(bool new_name);
-	void			idleUpdateNameTagPosition(const LLVector3& root_pos_last);
 	void			idleUpdateNameTagAlpha(bool new_name, F32 alpha);
 	LLColor4		getNameTagColor(bool is_friend);
 	void			clearNameTag();
@@ -343,6 +342,8 @@ public:
 	void 			idleUpdateBelowWater();
 
 	static void updateNearbyAvatarCount();
+
+    LLVector3 idleCalcNameTagPosition(const LLVector3 &root_pos_last);
 
 	//--------------------------------------------------------------------
 	// Static preferences (controlled by user settings/menus)

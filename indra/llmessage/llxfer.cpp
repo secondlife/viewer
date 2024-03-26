@@ -386,12 +386,3 @@ std::ostream& operator<< (std::ostream& os, LLXfer &hh)
 	os << hh.getFileName() ;
 	return os;
 }
-
-
-
-
-
-
-
-
-

@@ -917,7 +917,7 @@ void LLMemoryInfo::stream(std::ostream& s) const
 	// Now stream stats
 	BOOST_FOREACH(const MapEntry& pair, inMap(mStatsMap))
 	{
-		s << pfx << std::setw(narrow(key_width+1)) << (pair.first + ':') << ' ';
+		s << pfx << std::setw(narrow<size_t>(key_width+1)) << (pair.first + ':') << ' ';
 		LLSD value(pair.second);
 		if (value.isInteger())
 			s << std::setw(12) << value.asInteger();

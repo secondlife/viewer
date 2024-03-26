@@ -135,14 +135,14 @@ private:
 	// localized and parameterized strings that used to build avatar_height_label
 	std::string mMeters;
 	std::string mFeet;
-	std::string mHeigth;
-	LLUIString  mHeigthValue;
+	std::string mHeight;
+	LLUIString  mHeightValue;
 	LLUIString  mReplacementMetricUrl;
 
-	// color for mHeigth string
-	LLUIColor mAvatarHeigthLabelColor;
-	// color for mHeigthValue string
-	LLUIColor mAvatarHeigthValueLabelColor;
+	// color for mHeight string
+	LLUIColor mAvatarHeightLabelColor;
+	// color for mHeightValue string
+	LLUIColor mAvatarHeightValueLabelColor;
 
 	// This text editor reference will change each time we edit a new wearable - 
 	// it will be grabbed from the currently visible panel

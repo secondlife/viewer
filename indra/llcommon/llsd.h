@@ -197,12 +197,12 @@ public:
 				  typename std::enable_if<std::is_integral<VALUE>::value &&
 										  ! std::is_same<VALUE, Boolean>::value,
 										  bool>::type = true>
-		LLSD(VALUE v): LLSD(Integer(narrow(v))) {}
+		LLSD(VALUE v): LLSD(Integer(narrow<VALUE>(v))) {}
 		// support construction from F32 et al.
 		template <typename VALUE,
 				  typename std::enable_if<std::is_floating_point<VALUE>::value,
 										  bool>::type = true>
-		LLSD(VALUE v): LLSD(Real(narrow(v))) {}
+		LLSD(VALUE v): LLSD(Real(narrow<VALUE>(v))) {}
 	//@}
 	
 	/** @name Scalar Assignment */

@@ -71,3 +71,9 @@ void launchApplication(const std::string* app_name, const std::vector<std::strin
     [pool release];
 	return;
 }
+
+void force_ns_sxeption()
+{
+    NSException *exception = [NSException exceptionWithName:@"Forced NSException" reason:nullptr userInfo:nullptr];
+    @throw exception;
+}
