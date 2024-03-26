@@ -126,6 +126,7 @@ public:
 
 	LLRender::eTexIndex getTextureChannelToEdit();
     LLRender::eTexIndex getTextureDropChannel();
+    LLGLTFMaterial::TextureInfo getPBRDropChannel();
 
 protected:
     void			navigateToTitleMedia(const std::string url);

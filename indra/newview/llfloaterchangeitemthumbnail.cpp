@@ -867,7 +867,8 @@ void LLFloaterChangeItemThumbnail::showTexturePicker(const LLUUID &thumbnail_id)
             PERM_NONE,
             PERM_NONE,
             false,
-            NULL);
+            NULL,
+            PICK_TEXTURE);
 
         mPickerHandle = floaterp->getHandle();
 

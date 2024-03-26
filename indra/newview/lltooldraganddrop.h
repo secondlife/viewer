@@ -249,17 +249,20 @@ public:
                             ESource source,
                             const LLUUID& src_id,
                             bool all_faces,
+                            bool replace_pbr,
                             S32 tex_channel = -1);
 	static void dropTextureOneFace(LLViewerObject* hit_obj,
                                    S32 hit_face,
 								   LLInventoryItem* item,
 								   ESource source,
 								   const LLUUID& src_id,
+                                   bool remove_pbr,
                                    S32 tex_channel = -1);
 	static void dropTextureAllFaces(LLViewerObject* hit_obj,
 									LLInventoryItem* item,
 									ESource source,
-									const LLUUID& src_id);
+									const LLUUID& src_id,
+                                    bool remove_pbr);
     static void dropMaterial(LLViewerObject* hit_obj,
                              S32 hit_face,
                              LLInventoryItem* item,

@@ -1353,6 +1353,7 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
                 scratch = new(std::nothrow) U32[width * height];
                 if (!scratch)
                 {
+                    LLError::LLUserWarningMsg::showOutOfMemory();
                     LL_ERRS() << "Failed to allocate " << (U32)(width * height * sizeof(U32))
                               << " bytes for a manual image W" << width << " H" << height << LL_ENDL;
                 }
@@ -1378,6 +1379,7 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
                 scratch = new(std::nothrow) U32[width * height];
                 if (!scratch)
                 {
+                    LLError::LLUserWarningMsg::showOutOfMemory();
                     LL_ERRS() << "Failed to allocate " << (U32)(width * height * sizeof(U32))
                         << " bytes for a manual image W" << width << " H" << height << LL_ENDL;
                 }
@@ -1406,6 +1408,7 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
                 scratch = new(std::nothrow) U32[width * height];
                 if (!scratch)
                 {
+                    LLError::LLUserWarningMsg::showOutOfMemory();
                     LL_ERRS() << "Failed to allocate " << (U32)(width * height * sizeof(U32))
                         << " bytes for a manual image W" << width << " H" << height << LL_ENDL;
                 }

@@ -450,6 +450,7 @@ bool LLImageDXT::convertToDXR()
 	U8* newdata = (U8*)ll_aligned_malloc_16(total_bytes);
 	if (!newdata)
 	{
+        LLError::LLUserWarningMsg::showOutOfMemory();
 		LL_ERRS() << "Out of memory in LLImageDXT::convertToDXR()" << LL_ENDL;
 		return false;
 	}
