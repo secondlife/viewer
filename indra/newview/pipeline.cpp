@@ -8365,7 +8365,7 @@ void LLPipeline::doWaterHaze()
         else
         {
             //render water patches like LLDrawPoolWater does
-            LLGLDepthTest depth(GL_FALSE);
+            LLGLDepthTest depth(GL_TRUE, GL_FALSE);
             LLGLDisable   cull(GL_CULL_FACE);
 
             gGLLastMatrix = NULL;

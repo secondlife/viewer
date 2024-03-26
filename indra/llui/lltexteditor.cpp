@@ -2695,6 +2695,7 @@ BOOL LLTextEditor::importBuffer(const char* buffer, S32 length )
 	char* text = new char[ text_len + 1];
 	if (text == NULL)
 	{
+        LLError::LLUserWarningMsg::showOutOfMemory();
 		LL_ERRS() << "Memory allocation failure." << LL_ENDL;			
 		return FALSE;
 	}
