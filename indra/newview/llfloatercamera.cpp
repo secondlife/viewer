@@ -248,23 +248,25 @@ void activate_camera_tool()
 
 class LLCameraInfoPanel : public LLPanel
 {
-    const S32 MARGIN { 10 };
-
-    const char* mTitle;
-    const LLCoordFrame* mCamera;
-    const LLFontGL* mFont;
-
 public:
-    LLCameraInfoPanel(const LLView* parent, const LLCoordFrame* camera, const char* title)
-        : LLPanel([&]() -> LLPanel::Params
-            {
-                LLPanel::Params params;
-                params.rect = LLRect(parent->getLocalRect());
-                return params;
-            }())
-        , mTitle(title)
-        , mCamera(camera)
-        , mFont(LLFontGL::getFontSansSerifBig())
+    typedef std::function<LLVector3()> get_vector_t;
+
+    LLCameraInfoPanel(
+        const LLView* parent,
+        const char* title,
+        const LLCoordFrame& camera,
+        const get_vector_t get_focus
+    )
+    : LLPanel([&]() -> LLPanel::Params
+        {
+            LLPanel::Params params;
+            params.rect = LLRect(parent->getLocalRect());
+            return params;
+        }())
+    , mTitle(title)
+    , mCamera(camera)
+    , mGetFocus(get_focus)
+    , mFont(LLFontGL::getFontSansSerifBig())
     {
     }
 
@@ -272,25 +274,44 @@ public:
     {
         LLPanel::draw();
 
+        static const U32 HPADDING = 10;
+        static const U32 VPADDING = 5;
+        LLVector3 focus = mGetFocus();
+        LLVector3 sight = focus - mCamera.mOrigin;
+        std::pair<const char*, const LLVector3&> const data[] =
+        {
+            { "Origin:", mCamera.mOrigin },
+            { "X Axis:", mCamera.mXAxis },
+            { "Y Axis:", mCamera.mYAxis },
+            { "Z Axis:", mCamera.mZAxis },
+            { "Focus:", focus },
+            { "Sight:", sight }
+        };
         S32 width = getRect().getWidth();
         S32 height = getRect().getHeight();
-        S32 top = MARGIN / 2 + (height - MARGIN) / 10 * 9;
-        mFont->renderUTF8(mTitle, 0, MARGIN, top, LLColor4::white, LLFontGL::LEFT, LLFontGL::VCENTER);
-        const LLVector3* const vectors[] = { &mCamera->getOrigin(), &mCamera->getXAxis(), &mCamera->getYAxis(), &mCamera->getZAxis() };
-        for (int row = 0; row < 4; ++row)
+        S32 row_count = 1 + sizeof(data) / sizeof(*data);
+        S32 row_height = (height - VPADDING * 2) / row_count;
+        S32 top = height - VPADDING - row_height / 2;
+        mFont->renderUTF8(mTitle, 0, HPADDING, top, LLColor4::white, LLFontGL::LEFT, LLFontGL::VCENTER);
+        for (const auto& row : data)
         {
-            top -= (height - MARGIN) / 5;
-            static const char* const labels[] = { "Origin:", "X Axis:", "Y Axis:", "Z Axis:" };
-            mFont->renderUTF8(labels[row], 0, MARGIN, top, LLColor4::white, LLFontGL::LEFT, LLFontGL::VCENTER);
-            const LLVector3& vector = *vectors[row];
-            for (int col = 0; col < 3; ++col)
+            top -= row_height;
+            mFont->renderUTF8(row.first, 0, HPADDING, top, LLColor4::white, LLFontGL::LEFT, LLFontGL::VCENTER);
+            const LLVector3& vector = row.second;
+            for (S32 i = 0; i < 3; ++i)
             {
-                std::string text = llformat("%.6f", vector[col]);
-                S32 right = width / 4 * (col + 2) - MARGIN;
+                std::string text = llformat("%.6f", vector[i]);
+                S32 right = width / 4 * (i + 2) - HPADDING;
                 mFont->renderUTF8(text, 0, right, top, LLColor4::white, LLFontGL::RIGHT, LLFontGL::VCENTER);
             }
         }
     }
+
+private:
+    const char* mTitle;
+    const LLCoordFrame& mCamera;
+    const get_vector_t mGetFocus;
+    const LLFontGL* mFont;
 };
 
 //
@@ -344,8 +365,10 @@ void LLFloaterCamera::showDebugInfo(bool show)
     // Initially LLPanel contains 1 child "view_border"
     if (show && mViewerCameraInfo->getChildCount() < 2)
     {
-        mViewerCameraInfo->addChild(new LLCameraInfoPanel(mViewerCameraInfo, LLViewerCamera::getInstance(), "Viewer Camera"));
-        mAgentCameraInfo->addChild(new LLCameraInfoPanel(mAgentCameraInfo, &gAgent.getFrameAgent(), "Agent Camera"));
+        mViewerCameraInfo->addChild(new LLCameraInfoPanel(mViewerCameraInfo, "Viewer Camera", *LLViewerCamera::getInstance(),
+            []() { return LLViewerCamera::getInstance()->getPointOfInterest(); }));
+        mAgentCameraInfo->addChild(new LLCameraInfoPanel(mAgentCameraInfo, "Agent Camera", gAgent.getFrameAgent(),
+            []() { return gAgent.getPosAgentFromGlobal(gAgentCamera.calcFocusPositionTargetGlobal()); }));
     }
 
     mAgentCameraInfo->setVisible(show);

@@ -258,16 +258,16 @@
     left="0"
     top="135"
     width="400"
-    height="130"
+    height="150"
     border="true"
     visible="false"
     background_visible="true"/>
   <panel
     name="agent_camera_info"
     left="0"
-    top="265"
+    top="285"
     width="400"
-    height="130"
+    height="150"
     border="true"
     visible="false"
     background_visible="true"/>
