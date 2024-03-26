@@ -36,14 +36,4 @@ function util.equal(t1, t2)
     return util.empty(temp)
 end
 
--- check if array-like table contains certain value
-function util.contains(t, v)
-    for _, value in ipairs(t) do
-        if value == v then
-            return true
-        end
-    end
-    return false
-end
-
 return util

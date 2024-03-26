@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  legacy_header_height="18"
- height="150"
+ height="300"
  layout="topleft"
  name="lua_demo"
  title="LUA"
@@ -79,4 +79,15 @@
      text_color="white"
      left_delta="15"
      name="time_lbl"/>
+    <text_editor
+     follows="top|left"
+     font="SansSerif"
+     height="140"
+     left="5"
+     enabled="false"
+     name="events_editor"
+     top_pad="15"
+     word_wrap="true"
+     max_length="65536"
+     width="310"/>
 </floater>
