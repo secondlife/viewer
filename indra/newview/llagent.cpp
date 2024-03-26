@@ -1468,23 +1468,27 @@ void LLAgent::pitch(F32 angle)
 
 	LLVector3 skyward = getReferenceUpVector();
 
-	// SL-19286 Avatar is upside down when viewed from below
-	// after left-clicking the mouse on the avatar and dragging down
-	//
-	// The issue is observed on angle below 10 degrees
-	const F32 look_down_limit = 179.f * DEG_TO_RAD;
-	const F32 look_up_limit   =  10.f * DEG_TO_RAD;
-
-	F32 angle_from_skyward = acos(mFrameAgent.getAtAxis() * skyward);
-
 	// clamp pitch to limits
-	if ((angle >= 0.f) && (angle_from_skyward + angle > look_down_limit))
+	if (angle >= 0.f)
 	{
-		angle = look_down_limit - angle_from_skyward;
+		const F32 look_down_limit = 179.f * DEG_TO_RAD;
+		F32 angle_from_skyward = acos(mFrameAgent.getAtAxis() * skyward);
+		if (angle_from_skyward + angle > look_down_limit)
+		{
+			angle = look_down_limit - angle_from_skyward;
+		}
 	}
-	else if ((angle < 0.f) && (angle_from_skyward + angle < look_up_limit))
+	else if (angle < 0.f)
 	{
-		angle = look_up_limit - angle_from_skyward;
+		const F32 look_up_limit = 5.f * DEG_TO_RAD;
+		const LLVector3& viewer_camera_pos = LLViewerCamera::getInstance()->getOrigin();
+		LLVector3 agent_focus_pos = getPosAgentFromGlobal(gAgentCamera.calcFocusPositionTargetGlobal());
+		LLVector3 look_dir = agent_focus_pos - viewer_camera_pos;
+		F32 angle_from_skyward = angle_between(look_dir, skyward);
+		if (angle_from_skyward + angle < look_up_limit)
+		{
+			angle = look_up_limit - angle_from_skyward;
+		}
 	}
 
 	if (fabs(angle) > 1e-4)
