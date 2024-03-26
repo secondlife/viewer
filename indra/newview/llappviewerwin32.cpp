@@ -75,7 +75,7 @@
 // Bugsplat (http://bugsplat.com) crash reporting tool
 #ifdef LL_BUGSPLAT
 #include "BugSplat.h"
-#include "json/reader.h"                 // JsonCpp
+#include "boost/json.hpp"                 // Boost.Json
 #include "llagent.h"                // for agent location
 #include "llviewerregion.h"
 #include "llvoavatarself.h"         // for agent name
@@ -722,24 +722,25 @@ bool LLAppViewerWin32::init()
         }
         else
         {
-            Json::Reader reader;
-            Json::Value build_data;
-            if (!reader.parse(inf, build_data, false)) // don't collect comments
+            boost::json::error_code ec;
+            boost::json::value build_data = boost::json::parse(bas, ec);
+            if(ec.failed())
             {
                 // gah, the typo is baked into Json::Reader API
                 LL_WARNS("BUGSPLAT") << "Can't initialize BugSplat, can't parse '" << build_data_fname
-                    << "': " << reader.getFormatedErrorMessages() << LL_ENDL;
+                    << "': " << ec.what() << LL_ENDL;
             }
             else
             {
-                Json::Value BugSplat_DB = build_data["BugSplat DB"];
-                if (!BugSplat_DB)
+                if (!build_data.is_object() || !build_data.as_object().contains("BugSplat DB"))
                 {
                     LL_WARNS("BUGSPLAT") << "Can't initialize BugSplat, no 'BugSplat DB' entry in '"
                         << build_data_fname << "'" << LL_ENDL;
                 }
                 else
                 {
+                	boost::json::value BugSplat_DB = build_data.at("BugSplat DB");
+
                     // Got BugSplat_DB, onward!
                     std::wstring version_string(WSTRINGIZE(LL_VIEWER_VERSION_MAJOR << '.' <<
                         LL_VIEWER_VERSION_MINOR << '.' <<
@@ -761,7 +762,7 @@ bool LLAppViewerWin32::init()
 
                     // have to convert normal wide strings to strings of __wchar_t
                     sBugSplatSender = new MiniDmpSender(
-                        WCSTR(BugSplat_DB.asString()),
+                        WCSTR(boost::json::value_to<std::string>(BugSplat_DB)),
                         WCSTR(LL_TO_WSTRING(LL_VIEWER_CHANNEL)),
                         WCSTR(version_string),
                         nullptr,              // szAppIdentifier -- set later
