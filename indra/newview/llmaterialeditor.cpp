@@ -43,6 +43,7 @@
 #include "llnotificationsutil.h"
 #include "lltexturectrl.h"
 #include "lltrans.h"
+#include "llviewercontrol.h"
 #include "llviewermenufile.h"
 #include "llviewertexture.h"
 #include "llsdutil.h"
@@ -447,6 +448,8 @@ BOOL LLMaterialEditor::postBuild()
     mMetallicTextureCtrl->setCommitCallback(boost::bind(&LLMaterialEditor::onCommitTexture, this, _1, _2, MATERIAL_METALLIC_ROUGHTNESS_TEX_DIRTY));
     mEmissiveTextureCtrl->setCommitCallback(boost::bind(&LLMaterialEditor::onCommitTexture, this, _1, _2, MATERIAL_EMISIVE_TEX_DIRTY));
     mNormalTextureCtrl->setCommitCallback(boost::bind(&LLMaterialEditor::onCommitTexture, this, _1, _2, MATERIAL_NORMAL_TEX_DIRTY));
+
+    mNormalTextureCtrl->setBlankImageAssetID(BLANK_OBJECT_NORMAL);
 
     if (mIsOverride)
     {
@@ -1376,10 +1379,23 @@ bool LLMaterialEditor::saveIfNeeded()
         LLPermissions local_permissions;
         local_permissions.init(gAgent.getID(), gAgent.getID(), LLUUID::null, LLUUID::null);
 
-        U32 everyone_perm = LLFloaterPerms::getEveryonePerms("Materials");
-        U32 group_perm = LLFloaterPerms::getGroupPerms("Materials");
-        U32 next_owner_perm = LLFloaterPerms::getNextOwnerPerms("Materials");
-        local_permissions.initMasks(PERM_ALL, PERM_ALL, everyone_perm, group_perm, next_owner_perm);
+        if (mIsOverride)
+        {
+            // Shouldn't happen, but just in case it ever changes
+            U32 everyone_perm = LLFloaterPerms::getEveryonePerms("Materials");
+            U32 group_perm = LLFloaterPerms::getGroupPerms("Materials");
+            U32 next_owner_perm = LLFloaterPerms::getNextOwnerPerms("Materials");
+            local_permissions.initMasks(PERM_ALL, PERM_ALL, everyone_perm, group_perm, next_owner_perm);
+
+        }
+        else
+        {
+            // Uploads are supposed to use Upload permissions, not material permissions
+            U32 everyone_perm = LLFloaterPerms::getEveryonePerms("Uploads");
+            U32 group_perm = LLFloaterPerms::getGroupPerms("Uploads");
+            U32 next_owner_perm = LLFloaterPerms::getNextOwnerPerms("Uploads");
+            local_permissions.initMasks(PERM_ALL, PERM_ALL, everyone_perm, group_perm, next_owner_perm);
+        }
 
         std::string res_desc = buildMaterialDescription();
         createInventoryItem(buffer, mMaterialName, res_desc, local_permissions);

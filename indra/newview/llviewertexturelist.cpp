@@ -121,8 +121,17 @@ void LLViewerTextureList::doPreloadImages()
 	LLTexUnit::sWhiteTexture = LLViewerFetchedTexture::sWhiteImagep->getTexName();
 	LLUIImageList* image_list = LLUIImageList::getInstance();
 
-	// Set the default flat normal map
-	LLViewerFetchedTexture::sFlatNormalImagep = LLViewerTextureManager::getFetchedTextureFromFile("flatnormal.tga", FTT_LOCAL_FILE, MIPMAP_NO, LLViewerFetchedTexture::BOOST_BUMP);
+    // Set the default flat normal map
+    // BLANK_OBJECT_NORMAL has a version on dataserver, but it has compression artifacts
+    LLViewerFetchedTexture::sFlatNormalImagep =
+        LLViewerTextureManager::getFetchedTextureFromFile("flatnormal.tga",
+                                                          FTT_LOCAL_FILE,
+                                                          MIPMAP_NO,
+                                                          LLViewerFetchedTexture::BOOST_BUMP,
+                                                          LLViewerTexture::FETCHED_TEXTURE,
+                                                          0,
+                                                          0,
+                                                          BLANK_OBJECT_NORMAL);
 
 	// PBR: irradiance
 	LLViewerFetchedTexture::sDefaultIrradiancePBRp = LLViewerTextureManager::getFetchedTextureFromFile("default_irradiance.png", FTT_LOCAL_FILE, MIPMAP_YES, LLViewerFetchedTexture::BOOST_UI);
