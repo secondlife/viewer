@@ -682,6 +682,15 @@ std::pair<LuaFunction::Registry&, LuaFunction::Lookup&> LuaFunction::getState()
 }
 
 /*****************************************************************************
+*   check_stop()
+*****************************************************************************/
+lua_function(check_stop, "ensure that a Lua script responds to viewer shutdown")
+{
+    LLCoros::checkStop();
+    return 0;
+}
+
+/*****************************************************************************
 *   help()
 *****************************************************************************/
 lua_function(help,

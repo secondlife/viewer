@@ -222,8 +222,6 @@ local function scheduler()
     -- processing to the main thread. If called from a coroutine, pass control
     -- back to the main thread.
     if coroutine.running() then
-        -- seize the opportunity to make sure the viewer isn't shutting down
---      check_stop()
         -- this is a real coroutine, yield normally to main thread
         coroutine.yield()
         -- main certainly still exists
@@ -240,7 +238,7 @@ local function scheduler()
     repeat
         for co in live_ready_iter do
             -- seize the opportunity to make sure the viewer isn't shutting down
---          check_stop()
+            LL.check_stop()
             -- before we re-append co, is it the only remaining entry?
             others = next(ready)
             -- co is live, re-append it to the ready list
