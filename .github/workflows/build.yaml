@@ -65,7 +65,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Setup python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -86,7 +86,7 @@ jobs:
         run: pip3 install autobuild llsd
 
       - name: Cache autobuild packages
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         id: cache-installables
         with:
           path: .autobuild-installables
