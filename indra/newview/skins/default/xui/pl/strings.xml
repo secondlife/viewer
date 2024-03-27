@@ -3318,6 +3318,9 @@ Jeżeli nadal otrzymujesz ten komunikat, skontaktuj się z [SUPPORT_SITE].
 	<string name="Full Sides">
 		Gęste boki
 	</string>
+	<string name="Gender">
+		Płeć
+	</string>
 	<string name="Glossy">
 		Błyszcząca
 	</string>

@@ -202,57 +202,6 @@
          top="10"
          value="Shape:"
          width="150" />
-        <radio_group
-         control_name="AvatarSex"
-         follows="top|right"
-         height="20"
-         layout="topleft"
-         left="210"
-         name="sex_radio"
-         top="5"
-         width="110">
-            <radio_item
-             follows="all"
-             height="16"
-             label=""
-             layout="topleft"
-             left="0"
-             name="sex_male"
-             tool_tip="Male"
-             value="1"
-             width="40" />
-            <radio_item
-             follows="all"
-             height="16"
-             label=""
-             layout="topleft"
-             left_pad="10"
-             name="sex_female"
-             tool_tip="Female"
-             value="0"
-             width="40"/>
-        </radio_group>
-        <!--  graphical labels for the radio buttons above -->
-        <icon
-         follows="top|right"
-         height="16"
-         image_name="icons/Male.png"
-         layout="topleft"
-         left="230"
-         name="male_icon"
-         tool_tip="Male"
-         top="7"
-         width="16" />
-        <icon
-         follows="top|right"
-         height="16"
-         image_name="icons/Female.png"
-         layout="topleft"
-         left="280"
-         name="female_icon"
-         tool_tip="Female"
-         top="7"
-         width="16" />
         <line_editor
          follows="all"
          height="23"

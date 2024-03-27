@@ -424,6 +424,7 @@ void LLFloaterEmojiPicker::fillGroups()
 
     LLButton::Params params;
     params.font = LLFontGL::getFontEmoji();
+    params.name = "all_categories";
 
     LLRect rect;
     rect.mTop = mGroups->getRect().getHeight();

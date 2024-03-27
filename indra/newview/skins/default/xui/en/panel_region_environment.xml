@@ -264,8 +264,7 @@
                                 top_pad="1"
                                 halign="right"
                                 name="txt_alt1">
-                            Sky [INDEX]
-                            [ALTITUDE]m
+                            Sky [INDEX]&#xA;[ALTITUDE]m
                         </text>
                         <line_editor
                                 follows="left|top"
@@ -310,8 +309,7 @@
                                 top_pad="1"
                                 halign="right"
                                 name="txt_alt2">
-                            Sky [INDEX]
-                            [ALTITUDE]m
+                            Sky [INDEX]&#xA;[ALTITUDE]m
                         </text>
                         <line_editor
                                 follows="left|top"
@@ -356,8 +354,7 @@
                                 top_pad="1"
                                 halign="right"
                                 name="txt_alt3">
-                            Sky [INDEX]
-                            [ALTITUDE]m
+                            Sky [INDEX]&#xA;[ALTITUDE]m
                         </text>
                         <line_editor
                                 follows="left|top"

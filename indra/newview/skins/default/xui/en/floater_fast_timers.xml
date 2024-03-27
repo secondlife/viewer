@@ -74,6 +74,8 @@
         orientation="vertical"
         step_size="16"
         doc_size="3000"
+        page_size="50"
+        doc_pos="0"
           />
     </layout_panel>
     <layout_panel name="timers_panel"
