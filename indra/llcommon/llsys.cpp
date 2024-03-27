@@ -1352,6 +1352,10 @@ BOOL gunzip_file(const std::string& srcfile, const std::string& dstfile)
 	} while(gzeof(src) == 0);
 	fclose(dst); 
 	dst = NULL;	
+#if LL_WINDOWS
+    // Rename in windows needs the dstfile to not exist.
+    LLFile::remove(dstfile, ENOENT);
+#endif
 	if (LLFile::rename(tmpfile, dstfile) == -1) goto err;		/* Flawfinder: ignore */
 	retval = TRUE;
 err:

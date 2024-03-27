@@ -2705,6 +2705,17 @@ bool LLInventoryModel::loadSkeleton(
 		gzip_filename.append(".gz");
 		LLFILE* fp = LLFile::fopen(gzip_filename, "rb");
 		bool remove_inventory_file = false;
+        if (LLAppViewer::instance()->isSecondInstance())
+        {
+            // Safeguard viewer against trying to unpack file twice
+            // ex: user logs into two accounts simultaneously, so two
+            // viewers are trying to unpack library into same file
+            // 
+            // Would be better to do it in gunzip_file, but it doesn't
+            // have access to llfilesystem
+            inventory_filename = gDirUtilp->getTempFilename();
+            remove_inventory_file = true;
+        }
 		if(fp)
 		{
 			fclose(fp);
@@ -2913,7 +2924,7 @@ bool LLInventoryModel::loadSkeleton(
 			// clean up the gunzipped file.
 			LLFile::remove(inventory_filename);
 		}
-		if(is_cache_obsolete)
+		if(is_cache_obsolete && !LLAppViewer::instance()->isSecondInstance())
 		{
 			// If out of date, remove the gzipped file too.
 			LL_WARNS(LOG_INV) << "Inv cache out of date, removing" << LL_ENDL;
