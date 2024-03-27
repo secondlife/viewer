@@ -508,12 +508,14 @@ void LLRequireResolver::runModule(const std::string& desc, const std::string& co
     // Module needs to run in a new thread, isolated from the rest.
     // Note: we create ML on main thread so that it doesn't inherit environment of L.
     lua_State *GL = lua_mainthread(L);
-    lua_State *ML = lua_newthread(GL);
+//  lua_State *ML = lua_newthread(GL);
+    // Try loading modules on Lua's main thread instead.
+    lua_State *ML = GL;
     // lua_newthread() pushed the new thread object on GL's stack. Move to L's.
-    lua_xmove(GL, L, 1);
+//  lua_xmove(GL, L, 1);
 
     // new thread needs to have the globals sandboxed
-    luaL_sandboxthread(ML);
+//  luaL_sandboxthread(ML);
 
     {
         // If loadstring() returns (! LUA_OK) then there's an error message on
@@ -523,7 +525,9 @@ void LLRequireResolver::runModule(const std::string& desc, const std::string& co
         {
             // luau uses Lua 5.3's version of lua_resume():
             // run the coroutine on ML, "from" L, passing no arguments.
-            int status = lua_resume(ML, L, 0);
+//          int status = lua_resume(ML, L, 0);
+            // we expect one return value
+            int status = lua_pcall(ML, 0, 1, 0);
 
             if (status == LUA_OK)
             {
@@ -545,9 +549,12 @@ void LLRequireResolver::runModule(const std::string& desc, const std::string& co
     }
     // There's now a return value (string error message or module) on top of ML.
     // Move return value to L's stack.
-    lua_xmove(ML, L, 1);
+    if (ML != L)
+    {
+        lua_xmove(ML, L, 1);
+    }
     // remove ML from L's stack
-    lua_remove(L, -2);
+//  lua_remove(L, -2);
 //  // DON'T call lua_close(ML)! Since ML is only a thread of L, corrupts L too!    
 //  lua_close(ML);
 }
