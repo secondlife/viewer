@@ -111,8 +111,7 @@ void LLFloaterLUADebug::runSelectedScript(const std::vector<std::string> &filena
     if (!filepath.empty())
     {
         mScriptPath->setText(filepath);
-        cleanLuaState(); 
-        LLLUAmanager::runScriptFile(mState, filepath, [this](int count, const LLSD& result)
+        LLLUAmanager::runScriptFile(filepath, [this](int count, const LLSD &result)
         {
             completion(count, result);
         });
