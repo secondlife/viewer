@@ -859,52 +859,6 @@
         <key>description</key>
         <string>glh - is a platform-indepenedent C++ OpenGL helper library</string>
       </map>
-      <key>googlemock</key>
-      <map>
-        <key>platforms</key>
-        <map>
-          <key>darwin64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>dce3174b12136746f5f910e311e895c1b47bf8fb</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
-              <key>url</key>
-              <string>https://github.com/secondlife/3p-googlemock/releases/download/v1.7.0.2b109d4/googlemock-1.7.0.2b109d4-darwin64-2b109d4.tar.zst</string>
-            </map>
-            <key>name</key>
-            <string>darwin64</string>
-          </map>
-          <key>windows64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>265813f84b04c3b03f3d7d33e149b3d5e3cf31db</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
-              <key>url</key>
-              <string>https://github.com/secondlife/3p-googlemock/releases/download/v1.7.0.2b109d4/googlemock-1.7.0.2b109d4-windows64-2b109d4.tar.zst</string>
-            </map>
-            <key>name</key>
-            <string>windows64</string>
-          </map>
-        </map>
-        <key>license</key>
-        <string>BSD</string>
-        <key>license_file</key>
-        <string>LICENSES/gmock.txt</string>
-        <key>copyright</key>
-        <string>Copyright 2008, Google Inc.</string>
-        <key>version</key>
-        <string>1.7.0.2b109d4</string>
-        <key>name</key>
-        <string>googlemock</string>
-        <key>description</key>
-        <string>a library for writing and using C++ mock classes</string>
-      </map>
       <key>gstreamer</key>
       <map>
         <key>platforms</key>
