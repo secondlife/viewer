@@ -375,7 +375,7 @@ public:
 
 	LLRender();
 	~LLRender();
-    void init(bool needs_vertex_buffer);
+    bool init(bool needs_vertex_buffer);
     void initVertexBuffer();
     void resetVertexBuffer();
 	void shutdown();

@@ -24,6 +24,8 @@ jobs:
     outputs:
       viewer_channel: ${{ steps.build.outputs.viewer_channel }}
       viewer_version: ${{ steps.build.outputs.viewer_version }}
+      viewer_branch:  ${{ steps.which-branch.outputs.branch }}
+      relnotes:       ${{ steps.which-branch.outputs.relnotes }}
       imagename: ${{ steps.build.outputs.imagename }}
     env:
       AUTOBUILD_ADDRSIZE: 64
@@ -33,6 +35,9 @@ jobs:
       AUTOBUILD_GITHUB_TOKEN: ${{ secrets.SHARED_AUTOBUILD_GITHUB_TOKEN }}
       AUTOBUILD_INSTALLABLE_CACHE: ${{ github.workspace }}/.autobuild-installables
       AUTOBUILD_VARIABLES_FILE: ${{ github.workspace }}/.build-variables/variables
+      # Direct autobuild to store vcs_url, vcs_branch and vcs_revision in
+      # autobuild-package.xml.
+      AUTOBUILD_VCS_INFO: "true"
       AUTOBUILD_VSVER: "170"
       DEVELOPER_DIR: ${{ matrix.developer_dir }}
       # Ensure that Linden viewer builds engage Bugsplat.
@@ -60,7 +65,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Setup python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -81,7 +86,7 @@ jobs:
         run: pip3 install autobuild llsd
 
       - name: Cache autobuild packages
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         id: cache-installables
         with:
           path: .autobuild-installables
@@ -94,10 +99,17 @@ jobs:
         if: runner.os == 'Windows'
         run: choco install nsis-unicode
 
+      - name: Determine source branch
+        id: which-branch
+        uses: secondlife/viewer-build-util/which-branch@v1
+        with:
+          token: ${{ github.token }}
+
       - name: Build
         id: build
         shell: bash
         env:
+          AUTOBUILD_VCS_BRANCH: ${{ steps.which-branch.outputs.branch }}
           RUNNER_OS: ${{ runner.os }}
         run: |
           # set up things the viewer's build.sh script expects
@@ -148,7 +160,7 @@ jobs:
           }
           repo_branch()
           {
-            git -C "$1" branch | grep '^* ' | cut -c 3-
+            echo "$AUTOBUILD_VCS_BRANCH"
           }
           record_dependencies_graph()
           {
@@ -344,7 +356,7 @@ jobs:
           version: ${{ needs.build.outputs.viewer_version }}
 
   release:
-    needs: [sign-and-package-windows, sign-and-package-mac]
+    needs: [build, sign-and-package-windows, sign-and-package-mac]
     runs-on: ubuntu-latest
     if: github.ref_type == 'tag' && startsWith(github.ref_name, 'Second_Life_')
     steps:
@@ -375,17 +387,31 @@ jobs:
           mv newview/viewer_version.txt macOS-viewer_version.txt
 
       # forked from softprops/action-gh-release
-      - uses: secondlife-3p/action-gh-release@v1
+      - name: Create GitHub release
+        id: release
+        uses: secondlife-3p/action-gh-release@v1
         with:
-          # name the release page for the build number so we can find it
-          # easily (analogous to looking up a codeticket build page)
-          name: "v${{ github.run_id }}"
+          # name the release page for the branch
+          name: "${{ needs.build.outputs.viewer_branch }}"
+          # SL-20546: want the channel and version to be visible on the
+          # release page
+          body: |
+            Build ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            ${{ needs.build.outputs.viewer_channel }}
+            ${{ needs.build.outputs.viewer_version }}
+            ${{ needs.build.outputs.relnotes }}
           prerelease: true
           generate_release_notes: true
-          # the only reason we generate a GH release is to post build products
+          target_commitish: ${{ github.sha }}
+          previous_tag: release
+          append_body: true
           fail_on_unmatched_files: true
           files: |
             *.dmg 
             *.exe
             *-autobuild-package.xml
             *-viewer_version.txt
+
+      - name: post release URL
+        run: |
+          echo "::notice::Release ${{ steps.release.outputs.url }}"
