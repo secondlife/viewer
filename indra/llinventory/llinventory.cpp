@@ -32,6 +32,7 @@
 #include "llinventorydefines.h"
 #include "llxorcipher.h"
 #include "llsd.h"
+#include "llsdserialize.h"
 #include "message.h"
 #include <boost/tokenizer.hpp>
 
@@ -217,7 +218,19 @@ BOOL LLInventoryObject::importLegacyStream(std::istream& input_stream)
 		}
         else if (0 == strcmp("metadata", keyword))
         {
-            LLSD metadata(valuestr);
+            LLSD metadata;
+            if (strncmp("<llsd>", valuestr, 6) == 0)
+            {
+                std::istringstream stream(valuestr);
+                LLSDSerialize::fromXML(metadata, stream);
+            }
+            else
+            {
+                // next line likely contains metadata, but at the moment is not supported
+                // can do something like:
+                // LLSDSerialize::fromNotation(metadata, input_stream, -1);
+            }
+
             if (metadata.has("thumbnail"))
             {
                 const LLSD& thumbnail = metadata["thumbnail"];
@@ -693,7 +706,19 @@ BOOL LLInventoryItem::importLegacyStream(std::istream& input_stream)
 		}
         else if (0 == strcmp("metadata", keyword))
         {
-            LLSD metadata(valuestr);
+            LLSD metadata;
+            if (strncmp("<llsd>", valuestr, 6) == 0)
+            {
+                std::istringstream stream(valuestr);
+                LLSDSerialize::fromXML(metadata, stream);
+            }
+            else
+            {
+                // next line likely contains metadata, but at the moment is not supported
+                // can do something like:
+                // LLSDSerialize::fromNotation(metadata, input_stream, -1);
+            }
+
             if (metadata.has("thumbnail"))
             {
                 const LLSD& thumbnail = metadata["thumbnail"];
@@ -802,9 +827,14 @@ BOOL LLInventoryItem::exportLegacyStream(std::ostream& output_stream, BOOL inclu
 
     if (mThumbnailUUID.notNull())
     {
+        // Max length is 255 chars, will have to export differently if it gets more data
+        // Ex: use newline and toNotation (uses {}) for unlimited size
         LLSD metadata;
         metadata["thumbnail"] = LLSD().with("asset_id", mThumbnailUUID);
-        output_stream << "\t\tmetadata\t" << metadata << "|\n";
+
+        output_stream << "\t\tmetadata\t";
+        LLSDSerialize::toXML(metadata, output_stream);
+        output_stream << "|\n";
     }
 
 	// Check for permissions to see the asset id, and if so write it
@@ -1303,7 +1333,19 @@ BOOL LLInventoryCategory::importLegacyStream(std::istream& input_stream)
 		}
         else if (0 == strcmp("metadata", keyword))
         {
-            LLSD metadata(valuestr);
+            LLSD metadata;
+            if (strncmp("<llsd>", valuestr, 6) == 0)
+            {
+                std::istringstream stream(valuestr);
+                LLSDSerialize::fromXML(metadata, stream);
+            }
+            else
+            {
+                // next line likely contains metadata, but at the moment is not supported
+                // can do something like:
+                // LLSDSerialize::fromNotation(metadata, input_stream, -1);
+            }
+
             if (metadata.has("thumbnail"))
             {
                 const LLSD& thumbnail = metadata["thumbnail"];
@@ -1343,9 +1385,12 @@ BOOL LLInventoryCategory::exportLegacyStream(std::ostream& output_stream, BOOL) 
 	output_stream << "\t\tname\t" << mName.c_str() << "|\n";
     if (mThumbnailUUID.notNull())
     {
+        // Only up to 255 chars
         LLSD metadata;
         metadata["thumbnail"] = LLSD().with("asset_id", mThumbnailUUID);
-        output_stream << "\t\tmetadata\t" << metadata << "|\n";
+        output_stream << "\t\tmetadata\t";
+        LLSDSerialize::toXML(metadata, output_stream);
+        output_stream << "|\n";
     }
 	output_stream << "\t}\n";
 	return TRUE;

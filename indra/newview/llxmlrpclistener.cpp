@@ -544,7 +544,7 @@ private:
     const std::string mMethod;
     const std::string mReplyPump;
     LLTempBoundListener mBoundListener;
-    boost::scoped_ptr<LLXMLRPCTransaction> mTransaction;
+    std::unique_ptr<LLXMLRPCTransaction> mTransaction;
 	LLXMLRPCTransaction::EStatus mPreviousStatus; // To detect state changes.
 };
 

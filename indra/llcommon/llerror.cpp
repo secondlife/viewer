@@ -1070,7 +1070,7 @@ namespace LLError
     //
     // NOTE!!! Requires external mutex lock!!!
     template <typename RECORDER>
-    std::pair<boost::shared_ptr<RECORDER>, Recorders::iterator>
+    std::pair<std::shared_ptr<RECORDER>, Recorders::iterator>
     findRecorderPos(SettingsConfigPtr &s)
     {
         // Since we promise to return an iterator, use a classic iterator
@@ -1081,7 +1081,7 @@ namespace LLError
             // *it is a RecorderPtr, a shared_ptr<Recorder>. Use a
             // dynamic_pointer_cast to try to downcast to test if it's also a
             // shared_ptr<RECORDER>.
-            auto ptr = boost::dynamic_pointer_cast<RECORDER>(*it);
+            auto ptr = std::dynamic_pointer_cast<RECORDER>(*it);
             if (ptr)
             {
                 // found the entry we want
@@ -1101,7 +1101,7 @@ namespace LLError
     // shared_ptr might be empty (operator!() returns true) if there was no
     // such RECORDER subclass instance in mRecorders.
     template <typename RECORDER>
-    boost::shared_ptr<RECORDER> findRecorder()
+    std::shared_ptr<RECORDER> findRecorder()
     {
         SettingsConfigPtr s = Globals::getInstance()->getSettingsConfig();
         LLMutexLock lock(&s->mRecorderMutex);
@@ -1134,7 +1134,7 @@ namespace LLError
 
 		if (!file_name.empty())
 		{
-			boost::shared_ptr<RecordToFile> recordToFile(new RecordToFile(file_name));
+			std::shared_ptr<RecordToFile> recordToFile(new RecordToFile(file_name));
 			if (recordToFile->okay())
 			{
 				addRecorder(recordToFile);

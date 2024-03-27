@@ -48,8 +48,6 @@
 
 // TODO: includes inherited from dae loader.  Validate / prune
 
-#include <boost/lexical_cast.hpp>
-
 #include "llsdserialize.h"
 #include "lljoint.h"
 

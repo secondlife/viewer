@@ -36,7 +36,6 @@
 #include "llevents.h"
 #include "llexception.h"
 
-#include <boost/foreach.hpp>
 #include <boost/bind.hpp>
 #include <boost/asio/streambuf.hpp>
 #include <boost/asio/buffers_iterator.hpp>
@@ -587,7 +586,7 @@ LLProcess::LLProcess(const LLSDOrParams& params):
 	// apr_procattr_child_err_set()), or accepting a filename, opening it and
 	// passing that apr_file_t (simple <, >, 2> redirect emulation).
 	std::vector<apr_int32_t> select;
-	BOOST_FOREACH(const FileParam& fparam, params.files)
+	for (const FileParam& fparam : params.files)
 	{
 		// Every iteration, we're going to append an item to 'select'. At the
 		// top of the loop, its size() is, in effect, an index. Use that to
@@ -684,7 +683,7 @@ LLProcess::LLProcess(const LLSDOrParams& params):
 	argv.push_back(params.executable().c_str());
 
 	// Add arguments. See above remarks about c_str().
-	BOOST_FOREACH(const std::string& arg, params.args)
+	for (const std::string& arg : params.args)
 	{
 		argv.push_back(arg.c_str());
 	}
@@ -961,7 +960,7 @@ void LLProcess::handle_status(int reason, int status)
 		// only be performed if in fact we're going to produce the log message.
 		LL_DEBUGS("LLProcess") << empty;
 		std::string reason_str;
-		BOOST_FOREACH(const ReasonCode& rcp, reasons)
+		for (const ReasonCode& rcp : reasons)
 		{
 			if (reason == rcp.code)
 			{
@@ -1151,7 +1150,7 @@ std::ostream& operator<<(std::ostream& out, const LLProcess::Params& params)
 		out << "cd " << LLStringUtil::quote(params.cwd) << ": ";
 	}
 	out << LLStringUtil::quote(params.executable);
-	BOOST_FOREACH(const std::string& arg, params.args)
+	for (const std::string& arg : params.args)
 	{
 		out << ' ' << LLStringUtil::quote(arg);
 	}

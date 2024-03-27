@@ -120,3 +120,13 @@ S32	LLPlacesInventoryPanel::notify(const LLSD& info)
 	}
 	return 0;
 }
+
+BOOL LLPlacesInventoryPanel::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop, EDragAndDropType cargo_type, void *cargo_data,
+                                                      EAcceptance *accept, std::string &tooltip_msg)
+{
+    if (mAcceptsDragAndDrop) 
+    {
+        return LLInventoryPanel::handleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
+    }
+    return FALSE;
+}

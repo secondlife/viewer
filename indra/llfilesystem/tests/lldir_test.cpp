@@ -34,7 +34,6 @@
 
 #include "../test/lltut.h"
 #include "stringize.h"
-#include <boost/foreach.hpp>
 #include <boost/assign/list_of.hpp>
 
 using boost::assign::list_of;
@@ -109,7 +108,7 @@ struct LLDir_Dummy: public LLDir
 
             "install/skins/default/future/somefile.txt"
         };
-        BOOST_FOREACH(const char* path, preload)
+        for (const char* path : preload)
         {
             buildFilesystem(path);
         }
@@ -166,7 +165,7 @@ struct LLDir_Dummy: public LLDir
         LLStringUtil::getTokens(path, components, "/");
         // Ensure we have an entry representing every level of this path
         std::string partial;
-        BOOST_FOREACH(std::string component, components)
+        for (std::string component : components)
         {
             append(partial, component);
             mFilesystem.insert(partial);

@@ -113,10 +113,10 @@ private:
 	};
 
 	// Encode variable
-	boost::scoped_ptr<LLKDUMemSource> mInputp;
+	std::unique_ptr<LLKDUMemSource> mInputp;
 	CodeStreamHolder mCodeStreamp;
-	boost::scoped_ptr<kdu_core::kdu_coords> mTPosp; // tile position
-	boost::scoped_ptr<kdu_core::kdu_dims> mTileIndicesp;
+	std::unique_ptr<kdu_core::kdu_coords> mTPosp; // tile position
+	std::unique_ptr<kdu_core::kdu_dims> mTileIndicesp;
 	int mBlocksSize;
 	int mPrecinctsSize;
 	int mLevels;
@@ -125,7 +125,7 @@ private:
 	// We don't own this LLImageRaw. We're simply pointing to an instance
 	// passed into initDecode().
 	LLImageRaw *mRawImagep;
-	boost::scoped_ptr<LLKDUDecodeState> mDecodeState;
+	std::unique_ptr<LLKDUDecodeState> mDecodeState;
 };
 
 #endif

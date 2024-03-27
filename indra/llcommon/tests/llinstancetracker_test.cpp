@@ -94,7 +94,7 @@ namespace tut
             ensure("couldn't find stack Keyed", bool(found));
             ensure_equals("found wrong Keyed instance", found.get(), &one);
             {
-                boost::scoped_ptr<Keyed> two(new Keyed("two"));
+                std::unique_ptr<Keyed> two(new Keyed("two"));
                 ensure_equals(Keyed::instanceCount(), 2);
                 auto found = Keyed::getInstance("two");
                 ensure("couldn't find heap Keyed", bool(found));
@@ -118,7 +118,7 @@ namespace tut
             std::weak_ptr<Unkeyed> found = one.getWeak();
             ensure(! found.expired());
             {
-                boost::scoped_ptr<Unkeyed> two(new Unkeyed);
+                std::unique_ptr<Unkeyed> two(new Unkeyed);
                 ensure_equals(Unkeyed::instanceCount(), 2);
             }
             ensure_equals(Unkeyed::instanceCount(), 1);

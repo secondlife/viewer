@@ -162,6 +162,8 @@ def make_translation_table(mod_tree, base_tree, lang, args):
         filename = mod_blob.path
         if mod_blob.type == "tree": # directory, skip
             continue
+        if args.files and os.path.basename(filename) not in args.files:
+            continue # process only the specified files
 
         if args.verbose:
             print(filename)
@@ -325,9 +327,11 @@ if __name__ == "__main__":
     parser.add_argument("--deleted", action="store_true", default = False, help="show all translated entities which don't exist in english")
     parser.add_argument("--skip_spreadsheet", action="store_true", default = False, help="skip creating the translation spreadsheet")
     parser.add_argument("--rev", help="revision with modified strings, default HEAD", default="HEAD")
-    parser.add_argument("--rev_base", help="previous revision to compare against, default master", default="master")
+    parser.add_argument("--rev_base", help="previous revision to compare against, default main", default="main")
     parser.add_argument("--base_lang", help="base language, default en (normally leave unchanged - other values are only useful for testing)", default="en")
     parser.add_argument("--lang", help="target languages, or 'all_valid' or 'supported'; default is 'supported'", nargs="+", default = ["supported"])
+    parser.add_argument("--files", help='list of files to process', metavar='F', type=str, nargs='*')
+    parser.add_argument("--outfile", help='name of the output file', type=str, nargs='?', default="SL_Translations.xlsx")
     args = parser.parse_args()
 
     cwd = os.getcwd()
@@ -370,7 +374,7 @@ if __name__ == "__main__":
     print("Target language(s) are", ",".join(sorted(langs)))
     sys.stdout.flush()
 
-    outfile = "SL_Translations.xlsx"
+    outfile = args.outfile
     try:
         f = open(outfile,"a+")
         f.close()

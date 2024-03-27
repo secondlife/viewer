@@ -46,7 +46,7 @@ public:
 protected:
 	virtual void initChannel();
 
-	static boost::scoped_ptr<LLEventPump> sChatWatcher;
+	static std::unique_ptr<LLEventPump> sChatWatcher;
 };
 
 }

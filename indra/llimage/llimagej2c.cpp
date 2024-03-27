@@ -48,7 +48,7 @@ std::string LLImageJ2C::getEngineInfo()
 {
 	// All known LLImageJ2CImpl implementation subclasses are cheap to
 	// construct.
-	boost::scoped_ptr<LLImageJ2CImpl> impl(fallbackCreateLLImageJ2CImpl());
+	std::unique_ptr<LLImageJ2CImpl> impl(fallbackCreateLLImageJ2CImpl());
 	return impl->getEngineInfo();
 }
 

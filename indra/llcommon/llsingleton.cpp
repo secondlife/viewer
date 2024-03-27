@@ -32,7 +32,6 @@
 #include "lldependencies.h"
 #include "llexception.h"
 #include "llcoros.h"
-#include <boost/foreach.hpp>
 #include <algorithm>
 #include <iostream>                 // std::cerr in dire emergency
 #include <sstream>
@@ -411,7 +410,7 @@ void LLSingletonBase::cleanup_()
 void LLSingletonBase::deleteAll()
 {
     // It's essential to traverse these in dependency order.
-    BOOST_FOREACH(LLSingletonBase* sp, dep_sort())
+    for (LLSingletonBase* sp : dep_sort())
     {
         // Capture the class name first: in case of exception, don't count on
         // being able to extract it later.

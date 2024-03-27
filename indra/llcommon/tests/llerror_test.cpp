@@ -153,27 +153,27 @@ namespace tut
 
 		int countMessages()
 		{
-			return boost::dynamic_pointer_cast<TestRecorder>(mRecorder)->countMessages();
+			return std::dynamic_pointer_cast<TestRecorder>(mRecorder)->countMessages();
 		}
 
 		void clearMessages()
 		{
-			boost::dynamic_pointer_cast<TestRecorder>(mRecorder)->clearMessages();
+			std::dynamic_pointer_cast<TestRecorder>(mRecorder)->clearMessages();
 		}
 
 		void setWantsTime(bool t)
             {
-                boost::dynamic_pointer_cast<TestRecorder>(mRecorder)->showTime(t);
+                std::dynamic_pointer_cast<TestRecorder>(mRecorder)->showTime(t);
             }
 
 		void setWantsMultiline(bool t)
             {
-                boost::dynamic_pointer_cast<TestRecorder>(mRecorder)->showMultiline(t);
+                std::dynamic_pointer_cast<TestRecorder>(mRecorder)->showMultiline(t);
             }
 
 		std::string message(int n)
 		{
-			return boost::dynamic_pointer_cast<TestRecorder>(mRecorder)->message(n);
+			return std::dynamic_pointer_cast<TestRecorder>(mRecorder)->message(n);
 		}
 
 		void ensure_message_count(int expectedCount)
@@ -497,12 +497,12 @@ namespace
 	void testLogName(LLError::RecorderPtr recorder, LogFromFunction f,
 		const std::string& class_name = "")
 	{
-		boost::dynamic_pointer_cast<tut::TestRecorder>(recorder)->clearMessages();
+		std::dynamic_pointer_cast<tut::TestRecorder>(recorder)->clearMessages();
 		std::string name = f(false);
 		f(true);
 
-		std::string messageWithoutName = boost::dynamic_pointer_cast<tut::TestRecorder>(recorder)->message(0);
-		std::string messageWithName = boost::dynamic_pointer_cast<tut::TestRecorder>(recorder)->message(1);
+		std::string messageWithoutName = std::dynamic_pointer_cast<tut::TestRecorder>(recorder)->message(0);
+		std::string messageWithName = std::dynamic_pointer_cast<tut::TestRecorder>(recorder)->message(1);
 
 		ensure_has(name + " logged without name",
 			messageWithoutName, name);
@@ -691,13 +691,13 @@ namespace tut
 		LL_INFOS() << "boo" << LL_ENDL;
 
 		ensure_message_field_equals(0, MSG_FIELD, "boo");
-		ensure_equals("alt recorder count", boost::dynamic_pointer_cast<TestRecorder>(altRecorder)->countMessages(), 1);
-		ensure_contains("alt recorder message 0", boost::dynamic_pointer_cast<TestRecorder>(altRecorder)->message(0), "boo");
+		ensure_equals("alt recorder count", std::dynamic_pointer_cast<TestRecorder>(altRecorder)->countMessages(), 1);
+		ensure_contains("alt recorder message 0", std::dynamic_pointer_cast<TestRecorder>(altRecorder)->message(0), "boo");
 
 		LLError::setTimeFunction(roswell);
 
 		LLError::RecorderPtr anotherRecorder(new TestRecorder());
-		boost::dynamic_pointer_cast<TestRecorder>(anotherRecorder)->showTime(true);
+		std::dynamic_pointer_cast<TestRecorder>(anotherRecorder)->showTime(true);
 		LLError::addRecorder(anotherRecorder);
 
 		LL_INFOS() << "baz" << LL_ENDL;
@@ -705,10 +705,10 @@ namespace tut
 		std::string when = roswell();
 
 		ensure_message_does_not_contain(1, when);
-		ensure_equals("alt recorder count", boost::dynamic_pointer_cast<TestRecorder>(altRecorder)->countMessages(), 2);
-		ensure_does_not_contain("alt recorder message 1", boost::dynamic_pointer_cast<TestRecorder>(altRecorder)->message(1), when);
-		ensure_equals("another recorder count", boost::dynamic_pointer_cast<TestRecorder>(anotherRecorder)->countMessages(), 1);
-		ensure_contains("another recorder message 0", boost::dynamic_pointer_cast<TestRecorder>(anotherRecorder)->message(0), when);
+		ensure_equals("alt recorder count", std::dynamic_pointer_cast<TestRecorder>(altRecorder)->countMessages(), 2);
+		ensure_does_not_contain("alt recorder message 1", std::dynamic_pointer_cast<TestRecorder>(altRecorder)->message(1), when);
+		ensure_equals("another recorder count", std::dynamic_pointer_cast<TestRecorder>(anotherRecorder)->countMessages(), 1);
+		ensure_contains("another recorder message 0", std::dynamic_pointer_cast<TestRecorder>(anotherRecorder)->message(0), when);
 
 		LLError::removeRecorder(altRecorder);
 		LLError::removeRecorder(anotherRecorder);

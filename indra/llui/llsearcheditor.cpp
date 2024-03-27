@@ -104,6 +104,14 @@ LLSearchEditor::LLSearchEditor(const LLSearchEditor::Params& p)
 	}
 }
 
+LLSearchEditor::~LLSearchEditor()
+{
+    mSearchButton = NULL;
+    mClearButton = NULL;
+    mSearchEditor->deleteAllChildren();
+    deleteAllChildren();
+}
+
 //virtual
 void LLSearchEditor::draw()
 {

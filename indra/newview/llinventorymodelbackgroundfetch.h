@@ -76,7 +76,6 @@ public:
     void incrFetchFolderCount(S32 fetching);
 
 	bool isBulkFetchProcessingComplete() const;
-    bool isFolderFetchProcessingComplete() const;
 	void setAllFoldersFetched();
 
     typedef boost::function<void()> folders_fetched_callback_t;
@@ -86,6 +85,7 @@ public:
 	void addRequestAtBack(const LLUUID & id, bool recursive, bool is_category);
 
 protected:
+    bool isFolderFetchProcessingComplete() const;
 
     typedef enum {
         FT_DEFAULT = 0,
@@ -122,6 +122,7 @@ protected:
 private:
  	bool mRecursiveInventoryFetchStarted;
 	bool mRecursiveLibraryFetchStarted;
+    bool mRecursiveMarketplaceFetchStarted; // AIS3 specific
 	bool mAllRecursiveFoldersFetched;
     typedef boost::signals2::signal<void()> folders_fetched_signal_t;
     folders_fetched_signal_t mFoldersFetchedSignal;
@@ -136,6 +137,7 @@ private:
 	F32 mMinTimeBetweenFetches;
 	fetch_queue_t mFetchFolderQueue;
     fetch_queue_t mFetchItemQueue;
+    uuid_set_t mForceFetchSet;
     std::list<LLUUID> mExpectedFolderIds; // for debug, should this track time?
 };
 

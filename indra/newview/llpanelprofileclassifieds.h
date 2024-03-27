@@ -257,6 +257,7 @@ protected:
 
     void onSetLocationClick();
     void onChange();
+    void onTitleChange();
 
     void onPublishFloaterPublishClicked();
 

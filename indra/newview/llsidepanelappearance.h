@@ -66,6 +66,8 @@ public:
 	void updateToVisibility( const LLSD& new_visibility );
 	LLPanelEditWearable* getWearable(){ return mEditWearable; }
 
+    bool isCOFPanelVisible();
+
 private:
 	void onFilterEdit(const std::string& search_string);
 	void onVisibilityChanged ( const LLSD& new_visibility );

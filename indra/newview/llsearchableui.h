@@ -93,7 +93,7 @@ namespace ll
 	{
 		struct SearchableItem;
 
-		typedef boost::shared_ptr< SearchableItem > SearchableItemPtr;
+		typedef std::shared_ptr< SearchableItem > SearchableItemPtr;
 
 		typedef std::vector< SearchableItemPtr > tSearchableItemList;
 

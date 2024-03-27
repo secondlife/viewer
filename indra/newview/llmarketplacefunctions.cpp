@@ -611,27 +611,17 @@ private:
     static void onIdleProcessQueue(void *userdata);
 
     // doesn't hold just marketplace related ids
-    static std::set<LLUUID> sAddQueue;
     static std::set<LLUUID> sStructureQueue;
     static bool sProcessingQueue;
 };
 
-std::set<LLUUID> LLMarketplaceInventoryObserver::sAddQueue;
 std::set<LLUUID> LLMarketplaceInventoryObserver::sStructureQueue;
 bool LLMarketplaceInventoryObserver::sProcessingQueue = false;
 
 void LLMarketplaceInventoryObserver::changed(U32 mask)
 {
-	if (mask & LLInventoryObserver::ADD && LLMarketplaceData::instance().hasValidationWaiting())
-	{
-        // When things are added to the marketplace, we might need to re-validate and fix the containing listings
-        // just add whole list even if it contains items and non-marketplace folders
-        const std::set<LLUUID>& changed_items = gInventory.getChangedIDs();
-        sAddQueue.insert(changed_items.begin(), changed_items.end());
-	}
-    
-	if (mask & (LLInventoryObserver::INTERNAL | LLInventoryObserver::STRUCTURE))
-	{
+    if (mask & (LLInventoryObserver::INTERNAL | LLInventoryObserver::STRUCTURE))
+    {
         // When things are changed in the inventory, this can trigger a host of changes in the marketplace listings folder:
         // * stock counts changing : no copy items coming in and out will change the stock count on folders
         // * version and listing folders : moving those might invalidate the marketplace data itself
@@ -641,7 +631,7 @@ void LLMarketplaceInventoryObserver::changed(U32 mask)
         sStructureQueue.insert(changed_items.begin(), changed_items.end());
 	}
 
-    if (!sProcessingQueue && (!sAddQueue.empty() || !sStructureQueue.empty()))
+    if (!sProcessingQueue && !sStructureQueue.empty())
     {
         gIdleCallbacks.addFunction(onIdleProcessQueue, NULL);
         // can do without sProcessingQueue, but it's usufull for simplicity and reliability
@@ -654,40 +644,6 @@ void LLMarketplaceInventoryObserver::onIdleProcessQueue(void *userdata)
     U64 start_time = LLTimer::getTotalTime(); // microseconds
     const U64 MAX_PROCESSING_TIME = 1000;
     U64 stop_time = start_time + MAX_PROCESSING_TIME;
-
-    if (!sAddQueue.empty())
-    {
-        // Make a copy of sAddQueue since decrementValidationWaiting
-        // can theoretically add more items
-        std::set<LLUUID> add_queue(sAddQueue);
-        sAddQueue.clear();
-
-        std::set<LLUUID>::const_iterator id_it = add_queue.begin();
-        std::set<LLUUID>::const_iterator id_end = add_queue.end();
-        // First, count the number of items in this list...
-        S32 count = 0;
-        for (; id_it != id_end; ++id_it)
-        {
-            LLInventoryObject* obj = gInventory.getObject(*id_it);
-            if (obj && (LLAssetType::AT_CATEGORY != obj->getType()))
-            {
-                count++;
-            }
-        }
-        // Then, decrement the folders of that amount
-        // Note that of all of those, only one folder will be a listing folder (if at all).
-        // The other will be ignored by the decrement method.
-        id_it = add_queue.begin();
-        for (; id_it != id_end; ++id_it)
-        {
-            LLInventoryObject* obj = gInventory.getObject(*id_it);
-            if (obj && (LLAssetType::AT_CATEGORY == obj->getType()))
-            {
-                // can trigger notifyObservers
-                LLMarketplaceData::instance().decrementValidationWaiting(obj->getUUID(), count);
-            }
-        }
-    }
 
     while (!sStructureQueue.empty() && LLTimer::getTotalTime() < stop_time)
     {
@@ -722,7 +678,7 @@ void LLMarketplaceInventoryObserver::onIdleProcessQueue(void *userdata)
         sStructureQueue.erase(id_it);
     }
 
-    if (LLApp::isExiting() || (sAddQueue.empty() && sStructureQueue.empty()))
+    if (LLApp::isExiting() || sStructureQueue.empty())
     {
         // Nothing to do anymore
         gIdleCallbacks.deleteFunction(onIdleProcessQueue, NULL);

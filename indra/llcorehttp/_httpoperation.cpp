@@ -58,7 +58,7 @@ HttpOperation::handleMap_t  HttpOperation::mHandleMap;
 LLCoreInt::HttpMutex	    HttpOperation::mOpMutex;
 
 HttpOperation::HttpOperation():
-    boost::enable_shared_from_this<HttpOperation>(),
+    std::enable_shared_from_this<HttpOperation>(),
     mReplyQueue(),
     mUserHandler(),
     mReqPolicy(HttpRequest::DEFAULT_POLICY_ID),

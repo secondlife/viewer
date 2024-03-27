@@ -1000,7 +1000,7 @@ class LLVolume : public LLRefCount
 	friend class LLVolumeLODGroup;
 
 protected:
-	~LLVolume(); // use unref
+	virtual ~LLVolume(); // use unref
 
 public:
 	typedef std::vector<LLVolumeFace> face_list_t;

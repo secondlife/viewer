@@ -834,7 +834,11 @@ void LLVOAvatarSelf::stopMotionFromSource(const LLUUID& source_id)
 	for (AnimSourceIterator motion_it = mAnimationSources.find(source_id); motion_it != mAnimationSources.end(); )
 	{
 		gAgent.sendAnimationRequest(motion_it->second, ANIM_REQUEST_STOP);
-		mAnimationSources.erase(motion_it++);
+		mAnimationSources.erase(motion_it);
+		// Must find() after each erase() to deal with potential iterator invalidation
+		// This also ensures that we don't go past the end of this source's animations
+		// into those of another source.
+		motion_it = mAnimationSources.find(source_id);
 	}
 
 

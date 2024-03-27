@@ -112,7 +112,7 @@ private:
 	static void updateServerCombo();
 
 private:
-	boost::scoped_ptr<LLPanelLoginListener> mListener;
+	std::unique_ptr<LLPanelLoginListener> mListener;
 
 	void updateLoginButtons();
 	void populateUserList(LLPointer<LLCredential> credential);

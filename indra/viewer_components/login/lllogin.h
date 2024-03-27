@@ -121,7 +121,7 @@ public:
 
 private:
 	class Impl;
-	boost::scoped_ptr<Impl> mImpl;
+	std::unique_ptr<Impl> mImpl;
 };
 
 #endif // LL_LLLOGIN_H

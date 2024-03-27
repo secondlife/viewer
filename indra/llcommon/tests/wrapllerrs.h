@@ -218,12 +218,12 @@ public:
     /// for the sought string.
     std::string messageWith(const std::string& search, bool required=true)
     {
-        return boost::dynamic_pointer_cast<CaptureLogRecorder>(mRecorder)->messageWith(search, required);
+        return std::dynamic_pointer_cast<CaptureLogRecorder>(mRecorder)->messageWith(search, required);
     }
 
     std::ostream& streamto(std::ostream& out) const
     {
-        return boost::dynamic_pointer_cast<CaptureLogRecorder>(mRecorder)->streamto(out);
+        return std::dynamic_pointer_cast<CaptureLogRecorder>(mRecorder)->streamto(out);
     }
 
     friend inline std::ostream& operator<<(std::ostream& out, const CaptureLog& self)

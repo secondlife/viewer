@@ -114,7 +114,7 @@ private:
 		LLPathfindingNavMesh::navmesh_slot_t        mNavMeshSlot;
 	};
 
-	typedef boost::shared_ptr<NavMeshLocation> NavMeshLocationPtr;
+	typedef std::shared_ptr<NavMeshLocation> NavMeshLocationPtr;
 	typedef std::vector<NavMeshLocationPtr> NavMeshLocationPtrs;
 
 	void handleNavMeshLocation();

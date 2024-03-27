@@ -38,6 +38,7 @@
 #include <mach/mach_host.h>
 #elif LL_LINUX
 # include <unistd.h>
+# include <sys/resource.h>
 #endif
 
 #include "llmemory.h"
@@ -273,33 +274,16 @@ U64 LLMemory::getCurrentRSS()
 
 U64 LLMemory::getCurrentRSS()
 {
-	static const char statPath[] = "/proc/self/stat";
-	LLFILE *fp = LLFile::fopen(statPath, "r");
-	U64 rss = 0;
+	struct rusage usage;
 
-	if (fp == NULL)
-	{
-		LL_WARNS() << "couldn't open " << statPath << LL_ENDL;
+	if (getrusage(RUSAGE_SELF, &usage) != 0) {
+		// Error handling code could be here
 		return 0;
 	}
 
-	// Eee-yew!	 See Documentation/filesystems/proc.txt in your
-	// nearest friendly kernel tree for details.
-	
-	{
-		int ret = fscanf(fp, "%*d (%*[^)]) %*c %*d %*d %*d %*d %*d %*d %*d "
-						 "%*d %*d %*d %*d %*d %*d %*d %*d %*d %*d %*d %Lu",
-						 &rss);
-		if (ret != 1)
-		{
-			LL_WARNS() << "couldn't parse contents of " << statPath << LL_ENDL;
-			rss = 0;
-		}
-	}
-	
-	fclose(fp);
-
-	return rss;
+	// ru_maxrss (since Linux 2.6.32)
+	// This is the maximum resident set size used (in kilobytes).
+	return usage.ru_maxrss * 1024;
 }
 
 #else

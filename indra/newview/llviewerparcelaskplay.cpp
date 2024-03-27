@@ -287,7 +287,7 @@ void LLViewerParcelAskPlay::saveSettings()
             if ((iter_parcel->second.mDate.secondsSinceEpoch() + (F64SecondsImplicit)U32Days(30)) > LLTimer::getTotalSeconds())
             {
                 // write unexpired parcels
-                std::string parcel_id = boost::lexical_cast<std::string>(iter_parcel->first);
+                std::string parcel_id = std::to_string(iter_parcel->first);
                 write_llsd[key][parcel_id] = LLSD();
                 write_llsd[key][parcel_id]["mode"] = (LLSD::Integer)iter_parcel->second.mMode;
                 write_llsd[key][parcel_id]["date"] = iter_parcel->second.mDate;

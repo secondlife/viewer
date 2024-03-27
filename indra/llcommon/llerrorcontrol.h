@@ -174,7 +174,7 @@ namespace LLError
 		bool mWantsMultiline;
 	};
 
-	typedef boost::shared_ptr<Recorder> RecorderPtr;
+	typedef std::shared_ptr<Recorder> RecorderPtr;
 
     /**
      * Instantiate GenericRecorder with a callable(level, message) to get

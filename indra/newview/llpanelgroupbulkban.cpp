@@ -49,8 +49,6 @@
 #include "lluictrlfactory.h"
 #include "llviewerwindow.h"
 
-#include <boost/foreach.hpp>
-
 LLPanelGroupBulkBan::LLPanelGroupBulkBan(const LLUUID& group_id) : LLPanelGroupBulk(group_id)
 {
 	// Pass on construction of this panel to the control factory.
@@ -163,8 +161,8 @@ void LLPanelGroupBulkBan::submit()
 	// remove already banned users and yourself from request.
 	std::vector<LLAvatarName> banned_avatar_names;
 	std::vector<LLAvatarName> out_of_limit_names;
-	bool banning_self = FALSE;
-	std::vector<LLUUID>::iterator conflict = std::find(banned_agent_list.begin(), banned_agent_list.end(), gAgent.getID());
+	bool banning_self{ false };
+	std::vector<LLUUID>::iterator conflict = std::find(banned_agent_list.begin(), banned_agent_list.end(), gAgentID);
 	if (conflict != banned_agent_list.end())
 	{
 		banned_agent_list.erase(conflict);
@@ -172,18 +170,17 @@ void LLPanelGroupBulkBan::submit()
 	}
 	if (group_datap)
 	{
-		BOOST_FOREACH(const LLGroupMgrGroupData::ban_list_t::value_type& group_ban_pair, group_datap->mBanList)
+		for (const auto& [group_ban_agent_id, group_ban_data] : group_datap->mBanList)
 		{
-			const LLUUID& group_ban_agent_id = group_ban_pair.first;
 			std::vector<LLUUID>::iterator conflict = std::find(banned_agent_list.begin(), banned_agent_list.end(), group_ban_agent_id);
 			if (conflict != banned_agent_list.end())
 			{
 				LLAvatarName av_name;
 				LLAvatarNameCache::get(group_ban_agent_id, &av_name);
-				banned_avatar_names.push_back(av_name);
+				banned_avatar_names.emplace_back(av_name);
 
 				banned_agent_list.erase(conflict);
-				if (banned_agent_list.size() == 0)
+				if (banned_agent_list.empty())
 				{
 					break;
 				}

@@ -40,7 +40,6 @@
 #include "lltextbox.h"
 #include "lltrans.h"
 #include "llsdutil.h"
-#include <boost/foreach.hpp>
 
 
 static LLPanelInjector<LLPanelExperienceListEditor> t_panel_experience_list_editor("panel_experience_list_editor");
@@ -96,7 +95,7 @@ void LLPanelExperienceListEditor::addExperienceIds( const uuid_vec_t& experience
 void LLPanelExperienceListEditor::setExperienceIds( const LLSD& experience_ids )
 {
 	mExperienceIds.clear();
-	BOOST_FOREACH(LLSD uuid, llsd::inArray(experience_ids))
+	for (LLSD uuid : llsd::inArray(experience_ids))
 	{
 		// Using insert(range) doesn't work here because the conversion from
 		// LLSD to LLUUID is ambiguous: have to specify asUUID() for each entry.

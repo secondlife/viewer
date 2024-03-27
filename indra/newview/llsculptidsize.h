@@ -52,7 +52,7 @@ public:
 
 	struct Info
 	{
-		typedef boost::shared_ptr<SizeSum> PtrSizeSum;
+		typedef std::shared_ptr<SizeSum> PtrSizeSum;
 
 		Info(const LLDrawable *drawable, int size, PtrSizeSum sizeInfo, LLUUID sculptId)
 			: mDrawable(drawable)

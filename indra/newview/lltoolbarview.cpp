@@ -46,8 +46,6 @@
 #include "llviewercontrol.h"  // HACK for destinations guide on startup
 #include "llinventorymodel.h" // HACK to disable starter avatars button for NUX
 
-#include <boost/foreach.hpp>
-
 LLToolBarView* gToolBarView = NULL;
 
 static LLDefaultChildRegistry::Register<LLToolBarView> r("toolbar_view");
@@ -282,7 +280,7 @@ bool LLToolBarView::loadToolbars(bool force_default)
 			LLToolBarEnums::ButtonType button_type = toolbar_set.left_toolbar.button_display_mode;
 			mToolbars[LLToolBarEnums::TOOLBAR_LEFT]->setButtonType(button_type);
 		}
-		BOOST_FOREACH(const LLCommandId::Params& command_params, toolbar_set.left_toolbar.commands)
+		for (const LLCommandId::Params& command_params : toolbar_set.left_toolbar.commands)
 		{
 			if (!addCommandInternal(LLCommandId(command_params), mToolbars[LLToolBarEnums::TOOLBAR_LEFT]))
 			{
@@ -297,7 +295,7 @@ bool LLToolBarView::loadToolbars(bool force_default)
 			LLToolBarEnums::ButtonType button_type = toolbar_set.right_toolbar.button_display_mode;
 			mToolbars[LLToolBarEnums::TOOLBAR_RIGHT]->setButtonType(button_type);
 		}
-		BOOST_FOREACH(const LLCommandId::Params& command_params, toolbar_set.right_toolbar.commands)
+		for (const LLCommandId::Params& command_params : toolbar_set.right_toolbar.commands)
 		{
 			if (!addCommandInternal(LLCommandId(command_params), mToolbars[LLToolBarEnums::TOOLBAR_RIGHT]))
 			{
@@ -312,7 +310,7 @@ bool LLToolBarView::loadToolbars(bool force_default)
 			LLToolBarEnums::ButtonType button_type = toolbar_set.bottom_toolbar.button_display_mode;
 			mToolbars[LLToolBarEnums::TOOLBAR_BOTTOM]->setButtonType(button_type);
 		}
-		BOOST_FOREACH(const LLCommandId::Params& command_params, toolbar_set.bottom_toolbar.commands)
+		for (const LLCommandId::Params& command_params : toolbar_set.bottom_toolbar.commands)
 		{
 			if (!addCommandInternal(LLCommandId(command_params), mToolbars[LLToolBarEnums::TOOLBAR_BOTTOM]))
 			{

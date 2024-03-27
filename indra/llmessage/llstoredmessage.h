@@ -46,7 +46,7 @@ private:
 	std::string mName;
 };
 
-typedef boost::shared_ptr<LLStoredMessage> LLStoredMessagePtr;
+typedef std::shared_ptr<LLStoredMessage> LLStoredMessagePtr;
 
 
 #endif // LL_STOREDMESSAGE_H

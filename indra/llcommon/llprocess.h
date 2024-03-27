@@ -51,7 +51,7 @@ class LLEventPump;
 class LLProcess;
 /// LLProcess instances are created on the heap by static factory methods and
 /// managed by ref-counted pointers.
-typedef boost::shared_ptr<LLProcess> LLProcessPtr;
+typedef std::shared_ptr<LLProcess> LLProcessPtr;
 
 /**
  * LLProcess handles launching an external process with specified command line

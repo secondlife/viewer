@@ -4575,6 +4575,11 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a&
         }
     }
 
+    if (getClickAction() == CLICK_ACTION_IGNORE && !LLFloater::isVisible(gFloaterTools))
+    {
+        return FALSE;
+    }
+
 	BOOL ret = FALSE;
 
 	LLVolume* volume = getVolume();

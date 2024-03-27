@@ -653,7 +653,7 @@ void LLPreviewTexture::adjustAspectRatio()
 			{
 				// No existing ratio found, create an element that will show image at original ratio
 				populateRatioList(); // makes sure previous custom ratio is cleared
-				std::string ratio = boost::lexical_cast<std::string>(num)+":" + boost::lexical_cast<std::string>(denom);
+				std::string ratio = std::to_string(num)+":" + std::to_string(denom);
 				mRatiosList.push_back(ratio);
 				combo->add(ratio);
 				combo->setCurrentByIndex(mRatiosList.size()- 1);

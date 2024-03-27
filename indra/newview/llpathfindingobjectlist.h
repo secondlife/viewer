@@ -36,7 +36,7 @@
 
 class LLPathfindingObjectList;
 
-typedef boost::shared_ptr<LLPathfindingObjectList> LLPathfindingObjectListPtr;
+typedef std::shared_ptr<LLPathfindingObjectList> LLPathfindingObjectListPtr;
 typedef std::map<std::string, LLPathfindingObjectPtr> LLPathfindingObjectMap;
 
 class LLPathfindingObjectList

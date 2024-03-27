@@ -69,12 +69,12 @@ class HttpService;
 /// and those interfaces establish the access rules.
 
 class HttpOperation : private boost::noncopyable,
-    public boost::enable_shared_from_this<HttpOperation>
+    public std::enable_shared_from_this<HttpOperation>
 {
 public:
-    typedef boost::shared_ptr<HttpOperation> ptr_t;
-    typedef boost::weak_ptr<HttpOperation> wptr_t;
-    typedef boost::shared_ptr<HttpReplyQueue> HttpReplyQueuePtr_t;
+    typedef std::shared_ptr<HttpOperation> ptr_t;
+    typedef std::weak_ptr<HttpOperation> wptr_t;
+    typedef std::shared_ptr<HttpReplyQueue> HttpReplyQueuePtr_t;
 
 	/// Threading:  called by consumer thread.
 	HttpOperation();
@@ -157,12 +157,12 @@ public:
     HttpHandle getHandle();
 
     template< class OPT >
-    static boost::shared_ptr< OPT > fromHandle(HttpHandle handle)
+    static std::shared_ptr< OPT > fromHandle(HttpHandle handle)
     {
         ptr_t ptr = findByHandle(handle);
         if (!ptr)
-            return boost::shared_ptr< OPT >();
-        return boost::dynamic_pointer_cast< OPT >(ptr);
+            return std::shared_ptr< OPT >();
+        return std::dynamic_pointer_cast< OPT >(ptr);
     }
 	
 protected:

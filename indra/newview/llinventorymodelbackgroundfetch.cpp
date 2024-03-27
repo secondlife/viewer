@@ -193,13 +193,16 @@ LLInventoryModelBackgroundFetch::LLInventoryModelBackgroundFetch():
     mLastFetchCount(0),
     mFetchFolderCount(0),
     mAllRecursiveFoldersFetched(false),
-	mRecursiveInventoryFetchStarted(false),
-	mRecursiveLibraryFetchStarted(false),
-	mMinTimeBetweenFetches(0.3f)
+    mRecursiveInventoryFetchStarted(false),
+    mRecursiveLibraryFetchStarted(false),
+    mRecursiveMarketplaceFetchStarted(false),
+    mMinTimeBetweenFetches(0.3f)
 {}
 
 LLInventoryModelBackgroundFetch::~LLInventoryModelBackgroundFetch()
-{}
+{
+    gIdleCallbacks.deleteFunction(&LLInventoryModelBackgroundFetch::backgroundFetchCB, NULL);
+}
 
 bool LLInventoryModelBackgroundFetch::isBulkFetchProcessingComplete() const
 {
@@ -314,6 +317,23 @@ void LLInventoryModelBackgroundFetch::start(const LLUUID& id, bool recursive)
 				gIdleCallbacks.addFunction(&LLInventoryModelBackgroundFetch::backgroundFetchCB, NULL);
 			}
 		}
+        else if (recursive && cat && cat->getPreferredType() == LLFolderType::FT_MARKETPLACE_LISTINGS)
+        {
+            if (mFetchFolderQueue.empty() || mFetchFolderQueue.back().mUUID != id)
+            {
+                if (recursive && AISAPI::isAvailable())
+                {
+                    // Request marketplace folder and content separately
+                    mFetchFolderQueue.push_front(FetchQueueInfo(id, FT_FOLDER_AND_CONTENT));
+                }
+                else
+                {
+                    mFetchFolderQueue.push_front(FetchQueueInfo(id, recursion_type));
+                }
+                gIdleCallbacks.addFunction(&LLInventoryModelBackgroundFetch::backgroundFetchCB, NULL);
+                mRecursiveMarketplaceFetchStarted = true;
+            }
+        }
 		else
 		{
             if (AISAPI::isAvailable())
@@ -359,8 +379,22 @@ void LLInventoryModelBackgroundFetch::scheduleFolderFetch(const LLUUID& cat_id, 
         mBackgroundFetchActive = true;
         mFolderFetchActive = true;
 
-        // Specific folder requests go to front of queue.
-        mFetchFolderQueue.push_front(FetchQueueInfo(cat_id, forced ? FT_FORCED : FT_DEFAULT));
+        if (forced)
+        {
+            // check if already requested
+            if (mForceFetchSet.find(cat_id) == mForceFetchSet.end())
+            {
+                mForceFetchSet.insert(cat_id);
+                mFetchItemQueue.push_front(FetchQueueInfo(cat_id, FT_FORCED));
+            }
+        }
+        else
+        {
+            // Specific folder requests go to front of queue.
+            // version presence acts as dupplicate prevention for normal fetches
+            mFetchItemQueue.push_front(FetchQueueInfo(cat_id, FT_DEFAULT));
+        }
+
         gIdleCallbacks.addFunction(&LLInventoryModelBackgroundFetch::backgroundFetchCB, NULL);
     }
 }
@@ -370,8 +404,21 @@ void LLInventoryModelBackgroundFetch::scheduleItemFetch(const LLUUID& item_id, b
     if (mFetchItemQueue.empty() || mFetchItemQueue.front().mUUID != item_id)
     {
         mBackgroundFetchActive = true;
+        if (forced)
+        {
+            // check if already requested
+            if (mForceFetchSet.find(item_id) == mForceFetchSet.end())
+            {
+                mForceFetchSet.insert(item_id);
+                mFetchItemQueue.push_front(FetchQueueInfo(item_id, FT_FORCED, false));
+            }
+        }
+        else
+        {
+            // 'isFinished' being set acts as dupplicate prevention for normal fetches
+            mFetchItemQueue.push_front(FetchQueueInfo(item_id, FT_DEFAULT, false));
+        }
 
-        mFetchItemQueue.push_front(FetchQueueInfo(item_id, forced ? FT_FORCED : FT_DEFAULT, false));
         gIdleCallbacks.addFunction(&LLInventoryModelBackgroundFetch::backgroundFetchCB, NULL);
     }
 }
@@ -591,6 +638,7 @@ void LLInventoryModelBackgroundFetch::onAISFolderCalback(const LLUUID &request_i
         return;
     }
 
+    LLViewerInventoryCategory::EFetchType new_state = LLViewerInventoryCategory::FETCH_NONE;
     bool request_descendants = false;
     if (response_id.isNull()) // Failure
     {
@@ -608,10 +656,12 @@ void LLInventoryModelBackgroundFetch::onAISFolderCalback(const LLUUID &request_i
 
             // set folder's version to prevent viewer from trying to request folder indefinetely
             LLViewerInventoryCategory* cat(gInventory.getCategory(request_id));
-            if (cat->getVersion() == LLViewerInventoryCategory::VERSION_UNKNOWN)
+            if (cat && cat->getVersion() == LLViewerInventoryCategory::VERSION_UNKNOWN)
             {
                 cat->setVersion(0);
             }
+            // back off for a bit in case something tries to force-request immediately
+            new_state = LLViewerInventoryCategory::FETCH_FAILED;
         }
     }
     else
@@ -664,7 +714,7 @@ void LLInventoryModelBackgroundFetch::onAISFolderCalback(const LLUUID &request_i
     LLViewerInventoryCategory * cat(gInventory.getCategory(request_id));
     if (cat)
     {
-        cat->setFetching(LLViewerInventoryCategory::FETCH_NONE);
+        cat->setFetching(new_state);
     }
 }
 
@@ -753,7 +803,26 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis()
     
     if (isFolderFetchProcessingComplete() && mFolderFetchActive)
     {
-        setAllFoldersFetched();
+        if (!mRecursiveInventoryFetchStarted || mRecursiveMarketplaceFetchStarted)
+        {
+            setAllFoldersFetched();
+        }
+        else
+        {
+            // Intent is for marketplace request to happen after
+            // main inventory is done, unless requested by floater
+            mRecursiveMarketplaceFetchStarted = true;
+            const LLUUID& marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS);
+            if (marketplacelistings_id.notNull())
+            {
+                mFetchFolderQueue.push_front(FetchQueueInfo(marketplacelistings_id, FT_FOLDER_AND_CONTENT));
+            }
+            else
+            {
+                setAllFoldersFetched();
+            }
+        }
+        
     }
 
     if (isBulkFetchProcessingComplete())
@@ -813,22 +882,8 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis(const FetchQueueInfo& fetc
 
                         if (child_cat->getPreferredType() == LLFolderType::FT_MARKETPLACE_LISTINGS)
                         {
-                            // special case
-                            content_done = false;
-                            if (children.empty())
-                            {
-                                // fetch marketplace alone
-                                // Should it actually be fetched as FT_FOLDER_AND_CONTENT?
-                                children.push_back(child_cat->getUUID());
-                                mExpectedFolderIds.push_back(child_cat->getUUID());
-                                child_cat->setFetching(target_state);
-                                break;
-                            }
-                            else
-                            {
-                                // fetch marketplace alone next run
-                                continue;
-                            }
+                            // special case, marketplace will fetch that as needed
+                            continue;
                         }
 
                         children.push_back(child_cat->getUUID());
@@ -902,10 +957,10 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis(const FetchQueueInfo& fetc
                         mExpectedFolderIds.push_back(cat_id);
 
                         EFetchType type = fetch_info.mFetchType;
-                        LLUUID cat_id = cat->getUUID();
-                        AISAPI::completion_t cb = [cat_id , type](const LLUUID& response_id)
+                        LLUUID cat_cb_id = cat_id;
+                        AISAPI::completion_t cb = [cat_cb_id, type](const LLUUID& response_id)
                         {
-                            LLInventoryModelBackgroundFetch::instance().onAISFolderCalback(cat_id , response_id , type);
+                            LLInventoryModelBackgroundFetch::instance().onAISFolderCalback(cat_cb_id, response_id , type);
                         };
 
                         AISAPI::ITEM_TYPE item_type = AISAPI::INVENTORY;
@@ -963,6 +1018,11 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis(const FetchQueueInfo& fetc
             mFetchCount++;
             AISAPI::FetchItem(fetch_info.mUUID, AISAPI::INVENTORY, ais_simple_item_callback);
         }
+    }
+
+    if (fetch_info.mFetchType == FT_FORCED)
+    {
+        mForceFetchSet.erase(fetch_info.mUUID);
     }
 }
 

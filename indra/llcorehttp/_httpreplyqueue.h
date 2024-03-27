@@ -63,8 +63,8 @@ class HttpReplyQueue : private boost::noncopyable
 {
 
 public:
-    typedef boost::shared_ptr<HttpOperation>    opPtr_t;
-    typedef boost::shared_ptr<HttpReplyQueue>   ptr_t;
+    typedef std::shared_ptr<HttpOperation>    opPtr_t;
+    typedef std::shared_ptr<HttpReplyQueue>   ptr_t;
 
 	HttpReplyQueue();
     virtual ~HttpReplyQueue();		

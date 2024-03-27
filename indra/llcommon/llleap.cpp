@@ -462,10 +462,10 @@ private:
     LLProcessPtr mChild;
     LLTempBoundListener
         mStdinConnection, mStdoutConnection, mStdoutDataConnection, mStderrConnection;
-    boost::scoped_ptr<LLEventPump::Blocker> mBlocker;
+    std::unique_ptr<LLEventPump::Blocker> mBlocker;
     LLProcess::ReadPipe::size_type mExpect;
     LLError::RecorderPtr mRecorder;
-    boost::scoped_ptr<LLLeapListener> mListener;
+    std::unique_ptr<LLLeapListener> mListener;
 };
 
 // These must follow the declaration of LLLeapImpl, so they may as well be last.
