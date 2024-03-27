@@ -1,22 +1,16 @@
 XML_FILE_PATH = "luafloater_gesture_list.xml"
 
 leap = require 'leap'
-coro = require 'coro'
-util = require 'util'
+fiber = require 'fiber'
 LLGesture = require 'LLGesture'
 
 --event pump for sending actions to the floater
 COMMAND_PUMP_NAME = ""
 --table of floater UI events
-event_list={}
-coro.launch(function ()
-  event_list = leap.request("LLFloaterReg", {op="getFloaterEvents"})["events"]
-  leap.done()
-end)
-leap.process()
+event_list=leap.request("LLFloaterReg", {op="getFloaterEvents"}).events
 
 local function _event(event_name)
-  if not util.contains(event_list, event_name) then
+  if not table.find(event_list, event_name) then
     LL.print_warning("Incorrect event name: " .. event_name)
   end
   return event_name
@@ -51,11 +45,7 @@ end
 local key = {xml_path = XML_FILE_PATH, op = "showLuaFloater"}
 --receive additional events for defined control {<control_name>= {action1, action2, ...}}
 key.extra_events={gesture_list = {_event("double_click")}}
-coro.launch(function ()
-  handleEvents(leap.request("LLFloaterReg", key))
-  leap.done()
-end)
-leap.process()
+handleEvents(leap.request("LLFloaterReg", key))
 
 catch_events = leap.WaitFor:new(-1, "all_events")
 function catch_events:filter(pump, data)
@@ -70,5 +60,4 @@ function process_events(waitfor)
   end
 end
 
-coro.launch(process_events, catch_events)
-leap.process()
+fiber.launch("catch_events", process_events, catch_events)
