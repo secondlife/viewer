@@ -41,7 +41,6 @@
 #include "llinventoryobserver.h"
 #include "llinventorypanel.h"
 #include "lllocaltextureobject.h"
-#include "llmd5.h"
 #include "llnotificationsutil.h"
 #include "lloutfitobserver.h"
 #include "llsidepanelappearance.h"
@@ -1307,8 +1306,9 @@ void LLAgentWearables::findAttachmentsAddRemoveInfo(LLInventoryModel::item_array
 	}
 
 	// Build up list of objects to be removed and items currently attached.
-	for (LLVOAvatar::attachment_map_t::iterator iter = gAgentAvatarp->mAttachmentPoints.begin(); 
-		 iter != gAgentAvatarp->mAttachmentPoints.end();)
+    LLVOAvatar::attachment_map_t::iterator iter = gAgentAvatarp->mAttachmentPoints.begin();
+    LLVOAvatar::attachment_map_t::iterator end = gAgentAvatarp->mAttachmentPoints.end();
+	while (iter != end)
 	{
 		LLVOAvatar::attachment_map_t::iterator curiter = iter++;
 		LLViewerJointAttachment* attachment = curiter->second;
@@ -1527,7 +1527,7 @@ bool LLAgentWearables::moveWearable(const LLViewerInventoryItem* item, bool clos
 }
 
 // static
-void LLAgentWearables::createWearable(LLWearableType::EType type, bool wear, const LLUUID& parent_id)
+void LLAgentWearables::createWearable(LLWearableType::EType type, bool wear, const LLUUID& parent_id, std::function<void(const LLUUID&)> created_cb)
 {
 	if (type == LLWearableType::WT_INVALID || type == LLWearableType::WT_NONE) return;
 
@@ -1539,7 +1539,7 @@ void LLAgentWearables::createWearable(LLWearableType::EType type, bool wear, con
 
 	LLViewerWearable* wearable = LLWearableList::instance().createNewWearable(type, gAgentAvatarp);
 	LLAssetType::EType asset_type = wearable->getAssetType();
-	LLPointer<LLInventoryCallback> cb;
+	LLPointer<LLBoostFuncInventoryCallback> cb;
 	if(wear)
 	{
 		cb = new LLBoostFuncInventoryCallback(wear_and_edit_cb);
@@ -1548,6 +1548,10 @@ void LLAgentWearables::createWearable(LLWearableType::EType type, bool wear, con
 	{
 		cb = new LLBoostFuncInventoryCallback(wear_cb);
 	}
+    if (created_cb != NULL)
+    {
+        cb->addOnFireFunc(created_cb);
+    }
 
 	LLUUID folder_id;
 

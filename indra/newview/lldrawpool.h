@@ -48,31 +48,33 @@ public:
 	enum
 	{
 		// Correspond to LLPipeline render type
-		POOL_SIMPLE = 1,
-		POOL_GROUND,
+        // Also controls render order, so passes that don't use alpha masking/blending should come before
+        // other passes to preserve hierarchical Z for occlusion queries.  Occlusion queries happen just
+        // before grass, so grass should be the first alpha masked pool.  Other ordering should be done
+        // based on fill rate and likelihood to occlude future passes (faster, large occluders first).
+        //  
+        POOL_SKY = 1,
+        POOL_WL_SKY,
+		POOL_SIMPLE,
 		POOL_FULLBRIGHT,
 		POOL_BUMP,
-		POOL_MATERIALS,
-		POOL_TERRAIN,	
-		POOL_SKY,
-		POOL_WL_SKY,
+		POOL_TERRAIN,
+        POOL_MATERIALS,
+        POOL_GLTF_PBR,
+        POOL_GRASS,
+        POOL_GLTF_PBR_ALPHA_MASK,
 		POOL_TREE,
 		POOL_ALPHA_MASK,
 		POOL_FULLBRIGHT_ALPHA_MASK,
-		POOL_GRASS,
-		POOL_INVISIBLE, // see below *
 		POOL_AVATAR,
 		POOL_CONTROL_AV, // Animesh
-		POOL_VOIDWATER,
-		POOL_WATER,
 		POOL_GLOW,
-		POOL_ALPHA,
+		POOL_ALPHA_PRE_WATER,
+        POOL_VOIDWATER,
+        POOL_WATER,
+        POOL_ALPHA_POST_WATER,
+        POOL_ALPHA, // note there is no actual "POOL_ALPHA" but pre-water and post-water pools consume POOL_ALPHA faces
 		NUM_POOL_TYPES,
-		// * invisiprims work by rendering to the depth buffer but not the color buffer, occluding anything rendered after them
-		// - and the LLDrawPool types enum controls what order things are rendered in
-		// - so, it has absolute control over what invisprims block
-		// ...invisiprims being rendered in pool_invisible
-		// ...shiny/bump mapped objects in rendered in POOL_BUMP
 	};
 	
 	LLDrawPool(const U32 type);
@@ -106,9 +108,9 @@ public:
 	virtual S32 getNumShadowPasses();
 	virtual void renderShadow(S32 pass = 0);
 
-	virtual void render(S32 pass = 0) = 0;
-	virtual void prerender() = 0;
-	virtual U32 getVertexDataMask() = 0;
+    virtual void render(S32 pass = 0) {};
+    virtual void prerender() {};
+    virtual U32 getVertexDataMask() { return 0; } // DEPRECATED -- draw pool doesn't actually determine vertex data mask any more
 	virtual BOOL verify() const { return TRUE; }		// Verify that all data in the draw pool is correct!
 	virtual S32 getShaderLevel() const { return mShaderLevel; }
 	
@@ -116,8 +118,8 @@ public:
 	virtual LLViewerTexture* getTexture() = 0;
 	virtual BOOL isFacePool() { return FALSE; }
 	virtual void resetDrawOrders() = 0;
+    virtual void pushFaceGeometry() {}
 
-protected:
 	S32 mShaderLevel;
 	S32	mId;
 	U32 mType;				// Type of draw pool
@@ -129,6 +131,7 @@ class LLRenderPass : public LLDrawPool
 public:
     // list of possible LLRenderPass types to assign a render batch to
     // NOTE: "rigged" variant MUST be non-rigged variant + 1
+    // see LLVolumeGeometryManager::registerFace()
 	enum
 	{
 		PASS_SIMPLE = NUM_POOL_TYPES,
@@ -182,6 +185,8 @@ public:
         PASS_NORMSPEC_EMISSIVE_RIGGED,
 		PASS_GLOW,
         PASS_GLOW_RIGGED,
+        PASS_GLTF_GLOW,
+        PASS_GLTF_GLOW_RIGGED,
 		PASS_ALPHA,
         PASS_ALPHA_RIGGED,
 		PASS_ALPHA_MASK,
@@ -190,8 +195,151 @@ public:
         PASS_FULLBRIGHT_ALPHA_MASK_RIGGED,
 		PASS_ALPHA_INVISIBLE,
         PASS_ALPHA_INVISIBLE_RIGGED,
+        PASS_GLTF_PBR,
+        PASS_GLTF_PBR_RIGGED,
+        PASS_GLTF_PBR_ALPHA_MASK,
+        PASS_GLTF_PBR_ALPHA_MASK_RIGGED,
 		NUM_RENDER_TYPES,
 	};
+
+	#ifdef LL_PROFILER_ENABLE_RENDER_DOC
+    static inline const char* lookupPassName(U32 pass)
+    {
+        switch (pass)
+        {
+            case PASS_SIMPLE:
+                return "PASS_SIMPLE";
+            case PASS_SIMPLE_RIGGED:
+                return "PASS_SIMPLE_RIGGED";
+            case PASS_GRASS:
+                return "PASS_GRASS";
+            case PASS_FULLBRIGHT:
+                return "PASS_FULLBRIGHT";
+            case PASS_FULLBRIGHT_RIGGED:
+                return "PASS_FULLBRIGHT_RIGGED";
+            case PASS_INVISIBLE:
+                return "PASS_INVISIBLE";
+            case PASS_INVISIBLE_RIGGED:
+                return "PASS_INVISIBLE_RIGGED";
+            case PASS_INVISI_SHINY:
+                return "PASS_INVISI_SHINY";
+            case PASS_INVISI_SHINY_RIGGED:
+                return "PASS_INVISI_SHINY_RIGGED";
+            case PASS_FULLBRIGHT_SHINY:
+                return "PASS_FULLBRIGHT_SHINY";
+            case PASS_FULLBRIGHT_SHINY_RIGGED:
+                return "PASS_FULLBRIGHT_SHINY_RIGGED";
+            case PASS_SHINY:
+                return "PASS_SHINY";
+            case PASS_SHINY_RIGGED:
+                return "PASS_SHINY_RIGGED";
+            case PASS_BUMP:
+                return "PASS_BUMP";
+            case PASS_BUMP_RIGGED:
+                return "PASS_BUMP_RIGGED";
+            case PASS_POST_BUMP:
+                return "PASS_POST_BUMP";
+            case PASS_POST_BUMP_RIGGED:
+                return "PASS_POST_BUMP_RIGGED";
+            case PASS_MATERIAL:
+                return "PASS_MATERIAL";
+            case PASS_MATERIAL_RIGGED:
+                return "PASS_MATERIAL_RIGGED";
+            case PASS_MATERIAL_ALPHA:
+                return "PASS_MATERIAL_ALPHA";
+            case PASS_MATERIAL_ALPHA_RIGGED:
+                return "PASS_MATERIAL_ALPHA_RIGGED";
+            case PASS_MATERIAL_ALPHA_MASK:
+                return "PASS_MATERIAL_ALPHA_MASK";
+            case PASS_MATERIAL_ALPHA_MASK_RIGGED:
+                return "PASS_MATERIAL_ALPHA_MASK_RIGGED";
+            case PASS_MATERIAL_ALPHA_EMISSIVE:
+                return "PASS_MATERIAL_ALPHA_EMISSIVE";
+            case PASS_MATERIAL_ALPHA_EMISSIVE_RIGGED:
+                return "PASS_MATERIAL_ALPHA_EMISSIVE_RIGGED";
+            case PASS_SPECMAP:
+                return "PASS_SPECMAP";
+            case PASS_SPECMAP_RIGGED:
+                return "PASS_SPECMAP_RIGGED";
+            case PASS_SPECMAP_BLEND:
+                return "PASS_SPECMAP_BLEND";
+            case PASS_SPECMAP_BLEND_RIGGED:
+                return "PASS_SPECMAP_BLEND_RIGGED";
+            case PASS_SPECMAP_MASK:
+                return "PASS_SPECMAP_MASK";
+            case PASS_SPECMAP_MASK_RIGGED:
+                return "PASS_SPECMAP_MASK_RIGGED";
+            case PASS_SPECMAP_EMISSIVE:
+                return "PASS_SPECMAP_EMISSIVE";
+            case PASS_SPECMAP_EMISSIVE_RIGGED:
+                return "PASS_SPECMAP_EMISSIVE_RIGGED";
+            case PASS_NORMMAP:
+                return "PASS_NORMAMAP";
+            case PASS_NORMMAP_RIGGED:
+                return "PASS_NORMMAP_RIGGED";
+            case PASS_NORMMAP_BLEND:
+                return "PASS_NORMMAP_BLEND";
+            case PASS_NORMMAP_BLEND_RIGGED:
+                return "PASS_NORMMAP_BLEND_RIGGED";
+            case PASS_NORMMAP_MASK:
+                return "PASS_NORMMAP_MASK";
+            case PASS_NORMMAP_MASK_RIGGED:
+                return "PASS_NORMMAP_MASK_RIGGED";
+            case PASS_NORMMAP_EMISSIVE:
+                return "PASS_NORMMAP_EMISSIVE";
+            case PASS_NORMMAP_EMISSIVE_RIGGED:
+                return "PASS_NORMMAP_EMISSIVE_RIGGED";
+            case PASS_NORMSPEC:
+                return "PASS_NORMSPEC";
+            case PASS_NORMSPEC_RIGGED:
+                return "PASS_NORMSPEC_RIGGED";
+            case PASS_NORMSPEC_BLEND:
+                return "PASS_NORMSPEC_BLEND";
+            case PASS_NORMSPEC_BLEND_RIGGED:
+                return "PASS_NORMSPEC_BLEND_RIGGED";
+            case PASS_NORMSPEC_MASK:
+                return "PASS_NORMSPEC_MASK";
+            case PASS_NORMSPEC_MASK_RIGGED:
+                return "PASS_NORMSPEC_MASK_RIGGED";
+            case PASS_NORMSPEC_EMISSIVE:
+                return "PASS_NORMSPEC_EMISSIVE";
+            case PASS_NORMSPEC_EMISSIVE_RIGGED:
+                return "PASS_NORMSPEC_EMISSIVE_RIGGED";
+            case PASS_GLOW:
+                return "PASS_GLOW";
+            case PASS_GLOW_RIGGED:
+                return "PASS_GLOW_RIGGED";
+            case PASS_ALPHA:
+                return "PASS_ALPHA";
+            case PASS_ALPHA_RIGGED:
+                return "PASS_ALPHA_RIGGED";
+            case PASS_ALPHA_MASK:
+                return "PASS_ALPHA_MASK";
+            case PASS_ALPHA_MASK_RIGGED:
+                return "PASS_ALPHA_MASK_RIGGED";
+            case PASS_FULLBRIGHT_ALPHA_MASK:
+                return "PASS_FULLBRIGHT_ALPHA_MASK";
+            case PASS_FULLBRIGHT_ALPHA_MASK_RIGGED:
+                return "PASS_FULLBRIGHT_ALPHA_MASK_RIGGED";
+            case PASS_ALPHA_INVISIBLE:
+                return "PASS_ALPHA_INVISIBLE";
+            case PASS_ALPHA_INVISIBLE_RIGGED:
+                return "PASS_ALPHA_INVISIBLE_RIGGED";
+            case PASS_GLTF_PBR:
+                return "PASS_GLTF_PBR";
+            case PASS_GLTF_PBR_RIGGED:
+                return "PASS_GLTF_PBR_RIGGED";
+            case PASS_GLTF_PBR_ALPHA_MASK:
+                return "PASS_GLTF_PBR_ALPHA_MASK";
+            case PASS_GLTF_PBR_ALPHA_MASK_RIGGED:
+                return "PASS_GLTF_PBR_ALPHA_MASK_RIGGED";
+            default:
+                return "Unknown pass";
+        }
+	}
+	#else
+    static inline const char* lookupPass(U32 pass) { return ""; }
+	#endif
 
 	LLRenderPass(const U32 type);
 	virtual ~LLRenderPass();
@@ -201,15 +349,45 @@ public:
 	void resetDrawOrders() { }
 
 	static void applyModelMatrix(const LLDrawInfo& params);
-	virtual void pushBatches(U32 type, U32 mask, BOOL texture = TRUE, BOOL batch_textures = FALSE);
-    virtual void pushRiggedBatches(U32 type, U32 mask, BOOL texture = TRUE, BOOL batch_textures = FALSE);
-	virtual void pushMaskBatches(U32 type, U32 mask, BOOL texture = TRUE, BOOL batch_textures = FALSE);
-    virtual void pushRiggedMaskBatches(U32 type, U32 mask, BOOL texture = TRUE, BOOL batch_textures = FALSE);
-	virtual void pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL batch_textures = FALSE);
+    // Use before a non-GLTF batch if it is interleaved with GLTF batches that share the same shader
+    static void resetGLTFTextureTransform();
+	void pushBatches(U32 type, bool texture = true, bool batch_textures = false);
+    void pushUntexturedBatches(U32 type);
+
+    void pushRiggedBatches(U32 type, bool texture = true, bool batch_textures = false);
+    void pushUntexturedRiggedBatches(U32 type);
+
+    // push full GLTF batches
+    // assumes draw infos of given type have valid GLTF materials
+    void pushGLTFBatches(U32 type);
+
+    // like pushGLTFBatches, but will not bind textures or set up texture transforms
+    void pushUntexturedGLTFBatches(U32 type);
+
+    // helper function for dispatching to textured or untextured pass based on bool
+    void pushGLTFBatches(U32 type, bool textured);
+
+
+    // rigged variants of above
+    void pushRiggedGLTFBatches(U32 type);
+    void pushRiggedGLTFBatches(U32 type, bool textured);
+    void pushUntexturedRiggedGLTFBatches(U32 type);
+
+    // push a single GLTF draw call
+    void pushGLTFBatch(LLDrawInfo& params);
+    void pushRiggedGLTFBatch(LLDrawInfo& params, LLVOAvatar*& lastAvatar, U64& lastMeshId);
+    void pushUntexturedGLTFBatch(LLDrawInfo& params);
+    void pushUntexturedRiggedGLTFBatch(LLDrawInfo& params, LLVOAvatar*& lastAvatar, U64& lastMeshId);
+
+	void pushMaskBatches(U32 type, bool texture = true, bool batch_textures = false);
+    void pushRiggedMaskBatches(U32 type, bool texture = true, bool batch_textures = false);
+	void pushBatch(LLDrawInfo& params, bool texture, bool batch_textures = false);
+    void pushUntexturedBatch(LLDrawInfo& params);
+	void pushBumpBatch(LLDrawInfo& params, bool texture, bool batch_textures = false);
     static bool uploadMatrixPalette(LLDrawInfo& params);
     static bool uploadMatrixPalette(LLVOAvatar* avatar, LLMeshSkinInfo* skinInfo);
-	virtual void renderGroup(LLSpatialGroup* group, U32 type, U32 mask, BOOL texture = TRUE);
-    virtual void renderRiggedGroup(LLSpatialGroup* group, U32 type, U32 mask, BOOL texture = TRUE);
+	virtual void renderGroup(LLSpatialGroup* group, U32 type, bool texture = true);
+    virtual void renderRiggedGroup(LLSpatialGroup* group, U32 type, bool texture = true);
 };
 
 class LLFacePool : public LLDrawPool
@@ -250,6 +428,9 @@ public:
 	void printDebugInfo() const;
 	
 	BOOL isFacePool() { return TRUE; }
+
+    // call drawIndexed on every draw face
+    void pushFaceGeometry();
 
 	friend class LLFace;
 	friend class LLPipeline;

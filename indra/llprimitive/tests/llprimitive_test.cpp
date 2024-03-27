@@ -71,6 +71,46 @@ private:
 	S32 mCurrDetailTest;
 };
 
+LLMaterialID::LLMaterialID() {}
+LLMaterialID::LLMaterialID(LLMaterialID const &m) = default;
+LLMaterialID::~LLMaterialID() {}
+void LLMaterialID::set(void const*) { }
+U8 const * LLMaterialID::get() const { return mID; }
+
+LLPrimTextureList::LLPrimTextureList() { }
+LLPrimTextureList::~LLPrimTextureList() { }
+S32 LLPrimTextureList::setBumpMap(const U8 index, const U8 bump) { return TEM_CHANGE_NONE; }
+S32 LLPrimTextureList::setOffsetS(const U8 index, const F32 s) { return TEM_CHANGE_NONE; }
+S32 LLPrimTextureList::setOffsetT(const U8 index, const F32 t) { return TEM_CHANGE_NONE; }
+S32 LLPrimTextureList::copyTexture(const U8 index, const LLTextureEntry &te) { return TEM_CHANGE_NONE; }
+S32 LLPrimTextureList::setRotation(const U8 index, const F32 r) { return TEM_CHANGE_NONE; }
+S32 LLPrimTextureList::setBumpShiny(const U8 index, const U8 bump_shiny) { return TEM_CHANGE_NONE; }
+S32 LLPrimTextureList::setFullbright(const U8 index, const U8 t) { return TEM_CHANGE_NONE; }
+S32 LLPrimTextureList::setMaterialID(const U8 index, const LLMaterialID& pMaterialID) { return TEM_CHANGE_NONE; }
+S32 LLPrimTextureList::setMediaFlags(const U8 index, const U8 media_flags) { return TEM_CHANGE_NONE; }
+S32 LLPrimTextureList::setMediaTexGen(const U8 index, const U8 media) { return TEM_CHANGE_NONE; }
+S32 LLPrimTextureList::setMaterialParams(const U8 index, const LLMaterialPtr pMaterialParams) { return TEM_CHANGE_NONE; }
+S32 LLPrimTextureList::setBumpShinyFullbright(const U8 index, const U8 bump) { return TEM_CHANGE_NONE; }
+S32 LLPrimTextureList::setID(const U8 index, const LLUUID& id) { return TEM_CHANGE_NONE; }
+S32 LLPrimTextureList::setGlow(const U8 index, const F32 glow) { return TEM_CHANGE_NONE; }
+S32 LLPrimTextureList::setAlpha(const U8 index, const F32 alpha) { return TEM_CHANGE_NONE; }
+S32 LLPrimTextureList::setColor(const U8 index, const LLColor3& color) { return TEM_CHANGE_NONE; }
+S32 LLPrimTextureList::setColor(const U8 index, const LLColor4& color) { return TEM_CHANGE_NONE; }
+S32 LLPrimTextureList::setScale(const U8 index, const F32 s, const F32 t) { return TEM_CHANGE_NONE; }
+S32 LLPrimTextureList::setScaleS(const U8 index, const F32 s) { return TEM_CHANGE_NONE; }
+S32 LLPrimTextureList::setScaleT(const U8 index, const F32 t) { return TEM_CHANGE_NONE; }
+S32 LLPrimTextureList::setShiny(const U8 index, const U8 shiny) { return TEM_CHANGE_NONE; }
+S32 LLPrimTextureList::setOffset(const U8 index, const F32 s, const F32 t) { return TEM_CHANGE_NONE; }
+S32 LLPrimTextureList::setTexGen(const U8 index, const U8 texgen) { return TEM_CHANGE_NONE; }
+
+LLMaterialPtr LLPrimTextureList::getMaterialParams(const U8 index) { return LLMaterialPtr(); }
+void LLPrimTextureList::copy(LLPrimTextureList const & ptl) { mEntryList = ptl.mEntryList; } // do we need to call getTexture()->newCopy()?
+void LLPrimTextureList::take(LLPrimTextureList &other_list) { }
+void LLPrimTextureList::setSize(S32 new_size) { mEntryList.resize(new_size); }
+void LLPrimTextureList::setAllIDs(const LLUUID &id) { }
+LLTextureEntry * LLPrimTextureList::getTexture(const U8 index) const { return nullptr; }
+S32 LLPrimTextureList::size() const { return mEntryList.size(); }
+
 class PRIMITIVE_TEST_SETUP
 {
 public:

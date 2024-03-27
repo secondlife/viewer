@@ -1,13 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="objectcontents" title="オブジェクトの中身">
+<floater name="objectcontents" title="オブジェクトのコンテンツ">
 	<text name="object_name">
-		[DESC]:
+		[DESC]：
 	</text>
-	<text name="border_note">
-		インベントリおよびウェアにコピー
-	</text>
-	<button label="アウトフィットに追加" label_selected="アウトフィットに追加" name="copy_and_wear_button"/>
-	<button label="アウトフィットを交換" label_selected="アウトフィットを交換" name="copy_and_replace_button"/>
-	<button label="インベントリにコピーするだけ" label_selected="インベントリにコピーするだけ" name="copy_to_inventory_button"/>
-	<button label="取り消し" label_selected="取り消し" name="cancel_button"/>
+	<panel_inventory_object name="object_contents"/>
+	<button label="インベントリにコピーのみ" label_selected="インベントリにコピー" name="copy_to_inventory_button"/>
+	<button label="キャンセル" label_selected="キャンセル" name="cancel_button"/>
 </floater>

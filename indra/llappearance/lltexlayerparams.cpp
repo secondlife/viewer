@@ -149,7 +149,7 @@ LLTexLayerParamAlpha::LLTexLayerParamAlpha(const LLTexLayerParamAlpha& pOther)
 	mCachedProcessedTexture(pOther.mCachedProcessedTexture),
 	mStaticImageTGA(pOther.mStaticImageTGA),
 	mStaticImageRaw(pOther.mStaticImageRaw),
-	mNeedsCreateTexture(pOther.mNeedsCreateTexture),
+	mNeedsCreateTexture(pOther.mNeedsCreateTexture.load()),
 	mStaticImageInvalid(pOther.mStaticImageInvalid),
 	mAvgDistortionVec(pOther.mAvgDistortionVec),
 	mCachedEffectiveWeight(pOther.mCachedEffectiveWeight)
@@ -344,7 +344,6 @@ BOOL LLTexLayerParamAlpha::render(S32 x, S32 y, S32 width, S32 height)
 					mCachedProcessedTexture->setAddressMode(LLTexUnit::TAM_CLAMP);
 				}
 
-				LLGLSNoAlphaTest gls_no_alpha_test;
 				gGL.getTexUnit(0)->bind(mCachedProcessedTexture);
 				gl_rect_2d_simple_tex(width, height);
 				gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
@@ -361,7 +360,6 @@ BOOL LLTexLayerParamAlpha::render(S32 x, S32 y, S32 width, S32 height)
 	}
 	else
 	{
-		LLGLDisable no_alpha(GL_ALPHA_TEST);
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 		gGL.color4f(0.f, 0.f, 0.f, effective_weight);
 		gl_rect_2d_simple(width, height);

@@ -7,9 +7,18 @@
 *.pyc
 *.rej
 *.swp
+*.vcxproj
+*.filters
+*.sln
+*.depend
+*.stamp
+*.rc
+
 *~
 
 # Specific paths and/or names
+CMakeCache.txt
+cmake_install.cmake
 LICENSES
 build-darwin-*
 build-linux-*
@@ -17,6 +26,10 @@ debian/files
 debian/secondlife-appearance-utility*
 debian/secondlife-viewer*
 indra/.distcc
+indra/cmake/*
+indra/out/*
+
+indra/packages/*
 build-vc80/
 build-vc100/
 build-vc120/
@@ -44,6 +57,7 @@ indra/newview/dbghelp.dll
 indra/newview/filters.xml
 indra/newview/fmod.dll
 indra/newview/fmod.log
+indra/newview/fonts
 indra/newview/mozilla-theme
 indra/newview/mozilla-universal-darwin.tgz
 indra/newview/pilot.txt
@@ -55,6 +69,7 @@ indra/newview/teleport_history.txt
 indra/newview/typed_locations.txt
 indra/newview/vivox-runtime
 indra/newview/skins/default/html/common/equirectangular/js
+emoji_characters.xml
 indra/server-linux-*
 indra/temp
 indra/test/linden_file.dat
@@ -74,3 +89,6 @@ trivial_change_force_build
 web/config.*
 web/locale.*
 web/secondlife.com.*
+
+.env
+.vscode

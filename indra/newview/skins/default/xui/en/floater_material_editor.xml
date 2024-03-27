@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ can_resize="true"
+ default_tab_group="1"
+ height="891"
+ width="256"
+ min_height="500"
+ min_width="256"
+ layout="topleft"
+ name="material editor"
+ help_topic="material_editor"
+ title="[MATERIAL_NAME]">
+  <string name="no_upload_fee_string">no upload fee</string>
+  <string name="upload_fee_string">L$[FEE] upload fee</string>
+  <string name="material_selection_title">Material selection</string>
+  <string name="material_selection_text">Select material:</string>
+  <string name="material_batch_import_text">--- Bulk Upload All ---</string>
+  <string name="material_override_title">Editing Material</string>
+
+  <scroll_container
+   name="materials_scroll"
+   top="18"
+   left="4"
+   height="768"
+   width="250"
+   follows="all"
+   layout="topleft"
+   color="DkGray2"
+   opaque="true"
+   tab_stop="true"
+   reserve_scroll_corner="false">
+    <panel
+     name="panel_material"
+     filename="panel_gltf_material.xml"
+     layout="topleft"
+     follows="left|top|right"
+     border="false"
+     top="0"
+     left="0"
+     height="768"
+     width="236" />
+  </scroll_container>
+
+  <panel
+         follows="right|bottom"
+         width="246"
+         height="97"
+         layout="bottomright"
+         top_pad="0"
+         left="5"
+         name="button_panel"
+         >
+    <text
+               type="string"
+               name="unsaved_changes"
+               font.style="BOLD"
+               text_color="DrYellow"
+               length="1"
+               follows="left|top"
+               height="10"
+               width="200"
+               layout="topleft"
+               left="10"
+               top="0"
+           >
+      Unsaved changes
+    </text>
+    <button
+               follows="left|top"
+               height="25"
+               label="Save"
+               enabled="false"
+               layout="topleft"
+               name="save"
+               top_pad="7"
+               left="0"
+               width="120" />
+    <button
+               follows="left|top"
+               height="25"
+               label="Save As..."
+               enabled="false"
+               layout="topleft"
+               name="save_as"
+               top_delta="0"
+               left_pad="6"
+               width="120" />
+    <text
+               type="string"
+               font.style="BOLD"
+               length="1"
+               follows="left|top"
+               height="10"
+               width="220"
+               layout="topleft"
+               left="10"
+               top_pad="5"
+               name="total_upload_fee"
+           >
+      Total upload fee: L$ [FEE]
+    </text>
+    
+    <view_border
+        bevel_style="none"
+        height="0"
+        layout="topleft"
+        left="0"
+        name="button_border"
+        top_pad="7"
+        width="246"/>
+    
+    <button
+               follows="left|top"
+               height="25"
+               label="Cancel"
+               layout="topleft"
+               name="cancel"
+               top_pad="7"
+               left="61"
+               width="121" />
+  </panel>
+</floater>

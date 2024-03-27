@@ -141,7 +141,12 @@ attributedStringInfo getSegments(NSAttributedString *str)
     CGLError the_err = CGLQueryRendererInfo (CGDisplayIDToOpenGLDisplayMask(kCGDirectMainDisplay), &info, &num_renderers);
     if(0 == the_err)
     {
-        CGLDescribeRenderer (info, 0, kCGLRPTextureMemoryMegabytes, &vram_megabytes);
+        // The name, uses, and other platform definitions of gGLManager.mVRAM suggest that this is supposed to be total vram in MB,
+        // rather than, say, just the texture memory. The two exceptions are:
+        // 1. LLAppViewer::getViewerInfo() puts the value in a field labeled "TEXTURE_MEMORY"
+        // 2. For years, this present function used kCGLRPTextureMemoryMegabytes
+        // Now we use kCGLRPVideoMemoryMegabytes to bring it in line with everything else (except thatone label).
+        CGLDescribeRenderer (info, 0, kCGLRPVideoMemoryMegabytes, &vram_megabytes);
         CGLDestroyRendererInfo (info);
     }
     else
@@ -256,6 +261,7 @@ attributedStringInfo getSegments(NSAttributedString *str)
 		NSOpenGLPFADepthSize, 24,
 		NSOpenGLPFAAlphaSize, 8,
 		NSOpenGLPFAColorSize, 24,
+		NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersion4_1Core,
 		0
     };
 	
@@ -544,7 +550,16 @@ attributedStringInfo getSegments(NSAttributedString *str)
     if (mModifiers & mask)
     {
         eventData.mKeyEvent = NativeKeyEventData::KEYDOWN;
-        callKeyDown(&eventData, [theEvent keyCode], 0, [[theEvent characters] characterAtIndex:0]);
+
+        wchar_t c = 0;
+        if([theEvent type] == NSEventTypeKeyDown)
+        {
+            // characters property is only valid when the event is of type KeyDown or KeyUp
+            // https://developer.apple.com/documentation/appkit/nsevent/1534183-characters?language=objc
+            c = [[theEvent characters] characterAtIndex:0];
+        }
+
+        callKeyDown(&eventData, [theEvent keyCode], 0, c);
     }
     else
     {
@@ -718,23 +733,52 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
 - (void)insertText:(id)aString replacementRange:(NSRange)replacementRange
 {
-	if (!mHasMarkedText)
+	// SL-19801 Special workaround for system emoji picker
+	if ([aString length] == 2)
 	{
-		for (NSInteger i = 0; i < [aString length]; i++)
-		{
-			callUnicodeCallback([aString characterAtIndex:i], mModifiers);
-		}
-	} else {
-        resetPreedit();
-		// We may never get this point since unmarkText may be called before insertText ever gets called once we submit our text.
-		// But just in case...
-		
-		for (NSInteger i = 0; i < [aString length]; i++)
-		{
-			handleUnicodeCharacter([aString characterAtIndex:i]);
-		}
-		mHasMarkedText = FALSE;
+        @try
+        {
+            uint32_t b0 = [aString characterAtIndex:0];
+            uint32_t b1 = [aString characterAtIndex:1];
+            if (((b0 & 0xF000) == 0xD000) && ((b1 & 0xF000) == 0xD000))
+            {
+                uint32_t b = 0x10000 | ((b0 & 0x3F) << 10) | (b1 & 0x3FF);
+                callUnicodeCallback(b, 0);
+                return;
+            }
+        }
+        @catch(NSException * e)
+        {
+            // One of the characters is an attribute string?
+            NSLog(@"Encountered an unsupported attributed character. Exception: %@ String: %@", e.name, aString);
+            return;
+        }
 	}
+    
+    @try
+    {
+        if (!mHasMarkedText)
+        {
+            for (NSInteger i = 0; i < [aString length]; i++)
+            {
+                callUnicodeCallback([aString characterAtIndex:i], mModifiers);
+            }
+        } else {
+            resetPreedit();
+            // We may never get this point since unmarkText may be called before insertText ever gets called once we submit our text.
+            // But just in case...
+            
+            for (NSInteger i = 0; i < [aString length]; i++)
+            {
+                handleUnicodeCharacter([aString characterAtIndex:i]);
+            }
+            mHasMarkedText = FALSE;
+        }
+    }
+    @catch(NSException * e)
+    {
+        NSLog(@"Failed to process an attributed string. Exception: %@ String: %@", e.name, aString);
+    }
 }
 
 - (void) insertNewline:(id)sender

@@ -30,9 +30,14 @@ uniform vec4 waterFogColor;
 uniform float waterFogDensity;
 uniform float waterFogKS;
 
-vec3 getPositionEye();
+vec3 srgb_to_linear(vec3 col);
+vec3 linear_to_srgb(vec3 col);
 
-vec4 applyWaterFogView(vec3 pos, vec4 color)
+vec3 atmosFragLighting(vec3 light, vec3 additive, vec3 atten);
+
+// get a water fog color that will apply the appropriate haze to a color given
+// a blend function of (ONE, SOURCE_ALPHA)
+vec4 getWaterFogViewNoClip(vec3 pos)
 {
     vec3 view = normalize(pos);
     //normalize view vector
@@ -64,16 +69,76 @@ vec4 applyWaterFogView(vec3 pos, vec4 color)
     float L = min(t1/t2*t3, 1.0);
     
     float D = pow(0.98, l*kd);
+
+    return vec4(srgb_to_linear(kc.rgb*L), D);
+}
+
+vec4 getWaterFogView(vec3 pos)
+{
+    if (dot(pos, waterPlane.xyz) + waterPlane.w > 0.0)
+    {
+        return vec4(0,0,0,1);
+    }
+
+    return getWaterFogViewNoClip(pos);
+}
+
+vec4 applyWaterFogView(vec3 pos, vec4 color)
+{
+    vec4 fogged = getWaterFogView(pos);
     
-    color.rgb = color.rgb * D + kc.rgb * L;
-    color.a = kc.a + color.a;
+    color.rgb = color.rgb * fogged.a + fogged.rgb;
 
     return color;
 }
 
-vec4 applyWaterFog(vec4 color)
+vec4 applyWaterFogViewLinearNoClip(vec3 pos, vec4 color)
 {
-    //normalize view vector
-    return applyWaterFogView(getPositionEye(), color);
+    vec4 fogged = getWaterFogViewNoClip(pos);
+    color.rgb *= fogged.a;
+    color.rgb += fogged.rgb;
+    return color;
 }
 
+vec4 applyWaterFogViewLinear(vec3 pos, vec4 color)
+{
+    if (dot(pos, waterPlane.xyz) + waterPlane.w > 0.0)
+    {
+        return color;
+    }
+
+    return applyWaterFogViewLinearNoClip(pos, color);
+}
+
+// for post deferred shaders, apply sky and water fog in a way that is consistent with
+// the deferred rendering haze post effects
+vec4 applySkyAndWaterFog(vec3 pos, vec3 additive, vec3 atten, vec4 color)
+{
+    bool eye_above_water = dot(vec3(0), waterPlane.xyz) + waterPlane.w > 0.0;
+    bool obj_above_water = dot(pos.xyz, waterPlane.xyz) + waterPlane.w > 0.0;
+
+    if (eye_above_water)
+    {
+        if (!obj_above_water)
+        { 
+            color.rgb = applyWaterFogViewLinearNoClip(pos, color).rgb;
+        }
+        else
+        {
+            color.rgb = atmosFragLighting(color.rgb, additive, atten);
+        }
+    }
+    else
+    {
+        if (obj_above_water)
+        {
+            color.rgb = atmosFragLighting(color.rgb, additive, atten);
+        }
+        else
+        {
+            color.rgb = applyWaterFogViewLinearNoClip(pos, color).rgb;
+        }
+    }
+
+    return color;
+}

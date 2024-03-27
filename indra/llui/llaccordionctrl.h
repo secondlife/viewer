@@ -144,7 +144,7 @@ private:
 	void	initNoTabsWidget(const LLTextBox::Params& tb_params);
 	void	updateNoTabsHelpTextVisibility();
 
-	void	arrangeSinge();
+	void	arrangeSingle();
 	void	arrangeMultiple();
 
 	// Calc Splitter's height that is necessary to display all child content

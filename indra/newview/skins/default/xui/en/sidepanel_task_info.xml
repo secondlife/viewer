@@ -62,25 +62,12 @@
              name="Sale Mixed">
                 Mixed Sale
             </panel.string>
-    <button
-     follows="top|left"
-     height="24"
-     image_hover_unselected="BackButton_Over"
-     image_pressed="BackButton_Press"
-     image_unselected="BackButton_Off"
-     layout="topleft"
-     left="8"
-     name="back_btn"
-     tab_stop="false"
-     top="0"
-     width="30"
-     use_draw_context_alpha="false" />
-        <text
+    <text
      follows="top|left|right"
      font="SansSerifHuge"
      height="26"
      layout="topleft"
-     left_pad="10"
+     left="48"
      name="title"
      text_color="LtGray"
      top="0"
@@ -181,7 +168,6 @@
 		     translate="false"
          use_ellipses="true" 
 		     width="225">
-	        TestString PleaseIgnore
 	     </text>
 	    <text
 			 type="string"
@@ -299,6 +285,10 @@
                  label="Zoom"
                  name="Zoom"
                  value="Zoom" />
+                <combo_box.item
+                 label="Ignore object"
+                 name="Ignoreobject"
+                 value="Ignore" />
                 <combo_box.item
                  label="None"
                  name="None"

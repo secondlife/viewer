@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_performance_nearby">
+	<button name="back_btn"/>
+	<text name="back_lbl">
+		戻る
+	</text>
+	<text name="av_nearby_title">
+		近くのアバター
+	</text>
+	<text name="av_nearby_desc">
+		複雑度の高いアバターの表示を省略して速度を上げることができます。
+	</text>
+	<slider tool_tip="複雑度が高いアバターをレンダリングする際に時間がかかるとみなすタイミングを制御します。（単位：マイクロ秒）" name="RenderAvatarMaxART">
+  </slider>
+	<text name="RenderAvatarMaxARTText">
+		制限なし
+	</text>
+	<name_list name="nearby_list">
+		<name_list.columns label="" name="complex_visual"/>
+		<name_list.columns label="" name="complex_value"/>
+		<name_list.columns label="" name="name"/>
+	</name_list>
+	<text name="av_nearby_desc2">
+		インワールド内のアバターを右クリックして表示を制御することもできます。
+	</text>
+	<button label="例外…" name="exceptions_btn">
+  </button>
+	<check_box label="フレンドは常に詳細表示する" name="display_friends"/>
+	<view_border name="border"/>
+	<check_box label="アバターを完全に非表示にする（風景写真に適しています）" name="hide_avatars"/>
+	<text name="name_tags_textbox">
+		名前タグ：
+	</text>
+	<radio_group name="name_tag_mode">
+		<radio_item label="オフ" name="radio"/>
+		<radio_item label="オン" name="radio2"/>
+		<radio_item label="簡略表示" name="radio3"/>
+	</radio_group>
+</panel>

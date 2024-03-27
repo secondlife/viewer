@@ -568,6 +568,7 @@ private:
 	// explicitly want this ptr_vector to be able to store NULLs
 	typedef boost::ptr_vector< boost::nullable<BasePipe> > PipeVector;
 	PipeVector mPipes;
+    apr_pool_t* mPool;
 };
 
 /// for logging

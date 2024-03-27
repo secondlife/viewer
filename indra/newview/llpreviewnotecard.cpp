@@ -39,7 +39,9 @@
 #include "llinventorydefines.h"
 #include "llinventorymodel.h"
 #include "lllineeditor.h"
+#include "llmd5.h"
 #include "llnotificationsutil.h"
+#include "llmd5.h"
 #include "llresmgr.h"
 #include "roles_constants.h"
 #include "llscrollbar.h"
@@ -553,7 +555,8 @@ bool LLPreviewNotecard::saveIfNeeded(LLInventoryItem* copyitem, bool sync)
                     uploadInfo = std::make_shared<LLBufferedAssetUploadInfo>(mItemUUID, LLAssetType::AT_NOTECARD, buffer, 
                         [](LLUUID itemId, LLUUID newAssetId, LLUUID newItemId, LLSD) {
                             LLPreviewNotecard::finishInventoryUpload(itemId, newAssetId, newItemId);
-                        });
+                        },
+                        nullptr);
                     url = agent_url;
                 }
                 else if (!mObjectUUID.isNull() && !task_url.empty())
@@ -562,7 +565,8 @@ bool LLPreviewNotecard::saveIfNeeded(LLInventoryItem* copyitem, bool sync)
                     uploadInfo = std::make_shared<LLBufferedAssetUploadInfo>(mObjectUUID, mItemUUID, LLAssetType::AT_NOTECARD, buffer, 
                         [object_uuid](LLUUID itemId, LLUUID, LLUUID newAssetId, LLSD) {
                             LLPreviewNotecard::finishTaskUpload(itemId, newAssetId, object_uuid);
-                        });
+                        },
+                        nullptr);
                     url = task_url;
                 }
 

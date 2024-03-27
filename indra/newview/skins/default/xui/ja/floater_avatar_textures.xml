@@ -1,60 +1,65 @@
-<?xml version="1.0" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="avatar_texture_debug" title="アバターのテクスチャ">
-	<floater.string name="InvalidAvatar">無効なアバター</floater.string>
+	<floater.string name="InvalidAvatar">
+		無効なアバター
+	</floater.string>
 	<scroll_container name="profile_scroll">
 		<panel name="scroll_content_panel">
-			<text name="label">ベークド
-テクスチャ</text>
-			<text name="composite_label">合成
-テクスチャ</text>
-			<button label="ID をコンソールにダンプ" label_selected="ダンプ" name="Dump"/>
+			<text name="label">
+				ベークド
+テクスチャ
+			</text>
+			<text name="composite_label">
+				合成テクスチャ
+			</text>
+			<button label="ＩＤをコンソールにダンプ" label_selected="ダンプ" name="Dump"/>
 			<panel name="scroll_content_panel">
 				<texture_picker label="髪" name="hair-baked"/>
 				<texture_picker label="髪" name="hair_grain"/>
 				<texture_picker label="髪のアルファ" name="hair_alpha"/>
+				<texture_picker label="髪のタトゥ" name="hair_tattoo"/>
 				<texture_picker label="頭" name="head-baked"/>
 				<texture_picker label="メイクアップ" name="head_bodypaint"/>
 				<texture_picker label="頭部のアルファ" name="head_alpha"/>
-				<texture_picker label="頭部のタトゥー" name="head_tattoo"/>
+				<texture_picker label="頭部のタトゥ" name="head_tattoo"/>
+				<texture_picker label="頭部全般のタトゥ" name="head_universal_tattoo"/>
 				<texture_picker label="目" name="eyes-baked"/>
 				<texture_picker label="目" name="eyes_iris"/>
 				<texture_picker label="目のアルファ" name="eyes_alpha"/>
+				<texture_picker label="目のタトゥ" name="eyes_tattoo"/>
 				<texture_picker label="上半身" name="upper-baked"/>
-				<texture_picker label="ボディペイント（上）" name="upper_bodypaint"/>
-				<texture_picker label="下着シャツ" name="upper_undershirt"/>
+				<texture_picker label="上半身のボディペイント" name="upper_bodypaint"/>
+				<texture_picker label="上半身の下着" name="upper_undershirt"/>
 				<texture_picker label="手袋" name="upper_gloves"/>
 				<texture_picker label="シャツ" name="upper_shirt"/>
 				<texture_picker label="上着" name="upper_jacket"/>
-				<texture_picker label="アルファ（上）" name="upper_alpha"/>
-				<texture_picker label="上部のタトゥー" name="upper_tattoo"/>
+				<texture_picker label="上半身のアルファ" name="upper_alpha"/>
+				<texture_picker label="上半身のタトゥ" name="upper_tattoo"/>
+				<texture_picker label="上半身全般のタトゥ" name="upper_universal_tattoo"/>
 				<texture_picker label="下半身" name="lower-baked"/>
-				<texture_picker label="ボディペイント（下）" name="lower_bodypaint"/>
-				<texture_picker label="下着パンツ" name="lower_underpants"/>
+				<texture_picker label="下半身のボディペイント" name="lower_bodypaint"/>
+				<texture_picker label="下半身の下着" name="lower_underpants"/>
 				<texture_picker label="靴下" name="lower_socks"/>
 				<texture_picker label="靴" name="lower_shoes"/>
-				<texture_picker label="パンツ" name="lower_pants"/>
+				<texture_picker label="ズボン" name="lower_pants"/>
 				<texture_picker label="ジャケット" name="lower_jacket"/>
-				<texture_picker label="アルファ（下）" name="lower_alpha"/>
-				<texture_picker label="下部のタトゥー" name="lower_tattoo"/>
+				<texture_picker label="下半身のアルファ" name="lower_alpha"/>
+				<texture_picker label="下半身のタトゥ" name="lower_tattoo"/>
 				<texture_picker label="スカート" name="skirt-baked"/>
 				<texture_picker label="スカート" name="skirt"/>
+				<texture_picker label="スカートのタトゥ" name="skirt_tattoo"/>
+				<texture_picker label="下半身全般のタトゥ" name="lower_universal_tattoo"/>
+				<texture_picker label="左腕" name="leftarm-baked"/>
+				<texture_picker label="左腕のタトゥ" name="leftarm_tattoo"/>
+				<texture_picker label="左足" name="leftleg-baked"/>
+				<texture_picker label="左足のタトゥ" name="leftleg_tattoo"/>
+				<texture_picker label="予備１" name="aux1-baked"/>
+				<texture_picker label="予備１タトゥ" name="aux1_tattoo"/>
+				<texture_picker label="予備２" name="aux2-baked"/>
+				<texture_picker label="予備２タトゥ" name="aux2_tattoo"/>
+				<texture_picker label="予備３" name="aux3-baked"/>
+				<texture_picker label="予備３タトゥ" name="aux3_tattoo"/>
 			</panel>
 		</panel>
-		<texture_picker name="upper_universal_tattoo" label="上腕 タトゥー"/>
-		<texture_picker name="aux1_tattoo" label="予備 1 タトゥー"/>
-		<texture_picker name="leftarm-baked" label="左腕"/>
-		<texture_picker name="aux1-baked" label="予備 1"/>
-		<texture_picker name="skirt_tattoo" label="スカートタトゥー"/>
-		<texture_picker name="aux2_tattoo" label="予備 2 タトゥー"/>
-		<texture_picker name="eyes_tattoo" label="アイタトゥー"/>
-		<texture_picker name="head_universal_tattoo" label="頭 Unv タトゥー"/>
-		<texture_picker name="leftleg_tattoo" label="左脚タトゥー"/>
-		<texture_picker name="aux3-baked" label="予備 3"/>
-		<texture_picker name="hair_tattoo" label="ヘアータトゥー"/>
-		<texture_picker name="leftleg-baked" label="左脚"/>
-		<texture_picker name="aux2-baked" label="予備 2"/>
-		<texture_picker name="aux3_tattoo" label="予備 3 タトゥー"/>
-		<texture_picker name="leftarm_tattoo" label="左腕タトゥー"/>
-		<texture_picker name="lower_universal_tattoo" label="下腕タトゥー"/>
 	</scroll_container>
 </floater>

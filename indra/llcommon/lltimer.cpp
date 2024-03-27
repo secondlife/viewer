@@ -30,6 +30,9 @@
 
 #include "u64.h"
 
+#include <chrono>
+#include <thread>
+
 #if LL_WINDOWS
 #	include "llwin32headerslean.h"
 #elif LL_LINUX || LL_DARWIN
@@ -62,9 +65,18 @@ LLTimer* LLTimer::sTimer = NULL;
 //---------------------------------------------------------------------------
 
 #if LL_WINDOWS
+
+
+#if 0
 void ms_sleep(U32 ms)
 {
-	Sleep(ms);
+    LL_PROFILE_ZONE_SCOPED;
+    using TimePoint = std::chrono::steady_clock::time_point;
+    auto resume_time = TimePoint::clock::now() + std::chrono::milliseconds(ms);
+    while (TimePoint::clock::now() < resume_time)
+    {
+        std::this_thread::yield(); //note: don't use LLThread::yield here to avoid yielding for too long
+    }
 }
 
 U32 micro_sleep(U64 us, U32 max_yields)
@@ -74,6 +86,35 @@ U32 micro_sleep(U64 us, U32 max_yields)
 	ms_sleep((U32)(us / 1000));
     return 0;
 }
+
+#else
+
+U32 micro_sleep(U64 us, U32 max_yields)
+{
+    LL_PROFILE_ZONE_SCOPED
+#if 0
+    LARGE_INTEGER ft;
+    ft.QuadPart = -static_cast<S64>(us * 10);  // '-' using relative time
+
+    HANDLE timer = CreateWaitableTimer(NULL, TRUE, NULL);
+    SetWaitableTimer(timer, &ft, 0, NULL, NULL, 0);
+    WaitForSingleObject(timer, INFINITE);
+    CloseHandle(timer);
+#else
+    Sleep(us / 1000);
+#endif
+
+    return 0;
+}
+
+void ms_sleep(U32 ms)
+{
+    LL_PROFILE_ZONE_SCOPED
+    micro_sleep(ms * 1000, 0);
+}
+
+#endif
+
 #elif LL_LINUX || LL_DARWIN
 static void _sleep_loop(struct timespec& thiswait)
 {

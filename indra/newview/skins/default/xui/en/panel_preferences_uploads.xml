@@ -126,6 +126,31 @@
    type="string"
    length="1"
    follows="left|top"
+   height="12"
+   layout="topleft"
+   left="37"
+   name="title_pbr"
+   top_pad="7"
+   width="100">
+    PBR Materials
+  </text>
+  <text
+   type="string"
+   use_ellipses="true"
+   follows="left|top"
+   height="27"
+   layout="topleft"
+   font.style="BOLD"
+   left="37"
+   name="upload_pbr"
+   top_pad="5"
+   width="370"
+   word_wrap="true"/>
+
+  <text
+   type="string"
+   length="1"
+   follows="left|top"
    height="30"
    layout="topleft"
    font.style="ITALIC"

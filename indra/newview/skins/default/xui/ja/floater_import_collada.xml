@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Import Collada" title="風景のインポート">
 	<text name="mesh count">
-		メッシュ： [COUNT]
+		メッシュ：[COUNT]
 	</text>
 	<text name="texture count">
-		テクスチャ： [COUNT]
+		テクスチャ：[COUNT]
 	</text>
 	<text name="status">
-		ステータス： [STATUS]
+		ステータス：[STATUS]
 	</text>
-	<button label="取り消し" name="cancel"/>
-	<button label="OK" name="ok"/>
+	<button label="キャンセル" name="cancel"/>
+	<button label="ＯＫ" name="ok"/>
 	<string name="status_idle">
 		待機状態
 	</string>

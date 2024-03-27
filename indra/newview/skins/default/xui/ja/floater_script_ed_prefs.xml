@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater_script_colors" title="スクリプトの色">
 	<text name="color_pickers_label">
-		希望の色を選択:
+		希望の色を選択：
 	</text>
 	<text name="text_label">
 		テキスト
@@ -37,12 +37,12 @@
 		/* サンプル スクリプト */
 default
 {
-state_entry()
-    {
-// コメント
-string greeting = &quot;こんにちは&quot;;
-llSay(PUBLIC_CHANNEL, greeting);
-    }
+  state_entry()
+  {
+    // コメント
+    string greeting = "こんにちは";
+    llSay(PUBLIC_CHANNEL, greeting);
+  }
 }
 	</script_editor>
 </floater>

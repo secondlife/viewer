@@ -23,20 +23,14 @@
  * $/LicenseInfo$
  */
 
-#extension GL_ARB_texture_rectangle : enable
-
 /*[EXTRA_CODE_HERE]*/
 
-#ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
-#else
-#define frag_color gl_FragColor
-#endif
 
 //class 2, shadows, no SSAO
 
 // Inputs
-VARYING vec2 vary_fragcoord;
+in vec2 vary_fragcoord;
 
 uniform vec3 sun_dir;
 uniform float shadow_bias;
@@ -53,8 +47,11 @@ void main()
     vec4 pos        = getPosition(pos_screen);
     vec3 norm       = getNorm(pos_screen);
 
-    frag_color.r = sampleDirectionalShadow(pos.xyz, norm, pos_screen);
-    frag_color.g = 1.0f;
-    frag_color.b = sampleSpotShadow(pos.xyz, norm, 0, pos_screen); 
-    frag_color.a = sampleSpotShadow(pos.xyz, norm, 1, pos_screen);
+    vec4 col;
+    col.r = sampleDirectionalShadow(pos.xyz, norm, pos_screen);
+    col.g = 1.0f;
+    col.b = sampleSpotShadow(pos.xyz, norm, 0, pos_screen); 
+    col.a = sampleSpotShadow(pos.xyz, norm, 1, pos_screen);
+
+    frag_color = clamp(col, vec4(0), vec4(1));
 }

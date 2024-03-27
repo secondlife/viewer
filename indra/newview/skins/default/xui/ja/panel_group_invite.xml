@@ -4,26 +4,27 @@
 		本当に新しい所有者を招待しますか？この操作は取り消しできません。
 	</panel.string>
 	<panel.string name="loading">
-		(ローディング．．．)
+		（読み込んでいます…）
 	</panel.string>
 	<panel.string name="already_in_group">
 		選択した住人のなかに、既にグループに所属している人がいるため、招待を送ることができませんでした。
 	</panel.string>
 	<panel.string name="invite_selection_too_large">
-		グループへの招待が送信されていません: 選択された住人が多すぎます。グループへの招待は1回のリクエストあたり100人に制限されています。
+		グループへの招待が送信されていません：選択された住人が多すぎます。
+グループへの招待は１回のリクエストあたり１００人に制限されています。
 	</panel.string>
-	<text bottom_delta="-96" font="SansSerifSmall" height="72" name="help_text">
-		グループには一度に複数の住人を招待することができます。 「リストから住人を選択」をクリックしてください。
+	<text name="help_text">
+		グループには一度に複数の住人を招待することができます。「リストから住人を選択」をクリックしてください。
 	</text>
-	<button bottom_delta="-10" label="リストから住人を選択" name="add_button" tool_tip=""/>
-	<name_list bottom_delta="-160" height="156" name="invitee_list" tool_tip="Ctrl キーを押しながら複数の住人をクリックできます"/>
+	<button label="リストから住人を選択" name="add_button" tool_tip=""/>
+	<name_list name="invitee_list" tool_tip="Ctrl キーを押しながら複数の住人をクリックできます"/>
 	<button label="リストから選択したものを削除" name="remove_button" tool_tip="招待リストから上で選択した住人を削除します"/>
 	<text name="role_text">
 		割り当て先の役割を選択：
 	</text>
 	<combo_box name="role_name" tool_tip="メンバーに割り当てたい役割をリストから選んください"/>
 	<button label="招待状を送信" name="invite_button"/>
-	<button label="取り消し" name="cancel_button"/>
+	<button label="キャンセル" name="cancel_button"/>
 	<string name="GroupInvitation">
 		グループへの招待
 	</string>

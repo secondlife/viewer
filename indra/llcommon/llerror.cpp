@@ -1601,21 +1601,62 @@ namespace LLError
     {
         return out << boost::stacktrace::stacktrace();
     }
-}
 
-bool debugLoggingEnabled(const std::string& tag)
-{
-    LLMutexTrylock lock(getMutex<LOG_MUTEX>(), 5);
-    if (!lock.isLocked())
+    // LLOutOfMemoryWarning
+    std::string LLUserWarningMsg::sLocalizedOutOfMemoryTitle;
+    std::string LLUserWarningMsg::sLocalizedOutOfMemoryWarning;
+    LLUserWarningMsg::Handler LLUserWarningMsg::sHandler;
+
+    void LLUserWarningMsg::show(const std::string& message)
     {
-        return false;
+        if (sHandler)
+        {
+            sHandler(std::string(), message);
+        }
     }
 
-    SettingsConfigPtr s = Globals::getInstance()->getSettingsConfig();
-    LLError::ELevel level = LLError::LEVEL_DEBUG;
-    bool res = checkLevelMap(s->mTagLevelMap, tag, level);
-    return res;
+    void LLUserWarningMsg::showOutOfMemory()
+    {
+        if (sHandler && !sLocalizedOutOfMemoryTitle.empty())
+        {
+            sHandler(sLocalizedOutOfMemoryTitle, sLocalizedOutOfMemoryWarning);
+        }
+    }
+
+    void LLUserWarningMsg::showMissingFiles()
+    {
+        // Files Are missing, likely can't localize.
+        const std::string error_string =
+            "Second Life viewer couldn't access some of the files it needs and will be closed."
+            "\n\nPlease reinstall viewer from  https://secondlife.com/support/downloads/ and "
+            "contact https://support.secondlife.com if issue persists after reinstall.";
+        sHandler("Missing Files", error_string);
+    }
+
+    void LLUserWarningMsg::setHandler(const LLUserWarningMsg::Handler &handler)
+    {
+        sHandler = handler;
+    }
+
+    void LLUserWarningMsg::setOutOfMemoryStrings(const std::string& title, const std::string& message)
+    {
+        sLocalizedOutOfMemoryTitle = title;
+        sLocalizedOutOfMemoryWarning = message;
+    }
 }
 
+void crashdriver(void (*callback)(int*))
+{
+    // The LLERROR_CRASH macro used to have inline code of the form:
+    //int* make_me_crash = NULL;
+    //*make_me_crash = 0;
 
-
+    // But compilers are getting smart enough to recognize that, so we must
+    // assign to an address supplied by a separate source file. We could do
+    // the assignment here in crashdriver() -- but then BugSplat would group
+    // all LL_ERRS() crashes as the fault of this one function, instead of
+    // identifying the specific LL_ERRS() source line. So instead, do the
+    // assignment in a lambda in the caller's source. We just provide the
+    // nullptr target.
+    callback(nullptr);
+}

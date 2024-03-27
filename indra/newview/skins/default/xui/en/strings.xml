@@ -53,7 +53,6 @@ Draw distance: [DRAW_DISTANCE]m
 Bandwidth: [NET_BANDWITH]kbit/s
 LOD factor: [LOD_FACTOR]
 Render quality: [RENDER_QUALITY]
-Advanced Lighting Model: [GPU_SHADERS]
 Texture memory: [TEXTURE_MEMORY]MB
 Disk cache: [DISK_CACHE_INFO]
 	</string>
@@ -233,7 +232,7 @@ If you feel this is an error, please contact support@secondlife.com</string>
 	<string name="TooltipForSaleL$">For Sale: L$[AMOUNT]</string> <!-- L$ version -->
 	<string name="TooltipFlagGroupBuild">Group Build</string>
 	<string name="TooltipFlagNoBuild">No Build</string>
-	<string name="TooltipFlagNoEdit">Group Build</string>
+	<string name="TooltipFlagNoEdit">No Edit</string>
 	<string name="TooltipFlagNotSafe">Not Safe</string><!-- damage area -->
 	<string name="TooltipFlagNoFly">No Fly</string>
 	<string name="TooltipFlagGroupScripts">Group Scripts</string>
@@ -319,6 +318,11 @@ Only items with unrestricted
 'next owner' permissions
 can be attached to notecards.
 	</string>
+	<string name="TooltipTextureRestrictedDrop">
+Only textures with unrestricted
+copy and transfer permissions
+are allowed.
+	</string>
 
 	<!-- searching - generic -->
 	<string name="Searching">Searching...</string>
@@ -403,6 +407,7 @@ http://secondlife.com/support for help fixing this problem.
 	<string name="symbolic link">link</string>
 	<string name="symbolic folder link">folder link</string>
 	<string name="settings blob">settings</string>
+	<string name="render material">material</string>
 	<string name="mesh">mesh</string>
 
 	<!-- llvoavatar. Displayed in the avatar chat bubble -->
@@ -485,9 +490,9 @@ http://secondlife.com/support for help fixing this problem.
 	<!-- build floater -->
 	<string name="multiple_textures">Multiple</string>
 
-<string name="use_texture">Use texture</string>
-    <string name="manip_hint1">Move mouse cursor over ruler</string>
-    <string name="manip_hint2">to snap to grid</string>
+	<string name="use_texture">Use texture</string>
+	<string name="manip_hint1">Move mouse cursor over ruler</string>
+	<string name="manip_hint2">to snap to grid</string>
 
 	<!-- world map -->
 	<string name="texture_loading">Loading...</string>
@@ -502,14 +507,14 @@ http://secondlife.com/support for help fixing this problem.
 
 	<!-- Chat -->
 	<string name="NearbyChatTitle">Nearby chat</string>
-  <string name="NearbyChatLabel">(Nearby chat)</string>
+	<string name="NearbyChatLabel">(Nearby chat)</string>
 	<string name="whisper">whispers:</string>
 	<string name="shout">shouts:</string>
 	<string name="ringing">Connecting to in-world Voice Chat...</string>
 	<string name="connected">Connected</string>
 	<string name="unavailable">Voice not available at your current location</string>
 	<string name="hang_up">Disconnected from in-world Voice Chat</string>
-  <string name="reconnect_nearby">You will now be reconnected to Nearby Voice Chat</string>
+	<string name="reconnect_nearby">You will now be reconnected to Nearby Voice Chat</string>
 	<string name="ScriptQuestionCautionChatGranted">'[OBJECTNAME]', an object owned by '[OWNERNAME]', located in [REGIONNAME] at [REGIONPOS], has been granted permission to: [PERMISSIONS].</string>
 	<string name="ScriptQuestionCautionChatDenied">'[OBJECTNAME]', an object owned by '[OWNERNAME]', located in [REGIONNAME] at [REGIONPOS], has been denied permission to: [PERMISSIONS].</string>
 	<string name="AdditionalPermissionsRequestHeader">If you allow access to your account, you will also be allowing the object to:</string>
@@ -2306,6 +2311,8 @@ For AI Character: Get the closest navigable point to the point provided.
 	<string name="FavoritesNoMatchingItems">To add a place to your favorites, click the star to the right of the location name, then save the landmark to "Favorites bar".</string>
 	<string name="MarketplaceNoListing">You have no listings yet.</string>
 	<string name="MarketplaceNoMatchingItems">No items found. Check the spelling of your search string and try again.</string>
+	<string name="InventorySingleFolderEmpty">Folder is empty.</string>
+	<string name="InventorySingleFolderNoMatches">No matches.</string>
 	<string name="InventoryNoTexture">You do not have a copy of this texture in your inventory</string>
 	<string name="InventoryInboxNoItems">Your Marketplace purchases will appear here. You may then drag them into your inventory to use them.</string>
 	<string name="MarketplaceURL">https://marketplace.[MARKETPLACE_DOMAIN_NAME]/</string>
@@ -2353,6 +2360,7 @@ If you continue to receive this message, please contact Second Life support for 
 	<string name="InventoryMarketplaceListingsNoItems">
         Drag folders to this area to list them for sale on the [[MARKETPLACE_DASHBOARD_URL] Marketplace].
 	</string>
+    <string name="InventoryFolderDebug">( F:[FOLDER_COUNT] I:[ITEMS_COUNT] V:[VERSION] DC:[VIEWER_DESCENDANT_COUNT]/[SERVER_DESCENDANT_COUNT] )</string>
 	<string name="InventoryItemsCount">( [ITEMS_COUNT] Items )</string>
 	<string name="Marketplace Validation Log"></string>
 	<string name="Marketplace Validation Warning Stock">stock folder must be contained by a version folder</string>
@@ -2391,12 +2399,16 @@ If you continue to receive this message, please contact Second Life support for 
   <string name="Unconstrained">Unconstrained</string>
 
 	<!-- use value="" because they have preceding spaces -->
+    <string name="active" value=" (active)"/>
 	<string name="no_transfer" value=" (no transfer)" />
 	<string name="no_modify"   value=" (no modify)" />
 	<string name="no_copy"     value=" (no copy)" />
 	<string name="worn"        value=" (worn)" />
-	<string name="link"        value=" (link)" />
-	<string name="broken_link" value=" (broken_link)" />
+	<string name="link"        value="  link" />
+	<string name="broken_link" value="  broken_link" />
+    <string name="no_transfer_lbl" value=" no transfer" />
+    <string name="no_modify_lbl"   value=" no modify" />
+    <string name="no_copy_lbl"     value=" no copy" />
 	<string name="LoadingContents">Loading contents...</string>
 	<string name="NoContents">No contents</string>
 	<string name="WornOnAttachmentPoint" value=" (worn on [ATTACHMENT_POINT])" />
@@ -2426,6 +2438,7 @@ If you continue to receive this message, please contact Second Life support for 
 	<string name="Clothing"      value=" Clothing," />
 	<string name="Gestures"      value=" Gestures," />
 	<string name="Landmarks"     value=" Landmarks," />
+	<string name="Materials"     value=" Materials," />
 	<string name="Notecards"     value=" Notecards," />
 	<string name="Objects"       value=" Objects," />
 	<string name="Scripts"       value=" Scripts," />
@@ -2471,6 +2484,9 @@ If you continue to receive this message, please contact Second Life support for 
 	<string name="InvFolder Meshes">Meshes</string>
 	<string name="InvFolder Received Items">Received Items</string>
 	<string name="InvFolder Merchant Outbox">Merchant Outbox</string>
+  <string name="InvFolder Settings">Settings</string>
+  <string name="InvFolder Material">Materials</string>
+  <string name="InvFolder Materials">Materials</string>
 
   <!-- are used for Friends and Friends/All folders in Inventory "Calling cards" folder. See EXT-694-->
 	<string name="InvFolder Friends">Friends</string>	
@@ -2847,7 +2863,7 @@ If you continue to receive this message, please contact Second Life support for 
 	<string name="GroupMoneyBalance">Balance</string>
 	<string name="GroupMoneyCredits">Credits</string>
 	<string name="GroupMoneyDebits">Debits</string>
-	<string name="GroupMoneyDate">[weekday,datetime,utc] [mth,datetime,utc] [day,datetime,utc], [year,datetime,utc]</string>
+	<string name="GroupMoneyStartDate">Transactions since [weekday,datetime,utc] [mth,datetime,utc] [day,datetime,utc], [year,datetime,utc]</string>
 
 	<!-- Viewer menu -->
 	<string name="AcquiredItems">Acquired Items</string>
@@ -2995,16 +3011,6 @@ Running in window.
 	<string name="MBDevContextErr">Can't make GL device context</string>
 	<string name="MBPixelFmtErr">Can't find suitable pixel format</string>
 	<string name="MBPixelFmtDescErr">Can't get pixel format description</string>
-	<string name="MBTrueColorWindow">
-		[APP_NAME] requires True Color (32-bit) to run.
-Please go to your computer's display settings and set the color mode to 32-bit.
-	</string>
-	<string name="MBAlpha">
-		[APP_NAME] is unable to run because it can't get an 8 bit alpha channel.  Usually this is due to video card driver issues.
-Please make sure you have the latest video card drivers installed.
-Also be sure your monitor is set to True Color (32-bit) in Control Panels &gt; Display &gt; Settings.
-If you continue to receive this message, contact the [SUPPORT_SITE].
-	</string>
 	<string name="MBPixelFmtSetErr">Can't set pixel format</string>
 	<string name="MBGLContextErr">Can't create GL rendering context</string>
 	<string name="MBGLContextActErr">Can't activate GL rendering context</string>
@@ -3013,8 +3019,19 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 
 If you continue to receive this message, contact the [SUPPORT_SITE].
 	</string>
+    <string name="MBOutOfMemoryTitle">Out Of Memory</string>
+    <string name="MBOutOfMemoryErr">
+        [APP_NAME]'s request for memory failed. Application can't proceed and will be closed.
 
-	<!-- Avatar Shape Information -->
+If your computer's RAM is low, quit any heavy applications before runing Second Life, allocate a page file or reduce graphical settings like draw distance.
+    </string>
+    <string name="MBMissingFile">
+        [APP_NAME] couldn't access or find some of the files it needs and will be closed.
+
+Please reinstall viewer from  https://secondlife.com/support/downloads/ and contact https://support.secondlife.com if issue persists after reinstall.
+    </string>
+
+    <!-- Avatar Shape Information -->
 <string name="5 O'Clock Shadow">5 O'Clock Shadow</string>
 
 <string name="All White">All White</string>
@@ -3851,6 +3868,7 @@ Abuse Report</string>
   <string name="New Physics">New Physics</string>
   <string name="Invalid Wearable">Invalid Wearable</string>
   <string name="New Gesture">New Gesture</string>
+  <string name="New Material">New Material</string>
   <string name="New Script">New Script</string>
   <string name="New Note">New Note</string>
   <string name="New Folder">New Folder</string>
@@ -4273,6 +4291,9 @@ name="Command_360_Capture_Tooltip">Capture a 360 equirectangular image</string>
   <string name="ExperiencePermissionShort16">Sit</string>
   <string name="ExperiencePermissionShort17">Environment</string>
 
+  <!-- PBR Materials -->
+  <string name="Material Texture Name Header">Textures present this material: </string>
+  
   <!-- Conversation log messages -->
   <string name="logging_calls_disabled_log_empty">
     Conversations are not being logged. To begin keeping a log, choose "Save: Log only" or "Save: Log and transcripts" under Preferences > Chat.

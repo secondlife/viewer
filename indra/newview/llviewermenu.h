@@ -90,6 +90,8 @@ void handle_gestures(void*);
 void handle_sit_down(void*);
 void handle_object_build(void*);
 void handle_object_touch();
+bool enable_object_edit_gltf_material();
+bool enable_object_save_gltf_material();
 bool enable_object_open();
 void handle_object_open();
 
@@ -108,6 +110,8 @@ void handle_zoom_to_object(LLUUID object_id);
 void handle_object_return();
 void handle_object_delete();
 void handle_object_edit();
+void handle_object_edit_gltf_material();
+void handle_object_save_gltf_material();
 
 void handle_attachment_edit(const LLUUID& inv_item_id);
 void handle_attachment_touch(const LLUUID& inv_item_id);
@@ -131,7 +135,6 @@ bool anyone_copy_selection(LLSelectNode* nodep);
 // *TODO: Move to separate file
 bool for_sale_selection(LLSelectNode* nodep);
 
-void handle_save_snapshot(void *);
 void handle_toggle_flycam();
 
 void handle_object_sit_or_stand();

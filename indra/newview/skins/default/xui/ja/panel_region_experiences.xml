@@ -14,7 +14,7 @@
 	</panel.string>
 	<panel.string name="blocked_estate_text">
 		グリッドスコープ体験のみブロックできます。
-      
+
 ブロックされた体験は、この不動産では実行できません。
 	</panel.string>
 	<panel.string name="estate_caption">
@@ -22,12 +22,12 @@
 	</panel.string>
 	<panel.string name="allowed_parcel_text">
 		ランドスコープとなる体験のみ許可されます。
-      
+
 許可された体験には、この不動産でブロックされていない場合、この区画で実行する権限があります。
 	</panel.string>
 	<panel.string name="blocked_parcel_text">
 		住人の体験をブロックできます。
-      
+
 ブロックされた体験は、この区画では実行できません。
 	</panel.string>
 </panel>

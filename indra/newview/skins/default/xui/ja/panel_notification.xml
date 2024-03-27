@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="通知パネル" name="notification_panel">
+	<panel label="情報パネル" name="info_panel">
+		<text name="text_box"/>
+		<text name="caution_text_box"/>
+		<text_editor name="text_editor_box"/>
+	</panel>
+	<panel label="コントロールパネル" name="control_panel">
+    
+  </panel>
+</panel>

@@ -182,6 +182,15 @@ void LLFloaterFixedEnvironment::setEditSettingsAndUpdate(const LLSettingsBase::p
     syncronizeTabs();
     refresh();
     LLEnvironment::instance().updateEnvironment(LLEnvironment::TRANSITION_INSTANT);
+
+    // teach user about HDR settings
+    if (mSettings
+        && mSettings->getSettingsType() == "sky"
+        && ((LLSettingsSky*)mSettings.get())->canAutoAdjust()
+        && ((LLSettingsSky*)mSettings.get())->getReflectionProbeAmbiance(true) != 0.f)
+    {
+        LLNotificationsUtil::add("AutoAdjustHDRSky");
+    }
 }
 
 void LLFloaterFixedEnvironment::syncronizeTabs()
@@ -440,7 +449,7 @@ void LLFloaterFixedEnvironmentWater::onOpen(const LLSD& key)
 
 void LLFloaterFixedEnvironmentWater::doImportFromDisk()
 {   // Load a a legacy Windlight XML from disk.
-    (new LLFilePickerReplyThread(boost::bind(&LLFloaterFixedEnvironmentWater::loadWaterSettingFromFile, this, _1), LLFilePicker::FFLOAD_XML, false))->getFile();
+    LLFilePickerReplyThread::startPicker(boost::bind(&LLFloaterFixedEnvironmentWater::loadWaterSettingFromFile, this, _1), LLFilePicker::FFLOAD_XML, false);
 }
 
 void LLFloaterFixedEnvironmentWater::loadWaterSettingFromFile(const std::vector<std::string>& filenames)
@@ -526,7 +535,7 @@ void LLFloaterFixedEnvironmentSky::onClose(bool app_quitting)
 
 void LLFloaterFixedEnvironmentSky::doImportFromDisk()
 {   // Load a a legacy Windlight XML from disk.
-    (new LLFilePickerReplyThread(boost::bind(&LLFloaterFixedEnvironmentSky::loadSkySettingFromFile, this, _1), LLFilePicker::FFLOAD_XML, false))->getFile();
+    LLFilePickerReplyThread::startPicker(boost::bind(&LLFloaterFixedEnvironmentSky::loadSkySettingFromFile, this, _1), LLFilePicker::FFLOAD_XML, false);
 }
 
 void LLFloaterFixedEnvironmentSky::loadSkySettingFromFile(const std::vector<std::string>& filenames)

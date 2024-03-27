@@ -478,14 +478,24 @@ void LLFriendCardsManager::ensureFriendsFolderExists()
 			LL_WARNS() << "Failed to find \"" << cat_name << "\" category descendents in Category Tree." << LL_ENDL;
 		}
 
-		friends_folder_ID = gInventory.createNewCategory(calling_cards_folder_ID,
-			LLFolderType::FT_CALLINGCARD, get_friend_folder_name());
-
-		gInventory.createNewCategory(friends_folder_ID,
-			LLFolderType::FT_CALLINGCARD, get_friend_all_subfolder_name());
-
-		// Now when we have all needed folders we can sync their contents with buddies list.
-		syncFriendsFolder();
+		gInventory.createNewCategory(
+            calling_cards_folder_ID,
+			LLFolderType::FT_CALLINGCARD,
+            get_friend_folder_name(),
+            [](const LLUUID &new_category_id)
+        {
+            gInventory.createNewCategory(
+                new_category_id,
+                LLFolderType::FT_CALLINGCARD,
+                get_friend_all_subfolder_name(),
+                [](const LLUUID &new_category_id)
+            {
+                // Now when we have all needed folders we can sync their contents with buddies list.
+                LLFriendCardsManager::getInstance()->syncFriendsFolder();
+            }
+            );
+        }
+        );
 	}
 }
 
@@ -510,11 +520,16 @@ void LLFriendCardsManager::ensureFriendsAllFolderExists()
 			LL_WARNS() << "Failed to find \"" << cat_name << "\" category descendents in Category Tree." << LL_ENDL;
 		}
 
-		friends_all_folder_ID = gInventory.createNewCategory(friends_folder_ID,
-			LLFolderType::FT_CALLINGCARD, get_friend_all_subfolder_name());
-
-		// Now when we have all needed folders we can sync their contents with buddies list.
-		syncFriendsFolder();
+        gInventory.createNewCategory(
+            friends_folder_ID,
+			LLFolderType::FT_CALLINGCARD,
+            get_friend_all_subfolder_name(),
+            [](const LLUUID &new_cat_id)
+        {
+            // Now when we have all needed folders we can sync their contents with buddies list.
+            LLFriendCardsManager::getInstance()->syncFriendsFolder();
+        }
+        );
 	}
 }
 
@@ -534,20 +549,7 @@ void LLFriendCardsManager::syncFriendsFolder()
 	// Create own calling card if it was not found in Friends/All folder
 	if (!collector.isAgentCallingCardFound())
 	{
-		LLAvatarName av_name;
-		LLAvatarNameCache::get( gAgentID, &av_name );
-
-		create_inventory_item(gAgentID,
-							  gAgent.getSessionID(),
-							  calling_cards_folder_id,
-							  LLTransactionID::tnull,
-							  av_name.getCompleteName(),
-							  gAgentID.asString(),
-							  LLAssetType::AT_CALLINGCARD,
-							  LLInventoryType::IT_CALLINGCARD,
-                              NO_INV_SUBTYPE,
-							  PERM_MOVE | PERM_TRANSFER,
-							  NULL);
+		create_inventory_callingcard(gAgentID, calling_cards_folder_id);
 	}
 
     // All folders created and updated.

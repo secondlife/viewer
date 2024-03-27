@@ -39,12 +39,14 @@ class LLFolderViewModelItemInventory
 public:
 	LLFolderViewModelItemInventory(class LLFolderViewModelInventory& root_view_model);
 	virtual const LLUUID& getUUID() const = 0;
+    virtual const LLUUID& getThumbnailUUID() const = 0;
 	virtual time_t getCreationDate() const = 0;	// UTC seconds
 	virtual void setCreationDate(time_t creation_date_utc) = 0;
 	virtual PermissionMask getPermissionMask() const = 0;
 	virtual LLFolderType::EType getPreferredType() const = 0;
 	virtual void showProperties(void) = 0;
 	virtual BOOL isItemInTrash( void) const { return FALSE; } // TODO: make   into pure virtual.
+    virtual bool isItemInOutfits() const { return false; }
 	virtual BOOL isAgentInventory() const { return FALSE; }
 	virtual BOOL isUpToDate() const = 0;
     virtual void addChild(LLFolderViewModelItem* child);

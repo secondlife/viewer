@@ -49,6 +49,8 @@ public:
 	void initFromParams(const LLInventoryPanel::Params&);
 	LLFolderViewFolder*	createFolderViewFolder(LLInvFVBridge * bridge, bool allow_drop);
 	LLFolderViewItem * createFolderViewItem(LLInvFVBridge * bridge);
+
+    void onRemoveItemFreshness(const LLUUID& item_id);
 };
 
 
@@ -77,6 +79,7 @@ public:
 	void deFreshify();
 
 	bool isFresh() const { return mFresh; }
+    void setFresh(bool is_fresh)  { mFresh = is_fresh; }
 	
 protected:
 	bool mFresh;
@@ -108,6 +111,7 @@ public:
 	void deFreshify();
 
 	bool isFresh() const { return mFresh; }
+    void setFresh(bool is_fresh)  { mFresh = is_fresh; }
 
 protected:
 	bool mFresh;
@@ -125,11 +129,16 @@ public:
 	void load();
 	
 	void addFreshItem(const LLUUID& id) { mNewItemsIDs.insert(id); }
-	void removeItem(const LLUUID& id) { mNewItemsIDs.erase(id); }
+    void removeItem(const LLUUID& id);
 	bool isItemFresh(const LLUUID& id) { return (mNewItemsIDs.find(id) != mNewItemsIDs.end()); }
+
+    void addInboxPanel(LLInboxInventoryPanel* inbox) { mInboxPanels.insert(inbox); }
+    void removeInboxPanel(LLInboxInventoryPanel* inbox) { mInboxPanels.erase(inbox); }
 
 private:
 	std::set<LLUUID> mNewItemsIDs;
+
+    std::set<LLInboxInventoryPanel*> mInboxPanels;
 };
 
 #endif //LL_INBOXINVENTORYPANEL_H

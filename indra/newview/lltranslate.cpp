@@ -42,6 +42,7 @@
 #include "llagent.h"
 #include "llviewerregion.h"
 #include "llsdserialize.h"
+#include "stringize.h"
 
 
 static const std::string AZURE_NOTRANSLATE_OPENING_TAG("<div translate=\"no\">");
@@ -163,12 +164,12 @@ void LLTranslationAPIHandler::verifyKeyCoro(LLTranslate::EService service, LLSD 
     LLCore::HttpHeaders::ptr_t httpHeaders(new LLCore::HttpHeaders);
 
 
-    std::string user_agent = llformat("%s %d.%d.%d (%d)",
-        LLVersionInfo::instance().getChannel().c_str(),
-        LLVersionInfo::instance().getMajor(),
-        LLVersionInfo::instance().getMinor(),
-        LLVersionInfo::instance().getPatch(),
-        LLVersionInfo::instance().getBuild());
+    std::string user_agent = stringize(
+        LLVersionInfo::instance().getChannel(), ' ',
+        LLVersionInfo::instance().getMajor(), '.',
+        LLVersionInfo::instance().getMinor(), '.',
+        LLVersionInfo::instance().getPatch(), " (",
+        LLVersionInfo::instance().getBuild(), ')');
 
     initHttpHeader(httpHeaders, user_agent, key);
 
@@ -218,12 +219,12 @@ void LLTranslationAPIHandler::translateMessageCoro(LanguagePair_t fromTo, std::s
     LLCore::HttpHeaders::ptr_t httpHeaders(new LLCore::HttpHeaders);
 
 
-    std::string user_agent = llformat("%s %d.%d.%d (%d)",
-        LLVersionInfo::instance().getChannel().c_str(),
-        LLVersionInfo::instance().getMajor(),
-        LLVersionInfo::instance().getMinor(),
-        LLVersionInfo::instance().getPatch(),
-        LLVersionInfo::instance().getBuild());
+    std::string user_agent = stringize(
+        LLVersionInfo::instance().getChannel(), ' ',
+        LLVersionInfo::instance().getMajor(), '.',
+        LLVersionInfo::instance().getMinor(), '.',
+        LLVersionInfo::instance().getPatch(), " (",
+        LLVersionInfo::instance().getBuild(), ')');
 
     initHttpHeader(httpHeaders, user_agent);
     httpOpts->setSSLVerifyPeer(false);

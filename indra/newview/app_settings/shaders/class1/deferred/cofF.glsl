@@ -23,19 +23,12 @@
  * $/LicenseInfo$
  */
 
-#extension GL_ARB_texture_rectangle : enable
-
 /*[EXTRA_CODE_HERE]*/
 
-#ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
-#else
-#define frag_color gl_FragColor
-#endif
 
-uniform sampler2DRect diffuseRect;
-uniform sampler2DRect depthMap;
-uniform sampler2D bloomMap;
+uniform sampler2D diffuseRect;
+uniform sampler2D depthMap;
 
 uniform float depth_cutoff;
 uniform float norm_cutoff;
@@ -48,7 +41,7 @@ uniform float max_cof;
 uniform mat4 inv_proj;
 uniform vec2 screen_res;
 
-VARYING vec2 vary_fragcoord;
+in vec2 vary_fragcoord;
 
 float calc_cof(float depth)
 {
@@ -69,19 +62,18 @@ void main()
 {
 	vec2 tc = vary_fragcoord.xy;
 
-    float z = texture2DRect(depthMap, tc).r;
+    float z = texture(depthMap, tc).r;
 	z = z*2.0-1.0;
 	vec4 ndc = vec4(0.0, 0.0, z, 1.0);
 	vec4 p = inv_proj*ndc;
 	float depth = p.z/p.w;
 	
-	vec4 diff = texture2DRect(diffuseRect, vary_fragcoord.xy);
+	vec4 diff = texture(diffuseRect, vary_fragcoord.xy);
 	
 	float sc = calc_cof(depth);
 	sc = min(sc, max_cof);
 	sc = max(sc, -max_cof);
 	
-	vec4 bloom = texture2D(bloomMap, vary_fragcoord.xy/screen_res);
-	frag_color.rgb = diff.rgb + bloom.rgb;
+	frag_color.rgb = diff.rgb;
 	frag_color.a = sc/max_cof*0.5+0.5;
 }

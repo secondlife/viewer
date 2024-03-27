@@ -188,12 +188,12 @@ void LLScrollbar::setPageSize( S32 page_size )
 	}
 }
 
-BOOL LLScrollbar::isAtBeginning()
+bool LLScrollbar::isAtBeginning() const
 {
 	return mDocPos == 0;
 }
 
-BOOL LLScrollbar::isAtEnd()
+bool LLScrollbar::isAtEnd() const
 {
 	return mDocPos == getDocPosMax();
 }
@@ -475,13 +475,15 @@ void LLScrollbar::reshape(S32 width, S32 height, BOOL called_from_parent)
 	{
 		up_button->reshape(up_button->getRect().getWidth(), llmin(getRect().getHeight() / 2, mThickness));
 		down_button->reshape(down_button->getRect().getWidth(), llmin(getRect().getHeight() / 2, mThickness));
-		up_button->setOrigin(up_button->getRect().mLeft, getRect().getHeight() - up_button->getRect().getHeight());
+		up_button->setOrigin(0, getRect().getHeight() - up_button->getRect().getHeight());
+		down_button->setOrigin(0, 0);
 	}
 	else
 	{
 		up_button->reshape(llmin(getRect().getWidth() / 2, mThickness), up_button->getRect().getHeight());
 		down_button->reshape(llmin(getRect().getWidth() / 2, mThickness), down_button->getRect().getHeight());
-		down_button->setOrigin(getRect().getWidth() - down_button->getRect().getWidth(), down_button->getRect().mBottom);
+		up_button->setOrigin(0, 0);
+		down_button->setOrigin(getRect().getWidth() - down_button->getRect().getWidth(), 0);
 	}
 	updateThumbRect();
 }
@@ -591,7 +593,12 @@ void LLScrollbar::setValue(const LLSD& value)
 
 BOOL LLScrollbar::handleKeyHere(KEY key, MASK mask)
 {
-	BOOL handled = FALSE;
+    if (getDocPosMax() == 0 && !getVisible())
+    {
+        return FALSE;
+    }
+
+    BOOL handled = FALSE;
 
 	switch( key )
 	{

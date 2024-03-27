@@ -29,7 +29,7 @@ Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 $/LicenseInfo$
 """
 
-from llbase import llsd
+import llsd
 import argparse
 
 parser = argparse.ArgumentParser(

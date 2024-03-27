@@ -64,6 +64,9 @@ public:
     virtual void        logPreparedUpload();
     virtual LLUUID      finishUpload(LLSD &result);
 
+    // return true if no further action is need
+    virtual bool        failedUpload(LLSD &result, std::string &reason) { return false; }
+
     LLTransactionID     getTransactionId() const { return mTransactionId; }
     LLAssetType::EType  getAssetType() const { return mAssetType; }
     std::string         getAssetTypeString() const;
@@ -168,19 +171,60 @@ private:
 };
 
 //-------------------------------------------------------------------------
+// use when you have a resource in memory and you want to make a new inventory item
+class LLNewBufferedResourceUploadInfo : public LLResourceUploadInfo
+{
+public:
+    typedef std::function<void(LLUUID newAssetId, LLSD response)> uploadFinish_f;
+    typedef std::function<bool(LLUUID assetId, LLSD response, std::string reason)> uploadFailure_f;
+
+    LLNewBufferedResourceUploadInfo(
+        const std::string& buffer,
+        const LLAssetID& asset_id,
+        std::string name,
+        std::string description,
+        S32 compressionInfo,
+        LLFolderType::EType destinationType,
+        LLInventoryType::EType inventoryType,
+        LLAssetType::EType assetType,
+        U32 nextOWnerPerms,
+        U32 groupPerms,
+        U32 everyonePerms,
+        S32 expectedCost,
+        bool show_inventory,
+        uploadFinish_f finish,
+        uploadFailure_f failure);
+
+    virtual LLSD        prepareUpload();
+
+protected:
+
+    virtual LLSD        exportTempFile();
+    virtual LLUUID      finishUpload(LLSD &result);
+    virtual bool        failedUpload(LLSD &result, std::string &reason);
+
+private:
+    uploadFinish_f  mFinishFn;
+    uploadFailure_f  mFailureFn;
+    std::string mBuffer;
+};
+
+//-------------------------------------------------------------------------
 class LLBufferedAssetUploadInfo : public LLResourceUploadInfo
 {
 public:
     typedef std::function<void(LLUUID itemId, LLUUID newAssetId, LLUUID newItemId, LLSD response)> invnUploadFinish_f;
     typedef std::function<void(LLUUID itemId, LLUUID taskId, LLUUID newAssetId, LLSD response)> taskUploadFinish_f;
+    typedef std::function<bool(LLUUID itemId, LLUUID taskId, LLSD response, std::string reason)> uploadFailed_f;
 
-    LLBufferedAssetUploadInfo(LLUUID itemId, LLAssetType::EType assetType, std::string buffer, invnUploadFinish_f finish);
+    LLBufferedAssetUploadInfo(LLUUID itemId, LLAssetType::EType assetType, std::string buffer, invnUploadFinish_f finish, uploadFailed_f failed);
     LLBufferedAssetUploadInfo(LLUUID itemId, LLPointer<LLImageFormatted> image, invnUploadFinish_f finish);
-    LLBufferedAssetUploadInfo(LLUUID taskId, LLUUID itemId, LLAssetType::EType assetType, std::string buffer, taskUploadFinish_f finish);
+    LLBufferedAssetUploadInfo(LLUUID taskId, LLUUID itemId, LLAssetType::EType assetType, std::string buffer, taskUploadFinish_f finish, uploadFailed_f failed);
 
     virtual LLSD        prepareUpload();
     virtual LLSD        generatePostBody();
     virtual LLUUID      finishUpload(LLSD &result);
+    virtual bool        failedUpload(LLSD &result, std::string &reason);
 
     LLUUID              getTaskId() const { return mTaskId; }
     const std::string & getContents() const { return mContents; }
@@ -197,6 +241,7 @@ private:
     std::string         mContents;
     invnUploadFinish_f  mInvnFinishFn;
     taskUploadFinish_f  mTaskFinishFn;
+    uploadFailed_f      mFailureFn;
     bool                mStoredToCache;
 };
 
@@ -210,9 +255,9 @@ public:
         MONO
     };
 
-    LLScriptAssetUpload(LLUUID itemId, std::string buffer, invnUploadFinish_f finish);
+    LLScriptAssetUpload(LLUUID itemId, std::string buffer, invnUploadFinish_f finish, uploadFailed_f failed);
     LLScriptAssetUpload(LLUUID taskId, LLUUID itemId, TargetType_t targetType, 
-            bool isRunning, LLUUID exerienceId, std::string buffer, taskUploadFinish_f finish);
+            bool isRunning, LLUUID exerienceId, std::string buffer, taskUploadFinish_f finish, uploadFailed_f failed);
 
     virtual LLSD        generatePostBody();
 

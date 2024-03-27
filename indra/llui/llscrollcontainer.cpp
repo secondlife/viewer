@@ -70,6 +70,7 @@ LLScrollContainer::Params::Params()
 	bg_color("color"),
 	border_visible("border_visible"),
 	hide_scrollbar("hide_scrollbar"),
+	ignore_arrow_keys("ignore_arrow_keys"),
 	min_auto_scroll_rate("min_auto_scroll_rate", 100),
 	max_auto_scroll_rate("max_auto_scroll_rate", 1000),
 	max_auto_scroll_zone("max_auto_scroll_zone", 16),
@@ -86,6 +87,7 @@ LLScrollContainer::LLScrollContainer(const LLScrollContainer::Params& p)
 	mBackgroundColor(p.bg_color()),
 	mIsOpaque(p.is_opaque),
 	mHideScrollbar(p.hide_scrollbar),
+	mIgnoreArrowKeys(p.ignore_arrow_keys),
 	mReserveScrollCorner(p.reserve_scroll_corner),
 	mMinAutoScrollRate(p.min_auto_scroll_rate),
 	mMaxAutoScrollRate(p.max_auto_scroll_rate),
@@ -105,8 +107,8 @@ LLScrollContainer::LLScrollContainer(const LLScrollContainer::Params& p)
 	mBorder = LLUICtrlFactory::create<LLViewBorder> (params);
 	LLView::addChild( mBorder );
 
-	mInnerRect.set( 0, getRect().getHeight(), getRect().getWidth(), 0 );
-	mInnerRect.stretch( -getBorderWidth()  );
+	mInnerRect = getLocalRect();
+	mInnerRect.stretch( -getBorderWidth() );
 
 	LLRect vertical_scroll_rect = mInnerRect;
 	vertical_scroll_rect.mLeft = vertical_scroll_rect.mRight - scrollbar_size;
@@ -124,8 +126,9 @@ LLScrollContainer::LLScrollContainer(const LLScrollContainer::Params& p)
 	mScrollbar[VERTICAL] = LLUICtrlFactory::create<LLScrollbar> (sbparams);
 	LLView::addChild( mScrollbar[VERTICAL] );
 	
-	LLRect horizontal_scroll_rect = mInnerRect;
-	horizontal_scroll_rect.mTop = horizontal_scroll_rect.mBottom + scrollbar_size;
+	LLRect horizontal_scroll_rect;
+	horizontal_scroll_rect.mTop = scrollbar_size;
+	horizontal_scroll_rect.mRight = mInnerRect.getWidth();
 	sbparams.name("scrollable horizontal");
 	sbparams.rect(horizontal_scroll_rect);
 	sbparams.orientation(LLScrollbar::HORIZONTAL);
@@ -134,7 +137,7 @@ LLScrollContainer::LLScrollContainer(const LLScrollContainer::Params& p)
 	sbparams.page_size(mInnerRect.getWidth());
 	sbparams.step_size(VERTICAL_MULTIPLE);
 	sbparams.visible(false);
-	sbparams.follows.flags(FOLLOWS_LEFT | FOLLOWS_RIGHT);
+	sbparams.follows.flags(FOLLOWS_LEFT | FOLLOWS_RIGHT | FOLLOWS_BOTTOM);
 	sbparams.change_callback(p.scroll_callback);
 	mScrollbar[HORIZONTAL] = LLUICtrlFactory::create<LLScrollbar> (sbparams);
 	LLView::addChild( mScrollbar[HORIZONTAL] );
@@ -203,10 +206,29 @@ void LLScrollContainer::reshape(S32 width, S32 height,
 	}
 }
 
+// virtual
 BOOL LLScrollContainer::handleKeyHere(KEY key, MASK mask)
 {
+    if (mIgnoreArrowKeys)
+    {
+        switch(key)
+        {
+        case KEY_LEFT:
+        case KEY_RIGHT:
+        case KEY_UP:
+        case KEY_DOWN:
+        case KEY_PAGE_UP:
+        case KEY_PAGE_DOWN:
+        case KEY_HOME:
+        case KEY_END:
+            return FALSE;
+        default:
+            break;
+        }
+    }
+
 	// allow scrolled view to handle keystrokes in case it delegated keyboard focus
-	// to the scroll container.  
+	// to the scroll container.
 	// NOTE: this should not recurse indefinitely as handleKeyHere
 	// should not propagate to parent controls, so mScrolledView should *not*
 	// call LLScrollContainer::handleKeyHere in turn
