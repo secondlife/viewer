@@ -1530,7 +1530,7 @@ void LLFloaterTexturePicker::setInventoryPickType(EPickInventoryType type)
     // refresh selection
     if (!mImageAssetID.isNull() || mInventoryPickType == PICK_MATERIAL)
     {
-        mInventoryPanel->setSelection(findItemID(mImageAssetID, FALSE), TAKE_FOCUS_NO);
+        mInventoryPanel->setSelection(findItemID(mImageAssetID, false), TAKE_FOCUS_NO);
     }
 }
 

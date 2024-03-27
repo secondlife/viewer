@@ -1159,7 +1159,7 @@ void LLToolDragAndDrop::dropTextureAllFaces(LLViewerObject* hit_obj,
 
     if (has_non_pbr_faces || remove_pbr)
     {
-        BOOL res = handleDropMaterialProtections(hit_obj, item, source, src_id);
+        bool res = handleDropMaterialProtections(hit_obj, item, source, src_id);
         if (!res)
         {
             return;

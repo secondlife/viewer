@@ -730,8 +730,8 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
 			LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("display - 2")
 			if (gResizeScreenTexture)
 			{
-				gResizeScreenTexture = false;
 				gPipeline.resizeScreenTexture();
+				gResizeScreenTexture = false;
 			}
 
 			gGL.setColorMask(true, true);
