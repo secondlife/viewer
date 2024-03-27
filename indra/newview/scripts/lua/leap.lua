@@ -40,8 +40,8 @@
 
 local fiber = require('fiber')
 local ErrorQueue = require('ErrorQueue')
--- local debug = require('printf')
-local function debug(...) end 
+-- local dbg = require('printf')
+local function dbg(...) end 
 
 local leap = {}
 
@@ -102,7 +102,7 @@ end
 -- 
 -- See also request(), generate().
 function leap.send(pump, data, reqid)
-    debug('leap.send(%s, %s, %s) entry', pump, data, reqid)
+    dbg('leap.send(%s, %s, %s) entry', pump, data, reqid)
     local data = data
     if type(data) == 'table' then
         data = table.clone(data)
@@ -111,7 +111,7 @@ function leap.send(pump, data, reqid)
             data['reqid'] = reqid
         end
     end
-    debug('leap.send(%s, %s) calling post_on()', pump, data)
+    dbg('leap.send(%s, %s) calling post_on()', pump, data)
     LL.post_on(pump, data)
 end
 
@@ -126,7 +126,7 @@ local function requestSetup(pump, data)
     -- WaitForReqid object in leap._pending so dispatch() can find it.
     leap._pending[reqid] = leap.WaitForReqid:new(reqid)
     -- Pass reqid to send() to stamp it into (a copy of) the request data.
-    debug('requestSetup(%s, %s)', pump, data)
+    dbg('requestSetup(%s, %s)', pump, data)
     leap.send(pump, data, reqid)
     return reqid
 end
@@ -152,9 +152,9 @@ end
 function leap.request(pump, data)
     local reqid = requestSetup(pump, data)
     local waitfor = leap._pending[reqid]
-    debug('leap.request(%s, %s) about to wait on %s', pump, data, tostring(waitfor))
+    dbg('leap.request(%s, %s) about to wait on %s', pump, data, tostring(waitfor))
     local ok, response = pcall(waitfor.wait, waitfor)
-    debug('leap.request(%s, %s) got %s: %s', pump, data, ok, response)
+    dbg('leap.request(%s, %s) got %s: %s', pump, data, ok, response)
     -- kill off temporary WaitForReqid object, even if error
     leap._pending[reqid] = nil
     if ok then
@@ -210,7 +210,7 @@ local function unsolicited(pump, data)
     -- we maintain waitfors in descending priority order, so the first waitfor
     -- to claim this event is the one with the highest priority
     for i, waitfor in pairs(leap._waitfors) do
-        debug('unsolicited() checking %s', waitfor.name)
+        dbg('unsolicited() checking %s', waitfor.name)
         if waitfor:handle(pump, data) then
             return
         end
@@ -243,9 +243,9 @@ fiber.set_idle(function ()
         cleanup('done')
         return 'done'
     end
-    debug('leap.idle() calling get_event_next()')
+    dbg('leap.idle() calling get_event_next()')
     local ok, pump, data = pcall(LL.get_event_next)
-    debug('leap.idle() got %s: %s, %s', ok, pump, data)
+    dbg('leap.idle() got %s: %s, %s', ok, pump, data)
     -- ok false means get_event_next() raised a Lua error, pump is message
     if not ok then
         cleanup(pump)
@@ -368,9 +368,9 @@ end
 -- Block the calling coroutine until a suitable unsolicited event (one
 -- for which filter() returns the event) arrives.
 function leap.WaitFor:wait()
-    debug('%s about to wait', self.name)
+    dbg('%s about to wait', self.name)
     local item = self._queue:Dequeue()
-    debug('%s got %s', self.name, item)
+    dbg('%s got %s', self.name, item)
     return item
 end
 
@@ -392,7 +392,7 @@ end
 -- called by unsolicited() for each WaitFor in leap._waitfors
 function leap.WaitFor:handle(pump, data)
     local item = self:filter(pump, data)
-    debug('%s.filter() returned %s', self.name, item)
+    dbg('%s.filter() returned %s', self.name, item)
     -- if this item doesn't pass the filter, we're not interested
     if not item then
         return false

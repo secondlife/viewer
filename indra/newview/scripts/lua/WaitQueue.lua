@@ -5,8 +5,8 @@
 local fiber = require('fiber')
 local Queue = require('Queue')
 
--- local debug = LL.print_debug
-local function debug(...) end
+-- local dbg = require('printf')
+local function dbg(...) end
 
 local WaitQueue = Queue:new()
 
@@ -60,17 +60,18 @@ function WaitQueue:Dequeue()
         -- the queue while there are still items left, and we want the
         -- consumer(s) to retrieve those last few items.
         if self._closed then
-            debug('WaitQueue:Dequeue(): closed')
+            dbg('WaitQueue:Dequeue(): closed')
             return nil
         end
-        debug('WaitQueue:Dequeue(): waiting')
+        dbg('WaitQueue:Dequeue(): waiting')
         -- add the running coroutine to the list of waiters
+        dbg('WaitQueue:Dequeue() running %s', tostring(coroutine.running() or 'main'))
         table.insert(self._waiters, fiber.running())
         -- then let somebody else run
         fiber.wait()
     end
     -- here we're sure this queue isn't empty
-    debug('WaitQueue:Dequeue() calling Queue.Dequeue()')
+    dbg('WaitQueue:Dequeue() calling Queue.Dequeue()')
     return Queue.Dequeue(self)
 end
 
