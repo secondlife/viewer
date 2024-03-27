@@ -328,6 +328,7 @@ public:
 								plain_text,
 								wrap,
 								use_ellipses,
+								use_emoji,
 								use_color,
 								parse_urls,
 								force_urls_external,
@@ -407,12 +408,15 @@ public:
 	virtual void			onSpellCheckPerformed(){}
 
 	// used by LLTextSegment layout code
-	bool					getWordWrap() { return mWordWrap; }
-	bool					getUseEllipses() { return mUseEllipses; }
-	bool					getUseColor() { return mUseColor; }
+	bool					getWordWrap() const { return mWordWrap; }
+	bool					getUseEllipses() const { return mUseEllipses; }
+	bool					getUseEmoji() const { return mUseEmoji; }
+	void					setUseEmoji(bool value) { mUseEmoji = value; }
+	bool					getUseColor() const { return mUseColor; }
+	void					setUseColor(bool value) { mUseColor = value; }
 	bool					truncate(); // returns true of truncation occurred
 
-	bool					isContentTrusted() {return mTrustedContent;}
+	bool					isContentTrusted() const { return mTrustedContent; }
 	void					setContentTrusted(bool trusted_content) { mTrustedContent = trusted_content; }
 
 	// TODO: move into LLTextSegment?
@@ -715,6 +719,7 @@ protected:
 	bool						mParseHighlights;	// highlight user-defined keywords
 	bool                		mWordWrap;
 	bool						mUseEllipses;
+	bool						mUseEmoji;
 	bool						mUseColor;
 	bool						mTrackEnd;			// if true, keeps scroll position at end of document during resize
 	bool						mReadOnly;
