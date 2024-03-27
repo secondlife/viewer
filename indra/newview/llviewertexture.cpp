@@ -2821,28 +2821,51 @@ void LLViewerFetchedTexture::setCachedRawImage(S32 discard_level, LLImageRaw* im
 void LLViewerFetchedTexture::setCachedRawImage()
 {	
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
+    bool is_terrain = false; // TODO: Remove
+    {
+        static const LLUUID ids[] = {
+            LLUUID("d1e8d8bb-dd73-e399-47b0-965ab60dc2bd") // 2048 black emissive tex (nice, there's UUID deduplication!)
+        };
+        for (const LLUUID& id : ids)
+        {
+            if (id == mID)
+            {
+                is_terrain = true;
+                break;
+            }
+        }
+    }
+    LL_WARNS() << "is_terrain: " << is_terrain << LL_ENDL;
 	if(mRawImage == mCachedRawImage)
 	{
+        if (is_terrain) { LL_WARNS() << "mRawImage == mCachedRawImage" << LL_ENDL; }
 		return;
 	}
 	if(!mIsRawImageValid)
 	{
+        if (is_terrain) { LL_WARNS() << "!mIsRawImageValid" << LL_ENDL; }
 		return;
 	}
 
 	if(mCachedRawImageReady)
 	{
+        if (is_terrain) { LL_WARNS() << "mCachedRawImageReady" << LL_ENDL; }
 		return;
 	}
 
 	if(mCachedRawDiscardLevel < 0 || mCachedRawDiscardLevel > mRawDiscardLevel)
 	{
+        if (is_terrain) { LL_WARNS() << "(mCachedRawDiscardLevel < 0 || mCachedRawDiscardLevel > mRawDiscardLevel)" << LL_ENDL; }
 		S32 i = 0;
 		S32 w = mRawImage->getWidth();
 		S32 h = mRawImage->getHeight();
 
 		S32 max_size = MAX_CACHED_RAW_IMAGE_AREA;
+#if 0 // TODO: Test (top is old)
 		if(LLGLTexture::BOOST_TERRAIN == mBoostLevel)
+#else
+		if(LLGLTexture::BOOST_TERRAIN == mBoostLevel || LLGLTexture::BOOST_MAP == mBoostLevel)
+#endif
 		{
 			max_size = MAX_CACHED_RAW_TERRAIN_IMAGE_AREA;
 		}		
@@ -2856,9 +2879,19 @@ void LLViewerFetchedTexture::setCachedRawImage()
 			mCachedRawImageReady = (!mRawDiscardLevel || ((w * h) >= max_size));
 		}
 
+        if (is_terrain) { LL_WARNS() << "i: " << i
+            << ", (w >> i): " << (w >> i)
+            << "(h >> i): " << (h >> i)
+            << ", ((w >> i) * (h >> i)): " << ((w >> i) * (h >> i))
+            << LL_ENDL; }
 		while(((w >> i) * (h >> i)) > max_size)
 		{
 			++i;
+            if (is_terrain) { LL_WARNS() << "i: " << i
+                << ", (w >> i): " << (w >> i)
+                << "(h >> i): " << (h >> i)
+                << ", ((w >> i) * (h >> i)): " << ((w >> i) * (h >> i))
+                << LL_ENDL; }
 		}
 		
 		if(i)
@@ -2866,6 +2899,11 @@ void LLViewerFetchedTexture::setCachedRawImage()
 			if(!(w >> i) || !(h >> i))
 			{
 				--i;
+                if (is_terrain) { LL_WARNS() << "i: " << i
+                    << ", (w >> i): " << (w >> i)
+                    << "(h >> i): " << (h >> i)
+                    << ", ((w >> i) * (h >> i)): " << ((w >> i) * (h >> i))
+                    << LL_ENDL; }
 			}
 			
 			{
@@ -2873,8 +2911,10 @@ void LLViewerFetchedTexture::setCachedRawImage()
 				mRawImage = mRawImage->scaled(w >> i, h >> i);
 			}
 		}
+        if (is_terrain) { LL_WARNS() << "i: " << i << LL_ENDL; }
 		mCachedRawImage = mRawImage;
 		mRawDiscardLevel += i;
+        if (is_terrain) { LL_WARNS() << "mRawDiscardLevel: " << mRawDiscardLevel << LL_ENDL; }
 		mCachedRawDiscardLevel = mRawDiscardLevel;			
 	}
 }

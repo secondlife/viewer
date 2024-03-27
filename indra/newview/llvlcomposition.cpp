@@ -540,11 +540,20 @@ BOOL LLVLComposition::generateMinimapTileLand(const F32 x, const F32 y,
 #if 1 // TODO: Remove
             if (tex->getRawImageLevel() != 32767)
             {
-                LL_WARNS() << "tex->getRawImageLevel(): " << tex->getRawImageLevel() << ", ddiscard: " << ddiscard << ", use_textures: " << use_textures << LL_ENDL;
+                LL_WARNS() << "tex->getFullWidth(): " << tex->getFullWidth()
+                           << ", tex->getFullHeight(): " << tex->getFullHeight()
+                           << ", tex->getRawImageLevel(): " << tex->getRawImageLevel()
+                           << ", ddiscard: " << ddiscard
+                           << ", use_textures: " << use_textures << LL_ENDL;
             }
             if (tex_emissive && tex_emissive->getRawImageLevel() != 32767)
             {
-                LL_WARNS() << "tex_emissive->getRawImageLevel(): " << tex_emissive->getRawImageLevel() << ", ddiscard_emissive: " << ddiscard_emissive << ", use_textures: " << use_textures << LL_ENDL;
+                
+                LL_WARNS() << "tex_emissive->getFullWidth(): " << tex_emissive->getFullWidth()
+                           << ", tex_emissive->getFullHeight(): " << tex_emissive->getFullHeight()
+                           << ", tex_emissive->getRawImageLevel(): " << tex_emissive->getRawImageLevel()
+                           << ", ddiscard_emissive: " << ddiscard_emissive
+                           << ", use_textures: " << use_textures << LL_ENDL;
             }
 #endif
 			BOOL delete_raw = (tex->reloadRawImage(ddiscard) != NULL);
@@ -567,11 +576,14 @@ BOOL LLVLComposition::generateMinimapTileLand(const F32 x, const F32 y,
 			}
             if (tex_emissive)
             {
+                LL_WARNS() << "tex_emissive != nullptr" << LL_ENDL;
                 if(tex_emissive->getRawImageLevel() != ddiscard_emissive)
                 {
+                    LL_WARNS() << "(tex_emissive->getRawImageLevel() != ddiscard_emissive): " << (tex_emissive->getRawImageLevel() != ddiscard_emissive) << LL_ENDL;
                     // Raw image is not ready, will enter here again later.
                     if (tex_emissive->getFetchPriority() <= 0.0f && !tex_emissive->hasSavedRawImage())
                     {
+                        LL_WARNS() << "(tex_emissive->getFetchPriority() <= 0.0f && !tex_emissive->hasSavedRawImage()): " << (tex_emissive->getFetchPriority() <= 0.0f && !tex_emissive->hasSavedRawImage()) << LL_ENDL;
                         tex_emissive->setBoostLevel(LLGLTexture::BOOST_MAP);
                         tex_emissive->forceToRefetchTexture(ddiscard_emissive);
                     }
@@ -615,7 +627,7 @@ BOOL LLVLComposition::generateMinimapTileLand(const F32 x, const F32 y,
                     {
                         newraw_emissive->tint(emissive_factor);
                     }
-                    raw_emissive = newraw_emissive; // deletes old
+                    raw_emissive = newraw_emissive;
                 }
             }
 			if (has_base_color_factor ||
@@ -645,8 +657,14 @@ BOOL LLVLComposition::generateMinimapTileLand(const F32 x, const F32 y,
                 {
                     newraw->composite(raw_emissive);
                 }
+
 				mRawImages[i] = newraw; // deletes old
 			}
+
+            if (delete_raw_emissive)
+            {
+                tex_emissive->destroyRawImage();
+            }
 		}
 		st_data[i] = mRawImages[i]->getData();
 		st_data_size[i] = mRawImages[i]->getDataSize();
@@ -798,6 +816,8 @@ BOOL LLVLComposition::generateMinimapTileLand(const F32 x, const F32 y,
 		mDetailTextures[i]->setBoostLevel(LLGLTexture::BOOST_NONE);
 		mDetailTextures[i]->setMinDiscardLevel(MAX_DISCARD_LEVEL + 1);
 	}
+
+    // TODO: Should terrain materials be un-boosted too here?
 	
 	return TRUE;
 }
