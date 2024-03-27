@@ -3244,17 +3244,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-  <key>DefaultBlankNormalTexture</key>
-  <map>
-    <key>Comment</key>
-    <string>Texture used as 'Blank' in texture picker for normal maps. (UUID texture reference)</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>String</string>
-    <key>Value</key>
-    <string>5b53359e-59dd-d8a2-04c3-9e65134da47a</string>
-  </map>
 	<key>DefaultFemaleAvatar</key>
 	<map>
 	  <key>Comment</key>
@@ -3288,39 +3277,6 @@
 	  <key>Value</key>
 	  <string>Male Shape &amp; Outfit</string>
 	</map>
-  <key>DefaultObjectNormalTexture</key>
-  <map>
-    <key>Comment</key>
-    <string>Texture used as 'Default' in texture picker for normal map. (UUID texture reference)</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>String</string>
-    <key>Value</key>
-    <string>85f28839-7a1c-b4e3-d71d-967792970a7b</string>
-  </map>
-  <key>DefaultObjectSpecularTexture</key>
-  <map>
-    <key>Comment</key>
-    <string>Texture used as 'Default' in texture picker for specular map. (UUID texture reference)</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>String</string>
-    <key>Value</key>
-    <string>87e0e8f7-8729-1ea8-cfc9-8915773009db</string>
-  </map>
-  <key>DefaultObjectTexture</key>
-    <map>
-      <key>Comment</key>
-      <string>Texture used as 'Default' in texture picker. (UUID texture reference)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>89556747-24cb-43ed-920b-47caed15465f</string>
-    </map>
     <key>DefaultUploadCost</key>
     <map>
       <key>Comment</key>
@@ -10676,7 +10632,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>2.0</real>
+    <real>1.0</real>
   </map>
   <key>RendeSkyAutoAdjustBlueHorizonScale</key>
   <map>
@@ -10720,7 +10676,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>0.001</real>
+    <real>0.01</real>
   </map>
   <key>RenderSkySunlightScale</key>
   <map>
@@ -13619,17 +13575,6 @@
       <string>String</string>
       <key>Value</key>
       <string>F3E07BC8-A973-476D-8C7F-F3B7293975D1</string>
-    </map>
-    <key>UIImgWhiteUUID</key>
-    <map>
-      <key>Comment</key>
-      <string />
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>5748decc-f629-461c-9a36-a35a221fe21f</string>
     </map>
     <key>UILineEditorCursorThickness</key>
     <map>
