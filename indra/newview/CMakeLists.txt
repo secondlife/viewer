@@ -34,6 +34,7 @@ include(LLWindow)
 include(NDOF)
 include(NVAPI)
 include(OPENAL)
+include(OpenEXR)
 include(OpenGL)
 include(OpenSSL)
 include(PNG)
@@ -71,7 +72,6 @@ if (NOT HAVOK_TPV)
       endif (DARWIN)
    endif()
 endif (NOT HAVOK_TPV)
-
 
 set(viewer_SOURCE_FILES
     groupchatlistener.cpp
@@ -312,6 +312,7 @@ set(viewer_SOURCE_FILES
     llgiveinventory.cpp
     llglsandbox.cpp
     llgltfmateriallist.cpp
+    llgltfmaterialpreviewmgr.cpp
     llgroupactions.cpp
     llgroupiconctrl.cpp
     llgrouplist.cpp
@@ -522,6 +523,7 @@ set(viewer_SOURCE_FILES
     llrecentpeople.cpp
     llreflectionmap.cpp
     llreflectionmapmanager.cpp
+    llheroprobemanager.cpp
     llregioninfomodel.cpp
     llregionposition.cpp
     llremoteparcelrequest.cpp
@@ -967,6 +969,7 @@ set(viewer_HEADER_FILES
     llgesturemgr.h
     llgiveinventory.h
     llgltfmateriallist.h
+    llgltfmaterialpreviewmgr.h
     llgroupactions.h
     llgroupiconctrl.h
     llgrouplist.h
@@ -1163,6 +1166,7 @@ set(viewer_HEADER_FILES
     llrecentpeople.h
     llreflectionmap.h
     llreflectionmapmanager.h
+    llheroprobemanager.h
     llregioninfomodel.h
     llregionposition.h
     llremoteparcelrequest.h
@@ -1740,6 +1744,12 @@ if (WINDOWS)
       media_plugin_cef
       media_plugin_libvlc
       media_plugin_example
+      ${SHARED_LIB_STAGING_DIR}/Iex-3_2.dll
+      ${SHARED_LIB_STAGING_DIR}/IlmThread-3_2.dll
+      ${SHARED_LIB_STAGING_DIR}/Imath-3_1.dll
+      ${SHARED_LIB_STAGING_DIR}/OpenEXR-3_2.dll
+      ${SHARED_LIB_STAGING_DIR}/OpenEXRCore-3_2.dll
+      ${SHARED_LIB_STAGING_DIR}/OpenEXRUtil-3_2.dll
       )
 
     if (ADDRESS_SIZE EQUAL 64)
@@ -1933,6 +1943,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
         ll::bugsplat
         ll::tracy
         ll::icu4c
+        ll::openexr
         )
 
 if( TARGET ll::intel_memops )

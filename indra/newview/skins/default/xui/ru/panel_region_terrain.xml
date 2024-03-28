@@ -10,7 +10,7 @@
 	<spinner label="Верх. точка ландшафта" name="terrain_raise_spin"/>
 	<spinner label="Ниж. точка ландшафта" name="terrain_lower_spin"/>
 	<text name="detail_texture_text">
-    Текстуры ландшафта (требования: 1024x1024, 24-битные, TGA)
+    Текстуры ландшафта
   </text>
 	<text name="height_text_lbl">
 		1 (Низ)

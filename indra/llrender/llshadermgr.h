@@ -85,6 +85,9 @@ public:
         EMISSIVE_COLOR,                     //  "emissiveColor"
         METALLIC_FACTOR,                    //  "metallicFactor"
         ROUGHNESS_FACTOR,                   //  "roughnessFactor"
+        MIRROR_FLAG,                        //  "mirror_flag"
+        CLIP_PLANE,                         //  "clipPlane"
+        CLIP_SIGN,                          //  "clipSign"
         DIFFUSE_MAP,                        //  "diffuseMap"
         ALTERNATE_DIFFUSE_MAP,              //  "altDiffuseMap"
         SPECULAR_MAP,                       //  "specularMap"
@@ -96,6 +99,7 @@ public:
         SCENE_DEPTH,                        //  "sceneDepth"
         REFLECTION_PROBES,                  //  "reflectionProbes"
         IRRADIANCE_PROBES,                  //  "irradianceProbes"
+        HERO_PROBE,                         //  "heroProbes"
         CLOUD_NOISE_MAP,                    //  "cloud_noise_texture"
         CLOUD_NOISE_MAP_NEXT,               //  "cloud_noise_texture_next"
         FULLBRIGHT,                         //  "fullbright"
@@ -251,7 +255,31 @@ public:
         TERRAIN_DETAIL1,                    //  "detail_1"
         TERRAIN_DETAIL2,                    //  "detail_2"
         TERRAIN_DETAIL3,                    //  "detail_3"
+
         TERRAIN_ALPHARAMP,                  //  "alpha_ramp"
+
+        TERRAIN_DETAIL0_BASE_COLOR,                //  "detail_0_base_color" (GLTF)
+        TERRAIN_DETAIL1_BASE_COLOR,                //  "detail_1_base_color" (GLTF)
+        TERRAIN_DETAIL2_BASE_COLOR,                //  "detail_2_base_color" (GLTF)
+        TERRAIN_DETAIL3_BASE_COLOR,                //  "detail_3_base_color" (GLTF)
+        TERRAIN_DETAIL0_NORMAL,                    //  "detail_0_normal" (GLTF)
+        TERRAIN_DETAIL1_NORMAL,                    //  "detail_1_normal" (GLTF)
+        TERRAIN_DETAIL2_NORMAL,                    //  "detail_2_normal" (GLTF)
+        TERRAIN_DETAIL3_NORMAL,                    //  "detail_3_normal" (GLTF)
+        TERRAIN_DETAIL0_METALLIC_ROUGHNESS,        //  "detail_0_metallic_roughness" (GLTF)
+        TERRAIN_DETAIL1_METALLIC_ROUGHNESS,        //  "detail_1_metallic_roughness" (GLTF)
+        TERRAIN_DETAIL2_METALLIC_ROUGHNESS,        //  "detail_2_metallic_roughness" (GLTF)
+        TERRAIN_DETAIL3_METALLIC_ROUGHNESS,        //  "detail_3_metallic_roughness" (GLTF)
+        TERRAIN_DETAIL0_EMISSIVE,                  //  "detail_0_emissive" (GLTF)
+        TERRAIN_DETAIL1_EMISSIVE,                  //  "detail_1_emissive" (GLTF)
+        TERRAIN_DETAIL2_EMISSIVE,                  //  "detail_2_emissive" (GLTF)
+        TERRAIN_DETAIL3_EMISSIVE,                  //  "detail_3_emissive" (GLTF)
+
+        TERRAIN_BASE_COLOR_FACTORS,                //  "baseColorFactors" (GLTF)
+        TERRAIN_METALLIC_FACTORS,                  //  "metallicFactors" (GLTF)
+        TERRAIN_ROUGHNESS_FACTORS,                 //  "roughnessFactors" (GLTF)
+        TERRAIN_EMISSIVE_COLORS,                   //  "emissiveColors" (GLTF)
+        TERRAIN_MINIMUM_ALPHAS,                    //  "minimum_alphas" (GLTF)
 
         SHINY_ORIGIN,                       //  "origin"
         DISPLAY_GAMMA,                      //  "display_gamma"
@@ -279,6 +307,7 @@ public:
 
         REFLECTION_PROBE_AMBIANCE,          //  "reflection_probe_ambiance"
         REFLECTION_PROBE_MAX_LOD,            //  "max_probe_lod"
+        REFLECTION_PROBE_STRENGTH,            //  "probe_strength"
         SH_INPUT_L1R,                       //  "sh_input_r"
         SH_INPUT_L1G,                       //  "sh_input_g"
         SH_INPUT_L1B,                       //  "sh_input_b"
@@ -287,6 +316,9 @@ public:
         WATER_EDGE_FACTOR,                  //  "water_edge"
         SUN_UP_FACTOR,                      //  "sun_up_factor"
         MOONLIGHT_COLOR,                    //  "moonlight_color"
+
+        DEBUG_NORMAL_DRAW_LENGTH,           //  "debug_normal_draw_length"
+
         END_RESERVED_UNIFORMS
     } eGLSLReservedUniforms;
     // clang-format on
@@ -336,6 +368,7 @@ public:
     bool mShaderCacheInitialized = false;
     bool mShaderCacheEnabled = false;
     std::string mShaderCacheDir;
+    static bool sMirrorsEnabled;
 
 protected:
 

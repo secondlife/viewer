@@ -1889,7 +1889,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			F32* normals = (F32*) norm.get();
 			LLVector4a* src = vf.mNormals;
 			LLVector4a* end = src+num_vertices;
-			
+
 			while (src < end)
 			{	
 				LLVector4a normal;

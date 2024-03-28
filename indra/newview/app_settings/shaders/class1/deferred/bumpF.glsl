@@ -37,11 +37,15 @@ in vec3 vary_mat2;
 
 in vec4 vertex_color;
 in vec2 vary_texcoord0;
+in vec3 vary_position;
 
 vec2 encode_normal(vec3 n);
 
+void mirrorClip(vec3 pos);
 void main() 
 {
+    mirrorClip(vary_position);
+
 	vec4 col = texture(diffuseMap, vary_texcoord0.xy);
 	
 	if(col.a < minimum_alpha)

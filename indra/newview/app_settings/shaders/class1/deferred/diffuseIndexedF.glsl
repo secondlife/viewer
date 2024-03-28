@@ -30,12 +30,15 @@ out vec4 frag_data[4];
 in vec3 vary_normal;
 in vec4 vertex_color;
 in vec2 vary_texcoord0;
+in vec3 vary_position;
 
+void mirrorClip(vec3 pos);
 vec2 encode_normal(vec3 n);
 vec3 linear_to_srgb(vec3 c);
 
 void main() 
 {
+    mirrorClip(vary_position);
 	vec3 col = vertex_color.rgb * diffuseLookup(vary_texcoord0.xy).rgb;
 
 	vec3 spec;

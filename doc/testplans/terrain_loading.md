@@ -1,0 +1,4 @@
+- Texture terrain should load
+- PBR terrain should load if enabled
+- Related subsystem: A change to the PBR terrain loading system may affect the texture terrain loading system and vice-versa
+- Related subsystem: Minimaps should load if terrain loads (may take longer)

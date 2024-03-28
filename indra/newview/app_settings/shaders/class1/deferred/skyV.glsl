@@ -35,6 +35,11 @@ in vec3 position;
 out vec3 vary_HazeColor;
 out float vary_LightNormPosDot;
 
+#ifdef HAS_HDRI
+out vec4 vary_position;
+out vec3 vary_rel_pos;
+#endif
+
 // Inputs
 uniform vec3 camPosLocal;
 
@@ -72,6 +77,11 @@ void main()
     // Get relative position
     vec3 rel_pos = position.xyz - camPosLocal.xyz + vec3(0, 50, 0);
 
+#ifdef HAS_HDRI
+    vary_rel_pos = rel_pos;
+    vary_position = pos;
+#endif
+
     // Adj position vector to clamp altitude
     if (rel_pos.y > 0.)
     {
@@ -98,7 +108,7 @@ void main()
     vec3 light_atten = (blue_density + vec3(haze_density * 0.25)) * (density_multiplier * max_y);
 
     // Calculate relative weights
-    vec3 combined_haze = abs(blue_density) + vec3(abs(haze_density));
+    vec3 combined_haze = max(abs(blue_density) + vec3(abs(haze_density)), vec3(1e-6));
     vec3 blue_weight   = blue_density / combined_haze;
     vec3 haze_weight   = haze_density / combined_haze;
 

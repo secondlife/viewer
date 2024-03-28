@@ -25,12 +25,12 @@
 
 uniform mat3 normal_matrix;
 uniform mat4 texture_matrix0;
+uniform mat4 modelview_matrix;
 uniform mat4 modelview_projection_matrix;
 
 in vec3 position;
 in vec3 normal;
 in vec4 diffuse_color;
-in vec2 texcoord0;
 in vec2 texcoord1;
 
 out vec3 pos;
@@ -41,18 +41,16 @@ out vec4 vary_texcoord1;
 uniform vec4 object_plane_s;
 uniform vec4 object_plane_t;
 
-vec4 texgen_object(vec4  vpos, vec4 tc, mat4 mat, vec4 tp0, vec4 tp1)
+vec2 texgen_object(vec4 vpos, mat4 mat, vec4 tp0, vec4 tp1)
 {
     vec4 tcoord;
     
     tcoord.x = dot(vpos, tp0);
     tcoord.y = dot(vpos, tp1);
-    tcoord.z = tc.z;
-    tcoord.w = tc.w;
     
     tcoord = mat * tcoord; 
     
-    return tcoord; 
+    return tcoord.xy; 
 }
 
 void main()
@@ -62,12 +60,12 @@ void main()
     vec4 t_pos = modelview_projection_matrix * pre_pos;
 
     gl_Position = t_pos;
-    pos = t_pos.xyz;
+    pos = (modelview_matrix*pre_pos).xyz;
 
     vary_normal = normalize(normal_matrix * normal);
     
     // Transform and pass tex coords
-    vary_texcoord0.xy = texgen_object(vec4(position, 1.0), vec4(texcoord0,0,1), texture_matrix0, object_plane_s, object_plane_t).xy;
+    vary_texcoord0.xy = texgen_object(vec4(position, 1.0), texture_matrix0, object_plane_s, object_plane_t);
     
     vec4 t = vec4(texcoord1,0,1);
     

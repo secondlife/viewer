@@ -39,9 +39,11 @@ in vec4 vary_texcoord0;
 in vec4 vary_texcoord1;
 
 vec2 encode_normal(vec3 n);
+void mirrorClip(vec3 position);
 
 void main()
 {
+    mirrorClip(pos);
     /// Note: This should duplicate the blending functionality currently used for the terrain rendering.
     
     vec4 color0 = texture(detail_0, vary_texcoord0.xy);

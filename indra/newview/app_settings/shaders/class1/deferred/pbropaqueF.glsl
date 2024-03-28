@@ -58,10 +58,17 @@ vec2 encode_normal(vec3 n);
 vec3 linear_to_srgb(vec3 c);
 vec3 srgb_to_linear(vec3 c);
 
+uniform vec4 clipPlane;
+uniform float clipSign;
+
+void mirrorClip(vec3 pos);
+
 uniform mat3 normal_matrix;
 
 void main()
 {
+    mirrorClip(vary_position);
+
     vec4 basecolor = texture(diffuseMap, base_color_texcoord.xy).rgba;
     if (basecolor.a < minimum_alpha)
     {

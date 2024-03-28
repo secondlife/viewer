@@ -60,6 +60,12 @@ if(WINDOWS)
         nghttp2.dll
         libhunspell.dll
         uriparser.dll
+        Iex-3_2.dll
+        IlmThread-3_2.dll
+        Imath-3_1.dll
+        OpenEXR-3_2.dll
+        OpenEXRCore-3_2.dll
+        OpenEXRUtil-3_2.dll
         )
 
     # ICU4C (same filenames for 32 and 64 bit builds)

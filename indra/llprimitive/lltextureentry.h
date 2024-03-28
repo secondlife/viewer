@@ -134,7 +134,7 @@ public:
     S32  setGlow(F32 glow);
 	S32  setMaterialID(const LLMaterialID& pMaterialID);
 	S32  setMaterialParams(const LLMaterialPtr pMaterialParams);
-	
+    
 	virtual const LLUUID &getID() const { return mID; }
 	const LLColor4 &getColor() const { return mColor; }
     const F32 getAlpha() const { return mColor.mV[VALPHA]; }

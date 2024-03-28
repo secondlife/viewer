@@ -2147,6 +2147,20 @@ class LLAdvancedPurgeShaderCache : public view_listener_t
 	}
 };
 
+/////////////////////
+// REBUILD TERRAIN //
+/////////////////////
+
+
+class LLAdvancedRebuildTerrain : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+        gPipeline.rebuildTerrain();
+		return true;
+	}
+};
+
 ////////////////////
 // EVENT Recorder //
 ///////////////////
@@ -7876,6 +7890,19 @@ class LLAdvancedClickRenderBenchmark: public view_listener_t
 	}
 };
 
+void hdri_preview();
+
+class LLAdvancedClickHDRIPreview: public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata)
+    {
+        // open personal lighting floater when previewing an HDRI (keeps HDRI from implicitly unloading when opening build tools)
+        LLFloaterReg::showInstance("env_adjust_snapshot");
+        hdri_preview();
+        return true;
+    }
+};
+
 // these are used in the gl menus to set control values that require shader recompilation
 class LLToggleShaderControl : public view_listener_t
 {
@@ -9515,7 +9542,9 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedClickRenderShadowOption(), "Advanced.ClickRenderShadowOption");
 	view_listener_t::addMenu(new LLAdvancedClickRenderProfile(), "Advanced.ClickRenderProfile");
 	view_listener_t::addMenu(new LLAdvancedClickRenderBenchmark(), "Advanced.ClickRenderBenchmark");
+    view_listener_t::addMenu(new LLAdvancedClickHDRIPreview(), "Advanced.ClickHDRIPreview");
 	view_listener_t::addMenu(new LLAdvancedPurgeShaderCache(), "Advanced.ClearShaderCache");
+    view_listener_t::addMenu(new LLAdvancedRebuildTerrain(), "Advanced.RebuildTerrain");
 
 	#ifdef TOGGLE_HACKED_GODLIKE_VIEWER
 	view_listener_t::addMenu(new LLAdvancedHandleToggleHackedGodmode(), "Advanced.HandleToggleHackedGodmode");

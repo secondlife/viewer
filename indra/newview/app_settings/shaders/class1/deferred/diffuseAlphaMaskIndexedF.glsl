@@ -28,6 +28,7 @@
 out vec4 frag_data[4];
 
 in vec3 vary_normal;
+in vec3 vary_position;
 
 uniform float minimum_alpha;
 
@@ -36,8 +37,12 @@ in vec2 vary_texcoord0;
 
 vec2 encode_normal(vec3 n);
 
+void mirrorClip(vec3 pos);
+
 void main() 
 {
+    mirrorClip(vary_position);
+
 	vec4 col = diffuseLookup(vary_texcoord0.xy) * vertex_color;
 	
 	if (col.a < minimum_alpha)

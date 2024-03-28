@@ -39,6 +39,7 @@
 #include "lldrawable.h"
 #include "llrendertarget.h"
 #include "llreflectionmapmanager.h"
+#include "llheroprobemanager.h"
 
 #include <stack>
 
@@ -133,6 +134,8 @@ public:
 
     // rebuild all LLVOVolume render batches
     void rebuildDrawInfo();
+    // Rebuild all terrain
+    void rebuildTerrain();
 
     // Clear LLFace mVertexBuffer pointers
 	void resetVertexBuffers(LLDrawable* drawable);
@@ -151,7 +154,7 @@ public:
 	void renderFinalize();
 	void copyScreenSpaceReflections(LLRenderTarget* src, LLRenderTarget* dst);
 	void generateLuminance(LLRenderTarget* src, LLRenderTarget* dst);
-	void generateExposure(LLRenderTarget* src, LLRenderTarget* dst);
+	void generateExposure(LLRenderTarget* src, LLRenderTarget* dst, bool use_history = true);
 	void gammaCorrect(LLRenderTarget* src, LLRenderTarget* dst);
 	void generateGlow(LLRenderTarget* src);
 	void applyFXAA(LLRenderTarget* src, LLRenderTarget* dst);
@@ -458,6 +461,7 @@ public:
     void handleShadowDetailChanged();
 
     LLReflectionMapManager mReflectionMapManager;
+    LLHeroProbeManager mHeroProbeManager;
 
 private:
 	void unloadShaders();
@@ -694,7 +698,11 @@ public:
     RenderTargetPack mMainRT;
 
     // auxillary 512x512 render target pack
+    // used by reflection probes and dynamic texture bakes
     RenderTargetPack mAuxillaryRT;
+
+	// Auxillary render target pack scaled to the hero probe's per-face size.
+    RenderTargetPack mHeroProbeRT;
 
     // currently used render target pack
     RenderTargetPack* mRT;
@@ -754,7 +762,7 @@ public:
 	//water distortion texture (refraction)
 	LLRenderTarget				mWaterDis;
 
-    LLRenderTarget				mBake;
+    static const U32 MAX_BAKE_WIDTH;
 
 	//texture for making the glow
 	LLRenderTarget				mGlow[3];
@@ -1047,6 +1055,9 @@ public:
 	static F32 RenderScreenSpaceReflectionAdaptiveStepMultiplier;
 	static S32 RenderScreenSpaceReflectionGlossySamples;
 	static S32 RenderBufferVisualization;
+	static bool RenderMirrors;
+	static S32 RenderHeroProbeUpdateRate;
+    static S32 RenderHeroProbeConservativeUpdateMultiplier;
 };
 
 void render_bbox(const LLVector3 &min, const LLVector3 &max);

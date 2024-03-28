@@ -944,6 +944,7 @@ public:
     // reflection probe state
     bool mIsReflectionProbe = false;  // if true, this object should register itself with LLReflectionProbeManager
     LLPointer<LLReflectionMap> mReflectionProbe = nullptr; // reflection probe coupled to this viewer object.  If not null, should be deregistered when this object is destroyed
+    bool mIsHeroProbe = false; // This is a special case for mirrors and other high resolution probes.
 
     // the amount of GPU time (in ms) it took to render this object according to LLPipeline::profileAvatar
     // -1.f if no profile data available

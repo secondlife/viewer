@@ -56,6 +56,8 @@ public:
     bool hasAlphaMask = false;
     bool hasReflectionProbes = false;
     bool attachNothing = false;
+    bool hasHeroProbes = false;
+    bool isPBRTerrain = false;
 };
 
 // ============= Structure for caching shader uniforms ===============

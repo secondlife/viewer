@@ -169,6 +169,9 @@ public:
 
 	static LLRenderTarget* getCurrentBoundTarget() { return sBoundTarget; }
 
+	// *HACK
+	void swapFBORefs(LLRenderTarget& other);
+
 protected:
 	U32 mResX;
 	U32 mResY;

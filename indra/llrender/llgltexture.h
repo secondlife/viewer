@@ -42,7 +42,7 @@ class LLGLTexture : public LLTexture
 public:
 	enum
 	{
-		MAX_IMAGE_SIZE_DEFAULT = 1024,
+		MAX_IMAGE_SIZE_DEFAULT = 2048,
 		INVALID_DISCARD_LEVEL = 0x7fff
 	};
 

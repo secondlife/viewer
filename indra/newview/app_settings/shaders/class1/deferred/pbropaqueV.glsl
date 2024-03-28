@@ -28,8 +28,9 @@
 
 //deferred opaque implementation
 
-#ifdef HAS_SKIN
 uniform mat4 modelview_matrix;
+
+#ifdef HAS_SKIN
 uniform mat4 projection_matrix;
 mat4 getObjectSkinnedTransform();
 #else
@@ -59,6 +60,7 @@ out vec4 vertex_color;
 out vec3 vary_tangent;
 flat out float vary_sign;
 out vec3 vary_normal;
+out vec3 vary_position;
 
 vec2 texture_transform(vec2 vertex_texcoord, vec4[2] khr_gltf_transform, mat4 sl_animation_transform);
 vec3 tangent_space_transform(vec4 vertex_tangent, vec3 vertex_normal, vec4[2] khr_gltf_transform, mat4 sl_animation_transform);
@@ -71,10 +73,11 @@ void main()
 	mat = modelview_matrix * mat;
 
 	vec3 pos = (mat*vec4(position.xyz,1.0)).xyz;
-
+    vary_position = pos;
 	gl_Position = projection_matrix*vec4(pos,1.0);
 
 #else
+    vary_position = (modelview_matrix*vec4(position.xyz, 1.0)).xyz;
 	//transform vertex
 	gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0); 
 #endif

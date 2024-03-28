@@ -764,6 +764,12 @@ BOOL LLViewerCamera::cameraUnderWater() const
 {
     LLViewerRegion* regionp = LLWorld::instance().getRegionFromPosAgent(getOrigin());
 
+    if (gPipeline.mHeroProbeManager.isMirrorPass())
+    {
+        // TODO: figure out how to handle this case
+        return FALSE;
+    }
+
     if (!regionp)
     {
         regionp = gAgent.getRegion();

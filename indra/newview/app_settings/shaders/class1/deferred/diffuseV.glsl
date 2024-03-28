@@ -36,13 +36,16 @@ out vec3 vary_normal;
 
 out vec4 vertex_color;
 out vec2 vary_texcoord0;
+out vec3 vary_position;
 
 void passTextureIndex();
+
+uniform mat4 modelview_matrix;
 
 #ifdef HAS_SKIN
 mat4 getObjectSkinnedTransform();
 uniform mat4 projection_matrix;
-uniform mat4 modelview_matrix;
+
 #endif
 
 void main()
@@ -51,9 +54,11 @@ void main()
     mat4 mat = getObjectSkinnedTransform();
     mat = modelview_matrix * mat;
     vec4 pos = mat * vec4(position.xyz, 1.0);
+    vary_position = pos.xyz;
     gl_Position = projection_matrix * pos;
     vary_normal = normalize((mat*vec4(normal.xyz+position.xyz,1.0)).xyz-pos.xyz);
 #else
+    vary_position = (modelview_matrix * vec4(position.xyz, 1.0)).xyz;
 	gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0); 
     vary_normal = normalize(normal_matrix * normal);
 #endif

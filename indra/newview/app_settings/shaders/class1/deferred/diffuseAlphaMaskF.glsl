@@ -31,14 +31,20 @@ uniform float minimum_alpha;
 
 uniform sampler2D diffuseMap;
 
+in vec3 vary_position;
+
 in vec3 vary_normal;
 in vec4 vertex_color;
 in vec2 vary_texcoord0;
 
 vec2 encode_normal(vec3 n);
 
+void mirrorClip(vec3 pos);
+
 void main() 
 {
+    mirrorClip(vary_position);
+
 	vec4 col = texture(diffuseMap, vary_texcoord0.xy) * vertex_color;
 	
 	if (col.a < minimum_alpha)

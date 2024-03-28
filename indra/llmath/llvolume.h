@@ -1142,6 +1142,8 @@ public:
 
 std::ostream& operator<<(std::ostream &s, const LLVolumeParams &volume_params);
 
+void LLCalculateTangentArray(U32 vertexCount, const LLVector4a *vertex, const LLVector4a *normal, const LLVector2 *texcoord, U32 triangleCount, const U16* index_array, LLVector4a *tangent);
+
 BOOL LLLineSegmentBoxIntersect(const F32* start, const F32* end, const F32* center, const F32* size);
 BOOL LLLineSegmentBoxIntersect(const LLVector3& start, const LLVector3& end, const LLVector3& center, const LLVector3& size);
 BOOL LLLineSegmentBoxIntersect(const LLVector4a& start, const LLVector4a& end, const LLVector4a& center, const LLVector4a& size);
