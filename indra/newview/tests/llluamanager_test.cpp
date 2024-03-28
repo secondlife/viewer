@@ -418,4 +418,24 @@ namespace tut
         auto [count, result] = future.get();
         ensure_equals("leap.lua: " + result.asString(), count, 0);
     }
+
+    template<> template<>
+    void object::test<7>()
+    {
+        set_test_name("stop hanging Lua script");
+        const std::string lua(
+            "-- hanging Lua script should terminate\n"
+            "\n"
+            "LL.get_event_next()\n"
+        );
+        LuaState L;
+        auto future = LLLUAmanager::startScriptLine(L, lua);
+        // Poke LLTestApp to send its preliminary shutdown message.
+        mApp.setQuitting();
+        // but now we have to give the startScriptLine() coroutine a chance to run
+        auto [count, result] = future.get();
+        ensure_equals("killed Lua script terminated normally", count, -1);
+        ensure_equals("unexpected killed Lua script error",
+                      result.asString(), "viewer is stopping");
+    }
 } // namespace tut

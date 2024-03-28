@@ -31,6 +31,9 @@
 #include "lualistener.h"
 #include "stringize.h"
 
+#define lua_register(L, n, f) (lua_pushcfunction(L, (f), n), lua_setglobal(L, (n)))
+#define lua_rawlen lua_objlen
+
 /*****************************************************************************
 *   luau namespace
 *****************************************************************************/

@@ -31,19 +31,10 @@
 #include "llcoros.h"
 #include "llerror.h"
 #include "lleventcoro.h"
+#include "llviewercontrol.h"
 #include "lua_function.h"
 #include "lualistener.h"
 #include "stringize.h"
-
-// skip all these link dependencies for integration testing
-#ifndef LL_TEST
-#include "lluilistener.h"
-#include "llviewercontrol.h"
-
-// FIXME extremely hacky way to get to the UI Listener framework. There's
-// a cleaner way.
-extern LLUIListener sUIListener;
-#endif // ! LL_TEST
 
 #include <boost/algorithm/string/replace.hpp>
 #include <filesystem>
@@ -125,37 +116,6 @@ lua_function(print_warning, "print_warning(args...): WARNING level logging")
     LL_WARNS("Lua") << lua_print_msg(L, "WARN") << LL_ENDL;
     return 0;
 }
-
-#ifndef LL_TEST
-
-lua_function(run_ui_command,
-             "run_ui_command(name [, parameter]): "
-             "call specified UI command with specified parameter")
-{
-	int top = lua_gettop(L);
-	std::string func_name;
-	if (top >= 1)
-	{
-		func_name = lua_tostring(L,1);
-	}
-	std::string parameter;
-	if (top >= 2)
-	{
-		parameter = lua_tostring(L,2);
-	}
-	LL_WARNS("LUA") << "running ui func " << func_name << " parameter " << parameter << LL_ENDL;
-	LLSD event;
-	event["function"] = func_name;
-	if (!parameter.empty())
-	{
-		event["parameter"] = parameter; 
-	}
-	sUIListener.call(event);
-
-	lua_settop(L, 0);
-	return 0;
-}
-#endif // ! LL_TEST
 
 lua_function(post_on, "post_on(pumpname, data): post specified data to specified LLEventPump")
 {
