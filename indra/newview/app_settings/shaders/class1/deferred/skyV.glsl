@@ -108,7 +108,7 @@ void main()
     vec3 light_atten = (blue_density + vec3(haze_density * 0.25)) * (density_multiplier * max_y);
 
     // Calculate relative weights
-    vec3 combined_haze = abs(blue_density) + vec3(abs(haze_density));
+    vec3 combined_haze = max(abs(blue_density) + vec3(abs(haze_density)), vec3(1e-6));
     vec3 blue_weight   = blue_density / combined_haze;
     vec3 haze_weight   = haze_density / combined_haze;
 

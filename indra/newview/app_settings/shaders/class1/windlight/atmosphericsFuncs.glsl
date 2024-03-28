@@ -66,7 +66,7 @@ void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, ou
     // I had thought blue_density and haze_density should have equal weighting,
     // but attenuation due to haze_density tends to seem too strong
 
-    vec3 combined_haze = blue_density + vec3(haze_density);
+    vec3 combined_haze = max(blue_density + vec3(haze_density), vec3(1e-6));
     vec3 blue_weight   = blue_density / combined_haze;
     vec3 haze_weight   = vec3(haze_density) / combined_haze;
 
