@@ -77,7 +77,6 @@ public:
 	BOOL killObject(LLViewerObject *objectp);
 	void killObjects(LLViewerRegion *regionp); // Kill all objects owned by a particular region.
 	void killAllObjects();
-	void removeDrawable(LLDrawable* drawablep);
 
 	void cleanDeadObjects(const BOOL use_timer = TRUE);	// Clean up the dead object list.
 
@@ -128,11 +127,6 @@ public:
 	void updateActive(LLViewerObject *objectp);
 	
 	void updateAvatarVisibility();
-
-	// Selection related stuff
-	void generatePickList(LLCamera &camera);
-
-	LLViewerObject *getSelectedObject(const U32 object_id);
 
 	inline S32 getNumObjects() { return (S32) mObjects.size(); }
 	inline S32 getNumActiveObjects() { return (S32) mActiveObjects.size(); }
@@ -225,8 +219,6 @@ protected:
 	static std::map<U64, U32> sIPAndPortToIndex;
 
 	static std::map<U64, LLUUID> sIndexAndLocalIDToUUID;
-
-	std::set<LLViewerObject *> mSelectPickList;
 
 	friend class LLViewerObject;
 

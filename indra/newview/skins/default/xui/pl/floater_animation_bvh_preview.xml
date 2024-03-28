@@ -173,6 +173,6 @@ Maksymalna długość pliku animacji wynosi [MAX_LENGTH] sekund.
 		Nie można wczytać pliku animacji.
 Doradzamy eksport plików BVH z Poser 4.
 	</text>
-	<button label="Załaduj ([AMOUNT]L$)" name="ok_btn" />
+	<button label="Prześlij ([AMOUNT]L$)" name="ok_btn" />
 	<button label="Anuluj" name="cancel_btn" />
 </floater>

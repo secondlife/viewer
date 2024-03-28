@@ -38,6 +38,12 @@
 class AISAPI
 {
 public:
+    static const S32 HTTP_TIMEOUT;
+    typedef enum {
+        INVENTORY,
+        LIBRARY
+    } ITEM_TYPE;
+
     typedef boost::function<void(const LLUUID &invItem)>    completion_t;
 
     static bool isAvailable();
@@ -50,9 +56,16 @@ public:
     static void PurgeDescendents(const LLUUID &categoryId, completion_t callback = completion_t());
     static void UpdateCategory(const LLUUID &categoryId, const LLSD &updates, completion_t callback = completion_t());
     static void UpdateItem(const LLUUID &itemId, const LLSD &updates, completion_t callback = completion_t());
+    static void FetchItem(const LLUUID &itemId, ITEM_TYPE type, completion_t callback = completion_t());
+    static void FetchCategoryChildren(const LLUUID &catId, ITEM_TYPE type = AISAPI::ITEM_TYPE::INVENTORY, bool recursive = false, completion_t callback = completion_t(), S32 depth = 0);
+    static void FetchCategoryChildren(const std::string &identifier, bool recursive = false, completion_t callback = completion_t(), S32 depth = 0);
+    static void FetchCategoryCategories(const LLUUID &catId, ITEM_TYPE type = AISAPI::ITEM_TYPE::INVENTORY, bool recursive = false, completion_t callback = completion_t(), S32 depth = 0);
+    static void FetchCategorySubset(const LLUUID& catId, const uuid_vec_t specificChildren, ITEM_TYPE type = AISAPI::ITEM_TYPE::INVENTORY, bool recursive = false, completion_t callback = completion_t(), S32 depth = 0);
+    static void FetchCOF(completion_t callback = completion_t());
+    static void FetchCategoryLinks(const LLUUID &catId, completion_t callback = completion_t());
+    static void FetchOrphans(completion_t callback = completion_t() );
     static void CopyLibraryCategory(const LLUUID& sourceId, const LLUUID& destId, bool copySubfolders, completion_t callback = completion_t());
 
-private:
     typedef enum {
         COPYINVENTORY,
         SLAMFOLDER,
@@ -61,9 +74,18 @@ private:
         PURGEDESCENDENTS,
         UPDATECATEGORY,
         UPDATEITEM,
-        COPYLIBRARYCATEGORY
+        COPYLIBRARYCATEGORY,
+        CREATEINVENTORY,
+        FETCHITEM,
+        FETCHCATEGORYCHILDREN,
+        FETCHCATEGORYCATEGORIES,
+        FETCHCATEGORYSUBSET,
+        FETCHCOF,
+        FETCHORPHANS,
+        FETCHCATEGORYLINKS
     } COMMAND_TYPE;
 
+private:
     static const std::string INVENTORY_CAP_NAME;
     static const std::string LIBRARY_CAP_NAME;
 
@@ -72,6 +94,7 @@ private:
 
     static void EnqueueAISCommand(const std::string &procName, LLCoprocedureManager::CoProcedure_t proc);
     static void onIdle(void *userdata); // launches postponed AIS commands
+    static void onUpdateReceived(const LLSD& update, COMMAND_TYPE type, const LLSD& request_body);
 
     static std::string getInvCap();
     static std::string getLibCap();
@@ -87,24 +110,29 @@ private:
 class AISUpdate
 {
 public:
-	AISUpdate(const LLSD& update);
+	AISUpdate(const LLSD& update, AISAPI::COMMAND_TYPE type, const LLSD& request_body);
 	void parseUpdate(const LLSD& update);
 	void parseMeta(const LLSD& update);
 	void parseContent(const LLSD& update);
 	void parseUUIDArray(const LLSD& content, const std::string& name, uuid_list_t& ids);
-	void parseLink(const LLSD& link_map);
+	void parseLink(const LLSD& link_map, S32 depth);
 	void parseItem(const LLSD& link_map);
-	void parseCategory(const LLSD& link_map);
-	void parseDescendentCount(const LLUUID& category_id, const LLSD& embedded);
-	void parseEmbedded(const LLSD& embedded);
-	void parseEmbeddedLinks(const LLSD& links);
+	void parseCategory(const LLSD& link_map, S32 depth);
+	void parseDescendentCount(const LLUUID& category_id, LLFolderType::EType type, const LLSD& embedded);
+	void parseEmbedded(const LLSD& embedded, S32 depth);
+	void parseEmbeddedLinks(const LLSD& links, S32 depth);
 	void parseEmbeddedItems(const LLSD& items);
-	void parseEmbeddedCategories(const LLSD& categories);
+	void parseEmbeddedCategories(const LLSD& categories, S32 depth);
 	void parseEmbeddedItem(const LLSD& item);
-	void parseEmbeddedCategory(const LLSD& category);
+	void parseEmbeddedCategory(const LLSD& category, S32 depth);
 	void doUpdate();
 private:
 	void clearParseResults();
+    void checkTimeout();
+
+    // Fetch can return large packets of data, throttle it to not cause lags
+    // Todo: make throttle work over all fetch requests isntead of per-request
+    const F32 AIS_EXPIRY_SECONDS = 0.008f;
 
 	typedef std::map<LLUUID,S32> uuid_int_map_t;
 	uuid_int_map_t mCatDescendentDeltas;
@@ -113,6 +141,7 @@ private:
 
 	typedef std::map<LLUUID,LLPointer<LLViewerInventoryItem> > deferred_item_map_t;
 	deferred_item_map_t mItemsCreated;
+    deferred_item_map_t mItemsLost;
 	deferred_item_map_t mItemsUpdated;
 	typedef std::map<LLUUID,LLPointer<LLViewerInventoryCategory> > deferred_category_map_t;
 	deferred_category_map_t mCategoriesCreated;
@@ -123,6 +152,10 @@ private:
 	uuid_list_t mObjectsDeletedIds;
 	uuid_list_t mItemIds;
 	uuid_list_t mCategoryIds;
+    bool mFetch;
+    S32 mFetchDepth;
+    LLTimer mTimer;
+    AISAPI::COMMAND_TYPE mType;
 };
 
 #endif

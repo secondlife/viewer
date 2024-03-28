@@ -798,7 +798,6 @@ U8* LLImageBase::allocateDataSize(S32 width, S32 height, S32 ncomponents, S32 si
 // LLImageRaw
 //---------------------------------------------------------------------------
 
-S32 LLImageRaw::sGlobalRawMemory = 0;
 S32 LLImageRaw::sRawImageCount = 0;
 
 LLImageRaw::LLImageRaw()
@@ -813,6 +812,15 @@ LLImageRaw::LLImageRaw(U16 width, U16 height, S8 components)
 	//llassert( S32(width) * S32(height) * S32(components) <= MAX_IMAGE_DATA_SIZE );
 	allocateDataSize(width, height, components);
 	++sRawImageCount;
+}
+
+LLImageRaw::LLImageRaw(const U8* data, U16 width, U16 height, S8 components)
+    : LLImageBase()
+{
+    if (allocateDataSize(width, height, components))
+    {
+        memcpy(getData(), data, width * height * components);
+    }
 }
 
 LLImageRaw::LLImageRaw(U8 *data, U16 width, U16 height, S8 components, bool no_copy)
@@ -847,16 +855,13 @@ LLImageRaw::~LLImageRaw()
 U8* LLImageRaw::allocateData(S32 size)
 {
 	U8* res = LLImageBase::allocateData(size);
-	sGlobalRawMemory += getDataSize();
 	return res;
 }
 
 // virtual
 U8* LLImageRaw::reallocateData(S32 size)
 {
-	sGlobalRawMemory -= getDataSize();
 	U8* res = LLImageBase::reallocateData(size);
-	sGlobalRawMemory += getDataSize();
 	return res;
 }
 
@@ -869,7 +874,6 @@ void LLImageRaw::releaseData()
 // virtual
 void LLImageRaw::deleteData()
 {
-	sGlobalRawMemory -= getDataSize();
 	LLImageBase::deleteData();
 }
 
@@ -984,6 +988,43 @@ void LLImageRaw::verticalFlip()
 	}
 }
 
+
+bool LLImageRaw::optimizeAwayAlpha()
+{
+    if (getComponents() == 4)
+    {
+        U8* data = getData();
+        U32 pixels = getWidth() * getHeight();
+
+        // check alpha channel for all 255
+        for (U32 i = 0; i < pixels; ++i)
+        {
+            if (data[i * 4 + 3] != 255)
+            {
+                return false;
+            }
+        }
+
+        // alpha channel is all 255, make a new copy of data without alpha channel
+        U8* new_data = (U8*) ll_aligned_malloc_16(getWidth() * getHeight() * 3);
+
+        for (U32 i = 0; i < pixels; ++i)
+        {
+            U32 di = i * 3;
+            U32 si = i * 4;
+            for (U32 j = 0; j < 3; ++j)
+            {
+                new_data[di+j] = data[si+j];
+            }
+        }
+
+        setDataAndSize(new_data, getWidth(), getHeight(), 3);
+
+        return true;
+    }
+
+    return false;
+}
 
 void LLImageRaw::expandToPowerOfTwo(S32 max_dim, bool scale_image)
 {

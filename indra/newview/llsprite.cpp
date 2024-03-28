@@ -79,7 +79,6 @@ void LLSprite::updateFace(LLFace &face)
 
 	// First, figure out how many vertices/indices we need.
 	U32 num_vertices, num_indices;
-	U32 vertex_count = 0;
 	
 	// Get the total number of vertices and indices
 	if (mFollow)
@@ -189,9 +188,8 @@ void LLSprite::updateFace(LLFace &face)
 	if (!face.getVertexBuffer())
 	{	
 		LLVertexBuffer* buff = new LLVertexBuffer(LLVertexBuffer::MAP_VERTEX | 
-												LLVertexBuffer::MAP_TEXCOORD0,
-												GL_STREAM_DRAW_ARB);
-		buff->allocateBuffer(4, 12, TRUE);
+												LLVertexBuffer::MAP_TEXCOORD0 );
+		buff->allocateBuffer(4, 12);
 		face.setGeomIndex(0);
 		face.setIndicesIndex(0);
 		face.setVertexBuffer(buff);
@@ -203,25 +201,21 @@ void LLSprite::updateFace(LLFace &face)
 	*verticesp = mC;
 	tex_coordsp++;
 	verticesp++;
-	vertex_count++;
 
 	*tex_coordsp = LLVector2(0.f, 1.f);
 	*verticesp = mB;
 	tex_coordsp++;
 	verticesp++;
-	vertex_count++;
 
 	*tex_coordsp = LLVector2(1.f, 1.f);
 	*verticesp = mA;
 	tex_coordsp++;
 	verticesp++;
-	vertex_count++;
 
 	*tex_coordsp = LLVector2(1.f, 0.0f);
 	*verticesp = mD;
 	tex_coordsp++;
 	verticesp++;
-	vertex_count++;
 
 	// Generate indices, since they're easy.
 	// Just a series of quads.
@@ -243,7 +237,7 @@ void LLSprite::updateFace(LLFace &face)
 		*indicesp++ = 3 + index_offset;
 	}
 
-	face.getVertexBuffer()->flush();
+	face.getVertexBuffer()->unmapBuffer();
 	face.mCenterAgent = mPosition;
 }
 

@@ -27,25 +27,6 @@
 #include "llgltexture.h"
 
 
-// static
-S32 LLGLTexture::getTotalNumOfCategories() 
-{
-	return MAX_GL_IMAGE_CATEGORY - (BOOST_HIGH - BOOST_SCULPTED) + 2 ;
-}
-
-// static
-//index starts from zero.
-S32 LLGLTexture::getIndexFromCategory(S32 category) 
-{
-	return (category < BOOST_HIGH) ? category : category - (BOOST_HIGH - BOOST_SCULPTED) + 1 ;
-}
-
-//static 
-S32 LLGLTexture::getCategoryFromIndex(S32 index)
-{
-	return (index < BOOST_HIGH) ? index : index + (BOOST_HIGH - BOOST_SCULPTED) - 1 ;
-}
-
 LLGLTexture::LLGLTexture(BOOL usemipmaps)
 {
 	init();
@@ -113,7 +94,8 @@ void LLGLTexture::setBoostLevel(S32 level)
 	{
 		mBoostLevel = level ;
 		if(mBoostLevel != LLGLTexture::BOOST_NONE
-		   && mBoostLevel != LLGLTexture::BOOST_ICON)
+		   && mBoostLevel != LLGLTexture::BOOST_ICON
+           && mBoostLevel != LLGLTexture::BOOST_THUMBNAIL)
 		{
 			setNoDelete() ;		
 		}

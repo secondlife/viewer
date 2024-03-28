@@ -49,6 +49,7 @@ public:
     typedef std::function<void(LLInventoryItem *inv_item, LLSettingsBase::ptr_t settings, S32 status, LLExtStat extstat)> inventory_download_fn;
     typedef std::function<void(LLUUID asset_id, LLUUID inventory_id, LLUUID object_id, LLSD results)>           inventory_result_fn;
 
+    static void     createNewInventoryItem(LLSettingsType::type_e stype, const LLUUID& parent_id, std::function<void(const LLUUID&)> created_cb);
     static void     createNewInventoryItem(LLSettingsType::type_e stype, const LLUUID &parent_id, inventory_result_fn callback = inventory_result_fn());
     static void     createInventoryItem(const LLSettingsBase::ptr_t &settings, const LLUUID &parent_id, std::string settings_name, inventory_result_fn callback = inventory_result_fn());
     static void     createInventoryItem(const LLSettingsBase::ptr_t &settings, U32 next_owner_perm, const LLUUID &parent_id, std::string settings_name, inventory_result_fn callback = inventory_result_fn());

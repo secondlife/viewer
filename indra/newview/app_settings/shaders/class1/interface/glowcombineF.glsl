@@ -23,24 +23,16 @@
  * $/LicenseInfo$
  */
 
-#extension GL_ARB_texture_rectangle : enable
-
 /*[EXTRA_CODE_HERE]*/
 
-#ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
-#else
-#define frag_color gl_FragColor
-#endif
 
-uniform sampler2D glowMap;
-uniform sampler2DRect screenMap;
+uniform sampler2D diffuseRect;
+uniform sampler2D emissiveRect;
 
-VARYING vec2 vary_texcoord0;
-VARYING vec2 vary_texcoord1;
+in vec2 tc;
 
 void main() 
 {
-	frag_color = texture2D(glowMap, vary_texcoord0.xy) +
-					texture2DRect(screenMap, vary_texcoord1.xy);
+	frag_color = texture(diffuseRect, tc) + texture(emissiveRect, tc);
 }

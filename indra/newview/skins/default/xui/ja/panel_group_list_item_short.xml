@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="group_list_item">
+	<icon name="hovered_icon"/>
+	<icon name="selected_icon"/>
+	<group_icon name="group_icon"/>
 	<text name="group_name" value="不明"/>
-	<button name="info_btn" tool_tip="詳細"/>
+	<button name="visibility_hide_btn" tool_tip="プロフィールでグループを非表示にする"/>
+	<button name="visibility_show_btn" tool_tip="プロフィールでグループを表示する"/>
+	<button name="info_btn" tool_tip="詳細情報"/>
 	<button name="profile_btn" tool_tip="プロフィールの表示"/>
 </panel>

@@ -117,7 +117,6 @@ void gl_rect_2d_offset_local( S32 left, S32 top, S32 right, S32 bottom, S32 pixe
 
 void gl_rect_2d(S32 left, S32 top, S32 right, S32 bottom, BOOL filled )
 {
-	stop_glerror();
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
 	// Counterclockwise quad will face the viewer
@@ -142,7 +141,6 @@ void gl_rect_2d(S32 left, S32 top, S32 right, S32 bottom, BOOL filled )
 			gGL.vertex2i(left, top);
 		gGL.end();
 	}
-	stop_glerror();
 }
 
 void gl_rect_2d(S32 left, S32 top, S32 right, S32 bottom, const LLColor4 &color, BOOL filled )
@@ -714,11 +712,8 @@ void gl_draw_scaled_rotated_image(S32 x, S32 y, S32 width, S32 height, F32 degre
 	}
 }
 
-void gl_stippled_line_3d( const LLVector3& start, const LLVector3& end, const LLColor4& color, F32 phase )
+void gl_line_3d( const LLVector3& start, const LLVector3& end, const LLColor4& color)
 {
-	// Stippled line
-	LLGLEnable stipple(GL_LINE_STIPPLE);
-	
 	gGL.color4f(color.mV[VRED], color.mV[VGREEN], color.mV[VBLUE], color.mV[VALPHA]);
 
 	gGL.flush();
@@ -1516,7 +1511,15 @@ void LLRender2D::loadIdentity()
 void LLRender2D::setLineWidth(F32 width)
 {
 	gGL.flush();
-	glLineWidth(width * lerp(LLRender::sUIGLScaleFactor.mV[VX], LLRender::sUIGLScaleFactor.mV[VY], 0.5f));
+    // If outside the allowed range, glLineWidth fails with "invalid value".
+    // On Darwin, the range is [1, 1].
+    static GLfloat range[2]{0.0};
+    if (range[1] == 0)
+    {
+        glGetFloatv(GL_SMOOTH_LINE_WIDTH_RANGE, range);
+    }
+    width *= lerp(LLRender::sUIGLScaleFactor.mV[VX], LLRender::sUIGLScaleFactor.mV[VY], 0.5f);
+    glLineWidth(llclamp(width, range[0], range[1]));
 }
 
 LLPointer<LLUIImage> LLRender2D::getUIImageByID(const LLUUID& image_id, S32 priority)

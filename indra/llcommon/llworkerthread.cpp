@@ -73,6 +73,7 @@ void LLWorkerThread::clearDeleteList()
 		{
 			worker->mRequestHandle = LLWorkerThread::nullHandle();
 			worker->clearFlags(LLWorkerClass::WCF_HAVE_WORK);
+			worker->clearFlags(LLWorkerClass::WCF_WORKING);
 			delete worker;
 		}
 		mDeleteList.clear() ;
@@ -97,6 +98,7 @@ size_t LLWorkerThread::update(F32 max_time_ms)
 		{
 			if (worker->getFlags(LLWorkerClass::WCF_WORK_FINISHED))
 			{
+                worker->setFlags(LLWorkerClass::WCF_DELETE_REQUESTED);
 				delete_list.push_back(worker);
 				mDeleteList.erase(curiter);
 			}
@@ -130,11 +132,11 @@ size_t LLWorkerThread::update(F32 max_time_ms)
 
 //----------------------------------------------------------------------------
 
-LLWorkerThread::handle_t LLWorkerThread::addWorkRequest(LLWorkerClass* workerclass, S32 param, U32 priority)
+LLWorkerThread::handle_t LLWorkerThread::addWorkRequest(LLWorkerClass* workerclass, S32 param)
 {
 	handle_t handle = generateHandle();
 	
-	WorkRequest* req = new WorkRequest(handle, priority, workerclass, param);
+	WorkRequest* req = new WorkRequest(handle, workerclass, param);
 
 	bool res = addRequest(req);
 	if (!res)
@@ -157,8 +159,8 @@ void LLWorkerThread::deleteWorker(LLWorkerClass* workerclass)
 //============================================================================
 // Runs on its OWN thread
 
-LLWorkerThread::WorkRequest::WorkRequest(handle_t handle, U32 priority, LLWorkerClass* workerclass, S32 param) :
-	LLQueuedThread::QueuedRequest(handle, priority),
+LLWorkerThread::WorkRequest::WorkRequest(handle_t handle, LLWorkerClass* workerclass, S32 param) :
+	LLQueuedThread::QueuedRequest(handle),
 	mWorkerClass(workerclass),
 	mParam(param)
 {
@@ -177,6 +179,7 @@ void LLWorkerThread::WorkRequest::deleteRequest()
 // virtual
 bool LLWorkerThread::WorkRequest::processRequest()
 {
+    LL_PROFILE_ZONE_SCOPED;
 	LLWorkerClass* workerclass = getWorkerClass();
 	workerclass->setWorking(true);
 	bool complete = workerclass->doWork(getParam());
@@ -187,6 +190,7 @@ bool LLWorkerThread::WorkRequest::processRequest()
 // virtual
 void LLWorkerThread::WorkRequest::finishRequest(bool completed)
 {
+    LL_PROFILE_ZONE_SCOPED;
 	LLWorkerClass* workerclass = getWorkerClass();
 	workerclass->finishWork(getParam(), completed);
 	U32 flags = LLWorkerClass::WCF_WORK_FINISHED | (completed ? 0 : LLWorkerClass::WCF_WORK_ABORTED);
@@ -200,7 +204,6 @@ LLWorkerClass::LLWorkerClass(LLWorkerThread* workerthread, const std::string& na
 	: mWorkerThread(workerthread),
 	  mWorkerClassName(name),
 	  mRequestHandle(LLWorkerThread::nullHandle()),
-	  mRequestPriority(LLWorkerThread::PRIORITY_NORMAL),
 	  mMutex(),
 	  mWorkFlags(0)
 {
@@ -289,7 +292,7 @@ bool LLWorkerClass::yield()
 //----------------------------------------------------------------------------
 
 // calls startWork, adds doWork() to queue
-void LLWorkerClass::addWork(S32 param, U32 priority)
+void LLWorkerClass::addWork(S32 param)
 {
 	mMutex.lock();
 	llassert_always(!(mWorkFlags & (WCF_WORKING|WCF_HAVE_WORK)));
@@ -303,7 +306,7 @@ void LLWorkerClass::addWork(S32 param, U32 priority)
 	startWork(param);
 	clearFlags(WCF_WORK_FINISHED|WCF_WORK_ABORTED);
 	setFlags(WCF_HAVE_WORK);
-	mRequestHandle = mWorkerThread->addWorkRequest(this, param, priority);
+	mRequestHandle = mWorkerThread->addWorkRequest(this, param);
 	mMutex.unlock();
 }
 
@@ -318,7 +321,6 @@ void LLWorkerClass::abortWork(bool autocomplete)
 	if (mRequestHandle != LLWorkerThread::nullHandle())
 	{
 		mWorkerThread->abortRequest(mRequestHandle, autocomplete);
-		mWorkerThread->setPriority(mRequestHandle, LLQueuedThread::PRIORITY_IMMEDIATE);
 		setFlags(WCF_ABORT_REQUESTED);
 	}
 	mMutex.unlock();
@@ -390,17 +392,6 @@ void LLWorkerClass::scheduleDelete()
 	{
 		mWorkerThread->deleteWorker(this);
 	}
-}
-
-void LLWorkerClass::setPriority(U32 priority)
-{
-	mMutex.lock();
-	if (mRequestHandle != LLWorkerThread::nullHandle() && mRequestPriority != priority)
-	{
-		mRequestPriority = priority;
-		mWorkerThread->setPriority(mRequestHandle, priority);
-	}
-	mMutex.unlock();
 }
 
 //============================================================================

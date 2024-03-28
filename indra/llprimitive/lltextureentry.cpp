@@ -80,22 +80,7 @@ LLTextureEntry::LLTextureEntry(const LLTextureEntry &rhs)
   , mSelected(false)
   , mMaterialUpdatePending(false)
 {
-	mID = rhs.mID;
-	mScaleS = rhs.mScaleS;
-	mScaleT = rhs.mScaleT;
-	mOffsetS = rhs.mOffsetS;
-	mOffsetT = rhs.mOffsetT;
-	mRotation = rhs.mRotation;
-	mColor = rhs.mColor;
-	mBump = rhs.mBump;
-	mMediaFlags = rhs.mMediaFlags;
-	mGlow = rhs.mGlow;
-	mMaterialID = rhs.mMaterialID;
-	mMaterial = rhs.mMaterial;
-	if (rhs.mMediaEntry != NULL) {
-		// Make a copy
-		mMediaEntry = new LLMediaEntry(*rhs.mMediaEntry);
-	}
+    *this = rhs;
 }
 
 LLTextureEntry &LLTextureEntry::operator=(const LLTextureEntry &rhs)
@@ -124,6 +109,27 @@ LLTextureEntry &LLTextureEntry::operator=(const LLTextureEntry &rhs)
 		else {
 			mMediaEntry = NULL;
 		}
+
+        mMaterialID = rhs.mMaterialID;
+
+        if (mGLTFMaterial)
+        {
+            mGLTFMaterial->removeTextureEntry(this);
+        }
+        mGLTFMaterial = rhs.mGLTFMaterial;
+        if (mGLTFMaterial)
+        {
+            mGLTFMaterial->addTextureEntry(this);
+        }
+        
+        if (rhs.mGLTFMaterialOverrides.notNull())
+        {
+            mGLTFMaterialOverrides = new LLGLTFMaterial(*rhs.mGLTFMaterialOverrides);
+        }
+        else
+        {
+            mGLTFMaterialOverrides = nullptr;
+        }
 	}
 
 	return *this;
@@ -157,6 +163,12 @@ LLTextureEntry::~LLTextureEntry()
 		delete mMediaEntry;
 		mMediaEntry = NULL;
 	}
+
+    if (mGLTFMaterial)
+    {
+        mGLTFMaterial->removeTextureEntry(this);
+        mGLTFMaterial = NULL;
+    }
 }
 
 bool LLTextureEntry::operator!=(const LLTextureEntry &rhs) const
@@ -200,6 +212,7 @@ LLSD LLTextureEntry::asLLSD() const
 
 void LLTextureEntry::asLLSD(LLSD& sd) const
 {
+    LL_PROFILE_ZONE_SCOPED;
 	sd["imageid"] = mID;
 	sd["colors"] = ll_sd_from_color4(mColor);
 	sd["scales"] = mScaleS;
@@ -218,10 +231,16 @@ void LLTextureEntry::asLLSD(LLSD& sd) const
 		sd[TEXTURE_MEDIA_DATA_KEY] = mediaData;
 	}
 	sd["glow"] = mGlow;
+
+    if (mGLTFMaterialOverrides.notNull())
+    {
+        sd["gltf_override"] = mGLTFMaterialOverrides->asJSON();
+    }
 }
 
 bool LLTextureEntry::fromLLSD(const LLSD& sd)
 {
+    LL_PROFILE_ZONE_SCOPED;
 	const char *w, *x;
 	w = "imageid";
 	if (sd.has(w))
@@ -281,6 +300,24 @@ bool LLTextureEntry::fromLLSD(const LLSD& sd)
 	{
 		setGlow((F32)sd[w].asReal() );
 	}
+
+    w = "gltf_override";
+    if (sd.has(w))
+    {
+        if (mGLTFMaterialOverrides.isNull())
+        {
+            mGLTFMaterialOverrides = new LLGLTFMaterial();
+        }
+
+        std::string warn_msg, error_msg;
+        if (!mGLTFMaterialOverrides->fromJSON(sd[w].asString(), warn_msg, error_msg))
+        {
+            LL_WARNS() << llformat("Failed to parse GLTF json: %s -- %s", warn_msg.c_str(), error_msg.c_str()) << LL_ENDL;
+            LL_WARNS() << sd[w].asString() << LL_ENDL;
+
+            mGLTFMaterialOverrides = nullptr;
+        }
+    }
 
 	return true;
 fail:
@@ -489,6 +526,92 @@ S32 LLTextureEntry::setBumpShiny(U8 bump_shiny)
 		return TEM_CHANGE_TEXTURE;
 	}
 	return TEM_CHANGE_NONE;
+}
+
+void LLTextureEntry::setGLTFMaterial(LLGLTFMaterial* material, bool local_origin)
+{ 
+    if (material != getGLTFMaterial())
+    {
+        // assert on precondtion:
+        // whether or not mGLTFMaterial is null, any existing override should have been cleared
+        // before calling setGLTFMaterial
+        // NOTE: if you're hitting this assert, try to make sure calling code is using LLViewerObject::setRenderMaterialID
+        //llassert(!local_origin || getGLTFMaterialOverride() == nullptr || getGLTFMaterialOverride()->isClearedForBaseMaterial());
+
+        if (mGLTFMaterial)
+        {
+            // Local materials have to keep track
+            // due to update mechanics
+            mGLTFMaterial->removeTextureEntry(this);
+        }
+
+        mGLTFMaterial = material;
+
+        if (mGLTFMaterial)
+        {
+            mGLTFMaterial->addTextureEntry(this);
+        }
+
+        if (mGLTFMaterial == nullptr)
+        {
+            setGLTFRenderMaterial(nullptr);
+        }
+    }
+}
+
+S32 LLTextureEntry::setGLTFMaterialOverride(LLGLTFMaterial* mat)
+{ 
+    llassert(mat == nullptr || getGLTFMaterial() != nullptr); // if override is not null, base material must not be null
+    if (mat == mGLTFMaterialOverrides)
+    {
+        return TEM_CHANGE_NONE;
+    }
+
+    mGLTFMaterialOverrides = mat;
+
+    return TEM_CHANGE_TEXTURE;
+}
+
+S32 LLTextureEntry::setBaseMaterial()
+{
+    S32 changed = TEM_CHANGE_NONE;
+
+    if (mGLTFMaterialOverrides)
+    {
+        if (mGLTFMaterialOverrides->setBaseMaterial())
+        {
+            changed = TEM_CHANGE_TEXTURE;
+        }
+
+        if (LLGLTFMaterial::sDefault == *mGLTFMaterialOverrides)
+        {
+            mGLTFMaterialOverrides = nullptr;
+            changed = TEM_CHANGE_TEXTURE;
+        }
+    }
+
+    return changed;
+}
+
+LLGLTFMaterial* LLTextureEntry::getGLTFRenderMaterial() const
+{ 
+    if (mGLTFRenderMaterial.notNull())
+    {
+        return mGLTFRenderMaterial;
+    }
+    
+    llassert(getGLTFMaterialOverride() == nullptr || getGLTFMaterialOverride()->isClearedForBaseMaterial());
+    return getGLTFMaterial();
+}
+
+S32 LLTextureEntry::setGLTFRenderMaterial(LLGLTFMaterial* mat)
+{
+    if (mGLTFRenderMaterial != mat)
+    {
+        mGLTFRenderMaterial = mat;
+        return TEM_CHANGE_TEXTURE;
+    }
+    return TEM_CHANGE_NONE;
 }
 
 S32 LLTextureEntry::setMediaFlags(U8 media_flags)

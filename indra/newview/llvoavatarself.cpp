@@ -960,7 +960,7 @@ void LLVOAvatarSelf::updateRegion(LLViewerRegion *regionp)
 }
 
 //--------------------------------------------------------------------
-// draw tractor beam when editing objects
+// draw tractor (selection) beam when editing objects
 //--------------------------------------------------------------------
 //virtual
 void LLVOAvatarSelf::idleUpdateTractorBeam()
@@ -1038,7 +1038,7 @@ void LLVOAvatarSelf::restoreMeshData()
 	updateAttachmentVisibility(gAgentCamera.getCameraMode());
 
 	// force mesh update as LOD might not have changed to trigger this
-	gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_GEOMETRY, TRUE);
+	gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_GEOMETRY);
 }
 
 
@@ -1155,6 +1155,7 @@ LLViewerObject* LLVOAvatarSelf::getWornAttachment(const LLUUID& inv_item_id)
 
 bool LLVOAvatarSelf::getAttachedPointName(const LLUUID& inv_item_id, std::string& name) const
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
 	if (!gInventory.getItem(inv_item_id))
 	{
 		name = "ATTACHMENT_MISSING_ITEM";
@@ -1245,6 +1246,27 @@ BOOL LLVOAvatarSelf::detachObject(LLViewerObject *viewer_object)
 		return TRUE;
 	}
 	return FALSE;
+}
+
+bool LLVOAvatarSelf::hasAttachmentsInTrash()
+{
+    const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
+
+    for (attachment_map_t::const_iterator iter = mAttachmentPoints.begin(); iter != mAttachmentPoints.end(); ++iter)
+    {
+        LLViewerJointAttachment *attachment = iter->second;
+        for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
+             attachment_iter != attachment->mAttachedObjects.end();
+             ++attachment_iter)
+        {
+            LLViewerObject *attached_object = attachment_iter->get();
+            if (attached_object && gInventory.isObjectDescendentOf(attached_object->getAttachmentItemID(), trash_id))
+            {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 // static
@@ -1826,7 +1848,7 @@ void LLVOAvatarSelf::dumpLocalTextures() const
 			}
 			else
 			{
-				const LLViewerFetchedTexture* image = dynamic_cast<LLViewerFetchedTexture*>( local_tex_obj->getImage() );
+				LLViewerFetchedTexture* image = dynamic_cast<LLViewerFetchedTexture*>( local_tex_obj->getImage() );
 
 				LL_INFOS() << "LocTex " << name << ": "
 						<< "Discard " << image->getDiscardLevel() << ", "
@@ -1836,7 +1858,7 @@ void LLVOAvatarSelf::dumpLocalTextures() const
 					// makes textures easier to steal
 						<< image->getID() << " "
 #endif
-						<< "Priority: " << image->getDecodePriority()
+						<< "Priority: " << image->getMaxVirtualSize()
 						<< LL_ENDL;
 			}
 		}
@@ -2075,8 +2097,7 @@ const std::string LLVOAvatarSelf::verboseDebugDumpLocalTextureDataInfo(const LLV
 									   << " glocdisc: " << getLocalDiscardLevel(tex_index, wearable_index)
 									   << " discard: " << image->getDiscardLevel()
 									   << " desired: " << image->getDesiredDiscardLevel()
-									   << " decode: " << image->getDecodePriority()
-									   << " addl: " << image->getAdditionalDecodePriority()
+									   << " vsize: " << image->getMaxVirtualSize()
 									   << " ts: " << image->getTextureState()
 									   << " bl: " << image->getBoostLevel()
 									   << " fl: " << image->isFullyLoaded() // this is not an accessor for mFullyLoaded - see comment there.
@@ -2454,7 +2475,6 @@ void LLVOAvatarSelf::addLocalTextureStats( ETextureIndex type, LLViewerFetchedTe
 				desired_pixels = llmin(mPixelArea, (F32)getTexImageArea());
 				
 				imagep->setBoostLevel(getAvatarBoostLevel());
-				imagep->setAdditionalDecodePriority(SELF_ADDITIONAL_PRI) ;
 				imagep->resetTextureStats();
 				imagep->setMaxVirtualSizeResetInterval(MAX_TEXTURE_VIRTUAL_SIZE_RESET_INTERVAL);
 				imagep->addTextureStats( desired_pixels / texel_area_ratio );
@@ -2800,12 +2820,14 @@ BOOL LLVOAvatarSelf::needsRenderBeam()
 	LLTool *tool = LLToolMgr::getInstance()->getCurrentTool();
 
 	BOOL is_touching_or_grabbing = (tool == LLToolGrab::getInstance() && LLToolGrab::getInstance()->isEditing());
-	if (LLToolGrab::getInstance()->getEditingObject() && 
-		LLToolGrab::getInstance()->getEditingObject()->isAttachment())
-	{
-		// don't render selection beam on hud objects
-		is_touching_or_grabbing = FALSE;
-	}
+    LLViewerObject* objp = LLToolGrab::getInstance()->getEditingObject();
+    if (objp // might need to be "!objp ||" instead of "objp &&".
+        && (objp->isAttachment() || objp->isAvatar()))
+    {
+        // don't render grab tool's selection beam on hud objects,
+        // attachments or avatars
+        is_touching_or_grabbing = FALSE;
+    }
 	return is_touching_or_grabbing || (getAttachmentState() & AGENT_STATE_EDITING && LLSelectMgr::getInstance()->shouldShowSelection());
 }
 
@@ -2825,7 +2847,6 @@ void LLVOAvatarSelf::deleteScratchTextures()
 		LL_DEBUGS() << "Clearing Scratch Textures " << (S32Kilobytes)sScratchTexBytes << LL_ENDL;
 
 		delete_and_clear(sScratchTexNames);
-		LLImageGL::sGlobalTextureMemory -= sScratchTexBytes;
 		sScratchTexBytes = S32Bytes(0);
 	}
 }

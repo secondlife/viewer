@@ -33,8 +33,7 @@ import os
 import sys
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
-from llbase.fastest_elementtree import parse as xml_parse
-from llbase import llsd
+import llsd
 from testrunner import freeport, run, debug, VERBOSE
 import time
 

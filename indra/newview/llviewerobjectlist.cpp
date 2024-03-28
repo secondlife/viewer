@@ -369,7 +369,7 @@ LLViewerObject* LLViewerObjectList::processObjectUpdateFromCache(LLVOCacheEntry*
 		if (!objectp)
 		{
 			LL_INFOS() << "createObject failure for object: " << fullid << LL_ENDL;
-			recorder.objectUpdateFailure(entry->getLocalID(), OUT_FULL_CACHED, 0);
+			recorder.objectUpdateFailure();
 			return NULL;
 		}
 		justCreated = true;
@@ -393,7 +393,6 @@ LLViewerObject* LLViewerObjectList::processObjectUpdateFromCache(LLVOCacheEntry*
 		objectp->setLastUpdateType(OUT_FULL_COMPRESSED); //newly cached
 		objectp->setLastUpdateCached(TRUE);
 	}
-	recorder.log(0.2f);
 	LLVOAvatar::cullAvatarsByPixelArea();
 
 	return objectp;
@@ -472,18 +471,14 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 
 	for (i = 0; i < num_objects; i++)
 	{
-		// timer is unused?
-		LLTimer update_timer;
 		BOOL justCreated = FALSE;
-		S32	msg_size = 0;
 		bool update_cache = false; //update object cache if it is a full-update or terse update
 
 		if (compressed)
 		{
-			S32							uncompressed_length = 2048;
 			compressed_dp.reset();
 
-			uncompressed_length = mesgsys->getSizeFast(_PREHASH_ObjectData, i, _PREHASH_Data);
+			S32 uncompressed_length = mesgsys->getSizeFast(_PREHASH_ObjectData, i, _PREHASH_Data);
 			LL_DEBUGS("ObjectUpdate") << "got binary data from message to compressed_dpbuffer" << LL_ENDL;
 			mesgsys->getBinaryDataFast(_PREHASH_ObjectData, _PREHASH_Data, compressed_dpbuffer, 0, i, 2048);
 			compressed_dp.assignBuffer(compressed_dpbuffer, uncompressed_length);
@@ -505,7 +500,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 						<< " Flags: " << flags
 						<< " Region: " << regionp->getName()
 						<< " Region id: " << regionp->getRegionID() << LL_ENDL;
-					recorder.objectUpdateFailure(local_id, update_type, msg_size);
+					recorder.objectUpdateFailure();
 					continue;
 				}
 				else if ((flags & FLAGS_TEMPORARY_ON_REZ) == 0)
@@ -533,7 +528,6 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 		else if (update_type != OUT_FULL) // !compressed, !OUT_FULL ==> OUT_FULL_CACHED only?
 		{
 			mesgsys->getU32Fast(_PREHASH_ObjectData, _PREHASH_ID, local_id, i);
-			msg_size += sizeof(U32);
 
 			getUUIDFromLocal(fullid,
 							local_id,
@@ -554,8 +548,6 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			update_cache = true;
 			mesgsys->getUUIDFast(_PREHASH_ObjectData, _PREHASH_FullID, fullid, i);
 			mesgsys->getU32Fast(_PREHASH_ObjectData, _PREHASH_ID, local_id, i);
-			msg_size += sizeof(LLUUID);
-			msg_size += sizeof(U32);
 			LL_DEBUGS("ObjectUpdate") << "Full Update, obj " << local_id << ", global ID " << fullid << " from " << mesgsys->getSender() << LL_ENDL;
 		}
 		objectp = findObject(fullid);
@@ -616,7 +608,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 				if (update_type == OUT_TERSE_IMPROVED)
 				{
 					// LL_INFOS() << "terse update for an unknown object (compressed):" << fullid << LL_ENDL;
-					recorder.objectUpdateFailure(local_id, update_type, msg_size);
+					recorder.objectUpdateFailure();
 					continue;
 				}
 			}
@@ -625,12 +617,11 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 				if (update_type != OUT_FULL)
 				{
 					//LL_INFOS() << "terse update for an unknown object:" << fullid << LL_ENDL;
-					recorder.objectUpdateFailure(local_id, update_type, msg_size);
+					recorder.objectUpdateFailure();
 					continue;
 				}
 
 				mesgsys->getU8Fast(_PREHASH_ObjectData, _PREHASH_PCode, pcode, i);
-				msg_size += sizeof(U8);
 
 			}
 #ifdef IGNORE_DEAD
@@ -638,7 +629,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			{
 				mNumDeadObjectUpdates++;
 				//LL_INFOS() << "update for a dead object:" << fullid << LL_ENDL;
-				recorder.objectUpdateFailure(local_id, update_type, msg_size);
+				recorder.objectUpdateFailure();
 				continue;
 			}
 #endif
@@ -651,7 +642,7 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			if (!objectp)
 			{
 				LL_INFOS() << "createObject failure for object: " << fullid << LL_ENDL;
-				recorder.objectUpdateFailure(local_id, update_type, msg_size);
+				recorder.objectUpdateFailure();
 				continue;
 			}
 
@@ -681,11 +672,11 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			
 				if(!(flags & FLAGS_TEMPORARY_ON_REZ))
 				{
-				bCached = true;
+					bCached = true;
 					LLViewerRegion::eCacheUpdateResult result = objectp->mRegionp->cacheFullUpdate(objectp, compressed_dp, flags);
-				recorder.cacheFullUpdate(local_id, update_type, result, objectp, msg_size);
+					recorder.cacheFullUpdate(result);
+				}
 			}
-		}
 #endif
 		}
 		else
@@ -696,11 +687,9 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			}
 			processUpdateCore(objectp, user_data, i, update_type, NULL, justCreated);
 		}
-		recorder.objectUpdateEvent(local_id, update_type, objectp, msg_size);
+		recorder.objectUpdateEvent(update_type);
 		objectp->setLastUpdateType(update_type);
 	}
-
-	recorder.log(0.2f);
 
 	LLVOAvatar::cullAvatarsByPixelArea();
 }
@@ -734,28 +723,26 @@ void LLViewerObjectList::processCachedObjectUpdate(LLMessageSystem *mesgsys,
 
 	for (S32 i = 0; i < num_objects; i++)
 	{
-		S32	msg_size = 0;
 		U32 id;
 		U32 crc;
 		U32 flags;
 		mesgsys->getU32Fast(_PREHASH_ObjectData, _PREHASH_ID, id, i);
 		mesgsys->getU32Fast(_PREHASH_ObjectData, _PREHASH_CRC, crc, i);
 		mesgsys->getU32Fast(_PREHASH_ObjectData, _PREHASH_UpdateFlags, flags, i);
-		msg_size += sizeof(U32) * 2;
 
         LL_DEBUGS("ObjectUpdate") << "got probe for id " << id << " crc " << crc << LL_ENDL;
         dumpStack("ObjectUpdateStack");
 
 		// Lookup data packer and add this id to cache miss lists if necessary.
 		U8 cache_miss_type = LLViewerRegion::CACHE_MISS_TYPE_NONE;
-		if(!regionp->probeCache(id, crc, flags, cache_miss_type))
-		{
-			// Cache Miss.
+        if (regionp->probeCache(id, crc, flags, cache_miss_type))
+		{	// Cache Hit
+            recorder.cacheHitEvent();
+		}
+        else
+		{	// Cache Miss
             LL_DEBUGS("ObjectUpdate") << "cache miss for id " << id << " crc " << crc << " miss type " << (S32) cache_miss_type << LL_ENDL;
-
-			recorder.cacheMissEvent(id, update_type, cache_miss_type, msg_size);
-
-			continue; // no data packer, skip this object
+            recorder.cacheMissEvent(cache_miss_type);
 		}
 	}
 
@@ -773,7 +760,6 @@ void LLViewerObjectList::dirtyAllObjectInventory()
 void LLViewerObjectList::updateApparentAngles(LLAgent &agent)
 {
 	S32 i;
-	S32 num_objects = 0;
 	LLViewerObject *objectp;
 
 	S32 num_updates, max_value;
@@ -789,49 +775,12 @@ void LLViewerObjectList::updateApparentAngles(LLAgent &agent)
 		max_value = llmin((S32) mObjects.size(), mCurLazyUpdateIndex + num_updates);
 	}
 
-
-	// Slam priorities for textures that we care about (hovered, selected, and focused)
-	// Hovered
-	// Assumes only one level deep of parenting
-	LLSelectNode* nodep = LLSelectMgr::instance().getHoverNode();
-	if (nodep)
-	{
-		objectp = nodep->getObject();
-		if (objectp)
-		{
-			objectp->boostTexturePriority();
-		}
-	}
-
-	// Focused
-	objectp = gAgentCamera.getFocusObject();
-	if (objectp)
-	{
-		objectp->boostTexturePriority();
-	}
-
-	// Selected
-	struct f : public LLSelectedObjectFunctor
-	{
-		virtual bool apply(LLViewerObject* objectp)
-		{
-            if (objectp)
-            {
-                objectp->boostTexturePriority();
-            }
-			return true;
-		}
-	} func;
-	LLSelectMgr::getInstance()->getSelection()->applyToRootObjects(&func);
-
 	// Iterate through some of the objects and lazy update their texture priorities
 	for (i = mCurLazyUpdateIndex; i < max_value; i++)
 	{
 		objectp = mObjects[i];
 		if (!objectp->isDead())
 		{
-			num_objects++;
-
 			//  Update distance & gpw 
 			objectp->setPixelAreaAndAngle(agent); // Also sets the approx. pixel area
 			objectp->updateTextures();	// Update the image levels of textures for this object.
@@ -849,6 +798,42 @@ void LLViewerObjectList::updateApparentAngles(LLAgent &agent)
 	{
 		mCurBin = (mCurBin + 1) % NUM_BINS;
 	}
+
+#if 0
+	// Slam priorities for textures that we care about (hovered, selected, and focused)
+	// Hovered
+	// Assumes only one level deep of parenting
+	LLSelectNode* nodep = LLSelectMgr::instance().getHoverNode();
+    if (nodep)
+    {
+        objectp = nodep->getObject();
+        if (objectp)
+        {
+            objectp->boostTexturePriority();
+        }
+    }
+
+	// Focused
+	objectp = gAgentCamera.getFocusObject();
+	if (objectp)
+	{
+		objectp->boostTexturePriority();
+	}
+#endif
+
+	// Selected
+	struct f : public LLSelectedObjectFunctor
+	{
+		virtual bool apply(LLViewerObject* objectp)
+		{
+            if (objectp)
+            {
+                objectp->boostTexturePriority();
+            }
+			return true;
+		}
+	} func;
+	LLSelectMgr::getInstance()->getSelection()->applyToRootObjects(&func);
 
 	LLVOAvatar::cullAvatarsByPixelArea();
 }
@@ -1343,40 +1328,16 @@ void LLViewerObjectList::cleanupReferences(LLViewerObject *objectp)
 	}
 
 	// Don't clean up mObject references, these will be cleaned up more efficiently later!
-	// Also, not cleaned up
-	removeDrawable(objectp->mDrawable);
-
+	
 	if(new_dead_object)
 	{
 		mNumDeadObjects++;
 	}
 }
 
-void LLViewerObjectList::removeDrawable(LLDrawable* drawablep)
-{
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWABLE;
-
-	if (!drawablep)
-	{
-		return;
-	}
-
-	for (S32 i = 0; i < drawablep->getNumFaces(); i++)
-	{
-		LLFace* facep = drawablep->getFace(i) ;
-		if(facep)
-		{
-			   LLViewerObject* objectp = facep->getViewerObject();
-			   if(objectp)
-			   {
-					   mSelectPickList.erase(objectp);
-			   }
-		}
-	}
-}
-
 BOOL LLViewerObjectList::killObject(LLViewerObject *objectp)
 {
+    LL_PROFILE_ZONE_SCOPED;
 	// Don't ever kill gAgentAvatarp, just force it to the agent's region
 	// unless region is NULL which is assumed to mean you are logging out.
 	if ((objectp == gAgentAvatarp) && gAgent.getRegion())
@@ -1403,6 +1364,7 @@ BOOL LLViewerObjectList::killObject(LLViewerObject *objectp)
 
 void LLViewerObjectList::killObjects(LLViewerRegion *regionp)
 {
+    LL_PROFILE_ZONE_SCOPED;
 	LLViewerObject *objectp;
 
 	
@@ -1461,6 +1423,8 @@ void LLViewerObjectList::cleanDeadObjects(BOOL use_timer)
 		// No dead objects, don't need to scan object list.
 		return;
 	}
+
+    LL_PROFILE_ZONE_SCOPED;
 
 	S32 num_removed = 0;
 	LLViewerObject *objectp;
@@ -1840,145 +1804,7 @@ void LLViewerObjectList::renderObjectBounds(const LLVector3 &center)
 {
 }
 
-void LLViewerObjectList::generatePickList(LLCamera &camera)
-{
-	LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
-
-		LLViewerObject *objectp;
-		S32 i;
-		// Reset all of the GL names to zero.
-		for (vobj_list_t::iterator iter = mObjects.begin(); iter != mObjects.end(); ++iter)
-		{
-			(*iter)->mGLName = 0;
-		}
-
-		mSelectPickList.clear();
-
-		std::vector<LLDrawable*> pick_drawables;
-
-		for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
-			iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
-		{
-			LLViewerRegion* region = *iter;
-			for (U32 i = 0; i < LLViewerRegion::NUM_PARTITIONS; i++)
-			{
-				LLSpatialPartition* part = region->getSpatialPartition(i);
-				if (part)
-				{	
-					part->cull(camera, &pick_drawables, TRUE);
-				}
-			}
-		}
-
-		for (std::vector<LLDrawable*>::iterator iter = pick_drawables.begin();
-			iter != pick_drawables.end(); iter++)
-		{
-			LLDrawable* drawablep = *iter;
-			if( !drawablep )
-				continue;
-
-			LLViewerObject* last_objectp = NULL;
-			for (S32 face_num = 0; face_num < drawablep->getNumFaces(); face_num++)
-			{
-				LLFace * facep = drawablep->getFace(face_num);
-				if (!facep) continue;
-
-				LLViewerObject* objectp = facep->getViewerObject();
-
-				if (objectp && objectp != last_objectp)
-				{
-					mSelectPickList.insert(objectp);
-					last_objectp = objectp;
-				}
-			}
-		}
-
-		LLHUDNameTag::addPickable(mSelectPickList);
-
-		for (std::vector<LLCharacter*>::iterator iter = LLCharacter::sInstances.begin();
-			iter != LLCharacter::sInstances.end(); ++iter)
-		{
-			objectp = (LLVOAvatar*) *iter;
-			if (!objectp->isDead())
-			{
-				if (objectp->mDrawable.notNull() && objectp->mDrawable->isVisible())
-				{
-					mSelectPickList.insert(objectp);
-				}
-			}
-		}
-
-		// add all hud objects to pick list
-		if (isAgentAvatarValid())
-		{
-			for (LLVOAvatar::attachment_map_t::iterator iter = gAgentAvatarp->mAttachmentPoints.begin(); 
-				 iter != gAgentAvatarp->mAttachmentPoints.end(); )
-			{
-				LLVOAvatar::attachment_map_t::iterator curiter = iter++;
-				LLViewerJointAttachment* attachment = curiter->second;
-				if (attachment->getIsHUDAttachment())
-				{
-					for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
-						 attachment_iter != attachment->mAttachedObjects.end();
-						 ++attachment_iter)
-					{
-						if (LLViewerObject* attached_object = attachment_iter->get())
-						{
-							mSelectPickList.insert(attached_object);
-							LLViewerObject::const_child_list_t& child_list = attached_object->getChildren();
-							for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
-								 iter != child_list.end(); iter++)
-							{
-								LLViewerObject* childp = *iter;
-								if (childp)
-								{
-									mSelectPickList.insert(childp);
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		
-		S32 num_pickables = (S32)mSelectPickList.size() + LLHUDIcon::getNumInstances();
-
-		if (num_pickables != 0)
-		{
-			S32 step = (0x000fffff - GL_NAME_INDEX_OFFSET) / num_pickables;
-
-			std::set<LLViewerObject*>::iterator pick_it;
-			i = 0;
-			for (pick_it = mSelectPickList.begin(); pick_it != mSelectPickList.end();)
-			{
-				LLViewerObject* objp = (*pick_it);
-				if (!objp || objp->isDead() || !objp->mbCanSelect)
-				{
-					mSelectPickList.erase(pick_it++);
-					continue;
-				}
-				
-				objp->mGLName = (i * step) + GL_NAME_INDEX_OFFSET;
-				i++;
-				++pick_it;
-			}
-
-			LLHUDIcon::generatePickIDs(i * step, step);
-	}
-}
-
-LLViewerObject *LLViewerObjectList::getSelectedObject(const U32 object_id)
-{
-	std::set<LLViewerObject*>::iterator pick_it;
-	for (pick_it = mSelectPickList.begin(); pick_it != mSelectPickList.end(); ++pick_it)
-	{
-		if ((*pick_it)->mGLName == object_id)
-		{
-			return (*pick_it);
-		}
-	}
-	return NULL;
-}
+extern BOOL gCubeSnapshot;
 
 void LLViewerObjectList::addDebugBeacon(const LLVector3 &pos_agent,
 										const std::string &string,
@@ -1986,6 +1812,7 @@ void LLViewerObjectList::addDebugBeacon(const LLVector3 &pos_agent,
 										const LLColor4 &text_color,
 										S32 line_width)
 {
+    llassert(!gCubeSnapshot);
 	LLDebugBeacon beacon;
 	beacon.mPositionAgent = pos_agent;
 	beacon.mString = string;
@@ -2236,7 +2063,7 @@ void LLViewerObjectList::findOrphans(LLViewerObject* objectp, U32 ip, U32 port)
 				// Make the drawable visible again and set the drawable parent
 				childp->mDrawable->clearState(LLDrawable::FORCE_INVISIBLE);
 				childp->setDrawableParent(objectp->mDrawable); // LLViewerObjectList::findOrphans()
-				gPipeline.markRebuild( childp->mDrawable, LLDrawable::REBUILD_ALL, TRUE );
+				gPipeline.markRebuild( childp->mDrawable, LLDrawable::REBUILD_ALL);
 			}
 
 			// Make certain particles, icon and HUD aren't hidden

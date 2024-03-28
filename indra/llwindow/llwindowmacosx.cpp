@@ -186,7 +186,7 @@ LLWindowMacOSX::LLWindowMacOSX(LLWindowCallbacks* callbacks,
 			return;
 		}
 
-		//start with arrow cursor
+        //start with arrow cursor
 		initCursors();
 		setCursor( UI_CURSOR_ARROW );
 		
@@ -637,6 +637,34 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 		mGLView = createOpenGLView(mWindow, mFSAASamples, enable_vsync);
 		mContext = getCGLContextObj(mGLView);
 		gGLManager.mVRAM = getVramSize(mGLView);
+
+        if(!mPixelFormat)
+        {
+            CGLPixelFormatAttribute attribs[] =
+            {
+                kCGLPFANoRecovery,
+                kCGLPFADoubleBuffer,
+                kCGLPFAClosestPolicy,
+                kCGLPFAAccelerated,
+                kCGLPFAMultisample,
+                kCGLPFASampleBuffers, static_cast<CGLPixelFormatAttribute>((mFSAASamples > 0 ? 1 : 0)),
+                kCGLPFASamples, static_cast<CGLPixelFormatAttribute>(mFSAASamples),
+                kCGLPFAStencilSize, static_cast<CGLPixelFormatAttribute>(8),
+                kCGLPFADepthSize, static_cast<CGLPixelFormatAttribute>(24),
+                kCGLPFAAlphaSize, static_cast<CGLPixelFormatAttribute>(8),
+                kCGLPFAColorSize, static_cast<CGLPixelFormatAttribute>(24),
+                kCGLPFAOpenGLProfile, static_cast<CGLPixelFormatAttribute>(kCGLOGLPVersion_GL4_Core),
+                static_cast<CGLPixelFormatAttribute>(0)
+            };
+
+            GLint numPixelFormats;
+            CGLChoosePixelFormat (attribs, &mPixelFormat, &numPixelFormats);
+            
+            if(mPixelFormat == NULL) {
+                CGLChoosePixelFormat (attribs, &mPixelFormat, &numPixelFormats);
+            }
+        }
+
 	}
 	
 	// This sets up our view to recieve text from our non-inline text input window.
@@ -1223,6 +1251,16 @@ F32 LLWindowMacOSX::getPixelAspectRatio()
 {
 	//OS X always enforces a 1:1 pixel aspect ratio, regardless of video mode
 	return 1.f;
+}
+
+U32 LLWindowMacOSX::getAvailableVRAMMegabytes() {
+    // MTL (and MoltenVK) has some additional gpu data, such as recommendedMaxWorkingSetSize and currentAllocatedSize.
+    // But these are not available for OpenGL and/or our current mimimum OS version.
+    // So we will estimate.
+    static const U32 mb = 1024*1024;
+    // We're asked for total available gpu memory, but we only have allocation info on texture usage. So estimate by doubling that.
+    static const U32 total_factor = 2; // estimated total/textures
+    return gGLManager.mVRAM - (LLImageGL::getTextureBytesAllocated() * total_factor/mb);
 }
 
 //static SInt32 oldWindowLevel;
@@ -1925,6 +1963,11 @@ void* LLWindowMacOSX::createSharedContext()
 {
     sharedContext* sc = new sharedContext();
     CGLCreateContext(mPixelFormat, mContext, &(sc->mContext));
+    
+    if (sUseMultGL)
+    {
+        CGLEnable(mContext, kCGLCEMPEngine);
+    }
 
     return (void *)sc;
 }
@@ -1932,6 +1975,25 @@ void* LLWindowMacOSX::createSharedContext()
 void LLWindowMacOSX::makeContextCurrent(void* context)
 {
     CGLSetCurrentContext(((sharedContext*)context)->mContext);
+
+    //enable multi-threaded OpenGL
+	if (sUseMultGL)
+	{
+		CGLError cgl_err;
+		CGLContextObj ctx = CGLGetCurrentContext();
+
+		cgl_err =  CGLEnable( ctx, kCGLCEMPEngine);
+
+		if (cgl_err != kCGLNoError )
+		{
+			LL_INFOS("GLInit") << "Multi-threaded OpenGL not available." << LL_ENDL;
+		}
+		else
+		{
+            LL_INFOS("GLInit") << "Multi-threaded OpenGL enabled." << LL_ENDL;
+		}
+	}
+	
 }
 
 void LLWindowMacOSX::destroySharedContext(void* context)

@@ -62,7 +62,6 @@ HttpOperation::HttpOperation():
     mReplyQueue(),
     mUserHandler(),
     mReqPolicy(HttpRequest::DEFAULT_POLICY_ID),
-    mReqPriority(0U),
     mTracing(HTTP_TRACE_OFF),
     mMyHandle(LLCORE_HTTP_HANDLE_INVALID)
 {

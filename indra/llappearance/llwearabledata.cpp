@@ -31,7 +31,6 @@
 #include "llavatarappearance.h"
 #include "llavatarappearancedefines.h"
 #include "lldriverparam.h"
-#include "llmd5.h"
 
 LLWearableData::LLWearableData() :
 	mAvatarAppearance(NULL)
@@ -343,42 +342,3 @@ U32 LLWearableData::getWearableCount(const U32 tex_index) const
 	const LLWearableType::EType wearable_type = LLAvatarAppearance::getDictionary()->getTEWearableType((LLAvatarAppearanceDefines::ETextureIndex)tex_index);
 	return getWearableCount(wearable_type);
 }
-
-LLUUID LLWearableData::computeBakedTextureHash(LLAvatarAppearanceDefines::EBakedTextureIndex baked_index,
-												 BOOL generate_valid_hash) // Set to false if you want to upload the baked texture w/o putting it in the cache
-{
-	LLUUID hash_id;
-	bool hash_computed = false;
-	LLMD5 hash;
-	const LLAvatarAppearanceDictionary::BakedEntry *baked_dict = LLAvatarAppearance::getDictionary()->getBakedTexture(baked_index);
-
-	for (U8 i=0; i < baked_dict->mWearables.size(); i++)
-	{
-		const LLWearableType::EType baked_type = baked_dict->mWearables[i];
-		const U32 num_wearables = getWearableCount(baked_type);
-		for (U32 index = 0; index < num_wearables; ++index)
-		{
-			const LLWearable* wearable = getWearable(baked_type,index);
-			if (wearable)
-			{
-				wearable->addToBakedTextureHash(hash);
-				hash_computed = true;
-			}
-		}
-	}
-	if (hash_computed)
-	{
-		hash.update((const unsigned char*)baked_dict->mWearablesHashID.mData, UUID_BYTES);
-
-		if (!generate_valid_hash)
-		{
-			invalidateBakedTextureHash(hash);
-		}
-		hash.finalize();
-		hash.raw_digest(hash_id.mData);
-	}
-
-	return hash_id;
-}
-
-

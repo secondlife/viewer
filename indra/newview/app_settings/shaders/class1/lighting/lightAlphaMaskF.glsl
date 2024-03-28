@@ -23,22 +23,15 @@
  * $/LicenseInfo$
  */
  
-#ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
-#else
-#define frag_color gl_FragColor
-#endif
 
 uniform float minimum_alpha;
-
-// render_hud_attachments() -> HUD objects set LLShaderMgr::NO_ATMO;
-uniform int no_atmo;
 
 vec3 atmosLighting(vec3 light);
 vec3 scaleSoftClip(vec3 light);
 
-VARYING vec4 vertex_color;
-VARYING vec2 vary_texcoord0;
+in vec4 vertex_color;
+in vec2 vary_texcoord0;
 
 void default_lighting() 
 {
@@ -51,13 +44,9 @@ void default_lighting()
 	
 	color *= vertex_color;
 
-	// SL-9632 HUDs are affected by Atmosphere
-	if (no_atmo == 0)
-	{
-		color.rgb = atmosLighting(color.rgb);
-		color.rgb = scaleSoftClip(color.rgb);
-	}
+	color.rgb = atmosLighting(color.rgb);
+	color.rgb = scaleSoftClip(color.rgb);
 
-	frag_color = color;
+	frag_color = max(color, vec4(0));
 }
 

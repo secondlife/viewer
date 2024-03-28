@@ -1113,18 +1113,17 @@ BOOL	LLPreviewAnimation::render()
 	LLQuaternion camera_rot = LLQuaternion(mCameraPitch, LLVector3::y_axis) * 
 		LLQuaternion(mCameraYaw, LLVector3::z_axis);
 
+    LLViewerCamera* camera = LLViewerCamera::getInstance();
+
 	LLQuaternion av_rot = avatarp->mRoot->getWorldRotation() * camera_rot;
-	LLViewerCamera::getInstance()->setOriginAndLookAt(
+	camera->setOriginAndLookAt(
 		target_pos + ((LLVector3(mCameraDistance, 0.f, 0.f) + mCameraOffset) * av_rot),		// camera
 		LLVector3::z_axis,																	// up
 		target_pos + (mCameraOffset  * av_rot) );											// point of interest
 
-	LLViewerCamera::getInstance()->setView(LLViewerCamera::getInstance()->getDefaultFOV() / mCameraZoom);
-	LLViewerCamera::getInstance()->setPerspective(FALSE, mOrigin.mX, mOrigin.mY, mFullWidth, mFullHeight, FALSE);
-
-	mCameraRelPos = LLViewerCamera::getInstance()->getOrigin() - avatarp->mHeadp->getWorldPosition();
-
-	//avatarp->setAnimationData("LookAtPoint", (void *)&mCameraRelPos);
+	camera->setViewNoBroadcast(LLViewerCamera::getInstance()->getDefaultFOV() / mCameraZoom);
+    camera->setAspect((F32) mFullWidth / (F32) mFullHeight);
+	camera->setPerspective(FALSE, mOrigin.mX, mOrigin.mY, mFullWidth, mFullHeight, FALSE);
 
 	//SJB: Animation is updated in LLVOAvatar::updateCharacter
 	

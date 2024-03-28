@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_test_text_editor">
+	<text_editor name="test_text_editor" tool_tip="テキストエディタ">
+		テキストエディタ
+	</text_editor>
+	<text_editor name="test_text_editor" tool_tip="テキストエディタ">
+		これには長いテキストが含まれており、右に水平にスクロールする必要があります。
+	</text_editor>
+	<text_editor name="numeric_text_editor" tool_tip="数値のみ入力可能なテキストエディタ">
+		これは数字ではないテキストなので、表示されるべきではありません。
+	</text_editor>
+</floater>

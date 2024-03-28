@@ -925,6 +925,9 @@ void LLFloaterTools::onClose(bool app_quitting)
 	// hide the advanced object weights floater
 	LLFloaterReg::hideInstance("object_weights");
 
+    // hide gltf material editor
+    LLFloaterReg::hideInstance("live_material_editor");
+
 	// prepare content for next call
 	mPanelContents->clearContents();
 

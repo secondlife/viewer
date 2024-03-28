@@ -2,7 +2,7 @@
 <panel label="アウトフィット" name="appearance panel">
 	<string name="No Outfit" value="アウトフィットなし"/>
 	<string name="Unsaved Changes" value="保存されていない変更"/>
-	<string name="Now Wearing" value="着用しています..."/>
+	<string name="Now Wearing" value="着用しています…"/>
 	<string name="Changing outfits" value="アウトフィットの変更"/>
 	<panel name="panel_currentlook">
 		<button label="E" name="editappearance_btn"/>
@@ -11,9 +11,9 @@
 			（状態）
 		</text>
 		<text name="currentlook_name">
-			MyOutfit With a really Long Name like MOOSE
+			MOOSEみたいな長い名前の私のアウトフィット
 		</text>
 		<button label="" name="edit_outfit_btn" tool_tip="このアウトフィットを編集"/>
 	</panel>
-	<filter_editor label="アウトフィットをフィルター" name="Filter"/>
+	<filter_editor label="アウトフィットをフィルタ" name="Filter"/>
 </panel>

@@ -1,24 +1,22 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Preferences" title="環境設定">
-	<floater.string name="email_unverified_tooltip">
-		IM を有効にするには、https://accounts.secondlife.com/change_email/ からあなたのメールアドレスを確認してください
-	</floater.string>
-	<button label="OK" label_selected="OK" name="OK"/>
-	<button label="取り消し" label_selected="取り消し" name="Cancel"/>
+<floater name="Preferences" title="初期設定">
+	<button label="ＯＫ" label_selected="ＯＫ" name="OK"/>
+	<button label="キャンセル" label_selected="キャンセル" name="Cancel"/>
 	<panel name="search_panel">
-		<search_editor label="設定の検索" name="search_prefs_edit" tool_tip="検索したい内容をここに入力してください。設定の名前またはコメントに部分的に一致する結果が表示されます。"/>
+		<search_editor label="設定を検索" name="search_prefs_edit" tool_tip="検索したい内容をここに入力してください。設定の名前またはコメントに部分的に一致する結果が表示されます。"/>
 	</panel>
 	<tab_container name="pref core">
 		<panel label="一般" name="general"/>
 		<panel label="グラフィック" name="display"/>
 		<panel label="サウンドとメディア" name="audio"/>
 		<panel label="チャット" name="chat"/>
-		<panel label="移動 &amp; 表示" name="move"/>
-		<panel label="メッセージ" name="msgs"/>
+		<panel label="移動と表示" name="move"/>
+		<panel label="通知" name="msgs"/>
 		<panel label="色" name="colors"/>
 		<panel label="プライバシー" name="im"/>
 		<panel label="セットアップ" name="input"/>
-		<panel label="詳細" name="advanced1"/>
+		<panel label="拡張" name="advanced1"/>
 		<panel label="アップロード" name="uploads"/>
+		<panel label="操作" name="controls"/>
 	</tab_container>
 </floater>

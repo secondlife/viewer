@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ height="590"
+ layout="topleft"
+ name="Task Properties"
+ help_topic="item+properties"
+ title="ITEM PROPERTIES"
+ single_instance="true"
+ width="330">
+ <panel
+   follows="all"
+   layout="topleft"
+   left="0"
+   class="sidepanel_task_info"
+   filename="sidepanel_task_info.xml"
+   name="sidepanel"
+   top="20"
+   label=""
+   height="570"
+   visible="true"
+   width="330">
+ </panel>
+</floater>

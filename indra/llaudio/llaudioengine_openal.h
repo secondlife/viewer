@@ -42,6 +42,7 @@ class LLAudioEngine_OpenAL : public LLAudioEngine
 
         virtual bool init(void *user_data, const std::string &app_title);
         virtual std::string getDriverName(bool verbose);
+        virtual LLStreamingAudioInterface* createDefaultStreamingAudioImpl() const { return nullptr; }
 		virtual void allocateListener();
 
 		virtual void shutdown();
@@ -56,7 +57,6 @@ class LLAudioEngine_OpenAL : public LLAudioEngine
 		/*virtual*/ void updateWind(LLVector3 direction, F32 camera_altitude);
 
 	private:
-		void * windDSP(void *newbuffer, int length);
         typedef S16 WIND_SAMPLE_T;
     	LLWindGen<WIND_SAMPLE_T> *mWindGen;
     	S16 *mWindBuf;

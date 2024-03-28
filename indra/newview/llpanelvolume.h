@@ -57,12 +57,22 @@ public:
 	void			refresh();
 
 	void			sendIsLight();
+    
+    // when an object is becoming a refleciton probe, present a dialog asking for confirmation
+    // otherwise, send the reflection probe update immediately
+    void            sendIsReflectionProbe();
+
+    // callback for handling response of the ok/cancel/ignore dialog for making an object a reflection probe
+    void            doSendIsReflectionProbe(const LLSD& notification, const LLSD& response);
+
 	void			sendIsFlexible();
 
 	static bool		precommitValidate(const LLSD& data);
 	
 	static void 	onCommitIsLight(		LLUICtrl* ctrl, void* userdata);
 	static void 	onCommitLight(			LLUICtrl* ctrl, void* userdata);
+    static void 	onCommitIsReflectionProbe(LLUICtrl* ctrl, void* userdata);
+    static void     onCommitProbe(LLUICtrl* ctrl, void* userdata);
 	void 			onCommitIsFlexible(		LLUICtrl* ctrl, void* userdata);
 	static void 	onCommitFlexible(		LLUICtrl* ctrl, void* userdata);
     void            onCommitAnimatedMeshCheckbox(LLUICtrl* ctrl, void* userdata);

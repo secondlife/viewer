@@ -31,10 +31,10 @@
 		他の HTTP トラフィックプロキシ：
 	</text>
 	<radio_group name="other_http_proxy_type">
-		<radio_item label="プロキシしない" name="OtherNoProxy" tool_tip="ウェブ以外の HTTP トラフィックはいずれのプロキシにもルーティングされません。" value="なし"/>
+		<radio_item label="プロキシを使用しない" name="OtherNoProxy" tool_tip="ウェブ以外の HTTP トラフィックはいずれのプロキシにもルーティングされません。" value="なし"/>
 		<radio_item label="HTTP プロキシを使う" name="OtherHTTPProxy" tool_tip="ウェブ以外の HTTP は設定済みウェブプロキシを通してルーティングされます。" value="Web"/>
 		<radio_item label="SOCKS 5 プロキシを使う" name="OtherSocksProxy" tool_tip="ウェブ以外の HTTP トラフィックは設定済みの Socks 5 プロキシを通してルーティングされます。" value="Socks"/>
 	</radio_group>
-	<button label="OK" label_selected="OK" name="OK"/>
-	<button label="取り消し" label_selected="取り消し" name="Cancel"/>
+	<button label="ＯＫ" label_selected="ＯＫ" name="OK"/>
+	<button label="キャンセル" label_selected="キャンセル" name="Cancel"/>
 </floater>

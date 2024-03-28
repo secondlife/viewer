@@ -114,7 +114,7 @@ BOOL LLToolPie::handleMouseDown(S32 x, S32 y, MASK mask)
 	mMouseDownY = y;
 	LLTimer pick_timer;
 	BOOL pick_rigged = false; //gSavedSettings.getBOOL("AnimatedObjectsAllowLeftClick");
-	LLPickInfo transparent_pick = gViewerWindow->pickImmediate(x, y, TRUE /*includes transparent*/, pick_rigged);
+	LLPickInfo transparent_pick = gViewerWindow->pickImmediate(x, y, TRUE /*includes transparent*/, pick_rigged, FALSE, TRUE, FALSE);
 	LLPickInfo visible_pick = gViewerWindow->pickImmediate(x, y, FALSE, pick_rigged);
 	LLViewerObject *transp_object = transparent_pick.getObject();
 	LLViewerObject *visible_object = visible_pick.getObject();
@@ -128,11 +128,9 @@ BOOL LLToolPie::handleMouseDown(S32 x, S32 y, MASK mask)
 	// left mouse down always picks transparent (but see handleMouseUp).
 	// Also see LLToolPie::handleHover() - priorities are a bit different there.
 	// Todo: we need a more consistent set of rules to work with
-	if (transp_object == visible_object || !visible_object)
+	if (transp_object == visible_object || !visible_object || 
+        !transp_object) // avoid potential for null dereference below, don't make assumptions about behavior of pickImmediate
 	{
-		// Note: if transparent object is null, then visible object is also null
-		// since transparent pick includes non-tranpsarent one.
-		// !transparent_object check will be covered by transparent_object == visible_object.
 		mPick = transparent_pick;
 	}
 	else
@@ -183,11 +181,15 @@ BOOL LLToolPie::handleMouseDown(S32 x, S32 y, MASK mask)
 // an item.
 BOOL LLToolPie::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
+    BOOL pick_reflection_probe = gSavedSettings.getBOOL("SelectReflectionProbes");
+
 	// don't pick transparent so users can't "pay" transparent objects
 	mPick = gViewerWindow->pickImmediate(x, y,
                                          /*BOOL pick_transparent*/ FALSE,
                                          /*BOOL pick_rigged*/ TRUE,
-                                         /*BOOL pick_particle*/ TRUE);
+                                         /*BOOL pick_particle*/ TRUE,
+                                         /*BOOL pick_unselectable*/ TRUE, 
+                                         pick_reflection_probe);
 	mPick.mKeyMask = mask;
 
 	// claim not handled so UI focus stays same
@@ -643,7 +645,6 @@ bool LLToolPie::walkToClickedLocation()
         mPick = saved_pick;
         return false;
     }
-    return true;
 }
 
 bool LLToolPie::teleportToClickedLocation()
@@ -747,18 +748,8 @@ BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 		parent = object->getRootEdit();
 	}
 
-	// Show screen-space highlight glow effect
-	bool show_highlight = false;
-
-	if (handleMediaHover(mHoverPick))
-	{
-		// *NOTE: If you think the hover glow conflicts with the media outline, you
-		// could disable it here.
-		show_highlight = true;
-		// cursor set by media object
-		LL_DEBUGS("UserInput") << "hover handled by LLToolPie (inactive)" << LL_ENDL;
-	}
-	else if (!mMouseOutsideSlop 
+	if (!handleMediaHover(mHoverPick)
+		&& !mMouseOutsideSlop
 		&& mMouseButtonDown
 		// disable camera steering if click on land is not used for moving
 		&& gViewerInput.isMouseBindUsed(CLICK_LEFT, MASK_NONE, MODE_THIRD_PERSON))
@@ -791,7 +782,6 @@ BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 
 		if (click_action_object && useClickAction(mask, click_action_object, click_action_object->getRootEdit()))
 		{
-			show_highlight = true;
 			ECursorType cursor = cursorFromObject(click_action_object);
 			gViewerWindow->setCursor(cursor);
 			LL_DEBUGS("UserInput") << "hover handled by LLToolPie (inactive)" << LL_ENDL;
@@ -800,7 +790,6 @@ BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 		else if ((object && !object->isAvatar() && object->flagUsePhysics()) 
 				 || (parent && !parent->isAvatar() && parent->flagUsePhysics()))
 		{
-			show_highlight = true;
 			gViewerWindow->setCursor(UI_CURSOR_TOOLGRAB);
 			LL_DEBUGS("UserInput") << "hover handled by LLToolPie (inactive)" << LL_ENDL;
 		}
@@ -808,7 +797,6 @@ BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 				 && ((object && object->flagHandleTouch()) || (parent && parent->flagHandleTouch()))
 				 && (!object || !object->isAvatar()))
 		{
-			show_highlight = true;
 			gViewerWindow->setCursor(UI_CURSOR_HAND);
 			LL_DEBUGS("UserInput") << "hover handled by LLToolPie (inactive)" << LL_ENDL;
 		}
@@ -823,15 +811,6 @@ BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 	{
 		LLViewerMediaFocus::getInstance()->clearHover();
 	}
-
-	static LLCachedControl<bool> enable_highlight(
-		gSavedSettings, "RenderHoverGlowEnable", false);
-	LLDrawable* drawable = NULL;
-	if (enable_highlight && show_highlight && object)
-	{
-		drawable = object->mDrawable;
-	}
-	gPipeline.setHighlightObject(drawable);
 
 	return TRUE;
 }

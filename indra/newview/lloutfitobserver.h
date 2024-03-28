@@ -28,7 +28,6 @@
 #define LL_OUTFITOBSERVER_H
 
 #include "llsingleton.h"
-#include "llmd5.h"
 
 /**
  * Outfit observer facade that provides simple possibility to subscribe on
@@ -41,7 +40,7 @@ class LLOutfitObserver: public LLInventoryObserver, public LLSingleton<LLOutfitO
 
 public:
 
-	virtual void changed(U32 mask);
+	virtual void changed(U32 mask) override;
 
 	void notifyOutfitLockChanged() { mOutfitLockChanged();  }
 
@@ -78,7 +77,7 @@ protected:
 
 	bool mLastOutfitDirtiness;
 
-	LLMD5 mItemNameHash;
+	LLUUID mItemNameHash;
 
 private:
 	signal_t mBOFReplaced;

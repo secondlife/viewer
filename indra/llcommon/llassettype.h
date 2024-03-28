@@ -127,8 +127,9 @@ public:
         AT_RESERVED_6 = 55,
 
         AT_SETTINGS = 56,   // Collection of settings
-            
-		AT_COUNT = 57,
+        AT_MATERIAL = 57,   // Render Material
+
+		AT_COUNT = 58,
 
 			// +*********************************************************+
 			// |  TO ADD AN ELEMENT TO THIS ENUM:                        |

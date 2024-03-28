@@ -247,6 +247,11 @@ void LLAvatarIconCtrl::setValue(const LLSD& value)
 				app->addObserver(mAvatarId, this);
 				app->sendAvatarPropertiesRequest(mAvatarId);
 			}
+            else if (gAgentID == mAvatarId)
+            {
+                // Always track any changes to our own icon id
+                app->addObserver(mAvatarId, this);
+            }
 		}
 	}
 	else

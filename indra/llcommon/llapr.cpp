@@ -38,6 +38,12 @@ const S32 FULL_VOLATILE_APR_POOL = 1024 ; //number of references to LLVolatileAP
 
 bool gAPRInitialized = false;
 
+int abortfunc(int retcode)
+{
+    LL_WARNS("APR") << "Allocation failure in apr pool with code " << (S32)retcode << LL_ENDL;
+    return 0;
+}
+
 void ll_init_apr()
 {
 	// Initialize APR and create the global pool
@@ -45,7 +51,7 @@ void ll_init_apr()
 	
 	if (!gAPRPoolp)
 	{
-		apr_pool_create(&gAPRPoolp, NULL);
+		apr_pool_create_ex(&gAPRPoolp, NULL, abortfunc, NULL);
 	}
 
 	if(!LLAPRFile::sAPRFilePoolp)
@@ -522,6 +528,7 @@ S32 LLAPRFile::seek(apr_file_t* file_handle, apr_seek_where_t where, S32 offset)
 //static
 S32 LLAPRFile::readEx(const std::string& filename, void *buf, S32 offset, S32 nbytes, LLVolatileAPRPool* pool)
 {
+    LL_PROFILE_ZONE_SCOPED;
 	//*****************************************
 	LLAPRFilePoolScope scope(pool);
 	apr_file_t* file_handle = open(filename, scope.getVolatileAPRPool(), APR_READ|APR_BINARY); 
@@ -566,6 +573,7 @@ S32 LLAPRFile::readEx(const std::string& filename, void *buf, S32 offset, S32 nb
 //static
 S32 LLAPRFile::writeEx(const std::string& filename, void *buf, S32 offset, S32 nbytes, LLVolatileAPRPool* pool)
 {
+    LL_PROFILE_ZONE_SCOPED;
 	apr_int32_t flags = APR_CREATE|APR_WRITE|APR_BINARY;
 	if (offset < 0)
 	{

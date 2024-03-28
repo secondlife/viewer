@@ -23,24 +23,19 @@
  * $/LicenseInfo$
  */
  
-#extension GL_ARB_texture_rectangle : enable
-
 /*[EXTRA_CODE_HERE]*/
 
-#ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
-#else
-#define frag_color gl_FragColor
-#endif
 
-uniform sampler2DRect diffuseRect;
+uniform sampler2D diffuseRect;
 
 uniform vec2 screen_res;
-VARYING vec2 vary_tc;
+
+in vec2 vary_tc;
 
 void main() 
 {
-	vec3 col = texture2DRect(diffuseRect, vary_tc*screen_res).rgb;
-	
-	frag_color = vec4(col.rgb, dot(col.rgb, vec3(0.299, 0.587, 0.144)));
+    vec3 col = texture(diffuseRect, vary_tc).rgb;
+   
+    frag_color = vec4(col.rgb, dot(col.rgb, vec3(0.299, 0.587, 0.144)));
 }

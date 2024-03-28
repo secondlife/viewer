@@ -13,7 +13,7 @@
    left="0"
    class="sidepanel_item_info"
    filename="sidepanel_item_info.xml"
-   name="item_panel"
+   name="sidepanel"
    top="20"
    label=""
    height="570"

@@ -400,27 +400,7 @@ namespace tut
 		// Deleted LLInventoryItem::exportFileXML() and LLInventoryItem::importXML()
 		// because I can't find any non-test code references to it. 2009-05-04 JC
 	}
-		
-	template<> template<>
-	void inventory_object::test<10>()
-	{
-		LLPointer<LLInventoryItem> src1 = create_random_inventory_item();
-		U8* bin_bucket = new U8[300];
-		S32 bin_bucket_size = src1->packBinaryBucket(bin_bucket, NULL);
 
-		LLPointer<LLInventoryItem> src2 = new LLInventoryItem();
-		src2->unpackBinaryBucket(bin_bucket, bin_bucket_size);
-
-		ensure_equals("1.sale price::getSalePrice() failed price", src1->getSaleInfo().getSalePrice(), src2->getSaleInfo().getSalePrice());
-		ensure_equals("2.sale type::getSaleType() failed type", src1->getSaleInfo().getSaleType(), src2->getSaleInfo().getSaleType());
-		ensure_equals("3.type::getType() failed", src1->getType(), src2->getType());
-		ensure_equals("4.inventory type::getInventoryType() failed type", src1->getInventoryType(), src2->getInventoryType());
-		ensure_equals("5.name::getName() failed", src1->getName(), src2->getName());
-		ensure_equals("6.description::getDescription() failed", src1->getDescription(), src2->getDescription());				
-		ensure_equals("7.flags::getFlags() failed", src1->getFlags(), src2->getFlags());
-	
-	}
-	
 	template<> template<>
 	void inventory_object::test<11>()
 	{

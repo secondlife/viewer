@@ -908,7 +908,7 @@ public:
     void remap();
 
 	void optimize(F32 angle_cutoff = 2.f);
-	bool cacheOptimize();
+	bool cacheOptimize(bool gen_tangents = false);
 
 	void createOctree(F32 scaler = 0.25f, const LLVector4a& center = LLVector4a(0,0,0), const LLVector4a& size = LLVector4a(0.5f,0.5f,0.5f));
     void destroyOctree();
@@ -960,10 +960,6 @@ public:
     // indexes for mPositions/mNormals/mTexCoords
 	U16* mIndices;
 
-	// vertex buffer filled in by LLFace to cache this volume face geometry in vram 
-	// (declared as a LLPointer to LLRefCount to avoid dependency on LLVertexBuffer)
-	mutable LLPointer<LLRefCount> mVertexBuffer; 
-
 	std::vector<S32>	mEdge;
 
 	//list of skin weights for rigged volumes
@@ -984,6 +980,11 @@ public:
 
 	//whether or not face has been cache optimized
 	BOOL mOptimized;
+
+    // if this is a mesh asset, scale and translation that were applied
+    // when encoding the source mesh into a unit cube
+    // used for regenerating tangents
+    LLVector3 mNormalizedScale = LLVector3(1,1,1);
 
 private:
     LLOctreeNode<LLVolumeTriangle, LLVolumeTriangle*>* mOctree;
@@ -1033,7 +1034,7 @@ public:
 	void setDirty() { mPathp->setDirty(); mProfilep->setDirty(); }
 
 	void regen();
-	void genTangents(S32 face);
+    void genTangents(S32 face);
 
 	BOOL isConvex() const;
 	BOOL isCap(S32 face);
@@ -1087,7 +1088,10 @@ public:
 	void copyVolumeFaces(const LLVolume* volume);
 	void copyFacesTo(std::vector<LLVolumeFace> &faces) const;
 	void copyFacesFrom(const std::vector<LLVolumeFace> &faces);
-	bool cacheOptimize();
+
+    // use meshoptimizer to optimize index buffer for vertex shader cache
+    //  gen_tangents - if true, generate MikkTSpace tangents if needed before optimizing index buffer
+	bool cacheOptimize(bool gen_tangents = false);
 
 private:
 	void sculptGenerateMapVertices(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components, const U8* sculpt_data, U8 sculpt_type);
@@ -1107,15 +1111,18 @@ private:
 	bool unpackVolumeFacesInternal(const LLSD& mdl);
 
 public:
-	virtual void setMeshAssetLoaded(BOOL loaded);
-	virtual BOOL isMeshAssetLoaded();
+	virtual void setMeshAssetLoaded(bool loaded);
+	virtual bool isMeshAssetLoaded();
+    virtual void setMeshAssetUnavaliable(bool unavaliable);
+    virtual bool isMeshAssetUnavaliable();
 
  protected:
 	BOOL mUnique;
 	F32 mDetail;
 	S32 mSculptLevel;
 	F32 mSurfaceArea; //unscaled surface area
-	BOOL mIsMeshAssetLoaded;
+	bool mIsMeshAssetLoaded;
+    bool mIsMeshAssetUnavaliable;
 	
 	const LLVolumeParams mParams;
 	LLPath *mPathp;

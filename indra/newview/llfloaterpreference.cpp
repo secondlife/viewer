@@ -79,7 +79,6 @@
 #include "llviewerthrottle.h"
 #include "llvoavatarself.h"
 #include "llvotree.h"
-#include "llvosky.h"
 #include "llfloaterpathfindingconsole.h"
 // linden library includes
 #include "llavatarnamecache.h"
@@ -251,10 +250,48 @@ void fractionFromDecimal(F32 decimal_val, S32& numerator, S32& denominator)
 		}
 	}
 }
-// static
-std::string LLFloaterPreference::sSkin = "";
+
+// handle secondlife:///app/worldmap/{NAME}/{COORDS} URLs
+// Also see LLUrlEntryKeybinding, the value of this command type
+// is ability to show up to date value in chat
+class LLKeybindingHandler: public LLCommandHandler
+{
+public:
+    // requires trusted browser to trigger
+    LLKeybindingHandler(): LLCommandHandler("keybinding", UNTRUSTED_CLICK_ONLY)
+    {
+    }
+
+    bool handle(const LLSD& params, const LLSD& query_map,
+                const std::string& grid, LLMediaCtrl* web)
+    {
+        if (params.size() < 1) return false;
+
+        LLFloaterPreference* prefsfloater = dynamic_cast<LLFloaterPreference*>
+            (LLFloaterReg::showInstance("preferences"));
+
+        if (prefsfloater)
+        {
+            // find 'controls' panel and bring it the front
+            LLTabContainer* tabcontainer = prefsfloater->getChild<LLTabContainer>("pref core");
+            LLPanel* panel = prefsfloater->getChild<LLPanel>("controls");
+            if (tabcontainer && panel)
+            {
+                tabcontainer->selectTabPanel(panel);
+            }
+        }
+
+        return true;
+    }
+};
+LLKeybindingHandler gKeybindHandler;
+
+
 //////////////////////////////////////////////
 // LLFloaterPreference
+
+// static
+std::string LLFloaterPreference::sSkin = "";
 
 LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	: LLFloater(key),
@@ -401,6 +438,7 @@ BOOL LLFloaterPreference::postBuild()
 	gSavedSettings.getControl("PreferredMaturity")->getSignal()->connect(boost::bind(&LLFloaterPreference::onChangeMaturity, this));
 
 	gSavedPerAccountSettings.getControl("ModelUploadFolder")->getSignal()->connect(boost::bind(&LLFloaterPreference::onChangeModelFolder, this));
+    gSavedPerAccountSettings.getControl("PBRUploadFolder")->getSignal()->connect(boost::bind(&LLFloaterPreference::onChangePBRFolder, this));
 	gSavedPerAccountSettings.getControl("TextureUploadFolder")->getSignal()->connect(boost::bind(&LLFloaterPreference::onChangeTextureFolder, this));
 	gSavedPerAccountSettings.getControl("SoundUploadFolder")->getSignal()->connect(boost::bind(&LLFloaterPreference::onChangeSoundFolder, this));
 	gSavedPerAccountSettings.getControl("AnimationUploadFolder")->getSignal()->connect(boost::bind(&LLFloaterPreference::onChangeAnimationFolder, this));
@@ -694,6 +732,7 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 	onChangeMaturity();
 
 	onChangeModelFolder();
+    onChangePBRFolder();
 	onChangeTextureFolder();
 	onChangeSoundFolder();
 	onChangeAnimationFolder();
@@ -1189,29 +1228,10 @@ void LLFloaterPreference::buildPopupLists()
 
 void LLFloaterPreference::refreshEnabledState()
 {
-	LLCheckBoxCtrl* ctrl_wind_light = getChild<LLCheckBoxCtrl>("WindLightUseAtmosShaders");
-	LLCheckBoxCtrl* ctrl_deferred = getChild<LLCheckBoxCtrl>("UseLightShaders");
+	LLCheckBoxCtrl* ctrl_pbr = getChild<LLCheckBoxCtrl>("UsePBRShaders");
 
-	// if vertex shaders off, disable all shader related products
-	if (!LLFeatureManager::getInstance()->isFeatureAvailable("WindLightUseAtmosShaders"))
-	{
-		ctrl_wind_light->setEnabled(FALSE);
-		ctrl_wind_light->setValue(FALSE);
-	}
-	else
-	{
-		ctrl_wind_light->setEnabled(TRUE);
-	}
-
-	//Deferred/SSAO/Shadows
-	BOOL bumpshiny = gGLManager.mHasCubeMap && LLCubeMap::sUseCubeMaps && LLFeatureManager::getInstance()->isFeatureAvailable("RenderObjectBump") && gSavedSettings.getBOOL("RenderObjectBump");
-	BOOL shaders = gSavedSettings.getBOOL("WindLightUseAtmosShaders");
-	BOOL enabled = LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") &&
-						bumpshiny &&
-						shaders && 
-						(ctrl_wind_light->get()) ? TRUE : FALSE;
-
-	ctrl_deferred->setEnabled(enabled);
+    //PBR
+    ctrl_pbr->setEnabled(TRUE);
 
 	// Cannot have floater active until caps have been received
 	getChild<LLButton>("default_creation_permissions")->setEnabled(LLStartUp::getStartupState() < STATE_STARTED ? false : true);
@@ -1219,7 +1239,6 @@ void LLFloaterPreference::refreshEnabledState()
 	getChildView("block_list")->setEnabled(LLLoginInstance::getInstance()->authSuccess());
 }
 
-// static
 void LLAvatarComplexityControls::setIndirectControls()
 {
 	/*
@@ -1642,6 +1661,14 @@ void LLFloaterPreference::onChangeModelFolder()
     }
 }
 
+void LLFloaterPreference::onChangePBRFolder()
+{
+    if (gInventory.isInventoryUsable())
+    {
+        getChild<LLTextBox>("upload_pbr")->setText(get_category_path(LLFolderType::FT_MATERIAL));
+    }
+}
+
 void LLFloaterPreference::onChangeTextureFolder()
 {
     if (gInventory.isInventoryUsable())
@@ -1736,7 +1763,7 @@ void LLFloaterPreference::onAtmosShaderChange()
     if(ctrl_alm)
     {
         //Deferred/SSAO/Shadows
-        BOOL bumpshiny = gGLManager.mHasCubeMap && LLCubeMap::sUseCubeMaps && LLFeatureManager::getInstance()->isFeatureAvailable("RenderObjectBump") && gSavedSettings.getBOOL("RenderObjectBump");
+        BOOL bumpshiny = LLCubeMap::sUseCubeMaps && LLFeatureManager::getInstance()->isFeatureAvailable("RenderObjectBump") && gSavedSettings.getBOOL("RenderObjectBump");
         BOOL shaders = gSavedSettings.getBOOL("WindLightUseAtmosShaders");
         BOOL enabled = LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") &&
                         bumpshiny &&
