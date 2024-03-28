@@ -48,26 +48,12 @@
 	#pragma warning (pop)
 #endif
 
-#include <boost/bind.hpp>
-#include <boost/utility.hpp>        // noncopyable
 #include <boost/optional/optional.hpp>
-#include <boost/visit_each.hpp>
-#include <boost/ref.hpp>            // reference_wrapper
-#include <boost/type_traits/is_pointer.hpp>
-#include <boost/static_assert.hpp>
 #include "llsd.h"
 #include "llsingleton.h"
 #include "lldependencies.h"
-#include "llstl.h"
 #include "llexception.h"
 #include "llhandle.h"
-
-/*==========================================================================*|
-// override this to allow binding free functions with more parameters
-#ifndef LLEVENTS_LISTENER_ARITY
-#define LLEVENTS_LISTENER_ARITY 10
-#endif
-|*==========================================================================*/
 
 // hack for testing
 #ifndef testable
