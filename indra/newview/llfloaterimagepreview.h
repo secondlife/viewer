@@ -81,7 +81,7 @@ protected:
 public:
 	LLImagePreviewAvatar(S32 width, S32 height);	
 
-	/*virtual*/ S8 getType() const ;
+	S8 getType() const override;
 
 	void setPreviewTarget(const std::string& joint_name, const std::string& mesh_name, LLImageRaw* imagep, F32 distance, BOOL male);
 	void setTexture(U32 name) { mTextureName = name; }
@@ -113,12 +113,14 @@ public:
 	LLFloaterImagePreview(const std::string& filename);
 	virtual ~LLFloaterImagePreview();
 
-	virtual BOOL postBuild();
+	BOOL postBuild() override;
+
+    S32 getExpectedUploadCost() const override;
 	
-	BOOL handleMouseDown(S32 x, S32 y, MASK mask);
-	BOOL handleMouseUp(S32 x, S32 y, MASK mask);
-	BOOL handleHover(S32 x, S32 y, MASK mask);
-	BOOL handleScrollWheel(S32 x, S32 y, S32 clicks); 
+	BOOL handleMouseDown(S32 x, S32 y, MASK mask) override;
+	BOOL handleMouseUp(S32 x, S32 y, MASK mask) override;
+	BOOL handleHover(S32 x, S32 y, MASK mask) override;
+	BOOL handleScrollWheel(S32 x, S32 y, S32 clicks) override;
 
 	static void onMouseCaptureLostImagePreview(LLMouseHandler*);
 
@@ -126,7 +128,7 @@ public:
 
 protected:
 	static void		onPreviewTypeCommit(LLUICtrl*,void*);
-	void			draw();
+	void			draw() override;
 	bool			loadImage(const std::string& filename);
 
 	LLPointer<LLImageRaw> mRawImagep;

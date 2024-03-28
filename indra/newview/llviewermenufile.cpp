@@ -612,6 +612,7 @@ bool get_bulk_upload_expected_cost(const std::vector<std::string>& filenames, S3
         if (ext == "gltf" || ext == "glb")
         {
             S32 texture_upload_cost = LLAgentBenefitsMgr::current().getTextureUploadCost();
+            S32 texture_2k_upload_cost = LLAgentBenefitsMgr::current().get2KTextureUploadCost();
             
             tinygltf::Model model;
 
@@ -630,23 +631,52 @@ bool get_bulk_upload_expected_cost(const std::vector<std::string>& filenames, S3
                         // Todo: make it account for possibility of same texture in different
                         // materials and even in scope of same material
                         S32 texture_count = 0;
-                        if (material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR].notNull())
+                        S32 texture_2k_count = 0;
+                        if (material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR].notNull() && material->mBaseColorTexture)
                         {
-                            texture_count++;
+                            if (material->mBaseColorTexture->getFullHeight() * material->mBaseColorTexture->getFullWidth() > LLAgentBenefits::MIN_2K_TEXTURE_AREA)
+                            {
+                                texture_2k_count++;
+                            }
+                            else
+                            {
+                                texture_count++;
+                            }
                         }
-                        if (material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS].notNull())
+                        if (material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS].notNull() && material->mMetallicRoughnessTexture)
                         {
-                            texture_count++;
+                            if (material->mMetallicRoughnessTexture->getFullHeight() * material->mMetallicRoughnessTexture->getFullWidth() > LLAgentBenefits::MIN_2K_TEXTURE_AREA)
+                            {
+                                texture_2k_count++;
+                            }
+                            else
+                            {
+                                texture_count++;
+                            }
                         }
-                        if (material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL].notNull())
+                        if (material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL].notNull() && material->mNormalTexture)
                         {
-                            texture_count++;
+                            if (material->mNormalTexture->getFullHeight() * material->mNormalTexture->getFullWidth() > LLAgentBenefits::MIN_2K_TEXTURE_AREA)
+                            {
+                                texture_2k_count++;
+                            }
+                            else
+                            {
+                                texture_count++;
+                            }
                         }
-                        if (material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE].notNull())
+                        if (material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE].notNull() && material->mEmissiveTexture)
                         {
-                            texture_count++;
+                            if (material->mEmissiveTexture->getFullHeight() * material->mEmissiveTexture->getFullWidth() > LLAgentBenefits::MIN_2K_TEXTURE_AREA)
+                            {
+                                texture_2k_count++;
+                            }
+                            else
+                            {
+                                texture_count++;
+                            }
                         }
-                        total_cost += texture_count * texture_upload_cost;
+                        total_cost += texture_count * texture_upload_cost + texture_2k_count * texture_2k_upload_cost;
                         file_count++;
                     }
                 }
