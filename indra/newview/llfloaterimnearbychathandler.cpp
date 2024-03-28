@@ -459,7 +459,7 @@ LLFloaterIMNearbyChatHandler::LLFloaterIMNearbyChatHandler()
 {
 	// Getting a Channel for our notifications
 	LLFloaterIMNearbyChatScreenChannel::Params p;
-	p.id = LLUUID(gSavedSettings.getString("NearByChatChannelUUID"));
+	p.id = NEARBY_CHAT_CHANNEL_UUID;
 	LLFloaterIMNearbyChatScreenChannel* channel = new LLFloaterIMNearbyChatScreenChannel(p);
 	
 	LLFloaterIMNearbyChatScreenChannel::create_toast_panel_callback_t callback = createToastPanel;

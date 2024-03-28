@@ -58,16 +58,19 @@ void LLAccountingCostManager::accountingCostCoro(std::string url,
 
     try
     {
+        LLAccountingCostManager* self = LLAccountingCostManager::getInstance();
         uuid_set_t diffSet;
 
-        std::set_difference(mObjectList.begin(), mObjectList.end(),
-            mPendingObjectQuota.begin(), mPendingObjectQuota.end(),
-            std::inserter(diffSet, diffSet.begin()));
+        std::set_difference(self->mObjectList.begin(),
+                            self->mObjectList.end(),
+                            self->mPendingObjectQuota.begin(),
+                            self->mPendingObjectQuota.end(),
+                            std::inserter(diffSet, diffSet.begin()));
 
         if (diffSet.empty())
             return;
 
-        mObjectList.clear();
+        self->mObjectList.clear();
 
         std::string keystr;
         if (selectionType == Roots)
@@ -91,17 +94,24 @@ void LLAccountingCostManager::accountingCostCoro(std::string url,
             objectList.append(*it);
         }
 
-        mPendingObjectQuota.insert(diffSet.begin(), diffSet.end());
+        self->mPendingObjectQuota.insert(diffSet.begin(), diffSet.end());
 
         LLSD dataToPost = LLSD::emptyMap();
         dataToPost[keystr.c_str()] = objectList;
-
-        LLAccountingCostObserver* observer = NULL;
 
         LLSD results = httpAdapter->postAndSuspend(httpRequest, url, dataToPost);
 
         LLSD httpResults = results["http_result"];
         LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+        if (LLApp::isQuitting()
+            || observerHandle.isDead()
+            || !LLAccountingCostManager::instanceExists())
+        {
+            return;
+        }
+
+        LLAccountingCostObserver* observer = NULL;
 
         // do/while(false) allows error conditions to break out of following 
         // block while normal flow goes forward once.
@@ -159,7 +169,8 @@ void LLAccountingCostManager::accountingCostCoro(std::string url,
         throw;
     }
 
-    mPendingObjectQuota.clear();
+    // self can be obsolete by this point
+    LLAccountingCostManager::getInstance()->mPendingObjectQuota.clear();
 }
 
 //===============================================================================
@@ -172,7 +183,7 @@ void LLAccountingCostManager::fetchCosts( eSelectionType selectionType,
 	{
         std::string coroname = 
             LLCoros::instance().launch("LLAccountingCostManager::accountingCostCoro",
-            boost::bind(&LLAccountingCostManager::accountingCostCoro, this, url, selectionType, observer_handle));
+            boost::bind(accountingCostCoro, url, selectionType, observer_handle));
         LL_DEBUGS() << coroname << " with  url '" << url << LL_ENDL;
 
 	}

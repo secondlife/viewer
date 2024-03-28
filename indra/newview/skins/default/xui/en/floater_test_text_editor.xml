@@ -38,7 +38,7 @@
    name="numeric_text_editor"
    tool_tip="text editor for numeric text entry only"
    top_pad="10"
-   text_type="int"
+   prevalidator="int"
    width="200">
     This is text that is NOT a number, so shouldn't appear
   </text_editor>

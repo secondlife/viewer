@@ -53,7 +53,7 @@ class LLWindow;
 class LLView;
 class LLHelp;
 
-
+const S32 DRAG_N_DROP_DISTANCE_THRESHOLD = 3;
 // this enum is used by the llview.h (viewer) and the llassetstorage.h (viewer and sim) 
 enum EDragAndDropType
 {

@@ -88,6 +88,7 @@ LLNotificationForm::FormInput::FormInput()
 :	type("type"),
 	text("text"),
 	max_length_chars("max_length_chars"),
+	allow_emoji("allow_emoji"),
 	width("width", 0),
 	value("value")
 {}
@@ -1546,6 +1547,11 @@ bool LLNotifications::loadTemplates()
 	// specific skin.
 	std::vector<std::string> search_paths =
 		gDirUtilp->findSkinnedFilenames(LLDir::XUI, "notifications.xml", LLDir::ALL_SKINS);
+    if (search_paths.empty())
+    {
+        LLError::LLUserWarningMsg::show(LLTrans::getString("MBMissingFile"));
+        LL_ERRS() << "Problem finding notifications.xml" << LL_ENDL;
+    }
 
 	std::string base_filename = search_paths.front();
 	LLXMLNodePtr root;

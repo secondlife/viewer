@@ -193,8 +193,10 @@ public:
 	static LLFontGL::VAlign vAlignFromName(const std::string& name);
 
 	static void setFontDisplay(BOOL flag) { sDisplayFont = flag; }
-		
-	static LLFontGL* getFontEmoji();
+
+	static LLFontGL* getFontEmojiSmall();
+	static LLFontGL* getFontEmojiMedium();
+	static LLFontGL* getFontEmojiLarge();
 	static LLFontGL* getFontEmojiHuge();
 	static LLFontGL* getFontMonospace();
 	static LLFontGL* getFontSansSerifSmall();

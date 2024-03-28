@@ -50,8 +50,8 @@ S32 BUTTON_WIDTH = 90;
 
 
 //static
-const LLFontGL* LLToastNotifyPanel::sFont = NULL;
-const LLFontGL* LLToastNotifyPanel::sFontSmall = NULL;
+const std::string LLToastNotifyPanel::sFontDefault("Emoji");
+const std::string LLToastNotifyPanel::sFontScript("SansSerif");
 
 LLToastNotifyPanel::button_click_signal_t LLToastNotifyPanel::sButtonClickSignal;
 
@@ -85,11 +85,15 @@ LLButton* LLToastNotifyPanel::createButton(const LLSD& form_element, BOOL is_opt
 	mBtnCallbackData.push_back(userdata);
 
 	LLButton::Params p;
-	bool make_small_btn = form_element["index"].asInteger() == -1 || form_element["index"].asInteger() == -2;
-	const LLFontGL* font = make_small_btn ? sFontSmall: sFont; // for block and ignore buttons in script dialog
-	p.name = form_element["name"].asString();
-	p.label = form_element["text"].asString();
-	p.tool_tip = form_element["text"].asString();
+	S32 index = form_element["index"].asInteger();
+	std::string name = form_element["name"].asString();
+	std::string text = form_element["text"].asString();
+	bool make_small_btn = index == -1 || index == -2; // for block and ignore buttons in script dialog
+	const LLFontGL* font = LLFontGL::getFont(LLFontDescriptor(
+		mIsScriptDialog ? sFontScript : sFontDefault, make_small_btn ? "Small" : "Medium", 0));
+	p.name = name;
+	p.label = text;
+	p.tool_tip = text;
 	p.font = font;
 	p.rect.height = BTN_HEIGHT;
 	p.click_callback.function(boost::bind(&LLToastNotifyPanel::onClickButton, userdata));
@@ -256,19 +260,12 @@ void LLToastNotifyPanel::init( LLRect rect, bool show_images )
 {
     deleteAllChildren();
 
-    mTextBox = NULL;
-    mInfoPanel = NULL;
-    mControlPanel = NULL;
-    mNumOptions = 0;
-    mNumButtons = 0;
-    mAddedDefaultBtn = false;
-
 	LLRect current_rect = getRect();
 
 	setXMLFilename("");
 	buildFromFile("panel_notification.xml");
 
-    if(rect != LLRect::null)
+    if (rect != LLRect::null)
     {
         this->setShape(rect);
     }
@@ -295,12 +292,6 @@ void LLToastNotifyPanel::init( LLRect rect, bool show_images )
     // setup parameters
     // get a notification message
     mMessage = mNotification->getMessage();
-    // init font variables
-    if (!sFont)
-    {
-        sFont = LLFontGL::getFontSansSerif();
-        sFontSmall = LLFontGL::getFontSansSerifSmall();
-    }
     // initialize
     setFocusRoot(!mIsTip);
     // get a form for the notification
@@ -318,15 +309,18 @@ void LLToastNotifyPanel::init( LLRect rect, bool show_images )
     if (mIsCaution && !mIsTip)
     {
         mTextBox = getChild<LLTextBox>("caution_text_box");
+        mTextBox->setFont(LLFontGL::getFont(LLFontDescriptor(mIsScriptDialog ? sFontScript : sFontDefault, "Medium", LLFontGL::BOLD)));
     }
     else
     {
         mTextBox = getChild<LLTextEditor>("text_editor_box"); 
+        mTextBox->setFont(LLFontGL::getFont(LLFontDescriptor(mIsScriptDialog ? sFontScript : sFontDefault, "Medium", 0)));
     }
 
     mTextBox->setMaxTextLength(LLToastPanel::MAX_TEXT_LENGTH);
     mTextBox->setVisible(TRUE);
     mTextBox->setPlainText(!show_images);
+    mTextBox->setUseEmoji(!mIsScriptDialog);
     mTextBox->setContentTrusted(is_content_trusted);
     mTextBox->setValue(mNotification->getMessage());
 	mTextBox->setIsFriendCallback(LLAvatarActions::isFriend);

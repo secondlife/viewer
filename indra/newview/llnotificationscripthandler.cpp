@@ -61,9 +61,8 @@ LLScriptHandler::~LLScriptHandler()
 //--------------------------------------------------------------------------
 void LLScriptHandler::initChannel()
 {
-	S32 channel_right_bound = gViewerWindow->getWorldViewRectScaled().mRight - gSavedSettings.getS32("NotificationChannelRightMargin"); 
-	S32 channel_width = gSavedSettings.getS32("NotifyBoxWidth");
-	mChannel.get()->init(channel_right_bound - channel_width, channel_right_bound);
+	S32 channel_right_bound = gViewerWindow->getWorldViewRectScaled().mRight - gSavedSettings.getS32("NotificationChannelRightMargin");
+	mChannel.get()->init(channel_right_bound - NOTIFY_BOX_WIDTH, channel_right_bound);
 }
 
 //--------------------------------------------------------------------------

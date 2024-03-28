@@ -433,6 +433,11 @@ BOOL LLPreviewGesture::postBuild()
 	edit->setIgnoreTab(TRUE);
 	mChatEditor = edit;
 
+	check = getChild<LLCheckBoxCtrl>( "wait_key_release_check");
+	check->setVisible(FALSE);
+	check->setCommitCallback(onCommitWait, this);
+	mWaitKeyReleaseCheck = check;
+
 	check = getChild<LLCheckBoxCtrl>( "wait_anim_check");
 	check->setVisible(FALSE);
 	check->setCommitCallback(onCommitWait, this);
@@ -638,6 +643,7 @@ void LLPreviewGesture::refresh()
 		mAnimationRadio->setEnabled(FALSE);
 		mSoundCombo->setEnabled(FALSE);
 		mChatEditor->setEnabled(FALSE);
+		mWaitKeyReleaseCheck->setEnabled(FALSE);
 		mWaitAnimCheck->setEnabled(FALSE);
 		mWaitTimeCheck->setEnabled(FALSE);
 		mWaitTimeEditor->setEnabled(FALSE);
@@ -660,6 +666,7 @@ void LLPreviewGesture::refresh()
 	mAnimationRadio->setEnabled(modifiable);
 	mSoundCombo->setEnabled(modifiable);
 	mChatEditor->setEnabled(modifiable);
+	mWaitKeyReleaseCheck->setEnabled(modifiable);
 	mWaitAnimCheck->setEnabled(modifiable);
 	mWaitTimeCheck->setEnabled(modifiable);
 	mWaitTimeEditor->setEnabled(modifiable);
@@ -695,6 +702,7 @@ void LLPreviewGesture::refresh()
 	mAnimationRadio->setVisible(FALSE);
 	mSoundCombo->setVisible(FALSE);
 	mChatEditor->setVisible(FALSE);
+	mWaitKeyReleaseCheck->setVisible(FALSE);
 	mWaitAnimCheck->setVisible(FALSE);
 	mWaitTimeCheck->setVisible(FALSE);
 	mWaitTimeEditor->setVisible(FALSE);
@@ -739,6 +747,8 @@ void LLPreviewGesture::refresh()
 			{
 				LLGestureStepWait* wait_step = (LLGestureStepWait*)step;
 				optionstext = getString("step_wait");
+				mWaitKeyReleaseCheck->setVisible(TRUE);
+				mWaitKeyReleaseCheck->set(wait_step->mFlags & WAIT_FLAG_KEY_RELEASE);
 				mWaitAnimCheck->setVisible(TRUE);
 				mWaitAnimCheck->set(wait_step->mFlags & WAIT_FLAG_ALL_ANIM);
 				mWaitTimeCheck->setVisible(TRUE);
@@ -1518,6 +1528,7 @@ void LLPreviewGesture::onCommitWait(LLUICtrl* ctrl, void* data)
 
 	LLGestureStepWait* wait_step = (LLGestureStepWait*)step;
 	U32 flags = 0x0;
+	if (self->mWaitKeyReleaseCheck->get()) flags |= WAIT_FLAG_KEY_RELEASE;
 	if (self->mWaitAnimCheck->get()) flags |= WAIT_FLAG_ALL_ANIM;
 	if (self->mWaitTimeCheck->get()) flags |= WAIT_FLAG_TIME;
 	wait_step->mFlags = flags;

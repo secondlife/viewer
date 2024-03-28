@@ -240,7 +240,7 @@ private:
     /// It is set only when the user chooses a physics shape file that contains a mesh with a name that matches DEFAULT_PHYSICS_MESH_NAME.
     /// It is reset when such a name is not found, and when resetting the modelpreview.
     /// Not read unless mWarnOfUnmatchedPhyicsMeshes is true.
-    LLModel* mDefaultPhysicsShapeP{};
+    LLPointer<LLModel> mDefaultPhysicsShapeP;
 
     typedef enum
     {

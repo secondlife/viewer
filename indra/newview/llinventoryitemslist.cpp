@@ -240,7 +240,7 @@ void LLInventoryItemsList::refresh()
     case REFRESH_LIST_SORT:
         {
             // Filter, sort, rearrange and notify parent about shape changes
-            filterItems();
+            filterItems(true, true);
 
             if (mAddedItems.size() == 0)
             {

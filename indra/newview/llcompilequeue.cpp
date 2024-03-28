@@ -66,6 +66,7 @@ namespace
 {
 
     const std::string QUEUE_EVENTPUMP_NAME("ScriptActionQueue");
+    const F32 QUEUE_INVENTORY_FETCH_TIMEOUT = 300.f;
 
     // ObjectIventoryFetcher is an adapter between the LLVOInventoryListener::inventoryChanged 
     // callback mechanism and the LLEventPump coroutine architecture allowing the 
@@ -359,8 +360,6 @@ bool LLFloaterCompileQueue::processScript(LLHandle<LLFloaterCompileQueue> hfloat
     // Dereferencing floater may fail. If they do they throw LLExeceptionStaleHandle.
     // which is caught in objectScriptProcessingQueueCoro
     bool monocompile = floater->mMono;
-    F32 fetch_timeout = gSavedSettings.getF32("QueueInventoryFetchTimeout");
-
 
     // Initial test to see if we can (or should) attempt to compile the script.
     LLInventoryItem *item = dynamic_cast<LLInventoryItem *>(inventory);
@@ -385,7 +384,7 @@ bool LLFloaterCompileQueue::processScript(LLHandle<LLFloaterCompileQueue> hfloat
         LLExperienceCache::instance().fetchAssociatedExperience(inventory->getParentUUID(), inventory->getUUID(),
             boost::bind(&LLFloaterCompileQueue::handleHTTPResponse, pump.getName(), _1));
 
-        result = llcoro::suspendUntilEventOnWithTimeout(pump, fetch_timeout,
+        result = llcoro::suspendUntilEventOnWithTimeout(pump, QUEUE_INVENTORY_FETCH_TIMEOUT,
             LLSDMap("timeout", LLSD::Boolean(true)));
 
         floater.check();
@@ -435,7 +434,7 @@ bool LLFloaterCompileQueue::processScript(LLHandle<LLFloaterCompileQueue> hfloat
             &LLFloaterCompileQueue::handleScriptRetrieval,
             &userData);
 
-        result = llcoro::suspendUntilEventOnWithTimeout(pump, fetch_timeout,
+        result = llcoro::suspendUntilEventOnWithTimeout(pump, QUEUE_INVENTORY_FETCH_TIMEOUT,
             LLSDMap("timeout", LLSD::Boolean(true)));
     }
 
@@ -481,7 +480,7 @@ bool LLFloaterCompileQueue::processScript(LLHandle<LLFloaterCompileQueue> hfloat
         LLViewerAssetUpload::EnqueueInventoryUpload(url, uploadInfo);
     }
 
-    result = llcoro::suspendUntilEventOnWithTimeout(pump, fetch_timeout, LLSDMap("timeout", LLSD::Boolean(true)));
+    result = llcoro::suspendUntilEventOnWithTimeout(pump, QUEUE_INVENTORY_FETCH_TIMEOUT, LLSDMap("timeout", LLSD::Boolean(true)));
 
     floater.check();
 
@@ -736,8 +735,6 @@ void LLFloaterScriptQueue::objectScriptProcessingQueueCoro(std::string action, L
     // Dereferencing floater may fail. If they do they throw LLExeceptionStaleHandle. 
     // This is expected if the dialog closes.
     LLEventMailDrop        maildrop(QUEUE_EVENTPUMP_NAME, true);
-    F32 fetch_timeout = gSavedSettings.getF32("QueueInventoryFetchTimeout");
-
 
     try
     {
@@ -759,7 +756,7 @@ void LLFloaterScriptQueue::objectScriptProcessingQueueCoro(std::string action, L
                 args["[OBJECT_NAME]"] = (*itObj).mObjectName;
                 floater->addStringMessage(floater->getString("LoadingObjInv", args));
 
-                LLSD result = llcoro::suspendUntilEventOnWithTimeout(maildrop, fetch_timeout,
+                LLSD result = llcoro::suspendUntilEventOnWithTimeout(maildrop, QUEUE_INVENTORY_FETCH_TIMEOUT,
                     LLSDMap("timeout", LLSD::Boolean(true)));
 
                 if (result.has("timeout"))

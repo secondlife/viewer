@@ -581,6 +581,12 @@ void chatterBoxHistoryCoro(std::string url, LLUUID sessionId, std::string from, 
         return;
     }
 
+    if (LLApp::isExiting() || gDisconnected)
+    {
+        LL_DEBUGS("ChatHistory") << "Ignoring chat history response, shutting down" << LL_ENDL;
+        return;
+    }
+
     // Add history to IM session
     LLSD history = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_CONTENT];
 
@@ -3915,6 +3921,12 @@ public:
 					  const LLSD& context,
 					  const LLSD& input) const
 	{
+        if (LLApp::isExiting() || gDisconnected)
+        {
+            LL_DEBUGS("ChatHistory") << "Ignoring ChatterBox session, Shutting down" << LL_ENDL;
+            return;
+        }
+
 		LLSD body;
 		LLUUID temp_session_id;
 		LLUUID session_id;

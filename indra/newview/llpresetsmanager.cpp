@@ -254,8 +254,6 @@ void LLPresetsManager::getControlNames(std::vector<std::string>& names)
 		// From panel_preferences_move.xml
 		("CameraAngle")
 		("CameraOffsetScale")
-		("EditCameraMovement")
-		("AppearanceCameraMovement")
 		// From llagentcamera.cpp
 		("CameraOffsetBuild")
 		("TrackFocusObject")
@@ -460,6 +458,9 @@ void LLPresetsManager::loadPreset(const std::string& subdirectory, std::string n
 
     LL_DEBUGS() << "attempting to load preset '"<<name<<"' from '"<<full_path<<"'" << LL_ENDL;
 
+    bool appearance_camera_movement = gSavedSettings.getBOOL("AppearanceCameraMovement");
+    bool edit_camera_movement = gSavedSettings.getBOOL("EditCameraMovement");
+
 	mIgnoreChangedSignal = true;
 	if(gSavedSettings.loadFromFile(full_path, false, true) > 0)
 	{
@@ -479,6 +480,16 @@ void LLPresetsManager::loadPreset(const std::string& subdirectory, std::string n
 		{
 			gSavedSettings.setString("PresetCameraActive", name);
 			triggerChangeCameraSignal();
+
+            //SL-20277 old preset files may contain settings that should be ignored when loading camera presets
+            if (appearance_camera_movement != (bool)gSavedSettings.getBOOL("AppearanceCameraMovement"))
+            {
+                gSavedSettings.setBOOL("AppearanceCameraMovement", appearance_camera_movement);
+            }
+            if (edit_camera_movement != (bool)gSavedSettings.getBOOL("EditCameraMovement"))
+            {
+                gSavedSettings.setBOOL("EditCameraMovement", edit_camera_movement);
+            }
 		}
 	}
 	else

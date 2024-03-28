@@ -627,6 +627,9 @@ std::unique_ptr<std::vector<std::string>> LLFilePicker::navOpenFilterProc(ELoadF
     switch(filter)
     {
         case FFLOAD_ALL:
+        case FFLOAD_EXE:
+            allowedv->push_back("app");
+            allowedv->push_back("exe");
             allowedv->push_back("wav");
             allowedv->push_back("bvh");
             allowedv->push_back("anim");
@@ -647,9 +650,6 @@ std::unique_ptr<std::vector<std::string>> LLFilePicker::navOpenFilterProc(ELoadF
             allowedv->push_back("tpic");
             allowedv->push_back("png");
             break;
-        case FFLOAD_EXE:
-            allowedv->push_back("app");
-            allowedv->push_back("exe");
             break;
         case FFLOAD_WAV:
             allowedv->push_back("wav");

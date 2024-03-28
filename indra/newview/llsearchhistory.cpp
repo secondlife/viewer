@@ -75,6 +75,17 @@ bool LLSearchHistory::save()
 {
 	// build filename for each user
 	std::string resolved_filename = getHistoryFilePath();
+
+    // delete the file if it is empty or contains only empty entries
+    if (std::find_if(mSearchHistory.begin(), mSearchHistory.end(), [](const LLSearchHistoryItem& x)
+        {
+            return !x.search_query.empty();
+        }) == mSearchHistory.end())
+    {
+        remove(resolved_filename.c_str());
+        return true;
+    }
+
 	// open a file for writing
 	llofstream file(resolved_filename.c_str());
 	if (!file.is_open())

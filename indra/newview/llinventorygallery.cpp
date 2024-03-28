@@ -1435,7 +1435,7 @@ void LLInventoryGallery::onFocusReceived()
         LLInventoryGalleryItem* focus_item = NULL;
         for (const LLUUID& id : mSelectedItemIDs)
         {
-            if (mItemMap[id])
+            if (mItemMap[id] && !mItemMap[id]->isHidden())
             {
                 focus_item = mItemMap[id];
                 focus_item->setSelected(true);
@@ -1668,6 +1668,45 @@ void LLInventoryGallery::cut()
     mFilterSubString.clear();
 }
 
+
+
+bool is_category_removable(const LLUUID& folder_id, bool check_worn)
+{
+    if (!get_is_category_removable(&gInventory, folder_id))
+    {
+        return false;
+    }
+
+    // check children
+    LLInventoryModel::cat_array_t* cat_array;
+    LLInventoryModel::item_array_t* item_array;
+    gInventory.getDirectDescendentsOf(folder_id, cat_array, item_array);
+
+    for (LLInventoryModel::item_array_t::value_type& item : *item_array)
+    {
+        if (!get_is_item_removable(&gInventory, item->getUUID(), check_worn))
+        {
+            return false;
+        }
+    }
+
+    for (LLInventoryModel::cat_array_t::value_type& cat : *cat_array)
+    {
+        if (!is_category_removable(cat->getUUID(), check_worn))
+        {
+            return false;
+        }
+    }
+
+    const LLUUID mp_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS);
+    if (mp_id.notNull() && gInventory.isObjectDescendentOf(folder_id, mp_id))
+    {
+        return false;
+    }
+
+    return true;
+}
+
 BOOL LLInventoryGallery::canCut() const
 {
     if (!getVisible() || !getEnabled() || mSelectedItemIDs.empty())
@@ -1680,12 +1719,12 @@ BOOL LLInventoryGallery::canCut() const
         LLViewerInventoryCategory* cat = gInventory.getCategory(id);
         if (cat)
         {
-            if (!get_is_category_removable(&gInventory, id))
+            if (!get_is_category_and_children_removable(&gInventory, id, true))
             {
                 return FALSE;
             }
         }
-        else if (!get_is_item_removable(&gInventory, id))
+        else if (!get_is_item_removable(&gInventory, id, true))
         {
             return FALSE;
         }
@@ -1864,42 +1903,149 @@ void LLInventoryGallery::onDelete(const LLSD& notification, const LLSD& response
     S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
     if (option == 0)
     {
-        for (const LLUUID& id : selected_ids)
+        bool has_worn = notification["payload"]["has_worn"].asBoolean();
+        uuid_vec_t worn;
+        uuid_vec_t item_deletion_list;
+        uuid_vec_t cat_deletion_list;
+        for (const LLUUID& obj_id : selected_ids)
         {
-            LLInventoryObject* obj = gInventory.getObject(id);
-            if (!obj)
+            LLViewerInventoryCategory* cat = gInventory.getCategory(obj_id);
+            if (cat)
             {
-                return;
-            }
-            if (obj->getType() == LLAssetType::AT_CATEGORY)
-            {
-                if (get_is_category_removable(&gInventory, id))
+                bool cat_has_worn = false;
+                if (has_worn)
                 {
-                    gInventory.removeCategory(id);
+                    LLInventoryModel::cat_array_t categories;
+                    LLInventoryModel::item_array_t items;
+
+                    gInventory.collectDescendents(obj_id, categories, items, FALSE);
+
+                    for (LLInventoryModel::item_array_t::value_type& item : items)
+                    {
+                        if (get_is_item_worn(item))
+                        {
+                            worn.push_back(item->getUUID());
+                            cat_has_worn = true;
+                        }
+                    }
+                }
+                if (cat_has_worn)
+                {
+                    cat_deletion_list.push_back(obj_id);
+                }
+                else
+                {
+                    gInventory.removeCategory(obj_id);
                 }
             }
-            else
+            LLViewerInventoryItem* item = gInventory.getItem(obj_id);
+            if (item)
             {
-                if (get_is_item_removable(&gInventory, id))
+                if (has_worn && get_is_item_worn(item))
                 {
-                    gInventory.removeItem(id);
+                    worn.push_back(item->getUUID());
+                    item_deletion_list.push_back(item->getUUID());
+                }
+                else
+                {
+                    gInventory.removeItem(obj_id);
                 }
             }
+        }
+
+        if (!worn.empty())
+        {
+            // should fire once after every item gets detached
+            LLAppearanceMgr::instance().removeItemsFromAvatar(worn,
+                                                              [item_deletion_list, cat_deletion_list]()
+                                                              {
+                                                                  for (const LLUUID& id : item_deletion_list)
+                                                                  {
+                                                                      remove_inventory_item(id, NULL);
+                                                                  }
+                                                                  for (const LLUUID& id : cat_deletion_list)
+                                                                  {
+                                                                      remove_inventory_category(id, NULL);
+                                                                  }
+                                                              });
         }
     }
 }
 
 void LLInventoryGallery::deleteSelection()
 {
-    if (!LLInventoryAction::sDeleteConfirmationDisplayed) // ask for the confirmation at least once per session
+    bool has_worn = false;
+    bool needs_replacement = false;
+    for (const LLUUID& id : mSelectedItemIDs)
     {
-        LLNotifications::instance().setIgnored("DeleteItems", false);
-        LLInventoryAction::sDeleteConfirmationDisplayed = true;
+        LLViewerInventoryCategory* cat = gInventory.getCategory(id);
+        if (cat)
+        {
+            LLInventoryModel::cat_array_t categories;
+            LLInventoryModel::item_array_t items;
+
+            gInventory.collectDescendents(id, categories, items, FALSE);
+
+            for (LLInventoryModel::item_array_t::value_type& item : items)
+            {
+                if (get_is_item_worn(item))
+                {
+                    has_worn = true;
+                    LLWearableType::EType type = item->getWearableType();
+                    if (type == LLWearableType::WT_SHAPE
+                        || type == LLWearableType::WT_SKIN
+                        || type == LLWearableType::WT_HAIR
+                        || type == LLWearableType::WT_EYES)
+                    {
+                        needs_replacement = true;
+                        break;
+                    }
+                }
+            }
+            if (needs_replacement)
+            {
+                break;
+            }
+        }
+
+        LLViewerInventoryItem* item = gInventory.getItem(id);
+        if (item && get_is_item_worn(item))
+        {
+            has_worn = true;
+            LLWearableType::EType type = item->getWearableType();            
+            if (type == LLWearableType::WT_SHAPE
+                || type == LLWearableType::WT_SKIN
+                || type == LLWearableType::WT_HAIR
+                || type == LLWearableType::WT_EYES)
+            {
+                needs_replacement = true;
+                break;
+            }
+        }
     }
 
-    LLSD args;
-    args["QUESTION"] = LLTrans::getString("DeleteItem");
-    LLNotificationsUtil::add("DeleteItems", args, LLSD(), boost::bind(&LLInventoryGallery::onDelete, _1, _2, mSelectedItemIDs));
+    if (needs_replacement)
+    {
+        LLNotificationsUtil::add("CantDeleteRequiredClothing");
+    }
+    else if (has_worn)
+    {
+        LLSD payload;
+        payload["has_worn"] = true;
+        LLNotificationsUtil::add("DeleteWornItems", LLSD(), payload, boost::bind(&LLInventoryGallery::onDelete, _1, _2, mSelectedItemIDs));
+    }
+    else
+    {
+        if (!LLInventoryAction::sDeleteConfirmationDisplayed) // ask for the confirmation at least once per session
+        {
+            LLNotifications::instance().setIgnored("DeleteItems", false);
+            LLInventoryAction::sDeleteConfirmationDisplayed = true;
+        }
+
+        LLSD args;
+        args["QUESTION"] = LLTrans::getString("DeleteItem");
+        LLNotificationsUtil::add("DeleteItems", args, LLSD(), boost::bind(&LLInventoryGallery::onDelete, _1, _2, mSelectedItemIDs));
+    }
 }
 
 bool LLInventoryGallery::canDeleteSelection()
@@ -1925,7 +2071,7 @@ bool LLInventoryGallery::canDeleteSelection()
                 return false;
             }
         }
-        else if (!get_is_item_removable(&gInventory, id))
+        else if (!get_is_item_removable(&gInventory, id, true))
         {
             return false;
         }

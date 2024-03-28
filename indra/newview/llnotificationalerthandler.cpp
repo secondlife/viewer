@@ -46,7 +46,7 @@ LLAlertHandler::LLAlertHandler(const std::string& name, const std::string& notif
 	mIsModal(is_modal)
 {
 	LLScreenChannelBase::Params p;
-	p.id = LLUUID(gSavedSettings.getString("AlertChannelUUID"));
+	p.id = ALERT_CHANNEL_UUID;
 	p.display_toasts_always = true;
 	p.toast_align = NA_CENTRE;
 	p.channel_align = CA_CENTRE;

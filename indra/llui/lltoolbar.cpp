@@ -1134,8 +1134,7 @@ BOOL LLToolBarButton::handleHover(S32 x, S32 y, MASK mask)
 	BOOL handled = FALSE;
 		
 	S32 mouse_distance_squared = (x - mMouseDownX) * (x - mMouseDownX) + (y - mMouseDownY) * (y - mMouseDownY);
-	static LLCachedControl<S32> drag_threshold(*LLUI::getInstance()->mSettingGroups["config"], "DragAndDropDistanceThreshold", 3);
-	if (mouse_distance_squared > drag_threshold * drag_threshold
+	if (mouse_distance_squared > DRAG_N_DROP_DISTANCE_THRESHOLD * DRAG_N_DROP_DISTANCE_THRESHOLD
 		&& hasMouseCapture() && 
 		mStartDragItemCallback && mHandleDragItemCallback)
 	{

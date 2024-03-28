@@ -370,7 +370,7 @@ void LLFloaterSimpleSnapshot::onSend()
     else
     {
         LLSD notif_args;
-        notif_args["REASON"] = LLImage::getLastError().c_str();
+        notif_args["REASON"] = LLImage::getLastThreadError().c_str();
         LLNotificationsUtil::add("CannotUploadTexture", notif_args);
     }
 }
@@ -389,7 +389,7 @@ void LLFloaterSimpleSnapshot::uploadThumbnail(const std::string &file_path, cons
     if (!LLViewerTextureList::createUploadFile(file_path, temp_file, codec, THUMBNAIL_SNAPSHOT_DIM_MAX, THUMBNAIL_SNAPSHOT_DIM_MIN, true))
     {
         LLSD notif_args;
-        notif_args["REASON"] = LLImage::getLastError().c_str();
+        notif_args["REASON"] = LLImage::getLastThreadError().c_str();
         LLNotificationsUtil::add("CannotUploadTexture", notif_args);
         LL_WARNS("Thumbnail") << "Failed to upload thumbnail for " << inventory_id << " " << task_id << ", reason: " << notif_args["REASON"].asString() << LL_ENDL;
         return;
@@ -404,7 +404,7 @@ void LLFloaterSimpleSnapshot::uploadThumbnail(LLPointer<LLImageRaw> raw_image, c
     if (!LLViewerTextureList::createUploadFile(raw_image, temp_file, THUMBNAIL_SNAPSHOT_DIM_MAX, THUMBNAIL_SNAPSHOT_DIM_MIN))
     {
         LLSD notif_args;
-        notif_args["REASON"] = LLImage::getLastError().c_str();
+        notif_args["REASON"] = LLImage::getLastThreadError().c_str();
         LLNotificationsUtil::add("CannotUploadTexture", notif_args);
         LL_WARNS("Thumbnail") << "Failed to upload thumbnail for " << inventory_id << " " << task_id << ", reason: " << notif_args["REASON"].asString() << LL_ENDL;
         return;

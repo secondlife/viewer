@@ -1810,7 +1810,7 @@ BOOL LLScrollListCtrl::handleToolTip(S32 x, S32 y, MASK mask)
 			// display tooltip exactly over original cell, in same font
 			LLToolTipMgr::instance().show(LLToolTip::Params()
 										.message(hit_cell->getToolTip())
-										.font(LLFontGL::getFontSansSerifSmall())
+										.font(LLFontGL::getFontEmojiSmall())
 										.pos(LLCoordGL(sticky_rect.mLeft - 5, sticky_rect.mTop + 6))
 										.delay_time(0.2f)
 										.sticky_rect(sticky_rect));		
@@ -3294,7 +3294,7 @@ LLScrollListItem* LLScrollListCtrl::addSimpleElement(const std::string& value, E
 	item_params.value(entry_id);
 	item_params.columns.add()
 		.value(value)
-		.font(LLFontGL::getFontSansSerifSmall());
+		.font(LLFontGL::getFontEmojiSmall());
 	
 	return addRow(item_params, pos);
 }

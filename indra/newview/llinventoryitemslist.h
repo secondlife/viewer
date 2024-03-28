@@ -51,20 +51,20 @@ public:
 	/**
 	 * Let list know items need to be refreshed in next doIdle()
 	 */
-	void setNeedsRefresh(bool needs_refresh){ mRefreshState = needs_refresh ? REFRESH_ALL : REFRESH_COMPLETE; }
+	void setNeedsRefresh(bool needs_refresh) { mRefreshState = needs_refresh ? REFRESH_ALL : REFRESH_COMPLETE; }
 
-	U32 getNeedsRefresh(){ return mRefreshState; }
+	U32 getNeedsRefresh() { return mRefreshState; }
 
 	/**
 	 * Sets the flag indicating that the list needs to be refreshed even if it is
 	 * not currently visible.
 	 */
-	void setForceRefresh(bool force_refresh){ mForceRefresh = force_refresh; }
+	void setForceRefresh(bool force_refresh) { mForceRefresh = force_refresh; }
 
 	/**
 	* If refreshes when invisible.
 	*/
-	bool getForceRefresh(){ return mForceRefresh;  }
+	bool getForceRefresh() { return mForceRefresh; }
 
 	virtual bool selectItemByValue(const LLSD& value, bool select = true);
 

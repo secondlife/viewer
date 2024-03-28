@@ -18,7 +18,6 @@ include(DragDrop)
 include(EXPAT)
 include(FMODSTUDIO)
 include(Hunspell)
-include(ICU4C)
 include(JPEGEncoderBasic)
 include(JsonCpp)
 include(LLAppearance)
@@ -1617,6 +1616,8 @@ set(viewer_APPSETTINGS_FILES
     app_settings/anim.ini
     app_settings/cmd_line.xml
     app_settings/commands.xml
+    app_settings/emoji_groups.xml
+    app_settings/foldertypes.xml
     app_settings/grass.xml
     app_settings/ignorable_dialogs.xml
     app_settings/key_bindings.xml
@@ -1932,7 +1933,6 @@ target_link_libraries(${VIEWER_BINARY_NAME}
         ${LLPHYSICSEXTENSIONS_LIBRARIES}
         ll::bugsplat
         ll::tracy
-        ll::icu4c
         )
 
 if( TARGET ll::intel_memops )

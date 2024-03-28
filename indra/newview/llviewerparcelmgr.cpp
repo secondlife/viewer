@@ -1526,6 +1526,12 @@ void LLViewerParcelMgr::processParcelOverlay(LLMessageSystem *msg, void **user)
 // static
 void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **user)
 {
+    if (LLApp::isExiting() || gDisconnected)
+    {
+        LL_DEBUGS("ParcelMgr") << "Ignoring parcel properties, shutting down" << LL_ENDL;
+        return;
+    }
+
     S32		request_result;
     S32		sequence_id;
     BOOL	snap_selection = FALSE;

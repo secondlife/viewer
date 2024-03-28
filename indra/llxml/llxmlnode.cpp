@@ -837,7 +837,7 @@ bool LLXMLNode::getLayeredXMLNode(LLXMLNodePtr& root,
 	
 	if (!LLXMLNode::parseFile(filename, root, NULL))
 	{
-		LL_WARNS() << "Problem reading UI description file: " << filename << LL_ENDL;
+		LL_WARNS() << "Problem reading UI description file: " << filename << " " << errno << LL_ENDL;
 		return false;
 	}
 

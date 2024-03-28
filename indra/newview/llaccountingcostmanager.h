@@ -70,7 +70,7 @@ private:
 	//a fetch has been instigated.
 	uuid_set_t mPendingObjectQuota;
 
-    void accountingCostCoro(std::string url, eSelectionType selectionType, const LLHandle<LLAccountingCostObserver> observerHandle);
+    static void accountingCostCoro(std::string url, eSelectionType selectionType, const LLHandle<LLAccountingCostObserver> observerHandle);
 
 };
 //===============================================================================

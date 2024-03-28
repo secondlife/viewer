@@ -60,7 +60,7 @@
                     left_pad="10"
                     max_length_bytes="100"
                     name="day_cycle_name"
-                    prevalidate_callback="ascii"
+                    prevalidator="ascii"
                     top="5"
                     width="200"
                     height="21" />

@@ -947,7 +947,7 @@ void handle_compress_image(void*)
 			}
 			else
 			{
-				LL_INFOS() << "Compression failed: " << LLImage::getLastError() << LL_ENDL;
+				LL_INFOS() << "Compression failed: " << LLImage::getLastThreadError() << LL_ENDL;
 			}
 
 			infile = picker.getNextFile();

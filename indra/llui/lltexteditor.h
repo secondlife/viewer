@@ -54,7 +54,7 @@ public:
 	struct Params : public LLInitParam::Block<Params, LLTextBase::Params>
 	{
 		Optional<std::string>	default_text;
-		Optional<LLTextValidate::validate_func_t, LLTextValidate::ValidateTextNamedFuncs>	prevalidate_callback;
+		Optional<LLTextValidate::Validator, LLTextValidate::Validators>	prevalidator;
 
 		Optional<bool>			embedded_items,
 								ignore_tab,
@@ -337,7 +337,7 @@ private:
 	LLCoordGL		mLastIMEPosition;		// Last position of the IME editor
 
 	keystroke_signal_t mKeystrokeSignal;
-	LLTextValidate::validate_func_t mPrevalidateFunc;
+	LLTextValidate::Validator mPrevalidator;
 
 	LLHandle<LLContextMenu> mContextMenuHandle;
 }; // end class LLTextEditor

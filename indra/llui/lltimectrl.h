@@ -60,6 +60,18 @@ public:
 
 	void setTime24(F32 time);	// 0.0 - 23.98(3)
 
+	static std::string getHoursString(const std::string& str);
+	static std::string getMinutesString(const std::string& str);
+	static std::string getAMPMString(const std::string& str);
+
+	static bool isHoursStringValid(const std::string& str);
+	static bool isMinutesStringValid(const std::string& str);
+	static bool isPMAMStringValid(const std::string& str);
+
+	static U32	parseHours(const std::string& str);
+	static U32	parseMinutes(const std::string& str);
+	static bool	parseAMPM(const std::string& str);
+
 protected:
 	LLTimeCtrl(const Params&);
 	friend class LLUICtrlFactory;
@@ -87,8 +99,6 @@ private:
 	void	onDownBtn();
 	void	onTextEntry(LLLineEditor* line_editor);
 
-	bool	isTimeStringValid(const LLWString& wstr);
-
 	void increaseMinutes();
 	void increaseHours();
 
@@ -101,18 +111,6 @@ private:
 	void updateText();
 
 	EEditingPart getEditingPart();
-
-	static std::string getHoursString(const std::string& str);
-	static std::string getMinutesString(const std::string& str);
-	static std::string getAMPMString(const std::string& str);
-
-	static bool isHoursStringValid(const std::string& str);
-	static bool isMinutesStringValid(const std::string& str);
-	static bool isPMAMStringValid(const std::string& str);
-
-	static U32		parseHours(const std::string& str);
-	static U32		parseMinutes(const std::string& str);
-	static bool		parseAMPM(const std::string& str);
 
 	class LLTextBox*	mLabelBox;
 

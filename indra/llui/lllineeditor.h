@@ -76,8 +76,8 @@ public:
 		Optional<MaxLength>				max_length;
 		Optional<keystroke_callback_t>	keystroke_callback;
 
-		Optional<LLTextValidate::validate_func_t, LLTextValidate::ValidateTextNamedFuncs>	prevalidate_callback;
-		Optional<LLTextValidate::validate_func_t, LLTextValidate::ValidateTextNamedFuncs>	prevalidate_input_callback;
+		Optional<LLTextValidate::Validator, LLTextValidate::Validators>	prevalidator;
+		Optional<LLTextValidate::Validator, LLTextValidate::Validators>	input_prevalidator;
 		
 		Optional<LLViewBorder::Params>	border;
 
@@ -93,6 +93,7 @@ public:
 										bg_image_always_focused,
 										show_label_focused,
 										is_password,
+										allow_emoji,
 										use_bg_color;
 
 		// colors
@@ -175,7 +176,6 @@ public:
 	void				onSpellCheckSettingsChange();
 
 	// view overrides
-	/*virtual*/ const std::string getToolTip() const override;
 	/*virtual*/ void	draw() override;
 	/*virtual*/ void	reshape(S32 width, S32 height, BOOL called_from_parent = TRUE) override;
 	/*virtual*/ void	onFocusReceived() override;
@@ -203,7 +203,7 @@ public:
 
 	void			setText(const LLStringExplicit &new_text);
 
-	const std::string& getText() const		{ return mText.getString(); }
+	const std::string& getText() const override { return mText.getString(); }
 	LLWString       getWText() const	{ return mText.getWString(); }
 	LLWString getConvertedText() const; // trimmed text with paragraphs converted to newlines
 
@@ -235,12 +235,13 @@ public:
 	const LLColor4& getReadOnlyFgColor() const	{ return mReadOnlyFgColor.get(); }
 	const LLColor4& getTentativeFgColor() const { return mTentativeFgColor.get(); }
 
-	const LLFontGL* getFont() const { return mGLFont; }
+	const LLFontGL* getFont() const override { return mGLFont; }
 	void setFont(const LLFontGL* font);
 
 	void			setIgnoreArrowKeys(BOOL b)		{ mIgnoreArrowKeys = b; }
 	void			setIgnoreTab(BOOL b)			{ mIgnoreTab = b; }
 	void			setPassDelete(BOOL b)			{ mPassDelete = b; }
+	void			setAllowEmoji(BOOL b)			{ mAllowEmoji = b; }
 	void			setDrawAsterixes(BOOL b);
 
 	// get the cursor position of the beginning/end of the prev/next word in the text
@@ -267,12 +268,12 @@ public:
 	void setTextPadding(S32 left, S32 right);
 
 	// Prevalidation controls which keystrokes can affect the editor
-	void			setPrevalidate( LLTextValidate::validate_func_t func );
+	void			setPrevalidate(LLTextValidate::Validator validator);
 	// This method sets callback that prevents from:
 	// - deleting, selecting, typing, cutting, pasting characters that are not valid.
 	// Also callback that this method sets differs from setPrevalidate in a way that it validates just inputed
 	// symbols, before existing text is modified, but setPrevalidate validates line after it was modified.
-	void			setPrevalidateInput(LLTextValidate::validate_func_t func);
+	void			setPrevalidateInput(LLTextValidate::Validator validator);
 	static BOOL		postvalidateFloat(const std::string &str);
 
 	bool			prevalidateInput(const LLWString& wstr);
@@ -374,8 +375,8 @@ protected:
 	std::list<std::pair<U32, U32> > mMisspellRanges;
 	std::vector<std::string>		mSuggestionList;
 
-	LLTextValidate::validate_func_t mPrevalidateFunc;
-	LLTextValidate::validate_func_t mPrevalidateInputFunc;
+	LLTextValidate::Validator mPrevalidator;
+	LLTextValidate::Validator mInputPrevalidator;
 
 	LLFrameTimer mKeystrokeTimer;
 	LLTimer		mTripleClickTimer;
@@ -403,6 +404,7 @@ protected:
 	BOOL 		mShowImageFocused;
 	BOOL 		mShowLabelFocused;
 
+	bool		mAllowEmoji;
 	bool		mUseBgColor;
 
 	LLWString	mPreeditWString;

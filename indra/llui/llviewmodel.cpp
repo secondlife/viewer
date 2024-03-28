@@ -81,7 +81,7 @@ void LLTextViewModel::setValue(const LLSD& value)
 {
 	// approximate LLSD storage usage
 	LLViewModel::setValue(value);
-    mDisplay = utf8str_to_wstring(value.asString());
+    mDisplay = utf8str_to_wstring(mStringValue = value.asString());
 
     // mDisplay and mValue agree
     mUpdateFromDisplay = false;
@@ -101,23 +101,34 @@ void LLTextViewModel::setDisplay(const LLWString& value)
     mUpdateFromDisplay = true;
 }
 
-LLSD LLTextViewModel::getValue() const
+inline void updateFromDisplayIfNeeded(const LLTextViewModel* model)
 {
-    // Has anyone called setDisplay() since the last setValue()? If so, have
-    // to convert mDisplay back to UTF8.
-    if (mUpdateFromDisplay)
+    // Has anyone called setDisplay() since the last setValue()?
+    // If so, have to convert mDisplay back to UTF8.
+    if (model->mUpdateFromDisplay)
     {
-        // The fact that we're lazily updating fields in this object should be
-        // transparent to clients, which is why this method is left
-        // conventionally const. Nor do we particularly want to make these
-        // members mutable. Just cast away constness in this one place.
-        LLTextViewModel* nthis = const_cast<LLTextViewModel*>(this);
+        // The fact that we're lazily updating fields
+        // in this object should be transparent to clients,
+        // which is why this method is left conventionally const.
+        // Nor do we particularly want to make these members mutable.
+        // Just cast away constness in this one place.
+        LLTextViewModel* nthis = const_cast<LLTextViewModel*>(model);
         nthis->mUpdateFromDisplay = false;
-        nthis->mValue = wstring_to_utf8str(mDisplay);
+        nthis->mValue = nthis->mStringValue = wstring_to_utf8str(model->mDisplay);
     }
-    return LLViewModel::getValue();
 }
 
+LLSD LLTextViewModel::getValue() const
+{
+    updateFromDisplayIfNeeded(this);
+    return mValue;
+}
+
+const std::string& LLTextViewModel::getStringValue() const
+{
+    updateFromDisplayIfNeeded(this);
+    return mStringValue;
+}
 
 ////////////////////////////////////////////////////////////////////////////
 

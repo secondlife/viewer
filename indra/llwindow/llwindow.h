@@ -199,7 +199,13 @@ public:
 
     // windows only DirectInput8 for joysticks
     virtual void* getDirectInput8() { return NULL; };
-    virtual bool getInputDevices(U32 device_type_filter, void * devices_callback, void* userdata) { return false; };
+    virtual bool getInputDevices(U32 device_type_filter,
+                                 std::function<bool(std::string&, LLSD&, void*)> osx_callback,
+                                 void* win_callback,
+                                 void* userdata)
+    {
+        return false;
+    };
 
     virtual S32 getRefreshRate() { return mRefreshRate; }
 protected:

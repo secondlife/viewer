@@ -134,6 +134,15 @@ void LLPanelGroup::onOpen(const LLSD& key)
 		if(panel_notices)
 			panel_notices->refreshNotices();
 	}
+    if (str_action == "show_notices")
+    {
+        setGroupID(group_id);
+
+        LLAccordionCtrl *tab_ctrl = getChild<LLAccordionCtrl>("groups_accordion");
+        tab_ctrl->collapseAllTabs();
+        getChild<LLAccordionCtrlTab>("group_notices_tab")->setDisplayChildren(true);
+        tab_ctrl->arrange();
+    }
 
 }
 
@@ -264,8 +273,15 @@ void LLPanelGroup::onBtnGroupChatClicked(void* user_data)
 
 void LLPanelGroup::onBtnJoin()
 {
-	LL_DEBUGS() << "joining group: " << mID << LL_ENDL;
-	LLGroupActions::join(mID);
+    if (LLGroupActions::isInGroup(mID)) 
+    {
+        LLGroupActions::leave(mID);
+    }
+    else 
+    {
+        LL_DEBUGS() << "joining group: " << mID << LL_ENDL;
+        LLGroupActions::join(mID);
+    }
 }
 
 void LLPanelGroup::changed(LLGroupChange gc)
@@ -303,12 +319,17 @@ void LLPanelGroup::update(LLGroupChange gc)
 		
 		LLGroupData agent_gdatap;
 		bool is_member = gAgent.getGroupData(mID,agent_gdatap) || gAgent.isGodlikeWithoutAdminMenuFakery();
-		bool join_btn_visible = !is_member && gdatap->mOpenEnrollment;
+		bool join_btn_visible = is_member || gdatap->mOpenEnrollment;
 		
 		mButtonJoin->setVisible(join_btn_visible);
 		mJoinText->setVisible(join_btn_visible);
 
-		if(join_btn_visible)
+        if (is_member)
+        {
+            mJoinText->setValue(getString("group_member"));
+            mButtonJoin->setLabel(getString("leave_txt"));
+        }
+		else if(join_btn_visible)
 		{
 			LLStringUtil::format_map_t string_args;
 			std::string fee_buff;
@@ -323,6 +344,7 @@ void LLPanelGroup::update(LLGroupChange gc)
 				fee_buff = getString("group_join_free", string_args);
 			}
 			mJoinText->setValue(fee_buff);
+            mButtonJoin->setLabel(getString("join_txt"));
 		}
 	}
 }

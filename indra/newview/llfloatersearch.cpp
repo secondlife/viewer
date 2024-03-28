@@ -48,12 +48,6 @@ public:
 	LLSearchHandler() : LLCommandHandler("search", UNTRUSTED_CLICK_ONLY) { }
 	bool handle(const LLSD& tokens, const LLSD& query_map, const std::string& grid, LLMediaCtrl* web)
 	{
-		if (!LLUI::getInstance()->mSettingGroups["config"]->getBOOL("EnableSearch"))
-		{
-			LLNotificationsUtil::add("NoSearch", LLSD(), LLSD(), std::string("SwitchToStandardSkinAndQuit"));
-			return true;
-		}
-
 		const size_t parts = tokens.size();
 
 		// get the (optional) category for the search

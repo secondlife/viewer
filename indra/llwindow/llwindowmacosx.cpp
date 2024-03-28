@@ -43,6 +43,13 @@
 #include <CoreServices/CoreServices.h>
 #include <CoreGraphics/CGDisplayConfiguration.h>
 
+#include <IOKit/IOCFPlugIn.h>
+#include <IOKit/IOKitLib.h>
+#include <IOKit/IOMessage.h>
+#include <IOKit/hid/IOHIDUsageTables.h>
+#include <IOKit/hid/IOHIDLib.h>
+#include <IOKit/usb/IOUSBLib.h>
+
 extern BOOL gDebugWindowProc;
 BOOL gHiDPISupport = TRUE;
 
@@ -212,13 +219,16 @@ bool callKeyUp(NSKeyEventRef event, unsigned short key, unsigned int mask)
 
 bool callKeyDown(NSKeyEventRef event, unsigned short key, unsigned int mask, wchar_t character)
 {
-    if((key == gKeyboard->inverseTranslateKey('Z')) && (character == 'y'))
+    //if (mask!=MASK_NONE)
     {
-        key = gKeyboard->inverseTranslateKey('Y');
-    }
-    else if ((key == gKeyboard->inverseTranslateKey('Y')) && (character == 'z'))
-    {
-        key = gKeyboard->inverseTranslateKey('Z');
+        if((key == gKeyboard->inverseTranslateKey('Z')) && (character == 'y'))
+        {
+            key = gKeyboard->inverseTranslateKey('Y');
+        }
+        else if ((key == gKeyboard->inverseTranslateKey('Y')) && (character == 'z'))
+        {
+            key = gKeyboard->inverseTranslateKey('Z');
+        }
     }
 
     mRawKeyEvent = event;
@@ -1839,6 +1849,486 @@ void LLWindowMacOSX::spawnWebBrowser(const std::string& escaped_url, bool async)
 	{
 		LL_INFOS() << "Error: couldn't create URL." << LL_ENDL;
 	}
+}
+
+// String should match ndof, so string mapping code was copied as is
+static char mapChar( char c )
+{
+    unsigned char uc = ( unsigned char ) c;
+    
+    switch( uc )
+    {
+        case '/': return '-'; // use dash instead of slash
+            
+        case 0x7F: return ' ';
+        case 0x80: return 'A';
+        case 0x81: return 'A';
+        case 0x82: return 'C';
+        case 0x83: return 'E';
+        case 0x84: return 'N';
+        case 0x85: return 'O';
+        case 0x86: return 'U';
+        case 0x87: return 'a';
+        case 0x88: return 'a';
+        case 0x89: return 'a';
+        case 0x8A: return 'a';
+        case 0x8B: return 'a';
+        case 0x8C: return 'a';
+        case 0x8D: return 'c';
+        case 0x8E: return 'e';
+        case 0x8F: return 'e';
+        case 0x90: return ' ';
+        case 0x91: return ' '; // ? '
+        case 0x92: return ' '; // ? '
+        case 0x93: return ' '; // ? "
+        case 0x94: return ' '; // ? "
+        case 0x95: return ' ';
+        case 0x96: return ' ';
+        case 0x97: return ' ';
+        case 0x98: return ' ';
+        case 0x99: return ' ';
+        case 0x9A: return ' ';
+        case 0x9B: return 0x27;
+        case 0x9C: return 0x22;
+        case 0x9D: return ' ';
+        case 0x9E: return ' ';
+        case 0x9F: return ' ';
+        case 0xA0: return ' ';
+        case 0xA1: return ' ';
+        case 0xA2: return ' ';
+        case 0xA3: return ' ';
+        case 0xA4: return ' ';
+        case 0xA5: return ' ';
+        case 0xA6: return ' ';
+        case 0xA7: return ' ';
+        case 0xA8: return ' ';
+        case 0xA9: return ' ';
+        case 0xAA: return ' ';
+        case 0xAB: return ' ';
+        case 0xAC: return ' ';
+        case 0xAD: return ' ';
+        case 0xAE: return ' ';
+        case 0xAF: return ' ';
+        case 0xB0: return ' ';
+        case 0xB1: return ' ';
+        case 0xB2: return ' ';
+        case 0xB3: return ' ';
+        case 0xB4: return ' ';
+        case 0xB5: return ' ';
+        case 0xB6: return ' ';
+        case 0xB7: return ' ';
+        case 0xB8: return ' ';
+        case 0xB9: return ' ';
+        case 0xBA: return ' ';
+        case 0xBB: return ' ';
+        case 0xBC: return ' ';
+        case 0xBD: return ' ';
+        case 0xBE: return ' ';
+        case 0xBF: return ' ';
+        case 0xC0: return ' ';
+        case 0xC1: return ' ';
+        case 0xC2: return ' ';
+        case 0xC3: return ' ';
+        case 0xC4: return ' ';
+        case 0xC5: return ' ';
+        case 0xC6: return ' ';
+        case 0xC7: return ' ';
+        case 0xC8: return ' ';
+        case 0xC9: return ' ';
+        case 0xCA: return ' ';
+        case 0xCB: return 'A';
+        case 0xCC: return 'A';
+        case 0xCD: return 'O';
+        case 0xCE: return ' ';
+        case 0xCF: return ' ';
+        case 0xD0: return '-';
+        case 0xD1: return '-';
+        case 0xD2: return 0x22;
+        case 0xD3: return 0x22;
+        case 0xD4: return 0x27;
+        case 0xD5: return 0x27;
+        case 0xD6: return '-'; // use dash instead of slash
+        case 0xD7: return ' ';
+        case 0xD8: return 'y';
+        case 0xD9: return 'Y';
+        case 0xDA: return '-'; // use dash instead of slash
+        case 0xDB: return ' ';
+        case 0xDC: return '<';
+        case 0xDD: return '>';
+        case 0xDE: return ' ';
+        case 0xDF: return ' ';
+        case 0xE0: return ' ';
+        case 0xE1: return ' ';
+        case 0xE2: return ',';
+        case 0xE3: return ',';
+        case 0xE4: return ' ';
+        case 0xE5: return 'A';
+        case 0xE6: return 'E';
+        case 0xE7: return 'A';
+        case 0xE8: return 'E';
+        case 0xE9: return 'E';
+        case 0xEA: return 'I';
+        case 0xEB: return 'I';
+        case 0xEC: return 'I';
+        case 0xED: return 'I';
+        case 0xEE: return 'O';
+        case 0xEF: return 'O';
+        case 0xF0: return ' ';
+        case 0xF1: return 'O';
+        case 0xF2: return 'U';
+        case 0xF3: return 'U';
+        case 0xF4: return 'U';
+        case 0xF5: return '|';
+        case 0xF6: return ' ';
+        case 0xF7: return ' ';
+        case 0xF8: return ' ';
+        case 0xF9: return ' ';
+        case 0xFA: return '.';
+        case 0xFB: return ' ';
+        case 0xFC: return ' ';
+        case 0xFD: return 0x22;
+        case 0xFE: return ' ';
+        case 0xFF: return ' ';
+    }
+    return c;
+}
+
+// String should match ndof for manufacturer based search to work
+static void sanitizeString( char* inCStr )
+{
+    char* charIt = inCStr;
+    while ( *charIt )
+    {
+        *charIt = mapChar( *charIt );
+        charIt++;
+    }
+}
+
+struct HidDevice
+{
+    long mAxis;
+    long mLocalID;
+    char mProduct[256];
+    char mManufacturer[256];
+    long mUsage;
+    long mUsagePage;
+};
+
+static void populate_device_info( io_object_t io_obj_p, CFDictionaryRef device_dic, HidDevice* devicep )
+{
+    CFMutableDictionaryRef io_properties = nil;
+    io_registry_entry_t entry1;
+    io_registry_entry_t entry2;
+    kern_return_t rc;
+
+    // Mac OS X currently is not mirroring all USB properties to HID page so need to look at USB device page also
+    // get dictionary for usb properties: step up two levels and get CF dictionary for USB properties
+    // try to get parent1
+    rc = IORegistryEntryGetParentEntry( io_obj_p, kIOServicePlane, &entry1 );
+    if ( KERN_SUCCESS == rc )
+    {
+        rc = IORegistryEntryGetParentEntry( entry1, kIOServicePlane, &entry2 );
+        
+        IOObjectRelease( entry1 );
+        
+        if ( KERN_SUCCESS == rc )
+        {
+            rc = IORegistryEntryCreateCFProperties( entry2, &io_properties, kCFAllocatorDefault, kNilOptions );
+            // either way, release parent2
+            IOObjectRelease( entry2 );
+        }
+    }
+    if ( KERN_SUCCESS == rc )
+    {
+        // IORegistryEntryCreateCFProperties() succeeded
+        if ( io_properties != nil )
+        {
+            CFTypeRef dict_element = 0;
+            // get device info
+            // try hid dictionary first, if fail then go to usb dictionary
+            
+            
+            dict_element = CFDictionaryGetValue( device_dic, CFSTR(kIOHIDProductKey) );
+            if ( !dict_element )
+            {
+                dict_element = CFDictionaryGetValue( io_properties, CFSTR( "USB Product Name" ) );
+            }
+            if ( dict_element )
+            {
+                bool res = CFStringGetCString((CFStringRef)dict_element, devicep->mProduct, 256, kCFStringEncodingUTF8);
+                sanitizeString(devicep->mProduct);
+                if ( !res )
+                {
+                    LL_WARNS("Joystick") << "Failed to populate mProduct" << LL_ENDL;
+                }
+            }
+            
+            dict_element = CFDictionaryGetValue( device_dic, CFSTR( kIOHIDManufacturerKey ) );
+            if ( !dict_element )
+            {
+                dict_element = CFDictionaryGetValue( io_properties, CFSTR( "USB Vendor Name" ) );
+            }
+            if ( dict_element )
+            {
+                bool res = CFStringGetCString( (CFStringRef)dict_element, devicep->mManufacturer, 256, kCFStringEncodingUTF8 );
+                sanitizeString(devicep->mManufacturer);
+                if ( !res )
+                {
+                    LL_WARNS("Joystick") << "Failed to populate mManufacturer" << LL_ENDL;
+                }
+            }
+            
+            dict_element = CFDictionaryGetValue( device_dic, CFSTR( kIOHIDLocationIDKey ) );
+            if ( !dict_element )
+            {
+                dict_element = CFDictionaryGetValue( io_properties, CFSTR( "locationID" ) );
+            }
+            if ( dict_element )
+            {
+                bool res = CFNumberGetValue( (CFNumberRef)dict_element, kCFNumberLongType, &devicep->mLocalID );
+                if ( !res )
+                {
+                    LL_WARNS("Joystick") << "Failed to populate mLocalID" << LL_ENDL;
+                }
+            }
+            
+            dict_element = CFDictionaryGetValue( device_dic, CFSTR( kIOHIDPrimaryUsagePageKey ) );
+            if ( dict_element )
+            {
+                bool res = CFNumberGetValue( (CFNumberRef)dict_element, kCFNumberLongType, &devicep->mUsagePage );
+                if ( !res )
+                {
+                    LL_WARNS("Joystick") << "Failed to populate mUsagePage" << LL_ENDL;
+                }
+                dict_element = CFDictionaryGetValue( device_dic, CFSTR( kIOHIDPrimaryUsageKey ) );
+                if ( dict_element )
+                {
+                    if ( !CFNumberGetValue( (CFNumberRef)dict_element, kCFNumberLongType, &devicep->mUsage ) )
+                    {
+                        LL_WARNS("Joystick") << "Failed to populate mUsage" << LL_ENDL;
+                    }
+                }
+            }
+            
+            //Add axis, because ndof lib checks sutability by axises as well as other elements
+            devicep->mAxis = 0;
+            CFTypeRef hid_elements = CFDictionaryGetValue( device_dic, CFSTR( kIOHIDElementKey ) );
+            if ( hid_elements && CFGetTypeID( hid_elements ) == CFArrayGetTypeID( ) )
+            {
+                long count = CFArrayGetCount( (CFArrayRef) hid_elements );
+                for (int i = 0; i < count; ++i)
+                {
+                    CFTypeRef element = CFArrayGetValueAtIndex((CFArrayRef) hid_elements, i);
+                    if (element && CFGetTypeID( element ) == CFDictionaryGetTypeID( ))
+                    {
+                        long type = 0, usage_page = 0, usage = 0;
+                        
+                        CFTypeRef ref_value = CFDictionaryGetValue( (CFDictionaryRef) element, CFSTR( kIOHIDElementTypeKey ) );
+                        if ( ref_value )
+                        {
+                            CFNumberGetValue( (CFNumberRef)ref_value, kCFNumberLongType, &type );
+                        }
+                        
+                        ref_value = CFDictionaryGetValue( (CFDictionaryRef) element, CFSTR( kIOHIDElementUsagePageKey ) );
+                        if ( ref_value )
+                        {
+                             CFNumberGetValue( (CFNumberRef)ref_value, kCFNumberLongType, &usage_page );
+                        }
+                        
+                        ref_value = CFDictionaryGetValue( (CFDictionaryRef) element, CFSTR( kIOHIDElementUsageKey ) );
+                        if ( ref_value )
+                        {
+                            CFNumberGetValue( (CFNumberRef)ref_value, kCFNumberLongType, &usage );
+                        }
+                        if ( type != 0
+                            && type != kIOHIDElementTypeCollection
+                            && usage_page == kHIDPage_GenericDesktop)
+                        {
+                            switch( usage )
+                            {
+                                case kHIDUsage_GD_X:
+                                case kHIDUsage_GD_Y:
+                                case kHIDUsage_GD_Z:
+                                case kHIDUsage_GD_Rx:
+                                case kHIDUsage_GD_Ry:
+                                case kHIDUsage_GD_Rz:
+                                    devicep->mAxis++;
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                    }
+                }
+            }
+            
+            CFRelease(io_properties);
+        }
+        else
+        {
+            LL_WARNS("Joystick") << "Failed to populate fields" << LL_ENDL;
+        }
+    }
+}
+
+HidDevice populate_device( io_object_t io_obj )
+{
+    void* interfacep = nullptr;
+    HidDevice device;
+    memset( &device, 0, sizeof( HidDevice ) );
+    CFMutableDictionaryRef device_dic = 0;
+    kern_return_t result = IORegistryEntryCreateCFProperties( io_obj, &device_dic, kCFAllocatorDefault, kNilOptions );
+    
+    if ( KERN_SUCCESS == result
+        && device_dic )
+    {
+        IOReturn io_result = kIOReturnSuccess;
+        HRESULT query_result = S_OK;
+        SInt32 the_score = 0;
+        IOCFPlugInInterface **the_interface = NULL;
+        
+        
+        io_result = IOCreatePlugInInterfaceForService( io_obj, kIOHIDDeviceUserClientTypeID,
+                                                        kIOCFPlugInInterfaceID, &the_interface, &the_score );
+        if ( io_result == kIOReturnSuccess )
+        {
+            query_result = ( *the_interface )->QueryInterface( the_interface, CFUUIDGetUUIDBytes( kIOHIDDeviceInterfaceID ), ( LPVOID * ) & ( interfacep ) );
+            if ( query_result != S_OK )
+            {
+                LL_WARNS("Joystick") << "QueryInterface failed" << LL_ENDL;
+            }
+            IODestroyPlugInInterface( the_interface );
+        }
+        else
+        {
+            LL_WARNS("Joystick") << "IOCreatePlugInInterfaceForService failed" << LL_ENDL;
+        }
+        
+        if ( interfacep )
+        {
+            result = ( *( IOHIDDeviceInterface** )interfacep )->open( interfacep, 0 );
+            
+            if ( result != kIOReturnSuccess)
+            {
+                LL_WARNS("Joystick") << "open failed" << LL_ENDL;
+            }
+        }
+        // extract needed fields
+        populate_device_info( io_obj, device_dic, &device );
+        
+        // Release interface
+        if ( interfacep )
+        {
+            ( *( IOHIDDeviceInterface** ) interfacep )->close( interfacep );
+            
+            ( *( IOHIDDeviceInterface** ) interfacep )->Release( interfacep );
+
+            interfacep = NULL;
+        }
+        
+        CFRelease( device_dic );
+    }
+    else
+    {
+        LL_WARNS("Joystick") << "populate_device failed" << LL_ENDL;
+    }
+    
+    return device;
+}
+
+static void get_devices(std::list<HidDevice> &list_of_devices,
+                          io_iterator_t inIODeviceIterator)
+{
+    IOReturn result = kIOReturnSuccess;    // assume success( optimist! )
+    io_object_t io_obj = 0;
+    
+    while ( 0 != (io_obj = IOIteratorNext( inIODeviceIterator ) ) )
+    {
+        HidDevice device = populate_device( io_obj );
+        
+        //  Should match ndof
+        if (device.mAxis >= 3
+            || (device.mUsagePage == kHIDPage_GenericDesktop
+                && (device.mUsage == kHIDUsage_GD_MultiAxisController
+                    || device.mUsage == kHIDUsage_GD_GamePad
+                    || device.mUsage == kHIDUsage_GD_Joystick))
+            || (device.mUsagePage == kHIDPage_Game
+                && device.mUsage == kHIDUsage_Game_3DGameController)
+            || strstr(device.mManufacturer, "3Dconnexion"))
+        {
+            list_of_devices.push_back(device);
+        }
+        else
+        {
+            LL_DEBUGS("Joystick");
+            list_of_devices.push_back(device);
+            LL_CONT << "Device axes: " << (S32)device.mAxis
+                    << " Device HIDUsepage: " << (S32)device.mUsagePage
+                    << " Device HIDUsage: " << (S32)device.mUsage;
+		    LL_ENDL;
+		}
+        
+        
+        // release the device object, it is no longer needed
+        result = IOObjectRelease( io_obj );
+        if ( KERN_SUCCESS != result )
+        {
+            LL_WARNS("Joystick") << "IOObjectRelease failed" << LL_ENDL;
+        }
+    }
+}
+
+bool LLWindowMacOSX::getInputDevices(U32 device_type_filter,
+                                     std::function<bool(std::string&, LLSD&, void*)> osx_callback,
+                                     void* win_callback,
+                                     void* userdata)
+{
+    bool return_value = false;
+    CFMutableDictionaryRef device_dict_ref;
+    IOReturn result = kIOReturnSuccess;    // assume success( optimist! )
+    
+    // Set up matching dictionary to search the I/O Registry for HID devices we are interested in. Dictionary reference is NULL if error.
+    
+    // A dictionary to match devices to?
+    device_dict_ref = IOServiceMatching( kIOHIDDeviceKey );
+    
+    // BUG FIX! one reference is consumed by IOServiceGetMatchingServices
+    CFRetain( device_dict_ref );
+    io_iterator_t io_iter = 0;
+    
+    // create an IO object iterator
+    result = IOServiceGetMatchingServices( kIOMasterPortDefault, device_dict_ref, &io_iter );
+    if ( kIOReturnSuccess != result )
+    {
+        LL_WARNS("Joystick") << "IOServiceGetMatchingServices failed" << LL_ENDL;
+    }
+    
+    if ( io_iter )
+    {
+        // add all existing devices
+        std::list<HidDevice> device_list;
+        
+        get_devices(device_list, io_iter);
+        
+        std::list<HidDevice>::iterator iter;
+        
+        for (iter = device_list.begin(); iter != device_list.end(); ++iter)
+        {
+            std::string label(iter->mProduct);
+            LLSD data;
+            data["manufacturer"] = std::string(iter->mManufacturer);
+            data["product"] = label;
+            
+            if (osx_callback(label, data, userdata))
+            {
+                break; //found device
+            }
+        }
+        return_value = true;
+    }
+        
+    CFRelease( device_dict_ref );
+    return return_value;
 }
 
 LLSD LLWindowMacOSX::getNativeKeyData()

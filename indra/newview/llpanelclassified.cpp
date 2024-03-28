@@ -104,6 +104,11 @@ LLPanelClassifiedInfo::LLPanelClassifiedInfo()
 LLPanelClassifiedInfo::~LLPanelClassifiedInfo()
 {
 	sAllPanels.remove(this);
+
+    if (getAvatarId().notNull())
+    {
+        LLAvatarPropertiesProcessor::getInstance()->removeObserver(getAvatarId(), this);
+    }
 }
 
 BOOL LLPanelClassifiedInfo::postBuild()

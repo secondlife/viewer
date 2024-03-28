@@ -102,9 +102,9 @@ protected:
 	//std::vector<index_button_pair_t> mButtons;
 
 	// panel elements
-	LLTextBase*		mTextBox;
-	LLPanel*		mInfoPanel;		// a panel, that contains an information
-	LLPanel*		mControlPanel;	// a panel, that contains buttons (if present)
+	LLTextBase* mTextBox { nullptr };
+	LLPanel* mInfoPanel { nullptr };    // panel for text information
+	LLPanel* mControlPanel { nullptr }; // panel for buttons (if present)
 
 	// internal handler for button being clicked
 	static void onClickButton(void* data);
@@ -124,17 +124,17 @@ protected:
 	 */
 	//void disableRespondedOptions(const LLNotificationPtr& notification);
 
-	bool mIsTip;
-	bool mAddedDefaultBtn;
-	bool mIsScriptDialog;
-	bool mIsCaution; 
+    bool mIsTip { false };
+	bool mAddedDefaultBtn { false };
+	bool mIsScriptDialog { false };
+	bool mIsCaution { false };
 
 	std::string mMessage;
-	S32 mNumOptions;
-	S32 mNumButtons;
+	S32 mNumOptions { 0 };
+	S32 mNumButtons { 0 };
 
-	static const LLFontGL* sFont;
-	static const LLFontGL* sFontSmall;
+	static const std::string sFontDefault;
+	static const std::string sFontScript;
 };
 
 class LLIMToastNotifyPanel : public LLToastNotifyPanel

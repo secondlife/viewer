@@ -173,6 +173,7 @@ protected:
 	LLLayoutPanel* mInputButtonPanel;
 	LLLayoutPanel* mEmojiRecentPanel;
 	LLTextBox* mEmojiRecentEmptyText;
+	LLPanel* mEmojiRecentContainer;
 	LLPanelEmojiComplete* mEmojiRecentIconsCtrl;
 	LLParticipantList* getParticipantList();
 	conversations_widgets_map mConversationsWidgets;
@@ -218,6 +219,8 @@ private:
 	void onEmojiRecentPanelToggleBtnClicked();
 	void onEmojiPickerShowBtnClicked();
 	void initEmojiRecentPanel();
+	void onEmojiRecentPanelFocusReceived();
+	void onEmojiRecentPanelFocusLost();
 	void onRecentEmojiPicked(const LLSD& value);
 
 	bool checkIfTornOff();

@@ -58,9 +58,9 @@ class LLTextBase;
 class LLMenuButton;
 class LLLineEditor;
 class LLTextEditor;
-class LLThumbnailCtrl;
 class LLPanelProfileClassifieds;
 class LLPanelProfilePicks;
+class LLProfileImageCtrl;
 class LLViewerFetchedTexture;
 
 
@@ -68,7 +68,7 @@ class LLViewerFetchedTexture;
 * Panel for displaying Avatar's second life related info.
 */
 class LLPanelProfileSecondLife
-	: public LLPanelProfileTab
+	: public LLPanelProfilePropertiesProcessorTab
 	, public LLFriendObserver
 	, public LLVoiceClientStatusObserver
 {
@@ -93,10 +93,6 @@ public:
 
 	void resetData() override;
 
-	/**
-	 * Sends update data request to server.
-	 */
-	void updateData() override;
     void refreshName();
 
 	void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name);
@@ -107,18 +103,13 @@ public:
     bool hasUnsavedChanges() override;
     void commitUnsavedChanges() override;
 
-    friend void request_avatar_properties_coro(std::string cap_url, LLUUID agent_id);
+    void processProperties(void* data, EAvatarProcessorType type) override;
 
 protected:
 	/**
 	 * Process profile related data received from server.
 	 */
 	void processProfileProperties(const LLAvatarData* avatar_data);
-
-	/**
-	 * Processes group related data received from server.
-	 */
-	void processGroupProperties(const LLAvatarGroups* avatar_groups);
 
 	/**
 	 * Fills common for Avatar profile and My Profile fields.
@@ -143,16 +134,9 @@ protected:
     /**
      * Fills user name, display name, age.
      */
-    void fillAgeData(const LLDate &born_on);
+    void fillAgeData(const LLAvatarData* avatar_data);
 
     void onImageLoaded(BOOL success, LLViewerFetchedTexture *imagep);
-    static void onImageLoaded(BOOL success,
-                              LLViewerFetchedTexture *src_vi,
-                              LLImageRaw* src,
-                              LLImageRaw* aux_src,
-                              S32 discard_level,
-                              BOOL final,
-                              void* userdata);
 
 	/**
 	 * Displays avatar's online status if possible.
@@ -179,6 +163,7 @@ private:
     void setDescriptionText(const std::string &text);
     void onSetDescriptionDirty();
     void onShowInSearchCallback();
+    void onHideAgeCallback();
     void onSaveDescriptionChanges();
     void onDiscardDescriptionChanges();
     void onShowAgentPermissionsDialog();
@@ -193,7 +178,8 @@ private:
 
 	LLGroupList*		mGroupList;
     LLComboBox*			mShowInSearchCombo;
-    LLThumbnailCtrl*	mSecondLifePic;
+    LLComboBox*			mHideAgeCombo;
+    LLProfileImageCtrl*	mSecondLifePic;
 	LLPanel*			mSecondLifePicLayout;
     LLTextEditor*		mDescriptionEdit;
     LLMenuButton*		mAgentActionMenuButton;
@@ -214,9 +200,8 @@ private:
 	bool				mVoiceStatus;
     bool				mWaitingForImageUpload;
     bool				mAllowPublish;
+    bool				mHideAge;
     std::string			mDescriptionText;
-    LLUUID				mImageId;
-
 	boost::signals2::connection	mAvatarNameCacheConnection;
 };
 
@@ -247,8 +232,6 @@ public:
 
 	void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name);
 
-    friend void request_avatar_properties_coro(std::string cap_url, LLUUID agent_id);
-
 protected:
 	void onCommitLoad(LLUICtrl* ctrl);
 
@@ -267,7 +250,7 @@ private:
 * Panel for displaying Avatar's first life related info.
 */
 class LLPanelProfileFirstLife
-	: public LLPanelProfileTab
+    : public LLPanelProfilePropertiesProcessorTab
 {
 public:
 	LLPanelProfileFirstLife();
@@ -277,6 +260,7 @@ public:
 
 	BOOL postBuild() override;
 
+    void processProperties(void* data, EAvatarProcessorType type) override;
     void processProperties(const LLAvatarData* avatar_data);
 
 	void resetData() override;
@@ -286,8 +270,6 @@ public:
 
     bool hasUnsavedChanges() override { return mHasUnsavedChanges; }
     void commitUnsavedChanges() override;
-
-    friend void request_avatar_properties_coro(std::string cap_url, LLUUID agent_id);
 
 protected:
 	void setLoaded() override;
@@ -302,7 +284,7 @@ protected:
     void onDiscardDescriptionChanges();
 
 	LLTextEditor*	mDescriptionEdit;
-    LLThumbnailCtrl* mPicture;
+    LLProfileImageCtrl* mPicture;
     LLButton* mUploadPhoto;
     LLButton* mChangePhoto;
     LLButton* mRemovePhoto;
@@ -312,7 +294,6 @@ protected:
     LLHandle<LLFloater>	mFloaterTexturePickerHandle;
 
     std::string		mCurrentDescription;
-    LLUUID			mImageId;
     bool			mHasUnsavedChanges;
 };
 
@@ -320,23 +301,20 @@ protected:
  * Panel for displaying Avatar's notes and modifying friend's rights.
  */
 class LLPanelProfileNotes
-	: public LLPanelProfileTab
+	: public LLPanelProfilePropertiesProcessorTab
 {
 public:
 	LLPanelProfileNotes();
 	/*virtual*/ ~LLPanelProfileNotes();
 
-	void setAvatarId(const LLUUID& avatar_id) override;
-
 	void onOpen(const LLSD& key) override;
 
 	BOOL postBuild() override;
 
-    void processProperties(LLAvatarNotes* avatar_notes);
+    void processProperties(void* data, EAvatarProcessorType type) override;
+    void processProperties(const LLAvatarData* avatar_data);
 
 	void resetData() override;
-
-	void updateData() override;
 
     bool hasUnsavedChanges() override { return mHasUnsavedChanges; }
     void commitUnsavedChanges() override;
@@ -384,10 +362,6 @@ public:
     void showClassified(const LLUUID& classified_id = LLUUID::null, bool edit = false);
     void createClassified();
 
-    LLAvatarData getAvatarData() { return mAvatarData; };
-
-    friend void request_avatar_properties_coro(std::string cap_url, LLUUID agent_id);
-
 private:
     void onTabChange();
 
@@ -398,13 +372,6 @@ private:
     LLPanelProfileFirstLife*    mPanelFirstlife;
     LLPanelProfileNotes*        mPanelNotes;
     LLTabContainer*             mTabContainer;
-
-    // Todo: due to server taking minutes to update this needs a more long term storage
-    // to reuse recently saved values if user opens floater again
-    // Storage implementation depends onto how a cap will be implemented, if cap will be
-    // enought to fully update LLAvatarPropertiesProcessor, then this storage can be
-    // implemented there.
-    LLAvatarData mAvatarData;
 };
 
 #endif //LL_LLPANELPROFILE_H

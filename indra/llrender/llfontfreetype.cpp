@@ -354,11 +354,10 @@ void LLFontFreetype::clearFontStreams()
 }
 #endif
 
-void LLFontFreetype::addFallbackFont(const LLPointer<LLFontFreetype>& fallback_font, const char_functor_t& functor)
+void LLFontFreetype::addFallbackFont(const LLPointer<LLFontFreetype>& fallback_font,
+                                     const char_functor_t& functor)
 {
-	// Insert functor fallbacks before generic fallbacks
-	mFallbackFonts.insert((functor) ? std::find_if(mFallbackFonts.begin(), mFallbackFonts.end(), [](const fallback_font_t& fe) { return !fe.second; }) : mFallbackFonts.end(),
-	                      std::make_pair(fallback_font, functor));
+    mFallbackFonts.emplace_back(fallback_font, functor);
 }
 
 F32 LLFontFreetype::getLineHeight() const
@@ -450,55 +449,100 @@ BOOL LLFontFreetype::hasGlyph(llwchar wch) const
 
 LLFontGlyphInfo* LLFontFreetype::addGlyph(llwchar wch, EFontGlyphType glyph_type) const
 {
-	if (mFTFace == NULL)
-		return FALSE;
+    if (!mFTFace)
+    {
+        return NULL;
+    }
 
-	llassert(!mIsFallback);
-	llassert(glyph_type < EFontGlyphType::Count);
-	//LL_DEBUGS() << "Adding new glyph for " << wch << " to font" << LL_ENDL;
+    llassert(!mIsFallback);
+    llassert(glyph_type < EFontGlyphType::Count);
+    //LL_DEBUGS() << "Adding new glyph for " << wch << " to font" << LL_ENDL;
 
-	FT_UInt glyph_index;
+    // Initialize char to glyph map
+    FT_UInt glyph_index = FT_Get_Char_Index(mFTFace, wch);
+    if (glyph_index == 0)
+    {
+        // No corresponding glyph in this font: look for a glyph in fallback
+        // fonts.
+        size_t count = mFallbackFonts.size();
+        if (LLStringOps::isEmoji(wch))
+        {
+            // This is a "genuine" emoji (in the range 0x1f000-0x20000): print
+            // it using the emoji font(s) if possible. HB
+            for (size_t i = 0; i < count; ++i)
+            {
+                const fallback_font_t& pair = mFallbackFonts[i];
+                if (!pair.second || !pair.second(wch))
+                {
+                    // If this font does not have a functor, or the character
+                    // does not pass the functor, reject it. Note: we keep the
+                    // functor test (despite the fact we already tested for
+                    // LLStringOps::isEmoji(wch) above), in case we would use
+                    // different, more restrictive or partionned functors in
+                    // the future with several different emoji fonts. HB
+                    continue;
+                }
+                glyph_index = FT_Get_Char_Index(pair.first->mFTFace, wch);
+                if (glyph_index)
+                {
+                    return addGlyphFromFont(pair.first, wch, glyph_index,
+                                            glyph_type);
+                }
+            }
+        }
+        // Then try and find a monochrome fallback font that could print this
+        // glyph: such fonts do *not* have a functor. We give priority to
+        // monochrome fonts for non-genuine emojis so that UI elements which
+        // used to render with them before the emojis font introduction (e.g.
+        // check marks in menus, or LSL dialogs text and buttons) do render the
+        // same way as they always did. HB
+        std::vector<size_t> emoji_fonts_idx;
+        for (size_t i = 0; i < count; ++i)
+        {
+            const fallback_font_t& pair = mFallbackFonts[i];
+            if (pair.second)
+            {
+                // If this font got a functor, remember the index for later and
+                // try the next fallback font. HB
+                emoji_fonts_idx.push_back(i);
+                continue;
+            }
+            glyph_index = FT_Get_Char_Index(pair.first->mFTFace, wch);
+            if (glyph_index)
+            {
+                return addGlyphFromFont(pair.first, wch, glyph_index,
+                                        glyph_type);
+            }
+        }
+        // Everything failed so far: this character is not a genuine emoji,
+        // neither a special character known from our monochrome fallback
+        // fonts: make a last try, using the emoji font(s), but ignoring the
+        // functor to render using whatever (colorful) glyph that might be
+        // available in such fonts for this character. HB
+        for (size_t j = 0, count2 = emoji_fonts_idx.size(); j < count2; ++j)
+        {
+            const fallback_font_t& pair = mFallbackFonts[emoji_fonts_idx[j]];
+            glyph_index = FT_Get_Char_Index(pair.first->mFTFace, wch);
+            if (glyph_index)
+            {
+                return addGlyphFromFont(pair.first, wch, glyph_index,
+                                        glyph_type);
+            }
+        }
+    }
 
-	// Fallback fonts with a functor have precedence over everything else
-	fallback_font_vector_t::const_iterator it_fallback = mFallbackFonts.cbegin();
-	/* This leads to a bug SL-19831 "Check marks in the menu are less visible."
-	** Also, LLFontRegistry::createFont() says: "Fallback fonts don't render"
-	for (; it_fallback != mFallbackFonts.cend() && it_fallback->second; ++it_fallback)
-	{
-		if (it_fallback->second(wch))
-		{
-			glyph_index = FT_Get_Char_Index(it_fallback->first->mFTFace, wch);
-			if (glyph_index)
-			{
-				return addGlyphFromFont(it_fallback->first, wch, glyph_index, glyph_type);
-			}
-		}
-	}
-	*/
-
-	// Initialize char to glyph map
-	glyph_index = FT_Get_Char_Index(mFTFace, wch);
-	if (glyph_index == 0)
-	{
-		//LL_INFOS() << "Trying to add glyph from fallback font!" << LL_ENDL;
-		for (; it_fallback != mFallbackFonts.cend(); ++it_fallback)
-		{
-			glyph_index = FT_Get_Char_Index(it_fallback->first->mFTFace, wch);
-			if (glyph_index)
-			{
-				return addGlyphFromFont(it_fallback->first, wch, glyph_index, glyph_type);
-			}
-		}
-	}
-	
-	std::pair<char_glyph_info_map_t::iterator, char_glyph_info_map_t::iterator> range_it = mCharGlyphInfoMap.equal_range(wch);
-	char_glyph_info_map_t::iterator iter = 
-		std::find_if(range_it.first, range_it.second, [&glyph_type](const char_glyph_info_map_t::value_type& entry) { return entry.second->mGlyphType == glyph_type; });
-	if (iter == range_it.second)
-	{
-		return addGlyphFromFont(this, wch, glyph_index, glyph_type);
-	}
-	return NULL;
+    auto range_it = mCharGlyphInfoMap.equal_range(wch);
+    char_glyph_info_map_t::iterator iter = 
+        std::find_if(range_it.first, range_it.second,
+                     [&glyph_type](const char_glyph_info_map_t::value_type& entry)
+                     {
+                        return entry.second->mGlyphType == glyph_type;
+                     });
+    if (iter == range_it.second)
+    {
+        return addGlyphFromFont(this, wch, glyph_index, glyph_type);
+    }
+    return NULL;
 }
 
 LLFontGlyphInfo* LLFontFreetype::addGlyphFromFont(const LLFontFreetype *fontp, llwchar wch, U32 glyph_index, EFontGlyphType requested_glyph_type) const

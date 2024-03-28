@@ -82,9 +82,9 @@ template class LLLineEditor* LLView::getChild<class LLLineEditor>(
 
 LLLineEditor::Params::Params()
 :	max_length(""),
-    keystroke_callback("keystroke_callback"),
-	prevalidate_callback("prevalidate_callback"),
-	prevalidate_input_callback("prevalidate_input_callback"),
+	keystroke_callback("keystroke_callback"),
+	prevalidator("prevalidator"),
+	input_prevalidator("input_prevalidator"),
 	background_image("background_image"),
 	background_image_disabled("background_image_disabled"),
 	background_image_focused("background_image_focused"),
@@ -96,6 +96,7 @@ LLLineEditor::Params::Params()
 	commit_on_focus_lost("commit_on_focus_lost", true),
 	ignore_tab("ignore_tab", true),
 	is_password("is_password", false),
+	allow_emoji("allow_emoji", true),
 	cursor_color("cursor_color"),
 	use_bg_color("use_bg_color", false),
 	bg_color("bg_color"),
@@ -111,6 +112,8 @@ LLLineEditor::Params::Params()
 	default_text("default_text")
 {
 	changeDefault(mouse_opaque, true);
+	addSynonym(prevalidator, "prevalidate_callback");
+	addSynonym(input_prevalidator, "prevalidate_input_callback");
 	addSynonym(select_on_focus, "select_all_on_focus_received");
 	addSynonym(border, "border");
 	addSynonym(label, "watermark_text");
@@ -142,6 +145,7 @@ LLLineEditor::LLLineEditor(const LLLineEditor::Params& p)
 	mIgnoreArrowKeys( FALSE ),
 	mIgnoreTab( p.ignore_tab ),
 	mDrawAsterixes( p.is_password ),
+	mAllowEmoji( p.allow_emoji ),
 	mSpellCheck( p.spellcheck ),
 	mSpellCheckStart(-1),
 	mSpellCheckEnd(-1),
@@ -157,6 +161,8 @@ LLLineEditor::LLLineEditor(const LLLineEditor::Params& p)
 	mUseBgColor(p.use_bg_color),
 	mHaveHistory(FALSE),
 	mReplaceNewlinesWithSpaces( TRUE ),
+	mPrevalidator(p.prevalidator()),
+	mInputPrevalidator(p.input_prevalidator()),
 	mLabel(p.label),
 	mCursorColor(p.cursor_color()),
 	mBgColor(p.bg_color()),
@@ -210,8 +216,7 @@ LLLineEditor::LLLineEditor(const LLLineEditor::Params& p)
 	}
 	mSpellCheckTimer.reset();
 
-	setPrevalidateInput(p.prevalidate_input_callback());
-	setPrevalidate(p.prevalidate_callback());
+	updateAllowingLanguageInput();
 }
  
 LLLineEditor::~LLLineEditor()
@@ -416,8 +421,13 @@ void LLLineEditor::setText(const LLStringExplicit &new_text, bool use_size_limit
 	all_selected = all_selected || (len == 0 && hasFocus() && mSelectAllonFocusReceived);
 
 	std::string truncated_utf8 = new_text;
+	if (!mAllowEmoji)
+	{
+		// Cut emoji symbols if exist
+        utf8str_remove_emojis(truncated_utf8);
+	}
 	if (use_size_limit && truncated_utf8.size() > (U32)mMaxLengthBytes)
-	{	
+	{
 		truncated_utf8 = utf8str_truncate(new_text, mMaxLengthBytes);
 	}
 	mText.assign(truncated_utf8);
@@ -589,13 +599,21 @@ void LLLineEditor::replaceWithSuggestion(U32 index)
 	{
 		if ( (it->first <= (U32)mCursorPos) && (it->second >= (U32)mCursorPos) )
 		{
+			LLWString suggestion = utf8str_to_wstring(mSuggestionList[index]);
+			if (!mAllowEmoji)
+			{
+				// Cut emoji symbols if exist
+				wstring_remove_emojis(suggestion);
+			}
+			if (suggestion.empty())
+				return;
+
 			deselect();
 
 			// Delete the misspelled word
 			mText.erase(it->first, it->second - it->first);
 
 			// Insert the suggestion in its place
-			LLWString suggestion = utf8str_to_wstring(mSuggestionList[index]);
 			mText.insert(it->first, suggestion);
 			setCursor(it->first + (S32)suggestion.length());
 
@@ -958,9 +976,11 @@ void LLLineEditor::removeChar()
 	}
 }
 
-
 void LLLineEditor::addChar(const llwchar uni_char)
 {
+	if (!mAllowEmoji && LLStringOps::isEmoji(uni_char))
+		return;
+
 	llwchar new_c = uni_char;
 	if (hasSelection())
 	{
@@ -1193,11 +1213,12 @@ void LLLineEditor::cut()
 		deleteSelection();
 
 		// Validate new string and rollback the if needed.
-		BOOL need_to_rollback = ( mPrevalidateFunc && !mPrevalidateFunc( mText.getWString() ) );
-		if( need_to_rollback )
+		BOOL need_to_rollback = mPrevalidator && !mPrevalidator.validate(mText.getWString());
+		if (need_to_rollback)
 		{
 			rollback.doRollback( this );
 			LLUI::getInstance()->reportBadKeystroke();
+			mPrevalidator.showLastErrorUsingTimeout();
 		}
 		else
 		{
@@ -1260,6 +1281,11 @@ void LLLineEditor::pasteHelper(bool is_primary)
 
 		if (!paste.empty())
 		{
+			if (!mAllowEmoji)
+			{
+				wstring_remove_emojis(paste);
+			}
+
 			if (!prevalidateInput(paste))
 				return;
 
@@ -1321,11 +1347,12 @@ void LLLineEditor::pasteHelper(bool is_primary)
 			deselect();
 
 			// Validate new string and rollback the if needed.
-			BOOL need_to_rollback = ( mPrevalidateFunc && !mPrevalidateFunc( mText.getWString() ) );
-			if( need_to_rollback )
+			BOOL need_to_rollback = mPrevalidator && !mPrevalidator.validate(mText.getWString());
+			if (need_to_rollback)
 			{
 				rollback.doRollback( this );
 				LLUI::getInstance()->reportBadKeystroke();
+				mPrevalidator.showLastErrorUsingTimeout();
 			}
 			else
 			{
@@ -1568,19 +1595,27 @@ BOOL LLLineEditor::handleKeyHere(KEY key, MASK mask )
 				deselect();
 			}
 
-			BOOL need_to_rollback = FALSE;
+			bool prevalidator_failed = false;
 
 			// If read-only, don't allow changes
-			need_to_rollback |= (mReadOnly && (mText.getString() == rollback.getText()));
+			bool need_to_rollback = mReadOnly && (mText.getString() == rollback.getText());
 
 			// Validate new string and rollback the keystroke if needed.
-			need_to_rollback |= (mPrevalidateFunc && !mPrevalidateFunc(mText.getWString()));
+			if (!need_to_rollback && mPrevalidator)
+			{
+				prevalidator_failed = !mPrevalidator.validate(mText.getWString());
+				need_to_rollback |= prevalidator_failed;
+			}
 
 			if (need_to_rollback)
 			{
 				rollback.doRollback(this);
 
 				LLUI::getInstance()->reportBadKeystroke();
+				if (prevalidator_failed)
+				{
+					mPrevalidator.showLastErrorUsingTimeout();
+				}
 			}
 
 			// Notify owner if requested
@@ -1627,20 +1662,18 @@ BOOL LLLineEditor::handleUnicodeCharHere(llwchar uni_char)
 
 		deselect();
 
-		BOOL need_to_rollback = FALSE;
-
 		// Validate new string and rollback the keystroke if needed.
-		need_to_rollback |= ( mPrevalidateFunc && !mPrevalidateFunc( mText.getWString() ) );
-
-		if( need_to_rollback )
+		bool need_to_rollback = mPrevalidator && !mPrevalidator.validate(mText.getWString());
+		if (need_to_rollback)
 		{
 			rollback.doRollback( this );
 
 			LLUI::getInstance()->reportBadKeystroke();
+			mPrevalidator.showLastErrorUsingTimeout();
 		}
 
 		// Notify owner if requested
-		if( !need_to_rollback && handled )
+		if (!need_to_rollback && handled)
 		{
 			// HACK! The only usage of this callback doesn't do anything with the character.
 			// We'll have to do something about this if something ever changes! - Doug
@@ -1670,7 +1703,7 @@ void LLLineEditor::doDelete()
 			deleteSelection();
 		}
 		else if ( getCursor() < mText.length())
-		{	
+		{
 			const LLWString& text_to_delete = mText.getWString().substr(getCursor(), 1);
 
 			if (!prevalidateInput(text_to_delete))
@@ -1683,11 +1716,12 @@ void LLLineEditor::doDelete()
 		}
 
 		// Validate new string and rollback the if needed.
-		BOOL need_to_rollback = ( mPrevalidateFunc && !mPrevalidateFunc( mText.getWString() ) );
-		if( need_to_rollback )
+		bool need_to_rollback = mPrevalidator && !mPrevalidator.validate(mText.getWString());
+		if (need_to_rollback)
 		{
-			rollback.doRollback( this );
+			rollback.doRollback(this);
 			LLUI::getInstance()->reportBadKeystroke();
+			mPrevalidator.showLastErrorUsingTimeout();
 		}
 		else
 		{
@@ -1737,19 +1771,6 @@ void LLLineEditor::drawBackground()
 		tmp_color.setAlpha(alpha);
 		image->draw(getLocalRect(), tmp_color);
 	}
-}
-
-//virtual 
-const std::string LLLineEditor::getToolTip() const
-{
-    if (sDebugUnicode)
-    {
-        std::string text = getText();
-        std::string tooltip = utf8str_showBytesUTF8(text);
-        return tooltip;
-    }
-
-    return LLUICtrl::getToolTip();
 }
 
 //virtual 
@@ -2232,7 +2253,7 @@ void LLLineEditor::setFocus( BOOL new_state )
 		// fine on 1.15.0.2, since all prevalidate func reject any
 		// non-ASCII characters.  I'm not sure on future versions,
 		// however.
-		getWindow()->allowLanguageTextInput(this, mPrevalidateFunc == NULL);
+		getWindow()->allowLanguageTextInput(this, !mPrevalidator);
 	}
 }
 
@@ -2251,26 +2272,21 @@ void LLLineEditor::setRect(const LLRect& rect)
 	}
 }
 
-void LLLineEditor::setPrevalidate(LLTextValidate::validate_func_t func)
+void LLLineEditor::setPrevalidate(LLTextValidate::Validator validator)
 {
-	mPrevalidateFunc = func;
+	mPrevalidator = validator;
 	updateAllowingLanguageInput();
 }
 
-void LLLineEditor::setPrevalidateInput(LLTextValidate::validate_func_t func)
+void LLLineEditor::setPrevalidateInput(LLTextValidate::Validator validator)
 {
-	mPrevalidateInputFunc = func;
+	mInputPrevalidator = validator;
 	updateAllowingLanguageInput();
 }
 
 bool LLLineEditor::prevalidateInput(const LLWString& wstr)
 {
-	if (mPrevalidateInputFunc && !mPrevalidateInputFunc(wstr))
-	{
-		return false;
-	}
-
-	return true;
+	return mInputPrevalidator.validate(wstr);
 }
 
 // static
@@ -2412,7 +2428,7 @@ void LLLineEditor::updateAllowingLanguageInput()
 		// test app, no window available
 		return;	
 	}
-	if (hasFocus() && !mReadOnly && !mDrawAsterixes && mPrevalidateFunc == NULL)
+	if (hasFocus() && !mReadOnly && !mDrawAsterixes && !mPrevalidator)
 	{
 		window->allowLanguageTextInput(this, TRUE);
 	}

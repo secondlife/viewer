@@ -170,7 +170,7 @@ public:
 	virtual BOOL isItemMovable( void ) const = 0;		// Can be moved to another folder
 	virtual void move( LLFolderViewModelItem* parent_listener ) = 0;
 
-	virtual BOOL isItemRemovable( void ) const = 0;		// Can be destroyed
+	virtual BOOL isItemRemovable( bool check_worn = true ) const = 0;		// Can be destroyed
 	virtual BOOL removeItem() = 0;
 	virtual void removeBatch(std::vector<LLFolderViewModelItem*>& batch) = 0;
 

@@ -110,9 +110,9 @@ protected:
 		registrar.add("Wearing.EditOutfit", boost::bind(&edit_outfit));
 		registrar.add("Wearing.ShowOriginal", boost::bind(show_item_original, mUUIDs.front()));
 		registrar.add("Wearing.TakeOff",
-					  boost::bind(&LLAppearanceMgr::removeItemsFromAvatar, LLAppearanceMgr::getInstance(), mUUIDs));
+					  boost::bind(&LLAppearanceMgr::removeItemsFromAvatar, LLAppearanceMgr::getInstance(), mUUIDs, no_op));
 		registrar.add("Wearing.Detach", 
-					  boost::bind(&LLAppearanceMgr::removeItemsFromAvatar, LLAppearanceMgr::getInstance(), mUUIDs));
+					  boost::bind(&LLAppearanceMgr::removeItemsFromAvatar, LLAppearanceMgr::getInstance(), mUUIDs, no_op));
 		LLContextMenu* menu = createFromFile("menu_wearing_tab.xml");
 
 		updateMenuItemsVisibility(menu);
@@ -208,8 +208,6 @@ protected:
 };
 
 //////////////////////////////////////////////////////////////////////////
-
-std::string LLPanelAppearanceTab::sFilterSubString = LLStringUtil::null;
 
 static LLPanelInjector<LLPanelWearing> t_panel_wearing("panel_wearing");
 
@@ -328,10 +326,11 @@ void LLPanelWearing::startUpdateTimer()
 }
 
 // virtual
-void LLPanelWearing::setFilterSubString(const std::string& string)
+void LLPanelWearing::onFilterSubStringChanged(const std::string& new_string, const std::string& old_string)
 {
-	sFilterSubString = string;
-	mCOFItemsList->setFilterSubString(sFilterSubString);
+	mCOFItemsList->setFilterSubString(new_string, true);
+
+	mAccordionCtrl->arrange();
 }
 
 // virtual

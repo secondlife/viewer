@@ -550,7 +550,7 @@ void LLWearable::revertValues()
 		if(param)
 		{
 			F32 value = vp_pair.second;
-			setVisualParamWeight(id, value);
+			param->setWeight(value);
 			mSavedVisualParamMap[id] = param->getWeight();
 		}
 	}

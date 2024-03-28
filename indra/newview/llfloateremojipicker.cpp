@@ -40,6 +40,7 @@
 #include "llscrolllistitem.h"
 #include "llsdserialize.h"
 #include "lltextbox.h" 
+#include "lltrans.h"
 #include "llviewerchat.h" 
 
 namespace {
@@ -128,7 +129,7 @@ public:
         , const LLEmojiSearchResult& emoji)
         : LLScrollingPanel(panel_params)
         , mData(emoji)
-        , mText(LLWString(1, emoji.Character))
+        , mChar(LLWString(1, emoji.Character))
     {
     }
 
@@ -138,8 +139,8 @@ public:
 
         F32 x = getRect().getWidth() / 2;
         F32 y = getRect().getHeight() / 2;
-        LLFontGL::getFontEmoji()->render(
-            mText,                      // wstr
+        LLFontGL::getFontEmojiLarge()->render(
+            mChar,                      // wstr
             0,                          // begin_offset
             x,                          // x
             y,                          // y
@@ -154,11 +155,11 @@ public:
     virtual void updatePanel(BOOL allow_modify) override {}
 
     const LLEmojiSearchResult& getData() const { return mData; }
-    LLWString getText() const { return mText; }
+    const LLWString& getChar() const { return mChar; }
 
 private:
     const LLEmojiSearchResult mData;
-    const LLWString mText;
+    const LLWString mChar;
 };
 
 class LLEmojiPreviewPanel : public LLPanel
@@ -229,7 +230,7 @@ protected:
     {
         F32 x0 = x;
         F32 x1 = max_pixels;
-        LLFontGL* font = LLFontGL::getFontEmoji();
+        LLFontGL* font = LLFontGL::getFontEmojiLarge();
         if (mBegin)
         {
             std::string text = mTitle.substr(0, mBegin);
@@ -388,9 +389,12 @@ void LLFloaterEmojiPicker::initialize()
         }
         else
         {
-            const std::string prompt("No emoji found for ");
-            std::string title(prompt + '"' + mFilterPattern.substr(1) + '"');
-            mPreview->setData(EMPTY_LIST_IMAGE_INDEX, title, prompt.size() + 1, title.size() - 1);
+            std::size_t begin, end;
+            LLStringUtil::format_map_t args;
+            args["[FILTER]"] = mFilterPattern.substr(1);
+            std::string title(getString("text_no_emoji_for_filter", args));
+            LLEmojiDictionary::searchInShortCode(begin, end, title, mFilterPattern);
+            mPreview->setData(EMPTY_LIST_IMAGE_INDEX, title, begin, end);
             showPreview(true);
         }
         return;
@@ -423,7 +427,7 @@ void LLFloaterEmojiPicker::fillGroups()
     mGroupButtons.clear();
 
     LLButton::Params params;
-    params.font = LLFontGL::getFontEmoji();
+    params.font = LLFontGL::getFontEmojiLarge();
 
     LLRect rect;
     rect.mTop = mGroups->getRect().getHeight();
@@ -924,7 +928,7 @@ void LLFloaterEmojiPicker::onEmojiMouseUp(LLUICtrl* ctrl)
 
     if (LLEmojiGridIcon* icon = dynamic_cast<LLEmojiGridIcon*>(ctrl))
     {
-        LLSD value(wstring_to_utf8str(icon->getText()));
+        LLSD value(wstring_to_utf8str(icon->getChar()));
         setValue(value);
 
         onCommit();
