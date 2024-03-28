@@ -10833,6 +10833,17 @@
     <key>Value</key>
     <real>0.5</real>
   </map>
+  <key>RenderDiffuseLuminanceScale</key>
+  <map>
+    <key>Comment</key>
+    <string>Luminance adjustment for diffuse surfaces to aid auto-exposure behavior</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.5</real>
+  </map>
     <key>RenderShaderLODThreshold</key>
     <map>
       <key>Comment</key>
