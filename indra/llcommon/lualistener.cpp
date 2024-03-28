@@ -43,13 +43,11 @@ LuaListener::LuaListener(lua_State* L):
             LLEventPump::inventName("LuaState"),
             [this](const LLSD& status)
             {
-                LL_DEBUGS("LuaListener") << "caught " << status << LL_ENDL;
                 const auto& statsd = status["status"];
                 if (statsd.asString() != "running")
                 {
                     // If a Lua script is still blocked in getNext() during
                     // viewer shutdown, close the queue to wake up getNext().
-                    LL_DEBUGS("LuaListener") << "closing queue" << LL_ENDL;
                     mQueue.close();
                 }
                 return false;
