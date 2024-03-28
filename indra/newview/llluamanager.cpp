@@ -35,16 +35,6 @@
 #include "lualistener.h"
 #include "stringize.h"
 
-// skip all these link dependencies for integration testing
-#ifndef LL_TEST
-#include "lluilistener.h"
-#include "llviewercontrol.h"
-
-// FIXME extremely hacky way to get to the UI Listener framework. There's
-// a cleaner way.
-extern LLUIListener sUIListener;
-#endif // ! LL_TEST
-
 #include <boost/algorithm/string/replace.hpp>
 #include <filesystem>
 
