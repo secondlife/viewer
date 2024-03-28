@@ -30,6 +30,8 @@
 #define LL_DEBUG_H
 
 #include "print.h"
+#include "stringize.h"
+#include <exception>                // std::uncaught_exceptions()
 
 /*****************************************************************************
 *   Debugging stuff
@@ -52,8 +54,9 @@
 class Debug
 {
 public:
-    Debug(const std::string& block):
-        mBlock(block),
+    template <typename... ARGS>
+    Debug(ARGS&&... args):
+        mBlock(stringize(std::forward<ARGS>(args)...)),
         mLOGTEST(getenv("LOGTEST")),
         // debug output enabled when LOGTEST is set AND non-empty
         mEnabled(mLOGTEST && *mLOGTEST)
@@ -63,10 +66,12 @@ public:
 
     // non-copyable
     Debug(const Debug&) = delete;
+    Debug& operator=(const Debug&) = delete;
 
     ~Debug()
     {
-        (*this)("exit");
+        auto exceptional{ std::uncaught_exceptions()? "exceptional " : "" };
+        (*this)(exceptional, "exit");
     }
 
     template <typename... ARGS>
@@ -87,21 +92,5 @@ private:
 // It's often convenient to use the name of the enclosing function as the name
 // of the Debug block.
 #define DEBUG Debug debug(LL_PRETTY_FUNCTION)
-
-// These BEGIN/END macros are specifically for debugging output -- please
-// don't assume you must use such for coroutines in general! They only help to
-// make control flow (as well as exception exits) explicit.
-#define BEGIN                                   \
-{                                               \
-    DEBUG;                                      \
-    try
-
-#define END                                     \
-    catch (...)                                 \
-    {                                           \
-        debug("*** exceptional ");              \
-        throw;                                  \
-    }                                           \
-}
 
 #endif /* ! defined(LL_DEBUG_H) */

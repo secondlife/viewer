@@ -31,6 +31,8 @@
 
 #include "is_approx_equal_fraction.h" // instead of llmath.h
 #include <cstring>
+#include <string>
+#include <vector>
 
 class LLDate;
 class LLSD;

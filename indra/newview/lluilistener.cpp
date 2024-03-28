@@ -67,7 +67,7 @@ void LLUIListener::call(const LLSD& event) const
         // API: we provide no reply. Therefore, a typo in the script will
         // provide no feedback whatsoever to that script. To rub the coder's
         // nose in such an error, crump rather than quietly ignoring it.
-        LL_ERRS("LLUIListener") << "function '" << event["function"] << "' not found" << LL_ENDL;
+        LL_WARNS("LLUIListener") << "function '" << event["function"] << "' not found" << LL_ENDL;
     }
     else
     {

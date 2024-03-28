@@ -43,6 +43,7 @@
 #include <typeinfo>
 #include <cmath>
 #include <cctype>
+#include <iomanip>                  // std::quoted
 // external library headers
 #include <boost/range/iterator_range.hpp>
 #if LL_WINDOWS
@@ -54,10 +55,11 @@
 #pragma warning (pop)
 #endif
 // other Linden headers
-#include "stringize.h"
 #include "llerror.h"
-#include "llsdutil.h"
+#include "lleventfilter.h"
 #include "llexception.h"
+#include "llsdutil.h"
+#include "stringize.h"
 #if LL_MSVC
 #pragma warning (disable : 4702)
 #endif
@@ -71,7 +73,9 @@ LLEventPumps::LLEventPumps():
         { "LLEventStream",   [](const std::string& name, bool tweak, const std::string& /*type*/)
                              { return new LLEventStream(name, tweak); } },
         { "LLEventMailDrop", [](const std::string& name, bool tweak, const std::string& /*type*/)
-                             { return new LLEventMailDrop(name, tweak); } }
+                             { return new LLEventMailDrop(name, tweak); } },
+        { "LLEventLogProxy", [](const std::string& name, bool tweak, const std::string& /*type*/)
+                             { return new LLEventLogProxyFor<LLEventStream>(name, tweak); } }
     },
     mTypes
     {
@@ -186,8 +190,13 @@ bool LLEventPumps::post(const std::string&name, const LLSD&message)
     PumpMap::iterator found = mPumpMap.find(name);
 
     if (found == mPumpMap.end())
+    {
+        LL_DEBUGS("LLEventPumps") << "LLEventPump(" << std::quoted(name) << ") not found"
+                                  << LL_ENDL;
         return false;
+    }
 
+//  LL_DEBUGS("LLEventPumps") << "posting to " << name << ": " << message << LL_ENDL;
     return (*found).second->post(message);
 }
 
@@ -402,7 +411,7 @@ LLBoundListener LLEventPump::listen_impl(const std::string& name, const LLEventL
 {
     if (!mSignal)
     {
-        LL_WARNS() << "Can't connect listener" << LL_ENDL;
+        LL_WARNS("LLEventPump") << "Can't connect listener" << LL_ENDL;
         // connect will fail, return dummy
         return LLBoundListener();
     }
@@ -717,7 +726,7 @@ void LLReqID::stamp(LLSD& response) const
     response["reqid"] = mReqid;
 }
 
-bool sendReply(const LLSD& reply, const LLSD& request, const std::string& replyKey)
+bool sendReply(LLSD reply, const LLSD& request, const std::string& replyKey)
 {
     // If the original request has no value for replyKey, it's pointless to
     // construct or send a reply event: on which LLEventPump should we send
@@ -730,13 +739,10 @@ bool sendReply(const LLSD& reply, const LLSD& request, const std::string& replyK
 
     // Here the request definitely contains replyKey; reasonable to proceed.
 
-    // Copy 'reply' to modify it.
-    LLSD newreply(reply);
     // Get the ["reqid"] element from request
     LLReqID reqID(request);
-    // and copy it to 'newreply'.
-    reqID.stamp(newreply);
-    // Send reply on LLEventPump named in request[replyKey]. Don't forget to
-    // send the modified 'newreply' instead of the original 'reply'.
-    return LLEventPumps::instance().obtain(request[replyKey]).post(newreply);
+    // and copy it to 'reply'.
+    reqID.stamp(reply);
+    // Send reply on LLEventPump named in request[replyKey].
+    return LLEventPumps::instance().obtain(request[replyKey]).post(reply);
 }

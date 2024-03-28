@@ -851,6 +851,8 @@ public:
                        ARGS&&... args);
     virtual ~LLDispatchListener() {}
 
+    std::string getPumpName() const { return getName(); }
+
 private:
     bool process(const LLSD& event) const;
     void call_one(const LLSD& name, const LLSD& event) const;
