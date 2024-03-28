@@ -153,6 +153,15 @@ float noise(vec2 x) {
 
 //=============================
 
+void debugExposure(inout vec3 color)
+{
+    float exp_scale = texture(exposureMap, vec2(0.5,0.5)).r;
+    exp_scale *= 0.5;
+    if (abs(vary_fragcoord.y-exp_scale) < 0.01 && vary_fragcoord.x < 0.1)
+    {
+        color = vec3(1,0,0);
+    }
+}
 
 vec3 legacyGamma(vec3 color)
 {
@@ -181,7 +190,8 @@ void main()
     vec3 seed = (diff.rgb+vec3(1.0))*vec3(tc.xy, tc.x+tc.y);
     vec3 nz = vec3(noise(seed.rg), noise(seed.gb), noise(seed.rb));
     diff.rgb += nz*0.003;
-    
+
+    //debugExposure(diff.rgb);
     frag_color = max(diff, vec4(0));
 }
 

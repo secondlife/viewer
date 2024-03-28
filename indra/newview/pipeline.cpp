@@ -6759,6 +6759,8 @@ void LLPipeline::generateLuminance(LLRenderTarget* src, LLRenderTarget* dst)
 
 		gLuminanceProgram.bind();
 
+        static LLCachedControl<F32> diffuse_luminance_scale(gSavedSettings, "RenderDiffuseLuminanceScale", 1.0f);
+
 		S32 channel = 0;
 		channel = gLuminanceProgram.enableTexture(LLShaderMgr::DEFERRED_DIFFUSE);
 		if (channel > -1)
@@ -6771,6 +6773,16 @@ void LLPipeline::generateLuminance(LLRenderTarget* src, LLRenderTarget* dst)
 		{
 			mGlow[1].bindTexture(0, channel);
 		}
+
+        channel = gLuminanceProgram.enableTexture(LLShaderMgr::DEFERRED_NORMAL);
+        if (channel > -1)
+        {
+            // bind the normal map to get the environment mask
+            mRT->deferredScreen.bindTexture(2, channel, LLTexUnit::TFO_POINT);
+        }
+
+        static LLStaticHashedString diffuse_luminance_scale_s("diffuse_luminance_scale");
+        gLuminanceProgram.uniform1f(diffuse_luminance_scale_s, diffuse_luminance_scale);
 
 		mScreenTriangleVB->setBuffer();
 		mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
