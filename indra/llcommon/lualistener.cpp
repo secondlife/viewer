@@ -108,7 +108,7 @@ LuaListener::PumpData LuaListener::getNext()
     {
         return mQueue.pop();
     }
-    catch (const LLThreadSafeQueueInterrupt& exc)
+    catch (const LLThreadSafeQueueInterrupt&)
     {
         // mQueue has been closed. The only way that happens is when we detect
         // viewer shutdown. Terminate the calling coroutine.
