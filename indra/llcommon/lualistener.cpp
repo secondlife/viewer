@@ -36,7 +36,24 @@ LuaListener::LuaListener(lua_State* L):
     mListener(new LLLeapListener(
         "LuaListener",
         [this](const std::string& pump, const LLSD& data)
-        { return queueEvent(pump, data); }))
+        { return queueEvent(pump, data); })),
+    // Listen for shutdown events on the "LLApp" LLEventPump.
+    mShutdownConnection(
+        LLEventPumps::instance().obtain("LLApp").listen(
+            LLEventPump::inventName("LuaState"),
+            [this](const LLSD& status)
+            {
+                LL_DEBUGS("LuaListener") << "caught " << status << LL_ENDL;
+                const auto& statsd = status["status"];
+                if (statsd.asString() != "running")
+                {
+                    // If a Lua script is still blocked in getNext() during
+                    // viewer shutdown, close the queue to wake up getNext().
+                    LL_DEBUGS("LuaListener") << "closing queue" << LL_ENDL;
+                    mQueue.close();
+                }
+                return false;
+            }))
 {}
 
 LuaListener::~LuaListener()
@@ -87,5 +104,15 @@ bool LuaListener::queueEvent(const std::string& pump, const LLSD& data)
 
 LuaListener::PumpData LuaListener::getNext()
 {
-    return mQueue.pop();
+    try
+    {
+        return mQueue.pop();
+    }
+    catch (const LLThreadSafeQueueInterrupt& exc)
+    {
+        // mQueue has been closed. The only way that happens is when we detect
+        // viewer shutdown. Terminate the calling coroutine.
+        LLCoros::checkStop();
+        return {};
+    }
 }

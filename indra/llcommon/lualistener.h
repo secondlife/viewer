@@ -12,6 +12,7 @@
 #if ! defined(LL_LUALISTENER_H)
 #define LL_LUALISTENER_H
 
+#include "llevents.h"
 #include "llinstancetracker.h"
 #include "llsd.h"
 #include "llthreadsafequeue.h"
@@ -73,6 +74,7 @@ private:
     LLThreadSafeQueue<PumpData> mQueue;
 
     std::unique_ptr<LLLeapListener> mListener;
+    LLTempBoundListener mShutdownConnection;
 };
 
 #endif /* ! defined(LL_LUALISTENER_H) */

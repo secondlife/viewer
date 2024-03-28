@@ -418,4 +418,25 @@ namespace tut
         auto [count, result] = future.get();
         ensure_equals("leap.lua: " + result.asString(), count, 0);
     }
+
+    template<> template<>
+    void object::test<7>()
+    {
+        set_test_name("stop hanging Lua script");
+        const std::string lua(
+            "-- hanging Lua script should terminate\n"
+            "\n"
+            "LL.get_event_next()\n"
+        );
+        LuaState L;
+        auto future = LLLUAmanager::startScriptLine(L, lua);
+        // The problem with this test is that the LuaState is destroyed
+        // (disconnecting the listener) before the LLTestApp instance mApp is
+        // destroyed (sending the shutdown event). Explicitly simulate LLApp's
+        // event.
+        LLEventPumps::instance().obtain("LLApp").post(llsd::map("status", "quitting"));
+        // but now we have to give the startScriptLine() coroutine a chance to run
+        auto [count, result] = future.get();
+        ensure_equals(result.asString(), count, 0);
+    }
 } // namespace tut
