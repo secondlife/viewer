@@ -571,8 +571,8 @@ void setControlValueCB(const LLCommandLineParser::token_vector_t& value,
                 std::string token(onevalue(option, value));
             
                 // There's a token. check the string for true/false/1/0 etc.
-                BOOL result = false;
-                BOOL gotSet = LLStringUtil::convertToBOOL(token, result);
+                bool result = false;
+                bool gotSet = LLStringUtil::convertToBOOL(token, result);
                 if (gotSet)
                 {
                     ctrl->setValue(LLSD(result), false);
@@ -657,12 +657,11 @@ void LLControlGroupCLP::configure(const std::string& config_filename, LLControlG
     // This method reads the llsd based config file, and uses it to set 
     // members of a control group.
     LLSD clpConfigLLSD;
-    
-    llifstream input_stream;
-    input_stream.open(config_filename.c_str(), std::ios::in | std::ios::binary);
 
-    if(input_stream.is_open())
+    std::string xml = gDirUtilp->getFileContents(config_filename);
+    if (!xml.empty())
     {
+        std::stringstream input_stream(xml);
         LLSDSerialize::fromXML(clpConfigLLSD, input_stream);
         for(LLSD::map_iterator option_itr = clpConfigLLSD.beginMap(); 
             option_itr != clpConfigLLSD.endMap(); 

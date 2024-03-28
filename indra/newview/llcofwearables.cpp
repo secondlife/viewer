@@ -69,7 +69,7 @@ protected:
 		// Hide the "Create new <WEARABLE_TYPE>" if it's irrelevant.
 		if (w_type == LLWearableType::WT_NONE)
 		{
-			menu_item->setVisible(FALSE);
+			menu_item->setVisible(false);
 			return;
 		}
 
@@ -307,7 +307,7 @@ LLCOFWearables::~LLCOFWearables()
 }
 
 // virtual
-BOOL LLCOFWearables::postBuild()
+bool LLCOFWearables::postBuild()
 {
 	mAttachments = getChild<LLFlatListView>("list_attachments");
 	mClothing = getChild<LLFlatListView>("list_clothing");

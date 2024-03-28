@@ -52,12 +52,12 @@ void LLFrameTimer::updateFrameTime()
 void LLFrameTimer::start()
 {
 	reset();
-	mStarted = TRUE;
+	mStarted = true;
 }
 
 void LLFrameTimer::stop()
 {
-	mStarted = FALSE;
+	mStarted = false;
 }
 
 void LLFrameTimer::reset()
@@ -84,14 +84,14 @@ void LLFrameTimer::pause()
 {
 	if (mStarted)
 		mStartTime = sFrameTime - mStartTime; // save dtime
-	mStarted = FALSE;
+	mStarted = false;
 }
 
 void LLFrameTimer::unpause()
 {
 	if (!mStarted)
 		mStartTime = sFrameTime - mStartTime; // restore dtime
-	mStarted = TRUE;
+	mStarted = true;
 }
 
 void LLFrameTimer::setTimerExpirySec(F32 expiration)
@@ -112,7 +112,7 @@ F64 LLFrameTimer::expiresAt() const
 	return expires_at;
 }
 
-BOOL LLFrameTimer::checkExpirationAndReset(F32 expiration)
+bool LLFrameTimer::checkExpirationAndReset(F32 expiration)
 {
 	//LL_INFOS() << "LLFrameTimer::checkExpirationAndReset()" << LL_ENDL;
 	//LL_INFOS() << "  mStartTime:" << mStartTime << LL_ENDL;
@@ -123,9 +123,9 @@ BOOL LLFrameTimer::checkExpirationAndReset(F32 expiration)
 	{
 		reset();
 		setTimerExpirySec(expiration);
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	return false;
 }
 
 // static

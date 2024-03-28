@@ -219,7 +219,7 @@ bool LLCheckBoxToastPanel::setCheckBox(const std::string& check_title,
     dialog_height += LINE_HEIGHT * lines.size();
     dialog_height += LINE_HEIGHT / 2;
 
-    LLToastPanel::reshape(dialog_width, dialog_height, FALSE);
+    LLToastPanel::reshape(dialog_width, dialog_height, false);
 
     S32 msg_x = (LLToastPanel::getRect().getWidth() - max_msg_width) / 2;
 
@@ -246,7 +246,7 @@ bool LLCheckBoxToastPanel::setCheckBox(const std::string& check_title,
 
 void LLCheckBoxToastPanel::onCommitCheckbox(LLUICtrl* ctrl)
 {
-    BOOL check = ctrl->getValue().asBoolean();
+    bool check = ctrl->getValue().asBoolean();
     if (mNotification->getForm()->getIgnoreType() == LLNotificationForm::IGNORE_SHOW_AGAIN)
     {
         // question was "show again" so invert value to get "ignore"

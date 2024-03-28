@@ -162,25 +162,25 @@ bool LLNotecard::importStream(std::istream& str)
 	if(str.fail())
 	{
 		LL_WARNS() << "Invalid Linden text file header " << LL_ENDL;
-		return FALSE;
+		return false;
 	}
 
 	if( 1 != mVersion && 2 != mVersion)
 	{
 		LL_WARNS() << "Invalid Linden text file version: " << mVersion << LL_ENDL;
-		return FALSE;
+		return false;
 	}
 
 	str >> std::ws >> "{\n";
 	if(str.fail())
 	{
 		LL_WARNS() << "Invalid Linden text file format" << LL_ENDL;
-		return FALSE;
+		return false;
 	}
 
 	if(!importEmbeddedItemsStream(str))
 	{
-		return FALSE;
+		return false;
 	}
 
 	char line_buf[STD_STRING_BUF_SIZE];	/* Flawfinder: ignore */
@@ -188,7 +188,7 @@ bool LLNotecard::importStream(std::istream& str)
 	if(str.fail())
 	{
 		LL_WARNS() << "Invalid Linden text length field" << LL_ENDL;
-		return FALSE;
+		return false;
 	}
 	line_buf[STD_STRING_STR_LEN] = '\0';
 	
@@ -196,23 +196,23 @@ bool LLNotecard::importStream(std::istream& str)
 	if( 1 != sscanf(line_buf, "Text length %d", &text_len) )
 	{
 		LL_WARNS() << "Invalid Linden text length field" << LL_ENDL;
-		return FALSE;
+		return false;
 	}
 
 	if(text_len > mMaxText || text_len < 0)
 	{
 		LL_WARNS() << "Invalid Linden text length: " << text_len << LL_ENDL;
-		return FALSE;
+		return false;
 	}
 
-	BOOL success = TRUE;
+	bool success = true;
 
 	char* text = new char[text_len + 1];
 	fullread(str, text, text_len);
 	if(str.fail())
 	{
 		LL_WARNS() << "Invalid Linden text: text shorter than text length: " << text_len << LL_ENDL;
-		success = FALSE;
+		success = false;
 	}
 	text[text_len] = '\0';
 
@@ -247,7 +247,7 @@ bool LLNotecard::exportEmbeddedItemsStream( std::ostream& out_stream )
 			out_stream << llformat("ext char index %d\n", idx  );
 			if( !item->exportLegacyStream( out_stream ) )
 			{
-				return FALSE;
+				return false;
 			}
 			out_stream << "}\n";
 		}
@@ -256,7 +256,7 @@ bool LLNotecard::exportEmbeddedItemsStream( std::ostream& out_stream )
 
 	out_stream << "}\n";
 	
-	return TRUE;
+	return true;
 }
 
 bool LLNotecard::exportStream( std::ostream& out_stream )
@@ -266,14 +266,14 @@ bool LLNotecard::exportStream( std::ostream& out_stream )
 
 	if( !exportEmbeddedItemsStream( out_stream ) )
 	{
-		return FALSE;
+		return false;
 	}
 
 	out_stream << llformat("Text length %d\n", mText.length() );
 	out_stream << mText;
 	out_stream << "}\n";
 
-	return TRUE;
+	return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////

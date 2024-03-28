@@ -60,7 +60,7 @@ public:
 #ifdef _DEBUG
 	// This function runs tests to make sure the crc is
 	// working. Returns TRUE if it is.
-	static BOOL testHarness();
+	static bool testHarness();
 #endif
 };
 

@@ -99,7 +99,7 @@ private:
 	void onBuyerNameCache(const LLAvatarName& av_name);
 
 public:
-	virtual BOOL postBuild();
+	virtual bool postBuild();
 	
 	bool setParcel(LLViewerRegion* region, LLParcelSelectionHandle parcel);
 	static bool callbackHighlightTransferable(const LLSD& notification, const LLSD& response);
@@ -165,7 +165,7 @@ void LLFloaterSellLandUI::SelectionObserver::changed()
 	}
 }
 
-BOOL LLFloaterSellLandUI::postBuild()
+bool LLFloaterSellLandUI::postBuild()
 {
 	childSetCommitCallback("sell_to", onChangeValue, this);
 	childSetCommitCallback("price", onChangeValue, this);
@@ -177,7 +177,7 @@ BOOL LLFloaterSellLandUI::postBuild()
 	childSetAction("show_objects", doShowObjects, this);
 	center();
 	getChild<LLUICtrl>("profile_scroll")->setTabStop(true);
-	return TRUE;
+	return true;
 }
 
 bool LLFloaterSellLandUI::setParcel(LLViewerRegion* region, LLParcelSelectionHandle parcel)
@@ -291,13 +291,13 @@ void LLFloaterSellLandUI::refreshUI()
 		F32 per_meter_price = 0;
 		per_meter_price = F32(mParcelPrice) / F32(mParcelActualArea);
 		getChild<LLUICtrl>("price_per_m")->setTextArg("[PER_METER]", llformat("%0.2f", per_meter_price));
-		getChildView("price_per_m")->setVisible(TRUE);
+		getChildView("price_per_m")->setVisible(true);
 
 		setBadge("step_price", BADGE_OK);
 	}
 	else
 	{
-		getChildView("price_per_m")->setVisible(FALSE);
+		getChildView("price_per_m")->setVisible(false);
 
 		if ("" == price_str)
 		{
@@ -312,8 +312,8 @@ void LLFloaterSellLandUI::refreshUI()
 	if (mSellToBuyer)
 	{
 		getChild<LLUICtrl>("sell_to")->setValue("user");
-		getChildView("sell_to_agent")->setVisible(TRUE);
-		getChildView("sell_to_select_agent")->setVisible(TRUE);
+		getChildView("sell_to_agent")->setVisible(true);
+		getChildView("sell_to_select_agent")->setVisible(true);
 	}
 	else
 	{
@@ -325,8 +325,8 @@ void LLFloaterSellLandUI::refreshUI()
 		{
 			getChild<LLUICtrl>("sell_to")->setValue("select");
 		}
-		getChildView("sell_to_agent")->setVisible(FALSE);
-		getChildView("sell_to_select_agent")->setVisible(FALSE);
+		getChildView("sell_to_agent")->setVisible(false);
+		getChildView("sell_to_select_agent")->setVisible(false);
 	}
 
 	// Must select Sell To: Anybody, or User (with a specified username)
@@ -356,11 +356,11 @@ void LLFloaterSellLandUI::refreshUI()
 
 	if (valid_sell_to && valid_price && valid_sell_objects)
 	{
-		getChildView("sell_btn")->setEnabled(TRUE);
+		getChildView("sell_btn")->setEnabled(true);
 	}
 	else
 	{
-		getChildView("sell_btn")->setEnabled(FALSE);
+		getChildView("sell_btn")->setEnabled(false);
 	}
 }
 
@@ -403,7 +403,7 @@ void LLFloaterSellLandUI::onChangeValue(LLUICtrl *ctrl, void *userdata)
 void LLFloaterSellLandUI::doSelectAgent()
 {
     LLView * button = findChild<LLView>("sell_to_select_agent");
-	LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(boost::bind(&LLFloaterSellLandUI::callbackAvatarPick, this, _1, _2), FALSE, TRUE, FALSE, this->getName(), button);
+	LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(boost::bind(&LLFloaterSellLandUI::callbackAvatarPick, this, _1, _2), false, true, false, this->getName(), button);
 	// grandparent is a floater, in order to set up dependency
 	if (picker)
 	{
@@ -537,7 +537,7 @@ bool LLFloaterSellLandUI::onConfirmSale(const LLSD& notification, const LLSD& re
 // 		return;
 // 	}
 
-	parcel->setParcelFlag(PF_FOR_SALE, TRUE);
+	parcel->setParcelFlag(PF_FOR_SALE, true);
 	parcel->setSalePrice(sale_price);
 	bool sell_with_objects = false;
 	if ("yes" == getChild<LLUICtrl>("sell_objects")->getValue().asString())

@@ -37,12 +37,12 @@ class LLVersion
 {
 public:
 	LLVersion();
-	BOOL set(const std::string &version_string);
+	bool set(const std::string &version_string);
 	S32 getField(const S32 field_num);
 protected:
 	std::string mVersionString;
 	S32 mFields[4];
-	BOOL mValid;
+	bool mValid;
 };
 
 class LLDXDriverFile
@@ -84,9 +84,9 @@ public:
 	void setWriteDebugFunc(void (*func)(const char*));
 	void cleanup();
 
-	// Returns TRUE on success.
-	// vram_only TRUE does a "light" probe.
-	BOOL getInfo(BOOL vram_only);
+	// Returns true on success.
+	// vram_only true does a "light" probe.
+	bool getInfo(bool vram_only);
 
     // WMI can return multiple GPU drivers
     // specify which one to output

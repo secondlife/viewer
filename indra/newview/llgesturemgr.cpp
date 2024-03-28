@@ -62,7 +62,7 @@ const F32 MAX_WAIT_ANIM_SECS = 30.f;
 // Lightweight constructor.
 // init() does the heavy lifting.
 LLGestureMgr::LLGestureMgr()
-:	mValid(FALSE),
+:	mValid(false),
 	mPlaying(),
 	mActive(),
 	mLoadingCount(0)
@@ -142,8 +142,8 @@ void LLGestureMgr::activateGesture(const LLUUID& item_id)
 	mLoadingCount = 1;
 	mDeactivateSimilarNames.clear();
 
-	const BOOL inform_server = TRUE;
-	const BOOL deactivate_similar = FALSE; 
+	const bool inform_server = true;
+	const bool deactivate_similar = false; 
 	activateGestureWithAsset(item_id, asset_id, inform_server, deactivate_similar);
 }
 
@@ -182,8 +182,8 @@ void LLGestureMgr::activateGestures(LLViewerInventoryItem::item_array_t& items)
 		}
 
 		// Don't inform server, we'll do that in bulk
-		const BOOL no_inform_server = FALSE;
-		const BOOL deactivate_similar = TRUE;
+		const bool no_inform_server = false;
+		const bool deactivate_similar = true;
 		activateGestureWithAsset(item->getUUID(), item->getAssetUUID(),
 								 no_inform_server,
 								 deactivate_similar);
@@ -192,7 +192,7 @@ void LLGestureMgr::activateGestures(LLViewerInventoryItem::item_array_t& items)
 	// Inform the database of this change
 	LLMessageSystem* msg = gMessageSystem;
 
-	BOOL start_message = TRUE;
+	bool start_message = true;
 
 	for (it = items.begin(); it != items.end(); ++it)
 	{
@@ -210,7 +210,7 @@ void LLGestureMgr::activateGestures(LLViewerInventoryItem::item_array_t& items)
 			msg->addUUID("AgentID", gAgent.getID());
 			msg->addUUID("SessionID", gAgent.getSessionID());
 			msg->addU32("Flags", 0x0);
-			start_message = FALSE;
+			start_message = false;
 		}
 		
 		msg->nextBlock("Data");
@@ -221,7 +221,7 @@ void LLGestureMgr::activateGestures(LLViewerInventoryItem::item_array_t& items)
 		if (msg->getCurrentSendTotal() > MTUBYTES)
 		{
 			gAgent.sendReliableMessage();
-			start_message = TRUE;
+			start_message = true;
 		}
 	}
 
@@ -235,8 +235,8 @@ void LLGestureMgr::activateGestures(LLViewerInventoryItem::item_array_t& items)
 struct LLLoadInfo
 {
 	LLUUID mItemID;
-	BOOL mInformServer;
-	BOOL mDeactivateSimilar;
+	bool mInformServer;
+	bool mDeactivateSimilar;
 };
 
 // If inform_server is true, will send a message upstream to update
@@ -246,8 +246,8 @@ struct LLLoadInfo
  */
 void LLGestureMgr::activateGestureWithAsset(const LLUUID& item_id,
 												const LLUUID& asset_id,
-												BOOL inform_server,
-												BOOL deactivate_similar)
+												bool inform_server,
+												bool deactivate_similar)
 {
 	const LLUUID& base_item_id = gInventory.getLinkedItemID(item_id);
 
@@ -281,7 +281,7 @@ void LLGestureMgr::activateGestureWithAsset(const LLUUID& item_id,
 		info->mInformServer = inform_server;
 		info->mDeactivateSimilar = deactivate_similar;
 
-		const BOOL high_priority = TRUE;
+		const bool high_priority = true;
 		gAssetStorage->getAssetData(asset_id,
 									LLAssetType::AT_GESTURE,
 									onLoadComplete,
@@ -388,7 +388,7 @@ void LLGestureMgr::deactivateSimilarGestures(LLMultiGesture* in, const LLUUID& i
 
 	// Inform database of the change
 	LLMessageSystem* msg = gMessageSystem;
-	BOOL start_message = TRUE;
+	bool start_message = true;
 	uuid_vec_t::const_iterator vit = gest_item_ids.begin();
 	while (vit != gest_item_ids.end())
 	{
@@ -399,7 +399,7 @@ void LLGestureMgr::deactivateSimilarGestures(LLMultiGesture* in, const LLUUID& i
 			msg->addUUID("AgentID", gAgent.getID());
 			msg->addUUID("SessionID", gAgent.getSessionID());
 			msg->addU32("Flags", 0x0);
-			start_message = FALSE;
+			start_message = false;
 		}
 	
 		msg->nextBlock("Data");
@@ -409,7 +409,7 @@ void LLGestureMgr::deactivateSimilarGestures(LLMultiGesture* in, const LLUUID& i
 		if (msg->getCurrentSendTotal() > MTUBYTES)
 		{
 			gAgent.sendReliableMessage();
-			start_message = TRUE;
+			start_message = true;
 		}
 
 		++vit;
@@ -434,7 +434,7 @@ void LLGestureMgr::deactivateSimilarGestures(LLMultiGesture* in, const LLUUID& i
 }
 
 
-BOOL LLGestureMgr::isGestureActive(const LLUUID& item_id)
+bool LLGestureMgr::isGestureActive(const LLUUID& item_id)
 {
 	const LLUUID& base_item_id = gInventory.getLinkedItemID(item_id);
 	item_map_t::iterator it = mActive.find(base_item_id);
@@ -442,24 +442,24 @@ BOOL LLGestureMgr::isGestureActive(const LLUUID& item_id)
 }
 
 
-BOOL LLGestureMgr::isGesturePlaying(const LLUUID& item_id)
+bool LLGestureMgr::isGesturePlaying(const LLUUID& item_id)
 {
 	const LLUUID& base_item_id = gInventory.getLinkedItemID(item_id);
 
 	item_map_t::iterator it = mActive.find(base_item_id);
-	if (it == mActive.end()) return FALSE;
+	if (it == mActive.end()) return false;
 
 	LLMultiGesture* gesture = (*it).second;
-	if (!gesture) return FALSE;
+	if (!gesture) return false;
 
 	return gesture->mPlaying;
 }
 
-BOOL LLGestureMgr::isGesturePlaying(LLMultiGesture* gesture)
+bool LLGestureMgr::isGesturePlaying(LLMultiGesture* gesture)
 {
 	if(!gesture)
 	{
-		return FALSE;
+		return false;
 	}
 
 	return gesture->mPlaying;
@@ -498,10 +498,10 @@ void LLGestureMgr::replaceGesture(const LLUUID& item_id, LLMultiGesture* new_ges
 
 		LLLoadInfo* info = new LLLoadInfo;
 		info->mItemID = base_item_id;
-		info->mInformServer = TRUE;
-		info->mDeactivateSimilar = FALSE;
+		info->mInformServer = true;
+		info->mDeactivateSimilar = false;
 
-		const BOOL high_priority = TRUE;
+		const bool high_priority = true;
 		gAssetStorage->getAssetData(asset_id,
 									LLAssetType::AT_GESTURE,
 									onLoadComplete,
@@ -536,7 +536,7 @@ void LLGestureMgr::playGesture(LLMultiGesture* gesture)
 	gesture->mCurrentStep = 0;
 
 	// Add to list of playing
-	gesture->mPlaying = TRUE;
+	gesture->mPlaying = true;
 	mPlaying.push_back(gesture);
 
 	// Load all needed assets to minimize the delays
@@ -565,7 +565,7 @@ void LLGestureMgr::playGesture(LLMultiGesture* gesture)
 									LLAssetType::AT_ANIMATION,
 									onAssetLoadComplete,
 									(void *)id,
-									TRUE);
+									true);
 				}
 				break;
 			}
@@ -582,7 +582,7 @@ void LLGestureMgr::playGesture(LLMultiGesture* gesture)
 									LLAssetType::AT_SOUND,
 									onAssetLoadComplete,
 									NULL,
-									TRUE);
+									true);
 				}
 				break;
 			}
@@ -624,12 +624,12 @@ void LLGestureMgr::playGesture(const LLUUID& item_id)
 // Iterates through space delimited tokens in string, triggering any gestures found.
 // Generates a revised string that has the found tokens replaced by their replacement strings
 // and (as a minor side effect) has multiple spaces in a row replaced by single spaces.
-BOOL LLGestureMgr::triggerAndReviseString(const std::string &utf8str, std::string* revised_string)
+bool LLGestureMgr::triggerAndReviseString(const std::string &utf8str, std::string* revised_string)
 {
 	std::string tokenized = utf8str;
 
-	BOOL found_gestures = FALSE;
-	BOOL first_token = TRUE;
+	bool found_gestures = false;
+	bool first_token = true;
 
 	typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
 	boost::char_separator<char> sep(" ");
@@ -693,7 +693,7 @@ BOOL LLGestureMgr::triggerAndReviseString(const std::string &utf8str, std::strin
 								revised_string->append( gesture->mReplaceText );
 						}
 					}
-					found_gestures = TRUE;
+					found_gestures = true;
 				}
 			}
 		}
@@ -710,14 +710,14 @@ BOOL LLGestureMgr::triggerAndReviseString(const std::string &utf8str, std::strin
 				revised_string->append( cur_token );
 		}
 
-		first_token = FALSE;
+		first_token = false;
 		gesture = NULL;
 	}
 	return found_gestures;
 }
 
 
-BOOL LLGestureMgr::triggerGesture(KEY key, MASK mask)
+bool LLGestureMgr::triggerGesture(KEY key, MASK mask)
 {
 	std::vector <LLMultiGesture *> matching;
 	item_map_t::iterator it;
@@ -745,9 +745,9 @@ BOOL LLGestureMgr::triggerGesture(KEY key, MASK mask)
 		LLMultiGesture* gesture = matching[random];
 			
 		playGesture(gesture);
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	return false;
 }
 
 
@@ -860,7 +860,7 @@ void LLGestureMgr::stepGesture(LLMultiGesture* gesture)
 	}
 
 	// Run the current steps
-	BOOL waiting = FALSE;
+	bool waiting = false;
 	while (!waiting && gesture->mPlaying)
 	{
 		// Get the current step, if there is one.
@@ -874,7 +874,7 @@ void LLGestureMgr::stepGesture(LLMultiGesture* gesture)
 		else
 		{
 			// step stays null, we're off the end
-			gesture->mWaitingAtEnd = TRUE;
+			gesture->mWaitingAtEnd = true;
 		}
 
 
@@ -889,12 +889,12 @@ void LLGestureMgr::stepGesture(LLMultiGesture* gesture)
 				&& gesture->mPlayingAnimIDs.empty()))
 			{
 				// all animations are done playing
-				gesture->mWaitingAtEnd = FALSE;
-				gesture->mPlaying = FALSE;
+				gesture->mWaitingAtEnd = false;
+				gesture->mPlaying = false;
 			}
 			else
 			{
-				waiting = TRUE;
+				waiting = true;
 			}
 			continue;
 		}
@@ -909,7 +909,7 @@ void LLGestureMgr::stepGesture(LLMultiGesture* gesture)
 				&& gesture->mPlayingAnimIDs.empty()))
 			{
 				// all animations are done playing
-				gesture->mWaitingAnimations = FALSE;
+				gesture->mWaitingAnimations = false;
 				gesture->mCurrentStep++;
 			}
 			else if (gesture->mWaitTimer.getElapsedTimeF32() > MAX_WAIT_ANIM_SECS)
@@ -917,12 +917,12 @@ void LLGestureMgr::stepGesture(LLMultiGesture* gesture)
 				// we've waited too long for an animation
 				LL_INFOS("GestureMgr") << "Waited too long for animations to stop, continuing gesture."
 					<< LL_ENDL;
-				gesture->mWaitingAnimations = FALSE;
+				gesture->mWaitingAnimations = false;
 				gesture->mCurrentStep++;
 			}
 			else
 			{
-				waiting = TRUE;
+				waiting = true;
 			}
 			continue;
 		}
@@ -938,13 +938,13 @@ void LLGestureMgr::stepGesture(LLMultiGesture* gesture)
 			if (elapsed > wait_step->mWaitSeconds)
 			{
 				// wait is done, continue execution
-				gesture->mWaitingTimer = FALSE;
+				gesture->mWaitingTimer = false;
 				gesture->mCurrentStep++;
 			}
 			else
 			{
 				// we're waiting, so execution is done for now
-				waiting = TRUE;
+				waiting = true;
 			}
 			continue;
 		}
@@ -1004,7 +1004,7 @@ void LLGestureMgr::runStep(LLMultiGesture* gesture, LLGestureStep* step)
 			// Don't animate the nodding, as this might not blend with
 			// other playing animations.
 
-			const BOOL animate = FALSE;
+			const bool animate = false;
 
 			(LLFloaterReg::getTypedInstance<LLFloaterIMNearbyChat>("nearby_chat"))->
 					sendChatFromViewer(chat_text, CHAT_TYPE_NORMAL, animate);
@@ -1017,12 +1017,12 @@ void LLGestureMgr::runStep(LLMultiGesture* gesture, LLGestureStep* step)
 			LLGestureStepWait* wait_step = (LLGestureStepWait*)step;
 			if (wait_step->mFlags & WAIT_FLAG_TIME)
 			{
-				gesture->mWaitingTimer = TRUE;
+				gesture->mWaitingTimer = true;
 				gesture->mWaitTimer.reset();
 			}
 			else if (wait_step->mFlags & WAIT_FLAG_ALL_ANIM)
 			{
-				gesture->mWaitingAnimations = TRUE;
+				gesture->mWaitingAnimations = true;
 				// Use the wait timer as a deadlock breaker for animation
 				// waits.
 				gesture->mWaitTimer.reset();
@@ -1050,8 +1050,8 @@ void LLGestureMgr::onLoadComplete(const LLUUID& asset_uuid,
 	LLLoadInfo* info = (LLLoadInfo*)user_data;
 
 	LLUUID item_id = info->mItemID;
-	BOOL inform_server = info->mInformServer;
-	BOOL deactivate_similar = info->mDeactivateSimilar;
+	bool inform_server = info->mInformServer;
+	bool deactivate_similar = info->mDeactivateSimilar;
 
 	delete info;
 	info = NULL;
@@ -1072,7 +1072,7 @@ void LLGestureMgr::onLoadComplete(const LLUUID& asset_uuid,
 		LLMultiGesture* gesture = new LLMultiGesture();
 
 		LLDataPackerAsciiBuffer dp(&buffer[0], size+1);
-		BOOL ok = gesture->deserialize(dp);
+		bool ok = gesture->deserialize(dp);
 
 		if (ok)
 		{
@@ -1395,7 +1395,7 @@ void LLGestureMgr::notifyObservers()
 	}
 }
 
-BOOL LLGestureMgr::matchPrefix(const std::string& in_str, std::string* out_str)
+bool LLGestureMgr::matchPrefix(const std::string& in_str, std::string* out_str)
 {
 	S32 in_len = in_str.length();
 
@@ -1410,7 +1410,7 @@ BOOL LLGestureMgr::matchPrefix(const std::string& in_str, std::string* out_str)
 			if (!LLStringUtil::compareInsensitive(in_str, trigger))
 			{
 				*out_str = trigger;
-				return TRUE;
+				return true;
 			}
 		}
 	}
@@ -1461,7 +1461,7 @@ BOOL LLGestureMgr::matchPrefix(const std::string& in_str, std::string* out_str)
 				}
 				if (rest_of_match.compare("") == 0)
 				{
-					return TRUE;
+					return true;
 				}
 				if (buf.compare("") != 0)
 				{
@@ -1475,10 +1475,10 @@ BOOL LLGestureMgr::matchPrefix(const std::string& in_str, std::string* out_str)
 	if (rest_of_match.compare("") != 0)
 	{
 		*out_str = in_str+rest_of_match;
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 

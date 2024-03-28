@@ -60,7 +60,7 @@ public:
 
     void refreshExperience(const LLSD& experience);
     void onSaveComplete( const LLSD& content );
-    virtual BOOL canClose();
+    virtual bool canClose();
 
     virtual void onClose(bool app_quitting);
 protected:
@@ -87,7 +87,7 @@ protected:
     static void experienceCallback(LLHandle<LLFloaterExperienceProfile> handle, const LLSD& experience);
     static bool experiencePermission(LLHandle<LLFloaterExperienceProfile> handle, const LLSD& permission);
 
-    BOOL postBuild();
+    bool postBuild();
     bool setMaturityString(U8 maturity, LLTextBox* child, LLComboBox* combo);
     bool handleSaveChangesDialog(const LLSD& notification, const LLSD& response, PostSaveAction action);
     void doSave( int success_action );

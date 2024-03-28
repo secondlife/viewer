@@ -36,8 +36,8 @@
 #include "llenvironment.h"
 #include "llstartup.h"
 
-extern BOOL gCubeSnapshot;
-extern BOOL gTeleportDisplay;
+extern bool gCubeSnapshot;
+extern bool gTeleportDisplay;
 
 static U32 sUpdateCount = 0;
 
@@ -463,17 +463,22 @@ void LLReflectionMapManager::getReflectionMaps(std::vector<LLReflectionMap*>& ma
 
 LLReflectionMap* LLReflectionMapManager::registerSpatialGroup(LLSpatialGroup* group)
 {
-    if (group->getSpatialPartition()->mPartitionType == LLViewerRegion::PARTITION_VOLUME)
+    if (!group)
     {
-        OctreeNode* node = group->getOctreeNode();
-        F32 size = node->getSize().getF32ptr()[0];
-        if (size >= 15.f && size <= 17.f)
-        {
-            return addProbe(group);
-        }
+        return nullptr;
     }
-
-    return nullptr;
+    LLSpatialPartition* part = group->getSpatialPartition();
+    if (!part || part->mPartitionType != LLViewerRegion::PARTITION_VOLUME)
+    {
+        return nullptr;
+    }
+    OctreeNode* node = group->getOctreeNode();
+    F32 size = node->getSize().getF32ptr()[0];
+    if (size < 15.f || size > 17.f)
+    {
+        return nullptr;
+    }
+    return addProbe(group);
 }
 
 LLReflectionMap* LLReflectionMapManager::registerViewerObject(LLViewerObject* vobj)
@@ -1277,7 +1282,7 @@ void LLReflectionMapManager::initReflectionMaps()
             mTexture->allocate(mProbeResolution, 3, mReflectionProbeCount + 2);
 
             mIrradianceMaps = new LLCubeMapArray();
-            mIrradianceMaps->allocate(LL_IRRADIANCE_MAP_RESOLUTION, 3, mReflectionProbeCount, FALSE);
+            mIrradianceMaps->allocate(LL_IRRADIANCE_MAP_RESOLUTION, 3, mReflectionProbeCount, false);
         }
 
         // reset probe state

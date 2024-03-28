@@ -34,7 +34,7 @@ class LLFloaterNewFeatureNotification:
 {
     friend class LLFloaterReg;
 public:
-    BOOL postBuild() override;
+    bool postBuild() override;
     void onOpen(const LLSD& key) override;
 
 private:

@@ -107,7 +107,7 @@ LLCubeMapArray::~LLCubeMapArray()
 {
 }
 
-void LLCubeMapArray::allocate(U32 resolution, U32 components, U32 count, BOOL use_mips)
+void LLCubeMapArray::allocate(U32 resolution, U32 components, U32 count, bool use_mips)
 {
     U32 texname = 0;
     mWidth = resolution;

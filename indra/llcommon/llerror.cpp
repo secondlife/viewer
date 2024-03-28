@@ -700,7 +700,7 @@ namespace
     bool shouldLogToStderr()
     {
 #if LL_DARWIN
-        // On Mac OS X, stderr from apps launched from the Finder goes to the
+        // On macOS, stderr from apps launched from the Finder goes to the
         // console log.  It's generally considered bad form to spam too much
         // there. That scenario can be detected by noticing that stderr is a
         // character device (S_IFCHR).

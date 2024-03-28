@@ -214,7 +214,7 @@ LLOSInfo::LLOSInfo() :
 		DWORD cbData(sizeof(DWORD));
 		DWORD data(0);
 		HKEY key;
-		BOOL ret_code = RegOpenKeyExW(HKEY_LOCAL_MACHINE, TEXT("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion"), 0, KEY_READ, &key);
+        LSTATUS ret_code = RegOpenKeyExW(HKEY_LOCAL_MACHINE, TEXT("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion"), 0, KEY_READ, &key);
 		if (ERROR_SUCCESS == ret_code)
 		{
 			ret_code = RegQueryValueExW(key, L"UBR", 0, NULL, reinterpret_cast<LPBYTE>(&data), &cbData);
@@ -269,9 +269,9 @@ LLOSInfo::LLOSInfo() :
 #elif LL_DARWIN
 	
 	// Initialize mOSStringSimple to something like:
-	// "Mac OS X 10.6.7"
+	// "macOS 10.13.1"
 	{
-		const char * DARWIN_PRODUCT_NAME = "Mac OS X";
+		const char * DARWIN_PRODUCT_NAME = "macOS";
 		
 		int64_t major_version, minor_version, bugfix_version = 0;
 
@@ -294,7 +294,7 @@ LLOSInfo::LLOSInfo() :
 	}
 	
 	// Initialize mOSString to something like:
-	// "Mac OS X 10.6.7 Darwin Kernel Version 10.7.0: Sat Jan 29 15:17:16 PST 2011; root:xnu-1504.9.37~1/RELEASE_I386 i386"
+	// "macOS 10.13.1 Darwin Kernel Version 10.7.0: Sat Jan 29 15:17:16 PST 2011; root:xnu-1504.9.37~1/RELEASE_I386 i386"
 	struct utsname un;
 	if(uname(&un) != -1)
 	{		
@@ -571,7 +571,7 @@ bool LLOSInfo::is64Bit()
     return true;
 #elif defined(_WIN32)
     // 32-bit viewer may be run on both 32-bit and 64-bit Windows, need to elaborate
-    BOOL f64 = FALSE;
+    bool f64 = false;
     return IsWow64Process(GetCurrentProcess(), &f64) && f64;
 #else
     return false;
@@ -1321,11 +1321,11 @@ private:
 // Need an instance of FrameWatcher before it does any good
 static FrameWatcher sFrameWatcher;
 
-BOOL gunzip_file(const std::string& srcfile, const std::string& dstfile)
+bool gunzip_file(const std::string& srcfile, const std::string& dstfile)
 {
 	std::string tmpfile;
 	const S32 UNCOMPRESS_BUFFER_SIZE = 32768;
-	BOOL retval = FALSE;
+	bool retval = false;
 	gzFile src = NULL;
 	U8 buffer[UNCOMPRESS_BUFFER_SIZE];
 	LLFILE *dst = NULL;
@@ -1353,18 +1353,18 @@ BOOL gunzip_file(const std::string& srcfile, const std::string& dstfile)
 	fclose(dst); 
 	dst = NULL;	
 	if (LLFile::rename(tmpfile, dstfile) == -1) goto err;		/* Flawfinder: ignore */
-	retval = TRUE;
+	retval = true;
 err:
 	if (src != NULL) gzclose(src);
 	if (dst != NULL) fclose(dst);
 	return retval;
 }
 
-BOOL gzip_file(const std::string& srcfile, const std::string& dstfile)
+bool gzip_file(const std::string& srcfile, const std::string& dstfile)
 {
 	const S32 COMPRESS_BUFFER_SIZE = 32768;
 	std::string tmpfile;
-	BOOL retval = FALSE;
+	bool retval = false;
 	U8 buffer[COMPRESS_BUFFER_SIZE];
 	gzFile dst = NULL;
 	LLFILE *src = NULL;
@@ -1404,7 +1404,7 @@ BOOL gzip_file(const std::string& srcfile, const std::string& dstfile)
 	LLFile::remove(dstfile);
 #endif
 	if (LLFile::rename(tmpfile, dstfile) == -1) goto err;		/* Flawfinder: ignore */
-	retval = TRUE;
+	retval = true;
  err:
 	if (src != NULL) fclose(src);
 	if (dst != NULL) gzclose(dst);

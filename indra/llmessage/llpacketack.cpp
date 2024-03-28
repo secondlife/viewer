@@ -58,7 +58,7 @@ LLReliablePacket::LLReliablePacket(
 	else
 	{
 		mRetries = 0;
-		mPingBasedRetry = TRUE;
+		mPingBasedRetry = true;
 		mTimeout = F32Seconds(0.f);
 		mCallback = NULL;
 		mCallbackData = NULL;

@@ -128,6 +128,42 @@
      Avatar
   </text>
 
+    <text
+      type="string"
+      length="1"
+      follows="left|top"
+      height="16"
+      layout="topleft"
+      left="30"
+      top_delta="16"
+      width="128"
+      name="AvatarComplexityModeLabel"
+      text_readonly_color="LabelDisabledColor">
+        Avatar display:
+    </text>
+
+    <combo_box
+     control_name="RenderAvatarComplexityMode"
+     height="18"
+     layout="topleft"
+     left_delta="130"
+     top_delta="0"
+     name="AvatarComplexityMode"
+     width="150">
+        <combo_box.item
+          label="Limit by complexity"
+          name="0"
+          value="0"/>
+        <combo_box.item
+          label="Always show friends"
+          name="1"
+          value="1"/>
+        <combo_box.item
+          label="Only show friends"
+          name="2"
+          value="2"/>
+    </combo_box>
+
   <slider
     control_name="IndirectMaxComplexity"
     tool_tip="Controls at what point a visually complex avatar is drawn as a JellyDoll"

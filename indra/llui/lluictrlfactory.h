@@ -148,7 +148,7 @@ public:
 	LLView* createFromXML(LLXMLNodePtr node, LLView* parent, const std::string& filename, const widget_registry_t&, LLXMLNodePtr output_node );
 
 	template<typename T>
-	static T* createFromFile(const std::string &filename, LLView *parent, const widget_registry_t& registry)
+	static T* createFromFile(const std::string &filename, LLView *parent, const widget_registry_t& registry, bool cacheable = false)
 	{
 		T* widget = NULL;
 
@@ -156,7 +156,7 @@ public:
 		{
 			LLXMLNodePtr root_node;
 
-			if (!LLUICtrlFactory::getLayeredXMLNode(filename, root_node))
+			if (!LLUICtrlFactory::getLayeredXMLNode(filename, root_node, LLDir::CURRENT_SKIN, cacheable))
 			{
                 LL_WARNS() << "Couldn't parse XUI from path: " << instance().getCurFileName() << ", from filename: " << filename << LL_ENDL;
 				goto fail;
@@ -192,7 +192,7 @@ fail:
 	static void createChildren(LLView* viewp, LLXMLNodePtr node, const widget_registry_t&, LLXMLNodePtr output_node = NULL);
 
 	static bool getLayeredXMLNode(const std::string &filename, LLXMLNodePtr& root,
-								  LLDir::ESkinConstraint constraint=LLDir::CURRENT_SKIN);
+								  LLDir::ESkinConstraint constraint = LLDir::CURRENT_SKIN, bool cacheable = false);
 
 private:
 	//NOTE: both friend declarations are necessary to keep both gcc and msvc happy

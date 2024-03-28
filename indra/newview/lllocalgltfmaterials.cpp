@@ -301,11 +301,11 @@ bool LLLocalGLTFMaterialTimer::isRunning()
     return mEventTimer.getStarted();
 }
 
-BOOL LLLocalGLTFMaterialTimer::tick()
+bool LLLocalGLTFMaterialTimer::tick()
 {
     // todo: do on idle? No point in timer 
     LLLocalGLTFMaterialMgr::getInstance()->doUpdates();
-    return FALSE;
+    return false;
 }
 
 /*=======================================*/

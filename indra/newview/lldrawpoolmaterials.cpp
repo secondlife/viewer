@@ -260,7 +260,7 @@ void LLDrawPoolMaterials::renderDeferred(S32 pass)
 
                 mShader->uniformMatrix3x4fv(LLViewerShaderMgr::AVATAR_MATRIX,
                     count,
-                    FALSE,
+                    false,
                     (GLfloat*)&(mpc.mGLMp[0]));
             }
         }

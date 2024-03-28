@@ -153,7 +153,7 @@ void handleInventoryDisplayInboxChanged()
 	}
 }
 
-BOOL LLSidepanelInventory::postBuild()
+bool LLSidepanelInventory::postBuild()
 {
 	// UI elements from inventory panel
 	{
@@ -223,7 +223,7 @@ BOOL LLSidepanelInventory::postBuild()
         initInventoryViews();
     }
 
-	return TRUE;
+	return true;
 }
 
 void LLSidepanelInventory::updateInbox()
@@ -428,14 +428,14 @@ void LLSidepanelInventory::onBackButtonClicked()
 	showInventoryPanel();
 }
 
-void LLSidepanelInventory::onSelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action)
+void LLSidepanelInventory::onSelectionChange(const std::deque<LLFolderViewItem*> &items, bool user_action)
 {
 
 }
 
 void LLSidepanelInventory::showInventoryPanel()
 {
-	mInventoryPanel->setVisible(TRUE);
+	mInventoryPanel->setVisible(true);
 }
 
 void LLSidepanelInventory::initInventoryViews()
@@ -546,7 +546,7 @@ void LLSidepanelInventory::selectAllItemsPanel()
 
 }
 
-BOOL LLSidepanelInventory::isMainInventoryPanelActive() const
+bool LLSidepanelInventory::isMainInventoryPanelActive() const
 {
 	return mInventoryPanel->getVisible();
 }

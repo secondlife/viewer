@@ -27,7 +27,7 @@
 #include "llvolumeoctree.h"
 #include "llvector4a.h"
 
-BOOL LLLineSegmentBoxIntersect(const LLVector4a& start, const LLVector4a& end, const LLVector4a& center, const LLVector4a& size)
+bool LLLineSegmentBoxIntersect(const LLVector4a& start, const LLVector4a& end, const LLVector4a& center, const LLVector4a& size)
 {
 	LLVector4a fAWdU;
 	LLVector4a dir;

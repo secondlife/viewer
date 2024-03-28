@@ -78,8 +78,8 @@ LLControlVariable* LLControlGroup::declareString(const std::string& name,
                                    const std::string& initial_val,
                                    const std::string& comment,
                                    LLControlVariable::ePersist persist) {return NULL;}
-void LLControlGroup::setString(const std::string& name, const std::string& val){}
-std::string LLControlGroup::getString(const std::string& name)
+void LLControlGroup::setString(std::string_view name, const std::string& val){}
+std::string LLControlGroup::getString(std::string_view name)
 {
 
 	if (name == "FirstName")
@@ -90,7 +90,7 @@ std::string LLControlGroup::getString(const std::string& name)
 }
 
 // Stub for --no-verify-ssl-cert
-BOOL LLControlGroup::getBOOL(const std::string& name) { return FALSE; }
+bool LLControlGroup::getBOOL(std::string_view name) { return false; }
 
 LLSD LLCredential::getLoginParams()
 {
@@ -964,7 +964,7 @@ namespace tut
 		// test creation of credentials		
 		my_cred = handler->createCredential("mysavedgrid", my_id, my_authenticator);
 		// test save without saving authenticator. 		
-		handler->saveCredential(my_cred, FALSE);
+		handler->saveCredential(my_cred, false);
 		my_new_cred = handler->loadCredential("mysavedgrid");	
 		ensure_equals("saved credential without auth", 
 					  (const std::string)my_new_cred->getIdentifier()["type"], "test_type");

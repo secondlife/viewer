@@ -131,14 +131,14 @@ namespace LLPerfStats
 
         if(gSavedSettings.getBOOL("AutoTuneLock") && !gSavedSettings.getU32("KeepAutoTuneLock"))
         {
-            gSavedSettings.setBOOL("AutoTuneLock", FALSE);
+            gSavedSettings.setBOOL("AutoTuneLock", false);
         }
 
         LLPerfStats::tunables.userAutoTuneEnabled = LLPerfStats::tunables.userAutoTuneLock;
 
         if (LLPerfStats::tunables.userAutoTuneEnabled && !gSavedSettings.getBOOL("AutoTuneFPS"))
         {
-            gSavedSettings.setBOOL("AutoTuneFPS", TRUE);
+            gSavedSettings.setBOOL("AutoTuneFPS", true);
         }
 
         // Note: The Max ART slider is logarithmic and thus we have an intermediate proxy value

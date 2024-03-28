@@ -44,7 +44,7 @@ void hud_render_utf8text(const std::string &str, const LLVector3 &pos_agent,
 					 const LLFontGL::ShadowType shadow,
 					 const F32 x_offset, const F32 y_offset,
 					 const LLColor4& color,
-					 const BOOL orthographic)
+					 const bool orthographic)
 {
 	LLWString wstr(utf8str_to_wstring(str));
 	hud_render_text(wstr, pos_agent, font, style, shadow, x_offset, y_offset, color, orthographic);
@@ -56,7 +56,7 @@ void hud_render_text(const LLWString &wstr, const LLVector3 &pos_agent,
 					const LLFontGL::ShadowType shadow,
 					const F32 x_offset, const F32 y_offset,
 					const LLColor4& color,
-					const BOOL orthographic)
+					const bool orthographic)
 {
 	LLViewerCamera* camera = LLViewerCamera::getInstance();
 	// Do cheap plane culling

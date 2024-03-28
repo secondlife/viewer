@@ -209,7 +209,7 @@ LLStatBar::LLStatBar(const Params& p)
 	setStat(p.stat);
 }
 
-BOOL LLStatBar::handleHover(S32 x, S32 y, MASK mask)
+bool LLStatBar::handleHover(S32 x, S32 y, MASK mask)
 {
 	switch(mStatType)
 	{
@@ -228,38 +228,38 @@ BOOL LLStatBar::handleHover(S32 x, S32 y, MASK mask)
 	default:
 		break;
 	}
-	return TRUE;
+	return true;
 }
 
-BOOL LLStatBar::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLStatBar::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	BOOL handled = LLView::handleMouseDown(x, y, mask);
+	bool handled = LLView::handleMouseDown(x, y, mask);
 	if (!handled)
 	{
 		if (mDisplayBar)
 		{
 			if (mDisplayHistory || mOrientation == HORIZONTAL)
 			{
-				mDisplayBar = FALSE;
-				mDisplayHistory = FALSE;
+				mDisplayBar = false;
+				mDisplayHistory = false;
 			}
 			else
 			{
-				mDisplayHistory = TRUE;
+				mDisplayHistory = true;
 			}
 		}
 		else
 		{
-			mDisplayBar = TRUE;
+			mDisplayBar = true;
 			if (mOrientation == HORIZONTAL)
 			{
-				mDisplayHistory = TRUE;
+				mDisplayHistory = true;
 			}
 		}
 		LLView* parent = getParent();
-		parent->reshape(parent->getRect().getWidth(), parent->getRect().getHeight(), FALSE);
+		parent->reshape(parent->getRect().getWidth(), parent->getRect().getHeight(), false);
 	}
-	return TRUE;
+	return true;
 }
 
 template<typename T>

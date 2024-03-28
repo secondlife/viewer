@@ -53,7 +53,7 @@ void LLFlashTimer::unset()
 	mCallback = NULL;
 }
 
-BOOL LLFlashTimer::tick()
+bool LLFlashTimer::tick()
 {
 	mIsCurrentlyHighlighted = !mIsCurrentlyHighlighted;
 

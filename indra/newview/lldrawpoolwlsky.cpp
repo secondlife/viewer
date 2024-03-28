@@ -45,7 +45,7 @@
 #include "llvowlsky.h"
 #include "llsettingsvo.h"
 
-extern BOOL gCubeSnapshot;
+extern bool gCubeSnapshot;
 
 static LLStaticHashedString sCamPosLocal("camPosLocal");
 static LLStaticHashedString sCustomAlpha("custom_alpha");

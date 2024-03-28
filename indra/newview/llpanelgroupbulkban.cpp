@@ -57,16 +57,16 @@ LLPanelGroupBulkBan::LLPanelGroupBulkBan(const LLUUID& group_id) : LLPanelGroupB
 	buildFromFile( "panel_group_bulk_ban.xml");
 }
 
-BOOL LLPanelGroupBulkBan::postBuild()
+bool LLPanelGroupBulkBan::postBuild()
 {
-	BOOL recurse = TRUE;
+	constexpr bool recurse = true;
 
 	mImplementation->mLoadingText = getString("loading");
 	mImplementation->mGroupName = getChild<LLTextBox>("group_name_text", recurse);
 	mImplementation->mBulkAgentList = getChild<LLNameListCtrl>("banned_agent_list", recurse);
 	if ( mImplementation->mBulkAgentList )
 	{
-		mImplementation->mBulkAgentList->setCommitOnSelectionChange(TRUE);
+		mImplementation->mBulkAgentList->setCommitOnSelectionChange(true);
 		mImplementation->mBulkAgentList->setCommitCallback(LLPanelGroupBulkImpl::callbackSelect, mImplementation);
 	}
 
@@ -83,7 +83,7 @@ BOOL LLPanelGroupBulkBan::postBuild()
 	if ( mImplementation->mRemoveButton )
 	{
 		mImplementation->mRemoveButton->setClickedCallback(LLPanelGroupBulkImpl::callbackClickRemove, mImplementation);
-		mImplementation->mRemoveButton->setEnabled(FALSE);
+		mImplementation->mRemoveButton->setEnabled(false);
 	}
 
 	mImplementation->mOKButton = 
@@ -91,7 +91,7 @@ BOOL LLPanelGroupBulkBan::postBuild()
 	if ( mImplementation->mOKButton )
 	{
 		mImplementation->mOKButton->setClickedCallback(LLPanelGroupBulkBan::callbackClickSubmit, this);
-		mImplementation->mOKButton->setEnabled(FALSE);
+		mImplementation->mOKButton->setEnabled(false);
 	}
 
 	button = getChild<LLButton>("cancel_button", recurse);
@@ -106,7 +106,7 @@ BOOL LLPanelGroupBulkBan::postBuild()
 	mImplementation->mCannotBanYourself = getString("cant_ban_yourself");
 
 	update();
-	return TRUE;
+	return true;
 }
 
 // TODO: Refactor the shitty callback functions with void* -- just use boost::bind to call submit() instead.
@@ -163,12 +163,12 @@ void LLPanelGroupBulkBan::submit()
 	// remove already banned users and yourself from request.
 	std::vector<LLAvatarName> banned_avatar_names;
 	std::vector<LLAvatarName> out_of_limit_names;
-	bool banning_self = FALSE;
+	bool banning_self = false;
 	std::vector<LLUUID>::iterator conflict = std::find(banned_agent_list.begin(), banned_agent_list.end(), gAgent.getID());
 	if (conflict != banned_agent_list.end())
 	{
 		banned_agent_list.erase(conflict);
-		banning_self = TRUE;
+		banning_self = true;
 	}
 	if (group_datap)
 	{

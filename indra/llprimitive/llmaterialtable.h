@@ -106,15 +106,15 @@ public:
 
 	void initTableTransNames(std::map<std::string, std::string> namemap);
 	
-	BOOL add(U8 mcode, const std::string& name, const LLUUID &uuid);	                 
-	BOOL addCollisionSound(U8 mcode, U8 mcode2, const LLUUID &uuid);
-	BOOL addSlidingSound(U8 mcode, U8 mcode2, const LLUUID &uuid);
-	BOOL addRollingSound(U8 mcode, U8 mcode2, const LLUUID &uuid);
-	BOOL addShatterSound(U8 mcode, const LLUUID &uuid);
-	BOOL addDensity(U8 mcode, const F32 &density);
-	BOOL addFriction(U8 mcode, const F32 &friction);
-	BOOL addRestitution(U8 mcode, const F32 &restitution);
-	BOOL addDamageAndEnergy(U8 mcode, const F32 &hp_mod, const F32 &damage_mod, const F32 &ep_mod);
+	bool add(U8 mcode, const std::string& name, const LLUUID &uuid);	                 
+	bool addCollisionSound(U8 mcode, U8 mcode2, const LLUUID &uuid);
+	bool addSlidingSound(U8 mcode, U8 mcode2, const LLUUID &uuid);
+	bool addRollingSound(U8 mcode, U8 mcode2, const LLUUID &uuid);
+	bool addShatterSound(U8 mcode, const LLUUID &uuid);
+	bool addDensity(U8 mcode, const F32 &density);
+	bool addFriction(U8 mcode, const F32 &friction);
+	bool addRestitution(U8 mcode, const F32 &restitution);
+	bool addDamageAndEnergy(U8 mcode, const F32 &hp_mod, const F32 &damage_mod, const F32 &ep_mod);
 
 	LLUUID getDefaultTextureID(const std::string& name);					// LLUUID::null if not found
 	LLUUID getDefaultTextureID(U8 mcode);					// LLUUID::null if not found

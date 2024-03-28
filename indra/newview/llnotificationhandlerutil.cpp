@@ -64,7 +64,7 @@ bool LLHandlerUtil::isIMFloaterOpened(const LLNotificationPtr& notification)
 
 	if (im_floater != NULL)
 	{
-		res = im_floater->getVisible() == TRUE;
+		res = im_floater->getVisible() == true;
 	}
 
 	return res;

@@ -54,38 +54,38 @@ void LLTextureAnim::reset()
 	mRate = 1.f;
 }
 
-BOOL LLTextureAnim::equals(const LLTextureAnim &other) const
+bool LLTextureAnim::equals(const LLTextureAnim &other) const
 {
 	if (mMode != other.mMode)
 	{
-		return FALSE;
+		return false;
 	}
 	if (mFace != other.mFace)
 	{
-		return FALSE;
+		return false;
 	}
 	if (mSizeX != other.mSizeX)
 	{
-		return FALSE;
+		return false;
 	}
 	if (mSizeY != other.mSizeY)
 	{
-		return FALSE;
+		return false;
 	}
 	if (mStart != other.mStart)
 	{
-		return FALSE;
+		return false;
 	}
 	if (mLength != other.mLength)
 	{
-		return FALSE;
+		return false;
 	}
 	if (mRate != other.mRate)
 	{
-		return FALSE;
+		return false;
 	}
 
-	return TRUE;
+	return true;
 }
 void LLTextureAnim::packTAMessage(LLMessageSystem *mesgsys) const
 {

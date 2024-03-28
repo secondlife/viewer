@@ -204,7 +204,7 @@ bool LLConversationViewSession::isHighlightActive()
 	return (mFlashStateOn ? (mFlashTimer->isFlashingInProgress() ? mFlashTimer->isCurrentlyHighlighted() : true) : mIsCurSelection);
 }
 
-BOOL LLConversationViewSession::postBuild()
+bool LLConversationViewSession::postBuild()
 {
 	LLFolderViewItem::postBuild();
 
@@ -276,7 +276,7 @@ BOOL LLConversationViewSession::postBuild()
         refresh(); // requires vmi
 	}
 
-	return TRUE;
+	return true;
 }
 
 void LLConversationViewSession::draw()
@@ -284,7 +284,7 @@ void LLConversationViewSession::draw()
 	getViewModelItem()->update();
 
 	const LLFolderViewItem::Params& default_params = LLUICtrlFactory::getDefaultParams<LLFolderViewItem>();
-	const BOOL show_context = (getRoot() ? getRoot()->getShowSelectionContext() : FALSE);
+	const bool show_context = (getRoot() ? getRoot()->getShowSelectionContext() : false);
 
 	// Indicate that flash can start (moot operation if already started, done or not flashing)
 	startFlashing();
@@ -320,10 +320,10 @@ void LLConversationViewSession::draw()
 	LLView::draw();
 }
 
-BOOL LLConversationViewSession::handleMouseDown( S32 x, S32 y, MASK mask )
+bool LLConversationViewSession::handleMouseDown( S32 x, S32 y, MASK mask )
 {
 	//Will try to select a child node and then itself (if a child was not selected)
-    BOOL result = LLFolderViewFolder::handleMouseDown(x, y, mask);
+    bool result = LLFolderViewFolder::handleMouseDown(x, y, mask);
 
     //This node (conversation) was selected and a child (participant) was not
     if(result && getRoot())
@@ -349,9 +349,9 @@ BOOL LLConversationViewSession::handleMouseDown( S32 x, S32 y, MASK mask )
 	return result;
 }
 
-BOOL LLConversationViewSession::handleMouseUp( S32 x, S32 y, MASK mask )
+bool LLConversationViewSession::handleMouseUp( S32 x, S32 y, MASK mask )
 {
-	BOOL result = LLFolderViewFolder::handleMouseUp(x, y, mask);
+	bool result = LLFolderViewFolder::handleMouseUp(x, y, mask);
 
 	LLFloater* volume_floater = LLFloaterReg::findInstance("floater_voice_volume");
 	LLFloater* chat_volume_floater = LLFloaterReg::findInstance("chat_voice");
@@ -372,9 +372,9 @@ BOOL LLConversationViewSession::handleMouseUp( S32 x, S32 y, MASK mask )
 	return result;
 }
 
-BOOL LLConversationViewSession::handleRightMouseDown( S32 x, S32 y, MASK mask )
+bool LLConversationViewSession::handleRightMouseDown( S32 x, S32 y, MASK mask )
 {
-    BOOL result = LLFolderViewFolder::handleRightMouseDown(x, y, mask);
+    bool result = LLFolderViewFolder::handleRightMouseDown(x, y, mask);
 
     if(result)
     {
@@ -444,7 +444,7 @@ void LLConversationViewSession::toggleCollapsedMode(bool is_collapsed)
 	mItemPanel->translate(mCollapsedMode ? -h_pad : h_pad, 0);
 }
 
-void LLConversationViewSession::setVisibleIfDetached(BOOL visible)
+void LLConversationViewSession::setVisibleIfDetached(bool visible)
 {
 	// Do this only if the conversation floater has been torn off (i.e. no multi floater host) and is not minimized
 	// Note: minimized dockable floaters are brought to front hence unminimized when made visible and we don't want that here
@@ -614,7 +614,7 @@ void LLConversationViewParticipant::initFromParams(const LLConversationViewParti
     addChild(outputMonitor);
 }
 
-BOOL LLConversationViewParticipant::postBuild()
+bool LLConversationViewParticipant::postBuild()
 {
     mAvatarIcon = getChild<LLAvatarIconCtrl>("avatar_icon");
 
@@ -638,7 +638,7 @@ BOOL LLConversationViewParticipant::postBuild()
         LLFolderViewItem::postBuild();
         refresh();
     }
-    return TRUE;
+    return true;
 }
 
 void LLConversationViewParticipant::draw()
@@ -651,7 +651,7 @@ void LLConversationViewParticipant::draw()
     static LLUIColor sFocusOutlineColor = LLUIColorTable::instance().getColor("InventoryFocusOutlineColor", DEFAULT_WHITE);
     static LLUIColor sMouseOverColor = LLUIColorTable::instance().getColor("InventoryMouseOverColor", DEFAULT_WHITE);
 
-    const BOOL show_context = (getRoot() ? getRoot()->getShowSelectionContext() : FALSE);
+    const bool show_context = (getRoot() ? getRoot()->getShowSelectionContext() : false);
 
     const LLFontGL* font = getLabelFontForStyle(mLabelStyle);
     F32 right_x  = 0;
@@ -763,9 +763,9 @@ void LLConversationViewParticipant::onInfoBtnClick()
 	LLFloaterReg::showInstance("inspect_avatar", LLSD().with("avatar_id", mUUID));
 }
 
-BOOL LLConversationViewParticipant::handleMouseDown( S32 x, S32 y, MASK mask )
+bool LLConversationViewParticipant::handleMouseDown( S32 x, S32 y, MASK mask )
 {
-	BOOL result = LLFolderViewItem::handleMouseDown(x, y, mask);
+	bool result = LLFolderViewItem::handleMouseDown(x, y, mask);
 
     if(result && getRoot())
     {

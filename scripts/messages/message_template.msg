@@ -3607,6 +3607,11 @@ version 2.0
 		AppearanceHover		Variable
 		{	HoverHeight	LLVector3	}
 	}
+	{
+		AttachmentBlock		Variable
+		{	ID				    LLUUID  }
+		{	AttachmentPoint 		U8  }
+	}
 }
 
 // AvatarSitResponse - response to a request to sit on an object

@@ -91,8 +91,8 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
 	S32 edit_text_max_chars = 0;
 	bool is_password = false;
 
-	LLToastPanel::setBackgroundVisible(FALSE);
-	LLToastPanel::setBackgroundOpaque(TRUE);
+	LLToastPanel::setBackgroundVisible(false);
+	LLToastPanel::setBackgroundOpaque(true);
 
 
 	typedef std::vector<std::pair<std::string, std::string> > options_t;
@@ -247,7 +247,7 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
 		dialog_width += 32 + HPAD;
 	}
 
-	LLToastPanel::reshape( dialog_width, dialog_height, FALSE );
+	LLToastPanel::reshape( dialog_width, dialog_height, false );
 
 	S32 msg_y = LLToastPanel::getRect().getHeight() - VPAD;
 	S32 msg_x = HPAD;
@@ -369,7 +369,7 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
 
 			if( i == mDefaultOption )
 			{
-				btn->setFocus(TRUE);
+				btn->setFocus(true);
 			}
 		}
 		button_left += ((mButtonData[i].mWidth == 0) ? button_width : mButtonData[i].mWidth) + BTN_HPAD;
@@ -378,11 +378,11 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
 	setCheckBoxes(HPAD, VPAD);
 
 	// *TODO: check necessity of this code
-	//gFloaterView->adjustToFitScreen(this, FALSE);
+	//gFloaterView->adjustToFitScreen(this, false);
 	if (mLineEditor)
 	{
 		mLineEditor->selectAll();
-		mLineEditor->setFocus(TRUE);
+		mLineEditor->setFocus(true);
 	}
 	if(mDefaultOption >= 0)
 	{
@@ -395,7 +395,7 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
 			LLTransientFloaterMgr::GLOBAL, this);
 }
 
-void LLToastAlertPanel::setVisible( BOOL visible )
+void LLToastAlertPanel::setVisible( bool visible )
 {
 	// only make the "ding" sound if it's newly visible
 	if( visible && !LLToastPanel::getVisible() )
@@ -428,16 +428,16 @@ LLToastAlertPanel::~LLToastAlertPanel()
         if (current_selection)
         {
             // If the focus moved to some other view though, move the focus there
-            current_selection->setFocus(TRUE);
+            current_selection->setFocus(true);
         }
         else
         {
-            mPreviouslyFocusedView.get()->setFocus(TRUE);
+            mPreviouslyFocusedView.get()->setFocus(true);
         }
 	}
 }
 
-BOOL LLToastAlertPanel::hasTitleBar() const
+bool LLToastAlertPanel::hasTitleBar() const
 {
 	// *TODO: check necessity of this code
 	/*
@@ -448,7 +448,7 @@ BOOL LLToastAlertPanel::hasTitleBar() const
 	return false;
 }
 
-BOOL LLToastAlertPanel::handleKeyHere(KEY key, MASK mask )
+bool LLToastAlertPanel::handleKeyHere(KEY key, MASK mask )
 {
 	if( KEY_RETURN == key && mask == MASK_NONE )
 	{
@@ -458,31 +458,31 @@ BOOL LLToastAlertPanel::handleKeyHere(KEY key, MASK mask )
 			// If we have a default button, click it when return is pressed
 			defaultBtn->onCommit();
 		}
-		return TRUE;
+		return true;
 	}
 	else if (KEY_RIGHT == key)
 	{
-		LLToastPanel::focusNextItem(FALSE);
-		return TRUE;
+		LLToastPanel::focusNextItem(false);
+		return true;
 	}
 	else if (KEY_LEFT == key)
 	{
-		LLToastPanel::focusPrevItem(FALSE);
-		return TRUE;
+		LLToastPanel::focusPrevItem(false);
+		return true;
 	}
 	else if (KEY_TAB == key && mask == MASK_NONE)
 	{
-		LLToastPanel::focusNextItem(FALSE);
-		return TRUE;
+		LLToastPanel::focusNextItem(false);
+		return true;
 	}
 	else if (KEY_TAB == key && mask == MASK_SHIFT)
 	{
-		LLToastPanel::focusPrevItem(FALSE);
-		return TRUE;
+		LLToastPanel::focusPrevItem(false);
+		return true;
 	}
 	else
 	{
-		return TRUE;
+		return true;
 	}
 }
 

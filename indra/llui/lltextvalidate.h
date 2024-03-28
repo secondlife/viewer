@@ -34,7 +34,7 @@
 
 namespace LLTextValidate
 {
-	typedef boost::function<BOOL (const LLWString &wstr)> validate_func_t;
+	typedef boost::function<bool (const LLWString &wstr)> validate_func_t;
 
 	struct ValidateTextNamedFuncs
 	:	public LLInitParam::TypeValuesHelper<validate_func_t, ValidateTextNamedFuncs>

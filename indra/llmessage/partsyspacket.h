@@ -202,10 +202,10 @@ class LLPartSysCompressedPacket
 public:
 	LLPartSysCompressedPacket();
 	~LLPartSysCompressedPacket();
-	BOOL	fromLLPartInitData(LLPartInitData *in, U32 &bytesUsed);
-	BOOL	toLLPartInitData(LLPartInitData *out, U32 *bytesUsed);
-	BOOL	fromUnsignedBytes(U8 *in, U32 bytesUsed);
-	BOOL	toUnsignedBytes(U8 *out);
+	bool	fromLLPartInitData(LLPartInitData *in, U32 &bytesUsed);
+	bool	toLLPartInitData(LLPartInitData *out, U32 *bytesUsed);
+	bool	fromUnsignedBytes(U8 *in, U32 bytesUsed);
+	bool	toUnsignedBytes(U8 *out);
 	U32		bufferSize();
 	U8		*getBytePtr();
 

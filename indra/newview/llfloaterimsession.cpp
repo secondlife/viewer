@@ -108,7 +108,7 @@ void LLFloaterIMSession::refresh()
 		if (mMeTypingTimer.getElapsedTimeF32() > ME_TYPING_TIMEOUT && false == mShouldSendTypingState)
 		{
 			LL_DEBUGS("TypingMsgs") << "Send additional Start Typing packet" << LL_ENDL;
-			LLIMModel::instance().sendTypingState(mSessionID, mOtherParticipantUUID, TRUE);
+			LLIMModel::instance().sendTypingState(mSessionID, mOtherParticipantUUID, true);
 			mMeTypingTimer.reset();
 		}
 
@@ -330,7 +330,7 @@ void LLFloaterIMSession::initIMFloater()
 	// Disable input editor if session cannot accept text
 	if ( mSession && !mSession->mTextIMPossible )
 	{
-		mInputEditor->setEnabled(FALSE);
+		mInputEditor->setEnabled(false);
 		mInputEditor->setLabel(LLTrans::getString("IM_unavailable_text_label"));
 	}
 
@@ -342,9 +342,9 @@ void LLFloaterIMSession::initIMFloater()
 }
 
 //virtual
-BOOL LLFloaterIMSession::postBuild()
+bool LLFloaterIMSession::postBuild()
 {
-	BOOL result = LLFloaterIMSessionTab::postBuild();
+	bool result = LLFloaterIMSessionTab::postBuild();
 
 	mInputEditor->setMaxTextLength(1023);
 	mInputEditor->setAutoreplaceCallback(boost::bind(&LLAutoReplace::autoreplaceCallback, LLAutoReplace::getInstance(), _1, _2, _3, _4, _5));
@@ -377,7 +377,7 @@ void LLFloaterIMSession::onAddButtonClicked()
 {
     LLView * button = findChild<LLView>("toolbar_panel")->findChild<LLButton>("add_btn");
     LLFloater* root_floater = gFloaterView->getParentFloater(this);
-	LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(boost::bind(&LLFloaterIMSession::addSessionParticipants, this, _1), TRUE, TRUE, FALSE, root_floater->getName(), button);
+	LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(boost::bind(&LLFloaterIMSession::addSessionParticipants, this, _1), true, true, false, root_floater->getName(), button);
 	if (!picker)
 	{
 		return;
@@ -604,13 +604,13 @@ LLFloaterIMSession* LLFloaterIMSession::show(const LLUUID& session_id)
 		LLTabContainer::eInsertionPoint i_pt = LLTabContainer::END;
 		if (floater_container)
 		{
-			floater_container->addFloater(floater, TRUE, i_pt);
+			floater_container->addFloater(floater, true, i_pt);
 		}
 	}
 
 	floater->openFloater(floater->getKey());
 
-	floater->setVisible(TRUE);
+	floater->setVisible(true);
 
 	return floater;
 }
@@ -668,7 +668,7 @@ void LLFloaterIMSession::setDocked(bool docked, bool pop_on_undock)
 	}
 }
 
-void LLFloaterIMSession::setMinimized(BOOL b)
+void LLFloaterIMSession::setMinimized(bool b)
 {
 	bool wasMinimized = isMinimized();
 	LLFloaterIMSessionTab::setMinimized(b);
@@ -685,7 +685,7 @@ void LLFloaterIMSession::setMinimized(BOOL b)
 	}
 }
 
-void LLFloaterIMSession::setVisible(BOOL visible)
+void LLFloaterIMSession::setVisible(bool visible)
 {
 	LLNotificationsUI::LLScreenChannel* channel = static_cast<LLNotificationsUI::LLScreenChannel*>
 		(LLNotificationsUI::LLChannelManager::getInstance()->
@@ -721,7 +721,7 @@ void LLFloaterIMSession::setVisible(BOOL visible)
 
 }
 
-BOOL LLFloaterIMSession::getVisible()
+bool LLFloaterIMSession::getVisible()
 {
 	bool visible;
 
@@ -740,7 +740,7 @@ BOOL LLFloaterIMSession::getVisible()
 		}
 		else
 		{
-		// getVisible() returns TRUE when Tabbed IM window is minimized.
+		// getVisible() returns true when Tabbed IM window is minimized.
 			visible = is_active && !im_container->isMinimized()
 						&& im_container->getVisible();
 		}
@@ -753,7 +753,7 @@ BOOL LLFloaterIMSession::getVisible()
 	return visible;
 }
 
-void LLFloaterIMSession::setFocus(BOOL focus)
+void LLFloaterIMSession::setFocus(bool focus)
 {
 	LLFloaterIMSessionTab::setFocus(focus);
 
@@ -781,8 +781,8 @@ bool LLFloaterIMSession::toggle(const LLUUID& session_id)
 		}
 		else if(floater && ((!floater->isDocked() || floater->getVisible()) && !floater->hasFocus()))
 		{
-			floater->setVisible(TRUE);
-			floater->setFocus(TRUE);
+			floater->setVisible(true);
+			floater->setFocus(true);
 			return true;
 		}
 	}
@@ -988,7 +988,7 @@ void LLFloaterIMSession::setTyping(bool typing)
 			if ( mTypingTimer.getElapsedTimeF32() > 1.f )
 		{
 				// Still typing, send 'start typing' notification
-				LLIMModel::instance().sendTypingState(mSessionID, mOtherParticipantUUID, TRUE);
+				LLIMModel::instance().sendTypingState(mSessionID, mOtherParticipantUUID, true);
 				mShouldSendTypingState = false;
 				mMeTypingTimer.reset();
 			}
@@ -996,7 +996,7 @@ void LLFloaterIMSession::setTyping(bool typing)
 		else
 		{
 			// Send 'stop typing' notification immediately
-			LLIMModel::instance().sendTypingState(mSessionID, mOtherParticipantUUID, FALSE);
+			LLIMModel::instance().sendTypingState(mSessionID, mOtherParticipantUUID, false);
 					mShouldSendTypingState = false;
 		}
 	}
@@ -1006,12 +1006,12 @@ void LLFloaterIMSession::setTyping(bool typing)
 		LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(mSessionID);
 		if (speaker_mgr)
 		{
-			speaker_mgr->setSpeakerTyping(gAgent.getID(), FALSE);
+			speaker_mgr->setSpeakerTyping(gAgent.getID(), false);
 		}
 	}
 }
 
-void LLFloaterIMSession::processIMTyping(const LLUUID& from_id, BOOL typing)
+void LLFloaterIMSession::processIMTyping(const LLUUID& from_id, bool typing)
 {
 	LL_DEBUGS("TypingMsgs") << "typing=" << typing << LL_ENDL;
 	if ( typing )
@@ -1052,7 +1052,7 @@ void LLFloaterIMSession::processAgentListUpdates(const LLSD& body)
 				// process the moderator mutes
 				if (agent_id == gAgentID && agent_data.has("info") && agent_data["info"].has("mutes"))
 				{
-					BOOL moderator_muted_text = agent_data["info"]["mutes"]["text"].asBoolean();
+					bool moderator_muted_text = agent_data["info"]["mutes"]["text"].asBoolean();
 					mInputEditor->setEnabled(!moderator_muted_text);
 					std::string label;
 					if (moderator_muted_text)
@@ -1097,7 +1097,7 @@ void LLFloaterIMSession::processSessionUpdate(const LLSD& session_update)
 	if ( false && session_update.has("moderated_mode") &&
 		 session_update["moderated_mode"].has("voice") )
 	{
-		BOOL voice_moderated = session_update["moderated_mode"]["voice"];
+		bool voice_moderated = session_update["moderated_mode"]["voice"];
 		const std::string session_label = LLIMModel::instance().getName(mSessionID);
 
 		if (voice_moderated)
@@ -1130,7 +1130,7 @@ void LLFloaterIMSession::draw()
 }
 
 // virtual
-BOOL LLFloaterIMSession::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+bool LLFloaterIMSession::handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
 									EDragAndDropType cargo_type,
 									void* cargo_data,
 									EAcceptance* accept,
@@ -1153,7 +1153,7 @@ BOOL LLFloaterIMSession::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 				cargo_type, cargo_data, accept);
 	}
 
-	return TRUE;
+	return true;
 }
 
 bool LLFloaterIMSession::dropPerson(LLUUID* person_id, bool drop)
@@ -1176,14 +1176,14 @@ bool LLFloaterIMSession::dropPerson(LLUUID* person_id, bool drop)
 	return res;
 }
 
-BOOL LLFloaterIMSession::isInviteAllowed() const
+bool LLFloaterIMSession::isInviteAllowed() const
 {
 	return ( (IM_SESSION_CONFERENCE_START == mDialog)
 			 || (IM_SESSION_INVITE == mDialog && !gAgent.isInGroup(mSessionID))
 			 || mIsP2PChat);
 }
 
-BOOL LLFloaterIMSession::inviteToSession(const uuid_vec_t& ids)
+bool LLFloaterIMSession::inviteToSession(const uuid_vec_t& ids)
 {
 	LLViewerRegion* region = gAgent.getRegion();
 	bool is_region_exist = region != NULL;
@@ -1264,7 +1264,7 @@ Note: OTHER_TYPING_TIMEOUT must be > ME_TYPING_TIMEOUT for proper operation of t
 		LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(mSessionID);
 		if ( speaker_mgr )
 		{
-			speaker_mgr->setSpeakerTyping(from_id, TRUE);
+			speaker_mgr->setSpeakerTyping(from_id, true);
 		}
 	}
 }
@@ -1281,7 +1281,7 @@ void LLFloaterIMSession::removeTypingIndicator(const LLUUID& from_id)
 			LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(mSessionID);
 			if (speaker_mgr)
 			{
-				speaker_mgr->setSpeakerTyping(from_id, FALSE);
+				speaker_mgr->setSpeakerTyping(from_id, false);
 			}
 		}
 	}

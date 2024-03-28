@@ -38,9 +38,9 @@ LLFloaterNewFeatureNotification::~LLFloaterNewFeatureNotification()
 {
 }
 
-BOOL LLFloaterNewFeatureNotification::postBuild()
+bool LLFloaterNewFeatureNotification::postBuild()
 {
-    setCanDrag(FALSE);
+    setCanDrag(false);
     getChild<LLButton>("close_btn")->setCommitCallback(boost::bind(&LLFloaterNewFeatureNotification::onCloseBtn, this));
 
     const std::string title_txt = "title_txt";
@@ -57,7 +57,7 @@ BOOL LLFloaterNewFeatureNotification::postBuild()
         reshape(rect.getWidth() + 90, rect.getHeight() + 45);
     }
 
-    return TRUE;
+    return true;
 }
 
 void LLFloaterNewFeatureNotification::onOpen(const LLSD& key)

@@ -234,19 +234,19 @@ void LLViewerJoystick::updateEnabled(bool autoenable)
 {
 	if (mDriverState == JDS_UNINITIALIZED)
 	{
-		gSavedSettings.setBOOL("JoystickEnabled", FALSE );
+		gSavedSettings.setBOOL("JoystickEnabled", false);
 	}
 	else
 	{
 		// autoenable if user specifically chose this device
 		if (autoenable && (isLikeSpaceNavigator() || isDeviceUUIDSet())) 
 		{
-			gSavedSettings.setBOOL("JoystickEnabled", TRUE );
+			gSavedSettings.setBOOL("JoystickEnabled", true );
 		}
 	}
 	if (!gSavedSettings.getBOOL("JoystickEnabled"))
 	{
-		mOverrideCamera = FALSE;
+		mOverrideCamera = false;
 	}
 }
 
@@ -254,7 +254,7 @@ void LLViewerJoystick::setOverrideCamera(bool val)
 {
 	if (!gSavedSettings.getBOOL("JoystickEnabled"))
 	{
-		mOverrideCamera = FALSE;
+		mOverrideCamera = false;
 	}
 	else
 	{
@@ -882,7 +882,7 @@ void LLViewerJoystick::moveAvatar(bool reset)
 			else if (!button_held)
 			{
 				button_held = true;
-				gAgent.setFlying(FALSE);
+				gAgent.setFlying(false);
 			}
 		}
 		else if (!button_held)
@@ -1414,7 +1414,7 @@ void LLViewerJoystick::setSNDefaults()
 #if LL_DARWIN || LL_LINUX
 	const float platformScale = 20.f;
 	const float platformScaleAvXZ = 1.f;
-	// The SpaceNavigator doesn't act as a 3D cursor on OS X / Linux. 
+	// The SpaceNavigator doesn't act as a 3D cursor on macOS / Linux.
 	const bool is_3d_cursor = false;
 #else
 	const float platformScale = 1.f;

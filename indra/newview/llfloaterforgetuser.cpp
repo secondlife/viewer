@@ -56,7 +56,7 @@ LLFloaterForgetUser::~LLFloaterForgetUser()
     }
 }
 
-BOOL LLFloaterForgetUser::postBuild()
+bool LLFloaterForgetUser::postBuild()
 {
     mScrollList = getChild<LLScrollListCtrl>("user_list");
 
@@ -120,12 +120,12 @@ BOOL LLFloaterForgetUser::postBuild()
     bool enable_button = mScrollList->getFirstSelectedIndex() != -1;
     LLCheckBoxCtrl *chk_box = getChild<LLCheckBoxCtrl>("delete_data");
     chk_box->setEnabled(enable_button);
-    chk_box->set(FALSE);
+    chk_box->set(false);
     LLButton *button = getChild<LLButton>("forget");
     button->setEnabled(enable_button);
     button->setCommitCallback(boost::bind(&LLFloaterForgetUser::onForgetClicked, this));
 
-    return TRUE;
+    return true;
 }
 
 void LLFloaterForgetUser::onForgetClicked()
@@ -135,7 +135,7 @@ void LLFloaterForgetUser::onForgetClicked()
     const std::string user_id = user_data["user_id"];
 
     LLCheckBoxCtrl *chk_box = getChild<LLCheckBoxCtrl>("delete_data");
-    BOOL delete_data = chk_box->getValue();
+    bool delete_data = chk_box->getValue();
 
     if (delete_data && mUserGridsCount[user_id] > 1)
     {
@@ -192,7 +192,7 @@ void LLFloaterForgetUser::processForgetUser()
 {
     LLScrollListCtrl *scroll_list = getChild<LLScrollListCtrl>("user_list");
     LLCheckBoxCtrl *chk_box = getChild<LLCheckBoxCtrl>("delete_data");
-    BOOL delete_data = chk_box->getValue();
+    bool delete_data = chk_box->getValue();
     LLSD user_data = scroll_list->getSelectedValue();
     const std::string user_id = user_data["user_id"];
     const std::string grid = user_data["grid"];

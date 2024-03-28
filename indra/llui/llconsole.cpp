@@ -77,7 +77,7 @@ void LLConsole::setLinePersistTime(F32 seconds)
 	mFadeTime = mLinePersistTime - FADE_DURATION;
 }
 
-void LLConsole::reshape(S32 width, S32 height, BOOL called_from_parent)
+void LLConsole::reshape(S32 width, S32 height, bool called_from_parent)
 {
 	S32 new_width = llmax(50, llmin(getRect().getWidth(), width));
 	S32 new_height = llmax(llfloor(mFont->getLineHeight()) + 15, llmin(getRect().getHeight(), height));

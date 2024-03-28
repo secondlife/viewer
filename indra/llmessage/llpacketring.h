@@ -46,14 +46,14 @@ public:
 
 	void dropPackets(U32);	
 	void setDropPercentage (F32 percent_to_drop);
-	void setUseInThrottle(const BOOL use_throttle);
-	void setUseOutThrottle(const BOOL use_throttle);
+	void setUseInThrottle(const bool use_throttle);
+	void setUseOutThrottle(const bool use_throttle);
 	void setInBandwidth(const F32 bps);
 	void setOutBandwidth(const F32 bps);
 	S32  receivePacket (S32 socket, char *datap);
 	S32  receiveFromRing (S32 socket, char *datap);
 
-	BOOL sendPacket(int h_socket, char * send_buffer, S32 buf_size, LLHost host);
+	bool sendPacket(int h_socket, char * send_buffer, S32 buf_size, LLHost host);
 
 	inline LLHost getLastSender();
 	inline LLHost getLastReceivingInterface();
@@ -61,8 +61,8 @@ public:
 	S32 getAndResetActualInBits()				{ S32 bits = mActualBitsIn; mActualBitsIn = 0; return bits;}
 	S32 getAndResetActualOutBits()				{ S32 bits = mActualBitsOut; mActualBitsOut = 0; return bits;}
 protected:
-	BOOL mUseInThrottle;
-	BOOL mUseOutThrottle;
+	bool mUseInThrottle;
+	bool mUseOutThrottle;
 	
 	// For simulating a lower-bandwidth connection - BPS
 	LLThrottle mInThrottle;
@@ -84,7 +84,7 @@ protected:
 	LLHost mLastReceivingIF;
 
 private:
-	BOOL sendPacketImpl(int h_socket, const char * send_buffer, S32 buf_size, LLHost host);
+	bool sendPacketImpl(int h_socket, const char * send_buffer, S32 buf_size, LLHost host);
 };
 
 

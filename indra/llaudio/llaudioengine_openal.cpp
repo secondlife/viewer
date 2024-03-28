@@ -518,7 +518,7 @@ void LLAudioEngine_OpenAL::updateWind(LLVector3 wind_vec, F32 camera_altitude)
 		}
 
 		alBufferData(buffer,
-			     AL_FORMAT_STEREO16,
+                 AL_FORMAT_STEREO_FLOAT32,
 			     mWindGen->windGenerate(mWindBuf,
 						    mWindBufSamples),
 			     mWindBufBytes,

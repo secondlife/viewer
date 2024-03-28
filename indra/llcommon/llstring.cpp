@@ -309,10 +309,10 @@ S32 wstring_utf16_length(const LLWString &wstr, const S32 woffset, const S32 wle
 // Given a wstring and an offset in it, returns the length as wstring (i.e.,
 // number of llwchars) of the longest substring that starts at the offset
 // and whose equivalent utf-16 string does not exceeds the given utf16_length.
-S32 wstring_wstring_length_from_utf16_length(const LLWString & wstr, const S32 woffset, const S32 utf16_length, BOOL *unaligned)
+S32 wstring_wstring_length_from_utf16_length(const LLWString & wstr, const S32 woffset, const S32 utf16_length, bool *unaligned)
 {
 	const auto end = wstr.length();
-	BOOL u = FALSE;
+	bool u{ false };
 	S32 n = woffset + utf16_length;
 	S32 i = woffset;
 	while (i < end)
@@ -902,7 +902,7 @@ std::wstring windows_message<std::wstring>(DWORD error)
     return out.str();
 }
 
-boost::optional<std::wstring> llstring_getoptenv(const std::string& key)
+std::optional<std::wstring> llstring_getoptenv(const std::string& key)
 {
     auto wkey = ll_convert_string_to_wide(key);
     // Take a wild guess as to how big the buffer should be.
@@ -920,8 +920,8 @@ boost::optional<std::wstring> llstring_getoptenv(const std::string& key)
     // did that (ultimately) succeed?
     if (n)
     {
-        // great, return populated boost::optional
-        return boost::optional<std::wstring>(&buffer[0]);
+        // great, return populated std::optional
+        return std::make_optional<std::wstring>(&buffer[0]);
     }
 
     // not successful
@@ -932,23 +932,23 @@ boost::optional<std::wstring> llstring_getoptenv(const std::string& key)
         LL_WARNS() << "GetEnvironmentVariableW('" << key << "') failed: "
                    << windows_message<std::string>(last_error) << LL_ENDL;
     }
-    // return empty boost::optional
+    // return empty std::optional
     return {};
 }
 
 #else  // ! LL_WINDOWS
 
-boost::optional<std::string> llstring_getoptenv(const std::string& key)
+std::optional<std::string> llstring_getoptenv(const std::string& key)
 {
     auto found = getenv(key.c_str());
     if (found)
     {
-        // return populated boost::optional
-        return boost::optional<std::string>(found);
+        // return populated std::optional
+        return std::make_optional<std::string>(found);
     }
     else
     {
-        // return empty boost::optional
+        // return empty std::optional
         return {};
     }
 }
@@ -1530,7 +1530,7 @@ S32 LLStringUtil::format(std::string& s, const format_map_t& substitutions)
 			if (iter != substitutions.end())
 			{
 				S32 secFromEpoch = 0;
-				BOOL r = LLStringUtil::convertToS32(iter->second, secFromEpoch);
+				bool r = LLStringUtil::convertToS32(iter->second, secFromEpoch);
 				if (r)
 				{
 					found_replacement = formatDatetime(replacement, tokens[0], param, secFromEpoch);

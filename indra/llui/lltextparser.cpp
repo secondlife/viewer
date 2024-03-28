@@ -184,11 +184,11 @@ bool LLTextParser::parseFullLineHighlights(const std::string &text, LLColor4 *co
 			{
 				LLSD color_llsd = mHighlights[i]["color"];
 				color->setValue(color_llsd);
-				return TRUE;
+				return true;
 			}
 		}
 	}
-	return FALSE;	//No matches found.
+	return false;	//No matches found.
 }
 
 std::string LLTextParser::getFileName()
@@ -229,11 +229,11 @@ bool LLTextParser::saveToDisk(LLSD highlights)
 	if (filename.empty())
 	{
 		LL_WARNS() << "LLTextParser::saveToDisk() no valid user directory." << LL_ENDL; 
-		return FALSE;
+		return false;
 	}	
 	llofstream file;
 	file.open(filename.c_str());
 	LLSDSerialize::toPrettyXML(mHighlights, file);
 	file.close();
-	return TRUE;
+	return true;
 }

@@ -121,7 +121,7 @@ class LLLocalBitmapTimer : public LLEventTimer
 		void startTimer();
 		void stopTimer();
 		bool isRunning();
-		BOOL tick();
+		bool tick();
 
 };
 
