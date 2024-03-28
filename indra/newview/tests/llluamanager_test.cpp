@@ -430,13 +430,12 @@ namespace tut
         );
         LuaState L;
         auto future = LLLUAmanager::startScriptLine(L, lua);
-        // The problem with this test is that the LuaState is destroyed
-        // (disconnecting the listener) before the LLTestApp instance mApp is
-        // destroyed (sending the shutdown event). Explicitly simulate LLApp's
-        // event.
-        LLEventPumps::instance().obtain("LLApp").post(llsd::map("status", "quitting"));
+        // Poke LLTestApp to send its preliminary shutdown message.
+        mApp.setQuitting();
         // but now we have to give the startScriptLine() coroutine a chance to run
         auto [count, result] = future.get();
-        ensure_equals(result.asString(), count, 0);
+        ensure_equals("killed Lua script terminated normally", count, -1);
+        ensure_equals("unexpected killed Lua script error",
+                      result.asString(), "viewer is stopping");
     }
 } // namespace tut
