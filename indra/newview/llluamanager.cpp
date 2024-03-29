@@ -155,61 +155,50 @@ lua_function(get_event_next,
     return 2;
 }
 
-void LLLUAmanager::runScriptFile(const std::string& filename, script_finished_fn cb)
-{
-    // A script_finished_fn is used to initialize the LuaState.
-    // It will be called when the LuaState is destroyed.
-    LuaState L(cb);
-    runScriptFile(L, filename);
-}
-
-void LLLUAmanager::runScriptFile(const std::string& filename, script_result_fn cb)
-{
-    LuaState L;
-    // A script_result_fn will be called when LuaState::expr() completes.
-    runScriptFile(L, filename, cb);
-}
-
 LLCoros::Future<std::pair<int, LLSD>>
-LLLUAmanager::startScriptFile(LuaState& L, const std::string& filename)
+LLLUAmanager::startScriptFile(const std::string& filename)
 {
     // Despite returning from startScriptFile(), we need this Promise to
     // remain alive until the callback has fired.
     auto promise{ std::make_shared<LLCoros::Promise<std::pair<int, LLSD>>>() };
-    runScriptFile(L, filename,
+    runScriptFile(filename,
                   [promise](int count, LLSD result)
                   { promise->set_value({ count, result }); });
     return LLCoros::getFuture(*promise);
 }
 
-std::pair<int, LLSD> LLLUAmanager::waitScriptFile(LuaState& L, const std::string& filename)
+std::pair<int, LLSD> LLLUAmanager::waitScriptFile(const std::string& filename)
 {
-    return startScriptFile(L, filename).get();
+    return startScriptFile(filename).get();
 }
 
-void LLLUAmanager::runScriptFile(LuaState& L, const std::string& filename, script_result_fn cb)
+void LLLUAmanager::runScriptFile(const std::string &filename, script_result_fn result_cb, script_finished_fn finished_cb)
 {
-    LLCoros::instance().launch(filename, [&L, filename, cb]()
+    // A script_result_fn will be called when LuaState::expr() completes.
+    LLCoros::instance().launch(filename, [filename, result_cb, finished_cb]()
     {
         llifstream in_file;
         in_file.open(filename.c_str());
 
         if (in_file.is_open()) 
         {
+            // A script_finished_fn is used to initialize the LuaState.
+            // It will be called when the LuaState is destroyed.
+            LuaState L(finished_cb);
             std::string text{std::istreambuf_iterator<char>(in_file), {}};
             auto [count, result] = L.expr(filename, text);
-            if (cb)
+            if (result_cb)
             {
-                cb(count, result);
+                result_cb(count, result);
             }
         }
         else
         {
             auto msg{ stringize("unable to open script file '", filename, "'") };
             LL_WARNS("Lua") << msg << LL_ENDL;
-            if (cb)
+            if (result_cb)
             {
-                cb(-1, msg);
+                result_cb(-1, msg);
             }
         }
     });
