@@ -33,7 +33,7 @@
 class LLAgentBenefits
 {
 public:
-    static constexpr S32 MIN_2K_TEXTURE_AREA = 1024 * 1024;
+    static constexpr S32 MIN_2K_TEXTURE_AREA = 1024 * 1024 + 1;
 
 	LLAgentBenefits();
 	~LLAgentBenefits();
