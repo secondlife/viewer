@@ -48,17 +48,17 @@ protected:
  public:
 	LLImagePreviewSculpted(S32 width, S32 height);	
 
-	/*virtual*/ S8 getType() const ;
+	S8 getType() const override;
 
 	void setPreviewTarget(LLImageRaw *imagep, F32 distance);
 	void setTexture(U32 name) { mTextureName = name; }
 
-	BOOL render();
+	BOOL render() override;
 	void refresh();
 	void rotate(F32 yaw_radians, F32 pitch_radians);
 	void zoom(F32 zoom_amt);
 	void pan(F32 right, F32 up);
-	virtual BOOL needsRender() { return mNeedsUpdate; }
+	virtual BOOL needsRender() override { return mNeedsUpdate; }
 
  protected:
 	BOOL        mNeedsUpdate;
@@ -87,12 +87,12 @@ public:
 	void setTexture(U32 name) { mTextureName = name; }
 	void clearPreviewTexture(const std::string& mesh_name);
 
-	BOOL	render();
+	BOOL	render() override;
 	void	refresh();
 	void	rotate(F32 yaw_radians, F32 pitch_radians);
 	void	zoom(F32 zoom_amt);
 	void	pan(F32 right, F32 up);
-	virtual BOOL needsRender() { return mNeedsUpdate; }
+	virtual BOOL needsRender() override { return mNeedsUpdate; }
 
 protected:
 	BOOL		mNeedsUpdate;

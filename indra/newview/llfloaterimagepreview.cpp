@@ -153,7 +153,7 @@ S32 LLFloaterImagePreview::getExpectedUploadCost() const
 {
     if (mRawImagep.notNull())
     {
-        if (mRawImagep->getWidth() * mRawImagep->getHeight() > LLAgentBenefits::MIN_2K_TEXTURE_AREA)
+        if (mRawImagep->getWidth() * mRawImagep->getHeight() >= LLAgentBenefits::MIN_2K_TEXTURE_AREA)
         {
             return LLAgentBenefitsMgr::current().get2KTextureUploadCost();
         }
