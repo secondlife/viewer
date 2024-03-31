@@ -282,7 +282,7 @@ class LLWebRTCPeerConnectionImpl : public LLWebRTCPeerConnectionInterface,
     //
     // LLWebRTCPeerConnection
     //
-    bool initializeConnection(InitOptions options = InitOptions()) override;
+    bool initializeConnection(const InitOptions& options) override;
     bool shutdownConnection() override;
 
     void setSignalingObserver(LLWebRTCSignalingObserver *observer) override;

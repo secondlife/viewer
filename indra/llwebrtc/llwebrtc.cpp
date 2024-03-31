@@ -239,16 +239,16 @@ void LLWebRTCImpl::init()
 
     webrtc::ProcessingConfig processing_config;
     processing_config.input_stream().set_num_channels(2);
-    processing_config.input_stream().set_sample_rate_hz(8000);
+    processing_config.input_stream().set_sample_rate_hz(48000);
     processing_config.output_stream().set_num_channels(2);
-    processing_config.output_stream().set_sample_rate_hz(8000);
+    processing_config.output_stream().set_sample_rate_hz(48000);
     processing_config.reverse_input_stream().set_num_channels(2);
     processing_config.reverse_input_stream().set_sample_rate_hz(48000);
     processing_config.reverse_output_stream().set_num_channels(2);
     processing_config.reverse_output_stream().set_sample_rate_hz(48000);
 
-    mAudioProcessingModule->Initialize(processing_config);
     mAudioProcessingModule->ApplyConfig(apm_config);
+    mAudioProcessingModule->Initialize(processing_config);
 
     mPeerConnectionFactory = webrtc::CreatePeerConnectionFactory(mNetworkThread.get(),
                                                                  mWorkerThread.get(),
@@ -659,35 +659,27 @@ void LLWebRTCPeerConnectionImpl::unsetSignalingObserver(LLWebRTCSignalingObserve
     }
 }
 
-bool LLWebRTCPeerConnectionImpl::initializeConnection(LLWebRTCPeerConnectionInterface::InitOptions options)
+
+bool LLWebRTCPeerConnectionImpl::initializeConnection(const LLWebRTCPeerConnectionInterface::InitOptions& options)
 {
     RTC_DCHECK(!mPeerConnection);
     mAnswerReceived = false;
 
     mWebRTCImpl->PostSignalingTask(
-        [this, options]()
+        [this,options]()
         {
-            std::vector<LLWebRTCPeerConnectionInterface::InitOptions::IceServers> servers = options.mServers;
-            if(servers.empty())
-            {
-                LLWebRTCPeerConnectionInterface::InitOptions::IceServers ice_servers;
-                ice_servers.mUrls.push_back("stun:stun.l.google.com:19302");
-                ice_servers.mUrls.push_back("stun1:stun.l.google.com:19302");
-                ice_servers.mUrls.push_back("stun2:stun.l.google.com:19302");
-                ice_servers.mUrls.push_back("stun3:stun.l.google.com:19302");
-                ice_servers.mUrls.push_back("stun4:stun.l.google.com:19302");
-            }
-
             webrtc::PeerConnectionInterface::RTCConfiguration config;
-            for (auto server : servers)
+            for (auto server : options.mServers)
             {
                 webrtc::PeerConnectionInterface::IceServer ice_server;
-                ice_server.urls = server.mUrls;
+                for (auto url : server.mUrls)
+                {
+                    ice_server.urls.push_back(url);
+                }
                 ice_server.username = server.mUserName;
                 ice_server.password = server.mPassword;
                 config.servers.push_back(ice_server);
             }
-            
             config.sdp_semantics = webrtc::SdpSemantics::kUnifiedPlan;
 
             config.set_min_port(60000);
@@ -718,7 +710,7 @@ bool LLWebRTCPeerConnectionImpl::initializeConnection(LLWebRTCPeerConnectionInte
 
             cricket::AudioOptions audioOptions;
             audioOptions.auto_gain_control = true;
-            audioOptions.echo_cancellation = false;  // incompatible with opus stereo
+            audioOptions.echo_cancellation = true;
             audioOptions.noise_suppression = true;
 
             mLocalStream = mPeerConnectionFactory->CreateLocalMediaStream("SLStream");

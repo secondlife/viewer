@@ -227,6 +227,7 @@ class LLWebRTCPeerConnectionInterface
     {
         // equivalent of PeerConnectionInterface::IceServer
         struct IceServers {
+
             // Valid formats are described in RFC7064 and RFC7065.
             // Urls should containe dns hostnames (not IP addresses)
             // as the TLS certificate policy is 'secure.'
@@ -239,7 +240,7 @@ class LLWebRTCPeerConnectionInterface
         std::vector<IceServers> mServers;
     };
 
-    virtual bool initializeConnection(InitOptions options = InitOptions()) = 0;
+    virtual bool initializeConnection(const InitOptions& options) = 0;
     virtual bool shutdownConnection() = 0;
 
     virtual void setSignalingObserver(LLWebRTCSignalingObserver* observer) = 0;
