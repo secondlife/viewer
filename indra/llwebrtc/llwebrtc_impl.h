@@ -145,6 +145,8 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceS
     // LLWebRTCDeviceInterface
     //
 
+    void setAudioConfig(LLWebRTCDeviceInterface::AudioConfig config = LLWebRTCDeviceInterface::AudioConfig()) override;
+
     void refreshDevices() override;
 
     void setDevicesObserver(LLWebRTCDevicesObserver *observer) override;
@@ -227,6 +229,8 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceS
 
     // The factory that allows creation of native webrtc PeerConnections.
     rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> mPeerConnectionFactory;
+    
+    rtc::scoped_refptr<webrtc::AudioProcessing>                mAudioProcessingModule;
 
     // more native webrtc stuff
     std::unique_ptr<webrtc::TaskQueueFactory>                  mTaskQueueFactory;
@@ -278,11 +282,11 @@ class LLWebRTCPeerConnectionImpl : public LLWebRTCPeerConnectionInterface,
     //
     // LLWebRTCPeerConnection
     //
+    bool initializeConnection(InitOptions options = InitOptions()) override;
+    bool shutdownConnection() override;
 
     void setSignalingObserver(LLWebRTCSignalingObserver *observer) override;
     void unsetSignalingObserver(LLWebRTCSignalingObserver *observer) override;
-    bool initializeConnection() override;
-    bool shutdownConnection() override;
     void AnswerAvailable(const std::string &sdp) override;
 
     //

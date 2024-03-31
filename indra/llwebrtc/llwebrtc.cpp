@@ -157,7 +157,6 @@ LLWebRTCImpl::LLWebRTCImpl() :
 
 void LLWebRTCImpl::init()
 {
-    RTC_DCHECK(mPeerConnectionFactory);
     mPlayoutDevice   = 0;
     mRecordingDevice = 0;
     rtc::InitializeSSL();
@@ -222,12 +221,10 @@ void LLWebRTCImpl::init()
     mPeerCustomProcessor = new LLCustomProcessor;
     webrtc::AudioProcessingBuilder apb;
     apb.SetCapturePostProcessing(std::unique_ptr<webrtc::CustomProcessing>(mPeerCustomProcessor));
-    rtc::scoped_refptr<webrtc::AudioProcessing> apm = apb.Create();
+    mAudioProcessingModule = apb.Create();
 
-    // TODO: wire some of these to the primary interface and ultimately
-    // to the UI to allow user config.
     webrtc::AudioProcessing::Config apm_config;
-    apm_config.echo_canceller.enabled         = true;
+    apm_config.echo_canceller.enabled         = false;
     apm_config.echo_canceller.mobile_mode     = false;
     apm_config.gain_controller1.enabled       = true;
     apm_config.gain_controller1.mode          = webrtc::AudioProcessing::Config::GainController1::kAdaptiveAnalog;
@@ -250,8 +247,8 @@ void LLWebRTCImpl::init()
     processing_config.reverse_output_stream().set_num_channels(2);
     processing_config.reverse_output_stream().set_sample_rate_hz(48000);
 
-    apm->Initialize(processing_config);
-    apm->ApplyConfig(apm_config);
+    mAudioProcessingModule->Initialize(processing_config);
+    mAudioProcessingModule->ApplyConfig(apm_config);
 
     mPeerConnectionFactory = webrtc::CreatePeerConnectionFactory(mNetworkThread.get(),
                                                                  mWorkerThread.get(),
@@ -262,7 +259,7 @@ void LLWebRTCImpl::init()
                                                                  nullptr /* video_encoder_factory */,
                                                                  nullptr /* video_decoder_factory */,
                                                                  nullptr /* audio_mixer */,
-                                                                 apm);
+                                                                 mAudioProcessingModule);
 
     mWorkerThread->BlockingCall([this]() { mPeerDeviceModule->StartPlayout(); });
 }
@@ -316,6 +313,49 @@ void LLWebRTCImpl::setRecording(bool recording)
                 mPeerDeviceModule->StopRecording();
             }
         });
+}
+
+void LLWebRTCImpl::setAudioConfig(LLWebRTCDeviceInterface::AudioConfig config)
+{
+    webrtc::AudioProcessing::Config apm_config;
+    apm_config.echo_canceller.enabled         = config.mEchoCancellation;
+    apm_config.echo_canceller.mobile_mode     = false;
+    apm_config.gain_controller1.enabled       = true;
+    apm_config.gain_controller1.mode          = webrtc::AudioProcessing::Config::GainController1::kAdaptiveAnalog;
+    apm_config.gain_controller2.enabled       = true;
+    apm_config.high_pass_filter.enabled       = true;
+    apm_config.transient_suppression.enabled  = true;
+    apm_config.pipeline.multi_channel_render  = true;
+    apm_config.pipeline.multi_channel_capture = true;
+    apm_config.pipeline.multi_channel_capture = true;
+
+    switch (config.mNoiseSuppressionLevel)
+    {
+        case LLWebRTCDeviceInterface::AudioConfig::NOISE_SUPPRESSION_LEVEL_NONE:
+            apm_config.noise_suppression.enabled = false;
+            apm_config.noise_suppression.level = webrtc::AudioProcessing::Config::NoiseSuppression::kLow;
+            break;
+        case LLWebRTCDeviceInterface::AudioConfig::NOISE_SUPPRESSION_LEVEL_LOW:
+            apm_config.noise_suppression.enabled = true;
+            apm_config.noise_suppression.level = webrtc::AudioProcessing::Config::NoiseSuppression::kLow;
+            break;
+        case LLWebRTCDeviceInterface::AudioConfig::NOISE_SUPPRESSION_LEVEL_MODERATE:
+            apm_config.noise_suppression.enabled = true;
+            apm_config.noise_suppression.level = webrtc::AudioProcessing::Config::NoiseSuppression::kModerate;
+            break;
+        case LLWebRTCDeviceInterface::AudioConfig::NOISE_SUPPRESSION_LEVEL_HIGH:
+            apm_config.noise_suppression.enabled = true;
+            apm_config.noise_suppression.level = webrtc::AudioProcessing::Config::NoiseSuppression::kHigh;
+            break;
+        case LLWebRTCDeviceInterface::AudioConfig::NOISE_SUPPRESSION_LEVEL_VERY_HIGH:
+            apm_config.noise_suppression.enabled = true;
+            apm_config.noise_suppression.level = webrtc::AudioProcessing::Config::NoiseSuppression::kVeryHigh;
+            break;
+        default:
+            apm_config.noise_suppression.enabled = false;
+            apm_config.noise_suppression.level = webrtc::AudioProcessing::Config::NoiseSuppression::kLow;
+    }
+    mAudioProcessingModule->ApplyConfig(apm_config);
 }
 
 void LLWebRTCImpl::refreshDevices()
@@ -619,32 +659,36 @@ void LLWebRTCPeerConnectionImpl::unsetSignalingObserver(LLWebRTCSignalingObserve
     }
 }
 
-// TODO: Add initialization structure through which
-// stun and turn servers may be passed in from
-// the sim or login.
-bool LLWebRTCPeerConnectionImpl::initializeConnection()
+bool LLWebRTCPeerConnectionImpl::initializeConnection(LLWebRTCPeerConnectionInterface::InitOptions options)
 {
     RTC_DCHECK(!mPeerConnection);
     mAnswerReceived = false;
 
     mWebRTCImpl->PostSignalingTask(
-        [this]()
+        [this, options]()
         {
+            std::vector<LLWebRTCPeerConnectionInterface::InitOptions::IceServers> servers = options.mServers;
+            if(servers.empty())
+            {
+                LLWebRTCPeerConnectionInterface::InitOptions::IceServers ice_servers;
+                ice_servers.mUrls.push_back("stun:stun.l.google.com:19302");
+                ice_servers.mUrls.push_back("stun1:stun.l.google.com:19302");
+                ice_servers.mUrls.push_back("stun2:stun.l.google.com:19302");
+                ice_servers.mUrls.push_back("stun3:stun.l.google.com:19302");
+                ice_servers.mUrls.push_back("stun4:stun.l.google.com:19302");
+            }
+
             webrtc::PeerConnectionInterface::RTCConfiguration config;
+            for (auto server : servers)
+            {
+                webrtc::PeerConnectionInterface::IceServer ice_server;
+                ice_server.urls = server.mUrls;
+                ice_server.username = server.mUserName;
+                ice_server.password = server.mPassword;
+                config.servers.push_back(ice_server);
+            }
+            
             config.sdp_semantics = webrtc::SdpSemantics::kUnifiedPlan;
-            webrtc::PeerConnectionInterface::IceServer server;
-            server.uri = "stun:roxie-turn.staging.secondlife.io:3478";
-            config.servers.push_back(server);
-            server.uri = "stun:stun.l.google.com:19302";
-            config.servers.push_back(server);
-            server.uri = "stun:stun1.l.google.com:19302";
-            config.servers.push_back(server);
-            server.uri = "stun:stun2.l.google.com:19302";
-            config.servers.push_back(server);
-            server.uri = "stun:stun3.l.google.com:19302";
-            config.servers.push_back(server);
-            server.uri = "stun:stun4.l.google.com:19302";
-            config.servers.push_back(server);
 
             config.set_min_port(60000);
             config.set_max_port(60100);
@@ -674,7 +718,7 @@ bool LLWebRTCPeerConnectionImpl::initializeConnection()
 
             cricket::AudioOptions audioOptions;
             audioOptions.auto_gain_control = true;
-            audioOptions.echo_cancellation = true;  // incompatible with opus stereo
+            audioOptions.echo_cancellation = false;  // incompatible with opus stereo
             audioOptions.noise_suppression = true;
 
             mLocalStream = mPeerConnectionFactory->CreateLocalMediaStream("SLStream");

@@ -1154,7 +1154,9 @@ bool LLVivoxVoiceClient::provisionVoiceAccount()
     do
     {
         LLVoiceVivoxStats::getInstance()->provisionAttemptStart();
-        result = httpAdapter->postAndSuspend(httpRequest, url, LLSD(), httpOpts);
+        LLSD body;
+        body["voice_server_type"] = "vivox";
+        result = httpAdapter->postAndSuspend(httpRequest, url, body, httpOpts);
 
         if (sShuttingDown)
         {
