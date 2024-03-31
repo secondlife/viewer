@@ -1073,6 +1073,10 @@ void LLWebRTCPeerConnectionImpl::OnSuccess(webrtc::SessionDescriptionInterface *
 void LLWebRTCPeerConnectionImpl::OnFailure(webrtc::RTCError error)
 {
     RTC_LOG(LS_ERROR) << ToString(error.type()) << ": " << error.message();
+    for (auto &observer : mSignalingObserverList)
+    {
+        observer->OnRenegotiationNeeded();
+    }
 }
 
 //
@@ -1086,6 +1090,10 @@ void LLWebRTCPeerConnectionImpl::OnSetRemoteDescriptionComplete(webrtc::RTCError
     if (!error.ok())
     {
         RTC_LOG(LS_ERROR) << ToString(error.type()) << ": " << error.message();
+        for (auto &observer : mSignalingObserverList)
+        {
+            observer->OnRenegotiationNeeded();
+        }
         return;
     }
     mAnswerReceived = true;

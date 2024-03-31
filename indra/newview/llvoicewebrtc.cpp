@@ -2733,8 +2733,8 @@ void LLVoiceWebRTCConnection::OnDataReceivedImpl(const std::string &data, bool b
             LLUUID agent_id(participant_id);
             if (agent_id.isNull())
             {
-                LL_WARNS("Voice") << "Bad participant ID from data channel (" << participant_id << "):" << data << LL_ENDL;
-                continue;
+               // probably a test client.
+               continue;
             }
 
             LLWebRTCVoiceClient::participantStatePtr_t participant =
