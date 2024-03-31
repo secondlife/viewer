@@ -104,11 +104,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7dbf7da20148f842c05f99d82f34e0327dc0863d</string>
+              <string>d8d9e1e15ec09c81acfa9ffb80c3f20435373543</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-boost-new/releases/download/v1.84.0-rc2/boost-1.84-darwin64-8496328150.tar.zst</string>
+              <string>https://github.com/secondlife/3p-boost/releases/download/v1.84.0-r1/boost-1.84-darwin64-8499892512.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -118,11 +118,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>fb6639e5f0e32a5bf61d3c564adfc5c45a661093</string>
+              <string>a5552fcd343179c4c7d6dd6289675431a8c0fe8d</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-boost-new/releases/download/v1.84.0-rc2/boost-1.84-linux64-8496328150.tar.zst</string>
+              <string>https://github.com/secondlife/3p-boost/releases/download/v1.84.0-r1/boost-1.84-linux64-8499892512.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -132,11 +132,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>966a5f33567392dc5d868ab7fa5ba0b636807d3c</string>
+              <string>5af9c69093e171eda552720a7acd570496db17db</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-boost-new/releases/download/v1.84.0-rc2/boost-1.84-windows64-8496328150.tar.zst</string>
+              <string>https://github.com/secondlife/3p-boost/releases/download/v1.84.0-r1/boost-1.84-windows64-8499892512.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -210,11 +210,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a1c9ce16460f23060292db315db29a7655ae3a88</string>
+              <string>fd656d2478728c4fc268478ec40d33b0ed1b7d83</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-colladadom/releases/download/v2.3-r3/colladadom-2.3.8496506656-darwin64-8496506656.tar.zst</string>
+              <string>https://github.com/secondlife/3p-colladadom/releases/download/v2.3-r4/colladadom-2.3.8500178177-darwin64-8500178177.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -224,11 +224,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9185d670e108ee827c4afcc1a09af329832634dc</string>
+              <string>aebc0ddcae18852e78143fbac793cd4a32f0f251</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-colladadom/releases/download/v2.3-r3/colladadom-2.3.8496506656-linux64-8496506656.tar.zst</string>
+              <string>https://github.com/secondlife/3p-colladadom/releases/download/v2.3-r4/colladadom-2.3.8500178177-linux64-8500178177.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -238,11 +238,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>335fe846c14bbf1316c55df334abb606f704ad27</string>
+              <string>3b25739b1a923c2edcf19864a1c82aeb5042567b</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-colladadom/releases/download/v2.3-r3/colladadom-2.3.8496506656-windows64-8496506656.tar.zst</string>
+              <string>https://github.com/secondlife/3p-colladadom/releases/download/v2.3-r4/colladadom-2.3.8500178177-windows64-8500178177.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
