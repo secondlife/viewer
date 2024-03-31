@@ -527,6 +527,20 @@
             <key>name</key>
             <string>windows64</string>
           </map>
+          <key>linux64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>hash</key>
+              <string>5b957aa7f353b10ae17b7119e5b3668f48a35325</string>
+              <key>url</key>
+              <string>https://github.com/secondlife/3p-emoji-shortcodes/releases/download/v6.1.0.5413f58/emoji_shortcodes-6.1.0.5413f58-linux64-5413f58.tar.zst</string>
+            </map>
+            <key>name</key>
+            <string>linux64</string>
+          </map>
         </map>
         <key>version</key>
         <string>6.1.0.579438</string>
@@ -974,6 +988,20 @@
             </map>
             <key>name</key>
             <string>windows64</string>
+          </map>
+          <key>linux64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>99e96926b7cf668d8e8195a021d6eacb09de32a0</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://github.com/secondlife/3p-icu4c/releases/download/v4.8.1-7d08d82/icu4c-4.8.1-linux64-7d08d82.tar.zst</string>
+            </map>
+            <key>name</key>
+            <string>linux64</string>
           </map>
         </map>
         <key>version</key>
