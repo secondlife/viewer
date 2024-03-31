@@ -272,7 +272,7 @@ public:
         participantStatePtr_t findParticipantByID(const LLUUID& id);
 
         static ptr_t matchSessionByChannelID(const std::string& channel_id);
-
+        
         void shutdownAllConnections();
         void revive();
 

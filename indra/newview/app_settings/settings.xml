@@ -15108,6 +15108,39 @@
       <key>Value</key>
       <integer>44125</integer>
     </map>
+    <key>VoiceEchoCancellation</key>
+    <map>
+      <key>Comment</key>
+      <string>Voice Echo Cancellation</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>VoiceAutomaticGainControl</key>
+    <map>
+      <key>Comment</key>
+      <string>Voice Automatic Gain Control</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>VoiceNoiseSuppressionLevel</key>
+    <map>
+      <key>Comment</key>
+      <string>Voice Noise Suppression Level</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>4</integer>
+    </map>
     <key>WarningsAsChat</key>
     <map>
       <key>Comment</key>
