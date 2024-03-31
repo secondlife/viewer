@@ -104,25 +104,39 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8539775e0a0783bd252bc548b20b3472a8254c31</string>
+              <string>7dbf7da20148f842c05f99d82f34e0327dc0863d</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-boost/releases/download/v1.81-09d25a7/boost-1.81-darwin64-09d25a7.tar.zst</string>
+              <string>https://github.com/secondlife/3p-boost-new/releases/download/v1.84.0-rc2/boost-1.84-darwin64-8496328150.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
+          </map>
+          <key>linux64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>fb6639e5f0e32a5bf61d3c564adfc5c45a661093</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://github.com/secondlife/3p-boost-new/releases/download/v1.84.0-rc2/boost-1.84-linux64-8496328150.tar.zst</string>
+            </map>
+            <key>name</key>
+            <string>linux64</string>
           </map>
           <key>windows64</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d40c86fbcb6ce064d546165cbabbf035ea80e07b</string>
+              <string>966a5f33567392dc5d868ab7fa5ba0b636807d3c</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-boost/releases/download/v1.81-09d25a7/boost-1.81-windows64-09d25a7.tar.zst</string>
+              <string>https://github.com/secondlife/3p-boost-new/releases/download/v1.84.0-rc2/boost-1.84-windows64-8496328150.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -196,25 +210,39 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b1bb8a9c8d458d8842d79f9633fb61df12f1b0ad</string>
+              <string>a1c9ce16460f23060292db315db29a7655ae3a88</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-colladadom/releases/download/v2.3.ab0c124/colladadom-2.3.ab0c124-darwin64-ab0c124.tar.zst</string>
+              <string>https://github.com/secondlife/3p-colladadom/releases/download/v2.3-r3/colladadom-2.3.8496506656-darwin64-8496506656.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
+          </map>
+          <key>linux64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>9185d670e108ee827c4afcc1a09af329832634dc</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://github.com/secondlife/3p-colladadom/releases/download/v2.3-r3/colladadom-2.3.8496506656-linux64-8496506656.tar.zst</string>
+            </map>
+            <key>name</key>
+            <string>linux64</string>
           </map>
           <key>windows64</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>0df4c05d4efa3019afa4cbf09599df60b586fc5c</string>
+              <string>335fe846c14bbf1316c55df334abb606f704ad27</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-colladadom/releases/download/v2.3.ab0c124/colladadom-2.3.ab0c124-windows64-ab0c124.tar.zst</string>
+              <string>https://github.com/secondlife/3p-colladadom/releases/download/v2.3-r3/colladadom-2.3.8496506656-windows64-8496506656.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
