@@ -63,15 +63,8 @@ set(llwindow_LINK_LIBRARIES
 # Libraries on which this library depends, needed for Linux builds
 # Sort by high-level to low-level
 if (LINUX)
-  FetchContent_Declare( ndGPUInfo
-        GIT_REPOSITORY https://github.com/Nicky-D/ndGPUInfo.git
-        GIT_TAG main)
-  FetchContent_MakeAvailable( ndGPUInfo )
-
-  list(APPEND llwindow_LINK_LIBRARIES ndGPUInfo)
-
   list(APPEND viewer_SOURCE_FILES
-       llkeyboardsdl.cpp 
+       llkeyboardsdl.cpp
        llwindowsdl.cpp
        )
   list(APPEND viewer_HEADER_FILES
@@ -186,7 +179,7 @@ endif (SDL_FOUND)
 
   target_link_libraries (llwindow ${llwindow_LINK_LIBRARIES})
   target_include_directories(llwindow INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
-  
+
 if (DARWIN)
   include(CMakeFindFrameworks)
   find_library(CARBON_LIBRARY Carbon)
