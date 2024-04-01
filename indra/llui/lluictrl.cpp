@@ -80,7 +80,7 @@ LLUICtrl::Params::Params()
 	mouseenter_callback("mouseenter_callback"),
 	mouseleave_callback("mouseleave_callback"),
 	control_name("control_name"),
-	font("font", LLFontGL::getFontSansSerif()),
+	font("font", LLFontGL::getFontEmojiMedium()),
 	font_halign("halign"),
 	font_valign("valign"),
 	length("length"), 	// ignore LLXMLNode cruft
@@ -768,25 +768,20 @@ void LLUICtrl::setIsChrome(BOOL is_chrome)
 
 // virtual
 BOOL LLUICtrl::getIsChrome() const
-{ 
+{
+	if (mIsChrome)
+		return TRUE;
+
 	LLView* parent_ctrl = getParent();
-	while(parent_ctrl)
+	while (parent_ctrl)
 	{
-		if(parent_ctrl->isCtrl())
-		{
-			break;	
-		}
+		if (parent_ctrl->isCtrl())
+			return ((LLUICtrl*)parent_ctrl)->getIsChrome();
+
 		parent_ctrl = parent_ctrl->getParent();
 	}
-	
-	if(parent_ctrl)
-	{
-		return mIsChrome || ((LLUICtrl*)parent_ctrl)->getIsChrome();
-	}
-	else
-	{
-		return mIsChrome ; 
-	}
+
+	return FALSE; 
 }
 
 

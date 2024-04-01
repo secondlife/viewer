@@ -24,6 +24,8 @@ jobs:
     outputs:
       viewer_channel: ${{ steps.build.outputs.viewer_channel }}
       viewer_version: ${{ steps.build.outputs.viewer_version }}
+      viewer_branch:  ${{ steps.which-branch.outputs.branch }}
+      relnotes:       ${{ steps.which-branch.outputs.relnotes }}
       imagename: ${{ steps.build.outputs.imagename }}
     env:
       AUTOBUILD_ADDRSIZE: 64
@@ -33,12 +35,13 @@ jobs:
       AUTOBUILD_GITHUB_TOKEN: ${{ secrets.SHARED_AUTOBUILD_GITHUB_TOKEN }}
       AUTOBUILD_INSTALLABLE_CACHE: ${{ github.workspace }}/.autobuild-installables
       AUTOBUILD_VARIABLES_FILE: ${{ github.workspace }}/.build-variables/variables
+      # Direct autobuild to store vcs_url, vcs_branch and vcs_revision in
+      # autobuild-package.xml.
+      AUTOBUILD_VCS_INFO: "true"
       AUTOBUILD_VSVER: "170"
       DEVELOPER_DIR: ${{ matrix.developer_dir }}
       # Ensure that Linden viewer builds engage Bugsplat.
       BUGSPLAT_DB: ${{ matrix.configuration != 'ReleaseOS' && 'SecondLife_Viewer_2018' || '' }}
-      BUGSPLAT_PASS: ${{ secrets.BUGSPLAT_PASS }}
-      BUGSPLAT_USER: ${{ secrets.BUGSPLAT_USER }}
       build_coverity: false
       build_log_dir: ${{ github.workspace }}/.logs
       build_viewer: true
@@ -62,7 +65,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Setup python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -83,7 +86,7 @@ jobs:
         run: pip3 install autobuild llsd
 
       - name: Cache autobuild packages
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         id: cache-installables
         with:
           path: .autobuild-installables
@@ -96,10 +99,17 @@ jobs:
         if: runner.os == 'Windows'
         run: choco install nsis-unicode
 
+      - name: Determine source branch
+        id: which-branch
+        uses: secondlife/viewer-build-util/which-branch@v1
+        with:
+          token: ${{ github.token }}
+
       - name: Build
         id: build
         shell: bash
         env:
+          AUTOBUILD_VCS_BRANCH: ${{ steps.which-branch.outputs.branch }}
           RUNNER_OS: ${{ runner.os }}
         run: |
           # set up things the viewer's build.sh script expects
@@ -150,7 +160,7 @@ jobs:
           }
           repo_branch()
           {
-            git -C "$1" branch | grep '^* ' | cut -c 3-
+            echo "$AUTOBUILD_VCS_BRANCH"
           }
           record_dependencies_graph()
           {
@@ -250,23 +260,36 @@ jobs:
             ${{ steps.build.outputs.physicstpv }}
 
   sign-and-package-windows:
+    env:
+      AZURE_KEY_VAULT_URI: ${{ secrets.AZURE_KEY_VAULT_URI }}
+      AZURE_CERT_NAME:     ${{ secrets.AZURE_CERT_NAME }}
+      AZURE_CLIENT_ID:     ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+      AZURE_TENANT_ID:     ${{ secrets.AZURE_TENANT_ID }}
     needs: build
     runs-on: windows
     steps:
       - name: Sign and package Windows viewer
+        if: env.AZURE_KEY_VAULT_URI && env.AZURE_CERT_NAME && env.AZURE_CLIENT_ID && env.AZURE_CLIENT_SECRET && env.AZURE_TENANT_ID
         uses: secondlife/viewer-build-util/sign-pkg-windows@v1
         with:
-          vault_uri: "${{ secrets.AZURE_KEY_VAULT_URI }}"
-          cert_name: "${{ secrets.AZURE_CERT_NAME }}"
-          client_id: "${{ secrets.AZURE_CLIENT_ID }}"
-          client_secret: "${{ secrets.AZURE_CLIENT_SECRET }}"
-          tenant_id: "${{ secrets.AZURE_TENANT_ID }}"
+          vault_uri: "${{ env.AZURE_KEY_VAULT_URI }}"
+          cert_name: "${{ env.AZURE_CERT_NAME }}"
+          client_id: "${{ env.AZURE_CLIENT_ID }}"
+          client_secret: "${{ env.AZURE_CLIENT_SECRET }}"
+          tenant_id: "${{ env.AZURE_TENANT_ID }}"
 
   sign-and-package-mac:
+    env:
+      NOTARIZE_CREDS_MACOS:        ${{ secrets.NOTARIZE_CREDS_MACOS }}
+      SIGNING_CERT_MACOS:          ${{ secrets.SIGNING_CERT_MACOS }}
+      SIGNING_CERT_MACOS_IDENTITY: ${{ secrets.SIGNING_CERT_MACOS_IDENTITY }}
+      SIGNING_CERT_MACOS_PASSWORD: ${{ secrets.SIGNING_CERT_MACOS_PASSWORD }}
     needs: build
     runs-on: macos-latest
     steps:
       - name: Unpack Mac notarization credentials
+        if: env.NOTARIZE_CREDS_MACOS
         id: note-creds
         shell: bash
         run: |
@@ -274,7 +297,7 @@ jobs:
           # USERNAME="..."
           # PASSWORD="..."
           # TEAM_ID="..."
-          eval "${{ secrets.NOTARIZE_CREDS_MACOS }}"
+          eval "${{ env.NOTARIZE_CREDS_MACOS }}"
           echo "::add-mask::$USERNAME"
           echo "::add-mask::$PASSWORD"
           echo "::add-mask::$TEAM_ID"
@@ -286,45 +309,54 @@ jobs:
           [[ -n "$USERNAME" && -n "$PASSWORD" && -n "$TEAM_ID" ]]
 
       - name: Sign and package Mac viewer
+        if: env.SIGNING_CERT_MACOS && env.SIGNING_CERT_MACOS_IDENTITY && env.SIGNING_CERT_MACOS_PASSWORD && steps.note-creds.outputs.note_user && steps.note-creds.outputs.note_pass && steps.note-creds.outputs.note_team
         uses: secondlife/viewer-build-util/sign-pkg-mac@v1
         with:
           channel: ${{ needs.build.outputs.viewer_channel }}
           imagename: ${{ needs.build.outputs.imagename }}
-          cert_base64: ${{ secrets.SIGNING_CERT_MACOS }}
-          cert_name: ${{ secrets.SIGNING_CERT_MACOS_IDENTITY }}
-          cert_pass: ${{ secrets.SIGNING_CERT_MACOS_PASSWORD }}
+          cert_base64: ${{ env.SIGNING_CERT_MACOS }}
+          cert_name: ${{ env.SIGNING_CERT_MACOS_IDENTITY }}
+          cert_pass: ${{ env.SIGNING_CERT_MACOS_PASSWORD }}
           note_user: ${{ steps.note-creds.outputs.note_user }}
           note_pass: ${{ steps.note-creds.outputs.note_pass }}
           note_team: ${{ steps.note-creds.outputs.note_team }}
 
   post-windows-symbols:
+    env:
+      BUGSPLAT_USER: ${{ secrets.BUGSPLAT_USER }}
+      BUGSPLAT_PASS: ${{ secrets.BUGSPLAT_PASS }}
     needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Post Windows symbols
+        if: env.BUGSPLAT_USER && env.BUGSPLAT_PASS
         uses: secondlife/viewer-build-util/post-bugsplat-windows@v1
         with:
-          username: ${{ secrets.BUGSPLAT_USER }}
-          password: ${{ secrets.BUGSPLAT_PASS }}
+          username: ${{ env.BUGSPLAT_USER }}
+          password: ${{ env.BUGSPLAT_PASS }}
           database: "SecondLife_Viewer_2018"
           channel: ${{ needs.build.outputs.viewer_channel }}
           version: ${{ needs.build.outputs.viewer_version }}
 
   post-mac-symbols:
+    env:
+      BUGSPLAT_USER: ${{ secrets.BUGSPLAT_USER }}
+      BUGSPLAT_PASS: ${{ secrets.BUGSPLAT_PASS }}
     needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Post Mac symbols
+        if: env.BUGSPLAT_USER && env.BUGSPLAT_PASS
         uses: secondlife/viewer-build-util/post-bugsplat-mac@v1
         with:
-          username: ${{ secrets.BUGSPLAT_USER }}
-          password: ${{ secrets.BUGSPLAT_PASS }}
+          username: ${{ env.BUGSPLAT_USER }}
+          password: ${{ env.BUGSPLAT_PASS }}
           database: "SecondLife_Viewer_2018"
           channel: ${{ needs.build.outputs.viewer_channel }}
           version: ${{ needs.build.outputs.viewer_version }}
 
   release:
-    needs: [sign-and-package-windows, sign-and-package-mac]
+    needs: [build, sign-and-package-windows, sign-and-package-mac]
     runs-on: ubuntu-latest
     if: github.ref_type == 'tag' && startsWith(github.ref_name, 'Second_Life_')
     steps:
@@ -355,17 +387,31 @@ jobs:
           mv newview/viewer_version.txt macOS-viewer_version.txt
 
       # forked from softprops/action-gh-release
-      - uses: secondlife-3p/action-gh-release@v1
+      - name: Create GitHub release
+        id: release
+        uses: secondlife-3p/action-gh-release@v1
         with:
-          # name the release page for the build number so we can find it
-          # easily (analogous to looking up a codeticket build page)
-          name: "v${{ github.run_id }}"
+          # name the release page for the branch
+          name: "${{ needs.build.outputs.viewer_branch }}"
+          # SL-20546: want the channel and version to be visible on the
+          # release page
+          body: |
+            Build ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            ${{ needs.build.outputs.viewer_channel }}
+            ${{ needs.build.outputs.viewer_version }}
+            ${{ needs.build.outputs.relnotes }}
           prerelease: true
           generate_release_notes: true
-          # the only reason we generate a GH release is to post build products
+          target_commitish: ${{ github.sha }}
+          previous_tag: release
+          append_body: true
           fail_on_unmatched_files: true
           files: |
             *.dmg 
             *.exe
             *-autobuild-package.xml
             *-viewer_version.txt
+
+      - name: post release URL
+        run: |
+          echo "::notice::Release ${{ steps.release.outputs.url }}"

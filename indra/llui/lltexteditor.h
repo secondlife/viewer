@@ -54,12 +54,13 @@ public:
 	struct Params : public LLInitParam::Block<Params, LLTextBase::Params>
 	{
 		Optional<std::string>	default_text;
-		Optional<LLTextValidate::validate_func_t, LLTextValidate::ValidateTextNamedFuncs>	prevalidate_callback;
+		Optional<LLTextValidate::Validator, LLTextValidate::Validators>	prevalidator;
 
 		Optional<bool>			embedded_items,
 								ignore_tab,
 								commit_on_focus_lost,
 								show_context_menu,
+								show_emoji_helper,
 								enable_tooltip_paste,
 								auto_indent;
 
@@ -90,6 +91,9 @@ public:
 	void	setParseHighlights(BOOL parsing) {mParseHighlights=parsing;}
 
 	static S32		spacesPerTab();
+
+	void    insertEmoji(llwchar emoji);
+	void    handleEmojiCommit(llwchar emoji);
 
 	// mousehandler overrides
 	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
@@ -202,6 +206,10 @@ public:
 	void			setShowContextMenu(bool show) { mShowContextMenu = show; }
 	bool			getShowContextMenu() const { return mShowContextMenu; }
 
+	void			showEmojiHelper();
+	void			setShowEmojiHelper(bool show);
+	bool			getShowEmojiHelper() const { return mShowEmojiHelper; }
+
 	void			setPassDelete(BOOL b) { mPassDelete = b; }
 
 protected:
@@ -248,6 +256,7 @@ protected:
 	S32				insert(S32 pos, const LLWString &wstr, bool group_with_next_op, LLTextSegmentPtr segment);
 	S32				remove(S32 pos, S32 length, bool group_with_next_op);
 
+	void			tryToShowEmojiHelper();
 	void			focusLostHelper();
 	void			updateAllowingLanguageInput();
 	BOOL			hasPreeditString() const;
@@ -318,6 +327,7 @@ private:
 
 	BOOL			mAllowEmbeddedItems;
 	bool			mShowContextMenu;
+	bool			mShowEmojiHelper;
 	bool			mEnableTooltipPaste;
 	bool			mPassDelete;
 	bool			mKeepSelectionOnReturn;	// disabling of removing selected text after pressing of Enter
@@ -327,7 +337,7 @@ private:
 	LLCoordGL		mLastIMEPosition;		// Last position of the IME editor
 
 	keystroke_signal_t mKeystrokeSignal;
-	LLTextValidate::validate_func_t mPrevalidateFunc;
+	LLTextValidate::Validator mPrevalidator;
 
 	LLHandle<LLContextMenu> mContextMenuHandle;
 }; // end class LLTextEditor

@@ -417,7 +417,7 @@ LLSD LLNewFileResourceUploadInfo::exportTempFile()
         if (!LLViewerTextureList::createUploadFile(getFileName(), filename, codec))
         {
             errorMessage = llformat("Problem with file %s:\n\n%s\n",
-                getFileName().c_str(), LLImage::getLastError().c_str());
+                getFileName().c_str(), LLImage::getLastThreadError().c_str());
             errorLabel = "ProblemWithFile";
             error = true;
         }
@@ -931,7 +931,7 @@ void LLViewerAssetUpload::AssetInventoryUploadCoproc(LLCoreHttpUtil::HttpCorouti
             // Show the preview panel for textures and sounds to let
             // user know that the image (or snapshot) arrived intact.
             LLInventoryPanel* panel = LLInventoryPanel::getActiveInventoryPanel(FALSE);
-            LLInventoryPanel::openInventoryPanelAndSetSelection(TRUE, serverInventoryItem, FALSE, TAKE_FOCUS_NO, (panel == NULL));
+            LLInventoryPanel::openInventoryPanelAndSetSelection(true, serverInventoryItem, false, false, !panel);
 
             // restore keyboard focus
             gFocusMgr.setKeyboardFocus(focus);

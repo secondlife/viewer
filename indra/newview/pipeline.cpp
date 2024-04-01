@@ -5137,7 +5137,7 @@ void LLPipeline::setupAvatarLights(bool for_edit)
 		light->setSpotExponent(0.f);
 		light->setSpotCutoff(180.f);
 	}
-	else if (gAvatarBacklight) // Always true (unless overridden in a devs .ini)
+	else if (gAvatarBacklight)
 	{
         LLVector3 light_dir = sun_up ? LLVector3(mSunDir) : LLVector3(mMoonDir);
 		LLVector3 opposite_pos = -light_dir;
@@ -8359,7 +8359,7 @@ void LLPipeline::doWaterHaze()
         else
         {
             //render water patches like LLDrawPoolWater does
-            LLGLDepthTest depth(GL_FALSE);
+            LLGLDepthTest depth(GL_TRUE, GL_FALSE);
             LLGLDisable   cull(GL_CULL_FACE);
 
             gGLLastMatrix = NULL;

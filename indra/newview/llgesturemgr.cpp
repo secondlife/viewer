@@ -58,6 +58,9 @@
 
 // Longest time, in seconds, to wait for all animations to stop playing
 const F32 MAX_WAIT_ANIM_SECS = 30.f;
+// Longest time, in seconds, to wait for a key release.
+// This should be relatively long, but not too long. 10 minutes is enough
+const F32 MAX_WAIT_KEY_SECS = 60.f * 10.f;
 
 // Lightweight constructor.
 // init() does the heavy lifting.
@@ -528,12 +531,13 @@ void LLGestureMgr::replaceGesture(const LLUUID& item_id, const LLUUID& new_asset
 	LLGestureMgr::instance().replaceGesture(base_item_id, gesture, new_asset_id);
 }
 
-void LLGestureMgr::playGesture(LLMultiGesture* gesture)
+void LLGestureMgr::playGesture(LLMultiGesture* gesture, bool fromKeyPress)
 {
 	if (!gesture) return;
 
 	// Reset gesture to first step
 	gesture->mCurrentStep = 0;
+	gesture->mTriggeredByKey = fromKeyPress;
 
 	// Add to list of playing
 	gesture->mPlaying = TRUE;
@@ -731,7 +735,8 @@ BOOL LLGestureMgr::triggerGesture(KEY key, MASK mask)
 		if (!gesture) continue;
 
 		if (gesture->mKey == key
-			&& gesture->mMask == mask)
+			&& gesture->mMask == mask
+			&& gesture->mWaitingKeyRelease == FALSE)
 		{
 			matching.push_back(gesture);
 		}
@@ -744,10 +749,35 @@ BOOL LLGestureMgr::triggerGesture(KEY key, MASK mask)
 		
 		LLMultiGesture* gesture = matching[random];
 			
-		playGesture(gesture);
+		playGesture(gesture, TRUE);
 		return TRUE;
 	}
 	return FALSE;
+}
+
+
+BOOL LLGestureMgr::triggerGestureRelease(KEY key, MASK mask)
+{
+	std::vector <LLMultiGesture *> matching;
+	item_map_t::iterator it;
+
+	// collect matching gestures
+	for (it = mActive.begin(); it != mActive.end(); ++it)
+	{
+		LLMultiGesture* gesture = (*it).second;
+
+		// asset data might not have arrived yet
+		if (!gesture) continue;
+
+		if (gesture->mKey == key
+			&& gesture->mMask == mask)
+		{
+			gesture->mKeyReleased = TRUE;
+		}
+	}
+	
+	//If we found one, block. Otherwise tell them it's free to go.
+	return matching.size() > 0;
 }
 
 
@@ -899,6 +929,32 @@ void LLGestureMgr::stepGesture(LLMultiGesture* gesture)
 			continue;
 		}
 
+		// If we're waiting a fixed amount of time, check for timer
+		// expiration.
+		if (gesture->mWaitingKeyRelease)
+		{
+			// We're waiting for a certain amount of time to pass
+			if (gesture->mKeyReleased)
+			{
+				// wait is done, continue execution
+				gesture->mWaitingKeyRelease = FALSE;
+				gesture->mCurrentStep++;
+			}
+			else if (gesture->mWaitTimer.getElapsedTimeF32() > MAX_WAIT_KEY_SECS)
+			{
+				LL_INFOS("GestureMgr") << "Waited too long for key release, continuing gesture."
+					<< LL_ENDL;
+				gesture->mWaitingKeyRelease = FALSE;
+				gesture->mCurrentStep++;
+			}
+			else
+			{
+				// we're waiting, so execution is done for now
+				waiting = TRUE;
+			}
+			continue;
+		}
+
 		// If we're waiting on our animations to stop, poll for
 		// completion.
 		if (gesture->mWaitingAnimations)
@@ -1015,7 +1071,17 @@ void LLGestureMgr::runStep(LLMultiGesture* gesture, LLGestureStep* step)
 	case STEP_WAIT:
 		{
 			LLGestureStepWait* wait_step = (LLGestureStepWait*)step;
-			if (wait_step->mFlags & WAIT_FLAG_TIME)
+			if (gesture->mTriggeredByKey // Only wait here IF we were triggered by a key!
+				&& gesture->mWaitingKeyRelease == FALSE // We can only do this once! Prevent gestures infinitely running
+				&& wait_step->mFlags & WAIT_FLAG_KEY_RELEASE)
+			{
+				// Lets wait for the key release first so we don't hold up re-presses
+				gesture->mWaitingKeyRelease = TRUE;
+				gesture->mKeyReleased = FALSE;
+				// Use the wait timer as a deadlock breaker for key release waits.
+				gesture->mWaitTimer.reset();
+			}
+			else if (wait_step->mFlags & WAIT_FLAG_TIME)
 			{
 				gesture->mWaitingTimer = TRUE;
 				gesture->mWaitTimer.reset();
@@ -1023,8 +1089,7 @@ void LLGestureMgr::runStep(LLMultiGesture* gesture, LLGestureStep* step)
 			else if (wait_step->mFlags & WAIT_FLAG_ALL_ANIM)
 			{
 				gesture->mWaitingAnimations = TRUE;
-				// Use the wait timer as a deadlock breaker for animation
-				// waits.
+				// Use the wait timer as a deadlock breaker for animation waits.
 				gesture->mWaitTimer.reset();
 			}
 			else

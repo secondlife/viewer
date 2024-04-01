@@ -66,8 +66,8 @@
 LLMenuHolderGL *LLMenuGL::sMenuContainer = NULL;
 view_listener_t::listener_map_t view_listener_t::sListeners;
 
-S32 MENU_BAR_HEIGHT = 0;
-S32 MENU_BAR_WIDTH = 0;
+S32 MENU_BAR_HEIGHT = 18;
+S32 MENU_BAR_WIDTH = 410;
 
 ///============================================================================
 /// Local function declarations, constants, enums, and typedefs
@@ -573,6 +573,11 @@ void LLMenuItemGL::onVisibilityChange(BOOL new_visibility)
 //
 // This class represents a separator.
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+LLMenuItemSeparatorGL::Params::Params()
+    : on_visible("on_visible")
+{
+}
+
 LLMenuItemSeparatorGL::LLMenuItemSeparatorGL(const LLMenuItemSeparatorGL::Params& p) :
 	LLMenuItemGL( p )
 {
@@ -3229,10 +3234,9 @@ void LLMenuGL::draw( void )
 	}
 	if (mDropShadowed && !mTornOff)
 	{
-		static LLUICachedControl<S32> drop_shadow_floater ("DropShadowFloater", 0);
 		static LLUIColor color_drop_shadow = LLUIColorTable::instance().getColor("ColorDropShadow");
 		gl_drop_shadow(0, getRect().getHeight(), getRect().getWidth(), 0, 
-			color_drop_shadow, drop_shadow_floater );
+			color_drop_shadow, DROP_SHADOW_FLOATER);
 	}
 
 	if( mBgVisible )

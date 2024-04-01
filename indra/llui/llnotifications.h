@@ -201,6 +201,7 @@ public:
 		Mandatory<std::string>	type;
 		Optional<S32>			width;
 		Optional<S32>			max_length_chars;
+		Optional<bool>			allow_emoji;
 		Optional<std::string>	text;
 
 		Optional<std::string>	value;
@@ -913,7 +914,7 @@ public:
 	/* virtual */ LLNotificationPtr add(const std::string& name, 
 						const LLSD& substitutions, 
 						const LLSD& payload, 
-						LLNotificationFunctorRegistry::ResponseFunctor functor);
+						LLNotificationFunctorRegistry::ResponseFunctor functor) override;
 	LLNotificationPtr add(const LLNotification::Params& p);
 
 	void add(const LLNotificationPtr pNotif);
@@ -964,8 +965,8 @@ public:
 	bool isVisibleByRules(LLNotificationPtr pNotification);
 	
 private:
-	/*virtual*/ void initSingleton();
-	/*virtual*/ void cleanupSingleton();
+	/*virtual*/ void initSingleton() override;
+	/*virtual*/ void cleanupSingleton() override;
 	
 	void loadPersistentNotifications();
 

@@ -243,7 +243,14 @@ LLSplitButton::LLSplitButton(const LLSplitButton::Params& p)
 		item_top -= (rc.getHeight() + BUTTON_PAD);
 	}
 
-	setTopLostCallback(boost::bind(&LLSplitButton::hideButtons, this));
+    mTopLostSignalConnection = setTopLostCallback(boost::bind(&LLSplitButton::hideButtons, this));
+}
+
+LLSplitButton::~LLSplitButton()
+{
+    // explicitly disconect to avoid hideButtons with
+    // dead pointers being called on destruction
+    mTopLostSignalConnection.disconnect();
 }
 
 

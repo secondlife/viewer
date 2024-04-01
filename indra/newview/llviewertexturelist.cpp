@@ -121,8 +121,17 @@ void LLViewerTextureList::doPreloadImages()
 	LLTexUnit::sWhiteTexture = LLViewerFetchedTexture::sWhiteImagep->getTexName();
 	LLUIImageList* image_list = LLUIImageList::getInstance();
 
-	// Set the default flat normal map
-	LLViewerFetchedTexture::sFlatNormalImagep = LLViewerTextureManager::getFetchedTextureFromFile("flatnormal.tga", FTT_LOCAL_FILE, MIPMAP_NO, LLViewerFetchedTexture::BOOST_BUMP);
+    // Set the default flat normal map
+    // BLANK_OBJECT_NORMAL has a version on dataserver, but it has compression artifacts
+    LLViewerFetchedTexture::sFlatNormalImagep =
+        LLViewerTextureManager::getFetchedTextureFromFile("flatnormal.tga",
+                                                          FTT_LOCAL_FILE,
+                                                          MIPMAP_NO,
+                                                          LLViewerFetchedTexture::BOOST_BUMP,
+                                                          LLViewerTexture::FETCHED_TEXTURE,
+                                                          0,
+                                                          0,
+                                                          BLANK_OBJECT_NORMAL);
 
 	// PBR: irradiance
 	LLViewerFetchedTexture::sDefaultIrradiancePBRp = LLViewerTextureManager::getFetchedTextureFromFile("default_irradiance.png", FTT_LOCAL_FILE, MIPMAP_YES, LLViewerFetchedTexture::BOOST_UI);
@@ -577,7 +586,6 @@ LLViewerFetchedTexture* LLViewerTextureList::createImage(const LLUUID &image_id,
 												   LLHost request_from_host)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
-	static LLCachedControl<bool> fast_cache_fetching_enabled(gSavedSettings, "FastCacheFetchEnabled", true);
 
 	LLPointer<LLViewerFetchedTexture> imagep ;
 	switch(texture_type)
@@ -623,11 +631,9 @@ LLViewerFetchedTexture* LLViewerTextureList::createImage(const LLUUID &image_id,
 		imagep->forceActive() ;
 	}
 
-	if(fast_cache_fetching_enabled)
-	{
-		mFastCacheList.insert(imagep);
-		imagep->setInFastCacheList(true);
-	}
+    mFastCacheList.insert(imagep);
+    imagep->setInFastCacheList(true);
+
 	return imagep ;
 }
 

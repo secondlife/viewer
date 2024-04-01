@@ -30,6 +30,9 @@
 #include "stdtypes.h"
 
 #if LIB_NDOF
+#if LL_DARWIN
+#define TARGET_OS_MAC 1
+#endif
 #include "ndofdev_external.h"
 #else
 #define NDOF_Device	void
@@ -52,8 +55,8 @@ class LLViewerJoystick : public LLSingleton<LLViewerJoystick>
 public:
 	void init(bool autoenable);
 	void initDevice(LLSD &guid);
-	void initDevice(void * preffered_device /*LPDIRECTINPUTDEVICE8*/);
-	void initDevice(void * preffered_device /*LPDIRECTINPUTDEVICE8*/, std::string &name, LLSD &guid);
+	bool initDevice(void * preffered_device /*LPDIRECTINPUTDEVICE8*/);
+	bool initDevice(void * preffered_device /*LPDIRECTINPUTDEVICE8*/, std::string &name, LLSD &guid);
 	void terminate();
 
 	void updateStatus();
@@ -76,6 +79,7 @@ public:
 	LLSD getDeviceUUID(); //unconverted, OS dependent value wrapped into LLSD, for comparison/search
 	std::string getDeviceUUIDString(); // converted readable value for settings
 	std::string getDescription();
+    void saveDeviceIdToSettings();
 
 protected:
 	void updateEnabled(bool autoenable);
@@ -103,7 +107,11 @@ private:
 	bool					mCameraUpdated;
 	bool 					mOverrideCamera;
 	U32						mJoystickRun;
-	LLSD					mLastDeviceUUID; // _GUID as U8 binary map, integer 1 for no device/ndof's device
+    
+    // Windows: _GUID as U8 binary map
+    // MacOS: long as an U8 binary map
+    // Else: integer 1 for no device/ndof's default device
+	LLSD					mLastDeviceUUID;
 	
 	static F32				sLastDelta[7];
 	static F32				sDelta[7];

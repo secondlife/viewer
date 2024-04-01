@@ -89,12 +89,6 @@ public:
 			return true;
 		}
 
-		if (!LLUI::getInstance()->mSettingGroups["config"]->getBOOL("EnableGroupInfo"))
-		{
-			LLNotificationsUtil::add("NoGroupInfo", LLSD(), LLSD(), std::string("SwitchToStandardSkinAndQuit"));
-			return true;
-		}
-
 		if (tokens.size() < 1)
 		{
 			return false;
@@ -373,7 +367,16 @@ void LLGroupActions::processLeaveGroupDataResponse(const LLUUID group_id)
 	args["GROUP"] = gdatap->mName;
 	LLSD payload;
 	payload["group_id"] = group_id;
-	LLNotificationsUtil::add("GroupLeaveConfirmMember", args, payload, onLeaveGroup);
+    if (gdatap->mMembershipFee > 0) 
+    {
+        args["COST"] = gdatap->mMembershipFee;
+        LLNotificationsUtil::add("GroupLeaveConfirmMember", args, payload, onLeaveGroup);
+    }
+    else 
+    {
+        LLNotificationsUtil::add("GroupLeaveConfirmMemberNoFee", args, payload, onLeaveGroup);
+    }
+
 }
 
 // static
@@ -405,7 +408,7 @@ void LLGroupActions::inspect(const LLUUID& group_id)
 }
 
 // static
-void LLGroupActions::show(const LLUUID& group_id)
+void LLGroupActions::show(const LLUUID &group_id, bool expand_notices_tab)
 {
 	if (group_id.isNull())
 		return;
@@ -413,6 +416,10 @@ void LLGroupActions::show(const LLUUID& group_id)
 	LLSD params;
 	params["group_id"] = group_id;
 	params["open_tab_name"] = "panel_group_info_sidetray";
+    if (expand_notices_tab) 
+    {
+        params["action"] = "show_notices";
+    }
 
 	LLFloaterSidePanelContainer::showPanel("people", "panel_group_info_sidetray", params);
     LLFloater *floater = LLFloaterReg::getTypedInstance<LLFloaterSidePanelContainer>("people");

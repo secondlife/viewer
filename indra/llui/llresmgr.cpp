@@ -47,9 +47,9 @@ void LLResMgr::setLocale( LLLOCALE_ID locale_id )
 	mLocale = locale_id;
 }
 
-char LLResMgr::getDecimalPoint() const					
+char LLResMgr::getDecimalPoint() const
 { 
-	char decimal = localeconv()->decimal_point[0]; 
+	char decimal = localeconv()->decimal_point[0];
 
 #if LL_DARWIN
 	// On the Mac, locale support is broken before 10.4, which causes things to go all pear-shaped.
@@ -62,9 +62,9 @@ char LLResMgr::getDecimalPoint() const
 	return decimal;
 }
 
-char LLResMgr::getThousandsSeparator() const			
+char LLResMgr::getThousandsSeparator() const
 {
-	char separator = localeconv()->thousands_sep[0]; 
+	char separator = localeconv()->thousands_sep[0];
 
 #if LL_DARWIN
 	// On the Mac, locale support is broken before 10.4, which causes things to go all pear-shaped.
@@ -79,7 +79,7 @@ char LLResMgr::getThousandsSeparator() const
 
 char LLResMgr::getMonetaryDecimalPoint() const
 {
-	char decimal = localeconv()->mon_decimal_point[0]; 
+	char decimal = localeconv()->mon_decimal_point[0];
 
 #if LL_DARWIN
 	// On the Mac, locale support is broken before 10.4, which causes things to go all pear-shaped.
@@ -92,9 +92,9 @@ char LLResMgr::getMonetaryDecimalPoint() const
 	return decimal;
 }
 
-char LLResMgr::getMonetaryThousandsSeparator() const	
+char LLResMgr::getMonetaryThousandsSeparator() const
 {
-	char separator = localeconv()->mon_thousands_sep[0]; 
+	char separator = localeconv()->mon_thousands_sep[0];
 
 #if LL_DARWIN
 	// On the Mac, locale support is broken before 10.4, which causes things to go all pear-shaped.

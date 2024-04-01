@@ -47,17 +47,19 @@ BOOL get_is_parent_to_worn_item(const LLUUID& id);
 
 // Is this item or its baseitem is worn, attached, etc...
 BOOL get_is_item_worn(const LLUUID& id);
+BOOL get_is_item_worn(const LLViewerInventoryItem* item);
 
 // Could this item be worn (correct type + not already being worn)
 BOOL get_can_item_be_worn(const LLUUID& id);
 
-BOOL get_is_item_removable(const LLInventoryModel* model, const LLUUID& id);
+bool get_is_item_removable(const LLInventoryModel* model, const LLUUID& id, bool check_worn);
 
 // Performs the appropiate edit action (if one exists) for this item
 bool get_is_item_editable(const LLUUID& inv_item_id);
 void handle_item_edit(const LLUUID& inv_item_id);
 
 BOOL get_is_category_removable(const LLInventoryModel* model, const LLUUID& id);
+bool get_is_category_and_children_removable(LLInventoryModel* model, const LLUUID& folder_id, bool check_worn);
 
 BOOL get_is_category_renameable(const LLInventoryModel* model, const LLUUID& id);
 
@@ -276,6 +278,28 @@ public:
 							LLInventoryItem* item);
 protected:
 	LLAssetType::EType mType;
+};
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Class LLAssetIDAndTypeMatches
+//
+// Implementation of a LLInventoryCollectFunctor which returns TRUE if
+// the item matches both asset type and asset id.
+// This is needed in case you are looking for a specific type with default id
+// (since null is default for multiple asset types)
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+class LLAssetIDAndTypeMatches: public LLInventoryCollectFunctor
+{
+public:
+    LLAssetIDAndTypeMatches(const LLUUID& asset_id, LLAssetType::EType type): mAssetID(asset_id), mType(type) {}
+    virtual ~LLAssetIDAndTypeMatches() {}
+    bool operator()(LLInventoryCategory* cat,
+                    LLInventoryItem* item);
+
+protected:
+    LLUUID mAssetID;
+    LLAssetType::EType mType;
 };
 
 class LLIsValidItemLink : public LLInventoryCollectFunctor

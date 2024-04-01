@@ -289,6 +289,7 @@ void handle_disconnect_viewer(void *);
 
 void force_error_breakpoint(void *);
 void force_error_llerror(void *);
+void force_error_llerror_msg(void*);
 void force_error_bad_memory_access(void *);
 void force_error_infinite_loop(void *);
 void force_error_software_exception(void *);
@@ -1437,6 +1438,30 @@ class LLAdvancedCheckDebugViews : public view_listener_t
 
 
 
+///////////////////
+// DEBUG UNICODE //
+///////////////////
+
+
+class LLAdvancedToggleDebugUnicode : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		LLView::sDebugUnicode = !(LLView::sDebugUnicode);
+		return true;
+	}
+};
+
+class LLAdvancedCheckDebugUnicode : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		return LLView::sDebugUnicode;
+	}
+};
+
+
+
 ///////////////////////
 // XUI NAME TOOLTIPS //
 ///////////////////////
@@ -2374,6 +2399,15 @@ class LLAdvancedForceErrorLlerror : public view_listener_t
 		force_error_llerror(NULL);
 		return true;
 	}
+};
+
+class LLAdvancedForceErrorLlerrorMsg: public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata)
+    {
+        force_error_llerror_msg(NULL);
+        return true;
+    }
 };
 
 class LLAdvancedForceErrorBadMemoryAccess : public view_listener_t
@@ -7255,37 +7289,70 @@ class LLAttachmentDetach : public view_listener_t
 	{
 		// Called when the user clicked on an object attached to them
 		// and selected "Detach".
-		LLViewerObject *object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
+        LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
+		LLViewerObject *object = selection->getPrimaryObject();
 		if (!object)
 		{
 			LL_WARNS() << "handle_detach() - no object to detach" << LL_ENDL;
 			return true;
 		}
 
-		LLViewerObject *parent = (LLViewerObject*)object->getParent();
-		while (parent)
-		{
-			if(parent->isAvatar())
-			{
-				break;
-			}
-			object = parent;
-			parent = (LLViewerObject*)parent->getParent();
-		}
+        struct f: public LLSelectedObjectFunctor
+        {
+            f() : mAvatarsInSelection(false) {}
+            virtual bool apply(LLViewerObject* objectp)
+            {
+                if (!objectp)
+                {
+                    return false;
+                }
 
-		if (!object)
-		{
-			LL_WARNS() << "handle_detach() - no object to detach" << LL_ENDL;
-			return true;
-		}
+                if (objectp->isAvatar())
+                {
+                    mAvatarsInSelection = true;
+                    return false;
+                }
 
-		if (object->isAvatar())
-		{
-			LL_WARNS() << "Trying to detach avatar from avatar." << LL_ENDL;
-			return true;
-		}
+                LLViewerObject* parent = (LLViewerObject*)objectp->getParent();
+                while (parent)
+                {
+                    if (parent->isAvatar())
+                    {
+                        break;
+                    }
+                    objectp = parent;
+                    parent = (LLViewerObject*)parent->getParent();
+                }
 
-		LLAppearanceMgr::instance().removeItemFromAvatar(object->getAttachmentItemID());
+                // std::set to avoid dupplicate 'roots' from linksets
+                mRemoveSet.insert(objectp->getAttachmentItemID());
+
+                return true;
+            }
+            bool mAvatarsInSelection;
+            uuid_set_t mRemoveSet;
+        } func;
+        // Probbly can run applyToRootObjects instead,
+        // but previous version of this code worked for any selected object
+        selection->applyToObjects(&func);
+
+        if (func.mAvatarsInSelection)
+        {
+            // Not possible under normal circumstances
+            // Either avatar selection is ON or has to do with animeshes
+            // Better stop this than mess something
+            LL_WARNS() << "Trying to detach avatar from avatar." << LL_ENDL;
+            return true;
+        }
+
+        if (func.mRemoveSet.empty())
+        {
+            LL_WARNS() << "handle_detach() - no valid attachments in selection to detach" << LL_ENDL;
+            return true;
+        }
+
+        uuid_vec_t detach_list(func.mRemoveSet.begin(), func.mRemoveSet.end());
+		LLAppearanceMgr::instance().removeItemsFromAvatar(detach_list);
 
 		return true;
 	}
@@ -8355,6 +8422,11 @@ void force_error_llerror(void *)
     LLAppViewer::instance()->forceErrorLLError();
 }
 
+void force_error_llerror_msg(void*)
+{
+    LLAppViewer::instance()->forceErrorLLErrorMsg();
+}
+
 void force_error_bad_memory_access(void *)
 {
     LLAppViewer::instance()->forceErrorBadMemoryAccess();
@@ -8509,23 +8581,8 @@ void handle_show_url(const LLSD& param)
 
 void handle_report_bug(const LLSD& param)
 {
-	LLUIString url(param.asString());
-	
-	LLStringUtil::format_map_t replace;
-	std::string environment = LLAppViewer::instance()->getViewerInfoString(true);
-	boost::regex regex;
-	regex.assign("</?nolink>");
-	std::string stripped_env = boost::regex_replace(environment, regex, "");
-
-	replace["[ENVIRONMENT]"] = LLURI::escape(stripped_env);
-	LLSLURL location_url;
-	LLAgentUI::buildSLURL(location_url);
-	replace["[LOCATION]"] = LLURI::escape(location_url.getSLURLString());
-
-	LLUIString file_bug_url = gSavedSettings.getString("ReportBugURL");
-	file_bug_url.setArgs(replace);
-
-	LLWeb::loadURLExternal(file_bug_url.getString());
+    std::string url = gSavedSettings.getString("ReportBugURL");
+    LLWeb::loadURLExternal(url);
 }
 
 void handle_buy_currency_test(void*)
@@ -9524,6 +9581,8 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedCheckDebugClicks(), "Advanced.CheckDebugClicks");
 	view_listener_t::addMenu(new LLAdvancedCheckDebugViews(), "Advanced.CheckDebugViews");
 	view_listener_t::addMenu(new LLAdvancedToggleDebugViews(), "Advanced.ToggleDebugViews");
+	view_listener_t::addMenu(new LLAdvancedCheckDebugUnicode(), "Advanced.CheckDebugUnicode");
+	view_listener_t::addMenu(new LLAdvancedToggleDebugUnicode(), "Advanced.ToggleDebugUnicode");
 	view_listener_t::addMenu(new LLAdvancedToggleXUINameTooltips(), "Advanced.ToggleXUINameTooltips");
 	view_listener_t::addMenu(new LLAdvancedCheckXUINameTooltips(), "Advanced.CheckXUINameTooltips");
 	view_listener_t::addMenu(new LLAdvancedToggleDebugMouseEvents(), "Advanced.ToggleDebugMouseEvents");
@@ -9593,6 +9652,7 @@ void initialize_menus()
 	// Advanced > Debugging
 	view_listener_t::addMenu(new LLAdvancedForceErrorBreakpoint(), "Advanced.ForceErrorBreakpoint");
 	view_listener_t::addMenu(new LLAdvancedForceErrorLlerror(), "Advanced.ForceErrorLlerror");
+    view_listener_t::addMenu(new LLAdvancedForceErrorLlerrorMsg(), "Advanced.ForceErrorLlerrorMsg");
 	view_listener_t::addMenu(new LLAdvancedForceErrorBadMemoryAccess(), "Advanced.ForceErrorBadMemoryAccess");
 	view_listener_t::addMenu(new LLAdvancedForceErrorBadMemoryAccessCoro(), "Advanced.ForceErrorBadMemoryAccessCoro");
 	view_listener_t::addMenu(new LLAdvancedForceErrorInfiniteLoop(), "Advanced.ForceErrorInfiniteLoop");
@@ -9623,7 +9683,11 @@ void initialize_menus()
 	
 	//Develop (clear cache immediately)
 	commit.add("Develop.ClearCache", boost::bind(&handle_cache_clear_immediately) );
-    
+
+	// Develop (Fonts debugging)
+	commit.add("Develop.Fonts.Dump", boost::bind(&LLFontGL::dumpFonts));
+	commit.add("Develop.Fonts.DumpTextures", boost::bind(&LLFontGL::dumpFontTextures));
+
 	// Admin >Object
 	view_listener_t::addMenu(new LLAdminForceTakeCopy(), "Admin.ForceTakeCopy");
 	view_listener_t::addMenu(new LLAdminHandleObjectOwnerSelf(), "Admin.HandleObjectOwnerSelf");

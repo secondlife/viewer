@@ -102,7 +102,10 @@ public:
 	const item_map_t& getActiveGestures() const { return mActive; }
 	// Force a gesture to be played, for example, if it is being
 	// previewed.
-	void playGesture(LLMultiGesture* gesture);
+	void playGesture(LLMultiGesture* gesture, bool fromKeyPress);
+	void playGesture(LLMultiGesture* gesture) {
+		playGesture(gesture, FALSE);
+	}
 	void playGesture(const LLUUID& item_id);
 
 	// Stop all requested or playing anims for this gesture
@@ -118,9 +121,13 @@ public:
 	{
 		mCallbackMap[inv_item_id] = cb;
 	}
-	// Trigger the first gesture that matches this key.
+	// Trigger a random gesture that matches this key.
 	// Returns TRUE if it finds a gesture bound to that key.
 	BOOL triggerGesture(KEY key, MASK mask);
+
+	// Trigger release wait on all gestures that matches this key.
+	// Returns TRUE if it finds a gesture bound to that key.
+	BOOL triggerGestureRelease(KEY key, MASK mask);
 
 	// Trigger all gestures referenced as substrings in this string
 	BOOL triggerAndReviseString(const std::string &str, std::string *revised_string = NULL);
@@ -135,7 +142,7 @@ public:
 	void notifyObservers();
 
 	// Overriding so we can update active gesture names and notify observers 
-	void changed(U32 mask); 
+	void changed(U32 mask) override;
 
 	BOOL matchPrefix(const std::string& in_str, std::string* out_str);
 
@@ -150,7 +157,7 @@ protected:
 	void runStep(LLMultiGesture* gesture, LLGestureStep* step);
 
 	// LLInventoryCompletionObserver trigger
-	void done();
+	void done() override;
 
 	// Used by loadGesture
 	static void onLoadComplete(const LLUUID& asset_uuid,

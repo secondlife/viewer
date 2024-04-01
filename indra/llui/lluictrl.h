@@ -41,6 +41,7 @@
 
 const BOOL TAKE_FOCUS_YES = TRUE;
 const BOOL TAKE_FOCUS_NO  = FALSE;
+const S32 DROP_SHADOW_FLOATER = 5;
 
 class LLUICtrl
 	: public LLView, public boost::signals2::trackable
@@ -264,7 +265,7 @@ public:
 	class LLTextInputFilter : public LLQueryFilter, public LLSingleton<LLTextInputFilter>
 	{
 		LLSINGLETON_EMPTY_CTOR(LLTextInputFilter);
-		/*virtual*/ filterResult_t operator() (const LLView* const view, const viewList_t & children) const 
+		/*virtual*/ filterResult_t operator() (const LLView* const view, const viewList_t & children) const override
 		{
 			return filterResult_t(view->isCtrl() && static_cast<const LLUICtrl *>(view)->acceptsTextInput(), TRUE);
 		}

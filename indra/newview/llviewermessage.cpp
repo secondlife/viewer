@@ -1563,15 +1563,22 @@ void open_inventory_offer(const uuid_vec_t& objects, const std::string& from_nam
         }
         else
         {
-		// Highlight item
-		const BOOL auto_open = 
-			gSavedSettings.getBOOL("ShowInInventory") && // don't open if showininventory is false
-			!from_name.empty(); // don't open if it's not from anyone.
-            if(auto_open)
+            // Highlight item
+            bool show_in_inventory = gSavedSettings.get<bool>("ShowInInventory");
+            bool auto_open =
+                show_in_inventory && // don't open if ShowInInventory is FALSE
+                !from_name.empty();  // don't open if it's not from anyone
+
+            // SL-20419 : Don't change active tab if floater is visible
+            LLFloater* instance = LLFloaterReg::findInstance("inventory");
+            bool use_main_panel = instance && instance->getVisible();
+
+            if (auto_open)
             {
                 LLFloaterReg::showInstance("inventory");
             }
-		LLInventoryPanel::openInventoryPanelAndSetSelection(auto_open, obj_id, true);
+
+            LLInventoryPanel::openInventoryPanelAndSetSelection(auto_open, obj_id, use_main_panel);
         }
 	}
 }
@@ -1647,8 +1654,9 @@ void inventory_offer_mute_callback(const LLUUID& blocked_id,
 		const LLUUID& blocked_id;
 	};
 
-	LLNotificationsUI::LLChannelManager::getInstance()->killToastsFromChannel(LLUUID(
-			gSavedSettings.getString("NotificationChannelUUID")), OfferMatcher(blocked_id));
+    LLNotificationsUI::LLChannelManager::getInstance()->killToastsFromChannel(
+        LLNotificationsUI::NOTIFICATION_CHANNEL_UUID,
+        OfferMatcher(blocked_id));
 }
 
 
@@ -5768,8 +5776,9 @@ void script_question_mute(const LLUUID& task_id, const std::string& object_name)
         const LLUUID& blocked_id;
     };
 
-    LLNotificationsUI::LLChannelManager::getInstance()->killToastsFromChannel(LLUUID(
-            gSavedSettings.getString("NotificationChannelUUID")), OfferMatcher(task_id));
+    LLNotificationsUI::LLChannelManager::getInstance()->killToastsFromChannel(
+        LLNotificationsUI::NOTIFICATION_CHANNEL_UUID,
+        OfferMatcher(task_id));
 }
 
 static LLNotificationFunctorRegistration script_question_cb_reg_1("ScriptQuestion", script_question_cb);

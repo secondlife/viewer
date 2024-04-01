@@ -3189,7 +3189,6 @@ void LLViewerObject::unlinkControlAvatar()
         if (mControlAvatar)
         {
             mControlAvatar->markForDeath();
-			mControlAvatar->mRootVolp = NULL;
             mControlAvatar = NULL;
         }
     }
@@ -3961,20 +3960,13 @@ F32 LLViewerObject::recursiveGetEstTrianglesMax() const
 S32 LLViewerObject::getAnimatedObjectMaxTris() const
 {
     S32 max_tris = 0;
-    if (gSavedSettings.getBOOL("AnimatedObjectsIgnoreLimits")) 
+    if (gAgent.getRegion())
     {
-        max_tris = S32_MAX;
-    }
-    else
-    {
-        if (gAgent.getRegion())
+        LLSD features;
+        gAgent.getRegion()->getSimulatorFeatures(features);
+        if (features.has("AnimatedObjects"))
         {
-            LLSD features;
-            gAgent.getRegion()->getSimulatorFeatures(features);
-            if (features.has("AnimatedObjects"))
-            {
-                max_tris = features["AnimatedObjects"]["AnimatedObjectMaxTris"].asInteger();
-            }
+            max_tris = features["AnimatedObjects"]["AnimatedObjectMaxTris"].asInteger();
         }
     }
     return max_tris;
@@ -5041,11 +5033,6 @@ void LLViewerObject::updateTEMaterialTextures(U8 te)
                     LLViewerObject* obj = gObjectList.findObject(id);
                     if (obj)
                     {
-                        LLViewerRegion* region = obj->getRegion();
-                        if(region)
-                        {
-                            region->loadCacheMiscExtras(obj->getLocalID());
-                        }
                         obj->markForUpdate();
                     }
                 });

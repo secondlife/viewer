@@ -1074,15 +1074,11 @@ void LLViewerRegion::setCacheID(const LLUUID& id)
 	mImpl->mCacheID = id;
 }
 
-S32 LLViewerRegion::renderPropertyLines()
+void LLViewerRegion::renderPropertyLines()
 {
 	if (mParcelOverlay)
 	{
-		return mParcelOverlay->renderPropertyLines();
-	}
-	else
-	{
-		return 0;
+		mParcelOverlay->renderPropertyLines();
 	}
 }
 
@@ -1878,8 +1874,6 @@ LLViewerObject* LLViewerRegion::addNewObject(LLVOCacheEntry* entry)
 		//should not hit here any more, but does not hurt either, just put it back to active list
 		addActiveCacheEntry(entry);
 	}
-
-    loadCacheMiscExtras(entry->getLocalID());
 
 	return obj;
 }
@@ -3653,15 +3647,6 @@ std::string LLViewerRegion::getSimHostName()
 		return mSimulatorFeatures.has("HostName") ? mSimulatorFeatures["HostName"].asString() : getHost().getHostName();
 	}
 	return std::string("...");
-}
-
-void LLViewerRegion::loadCacheMiscExtras(U32 local_id)
-{
-    auto iter = mImpl->mGLTFOverridesLLSD.find(local_id);
-    if (iter != mImpl->mGLTFOverridesLLSD.end())
-    {
-        LLGLTFMaterialList::loadCacheOverrides(iter->second);
-    }
 }
 
 void LLViewerRegion::applyCacheMiscExtras(LLViewerObject* obj)

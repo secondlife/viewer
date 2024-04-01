@@ -256,16 +256,16 @@ void LLPopupView::removePopup(LLView* popup)
 
 void LLPopupView::clearPopups()
 {
-	for (popup_list_t::iterator popup_it = mPopups.begin();
-		popup_it != mPopups.end();)
+	while (!mPopups.empty())
 	{
-		LLView* popup = popup_it->get();
-
-		popup_list_t::iterator cur_popup_it = popup_it;
-		++popup_it;
-
-		mPopups.erase(cur_popup_it);
-		popup->onTopLost();
+        popup_list_t::iterator popup_it = mPopups.begin();
+        LLView* popup = popup_it->get();
+        // Remove before notifying in case it will cause removePopup
+        mPopups.erase(popup_it);
+        if (popup)
+        {
+            popup->onTopLost();
+        }
 	}
 }
 

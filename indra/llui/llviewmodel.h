@@ -100,6 +100,7 @@ public:
 	// LLViewModel functions
     virtual void setValue(const LLSD& value);
     virtual LLSD getValue() const;
+    const std::string& getStringValue() const;
 
 	// New functions
     /// Get the stored value in string form
@@ -114,12 +115,17 @@ public:
     void setDisplay(const LLWString& value);
 	
 private:
+    std::string mStringValue;
+
     /// To avoid converting every widget's stored value from LLSD to LLWString
     /// every frame, cache the converted value
     LLWString mDisplay;
+
     /// As the user edits individual characters (setDisplay()), defer
     /// LLWString-to-UTF8 conversions until s/he's done.
     bool mUpdateFromDisplay;
+
+    friend void updateFromDisplayIfNeeded(const LLTextViewModel* model);
 };
 
 /**

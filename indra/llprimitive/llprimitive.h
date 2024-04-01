@@ -89,7 +89,7 @@ extern const F32 OBJECT_REV_MIN;
 extern const F32 OBJECT_REV_MAX;
 extern const F32 OBJECT_REV_INC;
 
-extern const char *SCULPT_DEFAULT_TEXTURE;
+extern const LLUUID SCULPT_DEFAULT_TEXTURE;
 
 //============================================================================
 

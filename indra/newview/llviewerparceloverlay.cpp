@@ -50,18 +50,15 @@
 #include "pipeline.h"
 
 
-const U8  OVERLAY_IMG_COMPONENTS = 4;
+static const U8  OVERLAY_IMG_COMPONENTS = 4;
+static const F32 LINE_WIDTH = 0.0625f;
 
 LLViewerParcelOverlay::LLViewerParcelOverlay(LLViewerRegion* region, F32 region_width_meters)
 :	mRegion( region ),
 	mParcelGridsPerEdge( S32( region_width_meters / PARCEL_GRID_STEP_METERS ) ),
 	mDirty( FALSE ),
 	mTimeSinceLastUpdate(),
-	mOverlayTextureIdx(-1),
-	mVertexCount(0),
-	mVertexArray(NULL),
-	mColorArray(NULL)
-//	mTexCoordArray(NULL),
+	mOverlayTextureIdx(-1)
 {
 	// Create a texture to hold color information.
 	// 4 components
@@ -99,17 +96,6 @@ LLViewerParcelOverlay::~LLViewerParcelOverlay()
 {
 	delete[] mOwnership;
 	mOwnership = NULL;
-
-	delete[] mVertexArray;
-	mVertexArray = NULL;
-
-	delete[] mColorArray;
-	mColorArray = NULL;
-
-// JC No textures.
-//	delete mTexCoordArray;
-//	mTexCoordArray = NULL;
-
 	mImageRaw = NULL;
 }
 
@@ -312,7 +298,6 @@ F32 LLViewerParcelOverlay::getOwnedRatio() const
 	}
 
 	return (F32)total / (F32)size;
-
 }
 
 //---------------------------------------------------------------------------
@@ -329,14 +314,13 @@ F32 LLViewerParcelOverlay::getOwnedRatio() const
 // Note: Assumes that the ownership array and 
 void LLViewerParcelOverlay::updateOverlayTexture()
 {
-	if (mOverlayTextureIdx < 0 && mDirty)
-	{
-		mOverlayTextureIdx = 0;
-	}
 	if (mOverlayTextureIdx < 0)
 	{
-		return;
+		if (!mDirty)
+			return;
+		mOverlayTextureIdx = 0;
 	}
+
 	const LLColor4U avail = LLUIColorTable::instance().getColor("PropertyColorAvail").get();
 	const LLColor4U owned = LLUIColorTable::instance().getColor("PropertyColorOther").get();
 	const LLColor4U group = LLUIColorTable::instance().getColor("PropertyColorGroup").get();
@@ -441,38 +425,44 @@ void LLViewerParcelOverlay::uncompressLandOverlay(S32 chunk, U8 *packed_overlay)
 	setDirty();
 }
 
-
 void LLViewerParcelOverlay::updatePropertyLines()
 {
-	if (!gSavedSettings.getBOOL("ShowPropertyLines"))
+	static LLCachedControl<bool> show(gSavedSettings, "ShowPropertyLines");
+
+	if (!show)
 		return;
-	
-	S32 row, col;
 
-	const LLColor4U self_coloru  = LLUIColorTable::instance().getColor("PropertyColorSelf").get();
-	const LLColor4U other_coloru = LLUIColorTable::instance().getColor("PropertyColorOther").get();
-	const LLColor4U group_coloru = LLUIColorTable::instance().getColor("PropertyColorGroup").get();
-	const LLColor4U for_sale_coloru = LLUIColorTable::instance().getColor("PropertyColorForSale").get();
-	const LLColor4U auction_coloru = LLUIColorTable::instance().getColor("PropertyColorAuction").get();
+	LLColor4U colors[PARCEL_COLOR_MASK + 1];
+	colors[PARCEL_SELF] = LLUIColorTable::instance().getColor("PropertyColorSelf").get();
+	colors[PARCEL_OWNED] = LLUIColorTable::instance().getColor("PropertyColorOther").get();
+	colors[PARCEL_GROUP] = LLUIColorTable::instance().getColor("PropertyColorGroup").get();
+	colors[PARCEL_FOR_SALE] = LLUIColorTable::instance().getColor("PropertyColorForSale").get();
+	colors[PARCEL_AUCTION] = LLUIColorTable::instance().getColor("PropertyColorAuction").get();
 
-	// Build into dynamic arrays, then copy into static arrays.
-	std::vector<LLVector3> new_vertex_array;
-	new_vertex_array.reserve(256);
-	std::vector<LLColor4U> new_color_array;
-	new_color_array.reserve(256);
-	std::vector<LLVector2> new_coord_array;
-	new_coord_array.reserve(256);
+	mEdges.clear();
 
-	U8 overlay = 0;
-	BOOL add_edge = FALSE;
 	const F32 GRID_STEP = PARCEL_GRID_STEP_METERS;
 	const S32 GRIDS_PER_EDGE = mParcelGridsPerEdge;
 
-	for (row = 0; row < GRIDS_PER_EDGE; row++)
+	for (S32 row = 0; row < GRIDS_PER_EDGE; row++)
 	{
-		for (col = 0; col < GRIDS_PER_EDGE; col++)
+		for (S32 col = 0; col < GRIDS_PER_EDGE; col++)
 		{
-			overlay = mOwnership[row*GRIDS_PER_EDGE+col];
+			U8 overlay = mOwnership[row*GRIDS_PER_EDGE+col];
+			S32 colorIndex = overlay & PARCEL_COLOR_MASK;
+			switch(colorIndex)
+			{
+			case PARCEL_SELF:
+			case PARCEL_GROUP:
+			case PARCEL_OWNED:
+			case PARCEL_FOR_SALE:
+			case PARCEL_AUCTION:
+				break;
+			default:
+				continue;
+			}
+
+			const LLColor4U& color = colors[colorIndex];
 
 			F32 left = col*GRID_STEP;
 			F32 right = left+GRID_STEP;
@@ -483,259 +473,41 @@ void LLViewerParcelOverlay::updatePropertyLines()
 			// West edge
 			if (overlay & PARCEL_WEST_LINE)
 			{
-				switch(overlay & PARCEL_COLOR_MASK)
-				{
-				case PARCEL_SELF:
-					addPropertyLine(new_vertex_array, new_color_array, new_coord_array,
-						left, bottom, WEST, self_coloru);
-					break;
-				case PARCEL_GROUP:
-					addPropertyLine(new_vertex_array, new_color_array, new_coord_array,
-						left, bottom, WEST, group_coloru);
-					break;
-				case PARCEL_OWNED:
-					addPropertyLine(new_vertex_array, new_color_array, new_coord_array,
-						left, bottom, WEST, other_coloru);
-					break;
-				case PARCEL_FOR_SALE:
-					addPropertyLine(new_vertex_array, new_color_array, new_coord_array,
-						left, bottom, WEST, for_sale_coloru);
-					break;
-				case PARCEL_AUCTION:
-					addPropertyLine(new_vertex_array, new_color_array, new_coord_array,
-						left, bottom, WEST, auction_coloru);
-					break;
-				default:
-					break;
-				}
+				addPropertyLine(left, bottom, 0, 1, LINE_WIDTH, 0, color);
 			}
 
 			// East edge
-			if (col < GRIDS_PER_EDGE-1)
+			if (col == GRIDS_PER_EDGE - 1 || mOwnership[row * GRIDS_PER_EDGE + col + 1] & PARCEL_WEST_LINE)
 			{
-				U8 east_overlay = mOwnership[row*GRIDS_PER_EDGE+col+1];
-				add_edge = east_overlay & PARCEL_WEST_LINE;
-			}
-			else
-			{
-				add_edge = TRUE;
-			}
-
-			if (add_edge)
-			{
-				switch(overlay & PARCEL_COLOR_MASK)
-				{
-				case PARCEL_SELF:
-					addPropertyLine(new_vertex_array, new_color_array, new_coord_array,
-						right, bottom, EAST, self_coloru);
-					break;
-				case PARCEL_GROUP:
-					addPropertyLine(new_vertex_array, new_color_array, new_coord_array,
-						right, bottom, EAST, group_coloru);
-					break;
-				case PARCEL_OWNED:
-					addPropertyLine(new_vertex_array, new_color_array, new_coord_array,
-						right, bottom, EAST, other_coloru);
-					break;
-				case PARCEL_FOR_SALE:
-					addPropertyLine(new_vertex_array, new_color_array, new_coord_array,
-						right, bottom, EAST, for_sale_coloru);
-					break;
-				case PARCEL_AUCTION:
-					addPropertyLine(new_vertex_array, new_color_array, new_coord_array,
-						right, bottom, EAST, auction_coloru);
-					break;
-				default:
-					break;
-				}
+				addPropertyLine(right, bottom, 0, 1, -LINE_WIDTH, 0, color);
 			}
 
 			// South edge
 			if (overlay & PARCEL_SOUTH_LINE)
 			{
-				switch(overlay & PARCEL_COLOR_MASK)
-				{
-				case PARCEL_SELF:
-					addPropertyLine(new_vertex_array, new_color_array, new_coord_array,
-						left, bottom, SOUTH, self_coloru);
-					break;
-				case PARCEL_GROUP:
-					addPropertyLine(new_vertex_array, new_color_array, new_coord_array,
-						left, bottom, SOUTH, group_coloru);
-					break;
-				case PARCEL_OWNED:
-					addPropertyLine(new_vertex_array, new_color_array, new_coord_array,
-						left, bottom, SOUTH, other_coloru);
-					break;
-				case PARCEL_FOR_SALE:
-					addPropertyLine(new_vertex_array, new_color_array, new_coord_array,
-						left, bottom, SOUTH, for_sale_coloru);
-					break;
-				case PARCEL_AUCTION:
-					addPropertyLine(new_vertex_array, new_color_array, new_coord_array,
-						left, bottom, SOUTH, auction_coloru);
-					break;
-				default:
-					break;
-				}
+				addPropertyLine(left, bottom, 1, 0, 0, LINE_WIDTH, color);
 			}
-
 
 			// North edge
-			if (row < GRIDS_PER_EDGE-1)
+			if (row == GRIDS_PER_EDGE - 1 || mOwnership[(row + 1) * GRIDS_PER_EDGE + col] & PARCEL_SOUTH_LINE)
 			{
-				U8 north_overlay = mOwnership[(row+1)*GRIDS_PER_EDGE+col];
-				add_edge = north_overlay & PARCEL_SOUTH_LINE;
-			}
-			else
-			{
-				add_edge = TRUE;
-			}
-
-			if (add_edge)
-			{
-				switch(overlay & PARCEL_COLOR_MASK)
-				{
-				case PARCEL_SELF:
-					addPropertyLine(new_vertex_array, new_color_array, new_coord_array,
-						left, top, NORTH, self_coloru);
-					break;
-				case PARCEL_GROUP:
-					addPropertyLine(new_vertex_array, new_color_array, new_coord_array,
-						left, top, NORTH, group_coloru);
-					break;
-				case PARCEL_OWNED:
-					addPropertyLine(new_vertex_array, new_color_array, new_coord_array,
-						left, top, NORTH, other_coloru);
-					break;
-				case PARCEL_FOR_SALE:
-					addPropertyLine(new_vertex_array, new_color_array, new_coord_array,
-						left, top, NORTH, for_sale_coloru);
-					break;
-				case PARCEL_AUCTION:
-					addPropertyLine(new_vertex_array, new_color_array, new_coord_array,
-						left, top, NORTH, auction_coloru);
-					break;
-				default:
-					break;
-				}
+				addPropertyLine(left, top, 1, 0, 0, -LINE_WIDTH, color);
 			}
 		}
-	}
-
-	// Now copy into static arrays for faster rendering.
-	// Attempt to recycle old arrays if possible to avoid memory
-	// shuffling.
-	S32 new_vertex_count = new_vertex_array.size();
-	
-	if (!(mVertexArray && mColorArray && new_vertex_count == mVertexCount))
-	{
-		// ...need new arrays
-		delete[] mVertexArray;
-		mVertexArray = NULL;
-		delete[] mColorArray;
-		mColorArray = NULL;
-
-		mVertexCount = new_vertex_count;
-
-		if (new_vertex_count > 0)
-		{
-			mVertexArray   = new F32[3 * mVertexCount];
-			mColorArray    = new U8 [4 * mVertexCount];
-		}
-	}
-
-	// Copy the new data into the arrays
-	S32 i;
-	F32* vertex = mVertexArray;
-	for (i = 0; i < mVertexCount; i++)
-	{
-		const LLVector3& point = new_vertex_array.at(i);
-		*vertex = point.mV[VX];
-		vertex++;
-		*vertex = point.mV[VY];
-		vertex++;
-		*vertex = point.mV[VZ];
-		vertex++;
-	}
-
-	U8* colorp = mColorArray;
-	for (i = 0; i < mVertexCount; i++)
-	{
-		const LLColor4U& color = new_color_array.at(i);
-		*colorp = color.mV[VRED];
-		colorp++;
-		*colorp = color.mV[VGREEN];
-		colorp++;
-		*colorp = color.mV[VBLUE];
-		colorp++;
-		*colorp = color.mV[VALPHA];
-		colorp++;
 	}
 	
 	// Everything's clean now
 	mDirty = FALSE;
 }
 
-
-void LLViewerParcelOverlay::addPropertyLine(
-				std::vector<LLVector3>& vertex_array,
-				std::vector<LLColor4U>& color_array,
-				std::vector<LLVector2>& coord_array,
-				const F32 start_x, const F32 start_y, 
-				const U32 edge,
-				const LLColor4U& color)
+void LLViewerParcelOverlay::addPropertyLine(F32 start_x, F32 start_y, F32 dx, F32 dy, F32 tick_dx, F32 tick_dy, const LLColor4U& color)
 {
-	LLColor4U underwater( color );
-	underwater.mV[VALPHA] /= 2;
-
-	vertex_array.reserve(16);
-	color_array.reserve(16);
-	coord_array.reserve(16);
-
 	LLSurface& land = mRegion->getLand();
+	F32 water_z = land.getWaterHeight();
 
-	F32 dx;
-	F32 dy;
-	F32 tick_dx;
-	F32 tick_dy;
-	//const F32 LINE_WIDTH = 0.125f;
-	const F32 LINE_WIDTH = 0.0625f;
-
-	switch(edge)
-	{
-	case WEST:
-		dx = 0.f;
-		dy = 1.f;
-		tick_dx = LINE_WIDTH;
-		tick_dy = 0.f;
-		break;
-
-	case EAST:
-		dx = 0.f;
-		dy = 1.f;
-		tick_dx = -LINE_WIDTH;
-		tick_dy = 0.f;
-		break;
-
-	case NORTH:
-		dx = 1.f;
-		dy = 0.f;
-		tick_dx = 0.f;
-		tick_dy = -LINE_WIDTH;
-		break;
-
-	case SOUTH:
-		dx = 1.f;
-		dy = 0.f;
-		tick_dx = 0.f;
-		tick_dy = LINE_WIDTH;
-		break;
-
-	default:
-		LL_ERRS() << "Invalid edge in addPropertyLine" << LL_ENDL;
-		return;
-	}
+	mEdges.resize(mEdges.size() + 1);
+	Edge& edge = mEdges.back();
+	edge.color = color;
 
 	F32 outside_x = start_x;
 	F32 outside_y = start_y;
@@ -744,14 +516,31 @@ void LLViewerParcelOverlay::addPropertyLine(
 	F32 inside_y  = start_y + tick_dy;
 	F32 inside_z  = 0.f;
 
+    auto split = [&](const LLVector3& start, F32 x, F32 y, F32 z, F32 part)
+        {
+            F32 new_x = start.mV[0] + (x - start.mV[0]) * part;
+            F32 new_y = start.mV[1] + (y - start.mV[1]) * part;
+            F32 new_z = start.mV[2] + (z - start.mV[2]) * part;
+            edge.vertices.emplace_back(new_x, new_y, new_z);
+        };
+
+    auto checkForSplit = [&]()
+        {
+            const LLVector3& last_outside = edge.vertices.back();
+            F32 z0 = last_outside.mV[2];
+            F32 z1 = outside_z;
+            if ((z0 >= water_z && z1 >= water_z) || (z0 < water_z && z1 < water_z))
+                return;
+            F32 part = (water_z - z0) / (z1 - z0);
+            const LLVector3& last_inside = edge.vertices[edge.vertices.size() - 2];
+            split(last_inside, inside_x, inside_y, inside_z, part);
+            split(last_outside, outside_x, outside_y, outside_z, part);
+        };
+
 	// First part, only one vertex
 	outside_z = land.resolveHeightRegion( outside_x, outside_y );
 
-	if (outside_z > 20.f) color_array.push_back( color );
-	else color_array.push_back( underwater );
-
-	vertex_array.push_back( LLVector3(outside_x, outside_y, outside_z) );
-	coord_array.push_back(  LLVector2(outside_x - start_x, 0.f) );
+	edge.vertices.emplace_back(outside_x, outside_y, outside_z);
 
 	inside_x += dx * LINE_WIDTH;
 	inside_y += dy * LINE_WIDTH;
@@ -763,17 +552,8 @@ void LLViewerParcelOverlay::addPropertyLine(
 	inside_z = land.resolveHeightRegion( inside_x, inside_y );
 	outside_z = land.resolveHeightRegion( outside_x, outside_y );
 
-	if (inside_z > 20.f) color_array.push_back( color );
-	else color_array.push_back( underwater );
-
-	if (outside_z > 20.f) color_array.push_back( color );
-	else color_array.push_back( underwater );
-
-	vertex_array.push_back( LLVector3(inside_x, inside_y, inside_z) );
-	vertex_array.push_back( LLVector3(outside_x, outside_y, outside_z) );
-
-	coord_array.push_back(  LLVector2(outside_x - start_x, 1.f) );
-	coord_array.push_back(  LLVector2(outside_x - start_x, 0.f) );
+	edge.vertices.emplace_back(inside_x, inside_y, inside_z);
+	edge.vertices.emplace_back(outside_x, outside_y, outside_z);
 
 	inside_x += dx * (dx - LINE_WIDTH);
 	inside_y += dy * (dy - LINE_WIDTH);
@@ -782,24 +562,16 @@ void LLViewerParcelOverlay::addPropertyLine(
 	outside_y += dy * (dy - LINE_WIDTH);
 
 	// Middle part, full width
-	S32 i;
 	const S32 GRID_STEP = S32( PARCEL_GRID_STEP_METERS );
-	for (i = 1; i < GRID_STEP; i++)
+	for (S32 i = 1; i < GRID_STEP; i++)
 	{
 		inside_z = land.resolveHeightRegion( inside_x, inside_y );
 		outside_z = land.resolveHeightRegion( outside_x, outside_y );
 
-		if (inside_z > 20.f) color_array.push_back( color );
-		else color_array.push_back( underwater );
+		checkForSplit();
 
-		if (outside_z > 20.f) color_array.push_back( color );
-		else color_array.push_back( underwater );
-
-		vertex_array.push_back( LLVector3(inside_x, inside_y, inside_z) );
-		vertex_array.push_back( LLVector3(outside_x, outside_y, outside_z) );
-
-		coord_array.push_back(  LLVector2(outside_x - start_x, 1.f) );
-		coord_array.push_back(  LLVector2(outside_x - start_x, 0.f) );
+		edge.vertices.emplace_back(inside_x, inside_y, inside_z);
+		edge.vertices.emplace_back(outside_x, outside_y, outside_z);
 
 		inside_x += dx;
 		inside_y += dy;
@@ -818,20 +590,10 @@ void LLViewerParcelOverlay::addPropertyLine(
 	inside_z = land.resolveHeightRegion( inside_x, inside_y );
 	outside_z = land.resolveHeightRegion( outside_x, outside_y );
 
-	if (inside_z > 20.f) color_array.push_back( color );
-	else color_array.push_back( underwater );
+	checkForSplit();
 
-	if (outside_z > 20.f) color_array.push_back( color );
-	else color_array.push_back( underwater );
-
-	vertex_array.push_back( LLVector3(inside_x, inside_y, inside_z) );
-	vertex_array.push_back( LLVector3(outside_x, outside_y, outside_z) );
-
-	coord_array.push_back(  LLVector2(outside_x - start_x, 1.f) );
-	coord_array.push_back(  LLVector2(outside_x - start_x, 0.f) );
-
-	inside_x += dx * LINE_WIDTH;
-	inside_y += dy * LINE_WIDTH;
+	edge.vertices.emplace_back(inside_x, inside_y, inside_z);
+	edge.vertices.emplace_back(outside_x, outside_y, outside_z);
 
 	outside_x += dx * LINE_WIDTH;
 	outside_y += dy * LINE_WIDTH;
@@ -839,13 +601,8 @@ void LLViewerParcelOverlay::addPropertyLine(
 	// Last edge is not drawn to the edge
 	outside_z = land.resolveHeightRegion( outside_x, outside_y );
 
-	if (outside_z > 20.f) color_array.push_back( color );
-	else color_array.push_back( underwater );
-
-	vertex_array.push_back( LLVector3(outside_x, outside_y, outside_z) );
-	coord_array.push_back(  LLVector2(outside_x - start_x, 0.f) );
+	edge.vertices.emplace_back(outside_x, outside_y, outside_z);
 }
-
 
 void LLViewerParcelOverlay::setDirty()
 {
@@ -882,18 +639,15 @@ void LLViewerParcelOverlay::idleUpdate(bool force_update)
 	}
 }
 
-S32 LLViewerParcelOverlay::renderPropertyLines	() 
+void LLViewerParcelOverlay::renderPropertyLines()
 {
-	if (!gSavedSettings.getBOOL("ShowPropertyLines"))
-	{
-		return 0;
-	}
-	if (!mVertexArray || !mColorArray)
-	{
-		return 0;
-	}
+	static LLCachedControl<bool> show(gSavedSettings, "ShowPropertyLines");
+
+	if (!show)
+		return;
 
 	LLSurface& land = mRegion->getLand();
+	F32 water_z = land.getWaterHeight() + 0.01f;
 
 	LLGLSUIDefault gls_ui; // called from pipeline
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
@@ -920,15 +674,10 @@ S32 LLViewerParcelOverlay::renderPropertyLines	()
 
 	// Move to appropriate region coords
 	LLVector3 origin = mRegion->getOriginAgent();
-	gGL.translatef( origin.mV[VX], origin.mV[VY], origin.mV[VZ] );
+	gGL.translatef(origin.mV[VX], origin.mV[VY], origin.mV[VZ]);
 
 	gGL.translatef(pull_toward_camera.mV[VX], pull_toward_camera.mV[VY],
 		pull_toward_camera.mV[VZ]);
-
-	// Include +1 because vertices are fenceposts.
-	// *2 because it's a quad strip
-	const S32 GRID_STEP = S32( PARCEL_GRID_STEP_METERS );
-	const S32 vertex_per_edge = 3 + 2 * (GRID_STEP-1) + 3;
 
 	// Stomp the camera into two dimensions
 	LLVector3 camera_region = mRegion->getPosRegionFromGlobal( gAgentCamera.getCameraPositionGlobal() );
@@ -939,91 +688,68 @@ S32 LLViewerParcelOverlay::renderPropertyLines	()
 	cull_plane_point *= -2.f * PARCEL_GRID_STEP_METERS;
 	cull_plane_point += camera_region;
 
-	LLVector3 vertex;
-
-	const S32 BYTES_PER_COLOR = 4;
-	const S32 FLOATS_PER_VERTEX = 3;
-	//const S32 FLOATS_PER_TEX_COORD = 2;
-	S32 i, j;
-	S32 drawn = 0;
-	F32* vertexp;
-	U8* colorp;
 	bool render_hidden = LLSelectMgr::sRenderHiddenSelections && LLFloaterReg::instanceVisible("build");
 
 	const F32 PROPERTY_LINE_CLIP_DIST_SQUARED = 256.f * 256.f;
 
-	for (i = 0; i < mVertexCount; i += vertex_per_edge)
+	for (const Edge& edge : mEdges)
 	{
-		colorp  = mColorArray  + BYTES_PER_COLOR   * i;
-		vertexp = mVertexArray + FLOATS_PER_VERTEX * i;
+		LLVector3 center = edge.vertices[edge.vertices.size() >> 1];
 
-		vertex.mV[VX] = *(vertexp);
-		vertex.mV[VY] = *(vertexp+1);
-		vertex.mV[VZ] = *(vertexp+2);
-
-		if (dist_vec_squared2D(vertex, camera_region) > PROPERTY_LINE_CLIP_DIST_SQUARED)
+		if (dist_vec_squared2D(center, camera_region) > PROPERTY_LINE_CLIP_DIST_SQUARED)
 		{
 			continue;
 		}
 
 		// Destroy vertex, transform to plane-local.
-		vertex -= cull_plane_point;
+		center -= cull_plane_point;
 
-		// negative dot product means it is in back of the plane
-		if ( vertex * CAMERA_AT < 0.f )
+		// Negative dot product means it is in back of the plane
+		if (center * CAMERA_AT < 0.f)
 		{
 			continue;
 		}
 
 		gGL.begin(LLRender::TRIANGLE_STRIP);
 
-		for (j = 0; j < vertex_per_edge; j++)
-		{
-			gGL.color4ubv(colorp);
-			gGL.vertex3fv(vertexp);
+		gGL.color4ubv(edge.color.mV);
 
-			colorp  += BYTES_PER_COLOR;
-			vertexp += FLOATS_PER_VERTEX;			
+		for (const LLVector3& vertex : edge.vertices)
+		{
+			if (render_hidden || camera_z < water_z || vertex.mV[2] >= water_z)
+			{
+				gGL.vertex3fv(vertex.mV);
+			}
+			else
+			{
+				LLVector3 visible = vertex;
+				visible.mV[2] = water_z;
+				gGL.vertex3fv(visible.mV);
+			}
 		}
 
-		drawn += vertex_per_edge;
-
 		gGL.end();
-		
+
 		if (render_hidden)
 		{
 			LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_GREATER);
-			
-			colorp  = mColorArray  + BYTES_PER_COLOR   * i;
-			vertexp = mVertexArray + FLOATS_PER_VERTEX * i;
 
 			gGL.begin(LLRender::TRIANGLE_STRIP);
 
-			for (j = 0; j < vertex_per_edge; j++)
+			LLColor4U color = edge.color;
+			color.mV[3] /= 4;
+			gGL.color4ubv(color.mV);
+
+			for (const LLVector3& vertex : edge.vertices)
 			{
-				U8 color[4];
-				color[0] = colorp[0];
-				color[1] = colorp[1];
-				color[2] = colorp[2];
-				color[3] = colorp[3]/4;
-
-				gGL.color4ubv(color);
-				gGL.vertex3fv(vertexp);
-
-				colorp  += BYTES_PER_COLOR;
-				vertexp += FLOATS_PER_VERTEX;			
+				gGL.vertex3fv(vertex.mV);
 			}
-
-			drawn += vertex_per_edge;
 
 			gGL.end();
 		}
-		
 	}
 
     gGL.popMatrix();
-
-	return drawn;
 }
 
 // Draw half of a single cell (no fill) in a grid drawn from left to right and from bottom to top
@@ -1047,11 +773,9 @@ void grid_2d_part_lines(const F32 left, const F32 top, const F32 right, const F3
 
 void LLViewerParcelOverlay::renderPropertyLinesOnMinimap(F32 scale_pixels_per_meter, const F32 *parcel_outline_color)
 {
-    if (!mOwnership)
-    {
-        return;
-    }
-    if (!gSavedSettings.getBOOL("MiniMapShowPropertyLines"))
+    static LLCachedControl<bool> show(gSavedSettings, "MiniMapShowPropertyLines");
+
+    if (!mOwnership || !show)
     {
         return;
     }
@@ -1066,11 +790,11 @@ void LLViewerParcelOverlay::renderPropertyLinesOnMinimap(F32 scale_pixels_per_me
     gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
     glLineWidth(1.0f);
     gGL.color4fv(parcel_outline_color);
-    for (S32 i = 0; i < GRIDS_PER_EDGE + 1; i++)
+    for (S32 i = 0; i <= GRIDS_PER_EDGE; i++)
     {
         const F32 bottom = region_bottom + (i * map_parcel_width);
         const F32 top    = bottom + map_parcel_width;
-        for (S32 j = 0; j < GRIDS_PER_EDGE + 1; j++)
+        for (S32 j = 0; j <= GRIDS_PER_EDGE; j++)
         {
             const F32  left               = region_left + (j * map_parcel_width);
             const F32  right              = left + map_parcel_width;

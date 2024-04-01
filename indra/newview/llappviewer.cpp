@@ -362,7 +362,6 @@ BOOL gRandomizeFramerate = FALSE;
 BOOL gPeriodicSlowFrame = FALSE;
 
 BOOL gCrashOnStartup = FALSE;
-BOOL gLLErrorActivated = FALSE;
 BOOL gLogoutInProgress = FALSE;
 
 BOOL gSimulateMemLeak = FALSE;
@@ -527,13 +526,6 @@ bool	create_text_segment_icon_from_url_match(LLUrlMatch* match,LLTextBase* base)
 // or for things that are performance critical.  JC
 static void settings_to_globals()
 {
-	LLBUTTON_H_PAD		= gSavedSettings.getS32("ButtonHPad");
-	BTN_HEIGHT_SMALL	= gSavedSettings.getS32("ButtonHeightSmall");
-	BTN_HEIGHT			= gSavedSettings.getS32("ButtonHeight");
-
-	MENU_BAR_HEIGHT		= gSavedSettings.getS32("MenuBarHeight");
-	MENU_BAR_WIDTH		= gSavedSettings.getS32("MenuBarWidth");
-
 	LLSurface::setTextureSize(gSavedSettings.getU32("RegionTextureSize"));
 
 #if LL_DARWIN
@@ -2253,14 +2245,19 @@ void errorCallback(LLError::ELevel level, const std::string &error_string)
         OSMessageBox(error_string, LLTrans::getString("MBFatalError"), OSMB_OK);
 #endif
 
-        //Set the ErrorActivated global so we know to create a marker file
-        gLLErrorActivated = true;
-
         gDebugInfo["FatalMessage"] = error_string;
         // We're not already crashing -- we simply *intend* to crash. Since we
         // haven't actually trashed anything yet, we can afford to write the whole
         // static info file.
         LLAppViewer::instance()->writeDebugInfo();
+    }
+}
+
+void errorMSG(const std::string& title_string, const std::string& message_string)
+{
+    if (!message_string.empty())
+    {
+        OSMessageBox(message_string, title_string.empty() ? LLTrans::getString("MBFatalError") : title_string, OSMB_OK);
     }
 }
 
@@ -2274,6 +2271,8 @@ void LLAppViewer::initLoggingAndGetLastDuration()
                                 );
     LLError::addGenericRecorder(&errorCallback);
     //LLError::setTimeFunction(getRuntime);
+
+    LLError::LLUserWarningMsg::setHandler(errorMSG);
 
 
     if (mSecondInstance)
@@ -2412,6 +2411,7 @@ bool LLAppViewer::loadSettingsFromDirectory(const std::string& location_key,
 			{	// failed to load
 				if(file.required)
 				{
+                    LLError::LLUserWarningMsg::showMissingFiles();
 					LL_ERRS() << "Error: Cannot load required settings file from: " << full_settings_path << LL_ENDL;
 					return false;
 				}
@@ -2510,6 +2510,7 @@ bool LLAppViewer::initConfiguration()
 	if (!success)
 	{
         LL_WARNS() << "Cannot load default configuration file " << settings_file_list << LL_ENDL;
+        LLError::LLUserWarningMsg::showMissingFiles();
         if (gDirUtilp->fileExists(settings_file_list))
         {
             LL_ERRS() << "Cannot load default configuration file settings_files.xml. "
@@ -2533,6 +2534,7 @@ bool LLAppViewer::initConfiguration()
 
 	if (!mSettingsLocationList->validateBlock())
 	{
+        LLError::LLUserWarningMsg::showMissingFiles();
         LL_ERRS() << "Invalid settings file list " << settings_file_list << LL_ENDL;
 	}
 
@@ -2967,6 +2969,8 @@ bool LLAppViewer::initConfiguration()
 		LLEventPumps::instance().obtain("LLControlGroup").post(LLSDMap("init", key));
 	}
 
+    LLError::LLUserWarningMsg::setOutOfMemoryStrings(LLTrans::getString("MBOutOfMemoryTitle"), LLTrans::getString("MBOutOfMemoryErr"));
+
 	return true; // Config was successful.
 }
 
@@ -3004,6 +3008,7 @@ void LLAppViewer::initStrings()
 
 		// initial check to make sure files are there failed
 		gDirUtilp->dumpCurrentDirectories(LLError::LEVEL_WARN);
+        LLError::LLUserWarningMsg::showMissingFiles();
 		LL_ERRS() << "Viewer failed to find localization and UI files."
 			<< " Please reinstall viewer from https://secondlife.com/support/downloads"
 			<< " and contact https://support.secondlife.com if issue persists after reinstall." << LL_ENDL;
@@ -3328,7 +3333,6 @@ LLSD LLAppViewer::getViewerInfo() const
     info["NET_BANDWITH"] = gSavedSettings.getF32("ThrottleBandwidthKBPS");
     info["LOD_FACTOR"] = gSavedSettings.getF32("RenderVolumeLODFactor");
     info["RENDER_QUALITY"] = (F32)gSavedSettings.getU32("RenderQualityPerformance");
-    info["GPU_SHADERS"] = gSavedSettings.getBOOL("RenderDeferred") ? "Enabled" : "Disabled";
     info["TEXTURE_MEMORY"] = gGLManager.mVRAM;
 
 #if LL_DARWIN
@@ -4291,7 +4295,8 @@ bool LLAppViewer::initCache()
 
     LLAppViewer::getTextureCache()->initCache(LL_PATH_CACHE, texture_cache_size, texture_cache_mismatch);
 
-	LLVOCache::getInstance()->initCache(LL_PATH_CACHE, gSavedSettings.getU32("CacheNumberOfRegionsForObjects"), getObjectCacheVersion());
+    const U32 CACHE_NUMBER_OF_REGIONS_FOR_OBJECTS = 128;
+	LLVOCache::getInstance()->initCache(LL_PATH_CACHE, CACHE_NUMBER_OF_REGIONS_FOR_OBJECTS, getObjectCacheVersion());
 
     return true;
 }
@@ -4310,6 +4315,7 @@ void LLAppViewer::loadKeyBindings()
 		key_bindings_file = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "key_bindings.xml");
 		if (!gViewerInput.loadBindingsXML(key_bindings_file))
 		{
+            LLError::LLUserWarningMsg::showMissingFiles();
 			LL_ERRS("InitInfo") << "Unable to open default key bindings from " << key_bindings_file << LL_ENDL;
 		}
 	}
@@ -5398,6 +5404,14 @@ void LLAppViewer::disconnectViewer()
 void LLAppViewer::forceErrorLLError()
 {
    	LL_ERRS() << "This is a deliberate llerror" << LL_ENDL;
+}
+
+void LLAppViewer::forceErrorLLErrorMsg()
+{
+    LLError::LLUserWarningMsg::show("Deliberate error");
+    // Note: under debug this will show a message as well,
+    // but release won't show anything and will quit silently
+    LL_ERRS() << "This is a deliberate llerror with a message" << LL_ENDL;
 }
 
 void LLAppViewer::forceErrorBreakpoint()
