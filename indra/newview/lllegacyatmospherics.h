@@ -267,7 +267,7 @@ protected:
     F32                 mHazeConcentration;
     F32                 mCloudDensity;
     F32                 mWind;
-    BOOL                mInitialized;
+    bool                mInitialized;
     LLVector3           mLastLightingDirection;
     LLColor3            mLastTotalAmbient;
     F32                 mAmbientScale;

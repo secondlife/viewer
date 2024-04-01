@@ -35,7 +35,7 @@ class LLReliablePacketParams
 public:
 	LLHost mHost;
 	S32 mRetries;
-	BOOL mPingBasedRetry;
+	bool mPingBasedRetry;
 	F32Seconds mTimeout;
 	void (*mCallback)(void **,S32);
 	void** mCallbackData;
@@ -53,7 +53,7 @@ public:
 	{
 		mHost.invalidate();
 		mRetries = 0;
-		mPingBasedRetry = TRUE;
+		mPingBasedRetry = true;
 		mTimeout = F32Seconds(0.f);
 		mCallback = NULL;
 		mCallbackData = NULL;
@@ -63,7 +63,7 @@ public:
 	void set(
 		const LLHost& host,
 		S32 retries,
-		BOOL ping_based_retry,
+		bool ping_based_retry,
 		F32Seconds timeout, 
 		void (*callback)(void**,S32),
 		void** callback_data, char* name)
@@ -98,7 +98,7 @@ protected:
 	S32 mSocket;
 	LLHost mHost;
 	S32 mRetries;
-	BOOL mPingBasedRetry;
+	bool mPingBasedRetry;
 	F32Seconds mTimeout;
 	void (*mCallback)(void**,S32);
 	void** mCallbackData;

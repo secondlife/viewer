@@ -150,8 +150,8 @@ public:
 	void updateParentBoundingInfo();
 	void saveBoundingSphere();
 
-	void setValid(BOOL valid = TRUE) {mValid = valid;}
-	BOOL isValid() const {return mValid;}
+	void setValid(bool valid = true) {mValid = valid;}
+	bool isValid() const {return mValid;}
 
 	void setUpdateFlags(U32 flags) {mUpdateFlags = flags;}
 	U32  getUpdateFlags() const    {return mUpdateFlags;}
@@ -185,7 +185,7 @@ protected:
 	U32                         mState; //high 16 bits reserved for special use.
 	vocache_entry_set_t         mChildrenList; //children entries in a linked set.
 
-	BOOL                        mValid; //if set, this entry is valid, otherwise it is invalid and will be removed.
+	bool                        mValid; //if set, this entry is valid, otherwise it is invalid and will be removed.
 
 	LLVector4a                  mBSphereCenter; //bounding sphere center
 	F32                         mBSphereRadius; //bounding sphere radius
@@ -224,7 +224,7 @@ public:
 	void processOccluders(LLCamera* camera);
 	void removeOccluder(LLVOCacheGroup* group);
 
-	void setCullHistory(BOOL has_new_object);
+	void setCullHistory(bool has_new_object);
 
 	bool isFrontCull() const {return mFrontCull;}
 
@@ -232,10 +232,10 @@ private:
 	void selectBackObjects(LLCamera &camera, F32 projection_area_cutoff, bool use_occlusion); //select objects behind camera.
 
 public:
-	static BOOL sNeedsOcclusionCheck;
+	static bool sNeedsOcclusionCheck;
 
 private:
-	BOOL  mFrontCull; //the view frustum cull if set, otherwise is back sphere cull.
+	bool  mFrontCull; //the view frustum cull if set, otherwise is back sphere cull.
 	U32   mCullHistory;
 	U32   mCulledTime[LLViewerCamera::NUM_CAMERAS];
 	std::set<LLVOCacheGroup*> mOccludedGroups;
@@ -292,8 +292,8 @@ public:
 	void readFromCache(U64 handle, const LLUUID& id, LLVOCacheEntry::vocache_entry_map_t& cache_entry_map) ;
     void readGenericExtrasFromCache(U64 handle, const LLUUID& id, LLVOCacheEntry::vocache_gltf_overrides_map_t& cache_extras_entry_map);
 
-	void writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry::vocache_entry_map_t& cache_entry_map, BOOL dirty_cache, bool removal_enabled);
-    void writeGenericExtrasToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry::vocache_gltf_overrides_map_t& cache_extras_entry_map, BOOL dirty_cache, bool removal_enabled);
+	void writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry::vocache_entry_map_t& cache_entry_map, bool dirty_cache, bool removal_enabled);
+    void writeGenericExtrasToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry::vocache_gltf_overrides_map_t& cache_extras_entry_map, bool dirty_cache, bool removal_enabled);
 	void removeEntry(U64 handle) ;
 
 	U32 getCacheEntries() { return mNumEntries; }
@@ -311,7 +311,7 @@ private:
 	void removeCache() ;
 	void removeEntry(HeaderEntryInfo* entry) ;
 	void purgeEntries(U32 size);
-	BOOL updateEntry(const HeaderEntryInfo* entry);
+	bool updateEntry(const HeaderEntryInfo* entry);
 	
 private:
 	bool                 mEnabled;

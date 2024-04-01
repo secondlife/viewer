@@ -759,7 +759,7 @@ bool _cert_subdomain_wildcard_match(const std::string& subdomain,
 	if(subdomain.substr(0, wildcard_pos) != wildcard.substr(0, wildcard_pos))
 	{
 		// the first portions of the strings didn't match
-		return FALSE;
+		return false;
 	}
 	
 	// as the portion of the wildcard string before the * matched, we need to check the
@@ -768,7 +768,7 @@ bool _cert_subdomain_wildcard_match(const std::string& subdomain,
 	if(new_wildcard_string.empty())
 	{
 		// we had nothing after the *, so it's an automatic match
-		return TRUE;
+		return true;
 	}
 	
 	// grab the portion of the remaining wildcard string before the next '*'.  We need to find this
@@ -785,14 +785,14 @@ bool _cert_subdomain_wildcard_match(const std::string& subdomain,
 		new_subdomain = new_subdomain.substr(sub_pos, std::string::npos);
 		if(_cert_subdomain_wildcard_match(new_subdomain, new_wildcard_string))
 		{
-			return TRUE;
+			return true;
 		}
 		sub_pos = new_subdomain.find_first_of(new_wildcard_match_string, 1);
 
 
 	}
 	// didn't find any instances of the match string that worked in the subdomain, so fail.
-	return FALSE;
+	return false;
 }
 
 
@@ -837,7 +837,7 @@ bool _cert_hostname_wildcard_match(const std::string& hostname, const std::strin
 		if(!_cert_subdomain_wildcard_match(new_hostname.substr(subdomain_pos+1, std::string::npos),
 										   cn_part))
 		{
-			return FALSE;
+			return false;
 		}
 		new_hostname = new_hostname.substr(0, subdomain_pos);
 		new_cn = new_cn.substr(0, subcn_pos);
@@ -849,7 +849,7 @@ bool _cert_hostname_wildcard_match(const std::string& hostname, const std::strin
 	if(new_cn == "*")
 	{
 		// if it's just a '*' we support all child domains as well, so '*.
-		return TRUE;
+		return true;
 	}
 	
 	return _cert_subdomain_wildcard_match(new_hostname, new_cn);
@@ -865,10 +865,10 @@ bool _LLSDArrayIncludesValue(const LLSD& llsd_set, LLSD llsd_value)
 	{
 		if(valueCompareLLSD((*set_value), llsd_value))
 		{
-			return TRUE;
+			return true;
 		}
 	}
-	return FALSE;
+	return false;
 }
 
 void _validateCert(int validation_policy,
@@ -975,7 +975,7 @@ void _validateCert(int validation_policy,
 bool _verify_signature(LLPointer<LLCertificate> parent, 
 					   LLPointer<LLCertificate> child)
 {
-	bool verify_result = FALSE; 
+	bool verify_result = false; 
 	LLSD cert1, cert2;
 	parent->getLLSD(cert1);
 	child->getLLSD(cert2);
@@ -1913,7 +1913,7 @@ bool valueCompareLLSD(const LLSD& lhs, const LLSD& rhs)
 {
 	if (lhs.type() != rhs.type())
 	{
-		return FALSE;
+		return false;
 	}
     if (lhs.isMap())
 	{
@@ -1925,7 +1925,7 @@ bool valueCompareLLSD(const LLSD& lhs, const LLSD& rhs)
 		{
 			if (!rhs.has(litt->first))
 			{
-				return FALSE;
+				return false;
 			}
 		}
 		
@@ -1937,14 +1937,14 @@ bool valueCompareLLSD(const LLSD& lhs, const LLSD& rhs)
 		{
 			if (!lhs.has(ritt->first))
 			{
-				return FALSE;
+				return false;
 			}
 			if (!valueCompareLLSD(lhs[ritt->first], ritt->second))
 			{
-				return FALSE;
+				return false;
 			}
 		}
-		return TRUE;
+		return true;
 	}
     else if (lhs.isArray())
 	{
@@ -1956,7 +1956,7 @@ bool valueCompareLLSD(const LLSD& lhs, const LLSD& rhs)
 		{
 			if (!valueCompareLLSD(*ritt, *litt))
 			{
-				return FALSE;
+				return false;
 			}
 			ritt++;
 		}

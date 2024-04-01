@@ -37,6 +37,7 @@
 #include "llerror.h"
 #include "llerrorcontrol.h"
 
+
 // used to attach and extract stacktrace information to/from boost::exception,
 // see https://www.boost.org/doc/libs/release/doc/html/stacktrace/getting_started.html#stacktrace.getting_started.exceptions_with_stacktrace
 // apparently the struct passed as the first template param needs no definition?

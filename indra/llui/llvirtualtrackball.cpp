@@ -165,9 +165,9 @@ LLVirtualTrackball::~LLVirtualTrackball()
 {
 }
 
-BOOL LLVirtualTrackball::postBuild()
+bool LLVirtualTrackball::postBuild()
 {
-    return TRUE;
+    return true;
 }
 
 
@@ -233,7 +233,7 @@ void LLVirtualTrackball::draw()
     }
 
     // hide the direction labels when disabled
-    BOOL enabled = isInEnabledChain();
+    bool enabled = isInEnabledChain();
     mLabelN->setVisible(enabled);
     mLabelE->setVisible(enabled);
     mLabelS->setVisible(enabled);
@@ -384,7 +384,7 @@ void LLVirtualTrackball::getAzimuthAndElevationDeg(const LLQuaternion &quat, F32
     elevation *= RAD_TO_DEG;
 }
 
-BOOL LLVirtualTrackball::handleHover(S32 x, S32 y, MASK mask)
+bool LLVirtualTrackball::handleHover(S32 x, S32 y, MASK mask)
 {
     if (hasMouseCapture())
     {
@@ -413,7 +413,7 @@ BOOL LLVirtualTrackball::handleHover(S32 x, S32 y, MASK mask)
         { // set on click mode
             if (!pointInTouchCircle(x, y))
             {
-                return TRUE; // don't drag outside the circle
+                return true; // don't drag outside the circle
             }
 
             F32 radius = mTouchArea->getRect().getWidth() / 2;
@@ -453,10 +453,10 @@ BOOL LLVirtualTrackball::handleHover(S32 x, S32 y, MASK mask)
         mPrevY = y;
         onCommit();
     }
-    return TRUE;
+    return true;
 }
 
-BOOL LLVirtualTrackball::handleMouseUp(S32 x, S32 y, MASK mask)
+bool LLVirtualTrackball::handleMouseUp(S32 x, S32 y, MASK mask)
 {
     if (hasMouseCapture())
     {
@@ -468,7 +468,7 @@ BOOL LLVirtualTrackball::handleMouseUp(S32 x, S32 y, MASK mask)
     return LLView::handleMouseUp(x, y, mask);
 }
 
-BOOL LLVirtualTrackball::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLVirtualTrackball::handleMouseDown(S32 x, S32 y, MASK mask)
 {
     if (pointInTouchCircle(x, y))
     {
@@ -481,7 +481,7 @@ BOOL LLVirtualTrackball::handleMouseDown(S32 x, S32 y, MASK mask)
     return LLView::handleMouseDown(x, y, mask);
 }
 
-BOOL LLVirtualTrackball::handleRightMouseDown(S32 x, S32 y, MASK mask)
+bool LLVirtualTrackball::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
     if (pointInTouchCircle(x, y))
     {
@@ -491,26 +491,26 @@ BOOL LLVirtualTrackball::handleRightMouseDown(S32 x, S32 y, MASK mask)
     return LLView::handleRightMouseDown(x, y, mask);
 }
 
-BOOL LLVirtualTrackball::handleKeyHere(KEY key, MASK mask)
+bool LLVirtualTrackball::handleKeyHere(KEY key, MASK mask)
 {
-    BOOL handled = FALSE;
+    bool handled = false;
     switch (key)
     {
     case KEY_DOWN:
         onRotateTopClick();
-        handled = TRUE;
+        handled = true;
         break;
     case KEY_LEFT:
         onRotateRightClick();
-        handled = TRUE;
+        handled = true;
         break;
     case KEY_UP:
         onRotateBottomClick();
-        handled = TRUE;
+        handled = true;
         break;
     case KEY_RIGHT:
         onRotateLeftClick();
-        handled = TRUE;
+        handled = true;
         break;
     default:
         break;

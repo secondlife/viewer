@@ -38,8 +38,8 @@
 //---------------------------------------------------------------------------
 
 LLScrollListItem::LLScrollListItem( const Params& p )
-:	mSelected(FALSE),
-	mHighlighted(FALSE),
+:	mSelected(false),
+	mHighlighted(false),
 	mHoverIndex(-1),
 	mSelectedIndex(-1),
 	mEnabled(p.enabled),
@@ -56,13 +56,13 @@ LLScrollListItem::~LLScrollListItem()
 	mColumns.clear();
 }
 
-void LLScrollListItem::setSelected(BOOL b)
+void LLScrollListItem::setSelected(bool b)
 {
     mSelected = b;
     mSelectedIndex = -1;
 }
 
-void LLScrollListItem::setHighlighted(BOOL b)
+void LLScrollListItem::setHighlighted(bool b)
 {
     mHighlighted = b;
     mHoverIndex = -1;

@@ -216,10 +216,10 @@ LLNotificationForm::LLNotificationForm(const std::string& name, const LLNotifica
 			ui_inst->mSettingGroups["ignores"]->declareLLSD(std::string("Default") + name, "", std::string("Default response for notification " + name));
 		}
 
-		BOOL show_notification = TRUE;
+		bool show_notification = true;
 		if (p.ignore.control.isProvided())
 		{
-			mIgnoreSetting = ui_inst->mSettingGroups["config"]->getControl(p.ignore.control);
+			mIgnoreSetting = ui_inst->mSettingGroups["config"]->getControl(p.ignore.control());
 			mInvertSetting = p.ignore.invert_control;
 		}
 		else if (mIgnore > IGNORE_NO)
@@ -1549,10 +1549,11 @@ bool LLNotifications::loadTemplates()
 
 	std::string base_filename = search_paths.front();
 	LLXMLNodePtr root;
-	BOOL success  = LLXMLNode::getLayeredXMLNode(root, search_paths);
+	bool success  = LLXMLNode::getLayeredXMLNode(root, search_paths);
 
 	if (!success || root.isNull() || !root->hasName( "notifications" ))
 	{
+        LLError::LLUserWarningMsg::show(LLTrans::getString("MBMissingFile"));
 		LL_ERRS() << "Problem reading XML from UI Notifications file: " << base_filename << LL_ENDL;
 		return false;
 	}
@@ -1563,6 +1564,7 @@ bool LLNotifications::loadTemplates()
 
 	if(!params.validateBlock())
 	{
+        LLError::LLUserWarningMsg::show(LLTrans::getString("MBMissingFile"));
 		LL_ERRS() << "Problem reading XUI from UI Notifications file: " << base_filename << LL_ENDL;
 		return false;
 	}
@@ -1629,6 +1631,7 @@ bool LLNotifications::loadVisibilityRules()
 
 	if(!params.validateBlock())
 	{
+        LLError::LLUserWarningMsg::show(LLTrans::getString("MBMissingFile"));
 		LL_ERRS() << "Problem reading UI Notification Visibility Rules file: " << full_filename << LL_ENDL;
 		return false;
 	}

@@ -123,7 +123,7 @@ protected:
 	{
 		if (!toast) return;
 		LL_DEBUGS("NearbyChat") << "Pooling toast" << LL_ENDL;
-		toast->setVisible(FALSE);
+		toast->setVisible(false);
 		toast->stopTimer();
 		toast->setIsHidden(true);
 
@@ -334,7 +334,7 @@ void LLFloaterIMNearbyChatScreenChannel::addChat(LLSD& chat)
 	
 	if( ((EChatType)chat_type == CHAT_TYPE_DEBUG_MSG))
 	{
-		if(gSavedSettings.getBOOL("ShowScriptErrors") == FALSE) 
+		if(gSavedSettings.getBOOL("ShowScriptErrors") == false) 
 			return;
 		if(gSavedSettings.getS32("ShowScriptErrorsLocation")== 1)
 			return;
@@ -442,7 +442,7 @@ void LLFloaterIMNearbyChatScreenChannel::arrangeToasts()
 		if (toast)
 	{
 		toast->setIsHidden(false);
-		toast->setVisible(TRUE);
+		toast->setVisible(true);
 		}
 	}
 
@@ -487,7 +487,7 @@ void LLFloaterIMNearbyChatHandler::initChannel()
 void LLFloaterIMNearbyChatHandler::processChat(const LLChat& chat_msg,
 									  const LLSD &args)
 {
-	if(chat_msg.mMuted == TRUE)
+	if(chat_msg.mMuted == true)
 		return;
 
 	if(chat_msg.mText.empty())
@@ -522,7 +522,7 @@ void LLFloaterIMNearbyChatHandler::processChat(const LLChat& chat_msg,
 	// errors in separate window.
 	if (chat_msg.mChatType == CHAT_TYPE_DEBUG_MSG)
 	{
-		if(gSavedSettings.getBOOL("ShowScriptErrors") == FALSE)
+		if(gSavedSettings.getBOOL("ShowScriptErrors") == false)
 			return;
 
 		// don't process debug messages from not owned objects, see EXT-7762

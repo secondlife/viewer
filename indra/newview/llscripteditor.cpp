@@ -112,7 +112,7 @@ void LLScriptEditor::drawLineNumbers()
 			{
 				const LLFontGL *num_font = LLFontGL::getFontMonospace();
 				const LLWString ltext = utf8str_to_wstring(llformat("%d", line.mLineNum ));
-				BOOL is_cur_line = cursor_line == line.mLineNum;
+				bool is_cur_line = cursor_line == line.mLineNum;
 				const U8 style = is_cur_line ? LLFontGL::BOLD : LLFontGL::NORMAL;
 				const LLColor4 fg_color = is_cur_line ? mCursorColor : mReadOnlyFgColor;
 				num_font->render(

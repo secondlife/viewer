@@ -35,7 +35,7 @@
 
 extern LLControlGroup gSavedSettings;
 #if LL_DARWIN
-extern BOOL gHiDPISupport;
+extern bool gHiDPISupport;
 #endif
 
 static int LOW_PRIORITY_TEXTURE_SIZE_DEFAULT = 256;

@@ -35,7 +35,7 @@ class LLFloaterBanDuration : public LLFloater
 
 public:
     LLFloaterBanDuration(const LLSD& target);
-    BOOL postBuild();
+    bool postBuild() override;
     static LLFloaterBanDuration* show(select_callback_t callback, uuid_vec_t id);
 
 private:

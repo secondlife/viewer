@@ -124,7 +124,7 @@ void LLUICtrlFactory::createChildren(LLView* viewp, LLXMLNodePtr node, const wid
 		LLXMLNodePtr outputChild;
 		if (output_node) 
 		{
-			outputChild = output_node->createChild("", FALSE);
+			outputChild = output_node->createChild("", false);
 		}
 
 		if (!instance().createFromXML(child_node, viewp, LLStringUtil::null, registry, outputChild))
@@ -157,7 +157,7 @@ void LLUICtrlFactory::createChildren(LLView* viewp, LLXMLNodePtr node, const wid
 // getLayeredXMLNode()
 //-----------------------------------------------------------------------------
 bool LLUICtrlFactory::getLayeredXMLNode(const std::string &xui_filename, LLXMLNodePtr& root,
-                                        LLDir::ESkinConstraint constraint)
+                                        LLDir::ESkinConstraint constraint, bool cacheable)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
 	std::vector<std::string> paths =
@@ -169,7 +169,7 @@ bool LLUICtrlFactory::getLayeredXMLNode(const std::string &xui_filename, LLXMLNo
 		paths.push_back(xui_filename);
 	}
 
-	return LLXMLNode::getLayeredXMLNode(root, paths);
+	return LLXMLNode::getLayeredXMLNode(root, paths, cacheable);
 }
 
 

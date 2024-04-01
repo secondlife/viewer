@@ -35,7 +35,7 @@
 class LLViewerShaderMgr: public LLShaderMgr
 {
 public:
-	static BOOL sInitialized;
+	static bool sInitialized;
 	static bool sSkipReload;
 
 	LLViewerShaderMgr();
@@ -54,12 +54,12 @@ public:
     // name of a file error happened at, otherwise
     // returns an empty string
     std::string loadBasicShaders();
-	BOOL loadShadersEffects();
-	BOOL loadShadersDeferred();
-	BOOL loadShadersObject();
-	BOOL loadShadersAvatar();
-	BOOL loadShadersWater();
-	BOOL loadShadersInterface();
+	bool loadShadersEffects();
+	bool loadShadersDeferred();
+	bool loadShadersObject();
+	bool loadShadersAvatar();
+	bool loadShadersWater();
+	bool loadShadersInterface();
 
 	std::vector<S32> mShaderLevel;
 	S32	mMaxAvatarShaderLevel;
