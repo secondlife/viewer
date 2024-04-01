@@ -996,11 +996,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>99e96926b7cf668d8e8195a021d6eacb09de32a0</string>
+              <string>bdd74e2a02c7b78fded9222140d197da4af9904e</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-icu4c/releases/download/v4.8.1-7d08d82/icu4c-4.8.1-linux64-7d08d82.tar.zst</string>
+              <string>https://github.com/secondlife/3p-icu4c/releases/download/v4.8.1-8bff176/icu4c-4.8.1-linux64-8512575562.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -1176,11 +1176,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>6af9e1400987c01c3e1893d3dcb9e1c8b3ae4f46</string>
+              <string>66dce1d0c2fc19dff13db279d973773fc7e2aa13</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/Nicky-D/3p-jsoncpp/releases/download/v0.5.0.1db375e/jsoncpp-0.5.0.1db375e-linux64-1db375e.tar.zst</string>
+              <string>https://github.com/secondlife/3p-jsoncpp/releases/download/v0.5.0-cc63e92/jsoncpp-0.5.0.cc63e92-linux64-cc63e92.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -1823,20 +1823,6 @@
             </map>
             <key>name</key>
             <string>windows64</string>
-          </map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>81e26b0adf95108dd08e720bd9a7f103e917aefd</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
-              <key>url</key>
-              <string>https://github.com/Nicky-D/3p-meshoptimizer/releases/download/v160-e403c78/meshoptimizer-160-linux64-e403c78.tar.zst</string>
-            </map>
-            <key>name</key>
-            <string>linux64</string>
           </map>
         </map>
         <key>license</key>
