@@ -2763,16 +2763,6 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
       </map>
       <key>viewer-fonts</key>
       <map>
-        <key>copyright</key>
-        <string>Copyright 2016-2022 Brad Erickson CC-BY-4.0/MIT, Copyright 2016-2022 Twitter, Inc. CC-BY-4.0, Copyright 2013 Joe Loughry and Terence Eden MIT</string>
-        <key>description</key>
-        <string>Viewer fonts</string>
-        <key>license</key>
-        <string>Various open source</string>
-        <key>license_file</key>
-        <string>LICENSES/fonts.txt</string>
-        <key>name</key>
-        <string>viewer-fonts</string>
         <key>platforms</key>
         <map>
           <key>darwin64</key>
@@ -2799,9 +2789,33 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>name</key>
             <string>windows64</string>
           </map>
+          <key>common</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>c25de57e57856a826b2c146ac951ae0b53250666</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://github.com/secondlife/3p-viewer-fonts/releases/download/v1.0.0-r1/viewer_fonts-1.0.0.8512067490-common-8512067490.tar.zst</string>
+            </map>
+            <key>name</key>
+            <string>common</string>
+          </map>
         </map>
+        <key>license</key>
+        <string>Various open source</string>
+        <key>license_file</key>
+        <string>LICENSES/fonts.txt</string>
+        <key>copyright</key>
+        <string>Copyright 2016-2022 Brad Erickson CC-BY-4.0/MIT, Copyright 2016-2022 Twitter, Inc. CC-BY-4.0, Copyright 2013 Joe Loughry and Terence Eden MIT</string>
         <key>version</key>
-        <string>1.579464</string>
+        <string>1.0.0.8512067490</string>
+        <key>name</key>
+        <string>viewer-fonts</string>
+        <key>description</key>
+        <string>Viewer fonts</string>
       </map>
       <key>viewer-manager</key>
       <map>
