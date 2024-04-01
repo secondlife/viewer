@@ -5315,7 +5315,7 @@ void LLFolderBridge::dropToMyOutfits(LLInventoryCategory* inv_cat, LLPointer<LLI
 
     // Note: creation will take time, so passing folder id to callback is slightly unreliable,
     // but so is collecting and passing descendants' ids
-    inventory_func_type func = boost::bind(&LLFolderBridge::outfitFolderCreatedCallback, this, inv_cat->getUUID(), _1, cb);
+    inventory_func_type func = boost::bind(outfitFolderCreatedCallback, inv_cat->getUUID(), _1, cb, mInventoryPanel);
     gInventory.createNewCategory(dest_id,
                                  LLFolderType::FT_OUTFIT,
                                  inv_cat->getName(),
@@ -5323,11 +5323,25 @@ void LLFolderBridge::dropToMyOutfits(LLInventoryCategory* inv_cat, LLPointer<LLI
                                  inv_cat->getThumbnailUUID());
 }
 
-void LLFolderBridge::outfitFolderCreatedCallback(LLUUID cat_source_id, LLUUID cat_dest_id, LLPointer<LLInventoryCallback> cb)
+void LLFolderBridge::outfitFolderCreatedCallback(LLUUID cat_source_id,
+                                                 LLUUID cat_dest_id,
+                                                 LLPointer<LLInventoryCallback> cb,
+                                                 LLHandle<LLInventoryPanel> inventory_panel)
 {
     LLInventoryModel::cat_array_t* categories;
     LLInventoryModel::item_array_t* items;
-    getInventoryModel()->getDirectDescendentsOf(cat_source_id, categories, items);
+
+    LLInventoryPanel* panel = inventory_panel.get();
+    if (!panel)
+    {
+        return;
+    }
+    LLInventoryModel*  model = panel->getModel();
+    if (!model)
+    {
+        return;
+    }
+    model->getDirectDescendentsOf(cat_source_id, categories, items);
 
     LLInventoryObject::const_object_list_t link_array;
 

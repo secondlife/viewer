@@ -62,7 +62,7 @@ private:
     void onSaveClicked();
     void onCancelClicked();
 
-    void folderCreatedCallback(LLUUID folder_id);
+    static void folderCreatedCallback(LLUUID folder_id);
 
     LLComboBox*     mFolderCombo;
     LLLineEditor*   mLandmarkTitleEditor;

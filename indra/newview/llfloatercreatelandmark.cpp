@@ -31,6 +31,7 @@
 #include "llagent.h"
 #include "llagentui.h"
 #include "llcombobox.h"
+#include "llfloaterreg.h"
 #include "llinventoryfunctions.h"
 #include "llinventoryobserver.h"
 #include "lllandmarkactions.h"
@@ -296,7 +297,7 @@ void LLFloaterCreateLandmark::onCreateFolderClicked()
 
 void LLFloaterCreateLandmark::folderCreatedCallback(LLUUID folder_id)
 {
-    populateFoldersList(folder_id);
+	populateFoldersList(folder_id);
 }
 
 void LLFloaterCreateLandmark::onSaveClicked()
