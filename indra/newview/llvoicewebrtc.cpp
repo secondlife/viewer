@@ -24,6 +24,7 @@
  * $/LicenseInfo$
  */
 #include <algorithm>
+#include <format>
 #include "llvoicewebrtc.h"
 
 #include "llsdutil.h"
@@ -279,7 +280,7 @@ void LLWebRTCVoiceClient::cleanUp()
     LL_DEBUGS("Voice") << "Exiting" << LL_ENDL;
 }
 
-//---------------------------------------------------
+// --------------------------------------------------
 
 const LLVoiceVersionInfo& LLWebRTCVoiceClient::getVersion()
 {
@@ -301,6 +302,13 @@ void LLWebRTCVoiceClient::updateSettings()
     setRenderDevice(outputDevice);
     F32 mic_level = gSavedSettings.getF32("AudioLevelMic");
     setMicGain(mic_level);
+    
+    llwebrtc::LLWebRTCDeviceInterface::AudioConfig config;
+    config.mEchoCancellation = gSavedSettings.getBOOL("VoiceEchoCancellation");
+    config.mAGC = gSavedSettings.getBOOL("VoiceAutomaticGainControl");
+    config.mNoiseSuppressionLevel = (llwebrtc::LLWebRTCDeviceInterface::AudioConfig::ENoiseSuppressionLevel)gSavedSettings.getU32("VoiceNoiseSuppressionLevel");
+    mWebRTCDeviceInterface->setAudioConfig(config);
+    
 }
 
 // Observers
@@ -2515,6 +2523,28 @@ void LLVoiceWebRTCConnection::OnVoiceConnectionRequestSuccess(const LLSD &result
     mWebRTCPeerConnectionInterface->AnswerAvailable(mRemoteChannelSDP);
 }
 
+static llwebrtc::LLWebRTCPeerConnectionInterface::InitOptions getConnectionOptions()
+{
+    llwebrtc::LLWebRTCPeerConnectionInterface::InitOptions options;
+    llwebrtc::LLWebRTCPeerConnectionInterface::InitOptions::IceServers servers;
+
+    // TODO: Pull these from login
+    std::string grid = LLGridManager::getInstance()->getGridLoginID();
+    std::transform(grid.begin(), grid.end(), grid.begin(), [](unsigned char c){ return std::tolower(c); });
+    int num_servers = 2;
+    if (grid == "agni")
+    {
+        num_servers = 3;
+    }
+    for (int i=1; i <= num_servers; i++)
+    {
+        servers.mUrls.push_back(llformat("stun:stun%d.%s.secondlife.io:3478", i, grid.c_str()));
+    }
+    options.mServers.push_back(servers);
+    return options;
+}
+
+
 // Primary state machine for negotiating a single voice connection to the
 // Secondlife WebRTC server.
 bool LLVoiceWebRTCConnection::connectionStateMachine()
@@ -2535,10 +2565,11 @@ bool LLVoiceWebRTCConnection::connectionStateMachine()
             }
             mIceCompleted = false;
             setVoiceConnectionState(VOICE_STATE_WAIT_FOR_SESSION_START);
+            
             // tell the webrtc library that we want a connection.  The library will
             // respond with an offer on a separate thread, which will cause
             // the session state to change.
-            if (!mWebRTCPeerConnectionInterface->initializeConnection())
+            if (!mWebRTCPeerConnectionInterface->initializeConnection(getConnectionOptions()))
             {
                 setVoiceConnectionState(VOICE_STATE_SESSION_RETRY);
             }
@@ -2733,8 +2764,8 @@ void LLVoiceWebRTCConnection::OnDataReceivedImpl(const std::string &data, bool b
             LLUUID agent_id(participant_id);
             if (agent_id.isNull())
             {
-                LL_WARNS("Voice") << "Bad participant ID from data channel (" << participant_id << "):" << data << LL_ENDL;
-                continue;
+               // probably a test client.
+               continue;
             }
 
             LLWebRTCVoiceClient::participantStatePtr_t participant =
