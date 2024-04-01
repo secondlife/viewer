@@ -286,12 +286,14 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>36090750f4a57dd7b1ff20b94c8f521dc7169fc4</string>
+              <string>aea0bed0f953a9371b9091f09230b41597f891f7</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/Nicky-D/3p-cubemap_to_eqr_js/releases/download/v1.1.0-ae6fd61/cubemaptoequirectangular-1.1.0-linux64-ae6fd61.tar.zst</string>
+              <string>https://github.com/secondlife/3p-cubemap_to_eqr_js/releases/download/v1.1.0-cb8785a/cubemaptoequirectangular-1.1.0-linux64-cb8785a.tar.zst</string>
             </map>
+            <key>name</key>
+            <string>linux64</string>
           </map>
           <key>windows64</key>
           <map>
@@ -515,6 +517,20 @@
             <key>name</key>
             <string>darwin64</string>
           </map>
+          <key>linux64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>5b957aa7f353b10ae17b7119e5b3668f48a35325</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://github.com/secondlife/3p-emoji-shortcodes/releases/download/v6.1.0.5413f58/emoji_shortcodes-6.1.0.5413f58-linux64-5413f58.tar.zst</string>
+            </map>
+            <key>name</key>
+            <string>linux64</string>
+          </map>
           <key>windows64</key>
           <map>
             <key>archive</key>
@@ -670,7 +686,6 @@
         <string>fmodstudio</string>
         <key>description</key>
         <string>FMOD Studio API</string>
-      </map>
       <key>freetype</key>
       <map>
         <key>copyright</key>
@@ -704,11 +719,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4a999279562e8f3e4ba02d3e78a844ddf6fe18f1</string>
+              <string>061e1bd8eef85a5d15fafc9d46fc562a621207da</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-freetype/releases/download/v.2.12.1.557becd/freetype-2.12.1.557becd-linux64-557becd.tar.zst</string>
+              <string>https://github.com/secondlife/3p-freetype/releases/download/v2.12.1.d315c1b/freetype-2.12.1.8443253711-linux64-8443253711.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -975,6 +990,20 @@
             <key>name</key>
             <string>darwin64</string>
           </map>
+          <key>linux64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>99e96926b7cf668d8e8195a021d6eacb09de32a0</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://github.com/secondlife/3p-icu4c/releases/download/v4.8.1-7d08d82/icu4c-4.8.1-linux64-7d08d82.tar.zst</string>
+            </map>
+            <key>name</key>
+            <string>linux64</string>
+          </map>
           <key>windows64</key>
           <map>
             <key>archive</key>
@@ -1030,11 +1059,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>10157ccf519c8a16d4b1c0290af2379fdc40012b</string>
+              <string>23daab838f4b8f92e5dc1a2f6c568cb7b0cb43b7</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/Nicky-D/3p-jpeg_encoder_js/releases/download/v1.0-57f78ad/jpegencoderbasic-1.0-linux64-57f78ad.tar.zst</string>
+              <string>https://github.com/secondlife/3p-jpeg_encoder_js/releases/download/v1.0-790015a/jpegencoderbasic-1.0-linux64-790015a.tar.zst</string>
             </map>
           </map>
           <key>windows64</key>
@@ -1378,9 +1407,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>13de93ea11544051b69f238eeb644fd3</string>
+              <string>39d5779fd79e23da16a7b5bf608008999004c828</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/882/1946/libpng-1.6.8.500873-linux64-500873.tar.bz2</string>
+              <string>https://github.com/secondlife/3p-libpng/releases/download/v1.16.38-d427738/libpng-1.6.38-8318603154-linux64-8318603154.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -1763,6 +1794,20 @@
             </map>
             <key>name</key>
             <string>darwin64</string>
+          </map>
+          <key>linux64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>6f4509dca9e32e3b4f9c4b13d875ce0e24340efc</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://github.com/secondlife/3p-meshoptimizer/releases/download/v160-4f905dd/meshoptimizer-160-linux64-4f905dd.tar.zst</string>
+            </map>
+            <key>name</key>
+            <string>linux64</string>
           </map>
           <key>windows64</key>
           <map>
@@ -2483,11 +2528,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>874829ba4201a6ca336ddaeeddd916cb8b2444d5</string>
+              <string>982c0fa427458082ea9e3cb9603904210732b64e</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/Nicky-D/3p-three_js/releases/download/v0.132.2-0cf100d/threejs-0.132.2-linux64-0cf100d.tar.zst</string>
+              <string>https://github.com/secondlife/3p-three_js/releases/download/v0.132.2-5da28d9/threejs-0.132.2-common-8454371083.tar.zst</string>
             </map>
           </map>
           <key>windows64</key>
