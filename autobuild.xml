@@ -2191,6 +2191,23 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
       </map>
       <key>open-libndofdev</key>
       <map>
+        <key>platforms</key>
+        <map>
+          <key>linux64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>2d20683554f0b00234bbb84d0ce7ac1be1ad70aa</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://github.com/secondlife/3p-open-libndofdev/releases/download/v1.14-r1/open_libndofdev-0.14.8503290964-linux64-8503290964.tar.zst</string>
+            </map>
+            <key>name</key>
+            <string>linux64</string>
+          </map>
+        </map>
         <key>license</key>
         <string>BSD</string>
         <key>license_file</key>
@@ -2198,7 +2215,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>copyright</key>
         <string>Copyright (c) 2008, Jan Ciger (jan.ciger (at) gmail.com)</string>
         <key>version</key>
-        <string>0.3</string>
+        <string>0.14.8503290964</string>
         <key>name</key>
         <string>open-libndofdev</string>
         <key>description</key>
@@ -3314,12 +3331,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>-G</string>
                   <string>Ninja</string>
                   <string>-DLL_TESTS=Off</string>
-                  <string>-DNDOF=Off</string>
-                </array>
+</array>
                 <key>arguments</key>
                 <array>
                   <string>../indra</string>
-                </array>
+</array>
               </map>
               <key>build</key>
               <map>
@@ -3340,8 +3356,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>-G</string>
                   <string>Ninja</string>
                   <string>-DLL_TESTS=Off</string>
-                  <string>-DNDOF=Off</string>
-                </array>
+</array>
               </map>
               <key>build</key>
               <map>
