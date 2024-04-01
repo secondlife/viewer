@@ -663,6 +663,7 @@ std::unique_ptr<std::vector<std::string>> LLFilePicker::navOpenFilterProc(ELoadF
             allowedv->push_back("gltf");
             allowedv->push_back("glb");
             break;
+        case FFLOAD_MODEL:
         case FFLOAD_COLLADA:
             allowedv->push_back("dae");
             break;
