@@ -17,5 +17,4 @@ if (LINUX)
 
   use_prebuilt_binary(SDL2)
   target_link_libraries( ll::SDL INTERFACE SDL2 X11)
-
 endif (LINUX)

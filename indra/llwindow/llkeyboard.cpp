@@ -41,7 +41,6 @@ std::map<KEY,std::string> LLKeyboard::sKeysToNames;
 std::map<std::string,KEY> LLKeyboard::sNamesToKeys;
 LLKeyStringTranslatorFunc*	LLKeyboard::mStringTranslator = NULL;	// Used for l10n + PC/Mac/Linux accelerator labeling
 
-
 //
 // Class Implementation
 //
