@@ -686,6 +686,7 @@
         <string>fmodstudio</string>
         <key>description</key>
         <string>FMOD Studio API</string>
+      </map>
       <key>freetype</key>
       <map>
         <key>copyright</key>
