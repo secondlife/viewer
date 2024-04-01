@@ -1,0 +1,123 @@
+/** 
+ * @file llfloaterluascriptsinfo.cpp
+ *
+ * $LicenseInfo:firstyear=2024&license=viewerlgpl$
+ * Second Life Viewer Source Code
+ * Copyright (C) 2024, Linden Research, Inc.
+ * 
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation;
+ * version 2.1 of the License only.
+ * 
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * 
+ * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ * $/LicenseInfo$
+ */
+
+#include "llviewerprecompiledheaders.h"
+
+#include "llfloaterluascripts.h"
+#include "llevents.h"
+#include <filesystem>
+#include "llluamanager.h"
+#include "llscrolllistctrl.h"
+#include "llviewerwindow.h"
+#include "llwindow.h"
+#include "llviewermenu.h"
+
+const F32 REFRESH_INTERVAL = 1.0f;
+
+LLFloaterLUAScripts::LLFloaterLUAScripts(const LLSD &key)
+ :  LLFloater(key),
+    mUpdateTimer(new LLTimer()),
+    mContextMenuHandle()
+{
+    mCommitCallbackRegistrar.add("Script.OpenFolder", [this](LLUICtrl*, const LLSD &userdata) 
+    { 
+        gViewerWindow->getWindow()->openFolder(mTargetFolderPath);
+    });
+}
+
+
+BOOL LLFloaterLUAScripts::postBuild()
+{
+    mScriptList = getChild<LLScrollListCtrl>("scripts_list");
+    mScriptList->setRightMouseDownCallback(boost::bind(&LLFloaterLUAScripts::onScrollListRightClicked, this, _1, _2, _3));
+
+    LLContextMenu *menu = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>(
+        "menu_lua_scripts.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+    if (menu)
+    {
+        mContextMenuHandle = menu->getHandle();
+    }
+
+    return TRUE;
+}
+
+LLFloaterLUAScripts::~LLFloaterLUAScripts() 
+{
+    auto menu = mContextMenuHandle.get();
+    if (menu)
+    {
+        menu->die();
+        mContextMenuHandle.markDead();
+    }
+
+    delete mUpdateTimer;
+}
+
+void LLFloaterLUAScripts::draw()
+{
+    if (mUpdateTimer->hasExpired())
+    {
+        populateScriptList();
+    }
+    LLFloater::draw();
+}
+
+void LLFloaterLUAScripts::populateScriptList() 
+{
+    S32  prev_pos = mScriptList->getScrollPos();
+    LLSD prev_selected = mScriptList->getSelectedValue();
+    mScriptList->clearRows();
+    mScriptList->updateColumns(true);
+    std::map<std::string, std::string> scripts = LLLUAmanager::getScriptNames();
+    for (auto &it : scripts)
+    {
+        LLSD row;
+        row["value"] = it.first;
+        row["columns"][0]["value"] = std::filesystem::path((it.second)).stem().string();
+        row["columns"][0]["column"] = "script_name";
+        row["columns"][1]["value"] = it.second;
+        row["columns"][1]["column"] = "script_path";
+        mScriptList->addElement(row);
+    }
+    mScriptList->setScrollPos(prev_pos);
+    mScriptList->setSelectedByValue(prev_selected, true);
+    mUpdateTimer->setTimerExpirySec(REFRESH_INTERVAL);
+}
+
+void LLFloaterLUAScripts::onScrollListRightClicked(LLUICtrl *ctrl, S32 x, S32 y)
+{
+    LLScrollListItem *item = mScriptList->hitItem(x, y);
+    if (item)
+    {
+        mScriptList->selectItemAt(x, y, MASK_NONE);
+        auto menu = mContextMenuHandle.get();
+        if (menu)
+        {
+            mTargetFolderPath = std::filesystem::path((item->getColumn(1)->getValue().asString())).parent_path().string();
+            menu->show(x, y);
+            LLMenuGL::showPopup(this, menu, x, y);
+        }
+    }
+}

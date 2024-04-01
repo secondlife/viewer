@@ -80,6 +80,11 @@ public:
     static std::pair<int, LLSD> waitScriptLine(LuaState& L, const std::string& chunk);
 
     static void runScriptOnLogin();
+
+    static std::map<std::string, std::string> getScriptNames() { return sScriptNames; }
+
+ private:
+    static std::map<std::string, std::string> sScriptNames;
 };
 
 class LLRequireResolver

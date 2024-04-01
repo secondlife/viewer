@@ -243,6 +243,7 @@ set(viewer_SOURCE_FILES
     llfloaterlinkreplace.cpp
     llfloaterloadprefpreset.cpp
     llfloaterluadebug.cpp
+    llfloaterluascripts.cpp
     llfloatermarketplacelistings.cpp
     llfloatermap.cpp
     llfloatermediasettings.cpp
@@ -901,6 +902,7 @@ set(viewer_HEADER_FILES
     llfloaterlinkreplace.h
     llfloaterloadprefpreset.h
     llfloaterluadebug.h
+    llfloaterluascripts.h
     llfloatermap.h
     llfloatermarketplacelistings.h
     llfloatermediasettings.h
