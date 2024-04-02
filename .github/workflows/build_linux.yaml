@@ -43,5 +43,4 @@ jobs:
         shell: bash
         run: |
           autobuild configure -c ReleaseOS -A64
-          cd build-linux-x86_64 && ninja
-
+          cd build-linux-x86_64 && ninja -k0
