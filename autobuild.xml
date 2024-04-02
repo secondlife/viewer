@@ -720,11 +720,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>061e1bd8eef85a5d15fafc9d46fc562a621207da</string>
+              <string>07a38133c008ce6f728d652d00a756bea3a70288</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-freetype/releases/download/v2.12.1.d315c1b/freetype-2.12.1.8443253711-linux64-8443253711.tar.zst</string>
+              <string>https://github.com/secondlife/3p-freetype/releases/download/v2.12.1-r1/freetype-2.12.1.8503093630-linux64-8503093630.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
