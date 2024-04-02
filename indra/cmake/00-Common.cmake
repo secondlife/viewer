@@ -157,10 +157,13 @@ if (LINUX)
   add_compile_options(-fno-stack-protector)
   # linking can be very memory-hungry, especially the final viewer link
   set(CMAKE_CXX_LINK_FLAGS "-Wl,--no-keep-memory")
-
   set(CMAKE_CXX_FLAGS_DEBUG "-fno-inline ${CMAKE_CXX_FLAGS_DEBUG}")
-endif (LINUX)
 
+  # ND: clang is a bit more picky than GCC, the latter seems to auto include -lstdc++ and -lm. The former not so and thus fails to link
+  if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    set(CMAKE_CXX_LINK_FLAGS "${CMAKE_CXX_LINK_FLAGS} -lstdc++ -lm")
+  endif()
+endif (LINUX)
 
 if (DARWIN)
   # Warnings should be fatal -- thanks, Nicky Perian, for spotting reversed default
