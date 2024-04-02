@@ -369,13 +369,15 @@ bool MediaPluginGStreamer10::update(int milliseconds)
     if (!pCaps)
         return false;
 
-    gint width, height;
+    gint width = 0, height = 0;
     GstStructure *pStruct = llgst_caps_get_structure ( pCaps, 0);
 
-    int res = llgst_structure_get_int ( pStruct, "width", &width);
-    res |= llgst_structure_get_int ( pStruct, "height", &height);
+    if(!llgst_structure_get_int ( pStruct, "width", &width) )
+        width = 0;
+    if(!llgst_structure_get_int ( pStruct, "height", &height) )
+        height = 0;
 
-    if( !mPixels )
+    if( !mPixels || width == 0 || height == 0)
         return true;
     
     GstBuffer *pBuffer = llgst_sample_get_buffer ( pSample );
