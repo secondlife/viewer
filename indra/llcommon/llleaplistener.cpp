@@ -80,11 +80,13 @@ LLLeapListener::LLLeapListener(const std::string_view& caller, const Callback& c
     add("listen",
         "Listen to an existing LLEventPump named [\"source\"], with listener name\n"
         "[\"listener\"].\n"
+        "If [\"tweak\"] is specified as true, tweak listener name for uniqueness.\n"
         "By default, send events on [\"source\"] to the plugin, decorated\n"
         "with [\"pump\"]=[\"source\"].\n"
         "If [\"dest\"] specified, send undecorated events on [\"source\"] to the\n"
         "LLEventPump named [\"dest\"].\n"
-        "Returns [\"status\"] boolean indicating whether the connection was made.",
+        "Returns [\"status\"] boolean indicating whether the connection was made,\n"
+        "plus [\"listener\"] reporting (possibly tweaked) listener name.",
         &LLLeapListener::listen,
         need_source_listener);
     add("stoplistening",
@@ -119,6 +121,7 @@ LLLeapListener::~LLLeapListener()
     // value_type, and Bad Things would happen if you copied an
     // LLTempBoundListener. (Destruction of the original would disconnect the
     // listener, invalidating every stored connection.)
+    LL_DEBUGS("LLLeapListener") << "~LLLeapListener(\"" << mCaller << "\")" << LL_ENDL;
     for (ListenersMap::value_type& pair : mListeners)
     {
         pair.second.disconnect();
@@ -155,6 +158,11 @@ void LLLeapListener::listen(const LLSD& request)
     std::string source_name = request["source"];
     std::string dest_name = request["dest"];
     std::string listener_name = request["listener"];
+    if (request["tweak"].asBoolean())
+    {
+        listener_name = LLEventPump::inventName(listener_name);
+    }
+    reply["listener"] = listener_name;
 
     LLEventPump & source = LLEventPumps::instance().obtain(source_name);
 
