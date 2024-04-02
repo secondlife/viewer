@@ -489,10 +489,12 @@ void LLFloaterEmojiPicker::fillCategoryRecentlyUsed(std::map<std::string, std::v
             auto e2d = emoji2descr.find(emoji);
             if (e2d != emoji2descr.end() && !e2d->second->ShortCodes.empty())
             {
-                const std::string shortcode(e2d->second->ShortCodes.front());
-                if (LLEmojiDictionary::searchInShortCode(begin, end, shortcode, mFilterPattern))
+                for (const std::string& shortcode : e2d->second->ShortCodes)
                 {
-                    emojis.emplace_back(emoji, shortcode, begin, end);
+                    if (LLEmojiDictionary::searchInShortCode(begin, end, shortcode, mFilterPattern))
+                    {
+                        emojis.emplace_back(emoji, shortcode, begin, end);
+                    }
                 }
             }
         }
@@ -521,10 +523,12 @@ void LLFloaterEmojiPicker::fillCategoryFrequentlyUsed(std::map<std::string, std:
             auto e2d = emoji2descr.find(emoji.first);
             if (e2d != emoji2descr.end() && !e2d->second->ShortCodes.empty())
             {
-                const std::string shortcode(e2d->second->ShortCodes.front());
-                if (LLEmojiDictionary::searchInShortCode(begin, end, shortcode, mFilterPattern))
+                for (const std::string& shortcode : e2d->second->ShortCodes)
                 {
-                    emojis.emplace_back(emoji.first, shortcode, begin, end);
+                    if (LLEmojiDictionary::searchInShortCode(begin, end, shortcode, mFilterPattern))
+                    {
+                        emojis.emplace_back(emoji.first, shortcode, begin, end);
+                    }
                 }
             }
         }
@@ -557,10 +561,12 @@ void LLFloaterEmojiPicker::fillGroupEmojis(std::map<std::string, std::vector<LLE
             {
                 if (!descr->ShortCodes.empty())
                 {
-                    const std::string shortcode(descr->ShortCodes.front());
-                    if (LLEmojiDictionary::searchInShortCode(begin, end, shortcode, mFilterPattern))
+                    for (const std::string& shortcode : descr->ShortCodes)
                     {
-                        emojis.emplace_back(descr->Character, shortcode, begin, end);
+                        if (LLEmojiDictionary::searchInShortCode(begin, end, shortcode, mFilterPattern))
+                        {
+                            emojis.emplace_back(descr->Character, shortcode, begin, end);
+                        }
                     }
                 }
             }
