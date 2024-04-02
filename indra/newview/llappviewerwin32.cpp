@@ -723,7 +723,7 @@ bool LLAppViewerWin32::init()
         else
         {
             boost::json::error_code ec;
-            boost::json::value build_data = boost::json::parse(bas, ec);
+            boost::json::value build_data = boost::json::parse(inf, ec);
             if(ec.failed())
             {
                 // gah, the typo is baked into Json::Reader API
