@@ -40,6 +40,11 @@
 namespace llwebrtc
 {
 
+static int16_t PLAYOUT_DEVICE_DEFAULT = -1;
+static int16_t PLAYOUT_DEVICE_BAD     = -2;
+static int16_t RECORD_DEVICE_DEFAULT  = -1;
+static int16_t RECORD_DEVICE_BAD      = -2;
+
 LLAudioDeviceObserver::LLAudioDeviceObserver() : mSumVector {0}, mMicrophoneEnergy(0.0) {}
 
 float LLAudioDeviceObserver::getMicrophoneEnergy() { return mMicrophoneEnergy; }
@@ -189,10 +194,16 @@ void LLWebRTCImpl::init()
                                                           std::unique_ptr<webrtc::AudioDeviceDataObserver>(mTuningAudioDeviceObserver));
 
             mTuningDeviceModule->Init();
-            mTuningDeviceModule->SetStereoRecording(true);
-            mTuningDeviceModule->SetStereoPlayout(true);
+            mTuningDeviceModule->SetPlayoutDevice(mPlayoutDevice);
+            mTuningDeviceModule->SetRecordingDevice(mRecordingDevice);
             mTuningDeviceModule->EnableBuiltInAEC(false);
             mTuningDeviceModule->SetAudioDeviceSink(this);
+            mTuningDeviceModule->InitMicrophone();
+            mTuningDeviceModule->InitSpeaker();
+            mTuningDeviceModule->InitRecording();
+            mTuningDeviceModule->InitPlayout();
+            mTuningDeviceModule->SetStereoRecording(true);
+            mTuningDeviceModule->SetStereoPlayout(true);
             updateDevices();
         });
 
@@ -207,13 +218,13 @@ void LLWebRTCImpl::init()
             mPeerDeviceModule->Init();
             mPeerDeviceModule->SetPlayoutDevice(mPlayoutDevice);
             mPeerDeviceModule->SetRecordingDevice(mRecordingDevice);
-            mPeerDeviceModule->SetStereoRecording(true);
-            mPeerDeviceModule->SetStereoPlayout(true);
             mPeerDeviceModule->EnableBuiltInAEC(false);
             mPeerDeviceModule->InitMicrophone();
             mPeerDeviceModule->InitSpeaker();
             mPeerDeviceModule->InitRecording();
             mPeerDeviceModule->InitPlayout();
+            mPeerDeviceModule->SetStereoRecording(true);
+            mPeerDeviceModule->SetStereoPlayout(true);
         });
 
     // The custom processor allows us to retrieve audio data (and levels)
@@ -375,145 +386,169 @@ void LLWebRTCImpl::unsetDevicesObserver(LLWebRTCDevicesObserver *observer)
     }
 }
 
-static int16_t ll_get_device_module_capture_device(rtc::scoped_refptr<webrtc::AudioDeviceModule> device_module, const std::string &id)
-{
-    int16_t recordingDevice    = 0;
-    int16_t captureDeviceCount = device_module->RecordingDevices();
-    for (int16_t i = 0; i < captureDeviceCount; i++)
-    {
-        char name[webrtc::kAdmMaxDeviceNameSize];
-        char guid[webrtc::kAdmMaxGuidSize];
-        device_module->RecordingDeviceName(i, name, guid);
-        if (id == guid || id == "Default")  // first one in list is default
-        {
-            RTC_LOG(LS_INFO) << __FUNCTION__ << "Set recording device to " << name << " " << guid << " " << i;
-            recordingDevice = i;
-            break;
-        }
-    }
-    return recordingDevice;
-}
-
 void ll_set_device_module_capture_device(rtc::scoped_refptr<webrtc::AudioDeviceModule> device_module, int16_t device)
 {
     device_module->StopRecording();
-    device_module->SetRecordingDevice(device);
+#if LL_WINDOWS
+    if (device < 0)
+    {
+        device_module->SetRecordingDevice(webrtc::AudioDeviceModule::kDefaultDevice);
+    }
+    else
+    {
+        device_module->SetRecordingDevice(device);
+    }
+#else
+    // passed in default is -1, but the device list
+    // has it at 0
+    device_module->SetRecordingDevice(device + 1);
+#endif
     device_module->InitMicrophone();
-    device_module->SetStereoRecording(false);
     device_module->InitRecording();
+    device_module->SetStereoRecording(false);
     device_module->StartRecording();
 }
 
 void LLWebRTCImpl::setCaptureDevice(const std::string &id)
 {
-
-    mWorkerThread->PostTask(
-        [this, id]()
-        {
-            int16_t recordingDevice = ll_get_device_module_capture_device(mTuningDeviceModule, id);
-            if (recordingDevice != mRecordingDevice)
-            {
-                mRecordingDevice = recordingDevice;
-                if (mTuningMode)
-                {
-                    ll_set_device_module_capture_device(mTuningDeviceModule, recordingDevice);
-                }
-                else
-                {
-                    ll_set_device_module_capture_device(mPeerDeviceModule, recordingDevice);
-                }
-            }
-        });
-}
-
-static int16_t ll_get_device_module_render_device(
-    rtc::scoped_refptr<webrtc::AudioDeviceModule> device_module,
-    const std::string &id)
-{
-    int16_t playoutDevice    = 0;
-    int16_t playoutDeviceCount = device_module->PlayoutDevices();
-    for (int16_t i = 0; i < playoutDeviceCount; i++)
+    int16_t recordingDevice = RECORD_DEVICE_DEFAULT;
+    if (id != "Default")
     {
-        char name[webrtc::kAdmMaxDeviceNameSize];
-        char guid[webrtc::kAdmMaxGuidSize];
-        device_module->PlayoutDeviceName(i, name, guid);
-        if (id == guid || id == "Default")  // first one in list is default
+        for (int16_t i = 0; i < mRecordingDeviceList.size(); i++)
         {
-            RTC_LOG(LS_INFO) << __FUNCTION__ << "Set recording device to " << name << " " << guid << " " << i;
-            playoutDevice = i;
-            break;
+            if (mRecordingDeviceList[i].mID == id)
+            {
+                recordingDevice = i;
+                break;
+            }
         }
     }
-    return playoutDevice;
+    if (recordingDevice == mRecordingDevice)
+    {
+        return;
+    }
+    mRecordingDevice = recordingDevice;
+    if (mTuningMode)
+    {
+        mWorkerThread->PostTask([this, recordingDevice]() { ll_set_device_module_capture_device(mTuningDeviceModule, recordingDevice); });
+    }
+    else
+    {
+        mWorkerThread->PostTask([this, recordingDevice]() { ll_set_device_module_capture_device(mPeerDeviceModule, recordingDevice); });
+    }
 }
 
 
 void ll_set_device_module_render_device(rtc::scoped_refptr<webrtc::AudioDeviceModule> device_module, int16_t device)
 {
     device_module->StopPlayout();
-    device_module->SetPlayoutDevice(device);
+#if LL_WINDOWS
+    if (device < 0)
+    {
+        device_module->SetPlayoutDevice(webrtc::AudioDeviceModule::kDefaultDevice);
+    }
+    else 
+    {
+        device_module->SetPlayoutDevice(device);
+    }
+#else
+    device_module->SetPlayoutDevice(device + 1);
+#endif
     device_module->InitSpeaker();
-    device_module->SetStereoPlayout(false);
     device_module->InitPlayout();
-    device_module->StartPlayout();
+    device_module->SetStereoPlayout(true);
 }
 
 void LLWebRTCImpl::setRenderDevice(const std::string &id)
 {
-    mWorkerThread->PostTask(
-        [this, id]()
-        { 
-            int16_t playoutDevice = ll_get_device_module_render_device(mTuningDeviceModule, id);
-            if (playoutDevice != mPlayoutDevice)
+    int16_t playoutDevice = PLAYOUT_DEVICE_DEFAULT;
+    if (id != "Default")
+    {
+        for (int16_t i = 0; i < mPlayoutDeviceList.size(); i++)
+        {
+            if (mPlayoutDeviceList[i].mID == id)
             {
-                mPlayoutDevice = playoutDevice;
-                if (mTuningMode)
-                {
-                    ll_set_device_module_render_device(mTuningDeviceModule, playoutDevice);
-                }
-                else
-                {
-                    ll_set_device_module_render_device(mPeerDeviceModule, playoutDevice);
-                }
+                playoutDevice = i;
+                break;
             }
-        });
+        }
+    }
+    if (playoutDevice == mPlayoutDevice)
+    {
+        return;
+    }
+    mPlayoutDevice = playoutDevice;
+
+    if (mTuningMode)
+    {
+        mWorkerThread->PostTask(
+            [this, playoutDevice]()
+            {
+                ll_set_device_module_render_device(mTuningDeviceModule, playoutDevice);
+            });
+    }
+    else
+    {
+        mWorkerThread->PostTask(
+            [this, playoutDevice]()
+            {
+                ll_set_device_module_render_device(mPeerDeviceModule, playoutDevice);
+                mPeerDeviceModule->StartPlayout();
+            });
+    }
 }
 
 // updateDevices needs to happen on the worker thread.
 void LLWebRTCImpl::updateDevices()
 {
-    int16_t renderDeviceCount = mTuningDeviceModule->PlayoutDevices();
-    int16_t currentRenderDeviceIndex = mTuningDeviceModule->GetPlayoutDevice();
+    int16_t renderDeviceCount        = mTuningDeviceModule->PlayoutDevices();
 
-    LLWebRTCVoiceDeviceList renderDeviceList;
-    for (int16_t index = 0; index < renderDeviceCount; index++)
+    mPlayoutDeviceList.clear();
+#if LL_WINDOWS
+    int16_t index = 0;
+#else
+    // index zero is always "Default" for darwin/linux,
+    // which is a special case, so skip it.
+    int16_t index = 1;
+#endif
+    for (; index < renderDeviceCount; index++)
     {
         char name[webrtc::kAdmMaxDeviceNameSize];
         char guid[webrtc::kAdmMaxGuidSize];
         mTuningDeviceModule->PlayoutDeviceName(index, name, guid);
-        renderDeviceList.emplace_back(name, guid);
+        mPlayoutDeviceList.emplace_back(name, guid);
     }
 
-    int16_t captureDeviceCount = mTuningDeviceModule->RecordingDevices();
-    int16_t currentCaptureDeviceIndex = mTuningDeviceModule->GetRecordingDevice();
+    int16_t captureDeviceCount        = mTuningDeviceModule->RecordingDevices();
 
-    LLWebRTCVoiceDeviceList captureDeviceList;
-    for (int16_t index = 0; index < captureDeviceCount; index++)
+    mRecordingDeviceList.clear();
+#if LL_WINDOWS
+    index = 0;
+#else
+    // index zero is always "Default" for darwin/linux,
+    // which is a special case, so skip it.
+    index = 1;
+#endif
+    for (; index < captureDeviceCount; index++)
     {
         char name[webrtc::kAdmMaxDeviceNameSize];
         char guid[webrtc::kAdmMaxGuidSize];
         mTuningDeviceModule->RecordingDeviceName(index, name, guid);
-        captureDeviceList.emplace_back(name, guid);
+        mRecordingDeviceList.emplace_back(name, guid);
     }
+
     for (auto &observer : mVoiceDevicesObserverList)
     {
-        observer->OnDevicesChanged(renderDeviceList,
-                                   captureDeviceList);
+        observer->OnDevicesChanged(mPlayoutDeviceList, mRecordingDeviceList);
     }
 }
 
 void LLWebRTCImpl::OnDevicesUpdated()
 {
+    // reset these to a bad value so an update is forced
+    mRecordingDevice = RECORD_DEVICE_BAD;
+    mPlayoutDevice   = PLAYOUT_DEVICE_BAD;
+
     updateDevices();
 }
 
@@ -529,17 +564,24 @@ void LLWebRTCImpl::setTuningMode(bool enable)
                 mPeerDeviceModule->StopPlayout();
                 ll_set_device_module_render_device(mTuningDeviceModule, mPlayoutDevice);
                 ll_set_device_module_capture_device(mTuningDeviceModule, mRecordingDevice);
+                mTuningDeviceModule->InitPlayout();
+                mTuningDeviceModule->InitRecording();
                 mTuningDeviceModule->StartRecording();
-                mTuningDeviceModule->StartPlayout();
+                // TODO:  Starting Playout on the TDM appears to create an audio artifact (click)
+                // in this case, so disabling it for now.  We may have to do something different
+                // if we enable 'echo playback' via the TDM when tuning.
+                //mTuningDeviceModule->StartPlayout();
             }
             else
             {
                 mTuningDeviceModule->StopRecording();
-                mTuningDeviceModule->StopPlayout();
+                //mTuningDeviceModule->StopPlayout();
                 ll_set_device_module_render_device(mPeerDeviceModule, mPlayoutDevice);
                 ll_set_device_module_capture_device(mPeerDeviceModule, mRecordingDevice);
-                mPeerDeviceModule->StartRecording();
+                mPeerDeviceModule->InitPlayout();
+                mPeerDeviceModule->InitRecording();
                 mPeerDeviceModule->StartPlayout();
+                mPeerDeviceModule->StartRecording();
             }
         }
     );

@@ -294,19 +294,31 @@ void LLWebRTCVoiceClient::updateSettings()
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE
 
     setVoiceEnabled(LLVoiceClient::getInstance()->voiceEnabled());
-    setEarLocation(gSavedSettings.getS32("VoiceEarLocation"));
+    static LLCachedControl<S32> sVoiceEarLocation(gSavedSettings, "VoiceEarLocation");
+    setEarLocation(sVoiceEarLocation);
 
-    std::string inputDevice = gSavedSettings.getString("VoiceInputAudioDevice");
-    setCaptureDevice(inputDevice);
-    std::string outputDevice = gSavedSettings.getString("VoiceOutputAudioDevice");
-    setRenderDevice(outputDevice);
-    F32 mic_level = gSavedSettings.getF32("AudioLevelMic");
-    setMicGain(mic_level);
-    
+    static LLCachedControl<std::string> sInputDevice(gSavedSettings, "VoiceInputAudioDevice");
+    setCaptureDevice(sInputDevice);
+
+    static LLCachedControl<std::string> sOutputDevice(gSavedSettings, "VoiceOutputAudioDevice");
+    setRenderDevice(sOutputDevice);
+
+    static LLCachedControl<F32> sMicLevel(gSavedSettings, "AudioLevelMic");
+    setMicGain(sMicLevel);
+
     llwebrtc::LLWebRTCDeviceInterface::AudioConfig config;
-    config.mEchoCancellation = gSavedSettings.getBOOL("VoiceEchoCancellation");
-    config.mAGC = gSavedSettings.getBOOL("VoiceAutomaticGainControl");
-    config.mNoiseSuppressionLevel = (llwebrtc::LLWebRTCDeviceInterface::AudioConfig::ENoiseSuppressionLevel)gSavedSettings.getU32("VoiceNoiseSuppressionLevel");
+
+    static LLCachedControl<bool> sEchoCancellation(gSavedSettings, "VoiceEchoCancellation", true);
+    config.mEchoCancellation = sEchoCancellation;
+
+    static LLCachedControl<bool> sAGC(gSavedSettings, "VoiceAutomaticGainControl", true);
+    config.mAGC = sAGC;
+
+    static LLCachedControl<U32> sNoiseSuppressionLevel(gSavedSettings,
+                                                       "VoiceNoiseSuppressionLevel",
+                                                       llwebrtc::LLWebRTCDeviceInterface::AudioConfig::ENoiseSuppressionLevel::NOISE_SUPPRESSION_LEVEL_VERY_HIGH);
+    config.mNoiseSuppressionLevel = (llwebrtc::LLWebRTCDeviceInterface::AudioConfig::ENoiseSuppressionLevel) (U32)sNoiseSuppressionLevel;
+
     mWebRTCDeviceInterface->setAudioConfig(config);
     
 }
@@ -607,6 +619,7 @@ void LLWebRTCVoiceClient::setDevicesListUpdated(bool state)
 void LLWebRTCVoiceClient::OnDevicesChanged(const llwebrtc::LLWebRTCVoiceDeviceList& render_devices,
                                            const llwebrtc::LLWebRTCVoiceDeviceList& capture_devices)
 {
+    
     LL::WorkQueue::postMaybe(mMainQueue,
                              [=] 
         { 
@@ -618,43 +631,25 @@ void LLWebRTCVoiceClient::OnDevicesChangedImpl(const llwebrtc::LLWebRTCVoiceDevi
                                                const llwebrtc::LLWebRTCVoiceDeviceList &capture_devices)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE
-
     std::string inputDevice = gSavedSettings.getString("VoiceInputAudioDevice");
     std::string outputDevice = gSavedSettings.getString("VoiceOutputAudioDevice");
 
     LL_DEBUGS("Voice") << "Setting devices to-input: '" << inputDevice << "' output: '" << outputDevice << "'" << LL_ENDL;
     clearRenderDevices();
-    bool renderDeviceSet = false;
     for (auto &device : render_devices)
     {
         addRenderDevice(LLVoiceDevice(device.mDisplayName, device.mID));
-        LL_DEBUGS("Voice") << "Checking render device" << "'" << device.mID << "'" << LL_ENDL;
-        if (outputDevice == device.mID)
-        {
-            renderDeviceSet = true;
-        }
     }
-    if (!renderDeviceSet)
-    {
-        setRenderDevice("Default");
-    }
+    setRenderDevice(outputDevice);
 
     clearCaptureDevices();
-    bool captureDeviceSet = false;
     for (auto &device : capture_devices)
     {
         LL_DEBUGS("Voice") << "Checking capture device:'" << device.mID << "'" << LL_ENDL;
  
         addCaptureDevice(LLVoiceDevice(device.mDisplayName, device.mID));
-        if (inputDevice == device.mID)
-        {
-            captureDeviceSet = true;
-        }
     }
-    if (!captureDeviceSet)
-    {
-        setCaptureDevice("Default");
-    }
+    setCaptureDevice(inputDevice);
 
     setDevicesListUpdated(true);
 }
@@ -1559,10 +1554,13 @@ F32 LLWebRTCVoiceClient::getUserVolume(const LLUUID& id)
     // Minimum volume will be returned for users with voice disabled
     F32 result = LLVoiceClient::VOLUME_MIN;
 
-    participantStatePtr_t participant(mSession->findParticipantByID(id));
-    if(participant)
+    if (mSession)
     {
-        result = participant->mVolume;
+        participantStatePtr_t participant(mSession->findParticipantByID(id));
+        if (participant)
+        {
+            result = participant->mVolume;
+        }
     }
 
     return result;
