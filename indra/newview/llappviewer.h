@@ -152,6 +152,7 @@ public:
     // LLAppViewer testing helpers.
     // *NOTE: These will potentially crash the viewer. Only for debugging.
     virtual void forceErrorLLError();
+    virtual void forceErrorLLErrorMsg();
     virtual void forceErrorBreakpoint();
     virtual void forceErrorBadMemoryAccess();
     virtual void forceErrorInfiniteLoop();
