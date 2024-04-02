@@ -29,6 +29,7 @@
 
 #include "llcoros.h"
 #include "llsd.h"
+#include <filesystem>
 #include <functional>
 #include <string>
 #include <utility>                  // std::pair
@@ -88,8 +89,8 @@ class LLRequireResolver
     static void resolveRequire(lua_State *L, std::string path);
 
  private:
-    std::string mPathToResolve;
-    std::string mSourceChunkname;
+    std::filesystem::path mPathToResolve;
+    std::filesystem::path mSourceDir;
 
     LLRequireResolver(lua_State *L, const std::string& path);
 

@@ -122,7 +122,7 @@ lua_function(post_on, "post_on(pumpname, data): post specified data to specified
     std::string pumpname{ lua_tostdstring(L, 1) };
     LLSD data{ lua_tollsd(L, 2) };
     lua_pop(L, 2);
-    LL_INFOS("Lua") << "post_on('" << pumpname << "', " << data << ")" << LL_ENDL;
+    LL_DEBUGS("Lua") << "post_on('" << pumpname << "', " << data << ")" << LL_ENDL;
     LLEventPumps::instance().obtain(pumpname).post(data);
     return 0;
 }
@@ -314,19 +314,12 @@ void LLRequireResolver::resolveRequire(lua_State *L, std::string path)
 }
 
 LLRequireResolver::LLRequireResolver(lua_State *L, const std::string& path) :
-    mPathToResolve(path),
+    mPathToResolve(std::filesystem::path(path).lexically_normal()),
     L(L)
 {
-    //Luau lua_Debug and lua_getinfo() are different compared to default Lua:
-    //see https://github.com/luau-lang/luau/blob/80928acb92d1e4b6db16bada6d21b1fb6fa66265/VM/include/lua.h
-    lua_Debug ar;
-    lua_getinfo(L, 1, "s", &ar);
-    mSourceChunkname = ar.source;
+    mSourceDir = lluau::source_path(L).parent_path();
 
-    std::filesystem::path fs_path(mPathToResolve);
-    mPathToResolve = fs_path.lexically_normal().string();
-
-    if (fs_path.is_absolute())
+    if (mPathToResolve.is_absolute())
         luaL_argerrorL(L, 1, "cannot require a full path");
 }
 
@@ -358,8 +351,8 @@ private:
 // push the loaded module or throw a Lua error
 void LLRequireResolver::findModule()
 {
-    // If mPathToResolve is absolute, this replaces mSourceChunkname.parent_path.
-    auto absolutePath = (std::filesystem::path((mSourceChunkname)).parent_path() / mPathToResolve).u8string();
+    // If mPathToResolve is absolute, this replaces mSourceDir.
+    auto absolutePath = (mSourceDir / mPathToResolve).u8string();
 
     // Push _MODULES table on stack for checking and saving to the cache
     luaL_findtable(L, LUA_REGISTRYINDEX, "_MODULES", 1);
@@ -375,16 +368,16 @@ void LLRequireResolver::findModule()
 
     // not already cached - prep error message just in case
     auto fail{
-        [L=L, path=mPathToResolve]()
+        [L=L, path=mPathToResolve.u8string()]()
         { luaL_error(L, "could not find require('%s')", path.data()); }};
 
-    if (std::filesystem::path(mPathToResolve).is_absolute())
+    if (mPathToResolve.is_absolute())
     {
         // no point searching known directories for an absolute path
         fail();
     }
 
-    std::vector<std::string> lib_paths
+    std::vector<std::filesystem::path> lib_paths
     {
         gDirUtilp->getExpandedFilename(LL_PATH_SCRIPTS, "lua"),
 #ifdef LL_TEST
@@ -395,10 +388,10 @@ void LLRequireResolver::findModule()
 
     for (const auto& path : lib_paths)
     {
-        std::string absolutePathOpt = (std::filesystem::path(path) / mPathToResolve).u8string();
+        std::string absolutePathOpt = (path / mPathToResolve).u8string();
 
         if (absolutePathOpt.empty())
-            luaL_error(L, "error requiring module '%s'", mPathToResolve.data());
+            luaL_error(L, "error requiring module '%s'", mPathToResolve.u8string().data());
 
         if (findModuleImpl(absolutePathOpt))
             return;
