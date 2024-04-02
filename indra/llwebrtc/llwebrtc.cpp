@@ -401,7 +401,7 @@ void ll_set_device_module_capture_device(rtc::scoped_refptr<webrtc::AudioDeviceM
 #else
     // passed in default is -1, but the device list
     // has it at 0
-    device_module->SetPlayoutDevice(device + 1);
+    device_module->SetRecordingDevice(device + 1);
 #endif
     device_module->InitMicrophone();
     device_module->InitRecording();
