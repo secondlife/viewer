@@ -3850,15 +3850,14 @@ void LLPanelRegionEnvironment::onChkAllowOverride(bool value)
     mAllowOverrideRestore = mAllowOverride;
     mAllowOverride = value;
 
-
     std::string notification("EstateParcelEnvironmentOverride");
     if (LLPanelEstateInfo::isLindenEstate())
         notification = "ChangeLindenEstate";
 
-	LLSD args;
-	args["ESTATENAME"] = LLEstateInfoModel::instance().getName();
-	LLNotification::Params params(notification);
-	params.substitutions(args);
+    LLSD args;
+    args["ESTATENAME"] = LLEstateInfoModel::instance().getName();
+    LLNotification::Params params(notification);
+    params.substitutions(args);
     params.functor.function([this](const LLSD& notification, const LLSD& response) { confirmUpdateEstateEnvironment(notification, response); });
 
     if (!value || LLPanelEstateInfo::isLindenEstate())
