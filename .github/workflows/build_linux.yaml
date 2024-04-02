@@ -4,6 +4,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-22.04
+    env:
+      AUTOBUILD_ADDRSIZE: 64
+      AUTOBUILD_VARIABLES_FILE: ${{ github.workspace }}/.build-variables/variables
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -33,7 +36,7 @@ jobs:
 
       - name: Install Linux dependencies
         if: runner.os == 'linux'
-        run: sudo apt update && sudo apt install -y libgl1-mesa-dev libglu1-mesa-dev libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev libxrender-dev libxfixes-dev libxxf86vm-dev libxss-dev libdbus-1-dev libudev-dev libssl-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libfreetype6-dev
+        run: sudo apt update && sudo apt install -y libfltk1.3-dev libunwind-dev libgl1-mesa-dev libglu1-mesa-dev libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev libxrender-dev libxfixes-dev libxxf86vm-dev libxss-dev libdbus-1-dev libudev-dev libssl-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libfreetype6-dev ninja-build
 
       - name: Build
         id: build
