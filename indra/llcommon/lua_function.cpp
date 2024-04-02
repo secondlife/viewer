@@ -711,7 +711,7 @@ std::pair<LuaFunction::Registry&, LuaFunction::Lookup&> LuaFunction::getState()
 lua_function(source_path, "return the source path of the running Lua script")
 {
     luaL_checkstack(L, 1, nullptr);
-    lua_pushstdstring(L, lluau::source_path(L));
+    lua_pushstdstring(L, lluau::source_path(L).u8string());
     return 1;
 }
 
@@ -721,7 +721,19 @@ lua_function(source_path, "return the source path of the running Lua script")
 lua_function(source_dir, "return the source directory of the running Lua script")
 {
     luaL_checkstack(L, 1, nullptr);
-    lua_pushstdstring(L, lluau::source_path(L).parent_path());
+    lua_pushstdstring(L, lluau::source_path(L).parent_path().u8string());
+    return 1;
+}
+
+/*****************************************************************************
+*   abspath()
+*****************************************************************************/
+lua_function(abspath,
+             "for given filesystem path relative to running script, return absolute path")
+{
+    auto path{ lua_tostdstring(L, 1) };
+    lua_pop(L, 1);
+    lua_pushstdstring(L, (lluau::source_path(L).parent_path() / path).u8string());
     return 1;
 }
 

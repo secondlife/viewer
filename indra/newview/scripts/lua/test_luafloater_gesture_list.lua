@@ -1,4 +1,4 @@
-XML_FILE_PATH = LL.source_dir() .. "/luafloater_gesture_list.xml"
+XML_FILE_PATH = LL.abspath("luafloater_gesture_list.xml")
 
 scriptparts = string.split(LL.source_path(), '/')
 scriptname = scriptparts[#scriptparts]
