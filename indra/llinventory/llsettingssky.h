@@ -139,10 +139,6 @@ public:
     // auto_adjust - if true and canAutoAdjust() is true, return 1.0
     F32 getReflectionProbeAmbiance(bool auto_adjust = false) const;
 
-    // get the probe ambiance setting to use for rendering (adjusted by cloud shadow, aka cloud coverage)
-    // auto_adjust - if true and canAutoAdjust() is true, return 1.0
-    F32 getTotalReflectionProbeAmbiance(F32 cloud_shadow_scale, bool auto_adjust = false) const;
-
     // Return first (only) profile layer represented in LLSD
     LLSD getRayleighConfig() const;
     LLSD getMieConfig() const;
@@ -340,7 +336,7 @@ public:
     virtual void        updateSettings() SETTINGS_OVERRIDE;
 
     // if true, this sky is a candidate for auto-adjustment
-    bool canAutoAdjust() const { return mCanAutoAdjust; }
+    bool canAutoAdjust() const;
 
 protected:
     static const std::string SETTING_LEGACY_EAST_ANGLE;
@@ -384,9 +380,6 @@ private:
     mutable LLColor3    mSunDiffuse;
     mutable LLColor4    mTotalAmbient;
     mutable LLColor4    mHazeColor;
-
-    // if true, this sky is a candidate for auto adjustment
-    bool mCanAutoAdjust = true;
 
     typedef std::map<std::string, S32> mapNameToUniformId_t;
 
