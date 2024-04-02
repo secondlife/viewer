@@ -144,6 +144,8 @@ if (LINUX)
           -Wno-deprecated
           -Wno-c++20-compat
           -Wno-pessimizing-move
+          -Wno-stringop-overflow
+          -Wno-stringop-truncation
           -fvisibility=hidden
   )
   add_link_options(
@@ -195,6 +197,3 @@ if (LINUX OR DARWIN)
   add_compile_options(${GCC_WARNINGS})
   add_compile_options(-m${ADDRESS_SIZE})
 endif (LINUX OR DARWIN)
-
-
-
