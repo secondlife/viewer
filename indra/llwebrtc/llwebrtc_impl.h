@@ -244,8 +244,12 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceS
 
     // accessors in native webrtc for devices aren't apparently implemented yet.
     bool                                                       mTuningMode;
-    int32_t                                                    mPlayoutDevice;
     int32_t                                                    mRecordingDevice;
+    LLWebRTCVoiceDeviceList                                    mRecordingDeviceList;
+
+    int32_t                                                    mPlayoutDevice;
+    LLWebRTCVoiceDeviceList                                    mPlayoutDeviceList;
+
     bool                                                       mMute;
 
     LLAudioDeviceObserver *                                    mTuningAudioDeviceObserver;
