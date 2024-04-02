@@ -31,10 +31,20 @@
 
 #include "llsdjson.h"
 
+#include "llsdutil.h"
 #include "llerror.h"
 #include "../llmath/llmath.h"
 
+#if LL_WINDOWS
+#pragma warning (push)
+#pragma warning (disable : 4702) // compiler thinks unreachable code
+#endif
 #include <boost/json/src.hpp>
+#if LL_WINDOWS
+#pragma warning (pop)
+#endif
+
+
 
 //=========================================================================
 LLSD LlsdFromJson(const boost::json::value& val)
@@ -105,7 +115,7 @@ boost::json::value LlsdToJson(const LLSD &val)
     case LLSD::TypeMap:
     {
         boost::json::object& obj = result.emplace_object();
-        for (const auto& llsd_dat : val.asMap())
+        for (const auto& llsd_dat : llsd::inMap(val))
         {
             obj[llsd_dat.first] = LlsdToJson(llsd_dat.second);
         }
@@ -114,7 +124,7 @@ boost::json::value LlsdToJson(const LLSD &val)
     case LLSD::TypeArray:
     {
         boost::json::array& json_array = result.emplace_array();
-        for (const auto& llsd_dat : val.asArray())
+        for (const auto& llsd_dat : llsd::inArray(val))
         {
             json_array.push_back(LlsdToJson(llsd_dat));
         }
