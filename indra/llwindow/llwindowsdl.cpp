@@ -574,7 +574,7 @@ static int x11_detect_VRAM_kb()
 }
 #endif // LL_X11
 
-void LLWindowSDL::setTitle(const std::string &title)
+void LLWindowSDL::setTitle(const std::string title)
 {
     SDL_SetWindowTitle( mWindow, title.c_str() );
 }
