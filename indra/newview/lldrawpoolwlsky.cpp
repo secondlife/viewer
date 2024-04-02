@@ -130,6 +130,17 @@ void LLDrawPoolWLSky::renderDome(const LLVector3& camPosLocal, F32 camHeightLoca
 
 extern LLPointer<LLImageGL> gEXRImage;
 
+static bool use_hdri_sky()
+{
+    static LLCachedControl<F32> hdri_split(gSavedSettings, "RenderHDRISplitScreen", 1.f);
+    static LLCachedControl<bool> irradiance_only(gSavedSettings, "RenderHDRIIrradianceOnly", false);
+
+    return gCubeSnapshot && (!irradiance_only || !gPipeline.mReflectionMapManager.isRadiancePass()) ? gEXRImage.notNull() : // always use HDRI for reflection probes when available
+        gEXRImage.notNull() ? hdri_split > 0.f : // fallback to EEP sky when split screen is zero
+        false; // no HDRI available, always use EEP sky
+
+}
+
 void LLDrawPoolWLSky::renderSkyHazeDeferred(const LLVector3& camPosLocal, F32 camHeightLocal) const
 {
     if (!gSky.mVOSkyp)
@@ -141,7 +152,7 @@ void LLDrawPoolWLSky::renderSkyHazeDeferred(const LLVector3& camPosLocal, F32 ca
 
 	if (gPipeline.canUseWindLightShaders() && gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_SKY))
 	{
-        if (gEXRImage.notNull())
+        if (use_hdri_sky())
         {
             sky_shader = &gEnvironmentMapProgram;
             sky_shader->bind();
@@ -161,7 +172,7 @@ void LLDrawPoolWLSky::renderSkyHazeDeferred(const LLVector3& camPosLocal, F32 ca
 
             sky_shader->uniform1f(LLShaderMgr::SKY_HDR_SCALE, powf(2.f, hdri_exposure));
             sky_shader->uniformMatrix3fv(LLShaderMgr::DEFERRED_ENV_MAT, 1, GL_FALSE, (F32*) rot.mMatrix);
-            sky_shader->uniform1f(hdri_split_screen, hdri_split);
+            sky_shader->uniform1f(hdri_split_screen, gCubeSnapshot ? 1.f : hdri_split);
         }
         else
         {
@@ -169,8 +180,6 @@ void LLDrawPoolWLSky::renderSkyHazeDeferred(const LLVector3& camPosLocal, F32 ca
         }
 
         LLGLSPipelineDepthTestSkyBox sky(true, true);
-
-        
 
         sky_shader->uniform1i(LLShaderMgr::CUBE_SNAPSHOT, gCubeSnapshot ? 1 : 0);
 
@@ -210,7 +219,7 @@ void LLDrawPoolWLSky::renderSkyHazeDeferred(const LLVector3& camPosLocal, F32 ca
 
 void LLDrawPoolWLSky::renderStarsDeferred(const LLVector3& camPosLocal) const
 {
-    if (!gSky.mVOSkyp || gEXRImage.notNull())
+    if (!gSky.mVOSkyp || use_hdri_sky())
     {
         return;
     }
@@ -281,7 +290,7 @@ void LLDrawPoolWLSky::renderStarsDeferred(const LLVector3& camPosLocal) const
 
 void LLDrawPoolWLSky::renderSkyCloudsDeferred(const LLVector3& camPosLocal, F32 camHeightLocal, LLGLSLShader* cloudshader) const
 {
-    if (gEXRImage.notNull())
+    if (use_hdri_sky())
     {
         return;
     }
@@ -345,7 +354,7 @@ void LLDrawPoolWLSky::renderSkyCloudsDeferred(const LLVector3& camPosLocal, F32 
 
 void LLDrawPoolWLSky::renderHeavenlyBodies()
 {
-    if (!gSky.mVOSkyp || gEXRImage.notNull()) return;
+    if (!gSky.mVOSkyp || use_hdri_sky()) return;
 
     LLGLSPipelineBlendSkyBox gls_skybox(true, true); // SL-14113 we need moon to write to depth to clip stars behind
 

@@ -9373,6 +9373,17 @@
     <key>Value</key>
     <real>1.0</real>
   </map>
+  <key>RenderHDRIIrradianceOnly</key>
+  <map>
+    <key>Comment</key>
+    <string>Only use HDRI sky for irradiance map when RenderHDRISplitScreen is 0</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
   <key>RenderMaxOpenGLVersion</key>
   <map>
     <key>Comment</key>
