@@ -70,46 +70,46 @@ LLLeapListener::LLLeapListener(const std::string_view& caller, const Callback& c
 {
     LLSD need_name(LLSDMap("name", LLSD()));
     add("newpump",
-        "Instantiate a new LLEventPump named like [\"name\"] and listen to it.\n"
-        "[\"type\"] == \"LLEventStream\", \"LLEventMailDrop\" et al.\n"
-        "Events sent through new LLEventPump will be decorated with [\"pump\"]=name.\n"
-        "Returns actual name in [\"name\"] (may be different if collision).",
+R"-(Instantiate a new LLEventPump named like ["name"] and listen to it.
+["type"] == "LLEventStream", "LLEventMailDrop" et al.
+Events sent through new LLEventPump will be decorated with ["pump"]=name.
+Returns actual name in ["name"] (may be different if collision).)-",
         &LLLeapListener::newpump,
         need_name);
     LLSD need_source_listener(LLSDMap("source", LLSD())("listener", LLSD()));
     add("listen",
-        "Listen to an existing LLEventPump named [\"source\"], with listener name\n"
-        "[\"listener\"].\n"
-        "If [\"tweak\"] is specified as true, tweak listener name for uniqueness.\n"
-        "By default, send events on [\"source\"] to the plugin, decorated\n"
-        "with [\"pump\"]=[\"source\"].\n"
-        "If [\"dest\"] specified, send undecorated events on [\"source\"] to the\n"
-        "LLEventPump named [\"dest\"].\n"
-        "Returns [\"status\"] boolean indicating whether the connection was made,\n"
-        "plus [\"listener\"] reporting (possibly tweaked) listener name.",
+R"-(Listen to an existing LLEventPump named ["source"], with listener name
+["listener"].
+If ["tweak"] is specified as true, tweak listener name for uniqueness.
+By default, send events on ["source"] to the plugin, decorated
+with ["pump"]=["source"].
+If ["dest"] specified, send undecorated events on ["source"] to the
+LLEventPump named ["dest"].
+Returns ["status"] boolean indicating whether the connection was made,
+plus ["listener"] reporting (possibly tweaked) listener name.)-",
         &LLLeapListener::listen,
         need_source_listener);
     add("stoplistening",
-        "Disconnect a connection previously established by \"listen\".\n"
-        "Pass same [\"source\"] and [\"listener\"] arguments.\n"
-        "Returns [\"status\"] boolean indicating whether such a listener existed.",
+R"-(Disconnect a connection previously established by "listen".
+Pass same ["source"] and ["listener"] arguments.
+Returns ["status"] boolean indicating whether such a listener existed.)-",
         &LLLeapListener::stoplistening,
         need_source_listener);
     add("ping",
-        "No arguments, just a round-trip sanity check.",
+"No arguments, just a round-trip sanity check.",
         &LLLeapListener::ping);
     add("getAPIs",
-        "Enumerate all LLEventAPI instances by name and description.",
+"Enumerate all LLEventAPI instances by name and description.",
         &LLLeapListener::getAPIs);
     add("getAPI",
-        "Get name, description, dispatch key and operations for LLEventAPI [\"api\"].",
+R"-(Get name, description, dispatch key and operations for LLEventAPI ["api"].)-",
         &LLLeapListener::getAPI,
         LLSD().with("api", LLSD()));
     add("getFeatures",
-        "Return an LLSD map of feature strings (deltas from baseline LEAP protocol)",
+"Return an LLSD map of feature strings (deltas from baseline LEAP protocol)",
         static_cast<void (LLLeapListener::*)(const LLSD&) const>(&LLLeapListener::getFeatures));
     add("getFeature",
-        "Return the feature value with key [\"feature\"]",
+R"-(Return the feature value with key ["feature"])-",
         &LLLeapListener::getFeature,
         LLSD().with("feature", LLSD()));
 }
