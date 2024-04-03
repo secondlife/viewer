@@ -28,6 +28,7 @@
 #include "llviewerprecompiledheaders.h"
 #include "llluamanager.h"
 
+#include "fsyspath.h"
 #include "llcoros.h"
 #include "llerror.h"
 #include "lleventcoro.h"
@@ -37,7 +38,6 @@
 #include "stringize.h"
 
 #include <boost/algorithm/string/replace.hpp>
-#include <filesystem>
 
 #include "luau/luacode.h"
 #include "luau/lua.h"
@@ -122,7 +122,7 @@ lua_function(post_on, "post_on(pumpname, data): post specified data to specified
     std::string pumpname{ lua_tostdstring(L, 1) };
     LLSD data{ lua_tollsd(L, 2) };
     lua_pop(L, 2);
-    LL_INFOS("Lua") << "post_on('" << pumpname << "', " << data << ")" << LL_ENDL;
+    LL_DEBUGS("Lua") << "post_on('" << pumpname << "', " << data << ")" << LL_ENDL;
     LLEventPumps::instance().obtain(pumpname).post(data);
     return 0;
 }
@@ -314,19 +314,12 @@ void LLRequireResolver::resolveRequire(lua_State *L, std::string path)
 }
 
 LLRequireResolver::LLRequireResolver(lua_State *L, const std::string& path) :
-    mPathToResolve(path),
+    mPathToResolve(fsyspath(path).lexically_normal()),
     L(L)
 {
-    //Luau lua_Debug and lua_getinfo() are different compared to default Lua:
-    //see https://github.com/luau-lang/luau/blob/80928acb92d1e4b6db16bada6d21b1fb6fa66265/VM/include/lua.h
-    lua_Debug ar;
-    lua_getinfo(L, 1, "s", &ar);
-    mSourceChunkname = ar.source;
+    mSourceDir = lluau::source_path(L).parent_path();
 
-    std::filesystem::path fs_path(mPathToResolve);
-    mPathToResolve = fs_path.lexically_normal().string();
-
-    if (fs_path.is_absolute())
+    if (mPathToResolve.is_absolute())
         luaL_argerrorL(L, 1, "cannot require a full path");
 }
 
@@ -358,8 +351,8 @@ private:
 // push the loaded module or throw a Lua error
 void LLRequireResolver::findModule()
 {
-    // If mPathToResolve is absolute, this replaces mSourceChunkname.parent_path.
-    auto absolutePath = (std::filesystem::path((mSourceChunkname)).parent_path() / mPathToResolve).u8string();
+    // If mPathToResolve is absolute, this replaces mSourceDir.
+    auto absolutePath = (mSourceDir / mPathToResolve).u8string();
 
     // Push _MODULES table on stack for checking and saving to the cache
     luaL_findtable(L, LUA_REGISTRYINDEX, "_MODULES", 1);
@@ -375,30 +368,30 @@ void LLRequireResolver::findModule()
 
     // not already cached - prep error message just in case
     auto fail{
-        [L=L, path=mPathToResolve]()
+        [L=L, path=mPathToResolve.u8string()]()
         { luaL_error(L, "could not find require('%s')", path.data()); }};
 
-    if (std::filesystem::path(mPathToResolve).is_absolute())
+    if (mPathToResolve.is_absolute())
     {
         // no point searching known directories for an absolute path
         fail();
     }
 
-    std::vector<std::string> lib_paths
+    std::vector<fsyspath> lib_paths
     {
         gDirUtilp->getExpandedFilename(LL_PATH_SCRIPTS, "lua"),
 #ifdef LL_TEST
         // Build-time tests don't have the app bundle - use source tree.
-        std::filesystem::path(__FILE__).parent_path() / "scripts" / "lua",
+        fsyspath(__FILE__).parent_path() / "scripts" / "lua",
 #endif
     };
 
     for (const auto& path : lib_paths)
     {
-        std::string absolutePathOpt = (std::filesystem::path(path) / mPathToResolve).u8string();
+        std::string absolutePathOpt = (path / mPathToResolve).u8string();
 
         if (absolutePathOpt.empty())
-            luaL_error(L, "error requiring module '%s'", mPathToResolve.data());
+            luaL_error(L, "error requiring module '%s'", mPathToResolve.u8string().data());
 
         if (findModuleImpl(absolutePathOpt))
             return;
@@ -457,12 +450,14 @@ void LLRequireResolver::runModule(const std::string& desc, const std::string& co
     // Module needs to run in a new thread, isolated from the rest.
     // Note: we create ML on main thread so that it doesn't inherit environment of L.
     lua_State *GL = lua_mainthread(L);
-    lua_State *ML = lua_newthread(GL);
+//  lua_State *ML = lua_newthread(GL);
+    // Try loading modules on Lua's main thread instead.
+    lua_State *ML = GL;
     // lua_newthread() pushed the new thread object on GL's stack. Move to L's.
-    lua_xmove(GL, L, 1);
+//  lua_xmove(GL, L, 1);
 
     // new thread needs to have the globals sandboxed
-    luaL_sandboxthread(ML);
+//  luaL_sandboxthread(ML);
 
     {
         // If loadstring() returns (! LUA_OK) then there's an error message on
@@ -472,7 +467,9 @@ void LLRequireResolver::runModule(const std::string& desc, const std::string& co
         {
             // luau uses Lua 5.3's version of lua_resume():
             // run the coroutine on ML, "from" L, passing no arguments.
-            int status = lua_resume(ML, L, 0);
+//          int status = lua_resume(ML, L, 0);
+            // we expect one return value
+            int status = lua_pcall(ML, 0, 1, 0);
 
             if (status == LUA_OK)
             {
@@ -494,9 +491,12 @@ void LLRequireResolver::runModule(const std::string& desc, const std::string& co
     }
     // There's now a return value (string error message or module) on top of ML.
     // Move return value to L's stack.
-    lua_xmove(ML, L, 1);
+    if (ML != L)
+    {
+        lua_xmove(ML, L, 1);
+    }
     // remove ML from L's stack
-    lua_remove(L, -2);
+//  lua_remove(L, -2);
 //  // DON'T call lua_close(ML)! Since ML is only a thread of L, corrupts L too!    
 //  lua_close(ML);
 }

@@ -1,11 +1,17 @@
-XML_FILE_PATH = "luafloater_gesture_list.xml"
+XML_FILE_PATH = LL.abspath("luafloater_gesture_list.xml")
+
+scriptparts = string.split(LL.source_path(), '/')
+scriptname = scriptparts[#scriptparts]
+print('Running ' .. scriptname)
 
 leap = require 'leap'
 fiber = require 'fiber'
 LLGesture = require 'LLGesture'
+startup = require 'startup'
 
 --event pump for sending actions to the floater
-COMMAND_PUMP_NAME = ""
+local COMMAND_PUMP_NAME = ""
+local reqid
 --table of floater UI events
 event_list=leap.request("LLFloaterReg", {op="getFloaterEvents"}).events
 
@@ -22,9 +28,12 @@ end
 
 function handleEvents(event_data)
   if event_data.event == _event("floater_close") then
-    leap.done()
-  elseif event_data.event == _event("post_build") then
+    return false
+  end
+
+  if event_data.event == _event("post_build") then
     COMMAND_PUMP_NAME = event_data.command_name
+    reqid = event_data.reqid
     gestures_uuid = LLGesture.getActiveGestures()
     local action_data = {}
     action_data.action = "add_list_element"
@@ -40,8 +49,10 @@ function handleEvents(event_data)
       LLGesture.startGesture(event_data.value)
     end
   end
+  return true
 end
 
+startup.wait('STATE_STARTED')
 local key = {xml_path = XML_FILE_PATH, op = "showLuaFloater"}
 --receive additional events for defined control {<control_name>= {action1, action2, ...}}
 key.extra_events={gesture_list = {_event("double_click")}}
@@ -49,13 +60,14 @@ handleEvents(leap.request("LLFloaterReg", key))
 
 catch_events = leap.WaitFor:new(-1, "all_events")
 function catch_events:filter(pump, data)
-  return data
+  if data.reqid == reqid then
+    return data
+  end
 end
 
 function process_events(waitfor)
   event_data = waitfor:wait()
-  while event_data do
-    handleEvents(event_data)
+  while event_data and handleEvents(event_data) do
     event_data = waitfor:wait()
   end
 end

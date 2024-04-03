@@ -1,6 +1,12 @@
 -- from https://create.roblox.com/docs/luau/queues#implementing-queues,
 -- amended per https://www.lua.org/pil/16.1.html
 
+-- While coding some scripting in Lua
+-- I found that I needed a queua
+-- I thought of linked list
+-- But had to resist
+-- For fear it might be too obscua. 
+
 local Queue = {}
 
 function Queue:new()

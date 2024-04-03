@@ -17,8 +17,8 @@
 -- or with an error).
 
 local printf = require 'printf'
--- local debug = printf
-local function debug(...) end
+-- local dbg = printf
+local function dbg(...) end
 local coro = require 'coro'
 
 local fiber = {}
@@ -78,22 +78,28 @@ function fiber.launch(name, func, ...)
     byname[namekey] = co
     -- and remember it as this fiber's name
     names[co] = namekey
---  debug('launch(%s)', namekey)
---  debug('byname[%s] = %s', namekey, tostring(byname[namekey]))
---  debug('names[%s] = %s', tostring(co), names[co])
---  debug('ready[-1] = %s', tostring(ready[#ready]))
+--  dbg('launch(%s)', namekey)
+--  dbg('byname[%s] = %s', namekey, tostring(byname[namekey]))
+--  dbg('names[%s] = %s', tostring(co), names[co])
+--  dbg('ready[-1] = %s', tostring(ready[#ready]))
 end
 
 -- for debugging
-function fiber.print_all()
-    print('Ready fibers:' .. if next(ready) then '' else ' none')
+function format_all()
+    output = {}
+    table.insert(output, 'Ready fibers:' .. if next(ready) then '' else ' none')
     for _, co in pairs(ready) do
-        printf('  %s: %s', fiber.get_name(co), fiber.status(co))
+        table.insert(output, string.format('  %s: %s', fiber.get_name(co), fiber.status(co)))
     end
-    print('Waiting fibers:' .. if next(waiting) then '' else ' none')
+    table.insert(output, 'Waiting fibers:' .. if next(waiting) then '' else ' none')
     for co in pairs(waiting) do
-        printf('  %s: %s', fiber.get_name(co), fiber.status(co))
+        table.insert(output, string.format('  %s: %s', fiber.get_name(co), fiber.status(co)))
     end
+    return table.concat(output, '\n')
+end
+
+function fiber.print_all()
+    print(format_all())
 end
 
 -- return either the running coroutine or, if called from the main thread,
@@ -160,6 +166,7 @@ end
 
 -- Suspend the current fiber until some other fiber calls fiber.wake() on it
 function fiber.wait()
+    dbg('Fiber %q waiting', fiber.get_name())
     set_waiting()
     -- now yield to other fibers
     fiber.yield()
@@ -175,26 +182,27 @@ function fiber.wake(co)
     waiting[co] = nil
     -- add to end of ready list
     table.insert(ready, co)
+    dbg('Fiber %q ready', fiber.get_name(co))
     -- but don't yet resume it: that happens next time we reach yield()
 end
 
 -- pop and return the next not-dead fiber in the ready list, or nil if none remain
 local function live_ready_iter()
-    -- don't write
+    -- don't write:
     -- for co in table.remove, ready, 1
     -- because it would keep passing a new second parameter!
     for co in function() return table.remove(ready, 1) end do
-        debug('%s live_ready_iter() sees %s, status %s',
+        dbg('%s live_ready_iter() sees %s, status %s',
               fiber.get_name(), fiber.get_name(co), fiber.status(co))
         -- keep removing the head entry until we find one that's not dead,
         -- discarding any dead coroutines along the way
         if co == 'main' or coroutine.status(co) ~= 'dead' then
-            debug('%s live_ready_iter() returning %s',
+            dbg('%s live_ready_iter() returning %s',
                   fiber.get_name(), fiber.get_name(co))
             return co
         end
     end
-    debug('%s live_ready_iter() returning nil', fiber.get_name())
+    dbg('%s live_ready_iter() returning nil', fiber.get_name())
     return nil
 end
 
@@ -214,6 +222,7 @@ end
 -- * false, nil if this is the only remaining fiber
 -- * nil,   x   if configured idle() callback returns non-nil x
 local function scheduler()
+    dbg('scheduler():\n%s', format_all())
     -- scheduler() is asymmetric because Lua distinguishes the main thread
     -- from other coroutines. The main thread can't yield; it can only resume
     -- other coroutines. So although an arbitrary coroutine could resume still
@@ -311,12 +320,12 @@ function fiber.run()
     end
     local others, idle_done
     repeat
-        debug('%s calling fiber.run() calling scheduler()', fiber.get_name())
+        dbg('%s calling fiber.run() calling scheduler()', fiber.get_name())
         others, idle_done = scheduler()
-        debug("%s fiber.run()'s scheduler() returned %s, %s", fiber.get_name(),
+        dbg("%s fiber.run()'s scheduler() returned %s, %s", fiber.get_name(),
               tostring(others), tostring(idle_done))
     until (not others)
-    debug('%s fiber.run() done', fiber.get_name())
+    dbg('%s fiber.run() done', fiber.get_name())
     -- For whatever it's worth, put our own fiber back in the ready list.
     table.insert(ready, fiber.running())
     -- Once there are no more waiting fibers, and the only ready fiber is
