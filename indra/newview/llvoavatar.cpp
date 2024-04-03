@@ -133,7 +133,8 @@ const F32 DEFAULT_MAX_ATTACHMENT_COMPLEXITY = 1.0e6f;
 // expected attachments so viewer has to wait to see if anything
 // else will arrive
 const F32 FIRST_APPEARANCE_CLOUD_MIN_DELAY = 3.f; // seconds
-const F32 FIRST_APPEARANCE_CLOUD_MAX_DELAY = 45.f;
+const F32 FIRST_APPEARANCE_CLOUD_MAX_DELAY = 15.f;
+const F32 FIRST_APPEARANCE_CLOUD_IMPOSTOR_MODIFIER = 1.25f;
 
 using namespace LLAvatarAppearanceDefines;
 
@@ -206,6 +207,7 @@ const U32 LLVOAvatar::VISUAL_COMPLEXITY_UNKNOWN = 0;
 const F64 HUD_OVERSIZED_TEXTURE_DATA_SIZE = 1024 * 1024;
 
 const F32 MAX_TEXTURE_WAIT_TIME_SEC = 60;
+const F32 MAX_ATTACHMENT_WAIT_TIME_SEC = 120;
 
 const S32 MIN_NONTUNED_AVS = 5;
 
@@ -681,6 +683,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mFullyLoaded(false),
 	mPreviousFullyLoaded(false),
 	mFullyLoadedInitialized(false),
+    mLastCloudAttachmentCount(0),
 	mVisualComplexity(VISUAL_COMPLEXITY_UNKNOWN),
 	mLoadedCallbacksPaused(false),
 	mLoadedCallbackTextures(0),
@@ -7879,7 +7882,14 @@ LLVOAvatar* LLVOAvatar::findAvatarFromAttachment( LLViewerObject* obj )
 
 S32 LLVOAvatar::getAttachmentCount()
 {
-	S32 count = mAttachmentPoints.size();
+	S32 count = 0;
+
+    for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); iter != mAttachmentPoints.end(); ++iter)
+    {
+        LLViewerJointAttachment* pAttachment = iter->second;
+        count += pAttachment->mAttachedObjects.size();
+    }
+
 	return count;
 }
 
@@ -8229,6 +8239,27 @@ bool LLVOAvatar::updateIsFullyLoaded()
                    || (rez_status < 3 && !isFullyBaked())
                    || hasPendingAttachedMeshes()
                   );
+
+        // compare amount of attachments to one reported by simulator
+        if (!loading && !isSelf() && mLastCloudAttachmentCount != mSimAttachments.size())
+        {
+            S32 attachment_count = getAttachmentCount();
+            if (mLastCloudAttachmentCount != attachment_count)
+            {
+                mLastCloudAttachmentCount = attachment_count;
+                if (attachment_count != mSimAttachments.size())
+                {
+                    // attachment count changed, but still below desired, wait for more updates
+                    mLastCloudAttachmentChangeTime.reset();
+                    loading = true;
+                }
+            }
+            else if (mLastCloudAttachmentChangeTime.getElapsedTimeF32() < MAX_ATTACHMENT_WAIT_TIME_SEC)
+            {
+                // waiting
+                loading = true;
+            }
+        }
 	}
 	updateRezzedStatusTimers(rez_status);
 	updateRuthTimer(loading);
@@ -8267,9 +8298,8 @@ void LLVOAvatar::updateRuthTimer(bool loading)
 bool LLVOAvatar::processFullyLoadedChange(bool loading)
 {
 	// We wait a little bit before giving the 'all clear', to let things to
-	// settle down (models to snap into place, textures to get first packets).
-    // And if viewer isn't aware of some parts yet, this gives them a chance
-    // to arrive.
+	// settle down: models to snap into place, textures to get first packets,
+	// LODs to load.
 	const F32 LOADED_DELAY = 1.f;
 
     if (loading)
@@ -8292,7 +8322,7 @@ bool LLVOAvatar::processFullyLoadedChange(bool loading)
                 {
                     // Impostors are less of a priority,
                     // let them stay cloud longer
-                    mFirstUseDelaySeconds *= 1.25;
+                    mFirstUseDelaySeconds *= FIRST_APPEARANCE_CLOUD_IMPOSTOR_MODIFIER;
                 }
         }
 		mFullyLoaded = (mFullyLoadedTimer.getElapsedTimeF32() > mFirstUseDelaySeconds);
@@ -9296,7 +9326,8 @@ void LLVOAvatar::parseAppearanceMessage(LLMessageSystem* mesgsys, LLAppearanceMe
     S32    attach_count = mesgsys->getNumberOfBlocksFast(_PREHASH_AttachmentBlock);
     LL_DEBUGS("AVAppearanceAttachments") << "Agent " << getID() << " has "
                                          << attach_count << " attachments" << LL_ENDL;
-
+    size_t old_size = mSimAttachments.size();
+    mSimAttachments.clear();
     for (S32 attach_i = 0; attach_i < attach_count; attach_i++)
     {
         mesgsys->getUUIDFast(_PREHASH_AttachmentBlock, _PREHASH_ID, attachment_id, attach_i);
@@ -9304,8 +9335,19 @@ void LLVOAvatar::parseAppearanceMessage(LLMessageSystem* mesgsys, LLAppearanceMe
         LL_DEBUGS("AVAppearanceAttachments") << "AV " << getID() << " has attachment " << attach_i << " "
             << (attachment_id.isNull() ? "pending" : attachment_id.asString())
             << " on point " << (S32)attach_point << LL_ENDL;
-        // To do - store and use this information as needed
+
+        mSimAttachments[attachment_id] = attach_point;
 	}
+
+    if (old_size != mSimAttachments.size())
+    {
+        mLastCloudAttachmentCount = 0;
+        mLastCloudAttachmentChangeTime.reset();
+        if (!isFullyLoaded())
+        {
+            mFullyLoadedTimer.reset();
+        }
+    }
 
 	// Parse visual params, if any.
 	S32 num_blocks = mesgsys->getNumberOfBlocksFast(_PREHASH_VisualParam);
