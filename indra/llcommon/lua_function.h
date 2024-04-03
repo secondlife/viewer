@@ -16,6 +16,7 @@
 #include "luau/lua.h"
 #include "luau/luaconf.h"
 #include "luau/lualib.h"
+#include "fsyspath.h"
 #include "stringize.h"
 #include <exception>                // std::uncaught_exceptions()
 #include <memory>                   // std::shared_ptr
@@ -49,6 +50,8 @@ namespace lluau
     // terminated char arrays.
     int dostring(lua_State* L, const std::string& desc, const std::string& text);
     int loadstring(lua_State* L, const std::string& desc, const std::string& text);
+
+    fsyspath source_path(lua_State* L);
 } // namespace lluau
 
 std::string lua_tostdstring(lua_State* L, int index);

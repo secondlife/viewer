@@ -27,6 +27,7 @@
 #ifndef LL_LLLUAMANAGER_H
 #define LL_LLLUAMANAGER_H
 
+#include "fsyspath.h"
 #include "llcoros.h"
 #include "llsd.h"
 #include <functional>
@@ -88,8 +89,8 @@ class LLRequireResolver
     static void resolveRequire(lua_State *L, std::string path);
 
  private:
-    std::string mPathToResolve;
-    std::string mSourceChunkname;
+    fsyspath mPathToResolve;
+    fsyspath mSourceDir;
 
     LLRequireResolver(lua_State *L, const std::string& path);
 

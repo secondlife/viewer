@@ -17,13 +17,13 @@
 // std headers
 #include <algorithm>
 #include <exception>
-#include <filesystem>
 #include <iomanip>                  // std::quoted
 #include <map>
 #include <memory>                   // std::unique_ptr
 #include <typeinfo>
 // external library headers
 // other Linden headers
+#include "fsyspath.h"
 #include "hexdump.h"
 #include "lleventcoro.h"
 #include "llsd.h"
@@ -66,6 +66,15 @@ int lluau::loadstring(lua_State *L, const std::string &desc, const std::string &
     std::unique_ptr<char[], freer> bytecode{
         luau_compile(text.data(), text.length(), nullptr, &bytecodeSize)};
     return luau_load(L, desc.data(), bytecode.get(), bytecodeSize, 0);
+}
+
+fsyspath lluau::source_path(lua_State* L)
+{
+    //Luau lua_Debug and lua_getinfo() are different compared to default Lua:
+    //see https://github.com/luau-lang/luau/blob/80928acb92d1e4b6db16bada6d21b1fb6fa66265/VM/include/lua.h
+    lua_Debug ar;
+    lua_getinfo(L, 1, "s", &ar);
+    return ar.source;
 }
 
 /*****************************************************************************
@@ -484,11 +493,15 @@ bool LuaState::checkLua(const std::string& desc, int r)
 std::pair<int, LLSD> LuaState::expr(const std::string& desc, const std::string& text)
 {
     if (! checkLua(desc, lluau::dostring(mState, desc, text)))
+    {
+        LL_WARNS("Lua") << desc << " error: " << mError << LL_ENDL;
         return { -1, mError };
+    }
 
     // here we believe there was no error -- did the Lua fragment leave
     // anything on the stack?
     std::pair<int, LLSD> result{ lua_gettop(mState), {} };
+    LL_INFOS("Lua") << desc << " done, " << result.first << " results." << LL_ENDL;
     if (result.first)
     {
         // aha, at least one entry on the stack!
@@ -501,6 +514,7 @@ std::pair<int, LLSD> LuaState::expr(const std::string& desc, const std::string& 
             }
             catch (const std::exception& error)
             {
+                LL_WARNS("Lua") << desc << " error converting result: " << error.what() << LL_ENDL;
                 // lua_tollsd() is designed to be called from a lua_function(),
                 // that is, from a C++ function called by Lua. In case of error,
                 // it throws a Lua error to be caught by the Lua runtime. expr()
@@ -519,15 +533,18 @@ std::pair<int, LLSD> LuaState::expr(const std::string& desc, const std::string& 
         else
         {
             // multiple entries on the stack
+            int index;
             try
             {
-                for (int index = 1; index <= result.first; ++index)
+                for (index = 1; index <= result.first; ++index)
                 {
                     result.second.append(lua_tollsd(mState, index));
                 }
             }
             catch (const std::exception& error)
             {
+                LL_WARNS("Lua") << desc << " error converting result " << index << ": "
+                                << error.what() << LL_ENDL;
                 // see above comments regarding lua_State's error status
                 initLuaState();
                 return { -1, stringize(LLError::Log::classname(error), ": ", error.what()) };
@@ -560,7 +577,7 @@ std::pair<int, LLSD> LuaState::expr(const std::string& desc, const std::string& 
         // the next call to lua_next."
         // https://www.lua.org/manual/5.1/manual.html#lua_next
         if (lua_type(mState, -2) == LUA_TSTRING &&
-            std::filesystem::path(lua_tostdstring(mState, -2)).stem() == "fiber")
+            fsyspath(lua_tostdstring(mState, -2)).stem() == "fiber")
         {
             found = true;
             break;
@@ -577,9 +594,13 @@ std::pair<int, LLSD> LuaState::expr(const std::string& desc, const std::string& 
         {
             // there's a fiber.run() function sitting on the top of the stack
             // -- call it with no arguments, discarding anything it returns
-            LL_DEBUGS("Lua") << "Calling fiber.run()" << LL_ENDL;
+            LL_INFOS("Lua") << desc << " p.s. fiber.run()" << LL_ENDL;
             if (! checkLua(desc, lua_pcall(mState, 0, 0, 0)))
+            {
+                LL_WARNS("Lua") << desc << " p.s. fiber.run() error: " << mError << LL_ENDL;
                 return { -1, mError };
+            }
+            LL_INFOS("Lua") << desc << " p.s. done." << LL_ENDL;
         }
     }
     // pop everything again
@@ -682,6 +703,38 @@ std::pair<LuaFunction::Registry&, LuaFunction::Lookup&> LuaFunction::getState()
     static Registry registry;
     static Lookup lookup;
     return { registry, lookup };
+}
+
+/*****************************************************************************
+*   source_path()
+*****************************************************************************/
+lua_function(source_path, "return the source path of the running Lua script")
+{
+    luaL_checkstack(L, 1, nullptr);
+    lua_pushstdstring(L, lluau::source_path(L).u8string());
+    return 1;
+}
+
+/*****************************************************************************
+*   source_dir()
+*****************************************************************************/
+lua_function(source_dir, "return the source directory of the running Lua script")
+{
+    luaL_checkstack(L, 1, nullptr);
+    lua_pushstdstring(L, lluau::source_path(L).parent_path().u8string());
+    return 1;
+}
+
+/*****************************************************************************
+*   abspath()
+*****************************************************************************/
+lua_function(abspath,
+             "for given filesystem path relative to running script, return absolute path")
+{
+    auto path{ lua_tostdstring(L, 1) };
+    lua_pop(L, 1);
+    lua_pushstdstring(L, (lluau::source_path(L).parent_path() / path).u8string());
+    return 1;
 }
 
 /*****************************************************************************

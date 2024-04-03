@@ -104,6 +104,7 @@ LuaListener::PumpData LuaListener::getNext()
 {
     try
     {
+        LLCoros::TempStatus status("get_event_next()");
         return mQueue.pop();
     }
     catch (const LLThreadSafeQueueInterrupt&)

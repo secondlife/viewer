@@ -1,10 +1,16 @@
-XML_FILE_PATH = "luafloater_demo.xml"
+XML_FILE_PATH = LL.abspath("luafloater_demo.xml")
+
+scriptparts = string.split(LL.source_path(), '/')
+scriptname = scriptparts[#scriptparts]
+print('Running ' .. scriptname)
 
 leap = require 'leap'
 fiber = require 'fiber'
+startup = require 'startup'
 
 --event pump for sending actions to the floater
-COMMAND_PUMP_NAME = ""
+local COMMAND_PUMP_NAME = ""
+local reqid
 --table of floater UI events
 event_list=leap.request("LLFloaterReg", {op="getFloaterEvents"}).events
 
@@ -41,24 +47,29 @@ function handleEvents(event_data)
     end
   elseif event_data.event == _event("floater_close") then
     LL.print_warning("Floater was closed")
-    leap.done()
+    return false
   end
+  return true
 end
 
+startup.wait('STATE_LOGIN_WAIT')
 local key = {xml_path = XML_FILE_PATH, op = "showLuaFloater"}
 --sign for additional events for defined control {<control_name>= {action1, action2, ...}}
 key.extra_events={show_time_lbl = {_event("right_mouse_down"), _event("double_click")}}
-COMMAND_PUMP_NAME = leap.request("LLFloaterReg", key).command_name
+local resp = leap.request("LLFloaterReg", key)
+COMMAND_PUMP_NAME = resp.command_name
+reqid = resp.reqid
 
 catch_events = leap.WaitFor:new(-1, "all_events")
 function catch_events:filter(pump, data)
-  return data
+  if data.reqid == reqid then
+    return data
+  end
 end
 
 function process_events(waitfor)
   event_data = waitfor:wait()
-  while event_data do
-    handleEvents(event_data)
+  while event_data and handleEvents(event_data) do
     event_data = waitfor:wait()
   end
 end
