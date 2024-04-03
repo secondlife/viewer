@@ -17,7 +17,6 @@ include(LLImage)
 include(LLWindow)
 include(UI)
 include(ViewerMiscLibs)
-include(FetchContent)
 
 set(llwindow_SOURCE_FILES
     llcursortypes.cpp
