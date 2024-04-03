@@ -938,10 +938,16 @@ protected:
 	// Map of attachment points, by ID
 	//--------------------------------------------------------------------
 public:
-	S32 				getAttachmentCount(); // Warning: order(N) not order(1) // currently used only by -self
+	S32 				getAttachmentCount(); // Warning: order(N) not order(1)
 	typedef std::map<S32, LLViewerJointAttachment*> attachment_map_t;
 	attachment_map_t 								mAttachmentPoints;
 	std::vector<LLPointer<LLViewerObject> > 		mPendingAttachment;
+
+    // List of attachments' ids with attach points from simulator.
+    // we need this info to know when all attachments are present.
+    std::map<LLUUID, S32>                           mSimAttachments;
+    S32                                             mLastCloudAttachmentCount;
+    LLFrameTimer                                    mLastCloudAttachmentChangeTime;
 
 	//--------------------------------------------------------------------
 	// HUD functions
