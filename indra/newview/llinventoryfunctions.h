@@ -278,6 +278,28 @@ protected:
 	LLAssetType::EType mType;
 };
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Class LLAssetIDAndTypeMatches
+//
+// Implementation of a LLInventoryCollectFunctor which returns TRUE if
+// the item matches both asset type and asset id.
+// This is needed in case you are looking for a specific type with default id
+// (since null is default for multiple asset types)
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+class LLAssetIDAndTypeMatches: public LLInventoryCollectFunctor
+{
+public:
+    LLAssetIDAndTypeMatches(const LLUUID& asset_id, LLAssetType::EType type): mAssetID(asset_id), mType(type) {}
+    virtual ~LLAssetIDAndTypeMatches() {}
+    bool operator()(LLInventoryCategory* cat,
+                    LLInventoryItem* item);
+
+protected:
+    LLUUID mAssetID;
+    LLAssetType::EType mType;
+};
+
 class LLIsValidItemLink : public LLInventoryCollectFunctor
 {
 public:
