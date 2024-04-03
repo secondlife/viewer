@@ -1,3 +1,4 @@
+name: Linux build example
 on:
   workflow_dispatch:
   push:
