@@ -435,8 +435,6 @@ private:
 	bool isNonCacheableObjectCreated(U32 local_id);	
 
 public:
-	void loadCacheMiscExtras(U32 local_id);
-
     void applyCacheMiscExtras(LLViewerObject* obj);
 
 	struct CompareDistance

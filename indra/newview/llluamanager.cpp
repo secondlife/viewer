@@ -48,6 +48,8 @@
 #include <string_view>
 #include <vector>
 
+std::map<std::string, std::string> LLLUAmanager::sScriptNames;
+
 lua_function(sleep, "sleep(seconds): pause the running coroutine")
 {
     F32 seconds = lua_tonumber(L, -1);
@@ -177,6 +179,7 @@ void LLLUAmanager::runScriptFile(const std::string &filename, script_result_fn r
     // A script_result_fn will be called when LuaState::expr() completes.
     LLCoros::instance().launch(filename, [filename, result_cb, finished_cb]()
     {
+        ScriptObserver observer(LLCoros::getName(), filename);
         llifstream in_file;
         in_file.open(filename.c_str());
 

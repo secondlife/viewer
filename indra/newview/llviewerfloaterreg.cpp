@@ -94,6 +94,7 @@
 #include "llfloaterlinkreplace.h"
 #include "llfloaterloadprefpreset.h"
 #include "llfloaterluadebug.h"
+#include "llfloaterluascripts.h"
 #include "llfloatermap.h"
 #include "llfloatermarketplacelistings.h"
 #include "llfloatermediasettings.h"
@@ -402,6 +403,7 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("load_pref_preset", "floater_load_pref_preset.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterLoadPrefPreset>);
 
     LLFloaterReg::add("lua_debug", "floater_lua_debug.xml", (LLFloaterBuildFunc) &LLFloaterReg::build<LLFloaterLUADebug>);
+    LLFloaterReg::add("lua_scripts", "floater_lua_scripts.xml", (LLFloaterBuildFunc) &LLFloaterReg::build<LLFloaterLUAScripts>);
 	
 	LLFloaterReg::add("mem_leaking", "floater_mem_leaking.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterMemLeak>);
 

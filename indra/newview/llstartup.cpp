@@ -1512,9 +1512,6 @@ bool idle_startup()
 		gXferManager->registerCallbacks(gMessageSystem);
 		display_startup();
 
-		LLGLTFMaterialList::registerCallbacks();
-		display_startup();
-
 		LLStartUp::initNameCache();
 		display_startup();
 

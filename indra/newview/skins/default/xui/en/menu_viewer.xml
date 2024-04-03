@@ -2539,6 +2539,16 @@ function="World.EnvPreset"
              function="Floater.Toggle"
              parameter="lua_debug" />
         </menu_item_check>
+            <menu_item_check
+            label="LUA Scripts Info"
+            name="LUA Scripts">
+            <menu_item_check.on_check
+             function="Floater.Visible"
+             parameter="lua_scripts" />
+            <menu_item_check.on_click
+             function="Floater.Toggle"
+             parameter="lua_scripts" />
+            </menu_item_check>
             <menu_item_separator/>
 
             <menu_item_call
@@ -2726,6 +2736,12 @@ function="World.EnvPreset"
              name="Force LLError And Crash">
                 <menu_item_call.on_click
                  function="Advanced.ForceErrorLlerror" />
+            </menu_item_call>
+            <menu_item_call
+             label="Force LLError, Message And Crash"
+             name="Force LLError And Crash">
+                <menu_item_call.on_click
+                 function="Advanced.ForceErrorLlerrorMsg" />
             </menu_item_call>
             <menu_item_call
              label="Force Bad Memory Access"

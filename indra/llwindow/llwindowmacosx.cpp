@@ -2076,6 +2076,11 @@ F32 LLWindowMacOSX::getSystemUISize()
 	return gHiDPISupport ? ::getDeviceUnitSize(mGLView) : LLWindow::getSystemUISize();
 }
 
+void LLWindowMacOSX::openFolder(const std::string &path)
+{
+    openFolderWithFinder(path.c_str());
+}
+
 #if LL_OS_DRAGDROP_ENABLED
 /*
 S16 LLWindowMacOSX::dragTrackingHandler(DragTrackingMessage message, WindowRef theWindow,
