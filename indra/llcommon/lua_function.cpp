@@ -459,7 +459,7 @@ LuaState::~LuaState()
 {
     // Did somebody call obtainListener() on this LuaState?
     // That is, is there a LuaListener key in its registry?
-    LuaListener::destroy(getListener());
+    LuaListener::destruct(getListener());
 
     lua_close(mState);
 

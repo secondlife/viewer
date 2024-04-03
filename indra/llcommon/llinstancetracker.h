@@ -276,19 +276,19 @@ public:
     virtual const KEY& getKey() const { return mInstanceKey; }
 
     /// for use ONLY for an object we're sure resides on the heap!
-    static bool destroy(const KEY& key)
+    static bool destruct(const KEY& key)
     {
-        return destroy(getInstance(key));
+        return destruct(getInstance(key));
     }
 
     /// for use ONLY for an object we're sure resides on the heap!
-    static bool destroy(const weak_t& ptr)
+    static bool destruct(const weak_t& ptr)
     {
-        return destroy(ptr.lock());
+        return destruct(ptr.lock());
     }
 
     /// for use ONLY for an object we're sure resides on the heap!
-    static bool destroy(const ptr_t& ptr)
+    static bool destruct(const ptr_t& ptr)
     {
         if (! ptr)
         {
@@ -509,13 +509,13 @@ public:
     using key_snapshot_of = instance_snapshot_of<SUBCLASS>;
 
     /// for use ONLY for an object we're sure resides on the heap!
-    static bool destroy(const weak_t& ptr)
+    static bool destruct(const weak_t& ptr)
     {
-        return destroy(ptr.lock());
+        return destruct(ptr.lock());
     }
 
     /// for use ONLY for an object we're sure resides on the heap!
-    static bool destroy(const ptr_t& ptr)
+    static bool destruct(const ptr_t& ptr)
     {
         if (! ptr)
         {
