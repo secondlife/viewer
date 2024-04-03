@@ -44,7 +44,7 @@ private:
     void populateScriptList();
     void onScrollListRightClicked(LLUICtrl *ctrl, S32 x, S32 y);
 
-    LLTimer* mUpdateTimer;
+    std::unique_ptr<LLTimer> mUpdateTimer;
     LLScrollListCtrl* mScriptList;
     std::string mTargetFolderPath;
 

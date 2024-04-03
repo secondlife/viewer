@@ -122,7 +122,7 @@ public:
 	/*virtual*/ void interruptLanguageTextInput();
 	/*virtual*/ void spawnWebBrowser(const std::string& escaped_url, bool async);
 
-    void openFolder(const std::string &path);
+    void openFolder(const std::string &path) override;
 
 	/*virtual*/ F32 getSystemUISize();
 

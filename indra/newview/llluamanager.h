@@ -40,6 +40,8 @@ class LuaState;
 
 class LLLUAmanager
 {
+    friend class ScriptObserver;
+
 public:
     // Pass a callback with this signature to obtain the error message, if
     // any, from running a script or source string. Empty msg means success.
@@ -81,7 +83,7 @@ public:
 
     static void runScriptOnLogin();
 
-    static std::map<std::string, std::string> getScriptNames() { return sScriptNames; }
+    static const std::map<std::string, std::string> getScriptNames() { return sScriptNames; }
 
  private:
     static std::map<std::string, std::string> sScriptNames;
@@ -103,5 +105,19 @@ class LLRequireResolver
 
     bool findModuleImpl(const std::string& absolutePath);
     void runModule(const std::string& desc, const std::string& code);
+};
+
+// RAII class to guarantee that a script entry is erased even when coro is terminated
+class ScriptObserver
+{
+  public:
+    ScriptObserver(const std::string &coro_name, const std::string &filename) : mCoroName(coro_name) 
+    {
+        LLLUAmanager::sScriptNames[mCoroName] = filename; 
+    }
+    ~ScriptObserver() { LLLUAmanager::sScriptNames.erase(mCoroName); }
+
+  private:
+    std::string mCoroName;
 };
 #endif

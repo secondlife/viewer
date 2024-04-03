@@ -179,8 +179,7 @@ void LLLUAmanager::runScriptFile(const std::string &filename, script_result_fn r
     // A script_result_fn will be called when LuaState::expr() completes.
     LLCoros::instance().launch(filename, [filename, result_cb, finished_cb]()
     {
-        std::string coro_name = LLCoros::getName();
-        sScriptNames[coro_name] = filename;
+        ScriptObserver observer(LLCoros::getName(), filename);
         llifstream in_file;
         in_file.open(filename.c_str());
 
@@ -205,7 +204,6 @@ void LLLUAmanager::runScriptFile(const std::string &filename, script_result_fn r
                 result_cb(-1, msg);
             }
         }
-        sScriptNames.erase(coro_name);
     });
 }
 

@@ -3757,9 +3757,7 @@ S32 OSMessageBoxWin32(const std::string& text, const std::string& caption, U32 t
 
 void shell_open(const std::string &file, bool async)
 {
-    // this is madness.. no, this is..
-    LLWString     url_wstring = utf8str_to_wstring(file);
-    llutf16string url_utf16 = wstring_to_utf16str(url_wstring);
+    std::wstring url_utf16 = ll_convert(file);
 
     // let the OS decide what to use to open the URL
     SHELLEXECUTEINFO sei = {sizeof(sei)};

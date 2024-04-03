@@ -51,7 +51,7 @@ LLFloaterLUAScripts::LLFloaterLUAScripts(const LLSD &key)
 BOOL LLFloaterLUAScripts::postBuild()
 {
     mScriptList = getChild<LLScrollListCtrl>("scripts_list");
-    mScriptList->setRightMouseDownCallback(boost::bind(&LLFloaterLUAScripts::onScrollListRightClicked, this, _1, _2, _3));
+    mScriptList->setRightMouseDownCallback([this](LLUICtrl *ctrl, S32 x, S32 y, MASK mask) { onScrollListRightClicked(ctrl, x, y);});
 
     LLContextMenu *menu = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>(
         "menu_lua_scripts.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
@@ -71,13 +71,11 @@ LLFloaterLUAScripts::~LLFloaterLUAScripts()
         menu->die();
         mContextMenuHandle.markDead();
     }
-
-    delete mUpdateTimer;
 }
 
 void LLFloaterLUAScripts::draw()
 {
-    if (mUpdateTimer->hasExpired())
+    if (mUpdateTimer->checkExpirationAndReset(REFRESH_INTERVAL))
     {
         populateScriptList();
     }
@@ -103,7 +101,6 @@ void LLFloaterLUAScripts::populateScriptList()
     }
     mScriptList->setScrollPos(prev_pos);
     mScriptList->setSelectedByValue(prev_selected, true);
-    mUpdateTimer->setTimerExpirySec(REFRESH_INTERVAL);
 }
 
 void LLFloaterLUAScripts::onScrollListRightClicked(LLUICtrl *ctrl, S32 x, S32 y)
