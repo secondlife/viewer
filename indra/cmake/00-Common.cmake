@@ -182,6 +182,10 @@ if (LINUX OR DARWIN)
 
   list(APPEND GCC_WARNINGS -Wno-reorder -Wno-non-virtual-dtor )
 
+  if(LINUX)
+    list(APPEND GCC_WARNINGS -Wno-maybe-uninitialized -Wno-misleading-indentation -Wno-stringop-truncation -Wno-unused-value )
+  endif()
+
   add_compile_options(${GCC_WARNINGS})
   add_compile_options(-m${ADDRESS_SIZE})
 endif (LINUX OR DARWIN)
