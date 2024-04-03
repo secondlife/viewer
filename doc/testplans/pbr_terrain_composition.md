@@ -12,6 +12,13 @@ All tests in this section assume the PBR terrain feature flag is enabled, and th
 
 ### Feature Availability
 
+On the client, the advanced setting `RenderTerrainPBREnabled` is the PBR terrain feature flag.
+
+The PBR terrain feature flag should be set automatically when logging in/teleporting to a new region.
+
+- The flag should be enabled on regions where the PBR terrain feature is enabled
+- Otherwise the flag should be disabled
+
 When the PBR terrain feature flag is disabled:
 
 - The "PBR Metallic Roughness" checkbox should not be visible
