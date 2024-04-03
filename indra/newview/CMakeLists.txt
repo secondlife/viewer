@@ -48,7 +48,7 @@ include(VulkanGltf)
 include(ZLIBNG)
 include(URIPARSER)
 include(LLPrimitive)
-include(lualibs)
+include(Lualibs)
 
 if (NOT HAVOK_TPV)
    # When using HAVOK_TPV, the library is precompiled, so no need for this
@@ -2381,4 +2381,3 @@ if (LL_TESTS)
 endif (LL_TESTS)
 
 check_message_template(${VIEWER_BINARY_NAME})
-
