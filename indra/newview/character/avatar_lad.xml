@@ -3822,6 +3822,7 @@
 	<param
      id="30879"
      group="1"
+     sex="male"
      name="Male_Package"
      value_min="-.5"
      value_max="2">
@@ -5812,6 +5813,7 @@
 
     <param
      id="400"
+     sex="male"
      group="1"
      name="Displace_Hair_Facial"
      label="Hair Thickess"
@@ -6836,6 +6838,7 @@
 
     <param
      id="626"
+     sex="female"
      group="1"
      name="Big_Chest"
      label="Chest Size"
@@ -6862,6 +6865,7 @@
 
     <param
      id="627"
+     sex="female"
      group="1"
      name="Small_Chest"
      label="Chest Size"
@@ -6887,6 +6891,7 @@
 
     <param
      id="843"
+     sex="female"
      group="1"
      name="No_Chest"
      label="Chest Size"
@@ -6915,6 +6920,7 @@
      group="1"
      name="Muscular_Torso"
      label="Torso Muscles"
+   sex="male"
      show_simple="true"
      wearable="shape"
      edit_group="shape_torso"
@@ -6957,6 +6963,7 @@
         group="1"
         name="Muscular_Torso"
         label="Torso Muscles"
+        sex="female"
         show_simple="true"
      wearable="shape"
      edit_group="shape_torso"
@@ -6997,6 +7004,7 @@
     <param
      id="648"
      group="1"
+     sex="female"
      name="Scrawny_Torso"
      label="Torso Muscles"
    show_simple="true"
@@ -7051,6 +7059,7 @@
     <param
      id="677"
      group="1"
+     sex="male"
      name="Scrawny_Torso_Male"
      label="Torso Scrawny"
      wearable="shape"
@@ -7183,6 +7192,7 @@
     <param
      id="507"
      group="0"
+     sex="female"
      name="Breast_Gravity"
      label="Breast Buoyancy"
      wearable="shape"
@@ -7269,6 +7279,7 @@
     <param
      id="684"
      group="0"
+     sex="female"
      name="Breast_Female_Cleavage"
      label="Breast Cleavage"
      wearable="shape"
@@ -7296,6 +7307,7 @@
     <param
      id="685"
      group="0"
+     sex="male"
      name="Chest_Male_No_Pecs"
      label="Pectorals"
      wearable="shape"
@@ -7513,6 +7525,7 @@
     <param
      id="1200"
      group="1"
+     sex="female"
      name="Breast_Physics_UpDown_Driven"
      wearable="physics"
      edit_group="driven"
@@ -7534,6 +7547,7 @@
     <param
      id="1201"
      group="1"
+     sex="female"
      name="Breast_Physics_InOut_Driven"
      wearable="physics"
      edit_group="driven"
@@ -8065,6 +8079,7 @@
     <param
      id="20879"
      group="1"
+     sex="male"
      name="Male_Package"
      value_min="-.5"
      value_max="2">
@@ -9822,6 +9837,7 @@ render_pass="bump">
 
       <param
        id="1004"
+       sex="male"
        group="1"
        wearable="hair"
        edit_group="driven"
@@ -9836,6 +9852,7 @@ render_pass="bump">
 
       <param
        id="1006"
+       sex="male"
        group="1"
        wearable="hair"
        edit_group="driven"
@@ -9850,6 +9867,7 @@ render_pass="bump">
 
       <param
        id="1008"
+       sex="male"
        group="1"
        wearable="hair"
        edit_group="driven"
@@ -9864,6 +9882,7 @@ render_pass="bump">
 
       <param
        id="1010"
+       sex="male"
        group="1"
        edit_group="driven"
        wearable="hair"
@@ -9879,6 +9898,7 @@ render_pass="bump">
       <param
        id="1012"
        group="1"
+       sex="male"
        wearable="hair"
        edit_group="driven"
        name="5 O'Clock Shadow bump"
@@ -9904,6 +9924,7 @@ render_pass="bump">
 
       <param
        id="1005"
+       sex="male"
        group="1"
        wearable="hair"
        edit_group="driven"
@@ -9918,6 +9939,7 @@ render_pass="bump">
 
       <param
        id="1007"
+       sex="male"
        group="1"
        wearable="hair"
        edit_group="driven"
@@ -9932,6 +9954,7 @@ render_pass="bump">
 
       <param
        id="1009"
+       sex="male"
        group="1"
        wearable="hair"
        edit_group="driven"
@@ -9946,6 +9969,7 @@ render_pass="bump">
 
       <param
        id="1011"
+       sex="male"
        group="1"
        wearable="hair"
        edit_group="driven"
@@ -9962,6 +9986,7 @@ render_pass="bump">
        id="751"
        group="1"
        wearable="hair"
+       sex="male"
        edit_group="hair_facial"
        name="5 O'Clock Shadow"
        label_min="Dense hair"
@@ -15072,6 +15097,7 @@ render_pass="bump">
     <param
      id="105"
      group="0"
+     sex="female"
      wearable="shape"
      edit_group="shape_torso"
      edit_group_order="6"
@@ -15236,6 +15262,7 @@ render_pass="bump">
     <param
      id="649"
      group="0"
+     sex="female"
      wearable="shape"
      edit_group="shape_torso"
      edit_group_order="1.1"
@@ -15270,6 +15297,7 @@ render_pass="bump">
     <param
      id="678"
      group="0"
+     sex="male"
      wearable="shape"
      edit_group="shape_torso"
      edit_group_order="1"
@@ -15337,14 +15365,10 @@ render_pass="bump">
      id="80"
      name="male"
      group="0"
-     edit_group="shape_body"
-     label="Gender"
-     label_min="Female"
-     label_max="Male"
+     edit_group="dummy"
      wearable="shape"
      value_min="0"
-     value_max="1"
-     camera_distance="2.2">
+     value_max="1">
       <param_driver>
         <driven
          id="32" />
@@ -15559,6 +15583,7 @@ render_pass="bump">
     <param
      id="752"
      group="0"
+     sex="male"
      wearable="hair"
      edit_group="hair_facial"
      edit_group_order="1"
@@ -15840,6 +15865,7 @@ render_pass="bump">
     <param
      id="879"
      group="0"
+     sex="male"
      name="Male_Package"
      label="Package"
      wearable="shape"
@@ -16027,6 +16053,7 @@ render_pass="bump">
 
     <param
      id="166"
+     sex="male"
      group="0"
      wearable="hair"
      edit_group="hair_facial"
@@ -16052,6 +16079,7 @@ render_pass="bump">
 
     <param
      id="167"
+     sex="male"
      group="0"
      wearable="hair"
      edit_group="hair_facial"
@@ -16077,6 +16105,7 @@ render_pass="bump">
 
     <param
      id="168"
+     sex="male"
      group="0"
      wearable="hair"
      edit_group="hair_facial"
@@ -16102,6 +16131,7 @@ render_pass="bump">
 
     <param
      id="169"
+     sex="male"
      group="0"
      wearable="hair"
      edit_group="hair_facial"
@@ -16914,6 +16944,7 @@ render_pass="bump">
    <param
      id="1100"
      group="1"
+     sex="female"
      wearable="physics"
      name="Breast_Physics_UpDown_Controller"
      label="Breast Physics UpDown Controller"
@@ -16929,6 +16960,7 @@ render_pass="bump">
    <param
      id="1101"
      group="1"
+     sex="female"
      wearable="physics"
      name="Breast_Physics_InOut_Controller"
      label="Breast Physics InOut Controller"
@@ -17008,6 +17040,7 @@ render_pass="bump">
     <param
      id="10000"
      group="0"
+     sex="female"
      name="Breast_Physics_Mass"
      label="Breast Physics Mass"
      wearable="physics"
@@ -17020,6 +17053,7 @@ render_pass="bump">
     <param
      id="10001"
      group="0"
+     sex="female"
      name="Breast_Physics_Gravity"
      label="Breast Physics Gravity"
      wearable="physics"
@@ -17033,6 +17067,7 @@ render_pass="bump">
    <param
      id="10002"
      group="0"
+     sex="female"
      name="Breast_Physics_Drag"
      label="Breast Physics Drag"
      wearable="physics"
@@ -17046,6 +17081,7 @@ render_pass="bump">
    <param
      id="10003"
      group="0"
+     sex="female"
      name="Breast_Physics_UpDown_Max_Effect"
      label="Breast Physics UpDown Max Effect"
      wearable="physics"
@@ -17058,6 +17094,7 @@ render_pass="bump">
     <param
      id="10004"
      group="0"
+     sex="female"
      name="Breast_Physics_UpDown_Spring"
      label="Breast Physics UpDown Spring"
      wearable="physics"
@@ -17070,6 +17107,7 @@ render_pass="bump">
     <param
      id="10005"
      group="0"
+     sex="female"
      name="Breast_Physics_UpDown_Gain"
      label="Breast Physics UpDown Gain"
      wearable="physics"
@@ -17082,6 +17120,7 @@ render_pass="bump">
     <param
      id="10006"
      group="0"
+     sex="female"
      name="Breast_Physics_UpDown_Damping"
      label="Breast Physics UpDown Damping"
      wearable="physics"
@@ -17095,6 +17134,7 @@ render_pass="bump">
    <param
      id="10007"
      group="0"
+     sex="female"
      name="Breast_Physics_InOut_Max_Effect"
      label="Breast Physics InOut Max Effect"
      wearable="physics"
@@ -17107,6 +17147,7 @@ render_pass="bump">
     <param
      id="10008"
      group="0"
+     sex="female"
      name="Breast_Physics_InOut_Spring"
      label="Breast Physics InOut Spring"
      wearable="physics"
@@ -17119,6 +17160,7 @@ render_pass="bump">
     <param
      id="10009"
      group="0"
+     sex="female"
      name="Breast_Physics_InOut_Gain"
      label="Breast Physics InOut Gain"
      wearable="physics"
@@ -17131,6 +17173,7 @@ render_pass="bump">
     <param
      id="10010"
      group="0"
+     sex="female"
      name="Breast_Physics_InOut_Damping"
      label="Breast Physics InOut Damping"
      wearable="physics"
@@ -17364,6 +17407,7 @@ render_pass="bump">
    <param
      id="10029"
      group="0"
+     sex="female"
      name="Breast_Physics_LeftRight_Max_Effect"
      label="Breast Physics LeftRight Max Effect"
      wearable="physics"
@@ -17376,6 +17420,7 @@ render_pass="bump">
     <param
      id="10030"
      group="0"
+     sex="female"
      name="Breast_Physics_LeftRight_Spring"
      label="Breast Physics LeftRight Spring"
      wearable="physics"
@@ -17388,6 +17433,7 @@ render_pass="bump">
     <param
      id="10031"
      group="0"
+     sex="female"
      name="Breast_Physics_LeftRight_Gain"
      label="Breast Physics LeftRight Gain"
      wearable="physics"
@@ -17400,6 +17446,7 @@ render_pass="bump">
     <param
      id="10032"
      group="0"
+     sex="female"
      name="Breast_Physics_LeftRight_Damping"
      label="Breast Physics LeftRight Damping"
      wearable="physics"
