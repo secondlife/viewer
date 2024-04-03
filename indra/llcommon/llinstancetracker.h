@@ -275,6 +275,35 @@ protected:
 public:
     virtual const KEY& getKey() const { return mInstanceKey; }
 
+    /// for use ONLY for an object we're sure resides on the heap!
+    static bool destroy(const KEY& key)
+    {
+        return destroy(getInstance(key));
+    }
+
+    /// for use ONLY for an object we're sure resides on the heap!
+    static bool destroy(const weak_t& ptr)
+    {
+        return destroy(ptr.lock());
+    }
+
+    /// for use ONLY for an object we're sure resides on the heap!
+    static bool destroy(const ptr_t& ptr)
+    {
+        if (! ptr)
+        {
+            return false;
+        }
+
+        // Because we store and return ptr_t instances with no-op deleters,
+        // merely resetting the last pointer doesn't destroy the referenced
+        // object. Don't even bother resetting 'ptr'. Just extract its raw
+        // pointer and delete that.
+        auto raw{ ptr.get() };
+        delete raw;
+        return true;
+    }
+
 private:
     LLInstanceTracker( const LLInstanceTracker& ) = delete;
     LLInstanceTracker& operator=( const LLInstanceTracker& ) = delete;
@@ -478,6 +507,29 @@ public:
     // requiring two different LLInstanceTrackerSubclass implementations.
     template <typename SUBCLASS>
     using key_snapshot_of = instance_snapshot_of<SUBCLASS>;
+
+    /// for use ONLY for an object we're sure resides on the heap!
+    static bool destroy(const weak_t& ptr)
+    {
+        return destroy(ptr.lock());
+    }
+
+    /// for use ONLY for an object we're sure resides on the heap!
+    static bool destroy(const ptr_t& ptr)
+    {
+        if (! ptr)
+        {
+            return false;
+        }
+
+        // Because we store and return ptr_t instances with no-op deleters,
+        // merely resetting the last pointer doesn't destroy the referenced
+        // object. Don't even bother resetting 'ptr'. Just extract its raw
+        // pointer and delete that.
+        auto raw{ ptr.get() };
+        delete raw;
+        return true;
+    }
 
 protected:
     LLInstanceTracker()
