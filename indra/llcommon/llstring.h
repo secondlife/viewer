@@ -37,6 +37,7 @@
 #include <algorithm>
 #include <vector>
 #include <map>
+#include <type_traits>
 #include "llformat.h"
 #include "stdtypes.h"
 
@@ -542,7 +543,7 @@ public:
     template <typename TO>
     inline operator TO() const
     {
-        return ll_convert_impl<TO, FROM>()(mRef);
+        return ll_convert_impl<TO, std::decay_t<const FROM>>()(mRef);
     }
 };
 
@@ -551,7 +552,7 @@ public:
 template<typename TO, typename FROM>
 TO ll_convert_to(const FROM& in)
 {
-    return ll_convert_impl<TO, FROM>()(in);
+    return ll_convert_impl<TO, std::decay_t<const FROM>>()(in);
 }
 
 // degenerate case
