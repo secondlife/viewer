@@ -16,9 +16,9 @@
 #include "luau/lua.h"
 #include "luau/luaconf.h"
 #include "luau/lualib.h"
+#include "fsyspath.h"
 #include "stringize.h"
 #include <exception>                // std::uncaught_exceptions()
-#include <filesystem>
 #include <memory>                   // std::shared_ptr
 #include <utility>                  // std::pair
 
@@ -51,7 +51,7 @@ namespace lluau
     int dostring(lua_State* L, const std::string& desc, const std::string& text);
     int loadstring(lua_State* L, const std::string& desc, const std::string& text);
 
-    std::filesystem::path source_path(lua_State* L);
+    fsyspath source_path(lua_State* L);
 } // namespace lluau
 
 std::string lua_tostdstring(lua_State* L, int index);

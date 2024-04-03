@@ -26,7 +26,7 @@
 
 #include "llluafloater.h"
 
-#include <filesystem>
+#include "fsyspath.h"
 #include "llevents.h"
 
 #include "llcheckboxctrl.h"
@@ -271,12 +271,12 @@ void LLLuaFloater::postEvent(LLSD data, const std::string &event_name)
 
 void LLLuaFloater::showLuaFloater(const LLSD &data)
 {
-    std::filesystem::path fs_path(data["xml_path"].asString());
-    std::string path = fs_path.lexically_normal().string();
+    fsyspath fs_path(data["xml_path"].asString());
+    std::string path = fs_path.lexically_normal().u8string();
     if (!fs_path.is_absolute()) 
     {
         std::string lib_path = gDirUtilp->getExpandedFilename(LL_PATH_SCRIPTS, "lua");
-        path = (std::filesystem::path(lib_path) / path).u8string();
+        path = (fsyspath(lib_path) / path).u8string();
     }
     
     LLLuaFloater *floater = new LLLuaFloater(data);

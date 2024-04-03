@@ -28,6 +28,7 @@
 #include "llviewerprecompiledheaders.h"
 #include "llluamanager.h"
 
+#include "fsyspath.h"
 #include "llcoros.h"
 #include "llerror.h"
 #include "lleventcoro.h"
@@ -37,7 +38,6 @@
 #include "stringize.h"
 
 #include <boost/algorithm/string/replace.hpp>
-#include <filesystem>
 
 #include "luau/luacode.h"
 #include "luau/lua.h"
@@ -314,7 +314,7 @@ void LLRequireResolver::resolveRequire(lua_State *L, std::string path)
 }
 
 LLRequireResolver::LLRequireResolver(lua_State *L, const std::string& path) :
-    mPathToResolve(std::filesystem::path(path).lexically_normal()),
+    mPathToResolve(fsyspath(path).lexically_normal()),
     L(L)
 {
     mSourceDir = lluau::source_path(L).parent_path();
@@ -377,12 +377,12 @@ void LLRequireResolver::findModule()
         fail();
     }
 
-    std::vector<std::filesystem::path> lib_paths
+    std::vector<fsyspath> lib_paths
     {
         gDirUtilp->getExpandedFilename(LL_PATH_SCRIPTS, "lua"),
 #ifdef LL_TEST
         // Build-time tests don't have the app bundle - use source tree.
-        std::filesystem::path(__FILE__).parent_path() / "scripts" / "lua",
+        fsyspath(__FILE__).parent_path() / "scripts" / "lua",
 #endif
     };
 

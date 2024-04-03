@@ -27,9 +27,9 @@
 #ifndef LL_LLLUAMANAGER_H
 #define LL_LLLUAMANAGER_H
 
+#include "fsyspath.h"
 #include "llcoros.h"
 #include "llsd.h"
-#include <filesystem>
 #include <functional>
 #include <string>
 #include <utility>                  // std::pair
@@ -89,8 +89,8 @@ class LLRequireResolver
     static void resolveRequire(lua_State *L, std::string path);
 
  private:
-    std::filesystem::path mPathToResolve;
-    std::filesystem::path mSourceDir;
+    fsyspath mPathToResolve;
+    fsyspath mSourceDir;
 
     LLRequireResolver(lua_State *L, const std::string& path);
 

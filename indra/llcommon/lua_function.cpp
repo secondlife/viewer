@@ -17,13 +17,13 @@
 // std headers
 #include <algorithm>
 #include <exception>
-#include <filesystem>
 #include <iomanip>                  // std::quoted
 #include <map>
 #include <memory>                   // std::unique_ptr
 #include <typeinfo>
 // external library headers
 // other Linden headers
+#include "fsyspath.h"
 #include "hexdump.h"
 #include "lleventcoro.h"
 #include "llsd.h"
@@ -68,7 +68,7 @@ int lluau::loadstring(lua_State *L, const std::string &desc, const std::string &
     return luau_load(L, desc.data(), bytecode.get(), bytecodeSize, 0);
 }
 
-std::filesystem::path lluau::source_path(lua_State* L)
+fsyspath lluau::source_path(lua_State* L)
 {
     //Luau lua_Debug and lua_getinfo() are different compared to default Lua:
     //see https://github.com/luau-lang/luau/blob/80928acb92d1e4b6db16bada6d21b1fb6fa66265/VM/include/lua.h
@@ -577,7 +577,7 @@ std::pair<int, LLSD> LuaState::expr(const std::string& desc, const std::string& 
         // the next call to lua_next."
         // https://www.lua.org/manual/5.1/manual.html#lua_next
         if (lua_type(mState, -2) == LUA_TSTRING &&
-            std::filesystem::path(lua_tostdstring(mState, -2)).stem() == "fiber")
+            fsyspath(lua_tostdstring(mState, -2)).stem() == "fiber")
         {
             found = true;
             break;
