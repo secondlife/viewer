@@ -116,6 +116,8 @@ public:
 	void spawnWebBrowser(const std::string& escaped_url, bool async) override;
 	F32 getSystemUISize() override;
 
+    void openFolder(const std::string &path) override;
+
 	static std::vector<std::string> getDisplaysResolutionList();
 
 	static std::vector<std::string> getDynamicFallbackFontList();
