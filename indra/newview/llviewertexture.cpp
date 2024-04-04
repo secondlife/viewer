@@ -141,7 +141,7 @@ LLLoadedCallbackEntry::~LLLoadedCallbackEntry()
 
 void LLLoadedCallbackEntry::removeTexture(LLViewerFetchedTexture* tex)
 {
-	if(mSourceCallbackList)
+	if (mSourceCallbackList && tex)
 	{
 		mSourceCallbackList->erase(LLTextureKey(tex->getID(), (ETexListType)tex->getTextureListType()));
 	}
