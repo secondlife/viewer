@@ -1879,7 +1879,8 @@ bool LLSelectMgr::selectionSetImage(const LLUUID& imageid)
                                                       te,
                                                       mItem,
                                                       LLToolDragAndDrop::SOURCE_AGENT,
-                                                      LLUUID::null);
+                                                      LLUUID::null,
+                                                      false);
 			}
 			else // not an inventory item
 			{
@@ -1959,26 +1960,30 @@ bool LLSelectMgr::selectionSetGLTFMaterial(const LLUUID& mat_id)
             {
                 return false;
             }
-            if (mItem && objectp->isAttachment())
-            {
-                const LLPermissions& perm = mItem->getPermissions();
-                BOOL unrestricted = ((perm.getMaskBase() & PERM_ITEM_UNRESTRICTED) == PERM_ITEM_UNRESTRICTED) ? TRUE : FALSE;
-                if (!unrestricted)
-                {
-                    // Attachments are in world and in inventory simultaneously,
-                    // at the moment server doesn't support such a situation.
-                    return false;
-                }
-            }
             LLUUID asset_id = mMatId;
             if (mItem)
             {
-                // If success, the material may be copied into the object's inventory
-                BOOL success = LLToolDragAndDrop::handleDropMaterialProtections(objectp, mItem, LLToolDragAndDrop::SOURCE_AGENT, LLUUID::null);
-                if (!success)
+                const LLPermissions& perm = mItem->getPermissions();
+                bool from_library = perm.getOwner() == ALEXANDRIA_LINDEN_ID;
+                if (objectp->isAttachment())
+                {
+                    bool unrestricted = (perm.getMaskBase() & PERM_ITEM_UNRESTRICTED) == PERM_ITEM_UNRESTRICTED;
+
+                    if (!unrestricted && !from_library)
+                    {
+                        // Attachments are in world and in inventory simultaneously,
+                        // at the moment server doesn't support such a situation.
+                        return false;
+                    }
+                }
+
+                if (!from_library
+                    // Check if item may be copied into the object's inventory
+                    && !LLToolDragAndDrop::handleDropMaterialProtections(objectp, mItem, LLToolDragAndDrop::SOURCE_AGENT, LLUUID::null))
                 {
                     return false;
                 }
+
                 asset_id = mItem->getAssetUUID();
                 if (asset_id.isNull())
                 {
@@ -1994,11 +1999,13 @@ bool LLSelectMgr::selectionSetGLTFMaterial(const LLUUID& mat_id)
     };
 
     bool success = true;
-    if (item &&
-            (!item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID()) ||
+    if (item
+        &&  (!item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID()) ||
              !item->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID()) ||
              !item->getPermissions().allowOperationBy(PERM_MODIFY, gAgent.getID())
-            ))
+            )
+        && item->getPermissions().getOwner() != ALEXANDRIA_LINDEN_ID
+        )
     {
         success = success && getSelection()->applyRestrictedPbrMaterialToTEs(item);
     }

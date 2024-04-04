@@ -953,6 +953,43 @@ void LLFloaterEmojiPicker::selectFocusedIcon()
     }
 }
 
+bool LLFloaterEmojiPicker::moveFocusedIconUp()
+{
+    for (S32 i = mFocusedIconRow - 1; i >= 0; --i)
+    {
+        LLScrollingPanel* panel = mEmojiGrid->getPanelList()[i];
+        LLEmojiGridRow* row = dynamic_cast<LLEmojiGridRow*>(panel);
+        if (row && row->mList->getPanelList().size() > mFocusedIconCol)
+        {
+            mEmojiScroll->scrollToShowRect(row->getBoundingRect());
+            mFocusedIconRow = i;
+            selectFocusedIcon();
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool LLFloaterEmojiPicker::moveFocusedIconDown()
+{
+    S32 rowCount = mEmojiGrid->getPanelList().size();
+    for (S32 i = mFocusedIconRow + 1; i < rowCount; ++i)
+    {
+        LLScrollingPanel* panel = mEmojiGrid->getPanelList()[i];
+        LLEmojiGridRow* row = dynamic_cast<LLEmojiGridRow*>(panel);
+        if (row && row->mList->getPanelList().size() > mFocusedIconCol)
+        {
+            mEmojiScroll->scrollToShowRect(row->getBoundingRect());
+            mFocusedIconRow = i;
+            selectFocusedIcon();
+            return true;
+        }
+    }
+
+    return false;
+}
+
 bool LLFloaterEmojiPicker::moveFocusedIconPrev()
 {
     if (mHoveredIcon)
@@ -1034,20 +1071,33 @@ BOOL LLFloaterEmojiPicker::handleKey(KEY key, MASK mask, BOOL called_from_parent
     {
         switch (key)
         {
+        case KEY_UP:
+            moveFocusedIconUp();
+            return TRUE;
+        case KEY_DOWN:
+            moveFocusedIconDown();
+            return TRUE;
+        case KEY_LEFT:
+            moveFocusedIconPrev();
+            return TRUE;
+        case KEY_RIGHT:
+            moveFocusedIconNext();
+            return TRUE;
+        case KEY_ESCAPE:
+            hideFloater();
+            return TRUE;
+        }
+    }
+
+    if (mask == MASK_ALT)
+    {
+        switch (key)
+        {
         case KEY_LEFT:
             selectEmojiGroup((mSelectedGroupIndex + mFilteredEmojis.size()) % mGroupButtons.size());
             return TRUE;
         case KEY_RIGHT:
             selectEmojiGroup((mSelectedGroupIndex + 1) % mGroupButtons.size());
-            return TRUE;
-        case KEY_UP:
-            moveFocusedIconPrev();
-            return TRUE;
-        case KEY_DOWN:
-            moveFocusedIconNext();
-            return TRUE;
-        case KEY_ESCAPE:
-            hideFloater();
             return TRUE;
         }
     }
