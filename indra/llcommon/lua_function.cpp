@@ -286,7 +286,7 @@ LLSD lua_tollsd(lua_State* L, int index)
             popper.disarm();
             // Table keys are all integers: are they reasonable integers?
             // Arbitrary max: may bite us, but more likely to protect us
-            size_t array_max{ 10000 };
+            const size_t array_max{ 10000 };
             if (keys.size() > array_max)
             {
                 return lluau::error(L, "Conversion from Lua to LLSD array limited to %d entries",
@@ -459,14 +459,7 @@ LuaState::~LuaState()
 {
     // Did somebody call obtainListener() on this LuaState?
     // That is, is there a LuaListener key in its registry?
-    auto listener{ getListener() };
-    if (listener)
-    {
-        // if we got a LuaListener instance, destroy it
-        auto lptr{ listener.get() };
-        listener.reset();
-        delete lptr;
-    }
+    LuaListener::destruct(getListener());
 
     lua_close(mState);
 
