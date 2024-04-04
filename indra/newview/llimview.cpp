@@ -102,8 +102,7 @@ enum EMultiAgentChatSessionType
 
 void startConferenceCoro(std::string url, LLUUID tempSessionId, LLUUID creatorId, LLUUID otherParticipantId, LLSD agents);
 
-void startP2PCoro(std::string url, LLUUID tempSessionId, LLUUID creatorId, LLUUID otherParticipantId);
-void declineP2PCoro(std::string url, LLUUID sessionID);
+void startP2PVoiceCoro(std::string url, LLUUID tempSessionId, LLUUID creatorId, LLUUID otherParticipantId);
 
 void chatterBoxInvitationCoro(std::string url, LLUUID sessionId, LLIMMgr::EInvitationType invitationType);
 void chatterBoxHistoryCoro(std::string url, LLUUID sessionId, std::string from, std::string message, U32 timestamp);
@@ -457,14 +456,14 @@ void startConferenceCoro(std::string url,
     }
 }
 
-void startP2PCoro(std::string url, LLUUID sessionID, LLUUID creatorId, LLUUID otherParticipantId)
+void startP2PVoiceCoro(std::string url, LLUUID sessionID, LLUUID creatorId, LLUUID otherParticipantId)
 {
     LLCore::HttpRequest::policy_t               httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
-    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("ConferenceChatStart", httpPolicy));
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("StartP2PVoiceCoro", httpPolicy));
     LLCore::HttpRequest::ptr_t                  httpRequest(new LLCore::HttpRequest);
 
     LLSD postData;
-    postData["method"]     = "start p2p";
+    postData["method"]     = "start p2p voice";
     postData["session-id"] = sessionID;
     postData["params"]     = otherParticipantId;
     LLSD altParams;
@@ -486,27 +485,6 @@ void startP2PCoro(std::string url, LLUUID sessionID, LLUUID creatorId, LLUUID ot
             static const std::string error_string("session_does_not_exist_error");
             gIMMgr->showSessionStartError(error_string, sessionID);
         }
-    }
-}
-
-void declineP2PCoro(std::string url, LLUUID sessionID)
-{
-    LLCore::HttpRequest::policy_t               httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
-    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("ConferenceChatStart", httpPolicy));
-    LLCore::HttpRequest::ptr_t                  httpRequest(new LLCore::HttpRequest);
-
-    LLSD postData;
-    postData["method"]     = "decline p2p";
-    postData["session-id"] = sessionID;
-
-    LLSD result = httpAdapter->postAndSuspend(httpRequest, url, postData);
-
-    LLSD               httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
-    LLCore::HttpStatus status      = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
-
-    if (!status)
-    {
-        LL_WARNS("LLIMModel") << "Failed to decline p2p session:" << postData << "->" << result << LL_ENDL;
     }
 }
 
@@ -2147,7 +2125,7 @@ bool LLIMModel::sendStartSession(
 		if (region)
 		{
 			std::string url = region->getCapability("ChatSessionRequest");
-			LLCoros::instance().launch("startP2P", boost::bind(&startP2PCoro, url, temp_session_id, gAgent.getID(), other_participant_id));
+			LLCoros::instance().launch("startP2PVoiceCoro", boost::bind(&startP2PVoiceCoro, url, temp_session_id, gAgent.getID(), other_participant_id));
 		}
 		return true;
 	}
@@ -3027,7 +3005,8 @@ void LLIncomingCallDialog::processCallResponse(S32 response, const LLSD &payload
 	{
 		if (type == IM_SESSION_P2P_INVITE)
 		{
-            // create a normal IM session
+            // decline p2p voice, either via the vivox-style call mechanism
+			// or via the webrtc-style "decline p2p" mechanism.
             LLVoiceP2PIncomingCallInterfacePtr call = LLVoiceClient::getInstance()->getIncomingCallInterface(payload["voice_channel_info"]);
             if (call)
             {
@@ -3040,24 +3019,28 @@ void LLIncomingCallDialog::processCallResponse(S32 response, const LLSD &payload
                 if (region)
                 {
                     std::string url = region->getCapability("ChatSessionRequest");
-                    LLCoros::instance().launch("declineP2P",
-                                               boost::bind(&declineP2PCoro, url, session_id));
-                }
 
+                    LLSD data;
+                    data["method"]     = "decline p2p voice";
+                    data["session-id"] = session_id;
+
+                    LLCoreHttpUtil::HttpCoroutineAdapter::messageHttpPost(url, data, "P2P declined", "P2P decline failed.");
+                }
 			}
 		}
 		else
 		{
-			std::string url = gAgent.getRegion()->getCapability(
-				"ChatSessionRequest");
+            LLViewerRegion *region = gAgent.getRegion();
+            if (region)
+            {
+                std::string url = region->getCapability("ChatSessionRequest");
 
-			LLSD data;
-			data["method"] = "decline invitation";
-			data["session-id"] = session_id;
+                LLSD data;
+                data["method"]     = "decline invitation";
+                data["session-id"] = session_id;
 
-            LLCoreHttpUtil::HttpCoroutineAdapter::messageHttpPost(url, data,
-                "Invitation declined",
-                "Invitation decline failed.");
+                LLCoreHttpUtil::HttpCoroutineAdapter::messageHttpPost(url, data, "Invitation declined", "Invitation decline failed.");
+            }
 		}
 	}
 
@@ -3607,6 +3590,30 @@ void LLIMMgr::clearPendingInvitation(const LLUUID& session_id)
 
 void LLIMMgr::processAgentListUpdates(const LLUUID& session_id, const LLSD& body)
 {
+    if (body.isMap() && body.has("agent_updates") && body["agent_updates"].isMap())
+    {
+        LLSD::map_const_iterator update_it;
+        for (update_it = body["agent_updates"].beginMap(); update_it != body["agent_updates"].endMap(); ++update_it)
+        {
+            LLUUID agent_id(update_it->first);
+            LLSD   agent_data = update_it->second;
+
+            if (agent_data.isMap())
+            {
+                // Is one of the participants leaving a P2P Chat?
+                if (agent_data.has("transition") && agent_data["transition"].asString() == "LEAVE")
+                {
+                    LLVoiceChannelGroup *channelp = dynamic_cast < LLVoiceChannelGroup*>(LLVoiceChannel::getChannelByID(session_id));
+                    if (channelp && channelp->isP2P())
+                    {
+                        endCall(session_id);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
 	LLFloaterIMSession* im_floater = LLFloaterIMSession::findInstance(session_id);
 	if ( im_floater )
 	{
