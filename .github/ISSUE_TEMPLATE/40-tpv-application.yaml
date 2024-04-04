@@ -1,0 +1,88 @@
+name: New Viewer Application
+description: Submit a request for your viewer to be added to the list of approved third party viewers.
+title: "[TPV APPLICATION]: "
+labels: ["tpv-application"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        When filing an application to have your viewer added to the list of approved third party viewers, please follow the guidlines in this form
+        as well as the [Third Party Viewer Policy](https://secondlife.com/corporate/third-party-viewers).
+
+        _Please note that this form is public and will be visible to anyone who visits this repository._
+  - type: input
+    id: viewer-name
+    attributes:
+      label: Viewer Name
+      description: The name of the viewer you are submitting.
+      placeholder: Viewer Name
+    validations:
+      required: true
+  - type: input
+    id: home-url
+    attributes:
+      label: Home URL
+      description: The URL to the viewer's homepage.
+      placeholder: https://example.com
+  - type: input
+    id: vcs-url 
+    attributes:
+      label: Version Control System URL
+      description: The URL to the viewer's version control system.
+      placeholder: https://example.com/repo
+    validations:
+      required: true
+  - type: input
+    id: download-url 
+    attributes:
+      label: Download URL
+      description: The URL to download the viewer.
+      placeholder: https://example.com/downloads
+    validations:
+      required: true
+  - type: input
+    id: contact-email
+    attributes:
+      label: Contact Email
+      description: The email address for the viewer's support team.
+      placeholder: myname at example dot org
+  - type: input
+    id: contact-sl
+    attributes:
+      label: Contact Second Life
+      description: The Second Life username or group for the viewer's support team.
+      placeholder: Second Life user or group name 
+  - type: textarea 
+    id: customer-support-info
+    attributes:
+      label: Customer Support Information
+      description: Information about the viewer's customer support.
+      placeholder: https://example.com/support
+    validations:
+      required: true
+  - type: textarea 
+    id: features
+    attributes:
+      label: Features
+      description: |
+        Any surprising or unexpected functionality, including
+        limitations on features and functionality generally available to Second Life users. 
+      placeholder: |
+        * Feature 1
+        * Feature 2
+  - type: input
+    id: privacy-policy
+    attributes:
+      label: Privacy Policy
+      description: The URL to the viewer's privacy policy.
+      placeholder: https://example.com/privacy
+    validations:
+      required: true
+  - type: checkboxes
+    id: policy-agreement 
+    attributes:
+      label: Third Party Viewer Policy Agreement 
+      description: By submitting this issue, you agree that the information submitted is accurate and that you will follow the Third Party Viewer Policy. 
+      options:
+        - label: I agree 
+          required: true
