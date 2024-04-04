@@ -5089,7 +5089,7 @@ bool LLVivoxVoiceClient::isCurrentChannel(const LLSD &channelInfo)
     }
     if (mAudioSession)
     {
-        if (!channelInfo["sessionHandle"].asString().empty())
+        if (!channelInfo["session_handle"].asString().empty())
         {
             return mAudioSession->mHandle == channelInfo["session_handle"].asString();
         }
