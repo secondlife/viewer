@@ -200,7 +200,7 @@ void LLCRC::update(const std::string& filename)
 
 
 #ifdef _DEBUG
-BOOL LLCRC::testHarness()
+bool LLCRC::testHarness()
 {
 	const S32 TEST_BUFFER_SIZE = 16;
 	const char TEST_BUFFER[TEST_BUFFER_SIZE] = "hello &#$)$&Nd0";	/* Flawfinder: ignore */

@@ -55,7 +55,7 @@ LLDoNotDisturbNotificationStorageTimer::~LLDoNotDisturbNotificationStorageTimer(
 
 }
 
-BOOL LLDoNotDisturbNotificationStorageTimer::tick()
+bool LLDoNotDisturbNotificationStorageTimer::tick()
 {
     LLDoNotDisturbNotificationStorage * doNotDisturbNotificationStorage =  LLDoNotDisturbNotificationStorage::getInstance();
 
@@ -64,7 +64,7 @@ BOOL LLDoNotDisturbNotificationStorageTimer::tick()
     {
         doNotDisturbNotificationStorage->saveNotifications();
     }
-    return FALSE;
+    return false;
 }
 
 LLDoNotDisturbNotificationStorage::LLDoNotDisturbNotificationStorage()

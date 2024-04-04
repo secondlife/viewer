@@ -50,11 +50,11 @@ LLFloaterLagMeter::LLFloaterLagMeter(const LLSD& key)
 	mCommitCallbackRegistrar.add("LagMeter.ClickShrink",  boost::bind(&LLFloaterLagMeter::onClickShrink, this));	
 }
 
-BOOL LLFloaterLagMeter::postBuild()
+bool LLFloaterLagMeter::postBuild()
 {
 	// Don't let this window take keyboard focus -- it's confusing to
 	// lose arrow-key driving when testing lag.
-	setIsChrome(TRUE);
+	setIsChrome(true);
 	
 	// were we shrunk last time?
 	if (isShrunk())
@@ -117,7 +117,7 @@ BOOL LLFloaterLagMeter::postBuild()
 //	childSetAction("minimize", onClickShrink, this);
 	updateControls(isShrunk()); // if expanded append colon to the labels (EXT-4079)
 
-	return TRUE;
+	return true;
 }
 LLFloaterLagMeter::~LLFloaterLagMeter()
 {
@@ -348,7 +348,7 @@ void LLFloaterLagMeter::updateControls(bool shrink)
 		button->setLabel( getString("bigger_label", mStringArgs) );
 	}
 	// Don't put keyboard focus on the button
-	button->setFocus(FALSE);
+	button->setFocus(false);
 
 //	self->mClientText->setVisible(self->mShrunk);
 //	self->mClientCause->setVisible(self->mShrunk);
@@ -365,7 +365,7 @@ void LLFloaterLagMeter::updateControls(bool shrink)
 //	self->mShrunk = !self->mShrunk;
 }
 
-BOOL LLFloaterLagMeter::isShrunk()
+bool LLFloaterLagMeter::isShrunk()
 {
 	return gSavedSettings.getBOOL("LagMeterShrunk");
 }

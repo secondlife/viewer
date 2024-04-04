@@ -161,9 +161,9 @@ bool LLURL::operator==(const LLURL &rhs) const
 		|| (strcmp(mTag, rhs.mTag))
 		)
 	{
-		return FALSE;
+		return false;
 	}
-	return TRUE;
+	return true;
 }
 
 bool LLURL::operator!=(const LLURL& rhs) const

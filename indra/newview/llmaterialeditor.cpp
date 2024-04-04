@@ -104,17 +104,17 @@ LLFloaterComboOptions::~LLFloaterComboOptions()
 
 }
 
-BOOL LLFloaterComboOptions::postBuild()
+bool LLFloaterComboOptions::postBuild()
 {
-    mConfirmButton = getChild<LLButton>("combo_ok", TRUE);
-    mCancelButton = getChild<LLButton>("combo_cancel", TRUE);
-    mComboOptions = getChild<LLComboBox>("combo_options", TRUE);
-    mComboText = getChild<LLTextBox>("combo_text", TRUE);
+    mConfirmButton = getChild<LLButton>("combo_ok", true);
+    mCancelButton = getChild<LLButton>("combo_cancel", true);
+    mComboOptions = getChild<LLComboBox>("combo_options", true);
+    mComboText = getChild<LLTextBox>("combo_text", true);
 
     mConfirmButton->setCommitCallback([this](LLUICtrl* ctrl, const LLSD& param) {onConfirm(); });
     mCancelButton->setCommitCallback([this](LLUICtrl* ctrl, const LLSD& param) {onCancel(); });
 
-    return TRUE;
+    return true;
 }
 
 LLFloaterComboOptions* LLFloaterComboOptions::showUI(
@@ -140,7 +140,7 @@ LLFloaterComboOptions* LLFloaterComboOptions::showUI(
         combo_picker->mComboOptions->selectFirstItem();
 
         combo_picker->openFloater(LLSD(title));
-        combo_picker->setFocus(TRUE);
+        combo_picker->setFocus(true);
         combo_picker->center();
     }
     return combo_picker;
@@ -421,7 +421,7 @@ void LLMaterialEditor::setAuxItem(const LLInventoryItem* item)
     }
 }
 
-BOOL LLMaterialEditor::postBuild()
+bool LLMaterialEditor::postBuild()
 {
     // if this is a 'live editor' instance, it is also
     // single instance and uses live overrides
@@ -482,10 +482,10 @@ BOOL LLMaterialEditor::postBuild()
 
     if (mIsOverride)
     {
-        childSetVisible("base_color_upload_fee", FALSE);
-        childSetVisible("metallic_upload_fee", FALSE);
-        childSetVisible("emissive_upload_fee", FALSE);
-        childSetVisible("normal_upload_fee", FALSE);
+        childSetVisible("base_color_upload_fee", false);
+        childSetVisible("metallic_upload_fee", false);
+        childSetVisible("emissive_upload_fee", false);
+        childSetVisible("normal_upload_fee", false);
     }
     else
     {
@@ -619,7 +619,7 @@ void LLMaterialEditor::setBaseColorId(const LLUUID& id)
 {
     mBaseColorTextureCtrl->setValue(id);
     mBaseColorTextureCtrl->setDefaultImageAssetID(id);
-    mBaseColorTextureCtrl->setTentative(FALSE);
+    mBaseColorTextureCtrl->setTentative(false);
 }
 
 void LLMaterialEditor::setBaseColorUploadId(const LLUUID& id)
@@ -695,7 +695,7 @@ void LLMaterialEditor::setMetallicRoughnessId(const LLUUID& id)
 {
     mMetallicTextureCtrl->setValue(id);
     mMetallicTextureCtrl->setDefaultImageAssetID(id);
-    mMetallicTextureCtrl->setTentative(FALSE);
+    mMetallicTextureCtrl->setTentative(false);
 }
 
 void LLMaterialEditor::setMetallicRoughnessUploadId(const LLUUID& id)
@@ -739,7 +739,7 @@ void LLMaterialEditor::setEmissiveId(const LLUUID& id)
 {
     mEmissiveTextureCtrl->setValue(id);
     mEmissiveTextureCtrl->setDefaultImageAssetID(id);
-    mEmissiveTextureCtrl->setTentative(FALSE);
+    mEmissiveTextureCtrl->setTentative(false);
 }
 
 void LLMaterialEditor::setEmissiveUploadId(const LLUUID& id)
@@ -773,7 +773,7 @@ void LLMaterialEditor::setNormalId(const LLUUID& id)
 {
     mNormalTextureCtrl->setValue(id);
     mNormalTextureCtrl->setDefaultImageAssetID(id);
-    mNormalTextureCtrl->setTentative(FALSE);
+    mNormalTextureCtrl->setTentative(false);
 }
 
 void LLMaterialEditor::setNormalUploadId(const LLUUID& id)
@@ -2039,7 +2039,7 @@ void LLMaterialEditor::loadLive()
         }
 
         me->openFloater();
-        me->setFocus(TRUE);
+        me->setFocus(true);
     }
 }
 
@@ -2533,7 +2533,7 @@ void LLMaterialEditor::loadMaterial(const tinygltf::Model &model_in, const std::
     if (open_floater)
     {
         openFloater(getKey());
-        setFocus(TRUE);
+        setFocus(true);
         setCanSave(true);
         setCanSaveAs(true);
 
@@ -3371,7 +3371,7 @@ void LLMaterialEditor::loadAsset()
                     LLAssetType::AT_MATERIAL,
                     &onLoadComplete,
                     (void*)user_data,
-                    TRUE);
+                    true);
             }
         }
     }
@@ -3403,7 +3403,7 @@ void LLMaterialEditor::loadAsset()
     {
         /*editor->setText(LLStringUtil::null);
         editor->makePristine();
-        editor->setEnabled(TRUE);*/
+        editor->setEnabled(true);*/
         // Don't set asset status here; we may not have set the item id yet
         // (e.g. when this gets called initially)
         //mAssetStatus = PREVIEW_ASSET_LOADED;
@@ -3435,8 +3435,8 @@ void LLMaterialEditor::onLoadComplete(const LLUUID& asset_uuid,
 
             editor->decodeAsset(buffer);
 
-            BOOL allow_modify = editor->canModify(editor->mObjectUUID, editor->getItem());
-            BOOL source_library = editor->mObjectUUID.isNull() && gInventory.isObjectDescendentOf(editor->mItemUUID, gInventory.getLibraryRootFolderID());
+            bool allow_modify = editor->canModify(editor->mObjectUUID, editor->getItem());
+            bool source_library = editor->mObjectUUID.isNull() && gInventory.isObjectDescendentOf(editor->mItemUUID, gInventory.getLibraryRootFolderID());
             editor->setEnableEditing(allow_modify && !source_library);
             editor->resetUnsavedChanges();
             editor->mAssetStatus = PREVIEW_ASSET_LOADED;
@@ -3484,6 +3484,8 @@ void LLMaterialEditor::inventoryChanged(LLViewerObject* object,
 
 void LLMaterialEditor::saveTexture(LLImageJ2C* img, const std::string& name, const LLUUID& asset_id, upload_callback_f cb)
 {
+    LLImageDataSharedLock lock(img);
+
     if (asset_id.isNull()
         || img == nullptr
         || img->getDataSize() == 0)

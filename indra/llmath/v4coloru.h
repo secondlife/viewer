@@ -112,12 +112,11 @@ public:
 	LLColor4U addClampMax(const LLColor4U &color);						// Add and clamp the max
 
 	LLColor4U multAll(const F32 k);										// Multiply ALL channels by scalar k
-	const LLColor4U& combine();
 
 	inline void setVecScaleClamp(const LLColor3 &color);
 	inline void setVecScaleClamp(const LLColor4 &color);
 
-	static BOOL parseColor4U(const std::string& buf, LLColor4U* value);
+	static bool parseColor4U(const std::string& buf, LLColor4U* value);
 
 	// conversion
 	operator LLColor4() const

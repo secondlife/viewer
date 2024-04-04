@@ -43,7 +43,7 @@ void	end_net(S32& socket_out);
 // returns size of packet or -1 in case of error
 S32		receive_packet(int hSocket, char * receiveBuffer);
 
-BOOL	send_packet(int hSocket, const char *sendBuffer, int size, U32 recipient, int nPort);	// Returns TRUE on success.
+bool	send_packet(int hSocket, const char *sendBuffer, int size, U32 recipient, int nPort);	// Returns TRUE on success.
 
 //void	get_sender(char * tmp);
 LLHost	get_sender();
