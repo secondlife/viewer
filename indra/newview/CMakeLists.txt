@@ -2384,4 +2384,3 @@ if (LL_TESTS)
 endif (LL_TESTS)
 
 check_message_template(${VIEWER_BINARY_NAME})
-

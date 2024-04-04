@@ -128,7 +128,6 @@ if (LINUX)
   add_compile_definitions(
           _REENTRANT
           _FORTIFY_SOURCE=2
-          EXTERNAL_TOS
           APPID=secondlife
           LL_IGNORE_SIGCHLD
   )
