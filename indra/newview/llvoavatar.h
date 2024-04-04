@@ -381,7 +381,8 @@ public:
 	// Loading state
 	//--------------------------------------------------------------------
 public:
-	bool			isFullyLoaded() const;
+    bool			isFullyLoaded() const;
+    F32				getFirstDecloudTime() const {return mFirstDecloudTime;}
 
     // check and return current state relative to limits
     // default will test only the geometry (combined=false).
@@ -421,6 +422,7 @@ protected:
 
 private:
 	bool			mFirstFullyVisible;
+    F32				mFirstDecloudTime;
 	F32				mFirstUseDelaySeconds;
 	LLFrameTimer	mFirstAppearanceMessageTimer;
 
@@ -714,7 +716,7 @@ public:
 
 	bool			isFullyBaked();
 	static bool		areAllNearbyInstancesBaked(S32& grey_avatars);
-	static void		getNearbyRezzedStats(std::vector<S32>& counts);
+	static void		getNearbyRezzedStats(std::vector<S32>& counts, F32& avg_cloud_time, S32& cloud_avatars);
 	static std::string rezStatusToString(S32 status);
 
 	//--------------------------------------------------------------------
@@ -938,7 +940,7 @@ protected:
 	// Map of attachment points, by ID
 	//--------------------------------------------------------------------
 public:
-	S32 				getAttachmentCount(); // Warning: order(N) not order(1)
+	S32 				getAttachmentCount() const; // Warning: order(N) not order(1)
 	typedef std::map<S32, LLViewerJointAttachment*> attachment_map_t;
 	attachment_map_t 								mAttachmentPoints;
 	std::vector<LLPointer<LLViewerObject> > 		mPendingAttachment;
