@@ -103,6 +103,7 @@ enum EMultiAgentChatSessionType
 void startConferenceCoro(std::string url, LLUUID tempSessionId, LLUUID creatorId, LLUUID otherParticipantId, LLSD agents);
 
 void startP2PCoro(std::string url, LLUUID tempSessionId, LLUUID creatorId, LLUUID otherParticipantId);
+void declineP2PCoro(std::string url, LLUUID sessionID);
 
 void chatterBoxInvitationCoro(std::string url, LLUUID sessionId, LLIMMgr::EInvitationType invitationType);
 void chatterBoxHistoryCoro(std::string url, LLUUID sessionId, std::string from, std::string message, U32 timestamp);
@@ -485,6 +486,27 @@ void startP2PCoro(std::string url, LLUUID sessionID, LLUUID creatorId, LLUUID ot
             static const std::string error_string("session_does_not_exist_error");
             gIMMgr->showSessionStartError(error_string, sessionID);
         }
+    }
+}
+
+void declineP2PCoro(std::string url, LLUUID sessionID)
+{
+    LLCore::HttpRequest::policy_t               httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("ConferenceChatStart", httpPolicy));
+    LLCore::HttpRequest::ptr_t                  httpRequest(new LLCore::HttpRequest);
+
+    LLSD postData;
+    postData["method"]     = "decline p2p";
+    postData["session-id"] = sessionID;
+
+    LLSD result = httpAdapter->postAndSuspend(httpRequest, url, postData);
+
+    LLSD               httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status      = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    if (!status)
+    {
+        LL_WARNS("LLIMModel") << "Failed to decline p2p session:" << postData << "->" << result << LL_ENDL;
     }
 }
 
@@ -3005,10 +3027,23 @@ void LLIncomingCallDialog::processCallResponse(S32 response, const LLSD &payload
 	{
 		if (type == IM_SESSION_P2P_INVITE)
 		{
-			LLVoiceP2PIncomingCallInterfacePtr call = LLVoiceClient::getInstance()->getIncomingCallInterface(payload["voice_session_info"]);
-			if (call)
+            // create a normal IM session
+            LLVoiceP2PIncomingCallInterfacePtr call = LLVoiceClient::getInstance()->getIncomingCallInterface(payload["voice_channel_info"]);
+            if (call)
+            {
+                call->declineInvite();
+            }
+			else
 			{
-				call->declineInvite();
+				// webrtc-style decline.
+                LLViewerRegion *region = gAgent.getRegion();
+                if (region)
+                {
+                    std::string url = region->getCapability("ChatSessionRequest");
+                    LLCoros::instance().launch("declineP2P",
+                                               boost::bind(&declineP2PCoro, url, session_id));
+                }
+
 			}
 		}
 		else

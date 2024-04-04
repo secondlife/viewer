@@ -1360,7 +1360,7 @@ bool LLWebRTCVoiceClient::isCurrentChannel(const LLSD &channelInfo)
 
     if (mSession)
     {
-        if (!channelInfo["sessionHandle"].asString().empty())
+        if (!channelInfo["session_handle"].asString().empty())
         {
             return mSession->mHandle == channelInfo["session_handle"].asString();
         }
