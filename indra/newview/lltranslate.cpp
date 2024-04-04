@@ -107,6 +107,7 @@ public:
     * @param[out]    err_msg       Error message (in case of error).
     */
     virtual bool parseResponse(
+        const LLSD& full_response,
         const LLSD& http_response,
         int& status,
         const std::string& body,
@@ -238,29 +239,29 @@ void LLTranslationAPIHandler::translateMessageCoro(LanguagePair_t fromTo, std::s
     }
 
     LL_INFOS("Translate") << "Sending translation request, URL: " << url << LL_ENDL;
-    LLSD result = sendMessageAndSuspend(httpAdapter, httpRequest, httpOpts, httpHeaders, url, msg, fromTo.first, fromTo.second);
+    LLSD fullResults = sendMessageAndSuspend(httpAdapter, httpRequest, httpOpts, httpHeaders, url, msg, fromTo.first, fromTo.second);
 
     if (LLApp::isQuitting())
     {
         return;
     }
 
-    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLSD httpResults = fullResults[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
-	LL_INFOS("Translate") << "sendMessageAndSuspend call got result " << result << LL_ENDL;
+	LL_INFOS("Translate") << "sendMessageAndSuspend call got result " << fullResults << " httpResults " << httpResults << LL_ENDL;
     std::string translation, err_msg;
     std::string detected_lang(fromTo.second);
 
     int parseResult = status.getType();
-    const LLSD::Binary &rawBody = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_RAW].asBinary();
+    const LLSD::Binary &rawBody = fullResults[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_RAW].asBinary();
     std::string body(rawBody.begin(), rawBody.end());
 
     bool res = false;
 
     try
     {
-        res = this->parseResponse(httpResults, parseResult, body, translation, detected_lang, err_msg);
+        res = this->parseResponse(fullResults, httpResults, parseResult, body, translation, detected_lang, err_msg);
     }
     catch (std::out_of_range&)
     {
@@ -321,6 +322,7 @@ public:
         const LLSD &response,
         int status) const override;
     bool parseResponse(
+        const LLSD& full_response,
         const LLSD& http_response,
         int& status,
         const std::string& body,
@@ -397,6 +399,7 @@ bool LLGoogleTranslationHandler::checkVerificationResponse(
 
 // virtual
 bool LLGoogleTranslationHandler::parseResponse(
+	const LLSD& full_response,
     const LLSD& http_response,
 	int& status,
 	const std::string& body,
@@ -551,6 +554,7 @@ public:
         const LLSD &response,
         int status) const override;
     bool parseResponse(
+        const LLSD& full_response,
         const LLSD& http_response,
         int& status,
         const std::string& body,
@@ -674,6 +678,7 @@ bool LLAzureTranslationHandler::checkVerificationResponse(
 
 // virtual
 bool LLAzureTranslationHandler::parseResponse(
+	const LLSD& full_response,
     const LLSD& http_response,
 	int& status,
 	const std::string& body,
@@ -871,6 +876,7 @@ public:
         const LLSD& response,
         int status) const override;
     bool parseResponse(
+        const LLSD& full_response,
         const LLSD& http_response,
         int& status,
         const std::string& body,
@@ -962,6 +968,7 @@ bool LLDeepLTranslationHandler::checkVerificationResponse(
 
 // virtual
 bool LLDeepLTranslationHandler::parseResponse(
+	const LLSD& full_response,
     const LLSD& http_response,
     int& status,
     const std::string& body,
@@ -1139,6 +1146,7 @@ public:
         const LLSD& response,
         int status) const override;
     bool parseResponse(
+        const LLSD& full_response,
         const LLSD& http_response,
         int& status,
         const std::string& body,
@@ -1186,17 +1194,12 @@ std::string LLSimulatorTranslationHandler::getTranslateURL(
     std::string url;
     if (gAgent.getRegion())
     {
-        url = gAgent.getRegion()->getCapability("Translate");
+        url = gAgent.getRegion()->getCapability("Translation");
     }
     if (!url.empty())
     {
-        url += "/agent/" + gAgentID.asString() + "/translate?";
-		url += "text=" + LLURI::escape(text); 
-		url += "&to_lang=" + LLURI::escape(to_lang);
-		if (!from_lang.empty())
-		{
-			url += "&from_lang=" + LLURI::escape(from_lang);
-		}
+        url += "/agent/" + gAgentID.asString();
+		url += "/translation";
     }
     return url;
 }
@@ -1223,6 +1226,7 @@ bool LLSimulatorTranslationHandler::checkVerificationResponse(
 
 // virtual
 bool LLSimulatorTranslationHandler::parseResponse(
+	const LLSD& full_response,
     const LLSD& http_response,
     int& status,
     const std::string& body,
@@ -1239,14 +1243,10 @@ bool LLSimulatorTranslationHandler::parseResponse(
         return false;
     }
 
-	std::istringstream iss(body);
-	LLSD body_sd;
-	LLSDSerialize::fromXML(body_sd,iss);
-	LL_INFOS("Translation") << "body " << body << " body_sd " << body_sd << LL_ENDL;
-	if (body_sd.has("text") && body_sd.has("detected_source_language"))
+	if (full_response.has("text"))
 	{
-		translation = body_sd["text"].asString();
-		detected_lang = body_sd["detected_source_language"].asString();
+		translation = full_response["text"];
+		detected_lang = "unknown";
 		return true;
 	}
 	LL_WARNS("Translation") << "Field(s) missing from result, can't translate" << LL_ENDL;
@@ -1306,7 +1306,6 @@ void LLSimulatorTranslationHandler::initHttpHeader(
     LLCore::HttpHeaders::ptr_t headers,
     const std::string& user_agent) const
 {
-	// FIXME REPLACE CODE HERE
     initHttpHeader(headers, user_agent, getAPIKey());
 }
 
@@ -1316,8 +1315,8 @@ void LLSimulatorTranslationHandler::initHttpHeader(
     const std::string& user_agent,
     const LLSD& key) const
 {
-	// FIXME REPLACE CODE HERE
-    headers->append(HTTP_OUT_HEADER_CONTENT_TYPE, "application/x-www-form-urlencoded");
+    headers->append("Accept", "application/llsd+xml");
+    headers->append("Content-Type", "application/llsd+xml"); 
     headers->append(HTTP_OUT_HEADER_USER_AGENT, user_agent);
 
     if (key.has("id"))
@@ -1336,7 +1335,12 @@ LLSD LLSimulatorTranslationHandler::sendMessageAndSuspend(LLCoreHttpUtil::HttpCo
                                                       const std::string& from_lang,
                                                       const std::string& to_lang) const
 {
-    return adapter->getRawAndSuspend(request, url, options, headers);
+	LLSD body = LLSD::emptyMap();
+	body["text"] = msg;
+	body["source_lang"] = "auto";
+	body["target_lang"] = "fr";
+	LL_INFOS() << "requesting to url " << url << " body " << body << LL_ENDL;
+    return adapter->postAndSuspend(request, url, body, options, headers);
 }
 
 LLSD LLSimulatorTranslationHandler::verifyAndSuspend(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t adapter,

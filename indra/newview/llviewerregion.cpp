@@ -3153,7 +3153,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 	capabilityNames.append("StartGroupProposal");
 	capabilityNames.append("TerrainNavMeshProperties");
 	capabilityNames.append("TextureStats");
-	capabilityNames.append("Translate");
+	capabilityNames.append("Translation");
 	capabilityNames.append("UntrustedSimulatorMessage");
 	capabilityNames.append("UpdateAgentInformation");
 	capabilityNames.append("UpdateAgentLanguage");
