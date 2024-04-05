@@ -7,7 +7,7 @@
     <string>autobuild</string>
     <key>installables</key>
     <map>
-      <key>SDL</key>
+      <key>SDL2</key>
       <map>
         <key>platforms</key>
         <map>
@@ -29,13 +29,13 @@
         <key>license</key>
         <string>lgpl</string>
         <key>license_file</key>
-        <string>LICENSES/SDL.txt</string>
+        <string>LICENSES/SDL2.txt</string>
         <key>copyright</key>
-        <string>Copyright (C) 1997-2012 Sam Lantinga</string>
+        <string>Copyright (C) 1997-2022 Sam Lantinga (slouken@libsdl.org)</string>
         <key>version</key>
-        <string>1.2.15</string>
+        <string>2.28.0</string>
         <key>name</key>
-        <string>SDL</string>
+        <string>SDL2</string>
         <key>description</key>
         <string>Simple DirectMedia Layer is a cross-platform multimedia library designed to provide low level access to audio, keyboard, mouse, joystick, 3D hardware via OpenGL, and 2D video framebuffer.</string>
       </map>
@@ -93,7 +93,7 @@
         <key>copyright</key>
         <string>Copyright © 2012 The Apache Software Foundation, Licensed under the Apache License, Version 2.0.</string>
         <key>version</key>
-        <string>1.7.2-e935465</string>
+        <string>1.7.2-c5f3347</string>
         <key>name</key>
         <string>apr_suite</string>
         <key>description</key>
@@ -375,7 +375,7 @@
         <key>copyright</key>
         <string>Copyright (c) 1996 - 2014, Daniel Stenberg, (daniel@haxx.se).</string>
         <key>version</key>
-        <string>7.54.1-5a4a82d</string>
+        <string>7.54.1-513145c</string>
         <key>name</key>
         <string>curl</string>
         <key>description</key>
@@ -543,6 +543,20 @@
             <key>name</key>
             <string>windows64</string>
           </map>
+          <key>linux64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>hash</key>
+              <string>5b957aa7f353b10ae17b7119e5b3668f48a35325</string>
+              <key>url</key>
+              <string>https://github.com/secondlife/3p-emoji-shortcodes/releases/download/v6.1.0.5413f58/emoji_shortcodes-6.1.0.5413f58-linux64-5413f58.tar.zst</string>
+            </map>
+            <key>name</key>
+            <string>linux64</string>
+          </map>
         </map>
         <key>version</key>
         <string>6.1.0.579438</string>
@@ -615,14 +629,14 @@
           <map>
             <key>archive</key>
             <map>
-              <key>creds</key>
-              <string>github</string>
               <key>hash</key>
               <string>fb6797ff93b6e881b060d2a8b396d8d7477834ee</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
               <string>https://api.github.com/repos/secondlife/3p-fmodstudio/releases/assets/108908444</string>
+              <key>creds</key>
+              <string>github</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -631,14 +645,14 @@
           <map>
             <key>archive</key>
             <map>
-              <key>creds</key>
-              <string>github</string>
               <key>hash</key>
               <string>a378bd1604aa97ca763140911f9f4e463ced85c0</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
               <string>https://api.github.com/repos/secondlife/3p-fmodstudio/releases/assets/108908446</string>
+              <key>creds</key>
+              <string>github</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -647,14 +661,14 @@
           <map>
             <key>archive</key>
             <map>
-              <key>creds</key>
-              <string>github</string>
               <key>hash</key>
               <string>72304491d86bd797b840999b255358f195b06609</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
               <string>https://api.github.com/repos/secondlife/3p-fmodstudio/releases/assets/108908456</string>
+              <key>creds</key>
+              <string>github</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -706,11 +720,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>061e1bd8eef85a5d15fafc9d46fc562a621207da</string>
+              <string>07a38133c008ce6f728d652d00a756bea3a70288</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-freetype/releases/download/v2.12.1.d315c1b/freetype-2.12.1.8443253711-linux64-8443253711.tar.zst</string>
+              <string>https://github.com/secondlife/3p-freetype/releases/download/v2.12.1-r1/freetype-2.12.1.8503093630-linux64-8503093630.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -885,34 +899,6 @@
         <key>name</key>
         <string>gstreamer</string>
       </map>
-      <key>gtk-atk-pango-glib</key>
-      <map>
-        <key>platforms</key>
-        <map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>de7bba8fd2275a11b077b124413065d0</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/p64_3p-gtk-atk-pango-glib/rev/314220/arch/Linux/installer/gtk_atk_pango_glib-0.1-linux64-314220.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux64</string>
-          </map>
-        </map>
-        <key>license</key>
-        <string>lgpl</string>
-        <key>license_file</key>
-        <string>LICENSES/gtk-atk-pango-glib.txt</string>
-        <key>copyright</key>
-        <string>Copyright (various, see sources)</string>
-        <key>version</key>
-        <string>0.1</string>
-        <key>name</key>
-        <string>gtk-atk-pango-glib</string>
-      </map>
       <key>havok-source</key>
       <map>
         <key>platforms</key>
@@ -921,14 +907,14 @@
           <map>
             <key>archive</key>
             <map>
-              <key>creds</key>
-              <string>github</string>
               <key>hash</key>
               <string>a193ff65d6db48626d65d96c6124c6efca85e8ec</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
               <string>https://api.github.com/repos/secondlife/3p-havok-source/releases/assets/108912596</string>
+              <key>creds</key>
+              <string>github</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -949,14 +935,14 @@
           <map>
             <key>archive</key>
             <map>
-              <key>creds</key>
-              <string>github</string>
               <key>hash</key>
               <string>ebfb82b6143874e7938b9d1e8a70d0a2e28aa818</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
               <string>https://api.github.com/repos/secondlife/3p-havok-source/releases/assets/108912599</string>
+              <key>creds</key>
+              <string>github</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -1005,20 +991,6 @@
             <key>name</key>
             <string>darwin64</string>
           </map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>99e96926b7cf668d8e8195a021d6eacb09de32a0</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
-              <key>url</key>
-              <string>https://github.com/secondlife/3p-icu4c/releases/download/v4.8.1-7d08d82/icu4c-4.8.1-linux64-7d08d82.tar.zst</string>
-            </map>
-            <key>name</key>
-            <string>linux64</string>
-          </map>
           <key>windows64</key>
           <map>
             <key>archive</key>
@@ -1032,6 +1004,20 @@
             </map>
             <key>name</key>
             <string>windows64</string>
+          </map>
+          <key>linux64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>bdd74e2a02c7b78fded9222140d197da4af9904e</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://github.com/secondlife/3p-icu4c/releases/download/v4.8.1-8bff176/icu4c-4.8.1-linux64-8512575562.tar.zst</string>
+            </map>
+            <key>name</key>
+            <string>linux64</string>
           </map>
         </map>
         <key>version</key>
@@ -1176,11 +1162,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>97e268754808cb2fbd682c4d3beafd2c598e1ba7</string>
+              <string>66dce1d0c2fc19dff13db279d973773fc7e2aa13</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-jsoncpp/releases/download/v0.5.0.bc46e62/jsoncpp-0.5.0.bc46e62-linux64-bc46e62.tar.zst</string>
+              <string>https://github.com/secondlife/3p-jsoncpp/releases/download/v0.5.0-cc63e92/jsoncpp-0.5.0.cc63e92-linux64-cc63e92.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -1207,7 +1193,7 @@
         <key>copyright</key>
         <string>Copyright (c) 2007-2010 Baptiste Lepilleur</string>
         <key>version</key>
-        <string>0.5.0.bc46e62</string>
+        <string>0.5.0.1db375e</string>
         <key>name</key>
         <string>jsoncpp</string>
         <key>description</key>
@@ -1221,14 +1207,14 @@
           <map>
             <key>archive</key>
             <map>
-              <key>creds</key>
-              <string>github</string>
               <key>hash</key>
               <string>bcc7e2c34896fc9cbc41828dee8a4ddf54f10453</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
               <string>https://api.github.com/repos/secondlife/3p-kdu/releases/assets/108298968</string>
+              <key>creds</key>
+              <string>github</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1237,14 +1223,14 @@
           <map>
             <key>archive</key>
             <map>
-              <key>creds</key>
-              <string>github</string>
               <key>hash</key>
               <string>9de772df2ed12e9c742df6c90670c7cbbb9c93a6</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
               <string>https://api.github.com/repos/secondlife/3p-kdu/releases/assets/108298969</string>
+              <key>creds</key>
+              <string>github</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -1253,14 +1239,14 @@
           <map>
             <key>archive</key>
             <map>
-              <key>creds</key>
-              <string>github</string>
               <key>hash</key>
               <string>92533ff0f8c1881ad85e75800f9072c413ccf7b7</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
               <string>https://api.github.com/repos/secondlife/3p-kdu/releases/assets/108298970</string>
+              <key>creds</key>
+              <string>github</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -1529,7 +1515,7 @@
         <key>copyright</key>
         <string>Copyright (C) 1998-2012 Daniel Veillard.  All Rights Reserved.</string>
         <key>version</key>
-        <string>2.9.4.7476681</string>
+        <string>2.9.4.2db4418</string>
         <key>name</key>
         <string>libxml2</string>
         <key>description</key>
@@ -2138,9 +2124,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>45ebd074053dc9cae8c5c74b52085d4b</string>
+              <string>90052be851c4fcecc35d8424b4f31352de14ab2f</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/465/990/ogg_vorbis-1.2.2-1.3.2.500397-linux64-500397.tar.bz2</string>
+              <string>https://github.com/secondlife/3p-ogg_vorbis/releases/download/v1.3.3-1.3.6-881f65e/ogg_vorbis-1.3.3-1.3.6.881f65e-linux64-881f65e.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -2167,7 +2155,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>copyright</key>
         <string>Copyright (c) 2002, Xiph.org Foundation</string>
         <key>version</key>
-        <string>1.3.3-1.3.6.e4101b6</string>
+        <string>1.3.3-1.3.6.881f65e</string>
         <key>name</key>
         <string>ogg_vorbis</string>
         <key>description</key>
@@ -2175,6 +2163,23 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
       </map>
       <key>open-libndofdev</key>
       <map>
+        <key>platforms</key>
+        <map>
+          <key>linux64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>2d20683554f0b00234bbb84d0ce7ac1be1ad70aa</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://github.com/secondlife/3p-open-libndofdev/releases/download/v1.14-r1/open_libndofdev-0.14.8503290964-linux64-8503290964.tar.zst</string>
+            </map>
+            <key>name</key>
+            <string>linux64</string>
+          </map>
+        </map>
         <key>license</key>
         <string>BSD</string>
         <key>license_file</key>
@@ -2182,7 +2187,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>copyright</key>
         <string>Copyright (c) 2008, Jan Ciger (jan.ciger (at) gmail.com)</string>
         <key>version</key>
-        <string>0.3</string>
+        <string>0.14.8503290964</string>
         <key>name</key>
         <string>open-libndofdev</string>
         <key>description</key>
@@ -2422,7 +2427,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>copyright</key>
         <string>Copyright (c) 1997-2014 University of Cambridge; Copyright(c) 2009-2014 Zoltan Herczeg; Copyright (c) 2007-2012, Google Inc.</string>
         <key>version</key>
-        <string>8.35.979fd86</string>
+        <string>8.35.3c0eb51</string>
         <key>name</key>
         <string>pcre</string>
         <key>description</key>
@@ -2436,14 +2441,14 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
           <map>
             <key>archive</key>
             <map>
-              <key>creds</key>
-              <string>github</string>
               <key>hash</key>
               <string>cc7c5bf53f83cff81d874ad66394df0991bd432c</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
               <string>https://api.github.com/repos/secondlife/3p-slvoice/releases/assets/108299352</string>
+              <key>creds</key>
+              <string>github</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2464,14 +2469,14 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
           <map>
             <key>archive</key>
             <map>
-              <key>creds</key>
-              <string>github</string>
               <key>hash</key>
               <string>0c205371bb1731a9812b00556037729fdc057cbc</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
               <string>https://api.github.com/repos/secondlife/3p-slvoice/releases/assets/108299356</string>
+              <key>creds</key>
+              <string>github</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -2744,16 +2749,6 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
       </map>
       <key>viewer-fonts</key>
       <map>
-        <key>copyright</key>
-        <string>Copyright 2016-2022 Brad Erickson CC-BY-4.0/MIT, Copyright 2016-2022 Twitter, Inc. CC-BY-4.0, Copyright 2013 Joe Loughry and Terence Eden MIT</string>
-        <key>description</key>
-        <string>Viewer fonts</string>
-        <key>license</key>
-        <string>Various open source</string>
-        <key>license_file</key>
-        <string>LICENSES/fonts.txt</string>
-        <key>name</key>
-        <string>viewer-fonts</string>
         <key>platforms</key>
         <map>
           <key>darwin64</key>
@@ -2780,9 +2775,33 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>name</key>
             <string>windows64</string>
           </map>
+          <key>common</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>c25de57e57856a826b2c146ac951ae0b53250666</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://github.com/secondlife/3p-viewer-fonts/releases/download/v1.0.0-r1/viewer_fonts-1.0.0.8512067490-common-8512067490.tar.zst</string>
+            </map>
+            <key>name</key>
+            <string>common</string>
+          </map>
         </map>
+        <key>license</key>
+        <string>Various open source</string>
+        <key>license_file</key>
+        <string>LICENSES/fonts.txt</string>
+        <key>copyright</key>
+        <string>Copyright 2016-2022 Brad Erickson CC-BY-4.0/MIT, Copyright 2016-2022 Twitter, Inc. CC-BY-4.0, Copyright 2013 Joe Loughry and Terence Eden MIT</string>
         <key>version</key>
-        <string>1.579464</string>
+        <string>1.0.0.8512067490</string>
+        <key>name</key>
+        <string>viewer-fonts</string>
+        <key>description</key>
+        <string>Viewer fonts</string>
       </map>
       <key>viewer-manager</key>
       <map>
@@ -3312,11 +3331,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>-G</string>
                   <string>Ninja</string>
                   <string>-DLL_TESTS=Off</string>
-                </array>
+</array>
                 <key>arguments</key>
                 <array>
                   <string>../indra</string>
-                </array>
+</array>
               </map>
               <key>build</key>
               <map>
@@ -3337,7 +3356,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>-G</string>
                   <string>Ninja</string>
                   <string>-DLL_TESTS=Off</string>
-                </array>
+</array>
               </map>
               <key>build</key>
               <map>

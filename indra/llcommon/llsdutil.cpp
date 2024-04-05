@@ -36,6 +36,7 @@
 #	include <winsock2.h>	// for htonl
 #elif LL_LINUX
 #	include <netinet/in.h>
+#pragma GCC diagnostic ignored "-Wstringop-truncation" // It's actually okay what happens here
 #elif LL_DARWIN
 #	include <arpa/inet.h>
 #endif

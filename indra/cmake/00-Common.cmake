@@ -87,7 +87,7 @@ if (WINDOWS)
   if( ADDRESS_SIZE EQUAL 32 )
     add_compile_options( /arch:SSE2 )
   endif()
-     
+
   # Are we using the crummy Visual Studio KDU build workaround?
   if (NOT VS_DISABLE_FATAL_WARNINGS)
     add_compile_options(/WX)
@@ -107,7 +107,15 @@ endif (WINDOWS)
 
 
 if (LINUX)
-  set(CMAKE_SKIP_RPATH TRUE)
+  set( CMAKE_BUILD_WITH_INSTALL_RPATH TRUE )
+  set( CMAKE_INSTALL_RPATH $ORIGIN $ORIGIN/../lib )
+  set(CMAKE_EXE_LINKER_FLAGS "-Wl,--exclude-libs,ALL")
+
+  find_program(CCACHE_EXE ccache)
+  if(CCACHE_EXE AND NOT DISABLE_CCACHE)
+    set(CMAKE_C_COMPILER_LAUNCHER ${CCACHE_EXE} )
+    set(CMAKE_CXX_COMPILER_LAUNCHER ${CCACHE_EXE} )
+  endif()
 
    # EXTERNAL_TOS
    # force this platform to accept TOS via external browser
@@ -134,21 +142,28 @@ if (LINUX)
           -pthread
           -Wno-parentheses
           -Wno-deprecated
+          -Wno-c++20-compat
+          -Wno-pessimizing-move
+          -Wno-stringop-overflow
+          -Wno-stringop-truncation
           -fvisibility=hidden
   )
-
-  if (ADDRESS_SIZE EQUAL 32)
-    add_compile_options(-march=pentium4)
-  endif (ADDRESS_SIZE EQUAL 32)
+  add_link_options(
+    -Wl,--no-keep-memory
+    -Wl,--build-id
+  )
 
   # this stops us requiring a really recent glibc at runtime
   add_compile_options(-fno-stack-protector)
   # linking can be very memory-hungry, especially the final viewer link
   set(CMAKE_CXX_LINK_FLAGS "-Wl,--no-keep-memory")
-
   set(CMAKE_CXX_FLAGS_DEBUG "-fno-inline ${CMAKE_CXX_FLAGS_DEBUG}")
-endif (LINUX)
 
+  # ND: clang is a bit more picky than GCC, the latter seems to auto include -lstdc++ and -lm. The former not so and thus fails to link
+  if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    set(CMAKE_CXX_LINK_FLAGS "${CMAKE_CXX_LINK_FLAGS} -lstdc++ -lm")
+  endif()
+endif (LINUX)
 
 if (DARWIN)
   # Warnings should be fatal -- thanks, Nicky Perian, for spotting reversed default
@@ -182,9 +197,10 @@ if (LINUX OR DARWIN)
 
   list(APPEND GCC_WARNINGS -Wno-reorder -Wno-non-virtual-dtor )
 
+  if(LINUX)
+    list(APPEND GCC_WARNINGS -Wno-maybe-uninitialized -Wno-misleading-indentation -Wno-stringop-truncation -Wno-unused-value )
+  endif()
+
   add_compile_options(${GCC_WARNINGS})
   add_compile_options(-m${ADDRESS_SIZE})
 endif (LINUX OR DARWIN)
-
-
-

@@ -33,6 +33,12 @@
 #ifndef LL_LLFILEPICKER_H
 #define LL_LLFILEPICKER_H
 
+#if LL_FLTK
+  #if LL_GTK
+    #undef LL_GTK
+  #endif
+#endif
+
 #include "stdtypes.h"
 
 #if LL_DARWIN
@@ -58,6 +64,7 @@ extern "C" {
 // mostly for Linux, possible on others
 #if LL_GTK
 # include "gtk/gtk.h"
+#error "Direct use of GTK is deprecated"
 #endif // LL_GTK
 }
 
@@ -191,6 +198,13 @@ private:
 	std::string mCurContextName;
 	// we also remember the extension of the last added file.
 	std::string mCurrentExtension;
+#endif
+#if LL_FLTK
+    enum EType
+    {
+     eSaveFile, eOpenFile, eOpenMultiple
+    };
+    bool openFileDialog( int32_t filter, bool blocking, EType aType );
 #endif
 
 	std::vector<std::string> mFiles;

@@ -867,7 +867,7 @@ private:
 		LLPI_SET_INFO_INT(eModel, "model");
 
 		
-		S32 family = 0;							 
+		S32 family{};
 		if (!cpuinfo["cpu family"].empty() 
 			&& LLStringUtil::convertToS32(cpuinfo["cpu family"], family))	
 		{ 

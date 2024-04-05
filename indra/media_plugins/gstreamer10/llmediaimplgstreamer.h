@@ -1,8 +1,10 @@
 /** 
- * @file llappviewerlinux_api_dbus.h
- * @brief DBus-glib symbol handling
+ * @file llmediaimplgstreamer.h
+ * @author Tofu Linden
+ * @brief implementation that supports media playback via GStreamer.
  *
- * $LicenseInfo:firstyear=2008&license=viewerlgpl$
+ * @cond
+ * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
  * 
@@ -22,23 +24,30 @@
  * 
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
+ * @endcond
  */
 
-#include "linden_common.h"
+// header guard
+#ifndef llmediaimplgstreamer_h
+#define llmediaimplgstreamer_h
 
-#if LL_DBUS_ENABLED
+#if LL_GSTREAMER010_ENABLED
 
 extern "C" {
-#include <dbus/dbus-glib.h>
+#include <stdio.h>
+#include <gst/gst.h>
+
+#include "apr_pools.h"
+#include "apr_dso.h"
 }
 
-#define DBUSGLIB_DYLIB_DEFAULT_NAME "libdbus-glib-1.so.2"
 
-bool grab_dbus_syms(std::string dbus_dso_name);
-void ungrab_dbus_syms();
+extern "C" {
+gboolean llmediaimplgstreamer_bus_callback (GstBus     *bus,
+					    GstMessage *message,
+					    gpointer    data);
+}
 
-#define LL_DBUS_SYM(REQUIRED, DBUSSYM, RTN, ...) extern RTN (*ll##DBUSSYM)(__VA_ARGS__)
-#include "llappviewerlinux_api_dbus_syms_raw.inc"
-#undef LL_DBUS_SYM
+#endif // LL_GSTREAMER010_ENABLED
 
-#endif // LL_DBUS_ENABLED
+#endif // llmediaimplgstreamer_h

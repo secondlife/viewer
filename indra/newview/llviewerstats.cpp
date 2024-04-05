@@ -67,6 +67,11 @@
 #include "lluiusage.h"
 #include "lltranslate.h"
 
+#if LL_LINUX
+#pragma GCC diagnostic ignored "-Wunused-value" // Happens due to LL_DEBUGS("LogViewerStatsPacket"); Does that even do anything?
+#endif
+
+
 // "Minimal Vulkan" to get max API Version
 
 // Calls
@@ -827,6 +832,8 @@ void send_viewer_stats(bool include_preferences)
 
 
 	LL_INFOS("LogViewerStatsPacket") << "Sending viewer statistics: " << body << LL_ENDL;
+
+    // <ND> Do those lines even do anything sane in regard of debug logging?
 	LL_DEBUGS("LogViewerStatsPacket");
 	std::string filename("viewer_stats_packet.xml");
 	llofstream of(filename.c_str());

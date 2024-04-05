@@ -839,7 +839,6 @@ BOOL LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
 		//VECTORIZE THIS
 		LLMatrix4a mat_vert;
 		mat_vert.loadu(mat_vert_in);
-        LLVector4a new_extents[2];
 
 		llassert(less_than_max_mag(face.mExtents[0]));
 		llassert(less_than_max_mag(face.mExtents[1]));
