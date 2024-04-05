@@ -87,25 +87,6 @@ cd "${RUN_PATH}"
 ## Before we mess with LD_LIBRARY_PATH, save the old one to restore for
 ##  subprocesses that care.
 export SAVED_LD_LIBRARY_PATH="${LD_LIBRARY_PATH}"
-
-# if [ -n "$LL_TCMALLOC" ]; then
-#    tcmalloc_libs='/usr/lib/libtcmalloc.so.0 /usr/lib/libstacktrace.so.0 /lib/libpthread.so.0'
-#    all=1
-#    for f in $tcmalloc_libs; do
-#        if [ ! -f $f ]; then
-#	    all=0
-#	fi
-#    done
-#    if [ $all != 1 ]; then
-#        echo 'Cannot use tcmalloc libraries: components missing' 1>&2
-#    else
-#	export LD_PRELOAD=$(echo $tcmalloc_libs | tr ' ' :)
-#	if [ -z "$HEAPCHECK" -a -z "$HEAPPROFILE" ]; then
-#	    export HEAPCHECK=${HEAPCHECK:-normal}
-#	fi
-#    fi
-#fi
-
 export LD_LIBRARY_PATH="$PWD/lib:${LD_LIBRARY_PATH}"
 
 # Copy "$@" to ARGS array specifically to delete the --skip-gridargs switch.
