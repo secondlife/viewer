@@ -1021,66 +1021,6 @@
         <key>description</key>
         <string>JPEG encoding, decoding library</string>
       </map>
-      <key>jsoncpp</key>
-      <map>
-        <key>platforms</key>
-        <map>
-          <key>darwin64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>07761ab01e61d5d6b40d303ffafd85ec055ec9f7</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
-              <key>url</key>
-              <string>https://github.com/secondlife/3p-jsoncpp/releases/download/v0.5.0.bc46e62/jsoncpp-0.5.0.bc46e62-darwin64-bc46e62.tar.zst</string>
-            </map>
-            <key>name</key>
-            <string>darwin64</string>
-          </map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>97e268754808cb2fbd682c4d3beafd2c598e1ba7</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
-              <key>url</key>
-              <string>https://github.com/secondlife/3p-jsoncpp/releases/download/v0.5.0.bc46e62/jsoncpp-0.5.0.bc46e62-linux64-bc46e62.tar.zst</string>
-            </map>
-            <key>name</key>
-            <string>linux64</string>
-          </map>
-          <key>windows64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>500e455b210d6bc4985185cef2472987ed3034bf</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
-              <key>url</key>
-              <string>https://github.com/secondlife/3p-jsoncpp/releases/download/v0.5.0.bc46e62/jsoncpp-0.5.0.bc46e62-windows64-bc46e62.tar.zst</string>
-            </map>
-            <key>name</key>
-            <string>windows64</string>
-          </map>
-        </map>
-        <key>license</key>
-        <string>public domain</string>
-        <key>license_file</key>
-        <string>LICENSES/jsoncpp.txt</string>
-        <key>copyright</key>
-        <string>Copyright (c) 2007-2010 Baptiste Lepilleur</string>
-        <key>version</key>
-        <string>0.5.0.bc46e62</string>
-        <key>name</key>
-        <string>jsoncpp</string>
-        <key>description</key>
-        <string>jsoncpp is an implementation of a JSON (http://json.org) reader and writer in C++.</string>
-      </map>
       <key>kdu</key>
       <map>
         <key>platforms</key>
