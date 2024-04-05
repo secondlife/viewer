@@ -1267,18 +1267,13 @@ class LinuxManifest(ViewerManifest):
             self.path( "snapshot_blob.bin" )
             self.path( "v8_context_snapshot.bin" )
 
-        with self.prefix(src=os.path.join(pkgdir, 'resources'), dst="bin"):
-            self.path( "chrome_100_percent.pak" )
-            self.path( "chrome_200_percent.pak" )
-            self.path( "resources.pak" )
-            self.path( "icudtl.dat" )
         with self.prefix(src=os.path.join(pkgdir, 'resources'), dst="lib"):
             self.path( "chrome_100_percent.pak" )
             self.path( "chrome_200_percent.pak" )
             self.path( "resources.pak" )
             self.path( "icudtl.dat" )
 
-        with self.prefix(src=os.path.join(pkgdir, 'resources', 'locales'), dst=os.path.join('bin', 'locales')):
+        with self.prefix(src=os.path.join(pkgdir, 'resources', 'locales'), dst=os.path.join('lib', 'locales')):
             self.path("am.pak")
             self.path("ar.pak")
             self.path("bg.pak")
