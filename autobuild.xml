@@ -505,18 +505,6 @@
       </map>
       <key>emoji_shortcodes</key>
       <map>
-        <key>canonical_repo</key>
-        <string>https://github.com/secondlife/3p-emoji-shortcodes</string>
-        <key>copyright</key>
-        <string>Copyright 2017-2019 Miles Johnson.</string>
-        <key>description</key>
-        <string>Emoji shortcodes</string>
-        <key>license</key>
-        <string>MIT</string>
-        <key>license_file</key>
-        <string>LICENSES/emojibase-license.txt</string>
-        <key>name</key>
-        <string>emoji_shortcodes</string>
         <key>platforms</key>
         <map>
           <key>darwin64</key>
@@ -558,8 +546,20 @@
             <string>windows64</string>
           </map>
         </map>
+        <key>license</key>
+        <string>MIT</string>
+        <key>license_file</key>
+        <string>LICENSES/emojibase-license.txt</string>
+        <key>copyright</key>
+        <string>Copyright 2017-2019 Miles Johnson.</string>
         <key>version</key>
         <string>6.1.0.579438</string>
+        <key>name</key>
+        <string>emoji_shortcodes</string>
+        <key>canonical_repo</key>
+        <string>https://github.com/secondlife/3p-emoji-shortcodes</string>
+        <key>description</key>
+        <string>Emoji shortcodes</string>
       </map>
       <key>expat</key>
       <map>
@@ -629,14 +629,14 @@
           <map>
             <key>archive</key>
             <map>
+              <key>creds</key>
+              <string>github</string>
               <key>hash</key>
               <string>fb6797ff93b6e881b060d2a8b396d8d7477834ee</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
               <string>https://api.github.com/repos/secondlife/3p-fmodstudio/releases/assets/108908444</string>
-              <key>creds</key>
-              <string>github</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -645,14 +645,14 @@
           <map>
             <key>archive</key>
             <map>
+              <key>creds</key>
+              <string>github</string>
               <key>hash</key>
               <string>a378bd1604aa97ca763140911f9f4e463ced85c0</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
               <string>https://api.github.com/repos/secondlife/3p-fmodstudio/releases/assets/108908446</string>
-              <key>creds</key>
-              <string>github</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -661,14 +661,14 @@
           <map>
             <key>archive</key>
             <map>
+              <key>creds</key>
+              <string>github</string>
               <key>hash</key>
               <string>72304491d86bd797b840999b255358f195b06609</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
               <string>https://api.github.com/repos/secondlife/3p-fmodstudio/releases/assets/108908456</string>
-              <key>creds</key>
-              <string>github</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -689,16 +689,6 @@
       </map>
       <key>freetype</key>
       <map>
-        <key>copyright</key>
-        <string>Copyright 2006, 2007, 2008, 2009, 2010 by David Turner, Robert Wilhelm, and Werner Lemberg.</string>
-        <key>description</key>
-        <string>Font rendering library</string>
-        <key>license</key>
-        <string>FreeType</string>
-        <key>license_file</key>
-        <string>LICENSES/freetype.txt</string>
-        <key>name</key>
-        <string>freetype</string>
         <key>platforms</key>
         <map>
           <key>darwin64</key>
@@ -758,8 +748,18 @@
             <string>windows64</string>
           </map>
         </map>
+        <key>license</key>
+        <string>FreeType</string>
+        <key>license_file</key>
+        <string>LICENSES/freetype.txt</string>
+        <key>copyright</key>
+        <string>Copyright 2006, 2007, 2008, 2009, 2010 by David Turner, Robert Wilhelm, and Werner Lemberg.</string>
         <key>version</key>
         <string>2.12.1.557becd</string>
+        <key>name</key>
+        <string>freetype</string>
+        <key>description</key>
+        <string>Font rendering library</string>
       </map>
       <key>glext</key>
       <map>
@@ -907,14 +907,14 @@
           <map>
             <key>archive</key>
             <map>
+              <key>creds</key>
+              <string>github</string>
               <key>hash</key>
               <string>a193ff65d6db48626d65d96c6124c6efca85e8ec</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
               <string>https://api.github.com/repos/secondlife/3p-havok-source/releases/assets/108912596</string>
-              <key>creds</key>
-              <string>github</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -935,14 +935,14 @@
           <map>
             <key>archive</key>
             <map>
+              <key>creds</key>
+              <string>github</string>
               <key>hash</key>
               <string>ebfb82b6143874e7938b9d1e8a70d0a2e28aa818</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
               <string>https://api.github.com/repos/secondlife/3p-havok-source/releases/assets/108912599</string>
-              <key>creds</key>
-              <string>github</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -963,18 +963,6 @@
       </map>
       <key>icu4c</key>
       <map>
-        <key>canonical_repo</key>
-        <string>https://bitbucket.org/lindenlab/3p-icu4c</string>
-        <key>copyright</key>
-        <string>Copyright (c) 1995-2011 International Business Machines Corporation and others &lt;http://source.icu-project.org&gt;</string>
-        <key>description</key>
-        <string>ICU is a mature, widely used set of C/C++ and Java libraries providing Unicode and Globalization support for software applications. ICU is widely portable and gives applications the same results on all platforms and between C/C++ and Java software.</string>
-        <key>license</key>
-        <string>ICU, permissive non-copyleft free software license</string>
-        <key>license_file</key>
-        <string>LICENSES/icu.txt</string>
-        <key>name</key>
-        <string>icu4c</string>
         <key>platforms</key>
         <map>
           <key>darwin64</key>
@@ -1020,8 +1008,20 @@
             <string>linux64</string>
           </map>
         </map>
+        <key>license</key>
+        <string>ICU, permissive non-copyleft free software license</string>
+        <key>license_file</key>
+        <string>LICENSES/icu.txt</string>
+        <key>copyright</key>
+        <string>Copyright (c) 1995-2011 International Business Machines Corporation and others &lt;http://source.icu-project.org&gt;</string>
         <key>version</key>
         <string>4.8.1-7d08d82</string>
+        <key>name</key>
+        <string>icu4c</string>
+        <key>canonical_repo</key>
+        <string>https://bitbucket.org/lindenlab/3p-icu4c</string>
+        <key>description</key>
+        <string>ICU is a mature, widely used set of C/C++ and Java libraries providing Unicode and Globalization support for software applications. ICU is widely portable and gives applications the same results on all platforms and between C/C++ and Java software.</string>
       </map>
       <key>jpegencoderbasic</key>
       <map>
@@ -1207,14 +1207,14 @@
           <map>
             <key>archive</key>
             <map>
+              <key>creds</key>
+              <string>github</string>
               <key>hash</key>
               <string>bcc7e2c34896fc9cbc41828dee8a4ddf54f10453</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
               <string>https://api.github.com/repos/secondlife/3p-kdu/releases/assets/108298968</string>
-              <key>creds</key>
-              <string>github</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1223,14 +1223,14 @@
           <map>
             <key>archive</key>
             <map>
+              <key>creds</key>
+              <string>github</string>
               <key>hash</key>
               <string>9de772df2ed12e9c742df6c90670c7cbbb9c93a6</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
               <string>https://api.github.com/repos/secondlife/3p-kdu/releases/assets/108298969</string>
-              <key>creds</key>
-              <string>github</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -1239,14 +1239,14 @@
           <map>
             <key>archive</key>
             <map>
+              <key>creds</key>
+              <string>github</string>
               <key>hash</key>
               <string>92533ff0f8c1881ad85e75800f9072c413ccf7b7</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
               <string>https://api.github.com/repos/secondlife/3p-kdu/releases/assets/108298970</string>
-              <key>creds</key>
-              <string>github</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -1952,18 +1952,6 @@
       </map>
       <key>nanosvg</key>
       <map>
-        <key>canonical_repo</key>
-        <string>https://bitbucket.org/lindenlab/3p-nanosvg</string>
-        <key>copyright</key>
-        <string>Copyright (c) 2013-14 Mikko Mononen</string>
-        <key>description</key>
-        <string>NanoSVG is a simple single-header-file SVG parser and rasterizer</string>
-        <key>license</key>
-        <string>Zlib</string>
-        <key>license_file</key>
-        <string>LICENSES/nanosvg.txt</string>
-        <key>name</key>
-        <string>nanosvg</string>
         <key>platforms</key>
         <map>
           <key>darwin64</key>
@@ -2003,8 +1991,20 @@
             <string>windows64</string>
           </map>
         </map>
+        <key>license</key>
+        <string>Zlib</string>
+        <key>license_file</key>
+        <string>LICENSES/nanosvg.txt</string>
+        <key>copyright</key>
+        <string>Copyright (c) 2013-14 Mikko Mononen</string>
         <key>version</key>
         <string>2022.09.27</string>
+        <key>name</key>
+        <string>nanosvg</string>
+        <key>canonical_repo</key>
+        <string>https://bitbucket.org/lindenlab/3p-nanosvg</string>
+        <key>description</key>
+        <string>NanoSVG is a simple single-header-file SVG parser and rasterizer</string>
       </map>
       <key>nghttp2</key>
       <map>
@@ -2441,14 +2441,14 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
           <map>
             <key>archive</key>
             <map>
+              <key>creds</key>
+              <string>github</string>
               <key>hash</key>
               <string>cc7c5bf53f83cff81d874ad66394df0991bd432c</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
               <string>https://api.github.com/repos/secondlife/3p-slvoice/releases/assets/108299352</string>
-              <key>creds</key>
-              <string>github</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2469,14 +2469,14 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
           <map>
             <key>archive</key>
             <map>
+              <key>creds</key>
+              <string>github</string>
               <key>hash</key>
               <string>0c205371bb1731a9812b00556037729fdc057cbc</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
               <string>https://api.github.com/repos/secondlife/3p-slvoice/releases/assets/108299356</string>
-              <key>creds</key>
-              <string>github</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -3331,11 +3331,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>-G</string>
                   <string>Ninja</string>
                   <string>-DLL_TESTS=Off</string>
-</array>
+                </array>
                 <key>arguments</key>
                 <array>
                   <string>../indra</string>
-</array>
+                </array>
               </map>
               <key>build</key>
               <map>
@@ -3357,7 +3357,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>Ninja</string>
                   <string>-DLL_TESTS=Off</string>
                   <string>-DUSE_OPENAL=On</string>
-</array>
+                </array>
               </map>
               <key>build</key>
               <map>
