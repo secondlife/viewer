@@ -480,11 +480,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b4807c6f885db23bc3168af1d42ab82d01ec1dc0</string>
+              <string>08491c609b5f77835977fa459e386fddbad00064</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/Nicky-D/dullahan/releases/download/v1.14.0-118.4.1_g3dd6078_chromium-118.0.5993.54-3f81a5b/dullahan-1.14.0.202404041619_118.4.1_g3dd6078_chromium-118.0.5993.54-linux64-8557938939.tar.zst</string>
+              <string>https://github.com/secondlife/dullahan/releases/download/v1.14.0-r2/dullahan-1.14.0.202404051708_118.4.1_g3dd6078_chromium-118.0.5993.54-linux64-8573290624.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
