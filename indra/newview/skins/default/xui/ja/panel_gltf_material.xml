@@ -32,9 +32,9 @@
 	</panel>
 	<panel name="metallic_texture_pnl">
 		<text name="metallic_roughness_lbl">
-			メタリック／ラフネス：
+			メタリック／粗さ：
 		</text>
-		<texture_picker name="metallic_roughness_texture" tool_tip="オプションでオクルージョンを備えたＧＬＴＦによるメタリック／ラフネスマップを指定できます。赤チャンネルはオクルージョン（環境遮蔽）、緑チャンネルはラフネス（粗度）、青チャンネルはメタリック（金属度）です。"/>
+		<texture_picker name="metallic_roughness_texture" tool_tip="オプションでオクルージョンを備えたＧＬＴＦによるメタリック／粗さマップを指定できます。赤チャンネルはオクルージョン（環境遮蔽）、緑チャンネルは粗さ（粗度）、青チャンネルはメタリック（金属度）です。"/>
 		<text name="metallic_upload_fee">
 			アップロード費用なし
 		</text>
@@ -43,7 +43,7 @@
 		</text>
 		<spinner name="metalness factor"/>
 		<text name="roughness_factor_lbl">
-			ラフネス係数
+			粗さ係数
 		</text>
 		<spinner name="roughness factor"/>
 	</panel>

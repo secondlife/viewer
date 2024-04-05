@@ -467,10 +467,10 @@ support@secondlife.com にお問い合わせください。
 		フォルダの階層の深さが、[AMOUNT]階層を超えています。必要に応じてアイテムをボックスに入れるなどをして、フォルダの階層数を減らしてください。
 	</string>
 	<string name="TooltipOutboxTooManyFolders">
-		サブフォルダの数が、[AMOUNT]個を超えています。必要に応じてアイテムをボックスに入れ、リストのフォルダ階層を減らしてください。
+		サブフォルダの数が、[AMOUNT]個を超えています。必要に応じてアイテムをボックスに入れ、出品リストのフォルダ階層を減らしてください。
 	</string>
 	<string name="TooltipOutboxTooManyObjects">
-		アイテムの数が、[AMOUNT]個を超えています。１つのリスト内で[AMOUNT]個を超えるアイテムを販売するためには、いくつかのアイテムをボックスに入れる必要があります。
+		アイテムの数が、[AMOUNT]個を超えています。１つの出品リスト内で[AMOUNT]個を超えるアイテムを販売するためには、いくつかのアイテムをボックスに入れる必要があります。
 	</string>
 	<string name="TooltipOutboxTooManyStockItems">
 		在庫アイテム数が[AMOUNT]個を超えています。
@@ -494,7 +494,7 @@ support@secondlife.com にお問い合わせください。
 		表示されている出品リストを移動できません。
 	</string>
 	<string name="TooltipOutboxCannotMoveRoot">
-		ルートフォルダをリストに表示するマーケットプレイスを移動できません。
+		ルートフォルダを出品リストに表示するマーケットプレイスを移動できません。
 	</string>
 	<string name="TooltipOutboxMixedStock">
 		在庫フォルダ内のアイテムは、すべて同じ種類と権限でなければなりません。
@@ -3169,13 +3169,13 @@ For AI Character: Get the closest navigable point to the point provided.
 		[[MARKETPLACE_DASHBOARD_URL] マーケットプレイス]に販売するアイテムを一覧するには、フォルダをこのエリアにドラッグし、「マーケットプレイスに送信」をクリックします。
 	</string>
 	<string name="InventoryOutboxInitializingTitle">
-		マーケットプレイスを初期化しています。
+		マーケットプレイスの出品リストを初期化しています。
 	</string>
 	<string name="InventoryOutboxInitializing">
-		[[MARKETPLACE_CREATE_STORE_URL] マーケットプレイス ストア]のアカウントにアクセスしています。
+		[[MARKETPLACE_CREATE_STORE_URL] マーケットプレイスストア]のアカウントにアクセスしています。
 	</string>
 	<string name="InventoryOutboxErrorTitle">
-		マーケットプレイス出品時にエラーが発生しました。
+		マーケットプレイスの出品時にエラーが発生しました。
 	</string>
 	<string name="InventoryOutboxError">
 		[[MARKETPLACE_CREATE_STORE_URL] マーケットプレイスストア]がエラーを返しています。
@@ -3269,7 +3269,7 @@ https://support.secondlife.com よりSecond Lifeのサポートまでお問い�
 		Mkt ID なし
 	</string>
 	<string name="MarketplaceLive">
-		リスト掲載済み
+		出品リスト掲載済み
 	</string>
 	<string name="MarketplaceActive">
 		有効
@@ -3964,7 +3964,7 @@ https://support.secondlife.com よりSecond Lifeのサポートまでお問い�
 		区画一覧：[PARCELS]個
 	</string>
 	<string name="ScriptLimitsMemoryUsed">
-		使用されたメモリ：全[MAX]㎅中[COUNT]㎅使用　[AVAILABLE]㎅利用可
+		使用されたメモリ：全[MAX]㎅中[COUNT]㎅使用（残り[AVAILABLE]㎅利用可）
 	</string>
 	<string name="ScriptLimitsMemoryUsedSimple">
 		使用されたメモリ：[COUNT]㎅
@@ -3973,7 +3973,7 @@ https://support.secondlife.com よりSecond Lifeのサポートまでお問い�
 		区画のスクリプトＵＲＬ
 	</string>
 	<string name="ScriptLimitsURLsUsed">
-		使用されたＵＲＬ：全[MAX]件中[COUNT]件使用　[AVAILABLE]件利用可
+		使用されたＵＲＬ：全[MAX]件中[COUNT]件使用（残り[AVAILABLE]件利用可）
 	</string>
 	<string name="ScriptLimitsURLsUsedSimple">
 		使用されたＵＲＬ：[COUNT]件
@@ -4632,6 +4632,19 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 最新のビデオカードドライバがインストールされているのを確認し、されている場合は再インストールをお試しください。
 
 このメッセージが何度も出る場合は、[SUPPORT_SITE]へご連絡ください。
+	</string>
+	<string name="MBOutOfMemoryTitle">
+		メモリ超過
+	</string>
+	<string name="MBOutOfMemoryErr">
+		[APP_NAME]は、メモリの確保に失敗しました。実行に必要なメモリを確保できないため終了します。
+
+コンピュータのＲＡＭが少ない場合は、Second Lifeを実行する前に重いアプリケーションを終了し、ページファイルを割り当てるか、描画距離などのグラフィック設定を軽くしてください。
+	</string>
+	<string name="MBMissingFile">
+		[APP_NAME]は、実行に必要なファイルの一部にアクセスできないか、ファイルが見つからなかったため閉じられます。
+
+https://secondlife.com/support/downloads/ からビューアを再インストールてください。再インストール後も問題が解決しない場合は、https://support.secondlife.com に連絡してください。
 	</string>
 	<string name="5 O'Clock Shadow">
 		不精ひげ
@@ -6715,7 +6728,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 		日:月:火:水:木:金:土
 	</string>
 	<string name="dateTimeMonthNames">
-		1月:2月:3月:4月:5月:6月:7月:8月:9月:10月:11月:12月
+		1:2:3:4:5:6:7:8:9:10:11:12
 	</string>
 	<string name="dateTimeMonthShortNames">
 		㋀:㋁:㋂:㋃:㋄:㋅:㋆:㋇:㋈:㋉:㋊:㋋
@@ -7237,7 +7250,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 		マーケットプレイス
 	</string>
 	<string name="Command_MarketplaceListings_Label">
-		マーケットプレイス
+		マーケットプレイスに出品
 	</string>
 	<string name="Command_MiniMap_Label">
 		ミニマップ
@@ -7372,7 +7385,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 		マイクを使って近くの人と話します。
 	</string>
 	<string name="Command_View_Tooltip">
-		カメラアングルの変更を表示します。
+		カメラアングルを調整します。
 	</string>
 	<string name="Command_Voice_Tooltip">
 		インワールドでのコールや近くにいる人物の音量調整します。
