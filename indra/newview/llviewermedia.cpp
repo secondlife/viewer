@@ -1739,9 +1739,7 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
 		}
 		else if(LLFile::stat(plugin_name, &s))
 		{
-#if !LL_LINUX
 			LL_WARNS_ONCE("Media") << "Couldn't find plugin at " << plugin_name << LL_ENDL;
-#endif
 		}
 		else
 		{
@@ -1795,9 +1793,7 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
 			}
 		}
 	}
-#if !LL_LINUX
 	LL_WARNS_ONCE("Plugin") << "plugin initialization failed for mime type: " << media_type << LL_ENDL;
-#endif
 
 	if(gAgent.isInitialized())
 	{
