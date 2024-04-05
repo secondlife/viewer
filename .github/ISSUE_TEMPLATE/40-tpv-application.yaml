@@ -51,11 +51,17 @@ body:
   - type: input
     id: contact-sl
     attributes:
-      label: Contact Second Life
-      description: The Second Life username or group for the viewer's support team.
-      placeholder: Second Life user or group name 
+      label: Contact Second Life User
+      description: Primary contact in Second Life. 
+      placeholder: Second Life user
     validations:
       required: true
+  - type: input
+    id: contact-sl-group
+    attributes:
+      label: Contact Second Life Group
+      description: Second Life group for support and announcements. 
+      placeholder: Second Life group 
   - type: textarea 
     id: customer-support-info
     attributes:
