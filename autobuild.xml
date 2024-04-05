@@ -2216,11 +2216,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e0fbc4874acc4167a6e2b6489fbb8258d98fd665</string>
+              <string>0e25ed4856d4c0009c741a7ad153e6efe30f1398</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-openal-soft/releases/download/v1.23.1-18e315c/openal-1.23.1-linux64-18e315c.tar.zst</string>
+              <string>https://github.com/secondlife/3p-openal-soft/releases/download/v1.23.1-r2/openal-1.23.1-linux64-8572560842.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
