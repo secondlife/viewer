@@ -10,7 +10,6 @@ include(LLAddBuildTest)
 include(Python)
 include(Tut)
 include(Python)
-include(JsonCpp)
 
 set(llmessage_SOURCE_FILES
     llassetstorage.cpp

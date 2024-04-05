@@ -29,7 +29,6 @@ set(cmake_SOURCE_FILES
         Havok.cmake
         Hunspell.cmake
         ICU4C.cmake
-        JsonCpp.cmake
         LLAddBuildTest.cmake
         LLAppearance.cmake
         LLAudio.cmake
