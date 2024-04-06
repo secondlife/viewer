@@ -3360,7 +3360,8 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>-G</string>
                   <string>Ninja</string>
                   <string>-DLL_TESTS=Off</string>
-</array>
+                  <string>-DUSE_OPENAL=On</string>
+                </array>
               </map>
               <key>build</key>
               <map>
