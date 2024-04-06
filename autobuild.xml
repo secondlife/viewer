@@ -2691,11 +2691,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>00fc4b08bc7b3b5934c8e7d1d75ec0281819bd7c</string>
+              <string>2dfb877955b8b0d78a75c17762eb3ce0e7609ebe</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-xmlrpc-epi/releases/download/v0.54.1-r3/xmlrpc_epi-0.54.1.8582965216-darwin64-8582965216.tar.zst</string>
+              <string>https://github.com/secondlife/3p-xmlrpc-epi/releases/download/v0.54.1-r3/xmlrpc_epi-0.54.1.8583039818-darwin64-8583039818.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2705,11 +2705,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b43441aaf0c5dcb91af5822ff49a8d09d868a0be</string>
+              <string>260fa0800c870d632bbd96e5c7cf53678e5fa7ad</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-xmlrpc-epi/releases/download/v0.54.1-r3/xmlrpc_epi-0.54.1.8582965216-linux64-8582965216.tar.zst</string>
+              <string>https://github.com/secondlife/3p-xmlrpc-epi/releases/download/v0.54.1-r3/xmlrpc_epi-0.54.1.8583039818-linux64-8583039818.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -2719,11 +2719,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>73d44c5905e22d0af868f498571b3203d7661c92</string>
+              <string>5b44b09a0ca7c1093d1714917c4d582769a099c1</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-xmlrpc-epi/releases/download/v0.54.1-r3/xmlrpc_epi-0.54.1.8582965216-windows64-8582965216.tar.zst</string>
+              <string>https://github.com/secondlife/3p-xmlrpc-epi/releases/download/v0.54.1-r3/xmlrpc_epi-0.54.1.8583039818-windows64-8583039818.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -2750,7 +2750,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>copyright</key>
         <string>Copyright: (C) 2000 Epinions, Inc.</string>
         <key>version</key>
-        <string>0.54.1.8582965216</string>
+        <string>0.54.1.8583039818</string>
         <key>name</key>
         <string>xmlrpc-epi</string>
         <key>description</key>
