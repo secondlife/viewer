@@ -46,11 +46,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>dc4a38439f90325b406ec3f7cc4fa66edf0eeec8</string>
+              <string>529889f75fcc03ac6c40191e05c763bffc773092</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-apr_suite/releases/download/v1.7.2-e935465/apr_suite-1.7.2-e935465-darwin64-e935465.tar.zst</string>
+              <string>https://github.com/secondlife/3p-apr_suite/releases/download/v1.7.2-r1/apr_suite-1.7.2-8518570068-darwin64-8518570068.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -60,9 +60,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>84a1a140f20b25d714949185e854d14b</string>
+              <string>4e0d2e880a6c8c82edecf8f428eb821932cdf919</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/4811/15302/apr_suite-1.4.5.504800-linux64-504800.tar.bz2</string>
+              <string>https://github.com/secondlife/3p-apr_suite/releases/download/v1.7.2-r1/apr_suite-1.7.2-8518570068-linux64-8518570068.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -72,11 +74,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8233de9a11f323a03d569db1043ba5198176457b</string>
+              <string>39530c8dd7308342677f908b74a91632c0b5a5ce</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-apr_suite/releases/download/v1.7.2-e935465/apr_suite-1.7.2-e935465-windows64-e935465.tar.zst</string>
+              <string>https://github.com/secondlife/3p-apr_suite/releases/download/v1.7.2-r1/apr_suite-1.7.2-8518570068-windows64-8518570068.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -89,7 +91,7 @@
         <key>copyright</key>
         <string>Copyright © 2012 The Apache Software Foundation, Licensed under the Apache License, Version 2.0.</string>
         <key>version</key>
-        <string>1.7.2-e935465</string>
+        <string>1.7.2-8518570068</string>
         <key>name</key>
         <string>apr_suite</string>
         <key>description</key>
@@ -483,18 +485,6 @@
       </map>
       <key>emoji_shortcodes</key>
       <map>
-        <key>canonical_repo</key>
-        <string>https://github.com/secondlife/3p-emoji-shortcodes</string>
-        <key>copyright</key>
-        <string>Copyright 2017-2019 Miles Johnson.</string>
-        <key>description</key>
-        <string>Emoji shortcodes</string>
-        <key>license</key>
-        <string>MIT</string>
-        <key>license_file</key>
-        <string>LICENSES/emojibase-license.txt</string>
-        <key>name</key>
-        <string>emoji_shortcodes</string>
         <key>platforms</key>
         <map>
           <key>darwin64</key>
@@ -522,8 +512,20 @@
             <string>windows64</string>
           </map>
         </map>
+        <key>license</key>
+        <string>MIT</string>
+        <key>license_file</key>
+        <string>LICENSES/emojibase-license.txt</string>
+        <key>copyright</key>
+        <string>Copyright 2017-2019 Miles Johnson.</string>
         <key>version</key>
         <string>6.1.0.579438</string>
+        <key>name</key>
+        <string>emoji_shortcodes</string>
+        <key>canonical_repo</key>
+        <string>https://github.com/secondlife/3p-emoji-shortcodes</string>
+        <key>description</key>
+        <string>Emoji shortcodes</string>
       </map>
       <key>expat</key>
       <map>
@@ -534,11 +536,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b85526ca80b6a7e73c7870285cf68d568f742095</string>
+              <string>953b8119c28e81b327197d1de3d44a78c6cd30dc</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-expat/releases/download/v2.1.1.1f36d02/expat-2.1.1.1f36d02-darwin64-1f36d02.tar.zst</string>
+              <string>https://github.com/secondlife/3p-expat/releases/download/v2.6.2-r2/expat-2.6.2-r2-darwin64-8518267865.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -548,11 +550,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4cd82e2dec06ddff19e9b3dc0254f2593ec80452</string>
+              <string>b1f58b1f340a3bab726ad017fcf8515ffea4c3de</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-expat/releases/download/v2.1.1.1f36d02/expat-2.1.1.1f36d02-linux64-1f36d02.tar.zst</string>
+              <string>https://github.com/secondlife/3p-expat/releases/download/v2.6.2-r2/expat-2.6.2-r2-linux64-8518267865.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -562,11 +564,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>47c01a89bc32c5740efe51be43e459ffd9b7cd34</string>
+              <string>6e7a67b5ea6cf826862c9f0a5988a3ad8791a759</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-expat/releases/download/v2.1.1.1f36d02/expat-2.1.1.1f36d02-windows64-1f36d02.tar.zst</string>
+              <string>https://github.com/secondlife/3p-expat/releases/download/v2.6.2-r2/expat-2.6.2-r2-windows64-8518267865.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -579,7 +581,7 @@
         <key>copyright</key>
         <string>Copyright (c) 1998, 1999, 2000 Thai Open Source Software Center Ltd and Clark Cooper - Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006 Expat maintainers.</string>
         <key>version</key>
-        <string>2.1.1.1f36d02</string>
+        <string>2.6.2-r2</string>
         <key>name</key>
         <string>expat</string>
         <key>description</key>
@@ -617,16 +619,6 @@
       </map>
       <key>freetype</key>
       <map>
-        <key>copyright</key>
-        <string>Copyright 2006, 2007, 2008, 2009, 2010 by David Turner, Robert Wilhelm, and Werner Lemberg.</string>
-        <key>description</key>
-        <string>Font rendering library</string>
-        <key>license</key>
-        <string>FreeType</string>
-        <key>license_file</key>
-        <string>LICENSES/freetype.txt</string>
-        <key>name</key>
-        <string>freetype</string>
         <key>platforms</key>
         <map>
           <key>darwin64</key>
@@ -672,8 +664,18 @@
             <string>windows64</string>
           </map>
         </map>
+        <key>license</key>
+        <string>FreeType</string>
+        <key>license_file</key>
+        <string>LICENSES/freetype.txt</string>
+        <key>copyright</key>
+        <string>Copyright 2006, 2007, 2008, 2009, 2010 by David Turner, Robert Wilhelm, and Werner Lemberg.</string>
         <key>version</key>
         <string>2.12.1.557becd</string>
+        <key>name</key>
+        <string>freetype</string>
+        <key>description</key>
+        <string>Font rendering library</string>
       </map>
       <key>glext</key>
       <map>
@@ -859,18 +861,6 @@
       </map>
       <key>icu4c</key>
       <map>
-        <key>canonical_repo</key>
-        <string>https://bitbucket.org/lindenlab/3p-icu4c</string>
-        <key>copyright</key>
-        <string>Copyright (c) 1995-2011 International Business Machines Corporation and others &lt;http://source.icu-project.org&gt;</string>
-        <key>description</key>
-        <string>ICU is a mature, widely used set of C/C++ and Java libraries providing Unicode and Globalization support for software applications. ICU is widely portable and gives applications the same results on all platforms and between C/C++ and Java software.</string>
-        <key>license</key>
-        <string>ICU, permissive non-copyleft free software license</string>
-        <key>license_file</key>
-        <string>LICENSES/icu.txt</string>
-        <key>name</key>
-        <string>icu4c</string>
         <key>platforms</key>
         <map>
           <key>darwin64</key>
@@ -902,8 +892,20 @@
             <string>windows64</string>
           </map>
         </map>
+        <key>license</key>
+        <string>ICU, permissive non-copyleft free software license</string>
+        <key>license_file</key>
+        <string>LICENSES/icu.txt</string>
+        <key>copyright</key>
+        <string>Copyright (c) 1995-2011 International Business Machines Corporation and others &lt;http://source.icu-project.org&gt;</string>
         <key>version</key>
         <string>4.8.1-7d08d82</string>
+        <key>name</key>
+        <string>icu4c</string>
+        <key>canonical_repo</key>
+        <string>https://bitbucket.org/lindenlab/3p-icu4c</string>
+        <key>description</key>
+        <string>ICU is a mature, widely used set of C/C++ and Java libraries providing Unicode and Globalization support for software applications. ICU is widely portable and gives applications the same results on all platforms and between C/C++ and Java software.</string>
       </map>
       <key>jpegencoderbasic</key>
       <map>
@@ -1770,18 +1772,6 @@
       </map>
       <key>nanosvg</key>
       <map>
-        <key>canonical_repo</key>
-        <string>https://bitbucket.org/lindenlab/3p-nanosvg</string>
-        <key>copyright</key>
-        <string>Copyright (c) 2013-14 Mikko Mononen</string>
-        <key>description</key>
-        <string>NanoSVG is a simple single-header-file SVG parser and rasterizer</string>
-        <key>license</key>
-        <string>Zlib</string>
-        <key>license_file</key>
-        <string>LICENSES/nanosvg.txt</string>
-        <key>name</key>
-        <string>nanosvg</string>
         <key>platforms</key>
         <map>
           <key>darwin64</key>
@@ -1821,8 +1811,20 @@
             <string>windows64</string>
           </map>
         </map>
+        <key>license</key>
+        <string>Zlib</string>
+        <key>license_file</key>
+        <string>LICENSES/nanosvg.txt</string>
+        <key>copyright</key>
+        <string>Copyright (c) 2013-14 Mikko Mononen</string>
         <key>version</key>
         <string>2022.09.27</string>
+        <key>name</key>
+        <string>nanosvg</string>
+        <key>canonical_repo</key>
+        <string>https://bitbucket.org/lindenlab/3p-nanosvg</string>
+        <key>description</key>
+        <string>NanoSVG is a simple single-header-file SVG parser and rasterizer</string>
       </map>
       <key>nghttp2</key>
       <map>
@@ -2532,16 +2534,6 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
       </map>
       <key>viewer-fonts</key>
       <map>
-        <key>copyright</key>
-        <string>Copyright 2016-2022 Brad Erickson CC-BY-4.0/MIT, Copyright 2016-2022 Twitter, Inc. CC-BY-4.0, Copyright 2013 Joe Loughry and Terence Eden MIT</string>
-        <key>description</key>
-        <string>Viewer fonts</string>
-        <key>license</key>
-        <string>Various open source</string>
-        <key>license_file</key>
-        <string>LICENSES/fonts.txt</string>
-        <key>name</key>
-        <string>viewer-fonts</string>
         <key>platforms</key>
         <map>
           <key>darwin64</key>
@@ -2569,8 +2561,18 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <string>windows64</string>
           </map>
         </map>
+        <key>license</key>
+        <string>Various open source</string>
+        <key>license_file</key>
+        <string>LICENSES/fonts.txt</string>
+        <key>copyright</key>
+        <string>Copyright 2016-2022 Brad Erickson CC-BY-4.0/MIT, Copyright 2016-2022 Twitter, Inc. CC-BY-4.0, Copyright 2013 Joe Loughry and Terence Eden MIT</string>
         <key>version</key>
         <string>1.579464</string>
+        <key>name</key>
+        <string>viewer-fonts</string>
+        <key>description</key>
+        <string>Viewer fonts</string>
       </map>
       <key>viewer-manager</key>
       <map>
@@ -2689,11 +2691,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>aa12611374876196b3ebb6bda8d419a697217b8b</string>
+              <string>71cc1b69c1b3577645152a5a21f05453abcddbd7</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-xmlrpc-epi/releases/download/v0.54.1.8a05acf/xmlrpc_epi-0.54.1.8a05acf-darwin64-8a05acf.tar.zst</string>
+              <string>https://github.com/secondlife/3p-xmlrpc-epi/releases/download/v0.54.1-r2/xmlrpc_epi-0.54.1.8578444611-darwin64-8578444611.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2703,11 +2705,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ad0c8b41ee4b4de216382bec46ee1c25962a3f12</string>
+              <string>5cf3a2ead3ef5c6cd7292eb0731443460b13a6fb</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-xmlrpc-epi/releases/download/v0.54.1.8a05acf/xmlrpc_epi-0.54.1.8a05acf-linux64-8a05acf.tar.zst</string>
+              <string>https://github.com/secondlife/3p-xmlrpc-epi/releases/download/v0.54.1-r2/xmlrpc_epi-0.54.1.8578444611-linux64-8578444611.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -2717,11 +2719,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e53fd38c14b8c47c7c84dead8a1b211bb8be170c</string>
+              <string>f3e03c888c1ba1c0ba8807fffa77f7c2d4de4af5</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-xmlrpc-epi/releases/download/v0.54.1.8a05acf/xmlrpc_epi-0.54.1.8a05acf-windows64-8a05acf.tar.zst</string>
+              <string>https://github.com/secondlife/3p-xmlrpc-epi/releases/download/v0.54.1-r2/xmlrpc_epi-0.54.1.8578444611-windows64-8578444611.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -2734,7 +2736,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>copyright</key>
         <string>Copyright: (C) 2000 Epinions, Inc.</string>
         <key>version</key>
-        <string>0.54.1.8a05acf</string>
+        <string>0.54.1.8578444611</string>
         <key>name</key>
         <string>xmlrpc-epi</string>
         <key>description</key>

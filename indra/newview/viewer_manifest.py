@@ -997,7 +997,7 @@ class Darwin_x86_64_Manifest(ViewerManifest):
                 for libfile in (
                                 "libapr-1.0.dylib",
                                 "libaprutil-1.0.dylib",
-                                "libexpat.1.dylib",
+                                # "libexpat.1.dylib",
                                 # libnghttp2.dylib is a symlink to
                                 # libnghttp2.major.dylib, which is a symlink to
                                 # libnghttp2.version.dylib. Get all of them.
