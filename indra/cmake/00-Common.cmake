@@ -198,7 +198,7 @@ if (LINUX OR DARWIN)
   list(APPEND GCC_WARNINGS -Wno-reorder -Wno-non-virtual-dtor )
 
   if(LINUX)
-    list(APPEND GCC_WARNINGS -Wno-maybe-uninitialized )
+    list(APPEND GCC_WARNINGS -Wno-maybe-uninitialized -Wno-dangling-pointer )
   endif()
 
   add_compile_options(${GCC_WARNINGS})
