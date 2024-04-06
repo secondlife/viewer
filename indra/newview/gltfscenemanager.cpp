@@ -100,8 +100,8 @@ namespace LL
             S32 mByteOffset;
             S32 mComponentType;
             S32 mCount;
-            LLVector4a mMax;
-            LLVector4a mMin;
+            std::vector<double> mMax;
+            std::vector<double> mMin;
             S32 mType;
             bool mNormalized;
             std::string mName;
@@ -115,20 +115,8 @@ namespace LL
                 mType = src.type;
                 mNormalized = src.normalized;
                 mName = src.name;
-
-                llassert(src.maxValues.size() <= 4);
-                F32* dstMax = mMax.getF32ptr();
-                for (U32 i = 0; i < src.maxValues.size(); ++i)
-                {
-                    dstMax[i] = (F32) src.maxValues[i];
-                }
-
-                llassert(src.minValues.size() <= 4);
-                F32* dstMin = mMin.getF32ptr();
-                for (U32 i = 0; i < src.minValues.size(); ++i)
-                {
-                    dstMin[i] = (F32) src.minValues[i];
-                }
+                mMax = src.maxValues;
+                mMin = src.maxValues;
 
                 return *this;
             }
@@ -141,9 +129,11 @@ namespace LL
             // a more flexible GLTF material implementation instead of the fixed packing
             // version we use for sharable GLTF material assets
             LLPointer<LLFetchedGLTFMaterial> mMaterial;
+            std::string mName;
 
             const Material& operator=(const tinygltf::Material& src)
             {
+                mName = src.name;
                 return *this;
             }
 
@@ -387,7 +377,7 @@ namespace LL
             std::vector<Image> mImages;
             std::vector<Accessor> mAccessors;
 
-            void allocateGLResources()
+            void allocateGLResources(const std::string& filename, const tinygltf::Model& model)
             {
                 for (auto& mesh : mMeshes)
                 {
@@ -399,9 +389,10 @@ namespace LL
                     image.allocateGLResources();
                 }
 
-                for (auto& material : mMaterials)
+                for (U32 i = 0; i < mMaterials.size(); ++i)
                 {
-                    material.allocateGLResources(*this);
+                    mMaterials[i].allocateGLResources(*this);
+                    LLTinyGLTFHelper::getMaterialFromModel(filename, model, i, mMaterials[i].mMaterial, mMaterials[i].mName, true);
                 }
             }
 
@@ -702,6 +693,12 @@ namespace LL
                                 *(dst++) = c;
                                 stride = sizeof(F32) * 4;
                             }
+                            case TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT:
+                            {
+                                U16* c = (U16*)src;
+                                *(dst++) = LLColor4U(c[0], c[1], c[2], c[3]);
+                                stride = sizeof(U16) * 4;
+                            }
                             break;
                             default:
                                 LL_ERRS("GLTF") << "Unsupported component type for COLOR_0 attribute" << LL_ENDL;
@@ -740,8 +737,37 @@ namespace LL
                             switch (accessor.mComponentType)
                             {
                             case TINYGLTF_COMPONENT_TYPE_FLOAT:
-                                (dst++)->set((F32*)src);
+                                dst->set((F32*)src);
+                                // convert to OpenGL UV space
+                                dst->mV[1] = 1.f - dst->mV[1];
+                                dst++;
                                 stride = sizeof(F32) * 2;
+                                break;
+                            default:
+                                LL_ERRS("GLTF") << "Unsupported component type for TEXCOORD_0 attribute" << LL_ENDL;
+                            }
+
+                            if (bufferView.mByteStride == 0)
+                            {
+                                src += stride;
+                            }
+                            else
+                            {
+                                src += bufferView.mByteStride;
+                            }
+                        }
+                    }
+                    else if (accessor.mType == TINYGLTF_TYPE_SCALAR)
+                    {
+                        // load scalar texcoord data
+                        for (U32 i = 0; i < numVertices; ++i)
+                        {
+                            S32 stride = 0;
+                            switch (accessor.mComponentType)
+                            {
+                            case TINYGLTF_COMPONENT_TYPE_FLOAT:
+                                (dst++)->set(*(F32*)src, 0.0f);
+                                stride = sizeof(F32);
                                 break;
                             default:
                                 LL_ERRS("GLTF") << "Unsupported component type for TEXCOORD_0 attribute" << LL_ENDL;
@@ -845,7 +871,7 @@ namespace LL
 
 using namespace LL::GLTF;
 
-Asset gGLTFAsset;
+Asset* gGLTFAsset = nullptr;
 LLPointer<LLViewerObject> gGLTFObject;
 
 void GLTFSceneManager::load()
@@ -872,9 +898,11 @@ void GLTFSceneManager::load(const std::string& filename)
     tinygltf::Model model;
     LLTinyGLTFHelper::loadModel(filename, model);
 
-    gGLTFAsset = model;
+    delete gGLTFAsset;
+    gGLTFAsset = new Asset();
+    *gGLTFAsset = model;
 
-    gGLTFAsset.allocateGLResources();
+    gGLTFAsset->allocateGLResources(filename, model);
 
     // hang the asset off the currently selected object, or off of the avatar if no object is selected
     gGLTFObject = LLSelectMgr::instance().getSelection()->getFirstRootObject();
@@ -898,6 +926,12 @@ void Node::updateRenderTransforms(Asset& asset, const LLMatrix4a& modelview)
 }
 
 
+GLTFSceneManager::~GLTFSceneManager()
+{
+    delete gGLTFAsset;
+    gGLTFObject = nullptr;
+}
+
 void GLTFSceneManager::renderOpaque()
 {
     // for debugging, just render the whole scene as opaque
@@ -915,6 +949,11 @@ void GLTFSceneManager::renderOpaque()
         return;
     }
 
+    if (gGLTFAsset == nullptr)
+    {
+        return;
+    }
+
     gGL.matrixMode(LLRender::MM_MODELVIEW);
     gGL.pushMatrix();
 
@@ -923,12 +962,20 @@ void GLTFSceneManager::renderOpaque()
 
     LLMatrix4a root;
     root.loadu((F32*) gGLTFObject->getRenderMatrix().mMatrix);
+    LLVector3 scale = gGLTFObject->getScale();
+    F32 scaleMat[16] = { scale.mV[0], 0.0f, 0.0f, 0.0f,
+                            0.0f, scale.mV[1], 0.0f, 0.0f,
+                            0.0f, 0.0f, scale.mV[2], 0.0f,
+                            0.0f, 0.0f, 0.0f, 1.0f };
+    LLMatrix4a scaleMat4;
+    scaleMat4.loadu(scaleMat);
+    matMul(scaleMat4, root, root);
 
     matMul(root, modelview, modelview);
 
-    gGLTFAsset.updateRenderTransforms(modelview);
+    gGLTFAsset->updateRenderTransforms(modelview);
 
-    gGLTFAsset.renderOpaque();
+    gGLTFAsset->renderOpaque();
 
     gGL.popMatrix();
 }

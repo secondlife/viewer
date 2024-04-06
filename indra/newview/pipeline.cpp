@@ -112,6 +112,7 @@
 #include "llscenemonitor.h"
 #include "llprogressview.h"
 #include "llcleanup.h"
+#include "gltfscenemanager.h"
 
 #include "llenvironment.h"
 #include "llsettingsvo.h"
@@ -6551,6 +6552,11 @@ void LLPipeline::renderGLTFObjects(U32 type, bool texture, bool rigged)
 
     gGL.loadMatrix(gGLModelView);
     gGLLastMatrix = NULL;
+
+    if (!rigged)
+    {
+        LL::GLTFSceneManager::instance().renderOpaque();
+    }
 }
 
 // Currently only used for shadows -Cosmic,2023-04-19

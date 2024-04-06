@@ -2156,7 +2156,7 @@ bool LLAppViewer::cleanup()
 	ll_close_fail_log();
 
 	LLError::LLCallStacks::cleanup();
-
+    LL::GLTFSceneManager::deleteSingleton();
 	LLEnvironment::deleteSingleton();
 	LLSelectMgr::deleteSingleton();
 	LLViewerEventRecorder::deleteSingleton();
