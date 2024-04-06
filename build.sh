@@ -166,7 +166,7 @@ pre_build()
       # Still this seemlingy works on Windows and Mac, why not on the Linux runner? Mystery to be solved elsewhere.
 
 
-      if [ "$variant" == "ReleaseOS" ]]
+      if [[ "$variant" == "ReleaseOS" ]]
       then
           HAVOK=OFF
       fi
