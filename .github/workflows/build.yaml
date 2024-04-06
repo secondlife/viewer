@@ -11,7 +11,7 @@ jobs:
   build:
     strategy:
       matrix:
-        runner: [windows-large, macos-12-xl, ubuntu-22.04]
+        runner: [windows-large, macos-12-xl, linux-large]
         configuration: [Release, ReleaseOS]
         python-version: ["3.11"]
         include:
@@ -20,7 +20,7 @@ jobs:
         exclude:
           - runner: macos-12-xl
             configuration: ReleaseOS
-          - runner: ubuntu-22.04
+          - runner: linux-large
             configuration: Release
     runs-on: ${{ matrix.runner }}
     outputs:
