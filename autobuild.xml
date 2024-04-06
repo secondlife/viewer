@@ -46,11 +46,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>529889f75fcc03ac6c40191e05c763bffc773092</string>
+              <string>60a5aa0e5f14673305f5c61611e3783048e27c43</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-apr_suite/releases/download/v1.7.2-r1/apr_suite-1.7.2-8518570068-darwin64-8518570068.tar.zst</string>
+              <string>https://github.com/secondlife/3p-apr_suite/releases/download/v1.7.2-r2/apr_suite-1.7.2-8584061105-darwin64-8584061105.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -60,11 +60,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4e0d2e880a6c8c82edecf8f428eb821932cdf919</string>
+              <string>17078051d1bc0c2e43e60217b9cb1d50bd5c7f25</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-apr_suite/releases/download/v1.7.2-r1/apr_suite-1.7.2-8518570068-linux64-8518570068.tar.zst</string>
+              <string>https://github.com/secondlife/3p-apr_suite/releases/download/v1.7.2-r2/apr_suite-1.7.2-8584061105-linux64-8584061105.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -74,11 +74,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>39530c8dd7308342677f908b74a91632c0b5a5ce</string>
+              <string>09cff3748f14b5c0b362cf7c86a520d9d86d6e1a</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-apr_suite/releases/download/v1.7.2-r1/apr_suite-1.7.2-8518570068-windows64-8518570068.tar.zst</string>
+              <string>https://github.com/secondlife/3p-apr_suite/releases/download/v1.7.2-r2/apr_suite-1.7.2-8584061105-windows64-8584061105.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -91,7 +91,7 @@
         <key>copyright</key>
         <string>Copyright © 2012 The Apache Software Foundation, Licensed under the Apache License, Version 2.0.</string>
         <key>version</key>
-        <string>1.7.2-8518570068</string>
+        <string>1.7.2-8584061105</string>
         <key>name</key>
         <string>apr_suite</string>
         <key>description</key>
@@ -536,11 +536,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>953b8119c28e81b327197d1de3d44a78c6cd30dc</string>
+              <string>45393addcda09b1146abfdd42af8d4e4f6e4671b</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-expat/releases/download/v2.6.2-r2/expat-2.6.2-r2-darwin64-8518267865.tar.zst</string>
+              <string>https://github.com/secondlife/3p-expat/releases/download/v2.6.2-r3/expat-2.6.2-r3-darwin64-8583963182.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -550,11 +550,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b1f58b1f340a3bab726ad017fcf8515ffea4c3de</string>
+              <string>0cafca1370b272e7aa717f239c90750b0c19e307</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-expat/releases/download/v2.6.2-r2/expat-2.6.2-r2-linux64-8518267865.tar.zst</string>
+              <string>https://github.com/secondlife/3p-expat/releases/download/v2.6.2-r3/expat-2.6.2-r3-linux64-8583963182.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -564,11 +564,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>6e7a67b5ea6cf826862c9f0a5988a3ad8791a759</string>
+              <string>3bbe911f3658a42f17030e70388455c18108d709</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-expat/releases/download/v2.6.2-r2/expat-2.6.2-r2-windows64-8518267865.tar.zst</string>
+              <string>https://github.com/secondlife/3p-expat/releases/download/v2.6.2-r3/expat-2.6.2-r3-windows64-8583963182.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -581,7 +581,7 @@
         <key>copyright</key>
         <string>Copyright (c) 1998, 1999, 2000 Thai Open Source Software Center Ltd and Clark Cooper - Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006 Expat maintainers.</string>
         <key>version</key>
-        <string>2.6.2-r2</string>
+        <string>2.6.2-r3</string>
         <key>name</key>
         <string>expat</string>
         <key>description</key>
@@ -2691,11 +2691,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2dfb877955b8b0d78a75c17762eb3ce0e7609ebe</string>
+              <string>60a95c720e8b59c1f2eab3f2325d7665d31b20f5</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-xmlrpc-epi/releases/download/v0.54.1-r3/xmlrpc_epi-0.54.1.8583039818-darwin64-8583039818.tar.zst</string>
+              <string>https://github.com/secondlife/3p-xmlrpc-epi/releases/download/v0.54.1-r5/xmlrpc_epi-0.54.1.8584202238-darwin64-8584202238.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2705,11 +2705,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>260fa0800c870d632bbd96e5c7cf53678e5fa7ad</string>
+              <string>6e9d9d8698d7e69bcb9204c5f6c0d853d8de972c</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-xmlrpc-epi/releases/download/v0.54.1-r3/xmlrpc_epi-0.54.1.8583039818-linux64-8583039818.tar.zst</string>
+              <string>https://github.com/secondlife/3p-xmlrpc-epi/releases/download/v0.54.1-r5/xmlrpc_epi-0.54.1.8584202238-linux64-8584202238.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -2719,11 +2719,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>5b44b09a0ca7c1093d1714917c4d582769a099c1</string>
+              <string>f0c88fece10a826ec67da440c3460eda83c15cce</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-xmlrpc-epi/releases/download/v0.54.1-r3/xmlrpc_epi-0.54.1.8583039818-windows64-8583039818.tar.zst</string>
+              <string>https://github.com/secondlife/3p-xmlrpc-epi/releases/download/v0.54.1-r5/xmlrpc_epi-0.54.1.8584202238-windows64-8584202238.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -2750,7 +2750,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>copyright</key>
         <string>Copyright: (C) 2000 Epinions, Inc.</string>
         <key>version</key>
-        <string>0.54.1.8583039818</string>
+        <string>0.54.1.8584202238</string>
         <key>name</key>
         <string>xmlrpc-epi</string>
         <key>description</key>
@@ -2906,7 +2906,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
                   <string>-DINSTALL_PROPRIETARY=TRUE</string>
                   <string>-DUSE_OPENAL:BOOL=ON</string>
-</array>
+                </array>
               </map>
               <key>build</key>
               <map>
@@ -2926,11 +2926,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>-DADDRESS_SIZE:STRING=$AUTOBUILD_ADDRSIZE</string>
                   <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
-</array>
+                </array>
                 <key>arguments</key>
                 <array>
                   <string>../indra</string>
-</array>
+                </array>
               </map>
               <key>name</key>
               <string>RelWithDebInfoOS</string>
@@ -2948,7 +2948,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
                   <string>-DINSTALL_PROPRIETARY=TRUE</string>
                   <string>-DUSE_OPENAL:BOOL=ON</string>
-</array>
+                </array>
               </map>
               <key>build</key>
               <map>
@@ -2968,11 +2968,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>-DADDRESS_SIZE:STRING=$AUTOBUILD_ADDRSIZE</string>
                   <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
-</array>
+                </array>
                 <key>arguments</key>
                 <array>
                   <string>../indra</string>
-</array>
+                </array>
               </map>
               <key>name</key>
               <string>ReleaseOS</string>
@@ -2993,11 +2993,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                 <array>
                   <string>-G</string>
                   <string>Xcode</string>
-</array>
+                </array>
                 <key>arguments</key>
                 <array>
                   <string>../indra</string>
-</array>
+                </array>
               </map>
               <key>build</key>
               <map>
@@ -3010,7 +3010,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>-project</string>
                   <string>SecondLife.xcodeproj</string>
                   <string>-parallelizeTargets</string>
-</array>
+                </array>
               </map>
               <key>default</key>
               <string>True</string>
@@ -3025,7 +3025,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                 <array>
                   <string>-G</string>
                   <string>Xcode</string>
-</array>
+                </array>
               </map>
               <key>build</key>
               <map>
@@ -3038,7 +3038,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>-project</string>
                   <string>SecondLife.xcodeproj</string>
                   <string>-parallelizeTargets</string>
-</array>
+                </array>
               </map>
               <key>name</key>
               <string>RelWithDebInfoOS</string>
@@ -3051,11 +3051,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                 <array>
                   <string>-G</string>
                   <string>Xcode</string>
-</array>
+                </array>
                 <key>arguments</key>
                 <array>
                   <string>../indra</string>
-</array>
+                </array>
               </map>
               <key>build</key>
               <map>
@@ -3068,7 +3068,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>-project</string>
                   <string>SecondLife.xcodeproj</string>
                   <string>-parallelizeTargets</string>
-</array>
+                </array>
               </map>
               <key>name</key>
               <string>Release</string>
@@ -3081,7 +3081,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                 <array>
                   <string>-G</string>
                   <string>Xcode</string>
-</array>
+                </array>
               </map>
               <key>build</key>
               <map>
@@ -3094,7 +3094,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>-project</string>
                   <string>SecondLife.xcodeproj</string>
                   <string>-parallelizeTargets</string>
-</array>
+                </array>
               </map>
               <key>name</key>
               <string>ReleaseOS</string>
@@ -3118,11 +3118,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>-G</string>
                   <string>Ninja</string>
                   <string>-DLL_TESTS=Off</string>
-</array>
+                </array>
                 <key>arguments</key>
                 <array>
                   <string>../indra</string>
-</array>
+                </array>
               </map>
               <key>build</key>
               <map>
@@ -3143,7 +3143,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>-G</string>
                   <string>Ninja</string>
                   <string>-DLL_TESTS=Off</string>
-</array>
+                </array>
               </map>
               <key>build</key>
               <map>
@@ -3181,11 +3181,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>${AUTOBUILD_WIN_CMAKE_GEN|NOTWIN}</string>
                   <string>-A</string>
                   <string>${AUTOBUILD_WIN_VSPLATFORM|NOTWIN}</string>
-</array>
+                </array>
                 <key>arguments</key>
                 <array>
                   <string>..\indra</string>
-</array>
+                </array>
               </map>
               <key>build</key>
               <map>
@@ -3195,11 +3195,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                 <array>
                   <string>/build</string>
                   <string>RelWithDebInfo|${AUTOBUILD_WIN_VSPLATFORM|NOTWIN}</string>
-</array>
+                </array>
                 <key>arguments</key>
                 <array>
                   <string>SecondLife.sln</string>
-</array>
+                </array>
               </map>
               <key>default</key>
               <string>True</string>
@@ -3219,11 +3219,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                   <string>-DUSE_KDU=FALSE</string>
                   <string>-DUSE_OPENAL:BOOL=ON</string>
-</array>
+                </array>
                 <key>arguments</key>
                 <array>
                   <string>..\indra</string>
-</array>
+                </array>
               </map>
               <key>build</key>
               <map>
@@ -3237,11 +3237,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>/p:useenv=true</string>
                   <string>/verbosity:minimal</string>
                   <string>/p:VCBuildAdditionalOptions= /incremental</string>
-</array>
+                </array>
                 <key>arguments</key>
                 <array>
                   <string>SecondLife.sln</string>
-</array>
+                </array>
               </map>
               <key>name</key>
               <string>RelWithDebInfoOS</string>
@@ -3256,11 +3256,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>${AUTOBUILD_WIN_CMAKE_GEN|NOTWIN}</string>
                   <string>-A</string>
                   <string>${AUTOBUILD_WIN_VSPLATFORM|NOTWIN}</string>
-</array>
+                </array>
                 <key>arguments</key>
                 <array>
                   <string>..\indra</string>
-</array>
+                </array>
               </map>
               <key>build</key>
               <map>
@@ -3270,11 +3270,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                 <array>
                   <string>/build</string>
                   <string>Release|${AUTOBUILD_WIN_VSPLATFORM|NOTWIN}</string>
-</array>
+                </array>
                 <key>arguments</key>
                 <array>
                   <string>SecondLife.sln</string>
-</array>
+                </array>
               </map>
               <key>name</key>
               <string>Release</string>
@@ -3293,11 +3293,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                   <string>-DUSE_KDU=FALSE</string>
                   <string>-DUSE_OPENAL:BOOL=ON</string>
-</array>
+                </array>
                 <key>arguments</key>
                 <array>
                   <string>..\indra</string>
-</array>
+                </array>
               </map>
               <key>build</key>
               <map>
@@ -3311,11 +3311,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>/p:useenv=true</string>
                   <string>/verbosity:minimal</string>
                   <string>/p:VCBuildAdditionalOptions= /incremental</string>
-</array>
+                </array>
                 <key>arguments</key>
                 <array>
                   <string>SecondLife.sln</string>
-</array>
+                </array>
               </map>
               <key>name</key>
               <string>ReleaseOS</string>
