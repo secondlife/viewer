@@ -2691,11 +2691,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>71cc1b69c1b3577645152a5a21f05453abcddbd7</string>
+              <string>00fc4b08bc7b3b5934c8e7d1d75ec0281819bd7c</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-xmlrpc-epi/releases/download/v0.54.1-r2/xmlrpc_epi-0.54.1.8578444611-darwin64-8578444611.tar.zst</string>
+              <string>https://github.com/secondlife/3p-xmlrpc-epi/releases/download/v0.54.1-r3/xmlrpc_epi-0.54.1.8582965216-darwin64-8582965216.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2705,11 +2705,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>5cf3a2ead3ef5c6cd7292eb0731443460b13a6fb</string>
+              <string>b43441aaf0c5dcb91af5822ff49a8d09d868a0be</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-xmlrpc-epi/releases/download/v0.54.1-r2/xmlrpc_epi-0.54.1.8578444611-linux64-8578444611.tar.zst</string>
+              <string>https://github.com/secondlife/3p-xmlrpc-epi/releases/download/v0.54.1-r3/xmlrpc_epi-0.54.1.8582965216-linux64-8582965216.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -2719,14 +2719,28 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f3e03c888c1ba1c0ba8807fffa77f7c2d4de4af5</string>
+              <string>73d44c5905e22d0af868f498571b3203d7661c92</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-xmlrpc-epi/releases/download/v0.54.1-r2/xmlrpc_epi-0.54.1.8578444611-windows64-8578444611.tar.zst</string>
+              <string>https://github.com/secondlife/3p-xmlrpc-epi/releases/download/v0.54.1-r3/xmlrpc_epi-0.54.1.8582965216-windows64-8582965216.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>d16100791044f7cf9f1b61a09d652db297e78bed</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://github.com/secondlife/3p-xmlrpc-epi/releases/download/v0.54.1-r3/xmlrpc_epi-0.54.1.8582965216-windows-8582965216.tar.zst</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
           </map>
         </map>
         <key>license</key>
@@ -2736,7 +2750,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>copyright</key>
         <string>Copyright: (C) 2000 Epinions, Inc.</string>
         <key>version</key>
-        <string>0.54.1.8578444611</string>
+        <string>0.54.1.8582965216</string>
         <key>name</key>
         <string>xmlrpc-epi</string>
         <key>description</key>
@@ -2892,7 +2906,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
                   <string>-DINSTALL_PROPRIETARY=TRUE</string>
                   <string>-DUSE_OPENAL:BOOL=ON</string>
-                </array>
+</array>
               </map>
               <key>build</key>
               <map>
@@ -2912,11 +2926,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>-DADDRESS_SIZE:STRING=$AUTOBUILD_ADDRSIZE</string>
                   <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
-                </array>
+</array>
                 <key>arguments</key>
                 <array>
                   <string>../indra</string>
-                </array>
+</array>
               </map>
               <key>name</key>
               <string>RelWithDebInfoOS</string>
@@ -2934,7 +2948,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
                   <string>-DINSTALL_PROPRIETARY=TRUE</string>
                   <string>-DUSE_OPENAL:BOOL=ON</string>
-                </array>
+</array>
               </map>
               <key>build</key>
               <map>
@@ -2954,11 +2968,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>-DADDRESS_SIZE:STRING=$AUTOBUILD_ADDRSIZE</string>
                   <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
-                </array>
+</array>
                 <key>arguments</key>
                 <array>
                   <string>../indra</string>
-                </array>
+</array>
               </map>
               <key>name</key>
               <string>ReleaseOS</string>
@@ -2979,11 +2993,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                 <array>
                   <string>-G</string>
                   <string>Xcode</string>
-                </array>
+</array>
                 <key>arguments</key>
                 <array>
                   <string>../indra</string>
-                </array>
+</array>
               </map>
               <key>build</key>
               <map>
@@ -2996,7 +3010,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>-project</string>
                   <string>SecondLife.xcodeproj</string>
                   <string>-parallelizeTargets</string>
-                </array>
+</array>
               </map>
               <key>default</key>
               <string>True</string>
@@ -3011,7 +3025,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                 <array>
                   <string>-G</string>
                   <string>Xcode</string>
-                </array>
+</array>
               </map>
               <key>build</key>
               <map>
@@ -3024,7 +3038,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>-project</string>
                   <string>SecondLife.xcodeproj</string>
                   <string>-parallelizeTargets</string>
-                </array>
+</array>
               </map>
               <key>name</key>
               <string>RelWithDebInfoOS</string>
@@ -3037,11 +3051,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                 <array>
                   <string>-G</string>
                   <string>Xcode</string>
-                </array>
+</array>
                 <key>arguments</key>
                 <array>
                   <string>../indra</string>
-                </array>
+</array>
               </map>
               <key>build</key>
               <map>
@@ -3054,7 +3068,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>-project</string>
                   <string>SecondLife.xcodeproj</string>
                   <string>-parallelizeTargets</string>
-                </array>
+</array>
               </map>
               <key>name</key>
               <string>Release</string>
@@ -3067,7 +3081,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                 <array>
                   <string>-G</string>
                   <string>Xcode</string>
-                </array>
+</array>
               </map>
               <key>build</key>
               <map>
@@ -3080,7 +3094,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>-project</string>
                   <string>SecondLife.xcodeproj</string>
                   <string>-parallelizeTargets</string>
-                </array>
+</array>
               </map>
               <key>name</key>
               <string>ReleaseOS</string>
@@ -3104,11 +3118,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>-G</string>
                   <string>Ninja</string>
                   <string>-DLL_TESTS=Off</string>
-                </array>
+</array>
                 <key>arguments</key>
                 <array>
                   <string>../indra</string>
-                </array>
+</array>
               </map>
               <key>build</key>
               <map>
@@ -3129,7 +3143,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>-G</string>
                   <string>Ninja</string>
                   <string>-DLL_TESTS=Off</string>
-                </array>
+</array>
               </map>
               <key>build</key>
               <map>
@@ -3167,11 +3181,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>${AUTOBUILD_WIN_CMAKE_GEN|NOTWIN}</string>
                   <string>-A</string>
                   <string>${AUTOBUILD_WIN_VSPLATFORM|NOTWIN}</string>
-                </array>
+</array>
                 <key>arguments</key>
                 <array>
                   <string>..\indra</string>
-                </array>
+</array>
               </map>
               <key>build</key>
               <map>
@@ -3181,11 +3195,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                 <array>
                   <string>/build</string>
                   <string>RelWithDebInfo|${AUTOBUILD_WIN_VSPLATFORM|NOTWIN}</string>
-                </array>
+</array>
                 <key>arguments</key>
                 <array>
                   <string>SecondLife.sln</string>
-                </array>
+</array>
               </map>
               <key>default</key>
               <string>True</string>
@@ -3205,11 +3219,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                   <string>-DUSE_KDU=FALSE</string>
                   <string>-DUSE_OPENAL:BOOL=ON</string>
-                </array>
+</array>
                 <key>arguments</key>
                 <array>
                   <string>..\indra</string>
-                </array>
+</array>
               </map>
               <key>build</key>
               <map>
@@ -3223,11 +3237,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>/p:useenv=true</string>
                   <string>/verbosity:minimal</string>
                   <string>/p:VCBuildAdditionalOptions= /incremental</string>
-                </array>
+</array>
                 <key>arguments</key>
                 <array>
                   <string>SecondLife.sln</string>
-                </array>
+</array>
               </map>
               <key>name</key>
               <string>RelWithDebInfoOS</string>
@@ -3242,11 +3256,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>${AUTOBUILD_WIN_CMAKE_GEN|NOTWIN}</string>
                   <string>-A</string>
                   <string>${AUTOBUILD_WIN_VSPLATFORM|NOTWIN}</string>
-                </array>
+</array>
                 <key>arguments</key>
                 <array>
                   <string>..\indra</string>
-                </array>
+</array>
               </map>
               <key>build</key>
               <map>
@@ -3256,11 +3270,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                 <array>
                   <string>/build</string>
                   <string>Release|${AUTOBUILD_WIN_VSPLATFORM|NOTWIN}</string>
-                </array>
+</array>
                 <key>arguments</key>
                 <array>
                   <string>SecondLife.sln</string>
-                </array>
+</array>
               </map>
               <key>name</key>
               <string>Release</string>
@@ -3279,11 +3293,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                   <string>-DUSE_KDU=FALSE</string>
                   <string>-DUSE_OPENAL:BOOL=ON</string>
-                </array>
+</array>
                 <key>arguments</key>
                 <array>
                   <string>..\indra</string>
-                </array>
+</array>
               </map>
               <key>build</key>
               <map>
@@ -3297,11 +3311,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>/p:useenv=true</string>
                   <string>/verbosity:minimal</string>
                   <string>/p:VCBuildAdditionalOptions= /incremental</string>
-                </array>
+</array>
                 <key>arguments</key>
                 <array>
                   <string>SecondLife.sln</string>
-                </array>
+</array>
               </map>
               <key>name</key>
               <string>ReleaseOS</string>
