@@ -159,7 +159,6 @@ if (DARWIN)
     libaprutil-1.0.dylib
     libnghttp2*.dylib
     liburiparser*.dylib
-    ${EXPAT_COPY}
     )
 
   add_custom_command(TARGET INTEGRATION_TEST_llcorehttp PRE_BUILD

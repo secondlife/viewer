@@ -169,7 +169,6 @@ elseif(DARWIN)
         libapr-1.dylib
         libaprutil-1.0.dylib
         libaprutil-1.dylib
-        ${EXPAT_COPY}
         libhunspell-1.3.0.dylib
         libndofdev.dylib
         libnghttp2.dylib
@@ -208,9 +207,6 @@ elseif(LINUX)
     # or ARCH_PREBUILT_DIRS
     set(release_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
     # *FIX - figure out what to do with duplicate libalut.so here -brad
-    set(release_files
-            ${EXPAT_COPY}
-            )
 
      if( USE_AUTOBUILD_3P )
          list( APPEND release_files
