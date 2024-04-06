@@ -198,7 +198,7 @@ if (LINUX OR DARWIN)
   list(APPEND GCC_WARNINGS -Wno-reorder -Wno-non-virtual-dtor )
 
   if(LINUX)
-    list(APPEND GCC_WARNINGS -Wno-maybe-uninitialized -Wno-misleading-indentation -Wno-stringop-truncation -Wno-unused-value )
+    list(APPEND GCC_WARNINGS -Wno-maybe-uninitialized )
   endif()
 
   add_compile_options(${GCC_WARNINGS})
