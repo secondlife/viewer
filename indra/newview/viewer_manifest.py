@@ -1343,6 +1343,9 @@ class LinuxManifest(ViewerManifest):
     def package_finish(self):
         installer_name = self.installer_base_name()
 
+        # When running as a GitHub Action job, RUNNER_TEMP is defined as the tmp dir
+        RUNNER_TEMP = os.getenv('RUNNER_TEMP')
+
         self.strip_binaries()
 
         # Fix access permissions
@@ -1357,21 +1360,31 @@ class LinuxManifest(ViewerManifest):
         # temporarily move directory tree so that it has the right
         # name in the tarfile
         realname = self.get_dst_prefix()
-        tempname = self.build_path_of(installer_name)
-        self.run_command(["mv", realname, tempname])
+        versionedName = self.build_path_of(installer_name)
+
+        tarName = versionedName + ".tar.bz2"
+
+        # If using a github runner we divert packaging a little. Considering this wil be a VM/docker image
+        # we can just pack the final installer into RUNNER_TEMP and not into the usual stop we'd pick when
+        # not building a GHA release
+        if RUNNER_TEMP:
+            tarName = join(RUNNER_TEMP, self.package_file)
+
+        self.run_command(["mv", realname, versionedName])
+
         try:
             # only create tarball if it's a release build.
             if self.args['buildtype'].lower() == 'release':
-                # --numeric-owner hides the username of the builder for
-                # security etc.
                 self.run_command(['tar', '-C', self.get_build_prefix(),
                                   '--numeric-owner', '-cjf',
-                                 tempname + '.tar.bz2', installer_name])
+                                 tarName, installer_name])
+                if RUNNER_TEMP:
+                    self.set_github_output_path('viewer_app', tarName)
             else:
                 print("Skipping %s.tar.bz2 for non-Release build (%s)" % \
                       (installer_name, self.args['buildtype']))
         finally:
-            self.run_command(["mv", tempname, realname])
+            self.run_command(["mv", versionedName, realname])
 
     def strip_binaries(self):
         doStrip = False
