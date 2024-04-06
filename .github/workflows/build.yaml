@@ -11,7 +11,7 @@ jobs:
   build:
     strategy:
       matrix:
-        runner: [windows-large, macos-12-xl]
+        runner: [windows-large, macos-12-xl, ubuntu-22.04]
         configuration: [Release, ReleaseOS]
         python-version: ["3.11"]
         include:
@@ -20,6 +20,8 @@ jobs:
         exclude:
           - runner: macos-12-xl
             configuration: ReleaseOS
+          - runner: ubuntu-22.04
+            configuration: Release
     runs-on: ${{ matrix.runner }}
     outputs:
       viewer_channel: ${{ steps.build.outputs.viewer_channel }}
@@ -94,6 +96,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-64-${{ matrix.configuration }}-
             ${{ runner.os }}-64-
+
+      - name: Install Linux dependencies
+        if: runner.os == 'linux'
+        run: sudo apt update && sudo apt install -y libfltk1.3-dev libunwind-dev libgl1-mesa-dev libglu1-mesa-dev libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev libxrender-dev libxfixes-dev libxxf86vm-dev libxss-dev libdbus-1-dev libudev-dev libssl-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libfreetype6-dev ninja-build libxft-dev
 
       - name: Install windows dependencies
         if: runner.os == 'Windows'
@@ -372,7 +378,7 @@ jobs:
         with:
           name: Windows-metadata
 
-      - name: Rename windows metadata 
+      - name: Rename windows metadata
         run: |
           mv autobuild-package.xml Windows-autobuild-package.xml
           mv newview/viewer_version.txt Windows-viewer_version.txt
@@ -381,7 +387,7 @@ jobs:
         with:
           name: macOS-metadata
 
-      - name: Rename macOS metadata 
+      - name: Rename macOS metadata
         run: |
           mv autobuild-package.xml macOS-autobuild-package.xml
           mv newview/viewer_version.txt macOS-viewer_version.txt
@@ -407,7 +413,7 @@ jobs:
           append_body: true
           fail_on_unmatched_files: true
           files: |
-            *.dmg 
+            *.dmg
             *.exe
             *-autobuild-package.xml
             *-viewer_version.txt
