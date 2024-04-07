@@ -2727,7 +2727,7 @@ LLIncomingCallDialog::LLIncomingCallDialog(const LLSD& payload) :
 
 void LLIncomingCallDialog::onLifetimeExpired()
 {
-	LLVoiceP2PIncomingCallInterfacePtr call = LLVoiceClient::getInstance()->getIncomingCallInterface(mPayload["voice_session_info"]);
+	LLVoiceP2PIncomingCallInterfacePtr call = LLVoiceClient::getInstance()->getIncomingCallInterface(mPayload["voice_channel_info"]);
 	if (call)
 	{
 		// restart notification's timer if call is still valid
@@ -3590,33 +3590,39 @@ void LLIMMgr::clearPendingInvitation(const LLUUID& session_id)
 
 void LLIMMgr::processAgentListUpdates(const LLUUID& session_id, const LLSD& body)
 {
-    if (body.isMap() && body.has("agent_updates") && body["agent_updates"].isMap())
-    {
-        LLSD::map_const_iterator update_it;
-        for (update_it = body["agent_updates"].beginMap(); update_it != body["agent_updates"].endMap(); ++update_it)
-        {
-            LLSD   agent_data = update_it->second;
+	if (body.isMap() && body.has("agent_updates") && body["agent_updates"].isMap())
+	{
+		LLSD::map_const_iterator update_it;
+		for (update_it = body["agent_updates"].beginMap(); update_it != body["agent_updates"].endMap(); ++update_it)
+		{
+			LLUUID agent_id   = LLUUID(update_it->first);
+			LLSD   agent_data = update_it->second;
+			if (agent_data.has("transition") && agent_data["transition"].asString() == "LEAVE") 
+			{
+				// ignore actual leaves as those will be handled separately.
+				continue;
+			}
 
-            if (agent_data.isMap() && agent_data.has("info") && agent_data["info"].isMap())
-            {
-                // Is one of the participants leaving a P2P Chat?
-                if (agent_data["info"].has("can_voice_chat") && !agent_data["info"]["can_voice_chat"].asBoolean())
-                {
-                    LLVoiceChannelGroup *channelp = dynamic_cast < LLVoiceChannelGroup*>(LLVoiceChannel::getChannelByID(session_id));
-                    if (channelp && channelp->isP2P())
-                    {
-						// it's an adhoc-style P2P channel, and voice is disabled / declined.  notify the user
+			if (agent_id != gAgentID && agent_data.isMap() && agent_data.has("info") && agent_data["info"].isMap())
+			{
+				// Is one of the participants leaving a P2P Chat?
+				if (agent_data["info"].has("can_voice_chat") && !agent_data["info"]["can_voice_chat"].asBoolean())
+				{
+					LLVoiceChannelGroup *channelp = dynamic_cast < LLVoiceChannelGroup*>(LLVoiceChannel::getChannelByID(session_id));
+					if (channelp && channelp->isP2P())
+					{
+						// it's an adhoc-style P2P channel, and the peer has declined voice.  notify the user
 						// and shut down the voice channel.
-                        LLSD notifyArgs = LLSD::emptyMap();
-                        notifyArgs["VOICE_CHANNEL_NAME"]  = channelp->getSessionName();
-                        LLNotificationsUtil::add("P2PCallDeclined", notifyArgs);
-                        endCall(session_id);
-                        break;
-                    }
-                }
-            }
-        }
-    }
+						LLSD notifyArgs = LLSD::emptyMap();
+						notifyArgs["VOICE_CHANNEL_NAME"]  = channelp->getSessionName();
+						LLNotificationsUtil::add("P2PCallDeclined", notifyArgs);
+						endCall(session_id);
+						break;
+					}
+				}
+			}
+		}
+	}
 
 	LLFloaterIMSession* im_floater = LLFloaterIMSession::findInstance(session_id);
 	if ( im_floater )
