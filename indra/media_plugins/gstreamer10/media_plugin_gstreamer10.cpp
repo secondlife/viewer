@@ -46,35 +46,6 @@ extern "C" {
 SymbolGrabber gSymbolGrabber;
 
 #include "llmediaimplgstreamer_syms_raw.inc"
-//#include "llmediaimplgstreamer.h"
-//#include "llmediaimplgstreamer_syms.h"
-
-// ND: Probably obsolete
-/*
-// regrettable hacks because GStreamer was not designed for runtime loading
-#undef GST_TYPE_MESSAGE
-#define GST_TYPE_MESSAGE (llgst_message_get_type())
-#undef GST_TYPE_OBJECT
-#define GST_TYPE_OBJECT (llgst_object_get_type())
-#undef GST_TYPE_PIPELINE
-#define GST_TYPE_PIPELINE (llgst_pipeline_get_type())
-#undef GST_TYPE_ELEMENT
-#define GST_TYPE_ELEMENT (llgst_element_get_type())
-#undef GST_TYPE_VIDEO_SINK
-#define GST_TYPE_VIDEO_SINK (llgst_video_sink_get_type())
-// more regrettable hacks to stub-out these .h-exposed GStreamer internals
-void ll_gst_debug_register_funcptr(GstDebugFuncPtr func, gchar* ptrname);
-#undef _gst_debug_register_funcptr
-#define _gst_debug_register_funcptr ll_gst_debug_register_funcptr
-GstDebugCategory* ll_gst_debug_category_new(gchar *name, guint color, gchar *description);
-#undef _gst_debug_category_new
-#define _gst_debug_category_new ll_gst_debug_category_new
-#undef __gst_debug_enabled
-#define __gst_debug_enabled (0)
-
-// more hacks
-#define LLGST_MESSAGE_TYPE_NAME(M) (llgst_message_type_get_name(GST_MESSAGE_TYPE(M)))
-*/
 
 static inline void llgst_caps_unref( GstCaps * caps )
 {
