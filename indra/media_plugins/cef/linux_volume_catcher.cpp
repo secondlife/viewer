@@ -40,7 +40,7 @@
 #include "volume_catcher.h"
 #include <set>
 #include <map>
-
+#include <iostream>
 extern "C" {
 #include <glib.h>
 #include <glib-object.h>
@@ -54,99 +54,12 @@ extern "C" {
 #include "apr_dso.h"
 }
 
+#include "media_plugin_base.h"
 
-////////////////////////////////////////////////////
-
-#define DEBUGMSG(...) do {} while(0)
-#define INFOMSG(...) do {} while(0)
-#define WARNMSG(...) do {} while(0)
-
-#define LL_PA_SYM(REQUIRED, PASYM, RTN, ...) RTN (*ll##PASYM)(__VA_ARGS__) = NULL
-#include "linux_volume_catcher_pa_syms.inc"
-#include "linux_volume_catcher_paglib_syms.inc"
-#undef LL_PA_SYM
-
-static bool sSymsGrabbed = false;
-static apr_pool_t *sSymPADSOMemoryPool = NULL;
-static apr_dso_handle_t *sSymPADSOHandleG = NULL;
-
-bool grab_pa_syms(std::string pulse_dso_name)
-{
-	if (sSymsGrabbed)
-	{
-		// already have grabbed good syms
-		return true;
-	}
-
-	bool sym_error = false;
-	bool rtn = false;
-	apr_status_t rv;
-	apr_dso_handle_t *sSymPADSOHandle = NULL;
-
-#define LL_PA_SYM(REQUIRED, PASYM, RTN, ...) do{rv = apr_dso_sym((apr_dso_handle_sym_t*)&ll##PASYM, sSymPADSOHandle, #PASYM); if (rv != APR_SUCCESS) { if (REQUIRED) sym_error = true;} } while(0);
-
-	//attempt to load the shared library
-	apr_pool_create(&sSymPADSOMemoryPool, NULL);
-  
-	if ( APR_SUCCESS == (rv = apr_dso_load(&sSymPADSOHandle,
-					       pulse_dso_name.c_str(),
-					       sSymPADSOMemoryPool) ))
-	{
-		INFOMSG("Found DSO: %s", pulse_dso_name.c_str());
+SymbolGrabber gSymbolGrabber;
 
 #include "linux_volume_catcher_pa_syms.inc"
 #include "linux_volume_catcher_paglib_syms.inc"
-      
-		if ( sSymPADSOHandle )
-		{
-			sSymPADSOHandleG = sSymPADSOHandle;
-			sSymPADSOHandle = NULL;
-		}
-      
-		rtn = !sym_error;
-	}
-	else
-	{
-		INFOMSG("Couldn't load DSO: %s", pulse_dso_name.c_str());
-		rtn = false; // failure
-	}
-
-	if (sym_error)
-	{
-		WARNMSG("Failed to find necessary symbols in PulseAudio libraries.");
-	}
-#undef LL_PA_SYM
-
-	sSymsGrabbed = rtn;
-	return rtn;
-}
-
-
-void ungrab_pa_syms()
-{ 
-	// should be safe to call regardless of whether we've
-	// actually grabbed syms.
-
-	if ( sSymPADSOHandleG )
-	{
-		apr_dso_unload(sSymPADSOHandleG);
-		sSymPADSOHandleG = NULL;
-	}
-	
-	if ( sSymPADSOMemoryPool )
-	{
-		apr_pool_destroy(sSymPADSOMemoryPool);
-		sSymPADSOMemoryPool = NULL;
-	}
-	
-	// NULL-out all of the symbols we'd grabbed
-#define LL_PA_SYM(REQUIRED, PASYM, RTN, ...) do{ll##PASYM = NULL;}while(0)
-#include "linux_volume_catcher_pa_syms.inc"
-#include "linux_volume_catcher_paglib_syms.inc"
-#undef LL_PA_SYM
-
-	sSymsGrabbed = false;
-}
 ////////////////////////////////////////////////////
 
 // PulseAudio requires a chain of callbacks with C linkage
@@ -155,7 +68,6 @@ extern "C" {
 	void callback_subscription_alert(pa_context *context, pa_subscription_event_type_t t, uint32_t index, void *userdata);
 	void callback_context_state(pa_context *context, void *userdata);
 }
-
 
 class VolumeCatcherImpl
 {
@@ -187,8 +99,8 @@ public:
 
 VolumeCatcherImpl::VolumeCatcherImpl()
 	: mDesiredVolume(0.0f),
-	  mMainloop(NULL),
-	  mPAContext(NULL),
+	  mMainloop(nullptr),
+	  mPAContext(nullptr),
 	  mConnected(false),
 	  mGotSyms(false)
 {
@@ -202,7 +114,8 @@ VolumeCatcherImpl::~VolumeCatcherImpl()
 
 bool VolumeCatcherImpl::loadsyms(std::string pulse_dso_name)
 {
-	return grab_pa_syms(pulse_dso_name);
+	//return grab_pa_syms({pulse_dso_name});
+    return gSymbolGrabber.grabSymbols( { pulse_dso_name }) ;
 }
 
 void VolumeCatcherImpl::init()
@@ -236,7 +149,7 @@ void VolumeCatcherImpl::init()
 				llpa_proplist_sets(proplist, PA_PROP_APPLICATION_VERSION, "1");
 
 				// plain old pa_context_new() is broken!
-				mPAContext = llpa_context_new_with_proplist(api, NULL, proplist);
+				mPAContext = llpa_context_new_with_proplist(api, nullptr, proplist);
 
 				llpa_proplist_free(proplist);
 			}
@@ -249,7 +162,7 @@ void VolumeCatcherImpl::init()
 	{
 		llpa_context_set_state_callback(mPAContext, callback_context_state, this);
 		pa_context_flags_t cflags = (pa_context_flags)0; // maybe add PA_CONTEXT_NOAUTOSPAWN?
-		if (llpa_context_connect(mPAContext, NULL, cflags, NULL) >= 0)
+		if (llpa_context_connect(mPAContext, nullptr, cflags, nullptr) >= 0)
 		{
 			// Okay!  We haven't definitely connected, but we
 			// haven't definitely failed yet.
@@ -271,13 +184,13 @@ void VolumeCatcherImpl::cleanup()
 		llpa_context_disconnect(mPAContext);
 		llpa_context_unref(mPAContext);
 	}
-	mPAContext = NULL;
+
+	mPAContext = nullptr;
 
 	if (mGotSyms && mMainloop)
-	{
 		llpa_glib_mainloop_free(mMainloop);
-	}
-	mMainloop = NULL;
+
+	mMainloop = nullptr;
 }
 
 void VolumeCatcherImpl::setVolume(F32 volume)
@@ -318,7 +231,7 @@ void VolumeCatcherImpl::connected_okay()
 					    this);
 	if ((op = llpa_context_subscribe(mPAContext, (pa_subscription_mask_t)
 					 (PA_SUBSCRIPTION_MASK_SINK_INPUT),
-					 NULL, NULL)))
+                                     nullptr, nullptr)))
 	{
 		llpa_operation_unref(op);
 	}
@@ -342,14 +255,12 @@ void VolumeCatcherImpl::update_index_volume(U32 index, F32 volume)
 	pa_context *c = mPAContext;
 	uint32_t idx = index;
 	const pa_cvolume *cvolumep = &cvol;
-	pa_context_success_cb_t cb = NULL; // okay as null
-	void *userdata = NULL; // okay as null
+	pa_context_success_cb_t cb = nullptr; // okay as null
+	void *userdata = nullptr; // okay as null
 
 	pa_operation *op;
 	if ((op = llpa_context_set_sink_input_volume(c, idx, cvolumep, cb, userdata)))
-	{
 		llpa_operation_unref(op);
-	}
 }
 
 pid_t getParentPid( pid_t aPid )
@@ -492,7 +403,7 @@ VolumeCatcher::VolumeCatcher()
 VolumeCatcher::~VolumeCatcher()
 {
 	delete pimpl;
-	pimpl = NULL;
+	pimpl = nullptr;
 }
 
 void VolumeCatcher::setVolume(F32 volume)
