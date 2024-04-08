@@ -954,9 +954,13 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>00d0333936a67059a43a6ec8ac38d564</string>
+              <string>ebfb82b6143874e7938b9d1e8a70d0a2e28aa818</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/748/1563/havok_source-2012.1-2-linux64-500739.tar.bz2</string>
+              <string>https://api.github.com/repos/secondlife/3p-havok-source/releases/assets/108912599</string>
+              <key>creds</key>
+              <string>github</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -3386,7 +3390,8 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>-G</string>
                   <string>Ninja</string>
                   <string>-DLL_TESTS=Off</string>
-</array>
+                  <string>-DUSE_OPENAL=On</string>
+                </array>
               </map>
               <key>build</key>
               <map>
