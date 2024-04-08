@@ -85,9 +85,12 @@ public:
     static void runScriptOnLogin();
 
     static const std::map<std::string, std::string> getScriptNames() { return sScriptNames; }
+    static std::set<std::string> getTerminationList() { return sTerminationList; }
+    static void terminateScript(std::string& coro_name) { sTerminationList.insert(coro_name); }
 
  private:
-    static std::map<std::string, std::string> sScriptNames;
+   static std::map<std::string, std::string> sScriptNames;
+   static std::set<std::string> sTerminationList;
 };
 
 class LLRequireResolver

@@ -45,6 +45,11 @@ LLFloaterLUAScripts::LLFloaterLUAScripts(const LLSD &key)
     { 
         gViewerWindow->getWindow()->openFolder(mTargetFolderPath);
     });
+    mCommitCallbackRegistrar.add("Script.Terminate", [this](LLUICtrl*, const LLSD &userdata) 
+    { 
+        LLEventPumps::instance().obtain("LLLua").post(llsd::map("status", "close", "coro", mCoroName));
+        LLLUAmanager::terminateScript(mCoroName);
+    });
 }
 
 
@@ -113,6 +118,7 @@ void LLFloaterLUAScripts::onScrollListRightClicked(LLUICtrl *ctrl, S32 x, S32 y)
         if (menu)
         {
             mTargetFolderPath = std::filesystem::path((item->getColumn(1)->getValue().asString())).parent_path().string();
+            mCoroName = item->getValue().asString();
             menu->show(x, y);
             LLMenuGL::showPopup(this, menu, x, y);
         }

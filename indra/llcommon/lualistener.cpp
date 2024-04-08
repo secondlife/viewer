@@ -33,18 +33,20 @@ std::ostream& operator<<(std::ostream& out, const LuaListener& self)
 
 LuaListener::LuaListener(lua_State* L):
     super(getUniqueKey()),
+    mCoroName(LLCoros::getName()),
     mListener(new LLLeapListener(
         "LuaListener",
         [this](const std::string& pump, const LLSD& data)
         { return queueEvent(pump, data); })),
     // Listen for shutdown events on the "LLApp" LLEventPump.
     mShutdownConnection(
-        LLEventPumps::instance().obtain("LLApp").listen(
+        LLEventPumps::instance().obtain("LLLua").listen(
             LLEventPump::inventName("LuaState"),
             [this](const LLSD& status)
             {
-                const auto& statsd = status["status"];
-                if (statsd.asString() != "running")
+                const auto& coro_name = status["coro"].asString();
+                const auto& statsd = status["status"].asString();
+                if ((statsd == "close_all") || ((statsd == "close") && (coro_name == mCoroName)))
                 {
                     // If a Lua script is still blocked in getNext() during
                     // viewer shutdown, close the queue to wake up getNext().
