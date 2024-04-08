@@ -137,4 +137,14 @@ class LLVolumeOctreeValidate : public LLOctreeTraveler<LLVolumeTriangle, LLVolum
     virtual void visit(const LLOctreeNode<LLVolumeTriangle, LLVolumeTriangle*>* branch);
 };
 
+class LLVolumeOctree : public LLOctreeRoot<LLVolumeTriangle, LLVolumeTriangle*>, public LLRefCount
+{
+public:
+    LLVolumeOctree() 
+        : LLOctreeRoot<LLVolumeTriangle, LLVolumeTriangle*>(LLVector4a::getZero(), LLVector4a::getZero(), nullptr),
+        LLRefCount()
+    {
+    }
+};
+
 #endif
