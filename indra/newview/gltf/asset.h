@@ -148,6 +148,10 @@ namespace LL
             S32 mIndices = -1;
             std::unordered_map<std::string, int> mAttributes;
 
+            // copy the attribute in the given BufferView to the given destination
+            // assumes destination has enough storage for the attribute
+            template<class T>
+            void copyAttribute(Asset& asset, S32 bufferViewIdx, LLStrider<T>& dst);
             
             const Primitive& operator=(const tinygltf::Primitive& src)
             {

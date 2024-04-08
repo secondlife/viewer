@@ -27,6 +27,8 @@
 #include "asset.h"
 #include "llvolumeoctree.h"
 
+// disable optimizations for debugging
+#pragma optimize("", off)
 
 using namespace LL::GLTF;
 
@@ -36,6 +38,142 @@ void Scene::updateRenderTransforms(Asset& asset, const LLMatrix4a& modelview)
     {
         Node& node = asset.mNodes[nodeIndex];
         node.updateRenderTransforms(asset, modelview);
+    }
+}
+
+#ifndef __PRETTY_FUNCTION__
+#define __PRETTY_FUNCTION__ __FUNCSIG__
+#endif
+
+// copy one vec3 from src to dst
+template<class S, class T>
+void copyVec2(S* src, T& dst)
+{
+    LL_ERRS() << "TODO: implement " << __PRETTY_FUNCTION__ << LL_ENDL;
+}
+
+// copy one vec3 from src to dst
+template<class S, class T>
+void copyVec3(S* src, T& dst)
+{
+    LL_ERRS() << "TODO: implement " << __PRETTY_FUNCTION__ << LL_ENDL;
+}
+
+// copy one vec4 from src to dst
+template<class S, class T>
+void copyVec4(S* src, T& dst)
+{
+    LL_ERRS() << "TODO: implement " << __PRETTY_FUNCTION__ << LL_ENDL;
+}
+
+template<>
+void copyVec2<F32, LLVector2>(F32* src, LLVector2& dst)
+{
+    dst.set(src[0], src[1]);
+}
+
+template<>
+void copyVec3<F32, LLVector4a>(F32* src, LLVector4a& dst)
+{
+    dst.load3(src);
+}
+
+template<>
+void copyVec3<U16, LLColor4U>(U16* src, LLColor4U& dst)
+{
+    dst.set(src[0], src[1], src[2], 255);
+}
+
+template<>
+void copyVec4<F32, LLVector4a>(F32* src, LLVector4a& dst)
+{
+    dst.loadua(src);
+}
+
+// copy from src to dst, stride is the number of bytes between each element in src, count is number of elements to copy
+template<class S, class T>
+void copyVec2(S* src, LLStrider<T> dst, S32 stride, S32 count)
+{
+    for (S32 i = 0; i < count; ++i)
+    {
+        copyVec2(src, *dst);
+        dst++;
+        src = (S*)((U8*)src + stride);
+    }
+}
+
+// copy from src to dst, stride is the number of bytes between each element in src, count is number of elements to copy
+template<class S, class T>
+void copyVec3(S* src, LLStrider<T> dst, S32 stride, S32 count)
+{
+    for (S32 i = 0; i < count; ++i)
+    {
+        copyVec3(src, *dst);
+        dst++;
+        src = (S*) ((U8*)src + stride);
+    }
+}
+
+// copy from src to dst, stride is the number of bytes between each element in src, count is number of elements to copy
+template<class S, class T>
+void copyVec4(S* src, LLStrider<T> dst, S32 stride, S32 count)
+{
+    for (S32 i = 0; i < count; ++i)
+    {
+        copyVec3(src, *dst);
+        dst++;
+        src = (S*)((U8*)src + stride);
+    }
+}
+
+template<class S, class T>
+void copyAttributeArray(Asset& asset, const Accessor& accessor, const S* src, LLStrider<T>& dst, S32 byteStride)
+{
+    if (accessor.mType == TINYGLTF_TYPE_VEC2)
+    {
+        S32 stride = byteStride == 0 ? sizeof(S) * 2 : byteStride;
+        copyVec2((S*)src, dst, stride, accessor.mCount);
+    }
+    else if (accessor.mType == TINYGLTF_TYPE_VEC3)
+    {
+        S32 stride = byteStride == 0 ? sizeof(S) * 3 : byteStride;
+        copyVec3((S*)src, dst, stride, accessor.mCount);
+    }
+    else if (accessor.mType == TINYGLTF_TYPE_VEC4)
+    {
+        S32 stride = byteStride == 0 ? sizeof(S) * 4 : byteStride;
+        copyVec4((S*)src, dst, stride, accessor.mCount);
+    }
+    else
+    {
+        LL_ERRS("GLTF") << "Unsupported accessor type" << LL_ENDL;
+    }
+}
+
+template <class T>
+void Primitive::copyAttribute(Asset& asset, S32 accessorIdx, LLStrider<T>& dst)
+{
+    const Accessor& accessor = asset.mAccessors[accessorIdx];
+    const BufferView& bufferView = asset.mBufferViews[accessor.mBufferView];
+    const Buffer& buffer = asset.mBuffers[bufferView.mBuffer];
+    const U8* src = buffer.mData.data() + bufferView.mByteOffset + accessor.mByteOffset;
+
+    if (accessor.mComponentType == TINYGLTF_COMPONENT_TYPE_FLOAT)
+    {
+        copyAttributeArray(asset, accessor, (const F32*) src, dst, bufferView.mByteStride);
+    }
+    else if (accessor.mComponentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT)
+    {
+        copyAttributeArray(asset, accessor, (const U16*) src, dst, bufferView.mByteStride);
+    }
+    else if (accessor.mComponentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT)
+    {
+        copyAttributeArray(asset, accessor, (const U32*) src, dst, bufferView.mByteStride);
+    }
+    else
+    
+    {
+        LL_ERRS() << "Unsupported component type" << LL_ENDL;
     }
 }
 
@@ -77,247 +215,60 @@ void Primitive::allocateGLResources(Asset& asset)
     for (auto& it : mAttributes)
     {
         const std::string& attribName = it.first;
-        const Accessor& accessor = asset.mAccessors[it.second];
-        const BufferView& bufferView = asset.mBufferViews[accessor.mBufferView];
-        const Buffer& buffer = asset.mBuffers[bufferView.mBuffer];
-
+        
         // load vertex data
         if (attribName == "POSITION")
         {
             // load position data
-            const U8* src = buffer.mData.data() + bufferView.mByteOffset + accessor.mByteOffset;
-
             LLStrider<LLVector4a> dst;
             mVertexBuffer->getVertexStrider(dst);
 
-            if (accessor.mType == TINYGLTF_TYPE_VEC3)
-            {
-                
-                // load vec3 position data
-                for (U32 i = 0; i < numVertices; ++i)
-                {
-                    S32 stride = 0;
-                    switch (accessor.mComponentType)
-                    {
-                    case TINYGLTF_COMPONENT_TYPE_FLOAT:
-                        (dst++)->load3((F32*)src);
-                        stride = sizeof(F32) * 3;
-                        break;
-                    default:
-                        LL_ERRS("GLTF") << "Unsupported component type for POSITION attribute" << LL_ENDL;
-                    }
-
-                    if (bufferView.mByteStride == 0)
-                    {
-                        src += stride;
-                    }
-                    else
-                    {
-                        src += bufferView.mByteStride;
-                    }
-                }
-            }
-            else
-            {
-                LL_ERRS("GLTF") << "Unsupported type for POSITION attribute" << LL_ENDL;
-            }
+            copyAttribute(asset, it.second, dst);
         }
         else if (attribName == "NORMAL")
         {
             needs_normal = false;
             // load normal data
-            const U8* src = buffer.mData.data() + bufferView.mByteOffset + accessor.mByteOffset;
-
             LLStrider<LLVector4a> dst;
             mVertexBuffer->getNormalStrider(dst);
-
-            if (accessor.mType == TINYGLTF_TYPE_VEC3)
-            {
-                // load vec3 normal data
-                for (U32 i = 0; i < numVertices; ++i)
-                {
-                    S32 stride = 0;
-                    switch (accessor.mComponentType)
-                    {
-                    case TINYGLTF_COMPONENT_TYPE_FLOAT:
-                        (dst++)->load3((F32*)src);
-                        stride = sizeof(F32) * 3;
-                        break;
-                    default:
-                        LL_ERRS("GLTF") << "Unsupported component type for NORMAL attribute" << LL_ENDL;
-                    }
-
-                    if (bufferView.mByteStride == 0)
-                    {
-                        src += stride;
-                    }
-                    else
-                    {
-                        src += bufferView.mByteStride;
-                    }
-                }
-            }
-            else
-            {
-                LL_ERRS("GLTF") << "Unsupported type for NORMAL attribute" << LL_ENDL;
-            }
+            
+            copyAttribute(asset, it.second, dst);
         }
         else if (attribName == "TANGENT")
         {
             needs_tangent = false;
             // load tangent data
-            const U8* src = buffer.mData.data() + bufferView.mByteOffset + accessor.mByteOffset;
 
             LLStrider<LLVector4a> dst;
             mVertexBuffer->getTangentStrider(dst);
 
-            if (accessor.mType == TINYGLTF_TYPE_VEC4)
-            {
-                // load vec4 tangent data
-                for (U32 i = 0; i < numVertices; ++i)
-                {
-                    S32 stride = 0;
-                    switch (accessor.mComponentType)
-                    {
-                    case TINYGLTF_COMPONENT_TYPE_FLOAT:
-                        (dst++)->loadua((F32*)src);
-                        stride = sizeof(F32) * 4;
-                        break;
-                    default:
-                        LL_ERRS("GLTF") << "Unsupported component type for TANGENT attribute" << LL_ENDL;
-                    }
-
-                    if (bufferView.mByteStride == 0)
-                    {
-                        src += stride;
-                    }
-                    else
-                    {
-                        src += bufferView.mByteStride;
-                    }
-                }
-            }
-            else
-            {
-                LL_ERRS("GLTF") << "Unsupported type for TANGENT attribute" << LL_ENDL;
-            }
+            copyAttribute(asset, it.second, dst);
         }
         else if (attribName == "COLOR_0")
         {
             needs_color = false;
             // load color data
-            const U8* src = buffer.mData.data() + bufferView.mByteOffset + accessor.mByteOffset;
 
             LLStrider<LLColor4U> dst;
             mVertexBuffer->getColorStrider(dst);
 
-            if (accessor.mType == TINYGLTF_TYPE_VEC4)
-            {
-                // load vec4 color data
-                for (U32 i = 0; i < numVertices; ++i)
-                {
-                    S32 stride = 0;
-                    switch (accessor.mComponentType)
-                    {
-                    case TINYGLTF_COMPONENT_TYPE_FLOAT:
-                    {
-                        LLColor4 c((F32*)src);
-                        *(dst++) = c;
-                        stride = sizeof(F32) * 4;
-                    }
-                    case TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT:
-                    {
-                        U16* c = (U16*)src;
-                        *(dst++) = LLColor4U(c[0], c[1], c[2], c[3]);
-                        stride = sizeof(U16) * 4;
-                    }
-                    break;
-                    default:
-                        LL_ERRS("GLTF") << "Unsupported component type for COLOR_0 attribute" << LL_ENDL;
-                    }
-
-                    if (bufferView.mByteStride == 0)
-                    {
-                        src += stride;
-                    }
-                    else
-                    {
-                        src += bufferView.mByteStride;
-                    }
-                }
-            }
-            else
-            {
-                LL_ERRS("GLTF") << "Unsupported type for COLOR_0 attribute" << LL_ENDL;
-            }
+            copyAttribute(asset, it.second, dst);
         }
         else if (attribName == "TEXCOORD_0")
         {
             needs_texcoord = false;
             // load texcoord data
-            const U8* src = buffer.mData.data() + bufferView.mByteOffset + accessor.mByteOffset;
-
             LLStrider<LLVector2> dst;
             mVertexBuffer->getTexCoord0Strider(dst);
 
-            if (accessor.mType == TINYGLTF_TYPE_VEC2)
-            {
-                // load vec2 texcoord data
-                for (U32 i = 0; i < numVertices; ++i)
-                {
-                    S32 stride = 0;
-                    switch (accessor.mComponentType)
-                    {
-                    case TINYGLTF_COMPONENT_TYPE_FLOAT:
-                        dst->set((F32*)src);
-                        // convert to OpenGL UV space
-                        dst->mV[1] = 1.f - dst->mV[1];
-                        dst++;
-                        stride = sizeof(F32) * 2;
-                        break;
-                    default:
-                        LL_ERRS("GLTF") << "Unsupported component type for TEXCOORD_0 attribute" << LL_ENDL;
-                    }
+            LLStrider<LLVector2> tc = dst;
+            copyAttribute(asset, it.second, dst);
 
-                    if (bufferView.mByteStride == 0)
-                    {
-                        src += stride;
-                    }
-                    else
-                    {
-                        src += bufferView.mByteStride;
-                    }
-                }
-            }
-            else if (accessor.mType == TINYGLTF_TYPE_SCALAR)
-            {
-                // load scalar texcoord data
-                for (U32 i = 0; i < numVertices; ++i)
-                {
-                    S32 stride = 0;
-                    switch (accessor.mComponentType)
-                    {
-                    case TINYGLTF_COMPONENT_TYPE_FLOAT:
-                        (dst++)->set(*(F32*)src, 0.0f);
-                        stride = sizeof(F32);
-                        break;
-                    default:
-                        LL_ERRS("GLTF") << "Unsupported component type for TEXCOORD_0 attribute" << LL_ENDL;
-                    }
-
-                    if (bufferView.mByteStride == 0)
-                    {
-                        src += stride;
-                    }
-                    else
-                    {
-                        src += bufferView.mByteStride;
-                    }
-                }
-            }
-            else
-            {
-                LL_ERRS("GLTF") << "Unsupported type for TEXCOORD_0 attribute" << LL_ENDL;
+            // convert to OpenGL coordinate space
+            for (U32 i = 0; i < numVertices; ++i)
+            { 
+                tc->mV[1] = 1.0f - tc->mV[1];;
+                tc++;
             }
         }
     }
@@ -356,6 +307,7 @@ void Primitive::allocateGLResources(Asset& asset)
         }
     }
 
+    // fill in default values for missing attributes
     if (needs_color)
     { // set default color
         LLStrider<LLColor4U> dst;
@@ -387,7 +339,7 @@ void Primitive::allocateGLResources(Asset& asset)
     }
 
     if (needs_tangent)
-    {  // TODO -- generate tangents
+    {  // TODO -- generate tangents if normals and texture coordinates are present
         LLStrider<LLVector4a> dst;
         mVertexBuffer->getTangentStrider(dst);
         for (U32 i = 0; i < numVertices; ++i)
