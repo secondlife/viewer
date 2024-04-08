@@ -35,6 +35,7 @@
 #define WEBRTC_POSIX 1
 #elif __linux__
 #define WEBRTC_LINUX 1
+#define WEBRTC_POSIX 1
 #endif
 
 #include "llwebrtc.h"

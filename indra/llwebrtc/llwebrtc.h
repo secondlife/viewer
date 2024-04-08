@@ -78,7 +78,12 @@ class LLWebRTCVoiceDevice
     LLWebRTCVoiceDevice(const std::string &display_name, const std::string &id) :
         mDisplayName(display_name),
         mID(id)
-    {};
+    {
+        if (mID.empty())
+        {
+            mID = display_name;
+        }
+    };
 };
 
 typedef std::vector<LLWebRTCVoiceDevice> LLWebRTCVoiceDeviceList;

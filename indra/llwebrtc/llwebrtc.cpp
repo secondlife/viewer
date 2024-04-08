@@ -26,7 +26,6 @@
 
 #include "llwebrtc_impl.h"
 #include <algorithm>
-#include <format>
 #include <string.h>
 
 #include "api/audio_codecs/audio_decoder_factory.h"
@@ -389,7 +388,7 @@ void LLWebRTCImpl::unsetDevicesObserver(LLWebRTCDevicesObserver *observer)
 void ll_set_device_module_capture_device(rtc::scoped_refptr<webrtc::AudioDeviceModule> device_module, int16_t device)
 {
     device_module->StopRecording();
-#if LL_WINDOWS
+#if WEBRTC_WIN
     if (device < 0)
     {
         device_module->SetRecordingDevice(webrtc::AudioDeviceModule::kDefaultDevice);
@@ -442,7 +441,7 @@ void LLWebRTCImpl::setCaptureDevice(const std::string &id)
 void ll_set_device_module_render_device(rtc::scoped_refptr<webrtc::AudioDeviceModule> device_module, int16_t device)
 {
     device_module->StopPlayout();
-#if LL_WINDOWS
+#if WEBRTC_WIN
     if (device < 0)
     {
         device_module->SetPlayoutDevice(webrtc::AudioDeviceModule::kDefaultDevice);
@@ -501,10 +500,10 @@ void LLWebRTCImpl::setRenderDevice(const std::string &id)
 // updateDevices needs to happen on the worker thread.
 void LLWebRTCImpl::updateDevices()
 {
-    int16_t renderDeviceCount        = mTuningDeviceModule->PlayoutDevices();
+    int16_t renderDeviceCount  = mTuningDeviceModule->PlayoutDevices();
 
     mPlayoutDeviceList.clear();
-#if LL_WINDOWS
+#if WEBRTC_WIN
     int16_t index = 0;
 #else
     // index zero is always "Default" for darwin/linux,
@@ -522,7 +521,7 @@ void LLWebRTCImpl::updateDevices()
     int16_t captureDeviceCount        = mTuningDeviceModule->RecordingDevices();
 
     mRecordingDeviceList.clear();
-#if LL_WINDOWS
+#if WEBRTC_WIN
     index = 0;
 #else
     // index zero is always "Default" for darwin/linux,

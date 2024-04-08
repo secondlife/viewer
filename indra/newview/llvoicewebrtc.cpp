@@ -1360,7 +1360,7 @@ bool LLWebRTCVoiceClient::isCurrentChannel(const LLSD &channelInfo)
 
     if (mSession)
     {
-        if (!channelInfo["sessionHandle"].asString().empty())
+        if (!channelInfo["session_handle"].asString().empty())
         {
             return mSession->mHandle == channelInfo["session_handle"].asString();
         }
@@ -2368,12 +2368,14 @@ void LLVoiceWebRTCConnection::breakVoiceConnectionCoro()
     if (!regionp || !regionp->capabilitiesReceived())
     {
         LL_DEBUGS("Voice") << "no capabilities for voice provisioning; waiting " << LL_ENDL;
+        setVoiceConnectionState(VOICE_STATE_SESSION_RETRY);
         return;
     }
 
     std::string url = regionp->getCapability("ProvisionVoiceAccountRequest");
     if (url.empty())
     {
+        setVoiceConnectionState(VOICE_STATE_SESSION_RETRY);
         return;
     }
 

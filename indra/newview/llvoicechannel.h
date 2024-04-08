@@ -147,6 +147,8 @@ public:
 	void setChannelInfo(const LLSD &channelInfo) override;
 	void requestChannelInfo() override;
 
+	bool isP2P() { return mIsP2P; }
+
 protected:
 	void setState(EState state) override;
 
