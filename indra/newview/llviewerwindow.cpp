@@ -1425,11 +1425,17 @@ void LLViewerWindow::handleMouseMove(LLWindow *window,  LLCoordGL pos, MASK mask
 
 	mWindow->showCursorFromMouseMove();
 
-	if (gAwayTimer.getElapsedTimeF32() > LLAgent::MIN_AFK_TIME
-		&& !gDisconnected)
-	{
-		gAgent.clearAFK();
-	}
+    if (!gDisconnected)
+    {
+        if (gAwayTimer.getElapsedTimeF32() > LLAgent::MIN_AFK_TIME)
+        {
+            gAgent.clearAFK();
+        }
+        else
+        {
+            gAwayTriggerTimer.reset();
+        }
+    }
 }
 
 void LLViewerWindow::handleMouseDragged(LLWindow *window,  LLCoordGL pos, MASK mask)
@@ -1545,6 +1551,10 @@ BOOL LLViewerWindow::handleTranslatedKeyDown(KEY key,  MASK mask, BOOL repeated)
 	{
 		gAgent.clearAFK();
 	}
+    else
+    {
+        gAwayTriggerTimer.reset();
+    }
 
 	// *NOTE: We want to interpret KEY_RETURN later when it arrives as
 	// a Unicode char, not as a keydown.  Otherwise when client frame
