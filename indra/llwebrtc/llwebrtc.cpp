@@ -515,16 +515,6 @@ void LLWebRTCImpl::updateDevices()
         char name[webrtc::kAdmMaxDeviceNameSize];
         char guid[webrtc::kAdmMaxGuidSize];
         mTuningDeviceModule->PlayoutDeviceName(index, name, guid);
-
-#if WEBRTC_LINUX
-        // Linux audio implementation (pulse and alsa)
-        // return empty strings for the guid, so 
-        // use the name for the guid
-        if (!strcmp(guid, ""))
-        {
-            strcpy(guid, name);
-        }
-#endif // WEBRTC_LINUX
         mPlayoutDeviceList.emplace_back(name, guid);
     }
 
@@ -543,15 +533,6 @@ void LLWebRTCImpl::updateDevices()
         char name[webrtc::kAdmMaxDeviceNameSize];
         char guid[webrtc::kAdmMaxGuidSize];
         mTuningDeviceModule->RecordingDeviceName(index, name, guid);
-#if WEBRTC_LINUX
-        // Linux audio implementation (pulse and alsa)
-        // return empty strings for the guid, so
-        // use the name for the guid
-        if (!strcmp(guid, ""))
-        {
-            strcpy(guid, name);
-        }
-#endif  // WEBRTC_LINUX
         mRecordingDeviceList.emplace_back(name, guid);
     }
 

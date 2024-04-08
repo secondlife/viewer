@@ -3005,42 +3005,42 @@ void LLIncomingCallDialog::processCallResponse(S32 response, const LLSD &payload
 	{
 		if (type == IM_SESSION_P2P_INVITE)
 		{
-            // decline p2p voice, either via the vivox-style call mechanism
+			// decline p2p voice, either via the vivox-style call mechanism
 			// or via the webrtc-style "decline p2p" mechanism.
-            LLVoiceP2PIncomingCallInterfacePtr call = LLVoiceClient::getInstance()->getIncomingCallInterface(payload["voice_channel_info"]);
-            if (call)
-            {
-                call->declineInvite();
-            }
+			LLVoiceP2PIncomingCallInterfacePtr call = LLVoiceClient::getInstance()->getIncomingCallInterface(payload["voice_channel_info"]);
+			if (call)
+			{
+				call->declineInvite();
+			}
 			else
 			{
 				// webrtc-style decline.
-                LLViewerRegion *region = gAgent.getRegion();
-                if (region)
-                {
-                    std::string url = region->getCapability("ChatSessionRequest");
+				LLViewerRegion *region = gAgent.getRegion();
+				if (region)
+				{
+					std::string url = region->getCapability("ChatSessionRequest");
 
-                    LLSD data;
-                    data["method"]     = "decline p2p voice";
-                    data["session-id"] = session_id;
+					LLSD data;
+					data["method"]     = "decline p2p voice";
+					data["session-id"] = session_id;
 
-                    LLCoreHttpUtil::HttpCoroutineAdapter::messageHttpPost(url, data, "P2P declined", "P2P decline failed.");
-                }
+					LLCoreHttpUtil::HttpCoroutineAdapter::messageHttpPost(url, data, "P2P declined", "P2P decline failed.");
+				}
 			}
 		}
 		else
 		{
-            LLViewerRegion *region = gAgent.getRegion();
-            if (region)
-            {
-                std::string url = region->getCapability("ChatSessionRequest");
+			LLViewerRegion *region = gAgent.getRegion();
+			if (region)
+			{
+				std::string url = region->getCapability("ChatSessionRequest");
 
-                LLSD data;
-                data["method"]     = "decline invitation";
-                data["session-id"] = session_id;
+				LLSD data;
+				data["method"]     = "decline invitation";
+				data["session-id"] = session_id;
 
-                LLCoreHttpUtil::HttpCoroutineAdapter::messageHttpPost(url, data, "Invitation declined", "Invitation decline failed.");
-            }
+				LLCoreHttpUtil::HttpCoroutineAdapter::messageHttpPost(url, data, "Invitation declined", "Invitation decline failed.");
+			}
 		}
 	}
 
