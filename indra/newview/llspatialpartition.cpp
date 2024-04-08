@@ -2876,10 +2876,8 @@ void renderLights(LLDrawable* drawablep)
 class LLRenderOctreeRaycast : public LLOctreeTriangleRayIntersect
 {
 public:
-	
-	
 	LLRenderOctreeRaycast(const LLVector4a& start, const LLVector4a& dir, F32* closest_t)
-		: LLOctreeTriangleRayIntersect(start, dir, NULL, closest_t, NULL, NULL, NULL, NULL)
+		: LLOctreeTriangleRayIntersect(start, dir, nullptr, closest_t, NULL, NULL, NULL, NULL)
 	{
 
 	}
@@ -2903,7 +2901,7 @@ public:
 			size.set(vl->mBounds[1].getF32ptr());
 		}
 
-		drawBoxOutline(center, size);	
+		drawBoxOutline(center, size);
 		
 		for (U32 i = 0; i < 2; i++)
 		{

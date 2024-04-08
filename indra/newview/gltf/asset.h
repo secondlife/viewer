@@ -1,3 +1,5 @@
+#pragma once
+
 /**
  * @file asset.h
  * @brief LL GLTF Implementation
@@ -27,7 +29,7 @@
 #include "llvertexbuffer.h"
 #include "llvolumeoctree.h"
 #include "../lltinygltfhelper.h"
-
+#include "primitive.h"
 
 // LL GLTF Implementation
 namespace LL
@@ -37,13 +39,6 @@ namespace LL
         constexpr S32 INVALID_INDEX = -1;
 
         class Asset;
-
-        constexpr U32 ATTRIBUTE_MASK =
-            LLVertexBuffer::MAP_VERTEX |
-            LLVertexBuffer::MAP_NORMAL |
-            LLVertexBuffer::MAP_TEXCOORD0 |
-            LLVertexBuffer::MAP_TANGENT |
-            LLVertexBuffer::MAP_COLOR;
 
         class Buffer
         {
@@ -136,73 +131,6 @@ namespace LL
             }
         };
 
-        class Primitive
-        {
-        public:
-            LLPointer<LLVertexBuffer> mVertexBuffer;
-            LLPointer<LLVolumeOctree> mOctree;
-
-            S32 mMaterial = INVALID_INDEX;
-            U32 mMode = TINYGLTF_MODE_TRIANGLES; // default to triangles
-            U32 mGLMode = LLRender::TRIANGLES;
-            S32 mIndices = -1;
-            std::unordered_map<std::string, int> mAttributes;
-
-            // copy the attribute in the given BufferView to the given destination
-            // assumes destination has enough storage for the attribute
-            template<class T>
-            void copyAttribute(Asset& asset, S32 bufferViewIdx, LLStrider<T>& dst);
-            
-            const Primitive& operator=(const tinygltf::Primitive& src)
-            {
-                // load material
-                mMaterial = src.material;
-
-                // load mode
-                mMode = src.mode;
-
-                // load indices
-                mIndices = src.indices;
-
-                // load attributes
-                for (auto& it : src.attributes)
-                {
-                    mAttributes[it.first] = it.second;
-                }
-
-                switch (mMode)
-                {
-                case TINYGLTF_MODE_POINTS:
-                    mGLMode = LLRender::POINTS;
-                    break;
-                case TINYGLTF_MODE_LINE:
-                    mGLMode = LLRender::LINES;
-                    break;
-                case TINYGLTF_MODE_LINE_LOOP:
-                    mGLMode = LLRender::LINE_LOOP;
-                    break;
-                case TINYGLTF_MODE_LINE_STRIP:
-                    mGLMode = LLRender::LINE_STRIP;
-                    break;
-                case TINYGLTF_MODE_TRIANGLES:
-                    mGLMode = LLRender::TRIANGLES;
-                    break;
-                case TINYGLTF_MODE_TRIANGLE_STRIP:
-                    mGLMode = LLRender::TRIANGLE_STRIP;
-                    break;
-                case TINYGLTF_MODE_TRIANGLE_FAN:
-                    mGLMode = LLRender::TRIANGLE_FAN;
-                    break;
-                default:
-                    mGLMode = GL_TRIANGLES;
-                }
-
-                return *this;
-            }
-
-            void allocateGLResources(Asset& asset);
-        };
-
         class Mesh
         {
         public:
@@ -237,8 +165,11 @@ namespace LL
         class Node
         {
         public:
-            LLMatrix4a mMatrix;
-            LLMatrix4a mRenderMatrix;
+            LLMatrix4a mMatrix; //local transform
+            LLMatrix4a mRenderMatrix; //transform for rendering
+            LLMatrix4a mAssetMatrix; //transform from local to asset space
+            LLMatrix4a mAssetMatrixInv; //transform from asset to local space
+
             std::vector<S32> mChildren;
             S32 mMesh = INVALID_INDEX;
             std::string mName;
@@ -269,6 +200,10 @@ namespace LL
             // Set mRenderMatrix to a transform that can be used for the current render pass
             // modelview -- parent's render matrix
             void updateRenderTransforms(Asset& asset, const LLMatrix4a& modelview);
+
+            // update mAssetMatrix and mAssetMatrixInv
+            void updateTransforms(Asset& asset, const LLMatrix4a& parentMatrix);
+            
         };
 
         class Scene
@@ -362,7 +297,7 @@ namespace LL
         };
 
         // C++ representation of a GLTF Asset
-        class Asset
+        class Asset : public LLRefCount
         {
         public:
             std::vector<Scene> mScenes;
@@ -395,14 +330,12 @@ namespace LL
                 }
             }
 
-            void updateRenderTransforms(const LLMatrix4a& modelview)
-            {
-                for (auto& scene : mScenes)
-                {
-                    scene.updateRenderTransforms(*this, modelview);
-                }
-            }
+            // update asset-to-node and node-to-asset transforms
+            void updateTransforms();
 
+            // update node render transforms
+            void updateRenderTransforms(const LLMatrix4a& modelview);
+            
             void renderOpaque()
             {
                 for (auto& node : mNodes)
@@ -431,6 +364,16 @@ namespace LL
                     }
                 }
             }
+
+            // return the index of the node that the line segment intersects with, or -1 if no hit
+            // input and output values must be in this asset's local coordinate frame
+            S32 lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
+                LLVector4a* intersection = NULL,         // return the intersection point
+                LLVector2* tex_coord = NULL,            // return the texture coordinates of the intersection point
+                LLVector4a* normal = NULL,               // return the surface normal at the intersection point
+                LLVector4a* tangent = NULL             // return the surface tangent at the intersection point
+            );
+            
             const Asset& operator=(const tinygltf::Model& src)
             {
                 mScenes.resize(src.scenes.size());

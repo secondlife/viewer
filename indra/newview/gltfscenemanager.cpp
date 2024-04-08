@@ -31,6 +31,7 @@
 #include "llvertexbuffer.h"
 #include "llselectmgr.h"
 #include "llagent.h"
+#include "llnotificationsutil.h"
 #include "llvoavatarself.h"
 #include "llvolumeoctree.h"
 #include "gltf/asset.h"
@@ -40,26 +41,32 @@ using namespace LL;
 // temporary location of LL GLTF Implementation
 using namespace LL::GLTF;
 
-Asset* gGLTFAsset = nullptr;
-LLPointer<LLViewerObject> gGLTFObject;
-
 void GLTFSceneManager::load()
 {
-    // Load a scene from disk
-    LLFilePickerReplyThread::startPicker(
-        [](const std::vector<std::string>& filenames, LLFilePicker::ELoadFilter load_filter, LLFilePicker::ESaveFilter save_filter)
-        {
-            if (LLAppViewer::instance()->quitRequested())
+    LLViewerObject* obj = LLSelectMgr::instance().getSelection()->getFirstRootObject();
+
+    if (obj)
+    {
+        // Load a scene from disk
+        LLFilePickerReplyThread::startPicker(
+            [](const std::vector<std::string>& filenames, LLFilePicker::ELoadFilter load_filter, LLFilePicker::ESaveFilter save_filter)
             {
-                return;
-            }
-            if (filenames.size() > 0)
-            {
-                GLTFSceneManager::instance().load(filenames[0]);
-            }
-        },
-        LLFilePicker::FFLOAD_GLTF,
-        true);
+                if (LLAppViewer::instance()->quitRequested())
+                {
+                    return;
+                }
+                if (filenames.size() > 0)
+                {
+                    GLTFSceneManager::instance().load(filenames[0]);
+                }
+            },
+            LLFilePicker::FFLOAD_GLTF,
+            true);
+    }
+    else
+    {
+        LLNotificationsUtil::add("GLTFPreviewSelection");
+    }
 }
 
 void GLTFSceneManager::load(const std::string& filename)
@@ -67,38 +74,25 @@ void GLTFSceneManager::load(const std::string& filename)
     tinygltf::Model model;
     LLTinyGLTFHelper::loadModel(filename, model);
 
-    delete gGLTFAsset;
-    gGLTFAsset = new Asset();
-    *gGLTFAsset = model;
+    LLPointer<Asset> asset = new Asset();
+    *asset = model;
 
-    gGLTFAsset->allocateGLResources(filename, model);
+    asset->allocateGLResources(filename, model);
+    asset->updateTransforms();
 
     // hang the asset off the currently selected object, or off of the avatar if no object is selected
-    gGLTFObject = LLSelectMgr::instance().getSelection()->getFirstRootObject();
+    LLViewerObject* obj = LLSelectMgr::instance().getSelection()->getFirstRootObject();
 
-    if (gGLTFObject.isNull())
+    if (obj)
     { // assign to self avatar
-        gGLTFObject = gAgentAvatarp;
+        obj->mGLTFAsset = asset;
+        mObjects.push_back(obj);
     }
 }
-
-
-void Node::updateRenderTransforms(Asset& asset, const LLMatrix4a& modelview)
-{
-    matMul(mMatrix, modelview, mRenderMatrix);
-
-    for (auto& childIndex : mChildren)
-    {
-        Node& child = asset.mNodes[childIndex];
-        child.updateRenderTransforms(asset, mRenderMatrix);
-    }
-}
-
 
 GLTFSceneManager::~GLTFSceneManager()
 {
-    delete gGLTFAsset;
-    gGLTFObject = nullptr;
+    mObjects.clear();
 }
 
 void GLTFSceneManager::renderOpaque()
@@ -107,46 +101,75 @@ void GLTFSceneManager::renderOpaque()
     // by traversing the whole scenegraph
     // Assumes camera transform is already set and 
     // appropriate shader is already bound
-    if (gGLTFObject.isNull())
-    {
-        return;
-    }
-
-    if (gGLTFObject->isDead())
-    {
-        gGLTFObject = nullptr;
-        return;
-    }
-
-    if (gGLTFAsset == nullptr)
-    {
-        return;
-    }
-
+    
     gGL.matrixMode(LLRender::MM_MODELVIEW);
-    gGL.pushMatrix();
 
-    LLMatrix4a modelview;
-    modelview.loadu(gGLModelView);
+    for (U32 i = 0; i < mObjects.size(); ++i)
+    {
+        if (mObjects[i]->isDead() || mObjects[i]->mGLTFAsset == nullptr)
+        {
+            mObjects.erase(mObjects.begin() + i);
+            --i;
+            continue;
+        }
 
-    LLMatrix4a root;
-    root.loadu((F32*) gGLTFObject->getRenderMatrix().mMatrix);
-    LLVector3 scale = gGLTFObject->getScale();
-    F32 scaleMat[16] = { scale.mV[0], 0.0f, 0.0f, 0.0f,
-                            0.0f, scale.mV[1], 0.0f, 0.0f,
-                            0.0f, 0.0f, scale.mV[2], 0.0f,
-                            0.0f, 0.0f, 0.0f, 1.0f };
-    LLMatrix4a scaleMat4;
-    scaleMat4.loadu(scaleMat);
-    matMul(scaleMat4, root, root);
+        Asset* asset = mObjects[i]->mGLTFAsset;
 
-    matMul(root, modelview, modelview);
+        gGL.pushMatrix();
 
-    gGLTFAsset->updateRenderTransforms(modelview);
+        LLMatrix4a modelview;
+        modelview.loadu(gGLModelView);
 
-    gGLTFAsset->renderOpaque();
+        LLMatrix4a root;
+        root.loadu((F32*)mObjects[i]->getRenderMatrix().mMatrix);
+        LLVector3 scale = mObjects[i]->getScale();
+        F32 scaleMat[16] = { scale.mV[0], 0.0f, 0.0f, 0.0f,
+                                0.0f, scale.mV[1], 0.0f, 0.0f,
+                                0.0f, 0.0f, scale.mV[2], 0.0f,
+                                0.0f, 0.0f, 0.0f, 1.0f };
+        LLMatrix4a scaleMat4;
+        scaleMat4.loadu(scaleMat);
+        matMul(scaleMat4, root, root);
 
-    gGL.popMatrix();
+        matMul(root, modelview, modelview);
+
+        asset->updateRenderTransforms(modelview);
+        asset->renderOpaque();
+
+        gGL.popMatrix();
+    }
+}
+
+LLDrawable* GLTFSceneManager::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
+    BOOL pick_transparent,
+    BOOL pick_rigged,
+    BOOL pick_unselectable,
+    BOOL pick_reflection_probe,
+    S32* face_hit,                   // return the face hit
+    LLVector4a* intersection,         // return the intersection point
+    LLVector2* tex_coord,            // return the texture coordinates of the intersection point
+    LLVector4a* normal,               // return the surface normal at the intersection point
+    LLVector4a* tangent)			// return the surface tangent at the intersection point
+{
+    LLDrawable* drawable = nullptr;
+
+    for (U32 i = 0; i < mObjects.size(); ++i)
+    {
+        if (mObjects[i]->isDead() || mObjects[i]->mGLTFAsset == nullptr)
+        {
+            mObjects.erase(mObjects.begin() + i);
+            --i;
+            continue;
+        }
+
+        // temporary debug -- always double check objects that have GLTF scenes hanging off of them even if the ray doesn't intersect the object bounds
+        if (mObjects[i]->lineSegmentIntersect(start, end, -1, pick_transparent, pick_rigged, pick_unselectable, face_hit, intersection, tex_coord, normal, tangent))
+        {
+            drawable = mObjects[i]->mDrawable;
+        }
+    }
+
+    return drawable;
 }
 
 

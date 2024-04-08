@@ -12368,5 +12368,16 @@ Would you like to save them first?
         name="okignore"
         yestext="OK"/>
   </notification>
-  
+
+  <notification
+   icon="alertmodal.tga"
+   name="GLTFPreviewSelection"
+   type="alert">
+    You must select an object to act as a handle to the GLTF asset you are previewing.
+    <tag>fail</tag>
+    <usetemplate
+      name="okbutton"
+      yestext="OK"/>
+  </notification>
+
 </notifications>

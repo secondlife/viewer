@@ -4605,8 +4605,8 @@ LLVector3 LLVOVolume::volumeDirectionToAgent(const LLVector3& dir) const
 }
 
 
-BOOL LLVOVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end, S32 face, BOOL pick_transparent, BOOL pick_rigged, BOOL pick_unselectable, S32 *face_hitp,
-									  LLVector4a* intersection,LLVector2* tex_coord, LLVector4a* normal, LLVector4a* tangent)
+    BOOL LLVOVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end, S32 face, BOOL pick_transparent, BOOL pick_rigged, BOOL pick_unselectable, S32 *face_hitp,
+									      LLVector4a* intersection,LLVector2* tex_coord, LLVector4a* normal, LLVector4a* tangent)
 	
 {
 	if (!mbCanSelect 
@@ -4814,7 +4814,118 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a&
 			}
 		}
 	}
-		
+
+    if (mGLTFAsset.notNull())
+    {
+        if (volume)
+        {
+            LLVector4a local_start = start;
+            LLVector4a local_end = end;
+
+            LLVector3 v_start(start.getF32ptr());
+            LLVector3 v_end(end.getF32ptr());
+
+            v_start = agentPositionToVolume(v_start);
+            v_end = agentPositionToVolume(v_end);
+
+            local_start.load3(v_start.mV);
+            local_end.load3(v_end.mV);
+
+            LLVector4a p;
+            LLVector4a n;
+            LLVector2 tc;
+            LLVector4a tn;
+
+            if (intersection != NULL)
+            {
+                p = *intersection;
+            }
+
+            if (tex_coord != NULL)
+            {
+                tc = *tex_coord;
+            }
+
+            if (normal != NULL)
+            {
+                n = *normal;
+            }
+
+            if (tangent != NULL)
+            {
+                tn = *tangent;
+            }
+
+            S32 hit_node_index = mGLTFAsset->lineSegmentIntersect(local_start, local_end, &p, &tc, &n, &tn);
+
+            if (hit_node_index >= 0)
+            {
+                local_end = p;
+                if (face_hitp != NULL)
+                {
+                    *face_hitp = -hit_node_index; // hack, return negative index to indicate its a node index and not a face index
+                }
+
+                if (intersection != NULL)
+                {
+                    if (transform)
+                    {
+                        LLVector3 v_p(p.getF32ptr());
+
+                        intersection->load3(volumePositionToAgent(v_p).mV);  // must map back to agent space
+                    }
+                    else
+                    {
+                        *intersection = p;
+                    }
+                }
+
+                if (normal != NULL)
+                {
+                    if (transform)
+                    {
+                        LLVector3 v_n(n.getF32ptr());
+                        normal->load3(volumeDirectionToAgent(v_n).mV);
+                    }
+                    else
+                    {
+                        *normal = n;
+                    }
+                    (*normal).normalize3fast();
+                }
+
+                if (tangent != NULL)
+                {
+                    if (transform)
+                    {
+                        LLVector3 v_tn(tn.getF32ptr());
+
+                        LLVector4a trans_tangent;
+                        trans_tangent.load3(volumeDirectionToAgent(v_tn).mV);
+
+                        LLVector4Logical mask;
+                        mask.clear();
+                        mask.setElement<3>();
+
+                        tangent->setSelectWithMask(mask, tn, trans_tangent);
+                    }
+                    else
+                    {
+                        *tangent = tn;
+                    }
+                    (*tangent).normalize3fast();
+                }
+
+                if (tex_coord != NULL)
+                {
+                    *tex_coord = tc;
+                }
+
+                ret = TRUE;
+            }
+        }
+    }
+
 	return ret;
 }
 

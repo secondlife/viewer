@@ -76,6 +76,7 @@ endif (NOT HAVOK_TPV)
 set(viewer_SOURCE_FILES
     gltfscenemanager.cpp
     gltf/asset.cpp
+    gltf/primitive.cpp
     groupchatlistener.cpp
     llaccountingcostmanager.cpp
     llaisapi.cpp
@@ -732,6 +733,7 @@ set(viewer_HEADER_FILES
     gltfscenemanager.h
     groupchatlistener.h
     gltf/asset.h
+    gltf/primitive.h
     llaccountingcost.h
     llaccountingcostmanager.h
     llaisapi.h

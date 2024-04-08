@@ -27,6 +27,7 @@
  */
 
 #include "llsingleton.h"
+#include "llviewerobject.h"
 
 namespace LL
 {
@@ -39,6 +40,19 @@ namespace LL
         void load(); // open filepicker to choose asset
         void load(const std::string& filename); // load asset from filename
         void renderOpaque();
+
+        LLDrawable* lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
+            BOOL pick_transparent,
+            BOOL pick_rigged,
+            BOOL pick_unselectable,
+            BOOL pick_reflection_probe,
+            S32* face_hit,                   // return the face hit
+            LLVector4a* intersection,         // return the intersection point
+            LLVector2* tex_coord,            // return the texture coordinates of the intersection point
+            LLVector4a* normal,               // return the surface normal at the intersection point
+            LLVector4a* tangent);			// return the surface tangent at the intersection point
+
+        std::vector<LLPointer<LLViewerObject>> mObjects;
     };
 }
 

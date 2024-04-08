@@ -377,77 +377,6 @@ BOOL LLTriangleRayIntersect(const LLVector3& vert0, const LLVector3& vert1, cons
 	}
 }
 
-class LLVolumeOctreeRebound : public LLOctreeTravelerDepthFirst<LLVolumeTriangle, LLVolumeTriangle*>
-{
-public:
-	const LLVolumeFace* mFace;
-
-	LLVolumeOctreeRebound(const LLVolumeFace* face)
-	{
-		mFace = face;
-	}
-
-    virtual void visit(const LLOctreeNode<LLVolumeTriangle, LLVolumeTriangle*>* branch)
-	{ //this is a depth first traversal, so it's safe to assum all children have complete
-		//bounding data
-	LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME
-
-		LLVolumeOctreeListener* node = (LLVolumeOctreeListener*) branch->getListener(0);
-
-		LLVector4a& min = node->mExtents[0];
-		LLVector4a& max = node->mExtents[1];
-
-		if (!branch->isEmpty())
-		{ //node has data, find AABB that binds data set
-			const LLVolumeTriangle* tri = *(branch->getDataBegin());
-			
-			//initialize min/max to first available vertex
-			min = *(tri->mV[0]);
-			max = *(tri->mV[0]);
-			
-            for (LLOctreeNode<LLVolumeTriangle, LLVolumeTriangle*>::const_element_iter iter = branch->getDataBegin(); iter != branch->getDataEnd(); ++iter)
-			{ //for each triangle in node
-
-				//stretch by triangles in node
-				tri = *iter;
-				
-				min.setMin(min, *tri->mV[0]);
-				min.setMin(min, *tri->mV[1]);
-				min.setMin(min, *tri->mV[2]);
-
-				max.setMax(max, *tri->mV[0]);
-				max.setMax(max, *tri->mV[1]);
-				max.setMax(max, *tri->mV[2]);
-			}
-		}
-		else if (branch->getChildCount() > 0)
-		{ //no data, but child nodes exist
-			LLVolumeOctreeListener* child = (LLVolumeOctreeListener*) branch->getChild(0)->getListener(0);
-
-			//initialize min/max to extents of first child
-			min = child->mExtents[0];
-			max = child->mExtents[1];
-		}
-		else
-		{
-            llassert(!branch->isLeaf()); // Empty leaf
-		}
-
-		for (S32 i = 0; i < branch->getChildCount(); ++i)
-		{  //stretch by child extents
-			LLVolumeOctreeListener* child = (LLVolumeOctreeListener*) branch->getChild(i)->getListener(0);
-			min.setMin(min, child->mExtents[0]);
-			max.setMax(max, child->mExtents[1]);
-		}
-
-		node->mBounds[0].setAdd(min, max);
-		node->mBounds[0].mul(0.5f);
-
-		node->mBounds[1].setSub(max,min);
-		node->mBounds[1].mul(0.5f);
-	}
-};
-
 //-------------------------------------------------------------------
 // statics
 //-------------------------------------------------------------------
@@ -5509,7 +5438,6 @@ struct MikktData
     }
 };
 
-
 bool LLVolumeFace::cacheOptimize(bool gen_tangents)
 { //optimize for vertex cache according to Forsyth method: 
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
@@ -5732,7 +5660,7 @@ void LLVolumeFace::createOctree(F32 scaler, const LLVector4a& center, const LLVe
 	while (!mOctree->balance())	{ }
 
 	//calculate AABB for each node
-	LLVolumeOctreeRebound rebound(this);
+	LLVolumeOctreeRebound rebound;
 	rebound.traverse(mOctree);
 
 	if (gDebugGL)
