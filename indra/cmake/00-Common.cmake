@@ -141,6 +141,7 @@ if (LINUX)
           -Wno-pessimizing-move
           -Wno-stringop-overflow
           -Wno-stringop-truncation
+          -Wno-dangling-pointer
           -fvisibility=hidden
   )
   add_link_options(
@@ -189,6 +190,10 @@ if (DARWIN)
   set(GCC_WARNINGS -Wall -Wno-sign-compare -Wno-trigraphs)
 
   list(APPEND GCC_WARNINGS -Wno-reorder -Wno-non-virtual-dtor )
+
+  if(LINUX)
+    list(APPEND GCC_WARNINGS -Wno-maybe-uninitialized -Wno-dangling-pointer )
+  endif()
 
   add_compile_options(${GCC_WARNINGS})
   add_compile_options(-m${ADDRESS_SIZE})

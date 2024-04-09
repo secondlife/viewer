@@ -39,6 +39,36 @@
         <key>description</key>
         <string>Simple DirectMedia Layer is a cross-platform multimedia library designed to provide low level access to audio, keyboard, mouse, joystick, 3D hardware via OpenGL, and 2D video framebuffer.</string>
       </map>
+      <key>fltk</key>
+      <map>
+        <key>platforms</key>
+        <map>
+          <key>linux64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>691fef2ddd57d7b6c26e87fc82d9ace3f54e078c</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://github.com/secondlife/3p-fltk/releases/download/v1.3.9-r1/fltk-1.3.9.8556992788-linux64-8556992788.tar.zst</string>
+            </map>
+            <key>name</key>
+            <string>linux</string>
+          </map>
+        </map>
+        <key>license</key>
+        <string>LGPL/fltk</string>
+        <key>license_file</key>
+        <string>LICENSES/fltk.txt</string>
+        <key>copyright</key>
+        <string>Copyright (C) fltk project</string>
+        <key>version</key>
+        <string>1.3.5</string>
+        <key>name</key>
+        <string>fltk</string>
+      </map>
       <key>apr_suite</key>
       <map>
         <key>platforms</key>
@@ -924,9 +954,13 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>00d0333936a67059a43a6ec8ac38d564</string>
+              <string>ebfb82b6143874e7938b9d1e8a70d0a2e28aa818</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/748/1563/havok_source-2012.1-2-linux64-500739.tar.bz2</string>
+              <string>https://api.github.com/repos/secondlife/3p-havok-source/releases/assets/108912599</string>
+              <key>creds</key>
+              <string>github</string>
             </map>
             <key>name</key>
             <string>linux64</string>

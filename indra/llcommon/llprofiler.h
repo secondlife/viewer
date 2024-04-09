@@ -74,10 +74,6 @@
 #define LL_PROFILER_CONFIGURATION           LL_PROFILER_CONFIG_FAST_TIMER
 #endif
 
-#if LL_PROFILER_CONFIGURATION == LL_PROFILER_CONFIG_TRACY || LL_PROFILER_CONFIGURATION == LL_PROFILER_CONFIG_TRACY_FAST_TIMER
-    #include "Tracy.hpp"
-#endif
-
 extern thread_local bool gProfilerEnabled;
 
 #if defined(LL_PROFILER_CONFIGURATION) && (LL_PROFILER_CONFIGURATION > LL_PROFILER_CONFIG_NONE)
@@ -88,6 +84,7 @@ extern thread_local bool gProfilerEnabled;
 //      #define TRACY_NO_BROADCAST   1
 //      #define TRACY_ONLY_LOCALHOST 1
         #define TRACY_ONLY_IPV4      1
+        #include "Tracy.hpp"
 
         // Enable OpenGL profiling
         #define LL_PROFILER_ENABLE_TRACY_OPENGL 0

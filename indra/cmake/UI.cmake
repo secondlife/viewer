@@ -6,25 +6,15 @@ include(GLIB)
 add_library( ll::uilibraries INTERFACE IMPORTED )
 
 if (LINUX)
-  target_compile_definitions(ll::uilibraries INTERFACE LL_X11=1 )
+  use_prebuilt_binary(fltk)
+  target_compile_definitions(ll::uilibraries INTERFACE LL_FLTK=1 LL_X11=1 )
 
   if( USE_CONAN )
     return()
   endif()
 
-  find_package(FLTK REQUIRED )
-  find_library(ND_FLTK_STATIC_LIBRARY libfltk.a PATH_SUFFIXES fltk )
-
-  if( NOT ND_FLTK_STATIC_LIBRARY )
-    message(FATAL_ERROR "libfltk.a not found")
-  else()
-    message("libfltk.a found ${ND_FLTK_STATIC_LIBRARY}")
-  endif()
-
-  target_include_directories( ll::uilibraries SYSTEM INTERFACE   ${FLTK_INCLUDE_DIR})
-  target_compile_definitions( ll::uilibraries INTERFACE LL_FLTK=1 )
   target_link_libraries( ll::uilibraries INTERFACE
-          ${ND_FLTK_STATIC_LIBRARY}
+          fltk
           Xrender
           Xcursor
           Xfixes
