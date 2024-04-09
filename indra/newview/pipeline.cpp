@@ -4525,6 +4525,8 @@ void LLPipeline::renderDebug()
 		}
 	}
 
+    LL::GLTFSceneManager::instance().renderDebug();
+
 	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_OCCLUSION))
 	{ //render visible selected group occlusion geometry
 		gDebugProgram.bind();

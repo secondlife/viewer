@@ -475,3 +475,8 @@ const LLVolumeTriangle* Primitive::lineSegmentIntersect(const LLVector4a& start,
     return intersect.mHitTriangle;
 }
 
+Primitive::~Primitive()
+{
+    mOctree = nullptr;
+}
+

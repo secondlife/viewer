@@ -220,6 +220,7 @@ namespace LL
                 return *this;
             }
 
+            void updateTransforms(Asset& asset);
             void updateRenderTransforms(Asset& asset, const LLMatrix4a& modelview);
             
         };

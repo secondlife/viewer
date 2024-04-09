@@ -3002,15 +3002,12 @@ void renderRaycast(LLDrawable* drawablep)
 					dir.setSub(end, start);
 
 					gGL.flush();
-					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);				
+					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 					{
 						//render face positions
-						LLVertexBuffer::unbind();
 						gGL.diffuseColor4f(0,1,1,0.5f);
-						glVertexPointer(3, GL_FLOAT, sizeof(LLVector4a), face.mPositions);
-						gGL.syncMatrices();
-						glDrawElements(GL_TRIANGLES, face.mNumIndices, GL_UNSIGNED_SHORT, face.mIndices);
+                        LLVertexBuffer::drawElements(LLRender::TRIANGLES, face.mPositions, nullptr, face.mNumIndices, face.mIndices);
 					}
 					
 					if (!volume->isUnique())

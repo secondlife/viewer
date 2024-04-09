@@ -31,7 +31,6 @@
 
 namespace LL
 {
-
     class GLTFSceneManager : public LLSimpleton<GLTFSceneManager>
     {
     public:
@@ -51,6 +50,11 @@ namespace LL
             LLVector2* tex_coord,            // return the texture coordinates of the intersection point
             LLVector4a* normal,               // return the surface normal at the intersection point
             LLVector4a* tangent);			// return the surface tangent at the intersection point
+
+        bool lineSegmentIntersect(LLVOVolume* obj, GLTF::Asset* asset, const LLVector4a& start, const LLVector4a& end, S32 face, BOOL pick_transparent, BOOL pick_rigged, BOOL pick_unselectable, S32* face_hitp,
+            LLVector4a* intersection, LLVector2* tex_coord, LLVector4a* normal, LLVector4a* tangent);
+
+        void renderDebug();
 
         std::vector<LLPointer<LLViewerObject>> mObjects;
     };

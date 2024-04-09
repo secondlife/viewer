@@ -46,6 +46,8 @@ namespace LL
         class Primitive
         {
         public:
+            ~Primitive();
+
             // GPU copy of mesh data
             LLPointer<LLVertexBuffer> mVertexBuffer;
 

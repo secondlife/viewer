@@ -32,6 +32,17 @@
 
 using namespace LL::GLTF;
 
+void Scene::updateTransforms(Asset& asset)
+{
+    LLMatrix4a identity;
+    identity.setIdentity();
+    for (auto& nodeIndex : mNodes)
+    {
+        Node& node = asset.mNodes[nodeIndex];
+        node.updateTransforms(asset, identity);
+    }
+}
+
 void Scene::updateRenderTransforms(Asset& asset, const LLMatrix4a& modelview)
 {
     for (auto& nodeIndex : mNodes)
@@ -69,25 +80,32 @@ void Node::updateTransforms(Asset& asset, const LLMatrix4a& parentMatrix)
 
 void Asset::updateTransforms()
 {
-    LLMatrix4a identity;
-    identity.setIdentity();
-
     for (auto& scene : mScenes)
     {
-        for (auto& nodeIndex : scene.mNodes)
-        {
-            Node& node = mNodes[nodeIndex];
-            node.updateTransforms(*this, identity);
-        }
+        scene.updateTransforms(*this);
     }
 }
 
 void Asset::updateRenderTransforms(const LLMatrix4a& modelview)
 {
+#if 0
+    // traverse hierarchy and update render transforms from scratch
     for (auto& scene : mScenes)
     {
         scene.updateRenderTransforms(*this, modelview);
     }
+#else
+    // use mAssetMatrix to update render transforms from node list
+    for (auto& node : mNodes)
+    {
+        if (node.mMesh != INVALID_INDEX)
+        {
+            matMul(node.mAssetMatrix, modelview, node.mRenderMatrix);
+        }
+    }
+
+#endif
+
 }
 
 S32 Asset::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
@@ -107,7 +125,7 @@ S32 Asset::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
 
             bool newHit = false;
 
-            // transform start and end from to this node's local space
+            // transform start and end to this node's local space
             node.mAssetMatrixInv.affineTransform(start, local_start);
             node.mAssetMatrixInv.affineTransform(end, local_end);
 
@@ -125,6 +143,7 @@ S32 Asset::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
 
             if (newHit)
             {
+                // transform results back to asset space
                 if (intersection)
                 {
                     node.mAssetMatrix.affineTransform(*intersection, *intersection);
