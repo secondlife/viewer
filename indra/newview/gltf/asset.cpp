@@ -27,9 +27,6 @@
 #include "asset.h"
 #include "llvolumeoctree.h"
 
-// disable optimizations for debugging
-#pragma optimize("", off)
-
 using namespace LL::GLTF;
 
 void Scene::updateTransforms(Asset& asset)

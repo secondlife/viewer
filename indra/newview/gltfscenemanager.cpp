@@ -39,8 +39,6 @@
 #include "llviewershadermgr.h"
 
 
-#pragma optimize("", off)
-
 using namespace LL;
 
 // temporary location of LL GLTF Implementation

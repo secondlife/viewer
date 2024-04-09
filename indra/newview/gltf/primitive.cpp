@@ -27,11 +27,7 @@
 #include "asset.h"
 #include "../lltinygltfhelper.h"
 
-// disable optimizations for debugging
-#pragma optimize("", off)
-
 using namespace LL::GLTF;
-
 
 #ifndef __PRETTY_FUNCTION__
 #define __PRETTY_FUNCTION__ __FUNCSIG__
