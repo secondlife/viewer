@@ -2945,6 +2945,13 @@ public:
 	}
 };
 
+void renderOctreeRaycast(const LLVector4a& start, const LLVector4a& end, const LLVolumeOctree* octree)
+{
+    F32 t = 1.f;
+    LLRenderOctreeRaycast render(start, end, &t);
+    render.traverse(octree);
+}
+
 void renderRaycast(LLDrawable* drawablep)
 {
 	if (drawablep->getNumFaces())
@@ -3006,22 +3013,18 @@ void renderRaycast(LLDrawable* drawablep)
 
 					{
 						//render face positions
-						gGL.diffuseColor4f(0,1,1,0.5f);
-                        LLVertexBuffer::drawElements(LLRender::TRIANGLES, face.mPositions, nullptr, face.mNumIndices, face.mIndices);
+						//gGL.diffuseColor4f(0,1,1,0.5f);
+                        //LLVertexBuffer::drawElements(LLRender::TRIANGLES, face.mPositions, nullptr, face.mNumIndices, face.mIndices);
 					}
 					
 					if (!volume->isUnique())
 					{
-						F32 t = 1.f;
-
                         if (!face.getOctree())
 						{
 							((LLVolumeFace*) &face)->createOctree(); 
 						}
 
-						LLRenderOctreeRaycast render(start, dir, &t);
-					
-                        render.traverse(face.getOctree());
+                        renderOctreeRaycast(start, end, face.getOctree());
 					}
 
 					gGL.popMatrix();		

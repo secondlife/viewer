@@ -373,63 +373,65 @@ void Primitive::createOctree()
     // create octree
     mOctree = new LLVolumeOctree();
 
-    if (mMode != TINYGLTF_MODE_TRIANGLES)
+    if (mMode == TINYGLTF_MODE_TRIANGLES)
     {
-        return;
+        F32 scaler = 0.25f;
+
+        const U32 num_triangles = mVertexBuffer->getNumIndices() / 3;
+        // Initialize all the triangles we need
+        mOctreeTriangles.resize(num_triangles);
+
+        LLVector4a* pos = (LLVector4a*)(mVertexBuffer->getMappedData() + mVertexBuffer->getOffset(LLVertexBuffer::TYPE_VERTEX));
+        U16* indices = (U16*)mVertexBuffer->getMappedIndices();
+
+        for (U32 triangle_index = 0; triangle_index < num_triangles; ++triangle_index)
+        { //for each triangle
+            const U32 index = triangle_index * 3;
+            LLVolumeTriangle* tri = &mOctreeTriangles[triangle_index];
+            const LLVector4a& v0 = pos[indices[index]];
+            const LLVector4a& v1 = pos[indices[index + 1]];
+            const LLVector4a& v2 = pos[indices[index + 2]];
+
+            //store pointers to vertex data
+            tri->mV[0] = &v0;
+            tri->mV[1] = &v1;
+            tri->mV[2] = &v2;
+
+            //store indices
+            tri->mIndex[0] = indices[index];
+            tri->mIndex[1] = indices[index + 1];
+            tri->mIndex[2] = indices[index + 2];
+
+            //get minimum point
+            LLVector4a min = v0;
+            min.setMin(min, v1);
+            min.setMin(min, v2);
+
+            //get maximum point
+            LLVector4a max = v0;
+            max.setMax(max, v1);
+            max.setMax(max, v2);
+
+            //compute center
+            LLVector4a center;
+            center.setAdd(min, max);
+            center.mul(0.5f);
+
+            tri->mPositionGroup = center;
+
+            //compute "radius"
+            LLVector4a size;
+            size.setSub(max, min);
+
+            tri->mRadius = size.getLength3().getF32() * scaler;
+
+            //insert
+            mOctree->insert(tri);
+        }
     }
-
-    F32 scaler = 0.25f;
-
-    const U32 num_triangles = mVertexBuffer->getNumIndices() / 3;
-    // Initialize all the triangles we need
-    mOctreeTriangles.resize(num_triangles);
-
-    LLVector4a* pos = (LLVector4a*)(mVertexBuffer->getMappedData() + mVertexBuffer->getOffset(LLVertexBuffer::TYPE_VERTEX));
-    U16* indices = (U16*)mVertexBuffer->getMappedIndices();
-
-    for (U32 triangle_index = 0; triangle_index < num_triangles; ++triangle_index)
-    { //for each triangle
-        const U32 index = triangle_index * 3;
-        LLVolumeTriangle* tri = &mOctreeTriangles[triangle_index];
-        const LLVector4a& v0 = pos[indices[index]];
-        const LLVector4a& v1 = pos[indices[index + 1]];
-        const LLVector4a& v2 = pos[indices[index + 2]];
-
-        //store pointers to vertex data
-        tri->mV[0] = &v0;
-        tri->mV[1] = &v1;
-        tri->mV[2] = &v2;
-
-        //store indices
-        tri->mIndex[0] = indices[index];
-        tri->mIndex[1] = indices[index + 1];
-        tri->mIndex[2] = indices[index + 2];
-
-        //get minimum point
-        LLVector4a min = v0;
-        min.setMin(min, v1);
-        min.setMin(min, v2);
-
-        //get maximum point
-        LLVector4a max = v0;
-        max.setMax(max, v1);
-        max.setMax(max, v2);
-
-        //compute center
-        LLVector4a center;
-        center.setAdd(min, max);
-        center.mul(0.5f);
-
-        tri->mPositionGroup = center;
-
-        //compute "radius"
-        LLVector4a size;
-        size.setSub(max, min);
-
-        tri->mRadius = size.getLength3().getF32() * scaler;
-
-        //insert
-        mOctree->insert(tri);
+    else
+    {
+        LL_ERRS() << "Unsupported Primitive mode" << LL_ENDL;
     }
 
     //remove unneeded octree layers

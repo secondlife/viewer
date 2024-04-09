@@ -369,10 +369,11 @@ namespace LL
             // return the index of the node that the line segment intersects with, or -1 if no hit
             // input and output values must be in this asset's local coordinate frame
             S32 lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
-                LLVector4a* intersection = NULL,         // return the intersection point
-                LLVector2* tex_coord = NULL,            // return the texture coordinates of the intersection point
-                LLVector4a* normal = NULL,               // return the surface normal at the intersection point
-                LLVector4a* tangent = NULL             // return the surface tangent at the intersection point
+                LLVector4a* intersection = nullptr,         // return the intersection point
+                LLVector2* tex_coord = nullptr,            // return the texture coordinates of the intersection point
+                LLVector4a* normal = nullptr,               // return the surface normal at the intersection point
+                LLVector4a* tangent = nullptr,             // return the surface tangent at the intersection point
+                S32* primitive_hitp = nullptr           // return the index of the primitive that was hit
             );
             
             const Asset& operator=(const tinygltf::Model& src)

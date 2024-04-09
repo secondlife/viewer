@@ -45,13 +45,13 @@
 #include "llmatrix3a.h"
 #include "lloctree.h"
 #include "llvolume.h"
-#include "llvolumeoctree.h"
 #include "llstl.h"
 #include "llsdserialize.h"
 #include "llvector4a.h"
 #include "llmatrix4a.h"
 #include "llmeshoptimizer.h"
 #include "lltimer.h"
+#include "llvolumeoctree.h"
 
 #include "mikktspace/mikktspace.h"
 #include "mikktspace/mikktspace.c" // insert mikktspace implementation into llvolume object file
@@ -5604,8 +5604,7 @@ void LLVolumeFace::createOctree(F32 scaler, const LLVector4a& center, const LLVe
 
     llassert(mNumIndices % 3 == 0);
 
-    mOctree = new LLOctreeRoot<LLVolumeTriangle, LLVolumeTriangle*>(center, size, NULL);
-	new LLVolumeOctreeListener(mOctree);
+    mOctree = new LLVolumeOctree(center, size);
     const U32 num_triangles = mNumIndices / 3;
     // Initialize all the triangles we need
     mOctreeTriangles = new LLVolumeTriangle[num_triangles];
@@ -5673,12 +5672,12 @@ void LLVolumeFace::createOctree(F32 scaler, const LLVector4a& center, const LLVe
 void LLVolumeFace::destroyOctree()
 {
     delete mOctree;
-    mOctree = NULL;
+    mOctree = nullptr;
     delete[] mOctreeTriangles;
-    mOctreeTriangles = NULL;
+    mOctreeTriangles = nullptr;
 }
 
-const LLOctreeNode<LLVolumeTriangle, LLVolumeTriangle*>* LLVolumeFace::getOctree() const
+const LLVolumeOctree* LLVolumeFace::getOctree() const
 {
     return mOctree;
 }

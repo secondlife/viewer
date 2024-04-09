@@ -38,6 +38,9 @@
 #include "pipeline.h"
 #include "llviewershadermgr.h"
 
+
+#pragma optimize("", off)
+
 using namespace LL;
 
 // temporary location of LL GLTF Implementation
@@ -97,25 +100,40 @@ GLTFSceneManager::~GLTFSceneManager()
     mObjects.clear();
 }
 
-LLMatrix4a getModelViewMatrix(LLViewerObject* obj)
+LLMatrix4a getAssetToAgentTransform(LLViewerObject* obj)
 {
-    LLMatrix4a modelview;
-    modelview.loadu(gGLModelView);
+    LLMatrix4 root;
+    root.initScale(obj->getScale());
+    root.rotate(obj->getRenderRotation());
+    root.translate(obj->getPositionAgent());
 
-    LLMatrix4a root;
-    root.loadu((F32*)obj->getRenderMatrix().mMatrix);
+    LLMatrix4a mat;
+    mat.loadu((F32*) root.mMatrix);
+
+    return mat;
+}
+
+LLMatrix4a getAgentToAssetTransform(LLViewerObject* obj)
+{
+    LLMatrix4 root;
     LLVector3 scale = obj->getScale();
-    F32 scaleMat[16] = { scale.mV[0], 0.0f, 0.0f, 0.0f,
-                            0.0f, scale.mV[1], 0.0f, 0.0f,
-                            0.0f, 0.0f, scale.mV[2], 0.0f,
-                            0.0f, 0.0f, 0.0f, 1.0f };
-    LLMatrix4a scaleMat4;
-    scaleMat4.loadu(scaleMat);
-    matMul(scaleMat4, root, root);
+    scale.mV[0] = 1.f / scale.mV[0];
+    scale.mV[1] = 1.f / scale.mV[1];
+    scale.mV[2] = 1.f / scale.mV[2];
+        
+    root.translate(-obj->getPositionAgent());
+    root.rotate(~obj->getRenderRotation());
 
-    matMul(root, modelview, modelview);
+    LLMatrix4 scale_mat;
+    scale_mat.initScale(scale);
 
-    return modelview;
+    root *= scale_mat;
+    
+
+    LLMatrix4a mat;
+    mat.loadu((F32*) root.mMatrix);
+
+    return mat;
 }
 
 void GLTFSceneManager::renderOpaque()
@@ -140,7 +158,13 @@ void GLTFSceneManager::renderOpaque()
 
         gGL.pushMatrix();
 
-        LLMatrix4a modelview = getModelViewMatrix(mObjects[i]);
+        LLMatrix4a mat = getAssetToAgentTransform(mObjects[i]);
+
+        LLMatrix4a modelview;
+        modelview.loadu(gGLModelView);
+
+        matMul(mat, modelview, modelview);
+
         asset->updateRenderTransforms(modelview);
         asset->renderOpaque();
 
@@ -148,7 +172,16 @@ void GLTFSceneManager::renderOpaque()
     }
 }
 
-bool GLTFSceneManager::lineSegmentIntersect(LLVOVolume* obj, Asset* asset, const LLVector4a& start, const LLVector4a& end, S32 face, BOOL pick_transparent, BOOL pick_rigged, BOOL pick_unselectable, S32* face_hitp,
+LLMatrix4a inverse(const LLMatrix4a& mat)
+{
+    glh::matrix4f m((F32*)mat.mMatrix);
+    m = m.inverse();
+    LLMatrix4a ret;
+    ret.loadu(m.m);
+    return ret;
+}
+
+bool GLTFSceneManager::lineSegmentIntersect(LLVOVolume* obj, Asset* asset, const LLVector4a& start, const LLVector4a& end, S32 face, BOOL pick_transparent, BOOL pick_rigged, BOOL pick_unselectable, S32* node_hit, S32* primitive_hit,
     LLVector4a* intersection, LLVector2* tex_coord, LLVector4a* normal, LLVector4a* tangent)
 
 {
@@ -159,17 +192,14 @@ bool GLTFSceneManager::lineSegmentIntersect(LLVOVolume* obj, Asset* asset, const
 
     bool ret = false;
 
-    LLVector4a local_start = start;
-    LLVector4a local_end = end;
+    LLVector4a local_start;
+    LLVector4a local_end;
 
-    LLVector3 v_start(start.getF32ptr());
-    LLVector3 v_end(end.getF32ptr());
+    LLMatrix4a asset_to_agent = getAssetToAgentTransform(obj);
+    LLMatrix4a agent_to_asset = inverse(asset_to_agent);
 
-    v_start = obj->agentPositionToVolume(v_start);
-    v_end = obj->agentPositionToVolume(v_end);
-
-    local_start.load3(v_start.mV);
-    local_end.load3(v_end.mV);
+    agent_to_asset.affineTransform(start, local_start);
+    agent_to_asset.affineTransform(end, local_end);
 
     LLVector4a p;
     LLVector4a n;
@@ -196,21 +226,19 @@ bool GLTFSceneManager::lineSegmentIntersect(LLVOVolume* obj, Asset* asset, const
         tn = *tangent;
     }
 
-    S32 hit_node_index = asset->lineSegmentIntersect(local_start, local_end, &p, &tc, &n, &tn);
+    S32 hit_node_index = asset->lineSegmentIntersect(local_start, local_end, &p, &tc, &n, &tn, primitive_hit);
 
     if (hit_node_index >= 0)
     {
         local_end = p;
-        if (face_hitp != NULL)
+        if (node_hit != NULL)
         {
-            *face_hitp = -hit_node_index; // hack, return negative index to indicate its a node index and not a face index
+            *node_hit = hit_node_index;
         }
 
         if (intersection != NULL)
         {
-            LLVector3 v_p(p.getF32ptr());
-
-            intersection->load3(obj->volumePositionToAgent(v_p).mV);  // must map back to agent space
+            asset_to_agent.affineTransform(p, *intersection);
         }
 
         if (normal != NULL)
@@ -251,13 +279,17 @@ LLDrawable* GLTFSceneManager::lineSegmentIntersect(const LLVector4a& start, cons
     BOOL pick_rigged,
     BOOL pick_unselectable,
     BOOL pick_reflection_probe,
-    S32* face_hit,                   // return the face hit
+    S32* node_hit,                   // return the index of the node that was hit
+    S32* primitive_hit,               // return the index of the primitive that was hit
     LLVector4a* intersection,         // return the intersection point
     LLVector2* tex_coord,            // return the texture coordinates of the intersection point
     LLVector4a* normal,               // return the surface normal at the intersection point
     LLVector4a* tangent)			// return the surface tangent at the intersection point
 {
     LLDrawable* drawable = nullptr;
+    
+    LLVector4a local_end = end;
+    LLVector4a position;
 
     for (U32 i = 0; i < mObjects.size(); ++i)
     {
@@ -269,8 +301,13 @@ LLDrawable* GLTFSceneManager::lineSegmentIntersect(const LLVector4a& start, cons
         }
 
         // temporary debug -- always double check objects that have GLTF scenes hanging off of them even if the ray doesn't intersect the object bounds
-        if (lineSegmentIntersect((LLVOVolume*) mObjects[i].get(), mObjects[i]->mGLTFAsset, start, end, -1, pick_transparent, pick_rigged, pick_unselectable, face_hit, intersection, tex_coord, normal, tangent))
+        if (lineSegmentIntersect((LLVOVolume*) mObjects[i].get(), mObjects[i]->mGLTFAsset, start, local_end, -1, pick_transparent, pick_rigged, pick_unselectable, node_hit, primitive_hit, &position, tex_coord, normal, tangent))
         {
+            local_end = position;
+            if (intersection)
+            {
+                *intersection = position;
+            }
             drawable = mObjects[i]->mDrawable;
         }
     }
@@ -280,7 +317,12 @@ LLDrawable* GLTFSceneManager::lineSegmentIntersect(const LLVector4a& start, cons
 
 void drawBoxOutline(const LLVector4a& pos, const LLVector4a& size);
 
-void renderAssetDebug(Asset* asset)
+extern LLVector4a		gDebugRaycastStart;
+extern LLVector4a		gDebugRaycastEnd;
+
+void renderOctreeRaycast(const LLVector4a& start, const LLVector4a& end, const LLVolumeOctree* octree);
+
+void renderAssetDebug(LLViewerObject* obj, Asset* asset)
 {
     // render debug
     // assumes appropriate shader is already bound
@@ -288,18 +330,30 @@ void renderAssetDebug(Asset* asset)
 
     gGL.pushMatrix();
 
+    // get raycast in asset space
+    LLMatrix4a asset_to_agent = getAssetToAgentTransform(obj);
+    LLMatrix4a agent_to_asset = getAgentToAssetTransform(obj);
+
+    LLVector4a start;
+    LLVector4a end;
+
+    agent_to_asset.affineTransform(gDebugRaycastStart, start);
+    agent_to_asset.affineTransform(gDebugRaycastEnd, end);
+
+    
     for (auto& node : asset->mNodes)
     {
+        Mesh& mesh = asset->mMeshes[node.mMesh];
+
         if (node.mMesh != INVALID_INDEX)
         {
             gGL.loadMatrix((F32*)node.mRenderMatrix.mMatrix);
             
             // draw bounding box of mesh primitives
-            if (gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_BBOXES))
+            if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_BBOXES))
             {
                 gGL.color3f(0.f, 1.f, 1.f);
 
-                Mesh& mesh = asset->mMeshes[node.mMesh];
                 for (auto& primitive : mesh.mPrimitives)
                 {
                     auto* listener = (LLVolumeOctreeListener*) primitive.mOctree->getListener(0);
@@ -310,6 +364,32 @@ void renderAssetDebug(Asset* asset)
                     drawBoxOutline(center, size);
                 }
             }
+
+#if 0
+            if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_RAYCAST))
+            {
+                gGL.flush();
+                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+                // convert raycast to node local space
+                LLVector4a local_start;
+                LLVector4a local_end;
+
+                node.mAssetMatrixInv.affineTransform(start, local_start);
+                node.mAssetMatrixInv.affineTransform(end, local_end);
+
+                for (auto& primitive : mesh.mPrimitives)
+                {
+                    if (primitive.mOctree.notNull())
+                    {
+                        renderOctreeRaycast(local_start, local_end, primitive.mOctree);
+                    }
+                }
+
+                gGL.flush();
+                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            }
+#endif
         }
     }
 
@@ -342,12 +422,50 @@ void GLTFSceneManager::renderDebug()
 
         Asset* asset = obj->mGLTFAsset;
 
-        LLMatrix4a modelview = getModelViewMatrix(obj);
+
+        LLMatrix4a mat = getAssetToAgentTransform(obj);
+
+        LLMatrix4a modelview;
+        modelview.loadu(gGLModelView);
+
+        matMul(mat, modelview, modelview);
 
         asset->updateRenderTransforms(modelview);
-        renderAssetDebug(asset);
+        renderAssetDebug(obj, asset);
     }
 
+    if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_RAYCAST))
+    {
+        S32 node_hit = -1;
+        S32 primitive_hit = -1;
+        LLVector4a intersection;
+
+        LLDrawable* drawable = lineSegmentIntersect(gDebugRaycastStart, gDebugRaycastEnd, TRUE, TRUE, TRUE, TRUE, &node_hit, &primitive_hit, &intersection, nullptr, nullptr, nullptr);
+
+        if (drawable)
+        {
+            gGL.pushMatrix();
+            Asset* asset = drawable->getVObj()->mGLTFAsset;
+            Node* node = &asset->mNodes[node_hit];
+            Primitive* primitive = &asset->mMeshes[node->mMesh].mPrimitives[primitive_hit];
+
+            gGL.flush();
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            gGL.color3f(1, 0, 1);
+            drawBoxOutline(intersection, LLVector4a(0.1f, 0.1f, 0.1f, 0.f));
+
+            gGL.loadMatrix((F32*) node->mRenderMatrix.mMatrix);
+
+            
+
+            auto* listener = (LLVolumeOctreeListener*) primitive->mOctree->getListener(0);
+            drawBoxOutline(listener->mBounds[0], listener->mBounds[1]);
+
+            gGL.flush();
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            gGL.popMatrix();
+        }
+    }
     gDebugProgram.unbind();
 }
 

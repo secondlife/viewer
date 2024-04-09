@@ -210,7 +210,15 @@ public:
 class LLVolumeOctree : public LLOctreeRoot<LLVolumeTriangle, LLVolumeTriangle*>, public LLRefCount
 {
 public:
-    LLVolumeOctree() 
+    LLVolumeOctree(const LLVector4a& center, const LLVector4a& size)
+        :
+        LLOctreeRoot<LLVolumeTriangle, LLVolumeTriangle*>(center, size, nullptr),
+        LLRefCount()
+    {
+        new LLVolumeOctreeListener(this);
+    }
+    
+    LLVolumeOctree()
         : LLOctreeRoot<LLVolumeTriangle, LLVolumeTriangle*>(LLVector4a::getZero(), LLVector4a(1.f,1.f,1.f), nullptr),
         LLRefCount()
     {

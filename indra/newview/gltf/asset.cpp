@@ -63,14 +63,13 @@ void Node::updateRenderTransforms(Asset& asset, const LLMatrix4a& modelview)
     }
 }
 
+LLMatrix4a inverse(const LLMatrix4a& mat);
+
 void Node::updateTransforms(Asset& asset, const LLMatrix4a& parentMatrix)
 {
     matMul(mMatrix, parentMatrix, mAssetMatrix);
-
-    glh::matrix4f m((F32*)&mAssetMatrix);
-    m = m.inverse();
-    mAssetMatrixInv.loadu((F32*)m.m);
-
+    mAssetMatrixInv = inverse(mAssetMatrix);
+    
     for (auto& childIndex : mChildren)
     {
         Node& child = asset.mNodes[childIndex];
@@ -112,41 +111,58 @@ S32 Asset::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
     LLVector4a* intersection,         // return the intersection point
     LLVector2* tex_coord,            // return the texture coordinates of the intersection point
     LLVector4a* normal,               // return the surface normal at the intersection point
-    LLVector4a* tangent             // return the surface tangent at the intersection point
+    LLVector4a* tangent,             // return the surface tangent at the intersection point
+    S32* primitive_hitp
 )
 {
-    S32 hit = -1;
+    S32 node_hit = -1;
+    S32 primitive_hit = -1;
+
+    LLVector4a local_start;
+    LLVector4a asset_end = end;
+    LLVector4a local_end;
+    LLVector4a p;
+
+
     for (auto& node : mNodes)
     {
         if (node.mMesh != INVALID_INDEX)
         {
-            LLVector4a local_start;
-            LLVector4a local_end;
-
+            
             bool newHit = false;
 
             // transform start and end to this node's local space
             node.mAssetMatrixInv.affineTransform(start, local_start);
-            node.mAssetMatrixInv.affineTransform(end, local_end);
+            node.mAssetMatrixInv.affineTransform(asset_end, local_end);
 
             Mesh& mesh = mMeshes[node.mMesh];
             for (auto& primitive : mesh.mPrimitives)
             {
-                const LLVolumeTriangle* tri = primitive.lineSegmentIntersect(start, end, intersection, tex_coord, normal, tangent);
+                const LLVolumeTriangle* tri = primitive.lineSegmentIntersect(local_start, local_end, &p, tex_coord, normal, tangent);
                 if (tri)
                 {
                     newHit = true;
+                    local_end = p;
+
                     // pointer math to get the node index
-                    hit = &node - &mNodes[0];
+                    node_hit = &node - &mNodes[0];
+                    llassert(&mNodes[node_hit] == &node);
+
+                    //pointer math to get the primitive index
+                    primitive_hit = &primitive - &mesh.mPrimitives[0];
+                    llassert(&mesh.mPrimitives[primitive_hit] == &primitive);
                 }
             }
 
             if (newHit)
             {
+                // shorten line segment on hit
+                node.mAssetMatrix.affineTransform(p, asset_end); 
+
                 // transform results back to asset space
                 if (intersection)
                 {
-                    node.mAssetMatrix.affineTransform(*intersection, *intersection);
+                    *intersection = asset_end;
                 }
 
                 if (normal || tangent)
@@ -181,7 +197,16 @@ S32 Asset::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
             }
         }
     }
-    return hit;
+
+    if (node_hit != -1)
+    {
+        if (primitive_hitp)
+        {
+            *primitive_hitp = primitive_hit;
+        }
+    }
+
+    return node_hit;
 }
 
 
