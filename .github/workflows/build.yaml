@@ -239,7 +239,7 @@ jobs:
       # ND: We only have ReleaseOS builds for Linux so far, thus upload what we have
       # This steps can be deleted once "Release" is in place and makes "ReleaseOS" obsolete (for upload)
       - name: Upload Linux ReleaseOS archive
-        if: matrix.configuration == 'ReleaseOS' && steps.build.outputs.viewer_app && matrix.os == 'linux'
+        if: matrix.configuration == 'ReleaseOS' && steps.build.outputs.viewer_app && runner.os == 'linux'
         uses: actions/upload-artifact@v3
         with:
           name: "${{ steps.build.outputs.artifact }}-app"
