@@ -183,14 +183,15 @@ function leap.generate(pump, data, checklast)
     -- bearing that reqid. Stamp the outbound request with that reqid, and
     -- send it.
     local reqid, waitfor = requestSetup(pump, data)
-    local ok, response
+    local ok, response, resumed_with
     repeat
         ok, response = pcall(waitfor.wait, waitfor)
         if not ok then
             break
         end
-        coroutine.yield(response)
-    until checklast and checklast(response)
+        -- can resume(false) to terminate generate() and clean up
+        resumed_with = coroutine.yield(response)
+    until (checklast and checklast(response)) or (resumed_with == false)
     -- If we break the above loop, whether or not due to error, clean up.
     pending[reqid] = nil
     if not ok then
