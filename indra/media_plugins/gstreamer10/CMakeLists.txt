@@ -16,13 +16,8 @@ include(GStreamer10Plugin)
 
 ### media_plugin_gstreamer10
 
-if(NOT WINDOWS) # not windows therefore gcc LINUX and DARWIN
-add_definitions(-fPIC)
-endif()
-
 set(media_plugin_gstreamer10_SOURCE_FILES
     media_plugin_gstreamer10.cpp
-    llmediaimplgstreamer_syms.cpp
     )
 
 set(media_plugin_gstreamer10_HEADER_FILES

@@ -43,9 +43,9 @@ extern "C" {
 #include <gst/app/gstappsink.h>
 
 }
+SymbolGrabber gSymbolGrabber;
 
-#include "llmediaimplgstreamer.h"
-#include "llmediaimplgstreamer_syms.h"
+#include "llmediaimplgstreamer_syms_raw.inc"
 
 static inline void llgst_caps_unref( GstCaps * caps )
 {
@@ -139,9 +139,9 @@ MediaPluginGStreamer10::MediaPluginGStreamer10( LLPluginInstance::sendMessageFun
     , mBusWatchID ( 0 )
     , mSeekWanted(false)
     , mSeekDestination(0.0)
-    , mPump ( NULL )
-    , mPlaybin ( NULL )
-    , mAppSink ( NULL )
+    , mPump ( nullptr )
+    , mPlaybin ( nullptr )
+    , mAppSink ( nullptr )
     , mCommand ( COMMAND_NONE )
 {
 }
@@ -193,8 +193,8 @@ gboolean MediaPluginGStreamer10::processGSTEvents(GstBus *bus, GstMessage *messa
         }
         case GST_MESSAGE_ERROR:
         {
-            GError *err = NULL;
-            gchar *debug = NULL;
+            GError *err = nullptr;
+            gchar *debug = nullptr;
 
             llgst_message_parse_error (message, &err, &debug);
             if (err)
@@ -211,8 +211,8 @@ gboolean MediaPluginGStreamer10::processGSTEvents(GstBus *bus, GstMessage *messa
         {
             if (llgst_message_parse_info)
             {
-                GError *err = NULL;
-                gchar *debug = NULL;
+                GError *err = nullptr;
+                gchar *debug = nullptr;
             
                 llgst_message_parse_info (message, &err, &debug);
                 if (err)
@@ -223,8 +223,8 @@ gboolean MediaPluginGStreamer10::processGSTEvents(GstBus *bus, GstMessage *messa
         }
         case GST_MESSAGE_WARNING:
         {
-            GError *err = NULL;
-            gchar *debug = NULL;
+            GError *err = nullptr;
+            gchar *debug = nullptr;
             
             llgst_message_parse_warning (message, &err, &debug);
             if (err)
@@ -293,13 +293,13 @@ bool MediaPluginGStreamer10::navigateTo ( const std::string urlIn )
 
     mSeekWanted = false;
 
-    if (NULL == mPump ||  NULL == mPlaybin)
+    if (nullptr == mPump ||  nullptr == mPlaybin)
     {
         setStatus(STATUS_ERROR);
         return false; // error
     }
 
-    llg_object_set (G_OBJECT (mPlaybin), "uri", urlIn.c_str(), NULL);
+    llg_object_set (G_OBJECT (mPlaybin), "uri", urlIn.c_str(), nullptr);
 
     // navigateTo implicitly plays, too.
     play(1.0);
@@ -328,7 +328,7 @@ bool MediaPluginGStreamer10::update(int milliseconds)
     //  DEBUGMSG("updating media...");
     
     // sanity check
-    if (NULL == mPump || NULL == mPlaybin)
+    if (nullptr == mPump || nullptr == mPlaybin)
     {
         return false;
     }
@@ -475,7 +475,7 @@ bool MediaPluginGStreamer10::setVolume( float volume )
     mVolume = volume;
     if (mDoneInit && mPlaybin)
     {
-        llg_object_set(mPlaybin, "volume", mVolume, NULL);
+        llg_object_set(mPlaybin, "volume", mVolume, nullptr);
         return true;
     }
 
@@ -549,7 +549,7 @@ bool MediaPluginGStreamer10::load()
     mVolume = 0.1234567f; // minor hack to force an initial volume update
 
     // Create a pumpable main-loop for this media
-    mPump = llg_main_loop_new (NULL, FALSE);
+    mPump = llg_main_loop_new (nullptr, FALSE);
     if (!mPump)
     {
         setStatus(STATUS_ERROR);
@@ -582,7 +582,7 @@ bool MediaPluginGStreamer10::load()
                                             "format", G_TYPE_STRING, "RGB",
                                             "width", G_TYPE_INT, INTERNAL_TEXTURE_SIZE,
                                             "height", G_TYPE_INT, INTERNAL_TEXTURE_SIZE,
-                                            NULL );
+                                            nullptr );
 
     llgst_app_sink_set_caps( mAppSink, pCaps );
     llgst_caps_unref( pCaps );
@@ -593,7 +593,7 @@ bool MediaPluginGStreamer10::load()
         return false;
     }
     
-    llg_object_set(mPlaybin, "video-sink", mAppSink, NULL);
+    llg_object_set(mPlaybin, "video-sink", mAppSink, nullptr);
 
     return true;
 }
@@ -611,16 +611,16 @@ bool MediaPluginGStreamer10::unload ()
     {
         llgst_element_set_state (mPlaybin, GST_STATE_NULL);
         llgst_object_unref (GST_OBJECT (mPlaybin));
-        mPlaybin = NULL;
+        mPlaybin = nullptr;
     }
 
     if (mPump)
     {
         llg_main_loop_quit(mPump);
-        mPump = NULL;
+        mPump = nullptr;
     }
 
-    mAppSink = NULL;
+    mAppSink = nullptr;
 
     setStatus(STATUS_NONE);
 
@@ -628,20 +628,15 @@ bool MediaPluginGStreamer10::unload ()
 }
 
 void LogFunction(GstDebugCategory *category, GstDebugLevel level, const gchar *file, const gchar *function, gint line, GObject *object, GstDebugMessage *message, gpointer user_data )
-#ifndef LL_LINUX // Docu says we need G_GNUC_NO_INSTRUMENT, but GCC says 'error'
-    G_GNUC_NO_INSTRUMENT
-#endif
 {
-#ifdef LL_LINUX
     std::cerr << file << ":" << line << "(" << function << "): " << llgst_debug_message_get( message ) << std::endl;
-#endif
 }
 
 //static
 bool MediaPluginGStreamer10::startup()
 {
     // first - check if GStreamer is explicitly disabled
-    if (NULL != getenv("LL_DISABLE_GSTREAMER"))
+    if (nullptr != getenv("LL_DISABLE_GSTREAMER"))
         return false;
 
     // only do global GStreamer initialization once.
@@ -651,28 +646,18 @@ bool MediaPluginGStreamer10::startup()
 
         // Get symbols!
         std::vector< std::string > vctDSONames;
-#if LL_DARWIN
-#elif LL_WINDOWS
-        vctDSONames.push_back( "libgstreamer-1.0-0.dll"  );
-        vctDSONames.push_back( "libgstapp-1.0-0.dll"  );
-        vctDSONames.push_back( "libglib-2.0-0.dll" );
-        vctDSONames.push_back( "libgobject-2.0-0.dll" );
-#else // linux or other ELFy unixoid
         vctDSONames.push_back( "libgstreamer-1.0.so.0"  );
         vctDSONames.push_back( "libgstapp-1.0.so.0"  );
         vctDSONames.push_back( "libglib-2.0.so.0" );
         vctDSONames.push_back( "libgobject-2.0.so" );
-#endif
-        if( !grab_gst_syms( vctDSONames ) )
-        {
+        if( !gSymbolGrabber.grabSymbols( vctDSONames ) )
             return false;
-        }
 
         if (llgst_segtrap_set_enabled)
         {
             llgst_segtrap_set_enabled(FALSE);
         }
-#if LL_LINUX
+
         // Gstreamer tries a fork during init, waitpid-ing on it,
         // which conflicts with any installed SIGCHLD handler...
         struct sigaction tmpact, oldact;
@@ -689,36 +674,29 @@ bool MediaPluginGStreamer10::startup()
             tmpact.sa_flags = SA_SIGINFO;
             sigaction(SIGCHLD, &tmpact, &oldact);
         }
-#endif // LL_LINUX
         // Protect against GStreamer resetting the locale, yuck.
         static std::string saved_locale;
-        saved_locale = setlocale(LC_ALL, NULL);
+        saved_locale = setlocale(LC_ALL, nullptr);
         
-//      _putenv_s( "GST_PLUGIN_PATH", "E:\\gstreamer\\1.0\\x86\\lib\\gstreamer-1.0" );
-
         llgst_debug_set_default_threshold( GST_LEVEL_WARNING );
-        llgst_debug_add_log_function( LogFunction, NULL, NULL );
+        llgst_debug_add_log_function( LogFunction, nullptr, nullptr );
         llgst_debug_set_active( false );
 
         // finally, try to initialize GStreamer!
-        GError *err = NULL;
-        gboolean init_gst_success = llgst_init_check(NULL, NULL, &err);
+        GError *err = nullptr;
+        gboolean init_gst_success = llgst_init_check(nullptr, nullptr, &err);
 
         // restore old locale
         setlocale(LC_ALL, saved_locale.c_str() );
 
-#if LL_LINUX
         // restore old SIGCHLD handler
         if (!llgst_registry_fork_set_enabled)
-            sigaction(SIGCHLD, &oldact, NULL);
-#endif // LL_LINUX
+            sigaction(SIGCHLD, &oldact, nullptr);
 
         if (!init_gst_success) // fail
         {
             if (err)
-            {
                 llg_error_free(err);
-            }
             return false;
         }
         
@@ -734,8 +712,7 @@ bool MediaPluginGStreamer10::closedown()
     if (!mDoneInit)
         return false; // error
 
-    ungrab_gst_syms();
-
+    gSymbolGrabber.ungrabSymbols();
     mDoneInit = false;
 
     return true;
@@ -745,7 +722,6 @@ MediaPluginGStreamer10::~MediaPluginGStreamer10()
 {
     closedown();
 }
-
 
 std::string MediaPluginGStreamer10::getVersion()
 {
@@ -823,7 +799,7 @@ void MediaPluginGStreamer10::receiveMessage(const char *message_string)
                     if(mPixels == iter->second.mAddress)
                     {
                         // This is the currently active pixel buffer.  Make sure we stop drawing to it.
-                        mPixels = NULL;
+                        mPixels = nullptr;
                         mTextureSegmentName.clear();
                     }
                     mSharedSegments.erase(iter);

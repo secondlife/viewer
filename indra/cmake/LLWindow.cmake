@@ -16,5 +16,5 @@ if (LINUX)
   #target_link_libraries( ll::SDL INTERFACE SDL2::SDL2 SDL2::SDL2main X11)
 
   use_prebuilt_binary(SDL2)
-  target_link_libraries( ll::SDL INTERFACE SDL2 X11)
+  target_link_libraries( ll::SDL INTERFACE SDL2 sndio X11)
 endif (LINUX)

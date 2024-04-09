@@ -1130,7 +1130,7 @@ bool LLAppViewer::init()
 
 	gGLActive = FALSE;
 
-#if LL_RELEASE_FOR_DOWNLOAD
+#if LL_RELEASE_FOR_DOWNLOAD && !LL_LINUX
     // Skip updater if this is a non-interactive instance
     if (!gSavedSettings.getBOOL("CmdLineSkipUpdater") && !gNonInteractive)
     {
@@ -5662,4 +5662,3 @@ void LLAppViewer::metricsSend(bool enable_reporting)
 	// resolution in time.
 	gViewerAssetStats->restart();
 }
-

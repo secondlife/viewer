@@ -1243,20 +1243,20 @@ class LinuxManifest(ViewerManifest):
                 self.path("secondlife_256.BMP","ll_icon.BMP")
 
         # plugins
-        #with self.prefix(src=os.path.join(self.args['build'], os.pardir, 'media_plugins'), dst="bin/llplugin"):
-        #    self.path("gstreamer10/libmedia_plugin_gstreamer10.so", "libmedia_plugin_gstreamer.so")
+        with self.prefix(src=os.path.join(self.args['build'], os.pardir, 'media_plugins'), dst="bin/llplugin"):
+            self.path("gstreamer10/libmedia_plugin_gstreamer10.so", "libmedia_plugin_gstreamer.so")
 
 
-        """
-        Once we got CEF enable this
         with self.prefix(src=os.path.join(self.args['build'], os.pardir, 'media_plugins'), dst="bin/llplugin"):
             self.path("cef/libmedia_plugin_cef.so", "libmedia_plugin_cef.so" )
         with self.prefix(src=os.path.join(pkgdir, 'lib', 'release'), dst="lib"):
             self.path( "libcef.so" )
-        with self.prefix(src=os.path.join(pkgdir, 'lib', 'release', 'swiftshader'), dst=os.path.join("bin", "swiftshader") ):
-            self.path( "*.so" )
-        with self.prefix(src=os.path.join(pkgdir, 'lib', 'release', 'swiftshader'), dst=os.path.join("lib", "swiftshader") ):
-            self.path( "*.so" )
+
+            self.path( "libEGL*" )
+            self.path( "libvulkan*" )
+            self.path( "libvk_swiftshader*" )
+            self.path( "libGLESv2*" )
+            self.path( "vk_swiftshader_icd.json")
 
         with self.prefix(src=os.path.join(pkgdir, 'bin', 'release'), dst="bin"):
             self.path( "chrome-sandbox" )
@@ -1267,18 +1267,13 @@ class LinuxManifest(ViewerManifest):
             self.path( "snapshot_blob.bin" )
             self.path( "v8_context_snapshot.bin" )
 
-        with self.prefix(src=os.path.join(pkgdir, 'resources'), dst="bin"):
-            self.path( "chrome_100_percent.pak" )
-            self.path( "chrome_200_percent.pak" )
-            self.path( "resources.pak" )
-            self.path( "icudtl.dat" )
         with self.prefix(src=os.path.join(pkgdir, 'resources'), dst="lib"):
             self.path( "chrome_100_percent.pak" )
             self.path( "chrome_200_percent.pak" )
             self.path( "resources.pak" )
             self.path( "icudtl.dat" )
 
-        with self.prefix(src=os.path.join(pkgdir, 'resources', 'locales'), dst=os.path.join('bin', 'locales')):
+        with self.prefix(src=os.path.join(pkgdir, 'resources', 'locales'), dst=os.path.join('lib', 'locales')):
             self.path("am.pak")
             self.path("ar.pak")
             self.path("bg.pak")
@@ -1332,7 +1327,6 @@ class LinuxManifest(ViewerManifest):
             self.path("vi.pak")
             self.path("zh-CN.pak")
             self.path("zh-TW.pak")
-        """
 
         self.path("featuretable_linux.txt")
         self.path("cube.dae")

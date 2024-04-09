@@ -167,6 +167,56 @@ void MediaPluginBase::sendStatus()
 	sendMessage(message);
 }
 
+#if LL_LINUX
+
+size_t SymbolGrabber::registerSymbol( SymbolToGrab aSymbol )
+{
+    gSymbolsToGrab.emplace_back(aSymbol);
+    return gSymbolsToGrab.size();
+}
+
+bool SymbolGrabber::grabSymbols(std::vector< std::string > const &aDSONames)
+{
+    std::cerr << "SYMBOLS: " << gSymbolsToGrab.size() << std::endl;
+
+    if (sSymsGrabbed)
+        return true;
+
+    //attempt to load the shared libraries
+    apr_pool_create(&sSymPADSOMemoryPool, nullptr);
+
+    for( std::vector< std::string >::const_iterator itr = aDSONames.begin(); itr != aDSONames.end(); ++itr )
+    {
+        apr_dso_handle_t *pDSO(NULL);
+        std::string strDSO{ *itr };
+        if( APR_SUCCESS == apr_dso_load( &pDSO, strDSO.c_str(), sSymPADSOMemoryPool ))
+            sLoadedLibraries.push_back( pDSO );
+
+        for( auto i = 0; i < gSymbolsToGrab.size(); ++i )
+        {
+            if( !*gSymbolsToGrab[i].mPPFunc )
+                apr_dso_sym( gSymbolsToGrab[i].mPPFunc, pDSO, gSymbolsToGrab[i].mName );
+        }
+    }
+
+    bool sym_error = false;
+
+    for( auto i = 0; i < gSymbolsToGrab.size(); ++i )
+    {
+        if( gSymbolsToGrab[ i ].mRequired && ! *gSymbolsToGrab[ i ].mPPFunc )
+            sym_error = true;
+    }
+
+    sSymsGrabbed = !sym_error;
+    return sSymsGrabbed;
+}
+
+void SymbolGrabber::ungrabSymbols()
+{
+
+}
+#endif
+
 
 #if LL_WINDOWS
 # define LLSYMEXPORT __declspec(dllexport)

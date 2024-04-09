@@ -99,7 +99,7 @@ jobs:
 
       - name: Install Linux dependencies
         if: runner.os == 'linux'
-        run: sudo apt update && sudo apt install -y libfltk1.3-dev libunwind-dev libgl1-mesa-dev libglu1-mesa-dev libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev libxrender-dev libxfixes-dev libxxf86vm-dev libxss-dev libdbus-1-dev libudev-dev libssl-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libfreetype6-dev ninja-build libxft-dev
+        run: sudo apt update && sudo apt install -y libsndio-dev libpulse-dev libfltk1.3-dev libunwind-dev libgl1-mesa-dev libglu1-mesa-dev libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev libxrender-dev libxfixes-dev libxxf86vm-dev libxss-dev libdbus-1-dev libudev-dev libssl-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libfreetype6-dev ninja-build libxft-dev
 
       - name: Install windows dependencies
         if: runner.os == 'Windows'
@@ -239,7 +239,7 @@ jobs:
       # ND: We only have ReleaseOS builds for Linux so far, thus upload what we have
       # This steps can be deleted once "Release" is in place and makes "ReleaseOS" obsolete (for upload)
       - name: Upload Linux ReleaseOS archive
-        if: matrix.configuration == 'ReleaseOS' && steps.build.outputs.viewer_app && matrix.os == 'linux'
+        if: matrix.configuration == 'ReleaseOS' && steps.build.outputs.viewer_app && runner.os == 'linux'
         uses: actions/upload-artifact@v3
         with:
           name: "${{ steps.build.outputs.artifact }}-app"
