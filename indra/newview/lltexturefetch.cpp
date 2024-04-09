@@ -1800,8 +1800,22 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		setState(DECODE_IMAGE_UPDATE);
 		LL_DEBUGS(LOG_TXT) << mID << ": Decoding. Bytes: " << mFormattedImage->getDataSize() << " Discard: " << discard
 						   << " All Data: " << mHaveAllData << LL_ENDL;
-		mDecodeHandle = LLAppViewer::getImageDecodeThread()->decodeImage(mFormattedImage, discard, mNeedsAux,
-																  new DecodeResponder(mFetcher, mID, this));
+
+        // In case worked manages to request decode, be shut down,
+        // then init and request decode again with first decode
+        // still in progress, assign a sufficiently unique id
+        mDecodeHandle = LLAppViewer::getImageDecodeThread()->decodeImage(mFormattedImage,
+                                                                       discard,
+                                                                       mNeedsAux,
+                                                                       new DecodeResponder(mFetcher, mID, this));
+        if (mDecodeHandle == 0)
+        {
+            // Abort, failed to put into queue.
+            // Happens if viewer is shutting down
+            setState(DONE);
+            LL_DEBUGS(LOG_TXT) << mID << " DECODE_IMAGE abort: failed to post for decoding" << LL_ENDL;
+            return true;
+        }
 		// fall though
 	}
 	
@@ -2314,7 +2328,6 @@ void LLTextureFetchWorker::callbackDecoded(bool success, const std::string &erro
 	}
 	if (mState != DECODE_IMAGE_UPDATE)
 	{
-// 		LL_WARNS(LOG_TXT) << "Decode callback for " << mID << " with state = " << mState << LL_ENDL;
 		mDecodeHandle = 0;
 		return;
 	}

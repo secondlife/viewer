@@ -611,7 +611,6 @@ public:
 	LLFloater* getFrontmostClosableFloater(); 
 
 	void setToolbarRect(LLToolBarEnums::EToolBarLocation tb, const LLRect& toolbar_rect);
-	void onDestroyFloater(LLFloater* floater);
 
 private:
 	void hiddenFloaterClosed(LLFloater* floater);
@@ -627,7 +626,7 @@ private:
 	S32				mMinimizePositionVOffset;
 	typedef std::vector<std::pair<LLHandle<LLFloater>, boost::signals2::connection> > hidden_floaters_t;
 	hidden_floaters_t mHiddenFloaters;
-	LLFloater *		mFrontChild;
+    LLHandle<LLFloater>	mFrontChildHandle;
 };
 
 //

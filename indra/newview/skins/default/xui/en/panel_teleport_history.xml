@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="Teleport History" bottom="0" height="400" left="0" width="313"
      help_topic="panel_teleport_history"
      border="false" follows="left|top|right|bottom"

@@ -53,6 +53,7 @@ public:
 						 const LLPointer<Responder>& responder);
 	size_t getPending();
 	size_t update(F32 max_time_ms);
+    S32 getTotalDecodeCount() { return mDecodeCount; }
 	void shutdown();
 
 private:
@@ -60,6 +61,7 @@ private:
 	// LLQueuedThread - instead this is the API by which we submit work to the
 	// "ImageDecode" ThreadPool.
 	std::unique_ptr<LL::ThreadPool> mThreadPool;
+    LLAtomicU32 mDecodeCount;
 };
 
 #endif
