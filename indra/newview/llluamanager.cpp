@@ -190,7 +190,6 @@ void LLLUAmanager::runScriptFile(const std::string &filename, script_result_fn r
             // It will be called when the LuaState is destroyed.
             LuaState L(finished_cb);
 
-            static int index = 0;
             lua_callbacks(L)->interrupt = [](lua_State *L, int gc)
             {
                 if (gc >= 0)
