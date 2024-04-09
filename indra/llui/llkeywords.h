@@ -29,6 +29,7 @@
 
 
 #include "lldir.h"
+#include "llstyle.h"
 #include "llstring.h"
 #include "v3color.h"
 #include "v4color.h"
@@ -115,8 +116,8 @@ public:
 
 	void		findSegments(std::vector<LLTextSegmentPtr> *seg_list,
 							 const LLWString& text,
-							 const LLColor4 &defaultColor,
-							 class LLTextEditor& editor);
+							 class LLTextEditor& editor,
+                             LLStyleConstSP style);
 	void		initialize(LLSD SyntaxXML);
 	void		processTokens();
 
@@ -181,8 +182,10 @@ protected:
 							   S32 text_len,
 							   S32 seg_start,
 							   S32 seg_end,
-							   const LLColor4 &defaultColor,
+							   LLStyleConstSP style,
 							   LLTextEditor& editor);
+
+    void insertSegment(std::vector<LLTextSegmentPtr>& seg_list, LLTextSegmentPtr new_segment, S32 text_len, LLStyleConstSP style, LLTextEditor& editor );
 
 	bool		mLoaded;
 	LLSD		mSyntax;

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <menu_bar
  bg_visible="false"
  follows="left|top|right"
@@ -63,6 +63,14 @@
         <menu_item_call.on_click
          function="Floater.ToggleOrBringToFront"
          parameter="camera" />
+      </menu_item_call>
+      <menu_item_call
+       label="Notifications..."
+       name="Notifications"
+       shortcut="alt|shift|N">
+        <menu_item_call.on_click
+         function="Floater.ToggleOrBringToFront"
+         parameter="notification_well_window" />
       </menu_item_call>
 
       <menu_item_separator/>
@@ -487,7 +495,7 @@
      name="Help with avatars">
         <menu_item_call.on_click
             function="Advanced.ShowURL"
-            parameter="https://community.secondlife.com/search/?type=cms_records3&amp;tags=avatar&amp;nodes=30&amp;search_and_or=or"/>
+            parameter="https://community.secondlife.com/knowledgebase/english/controlling-your-avatars-appearance-r216/"/>
       </menu_item_call>
     </menu>
     <menu
@@ -2752,6 +2760,14 @@ function="World.EnvPreset"
                 <menu_item_call.on_click
                  function="Advanced.ForceErrorSoftwareException" />
             </menu_item_call>
+            <menu_item_call
+             label="Force OS Exception"
+             name="Force OS Exception">
+                <menu_item_call.on_click
+                 function="Advanced.ForceErrorOSException" />
+                <menu_item_call.on_visible
+                 function="Advanced.EnableErrorOSException" />
+            </menu_item_call>            
             <menu_item_call
              label="Force a Crash in a Coroutine"
              name="Force a Crash in a Coroutine">

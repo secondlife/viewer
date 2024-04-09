@@ -3513,7 +3513,10 @@ void LLViewerMediaTexture::addFace(U32 ch, LLFace* facep)
 	
 	if(te && te->getID().notNull()) //should have a texture
 	{
-		LL_ERRS() << "The face does not have a valid texture before media texture." << LL_ENDL;
+        LL_WARNS_ONCE() << "The face's texture " << te->getID() << " is not valid. Face must have a valid texture before media texture." << LL_ENDL;
+        // This might break the object, but it likely isn't a 'recoverable' situation.
+        LLViewerFetchedTexture* tex = LLViewerTextureManager::getFetchedTexture(te->getID());
+        mTextureList.push_back(tex);
 	}
 }
 
