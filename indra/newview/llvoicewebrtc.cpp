@@ -2823,6 +2823,11 @@ void LLVoiceWebRTCConnection::OnDataReceivedImpl(const std::string &data, bool b
                     {
                         participant->mIsSpeaking = voice_data[participant_id].get("v", Json::Value(false)).asBool();
                     }
+
+                    if (voice_data[participant_id].isMember("m"))
+                    {
+                        participant->mIsModeratorMuted = voice_data[participant_id].get("m", Json::Value(false)).asBool();
+                    }
                 }
             }
         }
