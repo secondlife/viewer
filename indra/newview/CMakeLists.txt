@@ -74,6 +74,9 @@ if (NOT HAVOK_TPV)
 endif (NOT HAVOK_TPV)
 
 set(viewer_SOURCE_FILES
+    gltfscenemanager.cpp
+    gltf/asset.cpp
+    gltf/primitive.cpp
     groupchatlistener.cpp
     llaccountingcostmanager.cpp
     llaisapi.cpp
@@ -727,7 +730,10 @@ set(VIEWER_BINARY_NAME "secondlife-bin" CACHE STRING
 set(viewer_HEADER_FILES
     CMakeLists.txt
     ViewerInstall.cmake
+    gltfscenemanager.h
     groupchatlistener.h
+    gltf/asset.h
+    gltf/primitive.h
     llaccountingcost.h
     llaccountingcostmanager.h
     llaisapi.h

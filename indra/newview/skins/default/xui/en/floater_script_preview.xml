@@ -1,11 +1,11 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater
  legacy_header_height="18"
  can_resize="true"
- height="570"
+ height="593"
  layout="topleft"
  min_height="271"
- min_width="290"
+ min_width="320"
  name="preview lsl text"
  help_topic="preview_lsl_text"
  save_rect="true"
@@ -21,7 +21,7 @@
      layout="topleft"
      left="10"
      name="script panel"
-     top="42"
+     top="65"
      width="497" />
     <icon
      follows="top|right"
@@ -36,13 +36,28 @@
     <text
      type="string"
      length="1"
+     follows="left|top|right"
+     width="490"
+     use_ellipses="true"
+     font="SansSerif"
+     height="18"
+     layout="topleft"
+     left="13"
+     name="path_txt"
+     text_color="white"
+     top="21">
+        File path
+    </text>
+    <text
+     type="string"
+     length="1"
      follows="left|top"
      font="SansSerif"
      height="19"
      layout="topleft"
      left="13"
      name="desc txt"
-     top="19"
+     top_pad="5"
      width="80">
         Description:
     </text>

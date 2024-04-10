@@ -47,7 +47,7 @@ public:
 	void		onBtnCancel();
 	void		doCommit();
 
-	S32			getExpectedUploadCost() const;
+	virtual S32 getExpectedUploadCost() const;
 	
 protected:
 	virtual void		onCommit();

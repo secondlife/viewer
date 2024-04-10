@@ -745,8 +745,7 @@ void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
     shader->uniform1f(LLShaderMgr::SKY_SUNLIGHT_SCALE, sunlight_scale);
     shader->uniform1f(LLShaderMgr::SKY_AMBIENT_SCALE, ambient_scale);
 
-    static LLCachedControl<F32> cloud_shadow_scale(gSavedSettings, "RenderCloudShadowAmbianceFactor", 0.125f);
-    F32 probe_ambiance = getTotalReflectionProbeAmbiance(cloud_shadow_scale);
+    F32 probe_ambiance = getReflectionProbeAmbiance();
 
     if (irradiance_pass)
     { // during an irradiance map update, disable ambient lighting (direct lighting only) and desaturate sky color (avoid tinting the world blue)

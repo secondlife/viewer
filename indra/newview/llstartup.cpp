@@ -2477,6 +2477,34 @@ void login_callback(S32 option, void *userdata)
 	}
 }
 
+void release_notes_coro(const std::string url)
+{
+    if (url.empty())
+    {
+        return;
+    }
+
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("releaseNotesCoro", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+    LLCore::HttpOptions::ptr_t httpOpts = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions);
+
+    httpOpts->setHeadersOnly(true); // only making sure it isn't 404 or something like that
+
+    LLSD result = httpAdapter->getAndSuspend(httpRequest, url, httpOpts);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    if (!status)
+    {
+        return;
+    }
+
+    LLWeb::loadURLInternal(url);
+}
+
 /**
 * Check if user is running a new version of the viewer.
 * Display the Release Notes if it's not overriden by the "UpdaterShowReleaseNotes" setting.
@@ -2509,7 +2537,8 @@ void show_release_notes_if_required()
             LLEventPumps::instance().obtain("relnotes").listen(
                 "showrelnotes",
                 [](const LLSD& url) {
-                LLWeb::loadURLInternal(url.asString());
+                    LLCoros::instance().launch("releaseNotesCoro",
+                    boost::bind(&release_notes_coro, url.asString()));
                 return false;
             });
         }
@@ -2517,7 +2546,9 @@ void show_release_notes_if_required()
 #endif // LL_RELEASE_FOR_DOWNLOAD
         {
             LLSD info(LLAppViewer::instance()->getViewerInfo());
-            LLWeb::loadURLInternal(info["VIEWER_RELEASE_NOTES_URL"]);
+            std::string url = info["VIEWER_RELEASE_NOTES_URL"].asString();
+            LLCoros::instance().launch("releaseNotesCoro",
+                                       boost::bind(&release_notes_coro, url));
         }
         release_notes_shown = true;
     }

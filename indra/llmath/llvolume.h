@@ -41,6 +41,7 @@ template <class T, typename T_PTR> class LLOctreeNode;
 class LLVolumeFace;
 class LLVolume;
 class LLVolumeTriangle;
+class LLVolumeOctree;
 
 #include "lluuid.h"
 #include "v4color.h"
@@ -913,7 +914,7 @@ public:
 	void createOctree(F32 scaler = 0.25f, const LLVector4a& center = LLVector4a(0,0,0), const LLVector4a& size = LLVector4a(0.5f,0.5f,0.5f));
     void destroyOctree();
     // Get a reference to the octree, which may be null
-    const LLOctreeNode<LLVolumeTriangle, LLVolumeTriangle*>* getOctree() const;
+    const LLVolumeOctree* getOctree() const;
 
 	enum
 	{
@@ -987,7 +988,7 @@ public:
     LLVector3 mNormalizedScale = LLVector3(1,1,1);
 
 private:
-    LLOctreeNode<LLVolumeTriangle, LLVolumeTriangle*>* mOctree;
+    LLVolumeOctree* mOctree;
     LLVolumeTriangle* mOctreeTriangles;
 
 	BOOL createUnCutCubeCap(LLVolume* volume, BOOL partial_build = FALSE);

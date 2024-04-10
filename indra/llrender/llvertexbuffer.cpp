@@ -657,7 +657,7 @@ void LLVertexBuffer::drawElements(U32 mode, const LLVector4a* pos, const LLVecto
             U16 idx = indicesp[i];
             gGL.vertex3fv(pos[idx].getF32ptr());
         }
-}
+    }
     gGL.end();
     gGL.flush();
 }

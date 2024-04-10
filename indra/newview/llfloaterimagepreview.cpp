@@ -34,6 +34,7 @@
 #include "llimagepng.h"
 
 #include "llagent.h"
+#include "llagentbenefits.h"
 #include "llbutton.h"
 #include "llcheckboxctrl.h"
 #include "llcombobox.h"
@@ -142,6 +143,26 @@ BOOL LLFloaterImagePreview::postBuild()
 	getChild<LLUICtrl>("ok_btn")->setCommitCallback(boost::bind(&LLFloaterNameDesc::onBtnOK, this));
 	
 	return TRUE;
+}
+
+
+//-----------------------------------------------------------------------------
+// getExpectedUploadCost()
+//-----------------------------------------------------------------------------
+S32 LLFloaterImagePreview::getExpectedUploadCost() const
+{
+    if (mRawImagep.notNull())
+    {
+        if (mRawImagep->getWidth() * mRawImagep->getHeight() >= LLAgentBenefits::MIN_2K_TEXTURE_AREA)
+        {
+            return LLAgentBenefitsMgr::current().get2KTextureUploadCost();
+        }
+        else
+        {
+            return LLAgentBenefitsMgr::current().getTextureUploadCost();
+        }
+    }
+    return 0;
 }
 
 //-----------------------------------------------------------------------------

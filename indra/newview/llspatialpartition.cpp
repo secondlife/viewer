@@ -855,10 +855,9 @@ void LLSpatialGroup::rebound()
             LLControlAvatar* controlAvatar = bridge->mDrawable->getVObj()->getControlAvatar();
             if (controlAvatar &&
                 controlAvatar->mDrawable &&
-                controlAvatar->mControlAVBridge)
+                controlAvatar->mControlAVBridge &&
+                controlAvatar->mControlAVBridge->mOctree)
             {
-                llassert(controlAvatar->mControlAVBridge->mOctree);
-
                 LLSpatialGroup* root = (LLSpatialGroup*)controlAvatar->mControlAVBridge->mOctree->getListener(0);
                 if (this == root)
                 {
@@ -1323,17 +1322,8 @@ void drawBox(const LLVector4a& c, const LLVector4a& r)
 
 void drawBoxOutline(const LLVector3& pos, const LLVector3& size)
 {
-
-	llassert(pos.isFinite());
-	llassert(size.isFinite());
-
-	llassert(!llisnan(pos.mV[0]));
-	llassert(!llisnan(pos.mV[1]));
-	llassert(!llisnan(pos.mV[2]));
-
-	llassert(!llisnan(size.mV[0]));
-	llassert(!llisnan(size.mV[1]));
-	llassert(!llisnan(size.mV[2]));
+    if (!pos.isFinite() || !size.isFinite())
+        return;
 
 	LLVector3 v1 = size.scaledVec(LLVector3( 1, 1,1));
 	LLVector3 v2 = size.scaledVec(LLVector3(-1, 1,1));
@@ -2876,10 +2866,8 @@ void renderLights(LLDrawable* drawablep)
 class LLRenderOctreeRaycast : public LLOctreeTriangleRayIntersect
 {
 public:
-	
-	
 	LLRenderOctreeRaycast(const LLVector4a& start, const LLVector4a& dir, F32* closest_t)
-		: LLOctreeTriangleRayIntersect(start, dir, NULL, closest_t, NULL, NULL, NULL, NULL)
+		: LLOctreeTriangleRayIntersect(start, dir, nullptr, closest_t, NULL, NULL, NULL, NULL)
 	{
 
 	}
@@ -2903,7 +2891,7 @@ public:
 			size.set(vl->mBounds[1].getF32ptr());
 		}
 
-		drawBoxOutline(center, size);	
+		drawBoxOutline(center, size);
 		
 		for (U32 i = 0; i < 2; i++)
 		{
@@ -2946,6 +2934,13 @@ public:
 		}
 	}
 };
+
+void renderOctreeRaycast(const LLVector4a& start, const LLVector4a& end, const LLVolumeOctree* octree)
+{
+    F32 t = 1.f;
+    LLRenderOctreeRaycast render(start, end, &t);
+    render.traverse(octree);
+}
 
 void renderRaycast(LLDrawable* drawablep)
 {
@@ -3004,29 +2999,22 @@ void renderRaycast(LLDrawable* drawablep)
 					dir.setSub(end, start);
 
 					gGL.flush();
-					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);				
+					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 					{
 						//render face positions
-						LLVertexBuffer::unbind();
-						gGL.diffuseColor4f(0,1,1,0.5f);
-						glVertexPointer(3, GL_FLOAT, sizeof(LLVector4a), face.mPositions);
-						gGL.syncMatrices();
-						glDrawElements(GL_TRIANGLES, face.mNumIndices, GL_UNSIGNED_SHORT, face.mIndices);
+						//gGL.diffuseColor4f(0,1,1,0.5f);
+                        //LLVertexBuffer::drawElements(LLRender::TRIANGLES, face.mPositions, nullptr, face.mNumIndices, face.mIndices);
 					}
 					
 					if (!volume->isUnique())
 					{
-						F32 t = 1.f;
-
                         if (!face.getOctree())
 						{
 							((LLVolumeFace*) &face)->createOctree(); 
 						}
 
-						LLRenderOctreeRaycast render(start, dir, &t);
-					
-                        render.traverse(face.getOctree());
+                        renderOctreeRaycast(start, end, face.getOctree());
 					}
 
 					gGL.popMatrix();		

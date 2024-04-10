@@ -45,13 +45,13 @@
 #include "llmatrix3a.h"
 #include "lloctree.h"
 #include "llvolume.h"
-#include "llvolumeoctree.h"
 #include "llstl.h"
 #include "llsdserialize.h"
 #include "llvector4a.h"
 #include "llmatrix4a.h"
 #include "llmeshoptimizer.h"
 #include "lltimer.h"
+#include "llvolumeoctree.h"
 
 #include "mikktspace/mikktspace.h"
 #include "mikktspace/mikktspace.c" // insert mikktspace implementation into llvolume object file
@@ -376,77 +376,6 @@ BOOL LLTriangleRayIntersect(const LLVector3& vert0, const LLVector3& vert1, cons
 				intersection_a, intersection_b, intersection_t);
 	}
 }
-
-class LLVolumeOctreeRebound : public LLOctreeTravelerDepthFirst<LLVolumeTriangle, LLVolumeTriangle*>
-{
-public:
-	const LLVolumeFace* mFace;
-
-	LLVolumeOctreeRebound(const LLVolumeFace* face)
-	{
-		mFace = face;
-	}
-
-    virtual void visit(const LLOctreeNode<LLVolumeTriangle, LLVolumeTriangle*>* branch)
-	{ //this is a depth first traversal, so it's safe to assum all children have complete
-		//bounding data
-	LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME
-
-		LLVolumeOctreeListener* node = (LLVolumeOctreeListener*) branch->getListener(0);
-
-		LLVector4a& min = node->mExtents[0];
-		LLVector4a& max = node->mExtents[1];
-
-		if (!branch->isEmpty())
-		{ //node has data, find AABB that binds data set
-			const LLVolumeTriangle* tri = *(branch->getDataBegin());
-			
-			//initialize min/max to first available vertex
-			min = *(tri->mV[0]);
-			max = *(tri->mV[0]);
-			
-            for (LLOctreeNode<LLVolumeTriangle, LLVolumeTriangle*>::const_element_iter iter = branch->getDataBegin(); iter != branch->getDataEnd(); ++iter)
-			{ //for each triangle in node
-
-				//stretch by triangles in node
-				tri = *iter;
-				
-				min.setMin(min, *tri->mV[0]);
-				min.setMin(min, *tri->mV[1]);
-				min.setMin(min, *tri->mV[2]);
-
-				max.setMax(max, *tri->mV[0]);
-				max.setMax(max, *tri->mV[1]);
-				max.setMax(max, *tri->mV[2]);
-			}
-		}
-		else if (branch->getChildCount() > 0)
-		{ //no data, but child nodes exist
-			LLVolumeOctreeListener* child = (LLVolumeOctreeListener*) branch->getChild(0)->getListener(0);
-
-			//initialize min/max to extents of first child
-			min = child->mExtents[0];
-			max = child->mExtents[1];
-		}
-		else
-		{
-            llassert(!branch->isLeaf()); // Empty leaf
-		}
-
-		for (S32 i = 0; i < branch->getChildCount(); ++i)
-		{  //stretch by child extents
-			LLVolumeOctreeListener* child = (LLVolumeOctreeListener*) branch->getChild(i)->getListener(0);
-			min.setMin(min, child->mExtents[0]);
-			max.setMax(max, child->mExtents[1]);
-		}
-
-		node->mBounds[0].setAdd(min, max);
-		node->mBounds[0].mul(0.5f);
-
-		node->mBounds[1].setSub(max,min);
-		node->mBounds[1].mul(0.5f);
-	}
-};
 
 //-------------------------------------------------------------------
 // statics
@@ -5509,7 +5438,6 @@ struct MikktData
     }
 };
 
-
 bool LLVolumeFace::cacheOptimize(bool gen_tangents)
 { //optimize for vertex cache according to Forsyth method: 
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
@@ -5592,9 +5520,9 @@ bool LLVolumeFace::cacheOptimize(bool gen_tangents)
 
         U32 stream_count = data.w.empty() ? 4 : 5;
 
-        U32 vert_count = meshopt_generateVertexRemapMulti(&remap[0], nullptr, data.p.size(), data.p.size(), mos, stream_count);
+        size_t vert_count = meshopt_generateVertexRemapMulti(&remap[0], nullptr, data.p.size(), data.p.size(), mos, stream_count);
 
-        if (vert_count < 65535)
+        if (vert_count < 65535 && vert_count != 0)
         {
             std::vector<U32> indices;
             indices.resize(mNumIndices);
@@ -5613,6 +5541,13 @@ bool LLVolumeFace::cacheOptimize(bool gen_tangents)
             {
                 U32 src_idx = i;
                 U32 dst_idx = remap[i];
+                if (dst_idx >= mNumVertices)
+                {
+                    dst_idx = mNumVertices - 1;
+                    // Shouldn't happen, figure out what gets returned in remap and why.
+                    llassert(false);
+                    LL_DEBUGS_ONCE("LLVOLUME") << "Invalid destination index, substituting" << LL_ENDL;
+                }
                 mIndices[i] = dst_idx;
 
                 mPositions[dst_idx].load3(data.p[src_idx].mV);
@@ -5646,6 +5581,10 @@ bool LLVolumeFace::cacheOptimize(bool gen_tangents)
         }
         else
         {
+            if (vert_count == 0)
+            {
+                LL_WARNS_ONCE("LLVOLUME") << "meshopt_generateVertexRemapMulti failed to process a model or model was invalid" << LL_ENDL;
+            }
             // blew past the max vertex size limit, use legacy tangent generation which never adds verts
             createTangents();
         }
@@ -5676,8 +5615,7 @@ void LLVolumeFace::createOctree(F32 scaler, const LLVector4a& center, const LLVe
 
     llassert(mNumIndices % 3 == 0);
 
-    mOctree = new LLOctreeRoot<LLVolumeTriangle, LLVolumeTriangle*>(center, size, NULL);
-	new LLVolumeOctreeListener(mOctree);
+    mOctree = new LLVolumeOctree(center, size);
     const U32 num_triangles = mNumIndices / 3;
     // Initialize all the triangles we need
     mOctreeTriangles = new LLVolumeTriangle[num_triangles];
@@ -5732,7 +5670,7 @@ void LLVolumeFace::createOctree(F32 scaler, const LLVector4a& center, const LLVe
 	while (!mOctree->balance())	{ }
 
 	//calculate AABB for each node
-	LLVolumeOctreeRebound rebound(this);
+	LLVolumeOctreeRebound rebound;
 	rebound.traverse(mOctree);
 
 	if (gDebugGL)
@@ -5745,12 +5683,12 @@ void LLVolumeFace::createOctree(F32 scaler, const LLVector4a& center, const LLVe
 void LLVolumeFace::destroyOctree()
 {
     delete mOctree;
-    mOctree = NULL;
+    mOctree = nullptr;
     delete[] mOctreeTriangles;
-    mOctreeTriangles = NULL;
+    mOctreeTriangles = nullptr;
 }
 
-const LLOctreeNode<LLVolumeTriangle, LLVolumeTriangle*>* LLVolumeFace::getOctree() const
+const LLVolumeOctree* LLVolumeFace::getOctree() const
 {
     return mOctree;
 }

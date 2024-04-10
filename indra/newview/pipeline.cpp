@@ -112,6 +112,7 @@
 #include "llscenemonitor.h"
 #include "llprogressview.h"
 #include "llcleanup.h"
+#include "gltfscenemanager.h"
 
 #include "llenvironment.h"
 #include "llsettingsvo.h"
@@ -1697,17 +1698,23 @@ void LLPipeline::unlinkDrawable(LLDrawable *drawable)
 void LLPipeline::removeMutedAVsLights(LLVOAvatar* muted_avatar)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
-	for (light_set_t::iterator iter = gPipeline.mNearbyLights.begin();
-		 iter != gPipeline.mNearbyLights.end(); iter++)
-	{
-        const LLViewerObject *vobj = iter->drawable->getVObj();
-        if (vobj && vobj->getAvatar()
-            && vobj->isAttachment() && vobj->getAvatar() == muted_avatar)
-		{
-			gPipeline.mLights.erase(iter->drawable);
-			gPipeline.mNearbyLights.erase(iter);
-		}
-	}
+    light_set_t::iterator iter = gPipeline.mNearbyLights.begin();
+    while (iter != gPipeline.mNearbyLights.end())
+    {
+        const LLViewerObject* vobj = iter->drawable->getVObj();
+        if (vobj
+            && vobj->getAvatar()
+            && vobj->isAttachment()
+            && vobj->getAvatar() == muted_avatar)
+        {
+            gPipeline.mLights.erase(iter->drawable);
+            iter = gPipeline.mNearbyLights.erase(iter);
+        }
+        else
+        {
+            iter++;
+        }
+    }
 }
 
 U32 LLPipeline::addObject(LLViewerObject *vobj)
@@ -4524,6 +4531,8 @@ void LLPipeline::renderDebug()
 		}
 	}
 
+    LL::GLTFSceneManager::instance().renderDebug();
+
 	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_OCCLUSION))
 	{ //render visible selected group occlusion geometry
 		gDebugProgram.bind();
@@ -6335,6 +6344,15 @@ LLViewerObject* LLPipeline::lineSegmentIntersectInWorld(const LLVector4a& start,
 			}
 		}
 	}
+
+    S32 node_hit = -1;
+    S32 primitive_hit = -1;
+    LLDrawable* hit = LL::GLTFSceneManager::instance().lineSegmentIntersect(start, local_end, pick_transparent, pick_rigged, pick_unselectable, pick_reflection_probe, &node_hit, &primitive_hit, &position, tex_coord, normal, tangent);
+    if (hit)
+    {
+        drawable = hit;
+        local_end = position;
+    }
 	
 	if (!sPickAvatar)
 	{
@@ -6551,6 +6569,11 @@ void LLPipeline::renderGLTFObjects(U32 type, bool texture, bool rigged)
 
     gGL.loadMatrix(gGLModelView);
     gGLLastMatrix = NULL;
+
+    if (!rigged)
+    {
+        LL::GLTFSceneManager::instance().renderOpaque();
+    }
 }
 
 // Currently only used for shadows -Cosmic,2023-04-19
@@ -6759,6 +6782,8 @@ void LLPipeline::generateLuminance(LLRenderTarget* src, LLRenderTarget* dst)
 
 		gLuminanceProgram.bind();
 
+        static LLCachedControl<F32> diffuse_luminance_scale(gSavedSettings, "RenderDiffuseLuminanceScale", 1.0f);
+
 		S32 channel = 0;
 		channel = gLuminanceProgram.enableTexture(LLShaderMgr::DEFERRED_DIFFUSE);
 		if (channel > -1)
@@ -6771,6 +6796,16 @@ void LLPipeline::generateLuminance(LLRenderTarget* src, LLRenderTarget* dst)
 		{
 			mGlow[1].bindTexture(0, channel);
 		}
+
+        channel = gLuminanceProgram.enableTexture(LLShaderMgr::DEFERRED_NORMAL);
+        if (channel > -1)
+        {
+            // bind the normal map to get the environment mask
+            mRT->deferredScreen.bindTexture(2, channel, LLTexUnit::TFO_POINT);
+        }
+
+        static LLStaticHashedString diffuse_luminance_scale_s("diffuse_luminance_scale");
+        gLuminanceProgram.uniform1f(diffuse_luminance_scale_s, diffuse_luminance_scale);
 
 		mScreenTriangleVB->setBuffer();
 		mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
