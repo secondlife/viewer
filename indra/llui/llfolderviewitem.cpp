@@ -187,14 +187,18 @@ LLFolderViewItem::~LLFolderViewItem()
 
 BOOL LLFolderViewItem::postBuild()
 {
-    LLFolderViewModelItem& vmi = *getViewModelItem();
-    // getDisplayName() is expensive (due to internal getLabelSuffix() and name building)
-    // it also sets search strings so it requires a filter reset
-    mLabel = vmi.getDisplayName();
-    setToolTip(vmi.getName());
+    LLFolderViewModelItem* vmi = getViewModelItem();
+    llassert(vmi); // not supposed to happen, if happens, find out why and fix
+    if (vmi)
+    {
+        // getDisplayName() is expensive (due to internal getLabelSuffix() and name building)
+        // it also sets search strings so it requires a filter reset
+        mLabel = vmi->getDisplayName();
+        setToolTip(vmi->getName());
 
-    // Dirty the filter flag of the model from the view (CHUI-849)
-    vmi.dirtyFilter();
+        // Dirty the filter flag of the model from the view (CHUI-849)
+        vmi->dirtyFilter();
+    }
 
     // Don't do full refresh on constructor if it is possible to avoid
     // it significantly slows down bulk view creation.
