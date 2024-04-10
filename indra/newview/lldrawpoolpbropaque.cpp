@@ -30,6 +30,7 @@
 #include "lldrawpoolpbropaque.h"
 #include "llviewershadermgr.h"
 #include "pipeline.h"
+#include "gltfscenemanager.h"
 
 LLDrawPoolGLTFPBR::LLDrawPoolGLTFPBR(U32 type) :
     LLRenderPass(type)
@@ -54,7 +55,10 @@ void LLDrawPoolGLTFPBR::renderDeferred(S32 pass)
     llassert(!LLPipeline::sRenderingHUDs);
 
     gDeferredPBROpaqueProgram.bind();
+
+    LL::GLTFSceneManager::instance().renderOpaque();
     pushGLTFBatches(mRenderType);
+
 
     gDeferredPBROpaqueProgram.bind(true);
     pushRiggedGLTFBatches(mRenderType + 1);

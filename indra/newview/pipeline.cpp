@@ -112,6 +112,7 @@
 #include "llscenemonitor.h"
 #include "llprogressview.h"
 #include "llcleanup.h"
+#include "gltfscenemanager.h"
 
 #include "llenvironment.h"
 #include "llsettingsvo.h"
@@ -4530,6 +4531,8 @@ void LLPipeline::renderDebug()
 		}
 	}
 
+    LL::GLTFSceneManager::instance().renderDebug();
+
 	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_OCCLUSION))
 	{ //render visible selected group occlusion geometry
 		gDebugProgram.bind();
@@ -6341,6 +6344,15 @@ LLViewerObject* LLPipeline::lineSegmentIntersectInWorld(const LLVector4a& start,
 			}
 		}
 	}
+
+    S32 node_hit = -1;
+    S32 primitive_hit = -1;
+    LLDrawable* hit = LL::GLTFSceneManager::instance().lineSegmentIntersect(start, local_end, pick_transparent, pick_rigged, pick_unselectable, pick_reflection_probe, &node_hit, &primitive_hit, &position, tex_coord, normal, tangent);
+    if (hit)
+    {
+        drawable = hit;
+        local_end = position;
+    }
 	
 	if (!sPickAvatar)
 	{
@@ -6557,6 +6569,11 @@ void LLPipeline::renderGLTFObjects(U32 type, bool texture, bool rigged)
 
     gGL.loadMatrix(gGLModelView);
     gGLLastMatrix = NULL;
+
+    if (!rigged)
+    {
+        LL::GLTFSceneManager::instance().renderOpaque();
+    }
 }
 
 // Currently only used for shadows -Cosmic,2023-04-19

@@ -2846,6 +2846,12 @@ function="World.EnvPreset"
             <menu_item_call.on_click
              function="Advanced.ClickHDRIPreview" />
           </menu_item_call>
+          <menu_item_call
+           label="GLTF Scene Preview"
+           name="GLTF Scene Preview">
+            <menu_item_call.on_click
+             function="Advanced.ClickGLTFScenePreview" />
+          </menu_item_call>
         </menu>
       <menu
         create_jump_keys="true"
