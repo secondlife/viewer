@@ -1,4 +1,5 @@
-<?xml version="1.0" ?><notifications>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<notifications>
     <global name="skipnexttime">
 
 		Don&apos;t show me this again
@@ -6473,14 +6474,6 @@ Your inventory is experiencing issues. Please, contact support.
   </notification>
 
   <notification
-   icon="notifytip.tga"
-   name="InventoryLimitReachedAIS"
-   type="notifytip">
-Your inventory is experiencing issues. Please, contact support.
-  <tag>fail</tag>
-  </notification>
-
-  <notification
    icon="alertmodal.tga"
    name="ConfirmClearBrowserCache"
    type="alertmodal">
@@ -9254,7 +9247,7 @@ You locally updated a [RESOLUTION] baked texture for '[BODYREGION]' after [TIME]
    icon="alertmodal.tga"
    name="CannotUploadTexture"
    type="alertmodal">
-Unable to upload texture.
+Unable to upload texture: &apos;[NAME]&apos;
 [REASON]   
   <tag>fail</tag>  
   </notification>
