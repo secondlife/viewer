@@ -9,7 +9,7 @@
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
+ * version 2.1 of the License only. 
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -29,29 +29,31 @@
 
 using namespace LL::GLTF;
 
-#ifndef __PRETTY_FUNCTION__
-#define __PRETTY_FUNCTION__ __FUNCSIG__
+#ifdef _MSC_VER
+#define LL_FUNCSIG __FUNCSIG__ 
+#else
+#define LL_FUNCSIG __PRETTY_FUNCTION__
 #endif
 
 // copy one vec3 from src to dst
 template<class S, class T>
 void copyVec2(S* src, T& dst)
 {
-    LL_ERRS() << "TODO: implement " << __PRETTY_FUNCTION__ << LL_ENDL;
+    LL_ERRS() << "TODO: implement " << LL_FUNCSIG << LL_ENDL;
 }
 
 // copy one vec3 from src to dst
 template<class S, class T>
 void copyVec3(S* src, T& dst)
 {
-    LL_ERRS() << "TODO: implement " << __PRETTY_FUNCTION__ << LL_ENDL;
+    LL_ERRS() << "TODO: implement " << LL_FUNCSIG << LL_ENDL;
 }
 
 // copy one vec4 from src to dst
 template<class S, class T>
 void copyVec4(S* src, T& dst)
 {
-    LL_ERRS() << "TODO: implement " << __PRETTY_FUNCTION__ << LL_ENDL;
+    LL_ERRS() << "TODO: implement " << LL_FUNCSIG << LL_ENDL;
 }
 
 template<>
