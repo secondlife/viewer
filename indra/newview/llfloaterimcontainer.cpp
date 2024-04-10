@@ -1768,6 +1768,7 @@ void LLFloaterIMContainer::setTimeNow(const LLUUID& session_id, const LLUUID& pa
 	LLConversationItemSession* item = dynamic_cast<LLConversationItemSession*>(getSessionModel(session_id));
 	if (item)
 	{
+        item->setTimeNow(participant_id);
 		mConversationViewModel.requestSortAll();
 		mConversationsRoot->arrangeAll();
 	}

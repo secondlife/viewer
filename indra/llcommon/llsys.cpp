@@ -916,7 +916,7 @@ void LLMemoryInfo::stream(std::ostream& s) const
 	// Now stream stats
 	for (const auto& [key, value] : inMap(mStatsMap))
 	{
-		s << pfx << std::setw(narrow(key_width+1)) << (key + ':') << ' ';
+		s << pfx << std::setw(narrow<size_t>(key_width+1)) << (key + ':') << ' ';
 		if (value.isInteger())
 			s << std::setw(12) << value.asInteger();
 		else if (value.isReal())

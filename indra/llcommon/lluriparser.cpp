@@ -164,8 +164,10 @@ void LLUriParser::extractParts()
 #if LL_DARWIN
 typedef void(*sighandler_t)(int);
 jmp_buf return_to_normalize;
+static int sLastSignal = 0;
 void uri_signal_handler(int signal)
 {
+    sLastSignal = signal;
     // Apparently signal handler throwing an exception doesn't work.
     // This is ugly and unsafe due to not unwinding content of uriparser library,
     // but unless we have a way to catch this as NSexception, jump appears to be the only option.
@@ -179,8 +181,10 @@ S32 LLUriParser::normalize()
 	if (!mRes)
 	{
 #if LL_DARWIN
-        sighandler_t last_handler;
-        last_handler = signal(SIGILL, &uri_signal_handler);		// illegal instruction
+        sighandler_t last_sigill_handler, last_sigbus_handler;
+        last_sigill_handler = signal(SIGILL, &uri_signal_handler);		// illegal instruction
+        last_sigbus_handler = signal(SIGBUS, &uri_signal_handler);
+        
         if (setjmp(return_to_normalize))
         {
             // Issue: external library crashed via signal
@@ -194,8 +198,9 @@ S32 LLUriParser::normalize()
             // if this can be handled by NSexception, it needs to be remade
             llassert(0);
 
-            LL_WARNS() << "Uriparser crashed with SIGILL, while processing: " << mNormalizedUri << LL_ENDL;
-            signal(SIGILL, last_handler);
+            LL_WARNS() << "Uriparser crashed with " << sLastSignal << " , while processing: " << mNormalizedUri << LL_ENDL;
+            signal(SIGILL, last_sigill_handler);
+            signal(SIGBUS, last_sigbus_handler);
             return 1;
         }
 #endif
@@ -203,7 +208,8 @@ S32 LLUriParser::normalize()
         mRes = uriNormalizeSyntaxExA(&mUri, URI_NORMALIZE_SCHEME | URI_NORMALIZE_HOST);
 
 #if LL_DARWIN
-        signal(SIGILL, last_handler);
+        signal(SIGILL, last_sigill_handler);
+        signal(SIGBUS, last_sigbus_handler);
 #endif
 
         if (!mRes)
@@ -226,7 +232,7 @@ S32 LLUriParser::normalize()
         }
 	}
 
-	if(mTmpScheme)
+	if(mTmpScheme && mNormalizedUri.size() > 7)
 	{
 		mNormalizedUri = mNormalizedUri.substr(7);
 		mTmpScheme = false;
