@@ -60,6 +60,7 @@ public:
 
     // allocate an environment map of the given resolution 
     LLHeroProbeManager();
+    ~LLHeroProbeManager();
 
     // release any GL state 
     void cleanup();
@@ -76,6 +77,8 @@ public:
 
     // perform occlusion culling on all active reflection probes
     void doOcclusion();
+
+    void reset();
 
     bool registerViewerObject(LLVOVolume *drawablep);
     void unregisterViewerObject(LLVOVolume* drawablep);

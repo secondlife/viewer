@@ -793,6 +793,7 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 
 		if (RenderMirrors)
         {
+            mHeroProbeManager.initReflectionMaps();
             res = mHeroProbeManager.mProbeResolution;  // We also scale the hero probe RT to the probe res since we don't super sample it.
             mRT = &mHeroProbeRT;
             allocateScreenBuffer(res, res, samples);
@@ -1153,6 +1154,12 @@ void LLPipeline::releaseScreenBuffers()
     mRT->fxaaBuffer.release();
     mRT->deferredScreen.release();
     mRT->deferredLight.release();
+
+	mHeroProbeRT.uiScreen.release();
+	mHeroProbeRT.screen.release();
+	mHeroProbeRT.fxaaBuffer.release();
+	mHeroProbeRT.deferredScreen.release();
+	mHeroProbeRT.deferredLight.release();
 }
 
 void LLPipeline::releaseSunShadowTarget(U32 index)
