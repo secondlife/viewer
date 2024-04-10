@@ -24,6 +24,8 @@
  * $/LicenseInfo$
  */
 
+#include "llviewerprecompiledheaders.h"
+
 #include "gltfscenemanager.h"
 #include "llviewermenufile.h"
 #include "llappviewer.h"
