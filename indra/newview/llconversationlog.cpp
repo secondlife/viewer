@@ -648,7 +648,7 @@ void LLConversationLog::onClearLogResponse(const LLSD& notification, const LLSD&
 	{
 		mConversations.clear();
 		notifyObservers();
-		cache();
+        saveToFile(getFileName());
 		deleteBackupLogs();
 	}
 }
