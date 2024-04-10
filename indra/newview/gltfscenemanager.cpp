@@ -24,6 +24,8 @@
  * $/LicenseInfo$
  */
 
+#include "llviewerprecompiledheaders.h"
+
 #include "gltfscenemanager.h"
 #include "llviewermenufile.h"
 #include "llappviewer.h"
@@ -329,7 +331,6 @@ void renderAssetDebug(LLViewerObject* obj, Asset* asset)
     gGL.pushMatrix();
 
     // get raycast in asset space
-    LLMatrix4a asset_to_agent = getAssetToAgentTransform(obj);
     LLMatrix4a agent_to_asset = getAgentToAssetTransform(obj);
 
     LLVector4a start;

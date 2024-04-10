@@ -24,6 +24,8 @@
  * $/LicenseInfo$
  */
 
+#include "../llviewerprecompiledheaders.h"
+
 #include "asset.h"
 #include "llvolumeoctree.h"
 
