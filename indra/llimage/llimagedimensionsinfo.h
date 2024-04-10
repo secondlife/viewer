@@ -55,6 +55,12 @@ public:
 	{
 		return mLastError;
 	}
+
+    const std::string& getWarningName()
+    {
+        return mWarning;
+    }
+
 protected:
 
 	void clean()
@@ -129,6 +135,7 @@ protected:
 	std::string mSrcFilename;
 
 	std::string mLastError;
+    std::string mWarning;
 
 	U8* mData;
 

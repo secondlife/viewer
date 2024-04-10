@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater
  legacy_header_height="18"
  can_resize="true"
@@ -82,7 +82,7 @@
   </text>
   <text
  left="10"
- name="v_pad_text"
+ name="v_pad_text1"
  height="40"
  width="300"
  halign="left"
@@ -197,7 +197,7 @@ scroll bar gjyrrr
       follows="top|left|bottom"
       font="Monospace"
  left_delta="0"
- name="monospace_text_editor"
+ name="monospace_text_editor1"
  tool_tip="text editor"
  top_pad="10"
  width="200">

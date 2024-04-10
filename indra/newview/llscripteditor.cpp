@@ -30,25 +30,34 @@
 
 #include "llsyntaxid.h"
 #include "lllocalcliprect.h"
+#include "llviewercontrol.h"
 
 const S32	UI_TEXTEDITOR_LINE_NUMBER_MARGIN = 32;
 
 static LLDefaultChildRegistry::Register<LLScriptEditor> r("script_editor");
 
 LLScriptEditor::Params::Params()
-:	show_line_numbers("show_line_numbers", true)
+:	show_line_numbers("show_line_numbers", true),
+    default_font_size("default_font_size", false)
 {}
 
 
 LLScriptEditor::LLScriptEditor(const Params& p)
 :	LLTextEditor(p)
-,	mShowLineNumbers(p.show_line_numbers)
+,	mShowLineNumbers(p.show_line_numbers),
+    mUseDefaultFontSize(p.default_font_size)
 {
 	if (mShowLineNumbers)
 	{
 		mHPad += UI_TEXTEDITOR_LINE_NUMBER_MARGIN;
 		updateRects();
 	}
+}
+
+BOOL LLScriptEditor::postBuild()
+{
+    gSavedSettings.getControl("LSLFontSizeName")->getCommitSignal()->connect(boost::bind(&LLScriptEditor::onFontSizeChange, this));
+    return LLTextEditor::postBuild();
 }
 
 void LLScriptEditor::draw()
@@ -110,12 +119,11 @@ void LLScriptEditor::drawLineNumbers()
 			// draw the line numbers
 			if(line.mLineNum != last_line_num && line.mRect.mTop <= scrolled_view_rect.mTop)
 			{
-				const LLFontGL *num_font = LLFontGL::getFontMonospace();
 				const LLWString ltext = utf8str_to_wstring(llformat("%d", line.mLineNum ));
 				BOOL is_cur_line = cursor_line == line.mLineNum;
 				const U8 style = is_cur_line ? LLFontGL::BOLD : LLFontGL::NORMAL;
 				const LLColor4 fg_color = is_cur_line ? mCursorColor : mReadOnlyFgColor;
-				num_font->render(
+                getScriptFont()->render(
 								 ltext, // string to draw
 								 0, // begin offset
 								 UI_TEXTEDITOR_LINE_NUMBER_MARGIN - 2, // x
@@ -143,8 +151,10 @@ void LLScriptEditor::loadKeywords()
     LL_PROFILE_ZONE_SCOPED;
 	mKeywords.processTokens();
 	
+    LLStyleConstSP style = new LLStyle(LLStyle::Params().font(getScriptFont()).color(mDefaultColor.get()));
+
 	segment_vec_t segment_list;
-	mKeywords.findSegments(&segment_list, getWText(), mDefaultColor.get(), *this);
+    mKeywords.findSegments(&segment_list, getWText(), *this, style);
 	
 	mSegments.clear();
 	segment_set_t::iterator insert_it = mSegments.begin();
@@ -159,9 +169,12 @@ void LLScriptEditor::updateSegments()
 	if (mReflowIndex < S32_MAX && mKeywords.isLoaded() && mParseOnTheFly)
 	{
         LL_PROFILE_ZONE_SCOPED;
+
+        LLStyleConstSP style = new LLStyle(LLStyle::Params().font(getScriptFont()).color(mDefaultColor.get()));
+
 		// HACK:  No non-ascii keywords for now
 		segment_vec_t segment_list;
-		mKeywords.findSegments(&segment_list, getWText(), mDefaultColor.get(), *this);
+        mKeywords.findSegments(&segment_list, getWText(), *this, style);
 		
 		clearSegments();
 		for (segment_vec_t::iterator list_it = segment_list.begin(); list_it != segment_list.end(); ++list_it)
@@ -210,4 +223,24 @@ void LLScriptEditor::drawSelectionBackground()
 			gl_rect_2d(selection_rect, selection_color);
 		}
 	}
+}
+
+std::string LLScriptEditor::getScriptFontSize()
+{ 
+    static LLCachedControl<std::string> size_name(gSavedSettings, "LSLFontSizeName", "Monospace");
+    return size_name;
+}
+
+LLFontGL* LLScriptEditor::getScriptFont()
+{
+    std::string font_size_name = mUseDefaultFontSize ? "Monospace" : getScriptFontSize();
+    return LLFontGL::getFont(LLFontDescriptor("Monospace", font_size_name, 0));
+}
+
+void LLScriptEditor::onFontSizeChange() 
+{
+    if (!mUseDefaultFontSize)
+    {
+        needsReflow();
+    }
 }

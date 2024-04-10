@@ -562,7 +562,9 @@ public:
 	// add a context menu branch
 	BOOL appendContextSubMenu(LLMenuGL *menu);
 
-protected:
+    const LLFontGL *getFont() const { return mFont; }
+
+  protected:
 	void createSpilloverBranch();
 	void cleanupSpilloverBranch();
 	// Add the menu item to this menu.
@@ -593,6 +595,9 @@ protected:
 	BOOL			mScrollable;
 	BOOL			mKeepFixedSize;
 	BOOL			mNeedsArrange;
+
+    // Font for top menu items only
+    const LLFontGL* mFont;
 
 private:
 
