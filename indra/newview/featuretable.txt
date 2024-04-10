@@ -109,6 +109,9 @@ RenderScreenSpaceReflections 1  0
 RenderReflectionProbeLevel  1   0
 RenderMirrors				1	0
 RenderHeroProbeResolution	1	256
+RenderHeroProbeDistance		1	4
+RenderHeroProbeUpdateRate	1	4
+RenderHeroProbeConservativeUpdateMultiplier 1 16
 
 //
 // Medium Low Graphics Settings
@@ -143,6 +146,8 @@ RenderReflectionProbeLevel  1   0
 RenderMirrors				1	0
 RenderHeroProbeResolution	1	256
 RenderHeroProbeDistance		1	6
+RenderHeroProbeUpdateRate	1	3
+RenderHeroProbeConservativeUpdateMultiplier 1 16
 
 //
 // Medium Graphics Settings (standard)
@@ -177,6 +182,8 @@ RenderReflectionProbeLevel  1   1
 RenderMirrors				1	0
 RenderHeroProbeResolution	1	512
 RenderHeroProbeDistance		1	6
+RenderHeroProbeUpdateRate	1	3
+RenderHeroProbeConservativeUpdateMultiplier 1 16
 
 //
 // Medium High Graphics Settings
@@ -211,6 +218,8 @@ RenderReflectionProbeLevel  1   2
 RenderMirrors				1	0
 RenderHeroProbeResolution	1	512
 RenderHeroProbeDistance		1	6
+RenderHeroProbeUpdateRate	1	2
+RenderHeroProbeConservativeUpdateMultiplier 1 8
 
 //
 // High Graphics Settings (SSAO + sun shadows)
@@ -245,6 +254,8 @@ RenderReflectionProbeLevel  1   3
 RenderMirrors				1	0
 RenderHeroProbeResolution	1	1024
 RenderHeroProbeDistance		1	8
+RenderHeroProbeUpdateRate	1	2
+RenderHeroProbeConservativeUpdateMultiplier 1 8
 
 //
 // High Ultra Graphics Settings (deferred + SSAO + all shadows)
@@ -279,6 +290,8 @@ RenderReflectionProbeLevel  1   3
 RenderMirrors				1	0
 RenderHeroProbeResolution	1	1024
 RenderHeroProbeDistance		1	16
+RenderHeroProbeUpdateRate	1	1
+RenderHeroProbeConservativeUpdateMultiplier 1 4
 
 //
 // Ultra graphics (REALLY PURTY!)
@@ -311,8 +324,10 @@ RenderReflectionProbeDetail	1	1
 RenderScreenSpaceReflections 1  0
 RenderReflectionProbeLevel  1   3
 RenderMirrors				1	1
-RenderHeroProbeResolution	1	1024
+RenderHeroProbeResolution	1	2048
 RenderHeroProbeDistance		1	16
+RenderHeroProbeUpdateRate	1	1
+RenderHeroProbeConservativeUpdateMultiplier 1 4
 
 //
 // Class Unknown Hardware (unknown)

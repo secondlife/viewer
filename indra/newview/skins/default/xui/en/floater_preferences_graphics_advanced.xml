@@ -734,6 +734,7 @@
     width="260">
   </slider>
 
+  <!-- Mirror settings. -->
   <check_box
     control_name="RenderMirrors"
     height="16"
@@ -827,6 +828,7 @@
       name="3"
       value="4"/>
   </combo_box>
+  <!-- End of mirror settings -->
 
   <!-- End of Advanced Settings block -->
 	<view_border
