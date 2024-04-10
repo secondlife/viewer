@@ -578,8 +578,8 @@ void LLInventoryPanel::itemChanged(const LLUUID& item_id, U32 mask, const LLInve
 		if (model_item && view_item && viewmodel_item)
 		{
 			const LLUUID& idp = viewmodel_item->getUUID();
+            removeItemID(idp);
 			view_item->destroyView();
-			removeItemID(idp);
 		}
 
         LLInventoryObject const* objectp = mInventory->getObject(item_id);
