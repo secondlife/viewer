@@ -100,42 +100,6 @@ GLTFSceneManager::~GLTFSceneManager()
     mObjects.clear();
 }
 
-LLMatrix4a getAssetToAgentTransform(LLViewerObject* obj)
-{
-    LLMatrix4 root;
-    root.initScale(obj->getScale());
-    root.rotate(obj->getRenderRotation());
-    root.translate(obj->getPositionAgent());
-
-    LLMatrix4a mat;
-    mat.loadu((F32*) root.mMatrix);
-
-    return mat;
-}
-
-LLMatrix4a getAgentToAssetTransform(LLViewerObject* obj)
-{
-    LLMatrix4 root;
-    LLVector3 scale = obj->getScale();
-    scale.mV[0] = 1.f / scale.mV[0];
-    scale.mV[1] = 1.f / scale.mV[1];
-    scale.mV[2] = 1.f / scale.mV[2];
-        
-    root.translate(-obj->getPositionAgent());
-    root.rotate(~obj->getRenderRotation());
-
-    LLMatrix4 scale_mat;
-    scale_mat.initScale(scale);
-
-    root *= scale_mat;
-    
-
-    LLMatrix4a mat;
-    mat.loadu((F32*) root.mMatrix);
-
-    return mat;
-}
-
 void GLTFSceneManager::renderOpaque()
 {
     // for debugging, just render the whole scene as opaque
@@ -158,7 +122,7 @@ void GLTFSceneManager::renderOpaque()
 
         gGL.pushMatrix();
 
-        LLMatrix4a mat = getAssetToAgentTransform(mObjects[i]);
+        LLMatrix4a mat = mObjects[i]->getGLTFAssetToAgentTransform();
 
         LLMatrix4a modelview;
         modelview.loadu(gGLModelView);
@@ -195,7 +159,7 @@ bool GLTFSceneManager::lineSegmentIntersect(LLVOVolume* obj, Asset* asset, const
     LLVector4a local_start;
     LLVector4a local_end;
 
-    LLMatrix4a asset_to_agent = getAssetToAgentTransform(obj);
+    LLMatrix4a asset_to_agent = obj->getGLTFAssetToAgentTransform();
     LLMatrix4a agent_to_asset = inverse(asset_to_agent);
 
     agent_to_asset.affineTransform(start, local_start);
@@ -331,7 +295,7 @@ void renderAssetDebug(LLViewerObject* obj, Asset* asset)
     gGL.pushMatrix();
 
     // get raycast in asset space
-    LLMatrix4a agent_to_asset = getAgentToAssetTransform(obj);
+    LLMatrix4a agent_to_asset = obj->getAgentToGLTFAssetTransform();
 
     LLVector4a start;
     LLVector4a end;
@@ -421,8 +385,7 @@ void GLTFSceneManager::renderDebug()
 
         Asset* asset = obj->mGLTFAsset;
 
-
-        LLMatrix4a mat = getAssetToAgentTransform(obj);
+        LLMatrix4a mat = obj->getGLTFAssetToAgentTransform();
 
         LLMatrix4a modelview;
         modelview.loadu(gGLModelView);

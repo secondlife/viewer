@@ -179,11 +179,11 @@ void Primitive::allocateGLResources(Asset& asset)
 
     // get the number of vertices
     U32 numVertices = 0;
-    for (auto& it : mAttributes)
+    if (!mAttributes.empty())
     {
-        const Accessor& accessor = asset.mAccessors[it.second];
+        auto& it = mAttributes.begin();
+        const Accessor& accessor = asset.mAccessors[it->second];
         numVertices = accessor.mCount;
-        break;
     }
 
     // get the number of indices

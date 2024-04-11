@@ -315,6 +315,13 @@ public:
 	virtual const LLVector3 &getPositionAgent() const;
 	virtual const LLVector3 getRenderPosition() const;
 
+    LLMatrix4a LLViewerObject::getAgentToGLTFAssetTransform() const;
+    LLMatrix4a LLViewerObject::getGLTFAssetToAgentTransform() const;
+    LLVector3 getGLTFNodePositionAgent(S32 node_index) const;
+
+    // move the node at the given index by the given offset in agent space
+    void moveGLTFNode(S32 node_index, const LLVector3& offset);
+
 	virtual const LLVector3 getPivotPositionAgent() const; // Usually = to getPositionAgent, unless like flex objects it's not
 
 	LLViewerObject* getRootEdit() const;

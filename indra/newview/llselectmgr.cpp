@@ -456,7 +456,7 @@ void LLSelectMgr::overrideAvatarUpdates()
 //-----------------------------------------------------------------------------
 // Select just the object, not any other group members.
 //-----------------------------------------------------------------------------
-LLObjectSelectionHandle LLSelectMgr::selectObjectOnly(LLViewerObject* object, S32 face)
+LLObjectSelectionHandle LLSelectMgr::selectObjectOnly(LLViewerObject* object, S32 face, S32 gltf_node, S32 gltf_primitive)
 {
 	llassert( object );
 
@@ -481,7 +481,7 @@ LLObjectSelectionHandle LLSelectMgr::selectObjectOnly(LLViewerObject* object, S3
 
 	// Place it in the list and tag it.
 	// This will refresh dialogs.
-	addAsIndividual(object, face);
+	addAsIndividual(object, face, TRUE, gltf_node, gltf_primitive);
 
 	// Stop the object from moving (this anticipates changes on the
 	// simulator in LLTask::userSelect)
@@ -1033,7 +1033,7 @@ void LLSelectMgr::addAsFamily(std::vector<LLViewerObject*>& objects, BOOL add_to
 //-----------------------------------------------------------------------------
 // addAsIndividual() - a single object, face, etc
 //-----------------------------------------------------------------------------
-void LLSelectMgr::addAsIndividual(LLViewerObject *objectp, S32 face, BOOL undoable)
+void LLSelectMgr::addAsIndividual(LLViewerObject *objectp, S32 face, BOOL undoable, S32 gltf_node, S32 gltf_primitive)
 {
 	// check to see if object is already in list
 	LLSelectNode *nodep = mSelectedObjects->findNode(objectp);
@@ -1079,6 +1079,13 @@ void LLSelectMgr::addAsIndividual(LLViewerObject *objectp, S32 face, BOOL undoab
 		LL_ERRS() << "LLSelectMgr::add face " << face << " out-of-range" << LL_ENDL;
 		return;
 	}
+
+    // Handle glTF node selection
+    if (gltf_node >= 0)
+    {
+        nodep->selectGLTFNode(gltf_node, gltf_primitive, TRUE);
+     
+    }
 
 	saveSelectedObjectTransform(SELECT_ACTION_TYPE_PICK);
 	updateSelectionCenter();
@@ -6682,8 +6689,7 @@ LLSelectNode::~LLSelectNode()
         }
     }
 
-
-	delete mPermissions;
+    delete mPermissions;
 	mPermissions = NULL;
 }
 
@@ -6709,6 +6715,17 @@ void LLSelectNode::selectTE(S32 te_index, BOOL selected)
 		mTESelectMask &= ~mask;
 	}
 	mLastTESelected = te_index;
+}
+
+void LLSelectNode::selectGLTFNode(S32 node_index, S32 primitive_index, bool selected)
+{
+    if (node_index < 0)
+    {
+        return;
+    }
+
+    mSelectedGLTFNode = node_index;
+    mSelectedGLTFPrimitive = primitive_index;
 }
 
 BOOL LLSelectNode::isTESelected(S32 te_index) const

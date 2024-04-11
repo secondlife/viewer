@@ -4374,6 +4374,88 @@ const LLVector3 &LLViewerObject::getPositionAgent() const
 	return mPositionAgent;
 }
 
+LLMatrix4a LLViewerObject::getGLTFAssetToAgentTransform() const
+{
+    LLMatrix4 root;
+    root.initScale(getScale());
+    root.rotate(getRenderRotation());
+    root.translate(getPositionAgent());
+
+    LLMatrix4a mat;
+    mat.loadu((F32*)root.mMatrix);
+
+    return mat;
+}
+
+LLMatrix4a LLViewerObject::getAgentToGLTFAssetTransform() const
+{
+    LLMatrix4 root;
+    LLVector3 scale = getScale();
+    scale.mV[0] = 1.f / scale.mV[0];
+    scale.mV[1] = 1.f / scale.mV[1];
+    scale.mV[2] = 1.f / scale.mV[2];
+
+    root.translate(-getPositionAgent());
+    root.rotate(~getRenderRotation());
+
+    LLMatrix4 scale_mat;
+    scale_mat.initScale(scale);
+
+    root *= scale_mat;
+    LLMatrix4a mat;
+    mat.loadu((F32*)root.mMatrix);
+
+    return mat;
+}
+
+LLVector3 LLViewerObject::getGLTFNodePositionAgent(S32 node_index) const
+{
+    LLVector3 ret;
+
+    if (mGLTFAsset.notNull() && node_index >= 0 && node_index < mGLTFAsset->mNodes.size())
+    {
+        auto& node = mGLTFAsset->mNodes[node_index];
+
+        LLVector4a p = node.mAssetMatrix.getTranslation();
+
+        LLMatrix4a asset_to_agent = getGLTFAssetToAgentTransform();
+
+        asset_to_agent.affineTransform(p, p);
+
+        ret.set(p.getF32ptr());
+    }
+
+    return ret;
+}
+
+void LLViewerObject::moveGLTFNode(S32 node_index, const LLVector3& offset)
+{
+    if (mGLTFAsset.notNull() && node_index >= 0 && node_index < mGLTFAsset->mNodes.size())
+    {
+        auto& node = mGLTFAsset->mNodes[node_index];
+
+        LLMatrix4a agent_to_asset = getAgentToGLTFAssetTransform();
+        LLMatrix4a agent_to_node;
+        matMul(agent_to_asset, node.mAssetMatrixInv, agent_to_node);
+
+        LLVector4a origin = LLVector4a::getZero();
+        LLVector4a offset_v;
+        offset_v.load3(offset.mV);
+        
+
+        agent_to_node.affineTransform(offset_v, offset_v);
+        agent_to_node.affineTransform(origin, origin);
+
+        offset_v.sub(origin);
+        offset_v.getF32ptr()[3] = 0.f;
+
+        node.mMatrix.mMatrix[3].add(offset_v);
+
+        // TODO -- only update transforms for this node and its children (or use a dirty flag)
+        mGLTFAsset->updateTransforms();
+    }
+}
+
 const LLVector3 &LLViewerObject::getPositionRegion() const
 {
 	if (!isRoot())
