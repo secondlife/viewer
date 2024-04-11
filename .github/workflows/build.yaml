@@ -12,13 +12,10 @@ jobs:
     strategy:
       matrix:
         runner: [windows-large, macos-12-xl]
-        configuration: [Release, ReleaseOS]
+        configuration: [Release]
         include:
           - runner: macos-12-xl
             developer_dir: "/Applications/Xcode_14.0.1.app/Contents/Developer"
-        exclude:
-          - runner: macos-12-xl
-            configuration: ReleaseOS
     runs-on: ${{ matrix.runner }}
     outputs:
       viewer_channel: ${{ steps.build.outputs.viewer_channel }}
