@@ -106,6 +106,7 @@ void move_items_to_new_subfolder(const uuid_vec_t& selected_uuids, const std::st
 void move_items_to_folder(const LLUUID& new_cat_uuid, const uuid_vec_t& selected_uuids);
 bool is_only_cats_selected(const uuid_vec_t& selected_uuids);
 bool is_only_items_selected(const uuid_vec_t& selected_uuids);
+std::string get_category_path(LLUUID cat_id);
 
 bool can_move_to_outfit(LLInventoryItem* inv_item, bool move_is_into_current_outfit);
 bool can_move_to_landmarks(LLInventoryItem* inv_item);
@@ -281,7 +282,7 @@ protected:
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLAssetIDAndTypeMatches
 //
-// Implementation of a LLInventoryCollectFunctor which returns TRUE if
+// Implementation of a LLInventoryCollectFunctor which returns true if
 // the item matches both asset type and asset id.
 // This is needed in case you are looking for a specific type with default id
 // (since null is default for multiple asset types)

@@ -95,17 +95,15 @@ private:
 		STAT_NONE,
 		STAT_COUNT,
 		STAT_EVENT,
-		STAT_SAMPLE,
-		STAT_MEM
+		STAT_SAMPLE
 	} mStatType;
 
 	union
 	{
-		void*														valid;
+		void*													valid;
 		const LLTrace::StatType<LLTrace::CountAccumulator>*		countStatp;
 		const LLTrace::StatType<LLTrace::EventAccumulator>*		eventStatp;
-		const LLTrace::StatType<LLTrace::SampleAccumulator>*		sampleStatp;
-		const LLTrace::StatType<LLTrace::MemAccumulator>*		memStatp;
+		const LLTrace::StatType<LLTrace::SampleAccumulator>*	sampleStatp;
 	} mStat;
 
 	LLUIString   mLabel;

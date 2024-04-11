@@ -113,6 +113,7 @@
 #include "llpresetsmanager.h"
 #include "llviewercontrol.h"
 #include "llpresetsmanager.h"
+#include "llinventoryfunctions.h"
 
 #include "llsearchableui.h"
 #include "llperfstats.h"
@@ -1642,25 +1643,6 @@ void LLFloaterPreference::onChangeComplexityMode(const LLSD& newvalue)
 {
     bool enable_complexity = newvalue.asInteger() != LLVOAvatar::AV_RENDER_ONLY_SHOW_FRIENDS;
     getChild<LLSliderCtrl>("IndirectMaxComplexity")->setEnabled(enable_complexity);
-}
-
-std::string get_category_path(LLUUID cat_id)
-{
-    LLViewerInventoryCategory* cat = gInventory.getCategory(cat_id);
-    std::string localized_cat_name;
-    if (!LLTrans::findString(localized_cat_name, "InvFolder " + cat->getName()))
-    {
-        localized_cat_name = cat->getName();
-    }
-
-    if (cat->getParentUUID().notNull())
-    {
-        return get_category_path(cat->getParentUUID()) + " > " + localized_cat_name;
-    }
-    else
-    {
-        return localized_cat_name;
-    }
 }
 
 std::string get_category_path(LLFolderType::EType cat_type)

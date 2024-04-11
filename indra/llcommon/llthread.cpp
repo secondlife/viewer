@@ -113,15 +113,16 @@ LL_COMMON_API bool on_main_thread()
     return (LLThread::currentID() == main_thread());
 }
 
-LL_COMMON_API void assert_main_thread()
+LL_COMMON_API bool assert_main_thread()
 {
     auto curr = LLThread::currentID();
     auto main = main_thread();
-    if (curr != main)
-    {
-        LL_WARNS() << "Illegal execution from thread id " << curr
-            << " outside main thread " << main << LL_ENDL;
-    }
+    if (curr == main)
+        return true;
+
+    LL_WARNS() << "Illegal execution from thread id " << curr
+               << " outside main thread " << main << LL_ENDL;
+    return false;
 }
 
 // this function has become moot

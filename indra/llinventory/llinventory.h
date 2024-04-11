@@ -190,7 +190,7 @@ public:
 	// Assumes you have already called nextBlock().
 	virtual void packMessage(LLMessageSystem* msg) const;
 
-	// Returns TRUE if the inventory item came through the network correctly.
+	// Returns true if the inventory item came through the network correctly.
 	// Uses a simple crc check which is defeatable, but we want to detect 
 	// network mangling somehow.
 	virtual bool unpackMessage(LLMessageSystem* msg, const char* block, S32 block_num = 0);

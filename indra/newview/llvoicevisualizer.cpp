@@ -40,6 +40,7 @@
 #include "llviewertexturelist.h"
 #include "llvoiceclient.h"
 #include "llrender.h"
+#include "llagent.h"
 
 //brent's wave image
 //29de489d-0491-fb00-7dab-f9e686d31e83
@@ -349,7 +350,7 @@ void LLVoiceVisualizer::render()
 		//---------------------------------------------------------------
 		// set the sound symbol position over the source (avatar's head)
 		//---------------------------------------------------------------
-		mSoundSymbol.mPosition = mVoiceSourceWorldPosition + WORLD_UPWARD_DIRECTION * HEIGHT_ABOVE_HEAD;
+        mSoundSymbol.mPosition = gAgent.getPosAgentFromGlobal(mPositionGlobal) + WORLD_UPWARD_DIRECTION * HEIGHT_ABOVE_HEAD;
 	
 		//---------------------------------------------------------------
 		// some gl state

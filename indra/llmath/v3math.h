@@ -72,7 +72,7 @@ class LLVector3
 		void setValue(const LLSD& sd);
 
 		inline bool isFinite() const;									// checks to see if all values of LLVector3 are finite
-		bool		clamp(F32 min, F32 max);		// Clamps all values to (min,max), returns TRUE if data changed
+		bool		clamp(F32 min, F32 max);		// Clamps all values to (min,max), returns true if data changed
 		bool		clamp(const LLVector3 &min_vec, const LLVector3 &max_vec); // Scales vector by another vector
 		bool		clampLength( F32 length_limit );					// Scales vector to limit length to a value
 
@@ -80,7 +80,7 @@ class LLVector3
 		void		quantize8(F32 lowerxy, F32 upperxy, F32 lowerz, F32 upperz);	// changes the vector to reflect quatization
 		void 		snap(S32 sig_digits);											// snaps x,y,z to sig_digits decimal places
 
-		bool		abs();						// sets all values to absolute value of original value (first octant), returns TRUE if changed
+		bool		abs();						// sets all values to absolute value of original value (first octant), returns true if changed
 		
 		inline void	clear();						// Clears LLVector3 to (0, 0, 0)
 		inline void	setZero();						// Clears LLVector3 to (0, 0, 0)
@@ -119,7 +119,7 @@ class LLVector3
 		const LLVector3&	scaleVec(const LLVector3& vec);				// scales per component by vec
 		LLVector3			scaledVec(const LLVector3& vec) const;			// get a copy of this vector scaled by vec
 
-		bool isNull() const;			// Returns TRUE if vector has a _very_small_ length
+		bool isNull() const;			// Returns true if vector has a _very_small_ length
 		bool isExactlyZero() const		{ return !mV[VX] && !mV[VY] && !mV[VZ]; }
 
 		F32 operator[](int idx) const { return mV[idx]; }
@@ -157,7 +157,7 @@ typedef LLVector3 LLSimLocalVec;
 // Non-member functions 
 
 F32	angle_between(const LLVector3 &a, const LLVector3 &b);	// Returns angle (radians) between a and b
-bool are_parallel(const LLVector3 &a, const LLVector3 &b, F32 epsilon=F_APPROXIMATELY_ZERO);	// Returns TRUE if a and b are very close to parallel
+bool are_parallel(const LLVector3 &a, const LLVector3 &b, F32 epsilon=F_APPROXIMATELY_ZERO);	// Returns true if a and b are very close to parallel
 F32	dist_vec(const LLVector3 &a, const LLVector3 &b);		// Returns distance between a and b
 F32	dist_vec_squared(const LLVector3 &a, const LLVector3 &b);// Returns distance squared between a and b
 F32	dist_vec_squared2D(const LLVector3 &a, const LLVector3 &b);// Returns distance squared between a and b ignoring Z component

@@ -28,19 +28,19 @@
 
 #include "llpaneloutfitsinventory.h"
 
-#include "llnotificationsutil.h"
-#include "lltabcontainer.h"
-
+#include "llagentwearables.h"
+#include "llappearancemgr.h"
 #include "llfloatersidepanelcontainer.h"
 #include "llinventoryfunctions.h"
 #include "llinventorymodelbackgroundfetch.h"
-#include "llagentwearables.h"
-#include "llappearancemgr.h"
-#include "lloutfitobserver.h"
+#include "llnotificationsutil.h"
 #include "lloutfitgallery.h"
+#include "lloutfitobserver.h"
 #include "lloutfitslist.h"
+#include "llpanelappearancetab.h"
 #include "llpanelwearing.h"
 #include "llsidepanelappearance.h"
+#include "lltabcontainer.h"
 #include "llviewercontrol.h"
 #include "llviewerfoldertype.h"
 
@@ -159,24 +159,11 @@ void LLPanelOutfitsInventory::onSearchEdit(const std::string& string)
 {
 	if (!mActivePanel) return;
 
-	mFilterSubString = string;
-
-	if (string == "")
-	{
-		mActivePanel->setFilterSubString(LLStringUtil::null);
-	}
-
     if (!LLInventoryModelBackgroundFetch::instance().inventoryFetchStarted())
     {
         llassert(false); // this should have been done on startup
         LLInventoryModelBackgroundFetch::instance().start();
     }
-
-	if (mActivePanel->getFilterSubString().empty() && string.empty())
-	{
-		// current filter and new filter empty, do nothing
-		return;
-	}
 
 	// set new filter string
 	mActivePanel->setFilterSubString(string);
@@ -302,6 +289,7 @@ bool LLPanelOutfitsInventory::isActionEnabled(const LLSD& userdata)
 {
 	return mActivePanel && mActivePanel->isActionEnabled(userdata);
 }
+
 // List Commands                                                                //
 //////////////////////////////////////////////////////////////////////////////////
 
@@ -330,7 +318,7 @@ void LLPanelOutfitsInventory::onTabChange()
 	mActivePanel = dynamic_cast<LLPanelAppearanceTab*>(mAppearanceTabs->getCurrentPanel());
 	if (!mActivePanel) return;
 
-	mActivePanel->setFilterSubString(mFilterSubString);
+	mActivePanel->checkFilterSubString();
 	mActivePanel->onOpen(LLSD());
 
 	updateVerbs();
@@ -356,8 +344,6 @@ bool LLPanelOutfitsInventory::isOutfitsGalleryPanelActive() const
 
 	return mActivePanel->getName() == OUTFIT_GALLERY_TAB_NAME;
 }
-
-
 
 void LLPanelOutfitsInventory::setWearablesLoading(bool val)
 {

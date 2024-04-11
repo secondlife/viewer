@@ -343,7 +343,7 @@ public:
 	// time earlier than "now".
 	void expirePasses(S32 now);
 
-	// Add to list, suppressing duplicates.  Returns TRUE if added.
+	// Add to list, suppressing duplicates.  Returns true if added.
 	bool addToAccessList(const LLUUID& agent_id, S32 time);
 	bool addToBanList(const LLUUID& agent_id, S32 time);
 	bool removeFromAccessList(const LLUUID& agent_id);
@@ -419,7 +419,7 @@ public:
 
 	// dealing with sales and parcel conversion.
 	//
-	// the isSaleTimerExpired will trivially return FALSE if there is
+	// the isSaleTimerExpired will trivially return false if there is
 	// no sale going on. Pass in the current time in usec which will
 	// be used for comparison.
 	bool isSaleTimerExpired(const U64& time);

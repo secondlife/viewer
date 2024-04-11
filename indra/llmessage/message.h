@@ -295,7 +295,7 @@ class LLMessageSystem : public LLMessageSenderInterface
 	LLPacketRing				mPacketRing;
 	LLReliablePacketParams		mReliablePacketParams;
 
-	// Set this flag to TRUE when you want *very* verbose logs.
+	// Set this flag to true when you want *very* verbose logs.
 	bool						mVerboseLog;
 
 	F32                         mMessageFileVersionNumber;
@@ -388,8 +388,8 @@ public:
 
 	// Set a callback function for a message system exception.
 	void setExceptionFunc(EMessageException exception, msg_exception_callback func, void* data = NULL);
-	// Call the specified exception func, and return TRUE if a
-	// function was found and called. Otherwise return FALSE.
+	// Call the specified exception func, and return true if a
+	// function was found and called. Otherwise return false.
 	bool callExceptionFunc(EMessageException exception);
 
 	// Set a function that will be called once per packet processed with the 
@@ -885,7 +885,7 @@ private:
 	LLTimer mMessageSystemTimer;
 
 	static F32 mTimeDecodesSpamThreshold;  // If mTimeDecodes is on, all this many seconds for each msg decode before spamming
-	static bool mTimeDecodes;  // Measure time for all message decodes if TRUE;
+	static bool mTimeDecodes;  // Measure time for all message decodes if true;
 
 	msg_timing_callback mTimingCallback;
 	void* mTimingCallbackData;

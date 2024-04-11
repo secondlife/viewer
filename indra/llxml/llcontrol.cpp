@@ -1311,7 +1311,7 @@ bool convert_from_llsd<bool>(const LLSD& sd, eControlType type, std::string_view
 		return sd.asBoolean();
 	else
 	{
-		CONTROL_ERRS << "Invalid BOOL value for " << control_name << ": " << LLControlGroup::typeEnumToString(type) << " " << sd << LL_ENDL;
+		CONTROL_ERRS << "Invalid bool value for " << control_name << ": " << LLControlGroup::typeEnumToString(type) << " " << sd << LL_ENDL;
 		return false;
 	}
 }

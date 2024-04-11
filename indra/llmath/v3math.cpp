@@ -53,7 +53,7 @@ const LLVector3 LLVector3::all_one(1.f,1.f,1.f);
 
 
 // Clamps each values to range (min,max).
-// Returns TRUE if data changed.
+// Returns true if data changed.
 bool LLVector3::clamp(F32 min, F32 max)
 {
 	bool ret{ false };
@@ -70,7 +70,7 @@ bool LLVector3::clamp(F32 min, F32 max)
 }
 
 // Clamps length to an upper limit.  
-// Returns TRUE if the data changed
+// Returns true if the data changed
 bool LLVector3::clampLength( F32 length_limit )
 {
 	bool changed{ false };
@@ -151,7 +151,7 @@ bool LLVector3::clamp(const LLVector3 &min_vec, const LLVector3 &max_vec)
 
 
 // Sets all values to absolute value of their original values
-// Returns TRUE if data changed
+// Returns true if data changed
 bool LLVector3::abs()
 {
 	bool ret{ false };

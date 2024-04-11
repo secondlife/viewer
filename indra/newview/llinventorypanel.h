@@ -247,9 +247,9 @@ public:
 	static void openInventoryPanelAndSetSelection(bool auto_open,
 													const LLUUID& obj_id,
 													bool use_main_panel = false,
-													bool take_keyboard_focus = TAKE_FOCUS_YES,
+													bool take_keyboard_focus = true,
 													bool reset_filter = false);
-    static void setSFViewAndOpenFolder(const LLInventoryPanel* panel, const LLUUID& folder_id);
+	static void setSFViewAndOpenFolder(const LLInventoryPanel* panel, const LLUUID& folder_id);
 	void addItemID(const LLUUID& id, LLFolderViewItem* itemp);
 	void removeItemID(const LLUUID& id);
 	LLFolderViewItem* getItemByID(const LLUUID& id);

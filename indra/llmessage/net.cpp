@@ -338,7 +338,7 @@ S32 receive_packet(int hSocket, char * receiveBuffer)
 	return nRet;
 }
 
-// Returns TRUE on success.
+// Returns true on success.
 bool send_packet(int hSocket, const char *sendBuffer, int size, U32 recipient, int nPort)
 {
 	//  Sends a packet to the address set in initNet

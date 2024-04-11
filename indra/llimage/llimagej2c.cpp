@@ -197,7 +197,7 @@ bool LLImageJ2C::decodeChannels(LLImageRaw *raw_imagep, F32 decode_time, S32 fir
 	{
 		if (mDecoding)
 		{
-			LL_WARNS() << "decodeImpl failed but mDecoding is TRUE" << LL_ENDL;
+			LL_WARNS() << "decodeImpl failed but mDecoding is true" << LL_ENDL;
 			mDecoding = false;
 		}
 	}

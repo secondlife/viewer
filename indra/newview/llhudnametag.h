@@ -127,11 +127,12 @@ public:
 	/*virtual*/ void markDead();
 	friend class LLHUDObject;
 	/*virtual*/ F32 getDistance() const { return mLastDistance; }
-	S32  getLOD() { return mLOD; }
-	bool getVisible() { return mVisible; }
+	S32  getLOD() const { return mLOD; }
+	bool getVisible() const { return mVisible; }
 	bool getHidden() const { return mHidden; }
 	void setHidden( bool hide ) { mHidden = hide; }
 	void shift(const LLVector3& offset);
+	F32 getWorldHeight() const;
 
 	bool lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end, LLVector4a& intersection, bool debug_render = false);
 

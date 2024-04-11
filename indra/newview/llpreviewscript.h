@@ -36,6 +36,7 @@
 #include "llfloatergotoline.h"
 #include "lllivefile.h"
 #include "llsyntaxid.h"
+#include "llscripteditor.h"
 
 class LLLiveLSLFile;
 class LLMessageSystem;
@@ -52,6 +53,7 @@ class LLViewerInventoryItem;
 class LLScriptEdContainer;
 class LLFloaterGotoLine;
 class LLFloaterExperienceProfile;
+class LLScriptMovedObserver;
 
 class LLLiveLSLFile : public LLLiveFile
 {
@@ -143,7 +145,13 @@ public:
     void 			setAssetID( const LLUUID& asset_id){ mAssetID = asset_id; };
     LLUUID 			getAssetID() { return mAssetID; }
 
-private:
+    bool isFontSizeChecked(const LLSD &userdata);
+    void onChangeFontSize(const LLSD &size_name);
+
+    virtual bool handleKeyHere(KEY key, MASK mask);
+    void selectAll() { mEditor->selectAll(); }
+
+  private:
 	void		onBtnDynamicHelp();
 	void		onBtnUndoChanges();
 
@@ -151,8 +159,6 @@ private:
 
 	void selectFirstError();
 
-	virtual bool handleKeyHere(KEY key, MASK mask);
-	
 	void enableSave(bool b) {mEnableSave = b;}
 
 protected:
@@ -205,6 +211,8 @@ public:
 	LLScriptEdContainer(const LLSD& key);
 	LLScriptEdContainer(const LLSD& key, const bool live);
 
+    bool handleKeyHere(KEY key, MASK mask);
+
 protected:
 	std::string		getTmpFileName(const std::string& script_name);
 	bool			onExternalChange(const std::string& filename);
@@ -218,6 +226,12 @@ class LLPreviewLSL : public LLScriptEdContainer
 {
 public:
 	LLPreviewLSL(const LLSD& key );
+    ~LLPreviewLSL();
+
+    LLUUID getScriptID() { return mItemUUID; }
+
+    void setDirty() { mDirty = true; }
+
 	virtual void callbackLSLCompileSucceeded();
 	virtual void callbackLSLCompileFailed(const LLSD& compile_errors);
 
@@ -248,6 +262,8 @@ protected:
 
 	// Can safely close only after both text and bytecode are uploaded
 	S32 mPendingUploads;
+
+    LLScriptMovedObserver* mItemObserver;
 
 };
 
@@ -280,6 +296,8 @@ public:
 	void updateExperiencePanel();
 	void requestExperiences();
 	void experienceChanged();
+
+    void setObjectName(std::string name) { mObjectName = name; }
 	
 private:
 	virtual bool canClose();
@@ -335,6 +353,7 @@ private:
 	LLSD			mExperienceIds;
 
 	LLHandle<LLFloater> mExperienceProfile;
+    std::string mObjectName;
 };
 
 #endif  // LL_LLPREVIEWSCRIPT_H
