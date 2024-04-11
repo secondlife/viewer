@@ -13,7 +13,6 @@ jobs:
       matrix:
         runner: [windows-large, macos-12-xl]
         configuration: [Release, ReleaseOS]
-        python-version: ["3.11"]
         include:
           - runner: macos-12-xl
             developer_dir: "/Applications/Xcode_14.0.1.app/Contents/Developer"
@@ -67,7 +66,7 @@ jobs:
       - name: Setup python
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.11"
 
       - name: Checkout build variables
         uses: actions/checkout@v4
