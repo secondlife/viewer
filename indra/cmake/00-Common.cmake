@@ -159,6 +159,7 @@ if (LINUX)
   set(CLANG_WARNINGS
       ${GCC_CLANG_COMPATIBLE_WARNINGS}
       # Put clang specific warning configuration here
+      -Wno-unknown-warning-option
   )
 
   set(GCC_WARNINGS
