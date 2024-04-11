@@ -1339,7 +1339,7 @@ LLSD LLSimulatorTranslationHandler::sendMessageAndSuspend(LLCoreHttpUtil::HttpCo
 	LLSD body = LLSD::emptyMap();
 	body["text"] = msg;
 	body["source_lang"] = "auto";
-	body["target_lang"] = "fr";
+	body["target_lang"] = to_lang;
 	LL_INFOS() << "requesting to url " << url << " body " << body << LL_ENDL;
     return adapter->postAndSuspend(request, url, body, options, headers);
 }
@@ -1388,6 +1388,10 @@ bool LLTranslate::shouldTranslate(const LLChat& chat)
 /* static */
 bool LLTranslate::shouldTranslate(const LLUUID& from_id, const std::string& from_str)
 {
+    if (from_str == SYSTEM_FROM)
+    {
+        return false;
+    }
     return getPreferredHandler() != nullptr;
 }
 

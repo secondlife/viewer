@@ -17,21 +17,14 @@
  <string name="google_api_key_verified">Google API key verified.</string>
  <string name="deepl_api_key_verified">DeepL API key verified.</string>
 
- <check_box
-  height="16"     
-  label="Enable machine translation while chatting"
-  layout="topleft"
-  left="10"
-  name="translate_chat_checkbox"
-  top="30"
-  width="20" />
+ 
  <text
   height="20"
   follows="left|top"
   layout="topleft"
-  left="40"
+  left="10"
   name="translate_language_label"
-  top_pad="20"
+  top="30"
   width="130">
   Translate chat into: 
  </text>
@@ -116,6 +109,15 @@
    value="ko" />
  </combo_box>
 
+<check_box
+  height="16"     
+  label="Enable machine translation while chatting"
+  layout="topleft"
+  left="10"
+  name="translate_chat_checkbox"
+  top_pad="30"
+  width="20" />
+  
  <text
   follows="top|left|right"
   height="15"

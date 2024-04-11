@@ -114,6 +114,7 @@ void LLFloaterTranslationSettings::onOpen(const LLSD& key)
 {
 	mMachineTranslationCB->setValue(gSavedSettings.getBOOL("TranslateChat"));
 	mLanguageCombo->setSelectedByValue(gSavedSettings.getString("TranslateLanguage"), TRUE);
+	mLanguageCombo->setEnabled(true);
 	mTranslationServiceRadioGroup->setSelectedByValue(gSavedSettings.getString("TranslationService"), TRUE);
 
 	LLSD azure_key = gSavedSettings.getLLSD("AzureTranslateAPIKey");
@@ -261,7 +262,6 @@ void LLFloaterTranslationSettings::updateControlsEnabledState()
     bool deepl_selected = service == "deepl";
 
 	mTranslationServiceRadioGroup->setEnabled(on);
-	mLanguageCombo->setEnabled(on);
 
     // MS Azure
     getChild<LLTextBox>("azure_api_endoint_label")->setEnabled(on);
