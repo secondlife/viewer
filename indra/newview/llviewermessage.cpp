@@ -2725,7 +2725,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 		}
 		
 		LLTranslate::instance().logCharsSeen(mesg.size());
-		if (gSavedSettings.getBOOL("TranslateChat") && chat.mSourceType != CHAT_SOURCE_SYSTEM)
+		if (LLTranslate::shouldTranslate(chat))
 		{
 			if (chat.mChatStyle == CHAT_STYLE_IRC)
 			{

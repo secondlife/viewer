@@ -1587,7 +1587,7 @@ void LLIMModel::proccessOnlineOfflineNotification(
 void LLIMModel::addMessage(const LLUUID& session_id, const std::string& from, const LLUUID& from_id,
 						   const std::string& utf8_text, bool log2file /* = true */, bool is_region_msg, /* = false */ U32 time_stamp /* = 0 */)
 {
-    if (gSavedSettings.getBOOL("TranslateChat") && (from != SYSTEM_FROM))
+    if (LLTranslate::shouldTranslate(from_id, from))
     {
         const std::string from_lang = ""; // leave empty to trigger autodetect
         const std::string to_lang = LLTranslate::getTranslateLanguage();

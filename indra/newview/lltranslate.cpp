@@ -43,7 +43,8 @@
 #include "llviewerregion.h"
 #include "llsdserialize.h"
 #include "stringize.h"
-
+#include "llchat.h"
+#include "llinstantmessage.h"
 
 static const std::string AZURE_NOTRANSLATE_OPENING_TAG("<div translate=\"no\">");
 static const std::string AZURE_NOTRANSLATE_CLOSING_TAG("</div>");
@@ -1246,7 +1247,6 @@ bool LLSimulatorTranslationHandler::parseResponse(
 	if (full_response.has("text"))
 	{
 		translation = full_response["text"];
-		detected_lang = "unknown";
 		return true;
 	}
 	LL_WARNS("Translation") << "Field(s) missing from result, can't translate" << LL_ENDL;
@@ -1297,7 +1297,8 @@ std::string LLSimulatorTranslationHandler::getAPILanguageCode(const std::string&
 
 /*virtual*/
 void LLSimulatorTranslationHandler::verifyKey(const LLSD& key, LLTranslate::KeyVerificationResult_fn fnc)
-{ 
+{
+	LL_WARNS() << "No key verification for simulator" << LL_ENDL;
     return;
 }
 
@@ -1372,17 +1373,42 @@ LLTranslate::~LLTranslate()
 }
 
 /*static*/
+bool LLTranslate::shouldTranslate(const LLChat& chat)
+{
+    return getPreferredHandler() != nullptr;
+}
+
+/* static */
+bool LLTranslate::shouldTranslate(const LLUUID& from_id, const std::string& from_str)
+{
+    return getPreferredHandler() != nullptr;
+}
+
+/*static*/
 void LLTranslate::translateMessage(const std::string &from_lang, const std::string &to_lang,
     const std::string &mesg, TranslationSuccess_fn success, TranslationFailure_fn failure)
 {
-    LLTranslationAPIHandler& handler = getPreferredHandler();
-
-    handler.translateMessage(LLTranslationAPIHandler::LanguagePair_t(from_lang, to_lang), addNoTranslateTags(mesg), success, failure);
+    LLTranslationAPIHandler *handler = getPreferredHandler();
+    if (handler)
+    {
+        handler->translateMessage(LLTranslationAPIHandler::LanguagePair_t(from_lang, to_lang), addNoTranslateTags(mesg), success, failure);
+    }
+    else
+    {
+        if (!failure.empty())
+        {
+            LLCore::HttpStatus status(400);
+            std::string err_msg = "No translation service configured";
+            failure(status, err_msg);
+        }
+    }
 }
 
+// FIXME should this be a class method of the handler?
 std::string LLTranslate::addNoTranslateTags(std::string mesg)
 {
-    if (getPreferredHandler().getCurrentService() == SERVICE_AZURE)
+    LLTranslationAPIHandler *handler = getPreferredHandler();
+    if (handler && handler->getCurrentService() == SERVICE_AZURE)
     {
         // https://learn.microsoft.com/en-us/azure/cognitive-services/translator/prevent-translation
         std::string upd_msg(mesg);
@@ -1405,7 +1431,8 @@ std::string LLTranslate::addNoTranslateTags(std::string mesg)
 
 std::string LLTranslate::removeNoTranslateTags(std::string mesg)
 {
-    if (getPreferredHandler().getCurrentService() == SERVICE_AZURE)
+    LLTranslationAPIHandler *handler = getPreferredHandler();
+    if (handler && handler->getCurrentService() == SERVICE_AZURE)
     {
         std::string upd_msg(mesg);
         LLUrlMatch match;
@@ -1439,9 +1466,16 @@ std::string LLTranslate::removeNoTranslateTags(std::string mesg)
 /*static*/
 void LLTranslate::verifyKey(EService service, const LLSD &key, KeyVerificationResult_fn fnc)
 {
-    LLTranslationAPIHandler& handler = getHandler(service);
+    LLTranslationAPIHandler *handler = getHandler(service);
 
-    handler.verifyKey(key, fnc);
+    if (handler)
+    {
+        handler->verifyKey(key, fnc);
+    }
+    else
+    {
+        LL_WARNS() << "No translation service set" << LL_ENDL;
+    }
 }
 
 
@@ -1460,7 +1494,8 @@ std::string LLTranslate::getTranslateLanguage()
 // static
 bool LLTranslate::isTranslationConfigured()
 {
-	return getPreferredHandler().isConfigured();
+    LLTranslationAPIHandler *handler = getPreferredHandler();
+	return (handler && handler->isConfigured());
 }
 
 void LLTranslate::logCharsSeen(size_t count)
@@ -1501,9 +1536,9 @@ LLSD LLTranslate::asLLSD() const
 }
 
 // static
-LLTranslationAPIHandler& LLTranslate::getPreferredHandler()
+LLTranslationAPIHandler* LLTranslate::getPreferredHandler()
 {
-	EService service = SERVICE_AZURE;
+	EService service = SERVICE_NONE;
 
 	std::string service_str = gSavedSettings.getString("TranslationService");
 	if (service_str == "google")
@@ -1522,12 +1557,15 @@ LLTranslationAPIHandler& LLTranslate::getPreferredHandler()
 	{
 		service = SERVICE_SIMULATOR;
 	}
-
-	return getHandler(service);
+    if (service != SERVICE_NONE)
+    {
+        return getHandler(service);
+    }
+    return nullptr;
 }
 
 // static
-LLTranslationAPIHandler& LLTranslate::getHandler(EService service)
+LLTranslationAPIHandler* LLTranslate::getHandler(EService service)
 {
 	static LLGoogleTranslationHandler google_handler;
 	static LLAzureTranslationHandler azure_handler;
@@ -1537,15 +1575,14 @@ LLTranslationAPIHandler& LLTranslate::getHandler(EService service)
     switch (service)
     {
         case SERVICE_AZURE:
-            return azure_handler;
+            return &azure_handler;
         case SERVICE_GOOGLE:
-            return google_handler;
+            return &google_handler;
         case SERVICE_DEEPL:
-            return deepl_handler;
+            return &deepl_handler;
 		case SERVICE_SIMULATOR:
-			return simulator_handler;
+			return &simulator_handler;
     }
 
-    return azure_handler;
-
+    return nullptr;
 }

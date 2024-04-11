@@ -65,7 +65,6 @@
 #include "llviewerwindow.h"
 #include "llrootview.h"
 #include "llviewerchat.h"
-#include "lltranslate.h"
 #include "llautoreplace.h"
 #include "lluiusage.h"
 

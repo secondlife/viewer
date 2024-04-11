@@ -32,6 +32,8 @@
 
 #include "llsingleton.h"
 
+class LLChat;
+
 namespace Json
 {
     class Value;
@@ -63,11 +65,18 @@ public :
 		SERVICE_GOOGLE,
 		SERVICE_DEEPL,
 		SERVICE_SIMULATOR,
+		SERVICE_NONE
 	} EService;
 
     typedef boost::function<void(EService, bool, S32)> KeyVerificationResult_fn;
     typedef boost::function<void(std::string , std::string )> TranslationSuccess_fn;
     typedef boost::function<void(int, std::string)> TranslationFailure_fn;
+
+	/**
+	 * Should the given chat message be translated? Depends on preference settings, message type, etc.
+	 */
+	static bool shouldTranslate(const LLChat& chat);
+	static bool shouldTranslate(const LLUUID& from_id, const std::string& from_str);
 
 	/**
 	 * Translate given text.
@@ -106,8 +115,8 @@ public :
 	void logFailure(S32 count);
 	LLSD asLLSD() const;
 private:
-	static LLTranslationAPIHandler& getPreferredHandler();
-	static LLTranslationAPIHandler& getHandler(EService service);
+	static LLTranslationAPIHandler* getPreferredHandler();
+	static LLTranslationAPIHandler* getHandler(EService service);
 
 	size_t mCharsSeen;
 	size_t mCharsSent;
