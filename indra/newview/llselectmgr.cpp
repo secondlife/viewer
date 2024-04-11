@@ -5218,46 +5218,57 @@ void LLSelectMgr::saveSelectedObjectTransform(EActionType action_type)
 			{
 				return true; // skip
 			}
-			selectNode->mSavedPositionLocal = object->getPosition();
-			if (object->isAttachment())
-			{
-				if (object->isRootEdit())
-				{
-					LLXform* parent_xform = object->mDrawable->getXform()->getParent();
-					if (parent_xform)
-					{
-						selectNode->mSavedPositionGlobal = gAgent.getPosGlobalFromAgent((object->getPosition() * parent_xform->getWorldRotation()) + parent_xform->getWorldPosition());
-					}
-					else
-					{
-						selectNode->mSavedPositionGlobal = object->getPositionGlobal();
-					}
-				}
-				else
-				{
-					LLViewerObject* attachment_root = (LLViewerObject*)object->getParent();
-					LLXform* parent_xform = attachment_root ? attachment_root->mDrawable->getXform()->getParent() : NULL;
-					if (parent_xform)
-					{
-						LLVector3 root_pos = (attachment_root->getPosition() * parent_xform->getWorldRotation()) + parent_xform->getWorldPosition();
-						LLQuaternion root_rot = (attachment_root->getRotation() * parent_xform->getWorldRotation());
-						selectNode->mSavedPositionGlobal = gAgent.getPosGlobalFromAgent((object->getPosition() * root_rot) + root_pos);
-					}
-					else
-					{
-						selectNode->mSavedPositionGlobal = object->getPositionGlobal();
-					}
-				}
-				selectNode->mSavedRotation = object->getRenderRotation();
-			}
-			else
-			{
-				selectNode->mSavedPositionGlobal = object->getPositionGlobal();
-				selectNode->mSavedRotation = object->getRotationRegion();
-			}
-		
-			selectNode->mSavedScale = object->getScale();
-			selectNode->saveTextureScaleRatios(mManager->mTextureChannel);			
+
+            if (selectNode->mSelectedGLTFNode != -1)
+            {
+                // save GLTF node state
+                selectNode->mSavedPositionLocal = object->getGLTFNodePositionAgent(selectNode->mSelectedGLTFNode);
+                selectNode->mSavedPositionGlobal = gAgent.getPosGlobalFromAgent(selectNode->mSavedPositionLocal);
+                selectNode->mLastMoveLocal.setZero();
+            }
+            else
+            {
+                selectNode->mSavedPositionLocal = object->getPosition();
+                if (object->isAttachment())
+                {
+                    if (object->isRootEdit())
+                    {
+                        LLXform* parent_xform = object->mDrawable->getXform()->getParent();
+                        if (parent_xform)
+                        {
+                            selectNode->mSavedPositionGlobal = gAgent.getPosGlobalFromAgent((object->getPosition() * parent_xform->getWorldRotation()) + parent_xform->getWorldPosition());
+                        }
+                        else
+                        {
+                            selectNode->mSavedPositionGlobal = object->getPositionGlobal();
+                        }
+                    }
+                    else
+                    {
+                        LLViewerObject* attachment_root = (LLViewerObject*)object->getParent();
+                        LLXform* parent_xform = attachment_root ? attachment_root->mDrawable->getXform()->getParent() : NULL;
+                        if (parent_xform)
+                        {
+                            LLVector3 root_pos = (attachment_root->getPosition() * parent_xform->getWorldRotation()) + parent_xform->getWorldPosition();
+                            LLQuaternion root_rot = (attachment_root->getRotation() * parent_xform->getWorldRotation());
+                            selectNode->mSavedPositionGlobal = gAgent.getPosGlobalFromAgent((object->getPosition() * root_rot) + root_pos);
+                        }
+                        else
+                        {
+                            selectNode->mSavedPositionGlobal = object->getPositionGlobal();
+                        }
+                    }
+                    selectNode->mSavedRotation = object->getRenderRotation();
+                }
+                else
+                {
+                    selectNode->mSavedPositionGlobal = object->getPositionGlobal();
+                    selectNode->mSavedRotation = object->getRotationRegion();
+                }
+
+                selectNode->mSavedScale = object->getScale();
+                selectNode->saveTextureScaleRatios(mManager->mTextureChannel);
+            }
 			return true;
 		}
 	} func(action_type, this);
