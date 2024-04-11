@@ -913,16 +913,8 @@ void LLOutfitListBase::onIdleRefreshList()
         LLViewerInventoryCategory *cat = gInventory.getCategory(*items_iter);
         if (cat)
         {
-            LLInventoryObject* obj = gInventory.getObject(*items_iter);
-            if (!obj || (obj->getType() != LLAssetType::AT_CATEGORY))
-            {
-                break;
-            }
-            cat = (LLViewerInventoryCategory*)obj;
+            updateChangedCategoryName(cat, cat->getName());
         }
-        std::string name = cat->getName();
-
-        updateChangedCategoryName(cat, name);
     }
 
     sortOutfits();
