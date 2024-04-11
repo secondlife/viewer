@@ -259,7 +259,6 @@ void LLFloaterTranslationSettings::updateControlsEnabledState()
 	bool azure_selected = service == "azure";
 	bool google_selected = service == "google";
     bool deepl_selected = service == "deepl";
-	bool simulator_selected = service == "simulator";
 
 	mTranslationServiceRadioGroup->setEnabled(on);
 	mLanguageCombo->setEnabled(on);
@@ -294,8 +293,7 @@ void LLFloaterTranslationSettings::updateControlsEnabledState()
     bool service_verified =
         (azure_selected && mAzureKeyVerified) 
         || (google_selected && mGoogleKeyVerified)
-        || (deepl_selected && mDeepLKeyVerified)
-		|| simulator_selected;
+        || (deepl_selected && mDeepLKeyVerified);
 	gSavedPerAccountSettings.setBOOL("TranslatingEnabled", service_verified);
 
 	mOKBtn->setEnabled(!on || service_verified);
@@ -406,13 +404,11 @@ void LLFloaterTranslationSettings::onClose(bool app_quitting)
 	bool azure_selected = service == "azure";
 	bool google_selected = service == "google";
     bool deepl_selected = service == "deepl";
-	bool simulator_selected = service == "simulator";
 
     bool service_verified =
         (azure_selected && mAzureKeyVerified)
         || (google_selected && mGoogleKeyVerified)
-        || (deepl_selected && mDeepLKeyVerified)
-		|| simulator_selected;
+        || (deepl_selected && mDeepLKeyVerified);
     gSavedPerAccountSettings.setBOOL("TranslatingEnabled", service_verified);
 }
 void LLFloaterTranslationSettings::onBtnOK()

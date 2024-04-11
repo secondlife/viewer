@@ -153,12 +153,6 @@
    layout="topleft"
    name="deepl"
    top_pad="61" />
-  <radio_item
-   initial_value="simulator"
-   label="Simulator"
-   layout="topleft"
-   name="simulator"
-   top_pad="100" />
  </radio_group>
 
   <text

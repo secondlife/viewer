@@ -1375,6 +1375,13 @@ LLTranslate::~LLTranslate()
 /*static*/
 bool LLTranslate::shouldTranslate(const LLChat& chat)
 {
+    // TODO: filter by from id
+
+    if (chat.mSourceType == CHAT_SOURCE_SYSTEM)
+    {
+        return false;
+    }
+
     return getPreferredHandler() != nullptr;
 }
 
@@ -1404,7 +1411,6 @@ void LLTranslate::translateMessage(const std::string &from_lang, const std::stri
     }
 }
 
-// FIXME should this be a class method of the handler?
 std::string LLTranslate::addNoTranslateTags(std::string mesg)
 {
     LLTranslationAPIHandler *handler = getPreferredHandler();
@@ -1538,29 +1544,42 @@ LLSD LLTranslate::asLLSD() const
 // static
 LLTranslationAPIHandler* LLTranslate::getPreferredHandler()
 {
+
+    // If translation has been specifically configured, use that setting.
 	EService service = SERVICE_NONE;
 
-	std::string service_str = gSavedSettings.getString("TranslationService");
-	if (service_str == "google")
-	{
-		service = SERVICE_GOOGLE;
-	}
-    if (service_str == "azure")
+    if (gSavedSettings.getBOOL("TranslateChat"))
     {
-        service = SERVICE_AZURE;
+        std::string service_str = gSavedSettings.getString("TranslationService");
+        if (service_str == "google")
+        {
+            service = SERVICE_GOOGLE;
+        }
+        if (service_str == "azure")
+        {
+            service = SERVICE_AZURE;
+        }
+        if (service_str == "deepl")
+        {
+            service = SERVICE_DEEPL;
+        }
+        if (service != SERVICE_NONE)
+        {
+            return getHandler(service);
+        }
+        else
+        {
+            return nullptr;
+        }
     }
-    if (service_str == "deepl")
+
+    // If translation is supported by the region, use the simulator.
+    if (gAgent.getRegion() && gAgent.getRegion()->getCapability("Translation").size() > 0)
     {
-        service = SERVICE_DEEPL;
+        return getHandler(SERVICE_SIMULATOR);
     }
-	if (service_str == "simulator")
-	{
-		service = SERVICE_SIMULATOR;
-	}
-    if (service != SERVICE_NONE)
-    {
-        return getHandler(service);
-    }
+
+    // Otherwise, don't translate
     return nullptr;
 }
 
