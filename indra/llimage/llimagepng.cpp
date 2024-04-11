@@ -27,6 +27,7 @@
 #include "linden_common.h"
 #include "stdtypes.h"
 #include "llerror.h"
+#include "llexception.h"
 
 #include "llimage.h"
 #include "llpngwrapper.h"
@@ -51,29 +52,44 @@ bool LLImagePNG::updateData()
 {
     resetLastError();
 
-    // Check to make sure that this instance has been initialized with data
-    if (!getData() || (0 == getDataSize()))
+    try
     {
-        setLastError("Uninitialized instance of LLImagePNG");
+        // Check to make sure that this instance has been initialized with data
+        if (!getData() || (0 == getDataSize()))
+        {
+            setLastError("Uninitialized instance of LLImagePNG");
+            return false;
+        }
+
+        // Decode the PNG data and extract sizing information
+        LLPngWrapper pngWrapper;
+        if (!pngWrapper.isValidPng(getData()))
+        {
+            setLastError("LLImagePNG data does not have a valid PNG header!");
+            return false;
+        }
+
+        LLPngWrapper::ImageInfo infop;
+        if (!pngWrapper.readPng(getData(), getDataSize(), NULL, &infop))
+        {
+            setLastError(pngWrapper.getErrorMessage());
+            return false;
+        }
+
+        setSize(infop.mWidth, infop.mHeight, infop.mComponents);
+    }
+    catch (const LLContinueError& msg)
+    {
+        setLastError(msg.what());
+        LOG_UNHANDLED_EXCEPTION("");
         return false;
     }
-
-	// Decode the PNG data and extract sizing information
-	LLPngWrapper pngWrapper;
-	if (!pngWrapper.isValidPng(getData()))
-	{
-		setLastError("LLImagePNG data does not have a valid PNG header!");
-		return false;
-	}
-
-	LLPngWrapper::ImageInfo infop;
-	if (! pngWrapper.readPng(getData(), getDataSize(), NULL, &infop))
-	{
-		setLastError(pngWrapper.getErrorMessage());
-		return false;
-	}
-
-	setSize(infop.mWidth, infop.mHeight, infop.mComponents);
+    catch (...)
+    {
+        setLastError("LLImagePNG");
+        LOG_UNHANDLED_EXCEPTION("");
+        return false;
+    }
 
 	return true;
 }
