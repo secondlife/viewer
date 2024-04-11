@@ -98,8 +98,19 @@ jobs:
             ${{ runner.os }}-64-
 
       - name: Install Linux dependencies
-        if: runner.os == 'linux'
-        run: sudo apt update && sudo apt install -y libsndio-dev libpulse-dev libfltk1.3-dev libunwind-dev libgl1-mesa-dev libglu1-mesa-dev libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev libxrender-dev libxfixes-dev libxxf86vm-dev libxss-dev libdbus-1-dev libudev-dev libssl-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libfreetype6-dev ninja-build libxft-dev
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt update
+          sudo apt install -y \
+            libsndio-dev libpulse-dev libfltk1.3-dev \
+            libunwind-dev libgl1-mesa-dev libglu1-mesa-dev \
+            libx11-dev libxrandr-dev libxinerama-dev \
+            libxcursor-dev libxi-dev libxext-dev \
+            libxrender-dev libxfixes-dev libxxf86vm-dev \
+            libxss-dev libdbus-1-dev libudev-dev \
+            libssl-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
+            libfreetype6-dev ninja-build libxft-dev \
+            llvm mold
 
       - name: Install windows dependencies
         if: runner.os == 'Windows'
@@ -207,6 +218,13 @@ jobs:
             export PYTHON_COMMAND="python3"
           fi
           export PYTHON_COMMAND_NATIVE="$(native_path "$PYTHON_COMMAND")"
+
+          # Compile with clang, link with mold on linux.
+          if [[ "$RUNNER_OS" == "Linux" ]]; then
+            export CC=clang
+            export CXX=clang++
+            export CMAKE_OPTIONS='-DLINK_WITH_MOLD=ON'
+          fi 
 
           ./build.sh
 
