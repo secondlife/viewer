@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llfilepicker.h
  * @brief OS-specific file picker
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -32,12 +32,6 @@
 
 #ifndef LL_LLFILEPICKER_H
 #define LL_LLFILEPICKER_H
-
-#if LL_FLTK
-  #if LL_GTK
-    #undef LL_GTK
-  #endif
-#endif
 
 #include "stdtypes.h"
 
@@ -60,20 +54,8 @@
 #include <commdlg.h>
 #endif
 
-extern "C" {
-// mostly for Linux, possible on others
-#if LL_GTK
-# include "gtk/gtk.h"
-#error "Direct use of GTK is deprecated"
-#endif // LL_GTK
-}
-
 class LLFilePicker
 {
-#ifdef LL_GTK
-	friend class LLDirPicker;
-	friend void chooser_responder(GtkWidget *, gint, gpointer);
-#endif // LL_GTK
 public:
 	// calling this before main() is undefined
 	static LLFilePicker& instance( void ) { return sInstance; }
@@ -150,7 +132,7 @@ public:
 	S32 getFileCount() const { return (S32)mFiles.size(); }
 
 	// see lldir.h : getBaseFileName and getDirName to extract base or directory names
-	
+
 	// clear any lists of buffers or whatever, and make sure the file
 	// picker isn't locked.
 	void reset();
@@ -163,10 +145,10 @@ private:
 		FILENAME_BUFFER_SIZE = 65000
 	};
 
-	// utility function to check if access to local file system via file browser 
+	// utility function to check if access to local file system via file browser
 	// is enabled and if not, tidy up and indicate we're not allowed to do this.
 	bool check_local_file_access_enabled();
-	
+
 #if LL_WINDOWS
 	OPENFILENAMEW mOFN;				// for open and save dialogs
 	WCHAR mFilesW[FILENAME_BUFFER_SIZE];
@@ -177,7 +159,7 @@ private:
 #if LL_DARWIN
     S32 mPickOptions;
 	std::vector<std::string> mFileVector;
-	
+
 	bool doNavChooseDialog(ELoadFilter filter);
 	bool doNavChooseDialogModeless(ELoadFilter filter,
                                    void (*callback)(bool, std::vector<std::string>&, void*),
@@ -190,15 +172,6 @@ private:
                                  void *userdata);
 #endif
 
-#if LL_GTK
-	static void add_to_selectedfiles(gpointer data, gpointer user_data);
-	static void chooser_responder(GtkWidget *widget, gint response, gpointer user_data);
-	// we remember the last path that was accessed for a particular usage
-	std::map <std::string, std::string> mContextToPathMap;
-	std::string mCurContextName;
-	// we also remember the extension of the last added file.
-	std::string mCurrentExtension;
-#endif
 #if LL_FLTK
     enum EType
     {
@@ -212,12 +185,6 @@ private:
 	bool mLocked;
 
 	static LLFilePicker sInstance;
-	
-protected:
-#if LL_GTK
-        GtkWindow* buildFilePicker(bool is_save, bool is_folder,
-				   std::string context = "generic");
-#endif
 
 public:
 	// don't call these directly please.

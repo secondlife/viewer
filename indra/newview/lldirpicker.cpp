@@ -1,25 +1,25 @@
-/** 
+/**
  * @file lldirpicker.cpp
  * @brief OS-specific file picker
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -59,7 +59,7 @@ LLDirPicker LLDirPicker::sInstance;
 // Implementation
 //
 
-// utility function to check if access to local file system via file browser 
+// utility function to check if access to local file system via file browser
 // is enabled and if not, tidy up and indicate we're not allowed to do this.
 bool LLDirPicker::check_local_file_access_enabled()
 {
@@ -111,7 +111,7 @@ BOOL LLDirPicker::getDir(std::string* filename, bool blocking)
 
 	BOOL success = FALSE;
 
-	
+
 	if (blocking)
 	{
 		// Modal, so pause agent
@@ -182,7 +182,7 @@ void LLDirPicker::reset()
 BOOL LLDirPicker::getDir(std::string* filename, bool blocking)
 {
     LLFilePicker::ELoadFilter filter=LLFilePicker::FFLOAD_DIRECTORY;
-    
+
     return mFilePicker->getOpenFile(filter, true);
 }
 
@@ -231,26 +231,7 @@ BOOL LLDirPicker::getDir(std::string* filename, bool blocking)
 		return FALSE;
 	}
 
-#ifndef LL_FLTK
-#if !LL_MESA_HEADLESS
-
-	if (mFilePicker)
-	{
-		GtkWindow* picker = mFilePicker->buildFilePicker(false, true,
-								 "dirpicker");
-
-		if (picker)
-		{		   
-		   gtk_window_set_title(GTK_WINDOW(picker), LLTrans::getString("choose_the_directory").c_str());
-		   gtk_widget_show_all(GTK_WIDGET(picker));
-		   gtk_main();
-		   return (!mFilePicker->getFirstFile().empty());
-		}
-	}
-#endif // !LL_MESA_HEADLESS
-
-	return FALSE;
-#else
+#ifdef LL_FLTK
     gViewerWindow->getWindow()->beforeDialog();
 	Fl_Native_File_Chooser flDlg;
 	flDlg.title(LLTrans::getString("choose_the_directory").c_str());
@@ -286,7 +267,7 @@ std::string LLDirPicker::getDirName()
 
 #else // not implemented
 
-LLDirPicker::LLDirPicker() 
+LLDirPicker::LLDirPicker()
 {
 	reset();
 }
@@ -325,7 +306,7 @@ void LLDirPickerThread::getFile()
 #endif
 }
 
-//virtual 
+//virtual
 void LLDirPickerThread::run()
 {
 #if LL_WINDOWS
@@ -339,7 +320,7 @@ void LLDirPickerThread::run()
 	if (picker.getDir(&mProposedName, blocking))
 	{
 		mResponses.push_back(picker.getDirName());
-	}	
+	}
 
 	{
 		LLMutexLock lock(sMutex);
