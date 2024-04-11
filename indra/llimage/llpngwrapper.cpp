@@ -216,6 +216,13 @@ BOOL LLPngWrapper::readPng(U8* src, S32 dataSize, LLImageRaw* rawImage, ImageInf
 		releaseResources();
 		return (FALSE);
 	}
+    catch (...)
+    {
+        mErrorMessage = "LLPngWrapper";
+        releaseResources();
+        LOG_UNHANDLED_EXCEPTION("");
+        return (FALSE);
+    }
 
 	// Clean up and return
 	releaseResources();

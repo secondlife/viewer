@@ -1297,7 +1297,7 @@ bool LLViewerTextureList::createUploadFile(LLPointer<LLImageRaw> raw_image,
     return true;
 }
 
-BOOL LLViewerTextureList::createUploadFile(const std::string& filename,
+bool LLViewerTextureList::createUploadFile(const std::string& filename,
 										 const std::string& out_filename,
 										 const U8 codec,
 										 const S32 max_image_dimentions,
@@ -1305,64 +1305,72 @@ BOOL LLViewerTextureList::createUploadFile(const std::string& filename,
 										 bool force_square)
 {	
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
-	// Load the image
-	LLPointer<LLImageFormatted> image = LLImageFormatted::createFromType(codec);
-	if (image.isNull())
-	{
-		LL_WARNS() << "Couldn't open the image to be uploaded." << LL_ENDL;
-		return FALSE;
-	}	
-	if (!image->load(filename))
-	{
-		image->setLastError("Couldn't load the image to be uploaded.");
-		return FALSE;
-	}
-	// Decompress or expand it in a raw image structure
-	LLPointer<LLImageRaw> raw_image = new LLImageRaw;
-	if (!image->decode(raw_image, 0.0f))
-	{
-		image->setLastError("Couldn't decode the image to be uploaded.");
-		return FALSE;
-	}
-	// Check the image constraints
-	if ((image->getComponents() != 3) && (image->getComponents() != 4))
-	{
-		image->setLastError("Image files with less than 3 or more than 4 components are not supported.");
-		return FALSE;
-	}
-    if (image->getWidth() < min_image_dimentions || image->getHeight() < min_image_dimentions)
+    try
     {
-        std::string reason = llformat("Images below %d x %d pixels are not allowed. Actual size: %d x %dpx",
-            min_image_dimentions,
-            min_image_dimentions,
-            image->getWidth(),
-            image->getHeight());
-        image->setLastError(reason);
-        return FALSE;
+        // Load the image
+        LLPointer<LLImageFormatted> image = LLImageFormatted::createFromType(codec);
+        if (image.isNull())
+        {
+            LL_WARNS() << "Couldn't open the image to be uploaded." << LL_ENDL;
+            return false;
+        }
+        if (!image->load(filename))
+        {
+            image->setLastError("Couldn't load the image to be uploaded.");
+            return false;
+        }
+        // Decompress or expand it in a raw image structure
+        LLPointer<LLImageRaw> raw_image = new LLImageRaw;
+        if (!image->decode(raw_image, 0.0f))
+        {
+            image->setLastError("Couldn't decode the image to be uploaded.");
+            return false;
+        }
+        // Check the image constraints
+        if ((image->getComponents() != 3) && (image->getComponents() != 4))
+        {
+            image->setLastError("Image files with less than 3 or more than 4 components are not supported.");
+            return false;
+        }
+        if (image->getWidth() < min_image_dimentions || image->getHeight() < min_image_dimentions)
+        {
+            std::string reason = llformat("Images below %d x %d pixels are not allowed. Actual size: %d x %dpx",
+                                          min_image_dimentions,
+                                          min_image_dimentions,
+                                          image->getWidth(),
+                                          image->getHeight());
+            image->setLastError(reason);
+            return false;
+        }
+        // Convert to j2c (JPEG2000) and save the file locally
+        LLPointer<LLImageJ2C> compressedImage = convertToUploadFile(raw_image, max_image_dimentions, force_square);
+        if (compressedImage.isNull())
+        {
+            image->setLastError("Couldn't convert the image to jpeg2000.");
+            LL_INFOS() << "Couldn't convert to j2c, file : " << filename << LL_ENDL;
+            return false;
+        }
+        if (!compressedImage->save(out_filename))
+        {
+            image->setLastError("Couldn't create the jpeg2000 image for upload.");
+            LL_INFOS() << "Couldn't create output file : " << out_filename << LL_ENDL;
+            return false;
+        }
+        // Test to see if the encode and save worked
+        LLPointer<LLImageJ2C> integrity_test = new LLImageJ2C;
+        if (!integrity_test->loadAndValidate(out_filename))
+        {
+            image->setLastError("The created jpeg2000 image is corrupt.");
+            LL_INFOS() << "Image file : " << out_filename << " is corrupt" << LL_ENDL;
+            return false;
+        }
     }
-	// Convert to j2c (JPEG2000) and save the file locally
-	LLPointer<LLImageJ2C> compressedImage = convertToUploadFile(raw_image, max_image_dimentions, force_square);
-	if (compressedImage.isNull())
-	{
-		image->setLastError("Couldn't convert the image to jpeg2000.");
-		LL_INFOS() << "Couldn't convert to j2c, file : " << filename << LL_ENDL;
-		return FALSE;
-	}
-	if (!compressedImage->save(out_filename))
-	{
-		image->setLastError("Couldn't create the jpeg2000 image for upload.");
-		LL_INFOS() << "Couldn't create output file : " << out_filename << LL_ENDL;
-		return FALSE;
-	}
-	// Test to see if the encode and save worked
-	LLPointer<LLImageJ2C> integrity_test = new LLImageJ2C;
-	if (!integrity_test->loadAndValidate( out_filename ))
-	{
-		image->setLastError("The created jpeg2000 image is corrupt.");
-		LL_INFOS() << "Image file : " << out_filename << " is corrupt" << LL_ENDL;
-		return FALSE;
-	}
-	return TRUE;
+    catch (...)
+    {
+        LOG_UNHANDLED_EXCEPTION("");
+        return false;
+    }
+	return true;
 }
 
 // note: modifies the argument raw_image!!!!
