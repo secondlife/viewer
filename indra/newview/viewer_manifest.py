@@ -525,7 +525,7 @@ class Windows_x86_64_Manifest(ViewerManifest):
                                              'secondlife-bin.*',
                                              '*_Setup.exe',
                                              '*.bat',
-                                             '*.tar.bz2')))
+                                             '*.tar.xz')))
 
             with self.prefix(src=os.path.join(pkgdir, "VMP")):
                 # include the compiled launcher scripts so that it gets included in the file_list
@@ -1183,9 +1183,9 @@ class Darwin_x86_64_Manifest(ViewerManifest):
             # causes problems, especially with frameworks: a framework's top
             # level must contain symlinks into its Versions/Current, which
             # must itself be a symlink to some specific Versions subdir.
-            tarpath = os.path.join(RUNNER_TEMP, "viewer.tar.bz2")
+            tarpath = os.path.join(RUNNER_TEMP, "viewer.tar.xz")
             print(f'Creating {tarpath} from {self.get_dst_prefix()}')
-            with tarfile.open(tarpath, mode="w:bz2") as tarball:
+            with tarfile.open(tarpath, mode="w:xz") as tarball:
                 # Store in the tarball as just 'Second Life Mumble.app'
                 # instead of 'Users/someone/.../newview/Release/Second...'
                 # It's at this point that we rename 'Second Life Release.app'
@@ -1349,14 +1349,14 @@ class LinuxManifest(ViewerManifest):
             self.run_command(['find', self.get_dst_prefix(),
                               '-type', 'f', '-perm', old,
                               '-exec', 'chmod', new, '{}', ';'])
-        self.package_file = installer_name + '.tar.bz2'
+        self.package_file = installer_name + '.tar.xz'
 
         # temporarily move directory tree so that it has the right
         # name in the tarfile
         realname = self.get_dst_prefix()
         versionedName = self.build_path_of(installer_name)
 
-        tarName = versionedName + ".tar.bz2"
+        tarName = versionedName + ".tar.xz"
 
         # If using a github runner we divert packaging a little. Considering this wil be a VM/docker image
         # we can just pack the final installer into RUNNER_TEMP and not into the usual stop we'd pick when
@@ -1370,11 +1370,11 @@ class LinuxManifest(ViewerManifest):
             # only create tarball if it's a release build.
             if self.args['buildtype'].lower() == 'release':
                 self.run_command(['tar', '-C', self.get_build_prefix(),
-                                  '--numeric-owner', '-cjf',
+                                  '--numeric-owner', '-cJf',
                                  tarName, installer_name])
                 self.set_github_output_path('viewer_app', tarName)
             else:
-                print("Skipping %s.tar.bz2 for non-Release build (%s)" % \
+                print("Skipping %s.tar.xz for non-Release build (%s)" % \
                       (installer_name, self.args['buildtype']))
         finally:
             self.run_command(["mv", versionedName, realname])
