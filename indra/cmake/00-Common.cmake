@@ -15,6 +15,7 @@
 include_guard()
 
 include(Variables)
+include(Linker)
 
 # We go to some trouble to set LL_BUILD to the set of relevant compiler flags.
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} $ENV{LL_BUILD}")
@@ -138,22 +139,35 @@ if (LINUX)
   endif()
 
   add_compile_options(
-          -fexceptions
-          -fno-math-errno
-          -fno-strict-aliasing
-          -fsigned-char
-          -msse2
-          -mfpmath=sse
-          -pthread
-          -Wno-parentheses
-          -Wno-deprecated
-          -Wno-c++20-compat
-          -Wno-pessimizing-move
-          -Wno-stringop-overflow
-          -Wno-stringop-truncation
-          -Wno-dangling-pointer
-          -fvisibility=hidden
+      -fexceptions
+      -fno-math-errno
+      -fno-strict-aliasing
+      -fsigned-char
+      -msse2
+      -mfpmath=sse
+      -pthread
+      -fvisibility=hidden
   )
+
+  set(GCC_CLANG_COMPATIBLE_WARNINGS
+      -Wno-parentheses
+      -Wno-deprecated
+      -Wno-c++20-compat
+      -Wno-pessimizing-move
+  )
+
+  set(CLANG_WARNINGS
+      ${GCC_CLANG_COMPATIBLE_WARNINGS}
+      # Put clang specific warning configuration here
+  )
+
+  set(GCC_WARNINGS
+      ${GCC_CLANG_COMPATIBLE_WARNINGS}
+      -Wno-stringop-overflow
+      -Wno-stringop-truncation
+      -Wno-dangling-pointer
+  )
+
   add_link_options(
           -Wl,--no-keep-memory
           -Wl,--build-id
@@ -166,12 +180,15 @@ if (LINUX)
   # this stops us requiring a really recent glibc at runtime
   add_compile_options(-fno-stack-protector)
 
-  # ND: clang is a bit more picky than GCC, the latter seems to auto include -lstdc++ and -lm. The former not so and thus fails to link
   if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    # ND: clang is a bit more picky than GCC, the latter seems to auto include -lstdc++ and -lm. The former not so and thus fails to link
     add_link_options(
             -lstdc++
             -lm
     )
+    add_compile_options(${CLANG_WARNINGS})
+  else()
+    add_compile_options(${GCC_WARNINGS})
   endif()
 endif (LINUX)
 
@@ -200,10 +217,6 @@ if (DARWIN)
   set(GCC_WARNINGS -Wall -Wno-sign-compare -Wno-trigraphs)
 
   list(APPEND GCC_WARNINGS -Wno-reorder -Wno-non-virtual-dtor )
-
-  if(LINUX)
-    list(APPEND GCC_WARNINGS -Wno-maybe-uninitialized -Wno-dangling-pointer )
-  endif()
 
   add_compile_options(${GCC_WARNINGS})
   add_compile_options(-m${ADDRESS_SIZE})

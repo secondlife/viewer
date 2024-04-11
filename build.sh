@@ -112,7 +112,8 @@ installer_CYGWIN()
   fi
 }
 
-[[ -n "$GITHUB_OUTPUT" ]] || fatal "Need to export GITHUB_OUTPUT"
+# if someone wants to run build.sh outside the GitHub environment
+[[ -n "$GITHUB_OUTPUT" ]] || export GITHUB_OUTPUT='/dev/null'
 # The following is based on the Warning for GitHub multiline output strings:
 # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#multiline-strings
 EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
@@ -204,6 +205,7 @@ pre_build()
      -DVIEWER_CHANNEL:STRING="${viewer_channel}" \
      -DGRID:STRING="\"$viewer_grid\"" \
      -DTEMPLATE_VERIFIER_OPTIONS:STRING="$template_verifier_options" $template_verifier_master_url \
+     $CMAKE_OPTIONS \
      "${SIGNING[@]}" \
     || fatal "$variant configuration failed"
 
