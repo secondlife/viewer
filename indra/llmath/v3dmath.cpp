@@ -52,7 +52,7 @@ const LLVector3d LLVector3d::z_axis_neg(0, 0, -1);
 
 
 // Clamps each values to range (min,max).
-// Returns TRUE if data changed.
+// Returns true if data changed.
 bool LLVector3d::clamp(F64 min, F64 max)
 {
 	bool ret{ false };
@@ -69,7 +69,7 @@ bool LLVector3d::clamp(F64 min, F64 max)
 }
 
 // Sets all values to absolute value of their original values
-// Returns TRUE if data changed
+// Returns true if data changed
 bool LLVector3d::abs()
 {
 	bool ret{ false };

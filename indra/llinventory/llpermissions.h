@@ -157,7 +157,7 @@ public:
 	// return TRUE if group_id is owner.
 	bool isGroupOwned() const { return mIsGroupOwned; }
 
-	// This API returns TRUE if the object is owned at all, and FALSE
+	// This API returns true if the object is owned at all, and false
 	// otherwise. If it is owned at all, owner id is filled with
 	// either the owner id or the group id, and the is_group_owned
 	// parameter is appropriately filled. The values of owner_id and
@@ -237,13 +237,13 @@ public:
 	// checked manipulators (since that is how it is used.) If the
 	// agent is the system or (group == mGroup and group modify and
 	// owner transfer) then this function will deed the permissions,
-	// set the next owner mask, and return TRUE. Otherwise, no change
-	// is effected, and the function returns FALSE.
+	// set the next owner mask, and return true. Otherwise, no change
+	// is effected, and the function returns false.
 	bool deedToGroup(const LLUUID& agent, const LLUUID& group);
-	// Attempt to set or clear the given bitmask.  Returns TRUE if you
+	// Attempt to set or clear the given bitmask.  Returns true if you
 	// are allowed to modify the permissions.  If you attempt to turn
 	// on bits not allowed by the base bits, the function will return
-	// TRUE, but those bits will not be set.
+	// true, but those bits will not be set.
 	bool setBaseBits( const LLUUID& agent, bool set, PermissionMask bits);
 	bool setOwnerBits( const LLUUID& agent, bool set, PermissionMask bits);
 	bool setGroupBits( const LLUUID& agent, const LLUUID& group, bool set, PermissionMask bits);
@@ -293,10 +293,10 @@ public:
 	// one provided, and sets the base mask as indicated.
 	//bool setOwner(const LLUUID& agent, const LLUUID& owner, U32 new_base_mask);
 
-	// Attempt to set or clear the given bitmask.  Returns TRUE if you
+	// Attempt to set or clear the given bitmask.  Returns true if you
 	// are allowed to modify the permissions.  If you attempt to turn
 	// on bits not allowed by the base bits, the function will return
-	// TRUE, but those bits will not be set.
+	// true, but those bits will not be set.
 	//bool setGroupBits( const LLUUID& agent, bool set, PermissionMask bits);
 	//bool setEveryoneBits(const LLUUID& agent, bool set, PermissionMask bits);
 

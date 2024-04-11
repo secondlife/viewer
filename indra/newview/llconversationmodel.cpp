@@ -90,6 +90,8 @@ LLConversationItem::~LLConversationItem()
 	{
 		mAvatarNameCacheConnection.disconnect();
 	}
+
+    clearChildren();
 }
 
 //virtual
@@ -252,6 +254,11 @@ LLConversationItemSession::LLConversationItemSession(const LLUUID& uuid, LLFolde
 	LLConversationItem(uuid,root_view_model)
 {
 	mConvType = CONV_SESSION_UNKNOWN;
+}
+
+LLConversationItemSession::~LLConversationItemSession()
+{
+    clearAndDeparentModels();
 }
 
 bool LLConversationItemSession::hasChildren() const

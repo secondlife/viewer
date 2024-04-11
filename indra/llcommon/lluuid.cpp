@@ -1000,7 +1000,7 @@ bool LLUUID::notNull() const
 bool LLUUID::isNull() const
 {
     U32* word = (U32*)mData;
-    // If all bits are zero, return !0 == TRUE
+    // If all bits are zero, return !0 == true
     return !(word[0] | word[1] | word[2] | word[3]);
 }
 

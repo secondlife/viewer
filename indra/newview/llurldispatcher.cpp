@@ -134,6 +134,11 @@ bool LLURLDispatcherImpl::dispatch(const LLSLURL& slurl,
 								   LLMediaCtrl* web,
 								   bool trusted_browser)
 {
+    // SL-20422 : Clicking the "Bring it back" link on Aditi displays a teleport alert
+    // Stop further processing empty urls like [secondlife:/// Bring it back.]
+    if (slurl.getType() == LLSLURL::EMPTY)
+        return true;
+
 	const bool right_click = false;
 	return dispatchCore(slurl, nav_type, right_click, web, trusted_browser);
 }

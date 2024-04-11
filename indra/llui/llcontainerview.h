@@ -78,7 +78,7 @@ public:
 
 	void setLabel(const std::string& label);
 	void showLabel(bool show) { mShowLabel = show; }
-	void setDisplayChildren(const bool displayChildren);
+	void setDisplayChildren(bool displayChildren);
 	bool getDisplayChildren() { return mDisplayChildren; }
 	void setScrollContainer(LLScrollContainer* scroll) {mScrollContainer = scroll;}
 

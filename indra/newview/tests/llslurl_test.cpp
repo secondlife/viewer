@@ -187,6 +187,12 @@ namespace tut
 		ensure_equals("maps.secondlife.com slurl, region + coords", slurl.getSLURLString(),
 					  "http://maps.secondlife.com/secondlife/myregion/1/2/3");
 
+		slurl = LLSLURL("secondlife://");
+		ensure_equals("secondlife: slurl, empty - type", slurl.getType(), LLSLURL::EMPTY);
+
+		slurl = LLSLURL("secondlife:///");
+		ensure_equals("secondlife: slurl, root - type", slurl.getType(), LLSLURL::EMPTY);
+
 		slurl = LLSLURL("secondlife://myregion");
 		ensure_equals("secondlife: slurl, region only - type", slurl.getType(), LLSLURL::LOCATION);
 		ensure_equals("secondlife: slurl, region only", slurl.getSLURLString(),

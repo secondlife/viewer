@@ -38,8 +38,8 @@ class LLQuaternion;
 // Vector arguments of the form "shape_scale" represent the scale of the
 // object along the three axes.
 //
-// All functions return the expected TRUE or FALSE, unless otherwise noted.
-// When FALSE is returned, any resulting values that might have been stored 
+// All functions return the expected true or false, unless otherwise noted.
+// When false is returned, any resulting values that might have been stored 
 // are undefined.
 //
 // Rays are defined by a "ray_point" and a "ray_direction" (unit).

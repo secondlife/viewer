@@ -70,7 +70,7 @@ public:
 
 	// If available, copies name ("bobsmith123" or "James Linden") into string
 	// If not available, copies the string "waiting".
-	// Returns TRUE iff available.
+	// Returns true if available.
 	bool getFullName(const LLUUID& id, std::string& full_name);
 
 	// Reverse lookup of UUID from name
@@ -99,7 +99,7 @@ public:
 	// If available, this method copies the group name into the string
 	// provided. The caller must allocate at least
 	// DB_GROUP_NAME_BUF_SIZE characters. If not available, this
-	// method copies the string "waiting". Returns TRUE iff available.
+	// method copies the string "waiting". Returns true if available.
 	bool getGroupName(const LLUUID& id, std::string& group);
 
 	// Call the callback with the group or avatar name.

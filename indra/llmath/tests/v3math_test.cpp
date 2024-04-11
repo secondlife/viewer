@@ -158,7 +158,7 @@ namespace tut
 		F32 x =-2.0f, y = -3.0f, z = 1.23f ;
 		LLVector3 vec3(x,y,z);
 		ensure("1:abs():Fail ", (true == vec3.abs()));
-		ensure("2:isNull():Fail", (false == vec3.isNull()));	//Returns TRUE if vector has a _very_small_ length
+		ensure("2:isNull():Fail", (false == vec3.isNull()));	//Returns true if vector has a _very_small_ length
 		x =.00000001f, y = .000001001f, z = .000001001f;
 		vec3.setVec(x,y,z);
 		ensure("3:isNull(): Fail ", (true == vec3.isNull()));

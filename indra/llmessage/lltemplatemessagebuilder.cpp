@@ -262,7 +262,7 @@ bool LLTemplateMessageBuilder::removeLastBlock()
 
 				if (num_blocks <= 1)
 				{
-					// we just blew away the last one, so return FALSE
+					// we just blew away the last one, so return false
 					LL_WARNS() << "not blowing away the only block of message "
 							<< mCurrentSMessageName
 							<< ". Block: " << block_name

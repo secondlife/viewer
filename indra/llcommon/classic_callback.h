@@ -119,11 +119,11 @@ public:
      * ClassicCallback must not itself be copied or moved! Once you've passed
      * get_userdata() to some API, this object MUST remain at that address.
      */
-    // However, we can't yet count on C++17 Class Template Argument Deduction,
-    // which means makeClassicCallback() is still useful, which means we MUST
-    // be able to return one to construct into caller's instance (move ctor).
-    // Possible defense: bool 'referenced' data member set by get_userdata(),
-    // with an llassert_always(! referenced) check in the move constructor.
+    // However, makeClassicCallback() is useful for deducing the CALLABLE
+    // type, which means we MUST be able to return one to construct into
+    // caller's instance (move ctor). Possible defense: bool 'referenced' data
+    // member set by get_userdata(), with an llassert_always(! referenced)
+    // check in the move constructor.
     ClassicCallback(ClassicCallback const&) = delete;
     ClassicCallback(ClassicCallback&&) = default; // delete;
     ClassicCallback& operator=(ClassicCallback const&) = delete;

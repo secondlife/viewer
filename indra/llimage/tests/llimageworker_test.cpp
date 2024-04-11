@@ -98,7 +98,7 @@ namespace tut
 				done = res;
 				*done = false;
 			}
-			virtual void completed(bool success, LLImageRaw* raw, LLImageRaw* aux)
+			virtual void completed(bool success, LLImageRaw* raw, LLImageRaw* aux, U32 request_id)
 			{
 				*done = true;
 			}

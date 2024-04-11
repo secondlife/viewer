@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater
  legacy_header_height="18"
  height="470"
@@ -161,7 +161,7 @@
    layout="topleft"
    left="185"
    length="1"
-   name="google_links_text"
+   name="azure_links_text"
    top_pad="-262"
    type="string"
    width="100">

@@ -99,7 +99,7 @@ void disconnect_smtp()
 	}
 }
 
-// Returns TRUE on success.
+// Returns true on success.
 // message should NOT be SMTP escaped.
 // static
 bool LLMail::send(

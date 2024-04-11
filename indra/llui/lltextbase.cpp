@@ -3477,7 +3477,7 @@ bool LLNormalTextSegment::handleToolTip(S32 x, S32 y, MASK mask)
 	if (mToken && !mToken->getToolTip().empty())
 	{
 		const LLWString& wmsg = mToken->getToolTip();
-		LLToolTipMgr::instance().show(wstring_to_utf8str(wmsg));
+        LLToolTipMgr::instance().show(wstring_to_utf8str(wmsg), (mToken->getType() == LLKeywordToken::TT_FUNCTION));
 		return true;
 	}
 	// or do we have an explicitly set tooltip (e.g., for Urls)

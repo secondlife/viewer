@@ -1041,7 +1041,12 @@ LLModel::weight_list& LLModel::getJointInfluences(const LLVector3& pos)
 	weight_map::iterator iterPos = mSkinWeights.begin();
 	weight_map::iterator iterEnd = mSkinWeights.end();
 
-    llassert(!mSkinWeights.empty());
+    if (mSkinWeights.empty())
+    {
+        // function calls iter->second on all return paths
+        // everything that calls this function should precheck that there is data.
+        LL_ERRS() << "called getJointInfluences with empty weights list" << LL_ENDL;
+    }
 	
 	for ( ; iterPos!=iterEnd; ++iterPos )
 	{
@@ -1068,11 +1073,16 @@ LLModel::weight_list& LLModel::getJointInfluences(const LLVector3& pos)
 		const F32 epsilon = 1e-5f;
 		weight_map::iterator iter_up = mSkinWeights.lower_bound(pos);
 		weight_map::iterator iter_down = iter_up;
-		if (iter_up != mSkinWeights.end())
-		{
-			iter_down = ++iter_up;
-		}
-		weight_map::iterator best = iter_up;
+        weight_map::iterator best = iter_up;
+        if (iter_up != mSkinWeights.end())
+        {
+            iter_down = ++iter_up;
+        }
+        else
+        {
+            // Assumes that there is at least one element
+            --best;
+        }
 
 		F32 min_dist = (iter->first - pos).magVec();
 

@@ -1361,26 +1361,28 @@ void LLFlatListViewEx::setForceShowingUnmatchedItems(bool show)
 	mForceShowingUnmatchedItems = show;
 }
 
-void LLFlatListViewEx::setFilterSubString(const std::string& filter_str)
+void LLFlatListViewEx::setFilterSubString(const std::string& filter_str, bool notify_parent)
 {
 	if (0 != LLStringUtil::compareInsensitive(filter_str, mFilterSubString))
 	{
 		mFilterSubString = filter_str;
 		updateNoItemsMessage(mFilterSubString);
-		filterItems();
+		filterItems(false, notify_parent);
 	}
 }
 
-void LLFlatListViewEx::updateItemVisibility(LLPanel* item, const LLSD &action)
+bool LLFlatListViewEx::updateItemVisibility(LLPanel* item, const LLSD &action)
 {
-	if (!item) return;
+    if (!item)
+        return false;
+
+	bool visible = true;
 
 	// 0 signifies that filter is matched,
 	// i.e. we don't hide items that don't support 'match_filter' action, separators etc.
 	if (0 == item->notify(action))
 	{
 		mHasMatchedItems = true;
-		item->setVisible(true);
 	}
 	else
 	{
@@ -1388,34 +1390,45 @@ void LLFlatListViewEx::updateItemVisibility(LLPanel* item, const LLSD &action)
 		if (!mForceShowingUnmatchedItems)
 		{
 			selectItem(item, false);
+			visible = false;
 		}
-		item->setVisible(mForceShowingUnmatchedItems);
 	}
+
+	if (item->getVisible() != visible)
+	{
+		item->setVisible(visible);
+		return true;
+	}
+
+	return false;
 }
 
-void LLFlatListViewEx::filterItems()
+void LLFlatListViewEx::filterItems(bool re_sort, bool notify_parent)
 {
-	typedef std::vector <LLPanel*> item_panel_list_t;
-
 	std::string cur_filter = mFilterSubString;
 	LLStringUtil::toUpper(cur_filter);
 
 	LLSD action;
 	action.with("match_filter", cur_filter);
 
-	item_panel_list_t items;
-	getItems(items);
-
 	mHasMatchedItems = false;
-    item_panel_list_t::iterator iter = items.begin(), iter_end = items.end();
-	while (iter < iter_end)
+	bool visibility_changed = false;
+	pairs_const_iterator_t iter = getItemPairs().begin(), iter_end = getItemPairs().end();
+	while (iter != iter_end)
 	{
-		LLPanel* pItem = *(iter++);
-		updateItemVisibility(pItem, action);
+		LLPanel* pItem = (*(iter++))->first;
+		visibility_changed |= updateItemVisibility(pItem, action);
 	}
 
-	sort();
-	notifyParentItemsRectChanged();
+    if (re_sort)
+    {
+        sort();
+    }
+
+    if (visibility_changed && notify_parent)
+    {
+        notifyParentItemsRectChanged();
+    }
 }
 
 bool LLFlatListViewEx::hasMatchedItems()

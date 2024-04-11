@@ -42,7 +42,7 @@ LLVector2 LLVector2::zero(0,0);
 // Non-member functions
 
 // Sets all values to absolute value of their original values
-// Returns TRUE if data changed
+// Returns true if data changed
 bool LLVector2::abs()
 {
 	bool ret{ false };

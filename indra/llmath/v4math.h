@@ -101,7 +101,7 @@ class LLVector4
 		F32			normVec();					// deprecated
 
 		// Sets all values to absolute value of their original values
-		// Returns TRUE if data changed
+		// Returns true if data changed
 		bool abs();
 		
 		bool isExactlyClear() const		{ return (mV[VW] == 1.0f) && !mV[VX] && !mV[VY] && !mV[VZ]; }
@@ -137,7 +137,7 @@ class LLVector4
 
 // Non-member functions 
 F32 angle_between(const LLVector4 &a, const LLVector4 &b);		// Returns angle (radians) between a and b
-bool are_parallel(const LLVector4 &a, const LLVector4 &b, F32 epsilon = F_APPROXIMATELY_ZERO);		// Returns TRUE if a and b are very close to parallel
+bool are_parallel(const LLVector4 &a, const LLVector4 &b, F32 epsilon = F_APPROXIMATELY_ZERO);		// Returns true if a and b are very close to parallel
 F32	dist_vec(const LLVector4 &a, const LLVector4 &b);			// Returns distance between a and b
 F32	dist_vec_squared(const LLVector4 &a, const LLVector4 &b);	// Returns distance squared between a and b
 LLVector3	vec4to3(const LLVector4 &vec);

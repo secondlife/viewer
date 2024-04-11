@@ -137,7 +137,7 @@ public:
 	}
 
 	// Note: Does NOT follow GL_QUAD conventions: the top and right edges ARE considered part of the rect
-	// returns TRUE if any part of rect is is inside this LLRect
+	// returns true if any part of rect is is inside this LLRect
 	bool		overlaps(const LLRectBase& rect) const
 	{
 		return !(mLeft > rect.mRight 
