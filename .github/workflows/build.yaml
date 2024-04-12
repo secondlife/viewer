@@ -13,15 +13,14 @@ jobs:
       matrix:
         runner: [windows-large, macos-12-xl, linux-large]
         configuration: [Release, ReleaseOS]
-        python-version: ["3.11"]
         include:
           - runner: macos-12-xl
             developer_dir: "/Applications/Xcode_14.0.1.app/Contents/Developer"
         exclude:
           - runner: macos-12-xl
             configuration: ReleaseOS
-          - runner: linux-large
-            configuration: Release
+	  - runner: windows-large
+	    configuration: ReleaseOS
     runs-on: ${{ matrix.runner }}
     outputs:
       viewer_channel: ${{ steps.build.outputs.viewer_channel }}
@@ -69,7 +68,7 @@ jobs:
       - name: Setup python
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.11"
 
       - name: Checkout build variables
         uses: actions/checkout@v4
@@ -118,7 +117,7 @@ jobs:
 
       - name: Determine source branch
         id: which-branch
-        uses: secondlife/viewer-build-util/which-branch@v1
+        uses: secondlife/viewer-build-util/which-branch@v2
         with:
           token: ${{ github.token }}
 
@@ -247,28 +246,19 @@ jobs:
           echo "artifact=$RUNNER_OS$cfg_suffix" >> $GITHUB_OUTPUT
 
       - name: Upload executable
-        if: matrix.configuration != 'ReleaseOS' && steps.build.outputs.viewer_app
-        uses: actions/upload-artifact@v3
+        if: (matrix.configuration != 'ReleaseOS' && steps.build.outputs.viewer_app) || runner.os == 'Linux'
+        uses: actions/upload-artifact@v4
         with:
           name: "${{ steps.build.outputs.artifact }}-app"
           path: |
             ${{ steps.build.outputs.viewer_app }}
 
-      # ND: We only have ReleaseOS builds for Linux so far, thus upload what we have
-      # This steps can be deleted once "Release" is in place and makes "ReleaseOS" obsolete (for upload)
-      - name: Upload Linux ReleaseOS archive
-        if: matrix.configuration == 'ReleaseOS' && steps.build.outputs.viewer_app && runner.os == 'linux'
-        uses: actions/upload-artifact@v3
-        with:
-          name: "${{ steps.build.outputs.artifact }}-app"
-          path: |
-            ${{ steps.build.outputs.viewer_app }}
 
       # The other upload of nontrivial size is the symbol file. Use a distinct
       # artifact for that too.
       - name: Upload symbol file
         if: matrix.configuration != 'ReleaseOS'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: "${{ steps.build.outputs.artifact }}-symbols"
           path: |
@@ -276,7 +266,7 @@ jobs:
 
       - name: Upload metadata
         if: matrix.configuration != 'ReleaseOS'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: "${{ steps.build.outputs.artifact }}-metadata"
           # emitted by build.sh, possibly multiple lines
@@ -284,7 +274,7 @@ jobs:
             ${{ steps.build.outputs.metadata }}
 
       - name: Upload physics package
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         # should only be set for viewer-private
         if: matrix.configuration != 'ReleaseOS' && steps.build.outputs.physicstpv
         with:
@@ -305,7 +295,7 @@ jobs:
     steps:
       - name: Sign and package Windows viewer
         if: env.AZURE_KEY_VAULT_URI && env.AZURE_CERT_NAME && env.AZURE_CLIENT_ID && env.AZURE_CLIENT_SECRET && env.AZURE_TENANT_ID
-        uses: secondlife/viewer-build-util/sign-pkg-windows@v1
+        uses: secondlife/viewer-build-util/sign-pkg-windows@v2
         with:
           vault_uri: "${{ env.AZURE_KEY_VAULT_URI }}"
           cert_name: "${{ env.AZURE_CERT_NAME }}"
@@ -344,7 +334,7 @@ jobs:
 
       - name: Sign and package Mac viewer
         if: env.SIGNING_CERT_MACOS && env.SIGNING_CERT_MACOS_IDENTITY && env.SIGNING_CERT_MACOS_PASSWORD && steps.note-creds.outputs.note_user && steps.note-creds.outputs.note_pass && steps.note-creds.outputs.note_team
-        uses: secondlife/viewer-build-util/sign-pkg-mac@v1
+        uses: secondlife/viewer-build-util/sign-pkg-mac@v2
         with:
           channel: ${{ needs.build.outputs.viewer_channel }}
           imagename: ${{ needs.build.outputs.imagename }}
@@ -364,7 +354,7 @@ jobs:
     steps:
       - name: Post Windows symbols
         if: env.BUGSPLAT_USER && env.BUGSPLAT_PASS
-        uses: secondlife/viewer-build-util/post-bugsplat-windows@v1
+        uses: secondlife/viewer-build-util/post-bugsplat-windows@v2
         with:
           username: ${{ env.BUGSPLAT_USER }}
           password: ${{ env.BUGSPLAT_PASS }}
@@ -381,7 +371,7 @@ jobs:
     steps:
       - name: Post Mac symbols
         if: env.BUGSPLAT_USER && env.BUGSPLAT_PASS
-        uses: secondlife/viewer-build-util/post-bugsplat-mac@v1
+        uses: secondlife/viewer-build-util/post-bugsplat-mac@v2
         with:
           username: ${{ env.BUGSPLAT_USER }}
           password: ${{ env.BUGSPLAT_PASS }}
@@ -394,31 +384,20 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref_type == 'tag' && startsWith(github.ref_name, 'Second_Life_')
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
-          name: Windows-installer
+          pattern: "*-installer"
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
-          name: macOS-installer
-
-      - uses: actions/download-artifact@v3
-        with:
-          name: Windows-metadata
-
-      - name: Rename windows metadata
+          pattern: "*-metadata"
+      
+      - name: Rename metadata
         run: |
-          mv autobuild-package.xml Windows-autobuild-package.xml
-          mv newview/viewer_version.txt Windows-viewer_version.txt
-
-      - uses: actions/download-artifact@v3
-        with:
-          name: macOS-metadata
-
-      - name: Rename macOS metadata
-        run: |
-          mv autobuild-package.xml macOS-autobuild-package.xml
-          mv newview/viewer_version.txt macOS-viewer_version.txt
+          cp Windows-metadata/autobuild-package.xml Windows-autobuild-package.xml
+          cp Windows-metadata/newview/viewer_version.txt Windows-viewer_version.txt
+          cp macOS-metadata/autobuild-package.xml macOS-autobuild-package.xml
+          cp macOS-metadata/newview/viewer_version.txt macOS-viewer_version.txt
 
       # forked from softprops/action-gh-release
       - name: Create GitHub release
@@ -441,8 +420,8 @@ jobs:
           append_body: true
           fail_on_unmatched_files: true
           files: |
-            *.dmg
-            *.exe
+            macOS-installer/*.dmg 
+            Windows-installer/*.exe
             *-autobuild-package.xml
             *-viewer_version.txt
 
