@@ -43,12 +43,20 @@ LLFloaterLUAScripts::LLFloaterLUAScripts(const LLSD &key)
 {
     mCommitCallbackRegistrar.add("Script.OpenFolder", [this](LLUICtrl*, const LLSD &userdata) 
     { 
-        gViewerWindow->getWindow()->openFolder(mTargetFolderPath);
+        if (mScriptList->hasSelectedItem())
+        {
+            std::string target_folder_path = std::filesystem::path((mScriptList->getFirstSelected()->getColumn(1)->getValue().asString())).parent_path().string();
+            gViewerWindow->getWindow()->openFolder(target_folder_path);
+        }
     });
     mCommitCallbackRegistrar.add("Script.Terminate", [this](LLUICtrl*, const LLSD &userdata) 
     { 
-        LLEventPumps::instance().obtain("LLLua").post(llsd::map("status", "close", "coro", mCoroName));
-        LLLUAmanager::terminateScript(mCoroName);
+        if (mScriptList->hasSelectedItem())
+        {
+            std::string coro_name = mScriptList->getSelectedValue();
+            LLEventPumps::instance().obtain("LLLua").post(llsd::map("status", "close", "coro", coro_name));
+            LLLUAmanager::terminateScript(coro_name);
+        }
     });
 }
 
@@ -117,8 +125,6 @@ void LLFloaterLUAScripts::onScrollListRightClicked(LLUICtrl *ctrl, S32 x, S32 y)
         auto menu = mContextMenuHandle.get();
         if (menu)
         {
-            mTargetFolderPath = std::filesystem::path((item->getColumn(1)->getValue().asString())).parent_path().string();
-            mCoroName = item->getValue().asString();
             menu->show(x, y);
             LLMenuGL::showPopup(this, menu, x, y);
         }

@@ -46,8 +46,6 @@ private:
 
     std::unique_ptr<LLTimer> mUpdateTimer;
     LLScrollListCtrl* mScriptList;
-    std::string mTargetFolderPath;
-    std::string mCoroName;
 
     LLHandle<LLContextMenu> mContextMenuHandle;
 };

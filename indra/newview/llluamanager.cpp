@@ -192,14 +192,14 @@ void LLLUAmanager::runScriptFile(const std::string &filename, script_result_fn r
 
             lua_callbacks(L)->interrupt = [](lua_State *L, int gc)
             {
+                // skip if we're interrupting only for garbage collection
                 if (gc >= 0)
                     return;
                
-                std::set<std::string> scripts = LLLUAmanager::getTerminationList();
-                std::string coro = LLCoros::getName();
-                if (scripts.find(coro) != scripts.end()) 
+                auto it = sTerminationList.find(LLCoros::getName());
+                if (it != sTerminationList.end()) 
                 {
-                    sTerminationList.erase(coro);
+                    sTerminationList.erase(it);
                     lluau::error(L, "Script was terminated");
                 }
             };

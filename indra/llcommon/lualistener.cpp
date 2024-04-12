@@ -44,8 +44,8 @@ LuaListener::LuaListener(lua_State* L):
             LLEventPump::inventName("LuaState"),
             [this](const LLSD& status)
             {
-                const auto& coro_name = status["coro"].asString();
-                const auto& statsd = status["status"].asString();
+                auto coro_name = status["coro"].asString();
+                auto statsd = status["status"].asString();
                 if ((statsd == "close_all") || ((statsd == "close") && (coro_name == mCoroName)))
                 {
                     // If a Lua script is still blocked in getNext() during
