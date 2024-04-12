@@ -151,18 +151,7 @@ BOOL LLFloaterImagePreview::postBuild()
 //-----------------------------------------------------------------------------
 S32 LLFloaterImagePreview::getExpectedUploadCost() const
 {
-    if (mRawImagep.notNull())
-    {
-        if (mRawImagep->getWidth() * mRawImagep->getHeight() >= LLAgentBenefits::MIN_2K_TEXTURE_AREA)
-        {
-            return LLAgentBenefitsMgr::current().get2KTextureUploadCost();
-        }
-        else
-        {
-            return LLAgentBenefitsMgr::current().getTextureUploadCost();
-        }
-    }
-    return 0;
+    return LLAgentBenefitsMgr::current().getTextureUploadCost(mRawImagep);
 }
 
 //-----------------------------------------------------------------------------
