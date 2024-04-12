@@ -45,6 +45,7 @@
 extern LLColor4U MAX_WATER_COLOR;
 
 static const U32 BASE_SIZE = 128;
+static const F32 TERRAIN_DECODE_PRIORITY = 2048.f * 2048.f;
 
 namespace
 {
@@ -64,25 +65,38 @@ namespace
         return result;
     }
 
-    void unboost_minimap_texture(LLPointer<LLViewerFetchedTexture>& tex)
+    void boost_minimap_texture(LLViewerFetchedTexture* tex, F32 virtual_size)
+    {
+        llassert(tex);
+        if (!tex) { return; }
+
+        tex->setBoostLevel(LLGLTexture::BOOST_TERRAIN); // in case the raw image is at low detail
+        tex->addTextureStats(virtual_size); // priority
+    }
+
+    void boost_minimap_material(LLFetchedGLTFMaterial* mat, F32 virtual_size)
+    {
+        if (!mat) { return; }
+        if (mat->mBaseColorTexture) { boost_minimap_texture(mat->mBaseColorTexture, virtual_size); }
+        if (mat->mNormalTexture) { boost_minimap_texture(mat->mNormalTexture, virtual_size); }
+        if (mat->mMetallicRoughnessTexture) { boost_minimap_texture(mat->mMetallicRoughnessTexture, virtual_size); }
+        if (mat->mEmissiveTexture) { boost_minimap_texture(mat->mEmissiveTexture, virtual_size); }
+    }
+
+    void unboost_minimap_texture(LLViewerFetchedTexture* tex)
     {
         if (!tex) { return; }
         tex->setBoostLevel(LLGLTexture::BOOST_NONE);
         tex->setMinDiscardLevel(MAX_DISCARD_LEVEL + 1);
-
-        if (tex->getTextureState() == LLGLTexture::NO_DELETE)
-        {
-            tex->forceActive();
-        }
     }
 
-    void unboost_minimap_material(LLPointer<LLFetchedGLTFMaterial>& mat)
+    void unboost_minimap_material(LLFetchedGLTFMaterial* mat)
     {
         if (!mat) { return; }
-        unboost_minimap_texture(mat->mBaseColorTexture);
-        unboost_minimap_texture(mat->mNormalTexture);
-        unboost_minimap_texture(mat->mMetallicRoughnessTexture);
-        unboost_minimap_texture(mat->mEmissiveTexture);
+        if (mat->mBaseColorTexture) { unboost_minimap_texture(mat->mBaseColorTexture); }
+        if (mat->mNormalTexture) { unboost_minimap_texture(mat->mNormalTexture); }
+        if (mat->mMetallicRoughnessTexture) { unboost_minimap_texture(mat->mMetallicRoughnessTexture); }
+        if (mat->mEmissiveTexture) { unboost_minimap_texture(mat->mEmissiveTexture); }
     }
 };
 
@@ -96,11 +110,7 @@ LLTerrainMaterials::LLTerrainMaterials()
 
 LLTerrainMaterials::~LLTerrainMaterials()
 {
-    for (S32 i = 0; i < ASSET_COUNT; ++i)
-    {
-        unboost_minimap_texture(mDetailTextures[i]);
-        unboost_minimap_material(mDetailMaterials[i]);
-    }
+    unboost();
 }
 
 BOOL LLTerrainMaterials::generateMaterials()
@@ -116,6 +126,31 @@ BOOL LLTerrainMaterials::generateMaterials()
     }
 
     return FALSE;
+}
+
+void LLTerrainMaterials::boost()
+{
+    for (S32 i = 0; i < ASSET_COUNT; ++i)
+    {
+        LLPointer<LLViewerFetchedTexture>& tex = mDetailTextures[i];
+        llassert(tex.notNull());
+        boost_minimap_texture(tex, TERRAIN_DECODE_PRIORITY);
+
+        LLPointer<LLFetchedGLTFMaterial>& mat = mDetailMaterials[i];
+        boost_minimap_material(mat, TERRAIN_DECODE_PRIORITY);
+    }
+}
+
+void LLTerrainMaterials::unboost()
+{
+    for (S32 i = 0; i < ASSET_COUNT; ++i)
+    {
+        LLPointer<LLViewerFetchedTexture>& tex = mDetailTextures[i];
+        unboost_minimap_texture(tex);
+
+        LLPointer<LLFetchedGLTFMaterial>& mat = mDetailMaterials[i];
+        unboost_minimap_material(mat);
+    }
 }
 
 LLUUID LLTerrainMaterials::getDetailAssetID(S32 asset)
@@ -135,7 +170,6 @@ LLPointer<LLViewerFetchedTexture> fetch_terrain_texture(const LLUUID& id)
     }
 
     LLPointer<LLViewerFetchedTexture> tex = LLViewerTextureManager::getFetchedTexture(id);
-    tex->setNoDelete();
     return tex;
 }
 
@@ -240,8 +274,7 @@ bool LLTerrainMaterials::textureReady(LLPointer<LLViewerFetchedTexture>& tex, bo
     {
         if (boost)
         {
-            tex->setBoostLevel(LLGLTexture::BOOST_TERRAIN); // in case we are at low detail
-            tex->addTextureStats(BASE_SIZE*BASE_SIZE);
+            boost_minimap_texture(tex, BASE_SIZE*BASE_SIZE);
         }
         return false;
     }
@@ -251,6 +284,8 @@ bool LLTerrainMaterials::textureReady(LLPointer<LLViewerFetchedTexture>& tex, bo
     {
         if (boost)
         {
+            boost_minimap_texture(tex, BASE_SIZE*BASE_SIZE);
+
             S32 width = tex->getFullWidth();
             S32 height = tex->getFullHeight();
             S32 min_dim = llmin(width, height);
@@ -260,9 +295,7 @@ bool LLTerrainMaterials::textureReady(LLPointer<LLViewerFetchedTexture>& tex, bo
                 ddiscard++;
                 min_dim /= 2;
             }
-            tex->setBoostLevel(LLGLTexture::BOOST_TERRAIN); // in case we are at low detail
             tex->setMinDiscardLevel(ddiscard);
-            tex->addTextureStats(BASE_SIZE*BASE_SIZE); // priority
         }
         return false;
     }
@@ -589,7 +622,7 @@ BOOL LLVLComposition::generateMinimapTileLand(const F32 x, const F32 y,
                 // Raw image is not ready, will enter here again later.
                 if (tex->getFetchPriority() <= 0.0f && !tex->hasSavedRawImage())
                 {
-                    tex->setBoostLevel(LLGLTexture::BOOST_TERRAIN);
+                    boost_minimap_texture(tex, TERRAIN_DECODE_PRIORITY);
                     tex->forceToRefetchTexture(ddiscard);
                 }
 
@@ -606,7 +639,7 @@ BOOL LLVLComposition::generateMinimapTileLand(const F32 x, const F32 y,
                     // Raw image is not ready, will enter here again later.
                     if (tex_emissive->getFetchPriority() <= 0.0f && !tex_emissive->hasSavedRawImage())
                     {
-                        tex_emissive->setBoostLevel(LLGLTexture::BOOST_TERRAIN);
+                        boost_minimap_texture(tex_emissive, TERRAIN_DECODE_PRIORITY);
                         tex_emissive->forceToRefetchTexture(ddiscard_emissive);
                     }
 

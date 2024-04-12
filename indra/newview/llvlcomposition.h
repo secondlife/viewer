@@ -58,6 +58,8 @@ public:
 
     BOOL generateMaterials();
 
+    void boost();
+
 	virtual LLUUID getDetailAssetID(S32 asset);
 	virtual void setDetailAssetID(S32 asset, const LLUUID& id);
     Type getMaterialType();
@@ -67,6 +69,7 @@ public:
     bool materialsReady(bool boost, bool strict);
 
 protected:
+    void unboost();
     static bool textureReady(LLPointer<LLViewerFetchedTexture>& tex, bool boost);
     // strict = true -> all materials must be sufficiently loaded
     // strict = false -> at least one material must be loaded
