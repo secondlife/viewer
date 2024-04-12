@@ -1360,7 +1360,7 @@ bool LLMeshRepoThread::fetchMeshSkinInfo(const LLUUID& mesh_id, bool can_retry)
 				U8* buffer = new(std::nothrow) U8[size];
 				if (!buffer)
 				{
-					LL_WARNS_ONCE(LOG_MESH) << "Failed to allocate memory for skin info, size: " << size << LL_ENDL;
+					LL_WARNS(LOG_MESH) << "Failed to allocate memory for skin info, size: " << size << LL_ENDL;
 					return false;
 				}
 				LLMeshRepository::sCacheBytesRead += size;
@@ -1473,7 +1473,7 @@ bool LLMeshRepoThread::fetchMeshDecomposition(const LLUUID& mesh_id)
 				U8* buffer = new(std::nothrow) U8[size];
 				if (!buffer)
 				{
-					LL_WARNS_ONCE(LOG_MESH) << "Failed to allocate memory for mesh decomposition, size: " << size << LL_ENDL;
+					LL_WARNS(LOG_MESH) << "Failed to allocate memory for mesh decomposition, size: " << size << LL_ENDL;
 					return false;
 				}
 				LLMeshRepository::sCacheBytesRead += size;
@@ -1575,7 +1575,7 @@ bool LLMeshRepoThread::fetchMeshPhysicsShape(const LLUUID& mesh_id)
 				U8* buffer = new(std::nothrow) U8[size];
 				if (!buffer)
 				{
-					LL_WARNS_ONCE(LOG_MESH) << "Failed to allocate memory for physics shape, size: " << size << LL_ENDL;
+					LL_WARNS(LOG_MESH) << "Failed to allocate memory for physics shape, size: " << size << LL_ENDL;
 					return false;
 				}
 				file.read(buffer, size);
@@ -1770,7 +1770,7 @@ bool LLMeshRepoThread::fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod, 
 				U8* buffer = new(std::nothrow) U8[size];
 				if (!buffer)
 				{
-					LL_WARNS_ONCE(LOG_MESH) << "Can't allocate memory for mesh " << mesh_id << " LOD " << lod << ", size: " << size << LL_ENDL;
+					LL_WARNS(LOG_MESH) << "Can't allocate memory for mesh " << mesh_id << " LOD " << lod << ", size: " << size << LL_ENDL;
 					// todo: for now it will result in indefinite constant retries, should result in timeout
 					// or in retry-count and disabling mesh. (but usually viewer is beyond saving at this point)
 					return false;
@@ -2293,8 +2293,8 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 				mUploadSkin,
 				mUploadJoints,
                 mLockScaleIfJointPosition,
-				FALSE,
-				FALSE,
+				false,
+				false,
 				data.mBaseModel->mSubmodelID);
 
 			data.mAssetData = ostr.str();
@@ -2450,8 +2450,8 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 				mUploadSkin,
 				mUploadJoints,
                 mLockScaleIfJointPosition,
-				FALSE,
-				FALSE,
+				false,
+				false,
 				data.mBaseModel->mSubmodelID);
 
 			data.mAssetData = ostr.str();
@@ -4382,7 +4382,7 @@ void LLMeshUploadThread::decomposeMeshMatrix(LLMatrix4& transformation,
 											 LLVector3& result_scale)
 {
 	// check for reflection
-	BOOL reflected = (transformation.determinant() < 0);
+	bool reflected = (transformation.determinant() < 0);
 
 	// compute position
 	LLVector3 position = LLVector3(0, 0, 0) * transformation;
@@ -5497,7 +5497,7 @@ void on_new_single_inventory_upload_complete(
 
         // Show the preview panel for textures and sounds to let
         // user know that the image (or snapshot) arrived intact.
-        LLInventoryPanel* panel = LLInventoryPanel::getActiveInventoryPanel(FALSE);
+        LLInventoryPanel* panel = LLInventoryPanel::getActiveInventoryPanel(false);
         if (panel)
         {
 
@@ -5507,7 +5507,7 @@ void on_new_single_inventory_upload_complete(
         }
         else
         {
-            LLInventoryPanel::openInventoryPanelAndSetSelection(TRUE, server_response["new_inventory_item"].asUUID(), TRUE, TAKE_FOCUS_NO, TRUE);
+            LLInventoryPanel::openInventoryPanelAndSetSelection(true, server_response["new_inventory_item"].asUUID(), true, false, true);
         }
 
         // restore keyboard focus

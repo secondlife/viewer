@@ -39,7 +39,7 @@
 LLStringTable LLCharacter::sVisualParamNames(1024);
 
 std::vector< LLCharacter* > LLCharacter::sInstances;
-BOOL LLCharacter::sAllowInstancesChange = TRUE ;
+bool LLCharacter::sAllowInstancesChange = true ;
 
 //-----------------------------------------------------------------------------
 // LLCharacter()
@@ -114,7 +114,7 @@ LLJoint *LLCharacter::getJoint( const std::string &name )
 //-----------------------------------------------------------------------------
 // registerMotion()
 //-----------------------------------------------------------------------------
-BOOL LLCharacter::registerMotion( const LLUUID& id, LLMotionConstructor create )
+bool LLCharacter::registerMotion( const LLUUID& id, LLMotionConstructor create )
 {
 	return mMotionController.registerMotion(id, create);
 }
@@ -147,7 +147,7 @@ LLMotion* LLCharacter::createMotion( const LLUUID &id )
 //-----------------------------------------------------------------------------
 // startMotion()
 //-----------------------------------------------------------------------------
-BOOL LLCharacter::startMotion(const LLUUID &id, F32 start_offset)
+bool LLCharacter::startMotion(const LLUUID &id, F32 start_offset)
 {
 	return mMotionController.startMotion(id, start_offset);
 }
@@ -156,7 +156,7 @@ BOOL LLCharacter::startMotion(const LLUUID &id, F32 start_offset)
 //-----------------------------------------------------------------------------
 // stopMotion()
 //-----------------------------------------------------------------------------
-BOOL LLCharacter::stopMotion(const LLUUID& id, BOOL stop_immediate)
+bool LLCharacter::stopMotion(const LLUUID& id, bool stop_immediate)
 {
 	return mMotionController.stopMotionLocally(id, stop_immediate);
 }
@@ -164,7 +164,7 @@ BOOL LLCharacter::stopMotion(const LLUUID& id, BOOL stop_immediate)
 //-----------------------------------------------------------------------------
 // isMotionActive()
 //-----------------------------------------------------------------------------
-BOOL LLCharacter::isMotionActive(const LLUUID& id)
+bool LLCharacter::isMotionActive(const LLUUID& id)
 {
 	LLMotion *motionp = mMotionController.findMotion(id);
 	if (motionp)
@@ -279,7 +279,7 @@ void LLCharacter::removeAnimationData(std::string name)
 //-----------------------------------------------------------------------------
 // setVisualParamWeight()
 //-----------------------------------------------------------------------------
-BOOL LLCharacter::setVisualParamWeight(const LLVisualParam* which_param, F32 weight)
+bool LLCharacter::setVisualParamWeight(const LLVisualParam* which_param, F32 weight)
 {
 	S32 index = which_param->getID();
 	visual_param_index_map_t::iterator index_iter = mVisualParamIndexMap.find(index);
@@ -294,7 +294,7 @@ BOOL LLCharacter::setVisualParamWeight(const LLVisualParam* which_param, F32 wei
 //-----------------------------------------------------------------------------
 // setVisualParamWeight()
 //-----------------------------------------------------------------------------
-BOOL LLCharacter::setVisualParamWeight(const char* param_name, F32 weight)
+bool LLCharacter::setVisualParamWeight(const char* param_name, F32 weight)
 {
 	std::string tname(param_name);
 	LLStringUtil::toLower(tname);
@@ -312,7 +312,7 @@ BOOL LLCharacter::setVisualParamWeight(const char* param_name, F32 weight)
 //-----------------------------------------------------------------------------
 // setVisualParamWeight()
 //-----------------------------------------------------------------------------
-BOOL LLCharacter::setVisualParamWeight(S32 index, F32 weight)
+bool LLCharacter::setVisualParamWeight(S32 index, F32 weight)
 {
 	visual_param_index_map_t::iterator index_iter = mVisualParamIndexMap.find(index);
 	if (index_iter != mVisualParamIndexMap.end())

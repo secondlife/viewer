@@ -309,7 +309,7 @@ LLGLSLShader::LLGLSLShader()
     mShaderLevel(0),
     mShaderGroup(SG_DEFAULT),
     mFeatures(),
-    mUniformsDirty(FALSE),
+    mUniformsDirty(false),
     mTimerQuery(0),
     mSamplesQuery(0),
     mPrimitivesQuery(0)
@@ -602,11 +602,11 @@ void LLGLSLShader::attachObjects(GLuint* objects, S32 count)
     }
 }
 
-BOOL LLGLSLShader::mapAttributes(const std::vector<LLStaticHashedString>* attributes)
+bool LLGLSLShader::mapAttributes(const std::vector<LLStaticHashedString>* attributes)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
 
-	BOOL res = TRUE;
+	bool res = true;
 	if (!mUsingBinaryProgram)
 	{
 		//before linking, make sure reserved attributes always have consistent locations
@@ -663,10 +663,10 @@ BOOL LLGLSLShader::mapAttributes(const std::vector<LLStaticHashedString>* attrib
             }
         }
 
-        return TRUE;
+        return true;
     }
 
-    return FALSE;
+    return false;
 }
 
 void LLGLSLShader::mapUniform(GLint index, const vector<LLStaticHashedString>* uniforms)
@@ -830,11 +830,11 @@ GLint LLGLSLShader::mapUniformTextureChannel(GLint location, GLenum type, GLint 
     return -1;
 }
 
-BOOL LLGLSLShader::mapUniforms(const vector<LLStaticHashedString>* uniforms)
+bool LLGLSLShader::mapUniforms(const vector<LLStaticHashedString>* uniforms)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
 
-    BOOL res = TRUE;
+    bool res = true;
 
     mTotalUniformSize = 0;
     mActiveTextureChannels = 0;
@@ -1001,11 +1001,11 @@ BOOL LLGLSLShader::mapUniforms(const vector<LLStaticHashedString>* uniforms)
 }
 
 
-BOOL LLGLSLShader::link(BOOL suppress_errors)
+bool LLGLSLShader::link(bool suppress_errors)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
 
-    BOOL success = LLShaderMgr::instance()->linkProgramObject(mProgramObject, suppress_errors);
+    bool success = LLShaderMgr::instance()->linkProgramObject(mProgramObject, suppress_errors);
 
     if (!success && !suppress_errors)
     {
@@ -1045,7 +1045,7 @@ void LLGLSLShader::bind()
     if (mUniformsDirty)
     {
         LLShaderMgr::instance()->updateShaderUniforms(this);
-        mUniformsDirty = FALSE;
+        mUniformsDirty = false;
     }
 }
 

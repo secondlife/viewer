@@ -78,11 +78,11 @@ class LLVector2
 		F32		magVecSquared() const;		// deprecated
 		F32		normVec();					// deprecated
 
-		bool	abs();						// sets all values to absolute value of original value (first octant), returns TRUE if changed
+		bool	abs();						// sets all values to absolute value of original value (first octant), returns true if changed
 
 		const LLVector2&	scaleVec(const LLVector2& vec);				// scales per component by vec
 
-		bool isNull();			// Returns TRUE if vector has a _very_small_ length
+		bool isNull();			// Returns true if vector has a _very_small_ length
 		bool isExactlyZero() const		{ return !mV[VX] && !mV[VY]; }
 
 		F32 operator[](int idx) const { return mV[idx]; }
@@ -114,7 +114,7 @@ class LLVector2
 // Non-member functions 
 
 F32	angle_between(const LLVector2 &a, const LLVector2 &b);	// Returns angle (radians) between a and b
-bool are_parallel(const LLVector2 &a, const LLVector2 &b, F32 epsilon=F_APPROXIMATELY_ZERO);	// Returns TRUE if a and b are very close to parallel
+bool are_parallel(const LLVector2 &a, const LLVector2 &b, F32 epsilon=F_APPROXIMATELY_ZERO);	// Returns true if a and b are very close to parallel
 F32	dist_vec(const LLVector2 &a, const LLVector2 &b);		// Returns distance between a and b
 F32	dist_vec_squared(const LLVector2 &a, const LLVector2 &b);// Returns distance squared between a and b
 F32	dist_vec_squared2D(const LLVector2 &a, const LLVector2 &b);// Returns distance squared between a and b ignoring Z component

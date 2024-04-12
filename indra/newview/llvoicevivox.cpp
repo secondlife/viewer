@@ -951,32 +951,52 @@ bool LLVivoxVoiceClient::startAndLaunchDaemon()
             // cause SLVoice's bind() call to fail with EADDRINUSE. We expect
             // that eventually the OS will time out previous ports, which is
             // why we cycle instead of incrementing indefinitely.
-            U32 portbase = gSavedSettings.getU32("VivoxVoicePort");
-            static U32 portoffset = 0;
+
+            static LLCachedControl<U32> portbase(gSavedSettings, "VivoxVoicePort");
+            static LLCachedControl<std::string> host(gSavedSettings, "VivoxVoiceHost");
+            static LLCachedControl<std::string> loglevel(gSavedSettings, "VivoxDebugLevel");
+            static LLCachedControl<std::string> log_folder(gSavedSettings, "VivoxLogDirectory");
+            static LLCachedControl<std::string> shutdown_timeout(gSavedSettings, "VivoxShutdownTimeout");
             static const U32 portrange = 100;
-            std::string host(gSavedSettings.getString("VivoxVoiceHost"));
-            U32 port = portbase + portoffset;
+            static U32 portoffset = 0;
+            U32 port = 0;
+
+            if (LLAppViewer::instance()->isSecondInstance())
+            {
+                // Ideally need to know amount of instances and
+                // to increment instance_offset on EADDRINUSE.
+                // But for now just use rand
+                static U32 instance_offset = portrange * ll_rand(20);
+                port = portbase + portoffset + instance_offset;
+            }
+            else
+            {
+                // leave main thread with exclusive port set
+                port = portbase + portoffset;
+            }
             portoffset = (portoffset + 1) % portrange;
             params.args.add("-i");
-            params.args.add(STRINGIZE(host << ':' << port));
+            params.args.add(STRINGIZE(host() << ':' << port));
 
-            std::string loglevel = gSavedSettings.getString("VivoxDebugLevel");
-            if (loglevel.empty())
-            {
-                loglevel = "0";
-            }
             params.args.add("-ll");
-            params.args.add(loglevel);
-
-            std::string log_folder = gSavedSettings.getString("VivoxLogDirectory");
-
-            if (log_folder.empty())
+            if (loglevel().empty())
             {
-                log_folder = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "");
+                params.args.add("0");
+            }
+            else
+            {
+                params.args.add(loglevel);
             }
 
             params.args.add("-lf");
-            params.args.add(log_folder);
+            if (log_folder().empty())
+            {
+                params.args.add(gDirUtilp->getExpandedFilename(LL_PATH_LOGS, ""));
+            }
+            else
+            {
+                params.args.add(log_folder);
+            }
 
             // set log file basename and .log
             params.args.add("-lp");
@@ -992,8 +1012,7 @@ bool LLVivoxVoiceClient::startAndLaunchDaemon()
                 LLFile::rename(new_log, old_log);
             }
             
-            std::string shutdown_timeout = gSavedSettings.getString("VivoxShutdownTimeout");
-            if (!shutdown_timeout.empty())
+            if (!shutdown_timeout().empty())
             {
                 params.args.add("-st");
                 params.args.add(shutdown_timeout);
@@ -1016,7 +1035,7 @@ bool LLVivoxVoiceClient::startAndLaunchDaemon()
 
             sGatewayPtr = LLProcess::create(params);
 
-            mDaemonHost = LLHost(host.c_str(), port);
+            mDaemonHost = LLHost(host().c_str(), port);
         }
         else
         {
@@ -1938,7 +1957,7 @@ bool LLVivoxVoiceClient::terminateAudioSession(bool wait)
                        << " VoiceEnabled " << mVoiceEnabled
                        << " IsInitialized " << mIsInitialized
                        << " RelogRequested " << mRelogRequested
-                       << " ShuttingDown " << (sShuttingDown ? "TRUE" : "FALSE")
+                       << " ShuttingDown " << (sShuttingDown ? "true" : "false")
                        << " returning " << status
                        << LL_ENDL;
     return status;
@@ -5152,16 +5171,16 @@ bool LLVivoxVoiceClient::isVoiceWorking() const
 
 // Returns true if the indicated participant in the current audio session is really an SL avatar.
 // Currently this will be false only for PSTN callers into group chats, and PSTN p2p calls.
-BOOL LLVivoxVoiceClient::isParticipantAvatar(const LLUUID &id)
+bool LLVivoxVoiceClient::isParticipantAvatar(const LLUUID &id)
 {
-	BOOL result = TRUE; 
+	bool result = true; 
     sessionStatePtr_t session(findSession(id));
 	
 	if(session)
 	{
 		// this is a p2p session with the indicated caller, or the session with the specified UUID.
 		if(session->mSynthesizedCallerID)
-			result = FALSE;
+			result = false;
 	}
 	else
 	{
@@ -5181,9 +5200,9 @@ BOOL LLVivoxVoiceClient::isParticipantAvatar(const LLUUID &id)
 
 // Returns true if calling back the session URI after the session has closed is possible.
 // Currently this will be false only for PSTN P2P calls.		
-BOOL LLVivoxVoiceClient::isSessionCallBackPossible(const LLUUID &session_id)
+bool LLVivoxVoiceClient::isSessionCallBackPossible(const LLUUID &session_id)
 {
-	BOOL result = TRUE; 
+	bool result = true; 
     sessionStatePtr_t session(findSession(session_id));
 	
 	if(session != NULL)
@@ -5196,9 +5215,9 @@ BOOL LLVivoxVoiceClient::isSessionCallBackPossible(const LLUUID &session_id)
 
 // Returns true if the session can accept text IM's.
 // Currently this will be false only for PSTN P2P calls.
-BOOL LLVivoxVoiceClient::isSessionTextIMPossible(const LLUUID &session_id)
+bool LLVivoxVoiceClient::isSessionTextIMPossible(const LLUUID &session_id)
 {
-	bool result = TRUE;
+	bool result = true;
     sessionStatePtr_t session(findSession(session_id));
 	
 	if(session != NULL)
@@ -5627,12 +5646,12 @@ bool LLVivoxVoiceClient::voiceEnabled()
           !gNonInteractive;
 }
 
-void LLVivoxVoiceClient::setLipSyncEnabled(BOOL enabled)
+void LLVivoxVoiceClient::setLipSyncEnabled(bool enabled)
 {
 	mLipSyncEnabled = enabled;
 }
 
-BOOL LLVivoxVoiceClient::lipSyncEnabled()
+bool LLVivoxVoiceClient::lipSyncEnabled()
 {
 	   
 	if ( mVoiceEnabled )
@@ -5641,7 +5660,7 @@ BOOL LLVivoxVoiceClient::lipSyncEnabled()
 	}
 	else
 	{
-		return FALSE;
+		return false;
 	}
 }
 
@@ -5687,15 +5706,15 @@ void LLVivoxVoiceClient::setMicGain(F32 volume)
 
 /////////////////////////////
 // Accessors for data related to nearby speakers
-BOOL LLVivoxVoiceClient::getVoiceEnabled(const LLUUID& id)
+bool LLVivoxVoiceClient::getVoiceEnabled(const LLUUID& id)
 {
-	BOOL result = FALSE;
+	bool result = false;
     participantStatePtr_t participant(findParticipantByID(id));
 	if(participant)
 	{
 		// I'm not sure what the semantics of this should be.
 		// For now, if we have any data about the user that came through the chat channel, assume they're voice-enabled.
-		result = TRUE;
+		result = true;
 	}
 	
 	return result;
@@ -5715,16 +5734,16 @@ std::string LLVivoxVoiceClient::getDisplayName(const LLUUID& id)
 
 
 
-BOOL LLVivoxVoiceClient::getIsSpeaking(const LLUUID& id)
+bool LLVivoxVoiceClient::getIsSpeaking(const LLUUID& id)
 {
-	BOOL result = FALSE;
+	bool result = false;
 
     participantStatePtr_t participant(findParticipantByID(id));
 	if(participant)
 	{
 		if (participant->mSpeakingTimeout.getElapsedTimeF32() > SPEAKING_TIMEOUT)
 		{
-			participant->mIsSpeaking = FALSE;
+			participant->mIsSpeaking = false;
 		}
 		result = participant->mIsSpeaking;
 	}
@@ -5732,9 +5751,9 @@ BOOL LLVivoxVoiceClient::getIsSpeaking(const LLUUID& id)
 	return result;
 }
 
-BOOL LLVivoxVoiceClient::getIsModeratorMuted(const LLUUID& id)
+bool LLVivoxVoiceClient::getIsModeratorMuted(const LLUUID& id)
 {
-	BOOL result = FALSE;
+	bool result = false;
 
     participantStatePtr_t participant(findParticipantByID(id));
 	if(participant)
@@ -5759,9 +5778,9 @@ F32 LLVivoxVoiceClient::getCurrentPower(const LLUUID& id)
 
 
 
-BOOL LLVivoxVoiceClient::getUsingPTT(const LLUUID& id)
+bool LLVivoxVoiceClient::getUsingPTT(const LLUUID& id)
 {
-	BOOL result = FALSE;
+	bool result = false;
 
     participantStatePtr_t participant(findParticipantByID(id));
 	if(participant)
@@ -5774,9 +5793,9 @@ BOOL LLVivoxVoiceClient::getUsingPTT(const LLUUID& id)
 	return result;
 }
 
-BOOL LLVivoxVoiceClient::getOnMuteList(const LLUUID& id)
+bool LLVivoxVoiceClient::getOnMuteList(const LLUUID& id)
 {
-	BOOL result = FALSE;
+	bool result = false;
 	
     participantStatePtr_t participant(findParticipantByID(id));
 	if(participant)
@@ -5844,7 +5863,7 @@ std::string LLVivoxVoiceClient::getGroupID(const LLUUID& id)
 	return result;
 }
 
-BOOL LLVivoxVoiceClient::getAreaVoiceDisabled()
+bool LLVivoxVoiceClient::getAreaVoiceDisabled()
 {
 	return mAreaVoiceDisabled;
 }
@@ -7079,7 +7098,7 @@ void LLVivoxVoiceClient::updateVoiceMorphingMenu()
 			const voice_effect_list_t& effect_list = effect_interfacep->getVoiceEffectList();
 			if (!effect_list.empty())
 			{
-				LLMenuGL * voice_morphing_menup = gMenuBarView->findChildMenuByName("VoiceMorphing", TRUE);
+				LLMenuGL * voice_morphing_menup = gMenuBarView->findChildMenuByName("VoiceMorphing", true);
 
 				if (NULL != voice_morphing_menup)
 				{

@@ -55,13 +55,13 @@ public:
 	LLPanelWearing();
 	virtual ~LLPanelWearing();
 
-	/*virtual*/ BOOL postBuild();
+	/*virtual*/ bool postBuild();
 
 	/*virtual*/ void draw();
 
 	/*virtual*/ void onOpen(const LLSD& info);
 
-	/*virtual*/ void setFilterSubString(const std::string& string);
+	/*virtual*/ void onFilterSubStringChanged(const std::string& new_string, const std::string& old_string);
 
 	/*virtual*/ bool isActionEnabled(const LLSD& userdata);
 

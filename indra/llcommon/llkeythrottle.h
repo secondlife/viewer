@@ -91,7 +91,7 @@ template< class T >
 class LLKeyThrottle
 {
 public:
-	// @param realtime = FALSE for frame-based throttle, TRUE for usec
+	// @param realtime = false for frame-based throttle, true for usec
 	// real-time throttle
 	LLKeyThrottle(U32 limit, F32 interval, bool realtime = true)
 		: m(* new LLKeyThrottleImpl<T>)
@@ -325,7 +325,7 @@ public:
 
 protected:
 	LLKeyThrottleImpl<T>& m;
-	bool	mIsRealtime;	// TRUE to be time based (default), FALSE for frame based
+	bool	mIsRealtime;	// true to be time based (default), false for frame based
 };
 
 #endif

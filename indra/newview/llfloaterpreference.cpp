@@ -113,6 +113,7 @@
 #include "llpresetsmanager.h"
 #include "llviewercontrol.h"
 #include "llpresetsmanager.h"
+#include "llinventoryfunctions.h"
 
 #include "llsearchableui.h"
 #include "llperfstats.h"
@@ -180,7 +181,7 @@ bool callback_clear_cache(const LLSD& notification, const LLSD& response)
 	if ( option == 0 ) // YES
 	{
 		// flag client texture cache for clearing next time the client runs
-		gSavedSettings.setBOOL("PurgeCacheOnNextStartup", TRUE);
+		gSavedSettings.setBOOL("PurgeCacheOnNextStartup", true);
 		LLNotificationsUtil::add("CacheWillClear");
 	}
 
@@ -200,7 +201,7 @@ bool callback_clear_browser_cache(const LLSD& notification, const LLSD& response
 		LLNavigationBar::getInstance()->clearHistoryCache();
 		
 		// flag client texture cache for clearing next time the client runs
-		gSavedSettings.setBOOL("PurgeCacheOnNextStartup", TRUE);
+		gSavedSettings.setBOOL("PurgeCacheOnNextStartup", true);
 		LLNotificationsUtil::add("CacheWillClear");
 
 		LLSearchHistory::getInstance()->clearHistory();
@@ -427,7 +428,7 @@ void LLFloaterPreference::saveAvatarPropertiesCoro(const std::string cap_url, bo
     LL_DEBUGS("Preferences") << "Agent id: " << gAgentID << " Data: " << data << " Result: " << httpResults << LL_ENDL;
 }
 
-BOOL LLFloaterPreference::postBuild()
+bool LLFloaterPreference::postBuild()
 {
 	gSavedSettings.getControl("ChatFontSize")->getSignal()->connect(boost::bind(&LLFloaterIMSessionTab::processChatHistoryStyleUpdate, false));
 
@@ -436,6 +437,12 @@ BOOL LLFloaterPreference::postBuild()
 	gSavedSettings.getControl("ChatBubbleOpacity")->getSignal()->connect(boost::bind(&LLFloaterPreference::onNameTagOpacityChange, this, _2));
 
 	gSavedSettings.getControl("PreferredMaturity")->getSignal()->connect(boost::bind(&LLFloaterPreference::onChangeMaturity, this));
+
+    gSavedSettings.getControl("RenderAvatarComplexityMode")->getSignal()->connect(
+        [this](LLControlVariable* control, const LLSD& new_val, const LLSD& old_val)
+        {
+            onChangeComplexityMode(new_val);
+        });
 
 	gSavedPerAccountSettings.getControl("ModelUploadFolder")->getSignal()->connect(boost::bind(&LLFloaterPreference::onChangeModelFolder, this));
     gSavedPerAccountSettings.getControl("PBRUploadFolder")->getSignal()->connect(boost::bind(&LLFloaterPreference::onChangePBRFolder, this));
@@ -447,11 +454,11 @@ BOOL LLFloaterPreference::postBuild()
 	if (!tabcontainer->selectTab(gSavedSettings.getS32("LastPrefTab")))
 		tabcontainer->selectFirstTab();
 
-	getChild<LLUICtrl>("cache_location")->setEnabled(FALSE); // make it read-only but selectable (STORM-227)
+	getChild<LLUICtrl>("cache_location")->setEnabled(false); // make it read-only but selectable (STORM-227)
 	std::string cache_location = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "");
 	setCacheLocation(cache_location);
 
-	getChild<LLUICtrl>("log_path_string")->setEnabled(FALSE); // make it read-only but selectable
+	getChild<LLUICtrl>("log_path_string")->setEnabled(false); // make it read-only but selectable
 
 	getChild<LLComboBox>("language_combobox")->setCommitCallback(boost::bind(&LLFloaterPreference::onLanguageChange, this));
 
@@ -476,6 +483,9 @@ BOOL LLFloaterPreference::postBuild()
 	LLSliderCtrl* fov_slider = getChild<LLSliderCtrl>("camera_fov");
 	fov_slider->setMinValue(LLViewerCamera::getInstance()->getMinView());
 	fov_slider->setMaxValue(LLViewerCamera::getInstance()->getMaxView());
+
+    bool enable_complexity = gSavedSettings.getS32("RenderAvatarComplexityMode") != LLVOAvatar::AV_RENDER_ONLY_SHOW_FRIENDS;
+    getChild<LLSliderCtrl>("IndirectMaxComplexity")->setEnabled(enable_complexity);
 	
 	// Hook up and init for filtering
 	mFilterEdit = getChild<LLSearchEditor>("search_prefs_edit");
@@ -504,7 +514,7 @@ BOOL LLFloaterPreference::postBuild()
 		getChild<LLComboBox>("language_combobox")->add("System default", LLSD("default"), ADD_TOP, true);
 	}
 
-	return TRUE;
+	return true;
 }
 
 void LLFloaterPreference::updateDeleteTranscriptsButton()
@@ -516,7 +526,7 @@ void LLFloaterPreference::updateDeleteTranscriptsButton()
 
 void LLFloaterPreference::onDoNotDisturbResponseChanged()
 {
-	// set "DoNotDisturbResponseChanged" TRUE if user edited message differs from default, FALSE otherwise
+	// set "DoNotDisturbResponseChanged" true if user edited message differs from default, false otherwise
 	bool response_changed_flag =
 			LLTrans::getString("DoNotDisturbModeResponseDefault")
 					!= getChild<LLUICtrl>("do_not_disturb_response")->getValue().asString();
@@ -532,7 +542,7 @@ LLFloaterPreference::~LLFloaterPreference()
 
 void LLFloaterPreference::draw()
 {
-	BOOL has_first_selected = (getChildRef<LLScrollListCtrl>("disabled_popups").getFirstSelected()!=NULL);
+	bool has_first_selected = (getChildRef<LLScrollListCtrl>("disabled_popups").getFirstSelected()!=NULL);
 	gSavedSettings.setBOOL("FirstSelectedDisabledPopups", has_first_selected);
 	
 	has_first_selected = (getChildRef<LLScrollListCtrl>("enabled_popups").getFirstSelected()!=NULL);
@@ -587,7 +597,7 @@ void LLFloaterPreference::apply()
 	
 	LLViewerMedia::getInstance()->setCookiesEnabled(getChild<LLUICtrl>("cookies_enabled")->getValue());
 	
-	if (hasChild("web_proxy_enabled", TRUE) &&hasChild("web_proxy_editor", TRUE) && hasChild("web_proxy_port", TRUE))
+	if (hasChild("web_proxy_enabled", true) &&hasChild("web_proxy_editor", true) && hasChild("web_proxy_port", true))
 	{
 		bool proxy_enable = getChild<LLUICtrl>("web_proxy_enabled")->getValue();
 		std::string proxy_address = getChild<LLUICtrl>("web_proxy_editor")->getValue();
@@ -678,7 +688,7 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 {
 
 	// this variable and if that follows it are used to properly handle do not disturb mode response message
-	static bool initialized = FALSE;
+	static bool initialized = false;
 	// if user is logged in and we haven't initialized do not disturb mode response yet, do it
 	if (!initialized && LLStartUp::getStartupState() == STATE_STARTED)
 	{
@@ -687,8 +697,8 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 		// To keep track of whether do not disturb response is default or changed by user additional setting DoNotDisturbResponseChanged
 		// was added into per account settings.
 
-		// initialization should happen once,so setting variable to TRUE
-		initialized = TRUE;
+		// initialization should happen once,so setting variable to true
+		initialized = true;
 		// this connection is needed to properly set "DoNotDisturbResponseChanged" setting when user makes changes in
 		// do not disturb response message.
 		gSavedPerAccountSettings.getControl("DoNotDisturbModeResponse")->getSignal()->connect(boost::bind(&LLFloaterPreference::onDoNotDisturbResponseChanged, this));
@@ -861,7 +871,7 @@ void LLFloaterPreference::setRecommendedSettings()
 
 void LLFloaterPreference::resetAutotuneSettings()
 {
-    gSavedSettings.setBOOL("AutoTuneFPS", FALSE);
+    gSavedSettings.setBOOL("AutoTuneFPS", false);
 
     const std::string autotune_settings[] = {
         "AutoTuneLock",
@@ -975,12 +985,12 @@ void LLFloaterPreference::onBtnOK(const LLSD& userdata)
 		}
 
 		LLUIColorTable::instance().saveUserSettings();
-		gSavedSettings.saveToFile(gSavedSettings.getString("ClientSettingsFile"), TRUE);
+		gSavedSettings.saveToFile(gSavedSettings.getString("ClientSettingsFile"), true);
 		
 		//Only save once logged in and loaded per account settings
 		if(mGotPersonalInfo)
 		{
-			gSavedPerAccountSettings.saveToFile(gSavedSettings.getString("PerAccountSettingsFile"), TRUE);
+			gSavedPerAccountSettings.saveToFile(gSavedSettings.getString("PerAccountSettingsFile"), true);
 	}
 	}
 	else
@@ -1232,7 +1242,7 @@ void LLFloaterPreference::refreshEnabledState()
 	LLCheckBoxCtrl* ctrl_pbr = getChild<LLCheckBoxCtrl>("UsePBRShaders");
 
     //PBR
-    ctrl_pbr->setEnabled(TRUE);
+    ctrl_pbr->setEnabled(true);
 
 	// Cannot have floater active until caps have been received
 	getChild<LLButton>("default_creation_permissions")->setEnabled(LLStartUp::getStartupState() < STATE_STARTED ? false : true);
@@ -1325,9 +1335,9 @@ void LLFloaterPreference::onClickEnablePopup()
 	for (itor = items.begin(); itor != items.end(); ++itor)
 	{
 		LLNotificationTemplatePtr templatep = LLNotifications::instance().getTemplate(*(std::string*)((*itor)->getUserdata()));
-		//gSavedSettings.setWarning(templatep->mName, TRUE);
+		//gSavedSettings.setWarning(templatep->mName, true);
 		std::string notification_name = templatep->mName;
-		LLUI::getInstance()->mSettingGroups["ignores"]->setBOOL(notification_name, TRUE);
+		LLUI::getInstance()->mSettingGroups["ignores"]->setBOOL(notification_name, true);
 	}
 	
 	buildPopupLists();
@@ -1476,28 +1486,28 @@ void LLFloaterPreference::setPersonalInfo(const std::string& visibility)
 	if (visibility == VISIBILITY_DEFAULT)
 	{
 		mOriginalHideOnlineStatus = false;
-		getChildView("online_visibility")->setEnabled(TRUE); 	 
+		getChildView("online_visibility")->setEnabled(true); 	 
 	}
 	else if (visibility == VISIBILITY_HIDDEN)
 	{
 		mOriginalHideOnlineStatus = true;
-		getChildView("online_visibility")->setEnabled(TRUE); 	 
+		getChildView("online_visibility")->setEnabled(true); 	 
 	}
 	else
 	{
 		mOriginalHideOnlineStatus = true;
 	}
 	
-	getChild<LLUICtrl>("online_searchresults")->setEnabled(TRUE);
-	getChildView("friends_online_notify_checkbox")->setEnabled(TRUE);
+	getChild<LLUICtrl>("online_searchresults")->setEnabled(true);
+	getChildView("friends_online_notify_checkbox")->setEnabled(true);
 	getChild<LLUICtrl>("online_visibility")->setValue(mOriginalHideOnlineStatus); 	 
 	getChild<LLUICtrl>("online_visibility")->setLabelArg("[DIR_VIS]", mDirectoryVisibility);
 
-	getChildView("favorites_on_login_check")->setEnabled(TRUE);
-	getChildView("log_path_button")->setEnabled(TRUE);
-	getChildView("chat_font_size")->setEnabled(TRUE);
-	getChildView("conversation_log_combo")->setEnabled(TRUE);
-	getChild<LLUICtrl>("voice_call_friends_only_check")->setEnabled(TRUE);
+	getChildView("favorites_on_login_check")->setEnabled(true);
+	getChildView("log_path_button")->setEnabled(true);
+	getChildView("chat_font_size")->setEnabled(true);
+	getChildView("conversation_log_combo")->setEnabled(true);
+	getChild<LLUICtrl>("voice_call_friends_only_check")->setEnabled(true);
 	getChild<LLUICtrl>("voice_call_friends_only_check")->setValue(gSavedPerAccountSettings.getBOOL("VoiceCallsFriendsOnly"));
 }
 
@@ -1629,23 +1639,10 @@ void LLFloaterPreference::onChangeMaturity()
 	getChild<LLIconCtrl>("rating_icon_adult")->setVisible(sim_access == SIM_ACCESS_ADULT);
 }
 
-std::string get_category_path(LLUUID cat_id)
+void LLFloaterPreference::onChangeComplexityMode(const LLSD& newvalue)
 {
-    LLViewerInventoryCategory* cat = gInventory.getCategory(cat_id);
-    std::string localized_cat_name;
-    if (!LLTrans::findString(localized_cat_name, "InvFolder " + cat->getName()))
-    {
-        localized_cat_name = cat->getName();
-    }
-
-    if (cat->getParentUUID().notNull())
-    {
-        return get_category_path(cat->getParentUUID()) + " > " + localized_cat_name;
-    }
-    else
-    {
-        return localized_cat_name;
-    }
+    bool enable_complexity = newvalue.asInteger() != LLVOAvatar::AV_RENDER_ONLY_SHOW_FRIENDS;
+    getChild<LLSliderCtrl>("IndirectMaxComplexity")->setEnabled(enable_complexity);
 }
 
 std::string get_category_path(LLFolderType::EType cat_type)
@@ -1764,9 +1761,9 @@ void LLFloaterPreference::onAtmosShaderChange()
     if(ctrl_alm)
     {
         //Deferred/SSAO/Shadows
-        BOOL bumpshiny = LLCubeMap::sUseCubeMaps && LLFeatureManager::getInstance()->isFeatureAvailable("RenderObjectBump") && gSavedSettings.getBOOL("RenderObjectBump");
-        BOOL shaders = gSavedSettings.getBOOL("WindLightUseAtmosShaders");
-        BOOL enabled = LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") &&
+        bool bumpshiny = LLCubeMap::sUseCubeMaps && LLFeatureManager::getInstance()->isFeatureAvailable("RenderObjectBump") && gSavedSettings.getBOOL("RenderObjectBump");
+        bool shaders = gSavedSettings.getBOOL("WindLightUseAtmosShaders");
+        bool enabled = LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") &&
                         bumpshiny &&
                         shaders;
 
@@ -2007,31 +2004,31 @@ LLPanelPreference::LLPanelPreference()
 }
 
 //virtual
-BOOL LLPanelPreference::postBuild()
+bool LLPanelPreference::postBuild()
 {
 	////////////////////// PanelGeneral ///////////////////
-	if (hasChild("display_names_check", TRUE))
+	if (hasChild("display_names_check", true))
 	{
-		BOOL use_people_api = gSavedSettings.getBOOL("UsePeopleAPI");
+		bool use_people_api = gSavedSettings.getBOOL("UsePeopleAPI");
 		LLCheckBoxCtrl* ctrl_display_name = getChild<LLCheckBoxCtrl>("display_names_check");
 		ctrl_display_name->setEnabled(use_people_api);
 		if (!use_people_api)
 		{
-			ctrl_display_name->setValue(FALSE);
+			ctrl_display_name->setValue(false);
 		}
 	}
 
 	////////////////////// PanelVoice ///////////////////
-	if (hasChild("voice_unavailable", TRUE))
+	if (hasChild("voice_unavailable", true))
 	{
-		BOOL voice_disabled = gSavedSettings.getBOOL("CmdLineDisableVoice");
+		bool voice_disabled = gSavedSettings.getBOOL("CmdLineDisableVoice");
 		getChildView("voice_unavailable")->setVisible( voice_disabled);
 		getChildView("enable_voice_check")->setVisible( !voice_disabled);
 	}
 	
 	//////////////////////PanelSkins ///////////////////
 	
-	if (hasChild("skin_selection", TRUE))
+	if (hasChild("skin_selection", true))
 	{
 		LLFloaterPreference::refreshSkin(this);
 
@@ -2045,32 +2042,32 @@ BOOL LLPanelPreference::postBuild()
 	}
 
 	//////////////////////PanelPrivacy ///////////////////
-	if (hasChild("media_enabled", TRUE))
+	if (hasChild("media_enabled", true))
 	{
 		bool media_enabled = gSavedSettings.getBOOL("AudioStreamingMedia");
 		
 		getChild<LLCheckBoxCtrl>("media_enabled")->set(media_enabled);
 		getChild<LLCheckBoxCtrl>("autoplay_enabled")->setEnabled(media_enabled);
 	}
-	if (hasChild("music_enabled", TRUE))
+	if (hasChild("music_enabled", true))
 	{
 		getChild<LLCheckBoxCtrl>("music_enabled")->set(gSavedSettings.getBOOL("AudioStreamingMusic"));
 	}
-	if (hasChild("voice_call_friends_only_check", TRUE))
+	if (hasChild("voice_call_friends_only_check", true))
 	{
 		getChild<LLCheckBoxCtrl>("voice_call_friends_only_check")->setCommitCallback(boost::bind(&showFriendsOnlyWarning, _1, _2));
 	}
-	if (hasChild("allow_multiple_viewer_check", TRUE))
+	if (hasChild("allow_multiple_viewer_check", true))
 	{
 		getChild<LLCheckBoxCtrl>("allow_multiple_viewer_check")->setCommitCallback(boost::bind(&showMultipleViewersWarning, _1, _2));
 	}
-	if (hasChild("favorites_on_login_check", TRUE))
+	if (hasChild("favorites_on_login_check", true))
 	{
 		getChild<LLCheckBoxCtrl>("favorites_on_login_check")->setCommitCallback(boost::bind(&handleFavoritesOnLoginChanged, _1, _2));
 		bool show_favorites_at_login = LLPanelLogin::getShowFavorites();
 		getChild<LLCheckBoxCtrl>("favorites_on_login_check")->setValue(show_favorites_at_login);
 	}
-	if (hasChild("mute_chb_label", TRUE))
+	if (hasChild("mute_chb_label", true))
 	{
 		getChild<LLTextBox>("mute_chb_label")->setShowCursorHand(false);
 		getChild<LLTextBox>("mute_chb_label")->setSoundFlags(LLView::MOUSE_UP);
@@ -2078,7 +2075,7 @@ BOOL LLPanelPreference::postBuild()
 	}
 
 	//////////////////////PanelSetup ///////////////////
-	if (hasChild("max_bandwidth", TRUE))
+	if (hasChild("max_bandwidth", true))
 	{
 		mBandWidthUpdater = new LLPanelPreference::Updater(boost::bind(&handleBandwidthChanged, _1), BANDWIDTH_UPDATER_TIMEOUT);
 		gSavedSettings.getControl("ThrottleBandwidthKBPS")->getSignal()->connect(boost::bind(&LLPanelPreference::Updater::update, mBandWidthUpdater, _2));
@@ -2247,7 +2244,7 @@ void LLPanelPreference::setControlFalse(const LLSD& user_data)
 	LLControlVariable* control = findControl(control_name);
 	
 	if (control)
-		control->set(LLSD(FALSE));
+		control->set(LLSD(false));
 }
 
 void LLPanelPreference::updateMediaAutoPlayCheckbox(LLUICtrl* ctrl)
@@ -2324,7 +2321,7 @@ private:
 static LLPanelInjector<LLPanelPreferenceGraphics> t_pref_graph("panel_preference_graphics");
 static LLPanelInjector<LLPanelPreferencePrivacy> t_pref_privacy("panel_preference_privacy");
 
-BOOL LLPanelPreferenceGraphics::postBuild()
+bool LLPanelPreferenceGraphics::postBuild()
 {
 	LLFloaterReg::showInstance("prefs_graphics_advanced");
 	LLFloaterReg::hideInstance("prefs_graphics_advanced");
@@ -2511,7 +2508,7 @@ LLPanelPreferenceControls::~LLPanelPreferenceControls()
 {
 }
 
-BOOL LLPanelPreferenceControls::postBuild()
+bool LLPanelPreferenceControls::postBuild()
 {
     // populate list of controls
     pControlsTable = getChild<LLScrollListCtrl>("controls_list");
@@ -2521,7 +2518,7 @@ BOOL LLPanelPreferenceControls::postBuild()
     pKeyModeBox->setCommitCallback(boost::bind(&LLPanelPreferenceControls::onModeCommit, this));
     getChild<LLButton>("restore_defaults")->setCommitCallback(boost::bind(&LLPanelPreferenceControls::onRestoreDefaultsBtn, this));
 
-    return TRUE;
+    return true;
 }
 
 void LLPanelPreferenceControls::regenerateControls()
@@ -2847,7 +2844,7 @@ void LLPanelPreferenceControls::onListCommit()
             if (root_floater)
                 root_floater->addDependentFloater(dialog);
             dialog->openFloater();
-            dialog->setFocus(TRUE);
+            dialog->setFocus(true);
         }
     }
     else
@@ -3113,12 +3110,12 @@ LLFloaterPreferenceProxy::~LLFloaterPreferenceProxy()
 {
 }
 
-BOOL LLFloaterPreferenceProxy::postBuild()
+bool LLFloaterPreferenceProxy::postBuild()
 {
 	LLRadioGroup* socksAuth = getChild<LLRadioGroup>("socks5_auth_type");
 	if (!socksAuth)
 	{
-		return FALSE;
+		return false;
 	}
 	if (socksAuth->getSelectedValue().asString() == "None")
 	{
@@ -3133,7 +3130,7 @@ BOOL LLFloaterPreferenceProxy::postBuild()
 		getChild<LLLineEditor>("socks5_password")->setValue(socks_cred->getAuthenticator()["creds"].asString());
 	}
 
-	return TRUE;
+	return true;
 }
 
 void LLFloaterPreferenceProxy::onOpen(const LLSD& key)
@@ -3285,9 +3282,9 @@ void LLFloaterPreferenceProxy::onChangeSocksSettings()
 	// Check for invalid states for the other HTTP proxy radio
 	LLRadioGroup* otherHttpProxy = getChild<LLRadioGroup>("other_http_proxy_type");
 	if ((otherHttpProxy->getSelectedValue().asString() == "Socks" &&
-			getChild<LLCheckBoxCtrl>("socks_proxy_enabled")->get() == FALSE )||(
+			getChild<LLCheckBoxCtrl>("socks_proxy_enabled")->get() == false )||(
 					otherHttpProxy->getSelectedValue().asString() == "Web" &&
-					getChild<LLCheckBoxCtrl>("web_proxy_enabled")->get() == FALSE ) )
+					getChild<LLCheckBoxCtrl>("web_proxy_enabled")->get() == false ) )
 	{
 		otherHttpProxy->selectFirstItem();
 	}

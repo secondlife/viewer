@@ -1,4 +1,5 @@
-<?xml version="1.0" ?><notifications>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<notifications>
     <global name="skipnexttime">
 
 		Don&apos;t show me this again
@@ -6217,6 +6218,17 @@ Are you sure you want to delete them?
      yestext="OK"/>
   </notification>
 
+    <notification
+     icon="alertmodal.tga"
+     name="ThumbnailSelectionTooLarge"
+     type="alertmodal">
+        <unique/>
+        You can only modify up to 50 thumbnails at a time.
+        <usetemplate
+         name="okbutton"
+         yestext="OK"/>
+    </notification>
+
   <notification
      icon="alertmodal.tga"
      name="ConfirmUnlink"
@@ -6468,14 +6480,6 @@ Your inventory is experiencing issues. Please, contact support.
    icon="alertmodal.tga"
    name="InventoryLimitReachedAISAlert"
    type="alertmodal">
-Your inventory is experiencing issues. Please, contact support.
-  <tag>fail</tag>
-  </notification>
-
-  <notification
-   icon="notifytip.tga"
-   name="InventoryLimitReachedAIS"
-   type="notifytip">
 Your inventory is experiencing issues. Please, contact support.
   <tag>fail</tag>
   </notification>
@@ -9254,7 +9258,7 @@ You locally updated a [RESOLUTION] baked texture for '[BODYREGION]' after [TIME]
    icon="alertmodal.tga"
    name="CannotUploadTexture"
    type="alertmodal">
-Unable to upload texture.
+Unable to upload texture: &apos;[NAME]&apos;
 [REASON]   
   <tag>fail</tag>  
   </notification>

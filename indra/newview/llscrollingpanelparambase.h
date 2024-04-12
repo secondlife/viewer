@@ -36,26 +36,29 @@ class LLViewerVisualParam;
 class LLWearable;
 class LLVisualParamHint;
 class LLViewerVisualParam;
+class LLSliderCtrl;
 class LLJoint;
 
 class LLScrollingPanelParamBase : public LLScrollingPanel
 {
 public:
 	LLScrollingPanelParamBase( const LLPanel::Params& panel_params,
-				   LLViewerJointMesh* mesh, LLViewerVisualParam* param, BOOL allow_modify, LLWearable* wearable, LLJoint* jointp, BOOL use_hints = FALSE );
+				   LLViewerJointMesh* mesh, LLViewerVisualParam* param, bool allow_modify, LLWearable* wearable, LLJoint* jointp, bool use_hints = false );
 	virtual ~LLScrollingPanelParamBase();
 
-	virtual void		updatePanel(BOOL allow_modify);
+	void				updatePanel(bool allow_modify) override;
 
 	static void			onSliderMoved(LLUICtrl* ctrl, void* userdata);
 
-	F32					weightToPercent( F32 weight );
-	F32					percentToWeight( F32 percent );
+	F32					weightToSlider(F32 weight);
+	F32					sliderToWeight(F32 slider);
 
 public:
 	LLViewerVisualParam* mParam;
+	LLSliderCtrl* mSlider;
+
 protected:
-	BOOL mAllowModify;
+	bool mAllowModify;
 	LLWearable *mWearable;
 }; 
 

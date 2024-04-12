@@ -242,7 +242,7 @@ bool ray_cylinder(const LLVector3 &ray_point, const LLVector3 &ray_direction,
 			   	if (dot > 0.0f)
 				{
 					// ray points away from cylinder bottom
-					return FALSE;
+					return false;
 				}
 				// ray hit bottom of cylinder from outside 
 				intersection = ray_point - shortest_distance * cyl_axis;
@@ -298,7 +298,7 @@ bool ray_cylinder(const LLVector3 &ray_point, const LLVector3 &ray_direction,
 		out = dist_to_closest_point + half_chord_length;	// dist to exiting point
 		if (out < 0.0f)
 		{
-			// cylinder is behind the ray, so we return FALSE
+			// cylinder is behind the ray, so we return false
 			return false;
 		}
 

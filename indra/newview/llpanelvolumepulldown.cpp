@@ -50,12 +50,12 @@ LLPanelVolumePulldown::LLPanelVolumePulldown()
 {
 	mCommitCallbackRegistrar.add("Vol.setControlFalse", boost::bind(&LLPanelVolumePulldown::setControlFalse, this, _2));
 	mCommitCallbackRegistrar.add("Vol.SetSounds", boost::bind(&LLPanelVolumePulldown::onClickSetSounds, this));
-	mCommitCallbackRegistrar.add("Vol.updateMediaAutoPlayCheckbox",	boost::bind(&LLPanelVolumePulldown::updateMediaAutoPlayCheckbox, this, _1));
+	mCommitCallbackRegistrar.add("Vol.updateCheckbox",	boost::bind(&LLPanelVolumePulldown::updateCheckbox, this, _1, _2));
 	mCommitCallbackRegistrar.add("Vol.GoAudioPrefs", boost::bind(&LLPanelVolumePulldown::onAdvancedButtonClick, this, _2));
 	buildFromFile( "panel_volume_pulldown.xml");
 }
 
-BOOL LLPanelVolumePulldown::postBuild()
+bool LLPanelVolumePulldown::postBuild()
 {
 	return LLPanelPulldown::postBuild();
 }
@@ -63,7 +63,7 @@ BOOL LLPanelVolumePulldown::postBuild()
 void LLPanelVolumePulldown::onAdvancedButtonClick(const LLSD& user_data)
 {
 	// close the global volume minicontrol, we're bringing up the big one
-	setVisible(FALSE);
+	setVisible(false);
 
 	// bring up the prefs floater
 	LLFloaterPreference* prefsfloater = dynamic_cast<LLFloaterPreference*>
@@ -87,22 +87,26 @@ void LLPanelVolumePulldown::setControlFalse(const LLSD& user_data)
 	LLControlVariable* control = findControl(control_name);
 	
 	if (control)
-		control->set(LLSD(FALSE));
+		control->set(LLSD(false));
 }
 
-void LLPanelVolumePulldown::updateMediaAutoPlayCheckbox(LLUICtrl* ctrl)
+void LLPanelVolumePulldown::updateCheckbox(LLUICtrl* ctrl, const LLSD& user_data)
 {
-	std::string name = ctrl->getName();
+    std::string control_name = user_data.asString();
+    if (control_name == "MediaAutoPlay")
+    {
+        std::string name = ctrl->getName();
 
-	// Disable "Allow Media to auto play" only when both
-	// "Streaming Music" and "Media" are unchecked. STORM-513.
-	if ((name == "enable_music") || (name == "enable_media"))
-	{
-		bool music_enabled = getChild<LLCheckBoxCtrl>("enable_music")->get();
-		bool media_enabled = getChild<LLCheckBoxCtrl>("enable_media")->get();
+        // Disable "Allow Media to auto play" only when both
+        // "Streaming Music" and "Media" are unchecked. STORM-513.
+        if ((name == "enable_music") || (name == "enable_media"))
+        {
+            bool music_enabled = getChild<LLCheckBoxCtrl>("enable_music")->get();
+            bool media_enabled = getChild<LLCheckBoxCtrl>("enable_media")->get();
 
-		getChild<LLCheckBoxCtrl>("media_auto_play_combo")->setEnabled(music_enabled || media_enabled);
-	}
+            getChild<LLCheckBoxCtrl>("media_auto_play_combo")->setEnabled(music_enabled || media_enabled);
+        }
+    }
 }
 
 void LLPanelVolumePulldown::onClickSetSounds()

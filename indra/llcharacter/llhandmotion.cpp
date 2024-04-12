@@ -98,7 +98,7 @@ LLMotion::LLMotionInitStatus LLHandMotion::onInitialize(LLCharacter *character)
 //-----------------------------------------------------------------------------
 // LLHandMotion::onActivate()
 //-----------------------------------------------------------------------------
-BOOL LLHandMotion::onActivate()
+bool LLHandMotion::onActivate()
 {
 	LLPolyMesh *upperBodyMesh = mCharacter->getUpperBodyMesh();
 
@@ -119,7 +119,7 @@ BOOL LLHandMotion::onActivate()
 //-----------------------------------------------------------------------------
 // LLHandMotion::onUpdate()
 //-----------------------------------------------------------------------------
-BOOL LLHandMotion::onUpdate(F32 time, U8* joint_mask)
+bool LLHandMotion::onUpdate(F32 time, U8* joint_mask)
 {
     LL_PROFILE_ZONE_SCOPED;
 	eHandPose *requestedHandPose;

@@ -291,7 +291,6 @@ protected:
 
 	static void setStatus(EAppStatus status);		// Use this to change the application status.
 	static LLScalarCond<EAppStatus> sStatus; // Reflects current application status
-	static bool sErrorThreadRunning; // Set while the error thread is running
 	static bool sDisableCrashlogger; // Let the OS handle crashes for us.
 	std::wstring mCrashReportPipeStr;  //Name of pipe to use for crash reporting.
 

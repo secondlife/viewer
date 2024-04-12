@@ -87,7 +87,7 @@ struct LLAvatarData
 	std::string	caption_text;
     std::string	customer_type;
 	U32			flags;
-	BOOL		allow_publish;
+	bool		allow_publish;
 };
 
 struct LLAvatarPicks
@@ -105,14 +105,14 @@ struct LLPickData
 	LLUUID agent_id;
 	LLUUID pick_id;
 	LLUUID creator_id;
-	BOOL top_pick;
+	bool top_pick;
 	LLUUID parcel_id;
 	std::string name;
 	std::string desc;
 	LLUUID snapshot_id;
 	LLVector3d pos_global;
 	S32 sort_order;
-	BOOL enabled;
+	bool enabled;
 
 	//used only in read requests
 	std::string user_name;
@@ -135,7 +135,7 @@ struct LLAvatarGroups
 {
 	LLUUID agent_id;
 	LLUUID avatar_id; //target id
-	BOOL list_in_profile;
+	bool list_in_profile;
 
 	struct LLGroupData;
 	typedef std::list<LLGroupData> group_list_t;
@@ -145,7 +145,7 @@ struct LLAvatarGroups
 	struct LLGroupData
 	{
 		U64 group_powers;
-		BOOL accept_notices;
+		bool accept_notices;
 		std::string group_title;
 		LLUUID group_id;
 		std::string group_name;

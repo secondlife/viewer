@@ -137,7 +137,7 @@ public:
 	LLWorkerClass(LLWorkerThread* workerthread, const std::string& name);
 	virtual ~LLWorkerClass();
 
-	// pure virtual, called from WORKER THREAD, returns TRUE if done
+	// pure virtual, called from WORKER THREAD, returns true if done
 	virtual bool doWork(S32 param)=0; // Called from WorkRequest::processRequest()
 	// virtual, called from finishRequest() after completed or aborted
 	virtual void finishWork(S32 param, bool completed); // called from finishRequest() (WORK THREAD)

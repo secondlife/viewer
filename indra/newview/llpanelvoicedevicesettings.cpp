@@ -32,6 +32,7 @@
 // Viewer includes
 #include "llcombobox.h"
 #include "llsliderctrl.h"
+#include "llstartup.h"
 #include "llviewercontrol.h"
 #include "llvoiceclient.h"
 #include "llvoicechannel.h"
@@ -50,7 +51,7 @@ LLPanelVoiceDeviceSettings::LLPanelVoiceDeviceSettings()
 	mCtrlOutputDevices = NULL;
 	mInputDevice = gSavedSettings.getString("VoiceInputAudioDevice");
 	mOutputDevice = gSavedSettings.getString("VoiceOutputAudioDevice");
-	mDevicesUpdated = FALSE;  //obsolete
+	mDevicesUpdated = false;  //obsolete
 	mUseTuningMode = true;
 
 	// grab "live" mic volume level
@@ -62,7 +63,7 @@ LLPanelVoiceDeviceSettings::~LLPanelVoiceDeviceSettings()
 {
 }
 
-BOOL LLPanelVoiceDeviceSettings::postBuild()
+bool LLPanelVoiceDeviceSettings::postBuild()
 {
 	LLSlider* volume_slider = getChild<LLSlider>("mic_volume_slider");
 	// set mic volume tuning slider based on last mic volume setting
@@ -70,11 +71,14 @@ BOOL LLPanelVoiceDeviceSettings::postBuild()
 
 	mCtrlInputDevices = getChild<LLComboBox>("voice_input_device");
 	mCtrlOutputDevices = getChild<LLComboBox>("voice_output_device");
+    mUnmuteBtn = getChild<LLButton>("unmute_btn");
 
 	mCtrlInputDevices->setCommitCallback(
 		boost::bind(&LLPanelVoiceDeviceSettings::onCommitInputDevice, this));
 	mCtrlOutputDevices->setCommitCallback(
 		boost::bind(&LLPanelVoiceDeviceSettings::onCommitOutputDevice, this));
+    mUnmuteBtn->setCommitCallback(
+        boost::bind(&LLPanelVoiceDeviceSettings::onCommitUnmute, this));
 
 	mLocalizedDeviceNames[DEFAULT_DEVICE]				= getString("default_text");
 	mLocalizedDeviceNames["No Device"]					= getString("name_no_device");
@@ -84,11 +88,11 @@ BOOL LLPanelVoiceDeviceSettings::postBuild()
 	mCtrlInputDevices->setMouseDownCallback(boost::bind(&LLPanelVoiceDeviceSettings::onInputDevicesClicked, this));
 	
 	
-	return TRUE;
+	return true;
 }
 
 // virtual
-void LLPanelVoiceDeviceSettings::onVisibilityChange ( BOOL new_visibility )
+void LLPanelVoiceDeviceSettings::onVisibilityChange ( bool new_visibility )
 {
 	if (new_visibility)
 	{
@@ -99,7 +103,7 @@ void LLPanelVoiceDeviceSettings::onVisibilityChange ( BOOL new_visibility )
 		cleanup();
 		// when closing this window, turn of visiblity control so that 
 		// next time preferences is opened we don't suspend voice
-		gSavedSettings.setBOOL("ShowDeviceSettings", FALSE);
+		gSavedSettings.setBOOL("ShowDeviceSettings", false);
 	}
 }
 void LLPanelVoiceDeviceSettings::draw()
@@ -108,11 +112,27 @@ void LLPanelVoiceDeviceSettings::draw()
 
 	// let user know that volume indicator is not yet available
 	bool is_in_tuning_mode = LLVoiceClient::getInstance()->inTuningMode();
-	getChildView("wait_text")->setVisible( !is_in_tuning_mode && mUseTuningMode);
+    bool voice_enabled = LLVoiceClient::getInstance()->voiceEnabled();
+    if (voice_enabled)
+    {
+        getChildView("wait_text")->setVisible( !is_in_tuning_mode && mUseTuningMode);
+        getChildView("disabled_text")->setVisible(false);
+        mUnmuteBtn->setVisible(false);
+    }
+    else
+    {
+        getChildView("wait_text")->setVisible(false);
+
+        static LLCachedControl<bool> chat_enabled(gSavedSettings, "EnableVoiceChat");
+        // If voice isn't enabled, it is either disabled or muted
+        bool voice_disabled = chat_enabled() || LLStartUp::getStartupState() <= STATE_LOGIN_WAIT;
+        getChildView("disabled_text")->setVisible(voice_disabled);
+        mUnmuteBtn->setVisible(!voice_disabled);
+    }
 
 	LLPanel::draw();
 
-	if (is_in_tuning_mode)
+	if (is_in_tuning_mode && voice_enabled)
 	{
 		const S32 num_bars = 5;
 		F32 voice_power = LLVoiceClient::getInstance()->tuningGetEnergy() / LLVoiceClient::OVERDRIVEN_POWER_LEVEL;
@@ -124,7 +144,7 @@ void LLPanelVoiceDeviceSettings::draw()
 			LLView* bar_view = getChild<LLView>(view_name);
 			if (bar_view)
 			{
-				gl_rect_2d(bar_view->getRect(), LLColor4::grey, TRUE);
+				gl_rect_2d(bar_view->getRect(), LLColor4::grey, true);
 
 				LLColor4 color;
 				if (power_bar_idx < discrete_power)
@@ -138,7 +158,7 @@ void LLPanelVoiceDeviceSettings::draw()
 
 				LLRect color_rect = bar_view->getRect();
 				color_rect.stretch(-1);
-				gl_rect_2d(color_rect, color, TRUE);
+				gl_rect_2d(color_rect, color, true);
 			}
 		}
 	}
@@ -247,7 +267,7 @@ void LLPanelVoiceDeviceSettings::refresh()
 			}
 
 			// Fix invalid input audio device preference.
-			if (!mCtrlInputDevices->setSelectedByValue(mInputDevice, TRUE))
+			if (!mCtrlInputDevices->setSelectedByValue(mInputDevice, true))
 			{
 				mCtrlInputDevices->setValue(DEFAULT_DEVICE);
 				gSavedSettings.setString("VoiceInputAudioDevice", DEFAULT_DEVICE);
@@ -268,7 +288,7 @@ void LLPanelVoiceDeviceSettings::refresh()
 			}
 
 			// Fix invalid output audio device preference.
-			if (!mCtrlOutputDevices->setSelectedByValue(mOutputDevice, TRUE))
+			if (!mCtrlOutputDevices->setSelectedByValue(mOutputDevice, true))
 			{
 				mCtrlOutputDevices->setValue(DEFAULT_DEVICE);
 				gSavedSettings.setString("VoiceOutputAudioDevice", DEFAULT_DEVICE);
@@ -338,4 +358,9 @@ void LLPanelVoiceDeviceSettings::onOutputDevicesClicked()
 void LLPanelVoiceDeviceSettings::onInputDevicesClicked()
 {
 	LLVoiceClient::getInstance()->refreshDeviceLists(false);  // fill in the pop up menus again if needed.
+}
+
+void LLPanelVoiceDeviceSettings::onCommitUnmute()
+{
+    gSavedSettings.setBOOL("EnableVoiceChat", true);
 }

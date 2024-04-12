@@ -137,8 +137,8 @@ size_t LLExternalEditor::tokenize(string_vec_t& tokens, const std::string& str)
 
 	tokenizer tokens_list(str, sep);
 	tokenizer::iterator token_iter;
-	BOOL inside_quotes = FALSE;
-	BOOL last_was_space = FALSE;
+	bool inside_quotes = false;
+	bool last_was_space = false;
 	for (token_iter = tokens_list.begin(); token_iter != tokens_list.end(); ++token_iter)
 	{
 		if (!strncmp("\"",(*token_iter).c_str(),2))
@@ -150,7 +150,7 @@ size_t LLExternalEditor::tokenize(string_vec_t& tokens, const std::string& str)
 			if(inside_quotes)
 			{
 				tokens.back().append(std::string(" "));
-				last_was_space = TRUE;
+				last_was_space = true;
 			}
 		}
 		else
@@ -159,7 +159,7 @@ size_t LLExternalEditor::tokenize(string_vec_t& tokens, const std::string& str)
 			if (last_was_space)
 			{
 				tokens.back().append(to_push);
-				last_was_space = FALSE;
+				last_was_space = false;
 			}
 			else
 			{

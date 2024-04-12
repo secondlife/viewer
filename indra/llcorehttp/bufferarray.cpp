@@ -149,7 +149,7 @@ size_t BufferArray::append(const void * src, size_t len)
         }
         catch (std::bad_alloc&)
         {
-            LLMemory::logMemoryInfo(TRUE);
+            LLMemory::logMemoryInfo(true);
 
             //output possible call stacks to log file.
             LLError::LLCallStacks::print();
@@ -288,7 +288,7 @@ int BufferArray::findBlock(size_t pos, size_t * ret_offset)
 	if (pos >= mLen)
 		return -1;		// Doesn't exist
 
-	const int block_limit(narrow(mBlocks.size()));
+	const int block_limit(narrow<size_t>(mBlocks.size()));
 	for (int i(0); i < block_limit; ++i)
 	{
 		if (pos < mBlocks[i]->mUsed)

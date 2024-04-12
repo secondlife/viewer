@@ -40,6 +40,7 @@
 #include "llviewertexturelist.h"
 #include "llvoiceclient.h"
 #include "llrender.h"
+#include "llagent.h"
 
 //brent's wave image
 //29de489d-0491-fb00-7dab-f9e686d31e83
@@ -76,7 +77,7 @@ const LLVector3 WORLD_UPWARD_DIRECTION = LLVector3( 0.0f, 0.0f, 1.0f ); // Z is 
 // Initialize the statics
 //------------------------------------------------------------------
 bool LLVoiceVisualizer::sPrefsInitialized	= false;
-BOOL LLVoiceVisualizer::sLipSyncEnabled		= FALSE;
+bool LLVoiceVisualizer::sLipSyncEnabled		= false;
 F32* LLVoiceVisualizer::sOoh				= NULL;
 F32* LLVoiceVisualizer::sAah				= NULL;
 U32	 LLVoiceVisualizer::sOohs				= 0;
@@ -124,7 +125,7 @@ LLVoiceVisualizer::LLVoiceVisualizer( const U8 type )
 	for (int i=0; i<NUM_VOICE_SYMBOL_WAVES; i++)
 	{
 		mSoundSymbol.mWaveFadeOutStartTime	[i] = mCurrentTime;
-		mSoundSymbol.mTexture				[i] = LLViewerTextureManager::getFetchedTextureFromFile(sound_level_img[i], FTT_LOCAL_FILE, FALSE, LLGLTexture::BOOST_UI);
+		mSoundSymbol.mTexture				[i] = LLViewerTextureManager::getFetchedTextureFromFile(sound_level_img[i], FTT_LOCAL_FILE, false, LLGLTexture::BOOST_UI);
 		mSoundSymbol.mWaveActive			[i] = false;
 		mSoundSymbol.mWaveOpacity			[i] = 1.0f;
 		mSoundSymbol.mWaveExpansion			[i] = 1.0f;
@@ -283,7 +284,7 @@ void LLVoiceVisualizer::lipStringToF32s ( std::string& in_string, F32*& out_F32s
 //--------------------------------------------------------------------------
 void LLVoiceVisualizer::lipSyncOohAah( F32& ooh, F32& aah )
 {
-	if( ( sLipSyncEnabled == TRUE ) && mCurrentlySpeaking )
+	if( ( sLipSyncEnabled == true ) && mCurrentlySpeaking )
 	{
 		U32 transfer_index = (U32) (sOohPowerTransfersf * mSpeakingAmplitude);
 		if (transfer_index >= sOohPowerTransfers)
@@ -349,7 +350,7 @@ void LLVoiceVisualizer::render()
 		//---------------------------------------------------------------
 		// set the sound symbol position over the source (avatar's head)
 		//---------------------------------------------------------------
-		mSoundSymbol.mPosition = mVoiceSourceWorldPosition + WORLD_UPWARD_DIRECTION * HEIGHT_ABOVE_HEAD;
+        mSoundSymbol.mPosition = gAgent.getPosAgentFromGlobal(mPositionGlobal) + WORLD_UPWARD_DIRECTION * HEIGHT_ABOVE_HEAD;
 	
 		//---------------------------------------------------------------
 		// some gl state

@@ -122,7 +122,7 @@ private:
 
 	std::string mName ;							// Name of this tester instance
 	S32 mCount ;								// Current record count
-	bool mValidInstance;						// TRUE if the instance is managed by the map
+	bool mValidInstance;						// true if the instance is managed by the map
 	std::vector< std::string > mMetricStrings ; // Metrics strings
 
 // Static members managing the collection of testers
@@ -144,13 +144,13 @@ public:
 	static void deleteTester(std::string name);
 
 	/**
-	 * @return Returns TRUE if that metric *or* the default catch all metric has been requested to be logged
+	 * @return Returns true if that metric *or* the default catch all metric has been requested to be logged
 	 * @param[in] name - Name of the tester queried.
 	 */
 	static bool isMetricLogRequested(std::string name);
 	
 	/**
-	 * @return Returns TRUE if there's a tester defined, FALSE otherwise.
+	 * @return Returns true if there's a tester defined, false otherwise.
 	 */
 	static bool hasMetricPerformanceTesters() { return !sTesterMap.empty() ;}
 	/**

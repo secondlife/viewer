@@ -76,8 +76,8 @@ public:
 		const std::string& uri,
 		const std::string& credentials);
 	virtual void getChannelInfo();
-	virtual BOOL isActive();
-	virtual BOOL callStarted();
+	virtual bool isActive();
+	virtual bool callStarted();
 
 	// Session name is a UI label used for feedback about which person,
 	// group, or phone number you are talking to
@@ -124,7 +124,7 @@ protected:
 	LLSD mCallDialogPayload;
 	// true if call was ended by agent
 	bool mCallEndedByAgent;
-	BOOL		mIgnoreNextSessionLeave;
+	bool		mIgnoreNextSessionLeave;
 	LLHandle<LLPanel> mLoginNotificationHandle;
 
 	typedef std::map<LLUUID, LLVoiceChannel*> voice_channel_map_t;
@@ -135,7 +135,7 @@ protected:
 
 	static LLVoiceChannel* sCurrentVoiceChannel;
 	static LLVoiceChannel* sSuspendedVoiceChannel;
-	static BOOL sSuspended;
+	static bool sSuspended;
 
 private:
 	state_changed_signal_t mStateChangedCallback;
@@ -162,7 +162,7 @@ private:
     void voiceCallCapCoro(std::string url);
 
 	U32 mRetries;
-	BOOL mIsRetrying;
+	bool mIsRetrying;
 };
 
 class LLVoiceChannelProximal : public LLVoiceChannel, public LLSingleton<LLVoiceChannelProximal>
@@ -170,12 +170,12 @@ class LLVoiceChannelProximal : public LLVoiceChannel, public LLSingleton<LLVoice
 	LLSINGLETON(LLVoiceChannelProximal);
 public:
 
-	/*virtual*/ void onChange(EStatusType status, const std::string &channelURI, bool proximal);
-	/*virtual*/ void handleStatusChange(EStatusType status);
-	/*virtual*/ void handleError(EStatusType status);
-	/*virtual*/ BOOL isActive();
-	/*virtual*/ void activate();
-	/*virtual*/ void deactivate();
+	/*virtual*/ void onChange(EStatusType status, const std::string &channelURI, bool proximal) override;
+	/*virtual*/ void handleStatusChange(EStatusType status) override;
+	/*virtual*/ void handleError(EStatusType status) override;
+	/*virtual*/ bool isActive() override;
+	/*virtual*/ void activate() override;
+	/*virtual*/ void deactivate() override;
 
 };
 
@@ -184,15 +184,15 @@ class LLVoiceChannelP2P : public LLVoiceChannelGroup
 public:
 	LLVoiceChannelP2P(const LLUUID& session_id, const std::string& session_name, const LLUUID& other_user_id);
 
-	/*virtual*/ void handleStatusChange(EStatusType status);
-	/*virtual*/ void handleError(EStatusType status);
-    /*virtual*/ void activate();
-	/*virtual*/ void getChannelInfo();
+	/*virtual*/ void handleStatusChange(EStatusType status) override;
+	/*virtual*/ void handleError(EStatusType status) override;
+    /*virtual*/ void activate() override;
+	/*virtual*/ void getChannelInfo() override;
 
 	void setSessionHandle(const std::string& handle, const std::string &inURI);
 
 protected:
-	virtual void setState(EState state);
+	virtual void setState(EState state) override;
 
 private:
 
@@ -204,7 +204,7 @@ private:
 
 	std::string	mSessionHandle;
 	LLUUID		mOtherUserID;
-	BOOL		mReceivedCall;
+	bool		mReceivedCall;
 };
 
 #endif  // LL_VOICECHANNEL_H

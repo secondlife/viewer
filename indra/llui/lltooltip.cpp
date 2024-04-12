@@ -71,7 +71,7 @@ void LLToolTipView::draw()
 	LLView::draw();
 }
 
-BOOL LLToolTipView::handleHover(S32 x, S32 y, MASK mask)
+bool LLToolTipView::handleHover(S32 x, S32 y, MASK mask)
 {
 	static S32 last_x = x;
 	static S32 last_y = y;
@@ -89,7 +89,7 @@ BOOL LLToolTipView::handleHover(S32 x, S32 y, MASK mask)
 	return LLView::handleHover(x, y, mask);
 }
 
-BOOL LLToolTipView::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLToolTipView::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	LLToolTipMgr::instance().blockToolTips();
 
@@ -98,29 +98,29 @@ BOOL LLToolTipView::handleMouseDown(S32 x, S32 y, MASK mask)
 		// If we are handling the mouse event menu holder 
 		// won't get a chance to close menus so do this here 
 		LLMenuGL::sMenuContainer->hideMenus();
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
-BOOL LLToolTipView::handleMiddleMouseDown(S32 x, S32 y, MASK mask)
+bool LLToolTipView::handleMiddleMouseDown(S32 x, S32 y, MASK mask)
 {
 	LLToolTipMgr::instance().blockToolTips();
 	return LLView::handleMiddleMouseDown(x, y, mask);
 }
 
-BOOL LLToolTipView::handleRightMouseDown(S32 x, S32 y, MASK mask)
+bool LLToolTipView::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
 	LLToolTipMgr::instance().blockToolTips();
 	return LLView::handleRightMouseDown(x, y, mask);
 }
 
 
-BOOL LLToolTipView::handleScrollWheel( S32 x, S32 y, S32 clicks )
+bool LLToolTipView::handleScrollWheel( S32 x, S32 y, S32 clicks )
 {
 	LLToolTipMgr::instance().blockToolTips();
-	return FALSE;
+	return false;
 }
 
 void LLToolTipView::drawStickyRect()
@@ -154,7 +154,8 @@ LLToolTip::Params::Params()
 	text_color("text_color"),
 	time_based_media("time_based_media", false),
 	web_based_media("web_based_media", false),
-	media_playing("media_playing", false)
+	media_playing("media_playing", false),
+    allow_paste_tooltip("allow_paste_tooltip", false)
 {
 	changeDefault(chrome, true);
 }
@@ -167,7 +168,8 @@ LLToolTip::LLToolTip(const LLToolTip::Params& p)
 	mTextBox(NULL),
 	mInfoButton(NULL),
 	mPlayMediaButton(NULL),
-	mHomePageButton(NULL)
+	mHomePageButton(NULL),
+    mIsTooltipPastable(p.allow_paste_tooltip)
 {
 	LLTextBox::Params params;
 	params.name = params.initial_value().asString();
@@ -289,6 +291,8 @@ void LLToolTip::initFromParams(const LLToolTip::Params& p)
 		mTextBox->setText(p.message());
 	}
 
+	mIsTooltipPastable = p.allow_paste_tooltip;
+
 	updateTextBox();
 	snapToChildren();
 }
@@ -321,14 +325,14 @@ void LLToolTip::snapToChildren()
 	setShape(tooltip_rect);
 }
 
-void LLToolTip::setVisible(BOOL visible)
+void LLToolTip::setVisible(bool visible)
 {
 	// fade out tooltip over time
 	if (visible)
 	{
 		mVisibleTimer.start();
 		mFadeTimer.stop();
-		LLPanel::setVisible(TRUE);
+		LLPanel::setVisible(true);
 	}
 	else
 	{
@@ -341,7 +345,7 @@ void LLToolTip::setVisible(BOOL visible)
 	}
 }
 
-BOOL LLToolTip::handleHover(S32 x, S32 y, MASK mask)
+bool LLToolTip::handleHover(S32 x, S32 y, MASK mask)
 {
 	//mInfoButton->setFlashing(true);
 	if(mInfoButton)
@@ -352,7 +356,7 @@ BOOL LLToolTip::handleHover(S32 x, S32 y, MASK mask)
 	{
 		getWindow()->setCursor(UI_CURSOR_HAND);
 	}
-	return TRUE;
+	return true;
 }
 
 void LLToolTip::onMouseLeave(S32 x, S32 y, MASK mask)
@@ -483,9 +487,9 @@ void LLToolTipMgr::createToolTip(const LLToolTip::Params& params)
 }
 
 
-void LLToolTipMgr::show(const std::string& msg)
+void LLToolTipMgr::show(const std::string& msg, bool allow_paste_tooltip)
 {
-	show(LLToolTip::Params().message(msg));
+    show(LLToolTip::Params().message(msg).allow_paste_tooltip(allow_paste_tooltip));
 }
 
 void LLToolTipMgr::show(const LLToolTip::Params& params)
@@ -539,7 +543,7 @@ void LLToolTipMgr::hideToolTips()
 { 
 	if (mToolTip)
 	{
-		mToolTip->setVisible(FALSE);
+		mToolTip->setVisible(false);
 	}
 }
 
@@ -626,5 +630,13 @@ void LLToolTipMgr::getToolTipMessage(std::string & message)
 	}
 }
 
+bool LLToolTipMgr::isTooltipPastable()
+{
+    if (toolTipVisible())
+    {
+        return mToolTip->isTooltipPastable();
+    }
+    return false;
+ }
 
 // EOF

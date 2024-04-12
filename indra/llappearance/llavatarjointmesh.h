@@ -69,7 +69,7 @@ protected:
 	LLTexLayerSet*				mLayerSet;		// ptr to a layer set owned by the avatar
 	U32 						mTestImageName;		// handle to a temporary texture for previewing uploads
 	LLPolyMesh*					mMesh;			// ptr to a global polymesh
-	BOOL						mCullBackFaces;	// true by default
+	bool						mCullBackFaces;	// true by default
 	LLFace*						mFace;			// ptr to a face w/ AGP copy of mesh
 
 	U32							mFaceIndexCount;
@@ -122,16 +122,13 @@ public:
 	// Sets up joint matrix data for rendering
 	void setupJoint(LLAvatarJoint* current_joint);
 
-	// Render time method to upload batches of joint matrices
-	void uploadJointMatrices();
-
 	// Sets ID for picking
 	void setMeshID( S32 id ) {mMeshID = id;}
 
 	// Gets ID for picking
 	S32 getMeshID() { return mMeshID; }	
 
-	void setIsTransparent(BOOL is_transparent) { mIsTransparent = is_transparent; }
+	void setIsTransparent(bool is_transparent) { mIsTransparent = is_transparent; }
 
 private:
 	// Allocate skin data

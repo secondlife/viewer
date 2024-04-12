@@ -59,7 +59,7 @@ LLFloaterConversationPreview::~LLFloaterConversationPreview()
 {
 }
 
-BOOL LLFloaterConversationPreview::postBuild()
+bool LLFloaterConversationPreview::postBuild()
 {
 	mChatHistory = getChild<LLChatHistory>("chat_history");
 

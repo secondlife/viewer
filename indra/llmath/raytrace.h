@@ -38,8 +38,8 @@ class LLQuaternion;
 // Vector arguments of the form "shape_scale" represent the scale of the
 // object along the three axes.
 //
-// All functions return the expected TRUE or FALSE, unless otherwise noted.
-// When FALSE is returned, any resulting values that might have been stored 
+// All functions return the expected true or false, unless otherwise noted.
+// When false is returned, any resulting values that might have been stored 
 // are undefined.
 //
 // Rays are defined by a "ray_point" and a "ray_direction" (unit).
@@ -105,7 +105,7 @@ bool ray_cylinder(const LLVector3 &ray_point, const LLVector3 &ray_direction,
 				  LLVector3 &intersection, LLVector3 &intersection_normal);
 
 
-// this function doesn't just return a BOOL because the return is currently
+// this function doesn't just return a bool because the return is currently
 // used to decide how to break up boxes that have been hit by shots... 
 // a hack that will probably be changed later
 //
@@ -117,12 +117,12 @@ U32 ray_box(const LLVector3 &ray_point, const LLVector3 &ray_direction,
 
 
 /* TODO
-BOOL ray_ellipsoid(const LLVector3 &ray_point, const LLVector3 &ray_direction,
+bool ray_ellipsoid(const LLVector3 &ray_point, const LLVector3 &ray_direction,
 				   const LLVector3 &e_center, const LLVector3 &e_scale, const LLQuaternion &e_rotation,
 				   LLVector3 &intersection, LLVector3 &intersection_normal);
 
 
-BOOL ray_cone(const LLVector3 &ray_point, const LLVector3 &ray_direction,
+bool ray_cone(const LLVector3 &ray_point, const LLVector3 &ray_direction,
 			  const LLVector3 &cone_tip, const LLVector3 &cone_bottom, 
 			  const LLVector3 &cone_scale, const LLQuaternion &cone_rotation,
 			  LLVector3 &intersection, LLVector3 &intersection_normal);
@@ -146,24 +146,24 @@ bool ray_pyramid(const LLVector3 &ray_point, const LLVector3 &ray_direction,
 
 
 /* TODO
-BOOL ray_hemiellipsoid(const LLVector3 &ray_point, const LLVector3 &ray_direction,
+bool ray_hemiellipsoid(const LLVector3 &ray_point, const LLVector3 &ray_direction,
 					   const LLVector3 &e_center, const LLVector3 &e_scale, const LLQuaternion &e_rotation,
 					   const LLVector3 &e_cut_normal,
 					   LLVector3 &intersection, LLVector3 &intersection_normal);
 
 
-BOOL ray_hemisphere(const LLVector3 &ray_point, const LLVector3 &ray_direction,
+bool ray_hemisphere(const LLVector3 &ray_point, const LLVector3 &ray_direction,
 					const LLVector3 &sphere_center, F32 sphere_radius, const LLVector3 &sphere_cut_normal, 
 					LLVector3 &intersection, LLVector3 &intersection_normal);
 
 
-BOOL ray_hemicylinder(const LLVector3 &ray_point, const LLVector3 &ray_direction,
+bool ray_hemicylinder(const LLVector3 &ray_point, const LLVector3 &ray_direction,
 					  const LLVector3 &cyl_top, const LLVector3 &cyl_bottom, F32 cyl_radius, 
 					  const LLVector3 &cyl_cut_normal,
 					  LLVector3 &intersection, LLVector3 &intersection_normal);
 
 
-BOOL ray_hemicone(const LLVector3 &ray_point, const LLVector3 &ray_direction,
+bool ray_hemicone(const LLVector3 &ray_point, const LLVector3 &ray_direction,
 				  const LLVector3 &cone_tip, const LLVector3 &cone_bottom, 
 				  const LLVector3 &cone_scale, const LLVector3 &cyl_cut_normal,
 				  LLVector3 &intersection, LLVector3 &intersection_normal);
@@ -202,7 +202,7 @@ bool linesegment_cylinder(const LLVector3 &point_a, const LLVector3 &point_b,
 						  LLVector3 &intersection, LLVector3 &intersection_normal);
 
 
-// this function doesn't just return a BOOL because the return is currently
+// this function doesn't just return a bool because the return is currently
 // used to decide how to break up boxes that have been hit by shots... 
 // a hack that will probably be changed later
 //

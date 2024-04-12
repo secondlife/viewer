@@ -193,23 +193,21 @@ protected:
 
 	void updateMenuItemsVisibility(LLContextMenu* menu)
 	{
-		menu->setItemVisible("touch_attach", TRUE);
+		menu->setItemVisible("touch_attach", true);
 		menu->setItemEnabled("touch_attach", 1 == mUUIDs.size());
-		menu->setItemVisible("edit_item", TRUE);
+		menu->setItemVisible("edit_item", true);
 		menu->setItemEnabled("edit_item", 1 == mUUIDs.size());
-		menu->setItemVisible("take_off", FALSE);
-		menu->setItemVisible("detach", TRUE);
-		menu->setItemVisible("edit_outfit_separator", FALSE);
-		menu->setItemVisible("show_original", FALSE);
-		menu->setItemVisible("edit_outfit", FALSE);
+		menu->setItemVisible("take_off", false);
+		menu->setItemVisible("detach", true);
+		menu->setItemVisible("edit_outfit_separator", false);
+		menu->setItemVisible("show_original", false);
+		menu->setItemVisible("edit_outfit", false);
 	}
 
 	LLPanelWearing* 		mPanelWearing;
 };
 
 //////////////////////////////////////////////////////////////////////////
-
-std::string LLPanelAppearanceTab::sFilterSubString = LLStringUtil::null;
 
 static LLPanelInjector<LLPanelWearing> t_panel_wearing("panel_wearing");
 
@@ -236,7 +234,7 @@ LLPanelWearing::~LLPanelWearing()
 	}
 }
 
-BOOL LLPanelWearing::postBuild()
+bool LLPanelWearing::postBuild()
 {
 	mAccordionCtrl = getChild<LLAccordionCtrl>("wearables_accordion");
 	mWearablesTab = getChild<LLAccordionCtrlTab>("tab_wearables");
@@ -255,7 +253,7 @@ BOOL LLPanelWearing::postBuild()
 
 	menu_gear_btn->setMenu(mGearMenu->getMenu());
 
-	return TRUE;
+	return true;
 }
 
 //virtual
@@ -328,10 +326,11 @@ void LLPanelWearing::startUpdateTimer()
 }
 
 // virtual
-void LLPanelWearing::setFilterSubString(const std::string& string)
+void LLPanelWearing::onFilterSubStringChanged(const std::string& new_string, const std::string& old_string)
 {
-	sFilterSubString = string;
-	mCOFItemsList->setFilterSubString(sFilterSubString);
+	mCOFItemsList->setFilterSubString(new_string, true);
+
+	mAccordionCtrl->arrange();
 }
 
 // virtual

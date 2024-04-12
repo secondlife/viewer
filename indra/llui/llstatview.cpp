@@ -40,7 +40,7 @@ LLStatView::LLStatView(const LLStatView::Params& p)
 :	LLContainerView(p),
 	mSetting(p.setting)
 {
-	BOOL isopen = getDisplayChildren();
+	bool isopen = getDisplayChildren();
 	if (mSetting.length() > 0)
 	{
 		isopen = LLUI::getInstance()->mSettingGroups["config"]->getBOOL(mSetting);
@@ -53,15 +53,12 @@ LLStatView::~LLStatView()
 	// Children all cleaned up by default view destructor.
 	if (mSetting.length() > 0)
 	{
-		BOOL isopen = getDisplayChildren();
+		bool isopen = getDisplayChildren();
 		LLUI::getInstance()->mSettingGroups["config"]->setBOOL(mSetting, isopen);
 	}
 }
-
 
 static StatViewRegistry::Register<LLStatBar> r1("stat_bar");
 static StatViewRegistry::Register<LLStatView> r2("stat_view");
 // stat_view can be a child of panels/etc.
 static LLDefaultChildRegistry::Register<LLStatView> r3("stat_view");
-
-

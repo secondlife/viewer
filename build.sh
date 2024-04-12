@@ -112,7 +112,8 @@ installer_CYGWIN()
   fi
 }
 
-[[ -n "$GITHUB_OUTPUT" ]] || fatal "Need to export GITHUB_OUTPUT"
+# if someone wants to run build.sh outside the GitHub environment
+[[ -n "$GITHUB_OUTPUT" ]] || export GITHUB_OUTPUT='/dev/null'
 # The following is based on the Warning for GitHub multiline output strings:
 # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#multiline-strings
 EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
@@ -173,28 +174,6 @@ pre_build()
         # absolute because we've had troubles with relative pathnames.
         abs_build_dir="$(cd "$build_dir"; pwd)"
         VIEWER_SYMBOL_FILE="$(native_path "$abs_build_dir/newview/$variant/secondlife-symbols-$symplat-${AUTOBUILD_ADDRSIZE}.tar.bz2")"
-    fi
-
-    # expect these variables to be set in the environment from GitHub secrets
-    if [[ -n "$BUGSPLAT_DB" ]]
-    then
-        # don't spew credentials into build log
-        set +x
-        if [[ -z "$BUGSPLAT_USER" || -z "$BUGSPLAT_PASS" ]]
-        then
-            # older mechanism involving build-secrets repo -
-            # if build_secrets_checkout isn't set, report its name
-            bugsplat_sh="${build_secrets_checkout:-\$build_secrets_checkout}/bugsplat/bugsplat.sh"
-            if [ -r "$bugsplat_sh" ]
-            then # show that we're doing this, just not the contents
-                echo source "$bugsplat_sh"
-                source "$bugsplat_sh"
-            else
-                fatal "BUGSPLAT_USER or BUGSPLAT_PASS missing, and no $bugsplat_sh"
-            fi
-        fi
-        set -x
-        export BUGSPLAT_USER BUGSPLAT_PASS
     fi
 
     # honor autobuild_configure_parameters same as sling-buildscripts

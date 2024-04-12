@@ -26,10 +26,9 @@ set(cmake_SOURCE_FILES
         FreeType.cmake
         GLEXT.cmake
         GLH.cmake
-        GoogleMock.cmake
         Havok.cmake
         Hunspell.cmake
-        JsonCpp.cmake
+        ICU4C.cmake
         LLAddBuildTest.cmake
         LLAppearance.cmake
         LLAudio.cmake
@@ -63,7 +62,7 @@ set(cmake_SOURCE_FILES
         VisualLeakDetector.cmake
         LibVLCPlugin.cmake
         XmlRpcEpi.cmake
-    xxHash.cmake
+        xxHash.cmake
         ZLIBNG.cmake
         )
 

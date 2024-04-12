@@ -443,11 +443,11 @@ public:
 	// return response LLSD filled in with default form contents and (optionally) the default button selected
 	LLSD getResponseTemplate(EResponseTemplateType type = WITHOUT_DEFAULT_BUTTON);
 
-	// returns index of first button with value==TRUE
+	// returns index of first button with value==true
 	// usually this the button the user clicked on
 	// returns -1 if no button clicked (e.g. form has not been displayed)
 	static S32 getSelectedOption(const LLSD& notification, const LLSD& response);
-	// returns name of first button with value==TRUE
+	// returns name of first button with value==true
 	static std::string getSelectedOptionName(const LLSD& notification);
 
 	// after someone responds to a notification (usually by clicking a button,
@@ -913,7 +913,7 @@ public:
 	/* virtual */ LLNotificationPtr add(const std::string& name, 
 						const LLSD& substitutions, 
 						const LLSD& payload, 
-						LLNotificationFunctorRegistry::ResponseFunctor functor);
+						LLNotificationFunctorRegistry::ResponseFunctor functor) override;
 	LLNotificationPtr add(const LLNotification::Params& p);
 
 	void add(const LLNotificationPtr pNotif);
@@ -964,8 +964,8 @@ public:
 	bool isVisibleByRules(LLNotificationPtr pNotification);
 	
 private:
-	/*virtual*/ void initSingleton();
-	/*virtual*/ void cleanupSingleton();
+	/*virtual*/ void initSingleton() override;
+	/*virtual*/ void cleanupSingleton() override;
 	
 	void loadPersistentNotifications();
 

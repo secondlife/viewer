@@ -1,8 +1,9 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <fonts>
 
   <font name="default" comment="default font files (global fallbacks)">
     <file>DejaVuSans.ttf</file>
+    <file functor="is_emoji">TwemojiSVG.ttf</file>
     <os name="Windows">
       <file>meiryo.TTC</file>
       <file>MSGOTHIC.TTC</file>
@@ -67,6 +68,11 @@
 	comment="Name of bold italic sans-serif font"
 	font_style="BOLD|ITALIC">
     <file>DejaVuSans-BoldOblique.ttf</file>
+  </font>
+
+  <font name="Emoji"
+	comment="Name of emoji font">
+    <file>TwemojiSVG.ttf</file>
   </font>
 
   <font name="Monospace"
@@ -170,4 +176,12 @@
 	     comment="Size of small font (points, or 1/72 of an inch)"
 	     size="7.6"
 	     />
+  <font_size name="SmallLSL"
+         comment="Size of small font for LSL editor (points, or 1/72 of an inch)"
+         size="7"
+         />
+  <font_size name="HugeLSL"
+         comment="Size of huge font for LSL editor (points, or 1/72 of an inch)"
+         size="12"
+         />
 </fonts>

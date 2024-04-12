@@ -46,7 +46,7 @@ public:
 	LLPanelOutfitsInventory();
 	virtual ~LLPanelOutfitsInventory();
 
-	/*virtual*/ BOOL postBuild();
+	/*virtual*/ bool postBuild();
 	/*virtual*/ void onOpen(const LLSD& key);
 	
 	void onSearchEdit(const std::string& string);
@@ -66,7 +66,6 @@ protected:
 
 private:
 	LLTabContainer*			mAppearanceTabs;
-	std::string 			mFilterSubString;
 
 	//////////////////////////////////////////////////////////////////////////////////
 	// tab panels                                                                   //

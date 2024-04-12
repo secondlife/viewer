@@ -458,11 +458,11 @@ void LLLogChat::loadChatHistory(const std::string& file_name, std::list<LLSD>& m
 	char buffer[LOG_RECALL_SIZE];		/*Flawfinder: ignore*/
 	char *bptr;
 	S32 len;
-	bool firstline = TRUE;
+	bool firstline = true;
 
 	if (load_all_history || fseek(fptr, (LOG_RECALL_SIZE - 1) * -1  , SEEK_END))
 	{	//We need to load the whole historyFile or it's smaller than recall size, so get it all.
-		firstline = FALSE;
+		firstline = false;
 		if (fseek(fptr, 0, SEEK_SET))
 		{
 			fclose(fptr);
@@ -477,7 +477,7 @@ void LLLogChat::loadChatHistory(const std::string& file_name, std::list<LLSD>& m
 
 		if (firstline)
 		{
-			firstline = FALSE;
+			firstline = false;
 			continue;
 		}
 
@@ -1170,11 +1170,11 @@ void LLLoadHistoryThread::loadHistory(const std::string& file_name, std::list<LL
 
 	char *bptr;
 	S32 len;
-	bool firstline = TRUE;
+	bool firstline = true;
 
 	if (load_all_history || fseek(fptr, (LOG_RECALL_SIZE - 1) * -1  , SEEK_END))
 	{	//We need to load the whole historyFile or it's smaller than recall size, so get it all.
-		firstline = FALSE;
+		firstline = false;
 		if (fseek(fptr, 0, SEEK_SET))
 		{
 			fclose(fptr);
@@ -1194,7 +1194,7 @@ void LLLoadHistoryThread::loadHistory(const std::string& file_name, std::list<LL
 
 		if (firstline)
 		{
-			firstline = FALSE;
+			firstline = false;
 			continue;
 		}
 		std::string line(remove_utf8_bom(buffer));

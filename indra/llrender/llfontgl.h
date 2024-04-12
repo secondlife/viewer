@@ -87,7 +87,7 @@ public:
 
 	void destroyGL();
 
-	BOOL loadFace(const std::string& filename, F32 point_size, const F32 vert_dpi, const F32 horz_dpi, const S32 components, BOOL is_fallback, S32 face_n = 0);
+	bool loadFace(const std::string& filename, F32 point_size, const F32 vert_dpi, const F32 horz_dpi, bool is_fallback, S32 face_n);
 
 	S32 getNumFaces(const std::string& filename);
 
@@ -98,7 +98,8 @@ public:
 				U8 style = NORMAL, ShadowType shadow = NO_SHADOW, 
 				S32 max_chars = S32_MAX,
 				F32* right_x=NULL, 
-				BOOL use_ellipses = FALSE) const;
+				bool use_ellipses = false,
+				bool use_color = true) const;
 
 	S32 render(const LLWString &text, S32 begin_offset, 
 				const LLRectf& rect, 
@@ -107,7 +108,8 @@ public:
 				U8 style = NORMAL, ShadowType shadow = NO_SHADOW, 
 				S32 max_chars = S32_MAX,
 				F32* right_x=NULL, 
-				BOOL use_ellipses = FALSE) const;
+				bool use_ellipses = false,
+				bool use_color = true) const;
 
 	S32 render(const LLWString &text, S32 begin_offset, 
 				F32 x, F32 y, 
@@ -116,12 +118,13 @@ public:
 				U8 style = NORMAL, ShadowType shadow = NO_SHADOW, 
 				S32 max_chars = S32_MAX, S32 max_pixels = S32_MAX, 
 				F32* right_x=NULL, 
-				BOOL use_ellipses = FALSE) const;
+				bool use_ellipses = false,
+				bool use_color = true) const;
 
 	S32 render(const LLWString &text, S32 begin_offset, F32 x, F32 y, const LLColor4 &color) const;
 
 	// renderUTF8 does a conversion, so is slower!
-	S32 renderUTF8(const std::string &text, S32 begin_offset, F32 x, F32 y, const LLColor4 &color, HAlign halign,  VAlign valign, U8 style, ShadowType shadow, S32 max_chars, S32 max_pixels,  F32* right_x, BOOL use_ellipses) const;
+	S32 renderUTF8(const std::string &text, S32 begin_offset, F32 x, F32 y, const LLColor4 &color, HAlign halign,  VAlign valign, U8 style, ShadowType shadow, S32 max_chars = S32_MAX, S32 max_pixels = S32_MAX,  F32* right_x = NULL, bool use_ellipses = false, bool use_color = true) const;
 	S32 renderUTF8(const std::string &text, S32 begin_offset, S32 x, S32 y, const LLColor4 &color) const;
 	S32 renderUTF8(const std::string &text, S32 begin_offset, S32 x, S32 y, const LLColor4 &color, HAlign halign, VAlign valign, U8 style = NORMAL, ShadowType shadow = NO_SHADOW) const;
 
@@ -132,12 +135,12 @@ public:
 
 	S32 getWidth(const std::string& utf8text) const;
 	S32 getWidth(const llwchar* wchars) const;
-	S32 getWidth(const std::string& utf8text, S32 offset, S32 max_chars ) const;
+	S32 getWidth(const std::string& utf8text, S32 offset, S32 max_chars) const;
 	S32 getWidth(const llwchar* wchars, S32 offset, S32 max_chars) const;
 
 	F32 getWidthF32(const std::string& utf8text) const;
 	F32 getWidthF32(const llwchar* wchars) const;
-	F32 getWidthF32(const std::string& text, S32 offset, S32 max_chars ) const;
+	F32 getWidthF32(const std::string& text, S32 offset, S32 max_chars) const;
 	F32 getWidthF32(const llwchar* wchars, S32 offset, S32 max_chars, bool no_padding = false) const;
 
 	// The following are called often, frequently with large buffers, so do not use a string interface
@@ -156,7 +159,7 @@ public:
 	S32	firstDrawableChar(const llwchar* wchars, F32 max_pixels, S32 text_len, S32 start_pos=S32_MAX, S32 max_chars = S32_MAX) const;
 
 	// Returns the index of the character closest to pixel position x (ignoring text to the right of max_pixels and max_chars)
-	S32 charFromPixelOffset(const llwchar* wchars, S32 char_offset, F32 x, F32 max_pixels=F32_MAX, S32 max_chars = S32_MAX, BOOL round = TRUE) const;
+	S32 charFromPixelOffset(const llwchar* wchars, S32 char_offset, F32 x, F32 max_pixels=F32_MAX, S32 max_chars = S32_MAX, bool round = true) const;
 
 	const LLFontDescriptor& getFontDesc() const;
 
@@ -164,6 +167,10 @@ public:
 
 
 	static void initClass(F32 screen_dpi, F32 x_scale, F32 y_scale, const std::string& app_dir, bool create_gl_textures = true);
+
+	       void dumpTextures();
+	static void dumpFonts();
+	static void dumpFontTextures();
 
 	// Load sans-serif, sans-serif-small, etc.
 	// Slow, requires multiple seconds to load fonts.
@@ -185,8 +192,10 @@ public:
 	static std::string nameFromVAlign(LLFontGL::VAlign align);
 	static LLFontGL::VAlign vAlignFromName(const std::string& name);
 
-	static void setFontDisplay(BOOL flag) { sDisplayFont = flag; }
+	static void setFontDisplay(bool flag) { sDisplayFont = flag; }
 		
+	static LLFontGL* getFontEmoji();
+	static LLFontGL* getFontEmojiHuge();
 	static LLFontGL* getFontMonospace();
 	static LLFontGL* getFontSansSerifSmall();
     static LLFontGL* getFontSansSerifSmallBold();
@@ -213,7 +222,7 @@ public:
 	static F32 sHorizDPI;
 	static F32 sScaleX;
 	static F32 sScaleY;
-	static BOOL sDisplayFont ;
+	static bool sDisplayFont ;
 	static std::string sAppDir;			// For loading fonts
 
 private:

@@ -72,7 +72,7 @@
 /*=======================================*/ 
 
 static const F32 LL_LOCAL_TIMER_HEARTBEAT   = 3.0;
-static const BOOL LL_LOCAL_USE_MIPMAPS      = true;
+static const bool LL_LOCAL_USE_MIPMAPS      = true;
 static const S32 LL_LOCAL_DISCARD_LEVEL     = 0;
 static const bool LL_LOCAL_SLAM_FOR_DEBUG   = true;
 static const bool LL_LOCAL_REPLACE_ON_DEL   = true;
@@ -579,7 +579,7 @@ void LLLocalBitmap::updateUserVolumes(LLUUID old_id, LLUUID new_id, U32 channel)
 				LLSculptParams* old_params = (LLSculptParams*)object->getParameterEntry(LLNetworkData::PARAMS_SCULPT);
 				LLSculptParams new_params(*old_params);
 				new_params.setSculptTexture(new_id, (*old_params).getSculptType());
-				object->setParameterEntry(LLNetworkData::PARAMS_SCULPT, new_params, TRUE);
+				object->setParameterEntry(LLNetworkData::PARAMS_SCULPT, new_params, true);
 			}
 		}
 	}
@@ -613,7 +613,7 @@ void LLLocalBitmap::updateUserLayers(LLUUID old_id, LLUUID new_id, LLWearableTyp
 						U32 index;
 						if (gAgentWearables.getWearableIndex(wearable,index))
 						{
-							gAgentAvatarp->setLocalTexture(reg_texind, gTextureList.getImage(new_id), FALSE, index);
+							gAgentAvatarp->setLocalTexture(reg_texind, gTextureList.getImage(new_id), false, index);
 							gAgentAvatarp->wearableUpdated(type);
 							/* telling the manager to rebake once update cycle is fully done */
 							LLLocalBitmapMgr::getInstance()->setNeedsRebake();
@@ -1081,6 +1081,13 @@ bool LLLocalBitmapMgr::checkTextureDimensions(std::string filename)
 	LLImageDimensionsInfo image_info;
 	if (!image_info.load(filename,codec))
 	{
+        LLSD args;
+        args["NAME"] = gDirUtilp->getBaseFileName(filename);
+        if (!image_info.getWarningName().empty())
+        {
+            args["REASON"] = LLTrans::getString(image_info.getWarningName());
+        }
+        LLNotificationsUtil::add("CannotUploadTexture", args);
 		return false;
 	}
 
@@ -1096,6 +1103,7 @@ bool LLLocalBitmapMgr::checkTextureDimensions(std::string filename)
 
 		LLSD notif_args;
 		notif_args["REASON"] = mImageLoadError;
+        notif_args["NAME"] = gDirUtilp->getBaseFileName(filename);
 		LLNotificationsUtil::add("CannotUploadTexture", notif_args);
 
 		return false;

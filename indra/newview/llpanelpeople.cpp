@@ -577,6 +577,11 @@ LLPanelPeople::~LLPanelPeople()
 	delete mFriendListUpdater;
 	delete mRecentListUpdater;
 
+    mNearbyFilterCommitConnection.disconnect();
+    mFriedsFilterCommitConnection.disconnect();
+    mGroupsFilterCommitConnection.disconnect();
+    mRecentFilterCommitConnection.disconnect();
+
 	if(LLVoiceClient::instanceExists())
 	{
 		LLVoiceClient::getInstance()->removeObserver(this);
@@ -609,14 +614,14 @@ void LLPanelPeople::removePicker()
     }
 }
 
-BOOL LLPanelPeople::postBuild()
+bool LLPanelPeople::postBuild()
 {
 	S32 max_premium = LLAgentBenefitsMgr::get("Premium").getGroupMembershipLimit();
 
-	getChild<LLFilterEditor>("nearby_filter_input")->setCommitCallback(boost::bind(&LLPanelPeople::onFilterEdit, this, _2));
-	getChild<LLFilterEditor>("friends_filter_input")->setCommitCallback(boost::bind(&LLPanelPeople::onFilterEdit, this, _2));
-	getChild<LLFilterEditor>("groups_filter_input")->setCommitCallback(boost::bind(&LLPanelPeople::onFilterEdit, this, _2));
-	getChild<LLFilterEditor>("recent_filter_input")->setCommitCallback(boost::bind(&LLPanelPeople::onFilterEdit, this, _2));
+    mNearbyFilterCommitConnection = getChild<LLFilterEditor>("nearby_filter_input")->setCommitCallback(boost::bind(&LLPanelPeople::onFilterEdit, this, _2));
+    mFriedsFilterCommitConnection = getChild<LLFilterEditor>("friends_filter_input")->setCommitCallback(boost::bind(&LLPanelPeople::onFilterEdit, this, _2));
+    mGroupsFilterCommitConnection = getChild<LLFilterEditor>("groups_filter_input")->setCommitCallback(boost::bind(&LLPanelPeople::onFilterEdit, this, _2));
+    mRecentFilterCommitConnection = getChild<LLFilterEditor>("recent_filter_input")->setCommitCallback(boost::bind(&LLPanelPeople::onFilterEdit, this, _2));
 
 	if(LLAgentBenefitsMgr::current().getGroupMembershipLimit() < max_premium)
 	{
@@ -729,7 +734,7 @@ BOOL LLPanelPeople::postBuild()
 	mOnlineFriendList->setRefreshCompleteCallback(boost::bind(&LLPanelPeople::onFriendListRefreshComplete, this, _1, _2));
 	mAllFriendList->setRefreshCompleteCallback(boost::bind(&LLPanelPeople::onFriendListRefreshComplete, this, _1, _2));
 
-	return TRUE;
+	return true;
 }
 
 // virtual
@@ -831,7 +836,7 @@ void LLPanelPeople::updateNearbyList()
 	mNearbyList->setDirty();
 
 	DISTANCE_COMPARATOR.updateAvatarsPositions(positions, mNearbyList->getIDs());
-	LLActiveSpeakerMgr::instance().update(TRUE);
+	LLActiveSpeakerMgr::instance().update(true);
 }
 
 void LLPanelPeople::updateRecentList()
@@ -887,7 +892,7 @@ void LLPanelPeople::updateButtons()
 		LLPanel* cur_panel = mTabContainer->getCurrentPanel();
 		if (cur_panel)
 		{
-			if (cur_panel->hasChild("add_friend_btn", TRUE))
+			if (cur_panel->hasChild("add_friend_btn", true))
 				cur_panel->getChildView("add_friend_btn")->setEnabled(item_selected && !is_friend && !is_self);
 
 			if (friends_tab_active)
@@ -1165,11 +1170,11 @@ bool LLPanelPeople::isItemsFreeOfFriends(const uuid_vec_t& uuids)
 void LLPanelPeople::onAddFriendWizButtonClicked()
 {
     LLPanel* cur_panel = mTabContainer->getCurrentPanel();
-    LLView * button = cur_panel->findChild<LLButton>("friends_add_btn", TRUE);
+    LLView * button = cur_panel->findChild<LLButton>("friends_add_btn", true);
 
 	// Show add friend wizard.
     LLFloater* root_floater = gFloaterView->getParentFloater(this);
-	LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(boost::bind(&LLPanelPeople::onAvatarPicked, _1, _2), FALSE, TRUE, FALSE, root_floater->getName(), button);
+	LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(boost::bind(&LLPanelPeople::onAvatarPicked, _1, _2), false, true, false, root_floater->getName(), button);
 	if (!picker)
 	{
 		return;

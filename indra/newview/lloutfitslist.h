@@ -69,7 +69,7 @@ public:
     LLOutfitListBase();
     virtual ~LLOutfitListBase();
 
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
     /*virtual*/ void onOpen(const LLSD& info);
 
     void refreshList(const LLUUID& category_id);
@@ -116,8 +116,20 @@ protected:
     void onOutfitsRemovalConfirmation(const LLSD& notification, const LLSD& response);
     virtual void onChangeOutfitSelection(LLWearableItemsList* list, const LLUUID& category_id) = 0;
 
+    static void onIdle(void* userdata);
+    void onIdleRefreshList();
+
+    struct
+    {
+        LLUUID						CategoryUUID;
+        uuid_vec_t					Added;
+        uuid_vec_t					Removed;
+        uuid_vec_t::const_iterator	AddedIterator;
+        uuid_vec_t::const_iterator	RemovedIterator;
+    } mRefreshListState;
+
     bool                            mIsInitialized;
-    LLInventoryCategoriesObserver* 	mCategoriesObserver;    
+    LLInventoryCategoriesObserver* 	mCategoriesObserver;
     LLUUID							mSelectedOutfitUUID;
     // id of currently highlited outfit
     LLUUID							mHighlightedOutfitUUID;
@@ -209,7 +221,7 @@ public:
 	LLOutfitsList();
 	virtual ~LLOutfitsList();
 
-	/*virtual*/ BOOL postBuild();
+	/*virtual*/ bool postBuild();
 
 	/*virtual*/ void onOpen(const LLSD& info);
 
@@ -225,7 +237,7 @@ public:
 	//void performAction(std::string action);
 
 
-	/*virtual*/ void setFilterSubString(const std::string& string);
+	/*virtual*/ void onFilterSubStringChanged(const std::string& new_string, const std::string& old_string);
 
 	/*virtual*/ void getSelectedItemsUUIDs(uuid_vec_t& selected_uuids) const;
 
@@ -246,7 +258,7 @@ public:
 	*/
 	void onExpandAllFolders();
 
-    /*virtual*/ bool getHasExpandableFolders() { return TRUE; }
+    /*virtual*/ bool getHasExpandableFolders() { return true; }
 
 protected:
     LLOutfitListGearMenuBase* createGearMenu();
@@ -295,12 +307,7 @@ private:
 	 * Called upon list refresh event to update tab visibility depending on
 	 * the results of applying filter to the title and list items of the tab.
 	 */
-	void onFilteredWearableItemsListRefresh(LLUICtrl* ctrl);
-
-	/**
-	 * Highlights filtered items and hides tabs which haven't passed filter.
-	 */
-	void applyFilter(const std::string& new_filter_substring);
+	void onRefreshComplete(LLUICtrl* ctrl);
 
 	/**
 	 * Applies filter to the given tab

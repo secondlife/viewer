@@ -59,7 +59,7 @@ const LLVector4&	LLVector4::scaleVec(const LLVector4& vec)
 }
 
 // Sets all values to absolute value of their original values
-// Returns TRUE if data changed
+// Returns true if data changed
 bool LLVector4::abs()
 {
 	bool ret{ false };

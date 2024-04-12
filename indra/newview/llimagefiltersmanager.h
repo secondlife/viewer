@@ -45,7 +45,7 @@ private:
 	void loadAllFilters();
 	void loadFiltersFromDir(const std::string& dir);
     
-	/*virtual*/ void initSingleton();
+	/*virtual*/ void initSingleton() override;
     
 	// List of filters : first is the user friendly localized name, second is the xml file name
     std::map<std::string,std::string> mFiltersList;

@@ -161,7 +161,7 @@ public:
 	void onCallingCardNameLookup(const LLUUID& id, const LLAvatarName& name);
 
 	// If this is a broken link, try to fix it and any other identical link.
-	BOOL regenerateLink();
+	bool regenerateLink();
 
 public:
 	bool mIsComplete;

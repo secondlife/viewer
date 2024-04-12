@@ -46,7 +46,7 @@ const F32 POSITION_THRESHOLD = 0.1f;
 //-----------------------------------------------------------------------------
 LLKeyframeStandMotion::LLKeyframeStandMotion(const LLUUID &id) : LLKeyframeMotion(id)
 {
-	mFlipFeet = FALSE;
+	mFlipFeet = false;
 	mCharacter = NULL;
 
 	// create kinematic hierarchy
@@ -67,7 +67,7 @@ LLKeyframeStandMotion::LLKeyframeStandMotion(const LLUUID &id) : LLKeyframeMotio
 	mKneeRightState =  NULL;
 	mAnkleRightState =  NULL;
 
-	mTrackAnkles = TRUE;
+	mTrackAnkles = true;
 
 	mFrameNum = 0;
 }
@@ -90,7 +90,7 @@ LLMotion::LLMotionInitStatus LLKeyframeStandMotion::onInitialize(LLCharacter *ch
 	// save character pointer for later use
 	mCharacter = character;
 
-	mFlipFeet = FALSE;
+	mFlipFeet = false;
 
 	// load keyframe data, setup pose and joint states
 	LLMotion::LLMotionInitStatus status = LLKeyframeMotion::onInitialize(character);
@@ -129,7 +129,7 @@ LLMotion::LLMotionInitStatus LLKeyframeStandMotion::onInitialize(LLCharacter *ch
 //-----------------------------------------------------------------------------
 // LLKeyframeStandMotion::onActivate()
 //-----------------------------------------------------------------------------
-BOOL LLKeyframeStandMotion::onActivate()
+bool LLKeyframeStandMotion::onActivate()
 {
 	//-------------------------------------------------------------------------
 	// setup the IK solvers
@@ -158,12 +158,12 @@ void LLKeyframeStandMotion::onDeactivate()
 //-----------------------------------------------------------------------------
 // LLKeyframeStandMotion::onUpdate()
 //-----------------------------------------------------------------------------
-BOOL LLKeyframeStandMotion::onUpdate(F32 time, U8* joint_mask)
+bool LLKeyframeStandMotion::onUpdate(F32 time, U8* joint_mask)
 {
 	//-------------------------------------------------------------------------
 	// let the base class update the cycle
 	//-------------------------------------------------------------------------
-	BOOL status = LLKeyframeMotion::onUpdate(time, joint_mask);
+	bool status = LLKeyframeMotion::onUpdate(time, joint_mask);
 	if (!status)
 	{
 		return false;
@@ -185,16 +185,16 @@ BOOL LLKeyframeStandMotion::onUpdate(F32 time, U8* joint_mask)
 	{
 		mLastGoodPelvisRotation = mPelvisState->getJoint()->getWorldRotation();
 		mLastGoodPelvisRotation.normalize();
-		mTrackAnkles = TRUE;
+		mTrackAnkles = true;
 	}
 	else if ((mCharacter->getCharacterPosition() - mLastGoodPosition).magVecSquared() > POSITION_THRESHOLD)
 	{
 		mLastGoodPosition = mCharacter->getCharacterPosition();
-		mTrackAnkles = TRUE;
+		mTrackAnkles = true;
 	}
 	else if (mPose.getWeight() < 1.f)
 	{
-		mTrackAnkles = TRUE;
+		mTrackAnkles = true;
 	}
 
 

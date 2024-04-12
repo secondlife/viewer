@@ -43,6 +43,7 @@
 #include "llnotificationsutil.h"
 #include "lltexturectrl.h"
 #include "lltrans.h"
+#include "llviewercontrol.h"
 #include "llviewermenufile.h"
 #include "llviewertexture.h"
 #include "llsdutil.h"
@@ -103,17 +104,17 @@ LLFloaterComboOptions::~LLFloaterComboOptions()
 
 }
 
-BOOL LLFloaterComboOptions::postBuild()
+bool LLFloaterComboOptions::postBuild()
 {
-    mConfirmButton = getChild<LLButton>("combo_ok", TRUE);
-    mCancelButton = getChild<LLButton>("combo_cancel", TRUE);
-    mComboOptions = getChild<LLComboBox>("combo_options", TRUE);
-    mComboText = getChild<LLTextBox>("combo_text", TRUE);
+    mConfirmButton = getChild<LLButton>("combo_ok", true);
+    mCancelButton = getChild<LLButton>("combo_cancel", true);
+    mComboOptions = getChild<LLComboBox>("combo_options", true);
+    mComboText = getChild<LLTextBox>("combo_text", true);
 
     mConfirmButton->setCommitCallback([this](LLUICtrl* ctrl, const LLSD& param) {onConfirm(); });
     mCancelButton->setCommitCallback([this](LLUICtrl* ctrl, const LLSD& param) {onCancel(); });
 
-    return TRUE;
+    return true;
 }
 
 LLFloaterComboOptions* LLFloaterComboOptions::showUI(
@@ -139,7 +140,7 @@ LLFloaterComboOptions* LLFloaterComboOptions::showUI(
         combo_picker->mComboOptions->selectFirstItem();
 
         combo_picker->openFloater(LLSD(title));
-        combo_picker->setFocus(TRUE);
+        combo_picker->setFocus(true);
         combo_picker->center();
     }
     return combo_picker;
@@ -420,7 +421,7 @@ void LLMaterialEditor::setAuxItem(const LLInventoryItem* item)
     }
 }
 
-BOOL LLMaterialEditor::postBuild()
+bool LLMaterialEditor::postBuild()
 {
     // if this is a 'live editor' instance, it is also
     // single instance and uses live overrides
@@ -447,6 +448,8 @@ BOOL LLMaterialEditor::postBuild()
     mMetallicTextureCtrl->setCommitCallback(boost::bind(&LLMaterialEditor::onCommitTexture, this, _1, _2, MATERIAL_METALLIC_ROUGHTNESS_TEX_DIRTY));
     mEmissiveTextureCtrl->setCommitCallback(boost::bind(&LLMaterialEditor::onCommitTexture, this, _1, _2, MATERIAL_EMISIVE_TEX_DIRTY));
     mNormalTextureCtrl->setCommitCallback(boost::bind(&LLMaterialEditor::onCommitTexture, this, _1, _2, MATERIAL_NORMAL_TEX_DIRTY));
+
+    mNormalTextureCtrl->setBlankImageAssetID(BLANK_OBJECT_NORMAL);
 
     if (mIsOverride)
     {
@@ -479,10 +482,10 @@ BOOL LLMaterialEditor::postBuild()
 
     if (mIsOverride)
     {
-        childSetVisible("base_color_upload_fee", FALSE);
-        childSetVisible("metallic_upload_fee", FALSE);
-        childSetVisible("emissive_upload_fee", FALSE);
-        childSetVisible("normal_upload_fee", FALSE);
+        childSetVisible("base_color_upload_fee", false);
+        childSetVisible("metallic_upload_fee", false);
+        childSetVisible("emissive_upload_fee", false);
+        childSetVisible("normal_upload_fee", false);
     }
     else
     {
@@ -616,7 +619,7 @@ void LLMaterialEditor::setBaseColorId(const LLUUID& id)
 {
     mBaseColorTextureCtrl->setValue(id);
     mBaseColorTextureCtrl->setDefaultImageAssetID(id);
-    mBaseColorTextureCtrl->setTentative(FALSE);
+    mBaseColorTextureCtrl->setTentative(false);
 }
 
 void LLMaterialEditor::setBaseColorUploadId(const LLUUID& id)
@@ -692,7 +695,7 @@ void LLMaterialEditor::setMetallicRoughnessId(const LLUUID& id)
 {
     mMetallicTextureCtrl->setValue(id);
     mMetallicTextureCtrl->setDefaultImageAssetID(id);
-    mMetallicTextureCtrl->setTentative(FALSE);
+    mMetallicTextureCtrl->setTentative(false);
 }
 
 void LLMaterialEditor::setMetallicRoughnessUploadId(const LLUUID& id)
@@ -736,7 +739,7 @@ void LLMaterialEditor::setEmissiveId(const LLUUID& id)
 {
     mEmissiveTextureCtrl->setValue(id);
     mEmissiveTextureCtrl->setDefaultImageAssetID(id);
-    mEmissiveTextureCtrl->setTentative(FALSE);
+    mEmissiveTextureCtrl->setTentative(false);
 }
 
 void LLMaterialEditor::setEmissiveUploadId(const LLUUID& id)
@@ -770,7 +773,7 @@ void LLMaterialEditor::setNormalId(const LLUUID& id)
 {
     mNormalTextureCtrl->setValue(id);
     mNormalTextureCtrl->setDefaultImageAssetID(id);
-    mNormalTextureCtrl->setTentative(FALSE);
+    mNormalTextureCtrl->setTentative(false);
 }
 
 void LLMaterialEditor::setNormalUploadId(const LLUUID& id)
@@ -1376,10 +1379,23 @@ bool LLMaterialEditor::saveIfNeeded()
         LLPermissions local_permissions;
         local_permissions.init(gAgent.getID(), gAgent.getID(), LLUUID::null, LLUUID::null);
 
-        U32 everyone_perm = LLFloaterPerms::getEveryonePerms("Materials");
-        U32 group_perm = LLFloaterPerms::getGroupPerms("Materials");
-        U32 next_owner_perm = LLFloaterPerms::getNextOwnerPerms("Materials");
-        local_permissions.initMasks(PERM_ALL, PERM_ALL, everyone_perm, group_perm, next_owner_perm);
+        if (mIsOverride)
+        {
+            // Shouldn't happen, but just in case it ever changes
+            U32 everyone_perm = LLFloaterPerms::getEveryonePerms("Materials");
+            U32 group_perm = LLFloaterPerms::getGroupPerms("Materials");
+            U32 next_owner_perm = LLFloaterPerms::getNextOwnerPerms("Materials");
+            local_permissions.initMasks(PERM_ALL, PERM_ALL, everyone_perm, group_perm, next_owner_perm);
+
+        }
+        else
+        {
+            // Uploads are supposed to use Upload permissions, not material permissions
+            U32 everyone_perm = LLFloaterPerms::getEveryonePerms("Uploads");
+            U32 group_perm = LLFloaterPerms::getGroupPerms("Uploads");
+            U32 next_owner_perm = LLFloaterPerms::getNextOwnerPerms("Uploads");
+            local_permissions.initMasks(PERM_ALL, PERM_ALL, everyone_perm, group_perm, next_owner_perm);
+        }
 
         std::string res_desc = buildMaterialDescription();
         createInventoryItem(buffer, mMaterialName, res_desc, local_permissions);
@@ -2023,7 +2039,7 @@ void LLMaterialEditor::loadLive()
         }
 
         me->openFloater();
-        me->setFocus(TRUE);
+        me->setFocus(true);
     }
 }
 
@@ -2517,7 +2533,7 @@ void LLMaterialEditor::loadMaterial(const tinygltf::Model &model_in, const std::
     if (open_floater)
     {
         openFloater(getKey());
-        setFocus(TRUE);
+        setFocus(true);
         setCanSave(true);
         setCanSaveAs(true);
 
@@ -3355,7 +3371,7 @@ void LLMaterialEditor::loadAsset()
                     LLAssetType::AT_MATERIAL,
                     &onLoadComplete,
                     (void*)user_data,
-                    TRUE);
+                    true);
             }
         }
     }
@@ -3387,7 +3403,7 @@ void LLMaterialEditor::loadAsset()
     {
         /*editor->setText(LLStringUtil::null);
         editor->makePristine();
-        editor->setEnabled(TRUE);*/
+        editor->setEnabled(true);*/
         // Don't set asset status here; we may not have set the item id yet
         // (e.g. when this gets called initially)
         //mAssetStatus = PREVIEW_ASSET_LOADED;
@@ -3419,8 +3435,8 @@ void LLMaterialEditor::onLoadComplete(const LLUUID& asset_uuid,
 
             editor->decodeAsset(buffer);
 
-            BOOL allow_modify = editor->canModify(editor->mObjectUUID, editor->getItem());
-            BOOL source_library = editor->mObjectUUID.isNull() && gInventory.isObjectDescendentOf(editor->mItemUUID, gInventory.getLibraryRootFolderID());
+            bool allow_modify = editor->canModify(editor->mObjectUUID, editor->getItem());
+            bool source_library = editor->mObjectUUID.isNull() && gInventory.isObjectDescendentOf(editor->mItemUUID, gInventory.getLibraryRootFolderID());
             editor->setEnableEditing(allow_modify && !source_library);
             editor->resetUnsavedChanges();
             editor->mAssetStatus = PREVIEW_ASSET_LOADED;

@@ -66,7 +66,7 @@ static F32 MAX_CONSTRAINTS = 10;
 //-----------------------------------------------------------------------------
 LLKeyframeMotion::JointMotionList::JointMotionList()
 	: mDuration(0.f),
-	  mLoop(FALSE),
+	  mLoop(false),
 	  mLoopInPoint(0.f),
 	  mLoopOutPoint(0.f),
 	  mEaseInDuration(0.f),
@@ -505,7 +505,7 @@ LLMotion::LLMotionInitStatus LLKeyframeMotion::onInitialize(LLCharacter *charact
                                         LLAssetType::AT_ANIMATION,
                                         onLoadComplete,
                                         (void*)character_id,
-                                        FALSE);
+                                        false);
         }
         else
         {
@@ -565,7 +565,7 @@ LLMotion::LLMotionInitStatus LLKeyframeMotion::onInitialize(LLCharacter *charact
 	U8 *anim_data;
 	S32 anim_file_size;
 
-	BOOL success = FALSE;
+	bool success = false;
 	LLFileSystem* anim_file = new LLFileSystem(mID, LLAssetType::AT_ANIMATION);
 	if (!anim_file || !anim_file->getSize())
 	{
@@ -620,7 +620,7 @@ LLMotion::LLMotionInitStatus LLKeyframeMotion::onInitialize(LLCharacter *charact
 //-----------------------------------------------------------------------------
 // setupPose()
 //-----------------------------------------------------------------------------
-BOOL LLKeyframeMotion::setupPose()
+bool LLKeyframeMotion::setupPose()
 {
 	// add all valid joint states to the pose
 	for (U32 jm=0; jm<mJointMotionList->getNumJointMotions(); jm++)
@@ -659,7 +659,7 @@ BOOL LLKeyframeMotion::setupPose()
 //-----------------------------------------------------------------------------
 // LLKeyframeMotion::onActivate()
 //-----------------------------------------------------------------------------
-BOOL LLKeyframeMotion::onActivate()
+bool LLKeyframeMotion::onActivate()
 {
 	// If the keyframe anim has an associated emote, trigger it. 
 	if( mJointMotionList->mEmoteName.length() > 0 )
@@ -680,7 +680,7 @@ BOOL LLKeyframeMotion::onActivate()
 //-----------------------------------------------------------------------------
 // LLKeyframeMotion::onUpdate()
 //-----------------------------------------------------------------------------
-BOOL LLKeyframeMotion::onUpdate(F32 time, U8* joint_mask)
+bool LLKeyframeMotion::onUpdate(F32 time, U8* joint_mask)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
 	// llassert(time >= 0.f);		// This will fire
@@ -869,7 +869,7 @@ void LLKeyframeMotion::initializeConstraint(JointConstraint* constraint)
 void LLKeyframeMotion::activateConstraint(JointConstraint* constraint)
 {
 	JointConstraintSharedData *shared_data = constraint->mSharedData;
-	constraint->mActive = TRUE;
+	constraint->mActive = true;
 	S32 joint_num;
 
 	// grab ground position if we need to
@@ -901,17 +901,17 @@ void LLKeyframeMotion::deactivateConstraint(JointConstraint *constraintp)
 {
 	if (constraintp->mSourceVolume)
 	{
-		constraintp->mSourceVolume->mUpdateXform = FALSE;
+		constraintp->mSourceVolume->mUpdateXform = false;
 	}
 
 	if (constraintp->mSharedData->mConstraintTargetType != CONSTRAINT_TARGET_TYPE_GROUND)
 	{
 		if (constraintp->mTargetVolume)
 		{
-			constraintp->mTargetVolume->mUpdateXform = FALSE;
+			constraintp->mTargetVolume->mUpdateXform = false;
 		}
 	}
-	constraintp->mActive = FALSE;
+	constraintp->mActive = false;
 }
 
 //-----------------------------------------------------------------------------
@@ -1088,9 +1088,9 @@ void LLKeyframeMotion::applyConstraint(JointConstraint* constraint, F32 time, U8
 			// convert intermediate joint positions to world coordinates
 			positions[joint_num] = ( constraint->mPositions[joint_num] * mPelvisp->getWorldRotation()) + mPelvisp->getWorldPosition();
 			F32 time_constant = 1.f / clamp_rescale(constraint->mFixupDistanceRMS, 0.f, 0.5f, 0.2f, 8.f);
-//			LL_INFOS() << "Interpolant " << LLSmoothInterpolation::getInterpolant(time_constant, FALSE) << " and fixup distance " << constraint->mFixupDistanceRMS << " on " << mCharacter->findCollisionVolume(shared_data->mSourceConstraintVolume)->getName() << LL_ENDL;
-			positions[joint_num] = lerp(positions[joint_num], kinematic_position, 
-				LLSmoothInterpolation::getInterpolant(time_constant, FALSE));
+//			LL_INFOS() << "Interpolant " << LLSmoothInterpolation::getInterpolant(time_constant, false) << " and fixup distance " << constraint->mFixupDistanceRMS << " on " << mCharacter->findCollisionVolume(shared_data->mSourceConstraintVolume)->getName() << LL_ENDL;
+			positions[joint_num] = lerp(positions[joint_num], kinematic_position,
+				LLSmoothInterpolation::getInterpolant(time_constant, false));
 		}
 
 		S32 iteration_count;
@@ -1225,9 +1225,9 @@ void LLKeyframeMotion::applyConstraint(JointConstraint* constraint, F32 time, U8
 // allow_invalid_joints should be true when handling existing content, to avoid breakage.
 // During upload, we should be more restrictive and reject such animations.
 //-----------------------------------------------------------------------------
-BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id, bool allow_invalid_joints)
+bool LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id, bool allow_invalid_joints)
 {
-	BOOL old_version = FALSE;
+	bool old_version = false;
 	std::unique_ptr<LLKeyframeMotion::JointMotionList> joint_motion_list(new LLKeyframeMotion::JointMotionList);
 
 	//-------------------------------------------------------------------------
@@ -1251,7 +1251,7 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id, boo
 
 	if (version == 0 && sub_version == 1)
 	{
-		old_version = TRUE;
+		old_version = true;
 	}
 	else if (version != KEYFRAME_MOTION_VERSION || sub_version != KEYFRAME_MOTION_SUBVERSION)
 	{
@@ -1339,12 +1339,14 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id, boo
 		return false;
 	}
 
-	if (!dp.unpackS32(joint_motion_list->mLoop, "loop"))
+	S32 loop{ 0 };
+	if (!dp.unpackS32(loop, "loop"))
 	{
 		LL_WARNS() << "can't read loop"
                    << " for animation " << asset_id << LL_ENDL;
 		return false;
 	}
+	joint_motion_list->mLoop = static_cast<bool>(loop);
 
 	//SL-17206 hack to alter Female_land loop setting, while current behavior won't be changed serverside
 	LLUUID const female_land_anim("ca1baf4d-0a18-5a1f-0330-e4bd1e71f09e");
@@ -1352,7 +1354,7 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id, boo
 	if (female_land_anim == asset_id || formal_female_land_anim == asset_id)
 	{
 		LL_WARNS() << "Animation(" << asset_id << ") won't be looped." << LL_ENDL;
-		joint_motion_list->mLoop = FALSE;
+		joint_motion_list->mLoop = false;
 	}
 
 	//-------------------------------------------------------------------------
@@ -1656,7 +1658,7 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id, boo
 		// scan position curve keys
 		//---------------------------------------------------------------------
 		PositionCurve *pCurve = &joint_motion->mPositionCurve;
-		BOOL is_pelvis = joint_motion->mJointName == "mPelvis";
+		bool is_pelvis = joint_motion->mJointName == "mPelvis";
 		for (S32 k = 0; k < joint_motion->mPositionCurve.mNumKeys; k++)
 		{
 			U16 time_short;
@@ -1903,7 +1905,7 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id, boo
 
 			if (!constraintp->mTargetConstraintDir.isExactlyZero())
 			{
-				constraintp->mUseTargetOffset = TRUE;
+				constraintp->mUseTargetOffset = true;
 	//			constraintp->mTargetConstraintDir *= constraintp->mSourceConstraintOffset.magVec();
 			}
 
@@ -1998,9 +2000,9 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id, boo
 //-----------------------------------------------------------------------------
 // serialize()
 //-----------------------------------------------------------------------------
-BOOL LLKeyframeMotion::serialize(LLDataPacker& dp) const
+bool LLKeyframeMotion::serialize(LLDataPacker& dp) const
 {
-	BOOL success = true;
+	bool success = true;
 
 	LL_DEBUGS("BVH") << "serializing" << LL_ENDL;
 
@@ -2283,7 +2285,7 @@ void LLKeyframeMotion::flushKeyframeCache()
 //-----------------------------------------------------------------------------
 // setLoop()
 //-----------------------------------------------------------------------------
-void LLKeyframeMotion::setLoop(BOOL loop)
+void LLKeyframeMotion::setLoop(bool loop)
 {
 	if (mJointMotionList) 
 	{
@@ -2515,7 +2517,7 @@ LLKeyframeMotion::JointConstraint::JointConstraint(JointConstraintSharedData* sh
 {
 	mWeight = 0.f;
 	mTotalLength = 0.f;
-	mActive = FALSE;
+	mActive = false;
 	mSourceVolume = NULL;
 	mTargetVolume = NULL;
 	mFixupDistanceRMS = 0.f;

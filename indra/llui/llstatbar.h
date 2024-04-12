@@ -61,8 +61,8 @@ public:
 	LLStatBar(const Params&);
 
 	virtual void draw();
-	virtual BOOL handleMouseDown(S32 x, S32 y, MASK mask);
-	virtual BOOL handleHover(S32 x, S32 y, MASK mask);
+	virtual bool handleMouseDown(S32 x, S32 y, MASK mask);
+	virtual bool handleHover(S32 x, S32 y, MASK mask);
 
 	void setStat(const std::string& stat_name);
 
@@ -95,17 +95,15 @@ private:
 		STAT_NONE,
 		STAT_COUNT,
 		STAT_EVENT,
-		STAT_SAMPLE,
-		STAT_MEM
+		STAT_SAMPLE
 	} mStatType;
 
 	union
 	{
-		void*														valid;
+		void*													valid;
 		const LLTrace::StatType<LLTrace::CountAccumulator>*		countStatp;
 		const LLTrace::StatType<LLTrace::EventAccumulator>*		eventStatp;
-		const LLTrace::StatType<LLTrace::SampleAccumulator>*		sampleStatp;
-		const LLTrace::StatType<LLTrace::MemAccumulator>*		memStatp;
+		const LLTrace::StatType<LLTrace::SampleAccumulator>*	sampleStatp;
 	} mStat;
 
 	LLUIString   mLabel;

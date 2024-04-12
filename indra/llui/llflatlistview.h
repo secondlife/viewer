@@ -113,7 +113,7 @@ public:
 	};
 	
 	// disable traversal when finding widget to hand focus off to
-	/*virtual*/ BOOL canFocusChildren() const { return FALSE; }
+	/*virtual*/ bool canFocusChildren() const { return false; }
 
 	/**
 	 * Connects callback to signal called when Return key is pressed.
@@ -121,7 +121,7 @@ public:
 	boost::signals2::connection setReturnCallback( const commit_signal_t::slot_type& cb ) { return mOnReturnSignal.connect(cb); }
 
 	/** Overridden LLPanel's reshape, height is ignored, the list sets its height to accommodate all items */
-	virtual void reshape(S32 width, S32 height, BOOL called_from_parent  = TRUE);
+	virtual void reshape(S32 width, S32 height, bool called_from_parent  = true);
 
 	/** Returns full rect of child panel */
 	const LLRect& getItemsRect() const;
@@ -300,6 +300,7 @@ public:
 	virtual S32	notify(const LLSD& info) ;
 
 	virtual ~LLFlatListView();
+
 protected:
 
 	/** Pairs LLpanel representing a single item LLPanel and LLSD associated with it */
@@ -345,7 +346,7 @@ protected:
 
 	virtual bool selectNextItemPair(bool is_up_direction, bool reset_selection);
 
-	virtual BOOL canSelectAll() const;
+	virtual bool canSelectAll() const;
 	virtual void selectAll();
 
 	virtual bool isSelected(item_pair_t* item_pair) const;
@@ -363,9 +364,9 @@ protected:
 	 */
 	void notifyParentItemsRectChanged();
 
-	virtual BOOL handleKeyHere(KEY key, MASK mask);
+	virtual bool handleKeyHere(KEY key, MASK mask);
 
-	virtual BOOL postBuild();
+	virtual bool postBuild();
 
 	virtual void onFocusReceived();
 
@@ -375,7 +376,9 @@ protected:
 
 	LLRect getLastSelectedItemRect();
 
-	void   ensureSelectedVisible();
+	void ensureSelectedVisible();
+
+	const pairs_list_t& getItemPairs() { return mItemPairs; }
 
 private:
 
@@ -482,14 +485,14 @@ public:
 	/**
 	 * Sets up new filter string and filters the list.
 	 */
-	void setFilterSubString(const std::string& filter_str);
+	void setFilterSubString(const std::string& filter_str, bool notify_parent);
 	std::string getFilterSubString() { return mFilterSubString; }
 	
 	/**
 	 * Filters the list, rearranges and notifies parent about shape changes.
 	 * Derived classes may want to overload rearrangeItems() to exclude repeated separators after filtration.
 	 */
-	void filterItems();
+	void filterItems(bool re_sort, bool notify_parent);
 
 	/**
 	 * Returns true if last call of filterItems() found at least one matching item
@@ -513,7 +516,7 @@ protected:
 	* @param item - item we are changing
 	* @param item - action - parameters to determin visibility from
 	*/
-	void updateItemVisibility(LLPanel* item, const LLSD &action);
+	bool updateItemVisibility(LLPanel* item, const LLSD &action);
 
 private:
 	std::string mNoFilteredItemsMsg;

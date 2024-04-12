@@ -38,20 +38,20 @@ class LLToolCamera
 	virtual ~LLToolCamera();
 public:
 
-	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
+	virtual bool	handleMouseDown(S32 x, S32 y, MASK mask) override;
+	virtual bool	handleMouseUp(S32 x, S32 y, MASK mask) override;
+	virtual bool	handleHover(S32 x, S32 y, MASK mask) override;
 
-	virtual void	onMouseCaptureLost();
+	virtual void	onMouseCaptureLost() override;
 
-	virtual void	handleSelect();
-	virtual void	handleDeselect();
+	virtual void	handleSelect() override;
+	virtual void	handleDeselect() override;
 
-	virtual LLTool*	getOverrideTool(MASK mask) { return NULL; }
+	virtual LLTool*	getOverrideTool(MASK mask) override { return NULL; }
 
     void setClickPickPending() { mClickPickPending = true; }
 	static void pickCallback(const LLPickInfo& pick_info);
-	BOOL mouseSteerMode() { return mMouseSteering; }
+	bool mouseSteerMode() { return mMouseSteering; }
 
 protected:
 	// called from handleMouseUp and onMouseCaptureLost to "let go"
@@ -63,20 +63,20 @@ protected:
 	S32		mAccumY;
 	S32		mMouseDownX;
 	S32		mMouseDownY;
-	BOOL	mOutsideSlopX;
-	BOOL	mOutsideSlopY;
-	BOOL	mValidClickPoint;
+	bool	mOutsideSlopX;
+	bool	mOutsideSlopY;
+	bool	mValidClickPoint;
     bool	mClickPickPending;
-	BOOL	mValidSelection;
-	BOOL	mMouseSteering;
+	bool	mValidSelection;
+	bool	mMouseSteering;
 	S32		mMouseUpX;	// needed for releaseMouse()
 	S32		mMouseUpY;
 	MASK	mMouseUpMask;
 };
 
 
-extern BOOL gCameraBtnOrbit;
-extern BOOL gCameraBtnPan;
-extern BOOL gCameraBtnZoom;
+extern bool gCameraBtnOrbit;
+extern bool gCameraBtnPan;
+extern bool gCameraBtnZoom;
 
 #endif

@@ -90,6 +90,8 @@ LLConversationItem::~LLConversationItem()
 	{
 		mAvatarNameCacheConnection.disconnect();
 	}
+
+    clearChildren();
 }
 
 //virtual
@@ -254,6 +256,11 @@ LLConversationItemSession::LLConversationItemSession(const LLUUID& uuid, LLFolde
 	mConvType = CONV_SESSION_UNKNOWN;
 }
 
+LLConversationItemSession::~LLConversationItemSession()
+{
+    clearAndDeparentModels();
+}
+
 bool LLConversationItemSession::hasChildren() const
 {
 	return getChildrenCount() > 0;
@@ -353,22 +360,20 @@ void LLConversationItemSession::clearParticipants()
 
 void LLConversationItemSession::clearAndDeparentModels()
 {
-    std::for_each(mChildren.begin(), mChildren.end(),
-        [](LLFolderViewModelItem* c)
+    for (LLFolderViewModelItem* child : mChildren)
+    {
+        if (child->getNumRefs() == 0)
         {
-            if (c->getNumRefs() == 0)
-            {
-                // LLConversationItemParticipant can be created but not assigned to any view,
-                // it was waiting for an "add_participant" event to be processed
-                delete c;
-            }
-            else
-            {
-                // Model is still assigned to some view/widget
-                c->setParent(NULL);
-            }
+            // LLConversationItemParticipant can be created but not assigned to any view,
+            // it was waiting for an "add_participant" event to be processed
+            delete child;
         }
-    );
+        else
+        {
+            // Model is still assigned to some view/widget
+            child->setParent(NULL);
+        }
+    }
     mChildren.clear();
 }
 

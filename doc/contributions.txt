@@ -239,6 +239,8 @@ Ansariel Hiller
 	SL-15398
 	SL-18432
 	SL-19140
+	SL-19575
+	SL-19623
 	SL-4126
 	SL-20224
 Aralara Rajal
@@ -292,6 +294,7 @@ Beq Janus
 	SL-18637
 	SL-19317
 	SL-19660
+	SL-20610
 Beth Walcher
 Bezilon Kasei
 Biancaluce Robbiani
@@ -898,6 +901,7 @@ Kitty Barnett
 	STORM-2149
 	MAINT-7581
 	MAINT-7081
+	DRTVWR-489 (Internal JIRA that tracks Kitty's sizeable, epic contribution: support for Emoji characters in the Viewer [April 2023])
     SL-18988
 Kolor Fall
 Komiko Okamoto

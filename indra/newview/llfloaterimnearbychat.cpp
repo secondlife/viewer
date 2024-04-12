@@ -71,9 +71,9 @@
 
 S32 LLFloaterIMNearbyChat::sLastSpecialChatChannel = 0;
 
-const S32 EXPANDED_HEIGHT = 266;
-const S32 COLLAPSED_HEIGHT = 60;
-const S32 EXPANDED_MIN_HEIGHT = 150;
+constexpr S32 EXPANDED_HEIGHT = 266;
+constexpr S32 COLLAPSED_HEIGHT = 60;
+constexpr S32 EXPANDED_MIN_HEIGHT = 150;
 
 // legacy callback glue
 void send_chat_from_viewer(const std::string& utf8_out_text, EChatType type, S32 channel);
@@ -120,21 +120,22 @@ LLFloaterIMNearbyChat* LLFloaterIMNearbyChat::buildFloater(const LLSD& key)
 }
 
 //virtual
-BOOL LLFloaterIMNearbyChat::postBuild()
+bool LLFloaterIMNearbyChat::postBuild()
 {
-    setIsSingleInstance(TRUE);
-    BOOL result = LLFloaterIMSessionTab::postBuild();
+    setIsSingleInstance(true);
+    bool result = LLFloaterIMSessionTab::postBuild();
 
 	mInputEditor->setAutoreplaceCallback(boost::bind(&LLAutoReplace::autoreplaceCallback, LLAutoReplace::getInstance(), _1, _2, _3, _4, _5));
 	mInputEditor->setCommitCallback(boost::bind(&LLFloaterIMNearbyChat::onChatBoxCommit, this));
 	mInputEditor->setKeystrokeCallback(boost::bind(&LLFloaterIMNearbyChat::onChatBoxKeystroke, this));
 	mInputEditor->setFocusLostCallback(boost::bind(&LLFloaterIMNearbyChat::onChatBoxFocusLost, this));
 	mInputEditor->setFocusReceivedCallback(boost::bind(&LLFloaterIMNearbyChat::onChatBoxFocusReceived, this));
-	mInputEditor->setLabel(LLTrans::getString("NearbyChatTitle"));
+	std::string nearbyChatTitle(LLTrans::getString("NearbyChatTitle"));
+	mInputEditor->setLabel(nearbyChatTitle);
 
 	// Title must be defined BEFORE call to addConversationListItem() because
 	// it is used to show the item's name in the conversations list
-	setTitle(LLTrans::getString("NearbyChatTitle"));
+	setTitle(nearbyChatTitle);
 
 	// obsolete, but may be needed for backward compatibility?
 	gSavedSettings.declareS32("nearbychat_showicons_and_names", 2, "NearByChat header settings", LLControlVariable::PERSIST_NONDFT);
@@ -153,7 +154,7 @@ void LLFloaterIMNearbyChat::closeHostedFloater()
 	// If detached from conversations window close anyway
 	if (!getHost())
 	{
-		setVisible(FALSE);
+		setVisible(false);
 	}
 
 	// Should check how many conversations are ongoing. Select next to "Nearby Chat" in case there are some other besides.
@@ -268,7 +269,7 @@ void LLFloaterIMNearbyChat::removeScreenChat()
 }
 
 
-void LLFloaterIMNearbyChat::setVisible(BOOL visible)
+void LLFloaterIMNearbyChat::setVisible(bool visible)
 {
 	LLFloaterIMSessionTab::setVisible(visible);
 
@@ -279,7 +280,7 @@ void LLFloaterIMNearbyChat::setVisible(BOOL visible)
 }
 
 
-void LLFloaterIMNearbyChat::setVisibleAndFrontmost(BOOL take_focus, const LLSD& key)
+void LLFloaterIMNearbyChat::setVisibleAndFrontmost(bool take_focus, const LLSD& key)
 {
 	LLFloaterIMSessionTab::setVisibleAndFrontmost(take_focus, key);
 
@@ -380,7 +381,7 @@ void LLFloaterIMNearbyChat::showHistory()
 	}
 	else
 	{
-		LLFloaterIMContainer::getInstance()->setFocus(TRUE);
+		LLFloaterIMContainer::getInstance()->setFocus(true);
 	}
 	setResizeLimits(getMinWidth(), EXPANDED_MIN_HEIGHT);
 }
@@ -391,21 +392,21 @@ std::string LLFloaterIMNearbyChat::getCurrentChat()
 }
 
 // virtual
-BOOL LLFloaterIMNearbyChat::handleKeyHere( KEY key, MASK mask )
+bool LLFloaterIMNearbyChat::handleKeyHere( KEY key, MASK mask )
 {
-	BOOL handled = FALSE;
+	bool handled = false;
 
 	if( KEY_RETURN == key && mask == MASK_CONTROL)
 	{
 		// shout
 		sendChat(CHAT_TYPE_SHOUT);
-		handled = TRUE;
+		handled = true;
 	}
 	else if (KEY_RETURN == key && mask == MASK_SHIFT)
 	{
 		// whisper
 		sendChat(CHAT_TYPE_WHISPER);
-		handled = TRUE;
+		handled = true;
 	}
 
 
@@ -415,19 +416,19 @@ BOOL LLFloaterIMNearbyChat::handleKeyHere( KEY key, MASK mask )
 		if ((KEY_UP == key) || (KEY_LEFT == key))
 		{
 			floater_container->selectNextorPreviousConversation(false);
-			handled = TRUE;
+			handled = true;
 		}
 		if ((KEY_DOWN == key ) || (KEY_RIGHT == key))
 		{
 			floater_container->selectNextorPreviousConversation(true);
-			handled = TRUE;
+			handled = true;
 		}
 	}
 
 	return handled;
 }
 
-BOOL LLFloaterIMNearbyChat::matchChatTypeTrigger(const std::string& in_str, std::string* out_str)
+bool LLFloaterIMNearbyChat::matchChatTypeTrigger(const std::string& in_str, std::string* out_str)
 {
 	U32 in_len = in_str.length();
 	S32 cnt = sizeof(sChatTypeTriggers) / sizeof(*sChatTypeTriggers);
@@ -590,6 +591,8 @@ void LLFloaterIMNearbyChat::sendChat( EChatType type )
 			S32 channel = 0;
 			stripChannelNumber(text, &channel);
 			
+			updateUsedEmojis(text);
+
 			std::string utf8text = wstring_to_utf8str(text);
 			// Try to trigger a gesture, if not chat to a script.
 			std::string utf8_revised_text;
@@ -678,8 +681,8 @@ void LLFloaterIMNearbyChat::displaySpeakingIndicator()
 	LLUUID id;
 
 	id.setNull();
-	mSpeakerMgr->update(FALSE);
-	mSpeakerMgr->getSpeakerList(&speaker_list, FALSE);
+	mSpeakerMgr->update(false);
+	mSpeakerMgr->getSpeakerList(&speaker_list, false);
 
 	for (LLSpeakerMgr::speaker_list_t::iterator i = speaker_list.begin(); i != speaker_list.end(); ++i)
 	{
@@ -692,12 +695,12 @@ void LLFloaterIMNearbyChat::displaySpeakingIndicator()
 	}
 }
 
-void LLFloaterIMNearbyChat::sendChatFromViewer(const std::string &utf8text, EChatType type, BOOL animate)
+void LLFloaterIMNearbyChat::sendChatFromViewer(const std::string &utf8text, EChatType type, bool animate)
 {
 	sendChatFromViewer(utf8str_to_wstring(utf8text), type, animate);
 }
 
-void LLFloaterIMNearbyChat::sendChatFromViewer(const LLWString &wtext, EChatType type, BOOL animate)
+void LLFloaterIMNearbyChat::sendChatFromViewer(const LLWString &wtext, EChatType type, bool animate)
 {
 	// Look for "/20 foo" channel chats.
 	S32 channel = 0;
@@ -781,7 +784,7 @@ void LLFloaterIMNearbyChat::startChat(const char* line)
 			nearby_chat->setMinimized(false);
 		}
 		nearby_chat->show();
-		nearby_chat->setFocus(TRUE);
+		nearby_chat->setFocus(true);
 
 		if (line)
 		{
@@ -800,7 +803,7 @@ void LLFloaterIMNearbyChat::stopChat()
 	LLFloaterIMNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLFloaterIMNearbyChat>("nearby_chat");
 	if (nearby_chat)
 	{
-		nearby_chat->mInputEditor->setFocus(FALSE);
+		nearby_chat->mInputEditor->setFocus(false);
 	    gAgent.stopTyping();
 	}
 }
