@@ -2317,7 +2317,8 @@ void LLPanelProfileFirstLife::onChangePhoto()
                     onCommitPhoto(asset_id);
                 }
             });
-            texture_floaterp->setLocalTextureEnabled(FALSE);
+            texture_floaterp->setLocalTextureEnabled(false);
+            texture_floaterp->setBakeTextureEnabled(false);
             texture_floaterp->setCanApply(false, true, false);
 
             parent_floater->addDependentFloater(mFloaterTexturePickerHandle);
