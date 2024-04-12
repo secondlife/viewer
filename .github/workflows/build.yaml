@@ -19,8 +19,8 @@ jobs:
         exclude:
           - runner: macos-12-xl
             configuration: ReleaseOS
-	  - runner: windows-large
-	    configuration: ReleaseOS
+          - runner: windows-large
+            configuration: ReleaseOS
     runs-on: ${{ matrix.runner }}
     outputs:
       viewer_channel: ${{ steps.build.outputs.viewer_channel }}
