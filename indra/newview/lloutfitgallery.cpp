@@ -1094,8 +1094,11 @@ bool LLOutfitGalleryItem::openOutfitsContent()
             {
                 outfit_list->setSelectedOutfitByUUID(mUUID);
                 LLAccordionCtrlTab* tab = accordion->getSelectedTab();
-                tab->showAndFocusHeader();
-                return true;
+                if (tab)
+                {
+                    tab->showAndFocusHeader();
+                    return true;
+                }
             }
         }
     }

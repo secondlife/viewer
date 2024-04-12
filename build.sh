@@ -6,9 +6,6 @@
 # it relies on the environment that sets up, functions it provides, and
 # the build result post-processing it does.
 #
-# The shared buildscript build.sh invokes this because it is named 'build.sh',
-# which is the default custom build script name in buildscripts/hg/BuildParams
-#
 # PLEASE NOTE:
 #
 # * This script is interpreted on three platforms, including windows and cygwin
@@ -112,7 +109,8 @@ installer_CYGWIN()
   fi
 }
 
-[[ -n "$GITHUB_OUTPUT" ]] || fatal "Need to export GITHUB_OUTPUT"
+# if someone wants to run build.sh outside the GitHub environment
+[[ -n "$GITHUB_OUTPUT" ]] || export GITHUB_OUTPUT='/dev/null'
 # The following is based on the Warning for GitHub multiline output strings:
 # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#multiline-strings
 EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)

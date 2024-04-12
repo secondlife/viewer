@@ -854,10 +854,9 @@ void LLSpatialGroup::rebound()
             LLControlAvatar* controlAvatar = bridge->mDrawable->getVObj()->getControlAvatar();
             if (controlAvatar &&
                 controlAvatar->mDrawable &&
-                controlAvatar->mControlAVBridge)
+                controlAvatar->mControlAVBridge &&
+                controlAvatar->mControlAVBridge->mOctree)
             {
-                llassert(controlAvatar->mControlAVBridge->mOctree);
-
                 LLSpatialGroup* root = (LLSpatialGroup*)controlAvatar->mControlAVBridge->mOctree->getListener(0);
                 if (this == root)
                 {
