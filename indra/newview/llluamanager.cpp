@@ -49,6 +49,7 @@
 #include <vector>
 
 std::map<std::string, std::string> LLLUAmanager::sScriptNames;
+std::set<std::string> LLLUAmanager::sTerminationList;
 
 lua_function(sleep, "sleep(seconds): pause the running coroutine")
 {
@@ -188,6 +189,20 @@ void LLLUAmanager::runScriptFile(const std::string &filename, script_result_fn r
             // A script_finished_fn is used to initialize the LuaState.
             // It will be called when the LuaState is destroyed.
             LuaState L(finished_cb);
+
+            lua_callbacks(L)->interrupt = [](lua_State *L, int gc)
+            {
+                // skip if we're interrupting only for garbage collection
+                if (gc >= 0)
+                    return;
+               
+                auto it = sTerminationList.find(LLCoros::getName());
+                if (it != sTerminationList.end()) 
+                {
+                    sTerminationList.erase(it);
+                    lluau::error(L, "Script was terminated");
+                }
+            };
             std::string text{std::istreambuf_iterator<char>(in_file), {}};
             auto [count, result] = L.expr(filename, text);
             if (result_cb)

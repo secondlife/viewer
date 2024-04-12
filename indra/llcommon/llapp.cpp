@@ -429,6 +429,7 @@ void LLApp::setStatus(EAppStatus status)
             statsd = LLSD::Integer(status);
         }
         LLEventPumps::instance().obtain("LLApp").post(llsd::map("status", statsd));
+        LLEventPumps::instance().obtain("LLLua").post(llsd::map("status", "close_all"));
     }
 }
 

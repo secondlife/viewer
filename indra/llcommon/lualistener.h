@@ -75,6 +75,8 @@ private:
 
     std::unique_ptr<LLLeapListener> mListener;
     LLTempBoundListener mShutdownConnection;
+
+    std::string mCoroName;
 };
 
 #endif /* ! defined(LL_LUALISTENER_H) */
