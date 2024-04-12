@@ -1,4 +1,4 @@
-/** 
+/**
  * @file llsdutil.cpp
  * @author Phoenix
  * @date 2006-05-24
@@ -7,21 +7,21 @@
  * $LicenseInfo:firstyear=2006&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -36,7 +36,6 @@
 #	include <winsock2.h>	// for htonl
 #elif LL_LINUX
 #	include <netinet/in.h>
-#pragma GCC diagnostic ignored "-Wstringop-truncation" // It's actually okay what happens here
 #elif LL_DARWIN
 #	include <arpa/inet.h>
 #endif
@@ -325,7 +324,7 @@ BOOL compare_llsd_with_template(
 	return TRUE;
 }
 
-// filter_llsd_with_template() is a direct clone (copy-n-paste) of 
+// filter_llsd_with_template() is a direct clone (copy-n-paste) of
 // compare_llsd_with_template with the following differences:
 // (1) bool vs BOOL return types
 // (2) A map with the key value "*" is a special value and maps any key in the
@@ -387,7 +386,7 @@ bool filter_llsd_with_template(
 		else
 		{
 			// Traditional compare_llsd_with_template matching
-			
+
 			for (template_iter = template_llsd.beginArray();
 				 template_iter != template_llsd.endArray() &&
 					 test_iter != llsd_to_test.endArray();
@@ -418,7 +417,7 @@ bool filter_llsd_with_template(
 	else if (llsd_to_test.isMap())
 	{
 		resultant_llsd = LLSD::emptyMap();
-		
+
 		//now we loop over the keys of the two maps
 		//any excess is taken from the template
 		//excess is ignored in the test
@@ -465,7 +464,7 @@ bool filter_llsd_with_template(
 		{
 			LLSD sub_value;
 			LLSD::map_const_iterator test_iter;
-			
+
 			for (test_iter = llsd_to_test.beginMap();
 				 test_iter != llsd_to_test.endMap();
 				 ++test_iter)
@@ -945,9 +944,9 @@ LLSD drill(const LLSD& blob, const LLSD& path)
 
 } // namespace llsd
 
-// Construct a deep partial clone of of an LLSD object. primitive types share 
+// Construct a deep partial clone of of an LLSD object. primitive types share
 // references, however maps, arrays and binary objects are duplicated. An optional
-// filter may be include to exclude/include keys in a map. 
+// filter may be include to exclude/include keys in a map.
 LLSD llsd_clone(LLSD value, LLSD filter)
 {
     LL_PROFILE_ZONE_SCOPED

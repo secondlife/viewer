@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llviewerstats.cpp
  * @brief LLViewerStats class implementation
  *
  * $LicenseInfo:firstyear=2002&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -36,10 +36,10 @@
 
 #include "llappviewer.h"
 
-#include "pipeline.h" 
-#include "lltexturefetch.h" 
-#include "llviewerobjectlist.h" 
-#include "llviewertexturelist.h" 
+#include "pipeline.h"
+#include "lltexturefetch.h"
+#include "llviewerobjectlist.h"
+#include "llviewertexturelist.h"
 #include "lltexlayer.h"
 #include "lltexlayerparams.h"
 #include "llsurface.h"
@@ -66,11 +66,6 @@
 #include "llinventorymodel.h"
 #include "lluiusage.h"
 #include "lltranslate.h"
-
-#if LL_LINUX
-#pragma GCC diagnostic ignored "-Wunused-value" // Happens due to LL_DEBUGS("LogViewerStatsPacket"); Does that even do anything?
-#endif
-
 
 // "Minimal Vulkan" to get max API Version
 
@@ -147,13 +142,13 @@ LLTrace::CountStatHandle<>	FPS("FPS", "Frames rendered"),
 							TEX_REBAKES("texrebakes", "Number of times avatar textures have been forced to rebake"),
 							NUM_NEW_OBJECTS("numnewobjectsstat", "Number of objects in scene that were not previously in cache");
 
-LLTrace::CountStatHandle<LLUnit<F64, LLUnits::Kilotriangles> > 
+LLTrace::CountStatHandle<LLUnit<F64, LLUnits::Kilotriangles> >
 							TRIANGLES_DRAWN("trianglesdrawnstat");
 
 LLTrace::EventStatHandle<LLUnit<F64, LLUnits::Kilotriangles> >
 							TRIANGLES_DRAWN_PER_FRAME("trianglesdrawnperframestat");
 
-LLTrace::CountStatHandle<F64Kilobytes >	
+LLTrace::CountStatHandle<F64Kilobytes >
 							ACTIVE_MESSAGE_DATA_RECEIVED("activemessagedatareceived", "Message system data received on all active regions"),
 							LAYERS_NETWORK_DATA_RECEIVED("layersdatareceived", "Network data received for layer data (terrain)"),
 							OBJECT_NETWORK_DATA_RECEIVED("objectdatareceived", "Network data received for objects"),
@@ -162,7 +157,7 @@ LLTrace::CountStatHandle<F64Kilobytes >
 							MESSAGE_SYSTEM_DATA_IN("messagedatain", "Incoming message system network data"),
 							MESSAGE_SYSTEM_DATA_OUT("messagedataout", "Outgoing message system network data");
 
-LLTrace::CountStatHandle<F64Seconds >	
+LLTrace::CountStatHandle<F64Seconds >
 							SIM_20_FPS_TIME("sim20fpstime", "Seconds with sim FPS below 20"),
 							SIM_PHYSICS_20_FPS_TIME("simphysics20fpstime", "Seconds with physics FPS below 20"),
 							LOSS_5_PERCENT_TIME("loss5percenttime", "Seconds with packet loss > 5%");
@@ -186,7 +181,7 @@ SimMeasurement<>			SIM_TIME_DILATION("simtimedilation", "Simulator time scale", 
 							SIM_PHYSICS_PINNED_TASKS("physicspinnedtasks", "", LL_SIM_STAT_PHYSICS_PINNED_TASKS),
 							SIM_PHYSICS_LOD_TASKS("physicslodtasks", "", LL_SIM_STAT_PHYSICS_LOD_TASKS);
 
-SimMeasurement<LLUnit<F64, LLUnits::Percent> >	
+SimMeasurement<LLUnit<F64, LLUnits::Percent> >
 							SIM_PERCENTAGE_SCRIPTS_RUN("simpctscriptsrun", "", LL_SIM_STAT_PCTSCRIPTSRUN),
 							SIM_SKIPPED_CHARACTERS_PERCENTAGE("simsimpctsteppedcharacters", "", LL_SIM_STAT_PCTSTEPPEDCHARACTERS);
 
@@ -203,17 +198,17 @@ LLTrace::SampleStatHandle<>	FPS_SAMPLE("fpssample"),
 							WINDOW_WIDTH("windowwidth", "Window width"),
 							WINDOW_HEIGHT("windowheight", "Window height");
 
-LLTrace::SampleStatHandle<LLUnit<F32, LLUnits::Percent> > 
+LLTrace::SampleStatHandle<LLUnit<F32, LLUnits::Percent> >
 							PACKETS_LOST_PERCENT("packetslostpercentstat");
 
-static LLTrace::SampleStatHandle<bool> 
+static LLTrace::SampleStatHandle<bool>
 							CHAT_BUBBLES("chatbubbles", "Chat Bubbles Enabled");
 
 LLTrace::SampleStatHandle<F64Megabytes > FORMATTED_MEM("formattedmemstat");
 LLTrace::SampleStatHandle<F64Kilobytes >	DELTA_BANDWIDTH("deltabandwidth", "Increase/Decrease in bandwidth based on packet loss"),
 															MAX_BANDWIDTH("maxbandwidth", "Max bandwidth setting");
 
-	
+
 SimMeasurement<F64Milliseconds >	SIM_FRAME_TIME("simframemsec", "", LL_SIM_STAT_FRAMEMS),
 													SIM_NET_TIME("simnetmsec", "", LL_SIM_STAT_NETMS),
 													SIM_OTHER_TIME("simsimothermsec", "", LL_SIM_STAT_SIMOTHERMS),
@@ -228,7 +223,7 @@ SimMeasurement<F64Milliseconds >	SIM_FRAME_TIME("simframemsec", "", LL_SIM_STAT_
 													SIM_SPARE_TIME("simsparemsec", "", LL_SIM_STAT_SIMSPARETIME),
 													SIM_SLEEP_TIME("simsleepmsec", "", LL_SIM_STAT_SIMSLEEPTIME),
 													SIM_PUMP_IO_TIME("simpumpiomsec", "", LL_SIM_STAT_IOPUMPTIME);
-	
+
 SimMeasurement<F64Kilobytes >	SIM_UNACKED_BYTES("simtotalunackedbytes", "", LL_SIM_STAT_TOTAL_UNACKED_BYTES);
 SimMeasurement<F64Megabytes >	SIM_PHYSICS_MEM("physicsmemoryallocated", "", LL_SIM_STAT_SIMPHYSICSMEMORY);
 
@@ -240,7 +235,7 @@ LLTrace::SampleStatHandle<F64Milliseconds >	FRAMETIME_JITTER("frametimejitter", 
 LLTrace::EventStatHandle<LLUnit<F64, LLUnits::Meters> > AGENT_POSITION_SNAP("agentpositionsnap", "agent position corrections");
 
 LLTrace::EventStatHandle<>	LOADING_WEARABLES_LONG_DELAY("loadingwearableslongdelay", "Wearables took too long to load");
-	
+
 LLTrace::EventStatHandle<F64Milliseconds >	REGION_CROSSING_TIME("regioncrossingtime", "CROSSING_AVG"),
 																FRAME_STACKTIME("framestacktime", "FRAME_SECS"),
 																UPDATE_STACKTIME("updatestacktime", "UPDATE_SECS"),
@@ -248,7 +243,7 @@ LLTrace::EventStatHandle<F64Milliseconds >	REGION_CROSSING_TIME("regioncrossingt
 																IMAGE_STACKTIME("imagestacktime", "IMAGE_SECS"),
 																REBUILD_STACKTIME("rebuildstacktime", "REBUILD_SECS"),
 																RENDER_STACKTIME("renderstacktime", "RENDER_SECS");
-	
+
 LLTrace::EventStatHandle<F64Seconds >	AVATAR_EDIT_TIME("avataredittime", "Seconds in Edit Appearance"),
 															TOOLBOX_TIME("toolboxtime", "Seconds using Toolbox"),
 															MOUSELOOK_TIME("mouselooktime", "Seconds in Mouselook"),
@@ -268,7 +263,7 @@ LLTrace::SampleStatHandle<LLUnit<F32, LLUnits::Percent> >  SWAP_FRAME_PCT("swap_
 LLTrace::SampleStatHandle<LLUnit<F32, LLUnits::Percent> >  IDLE_FRAME_PCT("idle_frame_pct");
 }
 
-LLViewerStats::LLViewerStats() 
+LLViewerStats::LLViewerStats()
 :	mLastTimeDiff(0.0)
 {
 	getRecording().start();
@@ -288,20 +283,20 @@ void LLViewerStats::updateFrameStats(const F64Seconds time_diff)
 	{
 		add(LLStatViewer::LOSS_5_PERCENT_TIME, time_diff);
 	}
-	
+
 	F32 sim_fps = getRecording().getLastValue(LLStatViewer::SIM_FPS);
 	if (0.f < sim_fps && sim_fps < 20.f)
 	{
 		add(LLStatViewer::SIM_20_FPS_TIME, time_diff);
 	}
-	
+
 	F32 sim_physics_fps = getRecording().getLastValue(LLStatViewer::SIM_PHYSICS_FPS);
 
 	if (0.f < sim_physics_fps && sim_physics_fps < 20.f)
 	{
 		add(LLStatViewer::SIM_PHYSICS_20_FPS_TIME, time_diff);
 	}
-		
+
 	if (time_diff >= (F64Seconds)0.5)
 	{
 		record(LLStatViewer::FPS_2_TIME, time_diff);
@@ -325,7 +320,7 @@ void LLViewerStats::updateFrameStats(const F64Seconds time_diff)
 		// old stats that were never really used
 		F64Seconds jit = (F64Seconds) std::fabs((mLastTimeDiff - time_diff));
 		sample(LLStatViewer::FRAMETIME_JITTER, jit);
-			
+
 		F32Seconds average_frametime = gRenderStartTime.getElapsedTimeF32() / (F32)gFrameCount;
 		sample(LLStatViewer::FRAMETIME_SLEW, F64Milliseconds (average_frametime - time_diff));
 
@@ -334,39 +329,39 @@ void LLViewerStats::updateFrameStats(const F64Seconds time_diff)
 		sample(LLStatViewer::DELTA_BANDWIDTH, F64Bits(delta_bandwidth));
 		sample(LLStatViewer::MAX_BANDWIDTH, F64Bits(max_bandwidth));
 	}
-	
+
 	mLastTimeDiff = time_diff;
 }
 
 void LLViewerStats::addToMessage(LLSD &body)
 {
 	LLSD &misc = body["misc"];
-	
+
 	misc["Version"] = TRUE;
 	//TODO RN: get last value, not mean
 	misc["Vertex Buffers Enabled"] = getRecording().getMean(LLStatViewer::ENABLE_VBO);
-	
+
 	body["AgentPositionSnaps"] = getRecording().getSum(LLStatViewer::AGENT_POSITION_SNAP).value(); //mAgentPositionSnaps.asLLSD();
-	LL_INFOS() << "STAT: AgentPositionSnaps: Mean = " << getRecording().getMean(LLStatViewer::AGENT_POSITION_SNAP).value() << "; StdDev = " << getRecording().getStandardDeviation(LLStatViewer::AGENT_POSITION_SNAP).value() 
+	LL_INFOS() << "STAT: AgentPositionSnaps: Mean = " << getRecording().getMean(LLStatViewer::AGENT_POSITION_SNAP).value() << "; StdDev = " << getRecording().getStandardDeviation(LLStatViewer::AGENT_POSITION_SNAP).value()
 			<< "; Count = " << getRecording().getSampleCount(LLStatViewer::AGENT_POSITION_SNAP) << LL_ENDL;
 }
 
 // *NOTE:Mani The following methods used to exist in viewer.cpp
 // Moving them here, but not merging them into LLViewerStats yet.
-U32		gTotalLandIn = 0, 
+U32		gTotalLandIn = 0,
 		gTotalLandOut = 0,
-		gTotalWaterIn = 0, 
+		gTotalWaterIn = 0,
 		gTotalWaterOut = 0;
 
-F32		gAveLandCompression = 0.f, 
+F32		gAveLandCompression = 0.f,
 		gAveWaterCompression = 0.f,
 		gBestLandCompression = 1.f,
 		gBestWaterCompression = 1.f,
-		gWorstLandCompression = 0.f, 
+		gWorstLandCompression = 0.f,
 		gWorstWaterCompression = 0.f;
 
-U32Bytes				gTotalWorldData, 
-								gTotalObjectData, 
+U32Bytes				gTotalWorldData,
+								gTotalObjectData,
 								gTotalTextureData;
 U32								gSimPingCount = 0;
 U32Bits				gObjectData;
@@ -447,7 +442,7 @@ void update_statistics()
         world->updateNetStats();
         world->requestCacheMisses();
     }
-	
+
 	// Reset all of these values.
 	gVLManager.resetBitCounts();
 	gObjectData = (U32Bytes)0;
@@ -481,7 +476,7 @@ void update_statistics()
             // auto tot_avatar_render_time_raw = tot_avatar_time_raw - tot_av_idle_time_raw;
             // the time spent this frame on the "display()" call. Treated as "tot time rendering"
             auto tot_render_time_raw = LLPerfStats::StatsRecorder::getSceneStat(LLPerfStats::StatType_t::RENDER_DISPLAY);
-            // sleep time is basically forced sleep when window out of focus 
+            // sleep time is basically forced sleep when window out of focus
             auto tot_sleep_time_raw = LLPerfStats::StatsRecorder::getSceneStat(LLPerfStats::StatType_t::RENDER_SLEEP);
             // time spent on UI
             auto tot_ui_time_raw = LLPerfStats::StatsRecorder::getSceneStat(LLPerfStats::StatType_t::RENDER_UI);
@@ -577,11 +572,11 @@ void send_viewer_stats(bool include_preferences)
 		LL_WARNS() << "Could not get ViewerStats capability" << LL_ENDL;
 		return;
 	}
-	
+
 	LLViewerStats::instance().getRecording().pause();
 
 	LLSD &agent = body["agent"];
-	
+
 	time_t ltime;
 	time(&ltime);
 	F32 run_time = F32(LLFrameTimer::getElapsedSeconds());
@@ -607,7 +602,7 @@ void send_viewer_stats(bool include_preferences)
 	agent["version"] = LLVersionInfo::instance().getChannelAndVersion();
 	std::string language = LLUI::getLanguage();
 	agent["language"] = language;
-	
+
 	agent["sim_fps"] = ((F32) gFrameCount - gSimFrames) /
 		(F32) (gRenderStartTime.getElapsedTimeF32() - gSimLastTime);
 
@@ -622,7 +617,7 @@ void send_viewer_stats(bool include_preferences)
 	agent["translation"] = LLTranslate::instance().asLLSD();
 
 	LLSD &system = body["system"];
-	
+
 	system["ram"] = (S32) gSysMemory.getPhysicalMemoryKB().value();
 	system["os"] = LLOSInfo::instance().getOSStringSimple();
 	system["cpu"] = gSysCPU.getCPUString();
@@ -673,7 +668,7 @@ void send_viewer_stats(bool include_preferences)
 	{
 		shader_level = 2;
 	}
-	
+
 
 
 	system["shader_level"] = shader_level;
@@ -692,9 +687,9 @@ void send_viewer_stats(bool include_preferences)
 	in["compressed_packets"] = (S32) gMessageSystem->mCompressedPacketsIn;
 	in["savings"] = (gMessageSystem->mUncompressedBytesIn -
 					 gMessageSystem->mCompressedBytesIn) / 1024.0;
-	
+
 	LLSD &out = body["stats"]["net"]["out"];
-	
+
 	out["kbytes"] = gMessageSystem->mTotalBytesOut / 1024.0;
 	out["packets"] = (S32) gMessageSystem->mPacketsOut;
 	out["compressed_packets"] = (S32) gMessageSystem->mCompressedPacketsOut;
@@ -717,7 +712,7 @@ void send_viewer_stats(bool include_preferences)
 	gInventory.mValidationInfo->asLLSD(validation_info);
 
 	body["ui"] = LLUIUsage::instance().asLLSD();
-		
+
 	body["stats"]["voice"] = LLVoiceVivoxStats::getInstance()->read();
 
 	// Misc stats, two strings and two ints
