@@ -87,11 +87,10 @@ protected:
 	}
 	void addEntry(Index index, Entry *entry)
 	{
-		if (lookup(index))
+		if (!this->emplace(index, entry).second) 
 		{
 			LL_ERRS() << "Dictionary entry already added (attempted to add duplicate entry)" << LL_ENDL;
 		}
-		(*this)[index] = entry;
 	}
 };
 
