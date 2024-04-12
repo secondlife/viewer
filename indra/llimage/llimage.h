@@ -276,6 +276,12 @@ public:
 	// Src and dst are same size.  Src has 4 components.  Dst has 3 components.
 	void compositeUnscaled4onto3( LLImageRaw* src );
 
+    // Emissive operations used by minimap
+    // Roughly emulates GLTF emissive texture, but is not GLTF-compliant
+    // *TODO: Remove in favor of shader
+    void addEmissive(LLImageRaw* src);
+    void addEmissiveScaled(LLImageRaw* src);
+    void addEmissiveUnscaled(LLImageRaw* src);
 protected:
 	// Create an image from a local file (generally used in tools)
 	//bool createFromFile(const std::string& filename, bool j2c_lowest_mip_only = false);

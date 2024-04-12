@@ -1874,6 +1874,75 @@ void LLImageRaw::compositeRowScaled4onto3( U8* in, U8* out, S32 in_pixel_len, S3
 	}
 }
 
+
+void LLImageRaw::addEmissive(LLImageRaw* src)
+{
+	LLImageRaw* dst = this;  // Just for clarity.
+
+	if (!validateSrcAndDst(__FUNCTION__, src, dst))
+	{
+		return;
+	}
+
+	llassert((3 == src->getComponents()) || (4 == src->getComponents()));
+	llassert(3 == dst->getComponents());
+
+	if( 3 == dst->getComponents() )
+	{
+		if( (src->getWidth() == dst->getWidth()) && (src->getHeight() == dst->getHeight()) )
+		{
+            addEmissiveUnscaled(src);
+		}
+		else
+		{
+            addEmissiveScaled(src);
+		}
+	}
+}
+
+void LLImageRaw::addEmissiveUnscaled(LLImageRaw* src)
+{
+	LLImageRaw* dst = this;  // Just for clarity.
+
+	llassert((3 == src->getComponents()) || (4 == src->getComponents()));
+	llassert((3 == dst->getComponents()) || (4 == dst->getComponents()));
+	llassert( (src->getWidth() == dst->getWidth()) && (src->getHeight() == dst->getHeight()) );
+
+    U8* const src_data = src->getData();
+    U8* const dst_data = dst->getData();
+	for(S32 y = 0; y < dst->getHeight(); ++y)
+	{
+        const S32 src_row_offset = src->getComponents() * src->getWidth() * y;
+        const S32 dst_row_offset = dst->getComponents() * dst->getWidth() * y;
+        for (S32 x = 0; x < dst->getWidth(); ++x)
+        {
+            const S32 src_offset = src_row_offset + (x * src->getComponents());
+            const S32 dst_offset = dst_row_offset + (x * dst->getComponents());
+            U8* const src_pixel = src_data + src_offset;
+            U8* const dst_pixel = dst_data + dst_offset;
+            dst_pixel[0] = llmin(255, dst_pixel[0] + src_pixel[0]);
+            dst_pixel[1] = llmin(255, dst_pixel[1] + src_pixel[1]);
+            dst_pixel[2] = llmin(255, dst_pixel[2] + src_pixel[2]);
+        }
+	}
+}
+
+void LLImageRaw::addEmissiveScaled(LLImageRaw* src)
+{
+	LL_INFOS() << __FUNCTION__ << LL_ENDL;
+
+	LLImageRaw* dst = this;  // Just for clarity.
+
+	llassert( (4 == src->getComponents()) && (3 == dst->getComponents()) );
+
+    LLImageRaw temp(dst->getWidth(), dst->getHeight(), dst->getComponents());
+	llassert_always(temp.getDataSize() > 0);
+    temp.copyScaled(src);
+
+    dst->addEmissiveUnscaled(&temp);
+}
+
+
 bool LLImageRaw::validateSrcAndDst(std::string func, LLImageRaw* src, LLImageRaw* dst)
 {
 	if (!src || !dst || src->isBufferInvalid() || dst->isBufferInvalid())

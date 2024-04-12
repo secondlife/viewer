@@ -130,7 +130,12 @@ protected:
 	BOOL mParamsReady = FALSE;
 	LLSurface *mSurfacep;
 
+    // Final minimap raw images
 	LLPointer<LLImageRaw> mRawImages[LLTerrainMaterials::ASSET_COUNT];
+
+    // Only non-null during minimap tile generation
+	LLPointer<LLImageRaw> mRawImagesBaseColor[LLTerrainMaterials::ASSET_COUNT];
+	LLPointer<LLImageRaw> mRawImagesEmissive[LLTerrainMaterials::ASSET_COUNT];
 
 	F32 mStartHeight[CORNER_COUNT];
 	F32 mHeightRange[CORNER_COUNT];
