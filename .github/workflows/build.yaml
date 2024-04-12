@@ -17,10 +17,12 @@ jobs:
           - runner: macos-12-xl
             developer_dir: "/Applications/Xcode_14.0.1.app/Contents/Developer"
         exclude:
-          - runner: macos-12-xl
-            configuration: ReleaseOS
           - runner: windows-large
             configuration: ReleaseOS
+          - runner: macos-12-xl 
+            configuration: ReleaseOS
+          - runner: linux-large
+            configuration: Release 
     runs-on: ${{ matrix.runner }}
     outputs:
       viewer_channel: ${{ steps.build.outputs.viewer_channel }}
@@ -391,6 +393,10 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           pattern: "*-metadata"
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: "LinuxOS-app"
       
       - name: Rename metadata
         run: |
