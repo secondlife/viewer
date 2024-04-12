@@ -30,6 +30,9 @@
 #include "llsd.h"
 #include "llassettype.h"
 
+class LLViewerTexture;
+class LLImageBase;
+
 class LLAgentBenefits
 {
 public:
@@ -49,7 +52,9 @@ public:
 	S32 getPicksLimit() const;
 	S32 getSoundUploadCost() const;
 	S32 getTextureUploadCost() const;
-    S32 get2KTextureUploadCost() const;
+    S32 getTextureUploadCost(const LLViewerTexture* tex) const;
+    S32 getTextureUploadCost(const LLImageBase* tex) const;
+    S32 get2KTextureUploadCost(S32 area) const;
 
 	bool findUploadCost(LLAssetType::EType& asset_type, S32& cost) const;
 	
@@ -62,7 +67,7 @@ private:
 	S32 m_picks_limit;
 	S32 m_sound_upload_cost;
 	S32 m_texture_upload_cost;
-    S32 m_2k_texture_upload_cost;
+    std::vector<S32> m_2k_texture_upload_cost;
 
 	bool m_initalized;
 };
