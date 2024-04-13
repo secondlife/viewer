@@ -16,11 +16,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>cb7493d93dbd07eec5970ce4c97f74e94a3862f1</string>
+              <string>ceb0392106c2f50d79dc724fd5a6d8ec82b92cdb</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-sdl2/releases/download/v2.28.0-r2/SDL2-2.28.0-linux64-8572700123.tar.zst</string>
+              <string>https://github.com/secondlife/3p-sdl2/releases/download/v2.28.0-r3/SDL2-2.28.0-linux64-8663899652.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -953,14 +953,14 @@
           <map>
             <key>archive</key>
             <map>
+              <key>creds</key>
+              <string>github</string>
               <key>hash</key>
               <string>ebfb82b6143874e7938b9d1e8a70d0a2e28aa818</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
               <string>https://api.github.com/repos/secondlife/3p-havok-source/releases/assets/108912599</string>
-              <key>creds</key>
-              <string>github</string>
             </map>
             <key>name</key>
             <string>linux64</string>
