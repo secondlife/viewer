@@ -124,10 +124,19 @@ if (LINUX)
 
   add_compile_definitions(
           _REENTRANT
-          _FORTIFY_SOURCE=2
           APPID=secondlife
           LL_IGNORE_SIGCHLD
   )
+
+  if( ENABLE_ASAN )
+      add_compile_options(-U_FORTIFY_SOURCE
+        -fsanitize=address
+        --param asan-stack=0
+      )
+      add_link_options(-fsanitize=address)
+  else()
+   add_compile_definitions( _FORTIFY_SOURCE=2 )
+  endif()
 
   add_compile_options(
       -fexceptions
@@ -150,6 +159,7 @@ if (LINUX)
   set(CLANG_WARNINGS
       ${GCC_CLANG_COMPATIBLE_WARNINGS}
       # Put clang specific warning configuration here
+      -Wno-unknown-warning-option
   )
 
   set(GCC_WARNINGS
@@ -165,7 +175,7 @@ if (LINUX)
           -Wl,--no-undefined
   )
   if (NOT GCC_DISABLE_FATAL_WARNINGS)
-    list(APPEND GCC_WARNINGS -Werror)
+    add_compile_options( -Werror )
   endif (NOT GCC_DISABLE_FATAL_WARNINGS)
 
   # this stops us requiring a really recent glibc at runtime
