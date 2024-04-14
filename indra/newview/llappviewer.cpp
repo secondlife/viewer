@@ -108,7 +108,7 @@
 #include "llscenemonitor.h"
 #include "llavatarrenderinfoaccountant.h"
 #include "lllocalbitmaps.h"
-#include "llperfstats.h" 
+#include "llperfstats.h"
 #include "llgltfmateriallist.h"
 
 // Linden library includes
@@ -263,10 +263,6 @@ using namespace LL;
 #include "llviewernetwork.h"
 // define a self-registering event API object
 #include "llappviewerlistener.h"
-
-#if LL_LINUX && LL_GTK
-#include "glib.h"
-#endif // (LL_LINUX) && LL_GTK
 
 #if LL_MSVC
 // disable boost::lexical_cast warning
@@ -564,7 +560,7 @@ static void settings_to_globals()
 	gDebugWindowProc = gSavedSettings.getBOOL("DebugWindowProc");
 	gShowObjectUpdates = gSavedSettings.getBOOL("ShowObjectUpdates");
     LLWorldMapView::setScaleSetting(gSavedSettings.getF32("MapScale"));
-	
+
 #if LL_DARWIN
     LLWindowMacOSX::sUseMultGL = gSavedSettings.getBOOL("RenderAppleUseMultGL");
 	gHiDPISupport = gSavedSettings.getBOOL("RenderHiDPI");
@@ -1344,7 +1340,7 @@ bool LLAppViewer::frame()
 		}
 	}
 	else
-	{ 
+	{
 		try
 		{
 			ret = doFrame();
@@ -1755,7 +1751,7 @@ bool LLAppViewer::cleanup()
 	LLViewerCamera::deleteSingleton();
 
 	LL_INFOS() << "Viewer disconnected" << LL_ENDL;
-	
+
 	if (gKeyboard)
 	{
 		gKeyboard->resetKeys();
@@ -2214,7 +2210,7 @@ bool LLAppViewer::initThreads()
     }
 
     // The only configurable thread count right now is ImageDecode
-    // The viewer typically starts around 8 threads not including image decode, 
+    // The viewer typically starts around 8 threads not including image decode,
     // so try to leave at least one core free
     S32 image_decode_count = llclamp(cores - 9, 1, 8);
     threadCounts["ImageDecode"] = image_decode_count;
@@ -2290,7 +2286,7 @@ void LLAppViewer::initLoggingAndGetLastDuration()
     if (mSecondInstance)
     {
         LLFile::mkdir(gDirUtilp->getDumpLogsDirPath());
- 
+
         LLUUID uid;
         uid.generate();
         LLError::logToFile(gDirUtilp->getDumpLogsDirPath(uid.asString() + ".log"));
@@ -4211,8 +4207,8 @@ bool LLAppViewer::initCache()
     const F64 disk_cache_percent = gSavedSettings.getF32("DiskCachePercentOfTotal");
     const F64 texture_cache_percent = 100.0 - disk_cache_percent;
 
-    // note that the maximum size of this cache is defined as a percentage of the 
-    // total cache size - the 'CacheSize' pref - for all caches. 
+    // note that the maximum size of this cache is defined as a percentage of the
+    // total cache size - the 'CacheSize' pref - for all caches.
     const uintmax_t disk_cache_size = uintmax_t(cache_total_size * disk_cache_percent / 100);
 	const bool enable_cache_debug_info = gSavedSettings.getBOOL("EnableDiskCacheDebugInfo");
 
@@ -4226,7 +4222,7 @@ bool LLAppViewer::initCache()
 			gSavedSettings.setS32("LocalCacheVersion", LLAppViewer::getTextureCacheVersion());
 
             //texture cache version was bumped up in Simple Cache Viewer, and at this point old vfs files are not needed
-            remove_vfs_files = true;   
+            remove_vfs_files = true;
 		}
 	}
 
@@ -4283,7 +4279,7 @@ bool LLAppViewer::initCache()
         {
             LLDiskCache::getInstance()->removeOldVFSFiles();
         }
-        
+
         if (mPurgeCache)
 		{
 		LLSplashScreen::update(LLTrans::getString("StartupClearingCache"));
