@@ -1218,6 +1218,10 @@ bool LLFilePicker::openFileDialog( int32_t filter, bool blocking, EType aType )
 				file_type = "sound_files";
 				file_dialog_filter = "*.wav";
 				break;
+			case FFSAVE_GLTF:
+				file_type = "gltf_asset_file";
+				file_dialog_filter = "*.{gltf,glb}";
+				break;
 		}
 		file_dialog_title = LLTrans::getString("save_file_verb") + " " + LLTrans::getString(file_type);
 		file_dialog_filter = LLTrans::getString(file_type) + " \t" + file_dialog_filter;
@@ -1272,6 +1276,15 @@ bool LLFilePicker::openFileDialog( int32_t filter, bool blocking, EType aType )
 			case FFLOAD_EXE:
 				file_type = "executable_files";
 				break;
+			case FFLOAD_GLTF:
+			case FFLOAD_MATERIAL:
+				file_type = "gltf_asset_file";
+				file_dialog_filter = "*.{gltg,glb}";
+				break;
+			case FFLOAD_MATERIAL_TEXTURE:
+				file_dialog_filter = "*.{gltf,glb,tga,bmp,jpg,jpeg,png}";
+				file_type = "image_files";
+
 		}
 		if (aType == EType::eOpenMultiple)
 		{
