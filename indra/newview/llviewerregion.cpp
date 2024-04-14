@@ -794,8 +794,9 @@ void LLViewerRegion::loadObjectCache()
 	if(LLVOCache::instanceExists())
 	{
         LLVOCache & vocache = LLVOCache::instance();
-		vocache.readFromCache(mHandle, mImpl->mCacheID, mImpl->mCacheMap);
-        vocache.readGenericExtrasFromCache(mHandle, mImpl->mCacheID, mImpl->mGLTFOverridesLLSD);
+		// Without this a "corrupted" vocache persists until a cache clear or other rewrite. Mark as dirty hereif read fails to force a rewrite.
+		mCacheDirty = !vocache.readFromCache(mHandle, mImpl->mCacheID, mImpl->mCacheMap);
+		vocache.readGenericExtrasFromCache(mHandle, mImpl->mCacheID, mImpl->mGLTFOverridesLLSD, mImpl->mCacheMap);
 
 		if (mImpl->mCacheMap.empty())
 		{
@@ -1162,13 +1163,13 @@ void LLViewerRegion::killCacheEntry(LLVOCacheEntry* entry, bool for_rendering)
 			child = entry->getChild();
 		}
 	}
-
+	// Kill the assocaited overrides
+	mImpl->mGLTFOverridesLLSD.erase(entry->getLocalID());
 	//will remove it from the object cache, real deletion
 	entry->setState(LLVOCacheEntry::INACTIVE);
 	entry->removeOctreeEntry();
 	entry->setValid(FALSE);
 
-	// TODO kill extras/material overrides cache too
 }
 
 //physically delete the cache entry	
@@ -3672,6 +3673,11 @@ void LLViewerRegion::applyCacheMiscExtras(LLViewerObject* obj)
     auto iter = mImpl->mGLTFOverridesLLSD.find(local_id);
     if (iter != mImpl->mGLTFOverridesLLSD.end())
     {
+        // UUID can be inserted null, so backfill the UUID if it was left empty
+        if (iter->second.mObjectId.isNull())
+        {
+            iter->second.mObjectId = obj->getID();
+        }
         llassert(iter->second.mGLTFMaterial.size() == iter->second.mSides.size());
 
         for (auto& side : iter->second.mGLTFMaterial)
