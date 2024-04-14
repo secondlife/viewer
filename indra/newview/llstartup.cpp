@@ -436,7 +436,7 @@ bool idle_startup()
 		{
 			LLNotificationsUtil::add(gViewerWindow->getInitAlert());
 		}
-			
+
 		//-------------------------------------------------
 		// Init the SOCKS 5 proxy if the user has configured
 		// one. We need to do this early in case the user
@@ -557,7 +557,7 @@ bool idle_startup()
 				// On the windows dev builds, unpackaged, the message.xml file will 
 				// be located in indra/build-vc**/newview/<config>/app_settings.
 				std::string message_path = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"message.xml");
-							
+
 				if (!LLFile::isfile(message_path.c_str())) 
 				{
 					LLMessageConfig::initClass("viewer", gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "app_settings", ""));
@@ -566,7 +566,7 @@ bool idle_startup()
 				{
 					LLMessageConfig::initClass("viewer", gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, ""));
 				}
-			#else			
+			#else
 				LLMessageConfig::initClass("viewer", gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, ""));
 			#endif
 
@@ -666,7 +666,7 @@ bool idle_startup()
 				gAudiop = (LLAudioEngine *) new LLAudioEngine_OpenAL();
 			}
 #endif
-            
+
 			if (gAudiop)
 			{
 #if LL_WINDOWS
@@ -702,7 +702,7 @@ bool idle_startup()
 				}
 			}
 		}
-		
+
 		LL_INFOS("AppInit") << "Audio Engine Initialized." << LL_ENDL;
 		
 		if (LLTimer::knownBadTimer())
@@ -798,12 +798,12 @@ bool idle_startup()
 			LL_DEBUGS("AppInit") << "show_connect_box on" << LL_ENDL;
 			// Load all the name information out of the login view
 			// NOTE: Hits "Attempted getFields with no login view shown" warning, since we don't
-			// show the login view until login_show() is called below.  
-			if (gUserCredential.isNull())                                                                          
-			{                                                  
+			// show the login view until login_show() is called below.
+			if (gUserCredential.isNull())
+			{
 				LL_DEBUGS("AppInit") << "loading credentials from gLoginHandler" << LL_ENDL;
-				gUserCredential = gLoginHandler.initializeLoginInfo();                 
-			}     
+				gUserCredential = gLoginHandler.initializeLoginInfo();
+			}
 			// Make sure the process dialog doesn't hide things
 			gViewerWindow->setShowProgress(FALSE);
 			// Show the login dialog
@@ -929,9 +929,9 @@ bool idle_startup()
         }
 		gSavedSettings.setBOOL("RememberPassword", gRememberPassword);
 		gSavedSettings.setBOOL("RememberUser", gRememberUser);
-		LL_INFOS("AppInit") << "Attempting login as: " << userid << LL_ENDL;                                           
-		gDebugInfo["LoginName"] = userid;                                                                              
-         
+		LL_INFOS("AppInit") << "Attempting login as: " << userid << LL_ENDL;
+		gDebugInfo["LoginName"] = userid;
+
 		// create necessary directories
 		// *FIX: these mkdir's should error check
 		gDirUtilp->setLindenUserDir(userid);
@@ -943,14 +943,25 @@ bool idle_startup()
 			// check existance since this part of code can be reached
 			// twice due to login failures
 			LLPersistentNotificationStorage::initParamSingleton();
+		}
+		else
+		{
+			// reinitialize paths in case user switched grids or accounts
+			LLPersistentNotificationStorage::getInstance()->reset();
+		}
+
+		// As soon as directories are ready initialize notification storages
+		if (!LLDoNotDisturbNotificationStorage::instanceExists())
+		{
+			// check existance since this part of code can be reached
+			// twice due to login failures
 			LLDoNotDisturbNotificationStorage::initParamSingleton();
 		}
-        else
-        {
-            // reinitialize paths in case user switched grids or accounts
-            LLPersistentNotificationStorage::getInstance()->reset();
-            LLDoNotDisturbNotificationStorage::getInstance()->reset();
-        }
+		else
+		{
+			// reinitialize paths in case user switched grids or accounts
+			LLDoNotDisturbNotificationStorage::getInstance()->reset();
+		}
 
 		// Set PerAccountSettingsFile to the default value.
 		std::string settings_per_account = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, LLAppViewer::instance()->getSettingsFilename("Default", "PerAccount"));
@@ -958,8 +969,8 @@ bool idle_startup()
 		gDebugInfo["PerAccountSettingsFilename"] = settings_per_account;
 
 		// Note: can't store warnings files per account because some come up before login
-		
-		// Overwrite default user settings with user settings								 
+
+		// Overwrite default user settings with user settings
 		LLAppViewer::instance()->loadSettingsFromDirectory("Account");
 
 		// Convert 'LogInstantMessages' into 'KeepConversationLogTranscripts' for backward compatibility (CHUI-743).
@@ -999,7 +1010,6 @@ bool idle_startup()
 			//LLPanelLogin::closePanel();
 		}
 
-		
 		// Load URL History File
 		LLURLHistory::loadFile("url_history.xml");
 		// Load location history 
@@ -1007,7 +1017,7 @@ bool idle_startup()
 
 		// Load Avatars icons cache
 		LLAvatarIconIDCache::getInstance()->load();
-		
+
 		LLRenderMuteList::getInstance()->loadFromFile();
 
 		//-------------------------------------------------
