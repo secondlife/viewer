@@ -399,6 +399,30 @@ bool LLFloaterMyEnvironment::canApply(const std::string &context)
     return false;
 }
 
+bool can_delete(const LLUUID& id)
+{
+    const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
+    if (id == trash_id || gInventory.isObjectDescendentOf(id, trash_id))
+    {
+        return false;
+    }
+
+    LLViewerInventoryCategory* cat = gInventory.getCategory(id);
+    if (cat)
+    {
+        if (!get_is_category_removable(&gInventory, id))
+        {
+            return false;
+        }
+    }
+    else if (!get_is_item_removable(&gInventory, id))
+    {
+        return false;
+    }
+
+    return true;
+}
+
 //-------------------------------------------------------------------------
 void LLFloaterMyEnvironment::refreshButtonStates()
 {
@@ -409,7 +433,14 @@ void LLFloaterMyEnvironment::refreshButtonStates()
 
     getChild<LLUICtrl>(BUTTON_GEAR)->setEnabled(settings_ok);
     getChild<LLUICtrl>(BUTTON_NEWSETTINGS)->setEnabled(true);
-    getChild<LLUICtrl>(BUTTON_DELETE)->setEnabled(settings_ok && !selected.empty());
+
+    bool enable_delete = false;
+    if(settings_ok && !selected.empty())
+    {
+        enable_delete = can_delete(selected.front());
+    }
+
+    getChild<LLUICtrl>(BUTTON_DELETE)->setEnabled(enable_delete);
 }
 
 //-------------------------------------------------------------------------
