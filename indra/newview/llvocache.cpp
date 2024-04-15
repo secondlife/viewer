@@ -1512,8 +1512,8 @@ bool LLVOCache::readFromCache(U64 handle, const LLUUID& id, LLVOCacheEntry::voca
 
 	bool success = true ;
 	S32 num_entries = 0 ; // lifted out of inner loop. 
+	std::string filename; // lifted out of loop
 	{
-		std::string filename;
 		LLUUID cache_id;
 		getObjectCacheFilename(handle, filename);
 		LLAPRFile apr_file(filename, APR_READ|APR_BINARY, mLocalAPRFilePoolp);
@@ -1588,7 +1588,8 @@ void LLVOCache::readGenericExtrasFromCache(U64 handle, const LLUUID& id, LLVOCac
 
     std::string line;
     std::getline(in, line);
-    if(!in.good()) {
+    if(!in.good()) 
+    {
         LL_WARNS() << "Failed reading extras cache for handle " << handle << LL_ENDL;
         in.close();
         removeGenericExtrasForHandle(handle);
@@ -1624,13 +1625,15 @@ void LLVOCache::readGenericExtrasFromCache(U64 handle, const LLUUID& id, LLVOCac
 
     U32 num_entries;  // if removal was enabled during write num_entries might be wrong
     std::getline(in, line);
-    if(!in.good()) {
+    if(!in.good()) 
+    {
         LL_WARNS() << "Failed reading extras cache for handle " << handle << LL_ENDL;
         in.close();
         removeGenericExtrasForHandle(handle);
         return;
     }
-    try {
+    try 
+    {
         num_entries = std::stol(line);
     }
     catch(std::logic_error&)  // either invalid_argument or out_of_range
@@ -1649,11 +1652,13 @@ void LLVOCache::readGenericExtrasFromCache(U64 handle, const LLUUID& id, LLVOCac
         static const U32 max_size = 4096;
         bool success = LLSDSerialize::deserialize(entry_llsd, in, max_size);
         // check bool(in) this time since eof is not a failure condition here
-        if(!success || !in) {
+        if(!success || !in) 
+        {
             LL_WARNS() << "Failed reading extras cache for handle " << handle << ", entry number " << i << " cache patrtial load only." << LL_ENDL;
             in.close();
             removeGenericExtrasForHandle(handle);
             break;
+        }
 
         LLGLTFOverrideCacheEntry entry;
         entry.fromLLSD(entry_llsd);
