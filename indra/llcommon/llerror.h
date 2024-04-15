@@ -1,4 +1,4 @@
-/** 
+/**
  * @file llerror.h
  * @date   December 2006
  * @brief error message system
@@ -6,21 +6,21 @@
  * $LicenseInfo:firstyear=2006&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -96,7 +96,7 @@ const int LL_ERR_NOERR = 0;
 #define LL_BAD_TEMPLATE_INSTANTIATION(type, msg) static_assert(false, msg)
 #else
 #if LL_LINUX
-// We need to include Singal Linden to make the build moat better (also so we ggot access to raise and SIGSEGV
+// We need access to raise and SIGSEGV
 #include <signal.h>
 #endif
 
@@ -108,12 +108,12 @@ const int LL_ERR_NOERR = 0;
 /** Error Logging Facility
 
 	Information for most users:
-	
+
 	Code can log messages with constructions like this:
-	
+
 		LL_INFOS("StringTag") << "request to fizzbip agent " << agent_id
 			<< " denied due to timeout" << LL_ENDL;
-		
+
 	Messages can be logged to one of four increasing levels of concern,
 	using one of four "streams":
 
@@ -121,45 +121,45 @@ const int LL_ERR_NOERR = 0;
 		LL_INFOS("StringTag")	- informational messages that are normal shown
 		LL_WARNS("StringTag")	- warning messages that signal a problem
 		LL_ERRS("StringTag")	- error messages that are major, unrecoverable failures
-		
+
 	The later (LL_ERRS("StringTag")) automatically crashes the process after the message
 	is logged.
-	
+
 	Note that these "streams" are actually #define magic.  Rules for use:
 		* they cannot be used as normal streams, only to start a message
 		* messages written to them MUST be terminated with LL_ENDL
 		* between the opening and closing, the << operator is indeed
 		  writing onto a std::ostream, so all conversions and stream
 		  formating are available
-	
+
 	These messages are automatically logged with function name, and (if enabled)
 	file and line of the message.  (Note: Existing messages that already include
 	the function name don't get name printed twice.)
-	
+
 	If you have a class, adding LOG_CLASS line to the declaration will cause
 	all messages emitted from member functions (normal and static) to be tagged
 	with the proper class name as well as the function name:
-	
+
 		class LLFoo
 		{
 			LOG_CLASS(LLFoo);
 		public:
 			...
 		};
-	
+
 		void LLFoo::doSomething(int i)
 		{
 			if (i > 100)
 			{
-				LL_WARNS("FooBarTag") << "called with a big value for i: " << i << LL_ENDL; 
+				LL_WARNS("FooBarTag") << "called with a big value for i: " << i << LL_ENDL;
 			}
 			...
 		}
-	
+
 	will result in messages like:
-	
+
 		WARN #FooBarTag# llcommon/llfoo(100) LLFoo::doSomething : called with a big value for i: 283
-	
+
     the syntax is:
         <timestamp> SPACE <level> SPACE <tags> SPACE <location> SPACE <function> SPACE COLON SPACE <message>
 
@@ -174,7 +174,7 @@ const int LL_ERR_NOERR = 0;
     A copy of that file named logcontrol-dev.xml can be made in the users personal settings
     directory; that will override the installed default file.  See the logcontrol.xml
     file or http://wiki.secondlife.com/wiki/Logging_System_Overview for configuration details.
-	
+
 	Lastly, logging is now very efficient in both compiled code and execution
 	when skipped.  There is no need to wrap messages, even debugging ones, in
 	#ifdef _DEBUG constructs.  LL_DEBUGS("StringTag") messages are compiled into all builds,
@@ -187,12 +187,12 @@ namespace LLError
 	{
 		LEVEL_ALL = 0,
 			// used to indicate that all messages should be logged
-			
+
 		LEVEL_DEBUG = 0,
 		LEVEL_INFO = 1,
 		LEVEL_WARN = 2,
 		LEVEL_ERROR = 3,	// used to be called FATAL
-		
+
 		LEVEL_NONE = 4
 			// not really a level
 			// used to indicate that no messages should be logged
@@ -228,13 +228,13 @@ namespace LLError
 		// Represents a specific place in the code where a message is logged
 		// This is public because it is used by the macros below.  It is not
 		// intended for public use.
-		CallSite(ELevel level, 
-				const char* file, 
+		CallSite(ELevel level,
+				const char* file,
 				int line,
-				const std::type_info& class_info, 
-				const char* function, 
-				bool print_once, 
-				const char** tags, 
+				const std::type_info& class_info,
+				const char* function,
+				bool print_once,
+				const char** tags,
 				size_t tag_count);
 
 		~CallSite();
@@ -243,16 +243,16 @@ namespace LLError
 		bool shouldLog();
 #else // LL_LIBRARY_INCLUDE
 		bool shouldLog()
-		{ 
-			return mCached 
-					? mShouldLog 
-					: Log::shouldLog(*this); 
+		{
+			return mCached
+					? mShouldLog
+					: Log::shouldLog(*this);
 		}
 			// this member function needs to be in-line for efficiency
 #endif // LL_LIBRARY_INCLUDE
-		
+
 		void invalidate();
-		
+
 		// these describe the call site and never change
 		const ELevel			mLevel;
 		const char* const		mFile;
@@ -268,22 +268,22 @@ namespace LLError
 								mTagString;
 		bool					mCached,
 								mShouldLog;
-		
+
 		friend class Log;
 	};
-	
-	
+
+
 	class End { };
 	inline std::ostream& operator<<(std::ostream& s, const End&)
 		{ return s; }
 		// used to indicate the end of a message
-		
+
 	class LL_COMMON_API NoClassInfo { };
 		// used to indicate no class info known for logging
 
     //LLCallStacks keeps track of call stacks and output the call stacks to log file
     //
-    //Note: to be simple, efficient and necessary to keep track of correct call stacks, 
+    //Note: to be simple, efficient and necessary to keep track of correct call stacks,
     //LLCallStacks is designed not to be thread-safe.
     //so try not to use it in multiple parallel threads at same time.
     //Used in a single thread at a time is fine.
@@ -292,8 +292,8 @@ namespace LLError
     private:
         typedef std::vector<std::string> StringVector;
         static StringVector sBuffer ;
-              
-    public:   
+
+    public:
         static void push(const char* function, const int line) ;
         static void insert(std::ostream& out, const char* function, const int line) ;
         static void print() ;
@@ -331,7 +331,7 @@ namespace LLError
     };
 }
 
-//this is cheaper than llcallstacks if no need to output other variables to call stacks. 
+//this is cheaper than llcallstacks if no need to output other variables to call stacks.
 #define LL_PUSH_CALLSTACKS() LLError::LLCallStacks::push(__FUNCTION__, __LINE__)
 
 #define llcallstacks                                                    \
@@ -346,7 +346,7 @@ namespace LLError
 	}
 
 #define LL_CLEAR_CALLSTACKS() LLError::LLCallStacks::clear()
-#define LL_PRINT_CALLSTACKS() LLError::LLCallStacks::print() 
+#define LL_PRINT_CALLSTACKS() LLError::LLCallStacks::print()
 
 /*
 	Class type information for logging
@@ -355,7 +355,7 @@ namespace LLError
 #define LOG_CLASS(s)	typedef s _LL_CLASS_TO_LOG
 	// Declares class to tag logged messages with.
 	// See top of file for example of how to use this
-	
+
 typedef LLError::NoClassInfo _LL_CLASS_TO_LOG;
 	// Outside a class declaration, or in class without LOG_CLASS(), this
 	// typedef causes the messages to not be associated with any class.
@@ -397,7 +397,7 @@ typedef LLError::NoClassInfo _LL_CLASS_TO_LOG;
 
 //Use this construct if you need to do computation in the middle of a
 //message:
-//	
+//
 //	LL_INFOS("AgentGesture") << "the agent " << agend_id;
 //	switch (f)
 //	{
@@ -406,7 +406,7 @@ typedef LLError::NoClassInfo _LL_CLASS_TO_LOG;
 //		case FOP_SAYS:		LL_CONT << "says " << message;	break;
 //	}
 //	LL_CONT << " for " << t << " seconds" << LL_ENDL;
-//	
+//
 //Such computation is done iff the message will be logged.
 #define LL_CONT	_out
 
@@ -521,7 +521,7 @@ LL_ENDL;
 
 LL_DEBUGS("SomeTag") performs the locking and map-searching ONCE, then caches
 the result in a static variable.
-*/ 
+*/
 
 // used by LLERROR_CRASH
 void crashdriver(void (*)(int*));
