@@ -82,7 +82,7 @@ installer_Linux()
 {
   local package_name="$1"
   local package_dir="$(build_dir_Linux)/newview/"
-  local pattern=".*$(viewer_channel_suffix ${package_name})_[0-9]+_[0-9]+_[0-9]+_[0-9]+_i686\\.tar\\.bz2\$"
+  local pattern=".*$(viewer_channel_suffix ${package_name})_[0-9]+_[0-9]+_[0-9]+_[0-9]+_i686\\.tar\\.xz\$"
   # since the additional packages are built after the base package,
   # sorting oldest first ensures that the unqualified package is returned
   # even if someone makes a qualified name that duplicates the last word of the base name
@@ -170,7 +170,7 @@ pre_build()
         # This name is consumed by indra/newview/CMakeLists.txt. Make it
         # absolute because we've had troubles with relative pathnames.
         abs_build_dir="$(cd "$build_dir"; pwd)"
-        VIEWER_SYMBOL_FILE="$(native_path "$abs_build_dir/newview/$variant/secondlife-symbols-$symplat-${AUTOBUILD_ADDRSIZE}.tar.bz2")"
+        VIEWER_SYMBOL_FILE="$(native_path "$abs_build_dir/newview/$variant/secondlife-symbols-$symplat-${AUTOBUILD_ADDRSIZE}.tar.xz")"
     fi
 
     # honor autobuild_configure_parameters same as sling-buildscripts
@@ -414,10 +414,10 @@ do
               fi
               if [ -d "$build_dir/doxygen/html" ]
               then
-                  tar -c -f "$build_dir/viewer-doxygen.tar.bz2" --strip-components 3  "$build_dir/doxygen/html"
-                  python_cmd "$helpers/codeticket.py" addoutput "Doxygen Tarball" "$build_dir/viewer-doxygen.tar.bz2" \
+                  tar -cJf "$build_dir/viewer-doxygen.tar.xz" --strip-components 3  "$build_dir/doxygen/html"
+                  python_cmd "$helpers/codeticket.py" addoutput "Doxygen Tarball" "$build_dir/viewer-doxygen.tar.xz" \
                       || fatal "Upload of doxygen tarball failed"
-                  metadata+=("$build_dir/viewer-doxygen.tar.bz2")
+                  metadata+=("$build_dir/viewer-doxygen.tar.xz")
               fi
               ;;
             *)
