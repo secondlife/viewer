@@ -318,13 +318,13 @@ bool LLFloaterMyEnvironment::canAction(const std::string &context)
 
     if (context == PARAMETER_EDIT)
     { 
-        return (selected.size() == 1) && isSettingSelected(selected.front());
+        return (selected.size() == 1) && isSettingId(selected.front());
     }
     else if (context == PARAMETER_COPY)
     {
         for (std::vector<LLUUID>::iterator it = selected.begin(); it != selected.end(); it++)
         {
-            if(!isSettingSelected(*it))
+            if(!isSettingId(*it))
             {
                 return false;
             }
@@ -340,7 +340,7 @@ bool LLFloaterMyEnvironment::canAction(const std::string &context)
         LLClipboard::instance().pasteFromClipboard(ids);
         for (std::vector<LLUUID>::iterator it = ids.begin(); it != ids.end(); it++)
         {
-            if (!isSettingSelected(*it))
+            if (!isSettingId(*it))
             {
                 return false;
             }
@@ -349,7 +349,7 @@ bool LLFloaterMyEnvironment::canAction(const std::string &context)
     }
     else if (context == PARAMETER_COPYUUID)
     {
-        return (selected.size() == 1) && isSettingSelected(selected.front());
+        return (selected.size() == 1) && isSettingId(selected.front());
     }
 
     return false;
@@ -365,16 +365,18 @@ bool LLFloaterMyEnvironment::canApply(const std::string &context)
 
     if (context == PARAMETER_REGION)
     { 
-        return LLEnvironment::instance().canAgentUpdateRegionEnvironment();
+        return isSettingId(selected.front()) && LLEnvironment::instance().canAgentUpdateRegionEnvironment();
     }
     else if (context == PARAMETER_PARCEL)
     { 
-        return LLEnvironment::instance().canAgentUpdateParcelEnvironment();
+        return isSettingId(selected.front()) && LLEnvironment::instance().canAgentUpdateParcelEnvironment();
     }
-    else
+    else if (context == PARAMETER_LOCAL)
     {
-        return (context == PARAMETER_LOCAL);
+        return isSettingId(selected.front());
     }
+
+    return false;
 }
 
 //-------------------------------------------------------------------------
@@ -436,7 +438,7 @@ LLUUID LLFloaterMyEnvironment::findItemByAssetId(LLUUID asset_id, bool copyable_
     return LLUUID::null;
 }
 
-bool LLFloaterMyEnvironment::isSettingSelected(LLUUID item_id)
+bool LLFloaterMyEnvironment::isSettingId(const LLUUID& item_id)
 {
     LLInventoryItem* itemp = gInventory.getItem(item_id);
 
