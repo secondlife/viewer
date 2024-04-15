@@ -38,7 +38,9 @@
 #include "llcheckboxctrl.h"
 #include "llviewerinventory.h"
 #include "llenvironment.h"
+#include "llnotificationsutil.h"
 #include "llparcel.h"
+#include "lltrans.h"
 #include "llviewerparcelmgr.h"
 
 //=========================================================================
@@ -223,6 +225,35 @@ void LLFloaterMyEnvironment::onFilterEdit(const std::string& search_string)
     mInventoryList->setFilterSubString(search_string);
 }
 
+void LLFloaterMyEnvironment::onItemsRemovalConfirmation(const LLSD& notification, const LLSD& response, uuid_vec_t item_ids)
+{
+    S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+    if (option == 0)
+    {
+        const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
+        for (const LLUUID& itemid : item_ids)
+        {
+            LLInventoryItem* inv_item = gInventory.getItem(itemid);
+
+            if (inv_item && inv_item->getInventoryType() == LLInventoryType::IT_SETTINGS)
+            {
+                LLInventoryModel::update_list_t update;
+                LLInventoryModel::LLCategoryUpdate old_folder(inv_item->getParentUUID(), -1);
+                update.push_back(old_folder);
+                LLInventoryModel::LLCategoryUpdate new_folder(trash_id, 1);
+                update.push_back(new_folder);
+                gInventory.accountForUpdate(update);
+
+                LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(inv_item);
+                new_item->setParent(trash_id);
+                new_item->updateParentOnServer(FALSE);
+                gInventory.updateItem(new_item);
+            }
+        }
+        gInventory.notifyObservers();
+    }
+}
+
 void LLFloaterMyEnvironment::onDeleteSelected()
 {
     uuid_vec_t selected;
@@ -231,27 +262,16 @@ void LLFloaterMyEnvironment::onDeleteSelected()
     if (selected.empty())
         return;
 
-    const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
-    for (const LLUUID& itemid: selected)
-    {
-        LLInventoryItem* inv_item = gInventory.getItem(itemid);
-
-        if (inv_item && inv_item->getInventoryType() == LLInventoryType::IT_SETTINGS)
+    LLSD args;
+    args["QUESTION"] = LLTrans::getString(selected.size() > 1 ? "DeleteItems" : "DeleteItem");
+    LLNotificationsUtil::add(
+        "DeleteItems",
+        args,
+        LLSD(),
+        [this, selected](const LLSD& notification, const LLSD& response)
         {
-            LLInventoryModel::update_list_t update;
-            LLInventoryModel::LLCategoryUpdate old_folder(inv_item->getParentUUID(), -1);
-            update.push_back(old_folder);
-            LLInventoryModel::LLCategoryUpdate new_folder(trash_id, 1);
-            update.push_back(new_folder);
-            gInventory.accountForUpdate(update);
-
-            LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(inv_item);
-            new_item->setParent(trash_id);
-            new_item->updateParentOnServer(FALSE);
-            gInventory.updateItem(new_item);
-        }
-    }
-    gInventory.notifyObservers();
+            onItemsRemovalConfirmation(notification, response, selected);
+        });
 }
 
 
