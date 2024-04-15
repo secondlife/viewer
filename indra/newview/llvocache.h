@@ -43,6 +43,8 @@ class LLCamera;
 class LLGLTFOverrideCacheEntry
 {
 public:
+    static const std::string VERSION_LABEL;
+    static const int VERSION;
     bool fromLLSD(const LLSD& data);
     LLSD toLLSD() const;
 
