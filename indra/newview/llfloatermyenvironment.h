@@ -60,6 +60,7 @@ private:
     void                            onFilterCheckChange();
     void                            onFilterEdit(const std::string& search_string);
     void                            onSelectionChange();
+    void                            onItemsRemovalConfirmation(const LLSD& notification, const LLSD& response, uuid_vec_t item_ids);
     void                            onDeleteSelected();
     void                            onDoCreate(const LLSD &data);
     void                            onDoApply(const std::string &context);
