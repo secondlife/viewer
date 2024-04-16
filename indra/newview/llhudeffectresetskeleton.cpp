@@ -118,7 +118,13 @@ void LLHUDEffectResetSkeleton::unpackData(LLMessageSystem *mesgsys, S32 blocknum
 	
 	LLUUID target_id;
 	htolememcpy(target_id.mData, &(packed_data[TARGET_OBJECT]), MVT_LLUUID, 16);
-
+	
+	// The purpose for having a target ID is if we want to reset animesh, or
+	// other things in the future.
+	// I implemented this, but due to issues regarding various permission
+	// checks, I scrapped it for now. --Chaser Zaks
+	// See https://github.com/secondlife/viewer/pull/1212 for additional info
+	
 	if (target_id.isNull())
 	{
 		target_id = source_id;
@@ -185,22 +191,19 @@ void LLHUDEffectResetSkeleton::update()
 		return;
 	}
 	
-	bool owned = false;
-	if(mTargetObject->isAnimatedObject())
+	if (mTargetObject->isAvatar())
 	{
-		owned = mTargetObject->mOwnerID == mSourceObject->getID();
+		// Only the owner of a avatar can reset their skeleton like this
+		if (mSourceObject->getID() == mTargetObject->getID())
+		{
+			LLVOAvatar* avatar = (LLVOAvatar*)(LLViewerObject*)mTargetObject;
+			avatar->resetSkeleton(mResetAnimations);
+		}
 	}
 	else
 	{
-		owned = mTargetObject->getID() == mSourceObject->getID();
-	}
-
-	if (owned)
-	{
-		if (mTargetObject->isAvatar() || mTargetObject->isAnimatedObject())
-		{
-			((LLVOAvatar*)(LLViewerObject*)mTargetObject)->resetSkeleton(mResetAnimations);
-		}
+		LL_WARNS() << mSourceObject->getID() << " attempted to reset skeleton on "
+				<< mTargetObject->getID() << ", but it is not a avatar!" << LL_ENDL;
 	}
 	
 	markDead();
