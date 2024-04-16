@@ -1602,8 +1602,18 @@ void LLVOCache::readGenericExtrasFromCache(U64 handle, const LLUUID& id, LLVOCac
     {
         std::string versionStr = line.substr(LLGLTFOverrideCacheEntry::VERSION_LABEL.length()+1); // skip the version label and ':'
         versionNumber = std::stol(versionStr);
-        std::getline(in, line); // read the next line for the region UUID check
     }
+    // For future versions we may call a legacy handler here, but realistically we'll just consider this cache out of date.
+    // The important thing is to make sure it gets removed.
+    if(versionNumber != LLGLTFOverrideCacheEntry::VERSION && versionNumber != 0)
+    {
+        LL_WARNS << "Unexpected version number " << versionNumber << " for extras cache for handle " << handle << LL_ENDL;
+        in.close();
+        removeGenericExtrasForHandle(handle);
+        return;
+    }
+
+    LL_DEBUGS("VOCache") << "Reading extras cache for handle " << handle << ", version " << versionNumber << LL_ENDL;
 
     if(!LLUUID::validate(line))
     {
