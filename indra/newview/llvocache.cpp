@@ -1607,7 +1607,7 @@ void LLVOCache::readGenericExtrasFromCache(U64 handle, const LLUUID& id, LLVOCac
     // The important thing is to make sure it gets removed.
     if(versionNumber != LLGLTFOverrideCacheEntry::VERSION && versionNumber != 0)
     {
-        LL_WARNS << "Unexpected version number " << versionNumber << " for extras cache for handle " << handle << LL_ENDL;
+        LL_WARNS() << "Unexpected version number " << versionNumber << " for extras cache for handle " << handle << LL_ENDL;
         in.close();
         removeGenericExtrasForHandle(handle);
         return;
