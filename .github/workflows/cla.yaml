@@ -19,7 +19,7 @@ jobs:
           PERSONAL_ACCESS_TOKEN: ${{ secrets.SHARED_CLA_TOKEN }}
         with:
           branch: main
-          path-to-document: https://github.com/secondlife/cla/blob/master/CLA.md
+          path-to-document: https://github.com/secondlife/cla/blob/main/CLA.md
           path-to-signatures: signatures.json
           remote-organization-name: secondlife
           remote-repository-name: cla-signatures
