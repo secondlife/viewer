@@ -1193,12 +1193,11 @@ void LLViewerFetchedTexture::loadFromFastCache()
 
             if (mBoostLevel == LLGLTexture::BOOST_THUMBNAIL)
             {
-                S32 expected_width = mKnownDrawWidth > 0 ? mKnownDrawWidth : DEFAULT_THUMBNAIL_DIMENSIONS;
-                S32 expected_height = mKnownDrawHeight > 0 ? mKnownDrawHeight : DEFAULT_THUMBNAIL_DIMENSIONS;
-                if (mRawImage && (mRawImage->getWidth() > expected_width || mRawImage->getHeight() > expected_height))
+                if (mRawImage && (mRawImage->getWidth() > DEFAULT_THUMBNAIL_DIMENSIONS || mRawImage->getHeight() > DEFAULT_THUMBNAIL_DIMENSIONS))
                 {
-                    // scale oversized icon, no need to give more work to gl
-                    mRawImage->scale(expected_width, expected_height);
+                    // Scale oversized thumbnail
+                    // thumbnails aren't supposed to go over DEFAULT_THUMBNAIL_DIMENSIONS
+                    mRawImage->scale(DEFAULT_THUMBNAIL_DIMENSIONS, DEFAULT_THUMBNAIL_DIMENSIONS);
                 }
             }
 
@@ -1941,13 +1940,10 @@ bool LLViewerFetchedTexture::updateFetch()
 
                 if (mBoostLevel == LLGLTexture::BOOST_THUMBNAIL)
                 {
-                    S32 expected_width = mKnownDrawWidth > 0 ? mKnownDrawWidth : DEFAULT_THUMBNAIL_DIMENSIONS;
-                    S32 expected_height = mKnownDrawHeight > 0 ? mKnownDrawHeight : DEFAULT_THUMBNAIL_DIMENSIONS;
-                    if (mRawImage && (mRawImage->getWidth() > expected_width || mRawImage->getHeight() > expected_height))
+                    if (mRawImage && (mRawImage->getWidth() > DEFAULT_THUMBNAIL_DIMENSIONS || mRawImage->getHeight() > DEFAULT_THUMBNAIL_DIMENSIONS))
                     {
-                        // scale oversized icon, no need to give more work to gl
-                        // since we got mRawImage from thread worker and image may be in use (ex: writing cache), make a copy
-                        mRawImage = mRawImage->scaled(expected_width, expected_height);
+                        // Scale oversized thumbnail
+                        mRawImage = mRawImage->scaled(DEFAULT_THUMBNAIL_DIMENSIONS, DEFAULT_THUMBNAIL_DIMENSIONS);
                     }
                 }
 
@@ -2797,11 +2793,9 @@ void LLViewerFetchedTexture::setCachedRawImage(S32 discard_level, LLImageRaw* im
         }
         else if (mBoostLevel == LLGLTexture::BOOST_THUMBNAIL)
         {
-            S32 expected_width = mKnownDrawWidth > 0 ? mKnownDrawWidth : DEFAULT_THUMBNAIL_DIMENSIONS;
-            S32 expected_height = mKnownDrawHeight > 0 ? mKnownDrawHeight : DEFAULT_THUMBNAIL_DIMENSIONS;
-            if (mRawImage->getWidth() > expected_width || mRawImage->getHeight() > expected_height)
+            if (mRawImage->getWidth() > DEFAULT_THUMBNAIL_DIMENSIONS || mRawImage->getHeight() > DEFAULT_THUMBNAIL_DIMENSIONS)
             {
-                mCachedRawImage = new LLImageRaw(expected_width, expected_height, imageraw->getComponents());
+                mCachedRawImage = new LLImageRaw(DEFAULT_THUMBNAIL_DIMENSIONS, DEFAULT_THUMBNAIL_DIMENSIONS, imageraw->getComponents());
                 mCachedRawImage->copyScaled(imageraw);
             }
             else
@@ -2919,11 +2913,9 @@ void LLViewerFetchedTexture::saveRawImage()
     }
     else if (mBoostLevel == LLGLTexture::BOOST_THUMBNAIL)
     {
-        S32 expected_width = mKnownDrawWidth > 0 ? mKnownDrawWidth : DEFAULT_THUMBNAIL_DIMENSIONS;
-        S32 expected_height = mKnownDrawHeight > 0 ? mKnownDrawHeight : DEFAULT_THUMBNAIL_DIMENSIONS;
-        if (mRawImage->getWidth() > expected_width || mRawImage->getHeight() > expected_height)
+        if (mRawImage->getWidth() > DEFAULT_THUMBNAIL_DIMENSIONS || mRawImage->getHeight() > DEFAULT_THUMBNAIL_DIMENSIONS)
         {
-            mSavedRawImage = new LLImageRaw(expected_width, expected_height, mRawImage->getComponents());
+            mSavedRawImage = new LLImageRaw(DEFAULT_THUMBNAIL_DIMENSIONS, DEFAULT_THUMBNAIL_DIMENSIONS, mRawImage->getComponents());
             mSavedRawImage->copyScaled(mRawImage);
         }
         else
