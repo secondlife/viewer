@@ -2154,12 +2154,19 @@ void LLTextBase::createUrlContextMenu(S32 x, S32 y, const std::string &in_url)
             }
         }
 
-		LLButton* translateChatButton = menu->getChild<LLButton>("translate_chat");
-		if(translateChatButton)
+		LLUrlAction::bool_agent_callback_t is_translating_chat_cb = LLUrlAction::getShouldTranslateAgentCallback();
+		if (is_translating_chat_cb)
 		{
-			LL_INFOS() << "button found" << LL_ENDL;
-            translateChatButton->setLabelArg("foo", LLStringExplicit("bar"));
+			LLUUID agent_id = LLUUID(LLUrlAction::getUserID(url));
+			LLView* translateChatButton = menu->getChild<LLView>("translate_chat");
+			LLView* noTranslateChatButton = menu->getChild<LLView>("no_translate_chat");
+			if (translateChatButton && noTranslateChatButton)
+			{
+				translateChatButton->setEnabled(!is_translating_chat_cb(agent_id));
+				noTranslateChatButton->setEnabled(is_translating_chat_cb(agent_id));
+			}
 		}
+		
         menu->show(x, y);
         LLMenuGL::showPopup(this, menu, x, y);
     }

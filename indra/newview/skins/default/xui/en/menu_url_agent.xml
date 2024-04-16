@@ -39,6 +39,14 @@
             />
     </menu_item_call>
     <menu_item_call
+     label="Don't Translate Chat"
+     layout="topleft"
+     name="no_translate_chat">
+        <menu_item_call.on_click
+            function="Url.ToggleTranslateChat"
+            />
+    </menu_item_call>
+    <menu_item_call
      label="Report Abuse"
      layout="topleft"
      name="report_abuse">

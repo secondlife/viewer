@@ -865,6 +865,7 @@ bool LLAppViewer::init()
 	LLUrlAction::setOpenURLExternalCallback(boost::bind(&LLWeb::loadURLExternal, _1, true, LLStringUtil::null));
 	LLUrlAction::setExecuteSLURLCallback(&LLURLDispatcher::dispatchFromTextEditor);
 	LLUrlAction::setToggleTranslateCallback(&LLTranslate::toggleTranslateAgent);
+	LLUrlAction::setShouldTranslateAgentCallback(&LLTranslate::shouldTranslateAgent);
 
 	// Let code in llui access the viewer help floater
 	LLUI::getInstance()->mHelpImpl = LLViewerHelp::getInstance();
