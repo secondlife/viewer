@@ -1652,7 +1652,7 @@
             <key>name</key>
             <string>linux64</string>
           </map>
-          <key>windows</key>
+          <key>windows64</key>
           <map>
             <key>archive</key>
             <map>
