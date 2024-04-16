@@ -6515,7 +6515,7 @@ class LLAvatarResetSkeleton: public view_listener_t
 			}
 			else
 			{
-				avatar->setResetAnimations(false);
+				avatar->resetSkeleton(false);
 			}
         }
         return true;
@@ -6552,7 +6552,7 @@ class LLAvatarResetSkeletonAndAnimations : public view_listener_t
 			}
 			else
 			{
-				avatar->setResetAnimations(true);
+				avatar->resetSkeleton(true);
 			}
 		}
 		return true;
@@ -6575,7 +6575,7 @@ class LLAvatarResetSelfSkeletonAndAnimations : public view_listener_t
 			}
 			else
 			{
-				avatar->setResetAnimations(true);
+				avatar->resetSkeleton(true);
 			}
 		}
 		else
