@@ -94,14 +94,18 @@ public:
 	typedef boost::function<bool(const std::string& url, bool trusted_content)> execute_url_callback_t;
 	typedef boost::function<void (const LLUUID&)> agent_callback_t;
 	typedef boost::function<bool(const LLUUID&)> bool_agent_callback_t;
+	typedef boost::function<bool()> bool_null_callback_t;
 
 	static void	setOpenURLCallback(url_callback_t cb);
 	static void	setOpenURLInternalCallback(url_callback_t cb);
 	static void	setOpenURLExternalCallback(url_callback_t cb);
 	static void	setExecuteSLURLCallback(execute_url_callback_t cb);
+
 	static void	setToggleTranslateCallback(agent_callback_t cb);
 	static void setShouldTranslateAgentCallback(bool_agent_callback_t cb);
 	static bool_agent_callback_t getShouldTranslateAgentCallback();
+	static void setIsTranslationConfiguredCallback(bool_null_callback_t cb);
+	static bool_null_callback_t getIsTranslationConfiguredCallback();
 
 private:
 	// callbacks for operations we can perform on Urls
@@ -113,6 +117,7 @@ private:
 
 	static agent_callback_t sToggleTranslateCallback;
 	static bool_agent_callback_t sShouldTranslateAgentCallback;
+	static bool_null_callback_t sIsTranslationConfiguredCallback;
 };
 
 #endif

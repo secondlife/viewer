@@ -39,6 +39,7 @@ LLUrlAction::url_callback_t 		LLUrlAction::sOpenURLExternalCallback;
 LLUrlAction::execute_url_callback_t LLUrlAction::sExecuteSLURLCallback;
 LLUrlAction::agent_callback_t 		LLUrlAction::sToggleTranslateCallback;
 LLUrlAction::bool_agent_callback_t 	LLUrlAction::sShouldTranslateAgentCallback;
+LLUrlAction::bool_null_callback_t 	LLUrlAction::sIsTranslationConfiguredCallback;
 
 void LLUrlAction::setOpenURLCallback(url_callback_t cb)
 {
@@ -73,6 +74,16 @@ void LLUrlAction::setShouldTranslateAgentCallback(bool_agent_callback_t cb)
 LLUrlAction::bool_agent_callback_t LLUrlAction::getShouldTranslateAgentCallback()
 {
 	return sShouldTranslateAgentCallback;
+}
+
+void LLUrlAction::setIsTranslationConfiguredCallback(bool_null_callback_t cb)
+{
+	sIsTranslationConfiguredCallback = cb;
+}
+
+LLUrlAction::bool_null_callback_t LLUrlAction::getIsTranslationConfiguredCallback()
+{
+	return sIsTranslationConfiguredCallback;
 }
 
 void LLUrlAction::openURL(std::string url)

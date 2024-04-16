@@ -2154,16 +2154,26 @@ void LLTextBase::createUrlContextMenu(S32 x, S32 y, const std::string &in_url)
             }
         }
 
+		LLUrlAction::bool_null_callback_t is_translation_configured_cb = LLUrlAction::getIsTranslationConfiguredCallback();
 		LLUrlAction::bool_agent_callback_t is_translating_chat_cb = LLUrlAction::getShouldTranslateAgentCallback();
-		if (is_translating_chat_cb)
+		if (is_translating_chat_cb && is_translation_configured_cb)
 		{
 			LLUUID agent_id = LLUUID(LLUrlAction::getUserID(url));
 			LLView* translateChatButton = menu->getChild<LLView>("translate_chat");
 			LLView* noTranslateChatButton = menu->getChild<LLView>("no_translate_chat");
 			if (translateChatButton && noTranslateChatButton)
 			{
-				translateChatButton->setEnabled(!is_translating_chat_cb(agent_id));
-				noTranslateChatButton->setEnabled(is_translating_chat_cb(agent_id));
+				bool is_configured = is_translation_configured_cb();
+				if (is_configured)
+				{
+					translateChatButton->setEnabled(!is_translating_chat_cb(agent_id));
+					noTranslateChatButton->setEnabled(is_translating_chat_cb(agent_id));
+				}
+				else
+				{
+					translateChatButton->setVisible(false);
+					noTranslateChatButton->setVisible(false);
+				}
 			}
 		}
 		

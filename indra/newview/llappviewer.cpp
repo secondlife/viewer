@@ -866,6 +866,7 @@ bool LLAppViewer::init()
 	LLUrlAction::setExecuteSLURLCallback(&LLURLDispatcher::dispatchFromTextEditor);
 	LLUrlAction::setToggleTranslateCallback(&LLTranslate::toggleTranslateAgent);
 	LLUrlAction::setShouldTranslateAgentCallback(&LLTranslate::shouldTranslateAgent);
+	LLUrlAction::setIsTranslationConfiguredCallback(&LLTranslate::isTranslationConfigured);
 
 	// Let code in llui access the viewer help floater
 	LLUI::getInstance()->mHelpImpl = LLViewerHelp::getInstance();
