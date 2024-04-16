@@ -196,7 +196,7 @@ void LLHUDEffectResetSkeleton::update()
 		// Only the owner of a avatar can reset their skeleton like this
 		if (mSourceObject->getID() == mTargetObject->getID())
 		{
-			LLVOAvatar* avatar = (LLVOAvatar*)(LLViewerObject*)mTargetObject;
+			LLVOAvatar* avatar = mTargetObject->asAvatar();
 			avatar->resetSkeleton(mResetAnimations);
 		}
 	}
