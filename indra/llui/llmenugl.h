@@ -568,6 +568,8 @@ public:
     // add a menu - this will create a cascading menu
     virtual BOOL appendMenu(LLMenuGL *menu);
 
+    const LLFontGL *getFont() const { return mFont; }
+
 protected:
 	void createSpilloverBranch();
 	void cleanupSpilloverBranch();
@@ -594,6 +596,9 @@ protected:
 	BOOL			mScrollable;
 	BOOL			mKeepFixedSize;
 	BOOL			mNeedsArrange;
+
+    // Font for top menu items only
+    const LLFontGL* mFont;
 
 private:
 

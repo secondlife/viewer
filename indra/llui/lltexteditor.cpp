@@ -1863,7 +1863,8 @@ BOOL LLTextEditor::handleKeyHere(KEY key, MASK mask )
 		}
 
 		if (mEnableTooltipPaste &&
-			LLToolTipMgr::instance().toolTipVisible() && 
+			LLToolTipMgr::instance().toolTipVisible() &&
+            LLToolTipMgr::instance().isTooltipPastable() &&
 			KEY_TAB == key)
 		{	// Paste the first line of a tooltip into the editor
 			std::string message;

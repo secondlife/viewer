@@ -36,6 +36,7 @@ class LLViewerVisualParam;
 class LLWearable;
 class LLVisualParamHint;
 class LLViewerVisualParam;
+class LLSliderCtrl;
 class LLJoint;
 
 class LLScrollingPanelParamBase : public LLScrollingPanel
@@ -49,11 +50,13 @@ public:
 
 	static void			onSliderMoved(LLUICtrl* ctrl, void* userdata);
 
-	F32					weightToPercent( F32 weight );
-	F32					percentToWeight( F32 percent );
+	F32					weightToSlider(F32 weight);
+	F32					sliderToWeight(F32 slider);
 
 public:
 	LLViewerVisualParam* mParam;
+	LLSliderCtrl* mSlider;
+
 protected:
 	BOOL mAllowModify;
 	LLWearable *mWearable;

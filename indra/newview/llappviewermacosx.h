@@ -42,6 +42,8 @@ public:
 	//
 	virtual bool init();			// Override to do application initialization
 
+    virtual void forceErrorOSSpecificException();
+
 protected:
 	virtual bool restoreErrorTrap();
 
