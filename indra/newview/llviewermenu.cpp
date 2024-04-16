@@ -6506,16 +6506,16 @@ class LLAvatarResetSkeleton: public view_listener_t
         }
 		if(avatar)
         {
-			if(avatar->getID() == gAgent.getID())
+			if(avatar->getID() == gAgentID)
 			{
-				LLHUDEffectResetSkeleton* effectp = (LLHUDEffectResetSkeleton*)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_RESET_SKELETON, owned);
+				LLHUDEffectResetSkeleton* effectp = (LLHUDEffectResetSkeleton*)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_RESET_SKELETON, true);
 				effectp->setSourceObject(gAgentAvatarp);
 				effectp->setTargetObject((LLViewerObject*)avatar);
 				effectp->setResetAnimations(false);
 			}
 			else
 			{
-				effectp->setResetAnimations(false);
+				avatar->setResetAnimations(false);
 			}
         }
         return true;
@@ -6543,7 +6543,7 @@ class LLAvatarResetSkeletonAndAnimations : public view_listener_t
 		LLVOAvatar* avatar = find_avatar_from_object(LLSelectMgr::getInstance()->getSelection()->getPrimaryObject());
 		if (avatar)
 		{
-			if(avatar->getID() == gAgent.getID())
+			if(avatar->getID() == gAgentID)
 			{
 				LLHUDEffectResetSkeleton* effectp = (LLHUDEffectResetSkeleton*)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_RESET_SKELETON, true);
 				effectp->setSourceObject(gAgentAvatarp);
@@ -6552,7 +6552,7 @@ class LLAvatarResetSkeletonAndAnimations : public view_listener_t
 			}
 			else
 			{
-				effectp->setResetAnimations(true);
+				avatar->setResetAnimations(true);
 			}
 		}
 		return true;
@@ -6566,7 +6566,7 @@ class LLAvatarResetSelfSkeletonAndAnimations : public view_listener_t
 		LLVOAvatar* avatar = find_avatar_from_object(LLSelectMgr::getInstance()->getSelection()->getPrimaryObject());
 		if (avatar)
 		{
-			if(avatar->getID() == gAgent.getID())
+			if(avatar->getID() == gAgentID)
 			{
 				LLHUDEffectResetSkeleton* effectp = (LLHUDEffectResetSkeleton*)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_RESET_SKELETON, true);
 				effectp->setSourceObject(gAgentAvatarp);
@@ -6575,7 +6575,7 @@ class LLAvatarResetSelfSkeletonAndAnimations : public view_listener_t
 			}
 			else
 			{
-				effectp->setResetAnimations(true);
+				avatar->setResetAnimations(true);
 			}
 		}
 		else
