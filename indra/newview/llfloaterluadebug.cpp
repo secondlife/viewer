@@ -123,8 +123,10 @@ void LLFloaterLUADebug::completion(int count, const LLSD& result)
     if (count < 0)
     {
         // error: show error message
-        mResultOutput->insertText("*** ");
-        mResultOutput->pasteTextWithLinebreaks(result.asString());
+        LLStyle::Params params;
+        params.readonly_color = LLUIColorTable::instance().getColor("LtRed");
+        mResultOutput->appendText(result.asString(), false, params);
+        mResultOutput->endOfDoc();
         return;
     }
     if (count == 1)
