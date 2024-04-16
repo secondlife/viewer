@@ -222,6 +222,14 @@ void LLUrlAction::removeFriend(std::string url)
 	}
 }
 
+void LLUrlAction::toggleTranslateChat(std::string url)
+{
+	std::string id_str = getUserID(url);
+	if (LLUUID::validate(id_str))
+	{
+		
+	}
+}
 void LLUrlAction::reportAbuse(std::string url)
 {
     std::string id_str = getUserID(url);

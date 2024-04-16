@@ -1375,8 +1375,10 @@ LLTranslate::~LLTranslate()
 /*static*/
 bool LLTranslate::shouldTranslate(const LLChat& chat)
 {
-    // TODO: filter by from id
-
+    if (!shouldTranslateAgent(chat.mFromID))
+    {
+        return false;
+    }
     if (chat.mSourceType == CHAT_SOURCE_SYSTEM)
     {
         return false;
@@ -1388,11 +1390,34 @@ bool LLTranslate::shouldTranslate(const LLChat& chat)
 /* static */
 bool LLTranslate::shouldTranslate(const LLUUID& from_id, const std::string& from_str)
 {
+    if (!shouldTranslateAgent(from_id))
+    {
+        return false;
+    }
     if (from_str == SYSTEM_FROM)
     {
         return false;
     }
     return getPreferredHandler() != nullptr;
+}
+
+/* static */
+bool LLTranslate::shouldTranslateAgent(const LLUUID& agent_id)
+{
+    return instance().mTranslateAgents.find(agent_id) != instance().mTranslateAgents.end();
+}
+
+/* static */
+void LLTranslate::setTranslateAgent(const LLUUID& agent_id, bool translate)
+{
+    if (translate)
+    {
+        instance().mTranslateAgents.insert(agent_id);
+    }
+    else
+    {
+        instance().mTranslateAgents.erase(agent_id);
+    }
 }
 
 /*static*/

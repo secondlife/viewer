@@ -30,6 +30,14 @@
         <menu_item_call.on_click
          function="Url.RemoveFriend" />
     </menu_item_call>
+   <menu_item_call
+     label="Translate Chat"
+     layout="topleft"
+     name="translate_chat">
+        <menu_item_call.on_click
+            function="Url.ToggleTranslateChat"
+            />
+    </menu_item_call>
     <menu_item_call
      label="Report Abuse"
      layout="topleft"

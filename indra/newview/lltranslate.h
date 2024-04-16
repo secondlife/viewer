@@ -77,6 +77,8 @@ public :
 	 */
 	static bool shouldTranslate(const LLChat& chat);
 	static bool shouldTranslate(const LLUUID& from_id, const std::string& from_str);
+	static bool shouldTranslateAgent(const LLUUID& agent_id);
+	static void setTranslateAgent(const LLUUID& agent_id, bool translate);
 
 	/**
 	 * Translate given text.
@@ -117,6 +119,8 @@ public :
 private:
 	static LLTranslationAPIHandler* getPreferredHandler();
 	static LLTranslationAPIHandler* getHandler(EService service);
+
+	std::set<LLUUID> mTranslateAgents;
 
 	size_t mCharsSeen;
 	size_t mCharsSent;
