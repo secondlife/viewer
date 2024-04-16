@@ -171,31 +171,12 @@ namespace LL
             LLMatrix4a mAssetMatrixInv; //transform from asset to local space
 
             std::vector<S32> mChildren;
+            S32 mParent = INVALID_INDEX;
+
             S32 mMesh = INVALID_INDEX;
             std::string mName;
 
-            const Node& operator=(const tinygltf::Node& src)
-            {
-                F32* dstMatrix = mMatrix.getF32ptr();
-
-                if (src.matrix.size() != 16)
-                {
-                    mMatrix.setIdentity();
-                }
-                else
-                {
-                    for (U32 i = 0; i < 16; ++i)
-                    {
-                        dstMatrix[i] = (F32)src.matrix[i];
-                    }
-                }
-                
-                mChildren = src.children;
-                mMesh = src.mesh;
-                mName = src.name;
-
-                return *this;
-            }
+            const Node& operator=(const tinygltf::Node& src);
 
             // Set mRenderMatrix to a transform that can be used for the current render pass
             // modelview -- parent's render matrix
@@ -314,20 +295,22 @@ namespace LL
 
             void allocateGLResources(const std::string& filename, const tinygltf::Model& model)
             {
-                for (auto& mesh : mMeshes)
-                {
-                    mesh.allocateGLResources(*this);
-                }
-
+                // do images first as materials may depend on images
                 for (auto& image : mImages)
                 {
                     image.allocateGLResources();
                 }
 
+                // do materials before meshes as meshes may depend on materials
                 for (U32 i = 0; i < mMaterials.size(); ++i)
                 {
                     mMaterials[i].allocateGLResources(*this);
                     LLTinyGLTFHelper::getMaterialFromModel(filename, model, i, mMaterials[i].mMaterial, mMaterials[i].mName, true);
+                }
+
+                for (auto& mesh : mMeshes)
+                {
+                    mesh.allocateGLResources(*this);
                 }
             }
 
@@ -337,34 +320,9 @@ namespace LL
             // update node render transforms
             void updateRenderTransforms(const LLMatrix4a& modelview);
             
-            void renderOpaque()
-            {
-                for (auto& node : mNodes)
-                {
-                    if (node.mMesh != INVALID_INDEX)
-                    {
-                        Mesh& mesh = mMeshes[node.mMesh];
-                        for (auto& primitive : mesh.mPrimitives)
-                        {
-                            gGL.loadMatrix((F32*)node.mRenderMatrix.mMatrix);
-                            if (primitive.mMaterial != INVALID_INDEX)
-                            {
-                                Material& material = mMaterials[primitive.mMaterial];
-                                material.mMaterial->bind();
-                            }
-                            primitive.mVertexBuffer->setBuffer();
-                            if (primitive.mVertexBuffer->getNumIndices() > 0)
-                            {
-                                primitive.mVertexBuffer->draw(primitive.mGLMode, primitive.mVertexBuffer->getNumIndices(), 0);
-                            }
-                            else
-                            {
-                                primitive.mVertexBuffer->drawArrays(primitive.mGLMode, 0, primitive.mVertexBuffer->getNumVerts());
-                            }
-                        }
-                    }
-                }
-            }
+            void render(bool opaque);
+            void renderOpaque();
+            void renderTransparent();
 
             // return the index of the node that the line segment intersects with, or -1 if no hit
             // input and output values must be in this asset's local coordinate frame

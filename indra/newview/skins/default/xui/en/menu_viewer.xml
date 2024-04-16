@@ -2889,6 +2889,16 @@ function="World.EnvPreset"
            parameter="octree" />
         </menu_item_check>
         <menu_item_check
+         label="GLTF Nodes"
+         name="GLTF Nodes">
+          <menu_item_check.on_check
+           function="Advanced.CheckInfoDisplay"
+           parameter="nodes" />
+          <menu_item_check.on_click
+           function="Advanced.ToggleInfoDisplay"
+           parameter="nodes" />
+        </menu_item_check>
+        <menu_item_check
          label="Shadow Frusta"
          name="Shadow Frusta">
           <menu_item_check.on_check

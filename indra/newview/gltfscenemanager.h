@@ -38,7 +38,9 @@ namespace LL
         // load GLTF file from disk
         void load(); // open filepicker to choose asset
         void load(const std::string& filename); // load asset from filename
+        void render(bool opaque);
         void renderOpaque();
+        void renderAlpha();
 
         LLDrawable* lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
             BOOL pick_transparent,

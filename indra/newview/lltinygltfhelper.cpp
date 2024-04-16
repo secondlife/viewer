@@ -87,19 +87,29 @@ void LLTinyGLTFHelper::initFetchedTextures(tinygltf::Material& material,
     {
         strip_alpha_channel(mr_img);
 
-        if (occlusion_img && material.pbrMetallicRoughness.metallicRoughnessTexture.index != material.occlusionTexture.index)
+        if (occlusion_img)
         {
-            // occlusion is a distinct texture from pbrMetallicRoughness
-            // pack into mr red channel
-            int occlusion_idx = material.occlusionTexture.index;
-            int mr_idx = material.pbrMetallicRoughness.metallicRoughnessTexture.index;
-            if (occlusion_idx != mr_idx)
+            if (material.pbrMetallicRoughness.metallicRoughnessTexture.index != material.occlusionTexture.index)
             {
-                //scale occlusion image to match resolution of mr image
-                occlusion_img->scale(mr_img->getWidth(), mr_img->getHeight());
+                // occlusion is a distinct texture from pbrMetallicRoughness
+                // pack into mr red channel
+                int occlusion_idx = material.occlusionTexture.index;
+                int mr_idx = material.pbrMetallicRoughness.metallicRoughnessTexture.index;
+                if (occlusion_idx != mr_idx)
+                {
+                    //scale occlusion image to match resolution of mr image
+                    occlusion_img->scale(mr_img->getWidth(), mr_img->getHeight());
 
-                copy_red_channel(occlusion_img, mr_img);
+                    copy_red_channel(occlusion_img, mr_img);
+                }
             }
+        }
+        else
+        {
+            // no occlusion, make a white occlusion image
+            occlusion_img = new LLImageRaw(mr_img->getWidth(), mr_img->getHeight(), 3);
+            occlusion_img->clear(255, 255, 255);
+            copy_red_channel(occlusion_img, mr_img);
         }
     }
     else if (occlusion_img)

@@ -5222,7 +5222,7 @@ void LLSelectMgr::saveSelectedObjectTransform(EActionType action_type)
             if (selectNode->mSelectedGLTFNode != -1)
             {
                 // save GLTF node state
-                selectNode->mSavedPositionLocal = object->getGLTFNodePositionAgent(selectNode->mSelectedGLTFNode);
+                object->getGLTFNodeTransformAgent(selectNode->mSelectedGLTFNode, &selectNode->mSavedPositionLocal, &selectNode->mSavedRotation, &selectNode->mSavedScale);
                 selectNode->mSavedPositionGlobal = gAgent.getPosGlobalFromAgent(selectNode->mSavedPositionLocal);
                 selectNode->mLastMoveLocal.setZero();
             }

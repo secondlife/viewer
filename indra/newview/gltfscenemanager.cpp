@@ -91,7 +91,11 @@ void GLTFSceneManager::load(const std::string& filename)
     if (obj)
     { // assign to self avatar
         obj->mGLTFAsset = asset;
-        mObjects.push_back(obj);
+
+        if (std::find(mObjects.begin(), mObjects.end(), obj) == mObjects.end())
+        {
+            mObjects.push_back(obj);
+        }
     }
 }
 
@@ -101,6 +105,16 @@ GLTFSceneManager::~GLTFSceneManager()
 }
 
 void GLTFSceneManager::renderOpaque()
+{
+    render(true);
+}
+
+void GLTFSceneManager::renderAlpha()
+{
+    render(false);
+}
+
+void GLTFSceneManager::render(bool opaque)
 {
     // for debugging, just render the whole scene as opaque
     // by traversing the whole scenegraph
@@ -130,7 +144,7 @@ void GLTFSceneManager::renderOpaque()
         matMul(mat, modelview, modelview);
 
         asset->updateRenderTransforms(modelview);
-        asset->renderOpaque();
+        asset->render(opaque);
 
         gGL.popMatrix();
     }
@@ -363,7 +377,8 @@ void GLTFSceneManager::renderDebug()
 {
     if (!gPipeline.hasRenderDebugMask(
         LLPipeline::RENDER_DEBUG_BBOXES |
-        LLPipeline::RENDER_DEBUG_RAYCAST))
+        LLPipeline::RENDER_DEBUG_RAYCAST |
+        LLPipeline::RENDER_DEBUG_NODES))
     {
         return;
     }
@@ -375,6 +390,29 @@ void GLTFSceneManager::renderDebug()
     gGL.setSceneBlendType(LLRender::BT_ALPHA);
     gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
     gPipeline.disableLights();
+
+    // force update all mRenderMatrix, not just nodes with meshes
+    for (auto& obj : mObjects)
+    {
+        if (obj->isDead() || obj->mGLTFAsset == nullptr)
+        {
+            continue;
+        }
+
+        LLMatrix4a mat = obj->getGLTFAssetToAgentTransform();
+
+        LLMatrix4a modelview;
+        modelview.loadu(gGLModelView);
+
+        matMul(mat, modelview, modelview);
+
+        Asset* asset = obj->mGLTFAsset;
+
+        for (auto& node : asset->mNodes)
+        {
+            matMul(node.mAssetMatrix, modelview, node.mRenderMatrix);
+        }
+    }
 
     for (auto& obj : mObjects)
     {
@@ -392,9 +430,83 @@ void GLTFSceneManager::renderDebug()
 
         matMul(mat, modelview, modelview);
 
-        asset->updateRenderTransforms(modelview);
         renderAssetDebug(obj, asset);
     }
+
+    if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_NODES))
+    { //render node hierarchy
+
+        for (U32 i = 0; i < 2; ++i)
+        {
+            LLGLDepthTest depth(GL_TRUE, i == 0 ? GL_FALSE : GL_TRUE, i == 0 ? GL_GREATER : GL_LEQUAL);
+            LLGLState blend(GL_BLEND, i == 0 ? TRUE : FALSE);
+
+
+            gGL.pushMatrix();
+
+            for (auto& obj : mObjects)
+            {
+                if (obj->isDead() || obj->mGLTFAsset == nullptr)
+                {
+                    continue;
+                }
+
+                LLMatrix4a mat = obj->getGLTFAssetToAgentTransform();
+
+                LLMatrix4a modelview;
+                modelview.loadu(gGLModelView);
+
+                matMul(mat, modelview, modelview);
+
+                Asset* asset = obj->mGLTFAsset;
+
+                for (auto& node : asset->mNodes)
+                {
+                    // force update all mRenderMatrix, not just nodes with meshes
+                    matMul(node.mAssetMatrix, modelview, node.mRenderMatrix);
+
+                    gGL.loadMatrix(node.mRenderMatrix.getF32ptr());
+                    // render x-axis red, y-axis green, z-axis blue
+                    gGL.color4f(1.f, 0.f, 0.f, 0.5f);
+                    gGL.begin(LLRender::LINES);
+                    gGL.vertex3f(0.f, 0.f, 0.f);
+                    gGL.vertex3f(1.f, 0.f, 0.f);
+                    gGL.end();
+                    gGL.flush();
+
+                    gGL.color4f(0.f, 1.f, 0.f, 0.5f);
+                    gGL.begin(LLRender::LINES);
+                    gGL.vertex3f(0.f, 0.f, 0.f);
+                    gGL.vertex3f(0.f, 1.f, 0.f);
+                    gGL.end();
+                    gGL.flush();
+
+                    gGL.begin(LLRender::LINES);
+                    gGL.color4f(0.f, 0.f, 1.f, 0.5f);
+                    gGL.vertex3f(0.f, 0.f, 0.f);
+                    gGL.vertex3f(0.f, 0.f, 1.f);
+                    gGL.end();
+                    gGL.flush();
+
+                    // render path to child nodes cyan
+                    gGL.color4f(0.f, 1.f, 1.f, 0.5f);
+                    gGL.begin(LLRender::LINES);
+                    for (auto& child_idx : node.mChildren)
+                    {
+                        Node& child = asset->mNodes[child_idx];
+                        gGL.vertex3f(0.f, 0.f, 0.f);
+                        gGL.vertex3fv(child.mMatrix.getTranslation().getF32ptr());
+                    }
+                    gGL.end();
+                    gGL.flush();
+                }
+            }
+
+            gGL.popMatrix();
+        }
+
+    }
+
 
     if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_RAYCAST))
     {

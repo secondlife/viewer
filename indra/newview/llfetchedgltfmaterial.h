@@ -66,6 +66,8 @@ public:
 
     std::set<LLTextureEntry*> mTextureEntires;
 
+    // default material for when assets don't have one
+    static LLFetchedGLTFMaterial sDefault;
 protected:
     // Lifetime management
     

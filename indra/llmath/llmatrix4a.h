@@ -34,8 +34,8 @@
 class LLMatrix4a
 {
 public:
-	LL_ALIGN_16(LLVector4a mMatrix[4]);
-
+    LL_ALIGN_16(LLVector4a mMatrix[4]);
+    
     LLMatrix4a()
     {
 
@@ -54,6 +54,16 @@ public:
     inline const F32* getF32ptr() const
     {
         return (F32*)&mMatrix;
+    }
+
+    inline LLMatrix4& asMatrix4()
+    {
+        return *(LLMatrix4*)this;
+    }
+
+    inline const LLMatrix4& asMatrix4() const
+    {
+        return *(LLMatrix4*)this;
     }
 
 	inline void clear()
