@@ -6473,14 +6473,6 @@ class LLAvatarToggleSearch : public view_listener_t
 	}
 };
 
-class LLAvatarToggleTranslate : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		LL_INFOS() << "ToggleTranslate" << userdata << LL_ENDL;
-		return true;
-	}
-};
 class LLAvatarResetSkeleton: public view_listener_t
 {
     bool handleEvent(const LLSD& userdata)
@@ -9711,7 +9703,6 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAvatarToggleMyProfile(), "Avatar.ToggleMyProfile");
 	view_listener_t::addMenu(new LLAvatarTogglePicks(), "Avatar.TogglePicks");
 	view_listener_t::addMenu(new LLAvatarToggleSearch(), "Avatar.ToggleSearch");
-	view_listener_t::addMenu(new LLAvatarToggleTranslate(), "Avatar.ToggleTranslate");
 	view_listener_t::addMenu(new LLAvatarResetSkeleton(), "Avatar.ResetSkeleton");
 	view_listener_t::addMenu(new LLAvatarEnableResetSkeleton(), "Avatar.EnableResetSkeleton");
 	view_listener_t::addMenu(new LLAvatarResetSkeletonAndAnimations(), "Avatar.ResetSkeletonAndAnimations");

@@ -1420,6 +1420,12 @@ void LLTranslate::setTranslateAgent(const LLUUID& agent_id, bool translate)
     }
 }
 
+/* static */
+void LLTranslate::toggleTranslateAgent(const LLUUID& agent_id)
+{
+    setTranslateAgent(agent_id, !shouldTranslateAgent(agent_id));
+}
+
 /*static*/
 void LLTranslate::translateMessage(const std::string &from_lang, const std::string &to_lang,
     const std::string &mesg, TranslationSuccess_fn success, TranslationFailure_fn failure)

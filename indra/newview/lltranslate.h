@@ -79,6 +79,7 @@ public :
 	static bool shouldTranslate(const LLUUID& from_id, const std::string& from_str);
 	static bool shouldTranslateAgent(const LLUUID& agent_id);
 	static void setTranslateAgent(const LLUUID& agent_id, bool translate);
+	static void toggleTranslateAgent(const LLUUID& agent_id);
 
 	/**
 	 * Translate given text.

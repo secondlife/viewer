@@ -31,6 +31,8 @@
 #include <string>
 #include <boost/function.hpp>
 
+class LLUUID;
+
 ///
 /// The LLUrlAction class provides a number of static functions that
 /// let you open Urls in web browsers, execute SLURLs, and copy Urls
@@ -90,11 +92,13 @@ public:
 	/// specify the callbacks to enable this class's functionality
 	typedef boost::function<void (const std::string&)> url_callback_t;
 	typedef boost::function<bool(const std::string& url, bool trusted_content)> execute_url_callback_t;
+	typedef boost::function<void (const LLUUID&)> agent_callback_t;
 
 	static void	setOpenURLCallback(url_callback_t cb);
 	static void	setOpenURLInternalCallback(url_callback_t cb);
 	static void	setOpenURLExternalCallback(url_callback_t cb);
 	static void	setExecuteSLURLCallback(execute_url_callback_t cb);
+	static void	setToggleTranslateCallback(agent_callback_t cb);
 
 private:
 	// callbacks for operations we can perform on Urls
@@ -103,6 +107,8 @@ private:
 	static url_callback_t sOpenURLExternalCallback;
 
 	static execute_url_callback_t sExecuteSLURLCallback;
+
+	static agent_callback_t sToggleTranslateCallback;
 };
 
 #endif
