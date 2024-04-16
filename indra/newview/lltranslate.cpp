@@ -1246,7 +1246,7 @@ bool LLSimulatorTranslationHandler::parseResponse(
 
 	if (full_response.has("text"))
 	{
-		translation = full_response["text"];
+		translation = full_response["text"].asString();
 		return true;
 	}
 	LL_WARNS("Translation") << "Field(s) missing from result, can't translate" << LL_ENDL;
@@ -1636,6 +1636,8 @@ LLTranslationAPIHandler* LLTranslate::getHandler(EService service)
             return &deepl_handler;
 		case SERVICE_SIMULATOR:
 			return &simulator_handler;
+		case SERVICE_NONE:
+			return nullptr;
     }
 
     return nullptr;
