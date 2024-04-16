@@ -4478,50 +4478,6 @@ void LLViewerObject::getGLTFNodeTransformAgent(S32 node_index, LLVector3* positi
     }
 }
 
-void LLViewerObject::setGLTFNodeTransformAgent(S32 node_index, const LLVector3& position, const LLQuaternion& rotation, const LLVector3& scale)
-{
-    if (mGLTFAsset.notNull() && node_index >= 0 && node_index < mGLTFAsset->mNodes.size())
-    {
-        auto& node = mGLTFAsset->mNodes[node_index];
-
-        // transform new and old to node space
-        LLVector3 old_pos, old_scale;
-        LLQuaternion old_rot;
-        getGLTFNodeTransformAgent(node_index, &old_pos, &old_rot, &old_scale);
-        LLMatrix4a old_node_to_agent;
-        old_node_to_agent.asMatrix4().initAll(old_scale, old_rot, old_pos);
-        LLMatrix4a new_node_to_agent;
-        new_node_to_agent.asMatrix4().initAll(scale, rotation, position);
-
-        glh::matrix4f t((F32*) &old_node_to_agent);
-        glh::matrix4f t_inv = t.inverse();
-
-        LLMatrix4a agent_to_node;
-        agent_to_node.loadu(t_inv.m);
-
-        LLMatrix4a old_node_delta;
-        matMul(agent_to_node, old_node_to_agent, old_node_delta); // this should always be identity
-
-        LLMatrix4a new_node_delta;
-        matMul(agent_to_node, new_node_to_agent, new_node_delta); // this should be a transform that could be applied to old_node_to_agent to get new_node_to_agent
-
-        // apply delta to node transform
-        matMul(new_node_delta, node.mMatrix, node.mMatrix);
-
-        mGLTFAsset->updateTransforms();
-
-#ifndef LL_RELEASE_FOR_DOWNLOAD
-        // post condition -- getGLTFNodeTransformAgent should return the inputs
-        LLVector3 test_pos, test_scale;
-        LLQuaternion test_quat;
-        getGLTFNodeTransformAgent(node_index, &test_pos, &test_quat, &test_scale);
-        llassert((test_pos-position).length() < 0.0001f);
-        llassert((test_scale-scale).length() < 0.0001f);
-        //llassert(test_quat.isEqualEps(rotation, 0.0001f));
-#endif
-    }
-}
-
 void decomposeMatrix(const LLMatrix4a& mat, LLVector3& position, LLQuaternion& rotation, LLVector3& scale)
 {
     LLVector4a p = mat.getTranslation();
@@ -4539,7 +4495,6 @@ void LLViewerObject::setGLTFNodeRotationAgent(S32 node_index, const LLQuaternion
     if (mGLTFAsset.notNull() && node_index >= 0 && node_index < mGLTFAsset->mNodes.size())
     {
         auto& node = mGLTFAsset->mNodes[node_index];
-        
 
         LLMatrix4a agent_to_asset = getAgentToGLTFAssetTransform();
         LLMatrix4a agent_to_node = agent_to_asset;
@@ -4552,10 +4507,9 @@ void LLViewerObject::setGLTFNodeRotationAgent(S32 node_index, const LLQuaternion
 
         LLQuaternion agent_to_node_rot(agent_to_node.asMatrix4());
         LLQuaternion new_rot;
-        
+
         new_rot = rotation * agent_to_node_rot;
         new_rot.normalize();
-
 
         LLVector3 pos;
         LLQuaternion rot;
@@ -4595,43 +4549,6 @@ void LLViewerObject::moveGLTFNode(S32 node_index, const LLVector3& offset)
 
         matMul(trans, node.mMatrix, node.mMatrix);
 
-        // TODO -- only update transforms for this node and its children (or use a dirty flag)
-        mGLTFAsset->updateTransforms();
-    }
-}
-
-void LLViewerObject::rotateGLTFNode(S32 node_index, const LLQuaternion& rotation)
-{
-    // SUSPECT IMPLEMENTATION -- UNTESTED
-    if (mGLTFAsset.notNull() && node_index >= 0 && node_index < mGLTFAsset->mNodes.size())
-    {
-        // rotation is rotation delta in agent space
-
-        auto& node = mGLTFAsset->mNodes[node_index];
-        
-        LLMatrix4a agent_to_asset = getAgentToGLTFAssetTransform();
-        LLMatrix4a agent_to_node;
-        matMul(agent_to_asset, node.mAssetMatrixInv, agent_to_node);
-
-        // transform delta to node space
-        LLMatrix4 mat(rotation);
-        mat.setIdentity(); //debug
-
-        LLMatrix4a rot;
-        rot.loadu((F32*)mat.mMatrix);
-
-        matMul(agent_to_node, rot, rot);
-
-       
-        rot.mMatrix[3].clear();
-        rot.mMatrix[3].getF32ptr()[3] = 1.f;
-
-        rot.mMatrix[0].normalize3();
-        rot.mMatrix[1].normalize3();
-        rot.mMatrix[2].normalize3();
-
-        matMul(node.mMatrix, rot, node.mMatrix);
-        
         // TODO -- only update transforms for this node and its children (or use a dirty flag)
         mGLTFAsset->updateTransforms();
     }
