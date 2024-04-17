@@ -4390,22 +4390,7 @@ LLMatrix4a LLViewerObject::getGLTFAssetToAgentTransform() const
 LLVector3 LLViewerObject::getGLTFNodePositionAgent(S32 node_index) const
 {
     LLVector3 ret;
-#if 0
-    if (mGLTFAsset.notNull() && node_index >= 0 && node_index < mGLTFAsset->mNodes.size())
-    {
-        auto& node = mGLTFAsset->mNodes[node_index];
-
-        LLVector4a p = node.mAssetMatrix.getTranslation();
-
-        LLMatrix4a asset_to_agent = getGLTFAssetToAgentTransform();
-
-        asset_to_agent.affineTransform(p, p);
-
-        ret.set(p.getF32ptr());
-    }
-#else
     getGLTFNodeTransformAgent(node_index, &ret, nullptr, nullptr);
-#endif
     return ret;
 
 }
@@ -4454,27 +4439,24 @@ LLMatrix4a LLViewerObject::getGLTFNodeTransformAgent(S32 node_index) const
 }
 void LLViewerObject::getGLTFNodeTransformAgent(S32 node_index, LLVector3* position, LLQuaternion* rotation, LLVector3* scale) const
 {
-    if (mGLTFAsset.notNull() && node_index >= 0 && node_index < mGLTFAsset->mNodes.size())
+    LLMatrix4a node_to_agent = getGLTFNodeTransformAgent(node_index);
+
+    if (position)
     {
-        LLMatrix4a node_to_agent = getGLTFNodeTransformAgent(node_index);
+        LLVector4a p = node_to_agent.getTranslation();
+        position->set(p.getF32ptr());
+    }
 
-        if (position)
-        {
-            LLVector4a p = node_to_agent.getTranslation();
-            position->set(p.getF32ptr());
-        }
+    if (rotation)
+    {
+        rotation->set(node_to_agent.asMatrix4());
+    }
 
-        if (rotation)
-        {
-            rotation->set(node_to_agent.asMatrix4());
-        }
-
-        if (scale)
-        {
-            scale->mV[0] = node_to_agent.mMatrix[0].getLength3().getF32();
-            scale->mV[1] = node_to_agent.mMatrix[1].getLength3().getF32();
-            scale->mV[2] = node_to_agent.mMatrix[2].getLength3().getF32();
-        }
+    if (scale)
+    {
+        scale->mV[0] = node_to_agent.mMatrix[0].getLength3().getF32();
+        scale->mV[1] = node_to_agent.mMatrix[1].getLength3().getF32();
+        scale->mV[2] = node_to_agent.mMatrix[2].getLength3().getF32();
     }
 }
 
