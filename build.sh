@@ -6,9 +6,6 @@
 # it relies on the environment that sets up, functions it provides, and
 # the build result post-processing it does.
 #
-# The shared buildscript build.sh invokes this because it is named 'build.sh',
-# which is the default custom build script name in buildscripts/hg/BuildParams
-#
 # PLEASE NOTE:
 #
 # * This script is interpreted on three platforms, including windows and cygwin
@@ -48,7 +45,7 @@ build_dir_Darwin()
 
 build_dir_Linux()
 {
-  echo build-linux-i686
+  echo build-linux-x86_64
 }
 
 build_dir_CYGWIN()
@@ -85,7 +82,7 @@ installer_Linux()
 {
   local package_name="$1"
   local package_dir="$(build_dir_Linux)/newview/"
-  local pattern=".*$(viewer_channel_suffix ${package_name})_[0-9]+_[0-9]+_[0-9]+_[0-9]+_i686\\.tar\\.bz2\$"
+  local pattern=".*$(viewer_channel_suffix ${package_name})_[0-9]+_[0-9]+_[0-9]+_[0-9]+_i686\\.tar\\.xz\$"
   # since the additional packages are built after the base package,
   # sorting oldest first ensures that the unqualified package is returned
   # even if someone makes a qualified name that duplicates the last word of the base name
@@ -112,7 +109,8 @@ installer_CYGWIN()
   fi
 }
 
-[[ -n "$GITHUB_OUTPUT" ]] || fatal "Need to export GITHUB_OUTPUT"
+# if someone wants to run build.sh outside the GitHub environment
+[[ -n "$GITHUB_OUTPUT" ]] || export GITHUB_OUTPUT='/dev/null'
 # The following is based on the Warning for GitHub multiline output strings:
 # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#multiline-strings
 EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
@@ -156,6 +154,22 @@ pre_build()
                   "-DSIGNING_IDENTITY:STRING=Developer ID Application: Linden Research, Inc.")
     fi
 
+    if [[ "$arch" == "Linux" ]]
+    then
+      # RELEASE_CRASH_REPORTING is tuned on unconditionaly, this is fine but not for Linux as of now (due to missing breakpad/crashpad support)
+      RELEASE_CRASH_REPORTING=OFF
+
+      # Builds turn on HAVOK even when config is ReleaseOS.
+      # This needs AUTOBUILD_GITHUB_TOKEN to be set in the environment. But this is not set for PRs apparently.
+      # Still this seemlingy works on Windows and Mac, why not on the Linux runner? Mystery to be solved elsewhere.
+
+
+      if [[ "$variant" == "ReleaseOS" ]]
+      then
+          HAVOK=OFF
+      fi
+    fi
+
     if [ "${RELEASE_CRASH_REPORTING:-}" != "OFF" ]
     then
         case "$arch" in
@@ -172,29 +186,7 @@ pre_build()
         # This name is consumed by indra/newview/CMakeLists.txt. Make it
         # absolute because we've had troubles with relative pathnames.
         abs_build_dir="$(cd "$build_dir"; pwd)"
-        VIEWER_SYMBOL_FILE="$(native_path "$abs_build_dir/newview/$variant/secondlife-symbols-$symplat-${AUTOBUILD_ADDRSIZE}.tar.bz2")"
-    fi
-
-    # expect these variables to be set in the environment from GitHub secrets
-    if [[ -n "$BUGSPLAT_DB" ]]
-    then
-        # don't spew credentials into build log
-        set +x
-        if [[ -z "$BUGSPLAT_USER" || -z "$BUGSPLAT_PASS" ]]
-        then
-            # older mechanism involving build-secrets repo -
-            # if build_secrets_checkout isn't set, report its name
-            bugsplat_sh="${build_secrets_checkout:-\$build_secrets_checkout}/bugsplat/bugsplat.sh"
-            if [ -r "$bugsplat_sh" ]
-            then # show that we're doing this, just not the contents
-                echo source "$bugsplat_sh"
-                source "$bugsplat_sh"
-            else
-                fatal "BUGSPLAT_USER or BUGSPLAT_PASS missing, and no $bugsplat_sh"
-            fi
-        fi
-        set -x
-        export BUGSPLAT_USER BUGSPLAT_PASS
+        VIEWER_SYMBOL_FILE="$(native_path "$abs_build_dir/newview/$variant/secondlife-symbols-$symplat-${AUTOBUILD_ADDRSIZE}.tar.xz")"
     fi
 
     # honor autobuild_configure_parameters same as sling-buildscripts
@@ -210,6 +202,7 @@ pre_build()
      -DVIEWER_CHANNEL:STRING="${viewer_channel}" \
      -DGRID:STRING="\"$viewer_grid\"" \
      -DTEMPLATE_VERIFIER_OPTIONS:STRING="$template_verifier_options" $template_verifier_master_url \
+     $CMAKE_OPTIONS \
      "${SIGNING[@]}" \
     || fatal "$variant configuration failed"
 
@@ -222,14 +215,14 @@ package_llphysicsextensions_tpv()
   tpv_status=0
   # nat 2016-12-21: without HAVOK, can't build PhysicsExtensions_TPV.
   if [ "$variant" = "Release" -a "${HAVOK:-}" != "OFF" ]
-  then 
+  then
       tpvconfig="$build_dir/packages/llphysicsextensions/autobuild-tpv.xml"
       test -r "$tpvconfig" || fatal "No llphysicsextensions_tpv autobuild configuration found"
       # SL-19942: autobuild ignores -c switch if AUTOBUILD_CONFIGURATION set
       unset AUTOBUILD_CONFIGURATION
       "$autobuild" build --quiet --config-file "$(native_path "$tpvconfig")" -c Tpv \
           || fatal "failed to build llphysicsextensions_tpv"
-      
+
       # capture the package file name for use in upload later...
       PKGTMP=`mktemp -t pgktpv.XXXXXX`
       cleanup="$cleanup ; rm $PKGTMP* 2>/dev/null"
@@ -262,7 +255,7 @@ build()
     || fatal "failed building $variant"
     echo true >"$build_dir"/build_ok
     end_section "autobuild $variant"
-    
+
     begin_section "extensions $variant"
     # Run build extensions
     if [ -d ${build_dir}/packages/build-extensions ]
@@ -335,7 +328,7 @@ begin_section "select viewer channel"
 # Look for a branch-specific viewer_channel setting
 #    changeset_branch is set in the sling-buildscripts
 viewer_build_branch=$(echo -n "${changeset_branch:-$(repo_branch ${BUILDSCRIPTS_SRC:-$(pwd)})}" | tr -Cs 'A-Za-z0-9_' '_' | sed -E 's/^_+//; s/_+$//')
-if [ -n "$viewer_build_branch" ] 
+if [ -n "$viewer_build_branch" ]
 then
     branch_viewer_channel_var="${viewer_build_branch}_viewer_channel"
     if [ -n "${!branch_viewer_channel_var}" ]
@@ -438,10 +431,10 @@ do
               fi
               if [ -d "$build_dir/doxygen/html" ]
               then
-                  tar -c -f "$build_dir/viewer-doxygen.tar.bz2" --strip-components 3  "$build_dir/doxygen/html"
-                  python_cmd "$helpers/codeticket.py" addoutput "Doxygen Tarball" "$build_dir/viewer-doxygen.tar.bz2" \
+                  tar -cJf "$build_dir/viewer-doxygen.tar.xz" --strip-components 3  "$build_dir/doxygen/html"
+                  python_cmd "$helpers/codeticket.py" addoutput "Doxygen Tarball" "$build_dir/viewer-doxygen.tar.xz" \
                       || fatal "Upload of doxygen tarball failed"
-                  metadata+=("$build_dir/viewer-doxygen.tar.bz2")
+                  metadata+=("$build_dir/viewer-doxygen.tar.xz")
               fi
               ;;
             *)
@@ -457,7 +450,7 @@ do
       record_event "configure for $variant failed: build skipped"
   fi
 
-  if ! $succeeded 
+  if ! $succeeded
   then
       record_event "remaining variants skipped due to $variant failure"
       break
@@ -522,7 +515,7 @@ then
         fi
       done
       end_section "Upload Debian Repository"
-      
+
     else
       record_event "debian build not enabled"
     fi

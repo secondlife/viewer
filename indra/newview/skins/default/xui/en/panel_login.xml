@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel
   follows="all"
   height="768"
@@ -144,7 +145,6 @@
     control_name="RememberPassword"
     follows="left|top"
     font="SansSerifMedium"
-    text_color="EmphasisColor"
     height="24"
     left="408"
     bottom_delta="0"

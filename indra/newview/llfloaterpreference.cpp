@@ -113,6 +113,7 @@
 #include "llpresetsmanager.h"
 #include "llviewercontrol.h"
 #include "llpresetsmanager.h"
+#include "llinventoryfunctions.h"
 
 #include "llsearchableui.h"
 #include "llperfstats.h"
@@ -328,6 +329,7 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.AutoAdjustments",         boost::bind(&LLFloaterPreference::onClickAutoAdjustments, this));
 	mCommitCallbackRegistrar.add("Pref.HardwareDefaults",		boost::bind(&LLFloaterPreference::setHardwareDefaults, this));
 	mCommitCallbackRegistrar.add("Pref.AvatarImpostorsEnable",	boost::bind(&LLFloaterPreference::onAvatarImpostorsEnable, this));
+    mCommitCallbackRegistrar.add("Pref.UpdateIndirectMaxNonImpostors", boost::bind(&LLFloaterPreference::updateMaxNonImpostors, this));
 	mCommitCallbackRegistrar.add("Pref.UpdateIndirectMaxComplexity",	boost::bind(&LLFloaterPreference::updateMaxComplexity, this));
     mCommitCallbackRegistrar.add("Pref.RenderOptionUpdate",     boost::bind(&LLFloaterPreference::onRenderOptionEnable, this));
 	mCommitCallbackRegistrar.add("Pref.WindowedMod",			boost::bind(&LLFloaterPreference::onCommitWindowedMode, this));
@@ -359,6 +361,7 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	LLAvatarPropertiesProcessor::getInstance()->addObserver( gAgent.getID(), this );
 
     mComplexityChangedSignal = gSavedSettings.getControl("RenderAvatarMaxComplexity")->getCommitSignal()->connect(boost::bind(&LLFloaterPreference::updateComplexityText, this));
+    mImpostorsChangedSignal = gSavedSettings.getControl("RenderAvatarMaxNonImpostors")->getSignal()->connect(boost::bind(&LLFloaterPreference::updateIndirectMaxNonImpostors, this, _2));
 
 	mCommitCallbackRegistrar.add("Pref.ClearLog",				boost::bind(&LLConversationLog::onClearLog, &LLConversationLog::instance()));
 	mCommitCallbackRegistrar.add("Pref.DeleteTranscripts",      boost::bind(&LLFloaterPreference::onDeleteTranscripts, this));
@@ -528,6 +531,7 @@ LLFloaterPreference::~LLFloaterPreference()
 {
 	LLConversationLog::instance().removeObserver(this);
     mComplexityChangedSignal.disconnect();
+    mImpostorsChangedSignal.disconnect();
 }
 
 void LLFloaterPreference::draw()
@@ -1283,6 +1287,9 @@ void LLAvatarComplexityControls::setIndirectMaxArc()
 void LLFloaterPreference::refresh()
 {
 	LLPanel::refresh();
+    setMaxNonImpostorsText(
+        gSavedSettings.getU32("RenderAvatarMaxNonImpostors"),
+        getChild<LLTextBox>("IndirectMaxNonImpostorsText", true));
     LLAvatarComplexityControls::setText(
         gSavedSettings.getU32("RenderAvatarMaxComplexity"),
         getChild<LLTextBox>("IndirectMaxComplexityText", true));
@@ -1561,6 +1568,44 @@ void LLAvatarComplexityControls::setRenderTimeText(F32 value, LLTextBox* text_bo
     }
 }
 
+void LLFloaterPreference::updateMaxNonImpostors()
+{
+    // Called when the IndirectMaxNonImpostors control changes
+    // Responsible for fixing the slider label (IndirectMaxNonImpostorsText) and setting RenderAvatarMaxNonImpostors
+    LLSliderCtrl* ctrl = getChild<LLSliderCtrl>("IndirectMaxNonImpostors", true);
+    U32 value = ctrl->getValue().asInteger();
+
+    if (0 == value || LLVOAvatar::NON_IMPOSTORS_MAX_SLIDER <= value)
+    {
+        value = 0;
+    }
+    gSavedSettings.setU32("RenderAvatarMaxNonImpostors", value);
+    LLVOAvatar::updateImpostorRendering(value); // make it effective immediately
+    setMaxNonImpostorsText(value, getChild<LLTextBox>("IndirectMaxNonImpostorsText"));
+}
+
+void LLFloaterPreference::updateIndirectMaxNonImpostors(const LLSD& newvalue)
+{
+    U32 value = newvalue.asInteger();
+    if ((value != 0) && (value != gSavedSettings.getU32("IndirectMaxNonImpostors")))
+    {
+        gSavedSettings.setU32("IndirectMaxNonImpostors", value);
+    }
+    setMaxNonImpostorsText(value, getChild<LLTextBox>("IndirectMaxNonImpostorsText"));
+}
+
+void LLFloaterPreference::setMaxNonImpostorsText(U32 value, LLTextBox* text_box)
+{
+    if (0 == value)
+    {
+        text_box->setText(LLTrans::getString("no_limit"));
+    }
+    else
+    {
+        text_box->setText(llformat("%d", value));
+    }
+}
+
 void LLFloaterPreference::updateMaxComplexity()
 {
 	// Called when the IndirectMaxComplexity control changes
@@ -1626,25 +1671,6 @@ void LLFloaterPreference::onChangeMaturity()
 															|| sim_access == SIM_ACCESS_ADULT);
 
 	getChild<LLIconCtrl>("rating_icon_adult")->setVisible(sim_access == SIM_ACCESS_ADULT);
-}
-
-std::string get_category_path(LLUUID cat_id)
-{
-    LLViewerInventoryCategory* cat = gInventory.getCategory(cat_id);
-    std::string localized_cat_name;
-    if (!LLTrans::findString(localized_cat_name, "InvFolder " + cat->getName()))
-    {
-        localized_cat_name = cat->getName();
-    }
-
-    if (cat->getParentUUID().notNull())
-    {
-        return get_category_path(cat->getParentUUID()) + " > " + localized_cat_name;
-    }
-    else
-    {
-        return localized_cat_name;
-    }
 }
 
 std::string get_category_path(LLFolderType::EType cat_type)

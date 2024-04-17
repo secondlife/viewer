@@ -108,7 +108,7 @@
 #include "llscenemonitor.h"
 #include "llavatarrenderinfoaccountant.h"
 #include "lllocalbitmaps.h"
-#include "llperfstats.h" 
+#include "llperfstats.h"
 #include "llgltfmateriallist.h"
 
 // Linden library includes
@@ -263,10 +263,6 @@ using namespace LL;
 #include "llviewernetwork.h"
 // define a self-registering event API object
 #include "llappviewerlistener.h"
-
-#if LL_LINUX && LL_GTK
-#include "glib.h"
-#endif // (LL_LINUX) && LL_GTK
 
 #if LL_MSVC
 // disable boost::lexical_cast warning
@@ -564,7 +560,7 @@ static void settings_to_globals()
 	gDebugWindowProc = gSavedSettings.getBOOL("DebugWindowProc");
 	gShowObjectUpdates = gSavedSettings.getBOOL("ShowObjectUpdates");
     LLWorldMapView::setScaleSetting(gSavedSettings.getF32("MapScale"));
-	
+
 #if LL_DARWIN
     LLWindowMacOSX::sUseMultGL = gSavedSettings.getBOOL("RenderAppleUseMultGL");
 	gHiDPISupport = gSavedSettings.getBOOL("RenderHiDPI");
@@ -1130,7 +1126,7 @@ bool LLAppViewer::init()
 
 	gGLActive = FALSE;
 
-#if LL_RELEASE_FOR_DOWNLOAD
+#if LL_RELEASE_FOR_DOWNLOAD && !LL_LINUX
     // Skip updater if this is a non-interactive instance
     if (!gSavedSettings.getBOOL("CmdLineSkipUpdater") && !gNonInteractive)
     {
@@ -1344,7 +1340,7 @@ bool LLAppViewer::frame()
 		}
 	}
 	else
-	{ 
+	{
 		try
 		{
 			ret = doFrame();
@@ -1755,7 +1751,7 @@ bool LLAppViewer::cleanup()
 	LLViewerCamera::deleteSingleton();
 
 	LL_INFOS() << "Viewer disconnected" << LL_ENDL;
-	
+
 	if (gKeyboard)
 	{
 		gKeyboard->resetKeys();
@@ -1890,6 +1886,9 @@ bool LLAppViewer::cleanup()
 		gViewerWindow = NULL;
 		LL_INFOS() << "ViewerWindow deleted" << LL_ENDL;
 	}
+
+    LLSplashScreen::show();
+    LLSplashScreen::update(LLTrans::getString("ShuttingDown"));
 
 	LL_INFOS() << "Cleaning up Keyboard & Joystick" << LL_ENDL;
 
@@ -2169,6 +2168,8 @@ bool LLAppViewer::cleanup()
 	// deleteSingleton() methods.
 	LLSingletonBase::deleteAll();
 
+    LLSplashScreen::hide();
+
     LL_INFOS() << "Goodbye!" << LL_ENDL;
 
 	removeDumpDir();
@@ -2209,7 +2210,7 @@ bool LLAppViewer::initThreads()
     }
 
     // The only configurable thread count right now is ImageDecode
-    // The viewer typically starts around 8 threads not including image decode, 
+    // The viewer typically starts around 8 threads not including image decode,
     // so try to leave at least one core free
     S32 image_decode_count = llclamp(cores - 9, 1, 8);
     threadCounts["ImageDecode"] = image_decode_count;
@@ -2285,7 +2286,7 @@ void LLAppViewer::initLoggingAndGetLastDuration()
     if (mSecondInstance)
     {
         LLFile::mkdir(gDirUtilp->getDumpLogsDirPath());
- 
+
         LLUUID uid;
         uid.generate();
         LLError::logToFile(gDirUtilp->getDumpLogsDirPath(uid.asString() + ".log"));
@@ -2953,13 +2954,14 @@ bool LLAppViewer::initConfiguration()
 
 	if (mSecondInstance)
 	{
-		// This is the second instance of SL. Turn off voice support,
+		// This is the second instance of SL. Mute voice,
 		// but make sure the setting is *not* persisted.
-		LLControlVariable* disable_voice = gSavedSettings.getControl("CmdLineDisableVoice");
-		if(disable_voice)
+		// Also see LLVivoxVoiceClient::voiceEnabled()
+		LLControlVariable* enable_voice = gSavedSettings.getControl("EnableVoiceChat");
+		if(enable_voice)
 		{
 			const BOOL DO_NOT_PERSIST = FALSE;
-			disable_voice->setValue(LLSD(TRUE), DO_NOT_PERSIST);
+			enable_voice->setValue(LLSD(FALSE), DO_NOT_PERSIST);
 		}
 	}
 
@@ -4205,8 +4207,8 @@ bool LLAppViewer::initCache()
     const F64 disk_cache_percent = gSavedSettings.getF32("DiskCachePercentOfTotal");
     const F64 texture_cache_percent = 100.0 - disk_cache_percent;
 
-    // note that the maximum size of this cache is defined as a percentage of the 
-    // total cache size - the 'CacheSize' pref - for all caches. 
+    // note that the maximum size of this cache is defined as a percentage of the
+    // total cache size - the 'CacheSize' pref - for all caches.
     const uintmax_t disk_cache_size = uintmax_t(cache_total_size * disk_cache_percent / 100);
 	const bool enable_cache_debug_info = gSavedSettings.getBOOL("EnableDiskCacheDebugInfo");
 
@@ -4220,7 +4222,7 @@ bool LLAppViewer::initCache()
 			gSavedSettings.setS32("LocalCacheVersion", LLAppViewer::getTextureCacheVersion());
 
             //texture cache version was bumped up in Simple Cache Viewer, and at this point old vfs files are not needed
-            remove_vfs_files = true;   
+            remove_vfs_files = true;
 		}
 	}
 
@@ -4277,7 +4279,7 @@ bool LLAppViewer::initCache()
         {
             LLDiskCache::getInstance()->removeOldVFSFiles();
         }
-        
+
         if (mPurgeCache)
 		{
 		LLSplashScreen::update(LLTrans::getString("StartupClearingCache"));
@@ -5070,6 +5072,9 @@ void LLAppViewer::idleShutdown()
 		&& gLogoutTimer.getElapsedTimeF32() < SHUTDOWN_UPLOAD_SAVE_TIME
 		&& !logoutRequestSent())
 	{
+        gViewerWindow->setShowProgress(TRUE);
+        gViewerWindow->setProgressPercent(100.f);
+        gViewerWindow->setProgressString(LLTrans::getString("LoggingOut"));
 		return;
 	}
 
@@ -5442,9 +5447,18 @@ void LLAppViewer::forceErrorBadMemoryAccess()
 void LLAppViewer::forceErrorInfiniteLoop()
 {
    	LL_WARNS() << "Forcing a deliberate infinite loop" << LL_ENDL;
+    // Loop is intentionally complicated to fool basic loop detection
+    LLTimer timer_total;
+    LLTimer timer_expiry;
+    const S32 report_frequency = 10;
+    timer_expiry.setTimerExpirySec(report_frequency);
     while(true)
     {
-        ;
+        if (timer_expiry.hasExpired())
+        {
+            LL_INFOS() << "Infinite loop time : " << timer_total.getElapsedSeconds() << LL_ENDL;
+            timer_expiry.setTimerExpirySec(report_frequency);
+        }
     }
     return;
 }
@@ -5453,6 +5467,13 @@ void LLAppViewer::forceErrorSoftwareException()
 {
    	LL_WARNS() << "Forcing a deliberate exception" << LL_ENDL;
     LLTHROW(LLException("User selected Force Software Exception"));
+}
+
+void LLAppViewer::forceErrorOSSpecificException()
+{
+    // Virtual, MacOS only
+    const std::string exception_text = "User selected Force OS Exception, Not implemented on this OS";
+    throw std::runtime_error(exception_text);
 }
 
 void LLAppViewer::forceErrorDriverCrash()
@@ -5662,4 +5683,3 @@ void LLAppViewer::metricsSend(bool enable_reporting)
 	// resolution in time.
 	gViewerAssetStats->restart();
 }
-

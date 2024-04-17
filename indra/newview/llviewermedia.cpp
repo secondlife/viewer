@@ -1723,7 +1723,13 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
 		std::string user_data_path_cache = gDirUtilp->getCacheDir(false);
 		user_data_path_cache += gDirUtilp->getDirDelimiter();
 
-		std::string user_data_path_cef_log = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "cef_log.txt");
+		std::string user_data_path_cef_log = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "cef.txt");
+        std::string user_data_path_cef_old = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "cef.old");
+        if (gDirUtilp->fileExists(user_data_path_cef_log))
+        {
+            LLFile::remove(user_data_path_cef_old, ENOENT);
+            LLFile::rename(user_data_path_cef_log, user_data_path_cef_old);
+        }
 
 		// See if the plugin executable exists
 		llstat s;
@@ -1733,9 +1739,7 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
 		}
 		else if(LLFile::stat(plugin_name, &s))
 		{
-#if !LL_LINUX
 			LL_WARNS_ONCE("Media") << "Couldn't find plugin at " << plugin_name << LL_ENDL;
-#endif
 		}
 		else
 		{
@@ -1789,9 +1793,7 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
 			}
 		}
 	}
-#if !LL_LINUX
 	LL_WARNS_ONCE("Plugin") << "plugin initialization failed for mime type: " << media_type << LL_ENDL;
-#endif
 
 	if(gAgent.isInitialized())
 	{

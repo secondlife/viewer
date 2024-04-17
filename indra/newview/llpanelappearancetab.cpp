@@ -28,12 +28,35 @@
 
 #include "llpanelappearancetab.h"
 
-
 #include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
 #include "llviewerinventory.h"
 
-//virtual
+std::string LLPanelAppearanceTab::sRecentFilterSubString;
+
+void LLPanelAppearanceTab::setFilterSubString(const std::string& new_string)
+{
+    if (new_string != mFilterSubString)
+    {
+        std::string old_string = mFilterSubString;
+        mFilterSubString = new_string;
+        onFilterSubStringChanged(mFilterSubString, old_string);
+    }
+
+    sRecentFilterSubString = new_string;
+}
+
+void LLPanelAppearanceTab::checkFilterSubString()
+{
+    if (sRecentFilterSubString != mFilterSubString)
+    {
+        std::string old_string = mFilterSubString;
+        mFilterSubString = sRecentFilterSubString;
+        onFilterSubStringChanged(mFilterSubString, old_string);
+    }
+}
+
+// virtual
 bool LLPanelAppearanceTab::canTakeOffSelected()
 {
 	uuid_vec_t selected_uuids;

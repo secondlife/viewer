@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llkeyboard.cpp
  * @brief Handler for assignable key bindings
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -40,7 +40,6 @@ LLKeyboard *gKeyboard = NULL;
 std::map<KEY,std::string> LLKeyboard::sKeysToNames;
 std::map<std::string,KEY> LLKeyboard::sNamesToKeys;
 LLKeyStringTranslatorFunc*	LLKeyboard::mStringTranslator = NULL;	// Used for l10n + PC/Mac/Linux accelerator labeling
-
 
 //
 // Class Implementation
@@ -122,7 +121,7 @@ LLKeyboard::LLKeyboard() : mCallbacks(NULL)
 	addKeyName(KEY_BUTTON13, "PAD_BUTTON13" );
 	addKeyName(KEY_BUTTON14, "PAD_BUTTON14" );
 	addKeyName(KEY_BUTTON15, "PAD_BUTTON15" );
-	
+
 	addKeyName(KEY_BACKSPACE, "Backsp" );
 	addKeyName(KEY_DELETE, "Del" );
 	addKeyName(KEY_SHIFT, "Shift" );
@@ -195,12 +194,11 @@ void LLKeyboard::resetKeys()
 }
 
 
-BOOL LLKeyboard::translateKey(const U16 os_key, KEY *out_key)
+BOOL LLKeyboard::translateKey(const NATIVE_KEY_TYPE os_key, KEY *out_key)
 {
-	std::map<U16, KEY>::iterator iter;
 
 	// Only translate keys in the map, ignore all other keys for now
-	iter = mTranslateKeyMap.find(os_key);
+	auto iter = mTranslateKeyMap.find(os_key);
 	if (iter == mTranslateKeyMap.end())
 	{
 		//LL_WARNS() << "Unknown virtual key " << os_key << LL_ENDL;
@@ -214,11 +212,9 @@ BOOL LLKeyboard::translateKey(const U16 os_key, KEY *out_key)
 	}
 }
 
-
-U16 LLKeyboard::inverseTranslateKey(const KEY translated_key)
+LLKeyboard::NATIVE_KEY_TYPE LLKeyboard::inverseTranslateKey(const KEY translated_key)
 {
-	std::map<KEY, U16>::iterator iter;
-	iter = mInvTranslateKeyMap.find(translated_key);
+	auto iter = mInvTranslateKeyMap.find(translated_key);
 	if (iter == mInvTranslateKeyMap.end())
 	{
 		return 0;
@@ -250,7 +246,7 @@ BOOL LLKeyboard::handleTranslatedKeyDown(KEY translated_key, U32 translated_mask
 		repeated = TRUE;
 		mKeyRepeated[translated_key] = TRUE;
 	}
-	
+
 	mKeyDown[translated_key] = TRUE;
 	mCurTranslatedKey = (KEY)translated_key;
 	handled = mCallbacks->handleTranslatedKeyDown(translated_key, translated_mask, repeated);
@@ -259,12 +255,12 @@ BOOL LLKeyboard::handleTranslatedKeyDown(KEY translated_key, U32 translated_mask
 
 
 BOOL LLKeyboard::handleTranslatedKeyUp(KEY translated_key, U32 translated_mask)
-{	
+{
 	BOOL handled = FALSE;
 	if( mKeyLevel[translated_key] )
 	{
 		mKeyLevel[translated_key] = FALSE;
-		
+
 		// Only generate key up events if the key is thought to
 		// be down.  This allows you to call resetKeys() in the
 		// middle of a frame and ignore subsequent KEY_UP
@@ -273,7 +269,7 @@ BOOL LLKeyboard::handleTranslatedKeyUp(KEY translated_key, U32 translated_mask)
 		mKeyUp[translated_key] = TRUE;
 		handled = mCallbacks->handleTranslatedKeyUp(translated_key, translated_mask);
 	}
-	
+
 	LL_DEBUGS("UserInput") << "keyup -" << translated_key << "-" << LL_ENDL;
 
 	return handled;
@@ -451,13 +447,13 @@ std::string LLKeyboard::stringFromAccelerator(MASK accel_mask)
 std::string LLKeyboard::stringFromAccelerator( MASK accel_mask, KEY key )
 {
 	std::string res;
-	
+
 	// break early if this is a silly thing to do.
 	if( KEY_NONE == key )
 	{
 		return res;
 	}
-	
+
 	res.append(stringFromAccelerator(accel_mask));
 	std::string key_string = LLKeyboard::stringFromKey(key);
 	if ((accel_mask & MASK_NORMALKEYS) &&
@@ -468,7 +464,7 @@ std::string LLKeyboard::stringFromAccelerator( MASK accel_mask, KEY key )
 
 	std::string keystr = stringFromKey( key );
 	res.append( keystr );
-	
+
 	return res;
 }
 
@@ -529,7 +525,7 @@ BOOL LLKeyboard::maskFromString(const std::string& str, MASK *mask)
 		*mask = MASK_CONTROL | MASK_ALT | MASK_SHIFT;
 		return TRUE;
 	}
-	else 
+	else
 	{
 		return FALSE;
 	}
