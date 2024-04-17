@@ -938,17 +938,28 @@ bool idle_startup()
 		LLFile::mkdir(gDirUtilp->getLindenUserDir());
 
 		// As soon as directories are ready initialize notification storages
-		if (!LLPersistentNotificationStorage::instanceExists())
+		if (LLPersistentNotificationStorage::isInstanceUninitialised())
 		{
 			// check existance since this part of code can be reached
 			// twice due to login failures
 			LLPersistentNotificationStorage::initParamSingleton();
-			LLDoNotDisturbNotificationStorage::initParamSingleton();
 		}
-        else
+        else if (LLPersistentNotificationStorage::instanceExists())
         {
             // reinitialize paths in case user switched grids or accounts
             LLPersistentNotificationStorage::getInstance()->reset();
+        }
+
+		// As soon as directories are ready initialize notification storages
+		if (LLDoNotDisturbNotificationStorage::isInstanceUninitialised())
+		{
+			// check existance since this part of code can be reached
+			// twice due to login failures
+			LLDoNotDisturbNotificationStorage::initParamSingleton();
+		}
+        else if (LLDoNotDisturbNotificationStorage::instanceExists())
+        {
+            // reinitialize paths in case user switched grids or accounts
             LLDoNotDisturbNotificationStorage::getInstance()->reset();
         }
 

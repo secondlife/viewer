@@ -584,6 +584,15 @@ public:
         return *getInstance();
     }
 
+    // Hasn't this singleton been started to create yet?
+    // Use this to avoid creating singletons twice.
+    static bool isInstanceUninitialised()
+    {
+        // defend any access to sData from racing threads
+        LockStatic lk;
+        return lk->mInitState == UNINITIALIZED;
+    }
+
     // Has this singleton been created yet?
     // Use this to avoid accessing singletons before they can safely be constructed.
     static bool instanceExists()
