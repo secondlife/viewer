@@ -69,6 +69,11 @@ namespace
         if (!tex) { return; }
         tex->setBoostLevel(LLGLTexture::BOOST_NONE);
         tex->setMinDiscardLevel(MAX_DISCARD_LEVEL + 1);
+
+        if (tex->getTextureState() == LLGLTexture::NO_DELETE)
+        {
+            tex->forceActive();
+        }
     }
 
     void unboost_minimap_material(LLPointer<LLFetchedGLTFMaterial>& mat)
@@ -91,6 +96,11 @@ LLTerrainMaterials::LLTerrainMaterials()
 
 LLTerrainMaterials::~LLTerrainMaterials()
 {
+    for (S32 i = 0; i < ASSET_COUNT; ++i)
+    {
+        unboost_minimap_texture(mDetailTextures[i]);
+        unboost_minimap_material(mDetailMaterials[i]);
+    }
 }
 
 BOOL LLTerrainMaterials::generateMaterials()
@@ -131,6 +141,12 @@ LLPointer<LLViewerFetchedTexture> fetch_terrain_texture(const LLUUID& id)
 
 void LLTerrainMaterials::setDetailAssetID(S32 asset, const LLUUID& id)
 {
+    // *NOTE: If there were multiple terrain swatches using the same asset
+    // ID, the asset still in use will be temporarily unboosted.
+    // It will be boosted again during terrain rendering.
+    unboost_minimap_texture(mDetailTextures[asset]);
+    unboost_minimap_material(mDetailMaterials[asset]);
+
 	// This is terrain texture, but we are not setting it as BOOST_TERRAIN
 	// since we will be manipulating it later as needed.
 	mDetailTextures[asset] = fetch_terrain_texture(id);

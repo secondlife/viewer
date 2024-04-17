@@ -25,6 +25,7 @@
 
 #include "llviewerprecompiledheaders.h"
 #include "llagentbenefits.h"
+#include "llviewertexture.h"
 
 LLAgentBenefits::LLAgentBenefits():
 	m_initalized(false),
@@ -34,8 +35,7 @@ LLAgentBenefits::LLAgentBenefits():
 	m_group_membership_limit(-1),
 	m_picks_limit(-1),
 	m_sound_upload_cost(-1),
-	m_texture_upload_cost(-1),
-    m_2k_texture_upload_cost(-1)
+	m_texture_upload_cost(-1)
 {
 }
 
@@ -95,7 +95,26 @@ bool LLAgentBenefits::init(const LLSD& benefits_sd)
 	{
 		return false;
 	}
-    get_required_S32(benefits_sd, "large_texture_upload_cost", m_2k_texture_upload_cost);
+
+    if (benefits_sd.has("large_texture_upload_cost"))
+    {
+        LLSD large_texture_cost = benefits_sd.get("large_texture_upload_cost");
+        if (large_texture_cost.isArray())
+        {
+            LLSD::array_const_iterator end = large_texture_cost.endArray();
+            LLSD::array_const_iterator it = large_texture_cost.beginArray();
+            for (; it != end; ++it)
+            {
+                m_2k_texture_upload_cost.push_back(it->asInteger());
+            }
+            std::sort(m_2k_texture_upload_cost.begin(), m_2k_texture_upload_cost.end());
+        }
+    }
+
+    if (m_2k_texture_upload_cost.empty())
+    {
+        m_2k_texture_upload_cost.push_back(m_texture_upload_cost);
+    }
 
 	// FIXME PREMIUM - either use this field or get rid of it
 	m_initalized = true;
@@ -142,9 +161,60 @@ S32 LLAgentBenefits::getTextureUploadCost() const
 	return m_texture_upload_cost;
 }
 
-S32 LLAgentBenefits::get2KTextureUploadCost() const
+S32 LLAgentBenefits::getTextureUploadCost(const LLViewerTexture* tex) const
 {
-    return m_2k_texture_upload_cost;
+    if (tex)
+    {
+        S32 area = tex->getFullHeight() * tex->getFullWidth();
+        if (area >= MIN_2K_TEXTURE_AREA)
+        {
+            return get2KTextureUploadCost(area);
+        }
+        else
+        {
+            return getTextureUploadCost();
+        }
+    }
+    return getTextureUploadCost();
+}
+
+S32 LLAgentBenefits::getTextureUploadCost(const LLImageBase* tex) const
+{
+    if (tex)
+    {
+        S32 area = tex->getHeight() * tex->getWidth();
+        if (area >= MIN_2K_TEXTURE_AREA)
+        {
+            return get2KTextureUploadCost(area);
+        }
+        else
+        {
+            return getTextureUploadCost();
+        }
+    }
+    return getTextureUploadCost();
+}
+
+S32 LLAgentBenefits::get2KTextureUploadCost(S32 area) const
+{
+    if (m_2k_texture_upload_cost.empty())
+    {
+        return m_texture_upload_cost;
+    }
+    const S32 TEXTURE_SEGMENTS = 1024;
+    if (m_2k_texture_upload_cost.size() == TEXTURE_SEGMENTS)
+    {
+        S32 index = (S32)llceil(sqrt((F32)area));
+        // 1..1024 pixels uses m_texture_upload_cost
+        // 1025..2048 uses m_2k_texture_upload_cost
+        // Translate 1025..2048 to 0..1023 of the
+        // cost array
+        const S32 PIXELS_TO_2K_ARRAY_TRANLATE = 1025;
+        index -= PIXELS_TO_2K_ARRAY_TRANLATE;
+        index = llclamp(index, 0, TEXTURE_SEGMENTS - 1);
+        return m_2k_texture_upload_cost[index];
+    }
+    return m_2k_texture_upload_cost[0];
 }
 
 bool LLAgentBenefits::findUploadCost(LLAssetType::EType& asset_type, S32& cost) const

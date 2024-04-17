@@ -64,6 +64,14 @@ LLHeroProbeManager::LLHeroProbeManager()
 {
 }
 
+LLHeroProbeManager::~LLHeroProbeManager()
+{
+	cleanup();
+
+    mHeroVOList.clear();
+    mNearestHero = nullptr;
+}
+
 // helper class to seed octree with probes
 void LLHeroProbeManager::update()
 {
@@ -84,8 +92,7 @@ void LLHeroProbeManager::update()
     if (!mRenderTarget.isComplete())
     {
         U32 color_fmt = GL_RGBA16F;
-        U32 targetRes = mProbeResolution; // super sample
-        mRenderTarget.allocate(targetRes, targetRes, color_fmt, true);
+        mRenderTarget.allocate(mProbeResolution, mProbeResolution, color_fmt, true);
     }
 
     if (mMipChain.empty())
@@ -472,12 +479,19 @@ void LLHeroProbeManager::renderDebug()
     gDebugProgram.unbind();
 }
 
+
 void LLHeroProbeManager::initReflectionMaps()
 {
     U32 count = LL_MAX_HERO_PROBE_COUNT;
 
-    if (mTexture.isNull() || mReflectionProbeCount != count || mReset)
+    if ((mTexture.isNull() || mReflectionProbeCount != count || mReset) && LLPipeline::RenderMirrors)
     {
+
+        if (mReset)
+        {
+            cleanup();
+        }
+
         mReset = false;
         mReflectionProbeCount = count;
         mProbeResolution      = gSavedSettings.getS32("RenderHeroProbeResolution");
@@ -546,9 +560,8 @@ void LLHeroProbeManager::cleanup()
     
     mDefaultProbe = nullptr;
     mUpdatingProbe = nullptr;
-    
-    mHeroVOList.clear();
-    mNearestHero = nullptr;
+    /*
+    */
 }
 
 void LLHeroProbeManager::doOcclusion()
@@ -563,6 +576,11 @@ void LLHeroProbeManager::doOcclusion()
             probe->doOcclusion(eye);
         }
     }
+}
+
+void LLHeroProbeManager::reset()
+{
+    mReset = true;
 }
 
 bool LLHeroProbeManager::registerViewerObject(LLVOVolume* drawablep)
