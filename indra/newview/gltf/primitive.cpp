@@ -196,7 +196,7 @@ void Primitive::allocateGLResources(Asset& asset)
     U32 numVertices = 0;
     if (!mAttributes.empty())
     {
-        auto& it = mAttributes.begin();
+        auto it = mAttributes.begin();
         const Accessor& accessor = asset.mAccessors[it->second];
         numVertices = accessor.mCount;
     }
