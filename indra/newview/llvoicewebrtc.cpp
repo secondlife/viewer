@@ -2192,6 +2192,7 @@ void LLVoiceWebRTCConnection::processIceUpdatesCoro()
 
         if (LLWebRTCVoiceClient::isShuttingDown())
         {
+            mOutstandingRequests--;
             return;
         }
 
@@ -2281,6 +2282,7 @@ void LLVoiceWebRTCConnection::OnRenegotiationNeeded()
             {
                 setVoiceConnectionState(VOICE_STATE_SESSION_RETRY);
             }
+            mCurrentStatus = LLVoiceClientStatusObserver::ERROR_UNKNOWN;
         });
 }
 
@@ -2369,6 +2371,7 @@ void LLVoiceWebRTCConnection::breakVoiceConnectionCoro()
     {
         LL_DEBUGS("Voice") << "no capabilities for voice provisioning; waiting " << LL_ENDL;
         setVoiceConnectionState(VOICE_STATE_SESSION_RETRY);
+        mOutstandingRequests--;
         return;
     }
 
@@ -2376,6 +2379,7 @@ void LLVoiceWebRTCConnection::breakVoiceConnectionCoro()
     if (url.empty())
     {
         setVoiceConnectionState(VOICE_STATE_SESSION_RETRY);
+        mOutstandingRequests--;
         return;
     }
 
@@ -2405,6 +2409,7 @@ void LLVoiceWebRTCConnection::breakVoiceConnectionCoro()
 
     if (LLWebRTCVoiceClient::isShuttingDown())
     {
+        mOutstandingRequests--;
         return;
     }
 
