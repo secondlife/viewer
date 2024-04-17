@@ -1404,7 +1404,8 @@ bool LLTranslate::shouldTranslate(const LLUUID& from_id, const std::string& from
 /* static */
 bool LLTranslate::shouldTranslateAgent(const LLUUID& agent_id)
 {
-    return instance().mTranslateAgents.find(agent_id) != instance().mTranslateAgents.end();
+    return true;
+    //return instance().mTranslateAgents.find(agent_id) != instance().mTranslateAgents.end();
 }
 
 /* static */
