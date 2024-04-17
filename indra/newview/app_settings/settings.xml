@@ -8966,7 +8966,7 @@
     <key>Value</key>
     <real>1.0</real>
   </map>
-  <key>RendeSkyAutoAdjustBlueHorizonScale</key>
+  <key>RenderSkyAutoAdjustBlueHorizonScale</key>
   <map>
     <key>Comment</key>
     <string>Blue Horizon Scale value to use when auto-adjusting legacy skies</string>
@@ -8977,7 +8977,7 @@
     <key>Value</key>
     <real>1.0</real>
   </map>
-  <key>RendeSkyAutoAdjustBlueDensityScale</key>
+  <key>RenderSkyAutoAdjustBlueDensityScale</key>
   <map>
     <key>Comment</key>
     <string>Blue Horizon Scale value to use when auto-adjusting legacy skies</string>
