@@ -489,20 +489,10 @@ BOOL LLMaterialEditor::postBuild()
     }
     else
     {
-        S32 upload_cost_base = LLAgentBenefitsMgr::current().getTextureUploadCost();
-        S32 upload_cost_2k = LLAgentBenefitsMgr::current().get2KTextureUploadCost();
-
-        bool large_texture = mBaseColorFetched && (mBaseColorFetched->getFullHeight() * mBaseColorFetched->getFullWidth() >= LLAgentBenefits::MIN_2K_TEXTURE_AREA);
-        getChild<LLUICtrl>("base_color_upload_fee")->setTextArg("[FEE]", llformat("%d", large_texture ? upload_cost_2k : upload_cost_base));
-
-        large_texture = mMetallicRoughnessFetched && (mMetallicRoughnessFetched->getFullHeight() * mMetallicRoughnessFetched->getFullWidth() >= LLAgentBenefits::MIN_2K_TEXTURE_AREA);
-        getChild<LLUICtrl>("metallic_upload_fee")->setTextArg("[FEE]", llformat("%d", large_texture ? upload_cost_2k : upload_cost_base));
-
-        large_texture = mEmissiveFetched && (mEmissiveFetched->getFullHeight() * mEmissiveFetched->getFullWidth() >= LLAgentBenefits::MIN_2K_TEXTURE_AREA);
-        getChild<LLUICtrl>("emissive_upload_fee")->setTextArg("[FEE]", llformat("%d", large_texture ? upload_cost_2k : upload_cost_base));
-
-        large_texture = mNormalFetched && (mNormalFetched->getFullHeight() * mNormalFetched->getFullWidth() >= LLAgentBenefits::MIN_2K_TEXTURE_AREA);
-        getChild<LLUICtrl>("normal_upload_fee")->setTextArg("[FEE]", llformat("%d", large_texture ? upload_cost_2k : upload_cost_base));
+        getChild<LLUICtrl>("base_color_upload_fee")->setTextArg("[FEE]", llformat("%d", LLAgentBenefitsMgr::current().getTextureUploadCost(mBaseColorFetched)));
+        getChild<LLUICtrl>("metallic_upload_fee")->setTextArg("[FEE]", llformat("%d", LLAgentBenefitsMgr::current().getTextureUploadCost(mMetallicRoughnessFetched)));
+        getChild<LLUICtrl>("emissive_upload_fee")->setTextArg("[FEE]", llformat("%d", LLAgentBenefitsMgr::current().getTextureUploadCost(mEmissiveFetched)));
+        getChild<LLUICtrl>("normal_upload_fee")->setTextArg("[FEE]", llformat("%d", LLAgentBenefitsMgr::current().getTextureUploadCost(mNormalFetched)));
     }
 
     boost::function<void(LLUICtrl*, void*)> changes_callback = [this](LLUICtrl * ctrl, void* userData)
@@ -851,60 +841,24 @@ void LLMaterialEditor::markChangesUnsaved(U32 dirty_flag)
         setCanSave(false);
     }
 
-    S32 upload_texture_count = 0;
-    S32 upload_2k_texture_count = 0;
+    mExpectedUploadCost = 0;
     if (mBaseColorTextureUploadId.notNull() && mBaseColorTextureUploadId == getBaseColorId() && mBaseColorFetched)
     {
-        if (mBaseColorFetched->getFullHeight() * mBaseColorFetched->getFullWidth() >= LLAgentBenefits::MIN_2K_TEXTURE_AREA)
-        {
-            upload_2k_texture_count++;
-        }
-        else
-        {
-            upload_texture_count++;
-        }
+        mExpectedUploadCost += LLAgentBenefitsMgr::current().getTextureUploadCost(mBaseColorFetched);
     }
     if (mMetallicTextureUploadId.notNull() && mMetallicTextureUploadId == getMetallicRoughnessId() && mMetallicRoughnessFetched)
     {
-        if (mMetallicRoughnessFetched->getFullHeight() * mMetallicRoughnessFetched->getFullWidth() >= LLAgentBenefits::MIN_2K_TEXTURE_AREA)
-        {
-            upload_2k_texture_count++;
-        }
-        else
-        {
-            upload_texture_count++;
-        }
+        mExpectedUploadCost += LLAgentBenefitsMgr::current().getTextureUploadCost(mMetallicRoughnessFetched);
     }
     if (mEmissiveTextureUploadId.notNull() && mEmissiveTextureUploadId == getEmissiveId() && mEmissiveFetched)
     {
-        if (mEmissiveFetched->getFullHeight() * mEmissiveFetched->getFullWidth() >= LLAgentBenefits::MIN_2K_TEXTURE_AREA)
-        {
-            upload_2k_texture_count++;
-        }
-        else
-        {
-            upload_texture_count++;
-        }
+        mExpectedUploadCost += LLAgentBenefitsMgr::current().getTextureUploadCost(mEmissiveFetched);
     }
     if (mNormalTextureUploadId.notNull() && mNormalTextureUploadId == getNormalId() && mNormalFetched)
     {
-        if (mNormalFetched->getFullHeight() * mNormalFetched->getFullWidth() >= LLAgentBenefits::MIN_2K_TEXTURE_AREA)
-        {
-            upload_2k_texture_count++;
-        }
-        else
-        {
-            upload_texture_count++;
-        }
+        mExpectedUploadCost += LLAgentBenefitsMgr::current().getTextureUploadCost(mNormalFetched);
     }
 
-    mExpectedUploadCost = upload_texture_count * LLAgentBenefitsMgr::current().getTextureUploadCost();
-    S32 cost_2k = LLAgentBenefitsMgr::current().get2KTextureUploadCost();
-    if (cost_2k < 0)
-    {
-        cost_2k = 0;
-    }
-    mExpectedUploadCost += upload_2k_texture_count * cost_2k;
     getChild<LLUICtrl>("total_upload_fee")->setTextArg("[FEE]", llformat("%d", mExpectedUploadCost));
 }
 
@@ -3539,12 +3493,7 @@ void LLMaterialEditor::saveTexture(LLImageJ2C* img, const std::string& name, con
     std::string buffer;
     buffer.assign((const char*) img->getData(), img->getDataSize());
 
-    U32 expected_upload_cost = LLAgentBenefitsMgr::current().getTextureUploadCost();
-    if (img->getWidth() * img->getHeight() >= LLAgentBenefits::MIN_2K_TEXTURE_AREA)
-    {
-        expected_upload_cost = LLAgentBenefitsMgr::current().get2KTextureUploadCost();
-    }
-
+    U32 expected_upload_cost = LLAgentBenefitsMgr::current().getTextureUploadCost(img);
     LLSD key = getKey();
     std::function<bool(LLUUID itemId, LLSD response, std::string reason)> failed_upload([key](LLUUID assetId, LLSD response, std::string reason)
     {

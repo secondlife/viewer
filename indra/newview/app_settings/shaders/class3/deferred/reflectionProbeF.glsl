@@ -717,7 +717,7 @@ void tapHeroProbe(inout vec3 glossenv, vec3 pos, vec3 norm, float glossiness)
     clipDist = clipDist * 0.95 + 0.05;
     clipDist = clamp(clipDist * falloffMult, 0, 1);
     w = clamp(w * falloffMult * clipDist, 0, 1);
-
+    w = mix(0, w, clamp(glossiness - 0.75, 0, 1) * 4); // We only generate a quarter of the mips for the hero probes.  Linearly interpolate between normal probes and hero probes based upon glossiness.
     glossenv = mix(glossenv, textureLod(heroProbes, vec4(env_mat * refnormpersp, 0), (1.0-glossiness)*heroMipCount).xyz, w);
 }
 

@@ -411,6 +411,114 @@ private:
         return parseValues(status_string, "", param);
     }
 
+    LLSD parseValue(std::string& status_string, const std::string& key, const std::string& key_pfx, XMLRPC_VALUE param)
+    {
+        LLSD response;
+
+        XMLRPC_VALUE_TYPE_EASY type = XMLRPC_GetValueTypeEasy(param);
+        switch (type)
+        {
+            case xmlrpc_type_empty:
+                LL_INFOS("LLXMLRPCListener") << "Empty result for key " << key_pfx << key << LL_ENDL;
+                break;
+            case xmlrpc_type_base64:
+                {
+                    S32 len = XMLRPC_GetValueStringLen(param);
+                    const char* buf = XMLRPC_GetValueBase64(param);
+                    if ((len > 0) && buf)
+                    {
+                        // During implementation this code was not tested
+                        // If you encounter this, please make sure this is correct,
+                        // then remove llassert
+                        llassert(0);
+
+                        LLSD::Binary data;
+                        data.resize(len);
+                        memcpy((void*)&data[0], (void*)buf, len);
+                        response = data;
+                    }
+                    else
+                    {
+                        LL_WARNS("LLXMLRPCListener") << "Potentially malformed xmlrpc_type_base64 for key "
+                            << key_pfx << key << LL_ENDL;
+                    }
+                    break;
+                }
+            case xmlrpc_type_boolean:
+                {
+                    response = LLSD::Boolean(XMLRPC_GetValueBoolean(param));
+                    LL_DEBUGS("LLXMLRPCListener") << "val: " << response << LL_ENDL;
+                    break;
+                }
+            case xmlrpc_type_datetime:
+                {
+                    std::string iso8601_date(XMLRPC_GetValueDateTime_ISO8601(param));
+                    LL_DEBUGS("LLXMLRPCListener") << "val: " << iso8601_date << LL_ENDL;
+                    response = LLSD::Date(iso8601_date);
+                    break;
+                }
+            case xmlrpc_type_double:
+                {
+                    response = LLSD::Real(XMLRPC_GetValueDouble(param));
+                    LL_DEBUGS("LLXMLRPCListener") << "val: " << response << LL_ENDL;
+                    break;
+                }
+            case xmlrpc_type_int:
+                {
+                    response = LLSD::Integer(XMLRPC_GetValueInt(param));
+                    LL_DEBUGS("LLXMLRPCListener") << "val: " << response << LL_ENDL;
+                    break;
+                }
+            case xmlrpc_type_string:
+                {
+                    response = LLSD::String(XMLRPC_GetValueString(param));
+                    LL_DEBUGS("LLXMLRPCListener") << "val: " << response << LL_ENDL;
+                    break;
+                }
+            case xmlrpc_type_mixed:
+            case xmlrpc_type_array:
+                {
+                    // We expect this to be an array of submaps. Walk the array,
+                    // recursively parsing each submap and collecting them.
+                    LLSD array;
+                    int i = 0;          // for descriptive purposes
+                    for (XMLRPC_VALUE row = XMLRPC_VectorRewind(param); row;
+                         row = XMLRPC_VectorNext(param), ++i)
+                    {
+                        // Recursive call. For the lower-level key_pfx, if 'key'
+                        // is "foo", pass "foo[0]:", then "foo[1]:", etc. In the
+                        // nested call, a subkey "bar" will then be logged as
+                        // "foo[0]:bar", and so forth.
+                        // Parse the scalar subkey/value pairs from this array
+                        // entry into a temp submap. Collect such submaps in 'array'.
+
+                        array.append(parseValue(status_string, "",
+                                                 STRINGIZE(key_pfx << key << '[' << i << "]:"),
+                                                 row));
+                    }
+                    // Having collected an 'array' of 'submap's, insert that whole
+                    // 'array' as the value of this 'key'.
+                    response = array;
+                    break;
+                }
+            case xmlrpc_type_struct:
+                {
+                    response = parseValues(status_string,
+                                              STRINGIZE(key_pfx << key << ':'),
+                                              param);
+                    break;
+                }
+            case xmlrpc_type_none: // Not expected
+            default:
+                // whoops - unrecognized type
+                LL_WARNS("LLXMLRPCListener") << "Unhandled xmlrpc type " << type << " for key "
+                    << key_pfx << key << LL_ENDL;
+                response = STRINGIZE("<bad XMLRPC type " << type << '>');
+                status_string = "BadType";
+        }
+        return response;
+    }
+
     /**
      * Parse key/value pairs from a given XMLRPC_VALUE into an LLSD map.
      * @param key_pfx Used to describe a given key in log messages. At top
@@ -428,113 +536,7 @@ private:
         {
             std::string key(XMLRPC_GetValueID(current));
             LL_DEBUGS("LLXMLRPCListener") << "key: " << key_pfx << key << LL_ENDL;
-            XMLRPC_VALUE_TYPE_EASY type = XMLRPC_GetValueTypeEasy(current);
-            switch (type)
-            {
-            case xmlrpc_type_empty:
-                LL_INFOS("LLXMLRPCListener") << "Empty result for key " << key_pfx << key << LL_ENDL;
-                responses.insert(key, LLSD());
-                break;
-            case xmlrpc_type_base64:
-                {
-                    S32 len = XMLRPC_GetValueStringLen(current);
-                    const char* buf = XMLRPC_GetValueBase64(current);
-                    if ((len > 0) && buf)
-                    {
-                        // During implementation this code was not tested
-                        // If you encounter this, please make sure this is correct,
-                        // then remove llassert
-                        llassert(0);
-
-                        LLSD::Binary data;
-                        data.resize(len);
-                        memcpy((void*)&data[0], (void*)buf, len);
-                        responses.insert(key, data);
-                    }
-                    else
-                    {
-                        LL_WARNS("LLXMLRPCListener") << "Potentially malformed xmlrpc_type_base64 for key "
-                            << key_pfx << key << LL_ENDL;
-                        responses.insert(key, LLSD());
-                    }
-                    break;
-                }
-            case xmlrpc_type_boolean:
-                {
-                    LLSD::Boolean val(XMLRPC_GetValueBoolean(current));
-                    LL_DEBUGS("LLXMLRPCListener") << "val: " << val << LL_ENDL;
-                    responses.insert(key, val);
-                    break;
-                }
-            case xmlrpc_type_datetime:
-                {
-                    std::string iso8601_date(XMLRPC_GetValueDateTime_ISO8601(current));
-                    LL_DEBUGS("LLXMLRPCListener") << "val: " << iso8601_date << LL_ENDL;
-                    responses.insert(key, LLSD::Date(iso8601_date));
-                    break;
-                }
-            case xmlrpc_type_double:
-                {
-                    LLSD::Real val(XMLRPC_GetValueDouble(current));
-                    LL_DEBUGS("LLXMLRPCListener") << "val: " << val << LL_ENDL;
-                    responses.insert(key, val);
-                    break;
-                }
-            case xmlrpc_type_int:
-                {
-                    LLSD::Integer val(XMLRPC_GetValueInt(current));
-                    LL_DEBUGS("LLXMLRPCListener") << "val: " << val << LL_ENDL;
-                    responses.insert(key, val);
-                    break;
-                }
-            case xmlrpc_type_string:
-                {
-                    LLSD::String val(XMLRPC_GetValueString(current));
-                    LL_DEBUGS("LLXMLRPCListener") << "val: " << val << LL_ENDL;
-                    responses.insert(key, val);
-                    break;
-                }
-            case xmlrpc_type_mixed:
-            case xmlrpc_type_array:
-                {
-                    // We expect this to be an array of submaps. Walk the array,
-                    // recursively parsing each submap and collecting them.
-                    LLSD array;
-                    int i = 0;          // for descriptive purposes
-                    for (XMLRPC_VALUE row = XMLRPC_VectorRewind(current); row;
-                         row = XMLRPC_VectorNext(current), ++i)
-                    {
-                        // Recursive call. For the lower-level key_pfx, if 'key'
-                        // is "foo", pass "foo[0]:", then "foo[1]:", etc. In the
-                        // nested call, a subkey "bar" will then be logged as
-                        // "foo[0]:bar", and so forth.
-                        // Parse the scalar subkey/value pairs from this array
-                        // entry into a temp submap. Collect such submaps in 'array'.
-                        array.append(parseValues(status_string,
-                                                 STRINGIZE(key_pfx << key << '[' << i << "]:"),
-                                                 row));
-                    }
-                    // Having collected an 'array' of 'submap's, insert that whole
-                    // 'array' as the value of this 'key'.
-                    responses.insert(key, array);
-                    break;
-                }
-            case xmlrpc_type_struct:
-                {
-                    LLSD submap = parseValues(status_string,
-                                              STRINGIZE(key_pfx << key << ':'),
-                                              current);
-                    responses.insert(key, submap);
-                    break;
-                }
-            case xmlrpc_type_none: // Not expected
-            default:
-                // whoops - unrecognized type
-                LL_WARNS("LLXMLRPCListener") << "Unhandled xmlrpc type " << type << " for key "
-                    << key_pfx << key << LL_ENDL;
-                responses.insert(key, STRINGIZE("<bad XMLRPC type " << type << '>'));
-                status_string = "BadType";
-            }
+            responses.insert(key, parseValue(status_string, key, key_pfx, current));
         }
         return responses;
     }

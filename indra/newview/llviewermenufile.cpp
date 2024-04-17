@@ -556,19 +556,8 @@ void do_bulk_upload(std::vector<std::string> filenames, const LLSD& notification
                 LLPointer<LLImageFormatted> image_frmted = LLImageFormatted::createFromType(codec);
                 if (gDirUtilp->fileExists(filename) && image_frmted->load(filename))
                 {
-                    if (image_frmted->getWidth() * image_frmted->getHeight() >= LLAgentBenefits::MIN_2K_TEXTURE_AREA)
-                    {
-                        expected_upload_cost = LLAgentBenefitsMgr::current().get2KTextureUploadCost();
-                        if (expected_upload_cost >= 0)
-                        {
-                            resource_upload = true;
-                        }
-                    }
-                    else
-                    {
-                        expected_upload_cost = LLAgentBenefitsMgr::current().getTextureUploadCost();
-                        resource_upload = true;
-                    }
+                    expected_upload_cost = LLAgentBenefitsMgr::current().getTextureUploadCost(image_frmted);
+                    resource_upload = true;
                 }
             }
             else if (LLAgentBenefitsMgr::current().findUploadCost(asset_type, expected_upload_cost))
@@ -617,8 +606,6 @@ bool get_bulk_upload_expected_cost(const std::vector<std::string>& filenames, S3
 	total_cost = 0;
 	file_count = 0;
 	bvh_count = 0;
-    S32 texture_upload_cost = LLAgentBenefitsMgr::current().getTextureUploadCost();
-    S32 texture_2k_upload_cost = LLAgentBenefitsMgr::current().get2KTextureUploadCost();
 	for (std::vector<std::string>::const_iterator in_iter = filenames.begin(); in_iter != filenames.end(); ++in_iter)
 	{
 		std::string filename = (*in_iter);
@@ -640,19 +627,8 @@ bool get_bulk_upload_expected_cost(const std::vector<std::string>& filenames, S3
                 LLPointer<LLImageFormatted> image_frmted = LLImageFormatted::createFromType(codec);
                 if (gDirUtilp->fileExists(filename) && image_frmted->load(filename))
                 {
-                    if (image_frmted->getWidth() * image_frmted->getHeight() >= LLAgentBenefits::MIN_2K_TEXTURE_AREA)
-                    {
-                        if (texture_2k_upload_cost >= 0)
-                        {
-                            total_cost += texture_2k_upload_cost;
-                            file_count++;
-                        }
-                    }
-                    else
-                    {
-                        total_cost += texture_upload_cost;
-                        file_count++;
-                    }
+                    total_cost += LLAgentBenefitsMgr::current().getTextureUploadCost(image_frmted);
+                    file_count++;
                 }
             }
             else if (LLAgentBenefitsMgr::current().findUploadCost(asset_type, cost))
@@ -680,53 +656,22 @@ bool get_bulk_upload_expected_cost(const std::vector<std::string>& filenames, S3
                     {
                         // Todo: make it account for possibility of same texture in different
                         // materials and even in scope of same material
-                        S32 texture_count = 0;
-                        S32 texture_2k_count = 0;
                         if (material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR].notNull() && material->mBaseColorTexture)
                         {
-                            if (material->mBaseColorTexture->getFullHeight() * material->mBaseColorTexture->getFullWidth() >= LLAgentBenefits::MIN_2K_TEXTURE_AREA)
-                            {
-                                texture_2k_count++;
-                            }
-                            else
-                            {
-                                texture_count++;
-                            }
+                            total_cost += LLAgentBenefitsMgr::current().getTextureUploadCost(material->mBaseColorTexture);
                         }
                         if (material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS].notNull() && material->mMetallicRoughnessTexture)
                         {
-                            if (material->mMetallicRoughnessTexture->getFullHeight() * material->mMetallicRoughnessTexture->getFullWidth() >= LLAgentBenefits::MIN_2K_TEXTURE_AREA)
-                            {
-                                texture_2k_count++;
-                            }
-                            else
-                            {
-                                texture_count++;
-                            }
+                            total_cost += LLAgentBenefitsMgr::current().getTextureUploadCost(material->mMetallicRoughnessTexture);
                         }
                         if (material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL].notNull() && material->mNormalTexture)
                         {
-                            if (material->mNormalTexture->getFullHeight() * material->mNormalTexture->getFullWidth() >= LLAgentBenefits::MIN_2K_TEXTURE_AREA)
-                            {
-                                texture_2k_count++;
-                            }
-                            else
-                            {
-                                texture_count++;
-                            }
+                            total_cost += LLAgentBenefitsMgr::current().getTextureUploadCost(material->mNormalTexture);
                         }
                         if (material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE].notNull() && material->mEmissiveTexture)
                         {
-                            if (material->mEmissiveTexture->getFullHeight() * material->mEmissiveTexture->getFullWidth() >= LLAgentBenefits::MIN_2K_TEXTURE_AREA)
-                            {
-                                texture_2k_count++;
-                            }
-                            else
-                            {
-                                texture_count++;
-                            }
+                            total_cost += LLAgentBenefitsMgr::current().getTextureUploadCost(material->mEmissiveTexture);
                         }
-                        total_cost += texture_count * texture_upload_cost + texture_2k_count * texture_2k_upload_cost;
                         file_count++;
                     }
                 }
