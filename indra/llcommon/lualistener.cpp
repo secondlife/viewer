@@ -38,21 +38,16 @@ LuaListener::LuaListener(lua_State* L):
         "LuaListener",
         [this](const std::string& pump, const LLSD& data)
         { return queueEvent(pump, data); })),
-    // Listen for shutdown events on the "LLApp" LLEventPump.
+    // Listen for shutdown events.
     mShutdownConnection(
-        LLEventPumps::instance().obtain("LLLua").listen(
+        LLCoros::getStopListener(
             LLEventPump::inventName("LuaState"),
-            [this](const LLSD& status)
+            mCoroName,
+            [this](const LLSD&)
             {
-                auto coro_name = status["coro"].asString();
-                auto statsd = status["status"].asString();
-                if ((statsd == "close_all") || ((statsd == "close") && (coro_name == mCoroName)))
-                {
-                    // If a Lua script is still blocked in getNext() during
-                    // viewer shutdown, close the queue to wake up getNext().
-                    mQueue.close();
-                }
-                return false;
+                // If a Lua script is still blocked in getNext() during
+                // viewer shutdown, close the queue to wake up getNext().
+                mQueue.close();
             }))
 {}
 

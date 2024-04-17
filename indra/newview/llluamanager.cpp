@@ -49,7 +49,6 @@
 #include <vector>
 
 std::map<std::string, std::string> LLLUAmanager::sScriptNames;
-std::set<std::string> LLLUAmanager::sTerminationList;
 
 const S32 INTERRUPTS_MAX_LIMIT = 20000;
 const S32 INTERRUPTS_SUSPEND_LIMIT = 100;
@@ -196,7 +195,7 @@ void check_interrupts_counter(lua_State* L)
     S32 counter = lua_tointeger(L, -1);
     lua_pop(L, 1);
 
-    counter++;
+    set_interrupts_counter(L, ++counter);
     if (counter > INTERRUPTS_MAX_LIMIT) 
     {
         lluau::error(L, "Possible infinite loop, terminated.");
@@ -205,7 +204,6 @@ void check_interrupts_counter(lua_State* L)
     {
         llcoro::suspend();
     }
-    set_interrupts_counter(L, counter);
 }
 
 void LLLUAmanager::runScriptFile(const std::string &filename, script_result_fn result_cb, script_finished_fn finished_cb)
@@ -229,13 +227,8 @@ void LLLUAmanager::runScriptFile(const std::string &filename, script_result_fn r
                 // skip if we're interrupting only for garbage collection
                 if (gc >= 0)
                     return;
-               
-                auto it = sTerminationList.find(LLCoros::getName());
-                if (it != sTerminationList.end()) 
-                {
-                    sTerminationList.erase(it);
-                    lluau::error(L, "Script was terminated");
-                }
+
+                LLCoros::checkStop();
                 check_interrupts_counter(L);
             };
             std::string text{std::istreambuf_iterator<char>(in_file), {}};
