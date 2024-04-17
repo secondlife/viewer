@@ -132,7 +132,7 @@ std::string getLodSuffix(S32 lod)
     return suffix;
 }
 
-void FindModel(LLModelLoader::scene& scene, const std::string& name_to_match, LLModel*& baseModelOut, LLMatrix4& matOut)
+static bool FindModel(LLModelLoader::scene& scene, const std::string& name_to_match, LLModel*& baseModelOut, LLMatrix4& matOut)
 {
     for (auto scene_iter = scene.begin(); scene_iter != scene.end(); scene_iter++)
     {
@@ -142,10 +142,11 @@ void FindModel(LLModelLoader::scene& scene, const std::string& name_to_match, LL
             {
                 baseModelOut = model_iter->mModel;
                 matOut = scene_iter->first;
-                return;
+                return true;
             }
         }
     }
+    return false;
 }
 
 //-----------------------------------------------------------------------------
@@ -319,10 +320,8 @@ void LLModelPreview::rebuildUploadData()
 
         mat *= scale_mat;
 
-        for (auto model_iter = iter->second.begin(); model_iter != iter->second.end(); ++model_iter)
-        { // for each instance with said transform applied
-            LLModelInstance instance = *model_iter;
-
+        for (LLModelInstance& instance : iter->second)
+        { //for each instance with said transform applied
             LLModel* base_model = instance.mModel;
 
             if (base_model && !requested_name.empty())
@@ -354,7 +353,7 @@ void LLModelPreview::rebuildUploadData()
                     }
                     else
                     {
-                        //Physics can be inherited from other LODs or loaded, so we need to adjust what extension we are searching for
+                        // Physics can be inherited from other LODs or loaded, so we need to adjust what extension we are searching for
                         extensionLOD = mPhysicsSearchLOD;
                     }
 
@@ -365,9 +364,9 @@ void LLModelPreview::rebuildUploadData()
                         name_to_match += toAdd;
                     }
 
-                    FindModel(mScene[i], name_to_match, lod_model, transform);
+                    bool found = FindModel(mScene[i], name_to_match, lod_model, transform);
 
-                    if (!lod_model && i != LLModel::LOD_PHYSICS)
+                    if (!found && i != LLModel::LOD_PHYSICS)
                     {
                         if (mImporterDebug)
                         {
@@ -380,7 +379,7 @@ void LLModelPreview::rebuildUploadData()
                         }
 
                         int searchLOD = (i > LLModel::LOD_HIGH) ? LLModel::LOD_HIGH : i;
-                        while ((searchLOD <= LLModel::LOD_HIGH) && !lod_model)
+                        for (; searchLOD <= LLModel::LOD_HIGH; ++searchLOD)
                         {
                             std::string name_to_match = instance.mLabel;
                             llassert(!name_to_match.empty());
@@ -394,8 +393,8 @@ void LLModelPreview::rebuildUploadData()
 
                             // See if we can find an appropriately named model in LOD 'searchLOD'
                             //
-                            FindModel(mScene[searchLOD], name_to_match, lod_model, transform);
-                            searchLOD++;
+                            if (FindModel(mScene[searchLOD], name_to_match, lod_model, transform))
+                                break;
                         }
                     }
                 }
@@ -1174,8 +1173,7 @@ void LLModelPreview::loadModelCallback(S32 loaded_lod)
 
                         LLModel* found_model = NULL;
                         LLMatrix4 transform;
-                        FindModel(mBaseScene, loaded_name, found_model, transform);
-                        if (found_model)
+                        if (FindModel(mBaseScene, loaded_name, found_model, transform))
                         { // don't rename correctly named models (even if they are placed in a wrong order)
                             name_based = true;
                         }
