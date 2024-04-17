@@ -452,7 +452,8 @@ protected:
 	S32	mKnownDrawHeight;
 	BOOL mKnownDrawSizeChanged ;
 	std::string mUrl;
-	
+
+    S32 mLastWorkerDiscardLevel;
 	S32 mRequestedDiscardLevel;
 	F32 mRequestedDownloadPriority;
 	S32 mFetchState;

@@ -1032,7 +1032,8 @@ void LLViewerFetchedTexture::init(bool firstinit)
 	mOrigHeight = 0;
 	mHasAux = FALSE;
 	mNeedsAux = FALSE;
-	mRequestedDiscardLevel = -1;
+    mLastWorkerDiscardLevel = -1;
+    mRequestedDiscardLevel = -1;
 	mRequestedDownloadPriority = 0.f;
 	mFullyLoaded = FALSE;
 	mCanUseHTTP = true;
@@ -2084,18 +2085,26 @@ bool LLViewerFetchedTexture::updateFetch()
 		}
 		
 		// bypass texturefetch directly by pulling from LLTextureCache
-		S32 fetch_request_discard = -1;
-        fetch_request_discard = LLAppViewer::getTextureFetch()->createRequest(mFTType, mUrl, getID(), getTargetHost(), decode_priority,
-																			  w, h, c, desired_discard, needsAux(), mCanUseHTTP);
-		
-		if (fetch_request_discard >= 0)
+		S32 worker_discard = -1;
+        S32 result = LLAppViewer::getTextureFetch()->createRequest(mFTType, mUrl, getID(), getTargetHost(), decode_priority,
+																			  w, h, c, desired_discard, needsAux(), mCanUseHTTP, worker_discard);
+
+        
+		if ((result >= 0) // Worker created
+            // scaled and standard images share requests, they just process the result differently
+            // if mLastWorkerDiscardLevel doen't match worker, worker was requested by a different
+            // image and current one needs to schedule an update
+            || (result == LLTextureFetch::FETCH_REQUEST_EXISTS
+                && mLastWorkerDiscardLevel != worker_discard)
+            )
 		{
             LL_PROFILE_ZONE_NAMED_CATEGORY_TEXTURE("vftuf - request created");
-			mHasFetcher = TRUE;
-			mIsFetching = TRUE;
+            mHasFetcher = TRUE;
+            mIsFetching = TRUE;
+            mLastWorkerDiscardLevel = worker_discard;
             // in some cases createRequest can modify discard, as an example
             // bake textures are always at discard 0
-            mRequestedDiscardLevel = llmin(desired_discard, fetch_request_discard);
+            mRequestedDiscardLevel = llmin(desired_discard, worker_discard);
 			mFetchState = LLAppViewer::getTextureFetch()->getFetchState(mID, mDownloadProgress, mRequestedDownloadPriority,
 													   mFetchPriority, mFetchDeltaTime, mRequestDeltaTime, mCanUseHTTP);
 		}
