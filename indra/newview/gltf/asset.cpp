@@ -69,9 +69,12 @@ void Node::updateTransforms(Asset& asset, const LLMatrix4a& parentMatrix)
     matMul(mMatrix, parentMatrix, mAssetMatrix);
     mAssetMatrixInv = inverse(mAssetMatrix);
     
+    S32 my_index = this - &asset.mNodes[0];
+
     for (auto& childIndex : mChildren)
     {
         Node& child = asset.mNodes[childIndex];
+        child.mParent = my_index;
         child.updateTransforms(asset, mAssetMatrix);
     }
 }
@@ -206,6 +209,131 @@ S32 Asset::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
     }
 
     return node_hit;
+}
+
+const Node& Node::operator=(const tinygltf::Node& src)
+{
+    F32* dstMatrix = mMatrix.getF32ptr();
+
+    if (src.matrix.size() == 16)
+    {
+        // Node has a transformation matrix, just copy it
+        for (U32 i = 0; i < 16; ++i)
+        {
+            dstMatrix[i] = (F32)src.matrix[i];
+        }
+    }
+    else if (!src.rotation.empty() || !src.translation.empty() || !src.scale.empty())
+    {
+        // node has rotation/translation/scale, convert to matrix
+        glh::quaternionf rotation;
+        if (src.rotation.size() == 4)
+        {
+            rotation = glh::quaternionf((F32)src.rotation[0], (F32)src.rotation[1], (F32)src.rotation[2], (F32)src.rotation[3]);
+        }
+
+        glh::vec3f translation;
+        if (src.translation.size() == 3)
+        {
+            translation = glh::vec3f((F32)src.translation[0], (F32)src.translation[1], (F32)src.translation[2]);
+        }
+
+        glh::vec3f scale;
+        if (src.scale.size() == 3)
+        {
+            scale = glh::vec3f((F32)src.scale[0], (F32)src.scale[1], (F32)src.scale[2]);
+        }
+        else
+        {
+            scale.set_value(1.f, 1.f, 1.f);
+        }
+
+        glh::matrix4f rot;
+        rotation.get_value(rot);
+
+        glh::matrix4f trans;
+        trans.set_translate(translation);
+
+        glh::matrix4f sc;
+        sc.set_scale(scale);
+
+        glh::matrix4f t;
+        //t = sc * rot * trans; 
+        //t = trans * rot * sc; // best so far, still wrong on negative scale
+        //t = sc * trans * rot;
+        t = trans * sc * rot;
+
+        mMatrix.loadu(t.m);
+    }
+    else
+    {
+        // node specifies no transformation, set to identity
+        mMatrix.setIdentity();
+    }
+
+    mChildren = src.children;
+    mMesh = src.mesh;
+    mName = src.name;
+
+    return *this;
+}
+
+void Asset::render(bool opaque)
+{
+    for (auto& node : mNodes)
+    {
+        if (node.mMesh != INVALID_INDEX)
+        {
+            Mesh& mesh = mMeshes[node.mMesh];
+            for (auto& primitive : mesh.mPrimitives)
+            {
+                gGL.loadMatrix((F32*)node.mRenderMatrix.mMatrix);
+                bool cull = true;
+                if (primitive.mMaterial != INVALID_INDEX)
+                {
+                    Material& material = mMaterials[primitive.mMaterial];
+
+                    if ((material.mMaterial->mAlphaMode == LLGLTFMaterial::ALPHA_MODE_BLEND) == opaque)
+                    {
+                        continue;
+                    }
+                    material.mMaterial->bind();
+                    cull = !material.mMaterial->mDoubleSided;
+                }
+                else
+                {
+                    if (!opaque)
+                    {
+                        continue;
+                    }
+                    LLFetchedGLTFMaterial::sDefault.bind();
+                }
+
+                LLGLDisable cull_face(!cull ? GL_CULL_FACE : 0);
+
+                primitive.mVertexBuffer->setBuffer();
+                if (primitive.mVertexBuffer->getNumIndices() > 0)
+                {
+                    primitive.mVertexBuffer->draw(primitive.mGLMode, primitive.mVertexBuffer->getNumIndices(), 0);
+                }
+                else
+                {
+                    primitive.mVertexBuffer->drawArrays(primitive.mGLMode, 0, primitive.mVertexBuffer->getNumVerts());
+                }
+
+            }
+        }
+    }
+}
+
+void Asset::renderOpaque()
+{
+    render(true);
+}
+
+void Asset::renderTransparent()
+{
+    render(false);
 }
 
 

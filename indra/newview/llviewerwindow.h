@@ -119,6 +119,8 @@ public:
 	LLUUID			mParticleOwnerID;
 	LLUUID			mParticleSourceID;
 	S32				mObjectFace;
+    S32             mGLTFNodeIndex = -1;
+    S32             mGLTFPrimitiveIndex = -1;
 	LLHUDIcon*		mHUDIcon;
 	LLVector3       mIntersection;
 	LLVector2		mUVCoords;
@@ -423,6 +425,8 @@ public:
                                     BOOL pick_unselectable = TRUE,
                                     BOOL pick_reflection_probe = TRUE,
 									S32* face_hit = NULL,
+                                    S32* gltf_node_hit = nullptr,
+                                    S32* gltf_primitive_hit = nullptr,
 									LLVector4a *intersection = NULL,
 									LLVector2 *uv = NULL,
 									LLVector4a *normal = NULL,

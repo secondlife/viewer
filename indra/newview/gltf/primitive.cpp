@@ -162,10 +162,25 @@ void Primitive::copyAttribute(Asset& asset, S32 accessorIdx, LLStrider<T>& dst)
     {
         copyAttributeArray(asset, accessor, (const U32*)src, dst, bufferView.mByteStride);
     }
-    else
-
+    else if (accessor.mComponentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE)
     {
-        LL_ERRS() << "Unsupported component type" << LL_ENDL;
+        copyAttributeArray(asset, accessor, (const U8*)src, dst, bufferView.mByteStride);
+    }
+    else if (accessor.mComponentType == TINYGLTF_COMPONENT_TYPE_SHORT)
+    {
+        copyAttributeArray(asset, accessor, (const S16*)src, dst, bufferView.mByteStride);
+    }
+    else if (accessor.mComponentType == TINYGLTF_COMPONENT_TYPE_BYTE)
+    {
+        copyAttributeArray(asset, accessor, (const S8*)src, dst, bufferView.mByteStride);
+    }
+    else if (accessor.mComponentType == TINYGLTF_COMPONENT_TYPE_DOUBLE)
+    {
+        copyAttributeArray(asset, accessor, (const F64*)src, dst, bufferView.mByteStride);
+    }
+    else
+    {
+        LL_ERRS("GLTF") << "Unsupported component type" << LL_ENDL;
     }
 }
 
@@ -179,11 +194,11 @@ void Primitive::allocateGLResources(Asset& asset)
 
     // get the number of vertices
     U32 numVertices = 0;
-    for (auto& it : mAttributes)
+    if (!mAttributes.empty())
     {
-        const Accessor& accessor = asset.mAccessors[it.second];
+        auto it = mAttributes.begin();
+        const Accessor& accessor = asset.mAccessors[it->second];
         numVertices = accessor.mCount;
-        break;
     }
 
     // get the number of indices
@@ -294,6 +309,14 @@ void Primitive::allocateGLResources(Asset& asset)
                 src += sizeof(U16);
             }
         }
+        else if (accessor.mComponentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE)
+        {
+            for (U32 i = 0; i < numIndices; ++i)
+            {
+                *(dst++) = *(U8*)src;
+                src += sizeof(U8);
+            }
+        }
         else
         {
             LL_ERRS("GLTF") << "Unsupported component type for indices" << LL_ENDL;
@@ -314,6 +337,22 @@ void Primitive::allocateGLResources(Asset& asset)
         for (U32 i = 0; i < numVertices; ++i)
         {
             *(dst++) = LLColor4U(255, 255, 255, 255);
+        }
+    }
+
+    // bake material basecolor into color array
+    if (mMaterial != INVALID_INDEX)
+    {
+        const Material& material = asset.mMaterials[mMaterial];
+        LLColor4 baseColor = material.mMaterial->mBaseColor;
+        LLStrider<LLColor4U> dst;
+        mVertexBuffer->getColorStrider(dst);
+
+        for (U32 i = 0; i < numVertices; ++i)
+        {
+            LLColor4 col = *dst;
+            *dst = LLColor4U(baseColor * col);
+            dst++;
         }
     }
 
@@ -368,15 +407,51 @@ void Primitive::allocateGLResources(Asset& asset)
     mVertexBuffer->unmapBuffer();
 }
 
+void initOctreeTriangle(LLVolumeTriangle* tri, F32 scaler, S32 i0, S32 i1, S32 i2, const LLVector4a& v0, const LLVector4a& v1, const LLVector4a& v2)
+{
+    //store pointers to vertex data
+    tri->mV[0] = &v0;
+    tri->mV[1] = &v1;
+    tri->mV[2] = &v2;
+
+    //store indices
+    tri->mIndex[0] = i0;
+    tri->mIndex[1] = i1;
+    tri->mIndex[2] = i2;
+
+    //get minimum point
+    LLVector4a min = v0;
+    min.setMin(min, v1);
+    min.setMin(min, v2);
+
+    //get maximum point
+    LLVector4a max = v0;
+    max.setMax(max, v1);
+    max.setMax(max, v2);
+
+    //compute center
+    LLVector4a center;
+    center.setAdd(min, max);
+    center.mul(0.5f);
+
+    tri->mPositionGroup = center;
+
+    //compute "radius"
+    LLVector4a size;
+    size.setSub(max, min);
+
+    tri->mRadius = size.getLength3().getF32() * scaler;
+}
+
 void Primitive::createOctree()
 {
     // create octree
     mOctree = new LLVolumeOctree();
 
+    F32 scaler = 0.25f;
+
     if (mMode == TINYGLTF_MODE_TRIANGLES)
     {
-        F32 scaler = 0.25f;
-
         const U32 num_triangles = mVertexBuffer->getNumIndices() / 3;
         // Initialize all the triangles we need
         mOctreeTriangles.resize(num_triangles);
@@ -388,47 +463,82 @@ void Primitive::createOctree()
         { //for each triangle
             const U32 index = triangle_index * 3;
             LLVolumeTriangle* tri = &mOctreeTriangles[triangle_index];
-            const LLVector4a& v0 = pos[indices[index]];
-            const LLVector4a& v1 = pos[indices[index + 1]];
-            const LLVector4a& v2 = pos[indices[index + 2]];
+            S32 i0 = indices[index];
+            S32 i1 = indices[index + 1];
+            S32 i2 = indices[index + 2];
 
-            //store pointers to vertex data
-            tri->mV[0] = &v0;
-            tri->mV[1] = &v1;
-            tri->mV[2] = &v2;
+            const LLVector4a& v0 = pos[i0];
+            const LLVector4a& v1 = pos[i1];
+            const LLVector4a& v2 = pos[i2];
+            
+            initOctreeTriangle(tri, scaler, i0, i1, i2, v0, v1, v2);
+            
+            //insert
+            mOctree->insert(tri);
+        }
+    }
+    else if (mMode == TINYGLTF_MODE_TRIANGLE_STRIP)
+    {
+        const U32 num_triangles = mVertexBuffer->getNumIndices() - 2;
+        // Initialize all the triangles we need
+        mOctreeTriangles.resize(num_triangles);
 
-            //store indices
-            tri->mIndex[0] = indices[index];
-            tri->mIndex[1] = indices[index + 1];
-            tri->mIndex[2] = indices[index + 2];
+        LLVector4a* pos = (LLVector4a*)(mVertexBuffer->getMappedData() + mVertexBuffer->getOffset(LLVertexBuffer::TYPE_VERTEX));
+        U16* indices = (U16*)mVertexBuffer->getMappedIndices();
 
-            //get minimum point
-            LLVector4a min = v0;
-            min.setMin(min, v1);
-            min.setMin(min, v2);
+        for (U32 triangle_index = 0; triangle_index < num_triangles; ++triangle_index)
+        { //for each triangle
+            const U32 index = triangle_index + 2;
+            LLVolumeTriangle* tri = &mOctreeTriangles[triangle_index];
+            S32 i0 = indices[index];
+            S32 i1 = indices[index - 1];
+            S32 i2 = indices[index - 2];
 
-            //get maximum point
-            LLVector4a max = v0;
-            max.setMax(max, v1);
-            max.setMax(max, v2);
+            const LLVector4a& v0 = pos[i0];
+            const LLVector4a& v1 = pos[i1];
+            const LLVector4a& v2 = pos[i2];
 
-            //compute center
-            LLVector4a center;
-            center.setAdd(min, max);
-            center.mul(0.5f);
-
-            tri->mPositionGroup = center;
-
-            //compute "radius"
-            LLVector4a size;
-            size.setSub(max, min);
-
-            tri->mRadius = size.getLength3().getF32() * scaler;
+            initOctreeTriangle(tri, scaler, i0, i1, i2, v0, v1, v2);
 
             //insert
             mOctree->insert(tri);
         }
     }
+    else if (mMode == TINYGLTF_MODE_TRIANGLE_FAN)
+    {
+        const U32 num_triangles = mVertexBuffer->getNumIndices() - 2;
+        // Initialize all the triangles we need
+        mOctreeTriangles.resize(num_triangles);
+
+        LLVector4a* pos = (LLVector4a*)(mVertexBuffer->getMappedData() + mVertexBuffer->getOffset(LLVertexBuffer::TYPE_VERTEX));
+        U16* indices = (U16*)mVertexBuffer->getMappedIndices();
+
+        for (U32 triangle_index = 0; triangle_index < num_triangles; ++triangle_index)
+        { //for each triangle
+            const U32 index = triangle_index + 2;
+            LLVolumeTriangle* tri = &mOctreeTriangles[triangle_index];
+            S32 i0 = indices[0];
+            S32 i1 = indices[index - 1];
+            S32 i2 = indices[index - 2];
+
+            const LLVector4a& v0 = pos[i0];
+            const LLVector4a& v1 = pos[i1];
+            const LLVector4a& v2 = pos[i2];
+
+            initOctreeTriangle(tri, scaler, i0, i1, i2, v0, v1, v2);
+
+            //insert
+            mOctree->insert(tri);
+        }
+    }
+    else if (mMode == TINYGLTF_MODE_POINTS ||
+            mMode == TINYGLTF_MODE_LINE ||
+        mMode == TINYGLTF_MODE_LINE_LOOP ||
+        mMode == TINYGLTF_MODE_LINE_STRIP)
+    {
+        // nothing to do, no volume... maybe add some collision geometry around these primitive types?
+    }
+    
     else
     {
         LL_ERRS() << "Unsupported Primitive mode" << LL_ENDL;

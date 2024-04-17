@@ -34,6 +34,9 @@
 #include "llshadermgr.h"
 #include "pipeline.h"
 
+//static
+LLFetchedGLTFMaterial LLFetchedGLTFMaterial::sDefault;
+
 LLFetchedGLTFMaterial::LLFetchedGLTFMaterial()
     : LLGLTFMaterial()
     , mExpectedFlusTime(0.f)
