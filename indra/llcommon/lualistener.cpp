@@ -41,7 +41,7 @@ LuaListener::LuaListener(lua_State* L):
     // Listen for shutdown events.
     mShutdownConnection(
         LLCoros::getStopListener(
-            LLEventPump::inventName("LuaState"),
+            "LuaState",
             mCoroName,
             [this](const LLSD&)
             {
