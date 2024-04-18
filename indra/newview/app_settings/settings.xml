@@ -10729,7 +10729,7 @@
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
-    <string>U32</string>
+    <string>S32</string>
     <key>Value</key>
     <integer>9</integer>
   </map>
