@@ -129,7 +129,8 @@ void main()
     float depth        = getDepth(tc.xy);
     vec4  pos          = getPositionWithDepth(tc, depth);
     vec4  norm         = texture(normalMap, tc);
-    float envIntensity = norm.z;
+    vec3 colorEmissive = texture(emissiveRect, tc).rgb;
+    float envIntensity = colorEmissive.r;
     norm.xyz           = getNorm(tc);
     vec3  light_dir   = (sun_up_factor == 1) ? sun_dir : moon_dir;
 
@@ -174,7 +175,7 @@ void main()
         float metallic = orm.b;
         float ao = orm.r;
 
-        vec3 colorEmissive = texture(emissiveRect, tc).rgb;
+        
         // PBR IBL
         float gloss      = 1.0 - perceptualRoughness;
         

@@ -50,6 +50,7 @@ SOFTWARE.
 
 uniform sampler2D   normalMap;
 uniform sampler2D   depthMap;
+uniform sampler2D emissiveMap;
 uniform sampler2D projectionMap; // rgba
 uniform sampler2D brdfLut;
 
@@ -140,18 +141,9 @@ vec2 getScreenCoordinate(vec2 screenpos)
     return sc - vec2(1.0, 1.0);
 }
 
-// See: https://aras-p.info/texts/CompactNormalStorage.html
-//      Method #4: Spheremap Transform, Lambert Azimuthal Equal-Area projection
 vec3 getNorm(vec2 screenpos)
 {
-   vec2 enc = texture(normalMap, screenpos.xy).xy;
-   vec2 fenc = enc*4-2;
-   float f = dot(fenc,fenc);
-   float g = sqrt(1-f/4);
-   vec3 n;
-   n.xy = fenc*g;
-   n.z = 1-f/2;
-   return n;
+    return texture(normalMap, screenpos.xy).rgb;
 }
 
 vec3 getNormalFromPacked(vec4 packedNormalEnvIntensityFlags)
@@ -170,10 +162,10 @@ vec3 getNormalFromPacked(vec4 packedNormalEnvIntensityFlags)
 // See: C++: addDeferredAttachments(), GLSL: softenLightF
 vec4 getNormalEnvIntensityFlags(vec2 screenpos, out vec3 n, out float envIntensity)
 {
-    vec4 packedNormalEnvIntensityFlags = texture(normalMap, screenpos.xy);
-    n = getNormalFromPacked( packedNormalEnvIntensityFlags );
-    envIntensity = packedNormalEnvIntensityFlags.z;
-    return packedNormalEnvIntensityFlags;
+    n = texture(normalMap, screenpos.xy).rgb;
+    envIntensity = texture(emissiveMap, screenpos.xy).r;
+
+    return vec4(n, envIntensity);
 }
 
 // get linear depth value given a depth buffer sample d and znear and zfar values

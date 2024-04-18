@@ -2039,7 +2039,57 @@ function="World.EnvPreset"
                  function="Advanced.ToggleRenderType"
                  parameter="simple" />
             </menu_item_check>
-            <menu_item_check
+          <menu_item_check
+             label="Materials"
+             name="Rendering Type Materials">
+            <menu_item_check.on_check
+             function="Advanced.CheckRenderType"
+             parameter="materials" />
+            <menu_item_check.on_click
+             function="Advanced.ToggleRenderType"
+             parameter="materials" />
+          </menu_item_check>
+          <menu_item_check
+             label="Alpha Mask"
+             name="Rendering Type Alpha Mask">
+            <menu_item_check.on_check
+             function="Advanced.CheckRenderType"
+             parameter="alpha_mask" />
+            <menu_item_check.on_click
+             function="Advanced.ToggleRenderType"
+             parameter="alpha_mask" />
+          </menu_item_check>
+          <menu_item_check
+             label="Fullbright Alpha Mask"
+             name="Rendering Type Fullbright Alpha Mask">
+            <menu_item_check.on_check
+             function="Advanced.CheckRenderType"
+             parameter="fullbright_alpha_mask" />
+            <menu_item_check.on_click
+             function="Advanced.ToggleRenderType"
+             parameter="fullbright_alpha_mask" />
+          </menu_item_check>
+          <menu_item_check
+             label="Glow"
+             name="Rendering Type Glow">
+            <menu_item_check.on_check
+             function="Advanced.CheckRenderType"
+             parameter="glow" />
+            <menu_item_check.on_click
+             function="Advanced.ToggleRenderType"
+             parameter="glow" />
+          </menu_item_check>
+          <menu_item_check
+             label="Fullbright"
+             name="Rendering Type Glow">
+            <menu_item_check.on_check
+             function="Advanced.CheckRenderType"
+             parameter="fullbright" />
+            <menu_item_check.on_click
+             function="Advanced.ToggleRenderType"
+             parameter="fullbright" />
+          </menu_item_check>
+          <menu_item_check
              label="Alpha"
              name="Rendering Type Alpha"
              shortcut="control|alt|shift|2">
