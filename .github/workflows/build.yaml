@@ -187,12 +187,12 @@ jobs:
           if [ "$prefix" == "project" ]; then
               # convert branch_array[1] underscores to space, then capitalize each substring
               proj_name=$(echo ${branch_array[1]} | sed -e 's/_/ /g' | awk '{for(i=1;i<=NF;i++) $i=toupper(substr($i,1,1)) tolower(substr($i,2));}1')
-              viewer_channel="Second Life Project $proj_name"
+              export viewer_channel="Second Life Project $proj_name"
           elif  [ "$prefix" == "release" ] || [ "$prefix" == "main" ];
           then
-              viewer_channel="Second Life Release"
+              export viewer_channel="Second Life Release"
           else
-              viewer_channel="Second Life Test"
+              export viewer_channel="Second Life Test"
           fi
           echo "viewer_channel=$viewer_channel" >> "$GITHUB_OUTPUT"
 
