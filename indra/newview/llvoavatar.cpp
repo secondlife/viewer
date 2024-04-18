@@ -8270,7 +8270,7 @@ void LLVOAvatar::logMetricsTimerRecord(const std::string& phase_name, F32 elapse
 bool LLVOAvatar::updateIsFullyLoaded()
 {
 	S32 rez_status = getRezzedStatus();
-	bool loading = getIsCloud();
+	bool loading = rez_status == 0;
 	if (mFirstFullyVisible && !mIsControlAvatar)
 	{
         loading = ((rez_status < 2)
