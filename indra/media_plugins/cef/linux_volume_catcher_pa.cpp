@@ -129,6 +129,7 @@ void VolumeCatcherImpl::init()
 	// probably be loaded separately.  Our Linux DSO framework needs refactoring,
 	// we do this sort of thing a lot with practically identical logic...
 	mGotSyms = loadsyms("libpulse-mainloop-glib.so.0");
+	if (!mGotSyms) mGotSyms = loadsyms("libpulse.so.0");
 	if (!mGotSyms) return;
 
 	mMainloop = llpa_glib_mainloop_new(g_main_context_default());
