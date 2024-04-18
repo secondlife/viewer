@@ -50,22 +50,12 @@
 
 std::map<std::string, std::string> LLLUAmanager::sScriptNames;
 
-const S32 INTERRUPTS_MAX_LIMIT = 20000;
-const S32 INTERRUPTS_SUSPEND_LIMIT = 100;
-
-void set_interrupts_counter(lua_State *L, S32 counter)
-{
-    lua_pushstring(L, "_INTERRUPTS");
-    lua_pushinteger(L, counter);
-    lua_rawset(L, LUA_REGISTRYINDEX);
-}
-
 lua_function(sleep, "sleep(seconds): pause the running coroutine")
 {
     F32 seconds = lua_tonumber(L, -1);
     lua_pop(L, 1);
     llcoro::suspendUntilTimeout(seconds);
-    set_interrupts_counter(L, 0);
+    lluau::set_interrupts_counter(L, 0);
     return 0;
 };
 
@@ -167,7 +157,7 @@ lua_function(get_event_next,
     const auto& [pump, data]{ listener->getNext() };
     lua_pushstdstring(L, pump);
     lua_pushllsd(L, data);
-    set_interrupts_counter(L, 0);
+    lluau::set_interrupts_counter(L, 0);
     return 2;
 }
 
@@ -188,24 +178,6 @@ std::pair<int, LLSD> LLLUAmanager::waitScriptFile(const std::string& filename)
     return startScriptFile(filename).get();
 }
 
-void check_interrupts_counter(lua_State* L) 
-{
-    lua_pushstring(L, "_INTERRUPTS");
-    lua_rawget(L, LUA_REGISTRYINDEX);
-    S32 counter = lua_tointeger(L, -1);
-    lua_pop(L, 1);
-
-    set_interrupts_counter(L, ++counter);
-    if (counter > INTERRUPTS_MAX_LIMIT) 
-    {
-        lluau::error(L, "Possible infinite loop, terminated.");
-    }
-    else if (counter % INTERRUPTS_SUSPEND_LIMIT == 0) 
-    {
-        llcoro::suspend();
-    }
-}
-
 void LLLUAmanager::runScriptFile(const std::string &filename, script_result_fn result_cb, script_finished_fn finished_cb)
 {
     // A script_result_fn will be called when LuaState::expr() completes.
@@ -220,17 +192,6 @@ void LLLUAmanager::runScriptFile(const std::string &filename, script_result_fn r
             // A script_finished_fn is used to initialize the LuaState.
             // It will be called when the LuaState is destroyed.
             LuaState L(finished_cb);
-            set_interrupts_counter(L, 0);
-
-            lua_callbacks(L)->interrupt = [](lua_State *L, int gc)
-            {
-                // skip if we're interrupting only for garbage collection
-                if (gc >= 0)
-                    return;
-
-                LLCoros::checkStop();
-                check_interrupts_counter(L);
-            };
             std::string text{std::istreambuf_iterator<char>(in_file), {}};
             auto [count, result] = L.expr(filename, text);
             if (result_cb)
