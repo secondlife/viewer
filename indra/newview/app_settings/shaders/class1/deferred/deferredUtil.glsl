@@ -50,7 +50,7 @@ SOFTWARE.
 
 uniform sampler2D   normalMap;
 uniform sampler2D   depthMap;
-uniform sampler2D emissiveMap;
+uniform sampler2D emissiveRect;
 uniform sampler2D projectionMap; // rgba
 uniform sampler2D brdfLut;
 
@@ -163,7 +163,7 @@ vec3 getNormalFromPacked(vec4 packedNormalEnvIntensityFlags)
 vec4 getNormalEnvIntensityFlags(vec2 screenpos, out vec3 n, out float envIntensity)
 {
     n = texture(normalMap, screenpos.xy).rgb;
-    envIntensity = texture(emissiveMap, screenpos.xy).r;
+    envIntensity = texture(emissiveRect, screenpos.xy).r;
 
     return vec4(n, envIntensity);
 }
