@@ -289,19 +289,19 @@ public:
 
 	virtual void	setVisible(BOOL visible);
 	void			setVisibleDirect(BOOL visible) { mVisible = visible; }
-	const BOOL&		getVisible() const			{ return mVisible; }
+	const BOOL&		getVisible() const { return mVisible; }
 	virtual void	setEnabled(BOOL enabled);
-	BOOL			getEnabled() const			{ return mEnabled; }
+	BOOL			getEnabled() const { return mEnabled; }
 	/// 'available' in this context means 'visible and enabled': in other
 	/// words, can a user actually interact with this?
 	virtual bool	isAvailable() const;
 	/// The static isAvailable() tests an LLView* that could be NULL.
 	static bool		isAvailable(const LLView* view);
-	U8              getSoundFlags() const       { return mSoundFlags; }
+	U8              getSoundFlags() const { return mSoundFlags; }
 
-	virtual BOOL	setLabelArg( const std::string& key, const LLStringExplicit& text );
+	virtual BOOL	setLabelArg(const std::string& key, const LLStringExplicit& text);
 
-	virtual void	onVisibilityChange ( BOOL new_visibility );
+	virtual void	onVisibilityChange(BOOL new_visibility);
 	virtual void	onUpdateScrollToChild(const LLUICtrl * cntrl);
 
 	void			pushVisible(BOOL visible)	{ mLastVisible = mVisible; setVisible(visible); }
@@ -332,11 +332,11 @@ public:
 	void updateBoundingRect();
 
 	LLView*		getRootView();
-	LLView*		getParent() const				{ return mParentView; }
-	LLView*		getFirstChild() const			{ return (mChildList.empty()) ? NULL : *(mChildList.begin()); }
+	LLView*		getParent() const { return mParentView; }
+	LLView*		getFirstChild() const { return (mChildList.empty()) ? NULL : *(mChildList.begin()); }
 	LLView*		findPrevSibling(LLView* child);
 	LLView*		findNextSibling(LLView* child);
-	S32			getChildCount()	const			{ return (S32)mChildList.size(); }
+	S32			getChildCount()	const { return (S32)mChildList.size(); }
 	template<class _Pr3> void sortChildren(_Pr3 _Pred) { mChildList.sort(_Pred); }
 	BOOL		hasAncestor(const LLView* parentp) const;
 	BOOL		hasChild(const std::string& childname, BOOL recurse = FALSE) const;
@@ -367,7 +367,7 @@ public:
 	// Default behavior is to use reshape flags to resize child views
 	virtual void	reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 	virtual void	translate( S32 x, S32 y );
-	void			setOrigin( S32 x, S32 y )	{ mRect.translate( x - mRect.mLeft, y - mRect.mBottom ); }
+	void			setOrigin( S32 x, S32 y ) { mRect.translate( x - mRect.mLeft, y - mRect.mBottom ); }
 	BOOL			translateIntoRect( const LLRect& constraint, S32 min_overlap_pixels = S32_MAX);
 	BOOL			translateRectIntoRect( const LLRect& rect, const LLRect& constraint, S32 min_overlap_pixels = S32_MAX);
 	BOOL			translateIntoRectWithExclusion( const LLRect& inside, const LLRect& exclude, S32 min_overlap_pixels = S32_MAX);

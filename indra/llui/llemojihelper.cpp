@@ -155,9 +155,12 @@ void LLEmojiHelper::setHostCtrl(LLUICtrl* hostctrl_p)
 		mHostHandle.markDead();
 		mEmojiCommitCb = {};
 
-		if (!mHelperHandle.isDead())
+		if (LLFloater* floater = mHelperHandle.get())
 		{
-			mHelperHandle.get()->closeFloater();
+			if (floater->getVisible() && !floater->isClosing())
+			{
+				mHelperHandle.get()->closeFloater();
+			}
 		}
 
 		if (hostctrl_p)

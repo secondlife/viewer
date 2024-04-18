@@ -134,7 +134,7 @@ public:
 		}
 |*==========================================================================*/
 	};
-	
+
 	enum EFloaterButton
 	{
 		BUTTON_CLOSE = 0,
@@ -145,13 +145,13 @@ public:
 		BUTTON_HELP,
 		BUTTON_COUNT
 	};
-	
+
 	struct Params 
 	:	public LLInitParam::Block<Params, LLPanel::Params>
 	{
 		Optional<std::string>	title,
 								short_title;
-		
+
 		Optional<bool>			single_instance,
 								reuse_instance,
 								can_resize,
@@ -165,9 +165,9 @@ public:
 								can_dock,
 								show_title,
 								auto_close;
-		
+
 		Optional<LLFloaterEnums::EOpenPositioning>	positioning;
-		
+
 		Optional<S32>			header_height,
 								legacy_header_height; // HACK see initFromXML()
 
@@ -192,10 +192,10 @@ public:
 									  close_callback;
 
 		Ignored					follows;
-		
+
 		Params();
 	};
-	
+
 	// use this to avoid creating your own default LLFloater::Param instance
 	static const Params& getDefaultParams();
 
@@ -261,7 +261,7 @@ public:
 	LLFloater*		getDependee() { return (LLFloater*)mDependeeHandle.get(); }
 	void			removeDependentFloater(LLFloater* dependent);
 	void			fitWithDependentsOnScreen(const LLRect& left, const LLRect& bottom, const LLRect& right, const LLRect& constraint, S32 min_overlap_pixels);
-	BOOL			isMinimized() const				{ return mMinimized; }
+	BOOL			isMinimized() const { return mMinimized; }
 	/// isShown() differs from getVisible() in that isShown() also considers
 	/// isMinimized(). isShown() is true only if visible and not minimized.
 	bool			isShown() const;
@@ -272,7 +272,7 @@ public:
 	static bool     isMinimized(const LLFloater* floater);
 	BOOL			isFirstLook() { return mFirstLook; } // EXT-2653: This function is necessary to prevent overlapping for secondary showed toasts
 	virtual BOOL	isFrontmost();
-	BOOL			isDependent()					{ return !mDependeeHandle.isDead(); }
+	BOOL			isDependent() { return !mDependeeHandle.isDead(); }
 	void			setCanMinimize(BOOL can_minimize);
 	void			setCanClose(BOOL can_close);
 	void			setCanTearOff(BOOL can_tear_off);
@@ -280,7 +280,7 @@ public:
 	void			setCanDrag(BOOL can_drag);
 	bool			getCanDrag();
 	void			setHost(LLMultiFloater* host);
-	BOOL			isResizable() const				{ return mResizable; }
+	BOOL			isResizable() const { return mResizable; }
 	void			setResizeLimits( S32 min_width, S32 min_height );
 	void			getResizeLimits( S32* min_width, S32* min_height ) { *min_width = mMinWidth; *min_height = mMinHeight; }
 
@@ -299,9 +299,9 @@ public:
 	virtual BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleDoubleClick(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleMiddleMouseDown(S32 x, S32 y, MASK mask);
-	
+
 	virtual BOOL	handleScrollWheel(S32 x, S32 y, S32 mask);
-	
+
 	virtual void	draw();
 	virtual void	drawShadow(LLPanel* panel);
 	
@@ -311,16 +311,17 @@ public:
 	// This cannot be "const" until all derived floater canClose()
 	// methods are const as well.  JC
 	virtual BOOL	canClose() { return TRUE; }
+	bool			isClosing() { return mClosing; }
 
 	/*virtual*/ void setVisible(BOOL visible); // do not override
-	/*virtual*/ void onVisibilityChange ( BOOL new_visibility ); // do not override
+	/*virtual*/ void onVisibilityChange( BOOL new_visibility ); // do not override
 	
 	bool            canFocusStealFrontmost() const { return mFocusStealsFrontmost; }
 	void            setFocusStealsFrontmost(bool wants_frontmost) { mFocusStealsFrontmost = wants_frontmost; }
 
 	void			setFrontmost(BOOL take_focus = TRUE, BOOL restore = TRUE);
-     virtual void	setVisibleAndFrontmost(BOOL take_focus=TRUE, const LLSD& key = LLSD());
-	
+    virtual void	setVisibleAndFrontmost(BOOL take_focus=TRUE, const LLSD& key = LLSD());
+
 	// Defaults to false.
 	virtual BOOL	canSaveAs() const { return FALSE; }
 
@@ -335,7 +336,7 @@ public:
 	virtual bool	matchesKey(const LLSD& key) { return mSingleInstance || KeyCompare::equate(key, mKey); }
 	
 	const std::string& getInstanceName() { return mInstanceName; }
-	
+
 	bool            isDockable() const { return mCanDock; }
 	void            setCanDock(bool b);
 
@@ -353,11 +354,6 @@ public:
 
     static bool     isQuitRequested() { return sQuitting; }
 
-//	LLNotification::Params contextualNotification(const std::string& name) 
-//	{ 
-//	    return LLNotification::Params(name).context(mNotificationContext); 
-//	}
-
 	static void		onClickClose(LLFloater* floater);
 	static void		onClickMinimize(LLFloater* floater);
 	static void		onClickTearOff(LLFloater* floater);
@@ -368,7 +364,7 @@ public:
 	static LLMultiFloater* getFloaterHost() {return sHostp; }
 
 	void			updateTransparency(ETypeTransparency transparency_type);
-		
+
 	void			enableResizeCtrls(bool enable, bool width = true, bool height = true);
 
 	bool			isPositioning(LLFloaterEnums::EOpenPositioning p) const { return (p == mPositioning); }
@@ -389,7 +385,7 @@ protected:
 
 	void		 	setKey(const LLSD& key);
 	void		 	setInstanceName(const std::string& name);
-	
+
 	virtual void	bringToFront(S32 x, S32 y);
 	virtual void	goneFromFront();
 	
@@ -425,7 +421,7 @@ private:
 	// up by index.
 	static LLUIImage*	getButtonImage(const Params& p, EFloaterButton e);
 	static LLUIImage*	getButtonPressedImage(const Params& p, EFloaterButton e);
-	
+
 	/**
 	 * @params is_chrome - if floater is Chrome it means that floater will never get focus.
 	 * Therefore it can't be closed with 'Ctrl+W'. So the tooltip text of close button( X )
@@ -456,11 +452,11 @@ public:
 	// Public so external views or floaters can watch for this floater closing
 	commit_signal_t mCloseSignal;		
 
-	commit_signal_t* mMinimizeSignal;
+	commit_signal_t* mMinimizeSignal { nullptr };
 
 protected:
 	bool			mSaveRect;
-	bool			mDefaultRectForGroup;
+	bool			mDefaultRectForGroup { true };
 	std::string		mRectControl;
 	std::string		mPosXControl;
 	std::string		mPosYControl;
@@ -468,22 +464,22 @@ protected:
 	std::string		mDocStateControl;
 	LLSD			mKey;				// Key used for retrieving instances; set (for now) by LLFLoaterReg
 
-	LLDragHandle*	mDragHandle;
+	LLDragHandle*	mDragHandle { nullptr };
 	LLResizeBar*	mResizeBar[4];
 	LLResizeHandle*	mResizeHandle[4];
 
 	LLButton*		mButtons[BUTTON_COUNT];
 private:
 	LLRect			mExpandedRect;
-	
+
 	LLUIString		mTitle;
 	LLUIString		mShortTitle;
-	
+
 	BOOL			mSingleInstance;	  // TRUE if there is only ever one instance of the floater
 	bool			mReuseInstance;		  // true if we want to hide the floater when we close it instead of destroying it
     bool            mIsReuseInitialized;  // true if mReuseInstance already set from parameters
 	std::string		mInstanceName;		  // Store the instance name so we can remove ourselves from the list
-	
+
 	BOOL			mCanTearOff;
 	BOOL			mCanMinimize;
 	BOOL			mCanClose;
@@ -494,48 +490,48 @@ private:
 
 	LLFloaterEnums::EOpenPositioning	mPositioning;
 	LLCoordFloater	mPosition;
-	
+
 	S32				mMinWidth;
 	S32				mMinHeight;
 	S32				mHeaderHeight;		// height in pixels of header for title, drag bar
 	S32				mLegacyHeaderHeight;// HACK see initFloaterXML()
-	
-	BOOL			mMinimized;
-	BOOL			mForeground;
-	LLHandle<LLFloater>	mDependeeHandle;
-	
 
-	BOOL			mFirstLook;			// TRUE if the _next_ time this floater is visible will be the first time in the session that it is visible.
-	
-	typedef std::set<LLHandle<LLFloater> > handle_set_t;
-	typedef std::set<LLHandle<LLFloater> >::iterator handle_set_iter_t;
+	BOOL			mMinimized { FALSE };
+	BOOL			mForeground { FALSE };
+	LLHandle<LLFloater>	mDependeeHandle;
+
+	BOOL			mFirstLook { TRUE }; // TRUE if the _next_ time this floater is visible will be the first time in the session that it is visible.
+
+	typedef std::set<LLHandle<LLFloater>> handle_set_t;
+	typedef std::set<LLHandle<LLFloater>>::iterator handle_set_iter_t;
 	handle_set_t	mDependents;
 	bool			mTranslateWithDependents { false };
 
 	bool			mButtonsEnabled[BUTTON_COUNT];
-	F32				mButtonScale;
-	BOOL			mAutoFocus;
+	F32				mButtonScale { 1 };
+	BOOL			mAutoFocus { TRUE }; // automatically take focus when opened
 	LLHandle<LLFloater> mSnappedTo;
-	
+
 	LLHandle<LLFloater> mHostHandle;
 	LLHandle<LLFloater> mLastHostHandle;
 
-	bool            mCanDock;
-	bool            mDocked;
-	bool            mTornOff;
+	bool mCanDock { false };
+	bool mDocked { false };
+	bool mTornOff { false };
+	bool mClosing { false };
 
 	static LLMultiFloater* sHostp;
-	static BOOL		sQuitting;
+	static BOOL sQuitting;
 	static std::string	sButtonNames[BUTTON_COUNT];
 	static std::string	sButtonToolTips[BUTTON_COUNT];
 	static std::string  sButtonToolTipsIndex[BUTTON_COUNT];
-	
+
 	typedef void(*click_callback)(LLFloater*);
 	static click_callback sButtonCallbacks[BUTTON_COUNT];
 
-	BOOL			mHasBeenDraggedWhileMinimized;
-	S32				mPreviousMinimizedBottom;
-	S32				mPreviousMinimizedLeft;
+	BOOL			mHasBeenDraggedWhileMinimized { FALSE };
+	S32				mPreviousMinimizedBottom { 0 };
+	S32				mPreviousMinimizedLeft { 0 };
 
 	F32				mDefaultRelativeX;
 	F32				mDefaultRelativeY;
@@ -620,7 +616,7 @@ private:
 	S32				mSnapOffsetBottom;
 	S32				mSnapOffsetRight;
 	S32				mMinimizePositionVOffset;
-	typedef std::vector<std::pair<LLHandle<LLFloater>, boost::signals2::connection> > hidden_floaters_t;
+	typedef std::vector<std::pair<LLHandle<LLFloater>, boost::signals2::connection>> hidden_floaters_t;
 	hidden_floaters_t mHiddenFloaters;
     LLHandle<LLFloater>	mFrontChildHandle;
 };

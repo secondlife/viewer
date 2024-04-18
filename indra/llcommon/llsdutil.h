@@ -172,6 +172,24 @@ template<typename Input> LLSD llsd_copy_array(Input iter, Input end)
 	return dest;
 }
 
+// Simple class for setting an external boolean to true and false inside the scope
+class LLScopedBooleanToggler
+{
+    bool& mValue;
+
+public:
+    LLScopedBooleanToggler(bool& value)
+        : mValue(value)
+    {
+        mValue = true;
+    }
+
+    ~LLScopedBooleanToggler()
+    {
+        mValue = false;
+    }
+};
+
 namespace llsd
 {
 
@@ -194,11 +212,6 @@ namespace llsd
  */
 LLSD  drill(const LLSD& blob, const LLSD& path);
 LLSD& drill_ref(  LLSD& blob, const LLSD& path);
-
-}
-
-namespace llsd
-{
 
 /**
  * Construct an LLSD::Array inline, using modern C++ variadic arguments.
