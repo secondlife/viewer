@@ -107,7 +107,7 @@ jobs:
             libgl1-mesa-dev libglu1-mesa-dev libxinerama-dev \
             libxcursor-dev libxfixes-dev libgstreamer1.0-dev \
             libgstreamer-plugins-base1.0-dev ninja-build libxft-dev \
-            llvm mold
+            llvm mold libpipewire-0.3-dev
 
       - name: Install windows dependencies
         if: runner.os == 'Windows'
