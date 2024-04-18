@@ -123,7 +123,14 @@ void LLHeroProbeManager::update()
             if (vo && !vo->isDead() && vo->mDrawable.notNull())
             {
                 float distance = (LLViewerCamera::instance().getOrigin() - vo->getPositionAgent()).magVec();
-                if (distance < last_distance && vo->isVisible())
+                LLVector4a center;
+                center.load3(vo->getPositionAgent().mV);
+                LLVector4a size;
+
+                size.load3(vo->getScale().mV);
+
+                bool visible = LLViewerCamera::instance().AABBInFrustum(center, size);
+                if (distance < last_distance && visible)
                 {
                     mNearestHero = vo;
                     last_distance = distance;
@@ -198,6 +205,7 @@ void LLHeroProbeManager::update()
     static LLCachedControl<S32> sDetail(gSavedSettings, "RenderHeroReflectionProbeDetail", -1);
     static LLCachedControl<S32> sLevel(gSavedSettings, "RenderHeroReflectionProbeLevel", 3);
 
+    if (mNearestHero != nullptr)
     {
         LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("hpmu - realtime");
         // Probe 0 is always our mirror probe.
@@ -216,7 +224,7 @@ void LLHeroProbeManager::update()
             {
                 if (mFaceUpdateList[i] > 0 && mCurrentProbeUpdateFrame % mFaceUpdateList[i] == 0)
                 {
-                    updateProbeFace(mProbes[j], i, mNearestHero->getReflectionProbeIsDynamic(), near_clip);
+                    updateProbeFace(mProbes[j], i, mNearestHero->getReflectionProbeIsDynamic() && sDetail > 0, near_clip);
                     mCurrentProbeUpdateFrame = 0;
                 }
             }
@@ -251,7 +259,6 @@ void LLHeroProbeManager::updateProbeFace(LLReflectionMap* probe, U32 face, bool 
     gPipeline.mRT = &gPipeline.mMainRT;
 
     S32 sourceIdx = mReflectionProbeCount;
-    
     
     // Unlike the reflectionmap manager, all probes are considered "realtime" for hero probes.
     sourceIdx += 1;
