@@ -24,17 +24,21 @@ set(media_plugin_cef_HEADER_FILES
 
 # Select which VolumeCatcher implementation to use
 if (LINUX)
-  foreach( PULSE_FILE pulse/introspect.h pulse/context.h pulse/subscribe.h pulse/glib-mainloop.h )
-    find_path( PULSE_FILE_${PULSE_FILE}_FOUND ${PULSE_FILE} NO_CACHE)
-    if( NOT PULSE_FILE_${PULSE_FILE}_FOUND )
-      message( "Looking for ${PULSE_FILE} ... not found")
-      message( FATAL_ERROR "Pulse header not found" )
-    else()
-      message( "Looking for ${PULSE_FILE} ... found")
-    endif()
-  endforeach()
-  message( "Building with linux volume catcher" )
-  set(LINUX_VOLUME_CATCHER linux_volume_catcher.cpp)
+  # foreach( PULSE_FILE pulse/introspect.h pulse/context.h pulse/subscribe.h pulse/glib-mainloop.h )
+  #   find_path( PULSE_FILE_${PULSE_FILE}_FOUND ${PULSE_FILE} NO_CACHE)
+  #   if( NOT PULSE_FILE_${PULSE_FILE}_FOUND )
+  #     message( "Looking for ${PULSE_FILE} ... not found")
+  #     message( FATAL_ERROR "Pulse header not found" )
+  #   else()
+  #     message( "Looking for ${PULSE_FILE} ... found")
+  #   endif()
+  # endforeach()
+
+  include(FindPipeWire)
+  include_directories(SYSTEM ${PIPEWIRE_INCLUDE_DIRS} ${SPA_INCLUDE_DIRS})
+
+  message( "Building with Linux volume catcher using PipeWire" )
+  set(LINUX_VOLUME_CATCHER linux_volume_catcher_pw.cpp)
 
   list(APPEND media_plugin_cef_SOURCE_FILES ${LINUX_VOLUME_CATCHER})
   set(CMAKE_SHARED_LINKER_FLAGS  "-Wl,--build-id -Wl,-rpath,'$ORIGIN:$ORIGIN/../../lib'")

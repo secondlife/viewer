@@ -1,5 +1,5 @@
 /** 
- * @file linux_volume_catcher.cpp
+ * @file linux_volume_catcher_pa.cpp
  * @brief A Linux-specific, PulseAudio-specific hack to detect and volume-adjust new audio sources
  *
  * @cond
