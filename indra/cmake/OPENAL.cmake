@@ -31,7 +31,6 @@ if (USE_OPENAL)
     target_link_libraries( ll::openal INTERFACE
             openal
             alut
-            sndio
             )
   else()
     message(FATAL_ERROR "OpenAL is not available for this platform")
