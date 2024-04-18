@@ -116,15 +116,14 @@ void LLHeroProbeManager::update()
     if (mHeroVOList.size() > 0)
     {
         // Find our nearest hero candidate.
-
         float last_distance = 99999.f;
-
+        mNearestHero        = nullptr;
         for (auto vo : mHeroVOList)
         {
             if (vo && !vo->isDead() && vo->mDrawable.notNull())
             {
                 float distance = (LLViewerCamera::instance().getOrigin() - vo->getPositionAgent()).magVec();
-                if (distance < last_distance)
+                if (distance < last_distance && vo->isVisible())
                 {
                     mNearestHero = vo;
                     last_distance = distance;
@@ -208,13 +207,16 @@ void LLHeroProbeManager::update()
         
         gPipeline.mReflectionMapManager.mRadiancePass = true;
         mRenderingMirror = true;
+
+        doOcclusion();
+
         for (U32 j = 0; j < mProbes.size(); j++)
         {
             for (U32 i = 0; i < 6; ++i)
             {
                 if (mFaceUpdateList[i] > 0 && mCurrentProbeUpdateFrame % mFaceUpdateList[i] == 0)
                 {
-                    updateProbeFace(mProbes[j], i, near_clip);
+                    updateProbeFace(mProbes[j], i, mNearestHero->getReflectionProbeIsDynamic(), near_clip);
                     mCurrentProbeUpdateFrame = 0;
                 }
             }
@@ -239,12 +241,12 @@ void LLHeroProbeManager::update()
 // The next six passes render the scene with both radiance and irradiance into the same scratch space cube map and generate a simple mip chain.
 // At the end of these passes, a radiance map is generated for this probe and placed into the radiance cube map array at the index for this probe.
 // In effect this simulates single-bounce lighting.
-void LLHeroProbeManager::updateProbeFace(LLReflectionMap* probe, U32 face, F32 near_clip)
+void LLHeroProbeManager::updateProbeFace(LLReflectionMap* probe, U32 face, bool is_dynamic, F32 near_clip)
 {
     // hacky hot-swap of camera specific render targets
     gPipeline.mRT = &gPipeline.mHeroProbeRT;
 
-    probe->update(mRenderTarget.getWidth(), face, true, near_clip);
+    probe->update(mRenderTarget.getWidth(), face, is_dynamic, near_clip);
     
     gPipeline.mRT = &gPipeline.mMainRT;
 
@@ -371,8 +373,6 @@ void LLHeroProbeManager::generateRadiance(LLReflectionMap* probe)
         static LLStaticHashedString sSourceIdx("sourceIdx");
 
         {
-
-
             // generate radiance map (even if this is not the irradiance map, we need the mip chain for the irradiance map)
             gHeroRadianceGenProgram.bind();
             mVertexBuffer->setBuffer();
