@@ -418,11 +418,6 @@ void main()
     frag_data[2] = max(vec4(norm, flag), vec4(0));   // XY = Normal.  Z = Env. intensity. W = 1 skip atmos (mask off fog)
     frag_data[3] = vec4(env, 0, 0, 0);
 
-    //frag_data[0] = vec4(0.5, 0.5, 0.5, 0.0);
-    //frag_data[2] = max(vec4(encode_normal(vec3(0.0, 1.0, 0.0)), env, flag), vec4(0));   // XY = Normal.  Z = Env. intensity. W = 1 skip atmos (mask off fog)
-    //frag_data[2] = vec4(encode_normal(vec3(0.0, 1.0, 0.0)), 0.0, flag);
-    
-
 #endif
 }
 
