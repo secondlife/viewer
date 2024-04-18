@@ -180,13 +180,19 @@ jobs:
           # seen before, so numerous tests don't know about it.
           [[ "$arch" == "MINGW6" ]] && arch=CYGWIN
           export AUTOBUILD="$(which autobuild)"
-          # Build with a tag like "Second_Life_Project_Shiny#abcdef0" to get a
-          # viewer channel "Second Life Project Shiny" (ignoring "#hash",
-          # needed to disambiguate tags).
-          if [[ "$GITHUB_REF_TYPE" == "tag" && "${GITHUB_REF_NAME:0:12}" == "Second_Life_" ]]
-          then viewer_channel="${GITHUB_REF_NAME%#*}"
-               export viewer_channel="${viewer_channel//_/ }"
-          else export viewer_channel="Second Life Test"
+
+          # determine the viewer channel from the branch name
+          IFS='/' read -ra branch_array <<< "$AUTOBUILD_VCS_BRANCH"
+          prefix=${branch_array[0]}
+          if [ "$prefix" == "project" ]; then
+              # convert branch_array[1] underscores to space, then capitalize each substring
+              proj_name=$(echo ${branch_array[1]} | sed -e 's/_/ /g' | awk '{for(i=1;i<=NF;i++) $i=toupper(substr($i,1,1)) tolower(substr($i,2));}1')
+              viewer_channel="Second Life Project $proj_name"
+          elif  [ "$prefix" == "release" ] || [ "$prefix" == "main" ];
+          then
+              viewer_channel="Second Life Release"
+          else
+              viewer_channel="Second Life Test"
           fi
           echo "viewer_channel=$viewer_channel" >> "$GITHUB_OUTPUT"
 
@@ -355,10 +361,13 @@ jobs:
           channel: ${{ needs.build.outputs.viewer_channel }}
           version: ${{ needs.build.outputs.viewer_version }}
 
+  # Build with a tag like "Second_Life#abcdef0" to generate a release page (used for builds we are planning to deploy).
+  # Note that the term release is overloaded here, this has nothing to do with vvm channel or with release vs. debug builds.
+  # Also note that the tag is no longer used to determine the viewer channel; that is now determined by the branch name.
   release:
     needs: [build, sign-and-package-windows, sign-and-package-mac]
     runs-on: ubuntu-latest
-    if: github.ref_type == 'tag' && startsWith(github.ref_name, 'Second_Life_')
+    if: github.ref_type == 'tag' && startsWith(github.ref_name, 'Second_Life')
     steps:
       - uses: actions/download-artifact@v3
         with:
