@@ -201,19 +201,6 @@ S32 LLAgentBenefits::get2KTextureUploadCost(S32 area) const
     {
         return m_texture_upload_cost;
     }
-    const S32 TEXTURE_SEGMENTS = 1024;
-    if (m_2k_texture_upload_cost.size() == TEXTURE_SEGMENTS)
-    {
-        S32 index = (S32)llceil(sqrt((F32)area));
-        // 1..1024 pixels uses m_texture_upload_cost
-        // 1025..2048 uses m_2k_texture_upload_cost
-        // Translate 1025..2048 to 0..1023 of the
-        // cost array
-        const S32 PIXELS_TO_2K_ARRAY_TRANLATE = 1025;
-        index -= PIXELS_TO_2K_ARRAY_TRANLATE;
-        index = llclamp(index, 0, TEXTURE_SEGMENTS - 1);
-        return m_2k_texture_upload_cost[index];
-    }
     return m_2k_texture_upload_cost[0];
 }
 
