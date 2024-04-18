@@ -35,13 +35,17 @@ public:
 	LLPanelAppearanceTab() : LLPanel() {}
 	virtual ~LLPanelAppearanceTab() {}
 
-	virtual void setFilterSubString(const std::string& string) = 0;
+	void setFilterSubString(const std::string& new_string);
+
+    void checkFilterSubString();
+
+    virtual void onFilterSubStringChanged(const std::string& new_string, const std::string& old_string) = 0;
 
 	virtual bool isActionEnabled(const LLSD& userdata) = 0;
 
 	virtual void getSelectedItemsUUIDs(uuid_vec_t& selected_uuids) const {}
 
-	static const std::string& getFilterSubString() { return sFilterSubString; }
+	const std::string& getFilterSubString() { return mFilterSubString; }
 
 protected:
 
@@ -50,7 +54,10 @@ protected:
 	 */
 	bool canTakeOffSelected();
 
-	static std::string		sFilterSubString;
+private:
+    std::string mFilterSubString;
+
+    static std::string sRecentFilterSubString;
 };
 
 #endif //LL_LLPANELAPPEARANCETAB_H
