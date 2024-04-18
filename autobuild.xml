@@ -2204,11 +2204,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2d20683554f0b00234bbb84d0ce7ac1be1ad70aa</string>
+              <string>f215c7e1a10f04a2c18cbb837e0039521fd150b6</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-open-libndofdev/releases/download/v1.14-r1/open_libndofdev-0.14.8503290964-linux64-8503290964.tar.zst</string>
+              <string>https://github.com/secondlife/3p-open-libndofdev/releases/download/v1.14-r2/open_libndofdev-0.14.8730039102-linux64-8730039102.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -2221,7 +2221,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>copyright</key>
         <string>Copyright (c) 2008, Jan Ciger (jan.ciger (at) gmail.com)</string>
         <key>version</key>
-        <string>0.14.8503290964</string>
+        <string>0.14.8730039102</string>
         <key>name</key>
         <string>open-libndofdev</string>
         <key>description</key>
@@ -2236,11 +2236,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>0e25ed4856d4c0009c741a7ad153e6efe30f1398</string>
+              <string>561032415ea95ce38d8836da2bb56e46968f5a82</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-openal-soft/releases/download/v1.23.1-r2/openal-1.23.1-linux64-8572560842.tar.zst</string>
+              <string>https://github.com/secondlife/3p-openal-soft/releases/download/v1.23.1-r3/openal-1.23.1-linux64-8730177813.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -3365,7 +3365,6 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>-G</string>
                   <string>Ninja</string>
                   <string>-DLL_TESTS=Off</string>
-                  <string>-DNDOF=Off</string>
                 </array>
                 <key>arguments</key>
                 <array>
@@ -3392,7 +3391,6 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>Ninja</string>
                   <string>-DLL_TESTS=Off</string>
                   <string>-DUSE_OPENAL=On</string>
-                  <string>-DNDOF=Off</string>
                 </array>
               </map>
               <key>build</key>
