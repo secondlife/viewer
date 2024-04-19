@@ -59,8 +59,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
-
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}    
+          
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
+        
       - name: Setup python
         uses: actions/setup-python@v4
         with:
