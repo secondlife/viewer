@@ -173,6 +173,7 @@ jobs:
 
           # determine the viewer channel from the branch name
           branch=${{ github.repository }}
+          echo "branch=$branch" >> "$GITHUB_OUTPUT"
           IFS='/' read -ra ba <<< $branch
           username=${ba[0]}
           prefix=${ba[1]}
@@ -186,7 +187,6 @@ jobs:
               export viewer_channel="Second Life Test"
           fi
           echo "viewer_channel=$viewer_channel" >> "$GITHUB_OUTPUT"
-          exit 1
           # On windows we need to point the build to the correct python
           # as neither CMake's FindPython nor our custom Python.cmake module
           # will resolve the correct interpreter location.
