@@ -52,6 +52,9 @@ namespace lluau
     int loadstring(lua_State* L, const std::string& desc, const std::string& text);
 
     fsyspath source_path(lua_State* L);
+
+    void set_interrupts_counter(lua_State *L, S32 counter);
+    void check_interrupts_counter(lua_State* L);
 } // namespace lluau
 
 std::string lua_tostdstring(lua_State* L, int index);

@@ -37,19 +37,29 @@
 *   Debugging stuff
 *****************************************************************************/
 /**
- * This class is intended to illuminate entry to a given block, exit from the
- * same block and checkpoints along the way. It also provides a convenient
- * place to turn std::cerr output on and off.
- *
- * If the environment variable LOGTEST is non-empty, each Debug instance will
- * announce its construction and destruction, presumably at entry and exit to
- * the block in which it's declared. Moreover, any arguments passed to its
- * operator()() will be streamed to std::cerr, prefixed by the block
- * description.
+ * Return true if the environment variable LOGTEST is non-empty.
  *
  * The variable LOGTEST is used because that's the environment variable
  * checked by test.cpp, our TUT main() program, to turn on LLError logging. It
  * is expected that Debug is solely for use in test programs.
+ */
+inline
+bool LOGTEST_enabled()
+{
+    auto LOGTEST{ getenv("LOGTEST") };
+    // debug output enabled when LOGTEST is set AND non-empty
+    return LOGTEST && *LOGTEST;
+}
+
+/**
+ * This class is intended to illuminate entry to a given block, exit from the
+ * same block and checkpoints along the way. It also provides a convenient
+ * place to turn std::cerr output on and off.
+ *
+ * If enabled, each Debug instance will announce its construction and
+ * destruction, presumably at entry and exit to the block in which it's
+ * declared. Moreover, any arguments passed to its operator()() will be
+ * streamed to std::cerr, prefixed by the block description.
  */
 class Debug
 {
@@ -57,9 +67,7 @@ public:
     template <typename... ARGS>
     Debug(ARGS&&... args):
         mBlock(stringize(std::forward<ARGS>(args)...)),
-        mLOGTEST(getenv("LOGTEST")),
-        // debug output enabled when LOGTEST is set AND non-empty
-        mEnabled(mLOGTEST && *mLOGTEST)
+        mEnabled(LOGTEST_enabled())
     {
         (*this)("entry");
     }
@@ -85,12 +93,26 @@ public:
 
 private:
     const std::string mBlock;
-    const char* mLOGTEST;
     bool mEnabled;
 };
 
 // It's often convenient to use the name of the enclosing function as the name
 // of the Debug block.
 #define DEBUG Debug debug(LL_PRETTY_FUNCTION)
+
+/// If enabled, debug_expr(expression) gives you output concerning an inline
+/// expression such as a class member initializer.
+#define debug_expr(expr) debug_expr_(#expr, [&](){ return expr; })
+
+template <typename EXPR>
+inline auto debug_expr_(const char* strexpr, EXPR&& lambda)
+{
+    if (! LOGTEST_enabled())
+        return std::forward<EXPR>(lambda)();
+    print("Before: ", strexpr);
+    auto result{ std::forward<EXPR>(lambda)() };
+    print(strexpr, " -> ", result);
+    return result;
+}
 
 #endif /* ! defined(LL_DEBUG_H) */

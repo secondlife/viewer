@@ -31,6 +31,9 @@
 #include "lualistener.h"
 #include "stringize.h"
 
+const S32 INTERRUPTS_MAX_LIMIT = 20000;
+const S32 INTERRUPTS_SUSPEND_LIMIT = 100;
+
 #define lua_register(L, n, f) (lua_pushcfunction(L, (f), n), lua_setglobal(L, (n)))
 #define lua_rawlen lua_objlen
 
@@ -75,6 +78,35 @@ fsyspath lluau::source_path(lua_State* L)
     lua_Debug ar;
     lua_getinfo(L, 1, "s", &ar);
     return ar.source;
+}
+
+void lluau::set_interrupts_counter(lua_State *L, S32 counter)
+{
+    luaL_checkstack(L, 2, nullptr);
+    lua_pushstring(L, "_INTERRUPTS");
+    lua_pushinteger(L, counter);
+    lua_rawset(L, LUA_REGISTRYINDEX);
+}
+
+void lluau::check_interrupts_counter(lua_State* L)
+{
+    luaL_checkstack(L, 1, nullptr);
+    lua_pushstring(L, "_INTERRUPTS");
+    lua_rawget(L, LUA_REGISTRYINDEX);
+    S32 counter = lua_tointeger(L, -1);
+    lua_pop(L, 1);
+
+    lluau::set_interrupts_counter(L, ++counter);
+    if (counter > INTERRUPTS_MAX_LIMIT) 
+    {
+        lluau::error(L, "Possible infinite loop, terminated.");
+    }
+    else if (counter % INTERRUPTS_SUSPEND_LIMIT == 0) 
+    {
+        LL_DEBUGS("Lua") << LLCoros::getName() << " suspending at " << counter << " interrupts"
+                         << LL_ENDL;
+        llcoro::suspend();
+    }
 }
 
 /*****************************************************************************
@@ -485,6 +517,18 @@ bool LuaState::checkLua(const std::string& desc, int r)
 
 std::pair<int, LLSD> LuaState::expr(const std::string& desc, const std::string& text)
 {
+    lluau::set_interrupts_counter(mState, 0);
+
+    lua_callbacks(mState)->interrupt = [](lua_State *L, int gc)
+    {
+        // skip if we're interrupting only for garbage collection
+        if (gc >= 0)
+            return;
+
+        LLCoros::checkStop();
+        lluau::check_interrupts_counter(L);
+    };
+
     if (! checkLua(desc, lluau::dostring(mState, desc, text)))
     {
         LL_WARNS("Lua") << desc << " error: " << mError << LL_ENDL;

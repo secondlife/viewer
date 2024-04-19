@@ -307,25 +307,20 @@ LLCoprocedurePool::LLCoprocedurePool(const std::string &poolName, size_t size):
 {
     try
     {
-        // store in our LLTempBoundListener so that when the LLCoprocedurePool is
-        // destroyed, we implicitly disconnect from this LLEventPump
-        // Monitores application status
-        mStatusListener = LLEventPumps::instance().obtain("LLApp").listen(
+        // Store in our LLTempBoundListener so that when the LLCoprocedurePool is
+        // destroyed, we implicitly disconnect from this LLEventPump.
+        // Monitors application status.
+        mStatusListener = LLCoros::getStopListener(
             poolName + "_pool", // Make sure it won't repeat names from lleventcoro
-            [pendingCoprocs = mPendingCoprocs, poolName](const LLSD& status)
-        {
-            auto& statsd = status["status"];
-            if (statsd.asString() != "running")
+            [pendingCoprocs = mPendingCoprocs, poolName](const LLSD& event)
             {
                 LL_INFOS("CoProcMgr") << "Pool " << poolName
-                                      << " closing queue because status " << statsd
+                                      << " closing queue because status " << event
                                       << LL_ENDL;
                 // This should ensure that all waiting coprocedures in this
                 // pool will wake up and terminate.
                 pendingCoprocs->close();
-            }
-            return false;
-        });
+            });
     }
     catch (const LLEventPump::DupListenerName &)
     {
@@ -334,7 +329,7 @@ LLCoprocedurePool::LLCoprocedurePool(const std::string &poolName, size_t size):
         //
         // If this somehow happens again it is better to crash later on shutdown due to pump
         // not stopping coroutine and see warning in logs than on startup or during login.
-        LL_WARNS("CoProcMgr") << "Attempted to register dupplicate listener name: " << poolName
+        LL_WARNS("CoProcMgr") << "Attempted to register duplicate listener name: " << poolName
                               << "_pool. Failed to start listener." << LL_ENDL;
 
         llassert(0); // Fix Me! Ignoring missing listener!

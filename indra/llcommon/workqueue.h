@@ -13,6 +13,7 @@
 #define LL_WORKQUEUE_H
 
 #include "llcoros.h"
+#include "llevents.h"
 #include "llexception.h"
 #include "llinstancetracker.h"
 #include "llinstancetrackersubclass.h"
@@ -193,6 +194,8 @@ namespace LL
         static void error(const std::string& msg);
         static std::string makeName(const std::string& name);
         void callWork(const Work& work);
+
+        LLTempBoundListener mStopListener;
 
     private:
         virtual Work pop_() = 0;

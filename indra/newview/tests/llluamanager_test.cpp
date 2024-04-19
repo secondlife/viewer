@@ -400,9 +400,16 @@ namespace tut
         auto future = LLLUAmanager::startScriptLine(L, lua);
         auto replyname{ L.obtainListener()->getReplyName() };
         auto& replypump{ LLEventPumps::instance().obtain(replyname) };
-        // By the time leap.process() calls get_event_next() and wakes us up,
-        // we expect that both requester() coroutines have posted and are
-        // waiting for a reply.
+        // LuaState::expr() periodically interrupts a running chunk to ensure
+        // the rest of our coroutines get cycles. Nonetheless, for this test
+        // we have to wait until both requester() coroutines have posted and
+        // are waiting for a reply.
+        for (unsigned count=0; count < 100; ++count)
+        {
+            if (requests.size() == 2)
+                break;
+            llcoro::suspend();
+        }
         ensure_equals("didn't get both requests", requests.size(), 2);
         // moreover, we expect they arrived in the order they were created
         ensure_equals("a wasn't first",  requests[0]["name"].asString(), "a");
@@ -413,7 +420,7 @@ namespace tut
         replypump.post(llsd::map("name", "not special"));
         // now respond to requester(a)
         replypump.post(requests[0]);
-        // tell leap.process() we're done
+        // tell leap we're done
         replypump.post(LLSD());
         auto [count, result] = future.get();
         ensure_equals("leap.lua: " + result.asString(), count, 0);
@@ -437,5 +444,25 @@ namespace tut
         ensure_equals("killed Lua script terminated normally", count, -1);
         ensure_equals("unexpected killed Lua script error",
                       result.asString(), "viewer is stopping");
+    }
+
+    template<> template<>
+    void object::test<8>()
+    {
+        set_test_name("stop looping Lua script");
+        const std::string desc("looping Lua script should terminate");
+        const std::string lua(
+            "-- " + desc + "\n"
+            "\n"
+            "while true do\n"
+            "    x = 1\n"
+            "end\n"
+        );
+        LuaState L;
+        auto [count, result] = LLLUAmanager::waitScriptLine(L, lua);
+        // We expect the above erroneous script has been forcibly terminated
+        // because it ran too long without doing any actual work.
+        ensure_equals(desc + " count: " + result.asString(), count, -1);
+        ensure_contains(desc + " result", result.asString(), "terminated");
     }
 } // namespace tut
