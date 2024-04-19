@@ -49,7 +49,6 @@ public:
     bool hasShadows = false;
     bool hasAmbientOcclusion = false;
     bool hasSrgb = false;
-    bool encodesNormal = false; // include: shaders\class1\environment\encodeNormF.glsl
     bool isDeferred = false;
     bool hasScreenSpaceReflections = false;
     bool disableTextureIndex = false;
