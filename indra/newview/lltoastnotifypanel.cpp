@@ -56,8 +56,9 @@ const std::string LLToastNotifyPanel::sFontScript("SansSerif");
 LLToastNotifyPanel::button_click_signal_t LLToastNotifyPanel::sButtonClickSignal;
 
 LLToastNotifyPanel::LLToastNotifyPanel(const LLNotificationPtr& notification, const LLRect& rect, bool show_images) 
-:	LLCheckBoxToastPanel(notification),
-	LLInstanceTracker<LLToastNotifyPanel, LLUUID, LLInstanceTrackerReplaceOnCollision>(notification->getID())
+:   LLCheckBoxToastPanel(notification)
+,   LLInstanceTracker<LLToastNotifyPanel, LLUUID, LLInstanceTrackerReplaceOnCollision>(notification->getID())
+,   mTextBox(NULL)
 {
 	init(rect, show_images);
 }
@@ -430,6 +431,15 @@ void LLToastNotifyPanel::init( LLRect rect, bool show_images )
 	{
 		reshape(current_rect.getWidth(), current_rect.getHeight());
 	}
+}
+
+void LLToastNotifyPanel::deleteAllChildren()
+{
+    // some visibility changes, re-init and reshape will attempt to
+    // use mTextBox. Null it beforehand to avoid crashes.
+    mTextBox = NULL;
+
+    LLCheckBoxToastPanel::deleteAllChildren();
 }
 
 bool LLToastNotifyPanel::isControlPanelEnabled() const
