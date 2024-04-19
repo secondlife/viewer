@@ -53,8 +53,7 @@
 #include "lltimer.h"
 #include "llvolumeoctree.h"
 
-#include "mikktspace/mikktspace.h"
-#include "mikktspace/mikktspace.c" // insert mikktspace implementation into llvolume object file
+#include "mikktspace/mikktspace.hh"
 
 #include "meshoptimizer/meshoptimizer.h"
 
@@ -5436,6 +5435,40 @@ struct MikktData
             }
         }
     }
+
+	uint32_t GetNumFaces()
+	{
+		return uint32_t(face->mNumIndices / 3);
+	}
+
+	uint32_t GetNumVerticesOfFace(const uint32_t face_num)
+	{
+		return 3;
+	}
+
+	mikk::float3 GetPosition(const uint32_t face_num, const uint32_t vert_num)
+	{
+		F32* v = p[face_num * 3 + vert_num].mV;
+		return mikk::float3(v);
+	}
+
+	mikk::float3 GetTexCoord(const uint32_t face_num, const uint32_t vert_num)
+	{
+		F32* uv = tc[face_num * 3 + vert_num].mV;
+		return mikk::float3(uv[0], uv[1], 1.0f);
+	}
+
+	mikk::float3 GetNormal(const uint32_t face_num, const uint32_t vert_num)
+	{
+		F32* normal = n[face_num * 3 + vert_num].mV;
+		return mikk::float3(normal);
+	}
+
+	void SetTangentSpace(const uint32_t face_num, const uint32_t vert_num, mikk::float3 T, bool orientation)
+	{
+		S32 i = face_num * 3 + vert_num;
+		t[i].set(T.x, T.y, T.z, orientation ? 1.0f : -1.0f);
+	}
 };
 
 bool LLVolumeFace::cacheOptimize(bool gen_tangents)
@@ -5448,62 +5481,9 @@ bool LLVolumeFace::cacheOptimize(bool gen_tangents)
     { // generate mikkt space tangents before cache optimizing since the index buffer may change
         // a bit of a hack to do this here, but this function gets called exactly once for the lifetime of a mesh
         // and is executed on a background thread
-        SMikkTSpaceInterface ms;
-
-        ms.m_getNumFaces = [](const SMikkTSpaceContext* pContext)
-        {
-            MikktData* data = (MikktData*)pContext->m_pUserData;
-            LLVolumeFace* face = data->face;
-            return face->mNumIndices / 3;
-        };
-
-        ms.m_getNumVerticesOfFace = [](const SMikkTSpaceContext* pContext, const int iFace)
-        {
-            return 3;
-        };
-
-        ms.m_getPosition = [](const SMikkTSpaceContext* pContext, float fvPosOut[], const int iFace, const int iVert)
-        {
-            MikktData* data = (MikktData*)pContext->m_pUserData;
-            F32* v = data->p[iFace * 3 + iVert].mV;
-            fvPosOut[0] = v[0];
-            fvPosOut[1] = v[1];
-            fvPosOut[2] = v[2];
-        };
-
-        ms.m_getNormal = [](const SMikkTSpaceContext* pContext, float fvNormOut[], const int iFace, const int iVert)
-        {
-            MikktData* data = (MikktData*)pContext->m_pUserData;
-            F32* n = data->n[iFace * 3 + iVert].mV;
-            fvNormOut[0] = n[0];
-            fvNormOut[1] = n[1];
-            fvNormOut[2] = n[2];
-        };
-
-        ms.m_getTexCoord = [](const SMikkTSpaceContext* pContext, float fvTexcOut[], const int iFace, const int iVert)
-        {
-            MikktData* data = (MikktData*)pContext->m_pUserData;
-            F32* tc = data->tc[iFace * 3 + iVert].mV;
-            fvTexcOut[0] = tc[0];
-            fvTexcOut[1] = tc[1];
-        };
-
-        ms.m_setTSpaceBasic = [](const SMikkTSpaceContext* pContext, const float fvTangent[], const float fSign, const int iFace, const int iVert)
-        {
-            MikktData* data = (MikktData*)pContext->m_pUserData;
-            S32 i = iFace * 3 + iVert;
-            
-            data->t[i].set(fvTangent);
-            data->t[i].mV[3] = fSign;
-        };
-
-        ms.m_setTSpace = nullptr;
-
         MikktData data(this);
-
-        SMikkTSpaceContext ctx = { &ms, &data };
-
-        genTangSpaceDefault(&ctx);
+		mikk::Mikktspace ctx(data);
+		ctx.genTangSpace();
 
         //re-weld
         meshopt_Stream mos[] =
@@ -5524,9 +5504,6 @@ bool LLVolumeFace::cacheOptimize(bool gen_tangents)
 
         if (vert_count < 65535 && vert_count != 0)
         {
-            std::vector<U32> indices;
-            indices.resize(mNumIndices);
-
             //copy results back into volume
             resizeVertices(vert_count);
 
