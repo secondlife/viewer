@@ -41,14 +41,17 @@
 #include "llviewermenufile.h"
 #include "llnotificationsutil.h"
 
-
-// load an OpenEXR image from a file
-#define IMATH_HALF_NO_LOOKUP_TABLE 1
-#include <ImfInputFile.h>
-#include <ImfArray.h>
-#include <ImfHeader.h>
-#include <ImfFrameBuffer.h>
-#include <iostream>
+#if LL_WINDOWS
+#pragma warning (push)
+#pragma warning (disable : 4702) // compiler complains unreachable code
+#endif
+#define TINYEXR_USE_MINIZ 0
+#include "zlib.h"
+#define TINYEXR_IMPLEMENTATION
+#include "tinyexr/tinyexr.h"
+#if LL_WINDOWS
+#pragma warning (pop)
+#endif
 
 LLPointer<LLImageGL> gEXRImage;
 
@@ -58,55 +61,14 @@ void load_exr(const std::string& filename)
     gPipeline.mReflectionMapManager.reset();
     gPipeline.mReflectionMapManager.initReflectionMaps();
 
-    try {
-        Imf::InputFile file(filename.c_str());
-        Imath::Box2i       dw = file.header().dataWindow();
-        int                width = dw.max.x - dw.min.x + 1;
-        int                height = dw.max.y - dw.min.y + 1;
+    float* out; // width * height * RGBA
+    int width;
+    int height;
+    const char* err = NULL; // or nullptr in C++11
 
-        Imf::Array2D<Imath::half> rPixels;
-        Imf::Array2D<Imath::half> gPixels;
-        Imf::Array2D<Imath::half> bPixels;
-
-        rPixels.resizeErase(height, width);
-        gPixels.resizeErase(height, width);
-        bPixels.resizeErase(height, width);
-
-        Imf::FrameBuffer frameBuffer;
-
-        frameBuffer.insert("R",                                    // name
-            Imf::Slice(Imf::HALF,                            // type
-                (char*)(&rPixels[0][0] -      // base
-                    dw.min.x -
-                    dw.min.y * width),
-                sizeof(rPixels[0][0]) * 1,     // xStride
-                sizeof(rPixels[0][0]) * width, // yStride
-                1, 1,                            // x/y sampling
-                0.0));                           // fillValue
-
-        frameBuffer.insert("G",                                    // name
-            Imf::Slice(Imf::HALF,                            // type
-                (char*)(&gPixels[0][0] -      // base
-                    dw.min.x -
-                    dw.min.y * width),
-                sizeof(gPixels[0][0]) * 1,     // xStride
-                sizeof(gPixels[0][0]) * width, // yStride
-                1, 1,                            // x/y sampling
-                0.0));                           // fillValue
-
-        frameBuffer.insert("B",                                    // name
-            Imf::Slice(Imf::HALF,                           // type
-                (char*)(&bPixels[0][0] -      // base
-                    dw.min.x -
-                    dw.min.y * width),
-                sizeof(bPixels[0][0]) * 1,     // xStride
-                sizeof(bPixels[0][0]) * width, // yStride
-                1, 1,                            // x/y sampling
-                FLT_MAX));                       // fillValue
-
-        file.setFrameBuffer(frameBuffer);
-        file.readPixels(dw.min.y, dw.max.y);
-
+    int ret =  LoadEXRWithLayer(&out, &width, &height, filename.c_str(), /* layername */ nullptr, &err);
+    if (ret == TINYEXR_SUCCESS) 
+    {
         U32 texName = 0;
         LLImageGL::generateTextures(1, &texName);
 
@@ -117,27 +79,25 @@ void load_exr(const std::string& filename)
 
         gGL.getTexUnit(0)->bind(gEXRImage);
 
-        std::vector<F32> data(width * height * 3);
-        for (int i = 0; i < width * height; ++i)
-        {
-            data[i * 3 + 0] = rPixels[i / width][i % width];
-            data[i * 3 + 1] = gPixels[i / width][i % width];
-            data[i * 3 + 2] = bPixels[i / width][i % width];
-        }
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGBA, GL_FLOAT, out);
+        free(out); // release memory of image data
 
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_FLOAT, data.data());
-        
         glGenerateMipmap(GL_TEXTURE_2D);
 
         gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
     }
-    catch (const std::exception& e) {
+    else 
+    {
         LLSD notif_args;
         notif_args["WHAT"] = filename;
-        notif_args["REASON"] = e.what();
+        notif_args["REASON"] = "Unknown";
+        if (err) 
+        {
+            notif_args["REASON"] = std::string(err);
+            FreeEXRErrorMessage(err); // release memory of error message.
+        }
         LLNotificationsUtil::add("CannotLoad", notif_args);
-        return;
     }
 }
 
