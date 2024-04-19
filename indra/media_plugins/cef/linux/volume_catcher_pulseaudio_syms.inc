@@ -17,5 +17,9 @@ LL_GRAB_SYM(true, pa_proplist_gets, const char*, pa_proplist *p, const char *key
 LL_GRAB_SYM(true, pa_proplist_new, pa_proplist*, void)
 LL_GRAB_SYM(true, pa_proplist_sets, int, pa_proplist *p, const char *key, const char *value)
 LL_GRAB_SYM(true, pa_sw_volume_from_linear, pa_volume_t, double v)
+// LL_GRAB_SYM(true, pa_mainloop_free, void, pa_mainloop *m)
+// LL_GRAB_SYM(true, pa_mainloop_get_api, pa_mainloop_api *, pa_mainloop *m)
+// LL_GRAB_SYM(true, pa_mainloop_iterate, int, pa_mainloop *m, int block, int *retval)
+// LL_GRAB_SYM(true, pa_mainloop_new, pa_mainloop *, void)
 
 // optional symbols to grab

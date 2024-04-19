@@ -183,13 +183,13 @@ bool SymbolGrabber::grabSymbols(std::vector< std::string > const &aDSONames)
         return true;
 
     //attempt to load the shared libraries
-    apr_pool_create(&sSymPADSOMemoryPool, nullptr);
+    apr_pool_create(&sSymDSOMemoryPool, nullptr);
 
     for( std::vector< std::string >::const_iterator itr = aDSONames.begin(); itr != aDSONames.end(); ++itr )
     {
         apr_dso_handle_t *pDSO(NULL);
         std::string strDSO{ *itr };
-        if( APR_SUCCESS == apr_dso_load( &pDSO, strDSO.c_str(), sSymPADSOMemoryPool ))
+        if( APR_SUCCESS == apr_dso_load( &pDSO, strDSO.c_str(), sSymDSOMemoryPool ))
             sLoadedLibraries.push_back( pDSO );
 
         for( auto i = 0; i < gSymbolsToGrab.size(); ++i )
@@ -252,5 +252,52 @@ LLPluginInitEntryPoint(LLPluginInstance::sendMessageFunction host_send_func, voi
 int WINAPI DllEntryPoint( HINSTANCE hInstance, unsigned long reason, void* params )
 {
 	return 1;
+}
+#endif
+
+#if LL_LINUX
+pid_t getParentPid( pid_t aPid )
+{
+	std::stringstream strm;
+	strm << "/proc/" << aPid << "/status";
+	std::ifstream in{ strm.str() };
+
+	if( !in.is_open() )
+		return 0;
+
+	pid_t res {0};
+	while( !in.eof() && res == 0 )
+	{
+		std::string line;
+		line.resize( 1024, 0 );
+		in.getline( &line[0], line.length() );	
+
+		auto i = line.find( "PPid:"  );
+		
+		if( i == std::string::npos )
+			continue;
+		
+		char const *pIn = line.c_str() + 5; // Skip over pid;
+		while( *pIn != 0 && isspace( *pIn ) )
+			   ++pIn;
+
+		if( *pIn )
+			res = atoll( pIn );
+	}
+ 	return res;
+}
+
+bool isPluginPid( pid_t aPid )
+{
+	auto myPid = getpid();
+
+	do
+	{
+		if( aPid == myPid )
+			return true;
+		aPid = getParentPid( aPid );
+	} while( aPid > 1 );
+
+	return false;
 }
 #endif

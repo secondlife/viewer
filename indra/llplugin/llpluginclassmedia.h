@@ -122,6 +122,9 @@ public:
 
 	// enable/disable media plugin debugging messages and info spam
 	void enableMediaPluginDebugging( bool enable );
+#if LL_LINUX
+	void enablePipeWireVolumeCatcher( bool enable );
+#endif
 
 	// Javascript <-> viewer events
 	void jsEnableObject( bool enable );

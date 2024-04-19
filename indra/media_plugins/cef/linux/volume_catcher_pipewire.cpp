@@ -1,5 +1,5 @@
 /** 
- * @file linux_volume_catcher_pw.cpp
+ * @file volume_catcher_pipewire.cpp
  * @brief A Linux-specific, PipeWire-specific hack to detect and volume-adjust new audio sources
  *
  * @cond
@@ -37,111 +37,37 @@
 
 #include "linden_common.h"
 
-#include "volume_catcher.h"
-
-#include <unordered_set>
-#include <mutex>
+#include "volume_catcher_linux.h"
 
 extern "C" {
-#include <pipewire/pipewire.h>
 #include <spa/pod/builder.h>
 #include <spa/param/props.h>
-
-#include "apr_pools.h"
-#include "apr_dso.h"
 }
 
-#include "media_plugin_base.h"
+SymbolGrabber pwSymbolGrabber;
+#undef LL_SYMBOL_GRABBER
+#define LL_SYMBOL_GRABBER pwSymbolGrabber
 
-SymbolGrabber gSymbolGrabber;
-
-#include "linux_volume_catcher_pw_syms.inc"
+#include "volume_catcher_pipewire_syms.inc"
 
 ////////////////////////////////////////////////////
 
-class VolumeCatcherImpl
-{
-public:
-	VolumeCatcherImpl();
-	~VolumeCatcherImpl();
-
-	bool loadsyms(std::string pw_dso_name);
-	void init();
-	void cleanup();
-
-	void pwLock();
-	void pwUnlock();
-
-	void setVolume(F32 volume);
-	// void setPan(F32 pan);
-
-	void handleRegistryEventGlobal(
-		uint32_t id, uint32_t permissions, const char* type,
-		uint32_t version, const struct spa_dict* props
-	);
-
-	class ChildNode
-	{
-	public:
-		bool mActive = false;
-
-		pw_proxy* mProxy = nullptr;
-		spa_hook mNodeListener {};
-		spa_hook mProxyListener {};
-		VolumeCatcherImpl* mImpl = nullptr;
-
-		void updateVolume();
-		void destroy();
-	};
-
-	bool mGotSyms = false;
-
-	F32 mVolume = 1.0f; // max by default
-	// F32 mPan = 0.0f; // center
-
-	pw_thread_loop* mThreadLoop;
-	pw_context* mContext;
-	pw_core* mCore;
-	pw_registry* mRegistry;
-	spa_hook mRegistryListener;
-
-	std::unordered_set<ChildNode*> mChildNodes;
-	std::mutex mChildNodesMutex;
-};
-
-VolumeCatcherImpl::VolumeCatcherImpl()
+VolumeCatcherPipeWire::VolumeCatcherPipeWire()
 {
 	init();
 }
 
-VolumeCatcherImpl::~VolumeCatcherImpl()
+VolumeCatcherPipeWire::~VolumeCatcherPipeWire()
 {
 	cleanup();
 }
-
-// static void debugClear()
-// {
-// 	auto file = fopen("/home/maki/git/firestorm-viewer/log.txt", "w");
-// 	fprintf(file, "\n");
-// 	fclose(file);
-// }
-
-// static void debugPrint(const char* format, ...)
-// {
-//     va_list args;
-//     va_start(args, format);
-// 	auto file = fopen("/home/maki/git/firestorm-viewer/log.txt", "a");
-//     vfprintf(file, format, args);
-// 	fclose(file);
-//     va_end(args);
-// }
 
 static void registryEventGlobal(
 	void *data, uint32_t id, uint32_t permissions, const char *type,
 	uint32_t version, const struct spa_dict *props
 )
 {
-	static_cast<VolumeCatcherImpl*>(data)->handleRegistryEventGlobal(
+	static_cast<VolumeCatcherPipeWire*>(data)->handleRegistryEventGlobal(
 		id, permissions, type, version, props
 	);
 }
@@ -151,33 +77,42 @@ static const struct pw_registry_events REGISTRY_EVENTS = {
     .global = registryEventGlobal,
 };
 
-bool VolumeCatcherImpl::loadsyms(std::string pw_dso_name)
+bool VolumeCatcherPipeWire::loadsyms(std::string pw_dso_name)
 {
-	return gSymbolGrabber.grabSymbols({ pw_dso_name });
+	return pwSymbolGrabber.grabSymbols({ pw_dso_name });
 }
 
-void VolumeCatcherImpl::init()
+void VolumeCatcherPipeWire::init()
 {
-	// debugClear();
 	// debugPrint("init\n");
 	
 	mGotSyms = loadsyms("libpipewire-0.3.so.0");
-	if (!mGotSyms) return;
+	
+	if (!mGotSyms)
+		return;
+
+	// debugPrint("got syms\n");
 
 	llpw_init(NULL, NULL);
 
 	mThreadLoop = llpw_thread_loop_new("SL Plugin Volume Adjuster", NULL);
-	if (!mThreadLoop) return;
+
+	if (!mThreadLoop)
+		return;
 
 	pwLock();
 
 	mContext = llpw_context_new(
 		llpw_thread_loop_get_loop(mThreadLoop), NULL, 0
 	);
-	if (!mContext) return pwUnlock();
+
+	if (!mContext)
+		return pwUnlock();
 
 	mCore = llpw_context_connect(mContext, NULL, 0);
-	if (!mCore) return pwUnlock();
+
+	if (!mCore)
+		return pwUnlock();
 
 	mRegistry = pw_core_get_registry(mCore, PW_VERSION_REGISTRY, 0);
 
@@ -196,7 +131,7 @@ void VolumeCatcherImpl::init()
 	// debugPrint("started thread loop\n");
 }
 
-void VolumeCatcherImpl::cleanup()
+void VolumeCatcherPipeWire::cleanup()
 {
 	mChildNodesMutex.lock();
 	for (auto* childNode : mChildNodes) {
@@ -212,7 +147,8 @@ void VolumeCatcherImpl::cleanup()
 	if (mContext) llpw_context_destroy(mContext);
 	pwUnlock();
 
-	if (!mThreadLoop) return;
+	if (!mThreadLoop)
+		return;
 
 	llpw_thread_loop_stop(mThreadLoop);
 	llpw_thread_loop_destroy(mThreadLoop);
@@ -220,13 +156,17 @@ void VolumeCatcherImpl::cleanup()
 	// debugPrint("cleanup done\n");
 }
 
-void VolumeCatcherImpl::pwLock() {
-	if (!mThreadLoop) return;
+void VolumeCatcherPipeWire::pwLock() {
+	if (!mThreadLoop)
+		return;
+
 	llpw_thread_loop_lock(mThreadLoop);
 }
 
-void VolumeCatcherImpl::pwUnlock() {
-	if (!mThreadLoop) return;
+void VolumeCatcherPipeWire::pwUnlock() {
+	if (!mThreadLoop)
+	 return;
+
 	llpw_thread_loop_unlock(mThreadLoop);
 }
 
@@ -234,9 +174,10 @@ void VolumeCatcherImpl::pwUnlock() {
 
 // #include <sys/time.h>
 
-void VolumeCatcherImpl::ChildNode::updateVolume()
+void VolumeCatcherPipeWire::ChildNode::updateVolume()
 {
-	if (!mActive) return;
+	if (!mActive)
+		return;
 
 	F32 volume = std::clamp(mImpl->mVolume, 0.0f, 1.0f);
 	// F32 pan = std::clamp(mImpl->mPan, -1.0f, 1.0f);
@@ -274,9 +215,11 @@ void VolumeCatcherImpl::ChildNode::updateVolume()
 	mImpl->pwUnlock();
 }
 
-void VolumeCatcherImpl::ChildNode::destroy()
+void VolumeCatcherPipeWire::ChildNode::destroy()
 {
-	if (!mActive) return;
+	if (!mActive)
+		return;
+
 	mActive = false;
 
 	mImpl->mChildNodesMutex.lock();
@@ -291,59 +234,23 @@ void VolumeCatcherImpl::ChildNode::destroy()
 	mImpl->pwUnlock();	
 }
 
-static pid_t getParentPid(pid_t aPid)
-{
-	std::stringstream strm;
-	strm << "/proc/" << aPid << "/status";
-	std::ifstream in{ strm.str() };
-
-	if (!in.is_open()) return 0;
-
-	pid_t res {0};
-	while (!in.eof() && res == 0)
-	{
-		std::string line;
-		line.resize( 1024, 0 );
-		in.getline( &line[0], line.length() );	
-
-		auto i = line.find("PPid:");
-		
-		if (i == std::string::npos) continue;
-		
-		char const *pIn = line.c_str() + 5; // Skip over pid;
-		while (*pIn != 0 && isspace( *pIn )) ++pIn;
-
-		if (*pIn) res = atoll(pIn);
-	}
- 	return res;
-}
-
-static bool isPluginPid(pid_t aPid)
-{
-	auto myPid = getpid();
-
-	do
-	{
-		if(aPid == myPid) return true;
-		aPid = getParentPid( aPid );
-	} while(aPid > 1);
-
-	return false;
-}
-
 static void nodeEventInfo(void* data, const struct pw_node_info* info)
 {
 	const char* processId = spa_dict_lookup(info->props, PW_KEY_APP_PROCESS_ID);
-	if (processId == nullptr) return;
+
+	if (processId == nullptr)
+		return;
 	
 	pid_t pid = atoll(processId);
-	if (!isPluginPid(pid)) return;
+
+	if (!isPluginPid(pid))
+		return;
 
 	// const char* appName = spa_dict_lookup(info->props, PW_KEY_APP_NAME);
 	// debugPrint("got app: %s\n", appName);
 	
-	auto* const childNode = static_cast<VolumeCatcherImpl::ChildNode*>(data);
-	// debugPrint("init volume to: %f\n", childNode->mImpl->mDesiredVolume);
+	auto* const childNode = static_cast<VolumeCatcherPipeWire::ChildNode*>(data);
+	// debugPrint("init volume to: %f\n", childNode->mImpl->mVolume);
 
 	childNode->updateVolume();
 
@@ -359,13 +266,13 @@ static const struct pw_node_events NODE_EVENTS = {
 
 static void proxyEventDestroy(void* data)
 {
-	auto* const childNode = static_cast<VolumeCatcherImpl::ChildNode*>(data);
+	auto* const childNode = static_cast<VolumeCatcherPipeWire::ChildNode*>(data);
 	childNode->destroy();
 }
 
 static void proxyEventRemoved(void* data)
 {
-	auto* const childNode = static_cast<VolumeCatcherImpl::ChildNode*>(data);
+	auto* const childNode = static_cast<VolumeCatcherPipeWire::ChildNode*>(data);
 	childNode->destroy();
 }
 
@@ -375,14 +282,17 @@ static const struct pw_proxy_events PROXY_EVENTS = {
 	.removed = proxyEventRemoved,
 };
 
-void VolumeCatcherImpl::handleRegistryEventGlobal(
+void VolumeCatcherPipeWire::handleRegistryEventGlobal(
 	uint32_t id, uint32_t permissions, const char *type, uint32_t version,
 	const struct spa_dict *props
 ) {
-	if (props == nullptr || strcmp(type, PW_TYPE_INTERFACE_Node) != 0) return;
+	if (props == nullptr || strcmp(type, PW_TYPE_INTERFACE_Node) != 0)
+		return;
 
 	const char* mediaClass = spa_dict_lookup(props, PW_KEY_MEDIA_CLASS);
-	if (mediaClass == nullptr || strcmp(mediaClass, "Stream/Output/Audio") != 0) return;
+	
+	if (mediaClass == nullptr || strcmp(mediaClass, "Stream/Output/Audio") != 0)
+		return;
 	
 	pw_proxy* proxy = static_cast<pw_proxy*>(
 		pw_registry_bind(mRegistry, id, type, PW_VERSION_CLIENT, sizeof(ChildNode))
@@ -398,7 +308,7 @@ void VolumeCatcherImpl::handleRegistryEventGlobal(
 	llpw_proxy_add_listener(proxy, &childNode->mProxyListener, &PROXY_EVENTS, childNode);
 }
 
-void VolumeCatcherImpl::setVolume(F32 volume)
+void VolumeCatcherPipeWire::setVolume(F32 volume)
 {
 	// debugPrint("setting all volume to: %f\n", volume);
 
@@ -415,37 +325,12 @@ void VolumeCatcherImpl::setVolume(F32 volume)
 	}
 }
 
-// void VolumeCatcherImpl::setPan(F32 pan)
-// {
-// 	mPan = pan;
-// 	setVolume(mVolume);
-// }
-
-/////////////////////////////////////////////////////
-
-VolumeCatcher::VolumeCatcher()
+void VolumeCatcherPipeWire::setPan(F32 pan)
 {
-	pimpl = new VolumeCatcherImpl();
+	// mPan = pan;
+	// setVolume(mVolume);
 }
 
-VolumeCatcher::~VolumeCatcher()
-{
-	delete pimpl;
-	pimpl = nullptr;
-}
-
-void VolumeCatcher::setVolume(F32 volume)
-{
-	llassert(pimpl);
-	pimpl->setVolume(volume);
-}
-
-void VolumeCatcher::setPan(F32 pan)
-{
-	// llassert(pimpl);
-	// pimpl->setPan(pan);
-}
-
-void VolumeCatcher::pump()
+void VolumeCatcherPipeWire::pump()
 {
 }
