@@ -1792,6 +1792,18 @@
       </map>
       <key>mikktspace</key>
       <map>
+        <key>canonical_repo</key>
+        <string>https://bitbucket.org/lindenlab/3p-mikktspace</string>
+        <key>copyright</key>
+        <string>Copyright (C) 2011 by Morten S. Mikkelsen, Copyright (C) 2022 Blender Authors</string>
+        <key>description</key>
+        <string>Mikktspace Tangent Generator</string>
+        <key>license</key>
+        <string>Apache 2.0</string>
+        <key>license_file</key>
+        <string>mikktspace.txt</string>
+        <key>name</key>
+        <string>mikktspace</string>
         <key>platforms</key>
         <map>
           <key>darwin64</key>
@@ -1799,58 +1811,46 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>6cc1585dba85b0226a2e7033a7e2a2ceaae7c983</string>
+              <string>65edf85c36a10001e32bdee582bec4732137208b</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-mikktspace/releases/download/v1-5cee1f4/mikktspace-1-darwin64-5cee1f4.tar.zst</string>
+              <string>https://github.com/secondlife/3p-mikktspace/releases/download/v2-e967e1b/mikktspace-1-darwin64-8756084692.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
-          </map>
-          <key>windows64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>6b7d01ad54e4a88a001f66840c32329cedb28202</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
-              <key>url</key>
-              <string>https://github.com/secondlife/3p-mikktspace/releases/download/v1-5cee1f4/mikktspace-1-windows64-5cee1f4.tar.zst</string>
-            </map>
-            <key>name</key>
-            <string>windows64</string>
           </map>
           <key>linux64</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>edc9782bf209e17ad1845498b42f16d733582082</string>
+              <string>fa9dcee4584df7e7271fdf69c08e6fd3122a47fc</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-mikktspace/releases/download/v1-5cee1f4/mikktspace-1-linux64-5cee1f4.tar.zst</string>
+              <string>https://github.com/secondlife/3p-mikktspace/releases/download/v2-e967e1b/mikktspace-1-linux64-8756084692.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
           </map>
+          <key>windows64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>130b33a70bdb3a8a188376c6a91840bdb61380a8</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://github.com/secondlife/3p-mikktspace/releases/download/v2-e967e1b/mikktspace-1-windows64-8756084692.tar.zst</string>
+            </map>
+            <key>name</key>
+            <string>windows64</string>
+          </map>
         </map>
-        <key>license</key>
-        <string>Copyright (C) 2011 by Morten S. Mikkelsen</string>
-        <key>license_file</key>
-        <string>mikktspace.txt</string>
-        <key>copyright</key>
-        <string>Copyright (C) 2011 by Morten S. Mikkelsen</string>
         <key>version</key>
         <string>1</string>
-        <key>name</key>
-        <string>mikktspace</string>
-        <key>canonical_repo</key>
-        <string>https://bitbucket.org/lindenlab/3p-mikktspace</string>
-        <key>description</key>
-        <string>Mikktspace Tangent Generator</string>
       </map>
       <key>minizip-ng</key>
       <map>
