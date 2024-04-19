@@ -172,10 +172,12 @@ jobs:
           export AUTOBUILD="$(which autobuild)"
 
           # determine the viewer channel from the branch name
-          IFS='/' read -ra ba <<< "$AUTOBUILD_VCS_BRANCH"
-          prefix=${ba[0]}
+          branch=${{ github.repository }}
+          IFS='/' read -ra ba <<< $branch
+          username=${ba[0]}
+          prefix=${ba[1]}
           if [ "$prefix" == "project" ]; then
-              proj_name=$(echo ${ba[1]} | sed -e 's/_/ /g' | awk '{for(i=1;i<=NF;i++) $i=toupper(substr($i,1,1)) tolower(substr($i,2));}1')
+              proj_name=$(echo ${ba[2]} | sed -e 's/_/ /g' | awk '{for(i=1;i<=NF;i++) $i=toupper(substr($i,1,1)) tolower(substr($i,2));}1')
               export viewer_channel="Second Life Project $proj_name"
           elif  [ "$prefix" == "release" ] || [ "$prefix" == "main" ];
           then
@@ -184,7 +186,7 @@ jobs:
               export viewer_channel="Second Life Test"
           fi
           echo "viewer_channel=$viewer_channel" >> "$GITHUB_OUTPUT"
-
+          exit 1
           # On windows we need to point the build to the correct python
           # as neither CMake's FindPython nor our custom Python.cmake module
           # will resolve the correct interpreter location.
