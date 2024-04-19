@@ -63,6 +63,7 @@ public:
 	LLToastNotifyPanel(const LLNotificationPtr& pNotification, const LLRect& rect = LLRect::null, bool show_images = true);
 
 	virtual void init( LLRect rect, bool show_images );
+    virtual void deleteAllChildren();
 
 	virtual ~LLToastNotifyPanel();
 	LLPanel * getControlPanel() { return mControlPanel; }
