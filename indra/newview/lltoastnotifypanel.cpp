@@ -436,8 +436,14 @@ void LLToastNotifyPanel::init( LLRect rect, bool show_images )
 void LLToastNotifyPanel::deleteAllChildren()
 {
     // some visibility changes, re-init and reshape will attempt to
-    // use mTextBox. Null it beforehand to avoid crashes.
+    // use mTextBox or other variables. Reset to avoid crashes
+    // and other issues.
     mTextBox = NULL;
+    mInfoPanel = NULL;
+    mControlPanel = NULL;
+    mNumOptions = 0;
+    mNumButtons = 0;
+    mAddedDefaultBtn = false;
 
     LLCheckBoxToastPanel::deleteAllChildren();
 }
