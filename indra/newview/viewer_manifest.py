@@ -587,14 +587,6 @@ class Windows_x86_64_Manifest(ViewerManifest):
             self.path("libcrypto-1_1-x64.dll")
             self.path("libssl-1_1-x64.dll")
 
-            # OpenEXR
-            self.path("Iex-3_2.dll")
-            self.path("IlmThread-3_2.dll")
-            self.path("Imath-3_1.dll")
-            self.path("OpenEXR-3_2.dll")
-            self.path("OpenEXRCore-3_2.dll")
-            self.path("OpenEXRUtil-3_2.dll")
-
             # HTTP/2
             self.path("nghttp2.dll")
 
