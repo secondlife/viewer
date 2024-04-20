@@ -28,9 +28,6 @@
 
 #include "volume_catcher_linux.h"
 
-#define PULSEAUDIO pimpl
-#define PIPEWIRE pimpl2
-
 ////////////////////////////////////////////////////
 
 VolumeCatcher::VolumeCatcher()
@@ -42,62 +39,44 @@ VolumeCatcher::VolumeCatcher()
 }
 
 void VolumeCatcher::onEnablePipeWireVolumeCatcher(bool enable) {
+	if (pimpl != nullptr)
+		return;
+
 	if (enable) {
-		// load pipewire
-
-		if (PULSEAUDIO != nullptr) {
-			delete PULSEAUDIO;
-			PULSEAUDIO = nullptr;
-		}
-
-		if (PIPEWIRE == nullptr) {
-			// debugPrint("volume catcher using pipewire\n");
-			PIPEWIRE = new VolumeCatcherPipeWire();
-		}
+		// debugPrint("volume catcher using pipewire\n");
+		pimpl = new VolumeCatcherPipeWire();
 	} else {
-		// load pulseaudio
-		
-		if (PIPEWIRE != nullptr) {
-			delete PIPEWIRE;
-			PIPEWIRE = nullptr;
-		}
-
-		if (PULSEAUDIO == nullptr) {
-			// debugPrint("volume catcher using pulseaudio\n");
-			PULSEAUDIO = new VolumeCatcherPulseAudio();
-		}
+		// debugPrint("volume catcher using pulseaudio\n");
+		pimpl = new VolumeCatcherPulseAudio();
 	}
 }
 
 VolumeCatcher::~VolumeCatcher()
 {
-	if (PULSEAUDIO != nullptr) {
-		delete PULSEAUDIO;
-		PULSEAUDIO = nullptr;
-	}
-	
-	if (PIPEWIRE != nullptr) {
-		delete PIPEWIRE;
-		PIPEWIRE = nullptr;
+	if (pimpl != nullptr) {
+		delete pimpl;
+		pimpl = nullptr;
 	}
 }
 
 void VolumeCatcher::setVolume(F32 volume)
 {
-	if (PULSEAUDIO != nullptr) PULSEAUDIO->setVolume(volume);
-	if (PIPEWIRE != nullptr) PIPEWIRE->setVolume(volume);
+	if (pimpl != nullptr) {
+		pimpl->setVolume(volume);
+	}
 }
 
 void VolumeCatcher::setPan(F32 pan)
 {
-	// not implemented for both
-	// if (PULSEAUDIO) PULSEAUDIO->setPan(pan);
-	// if (PIPEWIRE) PIPEWIRE->setPan(pan);
+	if (pimpl != nullptr) {
+		pimpl->setPan(pan);
+	}
 }
 
 void VolumeCatcher::pump()
 {
-	if (PULSEAUDIO != nullptr) PULSEAUDIO->pump();
-	if (PIPEWIRE != nullptr) PIPEWIRE->pump(); // doesn't need it
+	if (pimpl != nullptr) {
+		pimpl->pump();
+	}
 }
 

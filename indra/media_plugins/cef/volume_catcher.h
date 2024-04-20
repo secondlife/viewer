@@ -58,7 +58,6 @@ public:
 
 private:
 	VolumeCatcherImpl *pimpl;
-	VolumeCatcherImpl *pimpl2;
 };
 
 #endif // VOLUME_CATCHER_H
