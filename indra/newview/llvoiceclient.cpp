@@ -538,12 +538,18 @@ LLVoiceP2PIncomingCallInterfacePtr LLVoiceClient::getIncomingCallInterface(const
 // outgoing calls
 LLVoiceP2POutgoingCallInterface *LLVoiceClient::getOutgoingCallInterface(const LLSD& voiceChannelInfo)
 {
-    std::string voiceServerType = gSavedSettings.getString("VoiceServerType");
+    std::string voice_server_type = gSavedSettings.getString("VoiceServerType");
+    if (voice_server_type.empty())
+    {
+        // default to the server type associated with the region we're on.
+        LLVoiceVersionInfo versionInfo = LLVoiceClient::getInstance()->getVersion();
+        voice_server_type = versionInfo.internalVoiceServerType;
+    }
     if (voiceChannelInfo.has("voice_server_type"))
     {
-        voiceServerType = voiceChannelInfo["voice_server_type"].asString();
+        voice_server_type = voiceChannelInfo["voice_server_type"].asString();
     }
-    LLVoiceModuleInterface *module = getVoiceModule(voiceServerType);
+    LLVoiceModuleInterface *module = getVoiceModule(voice_server_type);
     return dynamic_cast<LLVoiceP2POutgoingCallInterface *>(module);
 }
 
