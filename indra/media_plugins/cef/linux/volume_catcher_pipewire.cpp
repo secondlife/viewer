@@ -100,19 +100,20 @@ void VolumeCatcherPipeWire::init()
 	if (!mThreadLoop)
 		return;
 
-	pwLock();
+	// i dont think we need to lock this early
+	// std::lock_guard pwLock(*this);
 
 	mContext = llpw_context_new(
 		llpw_thread_loop_get_loop(mThreadLoop), NULL, 0
 	);
 
 	if (!mContext)
-		return pwUnlock();
+		return;
 
 	mCore = llpw_context_connect(mContext, NULL, 0);
 
 	if (!mCore)
-		return pwUnlock();
+		return;
 
 	mRegistry = pw_core_get_registry(mCore, PW_VERSION_REGISTRY, 0);
 
@@ -126,26 +127,24 @@ void VolumeCatcherPipeWire::init()
 
 	llpw_thread_loop_start(mThreadLoop);
 
-	pwUnlock();
-
 	// debugPrint("started thread loop\n");
 }
 
 void VolumeCatcherPipeWire::cleanup()
 {
-	mChildNodesMutex.lock();
+	std::unique_lock childNodesLock(mChildNodesMutex);
 	for (auto* childNode : mChildNodes) {
 		childNode->destroy();
 	}
 	mChildNodes.clear();
-	mChildNodesMutex.unlock();
+	childNodesLock.unlock();
 
-	pwLock();
+	std::unique_lock pwLock(*this);
 	if (mRegistry) llpw_proxy_destroy((struct pw_proxy*)mRegistry);
 	spa_zero(mRegistryListener);
 	if (mCore) llpw_core_disconnect(mCore);
 	if (mContext) llpw_context_destroy(mContext);
-	pwUnlock();
+	pwLock.unlock();
 
 	if (!mThreadLoop)
 		return;
@@ -156,16 +155,16 @@ void VolumeCatcherPipeWire::cleanup()
 	// debugPrint("cleanup done\n");
 }
 
-void VolumeCatcherPipeWire::pwLock() {
+void VolumeCatcherPipeWire::lock() {
 	if (!mThreadLoop)
 		return;
 
 	llpw_thread_loop_lock(mThreadLoop);
 }
 
-void VolumeCatcherPipeWire::pwUnlock() {
+void VolumeCatcherPipeWire::unlock() {
 	if (!mThreadLoop)
-	 return;
+		return;
 
 	llpw_thread_loop_unlock(mThreadLoop);
 }
@@ -210,9 +209,9 @@ void VolumeCatcherPipeWire::ChildNode::updateVolume()
 	spa_pod_builder_array(&builder, sizeof(float), SPA_TYPE_Float, channels, volumes);
 	spa_pod* pod = static_cast<spa_pod*>(spa_pod_builder_pop(&builder, &frame));
 
-	mImpl->pwLock();
+	std::lock_guard pwLock(*mImpl);
+
 	pw_node_set_param(mProxy, SPA_PARAM_Props, 0, pod);
-	mImpl->pwUnlock();
 }
 
 void VolumeCatcherPipeWire::ChildNode::destroy()
@@ -229,9 +228,9 @@ void VolumeCatcherPipeWire::ChildNode::destroy()
 	spa_hook_remove(&mNodeListener);
 	spa_hook_remove(&mProxyListener);
 
-	mImpl->pwLock();	
+	std::lock_guard pwLock(*mImpl);
+
 	llpw_proxy_destroy(mProxy);
-	mImpl->pwUnlock();	
 }
 
 static void nodeEventInfo(void* data, const struct pw_node_info* info)
@@ -254,9 +253,9 @@ static void nodeEventInfo(void* data, const struct pw_node_info* info)
 
 	childNode->updateVolume();
 
-	childNode->mImpl->mChildNodesMutex.lock();
+	std::lock_guard childNodesLock(childNode->mImpl->mChildNodesMutex);
+
 	childNode->mImpl->mChildNodes.insert(childNode);
-	childNode->mImpl->mChildNodesMutex.unlock();
 }
 
 static const struct pw_node_events NODE_EVENTS = {
@@ -314,9 +313,9 @@ void VolumeCatcherPipeWire::setVolume(F32 volume)
 
 	mVolume = volume;
 
-	mChildNodesMutex.lock();
+	std::unique_lock childNodeslock(mChildNodesMutex);
 	std::unordered_set<ChildNode*> copyOfChildNodes(mChildNodes);
-	mChildNodesMutex.unlock();
+	childNodeslock.unlock();
 
 	// debugPrint("for %d nodes\n", copyOfChildNodes.size());
 

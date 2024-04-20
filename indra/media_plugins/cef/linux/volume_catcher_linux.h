@@ -90,8 +90,8 @@ public:
 
 	// some of these should be private
 
-	void pwLock();
-	void pwUnlock();
+	void lock();
+	void unlock();
 
 	void setVolume(F32 volume);
 	void setPan(F32 pan);
