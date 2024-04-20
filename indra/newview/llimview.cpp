@@ -425,7 +425,14 @@ void startConferenceCoro(std::string url,
     postData["session-id"] = tempSessionId;
     postData["params"] = agents;
     LLSD altParams;
-    altParams["voice_server_type"] = gSavedSettings.getString("VoiceServerType");
+    std::string voice_server_type = gSavedSettings.getString("VoiceServerType");
+    if (voice_server_type.empty())
+    {
+        // default to the server type associated with the region we're on.
+        LLVoiceVersionInfo versionInfo = LLVoiceClient::getInstance()->getVersion();
+        voice_server_type              = versionInfo.internalVoiceServerType;
+    }
+    altParams["voice_server_type"] = voice_server_type;
     postData["alt_params"]         = altParams;
 
     LLSD result = httpAdapter->postAndSuspend(httpRequest, url, postData);
@@ -467,7 +474,14 @@ void startP2PVoiceCoro(std::string url, LLUUID sessionID, LLUUID creatorId, LLUU
     postData["session-id"] = sessionID;
     postData["params"]     = otherParticipantId;
     LLSD altParams;
-    altParams["voice_server_type"] = gSavedSettings.getString("VoiceServerType");
+    std::string voice_server_type = gSavedSettings.getString("VoiceServerType");
+    if (voice_server_type.empty())
+    {
+        // default to the server type associated with the region we're on.
+        LLVoiceVersionInfo versionInfo = LLVoiceClient::getInstance()->getVersion();
+        voice_server_type              = versionInfo.internalVoiceServerType;
+    }
+    altParams["voice_server_type"] = voice_server_type;
     postData["alt_params"]         = altParams;
 
     LLSD result = httpAdapter->postAndSuspend(httpRequest, url, postData);
