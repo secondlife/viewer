@@ -341,7 +341,7 @@ void main()
 #endif
     frag_data[0] = max(vec4(mix.col.xyz, 0.0), vec4(0));                                                   // Diffuse
     frag_data[1] = max(vec4(orm.rgb, base_color_factor_alpha), vec4(0));                                    // PBR linear packed Occlusion, Roughness, Metal.
-    frag_data[2] = max(vec4(tnorm, GBUFFER_FLAG_HAS_PBR), vec4(0)); // normal, flags
+    frag_data[2] = vec4(tnorm, GBUFFER_FLAG_HAS_PBR); // normal, flags
     frag_data[3] = max(vec4(emissive,0), vec4(0));                                                // PBR sRGB Emissive
 }
 
