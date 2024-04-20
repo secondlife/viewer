@@ -49,8 +49,6 @@ extern "C" {
 }
 
 SymbolGrabber paSymbolGrabber;
-#undef LL_SYMBOL_GRABBER
-#define LL_SYMBOL_GRABBER paSymbolGrabber
 
 #include "volume_catcher_pulseaudio_syms.inc"
 #include "volume_catcher_pulseaudio_glib_syms.inc"
@@ -95,7 +93,9 @@ void VolumeCatcherPulseAudio::init()
 	// probably be loaded separately.  Our Linux DSO framework needs refactoring,
 	// we do this sort of thing a lot with practically identical logic...
 	mGotSyms = loadsyms("libpulse-mainloop-glib.so.0");
-	if (!mGotSyms) mGotSyms = loadsyms("libpulse.so.0");
+
+	if (!mGotSyms)
+		mGotSyms = loadsyms("libpulse.so.0");
 
 	if (!mGotSyms)
 		return;

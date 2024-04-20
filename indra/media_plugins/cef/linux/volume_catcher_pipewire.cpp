@@ -45,8 +45,6 @@ extern "C" {
 }
 
 SymbolGrabber pwSymbolGrabber;
-#undef LL_SYMBOL_GRABBER
-#define LL_SYMBOL_GRABBER pwSymbolGrabber
 
 #include "volume_catcher_pipewire_syms.inc"
 
