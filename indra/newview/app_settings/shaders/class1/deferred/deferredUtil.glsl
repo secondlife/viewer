@@ -141,31 +141,20 @@ vec2 getScreenCoordinate(vec2 screenpos)
     return sc - vec2(1.0, 1.0);
 }
 
-vec3 getNorm(vec2 screenpos)
+vec4 getNorm(vec2 screenpos)
 {
-    return texture(normalMap, screenpos.xy).rgb;
-}
-
-vec3 getNormalFromPacked(vec4 packedNormalEnvIntensityFlags)
-{
-   vec2 enc = packedNormalEnvIntensityFlags.xy;
-   vec2 fenc = enc*4-2;
-   float f = dot(fenc,fenc);
-   float g = sqrt(1-f/4);
-   vec3 n;
-   n.xy = fenc*g;
-   n.z = 1-f/2;
-   return normalize(n); // TODO: Is this normalize redundant?
+    return texture(normalMap, screenpos.xy);
 }
 
 // return packedNormalEnvIntensityFlags since GBUFFER_FLAG_HAS_PBR needs .w
 // See: C++: addDeferredAttachments(), GLSL: softenLightF
 vec4 getNormalEnvIntensityFlags(vec2 screenpos, out vec3 n, out float envIntensity)
 {
-    n = texture(normalMap, screenpos.xy).rgb;
+    vec4 norm = texture(normalMap, screenpos.xy);
+    n = norm.xyz;
     envIntensity = texture(emissiveRect, screenpos.xy).r;
 
-    return vec4(n, envIntensity);
+    return norm;
 }
 
 // get linear depth value given a depth buffer sample d and znear and zfar values

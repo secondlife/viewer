@@ -56,7 +56,6 @@ void main()
     }
 
     vec4  pos          = getPositionWithDepth(tc, depth);
-    vec4  norm         = texture(normalMap, tc);
 
     vec4 fogged = getWaterFogView(pos.xyz);
 
