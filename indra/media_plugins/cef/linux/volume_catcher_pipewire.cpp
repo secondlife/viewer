@@ -140,10 +140,13 @@ void VolumeCatcherPipeWire::cleanup()
 	childNodesLock.unlock();
 
 	std::unique_lock pwLock(*this);
-	if (mRegistry) llpw_proxy_destroy((struct pw_proxy*)mRegistry);
+	if (mRegistry)
+		llpw_proxy_destroy((struct pw_proxy*)mRegistry);
 	spa_zero(mRegistryListener);
-	if (mCore) llpw_core_disconnect(mCore);
-	if (mContext) llpw_context_destroy(mContext);
+	if (mCore)
+		llpw_core_disconnect(mCore);
+	if (mContext)
+		llpw_context_destroy(mContext);
 	pwLock.unlock();
 
 	if (!mThreadLoop)
@@ -221,9 +224,9 @@ void VolumeCatcherPipeWire::ChildNode::destroy()
 
 	mActive = false;
 
-	mImpl->mChildNodesMutex.lock();
+	std::unique_lock childNodesLock(mImpl->mChildNodesMutex);
 	mImpl->mChildNodes.erase(this);
-	mImpl->mChildNodesMutex.unlock();
+	childNodesLock.unlock();
 	
 	spa_hook_remove(&mNodeListener);
 	spa_hook_remove(&mProxyListener);
