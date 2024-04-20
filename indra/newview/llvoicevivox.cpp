@@ -5456,6 +5456,8 @@ void LLVivoxVoiceClient::setVoiceEnabled(bool enabled)
 			LLVoiceChannel::getCurrentVoiceChannel()->deactivate();
 			gAgent.setVoiceConnected(false);
 			status = LLVoiceClientStatusObserver::STATUS_VOICE_DISABLED;
+			mCurrentParcelLocalID = -1;
+			mCurrentRegionName.clear();
 		}
 
 		notifyStatusObservers(status);
