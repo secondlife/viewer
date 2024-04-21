@@ -62,8 +62,7 @@ VolumeCatcherPipeWire::~VolumeCatcherPipeWire()
 
 static void registryEventGlobal(
 	void *data, uint32_t id, uint32_t permissions, const char *type,
-	uint32_t version, const struct spa_dict *props
-)
+	uint32_t version, const struct spa_dict *props)
 {
 	static_cast<VolumeCatcherPipeWire*>(data)->handleRegistryEventGlobal(
 		id, permissions, type, version, props
@@ -82,14 +81,14 @@ bool VolumeCatcherPipeWire::loadsyms(std::string pw_dso_name)
 
 void VolumeCatcherPipeWire::init()
 {
-	// debugPrint("init\n");
-	
+    LL_DEBUGS() << "init" << LL_ENDL;
+
 	mGotSyms = loadsyms("libpipewire-0.3.so.0");
 	
 	if (!mGotSyms)
 		return;
 
-	// debugPrint("got syms\n");
+    LL_DEBUGS() << "successfully got symbols" << LL_ENDL;
 
 	llpw_init(NULL, NULL);
 
@@ -115,7 +114,7 @@ void VolumeCatcherPipeWire::init()
 
 	mRegistry = pw_core_get_registry(mCore, PW_VERSION_REGISTRY, 0);
 
-	// debugPrint("got registry\n");
+    LL_DEBUGS() << "pw_core_get_registry: " <<  (mRegistry?"success":"nullptr") << LL_ENDL;
 
 	spa_zero(mRegistryListener);
 
@@ -125,27 +124,31 @@ void VolumeCatcherPipeWire::init()
 
 	llpw_thread_loop_start(mThreadLoop);
 
-	// debugPrint("started thread loop\n");
+    LL_DEBUGS() << "thread loop started" << LL_ENDL;
 }
 
 void VolumeCatcherPipeWire::cleanup()
 {
-	std::unique_lock childNodesLock(mChildNodesMutex);
-	for (auto* childNode : mChildNodes) {
-		childNode->destroy();
-	}
-	mChildNodes.clear();
-	childNodesLock.unlock();
+    {
+        std::unique_lock childNodesLock(mChildNodesMutex);
+        for (auto *childNode: mChildNodes)
+            childNode->destroy();
 
-	std::unique_lock pwLock(*this);
-	if (mRegistry)
-		llpw_proxy_destroy((struct pw_proxy*)mRegistry);
-	spa_zero(mRegistryListener);
-	if (mCore)
-		llpw_core_disconnect(mCore);
-	if (mContext)
-		llpw_context_destroy(mContext);
-	pwLock.unlock();
+        mChildNodes.clear();
+    }
+
+    {
+        std::unique_lock pwLock(mCleanupMutex);
+        if (mRegistry)
+            llpw_proxy_destroy((struct pw_proxy *) mRegistry);
+
+        spa_zero(mRegistryListener);
+
+        if (mCore)
+            llpw_core_disconnect(mCore);
+        if (mContext)
+            llpw_context_destroy(mContext);
+    }
 
 	if (!mThreadLoop)
 		return;
@@ -153,26 +156,24 @@ void VolumeCatcherPipeWire::cleanup()
 	llpw_thread_loop_stop(mThreadLoop);
 	llpw_thread_loop_destroy(mThreadLoop);
 
-	// debugPrint("cleanup done\n");
+    LL_DEBUGS() << "cleanup done" << LL_ENDL;
 }
 
-void VolumeCatcherPipeWire::lock() {
+void VolumeCatcherPipeWire::lock()
+{
 	if (!mThreadLoop)
 		return;
 
 	llpw_thread_loop_lock(mThreadLoop);
 }
 
-void VolumeCatcherPipeWire::unlock() {
+void VolumeCatcherPipeWire::unlock()
+{
 	if (!mThreadLoop)
 		return;
 
 	llpw_thread_loop_unlock(mThreadLoop);
 }
-
-// #define INV_LERP(a, b, v) (v - a) / (b - a)
-
-// #include <sys/time.h>
 
 void VolumeCatcherPipeWire::ChildNode::updateVolume()
 {
@@ -180,22 +181,8 @@ void VolumeCatcherPipeWire::ChildNode::updateVolume()
 		return;
 
 	F32 volume = std::clamp(mImpl->mVolume, 0.0f, 1.0f);
-	// F32 pan = std::clamp(mImpl->mPan, -1.0f, 1.0f);
 
-	// debugClear();
-	// struct timeval time;
-	// gettimeofday(&time, NULL);
-	// double t = (double)time.tv_sec + (double)(time.tv_usec / 1000) / 1000;
-	// debugPrint("time is %f\n", t);
-	// F32 pan = std::sin(t * 2.0d);
-	// debugPrint("pan is %f\n", pan);
-
-	// uint32_t channels = 2;
-	// float volumes[channels];
-	// volumes[1] = INV_LERP(-1.0f, 0.0f, pan) * volume; // left
-	// volumes[0] = INV_LERP(1.0f, 0.0f, pan) * volume; // right
-
-	uint32_t channels = 1;
+	const uint32_t channels = 1;
 	float volumes[channels];
 	volumes[0] = volume;
 
@@ -210,9 +197,10 @@ void VolumeCatcherPipeWire::ChildNode::updateVolume()
 	spa_pod_builder_array(&builder, sizeof(float), SPA_TYPE_Float, channels, volumes);
 	spa_pod* pod = static_cast<spa_pod*>(spa_pod_builder_pop(&builder, &frame));
 
-	std::lock_guard pwLock(*mImpl);
-
-	pw_node_set_param(mProxy, SPA_PARAM_Props, 0, pod);
+    {
+        std::lock_guard pwLock(*mImpl);
+        pw_node_set_param(mProxy, SPA_PARAM_Props, 0, pod);
+    }
 }
 
 void VolumeCatcherPipeWire::ChildNode::destroy()
@@ -222,16 +210,18 @@ void VolumeCatcherPipeWire::ChildNode::destroy()
 
 	mActive = false;
 
-	std::unique_lock childNodesLock(mImpl->mChildNodesMutex);
-	mImpl->mChildNodes.erase(this);
-	childNodesLock.unlock();
-	
+    {
+        std::unique_lock childNodesLock(mImpl->mChildNodesMutex);
+        mImpl->mChildNodes.erase(this);
+    }
+
 	spa_hook_remove(&mNodeListener);
 	spa_hook_remove(&mProxyListener);
 
-	std::lock_guard pwLock(*mImpl);
-
-	llpw_proxy_destroy(mProxy);
+    {
+        std::lock_guard pwLock(*mImpl);
+        llpw_proxy_destroy(mProxy);
+    }
 }
 
 static void nodeEventInfo(void* data, const struct pw_node_info* info)
@@ -246,17 +236,18 @@ static void nodeEventInfo(void* data, const struct pw_node_info* info)
 	if (!isPluginPid(pid))
 		return;
 
-	// const char* appName = spa_dict_lookup(info->props, PW_KEY_APP_NAME);
-	// debugPrint("got app: %s\n", appName);
+    const char* appName = spa_dict_lookup(info->props, PW_KEY_APP_NAME);
+    LL_DEBUGS() << "got app: " << appName << LL_ENDL;
 	
 	auto* const childNode = static_cast<VolumeCatcherPipeWire::ChildNode*>(data);
-	// debugPrint("init volume to: %f\n", childNode->mImpl->mVolume);
+    LL_DEBUGS() << "init volume: " << childNode->mImpl->mVolume  << LL_ENDL;
 
 	childNode->updateVolume();
 
-	std::lock_guard childNodesLock(childNode->mImpl->mChildNodesMutex);
-
-	childNode->mImpl->mChildNodes.insert(childNode);
+    {
+        std::lock_guard childNodesLock(childNode->mImpl->mChildNodesMutex);
+        childNode->mImpl->mChildNodes.insert(childNode);
+    }
 }
 
 static const struct pw_node_events NODE_EVENTS = {
@@ -284,9 +275,9 @@ static const struct pw_proxy_events PROXY_EVENTS = {
 
 void VolumeCatcherPipeWire::handleRegistryEventGlobal(
 	uint32_t id, uint32_t permissions, const char *type, uint32_t version,
-	const struct spa_dict *props
-) {
-	if (props == nullptr || strcmp(type, PW_TYPE_INTERFACE_Node) != 0)
+	const struct spa_dict *props)
+{
+	if (props == nullptr  || type == nullptr || strcmp(type, PW_TYPE_INTERFACE_Node) != 0)
 		return;
 
 	const char* mediaClass = spa_dict_lookup(props, PW_KEY_MEDIA_CLASS);
@@ -310,25 +301,23 @@ void VolumeCatcherPipeWire::handleRegistryEventGlobal(
 
 void VolumeCatcherPipeWire::setVolume(F32 volume)
 {
-	// debugPrint("setting all volume to: %f\n", volume);
+    LL_DEBUGS() << "setting volume to: " << volume << LL_ENDL;
 
 	mVolume = volume;
 
-	std::unique_lock childNodeslock(mChildNodesMutex);
-	std::unordered_set<ChildNode*> copyOfChildNodes(mChildNodes);
-	childNodeslock.unlock();
+    {
+        std::unique_lock childNodeslock(mChildNodesMutex);
+        std::unordered_set<ChildNode *> copyOfChildNodes(mChildNodes);
 
-	// debugPrint("for %d nodes\n", copyOfChildNodes.size());
+        LL_DEBUGS() << "found " << copyOfChildNodes.size() << " child nodes" << LL_ENDL;
 
-	for (auto* childNode : copyOfChildNodes) {
-		childNode->updateVolume();
-	}
+        for (auto* childNode : copyOfChildNodes)
+            childNode->updateVolume();
+    }
 }
 
 void VolumeCatcherPipeWire::setPan(F32 pan)
 {
-	// mPan = pan;
-	// setVolume(mVolume);
 }
 
 void VolumeCatcherPipeWire::pump()

@@ -32,28 +32,29 @@
 
 VolumeCatcher::VolumeCatcher()
 {
-	// only init once we receive which implementation to use
-
-	// debugClear();
-	// debugPrint("init volume catcher\n");
 }
 
-void VolumeCatcher::onEnablePipeWireVolumeCatcher(bool enable) {
+void VolumeCatcher::onEnablePipeWireVolumeCatcher(bool enable)
+{
 	if (pimpl != nullptr)
 		return;
 
-	if (enable) {
-		// debugPrint("volume catcher using pipewire\n");
+	if (enable)
+    {
+		LL_DEBUGS() << "volume catcher using pipewire" << LL_ENDL;
 		pimpl = new VolumeCatcherPipeWire();
-	} else {
-		// debugPrint("volume catcher using pulseaudio\n");
+	}
+    else
+    {
+		LL_DEBUGS() << "volume catcher using pulseaudio" << LL_ENDL;
 		pimpl = new VolumeCatcherPulseAudio();
 	}
 }
 
 VolumeCatcher::~VolumeCatcher()
 {
-	if (pimpl != nullptr) {
+	if (pimpl != nullptr)
+    {
 		delete pimpl;
 		pimpl = nullptr;
 	}
@@ -68,15 +69,12 @@ void VolumeCatcher::setVolume(F32 volume)
 
 void VolumeCatcher::setPan(F32 pan)
 {
-	if (pimpl != nullptr) {
+	if (pimpl != nullptr)
 		pimpl->setPan(pan);
-	}
 }
 
 void VolumeCatcher::pump()
 {
-	if (pimpl != nullptr) {
+	if (pimpl != nullptr)
 		pimpl->pump();
-	}
 }
-
