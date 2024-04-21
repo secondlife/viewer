@@ -49,7 +49,7 @@ extern "C" {
 
 #include "media_plugin_base.h"
 
-class VolumeCatcherPulseAudio : public virtual VolumeCatcherImpl
+class VolumeCatcherPulseAudio : public VolumeCatcherImpl
 {
 public:
 	VolumeCatcherPulseAudio();
@@ -78,7 +78,7 @@ public:
 	bool mGotSyms;
 };
 
-class VolumeCatcherPipeWire : public virtual VolumeCatcherImpl
+class VolumeCatcherPipeWire : public VolumeCatcherImpl
 {
 public:
 	VolumeCatcherPipeWire();
@@ -121,31 +121,15 @@ public:
 	F32 mVolume = 1.0f; // max by default
 	// F32 mPan = 0.0f; // center
 
-	pw_thread_loop* mThreadLoop;
-	pw_context* mContext;
-	pw_core* mCore;
-	pw_registry* mRegistry;
+	pw_thread_loop* mThreadLoop = nullptr;
+	pw_context* mContext = nullptr;
+	pw_core* mCore = nullptr;
+	pw_registry* mRegistry = nullptr;
 	spa_hook mRegistryListener;
 
 	std::unordered_set<ChildNode*> mChildNodes;
 	std::mutex mChildNodesMutex;
+    std::mutex mCleanupMutex;
 };
-
-// static void debugClear()
-// {
-// 	auto file = fopen("volume-catcher-log.txt", "w");
-// 	fprintf(file, "\n");
-// 	fclose(file);
-// }
-
-// static void debugPrint(const char* format, ...)
-// {
-//     va_list args;
-//     va_start(args, format);
-// 	auto file = fopen("volume-catcher-log.txt", "a");
-//     vfprintf(file, format, args);
-// 	fclose(file);
-//     va_end(args);
-// }
 
 #endif // VOLUME_CATCHER_LINUX_H

@@ -43,7 +43,7 @@ public:
 	virtual void pump() = 0; // call this at least a few times a second if you can - it affects how quickly we can 'catch' a new audio source and adjust its volume
 };
 
-class VolumeCatcher : public virtual VolumeCatcherImpl
+class VolumeCatcher : public VolumeCatcherImpl
 {
 public:
 	VolumeCatcher();
