@@ -90,9 +90,9 @@ void VolumeCatcherPipeWire::init()
 
     LL_DEBUGS() << "successfully got symbols" << LL_ENDL;
 
-	llpw_init(NULL, NULL);
+	llpw_init(nullptr, nullptr);
 
-	mThreadLoop = llpw_thread_loop_new("SL Plugin Volume Adjuster", NULL);
+	mThreadLoop = llpw_thread_loop_new("SL Plugin Volume Adjuster", nullptr);
 
 	if (!mThreadLoop)
 		return;
@@ -101,13 +101,13 @@ void VolumeCatcherPipeWire::init()
 	// std::lock_guard pwLock(*this);
 
 	mContext = llpw_context_new(
-		llpw_thread_loop_get_loop(mThreadLoop), NULL, 0
+		llpw_thread_loop_get_loop(mThreadLoop), nullptr, 0
 	);
 
 	if (!mContext)
 		return;
 
-	mCore = llpw_context_connect(mContext, NULL, 0);
+	mCore = llpw_context_connect(mContext, nullptr, 0);
 
 	if (!mCore)
 		return;
