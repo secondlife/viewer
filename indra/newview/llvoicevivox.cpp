@@ -4952,6 +4952,7 @@ bool LLVivoxVoiceClient::setSpatialChannel(const LLSD& channelInfo)
 void LLVivoxVoiceClient::callUser(const LLUUID &uuid)
 {
 	std::string userURI = sipURIFromID(uuid);
+	mProcessChannels = true;
 
 	switchChannel(userURI, false, true, true);
 }
@@ -4974,7 +4975,7 @@ bool LLVivoxVoiceClient::answerInvite(const std::string &sessionHandle)
         session->mIsSpatial = false;
         session->mReconnect = false;
         session->mIsP2P     = true;
-
+        mProcessChannels    = true;
         joinSession(session);
         return true;
     }
@@ -5078,7 +5079,9 @@ void LLVivoxVoiceClient::leaveNonSpatialChannel()
 
 void LLVivoxVoiceClient::processChannels(bool process)
 {
-	mProcessChannels = process;
+    mCurrentParcelLocalID = -1;
+    mCurrentRegionName.clear();
+    mProcessChannels = process;
 }
 
 bool LLVivoxVoiceClient::isCurrentChannel(const LLSD &channelInfo)
