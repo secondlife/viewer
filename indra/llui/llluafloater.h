@@ -36,6 +36,7 @@ public:
     LLLuaFloater(const LLSD &key);
     BOOL postBuild();
     virtual ~LLLuaFloater();
+    void draw();
 
     void registerCallback(const std::string &ctrl_name, const std::string &event);
     void onClose(bool app_quitting);
@@ -48,6 +49,7 @@ public:
 private:
     LLReqID mReqID;
     LLDispatchListener mDispatchListener;
+    std::unique_ptr<LLTimer> mIdleTimer;
 
     std::string mReplyPumpName;
 };

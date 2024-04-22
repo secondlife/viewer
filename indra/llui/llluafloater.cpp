@@ -35,6 +35,7 @@
 #include "lltexteditor.h"
 
 const std::string LISTENER_NAME("LLLuaFloater");
+const F32 IDLE_INTERVAL = 0.5;
 
 std::set<std::string> EVENT_LIST = {
     "commit",
@@ -47,14 +48,16 @@ std::set<std::string> EVENT_LIST = {
     "right_mouse_up",
     "post_build",
     "floater_close",
-    "keystroke"
+    "keystroke",
+    "idle"
 };
 
 LLLuaFloater::LLLuaFloater(const LLSD &key) :
     LLFloater(key),
     mDispatchListener(LLUUID::generateNewID().asString(), "action"),
     mReplyPumpName(key["reply"].asString()),
-    mReqID(key)
+    mReqID(key),
+    mIdleTimer(new LLTimer())
 {
     auto ctrl_lookup = [this](const LLSD &event, std::function<LLSD(LLUICtrl*,const LLSD&)> cb)
     {
@@ -164,6 +167,15 @@ BOOL LLLuaFloater::postBuild()
     postEvent(llsd::map("command_name", mDispatchListener.getPumpName()), "post_build");
 
     return true;
+}
+
+void LLLuaFloater::draw()
+{
+    if (mIdleTimer->checkExpirationAndReset(IDLE_INTERVAL))
+    {
+        postEvent(LLSD(), "idle");
+    }
+    LLFloater::draw();
 }
 
 void LLLuaFloater::onClose(bool app_quitting)
