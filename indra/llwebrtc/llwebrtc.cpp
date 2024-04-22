@@ -735,6 +735,10 @@ bool LLWebRTCPeerConnectionImpl::initializeConnection(const LLWebRTCPeerConnecti
             else
             {
                 RTC_LOG(LS_ERROR) << __FUNCTION__ << "Error creating peer connection: " << error_or_peer_connection.error().message();
+                for (auto &observer : mSignalingObserverList)
+                {
+                    observer->OnRenegotiationNeeded();
+                }
                 return;
             }
 
