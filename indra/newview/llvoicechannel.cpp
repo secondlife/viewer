@@ -594,7 +594,14 @@ void LLVoiceChannelGroup::voiceCallCapCoro(std::string url)
 	postData["method"] = "call";
 	postData["session-id"] = mSessionID;
 	LLSD altParams;
-	altParams["preferred_voice_server_type"] = gSavedSettings.getString("VoiceServerType");
+	std::string  preferred_voice_server_type = gSavedSettings.getString("VoiceServerType");
+	if (preferred_voice_server_type.empty())
+	{
+		// default to the server type associated with the region we're on.
+		LLVoiceVersionInfo versionInfo = LLVoiceClient::getInstance()->getVersion();
+		preferred_voice_server_type = versionInfo.internalVoiceServerType;
+	}
+	altParams["preferred_voice_server_type"] = preferred_voice_server_type;
 	postData["alt_params"] = altParams;
 
 	LL_INFOS("Voice", "voiceCallCapCoro") << "Generic POST for " << url << LL_ENDL;

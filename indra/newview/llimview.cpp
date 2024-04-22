@@ -424,10 +424,6 @@ void startConferenceCoro(std::string url,
     postData["method"] = "start conference";
     postData["session-id"] = tempSessionId;
     postData["params"] = agents;
-    LLSD altParams;
-    altParams["voice_server_type"] = gSavedSettings.getString("VoiceServerType");
-    postData["alt_params"]         = altParams;
-
     LLSD result = httpAdapter->postAndSuspend(httpRequest, url, postData);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
@@ -466,10 +462,6 @@ void startP2PVoiceCoro(std::string url, LLUUID sessionID, LLUUID creatorId, LLUU
     postData["method"]     = "start p2p voice";
     postData["session-id"] = sessionID;
     postData["params"]     = otherParticipantId;
-    LLSD altParams;
-    altParams["voice_server_type"] = gSavedSettings.getString("VoiceServerType");
-    postData["alt_params"]         = altParams;
-
     LLSD result = httpAdapter->postAndSuspend(httpRequest, url, postData);
 
     LLSD               httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
@@ -2119,7 +2111,7 @@ bool LLIMModel::sendStartSession(
 		//we also need to wait for reply from the server in case of ad-hoc chat (we'll get new session id)
 		return true;
 	}
-	else if ((dialog == IM_SESSION_P2P_INVITE) || (dialog == IM_NOTHING_SPECIAL))
+	else if (p2p_as_adhoc_call && ((dialog == IM_SESSION_P2P_INVITE) || (dialog == IM_NOTHING_SPECIAL)))
 	{
 		LLViewerRegion *region = gAgent.getRegion();
 		if (region)

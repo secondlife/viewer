@@ -144,12 +144,7 @@ public:
         startAdHocSession(channelInfo, notify_on_first_join, hangup_on_last_leave);
     }
 
-    bool setSpatialChannel(const LLSD &channelInfo) override
-    {
-        // we don't really have credentials for a spatial channel in webrtc,
-        // it's all handled by the sim.
-        return true;
-    }
+    bool setSpatialChannel(const LLSD &channelInfo) override;
 
     void leaveNonSpatialChannel() override;
 
