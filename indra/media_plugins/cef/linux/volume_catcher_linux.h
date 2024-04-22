@@ -49,7 +49,7 @@ extern "C" {
 
 #include "media_plugin_base.h"
 
-class VolumeCatcherPulseAudio : public virtual VolumeCatcherImpl
+class VolumeCatcherPulseAudio : public VolumeCatcherImpl
 {
 public:
 	VolumeCatcherPulseAudio();
@@ -78,7 +78,7 @@ public:
 	bool mGotSyms;
 };
 
-class VolumeCatcherPipeWire : public virtual VolumeCatcherImpl
+class VolumeCatcherPipeWire : public VolumeCatcherImpl
 {
 public:
 	VolumeCatcherPipeWire();
