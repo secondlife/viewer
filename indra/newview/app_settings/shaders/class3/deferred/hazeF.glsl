@@ -33,7 +33,7 @@ uniform vec3 moon_dir;
 uniform int  sun_up_factor;
 in vec2 vary_fragcoord;
 
-vec3 getNorm(vec2 pos_screen);
+vec4 getNorm(vec2 pos_screen);
 vec4 getPositionWithDepth(vec2 pos_screen, float depth);
 void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 norm, vec3 light_dir, out vec3 sunlit, out vec3 amblit, out vec3 atten, out vec3 additive);
 
@@ -53,8 +53,7 @@ void main()
     vec2  tc           = vary_fragcoord.xy;
     float depth        = getDepth(tc.xy);
     vec4  pos          = getPositionWithDepth(tc, depth);
-    vec4  norm         = texture(normalMap, tc);
-    norm.xyz           = getNorm(tc);
+    vec4  norm         = getNorm(tc);
     vec3  light_dir   = (sun_up_factor == 1) ? sun_dir : moon_dir;
 
     vec3  color = vec3(0);
