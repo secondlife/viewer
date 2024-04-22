@@ -27,162 +27,11 @@
 #include "../llviewerprecompiledheaders.h"
 
 #include "asset.h"
+#include "buffer_util.h"
+
 #include "../lltinygltfhelper.h"
 
 using namespace LL::GLTF;
-
-#ifdef _MSC_VER
-#define LL_FUNCSIG __FUNCSIG__ 
-#else
-#define LL_FUNCSIG __PRETTY_FUNCTION__
-#endif
-
-// copy one vec3 from src to dst
-template<class S, class T>
-void copyVec2(S* src, T& dst)
-{
-    LL_ERRS() << "TODO: implement " << LL_FUNCSIG << LL_ENDL;
-}
-
-// copy one vec3 from src to dst
-template<class S, class T>
-void copyVec3(S* src, T& dst)
-{
-    LL_ERRS() << "TODO: implement " << LL_FUNCSIG << LL_ENDL;
-}
-
-// copy one vec4 from src to dst
-template<class S, class T>
-void copyVec4(S* src, T& dst)
-{
-    LL_ERRS() << "TODO: implement " << LL_FUNCSIG << LL_ENDL;
-}
-
-template<>
-void copyVec2<F32, LLVector2>(F32* src, LLVector2& dst)
-{
-    dst.set(src[0], src[1]);
-}
-
-template<>
-void copyVec3<F32, LLVector4a>(F32* src, LLVector4a& dst)
-{
-    dst.load3(src);
-}
-
-template<>
-void copyVec3<U16, LLColor4U>(U16* src, LLColor4U& dst)
-{
-    dst.set(src[0], src[1], src[2], 255);
-}
-
-template<>
-void copyVec4<F32, LLVector4a>(F32* src, LLVector4a& dst)
-{
-    dst.loadua(src);
-}
-
-// copy from src to dst, stride is the number of bytes between each element in src, count is number of elements to copy
-template<class S, class T>
-void copyVec2(S* src, LLStrider<T> dst, S32 stride, S32 count)
-{
-    for (S32 i = 0; i < count; ++i)
-    {
-        copyVec2(src, *dst);
-        dst++;
-        src = (S*)((U8*)src + stride);
-    }
-}
-
-// copy from src to dst, stride is the number of bytes between each element in src, count is number of elements to copy
-template<class S, class T>
-void copyVec3(S* src, LLStrider<T> dst, S32 stride, S32 count)
-{
-    for (S32 i = 0; i < count; ++i)
-    {
-        copyVec3(src, *dst);
-        dst++;
-        src = (S*)((U8*)src + stride);
-    }
-}
-
-// copy from src to dst, stride is the number of bytes between each element in src, count is number of elements to copy
-template<class S, class T>
-void copyVec4(S* src, LLStrider<T> dst, S32 stride, S32 count)
-{
-    for (S32 i = 0; i < count; ++i)
-    {
-        copyVec3(src, *dst);
-        dst++;
-        src = (S*)((U8*)src + stride);
-    }
-}
-
-template<class S, class T>
-void copyAttributeArray(Asset& asset, const Accessor& accessor, const S* src, LLStrider<T>& dst, S32 byteStride)
-{
-    if (accessor.mType == TINYGLTF_TYPE_VEC2)
-    {
-        S32 stride = byteStride == 0 ? sizeof(S) * 2 : byteStride;
-        copyVec2((S*)src, dst, stride, accessor.mCount);
-    }
-    else if (accessor.mType == TINYGLTF_TYPE_VEC3)
-    {
-        S32 stride = byteStride == 0 ? sizeof(S) * 3 : byteStride;
-        copyVec3((S*)src, dst, stride, accessor.mCount);
-    }
-    else if (accessor.mType == TINYGLTF_TYPE_VEC4)
-    {
-        S32 stride = byteStride == 0 ? sizeof(S) * 4 : byteStride;
-        copyVec4((S*)src, dst, stride, accessor.mCount);
-    }
-    else
-    {
-        LL_ERRS("GLTF") << "Unsupported accessor type" << LL_ENDL;
-    }
-}
-
-template <class T>
-void Primitive::copyAttribute(Asset& asset, S32 accessorIdx, LLStrider<T>& dst)
-{
-    const Accessor& accessor = asset.mAccessors[accessorIdx];
-    const BufferView& bufferView = asset.mBufferViews[accessor.mBufferView];
-    const Buffer& buffer = asset.mBuffers[bufferView.mBuffer];
-    const U8* src = buffer.mData.data() + bufferView.mByteOffset + accessor.mByteOffset;
-
-    if (accessor.mComponentType == TINYGLTF_COMPONENT_TYPE_FLOAT)
-    {
-        copyAttributeArray(asset, accessor, (const F32*)src, dst, bufferView.mByteStride);
-    }
-    else if (accessor.mComponentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT)
-    {
-        copyAttributeArray(asset, accessor, (const U16*)src, dst, bufferView.mByteStride);
-    }
-    else if (accessor.mComponentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT)
-    {
-        copyAttributeArray(asset, accessor, (const U32*)src, dst, bufferView.mByteStride);
-    }
-    else if (accessor.mComponentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE)
-    {
-        copyAttributeArray(asset, accessor, (const U8*)src, dst, bufferView.mByteStride);
-    }
-    else if (accessor.mComponentType == TINYGLTF_COMPONENT_TYPE_SHORT)
-    {
-        copyAttributeArray(asset, accessor, (const S16*)src, dst, bufferView.mByteStride);
-    }
-    else if (accessor.mComponentType == TINYGLTF_COMPONENT_TYPE_BYTE)
-    {
-        copyAttributeArray(asset, accessor, (const S8*)src, dst, bufferView.mByteStride);
-    }
-    else if (accessor.mComponentType == TINYGLTF_COMPONENT_TYPE_DOUBLE)
-    {
-        copyAttributeArray(asset, accessor, (const F64*)src, dst, bufferView.mByteStride);
-    }
-    else
-    {
-        LL_ERRS("GLTF") << "Unsupported component type" << LL_ENDL;
-    }
-}
 
 void Primitive::allocateGLResources(Asset& asset)
 {
@@ -222,6 +71,7 @@ void Primitive::allocateGLResources(Asset& asset)
     for (auto& it : mAttributes)
     {
         const std::string& attribName = it.first;
+        Accessor& accessor = asset.mAccessors[it.second];
 
         // load vertex data
         if (attribName == "POSITION")
@@ -230,7 +80,7 @@ void Primitive::allocateGLResources(Asset& asset)
             LLStrider<LLVector4a> dst;
             mVertexBuffer->getVertexStrider(dst);
 
-            copyAttribute(asset, it.second, dst);
+            copy(asset, accessor, dst);
         }
         else if (attribName == "NORMAL")
         {
@@ -239,7 +89,7 @@ void Primitive::allocateGLResources(Asset& asset)
             LLStrider<LLVector4a> dst;
             mVertexBuffer->getNormalStrider(dst);
 
-            copyAttribute(asset, it.second, dst);
+            copy(asset, accessor, dst);
         }
         else if (attribName == "TANGENT")
         {
@@ -249,7 +99,7 @@ void Primitive::allocateGLResources(Asset& asset)
             LLStrider<LLVector4a> dst;
             mVertexBuffer->getTangentStrider(dst);
 
-            copyAttribute(asset, it.second, dst);
+            copy(asset, accessor, dst);
         }
         else if (attribName == "COLOR_0")
         {
@@ -259,7 +109,7 @@ void Primitive::allocateGLResources(Asset& asset)
             LLStrider<LLColor4U> dst;
             mVertexBuffer->getColorStrider(dst);
 
-            copyAttribute(asset, it.second, dst);
+            copy(asset, accessor, dst);
         }
         else if (attribName == "TEXCOORD_0")
         {
@@ -269,7 +119,7 @@ void Primitive::allocateGLResources(Asset& asset)
             mVertexBuffer->getTexCoord0Strider(dst);
 
             LLStrider<LLVector2> tc = dst;
-            copyAttribute(asset, it.second, dst);
+            copy(asset, accessor, dst);
 
             // convert to OpenGL coordinate space
             for (U32 i = 0; i < numVertices; ++i)
@@ -283,49 +133,16 @@ void Primitive::allocateGLResources(Asset& asset)
     // copy index buffer
     if (mIndices != INVALID_INDEX)
     {
-        const Accessor& accessor = asset.mAccessors[mIndices];
-        const BufferView& bufferView = asset.mBufferViews[accessor.mBufferView];
-        const Buffer& buffer = asset.mBuffers[bufferView.mBuffer];
-
-        const U8* src = buffer.mData.data() + bufferView.mByteOffset + accessor.mByteOffset;
-
+        Accessor& accessor = asset.mAccessors[mIndices];
+        copy(asset, accessor, mIndexArray);
+        
         LLStrider<U16> dst;
         mVertexBuffer->getIndexStrider(dst);
-        mIndexArray.resize(numIndices);
 
-        if (accessor.mComponentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT)
-        {
-            for (U32 i = 0; i < numIndices; ++i)
-            {
-                *(dst++) = (U16) * (U32*)src;
-                src += sizeof(U32);
-            }
-        }
-        else if (accessor.mComponentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT)
-        {
-            for (U32 i = 0; i < numIndices; ++i)
-            {
-                *(dst++) = *(U16*)src;
-                src += sizeof(U16);
-            }
-        }
-        else if (accessor.mComponentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE)
-        {
-            for (U32 i = 0; i < numIndices; ++i)
-            {
-                *(dst++) = *(U8*)src;
-                src += sizeof(U8);
-            }
-        }
-        else
-        {
-            LL_ERRS("GLTF") << "Unsupported component type for indices" << LL_ENDL;
-        }
-
-        U16* idx = (U16*)mVertexBuffer->getMappedIndices();
         for (U32 i = 0; i < numIndices; ++i)
         {
-            mIndexArray[i] = idx[i];
+            *dst++ = mIndexArray[i];
+            llassert(mIndexArray[i] < mVertexBuffer->getNumVerts());
         }
     }
 

@@ -36,8 +36,11 @@ namespace LL
     public:
         ~GLTFSceneManager();
         // load GLTF file from disk
+        
         void load(); // open filepicker to choose asset
         void load(const std::string& filename); // load asset from filename
+
+        void update();
         void render(bool opaque);
         void renderOpaque();
         void renderAlpha();

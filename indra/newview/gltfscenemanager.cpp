@@ -114,6 +114,24 @@ void GLTFSceneManager::renderAlpha()
     render(false);
 }
 
+void GLTFSceneManager::update()
+{
+    for (U32 i = 0; i < mObjects.size(); ++i)
+    {
+        if (mObjects[i]->isDead() || mObjects[i]->mGLTFAsset == nullptr)
+        {
+            mObjects.erase(mObjects.begin() + i);
+            --i;
+            continue;
+        }
+
+        Asset* asset = mObjects[i]->mGLTFAsset;
+
+        asset->update();
+     
+    }
+}
+
 void GLTFSceneManager::render(bool opaque)
 {
     // for debugging, just render the whole scene as opaque

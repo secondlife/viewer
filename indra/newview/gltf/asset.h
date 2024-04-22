@@ -29,85 +29,18 @@
 #include "llvertexbuffer.h"
 #include "llvolumeoctree.h"
 #include "../lltinygltfhelper.h"
+#include "accessor.h"
 #include "primitive.h"
+#include "animation.h"
+
+extern F32SecondsImplicit		gFrameTimeSeconds;
 
 // LL GLTF Implementation
 namespace LL
 {
     namespace GLTF
     {
-        constexpr S32 INVALID_INDEX = -1;
-
         class Asset;
-
-        class Buffer
-        {
-        public:
-            std::vector<U8> mData;
-            std::string mName;
-            std::string mUri;
-
-            const Buffer& operator=(const tinygltf::Buffer& src)
-            {
-                mData = src.data;
-                mName = src.name;
-                mUri = src.uri;
-                return *this;
-            }
-        };
-
-        class BufferView
-        {
-        public:
-            S32 mBuffer = INVALID_INDEX;
-            S32 mByteLength;
-            S32 mByteOffset;
-            S32 mByteStride;
-            S32 mTarget;
-            S32 mComponentType;
-
-            std::string mName;
-
-            const BufferView& operator=(const tinygltf::BufferView& src)
-            {
-                mBuffer = src.buffer;
-                mByteLength = src.byteLength;
-                mByteOffset = src.byteOffset;
-                mByteStride = src.byteStride;
-                mTarget = src.target;
-                mName = src.name;
-                return *this;
-            }
-        };
-
-        class Accessor
-        {
-        public:
-            S32 mBufferView = INVALID_INDEX;
-            S32 mByteOffset;
-            S32 mComponentType;
-            S32 mCount;
-            std::vector<double> mMax;
-            std::vector<double> mMin;
-            S32 mType;
-            bool mNormalized;
-            std::string mName;
-
-            const Accessor& operator=(const tinygltf::Accessor& src)
-            {
-                mBufferView = src.bufferView;
-                mByteOffset = src.byteOffset;
-                mComponentType = src.componentType;
-                mCount = src.count;
-                mType = src.type;
-                mNormalized = src.normalized;
-                mName = src.name;
-                mMax = src.maxValues;
-                mMin = src.maxValues;
-
-                return *this;
-            }
-        };
 
         class Material
         {
@@ -170,6 +103,18 @@ namespace LL
             LLMatrix4a mAssetMatrix; //transform from local to asset space
             LLMatrix4a mAssetMatrixInv; //transform from asset to local space
 
+            glh::vec3f mTranslation;
+            glh::quaternionf mRotation;
+            glh::vec3f mScale;
+
+            // if true, mMatrix is valid and up to date
+            bool mMatrixValid = false;
+
+            // if true, translation/rotation/scale are valid and up to date
+            bool mTRSValid = false;
+            
+            bool mNeedsApplyMatrix = false;
+
             std::vector<S32> mChildren;
             S32 mParent = INVALID_INDEX;
 
@@ -184,7 +129,16 @@ namespace LL
 
             // update mAssetMatrix and mAssetMatrixInv
             void updateTransforms(Asset& asset, const LLMatrix4a& parentMatrix);
-            
+
+            // ensure mMatrix is valid -- if mMatrixValid is false and mTRSValid is true, will update mMatrix to match Translation/Rotation/Scale
+            void makeMatrixValid();
+
+            // ensure Translation/Rotation/Scale are valid -- if mTRSValid is false and mMatrixValid is true, will update Translation/Rotation/Scale to match mMatrix
+            void makeTRSValid();
+
+            // Set rotation of this node
+            // SIDE EFFECT: invalidates mMatrix
+            void setRotation(const glh::quaternionf& rotation);
         };
 
         class Scene
@@ -292,6 +246,10 @@ namespace LL
             std::vector<Sampler> mSamplers;
             std::vector<Image> mImages;
             std::vector<Accessor> mAccessors;
+            std::vector<Animation> mAnimations;
+
+            // the last time update() was called according to gFrameTimeSeconds
+            F32 mLastUpdateTime = gFrameTimeSeconds;
 
             void allocateGLResources(const std::string& filename, const tinygltf::Model& model)
             {
@@ -312,7 +270,19 @@ namespace LL
                 {
                     mesh.allocateGLResources(*this);
                 }
+
+                for (auto& animation : mAnimations)
+                {
+                    animation.allocateGLResources(*this);
+                }
             }
+
+            // Called periodically (typically once per frame)
+            // Any ongoing work (such as animations) should be handled here
+            // NOT guaranteed to be called every frame
+            // MAY be called more than once per frame
+            // Upon return, all Node Matrix transforms should be up to date
+            void update();
 
             // update asset-to-node and node-to-asset transforms
             void updateTransforms();
@@ -394,6 +364,12 @@ namespace LL
                 for (U32 i = 0; i < src.accessors.size(); ++i)
                 {
                     mAccessors[i] = src.accessors[i];
+                }
+
+                mAnimations.resize(src.animations.size());
+                for (U32 i = 0; i < src.animations.size(); ++i)
+                {
+                    mAnimations[i] = src.animations[i];
                 }
 
                 return *this;

@@ -66,6 +66,7 @@ LLMatrix4a inverse(const LLMatrix4a& mat);
 
 void Node::updateTransforms(Asset& asset, const LLMatrix4a& parentMatrix)
 {
+    makeMatrixValid();
     matMul(mMatrix, parentMatrix, mAssetMatrix);
     mAssetMatrixInv = inverse(mAssetMatrix);
     
@@ -211,6 +212,53 @@ S32 Asset::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
     return node_hit;
 }
 
+
+void Node::makeMatrixValid()
+{
+    if (!mMatrixValid && mTRSValid)
+    {
+        glh::matrix4f rot;
+        mRotation.get_value(rot);
+
+        glh::matrix4f trans;
+        trans.set_translate(mTranslation);
+
+        glh::matrix4f sc;
+        sc.set_scale(mScale);
+
+        glh::matrix4f t;
+        //t = sc * rot * trans; 
+        //t = trans * rot * sc; // best so far, still wrong on negative scale
+        //t = sc * trans * rot;
+        t = trans * sc * rot;
+
+        mMatrix.loadu(t.m);
+        mMatrixValid = true;
+    }
+}
+
+void Node::makeTRSValid()
+{
+    if (!mTRSValid && mMatrixValid)
+    {
+        glh::matrix4f t(mMatrix.getF32ptr());
+
+        glh::vec4f p = t.get_column(3);
+        mTranslation.set_value(p.v[0], p.v[1], p.v[2]);
+
+        mScale.set_value(t.get_column(0).length(), t.get_column(1).length(), t.get_column(2).length());
+        mRotation.set_value(t);
+        mTRSValid = true;
+    }
+}
+
+void Node::setRotation(const glh::quaternionf& q)
+{
+    makeTRSValid();
+    mRotation = q;
+    mMatrixValid = false;
+}
+
 const Node& Node::operator=(const tinygltf::Node& src)
 {
     F32* dstMatrix = mMatrix.getF32ptr();
@@ -222,48 +270,33 @@ const Node& Node::operator=(const tinygltf::Node& src)
         {
             dstMatrix[i] = (F32)src.matrix[i];
         }
+
+        mMatrixValid = true;
     }
     else if (!src.rotation.empty() || !src.translation.empty() || !src.scale.empty())
     {
         // node has rotation/translation/scale, convert to matrix
-        glh::quaternionf rotation;
         if (src.rotation.size() == 4)
         {
-            rotation = glh::quaternionf((F32)src.rotation[0], (F32)src.rotation[1], (F32)src.rotation[2], (F32)src.rotation[3]);
+            mRotation = glh::quaternionf((F32)src.rotation[0], (F32)src.rotation[1], (F32)src.rotation[2], (F32)src.rotation[3]);
         }
 
-        glh::vec3f translation;
         if (src.translation.size() == 3)
         {
-            translation = glh::vec3f((F32)src.translation[0], (F32)src.translation[1], (F32)src.translation[2]);
+            mTranslation = glh::vec3f((F32)src.translation[0], (F32)src.translation[1], (F32)src.translation[2]);
         }
 
         glh::vec3f scale;
         if (src.scale.size() == 3)
         {
-            scale = glh::vec3f((F32)src.scale[0], (F32)src.scale[1], (F32)src.scale[2]);
+            mScale = glh::vec3f((F32)src.scale[0], (F32)src.scale[1], (F32)src.scale[2]);
         }
         else
         {
-            scale.set_value(1.f, 1.f, 1.f);
+            mScale.set_value(1.f, 1.f, 1.f);
         }
 
-        glh::matrix4f rot;
-        rotation.get_value(rot);
-
-        glh::matrix4f trans;
-        trans.set_translate(translation);
-
-        glh::matrix4f sc;
-        sc.set_scale(scale);
-
-        glh::matrix4f t;
-        //t = sc * rot * trans; 
-        //t = trans * rot * sc; // best so far, still wrong on negative scale
-        //t = sc * trans * rot;
-        t = trans * sc * rot;
-
-        mMatrix.loadu(t.m);
+        mTRSValid = true;
     }
     else
     {
@@ -336,4 +369,18 @@ void Asset::renderTransparent()
     render(false);
 }
 
+void Asset::update()
+{
+    F32 dt = gFrameTimeSeconds - mLastUpdateTime;
 
+    if (dt > 0.f)
+    {
+        mLastUpdateTime = gFrameTimeSeconds;
+        if (mAnimations.size() > 0)
+        {
+            mAnimations[0].update(*this, dt);
+        }
+
+        updateTransforms();
+    }
+}
