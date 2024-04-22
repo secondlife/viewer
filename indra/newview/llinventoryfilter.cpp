@@ -64,6 +64,7 @@ LLInventoryFilter::FilterOps::FilterOps(const Params& p)
 	mFilterUUID(p.uuid),
 	mFilterLinks(p.links),
     mFilterThumbnails(p.thumbnails),
+    mFilterFavorites(p.favorites),
 	mSearchVisibility(p.search_visibility)
 {
 }
@@ -594,6 +595,19 @@ bool LLInventoryFilter::checkAgainstFilterThumbnails(const LLUUID& object_id) co
     return true;
 }
 
+bool LLInventoryFilter::checkAgainstFilterFavorites(const LLUUID& object_id) const
+{
+    const LLInventoryObject* object = gInventory.getObject(object_id);
+    if (!object) return true;
+
+    const bool is_favorite = object->getIsFavorite();
+    if (is_favorite && (mFilterOps.mFilterFavorites == FILTER_EXCLUDE_FAVORITES))
+        return false;
+    if (!is_favorite && (mFilterOps.mFilterFavorites == FILTER_ONLY_FAVORITES))
+        return false;
+    return true;
+}
+
 bool LLInventoryFilter::checkAgainstCreator(const LLFolderViewModelItemInventory* listener) const
 {
 	if (!listener) return TRUE;
@@ -789,6 +803,32 @@ void LLInventoryFilter::setFilterThumbnails(U64 filter_thumbnails)
         }
     }
     mFilterOps.mFilterThumbnails = filter_thumbnails;
+}
+
+void LLInventoryFilter::setFilterFavorites(U64 filter_favorites)
+{
+    if (mFilterOps.mFilterFavorites != filter_favorites)
+    {
+        if (mFilterOps.mFilterFavorites == FILTER_EXCLUDE_FAVORITES
+            && filter_favorites == FILTER_ONLY_FAVORITES)
+        {
+            setModified(FILTER_RESTART);
+        }
+        else if (mFilterOps.mFilterFavorites == FILTER_ONLY_FAVORITES
+            && filter_favorites == FILTER_EXCLUDE_FAVORITES)
+        {
+            setModified(FILTER_RESTART);
+        }
+        else if (mFilterOps.mFilterFavorites == FILTER_INCLUDE_FAVORITES)
+        {
+            setModified(FILTER_MORE_RESTRICTIVE);
+        }
+        else
+        {
+            setModified(FILTER_LESS_RESTRICTIVE);
+        }
+    }
+    mFilterOps.mFilterFavorites = filter_favorites;
 }
 
 void LLInventoryFilter::setFilterEmptySystemFolders()
@@ -1594,6 +1634,11 @@ U64 LLInventoryFilter::getSearchVisibilityTypes() const
 U64 LLInventoryFilter::getFilterThumbnails() const
 {
     return mFilterOps.mFilterThumbnails;
+}
+
+U64 LLInventoryFilter::getFilterFavorites() const
+{
+    return mFilterOps.mFilterFavorites;
 }
 
 bool LLInventoryFilter::hasFilterString() const
