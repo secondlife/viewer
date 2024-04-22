@@ -2252,6 +2252,21 @@ const LLUUID& LLItemBridge::getThumbnailUUID() const
     return LLUUID::null;
 }
 
+bool LLItemBridge::getIsFavorite() const
+{
+    LLViewerInventoryItem* item = NULL;
+    LLInventoryModel* model = getInventoryModel();
+    if (model)
+    {
+        item = (LLViewerInventoryItem*)model->getItem(mUUID);
+    }
+    if (item)
+    {
+        return item->getIsFavorite();
+    }
+    return false;
+}
+
 BOOL LLItemBridge::isItemPermissive() const
 {
 	LLViewerInventoryItem* item = getItem();
@@ -2392,6 +2407,16 @@ const LLUUID& LLFolderBridge::getThumbnailUUID() const
         return cat->getThumbnailUUID();
     }
     return LLUUID::null;
+}
+
+bool LLFolderBridge::getIsFavorite() const
+{
+    LLViewerInventoryCategory* cat = getCategory();
+    if (cat)
+    {
+        return cat->getIsFavorite();
+    }
+    return false;
 }
 
 void LLFolderBridge::update()
