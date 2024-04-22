@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llfontfreetype.cpp
  * @brief Freetype font library wrapper
  *
  * $LicenseInfo:firstyear=2002&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -52,7 +52,9 @@
 #include "llfontbitmapcache.h"
 #include "llgl.h"
 
-#define ENABLE_OT_SVG_SUPPORT
+#if !defined(LL_NO_OTSVG)
+	#define ENABLE_OT_SVG_SUPPORT
+#endif
 
 FT_Render_Mode gFontRenderMode = FT_RENDER_MODE_NORMAL;
 
@@ -63,7 +65,7 @@ FT_Library gFTLibrary = NULL;
 //static
 void LLFontManager::initClass()
 {
-	if (!gFontManagerp) 
+	if (!gFontManagerp)
 	{
 		gFontManagerp = new LLFontManager;
 	}
@@ -87,7 +89,7 @@ LLFontManager::LLFontManager()
 		FT_Done_FreeType(gFTLibrary);
 	}
 
-#ifdef ENABLE_OT_SVG_SUPPORT
+#if defined(ENABLE_OT_SVG_SUPPORT)
 	SVG_RendererHooks hooks = {
 		LLFontFreeTypeSvgRenderer::OnInit,
 		LLFontFreeTypeSvgRenderer::OnFree,
@@ -196,7 +198,7 @@ BOOL LLFontFreetype::loadFace(const std::string& filename, F32 point_size, F32 v
 		FT_Done_Face(mFTFace);
 		mFTFace = NULL;
 	}
-	
+
 	int error;
 #ifdef LL_WINDOWS
 	error = ftOpenFace(filename, face_n);
@@ -294,7 +296,7 @@ S32 LLFontFreetype::getNumFaces(const std::string& filename)
 
 #ifdef LL_WINDOWS
 	int error = ftOpenFace(filename, 0);
-		
+
 	if (error)
 	{
 		return 0;
@@ -303,7 +305,7 @@ S32 LLFontFreetype::getNumFaces(const std::string& filename)
 	{
 		num_faces = mFTFace->num_faces;
 	}
-	
+
 	FT_Done_Face(mFTFace);
 	clearFontStreams();
 	mFTFace = NULL;
@@ -490,9 +492,9 @@ LLFontGlyphInfo* LLFontFreetype::addGlyph(llwchar wch, EFontGlyphType glyph_type
 			}
 		}
 	}
-	
+
 	std::pair<char_glyph_info_map_t::iterator, char_glyph_info_map_t::iterator> range_it = mCharGlyphInfoMap.equal_range(wch);
-	char_glyph_info_map_t::iterator iter = 
+	char_glyph_info_map_t::iterator iter =
 		std::find_if(range_it.first, range_it.second, [&glyph_type](const char_glyph_info_map_t::value_type& entry) { return entry.second->mGlyphType == glyph_type; });
 	if (iter == range_it.second)
 	{
@@ -609,7 +611,7 @@ LLFontGlyphInfo* LLFontFreetype::addGlyphFromFont(const LLFontFreetype *fontp, l
 	} else {
 		llassert(false);
 	}
-	
+
 	LLImageGL *image_gl = mFontBitmapCachep->getImageGL(bitmap_glyph_type, bitmap_num);
 	LLImageRaw *image_raw = mFontBitmapCachep->getImageRaw(bitmap_glyph_type, bitmap_num);
 	image_gl->setSubImage(image_raw, 0, 0, image_gl->getWidth(), image_gl->getHeight());
@@ -683,7 +685,7 @@ void LLFontFreetype::renderGlyph(EFontGlyphType bitmap_type, U32 glyph_index) co
 
 void LLFontFreetype::reset(F32 vert_dpi, F32 horz_dpi)
 {
-	resetBitmapCache(); 
+	resetBitmapCache();
 	loadFace(mName, mPointSize, vert_dpi ,horz_dpi, mIsFallback, 0);
 	if (!mIsFallback)
 	{
@@ -713,7 +715,7 @@ void LLFontFreetype::resetBitmapCache()
 	mCharGlyphInfoMap.clear();
 	mFontBitmapCachep->reset();
 
-	// Adding default glyph is skipped for fallback fonts here as well as in loadFace(). 
+	// Adding default glyph is skipped for fallback fonts here as well as in loadFace().
 	// This if was added as fix for EXT-4971.
 	if(!mIsFallback)
 	{
@@ -810,7 +812,7 @@ void LLFontFreetype::setSubImageLuminanceAlpha(U32 x, U32 y, U32 bitmap_num, U32
 
 	llassert(!mIsFallback);
 	llassert(image_raw && (image_raw->getComponents() == 2));
-	
+
 	U8 *target = image_raw->getData();
     llassert(target);
 

@@ -1,25 +1,25 @@
-/** 
+/**
  * @file lldirpicker.cpp
  * @brief OS-specific file picker
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -41,6 +41,10 @@
 # include "llfilepicker.h"
 #endif
 
+#ifdef LL_FLTK
+  #include "FL/Fl.H"
+  #include "FL/Fl_Native_File_Chooser.H"
+#endif
 //
 // Globals
 //
@@ -55,7 +59,7 @@ LLDirPicker LLDirPicker::sInstance;
 // Implementation
 //
 
-// utility function to check if access to local file system via file browser 
+// utility function to check if access to local file system via file browser
 // is enabled and if not, tidy up and indicate we're not allowed to do this.
 bool LLDirPicker::check_local_file_access_enabled()
 {
@@ -107,7 +111,7 @@ BOOL LLDirPicker::getDir(std::string* filename, bool blocking)
 
 	BOOL success = FALSE;
 
-	
+
 	if (blocking)
 	{
 		// Modal, so pause agent
@@ -178,7 +182,7 @@ void LLDirPicker::reset()
 BOOL LLDirPicker::getDir(std::string* filename, bool blocking)
 {
     LLFilePicker::ELoadFilter filter=LLFilePicker::FFLOAD_DIRECTORY;
-    
+
     return mFilePicker->getOpenFile(filter, true);
 }
 
@@ -193,20 +197,28 @@ LLDirPicker::LLDirPicker() :
 	mFileName(NULL),
 	mLocked(false)
 {
+#ifndef LL_FLTK
 	mFilePicker = new LLFilePicker();
+#endif
 	reset();
 }
 
 LLDirPicker::~LLDirPicker()
 {
+#ifndef LL_FLTK
 	delete mFilePicker;
+#endif
 }
 
 
 void LLDirPicker::reset()
 {
+#ifndef LL_FLTK
 	if (mFilePicker)
 		mFilePicker->reset();
+#else
+	mDir = "";
+#endif
 }
 
 BOOL LLDirPicker::getDir(std::string* filename, bool blocking)
@@ -219,38 +231,43 @@ BOOL LLDirPicker::getDir(std::string* filename, bool blocking)
 		return FALSE;
 	}
 
-#if !LL_MESA_HEADLESS
-
-	if (mFilePicker)
+#ifdef LL_FLTK
+    gViewerWindow->getWindow()->beforeDialog();
+	Fl_Native_File_Chooser flDlg;
+	flDlg.title(LLTrans::getString("choose_the_directory").c_str());
+	flDlg.type(Fl_Native_File_Chooser::BROWSE_DIRECTORY );
+	int res = flDlg.show();
+    gViewerWindow->getWindow()->afterDialog();
+	if( res == 0 )
 	{
-		GtkWindow* picker = mFilePicker->buildFilePicker(false, true,
-								 "dirpicker");
-
-		if (picker)
-		{		   
-		   gtk_window_set_title(GTK_WINDOW(picker), LLTrans::getString("choose_the_directory").c_str());
-		   gtk_widget_show_all(GTK_WIDGET(picker));
-		   gtk_main();
-		   return (!mFilePicker->getFirstFile().empty());
-		}
+		char const *pDir = flDlg.filename(0);
+		if( pDir )
+			mDir = pDir;
 	}
-#endif // !LL_MESA_HEADLESS
-
-	return FALSE;
+	else if( res == -1 )
+	{
+		LL_WARNS() << "FLTK failed: " <<  flDlg.errmsg() << LL_ENDL;
+	}
+	return !mDir.empty();
+#endif
 }
 
 std::string LLDirPicker::getDirName()
 {
+#ifndef LL_FLTK
 	if (mFilePicker)
 	{
 		return mFilePicker->getFirstFile();
 	}
 	return "";
+#else
+	return mDir;
+#endif
 }
 
 #else // not implemented
 
-LLDirPicker::LLDirPicker() 
+LLDirPicker::LLDirPicker()
 {
 	reset();
 }
@@ -289,7 +306,7 @@ void LLDirPickerThread::getFile()
 #endif
 }
 
-//virtual 
+//virtual
 void LLDirPickerThread::run()
 {
 #if LL_WINDOWS
@@ -303,7 +320,7 @@ void LLDirPickerThread::run()
 	if (picker.getDir(&mProposedName, blocking))
 	{
 		mResponses.push_back(picker.getDirName());
-	}	
+	}
 
 	{
 		LLMutexLock lock(sMutex);

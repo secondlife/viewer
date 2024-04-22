@@ -154,26 +154,26 @@ void LLViewerStatsRecorder::recordCacheFullUpdate(LLViewerRegion::eCacheUpdateRe
 void LLViewerStatsRecorder::writeToLog( F32 interval )
 {
     if (!mEnableStatsLogging || !mEnableStatsRecording)
-	{
-		return;
-	}
+    {
+        return;
+    }
 
-	size_t data_size = 0;
-	F64 delta_time = LLFrameTimer::getTotalSeconds() - mLastSnapshotTime;
+    size_t data_size = 0;
+    F64 delta_time = LLFrameTimer::getTotalSeconds() - mLastSnapshotTime;
     if (delta_time < interval)
         return;
 
-	if (mSkipSaveIfZeros)
-	{
+    if (mSkipSaveIfZeros)
+    {
         S32 total_events = mObjectCacheHitCount + mObjectCacheMissCrcCount + mObjectCacheMissFullCount + mObjectFullUpdates +
                             mObjectTerseUpdates + mObjectCacheMissRequests + mObjectCacheUpdateDupes +
                             mObjectCacheUpdateChanges + mObjectCacheUpdateAdds + mObjectCacheUpdateReplacements + mObjectUpdateFailures;
-		if (total_events == 0)
-		{
+        if (total_events == 0)
+        {
             LL_DEBUGS("ILXZeroData") << "ILX: not saving zero data" << LL_ENDL;
             return;
         }
-	}
+    }
 
 	mLastSnapshotTime = LLFrameTimer::getTotalSeconds();
     LL_DEBUGS("ILX") << "ILX: "
@@ -317,5 +317,3 @@ F32 LLViewerStatsRecorder::getTimeSinceStart()
 {
 	return (F32) (LLFrameTimer::getTotalSeconds() - mFileOpenTime);
 }
-
-
