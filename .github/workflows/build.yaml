@@ -21,8 +21,6 @@ jobs:
             configuration: ReleaseOS
           - runner: macos-12-xl
             configuration: ReleaseOS
-          - runner: linux-large
-            configuration: Release
     runs-on: ${{ matrix.runner }}
     outputs:
       viewer_channel: ${{ steps.build.outputs.viewer_channel }}
