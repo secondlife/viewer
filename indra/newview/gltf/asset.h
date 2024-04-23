@@ -139,6 +139,10 @@ namespace LL
             // Set rotation of this node
             // SIDE EFFECT: invalidates mMatrix
             void setRotation(const glh::quaternionf& rotation);
+
+            // Set translation of this node
+            // SIDE EFFECT: invalidates mMatrix
+            void setTranslation(const glh::vec3f& translation);
         };
 
         class Scene

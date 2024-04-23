@@ -115,6 +115,25 @@ namespace LL
                 void apply(Asset& asset, Sampler& sampler, F32 time);
             };
 
+            class TranslationChannel : public Channel
+            {
+            public:
+                std::vector<glh::vec3f> mTranslations;
+
+                const TranslationChannel& operator=(const tinygltf::AnimationChannel& src)
+                {
+                    Channel::operator=(src);
+                    return *this;
+                }
+
+                // prepare data needed for rendering
+                // asset -- asset to reference for Accessors
+                // sampler -- Sampler associated with this channel
+                void allocateGLResources(Asset& asset, Sampler& sampler);
+
+                void apply(Asset& asset, Sampler& sampler, F32 time);
+            };
+
 
             std::string mName;
             std::vector<Sampler> mSamplers;
@@ -127,30 +146,10 @@ namespace LL
             F32 mTime = 0.f;
 
             std::vector<RotationChannel> mRotationChannels;
+            std::vector<TranslationChannel> mTranslationChannels;
 
-            const Animation& operator=(const tinygltf::Animation& src)
-            {
-                mName = src.name;
-
-                mSamplers.resize(src.samplers.size());
-                for (U32 i = 0; i < src.samplers.size(); ++i)
-                {
-                    mSamplers[i] = src.samplers[i];
-                }
-
-                for (U32 i = 0; i < src.channels.size(); ++i)
-                {
-                    if (src.channels[i].target_path == "rotation")
-                    {
-                        mRotationChannels.push_back(RotationChannel());
-                        mRotationChannels.back() = src.channels[i];
-                    }
-                }
-
-
-                return *this;
-            }
-
+            const Animation& operator=(const tinygltf::Animation& src);
+            
             void allocateGLResources(Asset& asset);
 
             void update(Asset& asset, float dt);

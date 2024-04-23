@@ -259,6 +259,13 @@ void Node::setRotation(const glh::quaternionf& q)
     mMatrixValid = false;
 }
 
+void Node::setTranslation(const glh::vec3f& t)
+{
+    makeTRSValid();
+    mTranslation = t;
+    mMatrixValid = false;
+}
+
 const Node& Node::operator=(const tinygltf::Node& src)
 {
     F32* dstMatrix = mMatrix.getF32ptr();

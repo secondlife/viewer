@@ -77,6 +77,12 @@ namespace LL
         }
 
         template<>
+        static void copyScalar<U32, U16>(U32* src, U16& dst)
+        {
+            dst = *src;
+        }
+
+        template<>
         static void copyScalar<U16, U16>(U16* src, U16& dst)
         {
             dst = *src;
@@ -92,6 +98,12 @@ namespace LL
         static void copyVec2<F32, LLVector2>(F32* src, LLVector2& dst)
         {
             dst.set(src[0], src[1]);
+        }
+
+        template<>
+        static void copyVec3<F32, glh::vec3f>(F32* src, glh::vec3f& dst)
+        {
+            dst.set_value(src[0], src[1], src[2]);
         }
 
         template<>
