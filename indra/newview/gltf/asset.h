@@ -51,17 +51,9 @@ namespace LL
             LLPointer<LLFetchedGLTFMaterial> mMaterial;
             std::string mName;
 
-            const Material& operator=(const tinygltf::Material& src)
-            {
-                mName = src.name;
-                return *this;
-            }
-
-            void allocateGLResources(Asset& asset)
-            {
-                // allocate material
-                mMaterial = new LLFetchedGLTFMaterial();
-            }
+            const Material& operator=(const tinygltf::Material& src);
+            
+            void allocateGLResources(Asset& asset);            
         };
 
         class Mesh
@@ -71,28 +63,23 @@ namespace LL
             std::vector<double> mWeights;
             std::string mName;
 
-            const Mesh& operator=(const tinygltf::Mesh& src)
-            {
-                mPrimitives.resize(src.primitives.size());
-                for (U32 i = 0; i < src.primitives.size(); ++i)
-                {
-                    mPrimitives[i] = src.primitives[i];
-                }
-
-                mWeights = src.weights;
-                mName = src.name;
-
-                return *this;
-            }
-
+            const Mesh& operator=(const tinygltf::Mesh& src);
+            
             void allocateGLResources(Asset& asset)
-            {
-                for (auto& primitive : mPrimitives)
-                {
-                    primitive.allocateGLResources(asset);
-                }
-            }
+        };
 
+        class Skin
+        {
+        public:
+            S32 mInverseBindMatrices = INVALID_INDEX;
+            S32 mSkeleton = INVALID_INDEX;
+            std::vector<S32> mJoints;
+            std::string mName;
+            std::vector<glh::matrix4f> mInverseBindMatricesData;
+
+            void allocateGLResources(Asset& asset);
+            
+            const Skin& operator=(const tinygltf::Skin& src);
         };
 
         class Node
@@ -151,17 +138,10 @@ namespace LL
             std::vector<S32> mNodes;
             std::string mName;
 
-            const Scene& operator=(const tinygltf::Scene& src)
-            {
-                mNodes = src.nodes;
-                mName = src.name;
-
-                return *this;
-            }
-
+            const Scene& operator=(const tinygltf::Scene& src);
+            
             void updateTransforms(Asset& asset);
             void updateRenderTransforms(Asset& asset, const LLMatrix4a& modelview);
-            
         };
 
         class Texture
@@ -171,14 +151,7 @@ namespace LL
             S32 mSource = INVALID_INDEX;
             std::string mName;
 
-            const Texture& operator=(const tinygltf::Texture& src)
-            {
-                mSampler = src.sampler;
-                mSource = src.source;
-                mName = src.name;
-
-                return *this;
-            }
+            const Texture& operator=(const tinygltf::Texture& src);
         };
 
         class Sampler
@@ -190,16 +163,7 @@ namespace LL
             S32 mWrapT;
             std::string mName;
 
-            const Sampler& operator=(const tinygltf::Sampler& src)
-            {
-                mMagFilter = src.magFilter;
-                mMinFilter = src.minFilter;
-                mWrapS = src.wrapS;
-                mWrapT = src.wrapT;
-                mName = src.name;
-
-                return *this;
-            }
+            const Sampler& operator=(const tinygltf::Sampler& src);
         };
 
         class Image
@@ -255,32 +219,9 @@ namespace LL
             // the last time update() was called according to gFrameTimeSeconds
             F32 mLastUpdateTime = gFrameTimeSeconds;
 
-            void allocateGLResources(const std::string& filename, const tinygltf::Model& model)
-            {
-                // do images first as materials may depend on images
-                for (auto& image : mImages)
-                {
-                    image.allocateGLResources();
-                }
-
-                // do materials before meshes as meshes may depend on materials
-                for (U32 i = 0; i < mMaterials.size(); ++i)
-                {
-                    mMaterials[i].allocateGLResources(*this);
-                    LLTinyGLTFHelper::getMaterialFromModel(filename, model, i, mMaterials[i].mMaterial, mMaterials[i].mName, true);
-                }
-
-                for (auto& mesh : mMeshes)
-                {
-                    mesh.allocateGLResources(*this);
-                }
-
-                for (auto& animation : mAnimations)
-                {
-                    animation.allocateGLResources(*this);
-                }
-            }
-
+            // prepare the asset for rendering
+            void allocateGLResources(const std::string& filename, const tinygltf::Model& model);
+            
             // Called periodically (typically once per frame)
             // Any ongoing work (such as animations) should be handled here
             // NOT guaranteed to be called every frame
@@ -308,76 +249,8 @@ namespace LL
                 S32* primitive_hitp = nullptr           // return the index of the primitive that was hit
             );
             
-            const Asset& operator=(const tinygltf::Model& src)
-            {
-                mScenes.resize(src.scenes.size());
-                for (U32 i = 0; i < src.scenes.size(); ++i)
-                {
-                    mScenes[i] = src.scenes[i];
-                }
-
-                mNodes.resize(src.nodes.size());
-                for (U32 i = 0; i < src.nodes.size(); ++i)
-                {
-                    mNodes[i] = src.nodes[i];
-                }
-
-                mMeshes.resize(src.meshes.size());
-                for (U32 i = 0; i < src.meshes.size(); ++i)
-                {
-                    mMeshes[i] = src.meshes[i];
-                }
-
-                mMaterials.resize(src.materials.size());
-                for (U32 i = 0; i < src.materials.size(); ++i)
-                {
-                    mMaterials[i] = src.materials[i];
-                }
-
-                mBuffers.resize(src.buffers.size());
-                for (U32 i = 0; i < src.buffers.size(); ++i)
-                {
-                    mBuffers[i] = src.buffers[i];
-                }
-
-                mBufferViews.resize(src.bufferViews.size());
-                for (U32 i = 0; i < src.bufferViews.size(); ++i)
-                {
-                    mBufferViews[i] = src.bufferViews[i];
-                }
-
-                mTextures.resize(src.textures.size());
-                for (U32 i = 0; i < src.textures.size(); ++i)
-                {
-                    mTextures[i] = src.textures[i];
-                }
-
-                mSamplers.resize(src.samplers.size());
-                for (U32 i = 0; i < src.samplers.size(); ++i)
-                {
-                    mSamplers[i] = src.samplers[i];
-                }
-
-                mImages.resize(src.images.size());
-                for (U32 i = 0; i < src.images.size(); ++i)
-                {
-                    mImages[i] = src.images[i];
-                }
-
-                mAccessors.resize(src.accessors.size());
-                for (U32 i = 0; i < src.accessors.size(); ++i)
-                {
-                    mAccessors[i] = src.accessors[i];
-                }
-
-                mAnimations.resize(src.animations.size());
-                for (U32 i = 0; i < src.animations.size(); ++i)
-                {
-                    mAnimations[i] = src.animations[i];
-                }
-
-                return *this;
-            }
+            const Asset& operator=(const tinygltf::Model& src);
+            
         };
     }
 }

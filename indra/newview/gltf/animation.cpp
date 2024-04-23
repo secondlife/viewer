@@ -230,7 +230,24 @@ const Animation& Animation::operator=(const tinygltf::Animation& src)
         }
     }
 
-
     return *this;
 }
 
+void Skin::allocateGLResources(Asset& asset)
+{
+    if (mInverseBindMatrices != INVALID_INDEX)
+    {
+        Accessor& accessor = asset.mAccessors[mInverseBindMatrices];
+        copy(asset, accessor, mInverseBindMatricesData);
+    }
+}
+
+const Skin& Skin::operator=(const tinygltf::Skin& src)
+{
+    mName = src.name;
+    mSkeleton = src.skeleton;
+    mInverseBindMatrices = src.inverseBindMatrices;
+    mJoints = src.joints;
+
+    return *this;
+}

@@ -73,7 +73,7 @@ namespace LL
         //=========================================================================================================
 
         template<>
-        static void copyScalar<F32, F32>(F32* src, F32& dst)
+        void copyScalar<F32, F32>(F32* src, F32& dst)
         {
             dst = *src;
         }

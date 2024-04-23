@@ -391,3 +391,162 @@ void Asset::update()
         updateTransforms();
     }
 }
+
+void Asset::allocateGLResources(const std::string& filename, const tinygltf::Model& model)
+{
+    // do images first as materials may depend on images
+    for (auto& image : mImages)
+    {
+        image.allocateGLResources();
+    }
+
+    // do materials before meshes as meshes may depend on materials
+    for (U32 i = 0; i < mMaterials.size(); ++i)
+    {
+        mMaterials[i].allocateGLResources(*this);
+        LLTinyGLTFHelper::getMaterialFromModel(filename, model, i, mMaterials[i].mMaterial, mMaterials[i].mName, true);
+    }
+
+    for (auto& mesh : mMeshes)
+    {
+        mesh.allocateGLResources(*this);
+    }
+
+    for (auto& animation : mAnimations)
+    {
+        animation.allocateGLResources(*this);
+    }
+}
+
+const Asset& Asset::operator=(const tinygltf::Model& src)
+{
+    mScenes.resize(src.scenes.size());
+    for (U32 i = 0; i < src.scenes.size(); ++i)
+    {
+        mScenes[i] = src.scenes[i];
+    }
+
+    mNodes.resize(src.nodes.size());
+    for (U32 i = 0; i < src.nodes.size(); ++i)
+    {
+        mNodes[i] = src.nodes[i];
+    }
+
+    mMeshes.resize(src.meshes.size());
+    for (U32 i = 0; i < src.meshes.size(); ++i)
+    {
+        mMeshes[i] = src.meshes[i];
+    }
+
+    mMaterials.resize(src.materials.size());
+    for (U32 i = 0; i < src.materials.size(); ++i)
+    {
+        mMaterials[i] = src.materials[i];
+    }
+
+    mBuffers.resize(src.buffers.size());
+    for (U32 i = 0; i < src.buffers.size(); ++i)
+    {
+        mBuffers[i] = src.buffers[i];
+    }
+
+    mBufferViews.resize(src.bufferViews.size());
+    for (U32 i = 0; i < src.bufferViews.size(); ++i)
+    {
+        mBufferViews[i] = src.bufferViews[i];
+    }
+
+    mTextures.resize(src.textures.size());
+    for (U32 i = 0; i < src.textures.size(); ++i)
+    {
+        mTextures[i] = src.textures[i];
+    }
+
+    mSamplers.resize(src.samplers.size());
+    for (U32 i = 0; i < src.samplers.size(); ++i)
+    {
+        mSamplers[i] = src.samplers[i];
+    }
+
+    mImages.resize(src.images.size());
+    for (U32 i = 0; i < src.images.size(); ++i)
+    {
+        mImages[i] = src.images[i];
+    }
+
+    mAccessors.resize(src.accessors.size());
+    for (U32 i = 0; i < src.accessors.size(); ++i)
+    {
+        mAccessors[i] = src.accessors[i];
+    }
+
+    mAnimations.resize(src.animations.size());
+    for (U32 i = 0; i < src.animations.size(); ++i)
+    {
+        mAnimations[i] = src.animations[i];
+    }
+
+    return *this;
+}
+
+const Material& Material::operator=(const tinygltf::Material& src)
+{
+    mName = src.name;
+    return *this;
+}
+
+void Material::allocateGLResources(Asset& asset)
+{
+    // allocate material
+    mMaterial = new LLFetchedGLTFMaterial();
+}
+
+const Mesh& Mesh::operator=(const tinygltf::Mesh& src)
+{
+    mPrimitives.resize(src.primitives.size());
+    for (U32 i = 0; i < src.primitives.size(); ++i)
+    {
+        mPrimitives[i] = src.primitives[i];
+    }
+
+    mWeights = src.weights;
+    mName = src.name;
+
+    return *this;
+}
+
+void Mesh::allocateGLResources(Asset& asset)
+{
+    for (auto& primitive : mPrimitives)
+    {
+        primitive.allocateGLResources(asset);
+    }
+}
+
+const Scene& Scene::operator=(const tinygltf::Scene& src)
+{
+    mNodes = src.nodes;
+    mName = src.name;
+
+    return *this;
+}
+
+const Texture& Texture::operator=(const tinygltf::Texture& src)
+{
+    mSampler = src.sampler;
+    mSource = src.source;
+    mName = src.name;
+
+    return *this;
+}
+
+const Sampler& Sampler::operator=(const tinygltf::Sampler& src)
+{
+    mMagFilter = src.magFilter;
+    mMinFilter = src.minFilter;
+    mWrapS = src.wrapS;
+    mWrapT = src.wrapT;
+    mName = src.name;
+
+    return *this;
+}
