@@ -2344,6 +2344,26 @@ void ungroup_folder_items(const LLUUID& folder_id)
     gInventory.notifyObservers();
 }
 
+void set_favorite(const LLUUID& obj_id, bool favorite)
+{
+    LLInventoryObject* obj = gInventory.getObject(obj_id);
+    if (obj->getIsFavorite() != favorite)
+    {
+        LLSD updates;
+        updates["favorite"] = LLSD().with("toggled", favorite);
+        LLViewerInventoryCategory* view_folder = dynamic_cast<LLViewerInventoryCategory*>(obj);
+        if (view_folder)
+        {
+            update_inventory_category(obj_id, updates, NULL);
+        }
+        LLViewerInventoryItem* view_item = dynamic_cast<LLViewerInventoryItem*>(obj);
+        if (view_item)
+        {
+            update_inventory_item(obj_id, updates, NULL);
+        }
+    }
+}
+
 std::string get_searchable_description(LLInventoryModel* model, const LLUUID& item_id)
 {
     if (model)
@@ -3320,6 +3340,20 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
         if (ids.size() == 1)
         {
             ungroup_folder_items(*ids.begin());
+        }
+    }
+    else if ("add_to_favorites" == action)
+    {
+        for (const LLUUID& id : ids)
+        {
+            set_favorite(id, true);
+        }
+    }
+    else if ("remove_from_favorites" == action)
+    {
+        for (const LLUUID& id : ids)
+        {
+            set_favorite(id, false);
         }
     }
     else
