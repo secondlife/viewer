@@ -10725,13 +10725,13 @@
   <key>RenderReservedTextureIndices</key>
   <map>
     <key>Comment</key>
-    <string>Count of texture indices to reserve for shadow and reflection maps when using indexed texture rendering.  10 or more can cause problems</string>
+    <string>Count of texture indices to reserve for shadow and reflection maps when using indexed texture rendering.  Probably only want to set from the login screen.</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
     <string>S32</string>
     <key>Value</key>
-    <integer>9</integer>
+    <integer>14</integer>
   </map>
   <key>RenderResolutionDivisor</key>
   <map>
