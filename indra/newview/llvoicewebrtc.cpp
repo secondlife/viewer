@@ -254,6 +254,7 @@ void LLWebRTCVoiceClient::init(LLPumpIO* pump)
 
     mWebRTCDeviceInterface = llwebrtc::getDeviceInterface();
     mWebRTCDeviceInterface->setDevicesObserver(this);
+    mMainQueue = LL::WorkQueue::getInstance("mainloop");
 }
 
 void LLWebRTCVoiceClient::terminate()
@@ -1486,7 +1487,6 @@ void LLWebRTCVoiceClient::setVoiceEnabled(bool enabled)
             updatePosition();
             if (!mIsCoroutineActive)
             {
-                mMainQueue = LL::WorkQueue::getInstance("mainloop");
                 LLCoros::instance().launch("LLWebRTCVoiceClient::voiceConnectionCoro",
                     boost::bind(&LLWebRTCVoiceClient::voiceConnectionCoro, LLWebRTCVoiceClient::getInstance()));
             }
