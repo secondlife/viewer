@@ -68,8 +68,10 @@ namespace LL
             LL_ERRS() << "TODO: implement " << LL_FUNCSIG << LL_ENDL;
         }
 
-        //concrete implementations of copying from one type to another
+        //=========================================================================================================
         // concrete implementations for different types of source and destination
+        //=========================================================================================================
+
         template<>
         static void copyScalar<F32, F32>(F32* src, F32& dst)
         {
@@ -77,64 +79,66 @@ namespace LL
         }
 
         template<>
-        static void copyScalar<U32, U16>(U32* src, U16& dst)
+        void copyScalar<U32, U16>(U32* src, U16& dst)
         {
             dst = *src;
         }
 
         template<>
-        static void copyScalar<U16, U16>(U16* src, U16& dst)
+        void copyScalar<U16, U16>(U16* src, U16& dst)
         {
             dst = *src;
         }
 
         template<>
-        static void copyScalar<U8, U16>(U8* src, U16& dst)
+        void copyScalar<U8, U16>(U8* src, U16& dst)
         {
             dst = *src;
         }
 
         template<>
-        static void copyVec2<F32, LLVector2>(F32* src, LLVector2& dst)
+        void copyVec2<F32, LLVector2>(F32* src, LLVector2& dst)
         {
             dst.set(src[0], src[1]);
         }
 
         template<>
-        static void copyVec3<F32, glh::vec3f>(F32* src, glh::vec3f& dst)
+        void copyVec3<F32, glh::vec3f>(F32* src, glh::vec3f& dst)
         {
             dst.set_value(src[0], src[1], src[2]);
         }
 
         template<>
-        static void copyVec3<F32, LLVector4a>(F32* src, LLVector4a& dst)
+        void copyVec3<F32, LLVector4a>(F32* src, LLVector4a& dst)
         {
             dst.load3(src);
         }
 
         template<>
-        static void copyVec3<U16, LLColor4U>(U16* src, LLColor4U& dst)
+        void copyVec3<U16, LLColor4U>(U16* src, LLColor4U& dst)
         {
             dst.set(src[0], src[1], src[2], 255);
         }
 
         template<>
-        static void copyVec4<U16, LLColor4U>(U16* src, LLColor4U& dst)
+        void copyVec4<U16, LLColor4U>(U16* src, LLColor4U& dst)
         {
             dst.set(src[0], src[1], src[2], src[3]);
         }
 
         template<>
-        static void copyVec4<F32, LLVector4a>(F32* src, LLVector4a& dst)
+        void copyVec4<F32, LLVector4a>(F32* src, LLVector4a& dst)
         {
             dst.loadua(src);
         }
 
         template<>
-        static void copyVec4<F32, glh::quaternionf>(F32* src, glh::quaternionf& dst)
+        void copyVec4<F32, glh::quaternionf>(F32* src, glh::quaternionf& dst)
         {
             dst.set_value(src);
         }
+
+        //=========================================================================================================
 
         // copy from src to dst, stride is the number of bytes between each element in src, count is number of elements to copy
         template<class S, class T>

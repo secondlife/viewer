@@ -223,6 +223,11 @@ const Animation& Animation::operator=(const tinygltf::Animation& src)
             mTranslationChannels.push_back(TranslationChannel());
             mTranslationChannels.back() = src.channels[i];
         }
+
+        if (src.channels[i].target_path == "scale")
+        {
+            LL_ERRS("GLTF") << "TODO: Implment Scale animation" << LL_ENDL;
+        }
     }
 
 
