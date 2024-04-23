@@ -852,7 +852,8 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 			disabled_items.push_back(std::string("Copy"));
 		}
 
-        if (isAgentInventory() && !single_folder_root)
+        bool is_agent_inventory = isAgentInventory();
+        if (is_agent_inventory && !single_folder_root)
         {
             items.push_back(std::string("New folder from selected"));
             items.push_back(std::string("Subfolder Separator"));
@@ -863,6 +864,17 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
             {
                 disabled_items.push_back(std::string("New folder from selected"));
             }
+        }
+
+        if (getIsFavorite())
+        {
+            items.push_back(std::string("Remove from Favorites"));
+        }
+        else if (is_agent_inventory
+                 && gInventory.getRootFolderID() != mUUID
+                 && !gInventory.isObjectDescendentOf(mUUID, gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH)))
+        {
+            items.push_back(std::string("Add to Favorites"));
         }
 
 		if (obj->getIsLinkType())

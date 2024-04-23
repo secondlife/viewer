@@ -186,6 +186,20 @@ void LLInventoryGalleryContextMenu::doToSelected(const LLSD& userdata)
     {
         ungroup_folder_items(mUUIDs.front());
     }
+    else if ("add_to_favorites" == action)
+    {
+        for (const LLUUID& id : mUUIDs)
+        {
+            set_favorite(id, true);
+        }
+    }
+    else if ("remove_from_favorites" == action)
+    {
+        for (const LLUUID& id : mUUIDs)
+        {
+            set_favorite(id, false);
+        }
+    }
     else if ("take_off" == action || "detach" == action)
     {
         for (LLUUID& selected_id : mUUIDs)
@@ -706,6 +720,15 @@ void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* men
 
             disabled_items.push_back(std::string("New Folder"));
             disabled_items.push_back(std::string("upload_def"));
+        }
+
+        if (obj->getIsFavorite())
+        {
+            items.push_back(std::string("Remove from Favorites"));
+        }
+        else if (is_agent_inventory)
+        {
+            items.push_back(std::string("Add to Favorites"));
         }
     }
 
