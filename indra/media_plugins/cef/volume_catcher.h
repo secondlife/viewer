@@ -54,7 +54,9 @@ public:
 
 	void pump();
 
+#if LL_LINUX
 	void onEnablePipeWireVolumeCatcher(bool enable);
+#endif
 
 private:
 	VolumeCatcherImpl *pimpl;
