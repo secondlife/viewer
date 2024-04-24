@@ -2713,6 +2713,14 @@ void register_viewer_callbacks(LLMessageSystem* msg)
 
 	msg->setHandlerFunc("AvatarPropertiesReply",
 						&LLAvatarPropertiesProcessor::processAvatarLegacyPropertiesReply);
+	msg->setHandlerFunc("AvatarInterestsReply",
+						&LLAvatarPropertiesProcessor::processAvatarInterestsReply);
+	msg->setHandlerFunc("AvatarGroupsReply",
+						&LLAvatarPropertiesProcessor::processAvatarGroupsReply);
+	msg->setHandlerFunc("AvatarNotesReply",
+						&LLAvatarPropertiesProcessor::processAvatarNotesReply);
+	msg->setHandlerFunc("AvatarPicksReply",
+						&LLAvatarPropertiesProcessor::processAvatarPicksReply);
  	msg->setHandlerFunc("AvatarClassifiedReply",
  						&LLAvatarPropertiesProcessor::processAvatarClassifiedsReply);
 
