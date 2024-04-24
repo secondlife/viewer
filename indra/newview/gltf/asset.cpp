@@ -29,6 +29,7 @@
 #include "asset.h"
 #include "llvolumeoctree.h"
 #include "../llviewershadermgr.h"
+#include "../llviewercontrol.h"
 
 using namespace LL::GLTF;
 
@@ -422,7 +423,11 @@ void Asset::update()
         mLastUpdateTime = gFrameTimeSeconds;
         if (mAnimations.size() > 0)
         {
-            mAnimations[0].update(*this, dt);
+            static LLCachedControl<U32> anim_idx(gSavedSettings, "GLTFAnimationIndex", 0);
+            static LLCachedControl<F32> anim_speed(gSavedSettings, "GLTFAnimationSpeed", 1.f);
+
+            U32 idx = llclamp(anim_idx(), 0U, mAnimations.size() - 1);
+            mAnimations[idx].update(*this, dt*anim_speed);
         }
 
         updateTransforms();
