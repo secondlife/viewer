@@ -664,6 +664,9 @@ public:
 	// Show hexadecimal byte values of unicode symbols in a tooltip
 	static bool	sDebugUnicode;
 
+	// Show camera position and direction in Camera Controls floater
+	static bool	sDebugCamera;
+
 	static bool sIsRectDirty;
 	static LLRect sDirtyRect;
 

@@ -41,7 +41,7 @@
 class LLPathfindingObject;
 class LLSD;
 
-typedef boost::shared_ptr<LLPathfindingObject> LLPathfindingObjectPtr;
+typedef std::shared_ptr<LLPathfindingObject> LLPathfindingObjectPtr;
 
 class LLPathfindingObject
 {

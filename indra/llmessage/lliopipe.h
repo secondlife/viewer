@@ -89,7 +89,7 @@ public:
 	/** 
 	 * @brief Scattered memory container.
 	 */
-	typedef boost::shared_ptr<LLBufferArray> buffer_ptr_t;
+	typedef std::shared_ptr<LLBufferArray> buffer_ptr_t;
 
 	/** 
 	 * @brief Enumeration for IO return codes
