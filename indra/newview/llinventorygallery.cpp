@@ -2452,17 +2452,22 @@ void LLInventoryGallery::startDrag()
         }
 
         const LLViewerInventoryCategory* cat = gInventory.getCategory(selected_id);        
-        if (cat && gInventory.isObjectDescendentOf(selected_id, gInventory.getRootFolderID())
-            && !LLFolderType::lookupIsProtectedType((cat)->getPreferredType()))
+        if (cat)
         {
-            if (cat->getOwnerID() == ALEXANDRIA_LINDEN_ID)
+            if (gInventory.isObjectDescendentOf(selected_id, gInventory.getLibraryRootFolderID()))
             {
                 src = LLToolDragAndDrop::SOURCE_LIBRARY;
+                EDragAndDropType type = LLViewerAssetType::lookupDragAndDropType(cat->getType());
+                types.push_back(type);
+                ids.push_back(selected_id);
             }
-
-            EDragAndDropType type = LLViewerAssetType::lookupDragAndDropType(cat->getType());
-            types.push_back(type);
-            ids.push_back(selected_id);
+            else if (gInventory.isObjectDescendentOf(selected_id, gInventory.getRootFolderID())
+                && !LLFolderType::lookupIsProtectedType((cat)->getPreferredType()))
+            {
+                EDragAndDropType type = LLViewerAssetType::lookupDragAndDropType(cat->getType());
+                types.push_back(type);
+                ids.push_back(selected_id);
+            }
         }
     }
     LLToolDragAndDrop::getInstance()->beginMultiDrag(types, ids, src);
@@ -3367,7 +3372,7 @@ bool dragItemIntoFolder(LLUUID folder_id, LLInventoryItem* inv_item, bool drop, 
 
         if (accept && drop)
         {
-            boost::shared_ptr<LLMoveInv> move_inv (new LLMoveInv());
+            std::shared_ptr<LLMoveInv> move_inv (new LLMoveInv());
             move_inv->mObjectID = inv_item->getParentUUID();
             std::pair<LLUUID, LLUUID> item_pair(folder_id, inv_item->getUUID());
             move_inv->mMoveList.push_back(item_pair);

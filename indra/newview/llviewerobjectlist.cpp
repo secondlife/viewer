@@ -2043,6 +2043,7 @@ void LLViewerObjectList::findOrphans(LLViewerObject* objectp, U32 ip, U32 port)
 			{
 				LL_WARNS() << objectp->mID << " has self as parent, skipping!" 
 					<< LL_ENDL;
+                ++iter;
 				continue;
 			}
 

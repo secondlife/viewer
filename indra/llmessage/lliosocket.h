@@ -65,7 +65,7 @@ public:
 	/** 
 	 * @brief Reference counted shared pointers to sockets.
 	 */
-	typedef boost::shared_ptr<LLSocket> ptr_t;
+	typedef std::shared_ptr<LLSocket> ptr_t;
 
 	/** 
 	 * @brief Type of socket to create.
@@ -305,7 +305,7 @@ class LLIOServerSocket : public LLIOPipe
 {
 public:
 	typedef LLSocket::ptr_t socket_t;
-	typedef boost::shared_ptr<LLChainIOFactory> factory_t;
+	typedef std::shared_ptr<LLChainIOFactory> factory_t;
 	LLIOServerSocket(apr_pool_t* pool, socket_t listener, factory_t reactor);
 	virtual ~LLIOServerSocket();
 

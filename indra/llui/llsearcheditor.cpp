@@ -109,6 +109,11 @@ LLSearchEditor::~LLSearchEditor()
     mKeystrokeCallback = NULL;
     mTextChangedCallback = NULL;
     setCommitOnFocusLost(false);
+
+    mSearchButton = NULL;
+    mClearButton = NULL;
+    mSearchEditor->deleteAllChildren();
+    deleteAllChildren();
 }
 
 //virtual
