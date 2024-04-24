@@ -128,5 +128,5 @@ bool LLPlacesInventoryPanel::handleDragAndDrop(S32 x, S32 y, MASK mask, bool dro
     {
         return LLInventoryPanel::handleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
     }
-    return FALSE;
+    return false;
 }

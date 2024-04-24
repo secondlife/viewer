@@ -590,8 +590,8 @@ bool LLPanelProfilePick::postBuild()
 
     mSnapshotCtrl = getChild<LLTextureCtrl>("pick_snapshot");
     mSnapshotCtrl->setCommitCallback(boost::bind(&LLPanelProfilePick::onSnapshotChanged, this));
-    mSnapshotCtrl->setAllowLocalTexture(FALSE);
-    mSnapshotCtrl->setBakeTextureEnabled(FALSE);
+    mSnapshotCtrl->setAllowLocalTexture(false);
+    mSnapshotCtrl->setBakeTextureEnabled(false);
 
     childSetAction("teleport_btn", boost::bind(&LLPanelProfilePick::onClickTeleport, this));
     childSetAction("show_on_map_btn", boost::bind(&LLPanelProfilePick::onClickMap, this));

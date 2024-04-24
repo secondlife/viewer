@@ -1356,7 +1356,7 @@ bool LLOutfitAccordionCtrlTab::handleToolTip(S32 x, S32 y, MASK mask)
                                     .delay_time(LLView::getTooltipTimeout())
                                     .create_callback(boost::bind(&LLInspectTextureUtil::createInventoryToolTip, _1))
                                     .create_params(params));
-        return TRUE;
+        return true;
     }
 
     return LLAccordionCtrlTab::handleToolTip(x, y, mask);

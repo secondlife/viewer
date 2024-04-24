@@ -4701,7 +4701,7 @@ void LLAppViewer::idle()
 		F32 agent_update_time = agent_update_timer.getElapsedTimeF32();
 		F32 agent_force_update_time = mLastAgentForceUpdate + agent_update_time;
         bool timed_out = agent_update_time > (1.0f / (F32)AGENT_UPDATES_PER_SECOND);
-        BOOL force_send =
+        bool force_send =
             // if there is something to send
             (gAgent.controlFlagsDirty() && timed_out)
             // if something changed
