@@ -95,7 +95,7 @@ public:
 private:
     struct QueuedCoproc
     {
-        typedef boost::shared_ptr<QueuedCoproc> ptr_t;
+        typedef std::shared_ptr<QueuedCoproc> ptr_t;
 
         QueuedCoproc(const std::string &name, const LLUUID &id, CoProcedure_t proc) :
             mName(name),
@@ -115,7 +115,7 @@ private:
     // Use shared_ptr to control the lifespan of our CoprocQueue_t instance
     // because the consuming coroutine might outlive this LLCoprocedurePool
     // instance.
-    typedef boost::shared_ptr<CoprocQueue_t> CoprocQueuePtr;
+    typedef std::shared_ptr<CoprocQueue_t> CoprocQueuePtr;
 
     std::string     mPoolName;
     size_t          mPoolSize, mActiveCoprocsCount, mPending;
@@ -301,7 +301,7 @@ LLCoprocedurePool::LLCoprocedurePool(const std::string &poolName, size_t size):
     mPoolSize(size),
     mActiveCoprocsCount(0),
     mPending(0),
-    mPendingCoprocs(boost::make_shared<CoprocQueue_t>(LLCoprocedureManager::DEFAULT_QUEUE_SIZE)),
+    mPendingCoprocs(std::make_shared<CoprocQueue_t>(LLCoprocedureManager::DEFAULT_QUEUE_SIZE)),
     mHTTPPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID),
     mCoroMapping()
 {
@@ -384,7 +384,7 @@ LLUUID LLCoprocedurePool::enqueueCoprocedure(const std::string &name, LLCoproced
         LL_INFOS("CoProcMgr") << "Coprocedure(" << name << ") enqueuing with id=" << id.asString() << " in pool \"" << mPoolName << "\" at "
                               << mPending << LL_ENDL;
     }
-    auto pushed = mPendingCoprocs->try_push(boost::make_shared<QueuedCoproc>(name, id, proc));
+    auto pushed = mPendingCoprocs->try_push(std::make_shared<QueuedCoproc>(name, id, proc));
     if (pushed == boost::fibers::channel_op_status::success)
     {
         ++mPending;

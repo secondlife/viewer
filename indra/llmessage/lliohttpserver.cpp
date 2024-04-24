@@ -982,7 +982,7 @@ LLHTTPNode& LLIOHTTPServer::create(
     }
 
     LLHTTPResponseFactory* factory = new LLHTTPResponseFactory;
-	boost::shared_ptr<LLChainIOFactory> factory_ptr(factory);
+	std::shared_ptr<LLChainIOFactory> factory_ptr(factory);
 
     LLIOServerSocket* server = new LLIOServerSocket(pool, socket, factory_ptr);
 
