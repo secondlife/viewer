@@ -140,7 +140,7 @@ public:
     void setParcelID(const LLUUID& parcel_id) override { mParcelId = parcel_id; }
     void setErrorStatus(S32 status, const std::string& reason) override {};
 
-protected:
+  protected:
 
     /**
      * Sends remote parcel info request to resolve parcel name from its ID.
@@ -202,11 +202,6 @@ protected:
     void resetDirty() override;
 
     /**
-     * Callback for "Set Location" button click
-     */
-    void onClickSetLocation();
-
-    /**
      * Callback for "Save" and "Create" button click
      */
     void onClickSave();
@@ -228,7 +223,6 @@ protected:
     LLTextureCtrl*      mSnapshotCtrl;
     LLLineEditor*       mPickName;
     LLTextEditor*       mPickDescription;
-    LLButton*           mSetCurrentLocationButton;
     LLButton*           mSaveButton;
     LLButton*           mCreateButton;
     LLButton*           mCancelButton;
@@ -237,6 +231,10 @@ protected:
     LLUUID mParcelId;
     LLUUID mPickId;
     LLUUID mRequestedId;
+    std::string mPickNameStr;
+
+    boost::signals2::connection mRegionCallbackConnection;
+    boost::signals2::connection mParcelCallbackConnection;
 
     bool mLocationChanged;
     bool mNewPick;

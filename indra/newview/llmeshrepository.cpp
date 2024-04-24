@@ -411,7 +411,7 @@ namespace {
 static S32 dump_num = 0;
 std::string make_dump_name(std::string prefix, S32 num)
 {
-	return prefix + boost::lexical_cast<std::string>(num) + std::string(".xml");
+	return prefix + std::to_string(num) + std::string(".xml");
 }
 void dump_llsd_to_file(const LLSD& content, std::string filename);
 LLSD llsd_from_file(std::string filename);
@@ -572,10 +572,10 @@ S32 LLMeshRepoThread::sRequestWaterLevel = 0;
 //   LLMeshUploadThread
 
 class LLMeshHandlerBase : public LLCore::HttpHandler,
-    public boost::enable_shared_from_this<LLMeshHandlerBase>
+    public std::enable_shared_from_this<LLMeshHandlerBase>
 {
 public:
-    typedef boost::shared_ptr<LLMeshHandlerBase> ptr_t;
+    typedef std::shared_ptr<LLMeshHandlerBase> ptr_t;
 
 	LOG_CLASS(LLMeshHandlerBase);
 	LLMeshHandlerBase(U32 offset, U32 requested_bytes)
@@ -1360,7 +1360,7 @@ bool LLMeshRepoThread::fetchMeshSkinInfo(const LLUUID& mesh_id, bool can_retry)
 				U8* buffer = new(std::nothrow) U8[size];
 				if (!buffer)
 				{
-					LL_WARNS_ONCE(LOG_MESH) << "Failed to allocate memory for skin info, size: " << size << LL_ENDL;
+					LL_WARNS(LOG_MESH) << "Failed to allocate memory for skin info, size: " << size << LL_ENDL;
 					return false;
 				}
 				LLMeshRepository::sCacheBytesRead += size;
@@ -1473,7 +1473,7 @@ bool LLMeshRepoThread::fetchMeshDecomposition(const LLUUID& mesh_id)
 				U8* buffer = new(std::nothrow) U8[size];
 				if (!buffer)
 				{
-					LL_WARNS_ONCE(LOG_MESH) << "Failed to allocate memory for mesh decomposition, size: " << size << LL_ENDL;
+					LL_WARNS(LOG_MESH) << "Failed to allocate memory for mesh decomposition, size: " << size << LL_ENDL;
 					return false;
 				}
 				LLMeshRepository::sCacheBytesRead += size;
@@ -1575,7 +1575,7 @@ bool LLMeshRepoThread::fetchMeshPhysicsShape(const LLUUID& mesh_id)
 				U8* buffer = new(std::nothrow) U8[size];
 				if (!buffer)
 				{
-					LL_WARNS_ONCE(LOG_MESH) << "Failed to allocate memory for physics shape, size: " << size << LL_ENDL;
+					LL_WARNS(LOG_MESH) << "Failed to allocate memory for physics shape, size: " << size << LL_ENDL;
 					return false;
 				}
 				file.read(buffer, size);
@@ -1770,7 +1770,7 @@ bool LLMeshRepoThread::fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod, 
 				U8* buffer = new(std::nothrow) U8[size];
 				if (!buffer)
 				{
-					LL_WARNS_ONCE(LOG_MESH) << "Can't allocate memory for mesh " << mesh_id << " LOD " << lod << ", size: " << size << LL_ENDL;
+					LL_WARNS(LOG_MESH) << "Can't allocate memory for mesh " << mesh_id << " LOD " << lod << ", size: " << size << LL_ENDL;
 					// todo: for now it will result in indefinite constant retries, should result in timeout
 					// or in retry-count and disabling mesh. (but usually viewer is beyond saving at this point)
 					return false;
@@ -5503,7 +5503,7 @@ void on_new_single_inventory_upload_complete(
         }
         else
         {
-            LLInventoryPanel::openInventoryPanelAndSetSelection(TRUE, server_response["new_inventory_item"].asUUID(), TRUE, TAKE_FOCUS_NO, TRUE);
+            LLInventoryPanel::openInventoryPanelAndSetSelection(true, server_response["new_inventory_item"].asUUID(), true, false, true);
         }
 
         // restore keyboard focus

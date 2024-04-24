@@ -104,6 +104,14 @@ LLSearchEditor::LLSearchEditor(const LLSearchEditor::Params& p)
 	}
 }
 
+LLSearchEditor::~LLSearchEditor()
+{
+    mSearchButton = NULL;
+    mClearButton = NULL;
+    mSearchEditor->deleteAllChildren();
+    deleteAllChildren();
+}
+
 //virtual
 void LLSearchEditor::draw()
 {
@@ -178,6 +186,10 @@ void LLSearchEditor::setFocus( BOOL b )
 void LLSearchEditor::onClearButtonClick(const LLSD& data)
 {
 	setText(LLStringUtil::null);
+	if (mTextChangedCallback)
+	{
+		mTextChangedCallback(this, getValue());
+	}
 	mSearchEditor->onCommit(); // force keystroke callback
 }
 

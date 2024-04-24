@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <scroll_column_header name="column_header"
                       image_unselected="SegmentedBtn_Middle_Selected"
                       image_selected="SegmentedBtn_Middle_Selected"

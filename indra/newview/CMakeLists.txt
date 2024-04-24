@@ -18,6 +18,7 @@ include(DragDrop)
 include(EXPAT)
 include(FMODSTUDIO)
 include(Hunspell)
+include(ICU4C)
 include(JPEGEncoderBasic)
 include(JsonCpp)
 include(LLAppearance)
@@ -207,6 +208,7 @@ set(viewer_SOURCE_FILES
     llfloaterdisplayname.cpp
     llfloatereditenvironmentbase.cpp
     llfloatereditextdaycycle.cpp
+    llfloateremojipicker.cpp
     llfloaterenvironmentadjust.cpp
     llfloaterevent.cpp
     llfloaterexperiencepicker.cpp
@@ -233,6 +235,7 @@ set(viewer_SOURCE_FILES
     llfloaterimcontainer.cpp
     llfloaterinspect.cpp
     llfloaterinventorysettings.cpp
+    llfloaterinventorythumbnailshelper.cpp
     llfloaterjoystick.cpp
     llfloaterlagmeter.cpp
     llfloaterland.cpp
@@ -418,6 +421,7 @@ set(viewer_SOURCE_FILES
     llpaneleditsky.cpp
     llpaneleditwater.cpp
     llpaneleditwearable.cpp
+    llpanelemojicomplete.cpp
     llpanelenvironment.cpp
     llpanelexperiencelisteditor.cpp
     llpanelexperiencelog.cpp
@@ -858,6 +862,7 @@ set(viewer_HEADER_FILES
     llfloaterdisplayname.h
     llfloatereditenvironmentbase.h
     llfloatereditextdaycycle.h
+    llfloateremojipicker.h
     llfloaterenvironmentadjust.h
     llfloaterevent.h
     llfloaterexperiencepicker.h
@@ -887,6 +892,7 @@ set(viewer_HEADER_FILES
     llfloaterimcontainer.h
     llfloaterinspect.h
     llfloaterinventorysettings.h
+    llfloaterinventorythumbnailshelper.h
     llfloaterjoystick.h
     llfloaterlagmeter.h
     llfloaterland.h
@@ -1061,6 +1067,7 @@ set(viewer_HEADER_FILES
     llpaneleditsky.h
     llpaneleditwater.h
     llpaneleditwearable.h
+    llpanelemojicomplete.h
     llpanelenvironment.h
     llpanelexperiencelisteditor.h
     llpanelexperiencelog.h
@@ -1573,34 +1580,15 @@ endif (WINDOWS)
 
 # Add the xui files. This is handy for searching for xui elements
 # from within the IDE.
-set(viewer_XUI_FILES
-    skins/default/colors.xml
-    skins/default/default_languages.xml
-    skins/default/textures/textures.xml
-    )
-file(GLOB DEFAULT_XUI_FILE_GLOB_LIST
-     ${CMAKE_CURRENT_SOURCE_DIR}/skins/*/xui/en/*.xml)
-list(APPEND viewer_XUI_FILES ${DEFAULT_XUI_FILE_GLOB_LIST})
-
-file(GLOB DEFAULT_WIDGET_FILE_GLOB_LIST
-     ${CMAKE_CURRENT_SOURCE_DIR}/skins/*/xui/en/widgets/*.xml)
-list(APPEND viewer_XUI_FILES ${DEFAULT_WIDGET_FILE_GLOB_LIST})
-
-# Cannot append empty lists in CMake, wait until we have files here.
-#file(GLOB SILVER_WIDGET_FILE_GLOB_LIST
-#     ${CMAKE_CURRENT_SOURCE_DIR}/skins/silver/xui/en-us/widgets/*.xml)
-#list(APPEND viewer_XUI_FILES ${SILVER_WIDGET_FILE_GLOB_LIST})
-
-list(SORT viewer_XUI_FILES)
-
-source_group("XUI Files" FILES ${viewer_XUI_FILES})
-
-set_source_files_properties(${viewer_XUI_FILES}
+file(GLOB_RECURSE viewer_XUI_FILES LIST_DIRECTORIES FALSE
+    ${CMAKE_CURRENT_SOURCE_DIR}/skins/*.xml)
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/skins PREFIX "XUI Files" FILES ${viewer_XUI_FILES})
+set_source_files_properties(${viewer_XUI_FILES} 
                             PROPERTIES HEADER_FILE_ONLY TRUE)
-
 list(APPEND viewer_SOURCE_FILES ${viewer_XUI_FILES})
 
-file(GLOB_RECURSE viewer_SHADER_FILES LIST_DIRECTORIES TRUE
+# Add the shader sources
+file(GLOB_RECURSE viewer_SHADER_FILES LIST_DIRECTORIES FALSE
     ${CMAKE_CURRENT_SOURCE_DIR}/app_settings/shaders/*.glsl)
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/app_settings/shaders PREFIX "Shaders" FILES ${viewer_SHADER_FILES})
 set_source_files_properties(${viewer_SHADER_FILES} 
@@ -1610,6 +1598,7 @@ list(APPEND viewer_SOURCE_FILES ${viewer_SHADER_FILES})
 
 set(viewer_APPSETTINGS_FILES
     app_settings/anim.ini
+    app_settings/autoreplace.xml
     app_settings/cmd_line.xml
     app_settings/commands.xml
     app_settings/grass.xml
@@ -1815,7 +1804,7 @@ if (WINDOWS)
 
     if (PACKAGE)
       add_custom_command(
-        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/event_host.tar.bz2
+        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/event_host.tar.xz
         COMMAND ${PYTHON_EXECUTABLE}
         ARGS
           ${CMAKE_CURRENT_SOURCE_DIR}/event_host_manifest.py
@@ -1859,7 +1848,7 @@ if (WINDOWS)
         )
         # temporarily disable packaging of event_host until hg subrepos get
         # sorted out on the parabuild cluster...
-        #${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/event_host.tar.bz2)
+        #${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/event_host.tar.xz)
 
     endif (PACKAGE)
 elseif (DARWIN)
@@ -1927,6 +1916,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
         ${LLPHYSICSEXTENSIONS_LIBRARIES}
         ll::bugsplat
         ll::tracy
+        ll::icu4c
         )
 
 if( TARGET ll::intel_memops )
@@ -1939,6 +1929,28 @@ endif()
 
 set(ARTWORK_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH
     "Path to artwork files.")
+
+message("Copying fonts")
+file(GLOB FONT_FILE_GLOB_LIST
+  "${AUTOBUILD_INSTALL_DIR}/fonts/*"
+)
+file(COPY ${FONT_FILE_GLOB_LIST} DESTINATION "${CMAKE_CURRENT_SOURCE_DIR}/fonts")
+
+# Copy over the Emoji/shortcodes mapping XML files (and create dependency
+# if they are changed, CMake will run again and copy over new versions)
+message("Copying Emoji/shortcode mappings")
+set(emoji_mapping_src_folder ${AUTOBUILD_INSTALL_DIR}/xui)
+set(emoji_mapping_dst_folder ${CMAKE_CURRENT_SOURCE_DIR}/skins/default/xui)
+
+# Note Turkey is missing from this set (not available in Emoji package yet)
+set(country_codes "da;de;en;es;fr;it;ja;pl;pt;ru;zh")
+foreach(elem ${country_codes})
+   set(emoji_mapping_src_file
+      "${emoji_mapping_src_folder}/${elem}/emoji_characters.xml")
+   set(emoji_mapping_dst_file
+      "${emoji_mapping_dst_folder}/${elem}/emoji_characters.xml")      
+   configure_file(${emoji_mapping_src_file} ${emoji_mapping_dst_file} COPYONLY)
+endforeach()
 
 if (LINUX)
   set(product SecondLife-${ARCH}-${VIEWER_SHORT_VERSION}.${VIEWER_VERSION_REVISION})
@@ -1956,7 +1968,7 @@ if (LINUX)
   #endif (NOT USE_BUGSPLAT)
 
   add_custom_command(
-      OUTPUT ${product}.tar.bz2
+      OUTPUT ${product}.tar.xz
       COMMAND ${PYTHON_EXECUTABLE}
       ARGS
         ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
@@ -2010,7 +2022,7 @@ if (LINUX)
   add_custom_target(copy_l_viewer_manifest ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/.${product}.copy_touched)
 
   if (PACKAGE)
-    add_custom_target(llpackage ALL DEPENDS ${product}.tar.bz2)
+    add_custom_target(llpackage ALL DEPENDS ${product}.tar.xz)
     # Make sure we don't run two instances of viewer_manifest.py at the same time.
     add_dependencies(llpackage copy_l_viewer_manifest)
     check_message_template(llpackage)
@@ -2141,12 +2153,12 @@ if (PACKAGE AND (RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING) AND VIE
         OUTPUT_VARIABLE PARENT_DIRECTORY_CYGWIN
         OUTPUT_STRIP_TRAILING_WHITESPACE)
       add_custom_command(OUTPUT "${VIEWER_SYMBOL_FILE}"
-        # Use of 'tar ...j' here assumes VIEWER_SYMBOL_FILE endswith .tar.bz2;
+        # Use of 'tar ...j' here assumes VIEWER_SYMBOL_FILE endswith .tar.xz;
         # testing a string suffix is painful enough in CMake language that
         # we'll continue assuming it until forced to generalize.
         COMMAND "tar"
         ARGS
-          "cjf"
+          "cJf"
           "${VIEWER_SYMBOL_FILE_CYGWIN}"
           "-C"
           "${PARENT_DIRECTORY_CYGWIN}"

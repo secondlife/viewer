@@ -48,12 +48,12 @@ public:
 	typedef boost::signals2::signal<void ()> enddrag_signal_t;
 
 	// overridden from LLTool
-	virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleKey(KEY key, MASK mask);
-	virtual BOOL	handleToolTip(S32 x, S32 y, MASK mask);
-	virtual void	onMouseCaptureLost();
-	virtual void	handleDeselect();
+	virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask) override;
+	virtual BOOL	handleHover(S32 x, S32 y, MASK mask) override;
+	virtual BOOL	handleKey(KEY key, MASK mask) override;
+	virtual BOOL	handleToolTip(S32 x, S32 y, MASK mask) override;
+	virtual void	onMouseCaptureLost() override;
+	virtual void	handleDeselect() override;
 
 	void			setDragStart( S32 x, S32 y );			// In screen space
 	BOOL			isOverThreshold( S32 x, S32 y );		// In screen space
@@ -249,17 +249,20 @@ public:
                             ESource source,
                             const LLUUID& src_id,
                             bool all_faces,
+                            bool replace_pbr,
                             S32 tex_channel = -1);
 	static void dropTextureOneFace(LLViewerObject* hit_obj,
                                    S32 hit_face,
 								   LLInventoryItem* item,
 								   ESource source,
 								   const LLUUID& src_id,
+                                   bool remove_pbr,
                                    S32 tex_channel = -1);
 	static void dropTextureAllFaces(LLViewerObject* hit_obj,
 									LLInventoryItem* item,
 									ESource source,
-									const LLUUID& src_id);
+									const LLUUID& src_id,
+                                    bool remove_pbr);
     static void dropMaterial(LLViewerObject* hit_obj,
                              S32 hit_face,
                              LLInventoryItem* item,

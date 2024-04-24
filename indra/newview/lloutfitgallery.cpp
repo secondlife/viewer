@@ -28,8 +28,6 @@
 #include "llviewerprecompiledheaders.h" // must be first include
 #include "lloutfitgallery.h"
 
-#include <boost/foreach.hpp>
-
 // llcommon
 #include "llcommonutils.h"
 #include "llfilesystem.h"
@@ -433,8 +431,7 @@ bool compareGalleryItem(LLOutfitGalleryItem* item1, LLOutfitGalleryItem* item2)
 }
 
 void LLOutfitGallery::reArrangeRows(S32 row_diff)
-{
- 
+{ 
     std::vector<LLOutfitGalleryItem*> buf_items = mItems;
     for (std::vector<LLOutfitGalleryItem*>::const_reverse_iterator it = buf_items.rbegin(); it != buf_items.rend(); ++it)
     {
@@ -446,16 +443,24 @@ void LLOutfitGallery::reArrangeRows(S32 row_diff)
     }
     mHiddenItems.clear();
     
-    mItemsInRow+= row_diff;
+    mItemsInRow += row_diff;
     updateGalleryWidth();
     std::sort(buf_items.begin(), buf_items.end(), compareGalleryItem);
-    
+
+    std::string cur_filter = getFilterSubString();
+    LLStringUtil::toUpper(cur_filter);
+
     for (std::vector<LLOutfitGalleryItem*>::const_iterator it = buf_items.begin(); it != buf_items.end(); ++it)
     {
-    	(*it)->setHidden(false);
-    	applyFilter(*it,sFilterSubString);
+        std::string outfit_name = (*it)->getItemName();
+        LLStringUtil::toUpper(outfit_name);
+
+        bool hidden = (std::string::npos == outfit_name.find(cur_filter));
+        (*it)->setHidden(hidden);
+
     	addToGallery(*it);
     }
+
     updateMessageVisibility();
 }
 
@@ -725,9 +730,9 @@ LLOutfitGallery::~LLOutfitGallery()
     }
 }
 
-void LLOutfitGallery::setFilterSubString(const std::string& string)
+// virtual
+void LLOutfitGallery::onFilterSubStringChanged(const std::string& new_string, const std::string& old_string)
 {
-    sFilterSubString = string;
     reArrangeRows();
 }
 
@@ -741,20 +746,6 @@ void LLOutfitGallery::onHighlightBaseOutfit(LLUUID base_id, LLUUID prev_id)
     {
         mOutfitMap[prev_id]->setOutfitWorn(false);
     }
-}
-
-void LLOutfitGallery::applyFilter(LLOutfitGalleryItem* item, const std::string& filter_substring)
-{
-    if (!item) return;
-
-    std::string outfit_name = item->getItemName();
-    LLStringUtil::toUpper(outfit_name);
-
-    std::string cur_filter = filter_substring;
-    LLStringUtil::toUpper(cur_filter);
-
-    bool hidden = (std::string::npos == outfit_name.find(cur_filter));
-    item->setHidden(hidden);
 }
 
 void LLOutfitGallery::onSetSelectedOutfitByUUID(const LLUUID& outfit_uuid)
@@ -904,11 +895,11 @@ bool LLOutfitGallery::hasDefaultImage(const LLUUID& outfit_cat_id)
 
 void LLOutfitGallery::updateMessageVisibility()
 {
-    if(mItems.empty())
+    if (mItems.empty())
     {
         mMessageTextBox->setVisible(TRUE);
         mScrollPanel->setVisible(FALSE);
-        std::string message = sFilterSubString.empty()? getString("no_outfits_msg") : getString("no_matched_outfits_msg");
+        std::string message = getString(getFilterSubString().empty() ? "no_outfits_msg" : "no_matched_outfits_msg");
         mMessageTextBox->setValue(message);
     }
     else
@@ -1101,8 +1092,11 @@ bool LLOutfitGalleryItem::openOutfitsContent()
             {
                 outfit_list->setSelectedOutfitByUUID(mUUID);
                 LLAccordionCtrlTab* tab = accordion->getSelectedTab();
-                tab->showAndFocusHeader();
-                return true;
+                if (tab)
+                {
+                    tab->showAndFocusHeader();
+                    return true;
+                }
             }
         }
     }
@@ -1155,20 +1149,11 @@ LLContextMenu* LLOutfitGalleryContextMenu::createMenu()
     registrar.add("Outfit.Delete", boost::bind(LLOutfitGallery::onRemoveOutfit, selected_id));
     registrar.add("Outfit.Create", boost::bind(&LLOutfitGalleryContextMenu::onCreate, this, _2));
     registrar.add("Outfit.Thumbnail", boost::bind(&LLOutfitGalleryContextMenu::onThumbnail, this, selected_id));
+    registrar.add("Outfit.Save", boost::bind(&LLOutfitGalleryContextMenu::onSave, this, selected_id));
     enable_registrar.add("Outfit.OnEnable", boost::bind(&LLOutfitGalleryContextMenu::onEnable, this, _2));
     enable_registrar.add("Outfit.OnVisible", boost::bind(&LLOutfitGalleryContextMenu::onVisible, this, _2));
     
     return createFromFile("menu_gallery_outfit_tab.xml");
-}
-
-void LLOutfitGalleryContextMenu::onThumbnail(const LLUUID& outfit_cat_id)
-{
-    LLOutfitGallery* gallery = dynamic_cast<LLOutfitGallery*>(mOutfitList);
-    if (gallery && outfit_cat_id.notNull())
-    {
-        LLSD data(outfit_cat_id);
-        LLFloaterReg::showInstance("change_item_thumbnail", data);
-    }
 }
 
 void LLOutfitGalleryContextMenu::onCreate(const LLSD& data)
@@ -1205,7 +1190,6 @@ void LLOutfitGalleryGearMenu::onUpdateItemsVisibility()
     mMenu->setItemVisible("expand", FALSE);
     mMenu->setItemVisible("collapse", FALSE);
     mMenu->setItemVisible("thumbnail", have_selection);
-    mMenu->setItemVisible("sepatator3", TRUE);
     mMenu->setItemVisible("sort_folders_by_name", TRUE);
     LLOutfitListGearMenuBase::onUpdateItemsVisibility();
 }
@@ -1253,7 +1237,7 @@ void LLOutfitGallery::refreshOutfit(const LLUUID& category_id)
                 sub_cat_array,
                 outfit_item_array,
                 LLInventoryModel::EXCLUDE_TRASH);
-            BOOST_FOREACH(LLViewerInventoryItem* outfit_item, outfit_item_array)
+            for (LLViewerInventoryItem* outfit_item : outfit_item_array)
             {
                 LLViewerInventoryItem* linked_item = outfit_item->getLinkedItem();
                 LLUUID asset_id, inv_id;

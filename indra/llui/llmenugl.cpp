@@ -60,7 +60,6 @@
 #include "v2math.h"
 #include <set>
 #include <boost/tokenizer.hpp>
-#include <boost/foreach.hpp>
 
 // static
 LLMenuHolderGL *LLMenuGL::sMenuContainer = NULL;
@@ -573,6 +572,11 @@ void LLMenuItemGL::onVisibilityChange(BOOL new_visibility)
 //
 // This class represents a separator.
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+LLMenuItemSeparatorGL::Params::Params()
+    : on_visible("on_visible")
+{
+}
+
 LLMenuItemSeparatorGL::LLMenuItemSeparatorGL(const LLMenuItemSeparatorGL::Params& p) :
 	LLMenuItemGL( p )
 {
@@ -1783,7 +1787,8 @@ LLMenuGL::LLMenuGL(const LLMenuGL::Params& p)
 	mNeedsArrange(FALSE),
 	mAlwaysShowMenu(FALSE),
 	mResetScrollPositionOnShow(true),
-	mShortcutPad(p.shortcut_pad)
+	mShortcutPad(p.shortcut_pad),
+    mFont(p.font)
 {
 	typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
 	boost::char_separator<char> sep("_");
@@ -2156,7 +2161,7 @@ void LLMenuGL::arrange( void )
 		}
 		else
 		{
-			BOOST_FOREACH(LLMenuItemGL* itemp, mItems)
+			for (LLMenuItemGL* itemp : mItems)
 			{
 				// do first so LLMenuGLItemCall can call on_visible to determine if visible
 				itemp->buildDrawLabel();
@@ -3642,6 +3647,7 @@ BOOL LLMenuBarGL::appendMenu( LLMenuGL* menu )
 	p.disabled_color=LLUIColorTable::instance().getColor("MenuItemDisabledColor");
 	p.highlight_bg_color=LLUIColorTable::instance().getColor("MenuItemHighlightBgColor");
 	p.highlight_fg_color=LLUIColorTable::instance().getColor("MenuItemHighlightFgColor");
+    p.font = menu->getFont();
 
 	LLMenuItemBranchDownGL* branch = LLUICtrlFactory::create<LLMenuItemBranchDownGL>(p);
 	success &= branch->addToAcceleratorList(&mAccelerators);

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <chat_history
   message_header="panel_chat_header.xml"
   message_separator="panel_chat_separator.xml"
@@ -10,11 +10,11 @@
   bottom_separator_pad="1"
   top_header_pad="12"
   bottom_header_pad="5"
-	max_length="2147483647"
-	track_bottom="true"
-	name="chat_history"
-	type="string"
-	word_wrap="true"
+  max_length="2147483647"
+  track_bottom="true"
+  name="chat_history"
+  type="string"
+  word_wrap="true"
   line_spacing.multiple="1.0" 
   font="SansSerif">
   <more_chat_text

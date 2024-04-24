@@ -1,4 +1,5 @@
-<?xml version="1.0" ?><notifications>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<notifications>
     <global name="skipnexttime">
 
 		Don&apos;t show me this again
@@ -6473,14 +6474,6 @@ Your inventory is experiencing issues. Please, contact support.
   </notification>
 
   <notification
-   icon="notifytip.tga"
-   name="InventoryLimitReachedAIS"
-   type="notifytip">
-Your inventory is experiencing issues. Please, contact support.
-  <tag>fail</tag>
-  </notification>
-
-  <notification
    icon="alertmodal.tga"
    name="ConfirmClearBrowserCache"
    type="alertmodal">
@@ -9254,7 +9247,7 @@ You locally updated a [RESOLUTION] baked texture for '[BODYREGION]' after [TIME]
    icon="alertmodal.tga"
    name="CannotUploadTexture"
    type="alertmodal">
-Unable to upload texture.
+Unable to upload texture: &apos;[NAME]&apos;
 [REASON]   
   <tag>fail</tag>  
   </notification>
@@ -12257,6 +12250,50 @@ You are about to enable AutoFPS. All unsaved graphics settings will be lost.
 Would you like to save them first?
       <tag>confirm</tag>
       <usetemplate
+       name="okcancelbuttons"
+       notext="No"
+       yestext="Yes"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="ConfirmOverwriteOutfit"
+   type="alertmodal">
+      <unique/>
+This will replace the items in the
+selected outfit with the items you
+are wearing now.
+      <tag>confirm</tag>
+      <usetemplate
+       ignoretext="Confirm before overwriting outfit"
+       name="okcancelignore"
+       notext="Cancel"
+       yestext="Save"/>
+  </notification>
+    
+  <notification
+    icon="alertmodal.tga"
+    name="ClearInventoryThumbnailsWarning"
+    type="alertmodal">
+        You are about to remove thumbnail images from the inventory items in the list. This change cannot be undone.
+
+        Would you like to proceed?
+   <tag>confirm</tag>
+   <usetemplate
+       name="okcancelbuttons"
+       notext="No"
+       yestext="Yes"/>
+  </notification>
+
+  <notification
+    icon="alertmodal.tga"
+    name="WriteInventoryThumbnailsWarning"
+    type="alertmodal">
+        You are about to overwrite thumbnail images for some or all of the inventory items in the list. This change cannot be undone.
+
+        Would you like to proceed?
+   <tag>confirm</tag>
+   <usetemplate
        name="okcancelbuttons"
        notext="No"
        yestext="Yes"/>
