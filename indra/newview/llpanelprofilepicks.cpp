@@ -488,6 +488,8 @@ LLPanelProfilePick::LLPanelProfilePick()
  , mLocationChanged(false)
  , mNewPick(false)
  , mIsEditing(false)
+ , mRegionCallbackConnection()
+ , mParcelCallbackConnection()
 {
 }
 
@@ -504,6 +506,15 @@ LLPanelProfilePick::~LLPanelProfilePick()
     if (mParcelId.notNull())
     {
         LLRemoteParcelInfoProcessor::getInstance()->removeObserver(mParcelId, this);
+    }
+
+    if (mRegionCallbackConnection.connected())
+    {
+        mRegionCallbackConnection.disconnect();
+    }
+    if (mParcelCallbackConnection.connected())
+    {
+        mParcelCallbackConnection.disconnect();
     }
 }
 
@@ -579,6 +590,8 @@ BOOL LLPanelProfilePick::postBuild()
 
     mSnapshotCtrl = getChild<LLTextureCtrl>("pick_snapshot");
     mSnapshotCtrl->setCommitCallback(boost::bind(&LLPanelProfilePick::onSnapshotChanged, this));
+    mSnapshotCtrl->setAllowLocalTexture(FALSE);
+    mSnapshotCtrl->setBakeTextureEnabled(FALSE);
 
     childSetAction("teleport_btn", boost::bind(&LLPanelProfilePick::onClickTeleport, this));
     childSetAction("show_on_map_btn", boost::bind(&LLPanelProfilePick::onClickMap, this));
@@ -667,6 +680,7 @@ void LLPanelProfilePick::setSnapshotId(const LLUUID& id)
 void LLPanelProfilePick::setPickName(const std::string& name)
 {
     mPickName->setValue(name);
+    mPickNameStr = name;
 }
 
 const std::string LLPanelProfilePick::getPickName()
@@ -749,6 +763,14 @@ BOOL LLPanelProfilePick::isDirty() const
 
 void LLPanelProfilePick::onClickSave()
 {
+    if (mRegionCallbackConnection.connected())
+    {
+        mRegionCallbackConnection.disconnect();
+    }
+    if (mParcelCallbackConnection.connected())
+    {
+        mParcelCallbackConnection.disconnect();
+    }
     sendUpdate();
 
     mLocationChanged = false;
@@ -756,6 +778,7 @@ void LLPanelProfilePick::onClickSave()
 
 void LLPanelProfilePick::onClickCancel()
 {
+    updateTabLabel(mPickNameStr);
     LLAvatarPropertiesProcessor::getInstance()->sendPickInfoRequest(getAvatarId(), getPickId());
     mLocationChanged = false;
     enableSaveButton(FALSE);

@@ -31,6 +31,7 @@
 #include "llpanel.h"
 
 // newview
+#include "llaccordionctrltab.h"
 #include "llinventorymodel.h"
 #include "lllistcontextmenu.h"
 #include "llpanelappearancetab.h"
@@ -159,6 +160,9 @@ protected:
 
     static void renameOutfit(const LLUUID& outfit_cat_id);
 
+    void onThumbnail(const LLUUID &outfit_cat_id);
+    void onSave(const LLUUID &outfit_cat_id);
+
 private:
     LLOutfitListBase*	mOutfitList;
 };
@@ -190,6 +194,7 @@ private:
     void onAdd();
     void onTakeOff();
     void onRename();
+    void onSave();
     void onCreate(const LLSD& data);
     bool onEnable(LLSD::String param);
     bool onVisible(LLSD::String param);
@@ -205,7 +210,27 @@ protected:
     /*virtual*/ void onUpdateItemsVisibility();
 };
 
-/**
+class LLOutfitAccordionCtrlTab : public LLAccordionCtrlTab
+{
+public:
+    struct Params : public LLInitParam::Block<Params, LLAccordionCtrlTab::Params>
+    {
+        Optional<LLUUID> cat_id;
+        Params() : cat_id("cat_id") {}
+    };
+
+    virtual BOOL handleToolTip(S32 x, S32 y, MASK mask);
+
+ protected:
+    LLOutfitAccordionCtrlTab(const LLOutfitAccordionCtrlTab::Params &p) 
+        : LLAccordionCtrlTab(p), 
+          mFolderID(p.cat_id)
+    {}
+    friend class LLUICtrlFactory;
+
+    LLUUID mFolderID;
+};
+  /**
  * @class LLOutfitsList
  *
  * A list of agents's outfits from "My Outfits" inventory category

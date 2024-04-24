@@ -69,7 +69,7 @@ namespace LLPerfStats
     {
         assert_main_thread();
         // these following variables are proxies for pipeline statics we do not need a two way update (no llviewercontrol handler)
-        if( tuningFlag & NonImpostors ){ gSavedSettings.setU32("IndirectMaxNonImpostors", nonImpostors); };
+        if( tuningFlag & NonImpostors ){ gSavedSettings.setU32("RenderAvatarMaxNonImpostors", nonImpostors); };
         if( tuningFlag & ReflectionDetail ){ gSavedSettings.setS32("RenderReflectionDetail", reflectionDetail); };
         if( tuningFlag & FarClip ){ gSavedSettings.setF32("RenderFarClip", farClip); };
         if( tuningFlag & UserMinDrawDistance ){ gSavedSettings.setF32("AutoTuneRenderFarClipMin", userMinDrawDistance); };
@@ -378,7 +378,7 @@ namespace LLPerfStats
             auto count = countNearbyAvatars(std::min(LLPipeline::RenderFarClip, tunables.userImpostorDistance));
             if( count != tunables.nonImpostors )
             {
-                tunables.updateNonImposters( (count < LLVOAvatar::NON_IMPOSTORS_MAX_SLIDER)?count : LLVOAvatar::NON_IMPOSTORS_MAX_SLIDER );
+                tunables.updateNonImposters( (count < LLVOAvatar::NON_IMPOSTORS_MAX_SLIDER)?count : 0 );
                 LL_DEBUGS("AutoTune") << "There are " << count << "avatars within " << std::min(LLPipeline::RenderFarClip, tunables.userImpostorDistance) << "m of the camera" << LL_ENDL;
             }
         }
