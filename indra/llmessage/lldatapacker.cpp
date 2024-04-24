@@ -302,7 +302,7 @@ bool LLDataPackerBinaryBuffer::unpackBinaryData(U8 *value, S32 &size, const char
     if (size < 0)
     {
         LL_WARNS() << "LLDataPackerBinaryBuffer::unpackBinaryData unpacked invalid size, aborting!" << LL_ENDL;
-        return FALSE;
+        return false;
     }
 
 	mCurBufferp += 4;
