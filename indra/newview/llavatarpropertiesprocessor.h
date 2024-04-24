@@ -235,9 +235,17 @@ public:
     // Processing of UDP variant of properties, truncates certain fields!
     static void processAvatarLegacyPropertiesReply(LLMessageSystem* msg, void**);
 
+	static void processAvatarInterestsReply(LLMessageSystem* msg, void**);
+
 	static void processAvatarClassifiedsReply(LLMessageSystem* msg, void**);
 
 	static void processClassifiedInfoReply(LLMessageSystem* msg, void**);
+
+	static void processAvatarGroupsReply(LLMessageSystem* msg, void**);
+
+	static void processAvatarNotesReply(LLMessageSystem* msg, void**);
+
+	static void processAvatarPicksReply(LLMessageSystem* msg, void**);
 
 	static void processPickInfoReply(LLMessageSystem* msg, void**);
 

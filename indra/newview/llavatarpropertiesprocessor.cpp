@@ -405,6 +405,18 @@ void LLAvatarPropertiesProcessor::processAvatarLegacyPropertiesReply(LLMessageSy
 	self->notifyObservers(avatar_data.avatar_id, &avatar_data, APT_PROPERTIES_LEGACY);
 }
 
+void LLAvatarPropertiesProcessor::processAvatarInterestsReply(LLMessageSystem* msg, void**)
+{
+/*
+	AvatarInterestsReply is automatically sent by the server in response to the 
+	AvatarPropertiesRequest (in addition to the AvatarPropertiesReply message).
+	If the interests panel is no longer part of the design (?) we should just register the message 
+	to a handler function that does nothing. 
+	That will suppress the warnings and be compatible with old server versions.
+	WARNING: LLTemplateMessageReader::decodeData: Message from 216.82.37.237:13000 with no handler function received: AvatarInterestsReply
+*/
+}
+
 void LLAvatarPropertiesProcessor::processAvatarClassifiedsReply(LLMessageSystem* msg, void**)
 {
 	LLAvatarClassifieds classifieds;
@@ -458,6 +470,22 @@ void LLAvatarPropertiesProcessor::processClassifiedInfoReply(LLMessageSystem* ms
 	self->notifyObservers(c_info.creator_id, &c_info, APT_CLASSIFIED_INFO);
 }
 
+
+void LLAvatarPropertiesProcessor::processAvatarNotesReply(LLMessageSystem* msg, void**)
+{
+	// Deprecated, new "AgentProfile" allows larger notes
+}
+
+void LLAvatarPropertiesProcessor::processAvatarPicksReply(LLMessageSystem* msg, void**)
+{
+	LLUUID agent_id;
+    LLUUID target_id;
+	msg->getUUID(_PREHASH_AgentData, _PREHASH_AgentID, agent_id);
+	msg->getUUID(_PREHASH_AgentData, _PREHASH_TargetID, target_id);
+
+    LL_DEBUGS("AvatarProperties") << "Received AvatarPicksReply for " << target_id << LL_ENDL;
+}
+
 void LLAvatarPropertiesProcessor::processPickInfoReply(LLMessageSystem* msg, void**)
 {
 	LLPickData pick_data;
@@ -486,6 +514,20 @@ void LLAvatarPropertiesProcessor::processPickInfoReply(LLMessageSystem* msg, voi
 	LLAvatarPropertiesProcessor* self = getInstance();
 	// don't need to remove pending request as we don't track pick info
 	self->notifyObservers(pick_data.creator_id, &pick_data, APT_PICK_INFO);
+}
+
+void LLAvatarPropertiesProcessor::processAvatarGroupsReply(LLMessageSystem* msg, void**)
+{
+    /*
+    AvatarGroupsReply is automatically sent by the server in response to the 
+	AvatarPropertiesRequest in addition to the AvatarPropertiesReply message.
+    */
+    LLUUID agent_id;
+    LLUUID avatar_id;
+    msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_AgentID, agent_id);
+    msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_AvatarID, avatar_id);
+
+    LL_DEBUGS("AvatarProperties") << "Received AvatarGroupsReply for " << avatar_id << LL_ENDL;
 }
 
 void LLAvatarPropertiesProcessor::notifyObservers(const LLUUID& id, void* data, EAvatarProcessorType type)
