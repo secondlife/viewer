@@ -3164,9 +3164,11 @@ void LLIMMgr::addMessage(
             // Fetch group chat history, enabled by default.
             if (gSavedPerAccountSettings.getBOOL("FetchGroupChatHistory"))
             {
-                std::string chat_url = gAgent.getRegion()->getCapability("ChatSessionRequest");
-                LLCoros::instance().launch("chatterBoxHistoryCoro",
-                    boost::bind(&chatterBoxHistoryCoro, chat_url, session_id, from, msg, timestamp));
+                std::string chat_url = gAgent.getRegionCapability("ChatSessionRequest");
+                if (!chat_url.empty())
+                {
+                    LLCoros::instance().launch("chatterBoxHistoryCoro", boost::bind(&chatterBoxHistoryCoro, chat_url, session_id, from, msg, timestamp));
+                }
             }
 
 			//Play sound for new conversations

@@ -65,13 +65,12 @@ HRESULT GetVideoMemoryViaWMI(WCHAR* strInputDeviceID, DWORD* pdwAdapterRam)
 {
     HRESULT hr;
     bool bGotMemory = false;
-    HRESULT hrCoInitialize = S_OK;
     IWbemLocator* pIWbemLocator = nullptr;
     IWbemServices* pIWbemServices = nullptr;
     BSTR pNamespace = nullptr;
 
     *pdwAdapterRam = 0;
-    hrCoInitialize = CoInitialize( 0 );
+    CoInitializeEx(0, COINIT_APARTMENTTHREADED);
 
     hr = CoCreateInstance( CLSID_WbemLocator,
                            nullptr,
@@ -208,8 +207,7 @@ HRESULT GetVideoMemoryViaWMI(WCHAR* strInputDeviceID, DWORD* pdwAdapterRam)
 
     SAFE_RELEASE( pIWbemLocator );
 
-    if( SUCCEEDED( hrCoInitialize ) )
-        CoUninitialize();
+    CoUninitialize();
 
     if( bGotMemory )
         return S_OK;
@@ -232,9 +230,8 @@ S32 LLDXHardware::getMBVideoMemoryViaWMI()
 std::string LLDXHardware::getDriverVersionWMI(EGPUVendor vendor)
 {
 	std::string mDriverVersion;
-	HRESULT hrCoInitialize = S_OK;
 	HRESULT hres;
-	hrCoInitialize = CoInitialize(0);
+	CoInitializeEx(0, COINIT_APARTMENTTHREADED);
 	IWbemLocator *pLoc = NULL;
 
 	hres = CoCreateInstance(
@@ -437,10 +434,10 @@ std::string LLDXHardware::getDriverVersionWMI(EGPUVendor vendor)
 	{
 		pEnumerator->Release();
 	}
-	if (SUCCEEDED(hrCoInitialize))
-	{
-		CoUninitialize();
-	}
+
+    // supposed to always call CoUninitialize even if init returned false
+	CoUninitialize();
+
 	return mDriverVersion;
 }
 
@@ -687,7 +684,8 @@ BOOL LLDXHardware::getInfo(BOOL vram_only)
 	BOOL ok = FALSE;
     HRESULT       hr;
 
-    CoInitialize(NULL);
+    // CLSID_DxDiagProvider does not work with Multithreaded?
+    CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
 
     IDxDiagProvider *dx_diag_providerp = NULL;
     IDxDiagContainer *dx_diag_rootp = NULL;
@@ -976,7 +974,7 @@ LLSD LLDXHardware::getDisplayInfo()
 	LLTimer hw_timer;
     HRESULT       hr;
 	LLSD ret;
-    CoInitialize(NULL);
+    CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
 
     IDxDiagProvider *dx_diag_providerp = NULL;
     IDxDiagContainer *dx_diag_rootp = NULL;

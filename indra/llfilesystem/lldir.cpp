@@ -44,7 +44,6 @@
 #include "stringize.h"
 #include "llstring.h"
 #include <boost/filesystem.hpp>
-#include <boost/foreach.hpp>
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>
 #include <boost/assign/list_of.hpp>
@@ -691,10 +690,10 @@ void LLDir::walkSearchSkinDirs(const std::string& subdir,
 							   const std::string& filename,
 							   const FUNCTION& function) const
 {
-	BOOST_FOREACH(std::string skindir, mSearchSkinDirs)
+	for (const std::string& skindir : mSearchSkinDirs)
 	{
 		std::string subdir_path(add(skindir, subdir));
-		BOOST_FOREACH(std::string subsubdir, subsubdirs)
+		for (const std::string& subsubdir : subsubdirs)
 		{
 			std::string full_path(add(subdir_path, subsubdir, filename));
 			if (fileExists(full_path))
@@ -843,7 +842,7 @@ std::vector<std::string> LLDir::findSkinnedFilenames(const std::string& subdir,
 		// current language, copy them -- in proper order -- into results.
 		// Don't drive this by walking the map itself: it matters that we
 		// generate results in the same order as subsubdirs.
-		BOOST_FOREACH(std::string subsubdir, subsubdirs)
+		for (const std::string& subsubdir : subsubdirs)
 		{
 			StringMap::const_iterator found(path_for.find(subsubdir));
 			if (found != path_for.end())
@@ -855,7 +854,7 @@ std::vector<std::string> LLDir::findSkinnedFilenames(const std::string& subdir,
 
 	LL_DEBUGS("LLDir") << empty;
 	const char* comma = "";
-	BOOST_FOREACH(std::string path, results)
+	for (const std::string& path : results)
 	{
 		LL_CONT << comma << "'" << path << "'";
 		comma = ", ";
