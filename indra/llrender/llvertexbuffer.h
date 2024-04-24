@@ -190,9 +190,13 @@ public:
 	bool getClothWeightStrider(LLStrider<LLVector4>& strider, U32 index=0, S32 count = -1);
 	
     void setPositionData(const LLVector4a* data);
+    void setNormalData(const LLVector4a* data);
+    void setTangentData(const LLVector4a* data);
+    void setWeight4Data(const LLVector4a* data);
     void setTexCoordData(const LLVector2* data);
     void setColorData(const LLColor4U* data);
-
+    void setIndexData(const U16* data);
+    void setIndexData(const U32* data);
 
 	U32 getNumVerts() const					{ return mNumVerts; }
 	U32 getNumIndices() const				{ return mNumIndices; }
@@ -224,6 +228,8 @@ protected:
     U32		mGLIndices = 0;		// GL IBO handle
     U32		mNumVerts = 0;		// Number of vertices allocated
     U32		mNumIndices = 0;	// Number of indices allocated
+    U32     mIndicesType = GL_UNSIGNED_SHORT; // type of indices in index buffer
+    U32     mIndicesStride = 2;     // size of each index in bytes
     U32		mOffsets[TYPE_MAX]; // byte offsets into mMappedData of each attribute
 
     U8* mMappedData = nullptr;	// pointer to currently mapped data (NULL if unmapped)

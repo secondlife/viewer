@@ -4857,6 +4857,7 @@ void LLAppViewer::idle()
         if (!(logoutRequestSent() && hasSavedFinalSnapshot()))
 		{
 			gObjectList.update(gAgent);
+            LL::GLTFSceneManager::instance().update();
 		}
 	}
 
