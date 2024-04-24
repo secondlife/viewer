@@ -100,6 +100,12 @@ namespace LL
         }
 
         template<>
+        void copyScalar<U32, U32>(U32* src, U32& dst)
+        {
+            dst = *src;
+        }
+
+        template<>
         void copyScalar<U32, U16>(U32* src, U16& dst)
         {
             dst = *src;
@@ -112,7 +118,19 @@ namespace LL
         }
 
         template<>
+        void copyScalar<U16, U32>(U16* src, U32& dst)
+        {
+            dst = *src;
+        }
+
+        template<>
         void copyScalar<U8, U16>(U8* src, U16& dst)
+        {
+            dst = *src;
+        }
+
+        template<>
+        void copyScalar<U8, U32>(U8* src, U32& dst)
         {
             dst = *src;
         }

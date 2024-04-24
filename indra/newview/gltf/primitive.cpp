@@ -93,7 +93,7 @@ void Primitive::allocateGLResources(Asset& asset)
     }
 
     mVertexBuffer = new LLVertexBuffer(mask);
-    mVertexBuffer->allocateBuffer(mPositions.size(), mIndexArray.size());
+    mVertexBuffer->allocateBuffer(mPositions.size(), mIndexArray.size()*2); // double the size of the index buffer for 32-bit indices
 
     mVertexBuffer->setBuffer();
     mVertexBuffer->setPositionData(mPositions.data());
@@ -330,7 +330,7 @@ const LLVolumeTriangle* Primitive::lineSegmentIntersect(const LLVector4a& start,
     face.mTexCoords = mTexCoords.data();
     face.mNormals = mNormals.data();
     face.mTangents = mTangents.data();
-    face.mIndices = mIndexArray.data();
+    face.mIndices = nullptr; // unreferenced
 
     face.mNumIndices = mIndexArray.size();
     face.mNumVertices = mPositions.size();

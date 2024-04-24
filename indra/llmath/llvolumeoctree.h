@@ -62,7 +62,7 @@ public:
 	LL_ALIGN_16(LLVector4a mPositionGroup);
 
 	const LLVector4a* mV[3];
-	U16 mIndex[3];
+	U32 mIndex[3];
 
 	F32 mRadius;
 	mutable S32 mBinIndex;

@@ -59,7 +59,7 @@ namespace LL
             std::vector<LLVector4a> mJoints;
             std::vector<LLVector4a> mWeights;
             std::vector<LLColor4U> mColors;
-            std::vector<U16> mIndexArray;
+            std::vector<U32> mIndexArray;
 
             // raycast acceleration structure
             LLPointer<LLVolumeOctree> mOctree;
