@@ -37,6 +37,7 @@
 #include "llappearancemgr.h"
 #include "llfloaterreg.h"
 #include "llfloatersidepanelcontainer.h"
+#include "llinspecttexture.h"
 #include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
 #include "llmenubutton.h"
@@ -62,7 +63,7 @@ bool LLOutfitTabNameComparator::compare(const LLAccordionCtrlTab* tab1, const LL
     return (LLStringUtil::compareDict(name1, name2) < 0);
 }
 
-struct outfit_accordion_tab_params : public LLInitParam::Block<outfit_accordion_tab_params, LLAccordionCtrlTab::Params>
+struct outfit_accordion_tab_params : public LLInitParam::Block<outfit_accordion_tab_params, LLOutfitAccordionCtrlTab::Params>
 {
 	Mandatory<LLWearableItemsList::Params> wearable_list;
 
@@ -144,7 +145,8 @@ void LLOutfitsList::updateAddedCategory(LLUUID cat_id)
     std::string name = cat->getName();
 
     outfit_accordion_tab_params tab_params(get_accordion_tab_params());
-    LLAccordionCtrlTab* tab = LLUICtrlFactory::create<LLAccordionCtrlTab>(tab_params);
+    tab_params.cat_id = cat_id;
+    LLOutfitAccordionCtrlTab *tab = LLUICtrlFactory::create<LLOutfitAccordionCtrlTab>(tab_params);
     if (!tab) return;
     LLWearableItemsList* wearable_list = LLUICtrlFactory::create<LLWearableItemsList>(tab_params.wearable_list);
     wearable_list->setShape(tab->getLocalRect());
@@ -1059,6 +1061,8 @@ LLContextMenu* LLOutfitContextMenu::createMenu()
     registrar.add("Outfit.Edit", boost::bind(editOutfit));
     registrar.add("Outfit.Rename", boost::bind(renameOutfit, selected_id));
     registrar.add("Outfit.Delete", boost::bind(&LLOutfitListBase::removeSelected, mOutfitList));
+    registrar.add("Outfit.Thumbnail", boost::bind(&LLOutfitContextMenu::onThumbnail, this, selected_id));
+    registrar.add("Outfit.Save", boost::bind(&LLOutfitContextMenu::onSave, this, selected_id));
 
     enable_registrar.add("Outfit.OnEnable", boost::bind(&LLOutfitContextMenu::onEnable, this, _2));
     enable_registrar.add("Outfit.OnVisible", boost::bind(&LLOutfitContextMenu::onVisible, this, _2));
@@ -1123,6 +1127,31 @@ void LLOutfitContextMenu::renameOutfit(const LLUUID& outfit_cat_id)
     LLAppearanceMgr::instance().renameOutfit(outfit_cat_id);
 }
 
+void LLOutfitContextMenu::onThumbnail(const LLUUID &outfit_cat_id)
+{
+    if (outfit_cat_id.notNull())
+    {
+        LLSD data(outfit_cat_id);
+        LLFloaterReg::showInstance("change_item_thumbnail", data);
+    }
+}
+
+void LLOutfitContextMenu::onSave(const LLUUID &outfit_cat_id)
+{
+    if (outfit_cat_id.notNull())
+    {
+        LLNotificationsUtil::add("ConfirmOverwriteOutfit", LLSD(), LLSD(),
+            [outfit_cat_id](const LLSD &notif, const LLSD &resp)
+        {
+            S32 opt = LLNotificationsUtil::getSelectedOption(notif, resp);
+            if (opt == 0)
+            {
+                LLAppearanceMgr::getInstance()->onOutfitFolderCreated(outfit_cat_id, true);
+            }
+        });
+    }
+}
+
 LLOutfitListGearMenuBase::LLOutfitListGearMenuBase(LLOutfitListBase* olist)
     :   mOutfitList(olist),
         mMenu(NULL)
@@ -1141,6 +1170,7 @@ LLOutfitListGearMenuBase::LLOutfitListGearMenuBase(LLOutfitListBase* olist)
     registrar.add("Gear.Expand", boost::bind(&LLOutfitListBase::onExpandAllFolders, mOutfitList));
 
     registrar.add("Gear.WearAdd", boost::bind(&LLOutfitListGearMenuBase::onAdd, this));
+    registrar.add("Gear.Save", boost::bind(&LLOutfitListGearMenuBase::onSave, this));
 
     registrar.add("Gear.Thumbnail", boost::bind(&LLOutfitListGearMenuBase::onThumbnail, this));
     registrar.add("Gear.SortByName", boost::bind(&LLOutfitListGearMenuBase::onChangeSortOrder, this));
@@ -1166,8 +1196,7 @@ void LLOutfitListGearMenuBase::onUpdateItemsVisibility()
     if (!mMenu) return;
 
     bool have_selection = getSelectedOutfitID().notNull();
-    mMenu->setItemVisible("sepatator1", have_selection);
-    mMenu->setItemVisible("sepatator2", have_selection);
+    mMenu->setItemVisible("wear_separator", have_selection);
     mMenu->arrangeAndClear(); // update menu height
 }
 
@@ -1210,6 +1239,20 @@ void LLOutfitListGearMenuBase::onAdd()
     {
         LLAppearanceMgr::getInstance()->addCategoryToCurrentOutfit(selected_id);
     }
+}
+
+void LLOutfitListGearMenuBase::onSave()
+{
+    const LLUUID &selected_id = getSelectedOutfitID();
+    LLNotificationsUtil::add("ConfirmOverwriteOutfit", LLSD(), LLSD(),
+        [selected_id](const LLSD &notif, const LLSD &resp)
+    {
+        S32 opt = LLNotificationsUtil::getSelectedOption(notif, resp);
+        if (opt == 0)
+        {
+            LLAppearanceMgr::getInstance()->onOutfitFolderCreated(selected_id, true);
+        }
+    });
 }
 
 void LLOutfitListGearMenuBase::onTakeOff()
@@ -1265,15 +1308,6 @@ bool LLOutfitListGearMenuBase::onVisible(LLSD::String param)
         return false;
     }
 
-    // *TODO This condition leads to menu item behavior inconsistent with
-    // "Wear" button behavior and should be modified or removed.
-    bool is_worn = LLAppearanceMgr::instance().getBaseOutfitUUID() == selected_outfit_id;
-
-    if ("wear" == param)
-    {
-        return !is_worn;
-    }
-
     return true;
 }
 
@@ -1301,10 +1335,29 @@ void LLOutfitListGearMenu::onUpdateItemsVisibility()
     if (!mMenu) return;
     mMenu->setItemVisible("expand", TRUE);
     mMenu->setItemVisible("collapse", TRUE);
-    mMenu->setItemVisible("thumbnail", FALSE); // Never visible?
-    mMenu->setItemVisible("sepatator3", FALSE);
+    mMenu->setItemVisible("thumbnail", getSelectedOutfitID().notNull());
     mMenu->setItemVisible("sort_folders_by_name", FALSE);
     LLOutfitListGearMenuBase::onUpdateItemsVisibility();
 }
 
+BOOL LLOutfitAccordionCtrlTab::handleToolTip(S32 x, S32 y, MASK mask)
+{
+    if (y >= getLocalRect().getHeight() - getHeaderHeight()) 
+    {
+        LLSD params;
+        params["inv_type"] = LLInventoryType::IT_CATEGORY;
+        params["thumbnail_id"] = gInventory.getCategory(mFolderID)->getThumbnailUUID();
+        params["item_id"] = mFolderID;
+
+        LLToolTipMgr::instance().show(LLToolTip::Params()
+                                    .message(getToolTip())
+                                    .sticky_rect(calcScreenRect())
+                                    .delay_time(LLView::getTooltipTimeout())
+                                    .create_callback(boost::bind(&LLInspectTextureUtil::createInventoryToolTip, _1))
+                                    .create_params(params));
+        return TRUE;
+    }
+
+    return LLAccordionCtrlTab::handleToolTip(x, y, mask);
+}
 // EOF
