@@ -177,6 +177,11 @@ LLNotificationChiclet::LLNotificationChiclet(const Params& p)
 	LLFloaterNotificationsTabbed::getInstance()->setSysWellChiclet(this);
 }
 
+LLNotificationChiclet::~LLNotificationChiclet()
+{
+    mNotificationChannel.reset();
+}
+
 void LLNotificationChiclet::onMenuItemClicked(const LLSD& user_data)
 {
 	std::string action = user_data.asString();

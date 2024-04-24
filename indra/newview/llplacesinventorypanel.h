@@ -47,11 +47,14 @@ public:
 	LLPlacesInventoryPanel(const Params& p);
 	~LLPlacesInventoryPanel();
 
-    LLFolderView * createFolderRoot(LLUUID root_id );
+    LLFolderView * createFolderRoot(LLUUID root_id ) override;
 	void saveFolderState();
 	void restoreFolderState();
 
-	virtual S32	notify(const LLSD& info) ;
+	virtual S32	notify(const LLSD& info) override;
+
+    bool handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop, EDragAndDropType cargo_type, void *cargo_data,
+                            EAcceptance *accept, std::string &tooltip_msg) override;
 
 private:
 	LLSaveFolderState*			mSavedFolderState;

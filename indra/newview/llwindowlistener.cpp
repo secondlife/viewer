@@ -388,7 +388,7 @@ static void mouseEvent(const MouseFunc& func, const LLSD& request)
 	LLCoordGL pos(request["x"].asInteger(), request["y"].asInteger());
 	bool has_pos(request.has("x") && request.has("y"));
 
-	boost::scoped_ptr<LLView::TemporaryDrilldownFunc> tempfunc;
+	std::unique_ptr<LLView::TemporaryDrilldownFunc> tempfunc;
 
 	// Documentation for mouseDown(), mouseUp() and mouseMove() claims you
 	// must either specify ["path"], or both of ["x"] and ["y"]. You MAY
