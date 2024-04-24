@@ -28,6 +28,7 @@
 
 #include "asset.h"
 #include "llvolumeoctree.h"
+#include "../llviewershadermgr.h"
 
 using namespace LL::GLTF;
 
@@ -100,7 +101,7 @@ void Asset::updateRenderTransforms(const LLMatrix4a& modelview)
     // use mAssetMatrix to update render transforms from node list
     for (auto& node : mNodes)
     {
-        if (node.mMesh != INVALID_INDEX)
+        //if (node.mMesh != INVALID_INDEX)
         {
             matMul(node.mAssetMatrix, modelview, node.mRenderMatrix);
         }
@@ -266,6 +267,13 @@ void Node::setTranslation(const glh::vec3f& t)
     mMatrixValid = false;
 }
 
+void Node::setScale(const glh::vec3f& s)
+{
+    makeTRSValid();
+    mScale = s;
+    mMatrixValid = false;
+}
+
 const Node& Node::operator=(const tinygltf::Node& src)
 {
     F32* dstMatrix = mMatrix.getF32ptr();
@@ -313,21 +321,50 @@ const Node& Node::operator=(const tinygltf::Node& src)
 
     mChildren = src.children;
     mMesh = src.mesh;
+    mSkin = src.skin;
     mName = src.name;
 
     return *this;
 }
 
-void Asset::render(bool opaque)
+void Asset::render(bool opaque, bool rigged)
 {
+    if (rigged)
+    {
+        gGL.loadIdentity();
+    }
+
     for (auto& node : mNodes)
     {
+        if (node.mSkin != INVALID_INDEX)
+        {
+            if (rigged)
+            {
+                Skin& skin = mSkins[node.mSkin];
+                skin.uploadMatrixPalette(*this, node);
+            }
+            else
+            {
+                //skip static nodes if we're rendering rigged
+                continue;
+            }
+        }
+        else if (rigged)
+        {
+            // skip rigged nodes if we're not rendering rigged
+            continue;
+        }
+
+
         if (node.mMesh != INVALID_INDEX)
         {
             Mesh& mesh = mMeshes[node.mMesh];
             for (auto& primitive : mesh.mPrimitives)
             {
-                gGL.loadMatrix((F32*)node.mRenderMatrix.mMatrix);
+                if (!rigged)
+                {
+                    gGL.loadMatrix((F32*)node.mRenderMatrix.mMatrix);
+                }
                 bool cull = true;
                 if (primitive.mMaterial != INVALID_INDEX)
                 {
@@ -416,6 +453,11 @@ void Asset::allocateGLResources(const std::string& filename, const tinygltf::Mod
     {
         animation.allocateGLResources(*this);
     }
+
+    for (auto& skin : mSkins)
+    {
+        skin.allocateGLResources(*this);
+    }
 }
 
 const Asset& Asset::operator=(const tinygltf::Model& src)
@@ -486,6 +528,12 @@ const Asset& Asset::operator=(const tinygltf::Model& src)
         mAnimations[i] = src.animations[i];
     }
 
+    mSkins.resize(src.skins.size());
+    for (U32 i = 0; i < src.skins.size(); ++i)
+    {
+        mSkins[i] = src.skins[i];
+    }
+ 
     return *this;
 }
 
@@ -550,3 +598,62 @@ const Sampler& Sampler::operator=(const tinygltf::Sampler& src)
 
     return *this;
 }
+
+void Skin::uploadMatrixPalette(Asset& asset, Node& node)
+{
+    // prepare matrix palette
+
+    // modelview will be applied by the shader, so assume matrix palette is in asset space
+    std::vector<glh::matrix4f> t_mp;
+
+    t_mp.resize(mJoints.size());
+
+    for (U32 i = 0; i < mJoints.size(); ++i)
+    {
+        Node& joint = asset.mNodes[mJoints[i]];
+        
+        //t_mp[i].set_value(joint.mRenderMatrix.getF32ptr());
+        //t_mp[i] = t_mp[i] * mInverseBindMatricesData[i];
+
+        //t_mp[i].set_value(joint.mRenderMatrix.getF32ptr());
+        //t_mp[i] = mInverseBindMatricesData[i] * t_mp[i];
+
+        t_mp[i].set_value(joint.mRenderMatrix.getF32ptr());
+        t_mp[i] = t_mp[i] * mInverseBindMatricesData[i];
+
+    }
+
+    std::vector<F32> glmp;
+
+    glmp.resize(mJoints.size() * 12);
+
+    F32* mp = glmp.data();
+
+    for (U32 i = 0; i < mJoints.size(); ++i)
+    {
+        F32* m = (F32*)t_mp[i].m;
+
+        U32 idx = i * 12;
+
+        mp[idx + 0] = m[0];
+        mp[idx + 1] = m[1];
+        mp[idx + 2] = m[2];
+        mp[idx + 3] = m[12];
+
+        mp[idx + 4] = m[4];
+        mp[idx + 5] = m[5];
+        mp[idx + 6] = m[6];
+        mp[idx + 7] = m[13];
+
+        mp[idx + 8] = m[8];
+        mp[idx + 9] = m[9];
+        mp[idx + 10] = m[10];
+        mp[idx + 11] = m[14];
+    }
+
+    LLGLSLShader::sCurBoundShaderPtr->uniformMatrix3x4fv(LLViewerShaderMgr::AVATAR_MATRIX,
+        mJoints.size(),
+        FALSE,
+        (GLfloat*)glmp.data());
+}
+

@@ -1139,7 +1139,7 @@ U8* LLVertexBuffer::mapIndexBuffer(U32 index, S32 count)
 }
 
 // flush the given byte range
-//  target -- "targret" parameter for glBufferSubData
+//  target -- "target" parameter for glBufferSubData
 //  start -- first byte to copy
 //  end -- last byte to copy (NOT last byte + 1)
 //  data -- mMappedData or mMappedIndexData
@@ -1507,4 +1507,27 @@ void LLVertexBuffer::setColorData(const LLColor4U* data)
     flush_vbo(GL_ARRAY_BUFFER, mOffsets[TYPE_COLOR], mOffsets[TYPE_COLOR] + sTypeSize[TYPE_COLOR] * getNumVerts() - 1, (U8*) data);
 }
 
+void LLVertexBuffer::setNormalData(const LLVector4a* data)
+{
+    llassert(sGLRenderBuffer == mGLBuffer);
+    flush_vbo(GL_ARRAY_BUFFER, mOffsets[TYPE_NORMAL], mOffsets[TYPE_NORMAL] + sTypeSize[TYPE_NORMAL] * getNumVerts() - 1, (U8*) data);
+}
+
+void LLVertexBuffer::setTangentData(const LLVector4a* data)
+{
+    llassert(sGLRenderBuffer == mGLBuffer);
+    flush_vbo(GL_ARRAY_BUFFER, mOffsets[TYPE_TANGENT], mOffsets[TYPE_TANGENT] + sTypeSize[TYPE_TANGENT] * getNumVerts() - 1, (U8*) data);
+}
+
+void LLVertexBuffer::setWeight4Data(const LLVector4a* data)
+{
+    llassert(sGLRenderBuffer == mGLBuffer);
+    flush_vbo(GL_ARRAY_BUFFER, mOffsets[TYPE_WEIGHT4], mOffsets[TYPE_WEIGHT4] + sTypeSize[TYPE_WEIGHT4] * getNumVerts() - 1, (U8*) data);
+}
+
+void LLVertexBuffer::setIndexData(const U16* data)
+{
+    llassert(sGLRenderIndices == mGLIndices);
+    flush_vbo(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(U16) * getNumIndices() - 1, (U8*) data);
+}
 

@@ -53,7 +53,7 @@ namespace LL
 
             const Material& operator=(const tinygltf::Material& src);
             
-            void allocateGLResources(Asset& asset);            
+            void allocateGLResources(Asset& asset);
         };
 
         class Mesh
@@ -65,21 +65,7 @@ namespace LL
 
             const Mesh& operator=(const tinygltf::Mesh& src);
             
-            void allocateGLResources(Asset& asset)
-        };
-
-        class Skin
-        {
-        public:
-            S32 mInverseBindMatrices = INVALID_INDEX;
-            S32 mSkeleton = INVALID_INDEX;
-            std::vector<S32> mJoints;
-            std::string mName;
-            std::vector<glh::matrix4f> mInverseBindMatricesData;
-
             void allocateGLResources(Asset& asset);
-            
-            const Skin& operator=(const tinygltf::Skin& src);
         };
 
         class Node
@@ -106,6 +92,8 @@ namespace LL
             S32 mParent = INVALID_INDEX;
 
             S32 mMesh = INVALID_INDEX;
+            S32 mSkin = INVALID_INDEX;
+
             std::string mName;
 
             const Node& operator=(const tinygltf::Node& src);
@@ -130,6 +118,25 @@ namespace LL
             // Set translation of this node
             // SIDE EFFECT: invalidates mMatrix
             void setTranslation(const glh::vec3f& translation);
+
+            // Set scale of this node
+            // SIDE EFFECT: invalidates mMatrix
+            void setScale(const glh::vec3f& scale);
+        };
+
+        class Skin
+        {
+        public:
+            S32 mInverseBindMatrices = INVALID_INDEX;
+            S32 mSkeleton = INVALID_INDEX;
+            std::vector<S32> mJoints;
+            std::string mName;
+            std::vector<glh::matrix4f> mInverseBindMatricesData;
+
+            void allocateGLResources(Asset& asset);
+            void uploadMatrixPalette(Asset& asset, Node& node);
+
+            const Skin& operator=(const tinygltf::Skin& src);
         };
 
         class Scene
@@ -215,6 +222,7 @@ namespace LL
             std::vector<Image> mImages;
             std::vector<Accessor> mAccessors;
             std::vector<Animation> mAnimations;
+            std::vector<Skin> mSkins;
 
             // the last time update() was called according to gFrameTimeSeconds
             F32 mLastUpdateTime = gFrameTimeSeconds;
@@ -235,7 +243,7 @@ namespace LL
             // update node render transforms
             void updateRenderTransforms(const LLMatrix4a& modelview);
             
-            void render(bool opaque);
+            void render(bool opaque, bool rigged = false);
             void renderOpaque();
             void renderTransparent();
 

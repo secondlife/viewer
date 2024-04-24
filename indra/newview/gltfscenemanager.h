@@ -41,7 +41,7 @@ namespace LL
         void load(const std::string& filename); // load asset from filename
 
         void update();
-        void render(bool opaque);
+        void render(bool opaque, bool rigged = false);
         void renderOpaque();
         void renderAlpha();
 

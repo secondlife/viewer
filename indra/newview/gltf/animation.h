@@ -134,6 +134,24 @@ namespace LL
                 void apply(Asset& asset, Sampler& sampler, F32 time);
             };
 
+            class ScaleChannel : public Channel
+            {
+            public:
+                std::vector<glh::vec3f> mScales;
+
+                const ScaleChannel& operator=(const tinygltf::AnimationChannel& src)
+                {
+                    Channel::operator=(src);
+                    return *this;
+                }
+
+                // prepare data needed for rendering
+                // asset -- asset to reference for Accessors
+                // sampler -- Sampler associated with this channel
+                void allocateGLResources(Asset& asset, Sampler& sampler);
+
+                void apply(Asset& asset, Sampler& sampler, F32 time);
+            };
 
             std::string mName;
             std::vector<Sampler> mSamplers;
@@ -147,6 +165,7 @@ namespace LL
 
             std::vector<RotationChannel> mRotationChannels;
             std::vector<TranslationChannel> mTranslationChannels;
+            std::vector<ScaleChannel> mScaleChannels;
 
             const Animation& operator=(const tinygltf::Animation& src);
             

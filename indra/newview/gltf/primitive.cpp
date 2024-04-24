@@ -41,32 +41,6 @@ void Primitive::allocateGLResources(Asset& asset)
     // For our engine, though, it's better to rearrange the buffers at load time into a layout that's more consistent.
     // The GLTF native approach undoubtedly works well if you can count on VAOs, but VAOs perform much worse with our scenes.
 
-    // get the number of vertices
-    U32 numVertices = 0;
-    if (!mAttributes.empty())
-    {
-        auto it = mAttributes.begin();
-        const Accessor& accessor = asset.mAccessors[it->second];
-        numVertices = accessor.mCount;
-    }
-
-    // get the number of indices
-    U32 numIndices = 0;
-    if (mIndices != INVALID_INDEX)
-    {
-        const Accessor& accessor = asset.mAccessors[mIndices];
-        numIndices = accessor.mCount;
-    }
-
-    // create vertex buffer
-    mVertexBuffer = new LLVertexBuffer(ATTRIBUTE_MASK);
-    mVertexBuffer->allocateBuffer(numVertices, numIndices);
-
-    bool needs_color = true;
-    bool needs_texcoord = true;
-    bool needs_normal = true;
-    bool needs_tangent = true;
-
     // load vertex data
     for (auto& it : mAttributes)
     {
@@ -76,57 +50,31 @@ void Primitive::allocateGLResources(Asset& asset)
         // load vertex data
         if (attribName == "POSITION")
         {
-            // load position data
-            LLStrider<LLVector4a> dst;
-            mVertexBuffer->getVertexStrider(dst);
-
-            copy(asset, accessor, dst);
+            copy(asset, accessor, mPositions);
         }
         else if (attribName == "NORMAL")
         {
-            needs_normal = false;
-            // load normal data
-            LLStrider<LLVector4a> dst;
-            mVertexBuffer->getNormalStrider(dst);
-
-            copy(asset, accessor, dst);
+            copy(asset, accessor, mNormals);
         }
         else if (attribName == "TANGENT")
         {
-            needs_tangent = false;
-            // load tangent data
-
-            LLStrider<LLVector4a> dst;
-            mVertexBuffer->getTangentStrider(dst);
-
-            copy(asset, accessor, dst);
+            copy(asset, accessor, mTangents);
         }
         else if (attribName == "COLOR_0")
         {
-            needs_color = false;
-            // load color data
-
-            LLStrider<LLColor4U> dst;
-            mVertexBuffer->getColorStrider(dst);
-
-            copy(asset, accessor, dst);
+            copy(asset, accessor, mColors);
         }
         else if (attribName == "TEXCOORD_0")
         {
-            needs_texcoord = false;
-            // load texcoord data
-            LLStrider<LLVector2> dst;
-            mVertexBuffer->getTexCoord0Strider(dst);
-
-            LLStrider<LLVector2> tc = dst;
-            copy(asset, accessor, dst);
-
-            // convert to OpenGL coordinate space
-            for (U32 i = 0; i < numVertices; ++i)
-            {
-                tc->mV[1] = 1.0f - tc->mV[1];;
-                tc++;
-            }
+            copy(asset, accessor, mTexCoords);
+        }
+        else if (attribName == "JOINTS_0")
+        {
+            copy(asset, accessor, mJoints);
+        }
+        else if (attribName == "WEIGHTS_0")
+        {
+            copy(asset, accessor, mWeights);
         }
     }
 
@@ -135,93 +83,96 @@ void Primitive::allocateGLResources(Asset& asset)
     {
         Accessor& accessor = asset.mAccessors[mIndices];
         copy(asset, accessor, mIndexArray);
-        
-        LLStrider<U16> dst;
-        mVertexBuffer->getIndexStrider(dst);
-
-        for (U32 i = 0; i < numIndices; ++i)
-        {
-            *dst++ = mIndexArray[i];
-            llassert(mIndexArray[i] < mVertexBuffer->getNumVerts());
-        }
     }
 
-    // fill in default values for missing attributes
-    if (needs_color)
-    { // set default color
-        LLStrider<LLColor4U> dst;
-        mVertexBuffer->getColorStrider(dst);
-        for (U32 i = 0; i < numVertices; ++i)
-        {
-            *(dst++) = LLColor4U(255, 255, 255, 255);
-        }
+    U32 mask = ATTRIBUTE_MASK;
+    
+    if (!mWeights.empty())
+    {
+        mask |= LLVertexBuffer::MAP_WEIGHT4;
     }
 
+    mVertexBuffer = new LLVertexBuffer(mask);
+    mVertexBuffer->allocateBuffer(mPositions.size(), mIndexArray.size());
+
+    mVertexBuffer->setBuffer();
+    mVertexBuffer->setPositionData(mPositions.data());
+
+    if (!mIndexArray.empty())
+    {
+        mVertexBuffer->setIndexData(mIndexArray.data());
+    }
+
+    if (mTexCoords.empty())
+    {
+        mTexCoords.resize(mPositions.size());
+    }
+
+    // flip texcoord y, upload, then flip back (keep the off-spec data in vram only)
+    for (auto& tc : mTexCoords)
+    {
+        tc[1] = 1.f - tc[1];
+    }
+    mVertexBuffer->setTexCoordData(mTexCoords.data());
+
+    for (auto& tc : mTexCoords)
+    {
+        tc[1] = 1.f - tc[1];
+    }
+
+    if (mColors.empty())
+    {
+        mColors.resize(mPositions.size(), LLColor4U::white);
+    }
+    
     // bake material basecolor into color array
     if (mMaterial != INVALID_INDEX)
     {
         const Material& material = asset.mMaterials[mMaterial];
         LLColor4 baseColor = material.mMaterial->mBaseColor;
-        LLStrider<LLColor4U> dst;
-        mVertexBuffer->getColorStrider(dst);
-
-        for (U32 i = 0; i < numVertices; ++i)
+        for (auto& dst : mColors)
         {
-            LLColor4 col = *dst;
-            *dst = LLColor4U(baseColor * col);
-            dst++;
+            dst = LLColor4U(baseColor * LLColor4(dst));
         }
     }
 
-    if (needs_texcoord)
-    { // set default texcoord
-        LLStrider<LLVector2> dst;
-        mVertexBuffer->getTexCoord0Strider(dst);
-        for (U32 i = 0; i < numVertices; ++i)
-        {
-            *(dst++) = LLVector2(0.0f, 0.0f);
-        }
-    }
+    mVertexBuffer->setColorData(mColors.data());
 
-    if (needs_normal)
-    { // set default normal
-        LLStrider<LLVector4a> dst;
-        mVertexBuffer->getNormalStrider(dst);
-        for (U32 i = 0; i < numVertices; ++i)
-        {
-            *(dst++) = LLVector4a(0.0f, 0.0f, 1.0f, 0.0f);
-        }
-    }
-
-    if (needs_tangent)
-    {  // TODO: generate tangents if needed
-        LLStrider<LLVector4a> dst;
-        mVertexBuffer->getTangentStrider(dst);
-        for (U32 i = 0; i < numVertices; ++i)
-        {
-            *(dst++) = LLVector4a(1.0f, 0.0f, 0.0f, 1.0f);
-        }
-    }
-
-    mPositions.resize(numVertices);
-    mTexCoords.resize(numVertices);
-    mNormals.resize(numVertices);
-    mTangents.resize(numVertices);
-
-    LLVector4a* pos = (LLVector4a*)(mVertexBuffer->getMappedData() + mVertexBuffer->getOffset(LLVertexBuffer::TYPE_VERTEX));
-    LLVector2* tc = (LLVector2*)(mVertexBuffer->getMappedData() + mVertexBuffer->getOffset(LLVertexBuffer::TYPE_TEXCOORD0));
-    LLVector4a* norm = (LLVector4a*)(mVertexBuffer->getMappedData() + mVertexBuffer->getOffset(LLVertexBuffer::TYPE_NORMAL));
-    LLVector4a* tangent = (LLVector4a*)(mVertexBuffer->getMappedData() + mVertexBuffer->getOffset(LLVertexBuffer::TYPE_TANGENT));
-    for (U32 i = 0; i < numVertices; ++i)
+    if (mNormals.empty())
     {
-        mPositions[i] = pos[i];
-        mTexCoords[i] = tc[i];
-        mNormals[i] = norm[i];
-        mTangents[i] = tangent[i];
+        mNormals.resize(mPositions.size(), LLVector4a(0, 0, 1, 0));
     }
+    
+    mVertexBuffer->setNormalData(mNormals.data());
+
+    if (mTangents.empty())
+    {
+        // TODO: generate tangents if needed
+        mTangents.resize(mPositions.size(), LLVector4a(1, 0, 0, 1));
+    }
+
+    mVertexBuffer->setTangentData(mTangents.data());
+
+    if (!mWeights.empty())
+    {
+        std::vector<LLVector4a> weight_data;
+        weight_data.resize(mWeights.size());
+
+        F32 max_weight = 1.f - FLT_EPSILON*100.f;
+        LLVector4a maxw(max_weight, max_weight, max_weight, max_weight);
+        for (U32 i = 0; i < mWeights.size(); ++i)
+        {
+            LLVector4a& w = weight_data[i];
+            w.setMin(mWeights[i], maxw);
+            w.add(mJoints[i]);
+        };
+
+        mVertexBuffer->setWeight4Data(weight_data.data());
+    }
+    
     createOctree();
     
-    mVertexBuffer->unmapBuffer();
+    mVertexBuffer->unbind();
 }
 
 void initOctreeTriangle(LLVolumeTriangle* tri, F32 scaler, S32 i0, S32 i1, S32 i2, const LLVector4a& v0, const LLVector4a& v1, const LLVector4a& v2)
@@ -273,20 +224,17 @@ void Primitive::createOctree()
         // Initialize all the triangles we need
         mOctreeTriangles.resize(num_triangles);
 
-        LLVector4a* pos = (LLVector4a*)(mVertexBuffer->getMappedData() + mVertexBuffer->getOffset(LLVertexBuffer::TYPE_VERTEX));
-        U16* indices = (U16*)mVertexBuffer->getMappedIndices();
-
         for (U32 triangle_index = 0; triangle_index < num_triangles; ++triangle_index)
         { //for each triangle
             const U32 index = triangle_index * 3;
             LLVolumeTriangle* tri = &mOctreeTriangles[triangle_index];
-            S32 i0 = indices[index];
-            S32 i1 = indices[index + 1];
-            S32 i2 = indices[index + 2];
+            S32 i0 = mIndexArray[index];
+            S32 i1 = mIndexArray[index + 1];
+            S32 i2 = mIndexArray[index + 2];
 
-            const LLVector4a& v0 = pos[i0];
-            const LLVector4a& v1 = pos[i1];
-            const LLVector4a& v2 = pos[i2];
+            const LLVector4a& v0 = mPositions[i0];
+            const LLVector4a& v1 = mPositions[i1];
+            const LLVector4a& v2 = mPositions[i2];
             
             initOctreeTriangle(tri, scaler, i0, i1, i2, v0, v1, v2);
             
@@ -300,20 +248,17 @@ void Primitive::createOctree()
         // Initialize all the triangles we need
         mOctreeTriangles.resize(num_triangles);
 
-        LLVector4a* pos = (LLVector4a*)(mVertexBuffer->getMappedData() + mVertexBuffer->getOffset(LLVertexBuffer::TYPE_VERTEX));
-        U16* indices = (U16*)mVertexBuffer->getMappedIndices();
-
         for (U32 triangle_index = 0; triangle_index < num_triangles; ++triangle_index)
         { //for each triangle
             const U32 index = triangle_index + 2;
             LLVolumeTriangle* tri = &mOctreeTriangles[triangle_index];
-            S32 i0 = indices[index];
-            S32 i1 = indices[index - 1];
-            S32 i2 = indices[index - 2];
+            S32 i0 = mIndexArray[index];
+            S32 i1 = mIndexArray[index - 1];
+            S32 i2 = mIndexArray[index - 2];
 
-            const LLVector4a& v0 = pos[i0];
-            const LLVector4a& v1 = pos[i1];
-            const LLVector4a& v2 = pos[i2];
+            const LLVector4a& v0 = mPositions[i0];
+            const LLVector4a& v1 = mPositions[i1];
+            const LLVector4a& v2 = mPositions[i2];
 
             initOctreeTriangle(tri, scaler, i0, i1, i2, v0, v1, v2);
 
@@ -327,20 +272,17 @@ void Primitive::createOctree()
         // Initialize all the triangles we need
         mOctreeTriangles.resize(num_triangles);
 
-        LLVector4a* pos = (LLVector4a*)(mVertexBuffer->getMappedData() + mVertexBuffer->getOffset(LLVertexBuffer::TYPE_VERTEX));
-        U16* indices = (U16*)mVertexBuffer->getMappedIndices();
-
         for (U32 triangle_index = 0; triangle_index < num_triangles; ++triangle_index)
         { //for each triangle
             const U32 index = triangle_index + 2;
             LLVolumeTriangle* tri = &mOctreeTriangles[triangle_index];
-            S32 i0 = indices[0];
-            S32 i1 = indices[index - 1];
-            S32 i2 = indices[index - 2];
+            S32 i0 = mIndexArray[0];
+            S32 i1 = mIndexArray[index - 1];
+            S32 i2 = mIndexArray[index - 2];
 
-            const LLVector4a& v0 = pos[i0];
-            const LLVector4a& v1 = pos[i1];
-            const LLVector4a& v2 = pos[i2];
+            const LLVector4a& v0 = mPositions[i0];
+            const LLVector4a& v1 = mPositions[i1];
+            const LLVector4a& v2 = mPositions[i2];
 
             initOctreeTriangle(tri, scaler, i0, i1, i2, v0, v1, v2);
 
@@ -409,3 +351,50 @@ Primitive::~Primitive()
     mOctree = nullptr;
 }
 
+
+const Primitive& Primitive::operator=(const tinygltf::Primitive& src)
+{
+    // load material
+    mMaterial = src.material;
+
+    // load mode
+    mMode = src.mode;
+
+    // load indices
+    mIndices = src.indices;
+
+    // load attributes
+    for (auto& it : src.attributes)
+    {
+        mAttributes[it.first] = it.second;
+    }
+
+    switch (mMode)
+    {
+    case TINYGLTF_MODE_POINTS:
+        mGLMode = LLRender::POINTS;
+        break;
+    case TINYGLTF_MODE_LINE:
+        mGLMode = LLRender::LINES;
+        break;
+    case TINYGLTF_MODE_LINE_LOOP:
+        mGLMode = LLRender::LINE_LOOP;
+        break;
+    case TINYGLTF_MODE_LINE_STRIP:
+        mGLMode = LLRender::LINE_STRIP;
+        break;
+    case TINYGLTF_MODE_TRIANGLES:
+        mGLMode = LLRender::TRIANGLES;
+        break;
+    case TINYGLTF_MODE_TRIANGLE_STRIP:
+        mGLMode = LLRender::TRIANGLE_STRIP;
+        break;
+    case TINYGLTF_MODE_TRIANGLE_FAN:
+        mGLMode = LLRender::TRIANGLE_FAN;
+        break;
+    default:
+        mGLMode = GL_TRIANGLES;
+    }
+
+    return *this;
+}

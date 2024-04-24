@@ -68,6 +68,27 @@ namespace LL
             LL_ERRS() << "TODO: implement " << LL_FUNCSIG << LL_ENDL;
         }
 
+        // copy one vec2 from src to dst
+        template<class S, class T>
+        static void copyMat2(S* src, T& dst)
+        {
+            LL_ERRS() << "TODO: implement " << LL_FUNCSIG << LL_ENDL;
+        }
+
+        // copy one vec3 from src to dst
+        template<class S, class T>
+        static void copyMat3(S* src, T& dst)
+        {
+            LL_ERRS() << "TODO: implement " << LL_FUNCSIG << LL_ENDL;
+        }
+
+        // copy one vec4 from src to dst
+        template<class S, class T>
+        static void copyMat4(S* src, T& dst)
+        {
+            LL_ERRS() << "TODO: implement " << LL_FUNCSIG << LL_ENDL;
+        }
+
         //=========================================================================================================
         // concrete implementations for different types of source and destination
         //=========================================================================================================
@@ -127,13 +148,37 @@ namespace LL
         }
 
         template<>
+        void copyVec4<F32, LLColor4U>(F32* src, LLColor4U& dst)
+        {
+            dst.set(src[0]*255, src[1]*255, src[2]*255, src[3]*255);
+        }
+
+        template<>
         void copyVec4<F32, LLVector4a>(F32* src, LLVector4a& dst)
         {
             dst.loadua(src);
         }
 
         template<>
+        void copyVec4<U16, LLVector4a>(U16* src, LLVector4a& dst)
+        {
+            dst.set(src[0], src[1], src[2], src[3]);
+        }
+
+        template<>
+        void copyVec4<U8, LLVector4a>(U8* src, LLVector4a& dst)
+        {
+            dst.set(src[0], src[1], src[2], src[3]);
+        }
+
+        template<>
         void copyVec4<F32, glh::quaternionf>(F32* src, glh::quaternionf& dst)
+        {
+            dst.set_value(src);
+        }
+
+        template<>
+        void copyMat4<F32, glh::matrix4f>(F32* src, glh::matrix4f& dst)
         {
             dst.set_value(src);
         }
@@ -188,6 +233,42 @@ namespace LL
             }
         }
 
+        // copy from src to dst, stride is the number of bytes between each element in src, count is number of elements to copy
+        template<class S, class T>
+        static void copyMat2(S* src, LLStrider<T> dst, S32 stride, S32 count)
+        {
+            for (S32 i = 0; i < count; ++i)
+            {
+                copyMat2(src, *dst);
+                dst++;
+                src = (S*)((U8*)src + stride);
+            }
+        }
+
+        // copy from src to dst, stride is the number of bytes between each element in src, count is number of elements to copy
+        template<class S, class T>
+        static void copyMat3(S* src, LLStrider<T> dst, S32 stride, S32 count)
+        {
+            for (S32 i = 0; i < count; ++i)
+            {
+                copyMat3(src, *dst);
+                dst++;
+                src = (S*)((U8*)src + stride);
+            }
+        }
+
+        // copy from src to dst, stride is the number of bytes between each element in src, count is number of elements to copy
+        template<class S, class T>
+        static void copyMat4(S* src, LLStrider<T> dst, S32 stride, S32 count)
+        {
+            for (S32 i = 0; i < count; ++i)
+            {
+                copyMat4(src, *dst);
+                dst++;
+                src = (S*)((U8*)src + stride);
+            }
+        }
+
         template<class S, class T>
         static void copy(Asset& asset, Accessor& accessor, const S* src, LLStrider<T>& dst, S32 byteStride)
         {
@@ -210,6 +291,21 @@ namespace LL
             {
                 S32 stride = byteStride == 0 ? sizeof(S) * 4 : byteStride;
                 copyVec4((S*)src, dst, stride, accessor.mCount);
+            }
+            else if (accessor.mType == (S32)Accessor::Type::MAT2)
+            {
+                S32 stride = byteStride == 0 ? sizeof(S) * 4 : byteStride;
+                copyMat2((S*)src, dst, stride, accessor.mCount);
+            }
+            else if (accessor.mType == (S32)Accessor::Type::MAT3)
+            {
+                S32 stride = byteStride == 0 ? sizeof(S) * 9 : byteStride;
+                copyMat3((S*)src, dst, stride, accessor.mCount);
+            }
+            else if (accessor.mType == (S32)Accessor::Type::MAT4)
+            {
+                S32 stride = byteStride == 0 ? sizeof(S) * 16 : byteStride;
+                copyMat4((S*)src, dst, stride, accessor.mCount);
             }
             else
             {

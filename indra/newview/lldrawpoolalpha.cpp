@@ -264,7 +264,7 @@ void LLDrawPoolAlpha::forwardRender(bool rigged)
     if (write_depth)
     { // draw GLTF scene to depth buffer
         gPipeline.bindDeferredShader(gDeferredPBRAlphaProgram);
-        LL::GLTFSceneManager::instance().renderAlpha();
+        LL::GLTFSceneManager::instance().render(false, rigged);
     }
 
     // If the face is more than 90% transparent, then don't update the Depth buffer for Dof

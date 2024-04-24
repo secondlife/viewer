@@ -6593,6 +6593,10 @@ void LLPipeline::renderGLTFObjects(U32 type, bool texture, bool rigged)
     {
         LL::GLTFSceneManager::instance().renderOpaque();
     }
+    else
+    {
+        LL::GLTFSceneManager::instance().render(true, true);
+    }
 }
 
 // Currently only used for shadows -Cosmic,2023-04-19

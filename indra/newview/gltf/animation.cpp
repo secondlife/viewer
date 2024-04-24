@@ -200,6 +200,38 @@ void Animation::TranslationChannel::apply(Asset& asset, Sampler& sampler, F32 ti
     }
 }
 
+void Animation::ScaleChannel::allocateGLResources(Asset& asset, Animation::Sampler& sampler)
+{
+    Accessor& accessor = asset.mAccessors[sampler.mOutput];
+
+    copy(asset, accessor, mScales);
+}
+
+void Animation::ScaleChannel::apply(Asset& asset, Sampler& sampler, F32 time)
+{
+    U32 frameIndex;
+    F32 t;
+
+    Node& node = asset.mNodes[mTarget.mNode];
+
+    sampler.getFrameInfo(asset, time, frameIndex, t);
+
+    if (sampler.mFrameTimes.size() == 1)
+    {
+        node.setScale(mScales[0]);
+    }
+    else
+    {
+        // interpolate
+        const glh::vec3f& v0 = mScales[frameIndex];
+        const glh::vec3f& v1 = mScales[frameIndex + 1];
+
+        glh::vec3f vf = v0 + t * (v1 - v0);
+
+        node.setScale(vf);
+    }
+}
+
 const Animation& Animation::operator=(const tinygltf::Animation& src)
 {
     mName = src.name;
@@ -226,7 +258,8 @@ const Animation& Animation::operator=(const tinygltf::Animation& src)
 
         if (src.channels[i].target_path == "scale")
         {
-            LL_ERRS("GLTF") << "TODO: Implment Scale animation" << LL_ENDL;
+            mScaleChannels.push_back(ScaleChannel());
+            mScaleChannels.back() = src.channels[i];
         }
     }
 
@@ -251,3 +284,4 @@ const Skin& Skin::operator=(const tinygltf::Skin& src)
 
     return *this;
 }
+

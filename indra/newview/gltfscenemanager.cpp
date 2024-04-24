@@ -82,6 +82,7 @@ void GLTFSceneManager::load(const std::string& filename)
     LLPointer<Asset> asset = new Asset();
     *asset = model;
 
+    gDebugProgram.bind(); // bind a shader to satisfy LLVertexBuffer assertions
     asset->allocateGLResources(filename, model);
     asset->updateTransforms();
 
@@ -132,7 +133,7 @@ void GLTFSceneManager::update()
     }
 }
 
-void GLTFSceneManager::render(bool opaque)
+void GLTFSceneManager::render(bool opaque, bool rigged)
 {
     // for debugging, just render the whole scene as opaque
     // by traversing the whole scenegraph
@@ -162,7 +163,7 @@ void GLTFSceneManager::render(bool opaque)
         matMul(mat, modelview, modelview);
 
         asset->updateRenderTransforms(modelview);
-        asset->render(opaque);
+        asset->render(opaque, rigged);
 
         gGL.popMatrix();
     }

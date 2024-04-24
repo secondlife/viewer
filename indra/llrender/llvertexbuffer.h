@@ -190,9 +190,12 @@ public:
 	bool getClothWeightStrider(LLStrider<LLVector4>& strider, U32 index=0, S32 count = -1);
 	
     void setPositionData(const LLVector4a* data);
+    void setNormalData(const LLVector4a* data);
+    void setTangentData(const LLVector4a* data);
+    void setWeight4Data(const LLVector4a* data);
     void setTexCoordData(const LLVector2* data);
     void setColorData(const LLColor4U* data);
-
+    void setIndexData(const U16* data);
 
 	U32 getNumVerts() const					{ return mNumVerts; }
 	U32 getNumIndices() const				{ return mNumIndices; }
