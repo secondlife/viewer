@@ -368,10 +368,10 @@ void events_object::test<7>()
 	LLEventStream bob("bob"); 		// should work, previous one unregistered
 	LLEventStream bob1("bob", true);// allowed to tweak name
 	ensure_equals("tweaked LLEventStream name", bob1.getName(), "bob1");
-	std::vector<boost::shared_ptr<LLEventStream> > streams;
+	std::vector<std::shared_ptr<LLEventStream> > streams;
 	for (int i = 2; i <= 10; ++i)
 	{
-		streams.push_back(boost::shared_ptr<LLEventStream>(new LLEventStream("bob", true)));
+		streams.push_back(std::shared_ptr<LLEventStream>(new LLEventStream("bob", true)));
 	}
 	ensure_equals("last tweaked LLEventStream name", streams.back()->getName(), "bob10");
 }

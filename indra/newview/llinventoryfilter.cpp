@@ -202,11 +202,17 @@ bool LLInventoryFilter::checkFolder(const LLUUID& folder_id) const
         && !LLInventoryModelBackgroundFetch::instance().inventoryFetchInProgress())
     {
         LLViewerInventoryCategory* cat = gInventory.getCategory(folder_id);
-        if ((!cat && folder_id.notNull()) || (cat && cat->getVersion() == LLViewerInventoryCategory::VERSION_UNKNOWN))
+        if ((!cat && folder_id.notNull()))
+        {
+            // Shouldn't happen? Server provides full list of folders on startup
+            LLInventoryModelBackgroundFetch::instance().start(folder_id, false);
+        }
+        else if (cat && cat->getVersion() == LLViewerInventoryCategory::VERSION_UNKNOWN)
         {
             // At the moment background fetch only cares about VERSION_UNKNOWN,
-            // so do not check isCategoryComplete that compares descendant count
-            LLInventoryModelBackgroundFetch::instance().start(folder_id, false);
+            // so do not check isCategoryComplete that compares descendant count,
+            // but if that is nesesary, do a forced scheduleFolderFetch.
+            cat->fetch();
         }
 	}
 

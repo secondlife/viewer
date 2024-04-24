@@ -64,6 +64,8 @@ Aimee Trescothick
 	VWR-14711
 	VWR-14712
 	VWR-15454
+AiraYumi
+	SL-20781 (github PR #613)
 Alejandro Rosenthal
 	VWR-1184
 Aleric Inglewood
@@ -847,6 +849,7 @@ Kadah Coba
 Jondan Lundquist
 Joosten Briebers
     MAINT-7074
+    BUG-225288
 Josef Munster
 Josette Windlow
 Juilan Tripsa
