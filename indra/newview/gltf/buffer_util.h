@@ -93,6 +93,12 @@ namespace LL
         // concrete implementations for different types of source and destination
         //=========================================================================================================
 
+// suppress unused function warning -- clang complains here but these specializations are definitely used
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-function"
+#endif
+
         template<>
         void copyScalar<F32, F32>(F32* src, F32& dst)
         {
@@ -200,6 +206,10 @@ namespace LL
         {
             dst.set_value(src);
         }
+
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
 
         //=========================================================================================================
 
