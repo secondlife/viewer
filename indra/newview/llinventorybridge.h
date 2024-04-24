@@ -794,7 +794,7 @@ struct LLMoveInv
     void* mUserData;
 };
 
-void warn_move_inventory(LLViewerObject* object, boost::shared_ptr<LLMoveInv> move_inv);
-bool move_task_inventory_callback(const LLSD& notification, const LLSD& response, boost::shared_ptr<LLMoveInv>);
+void warn_move_inventory(LLViewerObject* object, std::shared_ptr<LLMoveInv> move_inv);
+bool move_task_inventory_callback(const LLSD& notification, const LLSD& response, std::shared_ptr<LLMoveInv>);
 
 #endif // LL_LLINVENTORYBRIDGE_H

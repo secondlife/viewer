@@ -947,7 +947,7 @@ namespace tut
 		typedef LLCloneIOFactory<LLPipeStringInjector> emitter_t;
 		emitter_t* emitter = new emitter_t(
 			new LLPipeStringInjector("suckers never play me"));
-		boost::shared_ptr<LLChainIOFactory> factory(emitter);
+		std::shared_ptr<LLChainIOFactory> factory(emitter);
 		LLIOServerSocket* server = new LLIOServerSocket(
 			mPool,
 			mSocket,
@@ -994,7 +994,7 @@ namespace tut
 		LLPumpIO::chain_t chain;
 		typedef LLCloneIOFactory<LLIOFuzz> emitter_t;
 		emitter_t* emitter = new emitter_t(new LLIOFuzz(1000000));
-		boost::shared_ptr<LLChainIOFactory> factory(emitter);
+		std::shared_ptr<LLChainIOFactory> factory(emitter);
 		LLIOServerSocket* server = new LLIOServerSocket(
 			mPool,
 			mSocket,
@@ -1037,7 +1037,7 @@ namespace tut
 		LLPumpIO::chain_t chain;
 		typedef LLCloneIOFactory<LLIOFuzz> emitter_t;
 		emitter_t* emitter = new emitter_t(new LLIOFuzz(1000000));
-		boost::shared_ptr<LLChainIOFactory> factory(emitter);
+		std::shared_ptr<LLChainIOFactory> factory(emitter);
 		LLIOServerSocket* server = new LLIOServerSocket(
 			mPool,
 			mSocket,
@@ -1080,7 +1080,7 @@ namespace tut
 		LLPumpIO::chain_t chain;
 		typedef LLCloneIOFactory<LLIOFuzz> emitter_t;
 		emitter_t* emitter = new emitter_t(new LLIOFuzz(1000000));
-		boost::shared_ptr<LLChainIOFactory> factory(emitter);
+		std::shared_ptr<LLChainIOFactory> factory(emitter);
 		LLIOServerSocket* server = new LLIOServerSocket(
 			mPool,
 			mSocket,
@@ -1124,7 +1124,7 @@ namespace tut
 		LLPumpIO::chain_t chain;
 		typedef LLCloneIOFactory<LLIOSleeper> sleeper_t;
 		sleeper_t* sleeper = new sleeper_t(new LLIOSleeper);
-		boost::shared_ptr<LLChainIOFactory> factory(sleeper);
+		std::shared_ptr<LLChainIOFactory> factory(sleeper);
 		LLIOServerSocket* server = new LLIOServerSocket(
 			mPool,
 			mSocket,

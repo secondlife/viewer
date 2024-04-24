@@ -53,8 +53,6 @@
 #pragma warning (default : 4264)
 #endif
 
-#include <boost/lexical_cast.hpp>
-
 #include "lldaeloader.h"
 #include "llsdserialize.h"
 #include "lljoint.h"
@@ -2385,7 +2383,7 @@ std::string LLDAELoader::getElementLabel(daeElement *element)
 
 		if (ind > 0)
 		{
-			index_string = "_" + boost::lexical_cast<std::string>(ind);
+			index_string = "_" + std::to_string(ind);
 		}
 
 		// if parent has a name or ID, use it

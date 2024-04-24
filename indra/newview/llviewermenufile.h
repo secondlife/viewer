@@ -147,7 +147,7 @@ public:
     virtual void notify(const std::vector<std::string>& filenames);
 
 private:
-    boost::shared_ptr<LLPluginClassMedia> mPlugin;
+    std::shared_ptr<LLPluginClassMedia> mPlugin;
 };
 
 
