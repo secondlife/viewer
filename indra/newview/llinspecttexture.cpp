@@ -84,7 +84,10 @@ LLToolTip* LLInspectTextureUtil::createInventoryToolTip(LLToolTip::Params p)
                         }
                     }
 				}
-
+                if ((!p.message.isProvided() || p.message().empty())) 
+                {
+                    return NULL;
+                }
 				// No or more than one texture found => show default tooltip
 				return LLUICtrlFactory::create<LLToolTip>(p);
 			}
