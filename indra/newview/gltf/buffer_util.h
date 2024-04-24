@@ -166,6 +166,12 @@ namespace LL
         }
 
         template<>
+        void copyVec4<U8, LLColor4U>(U8* src, LLColor4U& dst)
+        {
+            dst.set(src[0], src[1], src[2], src[3]);
+        }
+
+        template<>
         void copyVec4<U16, LLColor4U>(U16* src, LLColor4U& dst)
         {
             dst.set(src[0], src[1], src[2], src[3]);
