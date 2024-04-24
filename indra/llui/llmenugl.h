@@ -235,10 +235,10 @@ public:
 	struct Params : public LLInitParam::Block<Params, LLMenuItemGL::Params>
 	{
         Optional<EnableCallbackParam > on_visible;
-        Params() : on_visible("on_visible")
-        {}
+        Params();
 	};
-	LLMenuItemSeparatorGL(const LLMenuItemSeparatorGL::Params& p = LLMenuItemSeparatorGL::Params());
+
+    LLMenuItemSeparatorGL(const LLMenuItemSeparatorGL::Params& p = LLMenuItemSeparatorGL::Params());
 
 	/*virtual*/ void draw( void );
 	/*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
@@ -562,7 +562,9 @@ public:
 	// add a context menu branch
 	BOOL appendContextSubMenu(LLMenuGL *menu);
 
-protected:
+    const LLFontGL *getFont() const { return mFont; }
+
+  protected:
 	void createSpilloverBranch();
 	void cleanupSpilloverBranch();
 	// Add the menu item to this menu.
@@ -593,6 +595,9 @@ protected:
 	BOOL			mScrollable;
 	BOOL			mKeepFixedSize;
 	BOOL			mNeedsArrange;
+
+    // Font for top menu items only
+    const LLFontGL* mFont;
 
 private:
 

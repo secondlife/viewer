@@ -1070,7 +1070,7 @@ namespace LLError
     //
     // NOTE!!! Requires external mutex lock!!!
     template <typename RECORDER>
-    std::pair<boost::shared_ptr<RECORDER>, Recorders::iterator>
+    std::pair<std::shared_ptr<RECORDER>, Recorders::iterator>
     findRecorderPos(SettingsConfigPtr &s)
     {
         // Since we promise to return an iterator, use a classic iterator
@@ -1081,7 +1081,7 @@ namespace LLError
             // *it is a RecorderPtr, a shared_ptr<Recorder>. Use a
             // dynamic_pointer_cast to try to downcast to test if it's also a
             // shared_ptr<RECORDER>.
-            auto ptr = boost::dynamic_pointer_cast<RECORDER>(*it);
+            auto ptr = std::dynamic_pointer_cast<RECORDER>(*it);
             if (ptr)
             {
                 // found the entry we want
@@ -1101,7 +1101,7 @@ namespace LLError
     // shared_ptr might be empty (operator!() returns true) if there was no
     // such RECORDER subclass instance in mRecorders.
     template <typename RECORDER>
-    boost::shared_ptr<RECORDER> findRecorder()
+    std::shared_ptr<RECORDER> findRecorder()
     {
         SettingsConfigPtr s = Globals::getInstance()->getSettingsConfig();
         LLMutexLock lock(&s->mRecorderMutex);
@@ -1134,7 +1134,7 @@ namespace LLError
 
 		if (!file_name.empty())
 		{
-			boost::shared_ptr<RecordToFile> recordToFile(new RecordToFile(file_name));
+			std::shared_ptr<RecordToFile> recordToFile(new RecordToFile(file_name));
 			if (recordToFile->okay())
 			{
 				addRecorder(recordToFile);
@@ -1600,6 +1600,48 @@ namespace LLError
     std::ostream& operator<<(std::ostream& out, const LLStacktrace&)
     {
         return out << boost::stacktrace::stacktrace();
+    }
+
+    // LLOutOfMemoryWarning
+    std::string LLUserWarningMsg::sLocalizedOutOfMemoryTitle;
+    std::string LLUserWarningMsg::sLocalizedOutOfMemoryWarning;
+    LLUserWarningMsg::Handler LLUserWarningMsg::sHandler;
+
+    void LLUserWarningMsg::show(const std::string& message)
+    {
+        if (sHandler)
+        {
+            sHandler(std::string(), message);
+        }
+    }
+
+    void LLUserWarningMsg::showOutOfMemory()
+    {
+        if (sHandler && !sLocalizedOutOfMemoryTitle.empty())
+        {
+            sHandler(sLocalizedOutOfMemoryTitle, sLocalizedOutOfMemoryWarning);
+        }
+    }
+
+    void LLUserWarningMsg::showMissingFiles()
+    {
+        // Files Are missing, likely can't localize.
+        const std::string error_string =
+            "Second Life viewer couldn't access some of the files it needs and will be closed."
+            "\n\nPlease reinstall viewer from  https://secondlife.com/support/downloads/ and "
+            "contact https://support.secondlife.com if issue persists after reinstall.";
+        sHandler("Missing Files", error_string);
+    }
+
+    void LLUserWarningMsg::setHandler(const LLUserWarningMsg::Handler &handler)
+    {
+        sHandler = handler;
+    }
+
+    void LLUserWarningMsg::setOutOfMemoryStrings(const std::string& title, const std::string& message)
+    {
+        sLocalizedOutOfMemoryTitle = title;
+        sLocalizedOutOfMemoryWarning = message;
     }
 }
 

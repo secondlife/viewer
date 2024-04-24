@@ -234,14 +234,20 @@ bool LLUrlEntryBase::isWikiLinkCorrect(const std::string &labeled_url) const
 
 std::string LLUrlEntryBase::urlToLabelWithGreyQuery(const std::string &url) const
 {
+    if (url.empty())
+    {
+        return url;
+    }
 	LLUriParser up(escapeUrl(url));
-	up.normalize();
+	if (up.normalize() == 0)
+    {
+        std::string label;
+        up.extractParts();
+        up.glueFirst(label);
 
-	std::string label;
-	up.extractParts();
-	up.glueFirst(label);
-
-	return unescapeUrl(label);
+        return unescapeUrl(label);
+    }
+    return std::string();
 }
 
 std::string LLUrlEntryBase::urlToGreyQuery(const std::string &url) const

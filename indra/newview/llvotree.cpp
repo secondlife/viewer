@@ -865,14 +865,9 @@ BOOL LLVOTree::updateGeometry(LLDrawable *drawable)
 		mReferenceBuffer->unmapBuffer();
 		llassert(vertex_count == max_vertices);
 		llassert(index_count == max_indices);
-#if LL_DARWIN
-		if (vertex_count == max_vertices || index_count == max_indices)
-		{
-			// HACK: should not reach here as per asserts above
-			// but this logic branch prevents DARWIN RELEASE build from failing
-			// for "unused variable vertex_count" etc.
-			//return FALSE;
-		}
+#ifndef SHOW_ASSERT
+        (void)vertex_count;
+        (void)index_count;
 #endif
 	}
 

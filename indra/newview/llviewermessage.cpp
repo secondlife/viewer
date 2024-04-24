@@ -119,8 +119,6 @@
 #include "llviewerregion.h"
 #include "llfloaterregionrestarting.h"
 
-#include <boost/foreach.hpp>
-
 #include "llnotificationmanager.h" //
 #include "llexperiencecache.h"
 
@@ -1563,15 +1561,22 @@ void open_inventory_offer(const uuid_vec_t& objects, const std::string& from_nam
         }
         else
         {
-		// Highlight item
-		const BOOL auto_open = 
-			gSavedSettings.getBOOL("ShowInInventory") && // don't open if showininventory is false
-			!from_name.empty(); // don't open if it's not from anyone.
-            if(auto_open)
+            // Highlight item
+            bool show_in_inventory = gSavedSettings.get<bool>("ShowInInventory");
+            bool auto_open =
+                show_in_inventory && // don't open if ShowInInventory is FALSE
+                !from_name.empty();  // don't open if it's not from anyone
+
+            // SL-20419 : Don't change active tab if floater is visible
+            LLFloater* instance = LLFloaterReg::findInstance("inventory");
+            bool use_main_panel = instance && instance->getVisible();
+
+            if (auto_open)
             {
                 LLFloaterReg::showInstance("inventory");
             }
-		LLInventoryPanel::openInventoryPanelAndSetSelection(auto_open, obj_id, true);
+
+            LLInventoryPanel::openInventoryPanelAndSetSelection(auto_open, obj_id, use_main_panel);
         }
 	}
 }
@@ -4158,6 +4163,12 @@ void process_avatar_animation(LLMessageSystem *mesgsys, void **user_data)
 					LLVOAvatar::AnimSourceIterator anim_it = avatarp->mAnimationSources.find(object_id);
 					for (;anim_it != avatarp->mAnimationSources.end(); ++anim_it)
 					{
+						if (anim_it->first != object_id)
+						{
+							// elements with the same key are always contiguous, bail if we went past the
+							// end of this object's animations
+							break;
+						}
 						if (anim_it->second == animation_id)
 						{
 							anim_found = TRUE;
@@ -4222,7 +4233,7 @@ void process_object_animation(LLMessageSystem *mesgsys, void **user_data)
     LLObjectSignaledAnimationMap::instance().getMap()[uuid] = signaled_anims;
     
     LLViewerObject *objp = gObjectList.findObject(uuid);
-    if (!objp)
+    if (!objp || objp->isDead())
     {
 		LL_DEBUGS("AnimatedObjectsNotify") << "Received animation state for unknown object " << uuid << LL_ENDL;
         return;
@@ -5620,7 +5631,7 @@ void notify_cautioned_script_question(const LLSD& notification, const LLSD& resp
 		BOOL caution = FALSE;
 		S32 count = 0;
 		std::string perms;
-		BOOST_FOREACH(script_perm_t script_perm, SCRIPT_PERMISSIONS)
+		for (const script_perm_t& script_perm : SCRIPT_PERMISSIONS)
 		{
 			if ((orig_questions & script_perm.permbit)
 				&& script_perm.caution)
@@ -5864,7 +5875,7 @@ void process_script_question(LLMessageSystem *msg, void **user_data)
 		S32 known_questions = 0;
 		bool has_not_only_debit = questions ^ SCRIPT_PERMISSIONS[SCRIPT_PERMISSION_DEBIT].permbit;
 		// check the received permission flags against each permission
-		BOOST_FOREACH(script_perm_t script_perm, SCRIPT_PERMISSIONS)
+		for (const script_perm_t& script_perm : SCRIPT_PERMISSIONS)
 		{
 			if (questions & script_perm.permbit)
 			{

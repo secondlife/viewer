@@ -31,6 +31,7 @@
 #include "llpanel.h"
 
 // newview
+#include "llaccordionctrltab.h"
 #include "llinventorymodel.h"
 #include "lllistcontextmenu.h"
 #include "llpanelappearancetab.h"
@@ -116,8 +117,20 @@ protected:
     void onOutfitsRemovalConfirmation(const LLSD& notification, const LLSD& response);
     virtual void onChangeOutfitSelection(LLWearableItemsList* list, const LLUUID& category_id) = 0;
 
+    static void onIdle(void* userdata);
+    void onIdleRefreshList();
+
+    struct
+    {
+        LLUUID						CategoryUUID;
+        uuid_vec_t					Added;
+        uuid_vec_t					Removed;
+        uuid_vec_t::const_iterator	AddedIterator;
+        uuid_vec_t::const_iterator	RemovedIterator;
+    } mRefreshListState;
+
     bool                            mIsInitialized;
-    LLInventoryCategoriesObserver* 	mCategoriesObserver;    
+    LLInventoryCategoriesObserver* 	mCategoriesObserver;
     LLUUID							mSelectedOutfitUUID;
     // id of currently highlited outfit
     LLUUID							mHighlightedOutfitUUID;
@@ -146,6 +159,9 @@ protected:
     static void editOutfit();
 
     static void renameOutfit(const LLUUID& outfit_cat_id);
+
+    void onThumbnail(const LLUUID &outfit_cat_id);
+    void onSave(const LLUUID &outfit_cat_id);
 
 private:
     LLOutfitListBase*	mOutfitList;
@@ -178,6 +194,7 @@ private:
     void onAdd();
     void onTakeOff();
     void onRename();
+    void onSave();
     void onCreate(const LLSD& data);
     bool onEnable(LLSD::String param);
     bool onVisible(LLSD::String param);
@@ -193,7 +210,27 @@ protected:
     /*virtual*/ void onUpdateItemsVisibility();
 };
 
-/**
+class LLOutfitAccordionCtrlTab : public LLAccordionCtrlTab
+{
+public:
+    struct Params : public LLInitParam::Block<Params, LLAccordionCtrlTab::Params>
+    {
+        Optional<LLUUID> cat_id;
+        Params() : cat_id("cat_id") {}
+    };
+
+    virtual BOOL handleToolTip(S32 x, S32 y, MASK mask);
+
+ protected:
+    LLOutfitAccordionCtrlTab(const LLOutfitAccordionCtrlTab::Params &p) 
+        : LLAccordionCtrlTab(p), 
+          mFolderID(p.cat_id)
+    {}
+    friend class LLUICtrlFactory;
+
+    LLUUID mFolderID;
+};
+  /**
  * @class LLOutfitsList
  *
  * A list of agents's outfits from "My Outfits" inventory category
@@ -225,7 +262,7 @@ public:
 	//void performAction(std::string action);
 
 
-	/*virtual*/ void setFilterSubString(const std::string& string);
+	/*virtual*/ void onFilterSubStringChanged(const std::string& new_string, const std::string& old_string);
 
 	/*virtual*/ void getSelectedItemsUUIDs(uuid_vec_t& selected_uuids) const;
 
@@ -295,12 +332,7 @@ private:
 	 * Called upon list refresh event to update tab visibility depending on
 	 * the results of applying filter to the title and list items of the tab.
 	 */
-	void onFilteredWearableItemsListRefresh(LLUICtrl* ctrl);
-
-	/**
-	 * Highlights filtered items and hides tabs which haven't passed filter.
-	 */
-	void applyFilter(const std::string& new_filter_substring);
+	void onRefreshComplete(LLUICtrl* ctrl);
 
 	/**
 	 * Applies filter to the given tab
