@@ -3552,6 +3552,21 @@ function="World.EnvPreset"
              function="Advanced.WebContentTest"
              parameter="http://duckduckgo.com"/>
           </menu_item_call>
+            <menu_item_call
+             label="Inventory Thumbnails Helper"
+             name="Inventory Thumbnails Helper"
+				shortcut="control|alt|shift|X">
+                <menu_item_call.on_click
+                 function="Floater.Show"
+                 parameter="inventory_thumbnails_helper" />
+            </menu_item_call>
+            <menu_item_call
+           label="FB Connect Test"
+           name="FB Connect Test">
+            <menu_item_call.on_click
+             function="Advanced.WebContentTest"
+             parameter="https://cryptic-ridge-1632.herokuapp.com/"/>
+          </menu_item_call>
           <menu_item_call
            label="Dump Fonts"
            name="Dump Fonts">
@@ -3639,6 +3654,14 @@ function="World.EnvPreset"
                  function="Advanced.CheckDebugUnicode" />
                 <menu_item_check.on_click
                  function="Advanced.ToggleDebugUnicode" />
+            </menu_item_check>
+            <menu_item_check
+             label="Debug Camera Controls"
+             name="Debug Camera Controls">
+                <menu_item_check.on_check
+                 function="Advanced.CheckDebugCamera" />
+                <menu_item_check.on_click
+                 function="Advanced.ToggleDebugCamera" />
             </menu_item_check>
             <menu_item_check
              label="Debug Name Tooltips"

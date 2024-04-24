@@ -102,6 +102,7 @@
 #include "llsceneview.h"
 #include "llscenemonitor.h"
 #include "llselectmgr.h"
+#include "llsidepanelappearance.h"
 #include "llspellcheckmenuhandler.h"
 #include "llstatusbar.h"
 #include "lltextureview.h"
@@ -1458,6 +1459,31 @@ class LLAdvancedCheckDebugUnicode : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		return LLView::sDebugUnicode;
+	}
+};
+
+
+
+//////////////////
+// DEBUG CAMERA //
+//////////////////
+
+
+class LLAdvancedToggleDebugCamera : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		LLView::sDebugCamera = !(LLView::sDebugCamera);
+		LLFloaterCamera::onDebugCameraToggled();
+		return true;
+	}
+};
+
+class LLAdvancedCheckDebugCamera : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		return LLView::sDebugCamera;
 	}
 };
 
@@ -6709,6 +6735,13 @@ void handle_edit_outfit()
 
 void handle_now_wearing()
 {
+    LLSidepanelAppearance *panel_appearance = dynamic_cast<LLSidepanelAppearance *>(LLFloaterSidePanelContainer::getPanel("appearance"));
+    if (panel_appearance && panel_appearance->isInVisibleChain() && panel_appearance->isCOFPanelVisible())
+    {
+        LLFloaterReg::findInstance("appearance")->closeFloater();
+        return;
+    }
+
     LLFloaterSidePanelContainer::showPanel("appearance", LLSD().with("type", "now_wearing"));
 }
 
@@ -9575,6 +9608,8 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedToggleDebugViews(), "Advanced.ToggleDebugViews");
 	view_listener_t::addMenu(new LLAdvancedCheckDebugUnicode(), "Advanced.CheckDebugUnicode");
 	view_listener_t::addMenu(new LLAdvancedToggleDebugUnicode(), "Advanced.ToggleDebugUnicode");
+	view_listener_t::addMenu(new LLAdvancedCheckDebugCamera(), "Advanced.CheckDebugCamera");
+	view_listener_t::addMenu(new LLAdvancedToggleDebugCamera(), "Advanced.ToggleDebugCamera");
 	view_listener_t::addMenu(new LLAdvancedToggleXUINameTooltips(), "Advanced.ToggleXUINameTooltips");
 	view_listener_t::addMenu(new LLAdvancedCheckXUINameTooltips(), "Advanced.CheckXUINameTooltips");
 	view_listener_t::addMenu(new LLAdvancedToggleDebugMouseEvents(), "Advanced.ToggleDebugMouseEvents");

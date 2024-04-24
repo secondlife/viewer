@@ -12254,6 +12254,50 @@ Would you like to save them first?
        notext="No"
        yestext="Yes"/>
   </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="ConfirmOverwriteOutfit"
+   type="alertmodal">
+      <unique/>
+This will replace the items in the
+selected outfit with the items you
+are wearing now.
+      <tag>confirm</tag>
+      <usetemplate
+       ignoretext="Confirm before overwriting outfit"
+       name="okcancelignore"
+       notext="Cancel"
+       yestext="Save"/>
+  </notification>
+    
+  <notification
+    icon="alertmodal.tga"
+    name="ClearInventoryThumbnailsWarning"
+    type="alertmodal">
+        You are about to remove thumbnail images from the inventory items in the list. This change cannot be undone.
+
+        Would you like to proceed?
+   <tag>confirm</tag>
+   <usetemplate
+       name="okcancelbuttons"
+       notext="No"
+       yestext="Yes"/>
+  </notification>
+
+  <notification
+    icon="alertmodal.tga"
+    name="WriteInventoryThumbnailsWarning"
+    type="alertmodal">
+        You are about to overwrite thumbnail images for some or all of the inventory items in the list. This change cannot be undone.
+
+        Would you like to proceed?
+   <tag>confirm</tag>
+   <usetemplate
+       name="okcancelbuttons"
+       notext="No"
+       yestext="Yes"/>
+  </notification>
     
   <notification
     icon="notifytip.tga"
