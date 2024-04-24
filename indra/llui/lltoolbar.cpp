@@ -27,7 +27,6 @@
 
 #include "linden_common.h"
 
-#include <boost/foreach.hpp>
 #include "lltoolbar.h"
 
 #include "llcommandmanager.h"
@@ -219,7 +218,7 @@ void LLToolBar::initFromParams(const LLToolBar::Params& p)
 	
 	mCenteringStack->addChild(LLUICtrlFactory::create<LLLayoutPanel>(border_panel_p));
 
-	BOOST_FOREACH(LLCommandId id, p.commands)
+	for (const auto& id : p.commands)
 	{
 		addCommand(id);
 	}
@@ -417,7 +416,7 @@ BOOL LLToolBar::handleRightMouseDown(S32 x, S32 y, MASK mask)
 		// Determine which button the mouse was over during the click in case the context menu action
 		// is intended to affect the button.
 		mRightMouseTargetButton = NULL;
-		BOOST_FOREACH(LLToolBarButton* button, mButtons)
+		for (LLToolBarButton* button : mButtons)
 		{
 			LLRect button_rect;
 			button->localRectToOtherView(button->getLocalRect(), &button_rect, this);
@@ -505,7 +504,7 @@ void LLToolBar::setButtonType(LLToolBarEnums::ButtonType button_type)
 void LLToolBar::resizeButtonsInRow(std::vector<LLToolBarButton*>& buttons_in_row, S32 max_row_girth)
 {
 	// make buttons in current row all same girth
-	BOOST_FOREACH(LLToolBarButton* button, buttons_in_row)
+	for (LLToolBarButton* button : buttons_in_row)
 	{
 		if (getOrientation(mSideType) == LLLayoutStack::HORIZONTAL)
 		{
@@ -693,7 +692,7 @@ void LLToolBar::updateLayoutAsNeeded()
 
 	std::vector<LLToolBarButton*> buttons_in_row;
 
-	BOOST_FOREACH(LLToolBarButton* button, mButtons)
+	for (LLToolBarButton* button : mButtons)
 	{
 		button->reshape(button->mWidthRange.getMin(), button->mDesiredHeight);
 		button->autoResize();
@@ -878,7 +877,7 @@ void LLToolBar::createButtons()
 {
 	std::set<LLUUID> set_flashing;
 
-	BOOST_FOREACH(LLToolBarButton* button, mButtons)
+	for (LLToolBarButton* button : mButtons)
 	{
         if (button->getFlashTimer() && button->getFlashTimer()->isFlashingInProgress())
         {
@@ -896,7 +895,7 @@ void LLToolBar::createButtons()
 	mButtonMap.clear();
 	mRightMouseTargetButton = NULL;
 	
-	BOOST_FOREACH(LLCommandId& command_id, mButtonCommands)
+	for (const LLCommandId& command_id : mButtonCommands)
 	{
 		LLToolBarButton* button = createButton(command_id);
 		mButtons.push_back(button);

@@ -310,7 +310,6 @@ protected:
     vv_LLVolumeFace_t mBaseModelFacesCopy;
 
     U32 mGroup;
-    std::map<LLPointer<LLModel>, U32> mObject;
 
     // Amount of triangles in original(base) model
     U32 mMaxTriangleLimit;

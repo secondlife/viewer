@@ -592,7 +592,7 @@ std::string LLViewerShaderMgr::loadBasicShaders()
 
 	std::map<std::string, std::string> attribs;
 	attribs["MAX_JOINTS_PER_MESH_OBJECT"] = 
-		boost::lexical_cast<std::string>(LLSkinningUtil::getMaxJointCount());
+		std::to_string(LLSkinningUtil::getMaxJointCount());
 
     BOOL ssr = gSavedSettings.getBOOL("RenderScreenSpaceReflections");
 
