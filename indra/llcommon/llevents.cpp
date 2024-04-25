@@ -68,18 +68,77 @@
 LLEventPumps::LLEventPumps():
     mFactories
     {
-        { "LLEventStream",   [](const std::string& name, bool tweak)
+        { "LLEventStream",   [](const std::string& name, bool tweak, const std::string& /*type*/)
                              { return new LLEventStream(name, tweak); } },
-        { "LLEventMailDrop", [](const std::string& name, bool tweak)
+        { "LLEventMailDrop", [](const std::string& name, bool tweak, const std::string& /*type*/)
                              { return new LLEventMailDrop(name, tweak); } }
     },
     mTypes
     {
-        // LLEventStream is the default for obtain(), so even if somebody DOES
-        // call obtain("placeholder"), this sample entry won't break anything.
-        { "placeholder", "LLEventStream" }
+//      { "placeholder", "LLEventStream" }
     }
 {}
+
+bool LLEventPumps::registerTypeFactory(const std::string& type, const TypeFactory& factory)
+{
+    auto found = mFactories.find(type);
+    // can't re-register a TypeFactory for a type name that's already registered
+    if (found != mFactories.end())
+        return false;
+    // doesn't already exist, go ahead and register
+    mFactories[type] = factory;
+    return true;
+}
+
+void LLEventPumps::unregisterTypeFactory(const std::string& type)
+{
+    auto found = mFactories.find(type);
+    if (found != mFactories.end())
+        mFactories.erase(found);
+}
+
+bool LLEventPumps::registerPumpFactory(const std::string& name, const PumpFactory& factory)
+{
+    // Do we already have a pump by this name?
+    if (mPumpMap.find(name) != mPumpMap.end())
+        return false;
+    // Do we already have an override for this pump name?
+    if (mTypes.find(name) != mTypes.end())
+        return false;
+    // Leverage the two-level lookup implemented by mTypes (pump name -> type
+    // name) and mFactories (type name -> factory). We could instead create a
+    // whole separate (pump name -> factory) map, and look in both; or we
+    // could change mTypes to (pump name -> factory) and, for typical type-
+    // based lookups, use a "factory" that looks up the real factory in
+    // mFactories. But this works, and we don't expect many calls to make() -
+    // either explicit or implicit via obtain().
+    // Create a bogus type name extremely unlikely to collide with an actual type.
+    static std::string nul(1, '\0');
+    std::string type_name{ nul + name };
+    mTypes[name] = type_name;
+    // TypeFactory is called with (name, tweak, type), whereas PumpFactory
+    // accepts only name. We could adapt with std::bind(), but this lambda
+    // does the trick.
+    mFactories[type_name] =
+        [factory]
+        (const std::string& name, bool /*tweak*/, const std::string& /*type*/)
+        { return factory(name); };
+    return true;
+}
+
+void LLEventPumps::unregisterPumpFactory(const std::string& name)
+{
+    auto tfound = mTypes.find(name);
+    if (tfound != mTypes.end())
+    {
+        auto ffound = mFactories.find(tfound->second);
+        if (ffound != mFactories.end())
+        {
+            mFactories.erase(ffound);
+        }
+        mTypes.erase(tfound);
+    }
+}
 
 LLEventPump& LLEventPumps::obtain(const std::string& name)
 {
@@ -114,7 +173,7 @@ LLEventPump& LLEventPumps::make(const std::string& name, bool tweak,
         // Passing an unrecognized type name is a no-no
         LLTHROW(BadType(type));
     }
-    auto newInstance = (found->second)(name, tweak);
+    auto newInstance = (found->second)(name, tweak, type);
     // LLEventPump's constructor implicitly registers each new instance in
     // mPumpMap. But remember that we instantiated it (in mOurPumps) so we'll
     // delete it later.
@@ -152,12 +211,21 @@ void LLEventPumps::clear()
     }
 }
 
-void LLEventPumps::reset()
+void LLEventPumps::reset(bool log_pumps)
 {
     // Reset every known LLEventPump instance. Leave it up to each instance to
     // decide what to do with the reset() call.
+    if (log_pumps)
+    {
+        LL_INFOS() << "Resetting " << (S32)mPumpMap.size() << " pumps" << LL_ENDL;
+    }
+
     for (PumpMap::value_type& pair : mPumpMap)
     {
+        if (log_pumps)
+        {
+            LL_INFOS() << "Resetting pump " << pair.first << LL_ENDL;
+        }
         pair.second->reset();
     }
 }
@@ -314,9 +382,11 @@ std::string LLEventPump::inventName(const std::string& pfx)
 
 void LLEventPump::clear()
 {
+    LLMutexLock lock(&mConnectionListMutex);
     // Destroy the original LLStandardSignal instance, replacing it with a
     // whole new one.
     mSignal = std::make_shared<LLStandardSignal>();
+
     mConnections.clear();
 }
 
@@ -324,6 +394,7 @@ void LLEventPump::reset()
 {
     // Resetting mSignal is supposed to disconnect everything on its own
     // But due to crash on 'reset' added explicit cleanup to get more data
+    LLMutexLock lock(&mConnectionListMutex);
     ConnectionMap::const_iterator iter = mConnections.begin();
     ConnectionMap::const_iterator end = mConnections.end();
     while (iter!=end)
@@ -347,6 +418,8 @@ LLBoundListener LLEventPump::listen_impl(const std::string& name, const LLEventL
         // connect will fail, return dummy
         return LLBoundListener();
     }
+
+    LLMutexLock lock(&mConnectionListMutex);
 
     float nodePosition = 1.0;
 
@@ -507,8 +580,9 @@ LLBoundListener LLEventPump::listen_impl(const std::string& name, const LLEventL
     return bound;
 }
 
-LLBoundListener LLEventPump::getListener(const std::string& name) const
+LLBoundListener LLEventPump::getListener(const std::string& name)
 {
+    LLMutexLock lock(&mConnectionListMutex);
     ConnectionMap::const_iterator found = mConnections.find(name);
     if (found != mConnections.end())
     {
@@ -520,6 +594,7 @@ LLBoundListener LLEventPump::getListener(const std::string& name) const
 
 void LLEventPump::stopListening(const std::string& name)
 {
+    LLMutexLock lock(&mConnectionListMutex);
     ConnectionMap::iterator found = mConnections.find(name);
     if (found != mConnections.end())
     {

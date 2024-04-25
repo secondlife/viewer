@@ -32,7 +32,6 @@
 
 #include <sstream>
 #include <boost/tokenizer.hpp>
-#include <boost/foreach.hpp>
 #include <boost/bind.hpp>
 
 #include "llrender.h"
@@ -60,6 +59,8 @@ static const S32 LINE_HEIGHT = 15;
 
 S32		LLView::sDepth = 0;
 bool	LLView::sDebugRects = false;
+bool	LLView::sDebugUnicode = false;
+bool	LLView::sDebugCamera = false;
 bool	LLView::sIsRectDirty = false;
 LLRect	LLView::sDirtyRect;
 bool	LLView::sDebugRectsShowNames = true;
@@ -311,7 +312,13 @@ bool LLView::addChild(LLView* child, S32 tab_group)
 	}
 
 	child->mParentView = this;
-	updateBoundingRect();
+    if (getVisible() && child->getVisible())
+    {
+        // if child isn't visible it won't affect bounding rect
+        // if current view is not visible it will be recalculated
+        // on visibility change
+        updateBoundingRect();
+    }
 	mLastTabGroup = tab_group;
 	return true;
 }
@@ -514,7 +521,7 @@ BOOL LLView::focusNext(LLView::child_list_t & result)
 		{
 			next = result.rbegin();
 		}
-		if((*next)->isCtrl())
+		if ((*next)->isCtrl() && ((LLUICtrl*)*next)->hasTabStop())
 		{
 			LLUICtrl * ctrl = static_cast<LLUICtrl*>(*next);
 			ctrl->setFocus(TRUE);
@@ -581,11 +588,12 @@ void LLView::deleteAllChildren()
         delete viewp;
         mChildList.pop_front();
 	}
+    updateBoundingRect();
 }
 
 void LLView::setAllChildrenEnabled(BOOL b)
 {
-	BOOST_FOREACH(LLView* viewp, mChildList)
+	for (LLView* viewp : mChildList)
 	{
 		viewp->setEnabled(b);
 	}
@@ -614,7 +622,7 @@ void LLView::onVisibilityChange ( BOOL new_visibility )
 {
 	BOOL old_visibility;
 	BOOL log_visibility_change = LLViewerEventRecorder::instance().getLoggingStatus();
-	BOOST_FOREACH(LLView* viewp, mChildList)
+	for (LLView* viewp : mChildList)
 	{
 		if (!viewp)
 		{
@@ -718,7 +726,7 @@ LLView* LLView::childrenHandleCharEvent(const std::string& desc, const METHOD& m
 {
 	if ( getVisible() && getEnabled() )
 	{
-		BOOST_FOREACH(LLView* viewp, mChildList)
+		for (LLView* viewp : mChildList)
 		{
 			if ((viewp->*method)(c, mask, TRUE))
 			{
@@ -737,7 +745,7 @@ LLView* LLView::childrenHandleCharEvent(const std::string& desc, const METHOD& m
 template <typename METHOD, typename XDATA>
 LLView* LLView::childrenHandleMouseEvent(const METHOD& method, S32 x, S32 y, XDATA extra, bool allow_mouse_block)
 {
-	BOOST_FOREACH(LLView* viewp, mChildList)
+	for (LLView* viewp : mChildList)
 	{
 		S32 local_x = x - viewp->getRect().mLeft;
 		S32 local_y = y - viewp->getRect().mBottom;
@@ -766,7 +774,7 @@ LLView* LLView::childrenHandleMouseEvent(const METHOD& method, S32 x, S32 y, XDA
 
 LLView* LLView::childrenHandleToolTip(S32 x, S32 y, MASK mask)
 {
-	BOOST_FOREACH(LLView* viewp, mChildList)
+	for (LLView* viewp : mChildList)
 	{
 		S32 local_x = x - viewp->getRect().mLeft;
 		S32 local_y = y - viewp->getRect().mBottom;
@@ -798,7 +806,7 @@ LLView* LLView::childrenHandleDragAndDrop(S32 x, S32 y, MASK mask,
 	// default to not accepting drag and drop, will be overridden by handler
 	*accept = ACCEPT_NO;
 
-	BOOST_FOREACH(LLView* viewp, mChildList)
+	for (LLView* viewp : mChildList)
 	{
 		S32 local_x = x - viewp->getRect().mLeft;
 		S32 local_y = y - viewp->getRect().mBottom;
@@ -824,7 +832,7 @@ LLView* LLView::childrenHandleDragAndDrop(S32 x, S32 y, MASK mask,
 
 LLView* LLView::childrenHandleHover(S32 x, S32 y, MASK mask)
 {
-	BOOST_FOREACH(LLView* viewp, mChildList)
+	for (LLView* viewp : mChildList)
 	{
 		S32 local_x = x - viewp->getRect().mLeft;
 		S32 local_y = y - viewp->getRect().mBottom;
@@ -852,7 +860,7 @@ LLView*	LLView::childFromPoint(S32 x, S32 y, bool recur)
 	if (!getVisible())
 		return NULL;
 
-	BOOST_FOREACH(LLView* viewp, mChildList)
+	for (LLView* viewp : mChildList)
 	{
 		S32 local_x = x - viewp->getRect().mLeft;
 		S32 local_y = y - viewp->getRect().mBottom;
@@ -879,6 +887,17 @@ LLView*	LLView::childFromPoint(S32 x, S32 y, bool recur)
 	return 0;
 }
 
+F32 LLView::getTooltipTimeout()
+{
+    static LLCachedControl<F32> tooltip_fast_delay(*LLUI::getInstance()->mSettingGroups["config"], "ToolTipFastDelay", 0.1f);
+    static LLCachedControl<F32> tooltip_delay(*LLUI::getInstance()->mSettingGroups["config"], "ToolTipDelay", 0.7f);
+    // allow "scrubbing" over ui by showing next tooltip immediately
+    // if previous one was still visible
+    return (F32)(LLToolTipMgr::instance().toolTipVisible()
+    ? tooltip_fast_delay
+    : tooltip_delay);
+}
+
 BOOL LLView::handleToolTip(S32 x, S32 y, MASK mask)
 {
 	BOOL handled = FALSE;
@@ -888,14 +907,7 @@ BOOL LLView::handleToolTip(S32 x, S32 y, MASK mask)
 	std::string tooltip = getToolTip();
 	if (!tooltip.empty())
 	{
-        static LLCachedControl<F32> tooltip_fast_delay(*LLUI::getInstance()->mSettingGroups["config"], "ToolTipFastDelay", 0.1f);
-        static LLCachedControl<F32> tooltip_delay(*LLUI::getInstance()->mSettingGroups["config"], "ToolTipDelay", 0.7f);
         static LLCachedControl<bool> allow_ui_tooltips(*LLUI::getInstance()->mSettingGroups["config"], "BasicUITooltips", true);
-		// allow "scrubbing" over ui by showing next tooltip immediately
-		// if previous one was still visible
-		F32 timeout = LLToolTipMgr::instance().toolTipVisible() 
-		              ? tooltip_fast_delay
-		              : tooltip_delay;
 
 		// Even if we don't show tooltips, consume the event, nothing below should show tooltip
 		if (allow_ui_tooltips)
@@ -903,7 +915,7 @@ BOOL LLView::handleToolTip(S32 x, S32 y, MASK mask)
 			LLToolTipMgr::instance().show(LLToolTip::Params()
 			                              .message(tooltip)
 			                              .sticky_rect(calcScreenRect())
-			                              .delay_time(timeout));
+			                              .delay_time(getTooltipTimeout()));
 		}
 		handled = TRUE;
 	}
@@ -1013,7 +1025,7 @@ BOOL LLView::handleUnicodeChar(llwchar uni_char, BOOL called_from_parent)
 			handled = handleUnicodeCharHere(uni_char);
 			if (handled && LLView::sDebugKeys)
 			{
-				LL_INFOS() << "Unicode key handled by " << getName() << LL_ENDL;
+				LL_INFOS() << "Unicode key " << wchar_utf8_preview(uni_char) << " is handled by " << getName() << LL_ENDL;
 			}
 		}
 	}
@@ -1325,8 +1337,7 @@ void LLView::drawDebugRect()
 			std::string debug_text = llformat("%s (%d x %d)", getName().c_str(),
 										debug_rect.getWidth(), debug_rect.getHeight());
 			LLFontGL::getFontSansSerifSmall()->renderUTF8(debug_text, 0, (F32)x, (F32)y, border_color,
-												LLFontGL::HCENTER, LLFontGL::BASELINE, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
-												S32_MAX, S32_MAX, NULL, FALSE);
+					LLFontGL::HCENTER, LLFontGL::BASELINE, LLFontGL::NORMAL, LLFontGL::NO_SHADOW);
 		}
 	}
 	LLUI::popMatrix();
@@ -1368,7 +1379,7 @@ void LLView::reshape(S32 width, S32 height, BOOL called_from_parent)
 		mRect.mTop = getRect().mBottom + height;
 
 		// move child views according to reshape flags
-		BOOST_FOREACH(LLView* viewp, mChildList)
+		for (LLView* viewp : mChildList)
 		{
 			if (viewp != NULL)
 			{
@@ -1440,7 +1451,7 @@ LLRect LLView::calcBoundingRect()
 {
 	LLRect local_bounding_rect = LLRect::null;
 
-	BOOST_FOREACH(LLView* childp, mChildList)
+	for (LLView* childp : mChildList)
 	{
 		// ignore invisible and "top" children when calculating bounding rect
 		// such as combobox popups
@@ -1603,7 +1614,7 @@ LLView* LLView::findChildView(const std::string& name, BOOL recurse) const
     LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
 	
     // Look for direct children *first*
-	BOOST_FOREACH(LLView* childp, mChildList)
+	for (LLView* childp : mChildList)
 	{
 		llassert(childp);
 		if (childp->getName() == name)
@@ -1614,7 +1625,7 @@ LLView* LLView::findChildView(const std::string& name, BOOL recurse) const
 	if (recurse)
 	{
 		// Look inside each child as well.
-		BOOST_FOREACH(LLView* childp, mChildList)
+		for (LLView* childp : mChildList)
 		{
 			llassert(childp);
 			LLView* viewp = childp->findChildView(name, recurse);
@@ -1742,23 +1753,26 @@ LLCoordGL getNeededTranslation(const LLRect& input, const LLRect& constraint, S3
 	const S32 KEEP_ONSCREEN_PIXELS_WIDTH = llmin(min_overlap_pixels, input.getWidth());
 	const S32 KEEP_ONSCREEN_PIXELS_HEIGHT = llmin(min_overlap_pixels, input.getHeight());
 
-	if( input.mRight - KEEP_ONSCREEN_PIXELS_WIDTH < constraint.mLeft )
+	if (KEEP_ONSCREEN_PIXELS_WIDTH <= constraint.getWidth() &&
+		KEEP_ONSCREEN_PIXELS_HEIGHT <= constraint.getHeight())
 	{
-		delta.mX = constraint.mLeft - (input.mRight - KEEP_ONSCREEN_PIXELS_WIDTH);
-	}
-	else if( input.mLeft + KEEP_ONSCREEN_PIXELS_WIDTH > constraint.mRight )
-	{
-		delta.mX = constraint.mRight - (input.mLeft + KEEP_ONSCREEN_PIXELS_WIDTH);
-	}
+		if (input.mRight - KEEP_ONSCREEN_PIXELS_WIDTH < constraint.mLeft)
+		{
+			delta.mX = constraint.mLeft - (input.mRight - KEEP_ONSCREEN_PIXELS_WIDTH);
+		}
+		else if (input.mLeft + KEEP_ONSCREEN_PIXELS_WIDTH > constraint.mRight)
+		{
+			delta.mX = constraint.mRight - (input.mLeft + KEEP_ONSCREEN_PIXELS_WIDTH);
+		}
 
-	if( input.mTop > constraint.mTop )
-	{
-		delta.mY = constraint.mTop - input.mTop;
-	}
-	else
-	if( input.mTop - KEEP_ONSCREEN_PIXELS_HEIGHT < constraint.mBottom )
-	{
-		delta.mY = constraint.mBottom - (input.mTop - KEEP_ONSCREEN_PIXELS_HEIGHT);
+		if (input.mTop > constraint.mTop)
+		{
+			delta.mY = constraint.mTop - input.mTop;
+		}
+		else if (input.mTop - KEEP_ONSCREEN_PIXELS_HEIGHT < constraint.mBottom)
+		{
+			delta.mY = constraint.mBottom - (input.mTop - KEEP_ONSCREEN_PIXELS_HEIGHT);
+		}
 	}
 
 	return delta;
@@ -1769,13 +1783,19 @@ LLCoordGL getNeededTranslation(const LLRect& input, const LLRect& constraint, S3
 // (Why top and left?  That's where the drag bars are for floaters.)
 BOOL LLView::translateIntoRect(const LLRect& constraint, S32 min_overlap_pixels)
 {
-	LLCoordGL translation = getNeededTranslation(getRect(), constraint, min_overlap_pixels);
+    return translateRectIntoRect(getRect(), constraint, min_overlap_pixels);
+}
+
+BOOL LLView::translateRectIntoRect(const LLRect& rect, const LLRect& constraint, S32 min_overlap_pixels)
+{
+	LLCoordGL translation = getNeededTranslation(rect, constraint, min_overlap_pixels);
 
 	if (translation.mX != 0 || translation.mY != 0)
 	{
 		translate(translation.mX, translation.mY);
 		return TRUE;
 	}
+
 	return FALSE;
 }
 
@@ -1955,7 +1975,7 @@ private:
 class SortByTabOrder : public LLQuerySorter, public LLSingleton<SortByTabOrder>
 {
 	LLSINGLETON_EMPTY_CTOR(SortByTabOrder);
-	/*virtual*/ void sort(LLView * parent, LLView::child_list_t &children) const 
+	/*virtual*/ void sort(LLView * parent, LLView::child_list_t &children) const override
 	{
 		children.sort(CompareByTabOrder(parent->getTabOrder(), parent->getDefaultTabGroup()));
 	}
@@ -1979,7 +1999,7 @@ const LLViewQuery & LLView::getTabOrderQuery()
 class LLFocusRootsFilter : public LLQueryFilter, public LLSingleton<LLFocusRootsFilter>
 {
 	LLSINGLETON_EMPTY_CTOR(LLFocusRootsFilter);
-	/*virtual*/ filterResult_t operator() (const LLView* const view, const viewList_t & children) const 
+	/*virtual*/ filterResult_t operator() (const LLView* const view, const viewList_t & children) const override
 	{
 		return filterResult_t(view->isCtrl() && view->isFocusRoot(), !view->isFocusRoot());
 	}
@@ -2789,7 +2809,7 @@ S32	LLView::notifyParent(const LLSD& info)
 bool	LLView::notifyChildren(const LLSD& info)
 {
 	bool ret = false;
-	BOOST_FOREACH(LLView* childp, mChildList)
+	for (LLView* childp : mChildList)
 	{
 		ret = ret || childp->notifyChildren(info);
 	}

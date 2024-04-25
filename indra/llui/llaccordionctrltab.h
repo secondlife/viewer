@@ -104,7 +104,7 @@ public:
 	virtual void setDisplayChildren(bool display);
 
 	// Returns expand/collapse state
-	virtual bool getDisplayChildren() const {return mDisplayChildren;};
+	virtual bool getDisplayChildren() const { return mDisplayChildren; };
 
 	//set LLAccordionCtrlTab panel
 	void		setAccordionView(LLView* panel);
@@ -126,12 +126,12 @@ public:
 
 	void setSelected(bool is_selected);
 
-	bool getCollapsible() {return mCollapsible;};
+	bool getCollapsible() { return mCollapsible; };
 
-	void setCollapsible(bool collapsible) {mCollapsible = collapsible;};
+	void setCollapsible(bool collapsible) { mCollapsible = collapsible; };
 	void changeOpenClose(bool is_open);
 
-	void canOpenClose(bool can_open_close) { mCanOpenClose = can_open_close;};
+	void canOpenClose(bool can_open_close) { mCanOpenClose = can_open_close; };
 	bool canOpenClose() const { return mCanOpenClose; };
 
 	virtual BOOL postBuild();
@@ -142,8 +142,8 @@ public:
 
 	void draw();
 
-	void    storeOpenCloseState		();
-	void    restoreOpenCloseState	();
+	void storeOpenCloseState();
+	void restoreOpenCloseState();
 
 protected:
 	LLAccordionCtrlTab(const LLAccordionCtrlTab::Params&);

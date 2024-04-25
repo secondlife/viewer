@@ -74,7 +74,7 @@ class LLViewerMedia: public LLSingleton<LLViewerMedia>
 {
 	LLSINGLETON(LLViewerMedia);
 	~LLViewerMedia();
-	void initSingleton();
+	void initSingleton() override;
 	LOG_CLASS(LLViewerMedia);
 
 public:
@@ -431,7 +431,7 @@ private:
 	
 private:
 	// a single media url with some data and an impl.
-	boost::shared_ptr<LLPluginClassMedia> mMediaSource;
+	std::shared_ptr<LLPluginClassMedia> mMediaSource;
     LLMutex mLock;
 	F64		mZoomFactor;
 	LLUUID mTextureId;

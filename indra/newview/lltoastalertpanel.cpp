@@ -279,6 +279,10 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
 	if (!edit_text_name.empty())
 	{
 		S32 y = VPAD + BTN_HEIGHT + VPAD/2;
+        if (form->getIgnoreType() != LLNotificationForm::IGNORE_NO)
+        {
+            y += EDITOR_HEIGHT;
+        }
 		mLineEditor = LLUICtrlFactory::getInstance()->createFromFile<LLLineEditor>("alert_line_editor.xml", this, LLPanel::child_registry_t::instance());
 	
 		if (mLineEditor)
@@ -291,7 +295,8 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
 			mLineEditor->setText(edit_text_contents);
 
 			std::string notif_name = mNotification->getName();
-			if (("SaveOutfitAs" == notif_name) || ("SaveSettingAs" == notif_name) || ("CreateLandmarkFolder" == notif_name) || ("CreateSubfolder" == notif_name))
+			if (("SaveOutfitAs" == notif_name) || ("SaveSettingAs" == notif_name) || ("CreateLandmarkFolder" == notif_name) || 
+                ("CreateSubfolder" == notif_name) || ("SaveMaterialAs" == notif_name))
 			{
 				mLineEditor->setPrevalidate(&LLTextValidate::validateASCII);
 			}
@@ -522,6 +527,10 @@ void LLToastAlertPanel::onButtonPressed( const LLSD& data, S32 button )
 	{
 		response[mLineEditor->getName()] = mLineEditor->getValue();
 	}
+    if (mNotification->getForm()->getIgnoreType() != LLNotificationForm::IGNORE_NO)
+    {
+        response["ignore"] = mNotification->isIgnored();
+    }
 	response[button_data->mButton->getName()] = true;
 
 	// If we declared a URL and chose the URL option, go to the url

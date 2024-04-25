@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater
         legacy_header_height="18"
         can_minimize="false"
@@ -89,7 +89,7 @@
                     top="1"
                     right="-4"
                     bottom="-1"
-                    filter_asset_type="settings" />
+                    filter_asset_types="settings" />
             </panel>
         </layout_panel>
         <layout_panel name="pnl_combo"

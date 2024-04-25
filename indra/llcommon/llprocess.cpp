@@ -36,7 +36,6 @@
 #include "llevents.h"
 #include "llexception.h"
 
-#include <boost/foreach.hpp>
 #include <boost/bind.hpp>
 #include <boost/asio/streambuf.hpp>
 #include <boost/asio/buffers_iterator.hpp>
@@ -529,6 +528,7 @@ LLProcess::LLProcess(const LLSDOrParams& params):
 	// preserve existing semantics, we promise that mAttached defaults to the
 	// same setting as mAutokill.
 	mAttached(params.attached.isProvided()? params.attached : params.autokill),
+    mPool(NULL),
 	mPipes(NSLOTS)
 {
 	// Hmm, when you construct a ptr_vector with a size, it merely reserves
@@ -549,8 +549,14 @@ LLProcess::LLProcess(const LLSDOrParams& params):
 
 	mPostend = params.postend;
 
+    apr_pool_create(&mPool, gAPRPoolp);
+    if (!mPool)
+    {
+        LLTHROW(LLProcessError(STRINGIZE("failed to create apr pool")));
+    }
+
 	apr_procattr_t *procattr = NULL;
-	chkapr(apr_procattr_create(&procattr, gAPRPoolp));
+	chkapr(apr_procattr_create(&procattr, mPool));
 
 	// IQA-490, CHOP-900: On Windows, ask APR to jump through hoops to
 	// constrain the set of handles passed to the child process. Before we
@@ -580,7 +586,7 @@ LLProcess::LLProcess(const LLSDOrParams& params):
 	// apr_procattr_child_err_set()), or accepting a filename, opening it and
 	// passing that apr_file_t (simple <, >, 2> redirect emulation).
 	std::vector<apr_int32_t> select;
-	BOOST_FOREACH(const FileParam& fparam, params.files)
+	for (const FileParam& fparam : params.files)
 	{
 		// Every iteration, we're going to append an item to 'select'. At the
 		// top of the loop, its size() is, in effect, an index. Use that to
@@ -677,7 +683,7 @@ LLProcess::LLProcess(const LLSDOrParams& params):
 	argv.push_back(params.executable().c_str());
 
 	// Add arguments. See above remarks about c_str().
-	BOOST_FOREACH(const std::string& arg, params.args)
+	for (const std::string& arg : params.args)
 	{
 		argv.push_back(arg.c_str());
 	}
@@ -689,14 +695,14 @@ LLProcess::LLProcess(const LLSDOrParams& params):
 	// one. Hand-expand chkapr() macro so we can fill in the actual command
 	// string instead of the variable names.
 	if (ll_apr_warn_status(apr_proc_create(&mProcess, argv[0], &argv[0], NULL, procattr,
-										   gAPRPoolp)))
+										   mPool)))
 	{
 		LLTHROW(LLProcessError(STRINGIZE(params << " failed")));
 	}
 
 	// arrange to call status_callback()
 	apr_proc_other_child_register(&mProcess, &LLProcess::status_callback, this, mProcess.in,
-								  gAPRPoolp);
+                                  mPool);
 	// and make sure we poll it once per "mainloop" tick
 	sProcessListener.addPoll(*this);
 	mStatus.mState = RUNNING;
@@ -815,6 +821,12 @@ LLProcess::~LLProcess()
 	{
 		kill("destructor");
 	}
+
+    if (mPool)
+    {
+        apr_pool_destroy(mPool);
+        mPool = NULL;
+    }
 }
 
 bool LLProcess::kill(const std::string& who)
@@ -948,7 +960,7 @@ void LLProcess::handle_status(int reason, int status)
 		// only be performed if in fact we're going to produce the log message.
 		LL_DEBUGS("LLProcess") << empty;
 		std::string reason_str;
-		BOOST_FOREACH(const ReasonCode& rcp, reasons)
+		for (const ReasonCode& rcp : reasons)
 		{
 			if (reason == rcp.code)
 			{
@@ -1138,7 +1150,7 @@ std::ostream& operator<<(std::ostream& out, const LLProcess::Params& params)
 		out << "cd " << LLStringUtil::quote(params.cwd) << ": ";
 	}
 	out << LLStringUtil::quote(params.executable);
-	BOOST_FOREACH(const std::string& arg, params.args)
+	for (const std::string& arg : params.args)
 	{
 		out << ' ' << LLStringUtil::quote(arg);
 	}

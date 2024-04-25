@@ -42,6 +42,7 @@
 #include "bufferarray.h"
 #include "llversioninfo.h"
 #include "llviewercontrol.h"
+#include "stringize.h"
 
 // Have to include these last to avoid queue redefinition!
 
@@ -49,6 +50,12 @@
 #include <xmlrpc.h>
 #else
 #include <xmlrpc-epi/xmlrpc.h>
+#endif
+// <xmlrpc-epi/queue.h> contains a harmful #define queue xmlrpc_queue. This
+// breaks any use of std::queue. Ditch that #define: if any of our code wants
+// to reference xmlrpc_queue, let it reference it directly.
+#if defined(queue)
+#undef queue
 #endif
 
 #include "llappviewer.h"
@@ -181,7 +188,7 @@ public:
 
 	virtual void onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response);
 
-	typedef boost::shared_ptr<LLXMLRPCTransaction::Handler> ptr_t;
+	typedef std::shared_ptr<LLXMLRPCTransaction::Handler> ptr_t;
 
 private:
 
@@ -384,14 +391,14 @@ void LLXMLRPCTransaction::Impl::init(XMLRPC_REQUEST request, bool useGzip, const
 
 	httpHeaders->append(HTTP_OUT_HEADER_CONTENT_TYPE, HTTP_CONTENT_TEXT_XML);
 
-    std::string user_agent = llformat("%s %d.%d.%d (%d)",
-        LLVersionInfo::instance().getChannel().c_str(),
-        LLVersionInfo::instance().getMajor(),
-        LLVersionInfo::instance().getMinor(),
-        LLVersionInfo::instance().getPatch(),
-        LLVersionInfo::instance().getBuild());
+	std::string user_agent = stringize(
+		LLVersionInfo::instance().getChannel(), ' ',
+		LLVersionInfo::instance().getMajor(), '.',
+		LLVersionInfo::instance().getMinor(), '.',
+		LLVersionInfo::instance().getPatch(), " (",
+		LLVersionInfo::instance().getBuild(), ')');
 
-    httpHeaders->append(HTTP_OUT_HEADER_USER_AGENT, user_agent);
+	httpHeaders->append(HTTP_OUT_HEADER_USER_AGENT, user_agent);
 
 	///* Setting the DNS cache timeout to -1 disables it completely.
 	//This might help with bug #503 */
@@ -410,7 +417,7 @@ void LLXMLRPCTransaction::Impl::init(XMLRPC_REQUEST request, bool useGzip, const
 
 	mHandler = LLXMLRPCTransaction::Handler::ptr_t(new Handler( mHttpRequest, this ));
 
-	mPostH = mHttpRequest->requestPost(LLCore::HttpRequest::DEFAULT_POLICY_ID, 0, 
+	mPostH = mHttpRequest->requestPost(LLCore::HttpRequest::DEFAULT_POLICY_ID,
 		mURI, body.get(), httpOpts, httpHeaders, mHandler);
 
 }

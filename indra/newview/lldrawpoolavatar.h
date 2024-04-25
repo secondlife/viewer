@@ -129,12 +129,6 @@ typedef enum
 	static LLGLSLShader* sVertexProgram;
 };
 
-class LLVertexBufferAvatar : public LLVertexBuffer
-{
-public:
-	LLVertexBufferAvatar();
-};
-
 extern S32 AVATAR_OFFSET_POS;
 extern S32 AVATAR_OFFSET_NORMAL;
 extern S32 AVATAR_OFFSET_TEX0;

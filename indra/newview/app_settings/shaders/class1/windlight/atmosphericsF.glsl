@@ -1,9 +1,9 @@
 /** 
- * @file class1\windlight\atmosphericsF.glsl
+ * @file class2\wl\atmosphericsF.glsl
  *
- * $LicenseInfo:firstyear=2005&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2005, Linden Research, Inc.
+ * Copyright (C) 2007, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -22,27 +22,31 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
-vec3 atmosFragAmbient(vec3 light, vec3 sunlit)
-{
-    /* stub function for fallback compatibility on class1 hardware */
-    return light;
-}
+
+vec3 getAdditiveColor();
+vec3 getAtmosAttenuation();
+vec3 scaleSoftClipFrag(vec3 light);
+
+vec3 srgb_to_linear(vec3 col);
+vec3 linear_to_srgb(vec3 col);
+
+uniform float sky_hdr_scale;
 
 vec3 atmosFragLighting(vec3 light, vec3 additive, vec3 atten)
-{
-    /* stub function for fallback compatibility on class1 hardware */
+{ 
+    light *= atten.r;
+    additive = srgb_to_linear(additive*2.0);
+    additive *= sky_hdr_scale;
+    light += additive;
     return light;
 }
 
-vec3 atmosFragAffectDirectionalLight(float light, vec3 sunlit)
+vec3 atmosFragLightingLinear(vec3 light, vec3 additive, vec3 atten)
 {
-   return light * sunlit;
+    return atmosFragLighting(light, additive, atten);
 }
 
 vec3 atmosLighting(vec3 light)
 {
-    /* stub function for fallback compatibility on class1 hardware */
-    return light;
+    return atmosFragLighting(light, getAdditiveColor(), getAtmosAttenuation());
 }
-

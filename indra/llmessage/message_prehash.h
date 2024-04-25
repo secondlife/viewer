@@ -1368,6 +1368,7 @@ extern char const* const _PREHASH_MuteType;
 extern char const* const _PREHASH_IMViaEMail;
 extern char const* const _PREHASH_RentPrice;
 extern char const* const _PREHASH_GenericMessage;
+extern char const* const _PREHASH_GenericStreamingMessage;
 extern char const* const _PREHASH_ChildAgentAlive;
 extern char const* const _PREHASH_AssetType;
 extern char const* const _PREHASH_SpawnPointBlock;

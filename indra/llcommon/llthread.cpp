@@ -42,6 +42,7 @@
 
 
 #ifdef LL_WINDOWS
+
 const DWORD MS_VC_EXCEPTION=0x406D1388;
 
 #pragma pack(push,8)
@@ -112,15 +113,16 @@ LL_COMMON_API bool on_main_thread()
     return (LLThread::currentID() == main_thread());
 }
 
-LL_COMMON_API void assert_main_thread()
+LL_COMMON_API bool assert_main_thread()
 {
     auto curr = LLThread::currentID();
     auto main = main_thread();
-    if (curr != main)
-    {
-        LL_WARNS() << "Illegal execution from thread id " << curr
-            << " outside main thread " << main << LL_ENDL;
-    }
+    if (curr == main)
+        return true;
+
+    LL_WARNS() << "Illegal execution from thread id " << curr
+               << " outside main thread " << main << LL_ENDL;
+    return false;
 }
 
 // this function has become moot
@@ -133,6 +135,15 @@ void LLThread::threadRun()
 {
 #ifdef LL_WINDOWS
     set_thread_name(-1, mName.c_str());
+
+#if 0 // probably a bad idea, see usage of SetThreadIdealProcessor in LLWindowWin32)
+    HANDLE hThread = GetCurrentThread();
+    if (hThread)
+    {
+        SetThreadAffinityMask(hThread, (DWORD_PTR) 0xFFFFFFFFFFFFFFFE);
+    }
+#endif
+
 #endif
 
     LL_PROFILER_SET_THREAD_NAME( mName.c_str() );

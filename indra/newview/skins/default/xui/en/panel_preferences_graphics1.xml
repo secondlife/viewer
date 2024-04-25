@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel
  border="true"
  follows="left|top|right|bottom"
@@ -27,7 +27,7 @@
     left_delta="110"
     name="preset_text"
     top="5"
-    width="120">
+    width="320">
       (None)
   </text>
 
@@ -231,34 +231,6 @@
      m
   </text>
 
-  <check_box
-    control_name="WindLightUseAtmosShaders"
-    height="16"
-    initial_value="true"
-    label="Atmospheric shaders"
-    layout="topleft"
-    left="30"
-    name="WindLightUseAtmosShaders"
-    top_delta="24"
-    width="280">
-    <check_box.commit_callback
-      function="Pref.RenderOptionUpdate" />
-  </check_box>
-
-  <check_box
-    control_name="RenderDeferred"
-    height="16"
-    initial_value="true"
-    label="Advanced Lighting Model"
-    layout="topleft"
-    left="30"
-    name="UseLightShaders"
-    top_delta="24"
-    width="256">
-    <check_box.commit_callback
-      function="Pref.RenderOptionUpdate" />
-  </check_box>
-
   <button
   height="23"
   label="Automatic adjustments settings"
@@ -342,6 +314,25 @@ width="120">
     <button.commit_callback
       function="Pref.RenderExceptions"/>
   </button>
+
+  <slider
+    control_name="RenderExposure"
+    decimal_digits="1"
+    follows="left|top"
+    height="16"
+    increment="0.1"
+    initial_value="160"
+    label="Brightness (exposure)"
+    label_width="145"
+    layout="topleft"
+    left="30"
+    min_val="0.5"
+    max_val="1.5"
+    name="RenderExposure"
+    show_text="true"
+    top_pad="14"
+    width="260">
+  </slider>
 
 <!-- End of Basic Settings block -->
 

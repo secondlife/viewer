@@ -25,26 +25,28 @@
  
 uniform mat4 modelview_projection_matrix;
 
-ATTRIBUTE vec3 position;
-ATTRIBUTE vec2 texcoord0;
+in vec3 position;
 
 uniform vec2 glowDelta;
 
-VARYING vec4 vary_texcoord0;
-VARYING vec4 vary_texcoord1;
-VARYING vec4 vary_texcoord2;
-VARYING vec4 vary_texcoord3;
+out vec4 vary_texcoord0;
+out vec4 vary_texcoord1;
+out vec4 vary_texcoord2;
+out vec4 vary_texcoord3;
 
 void main() 
 {
-	gl_Position = modelview_projection_matrix * vec4(position, 1.0);
+	gl_Position = vec4(position, 1.0);
 	
-	vary_texcoord0.xy = texcoord0 + glowDelta*(-3.5);
-	vary_texcoord1.xy = texcoord0 + glowDelta*(-2.5);
-	vary_texcoord2.xy = texcoord0 + glowDelta*(-1.5);
-	vary_texcoord3.xy = texcoord0 + glowDelta*(-0.5);
-	vary_texcoord0.zw = texcoord0 + glowDelta*(0.5);
-	vary_texcoord1.zw = texcoord0 + glowDelta*(1.5);
-	vary_texcoord2.zw = texcoord0 + glowDelta*(2.5);
-	vary_texcoord3.zw = texcoord0 + glowDelta*(3.5);
+	vec2 texcoord = position.xy * 0.5 + 0.5;
+
+
+	vary_texcoord0.xy = texcoord + glowDelta*(-3.5);
+	vary_texcoord1.xy = texcoord + glowDelta*(-2.5);
+	vary_texcoord2.xy = texcoord + glowDelta*(-1.5);
+	vary_texcoord3.xy = texcoord + glowDelta*(-0.5);
+	vary_texcoord0.zw = texcoord + glowDelta*(0.5);
+	vary_texcoord1.zw = texcoord + glowDelta*(1.5);
+	vary_texcoord2.zw = texcoord + glowDelta*(2.5);
+	vary_texcoord3.zw = texcoord + glowDelta*(3.5);
 }

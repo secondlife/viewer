@@ -196,12 +196,12 @@ S32 LLSDXMLFormatter::format_impl(const LLSD& data, std::ostream& ostr,
 			// *FIX: memory inefficient.
 			// *TODO: convert to use LLBase64
 			ostr << pre << "<binary encoding=\"base64\">";
-			int b64_buffer_length = apr_base64_encode_len(narrow(buffer.size()));
+			int b64_buffer_length = apr_base64_encode_len(narrow<size_t>(buffer.size()));
 			char* b64_buffer = new char[b64_buffer_length];
 			b64_buffer_length = apr_base64_encode_binary(
 				b64_buffer,
 				&buffer[0],
-				narrow(buffer.size()));
+				narrow<size_t>(buffer.size()));
 			ostr.write(b64_buffer, b64_buffer_length - 1);
 			delete[] b64_buffer;
 			ostr << "</binary>" << post;
@@ -404,11 +404,18 @@ S32 LLSDXMLParser::Impl::parse(std::istream& input, LLSD& data)
 		if (buffer)
 		{
 			((char*) buffer)[count ? count - 1 : 0] = '\0';
+            if (mEmitErrors)
+            {
+                LL_INFOS() << "LLSDXMLParser::Impl::parse: XML_STATUS_ERROR parsing:" << (char*)buffer << LL_ENDL;
+            }
 		}
-		if (mEmitErrors)
-		{
-		LL_INFOS() << "LLSDXMLParser::Impl::parse: XML_STATUS_ERROR parsing:" << (char*) buffer << LL_ENDL;
-		}
+        else
+        {
+            if (mEmitErrors)
+            {
+                LL_INFOS() << "LLSDXMLParser::Impl::parse: XML_STATUS_ERROR, null buffer" << LL_ENDL;
+            }
+        }
 		data = LLSD();
 		return LLSDParser::PARSE_FAILURE;
 	}
@@ -923,6 +930,8 @@ void LLSDXMLParser::parsePart(const char *buf, llssize len)
 // virtual
 S32 LLSDXMLParser::doParse(std::istream& input, LLSD& data, S32 max_depth) const
 {
+	LL_PROFILE_ZONE_SCOPED_CATEGORY_LLSD
+
 	#ifdef XML_PARSER_PERFORMANCE_TESTS
 	XML_Timer timer( &parseTime );
 	#endif	// XML_PARSER_PERFORMANCE_TESTS

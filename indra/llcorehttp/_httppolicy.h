@@ -60,7 +60,7 @@ private:
 	void operator=(const HttpPolicy &);			// Not defined
 
 public:
-    typedef boost::shared_ptr<HttpOpRequest> opReqPtr_t;
+    typedef std::shared_ptr<HttpOpRequest> opReqPtr_t;
 
 	/// Threading:  called by init thread.
 	HttpRequest::policy_t createPolicyClass();
@@ -109,12 +109,6 @@ public:
 	///
 	/// Threading:  called by worker thread
     void retryOp(const opReqPtr_t &);
-
-	/// Attempt to change the priority of an earlier request.
-	/// Request that Shadows HttpService's method
-	///
-	/// Threading:  called by worker thread
-	bool changePriority(HttpHandle handle, HttpRequest::priority_t priority);
 
 	/// Attempt to cancel a previous request.
 	/// Shadows HttpService's method as well

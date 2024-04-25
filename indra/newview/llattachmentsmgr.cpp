@@ -240,6 +240,13 @@ void LLAttachmentsMgr::linkRecentlyArrivedAttachments()
             return;
         }
 
+        if (LLAppearanceMgr::instance().getCOFVersion() == LLViewerInventoryCategory::VERSION_UNKNOWN)
+        {
+            // Wait for cof to load
+            LL_DEBUGS_ONCE("Avatar") << "Received atachments, but cof isn't loaded yet, postponing processing" << LL_ENDL;
+            return;
+        }
+
         LL_DEBUGS("Avatar") << "ATT checking COF linkability for " << mRecentlyArrivedAttachments.size()
                             << " recently arrived items" << LL_ENDL;
 

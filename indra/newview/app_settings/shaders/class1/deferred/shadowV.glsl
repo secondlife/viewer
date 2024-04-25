@@ -25,21 +25,10 @@
 
 uniform mat4 modelview_projection_matrix;
 
-ATTRIBUTE vec3 position;
-
-VARYING vec4 post_pos;
+in vec3 position;
 
 void main()
 {
 	//transform vertex
-	vec4 pos = modelview_projection_matrix*vec4(position.xyz, 1.0);
-	
-	post_pos = pos;
-
-#if !defined(DEPTH_CLAMP)
-	gl_Position = vec4(pos.x, pos.y, pos.w*0.5, pos.w);
-#else
-	gl_Position = pos;
-#endif
-
+	gl_Position = modelview_projection_matrix*vec4(position.xyz, 1.0);
 }

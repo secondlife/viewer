@@ -79,6 +79,8 @@ private:
     void                    onMoistureLevelChanged();
     void                    onDropletRadiusChanged();
     void                    onIceLevelChanged();
+    void                    onReflectionProbeAmbianceChanged();
+    void                    updateGammaLabel(bool auto_adjust = false);
 
 };
 

@@ -699,8 +699,12 @@ void LLPanelOutfitEdit::onFolderViewFilterCommitted(LLUICtrl* ctrl)
 	LLOpenFoldersWithSelection opener;
 	mInventoryItemsPanel->getRootFolder()->applyFunctorRecursively(opener);
 	mInventoryItemsPanel->getRootFolder()->scrollToShowSelection();
-	
-	LLInventoryModelBackgroundFetch::instance().start();
+
+    if (!LLInventoryModelBackgroundFetch::instance().inventoryFetchStarted())
+    {
+        llassert(false); // this should have been done on startup
+        LLInventoryModelBackgroundFetch::instance().start();
+    }
 }
 
 void LLPanelOutfitEdit::onListViewFilterCommitted(LLUICtrl* ctrl)
@@ -729,7 +733,7 @@ void LLPanelOutfitEdit::onSearchEdit(const std::string& string)
 	if (mSearchString == "")
 	{
 		mInventoryItemsPanel->setFilterSubString(LLStringUtil::null);
-		mWearableItemsList->setFilterSubString(LLStringUtil::null);
+		mWearableItemsList->setFilterSubString(LLStringUtil::null, true);
 		// re-open folders that were initially open
 		mSavedFolderState->setApply(TRUE);
 		mInventoryItemsPanel->getRootFolder()->applyFunctorRecursively(*mSavedFolderState);
@@ -737,8 +741,12 @@ void LLPanelOutfitEdit::onSearchEdit(const std::string& string)
 		mInventoryItemsPanel->getRootFolder()->applyFunctorRecursively(opener);
 		mInventoryItemsPanel->getRootFolder()->scrollToShowSelection();
 	}
-	
-	LLInventoryModelBackgroundFetch::instance().start();
+
+    if (!LLInventoryModelBackgroundFetch::instance().inventoryFetchStarted())
+    {
+        llassert(false); // this should have been done on startup
+        LLInventoryModelBackgroundFetch::instance().start();
+    }
 	
 	if (mInventoryItemsPanel->getFilterSubString().empty() && mSearchString.empty())
 	{
@@ -755,8 +763,7 @@ void LLPanelOutfitEdit::onSearchEdit(const std::string& string)
 	
 	// set new filter string
 	mInventoryItemsPanel->setFilterSubString(mSearchString);
-	mWearableItemsList->setFilterSubString(mSearchString);
-
+	mWearableItemsList->setFilterSubString(mSearchString, true);
 }
 
 void LLPanelOutfitEdit::onPlusBtnClicked(void)

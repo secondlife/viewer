@@ -39,6 +39,7 @@
 #include "llpreprocessor.h"
 
 #include <boost/static_assert.hpp>
+#include <functional> // std::function
 
 const int LL_ERR_NOERR = 0;
 
@@ -82,9 +83,11 @@ const int LL_ERR_NOERR = 0;
 
 #ifdef SHOW_ASSERT
 #define llassert(func)			llassert_always_msg(func, #func)
+#define llassert_msg(func, msg)	llassert_always_msg(func, msg)
 #define llverify(func)			llassert_always_msg(func, #func)
 #else
 #define llassert(func)
+#define llassert_msg(func, msg)
 #define llverify(func)			do {if (func) {}} while(0)
 #endif
 
@@ -299,6 +302,28 @@ namespace LLError
     {
         friend std::ostream& operator<<(std::ostream& out, const LLStacktrace&);
     };
+
+    // Provides access to OS notification popup on error, since
+    // not everything has access to OS's messages
+    class LLUserWarningMsg
+    {
+    public:
+        typedef std::function<void(const std::string&, const std::string&)> Handler;
+        static void setHandler(const Handler&);
+        static void setOutOfMemoryStrings(const std::string& title, const std::string& message);
+
+        // When viewer encounters bad alloc or can't access files try warning user about reasons
+        static void showOutOfMemory();
+        static void showMissingFiles();
+        // Genering error
+        static void show(const std::string&);
+
+    private:
+        // needs to be preallocated before viewer runs out of memory
+        static std::string sLocalizedOutOfMemoryTitle;
+        static std::string sLocalizedOutOfMemoryWarning;
+        static Handler sHandler;
+    };
 }
 
 //this is cheaper than llcallstacks if no need to output other variables to call stacks. 
@@ -383,11 +408,9 @@ typedef LLError::NoClassInfo _LL_CLASS_TO_LOG;
 #define LL_NEWLINE '\n'
 
 // Use this only in LL_ERRS or in a place that LL_ERRS may not be used
-#define LLERROR_CRASH         \
-{                             \
-    int* make_me_crash = NULL;\
-    *make_me_crash = 0;       \
-    exit(*make_me_crash);     \
+#define LLERROR_CRASH                                   \
+{                                                       \
+    crashdriver([](int* ptr){ *ptr = 0; exit(*ptr); }); \
 }
 
 #define LL_ENDL                                         \
@@ -464,7 +487,32 @@ typedef LLError::NoClassInfo _LL_CLASS_TO_LOG;
 		LLError::CallSite& _site(_sites[which]);                        \
 		lllog_test_()
 
-// Check at run-time whether logging is enabled, without generating output
+/*
+// Check at run-time whether logging is enabled, without generating output.
+Resist the temptation to add a function like this because it incurs the
+expense of locking and map-searching every time control reaches it.
 bool debugLoggingEnabled(const std::string& tag);
+
+Instead of:
+
+if debugLoggingEnabled("SomeTag")
+{
+    // ... presumably expensive operation ...
+    LL_DEBUGS("SomeTag") << ... << LL_ENDL;
+}
+
+Use this:
+
+LL_DEBUGS("SomeTag");
+// ... presumably expensive operation ...
+LL_CONT << ...;
+LL_ENDL;
+
+LL_DEBUGS("SomeTag") performs the locking and map-searching ONCE, then caches
+the result in a static variable.
+*/ 
+
+// used by LLERROR_CRASH
+void crashdriver(void (*)(int*));
 
 #endif // LL_LLERROR_H

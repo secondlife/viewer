@@ -57,11 +57,19 @@ if(WINDOWS)
         openjp2.dll
         libapr-1.dll
         libaprutil-1.dll
-        libapriconv-1.dll
         nghttp2.dll
         libhunspell.dll
         uriparser.dll
         )
+
+    # ICU4C (same filenames for 32 and 64 bit builds)
+    set(release_files ${release_files} icudt48.dll)
+    set(release_files ${release_files} icuin48.dll)
+    set(release_files ${release_files} icuio48.dll)
+    set(release_files ${release_files} icule48.dll)
+    set(release_files ${release_files} iculx48.dll)
+    set(release_files ${release_files} icutu48.dll)
+    set(release_files ${release_files} icuuc48.dll)
 
     # OpenSSL
     if(ADDRESS_SIZE EQUAL 64)
@@ -87,7 +95,8 @@ if(WINDOWS)
     endif (USE_BUGSPLAT)
 
     if (TARGET ll::fmodstudio)
-        set(debug_files ${debug_files} fmodL.dll)
+        # fmodL is included for logging, only one should be picked by manifest
+        set(release_files ${release_files} fmodL.dll)
         set(release_files ${release_files} fmod.dll)
     endif ()
 
@@ -172,7 +181,6 @@ elseif(DARWIN)
         libndofdev.dylib
         libnghttp2.dylib
         libnghttp2.14.dylib
-        libnghttp2.14.19.0.dylib
         liburiparser.dylib
         liburiparser.1.dylib
         liburiparser.1.0.27.dylib

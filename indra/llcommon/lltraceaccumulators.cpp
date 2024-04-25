@@ -77,7 +77,7 @@ void AccumulatorBufferGroup::makeCurrent()
 	// update stacktimer parent pointers
 	for (size_t i = 0, end_i = mStackTimers.size(); i < end_i; i++)
 	{
-		TimeBlockTreeNode* tree_node = thread_recorder->getTimeBlockTreeNode(narrow(i));
+		TimeBlockTreeNode* tree_node = thread_recorder->getTimeBlockTreeNode(narrow<size_t>(i));
 		if (tree_node)
 		{
 			timer_accumulator_buffer[i].mParent = tree_node->mParent;

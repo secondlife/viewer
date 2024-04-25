@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel
  background_visible="true"
  bg_alpha_color="DkGray"
@@ -18,7 +18,7 @@
      follows="all"
      height="400"
      layout="topleft"
-     left="0"
+     left="3"
      single_expansion="true"
      top="0"
      name="wearables_accordion"

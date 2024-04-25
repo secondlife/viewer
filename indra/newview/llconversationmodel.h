@@ -40,7 +40,7 @@ class LLConversationItem;
 class LLConversationItemSession;
 class LLConversationItemParticipant;
 
-typedef std::map<LLUUID, LLConversationItem*> conversations_items_map;
+typedef std::map<LLUUID, LLPointer<LLConversationItem> > conversations_items_map;
 typedef std::map<LLUUID, LLFolderViewItem*> conversations_widgets_map;
 
 typedef std::vector<std::string> menuentry_vec_t;
@@ -111,6 +111,7 @@ public:
 	virtual void previewItem( void );
 	virtual void selectItem(void) { } 
 	virtual void showProperties(void);
+    virtual void navigateToFolder(bool new_window = false, bool change_mode = false) {}
 
 	// Methods used in sorting (see LLConversationSort::operator())
 	EConversationType const getType() const { return mConvType; }
@@ -250,7 +251,7 @@ public:
 	bool 				check(const LLFolderViewModelItem* item) { return true; }
 	bool				checkFolder(const LLFolderViewModelItem* folder) const { return true; }
 	void 				setEmptyLookupMessage(const std::string& message) { }
-	std::string			getEmptyLookupMessage() const { return mEmpty; }
+	std::string			getEmptyLookupMessage(bool is_empty_folder = false) const { return mEmpty; }
 	bool				showAllResults() const { return true; }
 	std::string::size_type getStringMatchOffset(LLFolderViewModelItem* item) const { return std::string::npos; }
 	std::string::size_type getFilterStringSize() const { return 0; }

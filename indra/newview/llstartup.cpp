@@ -60,6 +60,7 @@
 #include "llfloatergridstatus.h"
 #include "llfloaterimsession.h"
 #include "lllocationhistory.h"
+#include "llgltfmateriallist.h"
 #include "llimageworker.h"
 
 #include "llloginflags.h"
@@ -256,7 +257,7 @@ static bool mLoginStatePastUI = false;
 static bool mBenefitsSuccessfullyInit = false;
 
 const F32 STATE_AGENT_WAIT_TIMEOUT = 240; //seconds
-const S32 MAX_SEED_CAP_ATTEMPTS_BEFORE_LOGIN = 3; // Give region 3 chances
+const S32 MAX_SEED_CAP_ATTEMPTS_BEFORE_ABORT = 4; // Give region 4 chances
 
 std::unique_ptr<LLEventPump> LLStartUp::sStateWatcher(new LLEventStream("StartupState"));
 std::unique_ptr<LLStartupListener> LLStartUp::sListener(new LLStartupListener());
@@ -301,10 +302,22 @@ void callback_cache_name(const LLUUID& id, const std::string& full_name, bool is
 // exported functionality
 //
 
+void pump_idle_startup_network(void)
+{
+    {
+        LockMessageChecker lmc(gMessageSystem);
+        while (lmc.checkAllMessages(gFrameCount, gServicePump))
+        {
+            display_startup();
+        }
+        lmc.processAcks();
+    }
+    display_startup();
+}
+
 //
 // local classes
 //
-
 void update_texture_fetch()
 {
 	LLAppViewer::getTextureCache()->update(1); // unpauses the texture cache thread
@@ -312,7 +325,7 @@ void update_texture_fetch()
 	LLAppViewer::getTextureFetch()->update(1); // unpauses the texture fetch thread
 	gTextureList.updateImages(0.10f);
 
-    if (LLImageGLThread::sEnabled)
+    if (LLImageGLThread::sEnabledTextures)
     {
         std::shared_ptr<LL::WorkQueue> main_queue = LL::WorkQueue::getInstance("mainloop");
         main_queue->runFor(std::chrono::milliseconds(1));
@@ -1412,11 +1425,18 @@ bool idle_startup()
 		else
 		{
 			U32 num_retries = regionp->getNumSeedCapRetries();
-            if (num_retries > MAX_SEED_CAP_ATTEMPTS_BEFORE_LOGIN)
+            if (num_retries > MAX_SEED_CAP_ATTEMPTS_BEFORE_ABORT)
             {
-                // Region will keep trying to get capabilities,
-                // but for now continue as if caps were granted
-                LLStartUp::setStartupState(STATE_SEED_CAP_GRANTED);
+                LL_WARNS("AppInit") << "Failed to get capabilities. Backing up to login screen!" << LL_ENDL;
+                if (gRememberPassword)
+                {
+                    LLNotificationsUtil::add("LoginPacketNeverReceived", LLSD(), LLSD(), login_alert_status);
+                }
+                else
+                {
+                    LLNotificationsUtil::add("LoginPacketNeverReceivedNoTP", LLSD(), LLSD(), login_alert_status);
+                }
+                reset_login();
             }
 			else if (num_retries > 0)
 			{
@@ -1560,19 +1580,14 @@ bool idle_startup()
 		gAgentCamera.resetCamera();
 		display_startup();
 
-		// start up the ThreadPool we'll use for textures et al.
-        LLAppViewer::instance()->initGeneralThread();
-
 		// Initialize global class data needed for surfaces (i.e. textures)
 		LL_DEBUGS("AppInit") << "Initializing sky..." << LL_ENDL;
 		// Initialize all of the viewer object classes for the first time (doing things like texture fetches.
 		LLGLState::checkStates();
-		LLGLState::checkTextureChannels();
 
 		gSky.init();
 
 		LLGLState::checkStates();
-		LLGLState::checkTextureChannels();
 
 		display_startup();
 
@@ -1638,15 +1653,7 @@ bool idle_startup()
 		{
 			LLStartUp::setStartupState( STATE_AGENT_SEND );
 		}
-		{
-			LockMessageChecker lmc(gMessageSystem);
-			while (lmc.checkAllMessages(gFrameCount, gServicePump))
-			{
-				display_startup();
-			}
-			lmc.processAcks();
-		}
-		display_startup();
+		pump_idle_startup_network();
 		return FALSE;
 	}
 
@@ -1746,6 +1753,7 @@ bool idle_startup()
 	//---------------------------------------------------------------------
 	if (STATE_INVENTORY_SEND == LLStartUp::getStartupState())
 	{
+		LL_PROFILE_ZONE_NAMED("State inventory send")
 		display_startup();
 
         // request mute list
@@ -1777,7 +1785,7 @@ bool idle_startup()
 			}
 		}
 		display_startup();
- 		
+
 		LLSD inv_lib_owner = response["inventory-lib-owner"];
 		if(inv_lib_owner.isDefined())
 		{
@@ -1785,30 +1793,52 @@ bool idle_startup()
 			LLSD id = inv_lib_owner[0]["agent_id"];
 			if(id.isDefined())
 			{
-				gInventory.setLibraryOwnerID( LLUUID(id.asUUID()));
+				gInventory.setLibraryOwnerID(LLUUID(id.asUUID()));
 			}
 		}
 		display_startup();
-
-		LLSD inv_skel_lib = response["inventory-skel-lib"];
- 		if(inv_skel_lib.isDefined() && gInventory.getLibraryOwnerID().notNull())
- 		{
- 			if(!gInventory.loadSkeleton(inv_skel_lib, gInventory.getLibraryOwnerID()))
- 			{
- 				LL_WARNS("AppInit") << "Problem loading inventory-skel-lib" << LL_ENDL;
- 			}
- 		}
+		LLStartUp::setStartupState(STATE_INVENTORY_SKEL);
 		display_startup();
+		return FALSE;
+	}
 
-		LLSD inv_skeleton = response["inventory-skeleton"];
- 		if(inv_skeleton.isDefined())
- 		{
- 			if(!gInventory.loadSkeleton(inv_skeleton, gAgent.getID()))
- 			{
- 				LL_WARNS("AppInit") << "Problem loading inventory-skel-targets" << LL_ENDL;
- 			}
- 		}
-		display_startup();
+    if (STATE_INVENTORY_SKEL == LLStartUp::getStartupState())
+    {
+        LL_PROFILE_ZONE_NAMED("State inventory load skeleton")
+
+		LLSD response = LLLoginInstance::getInstance()->getResponse();
+
+        LLSD inv_skel_lib = response["inventory-skel-lib"];
+        if (inv_skel_lib.isDefined() && gInventory.getLibraryOwnerID().notNull())
+        {
+            LL_PROFILE_ZONE_NAMED("load library inv")
+            if (!gInventory.loadSkeleton(inv_skel_lib, gInventory.getLibraryOwnerID()))
+            {
+                LL_WARNS("AppInit") << "Problem loading inventory-skel-lib" << LL_ENDL;
+            }
+        }
+        display_startup();
+
+        LLSD inv_skeleton = response["inventory-skeleton"];
+        if (inv_skeleton.isDefined())
+        {
+            LL_PROFILE_ZONE_NAMED("load personal inv")
+            if (!gInventory.loadSkeleton(inv_skeleton, gAgent.getID()))
+            {
+                LL_WARNS("AppInit") << "Problem loading inventory-skel-targets" << LL_ENDL;
+            }
+        }
+        display_startup();
+        LLStartUp::setStartupState(STATE_INVENTORY_SEND2);
+        display_startup();
+        return FALSE;
+    }
+
+    if (STATE_INVENTORY_SEND2 == LLStartUp::getStartupState())
+    {
+        LL_PROFILE_ZONE_NAMED("State inventory send2")
+
+		LLSD response = LLLoginInstance::getInstance()->getResponse();
 
 		LLSD inv_basic = response["inventory-basic"];
  		if(inv_basic.isDefined())
@@ -1915,6 +1945,34 @@ bool idle_startup()
 		
         LLInventoryModelBackgroundFetch::instance().start();
 		gInventory.createCommonSystemCategories();
+        LLStartUp::setStartupState(STATE_INVENTORY_CALLBACKS );
+        display_startup();
+
+        return FALSE;
+    }
+
+    //---------------------------------------------------------------------
+    // STATE_INVENTORY_CALLBACKS 
+    //---------------------------------------------------------------------
+    if (STATE_INVENTORY_CALLBACKS  == LLStartUp::getStartupState())
+    {
+        if (!LLInventoryModel::isSysFoldersReady())
+        {
+            display_startup();
+            return FALSE;
+        }
+        LLInventoryModelBackgroundFetch::instance().start();
+        LLUUID cof_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
+        LLViewerInventoryCategory* cof = gInventory.getCategory(cof_id);
+        if (cof
+            && cof->getVersion() == LLViewerInventoryCategory::VERSION_UNKNOWN)
+        {
+            // Special case, dupplicate request prevention.
+            // Cof folder will be requested via FetchCOF
+            // in appearance manager, prevent recursive fetch
+            cof->setFetching(LLViewerInventoryCategory::FETCH_RECURSIVE);
+        }
+
 
 		// It's debatable whether this flag is a good idea - sets all
 		// bits, and in general it isn't true that inventory
@@ -2176,7 +2234,7 @@ bool idle_startup()
 			gAgentWearables.notifyLoadingStarted();
 			gAgent.setOutfitChosen(TRUE);
 			gAgentWearables.sendDummyAgentWearablesUpdate();
-			callAfterCategoryFetch(LLAppearanceMgr::instance().getCOF(), set_flags_and_update_appearance);
+            callAfterCOFFetch(set_flags_and_update_appearance);
 		}
 
 		display_startup();
@@ -2272,7 +2330,7 @@ bool idle_startup()
 
 	if (STATE_CLEANUP == LLStartUp::getStartupState())
 	{
-        set_startup_status(1.0, "", "");
+		set_startup_status(1.0, "", "");
 		display_startup();
 
 		if (!mBenefitsSuccessfullyInit)
@@ -2744,6 +2802,7 @@ void register_viewer_callbacks(LLMessageSystem* msg)
 	msg->setHandlerFunc("InitiateDownload", process_initiate_download);
 	msg->setHandlerFunc("LandStatReply", LLFloaterTopObjects::handle_land_reply);
     msg->setHandlerFunc("GenericMessage", process_generic_message);
+    msg->setHandlerFunc("GenericStreamingMessage", process_generic_streaming_message);
     msg->setHandlerFunc("LargeGenericMessage", process_large_generic_message);
 
 	msg->setHandlerFuncFast(_PREHASH_FeatureDisabled, process_feature_disabled_message);
@@ -2818,7 +2877,7 @@ void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 	// Not going through the processAgentInitialWearables path, so need to set this here.
 	LLAppearanceMgr::instance().setAttachmentInvLinkEnable(true);
 	// Initiate creation of COF, since we're also bypassing that.
-	gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
+	gInventory.ensureCategoryForTypeExists(LLFolderType::FT_CURRENT_OUTFIT);
 	
 	ESex gender;
 	if (gender_name == "male")
@@ -2871,8 +2930,14 @@ void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 		bool do_append = false;
 		LLViewerInventoryCategory *cat = gInventory.getCategory(cat_id);
 		// Need to fetch cof contents before we can wear.
-		callAfterCategoryFetch(LLAppearanceMgr::instance().getCOF(),
-							   boost::bind(&LLAppearanceMgr::wearInventoryCategory, LLAppearanceMgr::getInstance(), cat, do_copy, do_append));
+        if (do_copy)
+        {
+            callAfterCOFFetch(boost::bind(&LLAppearanceMgr::wearInventoryCategory, LLAppearanceMgr::getInstance(), cat, do_copy, do_append));
+        }
+        else
+        {
+            callAfterCategoryLinksFetch(cat_id, boost::bind(&LLAppearanceMgr::wearInventoryCategory, LLAppearanceMgr::getInstance(), cat, do_copy, do_append));
+        }
 		LL_DEBUGS() << "initial outfit category id: " << cat_id << LL_ENDL;
 	}
 
@@ -2925,6 +2990,7 @@ std::string LLStartUp::startupStateToString(EStartupState state)
 		RTNENUM( STATE_AGENT_SEND );
 		RTNENUM( STATE_AGENT_WAIT );
 		RTNENUM( STATE_INVENTORY_SEND );
+        RTNENUM(STATE_INVENTORY_CALLBACKS );
 		RTNENUM( STATE_MISC );
 		RTNENUM( STATE_PRECACHE );
 		RTNENUM( STATE_WEARABLES_WAIT );
@@ -2978,6 +3044,11 @@ void reset_login()
 	// Hide any other stuff
 	LLFloaterReg::hideVisibleInstances();
     LLStartUp::setStartupState( STATE_BROWSER_INIT );
+
+    if (LLVoiceClient::instanceExists())
+    {
+        LLVoiceClient::getInstance()->terminate();
+    }
 
     // Clear any verified certs and verify them again on next login
     // to ensure cert matches server instead of just getting reused
@@ -3652,7 +3723,7 @@ bool process_login_success_response()
 		std::string flag = login_flags["ever_logged_in"];
 		if(!flag.empty())
 		{
-			gAgent.setFirstLogin((flag == "N") ? TRUE : FALSE);
+			gAgent.setFirstLogin(flag == "N");
 		}
 
 		/*  Flag is currently ignored by the viewer.
@@ -3743,7 +3814,7 @@ bool process_login_success_response()
 	std::string fake_initial_outfit_name = gSavedSettings.getString("FakeInitialOutfitName");
 	if (!fake_initial_outfit_name.empty())
 	{
-		gAgent.setFirstLogin(TRUE);
+		gAgent.setFirstLogin(true);
 		sInitialOutfit = fake_initial_outfit_name;
 		if (sInitialOutfitGender.empty())
 		{
@@ -3778,7 +3849,9 @@ bool process_login_success_response()
 
 
 	// Only save mfa_hash for future logins if the user wants their info remembered.
-	if(response.has("mfa_hash") && gSavedSettings.getBOOL("RememberUser") && gSavedSettings.getBOOL("RememberPassword"))
+	if(response.has("mfa_hash")
+       && gSavedSettings.getBOOL("RememberUser")
+       && LLLoginInstance::getInstance()->saveMFA())
 	{
 		std::string grid(LLGridManager::getInstance()->getGridId());
 		std::string user_id(gUserCredential->userID());
@@ -3786,6 +3859,13 @@ bool process_login_success_response()
 		// TODO(brad) - related to SL-17223 consider building a better interface that sync's automatically
 		gSecAPIHandler->syncProtectedMap();
 	}
+    else if (!LLLoginInstance::getInstance()->saveMFA())
+    {
+        std::string grid(LLGridManager::getInstance()->getGridId());
+        std::string user_id(gUserCredential->userID());
+        gSecAPIHandler->removeFromProtectedMap("mfa_hash", grid, user_id);
+        gSecAPIHandler->syncProtectedMap();
+    }
 
 	bool success = false;
 	// JC: gesture loading done below, when we have an asset system

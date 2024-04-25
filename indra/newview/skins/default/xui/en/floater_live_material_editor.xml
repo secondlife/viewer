@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ can_resize="true"
+ default_tab_group="1"
+ height="790"
+ width="256"
+ min_height="500"
+ min_width="256"
+ layout="topleft"
+ name="material editor"
+ help_topic="material_editor"
+ single_instance="true"
+ title="Editing Material">
+  <scroll_container
+   name="materials_scroll"
+   top="18"
+   left="4"
+   height="768"
+   width="250"
+   follows="all"
+   layout="topleft"
+   color="DkGray2"
+   opaque="true"
+   tab_stop="true"
+   border="false"
+   reserve_scroll_corner="false">
+    <panel
+     name="panel_material"
+     filename="panel_gltf_material.xml"
+     layout="topleft"
+     follows="left|top|right"
+     border="false"
+     top="0"
+     left="0"
+     height="768"
+     width="236" />
+  </scroll_container>
+</floater>

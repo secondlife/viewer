@@ -21,7 +21,6 @@
 // external library headers
 #include "llapr.h"
 #include "apr_thread_proc.h"
-#include <boost/foreach.hpp>
 #include <boost/function.hpp>
 #include <boost/algorithm/string/find_iterator.hpp>
 #include <boost/algorithm/string/finder.hpp>
@@ -221,7 +220,7 @@ struct PythonProcessLauncher
     LLProcess::Params mParams;
     LLProcessPtr mPy;
     std::string mDesc;
-    NamedTempFile mScript;
+    NamedExtTempFile mScript;
 };
 
 /// convenience function for PythonProcessLauncher::run()
@@ -324,7 +323,7 @@ namespace tut
     {
 /*==========================================================================*|
         std::string reason_str;
-        BOOST_FOREACH(const ReasonCode& rcp, reasons)
+        for (const ReasonCode& rcp : reasons)
         {
             if (reason == rcp.code)
             {
@@ -382,7 +381,7 @@ namespace tut
         set_test_name("raw APR nonblocking I/O");
 
         // Create a script file in a temporary place.
-        NamedTempFile script("py",
+        NamedExtTempFile script("py",
             "from __future__ import print_function" EOL
             "import sys" EOL
             "import time" EOL
@@ -555,7 +554,7 @@ namespace tut
         catch (const failure&)
         {
             std::cout << "History:\n";
-            BOOST_FOREACH(const Item& item, history)
+            for (const Item& item : history)
             {
                 std::string what(item.what);
                 if ((! what.empty()) && what[what.length() - 1] == '\n')

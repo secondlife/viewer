@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater
  legacy_header_height="18"
  can_minimize="false"
@@ -19,7 +19,15 @@
     </floater.string>
     <floater.string
      name="pick title">
-        Pick:
+Pick:
+    </floater.string>
+    <floater.string
+     name="pick_material">
+PICK: MATERIAL
+    </floater.string>
+    <floater.string
+     name="pick_texture">
+PICK: TEXTURE
     </floater.string>
 
     <view
@@ -83,6 +91,22 @@
      top_pad="4">
         [DIMENSIONS]
     </text>
+    <text
+     type="string"
+     text_color="Yellow"
+     length="1"
+     word_wrap="true"
+     follows="left|top"
+     height="56"
+     width="164"
+     layout="topleft"
+     left="8"
+     name="over_limit_lbl"
+     visible="false"
+     top_delta="0">
+        Selected texture is [TEXDIM]. Inventory image must be square, no less than [MINTEXDIM].
+    </text>
+    
 <!--  middle: inventory mode -->
 
     <button
@@ -138,6 +162,7 @@
      word_wrap="true"
      visible="false"
      width="87" />
+
     <filter_editor
      follows="left|top|right"
      height="23"
@@ -153,22 +178,13 @@
      bg_alpha_color="DkGray2"
      border="false"
      follows="all"
-     height="233"
+     height="242"
      layout="topleft"
      left_delta="0"
      name="inventory panel"
      top_pad="4"
      width="231"
-     filter_asset_type="texture"/>
-     <check_box
-     height="14"
-     initial_value="false"
-     label="Show folders"
-     layout="topleft"
-     name="show_folders_check"
-     top_pad="0"
-     left_delta="-3"
-     width="200" />
+     filter_asset_types="texture|material"/>
 
 <!--  middle: local mode -->
     <button
@@ -218,8 +234,8 @@
      multi_select="true"
      search_column="1"
      visible="false">
+        <column name="icon" label="" width="20" />
         <column name="unit_name" label="Name" dynamicwidth="true" />
-        <column name="unit_id_HIDDEN" label="ID" width="0" />
     </scroll_list>
 
 <!-- middle: bake mode -->
@@ -283,19 +299,6 @@
          name="BAKED_AUX3"
          value="10" />
   </combo_box>
-  <check_box
-     follows="left|top"
-     height="20"
-     initial_value="false"
-     label="Hide Base Mesh Region"
-     
-layout="topleft"
-     name="hide_base_mesh_region"
-     left_delta="0"
-     top_pad="10"
-     top_delta="0"
-     width="120" 
-     visible="false"/>
 <!-- bottom static -->
     <button
      follows="bottom"

@@ -60,7 +60,6 @@
 #include "v2math.h"
 #include <set>
 #include <boost/tokenizer.hpp>
-#include <boost/foreach.hpp>
 
 // static
 LLMenuHolderGL *LLMenuGL::sMenuContainer = NULL;
@@ -574,12 +573,17 @@ void LLMenuItemGL::onVisibilityChange(BOOL new_visibility)
 // This class represents a separator.
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 LLMenuItemSeparatorGL::Params::Params()
+    : on_visible("on_visible")
 {
 }
 
 LLMenuItemSeparatorGL::LLMenuItemSeparatorGL(const LLMenuItemSeparatorGL::Params& p) :
 	LLMenuItemGL( p )
 {
+    if (p.on_visible.isProvided())
+    {
+        mVisibleSignal.connect(initEnableCallback(p.on_visible));
+    }
 }
 
 //virtual
@@ -594,6 +598,15 @@ void LLMenuItemSeparatorGL::draw( void )
 	const S32 y = getRect().getHeight() / 2;
 	const S32 PAD = 6;
 	gl_line_2d( PAD, y, getRect().getWidth() - PAD, y );
+}
+
+void LLMenuItemSeparatorGL::buildDrawLabel( void )
+{
+    if (mVisibleSignal.num_slots() > 0)
+    {
+        bool visible = mVisibleSignal(this, LLSD());
+        setVisible(visible);
+    }
 }
 
 BOOL LLMenuItemSeparatorGL::handleMouseDown(S32 x, S32 y, MASK mask)
@@ -2148,7 +2161,7 @@ void LLMenuGL::arrange( void )
 		}
 		else
 		{
-			BOOST_FOREACH(LLMenuItemGL* itemp, mItems)
+			for (LLMenuItemGL* itemp : mItems)
 			{
 				// do first so LLMenuGLItemCall can call on_visible to determine if visible
 				itemp->buildDrawLabel();

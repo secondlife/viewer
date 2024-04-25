@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu
+ bottom="806"
+ layout="topleft"
+ left="0"
+ mouse_opaque="false"
+ name="menu_view_default"
+ visible="false">
+    <menu_item_check
+     label="Sort by Name"
+     layout="topleft"
+     name="sort_by_name">
+        <on_click
+         function="Inventory.GearDefault.Custom.Action"
+         parameter="sort_by_name" />
+        <on_check
+         function="Inventory.GearDefault.Check"
+         parameter="sort_by_name" />
+    </menu_item_check>
+    <menu_item_check
+     label="Sort by Most Recent"
+     layout="topleft"
+     name="sort_by_recent">
+        <on_click
+         function="Inventory.GearDefault.Custom.Action"
+         parameter="sort_by_recent" />
+        <on_check
+         function="Inventory.GearDefault.Check"
+         parameter="sort_by_recent" />         
+    </menu_item_check>
+    <menu_item_check
+     label="Sort Folders Always by Name"
+     layout="topleft"
+     name="sort_folders_by_name">
+        <on_click
+         function="Inventory.GearDefault.Custom.Action"
+         parameter="sort_folders_by_name" />
+        <on_check
+         function="Inventory.GearDefault.Check"
+         parameter="sort_folders_by_name" />
+    </menu_item_check>
+    <menu_item_check
+     label="Sort System Folders to Top"
+     layout="topleft"
+     name="sort_system_folders_to_top">
+        <on_click
+         function="Inventory.GearDefault.Custom.Action"
+         parameter="sort_system_folders_to_top" />
+        <on_check
+         function="Inventory.GearDefault.Check"
+         parameter="sort_system_folders_to_top" />
+        <on_visible
+         function="Inventory.GearDefault.Visible"
+         parameter="multi_folder_view" />
+    </menu_item_check>
+    <menu_item_separator>
+        <menu_item_separator.on_visible
+         function="Inventory.GearDefault.Visible"
+         parameter="single_folder_view" />
+    </menu_item_separator>
+    <menu_item_check
+     label="List view"
+     layout="topleft"
+     name="list_view">
+        <on_click
+         function="Inventory.GearDefault.Custom.Action"
+         parameter="list_view" />
+        <on_check
+         function="Inventory.GearDefault.Check"
+         parameter="list_view" />
+        <on_visible
+         function="Inventory.GearDefault.Visible"
+         parameter="single_folder_view" />
+    </menu_item_check>
+    <menu_item_check
+     label="Gallery view"
+     layout="topleft"
+     name="gallery_view">
+        <on_click
+         function="Inventory.GearDefault.Custom.Action"
+         parameter="gallery_view" />
+        <on_check
+         function="Inventory.GearDefault.Check"
+         parameter="gallery_view" />
+        <on_visible
+         function="Inventory.GearDefault.Visible"
+         parameter="single_folder_view" />
+    </menu_item_check>
+    <menu_item_check
+     label="Combination view"
+     layout="topleft"
+     name="combination_view">
+        <on_click
+         function="Inventory.GearDefault.Custom.Action"
+         parameter="combination_view" />
+        <on_check
+         function="Inventory.GearDefault.Check"
+         parameter="combination_view" />
+        <on_visible
+         function="Inventory.GearDefault.Visible"
+         parameter="single_folder_view" />
+    </menu_item_check>
+    <menu_item_separator/>
+    <menu_item_check
+     label="Inventory settings..."
+     name="inv_settings">
+        <menu_item_check.on_check
+         function="Floater.Visible"
+         parameter="inventory_settings" />
+        <menu_item_check.on_click
+         function="Floater.Toggle"
+         parameter="inventory_settings" />
+    </menu_item_check>
+</toggleable_menu>

@@ -1067,6 +1067,12 @@ void LLTeleportHistoryPanel::onGearMenuAction(const LLSD& userdata)
         LLLandmarkActions::getSLURLfromPosGlobal(globalPos,
             boost::bind(&LLTeleportHistoryPanel::gotSLURLCallback, _1));
     }
+    else if ("remove" == command_name)
+    {
+        LLTeleportHistoryStorage::getInstance()->removeItem(index);
+        LLTeleportHistoryStorage::getInstance()->save();
+        showTeleportHistory();
+    }
 }
 
 bool LLTeleportHistoryPanel::isActionEnabled(const LLSD& userdata) const
@@ -1121,7 +1127,8 @@ bool LLTeleportHistoryPanel::isActionEnabled(const LLSD& userdata) const
     if ("teleport" == command_name
         || "view" == command_name
         || "show_on_map" == command_name
-        || "copy_slurl" == command_name)
+        || "copy_slurl" == command_name
+        || "remove" == command_name)
     {
         if (!mLastSelectedFlatlList)
         {

@@ -99,7 +99,6 @@ LLVOAvatar *LLControlAvatar::getAttachedAvatar()
 
 void LLControlAvatar::getNewConstraintFixups(LLVector3& new_pos_fixup, F32& new_scale_fixup) const
 {
-
     F32 max_legal_offset = MAX_LEGAL_OFFSET;
     if (gSavedSettings.getControl("AnimatedObjectsMaxLegalOffset"))
     {
@@ -313,8 +312,8 @@ void LLControlAvatar::updateVolumeGeom()
         }
     }
 
-    gPipeline.markRebuild(mRootVolp->mDrawable, LLDrawable::REBUILD_ALL, TRUE);
-    mRootVolp->markForUpdate(TRUE);
+    gPipeline.markRebuild(mRootVolp->mDrawable, LLDrawable::REBUILD_ALL);
+    mRootVolp->markForUpdate();
 
     // Note that attachment overrides aren't needed here, have already
     // been applied at the time the mControlAvatar was created, in
@@ -362,6 +361,9 @@ LLControlAvatar *LLControlAvatar::createControlAvatar(LLVOVolume *obj)
 void LLControlAvatar::markForDeath()
 {
     mMarkedForDeath = true;
+    // object unlinked cav and might be dead already
+    // might need to clean mControlAVBridge here as well
+    mRootVolp = NULL;
 }
 
 void LLControlAvatar::idleUpdate(LLAgent &agent, const F64 &time)
@@ -379,6 +381,7 @@ void LLControlAvatar::idleUpdate(LLAgent &agent, const F64 &time)
 
 void LLControlAvatar::markDead()
 {
+    mRootVolp = NULL;
     super::markDead();
     mControlAVBridge = NULL;
 }
@@ -439,7 +442,7 @@ void LLControlAvatar::updateDebugText()
         F32 streaming_cost = 0.f;
         std::string cam_dist_string = "";
         S32 cam_dist_count = 0;
-        F32 lod_radius = mRootVolp->mLODRadius;
+        F32 lod_radius = mRootVolp ? mRootVolp->mLODRadius : 0.f;
 
         for (std::vector<LLVOVolume*>::iterator it = volumes.begin();
              it != volumes.end(); ++it)
@@ -604,7 +607,7 @@ void LLControlAvatar::updateAnimations()
         //if (!mRootVolp->isAnySelected())
         {
             updateVolumeGeom();
-            mRootVolp->recursiveMarkForUpdate(TRUE);
+            mRootVolp->recursiveMarkForUpdate();
         }
     }
 
@@ -617,6 +620,7 @@ LLViewerObject* LLControlAvatar::lineSegmentIntersectRiggedAttachments(const LLV
 									  S32 face,
 									  BOOL pick_transparent,
 									  BOOL pick_rigged,
+                                      BOOL pick_unselectable,
 									  S32* face_hit,
 									  LLVector4a* intersection,
 									  LLVector2* tex_coord,
@@ -634,7 +638,7 @@ LLViewerObject* LLControlAvatar::lineSegmentIntersectRiggedAttachments(const LLV
 	{
 		LLVector4a local_end = end;
 		LLVector4a local_intersection;
-        if (mRootVolp->lineSegmentIntersect(start, local_end, face, pick_transparent, pick_rigged, face_hit, &local_intersection, tex_coord, normal, tangent))
+        if (mRootVolp->lineSegmentIntersect(start, local_end, face, pick_transparent, pick_rigged, pick_unselectable, face_hit, &local_intersection, tex_coord, normal, tangent))
         {
             local_end = local_intersection;
             if (intersection)
@@ -651,7 +655,7 @@ LLViewerObject* LLControlAvatar::lineSegmentIntersectRiggedAttachments(const LLV
             for (std::vector<LLVOVolume*>::iterator vol_it = volumes.begin(); vol_it != volumes.end(); ++vol_it)
             {
                 LLVOVolume *volp = *vol_it;
-                if (mRootVolp != volp && volp->lineSegmentIntersect(start, local_end, face, pick_transparent, pick_rigged, face_hit, &local_intersection, tex_coord, normal, tangent))
+                if (mRootVolp != volp && volp->lineSegmentIntersect(start, local_end, face, pick_transparent, pick_rigged, pick_unselectable, face_hit, &local_intersection, tex_coord, normal, tangent))
         {
             local_end = local_intersection;
             if (intersection)

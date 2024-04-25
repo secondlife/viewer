@@ -23,15 +23,11 @@
  * $/LicenseInfo$
  */
 
-#ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
-#else
-#define frag_color gl_FragColor
-#endif
 
 uniform vec4 color;
 
 void main() 
 {
-	frag_color = color;
+	frag_color = max(color, vec4(0));
 }

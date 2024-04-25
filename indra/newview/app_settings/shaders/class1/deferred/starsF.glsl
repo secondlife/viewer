@@ -25,18 +25,13 @@
 
 /*[EXTRA_CODE_HERE]*/
 
-#ifdef DEFINE_GL_FRAGCOLOR
-out vec4 frag_data[3];
-#else
-#define frag_data gl_FragData
-#endif
+out vec4 frag_data[4];
 
-VARYING vec4 vertex_color;
-VARYING vec2 vary_texcoord0;
-VARYING vec2 screenpos;
+in vec4 vertex_color;
+in vec2 vary_texcoord0;
+in vec2 screenpos;
 
 uniform sampler2D diffuseMap;
-uniform sampler2D altDiffuseMap;
 uniform float blend_factor;
 uniform float custom_alpha;
 uniform float time;
@@ -46,10 +41,15 @@ float twinkle(){
     return abs(d);
 }
 
+// See:
+// ALM off: class1/environment/starsF.glsl
+// ALM on : class1/deferred/starsF.glsl
 void main() 
 {
-    vec4 col_a = texture2D(diffuseMap, vary_texcoord0.xy);
-    vec4 col_b = texture2D(diffuseMap, vary_texcoord0.xy);
+	// camera above water: class1\deferred\starsF.glsl
+	// camera below water: class1\environment\starsF.glsl
+    vec4 col_a = texture(diffuseMap, vary_texcoord0.xy);
+    vec4 col_b = texture(diffuseMap, vary_texcoord0.xy);
     vec4 col = mix(col_b, col_a, blend_factor);
     col.rgb *= vertex_color.rgb;
  
@@ -58,10 +58,9 @@ void main()
     col.a = (col.a * factor) * 32.0f;
     col.a *= twinkle();
 
-    frag_data[0] = col;
+    frag_data[0] = vec4(0);
     frag_data[1] = vec4(0.0f);
-    frag_data[2] = vec4(0.0, 1.0, 0.0, 1.0);
-
-    gl_FragDepth = 0.99995f;
+    frag_data[2] = vec4(0.0, 1.0, 0.0, GBUFFER_FLAG_SKIP_ATMOS);
+    frag_data[3] = col;
 }
 

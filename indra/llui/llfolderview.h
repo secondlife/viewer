@@ -127,6 +127,9 @@ public:
 	bool getAllowMultiSelect() { return mAllowMultiSelect; }
 	bool getAllowDrag() { return mAllowDrag; }
 
+    void setSingleFolderMode(bool is_single_mode) { mSingleFolderMode = is_single_mode; }
+    bool isSingleFolderMode() { return mSingleFolderMode; }
+
 	// Close all folders in the view
 	void closeAllFolders();
 	void openTopLevelFolders();
@@ -136,13 +139,17 @@ public:
 	// Find width and height of this object and its children. Also
 	// makes sure that this view and its children are the right size.
 	virtual S32 arrange( S32* width, S32* height );
-	virtual S32 getItemHeight();
+	virtual S32 getItemHeight() const;
 
 	void arrangeAll() { mArrangeGeneration++; }
 	S32 getArrangeGeneration() { return mArrangeGeneration; }
 
 	// applies filters to control visibility of items
 	virtual void filter( LLFolderViewFilter& filter);
+
+	void              clearHoveredItem() { setHoveredItem(nullptr); }
+	LLFolderViewItem* getHoveredItem() const;
+	void              setHoveredItem(LLFolderViewItem* itemp);
 
 	// Get the last selected item
 	virtual LLFolderViewItem* getCurSelectedItem( void );
@@ -210,6 +217,7 @@ public:
 	virtual void draw();
 	virtual void deleteAllChildren();
 
+    void stopAutoScollining() {mNeedsScroll = false;}
 	void scrollToShowSelection();
 	void scrollToShowItem(LLFolderViewItem* item, const LLRect& constraint_rect);
 	void setScrollContainer( LLScrollContainer* parent ) { mScrollContainer = parent; }
@@ -237,11 +245,15 @@ public:
 	void setCallbackRegistrar(LLUICtrl::CommitCallbackRegistry::ScopedRegistrar* registrar) { mCallbackRegistrar = registrar; }
 	void setEnableRegistrar(LLUICtrl::EnableCallbackRegistry::ScopedRegistrar* registrar) { mEnableRegistrar = registrar; }
 
+    void setForceArrange(bool force) { mForceArrange = force; }
+
 	LLPanel* getParentPanel() { return mParentPanel.get(); }
 	// DEBUG only
 	void dumpSelectionInformation();
 
 	virtual S32	notify(const LLSD& info) ;
+
+	void setShowEmptyMessage(bool show_msg) { mShowEmptyMessage = show_msg; }
 	
 	bool useLabelSuffix() { return mUseLabelSuffix; }
 	virtual void updateMenu();
@@ -275,6 +287,7 @@ protected:
 	LLHandle<LLView>					mPopupMenuHandle;
 	std::string						mMenuFileName;
 	
+	LLHandle<LLView>				mHoveredItem;
 	selected_items_t				mSelectedItems;
 	bool							mKeyboardSelection,
 									mAllowMultiSelect,
@@ -291,7 +304,8 @@ protected:
 									mShowItemLinkOverlays,
 									mShowSelectionContext,
 									mShowSingleSelection,
-									mSuppressFolderMenu;
+									mSuppressFolderMenu,
+                                    mSingleFolderMode;
 
 	// Renaming variables and methods
 	LLFolderViewItem*				mRenameItem;  // The item currently being renamed
@@ -330,6 +344,8 @@ protected:
 
 	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar* mCallbackRegistrar;
 	LLUICtrl::EnableCallbackRegistry::ScopedRegistrar* mEnableRegistrar;
+
+    bool mForceArrange;
 	
 public:
 	static F32 sAutoOpenTime;

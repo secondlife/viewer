@@ -1,0 +1,60 @@
+# standalone functions from sling-buildscripts
+
+set_build_number_to_revision()
+{
+    record_event "buildNumber $revision"
+}
+
+record_event()
+{
+    echo "=== $@"
+}
+
+begin_section()
+{
+    record_event "START $*"
+    sections+=("$*")
+}
+
+end_section()
+{
+    # accommodate dumb Mac bash 3, which doesn't understand array[-1]
+    local last=$(( ${#sections[@]} - 1 ))
+    record_event "END ${*:-${sections[$last]}}"
+    unset "sections[$last]"
+}
+
+record_success()
+{
+    record_event "SUCCESS $*"
+}
+
+record_failure()
+{
+    record_event "FAILURE $*" >&2
+}
+
+fatal()
+{
+    record_failure "$@"
+    finalize false
+    exit 1
+}
+
+# redefined fail for backward compatibility
+alias fail=fatal
+
+pass()
+{
+  exit 0
+}
+
+export -f set_build_number_to_revision
+export -f record_event
+export -f begin_section
+export -f end_section
+export -f record_success
+export -f record_failure
+export -f fatal
+export -f pass
+export sections

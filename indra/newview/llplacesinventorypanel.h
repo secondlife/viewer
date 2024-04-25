@@ -40,18 +40,21 @@ public:
 	{
 		Params()
 		{
-           filter_asset_type = "landmark";
+           filter_asset_types = "landmark";
        }
 	};
 
 	LLPlacesInventoryPanel(const Params& p);
 	~LLPlacesInventoryPanel();
 
-    LLFolderView * createFolderRoot(LLUUID root_id );
+    LLFolderView * createFolderRoot(LLUUID root_id ) override;
 	void saveFolderState();
 	void restoreFolderState();
 
-	virtual S32	notify(const LLSD& info) ;
+	virtual S32	notify(const LLSD& info) override;
+
+    BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop, EDragAndDropType cargo_type, void *cargo_data,
+                            EAcceptance *accept, std::string &tooltip_msg) override;
 
 private:
 	LLSaveFolderState*			mSavedFolderState;

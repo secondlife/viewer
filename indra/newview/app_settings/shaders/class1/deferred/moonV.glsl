@@ -27,18 +27,21 @@ uniform mat4 texture_matrix0;
 uniform mat4 modelview_matrix;
 uniform mat4 modelview_projection_matrix;
 
-ATTRIBUTE vec3 position;
-ATTRIBUTE vec2 texcoord0;
+in vec3 position;
+in vec2 texcoord0;
 
-VARYING vec2 vary_texcoord0;
+out vec2 vary_texcoord0;
 
 void main()
 {
     //transform vertex
     vec4 vert = vec4(position.xyz, 1.0);
-    vec4 pos = (modelview_matrix * vert);
+    vec4 pos = (modelview_projection_matrix * vert);
 
-    gl_Position = modelview_projection_matrix*vert;
+    // smash to *almost* far clip plane -- stars are still behind
+    // SL-19283 - finagle the moon position to be between clouds and stars.
+    pos.z = pos.w*0.999991;
+    gl_Position = pos;
 
     vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
 }

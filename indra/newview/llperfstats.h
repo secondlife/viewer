@@ -42,6 +42,10 @@ extern U32 gFrameCount;
 extern LLUUID gAgentID;
 namespace LLPerfStats
 {
+
+    // called once per main loop iteration
+    void updateClass();
+
 // Note if changing these, they should correspond with the log range of the correpsonding sliders
     static constexpr U64 ART_UNLIMITED_NANOS{50000000};
     static constexpr U64 ART_MINIMUM_NANOS{100000};
@@ -68,9 +72,6 @@ namespace LLPerfStats
 
     enum class ObjType_t{
         OT_GENERAL=0, // Also Unknown. Used for n/a type stats such as scenery
-        OT_AVATAR,
-        OT_ATTACHMENT,
-        OT_HUD,
         OT_COUNT
     };
     enum class StatType_t{
@@ -117,7 +118,6 @@ namespace LLPerfStats
         static constexpr U32 UserAutoTuneEnabled{256};
         static constexpr U32 UserTargetFPS{512};
         static constexpr U32 UserARTCutoff{1024};
-        static constexpr U32 UserTargetReflections{2048};
         static constexpr U32 UserAutoTuneLock{4096};
 
         U32 tuningFlag{0}; // bit mask for changed settings
@@ -151,7 +151,6 @@ namespace LLPerfStats
         void updateUserARTCutoffSlider(F32 nv){userARTCutoffSliderValue=nv; tuningFlag |= UserARTCutoff;};
         void updateUserAutoTuneEnabled(bool nv){userAutoTuneEnabled=nv; tuningFlag |= UserAutoTuneEnabled;};
         void updateUserAutoTuneLock(bool nv){userAutoTuneLock=nv; tuningFlag |= UserAutoTuneLock;};
-        void updateUserTargetReflections(S32 nv){userTargetReflections=nv; tuningFlag |= UserTargetReflections;};
 
         void resetChanges(){tuningFlag=Nothing;};
         void initialiseFromSettings();
@@ -163,9 +162,7 @@ namespace LLPerfStats
     extern Tunables tunables;
 
     class StatsRecorder{
-        using Queue = LLThreadSafeQueue<StatsRecord>;
     public:
-
         static inline StatsRecorder& getInstance()
         {
             static StatsRecorder instance;
@@ -174,9 +171,24 @@ namespace LLPerfStats
         static inline void setFocusAv(const LLUUID& avID){focusAv = avID;};
         static inline const LLUUID& getFocusAv(){return focusAv;};
         static inline void setAutotuneInit(){autotuneInit = true;};
-        static inline void send(StatsRecord && upd){StatsRecorder::getInstance().q.pushFront(std::move(upd));};
-        static void endFrame(){StatsRecorder::getInstance().q.pushFront(StatsRecord{StatType_t::RENDER_DONE, ObjType_t::OT_GENERAL, LLUUID::null, LLUUID::null, 0});};
-        static void clearStats(){StatsRecorder::getInstance().q.pushFront(StatsRecord{StatType_t::RENDER_DONE, ObjType_t::OT_GENERAL, LLUUID::null, LLUUID::null, 1});};
+        
+        static inline void send(StatsRecord && upd)
+        {
+            LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
+            StatsRecorder::getInstance().processUpdate(upd);
+        }
+
+        static void endFrame()
+        {
+            LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
+            StatsRecorder::getInstance().processUpdate(StatsRecord{StatType_t::RENDER_DONE, ObjType_t::OT_GENERAL, LLUUID::null, LLUUID::null, 0});
+        }
+
+        static void clearStats()
+        {
+            LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
+            StatsRecorder::getInstance().processUpdate(StatsRecord{StatType_t::RENDER_DONE, ObjType_t::OT_GENERAL, LLUUID::null, LLUUID::null, 1});
+        }
 
         static inline void setEnabled(bool on_or_off){collectionEnabled=on_or_off;};
         static inline void enable()     { collectionEnabled=true; };
@@ -229,10 +241,6 @@ namespace LLPerfStats
             LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
             // LL_INFOS("perfstats") << "processing update:" << LL_ENDL;
             // Note: nullptr is used as the key for global stats
-            #ifdef TRACY_ENABLE
-            static char avstr[36];
-            static char obstr[36];
-            #endif
 
             if (upd.statType == StatType_t::RENDER_DONE && upd.objType == ObjType_t::OT_GENERAL && upd.time == 0)
             {
@@ -249,7 +257,6 @@ namespace LLPerfStats
 
             auto ot{upd.objType};
             auto& key{upd.objID};
-            auto& avKey{upd.avID};
             auto type {upd.statType};
             auto val {upd.time};
 
@@ -258,38 +265,6 @@ namespace LLPerfStats
                 // LL_INFOS("perfstats") << "General update:" << LL_ENDL;
                 doUpd(key, ot, type,val);
                 return;
-            }
-
-            if (ot == ObjType_t::OT_AVATAR)
-            {
-                // LL_INFOS("perfstats") << "Avatar update:" << LL_ENDL;
-                doUpd(avKey, ot, type, val);
-                return;
-            }
-
-            if (ot == ObjType_t::OT_ATTACHMENT)
-            {
-                if( !upd.isHUD ) // don't include HUD cost in self.
-                {
-                    LL_PROFILE_ZONE_NAMED("Att as Av")
-                    // For all attachments that are not rigged we add them to the avatar (for all avatars) cost.
-                    doUpd(avKey, ObjType_t::OT_AVATAR, type, val);
-                }
-                if( avKey == focusAv )
-                {
-                    LL_PROFILE_ZONE_NAMED("Att as Att")
-                // For attachments that are for the focusAv (self for now) we record them for the attachment/complexity view
-                    if(upd.isHUD)
-                    {
-                        ot = ObjType_t::OT_HUD;
-                    }
-                    // LL_INFOS("perfstats") << "frame: " << gFrameCount << " Attachment update("<< (type==StatType_t::RENDER_GEOMETRY?"GEOMETRY":"SHADOW") << ": " << key.asString() << " = " << val << LL_ENDL;
-                    doUpd(key, ot, type, val);
-                }
-                // else
-                // {
-                //     // LL_INFOS("perfstats") << "frame: " << gFrameCount << " non-self Att update("<< (type==StatType_t::RENDER_GEOMETRY?"GEOMETRY":"SHADOW") << ": " << key.asString() << " = " << val << " for av " << avKey.asString() << LL_ENDL;
-                // }
             }
         }
 
@@ -319,43 +294,6 @@ namespace LLPerfStats
         static void toggleBuffer();
         static void clearStatsBuffers();
 
-        // thread entry
-        static void run()
-        {
-            StatsRecord upd[10];
-            auto & instance {StatsRecorder::getInstance()};
-            LL_PROFILER_SET_THREAD_NAME("PerfStats");
-
-            while( enabled() && !LLApp::isExiting() )
-            {
-                auto count = 0;
-                while (count < 10)
-                {
-                    if (instance.q.tryPopFor(std::chrono::milliseconds(10), upd[count]))
-                    {
-                        count++;
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-                //LL_PROFILER_THREAD_BEGIN("PerfStats");
-                if(count)
-                {
-                    // LL_INFOS("perfstats") << "processing " << count << " updates." << LL_ENDL;
-                    for(auto i =0; i < count; i++)
-                    {
-                        instance.processUpdate(upd[i]);
-                    }
-                }
-                //LL_PROFILER_THREAD_END("PerfStats");
-            }
-        }
-
-        Queue q;
-        std::thread t;
-
         ~StatsRecorder() = default;
         StatsRecorder(const StatsRecorder&) = delete;
         StatsRecorder& operator=(const StatsRecorder&) = delete;
@@ -377,7 +315,7 @@ namespace LLPerfStats
                     start{LLTrace::BlockTimer::getCPUClockCount64()},
                     stat{type, ObjTypeDiscriminator, std::move(av), std::move(id), 0, isRiggedAtt, isHUDAtt}
         {
-            //LL_PROFILE_ZONE_COLOR(tracy::Color::Orange);
+            LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
         };
 
         template < ObjType_t OD = ObjTypeDiscriminator,
@@ -387,13 +325,6 @@ namespace LLPerfStats
             LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
         };
 
-        template < ObjType_t OD = ObjTypeDiscriminator,
-                   std::enable_if_t<OD == ObjType_t::OT_AVATAR> * = nullptr>
-        RecordTime( const LLUUID & av, StatType_t type ):RecordTime<ObjTypeDiscriminator>(std::move(av), LLUUID::null, type)
-        {
-            //LL_PROFILE_ZONE_COLOR(tracy::Color::Purple);
-        };
-
         ~RecordTime()
         { 
             if(!LLPerfStats::StatsRecorder::enabled())
@@ -401,65 +332,25 @@ namespace LLPerfStats
                 return;
             }
 
-            //LL_PROFILE_ZONE_COLOR(tracy::Color::Red);
-
             stat.time = LLTrace::BlockTimer::getCPUClockCount64() - start;
             StatsRecorder::send(std::move(stat));
         };
     };
 
-    
+
     inline double raw_to_ns(U64 raw)    { return (static_cast<double>(raw) * 1000000000.0) / LLPerfStats::cpu_hertz; };
     inline double raw_to_us(U64 raw)    { return (static_cast<double>(raw) *    1000000.0) / LLPerfStats::cpu_hertz; };
     inline double raw_to_ms(U64 raw)    { return (static_cast<double>(raw) *       1000.0) / LLPerfStats::cpu_hertz; };
 
-    using RecordSceneTime = RecordTime<ObjType_t::OT_GENERAL>;
-    using RecordAvatarTime = RecordTime<ObjType_t::OT_AVATAR>;
-    using RecordAttachmentTime = RecordTime<ObjType_t::OT_ATTACHMENT>;
-    using RecordHudAttachmentTime = RecordTime<ObjType_t::OT_HUD>;
-     
-};// namespace LLPerfStats
+    inline U64 ns_to_raw(double ns)     { return (U64)(LLPerfStats::cpu_hertz * (ns / 1000000000.0)); }
+    inline U64 us_to_raw(double us)     { return (U64)(LLPerfStats::cpu_hertz * (us / 1000000.0)); }
+    inline U64 ms_to_raw(double ms)     { return (U64)(LLPerfStats::cpu_hertz * (ms / 1000.0));
 
-// helper functions
-using RATptr = std::unique_ptr<LLPerfStats::RecordAttachmentTime>;
-using RSTptr = std::unique_ptr<LLPerfStats::RecordSceneTime>;
-
-template <typename T>
-static inline void trackAttachments(const T * vobj, bool isRigged, RATptr* ratPtrp)
-{
-    if( !vobj ){ ratPtrp->reset(); return;};
-    
-    const T* rootAtt{vobj};
-    if (rootAtt->isAttachment())
-    {
-        LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
-
-        while( !rootAtt->isRootEdit() )
-        {
-            rootAtt = (T*)(rootAtt->getParent());
-        }
-
-        auto avPtr = (T*)(rootAtt->getParent()); 
-        if(!avPtr){ratPtrp->reset(); return;}
-
-        auto& av = avPtr->getID();
-        auto& obj = rootAtt->getAttachmentItemID();
-        if (!*ratPtrp || (*ratPtrp)->stat.objID != obj || (*ratPtrp)->stat.avID != av)
-        {
-            if (*ratPtrp)
-            {
-                // deliberately reset to ensure destruction before construction of replacement.
-                ratPtrp->reset();
-            };
-            *ratPtrp = std::make_unique<LLPerfStats::RecordAttachmentTime>( 
-                av, 
-                obj,
-                ( LLPipeline::sShadowRender?LLPerfStats::StatType_t::RENDER_SHADOWS : LLPerfStats::StatType_t::RENDER_GEOMETRY ), 
-                isRigged, 
-                rootAtt->isHUDAttachment());
-        }
     }
-    return;
-};
+    
+
+    using RecordSceneTime = RecordTime<ObjType_t::OT_GENERAL>;
+
+};// namespace LLPerfStats
 
 #endif

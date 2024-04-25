@@ -50,6 +50,7 @@ const LLUUID IMG_FIRE			("aca40aa8-44cf-44ca-a0fa-93e1a2986f82"); // dataserver
 const LLUUID IMG_FACE_SELECT    ("a85ac674-cb75-4af6-9499-df7c5aaf7a28"); // face selector
 const LLUUID IMG_DEFAULT_AVATAR ("c228d1cf-4b5d-4ba8-84f4-899a0796aa97"); // dataserver
 const LLUUID IMG_INVISIBLE		("3a367d1c-bef1-6d43-7595-e88c1e3aadb3"); // dataserver
+const LLUUID IMG_WHITE          ("5748decc-f629-461c-9a36-a35a221fe21f"); // dataserver
 
 const LLUUID IMG_EXPLOSION				("68edcf47-ccd7-45b8-9f90-1649d7f12806"); // On dataserver
 const LLUUID IMG_EXPLOSION_2			("21ce046c-83fe-430a-b629-c7660ac78d7c"); // On dataserver
@@ -70,6 +71,11 @@ const LLUUID TERRAIN_MOUNTAIN_DETAIL	("303cd381-8560-7579-23f1-f0a880799740"); /
 const LLUUID TERRAIN_ROCK_DETAIL		("53a2f406-4895-1d13-d541-d2e3b86bc19c"); // VIEWER
 
 const LLUUID DEFAULT_WATER_NORMAL		("822ded49-9a6c-f61c-cb89-6df54f42cdf4"); // VIEWER
+
+const LLUUID DEFAULT_OBJECT_TEXTURE     ("89556747-24cb-43ed-920b-47caed15465f"); // On dataserver
+const LLUUID DEFAULT_OBJECT_SPECULAR    ("87e0e8f7-8729-1ea8-cfc9-8915773009db"); // On dataserver
+const LLUUID DEFAULT_OBJECT_NORMAL      ("85f28839-7a1c-b4e3-d71d-967792970a7b"); // On dataserver
+const LLUUID BLANK_OBJECT_NORMAL        ("5b53359e-59dd-d8a2-04c3-9e65134da47a"); // VIEWER (has a verion on dataserver, but with compression artifacts)
 
 const LLUUID IMG_USE_BAKED_HEAD  ("5a9f4a74-30f2-821c-b88d-70499d3e7183");
 const LLUUID IMG_USE_BAKED_UPPER ("ae2de45c-d252-50b8-5c6e-19f39ce79317");

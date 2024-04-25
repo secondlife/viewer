@@ -104,6 +104,9 @@ public:
 
 	/*virtual*/ void startFetch();
 	/*virtual*/ void changed(U32 mask);
+
+    // For attempts to group requests if too many items are requested
+    static const S32 MAX_INDIVIDUAL_ITEM_REQUESTS;
 private:
 	LLTimer mFetchingPeriod;
 
@@ -125,7 +128,7 @@ public:
 	LLInventoryFetchDescendentsObserver(const LLUUID& cat_id = LLUUID::null);
 	LLInventoryFetchDescendentsObserver(const uuid_vec_t& cat_ids);
 
-	/*virtual*/ void startFetch();
+	virtual void startFetch();
 	/*virtual*/ void changed(U32 mask);
 protected:
 	BOOL isCategoryComplete(const LLViewerInventoryCategory* cat) const;
@@ -273,14 +276,15 @@ protected:
 	typedef LLUUID digest_t; // To clarify the actual usage of this "UUID"
 	struct LLCategoryData
 	{
-		LLCategoryData(const LLUUID& cat_id, callback_t cb, S32 version, S32 num_descendents);
-		LLCategoryData(const LLUUID& cat_id, callback_t cb, S32 version, S32 num_descendents, const digest_t& name_hash);
+		LLCategoryData(const LLUUID& cat_id, const LLUUID& thumbnail_id, callback_t cb, S32 version, S32 num_descendents);
+		LLCategoryData(const LLUUID& cat_id, const LLUUID& thumbnail_id, callback_t cb, S32 version, S32 num_descendents, const digest_t& name_hash);
 		callback_t	mCallback;
 		S32			mVersion;
 		S32			mDescendentsCount;
 		digest_t	mItemNameHash;
 		bool		mIsNameHashInitialized;
 		LLUUID		mCatID;
+        LLUUID		mThumbnailId;
 	};
 
 	typedef	std::map<LLUUID, LLCategoryData>	category_map_t;

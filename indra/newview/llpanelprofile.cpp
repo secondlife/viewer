@@ -71,6 +71,7 @@
 #include "llpanelblockedlist.h"
 #include "llpanelprofileclassifieds.h"
 #include "llpanelprofilepicks.h"
+#include "llthumbnailctrl.h"
 #include "lltrans.h"
 #include "llviewercontrol.h"
 #include "llviewermenu.h" //is_agent_mappable
@@ -276,9 +277,9 @@ void request_avatar_properties_coro(std::string cap_url, LLUUID agent_id)
 //TODO: changes take two minutes to propagate!
 // Add some storage that holds updated data for two minutes
 // for new instances to reuse the data
-// Profile data is only relevant to won avatar, but notes
-// are for everybody
-void put_avatar_properties_coro(std::string cap_url, LLUUID agent_id, LLSD data)
+// Profile data is only relevant to own avatar, but notes
+// are for everybody (no onger an issue?)
+void put_avatar_properties_coro(std::string cap_url, LLUUID agent_id, LLSD data, std::function<void(bool)> callback)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -299,10 +300,16 @@ void put_avatar_properties_coro(std::string cap_url, LLUUID agent_id, LLSD data)
     if (!status)
     {
         LL_WARNS("AvatarProperties") << "Failed to put agent information " << data << " for id " << agent_id << LL_ENDL;
-        return;
+    }
+    else
+    {
+        LL_DEBUGS("AvatarProperties") << "Agent id: " << agent_id << " Data: " << data << " Result: " << httpResults << LL_ENDL;
     }
 
-    LL_DEBUGS("AvatarProperties") << "Agent id: " << agent_id << " Data: " << data << " Result: " << httpResults << LL_ENDL;
+    if (callback)
+    {
+        callback(status);
+    }
 }
 
 LLUUID post_profile_image(std::string cap_url, const LLSD &first_data, std::string path_to_image, LLHandle<LLPanel> *handle)
@@ -366,7 +373,7 @@ LLUUID post_profile_image(std::string cap_url, const LLSD &first_data, std::stri
     httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
-    LL_WARNS("AvatarProperties") << result << LL_ENDL;
+    LL_DEBUGS("AvatarProperties") << result << LL_ENDL;
 
     if (!status)
     {
@@ -447,6 +454,13 @@ void post_profile_image_coro(std::string cap_url, EProfileImageType type, std::s
         }
     }
 
+    if (type == PROFILE_IMAGE_SL && result.notNull())
+    {
+        LLAvatarIconIDCache::getInstance()->add(gAgentID, result);
+        // Should trigger callbacks in icon controls
+        LLAvatarPropertiesProcessor::getInstance()->sendAvatarPropertiesRequest(gAgentID);
+    }
+
     // Cleanup
     LLFile::remove(path_to_image);
     delete handle;
@@ -498,7 +512,8 @@ public:
             return true; // don't block, will fail later
         }
 
-        if (nav_type == NAV_TYPE_CLICKED)
+        if (nav_type == NAV_TYPE_CLICKED
+            || nav_type == NAV_TYPE_EXTERNAL)
         {
             return true;
         }
@@ -913,7 +928,7 @@ BOOL LLPanelProfileSecondLife::postBuild()
 {
     mGroupList              = getChild<LLGroupList>("group_list");
     mShowInSearchCombo      = getChild<LLComboBox>("show_in_search");
-    mSecondLifePic          = getChild<LLIconCtrl>("2nd_life_pic");
+    mSecondLifePic          = getChild<LLThumbnailCtrl>("2nd_life_pic");
     mSecondLifePicLayout    = getChild<LLPanel>("image_panel");
     mDescriptionEdit        = getChild<LLTextEditor>("sl_description_edit");
     mAgentActionMenuButton  = getChild<LLMenuButton>("agent_actions_menu");
@@ -1497,7 +1512,6 @@ void LLPanelProfileSecondLife::setLoaded()
 }
 
 
-
 class LLProfileImagePicker : public LLFilePickerThread
 {
 public:
@@ -1544,15 +1558,20 @@ void LLProfileImagePicker::notify(const std::vector<std::string>& filenames)
     const S32 MAX_DIM = 256;
     if (!LLViewerTextureList::createUploadFile(file_path, temp_file, codec, MAX_DIM))
     {
-        //todo: image not supported notification
-        LL_WARNS("AvatarProperties") << "Failed to upload profile image of type " << (S32)PROFILE_IMAGE_SL << ", failed to open image" << LL_ENDL;
+        LLSD notif_args;
+        notif_args["REASON"] = LLImage::getLastError().c_str();
+        LLNotificationsUtil::add("CannotUploadTexture", notif_args);
+        LL_WARNS("AvatarProperties") << "Failed to upload profile image of type " << (S32)mType << ", " << notif_args["REASON"].asString() << LL_ENDL;
         return;
     }
 
     std::string cap_url = gAgent.getRegionCapability(PROFILE_IMAGE_UPLOAD_CAP);
     if (cap_url.empty())
     {
-        LL_WARNS("AvatarProperties") << "Failed to upload profile image of type " << (S32)PROFILE_IMAGE_SL << ", no cap found" << LL_ENDL;
+        LLSD args;
+        args["CAPABILITY"] = PROFILE_IMAGE_UPLOAD_CAP;
+        LLNotificationsUtil::add("RegionCapabilityRequestError", args);
+        LL_WARNS("AvatarProperties") << "Failed to upload profile image of type " << (S32)mType << ", no cap found" << LL_ENDL;
         return;
     }
 
@@ -1827,7 +1846,7 @@ void LLPanelProfileSecondLife::onShowInSearchCallback()
         LLSD data;
         data["allow_publish"] = mAllowPublish;
         LLCoros::instance().launch("putAgentUserInfoCoro",
-            boost::bind(put_avatar_properties_coro, cap_url, getAvatarId(), data));
+            boost::bind(put_avatar_properties_coro, cap_url, getAvatarId(), data, nullptr));
     }
     else
     {
@@ -1842,7 +1861,7 @@ void LLPanelProfileSecondLife::onSaveDescriptionChanges()
     if (!cap_url.empty())
     {
         LLCoros::instance().launch("putAgentUserInfoCoro",
-            boost::bind(put_avatar_properties_coro, cap_url, getAvatarId(), LLSD().with("sl_about_text", mDescriptionText)));
+            boost::bind(put_avatar_properties_coro, cap_url, getAvatarId(), LLSD().with("sl_about_text", mDescriptionText), nullptr));
     }
     else
     {
@@ -1949,36 +1968,22 @@ void LLPanelProfileSecondLife::onShowTexturePicker()
                 "SELECT PHOTO",
                 PERM_NONE,
                 PERM_NONE,
-                PERM_NONE,
                 FALSE,
-                NULL);
+                NULL,
+                PICK_TEXTURE);
 
             mFloaterTexturePickerHandle = texture_floaterp->getHandle();
 
-            texture_floaterp->setOnFloaterCommitCallback([this](LLTextureCtrl::ETexturePickOp op, LLUUID id)
+            texture_floaterp->setOnFloaterCommitCallback([this](LLTextureCtrl::ETexturePickOp op, LLPickerSource source, const LLUUID& asset_id, const LLUUID&, const LLUUID&)
             {
                 if (op == LLTextureCtrl::TEXTURE_SELECT)
                 {
-                    LLUUID image_asset_id;
-                    LLFloaterTexturePicker* floaterp = (LLFloaterTexturePicker*)mFloaterTexturePickerHandle.get();
-                    if (floaterp)
-                    {
-                        if (id.notNull())
-                        {
-                            image_asset_id = id;
-                        }
-                        else
-                        {
-                            image_asset_id = floaterp->getAssetID();
-                        }
-                    }
-
-                    onCommitProfileImage(image_asset_id);
+                    onCommitProfileImage(asset_id);
                 }
             });
             texture_floaterp->setLocalTextureEnabled(FALSE);
             texture_floaterp->setBakeTextureEnabled(FALSE);
-            texture_floaterp->setCanApply(false, true);
+            texture_floaterp->setCanApply(false, true, false);
 
             parent_floater->addDependentFloater(mFloaterTexturePickerHandle);
 
@@ -2003,10 +2008,19 @@ void LLPanelProfileSecondLife::onCommitProfileImage(const LLUUID& id)
     std::string cap_url = gAgent.getRegionCapability(PROFILE_PROPERTIES_CAP);
     if (!cap_url.empty())
     {
+        std::function<void(bool)> callback = [id](bool result)
+        {
+            if (result)
+            {
+                LLAvatarIconIDCache::getInstance()->add(gAgentID, id);
+                // Should trigger callbacks in icon controls
+                LLAvatarPropertiesProcessor::getInstance()->sendAvatarPropertiesRequest(gAgentID);
+            }
+        };
         LLSD params;
         params["sl_image_id"] = id;
         LLCoros::instance().launch("putAgentUserInfoCoro",
-            boost::bind(put_avatar_properties_coro, cap_url, getAvatarId(), params));
+            boost::bind(put_avatar_properties_coro, cap_url, getAvatarId(), params, callback));
 
         mImageId = id;
         if (mImageId == LLUUID::null)
@@ -2193,7 +2207,7 @@ LLPanelProfileFirstLife::~LLPanelProfileFirstLife()
 BOOL LLPanelProfileFirstLife::postBuild()
 {
     mDescriptionEdit = getChild<LLTextEditor>("fl_description_edit");
-    mPicture = getChild<LLIconCtrl>("real_world_pic");
+    mPicture = getChild<LLThumbnailCtrl>("real_world_pic");
 
     mUploadPhoto = getChild<LLButton>("fl_upload_image");
     mChangePhoto = getChild<LLButton>("fl_change_image");
@@ -2290,35 +2304,21 @@ void LLPanelProfileFirstLife::onChangePhoto()
                 "SELECT PHOTO",
                 PERM_NONE,
                 PERM_NONE,
-                PERM_NONE,
                 FALSE,
-                NULL);
+                NULL,
+                PICK_TEXTURE);
 
             mFloaterTexturePickerHandle = texture_floaterp->getHandle();
 
-            texture_floaterp->setOnFloaterCommitCallback([this](LLTextureCtrl::ETexturePickOp op, LLUUID id)
+            texture_floaterp->setOnFloaterCommitCallback([this](LLTextureCtrl::ETexturePickOp op, LLPickerSource source, const LLUUID& asset_id, const LLUUID&, const LLUUID&)
             {
                 if (op == LLTextureCtrl::TEXTURE_SELECT)
                 {
-                    LLUUID image_asset_id;
-                    LLFloaterTexturePicker* floaterp = (LLFloaterTexturePicker*)mFloaterTexturePickerHandle.get();
-                    if (floaterp)
-                    {
-                        if (id.notNull())
-                        {
-                            image_asset_id = id;
-                        }
-                        else
-                        {
-                            image_asset_id = floaterp->getAssetID();
-                        }
-                    }
-
-                    onCommitPhoto(image_asset_id);
+                    onCommitPhoto(asset_id);
                 }
             });
             texture_floaterp->setLocalTextureEnabled(FALSE);
-            texture_floaterp->setCanApply(false, true);
+            texture_floaterp->setCanApply(false, true, false);
 
             parent_floater->addDependentFloater(mFloaterTexturePickerHandle);
 
@@ -2357,7 +2357,7 @@ void LLPanelProfileFirstLife::onCommitPhoto(const LLUUID& id)
         LLSD params;
         params["fl_image_id"] = id;
         LLCoros::instance().launch("putAgentUserInfoCoro",
-            boost::bind(put_avatar_properties_coro, cap_url, getAvatarId(), params));
+            boost::bind(put_avatar_properties_coro, cap_url, getAvatarId(), params, nullptr));
 
         mImageId = id;
         if (mImageId.notNull())
@@ -2401,7 +2401,7 @@ void LLPanelProfileFirstLife::onSaveDescriptionChanges()
     if (!cap_url.empty())
     {
         LLCoros::instance().launch("putAgentUserInfoCoro",
-            boost::bind(put_avatar_properties_coro, cap_url, getAvatarId(), LLSD().with("fl_about_text", mCurrentDescription)));
+            boost::bind(put_avatar_properties_coro, cap_url, getAvatarId(), LLSD().with("fl_about_text", mCurrentDescription), nullptr));
     }
     else
     {
@@ -2544,7 +2544,7 @@ void LLPanelProfileNotes::onSaveNotesChanges()
     if (!cap_url.empty())
     {
         LLCoros::instance().launch("putAgentUserInfoCoro",
-            boost::bind(put_avatar_properties_coro, cap_url, getAvatarId(), LLSD().with("notes", mCurrentNotes)));
+            boost::bind(put_avatar_properties_coro, cap_url, getAvatarId(), LLSD().with("notes", mCurrentNotes), nullptr));
     }
     else
     {

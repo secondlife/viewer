@@ -47,6 +47,7 @@
 #include "llglslshader.h"
 #include "llthreadsafequeue.h"
 #include "stringize.h"
+#include "llframetimer.h"
 
 // System includes
 #include <commdlg.h>
@@ -60,6 +61,10 @@
 #include <future>
 #include <sstream>
 #include <utility>                  // std::pair
+
+#include <d3d9.h>
+#include <dxgi1_4.h>
+#include <timeapi.h>
 
 // Require DirectInput version 8
 #define DIRECTINPUT_VERSION 0x0800
@@ -346,20 +351,41 @@ struct LLWindowWin32::LLWindowWin32Thread : public LL::ThreadPool
     LLWindowWin32Thread();
 
     void run() override;
+    void close() override;
+
+    // closes queue, wakes thread, waits until thread closes
+    void wakeAndDestroy();
+
+    void glReady()
+    {
+        mGLReady = true;
+    }
+
+    // initialzie DXGI adapter (for querying available VRAM)
+    void initDX();
+    
+    // initialize D3D (if DXGI cannot be used)
+    void initD3D();
+
+    //clean up DXGI/D3D resources
+    void cleanupDX();
+
+    // call periodically to update available VRAM
+    void updateVRAMUsage();
+
+    U32 getAvailableVRAMMegabytes()
+    {
+        return mAvailableVRAM;
+    }
 
     /// called by main thread to post work to this window thread
     template <typename CALLABLE>
     void post(CALLABLE&& func)
     {
-        try
-        {
-            getQueue().post(std::forward<CALLABLE>(func));
-        }
-        catch (const LLThreadSafeQueueInterrupt&)
-        {
-            // Shutdown timing is tricky. The main thread can end up trying
-            // to post a cursor position after having closed the WorkQueue.
-        }
+        // Ignore bool return. Shutdown timing is tricky: the main thread can
+        // end up trying to post a cursor position after having closed the
+        // WorkQueue.
+        getQueue().post(std::forward<CALLABLE>(func));
     }
 
     /**
@@ -393,8 +419,20 @@ struct LLWindowWin32::LLWindowWin32Thread : public LL::ThreadPool
     using FuncType = std::function<void()>;
     // call GetMessage() and pull enqueue messages for later processing
     void gatherInput();
-    HWND mWindowHandle = NULL;
-    HDC mhDC = 0;
+    HWND mWindowHandleThrd = NULL;
+    HDC mhDCThrd = 0;
+
+    // *HACK: Attempt to prevent startup crashes by deferring memory accounting
+    // until after some graphics setup. See SL-20177. -Cosmic,2023-09-18
+    bool mGLReady = false;
+    // best guess at available video memory in MB
+    std::atomic<U32> mAvailableVRAM;
+
+    U32 mMaxVRAM = 0; // maximum amount of vram to allow in the "budget", or 0 for no maximum (see updateVRAMUsage)
+
+    IDXGIAdapter3* mDXGIAdapter = nullptr;
+    LPDIRECT3D9 mD3D = nullptr;
+    LPDIRECT3DDEVICE9 mD3DDevice = nullptr;
 };
 
 
@@ -404,13 +442,93 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 							 BOOL fullscreen, BOOL clearBg,
 							 BOOL enable_vsync, BOOL use_gl,
 							 BOOL ignore_pixel_depth,
-							 U32 fsaa_samples)
-	: LLWindow(callbacks, fullscreen, flags)
+							 U32 fsaa_samples,
+                             U32 max_cores,
+                             U32 max_vram,
+                             F32 max_gl_version)
+	: 
+    LLWindow(callbacks, fullscreen, flags), 
+    mMaxGLVersion(max_gl_version), 
+    mMaxCores(max_cores)
 {
     sMainThreadId = LLThread::currentID();
     mWindowThread = new LLWindowWin32Thread();
+    mWindowThread->mMaxVRAM = max_vram;
+
 	//MAINT-516 -- force a load of opengl32.dll just in case windows went sideways 
 	LoadLibrary(L"opengl32.dll");
+    
+    
+    if (mMaxCores != 0)
+    {
+        HANDLE hProcess = GetCurrentProcess();
+        mMaxCores = llmin(mMaxCores, (U32) 64);
+        DWORD_PTR mask = 0;
+
+        for (int i = 0; i < mMaxCores; ++i)
+        {
+            mask |= ((DWORD_PTR) 1) << i;
+        }
+
+        SetProcessAffinityMask(hProcess, mask);
+    }
+
+#if 0 // this is probably a bad idea, but keep it in your back pocket if you see what looks like
+        // process deprioritization during profiles
+    // force high thread priority
+    HANDLE hProcess = GetCurrentProcess();
+
+    if (hProcess)
+    {
+        int priority = GetPriorityClass(hProcess);
+        if (priority < REALTIME_PRIORITY_CLASS)
+        {
+            if (SetPriorityClass(hProcess, REALTIME_PRIORITY_CLASS))
+            {
+                LL_INFOS() << "Set process priority to REALTIME_PRIORITY_CLASS" << LL_ENDL;
+            }
+            else
+            {
+                LL_INFOS() << "Failed to set process priority: " << std::hex << GetLastError() << LL_ENDL;
+            }
+        }
+    }
+#endif
+
+#if 0  // this is also probably a bad idea, but keep it in your back pocket for getting main thread off of background thread cores (see also LLThread::threadRun)
+    HANDLE hThread = GetCurrentThread();
+
+    SYSTEM_INFO sysInfo;
+
+    GetSystemInfo(&sysInfo);
+    U32 core_count = sysInfo.dwNumberOfProcessors;
+
+    if (max_cores != 0)
+    {
+        core_count = llmin(core_count, max_cores);
+    }
+
+    if (hThread)
+    {
+        int priority = GetThreadPriority(hThread);
+
+        if (priority < THREAD_PRIORITY_TIME_CRITICAL)
+        {
+            if (SetThreadPriority(hThread, THREAD_PRIORITY_TIME_CRITICAL))
+            {
+                LL_INFOS() << "Set thread priority to THREAD_PRIORITY_TIME_CRITICAL" << LL_ENDL;
+            }
+            else
+            {
+                LL_INFOS() << "Failed to set thread priority: " << std::hex << GetLastError() << LL_ENDL;
+            }
+
+            // tell main thread to prefer core 0
+            SetThreadIdealProcessor(hThread, 0);
+        }
+    }
+#endif
+
 
 	mFSAASamples = fsaa_samples;
 	mIconResource = gIconResource;
@@ -828,7 +946,6 @@ void LLWindowWin32::close()
 	// Is window is already closed?
 	if (!mWindowHandle)
 	{
-        mWindowThread->close();
 		return;
 	}
 
@@ -877,46 +994,10 @@ void LLWindowWin32::close()
 
 	LL_DEBUGS("Window") << "Destroying Window" << LL_ENDL;
 
-    mWindowThread->post([=]()
-        {
-            if (IsWindow(mWindowHandle))
-            {
-                if (mhDC)
-                {
-                    if (!ReleaseDC(mWindowHandle, mhDC))
-                    {
-                        LL_WARNS("Window") << "Release of ghDC failed!" << LL_ENDL;
-                    }
-                }
-
-                // Make sure we don't leave a blank toolbar button.
-                ShowWindow(mWindowHandle, SW_HIDE);
-
-                // This causes WM_DESTROY to be sent *immediately*
-                if (!destroy_window_handler(mWindowHandle))
-                {
-                    OSMessageBox(mCallbacks->translateString("MBDestroyWinFailed"),
-                        mCallbacks->translateString("MBShutdownErr"),
-                        OSMB_OK);
-                }
-            }
-            else
-            {
-                // Something killed the window while we were busy destroying gl or handle somehow got broken
-                LL_WARNS("Window") << "Failed to destroy Window, invalid handle!" << LL_ENDL;
-            }
-
-        });
-    // Window thread might be waiting for a getMessage(), give it
-    // a push to enshure it will process destroy_window_handler
-    kickWindowThread();
-
-    // Even though the above lambda might not yet have run, we've already
-    // bound mWindowHandle into it by value, which should suffice for the
-    // operations we're asking. That's the last time WE should touch it.
     mhDC = NULL;
     mWindowHandle = NULL;
-    mWindowThread->close();
+    
+    mWindowThread->wakeAndDestroy();
 }
 
 BOOL LLWindowWin32::isValid()
@@ -944,16 +1025,19 @@ BOOL LLWindowWin32::maximize()
 	BOOL success = FALSE;
 	if (!mWindowHandle) return success;
 
-	WINDOWPLACEMENT placement;
-	placement.length = sizeof(WINDOWPLACEMENT);
+    mWindowThread->post([=]
+        {
+            WINDOWPLACEMENT placement;
+            placement.length = sizeof(WINDOWPLACEMENT);
 
-	success = GetWindowPlacement(mWindowHandle, &placement);
-	if (!success) return success;
+            if (GetWindowPlacement(mWindowHandle, &placement))
+            {
+                placement.showCmd = SW_MAXIMIZE;
+                SetWindowPlacement(mWindowHandle, &placement);
+            }
+        });
 
-	placement.showCmd = SW_MAXIMIZE;
-
-	success = SetWindowPlacement(mWindowHandle, &placement);
-	return success;
+    return TRUE;
 }
 
 BOOL LLWindowWin32::getFullscreen()
@@ -1294,22 +1378,6 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen& size, BO
 	LL_INFOS("Window") << "pfd.dwDamageMask:     " << pfd.dwDamageMask << LL_ENDL ;
 	LL_INFOS("Window") << "--- end pixel format dump ---" << LL_ENDL ;
 
-	if (pfd.cColorBits < 32)
-	{
-		OSMessageBox(mCallbacks->translateString("MBTrueColorWindow"),
-			mCallbacks->translateString("MBError"), OSMB_OK);
-        close();
-		return FALSE;
-	}
-
-	if (pfd.cAlphaBits < 8)
-	{
-		OSMessageBox(mCallbacks->translateString("MBAlpha"),
-			mCallbacks->translateString("MBError"), OSMB_OK);
-        close();
-		return FALSE;
-	}
-
 	if (!SetPixelFormat(mhDC, pixel_format, &pfd))
 	{
 		OSMessageBox(mCallbacks->translateString("MBPixelFmtSetErr"),
@@ -1349,8 +1417,8 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen& size, BO
 		attrib_list[cur_attrib++] = WGL_DEPTH_BITS_ARB;
 		attrib_list[cur_attrib++] = 24;
 
-		attrib_list[cur_attrib++] = WGL_STENCIL_BITS_ARB;
-		attrib_list[cur_attrib++] = 8;
+		//attrib_list[cur_attrib++] = WGL_STENCIL_BITS_ARB; //stencil buffer is deprecated (performance penalty)
+		//attrib_list[cur_attrib++] = 8;
 
 		attrib_list[cur_attrib++] = WGL_DRAW_TO_WINDOW_ARB;
 		attrib_list[cur_attrib++] = GL_TRUE;
@@ -1368,7 +1436,7 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen& size, BO
 		attrib_list[cur_attrib++] = 24;
 
 		attrib_list[cur_attrib++] = WGL_ALPHA_BITS_ARB;
-		attrib_list[cur_attrib++] = 8;
+		attrib_list[cur_attrib++] = 0;
 
 		U32 end_attrib = 0;
 		if (mFSAASamples > 0)
@@ -1591,21 +1659,6 @@ const	S32   max_format  = (S32)num_formats - 1;
 		<< " Depth Bits " << S32(pfd.cDepthBits) 
 		<< LL_ENDL;
 
-	// make sure we have 32 bits per pixel
-	if (pfd.cColorBits < 32 || GetDeviceCaps(mhDC, BITSPIXEL) < 32)
-	{
-		OSMessageBox(mCallbacks->translateString("MBTrueColorWindow"), mCallbacks->translateString("MBError"), OSMB_OK);
-		close();
-		return FALSE;
-	}
-
-	if (pfd.cAlphaBits < 8)
-	{
-		OSMessageBox(mCallbacks->translateString("MBAlpha"), mCallbacks->translateString("MBError"), OSMB_OK);
-		close();
-		return FALSE;
-	}
-
 	mhRC = 0;
 	if (wglCreateContextAttribsARB)
 	{ //attempt to create a specific versioned context
@@ -1622,8 +1675,6 @@ const	S32   max_format  = (S32)num_formats - 1;
         close();
 		return FALSE;
 	}
-
-	LL_PROFILER_GPU_CONTEXT
 
 	if (!gGLManager.initGL())
 	{
@@ -1648,6 +1699,13 @@ const	S32   max_format  = (S32)num_formats - 1;
 	// ok to post quit messages now
 	mPostQuit = TRUE;
 
+    // *HACK: Attempt to prevent startup crashes by deferring memory accounting
+    // until after some graphics setup. See SL-20177. -Cosmic,2023-09-18
+    mWindowThread->post([=]()
+    {
+        mWindowThread->glReady();
+    });
+
 	if (auto_show)
 	{
 		show();
@@ -1655,6 +1713,8 @@ const	S32   max_format  = (S32)num_formats - 1;
 		glClear(GL_COLOR_BUFFER_BIT);
 		swapBuffers();
 	}
+
+    LL_PROFILER_GPU_CONTEXT;
 
 	return TRUE;
 }
@@ -1688,8 +1748,8 @@ void LLWindowWin32::recreateWindow(RECT window_rect, DWORD dw_ex_style, DWORD dw
         ()
         {
             LL_DEBUGS("Window") << "recreateWindow(): window_work entry" << LL_ENDL;
-            self->mWindowHandle = 0;
-            self->mhDC = 0;
+            self->mWindowHandleThrd = 0;
+            self->mhDCThrd = 0;
 
             if (oldWindowHandle)
             {
@@ -1724,20 +1784,20 @@ void LLWindowWin32::recreateWindow(RECT window_rect, DWORD dw_ex_style, DWORD dw
             {
                 // Failed to create window: clear the variables. This
                 // assignment is valid because we're running on mWindowThread.
-                self->mWindowHandle = NULL;
-                self->mhDC = 0;
+                self->mWindowHandleThrd = NULL;
+                self->mhDCThrd = 0;
             }
             else
             {
                 // Update mWindowThread's own mWindowHandle and mhDC.
-                self->mWindowHandle = handle;
-                self->mhDC = GetDC(handle);
+                self->mWindowHandleThrd = handle;
+                self->mhDCThrd = GetDC(handle);
             }
             
             updateWindowRect();
 
             // It's important to wake up the future either way.
-            promise.set_value(std::make_pair(self->mWindowHandle, self->mhDC));
+            promise.set_value(std::make_pair(self->mWindowHandleThrd, self->mhDCThrd));
             LL_DEBUGS("Window") << "recreateWindow(): window_work done" << LL_ENDL;
         };
     // But how we pass window_work to the window thread depends on whether we
@@ -1768,10 +1828,15 @@ void LLWindowWin32::recreateWindow(RECT window_rect, DWORD dw_ex_style, DWORD dw
 
 void* LLWindowWin32::createSharedContext()
 {
+    mMaxGLVersion = llclamp(mMaxGLVersion, 3.f, 4.6f);
+
+    S32 version_major = llfloor(mMaxGLVersion);
+    S32 version_minor = llround((mMaxGLVersion-version_major)*10);
+
     S32 attribs[] =
     {
-        WGL_CONTEXT_MAJOR_VERSION_ARB, 4,
-        WGL_CONTEXT_MINOR_VERSION_ARB, 6,
+        WGL_CONTEXT_MAJOR_VERSION_ARB, version_major,
+        WGL_CONTEXT_MINOR_VERSION_ARB, version_minor,
         WGL_CONTEXT_PROFILE_MASK_ARB,  LLRender::sGLCoreProfile ? WGL_CONTEXT_CORE_PROFILE_BIT_ARB : WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB,
         WGL_CONTEXT_FLAGS_ARB, gDebugGL ? WGL_CONTEXT_DEBUG_BIT_ARB : 0,
         0
@@ -1820,6 +1885,7 @@ void* LLWindowWin32::createSharedContext()
 void LLWindowWin32::makeContextCurrent(void* contextPtr)
 {
     wglMakeCurrent(mhDC, (HGLRC) contextPtr);
+    LL_PROFILER_GPU_CONTEXT;
 }
 
 void LLWindowWin32::destroySharedContext(void* contextPtr)
@@ -1834,7 +1900,7 @@ void LLWindowWin32::toggleVSync(bool enable_vsync)
         LL_INFOS("Window") << "Disabling vertical sync" << LL_ENDL;
         wglSwapIntervalEXT(0);
     }
-    else
+    else if (wglSwapIntervalEXT)
     {
         LL_INFOS("Window") << "Enabling vertical sync" << LL_ENDL;
         wglSwapIntervalEXT(1);
@@ -2196,13 +2262,8 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
     ASSERT_WINDOW_THREAD();
     LL_PROFILE_ZONE_SCOPED_CATEGORY_WIN32;
 
-    LL_DEBUGS("Window") << "mainWindowProc(" << std::hex << h_wnd
-                        << ", " << u_msg
-                        << ", " << w_param << ")" << std::dec << LL_ENDL;
-
     if (u_msg == WM_POST_FUNCTION_)
     {
-        LL_DEBUGS("Window") << "WM_POST_FUNCTION_" << LL_ENDL;
         // from LLWindowWin32Thread::Post()
         // Cast l_param back to the pointer to the heap FuncType
         // allocated by Post(). Capture in unique_ptr so we'll delete
@@ -2222,8 +2283,6 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
     static bool sHandleDoubleClick = true;
 
     LLWindowWin32* window_imp = (LLWindowWin32*)GetWindowLongPtr(h_wnd, GWLP_USERDATA);
-
-    bool debug_window_proc = false; // gDebugWindowProc || debugLoggingEnabled("Window");
 
     if (NULL != window_imp)
     {
@@ -2251,11 +2310,6 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         case WM_DEVICECHANGE:
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_DEVICECHANGE");
-            if (debug_window_proc)
-            {
-                LL_INFOS("Window") << "  WM_DEVICECHANGE: wParam=" << w_param
-                    << "; lParam=" << l_param << LL_ENDL;
-            }
             if (w_param == DBT_DEVNODES_CHANGED || w_param == DBT_DEVICEARRIVAL)
             {
                 WINDOW_IMP_POST(window_imp->mCallbacks->handleDeviceChange(window_imp));
@@ -2317,16 +2371,6 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
                 {
                     // This message should be sent whenever the app gains or loses focus.
                     BOOL activating = (BOOL)w_param;
-                    BOOL minimized = window_imp->getMinimized();
-
-                    if (debug_window_proc)
-                    {
-                        LL_INFOS("Window") << "WINDOWPROC ActivateApp "
-                            << " activating " << S32(activating)
-                            << " minimized " << S32(minimized)
-                            << " fullscreen " << S32(window_imp->mFullscreen)
-                            << LL_ENDL;
-                    }
 
                     if (window_imp->mFullscreen)
                     {
@@ -2361,22 +2405,9 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
                     // Can be one of WA_ACTIVE, WA_CLICKACTIVE, or WA_INACTIVE
                     BOOL activating = (LOWORD(w_param) != WA_INACTIVE);
 
-                    BOOL minimized = BOOL(HIWORD(w_param));
-
                     if (!activating && LLWinImm::isAvailable() && window_imp->mPreeditor)
                     {
                         window_imp->interruptLanguageTextInput();
-                    }
-
-                    // JC - I'm not sure why, but if we don't report that we handled the 
-                    // WM_ACTIVATE message, the WM_ACTIVATEAPP messages don't work 
-                    // properly when we run fullscreen.
-                    if (debug_window_proc)
-                    {
-                        LL_INFOS("Window") << "WINDOWPROC Activate "
-                            << " activating " << S32(activating)
-                            << " minimized " << S32(minimized)
-                            << LL_ENDL;
                     }
                 });
             
@@ -2455,16 +2486,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
                     window_imp->mRawWParam = w_param;
                     window_imp->mRawLParam = l_param;
 
-                    {
-                        if (debug_window_proc)
-                        {
-                            LL_INFOS("Window") << "Debug WindowProc WM_KEYDOWN "
-                                << " key " << S32(w_param)
-                                << LL_ENDL;
-                        }
-                        
-                        gKeyboard->handleKeyDown(w_param, mask);
-                    }
+                    gKeyboard->handleKeyDown(w_param, mask);
                 });
             if (eat_keystroke) return 0;    // skip DefWindowProc() handling if we're consuming the keypress 
             break;
@@ -2484,14 +2506,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
                 window_imp->mRawLParam = l_param;
 
                 {
-                    LL_RECORD_BLOCK_TIME(FTM_KEYHANDLER);
-
-                    if (debug_window_proc)
-                    {
-                        LL_INFOS("Window") << "Debug WindowProc WM_KEYUP "
-                            << " key " << S32(w_param)
-                            << LL_ENDL;
-                    }
+                    LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_KEYUP");
                     gKeyboard->handleKeyUp(w_param, mask);
                 }
             });
@@ -2501,10 +2516,6 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         case WM_IME_SETCONTEXT:
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_IME_SETCONTEXT");
-            if (debug_window_proc)
-            {
-                LL_INFOS("Window") << "WM_IME_SETCONTEXT" << LL_ENDL;
-            }
             if (LLWinImm::isAvailable() && window_imp->mPreeditor)
             {
                 l_param &= ~ISC_SHOWUICOMPOSITIONWINDOW;
@@ -2515,10 +2526,6 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         case WM_IME_STARTCOMPOSITION:
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_IME_STARTCOMPOSITION");
-            if (debug_window_proc)
-            {
-                LL_INFOS() << "WM_IME_STARTCOMPOSITION" << LL_ENDL;
-            }
             if (LLWinImm::isAvailable() && window_imp->mPreeditor)
             {
                 WINDOW_IMP_POST(window_imp->handleStartCompositionMessage());
@@ -2529,10 +2536,6 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         case WM_IME_ENDCOMPOSITION:
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_IME_ENDCOMPOSITION");
-            if (debug_window_proc)
-            {
-                LL_INFOS() << "WM_IME_ENDCOMPOSITION" << LL_ENDL;
-            }
             if (LLWinImm::isAvailable() && window_imp->mPreeditor)
             {
                 return 0;
@@ -2542,10 +2545,6 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         case WM_IME_COMPOSITION:
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_IME_COMPOSITION");
-            if (debug_window_proc)
-            {
-                LL_INFOS() << "WM_IME_COMPOSITION" << LL_ENDL;
-            }
             if (LLWinImm::isAvailable() && window_imp->mPreeditor)
             {
                 WINDOW_IMP_POST(window_imp->handleCompositionMessage(l_param));
@@ -2556,10 +2555,6 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         case WM_IME_REQUEST:
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_IME_REQUEST");
-            if (debug_window_proc)
-            {
-                LL_INFOS() << "WM_IME_REQUEST" << LL_ENDL;
-            }
             if (LLWinImm::isAvailable() && window_imp->mPreeditor)
             {
                 LRESULT result;
@@ -2588,12 +2583,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
                     // it is worth trying.  The good old WM_CHAR works just fine even for supplementary
                     // characters.  We just need to take care of surrogate pairs sent as two WM_CHAR's
                     // by ourselves.  It is not that tough.  -- Alissa Sabre @ SL
-                    if (debug_window_proc)
-                    {
-                        LL_INFOS("Window") << "Debug WindowProc WM_CHAR "
-                            << " key " << S32(w_param)
-                            << LL_ENDL;
-                    }
+                    
                     // Even if LLWindowCallbacks::handleUnicodeChar(llwchar, BOOL) returned FALSE,
                     // we *did* processed the event, so I believe we should not pass it to DefWindowProc...
                     window_imp->handleUnicodeUTF16((U16)w_param, gKeyboard->currentMask(FALSE));
@@ -2917,23 +2907,6 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_SIZE");
             window_imp->updateWindowRect();
-            S32 width = S32(LOWORD(l_param));
-            S32 height = S32(HIWORD(l_param));
-
-            
-            if (debug_window_proc)
-            {
-                BOOL maximized = (w_param == SIZE_MAXIMIZED);
-                BOOL restored = (w_param == SIZE_RESTORED);
-                BOOL minimized = (w_param == SIZE_MINIMIZED);
-
-                LL_INFOS("Window") << "WINDOWPROC Size "
-                    << width << "x" << height
-                    << " max " << S32(maximized)
-                    << " min " << S32(minimized)
-                    << " rest " << S32(restored)
-                    << LL_ENDL;
-            }
 
             // There's an odd behavior with WM_SIZE that I would call a bug. If 
             // the window is maximized, and you call MoveWindow() with a size smaller
@@ -2999,10 +2972,6 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         case WM_SETFOCUS:
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_SETFOCUS");
-            if (debug_window_proc)
-            {
-                LL_INFOS("Window") << "WINDOWPROC SetFocus" << LL_ENDL;
-            }
             WINDOW_IMP_POST(window_imp->mCallbacks->handleFocus(window_imp));
             return 0;
         }
@@ -3010,10 +2979,6 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         case WM_KILLFOCUS:
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_KILLFOCUS");
-            if (debug_window_proc)
-            {
-                LL_INFOS("Window") << "WINDOWPROC KillFocus" << LL_ENDL;
-            }
             WINDOW_IMP_POST(window_imp->mCallbacks->handleFocusLost(window_imp));
             return 0;
         }
@@ -3134,10 +3099,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         default:
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - default");
-            if (debug_window_proc)
-            {
-                LL_INFOS("Window") << "Unhandled windows message code: 0x" << std::hex << U32(u_msg) << LL_ENDL;
-            }
+            LL_DEBUGS("Window") << "Unhandled windows message code: 0x" << std::hex << U32(u_msg) << LL_ENDL;
         }
         break;
         }
@@ -3565,7 +3527,7 @@ BOOL LLWindowWin32::setDisplayResolution(S32 width, S32 height, S32 bits, S32 re
 	// Don't change anything if we don't have to
 	if (EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &dev_mode))
 	{
-		if (dev_mode.dmPelsWidth        == width &&
+		if (dev_mode.dmPelsWidth        == width && 
 			dev_mode.dmPelsHeight       == height &&
 			dev_mode.dmBitsPerPel       == bits &&
 			dev_mode.dmDisplayFrequency == refresh )
@@ -3631,12 +3593,15 @@ BOOL LLWindowWin32::resetDisplayResolution()
 
 void LLWindowWin32::swapBuffers()
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_WIN32;
-    ASSERT_MAIN_THREAD();
-    glFlush(); //superstitious flush for maybe frame stall removal?
-	SwapBuffers(mhDC);
+    {
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_WIN32;
+        SwapBuffers(mhDC);
+    }
 
-    LL_PROFILER_GPU_COLLECT
+    {
+        LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("GPU Collect");
+        LL_PROFILER_GPU_COLLECT;
+    }
 }
 
 
@@ -3662,6 +3627,9 @@ void LLSplashScreenWin32::showImpl()
 		NULL,	// no parent
 		(DLGPROC) LLSplashScreenWin32::windowProc); 
 	ShowWindow(mWindow, SW_SHOW);
+
+    // Should set taskbar text without creating a header for the window (caption)
+    SetWindowTextA(mWindow, "Second Life");
 }
 
 
@@ -4587,14 +4555,32 @@ std::vector<std::string> LLWindowWin32::getDynamicFallbackFontList()
 	return std::vector<std::string>();
 }
 
+U32 LLWindowWin32::getAvailableVRAMMegabytes()
+{
+    return mWindowThread ? mWindowThread->getAvailableVRAMMegabytes() : 0;
+}
 
 #endif // LL_WINDOWS
 
 inline LLWindowWin32::LLWindowWin32Thread::LLWindowWin32Thread()
-    : ThreadPool("Window Thread", 1, MAX_QUEUE_SIZE, false)
+    : LL::ThreadPool("Window Thread", 1, MAX_QUEUE_SIZE, true /*should be false, temporary workaround for SL-18721*/)
 {
-    ThreadPool::start();
+    LL::ThreadPool::start();
 }
+
+void LLWindowWin32::LLWindowWin32Thread::close()
+{
+    if (!mQueue->isClosed())
+    {
+        LL_WARNS() << "Closing window thread without using destroy_window_handler" << LL_ENDL;
+        LL::ThreadPool::close();
+
+        // Workaround for SL-18721 in case window closes too early and abruptly
+        LLSplashScreen::show();
+        LLSplashScreen::update("..."); // will be updated later
+    }
+}
+
 
 /**
  * LogChange is to log changes in status while trying to avoid spamming the
@@ -4642,29 +4628,267 @@ private:
     std::string mPrev;
 };
 
+// Print hardware debug info about available graphics adapters in ordinal order
+void debugEnumerateGraphicsAdapters()
+{
+    LL_INFOS("Window") << "Enumerating graphics adapters..." << LL_ENDL;
+
+    IDXGIFactory1* factory;
+    HRESULT res = CreateDXGIFactory1(__uuidof(IDXGIFactory1), (void**)&factory);
+    if (FAILED(res) || !factory)
+    {
+        LL_WARNS() << "CreateDXGIFactory1 failed: 0x" << std::hex << res << LL_ENDL;
+    }
+    else
+    {
+        UINT graphics_adapter_index = 0;
+        IDXGIAdapter3* dxgi_adapter;
+        while (true)
+        {
+            res = factory->EnumAdapters(graphics_adapter_index, reinterpret_cast<IDXGIAdapter**>(&dxgi_adapter));
+            if (FAILED(res))
+            {
+                if (graphics_adapter_index == 0)
+                {
+                    LL_WARNS() << "EnumAdapters failed: 0x" << std::hex << res << LL_ENDL;
+                }
+                else
+                {
+                    LL_INFOS("Window") << "Done enumerating graphics adapters" << LL_ENDL;
+                }
+            }
+            else
+            {
+                DXGI_ADAPTER_DESC desc;
+                dxgi_adapter->GetDesc(&desc);
+                std::wstring description_w((wchar_t*)desc.Description);
+                std::string description(description_w.begin(), description_w.end());
+                LL_INFOS("Window") << "Graphics adapter index: " << graphics_adapter_index << ", "
+                    << "Description: " << description << ", "
+                    << "DeviceId: " << desc.DeviceId << ", "
+                    << "SubSysId: " << desc.SubSysId << ", "
+                    << "AdapterLuid: " << desc.AdapterLuid.HighPart << "_" << desc.AdapterLuid.LowPart << ", "
+                    << "DedicatedVideoMemory: " << desc.DedicatedVideoMemory / 1024 / 1024 << ", "
+                    << "DedicatedSystemMemory: " << desc.DedicatedSystemMemory / 1024 / 1024 << ", "
+                    << "SharedSystemMemory: " << desc.SharedSystemMemory / 1024 / 1024 << LL_ENDL;
+            }
+
+            if (dxgi_adapter)
+            {
+                dxgi_adapter->Release();
+                dxgi_adapter = NULL;
+            }
+            else
+            {
+                break;
+            }
+
+            graphics_adapter_index++;
+        }
+    }
+
+    if (factory)
+    {
+        factory->Release();
+    }
+}
+
+void LLWindowWin32::LLWindowWin32Thread::initDX()
+{
+    if (!mGLReady) { return; }
+
+    if (mDXGIAdapter == NULL)
+    {
+        debugEnumerateGraphicsAdapters();
+
+        IDXGIFactory4* pFactory = nullptr;
+
+        HRESULT res = CreateDXGIFactory1(__uuidof(IDXGIFactory4), (void**)&pFactory);
+
+        if (FAILED(res))
+        {
+            LL_WARNS() << "CreateDXGIFactory1 failed: 0x" << std::hex << res << LL_ENDL;
+        }
+        else
+        {
+            res = pFactory->EnumAdapters(0, reinterpret_cast<IDXGIAdapter**>(&mDXGIAdapter));
+            if (FAILED(res))
+            {
+                LL_WARNS() << "EnumAdapters failed: 0x" << std::hex << res << LL_ENDL;
+            }
+            else
+            {
+                LL_INFOS() << "EnumAdapters success" << LL_ENDL;
+            }
+        }
+
+        if (pFactory)
+        {
+            pFactory->Release();
+        }
+    }
+}
+
+void LLWindowWin32::LLWindowWin32Thread::initD3D()
+{
+    if (!mGLReady) { return; }
+
+    if (mDXGIAdapter == NULL && mD3DDevice == NULL && mWindowHandleThrd != 0)
+    {
+        mD3D = Direct3DCreate9(D3D_SDK_VERSION);
+        
+        D3DPRESENT_PARAMETERS d3dpp;
+
+        ZeroMemory(&d3dpp, sizeof(d3dpp));
+        d3dpp.Windowed = TRUE;
+        d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
+
+        HRESULT res = mD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, mWindowHandleThrd, D3DCREATE_SOFTWARE_VERTEXPROCESSING, &d3dpp, &mD3DDevice);
+        
+        if (FAILED(res))
+        {
+            LL_WARNS() << "(fallback) CreateDevice failed: 0x" << std::hex << res << LL_ENDL;
+        }
+        else
+        {
+            LL_INFOS() << "(fallback) CreateDevice success" << LL_ENDL;
+        }
+    }
+}
+
+void LLWindowWin32::LLWindowWin32Thread::cleanupDX()
+{
+    //clean up DXGI/D3D resources
+    if (mDXGIAdapter)
+    {
+        mDXGIAdapter->Release();
+        mDXGIAdapter = nullptr;
+    }
+
+    if (mD3DDevice)
+    {
+        mD3DDevice->Release();
+        mD3DDevice = nullptr;
+    }
+
+    if (mD3D)
+    {
+        mD3D->Release();
+        mD3D = nullptr;
+    }
+}
+
+void LLWindowWin32::LLWindowWin32Thread::updateVRAMUsage()
+{
+    LL_PROFILE_ZONE_SCOPED;
+    if (!mGLReady) { return; }
+
+    if (mDXGIAdapter != nullptr)
+    {
+        // NOTE: what lies below is hand wavy math based on compatibility testing and observation against a variety of hardware
+        //  It doesn't make sense, but please don't refactor it to make sense. -- davep
+
+        DXGI_QUERY_VIDEO_MEMORY_INFO info;
+        mDXGIAdapter->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_LOCAL, &info);
+#if 0 // debug 0 budget and 0 CU
+        info.Budget = 0;
+        info.CurrentUsage = 0;
+#endif
+
+        U32 budget_mb = info.Budget / 1024 / 1024;
+        gGLManager.mVRAM = llmax(gGLManager.mVRAM, (S32) budget_mb);
+
+        U32 afr_mb = info.AvailableForReservation / 1024 / 1024;
+        // correct for systems that misreport budget
+        if (budget_mb == 0)
+        { 
+            // fall back to available for reservation clamped between 512MB and 2GB
+            budget_mb = llclamp(afr_mb, (U32) 512, (U32) 2048);
+        }
+
+        if ( mMaxVRAM != 0)
+        {
+            budget_mb = llmin(budget_mb, mMaxVRAM);
+        }
+
+        U32 cu_mb = info.CurrentUsage / 1024 / 1024;
+
+        // get an estimated usage based on texture bytes allocated
+        U32 eu_mb = LLImageGL::getTextureBytesAllocated() * 2 / 1024 / 1024;
+
+        if (cu_mb == 0)
+        { // current usage is sometimes unreliable on Intel GPUs, fall back to estimated usage
+            cu_mb = llmax((U32)1, eu_mb);
+        }
+        U32 target_mb = budget_mb;
+
+        if (target_mb > 4096)  // if 4GB are installed, try to leave 2GB free 
+        {
+            target_mb -= 2048;
+        }
+        else // if less than 4GB are installed, try not to use more than half of it
+        {
+            target_mb /= 2;
+        }
+
+        mAvailableVRAM = cu_mb < target_mb ? target_mb - cu_mb : 0;
+
+#if 0
+        
+        F32 eu_error = (F32)((S32)eu_mb - (S32)cu_mb) / (F32)cu_mb;
+        LL_INFOS("Window") << "\nLocal\nAFR: " << info.AvailableForReservation / 1024 / 1024
+            << "\nBudget: " << info.Budget / 1024 / 1024
+            << "\nCR: " << info.CurrentReservation / 1024 / 1024
+            << "\nCU: " << info.CurrentUsage / 1024 / 1024
+            << "\nEU: " << eu_mb << llformat(" (%.2f)", eu_error)
+            << "\nTU: " << target_mb
+            << "\nAM: " << mAvailableVRAM << LL_ENDL;
+#endif
+    }
+    else if (mD3DDevice != NULL)
+    { // fallback to D3D9
+        mAvailableVRAM = mD3DDevice->GetAvailableTextureMem() / 1024 / 1024;
+    }
+}
+
 void LLWindowWin32::LLWindowWin32Thread::run()
 {
     sWindowThreadId = std::this_thread::get_id();
     LogChange logger("Window");
 
+    //as good a place as any to up the MM timer resolution (see ms_sleep)
+    //attempt to set timer resolution to 1ms
+    TIMECAPS tc;
+    if (timeGetDevCaps(&tc, sizeof(TIMECAPS)) == TIMERR_NOERROR)
+    {
+        timeBeginPeriod(llclamp((U32) 1, tc.wPeriodMin, tc.wPeriodMax));
+    }
+
     while (! getQueue().done())
     {
         LL_PROFILE_ZONE_SCOPED_CATEGORY_WIN32;
 
-        if (mWindowHandle != 0)
+        // lazily call initD3D inside this loop to catch when mGLReady has been set to true
+        initDX();
+
+        if (mWindowHandleThrd != 0)
         {
+            // lazily call initD3D inside this loop to catch when mWindowHandle has been set, and mGLReady has been set to true
+            // *TODO: Shutdown if this fails when mWindowHandle exists
+            initD3D();
+
             MSG msg;
             BOOL status;
-            if (mhDC == 0)
+            if (mhDCThrd == 0)
             {
                 LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("w32t - PeekMessage");
-                logger.onChange("PeekMessage(", std::hex, mWindowHandle, ")");
-                status = PeekMessage(&msg, mWindowHandle, 0, 0, PM_REMOVE);
+                logger.onChange("PeekMessage(", std::hex, mWindowHandleThrd, ")");
+                status = PeekMessage(&msg, mWindowHandleThrd, 0, 0, PM_REMOVE);
             }
             else
             {
                 LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("w32t - GetMessage");
-                logger.always("GetMessage(", std::hex, mWindowHandle, ")");
+                logger.always("GetMessage(", std::hex, mWindowHandleThrd, ")");
                 status = GetMessage(&msg, NULL, 0, 0);
             }
             if (status > 0)
@@ -4685,6 +4909,13 @@ void LLWindowWin32::LLWindowWin32Thread::run()
             getQueue().runPending();
         }
         
+        // update available vram once every 3 seconds
+        static LLFrameTimer vramTimer;
+        if (vramTimer.getElapsedTimeF32() > 3.f)
+        {
+            updateVRAMUsage();
+            vramTimer.reset();
+        }
 #if 0
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("w32t - Sleep");
@@ -4693,6 +4924,111 @@ void LLWindowWin32::LLWindowWin32Thread::run()
         }
 #endif
     }
+
+    cleanupDX();
+}
+
+void LLWindowWin32::LLWindowWin32Thread::wakeAndDestroy()
+{
+    if (mQueue->isClosed())
+    {
+        LL_WARNS() << "Tried to close Queue. Win32 thread Queue already closed." << LL_ENDL;
+        return;
+    }
+
+    // Make sure we don't leave a blank toolbar button.
+    // Also hiding window now prevents user from suspending it
+    // via some action (like dragging it around)
+    ShowWindow(mWindowHandleThrd, SW_HIDE);
+
+    // Schedule destruction
+    HWND old_handle = mWindowHandleThrd;
+    post([this]()
+         {
+             if (IsWindow(mWindowHandleThrd))
+             {
+                 if (mhDCThrd)
+                 {
+                     if (!ReleaseDC(mWindowHandleThrd, mhDCThrd))
+                     {
+                         LL_WARNS("Window") << "Release of ghDC failed!" << LL_ENDL;
+                     }
+                     mhDCThrd = NULL;
+                 }
+
+                 // This causes WM_DESTROY to be sent *immediately*
+                 if (!destroy_window_handler(mWindowHandleThrd))
+                 {
+                     LL_WARNS("Window") << "Failed to destroy Window! " << std::hex << GetLastError() << LL_ENDL;
+                 }
+             }
+             else
+             {
+                 // Something killed the window while we were busy destroying gl or handle somehow got broken
+                 LL_WARNS("Window") << "Failed to destroy Window, invalid handle!" << LL_ENDL;
+             }
+             mWindowHandleThrd = NULL;
+             mhDCThrd = NULL;
+             mGLReady = false;
+         });
+
+    LL_DEBUGS("Window") << "Closing window's pool queue" << LL_ENDL;
+    mQueue->close();
+
+    // Post a nonsense user message to wake up the thread in
+    // case it is waiting for a getMessage()
+    if (old_handle)
+    {
+        WPARAM wparam{ 0xB0B0 };
+        LL_DEBUGS("Window") << "PostMessage(" << std::hex << old_handle
+            << ", " << WM_DUMMY_
+            << ", " << wparam << ")" << std::dec << LL_ENDL;
+        PostMessage(old_handle, WM_DUMMY_, wparam, 0x1337);
+    }
+
+    // There are cases where window will refuse to close,
+    // can't wait forever on join, check state instead
+    LLTimer timeout;
+    timeout.setTimerExpirySec(2.0);
+    while (!getQueue().done() && !timeout.hasExpired() && mWindowHandleThrd)
+    {
+        ms_sleep(100);
+    }
+
+    if (getQueue().done() || mWindowHandleThrd == NULL)
+    {
+        // Window is closed, started closing or is cleaning up
+        // now wait for our single thread to die.
+        if (mWindowHandleThrd)
+        {
+            LL_INFOS("Window") << "Window is closing, waiting on pool's thread to join, time since post: " << timeout.getElapsedSeconds() << "s" << LL_ENDL;
+        }
+        else
+        {
+            LL_DEBUGS("Window") << "Waiting on pool's thread, time since post: " << timeout.getElapsedSeconds() << "s" << LL_ENDL;
+        }
+        for (auto& pair : mThreads)
+        {
+            pair.second.join();
+        }
+    }
+    else
+    {
+        // Something suspended window thread, can't afford to wait forever
+        // so kill thread instead
+        // Ex: This can happen if user starts dragging window arround (if it
+        // was visible) or a modal notification pops up
+        LL_WARNS("Window") << "Window is frozen, couldn't perform clean exit" << LL_ENDL;
+
+        for (auto& pair : mThreads)
+        {
+            // very unsafe
+            TerminateThread(pair.second.native_handle(), 0);
+            pair.second.detach();
+            cleanupDX();
+        }
+    }
+    LL_DEBUGS("Window") << "thread pool shutdown complete" << LL_ENDL;
 }
 
 void LLWindowWin32::post(const std::function<void()>& func)

@@ -255,7 +255,7 @@ private:
     };
 
     /// shared_ptr manages Entry lifespan for us
-    typedef boost::shared_ptr<EntryBase> EntryPtr;
+    typedef std::shared_ptr<EntryBase> EntryPtr;
     /// use a @c list to make it easy to insert
     typedef std::list<EntryPtr> DispatchTable;
     DispatchTable mDispatch;

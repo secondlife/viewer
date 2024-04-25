@@ -25,7 +25,7 @@
 
 uniform mat4 modelview_projection_matrix;
 
-ATTRIBUTE vec3 position;
+in vec3 position;
 
 #ifdef HAS_SKIN
 mat4 getObjectSkinnedTransform();

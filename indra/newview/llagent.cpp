@@ -95,7 +95,6 @@
 #include "llworld.h"
 #include "llworldmap.h"
 #include "stringize.h"
-#include "boost/foreach.hpp"
 #include "llcorehttputil.h"
 #include "lluiusage.h"
 
@@ -119,6 +118,10 @@ const F64 CHAT_AGE_FAST_RATE = 3.0;
 // fidget constants
 const F32 MIN_FIDGET_TIME = 8.f; // seconds
 const F32 MAX_FIDGET_TIME = 20.f; // seconds
+
+const S32 UI_FEATURE_VERSION = 1;
+// For version 1: 1 - inventory, 2 - gltf
+const S32 UI_FEATURE_FLAGS = 3;
 
 // The agent instance.
 LLAgent gAgent;
@@ -372,7 +375,7 @@ LLAgent::LLAgent() :
 	mHideGroupTitle(FALSE),
 	mGroupID(),
 
-	mInitialized(FALSE),
+	mInitialized(false),
 	mListener(),
 
 	mDoubleTapRunTimer(),
@@ -448,7 +451,7 @@ LLAgent::LLAgent() :
 
 	mNextFidgetTime(0.f),
 	mCurrentFidget(0),
-	mFirstLogin(FALSE),
+	mFirstLogin(false),
 	mOutfitChosen(FALSE),
 
 	mVoiceConnected(false),
@@ -482,7 +485,11 @@ void LLAgent::init()
 	
 	// *Note: this is where LLViewerCamera::getInstance() used to be constructed.
 
-	setFlying( gSavedSettings.getBOOL("FlyingAtExit") );
+    bool is_flying = gSavedSettings.getBOOL("FlyingAtExit");
+    if(is_flying)
+    {
+        setFlying(is_flying);
+    }
 
 	*mEffectColor = LLUIColorTable::instance().getColor("EffectColor");
 
@@ -505,7 +512,7 @@ void LLAgent::init()
 
 	mHttpPolicy = app_core_http.getPolicy(LLAppCoreHttp::AP_AGENT);
 
-	mInitialized = TRUE;
+	mInitialized = true;
 }
 
 //-----------------------------------------------------------------------------
@@ -560,6 +567,93 @@ void LLAgent::onAppFocusGained()
 	}
 }
 
+void LLAgent::setFirstLogin(bool b)
+{
+    mFirstLogin = b;
+
+    if (mFirstLogin)
+    {
+        // Don't notify new users about new features
+        if (getFeatureVersion() <= UI_FEATURE_VERSION)
+        {
+            setFeatureVersion(UI_FEATURE_VERSION, UI_FEATURE_FLAGS);
+        }
+    }
+}
+
+void LLAgent::setFeatureVersion(S32 version, S32 flags)
+{
+    LLSD updated_version;
+    updated_version["version"] = version;
+    updated_version["flags"] = flags;
+    gSavedSettings.setLLSD("LastUIFeatureVersion", updated_version);
+}
+
+S32 LLAgent::getFeatureVersion()
+{
+    S32 version;
+    S32 flags;
+    getFeatureVersionAndFlags(version, flags);
+    return version;
+}
+
+void LLAgent::getFeatureVersionAndFlags(S32& version, S32& flags)
+{
+    version = 0;
+    flags = 0;
+    LLSD feature_version = gSavedSettings.getLLSD("LastUIFeatureVersion");
+    if (feature_version.isInteger())
+    {
+        version = feature_version.asInteger();
+        flags = 1; // inventory flag
+    }
+    else if (feature_version.isMap())
+    {
+        version = feature_version["version"];
+        flags = feature_version["flags"];
+    }
+    else if (!feature_version.isString() && !feature_version.isUndefined())
+    {
+        // is something newer inside?
+        version = UI_FEATURE_VERSION;
+        flags = UI_FEATURE_FLAGS;
+    }
+}
+
+void LLAgent::showLatestFeatureNotification(const std::string key)
+{
+    S32 version;
+    S32 flags; // a single release can have multiple new features
+    getFeatureVersionAndFlags(version, flags);
+    if (version <= UI_FEATURE_VERSION && (flags & UI_FEATURE_FLAGS) != UI_FEATURE_FLAGS)
+    {
+        S32 flag = 0;
+
+        if (key == "inventory")
+        {
+            // Notify user about new thumbnail support
+            flag = 1;
+        }
+
+        if (key == "gltf")
+        {
+            flag = 2;
+        }
+
+        if ((flags & flag) == 0)
+        {
+            // Need to open on top even if called from onOpen,
+            // do on idle to make sure it's on top
+            LLSD floater_key(key);
+            doOnIdleOneTime([floater_key]()
+                            {
+                                LLFloaterReg::showInstance("new_feature_notification", floater_key);
+                            });
+
+            setFeatureVersion(UI_FEATURE_VERSION, flags | flag);
+        }
+    }
+}
 
 void LLAgent::ageChat()
 {
@@ -950,11 +1044,7 @@ void LLAgent::setRegion(LLViewerRegion *regionp)
 			{
 				gSky.mVOSkyp->setRegion(regionp);
 			}
-			if (gSky.mVOGroundp)
-			{
-				gSky.mVOGroundp->setRegion(regionp);
-			}
-
+			
             if (regionp->capabilitiesReceived())
             {
                 regionp->requestSimulatorFeatures();
@@ -1378,23 +1468,27 @@ void LLAgent::pitch(F32 angle)
 
 	LLVector3 skyward = getReferenceUpVector();
 
-	// SL-19286 Avatar is upside down when viewed from below
-	// after left-clicking the mouse on the avatar and dragging down
-	//
-	// The issue is observed on angle below 10 degrees
-	const F32 look_down_limit = 179.f * DEG_TO_RAD;
-	const F32 look_up_limit   =  10.f * DEG_TO_RAD;
-
-	F32 angle_from_skyward = acos(mFrameAgent.getAtAxis() * skyward);
-
 	// clamp pitch to limits
-	if ((angle >= 0.f) && (angle_from_skyward + angle > look_down_limit))
+	if (angle >= 0.f)
 	{
-		angle = look_down_limit - angle_from_skyward;
+		const F32 look_down_limit = 179.f * DEG_TO_RAD;
+		F32 angle_from_skyward = acos(mFrameAgent.getAtAxis() * skyward);
+		if (angle_from_skyward + angle > look_down_limit)
+		{
+			angle = look_down_limit - angle_from_skyward;
+		}
 	}
-	else if ((angle < 0.f) && (angle_from_skyward + angle < look_up_limit))
+	else if (angle < 0.f)
 	{
-		angle = look_up_limit - angle_from_skyward;
+		const F32 look_up_limit = 5.f * DEG_TO_RAD;
+		const LLVector3& viewer_camera_pos = LLViewerCamera::getInstance()->getOrigin();
+		LLVector3 agent_focus_pos = getPosAgentFromGlobal(gAgentCamera.calcFocusPositionTargetGlobal());
+		LLVector3 look_dir = agent_focus_pos - viewer_camera_pos;
+		F32 angle_from_skyward = angle_between(look_dir, skyward);
+		if (angle_from_skyward + angle < look_up_limit)
+		{
+			angle = look_up_limit - angle_from_skyward;
+		}
 	}
 
 	if (fabs(angle) > 1e-4)
@@ -2238,7 +2332,7 @@ void LLAgent::endAnimationUpdateUI()
 			LLFloaterIMContainer* im_box = LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container");
 			LLFloaterIMContainer::floater_list_t conversations;
 			im_box->getDetachedConversationFloaters(conversations);
-			BOOST_FOREACH(LLFloater* conversation, conversations)
+			for (LLFloater* conversation : conversations)
 			{
 				LL_INFOS() << "skip_list.insert(session_floater): " << conversation->getTitle() << LL_ENDL;
 				skip_list.insert(conversation);
@@ -2541,12 +2635,6 @@ void LLAgent::setStartPosition( U32 location_id )
     if (!requestPostCapability("HomeLocation", body, 
             boost::bind(&LLAgent::setStartPositionSuccess, this, _1)))
         LL_WARNS() << "Unable to post to HomeLocation capability." << LL_ENDL;
-
-    const U32 HOME_INDEX = 1;
-    if( HOME_INDEX == location_id )
-    {
-        setHomePosRegion( mRegionp->getHandle(), getPositionAgent() );
-    }
 }
 
 void LLAgent::setStartPositionSuccess(const LLSD &result)
@@ -3990,10 +4078,6 @@ bool LLAgent::teleportCore(bool is_local)
 		gTeleportDisplay = TRUE;
 		LL_INFOS("Teleport") << "Non-local, setting teleport state to TELEPORT_START" << LL_ENDL;
 		gAgent.setTeleportState( LLAgent::TELEPORT_START );
-
-		//release geometry from old location
-		gPipeline.resetVertexBuffers();
-		LLSpatialPartition::sTeleportRequested = TRUE;
 	}
 	make_ui_sound("UISndTeleportOut");
 	
@@ -4252,6 +4336,10 @@ void LLAgent::teleportRequest(
 // Landmark ID = LLUUID::null means teleport home
 void LLAgent::teleportViaLandmark(const LLUUID& landmark_asset_id)
 {
+    if (landmark_asset_id.isNull())
+    {
+        gAgentCamera.resetView();
+    }
 	mTeleportRequest = LLTeleportRequestPtr(new LLTeleportRequestViaLandmark(landmark_asset_id));
 	startTeleportRequest();
 }
@@ -4339,7 +4427,6 @@ void LLAgent::teleportCancel()
 	}
 	clearTeleportRequest();
 	gAgent.setTeleportState( LLAgent::TELEPORT_NONE );
-	gPipeline.resetVertexBuffers(); 
 }
 
 void LLAgent::restoreCanceledTeleportRequest()

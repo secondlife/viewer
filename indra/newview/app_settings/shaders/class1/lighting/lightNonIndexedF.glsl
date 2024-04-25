@@ -23,14 +23,10 @@
  * $/LicenseInfo$
  */
 
-#ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
-#else
-#define frag_color gl_FragColor
-#endif
  
-VARYING vec4 vertex_color;
-VARYING vec2 vary_texcoord0;
+in vec4 vertex_color;
+in vec2 vary_texcoord0;
 
 uniform sampler2D diffuseMap;
 
@@ -39,12 +35,12 @@ vec3 scaleSoftClip(vec3 light);
 
 void default_lighting() 
 {
-	vec4 color = texture2D(diffuseMap,vary_texcoord0.xy) * vertex_color;
+	vec4 color = texture(diffuseMap,vary_texcoord0.xy) * vertex_color;
 	
 	color.rgb = atmosLighting(color.rgb);
 
 	color.rgb = scaleSoftClip(color.rgb);
 
-	frag_color = color;
+	frag_color = max(color, vec4(0));
 }
 

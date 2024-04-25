@@ -84,7 +84,7 @@ BOOL LLFloaterEditSky::postBuild()
 	mSkyPresetCombo = getChild<LLComboBox>("sky_preset_combo");
 	mMakeDefaultCheckBox = getChild<LLCheckBoxCtrl>("make_default_cb");
 	mSaveButton = getChild<LLButton>("save");
-    mSkyAdapter = boost::make_shared<LLSkySettingsAdapter>();
+    mSkyAdapter = std::make_shared<LLSkySettingsAdapter>();
 
     LLEnvironment::instance().setSkyListChange(boost::bind(&LLFloaterEditSky::onSkyPresetListChange, this));
 

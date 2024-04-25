@@ -14,14 +14,16 @@
 // associated header
 #include "llleaplistener.h"
 // STL headers
-#include <map>
+#include <algorithm>                // std::find_if
 #include <functional>
+#include <map>
+#include <set>
 // std headers
 // external library headers
-#include <boost/foreach.hpp>
 // other Linden headers
-#include "lluuid.h"
+#include "lazyeventapi.h"
 #include "llsdutil.h"
+#include "lluuid.h"
 #include "stringize.h"
 
 /*****************************************************************************
@@ -110,7 +112,7 @@ LLLeapListener::~LLLeapListener()
     // value_type, and Bad Things would happen if you copied an
     // LLTempBoundListener. (Destruction of the original would disconnect the
     // listener, invalidating every stored connection.)
-    BOOST_FOREACH(ListenersMap::value_type& pair, mListeners)
+    for (ListenersMap::value_type& pair : mListeners)
     {
         pair.second.disconnect();
     }
@@ -208,31 +210,65 @@ void LLLeapListener::getAPIs(const LLSD& request) const
 {
     Response reply(LLSD(), request);
 
+    // first, traverse existing LLEventAPI instances
+    std::set<std::string> instances;
     for (auto& ea : LLEventAPI::instance_snapshot())
     {
-        LLSD info;
-        info["desc"] = ea.getDesc();
-        reply[ea.getName()] = info;
+        // remember which APIs are actually instantiated
+        instances.insert(ea.getName());
+        reply[ea.getName()] = llsd::map("desc", ea.getDesc());
     }
+    // supplement that with *potential* instances: that is, instances of
+    // LazyEventAPI that can each instantiate an LLEventAPI on demand
+    for (const auto& lea : LL::LazyEventAPIBase::instance_snapshot())
+    {
+        // skip any LazyEventAPI that's already instantiated its LLEventAPI
+        if (instances.find(lea.getName()) == instances.end())
+        {
+            reply[lea.getName()] = llsd::map("desc", lea.getDesc());
+        }
+    }
+}
+
+// Because LazyEventAPI deliberately mimics LLEventAPI's query API, this
+// function can be passed either -- even though they're unrelated types.
+template <typename API>
+void reportAPI(LLEventAPI::Response& reply, const API& api)
+{
+    reply["name"] = api.getName();
+    reply["desc"] = api.getDesc();
+    reply["key"]  = api.getDispatchKey();
+    LLSD ops;
+    for (const auto& namedesc : api)
+    {
+        ops.append(api.getMetadata(namedesc.first));
+    }
+    reply["ops"] = ops;
 }
 
 void LLLeapListener::getAPI(const LLSD& request) const
 {
     Response reply(LLSD(), request);
 
-    auto found = LLEventAPI::getInstance(request["api"]);
-    if (found)
+    // check first among existing LLEventAPI instances
+    auto foundea = LLEventAPI::getInstance(request["api"]);
+    if (foundea)
     {
-        reply["name"] = found->getName();
-        reply["desc"] = found->getDesc();
-        reply["key"] = found->getDispatchKey();
-        LLSD ops;
-        for (LLEventAPI::const_iterator oi(found->begin()), oend(found->end());
-             oi != oend; ++oi)
+        reportAPI(reply, *foundea);
+    }
+    else
+    {
+        // Here the requested LLEventAPI doesn't yet exist, but do we have a
+        // registered LazyEventAPI for it?
+        LL::LazyEventAPIBase::instance_snapshot snap;
+        auto foundlea = std::find_if(snap.begin(), snap.end(),
+                                     [api = request["api"].asString()]
+                                     (const auto& lea)
+                                     { return (lea.getName() == api); });
+        if (foundlea != snap.end())
         {
-            ops.append(found->getMetadata(oi->first));
+            reportAPI(reply, *foundlea);
         }
-        reply["ops"] = ops;
     }
 }
 

@@ -23,11 +23,11 @@
  * $/LicenseInfo$
  */
  
-ATTRIBUTE vec3 position;
-ATTRIBUTE vec2 texcoord0;
+in vec3 position;
+in vec2 texcoord0;
 
-VARYING vec2 vary_fragcoord;
-VARYING vec2 vary_texcoord0;
+out vec2 vary_fragcoord;
+out vec2 vary_texcoord0;
 
 void main()
 {

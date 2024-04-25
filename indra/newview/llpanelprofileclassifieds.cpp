@@ -93,7 +93,8 @@ public:
             return true; // don't block, will fail later
         }
 
-        if (nav_type == NAV_TYPE_CLICKED)
+        if (nav_type == NAV_TYPE_CLICKED
+            || nav_type == NAV_TYPE_EXTERNAL)
         {
             return true;
         }
@@ -649,6 +650,8 @@ BOOL LLPanelProfileClassified::postBuild()
     mSnapshotCtrl->setOnSelectCallback(boost::bind(&LLPanelProfileClassified::onTextureSelected, this));
     mSnapshotCtrl->setMouseEnterCallback(boost::bind(&LLPanelProfileClassified::onTexturePickerMouseEnter, this));
     mSnapshotCtrl->setMouseLeaveCallback(boost::bind(&LLPanelProfileClassified::onTexturePickerMouseLeave, this));
+    mSnapshotCtrl->setAllowLocalTexture(FALSE);
+    mSnapshotCtrl->setBakeTextureEnabled(FALSE);
     mEditIcon->setVisible(false);
 
     mMapButton->setCommitCallback(boost::bind(&LLPanelProfileClassified::onMapClick, this));
@@ -666,7 +669,7 @@ BOOL LLPanelProfileClassified::postBuild()
         mCategoryCombo->add(LLTrans::getString(iter->second));
     }
 
-    mClassifiedNameEdit->setKeystrokeCallback(boost::bind(&LLPanelProfileClassified::onChange, this), NULL);
+    mClassifiedNameEdit->setKeystrokeCallback(boost::bind(&LLPanelProfileClassified::onTitleChange, this), NULL);
     mClassifiedDescEdit->setKeystrokeCallback(boost::bind(&LLPanelProfileClassified::onChange, this));
     mCategoryCombo->setCommitCallback(boost::bind(&LLPanelProfileClassified::onChange, this));
     mContentTypeCombo->setCommitCallback(boost::bind(&LLPanelProfileClassified::onChange, this));
@@ -934,6 +937,8 @@ void LLPanelProfileClassified::onCancelClick()
     }
     else
     {
+        updateTabLabel(mClassifiedNameText->getValue());
+
         // Reload data to undo changes to forms
         LLAvatarPropertiesProcessor::getInstance()->sendClassifiedInfoRequest(getClassifiedId());
     }
@@ -954,7 +959,7 @@ void LLPanelProfileClassified::onSaveClick()
     }
     if(isNew() || isNewWithErrors())
     {
-        if(gStatusBar->getBalance() < getPriceForListing())
+        if(gStatusBar->getBalance() < MINIMUM_PRICE_FOR_LISTING)
         {
             LLNotificationsUtil::add("ClassifiedInsufficientFunds");
             return;
@@ -1402,6 +1407,12 @@ void LLPanelProfileClassified::onChange()
     enableSave(isDirty());
 }
 
+void LLPanelProfileClassified::onTitleChange()
+{
+    updateTabLabel(getClassifiedName());
+    onChange();
+}
+
 void LLPanelProfileClassified::doSave()
 {
     //*TODO: Fix all of this
@@ -1427,6 +1438,14 @@ void LLPanelProfileClassified::doSave()
 
 void LLPanelProfileClassified::onPublishFloaterPublishClicked()
 {
+    if (mPublishFloater->getPrice() < MINIMUM_PRICE_FOR_LISTING)
+    {
+        LLSD args;
+        args["MIN_PRICE"] = MINIMUM_PRICE_FOR_LISTING;
+        LLNotificationsUtil::add("MinClassifiedPrice", args);
+        return;
+    }
+
     setPriceForListing(mPublishFloater->getPrice());
 
     doSave();

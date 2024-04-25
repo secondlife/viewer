@@ -103,12 +103,7 @@ namespace tut
                    "import os\n"
                    "import sys\n"
                    "\n"
-                   "try:\n"
-                   // new freestanding llsd package
-                   "    import llsd\n"
-                   "except ImportError:\n"
-                   // older llbase.llsd module
-                   "    from llbase import llsd\n"
+                   "import llsd\n"
                    "\n"
                    "class ProtocolError(Exception):\n"
                    "    def __init__(self, msg, data):\n"

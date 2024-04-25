@@ -49,7 +49,6 @@
 #include "llsdutil.h"
 #include <boost/bind.hpp>
 #include <boost/circular_buffer.hpp>
-#include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/range.hpp>
 #include <boost/utility/enable_if.hpp>
@@ -771,20 +770,28 @@ static U32Kilobytes LLMemoryAdjustKBResult(U32Kilobytes inKB)
 }
 #endif
 
+#if LL_DARWIN
+// static
+U32Kilobytes LLMemoryInfo::getHardwareMemSize()
+{
+    // This might work on Linux as well.  Someone check...
+    uint64_t phys = 0;
+    int mib[2] = { CTL_HW, HW_MEMSIZE };
+
+    size_t len = sizeof(phys);
+    sysctl(mib, 2, &phys, &len, NULL, 0);
+
+    return U64Bytes(phys);
+}
+#endif
+
 U32Kilobytes LLMemoryInfo::getPhysicalMemoryKB() const
 {
 #if LL_WINDOWS
 	return LLMemoryAdjustKBResult(U32Kilobytes(mStatsMap["Total Physical KB"].asInteger()));
 
 #elif LL_DARWIN
-	// This might work on Linux as well.  Someone check...
-	uint64_t phys = 0;
-	int mib[2] = { CTL_HW, HW_MEMSIZE };
-
-	size_t len = sizeof(phys);	
-	sysctl(mib, 2, &phys, &len, NULL, 0);
-	
-	return U64Bytes(phys);
+    return getHardwareMemSize();
 
 #elif LL_LINUX
 	U64 phys = 0;
@@ -897,9 +904,9 @@ void LLMemoryInfo::stream(std::ostream& s) const
 
 	// Max key length
 	size_t key_width(0);
-	BOOST_FOREACH(const MapEntry& pair, inMap(mStatsMap))
+	for (const auto& [key, value] : inMap(mStatsMap))
 	{
-		size_t len(pair.first.length());
+		size_t len(key.length());
 		if (len > key_width)
 		{
 			key_width = len;
@@ -907,10 +914,9 @@ void LLMemoryInfo::stream(std::ostream& s) const
 	}
 
 	// Now stream stats
-	BOOST_FOREACH(const MapEntry& pair, inMap(mStatsMap))
+	for (const auto& [key, value] : inMap(mStatsMap))
 	{
-		s << pfx << std::setw(narrow(key_width+1)) << (pair.first + ':') << ' ';
-		LLSD value(pair.second);
+		s << pfx << std::setw(narrow<size_t>(key_width+1)) << (key + ':') << ' ';
 		if (value.isInteger())
 			s << std::setw(12) << value.asInteger();
 		else if (value.isReal())

@@ -41,8 +41,7 @@
 
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/algorithm/string/replace.hpp>
-#include <boost/regex/v4/match_results.hpp>
-#include <boost/foreach.hpp>
+#include <boost/regex.hpp>
 
 #if LL_MSVC
 #pragma warning(push)  
@@ -59,7 +58,7 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/date_time/local_time_adjustor.hpp>
 
-const S32 LOG_RECALL_SIZE = 2048;
+const S32 LOG_RECALL_SIZE = 20480;
 
 const std::string LL_IM_TIME("time");
 const std::string LL_IM_DATE_TIME("datetime");
@@ -709,7 +708,7 @@ bool LLLogChat::moveTranscripts(const std::string originDirectory,
 	std::string backupFileName;
 	unsigned backupFileCount;
 
-	BOOST_FOREACH(const std::string& fullpath, listOfFilesToMove)
+	for (const std::string& fullpath : listOfFilesToMove)
 	{
 		backupFileCount = 0;
 		newFullPath = targetDirectory + fullpath.substr(originDirectory.length(), std::string::npos);
@@ -723,7 +722,7 @@ bool LLLogChat::moveTranscripts(const std::string originDirectory,
 			while(LLFile::isfile(backupFileName))
 			{
 				++backupFileCount;
-				backupFileName = newFullPath + ".backup" + boost::lexical_cast<std::string>(backupFileCount);
+				backupFileName = newFullPath + ".backup" + std::to_string(backupFileCount);
 			}
 
 			//Rename the file to its backup name so it is not overwritten
@@ -780,7 +779,7 @@ void LLLogChat::deleteTranscripts()
 	getListOfTranscriptFiles(list_of_transcriptions);
 	getListOfTranscriptBackupFiles(list_of_transcriptions);
 
-	BOOST_FOREACH(const std::string& fullpath, list_of_transcriptions)
+	for (const std::string& fullpath : list_of_transcriptions)
 	{
 		S32 retry_count = 0;
 		while (retry_count < 5)

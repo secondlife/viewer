@@ -3,6 +3,7 @@
 project(llcommon)
 
 include(00-Common)
+include(ICU4C)
 include(LLCommon)
 include(bugsplat)
 include(Linking)
@@ -16,7 +17,10 @@ include(Tracy)
 
 
 set(llcommon_SOURCE_FILES
+    apply.cpp
+    commoncontrol.cpp
     indra_constants.cpp
+    lazyeventapi.cpp
     llallocator.cpp
     llallocator_heap_profile.cpp
     llapp.cpp
@@ -114,11 +118,16 @@ set(llcommon_SOURCE_FILES
 set(llcommon_HEADER_FILES
     CMakeLists.txt
 
+    always_return.h
+    apply.h
     chrono.h
     classic_callback.h
+    commoncontrol.h
     ctype_workaround.h
     fix_macros.h
+    function_types.h
     indra_constants.h
+    lazyeventapi.h
     linden_common.h
     llalignedarray.h
     llallocator.h
@@ -172,6 +181,7 @@ set(llcommon_HEADER_FILES
     llinitdestroyclass.h
     llinitparam.h
     llinstancetracker.h
+    llinstancetrackersubclass.h
     llkeybind.h
     llkeythrottle.h
     llleap.h
@@ -245,6 +255,7 @@ set(llcommon_HEADER_FILES
     stdtypes.h
     stringize.h
     threadpool.h
+    threadpool_fwd.h
     threadsafeschedule.h
     timer.h
     tuple.h
@@ -272,6 +283,7 @@ target_link_libraries(
         ll::uriparser
         ll::oslibraries
         ll::tracy
+        ll::icu4c
     )
 
 target_include_directories(llcommon INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
@@ -288,9 +300,11 @@ if (LL_TESTS)
 
   #set(TEST_DEBUG on)
   set(test_libs llcommon)
+  LL_ADD_INTEGRATION_TEST(apply "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(bitpack "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(classic_callback "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(commonmisc "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(lazyeventapi "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llbase64 "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llcond "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(lldate "" "${test_libs}")

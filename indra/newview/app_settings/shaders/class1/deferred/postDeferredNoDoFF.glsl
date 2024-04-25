@@ -23,27 +23,22 @@
  * $/LicenseInfo$
  */
  
-#extension GL_ARB_texture_rectangle : enable
-
 /*[EXTRA_CODE_HERE]*/
 
-#ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
-#else
-#define frag_color gl_FragColor
-#endif
 
-uniform sampler2DRect diffuseRect;
-uniform sampler2D bloomMap;
+uniform sampler2D diffuseRect;
+uniform sampler2D depthMap;
 
 uniform vec2 screen_res;
-VARYING vec2 vary_fragcoord;
+in vec2 vary_fragcoord;
 
 void main() 
 {
-	vec4 diff = texture2DRect(diffuseRect, vary_fragcoord.xy);
+	vec4 diff = texture(diffuseRect, vary_fragcoord.xy);
 	
-	vec4 bloom = texture2D(bloomMap, vary_fragcoord.xy/screen_res);
-	frag_color = diff + bloom;
+	frag_color = diff;
+
+    gl_FragDepth = texture(depthMap, vary_fragcoord.xy).r;
 }
 

@@ -36,7 +36,6 @@ else (WINDOWS)
   target_link_libraries( ll::apr INTERFACE
           apr-1
           aprutil-1
-          iconv
           uuid
           rt
           )

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <context_menu
  layout="topleft"
  name="Attachment Pie">
@@ -11,6 +11,14 @@
          function="Object.Edit" />
         <menu_item_call.on_enable
          function="EnableEdit" />
+    </menu_item_call>
+    <menu_item_call
+     label="Edit PBR material"
+     name="EditGLTFMaterial">
+        <menu_item_call.on_click
+         function="Object.EditGLTFMaterial" />
+        <menu_item_call.on_visible
+         function="Object.EnableEditGLTFMaterial"/>
     </menu_item_call>
     <menu_item_call
      enabled="false"

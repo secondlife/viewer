@@ -468,7 +468,7 @@ public:
 
     static DERIVED_TYPE* getInstance()
     {
-        LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
+        //LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD; // TODO -- reenable this when we have a fix for using Tracy with coroutines
         // We know the viewer has LLSingleton dependency circularities. If you
         // feel strongly motivated to eliminate them, cheers and good luck.
         // (At that point we could consider a much simpler locking mechanism.)
@@ -812,7 +812,7 @@ public:
 private:                                                                \
     /* implement LLSingleton pure virtual method whose sole purpose */  \
     /* is to remind people to use this macro */                         \
-    virtual void you_must_use_LLSINGLETON_macro() {}                    \
+    virtual void you_must_use_LLSINGLETON_macro() override {}                    \
     friend class LLSingleton<DERIVED_CLASS>;                            \
     DERIVED_CLASS(__VA_ARGS__)
 

@@ -23,66 +23,76 @@
  * $/LicenseInfo$
  */
  
-#extension GL_ARB_texture_rectangle : enable
-
 /*[EXTRA_CODE_HERE]*/
 
-#ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
-#else
-#define frag_color gl_FragColor
-#endif
 
 #if !defined(HAS_DIFFUSE_LOOKUP)
 uniform sampler2D diffuseMap;
 #endif
 
-VARYING vec3 vary_position;
-VARYING vec4 vertex_color;
-VARYING vec2 vary_texcoord0;
-
-#ifdef WATER_FOG
-vec4 applyWaterFogView(vec3 pos, vec4 color);
-#endif
+in vec3 vary_position;
+in vec4 vertex_color;
+in vec2 vary_texcoord0;
 
 vec3 srgb_to_linear(vec3 cs);
 vec3 linear_to_srgb(vec3 cl);
-vec3 fullbrightAtmosTransport(vec3 light);
-vec3 fullbrightScaleSoftClip(vec3 light);
 
 #ifdef HAS_ALPHA_MASK
 uniform float minimum_alpha;
 #endif
 
+#ifdef IS_ALPHA
+uniform vec4 waterPlane;
+void waterClip(vec3 pos);
+void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive,
+                         out vec3 atten);
+vec4 applySkyAndWaterFog(vec3 pos, vec3 additive, vec3 atten, vec4 color);
+#endif
+
 void main() 
 {
-#ifdef HAS_DIFFUSE_LOOKUP
-	vec4 color = diffuseLookup(vary_texcoord0.xy);
-#else
-	vec4 color = texture2D(diffuseMap, vary_texcoord0.xy);
+
+#ifdef IS_ALPHA
+    waterClip(vary_position.xyz);
 #endif
 
-	float final_alpha = color.a * vertex_color.a;
+#ifdef HAS_DIFFUSE_LOOKUP
+    vec4 color = diffuseLookup(vary_texcoord0.xy);
+#else
+    vec4 color = texture(diffuseMap, vary_texcoord0.xy);
+#endif
+
+    float final_alpha = color.a * vertex_color.a;
 
 #ifdef HAS_ALPHA_MASK
-	if (color.a < minimum_alpha)
-	{
-		discard;
-	}
+    if (color.a < minimum_alpha)
+    {
+        discard;
+    }
 #endif
 
-	color.rgb *= vertex_color.rgb;
+    color.rgb *= vertex_color.rgb;
 
-#ifdef WATER_FOG
-	vec3 pos = vary_position;
-	vec4 fogged = applyWaterFogView(pos, vec4(color.rgb, final_alpha));
-	color.rgb = fogged.rgb;
-	color.a   = fogged.a;
-#else
-    color.a   = final_alpha;
+    vec3 pos = vary_position;
+
+    color.a = final_alpha;
+#ifndef IS_HUD
+    color.rgb = srgb_to_linear(color.rgb);
+#ifdef IS_ALPHA
+
+    vec3 sunlit;
+    vec3 amblit;
+    vec3 additive;
+    vec3 atten;
+    calcAtmosphericVars(pos.xyz, vec3(0), 1.0, sunlit, amblit, additive, atten);
+
+    color.rgb = applySkyAndWaterFog(pos, additive, atten, color).rgb;
+    
 #endif
 
-	frag_color.rgb = color.rgb;
-	frag_color.a   = color.a;
+#endif
+
+    frag_color = max(color, vec4(0));
 }
 

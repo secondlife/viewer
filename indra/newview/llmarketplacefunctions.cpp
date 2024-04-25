@@ -611,27 +611,17 @@ private:
     static void onIdleProcessQueue(void *userdata);
 
     // doesn't hold just marketplace related ids
-    static std::set<LLUUID> sAddQueue;
     static std::set<LLUUID> sStructureQueue;
     static bool sProcessingQueue;
 };
 
-std::set<LLUUID> LLMarketplaceInventoryObserver::sAddQueue;
 std::set<LLUUID> LLMarketplaceInventoryObserver::sStructureQueue;
 bool LLMarketplaceInventoryObserver::sProcessingQueue = false;
 
 void LLMarketplaceInventoryObserver::changed(U32 mask)
 {
-	if (mask & LLInventoryObserver::ADD && LLMarketplaceData::instance().hasValidationWaiting())
-	{
-        // When things are added to the marketplace, we might need to re-validate and fix the containing listings
-        // just add whole list even if it contains items and non-marketplace folders
-        const std::set<LLUUID>& changed_items = gInventory.getChangedIDs();
-        sAddQueue.insert(changed_items.begin(), changed_items.end());
-	}
-    
-	if (mask & (LLInventoryObserver::INTERNAL | LLInventoryObserver::STRUCTURE))
-	{
+    if (mask & (LLInventoryObserver::INTERNAL | LLInventoryObserver::STRUCTURE))
+    {
         // When things are changed in the inventory, this can trigger a host of changes in the marketplace listings folder:
         // * stock counts changing : no copy items coming in and out will change the stock count on folders
         // * version and listing folders : moving those might invalidate the marketplace data itself
@@ -641,7 +631,7 @@ void LLMarketplaceInventoryObserver::changed(U32 mask)
         sStructureQueue.insert(changed_items.begin(), changed_items.end());
 	}
 
-    if (!sProcessingQueue && (!sAddQueue.empty() || !sStructureQueue.empty()))
+    if (!sProcessingQueue && !sStructureQueue.empty())
     {
         gIdleCallbacks.addFunction(onIdleProcessQueue, NULL);
         // can do without sProcessingQueue, but it's usufull for simplicity and reliability
@@ -655,40 +645,6 @@ void LLMarketplaceInventoryObserver::onIdleProcessQueue(void *userdata)
     const U64 MAX_PROCESSING_TIME = 1000;
     U64 stop_time = start_time + MAX_PROCESSING_TIME;
 
-    if (!sAddQueue.empty())
-    {
-        // Make a copy of sAddQueue since decrementValidationWaiting
-        // can theoretically add more items
-        std::set<LLUUID> add_queue(sAddQueue);
-        sAddQueue.clear();
-
-        std::set<LLUUID>::const_iterator id_it = add_queue.begin();
-        std::set<LLUUID>::const_iterator id_end = add_queue.end();
-        // First, count the number of items in this list...
-        S32 count = 0;
-        for (; id_it != id_end; ++id_it)
-        {
-            LLInventoryObject* obj = gInventory.getObject(*id_it);
-            if (obj && (LLAssetType::AT_CATEGORY != obj->getType()))
-            {
-                count++;
-            }
-        }
-        // Then, decrement the folders of that amount
-        // Note that of all of those, only one folder will be a listing folder (if at all).
-        // The other will be ignored by the decrement method.
-        id_it = add_queue.begin();
-        for (; id_it != id_end; ++id_it)
-        {
-            LLInventoryObject* obj = gInventory.getObject(*id_it);
-            if (obj && (LLAssetType::AT_CATEGORY == obj->getType()))
-            {
-                // can trigger notifyObservers
-                LLMarketplaceData::instance().decrementValidationWaiting(obj->getUUID(), count);
-            }
-        }
-    }
-
     while (!sStructureQueue.empty() && LLTimer::getTotalTime() < stop_time)
     {
         std::set<LLUUID>::const_iterator id_it = sStructureQueue.begin();
@@ -700,10 +656,9 @@ void LLMarketplaceInventoryObserver::onIdleProcessQueue(void *userdata)
                 // If it's a folder known to the marketplace, let's check it's in proper shape
                 if (LLMarketplaceData::instance().isListed(*id_it) || LLMarketplaceData::instance().isVersionFolder(*id_it))
                 {
-                    LLInventoryCategory* cat = (LLInventoryCategory*)(obj);
                     // can trigger notifyObservers
                     // can cause more structural changes
-                    validate_marketplacelistings(cat);
+                    LLMarketplaceValidator::getInstance()->validateMarketplaceListings(obj->getUUID());
                 }
             }
             else
@@ -723,7 +678,7 @@ void LLMarketplaceInventoryObserver::onIdleProcessQueue(void *userdata)
         sStructureQueue.erase(id_it);
     }
 
-    if (LLApp::isExiting() || (sAddQueue.empty() && sStructureQueue.empty()))
+    if (LLApp::isExiting() || sStructureQueue.empty())
     {
         // Nothing to do anymore
         gIdleCallbacks.deleteFunction(onIdleProcessQueue, NULL);
@@ -897,7 +852,7 @@ void LLMarketplaceData::setDataFetchedSignal(const status_updated_signal_t::slot
 // Get/Post/Put requests to the SLM Server using the SLM API
 void LLMarketplaceData::getSLMListings()
 {
-    const LLUUID marketplaceFolderId = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
+    const LLUUID marketplaceFolderId = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS);
     setUpdating(marketplaceFolderId, true);
 
     LLCoros::instance().launch("getSLMListings",
@@ -1804,7 +1759,7 @@ bool LLMarketplaceData::isUpdating(const LLUUID& folder_id, S32 depth)
     }
     else
     {
-        const LLUUID marketplace_listings_uuid = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
+        const LLUUID marketplace_listings_uuid = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS);
         std::set<LLUUID>::iterator it = mPendingUpdateSet.find(marketplace_listings_uuid);
         if (it != mPendingUpdateSet.end())
         {
@@ -1848,8 +1803,7 @@ void LLMarketplaceData::decrementValidationWaiting(const LLUUID& folder_id, S32 
         if (found->second <= 0)
         {
             mValidationWaitingList.erase(found);
-            LLInventoryCategory *cat = gInventory.getCategory(folder_id);
-            validate_marketplacelistings(cat);
+            LLMarketplaceValidator::getInstance()->validateMarketplaceListings(folder_id);
             update_marketplace_category(folder_id);
             gInventory.notifyObservers();
         }

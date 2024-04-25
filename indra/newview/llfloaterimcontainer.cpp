@@ -57,7 +57,6 @@
 #include "llsdserialize.h"
 #include "llviewermenu.h" // is_agent_mappable
 #include "llviewerobjectlist.h"
-#include "boost/foreach.hpp"
 
 
 const S32 EVENTS_PER_IDLE_LOOP_CURRENT_SESSION = 80;
@@ -153,6 +152,20 @@ void LLFloaterIMContainer::sessionIDUpdated(const LLUUID& old_session_id, const 
 	// Create a new conversation with the new id
 	addConversationListItem(new_session_id, change_focus);
 	LLFloaterIMSessionTab::addToHost(new_session_id);
+}
+
+
+LLConversationItem* LLFloaterIMContainer::getSessionModel(const LLUUID& session_id)
+{
+    conversations_items_map::iterator iter = mConversationsItems.find(session_id);
+    if (iter == mConversationsItems.end())
+    {
+        return NULL;
+    }
+    else
+    {
+        return iter->second.get();
+    }
 }
 
 void LLFloaterIMContainer::sessionRemoved(const LLUUID& session_id)
@@ -289,6 +302,9 @@ void LLFloaterIMContainer::onOpen(const LLSD& key)
 	LLMultiFloater::onOpen(key);
 	reSelectConversation();
 	assignResizeLimits();
+
+	LLFloaterIMSessionTab* session_floater = LLFloaterIMSessionTab::getConversation(mSelectedSession);
+	session_floater->onOpen(key);
 }
 
 // virtual
@@ -608,7 +624,8 @@ void LLFloaterIMContainer::handleConversationModelEvent(const LLSD& event)
 	}
 	else if (type == "add_participant")
 	{
-		LLConversationItemSession* session_model = dynamic_cast<LLConversationItemSession*>(mConversationsItems[session_id]);
+        LLConversationItem* item = getSessionModel(session_id);
+		LLConversationItemSession* session_model = dynamic_cast<LLConversationItemSession*>(item);
 		LLConversationItemParticipant* participant_model = (session_model ? session_model->findParticipant(participant_id) : NULL);
 		LLIMModel::LLIMSession * im_sessionp = LLIMModel::getInstance()->findIMSession(session_id);
 		if (!participant_view && session_model && participant_model)
@@ -787,12 +804,11 @@ void LLFloaterIMContainer::setVisible(BOOL visible)
 
 void LLFloaterIMContainer::getDetachedConversationFloaters(floater_list_t& floaters)
 {
-	typedef conversations_widgets_map::value_type conv_pair;
 	LLFloaterIMNearbyChat *nearby_chat = LLFloaterReg::findTypedInstance<LLFloaterIMNearbyChat>("nearby_chat");
 
-	BOOST_FOREACH(conv_pair item, mConversationsWidgets)
+	for (const auto& [key, fvi] : mConversationsWidgets)
 	{
-		LLConversationViewSession* widget = dynamic_cast<LLConversationViewSession*>(item.second);
+		LLConversationViewSession* widget = dynamic_cast<LLConversationViewSession*>(fvi);
 		if (widget)
 		{
 			LLFloater* session_floater = widget->getSessionFloater();
@@ -1749,10 +1765,10 @@ BOOL LLFloaterIMContainer::selectConversationPair(const LLUUID& session_id, bool
 
 void LLFloaterIMContainer::setTimeNow(const LLUUID& session_id, const LLUUID& participant_id)
 {
-	LLConversationItemSession* item = dynamic_cast<LLConversationItemSession*>(get_ptr_in_map(mConversationsItems,session_id));
+	LLConversationItemSession* item = dynamic_cast<LLConversationItemSession*>(getSessionModel(session_id));
 	if (item)
 	{
-		item->setTimeNow(participant_id);
+        item->setTimeNow(participant_id);
 		mConversationViewModel.requestSortAll();
 		mConversationsRoot->arrangeAll();
 	}
@@ -1761,7 +1777,7 @@ void LLFloaterIMContainer::setTimeNow(const LLUUID& session_id, const LLUUID& pa
 void LLFloaterIMContainer::setNearbyDistances()
 {
 	// Get the nearby chat session: that's the one with uuid nul
-	LLConversationItemSession* item = dynamic_cast<LLConversationItemSession*>(get_ptr_in_map(mConversationsItems,LLUUID()));
+    LLConversationItemSession* item = dynamic_cast<LLConversationItemSession*>(getSessionModel(LLUUID()));
 	if (item)
 	{
 		// Get the positions of the nearby avatars and their ids

@@ -76,6 +76,7 @@
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
 #include "llpanelgrouplandmoney.h"
+#include "llpanelmaininventory.h"
 #include "llrecentpeople.h"
 #include "llscriptfloater.h"
 #include "llscriptruntimeperms.h"
@@ -118,8 +119,6 @@
 #include "llviewerregion.h"
 #include "llfloaterregionrestarting.h"
 
-#include <boost/foreach.hpp>
-
 #include "llnotificationmanager.h" //
 #include "llexperiencecache.h"
 
@@ -127,6 +126,8 @@
 #include "lluiusage.h"
 
 extern void on_new_message(const LLSD& msg);
+
+extern BOOL gCubeSnapshot;
 
 //
 // Constants
@@ -1424,7 +1425,8 @@ bool check_asset_previewable(const LLAssetType::EType asset_type)
 			(asset_type == LLAssetType::AT_TEXTURE)   ||
 			(asset_type == LLAssetType::AT_ANIMATION) ||
 			(asset_type == LLAssetType::AT_SCRIPT)    ||
-			(asset_type == LLAssetType::AT_SOUND);
+			(asset_type == LLAssetType::AT_SOUND) ||
+            (asset_type == LLAssetType::AT_MATERIAL);
 }
 
 void open_inventory_offer(const uuid_vec_t& objects, const std::string& from_name)
@@ -1529,6 +1531,9 @@ void open_inventory_offer(const uuid_vec_t& objects, const std::string& from_nam
 					case LLAssetType::AT_SOUND:
 						LLFloaterReg::showInstance("preview_sound", LLSD(obj_id), take_focus);
 						break;
+                    case LLAssetType::AT_MATERIAL:
+                        // Explicitly do nothing -- we don't want to open the material editor every time you add a material to inventory
+                        break;
 					default:
 						LL_DEBUGS("Messaging") << "No preview method for previewable asset type : " << LLAssetType::lookupHumanReadable(asset_type)  << LL_ENDL;
 						break;
@@ -1537,11 +1542,42 @@ void open_inventory_offer(const uuid_vec_t& objects, const std::string& from_nam
 		}
 
 		////////////////////////////////////////////////////////////////////////////////
-		// Highlight item
-		const BOOL auto_open = 
-			gSavedSettings.getBOOL("ShowInInventory") && // don't open if showininventory is false
-			!from_name.empty(); // don't open if it's not from anyone.
-		LLInventoryPanel::openInventoryPanelAndSetSelection(auto_open, obj_id);
+        static LLUICachedControl<bool> find_original_new_floater("FindOriginalOpenWindow", false);
+        //show in a new single-folder window
+        if(find_original_new_floater && !from_name.empty())
+        {
+            const LLInventoryObject *obj = gInventory.getObject(obj_id);
+            if (obj && obj->getParentUUID().notNull())
+            {
+                if (obj->getActualType() == LLAssetType::AT_CATEGORY)
+                {
+                    LLPanelMainInventory::newFolderWindow(obj_id);
+                }
+                else
+                {
+                    LLPanelMainInventory::newFolderWindow(obj->getParentUUID(), obj_id);
+                }
+            }
+        }
+        else
+        {
+            // Highlight item
+            bool show_in_inventory = gSavedSettings.get<bool>("ShowInInventory");
+            bool auto_open =
+                show_in_inventory && // don't open if ShowInInventory is FALSE
+                !from_name.empty();  // don't open if it's not from anyone
+
+            // SL-20419 : Don't change active tab if floater is visible
+            LLFloater* instance = LLFloaterReg::findInstance("inventory");
+            bool use_main_panel = instance && instance->getVisible();
+
+            if (auto_open)
+            {
+                LLFloaterReg::showInstance("inventory");
+            }
+
+            LLInventoryPanel::openInventoryPanelAndSetSelection(auto_open, obj_id, use_main_panel);
+        }
 	}
 }
 
@@ -2939,8 +2975,6 @@ void process_teleport_finish(LLMessageSystem* msg, void**)
 	// Teleport is finished; it can't be cancelled now.
 	gViewerWindow->setProgressCancelButtonVisible(FALSE);
 
-	gPipeline.doResetVertexBuffers(true);
-
 	// Do teleport effect for where you're leaving
 	// VEFFECT: TeleportStart
 	LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_POINT, TRUE);
@@ -3293,6 +3327,8 @@ const F32 MAX_HEAD_ROT_QDOT = 0.99999f;			// ~= 0.5 degrees -- if its greater th
 void send_agent_update(BOOL force_send, BOOL send_reliable)
 {
     LL_PROFILE_ZONE_SCOPED;
+    llassert(!gCubeSnapshot);
+
 	if (gAgent.getTeleportState() != LLAgent::TELEPORT_NONE)
 	{
 		// We don't care if they want to send an agent update, they're not allowed to until the simulator
@@ -4127,6 +4163,12 @@ void process_avatar_animation(LLMessageSystem *mesgsys, void **user_data)
 					LLVOAvatar::AnimSourceIterator anim_it = avatarp->mAnimationSources.find(object_id);
 					for (;anim_it != avatarp->mAnimationSources.end(); ++anim_it)
 					{
+						if (anim_it->first != object_id)
+						{
+							// elements with the same key are always contiguous, bail if we went past the
+							// end of this object's animations
+							break;
+						}
 						if (anim_it->second == animation_id)
 						{
 							anim_found = TRUE;
@@ -4191,7 +4233,7 @@ void process_object_animation(LLMessageSystem *mesgsys, void **user_data)
     LLObjectSignaledAnimationMap::instance().getMap()[uuid] = signaled_anims;
     
     LLViewerObject *objp = gObjectList.findObject(uuid);
-    if (!objp)
+    if (!objp || objp->isDead())
     {
 		LL_DEBUGS("AnimatedObjectsNotify") << "Received animation state for unknown object " << uuid << LL_ENDL;
         return;
@@ -4224,7 +4266,7 @@ void process_object_animation(LLMessageSystem *mesgsys, void **user_data)
         //if (!avatarp->mRootVolp->isAnySelected())
         {
             avatarp->updateVolumeGeom();
-            avatarp->mRootVolp->recursiveMarkForUpdate(TRUE);
+            avatarp->mRootVolp->recursiveMarkForUpdate();
         }
     }
         
@@ -5589,7 +5631,7 @@ void notify_cautioned_script_question(const LLSD& notification, const LLSD& resp
 		BOOL caution = FALSE;
 		S32 count = 0;
 		std::string perms;
-		BOOST_FOREACH(script_perm_t script_perm, SCRIPT_PERMISSIONS)
+		for (const script_perm_t& script_perm : SCRIPT_PERMISSIONS)
 		{
 			if ((orig_questions & script_perm.permbit)
 				&& script_perm.caution)
@@ -5833,7 +5875,7 @@ void process_script_question(LLMessageSystem *msg, void **user_data)
 		S32 known_questions = 0;
 		bool has_not_only_debit = questions ^ SCRIPT_PERMISSIONS[SCRIPT_PERMISSION_DEBIT].permbit;
 		// check the received permission flags against each permission
-		BOOST_FOREACH(script_perm_t script_perm, SCRIPT_PERMISSIONS)
+		for (const script_perm_t& script_perm : SCRIPT_PERMISSIONS)
 		{
 			if (questions & script_perm.permbit)
 			{
@@ -5918,42 +5960,47 @@ void container_inventory_arrived(LLViewerObject* object,
 	{
 		// create a new inventory category to put this in
 		LLUUID cat_id;
-		cat_id = gInventory.createNewCategory(gInventory.getRootFolderID(),
-											  LLFolderType::FT_NONE,
-											  LLTrans::getString("AcquiredItems"));
+		gInventory.createNewCategory(
+            gInventory.getRootFolderID(),
+            LLFolderType::FT_NONE,
+            LLTrans::getString("AcquiredItems"),
+            [inventory](const LLUUID &new_cat_id)
+        {
+            LLInventoryObject::object_list_t::const_iterator it = inventory->begin();
+            LLInventoryObject::object_list_t::const_iterator end = inventory->end();
+            for (; it != end; ++it)
+            {
+                if ((*it)->getType() != LLAssetType::AT_CATEGORY)
+                {
+                    LLInventoryObject* obj = (LLInventoryObject*)(*it);
+                    LLInventoryItem* item = (LLInventoryItem*)(obj);
+                    LLUUID item_id;
+                    item_id.generate();
+                    time_t creation_date_utc = time_corrected();
+                    LLPointer<LLViewerInventoryItem> new_item
+                        = new LLViewerInventoryItem(item_id,
+                            new_cat_id,
+                            item->getPermissions(),
+                            item->getAssetUUID(),
+                            item->getType(),
+                            item->getInventoryType(),
+                            item->getName(),
+                            item->getDescription(),
+                            LLSaleInfo::DEFAULT,
+                            item->getFlags(),
+                            creation_date_utc);
+                    new_item->updateServer(TRUE);
+                    gInventory.updateItem(new_item);
+                }
+            }
+            gInventory.notifyObservers();
 
-		LLInventoryObject::object_list_t::const_iterator it = inventory->begin();
-		LLInventoryObject::object_list_t::const_iterator end = inventory->end();
-		for ( ; it != end; ++it)
-		{
-			if ((*it)->getType() != LLAssetType::AT_CATEGORY)
-			{
-				LLInventoryObject* obj = (LLInventoryObject*)(*it);
-				LLInventoryItem* item = (LLInventoryItem*)(obj);
-				LLUUID item_id;
-				item_id.generate();
-				time_t creation_date_utc = time_corrected();
-				LLPointer<LLViewerInventoryItem> new_item
-					= new LLViewerInventoryItem(item_id,
-												cat_id,
-												item->getPermissions(),
-												item->getAssetUUID(),
-												item->getType(),
-												item->getInventoryType(),
-												item->getName(),
-												item->getDescription(),
-												LLSaleInfo::DEFAULT,
-												item->getFlags(),
-												creation_date_utc);
-				new_item->updateServer(TRUE);
-				gInventory.updateItem(new_item);
-			}
-		}
-		gInventory.notifyObservers();
-		if(active_panel)
-		{
-			active_panel->setSelection(cat_id, TAKE_FOCUS_NO);
-		}
+            LLInventoryPanel *active_panel = LLInventoryPanel::getActiveInventoryPanel();
+            if (active_panel)
+            {
+                active_panel->setSelection(new_cat_id, TAKE_FOCUS_NO);
+            }
+        });
 	}
 	else if (inventory->size() == 2)
 	{

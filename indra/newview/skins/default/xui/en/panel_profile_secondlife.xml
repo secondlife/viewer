@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel
  name="panel_profile"
  label="Profile"
@@ -68,7 +68,7 @@ Account: [ACCTTYPE]
      auto_resize="false"
      user_resize="false">
 
-      <icon
+      <thumbnail
        name="2nd_life_pic"
        image_name="Generic_Person_Large"
        layout="topleft"

@@ -35,9 +35,10 @@ Third party maintained forks, which include Linux compatible builds, are indexed
 ## Contribute
 
 Help make Second Life better! You can get involved with improvements by filing bugs, suggesting enhancements, submitting
-pull requests and more. See the [open source portal][] for details.
+pull requests and more. See the [CONTRIBUTING][] and the [open source portal][] for details.
 
 [Second Life]: https://secondlife.com/
 [download]: https://secondlife.com/support/downloads/
 [tpv]: http://wiki.secondlife.com/wiki/Third_Party_Viewer_Directory
 [open source portal]: http://wiki.secondlife.com/wiki/Open_Source_Portal
+[contributing]: https://github.com/secondlife/viewer/blob/main/CONTRIBUTING.md

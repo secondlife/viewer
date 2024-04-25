@@ -63,7 +63,8 @@ public:
 		Optional<bool>		is_opaque,
 							reserve_scroll_corner,
 							border_visible,
-							hide_scrollbar;
+							hide_scrollbar,
+							ignore_arrow_keys;
 		Optional<F32>		min_auto_scroll_rate,
 							max_auto_scroll_rate;
 		Optional<U32>		max_auto_scroll_zone;
@@ -98,8 +99,10 @@ public:
 	void			pageDown(S32 overlap = 0);
 	void			goToTop();
 	void			goToBottom();
-	bool			isAtTop() { return mScrollbar[VERTICAL]->isAtBeginning(); }
-	bool			isAtBottom() { return mScrollbar[VERTICAL]->isAtEnd(); }
+	bool			isAtTop() const { return mScrollbar[VERTICAL]->isAtBeginning(); }
+	bool			isAtBottom() const { return mScrollbar[VERTICAL]->isAtEnd(); }
+    S32             getDocPosVertical() const { return mScrollbar[VERTICAL]->getDocPos(); }
+    S32             getDocPosHorizontal() const { return mScrollbar[HORIZONTAL]->getDocPos(); }
 	S32				getBorderWidth() const;
 
 	// LLView functionality
@@ -147,6 +150,7 @@ private:
 	F32			mMaxAutoScrollRate;
 	U32			mMaxAutoScrollZone;
 	bool		mHideScrollbar;
+	bool		mIgnoreArrowKeys;
 };
 
 
