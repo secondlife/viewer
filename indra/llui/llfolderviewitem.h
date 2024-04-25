@@ -49,7 +49,9 @@ class LLFolderViewItem : public LLView
 public:
 	struct Params : public LLInitParam::Block<Params, LLView::Params>
 	{
-		Optional<LLUIImage*>						folder_arrow_image,
+		Optional<LLUIImage*>						favorite_image,
+													favorite_content_image,
+													folder_arrow_image,
 													selection_image;
 		Mandatory<LLFolderView*>					root;
 		Mandatory<LLFolderViewModelItem*>			listener;
@@ -92,6 +94,8 @@ protected:
 	std::string					mLabel;
 	S32							mLabelWidth;
 	bool						mLabelWidthDirty;
+    bool						mIsFavorite;
+    bool						mHasFavorites;
     S32                         mLabelPaddingRight;
 	LLFolderViewFolder*			mParentFolder;
 	LLPointer<LLFolderViewModelItem> mViewModelItem;
@@ -207,6 +211,8 @@ public:
 	// Returns true is this object and all of its children can be moved
 	virtual BOOL isMovable();
 
+    bool isFavorite() const { return mIsFavorite; }
+
 	// destroys this item recursively
 	virtual void destroyView();
 
@@ -297,6 +303,7 @@ public:
 	//	virtual void handleDropped();
 	virtual void draw();
 	void drawOpenFolderArrow(const Params& default_params, const LLUIColor& fg_color);
+    void drawFavoriteIcon(const Params& default_params, const LLUIColor& fg_color);
     void drawHighlight(const BOOL showContent, const BOOL hasKeyboardFocus, const LLUIColor &selectColor, const LLUIColor &flashColor, const LLUIColor &outlineColor, const LLUIColor &mouseOverColor);
     void drawLabel(const LLFontGL * font, const F32 x, const F32 y, const LLColor4& color, F32 &right_x);
 	virtual BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
@@ -390,6 +397,10 @@ public:
 
 	// Returns true is this object and all of its children can be moved
 	virtual BOOL isMovable();
+
+    bool isFavorite() const { return mIsFavorite; }
+    bool hasFavorites() const { return mHasFavorites; }
+    void setHasFavorites(bool val) { mHasFavorites = val; }
 
 	// destroys this folder, and all children
 	virtual void destroyView();

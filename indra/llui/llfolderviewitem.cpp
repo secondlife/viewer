@@ -99,6 +99,8 @@ void LLFolderViewItem::cleanupClass()
 LLFolderViewItem::Params::Params()
 :	root(),
 	listener(),
+    favorite_image("favorite_image"),
+    favorite_content_image("favorite_content_image"),
 	folder_arrow_image("folder_arrow_image"),
 	folder_indentation("folder_indentation"),
 	selection_image("selection_image"),
@@ -125,6 +127,8 @@ LLFolderViewItem::LLFolderViewItem(const LLFolderViewItem::Params& p)
 :	LLView(p),
 	mLabelWidth(0),
 	mLabelWidthDirty(false),
+    mIsFavorite(false),
+    mHasFavorites(false),
     mSuffixNeedsRefresh(false),
     mLabelPaddingRight(DEFAULT_LABEL_PADDING_RIGHT),
 	mParentFolder( NULL ),
@@ -194,6 +198,8 @@ BOOL LLFolderViewItem::postBuild()
         // getDisplayName() is expensive (due to internal getLabelSuffix() and name building)
         // it also sets search strings so it requires a filter reset
         mLabel = vmi->getDisplayName();
+        mIsFavorite = vmi->isFavorite();
+        mHasFavorites = vmi->hasFavorites();
         setToolTip(vmi->getName());
 
         // Dirty the filter flag of the model from the view (CHUI-849)
@@ -307,6 +313,8 @@ void LLFolderViewItem::refresh()
     LLFolderViewModelItem& vmi = *getViewModelItem();
 
     mLabel = vmi.getDisplayName();
+    mIsFavorite = vmi.isFavorite();
+    mHasFavorites = vmi.hasFavorites();
     setToolTip(vmi.getName());
     // icons are slightly expensive to get, can be optimized
     // see LLInventoryIcon::getIcon()
@@ -338,6 +346,9 @@ void LLFolderViewItem::refreshSuffix()
 	mIcon = vmi->getIcon();
     mIconOpen = vmi->getIconOpen();
     mIconOverlay = vmi->getIconOverlay();
+
+    mIsFavorite = vmi->isFavorite();
+    mHasFavorites = vmi->hasFavorites();
 
 	if (mRoot->useLabelSuffix())
 	{
@@ -754,6 +765,29 @@ void LLFolderViewItem::drawOpenFolderArrow(const Params& default_params, const L
 	}
 }
 
+void LLFolderViewItem::drawFavoriteIcon(const Params& default_params, const LLUIColor& fg_color)
+{
+    LLUIImage* favorite_image = NULL; 
+    if (mIsFavorite)
+    {
+        favorite_image = default_params.favorite_image;
+    }
+    else if (mHasFavorites)
+    {
+        favorite_image = default_params.favorite_content_image;
+    }
+
+    if (favorite_image)
+    {
+        const S32 PAD = 2;
+        const S32 image_size = 30;
+        
+        gl_draw_scaled_image(
+            getRect().getWidth() - image_size - PAD, getRect().getHeight() - mItemHeight + PAD,
+            image_size, image_size, favorite_image->getImage(), fg_color);
+    }
+}
+
 /*virtual*/ bool LLFolderViewItem::isHighlightAllowed()
 {
 	return mIsSelected;
@@ -913,6 +947,7 @@ void LLFolderViewItem::draw()
     {
         drawOpenFolderArrow(default_params, sFgColor);
     }
+    drawFavoriteIcon(default_params, sFgColor);
 
     drawHighlight(show_context, filled, sHighlightBgColor, sFlashBgColor, sFocusOutlineColor, sMouseOverColor);
 

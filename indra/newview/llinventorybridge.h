@@ -86,7 +86,7 @@ public:
 	//--------------------------------------------------------------------
 	virtual const LLUUID& getUUID() const { return mUUID; }
     virtual const LLUUID& getThumbnailUUID() const { return LLUUID::null; }
-    virtual bool getIsFavorite() const { return false; }
+    virtual bool isFavorite() const { return false; }
 	virtual void clearDisplayName() { mDisplayName.clear(); }
 	virtual void restoreItem() {}
 	virtual void restoreToWorld() {}
@@ -257,7 +257,9 @@ public:
 
 	LLViewerInventoryItem* getItem() const;
     virtual const LLUUID& getThumbnailUUID() const;
-    virtual bool getIsFavorite() const;
+    virtual bool isFavorite() const;
+    virtual bool hasFavorites() const { return false; }
+    virtual void setHasFavorites(bool val) {}
 
 protected:
 	BOOL confirmRemoveItem(const LLSD& notification, const LLSD& response);
@@ -279,6 +281,7 @@ public:
 		mCallingCards(FALSE),
 		mWearables(FALSE),
 		mIsLoading(false),
+        mHasFavorites(false),
 		mShowDescendantsCount(false)
 	{}
 		
@@ -304,7 +307,9 @@ public:
 	virtual std::string getLabelSuffix() const;
 	virtual LLFontGL::StyleFlags getLabelStyle() const;
     virtual const LLUUID& getThumbnailUUID() const;
-    virtual bool getIsFavorite() const;
+    virtual bool isFavorite() const;
+    virtual bool hasFavorites() const;
+    virtual void setHasFavorites(bool val);
 
 	void setShowDescendantsCount(bool show_count) {mShowDescendantsCount = show_count;}
 
@@ -392,6 +397,7 @@ protected:
 	bool							mWearables;
 	bool							mIsLoading;
 	bool							mShowDescendantsCount;
+    bool							mHasFavorites;
 	LLTimer							mTimeSinceRequestStart;
     std::string                     mMessage;
 	LLRootHandle<LLFolderBridge> mHandle;

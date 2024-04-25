@@ -866,7 +866,7 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
             }
         }
 
-        if (getIsFavorite())
+        if (isFavorite())
         {
             items.push_back(std::string("Remove from Favorites"));
         }
@@ -2264,7 +2264,7 @@ const LLUUID& LLItemBridge::getThumbnailUUID() const
     return LLUUID::null;
 }
 
-bool LLItemBridge::getIsFavorite() const
+bool LLItemBridge::isFavorite() const
 {
     LLViewerInventoryItem* item = NULL;
     LLInventoryModel* model = getInventoryModel();
@@ -2424,7 +2424,7 @@ const LLUUID& LLFolderBridge::getThumbnailUUID() const
     return LLUUID::null;
 }
 
-bool LLFolderBridge::getIsFavorite() const
+bool LLFolderBridge::isFavorite() const
 {
     LLViewerInventoryCategory* cat = getCategory();
     if (cat)
@@ -2432,6 +2432,16 @@ bool LLFolderBridge::getIsFavorite() const
         return cat->getIsFavorite();
     }
     return false;
+}
+
+bool LLFolderBridge::hasFavorites() const
+{
+    return mHasFavorites;
+}
+
+void LLFolderBridge::setHasFavorites(bool val)
+{
+    mHasFavorites = val;
 }
 
 void LLFolderBridge::update()
@@ -8066,7 +8076,7 @@ void LLFolderViewGroupedItemBridge::groupFilterContextMenu(folder_view_item_dequ
 	menuentry_vec_t disabled_items;
     if (get_selection_item_uuids(selected_items, ids))
     {
-		if (!LLAppearanceMgr::instance().canAddWearables(ids) && canWearSelected(ids))
+		if (!LLAppearanceMgr::instance().canAddWearables(ids, false) && canWearSelected(ids))
         {
             disabled_items.push_back(std::string("Wearable And Object Wear"));
             disabled_items.push_back(std::string("Wearable Add"));
