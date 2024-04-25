@@ -115,33 +115,29 @@ namespace LL
                     ARGS&&... args);
 
         /**
-         * Post work to be run at a specified time, blocking the calling
-         * coroutine until then, returning the result to caller on completion.
-         * Optional final argument is TimePoint for WorkSchedule.
+         * Post work, blocking the calling coroutine, returning the result to
+         * caller on completion. Optional final argument is TimePoint for
+         * WorkSchedule.
          *
          * In general, we assume that each thread's default coroutine is busy
          * servicing its WorkQueue or whatever. To try to prevent mistakes, we
          * forbid calling waitForResult() from a thread's default coroutine.
          */
         template <typename CALLABLE, typename... ARGS>
-        auto waitForResult(CALLABLE&& callable, ARGS&&... args);
-
-        /**
-         * Post work, blocking the calling coroutine until then, returning the
-         * result to caller on completion.
-         */
-        template <typename CALLABLE>
-        auto waitForResult_(CALLABLE&& callable)
+        auto waitForResult(CALLABLE&& callable, ARGS&&... args)
         {
-            return waitForResult_(TimePoint::clock::now(), std::forward<CALLABLE>(callable));
+            checkCoroutine("waitForResult()");
+            return waitForResult_(std::forward<CALLABLE>(callable),
+                                  std::forward<ARGS>(args)...);
         }
 
         /**
-         * Post work to be run at a specified time, blocking the calling
-         * coroutine until then, returning the result to caller on completion.
+         * Post work, blocking the calling coroutine, returning the result to
+         * caller on completion. Optional final argument is TimePoint for
+         * WorkSchedule.
          */
-        template <typename CALLABLE>
-        auto waitForResult_(const TimePoint& time, CALLABLE&& callable);
+        template <typename CALLABLE, typename... ARGS>
+        auto waitForResult_(CALLABLE&& callable, ARGS&&... args);
 
         /*--------------------------- worker API ---------------------------*/
 
@@ -634,7 +630,7 @@ namespace LL
     };
 
     template <typename CALLABLE, typename... ARGS>
-    auto WorkQueueBase::waitForResult(CALLABLE&& callable, ARGS&&... args)
+    auto WorkQueueBase::waitForResult_(CALLABLE&& callable, ARGS&&... args)
     {
         // derive callable's return type so we can specialize for void
         return WaitForResult<CALLABLE, decltype(std::forward<CALLABLE>(callable)())>()
