@@ -2038,7 +2038,7 @@ bool LLAppearanceMgr::getCanReplaceCOF(const LLUUID& outfit_cat_id)
 }
 
 // Moved from LLWearableList::ContextMenu for wider utility.
-bool LLAppearanceMgr::canAddWearables(const uuid_vec_t& item_ids) const
+bool LLAppearanceMgr::canAddWearables(const uuid_vec_t& item_ids, bool warn_on_type_mismarch) const
 {
 	// TODO: investigate wearables may not be loaded at this point EXT-8231
 
@@ -2066,9 +2066,12 @@ bool LLAppearanceMgr::canAddWearables(const uuid_vec_t& item_ids) const
 		{
 			return isAgentAvatarValid();
 		}
-		else
-		{
-			LL_WARNS() << "Unexpected wearable type" << LL_ENDL;
+        else
+        {
+            if (warn_on_type_mismarch)
+            {
+                LL_WARNS() << "Unexpected wearable type" << LL_ENDL;
+            }
 			return false;
 		}
 	}

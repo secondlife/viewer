@@ -161,7 +161,10 @@ public:
 	virtual void selectItem(void) = 0;
 
     virtual void navigateToFolder(bool new_window = false, bool change_mode = false) = 0;
-    
+
+    virtual bool isFavorite() const = 0;
+    virtual bool hasFavorites() const = 0;
+    virtual void setHasFavorites(bool val) = 0;
     virtual BOOL isItemWearable() const { return FALSE; }
 
 	virtual BOOL isItemRenameable() const = 0;
