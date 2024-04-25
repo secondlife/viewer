@@ -774,7 +774,7 @@ std::string LLVOAvatar::avString() const
 {
     if (isControlAvatar())
     {
-        return getFullname();
+        return " " + getFullname() + " ";
     }
     else
     {
@@ -1161,7 +1161,7 @@ void LLVOAvatar::deleteCachedImages(bool clearAll)
 // LLVOAvatar::initClass()
 //------------------------------------------------------------------------
 void LLVOAvatar::initClass()
-{ 
+{
 	gAnimLibrary.animStateSetString(ANIM_AGENT_BODY_NOISE,"body_noise");
 	gAnimLibrary.animStateSetString(ANIM_AGENT_BREATHE_ROT,"breathe_rot");
 	gAnimLibrary.animStateSetString(ANIM_AGENT_PHYSICS_MOTION,"physics_motion");
@@ -2137,7 +2137,7 @@ void LLVOAvatar::resetSkeleton(bool reset_animations)
     LL_DEBUGS("Avatar") << avString() << " reset starts" << LL_ENDL;
     if (!isControlAvatar() && !mLastProcessedAppearance)
     {
-        LL_WARNS() << "Can't reset avatar; no appearance message has been received yet." << LL_ENDL;
+        LL_WARNS() << "Can't reset avatar " << getID() << "; no appearance message has been received yet." << LL_ENDL;
         return;
     }
 
@@ -2477,19 +2477,20 @@ U32 LLVOAvatar::processUpdateMessage(LLMessageSystem *mesgsys,
 									 U32 block_num, const EObjectUpdateType update_type,
 									 LLDataPacker *dp)
 {
-	const bool has_name = !getNVPair("FirstName");
+	const bool had_no_name = !getNVPair("FirstName");
 
 	// Do base class updates...
 	U32 retval = LLViewerObject::processUpdateMessage(mesgsys, user_data, block_num, update_type, dp);
 
 	// Print out arrival information once we have name of avatar.
-    if (has_name && getNVPair("FirstName"))
+	const bool has_name = getNVPair("FirstName");
+    if (had_no_name && has_name)
     {
         mDebugExistenceTimer.reset();
-        debugAvatarRezTime("AvatarRezArrivedNotification","avatar arrived");
+        debugAvatarRezTime("AvatarRezArrivedNotification", "avatar arrived");
     }
 
-	if(retval & LLViewerObject::INVALID_UPDATE)
+	if (retval & LLViewerObject::INVALID_UPDATE)
 	{
 		if (isSelf())
 		{
@@ -5902,7 +5903,7 @@ void LLVOAvatar::processAnimationStateChanges()
 			startMotion(ANIM_AGENT_BODY_NOISE);
 		}
 	}
-	
+
 	// clear all current animations
 	AnimIterator anim_it;
 	for (anim_it = mPlayingAnimations.begin(); anim_it != mPlayingAnimations.end();)
@@ -8387,7 +8388,7 @@ bool LLVOAvatar::processFullyLoadedChange(bool loading)
 
 	if (!mPreviousFullyLoaded && !loading && mFullyLoaded)
 	{
-		debugAvatarRezTime("AvatarRezNotification","fully loaded");
+		debugAvatarRezTime("AvatarRezNotification", "fully loaded");
 	}
 
 	// did our loading state "change" from last call?
@@ -11292,7 +11293,10 @@ void LLVOAvatar::setOverallAppearanceNormal()
 		return;
 
     LLVector3 pelvis_pos = getJoint("mPelvis")->getPosition();
-	resetSkeleton(false);
+    if (isControlAvatar() || mLastProcessedAppearance)
+    {
+        resetSkeleton(false);
+    }
     getJoint("mPelvis")->setPosition(pelvis_pos);
 
 	for (auto it = mJellyAnims.begin(); it !=  mJellyAnims.end(); ++it)
@@ -11574,15 +11578,16 @@ bool LLVOAvatar::isTextureDefined(LLAvatarAppearanceDefines::ETextureIndex te, U
 	{
 		return false;
 	}
-	
-	if( !getImage( te, index ) )
+
+	LLViewerTexture* tex = getImage(te, index);
+	if (!tex)
 	{
 		LL_WARNS() << "getImage( " << te << ", " << index << " ) returned 0" << LL_ENDL;
 		return false;
 	}
 
-	return (getImage(te, index)->getID() != IMG_DEFAULT_AVATAR && 
-			getImage(te, index)->getID() != IMG_DEFAULT);
+	return (tex->getID() != IMG_DEFAULT_AVATAR &&
+			tex->getID() != IMG_DEFAULT);
 }
 
 //virtual
@@ -11592,13 +11597,10 @@ bool LLVOAvatar::isTextureVisible(LLAvatarAppearanceDefines::ETextureIndex type,
 	{
 		return isTextureDefined(type, index);
 	}
-	else
-	{
-		// baked textures can use TE images directly
-		return ((isTextureDefined(type) || isSelf())
-				&& (getTEImage(type)->getID() != IMG_INVISIBLE 
-				|| LLDrawPoolAlpha::sShowDebugAlpha));
-	}
+
+	// baked textures can use TE images directly
+	return ((isTextureDefined(type) || isSelf()) &&
+			(getTEImage(type)->getID() != IMG_INVISIBLE || LLDrawPoolAlpha::sShowDebugAlpha));
 }
 
 //virtual
