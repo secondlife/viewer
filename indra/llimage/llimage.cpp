@@ -1929,8 +1929,6 @@ void LLImageRaw::addEmissiveUnscaled(LLImageRaw* src)
 
 void LLImageRaw::addEmissiveScaled(LLImageRaw* src)
 {
-	LL_INFOS() << __FUNCTION__ << LL_ENDL;
-
 	LLImageRaw* dst = this;  // Just for clarity.
 
 	llassert( (4 == src->getComponents()) && (3 == dst->getComponents()) );
