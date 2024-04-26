@@ -244,12 +244,8 @@ void LLGLTFMaterialList::applyOverrideMessage(LLMessageSystem* msg, const std::s
                 }
             }
 
-            // Workaround for server sending empty overrides.
-            if(cache.mSides.size() > 0)
-            {
-                region->cacheFullUpdateGLTFOverride(cache);
-                LL_DEBUGS("GLTF") << "GLTF Material Override: " << cache.mObjectId << " " << cache.mLocalId << " " << cache.mRegionHandle << " (sides:" << (cache.mSides.size()) << ")" << LL_ENDL;
-            }
+            region->cacheFullUpdateGLTFOverride(cache);
+            LL_DEBUGS("GLTF") << "GLTF Material Override: " << cache.mObjectId << " " << cache.mLocalId << " " << cache.mRegionHandle << " (sides:" << (cache.mSides.size()) << ")" << LL_ENDL;
         }
 
     }
