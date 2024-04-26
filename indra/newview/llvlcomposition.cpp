@@ -608,7 +608,7 @@ namespace
                 }
             }
 
-            if (is_final) { delete userdata; }
+            if (is_final) { delete pending; }
         };
         tex->setLoadedCallback(cb, ddiscard, true, false, pending_image, nullptr);
         tex->forceToSaveRawImage(ddiscard);
