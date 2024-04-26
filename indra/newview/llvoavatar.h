@@ -399,10 +399,10 @@ public:
 	virtual bool	getIsCloud() const;
 	bool			isFullyTextured() const;
 	bool			hasGray() const; 
-	S32				getRezzedStatus() const; // 0 = cloud, 1 = gray, 2 = textured, 3 = textured and fully downloaded.
-	void			updateRezzedStatusTimers(S32 status);
+    ERezzedStatus	getRezzedStatus() const;
+	void			updateRezzedStatusTimers(ERezzedStatus status);
 
-	S32				mLastRezzedStatus;
+	ERezzedStatus	mLastRezzedStatus;
 
 	
 	void 			startPhase(const std::string& phase_name);
@@ -424,7 +424,6 @@ protected:
 private:
 	bool			mFirstFullyVisible;
     F32				mFirstDecloudTime;
-	F32				mFirstUseDelaySeconds;
 	LLFrameTimer	mFirstAppearanceMessageTimer;
 
 	bool			mFullyLoaded;
@@ -718,7 +717,7 @@ public:
 	bool			isFullyBaked();
 	static bool		areAllNearbyInstancesBaked(S32& grey_avatars);
 	static void		getNearbyRezzedStats(std::vector<S32>& counts, F32& avg_cloud_time, S32& cloud_avatars);
-	static std::string rezStatusToString(S32 status);
+	static std::string rezStatusToString(ERezzedStatus status);
 
 	//--------------------------------------------------------------------
 	// Baked textures

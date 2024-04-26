@@ -680,16 +680,16 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mMutedAVColor(LLColor4::white /* used for "uninitialize" */),
 	mFirstFullyVisible(true),
     mFirstDecloudTime(-1.f),
-	mFirstUseDelaySeconds(FIRST_APPEARANCE_CLOUD_MIN_DELAY),
 	mFullyLoaded(false),
 	mPreviousFullyLoaded(false),
 	mFullyLoadedInitialized(false),
+	mFullyLoadedFrameCounter(0),
     mLastCloudAttachmentCount(0),
 	mVisualComplexity(VISUAL_COMPLEXITY_UNKNOWN),
 	mLoadedCallbacksPaused(false),
 	mLoadedCallbackTextures(0),
 	mRenderUnloadedAvatar(LLCachedControl<bool>(gSavedSettings, "RenderUnloadedAvatar", false)),
-	mLastRezzedStatus(-1),
+	mLastRezzedStatus(AV_REZZED_INITIAL),
 	mIsEditingAppearance(false),
 	mUseLocalAppearance(false),
 	mLastUpdateRequestCOFVersion(-1),
@@ -770,17 +770,22 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mVisuallyMuteSetting = LLVOAvatar::VisualMuteSettings(LLRenderMuteList::getInstance()->getSavedVisualMuteSetting(getID()));
 }
 
+// virtual
 std::string LLVOAvatar::avString() const
 {
     if (isControlAvatar())
     {
         return " " + getFullname() + " ";
     }
-    else
-    {
-		std::string viz_string = LLVOAvatar::rezStatusToString(getRezzedStatus());
-		return " Avatar '" + getFullname() + "' " + viz_string + " ";
-    }
+
+#if LL_RELEASE_WITH_DEBUG_INFO || LL_DEBUG
+    std::string name = getFullname();
+#else
+    std::string name = getID().asString();
+#endif // LL_RELEASE_WITH_DEBUG_INFO || LL_DEBUG
+
+    std::string status = LLVOAvatar::rezStatusToString(getRezzedStatus());
+    return " Avatar '" + name + "' " + status + " ";
 }
 
 void LLVOAvatar::debugAvatarRezTime(std::string notification_name, std::string comment)
@@ -803,10 +808,10 @@ void LLVOAvatar::debugAvatarRezTime(std::string notification_name, std::string c
 	if (gSavedSettings.getBOOL("DebugAvatarRezTime"))
 	{
 		LLSD args;
-		args["EXISTENCE"] = llformat("%d",(U32)mDebugExistenceTimer.getElapsedTimeF32());
-		args["TIME"] = llformat("%d",(U32)mRuthDebugTimer.getElapsedTimeF32());
+		args["EXISTENCE"] = llformat("%d", (U32)mDebugExistenceTimer.getElapsedTimeF32());
+		args["TIME"] = llformat("%d", (U32)mRuthDebugTimer.getElapsedTimeF32());
 		args["NAME"] = getFullname();
-		LLNotificationsUtil::add(notification_name,args);
+		LLNotificationsUtil::add(notification_name, args);
 	}
 }
 
@@ -817,11 +822,11 @@ LLVOAvatar::~LLVOAvatar()
 {
 	if (!mFullyLoaded)
 	{
-		debugAvatarRezTime("AvatarRezLeftCloudNotification","left after ruth seconds as cloud");
+		debugAvatarRezTime("AvatarRezLeftCloudNotification", "left after ruth seconds as cloud");
 	}
 	else
 	{
-		debugAvatarRezTime("AvatarRezLeftNotification","left sometime after declouding");
+		debugAvatarRezTime("AvatarRezLeftNotification", "left sometime after declouding");
 	}
 
     if(mTuned)
@@ -921,16 +926,40 @@ bool LLVOAvatar::hasGray() const
 	return !getIsCloud() && !isFullyTextured();
 }
 
-S32 LLVOAvatar::getRezzedStatus() const
+ERezzedStatus LLVOAvatar::getRezzedStatus() const
 {
-	if (getIsCloud()) return 0;
-	bool textured = isFullyTextured();
-    bool all_baked_loaded = allBakedTexturesCompletelyDownloaded();
-	if (textured && all_baked_loaded && getAttachmentCount() == mSimAttachments.size()) return 4;
-    if (textured && all_baked_loaded) return 3;
-	if (textured) return 2;
-	llassert(hasGray());
-	return 1; // gray
+	if (getIsCloud())
+		return AV_REZZED_CLOUD;
+	if (!isFullyTextured())
+		return AV_REZZED_GRAY;
+	if (!allBakedTexturesCompletelyDownloaded())
+		return AV_REZZED_TEXTURED; // "downloading baked"
+	if (getAttachmentCount() < mSimAttachments.size())
+		return AV_REZZED_BAKED; // "loading attachments"
+	return AV_REZZED_FULL;
+}
+
+// static
+std::string LLVOAvatar::rezStatusToString(ERezzedStatus rez_status)
+{
+    switch (rez_status)
+    {
+    case AV_REZZED_INITIAL:
+        return "initial";
+    case AV_REZZED_CLOUD:
+        return "cloud";
+    case AV_REZZED_GRAY:
+        return "gray";
+    case AV_REZZED_TEXTURED:
+        return "downloading baked";
+    case AV_REZZED_BAKED:
+        return "loading attachments";
+    case AV_REZZED_FULL:
+        return "full";
+    default:
+        ;
+    }
+    return "unknown";
 }
 
 void LLVOAvatar::deleteLayerSetCaches(bool clearAll)
@@ -959,15 +988,10 @@ bool LLVOAvatar::areAllNearbyInstancesBaked(S32& grey_avatars)
 {
 	bool res = true;
 	grey_avatars = 0;
-	for (std::vector<LLCharacter*>::iterator iter = LLCharacter::sInstances.begin();
-		 iter != LLCharacter::sInstances.end(); ++iter)
+	for (LLCharacter* character : LLCharacter::sInstances)
 	{
-		LLVOAvatar* inst = (LLVOAvatar*) *iter;
-		if( inst->isDead() )
-		{
-			continue;
-		}
-		else if( !inst->isFullyBaked() )
+		LLVOAvatar* inst = (LLVOAvatar*)character;
+		if (!inst->isDead() && !inst->isFullyBaked())
 		{
 			res = false;
 			if (inst->mHasGrey)
@@ -987,42 +1011,27 @@ void LLVOAvatar::getNearbyRezzedStats(std::vector<S32>& counts, F32& avg_cloud_t
     avg_cloud_time = 0;
     cloud_avatars = 0;
     S32 count_avg = 0;
-	for (std::vector<LLCharacter*>::iterator iter = LLCharacter::sInstances.begin();
-		 iter != LLCharacter::sInstances.end(); ++iter)
+    for (LLCharacter* character : LLCharacter::sInstances)
 	{
-		LLVOAvatar* inst = (LLVOAvatar*) *iter;
-		if (inst)
-		{
-			S32 rez_status = inst->getRezzedStatus();
-			counts[rez_status]++;
-            F32 time = inst->getFirstDecloudTime();
-            if (time >= 0)
-            {
-                avg_cloud_time+=time;
-                count_avg++;
-            }
-            if (!inst->isFullyLoaded() || time < 0)
-            {
-                // still renders as cloud
-                cloud_avatars++;
-            }
-		}
+        LLVOAvatar* inst = (LLVOAvatar*)character;
+        ERezzedStatus rez_status = inst->getRezzedStatus();
+        counts[rez_status]++;
+        F32 time = inst->getFirstDecloudTime();
+        if (time >= 0)
+        {
+            avg_cloud_time += time;
+            count_avg++;
+        }
+        if (!inst->isFullyLoaded() || time < 0)
+        {
+            // still renders as cloud
+            cloud_avatars++;
+        }
 	}
     if (count_avg > 0)
     {
         avg_cloud_time /= count_avg;
     }
-}
-
-// static
-std::string LLVOAvatar::rezStatusToString(S32 rez_status)
-{
-	if (rez_status==0) return "cloud";
-	if (rez_status==1) return "gray";
-	if (rez_status==2) return "downloading baked";
-	if (rez_status==3) return "loading attachments";
-	if (rez_status==4) return "full";
-	return "unknown";
 }
 
 // static
@@ -2705,7 +2714,7 @@ void LLVOAvatar::idleUpdate(LLAgent &agent, const F64 &time)
         // no need for high frequency
         compl_upd_freq = 100;
     }
-    else if (mLastRezzedStatus <= 0) //cloud or  init
+    else if (mLastRezzedStatus <= AV_REZZED_CLOUD) // cloud or initial
     {
         compl_upd_freq = 60;
     }
@@ -2713,7 +2722,7 @@ void LLVOAvatar::idleUpdate(LLAgent &agent, const F64 &time)
     {
         compl_upd_freq = 5;
     }
-    else if (mLastRezzedStatus == 1) //'grey', not fully loaded
+    else if (mLastRezzedStatus == AV_REZZED_GRAY) // gray, not fully loaded
     {
         compl_upd_freq = 40;
     }
@@ -3081,17 +3090,17 @@ F32 LLVOAvatar::calcMorphAmount()
 void LLVOAvatar::idleUpdateLipSync(bool voice_enabled)
 {
 	// Use the Lipsync_Ooh and Lipsync_Aah morphs for lip sync
-    if ( voice_enabled
-        && mLastRezzedStatus > 0 // no point updating lip-sync for clouds
+    if (voice_enabled
+        && mLastRezzedStatus > AV_REZZED_CLOUD // no point updating lip-sync for clouds
         && (LLVoiceClient::getInstance()->lipSyncEnabled())
-        && LLVoiceClient::getInstance()->getIsSpeaking( mID ) )
+        && LLVoiceClient::getInstance()->getIsSpeaking(mID))
 	{
 		F32 ooh_morph_amount = 0.0f;
 		F32 aah_morph_amount = 0.0f;
 
 		mVoiceVisualizer->lipSyncOohAah( ooh_morph_amount, aah_morph_amount );
 
-		if( mOohMorph )
+		if (mOohMorph)
 		{
 			F32 ooh_weight = mOohMorph->getMinWeight()
 				+ ooh_morph_amount * (mOohMorph->getMaxWeight() - mOohMorph->getMinWeight());
@@ -3099,7 +3108,7 @@ void LLVOAvatar::idleUpdateLipSync(bool voice_enabled)
 			mOohMorph->setWeight( ooh_weight);
 		}
 
-		if( mAahMorph )
+		if (mAahMorph)
 		{
 			F32 aah_weight = mAahMorph->getMinWeight()
 				+ aah_morph_amount * (mAahMorph->getMaxWeight() - mAahMorph->getMinWeight());
@@ -4199,11 +4208,11 @@ void LLVOAvatar::computeUpdatePeriod()
 			// impostor camera near clip plane
 			mUpdatePeriod = 1;
 		}
-		else if ( shouldImpostor(4.0) )
+		else if (shouldImpostor(4.0))
 		{ //background avatars are REALLY slow updating impostors
 			mUpdatePeriod = UPDATE_RATE_SLOW;
 		}
-		else if (mLastRezzedStatus <= 0)
+		else if (mLastRezzedStatus <= AV_REZZED_CLOUD)
 		{
 			// Don't update cloud avatars too often
 			mUpdatePeriod = UPDATE_RATE_SLOW;
@@ -8097,21 +8106,24 @@ bool LLVOAvatar::getIsCloud() const
 			);
 }
 
-void LLVOAvatar::updateRezzedStatusTimers(S32 rez_status)
+void LLVOAvatar::updateRezzedStatusTimers(ERezzedStatus rez_status)
 {
 	// State machine for rezzed status. Statuses are -1 on startup, 0
 	// = cloud, 1 = gray, 2 = downloading, 3 = waiting for attachments, 4 = full.
 	// Purpose is to collect time data for each it takes avatar to reach
 	// various loading landmarks: gray, textured (partial), textured fully.
 
+    auto next = [](ERezzedStatus status) -> ERezzedStatus { return (ERezzedStatus)(status + 1); };
+    auto incr = [&](ERezzedStatus& status) { status = next(status); };
+
 	if (rez_status != mLastRezzedStatus)
 	{
 		LL_DEBUGS("Avatar") << avString() << "rez state change: " << mLastRezzedStatus << " -> " << rez_status << LL_ENDL;
 
-		if (mLastRezzedStatus == -1 && rez_status != -1)
+		if (mLastRezzedStatus == AV_REZZED_INITIAL && rez_status != AV_REZZED_INITIAL)
 		{
 			// First time initialization, start all timers.
-			for (S32 i = 1; i < 4; i++)
+			for (ERezzedStatus i = AV_REZZED_GRAY; i < AV_REZZED_FULL; incr(i))
 			{
 				startPhase("load_" + LLVOAvatar::rezStatusToString(i));
 				startPhase("first_load_" + LLVOAvatar::rezStatusToString(i));
@@ -8120,7 +8132,7 @@ void LLVOAvatar::updateRezzedStatusTimers(S32 rez_status)
 		if (rez_status < mLastRezzedStatus)
 		{
 			// load level has decreased. start phase timers for higher load levels.
-			for (S32 i = rez_status+1; i <= mLastRezzedStatus; i++)
+			for (ERezzedStatus i = next(rez_status); i <= mLastRezzedStatus; incr(i))
 			{
 				startPhase("load_" + LLVOAvatar::rezStatusToString(i));
 			}
@@ -8128,12 +8140,12 @@ void LLVOAvatar::updateRezzedStatusTimers(S32 rez_status)
 		else if (rez_status > mLastRezzedStatus)
 		{
 			// load level has increased. stop phase timers for lower and equal load levels.
-			for (S32 i = llmax(mLastRezzedStatus+1,1); i <= rez_status; i++)
+			for (ERezzedStatus i = llmax(next(mLastRezzedStatus), AV_REZZED_GRAY); i <= rez_status; incr(i))
 			{
 				stopPhase("load_" + LLVOAvatar::rezStatusToString(i));
 				stopPhase("first_load_" + LLVOAvatar::rezStatusToString(i), false);
 			}
-			if (rez_status == 4)
+			if (rez_status == AV_REZZED_FULL)
 			{
 				// "fully loaded", mark any pending appearance change complete.
 				selfStopPhase("update_appearance_from_cof");
@@ -8279,23 +8291,24 @@ void LLVOAvatar::logMetricsTimerRecord(const std::string& phase_name, F32 elapse
 // returns true if the value has changed.
 bool LLVOAvatar::updateIsFullyLoaded()
 {
-	S32 rez_status = getRezzedStatus();
-	bool loading = rez_status == 0;
-	if (mFirstFullyVisible && !mIsControlAvatar)
+    ERezzedStatus rez_status = getRezzedStatus();
+	bool loading = rez_status <= AV_REZZED_CLOUD;
+	if (!loading && mFirstFullyVisible && !mIsControlAvatar)
 	{
-        loading = ((rez_status < 2)
+        loading = ((rez_status < AV_REZZED_TEXTURED)
                    // Wait at least 60s for unfinished textures to finish on first load,
                    // don't wait forever, it might fail. Even if it will eventually load by
                    // itself and update mLoadedCallbackTextures (or fail and clean the list),
                    // avatars are more time-sensitive than textures and can't wait that long.
                    || (mLoadedCallbackTextures < mCallbackTextureList.size() && mLastTexCallbackAddedTime.getElapsedTimeF32() < MAX_TEXTURE_WAIT_TIME_SEC)
                    || !mPendingAttachment.empty()
-                   || (rez_status < 3 && !isFullyBaked())
+                   || (rez_status < AV_REZZED_BAKED && !isFullyBaked())
                    || hasPendingAttachedMeshes()
                   );
 
         // compare amount of attachments to one reported by simulator
-        if (!loading && !isSelf() && rez_status < 4 && mLastCloudAttachmentCount != mSimAttachments.size())
+        if (!loading && !isSelf() && rez_status < AV_REZZED_FULL &&
+            mLastCloudAttachmentCount < mSimAttachments.size())
         {
             S32 attachment_count = getAttachmentCount();
             if (mLastCloudAttachmentCount != attachment_count)
@@ -8315,6 +8328,7 @@ bool LLVOAvatar::updateIsFullyLoaded()
             }
         }
 	}
+
 	updateRezzedStatusTimers(rez_status);
 	updateRuthTimer(loading);
 	return processFullyLoadedChange(loading);
@@ -8351,55 +8365,50 @@ void LLVOAvatar::updateRuthTimer(bool loading)
 
 bool LLVOAvatar::processFullyLoadedChange(bool loading)
 {
-	// We wait a little bit before giving the 'all clear', to let things to
-	// settle down: models to snap into place, textures to get first packets,
-	// LODs to load.
-	const F32 LOADED_DELAY = 1.f;
-
     if (loading)
     {
         mFullyLoadedTimer.reset();
+        mFullyLoaded = false;
     }
+    else if (!mFullyLoaded)
+    {
+        // We wait a little bit before giving the 'all clear', to let things to settle down:
+        // models to snap into place, textures to get first packets, LODs to load.
+        const F32 LOADED_DELAY = 1.f;
 
-	if (mFirstFullyVisible)
-	{
-        if (!isSelf() && loading)
+        F32 delay = LOADED_DELAY;
+        if (mFirstFullyVisible && !isSelf() && loading)
         {
-                // Note that textures can causes 60s delay on thier own
-                // so this delay might end up on top of textures' delay
-                mFirstUseDelaySeconds = llclamp(
-                    mFirstAppearanceMessageTimer.getElapsedTimeF32(),
-                    FIRST_APPEARANCE_CLOUD_MIN_DELAY,
-                    FIRST_APPEARANCE_CLOUD_MAX_DELAY);
+            delay = mFirstAppearanceMessageTimer.getElapsedTimeF32();
+            // Note that textures can cause 60s delay on their own
+            // so this delay might end up on top of textures' delay
+            delay = llclamp(delay,
+                FIRST_APPEARANCE_CLOUD_MIN_DELAY,
+                FIRST_APPEARANCE_CLOUD_MAX_DELAY);
 
-                if (shouldImpostor())
-                {
-                    // Impostors are less of a priority,
-                    // let them stay cloud longer
-                    mFirstUseDelaySeconds *= FIRST_APPEARANCE_CLOUD_IMPOSTOR_MODIFIER;
-                }
+            if (shouldImpostor())
+            {
+                // Impostors are less of a priority,
+                // let them stay cloud longer
+                delay *= FIRST_APPEARANCE_CLOUD_IMPOSTOR_MODIFIER;
+            }
         }
-		mFullyLoaded = (mFullyLoadedTimer.getElapsedTimeF32() > mFirstUseDelaySeconds);
-	}
-	else
-	{
-		mFullyLoaded = (mFullyLoadedTimer.getElapsedTimeF32() > LOADED_DELAY);
-	}
 
-	if (!mPreviousFullyLoaded && !loading && mFullyLoaded)
-	{
-		debugAvatarRezTime("AvatarRezNotification", "fully loaded");
-	}
+        mFullyLoaded = mFullyLoadedTimer.getElapsedTimeF32() > delay;
+        if (mFullyLoaded && !mPreviousFullyLoaded)
+        {
+            debugAvatarRezTime("AvatarRezNotification", "fully loaded");
+        }
+    }
 
 	// did our loading state "change" from last call?
 	// FIXME runway - why are we updating every 30 calls even if nothing has changed?
 	// This causes updateLOD() to run every 30 frames, among other things.
-	const S32 UPDATE_RATE = 30;
-	bool changed =
-		((mFullyLoaded != mPreviousFullyLoaded) ||         // if the value is different from the previous call
-		 (!mFullyLoadedInitialized) ||                     // if we've never been called before
-		 (mFullyLoadedFrameCounter % UPDATE_RATE == 0));   // every now and then issue a change
 	bool fully_loaded_changed = (mFullyLoaded != mPreviousFullyLoaded);
+	const S32 UPDATE_RATE = 30;
+	bool changed = fully_loaded_changed || // if the value is different from the previous call
+		!mFullyLoadedInitialized ||                    // if we've never been called before
+		(mFullyLoadedFrameCounter % UPDATE_RATE == 0); // every now and then issue a change
 
 	mPreviousFullyLoaded = mFullyLoaded;
 	mFullyLoadedInitialized = true;
@@ -8416,7 +8425,8 @@ bool LLVOAvatar::processFullyLoadedChange(bool loading)
 		// Fix for jellydoll initially invisible
 		mNeedsImpostorUpdate = true;
 		mLastImpostorUpdateReason = 6;
-	}	
+	}
+
 	return changed;
 }
 
@@ -10386,15 +10396,12 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
 	// File will close when handle goes out of scope
 }
 
-
 void LLVOAvatar::setVisibilityRank(U32 rank)
 {
-	if (mDrawable.isNull() || mDrawable->isDead())
+	if (mDrawable.notNull() && !mDrawable->isDead())
 	{
-		// do nothing
-		return;
+		mVisibilityRank = rank;
 	}
-	mVisibilityRank = rank;
 }
 
 // Assumes LLVOAvatar::sInstances has already been sorted.
@@ -10431,23 +10438,13 @@ struct CompareScreenAreaGreater
 void LLVOAvatar::cullAvatarsByPixelArea()
 {
 	std::sort(LLCharacter::sInstances.begin(), LLCharacter::sInstances.end(), CompareScreenAreaGreater());
-	
-	// Update the avatars that have changed status
-	U32 rank = 2; //1 is reserved for self. 
-	for (std::vector<LLCharacter*>::iterator iter = LLCharacter::sInstances.begin();
-		 iter != LLCharacter::sInstances.end(); ++iter)
-	{
-		LLVOAvatar* inst = (LLVOAvatar*) *iter;
-		bool culled;
-		if (inst->isSelf() || inst->isFullyBaked())
-		{
-			culled = false;
-		}
-		else 
-		{
-			culled = true;
-		}
 
+	// Update the avatars that have changed status
+	U32 rank = 2; // 1 is reserved for self. 
+	for (LLCharacter* character : LLCharacter::sInstances)
+	{
+		LLVOAvatar* inst = (LLVOAvatar*)character;
+		bool culled = !inst->isSelf() && !inst->isFullyBaked();
 		if (inst->mCulled != culled)
 		{
 			inst->mCulled = culled;
@@ -10509,16 +10506,14 @@ void LLVOAvatar::updateRegion(LLViewerRegion *regionp)
 // virtual
 std::string LLVOAvatar::getFullname() const
 {
-	std::string name;
-
-	LLNameValue* first = getNVPair("FirstName"); 
-	LLNameValue* last  = getNVPair("LastName"); 
+	LLNameValue* first = getNVPair("FirstName");
+	LLNameValue* last = getNVPair("LastName");
 	if (first && last)
 	{
-		name = LLCacheName::buildFullName( first->getString(), last->getString() );
+		return LLCacheName::buildFullName(first->getString(), last->getString());
 	}
 
-	return name;
+	return getID().asString();
 }
 
 LLHost LLVOAvatar::getObjectHost() const
@@ -10947,7 +10942,7 @@ void LLVOAvatar::idleUpdateDebugInfo()
 
 		// Visual rank
 		info_line = llformat("%d rank", mVisibilityRank);
-		// Use grey for imposters, white for normal rendering or no impostors
+		// Use grey for impostors, white for normal rendering or no impostors
 		info_color.set(isImpostor() ? LLColor4::grey : (isControlAvatar() ? LLColor4::yellow : LLColor4::white));
 		info_style = LLFontGL::NORMAL;
 		mText->addLine(info_line, info_color, info_style);

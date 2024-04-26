@@ -2240,7 +2240,7 @@ void LLVOAvatarSelf::appearanceChangeMetricsCoro(std::string url)
     LLVOAvatar::getNearbyRezzedStats(rez_counts, avg_time, total_cloud_avatars);
     for (S32 rez_stat = 0; rez_stat < rez_counts.size(); ++rez_stat)
     {
-        std::string rez_status_name = LLVOAvatar::rezStatusToString(rez_stat);
+        std::string rez_status_name = LLVOAvatar::rezStatusToString((ERezzedStatus)rez_stat);
         msg["nearby"][rez_status_name] = rez_counts[rez_stat];
     }
     msg["nearby"]["avg_decloud_time"] = avg_time;

@@ -33,6 +33,16 @@
 
 class LLViewerRegion;
 
+enum ERezzedStatus
+{
+    AV_REZZED_INITIAL  = -1,
+    AV_REZZED_CLOUD    =  0,
+    AV_REZZED_GRAY     =  1,
+    AV_REZZED_TEXTURED =  2, // "downloading baked"
+    AV_REZZED_BAKED    =  3, // "loading attachments"
+    AV_REZZED_FULL     =  4
+};
+
 struct LLHUDComplexity
 {
     LLHUDComplexity()
@@ -130,7 +140,7 @@ private:
     S32 mLastSkeletonSerialNum;
     // Used to detect changes in voavatar's rezzed status.
     // If value decreases - there were changes in outfit.
-    S32 mLastOutfitRezStatus;
+    enum ERezzedStatus mLastOutfitRezStatus;
 
     object_complexity_list_t mObjectComplexityList;
 };
