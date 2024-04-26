@@ -115,41 +115,7 @@ void LLDrawPoolTerrain::boostTerrainDetailTextures()
     // Hack! Get the region that this draw pool is rendering from!
 	LLViewerRegion *regionp = mDrawFace[0]->getDrawable()->getVObj()->getRegion();
 	LLVLComposition *compp = regionp->getComposition();
-	for (S32 i = 0; i < 4; i++)
-	{
-        constexpr LLGLTexture::EBoostLevel level = LLGLTexture::BOOST_TERRAIN;
-        constexpr float stats = 1024.f * 1024.f;
-
-        LLPointer<LLViewerFetchedTexture>& tex = compp->mDetailTextures[i];
-        llassert(tex.notNull());
-		tex->setBoostLevel(level);
-        tex->addTextureStats(stats);
-
-        LLPointer<LLFetchedGLTFMaterial>& fetched_material = compp->mDetailMaterials[i];
-        if (fetched_material)
-        {
-            if (fetched_material->mBaseColorTexture)
-            {
-                fetched_material->mBaseColorTexture->setBoostLevel(level);
-                fetched_material->mBaseColorTexture->addTextureStats(stats);
-            }
-            if (fetched_material->mNormalTexture)
-            {
-                fetched_material->mNormalTexture->setBoostLevel(level);
-                fetched_material->mNormalTexture->addTextureStats(stats);
-            }
-            if (fetched_material->mMetallicRoughnessTexture)
-            {
-                fetched_material->mMetallicRoughnessTexture->setBoostLevel(level);
-                fetched_material->mMetallicRoughnessTexture->addTextureStats(stats);
-            }
-            if (fetched_material->mEmissiveTexture)
-            {
-                fetched_material->mEmissiveTexture->setBoostLevel(level);
-                fetched_material->mEmissiveTexture->addTextureStats(stats);
-            }
-        }
-	}
+    compp->boost();
 }
 
 void LLDrawPoolTerrain::beginDeferredPass(S32 pass)
