@@ -1200,7 +1200,7 @@ bool LLVivoxVoiceClient::provisionVoiceAccount()
         LL_WARNS("Voice") << "Could not access voice provision cap after " << retryCount << " attempts." << LL_ENDL;
         return false;
     }
-    LL_WARNS("Voice") << "Voice Provision Result." << result << LL_ENDL;
+    LL_DEBUGS("Voice") << "Voice Provision Result." << result << LL_ENDL;
     std::string voiceSipUriHostname;
     std::string voiceAccountServerUri;
     std::string voiceUserName = result["username"].asString();
@@ -1749,7 +1749,7 @@ bool LLVivoxVoiceClient::addAndJoinSession(const sessionStatePtr_t &nextSession)
             }
             else if ((message == "failed") || (message == "removed") || (message == "timeout"))
             {   // we will get a removed message if a voice call is declined.
-
+                LL_INFOS("Voice") << "Result:" << result << LL_ENDL;
                 if (message == "failed")
                 {
                     int reason = result["reason"].asInteger();
@@ -6344,8 +6344,7 @@ void LLVivoxVoiceClient::predAvatarNameResolution(const LLVivoxVoiceClient::sess
                 session->mCallerID,
                 session->mName,
                 IM_SESSION_P2P_INVITE,
-                LLIMMgr::INVITATION_TYPE_VOICE,
-                session->getVoiceChannelInfo());
+                LLIMMgr::INVITATION_TYPE_VOICE);
         }
     }
 }

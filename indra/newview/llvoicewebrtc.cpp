@@ -1119,10 +1119,6 @@ void LLWebRTCVoiceClient::removeParticipantByID(const std::string &channelID, co
         if (participant)
         {
             session->removeParticipant(participant);
-            if (session->mHangupOnLastLeave && (id != gAgentID) && (session->mParticipantsByUUID.size() <= 1))
-            {
-                notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_LEFT_CHANNEL);
-            }
         }
     }
 }
@@ -1213,6 +1209,10 @@ void LLWebRTCVoiceClient::sessionState::removeParticipant(const LLWebRTCVoiceCli
             {
                 LLWebRTCVoiceClient::getInstance()->notifyParticipantObservers();
             }
+        }
+        if (mHangupOnLastLeave && (participant->mAvatarID != gAgentID) && (mParticipantsByUUID.size() <= 1))
+        {
+            LLWebRTCVoiceClient::getInstance()->notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_LEFT_CHANNEL);
         }
     }
 }
