@@ -1194,13 +1194,14 @@ void LLWebRTCVoiceClient::sessionState::removeParticipant(const LLWebRTCVoiceCli
 
     if (participant)
     {
+        LLUUID participantID = participant->mAvatarID;
         participantUUIDMap::iterator iter = mParticipantsByUUID.find(participant->mAvatarID);
 
-        LL_DEBUGS("Voice") << "participant \"" << participant->mURI << "\" (" << participant->mAvatarID << ") removed." << LL_ENDL;
+        LL_DEBUGS("Voice") << "participant \"" << participant->mURI << "\" (" << participantID << ") removed." << LL_ENDL;
 
         if (iter == mParticipantsByUUID.end())
         {
-            LL_WARNS("Voice") << "Internal error: participant ID " << participant->mAvatarID << " not in UUID map" << LL_ENDL;
+            LL_WARNS("Voice") << "Internal error: participant ID " << participantID << " not in UUID map" << LL_ENDL;
         }
         else
         {
@@ -1210,7 +1211,7 @@ void LLWebRTCVoiceClient::sessionState::removeParticipant(const LLWebRTCVoiceCli
                 LLWebRTCVoiceClient::getInstance()->notifyParticipantObservers();
             }
         }
-        if (mHangupOnLastLeave && (participant->mAvatarID != gAgentID) && (mParticipantsByUUID.size() <= 1))
+        if (mHangupOnLastLeave && (participantID != gAgentID) && (mParticipantsByUUID.size() <= 1))
         {
             LLWebRTCVoiceClient::getInstance()->notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_LEFT_CHANNEL);
         }
