@@ -66,6 +66,7 @@
 #include "llchatentry.h"
 #include "indra_constants.h"
 #include "llassetstorage.h"
+#include "lldate.h"
 #include "llerrorcontrol.h"
 #include "llfontgl.h"
 #include "llmousehandler.h"
@@ -4761,29 +4762,26 @@ void LLViewerWindow::saveImageLocal(LLImageFormatted *image, const snapshot_save
 		failure_cb();
 	}
 	
-	// Look for an unused file name
-	BOOL is_snapshot_name_loc_set = isSnapshotLocSet();
-	std::string filepath;
-	S32 i = 1;
-	S32 err = 0;
-	std::string extension("." + image->getExtension());
-	do
-	{
-		filepath = sSnapshotDir;
-		filepath += gDirUtilp->getDirDelimiter();
-		filepath += sSnapshotBaseName;
+    // Look for an unused file name
+    auto is_snapshot_name_loc_set = isSnapshotLocSet();
+    std::string filepath;
+    auto i = 1;
+    auto err = 0;
+    auto extension("." + image->getExtension());
+    auto now = LLDate::now();
+    do
+    {
+        filepath = sSnapshotDir;
+        filepath += gDirUtilp->getDirDelimiter();
+        filepath += sSnapshotBaseName;
+        filepath += now.toLocalDateString("_%Y-%m-%d_%H%M%S");
+        filepath += llformat("%.2d", i);
+        filepath += extension;
 
-		if (is_snapshot_name_loc_set)
-		{
-			filepath += llformat("_%.3d",i);
-		}		
-
-		filepath += extension;
-
-		llstat stat_info;
-		err = LLFile::stat( filepath, &stat_info );
-		i++;
-	}
+        llstat stat_info;
+        err = LLFile::stat( filepath, &stat_info );
+        i++;
+    }
 	while( -1 != err  // Search until the file is not found (i.e., stat() gives an error).
 			&& is_snapshot_name_loc_set); // Or stop if we are rewriting.
 
