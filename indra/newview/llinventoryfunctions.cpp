@@ -2344,6 +2344,21 @@ void ungroup_folder_items(const LLUUID& folder_id)
     gInventory.notifyObservers();
 }
 
+class LLUpdateFavorite : public LLInventoryCallback
+{
+public:
+    LLUpdateFavorite(const LLUUID& inv_item_id)
+        : mInvItemID(inv_item_id)
+    {}
+    /* virtual */ void fire(const LLUUID& inv_item_id) override
+    {
+        gInventory.addChangedMask(LLInventoryObserver::UPDATE_FAVORITE, mInvItemID);
+        gInventory.notifyObservers();
+    }
+private:
+    LLUUID mInvItemID;
+};
+
 void set_favorite(const LLUUID& obj_id, bool favorite)
 {
     LLInventoryObject* obj = gInventory.getObject(obj_id);
@@ -2351,15 +2366,18 @@ void set_favorite(const LLUUID& obj_id, bool favorite)
     {
         LLSD updates;
         updates["favorite"] = LLSD().with("toggled", favorite);
+
+        LLPointer<LLInventoryCallback> cb = new LLUpdateFavorite(obj_id);
+
         LLViewerInventoryCategory* view_folder = dynamic_cast<LLViewerInventoryCategory*>(obj);
         if (view_folder)
         {
-            update_inventory_category(obj_id, updates, NULL);
+            update_inventory_category(obj_id, updates, cb);
         }
         LLViewerInventoryItem* view_item = dynamic_cast<LLViewerInventoryItem*>(obj);
         if (view_item)
         {
-            update_inventory_item(obj_id, updates, NULL);
+            update_inventory_item(obj_id, updates, cb);
         }
     }
 }

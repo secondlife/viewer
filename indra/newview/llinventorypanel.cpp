@@ -620,6 +620,19 @@ void LLInventoryPanel::itemChanged(const LLUUID& item_id, U32 mask, const LLInve
 		}
 	}
 
+    if (mask & LLInventoryObserver::UPDATE_FAVORITE)
+    {
+        if (view_item)
+        {
+            // TODO:: move to idle
+            LLFolderViewFolder* parent = view_item->getParentFolder();
+            if (parent)
+            {
+                parent->updateHasFavorites(view_item->isFavorite());
+            }
+        }
+    }
+
 	// We don't typically care which of these masks the item is actually flagged with, since the masks
 	// may not be accurate (e.g. in the main inventory panel, I move an item from My Inventory into
 	// Landmarks; this is a STRUCTURE change for that panel but is an ADD change for the Landmarks
@@ -648,6 +661,16 @@ void LLInventoryPanel::itemChanged(const LLUUID& item_id, U32 mask, const LLInve
 				setSelection(item_id, FALSE);
 			}
 			updateFolderLabel(model_item->getParentUUID());
+            if (model_item->getIsFavorite())
+            {
+                // TODO:: move to idle
+                LLFolderViewFolder* new_parent = (LLFolderViewFolder*)getItemByID(model_item->getParentUUID());
+                if (new_parent)
+                {
+                    new_parent->updateHasFavorites(true);
+                }
+            }
+
 		}
 
 		//////////////////////////////
@@ -694,6 +717,13 @@ void LLInventoryPanel::itemChanged(const LLUUID& item_id, U32 mask, const LLInve
 						updateFolderLabel(viewmodel_folder->getUUID());
 					}
 					old_parent->getViewModelItem()->dirtyDescendantsFilter();
+
+                    if (view_item->isFavorite())
+                    {
+                        // TODO:: move to idle
+                        old_parent->updateHasFavorites(false); // favorite was removed
+                        new_parent->updateHasFavorites(true); // favorite was added
+                    }
 				}
 			}
 		}
@@ -715,6 +745,11 @@ void LLInventoryPanel::itemChanged(const LLUUID& item_id, U32 mask, const LLInve
 				{
 					updateFolderLabel(viewmodel_folder->getUUID());
 				}
+                if (view_item->isFavorite())
+                {
+                    // TODO:: move to idle
+                    parent->updateHasFavorites(false); // favorite was removed
+                }
 			}
 		}
 	}

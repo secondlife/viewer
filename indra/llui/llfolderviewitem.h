@@ -401,6 +401,7 @@ public:
     bool isFavorite() const { return mIsFavorite; }
     bool hasFavorites() const { return mHasFavorites; }
     void setHasFavorites(bool val) { mHasFavorites = val; }
+    void updateHasFavorites(bool new_childs_value);
 
 	// destroys this folder, and all children
 	virtual void destroyView();

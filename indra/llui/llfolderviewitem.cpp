@@ -1783,6 +1783,64 @@ BOOL LLFolderViewFolder::isMovable()
 	return TRUE;
 }
 
+void LLFolderViewFolder::updateHasFavorites(bool new_childs_value)
+{
+    if (mHasFavorites != new_childs_value)
+    {
+        if (new_childs_value)
+        {
+            mHasFavorites = new_childs_value;
+            // propagate up to root
+            LLFolderViewFolder* parent = getParentFolder();
+            while (parent && !parent->hasFavorites())
+            {
+                parent->setHasFavorites(true);
+                parent = parent->getParentFolder();
+            }
+        }
+        else
+        {
+            LLFolderViewFolder* parent = this;
+            while (parent)
+            {
+                bool has_favorites = false;
+                for (items_t::iterator iter = parent->mItems.begin();
+                    iter != parent->mItems.end();)
+                {
+                    items_t::iterator iit = iter++;
+                    if ((*iit)->isFavorite())
+                    {
+                        has_favorites = true;
+                        break;
+                    }
+                }
+
+                for (folders_t::iterator iter = parent->mFolders.begin();
+                    iter != parent->mFolders.end() && !has_favorites;)
+                {
+                    folders_t::iterator fit = iter++;
+                    if ((*fit)->isFavorite() || (*fit)->hasFavorites())
+                    {
+                        has_favorites = true;
+                        break;
+                    }
+                }
+
+                if (!has_favorites)
+                {
+                    parent->mHasFavorites = false;
+                    parent->setHasFavorites(false);
+                }
+                else
+                {
+                    break;
+                }
+                parent = parent->getParentFolder();
+            }
+        }
+    }
+}
+
 
 BOOL LLFolderViewFolder::isRemovable()
 {

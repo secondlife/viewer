@@ -60,6 +60,7 @@ public:
 		CREATE			= 512,  // With ADD, item has just been created.
 		// unfortunately a particular message is still associated with some unique semantics.
 		UPDATE_CREATE	= 1024,  // With ADD, item added via UpdateCreateInventoryItem
+        UPDATE_FAVORITE = 2048,  // With ADD, item added via UpdateCreateInventoryItem
 		ALL 			= 0xffffffff
 	};
 	LLInventoryObserver();
