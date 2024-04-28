@@ -17,7 +17,7 @@
 					<stat_bar name="texture_cache_hits" label="キャッシュヒット率" unit_label="％"/>
 					<stat_bar name="texture_cache_read_latency" label="キャッシュ読み込み遅延量" unit_label="秒"/>
 					<stat_bar name="texture_decode_latency" label="キャッシュデコード遅延量" unit_label="秒"/>
-					<stat_bar name="texture_decode_latency" label="キャッシュ書き込み遅延量" unit_label="秒"/>
+					<stat_bar name="texture_write_latency" label="キャッシュ書き込み遅延量" unit_label="秒"/>
 					<stat_bar name="texture_fetch_latency" label="キャッシュ取得遅延量" unit_label="秒"/>
 					<stat_bar name="texture_fetch_time" label="キャッシュ取得時間" unit_label="秒"/>
 					<stat_bar name="numimagesstat" label="カウント"/>

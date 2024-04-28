@@ -24,6 +24,9 @@
 	<floater.string name="loading">
 		読み込んでいます…
 	</floater.string>
+	<text name="obj_name">
+		オブジェクト名
+	</text>
 	<button label="リセット" label_selected="リセット" name="Reset"/>
 	<check_box label="実行中" name="running"/>
 	<check_box label="Mono" name="mono"/>

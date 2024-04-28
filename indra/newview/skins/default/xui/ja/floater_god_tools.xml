@@ -18,7 +18,7 @@
 			<check_box label="サンドボックス" name="is sandbox" tool_tip="これがサンドボックスリージョンでも切り替え"/>
 			<button label="地形を構築する" label_selected="地形を構築する" name="Bake Terrain" tool_tip="現在の地形をデフォルトとして保存します。"/>
 			<button label="地形を元に戻す" label_selected="地形を元に戻す" name="Revert Terrain" tool_tip="現在の地形をデフォルトに置換します。"/>
-			<button label="地形を交換" label_selected="地形を交換" name="Swap Terrain" tool_tip="現在の地形をデフォルトと入れ替えます。"/>
+			<button label="地形を交換" label_selected="地形を交換" name="Swap Terrain" tool_tip="現在の地形をデフォルトと置き換えます。"/>
 			<text name="estate id">
 				不動産ＩＤ：
 			</text>
@@ -60,9 +60,7 @@
 			<check_box label="物理作用を無効化" name="disable physics" tool_tip="この設定により、このリージョン内の物理的作用をすべて無効化"/>
 			<button label="適用" label_selected="適用" name="Apply" tool_tip="上記の変更を適用するには、ここをクリックします。"/>
 			<button label="対象の設定" label_selected="対象の設定" name="Set Target" tool_tip="オブジェクト削除の対象となるアバターを設定してください。"/>
-			<text name="target_avatar_name">
-				（対象なし）
-			</text>
+			<text name="target_avatar_name">（対象なし）</text>
 			<button label="他の土地における対象のスクリプト・オブジェクトを削除" label_selected="他の土地における対象のスクリプト・オブジェクトを削除" name="Delete Target's Scripted Objects On Others Land" tool_tip="このリージョンにおいて対象が所有していないスクリプト・オブジェクトをすべて削除します。（コピー禁止）オブジェクトは返却されます。"/>
 			<button label="「すべての」土地における対象のスクリプト・オブジェクトを削除" label_selected="「すべての」土地における対象のスクリプト・オブジェクトを削除" name="Delete Target's Scripted Objects On *Any* Land" tool_tip="このリージョンにおいて対象が所有しているスクリプト・オブジェクトをすべて削除します。（コピー禁止）オブジェクトは返却されます。"/>
 			<button label="対象のオブジェクトを「すべて」削除" label_selected="対象のオブジェクトを「すべて」削除" name="Delete *ALL* Of Target's Objects" tool_tip="このリージョンにおいて対象が所有しているオブジェクトをすべて削除します。（コピー禁止）オブジェクトは返却されます。"/>

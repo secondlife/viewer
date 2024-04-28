@@ -23,8 +23,6 @@
 			<menu_item_separator/>
 			<menu_item_call label="ファイルを開く…" name="LoadFromFile"/>
 			<menu_item_call label="ファイルへ保存…" name="SaveToFile"/>
-			<menu_item_separator/>
-			<menu_item_call label="色の設定…" name="Colors"/>
 		</menu>
 		<menu label="編集" name="Edit">
 			<menu_item_call label="取り消し" name="Undo"/>

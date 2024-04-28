@@ -13,7 +13,7 @@
 		<menu_item_check name="Do Not Disturb" label="取り込み中"/>
 		<menu_item_separator/>
 		<menu_item_call label="リンデンドルの購入…" name="Buy and Sell L$"/>
-		<menu_item_call label="マーケットプレイスの出品リスト…" name="MarketplaceListings"/>
+		<menu_item_call label="マーケットプレイスに出品…" name="MarketplaceListings"/>
 		<menu_item_call label="アカウントのダッシュボード…" name="Manage My Account"/>
 		<menu_item_call label="[Membership]" name="Membership"/>
 		<menu_item_separator/>
@@ -113,10 +113,10 @@
 		<menu_item_separator/>
 		<menu label="表示" name="LandShow">
 			<menu_item_check label="バンラインを隠す" name="Hide Ban Lines"/>
-			<menu_item_check label="バンラインをぶつかったときに表示" name="Show Ban Lines On Collision"/>
-			<menu_item_check label="バンラインを近づいたときに表示" name="Show Ban Lines On Proximity"/>
+			<menu_item_check label="バンラインにぶつかったときに表示" name="Show Ban Lines On Collision"/>
+			<menu_item_check label="バンラインに近づいたときに表示" name="Show Ban Lines On Proximity"/>
 			<menu_item_separator/>
-			<menu_item_check label="ビーコン（標識）" name="beacons"/>
+			<menu_item_check label="ビーコン" name="beacons"/>
 			<menu_item_check label="敷地境界線" name="Property Lines"/>
 			<menu_item_check label="土地所有者" name="Land Owners"/>
 			<menu_item_check label="座標" name="Coordinates"/>
@@ -196,17 +196,17 @@
 			<menu_item_check label="プローブの更新" name="Probe Updates"/>
 			<menu_item_check label="範囲内を選択する" name="Select By Surrounding"/>
 			<menu_item_separator/>
-			<menu_item_check label="選択のアウトラインを表示" name="Show Selection Outlines"/>
+			<menu_item_check label="選択のアウトラインを表示する" name="Show Selection Outlines"/>
 			<menu_item_check label="隠れた位置の選択も表示する" name="Show Hidden Selection"/>
 			<menu_item_check label="選択した光の効果範囲を表示する" name="Show Light Radius for Selection"/>
-			<menu_item_check label="反射プローブのボリュームを表示" name="Show Reflection Probe Volumes"/>
+			<menu_item_check label="反射プローブの影響範囲を表示する" name="Show Reflection Probe Volumes"/>
 			<menu_item_check label="選択ビームを表示する" name="Show Selection Beam"/>
-			<menu_item_check label="ハイライトを透過" name="Highlight Transparent"/>
+			<menu_item_check label="透過をハイライトする" name="Highlight Transparent"/>
 			<menu_item_separator/>
 			<menu_item_check label="ポストプロセッシングを無効化" name="No Post"/>
 			<menu_item_separator/>
 			<menu_item_check label="グリッド吸着" name="Snap to Grid"/>
-			<menu_item_call label="オブジェクトのＸＹ軸をグリッドに吸着" name="Snap Object XY to Grid"/>
+			<menu_item_call label="オブジェクトのＸＹ軸をグリッドに吸着させる" name="Snap Object XY to Grid"/>
 			<menu_item_call label="選択をグリッドに使用する" name="Use Selection for Grid"/>
 			<menu_item_separator/>
 			<menu_item_call label="グリッドオプション…" name="Grid Options"/>
@@ -246,7 +246,7 @@
 		<menu_item_call label="ウィンドウサイズ設定…" name="Set Window Size..."/>
 		<menu_item_separator/>
 		<menu_item_check label="オブジェクトの選択距離の制限" name="Limit Select Distance"/>
-		<menu_item_check label="カメラの距離移動を制限しない" name="Disable Camera Distance"/>
+		<menu_item_check label="カメラの距離制限を解除" name="Disable Camera Distance"/>
 		<menu_item_separator/>
 		<menu_item_check label="高解像度スナップショット" name="HighResSnapshot"/>
 		<menu_item_check label="スナップショットをディスクに保存" name="QuietSnapshotsToDisk"/>
@@ -290,7 +290,7 @@
 			<menu_item_check label="FRInfoのテスト" name="Test FRInfo"/>
 			<menu_item_check label="フレキシブルオブジェクト" name="Flexible Objects"/>
 		</menu>
-		<menu_item_check label="プラグイン読み取りスレッドを使用" name="Use Plugin Read Thread"/>
+		<menu_item_check label="プラグイン読み取りスレッドの使用" name="Use Plugin Read Thread"/>
 		<menu_item_call label="グループキャッシュのクリア" name="ClearGroupCache"/>
 		<menu_item_check label="マウスの平滑化" name="Mouse Smoothing"/>
 		<menu_item_call label="リリースキー" name="Release Keys"/>
@@ -352,9 +352,10 @@
 			<menu_item_call label="LLErrorとクラッシュを実行する" name="Force LLError And Crash"/>
 			<menu_item_call label="不正なメモリアクセスを実行する" name="Force Bad Memory Access"/>
 			<menu_item_call label="コルーチン内で不正なメモリアクセスを発生させる" name="Force Bad Memory Access in Coroutine"/>
-			<menu_item_call label="無限ループ" name="Force Infinite Loop"/>
+			<menu_item_call label="無限ループを発生させる" name="Force Infinite Loop"/>
 			<menu_item_call label="ドライバのクラッシュを発生させる" name="Force Driver Carsh"/>
 			<menu_item_call label="ソフトウェア例外エラーの発生させる" name="Force Software Exception"/>
+			<menu_item_call label="ＯＳの例外を発生させる" name="Force OS Exception"/>
 			<menu_item_call label="コルーチン内でクラッシュを発生させる" name="Force a Crash in a Coroutine"/>
 			<menu_item_call label="スレッド内でクラッシュを発生させる" name="Force a Crash in a Thread"/>
 			<menu_item_call label="ビューアの接続遮断を実行する" name="Force Disconnect Viewer"/>
@@ -458,6 +459,8 @@
 		</menu>
 		<menu label="ＵＩ" name="UI">
 			<menu_item_call label="メディアブラウザ" name="Media Browser"/>
+			<menu_item_call label="インベントリのサムネイルヘルパ" name="Inventory Thumbnails Helper"/>
+			<menu_item_call label="ＦＢ接続テスト" name="FB Connect Test"/>
 			<menu_item_call label="フォントをダンプ" name="Dump Fonts"/>
 			<menu_item_call label="フォントをテクスチャにダンプ" name="Dump Font Textures"/>
 			<menu_item_call label="SelectMgrをダンプ" name="Dump SelectMgr"/>
@@ -471,6 +474,7 @@
 			<menu_item_check label="ダブルクリック" name="Debug Clicks"/>
 			<menu_item_check label="デバッグ表示" name="Debug Views"/>
 			<menu_item_check label="Unicodeのデバッグ" name="Debug Unicode"/>
+			<menu_item_check label="カメラ操作のデバッグ" name="Debug Camera Controls"/>
 			<menu_item_check label="デバッグ名ツールチップ" name="Debug Name Tooltips"/>
 			<menu_item_check label="マウスイベントのデバッグ" name="Debug Mouse Events"/>
 			<menu_item_check label="デバッグキー" name="Debug Keys"/>

@@ -69,7 +69,7 @@
 			<text name="perm_modify">
 				権限
 			</text>
-			<text name="perm_modify">
+			<text name="you_perm_modify">
 				あなたができること：
 			</text>
 			<check_box label="修正" name="CheckOwnerModify"/>

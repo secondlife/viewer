@@ -6,8 +6,8 @@
 	<menu_item_call label="テレポート" name="Landmark Open"/>
 	<menu_item_separator name="Folder Wearables Separator"/>
 	<menu_item_call label="現在のアウトフィットと置き換え" name="Replace Outfit"/>
-	<menu_item_call label="現在のアウトフィットに追加" name="Add To Outfit"/>
-	<menu_item_call label="現在のアウトフィットから削除" name="Remove From Outfit"/>
+	<menu_item_call label="フォルダのアイテムを追加" name="Add To Outfit"/>
+	<menu_item_call label="フォルダのアイテムを脱ぐ" name="Remove From Outfit"/>
 	<menu_item_call label="アウトフィット一覧をクリップボードにコピー" name="Copy outfit list to clipboard"/>
 	<menu_item_separator name="Outfit Separator"/>
 	<menu_item_call label="オリジナルを検索" name="Find Original"/>

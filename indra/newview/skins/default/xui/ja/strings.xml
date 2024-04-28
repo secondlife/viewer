@@ -6706,6 +6706,12 @@ https://secondlife.com/support/downloads/ からビューアを再インスト�
 	<string name="texture_load_dimensions_error">
 		[WIDTH]×[HEIGHT]以上の画像は読み込めません。
 	</string>
+	<string name="texture_load_format_error">
+		無効な画像ファイル形式です。
+	</string>
+	<string name="texture_load_empty_file">
+		ファイルが空です。
+	</string>
 	<string name="outfit_photo_load_dimensions_error">
 		アウトフィット画像の最大サイズは、[WIDTH]×[HEIGHT]です。画像のサイズを調整するか、別の画像を使用してください。
 	</string>
