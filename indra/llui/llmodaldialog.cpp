@@ -28,6 +28,7 @@
 
 #include "llmodaldialog.h"
 
+#include "llemojihelper.h"
 #include "llfocusmgr.h"
 #include "v4color.h"
 #include "v2math.h"
@@ -35,19 +36,20 @@
 #include "llwindow.h"
 #include "llkeyboard.h"
 #include "llmenugl.h"
+
 // static
 std::list<LLModalDialog*> LLModalDialog::sModalStack;
 
-LLModalDialog::LLModalDialog( const LLSD& key, BOOL modal )
+LLModalDialog::LLModalDialog(const LLSD& key, BOOL modal)
 	: LLFloater(key),
-	  mModal( modal )
+	  mModal(modal)
 {
 	if (modal)
 	{
 		setCanMinimize(FALSE);
 		setCanClose(FALSE);
 	}
-	setVisible( FALSE );
+	setVisible(FALSE);
 	setBackgroundVisible(TRUE);
 	setBackgroundOpaque(TRUE);
 	centerOnScreen(); // default position
@@ -96,7 +98,7 @@ void LLModalDialog::onOpen(const LLSD& key)
 {
 	if (mModal)
 	{
-		// If Modal, Hide the active modal dialog
+		// If Modal, hide the active modal dialog
 		if (!sModalStack.empty())
 		{
 			LLModalDialog* front = sModalStack.front();
@@ -146,13 +148,18 @@ void LLModalDialog::stopModal()
 	}
 }
 
-
 void LLModalDialog::setVisible( BOOL visible )
 {
 	if (mModal)
 	{
-		if( visible )
+		if (visible)
 		{
+			// Hide all menus currently shown
+			LLMenuGL::sMenuContainer->hideMenus();
+
+			// Hide EmojiPicker if it is shown
+			LLEmojiHelper::instance().hideHelper(nullptr, true);
+
 			// This is a modal dialog.  It sucks up all mouse and keyboard operations.
 			gFocusMgr.setMouseCapture( this );
 
@@ -255,7 +262,6 @@ BOOL LLModalDialog::handleRightMouseDown(S32 x, S32 y, MASK mask)
 	return TRUE;
 }
 
-
 BOOL LLModalDialog::handleKeyHere(KEY key, MASK mask )
 {
 	LLFloater::handleKeyHere(key, mask );
@@ -300,8 +306,7 @@ void LLModalDialog::centerOnScreen()
 	centerWithin(LLRect(0, 0, ll_round(window_size.mV[VX]), ll_round(window_size.mV[VY])));
 }
 
-
-// static 
+// static
 void LLModalDialog::onAppFocusLost()
 {
 	if( !sModalStack.empty() )
@@ -316,7 +321,7 @@ void LLModalDialog::onAppFocusLost()
 	}
 }
 
-// static 
+// static
 void LLModalDialog::onAppFocusGained()
 {
 	if( !sModalStack.empty() )
@@ -332,6 +337,7 @@ void LLModalDialog::onAppFocusGained()
 	}
 }
 
+// static
 void LLModalDialog::shutdownModals()
 {
 	// This method is only for use during app shutdown. ~LLModalDialog()
