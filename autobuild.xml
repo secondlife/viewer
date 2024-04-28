@@ -2400,14 +2400,12 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
           <map>
             <key>archive</key>
             <map>
-              <key>creds</key>
-              <string>github</string>
               <key>hash</key>
-              <string>cc7c5bf53f83cff81d874ad66394df0991bd432c</string>
+              <string>1e70b06fe6eb9796097010871b32d8e95167e373</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/3p-slvoice/releases/assets/108299352</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/gh/secondlife/3p-slvoice/slvoice-4.10.0000.32327.5fc3fe7c.5942f08-darwin64-5942f08.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2428,14 +2426,12 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
           <map>
             <key>archive</key>
             <map>
-              <key>creds</key>
-              <string>github</string>
               <key>hash</key>
-              <string>0c205371bb1731a9812b00556037729fdc057cbc</string>
+              <string>ddfb7c30d9756915e8b26f44e2ee3a69ee87fb9a</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/3p-slvoice/releases/assets/108299356</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/gh/secondlife/3p-slvoice/slvoice-4.10.0000.32327.5fc3fe7c.5942f08-windows64-5942f08.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
