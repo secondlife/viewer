@@ -53,6 +53,10 @@ LLAppViewerListener::LLAppViewerListener(const LLAppViewerGetter& getter):
     add("setDebugSetting", 
         "Apply specified [\"value\"] to the debug [\"setting\"] (this change won't persist across sessions)", 
         &LLAppViewerListener::setDebugSetting, llsd::map("setting", LLSD(), "value", LLSD()));
+
+    add("getDebugSetting",
+        "Return the value of specified debug [\"setting\"]",
+        &LLAppViewerListener::getDebugSetting, llsd::map("setting", LLSD(), "reply", LLSD()));
 }
 
 void LLAppViewerListener::requestQuit(const LLSD& event)
@@ -74,4 +78,9 @@ void LLAppViewerListener::setDebugSetting(const LLSD &event)
     LL_WARNS("LLAppViewerListener") << "Changing debug setting \"" << setting_name << "\" to " << value << LL_ENDL;
     //don't save this change between sesssions
     gSavedSettings.setUntypedValue(setting_name, value, false);
+}
+
+void LLAppViewerListener::getDebugSetting(const LLSD &event) 
+{
+    Response response(llsd::map("value", gSavedSettings.getLLSD(event["setting"])), event);
 }
