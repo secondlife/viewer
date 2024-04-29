@@ -724,13 +724,13 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id,
 	mOtherParticipantID(other_participant_id),
 	mInitialTargetIDs(ids),
 	mVoiceChannel(NULL),
-    mP2PAsAdhocCall(false),
+	mP2PAsAdhocCall(false),
 	mSpeakers(NULL),
 	mSessionInitialized(false),
 	mCallBackEnabled(true),
 	mTextIMPossible(true),
 	mStartCallOnInitialize(false),
-    mStartedAsIMCall(!voice_channel_info.isUndefined()),
+	mStartedAsIMCall(!voice_channel_info.isUndefined()),
 	mIsDNDsend(false),
 	mAvatarNameCacheConnection()
 {
@@ -738,16 +738,16 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id,
     mSessionType        = P2P_SESSION;
 
 	if (IM_NOTHING_SPECIAL == mType || IM_SESSION_P2P_INVITE == mType)
-    {
-        mP2PAsAdhocCall = (LLVoiceClient::getInstance()->getOutgoingCallInterface(voice_channel_info) == NULL);
+	{
+		mP2PAsAdhocCall = (LLVoiceClient::getInstance()->getOutgoingCallInterface(voice_channel_info) == NULL);
 	}
-    else
-    {
-        // determine whether it is group or conference session
-        mSessionType = gAgent.isInGroup(mSessionID) ? GROUP_SESSION : ADHOC_SESSION;
-    }
+	else
+	{
+		// determine whether it is group or conference session
+		mSessionType = gAgent.isInGroup(mSessionID) ? GROUP_SESSION : ADHOC_SESSION;
+	}
 
-    initVoiceChannel(voice_channel_info);
+	initVoiceChannel(voice_channel_info);
 
 	// All participants will be added to the list of people we've recently interacted with.
 
@@ -789,64 +789,64 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id,
 
 void LLIMModel::LLIMSession::initVoiceChannel(const LLSD& voiceChannelInfo)
 {
-    mVoiceChannelStateChangeConnection.disconnect();
+	mVoiceChannelStateChangeConnection.disconnect();
 
 	if (mVoiceChannel)
-    {
-        mVoiceChannel->deactivate();
+	{
+		mVoiceChannel->deactivate();
 
-        delete mVoiceChannel;
-        mVoiceChannel = NULL;
-    }
-    mP2PAsAdhocCall = false;
-    if (IM_NOTHING_SPECIAL == mType || IM_SESSION_P2P_INVITE == mType)
-    {
-        LLVoiceP2POutgoingCallInterface *outgoingInterface = LLVoiceClient::getInstance()->getOutgoingCallInterface(voiceChannelInfo);
+		delete mVoiceChannel;
+		mVoiceChannel = NULL;
+	}
+	mP2PAsAdhocCall = false;
+	if (IM_NOTHING_SPECIAL == mType || IM_SESSION_P2P_INVITE == mType)
+	{
+		LLVoiceP2POutgoingCallInterface *outgoingInterface = LLVoiceClient::getInstance()->getOutgoingCallInterface(voiceChannelInfo);
 
-        if (outgoingInterface)
-        {
-            // only use LLVoiceChannelP2P if the provider can handle the special P2P interface,
-            // which uses the voice server to relay calls and invites.  Otherwise,
-            // we use the group voice provider.
-            mVoiceChannel = new LLVoiceChannelP2P(mSessionID, mName, mOtherParticipantID, outgoingInterface);
-        }
-        else
-        {
-            mP2PAsAdhocCall = true;
-            mVoiceChannel  = new LLVoiceChannelGroup(mSessionID, mName, true);
-        }
-    }
-    else
-    {
-        // determine whether it is group or conference session
-        if (mSessionType == GROUP_SESSION)
-        {
-            mSessionType  = GROUP_SESSION;
-            mVoiceChannel = new LLVoiceChannelGroup(mSessionID, mName, false);
-        }
-        else if (mSessionType == ADHOC_SESSION)
-        {
-            mSessionType  = ADHOC_SESSION;
-            mVoiceChannel = new LLVoiceChannelGroup(mSessionID, mName, false);
-        }
+		if (outgoingInterface)
+		{
+			// only use LLVoiceChannelP2P if the provider can handle the special P2P interface,
+			// which uses the voice server to relay calls and invites.  Otherwise,
+			// we use the group voice provider.
+			mVoiceChannel = new LLVoiceChannelP2P(mSessionID, mName, mOtherParticipantID, outgoingInterface);
+		}
 		else
 		{
-            LL_WARNS("Voice") << "Invalid Session Type when initializing voice channel: " << mSessionType << LL_ENDL;
-            return;
+			mP2PAsAdhocCall = true;
+			mVoiceChannel  = new LLVoiceChannelGroup(mSessionID, mName, true);
 		}
-    }
+	}
+	else
+	{
+		// determine whether it is group or conference session
+		if (mSessionType == GROUP_SESSION)
+		{
+			mSessionType  = GROUP_SESSION;
+			mVoiceChannel = new LLVoiceChannelGroup(mSessionID, mName, false);
+		}
+		else if (mSessionType == ADHOC_SESSION)
+		{
+			mSessionType  = ADHOC_SESSION;
+			mVoiceChannel = new LLVoiceChannelGroup(mSessionID, mName, false);
+		}
+		else
+		{
+			LL_WARNS("Voice") << "Invalid Session Type when initializing voice channel: " << mSessionType << LL_ENDL;
+			return;
+		}
+	}
 
-    mVoiceChannelStateChangeConnection =
-        mVoiceChannel->setStateChangedCallback(boost::bind(&LLIMSession::onVoiceChannelStateChanged, this, _1, _2, _3));
+	mVoiceChannelStateChangeConnection =
+		mVoiceChannel->setStateChangedCallback(boost::bind(&LLIMSession::onVoiceChannelStateChanged, this, _1, _2, _3));
 
 	if (!mSpeakers)
 	{
-        mSpeakers = new LLIMSpeakerMgr(mVoiceChannel);
+		mSpeakers = new LLIMSpeakerMgr(mVoiceChannel);
 	}
-    else
-    {
-        mSpeakers->setVoiceChannel(mVoiceChannel);
-    }
+	else
+	{
+		mSpeakers->setVoiceChannel(mVoiceChannel);
+	}
 }
 
 void LLIMModel::LLIMSession::onAdHocNameCache(const LLAvatarName& av_name)
@@ -984,10 +984,10 @@ void LLIMModel::LLIMSession::sessionInitReplyReceived(const LLUUID& new_session_
 	if (new_session_id != mSessionID)
 	{
 		mSessionID = new_session_id;
-        if (mVoiceChannel)
-        {
-            mVoiceChannel->updateSessionID(new_session_id);
-        }
+		if (mVoiceChannel)
+		{
+			mVoiceChannel->updateSessionID(new_session_id);
+		}
 	}
 }
 
@@ -1831,14 +1831,14 @@ LLVoiceChannel* LLIMModel::getVoiceChannel( const LLUUID& session_id, const LLSD
 		LL_WARNS() << "session " << session_id << "does not exist " << LL_ENDL;
 		return NULL;
 	}
-    if (IM_NOTHING_SPECIAL == session->mType || IM_SESSION_P2P_INVITE == session->mType)
-    {
-        LLVoiceP2POutgoingCallInterface *outgoingInterface = LLVoiceClient::getInstance()->getOutgoingCallInterface(voice_channel_info);
-        if ((outgoingInterface != NULL) != (dynamic_cast<LLVoiceChannelP2P *>(session->mVoiceChannel) != NULL))
-        {
-            session->initVoiceChannel(voice_channel_info);
-        }
-    }
+	if (IM_NOTHING_SPECIAL == session->mType || IM_SESSION_P2P_INVITE == session->mType)
+	{
+		LLVoiceP2POutgoingCallInterface *outgoingInterface = LLVoiceClient::getInstance()->getOutgoingCallInterface(voice_channel_info);
+		if ((outgoingInterface != NULL) != (dynamic_cast<LLVoiceChannelP2P *>(session->mVoiceChannel) != NULL))
+		{
+			session->initVoiceChannel(voice_channel_info);
+		}
+	}
 
 	return session->mVoiceChannel;
 }
@@ -2180,7 +2180,7 @@ bool LLIMModel::sendStartSession(
 		//we also need to wait for reply from the server in case of ad-hoc chat (we'll get new session id)
 		return true;
 	}
-    else if (p2p_as_adhoc_call && ((dialog == IM_SESSION_P2P_INVITE) || (dialog == IM_NOTHING_SPECIAL)))
+	else if (p2p_as_adhoc_call && ((dialog == IM_SESSION_P2P_INVITE) || (dialog == IM_NOTHING_SPECIAL)))
 	{
 		LLViewerRegion *region = gAgent.getRegion();
 		if (region)
@@ -2801,7 +2801,7 @@ void LLIncomingCallDialog::onLifetimeExpired()
 		LLUUID session_id = mPayload["session_id"].asUUID();
 		gIMMgr->clearPendingAgentListUpdates(session_id);
 		gIMMgr->clearPendingInvitation(session_id);
-        LLIncomingCallDialog::onReject(this);
+		LLIncomingCallDialog::onReject(this);
 	}
 }
 
@@ -2990,7 +2990,7 @@ void LLIncomingCallDialog::processCallResponse(S32 response, const LLSD &payload
 
 			if (voice)
 			{
-                gIMMgr->startCall(session_id, LLVoiceChannel::INCOMING_CALL, payload["voice_channel_info"]);
+				gIMMgr->startCall(session_id, LLVoiceChannel::INCOMING_CALL, payload["voice_channel_info"]);
 			}
 			else
 			{
@@ -3597,7 +3597,7 @@ void LLIMMgr::inviteToSession(
 	{
 		// we're throwing up a dialogue, so we're using the voice channel passed to us,
 		// save it in the payload.
-        payload["voice_channel_info"] = voice_channel_info;
+		payload["voice_channel_info"] = voice_channel_info;
 		if (caller_name.empty())
 		{
 			LLAvatarNameCache::get(caller_id,
@@ -4149,12 +4149,12 @@ public:
 		}
 		if (input["body"]["info"].has("voice_channel_info"))
 		{
-            LLIMModel::LLIMSession* session = LLIMModel::getInstance()->findIMSession(session_id);
-            if (session)
-            {
-                session->initVoiceChannel(input["body"]["info"]["voice_channel_info"]);
-                session->mVoiceChannel->activate();
-            }
+			LLIMModel::LLIMSession* session = LLIMModel::getInstance()->findIMSession(session_id);
+			if (session)
+			{
+				session->initVoiceChannel(input["body"]["info"]["voice_channel_info"]);
+				session->mVoiceChannel->activate();
+			}
 		}
 	}
 };

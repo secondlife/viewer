@@ -473,8 +473,7 @@ void LLVoiceChannelGroup::requestChannelInfo()
 
 void LLVoiceChannelGroup::setChannelInfo(const LLSD& channelInfo)
 {
-	mChannelInfo     = channelInfo;
-    LL_INFOS("Voice") << "setChannelInfo: " << channelInfo << LL_ENDL;
+	mChannelInfo = channelInfo;
 
 	if (mState == STATE_NO_CHANNEL_INFO)
 	{
