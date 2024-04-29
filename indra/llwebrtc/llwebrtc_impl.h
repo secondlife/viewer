@@ -276,7 +276,7 @@ class LLWebRTCPeerConnectionImpl : public LLWebRTCPeerConnectionInterface,
 {
   public:
     LLWebRTCPeerConnectionImpl();
-    ~LLWebRTCPeerConnectionImpl() {}
+    ~LLWebRTCPeerConnectionImpl();
 
     void init(LLWebRTCImpl * webrtc_impl);
     void terminate();

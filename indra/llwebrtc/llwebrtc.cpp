@@ -652,6 +652,13 @@ LLWebRTCPeerConnectionImpl::LLWebRTCPeerConnectionImpl() :
 {
 }
 
+LLWebRTCPeerConnectionImpl::~LLWebRTCPeerConnectionImpl()
+{
+    terminate();
+    mSignalingObserverList.clear();
+    mDataObserverList.clear();
+}
+
 //
 // LLWebRTCPeerConnection interface
 //
@@ -669,9 +676,6 @@ void LLWebRTCPeerConnectionImpl::terminate()
     mDataChannel.swap(dataChannel);
     rtc::scoped_refptr<webrtc::MediaStreamInterface> localStream;
     mLocalStream.swap(localStream);
-
-    mSignalingObserverList.clear();
-    mDataObserverList.clear();
 
     mWebRTCImpl->PostSignalingTask(
         [=]()
