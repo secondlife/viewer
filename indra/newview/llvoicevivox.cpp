@@ -6437,37 +6437,52 @@ void LLVivoxVoiceClient::notifyStatusObservers(LLVoiceClientStatusObserver::ESta
 			}
 		}
 	}
-		
+	
 	LL_DEBUGS("Voice") 
 		<< " " << LLVoiceClientStatusObserver::status2string(status)  
 		<< ", session URI " << getAudioSessionURI() 
 		<< ", proximal is " << inSpatialChannel()
         << LL_ENDL;
 
-	for (status_observer_set_t::iterator it = mStatusObservers.begin();
-		it != mStatusObservers.end();
-		)
-	{
-		LLVoiceClientStatusObserver* observer = *it;
-		observer->onChange(status, getAudioSessionURI(), inSpatialChannel());
-		// In case onError() deleted an entry.
-		it = mStatusObservers.upper_bound(observer);
-	}
+    // this function is called from a coroutine, shuttle application hook back to main loop
+    auto mainqueue = LL::WorkQueue::getInstance("mainloop");
 
-	// skipped to avoid speak button blinking
-	if (   status != LLVoiceClientStatusObserver::STATUS_JOINING
-		&& status != LLVoiceClientStatusObserver::STATUS_LEFT_CHANNEL
-		&& status != LLVoiceClientStatusObserver::STATUS_VOICE_DISABLED)
-	{
-		bool voice_status = LLVoiceClient::getInstance()->voiceEnabled() && LLVoiceClient::getInstance()->isVoiceWorking();
+    auto work = [=]()
+        {
+            for (status_observer_set_t::iterator it = mStatusObservers.begin();
+                it != mStatusObservers.end();
+                )
+            {
+                LLVoiceClientStatusObserver* observer = *it;
+                observer->onChange(status, getAudioSessionURI(), inSpatialChannel());
+                // In case onError() deleted an entry.
+                it = mStatusObservers.upper_bound(observer);
+            }
 
-		gAgent.setVoiceConnected(voice_status);
+            // skipped to avoid speak button blinking
+            if (status != LLVoiceClientStatusObserver::STATUS_JOINING
+                && status != LLVoiceClientStatusObserver::STATUS_LEFT_CHANNEL
+                && status != LLVoiceClientStatusObserver::STATUS_VOICE_DISABLED)
+            {
+                bool voice_status = LLVoiceClient::getInstance()->voiceEnabled() && LLVoiceClient::getInstance()->isVoiceWorking();
 
-		if (voice_status)
-		{
-			LLFirstUse::speak(true);
-		}
-	}
+                gAgent.setVoiceConnected(voice_status);
+
+                if (voice_status)
+                {
+                    LLFirstUse::speak(true);
+                }
+            }
+        };
+
+    if (mainqueue)
+    {
+        mainqueue->post(work);
+    }
+    else
+    {
+        work();
+    }
 }
 
 void LLVivoxVoiceClient::addObserver(LLFriendObserver* observer)

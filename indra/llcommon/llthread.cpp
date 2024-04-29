@@ -423,25 +423,17 @@ void LLThread::unlockData()
 
 //----------------------------------------------------------------------------
 
-//static
-LLMutex* LLThreadSafeRefCount::sMutex = 0;
 
 //static
 void LLThreadSafeRefCount::initThreadSafeRefCount()
 {
-    if (!sMutex)
-    {
-        sMutex = new LLMutex();
-    }
 }
 
 //static
 void LLThreadSafeRefCount::cleanupThreadSafeRefCount()
 {
-    delete sMutex;
-    sMutex = NULL;
 }
-    
+
 
 //----------------------------------------------------------------------------
 

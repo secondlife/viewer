@@ -61,6 +61,28 @@
 #include <excpt.h>
 #endif
 
+// static 
+bool LLCoros::on_main_coro()
+{
+    if (!LLCoros::instanceExists() || LLCoros::getName().empty())
+    {
+        return true;
+    }
+    
+    // error out all the time
+    // This should only be called from inside llassert or similar
+    // and is low level enough that we can't rely on LLError
+    std::cerr << "LLCoros::on_main_coro(): not on a coroutine\n";
+
+    return false;
+}
+
+// static
+bool LLCoros::on_main_thread_main_coro()
+{
+    return on_main_coro() && on_main_thread();
+}
+
 // static
 LLCoros::CoroData& LLCoros::get_CoroData(const std::string& caller)
 {

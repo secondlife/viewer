@@ -699,6 +699,8 @@ void LLBumpImageList::addTextureStats(U8 bump, const LLUUID& base_image_id, F32 
 
 void LLBumpImageList::updateImages()
 {	
+    llassert(LLCoros::on_main_thread_main_coro()); // This code is not thread safe
+
 	for (bump_image_map_t::iterator iter = mBrightnessEntries.begin(); iter != mBrightnessEntries.end(); )
 	{
 		LLViewerTexture* image = iter->second;

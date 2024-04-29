@@ -94,8 +94,6 @@ public:
 	static void cleanupThreadSafeRefCount(); // destroys sMutex
 
 private:
-	static LLMutex* sMutex;
-
 protected:
 	virtual ~LLThreadSafeRefCount(); // use unref()
 

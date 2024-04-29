@@ -182,7 +182,7 @@ private:
 
 // Implementation functions not exported into header file
 class LLViewerMediaImpl
-	:	public LLMouseHandler, public LLRefCount, public LLPluginClassMediaOwner, public LLViewerMediaEventEmitter, public LLEditMenuHandler
+	:	public LLMouseHandler, public LLThreadSafeRefCount, public LLPluginClassMediaOwner, public LLViewerMediaEventEmitter, public LLEditMenuHandler
 {
 	LOG_CLASS(LLViewerMediaImpl);
 public:
@@ -432,7 +432,7 @@ private:
 private:
 	// a single media url with some data and an impl.
 	std::shared_ptr<LLPluginClassMedia> mMediaSource;
-    LLMutex mLock;
+    LLCoros::Mutex mLock;
 	F64		mZoomFactor;
 	LLUUID mTextureId;
 	bool  mMovieImageHasMips;

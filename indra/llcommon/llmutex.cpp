@@ -28,6 +28,7 @@
 #include "llmutex.h"
 #include "llthread.h"
 #include "lltimer.h"
+#include "llcoros.h"
 
 //============================================================================
 
@@ -44,7 +45,12 @@ LLMutex::~LLMutex()
 
 void LLMutex::lock()
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
+
+    // LLMutex is not coroutine aware and should not be used from a coroutine
+    // If your code is running in a coroutine, you should use LLCoros::Mutex instead
+    llassert(LLCoros::on_main_coro());
+
 	if(isSelfLocked())
 	{ //redundant lock
 		mCount++;
@@ -66,7 +72,8 @@ void LLMutex::lock()
 
 void LLMutex::unlock()
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
+
 	if (mCount > 0)
 	{ //not the root unlock
 		mCount--;
@@ -111,7 +118,7 @@ LLThread::id_t LLMutex::lockingThread() const
 
 bool LLMutex::trylock()
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
 	if(isSelfLocked())
 	{ //redundant lock
 		mCount++;
