@@ -80,6 +80,8 @@ public:
 	virtual LLFontGL::StyleFlags getLabelStyle() const { return LLFontGL::NORMAL; }
 	virtual std::string getLabelSuffix() const { return LLStringUtil::null; }
     virtual bool isFavorite() const { return false; }
+    virtual bool isAgentInventory() const { return false; }
+    virtual bool isAgentInventoryRoot() const { return false; }
 	virtual BOOL isItemRenameable() const { return TRUE; }
 	virtual BOOL renameItem(const std::string& new_name) { mName = new_name; mNeedsRefresh = true; return TRUE; }
 	virtual BOOL isItemMovable( void ) const { return FALSE; }

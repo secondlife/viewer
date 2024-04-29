@@ -198,7 +198,7 @@ BOOL LLFolderViewItem::postBuild()
         // getDisplayName() is expensive (due to internal getLabelSuffix() and name building)
         // it also sets search strings so it requires a filter reset
         mLabel = vmi->getDisplayName();
-        mIsFavorite = vmi->isFavorite();
+        mIsFavorite = vmi->isFavorite() && !vmi->isItemInTrash();
         setToolTip(vmi->getName());
 
         // Dirty the filter flag of the model from the view (CHUI-849)
@@ -312,7 +312,7 @@ void LLFolderViewItem::refresh()
     LLFolderViewModelItem& vmi = *getViewModelItem();
 
     mLabel = vmi.getDisplayName();
-    mIsFavorite = vmi.isFavorite();
+    mIsFavorite = vmi.isFavorite() && !vmi.isItemInTrash();
     setToolTip(vmi.getName());
     // icons are slightly expensive to get, can be optimized
     // see LLInventoryIcon::getIcon()
@@ -345,7 +345,7 @@ void LLFolderViewItem::refreshSuffix()
     mIconOpen = vmi->getIconOpen();
     mIconOverlay = vmi->getIconOverlay();
 
-    mIsFavorite = vmi->isFavorite();
+    mIsFavorite = vmi->isFavorite() && !vmi->isItemInTrash();
 
 	if (mRoot->useLabelSuffix())
 	{
@@ -1808,7 +1808,7 @@ void LLFolderViewFolder::onIdleUpdateFavorites(void* data)
     if (self->mFavoritesDirtyFlags == 0)
     {
         LL_WARNS() << "Called onIdleUpdateFavorites without dirty flags set" << LL_ENDL;
-        gIdleCallbacks.addFunction(&LLFolderViewFolder::onIdleUpdateFavorites, self);
+        gIdleCallbacks.deleteFunction(&LLFolderViewFolder::onIdleUpdateFavorites, self);
         return;
     }
 
@@ -1816,20 +1816,26 @@ void LLFolderViewFolder::onIdleUpdateFavorites(void* data)
     {
         // do not display favorite-stars in trash
         self->mFavoritesDirtyFlags = 0;
-        gIdleCallbacks.addFunction(&LLFolderViewFolder::onIdleUpdateFavorites, self);
+        gIdleCallbacks.deleteFunction(&LLFolderViewFolder::onIdleUpdateFavorites, self);
         return;
     }
 
-    LLFolderViewFolder* root_folder = self->getRoot();
     if (self->mFavoritesDirtyFlags == FAVORITE_ADDED)
     {
         if (!self->mHasFavorites)
         {
             // propagate up, exclude root
             LLFolderViewFolder* parent = self;
-            while (parent && !parent->hasFavorites() && root_folder != parent)
+            while (parent
+                && (!parent->hasFavorites() || parent->mFavoritesDirtyFlags)
+                && !parent->getViewModelItem()->isAgentInventoryRoot())
             {
                 parent->setHasFavorites(true);
+                if (parent->mFavoritesDirtyFlags)
+                {
+                    gIdleCallbacks.deleteFunction(&LLFolderViewFolder::onIdleUpdateFavorites, parent);
+                    parent->mFavoritesDirtyFlags = 0;
+                }
                 parent = parent->getParentFolder();
             }
         }
@@ -1838,7 +1844,7 @@ void LLFolderViewFolder::onIdleUpdateFavorites(void* data)
     {
         // full check
         LLFolderViewFolder* parent = self;
-        while (parent && root_folder != parent)
+        while (parent && !parent->getViewModelItem()->isAgentInventoryRoot())
         {
             bool has_favorites = false;
             for (items_t::iterator iter = parent->mItems.begin();
@@ -1878,19 +1884,28 @@ void LLFolderViewFolder::onIdleUpdateFavorites(void* data)
             else
             {
                 // propagate up, exclude root
-                while (parent && !parent->hasFavorites() && root_folder != parent)
+                while (parent
+                    && (!parent->hasFavorites() || parent->mFavoritesDirtyFlags)
+                    && !parent->getViewModelItem()->isAgentInventoryRoot())
                 {
                     parent->setHasFavorites(true);
+                    if (parent->mFavoritesDirtyFlags)
+                    {
+                        gIdleCallbacks.deleteFunction(&LLFolderViewFolder::onIdleUpdateFavorites, parent);
+                        parent->mFavoritesDirtyFlags = 0;
+                    }
                     parent = parent->getParentFolder();
                 }
                 break;
             }
+            if (parent->mFavoritesDirtyFlags)
+            {
+                parent->mFavoritesDirtyFlags = 0;
+                gIdleCallbacks.deleteFunction(&LLFolderViewFolder::onIdleUpdateFavorites, parent);
+            }
             parent = parent->getParentFolder();
         }
     }
-
-    self->mFavoritesDirtyFlags = 0;
-    gIdleCallbacks.addFunction(&LLFolderViewFolder::onIdleUpdateFavorites, self);
 }
 
 

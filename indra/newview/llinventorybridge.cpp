@@ -1335,12 +1335,19 @@ BOOL LLInvFVBridge::isLinkedObjectMissing() const
 	return FALSE;
 }
 
-BOOL LLInvFVBridge::isAgentInventory() const
+bool LLInvFVBridge::isAgentInventory() const
 {
 	const LLInventoryModel* model = getInventoryModel();
 	if(!model) return FALSE;
 	if(gInventory.getRootFolderID() == mUUID) return TRUE;
 	return model->isObjectDescendentOf(mUUID, gInventory.getRootFolderID());
+}
+
+bool LLInvFVBridge::isAgentInventoryRoot() const
+{
+    const LLInventoryModel* model = getInventoryModel();
+    if(!model) return false;
+    return gInventory.getRootFolderID() == mUUID;
 }
 
 BOOL LLInvFVBridge::isCOFFolder() const
@@ -7868,7 +7875,7 @@ protected:
 	BOOL isItemInTrash() const;
 	// return true if the item is in agent inventory. if false, it
 	// must be lost or in the inventory library.
-	BOOL isAgentInventory() const;
+	bool isAgentInventory() const;
 	void wearOnAvatar();
 };
 
@@ -7879,7 +7886,7 @@ BOOL LLWearableBridgeAction::isItemInTrash() const
 	return mModel->isObjectDescendentOf(mUUID, trash_id);
 }
 
-BOOL LLWearableBridgeAction::isAgentInventory() const
+bool LLWearableBridgeAction::isAgentInventory() const
 {
 	if(!mModel) return FALSE;
 	if(gInventory.getRootFolderID() == mUUID) return TRUE;

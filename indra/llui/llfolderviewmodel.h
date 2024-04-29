@@ -185,6 +185,9 @@ public:
 	virtual void pasteFromClipboard() = 0;
 	virtual void pasteLinkFromClipboard() = 0;
 
+    virtual bool isAgentInventory() const = 0;
+    virtual bool isAgentInventoryRoot() const = 0;
+
 	virtual void buildContextMenu(LLMenuGL& menu, U32 flags) = 0;
 	
 	virtual bool potentiallyVisible() = 0; // is the item definitely visible or we haven't made up our minds yet?
