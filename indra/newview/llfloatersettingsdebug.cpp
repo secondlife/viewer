@@ -34,6 +34,7 @@
 #include "llcolorswatch.h"
 #include "llviewercontrol.h"
 #include "lltexteditor.h"
+#include "llclipboard.h"
 
 
 LLFloaterSettingsDebug::LLFloaterSettingsDebug(const LLSD& key) 
@@ -52,12 +53,16 @@ BOOL LLFloaterSettingsDebug::postBuild()
     enableResizeCtrls(true, false, true);
 
     mComment = getChild<LLTextEditor>("comment_text");
+    mSettingName = getChild<LLTextBox>("setting_name_txt");
+    mCopyBtn = getChild<LLButton>("copy_btn");
 
     getChild<LLFilterEditor>("filter_input")->setCommitCallback(boost::bind(&LLFloaterSettingsDebug::setSearchFilter, this, _2));
 
     mSettingList = getChild<LLScrollListCtrl>("setting_list");
     mSettingList->setCommitOnSelectionChange(TRUE);
     mSettingList->setCommitCallback(boost::bind(&LLFloaterSettingsDebug::onSettingSelect, this));
+
+    mCopyBtn->setCommitCallback([this](LLUICtrl *ctrl, const LLSD &param) { onClickCopy(); });
 
     updateList();
 
@@ -203,9 +208,10 @@ void LLFloaterSettingsDebug::updateControl(LLControlVariable* controlp)
 		//hide combo box only for non booleans, otherwise this will result in the combo box closing every frame
 		getChildView("boolean_combo")->setVisible( type == TYPE_BOOLEAN);
         getChildView("default_btn")->setVisible(true);
-        getChildView("setting_name_txt")->setVisible(true);
-        getChild<LLTextBox>("setting_name_txt")->setText(controlp->getName());
-        getChild<LLTextBox>("setting_name_txt")->setToolTip(controlp->getName());
+        mSettingName->setVisible(true);
+        mSettingName->setText(controlp->getName());
+        mSettingName->setToolTip(controlp->getName());
+        mCopyBtn->setVisible(true);
         mComment->setVisible(true);
 
         std::string old_text = mComment->getText();
@@ -632,7 +638,13 @@ void LLFloaterSettingsDebug::hideUIControls()
     getChildView("val_text")->setVisible(false);
     getChildView("default_btn")->setVisible(false);
     getChildView("boolean_combo")->setVisible(false);
-    getChildView("setting_name_txt")->setVisible(false);
+    mSettingName->setVisible(false);
+    mCopyBtn->setVisible(false);
     mComment->setVisible(false);
 }
 
+void LLFloaterSettingsDebug::onClickCopy()
+{
+    std::string setting_name = mSettingName->getText();
+    LLClipboard::instance().copyToClipboard(utf8str_to_wstring(setting_name), 0, setting_name.size());
+}

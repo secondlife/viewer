@@ -43,6 +43,20 @@
      label="Setting"
      name="setting" />
   </scroll_list>
+  <button
+   follows="right|bottom"
+   layout="topleft"
+   image_hover_unselected="Toolbar_Middle_Over"
+   image_overlay="Icon_Copy"
+   image_selected="Toolbar_Middle_Selected"
+   image_unselected="Toolbar_Middle_Off"
+   name="copy_btn"
+   tool_tip="Copy to clipboard"
+   top_delta="8"
+   left_pad="10"
+   visible="false"
+   height="20"
+   width="20" />
   <text
    type="string"
    length="1"
@@ -51,8 +65,7 @@
    layout="topleft"
    name="setting_name_txt"
    font="SansSerifSmallBold"
-   top_delta="8"
-   left_pad="10"
+   left_pad="4"
    visible="false"
    use_ellipses="true"
    text_color="White"
@@ -67,6 +80,7 @@
    name="comment_text"
    follows="left|top"
    width="240"
+   left="320"
    top_delta="20"
    word_wrap="true" />
   <radio_group

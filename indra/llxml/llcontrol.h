@@ -278,7 +278,7 @@ public:
 	void    setLLSD(const std::string& name, const LLSD& val);
 
 	// type agnostic setter that takes LLSD
-	void	setUntypedValue(const std::string& name, const LLSD& val);
+	void	setUntypedValue(const std::string& name, const LLSD& val, bool saved_value = true);
 
 	// generic setter
 	template<typename T> void set(const std::string& name, const T& val)

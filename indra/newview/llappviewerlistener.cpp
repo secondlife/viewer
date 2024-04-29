@@ -35,6 +35,7 @@
 // external library headers
 // other Linden headers
 #include "llappviewer.h"
+#include "llviewercontrol.h"
 
 LLAppViewerListener::LLAppViewerListener(const LLAppViewerGetter& getter):
     LLEventAPI("LLAppViewer",
@@ -48,6 +49,10 @@ LLAppViewerListener::LLAppViewerListener(const LLAppViewerGetter& getter):
     add("forceQuit",
         "Quit abruptly",
         &LLAppViewerListener::forceQuit);
+
+    add("setDebugSetting", 
+        "Apply specified [\"value\"] to the debug [\"setting\"] (this change won't persist across sessions)", 
+        &LLAppViewerListener::setDebugSetting, llsd::map("setting", LLSD(), "value", LLSD()));
 }
 
 void LLAppViewerListener::requestQuit(const LLSD& event)
@@ -60,4 +65,13 @@ void LLAppViewerListener::forceQuit(const LLSD& event)
 {
     LL_INFOS() << "Listener requested force quit" << LL_ENDL;
     mAppViewerGetter()->forceQuit();
+}
+
+void LLAppViewerListener::setDebugSetting(const LLSD &event)
+{
+    auto setting_name = event["setting"].asString();
+    auto value = event["value"];
+    LL_WARNS("LLAppViewerListener") << "Changing debug setting \"" << setting_name << "\" to " << value << LL_ENDL;
+    //don't save this change between sesssions
+    gSavedSettings.setUntypedValue(setting_name, value, false);
 }

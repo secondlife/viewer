@@ -47,6 +47,8 @@ private:
     void requestQuit(const LLSD& event);
     void forceQuit(const LLSD& event);
 
+    void setDebugSetting(const LLSD &event);
+
     LLAppViewerGetter mAppViewerGetter;
 };
 
