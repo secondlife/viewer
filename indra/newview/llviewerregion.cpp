@@ -2447,45 +2447,61 @@ void LLViewerRegion::setSimulatorFeatures(const LLSD& sim_features)
 
 	setSimulatorFeaturesReceived(true);
 
-    // if region has MaxTextureResolution, set max_texture_dimension settings, otherwise use default
-    if (mSimulatorFeatures.has("MaxTextureResolution"))
-    {
-        S32 max_texture_resolution = mSimulatorFeatures["MaxTextureResolution"].asInteger();
-        gSavedSettings.setS32("max_texture_dimension_X", max_texture_resolution);
-        gSavedSettings.setS32("max_texture_dimension_Y", max_texture_resolution);
-    }
-    else
-    {
-        gSavedSettings.setS32("max_texture_dimension_X", 1024);
-        gSavedSettings.setS32("max_texture_dimension_Y", 1024);
-    }
+    // WARNING: this is called from a coroutine, and flipping saved settings has a LOT of side effects, shuttle 
+    // the work below back to the main loop
+    // 
+    
+    // copy features to lambda in case the region is deleted before the lambda is executed
+    LLSD features = mSimulatorFeatures;
 
-    bool mirrors_enabled = false;
-    if (mSimulatorFeatures.has("MirrorsEnabled"))
-    {
-        mirrors_enabled = mSimulatorFeatures["MirrorsEnabled"].asBoolean();
-    }
+    auto work = [=]()
+        {
+            // if region has MaxTextureResolution, set max_texture_dimension settings, otherwise use default
+            if (features.has("MaxTextureResolution"))
+            {
+                S32 max_texture_resolution = features["MaxTextureResolution"].asInteger();
+                gSavedSettings.setS32("max_texture_dimension_X", max_texture_resolution);
+                gSavedSettings.setS32("max_texture_dimension_Y", max_texture_resolution);
+            }
+            else
+            {
+                gSavedSettings.setS32("max_texture_dimension_X", 1024);
+                gSavedSettings.setS32("max_texture_dimension_Y", 1024);
+            }
 
-    gSavedSettings.setBOOL("RenderMirrors", mirrors_enabled);
+            bool mirrors_enabled = false;
+            if (features.has("MirrorsEnabled"))
+            {
+                mirrors_enabled = features["MirrorsEnabled"].asBoolean();
+            }
 
-    if (mSimulatorFeatures.has("PBRTerrainEnabled"))
-    {
-        bool enabled = mSimulatorFeatures["PBRTerrainEnabled"];
-        gSavedSettings.setBOOL("RenderTerrainPBREnabled", enabled);
-    }
-    else
-    {
-        gSavedSettings.setBOOL("RenderTerrainPBREnabled", false);
-    }
+            gSavedSettings.setBOOL("RenderMirrors", mirrors_enabled);
 
-    if (mSimulatorFeatures.has("PBRMaterialSwatchEnabled"))
+            if (features.has("PBRTerrainEnabled"))
+            {
+                bool enabled = features["PBRTerrainEnabled"];
+                gSavedSettings.setBOOL("RenderTerrainPBREnabled", enabled);
+            }
+            else
+            {
+                gSavedSettings.setBOOL("RenderTerrainPBREnabled", false);
+            }
+
+            if (features.has("PBRMaterialSwatchEnabled"))
+            {
+                bool enabled = features["PBRMaterialSwatchEnabled"];
+                gSavedSettings.setBOOL("UIPreviewMaterial", enabled);
+            }
+            else
+            {
+                gSavedSettings.setBOOL("UIPreviewMaterial", false);
+            }
+        };
+
+    auto workqueue = LL::WorkQueue::getInstance("mainloop");
+    if (workqueue)
     {
-        bool enabled = mSimulatorFeatures["PBRMaterialSwatchEnabled"];
-        gSavedSettings.setBOOL("UIPreviewMaterial", enabled);
-    }
-    else
-    {
-        gSavedSettings.setBOOL("UIPreviewMaterial", false);
+        LL::WorkQueue::postMaybe(workqueue, work);
     }
 }
 
