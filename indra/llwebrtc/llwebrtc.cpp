@@ -652,6 +652,13 @@ LLWebRTCPeerConnectionImpl::LLWebRTCPeerConnectionImpl() :
 {
 }
 
+LLWebRTCPeerConnectionImpl::~LLWebRTCPeerConnectionImpl()
+{
+    terminate();
+    mSignalingObserverList.clear();
+    mDataObserverList.clear();
+}
+
 //
 // LLWebRTCPeerConnection interface
 //
@@ -669,9 +676,6 @@ void LLWebRTCPeerConnectionImpl::terminate()
     mDataChannel.swap(dataChannel);
     rtc::scoped_refptr<webrtc::MediaStreamInterface> localStream;
     mLocalStream.swap(localStream);
-
-    mSignalingObserverList.clear();
-    mDataObserverList.clear();
 
     mWebRTCImpl->PostSignalingTask(
         [=]()
@@ -762,7 +766,7 @@ bool LLWebRTCPeerConnectionImpl::initializeConnection(const LLWebRTCPeerConnecti
 
             rtc::scoped_refptr<webrtc::AudioTrackInterface> audio_track(
                 mPeerConnectionFactory->CreateAudioTrack("SLAudio", mPeerConnectionFactory->CreateAudioSource(audioOptions).get()));
-            audio_track->set_enabled(true);
+            audio_track->set_enabled(false);
             mLocalStream->AddTrack(audio_track);
 
             mPeerConnection->AddTrack(audio_track, {"SLStream"});
@@ -995,8 +999,6 @@ void LLWebRTCPeerConnectionImpl::OnConnectionChange(webrtc::PeerConnectionInterf
     {
         case webrtc::PeerConnectionInterface::PeerConnectionState::kConnected:
         {
-            mWebRTCImpl->setRecording(true);
-
             mWebRTCImpl->PostWorkerTask([this]() {
                 for (auto &observer : mSignalingObserverList)
                 {

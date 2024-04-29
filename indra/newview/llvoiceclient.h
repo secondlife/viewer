@@ -421,7 +421,7 @@ public:
 
 	// initiate a call with a peer using the P2P interface, which only applies to some
 	// voice server types.  Otherwise, a group call should be used for P2P
-    LLVoiceP2POutgoingCallInterface* getOutgoingCallInterface(const LLSD& voiceChannelInfo);
+	LLVoiceP2POutgoingCallInterface* getOutgoingCallInterface(const LLSD& voiceChannelInfo = LLSD());
 
 	LLVoiceP2PIncomingCallInterfacePtr getIncomingCallInterface(const LLSD &voiceCallInfo);
 

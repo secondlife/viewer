@@ -87,7 +87,7 @@ namespace {
     const F32 VOLUME_SCALE_WEBRTC = 0.01f;
     const F32 LEVEL_SCALE_WEBRTC  = 0.008f;
 
-    const F32 SPEAKING_AUDIO_LEVEL = 0.40;
+    const F32 SPEAKING_AUDIO_LEVEL = 0.35;
 
     static const std::string REPORTED_VOICE_SERVER_TYPE = "Secondlife WebRTC Gateway";
 
@@ -254,6 +254,7 @@ void LLWebRTCVoiceClient::init(LLPumpIO* pump)
 
     mWebRTCDeviceInterface = llwebrtc::getDeviceInterface();
     mWebRTCDeviceInterface->setDevicesObserver(this);
+    mMainQueue = LL::WorkQueue::getInstance("mainloop");
 }
 
 void LLWebRTCVoiceClient::terminate()
@@ -1118,10 +1119,6 @@ void LLWebRTCVoiceClient::removeParticipantByID(const std::string &channelID, co
         if (participant)
         {
             session->removeParticipant(participant);
-            if (session->mHangupOnLastLeave && (id != gAgentID) && (session->mParticipantsByUUID.size() <= 1))
-            {
-                notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_LEFT_CHANNEL);
-            }
         }
     }
 }
@@ -1197,13 +1194,14 @@ void LLWebRTCVoiceClient::sessionState::removeParticipant(const LLWebRTCVoiceCli
 
     if (participant)
     {
+        LLUUID participantID = participant->mAvatarID;
         participantUUIDMap::iterator iter = mParticipantsByUUID.find(participant->mAvatarID);
 
-        LL_DEBUGS("Voice") << "participant \"" << participant->mURI << "\" (" << participant->mAvatarID << ") removed." << LL_ENDL;
+        LL_DEBUGS("Voice") << "participant \"" << participant->mURI << "\" (" << participantID << ") removed." << LL_ENDL;
 
         if (iter == mParticipantsByUUID.end())
         {
-            LL_WARNS("Voice") << "Internal error: participant ID " << participant->mAvatarID << " not in UUID map" << LL_ENDL;
+            LL_WARNS("Voice") << "Internal error: participant ID " << participantID << " not in UUID map" << LL_ENDL;
         }
         else
         {
@@ -1212,6 +1210,10 @@ void LLWebRTCVoiceClient::sessionState::removeParticipant(const LLWebRTCVoiceCli
             {
                 LLWebRTCVoiceClient::getInstance()->notifyParticipantObservers();
             }
+        }
+        if (mHangupOnLastLeave && (participantID != gAgentID) && (mParticipantsByUUID.size() <= 1))
+        {
+            LLWebRTCVoiceClient::getInstance()->notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_LEFT_CHANNEL);
         }
     }
 }
@@ -1486,7 +1488,6 @@ void LLWebRTCVoiceClient::setVoiceEnabled(bool enabled)
             updatePosition();
             if (!mIsCoroutineActive)
             {
-                mMainQueue = LL::WorkQueue::getInstance("mainloop");
                 LLCoros::instance().launch("LLWebRTCVoiceClient::voiceConnectionCoro",
                     boost::bind(&LLWebRTCVoiceClient::voiceConnectionCoro, LLWebRTCVoiceClient::getInstance()));
             }
