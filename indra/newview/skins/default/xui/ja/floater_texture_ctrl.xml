@@ -55,7 +55,6 @@
 		<combo_box.item label="BAKED_AUX2" name="BAKED_AUX2"/>
 		<combo_box.item label="BAKED_AUX3" name="BAKED_AUX3"/>
 	</combo_box>
-	<!-- bottom static -->
 	<button label="ＯＫ" label_selected="ＯＫ" name="Select"/>
 	<button label="キャンセル" label_selected="キャンセル" name="Cancel"/>
 	<check_box label="すぐ反映" name="apply_immediate_check"/>

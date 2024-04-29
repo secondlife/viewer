@@ -385,6 +385,7 @@
 			<menu_item_check label="三角形の数" name="Triangle Count"/>
 			<menu_item_check label="光源" name="Lights"/>
 			<menu_item_check label="反射プローブ" name="Reflection Probes"/>
+			<menu_item_check label="プローブの更新" name="Probe Updates"/>
 			<menu_item_check label="パーティクル" name="Particles"/>
 			<menu_item_check label="スケルトンの衝突判定" name="Collision Skeleton"/>
 			<menu_item_check label="ジョイント" name="Joints"/>

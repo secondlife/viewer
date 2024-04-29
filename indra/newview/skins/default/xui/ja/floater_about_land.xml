@@ -72,7 +72,7 @@
 				区画が選択されていません。
 			</panel.string>
 			<panel.string name="time_stamp_template">
-				[year,datetime,local]年[mth,datetime,local]月[day,datetime,local]日[wkday,datetime,local]　[hour,datetime,local]：[min,datetime,local]：[second,datetime,local]
+				[year,datetime,local]年[mth,datetime,local]月[day,datetime,local]日（[wkday,datetime,local]）　[hour,datetime,local]：[min,datetime,local]：[second,datetime,local]
 			</panel.string>
 			<text name="Name:">
 				名前：
@@ -127,7 +127,7 @@
 				取得日時：
 			</text>
 			<text name="DateClaimText">
-				2006年8月15日火曜日　13：47：25
+				2006年8月15日（火）　13：47：25
 			</text>
 			<text name="PriceLabel">
 				面積：
@@ -178,7 +178,7 @@
 				この不動産には約款がありません。
 			</text_editor>
 			<text name="covenant_timestamp_text">
-				最後更新：1969年12月31日水曜日　16：00：00
+				最後更新：1969年12月31日（水）　16：00：00
 			</text>
 			<text name="region_section_lbl">
 				リージョン名：

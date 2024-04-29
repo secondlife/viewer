@@ -21,8 +21,8 @@
 				読み込んでいます…
 			</line_editor>
 		</layout_panel>
-		<layout_panel name="save_changes_lp">
-			<layout_stack name="save_changes_stack">
+		<layout_panel name="util_buttons_lp">
+			<layout_stack name="util_buttons_stack">
 				<layout_panel name="util_resizer_left"/>
 				<layout_panel name="map_btn_lp">
 					<button name="show_on_map_btn" label="マップ上に表示"/>

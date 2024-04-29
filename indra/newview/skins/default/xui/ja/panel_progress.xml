@@ -7,7 +7,7 @@
 					<layout_stack name="vertical_centering">
 						<layout_panel name="panel_icons">
 							<text name="logos_lbl">
-								Second Lifeが使用
+								Second Lifeで使用：
 							</text>
 						</layout_panel>
 					</layout_stack>

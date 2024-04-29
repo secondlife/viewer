@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="beacons" title="ビーコン（標識）">
+<floater name="beacons" title="ビーコン">
 	<panel name="beacons_panel">
 		<text name="label_show">
 			表示：
 		</text>
-		<check_box label="ビーコン（標識）" name="beacons"/>
+		<check_box label="ビーコン" name="beacons"/>
 		<check_box label="ハイライト" name="highlights"/>
 		<text name="beacon_width_label" tool_tip="ビーコンの幅">
 			幅：

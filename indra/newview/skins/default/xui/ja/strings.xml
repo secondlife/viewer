@@ -66,7 +66,6 @@ SLURL：&lt;nolink&gt;[SLURL]&lt;/nolink&gt;
 帯域幅：[NET_BANDWITH]kbit／秒
 ＬＯＤ係数：[LOD_FACTOR]
 描画の質：[RENDER_QUALITY]
-高度な光源モデル：[GPU_SHADERS]
 テクスチャメモリ：[TEXTURE_MEMORY]㎆
 	</string>
 	<string name="AboutOSXHiDPI">
@@ -4324,7 +4323,7 @@ https://support.secondlife.com よりSecond Lifeのサポートまでお問い�
 		支出
 	</string>
 	<string name="GroupMoneyStartDate">
-		[year,datetime,utc]年[mth,datetime,utc]月[day,datetime,utc]日　[weekday,datetime,utc]から取引開始
+		[year,datetime,utc]年[mth,datetime,utc]月[day,datetime,utc]日（[weekday,datetime,utc]）から取引開始
 	</string>
 	<string name="AcquiredItems">
 		取得アイテム

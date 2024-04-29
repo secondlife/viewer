@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_login" focus_root="true">
-	<panel.string name="forgot_password_url"> https://secondlife.com/my/account/request.php?lang=ja-JP
+	<panel.string name="forgot_password_url">
+		https://secondlife.com/my/account/request.php?lang=ja-JP
 	</panel.string>
-	<panel.string name="sign_up_url"> https://join.secondlife.com/?lang=ja
+	<panel.string name="sign_up_url">
+		https://join.secondlife.com/?lang=ja
 	</panel.string>
 	<layout_stack name="ui_stack">
 		<layout_panel name="ui_elastic_pad_left"/>

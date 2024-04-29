@@ -2,6 +2,8 @@
 <panel name="panel_activeim_row">
 	<chiclet_script name="object_chiclet"/>
 	<chiclet_offer name="inv_offer_chiclet"/>
-	<text name="object_name">無名のオブジェクト</text>
+	<text name="object_name">
+		無名のオブジェクト
+	</text>
 	<button name="hide_btn" label=""/>
 </panel>
