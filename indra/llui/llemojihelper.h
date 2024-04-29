@@ -36,31 +36,31 @@ class LLUICtrl;
 
 class LLEmojiHelper : public LLSingleton<LLEmojiHelper>
 {
-	LLSINGLETON(LLEmojiHelper) {}
-	~LLEmojiHelper() override {}
+    LLSINGLETON(LLEmojiHelper) {}
+    ~LLEmojiHelper() override {}
 
 public:
-	// General
-	std::string getToolTip(llwchar ch) const;
-	bool        isActive(const LLUICtrl* ctrl_p) const;
-	static bool isCursorInEmojiCode(const LLWString& wtext, S32 cursor_pos, S32* short_code_pos_p = nullptr);
-	void        showHelper(LLUICtrl* hostctrl_p, S32 local_x, S32 local_y, const std::string& short_code, std::function<void(llwchar)> commit_cb);
-	void        hideHelper(const LLUICtrl* ctrl_p = nullptr, bool strict = false);
-	void        setIsHideDisabled(bool disabled) { mIsHideDisabled = disabled; };
+    // General
+    std::string getToolTip(llwchar ch) const;
+    bool        isActive(const LLUICtrl* ctrl_p) const;
+    static bool isCursorInEmojiCode(const LLWString& wtext, S32 cursor_pos, S32* short_code_pos_p = nullptr);
+    void        showHelper(LLUICtrl* hostctrl_p, S32 local_x, S32 local_y, const std::string& short_code, std::function<void(llwchar)> commit_cb);
+    void        hideHelper(const LLUICtrl* ctrl_p = nullptr, bool strict = false);
+    void        setIsHideDisabled(bool disabled) { mIsHideDisabled = disabled; };
 
-	// Eventing
-	bool handleKey(const LLUICtrl* ctrl_p, KEY key, MASK mask);
-	void onCommitEmoji(llwchar emoji);
+    // Eventing
+    bool handleKey(const LLUICtrl* ctrl_p, KEY key, MASK mask);
+    void onCommitEmoji(llwchar emoji);
 
 protected:
-	LLUICtrl* getHostCtrl() const { return mHostHandle.get(); }
-	void      setHostCtrl(LLUICtrl* hostctrl_p);
+    LLUICtrl* getHostCtrl() const { return mHostHandle.get(); }
+    void      setHostCtrl(LLUICtrl* hostctrl_p);
 
 private:
-	LLHandle<LLUICtrl>  mHostHandle;
-	LLHandle<LLFloater> mHelperHandle;
-	boost::signals2::connection mHostCtrlFocusLostConn;
-	boost::signals2::connection mHelperCommitConn;
-	std::function<void(llwchar)> mEmojiCommitCb;
-	bool mIsHideDisabled;
+    LLHandle<LLUICtrl>  mHostHandle;
+    LLHandle<LLFloater> mHelperHandle;
+    boost::signals2::connection mHostCtrlFocusLostConn;
+    boost::signals2::connection mHelperCommitConn;
+    std::function<void(llwchar)> mEmojiCommitCb;
+    bool mIsHideDisabled;
 };

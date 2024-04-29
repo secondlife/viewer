@@ -62,7 +62,7 @@ LLContextMenu* LLInventoryGalleryContextMenu::createMenu()
     registrar.add("Inventory.Share", boost::bind(&LLAvatarActions::shareWithAvatars, uuids, gFloaterView->getParentFloater(mGallery)));
 
     enable_registrar.add("Inventory.CanSetUploadLocation", boost::bind(&LLInventoryGalleryContextMenu::canSetUploadLocation, this, _2));
-    
+
     LLContextMenu* menu = createFromFile("menu_gallery_inventory.xml");
 
     updateMenuItemsVisibility(menu);
@@ -321,7 +321,7 @@ void LLInventoryGalleryContextMenu::onRename(const LLSD& notification, const LLS
     if (!new_name.empty())
     {
         LLUUID id = notification["payload"]["id"].asUUID();
-        
+
         LLViewerInventoryCategory* cat = gInventory.getCategory(id);
         if(cat && (cat->getName() != new_name))
         {
@@ -330,7 +330,7 @@ void LLInventoryGalleryContextMenu::onRename(const LLSD& notification, const LLS
             update_inventory_category(cat->getUUID(),updates, NULL);
             return;
         }
-        
+
         LLViewerInventoryItem* item = gInventory.getItem(id);
         if(item && (item->getName() != new_name))
         {
@@ -379,12 +379,12 @@ bool LLInventoryGalleryContextMenu::canSetUploadLocation(const LLSD& userdata)
 bool is_inbox_folder(LLUUID item_id)
 {
     const LLUUID inbox_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_INBOX);
-    
+
     if (inbox_id.isNull())
     {
         return false;
     }
-    
+
     return gInventory.isObjectDescendentOf(item_id, inbox_id);
 }
 
@@ -616,7 +616,7 @@ void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* men
                 disabled_items.push_back(std::string("Open"));
                 disabled_items.push_back(std::string("Open Original"));
             }
-            
+
             if(LLAssetType::AT_GESTURE == obj->getType())
             {
                 items.push_back(std::string("Gesture Separator"));

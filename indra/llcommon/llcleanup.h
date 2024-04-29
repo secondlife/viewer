@@ -3,7 +3,7 @@
  * @author Nat Goodspeed
  * @date   2015-05-20
  * @brief  Mechanism for cleaning up subsystem resources
- * 
+ *
  * $LicenseInfo:firstyear=2015&license=viewerlgpl$
  * Copyright (c) 2015, Linden Research, Inc.
  * $/LicenseInfo$

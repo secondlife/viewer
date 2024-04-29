@@ -3,7 +3,7 @@
  * @author Nat Goodspeed
  * @date   2012-03-16
  * @brief  LLEventAPI supporting LEAP plugins
- * 
+ *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Copyright (c) 2012, Linden Research, Inc.
  * $/LicenseInfo$

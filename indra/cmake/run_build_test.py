@@ -152,7 +152,7 @@ def translate_rc(rc):
     """
     if rc is None:
         return "still running"
-    
+
     if rc >= 0:
         return "terminated with rc %s" % rc
 
