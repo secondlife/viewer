@@ -27,6 +27,11 @@ if (USE_OPENAL)
             OpenAL32
             alut
             )
+  elseif(DARWIN)
+    target_link_libraries( ll::openal INTERFACE
+            openal
+            alut
+            )
   elseif(LINUX)
     target_link_libraries( ll::openal INTERFACE
             openal
