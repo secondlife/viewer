@@ -199,7 +199,6 @@ BOOL LLFolderViewItem::postBuild()
         // it also sets search strings so it requires a filter reset
         mLabel = vmi->getDisplayName();
         mIsFavorite = vmi->isFavorite();
-        mHasFavorites = vmi->hasFavorites();
         setToolTip(vmi->getName());
 
         // Dirty the filter flag of the model from the view (CHUI-849)
@@ -314,7 +313,6 @@ void LLFolderViewItem::refresh()
 
     mLabel = vmi.getDisplayName();
     mIsFavorite = vmi.isFavorite();
-    mHasFavorites = vmi.hasFavorites();
     setToolTip(vmi.getName());
     // icons are slightly expensive to get, can be optimized
     // see LLInventoryIcon::getIcon()
@@ -348,7 +346,6 @@ void LLFolderViewItem::refreshSuffix()
     mIconOverlay = vmi->getIconOverlay();
 
     mIsFavorite = vmi->isFavorite();
-    mHasFavorites = vmi->hasFavorites();
 
 	if (mRoot->useLabelSuffix())
 	{
@@ -1116,7 +1113,8 @@ LLFolderViewFolder::LLFolderViewFolder( const LLFolderViewItem::Params& p ):
 	mIsFolderComplete(false), // folder might have children that are not loaded yet.
 	mAreChildrenInited(false), // folder might have children that are not built yet.
 	mLastArrangeGeneration( -1 ),
-	mLastCalculatedWidth(0)
+	mLastCalculatedWidth(0),
+    mFavoritesDirtyFlags(0)
 {
 }
 
@@ -1142,6 +1140,11 @@ LLFolderViewFolder::~LLFolderViewFolder( void )
 	// The LLView base class takes care of object destruction. make sure that we
 	// don't have mouse or keyboard focus
 	gFocusMgr.releaseFocusIfNeeded( this ); // calls onCommit()
+
+    if (mFavoritesDirtyFlags)
+    {
+        gIdleCallbacks.deleteFunction(&LLFolderViewFolder::onIdleUpdateFavorites, this);
+    }
 }
 
 // addToFolder() returns TRUE if it succeeds. FALSE otherwise
@@ -1785,60 +1788,109 @@ BOOL LLFolderViewFolder::isMovable()
 
 void LLFolderViewFolder::updateHasFavorites(bool new_childs_value)
 {
-    if (mHasFavorites != new_childs_value)
+    if (mFavoritesDirtyFlags == 0)
     {
-        if (new_childs_value)
+        gIdleCallbacks.addFunction(&LLFolderViewFolder::onIdleUpdateFavorites, this);
+    }
+    if (new_childs_value)
+    {
+        mFavoritesDirtyFlags |= FAVORITE_ADDED;
+    }
+    else
+    {
+        mFavoritesDirtyFlags |= FAVORITE_REMOVED;
+    }
+}
+
+void LLFolderViewFolder::onIdleUpdateFavorites(void* data)
+{
+    LLFolderViewFolder* self = reinterpret_cast<LLFolderViewFolder*>(data);
+    if (self->mFavoritesDirtyFlags == 0)
+    {
+        LL_WARNS() << "Called onIdleUpdateFavorites without dirty flags set" << LL_ENDL;
+        gIdleCallbacks.addFunction(&LLFolderViewFolder::onIdleUpdateFavorites, self);
+        return;
+    }
+
+    if (self->getViewModelItem()->isItemInTrash())
+    {
+        // do not display favorite-stars in trash
+        self->mFavoritesDirtyFlags = 0;
+        gIdleCallbacks.addFunction(&LLFolderViewFolder::onIdleUpdateFavorites, self);
+        return;
+    }
+
+    LLFolderViewFolder* root_folder = self->getRoot();
+    if (self->mFavoritesDirtyFlags == FAVORITE_ADDED)
+    {
+        if (!self->mHasFavorites)
         {
-            mHasFavorites = new_childs_value;
-            // propagate up to root
-            LLFolderViewFolder* parent = getParentFolder();
-            while (parent && !parent->hasFavorites())
+            // propagate up, exclude root
+            LLFolderViewFolder* parent = self;
+            while (parent && !parent->hasFavorites() && root_folder != parent)
             {
                 parent->setHasFavorites(true);
                 parent = parent->getParentFolder();
             }
         }
-        else
+    }
+    else if (self->mFavoritesDirtyFlags > FAVORITE_ADDED)
+    {
+        // full check
+        LLFolderViewFolder* parent = self;
+        while (parent && root_folder != parent)
         {
-            LLFolderViewFolder* parent = this;
-            while (parent)
+            bool has_favorites = false;
+            for (items_t::iterator iter = parent->mItems.begin();
+                iter != parent->mItems.end();)
             {
-                bool has_favorites = false;
-                for (items_t::iterator iter = parent->mItems.begin();
-                    iter != parent->mItems.end();)
+                items_t::iterator iit = iter++;
+                if ((*iit)->isFavorite())
                 {
-                    items_t::iterator iit = iter++;
-                    if ((*iit)->isFavorite())
-                    {
-                        has_favorites = true;
-                        break;
-                    }
+                    has_favorites = true;
+                    break;
                 }
+            }
 
-                for (folders_t::iterator iter = parent->mFolders.begin();
-                    iter != parent->mFolders.end() && !has_favorites;)
+            for (folders_t::iterator iter = parent->mFolders.begin();
+                iter != parent->mFolders.end() && !has_favorites;)
+            {
+                folders_t::iterator fit = iter++;
+                if ((*fit)->isFavorite() || (*fit)->hasFavorites())
                 {
-                    folders_t::iterator fit = iter++;
-                    if ((*fit)->isFavorite() || (*fit)->hasFavorites())
-                    {
-                        has_favorites = true;
-                        break;
-                    }
+                    has_favorites = true;
+                    break;
                 }
+            }
 
-                if (!has_favorites)
+            if (!has_favorites)
+            {
+                if (parent->hasFavorites())
                 {
-                    parent->mHasFavorites = false;
                     parent->setHasFavorites(false);
                 }
                 else
                 {
+                    // Nothing changed
                     break;
                 }
-                parent = parent->getParentFolder();
             }
+            else
+            {
+                // propagate up, exclude root
+                while (parent && !parent->hasFavorites() && root_folder != parent)
+                {
+                    parent->setHasFavorites(true);
+                    parent = parent->getParentFolder();
+                }
+                break;
+            }
+            parent = parent->getParentFolder();
         }
     }
+
+    self->mFavoritesDirtyFlags = 0;
+    gIdleCallbacks.addFunction(&LLFolderViewFolder::onIdleUpdateFavorites, self);
 }
 
 

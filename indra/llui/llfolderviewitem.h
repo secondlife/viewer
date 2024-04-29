@@ -402,6 +402,13 @@ public:
     bool hasFavorites() const { return mHasFavorites; }
     void setHasFavorites(bool val) { mHasFavorites = val; }
     void updateHasFavorites(bool new_childs_value);
+private:
+    static void onIdleUpdateFavorites(void* data);
+
+    constexpr static S32 FAVORITE_ADDED = 1;
+    constexpr static S32 FAVORITE_REMOVED = 2;
+    S32 mFavoritesDirtyFlags { 0 };
+public:
 
 	// destroys this folder, and all children
 	virtual void destroyView();

@@ -111,8 +111,10 @@ void LLFolderViewModelInventory::sort( LLFolderViewFolder* folder )
         LLFolderViewItem* child_itemp = *it;
         has_favorites |= child_itemp->isFavorite();
     }
-    folder->setHasFavorites(has_favorites);
-    sort_modelp->setHasFavorites(has_favorites);
+    if (has_favorites)
+    {
+        folder->updateHasFavorites(true);
+    }
 	base_t::sort(folder);
 }
 

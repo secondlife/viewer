@@ -2434,16 +2434,6 @@ bool LLFolderBridge::isFavorite() const
     return false;
 }
 
-bool LLFolderBridge::hasFavorites() const
-{
-    return mHasFavorites;
-}
-
-void LLFolderBridge::setHasFavorites(bool val)
-{
-    mHasFavorites = val;
-}
-
 void LLFolderBridge::update()
 {
 	// we know we have children but  haven't  fetched them (doesn't obey filter)
