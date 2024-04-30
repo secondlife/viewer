@@ -45,11 +45,59 @@ namespace LL
         class Material
         {
         public:
+            class TextureInfo
+            {
+            public:
+                S32 mIndex = INVALID_INDEX;
+                S32 mTexCoord = 0;
+
+                const TextureInfo& operator=(const tinygltf::TextureInfo& src);
+            };
+
+            class NormalTextureInfo : public TextureInfo
+            {
+            public:
+                F32 mScale = 1.0f;
+
+                const NormalTextureInfo& operator=(const tinygltf::NormalTextureInfo& src);
+            };
+
+            class OcclusionTextureInfo : public TextureInfo
+            {
+            public:
+                F32 mStrength = 1.0f;
+
+                const OcclusionTextureInfo& operator=(const tinygltf::OcclusionTextureInfo& src);
+            };
+
+            class PbrMetallicRoughness
+            {
+            public:
+                glh::vec4f mBaseColorFactor = glh::vec4f(1.f,1.f,1.f,1.f);
+                TextureInfo mBaseColorTexture;
+                F32 mMetallicFactor = 1.0f;
+                F32 mRoughnessFactor = 1.0f;
+                TextureInfo mMetallicRoughnessTexture;
+                const PbrMetallicRoughness& operator=(const tinygltf::PbrMetallicRoughness& src);
+            };
+
+
             // use LLFetchedGLTFMaterial for now, but eventually we'll want to use
             // a more flexible GLTF material implementation instead of the fixed packing
             // version we use for sharable GLTF material assets
             LLPointer<LLFetchedGLTFMaterial> mMaterial;
+            PbrMetallicRoughness mPbrMetallicRoughness;
+            NormalTextureInfo mNormalTexture;
+            OcclusionTextureInfo mOcclusionTexture;
+            TextureInfo mEmissiveTexture;
+
+
             std::string mName;
+            glh::vec3f mEmissiveFactor = glh::vec3f(0.f, 0.f, 0.f);
+            std::string mAlphaMode = "OPAQUE";
+            F32 mAlphaCutoff = 0.5f;
+            bool mDoubleSided = false;
+
 
             const Material& operator=(const tinygltf::Material& src);
             
@@ -179,11 +227,16 @@ namespace LL
             std::string mName;
             std::string mUri;
             std::string mMimeType;
+
+            S32 mBufferView = INVALID_INDEX;
+
             std::vector<U8> mData;
             S32 mWidth;
             S32 mHeight;
             S32 mComponent;
             S32 mBits;
+            S32 mPixelType;
+
             LLPointer<LLViewerFetchedTexture> mTexture;
 
             const Image& operator=(const tinygltf::Image& src)
@@ -196,7 +249,8 @@ namespace LL
                 mHeight = src.height;
                 mComponent = src.component;
                 mBits = src.bits;
-
+                mBufferView = src.bufferView;
+                mPixelType = src.pixel_type;
                 return *this;
             }
 
@@ -223,6 +277,13 @@ namespace LL
             std::vector<Accessor> mAccessors;
             std::vector<Animation> mAnimations;
             std::vector<Skin> mSkins;
+
+            std::string mVersion;
+            std::string mGenerator;
+            std::string mMinVersion;
+            std::string mCopyright;
+
+            S32 mDefaultScene = INVALID_INDEX;
 
             // the last time update() was called according to gFrameTimeSeconds
             F32 mLastUpdateTime = gFrameTimeSeconds;
@@ -258,6 +319,9 @@ namespace LL
             );
             
             const Asset& operator=(const tinygltf::Model& src);
+
+            // save the asset to a tinygltf model
+            void save(tinygltf::Model& dst);
             
         };
     }

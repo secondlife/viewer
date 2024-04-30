@@ -248,6 +248,43 @@ bool LLTinyGLTFHelper::loadModel(const std::string& filename, tinygltf::Model& m
     return false;
 }
 
+bool LLTinyGLTFHelper::saveModel(const std::string& filename, tinygltf::Model& model_in)
+{
+    std::string exten = gDirUtilp->getExtension(filename);
+
+    bool success = false;
+
+    if (exten == "gltf" || exten == "glb")
+    {
+        tinygltf::TinyGLTF writer;
+
+        std::string filename_lc = filename;
+        LLStringUtil::toLower(filename_lc);
+
+        
+        bool embed_images = false;
+        bool embed_buffers = false;
+        bool pretty_print = true;
+        bool write_binary = false;
+        
+
+        if (std::string::npos == filename_lc.rfind(".gltf"))
+        {  // file is binary
+            embed_images = embed_buffers = write_binary = true;
+        }
+
+        success = writer.WriteGltfSceneToFile(&model_in, filename, embed_images, embed_buffers, pretty_print, write_binary);
+
+        if (!success)
+        {
+            LL_WARNS("GLTF") << "Failed to save" << LL_ENDL;
+            return false;
+        }
+    }
+
+    return success;
+}
+
 bool LLTinyGLTFHelper::getMaterialFromModel(
     const std::string& filename,
     const tinygltf::Model& model_in,

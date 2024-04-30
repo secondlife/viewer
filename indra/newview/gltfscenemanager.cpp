@@ -66,11 +66,50 @@ void GLTFSceneManager::load()
                 }
             },
             LLFilePicker::FFLOAD_GLTF,
-            true);
+            false);
     }
     else
     {
-        LLNotificationsUtil::add("GLTFPreviewSelection");
+        LLNotificationsUtil::add("GLTFOpenSelection");
+    }
+}
+
+void GLTFSceneManager::saveAs()
+{
+    LLViewerObject* obj = LLSelectMgr::instance().getSelection()->getFirstRootObject();
+    if (obj && obj->mGLTFAsset.notNull())
+    {
+        LLFilePickerReplyThread::startPicker(
+            [](const std::vector<std::string>& filenames, LLFilePicker::ELoadFilter load_filter, LLFilePicker::ESaveFilter save_filter)
+            {
+                if (LLAppViewer::instance()->quitRequested())
+                {
+                    return;
+                }
+                if (filenames.size() > 0)
+                {
+                    GLTFSceneManager::instance().save(filenames[0]);
+                }
+            },
+            LLFilePicker::FFSAVE_GLTF,
+            "scene.gltf");
+    }
+    else
+    {
+        LLNotificationsUtil::add("GLTFSaveSelection");
+    }
+}
+
+void GLTFSceneManager::save(const std::string& filename)
+{
+    LLViewerObject* obj = LLSelectMgr::instance().getSelection()->getFirstRootObject();
+    if (obj && obj->mGLTFAsset.notNull())
+    {
+        Asset* asset = obj->mGLTFAsset;
+        tinygltf::Model model;
+        asset->save(model);
+
+        LLTinyGLTFHelper::saveModel(filename, model);
     }
 }
 

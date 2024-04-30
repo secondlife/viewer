@@ -790,7 +790,7 @@ void set_nav_save_data(LLFilePicker::ESaveFilter filter, std::string &extension,
         case LLFilePicker::FFSAVE_GLTF:
             type = "\?\?\?\?";
             creator = "\?\?\?\?";
-            extension = "glb";
+            extension = "glb,gltf";
             break;
             
         case LLFilePicker::FFSAVE_XML:

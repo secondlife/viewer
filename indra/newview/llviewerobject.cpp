@@ -4379,7 +4379,7 @@ LLMatrix4a LLViewerObject::getGLTFAssetToAgentTransform() const
     LLMatrix4 root;
     root.initScale(getScale());
     root.rotate(getRenderRotation());
-    root.translate(getPositionAgent());
+    root.translate(getRenderPosition());
 
     LLMatrix4a mat;
     mat.loadu((F32*)root.mMatrix);
@@ -4403,7 +4403,7 @@ LLMatrix4a LLViewerObject::getAgentToGLTFAssetTransform() const
     scale.mV[1] = 1.f / scale.mV[1];
     scale.mV[2] = 1.f / scale.mV[2];
 
-    root.translate(-getPositionAgent());
+    root.translate(-getRenderPosition());
     root.rotate(~getRenderRotation());
 
     LLMatrix4 scale_mat;
