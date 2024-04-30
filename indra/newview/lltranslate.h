@@ -68,6 +68,13 @@ public :
 		SERVICE_NONE
 	} EService;
 
+	typedef enum e_translation_config_mode {
+		CONFIG_MODE_OPT_IN,
+		CONFIG_MODE_OPT_OUT,
+		CONFIG_MODE_ALWAYS,
+		CONFIG_MODE_NEVER
+	} ETransConfigMode;
+
     typedef boost::function<void(EService, bool, S32)> KeyVerificationResult_fn;
     typedef boost::function<void(std::string , std::string )> TranslationSuccess_fn;
     typedef boost::function<void(int, std::string)> TranslationFailure_fn;
@@ -122,11 +129,14 @@ private:
 	static LLTranslationAPIHandler* getHandler(EService service);
 
 	std::set<LLUUID> mTranslateAgents;
+	std::set<LLUUID> mNoTranslateAgents;
 
 	size_t mCharsSeen;
 	size_t mCharsSent;
 	S32 mFailureCount;
 	S32 mSuccessCount;
+
+	ETransConfigMode mTransConfigMode;
 };
 
 #endif

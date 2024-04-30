@@ -1367,7 +1367,8 @@ LLTranslate::LLTranslate():
 	mCharsSeen(0),
 	mCharsSent(0),
 	mFailureCount(0),
-	mSuccessCount(0)
+	mSuccessCount(0),
+    mTransConfigMode(CONFIG_MODE_OPT_OUT)
 {
 }
 
@@ -1407,20 +1408,32 @@ bool LLTranslate::shouldTranslate(const LLUUID& from_id, const std::string& from
 /* static */
 bool LLTranslate::shouldTranslateAgent(const LLUUID& agent_id)
 {
-    return true;
-    //return instance().mTranslateAgents.find(agent_id) != instance().mTranslateAgents.end();
+    if (instance().mTransConfigMode == CONFIG_MODE_ALWAYS)
+    {
+        return true;
+    }
+    else if (instance().mTransConfigMode == CONFIG_MODE_OPT_OUT)
+    {
+        return instance().mNoTranslateAgents.find(agent_id) == instance().mNoTranslateAgents.end();
+    }
+    else if (instance().mTransConfigMode == CONFIG_MODE_OPT_IN)
+    {
+        return instance().mTranslateAgents.find(agent_id) != instance().mTranslateAgents.end();
+    }
+    return false;
 }
-
 /* static */
 void LLTranslate::setTranslateAgent(const LLUUID& agent_id, bool translate)
 {
     if (translate)
     {
         instance().mTranslateAgents.insert(agent_id);
+        instance().mNoTranslateAgents.erase(agent_id);
     }
     else
     {
         instance().mTranslateAgents.erase(agent_id);
+        instance().mNoTranslateAgents.insert(agent_id);
     }
 }
 
