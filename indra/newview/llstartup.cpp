@@ -334,10 +334,18 @@ void update_texture_fetch()
 
 void set_flags_and_update_appearance()
 {
-	LLAppearanceMgr::instance().setAttachmentInvLinkEnable(true);
-	LLAppearanceMgr::instance().updateAppearanceFromCOF(true, true, no_op);
+    // this may be called from a coroutine but has many side effects
+    // in non-thread-safe classes, post to main loop
+    auto work = []()
+        {
+            LLAppearanceMgr::instance().setAttachmentInvLinkEnable(true);
+            LLAppearanceMgr::instance().updateAppearanceFromCOF(true, true, no_op);
 
-    LLInventoryModelBackgroundFetch::instance().start();
+            LLInventoryModelBackgroundFetch::instance().start();
+        };
+
+    LLAppViewer::instance()->postToMainThread(work);
+
 }
 
 // Returns false to skip other idle processing. Should only return
