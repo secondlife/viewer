@@ -839,7 +839,7 @@ void AISAPI::onUpdateReceived(const LLSD& update, COMMAND_TYPE type, const LLSD&
     if ( (type == UPDATECATEGORY || type == UPDATEITEM)
         && gSavedSettings.getBOOL("DebugAvatarAppearanceMessage"))
     {
-        dump_sequential_xml(gAgentAvatarp->getFullname() + "_ais_update", update);
+        dump_sequential_xml(gAgentAvatarp->getDebugName() + "_ais_update", update);
     }
 
     AISUpdate ais_update(update, type, request_body);

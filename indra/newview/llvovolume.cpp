@@ -1425,7 +1425,7 @@ BOOL LLVOVolume::calcLOD()
             const LLVector3* box = avatar->getLastAnimExtents();
             LLVector3 diag = box[1] - box[0];
             radius = diag.magVec() * 0.5f;
-            LL_DEBUGS("DynamicBox") << avatar->getFullname() << " diag " << diag << " radius " << radius << LL_ENDL;
+            LL_DEBUGS("DynamicBox") << avatar->getDebugName() << " diag " << diag << " radius " << radius << LL_ENDL;
         }
         else
         {
@@ -1436,7 +1436,7 @@ BOOL LLVOVolume::calcLOD()
             const LLVector3* box = avatar->getLastAnimExtents();
             LLVector3 diag = box[1] - box[0];
             radius = diag.magVec(); // preserve old BinRadius behavior - 2x off
-            LL_DEBUGS("DynamicBox") << avatar->getFullname() << " diag " << diag << " radius " << radius << LL_ENDL;
+            LL_DEBUGS("DynamicBox") << avatar->getDebugName() << " diag " << diag << " radius " << radius << LL_ENDL;
         }
         if (distance <= 0.f || radius <= 0.f)
         {
