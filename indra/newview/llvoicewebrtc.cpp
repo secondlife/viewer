@@ -1230,15 +1230,18 @@ void LLWebRTCVoiceClient::sessionState::removeParticipant(const LLWebRTCVoiceCli
 
 void LLWebRTCVoiceClient::sessionState::removeAllParticipants(const LLUUID &region)
 {
-    LL_DEBUGS("Voice") << "called" << LL_ENDL;
+    std::vector<participantStatePtr_t> participantsToRemove;
 
-
-    for (auto &&participant : mParticipantsByUUID)
+    for (auto& participantEntry : mParticipantsByUUID)
     {
-        if (region.isNull() || (participant.second->mRegion == region))
+        if (region.isNull() || (participantEntry.second->mRegion == region))
         {
-            removeParticipant(participant.second);
+            participantsToRemove.push_back(participantEntry.second);
         }
+    }
+    for (auto& participant : participantsToRemove)
+    {
+        removeParticipant(participant);
     }
 }
 
