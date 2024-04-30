@@ -113,16 +113,20 @@ void LLHeroProbeManager::update()
     LLVector4a probe_pos;
     LLVector3 camera_pos = LLViewerCamera::instance().mOrigin;
     F32        near_clip  = 0.1f;
+    bool       probe_present = false;
     if (mHeroVOList.size() > 0)
     {
         // Find our nearest hero candidate.
         float last_distance = 99999.f;
-        mNearestHero        = nullptr;
         for (auto vo : mHeroVOList)
         {
             if (vo && !vo->isDead() && vo->mDrawable.notNull())
             {
                 float distance = (LLViewerCamera::instance().getOrigin() - vo->getPositionAgent()).magVec();
+
+                if (distance > LLViewerCamera::instance().getFar())
+					continue;
+
                 LLVector4a center;
                 center.load3(vo->getPositionAgent().mV);
                 LLVector4a size;
@@ -132,9 +136,10 @@ void LLHeroProbeManager::update()
                 bool visible = LLViewerCamera::instance().AABBInFrustum(center, size);
                 if (distance < last_distance && visible)
                 {
-                    mNearestHero = vo;
-                    last_distance = distance;
-                }
+					probe_present = true;
+					mNearestHero = vo;
+					last_distance = distance;
+				}
             }
             else
             {
@@ -142,6 +147,10 @@ void LLHeroProbeManager::update()
             }
         }
         
+        // Don't even try to do anything if we didn't find a single mirror present.
+        if (!probe_present)
+            return;
+
         if (mNearestHero != nullptr && !mNearestHero->isDead() && mNearestHero->mDrawable.notNull())
         {
             LLVector3 hero_pos = mNearestHero->getPositionAgent();
