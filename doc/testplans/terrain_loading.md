@@ -2,8 +2,8 @@
 
 ## Behavior overview
 
-- Texture terrain should load if applied
-- PBR terrain should load if applied, even if the feature flag is disabled
+- Texture terrain should load if textures are applied to the region, and no PBR Metallic Roughness materials are applied.
+- PBR terrain should load if PBR materials are applied to the region, even if the RenderTerrainPBREnabled feature flag is disabled in debug settings. This setting only disables the display of PBR materials in the Region / Estate > Terrain UI.
 - Related subsystem: A change to the PBR terrain loading system may affect the texture terrain loading system and vice-versa
 - Related subsystem: Minimap should load if terrain loads
     - They may not finish loading at the same time
