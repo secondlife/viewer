@@ -264,14 +264,6 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 		}
 	}
 
-    if (features->encodesNormal)
-	{
-        if (!shader->attachFragmentObject("environment/encodeNormF.glsl"))
-		{
-			return FALSE;
-		}
-	}
-
 	if (features->hasAtmospherics || features->isDeferred)
     {
         if (!shader->attachFragmentObject("windlight/atmosphericsFuncs.glsl")) {

@@ -56,7 +56,10 @@ namespace LL
             std::vector<LLVector4a> mNormals;
             std::vector<LLVector4a> mTangents;
             std::vector<LLVector4a> mPositions;
-            std::vector<U16> mIndexArray;
+            std::vector<LLVector4a> mJoints;
+            std::vector<LLVector4a> mWeights;
+            std::vector<LLColor4U> mColors;
+            std::vector<U32> mIndexArray;
 
             // raycast acceleration structure
             LLPointer<LLVolumeOctree> mOctree;
@@ -68,11 +71,6 @@ namespace LL
             S32 mIndices = -1;
             std::unordered_map<std::string, int> mAttributes;
 
-            // copy the attribute in the given BufferView to the given destination
-            // assumes destination has enough storage for the attribute
-            template<class T>
-            void copyAttribute(Asset& asset, S32 bufferViewIdx, LLStrider<T>& dst);
-            
             // create octree based on vertex buffer
             // must be called before buffer is unmapped and after buffer is populated with good data
             void createOctree();
@@ -87,52 +85,7 @@ namespace LL
                 LLVector4a* tangent = NULL             // return the surface tangent at the intersection point
             );
             
-            const Primitive& operator=(const tinygltf::Primitive& src)
-            {
-                // load material
-                mMaterial = src.material;
-
-                // load mode
-                mMode = src.mode;
-
-                // load indices
-                mIndices = src.indices;
-
-                // load attributes
-                for (auto& it : src.attributes)
-                {
-                    mAttributes[it.first] = it.second;
-                }
-
-                switch (mMode)
-                {
-                case TINYGLTF_MODE_POINTS:
-                    mGLMode = LLRender::POINTS;
-                    break;
-                case TINYGLTF_MODE_LINE:
-                    mGLMode = LLRender::LINES;
-                    break;
-                case TINYGLTF_MODE_LINE_LOOP:
-                    mGLMode = LLRender::LINE_LOOP;
-                    break;
-                case TINYGLTF_MODE_LINE_STRIP:
-                    mGLMode = LLRender::LINE_STRIP;
-                    break;
-                case TINYGLTF_MODE_TRIANGLES:
-                    mGLMode = LLRender::TRIANGLES;
-                    break;
-                case TINYGLTF_MODE_TRIANGLE_STRIP:
-                    mGLMode = LLRender::TRIANGLE_STRIP;
-                    break;
-                case TINYGLTF_MODE_TRIANGLE_FAN:
-                    mGLMode = LLRender::TRIANGLE_FAN;
-                    break;
-                default:
-                    mGLMode = GL_TRIANGLES;
-                }
-
-                return *this;
-            }
+            const Primitive& operator=(const tinygltf::Primitive& src);
 
             void allocateGLResources(Asset& asset);
         };

@@ -216,8 +216,6 @@ in vec3 vary_normal;
 in vec4 vertex_color;
 in vec2 vary_texcoord0;
 
-vec2 encode_normal(vec3 n);
-
 // get the transformed normal and apply glossiness component from normal map
 vec3 getNormal(inout float glossiness)
 {
@@ -305,8 +303,6 @@ void main()
     float env = env_intensity * spec.a;
     float glossiness = specular_color.a;
     vec3 norm = getNormal(glossiness);
-
-    vec2 abnormal = encode_normal(norm.xyz);
 
     float emissive = getEmissive(diffcol);
 
@@ -417,10 +413,12 @@ void main()
 
     float flag = GBUFFER_FLAG_HAS_ATMOS;
 
-    frag_data[0] = vec4(diffcol.rgb, emissive);        // gbuffer is sRGB for legacy materials
-    frag_data[1] = vec4(spec.rgb, glossiness);           // XYZ = Specular color. W = Specular exponent.
-    frag_data[2] = vec4(encode_normal(norm), env, flag);;   // XY = Normal.  Z = Env. intensity. W = 1 skip atmos (mask off fog)
-    frag_data[3] = vec4(0);
+    frag_data[0] = max(vec4(diffcol.rgb, emissive), vec4(0));        // gbuffer is sRGB for legacy materials
+    frag_data[1] = max(vec4(spec.rgb, glossiness), vec4(0));           // XYZ = Specular color. W = Specular exponent.
+    frag_data[2] = vec4(norm, flag);   // XY = Normal.  Z = Env. intensity. W = 1 skip atmos (mask off fog)
+    frag_data[3] = vec4(env, 0, 0, 0);
+
 #endif
 }
+
 

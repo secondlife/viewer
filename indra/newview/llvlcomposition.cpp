@@ -28,6 +28,8 @@
 
 #include "llvlcomposition.h"
 
+#include <functional>
+
 #include "llerror.h"
 #include "v3math.h"
 #include "llsurface.h"
@@ -45,6 +47,7 @@
 extern LLColor4U MAX_WATER_COLOR;
 
 static const U32 BASE_SIZE = 128;
+static const F32 TERRAIN_DECODE_PRIORITY = 2048.f * 2048.f;
 
 namespace
 {
@@ -64,25 +67,38 @@ namespace
         return result;
     }
 
-    void unboost_minimap_texture(LLPointer<LLViewerFetchedTexture>& tex)
+    void boost_minimap_texture(LLViewerFetchedTexture* tex, F32 virtual_size)
+    {
+        llassert(tex);
+        if (!tex) { return; }
+
+        tex->setBoostLevel(LLGLTexture::BOOST_TERRAIN); // in case the raw image is at low detail
+        tex->addTextureStats(virtual_size); // priority
+    }
+
+    void boost_minimap_material(LLFetchedGLTFMaterial* mat, F32 virtual_size)
+    {
+        if (!mat) { return; }
+        if (mat->mBaseColorTexture) { boost_minimap_texture(mat->mBaseColorTexture, virtual_size); }
+        if (mat->mNormalTexture) { boost_minimap_texture(mat->mNormalTexture, virtual_size); }
+        if (mat->mMetallicRoughnessTexture) { boost_minimap_texture(mat->mMetallicRoughnessTexture, virtual_size); }
+        if (mat->mEmissiveTexture) { boost_minimap_texture(mat->mEmissiveTexture, virtual_size); }
+    }
+
+    void unboost_minimap_texture(LLViewerFetchedTexture* tex)
     {
         if (!tex) { return; }
         tex->setBoostLevel(LLGLTexture::BOOST_NONE);
         tex->setMinDiscardLevel(MAX_DISCARD_LEVEL + 1);
-
-        if (tex->getTextureState() == LLGLTexture::NO_DELETE)
-        {
-            tex->forceActive();
-        }
     }
 
-    void unboost_minimap_material(LLPointer<LLFetchedGLTFMaterial>& mat)
+    void unboost_minimap_material(LLFetchedGLTFMaterial* mat)
     {
         if (!mat) { return; }
-        unboost_minimap_texture(mat->mBaseColorTexture);
-        unboost_minimap_texture(mat->mNormalTexture);
-        unboost_minimap_texture(mat->mMetallicRoughnessTexture);
-        unboost_minimap_texture(mat->mEmissiveTexture);
+        if (mat->mBaseColorTexture) { unboost_minimap_texture(mat->mBaseColorTexture); }
+        if (mat->mNormalTexture) { unboost_minimap_texture(mat->mNormalTexture); }
+        if (mat->mMetallicRoughnessTexture) { unboost_minimap_texture(mat->mMetallicRoughnessTexture); }
+        if (mat->mEmissiveTexture) { unboost_minimap_texture(mat->mEmissiveTexture); }
     }
 };
 
@@ -96,11 +112,7 @@ LLTerrainMaterials::LLTerrainMaterials()
 
 LLTerrainMaterials::~LLTerrainMaterials()
 {
-    for (S32 i = 0; i < ASSET_COUNT; ++i)
-    {
-        unboost_minimap_texture(mDetailTextures[i]);
-        unboost_minimap_material(mDetailMaterials[i]);
-    }
+    unboost();
 }
 
 BOOL LLTerrainMaterials::generateMaterials()
@@ -116,6 +128,31 @@ BOOL LLTerrainMaterials::generateMaterials()
     }
 
     return FALSE;
+}
+
+void LLTerrainMaterials::boost()
+{
+    for (S32 i = 0; i < ASSET_COUNT; ++i)
+    {
+        LLPointer<LLViewerFetchedTexture>& tex = mDetailTextures[i];
+        llassert(tex.notNull());
+        boost_minimap_texture(tex, TERRAIN_DECODE_PRIORITY);
+
+        LLPointer<LLFetchedGLTFMaterial>& mat = mDetailMaterials[i];
+        boost_minimap_material(mat, TERRAIN_DECODE_PRIORITY);
+    }
+}
+
+void LLTerrainMaterials::unboost()
+{
+    for (S32 i = 0; i < ASSET_COUNT; ++i)
+    {
+        LLPointer<LLViewerFetchedTexture>& tex = mDetailTextures[i];
+        unboost_minimap_texture(tex);
+
+        LLPointer<LLFetchedGLTFMaterial>& mat = mDetailMaterials[i];
+        unboost_minimap_material(mat);
+    }
 }
 
 LLUUID LLTerrainMaterials::getDetailAssetID(S32 asset)
@@ -135,7 +172,6 @@ LLPointer<LLViewerFetchedTexture> fetch_terrain_texture(const LLUUID& id)
     }
 
     LLPointer<LLViewerFetchedTexture> tex = LLViewerTextureManager::getFetchedTexture(id);
-    tex->setNoDelete();
     return tex;
 }
 
@@ -240,8 +276,7 @@ bool LLTerrainMaterials::textureReady(LLPointer<LLViewerFetchedTexture>& tex, bo
     {
         if (boost)
         {
-            tex->setBoostLevel(LLGLTexture::BOOST_TERRAIN); // in case we are at low detail
-            tex->addTextureStats(BASE_SIZE*BASE_SIZE);
+            boost_minimap_texture(tex, BASE_SIZE*BASE_SIZE);
         }
         return false;
     }
@@ -251,6 +286,8 @@ bool LLTerrainMaterials::textureReady(LLPointer<LLViewerFetchedTexture>& tex, bo
     {
         if (boost)
         {
+            boost_minimap_texture(tex, BASE_SIZE*BASE_SIZE);
+
             S32 width = tex->getFullWidth();
             S32 height = tex->getFullHeight();
             S32 min_dim = llmin(width, height);
@@ -260,9 +297,7 @@ bool LLTerrainMaterials::textureReady(LLPointer<LLViewerFetchedTexture>& tex, bo
                 ddiscard++;
                 min_dim /= 2;
             }
-            tex->setBoostLevel(LLGLTexture::BOOST_TERRAIN); // in case we are at low detail
             tex->setMinDiscardLevel(ddiscard);
-            tex->addTextureStats(BASE_SIZE*BASE_SIZE); // priority
         }
         return false;
     }
@@ -480,6 +515,108 @@ BOOL LLVLComposition::generateComposition()
     return LLTerrainMaterials::generateMaterials();
 }
 
+namespace
+{
+    void prepare_fallback_image(LLImageRaw* raw_image)
+    {
+        raw_image->resize(BASE_SIZE, BASE_SIZE, 4);
+        raw_image->fill(LLColor4U::white);
+    }
+
+    // Check if the raw image is loaded for this texture at a discard
+    // level the minimap can use, and if not then try to get it loaded.
+    bool prepare_raw_image(LLPointer<LLImageRaw>& raw_image, bool emissive, LLViewerFetchedTexture* tex, bool& delete_raw_post)
+    {
+        if (!tex)
+        {
+            if (!emissive)
+            {
+                prepare_fallback_image(raw_image);
+            }
+            else
+            {
+                llassert(!raw_image);
+                raw_image = nullptr;
+            }
+            return true;
+        }
+        if (raw_image)
+        {
+            // Callback already initiated
+            if (raw_image->getDataSize() > 0)
+            {
+                // Callback finished
+                delete_raw_post = true;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        raw_image = new LLImageRaw();
+
+        S32 ddiscard = 0;
+        {
+            S32 min_dim = llmin(tex->getFullWidth(), tex->getFullHeight());
+            while (min_dim > BASE_SIZE && ddiscard < MAX_DISCARD_LEVEL)
+            {
+                ddiscard++;
+                min_dim /= 2;
+            }
+        }
+
+        struct PendingImage
+        {
+            LLImageRaw* mRawImage;
+            S32 mDesiredDiscard;
+            LLUUID mTextureId;
+            PendingImage(LLImageRaw* raw_image, S32 ddiscard, const LLUUID& texture_id)
+                : mRawImage(raw_image)
+                , mDesiredDiscard(ddiscard)
+                , mTextureId(texture_id)
+            {
+                mRawImage->ref();
+            }
+            ~PendingImage()
+            {
+                mRawImage->unref();
+            }
+        };
+        PendingImage* pending_image = new PendingImage(raw_image, ddiscard, tex->getID());
+
+        loaded_callback_func cb = [](BOOL success, LLViewerFetchedTexture * src_vi, LLImageRaw * src, LLImageRaw * src_aux, S32 discard_level, BOOL is_final, void* userdata) {
+            PendingImage* pending = (PendingImage*)userdata;
+            // Owning LLVLComposition still exists
+
+            // Assume mRawImage only used by single LLVLComposition for now
+            const bool in_use_by_composition = pending->mRawImage->getNumRefs() > 1;
+            llassert(pending->mRawImage->getNumRefs());
+            llassert(pending->mRawImage->getNumRefs() <= 2);
+            const bool needs_data = !pending->mRawImage->getDataSize();
+            if (in_use_by_composition && needs_data)
+            {
+                if (success && pending->mDesiredDiscard == discard_level)
+                {
+                    pending->mRawImage->resize(BASE_SIZE, BASE_SIZE, src->getComponents());
+                    pending->mRawImage->copyScaled(src);
+                }
+                else if (is_final)
+                {
+                    prepare_fallback_image(pending->mRawImage);
+                }
+            }
+
+            if (is_final) { delete pending; }
+        };
+        tex->setLoadedCallback(cb, ddiscard, true, false, pending_image, nullptr);
+        tex->forceToSaveRawImage(ddiscard);
+
+        return false;
+    }
+};
+
 BOOL LLVLComposition::generateMinimapTileLand(const F32 x, const F32 y,
 									  const F32 width, const F32 height)
 {
@@ -547,96 +684,28 @@ BOOL LLVLComposition::generateMinimapTileLand(const F32 x, const F32 y,
             }
 
             if (!tex) { tex = LLViewerFetchedTexture::sWhiteImagep; }
+
+            bool delete_raw_post = false;
+            bool delete_raw_post_emissive = false;
+            if (!prepare_raw_image(mRawImagesBaseColor[i], false, tex, delete_raw_post)) { return FALSE; }
+            if (tex_emissive && !prepare_raw_image(mRawImagesEmissive[i], true, tex_emissive, delete_raw_post_emissive)) { return FALSE; }
             // tex_emissive can be null, and then will be ignored
 
-            S32 ddiscard = 0;
-            {
-                S32 min_dim = llmin(tex->getFullWidth(), tex->getFullHeight());
-                while (min_dim > BASE_SIZE && ddiscard < MAX_DISCARD_LEVEL)
-                {
-                    ddiscard++;
-                    min_dim /= 2;
-                }
-            }
-            
-            S32 ddiscard_emissive = 0;
-            if (tex_emissive)
-            {
-				S32 min_dim_emissive = llmin(tex_emissive->getFullWidth(), tex_emissive->getFullHeight());
-                while (min_dim_emissive > BASE_SIZE && ddiscard_emissive < MAX_DISCARD_LEVEL)
-                {
-					ddiscard_emissive++;
-                    min_dim_emissive /= 2;
-				}
-			}
-
-            // *NOTE: It is probably safe to call destroyRawImage no matter
-            // what, as LLViewerFetchedTexture::mRawImage is managed by
-            // LLPointer and not modified with the rare exception of
-            // icons (see BOOST_ICON). Nevertheless, gate this fix for now, as
-            // it may have unintended consequences on texture loading.
-            // We may want to also set the boost level in setDetailAssetID, but
-            // that is not guaranteed to work if a texture is loaded on an object
-            // before being loaded as terrain, so we will need this fix
-            // regardless.
-            static LLCachedControl<bool> sRenderTerrainPBREnabled(gSavedSettings, "RenderTerrainPBREnabled", false);
-            BOOL delete_raw = (tex->reloadRawImage(ddiscard) != NULL || sRenderTerrainPBREnabled);
-            BOOL delete_raw_emissive = (tex_emissive &&
-                    (tex_emissive->reloadRawImage(ddiscard_emissive) != NULL || sRenderTerrainPBREnabled));
-
-			if(tex->getRawImageLevel() != ddiscard)
-			{
-                // Raw image is not ready, will enter here again later.
-                if (tex->getFetchPriority() <= 0.0f && !tex->hasSavedRawImage())
-                {
-                    tex->setBoostLevel(LLGLTexture::BOOST_TERRAIN);
-                    tex->forceToRefetchTexture(ddiscard);
-                }
-
-				if(delete_raw)
-				{
-					tex->destroyRawImage() ;
-				}
-				return FALSE;
-			}
-            if (tex_emissive)
-            {
-                if(tex_emissive->getRawImageLevel() != ddiscard_emissive)
-                {
-                    // Raw image is not ready, will enter here again later.
-                    if (tex_emissive->getFetchPriority() <= 0.0f && !tex_emissive->hasSavedRawImage())
-                    {
-                        tex_emissive->setBoostLevel(LLGLTexture::BOOST_TERRAIN);
-                        tex_emissive->forceToRefetchTexture(ddiscard_emissive);
-                    }
-
-                    if(delete_raw_emissive)
-                    {
-                        tex_emissive->destroyRawImage() ;
-                    }
-                    return FALSE;
-                }
-            }
-
-			mRawImages[i] = tex->getRawImage() ;
-			if(delete_raw)
-			{
-				tex->destroyRawImage() ;
-			}
+            // In the simplest case, the minimap image is just the base color.
+            // This will be replaced if we need to do any tinting/compositing.
+            mRawImages[i] = mRawImagesBaseColor[i];
 
             // *TODO: This isn't quite right for PBR:
             // 1) It does not convert the color images from SRGB to linear
             // before mixing (which will always require copying the image).
             // 2) It mixes emissive and base color before mixing terrain
             // materials, but it should be the other way around
-            // 3) The composite function used to put emissive into base color
-            // is not an alpha blend.
             // Long-term, we should consider a method that is more
             // maintainable. Shaders, perhaps? Bake shaders to textures?
             LLPointer<LLImageRaw> raw_emissive;
             if (tex_emissive)
             {
-                raw_emissive = tex_emissive->getRawImage();
+                raw_emissive = mRawImagesEmissive[i];
                 if (has_emissive_factor ||
                     tex_emissive->getWidth(tex_emissive->getRawImageLevel()) != BASE_SIZE ||
                     tex_emissive->getHeight(tex_emissive->getRawImageLevel()) != BASE_SIZE ||
@@ -644,7 +713,7 @@ BOOL LLVLComposition::generateMinimapTileLand(const F32 x, const F32 y,
                 {
                     LLPointer<LLImageRaw> newraw_emissive = new LLImageRaw(BASE_SIZE, BASE_SIZE, 4);
                     // Copy RGB, leave alpha alone (set to opaque by default)
-                    newraw_emissive->copy(mRawImages[i]);
+                    newraw_emissive->copy(mRawImagesEmissive[i]);
                     if (has_emissive_factor)
                     {
                         newraw_emissive->tint(emissive_factor);
@@ -669,7 +738,7 @@ BOOL LLVLComposition::generateMinimapTileLand(const F32 x, const F32 y,
                         MAX_WATER_COLOR.mV[VZ],
                         255);
                 }
-				newraw->composite(mRawImages[i]);
+				newraw->composite(mRawImagesBaseColor[i]);
                 if (has_base_color_factor)
                 {
                     newraw->tint(base_color_factor);
@@ -677,16 +746,24 @@ BOOL LLVLComposition::generateMinimapTileLand(const F32 x, const F32 y,
                 // Apply emissive texture
                 if (raw_emissive)
                 {
-                    newraw->composite(raw_emissive);
+                    newraw->addEmissive(raw_emissive);
                 }
 
 				mRawImages[i] = newraw; // deletes old
 			}
 
-            if (delete_raw_emissive)
+            if (delete_raw_post)
+            {
+                tex->destroyRawImage();
+            }
+            if (delete_raw_post_emissive)
             {
                 tex_emissive->destroyRawImage();
             }
+
+            // Remove intermediary image references
+            mRawImagesBaseColor[i] = nullptr;
+            mRawImagesEmissive[i] = nullptr;
 		}
 		st_data[i] = mRawImages[i]->getData();
 		st_data_size[i] = mRawImages[i]->getDataSize();
@@ -860,6 +937,8 @@ void LLVLComposition::setDetailAssetID(S32 asset, const LLUUID& id)
     }
     LLTerrainMaterials::setDetailAssetID(asset, id);
 	mRawImages[asset] = NULL;
+	mRawImagesBaseColor[asset] = NULL;
+	mRawImagesEmissive[asset] = NULL;
 }
 
 void LLVLComposition::setStartHeight(S32 corner, const F32 start_height)

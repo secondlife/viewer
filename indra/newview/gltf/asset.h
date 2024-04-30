@@ -29,85 +29,18 @@
 #include "llvertexbuffer.h"
 #include "llvolumeoctree.h"
 #include "../lltinygltfhelper.h"
+#include "accessor.h"
 #include "primitive.h"
+#include "animation.h"
+
+extern F32SecondsImplicit		gFrameTimeSeconds;
 
 // LL GLTF Implementation
 namespace LL
 {
     namespace GLTF
     {
-        constexpr S32 INVALID_INDEX = -1;
-
         class Asset;
-
-        class Buffer
-        {
-        public:
-            std::vector<U8> mData;
-            std::string mName;
-            std::string mUri;
-
-            const Buffer& operator=(const tinygltf::Buffer& src)
-            {
-                mData = src.data;
-                mName = src.name;
-                mUri = src.uri;
-                return *this;
-            }
-        };
-
-        class BufferView
-        {
-        public:
-            S32 mBuffer = INVALID_INDEX;
-            S32 mByteLength;
-            S32 mByteOffset;
-            S32 mByteStride;
-            S32 mTarget;
-            S32 mComponentType;
-
-            std::string mName;
-
-            const BufferView& operator=(const tinygltf::BufferView& src)
-            {
-                mBuffer = src.buffer;
-                mByteLength = src.byteLength;
-                mByteOffset = src.byteOffset;
-                mByteStride = src.byteStride;
-                mTarget = src.target;
-                mName = src.name;
-                return *this;
-            }
-        };
-
-        class Accessor
-        {
-        public:
-            S32 mBufferView = INVALID_INDEX;
-            S32 mByteOffset;
-            S32 mComponentType;
-            S32 mCount;
-            std::vector<double> mMax;
-            std::vector<double> mMin;
-            S32 mType;
-            bool mNormalized;
-            std::string mName;
-
-            const Accessor& operator=(const tinygltf::Accessor& src)
-            {
-                mBufferView = src.bufferView;
-                mByteOffset = src.byteOffset;
-                mComponentType = src.componentType;
-                mCount = src.count;
-                mType = src.type;
-                mNormalized = src.normalized;
-                mName = src.name;
-                mMax = src.maxValues;
-                mMin = src.maxValues;
-
-                return *this;
-            }
-        };
 
         class Material
         {
@@ -118,17 +51,9 @@ namespace LL
             LLPointer<LLFetchedGLTFMaterial> mMaterial;
             std::string mName;
 
-            const Material& operator=(const tinygltf::Material& src)
-            {
-                mName = src.name;
-                return *this;
-            }
-
-            void allocateGLResources(Asset& asset)
-            {
-                // allocate material
-                mMaterial = new LLFetchedGLTFMaterial();
-            }
+            const Material& operator=(const tinygltf::Material& src);
+            
+            void allocateGLResources(Asset& asset);
         };
 
         class Mesh
@@ -138,28 +63,9 @@ namespace LL
             std::vector<double> mWeights;
             std::string mName;
 
-            const Mesh& operator=(const tinygltf::Mesh& src)
-            {
-                mPrimitives.resize(src.primitives.size());
-                for (U32 i = 0; i < src.primitives.size(); ++i)
-                {
-                    mPrimitives[i] = src.primitives[i];
-                }
-
-                mWeights = src.weights;
-                mName = src.name;
-
-                return *this;
-            }
-
-            void allocateGLResources(Asset& asset)
-            {
-                for (auto& primitive : mPrimitives)
-                {
-                    primitive.allocateGLResources(asset);
-                }
-            }
-
+            const Mesh& operator=(const tinygltf::Mesh& src);
+            
+            void allocateGLResources(Asset& asset);
         };
 
         class Node
@@ -170,10 +76,24 @@ namespace LL
             LLMatrix4a mAssetMatrix; //transform from local to asset space
             LLMatrix4a mAssetMatrixInv; //transform from asset to local space
 
+            glh::vec3f mTranslation;
+            glh::quaternionf mRotation;
+            glh::vec3f mScale;
+
+            // if true, mMatrix is valid and up to date
+            bool mMatrixValid = false;
+
+            // if true, translation/rotation/scale are valid and up to date
+            bool mTRSValid = false;
+            
+            bool mNeedsApplyMatrix = false;
+
             std::vector<S32> mChildren;
             S32 mParent = INVALID_INDEX;
 
             S32 mMesh = INVALID_INDEX;
+            S32 mSkin = INVALID_INDEX;
+
             std::string mName;
 
             const Node& operator=(const tinygltf::Node& src);
@@ -184,7 +104,39 @@ namespace LL
 
             // update mAssetMatrix and mAssetMatrixInv
             void updateTransforms(Asset& asset, const LLMatrix4a& parentMatrix);
-            
+
+            // ensure mMatrix is valid -- if mMatrixValid is false and mTRSValid is true, will update mMatrix to match Translation/Rotation/Scale
+            void makeMatrixValid();
+
+            // ensure Translation/Rotation/Scale are valid -- if mTRSValid is false and mMatrixValid is true, will update Translation/Rotation/Scale to match mMatrix
+            void makeTRSValid();
+
+            // Set rotation of this node
+            // SIDE EFFECT: invalidates mMatrix
+            void setRotation(const glh::quaternionf& rotation);
+
+            // Set translation of this node
+            // SIDE EFFECT: invalidates mMatrix
+            void setTranslation(const glh::vec3f& translation);
+
+            // Set scale of this node
+            // SIDE EFFECT: invalidates mMatrix
+            void setScale(const glh::vec3f& scale);
+        };
+
+        class Skin
+        {
+        public:
+            S32 mInverseBindMatrices = INVALID_INDEX;
+            S32 mSkeleton = INVALID_INDEX;
+            std::vector<S32> mJoints;
+            std::string mName;
+            std::vector<glh::matrix4f> mInverseBindMatricesData;
+
+            void allocateGLResources(Asset& asset);
+            void uploadMatrixPalette(Asset& asset, Node& node);
+
+            const Skin& operator=(const tinygltf::Skin& src);
         };
 
         class Scene
@@ -193,17 +145,10 @@ namespace LL
             std::vector<S32> mNodes;
             std::string mName;
 
-            const Scene& operator=(const tinygltf::Scene& src)
-            {
-                mNodes = src.nodes;
-                mName = src.name;
-
-                return *this;
-            }
-
+            const Scene& operator=(const tinygltf::Scene& src);
+            
             void updateTransforms(Asset& asset);
             void updateRenderTransforms(Asset& asset, const LLMatrix4a& modelview);
-            
         };
 
         class Texture
@@ -213,14 +158,7 @@ namespace LL
             S32 mSource = INVALID_INDEX;
             std::string mName;
 
-            const Texture& operator=(const tinygltf::Texture& src)
-            {
-                mSampler = src.sampler;
-                mSource = src.source;
-                mName = src.name;
-
-                return *this;
-            }
+            const Texture& operator=(const tinygltf::Texture& src);
         };
 
         class Sampler
@@ -232,16 +170,7 @@ namespace LL
             S32 mWrapT;
             std::string mName;
 
-            const Sampler& operator=(const tinygltf::Sampler& src)
-            {
-                mMagFilter = src.magFilter;
-                mMinFilter = src.minFilter;
-                mWrapS = src.wrapS;
-                mWrapT = src.wrapT;
-                mName = src.name;
-
-                return *this;
-            }
+            const Sampler& operator=(const tinygltf::Sampler& src);
         };
 
         class Image
@@ -292,27 +221,21 @@ namespace LL
             std::vector<Sampler> mSamplers;
             std::vector<Image> mImages;
             std::vector<Accessor> mAccessors;
+            std::vector<Animation> mAnimations;
+            std::vector<Skin> mSkins;
 
-            void allocateGLResources(const std::string& filename, const tinygltf::Model& model)
-            {
-                // do images first as materials may depend on images
-                for (auto& image : mImages)
-                {
-                    image.allocateGLResources();
-                }
+            // the last time update() was called according to gFrameTimeSeconds
+            F32 mLastUpdateTime = gFrameTimeSeconds;
 
-                // do materials before meshes as meshes may depend on materials
-                for (U32 i = 0; i < mMaterials.size(); ++i)
-                {
-                    mMaterials[i].allocateGLResources(*this);
-                    LLTinyGLTFHelper::getMaterialFromModel(filename, model, i, mMaterials[i].mMaterial, mMaterials[i].mName, true);
-                }
-
-                for (auto& mesh : mMeshes)
-                {
-                    mesh.allocateGLResources(*this);
-                }
-            }
+            // prepare the asset for rendering
+            void allocateGLResources(const std::string& filename, const tinygltf::Model& model);
+            
+            // Called periodically (typically once per frame)
+            // Any ongoing work (such as animations) should be handled here
+            // NOT guaranteed to be called every frame
+            // MAY be called more than once per frame
+            // Upon return, all Node Matrix transforms should be up to date
+            void update();
 
             // update asset-to-node and node-to-asset transforms
             void updateTransforms();
@@ -320,7 +243,7 @@ namespace LL
             // update node render transforms
             void updateRenderTransforms(const LLMatrix4a& modelview);
             
-            void render(bool opaque);
+            void render(bool opaque, bool rigged = false);
             void renderOpaque();
             void renderTransparent();
 
@@ -334,70 +257,8 @@ namespace LL
                 S32* primitive_hitp = nullptr           // return the index of the primitive that was hit
             );
             
-            const Asset& operator=(const tinygltf::Model& src)
-            {
-                mScenes.resize(src.scenes.size());
-                for (U32 i = 0; i < src.scenes.size(); ++i)
-                {
-                    mScenes[i] = src.scenes[i];
-                }
-
-                mNodes.resize(src.nodes.size());
-                for (U32 i = 0; i < src.nodes.size(); ++i)
-                {
-                    mNodes[i] = src.nodes[i];
-                }
-
-                mMeshes.resize(src.meshes.size());
-                for (U32 i = 0; i < src.meshes.size(); ++i)
-                {
-                    mMeshes[i] = src.meshes[i];
-                }
-
-                mMaterials.resize(src.materials.size());
-                for (U32 i = 0; i < src.materials.size(); ++i)
-                {
-                    mMaterials[i] = src.materials[i];
-                }
-
-                mBuffers.resize(src.buffers.size());
-                for (U32 i = 0; i < src.buffers.size(); ++i)
-                {
-                    mBuffers[i] = src.buffers[i];
-                }
-
-                mBufferViews.resize(src.bufferViews.size());
-                for (U32 i = 0; i < src.bufferViews.size(); ++i)
-                {
-                    mBufferViews[i] = src.bufferViews[i];
-                }
-
-                mTextures.resize(src.textures.size());
-                for (U32 i = 0; i < src.textures.size(); ++i)
-                {
-                    mTextures[i] = src.textures[i];
-                }
-
-                mSamplers.resize(src.samplers.size());
-                for (U32 i = 0; i < src.samplers.size(); ++i)
-                {
-                    mSamplers[i] = src.samplers[i];
-                }
-
-                mImages.resize(src.images.size());
-                for (U32 i = 0; i < src.images.size(); ++i)
-                {
-                    mImages[i] = src.images[i];
-                }
-
-                mAccessors.resize(src.accessors.size());
-                for (U32 i = 0; i < src.accessors.size(); ++i)
-                {
-                    mAccessors[i] = src.accessors[i];
-                }
-
-                return *this;
-            }
+            const Asset& operator=(const tinygltf::Model& src);
+            
         };
     }
 }

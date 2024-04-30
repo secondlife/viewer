@@ -72,7 +72,7 @@ uniform mat4 inv_proj;
 void calcHalfVectors(vec3 lv, vec3 n, vec3 v, out vec3 h, out vec3 l, out float nh, out float nl, out float nv, out float vh, out float lightDist);
 float calcLegacyDistanceAttenuation(float distance, float falloff);
 bool clipProjectedLightVars(vec3 center, vec3 pos, out float dist, out float l_dist, out vec3 lv, out vec4 proj_tc );
-vec4 getNormalEnvIntensityFlags(vec2 screenpos, out vec3 n, out float envIntensity);
+vec4 getNorm(vec2 screenpos);
 vec3 getProjectedLightAmbiance(float amb_da, float attenuation, float lit, float nl, float noise, vec2 projected_uv);
 vec3 getProjectedLightDiffuseColor(float light_distance, vec2 projected_uv );
 vec2 getScreenCoord(vec4 clip);
@@ -121,9 +121,8 @@ void main()
         shadow = clamp(shadow, 0.0, 1.0);        
     }
 
-    float envIntensity;
-    vec3 n;
-    vec4 norm = getNormalEnvIntensityFlags(tc, n, envIntensity);
+    vec4 norm = getNorm(tc);
+    vec3 n = norm.xyz;
 
     float dist_atten = calcLegacyDistanceAttenuation(dist, falloff);
     if (dist_atten <= 0.0)
@@ -145,7 +144,6 @@ void main()
 
     if (GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_PBR))
     {
-        vec3 colorEmissive = texture(emissiveRect, tc).rgb; 
         vec3 orm = spec.rgb;
         float perceptualRoughness = orm.g;
         float metallic = orm.b;
@@ -182,6 +180,8 @@ void main()
     }
     else
     {
+        float envIntensity = texture(emissiveRect, tc).r;
+
         diffuse = srgb_to_linear(diffuse);
         spec.rgb = srgb_to_linear(spec.rgb);
 

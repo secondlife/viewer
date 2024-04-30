@@ -112,7 +112,7 @@ private:
 
     // Callback types for get() 
     typedef boost::signals2::signal < void(const LLSD &) > callback_signal_t;
-	typedef boost::shared_ptr<callback_signal_t> signal_ptr;
+	typedef std::shared_ptr<callback_signal_t> signal_ptr;
 	// May have multiple callbacks for a single ID, which are
 	// represented as multiple slots bound to the signal.
 	// Avoid copying signals via pointers.

@@ -61,7 +61,7 @@ in vec2 vary_fragcoord;
 uniform mat4 inv_proj;
 uniform vec2 screen_res;
 
-vec3 getNorm(vec2 pos_screen);
+vec4 getNorm(vec2 pos_screen);
 vec4 getPositionWithDepth(vec2 pos_screen, float depth);
 
 void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 norm, vec3 light_dir, out vec3 sunlit, out vec3 amblit, out vec3 atten, out vec3 additive);
@@ -128,13 +128,13 @@ void main()
     vec2  tc           = vary_fragcoord.xy;
     float depth        = getDepth(tc.xy);
     vec4  pos          = getPositionWithDepth(tc, depth);
-    vec4  norm         = texture(normalMap, tc);
-    float envIntensity = norm.z;
-    norm.xyz           = getNorm(tc);
+    vec4  norm         = getNorm(tc);
+    vec3 colorEmissive = texture(emissiveRect, tc).rgb;
+    float envIntensity = colorEmissive.r;
     vec3  light_dir   = (sun_up_factor == 1) ? sun_dir : moon_dir;
 
     vec4 baseColor     = texture(diffuseRect, tc);
-    vec4 spec        = texture(specularRect, vary_fragcoord.xy); // NOTE: PBR linear Emissive
+    vec4 spec        = texture(specularRect, tc); // NOTE: PBR linear Emissive
 
 #if defined(HAS_SUN_SHADOW) || defined(HAS_SSAO)
     vec2 scol_ambocc = texture(lightMap, vary_fragcoord.xy).rg;
@@ -169,12 +169,12 @@ void main()
 
     if (GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_PBR))
     {
-        vec3 orm = texture(specularRect, tc).rgb; 
+        vec3 orm = spec.rgb; 
         float perceptualRoughness = orm.g;
         float metallic = orm.b;
         float ao = orm.r;
 
-        vec3 colorEmissive = texture(emissiveRect, tc).rgb;
+        
         // PBR IBL
         float gloss      = 1.0 - perceptualRoughness;
         
@@ -192,12 +192,12 @@ void main()
     else if (GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_HDRI))
     {
         // actual HDRI sky, just copy color value
-        color = texture(emissiveRect, tc).rgb;
+        color = colorEmissive.rgb;
     }
     else if (GET_GBUFFER_FLAG(GBUFFER_FLAG_SKIP_ATMOS))
     {
         //should only be true of WL sky, port over base color value and scale for fake HDR
-        color = texture(emissiveRect, tc).rgb;
+        color = colorEmissive.rgb;
         color = srgb_to_linear(color);
         color *= sky_hdr_scale;
     }

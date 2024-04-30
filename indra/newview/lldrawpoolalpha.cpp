@@ -261,10 +261,13 @@ void LLDrawPoolAlpha::forwardRender(bool rigged)
     mAlphaDFactor = LLRender::BF_ONE_MINUS_SOURCE_ALPHA;       // }
     gGL.blendFunc(mColorSFactor, mColorDFactor, mAlphaSFactor, mAlphaDFactor);
 
-    if (write_depth)
-    { // draw GLTF scene to depth buffer
+    if (rigged)
+    { // draw GLTF scene to depth buffer before rigged alpha
         gPipeline.bindDeferredShader(gDeferredPBRAlphaProgram);
-        LL::GLTFSceneManager::instance().renderAlpha();
+        LL::GLTFSceneManager::instance().render(false, false);
+
+        gPipeline.bindDeferredShader(*gDeferredPBRAlphaProgram.mRiggedVariant);
+        LL::GLTFSceneManager::instance().render(false, true);
     }
 
     // If the face is more than 90% transparent, then don't update the Depth buffer for Dof

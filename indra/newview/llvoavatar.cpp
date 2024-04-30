@@ -4291,6 +4291,15 @@ void LLVOAvatar::updateOrientation(LLAgent& agent, F32 speed, F32 delta_time)
 				if (mTurning)
 				{
 					pelvis_rot_threshold *= 0.4f;
+                    // account for fps, assume that above value is for ~60fps
+                    constexpr F32 default_frame_sec = 0.016f;
+                    F32 prev_frame_sec = LLFrameTimer::getFrameDeltaTimeF32();
+                    if (default_frame_sec > prev_frame_sec)
+                    {
+                        // reduce threshold since turn rate per second is constant,
+                        // shorter frame means shorter turn.
+                        pelvis_rot_threshold *= prev_frame_sec/default_frame_sec;
+                    }
 				}
 
 				// am I done turning?

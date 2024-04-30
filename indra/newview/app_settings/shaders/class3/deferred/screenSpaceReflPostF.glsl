@@ -40,14 +40,13 @@ uniform sampler2D specularRect;
 uniform sampler2D diffuseRect;
 uniform sampler2D diffuseMap;
 
-vec3 getNorm(vec2 screenpos);
+vec4 getNorm(vec2 screenpos);
 float getDepth(vec2 pos_screen);
 float linearDepth(float d, float znear, float zfar);
 float linearDepth01(float d, float znear, float zfar);
 
 vec4 getPositionWithDepth(vec2 pos_screen, float depth);
 vec4 getPosition(vec2 pos_screen);
-vec4 getNormalEnvIntensityFlags(vec2 screenpos, out vec3 n, out float envIntensity);
 
 float random (vec2 uv);
 
@@ -57,9 +56,7 @@ void main()
 {
     vec2  tc = vary_fragcoord.xy;
     float depth = linearDepth01(getDepth(tc), zNear, zFar);
-    float envIntensity;
-    vec3 n;
-    vec4 norm = getNormalEnvIntensityFlags(tc, n, envIntensity); // need `norm.w` for GET_GBUFFER_FLAG()
+    vec4 norm = getNorm(tc); // need `norm.w` for GET_GBUFFER_FLAG()
     vec3 pos = getPositionWithDepth(tc, getDepth(tc)).xyz;
     vec4 spec    = texture(specularRect, tc);
     vec2 hitpixel;
@@ -84,7 +81,7 @@ void main()
 
     vec4 collectedColor = vec4(0);
 
-    float w = tapScreenSpaceReflection(4, tc, pos, n, collectedColor, diffuseMap, 0);
+    float w = tapScreenSpaceReflection(4, tc, pos, norm.xyz, collectedColor, diffuseMap, 0);
 
     collectedColor.rgb *= specCol.rgb;
 
