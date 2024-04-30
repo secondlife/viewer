@@ -302,8 +302,6 @@ void LLTranslationAPIHandler::translateMessageCoro(LanguagePair_t fromTo, std::s
         if (!failure.empty())
             failure(status, err_msg);
     }
-
-
 }
 
 //=========================================================================
@@ -408,29 +406,30 @@ bool LLGoogleTranslationHandler::parseResponse(
 	std::string& detected_lang,
 	std::string& err_msg) const
 {
+	const std::string& text = !body.empty() ? body : http_response["error_body"].asStringRef();
+
 	Json::Value root;
 	Json::Reader reader;
 
-	if (!reader.parse(body, root))
+	if (reader.parse(text, root))
 	{
+		if (root.isObject())
+		{
+			// Request succeeded, extract translation from the XML body.
+			if (parseTranslation(root, translation, detected_lang))
+				return true;
+
+			// Request failed. Extract error message from the XML body.
+			parseErrorResponse(root, status, err_msg);
+		}
+	}
+	else
+	{
+		// XML parsing failed. Extract error message from the XML parser.
 		err_msg = reader.getFormatedErrorMessages();
-		return false;
 	}
 
-	if (!root.isObject()) // empty response? should not happen
-	{
-		return false;
-	}
-
-	if (status != HTTP_OK)
-	{
-		// Request failed. Extract error message from the response.
-		parseErrorResponse(root, status, err_msg);
-		return false;
-	}
-
-	// Request succeeded, extract translation from the response.
-	return parseTranslation(root, translation, detected_lang);
+	return false;
 }
 
 // virtual
@@ -503,7 +502,7 @@ void LLGoogleTranslationHandler::verifyKey(const LLSD &key, LLTranslate::KeyVeri
 /*virtual*/
 void LLGoogleTranslationHandler::initHttpHeader(LLCore::HttpHeaders::ptr_t headers, const std::string& user_agent) const
 {
-    headers->append(HTTP_OUT_HEADER_ACCEPT, HTTP_CONTENT_TEXT_PLAIN);
+    headers->append(HTTP_OUT_HEADER_ACCEPT, HTTP_CONTENT_JSON);
     headers->append(HTTP_OUT_HEADER_USER_AGENT, user_agent);
 }
 
@@ -513,8 +512,7 @@ void LLGoogleTranslationHandler::initHttpHeader(
     const std::string& user_agent,
     const LLSD &key) const
 {
-    headers->append(HTTP_OUT_HEADER_ACCEPT, HTTP_CONTENT_TEXT_PLAIN);
-    headers->append(HTTP_OUT_HEADER_USER_AGENT, user_agent);
+    initHttpHeader(headers, user_agent);
 }
 
 LLSD LLGoogleTranslationHandler::sendMessageAndSuspend(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t adapter,
@@ -740,7 +738,7 @@ bool LLAzureTranslationHandler::parseResponse(
         return false;
     }
 
-    translation = first["text"].asString();
+    translation = LLURI::unescape(first["text"].asString());
 
     return true;
 }
@@ -840,8 +838,13 @@ LLSD LLAzureTranslationHandler::sendMessageAndSuspend(LLCoreHttpUtil::HttpCorout
 {
     LLCore::BufferArray::ptr_t rawbody(new LLCore::BufferArray);
     LLCore::BufferArrayStream outs(rawbody.get());
+
+    static const std::string allowed_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz "
+                                             "0123456789"
+                                             "-._~";
+
     outs << "[{\"text\":\"";
-    outs << msg;
+    outs << LLURI::escape(msg, allowed_chars);
     outs << "\"}]";
 
     return adapter->postRawAndSuspend(request, url, rawbody, options, headers);

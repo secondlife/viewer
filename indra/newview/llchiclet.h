@@ -531,8 +531,9 @@ public:
 	struct Params : public LLInitParam::Block<Params, LLSysWellChiclet::Params>{};
 		
 protected:
-	struct ChicletNotificationChannel : public LLNotificationChannel
+	class ChicletNotificationChannel : public LLNotificationChannel
 	{
+    public:
 		ChicletNotificationChannel(LLNotificationChiclet* chiclet) 
 			: LLNotificationChannel(LLNotificationChannel::Params().filter(filterNotification).name(chiclet->getSessionId().asString()))
 			, mChiclet(chiclet)
@@ -542,6 +543,7 @@ protected:
 			connectToChannel("Offer");
 			connectToChannel("Notifications");
 		}
+        virtual ~ChicletNotificationChannel() {}
 				
 		static bool filterNotification(LLNotificationPtr notify);
 		// connect counter updaters to the corresponding signals
@@ -553,9 +555,10 @@ protected:
 	};
 				
 	boost::scoped_ptr<ChicletNotificationChannel> mNotificationChannel;
-				
-	LLNotificationChiclet(const Params& p);
-				
+
+    LLNotificationChiclet(const Params& p);
+    ~LLNotificationChiclet();
+
 	/**
 	 * Processes clicks on chiclet menu.
 	 */

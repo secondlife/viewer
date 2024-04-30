@@ -356,7 +356,6 @@ void LLInventoryFetchItemsObserver::startFetch()
                 {
                     // Start fetching whole folder since we need all items
                     LLInventoryModelBackgroundFetch::getInstance()->scheduleFolderFetch(folder.first, true);
-
                 }
                 else
                 {
@@ -566,8 +565,12 @@ void LLInventoryAddItemByAssetObserver::changed(U32 mask)
 	for (uuid_set_t::iterator it = added.begin(); it != added.end(); ++it)
 	{
 		LLInventoryItem *item = gInventory.getItem(*it);
+        if (!item)
+        {
+            continue;
+        }
 		const LLUUID& asset_uuid = item->getAssetUUID();
-		if (item && item->getUUID().notNull() && asset_uuid.notNull())
+		if (item->getUUID().notNull() && asset_uuid.notNull())
 		{
 			if (isAssetWatched(asset_uuid))
 			{

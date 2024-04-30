@@ -58,6 +58,8 @@ LLFloaterProfileTexture::~LLFloaterProfileTexture()
         mImage->setBoostLevel(mImageOldBoostLevel);
         mImage = NULL;
     }
+
+    LLLoadedCallbackEntry::cleanUpCallbackList(&mCallbackTextureList);
 }
 
 // virtual
