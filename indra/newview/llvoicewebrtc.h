@@ -228,7 +228,7 @@ public:
     struct participantState
     {
     public:
-        participantState(const LLUUID& agent_id);
+        participantState(const LLUUID& agent_id, const LLUUID& region);
 
         bool isAvatar();
 
@@ -240,12 +240,13 @@ public:
         F32 mVolume; // the gain applied to the participant
         bool mIsSpeaking;
         bool mIsModeratorMuted;
+        LLUUID mRegion;
     };
     typedef boost::shared_ptr<participantState> participantStatePtr_t;
 
     participantStatePtr_t findParticipantByID(const std::string &channelID, const LLUUID &id);
-    participantStatePtr_t addParticipantByID(const std::string& channelID, const LLUUID &id);
-    void                  removeParticipantByID(const std::string& channelID, const LLUUID &id);
+    participantStatePtr_t addParticipantByID(const std::string& channelID, const LLUUID &id, const LLUUID& region);
+    void removeParticipantByID(const std::string& channelID, const LLUUID &id, const LLUUID& region);
 
   protected:
 
@@ -262,9 +263,9 @@ public:
         static void addSession(const std::string &channelID, ptr_t& session);
         virtual ~sessionState();
 
-        participantStatePtr_t addParticipant(const LLUUID& agent_id);
+        participantStatePtr_t addParticipant(const LLUUID& agent_id, const LLUUID& region);
         void removeParticipant(const participantStatePtr_t &participant);
-        void removeAllParticipants();
+        void removeAllParticipants(const LLUUID& region = LLUUID());
 
         participantStatePtr_t findParticipantByID(const LLUUID& id);
 
