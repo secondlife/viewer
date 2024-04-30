@@ -2233,12 +2233,17 @@ void LLVOAvatarSelf::appearanceChangeMetricsCoro(std::string url)
 
     // Status of all nearby avs including ourself.
     msg["nearby"] = LLSD::emptyArray();
-    std::vector<S32> rez_counts;
-    LLVOAvatar::getNearbyRezzedStats(rez_counts);
-    for (S32 rez_stat = 0; rez_stat < rez_counts.size(); ++rez_stat)
+
+    S32 status_counts[AV_REZZED_FULL - AV_REZZED_CLOUD + 1] = { 0 };
+    for (LLCharacter* character : LLCharacter::sInstances)
     {
-        std::string rez_status_name = LLVOAvatar::rezStatusToString(rez_stat);
-        msg["nearby"][rez_status_name] = rez_counts[rez_stat];
+        ERezzedStatus status = ((LLVOAvatar*)character)->getRezzedStatus();
+        ++status_counts[status - AV_REZZED_CLOUD];
+    }
+    for (ERezzedStatus status = AV_REZZED_CLOUD; status <= AV_REZZED_FULL; ++(S32&)status)
+    {
+        std::string status_name = LLVOAvatar::rezStatusToString(status);
+        msg["nearby"][status_name] = status_counts[status - AV_REZZED_CLOUD];
     }
 
     //	std::vector<std::string> bucket_fields("timer_name","is_self","grid_x","grid_y","is_using_server_bake");
