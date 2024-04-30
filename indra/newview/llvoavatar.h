@@ -238,8 +238,9 @@ public:
 	
     std::set<LLUUID>		mActiveOverrideMeshes;
     virtual void			onActiveOverrideMeshesChanged();
-    
+
 	/*virtual*/ const LLUUID&	getID() const;
+	/*virtual*/ std::string		getDebugName() const;
 	/*virtual*/ void			addDebugText(const std::string& text);
 	/*virtual*/ F32				getTimeDilation();
 	/*virtual*/ void			getGround(const LLVector3 &inPos, LLVector3 &outPos, LLVector3 &outNorm);

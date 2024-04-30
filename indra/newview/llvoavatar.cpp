@@ -772,11 +772,9 @@ std::string LLVOAvatar::avString() const
     {
         return getFullname();
     }
-    else
-    {
-		std::string viz_string = LLVOAvatar::rezStatusToString(getRezzedStatus());
-		return " Avatar '" + getFullname() + "' " + viz_string + " ";
-    }
+
+    std::string status = LLVOAvatar::rezStatusToString(getRezzedStatus());
+    return " Avatar '" + getDebugName() + "' " + status + " ";
 }
 
 void LLVOAvatar::debugAvatarRezTime(std::string notification_name, std::string comment)
@@ -2574,9 +2572,9 @@ void LLVOAvatar::idleUpdate(LLAgent &agent, const F64 &time)
 		const S32 upd_freq = 4; // force update every upd_freq frames.
 		mNeedsExtentUpdate = ((LLDrawable::getCurrentFrame()+mID.mData[0])%upd_freq==0);
 	}
-    
-    LLScopedContextString str("avatar_idle_update " + getFullname());
-    
+
+    LLScopedContextString str("avatar_idle_update " + getDebugName());
+
 	checkTextureLoading() ;
 	
 	// force immediate pixel area update on avatars using last frames data (before drawable or camera updates)
@@ -2801,7 +2799,7 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
     LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
 	if (LLVOAvatar::sJointDebug)
 	{
-		LL_INFOS() << getFullname() << ": joint touches: " << LLJoint::sNumTouches << " updates: " << LLJoint::sNumUpdates << LL_ENDL;
+		LL_INFOS() << getDebugName() << ": joint touches: " << LLJoint::sNumTouches << " updates: " << LLJoint::sNumUpdates << LL_ENDL;
 	}
 
 	LLJoint::sNumUpdates = 0;
@@ -4602,7 +4600,7 @@ bool LLVOAvatar::updateCharacter(LLAgent &agent)
 		is_attachment = cav && cav->mRootVolp && cav->mRootVolp->isAttachment(); // For attached animated objects
 	}
 
-    LLScopedContextString str("updateCharacter " + getFullname() + " is_control_avatar "
+    LLScopedContextString str("updateCharacter " + getDebugName() + " is_control_avatar "
                               + boost::lexical_cast<std::string>(is_control_avatar) 
                               + " is_attachment " + boost::lexical_cast<std::string>(is_attachment));
 
@@ -6021,8 +6019,11 @@ void LLVOAvatar::resetAnimations()
 	flushAllMotions();
 }
 
-// Override selectively based on avatar sex and whether we're using new
-// animations.
+//-----------------------------------------------------------------------------
+// remapMotionID()
+// Override selectively based on avatar sex and whether we're using new animations.
+//-----------------------------------------------------------------------------
+// virtual
 LLUUID LLVOAvatar::remapMotionID(const LLUUID& id)
 {
     static LLCachedControl<bool> use_new_walk_run(gSavedSettings, "UseNewWalkRun");
@@ -6072,7 +6073,6 @@ LLUUID LLVOAvatar::remapMotionID(const LLUUID& id)
 	}
 
 	return result;
-
 }
 
 //-----------------------------------------------------------------------------
@@ -6080,6 +6080,7 @@ LLUUID LLVOAvatar::remapMotionID(const LLUUID& id)
 // id is the asset if of the animation to start
 // time_offset is the offset into the animation at which to start playing
 //-----------------------------------------------------------------------------
+// virtual
 BOOL LLVOAvatar::startMotion(const LLUUID& id, F32 time_offset)
 {
 	LL_DEBUGS("Motion") << "motion requested " << id.asString() << " " << gAnimLibrary.animationName(id) << LL_ENDL;
@@ -6102,6 +6103,7 @@ BOOL LLVOAvatar::startMotion(const LLUUID& id, F32 time_offset)
 //-----------------------------------------------------------------------------
 // stopMotion()
 //-----------------------------------------------------------------------------
+// virtual
 BOOL LLVOAvatar::stopMotion(const LLUUID& id, BOOL stop_immediate)
 {
 	LL_DEBUGS("Motion") << "Motion requested " << id.asString() << " " << gAnimLibrary.animationName(id) << LL_ENDL;
@@ -6141,6 +6143,7 @@ void LLVOAvatar::stopMotionFromSource(const LLUUID& source_id)
 //-----------------------------------------------------------------------------
 // addDebugText()
 //-----------------------------------------------------------------------------
+// virtual
 void LLVOAvatar::addDebugText(const std::string& text)
 {
 	mDebugText.append(1, '\n');
@@ -6148,8 +6151,22 @@ void LLVOAvatar::addDebugText(const std::string& text)
 }
 
 //-----------------------------------------------------------------------------
+// getDebugName()
+//-----------------------------------------------------------------------------
+// virtual
+std::string LLVOAvatar::getDebugName() const
+{
+#if LL_RELEASE_WITH_DEBUG_INFO
+    return getFullname();
+#else
+    return getID().asString();
+#endif // LL_RELEASE_WITH_DEBUG_INFO
+}
+
+//-----------------------------------------------------------------------------
 // getID()
 //-----------------------------------------------------------------------------
+// virtual
 const LLUUID& LLVOAvatar::getID() const
 {
 	return mID;
@@ -6159,6 +6176,7 @@ const LLUUID& LLVOAvatar::getID() const
 // getJoint()
 //-----------------------------------------------------------------------------
 // RN: avatar joints are multi-rooted to include screen-based attachments
+// virtual
 LLJoint *LLVOAvatar::getJoint( const std::string &name )
 {
 	joint_map_t::iterator iter = mJointMap.find(name);
@@ -6274,7 +6292,7 @@ bool LLVOAvatar::jointIsRiggedTo(const LLJoint *joint) const
 
 void LLVOAvatar::clearAttachmentOverrides()
 {
-    LLScopedContextString str("clearAttachmentOverrides " + getFullname());
+    LLScopedContextString str("clearAttachmentOverrides " + getDebugName());
 
     for (S32 i=0; i<LL_CHARACTER_MAX_ANIMATED_JOINTS; i++)
 	{
@@ -6306,7 +6324,7 @@ void LLVOAvatar::clearAttachmentOverrides()
 //-----------------------------------------------------------------------------
 void LLVOAvatar::rebuildAttachmentOverrides()
 {
-    LLScopedContextString str("rebuildAttachmentOverrides " + getFullname());
+    LLScopedContextString str("rebuildAttachmentOverrides " + getDebugName());
 
     LL_DEBUGS("AnimatedObjects") << "rebuilding" << LL_ENDL;
     dumpStack("AnimatedObjectsStack");
@@ -6357,7 +6375,7 @@ void LLVOAvatar::rebuildAttachmentOverrides()
 // -----------------------------------------------------------------------------
 void LLVOAvatar::updateAttachmentOverrides()
 {
-    LLScopedContextString str("updateAttachmentOverrides " + getFullname());
+    LLScopedContextString str("updateAttachmentOverrides " + getDebugName());
 
     LL_DEBUGS("AnimatedObjects") << "updating" << LL_ENDL;
     dumpStack("AnimatedObjectsStack");
@@ -6435,11 +6453,11 @@ void LLVOAvatar::updateAttachmentOverrides()
             }
         }
         pelvis_fixups = mPelvisFixups;
-        //dumpArchetypeXML(getFullname() + "_paranoid_updated");
+        //dumpArchetypeXML(getDebugName() + "_paranoid_updated");
 
         // Rebuild and compare
         rebuildAttachmentOverrides();
-        //dumpArchetypeXML(getFullname() + "_paranoid_rebuilt");
+        //dumpArchetypeXML(getDebugName() + "_paranoid_rebuilt");
         bool mismatched = false;
         for (S32 joint_num = 0; joint_num < LL_CHARACTER_MAX_ANIMATED_JOINTS; joint_num++)
         {
@@ -6489,16 +6507,16 @@ void LLVOAvatar::addAttachmentOverridesForObject(LLViewerObject *vo, std::set<LL
         return;
 	}
 
-    LLScopedContextString str("addAttachmentOverridesForObject " + getFullname());
+    LLScopedContextString str("addAttachmentOverridesForObject " + getDebugName());
 
 	if (getOverallAppearance() != AOA_NORMAL)
 	{
 		return;
 	}
-    
+
     LL_DEBUGS("AnimatedObjects") << "adding" << LL_ENDL;
     dumpStack("AnimatedObjectsStack");
-    
+
 	// Process all children
     if (recursive)
     {
@@ -6671,21 +6689,21 @@ void LLVOAvatar::showAttachmentOverrides(bool verbose) const
     {
         std::stringstream ss;
         std::copy(pos_names.begin(), pos_names.end(), std::ostream_iterator<std::string>(ss, ","));
-        LL_INFOS() << getFullname() << " attachment positions defined for joints: " << ss.str() << "\n" << LL_ENDL;
+        LL_INFOS() << avString() << " attachment positions defined for joints: " << ss.str() << "\n" << LL_ENDL;
     }
     else
     {
-        LL_DEBUGS("Avatar") << getFullname() << " no attachment positions defined for any joints" << "\n" << LL_ENDL;
+        LL_DEBUGS("Avatar") << avString() << " no attachment positions defined for any joints" << "\n" << LL_ENDL;
     }
     if (scale_names.size())
     {
         std::stringstream ss;
         std::copy(scale_names.begin(), scale_names.end(), std::ostream_iterator<std::string>(ss, ","));
-        LL_INFOS() << getFullname() << " attachment scales defined for joints: " << ss.str() << "\n" << LL_ENDL;
+        LL_INFOS() << getDebugName() << " attachment scales defined for joints: " << ss.str() << "\n" << LL_ENDL;
     }
     else
     {
-        LL_INFOS() << getFullname() << " no attachment scales defined for any joints" << "\n" << LL_ENDL;
+        LL_INFOS() << getDebugName() << " no attachment scales defined for any joints" << "\n" << LL_ENDL;
     }
 
     if (!verbose)
@@ -9209,12 +9227,12 @@ void dump_visual_param(apr_file_t* file, LLVisualParam* viewer_param, F32 value)
 void LLVOAvatar::dumpAppearanceMsgParams( const std::string& dump_prefix,
 	const LLAppearanceMessageContents& contents)
 {
-	std::string outfilename = get_sequential_numbered_file_name(dump_prefix,".xml");
+	std::string outfilename = get_sequential_numbered_file_name(dump_prefix, ".xml");
 	const std::vector<F32>& params_for_dump = contents.mParamWeights;
 	const LLTEContents& tec = contents.mTEContents;
 
 	LLAPRFile outfile;
-	std::string fullpath = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,outfilename);
+	std::string fullpath = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, outfilename);
 	outfile.open(fullpath, LL_APR_WB );
 	apr_file_t* file = outfile.getFileHandle();
 	if (!file)
@@ -9283,7 +9301,7 @@ void LLVOAvatar::parseAppearanceMessage(LLMessageSystem* mesgsys, LLAppearanceMe
 		contents.mHoverOffset = hover;
 		contents.mHoverOffsetWasSet = true;
 	}
-	
+
 	// Parse visual params, if any.
 	S32 num_blocks = mesgsys->getNumberOfBlocksFast(_PREHASH_VisualParam);
     static LLCachedControl<bool> block_some_avatars(gSavedSettings, "BlockSomeAvatarAppearanceVisualParams");
@@ -9307,7 +9325,7 @@ void LLVOAvatar::parseAppearanceMessage(LLMessageSystem* mesgsys, LLAppearanceMe
 				{
 					param = getNextVisualParam();
 				}
-						
+
 				if( !param )
 				{
 					// more visual params supplied than expected - just process what we know about
@@ -9396,7 +9414,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
     static LLCachedControl<bool> enable_verbose_dumps(gSavedSettings, "DebugAvatarAppearanceMessage");
     static LLCachedControl<bool> block_avatar_appearance_messages(gSavedSettings, "BlockAvatarAppearanceMessages");
 
-	std::string dump_prefix = getFullname() + "_" + (isSelf()?"s":"o") + "_";
+	std::string dump_prefix = getDebugName() + (isSelf() ? "_s_" : "_o_");
 	if (block_avatar_appearance_messages)
 	{
 		LL_WARNS() << "Blocking AvatarAppearance message" << LL_ENDL;
@@ -10028,17 +10046,13 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
 	std::string outprefix(prefix);
 	if (outprefix.empty())
 	{
-		outprefix = getFullname() + (isSelf()?"_s":"_o");
+		outprefix = getDebugName() + (isSelf() ? "_s" : "_o");
 	}
-	if (outprefix.empty())
-	{
-		outprefix = std::string("new_archetype");
-	}
-	std::string outfilename = get_sequential_numbered_file_name(outprefix,".xml");
-	
+	std::string outfilename = get_sequential_numbered_file_name(outprefix, ".xml");
+
 	LLAPRFile outfile;
     LLWearableType *wr_inst = LLWearableType::getInstance();
-	std::string fullpath = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,outfilename);
+	std::string fullpath = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, outfilename);
 	if (APR_SUCCESS == outfile.open(fullpath, LL_APR_WB ))
 	{
 		apr_file_t* file = outfile.getFileHandle();
@@ -10537,7 +10551,7 @@ void LLVOAvatar::updateRiggingInfo()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
 
-    LL_DEBUGS("RigSpammish") << getFullname() << " updating rig tab" << LL_ENDL;
+    LL_DEBUGS("RigSpammish") << getDebugName() << " updating rig tab" << LL_ENDL;
 
     std::vector<LLVOVolume*> volumes;
 
@@ -10575,7 +10589,7 @@ void LLVOAvatar::updateRiggingInfo()
     }
 
     //LL_INFOS() << "done update rig count is " << countRigInfoTab(mJointRiggingInfoTab) << LL_ENDL;
-    LL_DEBUGS("RigSpammish") << getFullname() << " after update rig tab:" << LL_ENDL;
+    LL_DEBUGS("RigSpammish") << getDebugName() << " after update rig tab:" << LL_ENDL;
     S32 joint_count, box_count;
     showRigInfoTabExtents(this, mJointRiggingInfoTab, joint_count, box_count);
     LL_DEBUGS("RigSpammish") << "uses " << joint_count << " joints " << " nonzero boxes: " << box_count << LL_ENDL;

@@ -144,7 +144,7 @@ void LLControlAvatar::getNewConstraintFixups(LLVector3& new_pos_fixup, F32& new_
 			}
 			if (new_pos_fixup != mPositionConstraintFixup)
 			{
-				LL_DEBUGS("ConstraintFix") << getFullname() << " pos fix, offset_dist " << offset_dist << " pos fixup " 
+				LL_DEBUGS("ConstraintFix") << getDebugName() << " pos fix, offset_dist " << offset_dist << " pos fixup "
 										   << new_pos_fixup << " was " << mPositionConstraintFixup << LL_ENDL;
 				LL_DEBUGS("ConstraintFix") << "vol_pos " << vol_pos << LL_ENDL;
 				LL_DEBUGS("ConstraintFix") << "extents " << extents[0] << " " << extents[1] << LL_ENDL;
@@ -155,7 +155,7 @@ void LLControlAvatar::getNewConstraintFixups(LLVector3& new_pos_fixup, F32& new_
         if (box_size/mScaleConstraintFixup > max_legal_size)
         {
             new_scale_fixup = mScaleConstraintFixup*max_legal_size/box_size;
-            LL_DEBUGS("ConstraintFix") << getFullname() << " scale fix, box_size " << box_size << " fixup " 
+            LL_DEBUGS("ConstraintFix") << getDebugName() << " scale fix, box_size " << box_size << " fixup "
 									   << mScaleConstraintFixup << " max legal " << max_legal_size 
 									   << " -> new scale " << new_scale_fixup << LL_ENDL;
         }
@@ -240,7 +240,7 @@ void LLControlAvatar::matchVolumeTransform()
 	        const LLMeshSkinInfo* skin_info = mRootVolp->getSkinInfo();
 			if (skin_info)
 			{
-                LL_DEBUGS("BindShape") << getFullname() << " bind shape " << skin_info->mBindShapeMatrix << LL_ENDL;
+                LL_DEBUGS("BindShape") << getDebugName() << " bind shape " << skin_info->mBindShapeMatrix << LL_ENDL;
                 bind_rot = LLSkinningUtil::getUnscaledQuaternion(LLMatrix4(skin_info->mBindShapeMatrix));
 			}
 #endif
