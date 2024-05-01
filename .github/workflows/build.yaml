@@ -59,11 +59,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}    
-          
-      - name: Dump GitHub context
-        env:
-          GITHUB_CONTEXT: ${{ toJson(github) }}
-        run: echo "$GITHUB_CONTEXT"
         
       - name: Setup python
         uses: actions/setup-python@v5
@@ -183,13 +178,12 @@ jobs:
           export AUTOBUILD="$(which autobuild)"
 
           # determine the viewer channel from the branch name
-          branch=${{ github.repository }}
+          branch=$AUTOBUILD_VCS_BRANCH
           echo "branch=$branch" >> "$GITHUB_OUTPUT"
           IFS='/' read -ra ba <<< $branch
-          username=${ba[0]}
-          prefix=${ba[1]}
+          prefix=${ba[0]}
           if [ "$prefix" == "project" ]; then
-              proj_name=$(echo ${ba[2]} | sed -e 's/_/ /g' | awk '{for(i=1;i<=NF;i++) $i=toupper(substr($i,1,1)) tolower(substr($i,2));}1')
+              proj_name=$(echo ${ba[1]} | sed -e 's/_/ /g' | awk '{for(i=1;i<=NF;i++) $i=toupper(substr($i,1,1)) tolower(substr($i,2));}1')
               export viewer_channel="Second Life Project $proj_name"
           elif  [ "$prefix" == "release" ] || [ "$prefix" == "main" ];
           then
