@@ -143,7 +143,7 @@ public:
 	LLSD getDefault()	const	{ return mValues.front(); }
 	LLSD getSaveValue() const;
 
-	void set(const LLSD& val)	{ setValue(val); }
+	void set(const LLSD& val, bool saved_value = true)	{ setValue(val, saved_value); }
 	void setValue(const LLSD& value, bool saved_value = TRUE);
 	void setDefaultValue(const LLSD& value);
 	void setPersist(ePersist);
