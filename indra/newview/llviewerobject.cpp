@@ -107,6 +107,7 @@
 #include "llmeshrepository.h"
 #include "llgltfmateriallist.h"
 #include "llgl.h"
+#include "gltf/asset.h"
 
 //#define DEBUG_UPDATE_TYPE
 
@@ -4420,7 +4421,7 @@ LLMatrix4a LLViewerObject::getGLTFNodeTransformAgent(S32 node_index) const
 {
     LLMatrix4a mat;
 
-    if (mGLTFAsset.notNull() && node_index >= 0 && node_index < mGLTFAsset->mNodes.size())
+    if (mGLTFAsset && node_index >= 0 && node_index < mGLTFAsset->mNodes.size())
     {
         auto& node = mGLTFAsset->mNodes[node_index];
 
@@ -4474,7 +4475,7 @@ void decomposeMatrix(const LLMatrix4a& mat, LLVector3& position, LLQuaternion& r
 
 void LLViewerObject::setGLTFNodeRotationAgent(S32 node_index, const LLQuaternion& rotation)
 {
-    if (mGLTFAsset.notNull() && node_index >= 0 && node_index < mGLTFAsset->mNodes.size())
+    if (mGLTFAsset && node_index >= 0 && node_index < mGLTFAsset->mNodes.size())
     {
         auto& node = mGLTFAsset->mNodes[node_index];
 
@@ -4506,7 +4507,7 @@ void LLViewerObject::setGLTFNodeRotationAgent(S32 node_index, const LLQuaternion
 
 void LLViewerObject::moveGLTFNode(S32 node_index, const LLVector3& offset)
 {
-    if (mGLTFAsset.notNull() && node_index >= 0 && node_index < mGLTFAsset->mNodes.size())
+    if (mGLTFAsset && node_index >= 0 && node_index < mGLTFAsset->mNodes.size())
     {
         auto& node = mGLTFAsset->mNodes[node_index];
 

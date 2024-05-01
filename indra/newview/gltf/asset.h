@@ -265,7 +265,7 @@ namespace LL
         };
 
         // C++ representation of a GLTF Asset
-        class Asset : public LLRefCount
+        class Asset
         {
         public:
             std::vector<Scene> mScenes;
@@ -287,6 +287,8 @@ namespace LL
             std::string mCopyright;
 
             S32 mDefaultScene = INVALID_INDEX;
+            tinygltf::Value mExtras;
+
 
             // the last time update() was called according to gFrameTimeSeconds
             F32 mLastUpdateTime = gFrameTimeSeconds;

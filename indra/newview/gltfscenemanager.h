@@ -28,6 +28,16 @@
 
 #include "llsingleton.h"
 #include "llviewerobject.h"
+class LLVOVolume;
+class LLDrawable;
+
+namespace LL
+{
+    namespace GLTF
+    {
+        class Asset;
+    }
+}
 
 namespace LL
 {

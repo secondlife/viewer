@@ -34,8 +34,6 @@
 
 using namespace LL::GLTF;
 
-#pragma optimize("", off)
-
 namespace LL
 {
     namespace GLTF
@@ -280,6 +278,7 @@ namespace LL
             dst.asset.version = src.mVersion;
             dst.asset.minVersion = src.mMinVersion;
             dst.asset.generator = "Linden Lab Experimental GLTF Export";
+            dst.asset.extras = src.mExtras;
 
             copy(src.mScenes, dst.scenes);
             copy(src.mNodes, dst.nodes);
@@ -739,9 +738,10 @@ const Asset& Asset::operator=(const tinygltf::Model& src)
     mMinVersion = src.asset.minVersion;
     mGenerator = src.asset.generator;
     mCopyright = src.asset.copyright;
+    mExtras = src.asset.extras;
 
     mDefaultScene = src.defaultScene;
-
+    
 
     mScenes.resize(src.scenes.size());
     for (U32 i = 0; i < src.scenes.size(); ++i)
