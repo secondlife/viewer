@@ -53,8 +53,7 @@ void LLMutex::lock()
     // you should use LLAppViewer::instance().postToMainThread() to shuttle execution
     // back to the main loop.
     // NOTE: If you got here from seeing this assert in your log and you're not seeing
-    // a stack trace that points here, boost and llassert conspired to steal your stack
-    // trace, put a breakpoint in on_main_coro and try again.
+    // a stack trace that points here, put a breakpoint in on_main_coro and try again.
     llassert(LLCoros::on_main_coro());
 
 	if(isSelfLocked())

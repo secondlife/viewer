@@ -421,22 +421,6 @@ void LLThread::unlockData()
 
 //============================================================================
 
-//----------------------------------------------------------------------------
-
-
-//static
-void LLThreadSafeRefCount::initThreadSafeRefCount()
-{
-}
-
-//static
-void LLThreadSafeRefCount::cleanupThreadSafeRefCount()
-{
-}
-
-
-//----------------------------------------------------------------------------
-
 LLThreadSafeRefCount::LLThreadSafeRefCount() :
     mRef(0)
 {

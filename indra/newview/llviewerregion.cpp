@@ -2498,16 +2498,8 @@ void LLViewerRegion::setSimulatorFeatures(const LLSD& sim_features)
             }
         };
 
-    auto workqueue = LL::WorkQueue::getInstance("mainloop");
 
-    if (workqueue)
-    {
-        LL::WorkQueue::postMaybe(workqueue, work);
-    }
-    else
-    {
-        work();
-    }
+    LLAppViewer::instance()->postToMainCoro(work);
 }
 
 //this is called when the parent is not cacheable.

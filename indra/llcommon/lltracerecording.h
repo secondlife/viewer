@@ -631,10 +631,6 @@ namespace LLTrace
 		inline
 		size_t wrapi(size_t i) const
 		{
-            if (mRecordingPeriods.size() == 0)
-            { // protect from divide by zero
-                return 0;
-            }
 			return i % mRecordingPeriods.size();
 		}
 

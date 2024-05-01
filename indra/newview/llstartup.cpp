@@ -344,7 +344,7 @@ void set_flags_and_update_appearance()
             LLInventoryModelBackgroundFetch::instance().start();
         };
 
-    LLAppViewer::instance()->postToMainThread(work);
+    LLAppViewer::instance()->postToMainCoro(work);
 
 }
 

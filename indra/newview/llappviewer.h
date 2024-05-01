@@ -227,7 +227,7 @@ public:
 	void updateNameLookupUrl(const LLViewerRegion* regionp);
 
     // post given work to the "mainloop" work queue for handling on the main thread
-    void postToMainThread(const LL::WorkQueue::Work& work);
+    void postToMainCoro(const LL::WorkQueue::Work& work);
 
 protected:
 	virtual bool initWindow(); // Initialize the viewer's window.

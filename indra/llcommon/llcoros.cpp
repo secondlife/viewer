@@ -69,11 +69,6 @@ bool LLCoros::on_main_coro()
         return true;
     }
     
-    // error out all the time
-    // This should only be called from inside llassert or similar
-    // and is low level enough that we can't rely on LLError
-    std::cerr << "LLCoros::on_main_coro(): not on a coroutine\n";
-
     return false;
 }
 

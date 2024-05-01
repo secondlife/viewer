@@ -5200,7 +5200,7 @@ void LLAppViewer::updateNameLookupUrl(const LLViewerRegion * regionp)
     }
 }
 
-void LLAppViewer::postToMainThread(const LL::WorkQueue::Work& work)
+void LLAppViewer::postToMainCoro(const LL::WorkQueue::Work& work)
 {
     gMainloopWork.post(work);
 }

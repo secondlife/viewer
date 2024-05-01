@@ -187,14 +187,11 @@ void LLAvatarNameCache::requestAvatarNameCache_(std::string url, std::vector<LLU
             {
                 workqueue->post([=]()
                     {
-
                         if (!success)
                         {   // on any sort of failure add dummy records for any agent IDs 
                             // in this request that we do not have cached already
-                            std::vector<LLUUID>::const_iterator it = agentIds.begin();
-                            for (; it != agentIds.end(); ++it)
+                            for (const auto& agent_id : agentIds)
                             {
-                                const LLUUID& agent_id = *it;
                                 LLAvatarNameCache::getInstance()->handleAgentError(agent_id);
                             }
                             return;

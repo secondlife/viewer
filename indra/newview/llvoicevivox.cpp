@@ -6445,8 +6445,6 @@ void LLVivoxVoiceClient::notifyStatusObservers(LLVoiceClientStatusObserver::ESta
         << LL_ENDL;
 
     // this function is called from a coroutine, shuttle application hook back to main loop
-    auto mainqueue = LL::WorkQueue::getInstance("mainloop");
-
     auto work = [=]()
         {
             for (status_observer_set_t::iterator it = mStatusObservers.begin();
@@ -6475,14 +6473,7 @@ void LLVivoxVoiceClient::notifyStatusObservers(LLVoiceClientStatusObserver::ESta
             }
         };
 
-    if (mainqueue)
-    {
-        mainqueue->post(work);
-    }
-    else
-    {
-        work();
-    }
+    LLAppViewer::instance()->postToMainCoro(work);
 }
 
 void LLVivoxVoiceClient::addObserver(LLFriendObserver* observer)
