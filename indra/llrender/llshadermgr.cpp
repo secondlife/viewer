@@ -328,7 +328,7 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 					return FALSE;
 				}
 			}
-			shader->mFeatures.mIndexedTextureChannels = llmax(LLGLSLShader::sIndexedTextureChannels-1, 1);
+			shader->mFeatures.mIndexedTextureChannels = llmax(LLGLSLShader::sIndexedTextureChannels, 1);
 		}
 	}
 	

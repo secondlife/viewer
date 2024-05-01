@@ -10712,38 +10712,49 @@
     <integer>3</integer>
   </map>
   <key>RenderReflectionRes</key>
-    <map>
-      <key>Comment</key>
-      <string>Reflection map resolution.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>64</integer>
-    </map>
-    <key>RenderResolutionDivisor</key>
-    <map>
-      <key>Comment</key>
-      <string>Divisor for rendering 3D scene at reduced resolution.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>U32</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>RenderShaderLightingMaxLevel</key>
-    <map>
-      <key>Comment</key>
-      <string>Max lighting level to use in the shader (class 3 is default, 2 is less lights, 1 is sun/moon only.  Works around shader compiler bugs on certain platforms.)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>3</integer>
-    </map>
+  <map>
+    <key>Comment</key>
+    <string>Reflection map resolution.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>S32</string>
+    <key>Value</key>
+    <integer>64</integer>
+  </map>
+  <key>RenderReservedTextureIndices</key>
+  <map>
+    <key>Comment</key>
+    <string>Count of texture indices to reserve for shadow and reflection maps when using indexed texture rendering.  Probably only want to set from the login screen.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>S32</string>
+    <key>Value</key>
+    <integer>14</integer>
+  </map>
+  <key>RenderResolutionDivisor</key>
+  <map>
+    <key>Comment</key>
+    <string>Divisor for rendering 3D scene at reduced resolution.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>RenderShaderLightingMaxLevel</key>
+  <map>
+    <key>Comment</key>
+    <string>Max lighting level to use in the shader (class 3 is default, 2 is less lights, 1 is sun/moon only.  Works around shader compiler bugs on certain platforms.)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>S32</string>
+    <key>Value</key>
+    <integer>3</integer>
+  </map>
   <key>RenderSkyAutoAdjustLegacy</key>
   <map>
     <key>Comment</key>
