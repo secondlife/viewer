@@ -46,15 +46,15 @@ public:
 
     typedef boost::function<void(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &, const LLUUID &id)> CoProcedure_t;
 
-    /// Places the coprocedure on the queue for processing. 
-    /// 
+    /// Places the coprocedure on the queue for processing.
+    ///
     /// @param name Is used for debugging and should identify this coroutine.
-    /// @param proc Is a bound function to be executed 
-    /// 
+    /// @param proc Is a bound function to be executed
+    ///
     /// @return This method returns a UUID that can be used later to cancel execution.
     LLUUID enqueueCoprocedure(const std::string &pool, const std::string &name, CoProcedure_t proc);
 
-    /// Cancel a coprocedure. If the coprocedure is already being actively executed 
+    /// Cancel a coprocedure. If the coprocedure is already being actively executed
     /// this method calls cancelYieldingOperation() on the associated HttpAdapter
     /// If it has not yet been dequeued it is simply removed from the queue.
     //void cancelCoprocedure(const LLUUID &id);
@@ -80,7 +80,7 @@ public:
     void close(const std::string &pool);
 
     void initializePool(const std::string &poolName);
-    
+
 private:
 
     typedef std::shared_ptr<LLCoprocedurePool> poolPtr_t;

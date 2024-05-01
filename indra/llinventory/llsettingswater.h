@@ -61,7 +61,7 @@ public:
     virtual std::string     getSettingsType() const SETTINGS_OVERRIDE { return std::string("water"); }
     virtual LLSettingsType::type_e  getSettingsTypeValue() const SETTINGS_OVERRIDE { return LLSettingsType::ST_WATER; }
 
-    // Settings status 
+    // Settings status
     virtual void blend(const LLSettingsBase::ptr_t &end, F64 blendf) SETTINGS_OVERRIDE;
 
     virtual void replaceSettings(LLSD settings) SETTINGS_OVERRIDE;
@@ -71,7 +71,7 @@ public:
 
     //---------------------------------------------------------------------
     F32 getBlurMultiplier() const
-    {   
+    {
         return mSettings[SETTING_BLUR_MULTIPLIER].asReal();
     }
 

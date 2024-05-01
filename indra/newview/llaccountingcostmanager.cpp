@@ -1,25 +1,25 @@
-/** 
+/**
  * @file LLAccountingQuotaManager.cpp
- * @ Handles the setting and accessing for costs associated with mesh 
+ * @ Handles the setting and accessing for costs associated with mesh
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2011, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -38,11 +38,11 @@
 
 //===============================================================================
 LLAccountingCostManager::LLAccountingCostManager()
-{	
+{
 
 }
 
-// Coroutine for sending and processing avatar name cache requests.  
+// Coroutine for sending and processing avatar name cache requests.
 // Do not call directly.  See documentation in lleventcoro.h and llcoro.h for
 // further explanation.
 void LLAccountingCostManager::accountingCostCoro(std::string url,
@@ -113,9 +113,9 @@ void LLAccountingCostManager::accountingCostCoro(std::string url,
 
         LLAccountingCostObserver* observer = NULL;
 
-        // do/while(false) allows error conditions to break out of following 
+        // do/while(false) allows error conditions to break out of following
         // block while normal flow goes forward once.
-        do 
+        do
         {
             observer = observerHandle.get();
 
@@ -175,34 +175,34 @@ void LLAccountingCostManager::accountingCostCoro(std::string url,
 
 //===============================================================================
 void LLAccountingCostManager::fetchCosts( eSelectionType selectionType,
-										  const std::string& url,
-										  const LLHandle<LLAccountingCostObserver>& observer_handle )
+                                          const std::string& url,
+                                          const LLHandle<LLAccountingCostObserver>& observer_handle )
 {
-	// Invoking system must have already determined capability availability
-	if ( !url.empty() )
-	{
-        std::string coroname = 
+    // Invoking system must have already determined capability availability
+    if ( !url.empty() )
+    {
+        std::string coroname =
             LLCoros::instance().launch("LLAccountingCostManager::accountingCostCoro",
             boost::bind(accountingCostCoro, url, selectionType, observer_handle));
         LL_DEBUGS() << coroname << " with  url '" << url << LL_ENDL;
 
-	}
-	else
-	{
-		//url was empty - warn & continue
-		LL_WARNS()<<"Supplied url is empty "<<LL_ENDL;
-		mObjectList.clear();
-		mPendingObjectQuota.clear();
-	}
+    }
+    else
+    {
+        //url was empty - warn & continue
+        LL_WARNS()<<"Supplied url is empty "<<LL_ENDL;
+        mObjectList.clear();
+        mPendingObjectQuota.clear();
+    }
 }
 //===============================================================================
 void LLAccountingCostManager::addObject( const LLUUID& objectID )
 {
-	mObjectList.insert( objectID );
+    mObjectList.insert( objectID );
 }
 //===============================================================================
 void LLAccountingCostManager::removePendingObject( const LLUUID& objectID )
 {
-	mPendingObjectQuota.erase( objectID );
+    mPendingObjectQuota.erase( objectID );
 }
 //===============================================================================
