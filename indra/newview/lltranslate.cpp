@@ -60,6 +60,11 @@ class LLTranslationAPIHandler
 public:
     typedef std::pair<std::string, std::string> LanguagePair_t;
 
+   /**
+     * Get the name of the translation service.
+    */
+    virtual std::string getName() const = 0;
+
     /**
     * Get URL for translation of the given string.
     *
@@ -311,6 +316,7 @@ class LLGoogleTranslationHandler : public LLTranslationAPIHandler
     LOG_CLASS(LLGoogleTranslationHandler);
 
 public:
+    std::string getName() const override { return "google"; }
     std::string getTranslateURL(
         const std::string &from_lang,
         const std::string &to_lang,
@@ -543,6 +549,7 @@ class LLAzureTranslationHandler : public LLTranslationAPIHandler
     LOG_CLASS(LLAzureTranslationHandler);
 
 public:
+    std::string getName() const override { return "azure"; }
     std::string getTranslateURL(
         const std::string &from_lang,
         const std::string &to_lang,
@@ -870,6 +877,7 @@ class LLDeepLTranslationHandler: public LLTranslationAPIHandler
     LOG_CLASS(LLDeepLTranslationHandler);
 
 public:
+    std::string getName() const override { return "deepl"; }
     std::string getTranslateURL(
         const std::string& from_lang,
         const std::string& to_lang,
@@ -1140,6 +1148,7 @@ class LLSimulatorTranslationHandler: public LLTranslationAPIHandler
     LOG_CLASS(LLSimulatorTranslationHandler);
 
 public:
+    std::string getName() const override { return "simulator"; }
     std::string getTranslateURL(
         const std::string& from_lang,
         const std::string& to_lang,
@@ -1580,15 +1589,18 @@ LLSD LLTranslate::asLLSD() const
 {
 	LLSD res;
 	bool on = gSavedSettings.getBOOL("TranslateChat");
+    bool on_server = (gAgent.getRegion() && gAgent.getRegion()->getCapability("Translation").size() > 0);
 	res["on"] = on;
+    res["on_server"] = on_server;
 	res["chars_seen"] = (S32) mCharsSeen;
-	if (on)
+    LLTranslationAPIHandler *handler = getPreferredHandler();
+	if (handler)
 	{
 		res["chars_sent"] = (S32) mCharsSent;
 		res["success_count"] = mSuccessCount;
 		res["failure_count"] = mFailureCount;
-		res["language"] = getTranslateLanguage();  
-		res["service"] = gSavedSettings.getString("TranslationService");
+		res["language"] = getTranslateLanguage();
+		res["service"] = handler->getName();
 	}
 	return res;
 }
