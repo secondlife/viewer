@@ -55,11 +55,13 @@
 #include "llviewerfoldertype.h"
 #include "llvoavatarself.h"
 
+class LLInventoryFavoritesItemsPanel;
 class LLInventoryRecentItemsPanel;
 class LLAssetFilteredInventoryPanel;
 
 static LLDefaultChildRegistry::Register<LLInventoryPanel> r("inventory_panel");
 static LLDefaultChildRegistry::Register<LLInventoryRecentItemsPanel> t_recent_inventory_panel("recent_inventory_panel");
+static LLDefaultChildRegistry::Register<LLInventoryFavoritesItemsPanel> t_favorites_inventory_panel("favorites_inventory_panel");
 static LLDefaultChildRegistry::Register<LLAssetFilteredInventoryPanel> t_asset_filtered_inv_panel("asset_filtered_inv_panel");
 
 const std::string LLInventoryPanel::DEFAULT_SORT_ORDER = std::string("InventorySortOrder");
@@ -2224,6 +2226,42 @@ LLInventoryRecentItemsPanel::LLInventoryRecentItemsPanel( const Params& params)
 	// replace bridge builder to have necessary View bridges.
 	mInvFVBridgeBuilder = &RECENT_ITEMS_BUILDER;
 }
+
+/************************************************************************/
+/* Favorites Inventory Panel related class                              */
+/************************************************************************/
+static const LLFavoritesInventoryBridgeBuilder FAVORITES_BUILDER;
+class LLInventoryFavoritesItemsPanel : public LLInventoryPanel
+{
+public:
+    struct Params : public LLInitParam::Block<Params, LLInventoryPanel::Params>
+    {};
+
+    void initFromParams(const Params& p)
+    {
+        LLInventoryPanel::initFromParams(p);
+        // turn off trash
+        getFilter().setFilterCategoryTypes(getFilter().getFilterCategoryTypes() | (1ULL << LLFolderType::FT_TRASH));
+        getFilter().setFilterNoTrashFolder();
+        // turn off marketplace for favorites
+        getFilter().setFilterNoMarketplaceFolder();
+    }
+
+protected:
+    LLInventoryFavoritesItemsPanel(const Params&);
+    friend class LLUICtrlFactory;
+};
+
+LLInventoryFavoritesItemsPanel::LLInventoryFavoritesItemsPanel(const Params& params)
+    : LLInventoryPanel(params)
+{
+    // replace bridge builder to have necessary View bridges.
+    mInvFVBridgeBuilder = &FAVORITES_BUILDER;
+}
+
+/************************************************************************/
+/* LLInventorySingleFolderPanel                                         */
+/************************************************************************/
 
 static LLDefaultChildRegistry::Register<LLInventorySingleFolderPanel> t_single_folder_inventory_panel("single_folder_inventory_panel");
 

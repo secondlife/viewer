@@ -67,6 +67,7 @@ const std::string FILTERS_FILENAME("filters.xml");
 const std::string ALL_ITEMS("All Items");
 const std::string RECENT_ITEMS("Recent Items");
 const std::string WORN_ITEMS("Worn Items");
+const std::string FAVORITES("Favorites");
 
 static LLPanelInjector<LLPanelMainInventory> t_inventory("panel_main_inventory");
 
@@ -193,6 +194,19 @@ BOOL LLPanelMainInventory::postBuild()
 		worn_filter.markDefault();
 		mWornItemsPanel->setSelectCallback(boost::bind(&LLPanelMainInventory::onSelectionChange, this, mWornItemsPanel, _1, _2));
 	}
+
+    LLInventoryPanel* favorites_panel = getChild<LLInventoryPanel>(FAVORITES);
+    if (favorites_panel)
+    {
+        favorites_panel->setSortOrder(gSavedSettings.getU32(LLInventoryPanel::DEFAULT_SORT_ORDER));
+        favorites_panel->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
+        LLInventoryFilter& favorites_filter = favorites_panel->getFilter();
+        favorites_filter.setFilterFavorites(LLInventoryFilter::FILTER_ONLY_FAVORITES);
+        favorites_filter.setEmptyLookupMessage("InventoryNoMatchingFavorites");
+        favorites_filter.markDefault();
+        favorites_panel->setSelectCallback(boost::bind(&LLPanelMainInventory::onSelectionChange, this, favorites_panel, _1, _2));
+    }
+
 	mSearchTypeCombo  = getChild<LLComboBox>("search_type");
 	if(mSearchTypeCombo)
 	{

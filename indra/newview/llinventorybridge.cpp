@@ -8063,6 +8063,48 @@ LLInvFVBridge* LLRecentInventoryBridgeBuilder::createBridge(
 	return new_listener;
 }
 
+/************************************************************************/
+/* Favorites Inventory Panel related classes                               */
+/************************************************************************/
+void LLFavoritesFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
+{
+    // todo: consider things that should be disabled
+    menuentry_vec_t disabled_items, items;
+    buildContextMenuOptions(flags, items, disabled_items);
+
+    hide_context_entries(menu, items, disabled_items);
+}
+
+LLInvFVBridge* LLFavoritesInventoryBridgeBuilder::createBridge(
+    LLAssetType::EType asset_type,
+    LLAssetType::EType actual_asset_type,
+    LLInventoryType::EType inv_type,
+    LLInventoryPanel* inventory,
+    LLFolderViewModelInventory* view_model,
+    LLFolderView* root,
+    const LLUUID& uuid,
+    U32 flags /*= 0x00*/) const
+{
+    LLInvFVBridge* new_listener = NULL;
+    if (asset_type == LLAssetType::AT_CATEGORY
+        && actual_asset_type != LLAssetType::AT_LINK_FOLDER)
+    {
+        new_listener = new LLFavoritesFolderBridge(inv_type, inventory, root, uuid);
+    }
+    else
+    {
+        new_listener = LLInventoryFolderViewModelBuilder::createBridge(asset_type,
+            actual_asset_type,
+            inv_type,
+            inventory,
+            view_model,
+            root,
+            uuid,
+            flags);
+    }
+    return new_listener;
+}
+
 LLFolderViewGroupedItemBridge::LLFolderViewGroupedItemBridge()
 {
 }
