@@ -79,6 +79,8 @@ public :
     typedef boost::function<void(std::string , std::string )> TranslationSuccess_fn;
     typedef boost::function<void(int, std::string)> TranslationFailure_fn;
 
+	std::string getTransConfigModeString() const;
+
 	/**
 	 * Should the given chat message be translated? Depends on preference settings, message type, etc.
 	 */

@@ -1386,6 +1386,24 @@ LLTranslate::~LLTranslate()
 }
 
 /*static*/
+std::string LLTranslate::getTransConfigModeString() const
+{
+    switch (instance().mTransConfigMode)
+    {
+    case CONFIG_MODE_ALWAYS:
+        return "always";
+    case CONFIG_MODE_OPT_IN:
+        return "opt_in";
+    case CONFIG_MODE_OPT_OUT:
+        return "opt_out";
+    case CONFIG_MODE_NEVER:
+        return "never";
+    default:
+        return "unknown";
+    }
+}
+
+/*static*/
 bool LLTranslate::shouldTranslate(const LLChat& chat)
 {
     if (!shouldTranslateAgent(chat.mFromID))
@@ -1423,10 +1441,12 @@ bool LLTranslate::shouldTranslateAgent(const LLUUID& agent_id)
     }
     else if (instance().mTransConfigMode == CONFIG_MODE_OPT_OUT)
     {
+        // Translate unless this agent is explicitly disabled
         return instance().mNoTranslateAgents.find(agent_id) == instance().mNoTranslateAgents.end();
     }
     else if (instance().mTransConfigMode == CONFIG_MODE_OPT_IN)
     {
+        // Translate only if this agent is explicitly enabled
         return instance().mTranslateAgents.find(agent_id) != instance().mTranslateAgents.end();
     }
     return false;
@@ -1588,9 +1608,11 @@ void LLTranslate::logFailure(S32 count)
 LLSD LLTranslate::asLLSD() const
 {
 	LLSD res;
-	bool on = gSavedSettings.getBOOL("TranslateChat");
+	bool on_client = gSavedSettings.getBOOL("TranslateChat");
     bool on_server = (gAgent.getRegion() && gAgent.getRegion()->getCapability("Translation").size() > 0);
+    bool on = on_client || on_server;
 	res["on"] = on;
+    res["on_client"] = on_client;
     res["on_server"] = on_server;
 	res["chars_seen"] = (S32) mCharsSeen;
     LLTranslationAPIHandler *handler = getPreferredHandler();
@@ -1601,6 +1623,7 @@ LLSD LLTranslate::asLLSD() const
 		res["failure_count"] = mFailureCount;
 		res["language"] = getTranslateLanguage();
 		res["service"] = handler->getName();
+        res["config_mode"] = getTransConfigModeString();
 	}
 	return res;
 }
