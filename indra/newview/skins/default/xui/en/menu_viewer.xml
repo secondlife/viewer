@@ -2861,6 +2861,12 @@ function="World.EnvPreset"
           <menu_item_call.on_click
            function="Advanced.ClickGLTFSaveAs" />
         </menu_item_call>
+        <menu_item_call
+         label="Decompose..."
+         name="Decompose...">
+          <menu_item_call.on_click
+           function="Advanced.ClickGLTFDecompose" />
+        </menu_item_call>
       </menu>
         <menu
          create_jump_keys="true"

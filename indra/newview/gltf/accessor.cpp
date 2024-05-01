@@ -30,6 +30,24 @@
 
 using namespace LL::GLTF;
 
+void Buffer::erase(Asset& asset, S32 offset, S32 length)
+{
+    S32 idx = this - &asset.mBuffers[0];
+
+    mData.erase(mData.begin() + offset, mData.begin() + offset + length);
+
+    for (BufferView& view : asset.mBufferViews)
+    {
+        if (view.mBuffer == idx)
+        {
+            if (view.mByteOffset >= offset)
+            {
+                view.mByteOffset -= length;
+            }
+        }
+    }
+}
+
 const Buffer& Buffer::operator=(const tinygltf::Buffer& src)
 {
     mData = src.data;

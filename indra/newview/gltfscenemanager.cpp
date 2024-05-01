@@ -100,6 +100,51 @@ void GLTFSceneManager::saveAs()
     }
 }
 
+void GLTFSceneManager::decomposeSelection()
+{
+    LLViewerObject* obj = LLSelectMgr::instance().getSelection()->getFirstRootObject();
+    if (obj && obj->mGLTFAsset.notNull())
+    {
+        LLFilePickerReplyThread::startPicker(
+            [](const std::vector<std::string>& filenames, LLFilePicker::ELoadFilter load_filter, LLFilePicker::ESaveFilter save_filter)
+            {
+                if (LLAppViewer::instance()->quitRequested())
+                {
+                    return;
+                }
+                if (filenames.size() > 0)
+                {
+                    GLTFSceneManager::instance().decomposeSelection(filenames[0]);
+                }
+            },
+            LLFilePicker::FFSAVE_GLTF,
+            "scene.gltf");
+    }
+    else
+    {
+        LLNotificationsUtil::add("GLTFSaveSelection");
+    }
+}
+
+void GLTFSceneManager::decomposeSelection(const std::string& filename)
+{
+    LLViewerObject* obj = LLSelectMgr::instance().getSelection()->getFirstRootObject();
+    if (obj && obj->mGLTFAsset.notNull())
+    {
+        // copy asset out for decomposition
+        Asset asset = *obj->mGLTFAsset;
+
+        // decompose the asset into component parts
+        asset.decompose(filename);
+
+        // copy decomposed asset into tinygltf for serialization
+        tinygltf::Model model;
+        asset.save(model);
+
+        LLTinyGLTFHelper::saveModel(filename, model);
+    }
+}
+
 void GLTFSceneManager::save(const std::string& filename)
 {
     LLViewerObject* obj = LLSelectMgr::instance().getSelection()->getFirstRootObject();

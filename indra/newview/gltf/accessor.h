@@ -45,6 +45,10 @@ namespace LL
             std::string mName;
             std::string mUri;
 
+            // erase the given range from this buffer.
+            // also updates all buffer views in given asset that reference this buffer
+            void erase(Asset& asset, S32 offset, S32 length);
+
             const Buffer& operator=(const tinygltf::Buffer& src);
         };
 

@@ -41,7 +41,9 @@ namespace LL
         void load(const std::string& filename); // load asset from filename
 
         void saveAs(); // open filepicker and choose file to save selected asset to
-        void save(const std::string& filename); // save selected asset to filename
+        void save(const std::string& filename); // save selected asset to filename (suitable for use in external programs)
+        void decomposeSelection(); // open file picker and choose a location to decompose to
+        void decomposeSelection(const std::string& filename); // decompose selected asset into simulator-ready .gltf, .bin, and .j2c files
 
         void update();
         void render(bool opaque, bool rigged = false);

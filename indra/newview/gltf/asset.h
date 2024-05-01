@@ -254,6 +254,9 @@ namespace LL
                 return *this;
             }
 
+            // save image clear local data, and set uri
+            void decompose(Asset& asset, const std::string& filename);
+
             void allocateGLResources()
             {
                 // allocate texture
@@ -322,7 +325,13 @@ namespace LL
 
             // save the asset to a tinygltf model
             void save(tinygltf::Model& dst);
-            
+
+            // decompose the asset to the given .gltf file
+            void decompose(const std::string& filename);
+
+            // remove the bufferview at the given index
+            // updates all bufferview indices in this Asset as needed
+            void eraseBufferView(S32 bufferView);
         };
     }
 }

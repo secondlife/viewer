@@ -30,9 +30,11 @@
 #include "llvolumeoctree.h"
 #include "../llviewershadermgr.h"
 #include "../llviewercontrol.h"
+#include "../llviewertexturelist.h"
 
 using namespace LL::GLTF;
 
+#pragma optimize("", off)
 
 namespace LL
 {
@@ -821,6 +823,106 @@ void Asset::save(tinygltf::Model& dst)
     LL::GLTF::copy(*this, dst);
 }
 
+void Asset::decompose(const std::string& filename)
+{
+    // get folder path
+    std::string folder = gDirUtilp->getDirName(filename);
+
+    // decompose images
+    for (auto& image : mImages)
+    {
+        image.decompose(*this, folder);
+    }
+}
+
+void Asset::eraseBufferView(S32 bufferView)
+{
+    mBufferViews.erase(mBufferViews.begin() + bufferView);
+
+    for (auto& accessor : mAccessors)
+    {
+        if (accessor.mBufferView > bufferView)
+        {
+            accessor.mBufferView--;
+        }
+    }
+
+    for (auto& image : mImages)
+    {
+        if (image.mBufferView > bufferView)
+        {
+            image.mBufferView--;
+        }
+    }
+
+}
+
+void Image::decompose(Asset& asset, const std::string& folder)
+{
+    std::string name = mName;
+    if (name.empty())
+    {
+        S32 idx = this - asset.mImages.data();
+        name = llformat("image_%d", idx);
+    }
+
+    if (mBufferView != INVALID_INDEX)
+    {
+        // save original image
+        BufferView& bufferView = asset.mBufferViews[mBufferView];
+        Buffer& buffer = asset.mBuffers[bufferView.mBuffer];
+        
+        std::string extension;
+
+        if (mMimeType == "image/jpeg")
+        {
+            extension = ".jpg";
+        }
+        else if (mMimeType == "image/png")
+        {
+            extension = ".png";
+        }
+        else
+        {
+            extension = ".bin";
+        }
+
+        std::string filename = folder + "/" + name + "." + extension;
+
+        // set URI to non-j2c file for now, but later we'll want to reference the j2c hash
+        mUri = name + "." + extension;
+
+        std::ofstream file(filename, std::ios::binary);
+        file.write((const char*)buffer.mData.data() + bufferView.mByteOffset, bufferView.mByteLength);
+        
+        buffer.erase(asset, bufferView.mByteOffset, bufferView.mByteLength);
+
+        asset.eraseBufferView(mBufferView);
+    }
+
+    if (!mData.empty())
+    {
+        // save j2c image
+        std::string filename = folder + "/" + name + ".j2c";
+
+        LLPointer<LLImageRaw> raw = new LLImageRaw(mWidth, mHeight, mComponent);
+        U8* data = raw->allocateData();
+        llassert(mData.size() == raw->getDataSize());
+        memcpy(data, mData.data(), mData.size());
+
+        LLViewerTextureList::createUploadFile(raw, filename, 4096);
+
+        mData.clear();
+    }
+
+    mWidth = -1;
+    mHeight = -1;
+    mComponent = -1;
+    mBits = -1;
+    mPixelType = -1;
+    mMimeType = "";
+
+}
 
 const Material::TextureInfo& Material::TextureInfo::operator=(const tinygltf::TextureInfo& src)
 {
