@@ -33,6 +33,10 @@ def convert_tabs_to_spaces(file_path, tab_stop):
     with open(file_path, 'r') as file:
         lines = file.readlines()
 
+    # Skip files with no tabs
+    if not any('\t' in line for line in lines):
+        return
+
     new_lines = []
     for line in lines:
         # Remove trailing spaces
