@@ -114,15 +114,20 @@ void LLHeroProbeManager::update()
     LLVector3 camera_pos = LLViewerCamera::instance().mOrigin;
     F32        near_clip  = 0.1f;
     bool       probe_present = false;
+    LLQuaternion cameraOrientation = LLViewerCamera::instance().getQuaternion();
+    LLVector3    cameraDirection   = LLVector3::z_axis * cameraOrientation;
+
     if (mHeroVOList.size() > 0)
     {
         // Find our nearest hero candidate.
         float last_distance = 99999.f;
+        float camera_center_distance = 99999.f;
         for (auto vo : mHeroVOList)
         {
             if (vo && !vo->isDead() && vo->mDrawable.notNull())
             {
                 float distance = (LLViewerCamera::instance().getOrigin() - vo->getPositionAgent()).magVec();
+                float center_distance = cameraDirection * (vo->getPositionAgent() - camera_pos);
 
                 if (distance > LLViewerCamera::instance().getFar())
 					continue;
@@ -134,11 +139,13 @@ void LLHeroProbeManager::update()
                 size.load3(vo->getScale().mV);
 
                 bool visible = LLViewerCamera::instance().AABBInFrustum(center, size);
-                if (distance < last_distance && visible)
+
+                if (distance < last_distance && center_distance < camera_center_distance && visible)
                 {
 					probe_present = true;
 					mNearestHero = vo;
 					last_distance = distance;
+                    camera_center_distance = center_distance;
 				}
             }
             else
@@ -171,10 +178,9 @@ void LLHeroProbeManager::update()
 
             probe_pos.load3(point.mV);
 
-            // Collect the list of faces that need updating based upon the camera's rotation.
-            LLVector3 cam_direction = LLVector3(0, 0, 1) * LLViewerCamera::instance().getQuaternion();
-            cam_direction.normalize();
+            // Detect visible faces of a cube based on camera direction and distance
 
+            // Define the cube faces
             static LLVector3 cubeFaces[6] = { 
                 LLVector3(1, 0, 0), 
                 LLVector3(-1, 0, 0),
@@ -184,17 +190,21 @@ void LLHeroProbeManager::update()
                 LLVector3(0, 0, -1)
             };
 
+            // Iterate through each face of the cube
             for (int i = 0; i < 6; i++)
             {
-                float shouldUpdate = fminf(1, (fmaxf(-1, cam_direction * cubeFaces[i]) * 0.5 + 0.5));
-                
-                int updateRate = ceilf((1 - shouldUpdate) * gPipeline.RenderHeroProbeConservativeUpdateMultiplier);
-                
-                // Chances are this is a face that's non-visible to the camera when it's being reflected.
-                // Set it to 0.  It will be skipped below.
-                if (updateRate == gPipeline.RenderHeroProbeConservativeUpdateMultiplier)
+                float cube_facing = fmax(-1, fmin(1.0f, cameraDirection * cubeFaces[i])) * 0.6 + 0.4;
+                    
+                float updateRate;
+                if (cube_facing < 0.1f)
+                {
                     updateRate = 0;
-                
+                }
+                else
+                {
+                    updateRate = ceilf(cube_facing * gPipeline.RenderHeroProbeConservativeUpdateMultiplier);
+                }
+
                 mFaceUpdateList[i] = updateRate;
             }
         }
