@@ -427,7 +427,7 @@ void LLGameControllerManager::onAxis(SDL_JoystickID id, U8 axis, S16 value)
     size_t index = getControllerIndex(id);
     if (index < mControllers.size())
     {
-        // Note: the RAW analog joystics provide NEGATIVE X,Y values for LEFT,FORWARD
+        // Note: the RAW analog joysticks provide NEGATIVE X,Y values for LEFT,FORWARD
         // whereas those directions are actually POSITIVE in SL's local right-handed
         // reference frame.  Therefore we implicitly negate those axes here where
         // they are extracted from SDL, before being used anywhere.
@@ -966,7 +966,7 @@ LLGameControl::InputChannel LLGameControl::getChannelByName(const std::string& n
         // the BUTTON_ decimal postfix can be up to two characters wide
         size_t i = 6;
         U8 index = 0;
-        while (i < name.length() && i < 8 && name[i] <= '0')
+        while (i < name.length() && i < 8 && name[i] >= '0')
         {
             index = index * 10 + name[i] - '0';
         }
