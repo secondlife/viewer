@@ -5149,26 +5149,6 @@ void LLAgent::applyExternalActionFlags()
         setControlFlags(AGENT_CONTROL_STOP);
     }
 
-    if ((mExternalActionFlags & AGENT_CONTROL_SIT_ON_GROUND) > 0)
-    {
-        if (mToggleSit)
-        {
-            if (isSitting())
-            {
-                standUp();
-            }
-            else
-            {
-                sitDown();
-            }
-        }
-        mToggleSit = false;
-    }
-    else
-    {
-        mToggleSit = true;
-    }
-
     // HACK: AGENT_CONTROL_NUDGE_AT_POS is used to toggle running
     if ((mExternalActionFlags & AGENT_CONTROL_NUDGE_AT_POS) > 0)
     {
@@ -5191,6 +5171,16 @@ void LLAgent::applyExternalActionFlags()
     {
         mToggleRun = true;
     }
+}
+
+void LLAgent::pressGameControlButton(U8 button_index)
+{
+    mGameControlButtonsFromKeys |= (1U << button_index);
+}
+
+void LLAgent::releaseGameControlButton(U8 button_index)
+{
+    mGameControlButtonsFromKeys &= !(1U << button_index);
 }
 
 void LLAgent::updateFlycam()
