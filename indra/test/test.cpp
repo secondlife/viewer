@@ -60,7 +60,7 @@ typedef struct {
   size_t re_nsub;
   size_t re_erroffset;
 } regex_t;
-#include <gmock/gmock.h>
+//#include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #endif
 

@@ -31,7 +31,7 @@
 #include "linden_common.h"
 #include "llhttpclientinterface.h"
 
-#include <gmock/gmock.h>
+//#include <gmock/gmock.h>
 
 class LLMockHTTPClient : public LLHTTPClientInterface
 {
