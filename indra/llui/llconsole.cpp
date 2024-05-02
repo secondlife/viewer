@@ -380,7 +380,7 @@ void LLConsole::updateClass()
 void LLConsole::update()
 {
 	{
-		LLMutexLock lock(&mMutex);
+		LLCoros::LockType lock(mMutex);
 
 		while (!mLines.empty())
 		{

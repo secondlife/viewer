@@ -61,6 +61,23 @@
 #include <excpt.h>
 #endif
 
+// static 
+bool LLCoros::on_main_coro()
+{
+    if (!LLCoros::instanceExists() || LLCoros::getName().empty())
+    {
+        return true;
+    }
+    
+    return false;
+}
+
+// static
+bool LLCoros::on_main_thread_main_coro()
+{
+    return on_main_coro() && on_main_thread();
+}
+
 // static
 LLCoros::CoroData& LLCoros::get_CoroData(const std::string& caller)
 {
