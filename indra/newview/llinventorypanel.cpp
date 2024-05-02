@@ -1253,7 +1253,6 @@ LLFolderViewItem* LLInventoryPanel::buildViewsTree(const LLUUID& id,
 	{
 		LLViewerInventoryCategory::cat_array_t* categories;
 		LLViewerInventoryItem::item_array_t* items;
-        //collectInventoryDescendants(id, categories, items);
 		mInventory->lockDirectDescendentArrays(id, categories, items);
 
         // Make sure panel won't lock in a loop over existing items if
@@ -1353,14 +1352,6 @@ LLFolderViewItem* LLInventoryPanel::buildViewsTree(const LLUUID& id,
 	
 	return folder_view_item;
 }
-
-
-/*void LLInventoryPanel::collectInventoryDescendants(const LLUUID& id,
-    LLViewerInventoryCategory::cat_array_t*& categories,
-    LLViewerInventoryItem::item_array_t*& items);
-{
-    mInventory->lockDirectDescendentArrays(id, categories, items);
-}*/
 
 // bit of a hack to make sure the inventory is open.
 void LLInventoryPanel::openStartFolderOrMyInventory()
