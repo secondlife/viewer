@@ -1385,8 +1385,6 @@ void AISUpdate::parseCategory(const LLSD& category_map, S32 depth)
                      && curr_cat->getVersion() > LLViewerInventoryCategory::VERSION_UNKNOWN
                      && version > curr_cat->getVersion())
             {
-                // Potentially should new_cat->setVersion(unknown) here,
-                // but might be waiting for a callback that would increment
                 LL_DEBUGS("Inventory") << "Category " << category_id
                     << " is stale. Known version: " << curr_cat->getVersion()
                     << " server version: " << version << LL_ENDL;

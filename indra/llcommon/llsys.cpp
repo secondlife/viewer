@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llsys.cpp
  * @brief Implementation of the basic system query functions.
  *
  * $LicenseInfo:firstyear=2002&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -96,7 +96,7 @@ static const F32 MEM_INFO_THROTTLE = 20;
 static const F32 MEM_INFO_WINDOW = 10*60;
 
 LLOSInfo::LLOSInfo() :
-	mMajorVer(0), mMinorVer(0), mBuild(0), mOSVersionString("")	 
+	mMajorVer(0), mMinorVer(0), mBuild(0), mOSVersionString("")
 {
 
 #if LL_WINDOWS
@@ -186,7 +186,7 @@ LLOSInfo::LLOSInfo() :
 	if (NULL != pGNSI) //check if it has failed
 		pGNSI(&si); //success
 	else
-		GetSystemInfo(&si); //if it fails get regular system info 
+		GetSystemInfo(&si); //if it fails get regular system info
 	//(Warning: If GetSystemInfo it may result in incorrect information in a WOW64 machine, if the kernel fails to load)
 
 	// Try calling GetVersionEx using the OSVERSIONINFOEX structure.
@@ -266,12 +266,12 @@ LLOSInfo::LLOSInfo() :
 	LLStringUtil::trim(mOSString);
 
 #elif LL_DARWIN
-	
+
 	// Initialize mOSStringSimple to something like:
 	// "Mac OS X 10.6.7"
 	{
 		const char * DARWIN_PRODUCT_NAME = "Mac OS X";
-		
+
 		int64_t major_version, minor_version, bugfix_version = 0;
 
 		if (LLGetDarwinOSInfo(major_version, minor_version, bugfix_version))
@@ -282,7 +282,7 @@ LLOSInfo::LLOSInfo() :
 
 			std::stringstream os_version_string;
 			os_version_string << DARWIN_PRODUCT_NAME << " " << mMajorVer << "." << mMinorVer << "." << mBuild;
-			
+
 			// Put it in the OS string we are compiling
 			mOSStringSimple.append(os_version_string.str());
 		}
@@ -291,12 +291,12 @@ LLOSInfo::LLOSInfo() :
 			mOSStringSimple.append("Unable to collect OS info");
 		}
 	}
-	
+
 	// Initialize mOSString to something like:
 	// "Mac OS X 10.6.7 Darwin Kernel Version 10.7.0: Sat Jan 29 15:17:16 PST 2011; root:xnu-1504.9.37~1/RELEASE_I386 i386"
 	struct utsname un;
 	if(uname(&un) != -1)
-	{		
+	{
 		mOSString = mOSStringSimple;
 		mOSString.append(" ");
 		mOSString.append(un.sysname);
@@ -311,9 +311,9 @@ LLOSInfo::LLOSInfo() :
 	{
 		mOSString = mOSStringSimple;
 	}
-	
+
 #elif LL_LINUX
-	
+
 	struct utsname un;
 	if(uname(&un) != -1)
 	{
@@ -353,7 +353,7 @@ LLOSInfo::LLOSInfo() :
 	if ( ll_regex_match(glibc_version, matched, os_version_parse) )
 	{
 		LL_INFOS("AppInit") << "Using glibc version '" << glibc_version << "' as OS version" << LL_ENDL;
-	
+
 		std::string version_value;
 
 		if ( matched[1].matched ) // Major version
@@ -367,7 +367,7 @@ LLOSInfo::LLOSInfo() :
 		else
 		{
 			LL_ERRS("AppInit")
-				<< "OS version regex '" << OS_VERSION_MATCH_EXPRESSION 
+				<< "OS version regex '" << OS_VERSION_MATCH_EXPRESSION
 				<< "' returned true, but major version [1] did not match"
 				<< LL_ENDL;
 		}
@@ -383,7 +383,7 @@ LLOSInfo::LLOSInfo() :
 		else
 		{
 			LL_ERRS("AppInit")
-				<< "OS version regex '" << OS_VERSION_MATCH_EXPRESSION 
+				<< "OS version regex '" << OS_VERSION_MATCH_EXPRESSION
 				<< "' returned true, but minor version [1] did not match"
 				<< LL_ENDL;
 		}
@@ -409,7 +409,7 @@ LLOSInfo::LLOSInfo() :
 	}
 
 #else
-	
+
 	struct utsname un;
 	if(uname(&un) != -1)
 	{
@@ -509,57 +509,46 @@ const S32 LLOSInfo::getOSBitness() const
 	return mOSBitness;
 }
 
+namespace {
+
+    U32 readFromProcStat( std::string entryName )
+    {
+        U32 val{};
+#if LL_LINUX
+        constexpr U32 STATUS_SIZE  = 2048;
+
+        LLFILE* status_filep = LLFile::fopen("/proc/self/status", "rb");
+        if (status_filep)
+        {
+            char buff[STATUS_SIZE];		/* Flawfinder: ignore */
+
+            size_t nbytes = fread(buff, 1, STATUS_SIZE-1, status_filep);
+            buff[nbytes] = '\0';
+
+            // All these guys return numbers in KB
+            char *memp = strstr(buff, entryName.c_str());
+            if (memp)
+            {
+                (void) sscanf(memp, "%*s %u", &val);
+            }
+            fclose(status_filep);
+        }
+#endif
+        return val;
+    }
+
+}
+
 //static
 U32 LLOSInfo::getProcessVirtualSizeKB()
 {
-	U32 virtual_size = 0;
-#if LL_LINUX
-#   define STATUS_SIZE 2048	
-	LLFILE* status_filep = LLFile::fopen("/proc/self/status", "rb");
-	if (status_filep)
-	{
-		S32 numRead = 0;		
-		char buff[STATUS_SIZE];		/* Flawfinder: ignore */
-
-		size_t nbytes = fread(buff, 1, STATUS_SIZE-1, status_filep);
-		buff[nbytes] = '\0';
-
-		// All these guys return numbers in KB
-		char *memp = strstr(buff, "VmSize:");
-		if (memp)
-		{
-			numRead += sscanf(memp, "%*s %u", &virtual_size);
-		}
-		fclose(status_filep);
-	}
-#endif
-	return virtual_size;
+    return readFromProcStat( "VmSize:" );
 }
 
 //static
 U32 LLOSInfo::getProcessResidentSizeKB()
 {
-	U32 resident_size = 0;
-#if LL_LINUX
-	LLFILE* status_filep = LLFile::fopen("/proc/self/status", "rb");
-	if (status_filep != NULL)
-	{
-		S32 numRead = 0;
-		char buff[STATUS_SIZE];		/* Flawfinder: ignore */
-
-		size_t nbytes = fread(buff, 1, STATUS_SIZE-1, status_filep);
-		buff[nbytes] = '\0';
-
-		// All these guys return numbers in KB
-		char *memp = strstr(buff, "VmRSS:");
-		if (memp)
-		{
-			numRead += sscanf(memp, "%*s %u", &resident_size);
-		}
-		fclose(status_filep);
-	}
-#endif
-	return resident_size;
+    return readFromProcStat( "VmRSS:" );
 }
 
 //static
@@ -577,7 +566,7 @@ bool LLOSInfo::is64Bit()
 #endif
 #else // ! LL_WINDOWS
     // we only build a 64-bit mac viewer and currently we don't build for linux at all
-    return true; 
+    return true;
 #endif
 }
 
@@ -1001,11 +990,11 @@ LLSD LLMemoryInfo::loadStatsMap()
 #elif LL_DARWIN
 
 	const vm_size_t pagekb(vm_page_size / 1024);
-	
+
 	//
 	// Collect the vm_stat's
 	//
-	
+
 	{
 		vm_statistics64_data_t vmstat;
 		mach_msg_type_number_t vmstatCount = HOST_VM_INFO64_COUNT;
@@ -1025,16 +1014,16 @@ LLSD LLMemoryInfo::loadStatsMap()
 			stats.add("Page reactivations",		vmstat.reactivations);
 			stats.add("Page-ins",				vmstat.pageins);
 			stats.add("Page-outs",				vmstat.pageouts);
-			
+
 			stats.add("Faults",					vmstat.faults);
 			stats.add("Faults copy-on-write",	vmstat.cow_faults);
-			
+
 			stats.add("Cache lookups",			vmstat.lookups);
 			stats.add("Cache hits",				vmstat.hits);
-			
+
 			stats.add("Page purgeable count",	vmstat.purgeable_count);
 			stats.add("Page purges",			vmstat.purges);
-			
+
 			stats.add("Page speculative reads",	vmstat.speculative_count);
 		}
 	}
@@ -1046,7 +1035,7 @@ LLSD LLMemoryInfo::loadStatsMap()
 		{
 		task_events_info_data_t taskinfo;
 		unsigned taskinfoSize = sizeof(taskinfo);
-		
+
 		if (task_info(mach_task_self(), TASK_EVENTS_INFO, (task_info_t) &taskinfo, &taskinfoSize) != KERN_SUCCESS)
 					{
 			LL_WARNS("LLMemoryInfo") << "Unable to collect task information" << LL_ENDL;
@@ -1061,8 +1050,8 @@ LLSD LLMemoryInfo::loadStatsMap()
 			stats.add("Task unix system call count",	taskinfo.syscalls_unix);
 			stats.add("Task context switch count",		taskinfo.csw);
 			}
-	}	
-	
+	}
+
 	//
 	// Collect the basic task info
 	//
@@ -1348,8 +1337,8 @@ BOOL gunzip_file(const std::string& srcfile, const std::string& dstfile)
 			goto err;
 		}
 	} while(gzeof(src) == 0);
-	fclose(dst); 
-	dst = NULL;	
+	fclose(dst);
+	dst = NULL;
 	if (LLFile::rename(tmpfile, dstfile) == -1) goto err;		/* Flawfinder: ignore */
 	retval = TRUE;
 err:

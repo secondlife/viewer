@@ -627,13 +627,13 @@ bool LLInventoryFilter::checkAgainstSearchVisibility(const LLFolderViewModelItem
     if (listener->isItemInOutfits() && ((mFilterOps.mSearchVisibility & VISIBILITY_OUTFITS) == 0))
         return FALSE;
 
-	if (listener->isItemInTrash() && ((mFilterOps.mSearchVisibility & VISIBILITY_TRASH) == 0))
-		return FALSE;
+    if (listener->isItemInTrash() && ((mFilterOps.mSearchVisibility & VISIBILITY_TRASH) == 0))
+        return FALSE;
 
-	if (!listener->isAgentInventory() && ((mFilterOps.mSearchVisibility & VISIBILITY_LIBRARY) == 0))
-		return FALSE;
+    if (!listener->isAgentInventory() && ((mFilterOps.mSearchVisibility & VISIBILITY_LIBRARY) == 0))
+        return FALSE;
 
-	return TRUE;
+    return TRUE;
 }
 
 const std::string& LLInventoryFilter::getFilterSubString(BOOL trim) const

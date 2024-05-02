@@ -166,7 +166,7 @@ bool ImageRequest::processRequest()
 			{
 				return true; // done (failed)
 			}
-			if (!(mFormattedImage->getWidth() * mFormattedImage->getHeight() * mFormattedImage->getComponents()))
+			if (0 == (mFormattedImage->getWidth() * mFormattedImage->getHeight() * mFormattedImage->getComponents()))
 			{
 				return true; // done (failed)
 			}
