@@ -957,6 +957,10 @@ void LLWebRTCPeerConnectionImpl::OnRemoveTrack(rtc::scoped_refptr<webrtc::RtpRec
 
 void LLWebRTCPeerConnectionImpl::OnDataChannel(rtc::scoped_refptr<webrtc::DataChannelInterface> channel)
 {
+    if (mDataChannel)
+    {
+        mDataChannel->UnregisterObserver();
+    }
     mDataChannel = channel;
     channel->RegisterObserver(this);
 }

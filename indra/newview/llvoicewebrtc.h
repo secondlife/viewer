@@ -201,7 +201,8 @@ public:
     void OnConnectionFailure(const std::string &channelID,
         const LLUUID &regionID,
         LLVoiceClientStatusObserver::EStatusType status_type = LLVoiceClientStatusObserver::ERROR_UNKNOWN);
-    void sendPositionUpdate(bool force);
+    void updatePosition(void); // update the internal position state
+    void sendPositionUpdate(bool force); // send the position to the voice server.
     void updateOwnVolume();
 
     //////////////////////////////
@@ -398,7 +399,6 @@ public:
 
     /////////////////////////////
     // Sending updates of current state
-    void updatePosition(void);
     void setListenerPosition(const LLVector3d &position, const LLVector3 &velocity, const LLQuaternion &rot);
     void setAvatarPosition(const LLVector3d &position, const LLVector3 &velocity, const LLQuaternion &rot);
 

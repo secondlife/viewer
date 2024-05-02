@@ -2688,7 +2688,11 @@ bool LLVoiceWebRTCConnection::connectionStateMachine()
             {
                 sendJoin();  // tell the Secondlife WebRTC server that we're here via the data channel.
                 setVoiceConnectionState(VOICE_STATE_SESSION_UP);
-                LLWebRTCVoiceClient::getInstance()->sendPositionUpdate(true);
+                if (isSpatial())
+                {
+                    LLWebRTCVoiceClient::getInstance()->updatePosition();
+                    LLWebRTCVoiceClient::getInstance()->sendPositionUpdate(true);
+                }
             }
             break;
         }
