@@ -81,8 +81,6 @@ namespace LL
 
                 S32 mSampler = INVALID_INDEX;
                 Target mTarget;
-                std::string mTargetPath;
-                std::string mName;
 
                 const Channel& operator=(const tinygltf::AnimationChannel& src)
                 {

@@ -66,11 +66,95 @@ void GLTFSceneManager::load()
                 }
             },
             LLFilePicker::FFLOAD_GLTF,
-            true);
+            false);
     }
     else
     {
-        LLNotificationsUtil::add("GLTFPreviewSelection");
+        LLNotificationsUtil::add("GLTFOpenSelection");
+    }
+}
+
+void GLTFSceneManager::saveAs()
+{
+    LLViewerObject* obj = LLSelectMgr::instance().getSelection()->getFirstRootObject();
+    if (obj && obj->mGLTFAsset)
+    {
+        LLFilePickerReplyThread::startPicker(
+            [](const std::vector<std::string>& filenames, LLFilePicker::ELoadFilter load_filter, LLFilePicker::ESaveFilter save_filter)
+            {
+                if (LLAppViewer::instance()->quitRequested())
+                {
+                    return;
+                }
+                if (filenames.size() > 0)
+                {
+                    GLTFSceneManager::instance().save(filenames[0]);
+                }
+            },
+            LLFilePicker::FFSAVE_GLTF,
+            "scene.gltf");
+    }
+    else
+    {
+        LLNotificationsUtil::add("GLTFSaveSelection");
+    }
+}
+
+void GLTFSceneManager::decomposeSelection()
+{
+    LLViewerObject* obj = LLSelectMgr::instance().getSelection()->getFirstRootObject();
+    if (obj && obj->mGLTFAsset)
+    {
+        LLFilePickerReplyThread::startPicker(
+            [](const std::vector<std::string>& filenames, LLFilePicker::ELoadFilter load_filter, LLFilePicker::ESaveFilter save_filter)
+            {
+                if (LLAppViewer::instance()->quitRequested())
+                {
+                    return;
+                }
+                if (filenames.size() > 0)
+                {
+                    GLTFSceneManager::instance().decomposeSelection(filenames[0]);
+                }
+            },
+            LLFilePicker::FFSAVE_GLTF,
+            "scene.gltf");
+    }
+    else
+    {
+        LLNotificationsUtil::add("GLTFSaveSelection");
+    }
+}
+
+void GLTFSceneManager::decomposeSelection(const std::string& filename)
+{
+    LLViewerObject* obj = LLSelectMgr::instance().getSelection()->getFirstRootObject();
+    if (obj && obj->mGLTFAsset)
+    {
+        // copy asset out for decomposition
+        Asset asset = *obj->mGLTFAsset;
+
+        // decompose the asset into component parts
+        asset.decompose(filename);
+
+        // copy decomposed asset into tinygltf for serialization
+        tinygltf::Model model;
+        asset.save(model);
+
+        LLTinyGLTFHelper::saveModel(filename, model);
+    }
+}
+
+void GLTFSceneManager::save(const std::string& filename)
+{
+    LLViewerObject* obj = LLSelectMgr::instance().getSelection()->getFirstRootObject();
+    if (obj && obj->mGLTFAsset)
+    {
+        Asset* asset = obj->mGLTFAsset.get();
+        tinygltf::Model model;
+        asset->save(model);
+
+        LLTinyGLTFHelper::saveModel(filename, model);
     }
 }
 
@@ -79,7 +163,7 @@ void GLTFSceneManager::load(const std::string& filename)
     tinygltf::Model model;
     LLTinyGLTFHelper::loadModel(filename, model);
 
-    LLPointer<Asset> asset = new Asset();
+    std::shared_ptr<Asset> asset = std::make_shared<Asset>();
     *asset = model;
 
     gDebugProgram.bind(); // bind a shader to satisfy LLVertexBuffer assertions
@@ -126,10 +210,7 @@ void GLTFSceneManager::update()
             continue;
         }
 
-        Asset* asset = mObjects[i]->mGLTFAsset;
-
-        asset->update();
-     
+        mObjects[i]->mGLTFAsset->update();
     }
 }
 
@@ -151,7 +232,7 @@ void GLTFSceneManager::render(bool opaque, bool rigged)
             continue;
         }
 
-        Asset* asset = mObjects[i]->mGLTFAsset;
+        Asset* asset = mObjects[i]->mGLTFAsset.get();
 
         gGL.pushMatrix();
 
@@ -298,7 +379,7 @@ LLDrawable* GLTFSceneManager::lineSegmentIntersect(const LLVector4a& start, cons
         }
 
         // temporary debug -- always double check objects that have GLTF scenes hanging off of them even if the ray doesn't intersect the object bounds
-        if (lineSegmentIntersect((LLVOVolume*) mObjects[i].get(), mObjects[i]->mGLTFAsset, start, local_end, -1, pick_transparent, pick_rigged, pick_unselectable, node_hit, primitive_hit, &position, tex_coord, normal, tangent))
+        if (lineSegmentIntersect((LLVOVolume*) mObjects[i].get(), mObjects[i]->mGLTFAsset.get(), start, local_end, -1, pick_transparent, pick_rigged, pick_unselectable, node_hit, primitive_hit, &position, tex_coord, normal, tangent))
         {
             local_end = position;
             if (intersection)
@@ -425,7 +506,7 @@ void GLTFSceneManager::renderDebug()
 
         matMul(mat, modelview, modelview);
 
-        Asset* asset = obj->mGLTFAsset;
+        Asset* asset = obj->mGLTFAsset.get();
 
         for (auto& node : asset->mNodes)
         {
@@ -440,7 +521,7 @@ void GLTFSceneManager::renderDebug()
             continue;
         }
 
-        Asset* asset = obj->mGLTFAsset;
+        Asset* asset = obj->mGLTFAsset.get();
 
         LLMatrix4a mat = obj->getGLTFAssetToAgentTransform();
 
@@ -477,7 +558,7 @@ void GLTFSceneManager::renderDebug()
 
                 matMul(mat, modelview, modelview);
 
-                Asset* asset = obj->mGLTFAsset;
+                Asset* asset = obj->mGLTFAsset.get();
 
                 for (auto& node : asset->mNodes)
                 {
@@ -538,7 +619,7 @@ void GLTFSceneManager::renderDebug()
         if (drawable)
         {
             gGL.pushMatrix();
-            Asset* asset = drawable->getVObj()->mGLTFAsset;
+            Asset* asset = drawable->getVObj()->mGLTFAsset.get();
             Node* node = &asset->mNodes[node_hit];
             Primitive* primitive = &asset->mMeshes[node->mMesh].mPrimitives[primitive_hit];
 

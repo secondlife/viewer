@@ -7980,12 +7980,32 @@ class LLAdvancedClickHDRIPreview: public view_listener_t
 };
 
 
-class LLAdvancedClickGLTFScenePreview : public view_listener_t
+class LLAdvancedClickGLTFOpen: public view_listener_t
 {
     bool handleEvent(const LLSD& userdata)
     {
         // open personal lighting floater when previewing an HDRI (keeps HDRI from implicitly unloading when opening build tools)
         LL::GLTFSceneManager::instance().load();
+        return true;
+    }
+};
+
+class LLAdvancedClickGLTFSaveAs : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata)
+    {
+        // open personal lighting floater when previewing an HDRI (keeps HDRI from implicitly unloading when opening build tools)
+        LL::GLTFSceneManager::instance().saveAs();
+        return true;
+    }
+};
+
+class LLAdvancedClickGLTFDecompose : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata)
+    {
+        // open personal lighting floater when previewing an HDRI (keeps HDRI from implicitly unloading when opening build tools)
+        LL::GLTFSceneManager::instance().decomposeSelection();
         return true;
     }
 };
@@ -9637,7 +9657,9 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedClickRenderProfile(), "Advanced.ClickRenderProfile");
 	view_listener_t::addMenu(new LLAdvancedClickRenderBenchmark(), "Advanced.ClickRenderBenchmark");
     view_listener_t::addMenu(new LLAdvancedClickHDRIPreview(), "Advanced.ClickHDRIPreview");
-    view_listener_t::addMenu(new LLAdvancedClickGLTFScenePreview(), "Advanced.ClickGLTFScenePreview");
+    view_listener_t::addMenu(new LLAdvancedClickGLTFOpen(), "Advanced.ClickGLTFOpen");
+    view_listener_t::addMenu(new LLAdvancedClickGLTFSaveAs(), "Advanced.ClickGLTFSaveAs");
+    view_listener_t::addMenu(new LLAdvancedClickGLTFDecompose(), "Advanced.ClickGLTFDecompose");
 	view_listener_t::addMenu(new LLAdvancedPurgeShaderCache(), "Advanced.ClearShaderCache");
     view_listener_t::addMenu(new LLAdvancedRebuildTerrain(), "Advanced.RebuildTerrain");
 

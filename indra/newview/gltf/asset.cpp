@@ -30,9 +30,271 @@
 #include "llvolumeoctree.h"
 #include "../llviewershadermgr.h"
 #include "../llviewercontrol.h"
+#include "../llviewertexturelist.h"
 
 using namespace LL::GLTF;
 
+namespace LL
+{
+    namespace GLTF
+    {
+        template <typename T, typename U>
+        void copy(const std::vector<T>& src, std::vector<U>& dst)
+        {
+            dst.resize(src.size());
+            for (U32 i = 0; i < src.size(); ++i)
+            {
+                copy(src[i], dst[i]);
+            }
+        }
+
+        void copy(const Node& src, tinygltf::Node& dst)
+        {
+            if (src.mMatrixValid)
+            {
+                if (!src.mMatrix.asMatrix4().isIdentity())
+                {
+                    dst.matrix.resize(16);
+                    for (U32 i = 0; i < 16; ++i)
+                    {
+                        dst.matrix[i] = src.mMatrix.getF32ptr()[i];
+                    }
+                }
+            }
+            else if (src.mTRSValid)
+            {
+                if (!src.mRotation.equals(glh::quaternionf::identity(), FLT_EPSILON))
+                {
+                    dst.rotation.resize(4);
+                    for (U32 i = 0; i < 4; ++i)
+                    {
+                        dst.rotation[i] = src.mRotation.get_value()[i];
+                    }
+                }   
+                
+                if (src.mTranslation != glh::vec3f(0.f, 0.f, 0.f))
+                {
+                    dst.translation.resize(3);
+                    for (U32 i = 0; i < 3; ++i)
+                    {
+                        dst.translation[i] = src.mTranslation.v[i];
+                    }
+                }
+                
+                if (src.mScale != glh::vec3f(1.f, 1.f, 1.f))
+                {
+                    dst.scale.resize(3);
+                    for (U32 i = 0; i < 3; ++i)
+                    {
+                        dst.scale[i] = src.mScale.v[i];
+                    }
+                }
+            }
+
+            dst.children = src.mChildren;
+            dst.mesh = src.mMesh;
+            dst.skin = src.mSkin;
+            dst.name = src.mName;
+        }
+
+        void copy(const Scene& src, tinygltf::Scene& dst)
+        {
+            dst.nodes = src.mNodes;
+            dst.name = src.mName;
+        }
+
+        void copy(const Primitive& src, tinygltf::Primitive& dst)
+        {
+            for (auto& attrib : src.mAttributes)
+            {
+                dst.attributes[attrib.first] = attrib.second;
+            }
+            dst.indices = src.mIndices;
+            dst.material = src.mMaterial;
+            dst.mode = src.mMode;
+        }
+
+        void copy(const Mesh& src, tinygltf::Mesh& mesh)
+        {
+            copy(src.mPrimitives, mesh.primitives);
+            mesh.weights = src.mWeights;
+            mesh.name = src.mName;
+        }
+
+        void copy(const Material::TextureInfo& src, tinygltf::TextureInfo& dst)
+        {
+            dst.index = src.mIndex;
+            dst.texCoord = src.mTexCoord;
+        }
+
+        void copy(const Material::OcclusionTextureInfo& src, tinygltf::OcclusionTextureInfo& dst)
+        {
+            dst.index = src.mIndex;
+            dst.texCoord = src.mTexCoord;
+            dst.strength = src.mStrength;
+        }
+
+        void copy(const Material::NormalTextureInfo& src, tinygltf::NormalTextureInfo& dst)
+        {
+            dst.index = src.mIndex;
+            dst.texCoord = src.mTexCoord;
+            dst.scale = src.mScale;
+        }
+
+        void copy(const Material::PbrMetallicRoughness& src, tinygltf::PbrMetallicRoughness& dst)
+        {
+            dst.baseColorFactor = { src.mBaseColorFactor.v[0], src.mBaseColorFactor.v[1], src.mBaseColorFactor.v[2], src.mBaseColorFactor.v[3] };
+            copy(src.mBaseColorTexture, dst.baseColorTexture);
+            dst.metallicFactor = src.mMetallicFactor;
+            dst.roughnessFactor = src.mRoughnessFactor;
+            copy(src.mMetallicRoughnessTexture, dst.metallicRoughnessTexture);
+        }
+
+        void copy(const Material& src, tinygltf::Material& material)
+        {
+            material.name = src.mName;
+
+            material.emissiveFactor = { src.mEmissiveFactor.v[0], src.mEmissiveFactor.v[1], src.mEmissiveFactor.v[2] };
+            copy(src.mPbrMetallicRoughness, material.pbrMetallicRoughness);
+            copy(src.mNormalTexture, material.normalTexture);
+            copy(src.mEmissiveTexture, material.emissiveTexture);
+        }
+
+        void copy(const Texture& src, tinygltf::Texture& texture)
+        {
+            texture.sampler = src.mSampler;
+            texture.source = src.mSource;
+            texture.name = src.mName;
+        }
+
+        void copy(const Sampler& src, tinygltf::Sampler& sampler)
+        {
+            sampler.magFilter = src.mMagFilter;
+            sampler.minFilter = src.mMinFilter;
+            sampler.wrapS = src.mWrapS;
+            sampler.wrapT = src.mWrapT;
+            sampler.name = src.mName;
+        }
+
+        void copy(const Skin& src, tinygltf::Skin& skin)
+        {
+            skin.joints = src.mJoints;
+            skin.inverseBindMatrices = src.mInverseBindMatrices;
+            skin.skeleton = src.mSkeleton;
+            skin.name = src.mName;
+        }
+
+        void copy(const Accessor& src, tinygltf::Accessor& accessor)
+        {
+            accessor.bufferView = src.mBufferView;
+            accessor.byteOffset = src.mByteOffset;
+            accessor.componentType = src.mComponentType;
+            accessor.minValues = src.mMin;
+            accessor.maxValues = src.mMax;
+            
+            accessor.count = src.mCount;
+            accessor.type = src.mType;
+            accessor.normalized = src.mNormalized;
+            accessor.name = src.mName;
+        }
+
+        void copy(const Animation::Sampler& src, tinygltf::AnimationSampler& sampler)
+        {
+            sampler.input = src.mInput;
+            sampler.output = src.mOutput;
+            sampler.interpolation = src.mInterpolation;
+        }
+
+        void copy(const Animation::Channel& src, tinygltf::AnimationChannel& channel)
+        {
+            channel.sampler = src.mSampler;
+            channel.target_node = src.mTarget.mNode;
+            channel.target_path = src.mTarget.mPath;
+        }
+
+        void copy(const Animation& src, tinygltf::Animation& animation)
+        {
+            animation.name = src.mName;
+
+            copy(src.mSamplers, animation.samplers);
+
+            U32 channel_count = src.mRotationChannels.size() + src.mTranslationChannels.size() + src.mScaleChannels.size();
+
+            animation.channels.resize(channel_count);
+
+            U32 idx = 0;
+            for (U32 i = 0; i < src.mTranslationChannels.size(); ++i)
+            {
+                copy(src.mTranslationChannels[i], animation.channels[idx++]);
+            }
+
+            for (U32 i = 0; i < src.mRotationChannels.size(); ++i)
+            {
+                copy(src.mRotationChannels[i], animation.channels[idx++]);
+            }
+
+            for (U32 i = 0; i < src.mScaleChannels.size(); ++i)
+            {
+                copy(src.mScaleChannels[i], animation.channels[idx++]);
+            }
+        }
+
+        void copy(const Buffer& src, tinygltf::Buffer& buffer)
+        {
+            buffer.uri = src.mUri;
+            buffer.data = src.mData;
+            buffer.name = src.mName;
+        }
+
+        void copy(const BufferView& src, tinygltf::BufferView& bufferView)
+        {
+            bufferView.buffer = src.mBuffer;
+            bufferView.byteOffset = src.mByteOffset;
+            bufferView.byteLength = src.mByteLength;
+            bufferView.byteStride = src.mByteStride;
+            bufferView.target = src.mTarget;
+            bufferView.name = src.mName;
+        }
+
+        void copy(const Image& src, tinygltf::Image& image)
+        {
+            image.name = src.mName;
+            image.width = src.mWidth;
+            image.height = src.mHeight;
+            image.component = src.mComponent;
+            image.bits = src.mBits;
+            image.pixel_type = src.mPixelType;
+
+            image.image = src.mData;
+            image.bufferView = src.mBufferView;
+            image.mimeType = src.mMimeType;
+            image.uri = src.mUri;
+        }
+
+        void copy(const Asset & src, tinygltf::Model& dst)
+        {
+            dst.defaultScene = src.mDefaultScene;
+            dst.asset.copyright = src.mCopyright;
+            dst.asset.version = src.mVersion;
+            dst.asset.minVersion = src.mMinVersion;
+            dst.asset.generator = "Linden Lab Experimental GLTF Export";
+            dst.asset.extras = src.mExtras;
+
+            copy(src.mScenes, dst.scenes);
+            copy(src.mNodes, dst.nodes);
+            copy(src.mMeshes, dst.meshes);
+            copy(src.mMaterials, dst.materials);
+            copy(src.mBuffers, dst.buffers);
+            copy(src.mBufferViews, dst.bufferViews);
+            copy(src.mTextures, dst.textures);
+            copy(src.mSamplers, dst.samplers);
+            copy(src.mImages, dst.images);
+            copy(src.mAccessors, dst.accessors);
+            copy(src.mAnimations, dst.animations);
+            copy(src.mSkins, dst.skins);
+        }
+    }
+}
 void Scene::updateTransforms(Asset& asset)
 {
     LLMatrix4a identity;
@@ -237,6 +499,8 @@ void Node::makeMatrixValid()
         mMatrix.loadu(t.m);
         mMatrixValid = true;
     }
+
+    llassert(mMatrixValid);
 }
 
 void Node::makeTRSValid()
@@ -252,6 +516,8 @@ void Node::makeTRSValid()
         mRotation.set_value(t);
         mTRSValid = true;
     }
+
+    llassert(mTRSValid);
 }
 
 void Node::setRotation(const glh::quaternionf& q)
@@ -318,6 +584,7 @@ const Node& Node::operator=(const tinygltf::Node& src)
     {
         // node specifies no transformation, set to identity
         mMatrix.setIdentity();
+        mMatrixValid = true;
     }
 
     mChildren = src.children;
@@ -467,6 +734,15 @@ void Asset::allocateGLResources(const std::string& filename, const tinygltf::Mod
 
 const Asset& Asset::operator=(const tinygltf::Model& src)
 {
+    mVersion = src.asset.version;
+    mMinVersion = src.asset.minVersion;
+    mGenerator = src.asset.generator;
+    mCopyright = src.asset.copyright;
+    mExtras = src.asset.extras;
+
+    mDefaultScene = src.defaultScene;
+    
+
     mScenes.resize(src.scenes.size());
     for (U32 i = 0; i < src.scenes.size(); ++i)
     {
@@ -542,9 +818,167 @@ const Asset& Asset::operator=(const tinygltf::Model& src)
     return *this;
 }
 
+void Asset::save(tinygltf::Model& dst)
+{
+    LL::GLTF::copy(*this, dst);
+}
+
+void Asset::decompose(const std::string& filename)
+{
+    // get folder path
+    std::string folder = gDirUtilp->getDirName(filename);
+
+    // decompose images
+    for (auto& image : mImages)
+    {
+        image.decompose(*this, folder);
+    }
+}
+
+void Asset::eraseBufferView(S32 bufferView)
+{
+    mBufferViews.erase(mBufferViews.begin() + bufferView);
+
+    for (auto& accessor : mAccessors)
+    {
+        if (accessor.mBufferView > bufferView)
+        {
+            accessor.mBufferView--;
+        }
+    }
+
+    for (auto& image : mImages)
+    {
+        if (image.mBufferView > bufferView)
+        {
+            image.mBufferView--;
+        }
+    }
+
+}
+
+void Image::decompose(Asset& asset, const std::string& folder)
+{
+    std::string name = mName;
+    if (name.empty())
+    {
+        S32 idx = this - asset.mImages.data();
+        name = llformat("image_%d", idx);
+    }
+
+    if (mBufferView != INVALID_INDEX)
+    {
+        // save original image
+        BufferView& bufferView = asset.mBufferViews[mBufferView];
+        Buffer& buffer = asset.mBuffers[bufferView.mBuffer];
+        
+        std::string extension;
+
+        if (mMimeType == "image/jpeg")
+        {
+            extension = ".jpg";
+        }
+        else if (mMimeType == "image/png")
+        {
+            extension = ".png";
+        }
+        else
+        {
+            extension = ".bin";
+        }
+
+        std::string filename = folder + "/" + name + "." + extension;
+
+        // set URI to non-j2c file for now, but later we'll want to reference the j2c hash
+        mUri = name + "." + extension;
+
+        std::ofstream file(filename, std::ios::binary);
+        file.write((const char*)buffer.mData.data() + bufferView.mByteOffset, bufferView.mByteLength);
+        
+        buffer.erase(asset, bufferView.mByteOffset, bufferView.mByteLength);
+
+        asset.eraseBufferView(mBufferView);
+    }
+
+    if (!mData.empty())
+    {
+        // save j2c image
+        std::string filename = folder + "/" + name + ".j2c";
+
+        LLPointer<LLImageRaw> raw = new LLImageRaw(mWidth, mHeight, mComponent);
+        U8* data = raw->allocateData();
+        llassert(mData.size() == raw->getDataSize());
+        memcpy(data, mData.data(), mData.size());
+
+        LLViewerTextureList::createUploadFile(raw, filename, 4096);
+
+        mData.clear();
+    }
+
+    mWidth = -1;
+    mHeight = -1;
+    mComponent = -1;
+    mBits = -1;
+    mPixelType = -1;
+    mMimeType = "";
+
+}
+
+const Material::TextureInfo& Material::TextureInfo::operator=(const tinygltf::TextureInfo& src)
+{
+    mIndex = src.index;
+    mTexCoord = src.texCoord;
+    return *this;
+}
+
+const Material::OcclusionTextureInfo& Material::OcclusionTextureInfo::operator=(const tinygltf::OcclusionTextureInfo& src)
+{
+    mIndex = src.index;
+    mTexCoord = src.texCoord;
+    mStrength = src.strength;
+    return *this;
+}
+
+const Material::NormalTextureInfo& Material::NormalTextureInfo::operator=(const tinygltf::NormalTextureInfo& src)
+{
+    mIndex = src.index;
+    mTexCoord = src.texCoord;
+    mScale = src.scale;
+    return *this;
+}
+
+const Material::PbrMetallicRoughness& Material::PbrMetallicRoughness::operator=(const tinygltf::PbrMetallicRoughness& src)
+{
+    if (src.baseColorFactor.size() == 4)
+    {
+        mBaseColorFactor.set_value(src.baseColorFactor[0], src.baseColorFactor[1], src.baseColorFactor[2], src.baseColorFactor[3]);
+    }
+    
+    mBaseColorTexture = src.baseColorTexture;
+    mMetallicFactor = src.metallicFactor;
+    mRoughnessFactor = src.roughnessFactor;
+    mMetallicRoughnessTexture = src.metallicRoughnessTexture;
+
+    return *this;
+}
 const Material& Material::operator=(const tinygltf::Material& src)
 {
     mName = src.name;
+    
+    if (src.emissiveFactor.size() == 3)
+    {
+        mEmissiveFactor.set_value(src.emissiveFactor[0], src.emissiveFactor[1], src.emissiveFactor[2]);
+    }
+
+    mPbrMetallicRoughness = src.pbrMetallicRoughness;
+    mNormalTexture = src.normalTexture;
+    mOcclusionTexture = src.occlusionTexture;
+    mEmissiveTexture = src.emissiveTexture;
+
+    mAlphaMode = src.alphaMode;
+    mAlphaCutoff = src.alphaCutoff;
+    mDoubleSided = src.doubleSided;
+
     return *this;
 }
 
