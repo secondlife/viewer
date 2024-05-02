@@ -202,7 +202,7 @@ public:
     // and game_control devices produce State which can be translated into action_flags.
     // These methods help exchange such translations.
     static U32 computeInternalActionFlags();
-    static void setExternalActionFlags(U32 action_flags);
+    static void setExternalInput(U32 action_flags, U32 buttons_from_keys);
 
     // call this after putting a GameControlInput packet on the wire
     static void updateResendPeriod();

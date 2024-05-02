@@ -95,16 +95,6 @@
          value="Fly" />
     </rows>
     <rows
-     name="toggle_sit"
-     value="toggle_sit">
-        <columns
-         column="action"
-         font="SansSerif"
-         halign="left"
-         name="action"
-         value="Sit" />
-    </rows>
-    <rows
      name="toggle_flycam"
      value="toggle_flycam">
         <columns
