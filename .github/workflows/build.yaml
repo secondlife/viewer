@@ -179,13 +179,13 @@ jobs:
 
           # determine the viewer channel from the branch name
           branch=$AUTOBUILD_VCS_BRANCH
-          echo "branch=$branch" >> "$GITHUB_OUTPUT"
           IFS='/' read -ra ba <<< $branch
           prefix=${ba[0]}
           if [ "$prefix" == "project" ]; then
-              proj_name=$(echo ${ba[1]} | sed -e 's/_/ /g' | awk '{for(i=1;i<=NF;i++) $i=toupper(substr($i,1,1)) tolower(substr($i,2));}1')
-              export viewer_channel="Second Life Project $proj_name"
-          elif  [ "$prefix" == "release" ] || [ "$prefix" == "main" ];
+              IFS='_' read -ra prj << "${ba[1]}"
+              # uppercase first letter of each word
+              export viewer_channel="Second Life Project ${prj[*]^}"
+          elif   [ "$prefix" == "release" || "$prefix" == "main" ];
           then
               export viewer_channel="Second Life Release"
           else
