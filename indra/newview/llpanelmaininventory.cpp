@@ -199,9 +199,7 @@ BOOL LLPanelMainInventory::postBuild()
     if (favorites_panel)
     {
         favorites_panel->setSortOrder(gSavedSettings.getU32(LLInventoryPanel::DEFAULT_SORT_ORDER));
-        favorites_panel->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
         LLInventoryFilter& favorites_filter = favorites_panel->getFilter();
-        favorites_filter.setFilterFavorites(LLInventoryFilter::FILTER_ONLY_FAVORITES);
         favorites_filter.setEmptyLookupMessage("InventoryNoMatchingFavorites");
         favorites_filter.markDefault();
         favorites_panel->setSelectCallback(boost::bind(&LLPanelMainInventory::onSelectionChange, this, favorites_panel, _1, _2));

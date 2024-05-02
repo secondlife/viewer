@@ -947,18 +947,7 @@ void LLInventoryPanel::initializeViews(F64 max_time)
     mBuildViewsEndTime = curent_time + max_time;
 
 	// init everything
-	LLUUID root_id = getRootFolderID();
-	if (root_id.notNull())
-	{
-		buildNewViews(getRootFolderID());
-	}
-	else
-	{
-		// Default case: always add "My Inventory" root first, "Library" root second
-		// If we run out of time, this still should create root folders
-		buildNewViews(gInventory.getRootFolderID());		// My Inventory
-		buildNewViews(gInventory.getLibraryRootFolderID());	// Library
-	}
+    initRootContent();
 
     if (mBuildViewsQueue.empty())
     {
@@ -989,6 +978,22 @@ void LLInventoryPanel::initializeViews(F64 max_time)
 			my_inv_folder->setOpenArrangeRecursively(FALSE, LLFolderViewFolder::RECURSE_DOWN);
 		}
 	}
+}
+
+void LLInventoryPanel::initRootContent()
+{
+    LLUUID root_id = getRootFolderID();
+    if (root_id.notNull())
+    {
+        buildNewViews(getRootFolderID());
+    }
+    else
+    {
+        // Default case: always add "My Inventory" root first, "Library" root second
+        // If we run out of time, this still should create root folders
+        buildNewViews(gInventory.getRootFolderID());		// My Inventory
+        buildNewViews(gInventory.getLibraryRootFolderID());	// Library
+    }
 }
 
 
@@ -1248,6 +1253,7 @@ LLFolderViewItem* LLInventoryPanel::buildViewsTree(const LLUUID& id,
 	{
 		LLViewerInventoryCategory::cat_array_t* categories;
 		LLViewerInventoryItem::item_array_t* items;
+        //collectInventoryDescendants(id, categories, items);
 		mInventory->lockDirectDescendentArrays(id, categories, items);
 
         // Make sure panel won't lock in a loop over existing items if
@@ -1347,6 +1353,14 @@ LLFolderViewItem* LLInventoryPanel::buildViewsTree(const LLUUID& id,
 	
 	return folder_view_item;
 }
+
+
+/*void LLInventoryPanel::collectInventoryDescendants(const LLUUID& id,
+    LLViewerInventoryCategory::cat_array_t*& categories,
+    LLViewerInventoryItem::item_array_t*& items);
+{
+    mInventory->lockDirectDescendentArrays(id, categories, items);
+}*/
 
 // bit of a hack to make sure the inventory is open.
 void LLInventoryPanel::openStartFolderOrMyInventory()
@@ -2250,6 +2264,9 @@ public:
 protected:
     LLInventoryFavoritesItemsPanel(const Params&);
     friend class LLUICtrlFactory;
+
+    void initRootContent(const LLUUID& id);
+    void initRootContent() override;
 };
 
 LLInventoryFavoritesItemsPanel::LLInventoryFavoritesItemsPanel(const Params& params)
@@ -2257,6 +2274,58 @@ LLInventoryFavoritesItemsPanel::LLInventoryFavoritesItemsPanel(const Params& par
 {
     // replace bridge builder to have necessary View bridges.
     mInvFVBridgeBuilder = &FAVORITES_BUILDER;
+}
+
+void LLInventoryFavoritesItemsPanel::initRootContent(const LLUUID& id)
+{
+    LLViewerInventoryCategory::cat_array_t* categories;
+    LLViewerInventoryItem::item_array_t* items;
+    mInventory->lockDirectDescendentArrays(id, categories, items);
+
+    if (categories)
+    {
+        S32 count = categories->size();
+        for (S32 i = 0; i < count; ++i)
+        {
+            LLViewerInventoryCategory* cat = categories->at(i);
+            if (cat->getPreferredType() == LLFolderType::FT_TRASH)
+            {
+                continue;
+            }
+            else if (cat->getIsFavorite())
+            {
+                const LLUUID& parent_id = cat->getParentUUID();
+                LLFolderViewItem* folder_view_item = getItemByID(cat->getUUID()); // Should be NULL
+
+                buildViewsTree(cat->getUUID(), parent_id, cat, folder_view_item, mFolderRoot.get(), BUILD_TIMELIMIT);
+            }
+            else // Todo: timelimits
+            {
+                initRootContent(cat->getUUID());
+            }
+        }
+    }
+
+    if (items)
+    {
+        S32 count = items->size();
+        for (S32 i = 0; i < count; ++i)
+        {
+            LLViewerInventoryItem* item = items->at(i);
+            if (item->getIsFavorite() && typedViewsFilter(id, item))
+            {
+                const LLUUID& parent_id = item->getParentUUID();
+                LLFolderViewItem* folder_view_item = getItemByID(id); // Should be NULL
+
+                buildViewsTree(item->getUUID(), parent_id, item, folder_view_item, mFolderRoot.get(), BUILD_TIMELIMIT);
+            }
+        }
+    }
+}
+
+void LLInventoryFavoritesItemsPanel::initRootContent()
+{
+    initRootContent(gInventory.getRootFolderID()); // My Inventory
 }
 
 /************************************************************************/

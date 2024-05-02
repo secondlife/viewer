@@ -874,12 +874,20 @@ BOOL LLInventoryItem::exportLegacyStream(std::ostream& output_stream, BOOL inclu
 	output_stream << "\t\tparent_id\t" << uuid_str << "\n";
 	mPermissions.exportLegacyStream(output_stream);
 
-    if (mThumbnailUUID.notNull())
+    bool needs_metadata = mThumbnailUUID.notNull() || mFavorite;
+    if (needs_metadata)
     {
         // Max length is 255 chars, will have to export differently if it gets more data
         // Ex: use newline and toNotation (uses {}) for unlimited size
         LLSD metadata;
-        metadata["thumbnail"] = LLSD().with("asset_id", mThumbnailUUID);
+        if (mThumbnailUUID.notNull())
+        {
+            metadata["thumbnail"] = LLSD().with("asset_id", mThumbnailUUID);
+        }
+        if (mFavorite)
+        {
+            metadata["favorite"] = LLSD().with("toggled", mFavorite);
+        }
 
         output_stream << "\t\tmetadata\t";
         LLSDSerialize::toXML(metadata, output_stream);
@@ -1488,11 +1496,21 @@ BOOL LLInventoryCategory::exportLegacyStream(std::ostream& output_stream, BOOL) 
 	output_stream << "\t\ttype\t" << LLAssetType::lookup(mType) << "\n";
 	output_stream << "\t\tpref_type\t" << LLFolderType::lookup(mPreferredType) << "\n";
 	output_stream << "\t\tname\t" << mName.c_str() << "|\n";
-    if (mThumbnailUUID.notNull())
+
+    bool needs_metadata = mThumbnailUUID.notNull() || mFavorite;
+    if (needs_metadata)
     {
         // Only up to 255 chars
         LLSD metadata;
-        metadata["thumbnail"] = LLSD().with("asset_id", mThumbnailUUID);
+        if (mThumbnailUUID.notNull())
+        {
+            metadata["thumbnail"] = LLSD().with("asset_id", mThumbnailUUID);
+        }
+        if (mFavorite)
+        {
+            metadata["favorite"] = LLSD().with("toggled", mFavorite);
+        }
+
         output_stream << "\t\tmetadata\t";
         LLSDSerialize::toXML(metadata, output_stream);
         output_stream << "|\n";

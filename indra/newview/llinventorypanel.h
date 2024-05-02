@@ -334,6 +334,7 @@ public:
 protected:
 	// Builds the UI.  Call this once the inventory is usable.
 	void 				initializeViews(F64 max_time);
+    virtual void        initRootContent();
 
 	// Specific inventory colors
 	static bool                 sColorSetInitialized;
@@ -371,7 +372,7 @@ protected:
 	virtual LLFolderViewItem*	createFolderViewItem(LLInvFVBridge * bridge);
 
     boost::function<void(const std::deque<LLFolderViewItem*>& items, BOOL user_action)> mSelectionCallback;
-private:
+protected:
     // buildViewsTree does not include some checks and is meant
     // for recursive use, use buildNewViews() for first call
     LLFolderViewItem*			buildViewsTree(const LLUUID& id,
@@ -394,6 +395,7 @@ private:
     EViewsInitializationState	mViewsInitialized; // Whether views have been generated
     F64							mBuildViewsEndTime; // Stop building views past this timestamp
     std::deque<LLUUID>			mBuildViewsQueue;
+    std::deque<LLUUID>			mBuildRootContent;
 };
 
 
