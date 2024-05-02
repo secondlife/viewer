@@ -679,7 +679,6 @@ void LLGameControllerManager::getFlycamInputs(std::vector<F32>& inputs)
 
 void LLGameControllerManager::setExternalInput(U32 action_flags, U32 buttons)
 {
-    mExternalState.clear();
     if (g_translateAgentActions)
     {
         // HACK: these are the bits we can safely translate from control flags to GameControl
@@ -703,9 +702,17 @@ void LLGameControllerManager::setExternalInput(U32 action_flags, U32 buttons)
         {
             mLastActiveFlags = active_flags;
             mExternalState = mActionTranslator.computeStateFromFlags(action_flags);
+            mExternalState.mButtons |= buttons;
+        }
+        else
+        {
+            mExternalState.mButtons = buttons;
         }
     }
-    mExternalState.mButtons |= buttons;
+    else
+    {
+        mExternalState.mButtons = buttons;
+    }
 }
 
 void LLGameControllerManager::clear()
