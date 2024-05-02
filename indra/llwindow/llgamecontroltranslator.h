@@ -32,6 +32,17 @@
 #include "llgamecontrol.h"
 
 
+// GameControl data is sent to the server to expose game controller input to LSL scripts,
+// however not everyone will have a game controller device. To allow keyboard users to provide
+// GameControl data we allow the User to configure equivalences between avatar actions
+// (i.e. "push forward", "strafe left", etc) and keyboard buttons to GameControl axes
+// and buttons.
+//
+// The LLGameControlTranslator stores the equivalences and translates avatar action_flags
+// and keyboard state into GameContrl data, and in some cases the other direction: from
+// LLGameControl::State into avatar action_flags.
+//
+
 class LLGameControlTranslator
 {
 public:
@@ -51,7 +62,7 @@ public:
 
     // Given external action_flags (i.e. raw avatar input)
     // compute the corresponding LLGameControl::State that would have produced those flags.
-    // Note: "action flags" are similar to, but not quite the same as, "control flags".
+    // Note: "action_flags" are similar to, but not quite the same as, "control_flags".
     const LLGameControl::State& computeStateFromFlags(U32 action_flags);
 
     // Given LLGameControl::State (i.e. from a real controller)

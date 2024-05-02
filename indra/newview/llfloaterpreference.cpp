@@ -2666,6 +2666,8 @@ void LLPanelPreferenceControls::populateControlTable()
         addControlTableRows("control_table_contents_movement.xml");
         addControlTableSeparator();
         addControlTableRows("control_table_contents_media.xml");
+        addControlTableSeparator();
+        addControlTableRows("control_table_contents_game_control.xml");
     }
     // MODE_THIRD_PERSON; MODE_EDIT_AVATAR; MODE_SITTING
     else if (mEditingMode < LLKeyConflictHandler::MODE_SAVED_SETTINGS)
@@ -2682,6 +2684,9 @@ void LLPanelPreferenceControls::populateControlTable()
         addControlTableSeparator();
 
         addControlTableRows("control_table_contents_media.xml");
+        addControlTableSeparator();
+
+        addControlTableRows("control_table_contents_game_control.xml");
     }
     else
     {

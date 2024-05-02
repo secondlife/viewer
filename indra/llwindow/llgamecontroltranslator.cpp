@@ -116,7 +116,6 @@ bool LLGameControlTranslator::updateMap(const std::string& name, const LLGameCon
                 bool success = updateMapInternal(new_name, channel);
                 if (success)
                 {
-                    //new_name.append("-");
                     new_name.data()[name_length] = '-';
                     LLGameControl::InputChannel other_channel(channel.mType, channel.mIndex, -channel.mSign);
                     // TIED TRIGGER HACK: this works for XBox and similar controllers,
