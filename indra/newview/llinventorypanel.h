@@ -251,7 +251,7 @@ public:
 													bool reset_filter = false);
 	static void setSFViewAndOpenFolder(const LLInventoryPanel* panel, const LLUUID& folder_id);
 	void addItemID(const LLUUID& id, LLFolderViewItem* itemp);
-	void removeItemID(const LLUUID& id);
+	virtual void removeItemID(const LLUUID& id);
 	LLFolderViewItem* getItemByID(const LLUUID& id);
 	LLFolderViewFolder* getFolderByID(const LLUUID& id);
 	void setSelectionByID(const LLUUID& obj_id, BOOL take_keyboard_focus);
@@ -335,6 +335,7 @@ protected:
 	// Builds the UI.  Call this once the inventory is usable.
 	void 				initializeViews(F64 max_time);
     virtual void        initRootContent();
+    virtual void        findAndInitRootContent(const LLUUID& root_id) {};
 
 	// Specific inventory colors
 	static bool                 sColorSetInitialized;
@@ -395,7 +396,7 @@ protected:
     EViewsInitializationState	mViewsInitialized; // Whether views have been generated
     F64							mBuildViewsEndTime; // Stop building views past this timestamp
     std::deque<LLUUID>			mBuildViewsQueue;
-    std::deque<LLUUID>			mBuildRootContent;
+    std::deque<LLUUID>			mBuildRootQueue;
 };
 
 

@@ -838,6 +838,8 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 {
 	const LLInventoryObject *obj = getInventoryObject();
     bool single_folder_root = (mRoot == NULL);
+    bool is_cof = isCOFFolder();
+    bool is_inbox = isInboxFolder();
 
 	if (obj)
 	{
@@ -853,7 +855,7 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 		}
 
         bool is_agent_inventory = isAgentInventory();
-        if (is_agent_inventory && !single_folder_root)
+        if (is_agent_inventory && !single_folder_root && !is_cof && !is_inbox)
         {
             items.push_back(std::string("New folder from selected"));
             items.push_back(std::string("Subfolder Separator"));
@@ -889,6 +891,7 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
             if (!isItemMovable() || !isItemRemovable())
             {
                 disabled_items.push_back(std::string("Cut"));
+                disabled_items.push_back(std::string("New folder from selected"));
             }
 		}
 		else
@@ -898,7 +901,7 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 				items.push_back(std::string("Find Links"));
 			}
 
-			if (!isInboxFolder() && !single_folder_root)
+			if (!is_inbox && !single_folder_root)
 			{
 				items.push_back(std::string("Rename"));
 				if (!isItemRenameable() || ((flags & FIRST_SELECTED_ITEM) == 0))
@@ -938,6 +941,7 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 			if (!isItemMovable() || !isItemRemovable())
 			{
 				disabled_items.push_back(std::string("Cut"));
+                disabled_items.push_back(std::string("New folder from selected"));
 			}
 
 			if (canListOnMarketplace() && !isMarketplaceListingsFolder() && !isInboxFolder())
@@ -960,7 +964,7 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 	}
 
 	// Don't allow items to be pasted directly into the COF or the inbox
-	if (!isCOFFolder() && !isInboxFolder())
+	if (!is_cof && !is_inbox)
 	{
 		items.push_back(std::string("Paste"));
 	}
@@ -4444,6 +4448,15 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
 			{
 				items.push_back(std::string("Rename"));
                 items.push_back(std::string("thumbnail"));
+
+                if (cat->getIsFavorite())
+                {
+                    items.push_back(std::string("Remove from Favorites"));
+                }
+                else
+                {
+                    items.push_back(std::string("Add to Favorites"));
+                }
 
 				addDeleteContextMenuOptions(items, disabled_items);
 				// EXT-4030: disallow deletion of currently worn outfit
@@ -8029,6 +8042,7 @@ void LLRecentItemsFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
         buildContextMenuOptions(flags, items, disabled_items);
 
 	items.erase(std::remove(items.begin(), items.end(), std::string("New Folder")), items.end());
+    items.erase(std::remove(items.begin(), items.end(), std::string("New folder from selected")), items.end());
 
 	hide_context_entries(menu, items, disabled_items);
 }
@@ -8071,6 +8085,9 @@ void LLFavoritesFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
     // todo: consider things that should be disabled
     menuentry_vec_t disabled_items, items;
     buildContextMenuOptions(flags, items, disabled_items);
+
+    items.erase(std::remove(items.begin(), items.end(), std::string("New Folder")), items.end());
+    items.erase(std::remove(items.begin(), items.end(), std::string("New folder from selected")), items.end());
 
     hide_context_entries(menu, items, disabled_items);
 }

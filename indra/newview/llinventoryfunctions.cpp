@@ -2663,6 +2663,20 @@ bool LLIsTypeWithPermissions::operator()(LLInventoryCategory* cat, LLInventoryIt
 	return FALSE;
 }
 
+bool LLFavoritesCollector::operator()(LLInventoryCategory* cat,
+    LLInventoryItem* item)
+{
+    if (item && item->getIsFavorite())
+    {
+        return true;
+    }
+    if (cat && cat->getIsFavorite())
+    {
+        return true;
+    }
+    return false;
+}
+
 bool LLBuddyCollector::operator()(LLInventoryCategory* cat,
 								  LLInventoryItem* item)
 {
