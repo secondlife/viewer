@@ -58,7 +58,7 @@
 //            |            /                          \            |
 //             \__________/                            \__________/
 //
-// Note: the analog joystics provide NEGATIVE X,Y values for LEFT,FORWARD
+// Note: the analog joysticks provide NEGATIVE X,Y values for LEFT,FORWARD
 // whereas those directions are actually POSITIVE in SL's local right-handed
 // reference frame.  This is why we implicitly negate those axes the moment
 // they are extracted from SDL, before being used anywhere.  See the
