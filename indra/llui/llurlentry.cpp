@@ -1701,6 +1701,7 @@ void LLUrlEntryKeybinding::initLocalization()
     initLocalizationFromFile("control_table_contents_camera.xml");
     initLocalizationFromFile("control_table_contents_editing.xml");
     initLocalizationFromFile("control_table_contents_media.xml");
+    initLocalizationFromFile("control_table_contents_game_control.xml");
 }
 
 void LLUrlEntryKeybinding::initLocalizationFromFile(const std::string& filename)

@@ -4806,7 +4806,7 @@ void LLAppViewer::idle()
         // trade flags between gAgent and LLGameControl
         U32 control_flags = gAgent.getControlFlags();
         U32 action_flags = LLGameControl::computeInternalActionFlags();
-        LLGameControl::setExternalActionFlags(control_flags);
+        LLGameControl::setExternalInput(control_flags, gAgent.getGameControlButtonsFromKeys());
 
         bool should_send_game_control = LLGameControl::computeFinalStateAndCheckForChanges();
         if (LLPanelPreferenceGameControl::isWaitingForInputChannel())

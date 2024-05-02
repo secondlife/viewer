@@ -204,7 +204,7 @@ public:
     bool updateActionMap(const std::string& name,  LLGameControl::InputChannel channel);
     U32 computeInternalActionFlags();
     void getFlycamInputs(std::vector<F32>& inputs_out);
-    void setExternalActionFlags(U32 action_flags);
+    void setExternalInput(U32 action_flags, U32 buttons);
 
     void clear();
 
@@ -321,7 +321,6 @@ LLGameControllerManager::LLGameControllerManager()
     // Not a problem because these bits are only used internally.
     actions["toggle_run"]    = AGENT_CONTROL_NUDGE_AT_POS; // HACK
     actions["toggle_fly"]    = AGENT_CONTROL_FLY; // HACK
-    actions["toggle_sit"]    = AGENT_CONTROL_SIT_ON_GROUND; // HACK
     actions["toggle_flycam"] = AGENT_CONTROL_NUDGE_AT_NEG; // HACK
     mActionTranslator.setAvailableActions(actions);
 
@@ -339,7 +338,6 @@ LLGameControllerManager::LLGameControllerManager()
         { "look",  { type::TYPE_AXIS,   (U8)(LLGameControl::AXIS_RIGHTY),      1 } },
         { "toggle_run",    { type::TYPE_BUTTON, (U8)(LLGameControl::BUTTON_LEFTSHOULDER) }  },
         { "toggle_fly",    { type::TYPE_BUTTON, (U8)(LLGameControl::BUTTON_DPAD_UP) }       },
-        { "toggle_sit",    { type::TYPE_BUTTON, (U8)(LLGameControl::BUTTON_DPAD_DOWN) }     },
         { "toggle_flycam", { type::TYPE_BUTTON, (U8)(LLGameControl::BUTTON_RIGHTSHOULDER) } },
         { "stop",          { type::TYPE_BUTTON, (U8)(LLGameControl::BUTTON_LEFTSTICK) }     }
     };
@@ -679,9 +677,9 @@ void LLGameControllerManager::getFlycamInputs(std::vector<F32>& inputs)
     }
 }
 
-// static
-void LLGameControllerManager::setExternalActionFlags(U32 action_flags)
+void LLGameControllerManager::setExternalInput(U32 action_flags, U32 buttons)
 {
+    mExternalState.clear();
     if (g_translateAgentActions)
     {
         // HACK: these are the bits we can safely translate from control flags to GameControl
@@ -707,6 +705,7 @@ void LLGameControllerManager::setExternalActionFlags(U32 action_flags)
             mExternalState = mActionTranslator.computeStateFromFlags(action_flags);
         }
     }
+    mExternalState.mButtons |= buttons;
 }
 
 void LLGameControllerManager::clear()
@@ -991,9 +990,9 @@ U32 LLGameControl::computeInternalActionFlags()
 }
 
 // static
-void LLGameControl::setExternalActionFlags(U32 action_flags)
+void LLGameControl::setExternalInput(U32 action_flags, U32 buttons)
 {
-    g_manager.setExternalActionFlags(action_flags);
+    g_manager.setExternalInput(action_flags, buttons);
 }
 
 //static
