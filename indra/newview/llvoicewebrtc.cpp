@@ -553,6 +553,7 @@ void LLWebRTCVoiceClient::updateNeighboringRegions()
     // Estate voice requires connection to neighboring regions.
     mNeighboringRegions.clear();
 
+    // add current region.
     mNeighboringRegions.insert(gAgent.getRegion()->getRegionID());
 
     // base off of speaker position as it'll move more slowly than camera position.
@@ -924,6 +925,13 @@ void LLWebRTCVoiceClient::updatePosition(void)
         enforceTether();
 
         updateNeighboringRegions();
+
+        // update own region id to be the region id avatar is currently in.
+        LLWebRTCVoiceClient::participantStatePtr_t participant = findParticipantByID("Estate", gAgentID);
+        if(participant)
+        {
+            participant->mRegion = gAgent.getRegion()->getRegionID();
+        }
     }
 }
 
