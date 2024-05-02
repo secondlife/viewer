@@ -104,7 +104,7 @@ bool LLGameControlTranslator::updateMap(const std::string& name, const LLGameCon
         else if (channel.isAxis())
         {
             U8 last_char = name.at(name_length - 1);
-            if (last_char == '+' || last_char == '=')
+            if (last_char == '+' || last_char == '-')
             {
                 map_changed = updateMapInternal(name, channel);
             }
