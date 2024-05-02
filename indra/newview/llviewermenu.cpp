@@ -8010,6 +8010,16 @@ class LLAdvancedClickGLTFDecompose : public view_listener_t
     }
 };
 
+class LLAdvancedClickGLTFUpload: public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata)
+    {
+        // open personal lighting floater when previewing an HDRI (keeps HDRI from implicitly unloading when opening build tools)
+        LL::GLTFSceneManager::instance().uploadSelection();
+        return true;
+    }
+};
+
 // these are used in the gl menus to set control values that require shader recompilation
 class LLToggleShaderControl : public view_listener_t
 {
@@ -9660,6 +9670,7 @@ void initialize_menus()
     view_listener_t::addMenu(new LLAdvancedClickGLTFOpen(), "Advanced.ClickGLTFOpen");
     view_listener_t::addMenu(new LLAdvancedClickGLTFSaveAs(), "Advanced.ClickGLTFSaveAs");
     view_listener_t::addMenu(new LLAdvancedClickGLTFDecompose(), "Advanced.ClickGLTFDecompose");
+    view_listener_t::addMenu(new LLAdvancedClickGLTFUpload(), "Advanced.ClickGLTFUpload");
 	view_listener_t::addMenu(new LLAdvancedPurgeShaderCache(), "Advanced.ClearShaderCache");
     view_listener_t::addMenu(new LLAdvancedRebuildTerrain(), "Advanced.RebuildTerrain");
 

@@ -257,6 +257,11 @@ namespace LL
             // save image clear local data, and set uri
             void decompose(Asset& asset, const std::string& filename);
 
+            // erase the buffer view associated with this image
+            // free any associated resources
+            // preserve only uri and name
+            void clearData(Asset& asset);
+
             void allocateGLResources()
             {
                 // allocate texture

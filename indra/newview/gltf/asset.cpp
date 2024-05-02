@@ -857,6 +857,29 @@ void Asset::eraseBufferView(S32 bufferView)
 
 }
 
+void Image::clearData(Asset& asset)
+{
+    if (mBufferView != INVALID_INDEX)
+    {
+        // save original image
+        BufferView& bufferView = asset.mBufferViews[mBufferView];
+        Buffer& buffer = asset.mBuffers[bufferView.mBuffer];
+
+        buffer.erase(asset, bufferView.mByteOffset, bufferView.mByteLength);
+
+        asset.eraseBufferView(mBufferView);
+    }
+
+    mData.clear();
+    mBufferView = INVALID_INDEX;
+    mWidth = -1;
+    mHeight = -1;
+    mComponent = -1;
+    mBits = -1;
+    mPixelType = -1;
+    mMimeType = "";
+}
+
 void Image::decompose(Asset& asset, const std::string& folder)
 {
     std::string name = mName;
@@ -894,12 +917,9 @@ void Image::decompose(Asset& asset, const std::string& folder)
 
         std::ofstream file(filename, std::ios::binary);
         file.write((const char*)buffer.mData.data() + bufferView.mByteOffset, bufferView.mByteLength);
-        
-        buffer.erase(asset, bufferView.mByteOffset, bufferView.mByteLength);
-
-        asset.eraseBufferView(mBufferView);
     }
 
+#if 0
     if (!mData.empty())
     {
         // save j2c image
@@ -907,21 +927,17 @@ void Image::decompose(Asset& asset, const std::string& folder)
 
         LLPointer<LLImageRaw> raw = new LLImageRaw(mWidth, mHeight, mComponent);
         U8* data = raw->allocateData();
-        llassert(mData.size() == raw->getDataSize());
+        llassert_always(mData.size() == raw->getDataSize());
         memcpy(data, mData.data(), mData.size());
 
         LLViewerTextureList::createUploadFile(raw, filename, 4096);
 
         mData.clear();
     }
+#endif
 
-    mWidth = -1;
-    mHeight = -1;
-    mComponent = -1;
-    mBits = -1;
-    mPixelType = -1;
-    mMimeType = "";
 
+    clearData(asset);
 }
 
 const Material::TextureInfo& Material::TextureInfo::operator=(const tinygltf::TextureInfo& src)

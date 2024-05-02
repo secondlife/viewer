@@ -39,7 +39,10 @@
 #include "gltf/asset.h"
 #include "pipeline.h"
 #include "llviewershadermgr.h"
-
+#include "llviewertexturelist.h"
+#include "llimagej2c.h"
+#include "llfloaterperms.h"
+#include "llagentbenefits.h"
 
 using namespace LL;
 
@@ -123,6 +126,162 @@ void GLTFSceneManager::decomposeSelection()
     else
     {
         LLNotificationsUtil::add("GLTFSaveSelection");
+    }
+}
+
+void GLTFSceneManager::uploadSelection()
+{
+    if (mUploadingAsset)
+    { // upload already in progress
+        LLNotificationsUtil::add("GLTFUploadInProgress");
+        return;
+    }
+
+    LLViewerObject* obj = LLSelectMgr::instance().getSelection()->getFirstRootObject();
+    if (obj && obj->mGLTFAsset)
+    {
+        // make a copy of the asset prior to uploading
+        mUploadingAsset = std::make_shared<Asset>();
+        *mUploadingAsset = *obj->mGLTFAsset;
+
+        GLTF::Asset& asset = *mUploadingAsset;
+
+        for (auto& image : asset.mImages)
+        {
+            if (!image.mData.empty())
+            {
+                mPendingImageUploads++;
+
+                LLPointer<LLImageRaw> raw = new LLImageRaw(image.mWidth, image.mHeight, image.mComponent);
+                U8* data = raw->allocateData();
+                llassert_always(image.mData.size() == raw->getDataSize());
+                memcpy(data, image.mData.data(), image.mData.size());
+
+                LLPointer<LLImageJ2C> j2c = LLViewerTextureList::convertToUploadFile(raw);
+
+                std::string buffer;
+                buffer.assign((const char*)j2c->getData(), j2c->getDataSize());
+
+                LLUUID asset_id = LLUUID::generateNewID();
+
+                std::string name;
+                S32 idx = (S32)(&image - &asset.mImages[0]);
+
+                if (image.mName.empty())
+                {
+
+                    name = llformat("Image_%d", idx);
+                }
+                else
+                {
+                    name = image.mName;
+                }
+
+                LLNewBufferedResourceUploadInfo::uploadFailure_f failure = [this](LLUUID assetId, LLSD response, std::string reason)
+                    {
+                        // TODO: handle failure
+                        mPendingImageUploads--;
+                        return false;
+                    };
+
+                LLNewBufferedResourceUploadInfo::uploadFinish_f finish = [this, idx](LLUUID assetId, LLSD response)
+                    {
+                        if (mUploadingAsset && mUploadingAsset->mImages.size() > idx)
+                        {
+                            mUploadingAsset->mImages[idx].mUri = assetId.asString();
+                            mPendingImageUploads--;
+                        }
+                    };
+
+#if 0
+                S32 expected_upload_cost = LLAgentBenefitsMgr::current().getTextureUploadCost(j2c);
+
+                LLResourceUploadInfo::ptr_t uploadInfo(std::make_shared<LLNewBufferedResourceUploadInfo>(
+                    buffer,
+                    asset_id,
+                    name,
+                    name,
+                    0,
+                    LLFolderType::FT_TEXTURE,
+                    LLInventoryType::IT_TEXTURE,
+                    LLAssetType::AT_TEXTURE,
+                    LLFloaterPerms::getNextOwnerPerms("Uploads"),
+                    LLFloaterPerms::getGroupPerms("Uploads"),
+                    LLFloaterPerms::getEveryonePerms("Uploads"),
+                    expected_upload_cost,
+                    false,
+                    finish,
+                    failure));
+
+                upload_new_resource(uploadInfo);
+
+#else
+                // dummy finish
+                finish(LLUUID::generateNewID(), LLSD());
+#endif
+                image.clearData(asset);
+            }
+        }
+
+        // upload .bin
+        for (auto& bin : asset.mBuffers)
+        {
+            mPendingBinaryUploads++;
+
+            S32 idx = (S32)(&bin - &asset.mBuffers[0]);
+
+            std::string buffer;
+            buffer.assign((const char*)bin.mData.data(), bin.mData.size());
+
+            LLUUID asset_id = LLUUID::generateNewID();
+
+            LLNewBufferedResourceUploadInfo::uploadFailure_f failure = [this](LLUUID assetId, LLSD response, std::string reason)
+                {
+                    // TODO: handle failure
+                    mPendingImageUploads--;
+                    return false;
+                };
+
+            LLNewBufferedResourceUploadInfo::uploadFinish_f finish = [this, idx](LLUUID assetId, LLSD response)
+                {
+                    if (mUploadingAsset && mUploadingAsset->mImages.size() > idx)
+                    {
+                        mUploadingAsset->mBuffers[idx].mUri = assetId.asString();
+                        mPendingBinaryUploads--;
+                    }
+                };
+
+#if 0
+
+            S32 expected_upload_cost = 0;
+            // TODO: actually upload the .bin
+            LLResourceUploadInfo::ptr_t uploadInfo(std::make_shared<LLNewBufferedResourceUploadInfo>(
+                buffer,
+                asset_id,
+                name,
+                name,
+                0,
+                LLFolderType::FT_TEXTURE,
+                LLInventoryType::IT_TEXTURE,
+                LLAssetType::AT_TEXTURE,
+                LLFloaterPerms::getNextOwnerPerms("Uploads"),
+                LLFloaterPerms::getGroupPerms("Uploads"),
+                LLFloaterPerms::getEveryonePerms("Uploads"),
+                expected_upload_cost,
+                false,
+                finish,
+                failure));
+
+            upload_new_resource(uploadInfo);
+#else
+            // dummy finish
+            finish(LLUUID::generateNewID(), LLSD());
+#endif
+        }
+    }
+    else
+    {
+        LLNotificationsUtil::add("GLTFUploadSelection");
     }
 }
 
@@ -211,6 +370,22 @@ void GLTFSceneManager::update()
         }
 
         mObjects[i]->mGLTFAsset->update();
+    }
+
+    // process pending uploads
+    if (mUploadingAsset)
+    {
+        if (mPendingImageUploads == 0 && mPendingBinaryUploads == 0)
+        {
+            tinygltf::Model model;
+            mUploadingAsset->save(model);
+
+            tinygltf::TinyGLTF writer;
+            std::string filename(gDirUtilp->getTempDir() + "/upload.gltf");
+            writer.WriteGltfSceneToFile(&model, filename, false, false, true, false);
+
+            mUploadingAsset = nullptr;
+        }
     }
 }
 

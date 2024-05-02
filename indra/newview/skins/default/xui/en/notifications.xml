@@ -12428,4 +12428,15 @@ are wearing now.
       yestext="OK"/>
   </notification>
 
+  <notification
+ icon="alertmodal.tga"
+ name="GLTFUploadInProgress"
+ type="alert">
+    Upload is currently in progress.  Please try again later.
+    <tag>fail</tag>
+    <usetemplate
+      name="okbutton"
+      yestext="OK"/>
+  </notification>
+
 </notifications>
