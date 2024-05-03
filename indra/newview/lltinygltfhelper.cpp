@@ -104,9 +104,9 @@ void LLTinyGLTFHelper::initFetchedTextures(tinygltf::Material& material,
                 }
             }
         }
-        else
+        else if (material.occlusionTexture.index == -1)
         {
-            // no occlusion, make a white occlusion image
+            // no occlusion, make sure red channel of ORM is all 255
             occlusion_img = new LLImageRaw(mr_img->getWidth(), mr_img->getHeight(), 3);
             occlusion_img->clear(255, 255, 255);
             copy_red_channel(occlusion_img, mr_img);
