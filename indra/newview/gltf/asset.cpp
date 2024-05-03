@@ -712,8 +712,12 @@ void Asset::allocateGLResources(const std::string& filename, const tinygltf::Mod
     // do materials before meshes as meshes may depend on materials
     for (U32 i = 0; i < mMaterials.size(); ++i)
     {
-        mMaterials[i].allocateGLResources(*this);
-        LLTinyGLTFHelper::getMaterialFromModel(filename, model, i, mMaterials[i].mMaterial, mMaterials[i].mName, true);
+        if (!filename.empty())
+        {
+            // HACK: local preview mode, load material from model for now
+            mMaterials[i].allocateGLResources(*this);
+            LLTinyGLTFHelper::getMaterialFromModel(filename, model, i, mMaterials[i].mMaterial, mMaterials[i].mName, true);
+        }
     }
 
     for (auto& mesh : mMeshes)
@@ -730,6 +734,11 @@ void Asset::allocateGLResources(const std::string& filename, const tinygltf::Mod
     {
         skin.allocateGLResources(*this);
     }
+}
+
+Asset::Asset(const tinygltf::Model& src)
+{
+    *this = src;
 }
 
 const Asset& Asset::operator=(const tinygltf::Model& src)
@@ -1000,7 +1009,9 @@ const Material& Material::operator=(const tinygltf::Material& src)
 
 void Material::allocateGLResources(Asset& asset)
 {
-    // allocate material
+    // HACK: allocate an LLFetchedGLTFMaterial for now
+    // later we'll render directly from the GLTF Images
+    // and BufferViews
     mMaterial = new LLFetchedGLTFMaterial();
 }
 

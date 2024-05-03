@@ -7621,6 +7621,18 @@ void LLViewerObject::shrinkWrap()
     }
 }
 
+void LLViewerObject::setGLTFAsset(const LLUUID& id)
+{
+    LLVolume* volume = getVolume();
+    if (volume && volume->getParams().getSculptID() != id)
+    {
+        LLVolumeParams params;
+        params.setSculptID(id, LL_SCULPT_TYPE_GLTF);
+        setVolume(params, NO_LOD);
+    }
+}
+
+
 class ObjectPhysicsProperties : public LLHTTPNode
 {
 public:

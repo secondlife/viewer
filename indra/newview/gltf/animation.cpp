@@ -99,6 +99,8 @@ void Animation::Sampler::allocateGLResources(Asset& asset)
 
 void Animation::Sampler::getFrameInfo(Asset& asset, F32 time, U32& frameIndex, F32& t)
 {
+    LL_PROFILE_ZONE_SCOPED;
+
     if (time < mMinTime)
     {
         frameIndex = 0;

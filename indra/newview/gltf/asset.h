@@ -299,7 +299,7 @@ namespace LL
             F32 mLastUpdateTime = gFrameTimeSeconds;
 
             // prepare the asset for rendering
-            void allocateGLResources(const std::string& filename, const tinygltf::Model& model);
+            void allocateGLResources(const std::string& filename = "", const tinygltf::Model& model = tinygltf::Model());
             
             // Called periodically (typically once per frame)
             // Any ongoing work (such as animations) should be handled here
@@ -328,6 +328,8 @@ namespace LL
                 S32* primitive_hitp = nullptr           // return the index of the primitive that was hit
             );
             
+            Asset() = default;
+            Asset(const tinygltf::Model& src);
             const Asset& operator=(const tinygltf::Model& src);
 
             // save the asset to a tinygltf model

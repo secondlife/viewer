@@ -89,6 +89,7 @@
 #include "llsculptidsize.h"
 #include "llavatarappearancedefines.h"
 #include "llgltfmateriallist.h"
+#include "gltfscenemanager.h"
 
 const F32 FORCE_SIMPLE_RENDER_AREA = 512.f;
 const F32 FORCE_CULL_AREA = 8.f;
@@ -1018,7 +1019,7 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params_in, const S32 detail, bo
 	S32 lod = mLOD;
 
 	BOOL is404 = FALSE;
-	
+
 	if (isSculpted())
 	{
 		// if it's a mesh
@@ -1133,6 +1134,10 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params_in, const S32 detail, bo
 			}
 		}
 
+        if ((volume_params.getSculptType() & LL_SCULPT_TYPE_MASK) == LL_SCULPT_TYPE_GLTF)
+        { // notify GLTFSceneManager about new GLTF object
+            LL::GLTFSceneManager::instance().addGLTFObject(this, volume_params.getSculptID());
+        }
         return TRUE;
 	}
 	else if (NO_LOD == lod) 

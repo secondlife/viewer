@@ -78,9 +78,13 @@ namespace LL
 
         void renderDebug();
 
+        void addGLTFObject(LLViewerObject* object, LLUUID gltf_id);
+        static void onGLTFLoadComplete(const LLUUID& id, LLAssetType::EType asset_type, void* user_data, S32 status, LLExtStat ext_status);
+
         std::vector<LLPointer<LLViewerObject>> mObjects;
 
         std::shared_ptr<GLTF::Asset> mUploadingAsset;
+        LLPointer<LLViewerObject> mUploadingObject;
         U32 mPendingImageUploads = 0;
         U32 mPendingBinaryUploads = 0;
         U32 mPendingGLTFUploads = 0;
