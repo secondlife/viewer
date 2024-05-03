@@ -3009,6 +3009,14 @@ version 2.0
 		{	ChatShoutOffset		F32 		}
 		{	ChatFlags			U32			}
 	}
+    {
+        CombatSettings  Variable
+        {   CombatFlags         U32         }
+        {   OnDeath             U8          }
+        {   DamageThrottle      F32         }
+        {   RegenerationRate    F32         }
+        {   InvulnerabilyTime   F32         }
+    }
 }
 
 // GodUpdateRegionInfo

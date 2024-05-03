@@ -493,6 +493,25 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
 			<< " chat flags: " << chat_flags << LL_ENDL;
 	}
 
+    if (msg->has(_PREHASH_CombatSettings))
+    {
+        U32 combat_flags;
+        U8  on_death;
+        F32 damage_throttle;
+        F32 regeneration_rate;
+        F32 invulnerability_time;
+
+        msg->getU32Fast(_PREHASH_CombatSettings, _PREHASH_CombatFlags, combat_flags);
+        msg->getU8Fast(_PREHASH_CombatSettings, _PREHASH_OnDeath, on_death);
+        msg->getF32Fast(_PREHASH_CombatSettings, _PREHASH_DamageThrottle, damage_throttle);
+        msg->getF32Fast(_PREHASH_CombatSettings, _PREHASH_RegenerationRate, regeneration_rate);
+        msg->getF32Fast(_PREHASH_CombatSettings, _PREHASH_InvulnerabilyTime, invulnerability_time);
+
+        LL_INFOS() << "Combat flags: " << std::hex << combat_flags << std::dec << " on death: " << on_death
+                   << " damage throttle: " << damage_throttle << " regeneration rate: " << regeneration_rate
+                   << " invulnerability time: " << invulnerability_time << LL_ENDL;
+    }
+
 	// GENERAL PANEL
 	panel = tab->getChild<LLPanel>("General");
 	panel->getChild<LLUICtrl>("region_text")->setValue(LLSD(sim_name));

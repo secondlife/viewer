@@ -1403,5 +1403,11 @@ extern char const* const _PREHASH_HoverHeight;
 extern char const* const _PREHASH_Experience;
 extern char const* const _PREHASH_ExperienceID;
 extern char const* const _PREHASH_LargeGenericMessage;
+extern char const *const _PREHASH_CombatSettings;
+extern char const *const _PREHASH_CombatFlags;
+extern char const *const _PREHASH_OnDeath;
+extern char const *const _PREHASH_DamageThrottle;
+extern char const *const _PREHASH_RegenerationRate;
+extern char const *const _PREHASH_InvulnerabilyTime;
 
 #endif
