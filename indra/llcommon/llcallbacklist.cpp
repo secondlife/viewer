@@ -152,7 +152,7 @@ LLLater::handle_t LLLater::doAtTime2(nullary_func_t callable, HandleMap::iterato
     auto handle{ mQueue.emplace(callable, iter->first, iter->second.second) };
     // Now that we have an mQueue handle_type, store it in mHandles entry.
     iter->second.first = handle;
-    if (first)
+    if (first && ! mLive.connected())
     {
         // If this is our first entry, register for regular callbacks.
         mLive = LLCallbackList::instance().doOnIdleRepeating([this]{ return tick(); });
