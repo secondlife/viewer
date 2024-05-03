@@ -1131,7 +1131,7 @@ bool LLAppViewer::init()
         LLViewerJoystick::getInstance()->init(false);
     }
 
-    LLGameControl::init();
+    LLGameControl::init(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "gamecontrollerdb.txt"));
     LLGameControl::enableSendToServer(gSavedSettings.getBOOL("GameControlToServer"));
     LLGameControl::enableControlAgent(gSavedSettings.getBOOL("GameControlToAgent"));
     LLGameControl::enableTranslateAgentActions(gSavedSettings.getBOOL("AgentToGameControl"));
