@@ -288,24 +288,19 @@ LLLocalGLTFMaterialTimer::~LLLocalGLTFMaterialTimer()
 
 void LLLocalGLTFMaterialTimer::startTimer()
 {
-    mEventTimer.start();
+    start();
 }
 
 void LLLocalGLTFMaterialTimer::stopTimer()
 {
-    mEventTimer.stop();
+    stop();
 }
 
-bool LLLocalGLTFMaterialTimer::isRunning()
-{
-    return mEventTimer.getStarted();
-}
-
-BOOL LLLocalGLTFMaterialTimer::tick()
+bool LLLocalGLTFMaterialTimer::tick()
 {
     // todo: do on idle? No point in timer 
     LLLocalGLTFMaterialMgr::getInstance()->doUpdates();
-    return FALSE;
+    return false;
 }
 
 /*=======================================*/

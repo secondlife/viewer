@@ -89,7 +89,6 @@ public:
 public:
     void startTimer();
     void stopTimer();
-    bool isRunning();
     bool tick() override;
 };
 

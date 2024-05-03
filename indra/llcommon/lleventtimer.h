@@ -42,6 +42,8 @@ public:
 
 	void start();
 	void stop();
+	bool isRunning();
+	F32 getRemaining();
 
 	//function to be called at the supplied frequency
 	// Normally return false; true will delete the timer after the function returns.

@@ -310,12 +310,12 @@ public:
 	:	LLEventTimer(period),
 		LLPanelPeople::Updater(cb)
 	{
-		mEventTimer.stop();
+		stop();
 	}
 
-	virtual bool tick() override // from LLEventTimer
+	bool tick() override // from LLEventTimer
 	{
-		return FALSE;
+		return false;
 	}
 };
 
@@ -359,7 +359,7 @@ public:
 		{
 			// events can arrive quickly in bulk - we need not process EVERY one of them -
 			// so we wait a short while to let others pile-in, and process them in aggregate.
-			mEventTimer.start();
+			start();
 		}
 
 		// save-up all the mask-bits which have come-in
@@ -377,10 +377,10 @@ public:
 		}
 
 		// Stop updates.
-		mEventTimer.stop();
+		stop();
 		mMask = 0;
 
-		return FALSE;
+		return false;
 	}
 
 	// virtual
@@ -499,19 +499,19 @@ public:
 		{
 			// update immediately and start regular updates
 			update();
-			mEventTimer.start(); 
+			start(); 
 		}
 		else
 		{
 			// stop regular updates
-			mEventTimer.stop();
+			stop();
 		}
 	}
 
 	bool tick() override
 	{
 		update();
-		return FALSE;
+		return false;
 	}
 private:
 };

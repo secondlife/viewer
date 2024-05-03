@@ -118,25 +118,19 @@ public:
 	LLOutfitUnLockTimer(F32 period) : LLEventTimer(period)
 	{
 		// restart timer on BOF changed event
-		LLOutfitObserver::instance().addBOFChangedCallback(boost::bind(
-				&LLOutfitUnLockTimer::reset, this));
+		LLOutfitObserver::instance().addBOFChangedCallback([this]{ start(); });
 		stop();
 	}
 
 	bool tick() override
 	{
-		if(mEventTimer.hasExpired())
-		{
-			LLAppearanceMgr::instance().setOutfitLocked(false);
-		}
-		return FALSE;
+		LLAppearanceMgr::instance().setOutfitLocked(false);
+		return false;
 	}
-	void stop() { mEventTimer.stop(); }
-	void start() { mEventTimer.start(); }
-	void reset() { mEventTimer.reset(); }
-	BOOL getStarted() { return mEventTimer.getStarted(); }
+//	void reset() { mEventTimer.reset(); }
+	bool getStarted() { return isRunning(); }
 
-	LLTimer&  getEventTimer() { return mEventTimer;}
+//	LLTimer&  getEventTimer() { return mEventTimer;}
 };
 
 // support for secondlife:///app/appearance SLapps
@@ -1706,7 +1700,6 @@ void LLAppearanceMgr::setOutfitLocked(bool locked)
 	mOutfitLocked = locked;
 	if (locked)
 	{
-		mUnlockOutfitTimer->reset();
 		mUnlockOutfitTimer->start();
 	}
 	else

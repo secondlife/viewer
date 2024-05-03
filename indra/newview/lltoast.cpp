@@ -57,7 +57,7 @@ void LLToastLifeTimer::restart()
 
 bool LLToastLifeTimer::getStarted()
 {
-	return LLLater::instance.isRunning(mTimer);
+	return isRunning();
 }
 
 void LLToastLifeTimer::setPeriod(F32 period)
@@ -326,7 +326,7 @@ void LLToast::setFading(bool transparent)
 
 F32 LLToast::getTimeLeftToLive()
 {
-	F32 time_to_live = mTimer->getRemainingTimeF32();
+	F32 time_to_live = mTimer->getRemaining();
 
 	if (!mIsFading)
 	{

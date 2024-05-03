@@ -418,10 +418,10 @@ LLMediaDataClient::QueueTimer::QueueTimer(F32 time, LLMediaDataClient *mdc)
 }
 
 // virtual
-BOOL LLMediaDataClient::QueueTimer::tick()
+bool LLMediaDataClient::QueueTimer::tick()
 {
-	BOOL result = TRUE;
-	
+	bool result = TRUE;
+
 	if (!mMDC.isNull())
 	{
 		result = mMDC->processQueueTimer();
@@ -451,7 +451,7 @@ LLMediaDataClient::RetryTimer::RetryTimer(F32 time, Request::ptr_t request)
 }
 
 // virtual
-BOOL LLMediaDataClient::RetryTimer::tick()
+bool LLMediaDataClient::RetryTimer::tick()
 {
 	mRequest->stopTracking();
 
@@ -464,12 +464,12 @@ BOOL LLMediaDataClient::RetryTimer::tick()
 		LL_INFOS("LLMediaDataClient") << "RetryTimer fired for: " << *mRequest << ", retrying." << LL_ENDL;
 		mRequest->reEnqueue();
 	}
-	
+
 	// Release the ref to the request.
-    mRequest.reset();
+	mRequest.reset();
 
 	// Don't fire again
-	return TRUE;
+	return true;
 }
 
 

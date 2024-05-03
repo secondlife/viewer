@@ -4586,7 +4586,7 @@ static LLTrace::BlockTimerStatHandle FTM_HUD_EFFECTS("HUD Effects");
 ///////////////////////////////////////////////////////
 void LLAppViewer::idle()
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_APP;
+	LL_PROFILE_ZONE_SCOPED_CATEGORY_APP;
 	pingMainloopTimeout("Main:Idle");
 
 	// Update frame timers
@@ -4594,8 +4594,7 @@ void LLAppViewer::idle()
 
 	LLFrameTimer::updateFrameTime();
 	LLFrameTimer::updateFrameCount();
-	LLEventTimer::updateClass();
-    LLPerfStats::updateClass();
+	LLPerfStats::updateClass();
 
 	// LLApp::stepFrame() performs the above three calls plus mRunner.run().
 	// Not sure why we don't call stepFrame() here, except that LLRunner seems
@@ -4607,7 +4606,7 @@ void LLAppViewer::idle()
 	LLDirPickerThread::clearDead();
 	F32 dt_raw = idle_timer.getElapsedTimeAndResetF32();
 
-    LLGLTFMaterialList::flushUpdates();
+	LLGLTFMaterialList::flushUpdates();
 
 	// Service the WorkQueue we use for replies from worker threads.
 	// Use function statics for the timeslice setting so we only have to fetch

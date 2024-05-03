@@ -46,9 +46,7 @@ public:
         :LLEventTimer(period),
         mMask(mask),
         mCallback(cb)
-    {
-        mEventTimer.start();
-    }
+    {}
 
     virtual ~Updater(){}
 

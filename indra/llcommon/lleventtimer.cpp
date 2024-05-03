@@ -56,3 +56,13 @@ void LLEventTimer::stop()
 {
     LLLater::instance().cancel(mTimer);
 }
+
+bool LLEventTimer::isRunning()
+{
+    return LLLater::instance().isRunning(mTimer);
+}
+
+F32 LLEventTimer::getRemaining()
+{
+    return LLLater::instance().getRemaining(mTimer);
+}

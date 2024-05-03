@@ -60,7 +60,7 @@ void LLViewerParcelMediaAutoPlay::playStarted()
     LLSingleton<LLViewerParcelMediaAutoPlay>::getInstance()->mPlayed = TRUE;
 }
 
-BOOL LLViewerParcelMediaAutoPlay::tick()
+bool LLViewerParcelMediaAutoPlay::tick()
 {
 	LLParcel *this_parcel = NULL;
 	LLViewerRegion *this_region = NULL;
@@ -156,7 +156,7 @@ BOOL LLViewerParcelMediaAutoPlay::tick()
 	}
 
 
-	return FALSE; // continue ticking forever please.
+	return false; // continue ticking forever please.
 }
 
 //static

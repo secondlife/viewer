@@ -114,13 +114,13 @@ class LLLater: public LLSingleton<LLLater>
     struct func_at
     {
         nullary_func_t mFunc;
-        LLDate::timestamp mTime;
         token_t mToken;
+        LLDate::timestamp mTime;
 
-        func_at(const nullary_func_t& func, LLDate::timestamp tm, token_t token):
+        func_at(const nullary_func_t& func, token_t token, LLDate::timestamp tm):
             mFunc(func),
-            mTime(tm),
-            mToken(token)
+            mToken(token),
+            mTime(tm)
         {}
 
         friend bool operator<(const func_at& lhs, const func_at& rhs)
@@ -165,7 +165,9 @@ public:
     handle_t doPeriodically(bool_func_t callable, F32 seconds);
 
     // test whether specified handle is still live
-    bool isRunning(handle_t timer);
+    bool isRunning(handle_t timer) const;
+    // check remaining time
+    F32 getRemaining(handle_t timer) const;
 
     // Cancel a future timer set by doAtTime(), doAfterInterval(), doPeriodically().
     // Return true iff the handle corresponds to a live timer.
@@ -239,10 +241,19 @@ private:
     // the heap aka priority queue
     queue_t mQueue;
     // handles we've returned that haven't yet canceled
-    std::unordered_map<token_t, queue_t::handle_type> mHandles;
+    using HandleMap = std::unordered_map<token_t, queue_t::handle_type>;
+    HandleMap mHandles;
+    using DoneMap = std::unordered_map<token_t, LLDate::timestamp>;
+    DoneMap mDoneTimes;
     token_t mToken{ 0 };
     // While mQueue is non-empty, register for regular callbacks.
     LLCallbackList::temp_handle_t mLive;
+
+    struct Periodic;
+
+    // internal implementation for doAtTime()
+    DoneMap::iterator doAtTime1(LLDate::timestamp time);
+    handle_t doAtTime2(nullary_func_t callable, DoneMap::iterator iter);
 };
 
 /*-------------------- legacy names in global namespace --------------------*/

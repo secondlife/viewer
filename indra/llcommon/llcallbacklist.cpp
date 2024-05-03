@@ -130,22 +130,40 @@ LLCallbackList::handle_t LLCallbackList::doOnIdleRepeating( const bool_func_t& f
 *****************************************************************************/
 LLLater::LLLater() {}
 
-// Call a given callable once at specified timestamp.
-LLLater::handle_t LLLater::doAtTime(nullary_func_t callable, LLDate::timestamp time)
+LLLater::DoneMap::iterator LLLater::doAtTime1(LLDate::timestamp time)
 {
-    bool first{ mQueue.empty() };
     // Pick token FIRST to store a self-reference in mQueue's managed node as
     // well as in mHandles. Pre-increment to distinguish 0 from any live
     // handle_t.
     token_t token{ ++mToken };
-    auto handle{ mQueue.emplace(callable, time, token) };
-    mHandles.emplace(token, handle);
+    auto [iter, inserted]{ mDoneTimes.emplace(token, time) };
+    llassert(inserted);
+    return iter;
+}
+
+LLLater::handle_t LLLater::doAtTime2(nullary_func_t callable, DoneMap::iterator iter)
+{
+    bool first{ mQueue.empty() };
+    // DoneMap::iterator references (token, time) pair
+    auto handle{ mQueue.emplace(callable, iter->first, iter->second) };
+    auto hiter{ mHandles.emplace(iter->first, handle).first };
+    // When called by Periodic, we're passed an existing DoneMap entry,
+    // meaning the token already exists, meaning emplace() will tell us it
+    // found an existing entry rather than creating a new one. In that case,
+    // it's essential to update the handle.
+    hiter->second = handle;
     if (first)
     {
         // If this is our first entry, register for regular callbacks.
         mLive = LLCallbackList::instance().doOnIdleRepeating([this]{ return tick(); });
     }
-    return handle_t{ token };
+    return { iter->first };
+}
+
+// Call a given callable once at specified timestamp.
+LLLater::handle_t LLLater::doAtTime(nullary_func_t callable, LLDate::timestamp time)
+{
+    return doAtTime2(callable, doAtTime1(time));
 }
 
 // Call a given callable once after specified interval.
@@ -160,11 +178,11 @@ LLLater::handle_t LLLater::doAfterInterval(nullary_func_t callable, F32 seconds)
 
 // For doPeriodically(), we need a struct rather than a lambda because a
 // struct, unlike a lambda, has access to 'this'.
-struct Periodic
+struct LLLater::Periodic
 {
     LLLater* mLater;
+    DoneMap::iterator mDone;
     bool_func_t mCallable;
-    LLDate::timestamp mNext;
     F32 mSeconds;
 
     void operator()()
@@ -175,8 +193,9 @@ struct Periodic
             // Don't call doAfterInterval(), which rereads LLDate::now(),
             // since that would defer by however long it took us to wake
             // up and notice plus however long callable() took to run.
-            mNext += mSeconds;
-            mLater->doAtTime(*this, mNext);
+            // Bump our mDoneTimes entry so getRemaining() can track.
+            mDone->second += mSeconds;
+            mLater->doAtTime2(*this, mDone);
         }
     }
 };
@@ -186,15 +205,30 @@ LLLater::handle_t LLLater::doPeriodically(bool_func_t callable, F32 seconds)
 {
     // Passing seconds <= 0 will produce an infinite loop.
     llassert(seconds > 0);
-    auto next{ LLDate::now().secondsSinceEpoch() + seconds };
-    return doAtTime(Periodic{ this, callable, next, seconds }, next);
+    auto iter{ doAtTime1(LLDate::now().secondsSinceEpoch() + seconds) };
+    // The whole reason we split doAtTime() into doAtTime1() and doAtTime2()
+    // is to be able to bind the mDoneTimes entry into Periodic.
+    return doAtTime2(Periodic{ this, iter, callable, seconds }, iter);
 }
 
-bool LLLater::isRunning(handle_t timer)
+bool LLLater::isRunning(handle_t timer) const
 {
     // A default-constructed timer isn't running.
     // A timer we don't find in mHandles has fired or been canceled.
     return timer && mHandles.find(timer.token) != mHandles.end();
+}
+
+F32 LLLater::getRemaining(handle_t timer) const
+{
+    auto found{ mDoneTimes.find(timer.token) };
+    if (found == mDoneTimes.end())
+    {
+        return 0.f;
+    }
+    else
+    {
+        return found->second - LLDate::now().secondsSinceEpoch();
+    }
 }
 
 // Cancel a future timer set by doAtTime(), doAfterInterval(), doPeriodically()
@@ -240,6 +274,8 @@ bool LLLater::cancel(const handle_t& timer)
     mQueue.erase(found->second);
     // before erasing timer.token from mHandles
     mHandles.erase(found);
+    // don't forget to erase mDoneTimes entry
+    mDoneTimes.erase(timer.token);
     if (mQueue.empty())
     {
         // If that was the last active timer, unregister for callbacks.
@@ -282,6 +318,8 @@ bool LLLater::tick()
         auto current{ top };
         // remove the mHandles entry referencing this task
         mHandles.erase(current.mToken);
+        // and the mDoneTimes entry
+        mDoneTimes.erase(current.mToken);
         // before removing the mQueue task entry itself
         mQueue.pop();
         // okay, NOW run 
