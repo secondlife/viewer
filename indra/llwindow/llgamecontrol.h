@@ -156,8 +156,12 @@ public:
     // State is a minimal class for storing axes and buttons values
     class State
     {
+        int mJoystickID { -1 };
+        void* mController { nullptr };
     public:
         State();
+        void setDevice(int joystickID, void* controller);
+        int getJoystickID() const { return mJoystickID; }
         void clear();
         bool onButton(U8 button, bool pressed);
         std::vector<S16> mAxes; // [ -32768, 32767 ]
@@ -166,7 +170,7 @@ public:
     };
 
     static bool isInitialized();
-	static void init();
+	static void init(const std::string& gamecontrollerdb_path);
 	static void terminate();
 
     // returns 'true' if GameControlInput message needs to go out,
@@ -175,7 +179,7 @@ public:
     // or not.
     static bool computeFinalStateAndCheckForChanges();
 
-    static void clearAllState();
+    static void clearAllStates();
 
     static void processEvents(bool app_has_focus = true);
     static const State& getState();
