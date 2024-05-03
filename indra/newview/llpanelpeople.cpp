@@ -312,11 +312,6 @@ public:
 	{
 		stop();
 	}
-
-	bool tick() override // from LLEventTimer
-	{
-		return false;
-	}
 };
 
 /**
@@ -353,7 +348,7 @@ public:
 		LLAvatarTracker::instance().removeObserver(this);
 	}
 
-	/*virtual*/ void changed(U32 mask)
+	void changed(U32 mask) override
 	{
 		if (mIsActive)
 		{
@@ -383,8 +378,7 @@ public:
 		return false;
 	}
 
-	// virtual
-	void setActive(bool active)
+	void setActive(bool active) override
 	{
 		mIsActive = active;
 		if (active)
@@ -493,7 +487,7 @@ public:
 		setActive(false);
 	}
 
-	/*virtual*/ void setActive(bool val)
+	void setActive(bool val) override
 	{
 		if (val)
 		{

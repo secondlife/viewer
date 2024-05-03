@@ -241,10 +241,10 @@ private:
     // the heap aka priority queue
     queue_t mQueue;
     // handles we've returned that haven't yet canceled
-    using HandleMap = std::unordered_map<token_t, queue_t::handle_type>;
+    using HandleMap = std::unordered_map<
+        token_t,
+        std::pair<queue_t::handle_type, LLDate::timestamp>>;
     HandleMap mHandles;
-    using DoneMap = std::unordered_map<token_t, LLDate::timestamp>;
-    DoneMap mDoneTimes;
     token_t mToken{ 0 };
     // While mQueue is non-empty, register for regular callbacks.
     LLCallbackList::temp_handle_t mLive;
@@ -252,8 +252,8 @@ private:
     struct Periodic;
 
     // internal implementation for doAtTime()
-    DoneMap::iterator doAtTime1(LLDate::timestamp time);
-    handle_t doAtTime2(nullary_func_t callable, DoneMap::iterator iter);
+    HandleMap::iterator doAtTime1(LLDate::timestamp time);
+    handle_t doAtTime2(nullary_func_t callable, HandleMap::iterator iter);
 };
 
 /*-------------------- legacy names in global namespace --------------------*/
