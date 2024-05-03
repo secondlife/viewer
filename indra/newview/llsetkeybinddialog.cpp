@@ -53,7 +53,7 @@ public:
     virtual ~Updater(){}
 
 protected:
-    BOOL tick()
+    bool tick() override
     {
         mCallback(mMask);
         // Deletes itseft after execution

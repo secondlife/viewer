@@ -2890,7 +2890,7 @@ public:
 	virtual ~LLPostTeleportNotifiers();
 
 	//function to be called at the supplied frequency
-	virtual BOOL tick();
+	bool tick() override;
 };
 
 LLPostTeleportNotifiers::LLPostTeleportNotifiers() : LLEventTimer( 2.0 )

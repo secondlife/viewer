@@ -1960,7 +1960,7 @@ public:
 
 protected:
 
-	BOOL tick()
+	bool tick() override
 	{
 		mCallback(mNewValue);
 		mEventTimer.stop();

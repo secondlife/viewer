@@ -313,7 +313,7 @@ public:
 		mEventTimer.stop();
 	}
 
-	virtual BOOL tick() // from LLEventTimer
+	virtual bool tick() override // from LLEventTimer
 	{
 		return FALSE;
 	}
@@ -367,7 +367,7 @@ public:
 	}
 
 
-	/*virtual*/ BOOL tick()
+	bool tick() override
 	{
 		if (!mIsActive) return FALSE;
 
@@ -508,7 +508,7 @@ public:
 		}
 	}
 
-	/*virtual*/ BOOL tick()
+	bool tick() override
 	{
 		update();
 		return FALSE;

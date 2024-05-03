@@ -42,7 +42,7 @@ public:
     ~LLDoNotDisturbNotificationStorageTimer();
 
 public:
-    BOOL tick();
+    bool tick() override;
 };
 
 class LLDoNotDisturbNotificationStorage : public LLParamSingleton<LLDoNotDisturbNotificationStorage>, public LLNotificationStorage

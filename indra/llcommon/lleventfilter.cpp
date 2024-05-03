@@ -73,115 +73,52 @@ bool LLEventMatching::post(const LLSD& event)
 }
 
 /*****************************************************************************
-*   LLEventTimeoutBase
+*   LLEventTimeout
 *****************************************************************************/
-LLEventTimeoutBase::LLEventTimeoutBase():
+LLEventTimeout::LLEventTimeout():
     LLEventFilter("timeout")
 {
 }
 
-LLEventTimeoutBase::LLEventTimeoutBase(LLEventPump& source):
+LLEventTimeout::LLEventTimeout(LLEventPump& source):
     LLEventFilter(source, "timeout")
 {
 }
 
-void LLEventTimeoutBase::actionAfter(F32 seconds, const Action& action)
+void LLEventTimeout::actionAfter(F32 seconds, const Action& action)
 {
-    setCountdown(seconds);
-    mAction = action;
-    if (! mMainloop.connected())
-    {
-        LLEventPump& mainloop(LLEventPumps::instance().obtain("mainloop"));
-        mMainloop = mainloop.listen(getName(), [this](const LLSD& event){ return tick(event); });
-    }
+    mTimer = LLLater::instance().doAfterInterval(action, seconds);
 }
 
-class ErrorAfter
+void LLEventTimeout::errorAfter(F32 seconds, const std::string& message)
 {
-public:
-    ErrorAfter(const std::string& message): mMessage(message) {}
-
-    void operator()()
-    {
-        LL_ERRS("LLEventTimeout") << mMessage << LL_ENDL;
-    }
-
-private:
-    std::string mMessage;
-};
-
-void LLEventTimeoutBase::errorAfter(F32 seconds, const std::string& message)
-{
-    actionAfter(seconds, ErrorAfter(message));
+    actionAfter(
+        seconds,
+        [message=message]
+        {
+            LL_ERRS("LLEventTimeout") << message << LL_ENDL;
+        });
 }
 
-class EventAfter
+void LLEventTimeout::eventAfter(F32 seconds, const LLSD& event)
 {
-public:
-    EventAfter(LLEventPump& pump, const LLSD& event):
-        mPump(pump),
-        mEvent(event)
-    {}
-
-    void operator()()
-    {
-        mPump.post(mEvent);
-    }
-
-private:
-    LLEventPump& mPump;
-    LLSD mEvent;
-};
-
-void LLEventTimeoutBase::eventAfter(F32 seconds, const LLSD& event)
-{
-    actionAfter(seconds, EventAfter(*this, event));
+    actionAfter(seconds, [this, event]{ post(event); });
 }
 
-bool LLEventTimeoutBase::post(const LLSD& event)
+bool LLEventTimeout::post(const LLSD& event)
 {
     cancel();
     return LLEventStream::post(event);
 }
 
-void LLEventTimeoutBase::cancel()
+void LLEventTimeout::cancel()
 {
-    mMainloop.disconnect();
+    mTimer.cancel();
 }
 
-bool LLEventTimeoutBase::tick(const LLSD&)
+bool LLEventTimeout::running() const
 {
-    if (countdownElapsed())
-    {
-        cancel();
-        mAction();
-    }
-    return false;                   // show event to other listeners
-}
-
-bool LLEventTimeoutBase::running() const
-{
-    return mMainloop.connected();
-}
-
-/*****************************************************************************
-*   LLEventTimeout
-*****************************************************************************/
-LLEventTimeout::LLEventTimeout() {}
-
-LLEventTimeout::LLEventTimeout(LLEventPump& source):
-    LLEventTimeoutBase(source)
-{
-}
-
-void LLEventTimeout::setCountdown(F32 seconds)
-{
-    mTimer.setTimerExpirySec(seconds);
-}
-
-bool LLEventTimeout::countdownElapsed() const
-{
-    return mTimer.hasExpired();
+    return LLLater::instance().isRunning(mTimer);
 }
 
 /*****************************************************************************
@@ -224,21 +161,21 @@ void LLEventBatch::setSize(std::size_t size)
 }
 
 /*****************************************************************************
-*   LLEventThrottleBase
+*   LLEventThrottle
 *****************************************************************************/
-LLEventThrottleBase::LLEventThrottleBase(F32 interval):
+LLEventThrottle::LLEventThrottle(F32 interval):
     LLEventFilter("throttle"),
     mInterval(interval),
     mPosts(0)
 {}
 
-LLEventThrottleBase::LLEventThrottleBase(LLEventPump& source, F32 interval):
+LLEventThrottle::LLEventThrottle(LLEventPump& source, F32 interval):
     LLEventFilter(source, "throttle"),
     mInterval(interval),
     mPosts(0)
 {}
 
-void LLEventThrottleBase::flush()
+void LLEventThrottle::flush()
 {
     // flush() is a no-op unless there's something pending.
     // Don't test mPending because there's no requirement that the consumer
@@ -259,12 +196,12 @@ void LLEventThrottleBase::flush()
     }
 }
 
-LLSD LLEventThrottleBase::pending() const
+LLSD LLEventThrottle::pending() const
 {
     return mPending;
 }
 
-bool LLEventThrottleBase::post(const LLSD& event)
+bool LLEventThrottle::post(const LLSD& event)
 {
     // Always capture most recent post() event data. If caller wants to
     // aggregate multiple events, let them retrieve pending() and modify
@@ -289,13 +226,13 @@ bool LLEventThrottleBase::post(const LLSD& event)
             // timeRemaining tells us how much longer it will be until
             // mInterval seconds since the last flush() call. At that time,
             // flush() deferred events.
-            alarmActionAfter(timeRemaining, [this](){ flush(); });
+            alarmActionAfter(timeRemaining, [this]{ flush(); });
         }
     }
     return false;
 }
 
-void LLEventThrottleBase::setInterval(F32 interval)
+void LLEventThrottle::setInterval(F32 interval)
 {
     F32 oldInterval = mInterval;
     mInterval = interval;
@@ -333,35 +270,24 @@ void LLEventThrottleBase::setInterval(F32 interval)
     }
 }
 
-F32 LLEventThrottleBase::getDelay() const
+F32 LLEventThrottle::getDelay() const
 {
     return timerGetRemaining();
 }
 
-/*****************************************************************************
-*   LLEventThrottle implementation
-*****************************************************************************/
-LLEventThrottle::LLEventThrottle(F32 interval):
-    LLEventThrottleBase(interval)
-{}
-
-LLEventThrottle::LLEventThrottle(LLEventPump& source, F32 interval):
-    LLEventThrottleBase(source, interval)
-{}
-
-void LLEventThrottle::alarmActionAfter(F32 interval, const LLEventTimeoutBase::Action& action)
+void LLEventThrottle::alarmActionAfter(F32 interval, const LLEventTimeout::Action& action)
 {
-    mAlarm.actionAfter(interval, action);
+    mAlarm = LLLater::instance().doAfterInterval(action, interval);
 }
 
 bool LLEventThrottle::alarmRunning() const
 {
-    return mAlarm.running();
+    return LLLater::instance().isRunning(mAlarm);
 }
 
 void LLEventThrottle::alarmCancel()
 {
-    return mAlarm.cancel();
+    LLLater::instance().cancel(mAlarm);
 }
 
 void LLEventThrottle::timerSet(F32 interval)

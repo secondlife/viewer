@@ -27,13 +27,12 @@
 #ifndef LL_EVENTTIMER_H
 #define LL_EVENTTIMER_H
 
-#include "stdtypes.h"
+#include "llcallbacklist.h"
 #include "lldate.h"
-#include "llinstancetracker.h"
-#include "lltimer.h"
+#include "stdtypes.h"
 
 // class for scheduling a function to be called at a given frequency (approximate, inprecise)
-class LL_COMMON_API LLEventTimer : public LLInstanceTracker<LLEventTimer>
+class LL_COMMON_API LLEventTimer
 {
 public:
 
@@ -41,14 +40,15 @@ public:
 	LLEventTimer(const LLDate& time);
 	virtual ~LLEventTimer();
 
-	//function to be called at the supplied frequency
-	// Normally return FALSE; TRUE will delete the timer after the function returns.
-	virtual BOOL tick() = 0;
+	void start();
+	void stop();
 
-	static void updateClass();
+	//function to be called at the supplied frequency
+	// Normally return false; true will delete the timer after the function returns.
+	virtual bool tick() = 0;
 
 protected:
-	LLTimer mEventTimer;
+	LLLater::temp_handle_t mTimer;
 	F32 mPeriod;
 };
 

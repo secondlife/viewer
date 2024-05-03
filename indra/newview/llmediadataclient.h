@@ -219,13 +219,13 @@ protected:
 	{
 	public:
 		RetryTimer(F32 time, Request::ptr_t);
-		virtual BOOL tick();
+		virtual bool tick() override;
 	private:
 		// back-pointer
 		Request::ptr_t mRequest;
 	};
-		
-	
+
+
 protected:
 	typedef std::list<Request::ptr_t> request_queue_t;
 	typedef std::set<Request::ptr_t> request_set_t;
@@ -286,12 +286,12 @@ private:
 	{
 	public:
 		QueueTimer(F32 time, LLMediaDataClient *mdc);
-		virtual BOOL tick();
+		bool tick() override;
 	private:
 		// back-pointer
 		LLPointer<LLMediaDataClient> mMDC;
 	};
-	
+
 	void setIsRunning(bool val) { mQueueTimerIsRunning = val; }
 		
 	bool mQueueTimerIsRunning;
