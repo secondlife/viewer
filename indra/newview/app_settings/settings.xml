@@ -15155,13 +15155,13 @@
     <key>VoiceServerType</key>
     <map>
       <key>Comment</key>
-      <string>The type of voice server to connect to.</string>
+      <string>The type of voice server to use for group, conference, and p2p calls.</string>
       <key>Persist</key>
       <integer>0</integer>
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>webrtc</string>
+      <string/>
     </map>
     <key>WLSkyDetail</key>
     <map>

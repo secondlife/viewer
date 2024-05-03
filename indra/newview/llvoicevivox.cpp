@@ -1200,7 +1200,7 @@ bool LLVivoxVoiceClient::provisionVoiceAccount()
         LL_WARNS("Voice") << "Could not access voice provision cap after " << retryCount << " attempts." << LL_ENDL;
         return false;
     }
-    LL_WARNS("Voice") << "Voice Provision Result." << result << LL_ENDL;
+    LL_DEBUGS("Voice") << "Voice Provision Result." << result << LL_ENDL;
     std::string voiceSipUriHostname;
     std::string voiceAccountServerUri;
     std::string voiceUserName = result["username"].asString();
@@ -1749,7 +1749,7 @@ bool LLVivoxVoiceClient::addAndJoinSession(const sessionStatePtr_t &nextSession)
             }
             else if ((message == "failed") || (message == "removed") || (message == "timeout"))
             {   // we will get a removed message if a voice call is declined.
-
+                LL_INFOS("Voice") << "Result:" << result << LL_ENDL;
                 if (message == "failed")
                 {
                     int reason = result["reason"].asInteger();
@@ -4952,6 +4952,7 @@ bool LLVivoxVoiceClient::setSpatialChannel(const LLSD& channelInfo)
 void LLVivoxVoiceClient::callUser(const LLUUID &uuid)
 {
 	std::string userURI = sipURIFromID(uuid);
+	mProcessChannels = true;
 
 	switchChannel(userURI, false, true, true);
 }
@@ -4974,7 +4975,7 @@ bool LLVivoxVoiceClient::answerInvite(const std::string &sessionHandle)
         session->mIsSpatial = false;
         session->mReconnect = false;
         session->mIsP2P     = true;
-
+        mProcessChannels    = true;
         joinSession(session);
         return true;
     }
@@ -5078,7 +5079,9 @@ void LLVivoxVoiceClient::leaveNonSpatialChannel()
 
 void LLVivoxVoiceClient::processChannels(bool process)
 {
-	mProcessChannels = process;
+    mCurrentParcelLocalID = -1;
+    mCurrentRegionName.clear();
+    mProcessChannels = process;
 }
 
 bool LLVivoxVoiceClient::isCurrentChannel(const LLSD &channelInfo)
@@ -5456,6 +5459,8 @@ void LLVivoxVoiceClient::setVoiceEnabled(bool enabled)
 			LLVoiceChannel::getCurrentVoiceChannel()->deactivate();
 			gAgent.setVoiceConnected(false);
 			status = LLVoiceClientStatusObserver::STATUS_VOICE_DISABLED;
+			mCurrentParcelLocalID = -1;
+			mCurrentRegionName.clear();
 		}
 
 		notifyStatusObservers(status);
@@ -6339,8 +6344,7 @@ void LLVivoxVoiceClient::predAvatarNameResolution(const LLVivoxVoiceClient::sess
                 session->mCallerID,
                 session->mName,
                 IM_SESSION_P2P_INVITE,
-                LLIMMgr::INVITATION_TYPE_VOICE,
-                session->getVoiceChannelInfo());
+                LLIMMgr::INVITATION_TYPE_VOICE);
         }
     }
 }

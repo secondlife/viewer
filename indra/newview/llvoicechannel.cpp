@@ -152,13 +152,16 @@ void LLVoiceChannel::handleStatusChange(EStatusType type)
 	case STATUS_LOGGED_IN:
 		break;
 	case STATUS_LEFT_CHANNEL:
-		if (callStarted() && !mIgnoreNextSessionLeave && !sSuspended)
+		if (callStarted() && !sSuspended)
 		{
 			// if forceably removed from channel
 			// update the UI and revert to default channel
+			// deactivate will set the State to STATE_HUNG_UP
+			// so when handleStatusChange is called again during
+			// shutdown callStarted will return false and deactivate
+			// won't be called again.
 			deactivate();
 		}
-		mIgnoreNextSessionLeave = FALSE;
 		break;
 	case STATUS_JOINING:
 		if (callStarted())
@@ -433,7 +436,7 @@ void LLVoiceChannelGroup::activate()
 				// Adding ad-hoc call participants to Recent People List.
 				// If it's an outgoing ad-hoc, we can use mInitialTargetIDs that holds IDs of people we
 				// called(both online and offline) as source to get people for recent (STORM-210).
-				if (session->isOutgoingAdHoc())
+				if (session && session->isOutgoingAdHoc())
 				{
 					for (uuid_vec_t::iterator it = session->mInitialTargetIDs.begin(); it != session->mInitialTargetIDs.end(); ++it)
 					{
@@ -470,7 +473,7 @@ void LLVoiceChannelGroup::requestChannelInfo()
 
 void LLVoiceChannelGroup::setChannelInfo(const LLSD& channelInfo)
 {
-	mChannelInfo     = channelInfo;
+	mChannelInfo = channelInfo;
 
 	if (mState == STATE_NO_CHANNEL_INFO)
 	{
@@ -594,7 +597,14 @@ void LLVoiceChannelGroup::voiceCallCapCoro(std::string url)
 	postData["method"] = "call";
 	postData["session-id"] = mSessionID;
 	LLSD altParams;
-	altParams["preferred_voice_server_type"] = gSavedSettings.getString("VoiceServerType");
+	std::string  preferred_voice_server_type = gSavedSettings.getString("VoiceServerType");
+	if (preferred_voice_server_type.empty())
+	{
+		// default to the server type associated with the region we're on.
+		LLVoiceVersionInfo versionInfo = LLVoiceClient::getInstance()->getVersion();
+		preferred_voice_server_type = versionInfo.internalVoiceServerType;
+	}
+	altParams["preferred_voice_server_type"] = preferred_voice_server_type;
 	postData["alt_params"] = altParams;
 
 	LL_INFOS("Voice", "voiceCallCapCoro") << "Generic POST for " << url << LL_ENDL;

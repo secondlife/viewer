@@ -241,6 +241,7 @@ public:
 	typedef std::vector<LLPointer<LLSpeaker> > speaker_list_t;
 	void getSpeakerList(speaker_list_t* speaker_list, BOOL include_text);
 	LLVoiceChannel* getVoiceChannel() { return mVoiceChannel; }
+	void setVoiceChannel(LLVoiceChannel *voiceChannel) { mVoiceChannel = voiceChannel;  }
 	const LLUUID getSessionID();
 	bool isSpeakerToBeRemoved(const LLUUID& speaker_id);
 

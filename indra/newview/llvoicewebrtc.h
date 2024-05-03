@@ -144,12 +144,7 @@ public:
         startAdHocSession(channelInfo, notify_on_first_join, hangup_on_last_leave);
     }
 
-    bool setSpatialChannel(const LLSD &channelInfo) override
-    {
-        // we don't really have credentials for a spatial channel in webrtc,
-        // it's all handled by the sim.
-        return true;
-    }
+    bool setSpatialChannel(const LLSD &channelInfo) override;
 
     void leaveNonSpatialChannel() override;
 
@@ -206,7 +201,8 @@ public:
     void OnConnectionFailure(const std::string &channelID,
         const LLUUID &regionID,
         LLVoiceClientStatusObserver::EStatusType status_type = LLVoiceClientStatusObserver::ERROR_UNKNOWN);
-    void sendPositionUpdate(bool force);
+    void updatePosition(void); // update the internal position state
+    void sendPositionUpdate(bool force); // send the position to the voice server.
     void updateOwnVolume();
 
     //////////////////////////////
@@ -233,7 +229,7 @@ public:
     struct participantState
     {
     public:
-        participantState(const LLUUID& agent_id);
+        participantState(const LLUUID& agent_id, const LLUUID& region);
 
         bool isAvatar();
 
@@ -245,12 +241,13 @@ public:
         F32 mVolume; // the gain applied to the participant
         bool mIsSpeaking;
         bool mIsModeratorMuted;
+        LLUUID mRegion;
     };
     typedef boost::shared_ptr<participantState> participantStatePtr_t;
 
     participantStatePtr_t findParticipantByID(const std::string &channelID, const LLUUID &id);
-    participantStatePtr_t addParticipantByID(const std::string& channelID, const LLUUID &id);
-    void                  removeParticipantByID(const std::string& channelID, const LLUUID &id);
+    participantStatePtr_t addParticipantByID(const std::string& channelID, const LLUUID &id, const LLUUID& region);
+    void removeParticipantByID(const std::string& channelID, const LLUUID &id, const LLUUID& region);
 
   protected:
 
@@ -267,9 +264,9 @@ public:
         static void addSession(const std::string &channelID, ptr_t& session);
         virtual ~sessionState();
 
-        participantStatePtr_t addParticipant(const LLUUID& agent_id);
+        participantStatePtr_t addParticipant(const LLUUID& agent_id, const LLUUID& region);
         void removeParticipant(const participantStatePtr_t &participant);
-        void removeAllParticipants();
+        void removeAllParticipants(const LLUUID& region = LLUUID());
 
         participantStatePtr_t findParticipantByID(const LLUUID& id);
 
@@ -402,7 +399,6 @@ public:
 
     /////////////////////////////
     // Sending updates of current state
-    void updatePosition(void);
     void setListenerPosition(const LLVector3d &position, const LLVector3 &velocity, const LLQuaternion &rot);
     void setAvatarPosition(const LLVector3d &position, const LLVector3 &velocity, const LLQuaternion &rot);
 

@@ -652,6 +652,13 @@ LLWebRTCPeerConnectionImpl::LLWebRTCPeerConnectionImpl() :
 {
 }
 
+LLWebRTCPeerConnectionImpl::~LLWebRTCPeerConnectionImpl()
+{
+    terminate();
+    mSignalingObserverList.clear();
+    mDataObserverList.clear();
+}
+
 //
 // LLWebRTCPeerConnection interface
 //
@@ -669,9 +676,6 @@ void LLWebRTCPeerConnectionImpl::terminate()
     mDataChannel.swap(dataChannel);
     rtc::scoped_refptr<webrtc::MediaStreamInterface> localStream;
     mLocalStream.swap(localStream);
-
-    mSignalingObserverList.clear();
-    mDataObserverList.clear();
 
     mWebRTCImpl->PostSignalingTask(
         [=]()
@@ -735,6 +739,10 @@ bool LLWebRTCPeerConnectionImpl::initializeConnection(const LLWebRTCPeerConnecti
             else
             {
                 RTC_LOG(LS_ERROR) << __FUNCTION__ << "Error creating peer connection: " << error_or_peer_connection.error().message();
+                for (auto &observer : mSignalingObserverList)
+                {
+                    observer->OnRenegotiationNeeded();
+                }
                 return;
             }
 
@@ -758,7 +766,7 @@ bool LLWebRTCPeerConnectionImpl::initializeConnection(const LLWebRTCPeerConnecti
 
             rtc::scoped_refptr<webrtc::AudioTrackInterface> audio_track(
                 mPeerConnectionFactory->CreateAudioTrack("SLAudio", mPeerConnectionFactory->CreateAudioSource(audioOptions).get()));
-            audio_track->set_enabled(true);
+            audio_track->set_enabled(false);
             mLocalStream->AddTrack(audio_track);
 
             mPeerConnection->AddTrack(audio_track, {"SLStream"});
@@ -949,6 +957,10 @@ void LLWebRTCPeerConnectionImpl::OnRemoveTrack(rtc::scoped_refptr<webrtc::RtpRec
 
 void LLWebRTCPeerConnectionImpl::OnDataChannel(rtc::scoped_refptr<webrtc::DataChannelInterface> channel)
 {
+    if (mDataChannel)
+    {
+        mDataChannel->UnregisterObserver();
+    }
     mDataChannel = channel;
     channel->RegisterObserver(this);
 }
@@ -991,8 +1003,6 @@ void LLWebRTCPeerConnectionImpl::OnConnectionChange(webrtc::PeerConnectionInterf
     {
         case webrtc::PeerConnectionInterface::PeerConnectionState::kConnected:
         {
-            mWebRTCImpl->setRecording(true);
-
             mWebRTCImpl->PostWorkerTask([this]() {
                 for (auto &observer : mSignalingObserverList)
                 {
