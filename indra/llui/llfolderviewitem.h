@@ -149,6 +149,8 @@ protected:
 	static LLUIColor			sFilterTextColor;
 	static LLUIColor			sSuffixColor;
 	static LLUIColor			sSearchStatusColor;
+    static LLUIColor			sFavoriteColor;
+
 
 	// this is an internal method used for adding items to folders. A
 	// no-op at this level, but reimplemented in derived classes.

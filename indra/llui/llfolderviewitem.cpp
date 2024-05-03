@@ -58,6 +58,7 @@ LLUIColor LLFolderViewItem::sFilterBGColor;
 LLUIColor LLFolderViewItem::sFilterTextColor;
 LLUIColor LLFolderViewItem::sSuffixColor;
 LLUIColor LLFolderViewItem::sSearchStatusColor;
+LLUIColor LLFolderViewItem::sFavoriteColor;
 
 // only integers can be initialized in header
 const F32 LLFolderViewItem::FOLDER_CLOSE_TIME_CONSTANT = 0.02f;
@@ -173,6 +174,7 @@ LLFolderViewItem::LLFolderViewItem(const LLFolderViewItem::Params& p)
 		sFilterTextColor = LLUIColorTable::instance().getColor("FilterTextColor", DEFAULT_WHITE);
 		sSuffixColor = LLUIColorTable::instance().getColor("InventoryItemLinkColor", DEFAULT_WHITE);
 		sSearchStatusColor = LLUIColorTable::instance().getColor("InventorySearchStatusColor", DEFAULT_WHITE);
+        sFavoriteColor = LLUIColorTable::instance().getColor("InventoryFavoriteColor", DEFAULT_WHITE);
 		sColorSetInitialized = true;
 	}
 
@@ -764,6 +766,12 @@ void LLFolderViewItem::drawOpenFolderArrow(const Params& default_params, const L
 
 void LLFolderViewItem::drawFavoriteIcon(const Params& default_params, const LLUIColor& fg_color)
 {
+    static LLUICachedControl<bool> draw_star("InventoryFavoritesUseStar", true);
+    if (!draw_star)
+    {
+        return;
+    }
+    
     LLUIImage* favorite_image = NULL; 
     if (mIsFavorite)
     {
@@ -1019,7 +1027,20 @@ void LLFolderViewItem::draw()
         }
     }
 
-    LLColor4 color = (mIsSelected && filled) ? mFontHighlightColor : mFontColor;
+    static LLUICachedControl<bool> highlight_color("InventoryFavoritesColorText", true);
+    LLColor4 color;
+    if (mIsSelected && filled)
+    {
+        color = mFontHighlightColor;
+    }
+    else if (mIsFavorite && highlight_color)
+    {
+        color = sFavoriteColor;
+    }
+    else
+    {
+        color = mFontColor;
+    }
 
     if (isFadeItem())
     {

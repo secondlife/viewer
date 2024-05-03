@@ -907,4 +907,5 @@ with the same filename but different name
   <texture name="Single_Folder_Up" file_name="icons/single_folder_up.png" preload="true"/>
   <texture name="Icon_Color_Palette" file_name="icons/Icon_Color_Palette.png" preload="false"/>
   <texture name="Icon_Font_Size" file_name="icons/Icon_Font_Size.png" preload="false"/>
+  <texture name="Icon_Pointer" file_name="icons/Icon_Pointer.png" preload="false"/>
 </textures>
