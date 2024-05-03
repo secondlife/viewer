@@ -312,6 +312,11 @@ public:
 	{
 		stop();
 	}
+
+	bool tick() override // from LLEventTimer
+	{
+		return false;
+	}
 };
 
 /**
