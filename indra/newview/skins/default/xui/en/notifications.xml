@@ -12429,6 +12429,17 @@ are wearing now.
   </notification>
 
   <notification
+   icon="alertmodal.tga"
+   name="GLTFUploadSelection"
+   type="alert">
+    You must select an object that has local-only GLTF asset associated with it.
+    <tag>fail</tag>
+    <usetemplate
+      name="okbutton"
+      yestext="OK"/>
+  </notification>
+
+  <notification
  icon="alertmodal.tga"
  name="GLTFUploadInProgress"
  type="alert">
