@@ -35,9 +35,50 @@
 #include "SDL2/SDL_joystick.h"
 
 #include "indra_constants.h"
+#include "llfile.h"
 #include "llgamecontroltranslator.h"
 
 constexpr size_t NUM_AXES = 6;
+
+// util for dumping SDL_GameController info
+std::ostream& operator<<(std::ostream& out, SDL_GameController* c)
+{
+    if (!c)
+    {
+        return out << "nullptr";
+    }
+    out << "{";
+    out << " name='" << SDL_GameControllerName(c) << "'";
+    out << " type='" << SDL_GameControllerGetType(c) << "'";
+    out << " vendor='" << SDL_GameControllerGetVendor(c) << "'";
+    out << " product='" << SDL_GameControllerGetProduct(c) << "'";
+    out << " version='" << SDL_GameControllerGetProductVersion(c) << "'";
+    //CRASH! out << " serial='" << SDL_GameControllerGetSerial(c) << "'";
+    out << " }";
+    return out;
+}
+
+// util for dumping SDL_Joystick info
+std::ostream& operator<<(std::ostream& out, SDL_Joystick* j)
+{
+    if (!j)
+    {
+        return out << "nullptr";
+    }
+    out << "{";
+    out << " p=0x" << (void*)(j);
+    out << " name='" << SDL_JoystickName(j) << "'";
+    out << " type='" << SDL_JoystickGetType(j) << "'";
+    out << " instance='" << SDL_JoystickInstanceID(j) << "'";
+    out << " product='" << SDL_JoystickGetProduct(j) << "'";
+    out << " version='" << SDL_JoystickGetProductVersion(j) << "'";
+    out << " num_axes=" << SDL_JoystickNumAxes(j);
+    out << " num_balls=" << SDL_JoystickNumBalls(j);
+    out << " num_hats=" << SDL_JoystickNumHats(j);
+    out << " num_buttons=" << SDL_JoystickNumHats(j);
+    out << " }";
+    return out;
+}
 
 std::string LLGameControl::InputChannel::getLocalName() const
 {
@@ -192,8 +233,7 @@ public:
     void onAxis(SDL_JoystickID id, U8 axis, S16 value);
     void onButton(SDL_JoystickID id, U8 button, bool pressed);
 
-    void clearAllState();
-    size_t getControllerIndex(SDL_JoystickID id) const;
+    void clearAllStates();
 
     void accumulateInternalState();
     void computeFinalState(LLGameControl::State& state);
@@ -211,9 +251,16 @@ public:
 private:
     bool updateFlycamMap(const std::string& action,  LLGameControl::InputChannel channel);
 
-    std::vector<SDL_JoystickID> mControllerIDs;
-    std::vector<SDL_GameController*> mControllers;
-    std::vector<LLGameControl::State> mStates; // one state per device
+    std::list<LLGameControl::State> mStates; // one state per device
+    using state_it = std::list<LLGameControl::State>::iterator;
+    state_it findState(SDL_JoystickID id)
+    {
+        return std::find_if(mStates.begin(), mStates.end(),
+            [id](LLGameControl::State& state)
+            {
+                return state.getJoystickID() == id;
+            });
+    }
 
     LLGameControl::State mExternalState;
     LLGameControlTranslator mActionTranslator;
@@ -237,7 +284,7 @@ namespace
     //
     // To reduce the likelihood of buttons being stuck "pressed" forever
     // on the receiving side (for lost final packet) we resend the last
-    // data state. However, to keep th ambient resend bandwidth low we
+    // data state. However, to keep the ambient resend bandwidth low we
     // expand the resend period at a geometric rate.
     //
     constexpr U64 MSEC_PER_NSEC = 1e6;
@@ -267,6 +314,12 @@ LLGameControl::State::State() : mButtons(0)
 {
     mAxes.resize(NUM_AXES, 0);
     mPrevAxes.resize(NUM_AXES, 0);
+}
+
+void LLGameControl::State::setDevice(int joystickID, void* controller)
+{
+    mJoystickID = joystickID;
+    mController = controller;
 }
 
 void LLGameControl::State::clear()
@@ -301,7 +354,7 @@ LLGameControllerManager::LLGameControllerManager()
 {
     mAxesAccumulator.resize(NUM_AXES, 0);
 
-    // Here we build an invarient map between the named agent actions
+    // Here we build an invariant map between the named agent actions
     // and control bit sent to the server.  This map will be used,
     // in combination with the action->InputChannel map below,
     // to maintain an inverse map from control bit masks to GameControl data.
@@ -326,7 +379,7 @@ LLGameControllerManager::LLGameControllerManager()
 
     // Here we build a list of pairs between named agent actions and
     // GameControl channels. Note: we only supply the non-signed names
-    // (e.g. "push" instead of "push+" and "push-") because mActionTranator
+    // (e.g. "push" instead of "push+" and "push-") because mActionTranslator
     // automatially expands action names as necessary.
     using type = LLGameControl::InputChannel::Type;
     std::vector< std::pair< std::string, LLGameControl::InputChannel> > agent_defaults =
@@ -357,65 +410,31 @@ LLGameControllerManager::LLGameControllerManager()
 
 void LLGameControllerManager::addController(SDL_JoystickID id, SDL_GameController* controller)
 {
-    if (controller)
+    LL_INFOS("GameController") << "joystick id: " << id << ", controller: " << controller << LL_ENDL;
+
+    llassert(id >= 0);
+    llassert(controller);
+
+    if (findState(id) != mStates.end())
     {
-        size_t i = 0;
-        for (; i < mControllerIDs.size(); ++i)
-        {
-            if (id == mControllerIDs[i])
-            {
-                break;
-            }
-        }
-        if (i == mControllerIDs.size())
-        {
-            mControllerIDs.push_back(id);
-            mControllers.push_back(controller);
-            mStates.push_back(LLGameControl::State());
-            LL_DEBUGS("SDL2") << "joystick=0x" << std::hex << id << std::dec
-                << " controller=" << controller
-                << LL_ENDL;
-        }
+        LL_WARNS("GameController") << "device already added" << LL_ENDL;
+        return;
     }
+
+    mStates.emplace_back().setDevice(id, controller);
+    LL_DEBUGS("SDL2") << "joystick=0x" << std::hex << id << std::dec
+        << " controller=" << controller
+        << LL_ENDL;
 }
 
 void LLGameControllerManager::removeController(SDL_JoystickID id)
 {
-    size_t i = 0;
-    size_t num_controllers = mControllerIDs.size();
-    for (; i < num_controllers; ++i)
-    {
-        if (id == mControllerIDs[i])
+    LL_INFOS("GameController") << "joystick id: " << id << LL_ENDL;
+
+    mStates.remove_if([id](LLGameControl::State& state)
         {
-            LL_DEBUGS("SDL2") << "joystick=0x" << std::hex << id << std::dec
-                << " controller=" << mControllers[i]
-                << LL_ENDL;
-
-            mControllerIDs[i] = mControllerIDs[num_controllers - 1];
-            mControllers[i] = mControllers[num_controllers - 1];
-            mStates[i] = mStates[num_controllers - 1];
-
-            mControllerIDs.pop_back();
-            mControllers.pop_back();
-            mStates.pop_back();
-            break;
-        }
-    }
-}
-
-size_t LLGameControllerManager::getControllerIndex(SDL_JoystickID id) const
-{
-    constexpr size_t UNREASONABLY_HIGH_INDEX = 1e6;
-    size_t index = UNREASONABLY_HIGH_INDEX;
-    for (size_t i = 0; i < mControllers.size(); ++i)
-    {
-        if (id == mControllerIDs[i])
-        {
-            index = i;
-            break;
-        }
-    }
-    return index;
+            return state.getJoystickID() == id;
+        });
 }
 
 void LLGameControllerManager::onAxis(SDL_JoystickID id, U8 axis, S16 value)
@@ -424,8 +443,9 @@ void LLGameControllerManager::onAxis(SDL_JoystickID id, U8 axis, S16 value)
     {
         return;
     }
-    size_t index = getControllerIndex(id);
-    if (index < mControllers.size())
+
+    state_it it = findState(id);
+    if (it != mStates.end())
     {
         // Note: the RAW analog joysticks provide NEGATIVE X,Y values for LEFT,FORWARD
         // whereas those directions are actually POSITIVE in SL's local right-handed
@@ -449,25 +469,25 @@ void LLGameControllerManager::onAxis(SDL_JoystickID id, U8 axis, S16 value)
         LL_DEBUGS("SDL2") << "joystick=0x" << std::hex << id << std::dec
             << " axis=" << (S32)(axis)
             << " value=" << (S32)(value) << LL_ENDL;
-        mStates[index].mAxes[axis] = value;
+        it->mAxes[axis] = value;
     }
 }
 
 void LLGameControllerManager::onButton(SDL_JoystickID id, U8 button, bool pressed)
 {
-    size_t index = getControllerIndex(id);
-    if (index < mControllers.size())
+    state_it it = findState(id);
+    if (it != mStates.end())
     {
-        if (mStates[index].onButton(button, pressed))
+        if (it->onButton(button, pressed))
         {
             LL_DEBUGS("SDL2") << "joystick=0x" << std::hex << id << std::dec
                 << " button i=" << (S32)(button)
-                << " pressed=" <<  pressed << LL_ENDL;
+                << " pressed=" << pressed << LL_ENDL;
         }
     }
 }
 
-void LLGameControllerManager::clearAllState()
+void LLGameControllerManager::clearAllStates()
 {
     for (auto& state : mStates)
     {
@@ -717,8 +737,6 @@ void LLGameControllerManager::setExternalInput(U32 action_flags, U32 buttons)
 
 void LLGameControllerManager::clear()
 {
-    mControllerIDs.clear();
-    mControllers.clear();
     mStates.clear();
 }
 
@@ -728,57 +746,50 @@ U64 get_now_nsec()
     return (std::chrono::steady_clock::now() - t0).count();
 }
 
-// util for dumping SDL_GameController info
-std::ostream& operator<<(std::ostream& out, SDL_GameController* c)
+void onJoystickDeviceAdded(const SDL_Event& event)
 {
-    if (! c)
+    LL_INFOS("GameController") << "device index: " << event.cdevice.which << LL_ENDL;
+
+    if (SDL_Joystick* joystick = SDL_JoystickOpen(event.cdevice.which))
     {
-        return out << "nullptr";
+        LL_INFOS("GameController") << "joystick: " << joystick << LL_ENDL;
     }
-    out << "{";
-    out << " name='" << SDL_GameControllerName(c) << "'";
-    out << " type='" << SDL_GameControllerGetType(c) << "'";
-    out << " vendor='" << SDL_GameControllerGetVendor(c) << "'";
-    out << " product='" << SDL_GameControllerGetProduct(c) << "'";
-    out << " version='" << SDL_GameControllerGetProductVersion(c) << "'";
-    //CRASH! out << " serial='" << SDL_GameControllerGetSerial(c) << "'";
-    out << " }";
-    return out;
+    else
+    {
+        LL_WARNS("GameController") << "Can't open joystick: " << SDL_GetError() << LL_ENDL;
+    }
 }
 
-// util for dumping SDL_Joystick info
-std::ostream& operator<<(std::ostream& out, SDL_Joystick* j)
+void onJoystickDeviceRemoved(const SDL_Event& event)
 {
-    if (! j)
-    {
-        return out << "nullptr";
-    }
-    out << "{";
-    out << " p=0x" << (void*)(j);
-    out << " name='" << SDL_JoystickName(j) << "'";
-    out << " type='" << SDL_JoystickGetType(j) << "'";
-    out << " instance='" << SDL_JoystickInstanceID(j) << "'";
-    out << " product='" << SDL_JoystickGetProduct(j) << "'";
-    out << " version='" << SDL_JoystickGetProductVersion(j) << "'";
-    out << " num_axes=" << SDL_JoystickNumAxes(j);
-    out << " num_balls=" << SDL_JoystickNumBalls(j);
-    out << " num_hats=" << SDL_JoystickNumHats(j);
-    out << " num_buttons=" << SDL_JoystickNumHats(j);
-    out << " }";
-    return out;
+    LL_INFOS("GameController") << "joystick id: " << event.cdevice.which << LL_ENDL;
 }
 
 void onControllerDeviceAdded(const SDL_Event& event)
 {
-    int device_index = event.cdevice.which;
-    SDL_JoystickID id = SDL_JoystickGetDeviceInstanceID(device_index);
-    SDL_GameController* controller = SDL_GameControllerOpen(device_index);
+    LL_INFOS("GameController") << "device index: " << event.cdevice.which << LL_ENDL;
+
+    SDL_JoystickID id = SDL_JoystickGetDeviceInstanceID(event.cdevice.which);
+    if (id < 0)
+    {
+        LL_WARNS("GameController") << "Can't get device instance ID: " << SDL_GetError() << LL_ENDL;
+        return;
+    }
+
+    SDL_GameController* controller = SDL_GameControllerOpen(event.cdevice.which);
+    if (!controller)
+    {
+        LL_WARNS("GameController") << "Can't open game controller: " << SDL_GetError() << LL_ENDL;
+        return;
+    }
 
     g_manager.addController(id, controller);
 }
 
 void onControllerDeviceRemoved(const SDL_Event& event)
 {
+    LL_INFOS("GameController") << "joystick id=" << event.cdevice.which << LL_ENDL;
+
     SDL_JoystickID id = event.cdevice.which;
     g_manager.removeController(id);
 }
@@ -808,13 +819,39 @@ void sdl_logger(void *userdata, int category, SDL_LogPriority priority, const ch
 }
 
 // static
-void LLGameControl::init()
+void LLGameControl::init(const std::string& gamecontrollerdb_path)
 {
     if (!g_gameControl)
     {
-        g_gameControl = LLGameControl::getInstance();
-        SDL_InitSubSystem(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER);
+        int result = SDL_InitSubSystem(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER);
+        if (result < 0)
+        {
+            // This error is critical, we stop working with SDL and return
+            LL_WARNS("GameController") << "Error initializing the subsystems : " << SDL_GetError() << LL_ENDL;
+            return;
+        }
+
         SDL_LogSetOutputFunction(&sdl_logger, nullptr);
+
+        // The inability to read this file is not critical, we can continue working
+        if (!LLFile::isfile(gamecontrollerdb_path.c_str()))
+        {
+            LL_WARNS("GameController") << "Device mapping db file not found: " << gamecontrollerdb_path << LL_ENDL;
+        }
+        else
+        {
+            int count = SDL_GameControllerAddMappingsFromFile(gamecontrollerdb_path.c_str());
+            if (count < 0)
+            {
+                LL_WARNS("GameController") << "Error adding mappings from " << gamecontrollerdb_path << " : " << SDL_GetError() << LL_ENDL;
+            }
+            else
+            {
+                LL_INFOS("GameController") << "Total " << count << " mappings added from " << gamecontrollerdb_path << LL_ENDL;
+            }
+        }
+
+        g_gameControl = LLGameControl::getInstance();
     }
 }
 
@@ -844,9 +881,9 @@ bool LLGameControl::computeFinalStateAndCheckForChanges()
 }
 
 // static
-void LLGameControl::clearAllState()
+void LLGameControl::clearAllStates()
 {
-    g_manager.clearAllState();
+    g_manager.clearAllStates();
 }
 
 // static
@@ -860,7 +897,7 @@ void LLGameControl::processEvents(bool app_has_focus)
         {
             // do nothing: SDL_PollEvent() is the operator
         }
-        g_manager.clearAllState();
+        g_manager.clearAllStates();
         return;
     }
 
@@ -868,6 +905,12 @@ void LLGameControl::processEvents(bool app_has_focus)
     {
         switch (event.type)
         {
+            case SDL_JOYDEVICEADDED:
+                onJoystickDeviceAdded(event);
+                break;
+            case SDL_JOYDEVICEREMOVED:
+                onJoystickDeviceRemoved(event);
+                break;
             case SDL_CONTROLLERDEVICEADDED:
                 onControllerDeviceAdded(event);
                 break;
