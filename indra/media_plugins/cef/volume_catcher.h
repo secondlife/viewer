@@ -34,6 +34,8 @@
 class VolumeCatcherImpl
 {
 public:
+	virtual ~VolumeCatcherImpl() = default;
+
 	virtual void setVolume(F32 volume) = 0; // 0.0 - 1.0
 	
 	// Set the left-right pan of audio sources
