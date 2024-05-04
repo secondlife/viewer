@@ -434,7 +434,7 @@ namespace tut
       
       for (counter=0, foundUnused=false; !foundUnused; counter++ )
       {
-         char counterStr[3];
+         char counterStr[12] = {};
          sprintf(counterStr, "%02d", counter);
          uniqueDir = dirbase + counterStr;
          foundUnused = ! ( LLFile::isdir(uniqueDir) || LLFile::isfile(uniqueDir) );
