@@ -197,6 +197,7 @@ void LLPanelGroupGeneral::setupCtrls(LLPanel* panel_group)
 	{
 		mInsignia->setCommitCallback(onCommitAny, this);
 		mInsignia->setAllowLocalTexture(FALSE);
+        mInsignia->setBakeTextureEnabled(FALSE);
 	}
 	mFounderName = getChild<LLTextBox>("founder_name");
 
