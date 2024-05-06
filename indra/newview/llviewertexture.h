@@ -185,11 +185,7 @@ private:
 	friend class LLUIImageList;
 
 	virtual void switchToCachedImage();
-	
-	static void getGPUMemoryForTextures(S32Megabytes &gpu, S32Megabytes &physical);
 
-public:
-    static bool isMemoryForTextureLow();
 protected:
     friend class LLViewerTextureList;
 	LLUUID mID;
