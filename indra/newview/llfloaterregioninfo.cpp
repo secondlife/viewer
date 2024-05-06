@@ -1107,6 +1107,30 @@ BOOL LLPanelRegionGeneralInfo::sendUpdate()
 		body["allow_parcel_changes"] = getChild<LLUICtrl>("allow_parcel_changes_check")->getValue();
 		body["block_parcel_search"] = getChild<LLUICtrl>("block_parcel_search_check")->getValue();
 
+        if (mSupportsCombat2)
+        {
+            U32 combat_flags = 0;
+
+            if (getChild<LLUICtrl>("combat_restrict_log")->getValue().asBoolean())
+            {
+                combat_flags |= REGION_COMBAT_FLAG_RESTRICT_LOG;
+            }
+            if (getChild<LLUICtrl>("combat_allow_damage_adjust")->getValue().asBoolean())
+            {
+                combat_flags |= REGION_COMBAT_FLAG_DAMAGE_ADJUST;
+            }
+            if (getChild<LLUICtrl>("combat_restore_health")->getValue().asBoolean())
+            {
+                combat_flags |= REGION_COMBAT_FLAG_RESTORE_HEALTH;
+            }
+
+            body["combat_flags"] = LLSD::Integer(combat_flags);
+            body["combat_on_death"] = getChild<LLUICtrl>("combat_on_death")->getValue();
+            body["combat_dps_throttle"] = getChild<LLUICtrl>("combat_dps_spin")->getValue();
+            body["combat_hps_rate"] = getChild<LLUICtrl>("combat_hps_spin")->getValue();
+            body["combat_invuln_time"] = getChild<LLUICtrl>("combat_invuln_spin")->getValue();
+        }
+
         LLCoreHttpUtil::HttpCoroutineAdapter::messageHttpPost(url, body,
             "Region info update posted.", "Region info update not posted.");
 	}
