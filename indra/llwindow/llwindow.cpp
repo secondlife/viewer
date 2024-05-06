@@ -336,7 +336,7 @@ void LLWindow::handleUnicodeUTF16(U16 utf16, MASK mask)
 // static
 bool LLSplashScreen::isVisible()
 {
-	return gSplashScreenp ? true: false;
+	return gSplashScreenp;
 }
 
 // static

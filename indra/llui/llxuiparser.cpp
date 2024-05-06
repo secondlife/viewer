@@ -935,7 +935,7 @@ bool LLXUIParser::readBoolValue(Parser& parser, void* val_ptr)
 	bool value;
 	LLXUIParser& self = static_cast<LLXUIParser&>(parser);
 	bool success = self.mCurReadNode->getBoolValue(1, &value);
-	*((bool*)val_ptr) = (value != false);
+	*((bool*)val_ptr) = value;
 	return success;
 }
 

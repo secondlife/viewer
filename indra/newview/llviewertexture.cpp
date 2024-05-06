@@ -2083,7 +2083,7 @@ bool LLViewerFetchedTexture::updateFetch()
 		}
 	}
 	
-	return mIsFetching ? true : false;
+	return mIsFetching;
 }
 
 void LLViewerFetchedTexture::clearFetchedResults()
@@ -2537,7 +2537,7 @@ bool LLViewerFetchedTexture::doLoadedCallbacks()
 				{
 					LL_WARNS() << "Raw Image with no Aux Data for callback" << LL_ENDL;
 				}
-				bool final = mRawDiscardLevel <= entryp->mDesiredDiscard ? true : false;
+				bool final = mRawDiscardLevel <= entryp->mDesiredDiscard;
 				//LL_INFOS() << "Running callback for " << getID() << LL_ENDL;
 				//LL_INFOS() << mRawImage->getWidth() << "x" << mRawImage->getHeight() << LL_ENDL;
 				entryp->mLastUsedDiscard = mRawDiscardLevel;
@@ -2568,7 +2568,7 @@ bool LLViewerFetchedTexture::doLoadedCallbacks()
 			if (!entryp->mNeedsImageRaw && (entryp->mLastUsedDiscard > gl_discard))
 			{
 				mLastCallBackActiveTime = sCurrentTime;
-				bool final = gl_discard <= entryp->mDesiredDiscard ? true : false;
+				bool final = gl_discard <= entryp->mDesiredDiscard;
 				entryp->mLastUsedDiscard = gl_discard;
 				entryp->mCallback(true, this, NULL, NULL, gl_discard, final, entryp->mUserData);
 				if (final)

@@ -304,7 +304,7 @@ public:
 	void setLoadedCallback(loaded_callback_func cb,
 						   S32 discard_level, bool keep_imageraw, bool needs_aux,
 						   void* userdata, LLLoadedCallbackEntry::source_callback_list_t* src_callback_list, bool pause = false);
-	bool hasCallbacks() { return mLoadedCallbackList.empty() ? false : true; }	
+	bool hasCallbacks() { return !mLoadedCallbackList.empty(); }	
 	void pauseLoadedCallbacks(const LLLoadedCallbackEntry::source_callback_list_t* callback_list);
 	void unpauseLoadedCallbacks(const LLLoadedCallbackEntry::source_callback_list_t* callback_list);
 	bool doLoadedCallbacks();

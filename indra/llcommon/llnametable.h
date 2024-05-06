@@ -64,7 +64,7 @@ public:
 	bool checkName(const char *name) const
 	{
 		char *tablename = gStringTable.addString(name);
-		return mNameMap.count(tablename) ? true : false;
+		return mNameMap.find(tablename) != mNameMap.end();
 	}
 
 	DATA resolveName(const std::string& name) const

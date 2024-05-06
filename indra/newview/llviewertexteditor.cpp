@@ -401,7 +401,7 @@ bool LLEmbeddedItems::insertEmbeddedItem( LLInventoryItem* item, llwchar* ext_ch
 	}
 
 	sEntries[wc_emb].mItemPtr = item;
-	sEntries[wc_emb].mSaved = is_new ? false : true;
+	sEntries[wc_emb].mSaved = !is_new;
 	*ext_char = wc_emb;
 	mEmbeddedUsedChars.insert(wc_emb);
 	return true;

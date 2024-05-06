@@ -1117,7 +1117,7 @@ void LLPanelLogin::onPassKey(LLLineEditor* caller, void* user_data)
 {
 	LLPanelLogin *self = (LLPanelLogin *)user_data;
 	self->mPasswordModified = true;
-	if (gKeyboard->getKeyDown(KEY_CAPSLOCK) && sCapslockDidNotification == false)
+	if (gKeyboard->getKeyDown(KEY_CAPSLOCK) && !sCapslockDidNotification)
 	{
 		// *TODO: use another way to notify user about enabled caps lock, see EXT-6858
 		sCapslockDidNotification = true;

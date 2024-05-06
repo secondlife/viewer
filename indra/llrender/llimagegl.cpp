@@ -2436,7 +2436,7 @@ bool LLImageGL::getMask(const LLVector2 &tc)
 		S32 idx = y*mPickMaskWidth+x;
 		S32 offset = idx%8;
 
-		res = mPickMask[idx/8] & (1 << offset) ? true : false;
+		res = (mPickMask[idx/8] & (1 << offset)) != 0;
 	}
 	
 	return res;

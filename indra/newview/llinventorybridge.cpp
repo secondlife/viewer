@@ -4250,7 +4250,7 @@ bool LLFolderBridge::checkFolderForContentsOfType(LLInventoryModel* model, LLInv
 								item_array,
 								LLInventoryModel::EXCLUDE_TRASH,
 								is_type);
-	return ((item_array.size() > 0) ? true : false );
+	return !item_array.empty();
 }
 
 void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items, menuentry_vec_t& disabled_items)
@@ -6628,7 +6628,7 @@ LLObjectBridge::LLObjectBridge(LLInventoryPanel* inventory,
 	LLItemBridge(inventory, root, uuid)
 {
 	mAttachPt = (flags & 0xff); // low bye of inventory flags
-	mIsMultiObject = ( flags & LLInventoryItemFlags::II_FLAGS_OBJECT_HAS_MULTIPLE_ITEMS ) ?  true: false;
+	mIsMultiObject = is_flag_set(flags, LLInventoryItemFlags::II_FLAGS_OBJECT_HAS_MULTIPLE_ITEMS);
 	mInvType = type;
 }
 

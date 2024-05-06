@@ -2202,7 +2202,7 @@ void LLTextEditor::showContextMenu(S32 x, S32 y)
 
 		// If the cursor is on a misspelled word, retrieve suggestions for it
 		std::string misspelled_word = getMisspelledWord(mCursorPos);
-		if ((is_misspelled = !misspelled_word.empty()) == true)
+		if ((is_misspelled = !misspelled_word.empty()))
 		{
 			LLSpellChecker::instance().getSuggestions(misspelled_word, mSuggestionList);
 		}

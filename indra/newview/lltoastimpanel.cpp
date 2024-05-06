@@ -119,7 +119,7 @@ LLToastIMPanel::~LLToastIMPanel()
 //virtual
 bool LLToastIMPanel::handleMouseUp(S32 x, S32 y, MASK mask)
 {
-	if (LLPanel::handleMouseUp(x,y,mask) == false)
+	if (!LLPanel::handleMouseUp(x, y, mask))
 	{
 		mNotification->respond(mNotification->getResponseTemplate());
 	}

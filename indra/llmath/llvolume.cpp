@@ -6878,45 +6878,63 @@ bool LLVolumeFace::createSide(LLVolume* volume, bool partial_build)
 				mIndices[cur_index++] = s+1 + mNumS*t;			//bottom right
 				mIndices[cur_index++] = s+1 + mNumS*(t+1);		//top right
 
-				mEdge[cur_edge++] = (mNumS-1)*2*t+s*2+1;						//bottom left/top right neighbor face 
-				if (t < mNumT-2) {												//top right/top left neighbor face 
+				// bottom left/top right neighbor face
+				mEdge[cur_edge++] = (mNumS-1)*2*t+s*2+1;
+
+				if (t < mNumT-2)
+				{	// top right/top left neighbor face
 					mEdge[cur_edge++] = (mNumS-1)*2*(t+1)+s*2+1;
 				}
-				else if (mNumT <= 3 || volume->getPath().isOpen() == true) { //no neighbor
+				else if (mNumT <= 3 || volume->getPath().isOpen())
+				{	// no neighbor
 					mEdge[cur_edge++] = -1;
 				}
-				else { //wrap on T
+				else
+				{	// wrap on T
 					mEdge[cur_edge++] = s*2+1;
 				}
-				if (s > 0) {													//top left/bottom left neighbor face
+
+				if (s > 0)
+				{	// top left/bottom left neighbor face
 					mEdge[cur_edge++] = (mNumS-1)*2*t+s*2-1;
 				}
-				else if (flat_face ||  volume->getProfile().isOpen() == true) { //no neighbor
+				else if (flat_face || volume->getProfile().isOpen())
+				{	// no neighbor
 					mEdge[cur_edge++] = -1;
 				}
-				else {	//wrap on S
+				else
+				{	// wrap on S
 					mEdge[cur_edge++] = (mNumS-1)*2*t+(mNumS-2)*2+1;
 				}
-				
-				if (t > 0) {													//bottom left/bottom right neighbor face
+
+				if (t > 0)
+				{	// bottom left/bottom right neighbor face
 					mEdge[cur_edge++] = (mNumS-1)*2*(t-1)+s*2;
 				}
-				else if (mNumT <= 3 || volume->getPath().isOpen() == true) { //no neighbor
+				else if (mNumT <= 3 || volume->getPath().isOpen())
+				{	// no neighbor
 					mEdge[cur_edge++] = -1;
 				}
-				else { //wrap on T
+				else
+				{	// wrap on T
 					mEdge[cur_edge++] = (mNumS-1)*2*(mNumT-2)+s*2;
 				}
-				if (s < mNumS-2) {												//bottom right/top right neighbor face
+
+				if (s < mNumS-2)
+				{	// bottom right/top right neighbor face
 					mEdge[cur_edge++] = (mNumS-1)*2*t+(s+1)*2;
 				}
-				else if (flat_face || volume->getProfile().isOpen() == true) { //no neighbor
+				else if (flat_face || volume->getProfile().isOpen())
+				{	// no neighbor
 					mEdge[cur_edge++] = -1;
 				}
-				else { //wrap on S
+				else
+				{	// wrap on S
 					mEdge[cur_edge++] = (mNumS-1)*2*t;
 				}
-				mEdge[cur_edge++] = (mNumS-1)*2*t+s*2;							//top right/bottom left neighbor face	
+
+				// top right/bottom left neighbor face	
+				mEdge[cur_edge++] = (mNumS-1)*2*t+s*2;
 			}
 		}
 	}
@@ -7053,7 +7071,7 @@ bool LLVolumeFace::createSide(LLVolume* volume, bool partial_build)
 
 	if (sculpt_stitching == LL_SCULPT_TYPE_NONE)  // logic for non-sculpt volumes
 	{
-		if (volume->getPath().isOpen() == false)
+		if (!volume->getPath().isOpen())
 		{ //wrap normals on T
 			for (S32 i = 0; i < mNumS; i++)
 			{
@@ -7064,7 +7082,7 @@ bool LLVolumeFace::createSide(LLVolume* volume, bool partial_build)
 			}
 		}
 
-		if ((volume->getProfile().isOpen() == false) && !(s_bottom_converges))
+		if (!volume->getProfile().isOpen() && !s_bottom_converges)
 		{ //wrap normals on S
 			for (S32 i = 0; i < mNumT; i++)
 			{

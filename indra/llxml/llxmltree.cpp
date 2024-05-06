@@ -155,14 +155,14 @@ void LLXmlTreeNode::dump( const std::string& prefix )
 
 bool LLXmlTreeNode::hasAttribute(const std::string& name)
 {
-	LLStdStringHandle canonical_name = LLXmlTree::sAttributeKeys.addString( name );
+	LLStdStringHandle canonical_name = LLXmlTree::sAttributeKeys.addString(name);
 	attribute_map_t::iterator iter = mAttributes.find(canonical_name);
-	return (iter == mAttributes.end()) ? false : true;
+	return iter != mAttributes.end();
 }
 
 void LLXmlTreeNode::addAttribute(const std::string& name, const std::string& value)
 {
-	LLStdStringHandle canonical_name = LLXmlTree::sAttributeKeys.addString( name );
+	LLStdStringHandle canonical_name = LLXmlTree::sAttributeKeys.addString(name);
 	const std::string *newstr = new std::string(value);
 	mAttributes[canonical_name] = newstr; // insert + copy
 }

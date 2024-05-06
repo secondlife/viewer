@@ -217,7 +217,7 @@ bool LLSetKeyBindDialog::recordAndHandleKey(KEY key, MASK mask, bool down)
             // Masks by themself are not allowed
             return false;
         }
-        if (down == true)
+        if (down)
         {
             // Most keys are handled on 'down' event because menu is handled on 'down'
             // masks are exceptions to let other keys be handled

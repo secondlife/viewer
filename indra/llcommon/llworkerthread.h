@@ -178,7 +178,7 @@ private:
 	void clearFlags(U32 flags) { mWorkFlags = mWorkFlags & ~flags; }
 	U32  getFlags() { return mWorkFlags; }
 public:
-	bool getFlags(U32 flags) { return mWorkFlags & flags ? true : false; }
+	bool getFlags(U32 flags) { return (mWorkFlags & flags) != 0; }
 	
 private:
 	// pure virtuals

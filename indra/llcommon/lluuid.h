@@ -153,7 +153,7 @@ struct lluuid_less
 {
 	bool operator()(const LLUUID& lhs, const LLUUID& rhs) const
 	{
-		return (lhs < rhs) ? true : false;
+		return lhs < rhs;
 	}
 };
 

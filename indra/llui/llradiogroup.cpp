@@ -138,7 +138,7 @@ void LLRadioGroup::setIndexEnabled(S32 index, bool enabled)
 		if (count == index)
 		{
 			child->setEnabled(enabled);
-			if (index == mSelectedIndex && enabled == false)
+			if (index == mSelectedIndex && !enabled)
 			{
 				setSelectedIndex(-1);
 			}

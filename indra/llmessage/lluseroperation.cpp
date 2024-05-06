@@ -138,7 +138,7 @@ bool LLUserOperationMgr::deleteOperation(LLUserOperation* op)
 		delete op;
 		op = NULL;
 	}
-	return rv ? true : false;
+	return rv != 0;
 }
 
 void LLUserOperationMgr::deleteExpiredOperations()

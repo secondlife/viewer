@@ -321,7 +321,7 @@ bool LLPolyMeshSharedData::loadMesh( const std::string& fileName )
                 }
                 if (!isLOD())
                 {
-                        mHasWeights = (hasWeights==0) ? false : true;
+                        mHasWeights = hasWeights > 0;
                 }
 
                 //----------------------------------------------------------------

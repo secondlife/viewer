@@ -6605,15 +6605,15 @@ void LLVOAvatar::addAttachmentOverridesForObject(LLViewerObject *vo, std::set<LL
                 LL_DEBUGS("AnimatedObjects") << "adding attachment overrides for " << mesh_id 
                                              << " to root object " << root_object->getID() << LL_ENDL;
             }
-			bool fullRig = (jointCnt>=JOINT_COUNT_REQUIRED_FOR_FULLRIG) ? true : false;								
+			bool fullRig = jointCnt>=JOINT_COUNT_REQUIRED_FOR_FULLRIG;
 			if ( fullRig && !mesh_overrides_loaded )
-			{								
+			{
 				for ( int i=0; i<jointCnt; ++i )
 				{
 					std::string lookingForJoint = pSkinData->mJointNames[i].c_str();
 					LLJoint* pJoint = getJoint( lookingForJoint );
 					if (pJoint)
-					{   									
+					{
 						const LLVector3& jointPos = LLVector3(pSkinData->mAlternateBindMatrix[i].getTranslation());
                         if (pJoint->aboveJointPosThreshold(jointPos))
                         {
@@ -6624,9 +6624,9 @@ void LLVOAvatar::addAttachmentOverridesForObject(LLViewerObject *vo, std::set<LL
                             {
                                 //If joint is a pelvis then handle old/new pelvis to foot values
                                 if ( lookingForJoint == "mPelvis" )
-                                {	
-                                    pelvisGotSet = true;											
-                                }										
+                                {
+                                    pelvisGotSet = true;
+                                }
                             }
                             if (pSkinData->mLockScaleIfJointPosition)
                             {
@@ -6635,8 +6635,9 @@ void LLVOAvatar::addAttachmentOverridesForObject(LLViewerObject *vo, std::set<LL
                                 pJoint->addAttachmentScaleOverride(pJoint->getDefaultScale(), mesh_id, avString());
                             }
                         }
-					}										
-				}																
+					}
+				}
+
 				if (pelvisZOffset != 0.0F)
 				{
                     F32 pelvis_fixup_before;
@@ -6646,25 +6647,25 @@ void LLVOAvatar::addAttachmentOverridesForObject(LLViewerObject *vo, std::set<LL
                     hasPelvisFixup(pelvis_fixup_after); // Don't have to check bool here because we just added it...
                     if (!has_fixup_before || (pelvis_fixup_before != pelvis_fixup_after))
                     {
-                        pelvisGotSet = true;											
+                        pelvisGotSet = true;
                     }
                     
 				}
                 mActiveOverrideMeshes.insert(mesh_id);
                 onActiveOverrideMeshesChanged();
-			}							
+			}
 		}
 	}
     else
     {
         LL_DEBUGS("AnimatedObjects") << "failed to add attachment overrides for root object " << root_object->getID() << " not mesh or no pSkinData" << LL_ENDL;
     }
-					
+
 	//Rebuild body data if we altered joints/pelvis
 	if ( pelvisGotSet ) 
 	{
 		postPelvisSetRecalc();
-	}		
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -6703,7 +6704,6 @@ void LLVOAvatar::getAttachmentOverrideNames(std::set<std::string>& pos_names, st
         }
         // Attachment points don't have scales.
     }
-
 }
 
 //-----------------------------------------------------------------------------
@@ -6723,6 +6723,7 @@ void LLVOAvatar::showAttachmentOverrides(bool verbose) const
     {
         LL_DEBUGS("Avatar") << getFullname() << " no attachment positions defined for any joints" << "\n" << LL_ENDL;
     }
+
     if (scale_names.size())
     {
         std::stringstream ss;
@@ -6818,25 +6819,26 @@ void LLVOAvatar::removeAttachmentOverridesForObject(const LLUUID& mesh_id)
     for (S32 joint_num = 0; joint_num < LL_CHARACTER_MAX_ANIMATED_JOINTS; joint_num++)
 	{
         LLJoint *pJoint = getJoint(joint_num);
-		if ( pJoint )
-		{			
+		if (pJoint)
+		{
             bool dummy; // unused
 			pJoint->removeAttachmentPosOverride(mesh_id, av_string, dummy);
 			pJoint->removeAttachmentScaleOverride(mesh_id, av_string);
-		}		
-		if ( pJoint && pJoint == pJointPelvis)
+		}
+		if (pJoint && pJoint == pJointPelvis)
 		{
-			removePelvisFixup( mesh_id );
+			removePelvisFixup(mesh_id);
 			// SL-315
-			pJoint->setPosition( LLVector3( 0.0f, 0.0f, 0.0f) );
-		}		
-	}	
-		
+			pJoint->setPosition(LLVector3( 0.0f, 0.0f, 0.0f));
+		}
+	}
+
 	postPelvisSetRecalc();	
 
     mActiveOverrideMeshes.erase(mesh_id);
     onActiveOverrideMeshesChanged();
 }
+
 //-----------------------------------------------------------------------------
 // getCharacterPosition()
 //-----------------------------------------------------------------------------
@@ -6852,7 +6854,6 @@ LLVector3 LLVOAvatar::getCharacterPosition()
 	}
 }
 
-
 //-----------------------------------------------------------------------------
 // LLVOAvatar::getCharacterRotation()
 //-----------------------------------------------------------------------------
@@ -6861,7 +6862,6 @@ LLQuaternion LLVOAvatar::getCharacterRotation()
 	return getRotation();
 }
 
-
 //-----------------------------------------------------------------------------
 // LLVOAvatar::getCharacterVelocity()
 //-----------------------------------------------------------------------------
@@ -6869,7 +6869,6 @@ LLVector3 LLVOAvatar::getCharacterVelocity()
 {
 	return getVelocity() - mStepObjectVelocity;
 }
-
 
 //-----------------------------------------------------------------------------
 // LLVOAvatar::getCharacterAngularVelocity()
@@ -6893,7 +6892,7 @@ void LLVOAvatar::getGround(const LLVector3 &in_pos_agent, LLVector3 &out_pos_age
 		out_pos_agent = in_pos_agent;
 		return;
 	}
-	
+
 	p0_global = gAgent.getPosGlobalFromAgent(in_pos_agent) + z_vec;
 	p1_global = gAgent.getPosGlobalFromAgent(in_pos_agent) - z_vec;
 	LLViewerObject *obj;
@@ -6910,7 +6909,6 @@ F32 LLVOAvatar::getTimeDilation()
 	return mRegionp ? mRegionp->getTimeDilation() : 1.f;
 }
 
-
 //-----------------------------------------------------------------------------
 // LLVOAvatar::getPixelArea()
 //-----------------------------------------------------------------------------
@@ -6922,8 +6920,6 @@ F32 LLVOAvatar::getPixelArea() const
 	}
 	return mPixelArea;
 }
-
-
 
 //-----------------------------------------------------------------------------
 // LLVOAvatar::getPosGlobalFromAgent()
@@ -6940,7 +6936,6 @@ LLVector3	LLVOAvatar::getPosAgentFromGlobal(const LLVector3d &position)
 {
 	return gAgent.getPosAgentFromGlobal(position);
 }
-
 
 //-----------------------------------------------------------------------------
 // requestStopMotion()
@@ -6961,7 +6956,7 @@ bool LLVOAvatar::loadSkeletonNode ()
 	{
 		return false;
 	}
-	
+
     bool ignore_hud_joints = false;
     initAttachmentPoints(ignore_hud_joints);
 
@@ -11717,5 +11712,4 @@ F32 LLVOAvatar::getAverageGPURenderTime()
 
     return ret;
 }
-
 
