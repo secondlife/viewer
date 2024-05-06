@@ -3304,16 +3304,15 @@ void LLAgent::sendAnimationRequests(const std::vector<LLUUID> &anim_ids, EAnimRe
 	msg->addUUIDFast(_PREHASH_AgentID, getID());
 	msg->addUUIDFast(_PREHASH_SessionID, getSessionID());
 
-	for (S32 i = 0; i < anim_ids.size(); i++)
+	for (const LLUUID& uuid : anim_ids)
 	{
-		if (anim_ids[i].isNull())
+		if (uuid.notNull())
 		{
-			continue;
+			msg->nextBlockFast(_PREHASH_AnimationList);
+			msg->addUUIDFast(_PREHASH_AnimID, uuid);
+			msg->addBOOLFast(_PREHASH_StartAnim, request == ANIM_REQUEST_START);
+			num_valid_anims++;
 		}
-		msg->nextBlockFast(_PREHASH_AnimationList);
-		msg->addUUIDFast(_PREHASH_AnimID, (anim_ids[i]) );
-		msg->addBOOLFast(_PREHASH_StartAnim, (request == ANIM_REQUEST_START) ? true : false);
-		num_valid_anims++;
 	}
 
 	msg->nextBlockFast(_PREHASH_PhysicalAvatarEventList);
@@ -3338,8 +3337,8 @@ void LLAgent::sendAnimationRequest(const LLUUID &anim_id, EAnimRequest request)
 	msg->addUUIDFast(_PREHASH_SessionID, getSessionID());
 
 	msg->nextBlockFast(_PREHASH_AnimationList);
-	msg->addUUIDFast(_PREHASH_AnimID, (anim_id) );
-	msg->addBOOLFast(_PREHASH_StartAnim, (request == ANIM_REQUEST_START) ? true : false);
+	msg->addUUIDFast(_PREHASH_AnimID, anim_id);
+	msg->addBOOLFast(_PREHASH_StartAnim, request == ANIM_REQUEST_START);
 
 	msg->nextBlockFast(_PREHASH_PhysicalAvatarEventList);
 	msg->addBinaryDataFast(_PREHASH_TypeData, NULL, 0);

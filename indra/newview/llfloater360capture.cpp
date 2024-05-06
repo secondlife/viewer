@@ -811,7 +811,7 @@ void LLFloater360Capture::freezeWorld(bool enable)
     {
         // restart the clouds moving if they were not paused before
         // we starting using the 360 capture floater
-        if (clouds_scroll_paused == false)
+        if (!clouds_scroll_paused)
         {
             LLEnvironment::instance().resumeCloudScroll();
         }

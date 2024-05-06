@@ -832,7 +832,7 @@ bool LLDrawable::updateMoveDamped()
 		mVObjp->updateText();
 	}
 
-	bool done_moving = (dist_squared == 0.0f) ? true : false;
+	bool done_moving = dist_squared == 0.0f;
 
 	if (done_moving)
 	{

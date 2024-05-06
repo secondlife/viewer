@@ -71,9 +71,8 @@ bool LLLineSegmentBoxIntersect(const LLVector4a& start, const LLVector4a& end, c
 	
 	grt = f.greaterThan(rhs).getGatheredBits();
 
-	return (grt & 0x7) ? false : true;
+	return (grt & 0x7) == 0;
 }
-
 
 LLVolumeOctreeListener::LLVolumeOctreeListener(LLOctreeNode<LLVolumeTriangle, LLVolumeTriangle*>* node)
 {
@@ -84,7 +83,7 @@ LLVolumeOctreeListener::~LLVolumeOctreeListener()
 {
 
 }
-	
+
 void LLVolumeOctreeListener::handleChildAddition(const LLOctreeNode<LLVolumeTriangle, LLVolumeTriangle*>* parent, 
     LLOctreeNode<LLVolumeTriangle, LLVolumeTriangle*>* child)
 {

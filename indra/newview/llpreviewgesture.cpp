@@ -616,10 +616,9 @@ void LLPreviewGesture::refresh()
 	LLPreview::refresh();
 	// If previewing or item is incomplete, all controls are disabled
 	LLViewerInventoryItem* item = (LLViewerInventoryItem*)getItem();
-	bool is_complete = (item && item->isFinished()) ? true : false;
+	bool is_complete = item && item->isFinished();
 	if (mPreviewGesture || !is_complete)
 	{
-		
 		getChildView("desc")->setEnabled(false);
 		//mDescEditor->setEnabled(false);
 		mTriggerEditor->setEnabled(false);

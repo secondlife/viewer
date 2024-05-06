@@ -345,7 +345,7 @@ void LLWorldMapView::setPanWithInterpTime(S32 x, S32 y, bool snap, F32 interp_ti
     mMapIterpTime = interp_time;
 }
 
-bool LLWorldMapView::showRegionInfo() { return (LLWorldMipmap::scaleToLevel(mMapScale) <= DRAW_SIMINFO_THRESHOLD ? true : false); }
+bool LLWorldMapView::showRegionInfo() { return LLWorldMipmap::scaleToLevel(mMapScale) <= DRAW_SIMINFO_THRESHOLD; }
 
 ///////////////////////////////////////////////////////////////////////////////////
 // HELPERS

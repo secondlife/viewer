@@ -2344,7 +2344,7 @@ bool LLViewerParcelMgr::canAgentBuyParcel(LLParcel* parcel, bool forGroup) const
 			&& ((parcel->getSalePrice() > 0) || (authorizeBuyer.notNull()));
 			
 	bool isEmpowered
-		= forGroup ? gAgent.hasPowerInActiveGroup(GP_LAND_DEED) == true : true;
+		= forGroup ? gAgent.hasPowerInActiveGroup(GP_LAND_DEED) : true;
 		
 	bool isOwner
 		= parcelOwner == (forGroup ? gAgent.getGroupID() : gAgent.getID());
@@ -2361,7 +2361,7 @@ bool LLViewerParcelMgr::canAgentBuyParcel(LLParcel* parcel, bool forGroup) const
 
 void LLViewerParcelMgr::startBuyLand(bool is_for_group)
 {
-	LLFloaterBuyLand::buyLand(getSelectionRegion(), mCurrentParcelSelection, is_for_group == true);
+	LLFloaterBuyLand::buyLand(getSelectionRegion(), mCurrentParcelSelection, is_for_group);
 }
 
 void LLViewerParcelMgr::startSellLand()

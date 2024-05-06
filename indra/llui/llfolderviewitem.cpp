@@ -484,7 +484,7 @@ void LLFolderViewItem::deselectItem(void)
 
 void LLFolderViewItem::selectItem(void)
 {
-	if (mIsSelected == false)
+	if (!mIsSelected)
 	{
 		mIsSelected = true;
 		getViewModelItem()->selectItem();
@@ -1582,7 +1582,8 @@ void LLFolderViewFolder::gatherChildRangeExclusive(LLFolderViewItem* start, LLFo
 
 void LLFolderViewFolder::extendSelectionTo(LLFolderViewItem* new_selection)
 {
-	if (getRoot()->getAllowMultiSelect() == false) return;
+	if (!getRoot()->getAllowMultiSelect())
+		return;
 
 	LLFolderViewItem* cur_selected_item = getRoot()->getCurSelectedItem();
 	if (cur_selected_item == NULL)
@@ -1593,14 +1594,15 @@ void LLFolderViewFolder::extendSelectionTo(LLFolderViewItem* new_selection)
 
 	bool reverse = false;
 	LLFolderViewFolder* common_ancestor = getCommonAncestor(cur_selected_item, new_selection, reverse);
-	if (!common_ancestor) return;
+	if (!common_ancestor)
+		return;
 
 	LLFolderViewItem* last_selected_item_from_cur = cur_selected_item;
 	LLFolderViewFolder* cur_folder = cur_selected_item->getParentFolder();
 
 	std::vector<LLFolderViewItem*> items_to_select_forward;
 
-	while(cur_folder != common_ancestor)
+	while (cur_folder != common_ancestor)
 	{
 		cur_folder->gatherChildRangeExclusive(last_selected_item_from_cur, NULL, reverse, items_to_select_forward);
 			
@@ -1612,7 +1614,7 @@ void LLFolderViewFolder::extendSelectionTo(LLFolderViewItem* new_selection)
 
 	LLFolderViewItem* last_selected_item_from_new = new_selection;
 	cur_folder = new_selection->getParentFolder();
-	while(cur_folder != common_ancestor)
+	while (cur_folder != common_ancestor)
 	{
 		cur_folder->gatherChildRangeExclusive(last_selected_item_from_new, NULL, !reverse, items_to_select_reverse);
 

@@ -59,17 +59,17 @@ public:
     bool isQuitting() const { return (QUITTING == mStatus); }
     bool isStopped() const { return (STOPPED == mStatus) || (CRASHED == mStatus); }
     bool isCrashed() const { return (CRASHED == mStatus); } 
-    
+
     static id_t currentID(); // Return ID of current thread
     static void yield(); // Static because it can be called by the main thread, which doesn't have an LLThread data structure.
-    
+
 public:
     // PAUSE / RESUME functionality. See source code for important usage notes.
     // Called from MAIN THREAD.
     void pause();
     void unpause();
-    bool isPaused() { return isStopped() || mPaused == true; }
-    
+    bool isPaused() { return isStopped() || mPaused; }
+
     // Cause the thread to wake up and check its condition
     void wake();
 

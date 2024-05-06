@@ -1049,20 +1049,20 @@ bool LLToolBar::handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
 										std::string& tooltip_msg)
 {
 	// If we have a drop callback, that means that we can handle the drop
-	bool handled = (mHandleDropCallback ? true : false);
-	
+	bool handled = mHandleDropCallback != nullptr;
+
 	// if drop is set, it's time to call the callback to get the operation done
 	if (handled && drop)
 	{
-		handled = mHandleDropCallback(cargo_data, x, y ,this);
+		handled = mHandleDropCallback(cargo_data, x, y, this);
 	}
-	
+
 	// We accept only single tool drop on toolbars
-	*accept = (handled ? ACCEPT_YES_SINGLE : ACCEPT_NO);
-	
+	*accept = handled ? ACCEPT_YES_SINGLE : ACCEPT_NO;
+
 	// We'll use that flag to change the visual aspect of the toolbar target on draw()
 	mDragAndDropTarget = false;
-	
+
 	// Convert drag position into insert position and rank 
 	if (!isReadOnly() && handled && !drop)
 	{
@@ -1073,7 +1073,7 @@ bool LLToolBar::handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
 			int orig_rank = getRankFromPosition(dragged_command);
 			mDragRank = getRankFromPosition(x, y);
 			// Don't DaD if we're dragging a command on itself
-			mDragAndDropTarget = ((orig_rank != RANK_NONE) && ((mDragRank == orig_rank) || ((mDragRank-1) == orig_rank)) ? false : true);
+			mDragAndDropTarget = ((orig_rank != RANK_NONE) && ((mDragRank == orig_rank) || ((mDragRank - 1) == orig_rank)));
 			//LL_INFOS() << "Merov debug : DaD, rank = " << mDragRank << ", dragged uui = " << inv_item->getUUID() << LL_ENDL; 
 			/* Do the following if you want to animate the button itself
 			LLCommandId dragged_command(inv_item->getUUID());
@@ -1086,7 +1086,7 @@ bool LLToolBar::handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
 			handled = false;
 		}
 	}
-	
+
 	return handled;
 }
 

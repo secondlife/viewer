@@ -832,8 +832,8 @@ void LLFloaterEmojiPicker::createEmojiIcon(const LLEmojiSearchResult& emoji,
 void LLFloaterEmojiPicker::showPreview(bool show)
 {
     //mPreview->setIcon(nullptr);
-    mDummy->setVisible(show ? false : true);
-    mPreview->setVisible(show ? true : false);
+    mDummy->setVisible(show);
+    mPreview->setVisible(show);
 }
 
 void LLFloaterEmojiPicker::onGroupButtonClick(LLUICtrl* ctrl)

@@ -1456,7 +1456,7 @@ void LLPanelVolume::setLightTextureID(const LLUUID &asset_id, const LLUUID &item
         if (item && volobjp->isAttachment())
         {
             const LLPermissions& perm = item->getPermissions();
-            bool unrestricted = ((perm.getMaskBase() & PERM_ITEM_UNRESTRICTED) == PERM_ITEM_UNRESTRICTED) ? true : false;
+            bool unrestricted = (perm.getMaskBase() & PERM_ITEM_UNRESTRICTED) == PERM_ITEM_UNRESTRICTED;
             if (!unrestricted)
             {
                 // Attachments are in world and in inventory simultaneously,
@@ -1468,7 +1468,8 @@ void LLPanelVolume::setLightTextureID(const LLUUID &asset_id, const LLUUID &item
         if (item && !item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID()))
         {
             LLToolDragAndDrop::handleDropMaterialProtections(volobjp, item, LLToolDragAndDrop::SOURCE_AGENT, LLUUID::null);
-        }    
+        }
+
         volobjp->setLightTextureID(asset_id);
     }
 }

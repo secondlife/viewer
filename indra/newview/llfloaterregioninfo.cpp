@@ -499,17 +499,17 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
 	panel->getChild<LLUICtrl>("region_type")->setValue(LLSD(sim_type));
 	panel->getChild<LLUICtrl>("version_channel_text")->setValue(gLastVersionChannel);
 
-	panel->getChild<LLUICtrl>("block_terraform_check")->setValue((region_flags & REGION_FLAGS_BLOCK_TERRAFORM) ? true : false );
-	panel->getChild<LLUICtrl>("block_fly_check")->setValue((region_flags & REGION_FLAGS_BLOCK_FLY) ? true : false );
-	panel->getChild<LLUICtrl>("block_fly_over_check")->setValue((region_flags & REGION_FLAGS_BLOCK_FLYOVER) ? true : false );
-	panel->getChild<LLUICtrl>("allow_damage_check")->setValue((region_flags & REGION_FLAGS_ALLOW_DAMAGE) ? true : false );
-	panel->getChild<LLUICtrl>("restrict_pushobject")->setValue((region_flags & REGION_FLAGS_RESTRICT_PUSHOBJECT) ? true : false );
-	panel->getChild<LLUICtrl>("allow_land_resell_check")->setValue((region_flags & REGION_FLAGS_BLOCK_LAND_RESELL) ? false : true );
-	panel->getChild<LLUICtrl>("allow_parcel_changes_check")->setValue((region_flags & REGION_FLAGS_ALLOW_PARCEL_CHANGES) ? true : false );
-	panel->getChild<LLUICtrl>("block_parcel_search_check")->setValue((region_flags & REGION_FLAGS_BLOCK_PARCEL_SEARCH) ? true : false );
-	panel->getChild<LLUICtrl>("agent_limit_spin")->setValue(LLSD((F32)agent_limit) );
-	panel->getChild<LLUICtrl>("object_bonus_spin")->setValue(LLSD(object_bonus_factor) );
-	panel->getChild<LLUICtrl>("access_combo")->setValue(LLSD(sim_access) );
+	panel->getChild<LLUICtrl>("block_terraform_check")->setValue(is_flag_set(region_flags, REGION_FLAGS_BLOCK_TERRAFORM));
+	panel->getChild<LLUICtrl>("block_fly_check")->setValue(is_flag_set(region_flags, REGION_FLAGS_BLOCK_FLY));
+	panel->getChild<LLUICtrl>("block_fly_over_check")->setValue(is_flag_set(region_flags, REGION_FLAGS_BLOCK_FLYOVER));
+	panel->getChild<LLUICtrl>("allow_damage_check")->setValue(is_flag_set(region_flags, REGION_FLAGS_ALLOW_DAMAGE));
+	panel->getChild<LLUICtrl>("restrict_pushobject")->setValue(is_flag_set(region_flags, REGION_FLAGS_RESTRICT_PUSHOBJECT));
+	panel->getChild<LLUICtrl>("allow_land_resell_check")->setValue(is_flag_set(region_flags, REGION_FLAGS_BLOCK_LAND_RESELL));
+	panel->getChild<LLUICtrl>("allow_parcel_changes_check")->setValue(is_flag_set(region_flags, REGION_FLAGS_ALLOW_PARCEL_CHANGES));
+	panel->getChild<LLUICtrl>("block_parcel_search_check")->setValue(is_flag_set(region_flags, REGION_FLAGS_BLOCK_PARCEL_SEARCH));
+	panel->getChild<LLUICtrl>("agent_limit_spin")->setValue(LLSD((F32)agent_limit));
+	panel->getChild<LLUICtrl>("object_bonus_spin")->setValue(LLSD(object_bonus_factor));
+	panel->getChild<LLUICtrl>("access_combo")->setValue(LLSD(sim_access));
 
 	panel->getChild<LLSpinCtrl>("agent_limit_spin")->setMaxValue(hard_agent_limit);
 
@@ -532,9 +532,9 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
 	panel = tab->getChild<LLPanel>("Debug");
 
 	panel->getChild<LLUICtrl>("region_text")->setValue(LLSD(sim_name) );
-	panel->getChild<LLUICtrl>("disable_scripts_check")->setValue(LLSD((bool)((region_flags & REGION_FLAGS_SKIP_SCRIPTS) ? true : false )) );
-	panel->getChild<LLUICtrl>("disable_collisions_check")->setValue(LLSD((bool)((region_flags & REGION_FLAGS_SKIP_COLLISIONS) ? true : false )) );
-	panel->getChild<LLUICtrl>("disable_physics_check")->setValue(LLSD((bool)((region_flags & REGION_FLAGS_SKIP_PHYSICS) ? true : false )) );
+	panel->getChild<LLUICtrl>("disable_scripts_check")->setValue(LLSD((bool)(region_flags & REGION_FLAGS_SKIP_SCRIPTS)));
+	panel->getChild<LLUICtrl>("disable_collisions_check")->setValue(LLSD((bool)(region_flags & REGION_FLAGS_SKIP_COLLISIONS)));
+	panel->getChild<LLUICtrl>("disable_physics_check")->setValue(LLSD((bool)(region_flags & REGION_FLAGS_SKIP_PHYSICS)));
 	panel->setCtrlsEnabled(allow_modify);
 
 	// TERRAIN PANEL
@@ -1893,7 +1893,7 @@ void LLPanelEstateInfo::refresh()
     getChildView("limit_bots")->setEnabled(public_access);
 
 	// if this is set to false, then the limit fields are meaningless and should be turned off
-	if (public_access == false)
+	if (!public_access)
 	{
 		getChild<LLUICtrl>("limit_payment")->setValue(false);
 		getChild<LLUICtrl>("limit_age_verified")->setValue(false);
@@ -2832,19 +2832,24 @@ void LLPanelEstateAccess::updateControls(LLViewerRegion* region)
 	bool manager = (region && region->isEstateManager());
 	bool enable_cotrols = god || owner || manager;	
 	setCtrlsEnabled(enable_cotrols);
-	
-	bool has_allowed_avatar = getChild<LLNameListCtrl>("allowed_avatar_name_list")->getFirstSelected() ? true : false;
-	bool has_allowed_group = getChild<LLNameListCtrl>("allowed_group_name_list")->getFirstSelected() ? true : false;
-	bool has_banned_agent = getChild<LLNameListCtrl>("banned_avatar_name_list")->getFirstSelected() ? true : false;
-	bool has_estate_manager = getChild<LLNameListCtrl>("estate_manager_name_list")->getFirstSelected() ? true : false;
+
+	LLNameListCtrl* allowedAvatars = getChild<LLNameListCtrl>("allowed_avatar_name_list");
+	LLNameListCtrl* allowedGroups = getChild<LLNameListCtrl>("allowed_group_name_list");
+	LLNameListCtrl* bannedAvatars = getChild<LLNameListCtrl>("banned_avatar_name_list");
+	LLNameListCtrl* estateManagers = getChild<LLNameListCtrl>("estate_manager_name_list");
+
+	bool has_allowed_avatar = allowedAvatars->getFirstSelected();
+	bool has_allowed_group = allowedGroups->getFirstSelected();
+	bool has_banned_agent = bannedAvatars->getFirstSelected();
+	bool has_estate_manager = estateManagers->getFirstSelected();
 
 	getChildView("add_allowed_avatar_btn")->setEnabled(enable_cotrols);
 	getChildView("remove_allowed_avatar_btn")->setEnabled(has_allowed_avatar && enable_cotrols);
-	getChildView("allowed_avatar_name_list")->setEnabled(enable_cotrols);
+	allowedAvatars->setEnabled(enable_cotrols);
 
 	getChildView("add_allowed_group_btn")->setEnabled(enable_cotrols);
 	getChildView("remove_allowed_group_btn")->setEnabled(has_allowed_group && enable_cotrols);
-	getChildView("allowed_group_name_list")->setEnabled(enable_cotrols);
+	allowedGroups->setEnabled(enable_cotrols);
 
 	// Can't ban people from mainland, orientation islands, etc. because this
 	// creates much network traffic and server load.
@@ -2853,12 +2858,12 @@ void LLPanelEstateAccess::updateControls(LLViewerRegion* region)
 	bool enable_ban = enable_cotrols && !linden_estate;
 	getChildView("add_banned_avatar_btn")->setEnabled(enable_ban);
 	getChildView("remove_banned_avatar_btn")->setEnabled(has_banned_agent && enable_ban);
-	getChildView("banned_avatar_name_list")->setEnabled(enable_cotrols);
+	bannedAvatars->setEnabled(enable_cotrols);
 
 	// estate managers can't add estate managers
 	getChildView("add_estate_manager_btn")->setEnabled(god || owner);
 	getChildView("remove_estate_manager_btn")->setEnabled(has_estate_manager && (god || owner));
-	getChildView("estate_manager_name_list")->setEnabled(god || owner);
+	estateManagers->setEnabled(god || owner);
 
 	if (enable_cotrols != mCtrlsEnabled)
 	{

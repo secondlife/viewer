@@ -284,7 +284,7 @@ void LLVoiceVisualizer::lipStringToF32s ( std::string& in_string, F32*& out_F32s
 //--------------------------------------------------------------------------
 void LLVoiceVisualizer::lipSyncOohAah( F32& ooh, F32& aah )
 {
-	if( ( sLipSyncEnabled == true ) && mCurrentlySpeaking )
+	if (sLipSyncEnabled && mCurrentlySpeaking)
 	{
 		U32 transfer_index = (U32) (sOohPowerTransfersf * mSpeakingAmplitude);
 		if (transfer_index >= sOohPowerTransfers)

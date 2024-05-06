@@ -779,11 +779,11 @@ void LLFloaterProfilePermissions::fillRightsData()
     {
         S32 rights = relation->getRightsGrantedTo();
 
-        bool see_online = LLRelationship::GRANT_ONLINE_STATUS & rights ? true : false;
+        bool see_online = LLRelationship::GRANT_ONLINE_STATUS & rights;
         mOnlineStatus->setValue(see_online);
         mMapRights->setEnabled(see_online);
-        mMapRights->setValue(LLRelationship::GRANT_MAP_LOCATION & rights ? true : false);
-        mEditObjectRights->setValue(LLRelationship::GRANT_MODIFY_OBJECTS & rights ? true : false);
+        mMapRights->setValue(LLRelationship::GRANT_MAP_LOCATION & rights);
+        mEditObjectRights->setValue(LLRelationship::GRANT_MODIFY_OBJECTS & rights);
     }
     else
     {
@@ -798,7 +798,7 @@ void LLFloaterProfilePermissions::rightsConfirmationCallback(const LLSD& notific
     S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
     if (option != 0) // canceled
     {
-        mEditObjectRights->setValue(mEditObjectRights->getValue().asBoolean() ? false : true);
+        mEditObjectRights->setValue(!mEditObjectRights->getValue().asBoolean());
     }
     else
     {
@@ -824,7 +824,7 @@ void LLFloaterProfilePermissions::onCommitSeeOnlineRights()
         if (relation)
         {
             S32 rights = relation->getRightsGrantedTo();
-            mMapRights->setValue(LLRelationship::GRANT_MAP_LOCATION & rights ? true : false);
+            mMapRights->setValue(LLRelationship::GRANT_MAP_LOCATION & rights);
         }
         else
         {

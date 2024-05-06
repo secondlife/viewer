@@ -1593,7 +1593,7 @@ LLInventoryModel::cat_array_t* LLInventoryModel::getUnlockedCatArray(const LLUUI
 	cat_array_t* cat_array = get_ptr_in_map(mParentChildCategoryTree, id);
 	if (cat_array)
 	{
-		llassert_always(mCategoryLock[id] == false);
+		llassert_always(!mCategoryLock[id]);
 	}
 	return cat_array;
 }
@@ -1603,7 +1603,7 @@ LLInventoryModel::item_array_t* LLInventoryModel::getUnlockedItemArray(const LLU
 	item_array_t* item_array = get_ptr_in_map(mParentChildItemTree, id);
 	if (item_array)
 	{
-		llassert_always(mItemLock[id] == false);
+		llassert_always(!mItemLock[id]);
 	}
 	return item_array;
 }
@@ -1675,8 +1675,8 @@ void LLInventoryModel::updateCategory(const LLViewerInventoryCategory* cat, U32 
 		}
 
 		// make space in the tree for this category's children.
-		llassert_always(mCategoryLock[new_cat->getUUID()] == false);
-		llassert_always(mItemLock[new_cat->getUUID()] == false);
+		llassert_always(!mCategoryLock[new_cat->getUUID()]);
+		llassert_always(!mItemLock[new_cat->getUUID()]);
 		cat_array_t* catsp = new cat_array_t;
 		item_array_t* itemsp = new item_array_t;
 		mParentChildCategoryTree[new_cat->getUUID()] = catsp;
@@ -2955,13 +2955,13 @@ void LLInventoryModel::buildParentChildMap()
 		cats.push_back(cat);
 		if (mParentChildCategoryTree.count(cat->getUUID()) == 0)
 		{
-			llassert_always(mCategoryLock[cat->getUUID()] == false);
+			llassert_always(!mCategoryLock[cat->getUUID()]);
 			catsp = new cat_array_t;
 			mParentChildCategoryTree[cat->getUUID()] = catsp;
 		}
 		if (mParentChildItemTree.count(cat->getUUID()) == 0)
 		{
-			llassert_always(mItemLock[cat->getUUID()] == false);
+			llassert_always(!mItemLock[cat->getUUID()]);
 			itemsp = new item_array_t;
 			mParentChildItemTree[cat->getUUID()] = itemsp;
 		}
