@@ -196,7 +196,7 @@ LLPointer<LLGLTFPreviewTexture> LLGLTFPreviewTexture::create(LLPointer<LLFetched
     return new LLGLTFPreviewTexture(material, LLPipeline::MAX_BAKE_WIDTH);
 }
 
-BOOL LLGLTFPreviewTexture::needsRender()
+bool LLGLTFPreviewTexture::needsRender()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
 
@@ -211,7 +211,7 @@ BOOL LLGLTFPreviewTexture::needsRender()
     return false;
 }
 
-void LLGLTFPreviewTexture::preRender(BOOL clear_depth)
+void LLGLTFPreviewTexture::preRender(bool clear_depth)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
 
@@ -419,7 +419,7 @@ struct SetTemporarily
 
 }; // namespace
 
-BOOL LLGLTFPreviewTexture::render()
+bool LLGLTFPreviewTexture::render()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
 
@@ -557,7 +557,7 @@ BOOL LLGLTFPreviewTexture::render()
     return TRUE;
 }
 
-void LLGLTFPreviewTexture::postRender(BOOL success)
+void LLGLTFPreviewTexture::postRender(bool success)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
 
