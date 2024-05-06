@@ -100,7 +100,7 @@ public:
 class LLPanelFace : public LLPanel
 {
 public:
-	virtual BOOL	postBuild();
+	virtual bool	postBuild();
 	LLPanelFace();
 	virtual ~LLPanelFace();
 
@@ -110,7 +110,7 @@ public:
 
     static void onMaterialOverrideReceived(const LLUUID& object_id, S32 side);
 
-    /*virtual*/ void onVisibilityChange(BOOL new_visibility);
+    /*virtual*/ void onVisibilityChange(bool new_visibility);
     /*virtual*/ void draw();
 
 	LLMaterialPtr createDefaultMaterial(LLMaterialPtr current_material)
@@ -154,10 +154,10 @@ protected:
     void 	onCommitPbr(const LLSD& data);
     void 	onCancelPbr(const LLSD& data);
     void 	onSelectPbr(const LLSD& data);
-    static BOOL onDragPbr(LLUICtrl* ctrl, LLInventoryItem* item);
+    static bool onDragPbr(LLUICtrl* ctrl, LLInventoryItem* item);
 
-	// this function is to return TRUE if the drag should succeed.
-	static BOOL onDragTexture(LLUICtrl* ctrl, LLInventoryItem* item);
+	// this function is to return true if the drag should succeed.
+	static bool onDragTexture(LLUICtrl* ctrl, LLInventoryItem* item);
 
 	void 	onCommitTexture(const LLSD& data);
 	void 	onCancelTexture(const LLSD& data);

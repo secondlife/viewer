@@ -1198,7 +1198,7 @@ void AISUpdate::parseItem(const LLSD& item_map)
 		// Default to current values where not provided.
 		new_item->copyViewerItem(curr_item);
 	}
-	BOOL rv = new_item->unpackMessage(item_map);
+	bool rv = new_item->unpackMessage(item_map);
 	if (rv)
 	{
         if (mFetch)
@@ -1243,7 +1243,7 @@ void AISUpdate::parseLink(const LLSD& link_map, S32 depth)
 		// Default to current values where not provided.
 		new_link->copyViewerItem(curr_link);
 	}
-	BOOL rv = new_link->unpackMessage(link_map);
+	bool rv = new_link->unpackMessage(link_map);
 	if (rv)
 	{
 		const LLUUID& parent_id = new_link->getParentUUID();
@@ -1340,7 +1340,7 @@ void AISUpdate::parseCategory(const LLSD& category_map, S32 depth)
             new_cat = new LLViewerInventoryCategory(LLUUID::null);
         }
     }
-	BOOL rv = new_cat->unpackMessage(category_map);
+	bool rv = new_cat->unpackMessage(category_map);
 	// *NOTE: unpackMessage does not unpack version or descendent count.
 	if (rv)
 	{
@@ -1678,7 +1678,7 @@ void AISUpdate::doUpdate()
                 LLPointer<LLViewerInventoryItem> new_item = lost_it->second;
 
                 new_item->setParent(lost_uuid);
-                new_item->updateParentOnServer(FALSE);
+                new_item->updateParentOnServer(false);
             }
         }
     }

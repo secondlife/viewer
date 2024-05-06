@@ -2293,8 +2293,8 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 				mUploadSkin,
 				mUploadJoints,
                 mLockScaleIfJointPosition,
-				FALSE,
-				FALSE,
+				false,
+				false,
 				data.mBaseModel->mSubmodelID);
 
 			data.mAssetData = ostr.str();
@@ -2360,16 +2360,18 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 				std::stringstream texture_str;
 				if (texture != NULL && include_textures && mUploadTextures)
 				{
-					if(texture->hasSavedRawImage())
-					{											
+					if (texture->hasSavedRawImage())
+					{
+						LLImageDataLock lock(texture->getSavedRawImage());
+
 						LLPointer<LLImageJ2C> upload_file =
 							LLViewerTextureList::convertToUploadFile(texture->getSavedRawImage());
 
 						if (!upload_file.isNull() && upload_file->getDataSize())
 						{
-						texture_str.write((const char*) upload_file->getData(), upload_file->getDataSize());
+							texture_str.write((const char*) upload_file->getData(), upload_file->getDataSize());
+						}
 					}
-				}
 				}
 
 				if (texture != NULL &&
@@ -2448,8 +2450,8 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 				mUploadSkin,
 				mUploadJoints,
                 mLockScaleIfJointPosition,
-				FALSE,
-				FALSE,
+				false,
+				false,
 				data.mBaseModel->mSubmodelID);
 
 			data.mAssetData = ostr.str();
@@ -2514,16 +2516,18 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 				std::stringstream texture_str;
 				if (texture != NULL && include_textures && mUploadTextures)
 				{
-					if(texture->hasSavedRawImage())
-					{											
+					if (texture->hasSavedRawImage())
+					{
+						LLImageDataLock lock(texture->getSavedRawImage());
+
 						LLPointer<LLImageJ2C> upload_file =
 							LLViewerTextureList::convertToUploadFile(texture->getSavedRawImage());
 
 						if (!upload_file.isNull() && upload_file->getDataSize())
 						{
-						texture_str.write((const char*) upload_file->getData(), upload_file->getDataSize());
+							texture_str.write((const char*) upload_file->getData(), upload_file->getDataSize());
+						}
 					}
-				}
 				}
 
 				if (texture != NULL &&
@@ -4378,7 +4382,7 @@ void LLMeshUploadThread::decomposeMeshMatrix(LLMatrix4& transformation,
 											 LLVector3& result_scale)
 {
 	// check for reflection
-	BOOL reflected = (transformation.determinant() < 0);
+	bool reflected = (transformation.determinant() < 0);
 
 	// compute position
 	LLVector3 position = LLVector3(0, 0, 0) * transformation;
@@ -5493,7 +5497,7 @@ void on_new_single_inventory_upload_complete(
 
         // Show the preview panel for textures and sounds to let
         // user know that the image (or snapshot) arrived intact.
-        LLInventoryPanel* panel = LLInventoryPanel::getActiveInventoryPanel(FALSE);
+        LLInventoryPanel* panel = LLInventoryPanel::getActiveInventoryPanel(false);
         if (panel)
         {
 

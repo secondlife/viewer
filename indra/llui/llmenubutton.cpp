@@ -78,7 +78,7 @@ void LLMenuButton::hideMenu()
 	LLToggleableMenu* menu = getMenu();
 	if (menu)
 	{
-		menu->setVisible(FALSE);
+		menu->setVisible(false);
 	}
 }
 
@@ -95,7 +95,7 @@ void LLMenuButton::setMenu(const std::string& menu_filename, EMenuPosition posit
 	}
 
 	llassert(LLMenuGL::sMenuContainer != NULL);
-	LLToggleableMenu* menu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>(menu_filename, LLMenuGL::sMenuContainer, LLMenuHolderGL::child_registry_t::instance());
+	LLToggleableMenu* menu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>(menu_filename, LLMenuGL::sMenuContainer, LLMenuHolderGL::child_registry_t::instance(), true);
 	if (!menu)
 	{
 		LL_WARNS() << "Error loading menu_button menu" << LL_ENDL;
@@ -118,9 +118,9 @@ void LLMenuButton::setMenu(LLToggleableMenu* menu, EMenuPosition position /*MP_T
 	menu->setVisibilityChangeCallback(boost::bind(&LLMenuButton::onMenuVisibilityChange, this, _2));
 }
 
-BOOL LLMenuButton::handleKeyHere(KEY key, MASK mask )
+bool LLMenuButton::handleKeyHere(KEY key, MASK mask )
 {
-	if (!getMenu()) return FALSE;
+	if (!getMenu()) return false;
 
 	if( KEY_RETURN == key && mask == MASK_NONE && !gKeyboard->getKeyRepeated(key))
 	{
@@ -129,26 +129,26 @@ BOOL LLMenuButton::handleKeyHere(KEY key, MASK mask )
 		LLUICtrl::handleMouseDown(-1, -1, MASK_NONE);
 
 		toggleMenu();
-		return TRUE;
+		return true;
 	}
 
 	LLToggleableMenu* menu = getMenu();
 	if (menu && menu->getVisible() && key == KEY_ESCAPE && mask == MASK_NONE)
 	{
-		menu->setVisible(FALSE);
-		return TRUE;
+		menu->setVisible(false);
+		return true;
 	}
 	
-	return FALSE;
+	return false;
 }
 
-BOOL LLMenuButton::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLMenuButton::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	LLButton::handleMouseDown(x, y, mask);
 
 	toggleMenu();
 	
-	return TRUE;
+	return true;
 }
 
 void LLMenuButton::toggleMenu()

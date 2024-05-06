@@ -36,7 +36,7 @@
 #include "lltrans.h"
 #include "llviewerregion.h"
 
-const S32 SIZE_OF_ONE_KB = 1024;
+constexpr S32 SIZE_OF_ONE_KB = 1024;
 
 LLFloaterMyScripts::LLFloaterMyScripts(const LLSD& seed)
 	: LLFloater(seed), 
@@ -50,14 +50,14 @@ LLFloaterMyScripts::LLFloaterMyScripts(const LLSD& seed)
 {
 }
 
-BOOL LLFloaterMyScripts::postBuild()
+bool LLFloaterMyScripts::postBuild()
 {
 	childSetAction("refresh_list_btn", onClickRefresh, this);
 
 	std::string msg_waiting = LLTrans::getString("ScriptLimitsRequestWaiting");
 	getChild<LLUICtrl>("loading_text")->setValue(LLSD(msg_waiting));
 	mAttachmentDetailsRequested = requestAttachmentDetails();
-	return TRUE;
+	return true;
 }
 
 // virtual

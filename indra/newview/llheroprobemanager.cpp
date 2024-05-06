@@ -42,8 +42,8 @@
 #include "llviewerjoystick.h"
 #include "llviewermediafocus.h"
 
-extern BOOL gCubeSnapshot;
-extern BOOL gTeleportDisplay;
+extern bool gCubeSnapshot;
+extern bool gTeleportDisplay;
 
 // get the next highest power of two of v (or v if v is already a power of two)
 //defined in llvertexbuffer.cpp

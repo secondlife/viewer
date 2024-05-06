@@ -249,7 +249,7 @@ bool LLInventoryModelBackgroundFetch::isEverythingFetched() const
 	return mAllRecursiveFoldersFetched;
 }
 
-BOOL LLInventoryModelBackgroundFetch::folderFetchActive() const
+bool LLInventoryModelBackgroundFetch::folderFetchActive() const
 {
 	return mFolderFetchActive;
 }
@@ -1109,8 +1109,8 @@ void LLInventoryModelBackgroundFetch::bulkFetch()
                             folder_sd["folder_id"] = cat->getUUID();
                             folder_sd["owner_id"] = cat->getOwnerID();
                             folder_sd["sort_order"] = LLSD::Integer(sort_order);
-                            folder_sd["fetch_folders"] = LLSD::Boolean(TRUE); //(LLSD::Boolean)sFullFetchStarted;
-                            folder_sd["fetch_items"] = LLSD::Boolean(TRUE);
+                            folder_sd["fetch_folders"] = LLSD::Boolean(true); //(LLSD::Boolean)sFullFetchStarted;
+                            folder_sd["fetch_items"] = LLSD::Boolean(true);
 
                             if (ALEXANDRIA_LINDEN_ID == cat->getOwnerID())
                             {
@@ -1392,7 +1392,7 @@ void BGFolderHttpHandler::processData(LLSD & content, LLCore::HttpResponse * res
                         gInventory.accountForUpdate(update);
 
                         titem->setParent(lost_uuid);
-                        titem->updateParentOnServer(FALSE);
+                        titem->updateParentOnServer(false);
                         gInventory.updateItem(titem);
                     }
                 }
@@ -1554,7 +1554,7 @@ void BGFolderHttpHandler::processFailure(LLCore::HttpStatus status, LLCore::Http
 		{
 			LLSD folder_sd(*folder_it);
 			LLUUID folder_id(folder_sd["folder_id"].asUUID());
-			const BOOL recursive = getIsRecursive(folder_id);
+			const bool recursive = getIsRecursive(folder_id);
 			fetcher->addRequestAtFront(folder_id, recursive, true);
 		}
 	}
@@ -1591,7 +1591,7 @@ void BGFolderHttpHandler::processFailure(const char * const reason, LLCore::Http
 		{
 			LLSD folder_sd(*folder_it);
 			LLUUID folder_id(folder_sd["folder_id"].asUUID());
-			const BOOL recursive = getIsRecursive(folder_id);
+			const bool recursive = getIsRecursive(folder_id);
 			fetcher->addRequestAtFront(folder_id, recursive, true);
 		}
 	}

@@ -27,7 +27,7 @@
 #include "linden_common.h"
 #include "llmessagereader.h"
 
-static BOOL sTimeDecodes = FALSE;
+static bool sTimeDecodes = false;
 
 static F32 sTimeDecodesSpamThreshold = 0.05f;
 
@@ -38,7 +38,7 @@ LLMessageReader::~LLMessageReader()
 }
 
 //static 
-void LLMessageReader::setTimeDecodes(BOOL b)
+void LLMessageReader::setTimeDecodes(bool b)
 {
 	sTimeDecodes = b;
 }
@@ -49,8 +49,8 @@ void LLMessageReader::setTimeDecodesSpamThreshold(F32 seconds)
 	sTimeDecodesSpamThreshold = seconds;
 }
 
-//static 
-BOOL LLMessageReader::getTimeDecodes()
+//static
+bool LLMessageReader::getTimeDecodes()
 {
 	return sTimeDecodes;
 }

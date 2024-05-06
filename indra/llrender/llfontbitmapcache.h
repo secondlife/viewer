@@ -52,7 +52,7 @@ public:
 
 	void reset();
 
-	BOOL nextOpenPos(S32 width, S32& posX, S32& posY, EFontGlyphType bitmapType, U32& bitmapNum);
+	bool nextOpenPos(S32 width, S32& posX, S32& posY, EFontGlyphType bitmapType, U32& bitmapNum);
 	
 	void destroyGL();
 	
