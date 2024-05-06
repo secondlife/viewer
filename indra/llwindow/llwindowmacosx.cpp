@@ -118,7 +118,6 @@ LLWindowMacOSX::LLWindowMacOSX(LLWindowCallbacks* callbacks,
 							   U32 fsaa_samples,
                                U32 max_vram)
 	: LLWindow(NULL, fullscreen, flags)
-    , mMaxVRAM(max_vram)
 {
 	// *HACK: During window construction we get lots of OS events for window
 	// reshape, activate, etc. that the viewer isn't ready to handle.
@@ -1253,21 +1252,6 @@ F32 LLWindowMacOSX::getPixelAspectRatio()
 {
 	//macOS always enforces a 1:1 pixel aspect ratio, regardless of video mode
 	return 1.f;
-}
-
-U32 LLWindowMacOSX::getAvailableVRAMMegabytes() {
-    // MTL (and MoltenVK) has some additional gpu data, such as recommendedMaxWorkingSetSize and currentAllocatedSize.
-    // But these are not available for OpenGL and/or our current mimimum OS version.
-    // So we will estimate.
-    static const U32 mb = 1024*1024;
-    // We're asked for total available gpu memory, but we only have allocation info on texture usage. So estimate by doubling that.
-    static const U32 total_factor = 2; // estimated total/textures
-    U32 total_vram = gGLManager.mVRAM;
-    if (mMaxVRAM)
-    {
-        total_vram = llmin(mMaxVRAM, total_vram);
-    }
-    return total_vram - (LLImageGL::getTextureBytesAllocated() * total_factor/mb);
 }
 
 //static SInt32 oldWindowLevel;

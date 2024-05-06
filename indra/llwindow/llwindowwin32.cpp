@@ -370,14 +370,6 @@ struct LLWindowWin32::LLWindowWin32Thread : public LL::ThreadPool
     //clean up DXGI/D3D resources
     void cleanupDX();
 
-    // call periodically to update available VRAM
-    void updateVRAMUsage();
-
-    U32 getAvailableVRAMMegabytes()
-    {
-        return mAvailableVRAM;
-    }
-
     /// called by main thread to post work to this window thread
     template <typename CALLABLE>
     void post(CALLABLE&& func)
@@ -425,8 +417,6 @@ struct LLWindowWin32::LLWindowWin32Thread : public LL::ThreadPool
     // *HACK: Attempt to prevent startup crashes by deferring memory accounting
     // until after some graphics setup. See SL-20177. -Cosmic,2023-09-18
     bool mGLReady = false;
-    // best guess at available video memory in MB
-    std::atomic<U32> mAvailableVRAM;
 
     U32 mMaxVRAM = 0; // maximum amount of vram to allow in the "budget", or 0 for no maximum (see updateVRAMUsage)
 
@@ -4556,11 +4546,6 @@ std::vector<std::string> LLWindowWin32::getDynamicFallbackFontList()
 	return std::vector<std::string>();
 }
 
-U32 LLWindowWin32::getAvailableVRAMMegabytes()
-{
-    return mWindowThread ? mWindowThread->getAvailableVRAMMegabytes() : 0;
-}
-
 void LLWindowWin32::setMaxVRAMMegabytes(U32 max_vram)
 {
     if (mWindowThread)
@@ -4787,79 +4772,6 @@ void LLWindowWin32::LLWindowWin32Thread::cleanupDX()
     }
 }
 
-void LLWindowWin32::LLWindowWin32Thread::updateVRAMUsage()
-{
-    LL_PROFILE_ZONE_SCOPED;
-    if (!mGLReady) { return; }
-
-    if (mDXGIAdapter != nullptr)
-    {
-        // NOTE: what lies below is hand wavy math based on compatibility testing and observation against a variety of hardware
-        //  It doesn't make sense, but please don't refactor it to make sense. -- davep
-
-        DXGI_QUERY_VIDEO_MEMORY_INFO info;
-        mDXGIAdapter->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_LOCAL, &info);
-#if 0 // debug 0 budget and 0 CU
-        info.Budget = 0;
-        info.CurrentUsage = 0;
-#endif
-
-        U32 budget_mb = info.Budget / 1024 / 1024;
-        gGLManager.mVRAM = llmax(gGLManager.mVRAM, (S32) budget_mb);
-
-        U32 afr_mb = info.AvailableForReservation / 1024 / 1024;
-        // correct for systems that misreport budget
-        if (budget_mb == 0)
-        { 
-            // fall back to available for reservation clamped between 512MB and 2GB
-            budget_mb = llclamp(afr_mb, (U32) 512, (U32) 2048);
-        }
-
-        if ( mMaxVRAM != 0)
-        {
-            budget_mb = llmin(budget_mb, mMaxVRAM);
-        }
-
-        U32 cu_mb = info.CurrentUsage / 1024 / 1024;
-
-        // get an estimated usage based on texture bytes allocated
-        U32 eu_mb = LLImageGL::getTextureBytesAllocated() * 2 / 1024 / 1024;
-
-        if (cu_mb == 0)
-        { // current usage is sometimes unreliable on Intel GPUs, fall back to estimated usage
-            cu_mb = llmax((U32)1, eu_mb);
-        }
-        U32 target_mb = budget_mb;
-
-        if (target_mb > 4096)  // if 4GB are installed, try to leave 2GB free 
-        {
-            target_mb -= 2048;
-        }
-        else // if less than 4GB are installed, try not to use more than half of it
-        {
-            target_mb /= 2;
-        }
-
-        mAvailableVRAM = cu_mb < target_mb ? target_mb - cu_mb : 0;
-
-#if 0
-        
-        F32 eu_error = (F32)((S32)eu_mb - (S32)cu_mb) / (F32)cu_mb;
-        LL_INFOS("Window") << "\nLocal\nAFR: " << info.AvailableForReservation / 1024 / 1024
-            << "\nBudget: " << info.Budget / 1024 / 1024
-            << "\nCR: " << info.CurrentReservation / 1024 / 1024
-            << "\nCU: " << info.CurrentUsage / 1024 / 1024
-            << "\nEU: " << eu_mb << llformat(" (%.2f)", eu_error)
-            << "\nTU: " << target_mb
-            << "\nAM: " << mAvailableVRAM << LL_ENDL;
-#endif
-    }
-    else if (mD3DDevice != NULL)
-    { // fallback to D3D9
-        mAvailableVRAM = mD3DDevice->GetAvailableTextureMem() / 1024 / 1024;
-    }
-}
-
 void LLWindowWin32::LLWindowWin32Thread::run()
 {
     sWindowThreadId = std::this_thread::get_id();
@@ -4917,14 +4829,7 @@ void LLWindowWin32::LLWindowWin32Thread::run()
             //process any pending functions
             getQueue().runPending();
         }
-        
-        // update available vram once every 3 seconds
-        static LLFrameTimer vramTimer;
-        if (vramTimer.getElapsedTimeF32() > 3.f)
-        {
-            updateVRAMUsage();
-            vramTimer.reset();
-        }
+
 #if 0
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("w32t - Sleep");
