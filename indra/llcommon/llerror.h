@@ -39,6 +39,7 @@
 #include "llpreprocessor.h"
 
 #include <boost/static_assert.hpp>
+#include <functional> // std::function
 
 const int LL_ERR_NOERR = 0;
 
@@ -300,6 +301,28 @@ namespace LLError
     struct LLStacktrace
     {
         friend std::ostream& operator<<(std::ostream& out, const LLStacktrace&);
+    };
+
+    // Provides access to OS notification popup on error, since
+    // not everything has access to OS's messages
+    class LLUserWarningMsg
+    {
+    public:
+        typedef std::function<void(const std::string&, const std::string&)> Handler;
+        static void setHandler(const Handler&);
+        static void setOutOfMemoryStrings(const std::string& title, const std::string& message);
+
+        // When viewer encounters bad alloc or can't access files try warning user about reasons
+        static void showOutOfMemory();
+        static void showMissingFiles();
+        // Genering error
+        static void show(const std::string&);
+
+    private:
+        // needs to be preallocated before viewer runs out of memory
+        static std::string sLocalizedOutOfMemoryTitle;
+        static std::string sLocalizedOutOfMemoryWarning;
+        static Handler sHandler;
     };
 }
 

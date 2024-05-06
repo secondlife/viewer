@@ -1862,7 +1862,8 @@ BOOL LLTextEditor::handleKeyHere(KEY key, MASK mask )
 		}
 
 		if (mEnableTooltipPaste &&
-			LLToolTipMgr::instance().toolTipVisible() && 
+			LLToolTipMgr::instance().toolTipVisible() &&
+            LLToolTipMgr::instance().isTooltipPastable() &&
 			KEY_TAB == key)
 		{	// Paste the first line of a tooltip into the editor
 			std::string message;
@@ -2694,6 +2695,7 @@ BOOL LLTextEditor::importBuffer(const char* buffer, S32 length )
 	char* text = new char[ text_len + 1];
 	if (text == NULL)
 	{
+        LLError::LLUserWarningMsg::showOutOfMemory();
 		LL_ERRS() << "Memory allocation failure." << LL_ENDL;			
 		return FALSE;
 	}

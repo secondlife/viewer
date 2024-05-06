@@ -1071,10 +1071,64 @@ BOOL LLToolDragAndDrop::handleDropMaterialProtections(LLViewerObject* hit_obj,
 	return TRUE;
 }
 
+void set_texture_to_material(LLViewerObject* hit_obj,
+                             S32 hit_face,
+                             const LLUUID& asset_id,
+                             LLGLTFMaterial::TextureInfo drop_channel)
+{
+    LLTextureEntry* te = hit_obj->getTE(hit_face);
+    if (te)
+    {
+        LLPointer<LLGLTFMaterial> material = te->getGLTFMaterialOverride();
+
+        // make a copy to not invalidate existing
+        // material for multiple objects
+        if (material.isNull())
+        {
+            // Start with a material override which does not make any changes
+            material = new LLGLTFMaterial();
+        }
+        else
+        {
+            material = new LLGLTFMaterial(*material);
+        }
+
+        switch (drop_channel)
+        {
+            case LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR:
+            default:
+                {
+                    material->setBaseColorId(asset_id);
+                }
+                break;
+
+            case LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS:
+                {
+                    material->setOcclusionRoughnessMetallicId(asset_id);
+                }
+                break;
+
+            case LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE:
+                {
+                    material->setEmissiveId(asset_id);
+                }
+                break;
+
+            case LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL:
+                {
+                    material->setNormalId(asset_id);
+                }
+                break;
+        }
+        LLGLTFMaterialList::queueModify(hit_obj, hit_face, material);
+    }
+}
+
 void LLToolDragAndDrop::dropTextureAllFaces(LLViewerObject* hit_obj,
 											LLInventoryItem* item,
 											LLToolDragAndDrop::ESource source,
-											const LLUUID& src_id)
+											const LLUUID& src_id,
+                                            bool remove_pbr)
 {
 	if (!item)
 	{
@@ -1091,28 +1145,46 @@ void LLToolDragAndDrop::dropTextureAllFaces(LLViewerObject* hit_obj,
             break;
         }
     }
-    if (!has_non_pbr_faces)
+
+    if (has_non_pbr_faces || remove_pbr)
     {
-        return;
+        BOOL res = handleDropMaterialProtections(hit_obj, item, source, src_id);
+        if (!res)
+        {
+            return;
+        }
     }
 	LLUUID asset_id = item->getAssetUUID();
-	BOOL success = handleDropMaterialProtections(hit_obj, item, source, src_id);
-	if (!success)
-	{
-		return;
-	}
+
+    // Overrides require textures to be copy and transfer free
+    LLPermissions item_permissions = item->getPermissions();
+    bool allow_adding_to_override = item_permissions.allowOperationBy(PERM_COPY, gAgent.getID());
+    allow_adding_to_override &= item_permissions.allowOperationBy(PERM_TRANSFER, gAgent.getID());
+
 	LLViewerTexture* image = LLViewerTextureManager::getFetchedTexture(asset_id);
 	add(LLStatViewer::EDIT_TEXTURE, 1);
 	for( S32 face = 0; face < num_faces; face++ )
 	{
-        if (hit_obj->getRenderMaterialID(face).isNull())
+        if (remove_pbr)
         {
-            // update viewer side image in anticipation of update from simulator
+            hit_obj->setRenderMaterialID(face, LLUUID::null);
             hit_obj->setTEImage(face, image);
             dialog_refresh_all();
         }
+        else if (hit_obj->getRenderMaterialID(face).isNull())
+        {
+            // update viewer side
+            hit_obj->setTEImage(face, image);
+            dialog_refresh_all();
+        }
+        else if (allow_adding_to_override)
+        {
+            set_texture_to_material(hit_obj, face, asset_id, LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR);
+        }
 	}
+
 	// send the update to the simulator
+    LLGLTFMaterialList::flushUpdates(nullptr);
 	hit_obj->sendTEUpdate();
 }
 
@@ -1260,21 +1332,13 @@ void LLToolDragAndDrop::dropMesh(LLViewerObject* hit_obj,
 	dialog_refresh_all();
 }
 
-/*
-void LLToolDragAndDrop::dropTextureOneFaceAvatar(LLVOAvatar* avatar, S32 hit_face, LLInventoryItem* item)
-{
-	if (hit_face == -1) return;
-	LLViewerTexture* image = LLViewerTextureManager::getFetchedTexture(item->getAssetUUID());
-	
-	avatar->userSetOptionalTE( hit_face, image);
-}
-*/
 void LLToolDragAndDrop::dropTexture(LLViewerObject* hit_obj,
                                     S32 hit_face,
                                     LLInventoryItem* item,
                                     ESource source,
                                     const LLUUID& src_id,
                                     bool all_faces,
+                                    bool remove_pbr,
                                     S32 tex_channel)
 {
     LLSelectNode* nodep = nullptr;
@@ -1286,13 +1350,15 @@ void LLToolDragAndDrop::dropTexture(LLViewerObject* hit_obj,
 
     if (all_faces)
     {
-        dropTextureAllFaces(hit_obj, item, source, src_id);
+        dropTextureAllFaces(hit_obj, item, source, src_id, remove_pbr);
 
         // If user dropped a texture onto face it implies
         // applying texture now without cancel, save to selection
         if (nodep)
         {
             uuid_vec_t texture_ids;
+            uuid_vec_t material_ids;
+            gltf_materials_vec_t override_materials;
             S32 num_faces = hit_obj->getNumTEs();
             for (S32 face = 0; face < num_faces; face++)
             {
@@ -1305,13 +1371,35 @@ void LLToolDragAndDrop::dropTexture(LLViewerObject* hit_obj,
                 {
                     texture_ids.push_back(LLUUID::null);
                 }
+
+                // either removed or modified materials
+                if (remove_pbr)
+                {
+                    material_ids.push_back(LLUUID::null);
+                }
+                else
+                {
+                    material_ids.push_back(hit_obj->getRenderMaterialID(face));
+                }
+
+                LLTextureEntry* te = hit_obj->getTE(hit_face);
+                if (te && !remove_pbr)
+                {
+                    override_materials.push_back(te->getGLTFMaterialOverride());
+                }
+                else
+                {
+                    override_materials.push_back(nullptr);
+                }
             }
+
             nodep->saveTextures(texture_ids);
+            nodep->saveGLTFMaterials(material_ids, override_materials);
         }
     }
     else
     {
-        dropTextureOneFace(hit_obj, hit_face, item, source, src_id);
+        dropTextureOneFace(hit_obj, hit_face, item, source, src_id, remove_pbr, tex_channel);
 
         // If user dropped a texture onto face it implies
         // applying texture now without cancel, save to selection
@@ -1331,6 +1419,16 @@ void LLToolDragAndDrop::dropTexture(LLViewerObject* hit_obj,
             {
                 nodep->mSavedTextures[hit_face] = LLUUID::null;
             }
+
+            LLTextureEntry* te = hit_obj->getTE(hit_face);
+            if (te && !remove_pbr)
+            {
+                nodep->mSavedGLTFOverrideMaterials[hit_face] = te->getGLTFMaterialOverride();
+            }
+            else
+            {
+                nodep->mSavedGLTFOverrideMaterials[hit_face] = nullptr;
+            }
         }
     }
 }
@@ -1340,6 +1438,7 @@ void LLToolDragAndDrop::dropTextureOneFace(LLViewerObject* hit_obj,
 										   LLInventoryItem* item,
 										   LLToolDragAndDrop::ESource source,
 										   const LLUUID& src_id,
+                                           bool remove_pbr,
                                            S32 tex_channel)
 {
 	if (hit_face == -1) return;
@@ -1348,21 +1447,44 @@ void LLToolDragAndDrop::dropTextureOneFace(LLViewerObject* hit_obj,
 		LL_WARNS() << "LLToolDragAndDrop::dropTextureOneFace no texture item." << LL_ENDL;
 		return;
 	}
-    if (hit_obj->getRenderMaterialID(hit_face).notNull())
+
+    LLUUID asset_id = item->getAssetUUID();
+
+    if (hit_obj->getRenderMaterialID(hit_face).notNull() && !remove_pbr)
     {
+        // Overrides require textures to be copy and transfer free
+        LLPermissions item_permissions = item->getPermissions();
+        bool allow_adding_to_override = item_permissions.allowOperationBy(PERM_COPY, gAgent.getID());
+        allow_adding_to_override &= item_permissions.allowOperationBy(PERM_TRANSFER, gAgent.getID());
+
+        if (allow_adding_to_override)
+        {
+            LLGLTFMaterial::TextureInfo drop_channel = LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR;
+            LLPanelFace* panel_face = gFloaterTools->getPanelFace();
+            if (gFloaterTools->getVisible() && panel_face)
+            {
+                drop_channel = panel_face->getPBRDropChannel();
+            }
+            set_texture_to_material(hit_obj, hit_face, asset_id, drop_channel);
+            LLGLTFMaterialList::flushUpdates(nullptr);
+        }
         return;
     }
-	LLUUID asset_id = item->getAssetUUID();
 	BOOL success = handleDropMaterialProtections(hit_obj, item, source, src_id);
 	if (!success)
 	{
 		return;
 	}
+    if (remove_pbr)
+    {
+        hit_obj->setRenderMaterialID(hit_face, LLUUID::null);
+    }
+
 	// update viewer side image in anticipation of update from simulator
 	LLViewerTexture* image = LLViewerTextureManager::getFetchedTexture(asset_id);
 	add(LLStatViewer::EDIT_TEXTURE, 1);
 
-	LLTextureEntry* tep = hit_obj ? (hit_obj->getTE(hit_face)) : NULL;
+	LLTextureEntry* tep = hit_obj->getTE(hit_face);
 
 	LLPanelFace* panel_face = gFloaterTools->getPanelFace();
 
@@ -1380,6 +1502,7 @@ void LLToolDragAndDrop::dropTextureOneFace(LLViewerObject* hit_obj,
 			break;
 
 		case 1:
+            if (tep)
 			{
 				LLMaterialPtr old_mat = tep->getMaterialParams();
 				LLMaterialPtr new_mat = panel_face->createDefaultMaterial(old_mat);
@@ -1391,6 +1514,7 @@ void LLToolDragAndDrop::dropTextureOneFace(LLViewerObject* hit_obj,
 			break;
 
 		case 2:
+            if (tep)
 			{
 				LLMaterialPtr old_mat = tep->getMaterialParams();
 				LLMaterialPtr new_mat = panel_face->createDefaultMaterial(old_mat);
@@ -2200,6 +2324,7 @@ EAcceptance LLToolDragAndDrop::dad3dApplyToObject(
 	LLViewerInventoryCategory* cat;
 	locateInventory(item, cat);
 	if (!item || !item->isFinished()) return ACCEPT_NO;
+    LLPermissions item_permissions = item->getPermissions();
 	EAcceptance rv = willObjectAcceptInventory(obj, item);
 	if((mask & MASK_CONTROL))
 	{
@@ -2214,12 +2339,12 @@ EAcceptance LLToolDragAndDrop::dad3dApplyToObject(
 		return ACCEPT_NO_LOCKED;
 	}
 
-    if (cargo_type == DAD_TEXTURE)
+    if (cargo_type == DAD_TEXTURE && (mask & MASK_ALT) == 0)
     {
+        bool has_non_pbr_faces = false;
         if ((mask & MASK_SHIFT))
         {
             S32 num_faces = obj->getNumTEs();
-            bool has_non_pbr_faces = false;
             for (S32 face = 0; face < num_faces; face++)
             {
                 if (obj->getRenderMaterialID(face).isNull())
@@ -2228,14 +2353,19 @@ EAcceptance LLToolDragAndDrop::dad3dApplyToObject(
                     break;
                 }
             }
-            if (!has_non_pbr_faces)
-            {
-                return ACCEPT_NO;
-            }
         }
-        else if (obj->getRenderMaterialID(face).notNull())
+        else
         {
-            return ACCEPT_NO;
+            has_non_pbr_faces = obj->getRenderMaterialID(face).isNull();
+        }
+
+        if (!has_non_pbr_faces)
+        {
+            // Only pbr faces selected, texture will be added to an override
+            // Overrides require textures to be copy and transfer free
+            bool allow_adding_to_override = item_permissions.allowOperationBy(PERM_COPY, gAgent.getID());
+            allow_adding_to_override &= item_permissions.allowOperationBy(PERM_TRANSFER, gAgent.getID());
+            if (!allow_adding_to_override) return ACCEPT_NO;
         }
     }
 
@@ -2244,15 +2374,16 @@ EAcceptance LLToolDragAndDrop::dad3dApplyToObject(
 		if (cargo_type == DAD_TEXTURE)
 		{
             bool all_faces = mask & MASK_SHIFT;
-            if (item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID()))
+            bool remove_pbr = mask & MASK_ALT;
+            if (item_permissions.allowOperationBy(PERM_COPY, gAgent.getID()))
             {
-                dropTexture(obj, face, item, mSource, mSourceID, all_faces);
+                dropTexture(obj, face, item, mSource, mSourceID, all_faces, remove_pbr);
             }
             else
             {
                 ESource source = mSource;
                 LLUUID source_id = mSourceID;
-                LLNotificationsUtil::add("ApplyInventoryToObject", LLSD(), LLSD(), [obj, face, item, source, source_id, all_faces](const LLSD& notification, const LLSD& response)
+                LLNotificationsUtil::add("ApplyInventoryToObject", LLSD(), LLSD(), [obj, face, item, source, source_id, all_faces, remove_pbr](const LLSD& notification, const LLSD& response)
                                          {
                                              S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
                                              // if Cancel pressed
@@ -2260,7 +2391,7 @@ EAcceptance LLToolDragAndDrop::dad3dApplyToObject(
                                              {
                                                  return;
                                              }
-                                             dropTexture(obj, face, item, source, source_id, all_faces);
+                                             dropTexture(obj, face, item, source, source_id, all_faces, remove_pbr);
                                          });
             }
 		}
@@ -2326,23 +2457,6 @@ EAcceptance LLToolDragAndDrop::dad3dMeshObject(
 {
 	return dad3dApplyToObject(obj, face, mask, drop, DAD_MESH);
 }
-
-
-/*
-EAcceptance LLToolDragAndDrop::dad3dTextureSelf(
-	LLViewerObject* obj, S32 face, MASK mask, BOOL drop)
-{
-	LL_DEBUGS() << "LLToolDragAndDrop::dad3dTextureAvatar()" << LL_ENDL;
-	if(drop)
-	{
-		if( !(mask & MASK_SHIFT) )
-		{
-			dropTextureOneFaceAvatar( (LLVOAvatar*)obj, face, (LLInventoryItem*)mCargoData);
-		}
-	}
-	return (mask & MASK_SHIFT) ? ACCEPT_NO : ACCEPT_YES_SINGLE;
-}
-*/
 
 EAcceptance LLToolDragAndDrop::dad3dWearItem(
 	LLViewerObject* obj, S32 face, MASK mask, BOOL drop)

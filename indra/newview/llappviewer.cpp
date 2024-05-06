@@ -143,7 +143,6 @@
 
 // Third party library includes
 #include <boost/bind.hpp>
-#include <boost/foreach.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/regex.hpp>
 #include <boost/throw_exception.hpp>
@@ -362,7 +361,6 @@ BOOL gRandomizeFramerate = FALSE;
 BOOL gPeriodicSlowFrame = FALSE;
 
 BOOL gCrashOnStartup = FALSE;
-BOOL gLLErrorActivated = FALSE;
 BOOL gLogoutInProgress = FALSE;
 
 BOOL gSimulateMemLeak = FALSE;
@@ -1207,7 +1205,7 @@ bool LLAppViewer::init()
             LLSD item(LeapCommand);
             LeapCommand.append(item);
         }
-        BOOST_FOREACH(const std::string& leap, llsd::inArray(LeapCommand))
+        for (const auto& leap : llsd::inArray(LeapCommand))
         {
             LL_INFOS("InitInfo") << "processing --leap \"" << leap << '"' << LL_ENDL;
             // We don't have any better description of this plugin than the
@@ -1712,7 +1710,7 @@ bool LLAppViewer::cleanup()
     LLNotifications::instance().clear();
 
 	// workaround for DEV-35406 crash on shutdown
-	LLEventPumps::instance().reset();
+	LLEventPumps::instance().reset(true);
 
 	//dump scene loading monitor results
 	if (LLSceneMonitor::instanceExists())
@@ -1891,6 +1889,9 @@ bool LLAppViewer::cleanup()
 		gViewerWindow = NULL;
 		LL_INFOS() << "ViewerWindow deleted" << LL_ENDL;
 	}
+
+    LLSplashScreen::show();
+    LLSplashScreen::update(LLTrans::getString("ShuttingDown"));
 
 	LL_INFOS() << "Cleaning up Keyboard & Joystick" << LL_ENDL;
 
@@ -2170,6 +2171,8 @@ bool LLAppViewer::cleanup()
 	// deleteSingleton() methods.
 	LLSingletonBase::deleteAll();
 
+    LLSplashScreen::hide();
+
     LL_INFOS() << "Goodbye!" << LL_ENDL;
 
 	removeDumpDir();
@@ -2253,14 +2256,19 @@ void errorCallback(LLError::ELevel level, const std::string &error_string)
         OSMessageBox(error_string, LLTrans::getString("MBFatalError"), OSMB_OK);
 #endif
 
-        //Set the ErrorActivated global so we know to create a marker file
-        gLLErrorActivated = true;
-
         gDebugInfo["FatalMessage"] = error_string;
         // We're not already crashing -- we simply *intend* to crash. Since we
         // haven't actually trashed anything yet, we can afford to write the whole
         // static info file.
         LLAppViewer::instance()->writeDebugInfo();
+    }
+}
+
+void errorMSG(const std::string& title_string, const std::string& message_string)
+{
+    if (!message_string.empty())
+    {
+        OSMessageBox(message_string, title_string.empty() ? LLTrans::getString("MBFatalError") : title_string, OSMB_OK);
     }
 }
 
@@ -2274,6 +2282,8 @@ void LLAppViewer::initLoggingAndGetLastDuration()
                                 );
     LLError::addGenericRecorder(&errorCallback);
     //LLError::setTimeFunction(getRuntime);
+
+    LLError::LLUserWarningMsg::setHandler(errorMSG);
 
 
     if (mSecondInstance)
@@ -2357,7 +2367,7 @@ bool LLAppViewer::loadSettingsFromDirectory(const std::string& location_key,
 		LL_ERRS() << "Invalid settings location list" << LL_ENDL;
 	}
 
-	BOOST_FOREACH(const SettingsGroup& group, mSettingsLocationList->groups)
+	for (const SettingsGroup& group : mSettingsLocationList->groups)
 	{
 		// skip settings groups that aren't the one we requested
 		if (group.name() != location_key) continue;
@@ -2369,7 +2379,7 @@ bool LLAppViewer::loadSettingsFromDirectory(const std::string& location_key,
 			return false;
 		}
 
-		BOOST_FOREACH(const SettingsFile& file, group.files)
+		for (const SettingsFile& file : group.files)
 		{
 			LL_INFOS("Settings") << "Attempting to load settings for the group " << file.name()
 			    << " - from location " << location_key << LL_ENDL;
@@ -2412,6 +2422,7 @@ bool LLAppViewer::loadSettingsFromDirectory(const std::string& location_key,
 			{	// failed to load
 				if(file.required)
 				{
+                    LLError::LLUserWarningMsg::showMissingFiles();
 					LL_ERRS() << "Error: Cannot load required settings file from: " << full_settings_path << LL_ENDL;
 					return false;
 				}
@@ -2433,11 +2444,11 @@ bool LLAppViewer::loadSettingsFromDirectory(const std::string& location_key,
 std::string LLAppViewer::getSettingsFilename(const std::string& location_key,
 											 const std::string& file)
 {
-	BOOST_FOREACH(const SettingsGroup& group, mSettingsLocationList->groups)
+	for (const SettingsGroup& group : mSettingsLocationList->groups)
 	{
 		if (group.name() == location_key)
 		{
-			BOOST_FOREACH(const SettingsFile& settings_file, group.files)
+			for (const SettingsFile& settings_file : group.files)
 			{
 				if (settings_file.name() == file)
 				{
@@ -2510,6 +2521,7 @@ bool LLAppViewer::initConfiguration()
 	if (!success)
 	{
         LL_WARNS() << "Cannot load default configuration file " << settings_file_list << LL_ENDL;
+        LLError::LLUserWarningMsg::showMissingFiles();
         if (gDirUtilp->fileExists(settings_file_list))
         {
             LL_ERRS() << "Cannot load default configuration file settings_files.xml. "
@@ -2533,6 +2545,7 @@ bool LLAppViewer::initConfiguration()
 
 	if (!mSettingsLocationList->validateBlock())
 	{
+        LLError::LLUserWarningMsg::showMissingFiles();
         LL_ERRS() << "Invalid settings file list " << settings_file_list << LL_ENDL;
 	}
 
@@ -2944,13 +2957,14 @@ bool LLAppViewer::initConfiguration()
 
 	if (mSecondInstance)
 	{
-		// This is the second instance of SL. Turn off voice support,
+		// This is the second instance of SL. Mute voice,
 		// but make sure the setting is *not* persisted.
-		LLControlVariable* disable_voice = gSavedSettings.getControl("CmdLineDisableVoice");
-		if(disable_voice)
+		// Also see LLVivoxVoiceClient::voiceEnabled()
+		LLControlVariable* enable_voice = gSavedSettings.getControl("EnableVoiceChat");
+		if(enable_voice)
 		{
 			const BOOL DO_NOT_PERSIST = FALSE;
-			disable_voice->setValue(LLSD(TRUE), DO_NOT_PERSIST);
+			enable_voice->setValue(LLSD(FALSE), DO_NOT_PERSIST);
 		}
 	}
 
@@ -2966,6 +2980,8 @@ bool LLAppViewer::initConfiguration()
 		// we've initialized an LLControlGroup instance by that name.
 		LLEventPumps::instance().obtain("LLControlGroup").post(LLSDMap("init", key));
 	}
+
+    LLError::LLUserWarningMsg::setOutOfMemoryStrings(LLTrans::getString("MBOutOfMemoryTitle"), LLTrans::getString("MBOutOfMemoryErr"));
 
 	return true; // Config was successful.
 }
@@ -3004,6 +3020,7 @@ void LLAppViewer::initStrings()
 
 		// initial check to make sure files are there failed
 		gDirUtilp->dumpCurrentDirectories(LLError::LEVEL_WARN);
+        LLError::LLUserWarningMsg::showMissingFiles();
 		LL_ERRS() << "Viewer failed to find localization and UI files."
 			<< " Please reinstall viewer from https://secondlife.com/support/downloads"
 			<< " and contact https://support.secondlife.com if issue persists after reinstall." << LL_ENDL;
@@ -3017,7 +3034,7 @@ void LLAppViewer::initStrings()
 	// Now that we've set "[sourceid]", have to go back through
 	// default_trans_args and reinitialize all those other keys because some
 	// of them, in turn, reference "[sourceid]".
-	BOOST_FOREACH(std::string key, default_trans_args)
+	for (const std::string& key : default_trans_args)
 	{
 		std::string brackets(key), nobrackets(key);
 		// Invalid to inspect key[0] if key is empty(). But then, the entire
@@ -3328,7 +3345,6 @@ LLSD LLAppViewer::getViewerInfo() const
     info["NET_BANDWITH"] = gSavedSettings.getF32("ThrottleBandwidthKBPS");
     info["LOD_FACTOR"] = gSavedSettings.getF32("RenderVolumeLODFactor");
     info["RENDER_QUALITY"] = (F32)gSavedSettings.getU32("RenderQualityPerformance");
-    info["GPU_SHADERS"] = gSavedSettings.getBOOL("RenderDeferred") ? "Enabled" : "Disabled";
     info["TEXTURE_MEMORY"] = gGLManager.mVRAM;
 
 #if LL_DARWIN
@@ -4310,6 +4326,7 @@ void LLAppViewer::loadKeyBindings()
 		key_bindings_file = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "key_bindings.xml");
 		if (!gViewerInput.loadBindingsXML(key_bindings_file))
 		{
+            LLError::LLUserWarningMsg::showMissingFiles();
 			LL_ERRS("InitInfo") << "Unable to open default key bindings from " << key_bindings_file << LL_ENDL;
 		}
 	}
@@ -4682,16 +4699,23 @@ void LLAppViewer::idle()
 		// When appropriate, update agent location to the simulator.
 		F32 agent_update_time = agent_update_timer.getElapsedTimeF32();
 		F32 agent_force_update_time = mLastAgentForceUpdate + agent_update_time;
-		BOOL force_update = gAgent.controlFlagsDirty()
-							|| (mLastAgentControlFlags != gAgent.getControlFlags())
-							|| (agent_force_update_time > (1.0f / (F32) AGENT_FORCE_UPDATES_PER_SECOND));
-		if (force_update || (agent_update_time > (1.0f / (F32) AGENT_UPDATES_PER_SECOND)))
+        bool timed_out = agent_update_time > (1.0f / (F32)AGENT_UPDATES_PER_SECOND);
+        BOOL force_send =
+            // if there is something to send
+            (gAgent.controlFlagsDirty() && timed_out)
+            // if something changed
+            || (mLastAgentControlFlags != gAgent.getControlFlags())
+            // keep alive
+            || (agent_force_update_time > (1.0f / (F32) AGENT_FORCE_UPDATES_PER_SECOND));
+        // timing out doesn't warranty that an update will be sent,
+        // just that it will be checked.
+		if (force_send || timed_out)
 		{
 			LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
 			// Send avatar and camera info
 			mLastAgentControlFlags = gAgent.getControlFlags();
-			mLastAgentForceUpdate = force_update ? 0 : agent_force_update_time;
-			send_agent_update(force_update);
+			mLastAgentForceUpdate = force_send ? 0 : agent_force_update_time;
+			send_agent_update(force_send);
 			agent_update_timer.reset();
 		}
 	}
@@ -5058,6 +5082,9 @@ void LLAppViewer::idleShutdown()
 		&& gLogoutTimer.getElapsedTimeF32() < SHUTDOWN_UPLOAD_SAVE_TIME
 		&& !logoutRequestSent())
 	{
+        gViewerWindow->setShowProgress(TRUE);
+        gViewerWindow->setProgressPercent(100.f);
+        gViewerWindow->setProgressString(LLTrans::getString("LoggingOut"));
 		return;
 	}
 
@@ -5400,6 +5427,14 @@ void LLAppViewer::forceErrorLLError()
    	LL_ERRS() << "This is a deliberate llerror" << LL_ENDL;
 }
 
+void LLAppViewer::forceErrorLLErrorMsg()
+{
+    LLError::LLUserWarningMsg::show("Deliberate error");
+    // Note: under debug this will show a message as well,
+    // but release won't show anything and will quit silently
+    LL_ERRS() << "This is a deliberate llerror with a message" << LL_ENDL;
+}
+
 void LLAppViewer::forceErrorBreakpoint()
 {
    	LL_WARNS() << "Forcing a deliberate breakpoint" << LL_ENDL;
@@ -5422,9 +5457,18 @@ void LLAppViewer::forceErrorBadMemoryAccess()
 void LLAppViewer::forceErrorInfiniteLoop()
 {
    	LL_WARNS() << "Forcing a deliberate infinite loop" << LL_ENDL;
+    // Loop is intentionally complicated to fool basic loop detection
+    LLTimer timer_total;
+    LLTimer timer_expiry;
+    const S32 report_frequency = 10;
+    timer_expiry.setTimerExpirySec(report_frequency);
     while(true)
     {
-        ;
+        if (timer_expiry.hasExpired())
+        {
+            LL_INFOS() << "Infinite loop time : " << timer_total.getElapsedSeconds() << LL_ENDL;
+            timer_expiry.setTimerExpirySec(report_frequency);
+        }
     }
     return;
 }
@@ -5433,6 +5477,13 @@ void LLAppViewer::forceErrorSoftwareException()
 {
    	LL_WARNS() << "Forcing a deliberate exception" << LL_ENDL;
     LLTHROW(LLException("User selected Force Software Exception"));
+}
+
+void LLAppViewer::forceErrorOSSpecificException()
+{
+    // Virtual, MacOS only
+    const std::string exception_text = "User selected Force OS Exception, Not implemented on this OS";
+    throw std::runtime_error(exception_text);
 }
 
 void LLAppViewer::forceErrorDriverCrash()

@@ -227,6 +227,17 @@ LLRender::eTexIndex LLPanelFace::getTextureDropChannel()
     return LLRender::eTexIndex(MATTYPE_DIFFUSE);
 }
 
+LLGLTFMaterial::TextureInfo LLPanelFace::getPBRDropChannel()
+{
+    if (mComboMatMedia && mComboMatMedia->getCurrentIndex() == MATMEDIA_PBR)
+    {
+        LLRadioGroup* radio_pbr_type = getChild<LLRadioGroup>("radio_pbr_type");
+        return texture_info_from_pbrtype(radio_pbr_type->getSelectedIndex());
+    }
+
+    return texture_info_from_pbrtype(PBRTYPE_BASE_COLOR);
+}
+
 // Things the UI provides...
 //
 LLUUID	LLPanelFace::getCurrentNormalMap()			{ return getChild<LLTextureCtrl>("bumpytexture control")->getImageAssetID();	}
@@ -330,13 +341,13 @@ BOOL	LLPanelFace::postBuild()
         pbr_ctrl->setImmediateFilterPermMask(PERM_NONE);
         pbr_ctrl->setDnDFilterPermMask(PERM_COPY | PERM_TRANSFER);
         pbr_ctrl->setBakeTextureEnabled(false);
-        pbr_ctrl->setInventoryPickType(LLTextureCtrl::PICK_MATERIAL);
+        pbr_ctrl->setInventoryPickType(PICK_MATERIAL);
     }
 
 	mTextureCtrl = getChild<LLTextureCtrl>("texture control");
 	if(mTextureCtrl)
 	{
-		mTextureCtrl->setDefaultImageAssetID(LLUUID( gSavedSettings.getString( "DefaultObjectTexture" )));
+		mTextureCtrl->setDefaultImageAssetID(DEFAULT_OBJECT_TEXTURE);
 		mTextureCtrl->setCommitCallback( boost::bind(&LLPanelFace::onCommitTexture, this, _2) );
 		mTextureCtrl->setOnCancelCallback( boost::bind(&LLPanelFace::onCancelTexture, this, _2) );
 		mTextureCtrl->setOnSelectCallback( boost::bind(&LLPanelFace::onSelectTexture, this, _2) );
@@ -353,7 +364,7 @@ BOOL	LLPanelFace::postBuild()
 	mShinyTextureCtrl = getChild<LLTextureCtrl>("shinytexture control");
 	if(mShinyTextureCtrl)
 	{
-		mShinyTextureCtrl->setDefaultImageAssetID(LLUUID( gSavedSettings.getString( "DefaultObjectSpecularTexture" )));
+		mShinyTextureCtrl->setDefaultImageAssetID(DEFAULT_OBJECT_SPECULAR);
 		mShinyTextureCtrl->setCommitCallback( boost::bind(&LLPanelFace::onCommitSpecularTexture, this, _2) );
 		mShinyTextureCtrl->setOnCancelCallback( boost::bind(&LLPanelFace::onCancelSpecularTexture, this, _2) );
 		mShinyTextureCtrl->setOnSelectCallback( boost::bind(&LLPanelFace::onSelectSpecularTexture, this, _2) );
@@ -370,8 +381,8 @@ BOOL	LLPanelFace::postBuild()
 	mBumpyTextureCtrl = getChild<LLTextureCtrl>("bumpytexture control");
 	if(mBumpyTextureCtrl)
 	{
-		mBumpyTextureCtrl->setDefaultImageAssetID(LLUUID( gSavedSettings.getString( "DefaultObjectNormalTexture" )));
-		mBumpyTextureCtrl->setBlankImageAssetID(LLUUID( gSavedSettings.getString( "DefaultBlankNormalTexture" )));
+		mBumpyTextureCtrl->setDefaultImageAssetID(DEFAULT_OBJECT_NORMAL);
+		mBumpyTextureCtrl->setBlankImageAssetID(BLANK_OBJECT_NORMAL);
 		mBumpyTextureCtrl->setCommitCallback( boost::bind(&LLPanelFace::onCommitNormalTexture, this, _2) );
 		mBumpyTextureCtrl->setOnCancelCallback( boost::bind(&LLPanelFace::onCancelNormalTexture, this, _2) );
 		mBumpyTextureCtrl->setOnSelectCallback( boost::bind(&LLPanelFace::onSelectNormalTexture, this, _2) );
@@ -4413,7 +4424,7 @@ void LLPanelFace::onCopyTexture()
                         LLUUID id = mat_data["NormMap"].asUUID();
                         if (id.notNull() && !get_can_copy_texture(id))
                         {
-                            mat_data["NormMap"] = LLUUID(gSavedSettings.getString("DefaultObjectTexture"));
+                            mat_data["NormMap"] = DEFAULT_OBJECT_TEXTURE;
                             mat_data["NormMapNoCopy"] = true;
                         }
 
@@ -4423,7 +4434,7 @@ void LLPanelFace::onCopyTexture()
                         LLUUID id = mat_data["SpecMap"].asUUID();
                         if (id.notNull() && !get_can_copy_texture(id))
                         {
-                            mat_data["SpecMap"] = LLUUID(gSavedSettings.getString("DefaultObjectTexture"));
+                            mat_data["SpecMap"] = DEFAULT_OBJECT_TEXTURE;
                             mat_data["SpecMapNoCopy"] = true;
                         }
 
@@ -4653,7 +4664,8 @@ void LLPanelFace::onPasteTexture(LLViewerObject* objectp, S32 te)
                         LLToolDragAndDrop::dropTextureAllFaces(objectp,
                             itemp_res,
                             from_library ? LLToolDragAndDrop::SOURCE_LIBRARY : LLToolDragAndDrop::SOURCE_AGENT,
-                            LLUUID::null);
+                            LLUUID::null,
+                            false);
                     }
                     else // one face
                     {
@@ -4662,6 +4674,7 @@ void LLPanelFace::onPasteTexture(LLViewerObject* objectp, S32 te)
                             itemp_res,
                             from_library ? LLToolDragAndDrop::SOURCE_LIBRARY : LLToolDragAndDrop::SOURCE_AGENT,
                             LLUUID::null,
+                            false,
                             0);
                     }
                 }
@@ -5176,8 +5189,9 @@ void LLPanelFace::onPbrSelectionChanged(LLInventoryItem* itemp)
         bool can_modify = itemp->getPermissions().allowOperationBy(PERM_MODIFY, gAgentID); // do we have perm to transfer this material?
         bool is_object_owner = gAgentID == obj_owner_id; // does object for which we are going to apply material belong to the agent?
         bool not_for_sale = !sale_info.isForSale(); // is object for which we are going to apply material not for sale?
+        bool from_library = ALEXANDRIA_LINDEN_ID == itemp->getPermissions().getOwner();
 
-        if (can_copy && can_transfer && can_modify)
+        if ((can_copy && can_transfer && can_modify) || from_library)
         {
             pbr_ctrl->setCanApply(true, true);
             return;

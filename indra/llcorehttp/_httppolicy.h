@@ -60,7 +60,7 @@ private:
 	void operator=(const HttpPolicy &);			// Not defined
 
 public:
-    typedef boost::shared_ptr<HttpOpRequest> opReqPtr_t;
+    typedef std::shared_ptr<HttpOpRequest> opReqPtr_t;
 
 	/// Threading:  called by init thread.
 	HttpRequest::policy_t createPolicyClass();

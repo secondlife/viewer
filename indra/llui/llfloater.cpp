@@ -59,7 +59,6 @@
 #include "llmultifloater.h"
 #include "llsdutil.h"
 #include "lluiusage.h"
-#include <boost/foreach.hpp>
 
 
 // use this to control "jumping" behavior when Ctrl-Tabbing
@@ -506,7 +505,6 @@ void LLFloater::enableResizeCtrls(bool enable, bool width, bool height)
 
 void LLFloater::destroy()
 {
-	gFloaterView->onDestroyFloater(this);
 	// LLFloaterReg should be synchronized with "dead" floater to avoid returning dead instance before
 	// it was deleted via LLMortician::updateClass(). See EXT-8458.
 	LLFloaterReg::removeInstance(mInstanceName, mKey);
@@ -1850,6 +1848,8 @@ void LLFloater::onClickTearOff(LLFloater* self)
 		{
 			if (self->mSaveRect)
 			{
+                LLRect screen_rect = self->calcScreenRect();
+                self->mPosition = LLCoordGL(screen_rect.getCenterX(), screen_rect.getCenterY()).convert();
 				self->storeRectControl();
 			}
 			self->setMinimized(FALSE); // to reenable minimize button if it was minimized
@@ -2407,8 +2407,7 @@ LLFloaterView::LLFloaterView (const Params& p)
 	mFocusCycleMode(FALSE),
 	mMinimizePositionVOffset(0),
 	mSnapOffsetBottom(0),
-	mSnapOffsetRight(0),
-	mFrontChild(NULL)
+	mSnapOffsetRight(0)
 {
 	mSnapView = getHandle();
 }
@@ -2463,7 +2462,7 @@ void LLFloaterView::reshape(S32 width, S32 height, BOOL called_from_parent)
 			//{
 			//	floaterp->translate(translate_x, translate_y);
 			//}
-			BOOST_FOREACH(LLHandle<LLFloater> dependent_floater, floaterp->mDependents)
+			for (LLHandle<LLFloater> dependent_floater : floaterp->mDependents)
 			{
 				if (dependent_floater.get())
 				{
@@ -2478,10 +2477,9 @@ void LLFloaterView::reshape(S32 width, S32 height, BOOL called_from_parent)
 void LLFloaterView::restoreAll()
 {
 	// make sure all subwindows aren't minimized
-	child_list_t child_list = *(getChildList());
-	for (child_list_const_iter_t child_it = child_list.begin(); child_it != child_list.end(); ++child_it)
+	for (auto child : *getChildList())
 	{
-		LLFloater* floaterp = dynamic_cast<LLFloater*>(*child_it);
+		LLFloater* floaterp = dynamic_cast<LLFloater*>(child);
 		if (floaterp)
 		{
 			floaterp->setMinimized(FALSE);
@@ -2564,7 +2562,8 @@ void LLFloaterView::bringToFront(LLFloater* child, BOOL give_focus, BOOL restore
 	if (!child)
 		return;
 
-	if (mFrontChild == child)
+    LLFloater* front_child = mFrontChildHandle.get();
+	if (front_child == child)
 	{
 		if (give_focus && child->canFocusStealFrontmost() && !gFocusMgr.childHasKeyboardFocus(child))
 		{
@@ -2573,12 +2572,12 @@ void LLFloaterView::bringToFront(LLFloater* child, BOOL give_focus, BOOL restore
 		return;
 	}
 
-	if (mFrontChild)
+	if (front_child && front_child->getVisible())
 	{
-		mFrontChild->goneFromFront();
+        front_child->goneFromFront();
 	}
 
-	mFrontChild = child;
+    mFrontChildHandle = child->getHandle();
 
 	// *TODO: make this respect floater's mAutoFocus value, instead of
 	// using parameter
@@ -3077,7 +3076,8 @@ LLFloater *LLFloaterView::getBackmost() const
 
 void LLFloaterView::syncFloaterTabOrder()
 {
-	if (mFrontChild && !mFrontChild->isDead() && mFrontChild->getIsChrome())
+    LLFloater* front_child = mFrontChildHandle.get();
+	if (front_child && front_child->getIsChrome())
 		return;
 
 	// look for a visible modal dialog, starting from first
@@ -3115,11 +3115,12 @@ void LLFloaterView::syncFloaterTabOrder()
 			LLFloater* floaterp = dynamic_cast<LLFloater*>(*child_it);
 			if (gFocusMgr.childHasKeyboardFocus(floaterp))
 			{
-                if (mFrontChild != floaterp)
+                LLFloater* front_child = mFrontChildHandle.get();
+                if (front_child != floaterp)
                 {
                     // Grab a list of the top floaters that want to stay on top of the focused floater
 					std::list<LLFloater*> listTop;
-					if (mFrontChild && !mFrontChild->canFocusStealFrontmost())
+					if (front_child && !front_child->canFocusStealFrontmost())
                     {
                         for (LLView* childp : *getChildList())
                         {
@@ -3139,7 +3140,7 @@ void LLFloaterView::syncFloaterTabOrder()
 						{
 							sendChildToFront(childp);
 						}
-						mFrontChild = listTop.back();
+                        mFrontChildHandle = listTop.back()->getHandle();
 					}
                 }
 
@@ -3233,14 +3234,6 @@ void LLFloaterView::setToolbarRect(LLToolBarEnums::EToolBarLocation tb, const LL
 		LL_WARNS() << "setToolbarRect() passed odd toolbar number " << (S32) tb << LL_ENDL;
 		break;
 	}
-}
-
-void LLFloaterView::onDestroyFloater(LLFloater* floater)
-{
-    if (mFrontChild == floater)
-    {
-        mFrontChild = nullptr;
-    }
 }
 
 void LLFloater::setInstanceName(const std::string& name)

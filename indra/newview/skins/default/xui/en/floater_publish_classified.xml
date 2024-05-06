@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater
  legacy_header_height="18"
  can_minimize="false"
@@ -25,6 +25,7 @@ Remember, Classified fees are non-refundable.
     </text>
     <spinner
      decimal_digits="0"
+     allow_digits_only="true"
      follows="left|top"
      font="SansSerif"
      halign="left"
@@ -36,7 +37,6 @@ Remember, Classified fees are non-refundable.
      layout="topleft"
      left="15"
      value="50"
-     min_val="50"
      max_val="999999"
      name="price_for_listing"
      top_pad="10"

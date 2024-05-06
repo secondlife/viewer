@@ -39,7 +39,7 @@
 class LLPathfindingNavMesh;
 class LLUUID;
 
-typedef boost::shared_ptr<LLPathfindingNavMesh> LLPathfindingNavMeshPtr;
+typedef std::shared_ptr<LLPathfindingNavMesh> LLPathfindingNavMeshPtr;
 
 class LLPathfindingNavMesh
 {
