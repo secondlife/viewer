@@ -106,6 +106,11 @@ const U64 REGION_FLAGS_ESTATE_MASK = REGION_FLAGS_EXTERNALLY_VISIBLE
 									 | REGION_FLAGS_DENY_ANONYMOUS
 									 | REGION_FLAGS_DENY_AGEUNVERIFIED;
 
+constexpr U32 REGION_COMBAT_FLAG_DAMAGE_ADJUST  = 0x0001;  // Region allows damage adjustment
+constexpr U32 REGION_COMBAT_FLAG_RESTRICT_LOG   = 0x0002;  // Region disallows non-system combat logging
+constexpr U32 REGION_COMBAT_FLAG_RESTORE_HEALTH = 0x0004;  // Region restores health on death
+
+
 inline BOOL is_prelude( U64 flags )
 {
 	// definition of prelude does not depend on fixed-sun

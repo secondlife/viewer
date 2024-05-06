@@ -139,7 +139,7 @@ public:
 	void onBtnSet();
 	void onChangeChildCtrl(LLUICtrl* ctrl);
 	void onChangeAnything();
-	static void onChangeText(LLLineEditor* caller, void* user_data);
+    static void onChangeText(LLLineEditor *caller, void *user_data);
 	
 	virtual bool refreshFromRegion(LLViewerRegion* region);
 	virtual bool estateUpdate(LLMessageSystem* msg) { return true; }
@@ -191,8 +191,11 @@ public:
 	
 	void onBtnSet();
 	void setObjBonusFactor(F32 object_bonus_factor) {mObjBonusFactor = object_bonus_factor;}
+    void setCombatEnabled(bool enabled) { mSupportsCombat2 = enabled; }
 
-protected:
+  protected:
+    void initCombatCtrl(const std::string &name);
+
 	virtual BOOL sendUpdate();
 	void onClickKick();
 	void onKickCommit(const uuid_vec_t& ids);
@@ -201,9 +204,10 @@ protected:
 	static void onClickMessage(void* userdata);
 	bool onMessageCommit(const LLSD& notification, const LLSD& response);
 	bool onChangeObjectBonus(const LLSD& notification, const LLSD& response);
+    void onChangeCombatEnabled();
 
 	F32 mObjBonusFactor;
-
+    bool mSupportsCombat2 {false};
 };
 
 /////////////////////////////////////////////////////////////////////////////
