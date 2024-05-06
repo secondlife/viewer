@@ -81,7 +81,7 @@ LLGLTFMaterial::LLGLTFMaterial()
 #endif
 }
 
-void LLGLTFMaterial::TextureTransform::getPacked(F32 (&packed)[8]) const
+void LLGLTFMaterial::TextureTransform::getPacked(Pack& packed) const
 {
     packed[0] = mScale.mV[VX];
     packed[1] = mScale.mV[VY];
@@ -90,6 +90,15 @@ void LLGLTFMaterial::TextureTransform::getPacked(F32 (&packed)[8]) const
     packed[5] = mOffset.mV[VY];
     // Not used but nonetheless zeroed for proper hashing. HB
     packed[3] = packed[6] = packed[7] = 0.f;
+}
+
+void LLGLTFMaterial::TextureTransform::getPackedTight(PackTight& packed) const
+{
+    packed[0] = mScale.mV[VX];
+    packed[1] = mScale.mV[VY];
+    packed[2] = mRotation;
+    packed[3] = mOffset.mV[VX];
+    packed[4] = mOffset.mV[VY];
 }
 
 bool LLGLTFMaterial::TextureTransform::operator==(const TextureTransform& other) const
