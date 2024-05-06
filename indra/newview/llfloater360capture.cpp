@@ -67,7 +67,7 @@ LLFloater360Capture::LLFloater360Capture(const LLSD& key)
     mStartILMode = gAgent.getInterestListMode();
 
     // send everything to us for as long as this floater is open
-    gAgent.changeInterestListMode(LLViewerRegion::IL_MODE_360);
+    gAgent.changeInterestListMode(IL_MODE_360);
 }
 
 LLFloater360Capture::~LLFloater360Capture()
@@ -91,7 +91,7 @@ LLFloater360Capture::~LLFloater360Capture()
     }
 }
 
-BOOL LLFloater360Capture::postBuild()
+bool LLFloater360Capture::postBuild()
 {
     mCaptureBtn = getChild<LLUICtrl>("capture_button");
     mCaptureBtn->setCommitCallback(boost::bind(&LLFloater360Capture::onCapture360ImagesBtn, this));
@@ -360,6 +360,8 @@ void LLFloater360Capture::encodeAndSave(LLPointer<LLImageRaw> raw_image, const s
     int jpeg_encode_quality = gSavedSettings.getU32("360CaptureJPEGEncodeQuality");
     LLPointer<LLImageJPEG> jpeg_image = new LLImageJPEG(jpeg_encode_quality);
 
+    LLImageDataSharedLock lock(raw_image);
+
     // Actually encode the JPEG image. This is where a lot of time
     // is spent now that the snapshot capture process has been
     // optimized.  The encode_time parameter doesn't appear to be
@@ -410,6 +412,8 @@ void LLFloater360Capture::suspendForAFrame()
 // Probably not needed anymore but saving here just in case.
 void LLFloater360Capture::mockSnapShot(LLImageRaw* raw)
 {
+    LLImageDataLock lock(raw);
+
     unsigned int width = raw->getWidth();
     unsigned int height = raw->getHeight();
     unsigned int depth = raw->getComponents();
@@ -449,7 +453,7 @@ void LLFloater360Capture::capture360Images()
     if (gSavedSettings.getBOOL("360CaptureHideAvatars"))
     {
         // Turn off the avatar if UI tells us to hide it.
-        // Note: the original call to gAvatar.hide(FALSE) did *not* hide
+        // Note: the original call to gAvatar.hide(false) did *not* hide
         // attachments and so for most residents, there would be some debris
         // left behind in the snapshot.
         // Note: this toggles so if it set to on, this will turn it off and
@@ -458,7 +462,7 @@ void LLFloater360Capture::capture360Images()
         // was set to off - I think this is what we need
         LLPipeline::toggleRenderTypeControl(LLPipeline::RENDER_TYPE_AVATAR);
         LLPipeline::toggleRenderTypeControl(LLPipeline::RENDER_TYPE_PARTICLES);
-        LLPipeline::sRenderAttachedLights = FALSE;
+        LLPipeline::sRenderAttachedLights = false;
     }
 
     // these are the 6 directions we will point the camera - essentially,

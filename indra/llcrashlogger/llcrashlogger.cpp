@@ -50,8 +50,8 @@
 #include <curl/curl.h>
 #include <openssl/crypto.h>
 
-BOOL gBreak = false;
-BOOL gSent = false;
+bool gBreak = false;
+bool gSent = false;
 
 int LLCrashLogger::ssl_mutex_count = 0;
 LLCoreInt::HttpMutex ** LLCrashLogger::ssl_mutex_list = NULL;

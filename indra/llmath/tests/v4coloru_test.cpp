@@ -287,10 +287,10 @@ namespace tut
 		ensure("parseColor4U() failed to parse the color value ", ((12 == llcolor4u1.mV[VX]) && (23 == llcolor4u1.mV[VY]) && (132 == llcolor4u1.mV[VZ])&& (50 == llcolor4u1.mV[VW])));
 
 		color = "12, 23, 132";
-		ensure("2:parseColor4U() failed to parse the color value ",  (FALSE == LLColor4U::parseColor4U(color, &llcolor4u1)));
+		ensure("2:parseColor4U() failed to parse the color value ",  (false == LLColor4U::parseColor4U(color, &llcolor4u1)));
 
 		color = "12";
-		ensure("2:parseColor4U() failed to parse the color value ",  (FALSE == LLColor4U::parseColor4U(color, &llcolor4u1)));
+		ensure("2:parseColor4U() failed to parse the color value ",  (false == LLColor4U::parseColor4U(color, &llcolor4u1)));
 	}
 
 	template<> template<>

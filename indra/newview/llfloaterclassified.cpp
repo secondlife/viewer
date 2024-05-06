@@ -51,9 +51,9 @@ void LLFloaterClassified::onOpen(const LLSD& key)
     LLFloater::onOpen(key);
 }
 
-BOOL LLFloaterClassified::postBuild()
+bool LLFloaterClassified::postBuild()
 {
-    return TRUE;
+    return true;
 }
 
 

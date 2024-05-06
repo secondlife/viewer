@@ -55,7 +55,7 @@ const U8  OVERLAY_IMG_COMPONENTS = 4;
 LLViewerParcelOverlay::LLViewerParcelOverlay(LLViewerRegion* region, F32 region_width_meters)
 :	mRegion( region ),
 	mParcelGridsPerEdge( S32( region_width_meters / PARCEL_GRID_STEP_METERS ) ),
-	mDirty( FALSE ),
+	mDirty( false ),
 	mTimeSinceLastUpdate(),
 	mOverlayTextureIdx(-1),
 	mVertexCount(0),
@@ -65,9 +65,9 @@ LLViewerParcelOverlay::LLViewerParcelOverlay(LLViewerRegion* region, F32 region_
 {
 	// Create a texture to hold color information.
 	// 4 components
-	// Use mipmaps = FALSE, clamped, NEAREST filter, for sharp edges	
+	// Use mipmaps = false, clamped, NEAREST filter, for sharp edges	
 	mImageRaw = new LLImageRaw(mParcelGridsPerEdge, mParcelGridsPerEdge, OVERLAY_IMG_COMPONENTS);
-	mTexture = LLViewerTextureManager::getLocalTexture(mImageRaw.get(), FALSE);
+	mTexture = LLViewerTextureManager::getLocalTexture(mImageRaw.get(), false);
 	mTexture->setAddressMode(LLTexUnit::TAM_CLAMP);
 	mTexture->setFilteringOption(LLTexUnit::TFO_POINT);
 
@@ -116,28 +116,28 @@ LLViewerParcelOverlay::~LLViewerParcelOverlay()
 //---------------------------------------------------------------------------
 // ACCESSORS
 //---------------------------------------------------------------------------
-BOOL LLViewerParcelOverlay::isOwned(const LLVector3& pos) const
+bool LLViewerParcelOverlay::isOwned(const LLVector3& pos) const
 {
 	S32 row =    S32(pos.mV[VY] / PARCEL_GRID_STEP_METERS);
 	S32 column = S32(pos.mV[VX] / PARCEL_GRID_STEP_METERS);
 	return (PARCEL_PUBLIC != ownership(row, column));
 }
 
-BOOL LLViewerParcelOverlay::isOwnedSelf(const LLVector3& pos) const
+bool LLViewerParcelOverlay::isOwnedSelf(const LLVector3& pos) const
 {
 	S32 row =    S32(pos.mV[VY] / PARCEL_GRID_STEP_METERS);
 	S32 column = S32(pos.mV[VX] / PARCEL_GRID_STEP_METERS);
 	return (PARCEL_SELF == ownership(row, column));
 }
 
-BOOL LLViewerParcelOverlay::isOwnedGroup(const LLVector3& pos) const
+bool LLViewerParcelOverlay::isOwnedGroup(const LLVector3& pos) const
 {
 	S32 row =    S32(pos.mV[VY] / PARCEL_GRID_STEP_METERS);
 	S32 column = S32(pos.mV[VX] / PARCEL_GRID_STEP_METERS);
 	return (PARCEL_GROUP == ownership(row, column));
 }
 
-BOOL LLViewerParcelOverlay::isOwnedOther(const LLVector3& pos) const
+bool LLViewerParcelOverlay::isOwnedOther(const LLVector3& pos) const
 {
 	S32 row =    S32(pos.mV[VY] / PARCEL_GRID_STEP_METERS);
 	S32 column = S32(pos.mV[VX] / PARCEL_GRID_STEP_METERS);
@@ -260,7 +260,7 @@ bool LLViewerParcelOverlay::encroachesOnNearbyParcel(const std::vector<LLBBox>& 
 	return false;
 }
 
-BOOL LLViewerParcelOverlay::isSoundLocal(const LLVector3& pos) const
+bool LLViewerParcelOverlay::isSoundLocal(const LLVector3& pos) const
 {
 	S32 row =    S32(pos.mV[VY] / PARCEL_GRID_STEP_METERS);
 	S32 column = S32(pos.mV[VX] / PARCEL_GRID_STEP_METERS);
@@ -343,6 +343,8 @@ void LLViewerParcelOverlay::updateOverlayTexture()
 	const LLColor4U self  = LLUIColorTable::instance().getColor("PropertyColorSelf").get();
 	const LLColor4U for_sale  = LLUIColorTable::instance().getColor("PropertyColorForSale").get();
 	const LLColor4U auction  = LLUIColorTable::instance().getColor("PropertyColorAuction").get();
+
+	LLImageDataLock lock(mImageRaw);
 
 	// Create the base texture.
 	U8 *raw = mImageRaw->getData();
@@ -464,7 +466,7 @@ void LLViewerParcelOverlay::updatePropertyLines()
 	new_coord_array.reserve(256);
 
 	U8 overlay = 0;
-	BOOL add_edge = FALSE;
+	bool add_edge = false;
 	const F32 GRID_STEP = PARCEL_GRID_STEP_METERS;
 	const S32 GRIDS_PER_EDGE = mParcelGridsPerEdge;
 
@@ -518,7 +520,7 @@ void LLViewerParcelOverlay::updatePropertyLines()
 			}
 			else
 			{
-				add_edge = TRUE;
+				add_edge = true;
 			}
 
 			if (add_edge)
@@ -589,7 +591,7 @@ void LLViewerParcelOverlay::updatePropertyLines()
 			}
 			else
 			{
-				add_edge = TRUE;
+				add_edge = true;
 			}
 
 			if (add_edge)
@@ -674,7 +676,7 @@ void LLViewerParcelOverlay::updatePropertyLines()
 	}
 	
 	// Everything's clean now
-	mDirty = FALSE;
+	mDirty = false;
 }
 
 
@@ -849,7 +851,7 @@ void LLViewerParcelOverlay::addPropertyLine(
 
 void LLViewerParcelOverlay::setDirty()
 {
-	mDirty = TRUE;
+	mDirty = true;
 }
 
 void LLViewerParcelOverlay::updateGL()

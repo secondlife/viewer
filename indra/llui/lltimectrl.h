@@ -81,7 +81,7 @@ private:
 	};
 
 	virtual void	onFocusLost();
-	virtual BOOL	handleKeyHere(KEY key, MASK mask);
+	virtual bool	handleKeyHere(KEY key, MASK mask);
 
 	void	onUpBtn();
 	void	onDownBtn();
@@ -126,6 +126,6 @@ private:
 	U32				mTime;				// minutes since midnight: 0 - 1439
 	U32				mSnapToMin;			// interval in minutes to snap to
 
-	BOOL			mAllowEdit;
+	bool			mAllowEdit;
 };
 #endif /* LLTIMECTRL_H_ */

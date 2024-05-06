@@ -385,18 +385,18 @@ void LLColor4::calcHSL(F32* hue, F32* saturation, F32* luminance) const
 }
 
 // static
-BOOL LLColor4::parseColor(const std::string& buf, LLColor4* color)
+bool LLColor4::parseColor(const std::string& buf, LLColor4* color)
 {
-	if( buf.empty() || color == NULL)
+	if( buf.empty() || color == nullptr)
 	{
-		return FALSE;
+		return false;
 	}
 
 	boost_tokenizer tokens(buf, boost::char_separator<char>(", "));
 	boost_tokenizer::iterator token_iter = tokens.begin();
 	if (token_iter == tokens.end())
 	{
-		return FALSE;
+		return false;
 	}
 
 	// Grab the first token into a string, since we don't know
@@ -708,15 +708,15 @@ BOOL LLColor4::parseColor(const std::string& buf, LLColor4* color)
 		}
 	}
 
-	return TRUE;
+	return true;
 }
 
 // static
-BOOL LLColor4::parseColor4(const std::string& buf, LLColor4* value)
+bool LLColor4::parseColor4(const std::string& buf, LLColor4* value)
 {
-	if( buf.empty() || value == NULL)
+	if( buf.empty() || value == nullptr)
 	{
-		return FALSE;
+		return false;
 	}
 
 	LLColor4 v;
@@ -729,10 +729,10 @@ BOOL LLColor4::parseColor4(const std::string& buf, LLColor4* value)
 	if( 4 == count )
 	{
 		value->setVec( v );
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 // EOF

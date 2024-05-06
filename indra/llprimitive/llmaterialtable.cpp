@@ -341,21 +341,21 @@ void LLMaterialTable::initBasicTable()
 	}
 }
 
-BOOL LLMaterialTable::add(U8 mcode, const std::string& name, const LLUUID &uuid)
+bool LLMaterialTable::add(U8 mcode, const std::string& name, const LLUUID &uuid)
 {
 	LLMaterialInfo *infop;
 
 	infop = new LLMaterialInfo(mcode,name,uuid);
-	if (!infop) return FALSE;
+	if (!infop) return false;
 
 	// Add at the end so the order in menus matches the order in this
 	// file.  JNC 11.30.01
 	mMaterialInfoList.push_back(infop);
 
-	return TRUE;
+	return true;
 }
 
-BOOL LLMaterialTable::addCollisionSound(U8 mcode, U8 mcode2, const LLUUID &uuid)
+bool LLMaterialTable::addCollisionSound(U8 mcode, U8 mcode2, const LLUUID &uuid)
 {
 	if (mCollisionSoundMatrix && (mcode < LL_MCODE_END) && (mcode2 < LL_MCODE_END))
 	{
@@ -365,10 +365,10 @@ BOOL LLMaterialTable::addCollisionSound(U8 mcode, U8 mcode2, const LLUUID &uuid)
 			mCollisionSoundMatrix[mcode2 * LL_MCODE_END + mcode] = uuid;		
 		}
 	}
-	return TRUE;
+	return true;
 }
 
-BOOL LLMaterialTable::addSlidingSound(U8 mcode, U8 mcode2, const LLUUID &uuid)
+bool LLMaterialTable::addSlidingSound(U8 mcode, U8 mcode2, const LLUUID &uuid)
 {
 	if (mSlidingSoundMatrix && (mcode < LL_MCODE_END) && (mcode2 < LL_MCODE_END))
 	{
@@ -378,10 +378,10 @@ BOOL LLMaterialTable::addSlidingSound(U8 mcode, U8 mcode2, const LLUUID &uuid)
 			mSlidingSoundMatrix[mcode2 * LL_MCODE_END + mcode] = uuid;		
 		}
 	}
-	return TRUE;
+	return true;
 }
 
-BOOL LLMaterialTable::addRollingSound(U8 mcode, U8 mcode2, const LLUUID &uuid)
+bool LLMaterialTable::addRollingSound(U8 mcode, U8 mcode2, const LLUUID &uuid)
 {
 	if (mRollingSoundMatrix && (mcode < LL_MCODE_END) && (mcode2 < LL_MCODE_END))
 	{
@@ -391,10 +391,10 @@ BOOL LLMaterialTable::addRollingSound(U8 mcode, U8 mcode2, const LLUUID &uuid)
 			mRollingSoundMatrix[mcode2 * LL_MCODE_END + mcode] = uuid;		
 		}
 	}
-	return TRUE;
+	return true;
 }
 
-BOOL LLMaterialTable::addShatterSound(U8 mcode, const LLUUID &uuid)
+bool LLMaterialTable::addShatterSound(U8 mcode, const LLUUID &uuid)
 {
 	for (info_list_t::iterator iter = mMaterialInfoList.begin();
 		 iter != mMaterialInfoList.end(); ++iter)
@@ -403,14 +403,14 @@ BOOL LLMaterialTable::addShatterSound(U8 mcode, const LLUUID &uuid)
 		if (mcode == infop->mMCode)
 		{
 			infop->mShatterSoundID = uuid;
-			return TRUE;
+			return true;
 		}
 	}
 
-	return FALSE;
+	return false;
 }
 
-BOOL LLMaterialTable::addDensity(U8 mcode, const F32 &density)
+bool LLMaterialTable::addDensity(U8 mcode, const F32 &density)
 {
 	for (info_list_t::iterator iter = mMaterialInfoList.begin();
 		 iter != mMaterialInfoList.end(); ++iter)
@@ -419,14 +419,14 @@ BOOL LLMaterialTable::addDensity(U8 mcode, const F32 &density)
 		if (mcode == infop->mMCode)
 		{
 			infop->mDensity = density;
-			return TRUE;
+			return true;
 		}
 	}
 
-	return FALSE;
+	return false;
 }
 
-BOOL LLMaterialTable::addRestitution(U8 mcode, const F32 &restitution)
+bool LLMaterialTable::addRestitution(U8 mcode, const F32 &restitution)
 {
 	for (info_list_t::iterator iter = mMaterialInfoList.begin();
 		 iter != mMaterialInfoList.end(); ++iter)
@@ -435,14 +435,14 @@ BOOL LLMaterialTable::addRestitution(U8 mcode, const F32 &restitution)
 		if (mcode == infop->mMCode)
 		{
 			infop->mRestitution = restitution;
-			return TRUE;
+			return true;
 		}
 	}
 
-	return FALSE;
+	return false;
 }
 
-BOOL LLMaterialTable::addFriction(U8 mcode, const F32 &friction)
+bool LLMaterialTable::addFriction(U8 mcode, const F32 &friction)
 {
 	for (info_list_t::iterator iter = mMaterialInfoList.begin();
 		 iter != mMaterialInfoList.end(); ++iter)
@@ -451,14 +451,14 @@ BOOL LLMaterialTable::addFriction(U8 mcode, const F32 &friction)
 		if (mcode == infop->mMCode)
 		{
 			infop->mFriction = friction;
-			return TRUE;
+			return true;
 		}
 	}
 
-	return FALSE;
+	return false;
 }
 
-BOOL LLMaterialTable::addDamageAndEnergy(U8 mcode, const F32 &hp_mod, const F32 &damage_mod, const F32 &ep_mod)
+bool LLMaterialTable::addDamageAndEnergy(U8 mcode, const F32 &hp_mod, const F32 &damage_mod, const F32 &ep_mod)
 {
 	for (info_list_t::iterator iter = mMaterialInfoList.begin();
 		 iter != mMaterialInfoList.end(); ++iter)
@@ -469,11 +469,11 @@ BOOL LLMaterialTable::addDamageAndEnergy(U8 mcode, const F32 &hp_mod, const F32 
 			infop->mHPModifier = hp_mod;
 			infop->mDamageModifier = damage_mod;
 			infop->mEPModifier = ep_mod;
-			return TRUE;
+			return true;
 		}
 	}
 
-	return FALSE;
+	return false;
 }
 
 LLUUID LLMaterialTable::getDefaultTextureID(const std::string& name)

@@ -36,7 +36,7 @@ class ImageRequest
 public:
 	ImageRequest(const LLPointer<LLImageFormatted>& image,
                  S32 discard,
-                 BOOL needs_aux,
+                 bool needs_aux,
                  const LLPointer<LLImageDecodeThread::Responder>& responder,
                  U32 request_id);
 	virtual ~ImageRequest();
@@ -51,12 +51,12 @@ private:
 	LLPointer<LLImageFormatted> mFormattedImage;
 	S32 mDiscardLevel;
     U32 mRequestId;
-	BOOL mNeedsAux;
+	bool mNeedsAux;
 	// output
 	LLPointer<LLImageRaw> mDecodedImageRaw;
 	LLPointer<LLImageRaw> mDecodedImageAux;
-	BOOL mDecodedRaw;
-	BOOL mDecodedAux;
+    bool mDecodedRaw;
+    bool mDecodedAux;
 	LLPointer<LLImageDecodeThread::Responder> mResponder;
 };
 
@@ -91,7 +91,7 @@ size_t LLImageDecodeThread::getPending()
 LLImageDecodeThread::handle_t LLImageDecodeThread::decodeImage(
     const LLPointer<LLImageFormatted>& image, 
     S32 discard,
-    BOOL needs_aux,
+    bool needs_aux,
     const LLPointer<LLImageDecodeThread::Responder>& responder)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
@@ -127,14 +127,14 @@ LLImageDecodeThread::Responder::~Responder()
 
 ImageRequest::ImageRequest(const LLPointer<LLImageFormatted>& image,
                            S32 discard,
-                           BOOL needs_aux,
+                           bool needs_aux,
                            const LLPointer<LLImageDecodeThread::Responder>& responder,
                            U32 request_id)
 	: mFormattedImage(image),
 	  mDiscardLevel(discard),
 	  mNeedsAux(needs_aux),
-	  mDecodedRaw(FALSE),
-	  mDecodedAux(FALSE),
+	  mDecodedRaw(false),
+	  mDecodedAux(false),
 	  mResponder(responder),
 	  mRequestId(request_id)
 {
@@ -154,9 +154,18 @@ ImageRequest::~ImageRequest()
 bool ImageRequest::processRequest()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
+
+	if (mFormattedImage.isNull())
+		return true;
+
 	const F32 decode_time_slice = 0.f; //disable time slicing
 	bool done = true;
-	if (!mDecodedRaw && mFormattedImage.notNull())
+
+	LLImageDataLock lockFormatted(mFormattedImage);
+	LLImageDataLock lockDecodedRaw(mDecodedImageRaw);
+	LLImageDataLock lockDecodedAux(mDecodedImageAux);
+
+	if (!mDecodedRaw)
 	{
 		// Decode primary channels
 		if (mDecodedImageRaw.isNull())
@@ -182,7 +191,7 @@ bool ImageRequest::processRequest()
 		// some decoders are removing data when task is complete and there were errors
 		mDecodedRaw = done && mDecodedImageRaw->getData();
 	}
-	if (done && mNeedsAux && !mDecodedAux && mFormattedImage.notNull())
+	if (done && mNeedsAux && !mDecodedAux)
 	{
 		// Decode aux channel
 		if (!mDecodedImageAux)

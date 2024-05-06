@@ -115,7 +115,7 @@ void tracy_aligned_free(void *memblock)
 #endif
 
 //static
-BOOL LLCommon::sAprInitialized = FALSE;
+bool LLCommon::sAprInitialized = false;
 
 static LLTrace::ThreadRecorder* sMasterThreadRecorder = NULL;
 
@@ -125,7 +125,7 @@ void LLCommon::initClass()
 	if (!sAprInitialized)
 	{
 		ll_init_apr();
-		sAprInitialized = TRUE;
+		sAprInitialized = true;
 	}
 	LLTimer::initClass();
 	assert_main_thread();       // Make sure we record the main thread
@@ -146,6 +146,6 @@ void LLCommon::cleanupClass()
 	if (sAprInitialized)
 	{
 		ll_cleanup_apr();
-		sAprInitialized = FALSE;
+		sAprInitialized = false;
 	}
 }

@@ -108,6 +108,8 @@ bool LLImageTGA::updateData()
 {
 	resetLastError();
 
+	LLImageDataLock lock(this);
+
 	// Check to make sure that this instance has been initialized with data
 	if (!getData() || (0 == getDataSize()))
 	{
@@ -327,7 +329,10 @@ bool LLImageTGA::updateData()
 bool LLImageTGA::decode(LLImageRaw* raw_image, F32 decode_time)
 {
 	llassert_always(raw_image);
-	
+
+	LLImageDataSharedLock lockIn(this);
+	LLImageDataLock lockOut(raw_image);
+
 	// Check to make sure that this instance has been initialized with data
 	if (!getData() || (0 == getDataSize()))
 	{
@@ -643,7 +648,10 @@ bool LLImageTGA::decodeColorMap( LLImageRaw* raw_image, bool rle, bool flipped )
 bool LLImageTGA::encode(const LLImageRaw* raw_image, F32 encode_time)
 {
 	llassert_always(raw_image);
-	
+
+	LLImageDataSharedLock lockIn(raw_image);
+	LLImageDataLock lockOut(this);
+
 	deleteData();
 
 	setSize(raw_image->getWidth(), raw_image->getHeight(), raw_image->getComponents());
@@ -1061,6 +1069,9 @@ bool LLImageTGA::decodeAndProcess( LLImageRaw* raw_image, F32 domain, F32 weight
 	//   |
 	// --+---Input--------------------------------
 	//   |
+
+	LLImageDataSharedLock lockIn(this);
+	LLImageDataLock lockOut(raw_image);
 
 	if (!getData() || (0 == getDataSize()))
 	{

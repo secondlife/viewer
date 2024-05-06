@@ -4037,6 +4037,16 @@ function="World.EnvPreset"
                  function="Advanced.ToggleDebugCharacterVis" />
             </menu_item_check>
             <menu_item_check
+             label="Debug Character Rez State"
+             name="Debug Character Rez State">
+                <menu_item_check.on_check
+                 function="CheckControl"
+                 parameter="NameTagDebugAVRezState" />
+                <menu_item_check.on_click
+                 function="ToggleControl"
+                 parameter="NameTagDebugAVRezState" />
+            </menu_item_check>
+            <menu_item_check
              label="Show Collision Skeleton"
              name="Show Collision Skeleton">
                 <menu_item_check.on_check

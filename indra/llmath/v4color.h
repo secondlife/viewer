@@ -111,7 +111,7 @@ class LLColor4
 		F32			lengthSquared() const;		// Returns magnitude squared of LLColor4
 		F32			normalize();				// deprecated -- use normalize()
 
-		BOOL		isOpaque() { return mV[VALPHA] == 1.f; }
+		bool		isOpaque() { return mV[VALPHA] == 1.f; }
 
 		F32 operator[](int idx) const { return mV[idx]; }
 		F32 &operator[](int idx) { return mV[idx]; }
@@ -226,8 +226,8 @@ class LLColor4
 		static LLColor4 cyan5;
 		static LLColor4 cyan6;
 	
-		static BOOL parseColor(const std::string& buf, LLColor4* color);
-		static BOOL parseColor4(const std::string& buf, LLColor4* color);
+		static bool parseColor(const std::string& buf, LLColor4* color);
+		static bool parseColor4(const std::string& buf, LLColor4* color);
 
 		inline void clamp();
 };

@@ -127,7 +127,7 @@
 
 extern void on_new_message(const LLSD& msg);
 
-extern BOOL gCubeSnapshot;
+extern bool gCubeSnapshot;
 
 //
 // Constants
@@ -139,7 +139,7 @@ const F32 CAMERA_POSITION_THRESHOLD_SQUARED = 0.001f * 0.001f;
 static const U32 LLREQUEST_PERMISSION_THROTTLE_LIMIT	= 5;     // requests
 static const F32 LLREQUEST_PERMISSION_THROTTLE_INTERVAL	= 10.0f; // seconds
 
-extern BOOL gDebugClicks;
+extern bool gDebugClicks;
 extern bool gShiftFrame;
 
 // function prototypes
@@ -371,7 +371,7 @@ static LLNotificationFunctorRegistration friendship_offer_callback_reg_nm("Offer
 // Functions
 //
 
-void give_money(const LLUUID& uuid, LLViewerRegion* region, S32 amount, BOOL is_group,
+void give_money(const LLUUID& uuid, LLViewerRegion* region, S32 amount, bool is_group,
 				S32 trx_type, const std::string& desc)
 {
 	if(0 == amount || !region) return;
@@ -393,7 +393,7 @@ void give_money(const LLUUID& uuid, LLViewerRegion* region, S32 amount, BOOL is_
 		msg->nextBlockFast(_PREHASH_MoneyData);
 		msg->addUUIDFast(_PREHASH_SourceID, gAgent.getID() );
 		msg->addUUIDFast(_PREHASH_DestID, uuid);
-		msg->addU8Fast(_PREHASH_Flags, pack_transaction_flags(FALSE, is_group));
+		msg->addU8Fast(_PREHASH_Flags, pack_transaction_flags(false, is_group));
 		msg->addS32Fast(_PREHASH_Amount, amount);
 		msg->addU8Fast(_PREHASH_AggregatePermNextOwner, (U8)LLAggregatePermissions::AP_EMPTY);
 		msg->addU8Fast(_PREHASH_AggregatePermInventory, (U8)LLAggregatePermissions::AP_EMPTY);
@@ -974,13 +974,13 @@ static void highlight_inventory_objects_in_panel(const std::vector<LLUUID>& item
 					// Parent folders can be different in case of 2 consecutive drag and drop
 					// operations when the second one is started before the first one completes.
 					LL_DEBUGS("Inventory_Move") << "Open folder: " << fv_folder->getName() << LL_ENDL;
-					fv_folder->setOpen(TRUE);
+					fv_folder->setOpen(true);
 					if (fv_folder->isSelected())
 					{
-						fv->changeSelection(fv_folder, FALSE);
+						fv->changeSelection(fv_folder, false);
 					}
 				}
-				fv->changeSelection(fv_item, TRUE);
+				fv->changeSelection(fv_item, true);
 			}
 		}
 	}
@@ -1344,7 +1344,7 @@ protected:
 };
 
 
-//Returns TRUE if we are OK, FALSE if we are throttled
+//Returns true if we are OK, false if we are throttled
 //Set check_only true if you want to know the throttle status 
 //without registering a hit
 bool check_offer_throttle(const std::string& from_name, bool check_only)
@@ -1465,7 +1465,7 @@ void open_inventory_offer(const uuid_vec_t& objects, const std::string& from_nam
 			{
 				LL_DEBUGS("Messaging") << "Highlighting inventory item: " << item->getUUID()  << LL_ENDL;
 				// If we opened this ourselves, focus it
-				const BOOL take_focus = from_name.empty() ? TAKE_FOCUS_YES : TAKE_FOCUS_NO;
+				const bool take_focus = from_name.empty() ? TAKE_FOCUS_YES : TAKE_FOCUS_NO;
 				switch(asset_type)
 				{
 					case LLAssetType::AT_NOTECARD:
@@ -1564,7 +1564,7 @@ void open_inventory_offer(const uuid_vec_t& objects, const std::string& from_nam
             // Highlight item
             bool show_in_inventory = gSavedSettings.get<bool>("ShowInInventory");
             bool auto_open =
-                show_in_inventory && // don't open if ShowInInventory is FALSE
+                show_in_inventory && // don't open if ShowInInventory is false
                 !from_name.empty();  // don't open if it's not from anyone
 
             // SL-20419 : Don't change active tab if floater is visible
@@ -1646,7 +1646,7 @@ void inventory_offer_mute_callback(const LLUUID& blocked_id,
 			{
 				return (notification->getPayload()["from_id"].asUUID() == blocked_id);
 			}
-			return FALSE;
+			return false;
 		}
 	private:
 		const LLUUID& blocked_id;
@@ -1668,8 +1668,8 @@ std::string LLOfferInfo::mResponderType = "offer_info";
 
 LLOfferInfo::LLOfferInfo()
  : LLNotificationResponderInterface()
- , mFromGroup(FALSE)
- , mFromObject(FALSE)
+ , mFromGroup(false)
+ , mFromObject(false)
  , mIM(IM_NOTHING_SPECIAL)
  , mType(LLAssetType::AT_NONE)
  , mPersist(false)
@@ -1752,7 +1752,7 @@ void LLOfferInfo::sendReceiveResponse(bool accept, const LLUUID &destination_fol
 	msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
 	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
 	msg->nextBlockFast(_PREHASH_MessageBlock);
-	msg->addBOOLFast(_PREHASH_FromGroup, FALSE);
+	msg->addBOOLFast(_PREHASH_FromGroup, false);
 	msg->addUUIDFast(_PREHASH_ToAgentID, mFromID);
 	msg->addU8Fast(_PREHASH_Offline, IM_ONLINE);
 	msg->addUUIDFast(_PREHASH_ID, mTransactionID);
@@ -1946,7 +1946,7 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 			chat.mText = log_message;
 			if( LLMuteList::getInstance()->isMuted(mFromID ) && ! LLMuteList::isLinden(mFromName) )  // muting for SL-42269
 			{
-				chat.mMuted = TRUE;
+				chat.mMuted = true;
 				accept_to_trash = false; // will send decline message
 			}
 
@@ -2041,7 +2041,7 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 	std::string from_string; // Used in the pop-up.
 	std::string chatHistory_string;  // Used in chat history.
 
-	if (mFromObject == TRUE)
+	if (mFromObject == true)
 	{
 		if (mFromGroup)
 		{
@@ -2167,7 +2167,7 @@ bool lure_callback(const LLSD& notification, const LLSD& response)
 	
 	LLUUID from_id = notification["payload"]["from_id"].asUUID();
 	LLUUID lure_id = notification["payload"]["lure_id"].asUUID();
-	BOOL godlike = notification["payload"]["godlike"].asBoolean();
+	bool godlike = notification["payload"]["godlike"].asBoolean();
 
 	switch(option)
 	{
@@ -2216,7 +2216,7 @@ bool mature_lure_callback(const LLSD& notification, const LLSD& response)
 	
 	LLUUID from_id = notification["payload"]["from_id"].asUUID();
 	LLUUID lure_id = notification["payload"]["lure_id"].asUUID();
-	BOOL godlike = notification["payload"]["godlike"].asBoolean();
+	bool godlike = notification["payload"]["godlike"].asBoolean();
 	U8 region_access = static_cast<U8>(notification["payload"]["region_maturity"].asInteger());
 
 	switch(option)
@@ -2281,7 +2281,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
     LL_PROFILE_ZONE_SCOPED;
 
     LLUUID from_id;
-    BOOL from_group;
+    bool from_group;
     LLUUID to_id;
     U8 offline;
     U8 d = 0;
@@ -2341,7 +2341,7 @@ void send_do_not_disturb_message (LLMessageSystem* msg, const LLUUID& from_id, c
 		pack_instant_message(
 			msg,
 			gAgent.getID(),
-			FALSE,
+			false,
 			gAgent.getSessionID(),
 			from_id,
 			my_name,
@@ -2541,10 +2541,10 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 		chat.mFromName = from_name;
 	}
 
-	BOOL is_do_not_disturb = gAgent.isDoNotDisturb();
+	bool is_do_not_disturb = gAgent.isDoNotDisturb();
 
-	BOOL is_muted = FALSE;
-	BOOL is_linden = FALSE;
+	bool is_muted = false;
+	bool is_linden = false;
 	is_muted = LLMuteList::getInstance()->isMuted(
 		from_id,
 		from_name,
@@ -2558,7 +2558,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 		return;
 	}
 
-	BOOL is_audible = (CHAT_AUDIBLE_FULLY == chat.mAudible);
+	bool is_audible = (CHAT_AUDIBLE_FULLY == chat.mAudible);
 	chatter = gObjectList.findObject(from_id);
 	if (chatter)
 	{
@@ -2592,25 +2592,25 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 
 	if (is_audible)
 	{
-		//BOOL visible_in_chat_bubble = FALSE;
+		//bool visible_in_chat_bubble = false;
 
 		color.setVec(1.f,1.f,1.f,1.f);
 		msg->getStringFast(_PREHASH_ChatData, _PREHASH_Message, mesg);
 
-		BOOL ircstyle = FALSE;
+		bool ircstyle = false;
 
 		// Look for IRC-style emotes here so chatbubbles work
 		std::string prefix = mesg.substr(0, 4);
 		if (prefix == "/me " || prefix == "/me'")
 		{
-			ircstyle = TRUE;
+			ircstyle = true;
 		}
 		chat.mText = mesg;
 
 		// Look for the start of typing so we can put "..." in the bubbles.
 		if (CHAT_TYPE_START == chat.mChatType)
 		{
-			LLLocalSpeakerMgr::getInstance()->setSpeakerTyping(from_id, TRUE);
+			LLLocalSpeakerMgr::getInstance()->setSpeakerTyping(from_id, true);
 
 			// Might not have the avatar constructed yet, eg on login.
 			if (chatter && chatter->isAvatar())
@@ -2621,7 +2621,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 		}
 		else if (CHAT_TYPE_STOP == chat.mChatType)
 		{
-			LLLocalSpeakerMgr::getInstance()->setSpeakerTyping(from_id, FALSE);
+			LLLocalSpeakerMgr::getInstance()->setSpeakerTyping(from_id, false);
 
 			// Might not have the avatar constructed yet, eg on login.
 			if (chatter && chatter->isAvatar())
@@ -2670,7 +2670,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 		// We have a real utterance now, so can stop showing "..." and proceed.
 		if (chatter && chatter->isAvatar())
 		{
-			LLLocalSpeakerMgr::getInstance()->setSpeakerTyping(from_id, FALSE);
+			LLLocalSpeakerMgr::getInstance()->setSpeakerTyping(from_id, false);
 			((LLVOAvatar*)chatter)->stopTyping();
 			
 			if (!is_muted && !is_do_not_disturb)
@@ -2777,11 +2777,11 @@ void process_teleport_start(LLMessageSystem *msg, void**)
 
 	if (teleport_flags & TELEPORT_FLAGS_DISABLE_CANCEL)
 	{
-		gViewerWindow->setProgressCancelButtonVisible(FALSE);
+		gViewerWindow->setProgressCancelButtonVisible(false);
 	}
 	else
 	{
-		gViewerWindow->setProgressCancelButtonVisible(TRUE, LLTrans::getString("Cancel"));
+		gViewerWindow->setProgressCancelButtonVisible(true, LLTrans::getString("Cancel"));
 	}
 
 	// Freeze the UI and show progress bar
@@ -2789,7 +2789,7 @@ void process_teleport_start(LLMessageSystem *msg, void**)
 
 	if( gAgent.getTeleportState() == LLAgent::TELEPORT_NONE )
 	{
-		gTeleportDisplay = TRUE;
+		gTeleportDisplay = true;
 		gAgent.setTeleportState( LLAgent::TELEPORT_START );
 		make_ui_sound("UISndTeleportOut");
 		
@@ -2819,11 +2819,11 @@ void process_teleport_progress(LLMessageSystem* msg, void**)
 	msg->getU32("Info", "TeleportFlags", teleport_flags);
 	if (teleport_flags & TELEPORT_FLAGS_DISABLE_CANCEL)
 	{
-		gViewerWindow->setProgressCancelButtonVisible(FALSE);
+		gViewerWindow->setProgressCancelButtonVisible(false);
 	}
 	else
 	{
-		gViewerWindow->setProgressCancelButtonVisible(TRUE, LLTrans::getString("Cancel"));
+		gViewerWindow->setProgressCancelButtonVisible(true, LLTrans::getString("Cancel"));
 	}
 	std::string buffer;
 	msg->getString("Info", "Message", buffer);
@@ -2890,7 +2890,7 @@ public:
 	virtual ~LLPostTeleportNotifiers();
 
 	//function to be called at the supplied frequency
-	virtual BOOL tick();
+	virtual bool tick();
 };
 
 LLPostTeleportNotifiers::LLPostTeleportNotifiers() : LLEventTimer( 2.0 )
@@ -2901,9 +2901,9 @@ LLPostTeleportNotifiers::~LLPostTeleportNotifiers()
 {
 }
 
-BOOL LLPostTeleportNotifiers::tick()
+bool LLPostTeleportNotifiers::tick()
 {
-	BOOL all_done = FALSE;
+	bool all_done = false;
 	if ( gAgent.getTeleportState() == LLAgent::TELEPORT_NONE )
 	{
 		// get callingcards and landmarks available to the user arriving.
@@ -2927,7 +2927,7 @@ BOOL LLPostTeleportNotifiers::tick()
 				gInventory.addObserver(fetcher);
 			}
 		}
-		all_done = TRUE;
+		all_done = true;
 	}
 
 	return all_done;
@@ -2961,7 +2961,7 @@ void process_teleport_finish(LLMessageSystem* msg, void**)
         {
             // Race condition? Make sure all variables are set correctly for teleport to work
             LL_WARNS("Teleport","Messaging") << "Teleport 'finish' message without 'start'. Setting state to TELEPORT_REQUESTED" << LL_ENDL;
-            gTeleportDisplay = TRUE;
+            gTeleportDisplay = true;
             LLViewerMessage::getInstance()->mTeleportStartedSignal();
             gAgent.setTeleportState(LLAgent::TELEPORT_REQUESTED);
             make_ui_sound("UISndTeleportOut");
@@ -2973,11 +2973,11 @@ void process_teleport_finish(LLMessageSystem* msg, void**)
     }
 	
 	// Teleport is finished; it can't be cancelled now.
-	gViewerWindow->setProgressCancelButtonVisible(FALSE);
+	gViewerWindow->setProgressCancelButtonVisible(false);
 
 	// Do teleport effect for where you're leaving
 	// VEFFECT: TeleportStart
-	LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_POINT, TRUE);
+	LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_POINT, true);
 	effectp->setPositionGlobal(gAgent.getPositionGlobal());
 	effectp->setColor(LLColor4U(gAgent.getEffectColor()));
 	LLHUDManager::getInstance()->sendEffects();
@@ -3021,7 +3021,7 @@ void process_teleport_finish(LLMessageSystem* msg, void**)
 	LLHost sim_host(sim_ip, sim_port);
 
 	// Viewer trusts the simulator.
-	gMessageSystem->enableCircuit(sim_host, TRUE);
+	gMessageSystem->enableCircuit(sim_host, true);
 	LLViewerRegion* regionp =  LLWorld::getInstance()->addRegion(region_handle, sim_host);
 
 /*
@@ -3029,7 +3029,7 @@ void process_teleport_finish(LLMessageSystem* msg, void**)
 	gAgentCamera.updateCamera();
 
 	// likewise make sure the camera is behind the avatar
-	gAgentCamera.resetView(TRUE);
+	gAgentCamera.resetView(true);
 	LLVector3 shift_vector = regionp->getPosRegionFromGlobal(gAgent.getRegion()->getOriginGlobal());
 	gAgent.setRegion(regionp);
 	gObjectList.shiftObjects(shift_vector);
@@ -3072,15 +3072,15 @@ void process_teleport_finish(LLMessageSystem* msg, void**)
 
 	// Now do teleport effect for where you're going.
 	// VEFFECT: TeleportEnd
-	effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_POINT, TRUE);
+	effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_POINT, true);
 	effectp->setPositionGlobal(gAgent.getPositionGlobal());
 
 	effectp->setColor(LLColor4U(gAgent.getEffectColor()));
 	LLHUDManager::getInstance()->sendEffects();
 
-//	gTeleportDisplay = TRUE;
+//	gTeleportDisplay = true;
 //	gTeleportDisplayTimer.reset();
-//	gViewerWindow->setShowProgress(TRUE);
+//	gViewerWindow->setShowProgress(true);
 }
 
 // stuff we have to do every time we get an AvatarInitComplete from a sim
@@ -3177,7 +3177,7 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 			look_at = LLViewerCamera::getInstance()->getAtAxis();
 		}
 		// Force the camera back onto the agent, don't animate.
-		gAgentCamera.setFocusOnAvatar(TRUE, FALSE);
+		gAgentCamera.setFocusOnAvatar(true, false);
 		gAgentCamera.slamLookAt(look_at);
 		gAgentCamera.updateCamera();
 
@@ -3237,15 +3237,15 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 	/*
 	if (teleport_flags & TELEPORT_FLAGS_IS_FLYING)
 	{
-		gAgent.setFlying(TRUE);
+		gAgent.setFlying(true);
 	}
 	else
 	{
-		gAgent.setFlying(FALSE);
+		gAgent.setFlying(false);
 	}
 	*/
 
-	send_agent_update(TRUE, TRUE);
+	send_agent_update(true, true);
 
 	if (gAgent.getRegion()->getBlockFly())
 	{
@@ -3324,7 +3324,7 @@ const F32 THRESHOLD_HEAD_ROT_QDOT = 0.9997f;	// ~= 2.5 degrees -- if its less th
 const F32 MAX_HEAD_ROT_QDOT = 0.99999f;			// ~= 0.5 degrees -- if its greater than this then no need to update head_rot
 												// between these values we delay the updates (but no more than one second)
 
-void send_agent_update(BOOL force_send, BOOL send_reliable)
+void send_agent_update(bool force_send, bool send_reliable)
 {
     LL_PROFILE_ZONE_SCOPED;
     llassert(!gCubeSnapshot);
@@ -3395,7 +3395,7 @@ void send_agent_update(BOOL force_send, BOOL send_reliable)
 	// trigger a control event.
 	U32 control_flags = gAgent.getControlFlags();
 
-	MASK	key_mask = gKeyboard->currentMask(TRUE);
+	MASK	key_mask = gKeyboard->currentMask(true);
 
 	if (key_mask & MASK_ALT || key_mask & MASK_CONTROL)
 	{
@@ -3969,7 +3969,7 @@ void process_preload_sound(LLMessageSystem *msg, void **user_data)
 	if (gAgent.canAccessMaturityAtGlobal(pos_global))
 	{
 		// Add audioData starts a transfer internally.
-		sourcep->addAudioData(datap, FALSE);
+		sourcep->addAudioData(datap, false);
 	}
 }
 
@@ -4084,7 +4084,7 @@ void process_sim_stats(LLMessageSystem *msg, void **user_data)
 	LLViewerRegion* regionp = gAgent.getRegion();
 	if (regionp)
 	{
-		BOOL was_flying = gAgent.getFlying();
+		bool was_flying = gAgent.getFlying();
 		regionp->setRegionFlags(region_flags);
 		regionp->setMaxTasks(max_tasks_per_region);
 		// HACK: This makes agents drop from the sky if the region is 
@@ -4147,7 +4147,7 @@ void process_avatar_animation(LLMessageSystem *mesgsys, void **user_data)
 			// See EXT-2781.
 			if (animation_id == ANIM_AGENT_STANDUP && gAgent.getFlying())
 			{
-				gAgent.setFlying(FALSE);
+				gAgent.setFlying(false);
 			}
 
 			if (i < num_source_blocks)
@@ -4157,9 +4157,9 @@ void process_avatar_animation(LLMessageSystem *mesgsys, void **user_data)
 				LLViewerObject* object = gObjectList.findObject(object_id);
 				if (object)
 				{
-					object->setFlagsWithoutUpdate(FLAGS_ANIM_SOURCE, TRUE);
+					object->setFlagsWithoutUpdate(FLAGS_ANIM_SOURCE, true);
 
-					BOOL anim_found = FALSE;
+					bool anim_found = false;
 					LLVOAvatar::AnimSourceIterator anim_it = avatarp->mAnimationSources.find(object_id);
 					for (;anim_it != avatarp->mAnimationSources.end(); ++anim_it)
 					{
@@ -4171,7 +4171,7 @@ void process_avatar_animation(LLMessageSystem *mesgsys, void **user_data)
 						}
 						if (anim_it->second == animation_id)
 						{
-							anim_found = TRUE;
+							anim_found = true;
 							break;
 						}
 					}
@@ -4298,7 +4298,7 @@ void process_camera_constraint(LLMessageSystem *mesgsys, void **user_data)
 	gAgentCamera.setCameraCollidePlane(cameraCollidePlane);
 }
 
-void near_sit_object(BOOL success, void *data)
+void near_sit_object(bool success, void *data)
 {
 	if (success)
 	{
@@ -4316,7 +4316,7 @@ void process_avatar_sit_response(LLMessageSystem *mesgsys, void **user_data)
 	LLVector3 sitPosition;
 	LLQuaternion sitRotation;
 	LLUUID sitObjectID;
-	BOOL use_autopilot;
+	bool use_autopilot;
 	mesgsys->getUUIDFast(_PREHASH_SitObject, _PREHASH_ID, sitObjectID);
 	mesgsys->getBOOLFast(_PREHASH_SitTransform, _PREHASH_AutoPilot, use_autopilot);
 	mesgsys->getVector3Fast(_PREHASH_SitTransform, _PREHASH_SitPosition, sitPosition);
@@ -4325,7 +4325,7 @@ void process_avatar_sit_response(LLMessageSystem *mesgsys, void **user_data)
 	mesgsys->getVector3Fast(_PREHASH_SitTransform, _PREHASH_CameraEyeOffset, camera_eye);
 	LLVector3 camera_at;
 	mesgsys->getVector3Fast(_PREHASH_SitTransform, _PREHASH_CameraAtOffset, camera_at);
-	BOOL force_mouselook;
+	bool force_mouselook;
 	mesgsys->getBOOLFast(_PREHASH_SitTransform, _PREHASH_ForceMouselook, force_mouselook);
 
 	if (isAgentAvatarValid() && dist_vec_squared(camera_eye, camera_at) > CAMERA_POSITION_THRESHOLD_SQUARED)
@@ -4336,7 +4336,7 @@ void process_avatar_sit_response(LLMessageSystem *mesgsys, void **user_data)
 	gAgentCamera.setForceMouselook(force_mouselook);
 	// Forcing turning off flying here to prevent flying after pressing "Stand"
 	// to stand up from an object. See EXT-1655.
-	gAgent.setFlying(FALSE);
+	gAgent.setFlying(false);
 
 	LLViewerObject* object = gObjectList.findObject(sitObjectID);
 	if (object)
@@ -4384,7 +4384,7 @@ void process_set_follow_cam_properties(LLMessageSystem *mesgsys, void **user_dat
 	LLViewerObject* objectp = gObjectList.findObject(source_id);
 	if (objectp)
 	{
-		objectp->setFlagsWithoutUpdate(FLAGS_CAMERA_SOURCE, TRUE);
+		objectp->setFlagsWithoutUpdate(FLAGS_CAMERA_SOURCE, true);
 	}
 
 	S32 num_objects = mesgsys->getNumberOfBlocks("CameraProperty");
@@ -4569,11 +4569,11 @@ void process_user_list_reply(LLMessageSystem *msg, void **user_data)
 
 		if (status & 0x01)
 		{
-			dialog_friends_add_friend(buffer, TRUE);
+			dialog_friends_add_friend(buffer, true);
 		}
 		else
 		{
-			dialog_friends_add_friend(buffer, FALSE);
+			dialog_friends_add_friend(buffer, false);
 		}
 	}
 
@@ -4750,12 +4750,12 @@ static void process_money_balance_reply_extended(LLMessageSystem* msg)
     // and agent ids for name lookup.
     S32 transaction_type = 0;
     LLUUID source_id;
-	BOOL is_source_group = FALSE;
+	bool is_source_group = false;
     LLUUID dest_id;
-	BOOL is_dest_group = FALSE;
+	bool is_dest_group = false;
     S32 amount = 0;
     std::string item_description;
-	BOOL success = FALSE;
+	bool success = false;
 
     msg->getS32("TransactionInfo", "TransactionType", transaction_type);
     msg->getUUID("TransactionInfo", "SourceID", source_id);
@@ -5217,9 +5217,9 @@ bool attempt_standard_notification(LLMessageSystem* msgsystem)
             gViewerWindow->saveSnapshot(snap_filename,
                                         gViewerWindow->getWindowWidthRaw(),
                                         gViewerWindow->getWindowHeightRaw(),
-                                        FALSE, //UI
+                                        false, //UI
                                         gSavedSettings.getBOOL("RenderHUDInSnapshot"),
-                                        FALSE,
+                                        false,
                                         LLSnapshotModel::SNAPSHOT_TYPE_COLOR,
                                         LLSnapshotModel::SNAPSHOT_FORMAT_PNG);
 		}
@@ -5322,9 +5322,9 @@ static void process_special_alert_messages(const std::string & message)
 		gViewerWindow->saveSnapshot(snap_filename,
                                     gViewerWindow->getWindowWidthRaw(),
                                     gViewerWindow->getWindowHeightRaw(),
-                                    FALSE,
+                                    false,
                                     gSavedSettings.getBOOL("RenderHUDInSnapshot"),
-                                    FALSE,
+                                    false,
                                     LLSnapshotModel::SNAPSHOT_TYPE_COLOR,
                                     LLSnapshotModel::SNAPSHOT_FORMAT_PNG);
 	}
@@ -5345,7 +5345,7 @@ void process_agent_alert_message(LLMessageSystem* msgsystem, void** user_data)
 
 	if (!attempt_standard_notification(msgsystem))
 	{
-		BOOL modal = FALSE;
+		bool modal = false;
 		msgsystem->getBOOL("AlertData", "Modal", modal);
 		process_alert_core(message, modal);
 	}
@@ -5368,7 +5368,7 @@ void process_alert_message(LLMessageSystem *msgsystem, void **user_data)
 
 	if (!attempt_standard_notification(msgsystem))
 	{
-		BOOL modal = FALSE;
+		bool modal = false;
 		process_alert_core(message, modal);
 
         static LLCachedControl<S32> ban_lines_mode(gSavedSettings , "ShowBanLines" , LLViewerParcelMgr::PARCEL_BAN_LINES_ON_COLLISION);
@@ -5403,7 +5403,7 @@ bool handle_special_alerts(const std::string &pAlertName)
 	return isHandled;
 }
 
-void process_alert_core(const std::string& message, BOOL modal)
+void process_alert_core(const std::string& message, bool modal)
 {
 	const std::string ALERT_PREFIX("ALERT: ");
 	const std::string NOTIFY_PREFIX("NOTIFY: ");
@@ -5527,7 +5527,7 @@ void process_mean_collision_alert_message(LLMessageSystem *msgsystem, void **use
 
 		type = (EMeanCollisionType)u8type;
 
-		BOOL b_found = FALSE;
+		bool b_found = false;
 
 		for (mean_collision_list_t::iterator iter = gMeanCollisionList.begin();
 			 iter != gMeanCollisionList.end(); ++iter)
@@ -5537,7 +5537,7 @@ void process_mean_collision_alert_message(LLMessageSystem *msgsystem, void **use
 			{
 				mcd->mTime = time;
 				mcd->mMag = mag;
-				b_found = TRUE;
+				b_found = true;
 				break;
 			}
 		}
@@ -5561,7 +5561,7 @@ void process_frozen_message(LLMessageSystem *msgsystem, void **user_data)
 	// make sure the cursor is back to the usual default since the
 	// alert is probably due to some kind of error.
 	gViewerWindow->getWindow()->resetBusyCount();
-	BOOL b_frozen;
+	bool b_frozen;
 	
 	msgsystem->getBOOL("FrozenData", "Data", b_frozen);
 
@@ -5580,7 +5580,7 @@ void process_economy_data(LLMessageSystem *msg, void** /*user_data*/)
 	LL_DEBUGS("Benefits") << "Received economy data, not currently used" << LL_ENDL;
 }
 
-void notify_cautioned_script_question(const LLSD& notification, const LLSD& response, S32 orig_questions, BOOL granted)
+void notify_cautioned_script_question(const LLSD& notification, const LLSD& response, S32 orig_questions, bool granted)
 {
 	// only continue if at least some permissions were requested
 	if (orig_questions)
@@ -5599,7 +5599,7 @@ void notify_cautioned_script_question(const LLSD& notification, const LLSD& resp
 
 		// try to lookup viewerobject that corresponds to the object that
 		// requested permissions (here, taskid->requesting object id)
-		BOOL foundpos = FALSE;
+		bool foundpos = false;
 		LLViewerObject* viewobj = gObjectList.findObject(notification["payload"]["task_id"].asUUID());
 		if (viewobj)
 		{
@@ -5615,7 +5615,7 @@ void notify_cautioned_script_question(const LLSD& notification, const LLSD& resp
 				std::string formatpos = llformat("%.1f, %.1f,%.1f", objpos[VX], objpos[VY], objpos[VZ]);
 				notice.setArg("[REGIONPOS]", formatpos);
 
-				foundpos = TRUE;
+				foundpos = true;
 			}
 		}
 
@@ -5628,7 +5628,7 @@ void notify_cautioned_script_question(const LLSD& notification, const LLSD& resp
 
 		// check each permission that was requested, and list each 
 		// permission that has been flagged as a caution permission
-		BOOL caution = FALSE;
+		bool caution = false;
 		S32 count = 0;
 		std::string perms;
 		for (const script_perm_t& script_perm : SCRIPT_PERMISSIONS)
@@ -5637,7 +5637,7 @@ void notify_cautioned_script_question(const LLSD& notification, const LLSD& resp
 				&& script_perm.caution)
 			{
 				count++;
-				caution = TRUE;
+				caution = true;
 
 				// add a comma before the permission description if it is not the first permission
 				// added to the list or the last permission to check
@@ -5657,7 +5657,7 @@ void notify_cautioned_script_question(const LLSD& notification, const LLSD& resp
 		if (caution)
 		{
 			LLChat chat(notice.getString());
-	//		LLFloaterChat::addChat(chat, FALSE, FALSE);
+	//		LLFloaterChat::addChat(chat, false, false);
 		}
 	}
 }
@@ -5698,13 +5698,13 @@ bool script_question_cb(const LLSD& notification, const LLSD& response)
 	}
 
 	// check whether permissions were granted or denied
-	BOOL allowed = TRUE;
+	bool allowed = true;
 	// the "yes/accept" button is the first button in the template, making it button 0
 	// if any other button was clicked, the permissions were denied
 	if (option != 0)
 	{
 		new_questions = 0;
-		allowed = FALSE;
+		allowed = false;
 	}	
 	else if(experience.notNull())
 	{
@@ -5989,7 +5989,7 @@ void container_inventory_arrived(LLViewerObject* object,
                             LLSaleInfo::DEFAULT,
                             item->getFlags(),
                             creation_date_utc);
-                    new_item->updateServer(TRUE);
+                    new_item->updateServer(true);
                     gInventory.updateItem(new_item);
                 }
             }
@@ -6030,7 +6030,7 @@ void container_inventory_arrived(LLViewerObject* object,
 										LLSaleInfo::DEFAULT,
 										item->getFlags(),
 										creation_date_utc);
-		new_item->updateServer(TRUE);
+		new_item->updateServer(true);
 		gInventory.updateItem(new_item);
 		gInventory.notifyObservers();
 		if(active_panel)
@@ -6040,7 +6040,7 @@ void container_inventory_arrived(LLViewerObject* object,
 	}
 
 	// we've got the inventory, now delete this object if this was a take
-	BOOL delete_object = (BOOL)(intptr_t)data;
+	bool delete_object = (bool)(intptr_t)data;
 	LLViewerRegion *region = gAgent.getRegion();
 	if (delete_object && region)
 	{
@@ -6190,7 +6190,7 @@ void process_teleport_local(LLMessageSystem *msg,void**)
 			// after tp, keep the teleport state and let progress screen clear it after a short delay
 			// (progress screen is active but not visible)  *TODO: remove when SVC-5290 is fixed
 			gTeleportDisplayTimer.reset();
-			gTeleportDisplay = TRUE;
+			gTeleportDisplay = true;
 		}
 		else
 		{
@@ -6203,11 +6203,11 @@ void process_teleport_local(LLMessageSystem *msg,void**)
 	// Sim tells us whether the new position is off the ground
 	if (teleport_flags & TELEPORT_FLAGS_IS_FLYING)
 	{
-		gAgent.setFlying(TRUE);
+		gAgent.setFlying(true);
 	}
 	else
 	{
-		gAgent.setFlying(FALSE);
+		gAgent.setFlying(false);
 	}
 
 	gAgent.setPositionAgent(pos);
@@ -6215,13 +6215,13 @@ void process_teleport_local(LLMessageSystem *msg,void**)
 
 	if ( !(gAgent.getTeleportKeepsLookAt() && LLViewerJoystick::getInstance()->getOverrideCamera()) )
 	{
-		gAgentCamera.resetView(TRUE, TRUE);
+		gAgentCamera.resetView(true, true);
 	}
 
 	// send camera update to new region
 	gAgentCamera.updateCamera();
 
-	send_agent_update(TRUE, TRUE);
+	send_agent_update(true, true);
 
 	// Let the interested parties know we've teleported.
 	// Vadim *HACK: Agent position seems to get reset (to render position?)
@@ -6467,7 +6467,7 @@ void send_improved_im(const LLUUID& to_id,
 	pack_instant_message(
 		gMessageSystem,
 		gAgent.getID(),
-		FALSE,
+		false,
 		gAgent.getSessionID(),
 		to_id,
 		name,
@@ -6738,7 +6738,7 @@ void process_load_url(LLMessageSystem* msg, void**)
 {
 	LLUUID object_id;
 	LLUUID owner_id;
-	BOOL owner_is_group;
+	bool owner_is_group;
 	char object_name[256];		/* Flawfinder: ignore */
 	char message[256];		/* Flawfinder: ignore */
 	char url[256];		/* Flawfinder: ignore */
@@ -6816,7 +6816,7 @@ void process_initiate_download(LLMessageSystem* msg, void**)
 		sim_filename,
 		LL_PATH_NONE,
 		msg->getSender(),
-		FALSE,	// don't delete remote
+		false,	// don't delete remote
 		callback_download_complete,
 		(void**)new std::string(viewer_filename));
 }
@@ -6850,7 +6850,7 @@ void process_script_teleport_request(LLMessageSystem* msg, void**)
 	
 	// remove above two lines and replace with below line
 	// to re-enable parcel browser for llMapDestination()
-	// LLURLDispatcher::dispatch(LLSLURL::buildSLURL(sim_name, (S32)pos.mV[VX], (S32)pos.mV[VY], (S32)pos.mV[VZ]), FALSE);
+	// LLURLDispatcher::dispatch(LLSLURL::buildSLURL(sim_name, (S32)pos.mV[VX], (S32)pos.mV[VY], (S32)pos.mV[VZ]), false);
 	
 }
 
@@ -6909,7 +6909,7 @@ void process_covenant_reply(LLMessageSystem* msg, void**)
 	LLFloaterBuyLand::updateLastModified(last_modified);
 
 	// load the actual covenant asset data
-	const BOOL high_priority = TRUE;
+	const bool high_priority = true;
 	if (covenant_id.notNull())
 	{
 		gAssetStorage->getEstateAsset(gAgent.getRegionHost(),

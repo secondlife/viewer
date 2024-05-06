@@ -256,7 +256,7 @@ private:
         : LLVertexBuffer(typemask)
     {}
 
-    bool	allocateBuffer(S32 nverts, S32 nindices, BOOL create) { return allocateBuffer(nverts, nindices); }
+    bool	allocateBuffer(S32 nverts, S32 nindices, bool create) { return allocateBuffer(nverts, nindices); }
 
 public:
 

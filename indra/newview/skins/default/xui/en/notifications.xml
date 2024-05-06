@@ -6292,6 +6292,17 @@ Are you sure you want to delete them?
      yestext="OK"/>
   </notification>
 
+    <notification
+     icon="alertmodal.tga"
+     name="ThumbnailSelectionTooLarge"
+     type="alertmodal">
+        <unique/>
+        You can only modify up to 50 thumbnails at a time.
+        <usetemplate
+         name="okbutton"
+         yestext="OK"/>
+    </notification>
+
   <notification
      icon="alertmodal.tga"
      name="ConfirmUnlink"

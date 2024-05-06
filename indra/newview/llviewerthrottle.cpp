@@ -207,7 +207,7 @@ LLViewerThrottle::LLViewerThrottle() :
 }
 
 
-void LLViewerThrottle::setMaxBandwidth(F32 kbits_per_second, BOOL from_event)
+void LLViewerThrottle::setMaxBandwidth(F32 kbits_per_second, bool from_event)
 {
 	if (!from_event)
 	{

@@ -269,20 +269,20 @@ void LLFacePool::enqueue(LLFace* facep)
 }
 
 // virtual
-BOOL LLFacePool::addFace(LLFace *facep)
+bool LLFacePool::addFace(LLFace *facep)
 {
 	addFaceReference(facep);
-	return TRUE;
+	return true;
 }
 
 // virtual
-BOOL LLFacePool::removeFace(LLFace *facep)
+bool LLFacePool::removeFace(LLFace *facep)
 {
 	removeFaceReference(facep);
 
 	vector_replace_with_last(mDrawFace, facep);
 
-	return TRUE;
+	return true;
 }
 
 // Not absolutely sure if we should be resetting all of the chained pools as well - djs
@@ -328,9 +328,9 @@ void LLFacePool::pushFaceGeometry()
     }
 }
 
-BOOL LLFacePool::verify() const
+bool LLFacePool::verify() const
 {
-	BOOL ok = TRUE;
+	bool ok = true;
 	
 	for (std::vector<LLFace*>::const_iterator iter = mDrawFace.begin();
 		 iter != mDrawFace.end(); iter++)
@@ -340,11 +340,11 @@ BOOL LLFacePool::verify() const
 		{
 			LL_INFOS() << "Face in wrong pool!" << LL_ENDL;
 			facep->printDebugInfo();
-			ok = FALSE;
+			ok = false;
 		}
 		else if (!facep->verify())
 		{
-			ok = FALSE;
+			ok = false;
 		}
 	}
 
@@ -356,7 +356,7 @@ void LLFacePool::printDebugInfo() const
 	LL_INFOS() << "Pool " << this << " Type: " << getType() << LL_ENDL;
 }
 
-BOOL LLFacePool::LLOverrideFaceColor::sOverrideFaceColor = FALSE;
+bool LLFacePool::LLOverrideFaceColor::sOverrideFaceColor = false;
 
 void LLFacePool::LLOverrideFaceColor::setColor(const LLColor4& color)
 {
@@ -682,7 +682,7 @@ bool LLRenderPass::uploadMatrixPalette(LLVOAvatar* avatar, LLMeshSkinInfo* skinI
 
     LLGLSLShader::sCurBoundShaderPtr->uniformMatrix3x4fv(LLViewerShaderMgr::AVATAR_MATRIX,
         count,
-        FALSE,
+        false,
         (GLfloat*)&(mpc.mGLMp[0]));
 
     return true;
