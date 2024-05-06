@@ -47,6 +47,14 @@ class LLWindow;
 #define BYTES_TO_MEGA_BYTES(x) ((x) >> 20)
 #define MEGA_BYTES_TO_BYTES(x) ((x) << 20)
 
+namespace LLImageGLMemory
+{
+    void alloc_tex_image(U32 width, U32 height, U32 pixformat);
+    void free_tex_image(U32 texName);
+    void free_tex_images(U32 count, const U32* texNames);
+    void free_cur_tex_image();
+}
+
 //============================================================================
 class LLImageGL : public LLRefCount
 {
