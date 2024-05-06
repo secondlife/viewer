@@ -455,18 +455,6 @@
       </map>
       <key>emoji_shortcodes</key>
       <map>
-        <key>canonical_repo</key>
-        <string>https://github.com/secondlife/3p-emoji-shortcodes</string>
-        <key>copyright</key>
-        <string>Copyright 2017-2019 Miles Johnson.</string>
-        <key>description</key>
-        <string>Emoji shortcodes</string>
-        <key>license</key>
-        <string>MIT</string>
-        <key>license_file</key>
-        <string>LICENSES/emojibase-license.txt</string>
-        <key>name</key>
-        <string>emoji_shortcodes</string>
         <key>platforms</key>
         <map>
           <key>darwin64</key>
@@ -494,8 +482,20 @@
             <string>windows64</string>
           </map>
         </map>
+        <key>license</key>
+        <string>MIT</string>
+        <key>license_file</key>
+        <string>LICENSES/emojibase-license.txt</string>
+        <key>copyright</key>
+        <string>Copyright 2017-2019 Miles Johnson.</string>
         <key>version</key>
         <string>6.1.0.579438</string>
+        <key>name</key>
+        <string>emoji_shortcodes</string>
+        <key>canonical_repo</key>
+        <string>https://github.com/secondlife/3p-emoji-shortcodes</string>
+        <key>description</key>
+        <string>Emoji shortcodes</string>
       </map>
       <key>expat</key>
       <map>
@@ -655,16 +655,6 @@
       </map>
       <key>freetype</key>
       <map>
-        <key>copyright</key>
-        <string>Copyright 2006, 2007, 2008, 2009, 2010 by David Turner, Robert Wilhelm, and Werner Lemberg.</string>
-        <key>description</key>
-        <string>Font rendering library</string>
-        <key>license</key>
-        <string>FreeType</string>
-        <key>license_file</key>
-        <string>LICENSES/freetype.txt</string>
-        <key>name</key>
-        <string>freetype</string>
         <key>platforms</key>
         <map>
           <key>darwin64</key>
@@ -724,8 +714,18 @@
             <string>windows64</string>
           </map>
         </map>
+        <key>license</key>
+        <string>FreeType</string>
+        <key>license_file</key>
+        <string>LICENSES/freetype.txt</string>
+        <key>copyright</key>
+        <string>Copyright 2006, 2007, 2008, 2009, 2010 by David Turner, Robert Wilhelm, and Werner Lemberg.</string>
         <key>version</key>
         <string>2.12.1.557becd</string>
+        <key>name</key>
+        <string>freetype</string>
+        <key>description</key>
+        <string>Font rendering library</string>
       </map>
       <key>glext</key>
       <map>
@@ -957,18 +957,6 @@
       </map>
       <key>icu4c</key>
       <map>
-        <key>canonical_repo</key>
-        <string>https://bitbucket.org/lindenlab/3p-icu4c</string>
-        <key>copyright</key>
-        <string>Copyright (c) 1995-2011 International Business Machines Corporation and others &lt;http://source.icu-project.org&gt;</string>
-        <key>description</key>
-        <string>ICU is a mature, widely used set of C/C++ and Java libraries providing Unicode and Globalization support for software applications. ICU is widely portable and gives applications the same results on all platforms and between C/C++ and Java software.</string>
-        <key>license</key>
-        <string>ICU, permissive non-copyleft free software license</string>
-        <key>license_file</key>
-        <string>LICENSES/icu.txt</string>
-        <key>name</key>
-        <string>icu4c</string>
         <key>platforms</key>
         <map>
           <key>darwin64</key>
@@ -1000,8 +988,20 @@
             <string>windows64</string>
           </map>
         </map>
+        <key>license</key>
+        <string>ICU, permissive non-copyleft free software license</string>
+        <key>license_file</key>
+        <string>LICENSES/icu.txt</string>
+        <key>copyright</key>
+        <string>Copyright (c) 1995-2011 International Business Machines Corporation and others &lt;http://source.icu-project.org&gt;</string>
         <key>version</key>
         <string>4.8.1-7d08d82</string>
+        <key>name</key>
+        <string>icu4c</string>
+        <key>canonical_repo</key>
+        <string>https://bitbucket.org/lindenlab/3p-icu4c</string>
+        <key>description</key>
+        <string>ICU is a mature, widely used set of C/C++ and Java libraries providing Unicode and Globalization support for software applications. ICU is widely portable and gives applications the same results on all platforms and between C/C++ and Java software.</string>
       </map>
       <key>jpegencoderbasic</key>
       <map>
@@ -1547,15 +1547,6 @@
       </map>
       <key>llca</key>
       <map>
-        <key>copyright</key>
-        <string>Copyright (c) 2016, Linden Research, Inc.; data provided by the Mozilla NSS Project.
-      </string>
-        <key>license</key>
-        <string>mit</string>
-        <key>license_file</key>
-        <string>LICENSES/ca-license.txt</string>
-        <key>name</key>
-        <string>llca</string>
         <key>platforms</key>
         <map>
           <key>common</key>
@@ -1573,8 +1564,17 @@
             <string>common</string>
           </map>
         </map>
+        <key>license</key>
+        <string>mit</string>
+        <key>license_file</key>
+        <string>LICENSES/ca-license.txt</string>
+        <key>copyright</key>
+        <string>Copyright (c) 2016, Linden Research, Inc.; data provided by the Mozilla NSS Project.
+      </string>
         <key>version</key>
         <string>202402012004.0</string>
+        <key>name</key>
+        <string>llca</string>
       </map>
       <key>llphysicsextensions_source</key>
       <map>
@@ -1932,18 +1932,6 @@
       </map>
       <key>nanosvg</key>
       <map>
-        <key>canonical_repo</key>
-        <string>https://bitbucket.org/lindenlab/3p-nanosvg</string>
-        <key>copyright</key>
-        <string>Copyright (c) 2013-14 Mikko Mononen</string>
-        <key>description</key>
-        <string>NanoSVG is a simple single-header-file SVG parser and rasterizer</string>
-        <key>license</key>
-        <string>Zlib</string>
-        <key>license_file</key>
-        <string>LICENSES/nanosvg.txt</string>
-        <key>name</key>
-        <string>nanosvg</string>
         <key>platforms</key>
         <map>
           <key>darwin64</key>
@@ -1983,8 +1971,20 @@
             <string>windows64</string>
           </map>
         </map>
+        <key>license</key>
+        <string>Zlib</string>
+        <key>license_file</key>
+        <string>LICENSES/nanosvg.txt</string>
+        <key>copyright</key>
+        <string>Copyright (c) 2013-14 Mikko Mononen</string>
         <key>version</key>
         <string>2022.09.27</string>
+        <key>name</key>
+        <string>nanosvg</string>
+        <key>canonical_repo</key>
+        <string>https://bitbucket.org/lindenlab/3p-nanosvg</string>
+        <key>description</key>
+        <string>NanoSVG is a simple single-header-file SVG parser and rasterizer</string>
       </map>
       <key>nghttp2</key>
       <map>
@@ -2403,11 +2403,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
               <key>creds</key>
               <string>github</string>
               <key>hash</key>
-              <string>cc7c5bf53f83cff81d874ad66394df0991bd432c</string>
+              <string>1e70b06fe6eb9796097010871b32d8e95167e373</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/3p-slvoice/releases/assets/108299352</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/gh/secondlife/3p-slvoice/slvoice-4.10.0000.32327.5fc3fe7c.5942f08-darwin64-5942f08.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2431,14 +2431,28 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
               <key>creds</key>
               <string>github</string>
               <key>hash</key>
-              <string>0c205371bb1731a9812b00556037729fdc057cbc</string>
+              <string>ddfb7c30d9756915e8b26f44e2ee3a69ee87fb9a</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/3p-slvoice/releases/assets/108299356</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/gh/secondlife/3p-slvoice/slvoice-4.10.0000.32327.5fc3fe7c.5942f08-windows64-5942f08.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>9d4f47ce6780e041899e12abe6418cc26a2a8594</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/gh/secondlife/3p-slvoice/slvoice-4.10.0000.32327.5fc3fe7c.5942f08-windows-5942f08.tar.zst</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
           </map>
         </map>
         <key>license</key>
@@ -2448,7 +2462,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>copyright</key>
         <string>2010 Vivox, including audio coding using Polycom¨ Siren14TM (ITU-T Rec. G.722.1 Annex C)</string>
         <key>version</key>
-        <string>4.10.0000.32327.5fc3fe7c.571099</string>
+        <string>4.10.0000.32327.5fc3fe7c.5942f08</string>
         <key>name</key>
         <string>slvoice</string>
         <key>description</key>
@@ -2694,16 +2708,6 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
       </map>
       <key>viewer-fonts</key>
       <map>
-        <key>copyright</key>
-        <string>Copyright 2016-2022 Brad Erickson CC-BY-4.0/MIT, Copyright 2016-2022 Twitter, Inc. CC-BY-4.0, Copyright 2013 Joe Loughry and Terence Eden MIT</string>
-        <key>description</key>
-        <string>Viewer fonts</string>
-        <key>license</key>
-        <string>Various open source</string>
-        <key>license_file</key>
-        <string>LICENSES/fonts.txt</string>
-        <key>name</key>
-        <string>viewer-fonts</string>
         <key>platforms</key>
         <map>
           <key>darwin64</key>
@@ -2731,8 +2735,18 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <string>windows64</string>
           </map>
         </map>
+        <key>license</key>
+        <string>Various open source</string>
+        <key>license_file</key>
+        <string>LICENSES/fonts.txt</string>
+        <key>copyright</key>
+        <string>Copyright 2016-2022 Brad Erickson CC-BY-4.0/MIT, Copyright 2016-2022 Twitter, Inc. CC-BY-4.0, Copyright 2013 Joe Loughry and Terence Eden MIT</string>
         <key>version</key>
         <string>1.579464</string>
+        <key>name</key>
+        <string>viewer-fonts</string>
+        <key>description</key>
+        <string>Viewer fonts</string>
       </map>
       <key>viewer-manager</key>
       <map>
@@ -3051,7 +3065,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>-DADDRESS_SIZE:STRING=$AUTOBUILD_ADDRSIZE</string>
                   <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
                   <string>-DINSTALL_PROPRIETARY=TRUE</string>
-                </array>
+</array>
               </map>
               <key>build</key>
               <map>
@@ -3071,11 +3085,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>-DADDRESS_SIZE:STRING=$AUTOBUILD_ADDRSIZE</string>
                   <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
-                </array>
+</array>
                 <key>arguments</key>
                 <array>
                   <string>../indra</string>
-                </array>
+</array>
               </map>
               <key>name</key>
               <string>RelWithDebInfoOS</string>
@@ -3092,7 +3106,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>-DADDRESS_SIZE:STRING=$AUTOBUILD_ADDRSIZE</string>
                   <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
                   <string>-DINSTALL_PROPRIETARY=TRUE</string>
-                </array>
+</array>
               </map>
               <key>build</key>
               <map>
@@ -3112,11 +3126,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>-DADDRESS_SIZE:STRING=$AUTOBUILD_ADDRSIZE</string>
                   <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
-                </array>
+</array>
                 <key>arguments</key>
                 <array>
                   <string>../indra</string>
-                </array>
+</array>
               </map>
               <key>name</key>
               <string>ReleaseOS</string>
@@ -3137,11 +3151,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                 <array>
                   <string>-G</string>
                   <string>Xcode</string>
-                </array>
+</array>
                 <key>arguments</key>
                 <array>
                   <string>../indra</string>
-                </array>
+</array>
               </map>
               <key>build</key>
               <map>
@@ -3154,7 +3168,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>-project</string>
                   <string>SecondLife.xcodeproj</string>
                   <string>-parallelizeTargets</string>
-                </array>
+</array>
               </map>
               <key>default</key>
               <string>True</string>
@@ -3169,7 +3183,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                 <array>
                   <string>-G</string>
                   <string>Xcode</string>
-                </array>
+</array>
               </map>
               <key>build</key>
               <map>
@@ -3182,7 +3196,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>-project</string>
                   <string>SecondLife.xcodeproj</string>
                   <string>-parallelizeTargets</string>
-                </array>
+</array>
               </map>
               <key>name</key>
               <string>RelWithDebInfoOS</string>
@@ -3195,11 +3209,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                 <array>
                   <string>-G</string>
                   <string>Xcode</string>
-                </array>
+</array>
                 <key>arguments</key>
                 <array>
                   <string>../indra</string>
-                </array>
+</array>
               </map>
               <key>build</key>
               <map>
@@ -3212,7 +3226,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>-project</string>
                   <string>SecondLife.xcodeproj</string>
                   <string>-parallelizeTargets</string>
-                </array>
+</array>
               </map>
               <key>name</key>
               <string>Release</string>
@@ -3225,7 +3239,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                 <array>
                   <string>-G</string>
                   <string>Xcode</string>
-                </array>
+</array>
               </map>
               <key>build</key>
               <map>
@@ -3238,7 +3252,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>-project</string>
                   <string>SecondLife.xcodeproj</string>
                   <string>-parallelizeTargets</string>
-                </array>
+</array>
               </map>
               <key>name</key>
               <string>ReleaseOS</string>
@@ -3262,11 +3276,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>-G</string>
                   <string>Ninja</string>
                   <string>-DLL_TESTS=Off</string>
-                </array>
+</array>
                 <key>arguments</key>
                 <array>
                   <string>../indra</string>
-                </array>
+</array>
               </map>
               <key>build</key>
               <map>
@@ -3287,7 +3301,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>-G</string>
                   <string>Ninja</string>
                   <string>-DLL_TESTS=Off</string>
-                </array>
+</array>
               </map>
               <key>build</key>
               <map>
@@ -3325,11 +3339,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>${AUTOBUILD_WIN_CMAKE_GEN|NOTWIN}</string>
                   <string>-A</string>
                   <string>${AUTOBUILD_WIN_VSPLATFORM|NOTWIN}</string>
-                </array>
+</array>
                 <key>arguments</key>
                 <array>
                   <string>..\indra</string>
-                </array>
+</array>
               </map>
               <key>build</key>
               <map>
@@ -3339,11 +3353,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                 <array>
                   <string>/build</string>
                   <string>RelWithDebInfo|${AUTOBUILD_WIN_VSPLATFORM|NOTWIN}</string>
-                </array>
+</array>
                 <key>arguments</key>
                 <array>
                   <string>SecondLife.sln</string>
-                </array>
+</array>
               </map>
               <key>default</key>
               <string>True</string>
@@ -3363,11 +3377,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                   <string>-DUSE_KDU=FALSE</string>
                   <string>-DUSE_OPENAL:BOOL=ON</string>
-                </array>
+</array>
                 <key>arguments</key>
                 <array>
                   <string>..\indra</string>
-                </array>
+</array>
               </map>
               <key>build</key>
               <map>
@@ -3381,11 +3395,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>/p:useenv=true</string>
                   <string>/verbosity:minimal</string>
                   <string>/p:VCBuildAdditionalOptions= /incremental</string>
-                </array>
+</array>
                 <key>arguments</key>
                 <array>
                   <string>SecondLife.sln</string>
-                </array>
+</array>
               </map>
               <key>name</key>
               <string>RelWithDebInfoOS</string>
@@ -3400,11 +3414,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>${AUTOBUILD_WIN_CMAKE_GEN|NOTWIN}</string>
                   <string>-A</string>
                   <string>${AUTOBUILD_WIN_VSPLATFORM|NOTWIN}</string>
-                </array>
+</array>
                 <key>arguments</key>
                 <array>
                   <string>..\indra</string>
-                </array>
+</array>
               </map>
               <key>build</key>
               <map>
@@ -3414,11 +3428,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                 <array>
                   <string>/build</string>
                   <string>Release|${AUTOBUILD_WIN_VSPLATFORM|NOTWIN}</string>
-                </array>
+</array>
                 <key>arguments</key>
                 <array>
                   <string>SecondLife.sln</string>
-                </array>
+</array>
               </map>
               <key>name</key>
               <string>Release</string>
@@ -3437,11 +3451,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                   <string>-DUSE_KDU=FALSE</string>
                   <string>-DUSE_OPENAL:BOOL=ON</string>
-                </array>
+</array>
                 <key>arguments</key>
                 <array>
                   <string>..\indra</string>
-                </array>
+</array>
               </map>
               <key>build</key>
               <map>
@@ -3455,11 +3469,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>/p:useenv=true</string>
                   <string>/verbosity:minimal</string>
                   <string>/p:VCBuildAdditionalOptions= /incremental</string>
-                </array>
+</array>
                 <key>arguments</key>
                 <array>
                   <string>SecondLife.sln</string>
-                </array>
+</array>
               </map>
               <key>name</key>
               <string>ReleaseOS</string>
