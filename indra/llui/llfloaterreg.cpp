@@ -281,15 +281,15 @@ bool LLFloaterReg::hideInstance(const std::string& name, const LLSD& key)
 bool LLFloaterReg::toggleInstance(const std::string& name, const LLSD& key)
 {
 	LLFloater* instance = findInstance(name, key); 
-	if (LLFloater::isShown(instance))
+	if (instance && instance->isShown())
 	{
 		instance->closeHostedFloater();
 		return false;
 	}
-	else
-	{
-		return showInstance(name, key, true) ? true : false;
-	}
+
+	instance = showInstance(name, key, true);
+
+	return instance != nullptr;
 }
 
 //static

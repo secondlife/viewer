@@ -100,9 +100,7 @@ public:
 	F32 getPixelAspectRatio() override;
 	void setNativeAspectRatio(F32 ratio) override { mOverrideAspectRatio = ratio; }
 
-	// query VRAM usage
-    /*virtual*/ U32 getAvailableVRAMMegabytes() override;
-    virtual void setMaxVRAMMegabytes(U32 max_vram) override { mMaxVRAM = max_vram; }
+    virtual void setMaxVRAMMegabytes(U32 max_vram) override {}
 
 	void beforeDialog() override;
 	void afterDialog() override;
@@ -226,7 +224,6 @@ protected:
 	bool		mMinimized;
 	U32			mFSAASamples;
 	bool		mForceRebuild;
-    U32			mMaxVRAM;
 	
 	S32	mDragOverrideCursor;
 

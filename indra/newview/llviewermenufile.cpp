@@ -451,7 +451,7 @@ const bool check_file_extension(const std::string& filename, LLFilePicker::ELoad
 		//and compare them to the extension of the file
 		//to be uploaded
 		for (token_iter = tokens.begin();
-			token_iter != tokens.end() && ext_valid != true;
+			token_iter != tokens.end() && !ext_valid;
 			++token_iter)
 		{
 			const std::string& cur_token = *token_iter;
@@ -464,7 +464,7 @@ const bool check_file_extension(const std::string& filename, LLFilePicker::ELoad
 			}
 		}//end for (loop over all tokens)
 
-		if (ext_valid == false)
+		if (!ext_valid)
 		{
 			//should only get here if the extension exists
 			//but is invalid

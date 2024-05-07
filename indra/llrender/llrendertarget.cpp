@@ -545,7 +545,7 @@ void LLRenderTarget::flush()
 
 bool LLRenderTarget::isComplete() const
 {
-    return (!mTex.empty() || mDepth) ? true : false;
+    return !mTex.empty() || mDepth;
 }
 
 void LLRenderTarget::getViewport(S32* viewport)

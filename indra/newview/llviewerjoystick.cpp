@@ -342,7 +342,7 @@ void LLViewerJoystick::init(bool autoenable)
 
     loadDeviceIdFromSettings();
 
-	if (libinit == false)
+	if (!libinit)
 	{
 		// Note: The HotPlug callbacks are not actually getting called on Windows
 		if (ndof_libinit(HotPlugAddCallback, 
@@ -401,10 +401,10 @@ void LLViewerJoystick::init(bool autoenable)
 	// Autoenable the joystick for recognized devices if nothing was connected previously
 	if (!autoenable)
 	{
-		autoenable = gSavedSettings.getString("JoystickInitialized").empty() ? true : false;
+		autoenable = gSavedSettings.getString("JoystickInitialized").empty();
 	}
 	updateEnabled(autoenable);
-	
+
 	if (mDriverState == JDS_INITIALIZED)
 	{
 		// A Joystick device is plugged in

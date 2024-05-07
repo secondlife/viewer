@@ -177,7 +177,7 @@ void LLFriendCardsManager::putAvatarData(const LLUUID& avatarID)
 	LL_INFOS() << "Store avatar data, avatarID: " << avatarID << LL_ENDL;
 	std::pair< avatar_uuid_set_t::iterator, bool > pr;
 	pr = mBuddyIDSet.insert(avatarID);
-	if (pr.second == false)
+	if (!pr.second)
 	{
 		LL_WARNS() << "Trying to add avatar UUID for the stored avatar: " 
 			<< avatarID

@@ -63,7 +63,7 @@ static U64 sTextureBytes = 0;
 
 // track a texture alloc on the currently bound texture.
 // asserts that no currently tracked alloc exists
-static void alloc_tex_image(U32 width, U32 height, U32 pixformat)
+void LLImageGLMemory::alloc_tex_image(U32 width, U32 height, U32 pixformat)
 {
     U32 texUnit = gGL.getCurrentTexUnitIndex();
     U32 texName = gGL.getTexUnit(texUnit)->getCurrTexture();
@@ -81,7 +81,7 @@ static void alloc_tex_image(U32 width, U32 height, U32 pixformat)
 }
 
 // track texture free on given texName
-static void free_tex_image(U32 texName)
+void LLImageGLMemory::free_tex_image(U32 texName)
 {
     sTexMemMutex.lock();
     auto iter = sTextureAllocs.find(texName);
@@ -98,7 +98,7 @@ static void free_tex_image(U32 texName)
 }
 
 // track texture free on given texNames
-static void free_tex_images(U32 count, const U32* texNames)
+void LLImageGLMemory::free_tex_images(U32 count, const U32* texNames)
 {
     for (int i = 0; i < count; ++i)
     {
@@ -107,12 +107,14 @@ static void free_tex_images(U32 count, const U32* texNames)
 }
 
 // track texture free on currently bound texture
-static void free_cur_tex_image()
+void LLImageGLMemory::free_cur_tex_image()
 {
     U32 texUnit = gGL.getCurrentTexUnitIndex();
     U32 texName = gGL.getTexUnit(texUnit)->getCurrTexture();
     free_tex_image(texName);
 }
+
+using namespace LLImageGLMemory;
 
 // static 
 U64 LLImageGL::getTextureBytesAllocated()
@@ -289,6 +291,8 @@ S32 LLImageGL::dataFormatBits(S32 dataformat)
     case GL_SRGB_ALPHA:						        return 32;
     case GL_BGRA:								    return 32;		// Used for QuickTime media textures on the Mac
     case GL_DEPTH_COMPONENT:                        return 24;
+    case GL_RGB16F:                                 return 48;
+    case GL_RGBA16F:                                return 64;
     default:
         LL_ERRS() << "LLImageGL::Unknown format: " << dataformat << LL_ENDL;
         return 0;
@@ -2432,7 +2436,7 @@ bool LLImageGL::getMask(const LLVector2 &tc)
 		S32 idx = y*mPickMaskWidth+x;
 		S32 offset = idx%8;
 
-		res = mPickMask[idx/8] & (1 << offset) ? true : false;
+		res = (mPickMask[idx/8] & (1 << offset)) != 0;
 	}
 	
 	return res;

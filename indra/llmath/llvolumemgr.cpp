@@ -71,7 +71,7 @@ bool LLVolumeMgr::cleanup()
 		 iter != end; iter++)
 	{
 		LLVolumeLODGroup *volgroupp = iter->second;
-		if (volgroupp->cleanupRefs() == false)
+		if (!volgroupp->cleanupRefs())
 		{
 			no_refs = false;
 		}

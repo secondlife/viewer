@@ -444,82 +444,50 @@ public:
 
 
 	// more accessors
-	U32		getParcelFlags() const			{ return mParcelFlags; }
+	U32		getParcelFlags() const { return mParcelFlags; }
 
-	bool	getParcelFlag(U32 flag) const
-					{ return (mParcelFlags & flag) ? true : false; }
+	bool	getParcelFlag(U32 flag) const { return (mParcelFlags & flag) != 0; }
 
 	// objects can be added or modified by anyone (only parcel owner if disabled)
-	bool	getAllowModify() const
-					{ return (mParcelFlags & PF_CREATE_OBJECTS) ? true : false; }
+	bool	getAllowModify() const                     { return getParcelFlag(PF_CREATE_OBJECTS); }
 
 	// objects can be added or modified by group members
-	bool	getAllowGroupModify() const
-					{ return (mParcelFlags & PF_CREATE_GROUP_OBJECTS) ? true : false; }
+	bool	getAllowGroupModify() const                { return getParcelFlag(PF_CREATE_GROUP_OBJECTS); }
 
 	// the parcel can be deeded to the group
-	bool	getAllowDeedToGroup() const
-					{ return (mParcelFlags & PF_ALLOW_DEED_TO_GROUP) ? true : false; }
+	bool	getAllowDeedToGroup() const                { return getParcelFlag(PF_ALLOW_DEED_TO_GROUP); }
 
 	// Does the owner want to make a contribution along with the deed.
-	bool getContributeWithDeed() const
-	{ return (mParcelFlags & PF_CONTRIBUTE_WITH_DEED) ? true : false; }
+	bool	getContributeWithDeed() const              { return getParcelFlag(PF_CONTRIBUTE_WITH_DEED); }
 
 	// heightfield can be modified
-	bool	getAllowTerraform() const
-					{ return (mParcelFlags & PF_ALLOW_TERRAFORM) ? true : false; }
+	bool	getAllowTerraform() const                  { return getParcelFlag(PF_ALLOW_TERRAFORM); }
 
 	// avatars can be hurt here
-	bool	getAllowDamage() const
-					{ return (mParcelFlags & PF_ALLOW_DAMAGE) ? true : false; }
+	bool	getAllowDamage() const                     { return getParcelFlag(PF_ALLOW_DAMAGE); }
 
-	bool	getAllowFly() const
-					{ return (mParcelFlags & PF_ALLOW_FLY) ? true : false; }
+	bool	getAllowFly() const                        { return getParcelFlag(PF_ALLOW_FLY); }
+	bool	getAllowGroupScripts() const               { return getParcelFlag(PF_ALLOW_GROUP_SCRIPTS); }
+	bool	getAllowOtherScripts() const               { return getParcelFlag(PF_ALLOW_OTHER_SCRIPTS); }
+	bool	getAllowAllObjectEntry() const             { return getParcelFlag(PF_ALLOW_ALL_OBJECT_ENTRY); }
+	bool	getAllowGroupObjectEntry() const           { return getParcelFlag(PF_ALLOW_GROUP_OBJECT_ENTRY); }
+	bool	getForSale() const                         { return getParcelFlag(PF_FOR_SALE); }
+	bool	getSoundLocal() const                      { return getParcelFlag(PF_SOUND_LOCAL); }
+	bool	getParcelFlagAllowVoice() const            { return getParcelFlag(PF_ALLOW_VOICE_CHAT); }
+	bool	getParcelFlagUseEstateVoiceChannel() const { return getParcelFlag(PF_USE_ESTATE_VOICE_CHAN); }
+	bool	getAllowPublish() const                    { return getParcelFlag(PF_ALLOW_PUBLISH); }
+	bool	getMaturePublish() const                   { return getParcelFlag(PF_MATURE_PUBLISH); }
+	bool	getRestrictPushObject() const              { return getParcelFlag(PF_RESTRICT_PUSHOBJECT); }
 
-	bool	getAllowGroupScripts() const
-					{ return (mParcelFlags & PF_ALLOW_GROUP_SCRIPTS) ? true : false; }
-
-	bool	getAllowOtherScripts() const
-					{ return (mParcelFlags & PF_ALLOW_OTHER_SCRIPTS) ? true : false; }
-
-	bool	getAllowAllObjectEntry() const
-					{ return (mParcelFlags & PF_ALLOW_ALL_OBJECT_ENTRY) ? true : false; }
-
-	bool	getAllowGroupObjectEntry() const
-					{ return (mParcelFlags & PF_ALLOW_GROUP_OBJECT_ENTRY) ? true : false; }
-
-	bool	getForSale() const
-					{ return (mParcelFlags & PF_FOR_SALE) ? true : false; }
-	bool	getSoundLocal() const
-					{ return (mParcelFlags & PF_SOUND_LOCAL) ? true : false; }
-	bool	getParcelFlagAllowVoice() const
-					{ return (mParcelFlags & PF_ALLOW_VOICE_CHAT) ? true : false; }
-	bool	getParcelFlagUseEstateVoiceChannel() const
-					{ return (mParcelFlags & PF_USE_ESTATE_VOICE_CHAN) ? true : false; }
-	bool	getAllowPublish() const
-					{ return (mParcelFlags & PF_ALLOW_PUBLISH) ? true : false; }
-	bool	getMaturePublish() const
-					{ return (mParcelFlags & PF_MATURE_PUBLISH) ? true : false; }
-	bool	getRestrictPushObject() const
-					{ return (mParcelFlags & PF_RESTRICT_PUSHOBJECT) ? true : false; }
-	bool	getRegionPushOverride() const
-					{ return mRegionPushOverride; }
-	bool	getRegionDenyAnonymousOverride() const
-					{ return mRegionDenyAnonymousOverride; }
-	bool	getRegionDenyAgeUnverifiedOverride() const
-					{ return mRegionDenyAgeUnverifiedOverride; }
-    bool    getRegionAllowAccessOverride() const
-                    { return mRegionAllowAccessoverride; }
-    bool    getRegionAllowEnvironmentOverride() const
-                    { return mRegionAllowEnvironmentOverride; }
-    S32     getParcelEnvironmentVersion() const 
-                    { return mCurrentEnvironmentVersion; }
-
-
-	bool	getAllowGroupAVSounds()	const	{ return mAllowGroupAVSounds;	}
-	bool	getAllowAnyAVSounds()	const	{ return mAllowAnyAVSounds;		}
- 
-    bool    getObscureMOAP() const { return mObscureMOAP; }
+	bool	getRegionPushOverride() const              { return mRegionPushOverride; }
+	bool	getRegionDenyAnonymousOverride() const     { return mRegionDenyAnonymousOverride; }
+	bool	getRegionDenyAgeUnverifiedOverride() const { return mRegionDenyAgeUnverifiedOverride; }
+    bool    getRegionAllowAccessOverride() const       { return mRegionAllowAccessoverride; }
+    bool    getRegionAllowEnvironmentOverride() const  { return mRegionAllowEnvironmentOverride; }
+    S32     getParcelEnvironmentVersion() const        { return mCurrentEnvironmentVersion; }
+	bool	getAllowGroupAVSounds() const              { return mAllowGroupAVSounds; }
+	bool	getAllowAnyAVSounds() const	               { return mAllowAnyAVSounds; }
+	bool	getObscureMOAP() const                     { return mObscureMOAP; }
 
 	F32		getDrawDistance() const			{ return mDrawDistance; }
 	S32		getSalePrice() const			{ return mSalePrice; }
@@ -597,7 +565,7 @@ public:
 
 	LLUUID	getPreviousOwnerID() const		{ return mPreviousOwnerID; }
 	bool	getPreviouslyGroupOwned() const	{ return mPreviouslyGroupOwned; }
-	bool	getSellWithObjects() const		{ return (mParcelFlags & PF_SELL_PARCEL_OBJECTS) ? true : false; }
+	bool	getSellWithObjects() const		{ return getParcelFlag(PF_SELL_PARCEL_OBJECTS); }
 
 protected:
 	LLUUID mID;

@@ -1188,16 +1188,16 @@ void LLMenuItemBranchGL::updateBranchParent(LLView* parentp)
 	}
 }
 
-void LLMenuItemBranchGL::onVisibilityChange( bool new_visibility )
+void LLMenuItemBranchGL::onVisibilityChange(bool new_visibility)
 {
-	if (new_visibility == false && getBranch() && !getBranch()->getTornOff())
+	if (!new_visibility && getBranch() && !getBranch()->getTornOff())
 	{
 		getBranch()->setVisible(false);
 	}
 	LLMenuItemGL::onVisibilityChange(new_visibility);
 }
 
-bool LLMenuItemBranchGL::handleKeyHere( KEY key, MASK mask )
+bool LLMenuItemBranchGL::handleKeyHere(KEY key, MASK mask)
 {
 	LLMenuGL* branch = getBranch();
 	if (!branch)

@@ -949,8 +949,8 @@ void LLTeleportHistoryPanel::onAccordionTabRightClick(LLView *view, S32 x, S32 y
 	mAccordionTabMenu = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>(
 		"menu_teleport_history_tab.xml", LLMenuGL::sMenuContainer, LLViewerMenuHolderGL::child_registry_t::instance());
 
-	mAccordionTabMenu->setItemVisible("TabOpen", !tab->isExpanded() ? true : false);
-	mAccordionTabMenu->setItemVisible("TabClose", tab->isExpanded() ? true : false);
+	mAccordionTabMenu->setItemVisible("TabOpen", !tab->isExpanded());
+	mAccordionTabMenu->setItemVisible("TabClose", tab->isExpanded());
 
 	mAccordionTabMenu->show(x, y);
 	LLMenuGL::showPopup(tab, mAccordionTabMenu, x, y);

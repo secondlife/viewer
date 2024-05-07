@@ -2000,7 +2000,7 @@ void LLPanelFace::updateUIGLTF(LLViewerObject* objectp, bool& has_pbr_material, 
     {
         LLSelectedTE::getPbrMaterialId(pbr_id, identical_pbr, has_pbr_material, has_faces_without_pbr);
 
-        pbr_ctrl->setTentative(identical_pbr ? false : true);
+        pbr_ctrl->setTentative(!identical_pbr);
         pbr_ctrl->setEnabled(settable);
         pbr_ctrl->setImageAssetID(pbr_id);
 

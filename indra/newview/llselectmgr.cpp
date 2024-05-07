@@ -1871,7 +1871,7 @@ bool LLSelectMgr::selectionSetImage(const LLUUID& imageid)
             if (mItem && objectp->isAttachment())
             {
                 const LLPermissions& perm = mItem->getPermissions();
-                bool unrestricted = ((perm.getMaskBase() & PERM_ITEM_UNRESTRICTED) == PERM_ITEM_UNRESTRICTED) ? true : false;
+                bool unrestricted = (perm.getMaskBase() & PERM_ITEM_UNRESTRICTED) == PERM_ITEM_UNRESTRICTED;
                 if (!unrestricted)
                 {
                     // Attachments are in world and in inventory simultaneously,
@@ -2299,6 +2299,7 @@ void LLSelectMgr::selectionSetBumpmap(U8 bumpmap, const LLUUID &image_id)
         LL_WARNS() << "Attempted to apply no-copy texture to multiple objects" << LL_ENDL;
         return;
     }
+
     if (item && !item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID()))
     {
         LLViewerObject *object = mSelectedObjects->getFirstRootObject();
@@ -2307,7 +2308,7 @@ void LLSelectMgr::selectionSetBumpmap(U8 bumpmap, const LLUUID &image_id)
             return;
         }
         const LLPermissions& perm = item->getPermissions();
-        bool unrestricted = ((perm.getMaskBase() & PERM_ITEM_UNRESTRICTED) == PERM_ITEM_UNRESTRICTED) ? true : false;
+        bool unrestricted = (perm.getMaskBase() & PERM_ITEM_UNRESTRICTED) == PERM_ITEM_UNRESTRICTED;
         bool attached = object->isAttachment();
         if (attached && !unrestricted)
         {
@@ -2318,7 +2319,7 @@ void LLSelectMgr::selectionSetBumpmap(U8 bumpmap, const LLUUID &image_id)
         LLToolDragAndDrop::handleDropMaterialProtections(object, item, LLToolDragAndDrop::SOURCE_AGENT, LLUUID::null);
     }
     getSelection()->applyToTEs(&setfunc);
-	
+
 	LLSelectMgrSendFunctor sendfunc;
 	getSelection()->applyToObjects(&sendfunc);
 }
@@ -2371,6 +2372,7 @@ void LLSelectMgr::selectionSetShiny(U8 shiny, const LLUUID &image_id)
         LL_WARNS() << "Attempted to apply no-copy texture to multiple objects" << LL_ENDL;
         return;
     }
+
     if (item && !item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID()))
     {
         LLViewerObject *object = mSelectedObjects->getFirstRootObject();
@@ -2379,7 +2381,7 @@ void LLSelectMgr::selectionSetShiny(U8 shiny, const LLUUID &image_id)
             return;
         }
         const LLPermissions& perm = item->getPermissions();
-        bool unrestricted = ((perm.getMaskBase() & PERM_ITEM_UNRESTRICTED) == PERM_ITEM_UNRESTRICTED) ? true : false;
+        bool unrestricted = (perm.getMaskBase() & PERM_ITEM_UNRESTRICTED) == PERM_ITEM_UNRESTRICTED;
         bool attached = object->isAttachment();
         if (attached && !unrestricted)
         {
@@ -3883,7 +3885,7 @@ bool LLSelectMgr::selectIsGroupOwned()
 	LLSelectGetFirstGroupOwner test;
 	getFirst(&test);
 
-	return test.mFirstValue.notNull() ? true : false;
+	return test.mFirstValue.notNull();
 }
 
 //-----------------------------------------------------------------------------
@@ -6970,7 +6972,7 @@ bool LLSelectNode::allowOperationOnNode(PermissionBit op, U64 group_proxy_power)
 	if (PERM_OWNER == op)
 	{
 		// This this was just a check for ownership, we can now return the answer.
-		return (proxy_agent_id == object_owner_id ? true : false);
+		return proxy_agent_id == object_owner_id;
 	}
 
 	// check permissions to see if the agent can operate
@@ -8045,7 +8047,7 @@ bool LLObjectSelection::checkAnimatedObjectLinkable()
 
 bool LLObjectSelection::applyToRootObjects(LLSelectedObjectFunctor* func, bool firstonly)
 {
-	bool result = firstonly ? false : true;
+	bool result = !firstonly;
 	for (root_iterator iter = root_begin(); iter != root_end(); )
 	{
 		root_iterator nextiter = iter++;
@@ -8063,7 +8065,7 @@ bool LLObjectSelection::applyToRootObjects(LLSelectedObjectFunctor* func, bool f
 
 bool LLObjectSelection::applyToTEs(LLSelectedTEFunctor* func, bool firstonly)
 {
-	bool result = firstonly ? false : true;
+	bool result = !firstonly;
 	for (iterator iter = begin(); iter != end(); )
 	{
 		iterator nextiter = iter++;
@@ -8089,7 +8091,7 @@ bool LLObjectSelection::applyToTEs(LLSelectedTEFunctor* func, bool firstonly)
 
 bool LLObjectSelection::applyToNodes(LLSelectedNodeFunctor *func, bool firstonly)
 {
-	bool result = firstonly ? false : true;
+	bool result = !firstonly;
 	for (iterator iter = begin(); iter != end(); )
 	{
 		iterator nextiter = iter++;
@@ -8105,7 +8107,7 @@ bool LLObjectSelection::applyToNodes(LLSelectedNodeFunctor *func, bool firstonly
 
 bool LLObjectSelection::applyToRootNodes(LLSelectedNodeFunctor *func, bool firstonly)
 {
-	bool result = firstonly ? false : true;
+	bool result = !firstonly;
 	for (root_iterator iter = root_begin(); iter != root_end(); )
 	{
 		root_iterator nextiter = iter++;

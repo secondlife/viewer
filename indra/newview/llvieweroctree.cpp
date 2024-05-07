@@ -760,7 +760,7 @@ bool LLViewerOctreeGroup::boundObjects(bool empty, LLVector4a& minOut, LLVector4
 //virtual 
 bool LLViewerOctreeGroup::isVisible() const
 {
-	return mVisible[LLViewerCamera::sCurCameraID] >= LLViewerOctreeEntryData::getCurrentFrame() ? true : false;
+	return mVisible[LLViewerCamera::sCurCameraID] >= LLViewerOctreeEntryData::getCurrentFrame();
 }
 
 //virtual 
@@ -888,7 +888,7 @@ LLOcclusionCullingGroup::~LLOcclusionCullingGroup()
 
 bool LLOcclusionCullingGroup::needsUpdate()
 {
-	return (LLDrawable::getCurrentFrame() % mSpatialPartition->mLODPeriod == mLODHash) ? true : false;
+	return LLDrawable::getCurrentFrame() % mSpatialPartition->mLODPeriod == mLODHash;
 }
 
 bool LLOcclusionCullingGroup::isRecentlyVisible() const
@@ -906,7 +906,7 @@ bool LLOcclusionCullingGroup::isAnyRecentlyVisible() const
 //virtual 
 void LLOcclusionCullingGroup::handleChildAddition(const OctreeNode* parent, OctreeNode* child)
 {
-	if (child->getListenerCount() == 0)
+	if (!child->hasListeners())
 	{
 		new LLOcclusionCullingGroup(child, mSpatialPartition);
 	}

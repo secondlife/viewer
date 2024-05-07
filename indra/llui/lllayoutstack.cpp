@@ -136,7 +136,7 @@ S32 LLLayoutPanel::getVisibleDim() const
 					* (min_dim
 						+ (((F32)mTargetDim - min_dim) * (1.f - mCollapseAmt))));
 }
- 
+
 void LLLayoutPanel::setOrientation( LLView::EOrientation orientation )
 {
 	mOrientation = orientation;
@@ -144,9 +144,7 @@ void LLLayoutPanel::setOrientation( LLView::EOrientation orientation )
 		? getRect().getWidth()
 		: getRect().getHeight()));
 
-	if (mAutoResize == false 
-		&& mUserResize == true 
-		&& mMinDim == -1 )
+	if (!mAutoResize && mUserResize && mMinDim == -1)
 	{
 		setMinDim(layout_dim);
 	}
@@ -170,7 +168,7 @@ void LLLayoutPanel::reshape( S32 width, S32 height, bool called_from_parent /*= 
 {
 	if (width == getRect().getWidth() && height == getRect().getHeight() && !LLView::sForceReshape) return;
 
-	if (!mIgnoreReshape && mAutoResize == false)
+	if (!mIgnoreReshape && !mAutoResize)
 	{
 		mTargetDim = (mOrientation == LLLayoutStack::HORIZONTAL) ? width : height;
 		LLLayoutStack* stackp = dynamic_cast<LLLayoutStack*>(getParent());

@@ -87,19 +87,19 @@ public:
 	LLUUID				mID;
 	LLCacheNameSignal	mSignal;
 	LLHost				mHost;
-	
+
 	PendingReply(const LLUUID& id, const LLHost& host)
 		: mID(id), mHost(host)
 	{
 	}
-	
+
 	boost::signals2::connection setCallback(const LLCacheNameCallback& cb)
 	{
 		return mSignal.connect(cb);
 	}
-	
+
 	void done()			{ mID.setNull(); }
-	bool isDone() const	{ return mID.isNull() != false; }
+	bool isDone() const	{ return mID.isNull(); }
 };
 
 class ReplySender

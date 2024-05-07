@@ -342,11 +342,11 @@ void LLView::removeChild(LLView* child)
 	if (child->mParentView == this) 
 	{
 		// if we are removing an item we are currently iterating over, that would be bad
-		llassert(child->mInDraw == false);
+		llassert(!child->mInDraw);
 		mChildList.remove( child );
 		child->mParentView = NULL;
 		child_tab_order_t::iterator found = mTabOrder.find(child);
-		if(found != mTabOrder.end())
+		if (found != mTabOrder.end())
 		{
 			mTabOrder.erase(found);
 		}

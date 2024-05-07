@@ -1,3 +1,4 @@
+
 /** 
  * @file llviewertexture.cpp
  * @brief Object which handles a received image (and associated texture(s))
@@ -471,60 +472,9 @@ void LLViewerTexture::initClass()
 	LLImageGL::sDefaultGLTexture = LLViewerFetchedTexture::sDefaultImagep->getGLTexture();
 }
 
-// tuning params
-const F32 GPU_MEMORY_CHECK_WAIT_TIME = 1.0f;
 // non-const (used externally
 F32 texmem_lower_bound_scale = 0.85f;
 F32 texmem_middle_bound_scale = 0.925f;
-
-//static 
-bool LLViewerTexture::isMemoryForTextureLow()
-{
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
-    // Note: we need to figure out a better source for 'min' values,
-    // what is free for low end at minimal settings is 'nothing left'
-    // for higher end gpus at high settings.
-    const S32Megabytes MIN_FREE_TEXTURE_MEMORY(20);
-    const S32Megabytes MIN_FREE_MAIN_MEMORY(100);
-
-    S32Megabytes gpu;
-    S32Megabytes physical;
-    getGPUMemoryForTextures(gpu, physical);
-
-    return (gpu < MIN_FREE_TEXTURE_MEMORY); // || (physical < MIN_FREE_MAIN_MEMORY);
-}
-
-//static
-void LLViewerTexture::getGPUMemoryForTextures(S32Megabytes &gpu, S32Megabytes &physical)
-{
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
-    static LLFrameTimer timer;
-
-    static S32Megabytes gpu_res = S32Megabytes(S32_MAX);
-    static S32Megabytes physical_res = S32Megabytes(S32_MAX);
-    
-    if (timer.getElapsedTimeF32() < GPU_MEMORY_CHECK_WAIT_TIME) //call this once per second.
-    {
-        gpu = gpu_res;
-        physical = physical_res;
-        return;
-    }
-    timer.reset();
-
-    {
-        // For purposes of texture memory need to check both, actual free
-        // memory and estimated free texture memory from bias calculations
-        U32 free_memory = llmin(gViewerWindow->getWindow()->getAvailableVRAMMegabytes(), (U32)sFreeVRAMMegabytes);
-        gpu_res = (S32Megabytes)free_memory;
-        
-        //check main memory, only works for windows and macos.
-        LLMemory::updateMemoryInfo();
-        physical_res = LLMemory::getAvailableMemKB();
-
-        gpu = gpu_res;
-        physical = physical_res;
-    }
-}
 
 //static
 void LLViewerTexture::updateClass()
@@ -544,10 +494,11 @@ void LLViewerTexture::updateClass()
 
 	F64 texture_bytes_alloc = LLImageGL::getTextureBytesAllocated() / 1024.0 / 512.0;
 	F64 vertex_bytes_alloc = LLVertexBuffer::getBytesAllocated() / 1024.0 / 512.0;
+    F64 render_bytes_alloc = LLRenderTarget::sBytesAllocated / 1024.0 / 512.0;
 
     // get an estimate of how much video memory we're using 
     // NOTE: our metrics miss about half the vram we use, so this biases high but turns out to typically be within 5% of the real number
-	F32 used = (F32)ll_round(texture_bytes_alloc + vertex_bytes_alloc);
+	F32 used = (F32)ll_round(texture_bytes_alloc + vertex_bytes_alloc + render_bytes_alloc);
     
     F32 budget = max_vram_budget == 0 ? gGLManager.mVRAM : max_vram_budget;
 
@@ -2132,7 +2083,7 @@ bool LLViewerFetchedTexture::updateFetch()
 		}
 	}
 	
-	return mIsFetching ? true : false;
+	return mIsFetching;
 }
 
 void LLViewerFetchedTexture::clearFetchedResults()
@@ -2586,7 +2537,7 @@ bool LLViewerFetchedTexture::doLoadedCallbacks()
 				{
 					LL_WARNS() << "Raw Image with no Aux Data for callback" << LL_ENDL;
 				}
-				bool final = mRawDiscardLevel <= entryp->mDesiredDiscard ? true : false;
+				bool final = mRawDiscardLevel <= entryp->mDesiredDiscard;
 				//LL_INFOS() << "Running callback for " << getID() << LL_ENDL;
 				//LL_INFOS() << mRawImage->getWidth() << "x" << mRawImage->getHeight() << LL_ENDL;
 				entryp->mLastUsedDiscard = mRawDiscardLevel;
@@ -2617,7 +2568,7 @@ bool LLViewerFetchedTexture::doLoadedCallbacks()
 			if (!entryp->mNeedsImageRaw && (entryp->mLastUsedDiscard > gl_discard))
 			{
 				mLastCallBackActiveTime = sCurrentTime;
-				bool final = gl_discard <= entryp->mDesiredDiscard ? true : false;
+				bool final = gl_discard <= entryp->mDesiredDiscard;
 				entryp->mLastUsedDiscard = gl_discard;
 				entryp->mCallback(true, this, NULL, NULL, gl_discard, final, entryp->mUserData);
 				if (final)

@@ -229,7 +229,7 @@ bool LLUrlEntryBase::isWikiLinkCorrect(const std::string &labeled_url) const
         label = "http://" + label;
     }
 
-	return (LLUrlRegistry::instance().hasUrl(label)) ? false : true;
+	return !LLUrlRegistry::instance().hasUrl(label);
 }
 
 std::string LLUrlEntryBase::urlToLabelWithGreyQuery(const std::string &url) const

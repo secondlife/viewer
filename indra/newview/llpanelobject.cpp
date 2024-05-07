@@ -1766,30 +1766,39 @@ void LLPanelObject::sendSculpt()
 	LLUUID sculpt_id = LLUUID::null;
 
 	if (mCtrlSculptTexture)
+	{
 		sculpt_id = mCtrlSculptTexture->getImageAssetID();
+	}
 
 	U8 sculpt_type = 0;
 	
 	if (mCtrlSculptType)
+	{
 		sculpt_type |= mCtrlSculptType->getValue().asInteger();
+	}
 
 	bool enabled = sculpt_type != LL_SCULPT_TYPE_MESH;
 
 	if (mCtrlSculptMirror)
 	{
-		mCtrlSculptMirror->setEnabled(enabled ? true : false);
+		mCtrlSculptMirror->setEnabled(enabled);
 	}
+
 	if (mCtrlSculptInvert)
 	{
-		mCtrlSculptInvert->setEnabled(enabled ? true : false);
+		mCtrlSculptInvert->setEnabled(enabled);
 	}
-	
+
 	if ((mCtrlSculptMirror) && (mCtrlSculptMirror->get()))
+	{
 		sculpt_type |= LL_SCULPT_FLAG_MIRROR;
+	}
 
 	if ((mCtrlSculptInvert) && (mCtrlSculptInvert->get()))
+	{
 		sculpt_type |= LL_SCULPT_FLAG_INVERT;
-	
+	}
+
 	sculpt_params.setSculptTexture(sculpt_id, sculpt_type);
 	mObject->setParameterEntry(LLNetworkData::PARAMS_SCULPT, sculpt_params, true);
 }
