@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  can_minimize="false"
- can_resize="false"
+ can_resize="true"
  can_close="true"
  bevel_style="in"
  height="220"
@@ -14,7 +14,7 @@
     <text
      type="string"
      length="1"
-     follows="left|bottom"
+     follows="left|top"
      font="SansSerif"
      height="30"
      layout="topleft"
@@ -26,7 +26,7 @@
       LUA string:
     </text>
     <check_box
-     follows="left|bottom"
+     follows="right|top"
      height="15"
      label="Use clean lua_State"
      layout="topleft"
@@ -37,7 +37,7 @@
     <line_editor
      border_style="line"
      border_thickness="1"
-     follows="left|bottom"
+     follows="left|top|right"
      font="SansSerif"
      height="20"
      layout="topleft"
@@ -48,7 +48,7 @@
      top_delta="30"
      width="435" />
     <button
-     follows="left|bottom"
+     follows="right|top"
      height="25"
      label="Execute"
      layout="topleft"
@@ -63,7 +63,7 @@
      height="95"
      layout="topleft"
      name="result_text"
-     follows="left|top"
+     follows="all"
      max_length="65536" 
      width="515"
      top_delta="40"
@@ -85,7 +85,7 @@
      border_style="line"
      enabled="false"
      border_thickness="1"
-     follows="left|bottom"
+     follows="left|bottom|right"
      font="SansSerif"
      height="20"
      layout="topleft"
@@ -96,7 +96,7 @@
      top_delta="-2"
      width="320" />
     <button
-     follows="left|bottom"
+     follows="right|bottom"
      height="25"
      label="Browse..."
      label_selected="Browse..."
@@ -106,7 +106,7 @@
      top_delta="-2"
      width="70" />
     <button
-     follows="left|bottom"
+     follows="right|bottom"
      height="25"
      label="Run"
      label_selected="Run"

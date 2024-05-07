@@ -1,6 +1,6 @@
 leap = require 'leap'
 
-function check_response(res)
+local function check_response(res)
   if res.error then
     error(res.error)
   end
