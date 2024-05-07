@@ -165,17 +165,17 @@ public:
 		LLModel* low,
 		LLModel* imposotr,
 		const LLModel::Decomposition& decomp,
-		BOOL upload_skin,
-		BOOL upload_joints,
-        BOOL lock_scale_if_joint_position,
-		BOOL nowrite = FALSE,
-		BOOL as_slm = FALSE,
+		bool upload_skin,
+		bool upload_joints,
+        bool lock_scale_if_joint_position,
+		bool nowrite = false,
+		bool as_slm = false,
 		int submodel_id = 0);
 
 	static LLSD writeModelToStream(
 		std::ostream& ostr,
 		LLSD& mdl,
-		BOOL nowrite = FALSE, BOOL as_slm = FALSE);
+		bool nowrite = false, bool as_slm = false);
 	
 	void ClearFacesAndMaterials() { mVolumeFaces.clear(); mMaterialList.clear(); }
 

@@ -60,7 +60,7 @@ LLFloaterURLEntry::~LLFloaterURLEntry()
 	sInstance = NULL;
 }
 
-BOOL LLFloaterURLEntry::postBuild()
+bool LLFloaterURLEntry::postBuild()
 {
 	mMediaURLEdit = getChild<LLComboBox>("media_entry");
 
@@ -80,7 +80,7 @@ BOOL LLFloaterURLEntry::postBuild()
 	setDefaultBtn("ok_btn");
 	buildURLHistory();
 
-	return TRUE;
+	return true;
 }
 void LLFloaterURLEntry::buildURLHistory()
 {

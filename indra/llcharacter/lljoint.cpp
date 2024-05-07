@@ -105,10 +105,10 @@ void LLJoint::init()
 {
 	mName = "unnamed";
 	mParent = NULL;
-	mXform.setScaleChildOffset(TRUE);
+	mXform.setScaleChildOffset(true);
 	mXform.setScale(LLVector3(1.0f, 1.0f, 1.0f));
 	mDirtyFlags = MATRIX_DIRTY | ROTATION_DIRTY | POSITION_DIRTY;
-	mUpdateXform = TRUE;
+	mUpdateXform = true;
     mSupport = SUPPORT_BASE;
     mEnd = LLVector3(0.0f, 0.0f, 0.0f);
 }
@@ -135,7 +135,7 @@ LLJoint::LLJoint(const std::string &name, LLJoint *parent) :
 	mJointNum(-2)
 {
 	init();
-	mUpdateXform = FALSE;
+	mUpdateXform = false;
 
 	setName(name);
 	if (parent)
@@ -996,7 +996,7 @@ void LLJoint::updateWorldMatrix()
 	if (mDirtyFlags & MATRIX_DIRTY)
 	{
 		sNumUpdates++;
-		mXform.updateMatrix(FALSE);
+		mXform.updateMatrix(false);
         mWorldMatrix.loadu(mXform.getWorldMatrix());
 		mDirtyFlags = 0x0;
 	}

@@ -64,7 +64,7 @@ using std::pair;
 using std::make_pair;
 using std::string;
 
-BOOL				LLViewerShaderMgr::sInitialized = FALSE;
+bool				LLViewerShaderMgr::sInitialized = false;
 bool				LLViewerShaderMgr::sSkipReload = false;
 
 LLVector4			gShinyOrigin;
@@ -505,7 +505,7 @@ void LLViewerShaderMgr::setShaders()
 
     gPipeline.mShadersLoaded = true;
 
-    BOOL loaded = loadShadersWater();
+    bool loaded = loadShadersWater();
 
     if (loaded)
     {
@@ -652,7 +652,7 @@ std::string LLViewerShaderMgr::loadBasicShaders()
 	attribs["MAX_JOINTS_PER_MESH_OBJECT"] = 
 		std::to_string(LLSkinningUtil::getMaxJointCount());
 
-    BOOL ssr = gSavedSettings.getBOOL("RenderScreenSpaceReflections");
+    bool ssr = gSavedSettings.getBOOL("RenderScreenSpaceReflections");
 
 	bool has_reflection_probes = gSavedSettings.getBOOL("RenderReflectionsEnabled") && gGLManager.mGLVersion > 3.99f;
 
@@ -749,11 +749,11 @@ std::string LLViewerShaderMgr::loadBasicShaders()
 	return std::string();
 }
 
-BOOL LLViewerShaderMgr::loadShadersWater()
+bool LLViewerShaderMgr::loadShadersWater()
 {
     LL_PROFILE_ZONE_SCOPED;
-	BOOL success = TRUE;
-	BOOL terrainWaterSuccess = TRUE;
+	bool success = true;
+	bool terrainWaterSuccess = true;
     
     bool use_sun_shadow = mShaderLevel[SHADER_DEFERRED] > 1 &&
         gSavedSettings.getS32("RenderShadowDetail") > 0;
@@ -763,7 +763,7 @@ BOOL LLViewerShaderMgr::loadShadersWater()
 		gWaterProgram.unload();
 		gWaterEdgeProgram.unload();
 		gUnderWaterProgram.unload();
-		return TRUE;
+		return true;
 	}
 
 	if (success)
@@ -856,7 +856,7 @@ BOOL LLViewerShaderMgr::loadShadersWater()
 	if (!success)
 	{
 		mShaderLevel[SHADER_WATER] = 0;
-		return FALSE;
+		return false;
 	}
 
 	// if we failed to load the terrain water shaders and we need them (using class2 water),
@@ -869,19 +869,19 @@ BOOL LLViewerShaderMgr::loadShadersWater()
 	
 	LLWorld::getInstance()->updateWaterObjects();
 
-    return TRUE;
+    return true;
 }
 
-BOOL LLViewerShaderMgr::loadShadersEffects()
+bool LLViewerShaderMgr::loadShadersEffects()
 {
     LL_PROFILE_ZONE_SCOPED;
-	BOOL success = TRUE;
+	bool success = true;
 
 	if (mShaderLevel[SHADER_EFFECT] == 0)
 	{
 		gGlowProgram.unload();
 		gGlowExtractProgram.unload();
-		return TRUE;
+		return true;
 	}
 
 	if (success)
@@ -894,7 +894,7 @@ BOOL LLViewerShaderMgr::loadShadersEffects()
 		success = gGlowProgram.createShader(NULL, NULL);
 		if (!success)
 		{
-			LLPipeline::sRenderGlow = FALSE;
+			LLPipeline::sRenderGlow = false;
 		}
 	}
 	
@@ -917,7 +917,7 @@ BOOL LLViewerShaderMgr::loadShadersEffects()
 		success = gGlowExtractProgram.createShader(NULL, NULL);
 		if (!success)
 		{
-			LLPipeline::sRenderGlow = FALSE;
+			LLPipeline::sRenderGlow = false;
 		}
 	}
 	
@@ -925,7 +925,7 @@ BOOL LLViewerShaderMgr::loadShadersEffects()
 
 }
 
-BOOL LLViewerShaderMgr::loadShadersDeferred()
+bool LLViewerShaderMgr::loadShadersDeferred()
 {
     LL_PROFILE_ZONE_SCOPED;
     bool use_sun_shadow = mShaderLevel[SHADER_DEFERRED] > 1 && 
@@ -1024,10 +1024,10 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
         gDeferredSkinnedPBRAlphaProgram.unload();
 		gDeferredPBRTerrainProgram.unload();
 
-		return TRUE;
+		return true;
 	}
 
-	BOOL success = TRUE;
+	bool success = true;
 
     if (success)
 	{
@@ -2407,10 +2407,10 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 	return success;
 }
 
-BOOL LLViewerShaderMgr::loadShadersObject()
+bool LLViewerShaderMgr::loadShadersObject()
 {
     LL_PROFILE_ZONE_SCOPED;
-	BOOL success = TRUE;
+	bool success = true;
 
     if (success)
     {
@@ -2498,23 +2498,23 @@ BOOL LLViewerShaderMgr::loadShadersObject()
     if (!success)
     {
         mShaderLevel[SHADER_OBJECT] = 0;
-        return FALSE;
+        return false;
     }
 
-	return TRUE;
+	return true;
 }
 
-BOOL LLViewerShaderMgr::loadShadersAvatar()
+bool LLViewerShaderMgr::loadShadersAvatar()
 {
     LL_PROFILE_ZONE_SCOPED;
 #if 1 // DEPRECATED -- forward rendering is deprecated
-	BOOL success = TRUE;
+	bool success = true;
 
 	if (mShaderLevel[SHADER_AVATAR] == 0)
 	{
 		gAvatarProgram.unload();
 		gAvatarEyeballProgram.unload();
-		return TRUE;
+		return true;
 	}
 
 	if (success)
@@ -2563,16 +2563,16 @@ BOOL LLViewerShaderMgr::loadShadersAvatar()
 	{
 		mShaderLevel[SHADER_AVATAR] = 0;
 		mMaxAvatarShaderLevel = 0;
-		return FALSE;
+		return false;
 	}
 #endif
-	return TRUE;
+	return true;
 }
 
-BOOL LLViewerShaderMgr::loadShadersInterface()
+bool LLViewerShaderMgr::loadShadersInterface()
 {
     LL_PROFILE_ZONE_SCOPED;
-	BOOL success = TRUE;
+	bool success = true;
 
 	if (success)
 	{
@@ -2922,10 +2922,10 @@ BOOL LLViewerShaderMgr::loadShadersInterface()
 	if( !success )
 	{
 		mShaderLevel[SHADER_INTERFACE] = 0;
-		return FALSE;
+		return false;
 	}
 	
-	return TRUE;
+	return true;
 }
 
 

@@ -390,7 +390,7 @@ public:
 	static void* tryToAlloc(void* address, U32 size);
 	static void initMaxHeapSizeGB(F32Gigabytes max_heap_size);
 	static void updateMemoryInfo() ;
-	static void logMemoryInfo(BOOL update = FALSE);
+	static void logMemoryInfo(bool update = false);
 
 	static U32Kilobytes getAvailableMemKB() ;
 	static U32Kilobytes getMaxMemKB() ;

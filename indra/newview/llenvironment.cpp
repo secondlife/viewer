@@ -1647,7 +1647,7 @@ LLVector4 LLEnvironment::getRotatedLightNorm() const
     return toLightNorm(light_direction);
 }
 
-extern BOOL gCubeSnapshot;
+extern bool gCubeSnapshot;
 
 //-------------------------------------------------------------------------
 void LLEnvironment::update(const LLViewerCamera * cam)

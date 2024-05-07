@@ -69,18 +69,18 @@ F32 LLSphere::getRadius() const
 	return mRadius;
 }
 
-// returns 'TRUE' if this sphere completely contains other_sphere
-BOOL LLSphere::contains(const LLSphere& other_sphere) const
+// returns 'true' if this sphere completely contains other_sphere
+bool LLSphere::contains(const LLSphere& other_sphere) const
 {
 	F32 separation = (mCenter - other_sphere.mCenter).length();
-	return (mRadius >= separation + other_sphere.mRadius) ? TRUE : FALSE;
+	return (mRadius >= separation + other_sphere.mRadius) ? true : false;
 }
 
-// returns 'TRUE' if this sphere completely contains other_sphere
-BOOL LLSphere::overlaps(const LLSphere& other_sphere) const
+// returns 'true' if this sphere completely contains other_sphere
+bool LLSphere::overlaps(const LLSphere& other_sphere) const
 {
 	F32 separation = (mCenter - other_sphere.mCenter).length();
-	return (separation <= mRadius + other_sphere.mRadius) ? TRUE : FALSE;
+	return (separation <= mRadius + other_sphere.mRadius) ? true : false;
 }
 
 // returns overlap

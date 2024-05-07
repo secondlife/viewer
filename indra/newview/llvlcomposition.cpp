@@ -372,7 +372,8 @@ const LLUUID (&LLVLComposition::getDefaultTextures())[ASSET_COUNT]
 
 LLVLComposition::LLVLComposition(LLSurface *surfacep, const U32 width, const F32 scale) :
     LLTerrainMaterials(),
-	LLViewerLayer(width, scale)
+	LLViewerLayer(width, scale),
+	mParamsReady(false)
 {
 	// Load Terrain Textures - Original ones
     const LLUUID (&default_textures)[LLVLComposition::ASSET_COUNT] = LLVLComposition::getDefaultTextures();
@@ -403,13 +404,13 @@ void LLVLComposition::setSurface(LLSurface *surfacep)
 	mSurfacep = surfacep;
 }
 
-BOOL LLVLComposition::generateHeights(const F32 x, const F32 y,
+bool LLVLComposition::generateHeights(const F32 x, const F32 y,
 									  const F32 width, const F32 height)
 {
 	if (!mParamsReady)
 	{
 		// All the parameters haven't been set yet (we haven't gotten the message from the sim)
-		return FALSE;
+		return false;
 	}
 
 	llassert(mSurfacep);
@@ -417,7 +418,7 @@ BOOL LLVLComposition::generateHeights(const F32 x, const F32 y,
 	if (!mSurfacep || !mSurfacep->getRegion()) 
 	{
 		// We don't always have the region yet here....
-		return FALSE;
+		return false;
 	}
 
 	S32 x_begin, y_begin, x_end, y_end;
@@ -499,17 +500,17 @@ BOOL LLVLComposition::generateHeights(const F32 x, const F32 y,
 			*(mDatap + i + j*mWidth) = scaled_noisy_height;
 		}
 	}
-	return TRUE;
+	return true;
 }
 
 LLTerrainMaterials gLocalTerrainMaterials;
 
-BOOL LLVLComposition::generateComposition()
+bool LLVLComposition::generateComposition()
 {
 	if (!mParamsReady)
 	{
 		// All the parameters haven't been set yet (we haven't gotten the message from the sim)
-		return FALSE;
+		return false;
 	}
 
     return LLTerrainMaterials::generateMaterials();
@@ -586,7 +587,7 @@ namespace
         };
         PendingImage* pending_image = new PendingImage(raw_image, ddiscard, tex->getID());
 
-        loaded_callback_func cb = [](BOOL success, LLViewerFetchedTexture * src_vi, LLImageRaw * src, LLImageRaw * src_aux, S32 discard_level, BOOL is_final, void* userdata) {
+        loaded_callback_func cb = [](bool success, LLViewerFetchedTexture * src_vi, LLImageRaw * src, LLImageRaw * src_aux, S32 discard_level, bool is_final, void* userdata) {
             PendingImage* pending = (PendingImage*)userdata;
             // Owning LLVLComposition still exists
 
@@ -617,7 +618,7 @@ namespace
     }
 };
 
-BOOL LLVLComposition::generateMinimapTileLand(const F32 x, const F32 y,
+bool LLVLComposition::generateMinimapTileLand(const F32 x, const F32 y,
 									  const F32 width, const F32 height)
 {
 	LL_PROFILE_ZONE_SCOPED
@@ -819,7 +820,7 @@ BOOL LLVLComposition::generateMinimapTileLand(const F32 x, const F32 y,
 	if (tex_comps != st_comps)
 	{
         llassert(false);
-		return FALSE;
+		return false;
 	}
 
 	tex_x_scalef = (F32)tex_width / (F32)mWidth;
@@ -921,7 +922,7 @@ BOOL LLVLComposition::generateMinimapTileLand(const F32 x, const F32 y,
         unboost_minimap_material(mDetailMaterials[i]);
     }
 	
-	return TRUE;
+	return true;
 }
 
 F32 LLVLComposition::getStartHeight(S32 corner)

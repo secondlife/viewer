@@ -159,8 +159,8 @@ LLViewerFetchedTexture* fetch_texture(const LLUUID& id)
     LLViewerFetchedTexture* img = nullptr;
     if (id.notNull())
     {
-        img = LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
-        img->addTextureStats(64.f * 64.f, TRUE);
+        img = LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, true, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+        img->addTextureStats(64.f * 64.f, true);
     }
     return img;
 };
@@ -263,3 +263,4 @@ void LLFetchedGLTFMaterial::materialComplete(bool success)
     materialCompleteCallbacks.clear();
     materialCompleteCallbacks.shrink_to_fit();
 }
+

@@ -75,7 +75,7 @@
 // Bugsplat (http://bugsplat.com) crash reporting tool
 #ifdef LL_BUGSPLAT
 #include "BugSplat.h"
-#include "json/reader.h"                 // JsonCpp
+#include "boost/json.hpp"                 // Boost.Json
 #include "llagent.h"                // for agent location
 #include "llviewerregion.h"
 #include "llvoavatarself.h"         // for agent name
@@ -529,7 +529,7 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
 		}
 #endif
 
-		gGLActive = TRUE;
+		gGLActive = true;
 
 		viewer_app_ptr->cleanup();
 
@@ -722,24 +722,25 @@ bool LLAppViewerWin32::init()
         }
         else
         {
-            Json::Reader reader;
-            Json::Value build_data;
-            if (!reader.parse(inf, build_data, false)) // don't collect comments
+            boost::json::error_code ec;
+            boost::json::value build_data = boost::json::parse(inf, ec);
+            if(ec.failed())
             {
                 // gah, the typo is baked into Json::Reader API
                 LL_WARNS("BUGSPLAT") << "Can't initialize BugSplat, can't parse '" << build_data_fname
-                    << "': " << reader.getFormatedErrorMessages() << LL_ENDL;
+                    << "': " << ec.what() << LL_ENDL;
             }
             else
             {
-                Json::Value BugSplat_DB = build_data["BugSplat DB"];
-                if (!BugSplat_DB)
+                if (!build_data.is_object() || !build_data.as_object().contains("BugSplat DB"))
                 {
                     LL_WARNS("BUGSPLAT") << "Can't initialize BugSplat, no 'BugSplat DB' entry in '"
                         << build_data_fname << "'" << LL_ENDL;
                 }
                 else
                 {
+                	boost::json::value BugSplat_DB = build_data.at("BugSplat DB");
+
                     // Got BugSplat_DB, onward!
                     std::wstring version_string(WSTRINGIZE(LL_VIEWER_VERSION_MAJOR << '.' <<
                         LL_VIEWER_VERSION_MINOR << '.' <<
@@ -761,7 +762,7 @@ bool LLAppViewerWin32::init()
 
                     // have to convert normal wide strings to strings of __wchar_t
                     sBugSplatSender = new MiniDmpSender(
-                        WCSTR(BugSplat_DB.asString()),
+                        WCSTR(boost::json::value_to<std::string>(BugSplat_DB)),
                         WCSTR(LL_TO_WSTRING(LL_VIEWER_CHANNEL)),
                         WCSTR(version_string),
                         nullptr,              // szAppIdentifier -- set later
@@ -847,17 +848,17 @@ bool LLAppViewerWin32::initHardwareTest()
 	// Do driver verification and initialization based on DirectX
 	// hardware polling and driver versions
 	//
-	if (TRUE == gSavedSettings.getBOOL("ProbeHardwareOnStartup") && FALSE == gSavedSettings.getBOOL("NoHardwareProbe"))
+	if (true == gSavedSettings.getBOOL("ProbeHardwareOnStartup") && false == gSavedSettings.getBOOL("NoHardwareProbe"))
 	{
 		// per DEV-11631 - disable hardware probing for everything
 		// but vram.
-		BOOL vram_only = TRUE;
+		bool vram_only = true;
 
 		LLSplashScreen::update(LLTrans::getString("StartupDetectingHardware"));
 
 		LL_DEBUGS("AppInit") << "Attempting to poll DirectX for hardware info" << LL_ENDL;
 		gDXHardware.setWriteDebugFunc(write_debug_dx);
-		BOOL probe_ok = gDXHardware.getInfo(vram_only);
+		bool probe_ok = gDXHardware.getInfo(vram_only);
 
 		if (!probe_ok
 			&& gWarningSettings.getBOOL("AboutDirectX9"))
@@ -878,12 +879,12 @@ bool LLAppViewerWin32::initHardwareTest()
 				LLWeb::loadURLExternal("http://secondlife.com/support/", false);
 				return false;
 			}
-			gWarningSettings.setBOOL("AboutDirectX9", FALSE);
+			gWarningSettings.setBOOL("AboutDirectX9", false);
 		}
 		LL_DEBUGS("AppInit") << "Done polling DirectX for hardware info" << LL_ENDL;
 
 		// Only probe once after installation
-		gSavedSettings.setBOOL("ProbeHardwareOnStartup", FALSE);
+		gSavedSettings.setBOOL("ProbeHardwareOnStartup", false);
 
 		// Disable so debugger can work
 		std::string splash_msg;
