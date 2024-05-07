@@ -2714,7 +2714,7 @@ void LLViewerObject::doUpdateInventory(
 		deleteInventoryItem(item_id);
 		LLPermissions perm(item->getPermissions());
 		LLPermissions* obj_perm = LLSelectMgr::getInstance()->findObjectPermissions(this);
-		bool is_atomic = ((S32)LLAssetType::AT_OBJECT == item->getType()) ? false : true;
+		bool is_atomic = (S32)LLAssetType::AT_OBJECT != item->getType();
 		if(obj_perm)
 		{
 			perm.setOwnerAndGroup(LLUUID::null, obj_perm->getOwner(), obj_perm->getGroup(), is_atomic);

@@ -247,7 +247,7 @@ void LLHUDNameTag::renderText(bool for_select)
 	{
 		return;
 	}
-	
+
 	if (for_select)
 	{
 		gGL.getTexUnit(0)->disable();
@@ -257,8 +257,8 @@ void LLHUDNameTag::renderText(bool for_select)
 		gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
 	}
 
-	LLGLState gls_blend(GL_BLEND, for_select ? false : true);
-	
+	LLGLState gls_blend(GL_BLEND, !for_select);
+
 	LLColor4 shadow_color(0.f, 0.f, 0.f, 1.f);
 	F32 alpha_factor = 1.f;
 	LLColor4 text_color = mColor;

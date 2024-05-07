@@ -566,6 +566,7 @@ public:
 	void addFlags(U32 flags) { mMiscFlags |= flags; }
 	void removeFlags(U32 flags) { mMiscFlags &= ~flags; }
 	U32 getFlags() const { return mMiscFlags; }
+	bool checkFlags(U32 flags) const { return (mMiscFlags & flags) != 0; }
 
 	static std::string pCodeToString(const LLPCode pcode);
 	static LLPCode legacyToPCode(const U8 legacy);
@@ -603,21 +604,19 @@ public:
 
 inline bool LLPrimitive::isAvatar() const
 {
-	return ( LL_PCODE_LEGACY_AVATAR == mPrimitiveCode ) ? true : false;
+	return LL_PCODE_LEGACY_AVATAR == mPrimitiveCode;
 }
 
 inline bool LLPrimitive::isSittingAvatar() const
 {
 	// this is only used server-side
-	return ( LL_PCODE_LEGACY_AVATAR == mPrimitiveCode 
-			 &&	 ((getFlags() & (PRIM_FLAG_SITTING | PRIM_FLAG_SITTING_ON_GROUND)) != 0) ) ? true : false;
+	return isAvatar() && checkFlags(PRIM_FLAG_SITTING | PRIM_FLAG_SITTING_ON_GROUND);
 }
 
 inline bool LLPrimitive::isSittingAvatarOnGround() const
 {
 	// this is only used server-side
-	return ( LL_PCODE_LEGACY_AVATAR == mPrimitiveCode 
-			 &&	 ((getFlags() & PRIM_FLAG_SITTING_ON_GROUND) != 0) ) ? true : false;
+	return isAvatar() && checkFlags(PRIM_FLAG_SITTING_ON_GROUND);
 }
 
 // static

@@ -900,7 +900,7 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
 		//	gGL.popMatrix();
 		//}
 
-		LLPipeline::sUnderWaterRender = LLViewerCamera::getInstance()->cameraUnderWater() ? true : false;
+		LLPipeline::sUnderWaterRender = LLViewerCamera::getInstance()->cameraUnderWater();
 
 		LLGLState::checkStates();
 
@@ -1107,7 +1107,7 @@ void display_cube_face()
 
     LLAppViewer::instance()->pingMainloopTimeout("Display:RenderStart");
 
-    LLPipeline::sUnderWaterRender = LLViewerCamera::getInstance()->cameraUnderWater() ? true : false;
+    LLPipeline::sUnderWaterRender = LLViewerCamera::getInstance()->cameraUnderWater();
 
     gGL.setColorMask(true, true);
 

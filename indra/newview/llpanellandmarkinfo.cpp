@@ -353,7 +353,7 @@ void LLPanelLandmarkInfo::toggleLandmarkEditMode(bool enabled)
 		mLandmarkTitle->setText(mLandmarkTitleEditor->getText());
 	}
 
-	if (mNotesEditor->getReadOnly() ==  (enabled == true))
+	if (mNotesEditor->getReadOnly() == enabled)
 	{
 		mLandmarkTitle->setVisible(!enabled);
 		mLandmarkTitleEditor->setVisible(enabled);

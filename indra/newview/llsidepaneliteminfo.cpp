@@ -633,16 +633,14 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
 	}
 
 	// Set values.
-	bool is_group_copy = (group_mask & PERM_COPY) ? true : false;
-	bool is_group_modify = (group_mask & PERM_MODIFY) ? true : false;
-	bool is_group_move = (group_mask & PERM_MOVE) ? true : false;
+	bool is_group_copy = group_mask & PERM_COPY;
+	bool is_group_modify = group_mask & PERM_MODIFY;
+	bool is_group_move = group_mask & PERM_MOVE;
 
 	if (is_group_copy && is_group_modify && is_group_move)
 	{
 		getChild<LLUICtrl>("CheckShareWithGroup")->setValue(LLSD((bool)true));
-
-		LLCheckBoxCtrl* ctl = getChild<LLCheckBoxCtrl>("CheckShareWithGroup");
-		if(ctl)
+		if (LLCheckBoxCtrl* ctl = getChild<LLCheckBoxCtrl>("CheckShareWithGroup"))
 		{
 			ctl->setTentative(false);
 		}
@@ -650,22 +648,20 @@ void LLSidepanelItemInfo::refreshFromItem(LLViewerInventoryItem* item)
 	else if (!is_group_copy && !is_group_modify && !is_group_move)
 	{
 		getChild<LLUICtrl>("CheckShareWithGroup")->setValue(LLSD((bool)false));
-		LLCheckBoxCtrl* ctl = getChild<LLCheckBoxCtrl>("CheckShareWithGroup");
-		if(ctl)
+		if (LLCheckBoxCtrl* ctl = getChild<LLCheckBoxCtrl>("CheckShareWithGroup"))
 		{
 			ctl->setTentative(false);
 		}
 	}
 	else
 	{
-		LLCheckBoxCtrl* ctl = getChild<LLCheckBoxCtrl>("CheckShareWithGroup");
-		if(ctl)
+		if (LLCheckBoxCtrl* ctl = getChild<LLCheckBoxCtrl>("CheckShareWithGroup"))
 		{
 			ctl->setTentative(!ctl->getEnabled());
 			ctl->set(true);
 		}
 	}
-	
+
 	getChild<LLUICtrl>("CheckEveryoneCopy")->setValue(LLSD((bool)(everyone_mask & PERM_COPY)));
 
 	///////////////

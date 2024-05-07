@@ -3980,7 +3980,7 @@ void LLViewerWindow::updateWorldViewRect(bool use_full_window)
 	// start off using whole window to render world
 	LLRect new_world_rect = mWindowRectRaw;
 
-	if (use_full_window == false && mWorldViewPlaceholder.get())
+	if (!use_full_window && mWorldViewPlaceholder.get())
 	{
 		new_world_rect = mWorldViewPlaceholder.get()->calcScreenRect();
 		// clamp to at least a 1x1 rect so we don't try to allocate zero width gl buffers
@@ -4939,7 +4939,7 @@ bool LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 	setCursor(UI_CURSOR_WAIT);
 
 	// Hide all the UI widgets first and draw a frame
-	bool prev_draw_ui = gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI) ? true : false;
+	bool prev_draw_ui = gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI);
 
 	if ( prev_draw_ui != show_ui)
 	{
@@ -4965,7 +4965,7 @@ bool LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 	// SNAPSHOT
 	S32 window_width  = snapshot_width;
 	S32 window_height = snapshot_height;
-	
+
 	// Note: Scaling of the UI is currently *not* supported so we limit the output size if UI is requested
 	if (show_ui)
 	{
@@ -5021,7 +5021,7 @@ bool LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 			scale_factor = llmax(1.0f, 1.0f / ratio) ;
 		}
 	}
-	
+
 	if (show_ui && scale_factor > 1.f)
 	{
 		// Note: we should never get there...
@@ -5049,11 +5049,12 @@ bool LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 	}
 	else
 	{
-		return false ;
+		return false;
 	}
+
 	if (raw->isBufferInvalid())
 	{
-		return false ;
+		return false;
 	}
 
 	bool high_res = scale_factor >= 2.f; // Font scaling is slow, only do so if rez is much higher
@@ -5200,7 +5201,6 @@ bool LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 	{
 		ret = raw->scale( image_width, image_height, false );  
 	}
-	
 
 	setCursor(UI_CURSOR_ARROW);
 
@@ -5241,8 +5241,8 @@ bool LLViewerWindow::simpleSnapshot(LLImageRaw* raw, S32 image_width, S32 image_
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT); // stencil buffer is deprecated | GL_STENCIL_BUFFER_BIT);
     setCursor(UI_CURSOR_WAIT);
 
-    bool prev_draw_ui = gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI) ? true : false;
-    if (prev_draw_ui != false)
+    bool prev_draw_ui = gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI);
+    if (prev_draw_ui)
     {
         LLPipeline::toggleRenderDebugFeature(LLPipeline::RENDER_DEBUG_FEATURE_UI);
     }
@@ -5318,7 +5318,7 @@ bool LLViewerWindow::simpleSnapshot(LLImageRaw* raw, S32 image_width, S32 image_
 
     if (!gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI))
     {
-        if (prev_draw_ui != false)
+        if (prev_draw_ui)
         {
             LLPipeline::toggleRenderDebugFeature(LLPipeline::RENDER_DEBUG_FEATURE_UI);
         }
@@ -5349,7 +5349,7 @@ bool LLViewerWindow::cubeSnapshot(const LLVector3& origin, LLCubeMapArray* cubea
     LL_PROFILE_GPU_ZONE("cubeSnapshot");
     llassert(LLPipeline::sRenderDeferred);
     llassert(!gCubeSnapshot); //assert a snapshot isn't already in progress
-    
+
     U32 res = gPipeline.mRT->deferredScreen.getWidth();
 
     //llassert(res <= gPipeline.mRT->deferredScreen.getWidth());
@@ -5361,7 +5361,7 @@ bool LLViewerWindow::cubeSnapshot(const LLVector3& origin, LLCubeMapArray* cubea
     // set new parameters specific to the 360 requirements
     LLPipeline::sUseOcclusion = 0;
     LLViewerCamera* camera = LLViewerCamera::getInstance();
-    
+
     LLViewerCamera saved_camera = LLViewerCamera::instance();
     glh::matrix4f saved_proj = get_current_projection();
     glh::matrix4f saved_mod = get_current_modelview();
@@ -5391,7 +5391,7 @@ bool LLViewerWindow::cubeSnapshot(const LLVector3& origin, LLCubeMapArray* cubea
     constexpr U32 dynamic_render_type_count = sizeof(dynamic_render_types) / sizeof(U32);
     bool prev_dynamic_render_type[dynamic_render_type_count];
 
-    
+
     if (!dynamic_render)
     {
         for (int i = 0; i < dynamic_render_type_count; ++i)
@@ -5404,12 +5404,12 @@ bool LLViewerWindow::cubeSnapshot(const LLVector3& origin, LLCubeMapArray* cubea
         }
     }
 
-    bool prev_draw_ui = gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI) ? true : false;
-    if (prev_draw_ui != false)
+    bool prev_draw_ui = gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI);
+    if (prev_draw_ui)
     {
         LLPipeline::toggleRenderDebugFeature(LLPipeline::RENDER_DEBUG_FEATURE_UI);
     }
-    
+
     bool hide_hud = LLPipeline::sShowHUDAttachments;
 	if (hide_hud)
 	{
@@ -5463,7 +5463,7 @@ bool LLViewerWindow::cubeSnapshot(const LLVector3& origin, LLCubeMapArray* cubea
 
     if (!gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI))
     {
-        if (prev_draw_ui != false)
+        if (prev_draw_ui)
         {
             LLPipeline::toggleRenderDebugFeature(LLPipeline::RENDER_DEBUG_FEATURE_UI);
         }

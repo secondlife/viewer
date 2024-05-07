@@ -145,12 +145,13 @@ LLToolMgr::~LLToolMgr()
 
 bool LLToolMgr::usingTransientTool()
 {
-	return mTransientTool ? true : false;
+	return mTransientTool != nullptr;
 }
 
 void LLToolMgr::setCurrentToolset(LLToolset* current)
 {
-	if (!current) return;
+	if (!current)
+		return;
 
 	// switching toolsets?
 	if (current != mCurrentToolset)
@@ -164,6 +165,7 @@ void LLToolMgr::setCurrentToolset(LLToolset* current)
 		// select first tool of new toolset only if toolset changed
 		mCurrentToolset->selectFirstTool();
 	}
+
 	// update current tool based on new toolset
 	setCurrentTool( mCurrentToolset->getSelectedTool() );
 }

@@ -433,7 +433,7 @@ void LLVolumeImplFlexible::doFlexibleUpdate()
 	LLPath *path = &volume->getPath();
 	if ((mSimulateRes == 0 || !mInitialized) && mVO->mDrawable->isVisible()) 
 	{
-		bool force_update = mSimulateRes == 0 ? true : false;
+		bool force_update = mSimulateRes == 0;
 		doIdleUpdate();
 
 		if (!force_update || !gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_FLEXIBLE))
@@ -442,10 +442,10 @@ void LLVolumeImplFlexible::doFlexibleUpdate()
 		}
 	}
 
-	if(!mInitialized || !mAttributes)
+	if (!mInitialized || !mAttributes)
 	{
 		//the object is not visible
-		return ;
+		return;
 	}
 
 	// Fix for MAINT-1894
@@ -456,7 +456,7 @@ void LLVolumeImplFlexible::doFlexibleUpdate()
 	{
 		return;
 	}
-	
+
 	S32 num_sections = 1 << mSimulateRes;
 
     F32 secondsThisFrame = mTimer.getElapsedTimeAndResetF32();

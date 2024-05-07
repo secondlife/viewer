@@ -342,20 +342,19 @@ bool	LLFloaterIMNearbyChatToastPanel::handleMouseUp	(S32 x, S32 y, MASK mask)
 
 	S32 local_x = x - mMsgText->getRect().mLeft;
 	S32 local_y = y - mMsgText->getRect().mBottom;
-	
+
 	//if text_box process mouse up (ussually this is click on url) - we didn't show nearby_chat.
-	if (mMsgText->pointInView(local_x, local_y) )
+	if (mMsgText->pointInView(local_x, local_y))
 	{
-		if (mMsgText->handleMouseUp(local_x,local_y,mask) == true)
+		if (mMsgText->handleMouseUp(local_x, local_y, mask))
 			return true;
-		else
-		{
-			LLFloaterReg::getTypedInstance<LLFloaterIMNearbyChat>("nearby_chat")->showHistory();
-			return false;
-		}
+
+		LLFloaterReg::getTypedInstance<LLFloaterIMNearbyChat>("nearby_chat")->showHistory();
+		return false;
 	}
+
 	LLFloaterReg::getTypedInstance<LLFloaterIMNearbyChat>("nearby_chat")->showHistory();
-	return LLPanel::handleMouseUp(x,y,mask);
+	return LLPanel::handleMouseUp(x, y, mask);
 }
 
 void	LLFloaterIMNearbyChatToastPanel::setHeaderVisibility(EShowItemHeader e)

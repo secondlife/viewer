@@ -643,7 +643,7 @@ void LLAccordionCtrlTab::setHeaderVisible(bool value)
 
 	if (mHeader)
 	{
-		mHeader->setVisible(value ? true : false);
+		mHeader->setVisible(value);
 	}
 
 	reshape(getRect().getWidth(), getRect().getHeight(), false);
@@ -992,7 +992,7 @@ void LLAccordionCtrlTab::hideScrollbar(const LLRect& child_rect)
 	if (!mContainerPanel || !mScrollbar)
 		return;
 
-	if (mScrollbar->getVisible() == false)
+	if (!mScrollbar->getVisible())
 		return;
 
 	mScrollbar->setVisible(false);
