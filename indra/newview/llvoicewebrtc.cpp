@@ -1414,13 +1414,19 @@ bool LLWebRTCVoiceClient::isCurrentChannel(const LLSD &channelInfo)
         return false;
     }
 
-    if (mSession)
+    sessionStatePtr_t session = mSession;
+    if (!session)
+    {
+        session = mNextSession;
+    }
+
+    if (session)
     {
         if (!channelInfo["session_handle"].asString().empty())
         {
-            return mSession->mHandle == channelInfo["session_handle"].asString();
+            return session->mHandle == channelInfo["session_handle"].asString();
         }
-        return channelInfo["channel_uri"].asString() == mSession->mChannelID;
+        return channelInfo["channel_uri"].asString() == session->mChannelID;
     }
     return false;
 }
