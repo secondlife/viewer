@@ -10325,6 +10325,22 @@ You died and have been teleported to your home location
 
   <notification
    icon="alertmodal.tga"
+   name="YouDiedAndGotTPLanding"
+   type="notify">
+   <tag>fail</tag>
+You died and have been teleported to the parcel landing point
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="YouDiedAndGotTPTelehub"
+   type="notify">
+   <tag>fail</tag>
+You died and have been teleported to the region telehub
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="EjectComingSoon"
    type="notify">
    <tag>fail</tag>
