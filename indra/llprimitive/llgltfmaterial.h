@@ -120,6 +120,14 @@ public:
     //       heightmaps cannot currently be described as finite enclosed
     //       volumes.
     // See also LLPanelRegionTerrainInfo::validateMaterials
+    bool mDoubleSided = false;
+
+
+    // These fields are local to viewer and are a part of local bitmap support
+    typedef std::map<LLUUID, LLUUID> local_tex_map_t;
+    local_tex_map_t                  mTrackingIdToLocalTexture;
+
+public:
 
     // get a UUID based on a hash of this LLGLTFMaterial
     LLUUID getHash() const;
@@ -220,7 +228,6 @@ public:
     bool hasLocalTextures() { return !mTrackingIdToLocalTexture.empty(); }
     virtual bool replaceLocalTexture(const LLUUID& tracking_id, const LLUUID &old_id, const LLUUID& new_id);
     virtual void updateTextureTracking();
-
 protected:
     static LLVector2 vec2FromJson(const std::map<std::string, tinygltf::Value>& object, const char* key, const LLVector2& default_value);
     static F32 floatFromJson(const std::map<std::string, tinygltf::Value>& object, const char* key, const F32 default_value);
