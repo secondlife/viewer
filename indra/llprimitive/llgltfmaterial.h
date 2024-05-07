@@ -110,23 +110,6 @@ public:
     static const char* const GLTF_FILE_EXTENSION_TRANSFORM_ROTATION;
     static const LLUUID GLTF_OVERRIDE_NULL_UUID;
 
-    // *TODO: If/when we implement additional GLTF extensions, they may not be
-    // compatible with our GLTF terrain implementation. We may want to disallow
-    // materials with some features from being set on terrain, if their
-    // implementation on terrain is not compliant with the spec:
-    //     - KHR_materials_transmission: Probably OK?
-    //     - KHR_materials_ior: Probably OK?
-    //     - KHR_materials_volume: Likely incompatible, as our terrain
-    //       heightmaps cannot currently be described as finite enclosed
-    //       volumes.
-    // See also LLPanelRegionTerrainInfo::validateMaterials
-    bool mDoubleSided = false;
-
-
-    // These fields are local to viewer and are a part of local bitmap support
-    typedef std::map<LLUUID, LLUUID> local_tex_map_t;
-    local_tex_map_t                  mTrackingIdToLocalTexture;
-
 public:
 
     // get a UUID based on a hash of this LLGLTFMaterial
@@ -275,6 +258,17 @@ public:
     F32 mAlphaCutoff;
 
     AlphaMode mAlphaMode;
+    
+    // *TODO: If/when we implement additional GLTF extensions, they may not be
+    // compatible with our GLTF terrain implementation. We may want to disallow
+    // materials with some features from being set on terrain, if their
+    // implementation on terrain is not compliant with the spec:
+    //     - KHR_materials_transmission: Probably OK?
+    //     - KHR_materials_ior: Probably OK?
+    //     - KHR_materials_volume: Likely incompatible, as our terrain
+    //       heightmaps cannot currently be described as finite enclosed
+    //       volumes.
+    // See also LLPanelRegionTerrainInfo::validateMaterials
     bool mDoubleSided = false;
 
     // Override specific flags for state that can't use off-by-epsilon or UUID
