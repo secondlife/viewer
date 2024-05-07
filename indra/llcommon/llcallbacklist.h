@@ -101,11 +101,14 @@ LLCallbackList::handle_t doOnIdleRepeating(bool_func_t callable)
 }
 
 /*****************************************************************************
-*   LLLater: callbacks at some future time
+*   LL::Timers: callbacks at some future time
 *****************************************************************************/
-class LLLater: public LLSingleton<LLLater>
+namespace LL
 {
-    LLSINGLETON(LLLater);
+
+class Timers: public LLSingleton<Timers>
+{
+    LLSINGLETON(Timers);
 
     using token_t = U32;
 
@@ -113,11 +116,14 @@ class LLLater: public LLSingleton<LLLater>
     // a tuple, because we need to define the comparison operator.
     struct func_at
     {
-        nullary_func_t mFunc;
+        // callback to run when this timer fires
+        bool_func_t mFunc;
+        // key to look up metadata in mHandles
         token_t mToken;
+        // time at which this timer is supposed to fire
         LLDate::timestamp mTime;
 
-        func_at(const nullary_func_t& func, token_t token, LLDate::timestamp tm):
+        func_at(const bool_func_t& func, token_t token, LLDate::timestamp tm):
             mFunc(func),
             mToken(token),
             mTime(tm)
@@ -146,7 +152,7 @@ public:
     class handle_t
     {
     private:
-        friend class LLLater;
+        friend class Timers;
         token_t token;
     public:
         handle_t(token_t token=0): token(token) {}
@@ -156,33 +162,33 @@ public:
     };
 
     // Call a given callable once at specified timestamp.
-    handle_t doAtTime(nullary_func_t callable, LLDate::timestamp time);
+    handle_t scheduleAt(nullary_func_t callable, LLDate::timestamp time);
 
     // Call a given callable once after specified interval.
-    handle_t doAfterInterval(nullary_func_t callable, F32 seconds);
+    handle_t scheduleAfter(nullary_func_t callable, F32 seconds);
 
     // Call a given callable every specified number of seconds, until it returns true.
-    handle_t doPeriodically(bool_func_t callable, F32 seconds);
+    handle_t scheduleRepeating(bool_func_t callable, F32 seconds);
 
     // test whether specified handle is still live
     bool isRunning(handle_t timer) const;
     // check remaining time
-    F32 getRemaining(handle_t timer) const;
+    F32 timeUntilCall(handle_t timer) const;
 
-    // Cancel a future timer set by doAtTime(), doAfterInterval(), doPeriodically().
-    // Return true iff the handle corresponds to a live timer.
+    // Cancel a future timer set by scheduleAt(), scheduleAfter(), scheduleRepeating().
+    // Return true if and only if the handle corresponds to a live timer.
     bool cancel(const handle_t& timer);
     // If we're canceling a non-const handle_t, also clear it so we need not
     // cancel again.
     bool cancel(handle_t& timer);
 
-    // Store a handle_t returned by doAtTime(), doAfterInterval() or
-    // doPeriodically() in a temp_handle_t to cancel() automatically on
+    // Store a handle_t returned by scheduleAt(), scheduleAfter() or
+    // scheduleRepeating() in a temp_handle_t to cancel() automatically on
     // destruction of the temp_handle_t.
     class temp_handle_t
     {
     public:
-        temp_handle_t() {}
+        temp_handle_t() = default;
         temp_handle_t(const handle_t& hdl): mHandle(hdl) {}
         temp_handle_t(const temp_handle_t&) = delete;
         temp_handle_t(temp_handle_t&&) = default;
@@ -204,11 +210,11 @@ public:
         // temp_handle_t should be usable wherever handle_t is
         operator handle_t() const { return mHandle; }
         // If we're dealing with a non-const temp_handle_t, pass a reference
-        // to our handle_t member (e.g. to LLLater::cancel()).
+        // to our handle_t member (e.g. to Timers::cancel()).
         operator handle_t&() { return mHandle; }
 
         // For those in the know, provide a cancel() method of our own that
-        // avoids LLLater::instance() lookup when mHandle isn't live.
+        // avoids Timers::instance() lookup when mHandle isn't live.
         bool cancel()
         {
             if (! mHandle)
@@ -217,7 +223,7 @@ public:
             }
             else
             {
-                return LLLater::instance().cancel(mHandle);
+                return Timers::instance().cancel(mHandle);
             }
         }
 
@@ -231,44 +237,64 @@ public:
     };
 
 private:
+    handle_t scheduleAtRepeating(bool_func_t callable, LLDate::timestamp time, F32 interval);
+    LLDate::timestamp now() const { return LLDate::now().secondsSinceEpoch(); }
+    // wrap a nullary_func_t with a bool_func_t that will only execute once
+    bool_func_t once(nullary_func_t callable)
+    {
+        return [callable]
+        {
+            callable();
+            return true;
+        };
+    }
     bool tick();
 
     // NOTE: We don't lock our data members because it doesn't make sense to
-    // register cross-thread callbacks. If we start wanting to use them on
+    // register cross-thread callbacks. If we start wanting to use Timers on
     // threads other than the main thread, it would make more sense to make
     // our data members thread_local than to lock them.
 
     // the heap aka priority queue
     queue_t mQueue;
-    // handles we've returned that haven't yet canceled
-    using HandleMap = std::unordered_map<
-        token_t,
-        std::pair<queue_t::handle_type, LLDate::timestamp>>;
-    HandleMap mHandles;
+
+    // metadata about a given task
+    struct Metadata
+    {
+        // handle to mQueue entry
+        queue_t::handle_type mHandle;
+        // time at which this timer is supposed to fire
+        LLDate::timestamp mTime;
+        // interval at which this timer is supposed to fire repeatedly
+        F32 mInterval{ 0 };
+        // mFunc is currently running: don't delete this entry
+        bool mRunning{ false };
+        // cancel() was called while mFunc was running: deferred cancel
+        bool mCancel{ false };
+    };
+
+    using MetaMap = std::unordered_map<token_t, Metadata>;
+    MetaMap mMeta;
     token_t mToken{ 0 };
     // While mQueue is non-empty, register for regular callbacks.
     LLCallbackList::temp_handle_t mLive;
-
-    struct Periodic;
-
-    // internal implementation for doAtTime()
-    HandleMap::iterator doAtTime1(LLDate::timestamp time);
-    handle_t doAtTime2(nullary_func_t callable, HandleMap::iterator iter);
 };
+
+} // namespace LL
 
 /*-------------------- legacy names in global namespace --------------------*/
 // Call a given callable once after specified interval.
 inline
-LLLater::handle_t doAfterInterval(nullary_func_t callable, F32 seconds)
+LL::Timers::handle_t doAfterInterval(nullary_func_t callable, F32 seconds)
 {
-    return LLLater::instance().doAfterInterval(callable, seconds);
+    return LL::Timers::instance().scheduleAfter(callable, seconds);
 }
 
 // Call a given callable every specified number of seconds, until it returns true.
 inline
-LLLater::handle_t doPeriodically(bool_func_t callable, F32 seconds)
+LL::Timers::handle_t doPeriodically(bool_func_t callable, F32 seconds)
 {
-    return LLLater::instance().doPeriodically(callable, seconds);
+    return LL::Timers::instance().scheduleRepeating(callable, seconds);
 }
 
 #endif

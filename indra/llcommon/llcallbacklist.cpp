@@ -25,6 +25,8 @@
  */
 
 #include "llcallbacklist.h"
+#include "llexception.h"
+#include <vector>
 
 //
 // Member functions
@@ -126,116 +128,83 @@ LLCallbackList::handle_t LLCallbackList::doOnIdleRepeating( const bool_func_t& f
 }
 
 /*****************************************************************************
-*   LLLater
+*   LL::Timers
 *****************************************************************************/
-LLLater::LLLater() {}
+namespace LL
+{
 
-LLLater::HandleMap::iterator LLLater::doAtTime1(LLDate::timestamp time)
+Timers::Timers() {}
+
+// Call a given callable once at specified timestamp.
+Timers::handle_t Timers::scheduleAt(nullary_func_t callable, LLDate::timestamp time)
+{
+    // tick() assumes you want to run periodically until you return true.
+    // Schedule a task that returns true after a single call.
+    return scheduleAtRepeating(once(callable), time, 0);
+}
+
+// Call a given callable once after specified interval.
+Timers::handle_t Timers::scheduleAfter(nullary_func_t callable, F32 seconds)
+{
+    return scheduleRepeating(once(callable), seconds);
+}
+
+// Call a given callable every specified number of seconds, until it returns true.
+Timers::handle_t Timers::scheduleRepeating(bool_func_t callable, F32 seconds)
+{
+    return scheduleAtRepeating(callable, now() + seconds, seconds);
+}
+
+Timers::handle_t Timers::scheduleAtRepeating(bool_func_t callable,
+                                             LLDate::timestamp time, F32 interval)
 {
     // Pick token FIRST to store a self-reference in mQueue's managed node as
-    // well as in mHandles. Pre-increment to distinguish 0 from any live
+    // well as in mMeta. Pre-increment to distinguish 0 from any live
     // handle_t.
     token_t token{ ++mToken };
     // For the moment, store a default-constructed mQueue handle --
-    // doAtTime2() will fill in.
-    auto [iter, inserted]{ mHandles.emplace(
-            token,
-            HandleMap::mapped_type{ queue_t::handle_type(), time }) };
+    // we'll fill in later.
+    auto [iter, inserted] = mMeta.emplace(token,
+                                          Metadata{ queue_t::handle_type(), time, interval });
+    // It's important that our token is unique.
     llassert(inserted);
-    return iter;
-}
 
-LLLater::handle_t LLLater::doAtTime2(nullary_func_t callable, HandleMap::iterator iter)
-{
+    // Remember whether this is the first entry in mQueue
     bool first{ mQueue.empty() };
-    // HandleMap::iterator references (token, (handle, time)) pair
-    auto handle{ mQueue.emplace(callable, iter->first, iter->second.second) };
-    // Now that we have an mQueue handle_type, store it in mHandles entry.
-    iter->second.first = handle;
+    auto handle{ mQueue.emplace(callable, token, time) };
+    // Now that we have an mQueue handle_type, store it in mMeta entry.
+    iter->second.mHandle = handle;
     if (first && ! mLive.connected())
     {
         // If this is our first entry, register for regular callbacks.
         mLive = LLCallbackList::instance().doOnIdleRepeating([this]{ return tick(); });
     }
-    // Make an LLLater::handle_t from token.
-    return { iter->first };
+    // Make an Timers::handle_t from token.
+    return { token };
 }
 
-// Call a given callable once at specified timestamp.
-LLLater::handle_t LLLater::doAtTime(nullary_func_t callable, LLDate::timestamp time)
-{
-    return doAtTime2(callable, doAtTime1(time));
-}
-
-// Call a given callable once after specified interval.
-LLLater::handle_t LLLater::doAfterInterval(nullary_func_t callable, F32 seconds)
-{
-    // Passing 0 is a slightly more expensive way of calling
-    // LLCallbackList::doOnIdleOneTime(). Are we sure the caller is correct?
-    // (If there's a valid use case, remove the llassert() and carry on.)
-    llassert(seconds > 0);
-    return doAtTime(callable, LLDate::now().secondsSinceEpoch() + seconds);
-}
-
-// For doPeriodically(), we need a struct rather than a lambda because a
-// struct, unlike a lambda, has access to 'this'.
-struct LLLater::Periodic
-{
-    LLLater* mLater;
-    HandleMap::iterator mHandleEntry;
-    bool_func_t mCallable;
-    F32 mSeconds;
-
-    void operator()()
-    {
-        if (! mCallable())
-        {
-            // Returning false means please schedule another call.
-            // Don't call doAfterInterval(), which rereads LLDate::now(),
-            // since that would defer by however long it took us to wake
-            // up and notice plus however long callable() took to run.
-            // Bump the time in our mHandles entry so getRemaining() can see.
-            // HandleMap::iterator references (token, (handle, time)) pair.
-            mHandleEntry->second.second += mSeconds;
-            mLater->doAtTime2(*this, mHandleEntry);
-        }
-    }
-};
-
-// Call a given callable every specified number of seconds, until it returns true.
-LLLater::handle_t LLLater::doPeriodically(bool_func_t callable, F32 seconds)
-{
-    // Passing seconds <= 0 will produce an infinite loop.
-    llassert(seconds > 0);
-    auto iter{ doAtTime1(LLDate::now().secondsSinceEpoch() + seconds) };
-    // The whole reason we split doAtTime() into doAtTime1() and doAtTime2()
-    // is to be able to bind the mHandles entry into Periodic.
-    return doAtTime2(Periodic{ this, iter, callable, seconds }, iter);
-}
-
-bool LLLater::isRunning(handle_t timer) const
+bool Timers::isRunning(handle_t timer) const
 {
     // A default-constructed timer isn't running.
-    // A timer we don't find in mHandles has fired or been canceled.
-    return timer && mHandles.find(timer.token) != mHandles.end();
+    // A timer we don't find in mMeta has fired or been canceled.
+    return timer && mMeta.find(timer.token) != mMeta.end();
 }
 
-F32 LLLater::getRemaining(handle_t timer) const
+F32 Timers::timeUntilCall(handle_t timer) const
 {
-    auto found{ mHandles.find(timer.token) };
-    if (found == mHandles.end())
+    MetaMap::const_iterator found;
+    if ((! timer) || (found = mMeta.find(timer.token)) == mMeta.end())
     {
         return 0.f;
     }
     else
     {
-        // HandleMap::iterator references (token, (handle, time)) pair
-        return found->second.second - LLDate::now().secondsSinceEpoch();
+        return found->second.mTime - now();
     }
 }
 
-// Cancel a future timer set by doAtTime(), doAfterInterval(), doPeriodically()
-bool LLLater::cancel(handle_t& timer)
+// Cancel a future timer set by scheduleAt(), scheduleAfter(), scheduleRepeating()
+bool Timers::cancel(handle_t& timer)
 {
     // For exception safety, capture and clear timer before canceling.
     // Once we've canceled this handle, don't retain the live handle.
@@ -244,7 +213,7 @@ bool LLLater::cancel(handle_t& timer)
     return cancel(ctimer);
 }
 
-bool LLLater::cancel(const handle_t& timer)
+bool Timers::cancel(const handle_t& timer)
 {
     if (! timer)
     {
@@ -257,27 +226,38 @@ bool LLLater::cancel(const handle_t& timer)
 
     // Nor do we find any documented way to ask whether a given handle still
     // tracks a valid heap node. That's why we capture all returned handles in
-    // mHandles and validate against that collection. What about the pop()
+    // mMeta and validate against that collection. What about the pop()
     // call in tick()? How to map from the top() value back to the
     // corresponding handle_t? That's why we store func_at::mToken.
 
     // fibonacci_heap provides a pair of begin()/end() methods to iterate over
     // all nodes (NOT in heap order), plus a function to convert from such
-    // iterators to handles. Without mHandles, that would be our only chance
+    // iterators to handles. Without mMeta, that would be our only chance
     // to validate.
-    auto found{ mHandles.find(timer.token) };
-    if (found == mHandles.end())
+    auto found{ mMeta.find(timer.token) };
+    if (found == mMeta.end())
     {
         // we don't recognize this handle -- maybe the timer has already
         // fired, maybe it was previously canceled.
         return false;
     }
 
-    // HandleMap::iterator references (token, (handle, time)) pair.
+    // Funny case: what if the callback directly or indirectly reaches a
+    // cancel() call for its own handle?
+    if (found->second.mRunning)
+    {
+        // tick() has special logic to defer the actual deletion until the
+        // callback has returned
+        found->second.mCancel = true;
+        // this handle does in fact reference a live timer,
+        // which we're going to cancel when we get a chance
+        return true;
+    }
+
     // Erase from mQueue the handle_type referenced by timer.token.
-    mQueue.erase(found->second.first);
-    // before erasing timer.token from mHandles
-    mHandles.erase(found);
+    mQueue.erase(found->second.mHandle);
+    // before erasing the mMeta entry
+    mMeta.erase(found);
     if (mQueue.empty())
     {
         // If that was the last active timer, unregister for callbacks.
@@ -289,7 +269,33 @@ bool LLLater::cancel(const handle_t& timer)
     return true;
 }
 
-bool LLLater::tick()
+// RAII class to set specified variable to specified value
+// only for the duration of containing scope
+template <typename VAR, typename VALUE>
+class TempSet
+{
+public:
+    TempSet(VAR& var, const VALUE& value):
+        mVar(var),
+        mOldValue(mVar)
+    {
+        mVar = value;
+    }
+
+    TempSet(const TempSet&) = delete;
+    TempSet& operator=(const TempSet&) = delete;
+
+    ~TempSet()
+    {
+        mVar = mOldValue;
+    }
+
+private:
+    VAR& mVar;
+    VALUE mOldValue;
+};
+
+bool Timers::tick()
 {
     // Fetch current time only on entry, even though running some mQueue task
     // may take long enough that the next one after would become ready. We're
@@ -297,34 +303,84 @@ bool LLLater::tick()
     // starve it if we have a sequence of tasks that take nontrivial time.
     auto now{ LLDate::now().secondsSinceEpoch() };
     auto cutoff{ now + TIMESLICE };
+
+    // Capture tasks we've processed but that want to be rescheduled.
+    // Defer rescheduling them immediately to avoid getting stuck looping over
+    // a recurring task with a nonpositive interval.
+    std::vector<std::pair<MetaMap::iterator, func_at>> deferred;
+
     while (! mQueue.empty())
     {
         auto& top{ mQueue.top() };
         if (top.mTime > now)
         {
             // we've hit an entry that's still in the future:
-            // done with this tick(), but schedule another call
-            return false;
+            // done with this tick()
+            break;
         }
         if (LLDate::now().secondsSinceEpoch() > cutoff)
         {
             // we still have ready tasks, but we've already eaten too much
-            // time this tick() -- defer until next tick() -- call again
-            return false;
+            // time this tick() -- defer until next tick()
+            break;
         }
 
-        // Found a ready task. Hate to copy stuff, but -- what if the task
-        // indirectly ends up trying to cancel a handle referencing its own
-        // node in mQueue? If the task has any state, that would be Bad. Copy
-        // the node before running it.
-        auto current{ top };
-        // remove the mHandles entry referencing this task
-        mHandles.erase(current.mToken);
-        // before removing the mQueue task entry itself
+        // Found a ready task. Look up its corresponding mMeta entry.
+        auto meta{ mMeta.find(top.mToken) };
+        llassert(meta != mMeta.end());
+        bool done;
+        {
+            // Mark our mMeta entry so we don't cancel this timer while its
+            // callback is running, but unmark it even in case of exception.
+            TempSet running(meta->second.mRunning, true);
+            // run the callback and capture its desire to end repetition
+            try
+            {
+                done = top.mFunc();
+            }
+            catch (...)
+            {
+                // Don't crash if a timer callable throws.
+                // But don't continue calling that callable, either.
+                done = true;
+                LOG_UNHANDLED_EXCEPTION("LL::Timers");
+            }
+        } // clear mRunning
+
+        // If mFunc() returned true (all done, stop calling me) or
+        // meta->mCancel (somebody tried to cancel this timer during the
+        // callback call), then we're done: clean up both entries.
+        if (done || meta->second.mCancel)
+        {
+            // remove the mMeta entry referencing this task
+            mMeta.erase(meta);
+        }
+        else
+        {
+            // mFunc returned false, and nobody asked to cancel:
+            // continue calling this task at a future time.
+            meta->second.mTime += meta->second.mInterval;
+            // capture this task to reschedule once we break loop
+            deferred.push_back({meta, top});
+            // update func_at's mTime to match meta's
+            deferred.back().second.mTime = meta->second.mTime;
+        }
+        // Remove the mQueue entry regardless, or we risk stalling the
+        // queue right here if we have a nonpositive interval.
         mQueue.pop();
-        // okay, NOW run 
-        current.mFunc();
     }
-    // queue is empty: stop callbacks
-    return true;
+
+    // Now reschedule any tasks that need to be rescheduled.
+    for (const auto& [meta, task] : deferred)
+    {
+        auto handle{ mQueue.push(task) };
+        // track this new mQueue handle_type
+        meta->second.mHandle = handle;
+    }
+
+    // If, after all the twiddling above, our queue ended up empty,
+    // stop calling every tick.
+    return mQueue.empty();
 }
+
+} // namespace LL

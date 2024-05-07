@@ -87,7 +87,7 @@ LLEventTimeout::LLEventTimeout(LLEventPump& source):
 
 void LLEventTimeout::actionAfter(F32 seconds, const Action& action)
 {
-    mTimer = LLLater::instance().doAfterInterval(action, seconds);
+    mTimer = LL::Timers::instance().scheduleAfter(action, seconds);
 }
 
 void LLEventTimeout::errorAfter(F32 seconds, const std::string& message)
@@ -118,7 +118,7 @@ void LLEventTimeout::cancel()
 
 bool LLEventTimeout::running() const
 {
-    return LLLater::instance().isRunning(mTimer);
+    return LL::Timers::instance().isRunning(mTimer);
 }
 
 /*****************************************************************************
@@ -277,17 +277,17 @@ F32 LLEventThrottle::getDelay() const
 
 void LLEventThrottle::alarmActionAfter(F32 interval, const LLEventTimeout::Action& action)
 {
-    mAlarm = LLLater::instance().doAfterInterval(action, interval);
+    mAlarm = LL::Timers::instance().scheduleAfter(action, interval);
 }
 
 bool LLEventThrottle::alarmRunning() const
 {
-    return LLLater::instance().isRunning(mAlarm);
+    return LL::Timers::instance().isRunning(mAlarm);
 }
 
 void LLEventThrottle::alarmCancel()
 {
-    LLLater::instance().cancel(mAlarm);
+    LL::Timers::instance().cancel(mAlarm);
 }
 
 void LLEventThrottle::timerSet(F32 interval)

@@ -49,20 +49,20 @@ LLEventTimer::~LLEventTimer()
 
 void LLEventTimer::start()
 {
-    mTimer = LLLater::instance().doPeriodically([this]{ return tick(); }, mPeriod);
+    mTimer = LL::Timers::instance().scheduleRepeating([this]{ return tick(); }, mPeriod);
 }
 
 void LLEventTimer::stop()
 {
-    LLLater::instance().cancel(mTimer);
+    LL::Timers::instance().cancel(mTimer);
 }
 
 bool LLEventTimer::isRunning()
 {
-    return LLLater::instance().isRunning(mTimer);
+    return LL::Timers::instance().isRunning(mTimer);
 }
 
 F32 LLEventTimer::getRemaining()
 {
-    return LLLater::instance().getRemaining(mTimer);
+    return LL::Timers::instance().timeUntilCall(mTimer);
 }

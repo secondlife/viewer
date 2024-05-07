@@ -50,7 +50,7 @@ public:
 	virtual bool tick() = 0;
 
 protected:
-	LLLater::temp_handle_t mTimer;
+	LL::Timers::temp_handle_t mTimer;
 	F32 mPeriod;
 };
 

@@ -191,7 +191,7 @@ public:
 
 private:
     // Use a temp_handle_t so it's canceled on destruction.
-    LLLater::temp_handle_t mTimer;
+    LL::Timers::temp_handle_t mTimer;
 };
 
 /**
@@ -300,7 +300,7 @@ private:
     F32 mInterval;
 
     // use this to arrange a deferred flush() call
-    LLLater::handle_t mAlarm;
+    LL::Timers::handle_t mAlarm;
 };
 
 /**
