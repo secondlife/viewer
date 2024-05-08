@@ -27,11 +27,12 @@
 #include "linden_common.h"
 #include "llsingleton.h"
 
+#include "llcoros.h"
+#include "lldependencies.h"
 #include "llerror.h"
 #include "llerrorcontrol.h"
-#include "lldependencies.h"
 #include "llexception.h"
-#include "llcoros.h"
+#include "llmainthreadtask.h"
 #include <algorithm>
 #include <iostream>                 // std::cerr in dire emergency
 #include <sstream>
@@ -484,4 +485,30 @@ void LLSingletonBase::logerrs(const string_params& args)
 std::string LLSingletonBase::demangle(const char* mangled)
 {
     return LLError::Log::demangle(mangled);
+}
+
+LLSingletonBase* LLSingletonBase::getInstanceForSecondaryThread(
+    const std::string& name,
+    const std::string& method,
+    const std::function<LLSingletonBase*()>& getInstance)
+{
+    // Normally it would be the height of folly to reference-bind args into a
+    // lambda to be executed on some other thread! By the time that thread
+    // executed the lambda, the references would all be dangling, and Bad
+    // Things would result. But LLMainThreadTask::dispatch() promises to block
+    // the calling thread until the passed task has completed. So in this case
+    // we know the references will remain valid until the lambda has run, so
+    // we dare to bind references.
+    return LLMainThreadTask::dispatch(
+        [&name, &method, &getInstance](){
+            // VERY IMPORTANT to call getInstance() on the main thread,
+            // rather than going straight to constructSingleton()!
+            // During the time window before mInitState is INITIALIZED,
+            // multiple requests might be queued. It's essential that, as
+            // the main thread processes them, only the FIRST such request
+            // actually constructs the instance -- every subsequent one
+            // simply returns the existing instance.
+            loginfos({name, "::", method, " on main thread"});
+            return getInstance();
+        });
 }

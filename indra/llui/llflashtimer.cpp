@@ -31,11 +31,11 @@ LLFlashTimer::LLFlashTimer(callback_t cb, S32 count, F32 period)
 :	LLEventTimer(period),
 	mCallback(cb),
 	mCurrentTickCount(0),
-    mIsFlashingInProgress(false),
-    mIsCurrentlyHighlighted(false),
-    mUnset(false)
+	mIsFlashingInProgress(false),
+	mIsCurrentlyHighlighted(false),
+	mUnset(false)
 {
-	mEventTimer.stop();
+	stop();
 
 	// By default use settings from settings.xml to be able change them via Debug settings. See EXT-5973.
 	// Due to Timer is implemented as derived class from EventTimer it is impossible to change period
@@ -53,7 +53,7 @@ void LLFlashTimer::unset()
 	mCallback = NULL;
 }
 
-BOOL LLFlashTimer::tick()
+bool LLFlashTimer::tick()
 {
 	mIsCurrentlyHighlighted = !mIsCurrentlyHighlighted;
 
@@ -74,12 +74,12 @@ void LLFlashTimer::startFlashing()
 {
 	mIsFlashingInProgress = true;
 	mIsCurrentlyHighlighted = true;
-	mEventTimer.start();
+	start();
 }
 
 void LLFlashTimer::stopFlashing()
 {
-	mEventTimer.stop();
+	stop();
 	mIsFlashingInProgress = false;
 	mIsCurrentlyHighlighted = false;
 	mCurrentTickCount = 0;

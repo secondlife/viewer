@@ -322,7 +322,7 @@ void LLApp::stepFrame()
 {
 	LLFrameTimer::updateFrameTime();
 	LLFrameTimer::updateFrameCount();
-	LLEventTimer::updateClass();
+	LLCallbackList::instance().callFunctions();
 	mRunner.run();
 }
 

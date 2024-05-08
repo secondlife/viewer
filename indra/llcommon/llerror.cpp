@@ -1429,16 +1429,17 @@ namespace LLError
 			message_stream << message;
 			message = message_stream.str();
 		}
-		
+
 		writeToRecorders(site, message);
 
 		if (site.mLevel == LEVEL_ERROR)
 		{
+			writeToRecorders(site, stringize(boost::stacktrace::stacktrace()));
 			g->mFatalMessage = message;
-            if (s->mCrashFunction)
-            {
-                s->mCrashFunction(message);
-            }
+			if (s->mCrashFunction)
+			{
+				s->mCrashFunction(message);
+			}
 		}
 	}
 }

@@ -118,26 +118,19 @@ public:
 	LLOutfitUnLockTimer(F32 period) : LLEventTimer(period)
 	{
 		// restart timer on BOF changed event
-		LLOutfitObserver::instance().addBOFChangedCallback(boost::bind(
-				&LLOutfitUnLockTimer::reset, this));
+		LLOutfitObserver::instance().addBOFChangedCallback([this]{ start(); });
 		stop();
 	}
 
-	/*virtual*/
-	BOOL tick()
+	bool tick() override
 	{
-		if(mEventTimer.hasExpired())
-		{
-			LLAppearanceMgr::instance().setOutfitLocked(false);
-		}
-		return FALSE;
+		LLAppearanceMgr::instance().setOutfitLocked(false);
+		return false;
 	}
-	void stop() { mEventTimer.stop(); }
-	void start() { mEventTimer.start(); }
-	void reset() { mEventTimer.reset(); }
-	BOOL getStarted() { return mEventTimer.getStarted(); }
+//	void reset() { mEventTimer.reset(); }
+	bool getStarted() { return isRunning(); }
 
-	LLTimer&  getEventTimer() { return mEventTimer;}
+//	LLTimer&  getEventTimer() { return mEventTimer;}
 };
 
 // support for secondlife:///app/appearance SLapps
@@ -332,7 +325,7 @@ public:
 	
 	// virtual
 	// Will be deleted after returning true - only safe to do this if all callbacks have fired.
-	BOOL tick()
+	bool tick() override
 	{
 		// mPendingRequests will be zero if all requests have been
 		// responded to.  mWaitTimes.empty() will be true if we have
@@ -1707,7 +1700,6 @@ void LLAppearanceMgr::setOutfitLocked(bool locked)
 	mOutfitLocked = locked;
 	if (locked)
 	{
-		mUnlockOutfitTimer->reset();
 		mUnlockOutfitTimer->start();
 	}
 	else
