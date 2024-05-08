@@ -113,22 +113,40 @@ void LLHeroProbeManager::update()
     LLVector4a probe_pos;
     LLVector3 camera_pos = LLViewerCamera::instance().mOrigin;
     F32        near_clip  = 0.1f;
+    bool       probe_present = false;
+    LLQuaternion cameraOrientation = LLViewerCamera::instance().getQuaternion();
+    LLVector3    cameraDirection   = LLVector3::z_axis * cameraOrientation;
+
     if (mHeroVOList.size() > 0)
     {
         // Find our nearest hero candidate.
-
         float last_distance = 99999.f;
-
+        float camera_center_distance = 99999.f;
         for (auto vo : mHeroVOList)
         {
             if (vo && !vo->isDead() && vo->mDrawable.notNull())
             {
                 float distance = (LLViewerCamera::instance().getOrigin() - vo->getPositionAgent()).magVec();
-                if (distance < last_distance)
+                float center_distance = cameraDirection * (vo->getPositionAgent() - camera_pos);
+
+                if (distance > LLViewerCamera::instance().getFar())
+					continue;
+
+                LLVector4a center;
+                center.load3(vo->getPositionAgent().mV);
+                LLVector4a size;
+
+                size.load3(vo->getScale().mV);
+
+                bool visible = LLViewerCamera::instance().AABBInFrustum(center, size);
+
+                if (distance < last_distance && center_distance < camera_center_distance && visible)
                 {
-                    mNearestHero = vo;
-                    last_distance = distance;
-                }
+					probe_present = true;
+					mNearestHero = vo;
+					last_distance = distance;
+                    camera_center_distance = center_distance;
+				}
             }
             else
             {
@@ -136,6 +154,10 @@ void LLHeroProbeManager::update()
             }
         }
         
+        // Don't even try to do anything if we didn't find a single mirror present.
+        if (!probe_present)
+            return;
+
         if (mNearestHero != nullptr && !mNearestHero->isDead() && mNearestHero->mDrawable.notNull())
         {
             LLVector3 hero_pos = mNearestHero->getPositionAgent();
@@ -152,14 +174,12 @@ void LLHeroProbeManager::update()
             mCurrentClipPlane.setVec(hero_pos, face_normal);
             mMirrorPosition = hero_pos;
             mMirrorNormal   = face_normal;
-        
 
             probe_pos.load3(point.mV);
 
-            // Collect the list of faces that need updating based upon the camera's rotation.
-            LLVector3 cam_direction = LLVector3(0, 0, 1) * LLViewerCamera::instance().getQuaternion();
-            cam_direction.normalize();
+            // Detect visible faces of a cube based on camera direction and distance
 
+            // Define the cube faces
             static LLVector3 cubeFaces[6] = { 
                 LLVector3(1, 0, 0), 
                 LLVector3(-1, 0, 0),
@@ -169,17 +189,21 @@ void LLHeroProbeManager::update()
                 LLVector3(0, 0, -1)
             };
 
+            // Iterate through each face of the cube
             for (int i = 0; i < 6; i++)
             {
-                float shouldUpdate = fminf(1, (fmaxf(-1, cam_direction * cubeFaces[i]) * 0.5 + 0.5));
-                
-                int updateRate = ceilf((1 - shouldUpdate) * gPipeline.RenderHeroProbeConservativeUpdateMultiplier);
-                
-                // Chances are this is a face that's non-visible to the camera when it's being reflected.
-                // Set it to 0.  It will be skipped below.
-                if (updateRate == gPipeline.RenderHeroProbeConservativeUpdateMultiplier)
+                float cube_facing = fmax(-1, fmin(1.0f, cameraDirection * cubeFaces[i])) * 0.6 + 0.4;
+                    
+                float updateRate;
+                if (cube_facing < 0.1f)
+                {
                     updateRate = 0;
-                
+                }
+                else
+                {
+                    updateRate = ceilf(cube_facing * gPipeline.RenderHeroProbeConservativeUpdateMultiplier);
+                }
+
                 mFaceUpdateList[i] = updateRate;
             }
         }
@@ -199,6 +223,7 @@ void LLHeroProbeManager::update()
     static LLCachedControl<S32> sDetail(gSavedSettings, "RenderHeroReflectionProbeDetail", -1);
     static LLCachedControl<S32> sLevel(gSavedSettings, "RenderHeroReflectionProbeLevel", 3);
 
+    if (mNearestHero != nullptr)
     {
         LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("hpmu - realtime");
         // Probe 0 is always our mirror probe.
@@ -208,13 +233,16 @@ void LLHeroProbeManager::update()
         
         gPipeline.mReflectionMapManager.mRadiancePass = true;
         mRenderingMirror = true;
+
+        doOcclusion();
+
         for (U32 j = 0; j < mProbes.size(); j++)
         {
             for (U32 i = 0; i < 6; ++i)
             {
                 if (mFaceUpdateList[i] > 0 && mCurrentProbeUpdateFrame % mFaceUpdateList[i] == 0)
                 {
-                    updateProbeFace(mProbes[j], i, near_clip);
+                    updateProbeFace(mProbes[j], i, mNearestHero->getReflectionProbeIsDynamic() && sDetail > 0, near_clip);
                     mCurrentProbeUpdateFrame = 0;
                 }
             }
@@ -239,17 +267,16 @@ void LLHeroProbeManager::update()
 // The next six passes render the scene with both radiance and irradiance into the same scratch space cube map and generate a simple mip chain.
 // At the end of these passes, a radiance map is generated for this probe and placed into the radiance cube map array at the index for this probe.
 // In effect this simulates single-bounce lighting.
-void LLHeroProbeManager::updateProbeFace(LLReflectionMap* probe, U32 face, F32 near_clip)
+void LLHeroProbeManager::updateProbeFace(LLReflectionMap* probe, U32 face, bool is_dynamic, F32 near_clip)
 {
     // hacky hot-swap of camera specific render targets
     gPipeline.mRT = &gPipeline.mHeroProbeRT;
 
-    probe->update(mRenderTarget.getWidth(), face, true, near_clip);
+    probe->update(mRenderTarget.getWidth(), face, is_dynamic, near_clip);
     
     gPipeline.mRT = &gPipeline.mMainRT;
 
     S32 sourceIdx = mReflectionProbeCount;
-    
     
     // Unlike the reflectionmap manager, all probes are considered "realtime" for hero probes.
     sourceIdx += 1;
@@ -371,8 +398,6 @@ void LLHeroProbeManager::generateRadiance(LLReflectionMap* probe)
         static LLStaticHashedString sSourceIdx("sourceIdx");
 
         {
-
-
             // generate radiance map (even if this is not the irradiance map, we need the mip chain for the irradiance map)
             gHeroRadianceGenProgram.bind();
             mVertexBuffer->setBuffer();
