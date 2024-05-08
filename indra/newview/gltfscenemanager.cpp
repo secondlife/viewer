@@ -454,12 +454,24 @@ void GLTFSceneManager::update()
     {
         if (mPendingImageUploads == 0 && mPendingBinaryUploads == 0)
         {
+            std::string filename(gDirUtilp->getTempDir() + "/upload.gltf");
+#if 0
             tinygltf::Model model;
             mUploadingAsset->save(model);
 
             tinygltf::TinyGLTF writer;
-            std::string filename(gDirUtilp->getTempDir() + "/upload.gltf");
+            
             writer.WriteGltfSceneToFile(&model, filename, false, false, true, false);
+#else
+            boost::json::object obj;
+            mUploadingAsset->serialize(obj);
+            std::string json = boost::json::serialize(obj, {});
+
+            {
+                std::ofstream o(filename);
+                o << json;
+            }
+#endif
 
             std::ifstream t(filename);
             std::stringstream str;

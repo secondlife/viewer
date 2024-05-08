@@ -544,6 +544,18 @@ void Node::setScale(const glh::vec3f& s)
     mMatrixValid = false;
 }
 
+void Node::serialize(object& dst) const
+{
+    write(mName, "name", dst);
+    write(mMatrix, "matrix", dst, LLMatrix4a::identity());
+    write(mRotation, "rotation", dst);
+    write(mTranslation, "translation", dst);
+    write(mScale, "scale", dst, glh::vec3f(1.f,1.f,1.f));
+    write(mChildren, "children", dst);
+    write(mMesh, "mesh", dst, INVALID_INDEX);
+    write(mSkin, "skin", dst, INVALID_INDEX);
+}
+
 const Node& Node::operator=(const Value& src)
 {
     copy(src, "name", mName);
@@ -616,6 +628,19 @@ const Node& Node::operator=(const tinygltf::Node& src)
     mName = src.name;
 
     return *this;
+}
+
+void Image::serialize(object& dst) const
+{
+    write(mUri, "uri", dst);
+    write(mMimeType, "mimeType", dst);
+    write(mBufferView, "bufferView", dst, INVALID_INDEX);
+    write(mName, "name", dst);
+    write(mWidth, "width", dst, -1);
+    write(mHeight, "height", dst, -1);
+    write(mComponent, "component", dst, -1);
+    write(mBits, "bits", dst, -1);
+    write(mPixelType, "pixelType", dst, -1);
 }
 
 const Image& Image::operator=(const Value& src)
@@ -928,6 +953,27 @@ void Asset::save(tinygltf::Model& dst)
     LL::GLTF::copy(*this, dst);
 }
 
+void Asset::serialize(object& dst) const
+{
+    write(mVersion, "version", dst);
+    write(mMinVersion, "minVersion", dst, std::string());
+    write(mGenerator, "generator", dst);
+    write(mDefaultScene, "defaultScene", dst, 0);
+    
+    write(mScenes, "scenes", dst);
+    write(mNodes, "nodes", dst);
+    write(mMeshes, "meshes", dst);
+    write(mMaterials, "materials", dst);
+    write(mBuffers, "buffers", dst);
+    write(mBufferViews, "bufferViews", dst);
+    write(mTextures, "textures", dst);
+    write(mSamplers, "samplers", dst);
+    write(mImages, "images", dst);
+    write(mAccessors, "accessors", dst);
+    write(mAnimations, "animations", dst);
+    write(mSkins, "skins", dst);
+}
+
 void Asset::decompose(const std::string& filename)
 {
     // get folder path
@@ -1045,6 +1091,12 @@ void Image::decompose(Asset& asset, const std::string& folder)
     clearData(asset);
 }
 
+void Material::TextureInfo::serialize(object& dst) const
+{
+    write(mIndex, "index", dst, INVALID_INDEX);
+    write(mTexCoord, "texCoord", dst, 0);
+}
+
 const Material::TextureInfo& Material::TextureInfo::operator=(const Value& src)
 {
     if (src.is_object())
@@ -1056,11 +1108,28 @@ const Material::TextureInfo& Material::TextureInfo::operator=(const Value& src)
     return *this;
 }
 
+bool Material::TextureInfo::operator==(const Material::TextureInfo& rhs) const
+{
+    return mIndex == rhs.mIndex && mTexCoord == rhs.mTexCoord;
+}
+
+bool Material::TextureInfo::operator!=(const Material::TextureInfo& rhs) const
+{
+    return !(*this == rhs);
+}
+
 const Material::TextureInfo& Material::TextureInfo::operator=(const tinygltf::TextureInfo& src)
 {
     mIndex = src.index;
     mTexCoord = src.texCoord;
     return *this;
+}
+
+void Material::OcclusionTextureInfo::serialize(object& dst) const
+{
+    write(mIndex, "index", dst, INVALID_INDEX);
+    write(mTexCoord, "texCoord", dst, 0);
+    write(mStrength, "strength", dst, 1.f);
 }
 
 const Material::OcclusionTextureInfo& Material::OcclusionTextureInfo::operator=(const Value& src)
@@ -1081,6 +1150,13 @@ const Material::OcclusionTextureInfo& Material::OcclusionTextureInfo::operator=(
     mTexCoord = src.texCoord;
     mStrength = src.strength;
     return *this;
+}
+
+void Material::NormalTextureInfo::serialize(object& dst) const
+{
+    write(mIndex, "index", dst, INVALID_INDEX);
+    write(mTexCoord, "texCoord", dst, 0);
+    write(mScale, "scale", dst, 1.f);
 }
 
 const Material::NormalTextureInfo& Material::NormalTextureInfo::operator=(const Value& src)
@@ -1116,6 +1192,29 @@ const Material::PbrMetallicRoughness& Material::PbrMetallicRoughness::operator=(
     return *this;
 }
 
+void Material::PbrMetallicRoughness::serialize(object& dst) const
+{
+    write(mBaseColorFactor, "baseColorFactor", dst, glh::vec4f(1.f, 1.f, 1.f, 1.f));
+    write(mBaseColorTexture, "baseColorTexture", dst);
+    write(mMetallicFactor, "metallicFactor", dst, 1.f);
+    write(mRoughnessFactor, "roughnessFactor", dst, 1.f);
+    write(mMetallicRoughnessTexture, "metallicRoughnessTexture", dst);
+}
+
+bool Material::PbrMetallicRoughness::operator==(const Material::PbrMetallicRoughness& rhs) const
+{
+    return mBaseColorFactor == rhs.mBaseColorFactor &&
+        mBaseColorTexture == rhs.mBaseColorTexture &&
+        mMetallicFactor == rhs.mMetallicFactor &&
+        mRoughnessFactor == rhs.mRoughnessFactor &&
+        mMetallicRoughnessTexture == rhs.mMetallicRoughnessTexture;
+}
+
+bool Material::PbrMetallicRoughness::operator!=(const Material::PbrMetallicRoughness& rhs) const
+{
+    return !(*this == rhs);
+}
+
 const Material::PbrMetallicRoughness& Material::PbrMetallicRoughness::operator=(const tinygltf::PbrMetallicRoughness& src)
 {
     if (src.baseColorFactor.size() == 4)
@@ -1129,6 +1228,19 @@ const Material::PbrMetallicRoughness& Material::PbrMetallicRoughness::operator=(
     mMetallicRoughnessTexture = src.metallicRoughnessTexture;
 
     return *this;
+}
+
+void Material::serialize(object& dst) const
+{
+    write(mName, "name", dst);
+    write(mEmissiveFactor, "emissiveFactor", dst, glh::vec3f(0.f, 0.f, 0.f));
+    write(mPbrMetallicRoughness, "pbrMetallicRoughness", dst);
+    write(mNormalTexture, "normalTexture", dst);
+    write(mOcclusionTexture, "occlusionTexture", dst);
+    write(mEmissiveTexture, "emissiveTexture", dst);
+    write(mAlphaMode, "alphaMode", dst, std::string("OPAQUE"));
+    write(mAlphaCutoff, "alphaCutoff", dst, 0.5f);
+    write(mDoubleSided, "doubleSided", dst, false);
 }
 
 const Material& Material::operator=(const Value& src)
@@ -1178,6 +1290,13 @@ void Material::allocateGLResources(Asset& asset)
     mMaterial = new LLFetchedGLTFMaterial();
 }
 
+void Mesh::serialize(object& dst) const
+{
+    write(mPrimitives, "primitives", dst);
+    write(mWeights, "weights", dst);
+    write(mName, "name", dst);
+}
+
 const Mesh& Mesh::operator=(const Value& src)
 {
     if (src.is_object())
@@ -1212,6 +1331,12 @@ void Mesh::allocateGLResources(Asset& asset)
     }
 }
 
+void Scene::serialize(object& dst) const
+{
+    write(mNodes, "nodes", dst);
+    write(mName, "name", dst);
+}
+
 const Scene& Scene::operator=(const Value& src)
 {
     copy(src, "nodes", mNodes);
@@ -1220,13 +1345,19 @@ const Scene& Scene::operator=(const Value& src)
     return *this;
 }
 
-
 const Scene& Scene::operator=(const tinygltf::Scene& src)
 {
     mNodes = src.nodes;
     mName = src.name;
 
     return *this;
+}
+
+void Texture::serialize(object& dst) const
+{
+    write(mSampler, "sampler", dst, INVALID_INDEX);
+    write(mSource, "source", dst, INVALID_INDEX);
+    write(mName, "name", dst);
 }
 
 const Texture& Texture::operator=(const Value& src)
@@ -1251,6 +1382,15 @@ const Texture& Texture::operator=(const tinygltf::Texture& src)
 }
 
 
+void Sampler::serialize(object& dst) const
+{
+    write(mMagFilter, "magFilter", dst, LINEAR);
+    write(mMinFilter, "minFilter", dst, LINEAR_MIPMAP_LINEAR);
+    write(mWrapS, "wrapS", dst, REPEAT);
+    write(mWrapT, "wrapT", dst, REPEAT);
+    write(mName, "name", dst);
+}
+
 const Sampler& Sampler::operator=(const Value& src)
 {
     copy(src, "magFilter", mMagFilter);
@@ -1261,7 +1401,6 @@ const Sampler& Sampler::operator=(const Value& src)
 
     return *this;
 }
-
 
 const Sampler& Sampler::operator=(const tinygltf::Sampler& src)
 {

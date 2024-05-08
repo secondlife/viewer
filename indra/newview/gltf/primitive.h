@@ -68,7 +68,7 @@ namespace LL
             std::vector<LLVolumeTriangle> mOctreeTriangles;
             
             S32 mMaterial = -1;
-            U32 mMode = TINYGLTF_MODE_TRIANGLES; // default to triangles
+            S32 mMode = TINYGLTF_MODE_TRIANGLES; // default to triangles
             U32 mGLMode = LLRender::TRIANGLES;
             S32 mIndices = -1;
             std::unordered_map<std::string, int> mAttributes;
@@ -87,6 +87,7 @@ namespace LL
                 LLVector4a* tangent = NULL             // return the surface tangent at the intersection point
             );
             
+            void serialize(boost::json::object& obj) const;
             const Primitive& operator=(const Value& src);
             const Primitive& operator=(const tinygltf::Primitive& src);
 

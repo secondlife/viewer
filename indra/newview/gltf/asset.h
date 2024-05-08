@@ -43,6 +43,16 @@ namespace LL
     {
         using Value = boost::json::value;
 
+        constexpr S32 LINEAR = 9729;
+        constexpr S32 NEAREST = 9728;
+        constexpr S32 NEAREST_MIPMAP_NEAREST = 9984;
+        constexpr S32 LINEAR_MIPMAP_NEAREST = 9985;
+        constexpr S32 NEAREST_MIPMAP_LINEAR = 9986;
+        constexpr S32 LINEAR_MIPMAP_LINEAR = 9987;
+        constexpr S32 CLAMP_TO_EDGE = 33071;
+        constexpr S32 MIRRORED_REPEAT = 33648;
+        constexpr S32 REPEAT = 10497;
+
         class Asset;
 
         class Material
@@ -54,8 +64,12 @@ namespace LL
                 S32 mIndex = INVALID_INDEX;
                 S32 mTexCoord = 0;
 
+                bool operator==(const TextureInfo& rhs) const;
+                bool operator!=(const TextureInfo& rhs) const;
+                
                 const TextureInfo& operator=(const tinygltf::TextureInfo& src);
                 const TextureInfo& operator=(const Value& src);
+                void serialize(boost::json::object& dst) const;
             };
 
             class NormalTextureInfo : public TextureInfo
@@ -65,6 +79,7 @@ namespace LL
 
                 const NormalTextureInfo& operator=(const tinygltf::NormalTextureInfo& src);
                 const NormalTextureInfo& operator=(const Value& src);
+                void serialize(boost::json::object& dst) const;
             };
 
             class OcclusionTextureInfo : public TextureInfo
@@ -74,6 +89,7 @@ namespace LL
 
                 const OcclusionTextureInfo& operator=(const tinygltf::OcclusionTextureInfo& src);
                 const OcclusionTextureInfo& operator=(const Value& src);
+                void serialize(boost::json::object& dst) const;
             };
 
             class PbrMetallicRoughness
@@ -84,8 +100,12 @@ namespace LL
                 F32 mMetallicFactor = 1.0f;
                 F32 mRoughnessFactor = 1.0f;
                 TextureInfo mMetallicRoughnessTexture;
+
+                bool operator==(const PbrMetallicRoughness& rhs) const;
+                bool operator!=(const PbrMetallicRoughness& rhs) const;
                 const PbrMetallicRoughness& operator=(const tinygltf::PbrMetallicRoughness& src);
                 const PbrMetallicRoughness& operator=(const Value& src);
+                void serialize(boost::json::object& dst) const;
             };
 
 
@@ -108,6 +128,7 @@ namespace LL
 
             const Material& operator=(const tinygltf::Material& src);
             const Material& operator=(const Value& src);
+            void serialize(boost::json::object& dst) const;
             
             void allocateGLResources(Asset& asset);
         };
@@ -121,6 +142,7 @@ namespace LL
 
             const Mesh& operator=(const tinygltf::Mesh& src);
             const Mesh& operator=(const Value& src);
+            void serialize(boost::json::object& dst) const;
             
             void allocateGLResources(Asset& asset);
         };
@@ -157,6 +179,7 @@ namespace LL
 
             const Node& operator=(const tinygltf::Node& src);
             const Node& operator=(const Value& src);
+            void serialize(boost::json::object& dst) const;
 
             // Set mRenderMatrix to a transform that can be used for the current render pass
             // modelview -- parent's render matrix
@@ -198,6 +221,7 @@ namespace LL
 
             const Skin& operator=(const tinygltf::Skin& src);
             const Skin& operator=(const Value& src);
+            void serialize(boost::json::object& dst) const;
         };
 
         class Scene
@@ -208,6 +232,7 @@ namespace LL
 
             const Scene& operator=(const tinygltf::Scene& src);
             const Scene& operator=(const Value& src);
+            void serialize(boost::json::object& dst) const;
 
             void updateTransforms(Asset& asset);
             void updateRenderTransforms(Asset& asset, const LLMatrix4a& modelview);
@@ -222,19 +247,21 @@ namespace LL
 
             const Texture& operator=(const tinygltf::Texture& src);
             const Texture& operator=(const Value& src);
+            void serialize(boost::json::object& dst) const;
         };
 
         class Sampler
         {
         public:
-            S32 mMagFilter;
-            S32 mMinFilter;
-            S32 mWrapS;
-            S32 mWrapT;
+            S32 mMagFilter = LINEAR;
+            S32 mMinFilter = LINEAR_MIPMAP_LINEAR;
+            S32 mWrapS = REPEAT;
+            S32 mWrapT = REPEAT;
             std::string mName;
 
             const Sampler& operator=(const tinygltf::Sampler& src);
             const Sampler& operator=(const Value& src);
+            void serialize(boost::json::object& dst) const;
         };
 
         class Image
@@ -247,16 +274,17 @@ namespace LL
             S32 mBufferView = INVALID_INDEX;
 
             std::vector<U8> mData;
-            S32 mWidth;
-            S32 mHeight;
-            S32 mComponent;
-            S32 mBits;
-            S32 mPixelType;
+            S32 mWidth = -1;
+            S32 mHeight = -1;
+            S32 mComponent = -1;
+            S32 mBits = -1;
+            S32 mPixelType = -1;
 
             LLPointer<LLViewerFetchedTexture> mTexture;
 
             const Image& operator=(const tinygltf::Image& src);
             const Image& operator=(const Value& src);
+            void serialize(boost::json::object& dst) const;
             
             // save image clear local data, and set uri
             void decompose(Asset& asset, const std::string& filename);
@@ -277,6 +305,8 @@ namespace LL
         class Asset
         {
         public:
+
+            static const std::string minVersion_default;
             std::vector<Scene> mScenes;
             std::vector<Node> mNodes;
             std::vector<Mesh> mMeshes;
@@ -337,6 +367,7 @@ namespace LL
 
             const Asset& operator=(const tinygltf::Model& src);
             const Asset& operator=(const Value& src);
+            void serialize(boost::json::object& dst) const;
 
             // save the asset to a tinygltf model
             void save(tinygltf::Model& dst);

@@ -72,6 +72,32 @@ namespace LL
 
             return Accessor::Type::SCALAR;
         }
+
+        std::string enum_to_gltf_type(Accessor::Type type)
+        {
+            switch (type)
+            {
+            case Accessor::Type::SCALAR:
+                return "SCALAR";
+            case Accessor::Type::VEC2:
+                return "VEC2";
+            case Accessor::Type::VEC3:
+                return "VEC3";
+            case Accessor::Type::VEC4:
+                return "VEC4";
+            case Accessor::Type::MAT2:
+                return "MAT2";
+            case Accessor::Type::MAT3:
+                return "MAT3";
+            case Accessor::Type::MAT4:
+                return "MAT4";
+            }
+
+            LL_WARNS("GLTF") << "Unknown accessor type: " << (S32)type << LL_ENDL;
+            llassert(false);
+
+            return "SCALAR";
+        }
     }
 }
 
@@ -93,6 +119,13 @@ void Buffer::erase(Asset& asset, S32 offset, S32 length)
     }
 }
 
+void Buffer::serialize(object& dst) const
+{
+    write(mName, "name", dst);
+    write(mUri, "uri", dst);
+    write_always(mByteLength, "byteLength", dst);
+};
+
 const Buffer& Buffer::operator=(const Value& src)
 {
     if (src.is_object())
@@ -113,6 +146,17 @@ const Buffer& Buffer::operator=(const tinygltf::Buffer& src)
     mName = src.name;
     mUri = src.uri;
     return *this;
+}
+
+
+void BufferView::serialize(object& dst) const
+{
+    write_always(mBuffer, "buffer", dst);
+    write_always(mByteLength, "byteLength", dst);
+    write(mByteOffset, "byteOffset", dst, 0);
+    write(mByteStride, "byteStride", dst, 0);
+    write(mTarget, "target", dst, -1);
+    write(mName, "name", dst);
 }
 
 const BufferView& BufferView::operator=(const Value& src)
@@ -164,6 +208,19 @@ Accessor::Type tinygltf_type_to_enum(S32 type)
     llassert(false);
 
     return Accessor::Type::SCALAR;
+}
+
+void Accessor::serialize(object& dst) const
+{
+    write(mName, "name", dst);
+    write(mBufferView, "bufferView", dst, INVALID_INDEX);
+    write(mByteOffset, "byteOffset", dst, 0);
+    write_always(mComponentType, "componentType", dst);
+    write_always(mCount, "count", dst);
+    write_always(enum_to_gltf_type(mType), "type", dst);
+    write(mNormalized, "normalized", dst, false);
+    write(mMax, "max", dst);
+    write(mMin, "min", dst);
 }
 
 const Accessor& Accessor::operator=(const Value& src)

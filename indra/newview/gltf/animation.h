@@ -51,6 +51,7 @@ namespace LL
 
                 void allocateGLResources(Asset& asset);
 
+                void serialize(boost::json::object& dst) const;
                 const Sampler& operator=(const Value& value);
                 const Sampler& operator=(const tinygltf::AnimationSampler& src);
                 
@@ -72,12 +73,17 @@ namespace LL
                     S32 mNode = INVALID_INDEX;
                     std::string mPath;
 
+                    bool operator==(const Target& other) const;
+                    bool operator!=(const Target& other) const;
+
+                    void serialize(boost::json::object& dst) const;
                     const Target& operator=(const Value& value);
                 };
 
                 S32 mSampler = INVALID_INDEX;
                 Target mTarget;
 
+                void serialize(boost::json::object& dst) const;
                 const Channel& operator=(const Value& value);
                 const Channel& operator=(const tinygltf::AnimationChannel& src);
             };
@@ -89,12 +95,6 @@ namespace LL
                 RotationChannel(const Channel& channel) : Channel(channel) {}
 
                 std::vector<glh::quaternionf> mRotations;
-
-                const RotationChannel& operator=(const Value& value)
-                {
-                    Channel::operator=(value);
-                    return *this;
-                }
 
                 const RotationChannel& operator=(const tinygltf::AnimationChannel& src)
                 {
@@ -118,12 +118,6 @@ namespace LL
 
                 std::vector<glh::vec3f> mTranslations;
 
-                const TranslationChannel& operator=(const Value& value)
-                {
-                    Channel::operator=(value);
-                    return *this;
-                }
-
                 const TranslationChannel& operator=(const tinygltf::AnimationChannel& src)
                 {
                     Channel::operator=(src);
@@ -145,12 +139,6 @@ namespace LL
                 ScaleChannel(const Channel& channel) : Channel(channel) {}
 
                 std::vector<glh::vec3f> mScales;
-
-                const ScaleChannel& operator=(const Value& value)
-                {
-                    Channel::operator=(value);
-                    return *this;
-                }
 
                 const ScaleChannel& operator=(const tinygltf::AnimationChannel& src)
                 {
@@ -180,6 +168,7 @@ namespace LL
             std::vector<TranslationChannel> mTranslationChannels;
             std::vector<ScaleChannel> mScaleChannels;
 
+            void serialize(boost::json::object& dst) const;
             const Animation& operator=(const Value& value);
             const Animation& operator=(const tinygltf::Animation& src);
             

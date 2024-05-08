@@ -46,11 +46,13 @@ namespace LL
             std::vector<U8> mData;
             std::string mName;
             std::string mUri;
+            S32 mByteLength = 0;
 
             // erase the given range from this buffer.
             // also updates all buffer views in given asset that reference this buffer
             void erase(Asset& asset, S32 offset, S32 length);
 
+            void serialize(boost::json::object& obj) const;
             const Buffer& operator=(const Value& value);
             const Buffer& operator=(const tinygltf::Buffer& src);
         };
@@ -59,14 +61,14 @@ namespace LL
         {
         public:
             S32 mBuffer = INVALID_INDEX;
-            S32 mByteLength;
-            S32 mByteOffset;
-            S32 mByteStride;
-            S32 mTarget;
-            S32 mComponentType;
+            S32 mByteLength = 0;
+            S32 mByteOffset = 0;
+            S32 mByteStride = 0;
+            S32 mTarget = -1;
 
             std::string mName;
 
+            void serialize(boost::json::object& obj) const;
             const BufferView& operator=(const Value& value);
             const BufferView& operator=(const tinygltf::BufferView& src);
         };
@@ -75,9 +77,9 @@ namespace LL
         {
         public:
             S32 mBufferView = INVALID_INDEX;
-            S32 mByteOffset;
-            S32 mComponentType;
-            S32 mCount;
+            S32 mByteOffset = 0;
+            S32 mComponentType = 0;
+            S32 mCount = 0;
             std::vector<double> mMax;
             std::vector<double> mMin;
 
@@ -92,15 +94,19 @@ namespace LL
                 MAT4 = TINYGLTF_TYPE_MAT4
             };
 
-            Type mType;
-            bool mNormalized;
+            Type mType = Type::SCALAR;
+            bool mNormalized = false;
             std::string mName;
 
+            void serialize(boost::json::object& obj) const;
             const Accessor& operator=(const Value& value);
             const Accessor& operator=(const tinygltf::Accessor& src);
         };
 
         // convert from "SCALAR", "VEC2", etc to Accessor::Type
         Accessor::Type gltf_type_to_enum(const std::string& type);
+
+        // convert from Accessor::Type to "SCALAR", "VEC2", etc
+        std::string enum_to_gltf_type(Accessor::Type type);
     }
 }

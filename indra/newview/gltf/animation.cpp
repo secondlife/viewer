@@ -98,6 +98,15 @@ void Animation::Sampler::allocateGLResources(Asset& asset)
 }
 
 
+void Animation::Sampler::serialize(object& obj) const
+{
+    write(mInput, "input", obj, INVALID_INDEX);
+    write(mOutput, "output", obj, INVALID_INDEX);
+    write(mInterpolation, "interpolation", obj, std::string("LINEAR"));
+    write(mMinTime, "min_time", obj);
+    write(mMaxTime, "max_time", obj);
+}
+
 const Animation::Sampler& Animation::Sampler::operator=(const Value& src)
 {
     if (src.is_object())
@@ -121,6 +130,22 @@ const Animation::Sampler& Animation::Sampler::operator=(const tinygltf::Animatio
     return *this;
 }
 
+bool Animation::Channel::Target::operator==(const Channel::Target& rhs) const
+{
+    return mNode == rhs.mNode && mPath == rhs.mPath;
+}
+
+bool Animation::Channel::Target::operator!=(const Channel::Target& rhs) const
+{
+    return !(*this == rhs);
+}
+
+void Animation::Channel::Target::serialize(object& obj) const
+{
+    write(mNode, "node", obj, INVALID_INDEX);
+    write(mPath, "path", obj);
+}
+
 const Animation::Channel::Target& Animation::Channel::Target::operator=(const Value& src)
 {
     if (src.is_object())
@@ -129,6 +154,12 @@ const Animation::Channel::Target& Animation::Channel::Target::operator=(const Va
         copy(src, "path", mPath);
     }
     return *this;
+}
+
+void Animation::Channel::serialize(object& obj) const
+{
+    write(mSampler, "sampler", obj, INVALID_INDEX);
+    write(mTarget, "target", obj);
 }
 
 const Animation::Channel& Animation::Channel::operator=(const Value& src)
@@ -291,6 +322,19 @@ void Animation::ScaleChannel::apply(Asset& asset, Sampler& sampler, F32 time)
     }
 }
 
+void Animation::serialize(object& obj) const
+{
+    write(mName, "name", obj);
+    write(mSamplers, "samplers", obj);
+
+    std::vector<Channel> channels;
+    channels.insert(channels.end(), mRotationChannels.begin(), mRotationChannels.end());
+    channels.insert(channels.end(), mTranslationChannels.begin(), mTranslationChannels.end());
+    channels.insert(channels.end(), mScaleChannels.begin(), mScaleChannels.end());
+
+    write(channels, "channels", obj);
+}
+
 const Animation& Animation::operator=(const Value& src)
 {
     if (src.is_object())
@@ -389,3 +433,10 @@ const Skin& Skin::operator=(const tinygltf::Skin& src)
     return *this;
 }
 
+void Skin::serialize(object& obj) const
+{
+    write(mInverseBindMatrices, "inverseBindMatrices", obj, INVALID_INDEX);
+    write(mJoints, "joints", obj);
+    write(mName, "name", obj);
+    write(mSkeleton, "skeleton", obj, INVALID_INDEX);
+}

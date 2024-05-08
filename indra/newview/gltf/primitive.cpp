@@ -33,6 +33,7 @@
 #include "../lltinygltfhelper.h"
 
 using namespace LL::GLTF;
+using namespace boost::json;
 
 void Primitive::allocateGLResources(Asset& asset)
 {
@@ -379,9 +380,16 @@ U32 gltf_mode_to_gl_mode(U32 mode)
     }
 }
 
+void Primitive::serialize(boost::json::object& dst) const
+{
+    write(mMaterial, "material", dst, -1);
+    write(mMode, "mode", dst, TINYGLTF_MODE_TRIANGLES);
+    write(mIndices, "indices", dst, INVALID_INDEX);
+    write(mAttributes, "attributes", dst);
+}
+
 const Primitive& Primitive::operator=(const Value& src)
 {
-    using namespace boost::json;
     if (src.is_object())
     {
         copy(src, "material", mMaterial);

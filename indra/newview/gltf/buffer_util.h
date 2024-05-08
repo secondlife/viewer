@@ -405,6 +405,9 @@ namespace LL
         // boost::json copying utilities
         // ========================================================================================================
         
+        //====================== unspecialized base template ===========================
+
+        // to/from Value
         template<typename T>
         static bool copy(const Value& src, T& dst)
         {
@@ -412,6 +415,16 @@ namespace LL
             return true;
         }
 
+        template<typename T>
+        static bool write(const T& src, Value& dst)
+        {
+            dst = boost::json::object();
+            src.serialize(dst.as_object());
+            return true;
+        }
+
+
+        // to/from object member
         template<typename T>
         static bool copy(const boost::json::object& src, std::string_view member, T& dst)
         {
@@ -422,6 +435,32 @@ namespace LL
             }
             return false;
         }
+
+        // always write a member to an object without checking default
+        template<typename T>
+        static bool write_always(const T& src, std::string_view member, boost::json::object& dst)
+        {
+            Value& v = dst[member];
+            if (!write(src, v))
+            {
+                dst.erase(member);
+                return false;
+            }
+            return true;
+        }
+
+        // conditionally write a member to an object if the member
+        // is not the default value
+        template<typename T>
+        static bool write(const T& src, std::string_view member, boost::json::object& dst, const T& default_value = T())
+        {
+            if (src != default_value)
+            {
+                return write_always(src, member, dst);
+            }
+            return false;
+        }
+        
 
         template<typename T>
         static bool copy(const Value& src, std::string_view member, T& dst)
@@ -435,6 +474,115 @@ namespace LL
             return false;
         }
 
+
+        // to/from array
+        template<typename T>
+        bool copy(const Value& src, std::vector<T>& dst)
+        {
+            if (src.is_array())
+            {
+                const array& arr = src.get_array();
+                dst.resize(arr.size());
+                for (size_t i = 0; i < arr.size(); ++i)
+                {
+                    copy(arr[i], dst[i]);
+                }
+                return true;
+            }
+
+            return false;
+        }
+
+        template<typename T>
+        bool write(const std::vector<T>& src, Value& dst)
+        {
+            array arr;
+            for (const T& t : src)
+            {
+                Value v;
+                if (write(t, v))
+                {
+                    arr.push_back(v);
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            dst = arr;
+            return true;
+        }
+
+        template<typename T>
+        bool write(const std::vector<T>& src, std::string_view member, boost::json::object& dst)
+        {
+            if (!src.empty())
+            {
+                Value v;
+                if (write(src, v))
+                {
+                    dst[member] = v;
+                    return true;
+                }
+            } 
+            return false;
+        }
+
+        // to/from map
+        template<typename T>
+        bool copy(const Value& src, std::unordered_map<std::string, T>& dst)
+        {
+            if (src.is_object())
+            {
+                const boost::json::object& obj = src.as_object();
+                for (const auto& [key, value] : obj)
+                {
+                    copy(value, dst[key]);
+                }
+                return true;
+            }
+            return false;
+        }
+
+        template<typename T>
+        bool write(const std::unordered_map<std::string, T>& src, Value& dst)
+        {
+            boost::json::object obj;
+            for (const auto& [key, value] : src)
+            {
+                Value v;
+                if (write(value, v))
+                {
+                    obj[key] = v;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            dst = obj;
+            return true;
+        }
+
+        template<typename T>
+        bool write(const std::unordered_map<std::string, T>& src, std::string_view member, boost::json::object& dst)
+        {
+            if (!src.empty())
+            {
+                Value v;
+                if (write(src, v))
+                {
+                    dst[member] = v;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // ====================== specialized template implementations ===========================
+        
+        
+        // glh::vec4f
         template<>
         bool copy(const Value& src, glh::vec4f& dst)
         {
@@ -457,6 +605,19 @@ namespace LL
         }
 
         template<>
+        bool write(const glh::vec4f& src, Value& dst)
+        {
+            boost::json::array arr;
+            arr.push_back(src.v[0]);
+            arr.push_back(src.v[1]);
+            arr.push_back(src.v[2]);
+            arr.push_back(src.v[3]);
+            dst = arr;
+            return true;
+        }
+
+        // glh::quaternionf
+        template<>
         bool copy(const Value& src, glh::quaternionf& dst)
         {
             if (src.is_array())
@@ -478,6 +639,20 @@ namespace LL
         }
 
         template<>
+        bool write(const glh::quaternionf& src, Value& dst)
+        {
+            boost::json::array arr;
+            arr.push_back(src[0]);
+            arr.push_back(src[1]);
+            arr.push_back(src[2]);
+            arr.push_back(src[3]);
+            dst = arr;
+            return true;
+        }
+
+
+        // glh::vec3f
+        template<>
         bool copy(const Value& src, glh::vec3f& dst)
         {
             if (src.is_array())
@@ -498,6 +673,18 @@ namespace LL
         }
 
         template<>
+        bool write(const glh::vec3f& src, Value& dst)
+        {
+            boost::json::array arr;
+            arr.push_back(src[0]);
+            arr.push_back(src[1]);
+            arr.push_back(src[2]);
+            dst = arr;
+            return true;
+        }
+
+        // bool
+        template<>
         bool copy(const Value& src, bool& dst)
         {
             if (src.is_bool())
@@ -508,6 +695,14 @@ namespace LL
             return false;
         }
 
+        template<>
+        bool write(const bool& src, Value& dst)
+        {
+            dst = src;
+            return true;
+        }
+
+        // F32
         template<>
         bool copy(const Value& src, F32& dst)
         {
@@ -520,6 +715,15 @@ namespace LL
         }
 
         template<>
+        bool write(const F32& src, Value& dst)
+        {
+            dst = src;
+            return true;
+        }
+
+
+        // U32
+        template<>
         bool copy(const Value& src, U32& dst)
         {
             if (src.is_int64())
@@ -530,6 +734,14 @@ namespace LL
             return false;
         }
 
+        template<>
+        bool write(const U32& src, Value& dst)
+        {
+            dst = src;
+            return true;
+        }
+
+        // F64
         template<>
         bool copy(const Value& src, F64& dst)
         {
@@ -542,6 +754,14 @@ namespace LL
         }
 
         template<>
+        bool write(const F64& src, Value& dst)
+        {
+            dst = src;
+            return true;
+        }
+
+        // Accessor::Type
+        template<>
         bool copy(const Value& src, Accessor::Type& dst)
         {
             if (src.is_string())
@@ -553,23 +773,13 @@ namespace LL
         }
 
         template<>
-        bool copy(const Value& src, std::unordered_map<std::string, S32>& dst)
+        bool write(const Accessor::Type& src, Value& dst)
         {
-            if (src.is_object())
-            {
-                const boost::json::object& obj = src.as_object();
-                for (const auto& [key, value] : obj)
-                {
-                    if (value.is_int64())
-                    {
-                        dst[key] = value.get_int64();
-                    }
-                }
-                return true;
-            }
-            return false;
+            dst = enum_to_gltf_type(src);
+            return true;
         }
 
+        // S32
         template<>
         bool copy(const Value& src, S32& dst)
         {
@@ -582,6 +792,15 @@ namespace LL
         }
 
         template<>
+        bool write(const S32& src, Value& dst)
+        {
+            dst = src;
+            return true;
+        }
+
+
+        // std::string
+        template<>
         bool copy(const Value& src, std::string& dst)
         {
             if (src.is_string())
@@ -592,6 +811,14 @@ namespace LL
             return false;
         }
 
+        template<>
+        bool write(const std::string& src, Value& dst)
+        {
+            dst = src;
+            return true;
+        }
+
+        // LLMatrix4a
         template<>
         bool copy(const Value& src, LLMatrix4a& dst)
         {
@@ -626,21 +853,18 @@ namespace LL
             return false;
         }
 
-        template<typename T>
-        bool copy(const Value& src, std::vector<T>& dst)
+        template<>
+        bool write(const LLMatrix4a& src, Value& dst)
         {
-            if (src.is_array())
+            boost::json::array arr;
+            arr.resize(16);
+            const F32* p = src.getF32ptr();
+            for (U32 i = 0; i < 16; ++i)
             {
-                const array& arr = src.get_array();
-                dst.resize(arr.size());
-                for (size_t i = 0; i < arr.size(); ++i)
-                {
-                    copy(arr[i], dst[i]);
-                }
-                return true;
+                arr[i] = p[i];
             }
-
-            return false;
+            dst = arr;
+            return true;
         }
 
         // ========================================================================================================
