@@ -57,7 +57,7 @@
         height="23"
         layout="topleft"
         left="10"
-        name="input_channel_combo"
+        name="analog_channel_selector"
         top_pad="5"
         width="90">
         <combo_box.item
@@ -108,6 +108,18 @@
             label="AXIS_5+"
             name="AXIS_5+"
             value="AXIS_5+"/>
+        <combo_box.item
+            label="NONE"
+            name="NONE"
+            value="NONE"/>
+    </combo_box>
+    <combo_box
+        height="23"
+        layout="topleft"
+        left="10"
+        name="binary_channel_selector"
+        top_pad="5"
+        width="90">
         <combo_box.item
             label="BUTTON_0"
             name="BUTTON_0"
