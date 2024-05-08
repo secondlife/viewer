@@ -174,7 +174,6 @@ void LLHeroProbeManager::update()
             mCurrentClipPlane.setVec(hero_pos, face_normal);
             mMirrorPosition = hero_pos;
             mMirrorNormal   = face_normal;
-        
 
             probe_pos.load3(point.mV);
 

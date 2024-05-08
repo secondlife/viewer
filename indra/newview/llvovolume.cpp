@@ -3420,8 +3420,15 @@ bool LLVOVolume::setReflectionProbeIsMirror(bool is_mirror)
     {
         if (param_block->getIsMirror() != is_mirror)
         {
+            LL_INFOS() << "Setting reflection probe mirror to " << is_mirror << LL_ENDL;
             param_block->setIsMirror(is_mirror);
             parameterChanged(LLNetworkData::PARAMS_REFLECTION_PROBE, true);
+
+			if (!is_mirror)
+				gPipeline.mHeroProbeManager.unregisterViewerObject(this);
+			else
+				gPipeline.mHeroProbeManager.registerViewerObject(this);
+
             return true;
         }
     }
