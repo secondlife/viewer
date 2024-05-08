@@ -618,8 +618,8 @@ void LLBrokenLinkObserver::changed(U32 mask)
             if (id == mUUID)
             {
                 // Might not be processed yet and it is not a
-                // good idea to update appearane here, postpone.
-                doOnIdleOneTime([this]()
+                // good idea to update appearance here, postpone.
+                doOnIdleOneTime([this]
                                 {
                                     postProcess();
                                 });
