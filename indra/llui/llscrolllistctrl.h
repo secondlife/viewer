@@ -175,7 +175,7 @@ public:
 	virtual void addColumn(const LLSD& column, EAddPosition pos = ADD_BOTTOM);	
 	virtual void clearColumns();
 	virtual void setColumnLabel(const std::string& column, const std::string& label);
-	virtual bool 	preProcessChildNode(LLXMLNodePtr child);
+	virtual bool preProcessChildNode(LLXMLNodePtr child);
 	virtual LLScrollListColumn* getColumn(S32 index);
 	virtual LLScrollListColumn* getColumn(const std::string& name);
 	virtual S32 getNumColumns() const { return mColumnsIndexed.size(); }

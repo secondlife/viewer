@@ -40,7 +40,7 @@ LLGameControlTranslator::LLGameControlTranslator()
 {
 }
 
-void LLGameControlTranslator::setAvailableActions(ActionToMaskMap& action_to_mask)
+void LLGameControlTranslator::setAvailableActionMasks(ActionToMaskMap& action_to_mask)
 {
     mActionToMask = std::move(action_to_mask);
 }
@@ -48,11 +48,11 @@ void LLGameControlTranslator::setAvailableActions(ActionToMaskMap& action_to_mas
 LLGameControl::InputChannel LLGameControlTranslator::getChannelByAction(const std::string& action) const
 {
     LLGameControl::InputChannel channel;
-    ActionToMaskMap::const_iterator mask_itr = mActionToMask.find(action);
+    auto mask_itr = mActionToMask.find(action);
     if (mask_itr != mActionToMask.end())
     {
         U32 mask = mask_itr->second;
-        LLGameControlTranslator::MaskToChannelMap::const_iterator channel_itr = mMaskToChannel.find(mask);
+        auto channel_itr = mMaskToChannel.find(mask);
         if (channel_itr != mMaskToChannel.end())
         {
             channel = channel_itr->second;
@@ -68,7 +68,7 @@ LLGameControl::InputChannel LLGameControlTranslator::getChannelByAction(const st
         if (mask_itr != mActionToMask.end())
         {
             U32 mask = mask_itr->second;
-            LLGameControlTranslator::MaskToChannelMap::const_iterator channel_itr = mMaskToChannel.find(mask);
+            auto channel_itr = mMaskToChannel.find(mask);
             if (channel_itr != mMaskToChannel.end())
             {
                 channel = channel_itr->second;
@@ -78,140 +78,95 @@ LLGameControl::InputChannel LLGameControlTranslator::getChannelByAction(const st
     return channel;
 }
 
-void LLGameControlTranslator::setMappings(LLGameControlTranslator::NamedChannels& list)
+void LLGameControlTranslator::setMappings(LLGameControlTranslator::NamedChannels& named_channels)
 {
     mMaskToChannel.clear();
     mMappedFlags = 0;
     mPrevActiveFlags = 0;
     mCachedState.clear();
 
-    for (auto& name_channel : list)
+    for (const auto& named_channel : named_channels)
     {
-        updateMap(name_channel.first, name_channel.second);
+        updateMap(named_channel.first, named_channel.second);
     }
 }
 
-bool LLGameControlTranslator::updateMap(const std::string& name, const LLGameControl::InputChannel& channel)
+void LLGameControlTranslator::updateMap(const std::string& action, const LLGameControl::InputChannel& channel)
 {
-    bool map_changed = false;
-    size_t name_length = name.length();
-    if (name_length > 1)
+    // First, get the action name type
+    LLGameControl::ActionNameType actionNameType = LLGameControl::getActionNameType(action);
+    if (actionNameType == LLGameControl::ACTION_NAME_UNKNOWN ||
+        actionNameType == LLGameControl::ACTION_NAME_FLYCAM)
     {
-        if (channel.isButton())
+        LL_WARNS("GameControl") << "unmappable action='" << action << "' (type=" << actionNameType << ")" << LL_ENDL;
+        return;
+    }
+
+    // Second, get the expected associated channel type (except of TYPE_NONE)
+    LLGameControl::InputChannel::Type expectedChannelType =
+        actionNameType == LLGameControl::ACTION_NAME_BINARY ?
+        LLGameControl::InputChannel::TYPE_BUTTON :
+        LLGameControl::InputChannel::TYPE_AXIS;
+    if (!channel.isNone() && (channel.mType != expectedChannelType))
+    {
+        LL_WARNS("GameControl") << "unmappable channel (type=" << channel.mType << ")"
+            << " for action='" << action << "' (type=" << actionNameType << ")" << LL_ENDL;
+        return;
+    }
+
+    if (actionNameType == LLGameControl::ACTION_NAME_ANALOG) // E.g., "push"
+    {
+        // Special (double) processing for analog action names
+        // sequentially adding '+' and '-' to the given action
+        updateMapInternal(action + "+", channel);
+
+        // For the channel type TYPE_NONE we can map the same channel
+        // In fact, the mapping will be removed from the mapping list
+        if (channel.isNone())
         {
-            map_changed = updateMapInternal(name, channel);
-        }
-        else if (channel.isAxis())
-        {
-            U8 last_char = name.at(name_length - 1);
-            if (last_char == '+' || last_char == '-')
-            {
-                map_changed = updateMapInternal(name, channel);
-            }
-            else
-            {
-                // try to map both "name+" and "name-"
-                std::string new_name = name;
-                new_name.append("+");
-                bool success = updateMapInternal(new_name, channel);
-                if (success)
-                {
-                    new_name.data()[name_length] = '-';
-                    LLGameControl::InputChannel other_channel(channel.mType, channel.mIndex, -channel.mSign);
-                    // TIED TRIGGER HACK: this works for XBox and similar controllers,
-                    // and those are pretty much the only supported devices right now
-                    // however TODO: figure out how to do this better.
-                    //
-                    // AXIS_TRIGGERLEFT and AXIS_TRIGGERRIGHT are separate axes and most devices
-                    // only allow them to read positive, not negative. When used for motion control
-                    // they are typically paired together. We assume as much here when computing
-                    // the other_channel.
-                    if (channel.mIndex == LLGameControl::AXIS_TRIGGERLEFT)
-                    {
-                        other_channel.mIndex = LLGameControl::AXIS_TRIGGERRIGHT;
-                        other_channel.mSign = 1;
-                    }
-                    else if (channel.mIndex == LLGameControl::AXIS_TRIGGERRIGHT)
-                    {
-                        other_channel.mIndex = LLGameControl::AXIS_TRIGGERLEFT;
-                        other_channel.mSign = 1;
-                    }
-                    updateMapInternal(new_name, other_channel);
-                    map_changed = true;
-                }
-            }
+            updateMapInternal(action + "-", channel);
         }
         else
         {
-            // channel type is NONE, which means the action needs to be removed from the map
-            // but we don't know if it mapped to button or axis which is important because
-            // it if it axis then we need to also remove the other entry.
-            // So we try to look it up
-            ActionToMaskMap::iterator mask_itr = mActionToMask.find(name);
-            if (mask_itr != mActionToMask.end())
-            {
-                // we found the action --> was it mapped to an axis?
-                bool is_axis = false;
-                U32 mask = mask_itr->second;
-                LLGameControlTranslator::MaskToChannelMap::iterator channel_itr = mMaskToChannel.find(mask);
-                if (channel_itr != mMaskToChannel.end())
-                {
-                    if (channel_itr->second.isAxis())
-                    {
-                        // yes, it is an axis
-                        is_axis = true;
-                    }
-                }
-                // remove from map, whether button or axis
-                updateMapInternal(name, channel);
+            // For the channel type except of TYPE_NONE we construct the other channel
+            // with the same type and index but with the opposite sign
+            LLGameControl::InputChannel other_channel(channel.mType, channel.mIndex, -channel.mSign);
 
-                if (is_axis)
-                {
-                    // also need to remove the other entry
-                    std::string other_name = name;
-                    if (other_name.data()[name.length() - 1] == '-')
-                    {
-                        other_name.data()[name.length() - 1] = '+';
-                    }
-                    else
-                    {
-                        other_name.data()[name.length() - 1] = '-';
-                    }
-                    // remove from map
-                    updateMapInternal(other_name, channel);
-                }
-            }
-            else if (name.data()[name.length() - 1] == '+'
-                    || name.data()[name.length() - 1] == '-')
+            // TIED TRIGGER HACK: this works for XBox and similar controllers,
+            // and those are pretty much the only supported devices right now
+            // however TODO: figure out how to do this better.
+            //
+            // AXIS_TRIGGERLEFT and AXIS_TRIGGERRIGHT are separate axes and most devices
+            // only allow them to read positive, not negative. When used for motion control
+            // they are typically paired together. We assume as much here when computing
+            // the other_channel.
+            if (channel.mIndex == LLGameControl::AXIS_TRIGGERLEFT)
             {
-                // action was not found but name doesn't end with +/-
-                // maybe it is an axis-name sans the +/- on the end
-                // postfix with '+' and try again
-                std::string other_name = name;
-                other_name.append("+");
-                map_changed = updateMapInternal(other_name, channel);
-                if (map_changed)
-                {
-                    // that worked! now do the other one
-                    other_name.data()[name.length()] = '-';
-                    updateMapInternal(other_name, channel);
-                }
+                other_channel.mIndex = LLGameControl::AXIS_TRIGGERRIGHT;
+                other_channel.mSign = 1;
             }
+            else if (channel.mIndex == LLGameControl::AXIS_TRIGGERRIGHT)
+            {
+                other_channel.mIndex = LLGameControl::AXIS_TRIGGERLEFT;
+                other_channel.mSign = 1;
+            }
+            updateMapInternal(action + "-", other_channel);
         }
     }
-
-    if (map_changed)
+    else
     {
-        // recompute mMappedFlags
-        mMappedFlags = 0;
-        for (auto& pair : mMaskToChannel)
-        {
-            mMappedFlags |= pair.first;
-        }
-        mPrevActiveFlags = 0;
-        mCachedState.clear();
+        // Simple (single) processing for other action name types
+        updateMapInternal(action, channel);
     }
-    return map_changed;
+
+    // recompute mMappedFlags
+    mMappedFlags = 0;
+    for (auto& pair : mMaskToChannel)
+    {
+        mMappedFlags |= pair.first;
+    }
+    mPrevActiveFlags = 0;
+    mCachedState.clear();
 }
 
 // Given external action_flags (i.e. raw avatar input)
@@ -249,7 +204,7 @@ const LLGameControl::State& LLGameControlTranslator::computeStateFromFlags(U32 a
                 }
                 else if (channel.isButton())
                 {
-                    mCachedState.mButtons |= (0x01U << channel.mIndex);
+                    mCachedState.mButtons |= 0x01U << channel.mIndex;
                 }
             }
         }
@@ -295,46 +250,26 @@ U32 LLGameControlTranslator::computeFlagsFromState(const std::vector<S32>& axes,
     return action_flags;
 }
 
-bool LLGameControlTranslator::updateMapInternal(const std::string& name, const LLGameControl::InputChannel& channel)
+void LLGameControlTranslator::updateMapInternal(const std::string& name, const LLGameControl::InputChannel& channel)
 {
-    bool something_changed = false;
-    ActionToMaskMap::iterator mask_itr = mActionToMask.find(name);
-    if (mask_itr != mActionToMask.end())
-    {
-        U32 mask = mask_itr->second;
-        something_changed = addOrRemoveMaskMapping(mask, channel);
-    }
-    return something_changed;
-}
-
-bool LLGameControlTranslator::addOrRemoveMaskMapping(U32 mask, const LLGameControl::InputChannel& channel)
-{
-    bool success = false;
-    LLGameControlTranslator::MaskToChannelMap::iterator channel_itr = mMaskToChannel.find(mask);
-    if (channel_itr != mMaskToChannel.end())
-    {
-        LLGameControl::InputChannel old_channel = channel_itr->second;
-        if (old_channel.mType != channel.mType || old_channel.mIndex != channel.mIndex || old_channel.mSign != channel.mSign)
-        {
-            if (channel.isNone())
-            {
-                // remove old mapping
-                mMaskToChannel.erase(channel_itr);
-            }
-            else
-            {
-                // update old mapping
-                channel_itr->second = channel;
-            }
-            success = true;
-        }
-    }
-    else if (! channel.isNone())
+    auto action_it = mActionToMask.find(name);
+    llassert(action_it != mActionToMask.end());
+    U32 mask = action_it->second;
+    auto channel_it = mMaskToChannel.find(mask);
+    if (channel_it == mMaskToChannel.end())
     {
         // create new mapping
         mMaskToChannel[mask] = channel;
-        success = true;
     }
-    return success;
+    else if (channel.isNone())
+    {
+        // remove old mapping
+        mMaskToChannel.erase(channel_it);
+    }
+    else
+    {
+        // update old mapping
+        channel_it->second = channel;
+    }
 }
 

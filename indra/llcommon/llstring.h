@@ -211,6 +211,9 @@ public:
 
 	static std::string getDatetimeCode (std::string key);
 
+	static void splitString(const std::string& text, char delimiter,
+		std::function<void(const std::string&)> handler);
+
     // Express a value like 1234567 as "1.23M" 
     static std::string getReadableNumber(F64 num);
 };

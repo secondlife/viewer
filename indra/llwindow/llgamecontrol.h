@@ -79,7 +79,17 @@ public:
         CONTROL_MODE_NONE
     };
 
-    enum KeyboardAxis
+    enum ActionNameType
+    {
+        ACTION_NAME_UNKNOWN,
+        ACTION_NAME_ANALOG,   // E.g., "push"
+        ACTION_NAME_ANALOG_POS, // E.g., "push+"
+        ACTION_NAME_ANALOG_NEG, // E.g., "push-"
+        ACTION_NAME_BINARY,   // E.g., "stop"
+        ACTION_NAME_FLYCAM    // E.g., "zoom"
+    };
+
+    enum KeyboardAxis : U8
     {
         AXIS_LEFTX = 0,
         AXIS_LEFTY,
@@ -131,9 +141,9 @@ public:
     public:
         enum Type
         {
+            TYPE_NONE,
             TYPE_AXIS,
-            TYPE_BUTTON,
-            TYPE_NONE
+            TYPE_BUTTON
         };
 
         InputChannel() {}
@@ -141,11 +151,11 @@ public:
         InputChannel(Type type, U8 index, S32 sign) : mType(type), mSign(sign), mIndex(index) {}
 
         // these methods for readability
+        bool isNone() const { return mType == TYPE_NONE; }
         bool isAxis() const { return mType == TYPE_AXIS; }
         bool isButton() const { return mType == TYPE_BUTTON; }
-        bool isNone() const { return mType == TYPE_NONE; }
 
-        std::string getLocalName() const; // AXIS_0-, AXIS_0+, BUTTON_0, etc
+        std::string getLocalName() const; // AXIS_0-, AXIS_0+, BUTTON_0, NONE etc.
         std::string getRemoteName() const; // GAME_CONTROL_AXIS_LEFTX, GAME_CONTROL_BUTTON_A, etc
 
         Type mType { TYPE_NONE };
@@ -170,7 +180,11 @@ public:
     };
 
     static bool isInitialized();
-	static void init(const std::string& gamecontrollerdb_path);
+	static void init(const std::string& gamecontrollerdb_path,
+        std::function<bool(const std::string&)> loadBoolean,
+        std::function<void(const std::string&, bool)> saveBoolean,
+        std::function<std::string(const std::string&)> loadString,
+        std::function<void(const std::string&, const std::string&)> saveString);
 	static void terminate();
 
     // returns 'true' if GameControlInput message needs to go out,
@@ -183,13 +197,20 @@ public:
 
     static void processEvents(bool app_has_focus = true);
     static const State& getState();
+    static InputChannel getActiveInputChannel();
     static void getFlycamInputs(std::vector<F32>& inputs_out);
 
     // these methods for accepting input from keyboard
-    static void enableSendToServer(bool enable);
-    static void enableControlAgent(bool enable);
-    static void enableTranslateAgentActions(bool enable);
+    static void setSendToServer(bool enable);
+    static void setControlAgent(bool enable);
+    static void setTranslateAgentActions(bool enable);
     static void setAgentControlMode(AgentControlMode mode);
+
+    static bool getSendToServer();
+    static bool getControlAgent();
+    static bool getTranslateAgentActions();
+    static AgentControlMode getAgentControlMode();
+    static ActionNameType getActionNameType(const std::string& action);
 
     static bool willControlAvatar();
 
@@ -198,7 +219,7 @@ public:
     static LLGameControl::InputChannel getChannelByName(const std::string& name);
 
     // action_name = push+, strafe-, etc
-    static LLGameControl::InputChannel getChannelByActionName(const std::string& name);
+    static LLGameControl::InputChannel getChannelByAction(const std::string& action);
 
     static bool updateActionMap(const std::string& action_name,  LLGameControl::InputChannel channel);
 
@@ -210,5 +231,14 @@ public:
 
     // call this after putting a GameControlInput packet on the wire
     static void updateResendPeriod();
+
+    using getChannel_t = std::function<LLGameControl::InputChannel(const std::string& action)>;
+    static std::string stringifyAnalogMappings(getChannel_t getChannel);
+    static std::string stringifyBinaryMappings(getChannel_t getChannel);
+    static std::string stringifyFlycamMappings(getChannel_t getChannel);
+
+    static void initByDefault();
+    static void loadFromSettings();
+    static void saveToSettings();
 };
 
