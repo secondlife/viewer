@@ -648,15 +648,15 @@ namespace tut
 
 		LLVector3 direction = x_line.getDirection();
 		ensure("x_line should be parallel to x_axis", fabs(direction.mV[VX]) == 1.f
-				                                      && 0.f == direction.mV[VY]
-				                                      && 0.f == direction.mV[VZ] );
+													  && 0.f == direction.mV[VY]
+													  && 0.f == direction.mV[VZ] );
 		direction = y_line.getDirection();
 		ensure("y_line should be parallel to y_axis", 0.f == direction.mV[VX]
 													  && fabs(direction.mV[VY]) == 1.f
-				                                      && 0.f == direction.mV[VZ] );
+													  && 0.f == direction.mV[VZ] );
 		direction = z_line.getDirection();
 		ensure("z_line should be parallel to z_axis", 0.f == direction.mV[VX]
-				                                      && 0.f == direction.mV[VY]
+													  && 0.f == direction.mV[VY]
 													  && fabs(direction.mV[VZ]) == 1.f );
 
 		// next some random tests
@@ -666,21 +666,21 @@ namespace tut
 		{
 			// generate the known line
 			LLVector3 some_point( ll_frand(2.f) - 1.f, 
-			   					  ll_frand(2.f) - 1.f, 
-			   					  ll_frand(2.f) - 1.f);
+								  ll_frand(2.f) - 1.f, 
+								  ll_frand(2.f) - 1.f);
 			some_point.normalize();
 			some_point *= ll_frand(LARGE_RADIUS);
 			LLVector3 another_point( ll_frand(2.f) - 1.f, 
-			   						 ll_frand(2.f) - 1.f, 
-			   						 ll_frand(2.f) - 1.f);
+									 ll_frand(2.f) - 1.f, 
+									 ll_frand(2.f) - 1.f);
 			another_point.normalize();
 			another_point *= ll_frand(LARGE_RADIUS);
 			LLLine known_intersection(some_point, another_point);
 
 			// compute a plane that intersect the line
 			LLVector3 point_on_plane( ll_frand(2.f) - 1.f, 
-			   						  ll_frand(2.f) - 1.f, 
-			   						  ll_frand(2.f) - 1.f);
+									  ll_frand(2.f) - 1.f, 
+									  ll_frand(2.f) - 1.f);
 			point_on_plane.normalize();
 			point_on_plane *= ll_frand(LARGE_RADIUS);
 			LLVector3 plane_normal = (point_on_plane - some_point) % known_intersection.getDirection();
@@ -689,8 +689,8 @@ namespace tut
 
 			// compute a different plane that intersect the line
 			LLVector3 point_on_different_plane( ll_frand(2.f) - 1.f, 
-			   									ll_frand(2.f) - 1.f, 
-			   									ll_frand(2.f) - 1.f);
+												ll_frand(2.f) - 1.f, 
+												ll_frand(2.f) - 1.f);
 			point_on_different_plane.normalize();
 			point_on_different_plane *= ll_frand(LARGE_RADIUS);
 			LLVector3 different_plane_normal = (point_on_different_plane - another_point) % known_intersection.getDirection();
@@ -709,14 +709,34 @@ namespace tut
 					first_plane,
 					second_plane);
 
-			ensure("plane intersection should succeed", success);
+			try
+			{
+				ensure("plane intersection should succeed", success);
 
-			F32 dot = fabs(known_intersection.getDirection() * measured_intersection.getDirection());
-			ensure("measured intersection should be parallel to known intersection",
-					dot > ALMOST_PARALLEL);
+				F32 dot = fabs(known_intersection.getDirection() * measured_intersection.getDirection());
+				ensure("measured intersection should be parallel to known intersection",
+					   dot > ALMOST_PARALLEL);
 
-			ensure("measured intersection should pass near known point",
-					measured_intersection.intersects(some_point, LARGE_RADIUS * allowable_relative_error));
+				ensure("measured intersection should pass near known point",
+					   measured_intersection.intersects(some_point, LARGE_RADIUS * allowable_relative_error));
+			}
+			catch (const failure&)
+			{
+				// If any of these assertions fail, since the values involved
+				// are randomly generated, unless we report them, we have no
+				// hope of diagnosing the problem.
+				LL_INFOS()  << "some_point =               " << some_point << '\n'
+							<< "another_point =            " << another_point << '\n'
+							<< "known_intersection =       " << known_intersection << '\n'
+							<< "point_on_plane =           " << point_on_plane << '\n'
+							<< "plane_normal =             " << plane_normal << '\n'
+							<< "first_plane =              " << first_plane << '\n'
+							<< "point_on_different_plane = " << point_on_different_plane << '\n'
+							<< "different_plane_normal =   " << different_plane_normal << '\n'
+							<< "second_plane =             " << second_plane << '\n'
+							<< "measured_intersection =    " << measured_intersection << LL_ENDL;
+				throw;
+			}
 		}
 	}
 }
