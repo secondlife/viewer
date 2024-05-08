@@ -77,7 +77,7 @@ preserve any and all "name" members.
 "write" and "copy" implementations MUST be stored in buffer_util.h.
 As implementers encounter new data types, you'll see compiler errors
 pointing at templates in buffer_util.h.  See glh::vec3f as a known good 
-example (there are bad examples, so beware):
+example of how to add support for a new type (there are bad examples, so beware):
 
 ```
 template<>
