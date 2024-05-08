@@ -481,7 +481,7 @@ namespace LL
         {
             if (src.is_array())
             {
-                const array& arr = src.get_array();
+                const boost::json::array& arr = src.get_array();
                 dst.resize(arr.size());
                 for (size_t i = 0; i < arr.size(); ++i)
                 {
@@ -496,7 +496,7 @@ namespace LL
         template<typename T>
         bool write(const std::vector<T>& src, Value& dst)
         {
-            array arr;
+            boost::json::array arr;
             for (const T& t : src)
             {
                 Value v;
