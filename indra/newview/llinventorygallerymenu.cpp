@@ -547,6 +547,18 @@ void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* men
                 items.push_back(std::string("New Outfit"));
             }
 
+            if (!is_trash && !is_in_trash && gInventory.getRootFolderID() != selected_id)
+            {
+                if (obj->getIsFavorite())
+                {
+                    items.push_back(std::string("Remove from Favorites"));
+                }
+                else
+                {
+                    items.push_back(std::string("Add to Favorites"));
+                }
+            }
+
             items.push_back(std::string("Subfolder Separator"));
             if (!is_system_folder && !isRootFolder())
             {
@@ -587,6 +599,17 @@ void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* men
             if(is_agent_inventory)
             {
                 items.push_back(std::string("Cut"));
+                if (!is_in_trash)
+                {
+                    if (obj->getIsFavorite())
+                    {
+                        items.push_back(std::string("Remove from Favorites"));
+                    }
+                    else
+                    {
+                        items.push_back(std::string("Add to Favorites"));
+                    }
+                }
                 if (!is_link || !is_cof || !get_is_item_worn(selected_id))
                 {
                     items.push_back(std::string("Delete"));

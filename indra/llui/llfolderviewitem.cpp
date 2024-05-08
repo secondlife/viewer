@@ -785,7 +785,7 @@ void LLFolderViewItem::drawFavoriteIcon(const Params& default_params, const LLUI
     if (favorite_image)
     {
         const S32 PAD = 2;
-        const S32 image_size = 30;
+        const S32 image_size = 18;
         
         gl_draw_scaled_image(
             getRect().getWidth() - image_size - PAD, getRect().getHeight() - mItemHeight + PAD,

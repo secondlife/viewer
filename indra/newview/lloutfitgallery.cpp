@@ -1149,6 +1149,7 @@ LLContextMenu* LLOutfitGalleryContextMenu::createMenu()
     registrar.add("Outfit.Delete", boost::bind(LLOutfitGallery::onRemoveOutfit, selected_id));
     registrar.add("Outfit.Create", boost::bind(&LLOutfitGalleryContextMenu::onCreate, this, _2));
     registrar.add("Outfit.Thumbnail", boost::bind(&LLOutfitGalleryContextMenu::onThumbnail, this, selected_id));
+    registrar.add("Outfit.Favorite", boost::bind(&LLOutfitGalleryContextMenu::onFavorite, this, selected_id));
     registrar.add("Outfit.Save", boost::bind(&LLOutfitGalleryContextMenu::onSave, this, selected_id));
     enable_registrar.add("Outfit.OnEnable", boost::bind(&LLOutfitGalleryContextMenu::onEnable, this, _2));
     enable_registrar.add("Outfit.OnVisible", boost::bind(&LLOutfitGalleryContextMenu::onVisible, this, _2));
@@ -1190,7 +1191,7 @@ void LLOutfitGalleryGearMenu::onUpdateItemsVisibility()
     mMenu->setItemVisible("expand", FALSE);
     mMenu->setItemVisible("collapse", FALSE);
     mMenu->setItemVisible("thumbnail", have_selection);
-    mMenu->setItemVisible("sort_folders_by_name", TRUE);
+    mMenu->setItemVisible("sort_order_by_image", TRUE);
     LLOutfitListGearMenuBase::onUpdateItemsVisibility();
 }
 

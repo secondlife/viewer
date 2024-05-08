@@ -45,6 +45,7 @@
 #include "lloutfitobserver.h"
 #include "lltoggleablemenu.h"
 #include "lltransutil.h"
+#include "llviewercontrol.h"
 #include "llviewermenu.h"
 #include "llvoavatar.h"
 #include "llvoavatarself.h"
@@ -1062,6 +1063,7 @@ LLContextMenu* LLOutfitContextMenu::createMenu()
     registrar.add("Outfit.Rename", boost::bind(renameOutfit, selected_id));
     registrar.add("Outfit.Delete", boost::bind(&LLOutfitListBase::removeSelected, mOutfitList));
     registrar.add("Outfit.Thumbnail", boost::bind(&LLOutfitContextMenu::onThumbnail, this, selected_id));
+    registrar.add("Outfit.Favorite", boost::bind(&LLOutfitContextMenu::onFavorite, this, selected_id));
     registrar.add("Outfit.Save", boost::bind(&LLOutfitContextMenu::onSave, this, selected_id));
 
     enable_registrar.add("Outfit.OnEnable", boost::bind(&LLOutfitContextMenu::onEnable, this, _2));
@@ -1112,6 +1114,16 @@ bool LLOutfitContextMenu::onVisible(LLSD::String param)
     {
         return LLAppearanceMgr::instance().getCanRemoveOutfit(outfit_cat_id);
     }
+    else if ("favorites_add" == param)
+    {
+        LLViewerInventoryCategory* cat = gInventory.getCategory(outfit_cat_id);
+        return cat && !cat->getIsFavorite();
+    }
+    else if ("favorites_remove" == param)
+    {
+        LLViewerInventoryCategory* cat = gInventory.getCategory(outfit_cat_id);
+        return cat && cat->getIsFavorite();
+    }
 
     return true;
 }
@@ -1133,6 +1145,14 @@ void LLOutfitContextMenu::onThumbnail(const LLUUID &outfit_cat_id)
     {
         LLSD data(outfit_cat_id);
         LLFloaterReg::showInstance("change_item_thumbnail", data);
+    }
+}
+
+void LLOutfitContextMenu::onFavorite(const LLUUID& outfit_cat_id)
+{
+    if (outfit_cat_id.notNull())
+    {
+        toggle_favorite(outfit_cat_id);
     }
 }
 
@@ -1173,7 +1193,8 @@ LLOutfitListGearMenuBase::LLOutfitListGearMenuBase(LLOutfitListBase* olist)
     registrar.add("Gear.Save", boost::bind(&LLOutfitListGearMenuBase::onSave, this));
 
     registrar.add("Gear.Thumbnail", boost::bind(&LLOutfitListGearMenuBase::onThumbnail, this));
-    registrar.add("Gear.SortByName", boost::bind(&LLOutfitListGearMenuBase::onChangeSortOrder, this));
+    registrar.add("Gear.Favorite", boost::bind(&LLOutfitListGearMenuBase::onFavorite, this));
+    registrar.add("Gear.SortByImage", boost::bind(&LLOutfitListGearMenuBase::onChangeSortOrder, this));
 
     enable_registrar.add("Gear.OnEnable", boost::bind(&LLOutfitListGearMenuBase::onEnable, this, _2));
     enable_registrar.add("Gear.OnVisible", boost::bind(&LLOutfitListGearMenuBase::onVisible, this, _2));
@@ -1296,6 +1317,10 @@ bool LLOutfitListGearMenuBase::onEnable(LLSD::String param)
     {
         return LLAppearanceMgr::instance().getCanReplaceCOF(mOutfitList->getSelectedOutfitUUID());
     }
+    if ("sort_by_image" == param)
+    {
+        return !gSavedSettings.getBOOL("OutfitGallerySortByName");
+    }
 
     return mOutfitList->isActionEnabled(param);
 }
@@ -1307,6 +1332,16 @@ bool LLOutfitListGearMenuBase::onVisible(LLSD::String param)
     {
         return false;
     }
+    else if ("favorites_add" == param)
+    {
+        LLViewerInventoryCategory* cat = gInventory.getCategory(selected_outfit_id);
+        return cat && !cat->getIsFavorite();
+    }
+    else if ("favorites_remove" == param)
+    {
+        LLViewerInventoryCategory* cat = gInventory.getCategory(selected_outfit_id);
+        return cat && cat->getIsFavorite();
+    }
 
     return true;
 }
@@ -1316,6 +1351,12 @@ void LLOutfitListGearMenuBase::onThumbnail()
     const LLUUID& selected_outfit_id = getSelectedOutfitID();
     LLSD data(selected_outfit_id);
     LLFloaterReg::showInstance("change_item_thumbnail", data);
+}
+
+void LLOutfitListGearMenuBase::onFavorite()
+{
+    const LLUUID& selected_outfit_id = getSelectedOutfitID();
+    toggle_favorite(selected_outfit_id);
 }
 
 void LLOutfitListGearMenuBase::onChangeSortOrder()
@@ -1336,7 +1377,8 @@ void LLOutfitListGearMenu::onUpdateItemsVisibility()
     mMenu->setItemVisible("expand", TRUE);
     mMenu->setItemVisible("collapse", TRUE);
     mMenu->setItemVisible("thumbnail", getSelectedOutfitID().notNull());
-    mMenu->setItemVisible("sort_folders_by_name", FALSE);
+    mMenu->setItemVisible("favorite", getSelectedOutfitID().notNull());
+    mMenu->setItemVisible("sort_order_by_image", FALSE);
     LLOutfitListGearMenuBase::onUpdateItemsVisibility();
 }
 

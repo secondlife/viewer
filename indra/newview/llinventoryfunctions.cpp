@@ -2382,6 +2382,27 @@ void set_favorite(const LLUUID& obj_id, bool favorite)
     }
 }
 
+void toggle_favorite(const LLUUID& obj_id)
+{
+    LLInventoryObject* obj = gInventory.getObject(obj_id);
+
+    LLSD updates;
+    updates["favorite"] = LLSD().with("toggled", !obj->getIsFavorite());
+
+    LLPointer<LLInventoryCallback> cb = new LLUpdateFavorite(obj_id);
+
+    LLViewerInventoryCategory* view_folder = dynamic_cast<LLViewerInventoryCategory*>(obj);
+    if (view_folder)
+    {
+        update_inventory_category(obj_id, updates, cb);
+    }
+    LLViewerInventoryItem* view_item = dynamic_cast<LLViewerInventoryItem*>(obj);
+    if (view_item)
+    {
+        update_inventory_item(obj_id, updates, cb);
+    }
+}
+
 std::string get_searchable_description(LLInventoryModel* model, const LLUUID& item_id)
 {
     if (model)

@@ -161,6 +161,7 @@ protected:
     static void renameOutfit(const LLUUID& outfit_cat_id);
 
     void onThumbnail(const LLUUID &outfit_cat_id);
+    void onFavorite(const LLUUID& outfit_cat_id);
     void onSave(const LLUUID &outfit_cat_id);
 
 private:
@@ -180,6 +181,7 @@ public:
 protected:
     virtual void onUpdateItemsVisibility();
     virtual void onThumbnail();
+    virtual void onFavorite();
     virtual void onChangeSortOrder();
 
     const LLUUID& getSelectedOutfitID();
