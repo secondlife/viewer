@@ -496,11 +496,6 @@ void LLVoiceClient::leaveNonSpatialChannel()
         mNonSpatialVoiceModule->processChannels(false);
         mNonSpatialVoiceModule = nullptr;
     }
-	if (mSpatialVoiceModule)
-	{
-        mSpatialVoiceModule->processChannels(true);
-        ;
-	}
 }
 
 void LLVoiceClient::activateSpatialChannel(bool activate)
