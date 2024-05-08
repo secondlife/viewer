@@ -28,6 +28,7 @@
 
 #include "../lltinygltfhelper.h"
 #include "llstrider.h"
+#include "boost/json.hpp"
 
 // LL GLTF Implementation
 namespace LL
@@ -35,6 +36,7 @@ namespace LL
     namespace GLTF
     {
         class Asset;
+        using Value = boost::json::value;
 
         constexpr S32 INVALID_INDEX = -1;
 
@@ -49,6 +51,7 @@ namespace LL
             // also updates all buffer views in given asset that reference this buffer
             void erase(Asset& asset, S32 offset, S32 length);
 
+            const Buffer& operator=(const Value& value);
             const Buffer& operator=(const tinygltf::Buffer& src);
         };
 
@@ -64,8 +67,8 @@ namespace LL
 
             std::string mName;
 
+            const BufferView& operator=(const Value& value);
             const BufferView& operator=(const tinygltf::BufferView& src);
-            
         };
         
         class Accessor
@@ -89,11 +92,15 @@ namespace LL
                 MAT4 = TINYGLTF_TYPE_MAT4
             };
 
-            S32 mType;
+            Type mType;
             bool mNormalized;
             std::string mName;
 
+            const Accessor& operator=(const Value& value);
             const Accessor& operator=(const tinygltf::Accessor& src);
         };
+
+        // convert from "SCALAR", "VEC2", etc to Accessor::Type
+        Accessor::Type gltf_type_to_enum(const std::string& type);
     }
 }

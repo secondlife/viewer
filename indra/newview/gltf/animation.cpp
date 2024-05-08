@@ -30,6 +30,7 @@
 #include "buffer_util.h"
 
 using namespace LL::GLTF;
+using namespace boost::json;
 
 void Animation::allocateGLResources(Asset& asset)
 {
@@ -84,7 +85,6 @@ void Animation::apply(Asset& asset, float time)
     }
 };
 
-
 void Animation::Sampler::allocateGLResources(Asset& asset)
 {
     Accessor& accessor = asset.mAccessors[mInput];
@@ -96,6 +96,63 @@ void Animation::Sampler::allocateGLResources(Asset& asset)
     LLStrider<F32> frame_times = mFrameTimes.data();
     copy(asset, accessor, frame_times);
 }
+
+
+const Animation::Sampler& Animation::Sampler::operator=(const Value& src)
+{
+    if (src.is_object())
+    {
+        copy(src, "input", mInput);
+        copy(src, "output", mOutput);
+        copy(src, "interpolation", mInterpolation);
+        copy(src, "min_time", mMinTime);
+        copy(src, "max_time", mMaxTime);
+    }
+    return *this;
+}
+
+
+const Animation::Sampler& Animation::Sampler::operator=(const tinygltf::AnimationSampler& src)
+{
+    mInput = src.input;
+    mOutput = src.output;
+    mInterpolation = src.interpolation;
+
+    return *this;
+}
+
+const Animation::Channel::Target& Animation::Channel::Target::operator=(const Value& src)
+{
+    if (src.is_object())
+    {
+        copy(src, "node", mNode);
+        copy(src, "path", mPath);
+    }
+    return *this;
+}
+
+const Animation::Channel& Animation::Channel::operator=(const Value& src)
+{
+    if (src.is_object())
+    {
+        copy(src, "sampler", mSampler);
+        copy(src, "target", mTarget);
+        copy(src, "node", mTarget.mNode);
+        copy(src, "path", mTarget.mPath);
+    }
+    return *this;
+}
+
+const Animation::Channel& Animation::Channel::operator=(const tinygltf::AnimationChannel& src)
+{
+    mSampler = src.sampler;
+
+    mTarget.mNode = src.target_node;
+    mTarget.mPath = src.target_path;
+
+    return *this;
+}
+
 
 void Animation::Sampler::getFrameInfo(Asset& asset, F32 time, U32& frameIndex, F32& t)
 {
@@ -234,6 +291,39 @@ void Animation::ScaleChannel::apply(Asset& asset, Sampler& sampler, F32 time)
     }
 }
 
+const Animation& Animation::operator=(const Value& src)
+{
+    if (src.is_object())
+    {
+        const object& obj = src.as_object();
+
+        copy(obj, "name", mName);
+        copy(obj, "samplers", mSamplers);
+
+        // make a temporory copy of generic channels
+        std::vector<Channel> channels;
+        copy(obj, "channels", channels);
+
+        // break up into channel specific implementations
+        for (auto& channel: channels)
+        {
+            if (channel.mTarget.mPath == "rotation")
+            {
+                mRotationChannels.push_back(channel);
+            }
+            else if (channel.mTarget.mPath == "translation")
+            {
+                mTranslationChannels.push_back(channel);
+            }
+            else if (channel.mTarget.mPath == "scale")
+            {
+                mScaleChannels.push_back(channel);
+            }
+        }
+    }
+    return *this;
+}
+
 const Animation& Animation::operator=(const tinygltf::Animation& src)
 {
     mName = src.name;
@@ -275,6 +365,18 @@ void Skin::allocateGLResources(Asset& asset)
         Accessor& accessor = asset.mAccessors[mInverseBindMatrices];
         copy(asset, accessor, mInverseBindMatricesData);
     }
+}
+
+const Skin& Skin::operator=(const Value& src)
+{
+    if (src.is_object())
+    {
+        copy(src, "name", mName);
+        copy(src, "skeleton", mSkeleton);
+        copy(src, "inverseBindMatrices", mInverseBindMatrices);
+        copy(src, "joints", mJoints);
+    }
+    return *this;
 }
 
 const Skin& Skin::operator=(const tinygltf::Skin& src)

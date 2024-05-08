@@ -32,6 +32,7 @@
 #include "accessor.h"
 #include "primitive.h"
 #include "animation.h"
+#include "boost/json.hpp"
 
 extern F32SecondsImplicit		gFrameTimeSeconds;
 
@@ -40,6 +41,8 @@ namespace LL
 {
     namespace GLTF
     {
+        using Value = boost::json::value;
+
         class Asset;
 
         class Material
@@ -52,6 +55,7 @@ namespace LL
                 S32 mTexCoord = 0;
 
                 const TextureInfo& operator=(const tinygltf::TextureInfo& src);
+                const TextureInfo& operator=(const Value& src);
             };
 
             class NormalTextureInfo : public TextureInfo
@@ -60,6 +64,7 @@ namespace LL
                 F32 mScale = 1.0f;
 
                 const NormalTextureInfo& operator=(const tinygltf::NormalTextureInfo& src);
+                const NormalTextureInfo& operator=(const Value& src);
             };
 
             class OcclusionTextureInfo : public TextureInfo
@@ -68,6 +73,7 @@ namespace LL
                 F32 mStrength = 1.0f;
 
                 const OcclusionTextureInfo& operator=(const tinygltf::OcclusionTextureInfo& src);
+                const OcclusionTextureInfo& operator=(const Value& src);
             };
 
             class PbrMetallicRoughness
@@ -79,6 +85,7 @@ namespace LL
                 F32 mRoughnessFactor = 1.0f;
                 TextureInfo mMetallicRoughnessTexture;
                 const PbrMetallicRoughness& operator=(const tinygltf::PbrMetallicRoughness& src);
+                const PbrMetallicRoughness& operator=(const Value& src);
             };
 
 
@@ -100,6 +107,7 @@ namespace LL
 
 
             const Material& operator=(const tinygltf::Material& src);
+            const Material& operator=(const Value& src);
             
             void allocateGLResources(Asset& asset);
         };
@@ -112,6 +120,7 @@ namespace LL
             std::string mName;
 
             const Mesh& operator=(const tinygltf::Mesh& src);
+            const Mesh& operator=(const Value& src);
             
             void allocateGLResources(Asset& asset);
         };
@@ -119,6 +128,8 @@ namespace LL
         class Node
         {
         public:
+            Node() { mMatrix.setIdentity(); }
+
             LLMatrix4a mMatrix; //local transform
             LLMatrix4a mRenderMatrix; //transform for rendering
             LLMatrix4a mAssetMatrix; //transform from local to asset space
@@ -126,7 +137,7 @@ namespace LL
 
             glh::vec3f mTranslation;
             glh::quaternionf mRotation;
-            glh::vec3f mScale;
+            glh::vec3f mScale = glh::vec3f(1.f,1.f,1.f);
 
             // if true, mMatrix is valid and up to date
             bool mMatrixValid = false;
@@ -145,6 +156,7 @@ namespace LL
             std::string mName;
 
             const Node& operator=(const tinygltf::Node& src);
+            const Node& operator=(const Value& src);
 
             // Set mRenderMatrix to a transform that can be used for the current render pass
             // modelview -- parent's render matrix
@@ -185,6 +197,7 @@ namespace LL
             void uploadMatrixPalette(Asset& asset, Node& node);
 
             const Skin& operator=(const tinygltf::Skin& src);
+            const Skin& operator=(const Value& src);
         };
 
         class Scene
@@ -194,7 +207,8 @@ namespace LL
             std::string mName;
 
             const Scene& operator=(const tinygltf::Scene& src);
-            
+            const Scene& operator=(const Value& src);
+
             void updateTransforms(Asset& asset);
             void updateRenderTransforms(Asset& asset, const LLMatrix4a& modelview);
         };
@@ -207,6 +221,7 @@ namespace LL
             std::string mName;
 
             const Texture& operator=(const tinygltf::Texture& src);
+            const Texture& operator=(const Value& src);
         };
 
         class Sampler
@@ -219,6 +234,7 @@ namespace LL
             std::string mName;
 
             const Sampler& operator=(const tinygltf::Sampler& src);
+            const Sampler& operator=(const Value& src);
         };
 
         class Image
@@ -239,21 +255,9 @@ namespace LL
 
             LLPointer<LLViewerFetchedTexture> mTexture;
 
-            const Image& operator=(const tinygltf::Image& src)
-            {
-                mName = src.name;
-                mUri = src.uri;
-                mMimeType = src.mimeType;
-                mData = src.image;
-                mWidth = src.width;
-                mHeight = src.height;
-                mComponent = src.component;
-                mBits = src.bits;
-                mBufferView = src.bufferView;
-                mPixelType = src.pixel_type;
-                return *this;
-            }
-
+            const Image& operator=(const tinygltf::Image& src);
+            const Image& operator=(const Value& src);
+            
             // save image clear local data, and set uri
             void decompose(Asset& asset, const std::string& filename);
 
@@ -292,8 +296,7 @@ namespace LL
             std::string mCopyright;
 
             S32 mDefaultScene = INVALID_INDEX;
-            tinygltf::Value mExtras;
-
+            Value mExtras;
 
             // the last time update() was called according to gFrameTimeSeconds
             F32 mLastUpdateTime = gFrameTimeSeconds;
@@ -330,7 +333,10 @@ namespace LL
             
             Asset() = default;
             Asset(const tinygltf::Model& src);
+            Asset(const Value& src);
+
             const Asset& operator=(const tinygltf::Model& src);
+            const Asset& operator=(const Value& src);
 
             // save the asset to a tinygltf model
             void save(tinygltf::Model& dst);

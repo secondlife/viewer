@@ -28,12 +28,14 @@
 
 #include "llvertexbuffer.h"
 #include "llvolumeoctree.h"
+#include "boost/json.hpp"
 
 // LL GLTF Implementation
 namespace LL
 {
     namespace GLTF
     {
+        using Value = boost::json::value;
         class Asset;
 
         constexpr U32 ATTRIBUTE_MASK =
@@ -85,6 +87,7 @@ namespace LL
                 LLVector4a* tangent = NULL             // return the surface tangent at the intersection point
             );
             
+            const Primitive& operator=(const Value& src);
             const Primitive& operator=(const tinygltf::Primitive& src);
 
             void allocateGLResources(Asset& asset);

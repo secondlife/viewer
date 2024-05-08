@@ -36,6 +36,8 @@
 #define LL_FUNCSIG __PRETTY_FUNCTION__
 #endif
 
+#include "accessor.h"
+
 namespace LL
 {
     namespace GLTF
@@ -306,37 +308,37 @@ namespace LL
         template<class S, class T>
         static void copy(Asset& asset, Accessor& accessor, const S* src, LLStrider<T>& dst, S32 byteStride)
         {
-            if (accessor.mType == (S32)Accessor::Type::SCALAR)
+            if (accessor.mType == Accessor::Type::SCALAR)
             {
                 S32 stride = byteStride == 0 ? sizeof(S) * 1 : byteStride;
                 copyScalar((S*)src, dst, stride, accessor.mCount);
             }
-            else if (accessor.mType == (S32)Accessor::Type::VEC2)
+            else if (accessor.mType == Accessor::Type::VEC2)
             {
                 S32 stride = byteStride == 0 ? sizeof(S) * 2 : byteStride;
                 copyVec2((S*)src, dst, stride, accessor.mCount);
             }
-            else if (accessor.mType == (S32)Accessor::Type::VEC3)
+            else if (accessor.mType == Accessor::Type::VEC3)
             {
                 S32 stride = byteStride == 0 ? sizeof(S) * 3 : byteStride;
                 copyVec3((S*)src, dst, stride, accessor.mCount);
             }
-            else if (accessor.mType == (S32)Accessor::Type::VEC4)
+            else if (accessor.mType == Accessor::Type::VEC4)
             {
                 S32 stride = byteStride == 0 ? sizeof(S) * 4 : byteStride;
                 copyVec4((S*)src, dst, stride, accessor.mCount);
             }
-            else if (accessor.mType == (S32)Accessor::Type::MAT2)
+            else if (accessor.mType == Accessor::Type::MAT2)
             {
                 S32 stride = byteStride == 0 ? sizeof(S) * 4 : byteStride;
                 copyMat2((S*)src, dst, stride, accessor.mCount);
             }
-            else if (accessor.mType == (S32)Accessor::Type::MAT3)
+            else if (accessor.mType == Accessor::Type::MAT3)
             {
                 S32 stride = byteStride == 0 ? sizeof(S) * 9 : byteStride;
                 copyMat3((S*)src, dst, stride, accessor.mCount);
             }
-            else if (accessor.mType == (S32)Accessor::Type::MAT4)
+            else if (accessor.mType == Accessor::Type::MAT4)
             {
                 S32 stride = byteStride == 0 ? sizeof(S) * 16 : byteStride;
                 copyMat4((S*)src, dst, stride, accessor.mCount);
@@ -397,6 +399,251 @@ namespace LL
             LLStrider<T> strider = dst.data();
             copy(asset, accessor, strider);
         }
+
+
+        //=========================================================================================================
+        // boost::json copying utilities
+        // ========================================================================================================
+        
+        template<typename T>
+        static bool copy(const Value& src, T& dst)
+        {
+            dst = src;
+            return true;
+        }
+
+        template<typename T>
+        static bool copy(const boost::json::object& src, std::string_view member, T& dst)
+        {
+            auto it = src.find(member);
+            if (it != src.end())
+            {
+                return copy(it->value(), dst);
+            }
+            return false;
+        }
+
+        template<typename T>
+        static bool copy(const Value& src, std::string_view member, T& dst)
+        {
+            if (src.is_object())
+            {
+                const boost::json::object& obj = src.as_object();
+                return copy(obj, member, dst);
+            }
+
+            return false;
+        }
+
+        template<>
+        bool copy(const Value& src, glh::vec4f& dst)
+        {
+            if (src.is_array())
+            {
+                const boost::json::array& arr = src.as_array();
+                if (arr.size() == 4)
+                {
+                    if (arr[0].is_double() &&
+                        arr[1].is_double() &&
+                        arr[2].is_double() &&
+                        arr[3].is_double())
+                    {
+                        dst.set_value(arr[0].get_double(), arr[1].get_double(), arr[2].get_double(), arr[3].get_double());
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        template<>
+        bool copy(const Value& src, glh::quaternionf& dst)
+        {
+            if (src.is_array())
+            {
+                const boost::json::array& arr = src.as_array();
+                if (arr.size() == 4)
+                {
+                    if (arr[0].is_double() &&
+                        arr[1].is_double() &&
+                        arr[2].is_double() &&
+                        arr[3].is_double())
+                    {
+                        dst.set_value(arr[0].get_double(), arr[1].get_double(), arr[2].get_double(), arr[3].get_double());
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        template<>
+        bool copy(const Value& src, glh::vec3f& dst)
+        {
+            if (src.is_array())
+            {
+                const boost::json::array& arr = src.as_array();
+                if (arr.size() == 3)
+                {
+                    if (arr[0].is_double() &&
+                        arr[1].is_double() &&
+                        arr[2].is_double())
+                    {
+                        dst.set_value(arr[0].get_double(), arr[1].get_double(), arr[2].get_double());
+                    }
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        template<>
+        bool copy(const Value& src, bool& dst)
+        {
+            if (src.is_bool())
+            {
+                dst = src.get_bool();
+                return true;
+            }
+            return false;
+        }
+
+        template<>
+        bool copy(const Value& src, F32& dst)
+        {
+            if (src.is_double())
+            {
+                dst = src.get_double();
+                return true;
+            }
+            return false;
+        }
+
+        template<>
+        bool copy(const Value& src, U32& dst)
+        {
+            if (src.is_int64())
+            {
+                dst = src.get_int64();
+                return true;
+            }
+            return false;
+        }
+
+        template<>
+        bool copy(const Value& src, F64& dst)
+        {
+            if (src.is_double())
+            {
+                dst = src.get_double();
+                return true;
+            }
+            return false;
+        }
+
+        template<>
+        bool copy(const Value& src, Accessor::Type& dst)
+        {
+            if (src.is_string())
+            {
+                dst = gltf_type_to_enum(src.get_string().c_str());
+                return true;
+            }
+            return false;
+        }
+
+        template<>
+        bool copy(const Value& src, std::unordered_map<std::string, S32>& dst)
+        {
+            if (src.is_object())
+            {
+                const boost::json::object& obj = src.as_object();
+                for (const auto& [key, value] : obj)
+                {
+                    if (value.is_int64())
+                    {
+                        dst[key] = value.get_int64();
+                    }
+                }
+                return true;
+            }
+            return false;
+        }
+
+        template<>
+        bool copy(const Value& src, S32& dst)
+        {
+            if (src.is_int64())
+            {
+                dst = src.get_int64();
+                return true;
+            }
+            return false;
+        }
+
+        template<>
+        bool copy(const Value& src, std::string& dst)
+        {
+            if (src.is_string())
+            {
+                dst = src.get_string();
+                return true;
+            }
+            return false;
+        }
+
+        template<>
+        bool copy(const Value& src, LLMatrix4a& dst)
+        {
+            if (src.is_array())
+            {
+                const boost::json::array& arr = src.get_array();
+                if (arr.size() == 16)
+                {
+                    // populate a temporary local in case
+                    // we hit an error in the middle of the array
+                    // (don't partially write a matrix)
+                    LLMatrix4a t;
+                    F32* p = t.getF32ptr();
+
+                    for (U32 i = 0; i < arr.size(); ++i)
+                    {
+                        if (arr[i].is_double())
+                        {
+                            p[i] = arr[i].get_double();
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+
+                    dst = t;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        template<typename T>
+        bool copy(const Value& src, std::vector<T>& dst)
+        {
+            if (src.is_array())
+            {
+                const array& arr = src.get_array();
+                dst.resize(arr.size());
+                for (size_t i = 0; i < arr.size(); ++i)
+                {
+                    copy(arr[i], dst[i]);
+                }
+                return true;
+            }
+
+            return false;
+        }
+
+        // ========================================================================================================
     }
 }
 

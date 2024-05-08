@@ -27,8 +27,53 @@
 #include "../llviewerprecompiledheaders.h"
 
 #include "asset.h"
+#include "buffer_util.h"
 
 using namespace LL::GLTF;
+using namespace boost::json;
+
+namespace LL
+{
+    namespace GLTF
+    {
+        Accessor::Type gltf_type_to_enum(const std::string& type)
+        {
+            if (type == "SCALAR")
+            {
+                return Accessor::Type::SCALAR;
+            }
+            else if (type == "VEC2")
+            {
+                return Accessor::Type::VEC2;
+            }
+            else if (type == "VEC3")
+            {
+                return Accessor::Type::VEC3;
+            }
+            else if (type == "VEC4")
+            {
+                return Accessor::Type::VEC4;
+            }
+            else if (type == "MAT2")
+            {
+                return Accessor::Type::MAT2;
+            }
+            else if (type == "MAT3")
+            {
+                return Accessor::Type::MAT3;
+            }
+            else if (type == "MAT4")
+            {
+                return Accessor::Type::MAT4;
+            }
+
+            LL_WARNS("GLTF") << "Unknown accessor type: " << type << LL_ENDL;
+            llassert(false);
+
+            return Accessor::Type::SCALAR;
+        }
+    }
+}
 
 void Buffer::erase(Asset& asset, S32 offset, S32 length)
 {
@@ -48,11 +93,39 @@ void Buffer::erase(Asset& asset, S32 offset, S32 length)
     }
 }
 
+const Buffer& Buffer::operator=(const Value& src)
+{
+    if (src.is_object())
+    {
+        copy(src, "name", mName);
+        copy(src, "uri", mUri);
+        
+        // NOTE: DO NOT attempt to handle the uri here. 
+        // The uri is a reference to a file that is not loaded until
+        // after the json document is parsed
+    }
+    return *this;
+}
+
 const Buffer& Buffer::operator=(const tinygltf::Buffer& src)
 {
     mData = src.data;
     mName = src.name;
     mUri = src.uri;
+    return *this;
+}
+
+const BufferView& BufferView::operator=(const Value& src)
+{
+    if (src.is_object())
+    {
+        copy(src, "buffer", mBuffer);
+        copy(src, "byteLength", mByteLength);
+        copy(src, "byteOffset", mByteOffset);
+        copy(src, "byteStride", mByteStride);
+        copy(src, "target", mTarget);
+        copy(src, "name", mName);
+    }
     return *this;
 }
 
@@ -67,13 +140,56 @@ const BufferView& BufferView::operator=(const tinygltf::BufferView& src)
     return *this;
 }
 
+Accessor::Type tinygltf_type_to_enum(S32 type)
+{
+    switch (type)
+    {
+    case TINYGLTF_TYPE_SCALAR:
+        return Accessor::Type::SCALAR;
+    case TINYGLTF_TYPE_VEC2:
+        return Accessor::Type::VEC2;
+    case TINYGLTF_TYPE_VEC3:
+        return Accessor::Type::VEC3;
+    case TINYGLTF_TYPE_VEC4:
+        return Accessor::Type::VEC4;
+    case TINYGLTF_TYPE_MAT2:
+        return Accessor::Type::MAT2;
+    case TINYGLTF_TYPE_MAT3:
+        return Accessor::Type::MAT3;
+    case TINYGLTF_TYPE_MAT4:
+        return Accessor::Type::MAT4;
+    }
+
+    LL_WARNS("GLTF") << "Unknown tinygltf accessor type: " << type << LL_ENDL;
+    llassert(false);
+
+    return Accessor::Type::SCALAR;
+}
+
+const Accessor& Accessor::operator=(const Value& src)
+{
+    if (src.is_object())
+    {
+        copy(src, "name", mName);
+        copy(src, "bufferView", mBufferView);
+        copy(src, "byteOffset", mByteOffset);
+        copy(src, "componentType", mComponentType);
+        copy(src, "count", mCount);
+        copy(src, "type", mType);
+        copy(src, "normalized", mNormalized);
+        copy(src, "max", mMax);
+        copy(src, "min", mMin);
+    }
+    return *this;
+}
+
 const Accessor& Accessor::operator=(const tinygltf::Accessor& src)
 {
     mBufferView = src.bufferView;
     mByteOffset = src.byteOffset;
     mComponentType = src.componentType;
     mCount = src.count;
-    mType = src.type;
+    mType = tinygltf_type_to_enum(src.type);
     mNormalized = src.normalized;
     mName = src.name;
     mMax = src.maxValues;

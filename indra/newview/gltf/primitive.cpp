@@ -28,6 +28,7 @@
 
 #include "asset.h"
 #include "buffer_util.h"
+#include "../llviewershadermgr.h"
 
 #include "../lltinygltfhelper.h"
 
@@ -92,6 +93,10 @@ void Primitive::allocateGLResources(Asset& asset)
         mask |= LLVertexBuffer::MAP_WEIGHT4;
     }
 
+    if (LLGLSLShader::sCurBoundShaderPtr == nullptr)
+    { // make sure a shader is bound to satisfy mVertexBuffer->setBuffer
+        gDebugProgram.bind();
+    }
     mVertexBuffer = new LLVertexBuffer(mask);
     mVertexBuffer->allocateBuffer(mPositions.size(), mIndexArray.size()*2); // double the size of the index buffer for 32-bit indices
 
@@ -129,7 +134,7 @@ void Primitive::allocateGLResources(Asset& asset)
     if (mMaterial != INVALID_INDEX)
     {
         const Material& material = asset.mMaterials[mMaterial];
-        LLColor4 baseColor = material.mMaterial->mBaseColor;
+        LLColor4 baseColor(material.mPbrMetallicRoughness.mBaseColorFactor.v);
         for (auto& dst : mColors)
         {
             dst = LLColor4U(baseColor * LLColor4(dst));
@@ -351,6 +356,43 @@ Primitive::~Primitive()
     mOctree = nullptr;
 }
 
+U32 gltf_mode_to_gl_mode(U32 mode)
+{
+    switch (mode)
+    {
+    case TINYGLTF_MODE_POINTS:
+        return LLRender::POINTS;
+    case TINYGLTF_MODE_LINE:
+        return LLRender::LINES;
+    case TINYGLTF_MODE_LINE_LOOP:
+        return LLRender::LINE_LOOP;
+    case TINYGLTF_MODE_LINE_STRIP:
+        return LLRender::LINE_STRIP;
+    case TINYGLTF_MODE_TRIANGLES:
+        return LLRender::TRIANGLES;
+    case TINYGLTF_MODE_TRIANGLE_STRIP:
+        return LLRender::TRIANGLE_STRIP;
+    case TINYGLTF_MODE_TRIANGLE_FAN:
+        return LLRender::TRIANGLE_FAN;
+    default:
+        return LLRender::TRIANGLES;
+    }
+}
+
+const Primitive& Primitive::operator=(const Value& src)
+{
+    using namespace boost::json;
+    if (src.is_object())
+    {
+        copy(src, "material", mMaterial);
+        copy(src, "mode", mMode);
+        copy(src, "indices", mIndices);
+        copy(src, "attributes", mAttributes);
+
+        mGLMode = gltf_mode_to_gl_mode(mMode);
+    }
+    return *this;
+}
 
 const Primitive& Primitive::operator=(const tinygltf::Primitive& src)
 {
@@ -369,32 +411,7 @@ const Primitive& Primitive::operator=(const tinygltf::Primitive& src)
         mAttributes[it.first] = it.second;
     }
 
-    switch (mMode)
-    {
-    case TINYGLTF_MODE_POINTS:
-        mGLMode = LLRender::POINTS;
-        break;
-    case TINYGLTF_MODE_LINE:
-        mGLMode = LLRender::LINES;
-        break;
-    case TINYGLTF_MODE_LINE_LOOP:
-        mGLMode = LLRender::LINE_LOOP;
-        break;
-    case TINYGLTF_MODE_LINE_STRIP:
-        mGLMode = LLRender::LINE_STRIP;
-        break;
-    case TINYGLTF_MODE_TRIANGLES:
-        mGLMode = LLRender::TRIANGLES;
-        break;
-    case TINYGLTF_MODE_TRIANGLE_STRIP:
-        mGLMode = LLRender::TRIANGLE_STRIP;
-        break;
-    case TINYGLTF_MODE_TRIANGLE_FAN:
-        mGLMode = LLRender::TRIANGLE_FAN;
-        break;
-    default:
-        mGLMode = GL_TRIANGLES;
-    }
+    mGLMode = gltf_mode_to_gl_mode(mMode);
 
     return *this;
 }

@@ -27,7 +27,6 @@
  */
 
 #include "accessor.h"
-
 // LL GLTF Implementation
 namespace LL
 {
@@ -52,14 +51,9 @@ namespace LL
 
                 void allocateGLResources(Asset& asset);
 
-                const Sampler& operator=(const tinygltf::AnimationSampler& src)
-                {
-                    mInput = src.input;
-                    mOutput = src.output;
-                    mInterpolation = src.interpolation;
-
-                    return *this;
-                }
+                const Sampler& operator=(const Value& value);
+                const Sampler& operator=(const tinygltf::AnimationSampler& src);
+                
 
                 // get the frame index and time for the specified time
                 // asset -- the asset to reference for Accessors
@@ -77,27 +71,30 @@ namespace LL
                 public:
                     S32 mNode = INVALID_INDEX;
                     std::string mPath;
+
+                    const Target& operator=(const Value& value);
                 };
 
                 S32 mSampler = INVALID_INDEX;
                 Target mTarget;
 
-                const Channel& operator=(const tinygltf::AnimationChannel& src)
-                {
-                    mSampler = src.sampler;
-
-                    mTarget.mNode = src.target_node;
-                    mTarget.mPath = src.target_path;
-
-                    return *this;
-                }
-
+                const Channel& operator=(const Value& value);
+                const Channel& operator=(const tinygltf::AnimationChannel& src);
             };
 
             class RotationChannel : public Channel
             {
             public:
+                RotationChannel() = default;
+                RotationChannel(const Channel& channel) : Channel(channel) {}
+
                 std::vector<glh::quaternionf> mRotations;
+
+                const RotationChannel& operator=(const Value& value)
+                {
+                    Channel::operator=(value);
+                    return *this;
+                }
 
                 const RotationChannel& operator=(const tinygltf::AnimationChannel& src)
                 {
@@ -116,7 +113,16 @@ namespace LL
             class TranslationChannel : public Channel
             {
             public:
+                TranslationChannel() = default;
+                TranslationChannel(const Channel& channel) : Channel(channel) {}
+
                 std::vector<glh::vec3f> mTranslations;
+
+                const TranslationChannel& operator=(const Value& value)
+                {
+                    Channel::operator=(value);
+                    return *this;
+                }
 
                 const TranslationChannel& operator=(const tinygltf::AnimationChannel& src)
                 {
@@ -135,7 +141,16 @@ namespace LL
             class ScaleChannel : public Channel
             {
             public:
+                ScaleChannel() = default;
+                ScaleChannel(const Channel& channel) : Channel(channel) {}
+
                 std::vector<glh::vec3f> mScales;
+
+                const ScaleChannel& operator=(const Value& value)
+                {
+                    Channel::operator=(value);
+                    return *this;
+                }
 
                 const ScaleChannel& operator=(const tinygltf::AnimationChannel& src)
                 {
@@ -165,6 +180,7 @@ namespace LL
             std::vector<TranslationChannel> mTranslationChannels;
             std::vector<ScaleChannel> mScaleChannels;
 
+            const Animation& operator=(const Value& value);
             const Animation& operator=(const tinygltf::Animation& src);
             
             void allocateGLResources(Asset& asset);

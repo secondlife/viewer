@@ -44,6 +44,7 @@
 #include "llfloaterperms.h"
 #include "llagentbenefits.h"
 #include "llfilesystem.h"
+#include "boost/json.hpp"
 
 using namespace LL;
 
@@ -248,7 +249,7 @@ void GLTFSceneManager::uploadSelection()
 
             LLNewBufferedResourceUploadInfo::uploadFinish_f finish = [this, idx](LLUUID assetId, LLSD response)
                 {
-                    if (mUploadingAsset && mUploadingAsset->mImages.size() > idx)
+                    if (mUploadingAsset && mUploadingAsset->mBuffers.size() > idx)
                     {
                         mUploadingAsset->mBuffers[idx].mUri = assetId.asString();
                         mPendingBinaryUploads--;
@@ -394,21 +395,9 @@ void GLTFSceneManager::onGLTFLoadComplete(const LLUUID& id, LLAssetType::EType a
             data.resize(file.getSize());
             file.read((U8*)data.data(), data.size());
 
-            tinygltf::Model model;
-            tinygltf::TinyGLTF gltf;
-            std::string warn_msg, error_msg;
-            if (!gltf.LoadASCIIFromString(&model, &error_msg, &warn_msg, data.c_str(), data.length(), ""))
-            {
-                LL_WARNS("GLTF") << "Failed to parse GLTF asset: "
-                    << LL_NEWLINE
-                    << warn_msg
-                    << LL_NEWLINE
-                    << error_msg
-                    << LL_ENDL;
-                return;
-            }
+            boost::json::value json = boost::json::parse(data);
 
-            std::shared_ptr<Asset> asset = std::make_shared<Asset>(model);
+            std::shared_ptr<Asset> asset = std::make_shared<Asset>(json);
 
             for (auto& buffer : asset->mBuffers)
             {
