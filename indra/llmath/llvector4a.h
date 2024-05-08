@@ -119,12 +119,12 @@ public:
 
     bool operator==(const LLVector4a& rhs) const
     {
-        return mQ == rhs.mQ;
+        return equals4(rhs);
     }
 
     bool operator!=(const LLVector4a& rhs) const
     {
-        return mQ != rhs.mQ;
+        return !(*this == rhs);
     }
 
 	////////////////////////////////////
