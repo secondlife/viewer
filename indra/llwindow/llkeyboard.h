@@ -76,10 +76,7 @@ public:
     virtual bool    handleKeyUp(const U16 key, MASK mask) = 0;
     virtual bool    handleKeyDown(const U16 key, MASK mask) = 0;
 
-#ifdef LL_DARWIN
-    // We only actually use this for macOS.
-    virtual void    handleModifier(MASK mask) = 0;
-#endif // LL_DARWIN
+    virtual void    handleModifier(MASK mask) { }
 
     // Asynchronously poll the control, alt, and shift keys and set the
     // appropriate internal key masks.
@@ -109,6 +106,7 @@ public:
 
 protected:
     void            addKeyName(KEY key, const std::string& name);
+    virtual MASK    updateModifiers(const MASK mask) { return mask; }
 
 protected:
     std::map<U16, KEY>  mTranslateKeyMap;       // Map of translations from OS keys to Linden KEYs

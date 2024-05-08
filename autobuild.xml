@@ -1552,7 +1552,7 @@
             <key>name</key>
             <string>linux64</string>
           </map>
-          <key>windows</key>
+          <key>windows64</key>
           <map>
             <key>archive</key>
             <map>
@@ -1562,7 +1562,7 @@
               <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/60043/564063/llphysicsextensions_stub-1.0.542456-windows-542456.tar.bz2</string>
             </map>
             <key>name</key>
-            <string>windows</string>
+            <string>windows64</string>
           </map>
         </map>
         <key>license</key>

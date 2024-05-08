@@ -335,6 +335,20 @@ public:
         {
             return c ? (*this)[std::string_view(c)] : *this;
         }
+
+        template<typename T>
+        LLSD(const std::map<String, T>& map, bool exclude_empty = false)
+        {
+            assign(emptyMap());
+            for (const std::pair<String, T>& pair : map)
+            {
+                LLSD value(pair.second);
+                if (!exclude_empty || !value.isEmpty())
+                {
+                    insert(pair.first, value);
+                }
+            }
+        }
     //@}
 
     /** @name Array Values */
@@ -420,6 +434,7 @@ public:
         bool isBinary() const       { return type() == TypeBinary; }
         bool isMap() const          { return type() == TypeMap; }
         bool isArray() const        { return type() == TypeArray; }
+        bool isEmpty() const;
     //@}
 
     /** @name Automatic Cast Protection
