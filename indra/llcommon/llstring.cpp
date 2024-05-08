@@ -1115,18 +1115,27 @@ void LLStringOps::setupDayFormat(const std::string& data)
 }
 
 
-std::string LLStringOps::getDatetimeCode (std::string key)
+std::string LLStringOps::getDatetimeCode(std::string key)
 {
-    std::map<std::string, std::string>::iterator iter;
+	std::map<std::string, std::string>::iterator iter = datetimeToCodes.find(key);
+	return iter == datetimeToCodes.end() ? LLStringUtil::null : iter->second;
+}
 
-    iter = datetimeToCodes.find (key);
-    if (iter != datetimeToCodes.end())
+void LLStringOps::splitString(const std::string& text, char delimiter,
+    std::function<void(const std::string&)> handler)
+{
+    std::size_t from = 0;
+    for (std::size_t i = 0; i < text.size(); ++i)
     {
-        return iter->second;
+        if (text[i] == delimiter)
+        {
+            handler(text.substr(from, i - from));
+            from = i + 1;
+        }
     }
-    else
+    if (from <= text.size())
     {
-        return std::string("");
+        handler(text.substr(from));
     }
 }
 

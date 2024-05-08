@@ -36,10 +36,12 @@
 #include "llfloater.h"
 #include "llavatarpropertiesprocessor.h"
 #include "llconversationlog.h"
-#include "llgamecontroltranslator.h"
+#include "llgamecontrol.h"
+#include "llkeyconflict.h"
+#include "llscrolllistcell.h"
+#include "llscrolllistctrl.h"
 #include "llsearcheditor.h"
 #include "llsetkeybinddialog.h"
-#include "llkeyconflict.h"
 
 class LLConversationLogObserver;
 class LLPanelPreference;
@@ -363,6 +365,7 @@ private:
 
 class LLPanelPreferenceGameControl : public LLPanelPreference
 {
+    LOG_CLASS(LLPanelPreferenceGameControl);
 public:
 
     enum InputType
@@ -375,41 +378,38 @@ public:
     LLPanelPreferenceGameControl();
     ~LLPanelPreferenceGameControl();
 
-    void apply() override;
-    void loadDefaults();
-    void loadSettings();
+    void onOpen(const LLSD& key) override;
     void saveSettings() override;
-    void updateEnabledState();
 
-    void onClickGameControlToServer(LLUICtrl* ctrl);
-    // "Agent" in this context means either Avatar or Flycam
-    void onClickGameControlToAgent(LLUICtrl* ctrl);
-    void onClickAgentToGameControl(LLUICtrl* ctrl);
     void onActionSelect();
-    void onCommitInputChannel();
+    void onCommitInputChannel(LLUICtrl* ctrl);
 
     static bool isWaitingForInputChannel();
     static void applyGameControlInput(const LLGameControl::InputChannel& channel);
+
 protected:
     bool postBuild() override;
 
     void populateActionTable();
-    void populateColumns();
+    bool populateColumns(const std::string& filename);
     void populateRows(const std::string& filename);
+    void populateCells();
+    bool parseXmlFile(LLScrollListCtrl::Contents& contents,
+        const std::string& filename, const std::string& what);
 
 private:
+    bool initChannelSelector(LLScrollListItem* item);
     void clearSelectionState();
     void addTableSeparator();
-    void updateTable();
-    LOG_CLASS(LLPanelPreferenceGameControl);
+    void updateTableState();
 
     LLCheckBoxCtrl  *mCheckGameControlToServer; // send game_control data to server
     LLCheckBoxCtrl  *mCheckGameControlToAgent; // use game_control data to move avatar
     LLCheckBoxCtrl  *mCheckAgentToGameControl; // translate external avatar actions to game_control data
 
     LLScrollListCtrl* mActionTable;
-    LLComboBox* mChannelSelector;
-    LLGameControlTranslator mActionTranslator;
+    LLComboBox* mAnalogChannelSelector;
+    LLComboBox* mBinaryChannelSelector;
 };
 
 class LLAvatarComplexityControls

@@ -326,17 +326,11 @@ S32 LLScrollListCtrl::getSearchColumn()
     }
     return llclamp(mSearchColumn, 0, getNumColumns());
 }
-/*virtual*/
+
+// virtual
 bool LLScrollListCtrl::preProcessChildNode(LLXMLNodePtr child)
 {
-    if (child->hasName("column") || child->hasName("row"))
-    {
-        return true; // skip
-    }
-    else
-    {
-        return false;
-    }
+	return child->hasName("column") || child->hasName("row");
 }
 
 LLScrollListCtrl::~LLScrollListCtrl()
@@ -355,7 +349,6 @@ LLScrollListCtrl::~LLScrollListCtrl()
         mPopupMenuHandle.markDead();
     }
 }
-
 
 bool LLScrollListCtrl::setMaxItemCount(S32 max_count)
 {
@@ -378,25 +371,23 @@ S32 LLScrollListCtrl::getItemCount() const
 
 bool LLScrollListCtrl::hasSelectedItem() const
 {
-    item_list::iterator iter;
-    for (iter = mItemList.begin(); iter < mItemList.end(); )
-    {
-        LLScrollListItem* itemp = *iter;
-        if (itemp && itemp->getSelected())
-        {
-            return true;
-        }
-        iter++;
-    }
-    return false;
+	item_list::iterator iter;
+	for (LLScrollListItem* item : mItemList)
+	{
+		if (item->getSelected())
+		{
+			return true;
+		}
+		iter++;
+	}
+	return false;
 }
 
 // virtual LLScrolListInterface function (was deleteAllItems)
 void LLScrollListCtrl::clearRows()
 {
-    std::for_each(mItemList.begin(), mItemList.end(), DeletePointer());
-    mItemList.clear();
-    //mItemCount = 0;
+	std::for_each(mItemList.begin(), mItemList.end(), DeletePointer());
+	mItemList.clear();
 
     // Scroll the bar back up to the top.
     mScrollbar->setDocParams(0, 0);
@@ -407,71 +398,58 @@ void LLScrollListCtrl::clearRows()
     mDirty = false;
 }
 
-
 LLScrollListItem* LLScrollListCtrl::getFirstSelected() const
 {
-    item_list::const_iterator iter;
-    for (iter = mItemList.begin(); iter != mItemList.end(); iter++)
-    {
-        LLScrollListItem* item  = *iter;
-        if (item->getSelected())
-        {
-            return item;
-        }
-    }
-    return NULL;
+	for (LLScrollListItem* item : mItemList)
+	{
+		if (item->getSelected())
+		{
+			return item;
+		}
+	}
+	return NULL;
 }
 
 std::vector<LLScrollListItem*> LLScrollListCtrl::getAllSelected() const
 {
-    std::vector<LLScrollListItem*> ret;
-    item_list::const_iterator iter;
-    for(iter = mItemList.begin(); iter != mItemList.end(); iter++)
-    {
-        LLScrollListItem* item  = *iter;
-        if (item->getSelected())
-        {
-            ret.push_back(item);
-        }
-    }
-    return ret;
+	std::vector<LLScrollListItem*> ret;
+	for (LLScrollListItem* item : mItemList)
+	{
+		if (item->getSelected())
+		{
+			ret.push_back(item);
+		}
+	}
+	return ret;
 }
 
 S32 LLScrollListCtrl::getNumSelected() const
 {
-    S32 numSelected = 0;
-
-    for(item_list::const_iterator iter = mItemList.begin(); iter != mItemList.end(); ++iter)
-    {
-        LLScrollListItem* item  = *iter;
-        if (item->getSelected())
-        {
-            ++numSelected;
-        }
-    }
-
-    return numSelected;
+	S32 numSelected = 0;
+	for (LLScrollListItem* item : mItemList)
+	{
+		if (item->getSelected())
+		{
+			++numSelected;
+		}
+	}
+	return numSelected;
 }
 
 S32 LLScrollListCtrl::getFirstSelectedIndex() const
 {
-    S32 CurSelectedIndex = 0;
-
-    // make sure sort is up to date before returning an index
-    updateSort();
-
-    item_list::const_iterator iter;
-    for (iter = mItemList.begin(); iter != mItemList.end(); iter++)
-    {
-        LLScrollListItem* item  = *iter;
-        if (item->getSelected())
-        {
-            return CurSelectedIndex;
-        }
-        CurSelectedIndex++;
-    }
-
-    return -1;
+	S32 CurSelectedIndex = 0;
+	// make sure sort is up to date before returning an index
+	updateSort();
+	for (LLScrollListItem* item : mItemList)
+	{
+		if (item->getSelected())
+		{
+			return CurSelectedIndex;
+		}
+		CurSelectedIndex++;
+	}
+	return -1;
 }
 
 LLScrollListItem* LLScrollListCtrl::getFirstData() const
@@ -494,34 +472,28 @@ LLScrollListItem* LLScrollListCtrl::getLastData() const
 
 std::vector<LLScrollListItem*> LLScrollListCtrl::getAllData() const
 {
-    std::vector<LLScrollListItem*> ret;
-    item_list::const_iterator iter;
-    for(iter = mItemList.begin(); iter != mItemList.end(); iter++)
-    {
-        LLScrollListItem* item  = *iter;
-        ret.push_back(item);
-    }
-    return ret;
+	std::vector<LLScrollListItem*> ret;
+	for (LLScrollListItem* item : mItemList)
+	{
+		ret.push_back(item);
+	}
+	return ret;
 }
 
 // returns first matching item
 LLScrollListItem* LLScrollListCtrl::getItem(const LLSD& sd) const
 {
-    std::string string_val = sd.asString();
-
-    item_list::const_iterator iter;
-    for(iter = mItemList.begin(); iter != mItemList.end(); iter++)
-    {
-        LLScrollListItem* item  = *iter;
-        // assumes string representation is good enough for comparison
-        if (item->getValue().asString() == string_val)
-        {
-            return item;
-        }
-    }
-    return NULL;
+	std::string string_val = sd.asString();
+	for (LLScrollListItem* item : mItemList)
+	{
+		// assumes string representation is good enough for comparison
+		if (item->getValue().asString() == string_val)
+		{
+			return item;
+		}
+	}
+	return NULL;
 }
-
 
 void LLScrollListCtrl::reshape( S32 width, S32 height, bool called_from_parent )
 {
@@ -571,9 +543,9 @@ void LLScrollListCtrl::updateLayout()
 // Do not make larger than width or height.
 void LLScrollListCtrl::fitContents(S32 max_width, S32 max_height)
 {
-    S32 height = llmin( getRequiredRect().getHeight(), max_height );
-    if(mPageLines)
-        height = llmin( mPageLines * mLineHeight + 2*mBorderThickness + (mDisplayColumnHeaders ? mHeadingHeight : 0), height );
+	S32 height = llmin( getRequiredRect().getHeight(), max_height );
+	if (mPageLines)
+		height = llmin( mPageLines * mLineHeight + 2*mBorderThickness + (mDisplayColumnHeaders ? mHeadingHeight : 0), height );
 
     S32 width = getRect().getWidth();
 
@@ -1072,24 +1044,27 @@ void LLScrollListCtrl::mouseOverHighlightNthItem(S32 target_index)
 
 S32 LLScrollListCtrl::selectMultiple( uuid_vec_t ids )
 {
-    item_list::iterator iter;
-    S32 count = 0;
-    for (iter = mItemList.begin(); iter != mItemList.end(); iter++)
-    {
-        LLScrollListItem* item = *iter;
-        uuid_vec_t::iterator iditr;
-        for(iditr = ids.begin(); iditr != ids.end(); ++iditr)
-        {
-            if (item->getEnabled() && (item->getUUID() == (*iditr)))
-            {
-                // TODO: support multiple selection for cells
-                selectItem(item, -1, false);
-                ++count;
-                break;
-            }
-        }
-        if(ids.end() != iditr) ids.erase(iditr);
-    }
+	item_list::iterator iter;
+	S32 count = 0;
+	for (iter = mItemList.begin(); iter != mItemList.end(); iter++)
+	{
+		LLScrollListItem* item = *iter;
+		uuid_vec_t::iterator iditr;
+		for (iditr = ids.begin(); iditr != ids.end(); ++iditr)
+		{
+			if (item->getEnabled() && (item->getUUID() == (*iditr)))
+			{
+				// TODO: support multiple selection for cells
+				selectItem(item, -1, false);
+				++count;
+				break;
+			}
+		}
+		if (ids.end() != iditr)
+		{
+			ids.erase(iditr);
+		}
+	}
 
     if (mCommitOnSelectionChange)
     {
@@ -1102,36 +1077,32 @@ S32 LLScrollListCtrl::getItemIndex( LLScrollListItem* target_item ) const
 {
     updateSort();
 
-    S32 index = 0;
-    item_list::const_iterator iter;
-    for (iter = mItemList.begin(); iter != mItemList.end(); iter++)
-    {
-        LLScrollListItem *itemp = *iter;
-        if (target_item == itemp)
-        {
-            return index;
-        }
-        index++;
-    }
-    return -1;
+	S32 index = 0;
+	for (LLScrollListItem* item : mItemList)
+	{
+		if (target_item == item)
+		{
+			return index;
+		}
+		index++;
+	}
+	return -1;
 }
 
 S32 LLScrollListCtrl::getItemIndex( const LLUUID& target_id ) const
 {
     updateSort();
 
-    S32 index = 0;
-    item_list::const_iterator iter;
-    for (iter = mItemList.begin(); iter != mItemList.end(); iter++)
-    {
-        LLScrollListItem *itemp = *iter;
-        if (target_id == itemp->getUUID())
-        {
-            return index;
-        }
-        index++;
-    }
-    return -1;
+	S32 index = 0;
+	for (LLScrollListItem* item : mItemList)
+	{
+		if (target_id == item->getUUID())
+		{
+			return index;
+		}
+		index++;
+	}
+	return -1;
 }
 
 void LLScrollListCtrl::selectPrevItem( bool extend_selection)
@@ -1147,23 +1118,21 @@ void LLScrollListCtrl::selectPrevItem( bool extend_selection)
     {
         updateSort();
 
-        item_list::iterator iter;
-        for (iter = mItemList.begin(); iter != mItemList.end(); iter++)
-        {
-            LLScrollListItem* cur_item = *iter;
-
-            if (cur_item->getSelected())
-            {
-                if (prev_item)
-                {
-                    selectItem(prev_item, cur_item->getSelectedCell(), !extend_selection);
-                }
-                else
-                {
-                    reportInvalidInput();
-                }
-                break;
-            }
+		item_list::iterator iter;
+		for (LLScrollListItem* cur_item : mItemList)
+		{
+			if (cur_item->getSelected())
+			{
+				if (prev_item)
+				{
+					selectItem(prev_item, cur_item->getSelectedCell(), !extend_selection);
+				}
+				else
+				{
+					reportInvalidInput();
+				}
+				break;
+			}
 
             // don't allow navigation to disabled elements
             prev_item = cur_item->getEnabled() ? cur_item : prev_item;
@@ -1191,23 +1160,20 @@ void LLScrollListCtrl::selectNextItem( bool extend_selection)
     {
         updateSort();
 
-        item_list::reverse_iterator iter;
-        for (iter = mItemList.rbegin(); iter != mItemList.rend(); iter++)
-        {
-            LLScrollListItem* cur_item = *iter;
-
-            if (cur_item->getSelected())
-            {
-                if (next_item)
-                {
-                    selectItem(next_item, cur_item->getSelectedCell(), !extend_selection);
-                }
-                else
-                {
-                    reportInvalidInput();
-                }
-                break;
-            }
+		for (LLScrollListItem* cur_item : mItemList)
+		{
+			if (cur_item->getSelected())
+			{
+				if (next_item)
+				{
+					selectItem(next_item, cur_item->getSelectedCell(), !extend_selection);
+				}
+				else
+				{
+					reportInvalidInput();
+				}
+				break;
+			}
 
             // don't allow navigation to disabled items
             next_item = cur_item->getEnabled() ? cur_item : next_item;
@@ -1222,16 +1188,12 @@ void LLScrollListCtrl::selectNextItem( bool extend_selection)
     mSearchString.clear();
 }
 
-
-
 void LLScrollListCtrl::deselectAllItems(bool no_commit_on_change)
 {
-    item_list::iterator iter;
-    for (iter = mItemList.begin(); iter != mItemList.end(); iter++)
-    {
-        LLScrollListItem* item = *iter;
-        deselectItem(item);
-    }
+	for (LLScrollListItem* item : mItemList)
+	{
+		deselectItem(item);
+	}
 
     if (mCommitOnSelectionChange && !no_commit_on_change)
     {
@@ -2922,16 +2884,14 @@ bool    LLScrollListCtrl::canCut() const
 // virtual
 void    LLScrollListCtrl::selectAll()
 {
-    // Deselects all other items
-    item_list::iterator iter;
-    for (iter = mItemList.begin(); iter != mItemList.end(); iter++)
-    {
-        LLScrollListItem *itemp = *iter;
-        if( itemp->getEnabled() )
-        {
-            selectItem(itemp, -1, false);
-        }
-    }
+	// Deselects all other items
+	for (LLScrollListItem* itemp : mItemList)
+	{
+		if (itemp->getEnabled())
+		{
+			selectItem(itemp, -1, false);
+		}
+	}
 
     if (mCommitOnSelectionChange)
     {
@@ -2967,7 +2927,8 @@ void LLScrollListCtrl::addColumn(const LLSD& column, EAddPosition pos)
 
 void LLScrollListCtrl::addColumn(const LLScrollListColumn::Params& column_params, EAddPosition pos)
 {
-    if (!column_params.validateBlock()) return;
+	if (!column_params.validateBlock())
+		return;
 
     std::string name = column_params.name;
     // if no column name provided, just use ordinal as name
@@ -2983,35 +2944,33 @@ void LLScrollListCtrl::addColumn(const LLScrollListColumn::Params& column_params
         LLScrollListColumn* new_column = mColumns[name];
         new_column->mIndex = static_cast<S32>(mColumns.size()) - 1;
 
-        // Add button
-        if (new_column->getWidth() > 0 || new_column->mRelWidth > 0 || new_column->mDynamicWidth)
-        {
-            if (getNumColumns() > 0)
-            {
-                mTotalColumnPadding += mColumnPadding;
-            }
-            if (new_column->mRelWidth >= 0)
-            {
-                new_column->setWidth((S32)ll_round(new_column->mRelWidth*mItemListRect.getWidth()));
-            }
-            else if(new_column->mDynamicWidth)
-            {
-                mNumDynamicWidthColumns++;
-                new_column->setWidth((mItemListRect.getWidth() - mTotalStaticColumnWidth - mTotalColumnPadding) / mNumDynamicWidthColumns);
-            }
-            S32 top = mItemListRect.mTop;
+		// Add button
+		if (new_column->getWidth() > 0 || new_column->mRelWidth > 0 || new_column->mDynamicWidth)
+		{
+			if (getNumColumns() > 0)
+			{
+				mTotalColumnPadding += mColumnPadding;
+			}
+			if (new_column->mRelWidth >= 0)
+			{
+				new_column->setWidth((S32)ll_round(new_column->mRelWidth*mItemListRect.getWidth()));
+			}
+			else if (new_column->mDynamicWidth)
+			{
+				mNumDynamicWidthColumns++;
+				new_column->setWidth((mItemListRect.getWidth() - mTotalStaticColumnWidth - mTotalColumnPadding) / mNumDynamicWidthColumns);
+			}
+			S32 top = mItemListRect.mTop;
 
-            S32 left = mItemListRect.mLeft;
-            for (column_map_t::iterator itor = mColumns.begin();
-                itor != mColumns.end();
-                ++itor)
-            {
-                if (itor->second->mIndex < new_column->mIndex &&
-                    itor->second->getWidth() > 0)
-                {
-                    left += itor->second->getWidth() + mColumnPadding;
-                }
-            }
+			S32 left = mItemListRect.mLeft;
+			for (const auto& data_pair : mColumns)
+			{
+				if (data_pair.second->mIndex < new_column->mIndex &&
+					data_pair.second->getWidth() > 0)
+				{
+					left += data_pair.second->getWidth() + mColumnPadding;
+				}
+			}
 
             S32 right = left+new_column->getWidth();
             if (new_column->mIndex != (S32)mColumns.size()-1)
@@ -3176,18 +3135,17 @@ LLScrollListItem* LLScrollListCtrl::addRow(const LLScrollListItem::Params& item_
 LLScrollListItem* LLScrollListCtrl::addRow(LLScrollListItem *new_item, const LLScrollListItem::Params& item_p, EAddPosition pos)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
-    if (!item_p.validateBlock() || !new_item) return NULL;
-    new_item->setNumColumns(static_cast<S32>(mColumns.size()));
+	if (!item_p.validateBlock() || !new_item)
+		return nullptr;
+
+	new_item->setNumColumns(mColumns.size());
 
     // Add any columns we don't already have
     S32 col_index = 0;
 
-    for(LLInitParam::ParamIterator<LLScrollListCell::Params>::const_iterator itor = item_p.columns.begin();
-        itor != item_p.columns.end();
-        ++itor)
-    {
-        LLScrollListCell::Params cell_p = *itor;
-        std::string column = cell_p.column;
+	for (LLScrollListCell::Params cell_p : item_p.columns)
+	{
+		std::string column = cell_p.column;
 
         // empty columns strings index by ordinal
         if (column.empty())
@@ -3248,10 +3206,9 @@ LLScrollListItem* LLScrollListCtrl::addRow(LLScrollListItem *new_item, const LLS
             new_item->setNumColumns(static_cast<S32>(mColumns.size()));
         }
 
-        LLScrollListCell* cell = LLScrollListCell::create(LLScrollListCell::Params().value(item_p.value));
-        if (cell)
-        {
-            LLScrollListColumn* columnp = mColumns.begin()->second;
+		if (LLScrollListCell* cell = LLScrollListCell::create(LLScrollListCell::Params().value(item_p.value)))
+		{
+			LLScrollListColumn* columnp = mColumns.begin()->second;
 
             new_item->setColumn(0, cell);
             if (columnp->mHeader
@@ -3263,19 +3220,17 @@ LLScrollListItem* LLScrollListCtrl::addRow(LLScrollListItem *new_item, const LLS
         }
     }
 
-    // add dummy cells for missing columns
-    for (column_map_t::iterator column_it = mColumns.begin(); column_it != mColumns.end(); ++column_it)
-    {
-        S32 column_idx = column_it->second->mIndex;
-        if (new_item->getColumn(column_idx) == NULL)
-        {
-            LLScrollListColumn* column_ptr = column_it->second;
-            LLScrollListCell::Params cell_p;
-            cell_p.width = column_ptr->getWidth();
-
-            new_item->setColumn(column_idx, new LLScrollListSpacer(cell_p));
-        }
-    }
+	// add dummy cells for missing columns
+	for (const auto& column_it : mColumns)
+	{
+		S32 column_idx = column_it.second->mIndex;
+		if (new_item->getColumn(column_idx) == NULL)
+		{
+			LLScrollListCell::Params cell_p;
+			cell_p.width = column_it.second->getWidth();
+			new_item->setColumn(column_idx, new LLScrollListSpacer(cell_p));
+		}
+	}
 
     addItem(new_item, pos);
     return new_item;

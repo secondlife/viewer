@@ -54,10 +54,10 @@ public:
 
 
     LLGameControlTranslator();
-    void setAvailableActions(ActionToMaskMap& action_to_mask);
+    void setAvailableActionMasks(ActionToMaskMap& action_to_mask);
     LLGameControl::InputChannel getChannelByAction(const std::string& action) const;
-    void setMappings(NamedChannels& list);
-    bool updateMap(const std::string& name, const LLGameControl::InputChannel& channel);
+    void setMappings(NamedChannels& named_channels);
+    void updateMap(const std::string& action, const LLGameControl::InputChannel& channel);
     // Note: to remove a mapping you can call updateMap() with a TYPE_NONE channel
 
     // Given external action_flags (i.e. raw avatar input)
@@ -72,8 +72,7 @@ public:
     U32 getMappedFlags() const { return mMappedFlags; }
 
 private:
-    bool updateMapInternal(const std::string& name, const LLGameControl::InputChannel& channel);
-    bool addOrRemoveMaskMapping(U32 mask, const LLGameControl::InputChannel& channel);
+    void updateMapInternal(const std::string& name, const LLGameControl::InputChannel& channel);
 
 private:
     // mActionToMask is an invarient map between the possible actions
