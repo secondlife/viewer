@@ -148,7 +148,7 @@ The server MUST reject any data that violates this requirement.
 Clients MUST remove any Images from Buffers prior to upload to the server.
 Servers MAY reject Assets that contain Buffers with unreferenced data.
 
-
+... to be continued.
 
  
 
