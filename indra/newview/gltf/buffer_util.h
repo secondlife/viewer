@@ -70,21 +70,21 @@ namespace LL
             LL_ERRS() << "TODO: implement " << LL_FUNCSIG << LL_ENDL;
         }
 
-        // copy one vec2 from src to dst
+        // copy one mat2 from src to dst
         template<class S, class T>
         static void copyMat2(S* src, T& dst)
         {
             LL_ERRS() << "TODO: implement " << LL_FUNCSIG << LL_ENDL;
         }
 
-        // copy one vec3 from src to dst
+        // copy one mat3 from src to dst
         template<class S, class T>
         static void copyMat3(S* src, T& dst)
         {
             LL_ERRS() << "TODO: implement " << LL_FUNCSIG << LL_ENDL;
         }
 
-        // copy one vec4 from src to dst
+        // copy one mat4 from src to dst
         template<class S, class T>
         static void copyMat4(S* src, T& dst)
         {
@@ -675,11 +675,12 @@ namespace LL
         template<>
         bool write(const glh::vec3f& src, Value& dst)
         {
-            boost::json::array arr;
-            arr.push_back(src[0]);
-            arr.push_back(src[1]);
-            arr.push_back(src[2]);
-            dst = arr;
+            dst = boost::json::array();
+            boost::json::array& arr = dst.as_array();
+            arr.resize(3);
+            arr[0] = src[0];
+            arr[1] = src[1];
+            arr[2] = src[2];
             return true;
         }
 

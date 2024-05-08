@@ -36,6 +36,7 @@
 
 extern F32SecondsImplicit		gFrameTimeSeconds;
 
+
 // LL GLTF Implementation
 namespace LL
 {
@@ -125,7 +126,8 @@ namespace LL
             F32 mAlphaCutoff = 0.5f;
             bool mDoubleSided = false;
 
-
+            // bind for rendering
+            void bind(Asset& asset);
             const Material& operator=(const tinygltf::Material& src);
             const Material& operator=(const Value& src);
             void serialize(boost::json::object& dst) const;
@@ -294,11 +296,7 @@ namespace LL
             // preserve only uri and name
             void clearData(Asset& asset);
 
-            void allocateGLResources()
-            {
-                // allocate texture
-
-            }
+            void allocateGLResources();
         };
 
         // C++ representation of a GLTF Asset

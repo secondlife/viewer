@@ -160,6 +160,9 @@ void GLTFSceneManager::uploadSelection()
                 llassert_always(image.mData.size() == raw->getDataSize());
                 memcpy(data, image.mData.data(), image.mData.size());
 
+                // for GLTF native content, store image in GLTF orientation
+                raw->verticalFlip();
+
                 LLPointer<LLImageJ2C> j2c = LLViewerTextureList::convertToUploadFile(raw);
 
                 std::string buffer;
