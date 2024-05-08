@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <!-- Width and height of this panel should be synchronized with "panel_modes" in the floater_moveview.xml-->
 <panel
  height="25"

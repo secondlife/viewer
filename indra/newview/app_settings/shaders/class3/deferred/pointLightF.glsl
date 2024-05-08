@@ -52,7 +52,7 @@ uniform vec4 viewport;
 
 void calcHalfVectors(vec3 lv, vec3 n, vec3 v, out vec3 h, out vec3 l, out float nh, out float nl, out float nv, out float vh, out float lightDist);
 float calcLegacyDistanceAttenuation(float distance, float falloff);
-vec4 getNormalEnvIntensityFlags(vec2 screenpos, out vec3 n, out float envIntensity);
+vec4 getNorm(vec2 screenpos);
 vec4 getPosition(vec2 pos_screen);
 vec2 getScreenXY(vec4 clip);
 vec2 getScreenCoord(vec4 clip);
@@ -72,9 +72,8 @@ void main()
     vec2 tc          = getScreenCoord(vary_fragcoord);
     vec3 pos         = getPosition(tc).xyz;
 
-    float envIntensity;
-    vec3 n;
-    vec4 norm = getNormalEnvIntensityFlags(tc, n, envIntensity); // need `norm.w` for GET_GBUFFER_FLAG()
+    vec4 norm = getNorm(tc); // need `norm.w` for GET_GBUFFER_FLAG()
+    vec3 n = norm.xyz;
 
     vec3 diffuse = texture(diffuseRect, tc).rgb;
     vec4 spec    = texture(specularRect, tc);

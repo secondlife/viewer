@@ -49,24 +49,22 @@
 #include "lluictrlfactory.h"
 #include "llviewerwindow.h"
 
-#include <boost/foreach.hpp>
-
 LLPanelGroupBulkBan::LLPanelGroupBulkBan(const LLUUID& group_id) : LLPanelGroupBulk(group_id)
 {
 	// Pass on construction of this panel to the control factory.
 	buildFromFile( "panel_group_bulk_ban.xml");
 }
 
-BOOL LLPanelGroupBulkBan::postBuild()
+bool LLPanelGroupBulkBan::postBuild()
 {
-	BOOL recurse = TRUE;
+	constexpr bool recurse = true;
 
 	mImplementation->mLoadingText = getString("loading");
 	mImplementation->mGroupName = getChild<LLTextBox>("group_name_text", recurse);
 	mImplementation->mBulkAgentList = getChild<LLNameListCtrl>("banned_agent_list", recurse);
 	if ( mImplementation->mBulkAgentList )
 	{
-		mImplementation->mBulkAgentList->setCommitOnSelectionChange(TRUE);
+		mImplementation->mBulkAgentList->setCommitOnSelectionChange(true);
 		mImplementation->mBulkAgentList->setCommitCallback(LLPanelGroupBulkImpl::callbackSelect, mImplementation);
 	}
 
@@ -83,7 +81,7 @@ BOOL LLPanelGroupBulkBan::postBuild()
 	if ( mImplementation->mRemoveButton )
 	{
 		mImplementation->mRemoveButton->setClickedCallback(LLPanelGroupBulkImpl::callbackClickRemove, mImplementation);
-		mImplementation->mRemoveButton->setEnabled(FALSE);
+		mImplementation->mRemoveButton->setEnabled(false);
 	}
 
 	mImplementation->mOKButton = 
@@ -91,7 +89,7 @@ BOOL LLPanelGroupBulkBan::postBuild()
 	if ( mImplementation->mOKButton )
 	{
 		mImplementation->mOKButton->setClickedCallback(LLPanelGroupBulkBan::callbackClickSubmit, this);
-		mImplementation->mOKButton->setEnabled(FALSE);
+		mImplementation->mOKButton->setEnabled(false);
 	}
 
 	button = getChild<LLButton>("cancel_button", recurse);
@@ -106,7 +104,7 @@ BOOL LLPanelGroupBulkBan::postBuild()
 	mImplementation->mCannotBanYourself = getString("cant_ban_yourself");
 
 	update();
-	return TRUE;
+	return true;
 }
 
 // TODO: Refactor the shitty callback functions with void* -- just use boost::bind to call submit() instead.
@@ -163,27 +161,26 @@ void LLPanelGroupBulkBan::submit()
 	// remove already banned users and yourself from request.
 	std::vector<LLAvatarName> banned_avatar_names;
 	std::vector<LLAvatarName> out_of_limit_names;
-	bool banning_self = FALSE;
+	bool banning_self = false;
 	std::vector<LLUUID>::iterator conflict = std::find(banned_agent_list.begin(), banned_agent_list.end(), gAgent.getID());
 	if (conflict != banned_agent_list.end())
 	{
 		banned_agent_list.erase(conflict);
-		banning_self = TRUE;
+		banning_self = true;
 	}
 	if (group_datap)
 	{
-		BOOST_FOREACH(const LLGroupMgrGroupData::ban_list_t::value_type& group_ban_pair, group_datap->mBanList)
+		for (const auto& [group_ban_agent_id, group_ban_data] : group_datap->mBanList)
 		{
-			const LLUUID& group_ban_agent_id = group_ban_pair.first;
 			std::vector<LLUUID>::iterator conflict = std::find(banned_agent_list.begin(), banned_agent_list.end(), group_ban_agent_id);
 			if (conflict != banned_agent_list.end())
 			{
 				LLAvatarName av_name;
 				LLAvatarNameCache::get(group_ban_agent_id, &av_name);
-				banned_avatar_names.push_back(av_name);
+				banned_avatar_names.emplace_back(av_name);
 
 				banned_agent_list.erase(conflict);
-				if (banned_agent_list.size() == 0)
+				if (banned_agent_list.empty())
 				{
 					break;
 				}

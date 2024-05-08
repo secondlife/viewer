@@ -181,7 +181,7 @@ LLStatBar::LLStatBar(const Params& p)
 	mTargetMinBar(llmin(p.bar_min, p.bar_max)),
 	mTargetMaxBar(llmax(p.bar_max, p.bar_min)),
 	mCurMaxBar(p.bar_max),
-    mCurMinBar(0),
+	mCurMinBar(0),
 	mDecimalDigits(p.decimal_digits),
 	mNumHistoryFrames(p.num_frames),
 	mNumShortHistoryFrames(p.num_frames_short),
@@ -209,7 +209,7 @@ LLStatBar::LLStatBar(const Params& p)
 	setStat(p.stat);
 }
 
-BOOL LLStatBar::handleHover(S32 x, S32 y, MASK mask)
+bool LLStatBar::handleHover(S32 x, S32 y, MASK mask)
 {
 	switch(mStatType)
 	{
@@ -222,44 +222,41 @@ BOOL LLStatBar::handleHover(S32 x, S32 y, MASK mask)
 	case STAT_SAMPLE:
 		LLToolTipMgr::instance().show(LLToolTip::Params().message(mStat.sampleStatp->getDescription()).sticky_rect(calcScreenRect()));
 		break;
-	case STAT_MEM:
-		LLToolTipMgr::instance().show(LLToolTip::Params().message(mStat.memStatp->getDescription()).sticky_rect(calcScreenRect()));
-		break;
 	default:
 		break;
 	}
-	return TRUE;
+	return true;
 }
 
-BOOL LLStatBar::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLStatBar::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	BOOL handled = LLView::handleMouseDown(x, y, mask);
+	bool handled = LLView::handleMouseDown(x, y, mask);
 	if (!handled)
 	{
 		if (mDisplayBar)
 		{
 			if (mDisplayHistory || mOrientation == HORIZONTAL)
 			{
-				mDisplayBar = FALSE;
-				mDisplayHistory = FALSE;
+				mDisplayBar = false;
+				mDisplayHistory = false;
 			}
 			else
 			{
-				mDisplayHistory = TRUE;
+				mDisplayHistory = true;
 			}
 		}
 		else
 		{
-			mDisplayBar = TRUE;
+			mDisplayBar = true;
 			if (mOrientation == HORIZONTAL)
 			{
-				mDisplayHistory = TRUE;
+				mDisplayHistory = true;
 			}
 		}
 		LLView* parent = getParent();
-		parent->reshape(parent->getRect().getWidth(), parent->getRect().getHeight(), FALSE);
+		parent->reshape(parent->getRect().getWidth(), parent->getRect().getHeight(), false);
 	}
-	return TRUE;
+	return true;
 }
 
 template<typename T>
@@ -371,18 +368,6 @@ void LLStatBar::draw()
 					decimal_digits = 0;
 				}
 			}
-		}
-		break;
-	case STAT_MEM:
-		{
-			const LLTrace::StatType<LLTrace::MemAccumulator>& mem_stat = *mStat.memStatp;
-
-			unit_label        = mUnitLabel.empty() ? mem_stat.getUnitLabel() : mUnitLabel;
-			current           = last_frame_recording.getLastValue(mem_stat).value();
-			min               = frame_recording.getPeriodMin(mem_stat, num_frames).value();
-			max               = frame_recording.getPeriodMax(mem_stat, num_frames).value();
-			mean              = frame_recording.getPeriodMean(mem_stat, num_frames).value();
-			display_value	  = current;
 		}
 		break;
 	default:
@@ -500,11 +485,6 @@ void LLStatBar::draw()
 							max_value		= recording.getMax(*mStat.sampleStatp);
 							num_samples		= recording.getSampleCount(*mStat.sampleStatp);
 							break;
-						case STAT_MEM:
-							min_value       = recording.getMin(*mStat.memStatp).value();
-							max_value		= recording.getMax(*mStat.memStatp).value();
-							num_samples = 1;
-							break;
 						default:
 							break;
 					}
@@ -583,13 +563,7 @@ void LLStatBar::setStat(const std::string& stat_name)
 		mStat.sampleStatp = sample_stat.get();
 		mStatType = STAT_SAMPLE;
 	}
-	else if (auto mem_stat = StatType<MemAccumulator>::getInstance(stat_name))
-	{
-		mStat.memStatp = mem_stat.get();
-		mStatType = STAT_MEM;
-	}
 }
-
 
 void LLStatBar::setRange(F32 bar_min, F32 bar_max)
 {

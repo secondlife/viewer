@@ -16,11 +16,9 @@ include(CubemapToEquirectangularJS)
 include(DBusGlib)
 include(DragDrop)
 include(EXPAT)
-include(FMODSTUDIO)
 include(Hunspell)
 include(ICU4C)
 include(JPEGEncoderBasic)
-include(JsonCpp)
 include(LLAppearance)
 include(LLAudio)
 include(LLCA)
@@ -34,11 +32,11 @@ include(LLWindow)
 include(NDOF)
 include(NVAPI)
 include(OPENAL)
-include(OpenEXR)
 include(OpenGL)
 include(OpenSSL)
 include(PNG)
 include(TemplateCheck)
+include(TinyEXR)
 include(ThreeJS)
 include(Tracy)
 include(UI)
@@ -74,6 +72,11 @@ if (NOT HAVOK_TPV)
 endif (NOT HAVOK_TPV)
 
 set(viewer_SOURCE_FILES
+    gltfscenemanager.cpp
+    gltf/asset.cpp
+    gltf/accessor.cpp
+    gltf/primitive.cpp
+    gltf/animation.cpp
     groupchatlistener.cpp
     llaccountingcostmanager.cpp
     llaisapi.cpp
@@ -106,7 +109,6 @@ set(viewer_SOURCE_FILES
     llblockedlistitem.cpp
     llblocklist.cpp
     llbox.cpp
-    llbreadcrumbview.cpp
     llbrowsernotification.cpp
     llbuycurrencyhtml.cpp
     llcallingcard.cpp
@@ -235,6 +237,7 @@ set(viewer_SOURCE_FILES
     llfloaterimcontainer.cpp
     llfloaterinspect.cpp
     llfloaterinventorysettings.cpp
+    llfloaterinventorythumbnailshelper.cpp
     llfloaterjoystick.cpp
     llfloaterlagmeter.cpp
     llfloaterland.cpp
@@ -361,7 +364,6 @@ set(viewer_SOURCE_FILES
     lllandmarkactions.cpp
     lllandmarklist.cpp
     lllegacyatmospherics.cpp
-    lllistbrowser.cpp
     lllistcontextmenu.cpp
     lllistview.cpp
     lllocalbitmaps.cpp
@@ -527,7 +529,6 @@ set(viewer_SOURCE_FILES
     llregioninfomodel.cpp
     llregionposition.cpp
     llremoteparcelrequest.cpp
-    llsavedsettingsglue.cpp
     llsaveoutfitcombobtn.cpp
     llscenemonitor.cpp
     llsceneview.cpp
@@ -624,7 +625,6 @@ set(viewer_SOURCE_FILES
     llurlhistory.cpp
     llurllineeditorctrl.cpp
     llurlwhitelist.cpp
-    llvectorperfoptions.cpp
     llversioninfo.cpp
     llviewchildren.cpp
     llviewerassetstats.cpp
@@ -727,7 +727,13 @@ set(VIEWER_BINARY_NAME "secondlife-bin" CACHE STRING
 set(viewer_HEADER_FILES
     CMakeLists.txt
     ViewerInstall.cmake
+    gltfscenemanager.h
     groupchatlistener.h
+    gltf/asset.h
+    gltf/accessor.h
+    gltf/buffer_util.h
+    gltf/primitive.h
+    gltf/animation.h
     llaccountingcost.h
     llaccountingcostmanager.h
     llaisapi.h
@@ -761,7 +767,6 @@ set(viewer_HEADER_FILES
     llblockedlistitem.h
     llblocklist.h
     llbox.h
-    llbreadcrumbview.h
     llbuycurrencyhtml.h
     llcallingcard.h
     llcapabilityprovider.h
@@ -893,6 +898,7 @@ set(viewer_HEADER_FILES
     llfloaterimcontainer.h
     llfloaterinspect.h
     llfloaterinventorysettings.h
+    llfloaterinventorythumbnailshelper.h
     llfloaterjoystick.h
     llfloaterlagmeter.h
     llfloaterland.h
@@ -1017,7 +1023,6 @@ set(viewer_HEADER_FILES
     lllandmarkactions.h
     lllandmarklist.h
     lllightconstants.h
-    lllistbrowser.h
     lllistcontextmenu.h
     lllistview.h
     lllocalbitmaps.h
@@ -1172,7 +1177,6 @@ set(viewer_HEADER_FILES
     llremoteparcelrequest.h
     llresourcedata.h
     llrootview.h
-    llsavedsettingsglue.h
     llsaveoutfitcombobtn.h
     llscenemonitor.h
     llsceneview.h
@@ -1273,7 +1277,6 @@ set(viewer_HEADER_FILES
     llurlhistory.h
     llurllineeditorctrl.h
     llurlwhitelist.h
-    llvectorperfoptions.h
     llversioninfo.h
     llviewchildren.h
     llviewerassetstats.h
@@ -1365,7 +1368,6 @@ set(viewer_HEADER_FILES
     llworldmapview.h
     llxmlrpclistener.h
     llxmlrpctransaction.h
-    macmain.h
     noise.h
     pipeline.h
     roles_constants.h
@@ -1414,7 +1416,6 @@ if (DARWIN)
   # Add resource files to the project.
   set(viewer_RESOURCE_FILES
     secondlife.icns
-    macview.r
     Info-SecondLife.plist
     SecondLife.xib/
     # CMake doesn't seem to support Xcode language variants well just yet
@@ -1582,34 +1583,15 @@ endif (WINDOWS)
 
 # Add the xui files. This is handy for searching for xui elements
 # from within the IDE.
-set(viewer_XUI_FILES
-    skins/default/colors.xml
-    skins/default/default_languages.xml
-    skins/default/textures/textures.xml
-    )
-file(GLOB DEFAULT_XUI_FILE_GLOB_LIST
-     ${CMAKE_CURRENT_SOURCE_DIR}/skins/*/xui/en/*.xml)
-list(APPEND viewer_XUI_FILES ${DEFAULT_XUI_FILE_GLOB_LIST})
-
-file(GLOB DEFAULT_WIDGET_FILE_GLOB_LIST
-     ${CMAKE_CURRENT_SOURCE_DIR}/skins/*/xui/en/widgets/*.xml)
-list(APPEND viewer_XUI_FILES ${DEFAULT_WIDGET_FILE_GLOB_LIST})
-
-# Cannot append empty lists in CMake, wait until we have files here.
-#file(GLOB SILVER_WIDGET_FILE_GLOB_LIST
-#     ${CMAKE_CURRENT_SOURCE_DIR}/skins/silver/xui/en-us/widgets/*.xml)
-#list(APPEND viewer_XUI_FILES ${SILVER_WIDGET_FILE_GLOB_LIST})
-
-list(SORT viewer_XUI_FILES)
-
-source_group("XUI Files" FILES ${viewer_XUI_FILES})
-
-set_source_files_properties(${viewer_XUI_FILES}
+file(GLOB_RECURSE viewer_XUI_FILES LIST_DIRECTORIES FALSE
+    ${CMAKE_CURRENT_SOURCE_DIR}/skins/*.xml)
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/skins PREFIX "XUI Files" FILES ${viewer_XUI_FILES})
+set_source_files_properties(${viewer_XUI_FILES} 
                             PROPERTIES HEADER_FILE_ONLY TRUE)
-
 list(APPEND viewer_SOURCE_FILES ${viewer_XUI_FILES})
 
-file(GLOB_RECURSE viewer_SHADER_FILES LIST_DIRECTORIES TRUE
+# Add the shader sources
+file(GLOB_RECURSE viewer_SHADER_FILES LIST_DIRECTORIES FALSE
     ${CMAKE_CURRENT_SOURCE_DIR}/app_settings/shaders/*.glsl)
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/app_settings/shaders PREFIX "Shaders" FILES ${viewer_SHADER_FILES})
 set_source_files_properties(${viewer_SHADER_FILES} 
@@ -1619,6 +1601,7 @@ list(APPEND viewer_SOURCE_FILES ${viewer_SHADER_FILES})
 
 set(viewer_APPSETTINGS_FILES
     app_settings/anim.ini
+    app_settings/autoreplace.xml
     app_settings/cmd_line.xml
     app_settings/commands.xml
     app_settings/grass.xml
@@ -1744,12 +1727,6 @@ if (WINDOWS)
       media_plugin_cef
       media_plugin_libvlc
       media_plugin_example
-      ${SHARED_LIB_STAGING_DIR}/Iex-3_2.dll
-      ${SHARED_LIB_STAGING_DIR}/IlmThread-3_2.dll
-      ${SHARED_LIB_STAGING_DIR}/Imath-3_1.dll
-      ${SHARED_LIB_STAGING_DIR}/OpenEXR-3_2.dll
-      ${SHARED_LIB_STAGING_DIR}/OpenEXRCore-3_2.dll
-      ${SHARED_LIB_STAGING_DIR}/OpenEXRUtil-3_2.dll
       )
 
     if (ADDRESS_SIZE EQUAL 64)
@@ -1768,13 +1745,6 @@ if (WINDOWS)
                )
     endif (ADDRESS_SIZE EQUAL 64)
 
-    if (TARGET ll::fmodstudio)
-      list(APPEND COPY_INPUT_DEPENDENCIES
-           ${SHARED_LIB_STAGING_DIR}/fmod.dll
-           ${SHARED_LIB_STAGING_DIR}/fmodL.dll
-          )
-    endif ()
-
     if (TARGET ll::openal)
       list(APPEND COPY_INPUT_DEPENDENCIES
            ${SHARED_LIB_STAGING_DIR}/OpenAL32.dll
@@ -1791,7 +1761,6 @@ if (WINDOWS)
         --arch=${ARCH}
         --artwork=${ARTWORK_DIR}
         "--bugsplat=${BUGSPLAT_DB}"
-        "--fmodstudio=${USE_FMODSTUDIO}"
         "--openal=${USE_OPENAL}"
         --build=${CMAKE_CURRENT_BINARY_DIR}
         --buildtype=$<CONFIG>
@@ -1830,7 +1799,7 @@ if (WINDOWS)
 
     if (PACKAGE)
       add_custom_command(
-        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/event_host.tar.bz2
+        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/event_host.tar.xz
         COMMAND ${PYTHON_EXECUTABLE}
         ARGS
           ${CMAKE_CURRENT_SOURCE_DIR}/event_host_manifest.py
@@ -1851,7 +1820,6 @@ if (WINDOWS)
               --arch=${ARCH}
               --artwork=${ARTWORK_DIR}
               "--bugsplat=${BUGSPLAT_DB}"
-              "--fmodstudio=${USE_FMODSTUDIO}"
               "--openal=${USE_OPENAL}"
               --build=${CMAKE_CURRENT_BINARY_DIR}
               --buildtype=$<CONFIG>
@@ -1874,7 +1842,7 @@ if (WINDOWS)
         )
         # temporarily disable packaging of event_host until hg subrepos get
         # sorted out on the parabuild cluster...
-        #${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/event_host.tar.bz2)
+        #${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/event_host.tar.xz)
 
     endif (PACKAGE)
 elseif (DARWIN)
@@ -1943,7 +1911,6 @@ target_link_libraries(${VIEWER_BINARY_NAME}
         ll::bugsplat
         ll::tracy
         ll::icu4c
-        ll::openexr
         )
 
 if( TARGET ll::intel_memops )
@@ -1995,14 +1962,13 @@ if (LINUX)
   #endif (NOT USE_BUGSPLAT)
 
   add_custom_command(
-      OUTPUT ${product}.tar.bz2
+      OUTPUT ${product}.tar.xz
       COMMAND ${PYTHON_EXECUTABLE}
       ARGS
         ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
         --arch=${ARCH}
         --artwork=${ARTWORK_DIR}
         "--bugsplat=${BUGSPLAT_DB}"
-        "--fmodstudio=${USE_FMODSTUDIO}"
         "--openal=${USE_OPENAL}"
         --build=${CMAKE_CURRENT_BINARY_DIR}
         --buildtype=${CMAKE_BUILD_TYPE}
@@ -2030,7 +1996,6 @@ if (LINUX)
       --arch=${ARCH}
       --artwork=${ARTWORK_DIR}
       "--bugsplat=${BUGSPLAT_DB}"
-      "--fmodstudio=${USE_FMODSTUDIO}"
       "--openal=${USE_OPENAL}"
       --build=${CMAKE_CURRENT_BINARY_DIR}
       --buildtype=${CMAKE_BUILD_TYPE}
@@ -2049,7 +2014,7 @@ if (LINUX)
   add_custom_target(copy_l_viewer_manifest ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/.${product}.copy_touched)
 
   if (PACKAGE)
-    add_custom_target(llpackage ALL DEPENDS ${product}.tar.bz2)
+    add_custom_target(llpackage ALL DEPENDS ${product}.tar.xz)
     # Make sure we don't run two instances of viewer_manifest.py at the same time.
     add_dependencies(llpackage copy_l_viewer_manifest)
     check_message_template(llpackage)
@@ -2108,7 +2073,6 @@ if (DARWIN)
       --arch=${ARCH}
       --artwork=${ARTWORK_DIR}
       "--bugsplat=${BUGSPLAT_DB}"
-      "--fmodstudio=${USE_FMODSTUDIO}"
       "--openal=${USE_OPENAL}"
       --build=${CMAKE_CURRENT_BINARY_DIR}
       --buildtype=$<CONFIG>
@@ -2143,7 +2107,6 @@ if (DARWIN)
               --arch=${ARCH}
               --artwork=${ARTWORK_DIR}
               "--bugsplat=${BUGSPLAT_DB}"
-              "--fmodstudio=${USE_FMODSTUDIO}"
               "--openal=${USE_OPENAL}"
               --build=${CMAKE_CURRENT_BINARY_DIR}
               --buildtype=$<CONFIG>
@@ -2180,12 +2143,12 @@ if (PACKAGE AND (RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING) AND VIE
         OUTPUT_VARIABLE PARENT_DIRECTORY_CYGWIN
         OUTPUT_STRIP_TRAILING_WHITESPACE)
       add_custom_command(OUTPUT "${VIEWER_SYMBOL_FILE}"
-        # Use of 'tar ...j' here assumes VIEWER_SYMBOL_FILE endswith .tar.bz2;
+        # Use of 'tar ...j' here assumes VIEWER_SYMBOL_FILE endswith .tar.xz;
         # testing a string suffix is painful enough in CMake language that
         # we'll continue assuming it until forced to generalize.
         COMMAND "tar"
         ARGS
-          "cjf"
+          "cJf"
           "${VIEWER_SYMBOL_FILE_CYGWIN}"
           "-C"
           "${PARENT_DIRECTORY_CYGWIN}"

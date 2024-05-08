@@ -140,7 +140,6 @@ flat in float vary_sign;
 in vec4 vary_texcoord0;
 in vec4 vary_texcoord1;
 
-vec2 encode_normal(vec3 n);
 void mirrorClip(vec3 position);
 
 float terrain_mix(TerrainMix tm, vec4 tms4);
@@ -342,7 +341,7 @@ void main()
 #endif
     frag_data[0] = max(vec4(mix.col.xyz, 0.0), vec4(0));                                                   // Diffuse
     frag_data[1] = max(vec4(orm.rgb, base_color_factor_alpha), vec4(0));                                    // PBR linear packed Occlusion, Roughness, Metal.
-    frag_data[2] = max(vec4(encode_normal(tnorm), base_color_factor_alpha, GBUFFER_FLAG_HAS_PBR), vec4(0)); // normal, environment intensity, flags
+    frag_data[2] = vec4(tnorm, GBUFFER_FLAG_HAS_PBR); // normal, flags
     frag_data[3] = max(vec4(emissive,0), vec4(0));                                                // PBR sRGB Emissive
 }
 

@@ -58,6 +58,8 @@ public:
 
     BOOL generateMaterials();
 
+    void boost();
+
 	virtual LLUUID getDetailAssetID(S32 asset);
 	virtual void setDetailAssetID(S32 asset, const LLUUID& id);
     Type getMaterialType();
@@ -67,6 +69,7 @@ public:
     bool materialsReady(bool boost, bool strict);
 
 protected:
+    void unboost();
     static bool textureReady(LLPointer<LLViewerFetchedTexture>& tex, bool boost);
     // strict = true -> all materials must be sufficiently loaded
     // strict = false -> at least one material must be loaded
@@ -93,10 +96,11 @@ public:
 	void setSurface(LLSurface *surfacep);
 
 	// Viewer side hack to generate composition values
-	BOOL generateHeights(const F32 x, const F32 y, const F32 width, const F32 height);
-	BOOL generateComposition();
+	bool generateHeights(const F32 x, const F32 y, const F32 width, const F32 height);
+	bool generateComposition();
 	// Generate texture from composition values.
-	BOOL generateMinimapTileLand(const F32 x, const F32 y, const F32 width, const F32 height);		
+	bool generateMinimapTileLand(const F32 x, const F32 y, const F32 width, const F32 height);		
+	bool generateTexture(const F32 x, const F32 y, const F32 width, const F32 height);		
 
 	// Use these as indeces ito the get/setters below that use 'corner'
 	enum ECorner
@@ -117,17 +121,22 @@ public:
 
 	friend class LLVOSurfacePatch;
 	friend class LLDrawPoolTerrain;
-	void setParamsReady()		{ mParamsReady = TRUE; }
-	BOOL getParamsReady() const	{ return mParamsReady; }
+	void setParamsReady()		{ mParamsReady = true; }
+	bool getParamsReady() const	{ return mParamsReady; }
 
 protected:
     static bool textureReady(LLPointer<LLViewerFetchedTexture>& tex, bool boost = false);
     static bool materialReady(LLPointer<LLFetchedGLTFMaterial>& mat, bool& textures_set, bool boost = false);
 
-	BOOL mParamsReady = FALSE;
+	bool mParamsReady = false;
 	LLSurface *mSurfacep;
 
+    // Final minimap raw images
 	LLPointer<LLImageRaw> mRawImages[LLTerrainMaterials::ASSET_COUNT];
+
+    // Only non-null during minimap tile generation
+	LLPointer<LLImageRaw> mRawImagesBaseColor[LLTerrainMaterials::ASSET_COUNT];
+	LLPointer<LLImageRaw> mRawImagesEmissive[LLTerrainMaterials::ASSET_COUNT];
 
 	F32 mStartHeight[CORNER_COUNT];
 	F32 mHeightRange[CORNER_COUNT];

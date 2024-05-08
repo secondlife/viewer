@@ -27,7 +27,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #if !defined LL_DARWIN
-	#error "Use only with Mac OS X"
+	#error "Use only with macOS"
 #endif
 
 #define LL_CARBON_CRASH_HANDLER 1
@@ -248,6 +248,11 @@ LLAppViewerMacOSX::~LLAppViewerMacOSX()
 bool LLAppViewerMacOSX::init()
 {
     return LLAppViewer::init();
+}
+
+void LLAppViewerMacOSX::forceErrorOSSpecificException()
+{
+    force_ns_sxeption();
 }
 
 // MacOSX may add and addition command line arguement for the process serial number.

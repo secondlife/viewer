@@ -53,8 +53,6 @@
 #pragma warning (default : 4264)
 #endif
 
-#include <boost/lexical_cast.hpp>
-
 #include "lldaeloader.h"
 #include "llsdserialize.h"
 #include "lljoint.h"
@@ -243,7 +241,7 @@ LLModel::EModelStatus load_face_from_dom_triangles(
 								n[idx[i+norm_offset]*3+2]));
 		}
 		
-		BOOL found = FALSE;
+		bool found = false;
 			
 		LLVolumeFace::VertexMapData::PointMap::iterator point_iter;
 		point_iter = point_map.find(LLVector3(cv.getPosition().getF32ptr()));
@@ -498,7 +496,7 @@ LLModel::EModelStatus load_face_from_dom_polylist(
 			
 			cur_idx += idx_stride;
 			
-			BOOL found = FALSE;
+			bool found = false;
 				
 			LLVolumeFace::VertexMapData::PointMap::iterator point_iter;
 			LLVector3 pos3(cv.getPosition().getF32ptr());
@@ -510,7 +508,7 @@ LLModel::EModelStatus load_face_from_dom_polylist(
 				{
 					if ((point_iter->second)[k] == cv)
 					{
-						found = TRUE;
+						found = true;
 						U32 index = (point_iter->second)[k].mIndex;
 						if (j == 0)
 						{
@@ -2266,7 +2264,7 @@ std::map<std::string, LLImportMaterial> LLDAELoader::getMaterials(LLModel* model
 LLImportMaterial LLDAELoader::profileToMaterial(domProfile_COMMON* material, DAE* dae)
 {
 	LLImportMaterial mat;
-	mat.mFullbright = FALSE;
+	mat.mFullbright = false;
 
 	daeElement* diffuse = material->getDescendant("diffuse");
 	if (diffuse)
@@ -2351,7 +2349,7 @@ LLImportMaterial LLDAELoader::profileToMaterial(domProfile_COMMON* material, DAE
 		LLColor4 emission_color = getDaeColor(emission);
 		if (((emission_color[0] + emission_color[1] + emission_color[2]) / 3.0) > 0.25)
 		{
-			mat.mFullbright = TRUE;
+			mat.mFullbright = true;
 		}
 	}
 
@@ -2385,7 +2383,7 @@ std::string LLDAELoader::getElementLabel(daeElement *element)
 
 		if (ind > 0)
 		{
-			index_string = "_" + boost::lexical_cast<std::string>(ind);
+			index_string = "_" + std::to_string(ind);
 		}
 
 		// if parent has a name or ID, use it

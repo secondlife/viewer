@@ -525,7 +525,7 @@ class Windows_x86_64_Manifest(ViewerManifest):
                                              'secondlife-bin.*',
                                              '*_Setup.exe',
                                              '*.bat',
-                                             '*.tar.bz2')))
+                                             '*.tar.xz')))
 
             with self.prefix(src=os.path.join(pkgdir, "VMP")):
                 # include the compiled launcher scripts so that it gets included in the file_list
@@ -547,12 +547,6 @@ class Windows_x86_64_Manifest(ViewerManifest):
         # Get shared libs from the shared libs staging directory
         with self.prefix(src=os.path.join(self.args['build'], os.pardir,
                                           'sharedlibs', self.args['buildtype'])):
-            # Get fmodstudio dll if needed
-            if self.args['fmodstudio'] == 'ON':
-                if(self.args['buildtype'].lower() == 'debug'):
-                    self.path("fmodL.dll")
-                else:
-                    self.path("fmod.dll")
 
             if self.args['openal'] == 'ON':
                 # Get openal dll
@@ -586,14 +580,6 @@ class Windows_x86_64_Manifest(ViewerManifest):
             # OpenSSL
             self.path("libcrypto-1_1-x64.dll")
             self.path("libssl-1_1-x64.dll")
-
-            # OpenEXR
-            self.path("Iex-3_2.dll")
-            self.path("IlmThread-3_2.dll")
-            self.path("Imath-3_1.dll")
-            self.path("OpenEXR-3_2.dll")
-            self.path("OpenEXRCore-3_2.dll")
-            self.path("OpenEXRUtil-3_2.dll")
 
             # HTTP/2
             self.path("nghttp2.dll")
@@ -1030,19 +1016,14 @@ class Darwin_x86_64_Manifest(ViewerManifest):
                                 'libvivoxsdk.dylib',
                                 ):
                     self.path2basename(relpkgdir, libfile)
-
-                # Fmod studio dylibs (vary based on configuration)
-                if self.args['fmodstudio'] == 'ON':
-                    if self.args['buildtype'].lower() == 'debug':
-                        for libfile in (
-                                    "libfmodL.dylib",
-                                    ):
-                            dylibs += path_optional(os.path.join(debpkgdir, libfile), libfile)
-                    else:
-                        for libfile in (
-                                    "libfmod.dylib",
-                                    ):
-                            dylibs += path_optional(os.path.join(relpkgdir, libfile), libfile)
+                            
+                # OpenAL dylibs
+                if self.args['openal'] == 'ON':
+                    for libfile in (
+                                "libopenal.dylib",
+                                "libalut.dylib",
+                                ):
+                        dylibs += path_optional(os.path.join(relpkgdir, libfile), libfile)
 
                 # our apps
                 executable_path = {}
@@ -1191,9 +1172,9 @@ class Darwin_x86_64_Manifest(ViewerManifest):
             # causes problems, especially with frameworks: a framework's top
             # level must contain symlinks into its Versions/Current, which
             # must itself be a symlink to some specific Versions subdir.
-            tarpath = os.path.join(RUNNER_TEMP, "viewer.tar.bz2")
+            tarpath = os.path.join(RUNNER_TEMP, "viewer.tar.xz")
             print(f'Creating {tarpath} from {self.get_dst_prefix()}')
-            with tarfile.open(tarpath, mode="w:bz2") as tarball:
+            with tarfile.open(tarpath, mode="w:xz") as tarball:
                 # Store in the tarball as just 'Second Life Mumble.app'
                 # instead of 'Users/someone/.../newview/Release/Second...'
                 # It's at this point that we rename 'Second Life Release.app'
@@ -1280,7 +1261,7 @@ class LinuxManifest(ViewerManifest):
             self.run_command(['find', self.get_dst_prefix(),
                               '-type', 'f', '-perm', old,
                               '-exec', 'chmod', new, '{}', ';'])
-        self.package_file = installer_name + '.tar.bz2'
+        self.package_file = installer_name + '.tar.xz'
 
         # temporarily move directory tree so that it has the right
         # name in the tarfile
@@ -1293,10 +1274,10 @@ class LinuxManifest(ViewerManifest):
                 # --numeric-owner hides the username of the builder for
                 # security etc.
                 self.run_command(['tar', '-C', self.get_build_prefix(),
-                                  '--numeric-owner', '-cjf',
-                                 tempname + '.tar.bz2', installer_name])
+                                  '--numeric-owner', '-cJf',
+                                 tempname + '.tar.xz', installer_name])
             else:
-                print("Skipping %s.tar.bz2 for non-Release build (%s)" % \
+                print("Skipping %s.tar.xz for non-Release build (%s)" % \
                       (installer_name, self.args['buildtype']))
         finally:
             self.run_command(["mv", tempname, realname])
@@ -1372,16 +1353,6 @@ class Linux_i686_Manifest(LinuxManifest):
                 print("tcmalloc files not found, skipping")
                 pass
 
-            if self.args['fmodstudio'] == 'ON':
-                try:
-                    self.path("libfmod.so.11.7")
-                    self.path("libfmod.so.11")
-                    self.path("libfmod.so")
-                    pass
-                except:
-                    print("Skipping libfmod.so - not found")
-                    pass
-
         # Vivox runtimes
         with self.prefix(src=relpkgdir, dst="bin"):
             self.path("SLVoice")
@@ -1411,11 +1382,9 @@ if __name__ == "__main__":
     print(('%s \\\n%s' %
           (sys.executable,
            ' '.join((("'%s'" % arg) if ' ' in arg else arg) for arg in sys.argv))))
-    # fmodstudio and openal can be used simultaneously and controled by environment
     extra_arguments = [
         dict(name='bugsplat', description="""BugSplat database to which to post crashes,
              if BugSplat crash reporting is desired""", default=''),
-        dict(name='fmodstudio', description="""Indication if fmod studio libraries are needed""", default='OFF'),
         dict(name='openal', description="""Indication openal libraries are needed""", default='OFF'),
         ]
     try:

@@ -61,8 +61,9 @@ LLBlockList::LLBlockList(const Params& p)
 	LLToggleableMenu* context_menu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>(
 									"menu_people_blocked_gear.xml",
 									gMenuHolder,
-									LLViewerMenuHolderGL::child_registry_t::instance());
-	if(context_menu)
+									LLViewerMenuHolderGL::child_registry_t::instance(),
+									true);
+	if (context_menu)
 	{
 		mContextMenu = context_menu->getHandle();
 	}
@@ -113,9 +114,9 @@ void LLBlockList::onChangeDetailed(const LLMute &mute)
 	refresh();
 }
 
-BOOL LLBlockList::handleRightMouseDown(S32 x, S32 y, MASK mask)
+bool LLBlockList::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
-	BOOL handled = LLUICtrl::handleRightMouseDown(x, y, mask);
+	bool handled = LLUICtrl::handleRightMouseDown(x, y, mask);
 
 	LLToggleableMenu* context_menu = mContextMenu.get();
 	if (context_menu && size())

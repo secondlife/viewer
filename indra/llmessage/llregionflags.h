@@ -106,11 +106,16 @@ const U64 REGION_FLAGS_ESTATE_MASK = REGION_FLAGS_EXTERNALLY_VISIBLE
 									 | REGION_FLAGS_DENY_ANONYMOUS
 									 | REGION_FLAGS_DENY_AGEUNVERIFIED;
 
-inline BOOL is_prelude( U64 flags )
+inline bool is_flag_set(U64 flags, U64 flag)
+{
+	return (flags & flag) != 0;
+}
+
+inline bool is_prelude( U64 flags )
 {
 	// definition of prelude does not depend on fixed-sun
-	return 0 == (flags & REGION_FLAGS_PRELUDE_UNSET)
-		   && 0 != (flags & REGION_FLAGS_PRELUDE_SET);
+	return !is_flag_set(flags, REGION_FLAGS_PRELUDE_UNSET) &&
+			is_flag_set(flags, REGION_FLAGS_PRELUDE_SET);
 }
 
 inline U64 set_prelude_flags(U64 flags)

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel
  border="true"
  follows="left|top|right|bottom"
@@ -242,6 +242,41 @@
     <button.commit_callback
       function="Pref.AutoAdjustments"/>
   </button>
+
+    <text
+      type="string"
+      length="1"
+      follows="left|top"
+      height="16"
+      layout="topleft"
+      left="30"
+      top_delta="42"
+      width="128"
+      name="AvatarComplexityModeLabel"
+      text_readonly_color="LabelDisabledColor">
+        Avatar display:
+    </text>
+    <combo_box
+     control_name="RenderAvatarComplexityMode"
+     height="23"
+     layout="topleft"
+     left_delta="130"
+     top_delta="-4"
+     name="AvatarComplexityMode"
+     width="150">
+        <combo_box.item
+         label="Limit by complexity"
+         name="0"
+         value="0"/>
+        <combo_box.item
+         label="Always show friends"
+         name="1"
+         value="1"/>
+        <combo_box.item
+         label="Only show friends"
+         name="2"
+         value="2"/>
+    </combo_box>
   
   <slider
     control_name="IndirectMaxComplexity"
@@ -250,7 +285,7 @@
     height="16"
     initial_value="101"
     increment="1"
-    label="Avatar Maximum Complexity:"
+    label="Avatar maximum complexity:"
     label_width="165"
     layout="topleft"
     left="30"
@@ -258,7 +293,7 @@
     max_val="101"
     name="IndirectMaxComplexity"
     show_text="false"
-    top_delta="40"
+    top_delta="28"
     width="300">
     <slider.commit_callback
       function="Pref.UpdateIndirectMaxComplexity"
@@ -277,32 +312,7 @@
     width="65">
        0
   </text>
-<text
-type="string"
-length="1"
-follows="left|top"
-height="16"
-layout="topleft"
-left_delta="68"
-name="IndirectMaxComplexityLink"
-mouse_opaque="false"
-top_delta="0"
-width="120">
-[https://community.secondlife.com/t5/Featured-News/Why-are-all-these-people-made-of-colored-jelly/ba-p/3031255 What's this?]
-</text>
 
-
-  <check_box
-    control_name="AlwaysRenderFriends"
-    height="16"
-    initial_value="true"
-    label="Always Render Friends"
-    layout="topleft"
-    left="30"
-    name="AlwaysRenderFriends"
-    top_delta="24"
-    width="256">
-  </check_box>
   <button
     height="23"
     label="Exceptions..."

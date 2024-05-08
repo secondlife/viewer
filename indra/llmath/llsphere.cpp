@@ -69,18 +69,18 @@ F32 LLSphere::getRadius() const
 	return mRadius;
 }
 
-// returns 'TRUE' if this sphere completely contains other_sphere
-BOOL LLSphere::contains(const LLSphere& other_sphere) const
+// returns 'true' if this sphere completely contains other_sphere
+bool LLSphere::contains(const LLSphere& other_sphere) const
 {
 	F32 separation = (mCenter - other_sphere.mCenter).length();
-	return (mRadius >= separation + other_sphere.mRadius) ? TRUE : FALSE;
+	return mRadius >= separation + other_sphere.mRadius;
 }
 
-// returns 'TRUE' if this sphere completely contains other_sphere
-BOOL LLSphere::overlaps(const LLSphere& other_sphere) const
+// returns 'true' if this sphere completely contains other_sphere
+bool LLSphere::overlaps(const LLSphere& other_sphere) const
 {
 	F32 separation = (mCenter - other_sphere.mCenter).length();
-	return (separation <= mRadius + other_sphere.mRadius) ? TRUE : FALSE;
+	return mRadius >= separation - other_sphere.mRadius;
 }
 
 // returns overlap
@@ -93,9 +93,8 @@ F32 LLSphere::getOverlap(const LLSphere& other_sphere) const
 
 bool LLSphere::operator==(const LLSphere& rhs) const
 {
-	// TODO? -- use approximate equality for centers?
-	return (mRadius == rhs.mRadius
-			&& mCenter == rhs.mCenter);
+	return fabs(mRadius - rhs.mRadius) <= FLT_EPSILON &&
+		(mCenter - rhs.mCenter).length() <= FLT_EPSILON;
 }
 
 std::ostream& operator<<( std::ostream& output_stream, const LLSphere& sphere)

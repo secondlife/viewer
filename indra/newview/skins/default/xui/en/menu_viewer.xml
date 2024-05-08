@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <menu_bar
  bg_visible="false"
  follows="left|top|right"
@@ -63,6 +63,14 @@
         <menu_item_call.on_click
          function="Floater.ToggleOrBringToFront"
          parameter="camera" />
+      </menu_item_call>
+      <menu_item_call
+       label="Notifications..."
+       name="Notifications"
+       shortcut="alt|shift|N">
+        <menu_item_call.on_click
+         function="Floater.ToggleOrBringToFront"
+         parameter="notification_well_window" />
       </menu_item_call>
 
       <menu_item_separator/>
@@ -487,7 +495,7 @@
      name="Help with avatars">
         <menu_item_call.on_click
             function="Advanced.ShowURL"
-            parameter="https://community.secondlife.com/search/?type=cms_records3&amp;tags=avatar&amp;nodes=30&amp;search_and_or=or"/>
+            parameter="https://community.secondlife.com/knowledgebase/english/controlling-your-avatars-appearance-r216/"/>
       </menu_item_call>
     </menu>
     <menu
@@ -1612,7 +1620,7 @@ function="World.EnvPreset"
          name="Upload"
          tear_off="true">
             <menu_item_call
-             label="Image (L$[COST])..."
+             label="Image..."
              layout="topleft"
              name="Upload Image"
              shortcut="control|U">
@@ -2031,7 +2039,57 @@ function="World.EnvPreset"
                  function="Advanced.ToggleRenderType"
                  parameter="simple" />
             </menu_item_check>
-            <menu_item_check
+          <menu_item_check
+             label="Materials"
+             name="Rendering Type Materials">
+            <menu_item_check.on_check
+             function="Advanced.CheckRenderType"
+             parameter="materials" />
+            <menu_item_check.on_click
+             function="Advanced.ToggleRenderType"
+             parameter="materials" />
+          </menu_item_check>
+          <menu_item_check
+             label="Alpha Mask"
+             name="Rendering Type Alpha Mask">
+            <menu_item_check.on_check
+             function="Advanced.CheckRenderType"
+             parameter="alpha_mask" />
+            <menu_item_check.on_click
+             function="Advanced.ToggleRenderType"
+             parameter="alpha_mask" />
+          </menu_item_check>
+          <menu_item_check
+             label="Fullbright Alpha Mask"
+             name="Rendering Type Fullbright Alpha Mask">
+            <menu_item_check.on_check
+             function="Advanced.CheckRenderType"
+             parameter="fullbright_alpha_mask" />
+            <menu_item_check.on_click
+             function="Advanced.ToggleRenderType"
+             parameter="fullbright_alpha_mask" />
+          </menu_item_check>
+          <menu_item_check
+             label="Glow"
+             name="Rendering Type Glow">
+            <menu_item_check.on_check
+             function="Advanced.CheckRenderType"
+             parameter="glow" />
+            <menu_item_check.on_click
+             function="Advanced.ToggleRenderType"
+             parameter="glow" />
+          </menu_item_check>
+          <menu_item_check
+             label="Fullbright"
+             name="Rendering Type Glow">
+            <menu_item_check.on_check
+             function="Advanced.CheckRenderType"
+             parameter="fullbright" />
+            <menu_item_check.on_click
+             function="Advanced.ToggleRenderType"
+             parameter="fullbright" />
+          </menu_item_check>
+          <menu_item_check
              label="Alpha"
              name="Rendering Type Alpha"
              shortcut="control|alt|shift|2">
@@ -2753,6 +2811,14 @@ function="World.EnvPreset"
                  function="Advanced.ForceErrorSoftwareException" />
             </menu_item_call>
             <menu_item_call
+             label="Force OS Exception"
+             name="Force OS Exception">
+                <menu_item_call.on_click
+                 function="Advanced.ForceErrorOSException" />
+                <menu_item_call.on_visible
+                 function="Advanced.EnableErrorOSException" />
+            </menu_item_call>            
+            <menu_item_call
              label="Force a Crash in a Coroutine"
              name="Force a Crash in a Coroutine">
                 <menu_item_call.on_click
@@ -2778,6 +2844,30 @@ function="World.EnvPreset"
                 parameter="mem_leaking" />
                </menu_item_call>
         </menu>
+      <menu
+         create_jump_keys="true"
+         label="GLTF"
+         name="GLTF"
+         tear_off="true">
+        <menu_item_call
+         label="Open..."
+         name="Open...">
+          <menu_item_call.on_click
+           function="Advanced.ClickGLTFOpen" />
+        </menu_item_call>
+        <menu_item_call
+         label="Save As..."
+         name="Save As...">
+          <menu_item_call.on_click
+           function="Advanced.ClickGLTFSaveAs" />
+        </menu_item_call>
+        <menu_item_call
+         label="Decompose..."
+         name="Decompose...">
+          <menu_item_call.on_click
+           function="Advanced.ClickGLTFDecompose" />
+        </menu_item_call>
+      </menu>
         <menu
          create_jump_keys="true"
          label="Render Tests"
@@ -2865,6 +2955,16 @@ function="World.EnvPreset"
           <menu_item_check.on_click
            function="Advanced.ToggleInfoDisplay"
            parameter="octree" />
+        </menu_item_check>
+        <menu_item_check
+         label="GLTF Nodes"
+         name="GLTF Nodes">
+          <menu_item_check.on_check
+           function="Advanced.CheckInfoDisplay"
+           parameter="nodes" />
+          <menu_item_check.on_click
+           function="Advanced.ToggleInfoDisplay"
+           parameter="nodes" />
         </menu_item_check>
         <menu_item_check
          label="Shadow Frusta"
@@ -3549,6 +3649,21 @@ function="World.EnvPreset"
              function="Advanced.WebContentTest"
              parameter="http://duckduckgo.com"/>
           </menu_item_call>
+            <menu_item_call
+             label="Inventory Thumbnails Helper"
+             name="Inventory Thumbnails Helper"
+				shortcut="control|alt|shift|X">
+                <menu_item_call.on_click
+                 function="Floater.Show"
+                 parameter="inventory_thumbnails_helper" />
+            </menu_item_call>
+            <menu_item_call
+           label="FB Connect Test"
+           name="FB Connect Test">
+            <menu_item_call.on_click
+             function="Advanced.WebContentTest"
+             parameter="https://cryptic-ridge-1632.herokuapp.com/"/>
+          </menu_item_call>
           <menu_item_call
            label="Dump Fonts"
            name="Dump Fonts">
@@ -3636,6 +3751,14 @@ function="World.EnvPreset"
                  function="Advanced.CheckDebugUnicode" />
                 <menu_item_check.on_click
                  function="Advanced.ToggleDebugUnicode" />
+            </menu_item_check>
+            <menu_item_check
+             label="Debug Camera Controls"
+             name="Debug Camera Controls">
+                <menu_item_check.on_check
+                 function="Advanced.CheckDebugCamera" />
+                <menu_item_check.on_click
+                 function="Advanced.ToggleDebugCamera" />
             </menu_item_check>
             <menu_item_check
              label="Debug Name Tooltips"
@@ -3912,6 +4035,16 @@ function="World.EnvPreset"
                  parameter="DebugCharacterVis" />
                 <menu_item_check.on_click
                  function="Advanced.ToggleDebugCharacterVis" />
+            </menu_item_check>
+            <menu_item_check
+             label="Debug Character Rez State"
+             name="Debug Character Rez State">
+                <menu_item_check.on_check
+                 function="CheckControl"
+                 parameter="NameTagDebugAVRezState" />
+                <menu_item_check.on_click
+                 function="ToggleControl"
+                 parameter="NameTagDebugAVRezState" />
             </menu_item_check>
             <menu_item_check
              label="Show Collision Skeleton"

@@ -188,7 +188,7 @@ void LLFilePickerThread::run()
 
 void LLFilePickerThread::runModeless()
 {
-    BOOL result = FALSE;
+    bool result = false;
     LLFilePicker picker;
 
     if (mIsSaveDialog)
@@ -440,7 +440,7 @@ const bool check_file_extension(const std::string& filename, LLFilePicker::ELoad
 		//now grab the set of valid file extensions
 		std::string valid_extensions = build_extensions_string(type);
 
-		BOOL ext_valid = FALSE;
+		bool ext_valid = false;
 
 		typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
 		boost::char_separator<char> sep(" ");
@@ -451,7 +451,7 @@ const bool check_file_extension(const std::string& filename, LLFilePicker::ELoad
 		//and compare them to the extension of the file
 		//to be uploaded
 		for (token_iter = tokens.begin();
-			token_iter != tokens.end() && ext_valid != TRUE;
+			token_iter != tokens.end() && !ext_valid;
 			++token_iter)
 		{
 			const std::string& cur_token = *token_iter;
@@ -460,11 +460,11 @@ const bool check_file_extension(const std::string& filename, LLFilePicker::ELoad
 			{
 				//valid extension
 				//or the acceptable extension is any
-				ext_valid = TRUE;
+				ext_valid = true;
 			}
 		}//end for (loop over all tokens)
 
-		if (ext_valid == FALSE)
+		if (!ext_valid)
 		{
 			//should only get here if the extension exists
 			//but is invalid
@@ -546,21 +546,39 @@ void do_bulk_upload(std::vector<std::string> filenames, const LLSD& notification
 		std::string ext = gDirUtilp->getExtension(filename);
 		LLAssetType::EType asset_type;
 		U32 codec;
-		S32 expected_upload_cost;
-		if (LLResourceUploadInfo::findAssetTypeAndCodecOfExtension(ext, asset_type, codec) &&
-			LLAgentBenefitsMgr::current().findUploadCost(asset_type, expected_upload_cost))
-		{
-            LLResourceUploadInfo::ptr_t uploadInfo(new LLNewFileResourceUploadInfo(
-                filename,
-                asset_name,
-                asset_name, 0,
-                LLFolderType::FT_NONE, LLInventoryType::IT_NONE,
-                LLFloaterPerms::getNextOwnerPerms("Uploads"),
-                LLFloaterPerms::getGroupPerms("Uploads"),
-                LLFloaterPerms::getEveryonePerms("Uploads"),
-                expected_upload_cost));
+		S32 expected_upload_cost = 0;
 
-            upload_new_resource(uploadInfo);
+        if (LLResourceUploadInfo::findAssetTypeAndCodecOfExtension(ext, asset_type, codec))
+        {
+            bool resource_upload = false;
+            if (asset_type == LLAssetType::AT_TEXTURE)
+            {
+                LLPointer<LLImageFormatted> image_frmted = LLImageFormatted::createFromType(codec);
+                if (gDirUtilp->fileExists(filename) && image_frmted->load(filename))
+                {
+                    expected_upload_cost = LLAgentBenefitsMgr::current().getTextureUploadCost(image_frmted);
+                    resource_upload = true;
+                }
+            }
+            else if (LLAgentBenefitsMgr::current().findUploadCost(asset_type, expected_upload_cost))
+            {
+                resource_upload = true;
+            }
+
+            if (resource_upload)
+            {
+                LLResourceUploadInfo::ptr_t uploadInfo(new LLNewFileResourceUploadInfo(
+                    filename,
+                    asset_name,
+                    asset_name, 0,
+                    LLFolderType::FT_NONE, LLInventoryType::IT_NONE,
+                    LLFloaterPerms::getNextOwnerPerms("Uploads"),
+                    LLFloaterPerms::getGroupPerms("Uploads"),
+                    LLFloaterPerms::getEveryonePerms("Uploads"),
+                    expected_upload_cost));
+
+                upload_new_resource(uploadInfo);
+            }
         }
 
         // gltf does not use normal upload procedure
@@ -602,17 +620,26 @@ bool get_bulk_upload_expected_cost(const std::vector<std::string>& filenames, S3
 		U32 codec;
 		S32 cost;
 
-		if (LLResourceUploadInfo::findAssetTypeAndCodecOfExtension(ext, asset_type, codec) &&
-			LLAgentBenefitsMgr::current().findUploadCost(asset_type, cost))
+		if (LLResourceUploadInfo::findAssetTypeAndCodecOfExtension(ext, asset_type, codec))
 		{
-			total_cost += cost;
-			file_count++;
-		}
+            if (asset_type == LLAssetType::AT_TEXTURE)
+            {
+                LLPointer<LLImageFormatted> image_frmted = LLImageFormatted::createFromType(codec);
+                if (gDirUtilp->fileExists(filename) && image_frmted->load(filename))
+                {
+                    total_cost += LLAgentBenefitsMgr::current().getTextureUploadCost(image_frmted);
+                    file_count++;
+                }
+            }
+            else if (LLAgentBenefitsMgr::current().findUploadCost(asset_type, cost))
+            {
+                total_cost += cost;
+                file_count++;
+            }
+        }
 
         if (ext == "gltf" || ext == "glb")
         {
-            S32 texture_upload_cost = LLAgentBenefitsMgr::current().getTextureUploadCost();
-            
             tinygltf::Model model;
 
             if (LLTinyGLTFHelper::loadModel(filename, model))
@@ -629,24 +656,22 @@ bool get_bulk_upload_expected_cost(const std::vector<std::string>& filenames, S3
                     {
                         // Todo: make it account for possibility of same texture in different
                         // materials and even in scope of same material
-                        S32 texture_count = 0;
-                        if (material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR].notNull())
+                        if (material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR].notNull() && material->mBaseColorTexture)
                         {
-                            texture_count++;
+                            total_cost += LLAgentBenefitsMgr::current().getTextureUploadCost(material->mBaseColorTexture);
                         }
-                        if (material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS].notNull())
+                        if (material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS].notNull() && material->mMetallicRoughnessTexture)
                         {
-                            texture_count++;
+                            total_cost += LLAgentBenefitsMgr::current().getTextureUploadCost(material->mMetallicRoughnessTexture);
                         }
-                        if (material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL].notNull())
+                        if (material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL].notNull() && material->mNormalTexture)
                         {
-                            texture_count++;
+                            total_cost += LLAgentBenefitsMgr::current().getTextureUploadCost(material->mNormalTexture);
                         }
-                        if (material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE].notNull())
+                        if (material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE].notNull() && material->mEmissiveTexture)
                         {
-                            texture_count++;
+                            total_cost += LLAgentBenefitsMgr::current().getTextureUploadCost(material->mEmissiveTexture);
                         }
-                        total_cost += texture_count * texture_upload_cost;
                         file_count++;
                     }
                 }
@@ -731,7 +756,7 @@ class LLFileUploadModel : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
         LLFloaterModelPreview::showModelPreview();
-        return TRUE;
+        return true;
 	}
 };
 
@@ -740,7 +765,7 @@ class LLFileUploadMaterial : public view_listener_t
     bool handleEvent(const LLSD& userdata)
     {
         LLMaterialEditor::importMaterial();
-        return TRUE;
+        return true;
     }
 };
 
@@ -863,11 +888,11 @@ class LLFileTakeSnapshotToDisk : public view_listener_t
 		S32 width = gViewerWindow->getWindowWidthRaw();
 		S32 height = gViewerWindow->getWindowHeightRaw();
 
-		BOOL render_ui = gSavedSettings.getBOOL("RenderUIInSnapshot");
-		BOOL render_hud = gSavedSettings.getBOOL("RenderHUDInSnapshot");
-		BOOL render_no_post = gSavedSettings.getBOOL("RenderSnapshotNoPost");
+		bool render_ui = gSavedSettings.getBOOL("RenderUIInSnapshot");
+		bool render_hud = gSavedSettings.getBOOL("RenderHUDInSnapshot");
+		bool render_no_post = gSavedSettings.getBOOL("RenderSnapshotNoPost");
 
-		BOOL high_res = gSavedSettings.getBOOL("HighResSnapshot");
+		bool high_res = gSavedSettings.getBOOL("HighResSnapshot");
 		if (high_res)
 		{
 			width *= 2;
@@ -880,11 +905,11 @@ class LLFileTakeSnapshotToDisk : public view_listener_t
 		if (gViewerWindow->rawSnapshot(raw,
 									   width,
 									   height,
-									   TRUE,
-									   FALSE,
+									   true,
+									   false,
 									   render_ui,
 									   render_hud,
-									   FALSE,
+									   false,
 									   render_no_post,
 									   LLSnapshotModel::SNAPSHOT_TYPE_COLOR,
 									   high_res ? S32_MAX : MAX_SNAPSHOT_IMAGE_SIZE)) //per side
@@ -937,7 +962,7 @@ void handle_compress_image(void*)
 			LL_INFOS() << "Input:  " << infile << LL_ENDL;
 			LL_INFOS() << "Output: " << outfile << LL_ENDL;
 
-			BOOL success;
+			bool success;
 
 			success = LLViewerTextureList::createUploadFile(infile, outfile, IMG_CODEC_TGA);
 
@@ -987,7 +1012,7 @@ void handle_compress_file_test(void*)
 
             S64Bytes initial_size = S64Bytes(get_file_size(infile));
 
-            BOOL success;
+            bool success;
 
             F64 total_seconds = LLTimer::getTotalSeconds();
             success = gzip_file(infile, packfile);
@@ -1081,7 +1106,7 @@ void upload_done_callback(
 	LLResourceData* data = (LLResourceData*)user_data;
 	S32 expected_upload_cost = data ? data->mExpectedUploadCost : 0;
 	//LLAssetType::EType pref_loc = data->mPreferredLocation;
-	BOOL is_balance_sufficient = TRUE;
+	bool is_balance_sufficient = true;
 
 	if(data)
 	{
@@ -1099,7 +1124,7 @@ void upload_done_callback(
 				if(!(can_afford_transaction(expected_upload_cost)))
 				{
 					LLBuyCurrencyHTML::openCurrencyFloater( "", expected_upload_cost );
-					is_balance_sufficient = FALSE;
+					is_balance_sufficient = false;
 				}
 				else if(region)
 				{
@@ -1260,7 +1285,7 @@ void upload_new_resource(
 			data->mAssetInfo.mType,
 			asset_callback,
 			(void*)data,
-			FALSE);
+			false);
 	}
 }
 

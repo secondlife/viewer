@@ -111,7 +111,7 @@ public:
 	virtual bool isParticipant(const LLUUID& speaker_id) override;
 
 	// Send a text message to the specified user, initiating the session if necessary.
-	// virtual BOOL sendTextMessage(const LLUUID& participant_id, const std::string& message) const {return false;};
+	// virtual bool sendTextMessage(const LLUUID& participant_id, const std::string& message) const {return false;};
 	
 	// close any existing text IM session with the specified user
 	virtual void endUserIMSession(const LLUUID &uuid) override;
@@ -119,12 +119,12 @@ public:
 	// Returns true if calling back the session URI after the session has closed is possible.
 	// Currently this will be false only for PSTN P2P calls.		
 	// NOTE: this will return true if the session can't be found. 
-	virtual BOOL isSessionCallBackPossible(const LLUUID &session_id) override;
+	virtual bool isSessionCallBackPossible(const LLUUID &session_id) override;
 	
 	// Returns true if the session can accepte text IM's.
 	// Currently this will be false only for PSTN P2P calls.
 	// NOTE: this will return true if the session can't be found. 
-	virtual BOOL isSessionTextIMPossible(const LLUUID &session_id) override;
+	virtual bool isSessionTextIMPossible(const LLUUID &session_id) override;
 	
 	
 	////////////////////////////
@@ -172,21 +172,21 @@ public:
 	//@{
 	virtual bool voiceEnabled() override;
 	virtual void setVoiceEnabled(bool enabled) override;
-	virtual BOOL lipSyncEnabled() override;
-	virtual void setLipSyncEnabled(BOOL enabled) override;
+	virtual bool lipSyncEnabled() override;
+	virtual void setLipSyncEnabled(bool enabled) override;
 	virtual void setMuteMic(bool muted) override;		// Set the mute state of the local mic.
 	//@}
 		
 	//////////////////////////
 	/// @name nearby speaker accessors
 	//@{
-	virtual BOOL getVoiceEnabled(const LLUUID& id) override;		// true if we've received data for this avatar
+	virtual bool getVoiceEnabled(const LLUUID& id) override;		// true if we've received data for this avatar
 	virtual std::string getDisplayName(const LLUUID& id) override;
-	virtual BOOL isParticipantAvatar(const LLUUID &id) override;
-	virtual BOOL getIsSpeaking(const LLUUID& id) override;
-	virtual BOOL getIsModeratorMuted(const LLUUID& id) override;
+	virtual bool isParticipantAvatar(const LLUUID &id) override;
+	virtual bool getIsSpeaking(const LLUUID& id) override;
+	virtual bool getIsModeratorMuted(const LLUUID& id) override;
 	virtual F32 getCurrentPower(const LLUUID& id) override;		// "power" is related to "amplitude" in a defined way.  I'm just not sure what the formula is...
-	virtual BOOL getOnMuteList(const LLUUID& id) override;
+	virtual bool getOnMuteList(const LLUUID& id) override;
 	virtual F32 getUserVolume(const LLUUID& id) override;
 	virtual void setUserVolume(const LLUUID& id, F32 volume) override; // set's volume for specified agent, from 0-1 (where .5 is nominal)
 	//@}
@@ -294,8 +294,8 @@ protected:
 		bool mAvatarIDValid;
 		bool mIsSelf;
 	};
-    typedef boost::shared_ptr<participantState> participantStatePtr_t;
-    typedef boost::weak_ptr<participantState> participantStateWptr_t;
+    typedef std::shared_ptr<participantState> participantStatePtr_t;
+    typedef std::weak_ptr<participantState> participantStateWptr_t;
 
     typedef std::map<const std::string, participantStatePtr_t> participantMap;
     typedef std::map<const LLUUID, participantStatePtr_t> participantUUIDMap;
@@ -303,10 +303,10 @@ protected:
 	struct sessionState
 	{
     public:
-        typedef boost::shared_ptr<sessionState> ptr_t;
-        typedef boost::weak_ptr<sessionState> wptr_t;
+        typedef std::shared_ptr<sessionState> ptr_t;
+        typedef std::weak_ptr<sessionState> wptr_t;
 
-        typedef boost::function<void(const ptr_t &)> sessionFunc_t;
+        typedef std::function<void(const ptr_t &)> sessionFunc_t;
 
         static ptr_t createSession();
 		~sessionState();
@@ -370,7 +370,7 @@ protected:
     private:
         sessionState();
 
-        static std::set<wptr_t> mSession;   // canonical list of outstanding sessions.
+        static std::set<wptr_t, std::owner_less<wptr_t>> mSession;   // canonical list of outstanding sessions.
         std::set<wptr_t>::iterator  mMyIterator;    // used for delete
 
         static void for_eachPredicate(const wptr_t &a, sessionFunc_t func);
@@ -381,7 +381,7 @@ protected:
         static bool testByCallerId(const LLVivoxVoiceClient::sessionState::wptr_t &a, LLUUID participantId);
 
 	};
-    typedef boost::shared_ptr<sessionState> sessionStatePtr_t;
+    typedef std::shared_ptr<sessionState> sessionStatePtr_t;
 
     typedef std::map<std::string, sessionStatePtr_t> sessionMap;
 	
@@ -490,11 +490,11 @@ protected:
 	// Accessors for data related to nearby speakers
 
 	// MBW -- XXX -- Not sure how to get this data out of the TVC
-	BOOL getUsingPTT(const LLUUID& id);
+	bool getUsingPTT(const LLUUID& id);
 	std::string getGroupID(const LLUUID& id);		// group ID if the user is in group chat (empty string if not applicable)
 
 	/////////////////////////////
-	BOOL getAreaVoiceDisabled();		// returns true if the area the avatar is in is speech-disabled.
+	bool getAreaVoiceDisabled();		// returns true if the area the avatar is in is speech-disabled.
 										// Use this to determine whether to show a "no speech" icon in the menu bar.
 		
 	
@@ -807,7 +807,7 @@ private:
 	std::string mWriteString;
 	size_t		mWriteOffset;
 	
-	BOOL		mLipSyncEnabled;
+	bool		mLipSyncEnabled;
 
 	typedef std::set<LLVoiceClientParticipantObserver*> observer_set_t;
 	observer_set_t mParticipantObservers;

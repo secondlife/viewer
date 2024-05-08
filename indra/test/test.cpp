@@ -53,17 +53,6 @@
 #	include "ctype_workaround.h"
 #endif
 
-#ifndef LL_WINDOWS
-
-typedef struct {
-  void *re_pcre;
-  size_t re_nsub;
-  size_t re_erroffset;
-} regex_t;
-#include <gmock/gmock.h>
-#include <gtest/gtest.h>
-#endif
-
 #if LL_MSVC
 #pragma warning (push)
 #pragma warning (disable : 4702) // warning C4702: unreachable code
@@ -166,12 +155,12 @@ public:
 
 	virtual void reset()
 	{
-		boost::dynamic_pointer_cast<RecordToTempFile>(mRecorder)->reset();
+		std::dynamic_pointer_cast<RecordToTempFile>(mRecorder)->reset();
 	}
 
 	virtual void replay(std::ostream& out)
 	{
-		boost::dynamic_pointer_cast<RecordToTempFile>(mRecorder)->replay(out);
+		std::dynamic_pointer_cast<RecordToTempFile>(mRecorder)->replay(out);
 	}
 
 private:
@@ -185,7 +174,7 @@ class LLTestCallback : public chained_callback
 
 public:
 	LLTestCallback(bool verbose_mode, std::ostream *stream,
-				   boost::shared_ptr<LLReplayLog> replayer) :
+				   std::shared_ptr<LLReplayLog> replayer) :
 		mVerboseMode(verbose_mode),
 		mTotalTests(0),
 		mPassedTests(0),
@@ -193,7 +182,7 @@ public:
 		mSkippedTests(0),
 		// By default, capture a shared_ptr to std::cout, with a no-op "deleter"
 		// so that destroying the shared_ptr makes no attempt to delete std::cout.
-		mStream(boost::shared_ptr<std::ostream>(&std::cout, [](std::ostream*){})),
+		mStream(std::shared_ptr<std::ostream>(&std::cout, [](std::ostream*){})),
 		mReplayer(replayer)
 	{
 		if (stream)
@@ -207,7 +196,7 @@ public:
 			// Allocate and assign in two separate steps, per Herb Sutter.
 			// (Until we turn on C++11 support, have to wrap *stream with
 			// boost::ref() due to lack of perfect forwarding.)
-			boost::shared_ptr<std::ostream> pstream(new TeeStream(std::cout, boost::ref(*stream)));
+			std::shared_ptr<std::ostream> pstream(new TeeStream(std::cout, boost::ref(*stream)));
 			mStream = pstream;
 		}
 	}
@@ -331,8 +320,8 @@ protected:
 	int mPassedTests;
 	int mFailedTests;
 	int mSkippedTests;
-	boost::shared_ptr<std::ostream> mStream;
-	boost::shared_ptr<LLReplayLog> mReplayer;
+	std::shared_ptr<std::ostream> mStream;
+	std::shared_ptr<LLReplayLog> mReplayer;
 };
 
 // TeamCity specific class which emits service messages
@@ -342,7 +331,7 @@ class LLTCTestCallback : public LLTestCallback
 {
 public:
 	LLTCTestCallback(bool verbose_mode, std::ostream *stream,
-					 boost::shared_ptr<LLReplayLog> replayer) :
+					 std::shared_ptr<LLReplayLog> replayer) :
 		LLTestCallback(verbose_mode, stream, replayer)
 	{
 	}
@@ -528,12 +517,6 @@ static LLTrace::ThreadRecorder* sMasterThreadRecorder = NULL;
 
 int main(int argc, char **argv)
 {
-	// The following line must be executed to initialize Google Mock
-	// (and Google Test) before running the tests.
-#ifndef LL_WINDOWS
-	::testing::InitGoogleMock(&argc, argv);
-#endif
-
 	ll_init_apr();
 	apr_getopt_t* os = NULL;
 	if(APR_SUCCESS != apr_getopt_init(&os, gAPRPoolp, argc, argv))
@@ -555,7 +538,7 @@ int main(int argc, char **argv)
 	apr_status_t apr_err;
 	const char* opt_arg = NULL;
 	int opt_id = 0;
-	boost::scoped_ptr<llofstream> output;
+	std::unique_ptr<llofstream> output;
 	const char *touch = NULL;
 
 	while(true)
@@ -614,7 +597,7 @@ int main(int argc, char **argv)
 
 	// set up logging
 	const char* LOGFAIL = getenv("LOGFAIL");
-	boost::shared_ptr<LLReplayLog> replayer{boost::make_shared<LLReplayLog>()};
+	std::shared_ptr<LLReplayLog> replayer{std::make_shared<LLReplayLog>()};
 
 	// Testing environment variables for both 'set' and 'not empty' allows a
 	// user to suppress a pre-existing environment variable by forcing empty.

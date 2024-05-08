@@ -116,10 +116,10 @@ protected:
     
 	// Request (pure virtual base class for requests in the queue)
     class Request: 
-        public boost::enable_shared_from_this<Request>
+        public std::enable_shared_from_this<Request>
     {
     public:
-        typedef boost::shared_ptr<Request> ptr_t;
+        typedef std::shared_ptr<Request> ptr_t;
 
         // Subclasses must implement this to build a payload for their request type.
         virtual LLSD getPayload() const = 0;
@@ -219,7 +219,7 @@ protected:
 	{
 	public:
 		RetryTimer(F32 time, Request::ptr_t);
-		virtual BOOL tick();
+		virtual bool tick();
 	private:
 		// back-pointer
 		Request::ptr_t mRequest;
@@ -286,7 +286,7 @@ private:
 	{
 	public:
 		QueueTimer(F32 time, LLMediaDataClient *mdc);
-		virtual BOOL tick();
+		virtual bool tick();
 	private:
 		// back-pointer
 		LLPointer<LLMediaDataClient> mMDC;

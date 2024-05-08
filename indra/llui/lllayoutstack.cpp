@@ -61,7 +61,7 @@ LLLayoutPanel::LLLayoutPanel(const Params& p)
  	mMinDim(p.min_dim), 
  	mAutoResize(p.auto_resize),
  	mUserResize(p.user_resize),
-	mCollapsed(FALSE),
+	mCollapsed(false),
 	mCollapseAmt(0.f),
 	mVisibleAmt(1.f), // default to fully visible
 	mResizeBar(NULL),
@@ -136,7 +136,7 @@ S32 LLLayoutPanel::getVisibleDim() const
 					* (min_dim
 						+ (((F32)mTargetDim - min_dim) * (1.f - mCollapseAmt))));
 }
- 
+
 void LLLayoutPanel::setOrientation( LLView::EOrientation orientation )
 {
 	mOrientation = orientation;
@@ -144,16 +144,14 @@ void LLLayoutPanel::setOrientation( LLView::EOrientation orientation )
 		? getRect().getWidth()
 		: getRect().getHeight()));
 
-	if (mAutoResize == FALSE 
-		&& mUserResize == TRUE 
-		&& mMinDim == -1 )
+	if (!mAutoResize && mUserResize && mMinDim == -1)
 	{
 		setMinDim(layout_dim);
 	}
 	mTargetDim = llmax(layout_dim, getMinDim());
 }
  
-void LLLayoutPanel::setVisible( BOOL visible )
+void LLLayoutPanel::setVisible( bool visible )
 {
 	if (visible != getVisible())
 	{
@@ -166,11 +164,11 @@ void LLLayoutPanel::setVisible( BOOL visible )
 	LLPanel::setVisible(visible);
 }
 
-void LLLayoutPanel::reshape( S32 width, S32 height, BOOL called_from_parent /*= TRUE*/ )
+void LLLayoutPanel::reshape( S32 width, S32 height, bool called_from_parent /*= true*/ )
 {
 	if (width == getRect().getWidth() && height == getRect().getHeight() && !LLView::sForceReshape) return;
 
-	if (!mIgnoreReshape && mAutoResize == false)
+	if (!mIgnoreReshape && !mAutoResize)
 	{
 		mTargetDim = (mOrientation == LLLayoutStack::HORIZONTAL) ? width : height;
 		LLLayoutStack* stackp = dynamic_cast<LLLayoutStack*>(getParent());
@@ -314,10 +312,10 @@ void LLLayoutStack::removeChild(LLView* view)
     }
 }
 
-BOOL LLLayoutStack::postBuild()
+bool LLLayoutStack::postBuild()
 {
 	updateLayout();
-	return TRUE;
+	return true;
 }
 
 bool LLLayoutStack::addChild(LLView* child, S32 tab_group)
@@ -330,7 +328,7 @@ bool LLLayoutStack::addChild(LLView* child, S32 tab_group)
 		createResizeBar(panelp);
 		mNeedsLayout = true;
 	}
-	BOOL result = LLView::addChild(child, tab_group);
+	bool result = LLView::addChild(child, tab_group);
 
 	updateFractionalSizes();
 	return result;
@@ -344,11 +342,11 @@ void LLLayoutStack::addPanel(LLLayoutPanel* panel, EAnimate animate)
 	if (animate == ANIMATE)
 	{
 		panel->mVisibleAmt = 0.f;
-		panel->setVisible(TRUE);
+		panel->setVisible(true);
 	}
 }
 
-void LLLayoutStack::collapsePanel(LLPanel* panel, BOOL collapsed)
+void LLLayoutStack::collapsePanel(LLPanel* panel, bool collapsed)
 {
 	LLLayoutPanel* panel_container = findEmbeddedPanel(panel);
 	if (!panel_container) return;
@@ -395,8 +393,7 @@ void LLLayoutStack::updateLayout()
 							: getRect().getHeight();
 
 	// first, assign minimum dimensions
-	LLLayoutPanel* panelp = NULL;
-	BOOST_FOREACH(panelp, mPanels)
+	for (LLLayoutPanel* panelp : mPanels)
 	{
 		if (panelp->mAutoResize)
 		{
@@ -409,12 +406,15 @@ void LLLayoutStack::updateLayout()
 	llassert(total_visible_fraction < 1.05f);
 
 	// don't need spacing after last panel
-	space_to_distribute += panelp ? ll_round((F32)mPanelSpacing * panelp->getVisibleAmount()) : 0;
+	if (!mPanels.empty())
+	{
+		space_to_distribute += ll_round(F32(mPanelSpacing) * mPanels.back()->getVisibleAmount());
+	}
 
 	S32 remaining_space = space_to_distribute;
 	if (space_to_distribute > 0 && total_visible_fraction > 0.f)
 	{	// give space proportionally to visible auto resize panels
-		BOOST_FOREACH(LLLayoutPanel* panelp, mPanels)
+		for (LLLayoutPanel* panelp : mPanels)
 		{
 			if (panelp->mAutoResize)
 			{
@@ -427,7 +427,7 @@ void LLLayoutStack::updateLayout()
 	}
 
 	// distribute any left over pixels to non-collapsed, visible panels
-	BOOST_FOREACH(LLLayoutPanel* panelp, mPanels)
+	for (LLLayoutPanel* panelp : mPanels)
 	{
 		if (remaining_space == 0) break;
 
@@ -443,7 +443,7 @@ void LLLayoutStack::updateLayout()
 
 	F32 cur_pos = (mOrientation == HORIZONTAL) ? 0.f : (F32)getRect().getHeight();
 
-	BOOST_FOREACH(LLLayoutPanel* panelp, mPanels)
+	for (LLLayoutPanel* panelp : mPanels)
 	{
 		F32 panel_dim = llmax(panelp->getExpandedMinDim(), panelp->mTargetDim);
 
@@ -538,7 +538,7 @@ LLLayoutPanel* LLLayoutStack::findEmbeddedPanel(LLPanel* panelp) const
 {
 	if (!panelp) return NULL;
 
-	BOOST_FOREACH(LLLayoutPanel* p, mPanels)
+	for (LLLayoutPanel* p : mPanels)
 	{
 		if (p == panelp)
 		{
@@ -552,7 +552,7 @@ LLLayoutPanel* LLLayoutStack::findEmbeddedPanelByName(const std::string& name) c
 {
 	LLLayoutPanel* result = NULL;
 
-	BOOST_FOREACH(LLLayoutPanel* p, mPanels)
+	for (LLLayoutPanel* p : mPanels)
 	{
 		if (p->getName() == name)
 		{
@@ -566,7 +566,7 @@ LLLayoutPanel* LLLayoutStack::findEmbeddedPanelByName(const std::string& name) c
 
 void LLLayoutStack::createResizeBar(LLLayoutPanel* panelp)
 {
-	BOOST_FOREACH(LLLayoutPanel* lp, mPanels)
+	for (LLLayoutPanel* lp : mPanels)
 	{
 		if (lp->mResizeBar == NULL)
 		{
@@ -613,7 +613,7 @@ void LLLayoutStack::createResizeBar(LLLayoutPanel* panelp)
 				border_params.shadow_dark_color = LLUIColorTable::instance().getColor("ResizebarBorderDark");
 
 				addBorder(border_params);
-				setBorderVisible(TRUE);
+				setBorderVisible(true);
 
 				LLImagePanel::Params image_panel;
 				mDragHandleImage = LLUI::getUIImage(LLResizeBar::RIGHT == mSide ? "Vertical Drag Handle" : "Horizontal Drag Handle");
@@ -626,7 +626,7 @@ void LLLayoutStack::createResizeBar(LLLayoutPanel* panelp)
 
 			//if (mShowDragHandle)
 			//{
-			//	setBackgroundVisible(TRUE);
+			//	setBackgroundVisible(true);
 			//	setTransparentColor(LLUIColorTable::instance().getColor("ResizebarBody"));
 			//}
 
@@ -669,7 +669,7 @@ void LLLayoutStack::updateFractionalSizes()
 {
 	F32 total_resizable_dim = 0.f;
 
-	BOOST_FOREACH(LLLayoutPanel* panelp, mPanels)
+	for (LLLayoutPanel* panelp : mPanels)
 	{
 		if (panelp->mAutoResize)
 		{
@@ -677,7 +677,7 @@ void LLLayoutStack::updateFractionalSizes()
 		}
 	}
 
-	BOOST_FOREACH(LLLayoutPanel* panelp, mPanels)
+	for (LLLayoutPanel* panelp : mPanels)
 	{
 		if (panelp->mAutoResize)
 		{
@@ -698,7 +698,7 @@ void LLLayoutStack::normalizeFractionalSizes()
 	S32 num_auto_resize_panels = 0;
 	F32 total_fractional_size = 0.f;
 	
-	BOOST_FOREACH(LLLayoutPanel* panelp, mPanels)
+	for (LLLayoutPanel* panelp : mPanels)
 	{
 		if (panelp->mAutoResize)
 		{
@@ -709,7 +709,7 @@ void LLLayoutStack::normalizeFractionalSizes()
 
 	if (total_fractional_size == 0.f)
 	{ // equal distribution
-		BOOST_FOREACH(LLLayoutPanel* panelp, mPanels)
+		for (LLLayoutPanel* panelp : mPanels)
 		{
 			if (panelp->mAutoResize)
 			{
@@ -719,7 +719,7 @@ void LLLayoutStack::normalizeFractionalSizes()
 	}
 	else
 	{ // renormalize
-		BOOST_FOREACH(LLLayoutPanel* panelp, mPanels)
+		for (LLLayoutPanel* panelp : mPanels)
 		{
 			if (panelp->mAutoResize)
 			{
@@ -736,7 +736,7 @@ bool LLLayoutStack::animatePanels()
 	//
 	// animate visibility
 	//
-	BOOST_FOREACH(LLLayoutPanel* panelp, mPanels)
+	for (LLLayoutPanel* panelp : mPanels)
 	{
 		if (panelp->getVisible())
 		{
@@ -834,7 +834,7 @@ void LLLayoutStack::updatePanelRect( LLLayoutPanel* resized_panel, const LLRect&
 	LLLayoutPanel* other_resize_panel = NULL;
 	LLLayoutPanel* following_panel = NULL;
 
-	BOOST_REVERSE_FOREACH(LLLayoutPanel* panelp, mPanels)
+	BOOST_REVERSE_FOREACH(LLLayoutPanel* panelp, mPanels) // Should replace this when C++20 reverse view adaptor becomes available...
 	{
 		if (panelp->mAutoResize)
 		{
@@ -883,7 +883,7 @@ void LLLayoutStack::updatePanelRect( LLLayoutPanel* resized_panel, const LLRect&
 		AFTER_RESIZED_PANEL
 	} which_panel = BEFORE_RESIZED_PANEL;
 
-	BOOST_FOREACH(LLLayoutPanel* panelp, mPanels)
+	for (LLLayoutPanel* panelp : mPanels)
 	{
 		if (!panelp->getVisible() || panelp->mCollapsed) 
 		{
@@ -974,6 +974,7 @@ void LLLayoutStack::updatePanelRect( LLLayoutPanel* resized_panel, const LLRect&
 												MIN_FRACTIONAL_SIZE,
 												MAX_FRACTIONAL_SIZE);
 			}
+			break;
 		default:
 			break;
 		}
@@ -982,7 +983,7 @@ void LLLayoutStack::updatePanelRect( LLLayoutPanel* resized_panel, const LLRect&
 	//normalizeFractionalSizes();
 }
 
-void LLLayoutStack::reshape(S32 width, S32 height, BOOL called_from_parent)
+void LLLayoutStack::reshape(S32 width, S32 height, bool called_from_parent)
 {
 	mNeedsLayout = true;
 	LLView::reshape(width, height, called_from_parent);
@@ -990,12 +991,12 @@ void LLLayoutStack::reshape(S32 width, S32 height, BOOL called_from_parent)
 
 void LLLayoutStack::updateResizeBarLimits()
 {
-	LLLayoutPanel* previous_visible_panelp = NULL;
-	BOOST_REVERSE_FOREACH(LLLayoutPanel* visible_panelp, mPanels)
+	LLLayoutPanel* previous_visible_panelp{ nullptr };
+	BOOST_REVERSE_FOREACH(LLLayoutPanel* visible_panelp, mPanels) // Should replace this when C++20 reverse view adaptor becomes available...
 	{
 		if (!visible_panelp->getVisible() || visible_panelp->mCollapsed)
 		{
-			visible_panelp->mResizeBar->setVisible(FALSE);
+			visible_panelp->mResizeBar->setVisible(false);
 			continue;
 		}
 
@@ -1005,14 +1006,14 @@ void LLLayoutStack::updateResizeBarLimits()
 			&& (visible_panelp->mAutoResize || visible_panelp->mUserResize)							// current panel is resizable
 			&& (previous_visible_panelp->mAutoResize || previous_visible_panelp->mUserResize))		// previous panel is resizable
 		{
-			visible_panelp->mResizeBar->setVisible(TRUE);
+			visible_panelp->mResizeBar->setVisible(true);
 			S32 previous_panel_headroom = previous_visible_panelp->getVisibleDim() - previous_visible_panelp->getRelevantMinDim();
 			visible_panelp->mResizeBar->setResizeLimits(visible_panelp->getRelevantMinDim(), 
 														visible_panelp->getVisibleDim() + previous_panel_headroom);
 		}
 		else
 		{
-			visible_panelp->mResizeBar->setVisible(FALSE);
+			visible_panelp->mResizeBar->setVisible(false);
 		}
 
 		previous_visible_panelp = visible_panelp;

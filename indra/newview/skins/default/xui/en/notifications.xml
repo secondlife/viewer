@@ -1,4 +1,5 @@
-<?xml version="1.0" ?><notifications>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<notifications>
     <global name="skipnexttime">
 
 		Don&apos;t show me this again
@@ -4001,6 +4002,7 @@ Are you sure you want to return objects owned by [USER_NAME]?
    icon="alertmodal.tga"
    name="InvalidTerrainBitDepth"
    type="alertmodal">
+    <unique combine="cancel_old" />
 Couldn&apos;t set region textures:
 Terrain texture [TEXTURE_NUM] has an invalid bit depth of [TEXTURE_BIT_DEPTH].
 
@@ -4010,12 +4012,85 @@ Replace texture [TEXTURE_NUM] with an RGB [MAX_SIZE]x[MAX_SIZE] or smaller image
 
   <notification
    icon="alertmodal.tga"
+   name="InvalidTerrainAlphaNotFullyLoaded"
+   type="alertmodal">
+    <unique combine="cancel_old" />
+Couldn&apos;t set region textures:
+Terrain texture [TEXTURE_NUM] is not fully loaded, but is assumed to contain transparency due to a bit depth of [TEXTURE_BIT_DEPTH]. Transparency is not currently supported for terrain textures.
+
+If texture [TEXTURE_NUM] is opaque, wait for the texture to fully load and then click &quot;Apply&quot; again.
+
+Alpha is only supported for terrain materials (PBR Metallic Roughness), when alphaMode="MASK" and doubleSided=false.
+  <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="InvalidTerrainAlpha"
+   type="alertmodal">
+    <unique combine="cancel_old" />
+Couldn&apos;t set region textures:
+Terrain texture [TEXTURE_NUM] contains transparency. Transparency is not currently supported for terrain textures.
+
+Replace texture [TEXTURE_NUM] with an opaque RGB image, then click &quot;Apply&quot; again.
+
+Alpha is only supported for terrain materials (PBR Metallic Roughness), when alphaMode="MASK" and doubleSided=false.
+  <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="InvalidTerrainSize"
    type="alertmodal">
+    <unique combine="cancel_old" />
 Couldn&apos;t set region textures:
 Terrain texture [TEXTURE_NUM] is too large at [TEXTURE_SIZE_X]x[TEXTURE_SIZE_Y].
 
 Replace texture [TEXTURE_NUM] with an RGB [MAX_SIZE]x[MAX_SIZE] or smaller image then click &quot;Apply&quot; again.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="InvalidTerrainMaterialNotLoaded"
+   type="alertmodal">
+    <unique combine="cancel_old" />
+Couldn&apos;t set region materials:
+Terrain material [MATERIAL_NUM] is not loaded.
+
+Wait for the material to load, or replace material [MATERIAL_NUM] with a valid material.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="InvalidTerrainMaterialLoadFailed"
+   type="alertmodal">
+    <unique combine="cancel_old" />
+Couldn&apos;t set region materials:
+Terrain material [MATERIAL_NUM] failed to load.
+
+Replace material [MATERIAL_NUM] with a valid material.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="InvalidTerrainMaterialDoubleSided"
+   type="alertmodal">
+    <unique combine="cancel_old" />
+Couldn&apos;t set region materials:
+Terrain material [MATERIAL_NUM] is double-sided. Double-sided materials are not currently supported for PBR terrain.
+
+Replace material [MATERIAL_NUM] with a material with doubleSided=false.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="InvalidTerrainMaterialAlphaMode"
+   type="alertmodal">
+    <unique combine="cancel_old" />
+Couldn&apos;t set region materials:
+Terrain material [MATERIAL_NUM] is using the unsupported alphaMode="[MATERIAL_ALPHA_MODE]".
+
+Replace material [MATERIAL_NUM] with a material with alphaMode="OPAQUE" or alphaMode="MASK".
   </notification>
 
   <notification
@@ -6217,6 +6292,17 @@ Are you sure you want to delete them?
      yestext="OK"/>
   </notification>
 
+    <notification
+     icon="alertmodal.tga"
+     name="ThumbnailSelectionTooLarge"
+     type="alertmodal">
+        <unique/>
+        You can only modify up to 50 thumbnails at a time.
+        <usetemplate
+         name="okbutton"
+         yestext="OK"/>
+    </notification>
+
   <notification
      icon="alertmodal.tga"
      name="ConfirmUnlink"
@@ -6468,14 +6554,6 @@ Your inventory is experiencing issues. Please, contact support.
    icon="alertmodal.tga"
    name="InventoryLimitReachedAISAlert"
    type="alertmodal">
-Your inventory is experiencing issues. Please, contact support.
-  <tag>fail</tag>
-  </notification>
-
-  <notification
-   icon="notifytip.tga"
-   name="InventoryLimitReachedAIS"
-   type="notifytip">
 Your inventory is experiencing issues. Please, contact support.
   <tag>fail</tag>
   </notification>
@@ -9254,7 +9332,7 @@ You locally updated a [RESOLUTION] baked texture for '[BODYREGION]' after [TIME]
    icon="alertmodal.tga"
    name="CannotUploadTexture"
    type="alertmodal">
-Unable to upload texture.
+Unable to upload texture: &apos;[NAME]&apos;
 [REASON]   
   <tag>fail</tag>  
   </notification>
@@ -12270,6 +12348,50 @@ Would you like to save them first?
        notext="No"
        yestext="Yes"/>
   </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="ConfirmOverwriteOutfit"
+   type="alertmodal">
+      <unique/>
+This will replace the items in the
+selected outfit with the items you
+are wearing now.
+      <tag>confirm</tag>
+      <usetemplate
+       ignoretext="Confirm before overwriting outfit"
+       name="okcancelignore"
+       notext="Cancel"
+       yestext="Save"/>
+  </notification>
+    
+  <notification
+    icon="alertmodal.tga"
+    name="ClearInventoryThumbnailsWarning"
+    type="alertmodal">
+        You are about to remove thumbnail images from the inventory items in the list. This change cannot be undone.
+
+        Would you like to proceed?
+   <tag>confirm</tag>
+   <usetemplate
+       name="okcancelbuttons"
+       notext="No"
+       yestext="Yes"/>
+  </notification>
+
+  <notification
+    icon="alertmodal.tga"
+    name="WriteInventoryThumbnailsWarning"
+    type="alertmodal">
+        You are about to overwrite thumbnail images for some or all of the inventory items in the list. This change cannot be undone.
+
+        Would you like to proceed?
+   <tag>confirm</tag>
+   <usetemplate
+       name="okcancelbuttons"
+       notext="No"
+       yestext="Yes"/>
+  </notification>
     
   <notification
     icon="notifytip.tga"
@@ -12294,5 +12416,27 @@ Would you like to save them first?
         name="okignore"
         yestext="OK"/>
   </notification>
-  
+
+  <notification
+   icon="alertmodal.tga"
+   name="GLTFOpenSelection"
+   type="alert">
+    You must select an object to act as a handle to the GLTF asset you are previewing.
+    <tag>fail</tag>
+    <usetemplate
+      name="okbutton"
+      yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="GLTFSaveSelection"
+   type="alert">
+    You must select an object that has a GLTF asset associated with it.
+    <tag>fail</tag>
+    <usetemplate
+      name="okbutton"
+      yestext="OK"/>
+  </notification>
+
 </notifications>

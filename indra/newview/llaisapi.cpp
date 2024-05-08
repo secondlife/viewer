@@ -1198,7 +1198,7 @@ void AISUpdate::parseItem(const LLSD& item_map)
 		// Default to current values where not provided.
 		new_item->copyViewerItem(curr_item);
 	}
-	BOOL rv = new_item->unpackMessage(item_map);
+	bool rv = new_item->unpackMessage(item_map);
 	if (rv)
 	{
         if (mFetch)
@@ -1243,7 +1243,7 @@ void AISUpdate::parseLink(const LLSD& link_map, S32 depth)
 		// Default to current values where not provided.
 		new_link->copyViewerItem(curr_link);
 	}
-	BOOL rv = new_link->unpackMessage(link_map);
+	bool rv = new_link->unpackMessage(link_map);
 	if (rv)
 	{
 		const LLUUID& parent_id = new_link->getParentUUID();
@@ -1340,7 +1340,7 @@ void AISUpdate::parseCategory(const LLSD& category_map, S32 depth)
             new_cat = new LLViewerInventoryCategory(LLUUID::null);
         }
     }
-	BOOL rv = new_cat->unpackMessage(category_map);
+	bool rv = new_cat->unpackMessage(category_map);
 	// *NOTE: unpackMessage does not unpack version or descendent count.
 	if (rv)
 	{
@@ -1678,7 +1678,7 @@ void AISUpdate::doUpdate()
                 LLPointer<LLViewerInventoryItem> new_item = lost_it->second;
 
                 new_item->setParent(lost_uuid);
-                new_item->updateParentOnServer(FALSE);
+                new_item->updateParentOnServer(false);
             }
         }
     }
@@ -1738,10 +1738,6 @@ void AISUpdate::doUpdate()
 		LL_DEBUGS("Inventory") << "cat version update " << cat->getName() << " to version " << cat->getVersion() << LL_ENDL;
 		if (cat->getVersion() != version)
 		{
-			LL_WARNS() << "Possible version mismatch for category " << cat->getName()
-					<< ", viewer version " << cat->getVersion()
-					<< " AIS version " << version << " !!!Adjusting local version!!!" <<  LL_ENDL;
-
             // the AIS version should be considered the true version. Adjust 
             // our local category model to reflect this version number.  Otherwise 
             // it becomes possible to get stuck with the viewer being out of 
@@ -1751,13 +1747,23 @@ void AISUpdate::doUpdate()
             // is performed.  This occasionally gets out of sync however.
             if (version != LLViewerInventoryCategory::VERSION_UNKNOWN)
             {
+                LL_WARNS() << "Possible version mismatch for category " << cat->getName()
+                    << ", viewer version " << cat->getVersion()
+                    << " AIS version " << version << " !!!Adjusting local version!!!" << LL_ENDL;
                 cat->setVersion(version);
             }
             else
             {
                 // We do not account for update if version is UNKNOWN, so we shouldn't rise version
                 // either or viewer will get stuck on descendants count -1, try to refetch folder instead
-                cat->fetch();
+                //
+                // Todo: proper backoff?
+
+                LL_WARNS() << "Possible version mismatch for category " << cat->getName()
+                    << ", viewer version " << cat->getVersion()
+                    << " AIS version " << version << " !!!Rerequesting category!!!" << LL_ENDL;
+                const S32 LONG_EXPIRY = 360;
+                cat->fetch(LONG_EXPIRY);
             }
 		}
 	}

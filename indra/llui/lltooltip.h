@@ -44,11 +44,11 @@ public:
 		Params();
 	};
 	LLToolTipView(const LLToolTipView::Params&);
-	/*virtual*/ BOOL handleHover(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL handleMiddleMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL handleScrollWheel( S32 x, S32 y, S32 clicks );
+	/*virtual*/ bool handleHover(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool handleMouseDown(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool handleMiddleMouseDown(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool handleRightMouseDown(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool handleScrollWheel( S32 x, S32 y, S32 clicks );
 
 	void drawStickyRect();
 
@@ -94,12 +94,14 @@ public:
 									padding;
 		Optional<bool>				wrap;
 
+        Optional<bool> allow_paste_tooltip;
+
 		Params();
 	};
 	/*virtual*/ void draw();
-	/*virtual*/ BOOL handleHover(S32 x, S32 y, MASK mask);
+	/*virtual*/ bool handleHover(S32 x, S32 y, MASK mask);
 	/*virtual*/ void onMouseLeave(S32 x, S32 y, MASK mask);
-	/*virtual*/ void setVisible(BOOL visible);
+	/*virtual*/ void setVisible(bool visible);
 
 	bool isFading();
 	F32 getVisibleTime();
@@ -109,6 +111,7 @@ public:
 	virtual void initFromParams(const LLToolTip::Params& params);
 
 	void getToolTipMessage(std::string & message);
+    bool isTooltipPastable() { return mIsTooltipPastable; }
 
 protected:
 	void updateTextBox();
@@ -125,6 +128,8 @@ protected:
 	bool			mHasClickCallback;
 	S32				mPadding;	// pixels
 	S32				mMaxWidth;
+
+    bool mIsTooltipPastable;
 };
 
 // used for the inspector tooltips which need different background images etc.
@@ -142,7 +147,7 @@ class LLToolTipMgr : public LLSingleton<LLToolTipMgr>
 
 public:
 	void show(const LLToolTip::Params& params);
-	void show(const std::string& message);
+	void show(const std::string& message, bool allow_paste_tooltip = false);
 
 	void unblockToolTips();
 	void blockToolTips();
@@ -154,6 +159,7 @@ public:
 	void updateToolTipVisibility();
 
 	void getToolTipMessage(std::string & message);
+    bool isTooltipPastable();
 
 private:
 	void createToolTip(const LLToolTip::Params& params);

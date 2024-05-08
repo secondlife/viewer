@@ -443,11 +443,11 @@ public:
 	// return response LLSD filled in with default form contents and (optionally) the default button selected
 	LLSD getResponseTemplate(EResponseTemplateType type = WITHOUT_DEFAULT_BUTTON);
 
-	// returns index of first button with value==TRUE
+	// returns index of first button with value==true
 	// usually this the button the user clicked on
 	// returns -1 if no button clicked (e.g. form has not been displayed)
 	static S32 getSelectedOption(const LLSD& notification, const LLSD& response);
-	// returns name of first button with value==TRUE
+	// returns name of first button with value==true
 	static std::string getSelectedOptionName(const LLSD& notification);
 
 	// after someone responds to a notification (usually by clicking a button,
@@ -738,16 +738,19 @@ class LLNotificationChannelBase :
 {
 	LOG_CLASS(LLNotificationChannelBase);
 public:
-	LLNotificationChannelBase(LLNotificationFilter filter) 
-	:	mFilter(filter), 
-		mItems() 
-	{}
+    LLNotificationChannelBase(LLNotificationFilter filter) 
+    : mFilter(filter)
+    , mItems() 
+    , mItemsMutex()
+    {}
+
     virtual ~LLNotificationChannelBase()
     {
         // explicit cleanup for easier issue detection
         mChanged.disconnect_all_slots();
         mPassedFilter.disconnect_all_slots();
         mFailedFilter.disconnect_all_slots();
+        LLMutexLock lock(&mItemsMutex);
         mItems.clear();
     }
 	// you can also connect to a Channel, so you can be notified of
@@ -786,6 +789,7 @@ protected:
 	LLStandardSignal mChanged;
 	LLStandardSignal mPassedFilter;
 	LLStandardSignal mFailedFilter;
+    LLMutex mItemsMutex;
 	
 	// these are action methods that subclasses can override to take action 
 	// on specific types of changes; the management of the mItems list is
@@ -835,7 +839,7 @@ public:
 	LLNotificationChannel(const Params& p = Params());
 	LLNotificationChannel(const std::string& name, const std::string& parent, LLNotificationFilter filter);
 
-	virtual ~LLNotificationChannel() {}
+	virtual ~LLNotificationChannel();
 	typedef LLNotificationSet::iterator Iterator;
     
 	std::string getName() const { return mName; }
@@ -844,21 +848,23 @@ public:
 	{
 		return boost::iterator_range<parents_iter>(mParents);
 	}
-    
-	void connectToChannel(const std::string& channel_name);
-    
+
     bool isEmpty() const;
     S32 size() const;
-    
-    Iterator begin();
-    Iterator end();
-	size_t size();
-	
+    size_t size();
+
+    typedef boost::function<void(LLNotificationPtr)> NotificationProcess;
+    void forEachNotification(NotificationProcess process);
+
 	std::string summarize();
+
+protected:
+    void connectToChannel(const std::string& channel_name);
 
 private:
 	std::string mName;
 	std::vector<std::string> mParents;
+    std::vector<LLBoundListener> mListeners;
 };
 
 // An interface class to provide a clean linker seam to the LLNotifications class.
@@ -924,10 +930,6 @@ public:
 	void update(const LLNotificationPtr pNotif);
 
 	LLNotificationPtr find(LLUUID uuid);
-	
-	typedef boost::function<void (LLNotificationPtr)> NotificationProcess;
-	
-	void forEachNotification(NotificationProcess process);
 
 	// This is all stuff for managing the templates
 	// take your template out
@@ -990,7 +992,7 @@ private:
 
 	bool mIgnoreAllNotifications;
 
-	boost::scoped_ptr<LLNotificationsListener> mListener;
+	std::unique_ptr<LLNotificationsListener> mListener;
 
 	std::vector<LLNotificationChannelPtr> mDefaultChannels;
 };

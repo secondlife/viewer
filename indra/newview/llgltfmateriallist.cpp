@@ -47,9 +47,6 @@
 #include "tinygltf/tiny_gltf.h"
 #include <strstream>
 
-#include "json/reader.h"
-#include "json/value.h"
-
 #include <unordered_set>
 
 LLGLTFMaterialList gGLTFMaterialList;
@@ -57,8 +54,6 @@ LLGLTFMaterialList gGLTFMaterialList;
 LLGLTFMaterialList::modify_queue_t LLGLTFMaterialList::sModifyQueue;
 LLGLTFMaterialList::apply_queue_t LLGLTFMaterialList::sApplyQueue;
 LLSD LLGLTFMaterialList::sUpdates;
-
-const LLUUID LLGLTFMaterialList::BLANK_MATERIAL_ASSET_ID("968cbad0-4dad-d64e-71b5-72bf13ad051a");
 
 #ifdef SHOW_ASSERT
 // return true if given data is (probably) valid update message for ModifyMaterialParams capability
@@ -247,6 +242,7 @@ void LLGLTFMaterialList::applyOverrideMessage(LLMessageSystem* msg, const std::s
             }
 
             region->cacheFullUpdateGLTFOverride(cache);
+            LL_DEBUGS("GLTF") << "GLTF Material Override: " << cache.mObjectId << " " << cache.mLocalId << " " << cache.mRegionHandle << " (sides:" << (cache.mSides.size()) << ")" << LL_ENDL;
         }
 
     }

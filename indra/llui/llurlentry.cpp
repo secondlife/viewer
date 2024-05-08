@@ -229,19 +229,25 @@ bool LLUrlEntryBase::isWikiLinkCorrect(const std::string &labeled_url) const
         label = "http://" + label;
     }
 
-	return (LLUrlRegistry::instance().hasUrl(label)) ? false : true;
+	return !LLUrlRegistry::instance().hasUrl(label);
 }
 
 std::string LLUrlEntryBase::urlToLabelWithGreyQuery(const std::string &url) const
 {
+    if (url.empty())
+    {
+        return url;
+    }
 	LLUriParser up(escapeUrl(url));
-	up.normalize();
+	if (up.normalize() == 0)
+    {
+        std::string label;
+        up.extractParts();
+        up.glueFirst(label);
 
-	std::string label;
-	up.extractParts();
-	up.glueFirst(label);
-
-	return unescapeUrl(label);
+        return unescapeUrl(label);
+    }
+    return std::string();
 }
 
 std::string LLUrlEntryBase::urlToGreyQuery(const std::string &url) const
@@ -395,7 +401,7 @@ bool LLUrlEntryInvalidSLURL::isSLURLvalid(const std::string &url) const
 
 		if((x>= 0 && x<= 256) && (y>= 0 && y<= 256) && (z>= 0))
 		{
-			return TRUE;
+			return true;
 		}
 	}
 	else if (path_parts == (actual_parts-1))
@@ -407,7 +413,7 @@ bool LLUrlEntryInvalidSLURL::isSLURLvalid(const std::string &url) const
 		;
 		if((x>= 0 && x<= 256) && (y>= 0 && y<= 256))
 		{
-				return TRUE;
+				return true;
 		}
 	}
 	else if (path_parts == (actual_parts-2))
@@ -416,11 +422,11 @@ bool LLUrlEntryInvalidSLURL::isSLURLvalid(const std::string &url) const
 		LLStringUtil::convertToS32(path_array[path_parts-1],x);
 		if(x>= 0 && x<= 256)
 		{
-			return TRUE;
+			return true;
 		}
 	}
 
-	return FALSE;
+	return false;
 }
 
 //

@@ -72,7 +72,7 @@ LLSearchEditor::LLSearchEditor(const LLSearchEditor::Params& p)
 	line_editor_params.keystroke_callback(boost::bind(&LLSearchEditor::handleKeystroke, this));
 
 	mSearchEditor = LLUICtrlFactory::create<LLLineEditor>(line_editor_params);
-	mSearchEditor->setPassDelete(TRUE);
+	mSearchEditor->setPassDelete(true);
 	addChild(mSearchEditor);
 
 	if (p.search_button_visible)
@@ -102,6 +102,18 @@ LLSearchEditor::LLSearchEditor(const LLSearchEditor::Params& p)
 		mClearButton = LLUICtrlFactory::create<LLButton>(clr_btn_params);
 		mSearchEditor->addChild(mClearButton);
 	}
+}
+
+LLSearchEditor::~LLSearchEditor()
+{
+    mKeystrokeCallback = NULL;
+    mTextChangedCallback = NULL;
+    setCommitOnFocusLost(false);
+
+    mSearchButton = NULL;
+    mClearButton = NULL;
+    mSearchEditor->deleteAllChildren();
+    deleteAllChildren();
 }
 
 //virtual
@@ -140,13 +152,13 @@ LLSD LLSearchEditor::getValue() const
 }
 
 //virtual
-BOOL LLSearchEditor::setTextArg( const std::string& key, const LLStringExplicit& text )
+bool LLSearchEditor::setTextArg( const std::string& key, const LLStringExplicit& text )
 {
 	return mSearchEditor->setTextArg(key, text);
 }
 
 //virtual
-BOOL LLSearchEditor::setLabelArg( const std::string& key, const LLStringExplicit& text )
+bool LLSearchEditor::setLabelArg( const std::string& key, const LLStringExplicit& text )
 {
 	return mSearchEditor->setLabelArg(key, text);
 }
@@ -167,7 +179,7 @@ void LLSearchEditor::clear()
 }
 
 //virtual
-void LLSearchEditor::setFocus( BOOL b )
+void LLSearchEditor::setFocus( bool b )
 {
 	if (mSearchEditor)
 	{

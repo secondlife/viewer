@@ -213,11 +213,11 @@ public:
 	virtual void unbound();
 	virtual void rebound();
 	
-	BOOL isDead()							{ return hasState(DEAD); }	
+	bool isDead()							{ return hasState(DEAD); }	
 
 	void setVisible();
-	BOOL isVisible() const;
-	virtual BOOL isRecentlyVisible() const;
+	bool isVisible() const;
+	virtual bool isRecentlyVisible() const;
 	S32  getVisible(LLViewerCamera::eCameraID id) const {return mVisible[id];}
 	S32  getAnyVisible() const {return mAnyVisible;}
 	bool isEmpty() const { return mOctreeNode->isEmpty(); }
@@ -253,7 +253,7 @@ public:
 protected:
 	void checkStates();
 private:
-	virtual bool boundObjects(BOOL empty, LLVector4a& minOut, LLVector4a& maxOut);			
+	virtual bool boundObjects(bool empty, LLVector4a& minOut, LLVector4a& maxOut);			
 
 protected:
 	U32         mState;
@@ -299,25 +299,25 @@ public:
 	LLOcclusionCullingGroup(const LLOcclusionCullingGroup& rhs) : LLViewerOctreeGroup(rhs)
 	{
 		*this = rhs;
-	}	
+	}
 
 	void setOcclusionState(U32 state, S32 mode = STATE_MODE_SINGLE);
 	void clearOcclusionState(U32 state, S32 mode = STATE_MODE_SINGLE);
 	void checkOcclusion(); //read back last occlusion query (if any)
 	void doOcclusion(LLCamera* camera, const LLVector4a* shift = NULL); //issue occlusion query
-	BOOL isOcclusionState(U32 state) const	{ return mOcclusionState[LLViewerCamera::sCurCameraID] & state ? TRUE : FALSE; }
-	U32  getOcclusionState() const	{ return mOcclusionState[LLViewerCamera::sCurCameraID];}
+	bool isOcclusionState(U32 state) const { return mOcclusionState[LLViewerCamera::sCurCameraID] & state; }
+	U32  getOcclusionState() const { return mOcclusionState[LLViewerCamera::sCurCameraID];}
 
-	BOOL needsUpdate();
+	bool needsUpdate();
 	U32  getLastOcclusionIssuedTime();
 
 	//virtual 
 	void handleChildAddition(const OctreeNode* parent, OctreeNode* child);
 
 	//virtual
-	BOOL isRecentlyVisible() const;
+	bool isRecentlyVisible() const;
 	LLViewerOctreePartition* getSpatialPartition()const {return mSpatialPartition;}
-	BOOL isAnyRecentlyVisible() const;
+	bool isAnyRecentlyVisible() const;
 
 	static U32 getNewOcclusionQueryObjectName();
 	static void releaseOcclusionQueryObjectName(U32 name);
@@ -325,8 +325,8 @@ public:
 protected:
 	void releaseOcclusionQueryObjectNames();
 
-private:	
-	BOOL earlyFail(LLCamera* camera, const LLVector4a* bounds);
+private:
+	bool earlyFail(LLCamera* camera, const LLVector4a* bounds);
 
 protected:
 	U32         mOcclusionState[LLViewerCamera::NUM_CAMERAS];
@@ -338,7 +338,7 @@ protected:
 	U32		                 mOcclusionQuery[LLViewerCamera::NUM_CAMERAS];
     U32                      mOcclusionCheckCount[LLViewerCamera::NUM_CAMERAS];
 
-public:		
+public:
 	static std::set<U32> sPendingQueries;
 };//LL_ALIGN_POSTFIX(16);
 
@@ -350,18 +350,18 @@ public:
 
 	// Cull on arbitrary frustum
 	virtual S32 cull(LLCamera &camera, bool do_occlusion) = 0;
-	BOOL isOcclusionEnabled();
+	bool isOcclusionEnabled();
 
 protected:
     // MUST call from destructor of any derived classes (SL-17276)
     void cleanup();
 
-public:	
+public:
 	U32              mPartitionType;
 	U32              mDrawableType;
 	OctreeNode*      mOctree;
 	LLViewerRegion*  mRegionp; // the region this partition belongs to.
-	BOOL             mOcclusionEnabled; // if TRUE, occlusion culling is performed
+	bool             mOcclusionEnabled; // if true, occlusion culling is performed
 	U32              mLODSeed;
 	U32              mLODPeriod;	//number of frames between LOD updates for a given spatial group (staggered by mLODSeed)
 };
@@ -376,7 +376,7 @@ public:
 
 protected:
 	virtual bool earlyFail(LLViewerOctreeGroup* group);	
-	
+
 	//agent space group cull
 	S32 AABBInFrustumNoFarClipGroupBounds(const LLViewerOctreeGroup* group);	
 	S32 AABBSphereIntersectGroupExtents(const LLViewerOctreeGroup* group);
@@ -386,7 +386,7 @@ protected:
 	S32 AABBInFrustumNoFarClipObjectBounds(const LLViewerOctreeGroup* group);
 	S32 AABBSphereIntersectObjectExtents(const LLViewerOctreeGroup* group);	
 	S32 AABBInFrustumObjectBounds(const LLViewerOctreeGroup* group);
-	
+
 	//local region space group cull
 	S32 AABBInRegionFrustumNoFarClipGroupBounds(const LLViewerOctreeGroup* group);
 	S32 AABBInRegionFrustumGroupBounds(const LLViewerOctreeGroup* group);
@@ -396,7 +396,7 @@ protected:
 	S32 AABBInRegionFrustumNoFarClipObjectBounds(const LLViewerOctreeGroup* group);
 	S32 AABBInRegionFrustumObjectBounds(const LLViewerOctreeGroup* group);
 	S32 AABBRegionSphereIntersectObjectExtents(const LLViewerOctreeGroup* group, const LLVector3& shift);	
-	
+
 	virtual S32 frustumCheck(const LLViewerOctreeGroup* group) = 0;
 	virtual S32 frustumCheckObjects(const LLViewerOctreeGroup* group) = 0;
 
@@ -405,7 +405,7 @@ protected:
 	virtual void preprocess(LLViewerOctreeGroup* group);
 	virtual void processGroup(LLViewerOctreeGroup* group);
 	virtual void visit(const OctreeNode* branch);
-	
+
 protected:
 	LLCamera *mCamera;
 	S32 mRes;
@@ -419,7 +419,7 @@ public:
 	virtual void visit(const OctreeNode* branch);
 
 public:
-	static BOOL sInDebug;
+	static bool sInDebug;
 };
 
 #endif

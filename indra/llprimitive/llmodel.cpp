@@ -68,6 +68,7 @@ LLModel::~LLModel()
 	{
 		LLConvexDecomposition::getInstance()->deleteDecomposition(mDecompID);
 	}
+    mPhysics.mMesh.clear();
 }
 
 //static
@@ -662,11 +663,11 @@ LLSD LLModel::writeModel(
 	LLModel* low,
 	LLModel* impostor,
 	const LLModel::Decomposition& decomp,
-	BOOL upload_skin,
-	BOOL upload_joints,
-    BOOL lock_scale_if_joint_position,
-	BOOL nowrite,
-	BOOL as_slm,
+	bool upload_skin,
+	bool upload_joints,
+    bool lock_scale_if_joint_position,
+	bool nowrite,
+	bool as_slm,
 	int submodel_id)
 {
 	LLSD mdl;
@@ -947,7 +948,7 @@ LLSD LLModel::writeModel(
 	return writeModelToStream(ostr, mdl, nowrite, as_slm);
 }
 
-LLSD LLModel::writeModelToStream(std::ostream& ostr, LLSD& mdl, BOOL nowrite, BOOL as_slm)
+LLSD LLModel::writeModelToStream(std::ostream& ostr, LLSD& mdl, bool nowrite, bool as_slm)
 {
 	std::string::size_type cur_offset = 0;
 
@@ -1041,7 +1042,12 @@ LLModel::weight_list& LLModel::getJointInfluences(const LLVector3& pos)
 	weight_map::iterator iterPos = mSkinWeights.begin();
 	weight_map::iterator iterEnd = mSkinWeights.end();
 
-    llassert(!mSkinWeights.empty());
+    if (mSkinWeights.empty())
+    {
+        // function calls iter->second on all return paths
+        // everything that calls this function should precheck that there is data.
+        LL_ERRS() << "called getJointInfluences with empty weights list" << LL_ENDL;
+    }
 	
 	for ( ; iterPos!=iterEnd; ++iterPos )
 	{
@@ -1068,11 +1074,16 @@ LLModel::weight_list& LLModel::getJointInfluences(const LLVector3& pos)
 		const F32 epsilon = 1e-5f;
 		weight_map::iterator iter_up = mSkinWeights.lower_bound(pos);
 		weight_map::iterator iter_down = iter_up;
-		if (iter_up != mSkinWeights.end())
-		{
-			iter_down = ++iter_up;
-		}
-		weight_map::iterator best = iter_up;
+        weight_map::iterator best = iter_up;
+        if (iter_up != mSkinWeights.end())
+        {
+            iter_down = ++iter_up;
+        }
+        else
+        {
+            // Assumes that there is at least one element
+            --best;
+        }
 
 		F32 min_dist = (iter->first - pos).magVec();
 

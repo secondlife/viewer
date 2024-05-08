@@ -210,6 +210,8 @@ public:
                                                 bool pick_unselectable,
                                                 bool pick_reflection_probe,
 												S32* face_hit,                          // return the face hit
+                                                S32* gltf_node_hit = nullptr,           // return the gltf node hit
+                                                S32* gltf_primitive_hit = nullptr,      // return the gltf primitive hit
 												LLVector4a* intersection = NULL,         // return the intersection point
 												LLVector2* tex_coord = NULL,            // return the texture coordinates of the intersection point
 												LLVector4a* normal = NULL,               // return the surface normal at the intersection point
@@ -275,7 +277,7 @@ public:
 
 	void stateSort(LLCamera& camera, LLCullResult& result);
 	void stateSort(LLSpatialGroup* group, LLCamera& camera);
-	void stateSort(LLSpatialBridge* bridge, LLCamera& camera, BOOL fov_changed = FALSE);
+	void stateSort(LLSpatialBridge* bridge, LLCamera& camera, bool fov_changed = false);
 	void stateSort(LLDrawable* drawablep, LLCamera& camera);
 	void postSort(LLCamera& camera);
     
@@ -615,12 +617,12 @@ public:
 		RENDER_DEBUG_PHYSICS_SHAPES     =  0x02000000,
 		RENDER_DEBUG_NORMALS	        =  0x04000000,
 		RENDER_DEBUG_LOD_INFO	        =  0x08000000,
-		RENDER_DEBUG_ATTACHMENT_BYTES	=  0x20000000, // not used
+        RENDER_DEBUG_NODES              =  0x20000000,
 		RENDER_DEBUG_TEXEL_DENSITY		=  0x40000000,
 		RENDER_DEBUG_TRIANGLE_COUNT		=  0x80000000,
 		RENDER_DEBUG_IMPOSTORS			= 0x100000000,
         RENDER_DEBUG_REFLECTION_PROBES  = 0x200000000,
-        RENDER_DEBUG_PROBE_UPDATES      = 0x400000000
+        RENDER_DEBUG_PROBE_UPDATES      = 0x400000000,
 	};
 
 public:

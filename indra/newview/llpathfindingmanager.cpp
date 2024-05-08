@@ -114,7 +114,7 @@ public:
 	void handleTerrainLinksetsResult(const LLSD &pContent);
 	void handleTerrainLinksetsError();
 
-    typedef boost::shared_ptr<LinksetsResponder> ptr_t;
+    typedef std::shared_ptr<LinksetsResponder> ptr_t;
 
 protected:
 
@@ -139,7 +139,7 @@ private:
 	LLPathfindingObjectPtr                          mTerrainLinksetPtr;
 };
 
-typedef boost::shared_ptr<LinksetsResponder> LinksetsResponderPtr;
+typedef std::shared_ptr<LinksetsResponder> LinksetsResponderPtr;
 
 //---------------------------------------------------------------------------
 // LLPathfindingManager
@@ -363,7 +363,7 @@ void LLPathfindingManager::requestGetAgentState()
 
 	if (currentRegion == NULL)
 	{
-		mAgentStateSignal(FALSE);
+		mAgentStateSignal(false);
 	}
 	else
 	{
@@ -373,7 +373,7 @@ void LLPathfindingManager::requestGetAgentState()
 		}
 		else if (!isPathfindingEnabledForRegion(currentRegion))
 		{
-			mAgentStateSignal(FALSE);
+			mAgentStateSignal(false);
 		}
 		else
 		{
@@ -708,7 +708,7 @@ void LLPathfindingManager::handleNavMeshStatusUpdate(const LLPathfindingNavMeshS
 	}
 }
 
-void LLPathfindingManager::handleAgentState(BOOL pCanRebakeRegion) 
+void LLPathfindingManager::handleAgentState(bool pCanRebakeRegion) 
 {
 	mAgentStateSignal(pCanRebakeRegion);
 }
@@ -831,7 +831,7 @@ void LLAgentStateChangeNode::post(ResponsePtr pResponse, const LLSD &pContext, c
 	llassert(pInput.get(SIM_MESSAGE_BODY_FIELD).isMap());
 	llassert(pInput.get(SIM_MESSAGE_BODY_FIELD).has(AGENT_STATE_CAN_REBAKE_REGION_FIELD));
 	llassert(pInput.get(SIM_MESSAGE_BODY_FIELD).get(AGENT_STATE_CAN_REBAKE_REGION_FIELD).isBoolean());
-	BOOL canRebakeRegion = pInput.get(SIM_MESSAGE_BODY_FIELD).get(AGENT_STATE_CAN_REBAKE_REGION_FIELD).asBoolean();
+	bool canRebakeRegion = pInput.get(SIM_MESSAGE_BODY_FIELD).get(AGENT_STATE_CAN_REBAKE_REGION_FIELD).asBoolean();
 	
 	LLPathfindingManager::getInstance()->handleAgentState(canRebakeRegion);
 }

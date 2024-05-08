@@ -69,7 +69,7 @@
 
 #undef  VERIFY_LEGACY_CONVERSION
 
-extern BOOL gCubeSnapshot;
+extern bool gCubeSnapshot;
 
 //=========================================================================
 namespace 
@@ -181,7 +181,7 @@ void LLSettingsVOBase::onInventoryItemCreated(const LLUUID &inventoryId, LLSetti
         {
             perm.setMaskEveryone(PERM_COPY);
             pitem->setPermissions(perm);
-            pitem->updateServer(FALSE);
+            pitem->updateServer(false);
         }
     }
     if (!settings)
@@ -227,8 +227,8 @@ void LLSettingsVOBase::updateInventoryItem(const LLSettingsBase::ptr_t &settings
         if (settings->getFlag(LLSettingsBase::FLAG_NOTRANS) && new_item->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID()))
         {
             LLPermissions perm(inv_item->getPermissions());
-            perm.setBaseBits(LLUUID::null, FALSE, PERM_TRANSFER);
-            perm.setOwnerBits(LLUUID::null, FALSE, PERM_TRANSFER);
+            perm.setBaseBits(LLUUID::null, false, PERM_TRANSFER);
+            perm.setOwnerBits(LLUUID::null, false, PERM_TRANSFER);
             new_item->setPermissions(perm);
             need_update |= true;
         }
@@ -240,7 +240,7 @@ void LLSettingsVOBase::updateInventoryItem(const LLSettingsBase::ptr_t &settings
         }
         if (need_update)
         {
-            new_item->updateServer(FALSE);
+            new_item->updateServer(false);
             gInventory.updateItem(new_item);
             gInventory.notifyObservers();
         }
@@ -745,8 +745,7 @@ void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
     shader->uniform1f(LLShaderMgr::SKY_SUNLIGHT_SCALE, sunlight_scale);
     shader->uniform1f(LLShaderMgr::SKY_AMBIENT_SCALE, ambient_scale);
 
-    static LLCachedControl<F32> cloud_shadow_scale(gSavedSettings, "RenderCloudShadowAmbianceFactor", 0.125f);
-    F32 probe_ambiance = getTotalReflectionProbeAmbiance(cloud_shadow_scale);
+    F32 probe_ambiance = getReflectionProbeAmbiance();
 
     if (irradiance_pass)
     { // during an irradiance map update, disable ambient lighting (direct lighting only) and desaturate sky color (avoid tinting the world blue)

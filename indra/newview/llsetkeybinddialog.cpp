@@ -53,11 +53,11 @@ public:
     virtual ~Updater(){}
 
 protected:
-    BOOL tick()
+    bool tick()
     {
         mCallback(mMask);
         // Deletes itseft after execution
-        return TRUE;
+        return true;
     }
 
 private:
@@ -88,19 +88,19 @@ LLSetKeyBindDialog::~LLSetKeyBindDialog()
 }
 
 //virtual
-BOOL LLSetKeyBindDialog::postBuild()
+bool LLSetKeyBindDialog::postBuild()
 {
     childSetAction("SetEmpty", onBlank, this);
     childSetAction("Default", onDefault, this);
     childSetAction("Cancel", onCancel, this);
-    getChild<LLUICtrl>("Cancel")->setFocus(TRUE);
+    getChild<LLUICtrl>("Cancel")->setFocus(true);
 
     pCheckBox = getChild<LLCheckBoxCtrl>("apply_all");
     pDescription = getChild<LLTextBase>("description");
 
-    gFocusMgr.setKeystrokesOnly(TRUE);
+    gFocusMgr.setKeystrokesOnly(true);
 
-    return TRUE;
+    return true;
 }
 
 //virtual
@@ -165,7 +165,7 @@ void LLSetKeyBindDialog::setParent(LLKeyBindResponderInterface* parent, LLView* 
 }
 
 // static
-bool LLSetKeyBindDialog::recordKey(KEY key, MASK mask, BOOL down)
+bool LLSetKeyBindDialog::recordKey(KEY key, MASK mask, bool down)
 {
     if (sRecordKeys)
     {
@@ -183,7 +183,7 @@ bool LLSetKeyBindDialog::recordKey(KEY key, MASK mask, BOOL down)
     return false;
 }
 
-bool LLSetKeyBindDialog::recordAndHandleKey(KEY key, MASK mask, BOOL down)
+bool LLSetKeyBindDialog::recordAndHandleKey(KEY key, MASK mask, bool down)
 {
     if ((key == 'Q' && mask == MASK_CONTROL)
         || key == KEY_ESCAPE)
@@ -217,7 +217,7 @@ bool LLSetKeyBindDialog::recordAndHandleKey(KEY key, MASK mask, BOOL down)
             // Masks by themself are not allowed
             return false;
         }
-        if (down == TRUE)
+        if (down)
         {
             // Most keys are handled on 'down' event because menu is handled on 'down'
             // masks are exceptions to let other keys be handled
@@ -272,14 +272,14 @@ bool LLSetKeyBindDialog::recordAndHandleKey(KEY key, MASK mask, BOOL down)
     return true;
 }
 
-BOOL LLSetKeyBindDialog::handleAnyMouseClick(S32 x, S32 y, MASK mask, EMouseClickType clicktype, BOOL down)
+bool LLSetKeyBindDialog::handleAnyMouseClick(S32 x, S32 y, MASK mask, EMouseClickType clicktype, bool down)
 {
-    BOOL result = FALSE;
+    bool result = false;
     if (!pParent)
     {
         // we already processed 'down' event, this is 'up', consume
         closeFloater();
-        result = TRUE;
+        result = true;
     }
     if (!result && clicktype == CLICK_LEFT)
     {
@@ -294,8 +294,8 @@ BOOL LLSetKeyBindDialog::handleAnyMouseClick(S32 x, S32 y, MASK mask, EMouseClic
         }
         if (result)
         {
-            setFocus(TRUE);
-            gFocusMgr.setKeystrokesOnly(TRUE);
+            setFocus(true);
+            gFocusMgr.setKeystrokesOnly(true);
         }
         // ignore selection related combinations
         else if (down && (mask & (MASK_SHIFT | MASK_CONTROL)) == 0)
@@ -305,7 +305,7 @@ BOOL LLSetKeyBindDialog::handleAnyMouseClick(S32 x, S32 y, MASK mask, EMouseClic
             {
                 // Note: default doubleclick time is 500ms, but can stretch up to 5s
                 pUpdater = new Updater(boost::bind(&onClickTimeout, this, _1), 0.7f, mask);
-                result = TRUE;
+                result = true;
             }
         }
     }
@@ -317,7 +317,7 @@ BOOL LLSetKeyBindDialog::handleAnyMouseClick(S32 x, S32 y, MASK mask, EMouseClic
         && ((mKeyFilterMask & ALLOW_MASK_MOUSE) != 0 || mask == 0)) // reserved for selection
     {
         setKeyBind(clicktype, KEY_NONE, mask, pCheckBox->getValue().asBoolean());
-        result = TRUE;
+        result = true;
         if (!down)
         {
             // wait for 'up' event before closing

@@ -7,7 +7,6 @@
 include(CMakeCopyIfDifferent)
 include(Linking)
 include(OPENAL)
-include(FMODSTUDIO)
 
 # When we copy our dependent libraries, we almost always want to copy them to
 # both the Release and the RelWithDebInfo staging directories. This has
@@ -60,12 +59,6 @@ if(WINDOWS)
         nghttp2.dll
         libhunspell.dll
         uriparser.dll
-        Iex-3_2.dll
-        IlmThread-3_2.dll
-        Imath-3_1.dll
-        OpenEXR-3_2.dll
-        OpenEXRCore-3_2.dll
-        OpenEXRUtil-3_2.dll
         )
 
     # ICU4C (same filenames for 32 and 64 bit builds)
@@ -99,12 +92,6 @@ if(WINDOWS)
         set(release_files ${release_files} BsSndRpt64.exe)
       endif(ADDRESS_SIZE EQUAL 32)
     endif (USE_BUGSPLAT)
-
-    if (TARGET ll::fmodstudio)
-        # fmodL is included for logging, only one should be picked by manifest
-        set(release_files ${release_files} fmodL.dll)
-        set(release_files ${release_files} fmod.dll)
-    endif ()
 
     if (TARGET ll::openal)
         list(APPEND release_files openal32.dll alut.dll)
@@ -192,9 +179,8 @@ elseif(DARWIN)
         liburiparser.1.0.27.dylib
        )
 
-    if (TARGET ll::fmodstudio)
-      set(debug_files ${debug_files} libfmodL.dylib)
-      set(release_files ${release_files} libfmod.dylib)
+    if (TARGET ll::openal)
+	  list(APPEND release_files libalut.dylib libopenal.dylib)
     endif ()
 
 elseif(LINUX)
@@ -243,11 +229,6 @@ elseif(LINUX)
                  libgobject-2.0.so
                  )
      endif()
-
-    if (TARGET ll::fmodstudio)
-      set(debug_files ${debug_files} "libfmodL.so")
-      set(release_files ${release_files} "libfmod.so")
-    endif ()
 
 else(WINDOWS)
     message(STATUS "WARNING: unrecognized platform for staging 3rd party libs, skipping...")

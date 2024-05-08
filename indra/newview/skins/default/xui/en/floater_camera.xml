@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater
  positioning="specified"
  right="-460"
@@ -138,13 +138,13 @@
         </panel>
     </panel>
     <panel
-     follows="all"
+     follows="left|top"
      height="102"
      layout="topleft"
      left_pad="2"
+     right="-2"
      name="buttons_panel"
-     top="22"
-     width="212">
+     top="22">
     <panel_camera_item
       name="front_view"
       tool_tip="Front View"
@@ -253,4 +253,22 @@
           function="CameraPresets.Save"/>
       </button>
   </panel>
+  <panel
+    name="viewer_camera_info"
+    left="0"
+    top="135"
+    width="400"
+    height="150"
+    border="true"
+    visible="false"
+    background_visible="true"/>
+  <panel
+    name="agent_camera_info"
+    left="0"
+    top="285"
+    width="400"
+    height="150"
+    border="true"
+    visible="false"
+    background_visible="true"/>
 </floater>

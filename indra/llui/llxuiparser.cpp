@@ -28,6 +28,7 @@
 
 #include "llxuiparser.h"
 
+#include "lldir.h"
 #include "llxmlnode.h"
 #include "llfasttimer.h"
 #ifdef LL_USESYSTEMLIBS
@@ -44,6 +45,7 @@
 
 #include "lluicolor.h"
 #include "v3math.h"
+
 using namespace BOOST_SPIRIT_CLASSIC_NS;
 
 const S32 MAX_STRING_ATTRIBUTE_SIZE = 40;
@@ -365,7 +367,7 @@ void LLXSDWriter::writeXSD(const std::string& type_name, LLXMLNodePtr node, cons
 
 	// duplicate element choices
 	LLXMLNodeList children;
-	mElementNode->getChildren("xs:element", children, FALSE);
+	mElementNode->getChildren("xs:element", children, false);
 	for (LLXMLNodeList::iterator child_it = children.begin(); child_it != children.end(); ++child_it)
 	{
 		LLXMLNodePtr child_copy = child_it->second->deepCopy();
@@ -930,10 +932,10 @@ bool LLXUIParser::writeFlag(Parser& parser, const void* val_ptr, name_stack_t& s
 
 bool LLXUIParser::readBoolValue(Parser& parser, void* val_ptr)
 {
-	S32 value;
+	bool value;
 	LLXUIParser& self = static_cast<LLXUIParser&>(parser);
 	bool success = self.mCurReadNode->getBoolValue(1, &value);
-	*((bool*)val_ptr) = (value != FALSE);
+	*((bool*)val_ptr) = value;
 	return success;
 }
 
@@ -1397,36 +1399,17 @@ bool LLSimpleXUIParser::readXUI(const std::string& filename, LLInitParam::BaseBl
 	mCurReadDepth = 0;
 	setParseSilently(silent);
 
-	ScopedFile file(filename, "rb");
-	if( !file.isOpen() )
+	std::string xml = gDirUtilp->getFileContents(filename);
+	if (xml.empty())
 	{
 		LL_WARNS("ReadXUI") << "Unable to open file " << filename << LL_ENDL;
 		XML_ParserFree( mParser );
 		return false;
 	}
 
-	S32 bytes_read = 0;
-	
-	S32 buffer_size = file.getRemainingBytes();
-	void* buffer = XML_GetBuffer(mParser, buffer_size);
-	if( !buffer ) 
-	{
-		LL_WARNS("ReadXUI") << "Unable to allocate XML buffer while reading file " << filename << LL_ENDL;
-		XML_ParserFree( mParser );
-		return false;
-	}
-
-	bytes_read = (S32)fread(buffer, 1, buffer_size, file.mFile);
-	if( bytes_read <= 0 )
-	{
-		LL_WARNS("ReadXUI") << "Error while reading file  " << filename << LL_ENDL;
-		XML_ParserFree( mParser );
-		return false;
-	}
-	
 	mEmptyLeafNode.push_back(false);
 
-	if( !XML_ParseBuffer(mParser, bytes_read, TRUE ) )
+	if (!XML_Parse(mParser, xml.data(), (int)xml.size(), true))
 	{
 		LL_WARNS("ReadXUI") << "Error while parsing file  " << filename << LL_ENDL;
 		XML_ParserFree( mParser );

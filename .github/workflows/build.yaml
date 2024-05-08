@@ -5,21 +5,17 @@ on:
   pull_request:
   push:
     branches: ["main", "release/*", "project/*"]
-    tags: ["Second_Life_*"]
+    tags: ["Second_Life*"]
 
 jobs:
   build:
     strategy:
       matrix:
         runner: [windows-large, macos-12-xl]
-        configuration: [Release, ReleaseOS]
-        python-version: ["3.11"]
+        configuration: [Release]
         include:
           - runner: macos-12-xl
             developer_dir: "/Applications/Xcode_14.0.1.app/Contents/Developer"
-        exclude:
-          - runner: macos-12-xl
-            configuration: ReleaseOS
     runs-on: ${{ matrix.runner }}
     outputs:
       viewer_channel: ${{ steps.build.outputs.viewer_channel }}
@@ -65,15 +61,15 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Setup python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.11"
 
       - name: Checkout build variables
         uses: actions/checkout@v4
         with:
           repository: secondlife/build-variables
-          ref: viewer
+          ref: master
           path: .build-variables
 
       - name: Checkout master-message-template
@@ -86,7 +82,7 @@ jobs:
         run: pip3 install autobuild llsd
 
       - name: Cache autobuild packages
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         id: cache-installables
         with:
           path: .autobuild-installables
@@ -101,7 +97,7 @@ jobs:
 
       - name: Determine source branch
         id: which-branch
-        uses: secondlife/viewer-build-util/which-branch@v1
+        uses: secondlife/viewer-build-util/which-branch@v2
         with:
           token: ${{ github.token }}
 
@@ -180,16 +176,22 @@ jobs:
           # seen before, so numerous tests don't know about it.
           [[ "$arch" == "MINGW6" ]] && arch=CYGWIN
           export AUTOBUILD="$(which autobuild)"
-          # Build with a tag like "Second_Life_Project_Shiny#abcdef0" to get a
-          # viewer channel "Second Life Project Shiny" (ignoring "#hash",
-          # needed to disambiguate tags).
-          if [[ "$GITHUB_REF_TYPE" == "tag" && "${GITHUB_REF_NAME:0:12}" == "Second_Life_" ]]
-          then viewer_channel="${GITHUB_REF_NAME%#*}"
-               export viewer_channel="${viewer_channel//_/ }"
-          else export viewer_channel="Second Life Test"
+
+          # determine the viewer channel from the branch name
+          branch=$AUTOBUILD_VCS_BRANCH
+          IFS='/' read -ra ba <<< $branch
+          prefix=${ba[0]}
+          if [ "$prefix" == "project" ]; then
+              IFS='_' read -ra prj <<< "${ba[1]}"
+              # uppercase first letter of each word
+              export viewer_channel="Second Life Project ${prj[*]^}"
+          elif  [[ "$prefix" == "release" || "$prefix" == "main" ]];
+          then
+              export viewer_channel="Second Life Release"
+          else
+              export viewer_channel="Second Life Test"
           fi
           echo "viewer_channel=$viewer_channel" >> "$GITHUB_OUTPUT"
-
           # On windows we need to point the build to the correct python
           # as neither CMake's FindPython nor our custom Python.cmake module
           # will resolve the correct interpreter location.
@@ -224,7 +226,7 @@ jobs:
 
       - name: Upload executable
         if: matrix.configuration != 'ReleaseOS' && steps.build.outputs.viewer_app
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: "${{ steps.build.outputs.artifact }}-app"
           path: |
@@ -234,7 +236,7 @@ jobs:
       # artifact for that too.
       - name: Upload symbol file
         if: matrix.configuration != 'ReleaseOS'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: "${{ steps.build.outputs.artifact }}-symbols"
           path: |
@@ -242,7 +244,7 @@ jobs:
 
       - name: Upload metadata
         if: matrix.configuration != 'ReleaseOS'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: "${{ steps.build.outputs.artifact }}-metadata"
           # emitted by build.sh, possibly multiple lines
@@ -250,7 +252,7 @@ jobs:
             ${{ steps.build.outputs.metadata }}
 
       - name: Upload physics package
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         # should only be set for viewer-private
         if: matrix.configuration != 'ReleaseOS' && steps.build.outputs.physicstpv
         with:
@@ -271,7 +273,7 @@ jobs:
     steps:
       - name: Sign and package Windows viewer
         if: env.AZURE_KEY_VAULT_URI && env.AZURE_CERT_NAME && env.AZURE_CLIENT_ID && env.AZURE_CLIENT_SECRET && env.AZURE_TENANT_ID
-        uses: secondlife/viewer-build-util/sign-pkg-windows@v1
+        uses: secondlife/viewer-build-util/sign-pkg-windows@v2
         with:
           vault_uri: "${{ env.AZURE_KEY_VAULT_URI }}"
           cert_name: "${{ env.AZURE_CERT_NAME }}"
@@ -310,7 +312,7 @@ jobs:
 
       - name: Sign and package Mac viewer
         if: env.SIGNING_CERT_MACOS && env.SIGNING_CERT_MACOS_IDENTITY && env.SIGNING_CERT_MACOS_PASSWORD && steps.note-creds.outputs.note_user && steps.note-creds.outputs.note_pass && steps.note-creds.outputs.note_team
-        uses: secondlife/viewer-build-util/sign-pkg-mac@v1
+        uses: secondlife/viewer-build-util/sign-pkg-mac@v2
         with:
           channel: ${{ needs.build.outputs.viewer_channel }}
           imagename: ${{ needs.build.outputs.imagename }}
@@ -330,7 +332,7 @@ jobs:
     steps:
       - name: Post Windows symbols
         if: env.BUGSPLAT_USER && env.BUGSPLAT_PASS
-        uses: secondlife/viewer-build-util/post-bugsplat-windows@v1
+        uses: secondlife/viewer-build-util/post-bugsplat-windows@v2
         with:
           username: ${{ env.BUGSPLAT_USER }}
           password: ${{ env.BUGSPLAT_PASS }}
@@ -347,7 +349,7 @@ jobs:
     steps:
       - name: Post Mac symbols
         if: env.BUGSPLAT_USER && env.BUGSPLAT_PASS
-        uses: secondlife/viewer-build-util/post-bugsplat-mac@v1
+        uses: secondlife/viewer-build-util/post-bugsplat-mac@v2
         with:
           username: ${{ env.BUGSPLAT_USER }}
           password: ${{ env.BUGSPLAT_PASS }}
@@ -358,33 +360,23 @@ jobs:
   release:
     needs: [build, sign-and-package-windows, sign-and-package-mac]
     runs-on: ubuntu-latest
-    if: github.ref_type == 'tag' && startsWith(github.ref_name, 'Second_Life_')
+      # Build with a tag like "Second_Life#abcdef0" to generate a release page (used for builds we are planning to deploy).
+    if: github.ref_type == 'tag' && startsWith(github.ref_name, 'Second_Life')
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
-          name: Windows-installer
+          pattern: "*-installer"
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
-          name: macOS-installer
-
-      - uses: actions/download-artifact@v3
-        with:
-          name: Windows-metadata
-
-      - name: Rename windows metadata 
+          pattern: "*-metadata"
+      
+      - name: Rename metadata
         run: |
-          mv autobuild-package.xml Windows-autobuild-package.xml
-          mv newview/viewer_version.txt Windows-viewer_version.txt
-
-      - uses: actions/download-artifact@v3
-        with:
-          name: macOS-metadata
-
-      - name: Rename macOS metadata 
-        run: |
-          mv autobuild-package.xml macOS-autobuild-package.xml
-          mv newview/viewer_version.txt macOS-viewer_version.txt
+          cp Windows-metadata/autobuild-package.xml Windows-autobuild-package.xml
+          cp Windows-metadata/newview/viewer_version.txt Windows-viewer_version.txt
+          cp macOS-metadata/autobuild-package.xml macOS-autobuild-package.xml
+          cp macOS-metadata/newview/viewer_version.txt macOS-viewer_version.txt
 
       # forked from softprops/action-gh-release
       - name: Create GitHub release
@@ -407,8 +399,8 @@ jobs:
           append_body: true
           fail_on_unmatched_files: true
           files: |
-            *.dmg 
-            *.exe
+            macOS-installer/*.dmg 
+            Windows-installer/*.exe
             *-autobuild-package.xml
             *-viewer_version.txt
 

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <!-- This file contains strings that used to be hardcoded in the source.
      It is only for those strings which do not belong in a floater.
      For example, the strings used in avatar chat bubbles, and strings
@@ -3950,6 +3950,8 @@ Abuse Report</string>
 
   <string name="DefaultMimeType">none/none</string>
   <string name="texture_load_dimensions_error">Can't load images larger than [WIDTH]*[HEIGHT]</string>
+  <string name="texture_load_format_error">Incorrect image format.</string>
+  <string name="texture_load_empty_file">File is empty.</string>
   <string name="outfit_photo_load_dimensions_error">Max outfit photo size is [WIDTH]*[HEIGHT]. Please resize or use another image</string>
   <string name="outfit_photo_select_dimensions_error">Max outfit photo size is [WIDTH]*[HEIGHT]. Please select another texture</string>
   <string name="outfit_photo_verify_dimensions_error">Cannot verify photo dimensions. Please wait until photo size is displayed in picker</string>

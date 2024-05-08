@@ -113,15 +113,16 @@ LL_COMMON_API bool on_main_thread()
     return (LLThread::currentID() == main_thread());
 }
 
-LL_COMMON_API void assert_main_thread()
+LL_COMMON_API bool assert_main_thread()
 {
     auto curr = LLThread::currentID();
     auto main = main_thread();
-    if (curr != main)
-    {
-        LL_WARNS() << "Illegal execution from thread id " << curr
-            << " outside main thread " << main << LL_ENDL;
-    }
+    if (curr == main)
+        return true;
+
+    LL_WARNS() << "Illegal execution from thread id " << curr
+               << " outside main thread " << main << LL_ENDL;
+    return false;
 }
 
 // this function has become moot
@@ -188,7 +189,7 @@ void LLThread::threadRun()
 }
 
 LLThread::LLThread(const std::string& name, apr_pool_t *poolp) :
-    mPaused(FALSE),
+    mPaused(false),
     mName(name),
     mThreadp(NULL),
     mStatus(STOPPED),
@@ -419,30 +420,6 @@ void LLThread::unlockData()
 }
 
 //============================================================================
-
-//----------------------------------------------------------------------------
-
-//static
-LLMutex* LLThreadSafeRefCount::sMutex = 0;
-
-//static
-void LLThreadSafeRefCount::initThreadSafeRefCount()
-{
-    if (!sMutex)
-    {
-        sMutex = new LLMutex();
-    }
-}
-
-//static
-void LLThreadSafeRefCount::cleanupThreadSafeRefCount()
-{
-    delete sMutex;
-    sMutex = NULL;
-}
-    
-
-//----------------------------------------------------------------------------
 
 LLThreadSafeRefCount::LLThreadSafeRefCount() :
     mRef(0)

@@ -71,10 +71,10 @@ public:
     LLOutfitGallery(const LLOutfitGallery::Params& params = getDefaultParams());
     virtual ~LLOutfitGallery();
 
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
     /*virtual*/ void onOpen(const LLSD& info);
     /*virtual*/ void draw();
-    /*virtual*/ BOOL handleKeyHere(KEY key, MASK mask);
+    /*virtual*/ bool handleKeyHere(KEY key, MASK mask);
     void moveUp();
     void moveDown();
     void moveLeft();
@@ -90,7 +90,7 @@ public:
     void wearSelectedOutfit();
 
 
-    /*virtual*/ void setFilterSubString(const std::string& string);
+    /*virtual*/ void onFilterSubStringChanged(const std::string& new_string, const std::string& old_string);
 
     /*virtual*/ void getCurrentCategories(uuid_vec_t& vcur);
     /*virtual*/ void updateAddedCategory(LLUUID cat_id);
@@ -100,7 +100,7 @@ public:
     /*virtual*/ bool hasItemSelected();
     /*virtual*/ bool canWearSelected();
 
-    /*virtual*/ bool getHasExpandableFolders() { return FALSE; }
+    /*virtual*/ bool getHasExpandableFolders() { return false; }
 
     void updateMessageVisibility();
     bool hasDefaultImage(const LLUUID& outfit_cat_id);
@@ -116,8 +116,6 @@ protected:
     /*virtual*/ void onCollapseAllFolders() {}
     /*virtual*/ void onExpandAllFolders() {}
     /*virtual*/ LLOutfitListGearMenuBase* createGearMenu();
-
-    void applyFilter(LLOutfitGalleryItem* item, const std::string& filter_substring);
 
 private:
     LLUUID getPhotoAssetId(const LLUUID& outfit_id);
@@ -195,17 +193,13 @@ public:
     
     friend class LLOutfitGallery;
     LLOutfitGalleryContextMenu(LLOutfitListBase* outfit_list)
-    : LLOutfitContextMenu(outfit_list),
-    mOutfitList(outfit_list){}
+    : LLOutfitContextMenu(outfit_list){}
 
 protected:
     /* virtual */ LLContextMenu* createMenu();
     bool onEnable(LLSD::String param);
     bool onVisible(LLSD::String param);
-    void onThumbnail(const LLUUID& outfit_cat_id);
     void onCreate(const LLSD& data);
-private:
-    LLOutfitListBase*	mOutfitList;
 };
 
 
@@ -232,12 +226,12 @@ public:
     LLOutfitGalleryItem(const Params& p);
     virtual ~LLOutfitGalleryItem();
 
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
     /*virtual*/ void draw();
-    /*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
-    /*virtual*/ BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
-    /*virtual*/ BOOL handleDoubleClick(S32 x, S32 y, MASK mask);
-    /*virtual*/ BOOL handleKeyHere(KEY key, MASK mask);
+    /*virtual*/ bool handleMouseDown(S32 x, S32 y, MASK mask);
+    /*virtual*/ bool handleRightMouseDown(S32 x, S32 y, MASK mask);
+    /*virtual*/ bool handleDoubleClick(S32 x, S32 y, MASK mask);
+    /*virtual*/ bool handleKeyHere(KEY key, MASK mask);
     /*virtual*/ void onFocusLost();
     /*virtual*/ void onFocusReceived();
 

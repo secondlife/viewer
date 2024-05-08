@@ -63,6 +63,9 @@ public:
 	/** Called when Avatar is entered/exited editing appearance mode */
 	static void onAvatarEditingAppearance(bool editing);
 
+	/** Called when opening and when "Advanced | Debug Camera" menu item is toggled */
+	static void onDebugCameraToggled();
+
 	/* determines actual mode and updates ui */
 	void update();
 
@@ -77,9 +80,9 @@ public:
 
 	void populatePresetCombo();
 
-	LLJoystickCameraRotate* mRotate;
-	LLPanelCameraZoom*	mZoom;
-	LLJoystickCameraTrack*	mTrack;
+	LLJoystickCameraRotate* mRotate { nullptr };
+	LLPanelCameraZoom* mZoom { nullptr };
+	LLJoystickCameraTrack* mTrack { nullptr };
 
 private:
 
@@ -89,7 +92,7 @@ private:
 	/* return instance if it exists - created by LLFloaterReg */
 	static LLFloaterCamera* findInstance();
 
-	/*virtual*/ BOOL postBuild();
+	/*virtual*/ bool postBuild();
 
 	F32 getCurrentTransparency();
 
@@ -117,16 +120,22 @@ private:
 
 	void handleAvatarEditingAppearance(bool editing);
 
+	void showDebugInfo(bool show);
+
 	// set to true when free camera mode is selected in modes list
 	// remains true until preset camera mode is chosen, or pan button is clicked, or escape pressed
 	static bool sFreeCamera;
 	static bool sAppearanceEditing;
-	BOOL mClosed;
+	bool mClosed;
 	ECameraControlMode mPrevMode;
 	ECameraControlMode mCurrMode;
 	std::map<ECameraControlMode, LLButton*> mMode2Button;
 
-	LLComboBox* mPresetCombo;
+	LLPanel* mControls { nullptr };
+	LLPanel* mViewerCameraInfo { nullptr };
+	LLPanel* mAgentCameraInfo { nullptr };
+	LLComboBox* mPresetCombo { nullptr };
+	LLTextBox* mPreciseCtrls { nullptr };
 };
 
 /**
@@ -151,7 +160,7 @@ public:
 		Optional<CommitCallbackParam> mousedown_callback;
 		Params();
 	};
-	/*virtual*/ BOOL postBuild();
+	/*virtual*/ bool postBuild();
 	/** setting on/off background icon to indicate selected state */
 	/*virtual*/ void setValue(const LLSD& value);
 	// sends commit signal

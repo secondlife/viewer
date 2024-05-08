@@ -27,7 +27,7 @@
 #include "llvolumeoctree.h"
 #include "llvector4a.h"
 
-BOOL LLLineSegmentBoxIntersect(const LLVector4a& start, const LLVector4a& end, const LLVector4a& center, const LLVector4a& size)
+bool LLLineSegmentBoxIntersect(const LLVector4a& start, const LLVector4a& end, const LLVector4a& center, const LLVector4a& size)
 {
 	LLVector4a fAWdU;
 	LLVector4a dir;
@@ -71,9 +71,8 @@ BOOL LLLineSegmentBoxIntersect(const LLVector4a& start, const LLVector4a& end, c
 	
 	grt = f.greaterThan(rhs).getGatheredBits();
 
-	return (grt & 0x7) ? false : true;
+	return (grt & 0x7) == 0;
 }
-
 
 LLVolumeOctreeListener::LLVolumeOctreeListener(LLOctreeNode<LLVolumeTriangle, LLVolumeTriangle*>* node)
 {
@@ -84,7 +83,7 @@ LLVolumeOctreeListener::~LLVolumeOctreeListener()
 {
 
 }
-	
+
 void LLVolumeOctreeListener::handleChildAddition(const LLOctreeNode<LLVolumeTriangle, LLVolumeTriangle*>* parent, 
     LLOctreeNode<LLVolumeTriangle, LLVolumeTriangle*>* child)
 {
@@ -92,15 +91,15 @@ void LLVolumeOctreeListener::handleChildAddition(const LLOctreeNode<LLVolumeTria
 }
 
 LLOctreeTriangleRayIntersect::LLOctreeTriangleRayIntersect(const LLVector4a& start, const LLVector4a& dir, 
-							   const LLVolumeFace* face, F32* closest_t,
+                                LLVolumeFace* face, F32* closest_t,
 							   LLVector4a* intersection,LLVector2* tex_coord, LLVector4a* normal, LLVector4a* tangent)
-   : mFace(face),
-     mStart(start),
+   : mStart(start),
 	 mDir(dir),
 	 mIntersection(intersection),
 	 mTexCoord(tex_coord),
 	 mNormal(normal),
 	 mTangent(tangent),
+     mFace(face),
 	 mClosestT(closest_t),
 	 mHitFace(false)
 {
@@ -139,7 +138,7 @@ void LLOctreeTriangleRayIntersect::visit(const LLOctreeNode<LLVolumeTriangle, LL
 			{
 				*mClosestT = t;
 				mHitFace = true;
-
+                mHitTriangle = tri;
 				if (mIntersection != NULL)
 				{
 					LLVector4a intersect = mDir;

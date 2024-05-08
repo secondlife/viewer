@@ -154,7 +154,7 @@ void LLSceneMonitor::generateDitheringTexture(S32 width, S32 height)
 		}
 	}
 
-	mDitheringTexture = LLViewerTextureManager::getLocalTexture(image_raw.get(), FALSE) ;
+	mDitheringTexture = LLViewerTextureManager::getLocalTexture(image_raw.get(), false) ;
 	mDitheringTexture->setAddressMode(LLTexUnit::TAM_WRAP);
 	mDitheringTexture->setFilteringOption(LLTexUnit::TFO_POINT);
 	
@@ -233,7 +233,7 @@ void LLSceneMonitor::freezeScene()
 	}
 
 	// freeze everything else
-	gSavedSettings.setBOOL("FreezeTime", TRUE);
+	gSavedSettings.setBOOL("FreezeTime", true);
 
 	//disable sky, water and clouds
 	gPipeline.clearRenderTypeMask(LLPipeline::RENDER_TYPE_SKY, LLPipeline::RENDER_TYPE_WL_SKY, 
@@ -254,7 +254,7 @@ void LLSceneMonitor::unfreezeScene()
 	}
 
 	// thaw everything else
-	gSavedSettings.setBOOL("FreezeTime", FALSE);
+	gSavedSettings.setBOOL("FreezeTime", false);
 
 	//enable sky, water and clouds
 	gPipeline.setRenderTypeMask(LLPipeline::RENDER_TYPE_SKY, LLPipeline::RENDER_TYPE_WL_SKY, 
@@ -657,19 +657,6 @@ void LLSceneMonitor::dumpToFile(const std::string &file_name)
 			}
 		}
 
-		typedef LLTrace::StatType<LLTrace::MemAccumulator> trace_mem;
-		for (auto& it : trace_mem::instance_snapshot())
-		{
-			os << it.getName() << "(KiB)";
-
-			for (S32 frame = 1; frame <= frame_count; frame++)
-			{
-				os << ", " << scene_load_recording.getPrevRecording(frame_count - frame).getMax(it).valueInUnits<LLUnits::Kilobytes>();
-			}
-
-			os << '\n';
-		}
-
 		os.flush();
 		os.close();
 	}
@@ -686,7 +673,7 @@ LLSceneMonitorView::LLSceneMonitorView(const LLRect& rect)
 	:	LLFloater(LLSD())
 {
 	setRect(rect);
-	setVisible(FALSE);
+	setVisible(false);
 	
 	setCanMinimize(false);
 	setCanClose(true);
@@ -717,7 +704,7 @@ void LLSceneMonitorView::onTeleportFinished()
 	}
 }
 
-void LLSceneMonitorView::onVisibilityChange(BOOL visible)
+void LLSceneMonitorView::onVisibilityChange(bool visible)
 {
 	LLSceneMonitor::getInstance()->setDebugViewerVisible(visible);
 }

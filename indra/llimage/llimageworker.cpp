@@ -35,8 +35,10 @@ class ImageRequest
 {
 public:
 	ImageRequest(const LLPointer<LLImageFormatted>& image,
-				 S32 discard, BOOL needs_aux,
-				 const LLPointer<LLImageDecodeThread::Responder>& responder);
+                 S32 discard,
+                 bool needs_aux,
+                 const LLPointer<LLImageDecodeThread::Responder>& responder,
+                 U32 request_id);
 	virtual ~ImageRequest();
 
 	/*virtual*/ bool processRequest();
@@ -48,12 +50,13 @@ private:
 	// input
 	LLPointer<LLImageFormatted> mFormattedImage;
 	S32 mDiscardLevel;
-	BOOL mNeedsAux;
+    U32 mRequestId;
+	bool mNeedsAux;
 	// output
 	LLPointer<LLImageRaw> mDecodedImageRaw;
 	LLPointer<LLImageRaw> mDecodedImageAux;
-	BOOL mDecodedRaw;
-	BOOL mDecodedAux;
+    bool mDecodedRaw;
+    bool mDecodedAux;
 	LLPointer<LLImageDecodeThread::Responder> mResponder;
 };
 
@@ -62,6 +65,7 @@ private:
 
 // MAIN THREAD
 LLImageDecodeThread::LLImageDecodeThread(bool /*threaded*/)
+    : mDecodeCount(0)
 {
     mThreadPool.reset(new LL::ThreadPool("ImageDecode", 8));
     mThreadPool->start();
@@ -87,14 +91,15 @@ size_t LLImageDecodeThread::getPending()
 LLImageDecodeThread::handle_t LLImageDecodeThread::decodeImage(
     const LLPointer<LLImageFormatted>& image, 
     S32 discard,
-    BOOL needs_aux,
+    bool needs_aux,
     const LLPointer<LLImageDecodeThread::Responder>& responder)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 
+    U32 decode_id = ++mDecodeCount;
     // Instantiate the ImageRequest right in the lambda, why not?
     bool posted = mThreadPool->getQueue().post(
-        [req = ImageRequest(image, discard, needs_aux, responder)]
+        [req = ImageRequest(image, discard, needs_aux, responder, decode_id)]
         () mutable
         {
             auto done = req.processRequest();
@@ -103,13 +108,10 @@ LLImageDecodeThread::handle_t LLImageDecodeThread::decodeImage(
     if (! posted)
     {
         LL_DEBUGS() << "Tried to start decoding on shutdown" << LL_ENDL;
-        // should this return 0?
+        return 0;
     }
 
-    // It's important to our consumer (LLTextureFetchWorker) that we return a
-    // nonzero handle. It is NOT important that the nonzero handle be unique:
-    // nothing is ever done with it except to compare it to zero, or zero it.
-    return 17;
+    return decode_id;
 }
 
 void LLImageDecodeThread::shutdown()
@@ -123,15 +125,18 @@ LLImageDecodeThread::Responder::~Responder()
 
 //----------------------------------------------------------------------------
 
-ImageRequest::ImageRequest(const LLPointer<LLImageFormatted>& image, 
-							S32 discard, BOOL needs_aux,
-							const LLPointer<LLImageDecodeThread::Responder>& responder)
+ImageRequest::ImageRequest(const LLPointer<LLImageFormatted>& image,
+                           S32 discard,
+                           bool needs_aux,
+                           const LLPointer<LLImageDecodeThread::Responder>& responder,
+                           U32 request_id)
 	: mFormattedImage(image),
 	  mDiscardLevel(discard),
 	  mNeedsAux(needs_aux),
-	  mDecodedRaw(FALSE),
-	  mDecodedAux(FALSE),
-	  mResponder(responder)
+	  mDecodedRaw(false),
+	  mDecodedAux(false),
+	  mResponder(responder),
+	  mRequestId(request_id)
 {
 }
 
@@ -149,9 +154,18 @@ ImageRequest::~ImageRequest()
 bool ImageRequest::processRequest()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
+
+	if (mFormattedImage.isNull())
+		return true;
+
 	const F32 decode_time_slice = 0.f; //disable time slicing
 	bool done = true;
-	if (!mDecodedRaw && mFormattedImage.notNull())
+
+	LLImageDataLock lockFormatted(mFormattedImage);
+	LLImageDataLock lockDecodedRaw(mDecodedImageRaw);
+	LLImageDataLock lockDecodedAux(mDecodedImageAux);
+
+	if (!mDecodedRaw)
 	{
 		// Decode primary channels
 		if (mDecodedImageRaw.isNull())
@@ -177,7 +191,7 @@ bool ImageRequest::processRequest()
 		// some decoders are removing data when task is complete and there were errors
 		mDecodedRaw = done && mDecodedImageRaw->getData();
 	}
-	if (done && mNeedsAux && !mDecodedAux && mFormattedImage.notNull())
+	if (done && mNeedsAux && !mDecodedAux)
 	{
 		// Decode aux channel
 		if (!mDecodedImageAux)
@@ -199,7 +213,7 @@ void ImageRequest::finishRequest(bool completed)
 	if (mResponder.notNull())
 	{
 		bool success = completed && mDecodedRaw && (!mNeedsAux || mDecodedAux);
-		mResponder->completed(success, mDecodedImageRaw, mDecodedImageAux);
+		mResponder->completed(success, mDecodedImageRaw, mDecodedImageAux, mRequestId);
 	}
 	// Will automatically be deleted
 }

@@ -49,10 +49,11 @@
 #include "llspatialpartition.h"
 #include "llglcommonfunc.h"
 #include "llvoavatar.h"
+#include "gltfscenemanager.h"
 
 #include "llenvironment.h"
 
-BOOL LLDrawPoolAlpha::sShowDebugAlpha = FALSE;
+bool LLDrawPoolAlpha::sShowDebugAlpha = false;
 
 #define current_shader (LLGLSLShader::sCurBoundShaderPtr)
 
@@ -143,7 +144,7 @@ static void prepare_alpha_shader(LLGLSLShader* shader, bool textureGamma, bool d
     }
 }
 
-extern BOOL gCubeSnapshot;
+extern bool gCubeSnapshot;
 
 void LLDrawPoolAlpha::renderPostDeferred(S32 pass) 
 { 
@@ -259,6 +260,15 @@ void LLDrawPoolAlpha::forwardRender(bool rigged)
     mAlphaSFactor = LLRender::BF_ZERO;                         // } glow suppression
     mAlphaDFactor = LLRender::BF_ONE_MINUS_SOURCE_ALPHA;       // }
     gGL.blendFunc(mColorSFactor, mColorDFactor, mAlphaSFactor, mAlphaDFactor);
+
+    if (rigged)
+    { // draw GLTF scene to depth buffer before rigged alpha
+        gPipeline.bindDeferredShader(gDeferredPBRAlphaProgram);
+        LL::GLTFSceneManager::instance().render(false, false);
+
+        gPipeline.bindDeferredShader(*gDeferredPBRAlphaProgram.mRiggedVariant);
+        LL::GLTFSceneManager::instance().render(false, true);
+    }
 
     // If the face is more than 90% transparent, then don't update the Depth buffer for Dof
     // We don't want the nearly invisible objects to cause of DoF effects
@@ -468,7 +478,7 @@ bool LLDrawPoolAlpha::TexSetup(LLDrawInfo* draw, bool use_material)
             }
         }
     }
-    
+
     return tex_setup;
 }
 
@@ -577,8 +587,8 @@ void LLDrawPoolAlpha::renderRiggedPbrEmissives(std::vector<LLDrawInfo*>& emissiv
 void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
-    BOOL initialized_lighting = FALSE;
-	BOOL light_enabled = TRUE;
+    bool initialized_lighting = false;
+	bool light_enabled = true;
 
     LLVOAvatar* lastAvatar = nullptr;
     U64 lastMeshId = 0;
@@ -658,7 +668,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
 
 			LLSpatialGroup::drawmap_elem_t& draw_info = rigged ? group->mDrawMap[LLRenderPass::PASS_ALPHA_RIGGED] : group->mDrawMap[LLRenderPass::PASS_ALPHA];
 
-            for (LLSpatialGroup::drawmap_elem_t::iterator k = draw_info.begin(); k != draw_info.end(); ++k)	
+            for (LLSpatialGroup::drawmap_elem_t::iterator k = draw_info.begin(); k != draw_info.end(); ++k)
 			{
 				LLDrawInfo& params = **k;
                 if ((bool)params.mAvatar != rigged)
@@ -700,18 +710,18 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
                         // Turn off lighting if it hasn't already been so.
                         if (light_enabled || !initialized_lighting)
                         {
-                            initialized_lighting = TRUE;
+                            initialized_lighting = true;
                             target_shader = fullbright_shader;
 
-                            light_enabled = FALSE;
+                            light_enabled = false;
                         }
                     }
                     // Turn on lighting if it isn't already.
                     else if (!light_enabled || !initialized_lighting)
                     {
-                        initialized_lighting = TRUE;
+                        initialized_lighting = true;
                         target_shader = simple_shader;
-                        light_enabled = TRUE;
+                        light_enabled = true;
                     }
 
                     if (LLPipeline::sRenderingHUDs)
@@ -804,9 +814,10 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
                         current_shader->setMinimumAlpha(0.f);
                         reset_minimum_alpha = true;
                     }
-                    
+
                     params.mVertexBuffer->setBuffer();
                     params.mVertexBuffer->drawRange(LLRender::TRIANGLES, params.mStart, params.mEnd, params.mCount, params.mOffset);
+                    stop_glerror();
 
                     if (reset_minimum_alpha)
                     {
@@ -928,7 +939,7 @@ bool LLDrawPoolAlpha::uploadMatrixPalette(const LLDrawInfo& params)
 
     LLGLSLShader::sCurBoundShaderPtr->uniformMatrix3x4fv(LLViewerShaderMgr::AVATAR_MATRIX,
         count,
-        FALSE,
+        false,
         (GLfloat*)&(mpc.mGLMp[0]));
 
     return true;

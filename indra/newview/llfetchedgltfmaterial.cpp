@@ -34,6 +34,9 @@
 #include "llshadermgr.h"
 #include "pipeline.h"
 
+//static
+LLFetchedGLTFMaterial LLFetchedGLTFMaterial::sDefault;
+
 LLFetchedGLTFMaterial::LLFetchedGLTFMaterial()
     : LLGLTFMaterial()
     , mExpectedFlusTime(0.f)
@@ -76,7 +79,14 @@ void LLFetchedGLTFMaterial::bind(LLViewerTexture* media_tex)
         {
             // dividing the alpha cutoff by transparency here allows the shader to compare against
             // the alpha value of the texture without needing the transparency value
-            min_alpha = mAlphaCutoff/mBaseColor.mV[3];
+            if (mBaseColor.mV[3] > 0.f)
+            {
+                min_alpha = mAlphaCutoff / mBaseColor.mV[3];
+            }
+            else
+            {
+                min_alpha = 1024.f;
+            }
         }
         shader->uniform1f(LLShaderMgr::MINIMUM_ALPHA, min_alpha);
     }
@@ -149,8 +159,8 @@ LLViewerFetchedTexture* fetch_texture(const LLUUID& id)
     LLViewerFetchedTexture* img = nullptr;
     if (id.notNull())
     {
-        img = LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
-        img->addTextureStats(64.f * 64.f, TRUE);
+        img = LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, true, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+        img->addTextureStats(64.f * 64.f, true);
     }
     return img;
 };
@@ -253,3 +263,4 @@ void LLFetchedGLTFMaterial::materialComplete(bool success)
     materialCompleteCallbacks.clear();
     materialCompleteCallbacks.shrink_to_fit();
 }
+

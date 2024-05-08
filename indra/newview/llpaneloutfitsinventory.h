@@ -46,7 +46,7 @@ public:
 	LLPanelOutfitsInventory();
 	virtual ~LLPanelOutfitsInventory();
 
-	/*virtual*/ BOOL postBuild();
+	/*virtual*/ bool postBuild();
 	/*virtual*/ void onOpen(const LLSD& key);
 	
 	void onSearchEdit(const std::string& string);
@@ -61,19 +61,19 @@ public:
 
 	void openApearanceTab(const std::string& tab_name);
 
+    bool isCOFPanelActive() const;
+
 protected:
 	void updateVerbs();
 
 private:
 	LLTabContainer*			mAppearanceTabs;
-	std::string 			mFilterSubString;
 
 	//////////////////////////////////////////////////////////////////////////////////
 	// tab panels                                                                   //
 protected:
 	void 					initTabPanels();
 	void 					onTabChange();
-	bool 					isCOFPanelActive() const;
 	bool 					isOutfitsListPanelActive() const;
 	bool 					isOutfitsGalleryPanelActive() const;
 

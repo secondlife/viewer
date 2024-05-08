@@ -92,7 +92,7 @@ const F32	ICON_FLASH_TIME = 0.5f;
 const UINT WM_DUMMY_(WM_USER + 0x0017);
 const UINT WM_POST_FUNCTION_(WM_USER + 0x0018);
 
-extern BOOL gDebugWindowProc;
+extern bool gDebugWindowProc;
 
 static std::thread::id sWindowThreadId;
 static std::thread::id sMainThreadId;
@@ -178,10 +178,10 @@ GLuint SafeChoosePixelFormat(HDC &hdc, const PIXELFORMATDESCRIPTOR *ppfd)
 }
 
 //static
-BOOL LLWindowWin32::sIsClassRegistered = FALSE;
+bool LLWindowWin32::sIsClassRegistered = false;
 
-BOOL	LLWindowWin32::sLanguageTextInputAllowed = TRUE;
-BOOL	LLWindowWin32::sWinIMEOpened = FALSE;
+bool	LLWindowWin32::sLanguageTextInputAllowed = true;
+bool	LLWindowWin32::sWinIMEOpened = false;
 HKL		LLWindowWin32::sWinInputLocale = 0;
 DWORD	LLWindowWin32::sWinIMEConversionMode = IME_CMODE_NATIVE;
 DWORD	LLWindowWin32::sWinIMESentenceMode = IME_SMODE_AUTOMATIC;
@@ -200,24 +200,24 @@ public:
 
 public:
 	// Wrappers for IMM API.
-	static BOOL		isIME(HKL hkl);															
+	static bool		isIME(HKL hkl);															
 	static HIMC		getContext(HWND hwnd);													
-	static BOOL		releaseContext(HWND hwnd, HIMC himc);
-	static BOOL		getOpenStatus(HIMC himc);												
-	static BOOL		setOpenStatus(HIMC himc, BOOL status);									
-	static BOOL		getConversionStatus(HIMC himc, LPDWORD conversion, LPDWORD sentence);	
-	static BOOL		setConversionStatus(HIMC himc, DWORD conversion, DWORD sentence);		
-	static BOOL		getCompositionWindow(HIMC himc, LPCOMPOSITIONFORM form);					
-	static BOOL		setCompositionWindow(HIMC himc, LPCOMPOSITIONFORM form);					
+	static bool		releaseContext(HWND hwnd, HIMC himc);
+	static bool		getOpenStatus(HIMC himc);												
+	static bool		setOpenStatus(HIMC himc, bool status);									
+	static bool		getConversionStatus(HIMC himc, LPDWORD conversion, LPDWORD sentence);	
+	static bool		setConversionStatus(HIMC himc, DWORD conversion, DWORD sentence);		
+	static bool		getCompositionWindow(HIMC himc, LPCOMPOSITIONFORM form);					
+	static bool		setCompositionWindow(HIMC himc, LPCOMPOSITIONFORM form);					
 	static LONG		getCompositionString(HIMC himc, DWORD index, LPVOID data, DWORD length);
-	static BOOL		setCompositionString(HIMC himc, DWORD index, LPVOID pComp, DWORD compLength, LPVOID pRead, DWORD readLength);
-	static BOOL		setCompositionFont(HIMC himc, LPLOGFONTW logfont);
-	static BOOL		setCandidateWindow(HIMC himc, LPCANDIDATEFORM candidate_form);
-	static BOOL		notifyIME(HIMC himc, DWORD action, DWORD index, DWORD value);
+	static bool		setCompositionString(HIMC himc, DWORD index, LPVOID pComp, DWORD compLength, LPVOID pRead, DWORD readLength);
+	static bool		setCompositionFont(HIMC himc, LPLOGFONTW logfont);
+	static bool		setCandidateWindow(HIMC himc, LPCANDIDATEFORM candidate_form);
+	static bool		notifyIME(HIMC himc, DWORD action, DWORD index, DWORD value);
 };
 
 // static 
-BOOL	LLWinImm::isIME(HKL hkl)
+bool	LLWinImm::isIME(HKL hkl)
 { 
 	return ImmIsIME(hkl);
 }
@@ -229,43 +229,43 @@ HIMC		LLWinImm::getContext(HWND hwnd)
 }
 
 //static 
-BOOL		LLWinImm::releaseContext(HWND hwnd, HIMC himc)
+bool		LLWinImm::releaseContext(HWND hwnd, HIMC himc)
 { 
 	return ImmReleaseContext(hwnd, himc);
 }
 
 // static 
-BOOL		LLWinImm::getOpenStatus(HIMC himc)
+bool		LLWinImm::getOpenStatus(HIMC himc)
 { 
 	return ImmGetOpenStatus(himc);
 }
 
 // static 
-BOOL		LLWinImm::setOpenStatus(HIMC himc, BOOL status)
+bool		LLWinImm::setOpenStatus(HIMC himc, bool status)
 { 
 	return ImmSetOpenStatus(himc, status);
 }
 
 // static 
-BOOL		LLWinImm::getConversionStatus(HIMC himc, LPDWORD conversion, LPDWORD sentence)	
+bool		LLWinImm::getConversionStatus(HIMC himc, LPDWORD conversion, LPDWORD sentence)	
 { 
 	return ImmGetConversionStatus(himc, conversion, sentence);
 }
 
 // static 
-BOOL		LLWinImm::setConversionStatus(HIMC himc, DWORD conversion, DWORD sentence)		
+bool		LLWinImm::setConversionStatus(HIMC himc, DWORD conversion, DWORD sentence)		
 { 
 	return ImmSetConversionStatus(himc, conversion, sentence);
 }
 
 // static 
-BOOL		LLWinImm::getCompositionWindow(HIMC himc, LPCOMPOSITIONFORM form)					
+bool		LLWinImm::getCompositionWindow(HIMC himc, LPCOMPOSITIONFORM form)					
 { 
 	return ImmGetCompositionWindow(himc, form);
 }
 
 // static 
-BOOL		LLWinImm::setCompositionWindow(HIMC himc, LPCOMPOSITIONFORM form)					
+bool		LLWinImm::setCompositionWindow(HIMC himc, LPCOMPOSITIONFORM form)					
 { 
 	return ImmSetCompositionWindow(himc, form);
 }
@@ -279,25 +279,25 @@ LONG		LLWinImm::getCompositionString(HIMC himc, DWORD index, LPVOID data, DWORD 
 
 
 // static 
-BOOL		LLWinImm::setCompositionString(HIMC himc, DWORD index, LPVOID pComp, DWORD compLength, LPVOID pRead, DWORD readLength)					
+bool		LLWinImm::setCompositionString(HIMC himc, DWORD index, LPVOID pComp, DWORD compLength, LPVOID pRead, DWORD readLength)					
 { 
 	return ImmSetCompositionString(himc, index, pComp, compLength, pRead, readLength);
 }
 
 // static 
-BOOL		LLWinImm::setCompositionFont(HIMC himc, LPLOGFONTW pFont)					
+bool		LLWinImm::setCompositionFont(HIMC himc, LPLOGFONTW pFont)					
 { 
 	return ImmSetCompositionFont(himc, pFont);
 }
 
 // static 
-BOOL		LLWinImm::setCandidateWindow(HIMC himc, LPCANDIDATEFORM form)					
+bool		LLWinImm::setCandidateWindow(HIMC himc, LPCANDIDATEFORM form)					
 { 
 	return ImmSetCandidateWindow(himc, form);
 }
 
 // static 
-BOOL		LLWinImm::notifyIME(HIMC himc, DWORD action, DWORD index, DWORD value)					
+bool		LLWinImm::notifyIME(HIMC himc, DWORD action, DWORD index, DWORD value)					
 { 
 	return ImmNotifyIME(himc, action, index, value);
 }
@@ -351,6 +351,10 @@ struct LLWindowWin32::LLWindowWin32Thread : public LL::ThreadPool
     LLWindowWin32Thread();
 
     void run() override;
+    void close() override;
+
+    // closes queue, wakes thread, waits until thread closes
+    void wakeAndDestroy();
 
     void glReady()
     {
@@ -363,13 +367,8 @@ struct LLWindowWin32::LLWindowWin32Thread : public LL::ThreadPool
     // initialize D3D (if DXGI cannot be used)
     void initD3D();
 
-    // call periodically to update available VRAM
-    void updateVRAMUsage();
-
-    U32 getAvailableVRAMMegabytes()
-    {
-        return mAvailableVRAM;
-    }
+    //clean up DXGI/D3D resources
+    void cleanupDX();
 
     /// called by main thread to post work to this window thread
     template <typename CALLABLE>
@@ -412,14 +411,12 @@ struct LLWindowWin32::LLWindowWin32Thread : public LL::ThreadPool
     using FuncType = std::function<void()>;
     // call GetMessage() and pull enqueue messages for later processing
     void gatherInput();
-    HWND mWindowHandle = NULL;
-    HDC mhDC = 0;
+    HWND mWindowHandleThrd = NULL;
+    HDC mhDCThrd = 0;
 
     // *HACK: Attempt to prevent startup crashes by deferring memory accounting
     // until after some graphics setup. See SL-20177. -Cosmic,2023-09-18
     bool mGLReady = false;
-    // best guess at available video memory in MB
-    std::atomic<U32> mAvailableVRAM;
 
     U32 mMaxVRAM = 0; // maximum amount of vram to allow in the "budget", or 0 for no maximum (see updateVRAMUsage)
 
@@ -432,9 +429,9 @@ struct LLWindowWin32::LLWindowWin32Thread : public LL::ThreadPool
 LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 							 const std::string& title, const std::string& name, S32 x, S32 y, S32 width,
 							 S32 height, U32 flags, 
-							 BOOL fullscreen, BOOL clearBg,
-							 BOOL enable_vsync, BOOL use_gl,
-							 BOOL ignore_pixel_depth,
+							 bool fullscreen, bool clearBg,
+							 bool enable_vsync, bool use_gl,
+							 bool ignore_pixel_depth,
 							 U32 fsaa_samples,
                              U32 max_cores,
                              U32 max_vram,
@@ -527,7 +524,7 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 	mIconResource = gIconResource;
 	mOverrideAspectRatio = 0.f;
 	mNativeAspectRatio = 0.f;
-	mInputProcessingPaused = FALSE;
+	mInputProcessingPaused = false;
 	mPreeditor = NULL;
 	mKeyCharCode = 0;
 	mKeyScanCode = 0;
@@ -536,7 +533,7 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 	mhRC = NULL;
 	memset(mCurrentGammaRamp, 0, sizeof(mCurrentGammaRamp));
 	memset(mPrevGammaRamp, 0, sizeof(mPrevGammaRamp));
-	mCustomGammaSet = FALSE;
+	mCustomGammaSet = false;
 	mWindowHandle = NULL;
 
     mRect = {0, 0, 0, 0};
@@ -544,7 +541,7 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 	
 	if (!SystemParametersInfo(SPI_GETMOUSEVANISH, 0, &mMouseVanish, 0))
 	{
-		mMouseVanish = TRUE;
+		mMouseVanish = true;
 	}
 
 	// Initialize the keyboard
@@ -556,7 +553,7 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 
 	// Initialize (boot strap) the Language text input management,
 	// based on the system's (user's) default settings.
-	allowLanguageTextInput(mPreeditor, FALSE);
+	allowLanguageTextInput(mPreeditor, false);
 
 	WNDCLASS		wc;
 	RECT			window_rect;
@@ -674,7 +671,7 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 				mCallbacks->translateString("MBError"), OSMB_OK);
 			return;
 		}
-		sIsClassRegistered = TRUE;
+		sIsClassRegistered = true;
 	}
 
 	//-----------------------------------------------------------------------
@@ -702,7 +699,7 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 	//-----------------------------------------------------------------------
 	if (mFullscreen)
 	{
-		BOOL success = FALSE;
+		bool success = false;
 		DWORD closest_refresh = 0;
 
 		for (S32 mode_num = 0;; mode_num++)
@@ -716,7 +713,7 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 				dev_mode.dmPelsHeight == height &&
 				dev_mode.dmBitsPerPel == BITS_PER_PIXEL)
 			{
-				success = TRUE;
+				success = true;
 				if ((dev_mode.dmDisplayFrequency - current_refresh)
 					< (closest_refresh - current_refresh))
 				{
@@ -728,11 +725,11 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 		if (closest_refresh == 0)
 		{
 			LL_WARNS("Window") << "Couldn't find display mode " << width << " by " << height << " at " << BITS_PER_PIXEL << " bits per pixel" << LL_ENDL;
-			//success = FALSE;
+			//success = false;
 
 			if (!EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &dev_mode))
 			{
-				success = FALSE;
+				success = false;
 			}
 			else
 			{
@@ -741,12 +738,12 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 					LL_WARNS("Window") << "Current BBP is OK falling back to that" << LL_ENDL;
 					window_rect.right=width=dev_mode.dmPelsWidth;
 					window_rect.bottom=height=dev_mode.dmPelsHeight;
-					success = TRUE;
+					success = true;
 				}
 				else
 				{
 					LL_WARNS("Window") << "Current BBP is BAD" << LL_ENDL;
-					success = FALSE;
+					success = false;
 				}
 			}
 		}
@@ -764,7 +761,7 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 		// If it failed, we don't want to run fullscreen
 		if (success)
 		{
-			mFullscreen = TRUE;
+			mFullscreen = true;
 			mFullscreenWidth   = dev_mode.dmPelsWidth;
 			mFullscreenHeight  = dev_mode.dmPelsHeight;
 			mFullscreenBits    = dev_mode.dmBitsPerPel;
@@ -778,7 +775,7 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 		}
 		else
 		{
-			mFullscreen = FALSE;
+			mFullscreen = false;
 			mFullscreenWidth   = -1;
 			mFullscreenHeight  = -1;
 			mFullscreenBits    = -1;
@@ -859,7 +856,7 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 
 	// Initialize (boot strap) the Language text input management,
 	// based on the system's (or user's) default settings.
-	allowLanguageTextInput(NULL, FALSE);
+	allowLanguageTextInput(NULL, false);
 }
 
 
@@ -889,14 +886,14 @@ void LLWindowWin32::show()
 
 void LLWindowWin32::hide()
 {
-	setMouseClipping(FALSE);
+	setMouseClipping(false);
 	ShowWindow(mWindowHandle, SW_HIDE);
 }
 
 //virtual
 void LLWindowWin32::minimize()
 {
-	setMouseClipping(FALSE);
+	setMouseClipping(false);
 	showCursor();
 	ShowWindow(mWindowHandle, SW_MINIMIZE);
 }
@@ -953,7 +950,7 @@ void LLWindowWin32::close()
 
 	// Make sure cursor is visible and we haven't mangled the clipping state.
 	showCursor();
-	setMouseClipping(FALSE);
+	setMouseClipping(false);
 	if (gKeyboard)
 	{
 		gKeyboard->resetKeys();
@@ -987,71 +984,35 @@ void LLWindowWin32::close()
 
 	LL_DEBUGS("Window") << "Destroying Window" << LL_ENDL;
 
-    mWindowThread->post([=]()
-        {
-            if (IsWindow(mWindowHandle))
-            {
-                if (mhDC)
-                {
-                    if (!ReleaseDC(mWindowHandle, mhDC))
-                    {
-                        LL_WARNS("Window") << "Release of ghDC failed!" << LL_ENDL;
-                    }
-                }
-
-                // Make sure we don't leave a blank toolbar button.
-                ShowWindow(mWindowHandle, SW_HIDE);
-
-                // This causes WM_DESTROY to be sent *immediately*
-                if (!destroy_window_handler(mWindowHandle))
-                {
-                    OSMessageBox(mCallbacks->translateString("MBDestroyWinFailed"),
-                        mCallbacks->translateString("MBShutdownErr"),
-                        OSMB_OK);
-                }
-            }
-            else
-            {
-                // Something killed the window while we were busy destroying gl or handle somehow got broken
-                LL_WARNS("Window") << "Failed to destroy Window, invalid handle!" << LL_ENDL;
-            }
-
-        });
-    // Window thread might be waiting for a getMessage(), give it
-    // a push to enshure it will process destroy_window_handler
-    kickWindowThread();
-
-    // Even though the above lambda might not yet have run, we've already
-    // bound mWindowHandle into it by value, which should suffice for the
-    // operations we're asking. That's the last time WE should touch it.
     mhDC = NULL;
     mWindowHandle = NULL;
-    mWindowThread->close();
+    
+    mWindowThread->wakeAndDestroy();
 }
 
-BOOL LLWindowWin32::isValid()
+bool LLWindowWin32::isValid()
 {
 	return (mWindowHandle != NULL);
 }
 
-BOOL LLWindowWin32::getVisible()
+bool LLWindowWin32::getVisible()
 {
 	return (mWindowHandle && IsWindowVisible(mWindowHandle));
 }
 
-BOOL LLWindowWin32::getMinimized()
+bool LLWindowWin32::getMinimized()
 {
 	return (mWindowHandle && IsIconic(mWindowHandle));
 }
 
-BOOL LLWindowWin32::getMaximized()
+bool LLWindowWin32::getMaximized()
 {
 	return (mWindowHandle && IsZoomed(mWindowHandle));
 }
 
-BOOL LLWindowWin32::maximize()
+bool LLWindowWin32::maximize()
 {
-	BOOL success = FALSE;
+	bool success = false;
 	if (!mWindowHandle) return success;
 
     mWindowThread->post([=]
@@ -1066,56 +1027,56 @@ BOOL LLWindowWin32::maximize()
             }
         });
 
-    return TRUE;
+    return true;
 }
 
-BOOL LLWindowWin32::getFullscreen()
+bool LLWindowWin32::getFullscreen()
 {
 	return mFullscreen;
 }
 
-BOOL LLWindowWin32::getPosition(LLCoordScreen *position)
+bool LLWindowWin32::getPosition(LLCoordScreen *position)
 {
     position->mX = mRect.left;
 	position->mY = mRect.top;
-	return TRUE;
+	return true;
 }
 
-BOOL LLWindowWin32::getSize(LLCoordScreen *size)
+bool LLWindowWin32::getSize(LLCoordScreen *size)
 {
 	size->mX = mRect.right - mRect.left;
 	size->mY = mRect.bottom - mRect.top;
-	return TRUE;
+	return true;
 }
 
-BOOL LLWindowWin32::getSize(LLCoordWindow *size)
+bool LLWindowWin32::getSize(LLCoordWindow *size)
 {
 	size->mX = mClientRect.right - mClientRect.left;
 	size->mY = mClientRect.bottom - mClientRect.top;
-	return TRUE;
+	return true;
 }
 
-BOOL LLWindowWin32::setPosition(const LLCoordScreen position)
+bool LLWindowWin32::setPosition(const LLCoordScreen position)
 {
 	LLCoordScreen size;
 
 	if (!mWindowHandle)
 	{
-		return FALSE;
+		return false;
 	}
 	getSize(&size);
 	moveWindow(position, size);
-	return TRUE;
+	return true;
 }
 
-BOOL LLWindowWin32::setSizeImpl(const LLCoordScreen size)
+bool LLWindowWin32::setSizeImpl(const LLCoordScreen size)
 {
 	LLCoordScreen position;
 
 	getPosition(&position);
 	if (!mWindowHandle)
 	{
-		return FALSE;
+		return false;
 	}
 
     mWindowThread->post([=]()
@@ -1131,10 +1092,10 @@ BOOL LLWindowWin32::setSizeImpl(const LLCoordScreen size)
         });
 
 	moveWindow(position, size);
-	return TRUE;
+	return true;
 }
 
-BOOL LLWindowWin32::setSizeImpl(const LLCoordWindow size)
+bool LLWindowWin32::setSizeImpl(const LLCoordWindow size)
 {
 	RECT window_rect = {0, 0, size.mX, size.mY };
 	DWORD dw_ex_style = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
@@ -1146,7 +1107,7 @@ BOOL LLWindowWin32::setSizeImpl(const LLCoordWindow size)
 }
 
 // changing fullscreen resolution
-BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen& size, BOOL enable_vsync, const LLCoordScreen* const posp)
+bool LLWindowWin32::switchContext(bool fullscreen, const LLCoordScreen& size, bool enable_vsync, const LLCoordScreen* const posp)
 {
     //called from main thread
     GLuint	pixel_format;
@@ -1159,11 +1120,11 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen& size, BO
     RECT	window_rect = { 0, 0, 0, 0 };
     S32 width = size.mX;
     S32 height = size.mY;
-    BOOL auto_show = FALSE;
+    bool auto_show = false;
 
     if (mhRC)
     {
-        auto_show = TRUE;
+        auto_show = true;
         resetDisplayResolution();
     }
 
@@ -1196,8 +1157,8 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen& size, BO
 
     if (fullscreen)
     {
-        mFullscreen = TRUE;
-        BOOL success = FALSE;
+        mFullscreen = true;
+        bool success = false;
         DWORD closest_refresh = 0;
 
         for (S32 mode_num = 0;; mode_num++)
@@ -1211,7 +1172,7 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen& size, BO
                 dev_mode.dmPelsHeight == height &&
                 dev_mode.dmBitsPerPel == BITS_PER_PIXEL)
             {
-                success = TRUE;
+                success = true;
                 if ((dev_mode.dmDisplayFrequency - current_refresh)
                     < (closest_refresh - current_refresh))
                 {
@@ -1223,7 +1184,7 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen& size, BO
         if (closest_refresh == 0)
         {
             LL_WARNS("Window") << "Couldn't find display mode " << width << " by " << height << " at " << BITS_PER_PIXEL << " bits per pixel" << LL_ENDL;
-            return FALSE;
+            return false;
         }
 
         // If we found a good resolution, use it.
@@ -1238,7 +1199,7 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen& size, BO
 
         if (success)
         {
-            mFullscreen = TRUE;
+            mFullscreen = true;
             mFullscreenWidth = dev_mode.dmPelsWidth;
             mFullscreenHeight = dev_mode.dmPelsHeight;
             mFullscreenBits = dev_mode.dmBitsPerPel;
@@ -1264,19 +1225,19 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen& size, BO
         // If it failed, we don't want to run fullscreen
         else
         {
-            mFullscreen = FALSE;
+            mFullscreen = false;
             mFullscreenWidth = -1;
             mFullscreenHeight = -1;
             mFullscreenBits = -1;
             mFullscreenRefresh = -1;
 
             LL_INFOS("Window") << "Unable to run fullscreen at " << width << "x" << height << LL_ENDL;
-            return FALSE;
+            return false;
         }
     }
     else
     {
-        mFullscreen = FALSE;
+        mFullscreen = false;
         window_rect.left = (long)(posp ? posp->mX : 0);
         window_rect.right = (long)width + window_rect.left;			// Windows GDI rects don't include rightmost pixel
         window_rect.top = (long)(posp ? posp->mY : 0);
@@ -1288,7 +1249,7 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen& size, BO
 
 
     // don't post quit messages when destroying old windows
-    mPostQuit = FALSE;
+    mPostQuit = false;
 
 
     // create window
@@ -1338,7 +1299,7 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen& size, BO
 		close();
 		OSMessageBox(mCallbacks->translateString("MBDevContextErr"),
 			mCallbacks->translateString("MBError"), OSMB_OK);
-		return FALSE;
+		return false;
 	}
 
 	LL_INFOS("Window") << "Device context retrieved." << LL_ENDL ;
@@ -1352,7 +1313,7 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen& size, BO
             OSMessageBox(mCallbacks->translateString("MBPixelFmtErr"),
                 mCallbacks->translateString("MBError"), OSMB_OK);
 		close();
-            return FALSE;
+            return false;
         }
     }
     catch (...)
@@ -1361,7 +1322,7 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen& size, BO
 		OSMessageBox(mCallbacks->translateString("MBPixelFmtErr"),
 			mCallbacks->translateString("MBError"), OSMB_OK);
         close();
-		return FALSE;
+		return false;
 	}
 
 	LL_INFOS("Window") << "Pixel format chosen." << LL_ENDL ;
@@ -1373,7 +1334,7 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen& size, BO
 		OSMessageBox(mCallbacks->translateString("MBPixelFmtDescErr"),
 			mCallbacks->translateString("MBError"), OSMB_OK);
         close();
-		return FALSE;
+		return false;
 	}
 
 	// (EXP-1765) dump pixel data to see if there is a pattern that leads to unreproducible crash
@@ -1412,7 +1373,7 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen& size, BO
 		OSMessageBox(mCallbacks->translateString("MBPixelFmtSetErr"),
 			mCallbacks->translateString("MBError"), OSMB_OK);
         close();
-		return FALSE;
+		return false;
 	}
 
 
@@ -1421,7 +1382,7 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen& size, BO
 		OSMessageBox(mCallbacks->translateString("MBGLContextErr"),
 			mCallbacks->translateString("MBError"), OSMB_OK);
         close();
-		return FALSE;
+		return false;
 	}
 		
 	if (!wglMakeCurrent(mhDC, mhRC))
@@ -1429,7 +1390,7 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen& size, BO
 		OSMessageBox(mCallbacks->translateString("MBGLContextActErr"),
 			mCallbacks->translateString("MBError"), OSMB_OK);
         close();
-		return FALSE;
+		return false;
 	}
 
 	LL_INFOS("Window") << "Drawing context is created." << LL_ENDL ;
@@ -1521,7 +1482,7 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen& size, BO
 
 			close();
 			show_window_creation_error("Error after wglChoosePixelFormatARB 32-bit");
-			return FALSE;
+			return false;
 		}
 
 		if (!num_formats)
@@ -1536,7 +1497,7 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen& size, BO
 				{
 					close();
 					show_window_creation_error("Error after wglChoosePixelFormatARB 32-bit no AA");
-					return FALSE;
+					return false;
 				}
 			}
 
@@ -1550,7 +1511,7 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen& size, BO
 				{
 					close();
 					show_window_creation_error("Error after wglChoosePixelFormatARB 24-bit");
-					return FALSE;
+					return false;
 				}
 
 				if (!num_formats)
@@ -1562,7 +1523,7 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen& size, BO
 					{
 						close();
 						show_window_creation_error("Error after wglChoosePixelFormatARB 16-bit");
-						return FALSE;
+						return false;
 					}
 				}
 			}
@@ -1635,7 +1596,7 @@ const	S32   max_format  = (S32)num_formats - 1;
 		{
 			OSMessageBox(mCallbacks->translateString("MBDevContextErr"), mCallbacks->translateString("MBError"), OSMB_OK);
 			close();
-			return FALSE;
+			return false;
 		}
 
 		if (!SetPixelFormat(mhDC, pixel_format, &pfd))
@@ -1643,7 +1604,7 @@ const	S32   max_format  = (S32)num_formats - 1;
 			OSMessageBox(mCallbacks->translateString("MBPixelFmtSetErr"),
 				mCallbacks->translateString("MBError"), OSMB_OK);
 			close();
-			return FALSE;
+			return false;
 		}
 
 		if (wglGetPixelFormatAttribivARB(mhDC, pixel_format, 0, 1, &swap_query, &swap_method))
@@ -1680,7 +1641,7 @@ const	S32   max_format  = (S32)num_formats - 1;
 	{
 		OSMessageBox(mCallbacks->translateString("MBPixelFmtDescErr"), mCallbacks->translateString("MBError"), OSMB_OK);
 		close();
-		return FALSE;
+		return false;
 	}
 
 	LL_INFOS("Window") << "GL buffer: Color Bits " << S32(pfd.cColorBits) 
@@ -1694,7 +1655,7 @@ const	S32   max_format  = (S32)num_formats - 1;
         mhRC = (HGLRC) createSharedContext();
         if (!mhRC)
         {
-            return FALSE;
+            return false;
         }
 	}
 
@@ -1702,14 +1663,14 @@ const	S32   max_format  = (S32)num_formats - 1;
 	{
 		OSMessageBox(mCallbacks->translateString("MBGLContextActErr"), mCallbacks->translateString("MBError"), OSMB_OK);
         close();
-		return FALSE;
+		return false;
 	}
 
 	if (!gGLManager.initGL())
 	{
 		OSMessageBox(mCallbacks->translateString("MBVideoDrvErr"), mCallbacks->translateString("MBError"), OSMB_OK);
         close();
-		return FALSE;
+		return false;
 	}
 	
 	// Disable vertical sync for swap
@@ -1726,7 +1687,7 @@ const	S32   max_format  = (S32)num_formats - 1;
 	SetTimer( mWindowHandle, 0, 1000 / 30, NULL ); // 30 fps timer
 
 	// ok to post quit messages now
-	mPostQuit = TRUE;
+	mPostQuit = true;
 
     // *HACK: Attempt to prevent startup crashes by deferring memory accounting
     // until after some graphics setup. See SL-20177. -Cosmic,2023-09-18
@@ -1745,7 +1706,7 @@ const	S32   max_format  = (S32)num_formats - 1;
 
     LL_PROFILER_GPU_CONTEXT;
 
-	return TRUE;
+	return true;
 }
 
 void LLWindowWin32::recreateWindow(RECT window_rect, DWORD dw_ex_style, DWORD dw_style)
@@ -1777,8 +1738,8 @@ void LLWindowWin32::recreateWindow(RECT window_rect, DWORD dw_ex_style, DWORD dw
         ()
         {
             LL_DEBUGS("Window") << "recreateWindow(): window_work entry" << LL_ENDL;
-            self->mWindowHandle = 0;
-            self->mhDC = 0;
+            self->mWindowHandleThrd = 0;
+            self->mhDCThrd = 0;
 
             if (oldWindowHandle)
             {
@@ -1813,20 +1774,20 @@ void LLWindowWin32::recreateWindow(RECT window_rect, DWORD dw_ex_style, DWORD dw
             {
                 // Failed to create window: clear the variables. This
                 // assignment is valid because we're running on mWindowThread.
-                self->mWindowHandle = NULL;
-                self->mhDC = 0;
+                self->mWindowHandleThrd = NULL;
+                self->mhDCThrd = 0;
             }
             else
             {
                 // Update mWindowThread's own mWindowHandle and mhDC.
-                self->mWindowHandle = handle;
-                self->mhDC = GetDC(handle);
+                self->mWindowHandleThrd = handle;
+                self->mhDCThrd = GetDC(handle);
             }
             
             updateWindowRect();
 
             // It's important to wake up the future either way.
-            promise.set_value(std::make_pair(self->mWindowHandle, self->mhDC));
+            promise.set_value(std::make_pair(self->mWindowHandleThrd, self->mhDCThrd));
             LL_DEBUGS("Window") << "recreateWindow(): window_work done" << LL_ENDL;
         };
     // But how we pass window_work to the window thread depends on whether we
@@ -1970,13 +1931,13 @@ void LLWindowWin32::setTitle(const std::string title)
         });
 }
 
-BOOL LLWindowWin32::setCursorPosition(const LLCoordWindow position)
+bool LLWindowWin32::setCursorPosition(const LLCoordWindow position)
 {
     ASSERT_MAIN_THREAD();
 
     if (!mWindowHandle)
     {
-        return FALSE;
+        return false;
     }
 
     LLCoordScreen screen_pos(position.convert());
@@ -1996,31 +1957,31 @@ BOOL LLWindowWin32::setCursorPosition(const LLCoordWindow position)
             SetCursorPos(screen_pos.mX, screen_pos.mY);
         });
 
-    return TRUE;
+    return true;
 }
 
-BOOL LLWindowWin32::getCursorPosition(LLCoordWindow *position)
+bool LLWindowWin32::getCursorPosition(LLCoordWindow *position)
 {
     ASSERT_MAIN_THREAD();
     if (!position)
     {
-        return FALSE;
+        return false;
     }
 
     *position = mCursorPosition;
-	return TRUE;
+	return true;
 }
 
-BOOL LLWindowWin32::getCursorDelta(LLCoordCommon* delta)
+bool LLWindowWin32::getCursorDelta(LLCoordCommon* delta)
 {
     if (delta == nullptr)
     {
-        return FALSE;
+        return false;
     }
 
     *delta = mMouseFrameDelta;
 
-    return TRUE;
+    return true;
 }
 
 void LLWindowWin32::hideCursor()
@@ -2035,8 +1996,8 @@ void LLWindowWin32::hideCursor()
             }
         });
 
-	mCursorHidden = TRUE;
-	mHideCursorPermanent = TRUE;
+	mCursorHidden = true;
+	mHideCursorPermanent = true;
 }
 
 void LLWindowWin32::showCursor()
@@ -2054,8 +2015,8 @@ void LLWindowWin32::showCursor()
             }
         });
 
-	mCursorHidden = FALSE;
-	mHideCursorPermanent = FALSE;
+	mCursorHidden = false;
+	mHideCursorPermanent = false;
 }
 
 void LLWindowWin32::showCursorFromMouseMove()
@@ -2071,11 +2032,11 @@ void LLWindowWin32::hideCursorUntilMouseMove()
 	if (!mHideCursorPermanent && mMouseVanish)
 	{
 		hideCursor();
-		mHideCursorPermanent = FALSE;
+		mHideCursorPermanent = false;
 	}
 }
 
-BOOL LLWindowWin32::isCursorHidden()
+bool LLWindowWin32::isCursorHidden()
 {
 	return mCursorHidden;
 }
@@ -2195,7 +2156,7 @@ void LLWindowWin32::releaseMouse()
 
 void LLWindowWin32::delayInputProcessing()
 {
-	mInputProcessingPaused = TRUE;
+	mInputProcessingPaused = true;
 }
 
 
@@ -2276,7 +2237,7 @@ void LLWindowWin32::gatherInput()
         }
     }
 
-	mInputProcessingPaused = FALSE;
+	mInputProcessingPaused = false;
 
 	updateCursor();
 }
@@ -2321,7 +2282,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 
         // pass along extended flag in mask
         MASK mask = (l_param >> 16 & KF_EXTENDED) ? MASK_EXTENDED : 0x0;
-        BOOL eat_keystroke = TRUE;
+        bool eat_keystroke = true;
 
         switch (u_msg)
         {
@@ -2343,7 +2304,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
             {
                 WINDOW_IMP_POST(window_imp->mCallbacks->handleDeviceChange(window_imp));
                 
-                return TRUE;
+                return 1;
             }
             break;
         }
@@ -2500,8 +2461,9 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_SYSKEYDOWN");
             // allow system keys, such as ALT-F4 to be processed by Windows
-            eat_keystroke = FALSE;
+            eat_keystroke = false;
             // intentional fall-through here
+            [[fallthrough]];
         }
         case WM_KEYDOWN:
         {
@@ -2521,8 +2483,9 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
             break;
         }
         case WM_SYSKEYUP:
-            eat_keystroke = FALSE;
+            eat_keystroke = false;
             // intentional fall-through here
+            [[fallthrough]];
         case WM_KEYUP:
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_KEYUP");
@@ -2613,9 +2576,9 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
                     // characters.  We just need to take care of surrogate pairs sent as two WM_CHAR's
                     // by ourselves.  It is not that tough.  -- Alissa Sabre @ SL
                     
-                    // Even if LLWindowCallbacks::handleUnicodeChar(llwchar, BOOL) returned FALSE,
+                    // Even if LLWindowCallbacks::handleUnicodeChar(llwchar, bool) returned false,
                     // we *did* processed the event, so I believe we should not pass it to DefWindowProc...
-                    window_imp->handleUnicodeUTF16((U16)w_param, gKeyboard->currentMask(FALSE));
+                    window_imp->handleUnicodeUTF16((U16)w_param, gKeyboard->currentMask(false));
                 });
             return 0;
         }
@@ -2646,7 +2609,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
                             window_imp->interruptLanguageTextInput();
                         }
                         
-                        MASK mask = gKeyboard->currentMask(TRUE);
+                        MASK mask = gKeyboard->currentMask(true);
                         auto gl_coord = window_imp->mCursorPosition.convert();
                         window_imp->mCallbacks->handleMouseMove(window_imp, gl_coord, mask);
                         window_imp->mCallbacks->handleMouseDown(window_imp, gl_coord, mask);
@@ -2669,7 +2632,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
                         sHandleDoubleClick = true;
                         return;
                     }
-                    MASK mask = gKeyboard->currentMask(TRUE);
+                    MASK mask = gKeyboard->currentMask(true);
 
                     // generate move event to update mouse coordinates
                     window_imp->mCursorPosition = window_coord;
@@ -2693,7 +2656,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
                         sHandleDoubleClick = true;
 
                         
-                        MASK mask = gKeyboard->currentMask(TRUE);
+                        MASK mask = gKeyboard->currentMask(true);
                         // generate move event to update mouse coordinates
                         window_imp->mCursorPosition = window_coord;
                         window_imp->mCallbacks->handleMouseUp(window_imp, window_imp->mCursorPosition.convert(), mask);
@@ -2714,7 +2677,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
                             WINDOW_IMP_POST(window_imp->interruptLanguageTextInput());
                         }
 
-                        MASK mask = gKeyboard->currentMask(TRUE);
+                        MASK mask = gKeyboard->currentMask(true);
                         // generate move event to update mouse coordinates
                         auto gl_coord = window_imp->mCursorPosition.convert();
                         window_imp->mCallbacks->handleMouseMove(window_imp, gl_coord, mask);
@@ -2732,7 +2695,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
                 LL_RECORD_BLOCK_TIME(FTM_MOUSEHANDLER);
                 window_imp->postMouseButtonEvent([=]()
                     {
-                        MASK mask = gKeyboard->currentMask(TRUE);
+                        MASK mask = gKeyboard->currentMask(true);
                         window_imp->mCallbacks->handleRightMouseUp(window_imp, window_imp->mCursorPosition.convert(), mask);
                     });
             }
@@ -2752,7 +2715,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
                             window_imp->interruptLanguageTextInput();
                         }
 
-                        MASK mask = gKeyboard->currentMask(TRUE);
+                        MASK mask = gKeyboard->currentMask(true);
                         window_imp->mCallbacks->handleMiddleMouseDown(window_imp, window_imp->mCursorPosition.convert(), mask);
                     });
             }
@@ -2766,7 +2729,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
                 LL_RECORD_BLOCK_TIME(FTM_MOUSEHANDLER);
                 window_imp->postMouseButtonEvent([=]()
                     {
-                        MASK mask = gKeyboard->currentMask(TRUE);
+                        MASK mask = gKeyboard->currentMask(true);
                         window_imp->mCallbacks->handleMiddleMouseUp(window_imp, window_imp->mCursorPosition.convert(), mask);
                     });
             }
@@ -2784,7 +2747,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
                         window_imp->interruptLanguageTextInput();
                     }
 
-                    MASK mask = gKeyboard->currentMask(TRUE);
+                    MASK mask = gKeyboard->currentMask(true);
                     // Windows uses numbers 1 and 2 for buttons, remap to 4, 5
                     window_imp->mCallbacks->handleOtherMouseDown(window_imp, window_imp->mCursorPosition.convert(), mask, button + 3);
                 });
@@ -2801,7 +2764,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
                     LL_RECORD_BLOCK_TIME(FTM_MOUSEHANDLER);
 
                     S32 button = GET_XBUTTON_WPARAM(w_param);
-                    MASK mask = gKeyboard->currentMask(TRUE);
+                    MASK mask = gKeyboard->currentMask(true);
                     // Windows uses numbers 1 and 2 for buttons, remap to 4, 5
                     window_imp->mCallbacks->handleOtherMouseUp(window_imp, window_imp->mCursorPosition.convert(), mask, button + 3);
                 });
@@ -2911,7 +2874,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
                 {
                     LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_MOUSEMOVE lambda");
 
-                    MASK mask = gKeyboard->currentMask(TRUE);
+                    MASK mask = gKeyboard->currentMask(true);
                     window_imp->mMouseMask = mask;
                     window_imp->mCursorPosition = window_coord;
                 });
@@ -2948,19 +2911,19 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
             // means that the window was un-minimized.
             if (w_param == SIZE_RESTORED && window_imp->mLastSizeWParam != SIZE_RESTORED)
             {
-                WINDOW_IMP_POST(window_imp->mCallbacks->handleActivate(window_imp, TRUE));
+                WINDOW_IMP_POST(window_imp->mCallbacks->handleActivate(window_imp, true));
             }
 
             // handle case of window being maximized from fully minimized state
             if (w_param == SIZE_MAXIMIZED && window_imp->mLastSizeWParam != SIZE_MAXIMIZED)
             {
-                WINDOW_IMP_POST(window_imp->mCallbacks->handleActivate(window_imp, TRUE));
+                WINDOW_IMP_POST(window_imp->mCallbacks->handleActivate(window_imp, true));
             }
 
             // Also handle the minimization case
             if (w_param == SIZE_MINIMIZED && window_imp->mLastSizeWParam != SIZE_MINIMIZED)
             {
-                WINDOW_IMP_POST(window_imp->mCallbacks->handleActivate(window_imp, FALSE));
+                WINDOW_IMP_POST(window_imp->mCallbacks->handleActivate(window_imp, false));
             }
 
             // Actually resize all of our views
@@ -3029,8 +2992,6 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
                     });
             };
             return 0;
-
-            break;
         }
         case WM_SETTINGCHANGE:
         {
@@ -3039,7 +3000,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
             {
                 if (!SystemParametersInfo(SPI_GETMOUSEVANISH, 0, &window_imp->mMouseVanish, 0))
                 {
-                    WINDOW_IMP_POST(window_imp->mMouseVanish = TRUE);
+                    WINDOW_IMP_POST(window_imp->mMouseVanish = true);
                 }
             }
         }
@@ -3115,6 +3076,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
                 }
             }
         }
+        break;
 
         //list of messages we get often that we don't care to log about
         case WM_NCHITTEST:
@@ -3148,7 +3110,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
     return ret;
 }
 
-BOOL LLWindowWin32::convertCoords(LLCoordGL from, LLCoordWindow *to)
+bool LLWindowWin32::convertCoords(LLCoordGL from, LLCoordWindow *to)
 {
 	S32		client_height;
 	RECT	client_rect;
@@ -3158,17 +3120,17 @@ BOOL LLWindowWin32::convertCoords(LLCoordGL from, LLCoordWindow *to)
 		!GetClientRect(mWindowHandle, &client_rect) ||
 		NULL == to)
 	{
-		return FALSE;
+		return false;
 	}
 
 	to->mX = from.mX;
 	client_height = client_rect.bottom - client_rect.top;
 	to->mY = client_height - from.mY - 1;
 
-	return TRUE;
+	return true;
 }
 
-BOOL LLWindowWin32::convertCoords(LLCoordWindow from, LLCoordGL* to)
+bool LLWindowWin32::convertCoords(LLCoordWindow from, LLCoordGL* to)
 {
 	S32		client_height;
 	RECT	client_rect;
@@ -3177,23 +3139,23 @@ BOOL LLWindowWin32::convertCoords(LLCoordWindow from, LLCoordGL* to)
 		!GetClientRect(mWindowHandle, &client_rect) ||
 		NULL == to)
 	{
-		return FALSE;
+		return false;
 	}
 
 	to->mX = from.mX;
 	client_height = client_rect.bottom - client_rect.top;
 	to->mY = client_height - from.mY - 1;
 
-	return TRUE;
+	return true;
 }
 
-BOOL LLWindowWin32::convertCoords(LLCoordScreen from, LLCoordWindow* to)
+bool LLWindowWin32::convertCoords(LLCoordScreen from, LLCoordWindow* to)
 {	
 	POINT mouse_point;
 
 	mouse_point.x = from.mX;
 	mouse_point.y = from.mY;
-	BOOL result = ScreenToClient(mWindowHandle, &mouse_point);
+	bool result = ScreenToClient(mWindowHandle, &mouse_point);
 
 	if (result)
 	{
@@ -3204,13 +3166,13 @@ BOOL LLWindowWin32::convertCoords(LLCoordScreen from, LLCoordWindow* to)
 	return result;
 }
 
-BOOL LLWindowWin32::convertCoords(LLCoordWindow from, LLCoordScreen *to)
+bool LLWindowWin32::convertCoords(LLCoordWindow from, LLCoordScreen *to)
 {
 	POINT mouse_point;
 
 	mouse_point.x = from.mX;
 	mouse_point.y = from.mY;
-	BOOL result = ClientToScreen(mWindowHandle, &mouse_point);
+	bool result = ClientToScreen(mWindowHandle, &mouse_point);
 
 	if (result)
 	{
@@ -3221,44 +3183,44 @@ BOOL LLWindowWin32::convertCoords(LLCoordWindow from, LLCoordScreen *to)
 	return result;
 }
 
-BOOL LLWindowWin32::convertCoords(LLCoordScreen from, LLCoordGL *to)
+bool LLWindowWin32::convertCoords(LLCoordScreen from, LLCoordGL *to)
 {
 	LLCoordWindow window_coord;
 
 	if (!mWindowHandle || (NULL == to))
 	{
-		return FALSE;
+		return false;
 	}
 
 	convertCoords(from, &window_coord);
 	convertCoords(window_coord, to);
-	return TRUE;
+	return true;
 }
 
-BOOL LLWindowWin32::convertCoords(LLCoordGL from, LLCoordScreen *to)
+bool LLWindowWin32::convertCoords(LLCoordGL from, LLCoordScreen *to)
 {
 	LLCoordWindow window_coord;
 
 	if (!mWindowHandle || (NULL == to))
 	{
-		return FALSE;
+		return false;
 	}
 
 	convertCoords(from, &window_coord);
 	convertCoords(window_coord, to);
-	return TRUE;
+	return true;
 }
 
 
-BOOL LLWindowWin32::isClipboardTextAvailable()
+bool LLWindowWin32::isClipboardTextAvailable()
 {
 	return IsClipboardFormatAvailable(CF_UNICODETEXT);
 }
 
 
-BOOL LLWindowWin32::pasteTextFromClipboard(LLWString &dst)
+bool LLWindowWin32::pasteTextFromClipboard(LLWString &dst)
 {
-	BOOL success = FALSE;
+	bool success = false;
 
 	if (IsClipboardFormatAvailable(CF_UNICODETEXT))
 	{
@@ -3273,7 +3235,7 @@ BOOL LLWindowWin32::pasteTextFromClipboard(LLWString &dst)
 					dst = utf16str_to_wstring(utf16str);
 					LLWStringUtil::removeWindowsCR(dst);
 					GlobalUnlock(h_data);
-					success = TRUE;
+					success = true;
 				}
 			}
 			CloseClipboard();
@@ -3284,9 +3246,9 @@ BOOL LLWindowWin32::pasteTextFromClipboard(LLWString &dst)
 }
 
 
-BOOL LLWindowWin32::copyTextToClipboard(const LLWString& wstr)
+bool LLWindowWin32::copyTextToClipboard(const LLWString& wstr)
 {
-	BOOL success = FALSE;
+	bool success = false;
 
 	if (OpenClipboard(mWindowHandle))
 	{
@@ -3310,7 +3272,7 @@ BOOL LLWindowWin32::copyTextToClipboard(const LLWString& wstr)
 
 				if (SetClipboardData(CF_UNICODETEXT, hglobal_copy_utf16))
 				{
-					success = TRUE;
+					success = true;
 				}
 			}
 		}
@@ -3322,13 +3284,13 @@ BOOL LLWindowWin32::copyTextToClipboard(const LLWString& wstr)
 }
 
 // Constrains the mouse to the window.
-void LLWindowWin32::setMouseClipping( BOOL b )
+void LLWindowWin32::setMouseClipping( bool b )
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_WIN32;
     ASSERT_MAIN_THREAD();
 	if( b != mIsMouseClipping )
 	{
-		BOOL success = FALSE;
+		bool success = false;
 
 		if( b )
 		{
@@ -3354,9 +3316,9 @@ void LLWindowWin32::setMouseClipping( BOOL b )
 	}
 }
 
-BOOL LLWindowWin32::getClientRectInScreenSpace( RECT* rectp )
+bool LLWindowWin32::getClientRectInScreenSpace( RECT* rectp )
 {
-    BOOL success = FALSE;
+    bool success = false;
 
     RECT client_rect;
     if (mWindowHandle && GetClientRect(mWindowHandle, &client_rect))
@@ -3377,7 +3339,7 @@ BOOL LLWindowWin32::getClientRectInScreenSpace( RECT* rectp )
             bottom_right.x,
             bottom_right.y);
 
-        success = TRUE;
+        success = true;
     }
 
     return success;
@@ -3403,36 +3365,36 @@ F32 LLWindowWin32::getGamma()
 	return mCurrentGamma;
 }
 
-BOOL LLWindowWin32::restoreGamma()
+bool LLWindowWin32::restoreGamma()
 {
     ASSERT_MAIN_THREAD();
-	if (mCustomGammaSet != FALSE)
+	if (mCustomGammaSet)
 	{
         LL_DEBUGS("Window") << "Restoring gamma" << LL_ENDL;
-		mCustomGammaSet = FALSE;
+		mCustomGammaSet = false;
 		return SetDeviceGammaRamp(mhDC, mPrevGammaRamp);
 	}
-	return TRUE;
+	return true;
 }
 
-BOOL LLWindowWin32::setGamma(const F32 gamma)
+bool LLWindowWin32::setGamma(const F32 gamma)
 {
     ASSERT_MAIN_THREAD();
 	mCurrentGamma = gamma;
 
 	//Get the previous gamma ramp to restore later.
-	if (mCustomGammaSet == FALSE)
+	if (!mCustomGammaSet)
 	{
         if (!gGLManager.mIsIntel) // skip for Intel GPUs (see SL-11341)
         {
             LL_DEBUGS("Window") << "Getting the previous gamma ramp to restore later" << LL_ENDL;
-            if(GetDeviceGammaRamp(mhDC, mPrevGammaRamp) == FALSE)
+            if (!GetDeviceGammaRamp(mhDC, mPrevGammaRamp))
             {
                 LL_WARNS("Window") << "Failed to get the previous gamma ramp" << LL_ENDL;
-                return FALSE;
+                return false;
             }
         }
-		mCustomGammaSet = TRUE;
+		mCustomGammaSet = true;
 	}
 
 	LL_DEBUGS("Window") << "Setting gamma to " << gamma << LL_ENDL;
@@ -3487,13 +3449,13 @@ LLWindow::LLWindowResolution* LLWindowWin32::getSupportedResolutions(S32 &num_re
 				dev_mode.dmPelsWidth >= 800 &&
 				dev_mode.dmPelsHeight >= 600)
 			{
-				BOOL resolution_exists = FALSE;
+				bool resolution_exists = false;
 				for(S32 i = 0; i < mNumSupportedResolutions; i++)
 				{
 					if (mSupportedResolutions[i].mWidth == dev_mode.dmPelsWidth &&
 						mSupportedResolutions[i].mHeight == dev_mode.dmPelsHeight)
 					{
-						resolution_exists = TRUE;
+						resolution_exists = true;
 					}
 				}
 				if (!resolution_exists)
@@ -3546,12 +3508,12 @@ F32 LLWindowWin32::getPixelAspectRatio()
 
 // Change display resolution.  Returns true if successful.
 // protected
-BOOL LLWindowWin32::setDisplayResolution(S32 width, S32 height, S32 bits, S32 refresh)
+bool LLWindowWin32::setDisplayResolution(S32 width, S32 height, S32 bits, S32 refresh)
 {
 	DEVMODE dev_mode;
 	::ZeroMemory(&dev_mode, sizeof(DEVMODE));
 	dev_mode.dmSize = sizeof(DEVMODE);
-	BOOL success = FALSE;
+	bool success = false;
 
 	// Don't change anything if we don't have to
 	if (EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &dev_mode))
@@ -3562,7 +3524,7 @@ BOOL LLWindowWin32::setDisplayResolution(S32 width, S32 height, S32 bits, S32 re
 			dev_mode.dmDisplayFrequency == refresh )
 		{
 			// ...display mode identical, do nothing
-			return TRUE;
+			return true;
 		}
 	}
 
@@ -3589,7 +3551,7 @@ BOOL LLWindowWin32::setDisplayResolution(S32 width, S32 height, S32 bits, S32 re
 }
 
 // protected
-BOOL LLWindowWin32::setFullscreenResolution()
+bool LLWindowWin32::setFullscreenResolution()
 {
 	if (mFullscreen)
 	{
@@ -3597,18 +3559,18 @@ BOOL LLWindowWin32::setFullscreenResolution()
 	}
 	else
 	{
-		return FALSE;
+		return false;
 	}
 }
 
 // protected
-BOOL LLWindowWin32::resetDisplayResolution()
+bool LLWindowWin32::resetDisplayResolution()
 {
 	LL_DEBUGS("Window") << "resetDisplayResolution START" << LL_ENDL;
 
 	LONG cds_result = ChangeDisplaySettings(NULL, 0);
 
-	BOOL success = (DISP_CHANGE_SUCCESSFUL == cds_result);
+	bool success = (DISP_CHANGE_SUCCESSFUL == cds_result);
 
 	if (!success)
 	{
@@ -3656,6 +3618,9 @@ void LLSplashScreenWin32::showImpl()
 		NULL,	// no parent
 		(DLGPROC) LLSplashScreenWin32::windowProc); 
 	ShowWindow(mWindow, SW_SHOW);
+
+    // Should set taskbar text without creating a header for the window (caption)
+    SetWindowTextA(mWindow, "Second Life");
 }
 
 
@@ -3815,9 +3780,9 @@ LLSD LLWindowWin32::getNativeKeyData()
 	return result;
 }
 
-BOOL LLWindowWin32::dialogColorPicker( F32 *r, F32 *g, F32 *b )
+bool LLWindowWin32::dialogColorPicker( F32 *r, F32 *g, F32 *b )
 {
-	BOOL retval = FALSE;
+	bool retval = false;
 
 	static CHOOSECOLOR cc;
 	static COLORREF crCustColors[16];
@@ -3870,7 +3835,7 @@ void LLWindowWin32::focusClient()
         });
 }
 
-void LLWindowWin32::allowLanguageTextInput(LLPreeditor *preeditor, BOOL b)
+void LLWindowWin32::allowLanguageTextInput(LLPreeditor *preeditor, bool b)
 {
 	if (b == sLanguageTextInputAllowed || !LLWinImm::isAvailable())
 	{
@@ -3880,7 +3845,7 @@ void LLWindowWin32::allowLanguageTextInput(LLPreeditor *preeditor, BOOL b)
 	if (preeditor != mPreeditor && !b)
 	{
 		// This condition may occur with a call to
-		// setEnabled(BOOL) from LLTextEditor or LLLineEditor
+		// setEnabled(bool) from LLTextEditor or LLLineEditor
 		// when the control is not focused.
 		// We need to silently ignore the case so that
 		// the language input status of the focused control
@@ -3910,7 +3875,7 @@ void LLWindowWin32::allowLanguageTextInput(LLPreeditor *preeditor, BOOL b)
             if (sWinIMEOpened && GetKeyboardLayout(0) == sWinInputLocale)
             {
                 HIMC himc = LLWinImm::getContext(mWindowHandle);
-                LLWinImm::setOpenStatus(himc, TRUE);
+                LLWinImm::setOpenStatus(himc, true);
                 LLWinImm::setConversionStatus(himc, sWinIMEConversionMode, sWinIMESentenceMode);
                 LLWinImm::releaseContext(mWindowHandle, himc);
             }
@@ -3936,7 +3901,7 @@ void LLWindowWin32::allowLanguageTextInput(LLPreeditor *preeditor, BOOL b)
                     // We need both ImmSetConversionStatus and ImmSetOpenStatus here to surely disable IME's 
                     // keyboard hooking, because Some IME reacts only on the former and some other on the latter...
                     LLWinImm::setConversionStatus(himc, IME_CMODE_NOCONVERSION, sWinIMESentenceMode);
-                    LLWinImm::setOpenStatus(himc, FALSE);
+                    LLWinImm::setOpenStatus(himc, false);
                 }
                 LLWinImm::releaseContext(mWindowHandle, himc);
             }
@@ -4142,7 +4107,7 @@ void LLWindowWin32::handleCompositionMessage(const U32 indexes)
     {
         return;
     }
-	BOOL needs_update = FALSE;
+	bool needs_update = false;
 	LLWString result_string;
 	LLWString preedit_string;
 	S32 preedit_string_utf16_length = 0;
@@ -4165,7 +4130,7 @@ void LLWindowWin32::handleCompositionMessage(const U32 indexes)
 				result_string = utf16str_to_wstring(llutf16string(data, size / sizeof(WCHAR)));
 			}
 			delete[] data;
-			needs_update = TRUE;
+			needs_update = true;
 		}
 	}
 	
@@ -4182,7 +4147,7 @@ void LLWindowWin32::handleCompositionMessage(const U32 indexes)
 				preedit_string = utf16str_to_wstring(llutf16string(data, size / sizeof(WCHAR)));
 			}
 			delete[] data;
-			needs_update = TRUE;
+			needs_update = true;
 		}
 	}
 
@@ -4218,13 +4183,13 @@ void LLWindowWin32::handleCompositionMessage(const U32 indexes)
 			size = LLWinImm::getCompositionString(himc, GCS_COMPATTR, data, size);
 			if (size == preedit_string_utf16_length)
 			{
-				preedit_standouts.assign(preedit_segment_lengths.size(), FALSE);
+				preedit_standouts.assign(preedit_segment_lengths.size(), false);
 				S32 offset = 0;
 				for (U32 i = 0; i < preedit_segment_lengths.size(); i++)
 				{
 					if (ATTR_TARGET_CONVERTED == data[offset] || ATTR_TARGET_NOTCONVERTED == data[offset])
 					{
-						preedit_standouts[i] = TRUE;
+						preedit_standouts[i] = true;
 					}
 					offset += wstring_utf16_length(preedit_string, offset, preedit_segment_lengths[i]);
 				}
@@ -4248,7 +4213,7 @@ void LLWindowWin32::handleCompositionMessage(const U32 indexes)
 		// I'm not sure this condition really happens, but
 		// Windows SDK document says it is an indication
 		// of "reset everything."
-		needs_update = TRUE;
+		needs_update = true;
 	}
 
 	LLWinImm::releaseContext(mWindowHandle, himc);
@@ -4283,7 +4248,7 @@ void LLWindowWin32::handleCompositionMessage(const U32 indexes)
 			}
 			if (preedit_standouts.size() == 0)
 			{
-				preedit_standouts.assign(preedit_segment_lengths.size(), FALSE);
+				preedit_standouts.assign(preedit_segment_lengths.size(), false);
 			}
 		}
 		mPreeditor->updatePreedit(preedit_string, preedit_segment_lengths, preedit_standouts, caret_position);
@@ -4330,11 +4295,11 @@ LLWindowCallbacks::DragNDropResult LLWindowWin32::completeDragNDropRequest( cons
 }
 
 // Handle WM_IME_REQUEST message.
-// If it handled the message, returns TRUE.  Otherwise, FALSE.
+// If it handled the message, returns true.  Otherwise, false.
 // When it handled the message, the value to be returned from
 // the Window Procedure is set to *result.
 
-BOOL LLWindowWin32::handleImeRequests(WPARAM request, LPARAM param, LRESULT *result)
+bool LLWindowWin32::handleImeRequests(WPARAM request, LPARAM param, LRESULT *result)
 {
 	if ( mPreeditor )
 	{
@@ -4352,7 +4317,7 @@ BOOL LLWindowWin32::handleImeRequests(WPARAM request, LPARAM param, LRESULT *res
 				form->dwIndex = dwIndex;
 
 				*result = 1;
-				return TRUE;
+				return true;
 			}
 			case IMR_QUERYCHARPOSITION:
 			{
@@ -4372,20 +4337,20 @@ BOOL LLWindowWin32::handleImeRequests(WPARAM request, LPARAM param, LRESULT *res
 				if (!mPreeditor->getPreeditLocation(position, &caret_coord, &preedit_bounds, &text_control))
 				{
 					LL_WARNS("Window") << "*** IMR_QUERYCHARPOSITON called but getPreeditLocation failed." << LL_ENDL;
-					return FALSE;
+					return false;
 				}
 
 				fillCharPosition(caret_coord, preedit_bounds, text_control, char_position);
 
 				*result = 1;
-				return TRUE;
+				return true;
 			}
 			case IMR_COMPOSITIONFONT:
 			{
 				fillCompositionLogfont((LOGFONT *)param);
 
 				*result = 1;
-				return TRUE;
+				return true;
 			}
 			case IMR_RECONVERTSTRING:
 			{
@@ -4406,7 +4371,7 @@ BOOL LLWindowWin32::handleImeRequests(WPARAM request, LPARAM param, LRESULT *res
 						// Let the IME to decide the reconversion range, and
 						// adjust the reconvert_string structure accordingly.
 						HIMC himc = LLWinImm::getContext(mWindowHandle);
-						const BOOL adjusted = LLWinImm::setCompositionString(himc,
+						const bool adjusted = LLWinImm::setCompositionString(himc,
 									SCS_QUERYRECONVERTSTRING, reconvert_string, size, NULL, 0);
 						LLWinImm::releaseContext(mWindowHandle, himc);
 						if (adjusted)
@@ -4423,12 +4388,12 @@ BOOL LLWindowWin32::handleImeRequests(WPARAM request, LPARAM param, LRESULT *res
 				}
 
 				*result = size;
-				return TRUE;
+				return true;
 			}
 			case IMR_CONFIRMRECONVERTSTRING:
 			{
-				*result = FALSE;
-				return TRUE;
+				*result = 0;
+				return true;
 			}
 			case IMR_DOCUMENTFEED:
 			{
@@ -4450,14 +4415,14 @@ BOOL LLWindowWin32::handleImeRequests(WPARAM request, LPARAM param, LRESULT *res
 				
 				RECONVERTSTRING *reconvert_string = (RECONVERTSTRING *)param;
 				*result = fillReconvertString(context, preedit, 0, reconvert_string);
-				return TRUE;
+				return true;
 			}
 			default:
-				return FALSE;
+				return false;
 		}
 	}
 
-	return FALSE;
+	return false;
 }
 
 //static
@@ -4581,18 +4546,35 @@ std::vector<std::string> LLWindowWin32::getDynamicFallbackFontList()
 	return std::vector<std::string>();
 }
 
-U32 LLWindowWin32::getAvailableVRAMMegabytes()
+void LLWindowWin32::setMaxVRAMMegabytes(U32 max_vram)
 {
-    return mWindowThread ? mWindowThread->getAvailableVRAMMegabytes() : 0;
+    if (mWindowThread)
+    {
+        mWindowThread->mMaxVRAM = max_vram;
+    }
 }
 
 #endif // LL_WINDOWS
 
 inline LLWindowWin32::LLWindowWin32Thread::LLWindowWin32Thread()
-    : LL::ThreadPool("Window Thread", 1, MAX_QUEUE_SIZE)
+    : LL::ThreadPool("Window Thread", 1, MAX_QUEUE_SIZE, true /*should be false, temporary workaround for SL-18721*/)
 {
     LL::ThreadPool::start();
 }
+
+void LLWindowWin32::LLWindowWin32Thread::close()
+{
+    if (!mQueue->isClosed())
+    {
+        LL_WARNS() << "Closing window thread without using destroy_window_handler" << LL_ENDL;
+        LL::ThreadPool::close();
+
+        // Workaround for SL-18721 in case window closes too early and abruptly
+        LLSplashScreen::show();
+        LLSplashScreen::update("..."); // will be updated later
+    }
+}
+
 
 /**
  * LogChange is to log changes in status while trying to avoid spamming the
@@ -4745,7 +4727,7 @@ void LLWindowWin32::LLWindowWin32Thread::initD3D()
 {
     if (!mGLReady) { return; }
 
-    if (mDXGIAdapter == NULL && mD3DDevice == NULL && mWindowHandle != 0)
+    if (mDXGIAdapter == NULL && mD3DDevice == NULL && mWindowHandleThrd != 0)
     {
         mD3D = Direct3DCreate9(D3D_SDK_VERSION);
         
@@ -4755,7 +4737,7 @@ void LLWindowWin32::LLWindowWin32Thread::initD3D()
         d3dpp.Windowed = TRUE;
         d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
 
-        HRESULT res = mD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, mWindowHandle, D3DCREATE_SOFTWARE_VERTEXPROCESSING, &d3dpp, &mD3DDevice);
+        HRESULT res = mD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, mWindowHandleThrd, D3DCREATE_SOFTWARE_VERTEXPROCESSING, &d3dpp, &mD3DDevice);
         
         if (FAILED(res))
         {
@@ -4768,76 +4750,25 @@ void LLWindowWin32::LLWindowWin32Thread::initD3D()
     }
 }
 
-void LLWindowWin32::LLWindowWin32Thread::updateVRAMUsage()
+void LLWindowWin32::LLWindowWin32Thread::cleanupDX()
 {
-    LL_PROFILE_ZONE_SCOPED;
-    if (!mGLReady) { return; }
-
-    if (mDXGIAdapter != nullptr)
+    //clean up DXGI/D3D resources
+    if (mDXGIAdapter)
     {
-        // NOTE: what lies below is hand wavy math based on compatibility testing and observation against a variety of hardware
-        //  It doesn't make sense, but please don't refactor it to make sense. -- davep
-
-        DXGI_QUERY_VIDEO_MEMORY_INFO info;
-        mDXGIAdapter->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_LOCAL, &info);
-#if 0 // debug 0 budget and 0 CU
-        info.Budget = 0;
-        info.CurrentUsage = 0;
-#endif
-
-        U32 budget_mb = info.Budget / 1024 / 1024;
-        gGLManager.mVRAM = llmax(gGLManager.mVRAM, (S32) budget_mb);
-
-        U32 afr_mb = info.AvailableForReservation / 1024 / 1024;
-        // correct for systems that misreport budget
-        if (budget_mb == 0)
-        { 
-            // fall back to available for reservation clamped between 512MB and 2GB
-            budget_mb = llclamp(afr_mb, (U32) 512, (U32) 2048);
-        }
-
-        if ( mMaxVRAM != 0)
-        {
-            budget_mb = llmin(budget_mb, mMaxVRAM);
-        }
-
-        U32 cu_mb = info.CurrentUsage / 1024 / 1024;
-
-        // get an estimated usage based on texture bytes allocated
-        U32 eu_mb = LLImageGL::getTextureBytesAllocated() * 2 / 1024 / 1024;
-
-        if (cu_mb == 0)
-        { // current usage is sometimes unreliable on Intel GPUs, fall back to estimated usage
-            cu_mb = llmax((U32)1, eu_mb);
-        }
-        U32 target_mb = budget_mb;
-
-        if (target_mb > 4096)  // if 4GB are installed, try to leave 2GB free 
-        {
-            target_mb -= 2048;
-        }
-        else // if less than 4GB are installed, try not to use more than half of it
-        {
-            target_mb /= 2;
-        }
-
-        mAvailableVRAM = cu_mb < target_mb ? target_mb - cu_mb : 0;
-
-#if 0
-        
-        F32 eu_error = (F32)((S32)eu_mb - (S32)cu_mb) / (F32)cu_mb;
-        LL_INFOS("Window") << "\nLocal\nAFR: " << info.AvailableForReservation / 1024 / 1024
-            << "\nBudget: " << info.Budget / 1024 / 1024
-            << "\nCR: " << info.CurrentReservation / 1024 / 1024
-            << "\nCU: " << info.CurrentUsage / 1024 / 1024
-            << "\nEU: " << eu_mb << llformat(" (%.2f)", eu_error)
-            << "\nTU: " << target_mb
-            << "\nAM: " << mAvailableVRAM << LL_ENDL;
-#endif
+        mDXGIAdapter->Release();
+        mDXGIAdapter = nullptr;
     }
-    else if (mD3DDevice != NULL)
-    { // fallback to D3D9
-        mAvailableVRAM = mD3DDevice->GetAvailableTextureMem() / 1024 / 1024;
+
+    if (mD3DDevice)
+    {
+        mD3DDevice->Release();
+        mD3DDevice = nullptr;
+    }
+
+    if (mD3D)
+    {
+        mD3D->Release();
+        mD3D = nullptr;
     }
 }
 
@@ -4861,7 +4792,7 @@ void LLWindowWin32::LLWindowWin32Thread::run()
         // lazily call initD3D inside this loop to catch when mGLReady has been set to true
         initDX();
 
-        if (mWindowHandle != 0)
+        if (mWindowHandleThrd != 0)
         {
             // lazily call initD3D inside this loop to catch when mWindowHandle has been set, and mGLReady has been set to true
             // *TODO: Shutdown if this fails when mWindowHandle exists
@@ -4869,16 +4800,16 @@ void LLWindowWin32::LLWindowWin32Thread::run()
 
             MSG msg;
             BOOL status;
-            if (mhDC == 0)
+            if (mhDCThrd == 0)
             {
                 LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("w32t - PeekMessage");
-                logger.onChange("PeekMessage(", std::hex, mWindowHandle, ")");
-                status = PeekMessage(&msg, mWindowHandle, 0, 0, PM_REMOVE);
+                logger.onChange("PeekMessage(", std::hex, mWindowHandleThrd, ")");
+                status = PeekMessage(&msg, mWindowHandleThrd, 0, 0, PM_REMOVE);
             }
             else
             {
                 LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("w32t - GetMessage");
-                logger.always("GetMessage(", std::hex, mWindowHandle, ")");
+                logger.always("GetMessage(", std::hex, mWindowHandleThrd, ")");
                 status = GetMessage(&msg, NULL, 0, 0);
             }
             if (status > 0)
@@ -4898,14 +4829,7 @@ void LLWindowWin32::LLWindowWin32Thread::run()
             //process any pending functions
             getQueue().runPending();
         }
-        
-        // update available vram once every 3 seconds
-        static LLFrameTimer vramTimer;
-        if (vramTimer.getElapsedTimeF32() > 3.f)
-        {
-            updateVRAMUsage();
-            vramTimer.reset();
-        }
+
 #if 0
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("w32t - Sleep");
@@ -4915,25 +4839,110 @@ void LLWindowWin32::LLWindowWin32Thread::run()
 #endif
     }
 
-    //clean up DXGI/D3D resources
-    if (mDXGIAdapter)
+    cleanupDX();
+}
+
+void LLWindowWin32::LLWindowWin32Thread::wakeAndDestroy()
+{
+    if (mQueue->isClosed())
     {
-        mDXGIAdapter->Release();
-        mDXGIAdapter = nullptr;
+        LL_WARNS() << "Tried to close Queue. Win32 thread Queue already closed." << LL_ENDL;
+        return;
     }
 
-    if (mD3DDevice)
+    // Make sure we don't leave a blank toolbar button.
+    // Also hiding window now prevents user from suspending it
+    // via some action (like dragging it around)
+    ShowWindow(mWindowHandleThrd, SW_HIDE);
+
+    // Schedule destruction
+    HWND old_handle = mWindowHandleThrd;
+    post([this]()
+         {
+             if (IsWindow(mWindowHandleThrd))
+             {
+                 if (mhDCThrd)
+                 {
+                     if (!ReleaseDC(mWindowHandleThrd, mhDCThrd))
+                     {
+                         LL_WARNS("Window") << "Release of ghDC failed!" << LL_ENDL;
+                     }
+                     mhDCThrd = NULL;
+                 }
+
+                 // This causes WM_DESTROY to be sent *immediately*
+                 if (!destroy_window_handler(mWindowHandleThrd))
+                 {
+                     LL_WARNS("Window") << "Failed to destroy Window! " << std::hex << GetLastError() << LL_ENDL;
+                 }
+             }
+             else
+             {
+                 // Something killed the window while we were busy destroying gl or handle somehow got broken
+                 LL_WARNS("Window") << "Failed to destroy Window, invalid handle!" << LL_ENDL;
+             }
+             mWindowHandleThrd = NULL;
+             mhDCThrd = NULL;
+             mGLReady = false;
+         });
+
+    LL_DEBUGS("Window") << "Closing window's pool queue" << LL_ENDL;
+    mQueue->close();
+
+    // Post a nonsense user message to wake up the thread in
+    // case it is waiting for a getMessage()
+    if (old_handle)
     {
-        mD3DDevice->Release();
-        mD3DDevice = nullptr;
+        WPARAM wparam{ 0xB0B0 };
+        LL_DEBUGS("Window") << "PostMessage(" << std::hex << old_handle
+            << ", " << WM_DUMMY_
+            << ", " << wparam << ")" << std::dec << LL_ENDL;
+        PostMessage(old_handle, WM_DUMMY_, wparam, 0x1337);
     }
 
-    if (mD3D)
+    // There are cases where window will refuse to close,
+    // can't wait forever on join, check state instead
+    LLTimer timeout;
+    timeout.setTimerExpirySec(2.0);
+    while (!getQueue().done() && !timeout.hasExpired() && mWindowHandleThrd)
     {
-        mD3D->Release();
-        mD3D = nullptr;
+        ms_sleep(100);
     }
 
+    if (getQueue().done() || mWindowHandleThrd == NULL)
+    {
+        // Window is closed, started closing or is cleaning up
+        // now wait for our single thread to die.
+        if (mWindowHandleThrd)
+        {
+            LL_INFOS("Window") << "Window is closing, waiting on pool's thread to join, time since post: " << timeout.getElapsedSeconds() << "s" << LL_ENDL;
+        }
+        else
+        {
+            LL_DEBUGS("Window") << "Waiting on pool's thread, time since post: " << timeout.getElapsedSeconds() << "s" << LL_ENDL;
+        }
+        for (auto& pair : mThreads)
+        {
+            pair.second.join();
+        }
+    }
+    else
+    {
+        // Something suspended window thread, can't afford to wait forever
+        // so kill thread instead
+        // Ex: This can happen if user starts dragging window arround (if it
+        // was visible) or a modal notification pops up
+        LL_WARNS("Window") << "Window is frozen, couldn't perform clean exit" << LL_ENDL;
+
+        for (auto& pair : mThreads)
+        {
+            // very unsafe
+            TerminateThread(pair.second.native_handle(), 0);
+            pair.second.detach();
+            cleanupDX();
+        }
+    }
+    LL_DEBUGS("Window") << "thread pool shutdown complete" << LL_ENDL;
 }
 
 void LLWindowWin32::post(const std::function<void()>& func)

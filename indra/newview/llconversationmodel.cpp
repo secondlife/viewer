@@ -37,8 +37,6 @@
 #include "llimview.h" //For LLIMModel
 #include "lltrans.h"
 
-#include <boost/foreach.hpp>
-
 //
 // Conversation items : common behaviors
 //
@@ -90,6 +88,8 @@ LLConversationItem::~LLConversationItem()
 	{
 		mAvatarNameCacheConnection.disconnect();
 	}
+
+    clearChildren();
 }
 
 //virtual
@@ -254,6 +254,11 @@ LLConversationItemSession::LLConversationItemSession(const LLUUID& uuid, LLFolde
 	mConvType = CONV_SESSION_UNKNOWN;
 }
 
+LLConversationItemSession::~LLConversationItemSession()
+{
+    clearAndDeparentModels();
+}
+
 bool LLConversationItemSession::hasChildren() const
 {
 	return getChildrenCount() > 0;
@@ -293,8 +298,7 @@ void LLConversationItemSession::updateName(LLConversationItemParticipant* partic
 		// In the case of a P2P conversation, we need to grab the name of the other participant in the session instance itself
 		// as we do not create participants for such a session.
 
-		LLFolderViewModelItem * itemp;
-		BOOST_FOREACH(itemp, mChildren)
+		for (auto itemp : mChildren)
 		{
 			LLConversationItem* current_participant = dynamic_cast<LLConversationItem*>(itemp);
 			// Add the avatar uuid to the list (except if it's the own agent uuid)
@@ -353,22 +357,20 @@ void LLConversationItemSession::clearParticipants()
 
 void LLConversationItemSession::clearAndDeparentModels()
 {
-    std::for_each(mChildren.begin(), mChildren.end(),
-        [](LLFolderViewModelItem* c)
+    for (LLFolderViewModelItem* child : mChildren)
+    {
+        if (child->getNumRefs() == 0)
         {
-            if (c->getNumRefs() == 0)
-            {
-                // LLConversationItemParticipant can be created but not assigned to any view,
-                // it was waiting for an "add_participant" event to be processed
-                delete c;
-            }
-            else
-            {
-                // Model is still assigned to some view/widget
-                c->setParent(NULL);
-            }
+            // LLConversationItemParticipant can be created but not assigned to any view,
+            // it was waiting for an "add_participant" event to be processed
+            delete child;
         }
-    );
+        else
+        {
+            // Model is still assigned to some view/widget
+            child->setParent(NULL);
+        }
+    }
     mChildren.clear();
 }
 

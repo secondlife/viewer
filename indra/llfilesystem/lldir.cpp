@@ -44,7 +44,6 @@
 #include "stringize.h"
 #include "llstring.h"
 #include <boost/filesystem.hpp>
-#include <boost/foreach.hpp>
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>
 #include <boost/assign/list_of.hpp>
@@ -71,6 +70,7 @@ LLDir *gDirUtilp = (LLDir *)&gDirUtil;
 /// Values for findSkinnedFilenames(subdir) parameter
 const char
 	*LLDir::XUI      = "xui",
+	*LLDir::HTML     = "html",
 	*LLDir::TEXTURES = "textures",
 	*LLDir::SKINBASE = "";
 
@@ -691,10 +691,10 @@ void LLDir::walkSearchSkinDirs(const std::string& subdir,
 							   const std::string& filename,
 							   const FUNCTION& function) const
 {
-	BOOST_FOREACH(std::string skindir, mSearchSkinDirs)
+	for (const std::string& skindir : mSearchSkinDirs)
 	{
 		std::string subdir_path(add(skindir, subdir));
-		BOOST_FOREACH(std::string subsubdir, subsubdirs)
+		for (const std::string& subsubdir : subsubdirs)
 		{
 			std::string full_path(add(subdir_path, subsubdir, filename));
 			if (fileExists(full_path))
@@ -761,14 +761,13 @@ std::vector<std::string> LLDir::findSkinnedFilenames(const std::string& subdir,
 		else
 		{
 			// We do not recognize this subdir. Investigate.
-			std::string subdir_path(add(getDefaultSkinDir(), subdir));
-			if (fileExists(add(subdir_path, "en")))
+			if (skinExists(subdir, "en"))
 			{
 				// defaultSkinDir/subdir contains subdir "en". That's our
 				// default language; this subdir is localized.
 				found = sLocalized.insert(StringMap::value_type(subdir, "en")).first;
 			}
-			else if (fileExists(add(subdir_path, "en-us")))
+			else if (skinExists(subdir, "en-us"))
 			{
 				// defaultSkinDir/subdir contains subdir "en-us" but not "en".
 				// Set as default language; this subdir is localized.
@@ -843,7 +842,7 @@ std::vector<std::string> LLDir::findSkinnedFilenames(const std::string& subdir,
 		// current language, copy them -- in proper order -- into results.
 		// Don't drive this by walking the map itself: it matters that we
 		// generate results in the same order as subsubdirs.
-		BOOST_FOREACH(std::string subsubdir, subsubdirs)
+		for (const std::string& subsubdir : subsubdirs)
 		{
 			StringMap::const_iterator found(path_for.find(subsubdir));
 			if (found != path_for.end())
@@ -855,7 +854,7 @@ std::vector<std::string> LLDir::findSkinnedFilenames(const std::string& subdir,
 
 	LL_DEBUGS("LLDir") << empty;
 	const char* comma = "";
-	BOOST_FOREACH(std::string path, results)
+	for (const std::string& path : results)
 	{
 		LL_CONT << comma << "'" << path << "'";
 		comma = ", ";
@@ -863,6 +862,33 @@ std::vector<std::string> LLDir::findSkinnedFilenames(const std::string& subdir,
 	LL_CONT << LL_ENDL;
 
 	return results;
+}
+
+// virtual
+bool LLDir::skinExists(const std::string& subdir, const std::string& skin) const
+{
+    std::string skin_path(add(getDefaultSkinDir(), subdir, skin));
+    return fileExists(skin_path);
+}
+
+// virtual
+std::string LLDir::getFileContents(const std::string& filename) const
+{
+    LLFILE* fp = LLFile::fopen(filename, "rb"); /* Flawfinder: ignore */
+    if (fp)
+    {
+        fseek(fp, 0, SEEK_END);
+        U32 length = ftell(fp);
+        fseek(fp, 0, SEEK_SET);
+
+        std::vector<char> buffer(length);
+        size_t nread = fread(buffer.data(), 1, length, fp);
+        fclose(fp);
+
+        return std::string(buffer.data(), nread);
+    }
+
+    return LLStringUtil::null;
 }
 
 std::string LLDir::getTempFilename() const

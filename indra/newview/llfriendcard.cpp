@@ -177,7 +177,7 @@ void LLFriendCardsManager::putAvatarData(const LLUUID& avatarID)
 	LL_INFOS() << "Store avatar data, avatarID: " << avatarID << LL_ENDL;
 	std::pair< avatar_uuid_set_t::iterator, bool > pr;
 	pr = mBuddyIDSet.insert(avatarID);
-	if (pr.second == false)
+	if (!pr.second)
 	{
 		LL_WARNS() << "Trying to add avatar UUID for the stored avatar: " 
 			<< avatarID
@@ -303,7 +303,7 @@ bool LLFriendCardsManager::isCategoryInFriendFolder(const LLViewerInventoryCateg
 {
 	if (NULL == cat)
 		return false;
-	return TRUE == gInventory.isObjectDescendentOf(cat->getUUID(), findFriendFolderUUIDImpl());
+	return true == gInventory.isObjectDescendentOf(cat->getUUID(), findFriendFolderUUIDImpl());
 }
 
 bool LLFriendCardsManager::isAnyFriendCategory(const LLUUID& catID) const
@@ -312,7 +312,7 @@ bool LLFriendCardsManager::isAnyFriendCategory(const LLUUID& catID) const
 	if (catID == friendFolderID)
 		return true;
 
-	return TRUE == gInventory.isObjectDescendentOf(catID, friendFolderID);
+	return true == gInventory.isObjectDescendentOf(catID, friendFolderID);
 }
 
 void LLFriendCardsManager::syncFriendCardsFolders()

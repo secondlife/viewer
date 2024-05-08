@@ -506,7 +506,7 @@ namespace
         LLError::TimeFunction               mTimeFunction;
 
         Recorders                           mRecorders;
-        LLMutex                             mRecorderMutex;
+        LLCoros::Mutex                      mRecorderMutex;
 
         int                                 mShouldLogCallCounter;
 
@@ -700,7 +700,7 @@ namespace
     bool shouldLogToStderr()
     {
 #if LL_DARWIN
-        // On Mac OS X, stderr from apps launched from the Finder goes to the
+        // On macOS, stderr from apps launched from the Finder goes to the
         // console log.  It's generally considered bad form to spam too much
         // there. That scenario can be detected by noticing that stderr is a
         // character device (S_IFCHR).
@@ -1044,7 +1044,7 @@ namespace LLError
 			return;
 		}
 		SettingsConfigPtr s = Globals::getInstance()->getSettingsConfig();
-		LLMutexLock lock(&s->mRecorderMutex);
+		LLCoros::LockType lock(s->mRecorderMutex);
 		s->mRecorders.push_back(recorder);
 	}
 
@@ -1055,7 +1055,7 @@ namespace LLError
 			return;
 		}
 		SettingsConfigPtr s = Globals::getInstance()->getSettingsConfig();
-		LLMutexLock lock(&s->mRecorderMutex);
+		LLCoros::LockType lock(s->mRecorderMutex);
 		s->mRecorders.erase(std::remove(s->mRecorders.begin(), s->mRecorders.end(), recorder),
 							s->mRecorders.end());
 	}
@@ -1070,7 +1070,7 @@ namespace LLError
     //
     // NOTE!!! Requires external mutex lock!!!
     template <typename RECORDER>
-    std::pair<boost::shared_ptr<RECORDER>, Recorders::iterator>
+    std::pair<std::shared_ptr<RECORDER>, Recorders::iterator>
     findRecorderPos(SettingsConfigPtr &s)
     {
         // Since we promise to return an iterator, use a classic iterator
@@ -1081,7 +1081,7 @@ namespace LLError
             // *it is a RecorderPtr, a shared_ptr<Recorder>. Use a
             // dynamic_pointer_cast to try to downcast to test if it's also a
             // shared_ptr<RECORDER>.
-            auto ptr = boost::dynamic_pointer_cast<RECORDER>(*it);
+            auto ptr = std::dynamic_pointer_cast<RECORDER>(*it);
             if (ptr)
             {
                 // found the entry we want
@@ -1101,10 +1101,10 @@ namespace LLError
     // shared_ptr might be empty (operator!() returns true) if there was no
     // such RECORDER subclass instance in mRecorders.
     template <typename RECORDER>
-    boost::shared_ptr<RECORDER> findRecorder()
+    std::shared_ptr<RECORDER> findRecorder()
     {
         SettingsConfigPtr s = Globals::getInstance()->getSettingsConfig();
-        LLMutexLock lock(&s->mRecorderMutex);
+        LLCoros::LockType lock(s->mRecorderMutex);
         return findRecorderPos<RECORDER>(s).first;
     }
 
@@ -1115,7 +1115,7 @@ namespace LLError
     bool removeRecorder()
     {
         SettingsConfigPtr s = Globals::getInstance()->getSettingsConfig();
-        LLMutexLock lock(&s->mRecorderMutex);
+        LLCoros::LockType lock(s->mRecorderMutex);
         auto found = findRecorderPos<RECORDER>(s);
         if (found.first)
         {
@@ -1134,7 +1134,7 @@ namespace LLError
 
 		if (!file_name.empty())
 		{
-			boost::shared_ptr<RecordToFile> recordToFile(new RecordToFile(file_name));
+			std::shared_ptr<RecordToFile> recordToFile(new RecordToFile(file_name));
 			if (recordToFile->okay())
 			{
 				addRecorder(recordToFile);
@@ -1221,7 +1221,7 @@ namespace
 
         std::string escaped_message;
 
-        LLMutexLock lock(&s->mRecorderMutex);
+        LLCoros::LockType lock(s->mRecorderMutex);
 		for (LLError::RecorderPtr& r : s->mRecorders)
 		{
             if (!r->enabled())

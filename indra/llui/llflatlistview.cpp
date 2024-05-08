@@ -48,7 +48,7 @@ LLFlatListView::Params::Params()
 	no_items_text("no_items_text")
 {};
 
-void LLFlatListView::reshape(S32 width, S32 height, BOOL called_from_parent /* = TRUE */)
+void LLFlatListView::reshape(S32 width, S32 height, bool called_from_parent /* = true */)
 {
 	S32 delta = height - getRect().getHeight();
 	LLScrollContainer::reshape(width, height, called_from_parent);
@@ -528,7 +528,7 @@ void LLFlatListView::draw()
 }
 
 // virtual
-BOOL LLFlatListView::postBuild()
+bool LLFlatListView::postBuild()
 {
 	setTabStop(true);
 	return LLScrollContainer::postBuild();
@@ -610,7 +610,7 @@ void LLFlatListView::onItemMouseClick(item_pair_t* item_pair, MASK mask)
 		return;
 	}
 
-	setFocus(TRUE);
+	setFocus(true);
 	
 	bool select_item = !isSelected(item_pair);
 
@@ -714,10 +714,10 @@ void LLFlatListView::onItemRightMouseClick(item_pair_t* item_pair, MASK mask)
 	onItemMouseClick(item_pair, mask);
 }
 
-BOOL LLFlatListView::handleKeyHere(KEY key, MASK mask)
+bool LLFlatListView::handleKeyHere(KEY key, MASK mask)
 {
-	BOOL reset_selection = (mask != MASK_SHIFT);
-	BOOL handled = FALSE;
+	bool reset_selection = (mask != MASK_SHIFT);
+	bool handled = false;
 	switch (key)
 	{
 		case KEY_RETURN:
@@ -725,7 +725,7 @@ BOOL LLFlatListView::handleKeyHere(KEY key, MASK mask)
 			if (mSelectedItemPairs.size() && mask == MASK_NONE)
 			{
 				mOnReturnSignal(this, getValue());
-				handled = TRUE;
+				handled = true;
 			}
 			break;
 		}
@@ -753,7 +753,7 @@ BOOL LLFlatListView::handleKeyHere(KEY key, MASK mask)
 		{
 			if (mask == MASK_NONE)
 			{
-				setFocus(FALSE); // pass focus to the game area (EXT-8357)
+				setFocus(false); // pass focus to the game area (EXT-8357)
 			}
 			break;
 		}
@@ -779,7 +779,7 @@ BOOL LLFlatListView::handleKeyHere(KEY key, MASK mask)
 		localRectToScreen(selected_rc, &screen_rc);
 		notifyParent(LLSD().with("scrollToShowRect",screen_rc.getValue()));*/
 
-		handled = TRUE;
+		handled = true;
 	}
 
 	return handled ? handled : LLScrollContainer::handleKeyHere(key, mask);
@@ -1040,7 +1040,7 @@ bool LLFlatListView::selectNextItemPair(bool is_up_direction, bool reset_selecti
 	return false;
 }
 
-BOOL LLFlatListView::canSelectAll() const
+bool LLFlatListView::canSelectAll() const
 {
 	return 0 != size() && mAllowSelection && mMultipleSelection;
 }
@@ -1198,14 +1198,14 @@ void LLFlatListView::onFocusReceived()
 {
 	if (size())
 	{
-		mSelectedItemsBorder->setVisible(TRUE);
+		mSelectedItemsBorder->setVisible(true);
 	}
 	gEditMenuHandler = this;
 }
 // virtual
 void LLFlatListView::onFocusLost()
 {
-	mSelectedItemsBorder->setVisible(FALSE);
+	mSelectedItemsBorder->setVisible(false);
 	// Route menu back to the default
 	if (gEditMenuHandler == this)
 	{
@@ -1361,26 +1361,28 @@ void LLFlatListViewEx::setForceShowingUnmatchedItems(bool show)
 	mForceShowingUnmatchedItems = show;
 }
 
-void LLFlatListViewEx::setFilterSubString(const std::string& filter_str)
+void LLFlatListViewEx::setFilterSubString(const std::string& filter_str, bool notify_parent)
 {
 	if (0 != LLStringUtil::compareInsensitive(filter_str, mFilterSubString))
 	{
 		mFilterSubString = filter_str;
 		updateNoItemsMessage(mFilterSubString);
-		filterItems();
+		filterItems(false, notify_parent);
 	}
 }
 
-void LLFlatListViewEx::updateItemVisibility(LLPanel* item, const LLSD &action)
+bool LLFlatListViewEx::updateItemVisibility(LLPanel* item, const LLSD &action)
 {
-	if (!item) return;
+    if (!item)
+        return false;
+
+	bool visible = true;
 
 	// 0 signifies that filter is matched,
 	// i.e. we don't hide items that don't support 'match_filter' action, separators etc.
 	if (0 == item->notify(action))
 	{
 		mHasMatchedItems = true;
-		item->setVisible(true);
 	}
 	else
 	{
@@ -1388,34 +1390,45 @@ void LLFlatListViewEx::updateItemVisibility(LLPanel* item, const LLSD &action)
 		if (!mForceShowingUnmatchedItems)
 		{
 			selectItem(item, false);
+			visible = false;
 		}
-		item->setVisible(mForceShowingUnmatchedItems);
 	}
+
+	if (item->getVisible() != visible)
+	{
+		item->setVisible(visible);
+		return true;
+	}
+
+	return false;
 }
 
-void LLFlatListViewEx::filterItems()
+void LLFlatListViewEx::filterItems(bool re_sort, bool notify_parent)
 {
-	typedef std::vector <LLPanel*> item_panel_list_t;
-
 	std::string cur_filter = mFilterSubString;
 	LLStringUtil::toUpper(cur_filter);
 
 	LLSD action;
 	action.with("match_filter", cur_filter);
 
-	item_panel_list_t items;
-	getItems(items);
-
 	mHasMatchedItems = false;
-    item_panel_list_t::iterator iter = items.begin(), iter_end = items.end();
-	while (iter < iter_end)
+	bool visibility_changed = false;
+	pairs_const_iterator_t iter = getItemPairs().begin(), iter_end = getItemPairs().end();
+	while (iter != iter_end)
 	{
-		LLPanel* pItem = *(iter++);
-		updateItemVisibility(pItem, action);
+		LLPanel* pItem = (*(iter++))->first;
+		visibility_changed |= updateItemVisibility(pItem, action);
 	}
 
-	sort();
-	notifyParentItemsRectChanged();
+    if (re_sort)
+    {
+        sort();
+    }
+
+    if (visibility_changed && notify_parent)
+    {
+        notifyParentItemsRectChanged();
+    }
 }
 
 bool LLFlatListViewEx::hasMatchedItems()
