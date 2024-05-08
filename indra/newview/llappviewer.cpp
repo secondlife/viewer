@@ -1135,10 +1135,13 @@ bool LLAppViewer::init()
         LLViewerJoystick::getInstance()->init(false);
     }
 
-    LLGameControl::init(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "gamecontrollerdb.txt"));
-    LLGameControl::enableSendToServer(gSavedSettings.getBOOL("GameControlToServer"));
-    LLGameControl::enableControlAgent(gSavedSettings.getBOOL("GameControlToAgent"));
-    LLGameControl::enableTranslateAgentActions(gSavedSettings.getBOOL("AgentToGameControl"));
+    LLGameControl::init(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "gamecontrollerdb.txt"),
+        [&](const std::string& name) -> bool { return gSavedSettings.getBOOL(name); },
+        [&](const std::string& name, bool value) { gSavedSettings.setBOOL(name, value); },
+        [&](const std::string& name) -> std::string { return gSavedSettings.getString(name); },
+        [&](const std::string& name, const std::string& value) { gSavedSettings.setString(name, value); },
+        [&](const std::string& name) -> LLSD { return gSavedSettings.getLLSD(name); },
+        [&](const std::string& name, const LLSD& value) { gSavedSettings.setLLSD(name, value); });
 
     try
     {
@@ -1422,46 +1425,6 @@ bool LLAppViewer::frame()
 
     return ret;
 }
-
-// util for detecting most active input channel
-LLGameControl::InputChannel get_active_input_channel(const LLGameControl::State& state)
-{
-    LLGameControl::InputChannel input;
-    if (state.mButtons > 0)
-    {
-        // check buttons
-        input.mType = LLGameControl::InputChannel::TYPE_BUTTON;
-        for (U8 i = 0; i < 32; ++i)
-        {
-            if ((0x1 << i) & state.mButtons)
-            {
-                input.mIndex = i;
-                break;
-            }
-        }
-    }
-    else
-    {
-        // scan axes
-        S16 threshold = std::numeric_limits<S16>::max() / 2;
-        for (U8 i = 0; i < 6; ++i)
-        {
-            if (abs(state.mAxes[i]) > threshold)
-            {
-                input.mType = LLGameControl::InputChannel::TYPE_AXIS;
-                // input.mIndex ultimately translates to a LLGameControl::KeyboardAxis
-                // which distinguishes between negative and positive directions
-                // so we must translate to axis index "i" according to the sign
-                // of the axis value.
-                input.mIndex = i;
-                input.mSign = state.mAxes[i] > 0 ? 1 : -1;
-                break;
-            }
-        }
-    }
-    return input;
-}
-
 
 void sendGameControlInput()
 {
@@ -4860,13 +4823,9 @@ void LLAppViewer::idle()
         bool should_send_game_control = LLGameControl::computeFinalStateAndCheckForChanges();
         if (LLPanelPreferenceGameControl::isWaitingForInputChannel())
         {
-            LLGameControl::InputChannel channel = get_active_input_channel(LLGameControl::getState());
-            if (channel.mType != LLGameControl::InputChannel::TYPE_NONE)
-            {
-                LLPanelPreferenceGameControl::applyGameControlInput(channel);
-                // skip this send because input is being used to set preferences
-                should_send_game_control = false;
-            }
+            LLPanelPreferenceGameControl::applyGameControlInput();
+            // skip this send because input is being used to set preferences
+            should_send_game_control = false;
         }
         if (should_send_game_control)
         {

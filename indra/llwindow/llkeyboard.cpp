@@ -276,40 +276,58 @@ bool LLKeyboard::handleTranslatedKeyUp(KEY translated_key, U32 translated_mask)
     return handled;
 }
 
+<<<<<<< HEAD
 bool LLKeyboard::handleKeyDown(const U16 key, const U32 mask)
 {
     U32 translated_mask = updateModifiers(mask);
 
+=======
+bool LLKeyboard::handleKeyDown(const U16 key, const MASK mask)
+{
+    U32 translated_mask = updateModifiers(mask);
+>>>>>>> 7733b56eab (Add GameControl UI for per device settings)
     KEY     translated_key = 0;
     bool    handled = false;
     if(translateKey(key, &translated_key))
     {
         handled = handleTranslatedKeyDown(translated_key, translated_mask);
     }
+<<<<<<< HEAD
     if (!handled)
     {
         LLGameControl::onKeyDown(translated_key, translated_mask);
     }
 
+=======
+>>>>>>> 7733b56eab (Add GameControl UI for per device settings)
     return handled;
 }
 
 
+<<<<<<< HEAD
 bool LLKeyboard::handleKeyUp(const U16 key, const U32 mask)
 {
     U32 translated_mask = updateModifiers(mask);
 
+=======
+bool LLKeyboard::handleKeyUp(const U16 key, const MASK mask)
+{
+    U32 translated_mask = updateModifiers(mask);
+>>>>>>> 7733b56eab (Add GameControl UI for per device settings)
     KEY     translated_key = 0;
     bool    handled = false;
     if(translateKey(key, &translated_key))
     {
         handled = handleTranslatedKeyUp(translated_key, translated_mask);
     }
+<<<<<<< HEAD
     if (!handled)
     {
         LLGameControl::onKeyUp(translated_key, translated_mask);
     }
 
+=======
+>>>>>>> 7733b56eab (Add GameControl UI for per device settings)
     return handled;
 }
 

@@ -36,10 +36,13 @@
 #include "llfloater.h"
 #include "llavatarpropertiesprocessor.h"
 #include "llconversationlog.h"
-#include "llgamecontroltranslator.h"
+#include "llgamecontrol.h"
+#include "llkeyconflict.h"
+#include "llscrolllistcell.h"
+#include "llscrolllistctrl.h"
 #include "llsearcheditor.h"
 #include "llsetkeybinddialog.h"
-#include "llkeyconflict.h"
+#include "llspinctrl.h"
 
 class LLConversationLogObserver;
 class LLPanelPreference;
@@ -102,6 +105,7 @@ public:
     static void updateShowFavoritesCheckbox(bool val);
 
     void processProperties( void* pData, EAvatarProcessorType type ) override;
+    void saveAvatarProperties( void );
     static void saveAvatarPropertiesCoro(const std::string url, bool allow_publish);
     void selectPrivacyPanel();
     void selectChatPanel();
@@ -306,8 +310,6 @@ public:
     void setHardwareDefaults() override;
     void setPresetText();
 
-    static const std::string getPresetsPath();
-
 protected:
     bool hasDirtyChilds();
 
@@ -372,6 +374,7 @@ private:
 
 class LLPanelPreferenceGameControl : public LLPanelPreference
 {
+    LOG_CLASS(LLPanelPreferenceGameControl);
 public:
 
     enum InputType
@@ -384,41 +387,93 @@ public:
     LLPanelPreferenceGameControl();
     ~LLPanelPreferenceGameControl();
 
-    void apply() override;
-    void loadDefaults();
-    void loadSettings();
+    void onOpen(const LLSD& key) override;
     void saveSettings() override;
-    void updateEnabledState();
 
-    void onClickGameControlToServer(LLUICtrl* ctrl);
-    // "Agent" in this context means either Avatar or Flycam
-    void onClickGameControlToAgent(LLUICtrl* ctrl);
-    void onClickAgentToGameControl(LLUICtrl* ctrl);
-    void onActionSelect();
-    void onCommitInputChannel();
+    void onGridSelect(LLUICtrl* ctrl);
+    void onCommitInputChannel(LLUICtrl* ctrl);
+
+    void onAxisOptionsSelect();
+    void onCommitNumericValue();
 
     static bool isWaitingForInputChannel();
-    static void applyGameControlInput(const LLGameControl::InputChannel& channel);
+    static void applyGameControlInput();
+
 protected:
     bool postBuild() override;
 
-    void populateActionTable();
-    void populateColumns();
-    void populateRows(const std::string& filename);
+    void populateActionTableRows(const std::string& filename);
+    void populateActionTableCells();
+    static bool parseXmlFile(LLScrollListCtrl::Contents& contents,
+        const std::string& filename, const std::string& what);
+
+    void populateDeviceTitle();
+    void populateDeviceSettings(const std::string& guid);
+    void populateOptionsTableRows();
+    void populateOptionsTableCells();
+    void populateMappingTableRows(LLScrollListCtrl* target,
+        const LLComboBox* source, size_t row_count);
+    void populateMappingTableCells(LLScrollListCtrl* target,
+        const std::vector<U8>& mappings, const LLComboBox* source);
+    LLGameControl::Options& getSelectedDeviceOptions();
+
+    static std::string getChannelLabel(const std::string& channelName,
+        const std::vector<LLScrollListItem*>& items);
+    static void setNumericLabel(LLScrollListCell* cell, S32 value);
+    static void fitInRect(LLUICtrl* ctrl, LLScrollListCtrl* grid, S32 row_index, S32 col_index);
 
 private:
+    bool initCombobox(LLScrollListItem* item, LLScrollListCtrl* grid);
     void clearSelectionState();
-    void addTableSeparator();
-    void updateTable();
-    LOG_CLASS(LLPanelPreferenceGameControl);
+    void addActionTableSeparator();
+    void updateActionTableState();
+    void onResetToDefaults();
+    void resetChannelMappingsToDefaults();
+    void resetAxisOptionsToDefaults();
+    void resetAxisMappingsToDefaults();
+    void resetButtonMappingsToDefaults();
 
+    // Above the tab container
     LLCheckBoxCtrl  *mCheckGameControlToServer; // send game_control data to server
     LLCheckBoxCtrl  *mCheckGameControlToAgent; // use game_control data to move avatar
     LLCheckBoxCtrl  *mCheckAgentToGameControl; // translate external avatar actions to game_control data
 
+    // 1st tab "Channel mappings"
+    LLPanel* mTabChannelMappings;
     LLScrollListCtrl* mActionTable;
-    LLComboBox* mChannelSelector;
-    LLGameControlTranslator mActionTranslator;
+
+    // 2nd tab "Device settings"
+    LLPanel* mTabDeviceSettings;
+    LLTextBox* mNoDeviceMessage;
+    LLTextBox* mDevicePrompt;
+    LLTextBox* mSingleDevice;
+    LLComboBox* mDeviceList;
+    LLCheckBoxCtrl* mCheckShowAllDevices;
+    LLPanel* mPanelDeviceSettings;
+    LLPanel* mTabAxisOptions;
+    LLScrollListCtrl* mAxisOptions;
+    LLPanel* mTabAxisMappings;
+    LLScrollListCtrl* mAxisMappings;
+    LLPanel* mTabButtonMappings;
+    LLScrollListCtrl* mButtonMappings;
+
+    LLButton* mResetToDefaults;
+
+    // Numeric value editor
+    LLSpinCtrl* mNumericValueEditor;
+
+    // Channel selectors
+    LLComboBox* mAnalogChannelSelector;
+    LLComboBox* mBinaryChannelSelector;
+    LLComboBox* mAxisSelector;
+
+    struct DeviceOptions
+    {
+        std::string name, settings;
+        LLGameControl::Options options;
+    };
+    std::map<std::string, DeviceOptions> mDeviceOptions;
+    std::string mSelectedDeviceGUID;
 };
 
 class LLAvatarComplexityControls

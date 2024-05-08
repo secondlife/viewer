@@ -80,10 +80,7 @@ public:
     virtual bool    handleKeyUp(const NATIVE_KEY_TYPE key, MASK mask) = 0;
     virtual bool    handleKeyDown(const NATIVE_KEY_TYPE key, MASK mask) = 0;
 
-#ifdef LL_DARWIN
-    // We only actually use this for macOS.
-    virtual void    handleModifier(MASK mask) = 0;
-#endif // LL_DARWIN
+    virtual void    handleModifier(MASK mask) { }
 
     // Asynchronously poll the control, alt, and shift keys and set the
     // appropriate internal key masks.
@@ -113,6 +110,7 @@ public:
 
 protected:
     void            addKeyName(KEY key, const std::string& name);
+    virtual MASK    updateModifiers(const MASK mask) { return mask; }
 
 protected:
     std::map<NATIVE_KEY_TYPE, KEY>  mTranslateKeyMap;       // Map of translations from OS keys to Linden KEYs

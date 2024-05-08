@@ -177,7 +177,7 @@ void LLKeyboardSDL::resetMaskKeys()
 }
 
 
-MASK LLKeyboardSDL::updateModifiers(const U32 mask)
+MASK LLKeyboardSDL::updateModifiers(const MASK mask)
 {
     // translate the mask
     MASK out_mask = MASK_NONE;
@@ -201,7 +201,7 @@ MASK LLKeyboardSDL::updateModifiers(const U32 mask)
 }
 
 
-static U32 adjustNativekeyFromUnhandledMask(const U32 key, const U32 mask)
+static U32 adjustNativekeyFromUnhandledMask(const U16 key, const MASK mask)
 {
     // SDL doesn't automatically adjust the keysym according to
     // whether NUMLOCK is engaged, so we massage the keysym manually.
@@ -226,7 +226,7 @@ static U32 adjustNativekeyFromUnhandledMask(const U32 key, const U32 mask)
 }
 
 
-bool LLKeyboardSDL::handleKeyDown(const U32 key, const U32 mask)
+bool LLKeyboardSDL::handleKeyDown(const U32 key, const MASK mask)
 {
     U32 adjusted_nativekey;
     KEY translated_key = 0;
@@ -246,7 +246,7 @@ bool LLKeyboardSDL::handleKeyDown(const U32 key, const U32 mask)
 }
 
 
-bool LLKeyboardSDL::handleKeyUp(const U32 key, const U32 mask)
+bool LLKeyboardSDL::handleKeyUp(const U32 key, const MASK mask)
 {
     U32 adjusted_nativekey;
     KEY translated_key = 0;

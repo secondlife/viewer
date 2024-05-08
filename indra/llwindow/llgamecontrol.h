@@ -79,20 +79,30 @@ public:
         CONTROL_MODE_NONE
     };
 
-    enum KeyboardAxis
+    enum ActionNameType
     {
-        AXIS_LEFTX = 0,
+        ACTION_NAME_UNKNOWN,
+        ACTION_NAME_ANALOG,     // E.g., "push"
+        ACTION_NAME_ANALOG_POS, // E.g., "push+"
+        ACTION_NAME_ANALOG_NEG, // E.g., "push-"
+        ACTION_NAME_BINARY,     // E.g., "stop"
+        ACTION_NAME_FLYCAM      // E.g., "zoom"
+    };
+
+    enum KeyboardAxis : U8
+    {
+        AXIS_LEFTX,
         AXIS_LEFTY,
         AXIS_RIGHTX,
         AXIS_RIGHTY,
         AXIS_TRIGGERLEFT,
         AXIS_TRIGGERRIGHT,
-        AXIS_LAST
+        NUM_AXES
     };
 
     enum Button
     {
-        BUTTON_A = 0,
+        BUTTON_A,
         BUTTON_B,
         BUTTON_X,
         BUTTON_Y,
@@ -123,17 +133,21 @@ public:
         BUTTON_28,
         BUTTON_29,
         BUTTON_30,
-        BUTTON_31
+        BUTTON_31,
+        NUM_BUTTONS
     };
+
+    static const U16 MAX_AXIS_DEAD_ZONE = 16384;
+    static const U16 MAX_AXIS_OFFSET = 16384;
 
     class InputChannel
     {
     public:
         enum Type
         {
+            TYPE_NONE,
             TYPE_AXIS,
-            TYPE_BUTTON,
-            TYPE_NONE
+            TYPE_BUTTON
         };
 
         InputChannel() {}
@@ -141,11 +155,16 @@ public:
         InputChannel(Type type, U8 index, S32 sign) : mType(type), mSign(sign), mIndex(index) {}
 
         // these methods for readability
+        bool isNone() const { return mType == TYPE_NONE; }
         bool isAxis() const { return mType == TYPE_AXIS; }
         bool isButton() const { return mType == TYPE_BUTTON; }
-        bool isNone() const { return mType == TYPE_NONE; }
 
-        std::string getLocalName() const; // AXIS_0-, AXIS_0+, BUTTON_0, etc
+        bool isEqual(const InputChannel& other)
+        {
+            return mType == other.mType && mSign == other.mSign && mIndex == other.mIndex;
+        }
+
+        std::string getLocalName() const; // AXIS_0-, AXIS_0+, BUTTON_0, NONE etc.
         std::string getRemoteName() const; // GAME_CONTROL_AXIS_LEFTX, GAME_CONTROL_BUTTON_A, etc
 
         Type mType { TYPE_NONE };
@@ -153,15 +172,58 @@ public:
         U8 mIndex { 255 };
     };
 
+    // Options is a data structure for storing device-specific settings
+    class Options
+    {
+    public:
+        struct AxisOptions
+        {
+            bool mInvert { false };
+            U16 mDeadZone { 0 };
+            S16 mOffset { 0 };
+
+            void resetToDefaults()
+            {
+                mInvert = false;
+                mDeadZone = 0;
+                mOffset = 0;
+            }
+
+            std::string saveToString() const;
+            void loadFromString(std::string options);
+        };
+
+        Options();
+
+        void resetToDefaults();
+
+        U8 mapAxis(U8 axis) const;
+        U8 mapButton(U8 button) const;
+
+        S16 fixAxisValue(U8 axis, S16 value) const;
+
+        std::string saveToString(const std::string& name, bool force_empty = false) const;
+        bool loadFromString(std::string& name, std::string options);
+        bool loadFromString(std::string options);
+
+        const std::vector<AxisOptions>& getAxisOptions() const { return mAxisOptions; }
+        std::vector<AxisOptions>& getAxisOptions() { return mAxisOptions; }
+        const std::vector<U8>& getAxisMap() const { return mAxisMap; }
+        std::vector<U8>& getAxisMap() { return mAxisMap; }
+        const std::vector<U8>& getButtonMap() const { return mButtonMap; }
+        std::vector<U8>& getButtonMap() { return mButtonMap; }
+
+    private:
+        std::vector<AxisOptions> mAxisOptions;
+        std::vector<U8> mAxisMap;
+        std::vector<U8> mButtonMap;
+    };
+
     // State is a minimal class for storing axes and buttons values
     class State
     {
-        int mJoystickID { -1 };
-        void* mController { nullptr };
     public:
         State();
-        void setDevice(int joystickID, void* controller);
-        int getJoystickID() const { return mJoystickID; }
         void clear();
         bool onButton(U8 button, bool pressed);
         std::vector<S16> mAxes; // [ -32768, 32767 ]
@@ -169,9 +231,42 @@ public:
         U32 mButtons;
     };
 
+    // Device is a data structure for describing any detected controller
+    class Device
+    {
+        const int mJoystickID { -1 };
+        const std::string mGUID;
+        const std::string mName;
+        Options mOptions;
+        State mState;
+
+    public:
+        Device(int joystickID, const std::string& guid, const std::string& name);
+        int getJoystickID() const { return mJoystickID; }
+        std::string getGUID() const { return mGUID; }
+        std::string getName() const { return mName; }
+        const Options& getOptions() const { return mOptions; }
+        const State& getState() const { return mState; }
+
+        void resetOptionsToDefaults() { mOptions.resetToDefaults(); }
+        std::string saveOptionsToString(bool force_empty = false) const { return mOptions.saveToString(mName, force_empty); }
+        void loadOptionsFromString(const std::string& options) { mOptions.loadFromString(options); }
+
+        friend class LLGameControllerManager;
+    };
+
     static bool isInitialized();
-    static void init(const std::string& gamecontrollerdb_path);
+    static void init(const std::string& gamecontrollerdb_path,
+        std::function<bool(const std::string&)> loadBoolean,
+        std::function<void(const std::string&, bool)> saveBoolean,
+        std::function<std::string(const std::string&)> loadString,
+        std::function<void(const std::string&, const std::string&)> saveString,
+        std::function<LLSD(const std::string&)> loadObject,
+        std::function<void(const std::string&, const LLSD&)> saveObject);
     static void terminate();
+
+    static const std::list<LLGameControl::Device>& getDevices();
+    static const std::map<std::string, std::string>& getDeviceOptions();
 
     // returns 'true' if GameControlInput message needs to go out,
     // which will be the case for new data or resend. Call this right
@@ -183,13 +278,20 @@ public:
 
     static void processEvents(bool app_has_focus = true);
     static const State& getState();
+    static InputChannel getActiveInputChannel();
     static void getFlycamInputs(std::vector<F32>& inputs_out);
 
     // these methods for accepting input from keyboard
-    static void enableSendToServer(bool enable);
-    static void enableControlAgent(bool enable);
-    static void enableTranslateAgentActions(bool enable);
+    static void setSendToServer(bool enable);
+    static void setControlAgent(bool enable);
+    static void setTranslateAgentActions(bool enable);
     static void setAgentControlMode(AgentControlMode mode);
+
+    static bool getSendToServer();
+    static bool getControlAgent();
+    static bool getTranslateAgentActions();
+    static AgentControlMode getAgentControlMode();
+    static ActionNameType getActionNameType(const std::string& action);
 
     static bool willControlAvatar();
 
@@ -198,7 +300,7 @@ public:
     static LLGameControl::InputChannel getChannelByName(const std::string& name);
 
     // action_name = push+, strafe-, etc
-    static LLGameControl::InputChannel getChannelByActionName(const std::string& name);
+    static LLGameControl::InputChannel getChannelByAction(const std::string& action);
 
     static bool updateActionMap(const std::string& action_name,  LLGameControl::InputChannel channel);
 
@@ -210,5 +312,23 @@ public:
 
     // call this after putting a GameControlInput packet on the wire
     static void updateResendPeriod();
+
+    using getChannel_t = std::function<LLGameControl::InputChannel(const std::string& action)>;
+    static std::string stringifyAnalogMappings(getChannel_t getChannel);
+    static std::string stringifyBinaryMappings(getChannel_t getChannel);
+    static std::string stringifyFlycamMappings(getChannel_t getChannel);
+    static void getDefaultMappings(std::vector<std::pair<std::string, LLGameControl::InputChannel>>& mappings);
+
+    static bool parseDeviceOptions(const std::string& options, std::string& name,
+        std::vector<LLGameControl::Options::AxisOptions>& axis_options,
+        std::vector<U8>& axis_map, std::vector<U8>& button_map);
+    static std::string stringifyDeviceOptions(const std::string& name,
+        const std::vector<LLGameControl::Options::AxisOptions>& axis_options,
+        const std::vector<U8>& axis_map, const std::vector<U8>& button_map,
+        bool force_empty = false);
+
+    static void initByDefault();
+    static void loadFromSettings();
+    static void saveToSettings();
 };
 
