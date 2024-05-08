@@ -112,16 +112,26 @@ namespace tut
 			mMessages.push_back(message);
 		}
 
-		int countMessages()			{ return (int) mMessages.size(); }
+		int countMessages() const	{ return (int) mMessages.size(); }
 		void clearMessages()		{ mMessages.clear(); }
 
-		std::string message(int n)
+		std::string message(int n) const
 		{
 			std::ostringstream test_name;
 			test_name << "testing message " << n << ", not enough messages";
 
 			tut::ensure(test_name.str(), n < countMessages());
 			return mMessages[n];
+		}
+
+		void reportMessages() const
+		{
+			std::cerr << '\n';
+			int n = 0;
+			for (const auto& msg : mMessages)
+			{
+				std::cerr << std::setw(2) << n++ << ": " << msg.substr(0, 100) << '\n';
+			}
 		}
 
 	private:
@@ -133,6 +143,8 @@ namespace tut
 	{
 		LLError::RecorderPtr mRecorder;
 		LLError::SettingsStoragePtr mPriorErrorSettings;
+
+		auto recorder() { return std::dynamic_pointer_cast<TestRecorder>(mRecorder); }
 
 		ErrorTestData():
 			mRecorder(new TestRecorder())
@@ -153,27 +165,32 @@ namespace tut
 
 		int countMessages()
 		{
-			return std::dynamic_pointer_cast<TestRecorder>(mRecorder)->countMessages();
+			return recorder()->countMessages();
 		}
 
 		void clearMessages()
 		{
-			std::dynamic_pointer_cast<TestRecorder>(mRecorder)->clearMessages();
+			recorder()->clearMessages();
 		}
 
 		void setWantsTime(bool t)
-            {
-                std::dynamic_pointer_cast<TestRecorder>(mRecorder)->showTime(t);
-            }
+		{
+			recorder()->showTime(t);
+		}
 
 		void setWantsMultiline(bool t)
-            {
-                std::dynamic_pointer_cast<TestRecorder>(mRecorder)->showMultiline(t);
-            }
+		{
+			recorder()->showMultiline(t);
+		}
 
 		std::string message(int n)
 		{
-			return std::dynamic_pointer_cast<TestRecorder>(mRecorder)->message(n);
+			return recorder()->message(n);
+		}
+
+		void reportMessages()
+		{
+			recorder()->reportMessages();
 		}
 
 		void ensure_message_count(int expectedCount)
@@ -181,71 +198,87 @@ namespace tut
 			ensure_equals("message count", countMessages(), expectedCount);
 		}
 
-        std::string message_field(int msgnum, LogFieldIndex fieldnum)
-        {
-            std::ostringstream test_name;
-            test_name << "testing message " << msgnum << ", not enough messages";            
-            tut::ensure(test_name.str(), msgnum < countMessages());
+		std::string message_field(int msgnum, LogFieldIndex fieldnum)
+		{
+			std::ostringstream test_name;
+			test_name << "testing message " << msgnum << ", not enough messages";
+			tut::ensure(test_name.str(), msgnum < countMessages());
 
-            std::string msg(message(msgnum));
+			std::string msg(message(msgnum));
 
-            std::string field_value;
+			std::string field_value;
 
-            // find the start of the field; fields are separated by a single space
-            size_t scan = 0;
-            int on_field = 0;
-            while ( scan < msg.length() && on_field < fieldnum )
-            {
-                // fields are delimited by one space
-                if ( ' ' == msg[scan] )
-                {
-                    if ( on_field < FUNCTION_FIELD )
-                    {
-                        on_field++;
-                    }
-                    // except function, which may have embedded spaces so ends with " : "
-                    else if (   ( on_field == FUNCTION_FIELD ) 
-                             && ( ':' == msg[scan+1] && ' ' == msg[scan+2] )
-                             )
-                    {
-                        on_field++;
-                        scan +=2;
-                    }
-                }
-                scan++;
-            }
-            size_t start_field = scan;
-            size_t fieldlen = 0;
-            if ( fieldnum < FUNCTION_FIELD )
-            {
-                fieldlen = msg.find(' ', start_field) - start_field;
-            }
-            else if ( fieldnum == FUNCTION_FIELD ) 
-            {
-                fieldlen = msg.find(" : ", start_field) - start_field;                
-            }
-            else if ( MSG_FIELD == fieldnum ) // no delimiter, just everything to the end
-            {
-                fieldlen = msg.length() - start_field;
-            }
+			// find the start of the field; fields are separated by a single space
+			size_t scan = 0;
+			int on_field = 0;
+			while ( scan < msg.length() && on_field < fieldnum )
+			{
+				// fields are delimited by one space
+				if ( ' ' == msg[scan] )
+				{
+					if ( on_field < FUNCTION_FIELD )
+					{
+						on_field++;
+					}
+					// except function, which may have embedded spaces so ends with " : "
+					else if (( on_field == FUNCTION_FIELD ) 
+							 && ( ':' == msg[scan+1] && ' ' == msg[scan+2] )
+							 )
+					{
+						on_field++;
+						scan +=2;
+					}
+				}
+				scan++;
+			}
+			size_t start_field = scan;
+			size_t fieldlen = 0;
+			if ( fieldnum < FUNCTION_FIELD )
+			{
+				fieldlen = msg.find(' ', start_field) - start_field;
+			}
+			else if ( fieldnum == FUNCTION_FIELD ) 
+			{
+				fieldlen = msg.find(" : ", start_field) - start_field;
+			}
+			else if ( MSG_FIELD == fieldnum ) // no delimiter, just everything to the end
+			{
+				fieldlen = msg.length() - start_field;
+			}
 
-            return msg.substr(start_field, fieldlen);
-        }
-        
+			return msg.substr(start_field, fieldlen);
+		}
+
 		void ensure_message_field_equals(int msgnum, LogFieldIndex fieldnum, const std::string& expectedText)
-         {
-             std::ostringstream test_name;
-             test_name << "testing message " << msgnum << " field " << FieldName[fieldnum] << "\n  message: \"" << message(msgnum) << "\"\n  ";
+		{
+			std::ostringstream test_name;
+			test_name << "testing message " << msgnum << " field " << FieldName[fieldnum] << "\n  message: \"" << message(msgnum).substr(0, 100) << "\"\n   ";
 
-             ensure_equals(test_name.str(), message_field(msgnum, fieldnum), expectedText);
-         }
+			try
+			{
+				ensure_equals(test_name.str(), message_field(msgnum, fieldnum), expectedText);
+			}
+			catch (const failure&)
+			{
+				reportMessages();
+				throw;
+			}
+		}
 
 		void ensure_message_does_not_contain(int n, const std::string& expectedText)
 		{
 			std::ostringstream test_name;
 			test_name << "testing message " << n;
 
-			ensure_does_not_contain(test_name.str(), message(n), expectedText);
+			try
+			{
+				ensure_does_not_contain(test_name.str(), message(n), expectedText);
+			}
+			catch (const failure&)
+			{
+				reportMessages();
+				throw;
+			}
 		}
 	};
 
@@ -297,29 +330,33 @@ namespace tut
 		ensure_message_field_equals(3, MSG_FIELD, "four");
 		ensure_message_field_equals(3, LEVEL_FIELD, "ERROR");
 		ensure_message_field_equals(3, TAGS_FIELD, "#WriteTag#");
-		ensure_message_count(4);
+		// LL_ERRS() produces 2 recordMessage() calls
+		ensure_message_count(5);
 
 		LLError::setDefaultLevel(LLError::LEVEL_INFO);
 		writeSome();
-		ensure_message_field_equals(4, MSG_FIELD, "two");
-		ensure_message_field_equals(5, MSG_FIELD, "three");
-		ensure_message_field_equals(6, MSG_FIELD, "four");
-		ensure_message_count(7);
+		ensure_message_field_equals(5, MSG_FIELD, "two");
+		ensure_message_field_equals(6, MSG_FIELD, "three");
+		ensure_message_field_equals(7, MSG_FIELD, "four");
+		// LL_ERRS() produces 2 recordMessage() calls
+		ensure_message_count(9);
 
 		LLError::setDefaultLevel(LLError::LEVEL_WARN);
 		writeSome();
-		ensure_message_field_equals(7, MSG_FIELD, "three");
-		ensure_message_field_equals(8, MSG_FIELD, "four");
-		ensure_message_count(9);
+		ensure_message_field_equals(9, MSG_FIELD, "three");
+		ensure_message_field_equals(10, MSG_FIELD, "four");
+		// LL_ERRS() produces 2 recordMessage() calls
+		ensure_message_count(12);
 
 		LLError::setDefaultLevel(LLError::LEVEL_ERROR);
 		writeSome();
-		ensure_message_field_equals(9, MSG_FIELD, "four");
-		ensure_message_count(10);
+		ensure_message_field_equals(12, MSG_FIELD, "four");
+		// LL_ERRS() produces 2 recordMessage() calls
+		ensure_message_count(14);
 
 		LLError::setDefaultLevel(LLError::LEVEL_NONE);
 		writeSome();
-		ensure_message_count(10);
+		ensure_message_count(14);
 	}
 
 	template<> template<>
@@ -331,7 +368,8 @@ namespace tut
 		ensure_message_field_equals(1, LEVEL_FIELD, "INFO");
 		ensure_message_field_equals(2, LEVEL_FIELD, "WARNING");
 		ensure_message_field_equals(3, LEVEL_FIELD, "ERROR");
-		ensure_message_count(4);
+		// LL_ERRS() produces 2 recordMessage() calls
+		ensure_message_count(5);
 	}
 
 	template<> template<>
@@ -339,20 +377,20 @@ namespace tut
 		// file abbreviation
 	{
 		std::string prev, abbreviateFile = __FILE__;
-        do
-        {
-            prev = abbreviateFile;
-            abbreviateFile = LLError::abbreviateFile(abbreviateFile);
-            // __FILE__ is assumed to end with
-            // indra/llcommon/tests/llerror_test.cpp. This test used to call
-            // abbreviateFile() exactly once, then check below whether it
-            // still contained the string 'indra'. That fails if the FIRST
-            // part of the pathname also contains indra! Certain developer
-            // machine images put local directory trees under
-            // /ngi-persist/indra, which is where we observe the problem. So
-            // now, keep calling abbreviateFile() until it returns its
-            // argument unchanged, THEN check.
-        } while (abbreviateFile != prev);
+		do
+		{
+			prev = abbreviateFile;
+			abbreviateFile = LLError::abbreviateFile(abbreviateFile);
+			// __FILE__ is assumed to end with
+			// indra/llcommon/tests/llerror_test.cpp. This test used to call
+			// abbreviateFile() exactly once, then check below whether it
+			// still contained the string 'indra'. That fails if the FIRST
+			// part of the pathname also contains indra! Certain developer
+			// machine images put local directory trees under
+			// /ngi-persist/indra, which is where we observe the problem. So
+			// now, keep calling abbreviateFile() until it returns its
+			// argument unchanged, THEN check.
+		} while (abbreviateFile != prev);
 
 		ensure_ends_with("file name abbreviation",
 			abbreviateFile,
@@ -627,7 +665,8 @@ namespace tut
 
 		ensure_message_field_equals(0, LOCATION_FIELD, location);
 		ensure_message_field_equals(0, MSG_FIELD, "die");
-		ensure_message_count(1);
+		// LL_ERRS() produces 2 recordMessage() calls
+		ensure_message_count(2);
 
 		ensure("fatal callback called", fatalWasCalled);
 	}
@@ -751,10 +790,12 @@ namespace tut
 
 		ensure_message_field_equals(0, MSG_FIELD, "aim west");
 		ensure_message_field_equals(1, MSG_FIELD, "ate eels");
-		ensure_message_field_equals(2, MSG_FIELD, "buy iron");
-		ensure_message_field_equals(3, MSG_FIELD, "bad word");
-		ensure_message_field_equals(4, MSG_FIELD, "big easy");
-		ensure_message_count(5);
+		// LL_ERRS() produces 2 recordMessage() calls
+		ensure_message_field_equals(3, MSG_FIELD, "buy iron");
+		ensure_message_field_equals(4, MSG_FIELD, "bad word");
+		ensure_message_field_equals(5, MSG_FIELD, "big easy");
+		// LL_ERRS() produces 2 recordMessage() calls
+		ensure_message_count(7);
 	}
 
 	template<> template<>
@@ -868,9 +909,11 @@ namespace tut
 		TestBeta::doAll();
 		ensure_message_field_equals(3, MSG_FIELD, "aim west");
 		ensure_message_field_equals(4, MSG_FIELD, "ate eels");
-		ensure_message_field_equals(5, MSG_FIELD, "bad word");
-		ensure_message_field_equals(6, MSG_FIELD, "big easy");
-		ensure_message_count(7);
+		// LL_ERRS() produces 2 recordMessage() calls
+		ensure_message_field_equals(6, MSG_FIELD, "bad word");
+		ensure_message_field_equals(7, MSG_FIELD, "big easy");
+		// LL_ERRS() produces 2 recordMessage() calls
+		ensure_message_count(9);
 	}
 }
 
