@@ -16,6 +16,8 @@ jobs:
         include:
           - runner: macos-12-xl
             developer_dir: "/Applications/Xcode_14.0.1.app/Contents/Developer"
+    # DO NOT MERGE THIS LINE! continue-on-error=true is only for diagnosis.
+    continue-on-error: true
     runs-on: ${{ matrix.runner }}
     outputs:
       viewer_channel: ${{ steps.build.outputs.viewer_channel }}
