@@ -654,11 +654,6 @@ BOOL LLWindowSDL::createContext(int x, int y, int width, int height, int bits, B
         SDL_SetHint( std::get<0>(hint), std::get<1>(hint));
     }
 
-#if LL_LINUX
-    // Enable IME on XWayland
-    setenv("XMODIFIERS", std::string("@im=fcitx;ibus").c_str(), 1);
-#endif
-
     std::initializer_list<std::tuple<uint32_t, char const*, bool>> initList=
             { {SDL_INIT_VIDEO,"SDL_INIT_VIDEO", true},
               {SDL_INIT_AUDIO,"SDL_INIT_AUDIO", false},
