@@ -2364,8 +2364,21 @@ void set_favorite(const LLUUID& obj_id, bool favorite)
     LLInventoryObject* obj = gInventory.getObject(obj_id);
     if (obj->getIsFavorite() != favorite)
     {
+        LLSD val;
+        if (favorite)
+        {
+            val = true;
+        } // else leave undefined to remove unneeded metadata field
+
         LLSD updates;
-        updates["favorite"] = LLSD().with("toggled", favorite);
+        if (favorite)
+        {
+            updates["favorite"] = LLSD().with("toggled", true);
+        }
+        else
+        {
+            updates["favorite"] = LLSD();
+        }
 
         LLPointer<LLInventoryCallback> cb = new LLUpdateFavorite(obj_id);
 
@@ -2385,9 +2398,20 @@ void set_favorite(const LLUUID& obj_id, bool favorite)
 void toggle_favorite(const LLUUID& obj_id)
 {
     LLInventoryObject* obj = gInventory.getObject(obj_id);
+    if (!obj)
+    {
+        return;
+    }
 
     LLSD updates;
-    updates["favorite"] = LLSD().with("toggled", !obj->getIsFavorite());
+    if (!obj->getIsFavorite())
+    {
+        updates["favorite"] = LLSD().with("toggled", true);
+    }
+    else
+    {
+        updates["favorite"] = LLSD();
+    }
 
     LLPointer<LLInventoryCallback> cb = new LLUpdateFavorite(obj_id);
 

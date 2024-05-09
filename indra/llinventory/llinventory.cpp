@@ -1556,7 +1556,7 @@ bool LLInventoryCategory::importLLSD(const LLSD& cat_data)
         const LLSD& favorite_data = cat_data[INV_FAVORITE_LABEL];
         if (favorite_data.has(INV_TOGGLED_LABEL))
         {
-            favorite = favorite_data[INV_ASSET_ID_LABEL].asBoolean();
+            favorite = favorite_data[INV_TOGGLED_LABEL].asBoolean();
         }
         setFavorite(favorite);
     }

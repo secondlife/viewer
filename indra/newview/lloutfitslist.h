@@ -221,7 +221,13 @@ public:
         Params() : cat_id("cat_id") {}
     };
 
+    virtual void draw();
     virtual BOOL handleToolTip(S32 x, S32 y, MASK mask);
+
+    void setFavorite(bool is_favorite) { mIsFavorite = is_favorite; }
+
+    static LLUIImage* sFavoriteIcon;
+    static LLUIColor sFgColor;
 
  protected:
     LLOutfitAccordionCtrlTab(const LLOutfitAccordionCtrlTab::Params &p) 
@@ -230,7 +236,10 @@ public:
     {}
     friend class LLUICtrlFactory;
 
+    void drawFavoriteIcon();
+
     LLUUID mFolderID;
+    bool mIsFavorite = false;
 };
   /**
  * @class LLOutfitsList

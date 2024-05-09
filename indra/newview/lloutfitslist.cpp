@@ -81,6 +81,9 @@ const outfit_accordion_tab_params& get_accordion_tab_params()
 	{
 		initialized = true;
 
+        LLOutfitAccordionCtrlTab::sFavoriteIcon = LLUI::getUIImage("Inv_Favorite_Star_Full");
+        LLOutfitAccordionCtrlTab::sFgColor = LLUIColorTable::instance().getColor("MenuItemEnabledColor", LLColor4U(255, 255, 255));
+
 		LLXMLNodePtr xmlNode;
 		if (LLUICtrlFactory::getLayeredXMLNode("outfit_accordion_tab.xml", xmlNode))
 		{
@@ -155,6 +158,7 @@ void LLOutfitsList::updateAddedCategory(LLUUID cat_id)
 
     tab->setName(name);
     tab->setTitle(name);
+    tab->setFavorite(cat->getIsFavorite());
 
     // *TODO: LLUICtrlFactory::defaultBuilder does not use "display_children" from xml. Should be investigated.
     tab->setDisplayChildren(false);
@@ -426,11 +430,12 @@ void LLOutfitsList::updateChangedCategoryName(LLViewerInventoryCategory *cat, st
 	if (outfits_iter != mOutfitsMap.end())
 	{
 		// Update tab name with the new category name.
-		LLAccordionCtrlTab* tab = outfits_iter->second;
+        LLOutfitAccordionCtrlTab* tab = (LLOutfitAccordionCtrlTab*) outfits_iter->second;
 		if (tab)
 		{
 			tab->setName(name);
 			tab->setTitle(name);
+            tab->setFavorite(cat->getIsFavorite());
 		}
 	}
 }
@@ -1382,6 +1387,16 @@ void LLOutfitListGearMenu::onUpdateItemsVisibility()
     LLOutfitListGearMenuBase::onUpdateItemsVisibility();
 }
 
+
+LLUIImage* LLOutfitAccordionCtrlTab::sFavoriteIcon;
+LLUIColor LLOutfitAccordionCtrlTab::sFgColor;
+
+void LLOutfitAccordionCtrlTab::draw()
+{
+    LLAccordionCtrlTab::draw();
+    drawFavoriteIcon();
+}
+
 BOOL LLOutfitAccordionCtrlTab::handleToolTip(S32 x, S32 y, MASK mask)
 {
     if (y >= getLocalRect().getHeight() - getHeaderHeight()) 
@@ -1401,5 +1416,25 @@ BOOL LLOutfitAccordionCtrlTab::handleToolTip(S32 x, S32 y, MASK mask)
     }
 
     return LLAccordionCtrlTab::handleToolTip(x, y, mask);
+}
+
+void LLOutfitAccordionCtrlTab::drawFavoriteIcon()
+{
+    if (!mIsFavorite)
+    {
+        return;
+    }
+    static LLUICachedControl<bool> draw_star("InventoryFavoritesUseStar", true);
+    if (!draw_star)
+    {
+        return;
+    }
+
+    const S32 PAD = 2;
+    const S32 image_size = 18;
+
+    gl_draw_scaled_image(
+        getRect().getWidth() - image_size - PAD, getRect().getHeight() - image_size - PAD,
+        image_size, image_size, sFavoriteIcon->getImage(), sFgColor);
 }
 // EOF
