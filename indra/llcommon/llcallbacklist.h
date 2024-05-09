@@ -168,14 +168,14 @@ public:
     handle_t scheduleAfter(nullary_func_t callable, F32 seconds);
 
     // Call a given callable every specified number of seconds, until it returns true.
-    handle_t scheduleRepeating(bool_func_t callable, F32 seconds);
+    handle_t scheduleEvery(bool_func_t callable, F32 seconds);
 
     // test whether specified handle is still live
     bool isRunning(handle_t timer) const;
     // check remaining time
     F32 timeUntilCall(handle_t timer) const;
 
-    // Cancel a future timer set by scheduleAt(), scheduleAfter(), scheduleRepeating().
+    // Cancel a future timer set by scheduleAt(), scheduleAfter(), scheduleEvery().
     // Return true if and only if the handle corresponds to a live timer.
     bool cancel(const handle_t& timer);
     // If we're canceling a non-const handle_t, also clear it so we need not
@@ -183,7 +183,7 @@ public:
     bool cancel(handle_t& timer);
 
     // Store a handle_t returned by scheduleAt(), scheduleAfter() or
-    // scheduleRepeating() in a temp_handle_t to cancel() automatically on
+    // scheduleEvery() in a temp_handle_t to cancel() automatically on
     // destruction of the temp_handle_t.
     class temp_handle_t
     {
@@ -237,7 +237,7 @@ public:
     };
 
 private:
-    handle_t scheduleAtRepeating(bool_func_t callable, LLDate::timestamp time, F32 interval);
+    handle_t scheduleAtEvery(bool_func_t callable, LLDate::timestamp time, F32 interval);
     LLDate::timestamp now() const { return LLDate::now().secondsSinceEpoch(); }
     // wrap a nullary_func_t with a bool_func_t that will only execute once
     bool_func_t once(nullary_func_t callable)
@@ -294,7 +294,7 @@ LL::Timers::handle_t doAfterInterval(nullary_func_t callable, F32 seconds)
 inline
 LL::Timers::handle_t doPeriodically(bool_func_t callable, F32 seconds)
 {
-    return LL::Timers::instance().scheduleRepeating(callable, seconds);
+    return LL::Timers::instance().scheduleEvery(callable, seconds);
 }
 
 #endif

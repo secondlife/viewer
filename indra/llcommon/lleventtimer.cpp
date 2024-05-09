@@ -49,7 +49,7 @@ LLEventTimer::~LLEventTimer()
 
 void LLEventTimer::start()
 {
-    mTimer = LL::Timers::instance().scheduleRepeating([this]{ return tick(); }, mPeriod);
+    mTimer = LL::Timers::instance().scheduleEvery([this]{ return tick(); }, mPeriod);
 }
 
 void LLEventTimer::stop()

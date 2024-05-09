@@ -759,6 +759,9 @@ bool sendReply(LLSD reply, const LLSD& request, const std::string& replyKey)
     LLReqID reqID(request);
     // and copy it to 'reply'.
     reqID.stamp(reply);
-    // Send reply on LLEventPump named in request[replyKey].
-    return LLEventPumps::instance().obtain(request[replyKey]).post(reply);
+    // Send reply on LLEventPump named in request[replyKey] -- if that
+    // LLEventPump exists. If it does not, don't create it.
+    // This addresses the case in which a requester goes away before a
+    // particular LLEventAPI responds.
+    return LLEventPumps::instance().post(request[replyKey], reply);
 }

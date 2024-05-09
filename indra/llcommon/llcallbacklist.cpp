@@ -24,8 +24,10 @@
  * $/LicenseInfo$
  */
 
+#include "lazyeventapi.h"
 #include "llcallbacklist.h"
 #include "llexception.h"
+#include "llsdutil.h"
 #include <vector>
 
 //
@@ -140,22 +142,22 @@ Timers::handle_t Timers::scheduleAt(nullary_func_t callable, LLDate::timestamp t
 {
     // tick() assumes you want to run periodically until you return true.
     // Schedule a task that returns true after a single call.
-    return scheduleAtRepeating(once(callable), time, 0);
+    return scheduleAtEvery(once(callable), time, 0);
 }
 
 // Call a given callable once after specified interval.
 Timers::handle_t Timers::scheduleAfter(nullary_func_t callable, F32 seconds)
 {
-    return scheduleRepeating(once(callable), seconds);
+    return scheduleEvery(once(callable), seconds);
 }
 
 // Call a given callable every specified number of seconds, until it returns true.
-Timers::handle_t Timers::scheduleRepeating(bool_func_t callable, F32 seconds)
+Timers::handle_t Timers::scheduleEvery(bool_func_t callable, F32 seconds)
 {
-    return scheduleAtRepeating(callable, now() + seconds, seconds);
+    return scheduleAtEvery(callable, now() + seconds, seconds);
 }
 
-Timers::handle_t Timers::scheduleAtRepeating(bool_func_t callable,
+Timers::handle_t Timers::scheduleAtEvery(bool_func_t callable,
                                              LLDate::timestamp time, F32 interval)
 {
     // Pick token FIRST to store a self-reference in mQueue's managed node as
@@ -203,7 +205,7 @@ F32 Timers::timeUntilCall(handle_t timer) const
     }
 }
 
-// Cancel a future timer set by scheduleAt(), scheduleAfter(), scheduleRepeating()
+// Cancel a future timer set by scheduleAt(), scheduleAfter(), scheduleEvery()
 bool Timers::cancel(handle_t& timer)
 {
     // For exception safety, capture and clear timer before canceling.
@@ -382,5 +384,147 @@ bool Timers::tick()
     // stop calling every tick.
     return mQueue.empty();
 }
+
+/*****************************************************************************
+*   TimersListener
+*****************************************************************************/
+
+class TimersListener: public LLEventAPI
+{
+public:
+    TimersListener(const LazyEventAPIParams& params): LLEventAPI(params) {}
+
+    // Forbid a script from requesting callbacks too quickly.
+    static constexpr LLSD::Real MINTIMER{ 1.0 };
+
+    void scheduleAfter(const LLSD& params);
+    void scheduleEvery(const LLSD& params);
+    LLSD cancel(const LLSD& params);
+    LLSD isRunning(const LLSD& params);
+    LLSD timeUntilCall(const LLSD& params);
+
+private:
+    using HandleMap = std::unordered_map<LLSD::Integer, Timers::temp_handle_t>;
+    HandleMap mHandles;
+};
+
+void TimersListener::scheduleAfter(const LLSD& params)
+{
+    LLSD::Real after{ params["after"] };
+    if (after < MINTIMER)
+    {
+        sendReply(llsd::map("error", stringize("after must be at least ", MINTIMER)), params);
+        return;
+    }
+
+    mHandles.emplace(
+        params["reqid"],
+        Timers::instance().scheduleAfter(
+            [this, params]
+            {
+                // we don't need any content save for the "reqid"
+                sendReply({}, params);
+                // ditch mHandles entry
+                mHandles.erase(params["reqid"]);
+            },
+            after));
+}
+
+void TimersListener::scheduleEvery(const LLSD& params)
+{
+    LLSD::Real every{ params["every"] };
+    if (every < MINTIMER)
+    {
+        sendReply(llsd::map("error", stringize("every must be at least ", MINTIMER)), params);
+        return;
+    }
+
+    mHandles.emplace(
+        params["reqid"],
+        Timers::instance().scheduleEvery(
+            [params, i=0]() mutable
+            {
+                // we don't need any content save for the "reqid"
+                sendReply(llsd::map("i", i++), params);
+                // we can't use a handshake -- always keep the ball rolling
+                return false;
+            },
+            every));
+}
+
+LLSD TimersListener::cancel(const LLSD& params)
+{
+    auto found{ mHandles.find(params["id"]) };
+    bool ok = false;
+    if (found != mHandles.end())
+    {
+        ok = true;
+        Timers::instance().cancel(found->second);
+        mHandles.erase(found);
+    }
+    return llsd::map("ok", ok);
+}
+
+LLSD TimersListener::isRunning(const LLSD& params)
+{
+    auto found{ mHandles.find(params["id"]) };
+    bool running = false;
+    if (found != mHandles.end())
+    {
+        running = Timers::instance().isRunning(found->second);
+    }
+    return llsd::map("running", running);
+}
+
+LLSD TimersListener::timeUntilCall(const LLSD& params)
+{
+    auto found{ mHandles.find(params["id"]) };
+    bool ok = false;
+    LLSD::Real remaining = 0;
+    if (found != mHandles.end())
+    {
+        ok = true;
+        remaining = Timers::instance().timeUntilCall(found->second);
+    }
+    return llsd::map("ok", ok, "remaining", remaining);
+}
+
+class TimersRegistrar: public LazyEventAPI<TimersListener>
+{
+    using super = LazyEventAPI<TimersListener>;
+    using super::listener;
+
+public:
+    TimersRegistrar():
+        super("Timers", "Provide access to viewer timer functionality.")
+    {
+        add("scheduleAfter",
+R"-(Create a timer with ID "reqid". Post response after "after" seconds.)-",
+            &listener::scheduleAfter,
+            llsd::map("reqid", LLSD::Integer(), "after", LLSD::Real()));
+        add("scheduleEvery",
+R"-(Create a timer with ID "reqid". Post response every "every" seconds
+until cancel().)-",
+            &listener::scheduleEvery,
+            llsd::map("reqid", LLSD::Integer(), "every", LLSD::Real()));
+        add("cancel",
+R"-(Cancel the timer with ID "id". Respond "ok"=true if "id" identifies
+a live timer.)-",
+            &listener::cancel,
+            llsd::map("reqid", LLSD::Integer(), "id", LLSD::Integer()));
+        add("isRunning",
+R"-(Query the timer with ID "id": respond "running"=true if "id" identifies
+a live timer.)-",
+            &listener::isRunning,
+            llsd::map("reqid", LLSD::Integer(), "id", LLSD::Integer()));
+        add("timeUntilCall",
+R"-(Query the timer with ID "id": if "id" identifies a live timer, respond
+"ok"=true, "remaining"=seconds with the time left before timer expiry;
+otherwise "ok"=false, "remaining"=0.)-",
+            &listener::timeUntilCall,
+            llsd::map("reqid", LLSD::Integer()));
+    }
+};
+static TimersRegistrar registrar;
 
 } // namespace LL
