@@ -1,10 +1,10 @@
-﻿<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater
   legacy_header_height="18"
   bevel_style="none"
   border_style="line"
   can_resize="true"
-  height="582"
+  height="607"
   layout="topleft"
   min_height="271"
   min_width="328"
@@ -45,6 +45,21 @@
     name="loading">
     Loading...
   </floater.string>
+  <text
+   type="string"
+   length="1"
+   follows="left|top|right"
+   width="490"
+   use_ellipses="true"
+   font="SansSerif"
+   height="18"
+   layout="topleft"
+   left="13"
+   name="obj_name"
+   text_color="white"
+   top="21">
+    Object name
+  </text>
   <panel
     bevel_style="none"
      
@@ -54,7 +69,7 @@
     layout="topleft"
     left="10"
     name="script ed panel"
-    top="16"
+    top_pad="2"
     width="501" />
   <button
     follows="left|bottom"

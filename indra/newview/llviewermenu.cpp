@@ -102,6 +102,7 @@
 #include "llsceneview.h"
 #include "llscenemonitor.h"
 #include "llselectmgr.h"
+#include "llsidepanelappearance.h"
 #include "llspellcheckmenuhandler.h"
 #include "llstatusbar.h"
 #include "lltextureview.h"
@@ -289,9 +290,11 @@ void handle_disconnect_viewer(void *);
 
 void force_error_breakpoint(void *);
 void force_error_llerror(void *);
+void force_error_llerror_msg(void*);
 void force_error_bad_memory_access(void *);
 void force_error_infinite_loop(void *);
 void force_error_software_exception(void *);
+void force_error_os_exception(void*);
 void force_error_driver_crash(void *);
 void force_error_coroutine_crash(void *);
 void force_error_thread_crash(void *);
@@ -1461,6 +1464,31 @@ class LLAdvancedCheckDebugUnicode : public view_listener_t
 
 
 
+//////////////////
+// DEBUG CAMERA //
+//////////////////
+
+
+class LLAdvancedToggleDebugCamera : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		LLView::sDebugCamera = !(LLView::sDebugCamera);
+		LLFloaterCamera::onDebugCameraToggled();
+		return true;
+	}
+};
+
+class LLAdvancedCheckDebugCamera : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		return LLView::sDebugCamera;
+	}
+};
+
+
+
 ///////////////////////
 // XUI NAME TOOLTIPS //
 ///////////////////////
@@ -2400,6 +2428,15 @@ class LLAdvancedForceErrorLlerror : public view_listener_t
 	}
 };
 
+class LLAdvancedForceErrorLlerrorMsg: public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata)
+    {
+        force_error_llerror_msg(NULL);
+        return true;
+    }
+};
+
 class LLAdvancedForceErrorBadMemoryAccess : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
@@ -2441,6 +2478,15 @@ class LLAdvancedForceErrorSoftwareException : public view_listener_t
 		force_error_software_exception(NULL);
 		return true;
 	}
+};
+
+class LLAdvancedForceOSException: public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata)
+    {
+        force_error_os_exception(NULL);
+        return true;
+    }
 };
 
 class LLAdvancedForceErrorSoftwareExceptionCoro : public view_listener_t
@@ -3222,6 +3268,15 @@ bool visible_object_select_in_pathfinding_linksets()
 bool enable_object_select_in_pathfinding_characters()
 {
 	return LLPathfindingManager::getInstance()->isPathfindingEnabledForCurrentRegion() &&  LLSelectMgr::getInstance()->selectGetViewableCharacters();
+}
+
+bool enable_os_exception()
+{
+#if LL_DARWIN
+    return true;
+#else
+    return false;
+#endif
 }
 
 class LLSelfRemoveAllAttachments : public view_listener_t
@@ -6164,8 +6219,9 @@ class LLCommunicateNearbyChat : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		LLFloaterIMContainer* im_box = LLFloaterIMContainer::getInstance();
-		bool nearby_visible	= LLFloaterReg::getTypedInstance<LLFloaterIMNearbyChat>("nearby_chat")->isInVisibleChain();
-		if(nearby_visible && im_box->getSelectedSession() == LLUUID() && im_box->getConversationListItemSize() > 1)
+        LLFloaterIMNearbyChat* floater_nearby = LLFloaterReg::getTypedInstance<LLFloaterIMNearbyChat>("nearby_chat");
+        if (floater_nearby->isInVisibleChain() && !floater_nearby->isTornOff() 
+            && im_box->getSelectedSession() == LLUUID() && im_box->getConversationListItemSize() > 1)
 		{
 			im_box->selectNextorPreviousConversation(false);
 		}
@@ -6679,6 +6735,13 @@ void handle_edit_outfit()
 
 void handle_now_wearing()
 {
+    LLSidepanelAppearance *panel_appearance = dynamic_cast<LLSidepanelAppearance *>(LLFloaterSidePanelContainer::getPanel("appearance"));
+    if (panel_appearance && panel_appearance->isInVisibleChain() && panel_appearance->isCOFPanelVisible())
+    {
+        LLFloaterReg::findInstance("appearance")->closeFloater();
+        return;
+    }
+
     LLFloaterSidePanelContainer::showPanel("appearance", LLSD().with("type", "now_wearing"));
 }
 
@@ -8379,6 +8442,11 @@ void force_error_llerror(void *)
     LLAppViewer::instance()->forceErrorLLError();
 }
 
+void force_error_llerror_msg(void*)
+{
+    LLAppViewer::instance()->forceErrorLLErrorMsg();
+}
+
 void force_error_bad_memory_access(void *)
 {
     LLAppViewer::instance()->forceErrorBadMemoryAccess();
@@ -8392,6 +8460,11 @@ void force_error_infinite_loop(void *)
 void force_error_software_exception(void *)
 {
     LLAppViewer::instance()->forceErrorSoftwareException();
+}
+
+void force_error_os_exception(void*)
+{
+    LLAppViewer::instance()->forceErrorOSSpecificException();
 }
 
 void force_error_driver_crash(void *)
@@ -9535,6 +9608,8 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedToggleDebugViews(), "Advanced.ToggleDebugViews");
 	view_listener_t::addMenu(new LLAdvancedCheckDebugUnicode(), "Advanced.CheckDebugUnicode");
 	view_listener_t::addMenu(new LLAdvancedToggleDebugUnicode(), "Advanced.ToggleDebugUnicode");
+	view_listener_t::addMenu(new LLAdvancedCheckDebugCamera(), "Advanced.CheckDebugCamera");
+	view_listener_t::addMenu(new LLAdvancedToggleDebugCamera(), "Advanced.ToggleDebugCamera");
 	view_listener_t::addMenu(new LLAdvancedToggleXUINameTooltips(), "Advanced.ToggleXUINameTooltips");
 	view_listener_t::addMenu(new LLAdvancedCheckXUINameTooltips(), "Advanced.CheckXUINameTooltips");
 	view_listener_t::addMenu(new LLAdvancedToggleDebugMouseEvents(), "Advanced.ToggleDebugMouseEvents");
@@ -9604,10 +9679,12 @@ void initialize_menus()
 	// Advanced > Debugging
 	view_listener_t::addMenu(new LLAdvancedForceErrorBreakpoint(), "Advanced.ForceErrorBreakpoint");
 	view_listener_t::addMenu(new LLAdvancedForceErrorLlerror(), "Advanced.ForceErrorLlerror");
+    view_listener_t::addMenu(new LLAdvancedForceErrorLlerrorMsg(), "Advanced.ForceErrorLlerrorMsg");
 	view_listener_t::addMenu(new LLAdvancedForceErrorBadMemoryAccess(), "Advanced.ForceErrorBadMemoryAccess");
 	view_listener_t::addMenu(new LLAdvancedForceErrorBadMemoryAccessCoro(), "Advanced.ForceErrorBadMemoryAccessCoro");
 	view_listener_t::addMenu(new LLAdvancedForceErrorInfiniteLoop(), "Advanced.ForceErrorInfiniteLoop");
 	view_listener_t::addMenu(new LLAdvancedForceErrorSoftwareException(), "Advanced.ForceErrorSoftwareException");
+    view_listener_t::addMenu(new LLAdvancedForceOSException(), "Advanced.ForceErrorOSException");
 	view_listener_t::addMenu(new LLAdvancedForceErrorSoftwareExceptionCoro(), "Advanced.ForceErrorSoftwareExceptionCoro");
 	view_listener_t::addMenu(new LLAdvancedForceErrorDriverCrash(), "Advanced.ForceErrorDriverCrash");
     view_listener_t::addMenu(new LLAdvancedForceErrorCoroutineCrash(), "Advanced.ForceErrorCoroutineCrash");
@@ -9793,6 +9870,7 @@ void initialize_menus()
 	enable.add("VisibleSelectInPathfindingLinksets", boost::bind(&visible_object_select_in_pathfinding_linksets));
 	commit.add("Pathfinding.Characters.Select", boost::bind(&LLFloaterPathfindingCharacters::openCharactersWithSelectedObjects));
 	enable.add("EnableSelectInPathfindingCharacters", boost::bind(&enable_object_select_in_pathfinding_characters));
+    enable.add("Advanced.EnableErrorOSException", boost::bind(&enable_os_exception));
 
 	view_listener_t::addMenu(new LLFloaterVisible(), "FloaterVisible");
 	view_listener_t::addMenu(new LLShowSidetrayPanel(), "ShowSidetrayPanel");

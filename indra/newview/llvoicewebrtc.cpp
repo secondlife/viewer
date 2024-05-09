@@ -1414,13 +1414,19 @@ bool LLWebRTCVoiceClient::isCurrentChannel(const LLSD &channelInfo)
         return false;
     }
 
-    if (mSession)
+    sessionStatePtr_t session = mSession;
+    if (!session)
+    {
+        session = mNextSession;
+    }
+
+    if (session)
     {
         if (!channelInfo["session_handle"].asString().empty())
         {
-            return mSession->mHandle == channelInfo["session_handle"].asString();
+            return session->mHandle == channelInfo["session_handle"].asString();
         }
-        return channelInfo["channel_uri"].asString() == mSession->mChannelID;
+        return channelInfo["channel_uri"].asString() == session->mChannelID;
     }
     return false;
 }
@@ -2121,11 +2127,8 @@ LLVoiceWebRTCConnection::~LLVoiceWebRTCConnection()
         // by llwebrtc::terminate() on shutdown.
         return;
     }
-    if (mWebRTCPeerConnectionInterface)
-    {
-        llwebrtc::freePeerConnection(mWebRTCPeerConnectionInterface);
-        mWebRTCPeerConnectionInterface = nullptr;
-    }
+    mWebRTCPeerConnectionInterface->unsetSignalingObserver(this);
+    llwebrtc::freePeerConnection(mWebRTCPeerConnectionInterface);
 }
 
 
@@ -2462,19 +2465,11 @@ void LLVoiceWebRTCConnection::breakVoiceConnectionCoro()
     // also shut things down.
     LLSD result = httpAdapter->postAndSuspend(httpRequest, url, body, httpOpts);
 
-    if (LLWebRTCVoiceClient::isShuttingDown())
-    {
-        mOutstandingRequests--;
-        return;
-    }
-
-    if (mWebRTCPeerConnectionInterface)
-    {
-        mWebRTCPeerConnectionInterface->shutdownConnection();
-    }
-    setVoiceConnectionState(VOICE_STATE_SESSION_EXIT);
-
     mOutstandingRequests--;
+    if (!LLWebRTCVoiceClient::isShuttingDown())
+    {
+        setVoiceConnectionState(VOICE_STATE_SESSION_EXIT);
+    }
 }
 
 // Tell the simulator to tell the Secondlife WebRTC server that we want a voice
@@ -2549,7 +2544,7 @@ void LLVoiceWebRTCSpatialConnection::requestVoiceConnection()
                 mCurrentStatus = LLVoiceClientStatusObserver::ERROR_UNKNOWN;
                 break;
         }
-        setVoiceConnectionState(VOICE_STATE_SESSION_RETRY);
+        setVoiceConnectionState(VOICE_STATE_SESSION_EXIT);
     }
     mOutstandingRequests--;
 }
@@ -2576,7 +2571,7 @@ void LLVoiceWebRTCConnection::OnVoiceConnectionRequestSuccess(const LLSD &result
     else
     {
         LL_WARNS("Voice") << "Invalid voice provision request result:" << result << LL_ENDL;
-        setVoiceConnectionState(VOICE_STATE_SESSION_RETRY);
+        setVoiceConnectionState(VOICE_STATE_SESSION_EXIT);
         return;
     }
 
@@ -2622,7 +2617,7 @@ bool LLVoiceWebRTCConnection::connectionStateMachine()
             LL_PROFILE_ZONE_NAMED_CATEGORY_VOICE("VOICE_STATE_START_SESSION")
             if (mShutDown)
             {
-                setVoiceConnectionState(VOICE_STATE_DISCONNECT);
+                setVoiceConnectionState(VOICE_STATE_SESSION_EXIT);
                 break;
             }
             mIceCompleted = false;
@@ -2642,7 +2637,7 @@ bool LLVoiceWebRTCConnection::connectionStateMachine()
         {
             if (mShutDown)
             {
-                setVoiceConnectionState(VOICE_STATE_DISCONNECT);
+                setVoiceConnectionState(VOICE_STATE_SESSION_EXIT);
             }
             break;
         }
@@ -2650,7 +2645,7 @@ bool LLVoiceWebRTCConnection::connectionStateMachine()
         case VOICE_STATE_REQUEST_CONNECTION:
             if (mShutDown)
             {
-                setVoiceConnectionState(VOICE_STATE_DISCONNECT);
+                setVoiceConnectionState(VOICE_STATE_SESSION_EXIT);
                 break;
             }
             // Ask the sim to ask the Secondlife WebRTC server for a connection to
@@ -2746,20 +2741,20 @@ bool LLVoiceWebRTCConnection::connectionStateMachine()
 
         case VOICE_STATE_SESSION_EXIT:
         {
+            mWebRTCPeerConnectionInterface->shutdownConnection();
+
+            if (!mShutDown)
             {
-                if (!mShutDown)
+                mVoiceConnectionState = VOICE_STATE_START_SESSION;
+            }
+            else
+            {
+                // if we still have outstanding http or webrtc calls, wait for them to
+                // complete so we don't delete objects while they still may be used.
+                if (mOutstandingRequests <= 0)
                 {
-                    mVoiceConnectionState = VOICE_STATE_START_SESSION;
-                }
-                else
-                {
-                    // if we still have outstanding http or webrtc calls, wait for them to
-                    // complete so we don't delete objects while they still may be used.
-                    if (mOutstandingRequests <= 0)
-                    {
-                        LLWebRTCVoiceClient::getInstance()->OnConnectionShutDown(mChannelID, mRegionID);
-                        return false;
-                    }
+                    LLWebRTCVoiceClient::getInstance()->OnConnectionShutDown(mChannelID, mRegionID);
+                    return false;
                 }
             }
             break;
@@ -2980,14 +2975,6 @@ LLVoiceWebRTCSpatialConnection::LLVoiceWebRTCSpatialConnection(const LLUUID &reg
 
 LLVoiceWebRTCSpatialConnection::~LLVoiceWebRTCSpatialConnection()
 {
-    if (LLWebRTCVoiceClient::isShuttingDown())
-    {
-        // peer connection and observers will be cleaned up
-        // by llwebrtc::terminate() on shutdown.
-        return;
-    }
-    assert(mOutstandingRequests == 0);
-    mWebRTCPeerConnectionInterface->unsetSignalingObserver(this);
 }
 
 void LLVoiceWebRTCSpatialConnection::setMuteMic(bool muted)
@@ -3026,14 +3013,6 @@ LLVoiceWebRTCAdHocConnection::LLVoiceWebRTCAdHocConnection(const LLUUID &regionI
 
 LLVoiceWebRTCAdHocConnection::~LLVoiceWebRTCAdHocConnection()
 {
-    if (LLWebRTCVoiceClient::isShuttingDown())
-    {
-        // peer connection and observers will be cleaned up
-        // by llwebrtc::terminate() on shutdown.
-        return;
-    }
-    assert(mOutstandingRequests == 0);
-    mWebRTCPeerConnectionInterface->unsetSignalingObserver(this);
 }
 
 // Add-hoc connections require a different channel type
@@ -3090,7 +3069,19 @@ void LLVoiceWebRTCAdHocConnection::requestVoiceConnection()
 
     if (!status)
     {
-        setVoiceConnectionState(VOICE_STATE_SESSION_RETRY);
+        switch (status.getType())
+        {
+            case HTTP_CONFLICT:
+                mCurrentStatus = LLVoiceClientStatusObserver::ERROR_CHANNEL_FULL;
+                break;
+            case HTTP_UNAUTHORIZED:
+                mCurrentStatus = LLVoiceClientStatusObserver::ERROR_CHANNEL_LOCKED;
+                break;
+            default:
+                mCurrentStatus = LLVoiceClientStatusObserver::ERROR_UNKNOWN;
+                break;
+        }
+        setVoiceConnectionState(VOICE_STATE_SESSION_EXIT);
     }
     else
     {

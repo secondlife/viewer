@@ -90,7 +90,7 @@ public:
     void wearSelectedOutfit();
 
 
-    /*virtual*/ void setFilterSubString(const std::string& string);
+    /*virtual*/ void onFilterSubStringChanged(const std::string& new_string, const std::string& old_string);
 
     /*virtual*/ void getCurrentCategories(uuid_vec_t& vcur);
     /*virtual*/ void updateAddedCategory(LLUUID cat_id);
@@ -116,8 +116,6 @@ protected:
     /*virtual*/ void onCollapseAllFolders() {}
     /*virtual*/ void onExpandAllFolders() {}
     /*virtual*/ LLOutfitListGearMenuBase* createGearMenu();
-
-    void applyFilter(LLOutfitGalleryItem* item, const std::string& filter_substring);
 
 private:
     LLUUID getPhotoAssetId(const LLUUID& outfit_id);
@@ -195,17 +193,13 @@ public:
     
     friend class LLOutfitGallery;
     LLOutfitGalleryContextMenu(LLOutfitListBase* outfit_list)
-    : LLOutfitContextMenu(outfit_list),
-    mOutfitList(outfit_list){}
+    : LLOutfitContextMenu(outfit_list){}
 
 protected:
     /* virtual */ LLContextMenu* createMenu();
     bool onEnable(LLSD::String param);
     bool onVisible(LLSD::String param);
-    void onThumbnail(const LLUUID& outfit_cat_id);
     void onCreate(const LLSD& data);
-private:
-    LLOutfitListBase*	mOutfitList;
 };
 
 

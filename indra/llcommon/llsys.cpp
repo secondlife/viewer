@@ -49,7 +49,6 @@
 #include "llsdutil.h"
 #include <boost/bind.hpp>
 #include <boost/circular_buffer.hpp>
-#include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/range.hpp>
 #include <boost/utility/enable_if.hpp>
@@ -905,9 +904,9 @@ void LLMemoryInfo::stream(std::ostream& s) const
 
 	// Max key length
 	size_t key_width(0);
-	BOOST_FOREACH(const MapEntry& pair, inMap(mStatsMap))
+	for (const auto& [key, value] : inMap(mStatsMap))
 	{
-		size_t len(pair.first.length());
+		size_t len(key.length());
 		if (len > key_width)
 		{
 			key_width = len;
@@ -915,10 +914,9 @@ void LLMemoryInfo::stream(std::ostream& s) const
 	}
 
 	// Now stream stats
-	BOOST_FOREACH(const MapEntry& pair, inMap(mStatsMap))
+	for (const auto& [key, value] : inMap(mStatsMap))
 	{
-		s << pfx << std::setw(narrow(key_width+1)) << (pair.first + ':') << ' ';
-		LLSD value(pair.second);
+		s << pfx << std::setw(narrow<size_t>(key_width+1)) << (key + ':') << ' ';
 		if (value.isInteger())
 			s << std::setw(12) << value.asInteger();
 		else if (value.isReal())
