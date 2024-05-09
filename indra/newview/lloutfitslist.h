@@ -226,7 +226,9 @@ public:
     virtual void draw();
     virtual BOOL handleToolTip(S32 x, S32 y, MASK mask);
 
-    void setFavorite(bool is_favorite) { mIsFavorite = is_favorite; }
+    void setFavorite(bool is_favorite);
+    bool getFavorite() const { return mIsFavorite; }
+    void setOutfitSelected(bool val);
 
     static LLUIImage* sFavoriteIcon;
     static LLUIColor sFgColor;
@@ -242,6 +244,7 @@ public:
 
     LLUUID mFolderID;
     bool mIsFavorite = false;
+    bool mIsSelected = false;
 };
   /**
  * @class LLOutfitsList
@@ -368,6 +371,8 @@ private:
 
 	static void onOutfitRename(const LLSD& notification, const LLSD& response);
 
+    void handleInvFavColorChange();
+
 	//LLInventoryCategoriesObserver* 	mCategoriesObserver;
 
 	LLAccordionCtrl*				mAccordion;
@@ -392,6 +397,8 @@ private:
 	 * True if there is a selection inside currently selected outfit
 	 */
 	bool							mItemSelected;
+
+    boost::signals2::connection                   mSavedSettingInvFavColor;
 };
 
 #endif //LL_LLOUTFITSLIST_H

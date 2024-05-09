@@ -108,10 +108,16 @@ LLOutfitsList::LLOutfitsList()
 	,	mListCommands(NULL)
 	,	mItemSelected(false)
 {
+    LLControlVariable* ctrl = gSavedSettings.getControl("InventoryFavoritesColorText");
+    if (ctrl)
+    {
+        mSavedSettingInvFavColor = ctrl->getSignal()->connect(boost::bind(&LLOutfitsList::handleInvFavColorChange, this));
+    }
 }
 
 LLOutfitsList::~LLOutfitsList()
 {
+    mSavedSettingInvFavColor.disconnect();
 }
 
 BOOL LLOutfitsList::postBuild()
@@ -254,13 +260,11 @@ void LLOutfitsList::onHighlightBaseOutfit(LLUUID base_id, LLUUID prev_id)
 {
     if (mOutfitsMap[prev_id])
     {
-        mOutfitsMap[prev_id]->setTitleFontStyle("NORMAL");
-        mOutfitsMap[prev_id]->setTitleColor(LLUIColorTable::instance().getColor("AccordionHeaderTextColor"));
+        ((LLOutfitAccordionCtrlTab*)mOutfitsMap[prev_id])->setOutfitSelected(false);
     }
     if (mOutfitsMap[base_id])
 	{
-		mOutfitsMap[base_id]->setTitleFontStyle("BOLD");
-		mOutfitsMap[base_id]->setTitleColor(LLUIColorTable::instance().getColor("SelectedOutfitTextColor"));
+		((LLOutfitAccordionCtrlTab*)mOutfitsMap[base_id])->setOutfitSelected(true);
 	}
 }
 
@@ -741,6 +745,21 @@ void LLOutfitsList::onOutfitRightClick(LLUICtrl* ctrl, S32 x, S32 y, const LLUUI
         uuid_vec_t selected_uuids;
         selected_uuids.push_back(cat_id);
         mOutfitMenu->show(ctrl, selected_uuids, x, y);
+    }
+}
+
+
+void LLOutfitsList::handleInvFavColorChange()
+{
+    for (outfits_map_t::iterator iter = mOutfitsMap.begin();
+        iter != mOutfitsMap.end();
+        ++iter)
+    {
+        if (!iter->second) continue;
+        LLOutfitAccordionCtrlTab* tab = (LLOutfitAccordionCtrlTab*)iter->second;
+
+        // refresh font color
+        tab->setFavorite(tab->getFavorite());
     }
 }
 
@@ -1421,6 +1440,43 @@ BOOL LLOutfitAccordionCtrlTab::handleToolTip(S32 x, S32 y, MASK mask)
     }
 
     return LLAccordionCtrlTab::handleToolTip(x, y, mask);
+}
+
+void LLOutfitAccordionCtrlTab::setFavorite(bool is_favorite)
+{
+    mIsFavorite = is_favorite;
+    static LLUICachedControl<bool> highlight_color("InventoryFavoritesColorText", true);
+    if (!mIsSelected && mIsFavorite && highlight_color())
+    {
+        setTitleColor(LLUIColorTable::instance().getColor("InventoryFavoriteColor"));
+    }
+    else
+    {
+        setTitleColor(LLUIColorTable::instance().getColor("AccordionHeaderTextColor"));
+    }
+}
+
+void LLOutfitAccordionCtrlTab::setOutfitSelected(bool val)
+{
+    mIsSelected = val;
+    if (val)
+    {
+        setTitleFontStyle("BOLD");
+        setTitleColor(LLUIColorTable::instance().getColor("SelectedOutfitTextColor"));
+    }
+    else
+    {
+        setTitleFontStyle("NORMAL");
+        static LLUICachedControl<bool> highlight_color("InventoryFavoritesColorText", true);
+        if (mIsFavorite && highlight_color())
+        {
+            setTitleColor(LLUIColorTable::instance().getColor("InventoryFavoriteColor"));
+        }
+        else
+        {
+            setTitleColor(LLUIColorTable::instance().getColor("AccordionHeaderTextColor"));
+        }
+    }
 }
 
 void LLOutfitAccordionCtrlTab::drawFavoriteIcon()
