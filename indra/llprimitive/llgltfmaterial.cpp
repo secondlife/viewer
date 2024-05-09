@@ -44,6 +44,10 @@ const char* const LLGLTFMaterial::GLTF_FILE_EXTENSION_TRANSFORM_SCALE = "scale";
 const char* const LLGLTFMaterial::GLTF_FILE_EXTENSION_TRANSFORM_OFFSET = "offset";
 const char* const LLGLTFMaterial::GLTF_FILE_EXTENSION_TRANSFORM_ROTATION = "rotation";
 
+
+const char *const LLGLTFMaterial::GLTF_FILE_EXTENSION_EMISSIVE_STRENGTH = "KHR_materials_emissive_strength";
+const char *const LLGLTFMaterial::GLTF_FILE_EXTENSION_EMISSIVE_STRENGTH_EMISSIVE_STRENGTH = "emissiveStrength";
+
 // special UUID that indicates a null UUID in override data
 const LLUUID LLGLTFMaterial::GLTF_OVERRIDE_NULL_UUID = LLUUID("ffffffff-ffff-ffff-ffff-ffffffffffff");
 
@@ -111,6 +115,7 @@ LLGLTFMaterial& LLGLTFMaterial::operator=(const LLGLTFMaterial& rhs)
 
     mBaseColor = rhs.mBaseColor;
     mEmissiveColor = rhs.mEmissiveColor;
+    mEmissiveStrength = rhs.mEmissiveStrength;
 
     mMetallicFactor = rhs.mMetallicFactor;
     mRoughnessFactor = rhs.mRoughnessFactor;
@@ -162,6 +167,7 @@ bool LLGLTFMaterial::operator==(const LLGLTFMaterial& rhs) const
         mBaseColor == rhs.mBaseColor &&
         mEmissiveColor == rhs.mEmissiveColor &&
 
+        mEmissiveStrength == rhs.mEmissiveStrength &&
         mMetallicFactor == rhs.mMetallicFactor &&
         mRoughnessFactor == rhs.mRoughnessFactor &&
         mAlphaCutoff == rhs.mAlphaCutoff &&
@@ -208,6 +214,27 @@ std::string LLGLTFMaterial::asJSON(bool prettyprint) const
     return str.str();
 }
 
+// static
+void LLGLTFMaterial::setEmissiveStrengthFromModel(const tinygltf::Material& model, F32& emissive_strength)
+{
+    LL_PROFILE_ZONE_SCOPED;
+
+    const tinygltf::Value::Object &extensions_object = model.extensions;
+    const auto                     emissive_it      = extensions_object.find(GLTF_FILE_EXTENSION_EMISSIVE_STRENGTH);
+
+    LL_INFOS() << "Material extensions: " << model.extensions_json_string << LL_ENDL;
+
+    if (emissive_it != extensions_object.end())
+    {
+        const tinygltf::Value &emissive_strength_json = std::get<1>(*emissive_it);
+        if (emissive_strength_json.IsObject())
+        {
+            const tinygltf::Value::Object &emissive_object = emissive_strength_json.Get<tinygltf::Value::Object>();
+            emissive_strength = floatFromJson(emissive_object, GLTF_FILE_EXTENSION_EMISSIVE_STRENGTH_EMISSIVE_STRENGTH, getDefaultEmissiveStrength());
+        }
+    }
+}
+
 void LLGLTFMaterial::setFromModel(const tinygltf::Model& model, S32 mat_index)
 {
     LL_PROFILE_ZONE_SCOPED;
@@ -226,6 +253,9 @@ void LLGLTFMaterial::setFromModel(const tinygltf::Model& model, S32 mat_index)
     setFromTexture(model, material_in.pbrMetallicRoughness.metallicRoughnessTexture, GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS);
     // Apply emissive texture
     setFromTexture(model, material_in.emissiveTexture, GLTF_TEXTURE_INFO_EMISSIVE);
+
+    // KHR_materials_emissive_strength
+    setEmissiveStrengthFromModel(material_in, mEmissiveStrength);
 
     setAlphaMode(material_in.alphaMode);
     mAlphaCutoff = llclamp((F32)material_in.alphaCutoff, 0.f, 1.f);
@@ -297,6 +327,14 @@ F32 LLGLTFMaterial::floatFromJson(const tinygltf::Value::Object& object, const c
     return (F32)real_json.GetNumberAsDouble();
 }
 
+// static
+void LLGLTFMaterial::writeEmissiveStrength(tinygltf::Material &material, F32 emissive_strength)
+{
+    tinygltf::Value::Object emissive_strength_object;
+    emissive_strength_object[LLGLTFMaterial::GLTF_FILE_EXTENSION_EMISSIVE_STRENGTH_EMISSIVE_STRENGTH] = tinygltf::Value(emissive_strength);
+    material.extensions[LLGLTFMaterial::GLTF_FILE_EXTENSION_EMISSIVE_STRENGTH_EMISSIVE_STRENGTH]      = tinygltf::Value(emissive_strength_object);
+}
+
 void LLGLTFMaterial::writeToModel(tinygltf::Model& model, S32 mat_index) const
 {
     LL_PROFILE_ZONE_SCOPED;
@@ -331,6 +369,8 @@ void LLGLTFMaterial::writeToModel(tinygltf::Model& model, S32 mat_index) const
         material_out.emissiveFactor.resize(3);
         mEmissiveColor.write(material_out.emissiveFactor);
     }
+
+    writeEmissiveStrength(material_out, mEmissiveStrength);
 
     material_out.pbrMetallicRoughness.metallicFactor = mMetallicFactor;
     material_out.pbrMetallicRoughness.roughnessFactor = mRoughnessFactor;
@@ -465,6 +505,19 @@ void LLGLTFMaterial::setEmissiveColorFactor(const LLColor3& emissiveColor, bool 
     }
 }
 
+void LLGLTFMaterial::setEmissiveStrength(F32 emissiveStrength, bool for_override)
+{
+    // KHR_materials_emissive_strength only allows positive values.  There is no maximum value.
+	mEmissiveStrength = llmax(emissiveStrength, 0.f);
+	if (for_override)
+	{ 
+        if (mEmissiveStrength == getDefaultEmissiveStrength())
+        {
+			mEmissiveStrength -= FLT_EPSILON;
+		}
+    }
+}
+
 void LLGLTFMaterial::setMetallicFactor(F32 metallic, bool for_override)
 {
     mMetallicFactor = llclamp(metallic, 0.f, for_override ? 1.f - FLT_EPSILON : 1.f);
@@ -564,6 +617,11 @@ LLColor3 LLGLTFMaterial::getDefaultEmissiveColor()
     return sDefault.mEmissiveColor;
 }
 
+F32 LLGLTFMaterial::getDefaultEmissiveStrength()
+{
+    return sDefault.mEmissiveStrength;
+}
+
 bool LLGLTFMaterial::getDefaultDoubleSided()
 {
     return sDefault.mDoubleSided;
@@ -620,6 +678,11 @@ void LLGLTFMaterial::applyOverride(const LLGLTFMaterial& override_mat)
     {
         mEmissiveColor = override_mat.mEmissiveColor;
     }
+
+    if (override_mat.mEmissiveStrength != getDefaultEmissiveStrength())
+    {
+		mEmissiveStrength = override_mat.mEmissiveStrength;
+	}
 
     if (override_mat.mMetallicFactor != getDefaultMetallicFactor())
     {
@@ -698,6 +761,11 @@ void LLGLTFMaterial::getOverrideLLSD(const LLGLTFMaterial& override_mat, LLSD& d
     {
         data["ec"] = override_mat.mEmissiveColor.getValue();
     }
+    
+    if (override_mat.mEmissiveStrength != getDefaultEmissiveStrength())
+    {
+        data["es"] = override_mat.mEmissiveStrength;
+    }
 
     if (override_mat.mMetallicFactor != getDefaultMetallicFactor())
     {
@@ -775,6 +843,17 @@ void LLGLTFMaterial::applyOverrideLLSD(const LLSD& data)
         {
             // HACK -- nudge by epsilon if we receive a default value (indicates override to default)
             mEmissiveColor.mV[0] += FLT_EPSILON;
+        }
+    }
+    
+    const LLSD &es = data["es"];
+    if (es.isDefined())
+    {
+        mEmissiveStrength = es.asReal();
+        if (mEmissiveStrength == getDefaultEmissiveStrength())
+        {
+            // HACK -- nudge by epsilon if we receive a default value (indicates override to default)
+            mEmissiveStrength -= FLT_EPSILON;
         }
     }
 

@@ -43,6 +43,7 @@ namespace tinygltf
     class Model;
     struct TextureInfo;
     class Value;
+    struct Material;
 }
 
 class LLTextureEntry;
@@ -101,6 +102,9 @@ public:
         GLTF_TEXTURE_INFO_OCCLUSION = GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS,
         GLTF_TEXTURE_INFO_EMISSIVE,
         GLTF_TEXTURE_INFO_TRANSMISSION_TEXTURE,
+        // Geenz: The GLTF spec for KHR_materials_transmission states that the red channel of the transmission texture defines the
+        // transmission factor, but the spec does not define what the green and blue channels are for. We are using the green channel to
+        // define the thickness of the object, as the spec defines the green channel of the volume extension as thickness in KHR_materials_volume.
         GLTF_TEXTURE_INFO_THICKNESS_TEXTURE = GLTF_TEXTURE_INFO_TRANSMISSION_TEXTURE,
 
         GLTF_TEXTURE_INFO_COUNT
@@ -112,6 +116,10 @@ public:
     static const char* const GLTF_FILE_EXTENSION_TRANSFORM_ROTATION;
     static const LLUUID GLTF_OVERRIDE_NULL_UUID;
 
+    
+    static const char *const GLTF_FILE_EXTENSION_EMISSIVE_STRENGTH;
+    static const char *const GLTF_FILE_EXTENSION_EMISSIVE_STRENGTH_EMISSIVE_STRENGTH;
+
     // *TODO: If/when we implement additional GLTF extensions, they may not be
     // compatible with our GLTF terrain implementation. We may want to disallow
     // materials with some features from being set on terrain, if their
@@ -122,12 +130,6 @@ public:
     //       heightmaps cannot currently be described as finite enclosed
     //       volumes.
     // See also LLPanelRegionTerrainInfo::validateMaterials
-    bool mDoubleSided = false;
-
-
-    // These fields are local to viewer and are a part of local bitmap support
-    typedef std::map<LLUUID, LLUUID> local_tex_map_t;
-    local_tex_map_t                  mTrackingIdToLocalTexture;
 
 public:
 
@@ -147,6 +149,7 @@ public:
     void setBaseColorFactor(const LLColor4& baseColor, bool for_override = false);
     void setAlphaCutoff(F32 cutoff, bool for_override = false);
     void setEmissiveColorFactor(const LLColor3& emissiveColor, bool for_override = false);
+    void setEmissiveStrength(F32 emissiveStrength, bool for_override = false);
     void setMetallicFactor(F32 metallic, bool for_override = false);
     void setRoughnessFactor(F32 roughness, bool for_override = false);
     void setAlphaMode(S32 mode, bool for_override = false);
@@ -165,6 +168,7 @@ public:
     static F32 getDefaultRoughnessFactor();
     static LLColor4 getDefaultBaseColor();
     static LLColor3 getDefaultEmissiveColor();
+    static F32 getDefaultEmissiveStrength();
     static bool getDefaultDoubleSided();
     static LLVector2 getDefaultTextureOffset();
     static LLVector2 getDefaultTextureScale();
@@ -230,6 +234,10 @@ public:
     bool hasLocalTextures() { return !mTrackingIdToLocalTexture.empty(); }
     virtual bool replaceLocalTexture(const LLUUID& tracking_id, const LLUUID &old_id, const LLUUID& new_id);
     virtual void updateTextureTracking();
+
+    static void writeEmissiveStrength(tinygltf::Material &material, F32 emissive_strength);
+    static void setEmissiveStrengthFromModel(const tinygltf::Material &model, F32 &emissiveStrength);
+
 protected:
     static LLVector2 vec2FromJson(const std::map<std::string, tinygltf::Value>& object, const char* key, const LLVector2& default_value);
     static F32 floatFromJson(const std::map<std::string, tinygltf::Value>& object, const char* key, const F32 default_value);
@@ -271,6 +279,7 @@ public:
     // NOTE: these values should be in linear color space
     LLColor4 mBaseColor;
     LLColor3 mEmissiveColor;
+    F32      mEmissiveStrength = 1.0f;
 
     F32 mMetallicFactor;
     F32 mRoughnessFactor;

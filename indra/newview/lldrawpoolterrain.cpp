@@ -474,7 +474,7 @@ void LLDrawPoolTerrain::renderFullShaderPBR(BOOL local_materials)
         base_color_factors[i] = material->mBaseColor;
         metallic_factors[i] = material->mMetallicFactor;
         roughness_factors[i] = material->mRoughnessFactor;
-        emissive_colors[i] = material->mEmissiveColor;
+        emissive_colors[i] = material->mEmissiveColor * material->mEmissiveStrength;
         // glTF 2.0 Specification 3.9.4. Alpha Coverage
         // mAlphaCutoff is only valid for LLGLTFMaterial::ALPHA_MODE_MASK
         // Use 0 here due to GLTF terrain blending (LLGLTFMaterial::bind uses

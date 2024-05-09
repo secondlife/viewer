@@ -88,6 +88,8 @@ static const U32 MATERIAL_DOUBLE_SIDED_DIRTY = 0x1 << 8;
 static const U32 MATERIAL_ALPHA_MODE_DIRTY = 0x1 << 9;
 static const U32 MATERIAL_ALPHA_CUTOFF_DIRTY = 0x1 << 10;
 
+static const U32 MATERIAL_EMISSSIVE_STRENGTH_DIRTY = 0x1 << 11;
+
 LLUUID LLMaterialEditor::mOverrideObjectId;
 S32 LLMaterialEditor::mOverrideObjectTE = -1;
 bool LLMaterialEditor::mOverrideInProgress = false;
@@ -763,6 +765,16 @@ void LLMaterialEditor::setEmissiveColor(const LLColor4& color)
     mEmissiveColorCtrl->setValue(srgbColor4(color).getValue());
 }
 
+F32 LLMaterialEditor::getEmissiveStrength()
+{
+	return childGetValue("emissive strength").asReal();
+}
+
+void LLMaterialEditor::setEmissiveStrength(F32 strength)
+{
+    childSetValue("emissive strength", strength);
+}
+
 LLUUID LLMaterialEditor::getNormalId()
 {
     return mNormalTextureCtrl->getValue().asUUID();
@@ -1174,6 +1186,13 @@ void LLMaterialEditor::onSelectCtrl(LLUICtrl* ctrl, const LLSD& data, S32 dirty_
                         nodep->mSavedGLTFOverrideMaterials[te]->setEmissiveColorFactor(LLColor3(mCtrl->getValue()), true);
                         break;
                     }
+
+                    case MATERIAL_EMISSSIVE_STRENGTH_DIRTY:
+                    {
+						nodep->mSavedGLTFOverrideMaterials[te]->setEmissiveStrength(mCtrl->getValue().asReal(), true);
+						break;
+					}
+
                     default:
                         break;
                     }
@@ -2315,6 +2334,7 @@ void LLMaterialEditor::saveObjectsMaterialAs(const LLGLTFMaterial* render_materi
             me->setMetalnessFactor(render_material->mMetallicFactor);
             me->setRoughnessFactor(render_material->mRoughnessFactor);
             me->setEmissiveColor(render_material->mEmissiveColor);
+            me->setEmissiveStrength(render_material->mEmissiveStrength);
             me->setDoubleSided(render_material->mDoubleSided);
             me->setAlphaMode(render_material->getAlphaMode());
             me->setAlphaCutoff(render_material->mAlphaCutoff);
@@ -2604,6 +2624,11 @@ bool LLMaterialEditor::setFromGltfModel(const tinygltf::Model& model, S32 index,
 
         setBaseColor(LLTinyGLTFHelper::getColor(material_in.pbrMetallicRoughness.baseColorFactor));
         setEmissiveColor(LLTinyGLTFHelper::getColor(material_in.emissiveFactor));
+        F32 emissive_strength = 1.0f;
+
+        LLGLTFMaterial::setEmissiveStrengthFromModel(material_in, emissive_strength);
+
+        setEmissiveStrength(emissive_strength);
 
         setMetalnessFactor(material_in.pbrMetallicRoughness.metallicFactor);
         setRoughnessFactor(material_in.pbrMetallicRoughness.roughnessFactor);
@@ -3040,6 +3065,15 @@ public:
                 material->setEmissiveColorFactor(revert_mat->mEmissiveColor, false);
             }
 
+            if (changed_flags & MATERIAL_EMISSSIVE_STRENGTH_DIRTY)
+            {
+                material->setEmissiveStrength(mEditor->getEmissiveStrength(), true);
+            }
+            else if ((reverted_flags & MATERIAL_EMISSSIVE_STRENGTH_DIRTY) && revert_mat.notNull())
+            {
+				material->setEmissiveStrength(revert_mat->mEmissiveStrength, false);
+			}
+
             if (changed_flags & MATERIAL_EMISIVE_TEX_DIRTY)
             {
                 material->setEmissiveId(mEditor->getEmissiveId(), true);
@@ -3186,6 +3220,7 @@ void LLMaterialEditor::getGLTFMaterial(LLGLTFMaterial* mat)
 
     mat->mEmissiveColor = getEmissiveColor();
     mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE] = getEmissiveId();
+    mat->mEmissiveStrength = getEmissiveStrength();
 
     mat->mDoubleSided = getDoubleSided();
     mat->setAlphaMode(getAlphaMode());
@@ -3204,6 +3239,7 @@ void LLMaterialEditor::setFromGLTFMaterial(LLGLTFMaterial* mat)
 
     setEmissiveColor(mat->mEmissiveColor);
     setEmissiveId(mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE]);
+    setEmissiveStrength(mat->mEmissiveStrength);
 
     setDoubleSided(mat->mDoubleSided);
     setAlphaMode(mat->getAlphaMode());

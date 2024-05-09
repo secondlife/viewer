@@ -674,7 +674,7 @@ bool LLVLComposition::generateMinimapTileLand(const F32 x, const F32 y,
                 base_color_factor = LLColor3(mDetailMaterials[i]->mBaseColor);
                 // *HACK: Treat alpha as black
                 base_color_factor *= (mDetailMaterials[i]->mBaseColor.mV[VW]);
-                emissive_factor = mDetailMaterials[i]->mEmissiveColor;
+                emissive_factor = mDetailMaterials[i]->mEmissiveColor * mDetailMaterials[i]->mEmissiveStrength;
                 has_base_color_factor = (base_color_factor.mV[VX] != 1.f ||
                                          base_color_factor.mV[VY] != 1.f ||
                                          base_color_factor.mV[VZ] != 1.f);

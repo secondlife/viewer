@@ -208,6 +208,9 @@ class LLMaterialEditor : public LLPreview, public LLVOInventoryListener
     LLColor4 getEmissiveColor();
     void setEmissiveColor(const LLColor4& color);
 
+    F32 getEmissiveStrength();
+    void setEmissiveStrength(F32 strength);
+
     LLUUID getNormalId();
     void setNormalId(const LLUUID& id);
     void setNormalUploadId(const LLUUID& id);

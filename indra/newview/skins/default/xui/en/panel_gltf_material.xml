@@ -339,6 +339,31 @@
      top_pad="5"
      name="emissive color"
      width="40" />
+    <text
+      type="string"
+      length="1"
+      follows="left|top"
+      height="10"
+      layout="topleft"
+      left_delta="0"
+      top_pad="5"
+      width="96"
+      name="emissive_strength_lbl">
+      Emissive Strength
+    </text>
+    <spinner
+      decimal_digits="3"
+      follows="left|top"
+      height="19"
+      increment="0.01"
+      initial_value="0"
+      layout="topleft"
+      left_delta="0"
+      top_pad="5"
+      min_val="0"
+      max_val="1"
+      name="emissive strength"
+      width="64"/>
   </panel>
   <panel
     border="true"
