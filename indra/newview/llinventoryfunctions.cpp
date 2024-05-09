@@ -2427,6 +2427,19 @@ void toggle_favorite(const LLUUID& obj_id)
     }
 }
 
+void toggle_linked_favorite(const LLUUID& obj_id)
+{
+    LLViewerInventoryItem* item = gInventory.getItem(obj_id);
+    if (!item)
+    {
+        LL_WARNS() << "Invalid item" << LL_ENDL;
+        return;
+    }
+
+    LLUUID linked_id = item->getLinkedUUID();
+    toggle_favorite(linked_id);
+}
+
 std::string get_searchable_description(LLInventoryModel* model, const LLUUID& item_id)
 {
     if (model)
