@@ -94,6 +94,7 @@ namespace tut
         material.setEmissiveColorFactor(LLColor3(test_fraction_big, test_fraction_big, test_fraction_big));
         material.setMetallicFactor(test_fraction);
         material.setRoughnessFactor(test_fraction);
+        material.setEmissiveStrength(test_fraction);
     }
 
     LLGLTFMaterial create_test_material()
@@ -146,7 +147,7 @@ namespace tut
         ensure_equals("fields supported for GLTF (sizeof check)", sizeof(LLGLTFMaterial), 224);
 #endif
 #endif
-        ensure_equals("LLGLTFMaterial texture info count", (U32)LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT, 4);
+        ensure_equals("LLGLTFMaterial texture info count", (U32)LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT, 5);
     }
 
     // Test that occlusion and metallicRoughness are the same (They are different for asset validation. See lluploadmaterial.cpp)
