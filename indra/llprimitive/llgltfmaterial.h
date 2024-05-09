@@ -131,6 +131,10 @@ public:
     //       volumes.
     // See also LLPanelRegionTerrainInfo::validateMaterials
 
+    bool mDoubleSided = false;
+    typedef std::map<LLUUID, LLUUID> local_tex_map_t;
+    local_tex_map_t mTrackingIdToLocalTexture;
+
 public:
 
     // get a UUID based on a hash of this LLGLTFMaterial
@@ -265,8 +269,6 @@ public:
     // IMPORTANT: do not move this member down (and do not move
     // mLocalTexDataDigest either): the getHash() method does rely on the
     // current ordering. HB
-    typedef std::map<LLUUID, LLUUID> local_tex_map_t;
-    local_tex_map_t mTrackingIdToLocalTexture;
 
     // Used to store a digest of mTrackingIdToLocalTexture when the latter is
     // not empty, or zero otherwise. HB
@@ -286,7 +288,6 @@ public:
     F32 mAlphaCutoff;
 
     AlphaMode mAlphaMode;
-    bool mDoubleSided = false;
 
     // Override specific flags for state that can't use off-by-epsilon or UUID
     // hack

@@ -361,7 +361,7 @@
       left_delta="0"
       top_pad="5"
       min_val="0"
-      max_val="1"
+      max_val="9999"
       name="emissive strength"
       width="64"/>
   </panel>

@@ -222,8 +222,6 @@ void LLGLTFMaterial::setEmissiveStrengthFromModel(const tinygltf::Material& mode
     const tinygltf::Value::Object &extensions_object = model.extensions;
     const auto                     emissive_it      = extensions_object.find(GLTF_FILE_EXTENSION_EMISSIVE_STRENGTH);
 
-    LL_INFOS() << "Material extensions: " << model.extensions_json_string << LL_ENDL;
-
     if (emissive_it != extensions_object.end())
     {
         const tinygltf::Value &emissive_strength_json = std::get<1>(*emissive_it);
@@ -332,7 +330,7 @@ void LLGLTFMaterial::writeEmissiveStrength(tinygltf::Material &material, F32 emi
 {
     tinygltf::Value::Object emissive_strength_object;
     emissive_strength_object[LLGLTFMaterial::GLTF_FILE_EXTENSION_EMISSIVE_STRENGTH_EMISSIVE_STRENGTH] = tinygltf::Value(emissive_strength);
-    material.extensions[LLGLTFMaterial::GLTF_FILE_EXTENSION_EMISSIVE_STRENGTH_EMISSIVE_STRENGTH]      = tinygltf::Value(emissive_strength_object);
+    material.extensions[LLGLTFMaterial::GLTF_FILE_EXTENSION_EMISSIVE_STRENGTH]      = tinygltf::Value(emissive_strength_object);
 }
 
 void LLGLTFMaterial::writeToModel(tinygltf::Model& model, S32 mat_index) const
