@@ -266,7 +266,7 @@ void GLTFSceneManager::uploadSelection()
                         cache.write((const U8*)data.data(), data.size());
                     }
                 };
-#if 0
+#if 1
             S32 expected_upload_cost = 0;
 
             LLResourceUploadInfo::ptr_t uploadInfo(std::make_shared<LLNewBufferedResourceUploadInfo>(
