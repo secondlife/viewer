@@ -202,11 +202,11 @@ void LLDrawPoolTerrain::drawLoop()
 
 void LLDrawPoolTerrain::renderFullShader()
 {
-    const BOOL use_local_materials = gLocalTerrainMaterials.materialsReady(true, false);
+    const bool use_local_materials = gLocalTerrainMaterials.materialsReady(true, false);
 	// Hack! Get the region that this draw pool is rendering from!
 	LLViewerRegion *regionp = mDrawFace[0]->getDrawable()->getVObj()->getRegion();
 	LLVLComposition *compp = regionp->getComposition();
-    const BOOL use_textures = !use_local_materials && (compp->getMaterialType() == LLTerrainMaterials::Type::TEXTURE);
+    const bool use_textures = !use_local_materials && (compp->getMaterialType() == LLTerrainMaterials::Type::TEXTURE);
     
     if (use_textures)
     {
@@ -325,7 +325,7 @@ void LLDrawPoolTerrain::renderFullShaderTextures()
 }
 
 // *TODO: Investigate use of bindFast for PBR terrain textures
-void LLDrawPoolTerrain::renderFullShaderPBR(BOOL local_materials)
+void LLDrawPoolTerrain::renderFullShaderPBR(bool local_materials)
 {
 	// Hack! Get the region that this draw pool is rendering from!
 	LLViewerRegion *regionp = mDrawFace[0]->getDrawable()->getVObj()->getRegion();

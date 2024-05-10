@@ -120,12 +120,6 @@ public:
     //       heightmaps cannot currently be described as finite enclosed
     //       volumes.
     // See also LLPanelRegionTerrainInfo::validateMaterials
-    bool mDoubleSided = false;
-
-
-    // These fields are local to viewer and are a part of local bitmap support
-    typedef std::map<LLUUID, LLUUID> local_tex_map_t;
-    local_tex_map_t                  mTrackingIdToLocalTexture;
 
 public:
 

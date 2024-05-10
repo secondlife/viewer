@@ -353,29 +353,6 @@ bool LLTriangleRayIntersectTwoSided(const LLVector4a& vert0, const LLVector4a& v
 	return true;
 } 
 
-//helper for non-aligned vectors
-BOOL LLTriangleRayIntersect(const LLVector3& vert0, const LLVector3& vert1, const LLVector3& vert2, const LLVector3& orig, const LLVector3& dir,
-							F32& intersection_a, F32& intersection_b, F32& intersection_t, BOOL two_sided)
-{
-	LLVector4a vert0a, vert1a, vert2a, origa, dira;
-	vert0a.load3(vert0.mV);
-	vert1a.load3(vert1.mV);
-	vert2a.load3(vert2.mV);
-	origa.load3(orig.mV);
-	dira.load3(dir.mV);
-
-	if (two_sided)
-	{
-		return LLTriangleRayIntersectTwoSided(vert0a, vert1a, vert2a, origa, dira, 
-				intersection_a, intersection_b, intersection_t);
-	}
-	else
-	{
-		return LLTriangleRayIntersect(vert0a, vert1a, vert2a, origa, dira, 
-				intersection_a, intersection_b, intersection_t);
-	}
-}
-
 //-------------------------------------------------------------------
 // statics
 //-------------------------------------------------------------------

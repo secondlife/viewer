@@ -259,7 +259,7 @@ LLMatrix4a inverse(const LLMatrix4a& mat)
     return ret;
 }
 
-bool GLTFSceneManager::lineSegmentIntersect(LLVOVolume* obj, Asset* asset, const LLVector4a& start, const LLVector4a& end, S32 face, BOOL pick_transparent, BOOL pick_rigged, BOOL pick_unselectable, S32* node_hit, S32* primitive_hit,
+bool GLTFSceneManager::lineSegmentIntersect(LLVOVolume* obj, Asset* asset, const LLVector4a& start, const LLVector4a& end, S32 face, bool pick_transparent, bool pick_rigged, bool pick_unselectable, S32* node_hit, S32* primitive_hit,
     LLVector4a* intersection, LLVector2* tex_coord, LLVector4a* normal, LLVector4a* tangent)
 
 {
@@ -353,10 +353,10 @@ bool GLTFSceneManager::lineSegmentIntersect(LLVOVolume* obj, Asset* asset, const
 }
 
 LLDrawable* GLTFSceneManager::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
-    BOOL pick_transparent,
-    BOOL pick_rigged,
-    BOOL pick_unselectable,
-    BOOL pick_reflection_probe,
+    bool pick_transparent,
+    bool pick_rigged,
+    bool pick_unselectable,
+    bool pick_reflection_probe,
     S32* node_hit,                   // return the index of the node that was hit
     S32* primitive_hit,               // return the index of the primitive that was hit
     LLVector4a* intersection,         // return the intersection point
@@ -539,7 +539,7 @@ void GLTFSceneManager::renderDebug()
         for (U32 i = 0; i < 2; ++i)
         {
             LLGLDepthTest depth(GL_TRUE, i == 0 ? GL_FALSE : GL_TRUE, i == 0 ? GL_GREATER : GL_LEQUAL);
-            LLGLState blend(GL_BLEND, i == 0 ? TRUE : FALSE);
+            LLGLState blend(GL_BLEND, i == 0 ? GL_TRUE : GL_FALSE);
 
 
             gGL.pushMatrix();
@@ -614,7 +614,7 @@ void GLTFSceneManager::renderDebug()
         S32 primitive_hit = -1;
         LLVector4a intersection;
 
-        LLDrawable* drawable = lineSegmentIntersect(gDebugRaycastStart, gDebugRaycastEnd, TRUE, TRUE, TRUE, TRUE, &node_hit, &primitive_hit, &intersection, nullptr, nullptr, nullptr);
+        LLDrawable* drawable = lineSegmentIntersect(gDebugRaycastStart, gDebugRaycastEnd, true, true, true, true, &node_hit, &primitive_hit, &intersection, nullptr, nullptr, nullptr);
 
         if (drawable)
         {

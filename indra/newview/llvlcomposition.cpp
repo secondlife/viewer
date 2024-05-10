@@ -115,19 +115,19 @@ LLTerrainMaterials::~LLTerrainMaterials()
     unboost();
 }
 
-BOOL LLTerrainMaterials::generateMaterials()
+bool LLTerrainMaterials::generateMaterials()
 {
     if (texturesReady(true, true))
     {
-        return TRUE;
+        return true;
     }
 
     if (materialsReady(true, true))
     {
-        return TRUE;
+        return true;
     }
 
-    return FALSE;
+    return false;
 }
 
 void LLTerrainMaterials::boost()
@@ -639,11 +639,11 @@ bool LLVLComposition::generateMinimapTileLand(const F32 x, const F32 y,
     const bool use_textures = getMaterialType() != LLTerrainMaterials::Type::PBR;
     if (use_textures)
     {
-        if (!texturesReady(true, true)) { return FALSE; }
+        if (!texturesReady(true, true)) { return false; }
     }
     else
     {
-        if (!materialsReady(true, true)) { return FALSE; }
+        if (!materialsReady(true, true)) { return false; }
     }
 
 	for (S32 i = 0; i < ASSET_COUNT; i++)
@@ -688,8 +688,8 @@ bool LLVLComposition::generateMinimapTileLand(const F32 x, const F32 y,
 
             bool delete_raw_post = false;
             bool delete_raw_post_emissive = false;
-            if (!prepare_raw_image(mRawImagesBaseColor[i], false, tex, delete_raw_post)) { return FALSE; }
-            if (tex_emissive && !prepare_raw_image(mRawImagesEmissive[i], true, tex_emissive, delete_raw_post_emissive)) { return FALSE; }
+            if (!prepare_raw_image(mRawImagesBaseColor[i], false, tex, delete_raw_post)) { return false; }
+            if (tex_emissive && !prepare_raw_image(mRawImagesEmissive[i], true, tex_emissive, delete_raw_post_emissive)) { return false; }
             // tex_emissive can be null, and then will be ignored
 
             // In the simplest case, the minimap image is just the base color.
