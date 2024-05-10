@@ -49,10 +49,11 @@
 #endif
 
 #include <boost/optional/optional.hpp>
-#include "llsd.h"
-#include "llsingleton.h"
 #include "lldependencies.h"
 #include "llexception.h"
+#include "llmutex.h"
+#include "llsd.h"
+#include "llsingleton.h"
 
 // hack for testing
 #ifndef testable
