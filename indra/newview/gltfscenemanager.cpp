@@ -245,6 +245,8 @@ void GLTFSceneManager::uploadSelection()
                 {
                     // TODO: handle failure
                     mPendingBinaryUploads--;
+                    mUploadingAsset = nullptr;
+                    mUploadingObject = nullptr;
                     LL_WARNS("GLTF") << "Failed to upload GLTF binary: " << reason << LL_ENDL;
                     LL_WARNS("GLTF") << response << LL_ENDL;
                     return false;
@@ -453,7 +455,7 @@ void GLTFSceneManager::update()
     }
 
     // process pending uploads
-    if (mUploadingAsset)
+    if (mUploadingAsset && !mGLTFUploadPending)
     {
         if (mPendingImageUploads == 0 && mPendingBinaryUploads == 0)
         {
@@ -490,6 +492,7 @@ void GLTFSceneManager::update()
 
                     mUploadingAsset = nullptr;
                     mUploadingObject = nullptr;
+                    mGLTFUploadPending = false;
                     return false;
                 };
 
@@ -512,11 +515,15 @@ void GLTFSceneManager::update()
                         mUploadingObject->setGLTFAsset(assetId);
                         mUploadingObject = nullptr;
                     }
+
+                    mGLTFUploadPending = false;
                 };
 
 #if 1
             S32 expected_upload_cost = 0;
             LLUUID asset_id = LLUUID::generateNewID();
+
+            mGLTFUploadPending = true;
 
             LLResourceUploadInfo::ptr_t uploadInfo(std::make_shared<LLNewBufferedResourceUploadInfo>(
                 buffer,

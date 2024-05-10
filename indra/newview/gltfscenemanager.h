@@ -84,6 +84,7 @@ namespace LL
         std::vector<LLPointer<LLViewerObject>> mObjects;
 
         std::shared_ptr<GLTF::Asset> mUploadingAsset;
+        bool mGLTFUploadPending = false;
         LLPointer<LLViewerObject> mUploadingObject;
         U32 mPendingImageUploads = 0;
         U32 mPendingBinaryUploads = 0;
