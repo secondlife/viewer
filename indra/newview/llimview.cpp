@@ -2966,10 +2966,6 @@ void LLIncomingCallDialog::processCallResponse(S32 response, const LLSD &payload
 	LLUUID session_id = payload["session_id"].asUUID();
 	LLUUID caller_id = payload["caller_id"].asUUID();
 	std::string session_name = payload["session_name"].asString();
-	if (session_name.empty())
-	{
-		session_name = payload["caller_name"].asString();
-	}
 	EInstantMessage type = (EInstantMessage)payload["type"].asInteger();
 	LLIMMgr::EInvitationType inv_type = (LLIMMgr::EInvitationType)payload["inv_type"].asInteger();
 	bool voice = true;
