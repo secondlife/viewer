@@ -109,10 +109,8 @@
          function="Gear.OnVisible"
          parameter="delete" />
     </menu_item_call>
-    <menu_item_separator>
-        <on_visible
-         function="Gear.OnVisible"/>
-    </menu_item_separator>
+    <menu_item_separator
+      name="sort_order_separator"/>
     <menu_item_check
      label="Show outfits with images first"
      layout="topleft"
@@ -123,20 +121,6 @@
          function="Gear.OnEnable"
          parameter="sort_by_image" />
     </menu_item_check>
-        <menu_item_call
-     label="Expand all folders"
-     layout="topleft"
-     name="expand">
-        <on_click
-         function="Gear.Expand" />
-    </menu_item_call>
-    <menu_item_call
-     label="Collapse all folders"
-     layout="topleft"
-     name="collapse">
-        <on_click
-         function="Gear.Collapse" />
-    </menu_item_call>
   <menu_item_separator/>
             <!-- copied (with minor modifications) from menu_inventory_add.xml -->
             <!--  *TODO: generate dynamically? -->
@@ -297,4 +281,19 @@
                 </menu_item_call>
             </menu>
             <!-- copied from menu_inventory_add.xml -->
+
+  <menu_item_separator
+    name="inv_settings_separator"/>
+
+  <menu_item_check
+   label="Inventory settings..."
+   layout="topleft"
+   name="inventory_settings">
+    <menu_item_check.on_check
+     function="Floater.Visible"
+     parameter="inventory_settings" />
+    <menu_item_check.on_click
+     function="Floater.Toggle"
+     parameter="inventory_settings" />
+  </menu_item_check>
 </toggleable_menu>

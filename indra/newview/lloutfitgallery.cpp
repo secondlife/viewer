@@ -1188,10 +1188,11 @@ void LLOutfitGalleryGearMenu::onUpdateItemsVisibility()
 {
     if (!mMenu) return;
     bool have_selection = getSelectedOutfitID().notNull();
-    mMenu->setItemVisible("expand", FALSE);
-    mMenu->setItemVisible("collapse", FALSE);
     mMenu->setItemVisible("thumbnail", have_selection);
-    mMenu->setItemVisible("sort_order_by_image", TRUE);
+    mMenu->setItemVisible("inventory_settings", false);
+    mMenu->setItemVisible("inv_settings_separator", false);
+    mMenu->setItemVisible("sort_order_separator", true);
+    mMenu->setItemVisible("sort_order_by_image", true);
     LLOutfitListGearMenuBase::onUpdateItemsVisibility();
 }
 
@@ -1304,6 +1305,11 @@ void LLOutfitGallery::refreshOutfit(const LLUUID& category_id)
     {
         reArrangeRows();
     }
+}
+
+LLToggleableMenu* LLOutfitGallery::getSortMenu()
+{
+    return nullptr;
 }
 
 LLUUID LLOutfitGallery::getPhotoAssetId(const LLUUID& outfit_id)

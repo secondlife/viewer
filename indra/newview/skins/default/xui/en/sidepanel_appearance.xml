@@ -64,7 +64,7 @@ width="333">
       font="SansSerifSmall"
       text_color="EmphasisColor"
       width="300"
-      height="10"
+      height="13"
       follows="top|left|right"
       layout="topleft"
       left="35"
@@ -94,7 +94,7 @@ width="333">
       image_overlay="Edit_Wrench"
       label=""
       layout="topleft"
-      left="265"
+      right="-3"
       name="edit_outfit_btn"
       tool_tip="Edit this outfit"
       top="3"
@@ -108,17 +108,100 @@ width="333">
       top="6"
       width="24" />
    </panel>
-   <filter_editor
-   height="23"
-   follows="left|top|right"
-   layout="topleft"
-   left="10"
-   label="Filter Outfits"
-   max_length_chars="300"
-   name="Filter"
-   search_button_visible="true"
-   top_pad="10"
-   width="307" />
+   <layout_stack
+    animate="false"
+    border_size="0"
+    follows="left|top|right"
+    height="27"
+    layout="topleft"
+    orientation="horizontal"
+    top_pad="6"
+    left="0"
+    name="top_menu_panel"
+    width="320">
+    <layout_panel
+      auto_resize="true"
+      layout="topleft"
+      name="filter_panel"
+      width="193">
+      <filter_editor
+        text_pad_left="10"
+        follows="left|top|right"
+        font="SansSerifSmall"
+        height="23"
+        layout="topleft"
+        left="10"
+        label="Filter Outfits"
+        max_length_chars="300"
+        name="Filter"
+        search_button_visible="true"
+        tab_group="1"
+        top="3"
+        width="181" />
+    </layout_panel>
+    <layout_panel
+      auto_resize="false"
+      height="25"
+      layout="topleft"
+      name="options_gear_btn_panel"
+      width="32">
+      <menu_button
+        follows="bottom|left"
+        tool_tip="Show additional options"
+        height="25"
+        image_hover_unselected="Toolbar_Middle_Over"
+        image_overlay="OptionsMenu_Off"
+        image_selected="Toolbar_Middle_Selected"
+        image_unselected="Toolbar_Middle_Off"
+        menu_position="bottomleft"
+        layout="topleft"
+        left="0"
+        name="options_gear_btn"
+        top="0"
+        width="31" />
+    </layout_panel>
+    <layout_panel
+      auto_resize="false"
+      height="25"
+      layout="topleft"
+      name="options_sort_btn_panel"
+      width="32">
+      <menu_button
+        follows="bottom|left"
+        tool_tip="Show sorting options"
+        height="25"
+        image_hover_unselected="Toolbar_Middle_Over"
+        image_overlay="Conv_toolbar_sort"
+        image_selected="Toolbar_Middle_Selected"
+        image_unselected="Toolbar_Middle_Off"
+        menu_position="bottomleft"
+        layout="topleft"
+        left="0"
+        name="sorting_menu_btn"
+        top="0"
+        width="31" />
+    </layout_panel>
+    <layout_panel
+      auto_resize="false"
+      height="25"
+      layout="topleft"
+      name="trash_btn_panel"
+      width="31">
+      <dnd_button
+        follows="bottom|left"
+        height="25"
+        image_hover_unselected="Toolbar_Right_Over"
+        image_overlay="TrashItem_Off"
+        image_selected="Toolbar_Right_Selected"
+        image_unselected="Toolbar_Right_Off"
+        left="0"
+        layout="topleft"
+        name="trash_btn"
+        tool_tip="Delete selected outfit"
+        top="0"
+        width="31"/>
+    </layout_panel>
+  </layout_stack>
    <panel
    class="panel_outfits_inventory"
    filename="panel_outfits_inventory.xml"
@@ -129,7 +212,7 @@ width="333">
    visible="false"
    left="0"
    tab_group="1"
-   top_pad="6"
+   top_pad="4"
    follows="all" />
    <panel
    class="panel_outfit_edit"

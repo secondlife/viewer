@@ -107,6 +107,7 @@ LLOutfitsList::LLOutfitsList()
     ,   mAccordion(NULL)
 	,	mListCommands(NULL)
 	,	mItemSelected(false)
+    ,   mSortMenu(nullptr)
 {
     LLControlVariable* ctrl = gSavedSettings.getControl("InventoryFavoritesColorText");
     if (ctrl)
@@ -117,7 +118,9 @@ LLOutfitsList::LLOutfitsList()
 
 LLOutfitsList::~LLOutfitsList()
 {
+    delete mSortMenu;
     mSavedSettingInvFavColor.disconnect();
+    mGearMenuConnection.disconnect();
 }
 
 BOOL LLOutfitsList::postBuild()
@@ -320,6 +323,11 @@ void LLOutfitsList::onSetSelectedOutfitByUUID(const LLUUID& outfit_uuid)
 			tab->changeOpenClose(false);
 		}
 	}
+}
+
+void LLOutfitListBase::onAction(const LLSD& userdata)
+{
+    performAction(userdata.asString());
 }
 
 // virtual
@@ -763,6 +771,25 @@ void LLOutfitsList::handleInvFavColorChange()
     }
 }
 
+
+LLToggleableMenu* LLOutfitsList::getSortMenu()
+{
+    if (!mSortMenu)
+    {
+        mSortMenu = new LLOutfitListSortMenu(this);
+    }
+    return mSortMenu->getMenu();
+}
+
+void LLOutfitsList::updateMenuItemsVisibility()
+{
+    if (mSortMenu)
+    {
+        mSortMenu->updateItemsVisibility();
+    }
+    LLOutfitListBase::updateMenuItemsVisibility();
+}
+
 LLOutfitListGearMenuBase* LLOutfitsList::createGearMenu()
 {
     return new LLOutfitListGearMenu(this);
@@ -780,10 +807,10 @@ bool is_tab_header_clicked(LLAccordionCtrlTab* tab, S32 y)
 LLOutfitListBase::LLOutfitListBase()
     :   LLPanelAppearanceTab()
     ,   mIsInitialized(false)
+    ,   mGearMenu(nullptr)
 {
     mCategoriesObserver = new LLInventoryCategoriesObserver();
     mOutfitMenu = new LLOutfitContextMenu(this);
-    //mGearMenu = createGearMenu();
 }
 
 LLOutfitListBase::~LLOutfitListBase()
@@ -1047,12 +1074,6 @@ void LLOutfitListBase::ChangeOutfitSelection(LLWearableItemsList* list, const LL
 
 BOOL LLOutfitListBase::postBuild()
 {
-    mGearMenu = createGearMenu();
-
-    LLMenuButton* menu_gear_btn = getChild<LLMenuButton>("options_gear_btn");
-
-    menu_gear_btn->setMouseDownCallback(boost::bind(&LLOutfitListGearMenuBase::updateItemsVisibility, mGearMenu));
-    menu_gear_btn->setMenu(mGearMenu->getMenu());
     return TRUE;
 }
 
@@ -1065,6 +1086,20 @@ void LLOutfitListBase::expandAllFolders()
 {
     onExpandAllFolders();
 }
+
+void LLOutfitListBase::updateMenuItemsVisibility()
+{
+    mGearMenu->updateItemsVisibility();
+}
+
+LLToggleableMenu* LLOutfitListBase::getGearMenu()
+{
+    if (!mGearMenu)
+    {
+        mGearMenu = createGearMenu();
+    }
+    return mGearMenu->getMenu();
+};
 
 void LLOutfitListBase::deselectOutfit(const LLUUID& category_id)
 {
@@ -1215,8 +1250,6 @@ LLOutfitListGearMenuBase::LLOutfitListGearMenuBase(LLOutfitListBase* olist)
     registrar.add("Gear.Rename", boost::bind(&LLOutfitListGearMenuBase::onRename, this));
     registrar.add("Gear.Delete", boost::bind(&LLOutfitListBase::removeSelected, mOutfitList));
     registrar.add("Gear.Create", boost::bind(&LLOutfitListGearMenuBase::onCreate, this, _2));
-    registrar.add("Gear.Collapse", boost::bind(&LLOutfitListBase::onCollapseAllFolders, mOutfitList));
-    registrar.add("Gear.Expand", boost::bind(&LLOutfitListBase::onExpandAllFolders, mOutfitList));
 
     registrar.add("Gear.WearAdd", boost::bind(&LLOutfitListGearMenuBase::onAdd, this));
     registrar.add("Gear.Save", boost::bind(&LLOutfitListGearMenuBase::onSave, this));
@@ -1403,14 +1436,55 @@ LLOutfitListGearMenu::~LLOutfitListGearMenu()
 void LLOutfitListGearMenu::onUpdateItemsVisibility()
 {
     if (!mMenu) return;
-    mMenu->setItemVisible("expand", TRUE);
-    mMenu->setItemVisible("collapse", TRUE);
     mMenu->setItemVisible("thumbnail", getSelectedOutfitID().notNull());
     mMenu->setItemVisible("favorite", getSelectedOutfitID().notNull());
-    mMenu->setItemVisible("sort_order_by_image", FALSE);
+    mMenu->setItemVisible("inventory_settings", true);
+    mMenu->setItemVisible("inv_settings_separator", true);
+    mMenu->setItemVisible("sort_order_separator", false);
+    mMenu->setItemVisible("sort_order_by_image", false);
     LLOutfitListGearMenuBase::onUpdateItemsVisibility();
 }
 
+//////////////////// LLOutfitListSortMenu ////////////////////
+
+LLOutfitListSortMenu::LLOutfitListSortMenu(LLOutfitListBase* parent_panel)
+    : mPanelHandle(parent_panel->getHandle())
+{
+    LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+    LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
+
+    registrar.add("Sort.Collapse", boost::bind(&LLOutfitListBase::onCollapseAllFolders, parent_panel));
+    registrar.add("Sort.Expand", boost::bind(&LLOutfitListBase::onExpandAllFolders, parent_panel));
+    registrar.add("Sort.OnAction", boost::bind(&LLOutfitListBase::onAction, parent_panel, _2));
+    enable_registrar.add("Sort.OnEnable", boost::bind(&LLOutfitListBase::isActionEnabled, parent_panel, _2));
+
+    mMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>(
+        "menu_outfit_sort.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+    llassert(mMenu);
+}
+
+
+LLToggleableMenu* LLOutfitListSortMenu::getMenu()
+{
+    return mMenu;
+}
+
+void LLOutfitListSortMenu::updateItemsVisibility()
+{
+    onUpdateItemsVisibility();
+}
+
+void LLOutfitListSortMenu::onUpdateItemsVisibility()
+{
+    if (!mMenu) return;
+    mMenu->setItemVisible("expand", true);
+    mMenu->setItemVisible("collapse", true);
+    mMenu->setItemVisible("sort_favorites_to_top", true);
+    mMenu->setItemVisible("show_entire_outfit_in_search", true);
+}
+
+
+//////////////////// LLOutfitAccordionCtrlTab ////////////////////
 
 LLUIImage* LLOutfitAccordionCtrlTab::sFavoriteIcon;
 LLUIColor LLOutfitAccordionCtrlTab::sFgColor;

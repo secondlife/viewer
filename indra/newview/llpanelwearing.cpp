@@ -232,6 +232,10 @@ LLPanelWearing::~LLPanelWearing()
 	{
 		mAttachmentsChangedConnection.disconnect();
 	}
+    if (mGearMenuConnection.connected())
+    {
+        mGearMenuConnection.disconnect();
+    }
 }
 
 BOOL LLPanelWearing::postBuild()
@@ -248,10 +252,6 @@ BOOL LLPanelWearing::postBuild()
 	mTempItemsList = getChild<LLScrollListCtrl>("temp_attachments_list");
 	mTempItemsList->setFgUnselectedColor(LLColor4::white);
 	mTempItemsList->setRightMouseDownCallback(boost::bind(&LLPanelWearing::onTempAttachmentsListRightClick, this, _1, _2, _3));
-
-	LLMenuButton* menu_gear_btn = getChild<LLMenuButton>("options_gear_btn");
-
-	menu_gear_btn->setMenu(mGearMenu->getMenu());
 
 	return TRUE;
 }
@@ -558,6 +558,16 @@ void LLPanelWearing::onRemoveAttachment()
 		LLSelectMgr::getInstance()->selectObjectAndFamily(mAttachmentsMap[item->getUUID()]);
 		LLSelectMgr::getInstance()->sendDetach();
 	}
+}
+
+LLToggleableMenu* LLPanelWearing::getGearMenu()
+{
+    return mGearMenu->getMenu();
+}
+
+LLToggleableMenu* LLPanelWearing::getSortMenu()
+{
+    return NULL;
 }
 
 void LLPanelWearing::onRemoveItem()

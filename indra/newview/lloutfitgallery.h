@@ -106,6 +106,7 @@ public:
     bool hasDefaultImage(const LLUUID& outfit_cat_id);
 
     void refreshOutfit(const LLUUID& category_id);
+    virtual LLToggleableMenu* getSortMenu();
 
 protected:
     /*virtual*/ void onHighlightBaseOutfit(LLUUID base_id, LLUUID prev_id);

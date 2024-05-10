@@ -41,6 +41,7 @@
 class LLAccordionCtrlTab;
 class LLInventoryCategoriesObserver;
 class LLOutfitListGearMenuBase;
+class LLOutfitListSortMenuBase;
 class LLWearableItemsList;
 class LLListContextMenu;
 
@@ -92,6 +93,7 @@ public:
     boost::signals2::connection setSelectionChangeCallback(selection_change_callback_t cb);
     void outfitRightClickCallBack(LLUICtrl* ctrl, S32 x, S32 y, const LLUUID& cat_id);
 
+    void onAction(const LLSD& userdata);
     virtual bool isActionEnabled(const LLSD& userdata);
     virtual void performAction(std::string action);
     virtual bool hasItemSelected() = 0;
@@ -108,6 +110,10 @@ public:
     virtual void onExpandAllFolders() = 0;
 
     virtual bool getHasExpandableFolders() = 0;
+
+    virtual void updateMenuItemsVisibility();
+    virtual LLToggleableMenu* getGearMenu();
+    virtual bool getTrashMenuVisible() { return true; };
 
 protected:
     void observerCallback(const LLUUID& category_id);
@@ -139,6 +145,7 @@ protected:
     selection_change_signal_t		mSelectionChangeSignal;
     LLListContextMenu*				mOutfitMenu;
     LLOutfitListGearMenuBase*		mGearMenu;
+    boost::signals2::connection     mGearMenuConnection;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -155,7 +162,6 @@ protected:
     /* virtual */ LLContextMenu* createMenu();
 
     bool onEnable(LLSD::String param);
-
     bool onVisible(LLSD::String param);
 
     static void editOutfit();
@@ -203,6 +209,22 @@ private:
     bool onEnable(LLSD::String param);
     bool onVisible(LLSD::String param);
 };
+
+class LLOutfitListSortMenu
+{
+public:
+    LLOutfitListSortMenu(LLOutfitListBase* parent_panel);
+
+    LLToggleableMenu* getMenu();
+    void updateItemsVisibility();
+
+private:
+    void onUpdateItemsVisibility();
+
+    LLToggleableMenu* mMenu;
+    LLHandle<LLPanel> mPanelHandle;
+};
+
 
 class LLOutfitListGearMenu : public LLOutfitListGearMenuBase
 {
@@ -301,6 +323,9 @@ public:
 
     /*virtual*/ bool getHasExpandableFolders() { return TRUE; }
 
+    virtual LLToggleableMenu* getSortMenu();
+    void updateMenuItemsVisibility();
+
 protected:
     LLOutfitListGearMenuBase* createGearMenu();
 
@@ -390,7 +415,7 @@ private:
 	// Used to monitor COF changes for updating items worn state. See EXT-8636.
 	uuid_vec_t						mCOFLinkedItems;
 
-	//LLOutfitListGearMenu*			mGearMenu;
+	LLOutfitListSortMenu*			mSortMenu;
 
 	//bool							mIsInitialized;
 	/**
