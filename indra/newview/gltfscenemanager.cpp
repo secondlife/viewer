@@ -514,7 +514,7 @@ void GLTFSceneManager::update()
                     }
                 };
 
-#if 0
+#if 1
             S32 expected_upload_cost = 0;
             LLUUID asset_id = LLUUID::generateNewID();
 
@@ -772,7 +772,7 @@ void renderAssetDebug(LLViewerObject* obj, Asset* asset)
                 }
             }
 
-#if 0
+#if 1
             if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_RAYCAST))
             {
                 gGL.flush();
