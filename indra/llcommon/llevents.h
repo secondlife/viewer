@@ -53,7 +53,6 @@
 #include "llsingleton.h"
 #include "lldependencies.h"
 #include "llexception.h"
-#include "llhandle.h"
 
 // hack for testing
 #ifndef testable
@@ -213,15 +212,7 @@ class LLEventPump;
  * LLEventPumps is a Singleton manager through which one typically accesses
  * this subsystem.
  */
-// LLEventPumps isa LLHandleProvider only for (hopefully rare) long-lived
-// class objects that must refer to this class late in their lifespan, say in
-// the destructor. Specifically, the case that matters is a possible reference
-// after LLEventPumps::deleteSingleton(). (Lingering LLEventPump instances are
-// capable of this.) In that case, instead of calling LLEventPumps::instance()
-// again -- resurrecting the deleted LLSingleton -- store an
-// LLHandle<LLEventPumps> and test it before use.
-class LL_COMMON_API LLEventPumps: public LLSingleton<LLEventPumps>,
-                                  public LLHandleProvider<LLEventPumps>
+class LL_COMMON_API LLEventPumps: public LLSingleton<LLEventPumps>
 {
     LLSINGLETON(LLEventPumps);
 public:
@@ -582,12 +573,7 @@ private:
     virtual void clear();
     virtual void reset();
 
-
-
 private:
-    // must precede mName; see LLEventPump::LLEventPump()
-    LLHandle<LLEventPumps> mRegistry;
-
     std::string mName;
     LLMutex mConnectionListMutex;
 
