@@ -252,6 +252,12 @@ void LLGLTFMaterial::setFromModel(const tinygltf::Model& model, S32 mat_index)
     // Apply emissive texture
     setFromTexture(model, material_in.emissiveTexture, GLTF_TEXTURE_INFO_EMISSIVE);
 
+    // TODO once this is implemented, hook it up to be deserialized properly.
+    mTextureId[GLTF_TEXTURE_INFO_TRANSMISSION_TEXTURE] = {};
+    mTextureTransform[GLTF_TEXTURE_INFO_TRANSMISSION_TEXTURE] = {};
+    mTextureTransform[GLTF_TEXTURE_INFO_TRANSMISSION_TEXTURE].mScale.set(1.f, 1.f);
+
+
     // KHR_materials_emissive_strength
     setEmissiveStrengthFromModel(material_in, mEmissiveStrength);
 

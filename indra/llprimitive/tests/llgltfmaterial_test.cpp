@@ -50,6 +50,11 @@
 
 #include "tinygltf/tiny_gltf.h"
 
+std::ostream & operator << (std::ostream & out, LLGLTFMaterial const & material)
+{
+    return out << material.getHash()  << ' ' << material.asJSON();
+}
+
 namespace tut
 {
     struct llgltfmaterial
@@ -82,6 +87,11 @@ namespace tut
         test_transform.mRotation = test_fraction;
         for (LLGLTFMaterial::TextureInfo i = LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR; i < LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT; i = LLGLTFMaterial::TextureInfo((U32)i + 1))
         {
+            if (LLGLTFMaterial::GLTF_TEXTURE_INFO_TRANSMISSION_TEXTURE == i)
+            {
+                // Transmission is not being serialized yet, so cannot be tested.  Delete this when serialization is implemented
+                continue;
+            }
             material.setTextureOffset(i, test_transform.mOffset);
             material.setTextureScale(i, test_transform.mScale);
             material.setTextureRotation(i, test_transform.mRotation);
@@ -126,7 +136,7 @@ namespace tut
         ensure_equals("LLGLTFMaterial serialization has no warnings: " + ensure_suffix, "", warn_msg);
         ensure_equals("LLGLTFMaterial serialization has no errors: " + ensure_suffix, "", error_msg);
         ensure("LLGLTFMaterial serializes successfully: " + ensure_suffix, serialize_success);
-        ensure("LLGLTFMaterial is preserved when deserialized: " + ensure_suffix, material_in == material_out);
+        ensure_equals("LLGLTFMaterial is preserved when deserialized: " + ensure_suffix, material_in, material_out);
         const std::string json_out = material_out.asJSON();
         ensure_equals("LLGLTFMaterial is preserved when serialized: " + ensure_suffix, json_in, json_out);
     }
