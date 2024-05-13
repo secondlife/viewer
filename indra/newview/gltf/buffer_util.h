@@ -536,7 +536,7 @@ namespace LL
                 const boost::json::object& obj = src.as_object();
                 for (const auto& [key, value] : obj)
                 {
-                    copy(value, dst[key]);
+                    copy<T>(value, dst[key]);
                 }
                 return true;
             }
@@ -550,7 +550,7 @@ namespace LL
             for (const auto& [key, value] : src)
             {
                 Value v;
-                if (write(value, v))
+                if (write<T>(value, v))
                 {
                     obj[key] = v;
                 }
@@ -569,7 +569,7 @@ namespace LL
             if (!src.empty())
             {
                 Value v;
-                if (write(src, v))
+                if (write<T>(src, v))
                 {
                     dst[member] = v;
                     return true;
