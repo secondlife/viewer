@@ -104,116 +104,116 @@ namespace LL
         // concrete implementations for different types of source and destination
         //=========================================================================================================
 
-        template<> inline
-        void copyScalar<F32, F32>(F32* src, F32& dst)
+        template<>
+        inline void copyScalar<F32, F32>(F32* src, F32& dst)
         {
             dst = *src;
         }
 
-        template<> inline
-        void copyScalar<U32, U32>(U32* src, U32& dst)
+        template<>
+        inline void copyScalar<U32, U32>(U32* src, U32& dst)
         {
             dst = *src;
         }
 
-        template<> inline
-        void copyScalar<U32, U16>(U32* src, U16& dst)
+        template<>
+        inline void copyScalar<U32, U16>(U32* src, U16& dst)
         {
             dst = *src;
         }
 
-        template<> inline
-        void copyScalar<U16, U16>(U16* src, U16& dst)
+        template<>
+        inline void copyScalar<U16, U16>(U16* src, U16& dst)
         {
             dst = *src;
         }
 
-        template<> inline
-        void copyScalar<U16, U32>(U16* src, U32& dst)
+        template<>
+        inline void copyScalar<U16, U32>(U16* src, U32& dst)
         {
             dst = *src;
         }
 
-        template<> inline
-        void copyScalar<U8, U16>(U8* src, U16& dst)
+        template<>
+        inline void copyScalar<U8, U16>(U8* src, U16& dst)
         {
             dst = *src;
         }
 
-        template<> inline
-        void copyScalar<U8, U32>(U8* src, U32& dst)
+        template<>
+        inline void copyScalar<U8, U32>(U8* src, U32& dst)
         {
             dst = *src;
         }
 
-        template<> inline
-        void copyVec2<F32, LLVector2>(F32* src, LLVector2& dst)
+        template<>
+        inline void copyVec2<F32, LLVector2>(F32* src, LLVector2& dst)
         {
             dst.set(src[0], src[1]);
         }
 
-        template<> inline
-        void copyVec3<F32, glh::vec3f>(F32* src, glh::vec3f& dst)
+        template<>
+        inline void copyVec3<F32, glh::vec3f>(F32* src, glh::vec3f& dst)
         {
             dst.set_value(src[0], src[1], src[2]);
         }
 
-        template<> inline
-        void copyVec3<F32, LLVector4a>(F32* src, LLVector4a& dst)
+        template<>
+        inline void copyVec3<F32, LLVector4a>(F32* src, LLVector4a& dst)
         {
             dst.load3(src);
         }
 
-        template<> inline
-        void copyVec3<U16, LLColor4U>(U16* src, LLColor4U& dst)
+        template<>
+        inline void copyVec3<U16, LLColor4U>(U16* src, LLColor4U& dst)
         {
             dst.set(src[0], src[1], src[2], 255);
         }
 
-        template<> inline
-        void copyVec4<U8, LLColor4U>(U8* src, LLColor4U& dst)
+        template<>
+        inline void copyVec4<U8, LLColor4U>(U8* src, LLColor4U& dst)
         {
             dst.set(src[0], src[1], src[2], src[3]);
         }
 
-        template<> inline
-        void copyVec4<U16, LLColor4U>(U16* src, LLColor4U& dst)
+        template<>
+        inline void copyVec4<U16, LLColor4U>(U16* src, LLColor4U& dst)
         {
             dst.set(src[0], src[1], src[2], src[3]);
         }
 
-        template<> inline
-        void copyVec4<F32, LLColor4U>(F32* src, LLColor4U& dst)
+        template<>
+        inline void copyVec4<F32, LLColor4U>(F32* src, LLColor4U& dst)
         {
             dst.set(src[0]*255, src[1]*255, src[2]*255, src[3]*255);
         }
 
-        template<> inline
-        void copyVec4<F32, LLVector4a>(F32* src, LLVector4a& dst)
+        template<>
+        inline void copyVec4<F32, LLVector4a>(F32* src, LLVector4a& dst)
         {
             dst.loadua(src);
         }
 
-        template<> inline
-        void copyVec4<U16, LLVector4a>(U16* src, LLVector4a& dst)
+        template<>
+        inline void copyVec4<U16, LLVector4a>(U16* src, LLVector4a& dst)
         {
             dst.set(src[0], src[1], src[2], src[3]);
         }
 
-        template<> inline
-        void copyVec4<U8, LLVector4a>(U8* src, LLVector4a& dst)
+        template<>
+        inline void copyVec4<U8, LLVector4a>(U8* src, LLVector4a& dst)
         {
             dst.set(src[0], src[1], src[2], src[3]);
         }
 
-        template<> inline
-        void copyVec4<F32, glh::quaternionf>(F32* src, glh::quaternionf& dst)
+        template<>
+        inline void copyVec4<F32, glh::quaternionf>(F32* src, glh::quaternionf& dst)
         {
             dst.set_value(src);
         }
 
-        template<> inline
-        void copyMat4<F32, glh::matrix4f>(F32* src, glh::matrix4f& dst)
+        template<>
+        inline void copyMat4<F32, glh::matrix4f>(F32* src, glh::matrix4f& dst)
         {
             dst.set_value(src);
         }
@@ -476,7 +476,7 @@ namespace LL
 
         // to/from array
         template<typename T>
-        bool copy(const Value& src, std::vector<T>& dst)
+        inline bool copy(const Value& src, std::vector<T>& dst)
         {
             if (src.is_array())
             {
@@ -493,7 +493,7 @@ namespace LL
         }
 
         template<typename T>
-        bool write(const std::vector<T>& src, Value& dst)
+        inline bool write(const std::vector<T>& src, Value& dst)
         {
             boost::json::array arr;
             for (const T& t : src)
@@ -513,7 +513,7 @@ namespace LL
         }
 
         template<typename T>
-        bool write(const std::vector<T>& src, string_view member, boost::json::object& dst)
+        inline bool write(const std::vector<T>& src, string_view member, boost::json::object& dst)
         {
             if (!src.empty())
             {
@@ -529,7 +529,7 @@ namespace LL
 
         // to/from map
         template<typename T>
-        bool copy(const Value& src, std::unordered_map<std::string, T>& dst)
+        inline bool copy(const Value& src, std::unordered_map<std::string, T>& dst)
         {
             if (src.is_object())
             {
@@ -544,7 +544,7 @@ namespace LL
         }
 
         template<typename T>
-        bool write(const std::unordered_map<std::string, T>& src, Value& dst)
+        inline bool write(const std::unordered_map<std::string, T>& src, Value& dst)
         {
             boost::json::object obj;
             for (const auto& [key, value] : src)
@@ -564,7 +564,7 @@ namespace LL
         }
 
         template<typename T>
-        bool write(const std::unordered_map<std::string, T>& src, string_view member, boost::json::object& dst)
+        inline bool write(const std::unordered_map<std::string, T>& src, string_view member, boost::json::object& dst)
         {
             if (!src.empty())
             {
@@ -582,8 +582,8 @@ namespace LL
         
         
         // glh::vec4f
-        template<> inline
-        bool copy(const Value& src, glh::vec4f& dst)
+        template<>
+        inline bool copy(const Value& src, glh::vec4f& dst)
         {
             if (src.is_array())
             {
@@ -603,8 +603,8 @@ namespace LL
             return false;
         }
 
-        template<> inline
-        bool write(const glh::vec4f& src, Value& dst)
+        template<>
+        inline bool write(const glh::vec4f& src, Value& dst)
         {
             boost::json::array arr;
             arr.push_back(src.v[0]);
@@ -616,8 +616,8 @@ namespace LL
         }
 
         // glh::quaternionf
-        template<> inline
-        bool copy(const Value& src, glh::quaternionf& dst)
+        template<>
+        inline bool copy(const Value& src, glh::quaternionf& dst)
         {
             if (src.is_array())
             {
@@ -637,8 +637,8 @@ namespace LL
             return false;
         }
 
-        template<> inline
-        bool write(const glh::quaternionf& src, Value& dst)
+        template<>
+        inline bool write(const glh::quaternionf& src, Value& dst)
         {
             boost::json::array arr;
             arr.push_back(src[0]);
@@ -651,8 +651,8 @@ namespace LL
 
 
         // glh::vec3f
-        template<> inline
-        bool copy(const Value& src, glh::vec3f& dst)
+        template<>
+        inline bool copy(const Value& src, glh::vec3f& dst)
         {
             if (src.is_array())
             {
@@ -671,8 +671,8 @@ namespace LL
             return false;
         }
 
-        template<> inline
-        bool write(const glh::vec3f& src, Value& dst)
+        template<>
+        inline bool write(const glh::vec3f& src, Value& dst)
         {
             dst = boost::json::array();
             boost::json::array& arr = dst.as_array();
@@ -684,8 +684,8 @@ namespace LL
         }
 
         // bool
-        template<> inline
-        bool copy(const Value& src, bool& dst)
+        template<>
+        inline bool copy(const Value& src, bool& dst)
         {
             if (src.is_bool())
             {
@@ -695,16 +695,16 @@ namespace LL
             return false;
         }
 
-        template<> inline
-        bool write(const bool& src, Value& dst)
+        template<>
+        inline bool write(const bool& src, Value& dst)
         {
             dst = src;
             return true;
         }
 
         // F32
-        template<> inline
-        bool copy(const Value& src, F32& dst)
+        template<>
+        inline bool copy(const Value& src, F32& dst)
         {
             if (src.is_double())
             {
@@ -714,8 +714,8 @@ namespace LL
             return false;
         }
 
-        template<> inline
-        bool write(const F32& src, Value& dst)
+        template<>
+        inline bool write(const F32& src, Value& dst)
         {
             dst = src;
             return true;
@@ -723,8 +723,8 @@ namespace LL
 
 
         // U32
-        template<> inline
-        bool copy(const Value& src, U32& dst)
+        template<>
+        inline bool copy(const Value& src, U32& dst)
         {
             if (src.is_int64())
             {
@@ -734,16 +734,16 @@ namespace LL
             return false;
         }
 
-        template<> inline
-        bool write(const U32& src, Value& dst)
+        template<>
+        inline bool write(const U32& src, Value& dst)
         {
             dst = src;
             return true;
         }
 
         // F64
-        template<> inline
-        bool copy(const Value& src, F64& dst)
+        template<>
+        inline bool copy(const Value& src, F64& dst)
         {
             if (src.is_double())
             {
@@ -753,16 +753,16 @@ namespace LL
             return false;
         }
 
-        template<> inline
-        bool write(const F64& src, Value& dst)
+        template<>
+        inline bool write(const F64& src, Value& dst)
         {
             dst = src;
             return true;
         }
 
         // Accessor::Type
-        template<> inline
-        bool copy(const Value& src, Accessor::Type& dst)
+        template<>
+        inline bool copy(const Value& src, Accessor::Type& dst)
         {
             if (src.is_string())
             {
@@ -772,16 +772,16 @@ namespace LL
             return false;
         }
 
-        template<> inline
-        bool write(const Accessor::Type& src, Value& dst)
+        template<>
+        inline bool write(const Accessor::Type& src, Value& dst)
         {
             dst = enum_to_gltf_type(src);
             return true;
         }
 
         // S32
-        template<> inline
-        bool copy(const Value& src, S32& dst)
+        template<>
+        inline bool copy(const Value& src, S32& dst)
         {
             if (src.is_int64())
             {
@@ -791,8 +791,8 @@ namespace LL
             return false;
         }
 
-        template<> inline
-        bool write(const S32& src, Value& dst)
+        template<>
+        inline bool write(const S32& src, Value& dst)
         {
             dst = src;
             return true;
@@ -800,8 +800,8 @@ namespace LL
 
 
         // std::string
-        template<> inline
-        bool copy(const Value& src, std::string& dst)
+        template<>
+        inline bool copy(const Value& src, std::string& dst)
         {
             if (src.is_string())
             {
@@ -811,16 +811,16 @@ namespace LL
             return false;
         }
 
-        template<> inline
-        bool write(const std::string& src, Value& dst)
+        template<>
+        inline bool write(const std::string& src, Value& dst)
         {
             dst = src;
             return true;
         }
 
         // LLMatrix4a
-        template<> inline
-        bool copy(const Value& src, LLMatrix4a& dst)
+        template<>
+        inline bool copy(const Value& src, LLMatrix4a& dst)
         {
             if (src.is_array())
             {
@@ -853,8 +853,8 @@ namespace LL
             return false;
         }
 
-        template<> inline
-        bool write(const LLMatrix4a& src, Value& dst)
+        template<>
+        inline bool write(const LLMatrix4a& src, Value& dst)
         {
             boost::json::array arr;
             arr.resize(16);
