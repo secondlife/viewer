@@ -71,7 +71,7 @@ namespace LL
             S32 mMode = TINYGLTF_MODE_TRIANGLES; // default to triangles
             U32 mGLMode = LLRender::TRIANGLES;
             S32 mIndices = -1;
-            std::unordered_map<std::string, int> mAttributes;
+            std::unordered_map<std::string, S32> mAttributes;
 
             // create octree based on vertex buffer
             // must be called before buffer is unmapped and after buffer is populated with good data
