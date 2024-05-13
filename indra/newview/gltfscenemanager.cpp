@@ -276,7 +276,7 @@ void GLTFSceneManager::uploadSelection()
                 "",
                 0,
                 LLFolderType::FT_NONE,
-                LLInventoryType::IT_NONE,
+                LLInventoryType::IT_GLTF_BIN,
                 LLAssetType::AT_GLTF_BIN,
                 LLFloaterPerms::getNextOwnerPerms("Uploads"),
                 LLFloaterPerms::getGroupPerms("Uploads"),

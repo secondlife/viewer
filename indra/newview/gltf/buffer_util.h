@@ -38,10 +38,20 @@
 
 #include "accessor.h"
 
+// suppress unused function warning -- clang complains here about unused functions that are actually used
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-function"
+#endif
+
 namespace LL
 {
     namespace GLTF
     {
+
+
+        using string_view = boost::json::string_view;
+
         // copy one Scalar from src to dst
         template<class S, class T>
         static void copyScalar(S* src, T& dst)
@@ -94,12 +104,6 @@ namespace LL
         //=========================================================================================================
         // concrete implementations for different types of source and destination
         //=========================================================================================================
-
-// suppress unused function warning -- clang complains here but these specializations are definitely used
-#if defined(__clang__)
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-function"
-#endif
 
         template<>
         void copyScalar<F32, F32>(F32* src, F32& dst)
@@ -214,10 +218,6 @@ namespace LL
         {
             dst.set_value(src);
         }
-
-#if defined(__clang__)
-#pragma clang diagnostic pop
-#endif
 
         //=========================================================================================================
 
@@ -426,7 +426,7 @@ namespace LL
 
         // to/from object member
         template<typename T>
-        static bool copy(const boost::json::object& src, std::string_view member, T& dst)
+        static bool copy(const boost::json::object& src, string_view member, T& dst)
         {
             auto it = src.find(member);
             if (it != src.end())
@@ -438,7 +438,7 @@ namespace LL
 
         // always write a member to an object without checking default
         template<typename T>
-        static bool write_always(const T& src, std::string_view member, boost::json::object& dst)
+        static bool write_always(const T& src, string_view member, boost::json::object& dst)
         {
             Value& v = dst[member];
             if (!write(src, v))
@@ -452,7 +452,7 @@ namespace LL
         // conditionally write a member to an object if the member
         // is not the default value
         template<typename T>
-        static bool write(const T& src, std::string_view member, boost::json::object& dst, const T& default_value = T())
+        static bool write(const T& src, string_view member, boost::json::object& dst, const T& default_value = T())
         {
             if (src != default_value)
             {
@@ -463,7 +463,7 @@ namespace LL
         
 
         template<typename T>
-        static bool copy(const Value& src, std::string_view member, T& dst)
+        static bool copy(const Value& src, string_view member, T& dst)
         {
             if (src.is_object())
             {
@@ -514,7 +514,7 @@ namespace LL
         }
 
         template<typename T>
-        bool write(const std::vector<T>& src, std::string_view member, boost::json::object& dst)
+        bool write(const std::vector<T>& src, string_view member, boost::json::object& dst)
         {
             if (!src.empty())
             {
@@ -565,7 +565,7 @@ namespace LL
         }
 
         template<typename T>
-        bool write(const std::unordered_map<std::string, T>& src, std::string_view member, boost::json::object& dst)
+        bool write(const std::unordered_map<std::string, T>& src, string_view member, boost::json::object& dst)
         {
             if (!src.empty())
             {
@@ -806,7 +806,7 @@ namespace LL
         {
             if (src.is_string())
             {
-                dst = src.get_string();
+                dst = src.get_string().c_str();
                 return true;
             }
             return false;
@@ -869,6 +869,13 @@ namespace LL
         }
 
         // ========================================================================================================
+
     }
 }
+
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
+
+
 
