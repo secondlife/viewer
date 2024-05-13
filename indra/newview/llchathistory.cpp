@@ -131,7 +131,7 @@ public:
 	static LLChatHistoryHeader* createInstance(const std::string& file_name)
 	{
 		LLChatHistoryHeader* pInstance = new LLChatHistoryHeader;
-		pInstance->buildFromFile(file_name, true);
+		pInstance->buildFromFile(file_name);	
 		return pInstance;
 	}
 
@@ -587,7 +587,7 @@ public:
 		mUserNameTextBox = getChild<LLTextBox>("user_name");
 		mTimeBoxTextBox = getChild<LLTextBox>("time_box");
 
-		mInfoCtrl = LLUICtrlFactory::getInstance()->createFromFile<LLUICtrl>("inspector_info_ctrl.xml", this, LLPanel::child_registry_t::instance(), true);
+		mInfoCtrl = LLUICtrlFactory::getInstance()->createFromFile<LLUICtrl>("inspector_info_ctrl.xml", this, LLPanel::child_registry_t::instance());
         if (mInfoCtrl)
         {
             mInfoCtrl->setCommitCallback(boost::bind(&LLChatHistoryHeader::onClickInfoCtrl, mInfoCtrl));
@@ -1181,7 +1181,7 @@ void LLChatHistory::initFromParams(const LLChatHistory::Params& p)
 
 LLView* LLChatHistory::getSeparator()
 {
-	LLPanel* separator = LLUICtrlFactory::getInstance()->createFromFile<LLPanel>(mMessageSeparatorFilename, NULL, LLPanel::child_registry_t::instance(), true);
+	LLPanel* separator = LLUICtrlFactory::getInstance()->createFromFile<LLPanel>(mMessageSeparatorFilename, NULL, LLPanel::child_registry_t::instance());
 	return separator;
 }
 

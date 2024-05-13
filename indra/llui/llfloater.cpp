@@ -3522,16 +3522,12 @@ bool LLFloater::isVisible(const LLFloater* floater)
     return floater && floater->getVisible();
 }
 
-bool LLFloater::buildFromFile(const std::string& filename, bool cacheable)
+bool LLFloater::buildFromFile(const std::string& filename)
 {
     LL_PROFILE_ZONE_SCOPED;
-
-    llassert_msg(!cacheable || !mSingleInstance || !mReuseInstance,
-        "No needs to cache XML for floater with mSingleInstance AND mReuseInstance flags set");
-
 	LLXMLNodePtr root;
 
-	if (!LLUICtrlFactory::getLayeredXMLNode(filename, root, LLDir::CURRENT_SKIN, cacheable))
+	if (!LLUICtrlFactory::getLayeredXMLNode(filename, root))
 	{
 		LL_WARNS() << "Couldn't find (or parse) floater from: " << filename << LL_ENDL;
 		return false;

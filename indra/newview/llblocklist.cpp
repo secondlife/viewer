@@ -61,9 +61,8 @@ LLBlockList::LLBlockList(const Params& p)
 	LLToggleableMenu* context_menu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>(
 									"menu_people_blocked_gear.xml",
 									gMenuHolder,
-									LLViewerMenuHolderGL::child_registry_t::instance(),
-									true);
-	if (context_menu)
+									LLViewerMenuHolderGL::child_registry_t::instance());
+	if(context_menu)
 	{
 		mContextMenu = context_menu->getHandle();
 	}

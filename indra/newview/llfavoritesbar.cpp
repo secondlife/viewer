@@ -886,11 +886,10 @@ const LLButton::Params& LLFavoritesBarCtrl::getButtonParams()
 	if (!params_initialized)
 	{
 		LLXMLNodePtr button_xml_node;
-		static const std::string filename("favorites_bar_button.xml");
-		if (LLUICtrlFactory::getLayeredXMLNode(filename, button_xml_node, LLDir::CURRENT_SKIN, true))
+		if(LLUICtrlFactory::getLayeredXMLNode("favorites_bar_button.xml", button_xml_node))
 		{
 			LLXUIParser parser;
-			parser.readXUI(button_xml_node, button_params, filename);
+			parser.readXUI(button_xml_node, button_params, "favorites_bar_button.xml");
 		}
 		params_initialized = true;
 	}
