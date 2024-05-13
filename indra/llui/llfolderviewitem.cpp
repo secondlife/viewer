@@ -777,7 +777,7 @@ void LLFolderViewItem::drawFavoriteIcon(const Params& default_params, const LLUI
     {
         favorite_image = default_params.favorite_image;
     }
-    else if (mHasFavorites)
+    else if (mHasFavorites && !hasVisibleChildren())
     {
         favorite_image = default_params.favorite_content_image;
     }

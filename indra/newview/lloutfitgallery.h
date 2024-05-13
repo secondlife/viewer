@@ -102,6 +102,7 @@ public:
 
     /*virtual*/ bool getHasExpandableFolders() { return FALSE; }
 
+    /*virtual*/ void onChangeSortOrder(const LLSD& userdata) {};
     void updateMessageVisibility();
     bool hasDefaultImage(const LLUUID& outfit_cat_id);
 

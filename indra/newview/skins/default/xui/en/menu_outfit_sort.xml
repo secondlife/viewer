@@ -8,8 +8,7 @@
      layout="topleft"
      name="expand">
         <on_click
-         function="Sort.OnAction"
-         parameter="expand" />
+         function="Sort.Expand" />
     </menu_item_call>
     <menu_item_call
      label="Collapse all folders"
@@ -17,8 +16,7 @@
      visible="true"
      name="collapse">
         <on_click
-         function="Sort.OnAction"
-         parameter="collapse" />
+         function="Sort.Collapse" />
     </menu_item_call>
   
   <menu_item_separator/>
@@ -28,7 +26,7 @@
    layout="topleft"
    name="sort_favorites_to_top">
     <on_click
-     function="Sort.OnAction"
+     function="Sort.OnSort"
     parameter="sort_favorites" />
     <on_check
      function="Sort.OnEnable"
@@ -42,7 +40,7 @@
    layout="topleft"
    name="show_entire_outfit_in_search">
     <on_click
-     function="Sort.OnAction"
+     function="Sort.OnSort"
     parameter="show_entire_outfit" />
     <on_check
      function="Sort.OnEnable"

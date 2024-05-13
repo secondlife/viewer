@@ -111,6 +111,8 @@ public:
 
     virtual bool getHasExpandableFolders() = 0;
 
+    virtual void onChangeSortOrder(const LLSD& userdata) = 0;
+
     virtual void updateMenuItemsVisibility();
     virtual LLToggleableMenu* getGearMenu();
     virtual bool getTrashMenuVisible() { return true; };
@@ -323,6 +325,7 @@ public:
 
     /*virtual*/ bool getHasExpandableFolders() { return TRUE; }
 
+    /*virtual*/ void onChangeSortOrder(const LLSD& userdata);
     virtual LLToggleableMenu* getSortMenu();
     void updateMenuItemsVisibility();
 

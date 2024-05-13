@@ -197,8 +197,9 @@ void LLOutfitsList::updateAddedCategory(LLUUID cat_id)
     // Setting callback to reset items selection inside outfit on accordion collapsing and expanding (EXT-7875)
     tab->setDropDownStateChangedCallback(boost::bind(&LLOutfitsList::resetItemSelection, this, list, cat_id));
 
-    // force showing list items that don't match current filter(EXT-7158)
-    list->setForceShowingUnmatchedItems(true);
+    // Depending on settings, force showing list items that don't match current filter(EXT-7158)
+    LLCachedControl<bool> list_filter(gSavedSettings, "OutfitListFilterFullList");
+    list->setForceShowingUnmatchedItems(list_filter());
 
     // Setting list commit callback to monitor currently selected wearable item.
     list->setCommitCallback(boost::bind(&LLOutfitsList::onListSelectionChange, this, _1));
@@ -771,6 +772,41 @@ void LLOutfitsList::handleInvFavColorChange()
     }
 }
 
+void LLOutfitsList::onChangeSortOrder(const LLSD& userdata)
+{
+    std::string sort_data = userdata.asString();
+    if (sort_data == "favorites_to_top")
+    {
+        // at the moment this is a toggle
+        S32 val = gSavedSettings.getS32("OutfitListSortOrder");
+        gSavedSettings.setS32("OutfitListSortOrder", (val ? 0 : 1));
+
+        const LLUUID outfits = gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS);
+        refreshList(outfits);
+    }
+    else if (sort_data == "show_entire_outfit")
+    {
+        bool new_val = !gSavedSettings.getS32("OutfitListFilterFullList");
+        gSavedSettings.setBOOL("OutfitListFilterFullList", new_val);
+
+        if (!getFilterSubString().empty())
+        {
+            for (outfits_map_t::value_type& outfit : mOutfitsMap)
+            {
+                LLAccordionCtrlTab* tab = outfit.second;
+                if (!tab) continue;
+
+                LLWearableItemsList* list = dynamic_cast<LLWearableItemsList*>(tab->getAccordionView());
+                if (list)
+                {
+                    list->setForceShowingUnmatchedItems(new_val);
+                    list->setForceRefresh(true);
+                }
+            }
+        }
+
+    }
+}
 
 LLToggleableMenu* LLOutfitsList::getSortMenu()
 {
@@ -889,21 +925,35 @@ void LLOutfitListBase::refreshList(const LLUUID& category_id)
         is_category);
 
     // Memorize item names for each UUID
-    std::map<LLUUID, std::string> names;
+    struct SortData
+    {
+        SortData(std::string name, bool is_favorite) : mName(name), isFavorite(is_favorite) {}
+        std::string mName;
+        bool isFavorite;
+    };
+    std::map<LLUUID, SortData> sort_data;
     for (const LLPointer<LLViewerInventoryCategory>& cat : cat_array)
     {
-        names.emplace(std::make_pair(cat->getUUID(), cat->getName()));
+        sort_data.emplace(std::make_pair(cat->getUUID(), SortData(cat->getName(), cat->getIsFavorite())));
     }
 
     // Fill added and removed items vectors.
     mRefreshListState.Added.clear();
     mRefreshListState.Removed.clear();
     computeDifference(cat_array, mRefreshListState.Added, mRefreshListState.Removed);
-    // Sort added items vector by item name.
+
+    // Sort added items vector according to settings.
+    S32 sort_order = gSavedSettings.getS32("OutfitListSortOrder");
     std::sort(mRefreshListState.Added.begin(), mRefreshListState.Added.end(),
-        [names](const LLUUID& a, const LLUUID& b)
+        [sort_data, sort_order](const LLUUID& a, const LLUUID& b)
         {
-            return LLStringUtil::compareDict(names.at(a), names.at(b)) < 0;
+            const SortData& data_a = sort_data.at(a);
+            const SortData& data_b = sort_data.at(b);
+            if (sort_order == 1 && data_a.isFavorite != data_b.isFavorite)
+            {
+                return data_a.isFavorite;
+            }
+            return LLStringUtil::compareDict(data_a.mName, data_b.mName) < 0;
         });
     // Initialize iterators for added and removed items vectors.
     mRefreshListState.AddedIterator = mRefreshListState.Added.begin();
@@ -1455,7 +1505,7 @@ LLOutfitListSortMenu::LLOutfitListSortMenu(LLOutfitListBase* parent_panel)
 
     registrar.add("Sort.Collapse", boost::bind(&LLOutfitListBase::onCollapseAllFolders, parent_panel));
     registrar.add("Sort.Expand", boost::bind(&LLOutfitListBase::onExpandAllFolders, parent_panel));
-    registrar.add("Sort.OnAction", boost::bind(&LLOutfitListBase::onAction, parent_panel, _2));
+    registrar.add("Sort.OnSort", boost::bind(&LLOutfitListBase::onChangeSortOrder, parent_panel, _2));
     enable_registrar.add("Sort.OnEnable", boost::bind(&LLOutfitListBase::isActionEnabled, parent_panel, _2));
 
     mMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>(
