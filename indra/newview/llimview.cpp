@@ -2980,6 +2980,10 @@ void LLIncomingCallDialog::processCallResponse(S32 response, const LLSD &payload
 	{
 		if (type == IM_SESSION_P2P_INVITE)
 		{
+            if (session_name.empty())
+            {
+                session_name = payload["caller_name"].asString();
+            }
 			// create a normal IM session
 			session_id = gIMMgr->addP2PSession(
 				session_name, caller_id, payload["voice_channel_info"]);
