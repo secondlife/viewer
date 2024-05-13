@@ -153,9 +153,9 @@ namespace LL
         }
 
         template<>
-        inline void copyVec3<F32, glh::vec3f>(F32* src, glh::vec3f& dst)
+        inline void copyVec3<F32, vec3>(F32* src, vec3& dst)
         {
-            dst.set_value(src[0], src[1], src[2]);
+            dst = vec3(src[0], src[1], src[2]);
         }
 
         template<>
@@ -207,15 +207,15 @@ namespace LL
         }
 
         template<>
-        inline void copyVec4<F32, glh::quaternionf>(F32* src, glh::quaternionf& dst)
+        inline void copyVec4<F32, quat>(F32* src, quat& dst)
         {
-            dst.set_value(src);
+            dst = glm::make_quat(src);
         }
 
         template<>
-        inline void copyMat4<F32, glh::matrix4f>(F32* src, glh::matrix4f& dst)
+        inline void copyMat4<F32, mat4>(F32* src, mat4& dst)
         {
-            dst.set_value(src);
+            dst = glm::make_mat4(src);
         }
 
         //=========================================================================================================
@@ -581,9 +581,9 @@ namespace LL
         // ====================== specialized template implementations ===========================
         
         
-        // glh::vec4f
+        // vec4
         template<>
-        inline bool copy(const Value& src, glh::vec4f& dst)
+        inline bool copy(const Value& src, vec4& dst)
         {
             if (src.is_array())
             {
@@ -595,7 +595,7 @@ namespace LL
                         arr[2].is_double() &&
                         arr[3].is_double())
                     {
-                        dst.set_value(arr[0].get_double(), arr[1].get_double(), arr[2].get_double(), arr[3].get_double());
+                        dst = vec4(arr[0].get_double(), arr[1].get_double(), arr[2].get_double(), arr[3].get_double());
                         return true;
                     }
                 }
@@ -604,20 +604,21 @@ namespace LL
         }
 
         template<>
-        inline bool write(const glh::vec4f& src, Value& dst)
+        inline bool write(const vec4& src, Value& dst)
         {
-            boost::json::array arr;
-            arr.push_back(src.v[0]);
-            arr.push_back(src.v[1]);
-            arr.push_back(src.v[2]);
-            arr.push_back(src.v[3]);
-            dst = arr;
+            dst = boost::json::array();
+            boost::json::array& arr = dst.get_array();
+            arr.resize(4);
+            arr[0] = src.x;
+            arr[1] = src.y;
+            arr[2] = src.z;
+            arr[3] = src.w;
             return true;
         }
 
-        // glh::quaternionf
+        // quat
         template<>
-        inline bool copy(const Value& src, glh::quaternionf& dst)
+        inline bool copy(const Value& src, quat& dst)
         {
             if (src.is_array())
             {
@@ -629,7 +630,7 @@ namespace LL
                         arr[2].is_double() &&
                         arr[3].is_double())
                     {
-                        dst.set_value(arr[0].get_double(), arr[1].get_double(), arr[2].get_double(), arr[3].get_double());
+                        dst = quat(arr[0].get_double(), arr[1].get_double(), arr[2].get_double(), arr[3].get_double());
                         return true;
                     }
                 }
@@ -638,21 +639,22 @@ namespace LL
         }
 
         template<>
-        inline bool write(const glh::quaternionf& src, Value& dst)
+        inline bool write(const quat& src, Value& dst)
         {
-            boost::json::array arr;
-            arr.push_back(src[0]);
-            arr.push_back(src[1]);
-            arr.push_back(src[2]);
-            arr.push_back(src[3]);
-            dst = arr;
+            dst = boost::json::array();
+            boost::json::array& arr = dst.get_array();
+            arr.resize(4);
+            arr[0] = src.x;
+            arr[1] = src.y;
+            arr[2] = src.z;
+            arr[3] = src.w;
             return true;
         }
 
 
-        // glh::vec3f
+        // vec3
         template<>
-        inline bool copy(const Value& src, glh::vec3f& dst)
+        inline bool copy(const Value& src, vec3& dst)
         {
             if (src.is_array())
             {
@@ -663,7 +665,7 @@ namespace LL
                         arr[1].is_double() &&
                         arr[2].is_double())
                     {
-                        dst.set_value(arr[0].get_double(), arr[1].get_double(), arr[2].get_double());
+                        dst = vec3(arr[0].get_double(), arr[1].get_double(), arr[2].get_double());
                     }
                     return true;
                 }
@@ -672,14 +674,14 @@ namespace LL
         }
 
         template<>
-        inline bool write(const glh::vec3f& src, Value& dst)
+        inline bool write(const vec3& src, Value& dst)
         {
             dst = boost::json::array();
             boost::json::array& arr = dst.as_array();
             arr.resize(3);
-            arr[0] = src[0];
-            arr[1] = src[1];
-            arr[2] = src[2];
+            arr[0] = src.x;
+            arr[1] = src.y;
+            arr[2] = src.z;
             return true;
         }
 

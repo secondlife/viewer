@@ -48,7 +48,7 @@ namespace LL
             for (U32 i = 0; i < src.size(); ++i)
             {
                 copy(src[i], dst[i]);
-            }
+            }   
         }
 
         void copy(const Node& src, tinygltf::Node& dst)
@@ -66,31 +66,29 @@ namespace LL
             }
             else if (src.mTRSValid)
             {
-                if (!src.mRotation.equals(glh::quaternionf::identity(), FLT_EPSILON))
+                if (src.mRotation != glm::identity<quat>())
                 {
                     dst.rotation.resize(4);
-                    for (U32 i = 0; i < 4; ++i)
-                    {
-                        dst.rotation[i] = src.mRotation.get_value()[i];
-                    }
-                }   
-                
-                if (src.mTranslation != glh::vec3f(0.f, 0.f, 0.f))
-                {
-                    dst.translation.resize(3);
-                    for (U32 i = 0; i < 3; ++i)
-                    {
-                        dst.translation[i] = src.mTranslation.v[i];
-                    }
+                    dst.rotation[0] = src.mRotation.x;
+                    dst.rotation[1] = src.mRotation.y;
+                    dst.rotation[2] = src.mRotation.z;
+                    dst.rotation[3] = src.mRotation.w;
                 }
                 
-                if (src.mScale != glh::vec3f(1.f, 1.f, 1.f))
+                if (src.mTranslation != vec3(0.f, 0.f, 0.f))
+                {
+                    dst.translation.resize(3);
+                    dst.translation[0] = src.mTranslation.x;
+                    dst.translation[1] = src.mTranslation.y;
+                    dst.translation[2] = src.mTranslation.z;
+                }
+                
+                if (src.mScale != vec3(1.f, 1.f, 1.f))
                 {
                     dst.scale.resize(3);
-                    for (U32 i = 0; i < 3; ++i)
-                    {
-                        dst.scale[i] = src.mScale.v[i];
-                    }
+                    dst.scale[0] = src.mScale.x;
+                    dst.scale[1] = src.mScale.y;
+                    dst.scale[2] = src.mScale.z;
                 }
             }
 
@@ -146,7 +144,7 @@ namespace LL
 
         void copy(const Material::PbrMetallicRoughness& src, tinygltf::PbrMetallicRoughness& dst)
         {
-            dst.baseColorFactor = { src.mBaseColorFactor.v[0], src.mBaseColorFactor.v[1], src.mBaseColorFactor.v[2], src.mBaseColorFactor.v[3] };
+            dst.baseColorFactor = { src.mBaseColorFactor.r, src.mBaseColorFactor.g, src.mBaseColorFactor.b, src.mBaseColorFactor.a };
             copy(src.mBaseColorTexture, dst.baseColorTexture);
             dst.metallicFactor = src.mMetallicFactor;
             dst.roughnessFactor = src.mRoughnessFactor;
@@ -157,7 +155,7 @@ namespace LL
         {
             material.name = src.mName;
 
-            material.emissiveFactor = { src.mEmissiveFactor.v[0], src.mEmissiveFactor.v[1], src.mEmissiveFactor.v[2] };
+            material.emissiveFactor = { src.mEmissiveFactor.r, src.mEmissiveFactor.g, src.mEmissiveFactor.b };
             copy(src.mPbrMetallicRoughness, material.pbrMetallicRoughness);
             copy(src.mNormalTexture, material.normalTexture);
             copy(src.mEmissiveTexture, material.emissiveTexture);
@@ -485,22 +483,23 @@ void Node::makeMatrixValid()
 {
     if (!mMatrixValid && mTRSValid)
     {
-        glh::matrix4f rot;
-        mRotation.get_value(rot);
+        mat4 rot = glm::toMat4(mRotation);
+        
+        mat4 trans;
+        glm::translate(trans, mTranslation);
 
-        glh::matrix4f trans;
-        trans.set_translate(mTranslation);
+        mat4 sc;
+        glm::scale(sc, mScale);
 
-        glh::matrix4f sc;
-        sc.set_scale(mScale);
-
-        glh::matrix4f t;
+        mat4 t;
         //t = sc * rot * trans; 
         //t = trans * rot * sc; // best so far, still wrong on negative scale
         //t = sc * trans * rot;
-        t = trans * sc * rot;
 
-        mMatrix.loadu(t.m);
+        t = glm::recompose(mScale, mRotation, mTranslation, vec3(0,0,0), vec4(0,0,0,1));
+        //t = trans * sc * rot;
+
+        mMatrix.loadu(glm::value_ptr(t));
         mMatrixValid = true;
     }
 
@@ -511,34 +510,31 @@ void Node::makeTRSValid()
 {
     if (!mTRSValid && mMatrixValid)
     {
-        glh::matrix4f t(mMatrix.getF32ptr());
+        mat4 t = glm::make_mat4(mMatrix.getF32ptr());
 
-        glh::vec4f p = t.get_column(3);
-        mTranslation.set_value(p.v[0], p.v[1], p.v[2]);
-
-        mScale.set_value(t.get_column(0).length(), t.get_column(1).length(), t.get_column(2).length());
-        mRotation.set_value(t);
+        glm::decompose(t, mScale, mRotation, mTranslation, vec3(), vec4());
+        
         mTRSValid = true;
     }
 
     llassert(mTRSValid);
 }
 
-void Node::setRotation(const glh::quaternionf& q)
+void Node::setRotation(const quat& q)
 {
     makeTRSValid();
     mRotation = q;
     mMatrixValid = false;
 }
 
-void Node::setTranslation(const glh::vec3f& t)
+void Node::setTranslation(const vec3& t)
 {
     makeTRSValid();
     mTranslation = t;
     mMatrixValid = false;
 }
 
-void Node::setScale(const glh::vec3f& s)
+void Node::setScale(const vec3& s)
 {
     makeTRSValid();
     mScale = s;
@@ -551,7 +547,7 @@ void Node::serialize(object& dst) const
     write(mMatrix, "matrix", dst, LLMatrix4a::identity());
     write(mRotation, "rotation", dst);
     write(mTranslation, "translation", dst);
-    write(mScale, "scale", dst, glh::vec3f(1.f,1.f,1.f));
+    write(mScale, "scale", dst, vec3(1.f,1.f,1.f));
     write(mChildren, "children", dst);
     write(mMesh, "mesh", dst, INVALID_INDEX);
     write(mSkin, "skin", dst, INVALID_INDEX);
@@ -596,22 +592,21 @@ const Node& Node::operator=(const tinygltf::Node& src)
         // node has rotation/translation/scale, convert to matrix
         if (src.rotation.size() == 4)
         {
-            mRotation = glh::quaternionf((F32)src.rotation[0], (F32)src.rotation[1], (F32)src.rotation[2], (F32)src.rotation[3]);
+            mRotation = quat((F32)src.rotation[0], (F32)src.rotation[1], (F32)src.rotation[2], (F32)src.rotation[3]);
         }
 
         if (src.translation.size() == 3)
         {
-            mTranslation = glh::vec3f((F32)src.translation[0], (F32)src.translation[1], (F32)src.translation[2]);
+            mTranslation = vec3((F32)src.translation[0], (F32)src.translation[1], (F32)src.translation[2]);
         }
 
-        glh::vec3f scale;
         if (src.scale.size() == 3)
         {
-            mScale = glh::vec3f((F32)src.scale[0], (F32)src.scale[1], (F32)src.scale[2]);
+            mScale = vec3((F32)src.scale[0], (F32)src.scale[1], (F32)src.scale[2]);
         }
         else
         {
-            mScale.set_value(1.f, 1.f, 1.f);
+            mScale = vec3(1.f, 1.f, 1.f);
         }
 
         mTRSValid = true;
@@ -1213,7 +1208,7 @@ const Material::PbrMetallicRoughness& Material::PbrMetallicRoughness::operator=(
 
 void Material::PbrMetallicRoughness::serialize(object& dst) const
 {
-    write(mBaseColorFactor, "baseColorFactor", dst, glh::vec4f(1.f, 1.f, 1.f, 1.f));
+    write(mBaseColorFactor, "baseColorFactor", dst, vec4(1.f, 1.f, 1.f, 1.f));
     write(mBaseColorTexture, "baseColorTexture", dst);
     write(mMetallicFactor, "metallicFactor", dst, 1.f);
     write(mRoughnessFactor, "roughnessFactor", dst, 1.f);
@@ -1238,7 +1233,7 @@ const Material::PbrMetallicRoughness& Material::PbrMetallicRoughness::operator=(
 {
     if (src.baseColorFactor.size() == 4)
     {
-        mBaseColorFactor.set_value(src.baseColorFactor[0], src.baseColorFactor[1], src.baseColorFactor[2], src.baseColorFactor[3]);
+        mBaseColorFactor = vec4(src.baseColorFactor[0], src.baseColorFactor[1], src.baseColorFactor[2], src.baseColorFactor[3]);
     }
     
     mBaseColorTexture = src.baseColorTexture;
@@ -1285,9 +1280,9 @@ void Material::bind(Asset& asset)
         {
             // dividing the alpha cutoff by transparency here allows the shader to compare against
             // the alpha value of the texture without needing the transparency value
-            if (mPbrMetallicRoughness.mBaseColorFactor.v[3] > 0.f)
+            if (mPbrMetallicRoughness.mBaseColorFactor.a > 0.f)
             {
-                min_alpha = mAlphaCutoff / mPbrMetallicRoughness.mBaseColorFactor.v[3];
+                min_alpha = mAlphaCutoff / mPbrMetallicRoughness.mBaseColorFactor.a;
             }
             else
             {
@@ -1314,7 +1309,7 @@ void Material::bind(Asset& asset)
 
         shader->uniform1f(LLShaderMgr::ROUGHNESS_FACTOR, mPbrMetallicRoughness.mRoughnessFactor);
         shader->uniform1f(LLShaderMgr::METALLIC_FACTOR, mPbrMetallicRoughness.mMetallicFactor);
-        shader->uniform3fv(LLShaderMgr::EMISSIVE_COLOR, 1, mEmissiveFactor.v);
+        shader->uniform3fv(LLShaderMgr::EMISSIVE_COLOR, 1, glm::value_ptr(mEmissiveFactor));
 
         F32 normal_packed[8];
         //mTextureTransform[GLTF_TEXTURE_INFO_NORMAL].getPacked(normal_packed);
@@ -1336,7 +1331,7 @@ void Material::bind(Asset& asset)
 void Material::serialize(object& dst) const
 {
     write(mName, "name", dst);
-    write(mEmissiveFactor, "emissiveFactor", dst, glh::vec3f(0.f, 0.f, 0.f));
+    write(mEmissiveFactor, "emissiveFactor", dst, vec3(0.f, 0.f, 0.f));
     write(mPbrMetallicRoughness, "pbrMetallicRoughness", dst);
     write(mNormalTexture, "normalTexture", dst);
     write(mOcclusionTexture, "occlusionTexture", dst);
@@ -1370,7 +1365,7 @@ const Material& Material::operator=(const tinygltf::Material& src)
     
     if (src.emissiveFactor.size() == 3)
     {
-        mEmissiveFactor.set_value(src.emissiveFactor[0], src.emissiveFactor[1], src.emissiveFactor[2]);
+        mEmissiveFactor = vec3(src.emissiveFactor[0], src.emissiveFactor[1], src.emissiveFactor[2]);
     }
 
     mPbrMetallicRoughness = src.pbrMetallicRoughness;
@@ -1521,7 +1516,7 @@ void Skin::uploadMatrixPalette(Asset& asset, Node& node)
     // prepare matrix palette
 
     // modelview will be applied by the shader, so assume matrix palette is in asset space
-    std::vector<glh::matrix4f> t_mp;
+    std::vector<mat4> t_mp;
 
     t_mp.resize(mJoints.size());
 
@@ -1535,7 +1530,7 @@ void Skin::uploadMatrixPalette(Asset& asset, Node& node)
         //t_mp[i].set_value(joint.mRenderMatrix.getF32ptr());
         //t_mp[i] = mInverseBindMatricesData[i] * t_mp[i];
 
-        t_mp[i].set_value(joint.mRenderMatrix.getF32ptr());
+        t_mp[i] = glm::make_mat4(joint.mRenderMatrix.getF32ptr());
         t_mp[i] = t_mp[i] * mInverseBindMatricesData[i];
 
     }
@@ -1548,7 +1543,7 @@ void Skin::uploadMatrixPalette(Asset& asset, Node& node)
 
     for (U32 i = 0; i < mJoints.size(); ++i)
     {
-        F32* m = (F32*)t_mp[i].m;
+        F32* m = glm::value_ptr(t_mp[i]);
 
         U32 idx = i * 12;
 

@@ -248,13 +248,11 @@ void Animation::RotationChannel::apply(Asset& asset, Sampler& sampler, F32 time)
     else
     {
         // interpolate
-        LLQuaternion q0(mRotations[frameIndex].get_value());
-        LLQuaternion q1(mRotations[frameIndex + 1].get_value());
+        quat qf = glm::slerp(mRotations[frameIndex], mRotations[frameIndex + 1], t);
 
-        LLQuaternion qf = slerp(t, q0, q1);
+        qf = glm::normalize(qf);
 
-        qf.normalize();
-        node.setRotation(glh::quaternionf(qf.mQ));
+        node.setRotation(qf);
     }
 }
 
@@ -281,10 +279,10 @@ void Animation::TranslationChannel::apply(Asset& asset, Sampler& sampler, F32 ti
     else
     {
         // interpolate
-        const glh::vec3f& v0 = mTranslations[frameIndex];
-        const glh::vec3f& v1 = mTranslations[frameIndex + 1];
+        const vec3& v0 = mTranslations[frameIndex];
+        const vec3& v1 = mTranslations[frameIndex + 1];
 
-        glh::vec3f vf = v0 + t * (v1 - v0);
+        vec3 vf = v0 + t * (v1 - v0);
 
         node.setTranslation(vf);
     }
@@ -313,10 +311,10 @@ void Animation::ScaleChannel::apply(Asset& asset, Sampler& sampler, F32 time)
     else
     {
         // interpolate
-        const glh::vec3f& v0 = mScales[frameIndex];
-        const glh::vec3f& v1 = mScales[frameIndex + 1];
+        const vec3& v0 = mScales[frameIndex];
+        const vec3& v1 = mScales[frameIndex + 1];
 
-        glh::vec3f vf = v0 + t * (v1 - v0);
+        vec3 vf = v0 + t * (v1 - v0);
 
         node.setScale(vf);
     }

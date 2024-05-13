@@ -135,7 +135,7 @@ void Primitive::allocateGLResources(Asset& asset)
     if (mMaterial != INVALID_INDEX)
     {
         const Material& material = asset.mMaterials[mMaterial];
-        LLColor4 baseColor(material.mPbrMetallicRoughness.mBaseColorFactor.v);
+        LLColor4 baseColor(glm::value_ptr(material.mPbrMetallicRoughness.mBaseColorFactor));
         for (auto& dst : mColors)
         {
             dst = LLColor4U(baseColor * LLColor4(dst));

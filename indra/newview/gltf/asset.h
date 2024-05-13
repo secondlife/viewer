@@ -33,6 +33,7 @@
 #include "primitive.h"
 #include "animation.h"
 #include "boost/json.hpp"
+#include "common.h"
 
 extern F32SecondsImplicit		gFrameTimeSeconds;
 
@@ -42,18 +43,6 @@ namespace LL
 {
     namespace GLTF
     {
-        using Value = boost::json::value;
-
-        constexpr S32 LINEAR = 9729;
-        constexpr S32 NEAREST = 9728;
-        constexpr S32 NEAREST_MIPMAP_NEAREST = 9984;
-        constexpr S32 LINEAR_MIPMAP_NEAREST = 9985;
-        constexpr S32 NEAREST_MIPMAP_LINEAR = 9986;
-        constexpr S32 LINEAR_MIPMAP_LINEAR = 9987;
-        constexpr S32 CLAMP_TO_EDGE = 33071;
-        constexpr S32 MIRRORED_REPEAT = 33648;
-        constexpr S32 REPEAT = 10497;
-
         class Asset;
 
         class Material
@@ -96,7 +85,7 @@ namespace LL
             class PbrMetallicRoughness
             {
             public:
-                glh::vec4f mBaseColorFactor = glh::vec4f(1.f,1.f,1.f,1.f);
+                vec4 mBaseColorFactor = vec4(1.f,1.f,1.f,1.f);
                 TextureInfo mBaseColorTexture;
                 F32 mMetallicFactor = 1.0f;
                 F32 mRoughnessFactor = 1.0f;
@@ -121,7 +110,7 @@ namespace LL
 
 
             std::string mName;
-            glh::vec3f mEmissiveFactor = glh::vec3f(0.f, 0.f, 0.f);
+            vec3 mEmissiveFactor = vec3(0.f, 0.f, 0.f);
             std::string mAlphaMode = "OPAQUE";
             F32 mAlphaCutoff = 0.5f;
             bool mDoubleSided = false;
@@ -159,9 +148,9 @@ namespace LL
             LLMatrix4a mAssetMatrix; //transform from local to asset space
             LLMatrix4a mAssetMatrixInv; //transform from asset to local space
 
-            glh::vec3f mTranslation;
-            glh::quaternionf mRotation;
-            glh::vec3f mScale = glh::vec3f(1.f,1.f,1.f);
+            vec3  mTranslation;
+            quat mRotation;
+            vec3 mScale = vec3(1.f,1.f,1.f);
 
             // if true, mMatrix is valid and up to date
             bool mMatrixValid = false;
@@ -198,15 +187,15 @@ namespace LL
 
             // Set rotation of this node
             // SIDE EFFECT: invalidates mMatrix
-            void setRotation(const glh::quaternionf& rotation);
+            void setRotation(const quat& rotation);
 
             // Set translation of this node
             // SIDE EFFECT: invalidates mMatrix
-            void setTranslation(const glh::vec3f& translation);
+            void setTranslation(const vec3& translation);
 
             // Set scale of this node
             // SIDE EFFECT: invalidates mMatrix
-            void setScale(const glh::vec3f& scale);
+            void setScale(const vec3& scale);
         };
 
         class Skin
@@ -216,7 +205,7 @@ namespace LL
             S32 mSkeleton = INVALID_INDEX;
             std::vector<S32> mJoints;
             std::string mName;
-            std::vector<glh::matrix4f> mInverseBindMatricesData;
+            std::vector<mat4> mInverseBindMatricesData;
 
             void allocateGLResources(Asset& asset);
             void uploadMatrixPalette(Asset& asset, Node& node);

@@ -30,14 +30,13 @@
 #include "llstrider.h"
 #include "boost/json.hpp"
 
+#include "common.h"
+
 // LL GLTF Implementation
 namespace LL
 {
     namespace GLTF
     {
-        class Asset;
-        using Value = boost::json::value;
-
         constexpr S32 INVALID_INDEX = -1;
 
         class Buffer

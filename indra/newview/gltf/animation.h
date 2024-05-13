@@ -94,7 +94,7 @@ namespace LL
                 RotationChannel() = default;
                 RotationChannel(const Channel& channel) : Channel(channel) {}
 
-                std::vector<glh::quaternionf> mRotations;
+                std::vector<quat> mRotations;
 
                 const RotationChannel& operator=(const tinygltf::AnimationChannel& src)
                 {
@@ -116,7 +116,7 @@ namespace LL
                 TranslationChannel() = default;
                 TranslationChannel(const Channel& channel) : Channel(channel) {}
 
-                std::vector<glh::vec3f> mTranslations;
+                std::vector<vec3> mTranslations;
 
                 const TranslationChannel& operator=(const tinygltf::AnimationChannel& src)
                 {
@@ -138,7 +138,7 @@ namespace LL
                 ScaleChannel() = default;
                 ScaleChannel(const Channel& channel) : Channel(channel) {}
 
-                std::vector<glh::vec3f> mScales;
+                std::vector<vec3> mScales;
 
                 const ScaleChannel& operator=(const tinygltf::AnimationChannel& src)
                 {
