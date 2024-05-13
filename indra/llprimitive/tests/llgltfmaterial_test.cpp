@@ -143,7 +143,7 @@ namespace tut
 #if LL_WINDOWS
         // If any fields are added/changed, these tests should be updated (consider also updating ASSET_VERSION in LLGLTFMaterial)
         // This test result will vary between compilers, so only test a single platform
-        ensure_equals("fields supported for GLTF (sizeof check)", sizeof(LLGLTFMaterial), 216);
+        ensure_equals("fields supported for GLTF (sizeof check)", sizeof(LLGLTFMaterial), 224);
 #endif
 #endif
         ensure_equals("LLGLTFMaterial texture info count", (U32)LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT, 4);
