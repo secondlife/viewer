@@ -56,7 +56,6 @@ public:
 	void cleanup();
 
 	virtual bool	parseFile(const std::string &path, bool keep_contents = true);
-	virtual bool	parseString(const std::string &xml, bool keep_contents = true);
 
 	LLXmlTreeNode*	getRoot() { return mRoot; }
 
@@ -200,8 +199,7 @@ public:
 	LLXmlTreeParser(LLXmlTree* tree);
 	virtual ~LLXmlTreeParser();
 
-	bool parseFile(const std::string &path, LLXmlTreeNode** root, bool keep_contents);
-	bool parseString(const std::string &xml, LLXmlTreeNode** root, bool keep_contents);
+	bool parseFile(const std::string &path, LLXmlTreeNode** root, bool keep_contents );
 
 protected:
 	const std::string& tabs();

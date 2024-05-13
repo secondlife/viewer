@@ -416,7 +416,7 @@ LLViewerFetchedTexture* LLViewerTextureList::getImageFromFile(const std::string&
 		return NULL ;
 	}
 
-	std::string full_path = gDirUtilp->findSkinnedFilename(LLDir::TEXTURES, filename);
+	std::string full_path = gDirUtilp->findSkinnedFilename("textures", filename);
 	if (full_path.empty())
 	{
 		LL_WARNS() << "Failed to find local image file: " << filename << LL_ENDL;

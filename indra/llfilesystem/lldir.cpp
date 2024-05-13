@@ -70,7 +70,6 @@ LLDir *gDirUtilp = (LLDir *)&gDirUtil;
 /// Values for findSkinnedFilenames(subdir) parameter
 const char
 	*LLDir::XUI      = "xui",
-	*LLDir::HTML     = "html",
 	*LLDir::TEXTURES = "textures",
 	*LLDir::SKINBASE = "";
 
@@ -761,13 +760,14 @@ std::vector<std::string> LLDir::findSkinnedFilenames(const std::string& subdir,
 		else
 		{
 			// We do not recognize this subdir. Investigate.
-			if (skinExists(subdir, "en"))
+			std::string subdir_path(add(getDefaultSkinDir(), subdir));
+			if (fileExists(add(subdir_path, "en")))
 			{
 				// defaultSkinDir/subdir contains subdir "en". That's our
 				// default language; this subdir is localized.
 				found = sLocalized.insert(StringMap::value_type(subdir, "en")).first;
 			}
-			else if (skinExists(subdir, "en-us"))
+			else if (fileExists(add(subdir_path, "en-us")))
 			{
 				// defaultSkinDir/subdir contains subdir "en-us" but not "en".
 				// Set as default language; this subdir is localized.
@@ -862,33 +862,6 @@ std::vector<std::string> LLDir::findSkinnedFilenames(const std::string& subdir,
 	LL_CONT << LL_ENDL;
 
 	return results;
-}
-
-// virtual
-bool LLDir::skinExists(const std::string& subdir, const std::string& skin) const
-{
-    std::string skin_path(add(getDefaultSkinDir(), subdir, skin));
-    return fileExists(skin_path);
-}
-
-// virtual
-std::string LLDir::getFileContents(const std::string& filename) const
-{
-    LLFILE* fp = LLFile::fopen(filename, "rb"); /* Flawfinder: ignore */
-    if (fp)
-    {
-        fseek(fp, 0, SEEK_END);
-        U32 length = ftell(fp);
-        fseek(fp, 0, SEEK_SET);
-
-        std::vector<char> buffer(length);
-        size_t nread = fread(buffer.data(), 1, length, fp);
-        fclose(fp);
-
-        return std::string(buffer.data(), nread);
-    }
-
-    return LLStringUtil::null;
 }
 
 std::string LLDir::getTempFilename() const
