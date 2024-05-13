@@ -267,7 +267,7 @@ void GLTFSceneManager::uploadSelection()
                     }
                 };
 #if 1
-            S32 expected_upload_cost = 0;
+            S32 expected_upload_cost = 1;
 
             LLResourceUploadInfo::ptr_t uploadInfo(std::make_shared<LLNewBufferedResourceUploadInfo>(
                 buffer,
@@ -277,7 +277,7 @@ void GLTFSceneManager::uploadSelection()
                 0,
                 LLFolderType::FT_NONE,
                 LLInventoryType::IT_GLTF_BIN,
-                LLAssetType::AT_GLTF_BIN,
+                LLAssetType::AT_GLTF_BIN, 
                 LLFloaterPerms::getNextOwnerPerms("Uploads"),
                 LLFloaterPerms::getGroupPerms("Uploads"),
                 LLFloaterPerms::getEveryonePerms("Uploads"),
@@ -497,30 +497,34 @@ void GLTFSceneManager::update()
                 };
 
             LLNewBufferedResourceUploadInfo::uploadFinish_f finish = [this, buffer](LLUUID assetId, LLSD response)
-                {
-                    if (mUploadingAsset)
+            {
+                LLAppViewer::instance()->postToMainCoro(
+                    [=]()
                     {
-                        // HACK: save buffer to cache to emulate a successful upload
-                        LLFileSystem cache(assetId, LLAssetType::AT_GLTF, LLFileSystem::WRITE);
+                        if (mUploadingAsset)
+                        {
+                            // HACK: save buffer to cache to emulate a successful upload
+                            LLFileSystem cache(assetId, LLAssetType::AT_GLTF, LLFileSystem::WRITE);
 
-                        LL_INFOS("GLTF") << "Uploaded GLTF json: " << assetId << LL_ENDL;
-                        cache.write((const U8*)buffer.c_str(), buffer.size());
+                            LL_INFOS("GLTF") << "Uploaded GLTF json: " << assetId << LL_ENDL;
+                            cache.write((const U8 *) buffer.c_str(), buffer.size());
 
-                        mUploadingAsset = nullptr;
-                    }
+                            mUploadingAsset = nullptr;
+                        }
 
-                    if (mUploadingObject)
-                    {
-                        mUploadingObject->mGLTFAsset = nullptr;
-                        mUploadingObject->setGLTFAsset(assetId);
-                        mUploadingObject = nullptr;
-                    }
+                        if (mUploadingObject)
+                        {
+                            mUploadingObject->mGLTFAsset = nullptr;
+                            mUploadingObject->setGLTFAsset(assetId);
+                            mUploadingObject = nullptr;
+                        }
 
-                    mGLTFUploadPending = false;
-                };
+                        mGLTFUploadPending = false;
+                    });
+            };
 
 #if 1
-            S32 expected_upload_cost = 0;
+            S32 expected_upload_cost = 1;
             LLUUID asset_id = LLUUID::generateNewID();
 
             mGLTFUploadPending = true;
@@ -532,7 +536,7 @@ void GLTFSceneManager::update()
                 "",
                 0,
                 LLFolderType::FT_NONE,
-                LLInventoryType::IT_NONE,
+                LLInventoryType::IT_GLTF,
                 LLAssetType::AT_GLTF,
                 LLFloaterPerms::getNextOwnerPerms("Uploads"),
                 LLFloaterPerms::getGroupPerms("Uploads"),
