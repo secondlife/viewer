@@ -41,19 +41,19 @@ uniform mat4 modelview_projection_matrix;
 
 void main()
 {
-	//transform vertex
-	vec4 pos = vec4(position.xyz, 1.0);
+    //transform vertex
+    vec4 pos = vec4(position.xyz, 1.0);
 
     if (above_water > 0)
     {
         pos = modelview_projection_matrix*pos;
     }
 
-    gl_Position = pos; 
+    gl_Position = pos;
 
     // appease OSX GLSL compiler/linker by touching all the varyings we said we would
     setAtmosAttenuation(vec3(1));
     setAdditiveColor(vec3(0));
 
-	vary_fragcoord = pos;
+    vary_fragcoord = pos;
 }

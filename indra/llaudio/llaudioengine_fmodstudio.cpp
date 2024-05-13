@@ -1,26 +1,26 @@
-/** 
+/**
  * @file audioengine_fmodstudio.cpp
- * @brief Implementation of LLAudioEngine class abstracting the audio 
+ * @brief Implementation of LLAudioEngine class abstracting the audio
  * support as a FMODSTUDIO implementation
  *
  * $LicenseInfo:firstyear=2020&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2020, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -308,7 +308,7 @@ bool LLAudioEngine_FMODSTUDIO::initWind()
 
     if (!mWindDSP)
     {
-        memset(mWindDSPDesc, 0, sizeof(*mWindDSPDesc));	//Set everything to zero
+        memset(mWindDSPDesc, 0, sizeof(*mWindDSPDesc)); //Set everything to zero
         strncpy(mWindDSPDesc->name, "Wind Unit", sizeof(mWindDSPDesc->name));
         mWindDSPDesc->pluginsdkversion = FMOD_PLUGIN_SDK_VERSION;
         mWindDSPDesc->read = &windCallback; // Assign callback - may be called from arbitrary threads
@@ -681,7 +681,7 @@ bool LLAudioBufferFMODSTUDIO::loadWAV(const std::string& filename)
     FMOD_CREATESOUNDEXINFO exinfo;
     memset(&exinfo, 0, sizeof(exinfo));
     exinfo.cbsize = sizeof(exinfo);
-    exinfo.suggestedsoundtype = FMOD_SOUND_TYPE_WAV;	//Hint to speed up loading.
+    exinfo.suggestedsoundtype = FMOD_SOUND_TYPE_WAV;    //Hint to speed up loading.
     // Load up the wav file into an fmod sample (since 1.05 fmod studio expects everything in UTF-8)
     FMOD_RESULT result = getSystem()->createSound(filename.c_str(), base_mode, &exinfo, &mSoundp);
 
