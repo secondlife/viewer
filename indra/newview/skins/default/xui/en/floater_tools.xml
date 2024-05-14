@@ -2549,7 +2549,7 @@ even though the user gets a free copy.
 			   follows="left|top"
 			   name="Probe Volume Type"
 			   tool_tip="Choose the probe influence volume"
-			   width="108">
+			   width="140">
             <combo_box.item
              label="Sphere"
              name="Sphere"
@@ -2589,8 +2589,8 @@ even though the user gets a free copy.
          left="144"
 			   follows="left|top"
 			   name="Probe Update Type"
-			   tool_tip="Determines how the probe updates.  Static updates the slowest and without avatars.  Dynamic updates more frequently, with avatars visible in the probes.  Mirror turns this probe into a realtime planar projected mirror probe, but does not calculate ambiance."
-			   width="108">
+			   tool_tip="Determines how the probe updates.  Static updates the slowest and without avatars.  Dynamic updates more frequently, with avatars visible in the probes.  Mirror (Environment) turns this probe into a realtime planar projected probe that only reflects the environment, but does not calculate ambiance.  Mirror (Everything) is similar to Mirror (Environment), but it reflects particles and avatars."
+			   width="140">
             <combo_box.item
              label="Static"
              name="Static"
@@ -2600,9 +2600,13 @@ even though the user gets a free copy.
              name="Dynamic"
              value="Dynamic"/>
             <combo_box.item
-             label="Mirror"
+             label="Mirror (Environment)"
              name="Mirror"
              value="Mirror"/>
+            <combo_box.item
+             label="Mirror (Everything)"
+             name="Dynamic Mirror"
+             value="Dynamic Mirror"/>
           </combo_box>
           <spinner bottom_delta="17"
                    decimal_digits="3"
