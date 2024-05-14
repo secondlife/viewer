@@ -750,7 +750,7 @@ void LLSurfacePatch::updateNormals()
 		calcNormal<PBR>(grids_per_patch_edge, grids_per_patch_edge - 1, 2);
 		calcNormal<PBR>(grids_per_patch_edge - 1, grids_per_patch_edge, 2);
 		calcNormal<PBR>(grids_per_patch_edge - 1, grids_per_patch_edge - 1, 2);
-		dirty_patch = TRUE;
+		dirty_patch = true;
 	}
 
 	// update the middle normals

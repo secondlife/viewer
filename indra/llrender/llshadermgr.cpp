@@ -188,7 +188,7 @@ bool LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
     
     if (!shader->attachFragmentObject("deferred/globalF.glsl"))
     {
-        return FALSE;
+        return false;
     }
 
     if (features->hasSrgb || features->hasAtmospherics || features->calculatesAtmospherics || features->isDeferred)
@@ -280,7 +280,7 @@ bool LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
     {
         if (!shader->attachFragmentObject("deferred/pbrterrainUtilF.glsl"))
         {
-            return FALSE;
+            return false;
         }
     }
 	

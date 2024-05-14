@@ -196,7 +196,7 @@ bool LLViewerDynamicTexture::updateAllInstances()
 	if (!bake_target.isComplete())
     {
         llassert(false);
-		return FALSE;
+		return false;
     }
     llassert(bake_target.getWidth() >= LLPipeline::MAX_BAKE_WIDTH);
     llassert(bake_target.getHeight() >= LLPipeline::MAX_BAKE_WIDTH);

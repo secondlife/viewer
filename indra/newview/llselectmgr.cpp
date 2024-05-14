@@ -481,7 +481,7 @@ LLObjectSelectionHandle LLSelectMgr::selectObjectOnly(LLViewerObject* object, S3
 
 	// Place it in the list and tag it.
 	// This will refresh dialogs.
-	addAsIndividual(object, face, TRUE, gltf_node, gltf_primitive);
+	addAsIndividual(object, face, true, gltf_node, gltf_primitive);
 
 	// Stop the object from moving (this anticipates changes on the
 	// simulator in LLTask::userSelect)
@@ -1083,7 +1083,7 @@ void LLSelectMgr::addAsIndividual(LLViewerObject *objectp, S32 face, bool undoab
     // Handle glTF node selection
     if (gltf_node >= 0)
     {
-        nodep->selectGLTFNode(gltf_node, gltf_primitive, TRUE);
+        nodep->selectGLTFNode(gltf_node, gltf_primitive, true);
      
     }
 

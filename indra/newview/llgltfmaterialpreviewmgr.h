@@ -41,7 +41,7 @@ public:
     static LLPointer<LLGLTFPreviewTexture> create(LLPointer<LLFetchedGLTFMaterial> material);
 
     bool needsRender() override;
-    void preRender(bool clear_depth = TRUE) override;
+    void preRender(bool clear_depth = true) override;
     bool render() override;
     void postRender(bool success) override;
 
