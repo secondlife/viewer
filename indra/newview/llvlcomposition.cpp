@@ -188,7 +188,22 @@ void LLTerrainMaterials::setDetailAssetID(S32 asset, const LLUUID& id)
 	mDetailTextures[asset] = fetch_terrain_texture(id);
     LLPointer<LLFetchedGLTFMaterial>& mat = mDetailMaterials[asset];
     mat = id.isNull() ? nullptr : gGLTFMaterialList.getMaterial(id);
+    mDetailRenderMaterials[asset] = nullptr;
     mMaterialTexturesSet[asset] = false;
+}
+
+const LLGLTFMaterial* LLTerrainMaterials::getMaterialOverride(S32 asset)
+{
+    return mDetailMaterialOverrides[asset];
+}
+
+void LLTerrainMaterials::setMaterialOverride(S32 asset, LLGLTFMaterial* mat_override)
+{
+    // Non-null overrides must be nontrivial. Otherwise, please set the override to null instead.
+    llassert(!mat_override || *mat_override != LLGLTFMaterial::sDefault);
+
+    mDetailMaterialOverrides[asset] = mat_override;
+    mDetailRenderMaterials[asset] = nullptr;
 }
 
 LLTerrainMaterials::Type LLTerrainMaterials::getMaterialType()
@@ -221,13 +236,36 @@ bool LLTerrainMaterials::texturesReady(bool boost, bool strict)
     return one_ready;
 }
 
+namespace
+{
+    bool material_asset_ready(LLFetchedGLTFMaterial* mat) { return mat && mat->isLoaded(); }
+};
+
 bool LLTerrainMaterials::materialsReady(bool boost, bool strict)
 {
     bool ready[ASSET_COUNT];
-    // *NOTE: Calls to materialReady may boost materials/textures. Do not early-return.
+    // *NOTE: This section may boost materials/textures. Do not early-return if ready[i] is false.
     for (S32 i = 0; i < ASSET_COUNT; i++)
     {
-        ready[i] = materialReady(mDetailMaterials[i], mMaterialTexturesSet[i], boost, strict);
+        ready[i] = false;
+        LLPointer<LLFetchedGLTFMaterial>& mat = mDetailMaterials[i];
+        if (!material_asset_ready(mat)) { continue; }
+
+        LLPointer<LLFetchedGLTFMaterial>& render_mat = mDetailRenderMaterials[i];
+        if (!render_mat)
+        {
+            render_mat = new LLFetchedGLTFMaterial();
+            *render_mat = *mat;
+            // This render_mat is effectively already loaded, because it gets its data from mat.
+
+            LLPointer<LLGLTFMaterial>& override_mat = mDetailMaterialOverrides[i];
+            if (override_mat)
+            {
+                render_mat->applyOverride(*override_mat);
+            }
+        }
+
+        ready[i] = materialTexturesReady(render_mat, mMaterialTexturesSet[i], boost, strict);
     }
 
 #if 1
@@ -308,15 +346,13 @@ bool LLTerrainMaterials::textureReady(LLPointer<LLViewerFetchedTexture>& tex, bo
     return true;
 }
 
-// Boost the loading priority of every known texture in the material
-// Return true when ready to use
+// Make sure to call material_asset_ready first
+// strict = true -> all materials must be sufficiently loaded
+// strict = false -> at least one material must be loaded
 // static
-bool LLTerrainMaterials::materialReady(LLPointer<LLFetchedGLTFMaterial> &mat, bool &textures_set, bool boost, bool strict)
+bool LLTerrainMaterials::materialTexturesReady(LLPointer<LLFetchedGLTFMaterial>& mat, bool& textures_set, bool boost, bool strict)
 {
-    if (!mat || !mat->isLoaded())
-    {
-        return false;
-    }
+    llassert(mat);
 
     // Material is loaded, but textures may not be
     if (!textures_set)
@@ -355,6 +391,16 @@ bool LLTerrainMaterials::materialReady(LLPointer<LLFetchedGLTFMaterial> &mat, bo
     }
 
     return true;
+}
+
+// Boost the loading priority of every known texture in the material
+// Return true when ready to use
+// static
+bool LLTerrainMaterials::materialReady(LLPointer<LLFetchedGLTFMaterial> &mat, bool &textures_set, bool boost, bool strict)
+{
+    if (!material_asset_ready(mat)) { return false; }
+
+    return materialTexturesReady(mat, textures_set, boost, strict);
 }
 
 // static
@@ -669,19 +715,20 @@ bool LLVLComposition::generateMinimapTileLand(const F32 x, const F32 y,
             }
             else
             {
-                tex = mDetailMaterials[i]->mBaseColorTexture;
-                tex_emissive = mDetailMaterials[i]->mEmissiveTexture;
-                base_color_factor = LLColor3(mDetailMaterials[i]->mBaseColor);
+                LLPointer<LLFetchedGLTFMaterial>& mat = mDetailRenderMaterials[i];
+                tex = mat->mBaseColorTexture;
+                tex_emissive = mat->mEmissiveTexture;
+                base_color_factor = LLColor3(mat->mBaseColor);
                 // *HACK: Treat alpha as black
-                base_color_factor *= (mDetailMaterials[i]->mBaseColor.mV[VW]);
-                emissive_factor = mDetailMaterials[i]->mEmissiveColor;
+                base_color_factor *= (mat->mBaseColor.mV[VW]);
+                emissive_factor = mat->mEmissiveColor;
                 has_base_color_factor = (base_color_factor.mV[VX] != 1.f ||
                                          base_color_factor.mV[VY] != 1.f ||
                                          base_color_factor.mV[VZ] != 1.f);
                 has_emissive_factor = (emissive_factor.mV[VX] != 1.f ||
                                        emissive_factor.mV[VY] != 1.f ||
                                        emissive_factor.mV[VZ] != 1.f);
-                has_alpha = mDetailMaterials[i]->mAlphaMode != LLGLTFMaterial::ALPHA_MODE_OPAQUE;
+                has_alpha = mat->mAlphaMode != LLGLTFMaterial::ALPHA_MODE_OPAQUE;
             }
 
             if (!tex) { tex = LLViewerFetchedTexture::sWhiteImagep; }

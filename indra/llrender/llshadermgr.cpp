@@ -1179,7 +1179,9 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("texture_metallic_roughness_transform"); // (GLTF)
     mReservedUniforms.push_back("texture_emissive_transform"); // (GLTF)
 
-    llassert(mReservedUniforms.size() == LLShaderMgr::TEXTURE_EMISSIVE_TRANSFORM+1);
+    mReservedUniforms.push_back("terrain_texture_transforms"); // (GLTF)
+
+    llassert(mReservedUniforms.size() == LLShaderMgr::TERRAIN_TEXTURE_TRANSFORMS +1);
 
 	mReservedUniforms.push_back("viewport");
 

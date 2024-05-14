@@ -58,6 +58,8 @@ public:
         TEXTURE_METALLIC_ROUGHNESS_TRANSFORM, //  "texture_metallic_roughness_transform" (GLTF)
         TEXTURE_EMISSIVE_TRANSFORM,           //  "texture_emissive_transform" (GLTF)
 
+        TERRAIN_TEXTURE_TRANSFORMS,           //  "terrain_texture_transforms" (GLTF)
+
         VIEWPORT,                           //  "viewport"
         LIGHT_POSITION,                     //  "light_position"
         LIGHT_DIRECTION,                    //  "light_direction"
