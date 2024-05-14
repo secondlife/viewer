@@ -483,12 +483,6 @@ void Node::makeMatrixValid()
 {
     if (!mMatrixValid && mTRSValid)
     {
-        mat4 trans;
-        glm::translate(trans, mTranslation);
-
-        mat4 sc;
-        glm::scale(sc, mScale);
-
         mat4 t;
 
         t = glm::recompose(mScale, mRotation, mTranslation, vec3(0,0,0), vec4(0,0,0,1));
@@ -506,7 +500,9 @@ void Node::makeTRSValid()
     {
         mat4 t = glm::make_mat4(mMatrix.getF32ptr());
 
-        glm::decompose(t, mScale, mRotation, mTranslation, vec3(), vec4());
+        vec3 skew;
+        vec4 perspective;
+        glm::decompose(t, mScale, mRotation, mTranslation, skew, perspective);
         
         mTRSValid = true;
     }
