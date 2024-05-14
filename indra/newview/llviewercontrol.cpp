@@ -691,6 +691,28 @@ void handleLocalTerrainChanged(const LLSD& newValue)
         const auto setting = gSavedSettings.getString(std::string("LocalTerrainAsset") + std::to_string(i + 1));
         const LLUUID materialID(setting);
         gLocalTerrainMaterials.setDetailAssetID(i, materialID);
+
+        // *NOTE: The GLTF spec allows for different texture infos to have their texture transforms set independently, but as a simplification, this debug setting only updates all the transforms in-sync (i.e. only one texture transform per terrain material).
+        LLGLTFMaterial::TextureTransform transform;
+        const std::string prefix = std::string("LocalTerrainTransform") + std::to_string(i + 1);
+        transform.mScale.mV[VX] = gSavedSettings.getF32(prefix + "ScaleU");
+        transform.mScale.mV[VY] = gSavedSettings.getF32(prefix + "ScaleV");
+        transform.mRotation = gSavedSettings.getF32(prefix + "Rotation") * DEG_TO_RAD;
+        transform.mOffset.mV[VX] = gSavedSettings.getF32(prefix + "OffsetU");
+        transform.mOffset.mV[VY] = gSavedSettings.getF32(prefix + "OffsetV");
+        LLPointer<LLGLTFMaterial> mat_override = new LLGLTFMaterial();
+        for (U32 info = 0; info < LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT; ++info)
+        {
+            mat_override->mTextureTransform[info] = transform;
+        }
+        if (*mat_override == LLGLTFMaterial::sDefault)
+        {
+            gLocalTerrainMaterials.setMaterialOverride(i, nullptr);
+        }
+        else
+        {
+            gLocalTerrainMaterials.setMaterialOverride(i, mat_override);
+		}
     }
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -879,10 +901,25 @@ void settings_setup_listeners()
     setting_setup_signal_listener(gSavedSettings, "AutoTuneImpostorFarAwayDistance", handleUserImpostorDistanceChanged);
     setting_setup_signal_listener(gSavedSettings, "AutoTuneImpostorByDistEnabled", handleUserImpostorByDistEnabledChanged);
     setting_setup_signal_listener(gSavedSettings, "TuningFPSStrategy", handleFPSTuningStrategyChanged);
-    setting_setup_signal_listener(gSavedSettings, "LocalTerrainAsset1", handleLocalTerrainChanged);
-    setting_setup_signal_listener(gSavedSettings, "LocalTerrainAsset2", handleLocalTerrainChanged);
-    setting_setup_signal_listener(gSavedSettings, "LocalTerrainAsset3", handleLocalTerrainChanged);
-    setting_setup_signal_listener(gSavedSettings, "LocalTerrainAsset4", handleLocalTerrainChanged);
+    {
+        const char* transform_suffixes[] = {
+            "ScaleU",
+            "ScaleV",
+            "Rotation",
+            "OffsetU",
+            "OffsetV"
+        };
+        for (U32 i = 0; i < LLTerrainMaterials::ASSET_COUNT; ++i)
+        {
+            const auto asset_setting_name = std::string("LocalTerrainAsset") + std::to_string(i + 1);
+            setting_setup_signal_listener(gSavedSettings, asset_setting_name, handleLocalTerrainChanged);
+            for (const char* ts : transform_suffixes)
+            {
+                const auto transform_setting_name = std::string("LocalTerrainTransform") + std::to_string(i + 1) + ts;
+                setting_setup_signal_listener(gSavedSettings, transform_setting_name, handleLocalTerrainChanged);
+            }
+        }
+    }
 
     setting_setup_signal_listener(gSavedPerAccountSettings, "AvatarHoverOffsetZ", handleAvatarHoverOffsetChanged);
 }

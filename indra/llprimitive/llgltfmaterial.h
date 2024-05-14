@@ -68,7 +68,12 @@ public:
         LLVector2 mScale = { 1.f, 1.f };
         F32 mRotation = 0.f;
 
-        void getPacked(F32 (&packed)[8]) const;
+        static const size_t PACK_SIZE = 8;
+        static const size_t PACK_TIGHT_SIZE = 5;
+        using Pack = F32[PACK_SIZE];
+        using PackTight = F32[PACK_TIGHT_SIZE];
+        void getPacked(Pack& packed) const;
+        void getPackedTight(PackTight& packed) const;
 
         bool operator==(const TextureTransform& other) const;
         bool operator!=(const TextureTransform& other) const { return !(*this == other); }
