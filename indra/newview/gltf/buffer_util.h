@@ -451,71 +451,6 @@ namespace LL
             return true;
         }
 
-        // to/from object member
-        template<typename T>
-        inline bool copy(const boost::json::object& src, string_view member, T& dst)
-        {
-            auto it = src.find(member);
-            if (it != src.end())
-            {
-                return copy(it->value(), dst);
-            }
-            return false;
-        }
-
-        // always write a member to an object without checking default
-        template<typename T>
-        inline bool write_always(const T& src, string_view member, boost::json::object& dst)
-        {
-            Value& v = dst[member];
-            if (!write(src, v))
-            {
-                dst.erase(member);
-                return false;
-            }
-            return true;
-        }
-
-        // conditionally write a member to an object if the member
-        // is not the default value
-        template<typename T>
-        inline bool write(const T& src, string_view member, boost::json::object& dst, const T& default_value = T())
-        {
-            if (src != default_value)
-            {
-                return write_always(src, member, dst);
-            }
-            return false;
-        }
-        
-        template<typename T>
-        inline bool write_always(const std::unordered_map<std::string, T>& src, string_view member, boost::json::object& dst)
-        {
-            if (!src.empty())
-            {
-                Value v;
-                if (write<T>(src, v))
-                {
-                    dst[member] = v;
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        template<typename T>
-        inline bool copy(const Value& src, string_view member, T& dst)
-        {
-            if (src.is_object())
-            {
-                const boost::json::object& obj = src.as_object();
-                return copy(obj, member, dst);
-            }
-
-            return false;
-        }
-
-
         // to/from array
         template<typename T>
         inline bool copy(const Value& src, std::vector<T>& dst)
@@ -554,8 +489,60 @@ namespace LL
             return true;
         }
 
+        // to/from object member
         template<typename T>
-        inline bool write(const std::vector<T>& src, string_view member, boost::json::object& dst)
+        inline bool copy(const boost::json::object& src, string_view member, T& dst)
+        {
+            auto it = src.find(member);
+            if (it != src.end())
+            {
+                return copy(it->value(), dst);
+            }
+            return false;
+        }
+
+        // always write a member to an object without checking default
+        template<typename T>
+        inline bool write_always(const T& src, string_view member, boost::json::object& dst)
+        {
+            Value& v = dst[member];
+            if (!write(src, v))
+            {
+                dst.erase(member);
+                return false;
+            }
+            return true;
+        }
+
+        // conditionally write a member to an object if the member
+        // is not the default value
+        template<typename T>
+        inline bool write(const T& src, string_view member, boost::json::object& dst, const T& default_value = T())
+        {
+            if (src != default_value)
+            {
+                return write_always(src, member, dst);
+            }
+            return false;
+        }
+        
+        template<typename T>
+        inline bool write(const std::unordered_map<std::string, T>& src, string_view member, boost::json::object& dst, const std::unordered_map<std::string, T>& default_value = std::unordered_map<std::string, T>())
+        {
+            if (!src.empty())
+            {
+                Value v;
+                if (write<T>(src, v))
+                {
+                    dst[member] = v;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        template<typename T>
+        inline bool write(const std::vector<T>& src, string_view member, boost::json::object& dst, const std::vector<T>& deafault_value = std::vector<T>())
         {
             if (!src.empty())
             {
@@ -565,10 +552,21 @@ namespace LL
                     dst[member] = v;
                     return true;
                 }
-            } 
+            }
             return false;
         }
 
+        template<typename T>
+        inline bool copy(const Value& src, string_view member, T& dst)
+        {
+            if (src.is_object())
+            {
+                const boost::json::object& obj = src.as_object();
+                return copy(obj, member, dst);
+            }
+
+            return false;
+        }
 
         // vec4
         template<>
