@@ -554,8 +554,8 @@ void LLManipRotate::drag( S32 x, S32 y )
 		mRotation = dragConstrained(x, y);
 	}
 
-	BOOL damped = mSmoothRotate;
-	mSmoothRotate = FALSE;
+	bool damped = mSmoothRotate;
+	mSmoothRotate = false;
     bool gltf_mode = false;
 
 	for (LLObjectSelection::iterator iter = mObjectSelection->begin();
