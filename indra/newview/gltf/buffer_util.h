@@ -203,7 +203,10 @@ namespace LL
         template<>
         inline void copyVec4<F32, quat>(F32* src, quat& dst)
         {
-            dst = glm::make_quat(src);
+            dst.x = src[0];
+            dst.y = src[1];
+            dst.z = src[2];
+            dst.w = src[3];
         }
 
         template<>
@@ -617,7 +620,10 @@ namespace LL
                         arr[2].is_double() &&
                         arr[3].is_double())
                     {
-                        dst = quat(arr[0].get_double(), arr[1].get_double(), arr[2].get_double(), arr[3].get_double());
+                        dst.x = arr[0].get_double();
+                        dst.y = arr[1].get_double();
+                        dst.z = arr[2].get_double();
+                        dst.w = arr[3].get_double();
                         return true;
                     }
                 }

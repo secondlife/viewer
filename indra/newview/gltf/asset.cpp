@@ -356,24 +356,11 @@ void Asset::updateTransforms()
 
 void Asset::updateRenderTransforms(const mat4& modelview)
 {
-#if 0
-    // traverse hierarchy and update render transforms from scratch
-    for (auto& scene : mScenes)
-    {
-        scene.updateRenderTransforms(*this, modelview);
-    }
-#else
     // use mAssetMatrix to update render transforms from node list
     for (auto& node : mNodes)
     {
-        //if (node.mMesh != INVALID_INDEX)
-        {
-            node.mRenderMatrix = modelview * node.mAssetMatrix;
-        }
+        node.mRenderMatrix = modelview * node.mAssetMatrix;
     }
-
-#endif
-
 }
 
 S32 Asset::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
@@ -578,7 +565,7 @@ const Node& Node::operator=(const tinygltf::Node& src)
         // node has rotation/translation/scale, convert to matrix
         if (src.rotation.size() == 4)
         {
-            mRotation = quat((F32)src.rotation[0], (F32)src.rotation[1], (F32)src.rotation[2], (F32)src.rotation[3]);
+            mRotation = quat((F32)src.rotation[3], (F32)src.rotation[0], (F32)src.rotation[1], (F32)src.rotation[2]);
         }
 
         if (src.translation.size() == 3)

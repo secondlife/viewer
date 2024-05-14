@@ -146,8 +146,8 @@ namespace LL
             mat4 mAssetMatrix; //transform from local to asset space
             mat4 mAssetMatrixInv; //transform from asset to local space
 
-            vec3  mTranslation;
-            quat mRotation;
+            vec3  mTranslation = vec3(0,0,0);
+            quat mRotation = glm::identity<quat>();
             vec3 mScale = vec3(1.f,1.f,1.f);
 
             // if true, mMatrix is valid and up to date

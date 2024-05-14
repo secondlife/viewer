@@ -46,6 +46,8 @@
 #include "llfilesystem.h"
 #include "boost/json.hpp"
 
+#define GLTF_SIM_SUPPORT 1
+
 using namespace LL;
 
 // temporary location of LL GLTF Implementation
@@ -200,7 +202,6 @@ void GLTFSceneManager::uploadSelection()
                         }
                     };
 
-#if 1
                 S32 expected_upload_cost = LLAgentBenefitsMgr::current().getTextureUploadCost(j2c);
 
                 LLResourceUploadInfo::ptr_t uploadInfo(std::make_shared<LLNewBufferedResourceUploadInfo>(
@@ -221,10 +222,7 @@ void GLTFSceneManager::uploadSelection()
                     failure));
 
                 upload_new_resource(uploadInfo);
-#else
-                // dummy finish
-                finish(LLUUID::generateNewID(), LLSD());
-#endif
+
                 image.clearData(asset);
             }
         }
@@ -266,7 +264,7 @@ void GLTFSceneManager::uploadSelection()
                         cache.write((const U8*)data.data(), data.size());
                     }
                 };
-#if 1
+#if GLTF_SIM_SUPPORT
             S32 expected_upload_cost = 1;
 
             LLResourceUploadInfo::ptr_t uploadInfo(std::make_shared<LLNewBufferedResourceUploadInfo>(
@@ -523,7 +521,7 @@ void GLTFSceneManager::update()
                     });
             };
 
-#if 1
+#if GLTF_SIM_SUPPORT
             S32 expected_upload_cost = 1;
             LLUUID asset_id = LLUUID::generateNewID();
 
