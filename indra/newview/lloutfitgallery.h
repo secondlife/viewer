@@ -136,7 +136,7 @@ private:
     void updateRowsIfNeeded();
     void updateGalleryWidth();
 
-    LLOutfitGalleryItem* buildGalleryItem(std::string name, LLUUID outfit_id);
+    LLOutfitGalleryItem* buildGalleryItem(std::string name, LLUUID outfit_id, bool is_favorite);
     LLOutfitGalleryItem* getSelectedItem();
 
     void onTextureSelectionChanged(LLInventoryItem* itemp);
@@ -244,6 +244,7 @@ public:
     bool setImageAssetId(LLUUID asset_id);
     LLUUID getImageAssetId();
     void setOutfitName(std::string name);
+    void setOutfitFavorite(bool is_favorite);
     void setOutfitWorn(bool value);
     void setSelected(bool value);
     void setUUID(const LLUUID &outfit_id) {mUUID = outfit_id;}
@@ -267,8 +268,13 @@ private:
     bool     mWorn;
     bool     mDefaultImage;
     bool     mImageUpdatePending;
-    bool	 mHidden;
+    bool     mHidden;
+    bool     mFavorite;
     std::string mOutfitName;
+
+    static bool sColorSetInitialized;
+    static LLUIColor sDefaultTextColor;
+    static LLUIColor sDefaultFavoriteColor;
 };
 
 #endif  // LL_LLOUTFITGALLERYCTRL_H

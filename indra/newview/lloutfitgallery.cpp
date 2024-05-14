@@ -617,7 +617,7 @@ void LLOutfitGallery::removeFromLastRow(LLOutfitGalleryItem* item)
     mItemPanels.pop_back();
 }
 
-LLOutfitGalleryItem* LLOutfitGallery::buildGalleryItem(std::string name, LLUUID outfit_id)
+LLOutfitGalleryItem* LLOutfitGallery::buildGalleryItem(std::string name, LLUUID outfit_id, bool is_favorite)
 {
     LLOutfitGalleryItem::Params giparams;
     LLOutfitGalleryItem* gitem = LLUICtrlFactory::create<LLOutfitGalleryItem>(giparams);
@@ -626,6 +626,7 @@ LLOutfitGalleryItem* LLOutfitGallery::buildGalleryItem(std::string name, LLUUID 
     gitem->setFollowsLeft();
     gitem->setFollowsTop();
     gitem->setOutfitName(name);
+    gitem->setOutfitFavorite(is_favorite);
     gitem->setUUID(outfit_id);
     gitem->setGallery(this);
     return gitem;
@@ -770,8 +771,7 @@ void LLOutfitGallery::updateAddedCategory(LLUUID cat_id)
     LLViewerInventoryCategory *cat = gInventory.getCategory(cat_id);
     if (!cat) return;
 
-    std::string name = cat->getName();
-    LLOutfitGalleryItem* item = buildGalleryItem(name, cat_id);
+    LLOutfitGalleryItem* item = buildGalleryItem(cat->getName(), cat_id, cat->getIsFavorite());
     mOutfitMap.insert(LLOutfitGallery::outfit_map_value_t(cat_id, item));
     item->setRightMouseDownCallback(boost::bind(&LLOutfitListBase::outfitRightClickCallBack, this,
         _1, _2, _3, cat_id));
@@ -840,6 +840,7 @@ void LLOutfitGallery::updateChangedCategoryName(LLViewerInventoryCategory *cat, 
         if (item)
         {
             item->setOutfitName(name);
+            item->setOutfitFavorite(cat->getIsFavorite());
         }
     }
 }
@@ -916,6 +917,10 @@ LLOutfitListGearMenuBase* LLOutfitGallery::createGearMenu()
 
 static LLDefaultChildRegistry::Register<LLOutfitGalleryItem> r("outfit_gallery_item");
 
+bool LLOutfitGalleryItem::sColorSetInitialized = false;
+LLUIColor LLOutfitGalleryItem::sDefaultTextColor;
+LLUIColor LLOutfitGalleryItem::sDefaultFavoriteColor;
+
 LLOutfitGalleryItem::LLOutfitGalleryItem(const Params& p)
     : LLPanel(p),
     mGallery(nullptr),
@@ -927,6 +932,12 @@ LLOutfitGalleryItem::LLOutfitGalleryItem(const Params& p)
     mUUID(LLUUID())
 {
     buildFromFile("panel_outfit_gallery_item.xml");
+    if (!sColorSetInitialized)
+    {
+        sDefaultTextColor = LLUIColorTable::instance().getColor("White", LLColor4::white);
+        sDefaultFavoriteColor = LLUIColorTable::instance().getColor("InventoryFavoriteColor", LLColor4::white);
+        sColorSetInitialized = true;
+    }
 }
 
 LLOutfitGalleryItem::~LLOutfitGalleryItem()
@@ -980,6 +991,17 @@ void LLOutfitGalleryItem::draw()
         }
     }
     
+    if(mFavorite)
+    {
+        const S32 HPAD = 3;
+        const S32 VPAD = 6; // includes padding for text and for the image
+        const S32 image_size = 14;
+        static LLPointer<LLUIImage> fav_img = LLRender2D::getInstance()->getUIImage("Inv_Favorite_Star_Full");
+
+        gl_draw_scaled_image(
+            border.getWidth() - image_size - HPAD, image_size + VPAD + mOutfitNameText->getRect().getHeight(),
+            image_size, image_size, fav_img->getImage(), UI_VERTEX_COLOR % alpha);
+     }
 }
 
 void LLOutfitGalleryItem::setOutfitName(std::string name)
@@ -989,14 +1011,19 @@ void LLOutfitGalleryItem::setOutfitName(std::string name)
     mOutfitName = name;
 }
 
+void LLOutfitGalleryItem::setOutfitFavorite(bool is_favorite)
+{
+    mFavorite = is_favorite;
+    mOutfitNameText->setReadOnlyColor(mFavorite ? sDefaultFavoriteColor.get() : sDefaultTextColor.get());
+}
+
 void LLOutfitGalleryItem::setOutfitWorn(bool value)
 {
     mWorn = value;
     LLStringUtil::format_map_t worn_string_args;
     std::string worn_string = getString("worn_string", worn_string_args);
-    LLUIColor text_color = LLUIColorTable::instance().getColor("White", LLColor4::white);
-    mOutfitWornText->setReadOnlyColor(text_color.get());
-    mOutfitNameText->setReadOnlyColor(text_color.get());
+    mOutfitWornText->setReadOnlyColor(sDefaultTextColor.get());
+    mOutfitNameText->setReadOnlyColor(mFavorite ? sDefaultFavoriteColor.get() : sDefaultTextColor.get());
     mOutfitWornText->setFont(value ? LLFontGL::getFontSansSerifBold() : LLFontGL::getFontSansSerifSmall());
     mOutfitNameText->setFont(value ? LLFontGL::getFontSansSerifBold() : LLFontGL::getFontSansSerifSmall());
     mOutfitWornText->setValue(value ? worn_string : "");
