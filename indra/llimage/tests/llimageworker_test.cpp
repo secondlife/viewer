@@ -68,6 +68,7 @@ U8* LLImageRaw::allocateData(S32 size) { return NULL; }
 U8* LLImageRaw::reallocateData(S32 size) { return NULL; }
 const U8* LLImageBase::getData() const { return NULL; }
 U8* LLImageBase::getData() { return NULL; }
+const std::string& LLImage::getLastThreadError() { static std::string msg; return msg; }
 
 // End Stubbing
 // -------------------------------------------------------------------------------------------
@@ -98,7 +99,7 @@ namespace tut
                 done = res;
                 *done = false;
             }
-            virtual void completed(bool success, LLImageRaw* raw, LLImageRaw* aux, U32)
+            virtual void completed(bool success, const std::string& error_message, LLImageRaw* raw, LLImageRaw* aux, U32 request_id)
             {
                 *done = true;
             }
