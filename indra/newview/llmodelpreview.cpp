@@ -68,6 +68,8 @@
 #include "lltabcontainer.h"
 #include "lltextbox.h"
 
+#include <filesystem>
+
 #include <boost/algorithm/string.hpp>
 
 bool LLModelPreview::sIgnoreLoadedCallback = false;
@@ -1067,6 +1069,29 @@ void LLModelPreview::loadModelCallback(S32 loaded_lod)
     { //only replace given LoD
         mModel[loaded_lod] = mModelLoader->mModelList;
         mScene[loaded_lod] = mModelLoader->mScene;
+
+        // Duplicate the model if it is an internal bounding box model
+        if (loaded_lod == LLModel::LOD_PHYSICS &&
+            mBaseModel.size() > 1 && // This makes sense for multiple models only
+            mModelLoader->mModelList.size() == 1 && // Just on the off-chance
+            mModelLoader->mScene.size() == 1 &&     // Just on the off-chance
+            std::filesystem::path(mModelLoader->mFilename).filename() == "cube.dae")
+        {
+            // Create a copy of the just loaded model for each model in mBaseModel
+            const LLModel* origin = mModelLoader->mModelList.front();
+            const LLModelInstance& mi = mModelLoader->mScene.begin()->second.front();
+            for (U32 i = 1; i < mBaseModel.size(); ++i)
+            {
+                LLPointer<LLModel> copy(new LLModel(origin->getParams(), origin->getDetail()));
+                copy->mLabel = origin->mLabel;
+                copy->copyVolumeFaces(origin);
+                copy->mPosition = origin->mPosition;
+                copy->mMaterialList = origin->mMaterialList;
+                mModel[loaded_lod].push_back(copy);
+                mScene[loaded_lod][mi.mTransform].push_back(LLModelInstance(copy, copy->mLabel, mi.mTransform, mi.mMaterial));
+            }
+        }
+
         mVertexBuffer[loaded_lod].clear();
 
         setPreviewLOD(loaded_lod);
@@ -1163,6 +1188,17 @@ void LLModelPreview::loadModelCallback(S32 loaded_lod)
                                     LLFloaterModelPreview::addStringToLog(out, false);
                                 }
                                 mModel[loaded_lod][idx]->mLabel = name;
+                                // Rename the correspondent instance as well
+                                [&]()
+                                {
+                                    for (auto& p : mScene[loaded_lod])
+                                        for (auto& i : p.second)
+                                            if (i.mModel == mModel[loaded_lod][idx])
+                                            {
+                                                i.mLabel = name;
+                                                return;
+                                            }
+                                }();
                             }
                         }
                     }
