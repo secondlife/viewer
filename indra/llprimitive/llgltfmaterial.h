@@ -68,7 +68,12 @@ public:
         LLVector2 mScale = { 1.f, 1.f };
         F32 mRotation = 0.f;
 
-        void getPacked(F32 (&packed)[8]) const;
+        static const size_t PACK_SIZE = 8;
+        static const size_t PACK_TIGHT_SIZE = 5;
+        using Pack = F32[PACK_SIZE];
+        using PackTight = F32[PACK_TIGHT_SIZE];
+        void getPacked(Pack& packed) const;
+        void getPackedTight(PackTight& packed) const;
 
         bool operator==(const TextureTransform& other) const;
         bool operator!=(const TextureTransform& other) const { return !(*this == other); }
@@ -109,6 +114,17 @@ public:
     static const char* const GLTF_FILE_EXTENSION_TRANSFORM_OFFSET;
     static const char* const GLTF_FILE_EXTENSION_TRANSFORM_ROTATION;
     static const LLUUID GLTF_OVERRIDE_NULL_UUID;
+
+    // *TODO: If/when we implement additional GLTF extensions, they may not be
+    // compatible with our GLTF terrain implementation. We may want to disallow
+    // materials with some features from being set on terrain, if their
+    // implementation on terrain is not compliant with the spec:
+    //     - KHR_materials_transmission: Probably OK?
+    //     - KHR_materials_ior: Probably OK?
+    //     - KHR_materials_volume: Likely incompatible, as our terrain
+    //       heightmaps cannot currently be described as finite enclosed
+    //       volumes.
+    // See also LLPanelRegionTerrainInfo::validateMaterials
 
 public:
 
@@ -259,16 +275,6 @@ public:
 
     AlphaMode mAlphaMode;
     
-    // *TODO: If/when we implement additional GLTF extensions, they may not be
-    // compatible with our GLTF terrain implementation. We may want to disallow
-    // materials with some features from being set on terrain, if their
-    // implementation on terrain is not compliant with the spec:
-    //     - KHR_materials_transmission: Probably OK?
-    //     - KHR_materials_ior: Probably OK?
-    //     - KHR_materials_volume: Likely incompatible, as our terrain
-    //       heightmaps cannot currently be described as finite enclosed
-    //       volumes.
-    // See also LLPanelRegionTerrainInfo::validateMaterials
     bool mDoubleSided = false;
 
     // Override specific flags for state that can't use off-by-epsilon or UUID

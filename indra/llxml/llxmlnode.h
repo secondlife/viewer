@@ -121,7 +121,7 @@ public:
 	LLXMLNode(const char* name, bool is_attribute);
 	LLXMLNode(LLStringTableEntry* name, bool is_attribute);
 	LLXMLNode(const LLXMLNode& rhs);
-	LLXMLNodePtr deepCopy();
+	LLXMLNodePtr deepCopy() const;
 
 	bool isNull();
 
@@ -135,11 +135,11 @@ public:
 		LLXMLNodePtr& node,
 		LLXMLNode* defaults_tree,
 		bool cacheable = false);
-	static bool parseBuffer(
-		const char* buffer,
-		U32 length,
-		LLXMLNodePtr& node,
-		LLXMLNode* defaults);
+    static bool parseBuffer(
+        const char* buffer,
+        U32 length,
+        LLXMLNodePtr& node,
+        LLXMLNode* defaults);
 	static bool parseStream(
 		std::istream& str,
 		LLXMLNodePtr& node,
@@ -290,6 +290,10 @@ public:
 
 protected:
 	bool removeChild(LLXMLNode* child);
+    static bool parseBuffer(
+        const char* buffer,
+        U32 length,
+        LLXMLNodePtr& node);
 
 public:
 	std::string mID;				// The ID attribute of this node

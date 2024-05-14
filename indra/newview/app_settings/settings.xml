@@ -16829,6 +16829,226 @@
       <key>Value</key>
       <string>00000000-0000-0000-0000-000000000000</string>
     </map>
+    <key>LocalTerrainTransform1ScaleU</key>
+    <map>
+      <key>Comment</key>
+      <string>KHR texture transform component if LocalTerrainAsset1 is set</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>1.0</real>
+    </map>
+    <key>LocalTerrainTransform1ScaleV</key>
+    <map>
+      <key>Comment</key>
+      <string>KHR texture transform component if LocalTerrainAsset1 is set</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>1.0</real>
+    </map>
+    <key>LocalTerrainTransform1Rotation</key>
+    <map>
+      <key>Comment</key>
+      <string>KHR texture transform component if LocalTerrainAsset1 is set</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.0</real>
+    </map>
+    <key>LocalTerrainTransform1OffsetU</key>
+    <map>
+      <key>Comment</key>
+      <string>KHR texture transform component if LocalTerrainAsset1 is set</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.0</real>
+    </map>
+    <key>LocalTerrainTransform1OffsetV</key>
+    <map>
+      <key>Comment</key>
+      <string>KHR texture transform component if LocalTerrainAsset1 is set</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.0</real>
+    </map>
+    <key>LocalTerrainTransform2ScaleU</key>
+    <map>
+      <key>Comment</key>
+      <string>KHR texture transform component if LocalTerrainAsset2 is set</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>1.0</real>
+    </map>
+    <key>LocalTerrainTransform2ScaleV</key>
+    <map>
+      <key>Comment</key>
+      <string>KHR texture transform component if LocalTerrainAsset2 is set</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>1.0</real>
+    </map>
+    <key>LocalTerrainTransform2Rotation</key>
+    <map>
+      <key>Comment</key>
+      <string>KHR texture transform component if LocalTerrainAsset2 is set</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.0</real>
+    </map>
+    <key>LocalTerrainTransform2OffsetU</key>
+    <map>
+      <key>Comment</key>
+      <string>KHR texture transform component if LocalTerrainAsset2 is set</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.0</real>
+    </map>
+    <key>LocalTerrainTransform2OffsetV</key>
+    <map>
+      <key>Comment</key>
+      <string>KHR texture transform component if LocalTerrainAsset2 is set</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.0</real>
+    </map>
+    <key>LocalTerrainTransform3ScaleU</key>
+    <map>
+      <key>Comment</key>
+      <string>KHR texture transform component if LocalTerrainAsset3 is set</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>1.0</real>
+    </map>
+    <key>LocalTerrainTransform3ScaleV</key>
+    <map>
+      <key>Comment</key>
+      <string>KHR texture transform component if LocalTerrainAsset3 is set</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>1.0</real>
+    </map>
+    <key>LocalTerrainTransform3Rotation</key>
+    <map>
+      <key>Comment</key>
+      <string>KHR texture transform component if LocalTerrainAsset3 is set</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.0</real>
+    </map>
+    <key>LocalTerrainTransform3OffsetU</key>
+    <map>
+      <key>Comment</key>
+      <string>KHR texture transform component if LocalTerrainAsset3 is set</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.0</real>
+    </map>
+    <key>LocalTerrainTransform3OffsetV</key>
+    <map>
+      <key>Comment</key>
+      <string>KHR texture transform component if LocalTerrainAsset3 is set</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.0</real>
+    </map>
+    <key>LocalTerrainTransform4ScaleU</key>
+    <map>
+      <key>Comment</key>
+      <string>KHR texture transform component if LocalTerrainAsset4 is set</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>1.0</real>
+    </map>
+    <key>LocalTerrainTransform4ScaleV</key>
+    <map>
+      <key>Comment</key>
+      <string>KHR texture transform component if LocalTerrainAsset4 is set</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>1.0</real>
+    </map>
+    <key>LocalTerrainTransform4Rotation</key>
+    <map>
+      <key>Comment</key>
+      <string>KHR texture transform component if LocalTerrainAsset4 is set</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.0</real>
+    </map>
+    <key>LocalTerrainTransform4OffsetU</key>
+    <map>
+      <key>Comment</key>
+      <string>KHR texture transform component if LocalTerrainAsset4 is set</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.0</real>
+    </map>
+    <key>LocalTerrainTransform4OffsetV</key>
+    <map>
+      <key>Comment</key>
+      <string>KHR texture transform component if LocalTerrainAsset4 is set</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.0</real>
+    </map>
 	<key>PathfindingRetrieveNeighboringRegion</key>
     <map>
       <key>Comment</key>
