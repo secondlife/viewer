@@ -712,7 +712,7 @@ bool LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
                     if (selectNode->mIndividualSelection)
                     {
                         // counter-translate child objects if we are moving the root as an individual
-                        object->resetChildrenPosition(old_position_local - new_position_local, TRUE);
+                        object->resetChildrenPosition(old_position_local - new_position_local, true);
                     }
                 }
                 else
@@ -759,14 +759,14 @@ bool LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
                         LLViewerObject* root_object = object->getRootEdit();
                         new_position_agent -= root_object->getPositionAgent();
                         new_position_agent = new_position_agent * ~root_object->getRotation();
-                        object->setPositionParent(new_position_agent, FALSE);
+                        object->setPositionParent(new_position_agent, false);
                         rebuild(object);
                     }
 
                     if (selectNode->mIndividualSelection)
                     {
                         // counter-translate child objects if we are moving the root as an individual
-                        object->resetChildrenPosition(old_position_agent - new_position_agent, TRUE);
+                        object->resetChildrenPosition(old_position_agent - new_position_agent, true);
                     }
                 }
                 selectNode->mLastPositionLocal = object->getPosition();
@@ -1732,11 +1732,6 @@ void LLManipTranslate::highlightIntersection(LLVector3 normal,
 	
 	F32 sz = mGridSizeMeters;
 	F32 tiles = sz;
-
-	if (shader)
-	{
-		shader->bind();
-	}
 
 	if (shader)
 	{

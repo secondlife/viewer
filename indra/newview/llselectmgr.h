@@ -838,7 +838,7 @@ public:
 	void remove(std::vector<LLViewerObject*>& objects);
 	void remove(LLViewerObject* object, S32 te = SELECT_ALL_TES, bool undoable = true);
 	void removeAll();
-	void addAsIndividual(LLViewerObject* object, S32 te = SELECT_ALL_TES, bool undoable = TRUE, S32 gltf_node = -1, S32 gltf_primitive = -1);
+	void addAsIndividual(LLViewerObject* object, S32 te = SELECT_ALL_TES, bool undoable = true, S32 gltf_node = -1, S32 gltf_primitive = -1);
 	void promoteSelectionToRoot();
 	void demoteSelectionToIndividuals();
 

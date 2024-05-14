@@ -57,7 +57,7 @@ public:
         COUNT
     };
 
-    BOOL generateMaterials();
+	bool generateMaterials();
 
     void boost();
 

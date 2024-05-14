@@ -767,7 +767,7 @@ bool LLViewerCamera::cameraUnderWater() const
     if (gPipeline.mHeroProbeManager.isMirrorPass())
     {
         // TODO: figure out how to handle this case
-        return FALSE;
+        return false;
     }
 
     if (!regionp)

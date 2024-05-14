@@ -1092,7 +1092,7 @@ void Skin::uploadMatrixPalette(Asset& asset, Node& node)
 
     LLGLSLShader::sCurBoundShaderPtr->uniformMatrix3x4fv(LLViewerShaderMgr::AVATAR_MATRIX,
         mJoints.size(),
-        FALSE,
+        GL_FALSE,
         (GLfloat*)glmp.data());
 }
 
