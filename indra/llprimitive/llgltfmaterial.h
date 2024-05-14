@@ -125,7 +125,6 @@ public:
     //       heightmaps cannot currently be described as finite enclosed
     //       volumes.
     // See also LLPanelRegionTerrainInfo::validateMaterials
-
 public:
 
     // get a UUID based on a hash of this LLGLTFMaterial

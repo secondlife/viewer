@@ -2466,14 +2466,6 @@ void LLViewerRegion::setSimulatorFeatures(const LLSD& sim_features)
                 gSavedSettings.setS32("max_texture_dimension_Y", 1024);
             }
 
-            bool mirrors_enabled = false;
-            if (features.has("MirrorsEnabled"))
-            {
-                mirrors_enabled = features["MirrorsEnabled"].asBoolean();
-            }
-
-            gSavedSettings.setBOOL("RenderMirrors", mirrors_enabled);
-
             if (features.has("PBRTerrainEnabled"))
             {
                 bool enabled = features["PBRTerrainEnabled"];
