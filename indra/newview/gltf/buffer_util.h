@@ -38,12 +38,6 @@
 
 #include "accessor.h"
 
-// suppress unused function warning -- clang complains here about unused functions that are actually used
-#if defined(__clang__)
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-function"
-#endif
-
 namespace LL
 {
     namespace GLTF
@@ -404,7 +398,7 @@ namespace LL
         // boost::json copying utilities
         // ========================================================================================================
         
-        //====================== unspecialized base template ===========================
+        //====================== unspecialized base template, single value ===========================
 
         // to/from Value
         template<typename T>
@@ -422,6 +416,40 @@ namespace LL
             return true;
         }
 
+        template<typename T>
+        inline bool copy(const Value& src, std::unordered_map<std::string, T>& dst)
+        {
+            if (src.is_object())
+            {
+                const boost::json::object& obj = src.as_object();
+                for (const auto& [key, value] : obj)
+                {
+                    copy<T>(value, dst[key]);
+                }
+                return true;
+            }
+            return false;
+        }
+
+        template<typename T>
+        inline bool write(const std::unordered_map<std::string, T>& src, Value& dst)
+        {
+            boost::json::object obj;
+            for (const auto& [key, value] : src)
+            {
+                Value v;
+                if (write<T>(value, v))
+                {
+                    obj[key] = v;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            dst = obj;
+            return true;
+        }
 
         // to/from object member
         template<typename T>
@@ -460,6 +488,20 @@ namespace LL
             return false;
         }
         
+        template<typename T>
+        inline bool write_always(const std::unordered_map<std::string, T>& src, string_view member, boost::json::object& dst)
+        {
+            if (!src.empty())
+            {
+                Value v;
+                if (write<T>(src, v))
+                {
+                    dst[member] = v;
+                    return true;
+                }
+            }
+            return false;
+        }
 
         template<typename T>
         inline bool copy(const Value& src, string_view member, T& dst)
@@ -527,60 +569,7 @@ namespace LL
             return false;
         }
 
-        // to/from map
-        template<typename T>
-        inline bool copy(const Value& src, std::unordered_map<std::string, T>& dst)
-        {
-            if (src.is_object())
-            {
-                const boost::json::object& obj = src.as_object();
-                for (const auto& [key, value] : obj)
-                {
-                    copy<T>(value, dst[key]);
-                }
-                return true;
-            }
-            return false;
-        }
 
-        template<typename T>
-        inline bool write(const std::unordered_map<std::string, T>& src, Value& dst)
-        {
-            boost::json::object obj;
-            for (const auto& [key, value] : src)
-            {
-                Value v;
-                if (write<T>(value, v))
-                {
-                    obj[key] = v;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            dst = obj;
-            return true;
-        }
-
-        template<typename T>
-        inline bool write(const std::unordered_map<std::string, T>& src, string_view member, boost::json::object& dst)
-        {
-            if (!src.empty())
-            {
-                Value v;
-                if (write<T>(src, v))
-                {
-                    dst[member] = v;
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        // ====================== specialized template implementations ===========================
-        
-        
         // vec4
         template<>
         inline bool copy(const Value& src, vec4& dst)
@@ -874,9 +863,6 @@ namespace LL
     }
 }
 
-#if defined(__clang__)
-#pragma clang diagnostic pop
-#endif
 
 
 

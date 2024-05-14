@@ -483,8 +483,6 @@ void Node::makeMatrixValid()
 {
     if (!mMatrixValid && mTRSValid)
     {
-        mat4 rot = glm::toMat4(mRotation);
-        
         mat4 trans;
         glm::translate(trans, mTranslation);
 
@@ -492,12 +490,8 @@ void Node::makeMatrixValid()
         glm::scale(sc, mScale);
 
         mat4 t;
-        //t = sc * rot * trans; 
-        //t = trans * rot * sc; // best so far, still wrong on negative scale
-        //t = sc * trans * rot;
 
         t = glm::recompose(mScale, mRotation, mTranslation, vec3(0,0,0), vec4(0,0,0,1));
-        //t = trans * sc * rot;
 
         mMatrix.loadu(glm::value_ptr(t));
         mMatrixValid = true;
