@@ -584,7 +584,8 @@ void GLTFSceneManager::render(bool opaque, bool rigged)
 
         matMul(mat, modelview, modelview);
 
-        asset->updateRenderTransforms(modelview);
+        mat4 mdv = glm::make_mat4(modelview.getF32ptr());
+        asset->updateRenderTransforms(mdv);
         asset->render(opaque, rigged);
 
         gGL.popMatrix();
@@ -752,20 +753,24 @@ void renderAssetDebug(LLViewerObject* obj, Asset* asset)
     // get raycast in asset space
     LLMatrix4a agent_to_asset = obj->getAgentToGLTFAssetTransform();
 
-    LLVector4a start;
-    LLVector4a end;
+    vec4 start;
+    vec4 end;
 
-    agent_to_asset.affineTransform(gDebugRaycastStart, start);
-    agent_to_asset.affineTransform(gDebugRaycastEnd, end);
+    LLVector4a t;
+    agent_to_asset.affineTransform(gDebugRaycastStart, t);
+    start = glm::make_vec4(t.getF32ptr());
+    agent_to_asset.affineTransform(gDebugRaycastEnd, t);
+    end = glm::make_vec4(t.getF32ptr());
 
-    
+    start.w = end.w = 1.0;
+
     for (auto& node : asset->mNodes)
     {
         Mesh& mesh = asset->mMeshes[node.mMesh];
 
         if (node.mMesh != INVALID_INDEX)
         {
-            gGL.loadMatrix((F32*)node.mRenderMatrix.mMatrix);
+            gGL.loadMatrix((F32*)glm::value_ptr(node.mRenderMatrix));
             
             // draw bounding box of mesh primitives
             if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_BBOXES))
@@ -790,17 +795,17 @@ void renderAssetDebug(LLViewerObject* obj, Asset* asset)
                 glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
                 // convert raycast to node local space
-                LLVector4a local_start;
-                LLVector4a local_end;
-
-                node.mAssetMatrixInv.affineTransform(start, local_start);
-                node.mAssetMatrixInv.affineTransform(end, local_end);
+                vec4 local_start = node.mAssetMatrixInv * start;
+                vec4 local_end = node.mAssetMatrixInv * end;
 
                 for (auto& primitive : mesh.mPrimitives)
                 {
                     if (primitive.mOctree.notNull())
                     {
-                        renderOctreeRaycast(local_start, local_end, primitive.mOctree);
+                        LLVector4a s, e;
+                        s.load3(glm::value_ptr(local_start));
+                        e.load3(glm::value_ptr(local_end));
+                        renderOctreeRaycast(s, e, primitive.mOctree);
                     }
                 }
 
@@ -840,18 +845,18 @@ void GLTFSceneManager::renderDebug()
             continue;
         }
 
-        LLMatrix4a mat = obj->getGLTFAssetToAgentTransform();
+        mat4 mat = glm::make_mat4(obj->getGLTFAssetToAgentTransform().getF32ptr());
 
-        LLMatrix4a modelview;
-        modelview.loadu(gGLModelView);
+        mat4 modelview = glm::make_mat4(gGLModelView);
+        
 
-        matMul(mat, modelview, modelview);
-
+        modelview = modelview * mat;
+        
         Asset* asset = obj->mGLTFAsset.get();
 
         for (auto& node : asset->mNodes)
         {
-            matMul(node.mAssetMatrix, modelview, node.mRenderMatrix);
+            node.mRenderMatrix = modelview * node.mAssetMatrix;
         }
     }
 
@@ -863,13 +868,6 @@ void GLTFSceneManager::renderDebug()
         }
 
         Asset* asset = obj->mGLTFAsset.get();
-
-        LLMatrix4a mat = obj->getGLTFAssetToAgentTransform();
-
-        LLMatrix4a modelview;
-        modelview.loadu(gGLModelView);
-
-        matMul(mat, modelview, modelview);
 
         renderAssetDebug(obj, asset);
     }
@@ -892,21 +890,20 @@ void GLTFSceneManager::renderDebug()
                     continue;
                 }
 
-                LLMatrix4a mat = obj->getGLTFAssetToAgentTransform();
+                mat4 mat = glm::make_mat4(obj->getGLTFAssetToAgentTransform().getF32ptr());
 
-                LLMatrix4a modelview;
-                modelview.loadu(gGLModelView);
+                mat4 modelview = glm::make_mat4(gGLModelView);
 
-                matMul(mat, modelview, modelview);
+                modelview = modelview * mat;
 
                 Asset* asset = obj->mGLTFAsset.get();
 
                 for (auto& node : asset->mNodes)
                 {
                     // force update all mRenderMatrix, not just nodes with meshes
-                    matMul(node.mAssetMatrix, modelview, node.mRenderMatrix);
+                    node.mRenderMatrix = modelview * node.mAssetMatrix;
 
-                    gGL.loadMatrix(node.mRenderMatrix.getF32ptr());
+                    gGL.loadMatrix(glm::value_ptr(node.mRenderMatrix));
                     // render x-axis red, y-axis green, z-axis blue
                     gGL.color4f(1.f, 0.f, 0.f, 0.5f);
                     gGL.begin(LLRender::LINES);
@@ -936,7 +933,9 @@ void GLTFSceneManager::renderDebug()
                     {
                         Node& child = asset->mNodes[child_idx];
                         gGL.vertex3f(0.f, 0.f, 0.f);
-                        gGL.vertex3fv(child.mMatrix.getTranslation().getF32ptr());
+
+                        
+                        gGL.vertex3fv(glm::value_ptr(child.mMatrix[3]));
                     }
                     gGL.end();
                     gGL.flush();
@@ -969,9 +968,8 @@ void GLTFSceneManager::renderDebug()
             gGL.color3f(1, 0, 1);
             drawBoxOutline(intersection, LLVector4a(0.1f, 0.1f, 0.1f, 0.f));
 
-            gGL.loadMatrix((F32*) node->mRenderMatrix.mMatrix);
+            gGL.loadMatrix(glm::value_ptr(node->mRenderMatrix));
 
-            
 
             auto* listener = (LLVolumeOctreeListener*) primitive->mOctree->getListener(0);
             drawBoxOutline(listener->mBounds[0], listener->mBounds[1]);

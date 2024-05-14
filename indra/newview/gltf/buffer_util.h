@@ -807,9 +807,9 @@ namespace LL
             return true;
         }
 
-        // LLMatrix4a
+        // mat4
         template<>
-        inline bool copy(const Value& src, LLMatrix4a& dst)
+        inline bool copy(const Value& src, mat4& dst)
         {
             if (src.is_array())
             {
@@ -819,8 +819,8 @@ namespace LL
                     // populate a temporary local in case
                     // we hit an error in the middle of the array
                     // (don't partially write a matrix)
-                    LLMatrix4a t;
-                    F32* p = t.getF32ptr();
+                    mat4 t;
+                    F32* p = glm::value_ptr(t);
 
                     for (U32 i = 0; i < arr.size(); ++i)
                     {
@@ -843,16 +843,16 @@ namespace LL
         }
 
         template<>
-        inline bool write(const LLMatrix4a& src, Value& dst)
+        inline bool write(const mat4& src, Value& dst)
         {
-            boost::json::array arr;
+            dst = boost::json::array();
+            boost::json::array& arr = dst.get_array();
             arr.resize(16);
-            const F32* p = src.getF32ptr();
+            const F32* p = glm::value_ptr(src);
             for (U32 i = 0; i < 16; ++i)
             {
                 arr[i] = p[i];
             }
-            dst = arr;
             return true;
         }
 

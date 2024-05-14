@@ -55,12 +55,13 @@ namespace LL
         {
             if (src.mMatrixValid)
             {
-                if (!src.mMatrix.asMatrix4().isIdentity())
+                if (src.mMatrix != glm::identity<mat4>())
                 {
                     dst.matrix.resize(16);
+                    const F32* m = glm::value_ptr(src.mMatrix);
                     for (U32 i = 0; i < 16; ++i)
                     {
-                        dst.matrix[i] = src.mMatrix.getF32ptr()[i];
+                        dst.matrix[i] = m[i];
                     }
                 }
             }
@@ -299,8 +300,8 @@ namespace LL
 }
 void Scene::updateTransforms(Asset& asset)
 {
-    LLMatrix4a identity;
-    identity.setIdentity();
+    mat4 identity = glm::identity<mat4>();
+    
     for (auto& nodeIndex : mNodes)
     {
         Node& node = asset.mNodes[nodeIndex];
@@ -308,7 +309,7 @@ void Scene::updateTransforms(Asset& asset)
     }
 }
 
-void Scene::updateRenderTransforms(Asset& asset, const LLMatrix4a& modelview)
+void Scene::updateRenderTransforms(Asset& asset, const mat4& modelview)
 {
     for (auto& nodeIndex : mNodes)
     {
@@ -317,9 +318,9 @@ void Scene::updateRenderTransforms(Asset& asset, const LLMatrix4a& modelview)
     }
 }
 
-void Node::updateRenderTransforms(Asset& asset, const LLMatrix4a& modelview)
+void Node::updateRenderTransforms(Asset& asset, const mat4& modelview)
 {
-    matMul(mMatrix, modelview, mRenderMatrix);
+    mRenderMatrix = modelview * mMatrix;
 
     for (auto& childIndex : mChildren)
     {
@@ -328,13 +329,12 @@ void Node::updateRenderTransforms(Asset& asset, const LLMatrix4a& modelview)
     }
 }
 
-LLMatrix4a inverse(const LLMatrix4a& mat);
-
-void Node::updateTransforms(Asset& asset, const LLMatrix4a& parentMatrix)
+void Node::updateTransforms(Asset& asset, const mat4& parentMatrix)
 {
     makeMatrixValid();
-    matMul(mMatrix, parentMatrix, mAssetMatrix);
-    mAssetMatrixInv = inverse(mAssetMatrix);
+    mAssetMatrix = parentMatrix * mMatrix;
+    
+    mAssetMatrixInv = glm::inverse(mAssetMatrix);
     
     S32 my_index = this - &asset.mNodes[0];
 
@@ -354,7 +354,7 @@ void Asset::updateTransforms()
     }
 }
 
-void Asset::updateRenderTransforms(const LLMatrix4a& modelview)
+void Asset::updateRenderTransforms(const mat4& modelview)
 {
 #if 0
     // traverse hierarchy and update render transforms from scratch
@@ -368,7 +368,7 @@ void Asset::updateRenderTransforms(const LLMatrix4a& modelview)
     {
         //if (node.mMesh != INVALID_INDEX)
         {
-            matMul(node.mAssetMatrix, modelview, node.mRenderMatrix);
+            node.mRenderMatrix = modelview * node.mAssetMatrix;
         }
     }
 
@@ -400,9 +400,11 @@ S32 Asset::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
             
             bool newHit = false;
 
+            LLMatrix4a ami;
+            ami.loadu(glm::value_ptr(node.mAssetMatrixInv));
             // transform start and end to this node's local space
-            node.mAssetMatrixInv.affineTransform(start, local_start);
-            node.mAssetMatrixInv.affineTransform(asset_end, local_end);
+            ami.affineTransform(start, local_start);
+            ami.affineTransform(asset_end, local_end);
 
             Mesh& mesh = mMeshes[node.mMesh];
             for (auto& primitive : mesh.mPrimitives)
@@ -425,8 +427,10 @@ S32 Asset::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
 
             if (newHit)
             {
+                LLMatrix4a am;
+                am.loadu(glm::value_ptr(node.mAssetMatrix));
                 // shorten line segment on hit
-                node.mAssetMatrix.affineTransform(p, asset_end); 
+                am.affineTransform(p, asset_end); 
 
                 // transform results back to asset space
                 if (intersection)
@@ -436,12 +440,10 @@ S32 Asset::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
 
                 if (normal || tangent)
                 {
-                    LLMatrix4 normalMatrix(node.mAssetMatrixInv.getF32ptr());
-
-                    normalMatrix.transpose();
+                    mat4 normalMatrix = glm::transpose(node.mAssetMatrixInv);
 
                     LLMatrix4a norm_mat;
-                    norm_mat.loadu((F32*)normalMatrix.mMatrix);
+                    norm_mat.loadu(glm::value_ptr(normalMatrix));
 
                     if (normal)
                     {
@@ -483,11 +485,7 @@ void Node::makeMatrixValid()
 {
     if (!mMatrixValid && mTRSValid)
     {
-        mat4 t;
-
-        t = glm::recompose(mScale, mRotation, mTranslation, vec3(0,0,0), vec4(0,0,0,1));
-
-        mMatrix.loadu(glm::value_ptr(t));
+        mMatrix = glm::recompose(mScale, mRotation, mTranslation, vec3(0,0,0), vec4(0,0,0,1));
         mMatrixValid = true;
     }
 
@@ -498,11 +496,9 @@ void Node::makeTRSValid()
 {
     if (!mTRSValid && mMatrixValid)
     {
-        mat4 t = glm::make_mat4(mMatrix.getF32ptr());
-
         vec3 skew;
         vec4 perspective;
-        glm::decompose(t, mScale, mRotation, mTranslation, skew, perspective);
+        glm::decompose(mMatrix, mScale, mRotation, mTranslation, skew, perspective);
         
         mTRSValid = true;
     }
@@ -534,7 +530,7 @@ void Node::setScale(const vec3& s)
 void Node::serialize(object& dst) const
 {
     write(mName, "name", dst);
-    write(mMatrix, "matrix", dst, LLMatrix4a::identity());
+    write(mMatrix, "matrix", dst, glm::identity<mat4>());
     write(mRotation, "rotation", dst);
     write(mTranslation, "translation", dst);
     write(mScale, "scale", dst, vec3(1.f,1.f,1.f));
@@ -565,7 +561,7 @@ const Node& Node::operator=(const Value& src)
 
 const Node& Node::operator=(const tinygltf::Node& src)
 {
-    F32* dstMatrix = mMatrix.getF32ptr();
+    F32* dstMatrix = glm::value_ptr(mMatrix);
 
     if (src.matrix.size() == 16)
     {
@@ -604,7 +600,7 @@ const Node& Node::operator=(const tinygltf::Node& src)
     else
     {
         // node specifies no transformation, set to identity
-        mMatrix.setIdentity();
+        mMatrix = glm::identity<mat4>();
         mMatrixValid = true;
     }
 
@@ -695,7 +691,7 @@ void Asset::render(bool opaque, bool rigged)
             {
                 if (!rigged)
                 {
-                    gGL.loadMatrix((F32*)node.mRenderMatrix.mMatrix);
+                    gGL.loadMatrix((F32*)glm::value_ptr(node.mRenderMatrix));
                 }
                 bool cull = true;
                 if (primitive.mMaterial != INVALID_INDEX)
@@ -1513,16 +1509,7 @@ void Skin::uploadMatrixPalette(Asset& asset, Node& node)
     for (U32 i = 0; i < mJoints.size(); ++i)
     {
         Node& joint = asset.mNodes[mJoints[i]];
-        
-        //t_mp[i].set_value(joint.mRenderMatrix.getF32ptr());
-        //t_mp[i] = t_mp[i] * mInverseBindMatricesData[i];
-
-        //t_mp[i].set_value(joint.mRenderMatrix.getF32ptr());
-        //t_mp[i] = mInverseBindMatricesData[i] * t_mp[i];
-
-        t_mp[i] = glm::make_mat4(joint.mRenderMatrix.getF32ptr());
-        t_mp[i] = t_mp[i] * mInverseBindMatricesData[i];
-
+        t_mp[i] = joint.mRenderMatrix * mInverseBindMatricesData[i];
     }
 
     std::vector<F32> glmp;

@@ -141,12 +141,10 @@ namespace LL
         class Node
         {
         public:
-            Node() { mMatrix.setIdentity(); }
-
-            LLMatrix4a mMatrix; //local transform
-            LLMatrix4a mRenderMatrix; //transform for rendering
-            LLMatrix4a mAssetMatrix; //transform from local to asset space
-            LLMatrix4a mAssetMatrixInv; //transform from asset to local space
+            mat4 mMatrix = glm::identity<mat4>(); //local transform
+            mat4 mRenderMatrix; //transform for rendering
+            mat4 mAssetMatrix; //transform from local to asset space
+            mat4 mAssetMatrixInv; //transform from asset to local space
 
             vec3  mTranslation;
             quat mRotation;
@@ -174,10 +172,10 @@ namespace LL
 
             // Set mRenderMatrix to a transform that can be used for the current render pass
             // modelview -- parent's render matrix
-            void updateRenderTransforms(Asset& asset, const LLMatrix4a& modelview);
+            void updateRenderTransforms(Asset& asset, const mat4& modelview);
 
             // update mAssetMatrix and mAssetMatrixInv
-            void updateTransforms(Asset& asset, const LLMatrix4a& parentMatrix);
+            void updateTransforms(Asset& asset, const mat4& parentMatrix);
 
             // ensure mMatrix is valid -- if mMatrixValid is false and mTRSValid is true, will update mMatrix to match Translation/Rotation/Scale
             void makeMatrixValid();
@@ -226,7 +224,7 @@ namespace LL
             void serialize(boost::json::object& dst) const;
 
             void updateTransforms(Asset& asset);
-            void updateRenderTransforms(Asset& asset, const LLMatrix4a& modelview);
+            void updateRenderTransforms(Asset& asset, const mat4& modelview);
         };
 
         class Texture
@@ -332,7 +330,7 @@ namespace LL
             void updateTransforms();
 
             // update node render transforms
-            void updateRenderTransforms(const LLMatrix4a& modelview);
+            void updateRenderTransforms(const mat4& modelview);
             
             void render(bool opaque, bool rigged = false);
             void renderOpaque();
