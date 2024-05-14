@@ -287,7 +287,7 @@ public:
 	 * Get voice channel for the session specified by session_id
 	 * Returns NULL if the session does not exist
 	 */
-	LLVoiceChannel* getVoiceChannel(const LLUUID& session_id, const LLSD& voice_channel_info = LLSD()) const;
+	LLVoiceChannel* getVoiceChannel(const LLUUID& session_id) const;
 
 	/**
 	* Get im speaker manager for the session specified by session_id

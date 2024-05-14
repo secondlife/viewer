@@ -1823,21 +1823,13 @@ EInstantMessage LLIMModel::getType(const LLUUID& session_id) const
 	return session->mType;
 }
 
-LLVoiceChannel* LLIMModel::getVoiceChannel( const LLUUID& session_id, const LLSD& voice_channel_info ) const
+LLVoiceChannel* LLIMModel::getVoiceChannel( const LLUUID& session_id) const
 {
 	LLIMSession* session = findIMSession(session_id);
 	if (!session)
 	{
 		LL_WARNS() << "session " << session_id << "does not exist " << LL_ENDL;
 		return NULL;
-	}
-	if (IM_NOTHING_SPECIAL == session->mType || IM_SESSION_P2P_INVITE == session->mType)
-	{
-		LLVoiceP2POutgoingCallInterface *outgoingInterface = LLVoiceClient::getInstance()->getOutgoingCallInterface(voice_channel_info);
-		if ((outgoingInterface != NULL) != (dynamic_cast<LLVoiceChannelP2P *>(session->mVoiceChannel) != NULL))
-		{
-			session->initVoiceChannel(voice_channel_info);
-		}
 	}
 
 	return session->mVoiceChannel;
@@ -3846,8 +3838,12 @@ void LLIMMgr::removeSessionObserver(LLIMSessionObserver *observer)
 
 bool LLIMMgr::startCall(const LLUUID& session_id, LLVoiceChannel::EDirection direction, const LLSD& voice_channel_info)
 {
-	LLVoiceChannel* voice_channel = LLIMModel::getInstance()->getVoiceChannel(session_id, voice_channel_info);
+	LLVoiceChannel* voice_channel = LLIMModel::getInstance()->getVoiceChannel(session_id);
 	if (!voice_channel) return false;
+	if (!voice_channel_info.isUndefined())
+	{
+		voice_channel->setChannelInfo(voice_channel_info);
+	}
 	voice_channel->setCallDirection(direction);
 	voice_channel->activate();
 	return true;
@@ -3855,7 +3851,7 @@ bool LLIMMgr::startCall(const LLUUID& session_id, LLVoiceChannel::EDirection dir
 
 bool LLIMMgr::endCall(const LLUUID& session_id)
 {
-	LLVoiceChannel* voice_channel = LLIMModel::getInstance()->getVoiceChannel(session_id, LLSD());
+	LLVoiceChannel* voice_channel = LLIMModel::getInstance()->getVoiceChannel(session_id);
 	if (!voice_channel) return false;
 
 	voice_channel->deactivate();

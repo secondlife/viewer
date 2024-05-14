@@ -6363,7 +6363,8 @@ void LLVivoxVoiceClient::predAvatarNameResolution(const LLVivoxVoiceClient::sess
                 session->mCallerID,
                 session->mName,
                 IM_SESSION_P2P_INVITE,
-                LLIMMgr::INVITATION_TYPE_VOICE);
+                LLIMMgr::INVITATION_TYPE_VOICE,
+                session->getVoiceChannelInfo());
         }
     }
 }
