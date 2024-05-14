@@ -330,7 +330,7 @@ void LLDrawPoolTerrain::renderFullShaderPBR(BOOL local_materials)
 	// Hack! Get the region that this draw pool is rendering from!
 	LLViewerRegion *regionp = mDrawFace[0]->getDrawable()->getVObj()->getRegion();
 	LLVLComposition *compp = regionp->getComposition();
-	LLPointer<LLFetchedGLTFMaterial> (*fetched_materials)[LLVLComposition::ASSET_COUNT] = &compp->mDetailMaterials;
+	LLPointer<LLFetchedGLTFMaterial> (*fetched_materials)[LLVLComposition::ASSET_COUNT] = &compp->mDetailRenderMaterials;
 
 	constexpr U32 terrain_material_count = LLVLComposition::ASSET_COUNT;
 #ifdef SHOW_ASSERT
@@ -341,7 +341,7 @@ void LLDrawPoolTerrain::renderFullShaderPBR(BOOL local_materials)
     if (local_materials)
     {
         // Override region terrain with the global local override terrain
-		fetched_materials = &gLocalTerrainMaterials.mDetailMaterials;
+		fetched_materials = &gLocalTerrainMaterials.mDetailRenderMaterials;
     }
 	const LLGLTFMaterial* materials[terrain_material_count];
 	for (U32 i = 0; i < terrain_material_count; ++i)
@@ -433,21 +433,51 @@ void LLDrawPoolTerrain::renderFullShaderPBR(BOOL local_materials)
 	llassert(shader);
 		
 
-    // *TODO: Figure out why this offset is *sometimes* producing seams at the
-    // region edge, and repeat jumps when crossing regions, when
-    // RenderTerrainPBRScale is not a factor of the region scale.
-	LLVector3d region_origin_global = gAgent.getRegion()->getOriginGlobal();
-	F32 offset_x = (F32)fmod(region_origin_global.mdV[VX], 1.0/(F64)sPBRDetailScale)*sPBRDetailScale;
-	F32 offset_y = (F32)fmod(region_origin_global.mdV[VY], 1.0/(F64)sPBRDetailScale)*sPBRDetailScale;
+    // Like for PBR materials, PBR terrain texture transforms are defined by
+    // the KHR_texture_transform spec, but with the following notable
+    // differences:
+    //   1) The PBR UV origin is defined as the Southwest corner of the region,
+    //      with positive U facing East and positive V facing South.
+    //   2) There is an additional scaling factor RenderTerrainPBRScale. If
+    //      we've done our math right, RenderTerrainPBRScale should not affect the
+    //      overall behavior of KHR_texture_transform
+    //   3) There is only one texture transform per material, whereas
+    //      KHR_texture_transform supports one texture transform per texture info.
+    //      i.e. this isn't fully compliant with KHR_texture_transform, but is
+    //      compliant when all texture infos used by a material have the same
+    //      texture transform.
 
-    LLGLTFMaterial::TextureTransform base_color_transform;
-    base_color_transform.mScale = LLVector2(sPBRDetailScale, sPBRDetailScale);
-    base_color_transform.mOffset = LLVector2(offset_x, offset_y);
-    F32 base_color_packed[8];
-    base_color_transform.getPacked(base_color_packed);
-    // *HACK: Use the same texture repeats for all PBR terrain textures for now
-    // (not compliant with KHR texture transform spec)
-    shader->uniform4fv(LLShaderMgr::TEXTURE_BASE_COLOR_TRANSFORM, 2, (F32*)base_color_packed);
+    LLGLTFMaterial::TextureTransform::PackTight transforms_packed[terrain_material_count];
+    for (U32 i = 0; i < terrain_material_count; ++i)
+	{
+		const LLFetchedGLTFMaterial* fetched_material = (*fetched_materials)[i].get();
+        LLGLTFMaterial::TextureTransform transform;
+        if (fetched_material)
+        {
+            transform = fetched_material->mTextureTransform[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR];
+#ifdef SHOW_ASSERT
+            // Assert condition where the contents of the texture transforms
+            // differ per texture info - we currently don't support this case.
+            for (U32 ti = 1; ti < LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT; ++ti)
+            {
+                llassert(fetched_material->mTextureTransform[0] == fetched_material->mTextureTransform[ti]);
+            }
+#endif
+        }
+        // *NOTE: Notice here we are combining the scale from
+        // RenderTerrainPBRScale into the KHR_texture_transform. This only
+        // works if the scale is uniform and no other transforms are
+        // applied to the terrain UVs.
+        transform.mScale.mV[VX] *= sPBRDetailScale;
+        transform.mScale.mV[VY] *= sPBRDetailScale;
+
+        transform.getPackedTight(transforms_packed[i]);
+    }
+    const U32 transform_param_count = LLGLTFMaterial::TextureTransform::PACK_TIGHT_SIZE * terrain_material_count;
+    constexpr U32 vec4_size = 4;
+    const U32 transform_vec4_count = (transform_param_count + (vec4_size - 1)) / vec4_size;
+    llassert(transform_vec4_count == 5); // If false, need to update shader
+    shader->uniform4fv(LLShaderMgr::TERRAIN_TEXTURE_TRANSFORMS, transform_vec4_count, (F32*)transforms_packed);
 
     LLSettingsWater::ptr_t pwater = LLEnvironment::instance().getCurrentWater();
 
