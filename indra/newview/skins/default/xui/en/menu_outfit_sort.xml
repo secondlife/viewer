@@ -27,10 +27,10 @@
    name="sort_favorites_to_top">
     <on_click
      function="Sort.OnSort"
-    parameter="sort_favorites" />
+    parameter="favorites_to_top" />
     <on_check
      function="Sort.OnEnable"
-     parameter="sort_favorites" />
+     parameter="favorites_to_top" />
   </menu_item_check>
 
   <menu_item_separator/>

@@ -35,6 +35,7 @@
 #include "llaccordionctrltab.h"
 #include "llagentwearables.h"
 #include "llappearancemgr.h"
+#include "llappviewer.h"
 #include "llfloaterreg.h"
 #include "llfloatersidepanelcontainer.h"
 #include "llinspecttexture.h"
@@ -54,14 +55,24 @@
 static bool is_tab_header_clicked(LLAccordionCtrlTab* tab, S32 y);
 
 static const LLOutfitTabNameComparator OUTFIT_TAB_NAME_COMPARATOR;
+static const LLOutfitTabFavComparator OUTFIT_TAB_FAV_COMPARATOR;
 
 /*virtual*/
 bool LLOutfitTabNameComparator::compare(const LLAccordionCtrlTab* tab1, const LLAccordionCtrlTab* tab2) const
 {
-	std::string name1 = tab1->getTitle();
-	std::string name2 = tab2->getTitle();
+    return (LLStringUtil::compareDict(tab1->getTitle(), tab2->getTitle()) < 0);
+}
 
-    return (LLStringUtil::compareDict(name1, name2) < 0);
+bool LLOutfitTabFavComparator::compare(const LLAccordionCtrlTab* tab1, const LLAccordionCtrlTab* tab2) const
+{
+    LLOutfitAccordionCtrlTab* taba = (LLOutfitAccordionCtrlTab*)tab1;
+    LLOutfitAccordionCtrlTab* tabb = (LLOutfitAccordionCtrlTab*)tab2;
+    if (taba->getFavorite() != tabb->getFavorite())
+    {
+        return taba->getFavorite();
+    }
+
+    return (LLStringUtil::compareDict(tab1->getTitle(), tab2->getTitle()) < 0);
 }
 
 struct outfit_accordion_tab_params : public LLInitParam::Block<outfit_accordion_tab_params, LLOutfitAccordionCtrlTab::Params>
@@ -128,7 +139,23 @@ BOOL LLOutfitsList::postBuild()
 	mAccordion = getChild<LLAccordionCtrl>("outfits_accordion");
 	mAccordion->setComparator(&OUTFIT_TAB_NAME_COMPARATOR);
 
+    initComparator();
+
     return LLOutfitListBase::postBuild();
+}
+
+void LLOutfitsList::initComparator()
+{
+    S32 mode = gSavedSettings.getS32("OutfitListSortOrder");
+    if (mode == 0)
+    {
+        mAccordion->setComparator(&OUTFIT_TAB_NAME_COMPARATOR);
+    }
+    else
+    {
+        mAccordion->setComparator(&OUTFIT_TAB_FAV_COMPARATOR);    
+    }
+    sortOutfits();
 }
 
 //virtual
@@ -199,7 +226,7 @@ void LLOutfitsList::updateAddedCategory(LLUUID cat_id)
 
     // Depending on settings, force showing list items that don't match current filter(EXT-7158)
     LLCachedControl<bool> list_filter(gSavedSettings, "OutfitListFilterFullList");
-    list->setForceShowingUnmatchedItems(list_filter());
+    list->setForceShowingUnmatchedItems(list_filter(), false);
 
     // Setting list commit callback to monitor currently selected wearable item.
     list->setCommitCallback(boost::bind(&LLOutfitsList::onListSelectionChange, this, _1));
@@ -781,12 +808,11 @@ void LLOutfitsList::onChangeSortOrder(const LLSD& userdata)
         S32 val = gSavedSettings.getS32("OutfitListSortOrder");
         gSavedSettings.setS32("OutfitListSortOrder", (val ? 0 : 1));
 
-        const LLUUID outfits = gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS);
-        refreshList(outfits);
+        initComparator();
     }
     else if (sort_data == "show_entire_outfit")
     {
-        bool new_val = !gSavedSettings.getS32("OutfitListFilterFullList");
+        bool new_val = !gSavedSettings.getBOOL("OutfitListFilterFullList");
         gSavedSettings.setBOOL("OutfitListFilterFullList", new_val);
 
         if (!getFilterSubString().empty())
@@ -794,17 +820,19 @@ void LLOutfitsList::onChangeSortOrder(const LLSD& userdata)
             for (outfits_map_t::value_type& outfit : mOutfitsMap)
             {
                 LLAccordionCtrlTab* tab = outfit.second;
+                const LLUUID& category_id = outfit.first;
                 if (!tab) continue;
 
                 LLWearableItemsList* list = dynamic_cast<LLWearableItemsList*>(tab->getAccordionView());
                 if (list)
                 {
-                    list->setForceShowingUnmatchedItems(new_val);
                     list->setForceRefresh(true);
+                    list->setForceShowingUnmatchedItems(new_val, tab->getDisplayChildren());
                 }
+                applyFilterToTab(category_id, tab, getFilterSubString());
             }
+            mAccordion->arrange();
         }
-
     }
 }
 
@@ -909,6 +937,10 @@ void LLOutfitListBase::observerCallback(const LLUUID& category_id)
 
 void LLOutfitListBase::refreshList(const LLUUID& category_id)
 {
+    if (LLAppViewer::instance()->quitRequested())
+    {
+        return;
+    }
     bool wasNull = mRefreshListState.CategoryUUID.isNull();
     mRefreshListState.CategoryUUID.setNull();
 
@@ -925,35 +957,21 @@ void LLOutfitListBase::refreshList(const LLUUID& category_id)
         is_category);
 
     // Memorize item names for each UUID
-    struct SortData
-    {
-        SortData(std::string name, bool is_favorite) : mName(name), isFavorite(is_favorite) {}
-        std::string mName;
-        bool isFavorite;
-    };
-    std::map<LLUUID, SortData> sort_data;
+    std::map<LLUUID, std::string> names;
     for (const LLPointer<LLViewerInventoryCategory>& cat : cat_array)
     {
-        sort_data.emplace(std::make_pair(cat->getUUID(), SortData(cat->getName(), cat->getIsFavorite())));
+        names.emplace(std::make_pair(cat->getUUID(), cat->getName()));
     }
 
     // Fill added and removed items vectors.
     mRefreshListState.Added.clear();
     mRefreshListState.Removed.clear();
     computeDifference(cat_array, mRefreshListState.Added, mRefreshListState.Removed);
-
-    // Sort added items vector according to settings.
-    S32 sort_order = gSavedSettings.getS32("OutfitListSortOrder");
+    // Sort added items vector by item name.
     std::sort(mRefreshListState.Added.begin(), mRefreshListState.Added.end(),
-        [sort_data, sort_order](const LLUUID& a, const LLUUID& b)
+        [names](const LLUUID& a, const LLUUID& b)
         {
-            const SortData& data_a = sort_data.at(a);
-            const SortData& data_b = sort_data.at(b);
-            if (sort_order == 1 && data_a.isFavorite != data_b.isFavorite)
-            {
-                return data_a.isFavorite;
-            }
-            return LLStringUtil::compareDict(data_a.mName, data_b.mName) < 0;
+            return LLStringUtil::compareDict(names.at(a), names.at(b)) < 0;
         });
     // Initialize iterators for added and removed items vectors.
     mRefreshListState.AddedIterator = mRefreshListState.Added.begin();
@@ -981,8 +999,18 @@ void LLOutfitListBase::onIdle(void* userdata)
 
 void LLOutfitListBase::onIdleRefreshList()
 {
-    if (mRefreshListState.CategoryUUID.isNull())
+    if (LLAppViewer::instance()->quitRequested())
+    {
+        mRefreshListState.CategoryUUID.setNull();
+        gIdleCallbacks.deleteFunction(onIdle, this);
         return;
+    }
+    if (mRefreshListState.CategoryUUID.isNull())
+    {
+        LL_WARNS() << "Called onIdleRefreshList without id" << LL_ENDL;
+        gIdleCallbacks.deleteFunction(onIdle, this);
+        return;
+    }
 
     const F64 MAX_TIME = 0.05f;
     F64 curent_time = LLTimer::getTotalSeconds();
@@ -1506,7 +1534,7 @@ LLOutfitListSortMenu::LLOutfitListSortMenu(LLOutfitListBase* parent_panel)
     registrar.add("Sort.Collapse", boost::bind(&LLOutfitListBase::onCollapseAllFolders, parent_panel));
     registrar.add("Sort.Expand", boost::bind(&LLOutfitListBase::onExpandAllFolders, parent_panel));
     registrar.add("Sort.OnSort", boost::bind(&LLOutfitListBase::onChangeSortOrder, parent_panel, _2));
-    enable_registrar.add("Sort.OnEnable", boost::bind(&LLOutfitListBase::isActionEnabled, parent_panel, _2));
+    enable_registrar.add("Sort.OnEnable", boost::bind(&LLOutfitListSortMenu::onEnable, this, _2));
 
     mMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>(
         "menu_outfit_sort.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
@@ -1531,6 +1559,22 @@ void LLOutfitListSortMenu::onUpdateItemsVisibility()
     mMenu->setItemVisible("collapse", true);
     mMenu->setItemVisible("sort_favorites_to_top", true);
     mMenu->setItemVisible("show_entire_outfit_in_search", true);
+}
+
+bool LLOutfitListSortMenu::onEnable(LLSD::String param)
+{
+    if ("favorites_to_top" == param)
+    {
+        LLCachedControl<S32> sort_order(gSavedSettings, "OutfitListSortOrder", 0);
+        return sort_order == 1;
+    }
+    else if ("show_entire_outfit" == param)
+    {
+        LLCachedControl<bool> filter_mode(gSavedSettings, "OutfitListFilterFullList", 0);
+        return !filter_mode;
+    }
+
+    return true;
 }
 
 

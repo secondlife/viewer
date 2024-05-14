@@ -109,7 +109,6 @@ protected:
 	void onWearablesLoading();
 private:
 	LLPanel*					mListCommands;
-	LLMenuGL*					mMenuAdd;
 	// List Commands                                                                //
 	//////////////////////////////////////////////////////////////////////////////////
 

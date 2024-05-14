@@ -62,6 +62,17 @@ public:
 	/*virtual*/ bool compare(const LLAccordionCtrlTab* tab1, const LLAccordionCtrlTab* tab2) const;
 };
 
+class LLOutfitTabFavComparator : public LLAccordionCtrl::LLTabComparator
+{
+    LOG_CLASS(LLOutfitTabFavComparator);
+
+public:
+    LLOutfitTabFavComparator() {};
+    virtual ~LLOutfitTabFavComparator() {};
+
+    /*virtual*/ bool compare(const LLAccordionCtrlTab* tab1, const LLAccordionCtrlTab* tab2) const;
+};
+
 class LLOutfitListBase : public LLPanelAppearanceTab
 {
 public:
@@ -222,6 +233,7 @@ public:
 
 private:
     void onUpdateItemsVisibility();
+    bool onEnable(LLSD::String param);
 
     LLToggleableMenu* mMenu;
     LLHandle<LLPanel> mPanelHandle;
@@ -287,6 +299,7 @@ public:
 	virtual ~LLOutfitsList();
 
 	/*virtual*/ BOOL postBuild();
+    void initComparator();
 
 	/*virtual*/ void onOpen(const LLSD& info);
 
