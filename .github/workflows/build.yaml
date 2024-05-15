@@ -2,6 +2,11 @@ name: Build
 
 on:
   workflow_dispatch:
+    inputs:
+      release_run:
+        type: boolean
+        description: Do a release of this build
+        default: false
   pull_request:
   push:
     branches: ["main", "release/*", "project/*"]
@@ -398,7 +403,7 @@ jobs:
   release:
     needs: [setvar, build, sign-and-package-windows, sign-and-package-mac]
     runs-on: ubuntu-latest
-    if: needs.setvar.outputs.release_run
+    if: needs.setvar.outputs.release_run || github.event.inputs.release_run
     steps:
       - uses: actions/download-artifact@v4
         with:
