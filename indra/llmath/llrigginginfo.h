@@ -27,8 +27,8 @@
 // Stores information related to associated rigged mesh vertices
 // This lives in llmath because llvolume lives in llmath.
 
-#ifndef	LL_LLRIGGINGINFO_H
-#define	LL_LLRIGGINGINFO_H
+#ifndef LL_LLRIGGINGINFO_H
+#define LL_LLRIGGINGINFO_H
 
 #include "llvector4a.h"
 
@@ -46,7 +46,7 @@ public:
     void merge(const LLJointRiggingInfo& other);
 
 private:
-	LLVector4a mRiggedExtents[2];
+    LLVector4a mRiggedExtents[2];
     bool mIsRiggedTo;
 };
 

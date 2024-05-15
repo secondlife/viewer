@@ -35,11 +35,11 @@
 
 @interface LLOpenGLView : NSOpenGLView <NSTextInputClient>
 {
-	std::string mLastDraggedUrl;
-	unsigned int mModifiers;
-	float mMousePos[2];
-	bool mHasMarkedText;
-	unsigned int mMarkedTextLength;
+    std::string mLastDraggedUrl;
+    unsigned int mModifiers;
+    float mMousePos[2];
+    bool mHasMarkedText;
+    unsigned int mMarkedTextLength;
     bool mMarkedTextAllowed;
     bool mSimulatedRightClick;
     bool mOldResize;
@@ -78,7 +78,7 @@
 
 @interface LLNonInlineTextView : NSTextView
 {
-	LLOpenGLView *glview;
+    LLOpenGLView *glview;
     unichar mKeyPressed;
 }
 

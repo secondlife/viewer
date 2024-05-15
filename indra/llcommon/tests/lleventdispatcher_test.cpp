@@ -3,7 +3,7 @@
  * @author Nat Goodspeed
  * @date   2011-01-20
  * @brief  Test for lleventdispatcher.
- * 
+ *
  * $LicenseInfo:firstyear=2011&license=viewerlgpl$
  * Copyright (c) 2011, Linden Research, Inc.
  * $/LicenseInfo$
@@ -470,7 +470,7 @@ namespace tut
                   params["a"], "\n"
                   "params[\"b\"]:\n",
                   params["b"]);
-            // default LLSD::Binary value   
+            // default LLSD::Binary value
             std::vector<U8> binary;
             for (size_t ix = 0, h = 0xaa; ix < 6; ++ix, h += 0x11)
             {

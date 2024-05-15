@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llwebprofile.cpp
  * @brief Web profile access.
  *
  * $LicenseInfo:firstyear=2011&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2011, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -74,8 +74,8 @@ void LLWebProfile::uploadImage(LLPointer<LLImageFormatted> image, const std::str
 // static
 void LLWebProfile::setAuthCookie(const std::string& cookie)
 {
-	LL_DEBUGS("Snapshots") << "Setting auth cookie: " << cookie << LL_ENDL;
-	sAuthCookie = cookie;
+    LL_DEBUGS("Snapshots") << "Setting auth cookie: " << cookie << LL_ENDL;
+    sAuthCookie = cookie;
 }
 
 
@@ -148,7 +148,7 @@ void LLWebProfile::uploadImageCoro(LLPointer<LLImageFormatted> image, std::strin
     httpHeaders->append(HTTP_OUT_HEADER_COOKIE, getAuthCookie());
     httpHeaders->remove(HTTP_OUT_HEADER_CONTENT_TYPE);
     httpHeaders->append(HTTP_OUT_HEADER_CONTENT_TYPE, "multipart/form-data; boundary=" + boundary);
-    
+
     LLCore::BufferArray::ptr_t body = LLWebProfile::buildPostData(data, image, boundary);
 
     result = httpAdapter->postAndSuspend(httpRequest, uploadUrl, body, httpOpts, httpHeaders);
@@ -256,15 +256,15 @@ LLCore::BufferArray::ptr_t LLWebProfile::buildPostData(const LLSD &data, LLPoint
 // static
 void LLWebProfile::reportImageUploadStatus(bool ok)
 {
-	if (mStatusCallback)
-	{
-		mStatusCallback(ok);
-	}
+    if (mStatusCallback)
+    {
+        mStatusCallback(ok);
+    }
 }
 
 // static
 std::string LLWebProfile::getAuthCookie()
 {
-	// This is needed to test image uploads on Linux viewer built with OpenSSL 1.0.0 (0.9.8 works fine).
-	return LLStringUtil::getenv("LL_SNAPSHOT_COOKIE", sAuthCookie);
+    // This is needed to test image uploads on Linux viewer built with OpenSSL 1.0.0 (0.9.8 works fine).
+    return LLStringUtil::getenv("LL_SNAPSHOT_COOKIE", sAuthCookie);
 }

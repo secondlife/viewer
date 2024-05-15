@@ -35,31 +35,31 @@ class LLFloaterModelUploadBase : public LLFloater, public LLUploadPermissionsObs
 {
 public:
 
-	LLFloaterModelUploadBase(const LLSD& key);
+    LLFloaterModelUploadBase(const LLSD& key);
 
-	virtual ~LLFloaterModelUploadBase(){};
+    virtual ~LLFloaterModelUploadBase(){};
 
-	virtual void setPermissonsErrorStatus(S32 status, const std::string& reason) = 0;
+    virtual void setPermissonsErrorStatus(S32 status, const std::string& reason) = 0;
 
-	virtual void onPermissionsReceived(const LLSD& result) = 0;
+    virtual void onPermissionsReceived(const LLSD& result) = 0;
 
-	virtual void onModelPhysicsFeeReceived(const LLSD& result, std::string upload_url) = 0;
+    virtual void onModelPhysicsFeeReceived(const LLSD& result, std::string upload_url) = 0;
 
-	virtual void setModelPhysicsFeeErrorStatus(S32 status, const std::string& reason, const LLSD& result) = 0;
+    virtual void setModelPhysicsFeeErrorStatus(S32 status, const std::string& reason, const LLSD& result) = 0;
 
-	virtual void onModelUploadSuccess() {};
+    virtual void onModelUploadSuccess() {};
 
-	virtual void onModelUploadFailure() {};
+    virtual void onModelUploadFailure() {};
 
 protected:
 
-	// requests agent's permissions to upload model
-	void requestAgentUploadPermissions();
+    // requests agent's permissions to upload model
+    void requestAgentUploadPermissions();
 
     void requestAgentUploadPermissionsCoro(std::string url, LLHandle<LLUploadPermissionsObserver> observerHandle);
 
-	std::string mUploadModelUrl;
-	bool mHasUploadPerm;
+    std::string mUploadModelUrl;
+    bool mHasUploadPerm;
 };
 
 #endif /* LL_LLFLOATERMODELUPLOADBASE_H */

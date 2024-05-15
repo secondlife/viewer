@@ -43,51 +43,51 @@ class LLTextBox;
  */
 struct LLCrossParcelFunctor : public LLSelectedObjectFunctor
 {
-	/*virtual*/ bool apply(LLViewerObject* obj);
+    /*virtual*/ bool apply(LLViewerObject* obj);
 
 private:
-	LLBBox	mBoundingBox;
+    LLBBox  mBoundingBox;
 };
 
 
 class LLFloaterObjectWeights : public LLFloater, LLAccountingCostObserver
 {
 public:
-	LOG_CLASS(LLFloaterObjectWeights);
+    LOG_CLASS(LLFloaterObjectWeights);
 
-	LLFloaterObjectWeights(const LLSD& key);
-	~LLFloaterObjectWeights();
+    LLFloaterObjectWeights(const LLSD& key);
+    ~LLFloaterObjectWeights();
 
-	/*virtual*/ BOOL postBuild();
+    /*virtual*/ BOOL postBuild();
 
-	/*virtual*/ void onOpen(const LLSD& key);
+    /*virtual*/ void onOpen(const LLSD& key);
 
-	/*virtual*/ void onWeightsUpdate(const SelectionCost& selection_cost);
-	/*virtual*/ void setErrorStatus(S32 status, const std::string& reason);
+    /*virtual*/ void onWeightsUpdate(const SelectionCost& selection_cost);
+    /*virtual*/ void setErrorStatus(S32 status, const std::string& reason);
 
-	void updateLandImpacts(const LLParcel* parcel);
-	void refresh();
+    void updateLandImpacts(const LLParcel* parcel);
+    void refresh();
 
 private:
-	/*virtual*/ void generateTransactionID();
+    /*virtual*/ void generateTransactionID();
 
-	void toggleWeightsLoadingIndicators(bool visible);
-	void toggleLandImpactsLoadingIndicators(bool visible);
+    void toggleWeightsLoadingIndicators(bool visible);
+    void toggleLandImpactsLoadingIndicators(bool visible);
 
-	void updateIfNothingSelected();
+    void updateIfNothingSelected();
 
-	LLTextBox		*mSelectedObjects;
-	LLTextBox		*mSelectedPrims;
+    LLTextBox       *mSelectedObjects;
+    LLTextBox       *mSelectedPrims;
 
-	LLTextBox		*mSelectedDownloadWeight;
-	LLTextBox		*mSelectedPhysicsWeight;
-	LLTextBox		*mSelectedServerWeight;
-	LLTextBox		*mSelectedDisplayWeight;
+    LLTextBox       *mSelectedDownloadWeight;
+    LLTextBox       *mSelectedPhysicsWeight;
+    LLTextBox       *mSelectedServerWeight;
+    LLTextBox       *mSelectedDisplayWeight;
 
-	LLTextBox		*mSelectedOnLand;
-	LLTextBox		*mRezzedOnLand;
-	LLTextBox		*mRemainingCapacity;
-	LLTextBox		*mTotalCapacity;
+    LLTextBox       *mSelectedOnLand;
+    LLTextBox       *mRezzedOnLand;
+    LLTextBox       *mRemainingCapacity;
+    LLTextBox       *mTotalCapacity;
 };
 
 #endif //LL_LLFLOATEROBJECTWEIGHTS_H
