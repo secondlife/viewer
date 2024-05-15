@@ -195,18 +195,18 @@ void main()
 
     PBRMix mix = init_pbr_mix();
     PBRMix mix2;
+    TerrainCoord terrain_texcoord;
     switch (tm.type & MIX_X)
     {
     case MIX_X:
 #if TERRAIN_PLANAR_TEXTURE_SAMPLE_COUNT == 3
-        TerrainCoord terrain_texcoord;
         terrain_texcoord[0].xy = vary_coords[0].xy;
         terrain_texcoord[0].zw = vary_coords[0].zw;
         terrain_texcoord[1].xy = vary_coords[1].xy;
         terrain_texcoord[1].zw = vary_coords[1].zw;
         terrain_texcoord[2].xy = vary_coords[2].xy;
 #elif TERRAIN_PLANAR_TEXTURE_SAMPLE_COUNT == 1
-        TerrainCoord terrain_texcoord = vary_coords[0].xy;
+        terrain_texcoord = vary_coords[0].xy;
 #endif
         mix2 = terrain_sample_and_multiply_pbr(
             terrain_texcoord
