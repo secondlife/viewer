@@ -431,7 +431,6 @@ void LLDrawPoolTerrain::renderFullShaderPBR(bool local_materials)
 
 	LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
 	llassert(shader);
-		
 
     // Like for PBR materials, PBR terrain texture transforms are defined by
     // the KHR_texture_transform spec, but with the following notable
@@ -446,7 +445,6 @@ void LLDrawPoolTerrain::renderFullShaderPBR(bool local_materials)
     //      i.e. this isn't fully compliant with KHR_texture_transform, but is
     //      compliant when all texture infos used by a material have the same
     //      texture transform.
-
     LLGLTFMaterial::TextureTransform::PackTight transforms_packed[terrain_material_count];
     for (U32 i = 0; i < terrain_material_count; ++i)
 	{
