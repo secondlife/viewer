@@ -10,7 +10,7 @@ on:
 env:
   # Build with a tag like "Second_Life#abcdef0" to generate a release page
   # (used for builds we are planning to deploy).
-  RELEASE_RUN: ${{ github.ref_type == 'tag' && startsWith(github.ref_name, 'Second_Life') && 'Y' }}
+  RELEASE_RUN: ${{ github.ref_type == 'tag' && startsWith(github.ref_name, 'Second_Life') && 'Y' || '' }}
 
 jobs:
   # The whole point of the setvar job is that we want to reference global
