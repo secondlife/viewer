@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llvertexbuffer.cpp
  * @brief LLVertexBuffer implementation
  *
  * $LicenseInfo:firstyear=2003&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -41,25 +41,25 @@
 //helper function, returns first number > v that is a power of 2, or v if v is already a power of 2
 U32 nhpo2(U32 v)
 {
-	U32 r = 1;
-	while (r < v) {
-		r *= 2;
-	}
-	return r;
+    U32 r = 1;
+    while (r < v) {
+        r *= 2;
+    }
+    return r;
 }
 
 //which power of 2 is i?
 //assumes i is a power of 2 > 0
 U32 wpo2(U32 i)
 {
-	llassert(i > 0);
-	llassert(nhpo2(i) == i);
+    llassert(i > 0);
+    llassert(nhpo2(i) == i);
 
-	U32 r = 0;
+    U32 r = 0;
 
-	while (i >>= 1) ++r;
+    while (i >>= 1) ++r;
 
-	return r;
+    return r;
 }
 
 struct CompareMappedRegion
@@ -381,7 +381,7 @@ public:
             Entry& entry = entries.back();
             name = entry.mGLName;
             data = entry.mData;
-            
+
             entries.pop_back();
             if (entries.empty())
             {
@@ -474,9 +474,9 @@ public:
         }
 
 #if 0
-        LL_INFOS() << llformat("(%d/%d)/%d MB (distributed/allocated)/total in VBO Pool. Overhead: %d percent. Hit rate: %d percent", 
-            mDistributed / 1000000, 
-            mAllocated / 1000000, 
+        LL_INFOS() << llformat("(%d/%d)/%d MB (distributed/allocated)/total in VBO Pool. Overhead: %d percent. Hit rate: %d percent",
+            mDistributed / 1000000,
+            mAllocated / 1000000,
             (mAllocated + mReserved) / 1000000, // total bytes
             ((mAllocated+mReserved-mDistributed)*100)/llmax(mDistributed, (U64) 1), // overhead percent
             (mHits*100)/llmax(mMisses+mHits, (U32)1)) // hit rate percent
@@ -522,7 +522,7 @@ U64 LLVertexBuffer::getBytesAllocated()
 }
 
 //============================================================================
-// 
+//
 //static
 U32 LLVertexBuffer::sGLRenderBuffer = 0;
 U32 LLVertexBuffer::sGLRenderIndices = 0;
@@ -533,50 +533,50 @@ U32 LLVertexBuffer::sVertexCount = 0;
 //NOTE: each component must be AT LEAST 4 bytes in size to avoid a performance penalty on AMD hardware
 const U32 LLVertexBuffer::sTypeSize[LLVertexBuffer::TYPE_MAX] =
 {
-	sizeof(LLVector4), // TYPE_VERTEX,
-	sizeof(LLVector4), // TYPE_NORMAL,
-	sizeof(LLVector2), // TYPE_TEXCOORD0,
-	sizeof(LLVector2), // TYPE_TEXCOORD1,
-	sizeof(LLVector2), // TYPE_TEXCOORD2,
-	sizeof(LLVector2), // TYPE_TEXCOORD3,
-	sizeof(LLColor4U), // TYPE_COLOR,
-	sizeof(LLColor4U), // TYPE_EMISSIVE, only alpha is used currently
-	sizeof(LLVector4), // TYPE_TANGENT,
-	sizeof(F32),	   // TYPE_WEIGHT,
-	sizeof(LLVector4), // TYPE_WEIGHT4,
-	sizeof(LLVector4), // TYPE_CLOTHWEIGHT,
-	sizeof(LLVector4), // TYPE_TEXTURE_INDEX (actually exists as position.w), no extra data, but stride is 16 bytes
+    sizeof(LLVector4), // TYPE_VERTEX,
+    sizeof(LLVector4), // TYPE_NORMAL,
+    sizeof(LLVector2), // TYPE_TEXCOORD0,
+    sizeof(LLVector2), // TYPE_TEXCOORD1,
+    sizeof(LLVector2), // TYPE_TEXCOORD2,
+    sizeof(LLVector2), // TYPE_TEXCOORD3,
+    sizeof(LLColor4U), // TYPE_COLOR,
+    sizeof(LLColor4U), // TYPE_EMISSIVE, only alpha is used currently
+    sizeof(LLVector4), // TYPE_TANGENT,
+    sizeof(F32),       // TYPE_WEIGHT,
+    sizeof(LLVector4), // TYPE_WEIGHT4,
+    sizeof(LLVector4), // TYPE_CLOTHWEIGHT,
+    sizeof(LLVector4), // TYPE_TEXTURE_INDEX (actually exists as position.w), no extra data, but stride is 16 bytes
 };
 
 static const std::string vb_type_name[] =
 {
-	"TYPE_VERTEX",
-	"TYPE_NORMAL",
-	"TYPE_TEXCOORD0",
-	"TYPE_TEXCOORD1",
-	"TYPE_TEXCOORD2",
-	"TYPE_TEXCOORD3",
-	"TYPE_COLOR",
-	"TYPE_EMISSIVE",
-	"TYPE_TANGENT",
-	"TYPE_WEIGHT",
-	"TYPE_WEIGHT4",
-	"TYPE_CLOTHWEIGHT",
-	"TYPE_TEXTURE_INDEX",
-	"TYPE_MAX",
-	"TYPE_INDEX",	
+    "TYPE_VERTEX",
+    "TYPE_NORMAL",
+    "TYPE_TEXCOORD0",
+    "TYPE_TEXCOORD1",
+    "TYPE_TEXCOORD2",
+    "TYPE_TEXCOORD3",
+    "TYPE_COLOR",
+    "TYPE_EMISSIVE",
+    "TYPE_TANGENT",
+    "TYPE_WEIGHT",
+    "TYPE_WEIGHT4",
+    "TYPE_CLOTHWEIGHT",
+    "TYPE_TEXTURE_INDEX",
+    "TYPE_MAX",
+    "TYPE_INDEX",
 };
 
 const U32 LLVertexBuffer::sGLMode[LLRender::NUM_MODES] =
 {
-	GL_TRIANGLES,
-	GL_TRIANGLE_STRIP,
-	GL_TRIANGLE_FAN,
-	GL_POINTS,
-	GL_LINES,
-	GL_LINE_STRIP,
-	GL_QUADS,
-	GL_LINE_LOOP,
+    GL_TRIANGLES,
+    GL_TRIANGLE_STRIP,
+    GL_TRIANGLE_FAN,
+    GL_POINTS,
+    GL_LINES,
+    GL_LINE_STRIP,
+    GL_QUADS,
+    GL_LINE_LOOP,
 };
 
 //static
@@ -598,7 +598,7 @@ void LLVertexBuffer::setupClientArrays(U32 data_mask)
                 }
             }
             else
-            {	//was disabled
+            {   //was disabled
                 if (data_mask & mask)
                 { //needs to be enabled
                     glEnableVertexAttribArray(loc);
@@ -627,18 +627,18 @@ void LLVertexBuffer::drawArrays(U32 mode, const std::vector<LLVector3>& pos)
 void LLVertexBuffer::drawElements(U32 mode, const LLVector4a* pos, const LLVector2* tc, U32 num_indices, const U16* indicesp)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VERTEX;
-	llassert(LLGLSLShader::sCurBoundShaderPtr != NULL);
+    llassert(LLGLSLShader::sCurBoundShaderPtr != NULL);
 
-	gGL.syncMatrices();
+    gGL.syncMatrices();
 
-	U32 mask = LLVertexBuffer::MAP_VERTEX;
-	if (tc)
-	{
-		mask = mask | LLVertexBuffer::MAP_TEXCOORD0;
-	}
+    U32 mask = LLVertexBuffer::MAP_VERTEX;
+    if (tc)
+    {
+        mask = mask | LLVertexBuffer::MAP_TEXCOORD0;
+    }
 
-	unbind();
-	
+    unbind();
+
     gGL.begin(mode);
 
     if (tc != nullptr)
@@ -672,32 +672,32 @@ bool LLVertexBuffer::validateRange(U32 start, U32 end, U32 count, U32 indices_of
     llassert(start < (U32)mNumVerts);
     llassert(end < (U32)mNumVerts);
 
-	if (start >= (U32) mNumVerts ||
-	    end >= (U32) mNumVerts)
-	{
-		LL_ERRS() << "Bad vertex buffer draw range: [" << start << ", " << end << "] vs " << mNumVerts << LL_ENDL;
-	}
+    if (start >= (U32) mNumVerts ||
+        end >= (U32) mNumVerts)
+    {
+        LL_ERRS() << "Bad vertex buffer draw range: [" << start << ", " << end << "] vs " << mNumVerts << LL_ENDL;
+    }
 
-	llassert(mNumIndices >= 0);
+    llassert(mNumIndices >= 0);
 
-	if (indices_offset >= (U32) mNumIndices ||
-	    indices_offset + count > (U32) mNumIndices)
-	{
-		LL_ERRS() << "Bad index buffer draw range: [" << indices_offset << ", " << indices_offset+count << "]" << LL_ENDL;
-	}
+    if (indices_offset >= (U32) mNumIndices ||
+        indices_offset + count > (U32) mNumIndices)
+    {
+        LL_ERRS() << "Bad index buffer draw range: [" << indices_offset << ", " << indices_offset+count << "]" << LL_ENDL;
+    }
 
-	{
-		U16* idx = (U16*) mMappedIndexData+indices_offset;
-		for (U32 i = 0; i < count; ++i)
-		{
+    {
+        U16* idx = (U16*) mMappedIndexData+indices_offset;
+        for (U32 i = 0; i < count; ++i)
+        {
             llassert(idx[i] >= start);
             llassert(idx[i] <= end);
 
-			if (idx[i] < start || idx[i] > end)
-			{
-				LL_ERRS() << "Index out of range: " << idx[i] << " not in [" << start << ", " << end << "]" << LL_ENDL;
-			}
-		}
+            if (idx[i] < start || idx[i] > end)
+            {
+                LL_ERRS() << "Index out of range: " << idx[i] << " not in [" << start << ", " << end << "]" << LL_ENDL;
+            }
+        }
 
         LLVector4a* v = (LLVector4a*)mMappedData;
 
@@ -709,29 +709,29 @@ bool LLVertexBuffer::validateRange(U32 start, U32 end, U32 count, U32 indices_of
             }
         }
 
-		LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
+        LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
 
-		if (shader && shader->mFeatures.mIndexedTextureChannels > 1)
-		{
-			LLVector4a* v = (LLVector4a*) mMappedData;
-			
-			for (U32 i = start; i < end; i++)
-			{
+        if (shader && shader->mFeatures.mIndexedTextureChannels > 1)
+        {
+            LLVector4a* v = (LLVector4a*) mMappedData;
+
+            for (U32 i = start; i < end; i++)
+            {
                 U32 idx = (U32) (v[i][3]+0.25f);
-				if (idx >= shader->mFeatures.mIndexedTextureChannels)
-				{
-					LL_ERRS() << "Bad texture index found in vertex data stream." << LL_ENDL;
-				}
-			}
-		}
-	}
+                if (idx >= shader->mFeatures.mIndexedTextureChannels)
+                {
+                    LL_ERRS() << "Bad texture index found in vertex data stream." << LL_ENDL;
+                }
+            }
+        }
+    }
 
     return true;
 }
 
 #ifdef LL_PROFILER_ENABLE_RENDER_DOC
 void LLVertexBuffer::setLabel(const char* label) {
-	LL_LABEL_OBJECT_GL(GL_BUFFER, mGLBuffer, strlen(label), label);
+    LL_LABEL_OBJECT_GL(GL_BUFFER, mGLBuffer, strlen(label), label);
 }
 #endif
 
@@ -756,7 +756,7 @@ void LLVertexBuffer::drawArrays(U32 mode, U32 first, U32 count) const
     llassert(first + count <= mNumVerts);
     llassert(mGLBuffer == sGLRenderBuffer);
     llassert(mGLIndices == sGLRenderIndices);
-    
+
     gGL.syncMatrices();
     glDrawArrays(sGLMode[mode], first, count);
 }
@@ -778,21 +778,21 @@ void LLVertexBuffer::initClass(LLWindow* window)
 #endif
 }
 
-//static 
+//static
 void LLVertexBuffer::unbind()
 {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-	sGLRenderBuffer = 0;
-	sGLRenderIndices = 0;
+    sGLRenderBuffer = 0;
+    sGLRenderIndices = 0;
 }
 
 //static
 void LLVertexBuffer::cleanupClass()
 {
-	unbind();
-	
+    unbind();
+
     delete sVBOPool;
     sVBOPool = nullptr;
 
@@ -812,71 +812,71 @@ void LLVertexBuffer::cleanupClass()
 
 //----------------------------------------------------------------------------
 
-LLVertexBuffer::LLVertexBuffer(U32 typemask) 
-:	LLRefCount(),
-	mTypeMask(typemask)
+LLVertexBuffer::LLVertexBuffer(U32 typemask)
+:   LLRefCount(),
+    mTypeMask(typemask)
 {
-	//zero out offsets
-	for (U32 i = 0; i < TYPE_MAX; i++)
-	{
-		mOffsets[i] = 0;
-	}
+    //zero out offsets
+    for (U32 i = 0; i < TYPE_MAX; i++)
+    {
+        mOffsets[i] = 0;
+    }
 }
 
 //static
 U32 LLVertexBuffer::calcOffsets(const U32& typemask, U32* offsets, U32 num_vertices)
 {
     U32 offset = 0;
-	for (U32 i=0; i<TYPE_TEXTURE_INDEX; i++)
-	{
-		U32 mask = 1<<i;
-		if (typemask & mask)
-		{
-			if (offsets && LLVertexBuffer::sTypeSize[i])
-			{
-				offsets[i] = offset;
-				offset += LLVertexBuffer::sTypeSize[i]*num_vertices;
-				offset = (offset + 0xF) & ~0xF;
-			}
-		}
-	}
+    for (U32 i=0; i<TYPE_TEXTURE_INDEX; i++)
+    {
+        U32 mask = 1<<i;
+        if (typemask & mask)
+        {
+            if (offsets && LLVertexBuffer::sTypeSize[i])
+            {
+                offsets[i] = offset;
+                offset += LLVertexBuffer::sTypeSize[i]*num_vertices;
+                offset = (offset + 0xF) & ~0xF;
+            }
+        }
+    }
 
-	offsets[TYPE_TEXTURE_INDEX] = offsets[TYPE_VERTEX] + 12;
-	
-	return offset;
+    offsets[TYPE_TEXTURE_INDEX] = offsets[TYPE_VERTEX] + 12;
+
+    return offset;
 }
 
-//static 
+//static
 U32 LLVertexBuffer::calcVertexSize(const U32& typemask)
 {
     U32 size = 0;
-	for (U32 i = 0; i < TYPE_TEXTURE_INDEX; i++)
-	{
-		U32 mask = 1<<i;
-		if (typemask & mask)
-		{
-			size += LLVertexBuffer::sTypeSize[i];
-		}
-	}
+    for (U32 i = 0; i < TYPE_TEXTURE_INDEX; i++)
+    {
+        U32 mask = 1<<i;
+        if (typemask & mask)
+        {
+            size += LLVertexBuffer::sTypeSize[i];
+        }
+    }
 
-	return size;
+    return size;
 }
 
 // protected, use unref()
 //virtual
 LLVertexBuffer::~LLVertexBuffer()
 {
-	destroyGLBuffer();
-	destroyGLIndices();
+    destroyGLBuffer();
+    destroyGLIndices();
 
-	if (mMappedData)
-	{
-		LL_ERRS() << "Failed to clear vertex buffer's vertices" << LL_ENDL;
-	}
-	if (mMappedIndexData)
-	{
-		LL_ERRS() << "Failed to clear vertex buffer's indices" << LL_ENDL;
-	}
+    if (mMappedData)
+    {
+        LL_ERRS() << "Failed to clear vertex buffer's vertices" << LL_ENDL;
+    }
+    if (mMappedIndexData)
+    {
+        LL_ERRS() << "Failed to clear vertex buffer's indices" << LL_ENDL;
+    }
 };
 
 //----------------------------------------------------------------------------
@@ -914,54 +914,54 @@ void LLVertexBuffer::genIndices(U32 size)
 
 bool LLVertexBuffer::createGLBuffer(U32 size)
 {
-	if (mGLBuffer || mMappedData)
-	{
-		destroyGLBuffer();
-	}
+    if (mGLBuffer || mMappedData)
+    {
+        destroyGLBuffer();
+    }
 
-	if (size == 0)
-	{
-		return true;
-	}
+    if (size == 0)
+    {
+        return true;
+    }
 
-	bool success = true;
+    bool success = true;
 
-	genBuffer(size);
-	
-	if (!mMappedData)
-	{
-		success = false;
-	}
-	return success;
+    genBuffer(size);
+
+    if (!mMappedData)
+    {
+        success = false;
+    }
+    return success;
 }
 
 bool LLVertexBuffer::createGLIndices(U32 size)
 {
-	if (mGLIndices)
-	{
-		destroyGLIndices();
-	}
-	
-	if (size == 0)
-	{
-		return true;
-	}
+    if (mGLIndices)
+    {
+        destroyGLIndices();
+    }
 
-	bool success = true;
+    if (size == 0)
+    {
+        return true;
+    }
 
-	genIndices(size);
-	
-	if (!mMappedIndexData)
-	{
-		success = false;
-	}
-	return success;
+    bool success = true;
+
+    genIndices(size);
+
+    if (!mMappedIndexData)
+    {
+        success = false;
+    }
+    return success;
 }
 
 void LLVertexBuffer::destroyGLBuffer()
 {
-	if (mGLBuffer || mMappedData)
-	{
+    if (mGLBuffer || mMappedData)
+    {
         LL_PROFILE_ZONE_SCOPED_CATEGORY_VERTEX;
         //llassert(sVBOPool);
         if (sVBOPool)
@@ -972,13 +972,13 @@ void LLVertexBuffer::destroyGLBuffer()
         mSize = 0;
         mGLBuffer = 0;
         mMappedData = nullptr;
-	}
+    }
 }
 
 void LLVertexBuffer::destroyGLIndices()
 {
-	if (mGLIndices || mMappedIndexData)
-	{
+    if (mGLIndices || mMappedIndexData)
+    {
         LL_PROFILE_ZONE_SCOPED_CATEGORY_VERTEX;
         //llassert(sVBOPool);
         if (sVBOPool)
@@ -989,22 +989,22 @@ void LLVertexBuffer::destroyGLIndices()
         mIndicesSize = 0;
         mGLIndices = 0;
         mMappedIndexData = nullptr;
-	}
+    }
 }
 
 bool LLVertexBuffer::updateNumVerts(U32 nverts)
 {
-	llassert(nverts >= 0);
+    llassert(nverts >= 0);
 
-	bool success = true;
+    bool success = true;
 
-	if (nverts > 65536)
-	{
-		LL_WARNS() << "Vertex buffer overflow!" << LL_ENDL;
-		nverts = 65536;
-	}
+    if (nverts > 65536)
+    {
+        LL_WARNS() << "Vertex buffer overflow!" << LL_ENDL;
+        nverts = 65536;
+    }
 
-	U32 needed_size = calcOffsets(mTypeMask, mOffsets, nverts);
+    U32 needed_size = calcOffsets(mTypeMask, mOffsets, nverts);
 
     if (needed_size != mSize)
     {
@@ -1012,42 +1012,42 @@ bool LLVertexBuffer::updateNumVerts(U32 nverts)
     }
 
     llassert(mSize == needed_size);
-	mNumVerts = nverts;
-	return success;
+    mNumVerts = nverts;
+    return success;
 }
 
 bool LLVertexBuffer::updateNumIndices(U32 nindices)
 {
-	llassert(nindices >= 0);
+    llassert(nindices >= 0);
 
-	bool success = true;
+    bool success = true;
 
-	U32 needed_size = sizeof(U16) * nindices;
+    U32 needed_size = sizeof(U16) * nindices;
 
-	if (needed_size != mIndicesSize)
-	{
-		success &= createGLIndices(needed_size);
-	}
+    if (needed_size != mIndicesSize)
+    {
+        success &= createGLIndices(needed_size);
+    }
 
     llassert(mIndicesSize == needed_size);
-	mNumIndices = nindices;
-	return success;
+    mNumIndices = nindices;
+    return success;
 }
 
 bool LLVertexBuffer::allocateBuffer(U32 nverts, U32 nindices)
 {
-	if (nverts < 0 || nindices < 0 ||
-		nverts > 65536)
-	{
-		LL_ERRS() << "Bad vertex buffer allocation: " << nverts << " : " << nindices << LL_ENDL;
-	}
+    if (nverts < 0 || nindices < 0 ||
+        nverts > 65536)
+    {
+        LL_ERRS() << "Bad vertex buffer allocation: " << nverts << " : " << nindices << LL_ENDL;
+    }
 
-	bool success = true;
+    bool success = true;
 
-	success &= updateNumVerts(nverts);
-	success &= updateNumIndices(nindices);
-	
-	return success;
+    success &= updateNumVerts(nverts);
+    success &= updateNumIndices(nindices);
+
+    return success;
 }
 
 //----------------------------------------------------------------------------
@@ -1056,17 +1056,17 @@ bool LLVertexBuffer::allocateBuffer(U32 nverts, U32 nindices)
 // otherwise return false
 bool expand_region(LLVertexBuffer::MappedRegion& region, U32 start, U32 end)
 {
-	
-	if (end < region.mStart ||
-		start > region.mEnd)
-	{ //gap exists, do not merge
-		return false;
-	}
+
+    if (end < region.mStart ||
+        start > region.mEnd)
+    { //gap exists, do not merge
+        return false;
+    }
 
     region.mStart = llmin(region.mStart, start);
     region.mEnd = llmax(region.mEnd, end);
 
-	return true;
+    return true;
 }
 
 
@@ -1074,7 +1074,7 @@ bool expand_region(LLVertexBuffer::MappedRegion& region, U32 start, U32 end)
 U8* LLVertexBuffer::mapVertexBuffer(LLVertexBuffer::AttributeType type, U32 index, S32 count)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VERTEX;
-	
+
     if (count == -1)
     {
         count = mNumVerts - index;
@@ -1083,24 +1083,24 @@ U8* LLVertexBuffer::mapVertexBuffer(LLVertexBuffer::AttributeType type, U32 inde
     U32 start = mOffsets[type] + sTypeSize[type] * index;
     U32 end = start + sTypeSize[type] * count-1;
 
-	bool flagged = false;
-	// flag region as mapped
-	for (U32 i = 0; i < mMappedVertexRegions.size(); ++i)
-	{
-		MappedRegion& region = mMappedVertexRegions[i];
+    bool flagged = false;
+    // flag region as mapped
+    for (U32 i = 0; i < mMappedVertexRegions.size(); ++i)
+    {
+        MappedRegion& region = mMappedVertexRegions[i];
         if (expand_region(region, start, end))
         {
             flagged = true;
             break;
         }
-	}
+    }
 
-	if (!flagged)
-	{
-		//didn't expand an existing region, make a new one
+    if (!flagged)
+    {
+        //didn't expand an existing region, make a new one
         mMappedVertexRegions.push_back({ start, end });
-	}
-	
+    }
+
     return mMappedData+mOffsets[type]+sTypeSize[type]*index;
 }
 
@@ -1108,11 +1108,11 @@ U8* LLVertexBuffer::mapVertexBuffer(LLVertexBuffer::AttributeType type, U32 inde
 U8* LLVertexBuffer::mapIndexBuffer(U32 index, S32 count)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VERTEX;
-	
-	if (count == -1)
-	{
-		count = mNumIndices-index;
-	}
+
+    if (count == -1)
+    {
+        count = mNumIndices-index;
+    }
 
     U32 start = sizeof(U16) * index;
     U32 end = start + sizeof(U16) * count-1;
@@ -1175,23 +1175,23 @@ void LLVertexBuffer::unmapBuffer()
         }
     };
 
-	if (!mMappedVertexRegions.empty())
-	{
+    if (!mMappedVertexRegions.empty())
+    {
         LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("unmapBuffer - vertex");
         if (sGLRenderBuffer != mGLBuffer)
         {
             glBindBuffer(GL_ARRAY_BUFFER, mGLBuffer);
             sGLRenderBuffer = mGLBuffer;
         }
-            
+
         U32 start = 0;
         U32 end = 0;
 
         std::sort(mMappedVertexRegions.begin(), mMappedVertexRegions.end(), SortMappedRegion());
 
-		for (U32 i = 0; i < mMappedVertexRegions.size(); ++i)
-		{
-			const MappedRegion& region = mMappedVertexRegions[i];
+        for (U32 i = 0; i < mMappedVertexRegions.size(); ++i)
+        {
+            const MappedRegion& region = mMappedVertexRegions[i];
             if (region.mStart == end + 1)
             {
                 end = region.mEnd;
@@ -1202,15 +1202,15 @@ void LLVertexBuffer::unmapBuffer()
                 start = region.mStart;
                 end = region.mEnd;
             }
-		}
+        }
 
         flush_vbo(GL_ARRAY_BUFFER, start, end, (U8*)mMappedData + start);
 
-		mMappedVertexRegions.clear();
-	}
-	
-	if (!mMappedIndexRegions.empty())
-	{
+        mMappedVertexRegions.clear();
+    }
+
+    if (!mMappedIndexRegions.empty())
+    {
         LL_PROFILE_ZONE_NAMED_CATEGORY_VERTEX("unmapBuffer - index");
 
         if (mGLIndices != sGLRenderIndices)
@@ -1240,86 +1240,86 @@ void LLVertexBuffer::unmapBuffer()
 
         flush_vbo(GL_ELEMENT_ARRAY_BUFFER, start, end, (U8*)mMappedIndexData + start);
 
-		mMappedIndexRegions.clear();
-	}
+        mMappedIndexRegions.clear();
+    }
 }
 
 //----------------------------------------------------------------------------
 
 template <class T,LLVertexBuffer::AttributeType type> struct VertexBufferStrider
 {
-	typedef LLStrider<T> strider_t;
-	static bool get(LLVertexBuffer& vbo, 
-					strider_t& strider, 
-					S32 index, S32 count)
-	{
-		if (type == LLVertexBuffer::TYPE_INDEX)
-		{
-			U8* ptr = vbo.mapIndexBuffer(index, count);
+    typedef LLStrider<T> strider_t;
+    static bool get(LLVertexBuffer& vbo,
+                    strider_t& strider,
+                    S32 index, S32 count)
+    {
+        if (type == LLVertexBuffer::TYPE_INDEX)
+        {
+            U8* ptr = vbo.mapIndexBuffer(index, count);
 
-			if (ptr == NULL)
-			{
-				LL_WARNS() << "mapIndexBuffer failed!" << LL_ENDL;
-				return false;
-			}
+            if (ptr == NULL)
+            {
+                LL_WARNS() << "mapIndexBuffer failed!" << LL_ENDL;
+                return false;
+            }
 
-			strider = (T*)ptr;
-			strider.setStride(0);
-			return true;
-		}
-		else if (vbo.hasDataType(type))
-		{
+            strider = (T*)ptr;
+            strider.setStride(0);
+            return true;
+        }
+        else if (vbo.hasDataType(type))
+        {
             U32 stride = LLVertexBuffer::sTypeSize[type];
 
-			U8* ptr = vbo.mapVertexBuffer(type, index, count);
+            U8* ptr = vbo.mapVertexBuffer(type, index, count);
 
-			if (ptr == NULL)
-			{
-				LL_WARNS() << "mapVertexBuffer failed!" << LL_ENDL;
-				return false;
-			}
+            if (ptr == NULL)
+            {
+                LL_WARNS() << "mapVertexBuffer failed!" << LL_ENDL;
+                return false;
+            }
 
-			strider = (T*)ptr;
-			strider.setStride(stride);
-			return true;
-		}
-		else
-		{
-			LL_ERRS() << "VertexBufferStrider could not find valid vertex data." << LL_ENDL;
-		}
-		return false;
-	}
+            strider = (T*)ptr;
+            strider.setStride(stride);
+            return true;
+        }
+        else
+        {
+            LL_ERRS() << "VertexBufferStrider could not find valid vertex data." << LL_ENDL;
+        }
+        return false;
+    }
 };
 
 bool LLVertexBuffer::getVertexStrider(LLStrider<LLVector3>& strider, U32 index, S32 count)
 {
-	return VertexBufferStrider<LLVector3,TYPE_VERTEX>::get(*this, strider, index, count);
+    return VertexBufferStrider<LLVector3,TYPE_VERTEX>::get(*this, strider, index, count);
 }
 bool LLVertexBuffer::getVertexStrider(LLStrider<LLVector4a>& strider, U32 index, S32 count)
 {
-	return VertexBufferStrider<LLVector4a,TYPE_VERTEX>::get(*this, strider, index, count);
+    return VertexBufferStrider<LLVector4a,TYPE_VERTEX>::get(*this, strider, index, count);
 }
 bool LLVertexBuffer::getIndexStrider(LLStrider<U16>& strider, U32 index, S32 count)
 {
     llassert(mIndicesStride == 2); // cannot access 32-bit indices with U16 strider
     llassert(mIndicesType == GL_UNSIGNED_SHORT);
-	return VertexBufferStrider<U16,TYPE_INDEX>::get(*this, strider, index, count);
+    return VertexBufferStrider<U16,TYPE_INDEX>::get(*this, strider, index, count);
 }
 bool LLVertexBuffer::getTexCoord0Strider(LLStrider<LLVector2>& strider, U32 index, S32 count)
 {
-	return VertexBufferStrider<LLVector2,TYPE_TEXCOORD0>::get(*this, strider, index, count);
+    return VertexBufferStrider<LLVector2,TYPE_TEXCOORD0>::get(*this, strider, index, count);
 }
 bool LLVertexBuffer::getTexCoord1Strider(LLStrider<LLVector2>& strider, U32 index, S32 count)
 {
-	return VertexBufferStrider<LLVector2,TYPE_TEXCOORD1>::get(*this, strider, index, count);
+    return VertexBufferStrider<LLVector2,TYPE_TEXCOORD1>::get(*this, strider, index, count);
 }
 bool LLVertexBuffer::getTexCoord2Strider(LLStrider<LLVector2>& strider, U32 index, S32 count)
 {
-	return VertexBufferStrider<LLVector2,TYPE_TEXCOORD2>::get(*this, strider, index, count);
+    return VertexBufferStrider<LLVector2,TYPE_TEXCOORD2>::get(*this, strider, index, count);
 }
 bool LLVertexBuffer::getNormalStrider(LLStrider<LLVector3>& strider, U32 index, S32 count)
 {
-	return VertexBufferStrider<LLVector3,TYPE_NORMAL>::get(*this, strider, index, count);
+    return VertexBufferStrider<LLVector3,TYPE_NORMAL>::get(*this, strider, index, count);
 }
 bool LLVertexBuffer::getNormalStrider(LLStrider<LLVector4a>& strider, U32 index, S32 count)
 {
@@ -1327,33 +1327,33 @@ bool LLVertexBuffer::getNormalStrider(LLStrider<LLVector4a>& strider, U32 index,
 }
 bool LLVertexBuffer::getTangentStrider(LLStrider<LLVector3>& strider, U32 index, S32 count)
 {
-	return VertexBufferStrider<LLVector3,TYPE_TANGENT>::get(*this, strider, index, count);
+    return VertexBufferStrider<LLVector3,TYPE_TANGENT>::get(*this, strider, index, count);
 }
 bool LLVertexBuffer::getTangentStrider(LLStrider<LLVector4a>& strider, U32 index, S32 count)
 {
-	return VertexBufferStrider<LLVector4a,TYPE_TANGENT>::get(*this, strider, index, count);
+    return VertexBufferStrider<LLVector4a,TYPE_TANGENT>::get(*this, strider, index, count);
 }
 bool LLVertexBuffer::getColorStrider(LLStrider<LLColor4U>& strider, U32 index, S32 count)
 {
-	return VertexBufferStrider<LLColor4U,TYPE_COLOR>::get(*this, strider, index, count);
+    return VertexBufferStrider<LLColor4U,TYPE_COLOR>::get(*this, strider, index, count);
 }
 bool LLVertexBuffer::getEmissiveStrider(LLStrider<LLColor4U>& strider, U32 index, S32 count)
 {
-	return VertexBufferStrider<LLColor4U,TYPE_EMISSIVE>::get(*this, strider, index, count);
+    return VertexBufferStrider<LLColor4U,TYPE_EMISSIVE>::get(*this, strider, index, count);
 }
 bool LLVertexBuffer::getWeightStrider(LLStrider<F32>& strider, U32 index, S32 count)
 {
-	return VertexBufferStrider<F32,TYPE_WEIGHT>::get(*this, strider, index, count);
+    return VertexBufferStrider<F32,TYPE_WEIGHT>::get(*this, strider, index, count);
 }
 
 bool LLVertexBuffer::getWeight4Strider(LLStrider<LLVector4>& strider, U32 index, S32 count)
 {
-	return VertexBufferStrider<LLVector4,TYPE_WEIGHT4>::get(*this, strider, index, count);
+    return VertexBufferStrider<LLVector4,TYPE_WEIGHT4>::get(*this, strider, index, count);
 }
 
 bool LLVertexBuffer::getClothWeightStrider(LLStrider<LLVector4>& strider, U32 index, S32 count)
 {
-	return VertexBufferStrider<LLVector4,TYPE_CLOTHWEIGHT>::get(*this, strider, index, count);
+    return VertexBufferStrider<LLVector4,TYPE_CLOTHWEIGHT>::get(*this, strider, index, count);
 }
 
 //----------------------------------------------------------------------------
@@ -1373,7 +1373,7 @@ void LLVertexBuffer::setBuffer()
 
     // this Vertex Buffer must provide all necessary attributes for currently bound shader
     llassert_msg((data_mask & mTypeMask) == data_mask,
-        "Attribute mask mismatch! mTypeMask should be a superset of data_mask.  data_mask: 0x" 
+        "Attribute mask mismatch! mTypeMask should be a superset of data_mask.  data_mask: 0x"
                 << std::hex << data_mask << " mTypeMask: 0x" << mTypeMask << " Missing: 0x" << (data_mask & ~mTypeMask) <<  std::dec);
 
     if (sGLRenderBuffer != mGLBuffer)
@@ -1388,7 +1388,7 @@ void LLVertexBuffer::setBuffer()
         setupVertexBuffer();
         sLastMask = data_mask;
     }
-    
+
     if (mGLIndices != sGLRenderIndices)
     {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mGLIndices);

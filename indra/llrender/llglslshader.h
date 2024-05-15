@@ -234,7 +234,7 @@ public:
     void addConstant(const LLGLSLShader::eShaderConsts shader_const);
 
     //enable/disable texture channel for specified uniform
-    //if given texture uniform is active in the shader, 
+    //if given texture uniform is active in the shader,
     //the corresponding channel will be active upon return
     //returns channel texture is enabled in from [0-MAX)
     S32 enableTexture(S32 uniform, LLTexUnit::eTextureType mode = LLTexUnit::TT_TEXTURE, LLTexUnit::eTextureColorSpace space = LLTexUnit::TCS_LINEAR);
@@ -256,7 +256,7 @@ public:
     void bind();
     //helper to conditionally bind mRiggedVariant instead of this
     void bind(bool rigged);
-    
+
     bool isComplete() const { return mProgramObject != 0; }
 
     LLUUID hash();
@@ -330,11 +330,11 @@ private:
 };
 
 //UI shader (declared here so llui_libtest will link properly)
-extern LLGLSLShader			gUIProgram;
+extern LLGLSLShader         gUIProgram;
 //output vec4(color.rgb,color.a*tex0[tc0].a)
-extern LLGLSLShader			gSolidColorProgram;
+extern LLGLSLShader         gSolidColorProgram;
 //Alpha mask shader (declared here so llappearance can access properly)
-extern LLGLSLShader			gAlphaMaskProgram;
+extern LLGLSLShader         gAlphaMaskProgram;
 
 #ifdef LL_PROFILER_ENABLE_RENDER_DOC
 #define LL_SET_SHADER_LABEL(shader) shader.setLabel(#shader)

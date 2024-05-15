@@ -33,7 +33,7 @@
 #include "primitive.h"
 #include "animation.h"
 
-extern F32SecondsImplicit		gFrameTimeSeconds;
+extern F32SecondsImplicit       gFrameTimeSeconds;
 
 // LL GLTF Implementation
 namespace LL
@@ -52,7 +52,7 @@ namespace LL
             std::string mName;
 
             const Material& operator=(const tinygltf::Material& src);
-            
+
             void allocateGLResources(Asset& asset);
         };
 
@@ -64,7 +64,7 @@ namespace LL
             std::string mName;
 
             const Mesh& operator=(const tinygltf::Mesh& src);
-            
+
             void allocateGLResources(Asset& asset);
         };
 
@@ -85,7 +85,7 @@ namespace LL
 
             // if true, translation/rotation/scale are valid and up to date
             bool mTRSValid = false;
-            
+
             bool mNeedsApplyMatrix = false;
 
             std::vector<S32> mChildren;
@@ -146,7 +146,7 @@ namespace LL
             std::string mName;
 
             const Scene& operator=(const tinygltf::Scene& src);
-            
+
             void updateTransforms(Asset& asset);
             void updateRenderTransforms(Asset& asset, const LLMatrix4a& modelview);
         };
@@ -229,7 +229,7 @@ namespace LL
 
             // prepare the asset for rendering
             void allocateGLResources(const std::string& filename, const tinygltf::Model& model);
-            
+
             // Called periodically (typically once per frame)
             // Any ongoing work (such as animations) should be handled here
             // NOT guaranteed to be called every frame
@@ -242,7 +242,7 @@ namespace LL
 
             // update node render transforms
             void updateRenderTransforms(const LLMatrix4a& modelview);
-            
+
             void render(bool opaque, bool rigged = false);
             void renderOpaque();
             void renderTransparent();
@@ -256,9 +256,9 @@ namespace LL
                 LLVector4a* tangent = nullptr,             // return the surface tangent at the intersection point
                 S32* primitive_hitp = nullptr           // return the index of the primitive that was hit
             );
-            
+
             const Asset& operator=(const tinygltf::Model& src);
-            
+
         };
     }
 }

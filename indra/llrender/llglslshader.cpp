@@ -422,27 +422,27 @@ BOOL LLGLSLShader::createShader(std::vector<LLStaticHashedString>* attributes,
 
     mUsingBinaryProgram =  LLShaderMgr::instance()->loadCachedProgramBinary(this);
 
-	if (!mUsingBinaryProgram)
-	{
+    if (!mUsingBinaryProgram)
+    {
 #if DEBUG_SHADER_INCLUDES
-	    fprintf(stderr, "--- %s ---\n", mName.c_str());
+        fprintf(stderr, "--- %s ---\n", mName.c_str());
 #endif // DEBUG_SHADER_INCLUDES
 
         //compile new source
-		vector< pair<string, GLenum> >::iterator fileIter = mShaderFiles.begin();
-		for (; fileIter != mShaderFiles.end(); fileIter++)
-		{
-			GLuint shaderhandle = LLShaderMgr::instance()->loadShaderFile((*fileIter).first, mShaderLevel, (*fileIter).second, &mDefines, mFeatures.mIndexedTextureChannels);
-			LL_DEBUGS("ShaderLoading") << "SHADER FILE: " << (*fileIter).first << " mShaderLevel=" << mShaderLevel << LL_ENDL;
-			if (shaderhandle)
-			{
-				attachObject(shaderhandle);
-			}
-			else
-			{
-				success = FALSE;
-			}
-		}
+        vector< pair<string, GLenum> >::iterator fileIter = mShaderFiles.begin();
+        for (; fileIter != mShaderFiles.end(); fileIter++)
+        {
+            GLuint shaderhandle = LLShaderMgr::instance()->loadShaderFile((*fileIter).first, mShaderLevel, (*fileIter).second, &mDefines, mFeatures.mIndexedTextureChannels);
+            LL_DEBUGS("ShaderLoading") << "SHADER FILE: " << (*fileIter).first << " mShaderLevel=" << mShaderLevel << LL_ENDL;
+            if (shaderhandle)
+            {
+                attachObject(shaderhandle);
+            }
+            else
+            {
+                success = FALSE;
+            }
+        }
     }
 
     // Attach existing objects
@@ -606,19 +606,19 @@ BOOL LLGLSLShader::mapAttributes(const std::vector<LLStaticHashedString>* attrib
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
 
-	BOOL res = TRUE;
-	if (!mUsingBinaryProgram)
-	{
-		//before linking, make sure reserved attributes always have consistent locations
-		for (U32 i = 0; i < LLShaderMgr::instance()->mReservedAttribs.size(); i++)
-		{
-			const char* name = LLShaderMgr::instance()->mReservedAttribs[i].c_str();
-			glBindAttribLocation(mProgramObject, i, (const GLchar*)name);
-		}
+    BOOL res = TRUE;
+    if (!mUsingBinaryProgram)
+    {
+        //before linking, make sure reserved attributes always have consistent locations
+        for (U32 i = 0; i < LLShaderMgr::instance()->mReservedAttribs.size(); i++)
+        {
+            const char* name = LLShaderMgr::instance()->mReservedAttribs[i].c_str();
+            glBindAttribLocation(mProgramObject, i, (const GLchar*)name);
+        }
 
-		//link the program
-		res = link();
-	}
+        //link the program
+        res = link();
+    }
 
     mAttribute.clear();
     U32 numAttributes = (attributes == NULL) ? 0 : attributes->size();
@@ -1184,14 +1184,14 @@ S32 LLGLSLShader::getTextureChannel(S32 uniform) const
 S32 LLGLSLShader::enableTexture(S32 uniform, LLTexUnit::eTextureType mode, LLTexUnit::eTextureColorSpace space)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
-    
+
     if (uniform < 0 || uniform >= (S32)mTexture.size())
     {
         LL_SHADER_UNIFORM_ERRS() << "Uniform out of range: " << uniform << LL_ENDL;
         return -1;
     }
 
-    
+
     S32 index = mTexture[uniform];
     if (index != -1)
     {
