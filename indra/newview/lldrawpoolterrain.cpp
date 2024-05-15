@@ -431,18 +431,10 @@ void LLDrawPoolTerrain::renderFullShaderPBR(BOOL local_materials)
 
 	LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
 	llassert(shader);
-		
-
-    // *TODO: Figure out why this offset is *sometimes* producing seams at the
-    // region edge, and repeat jumps when crossing regions, when
-    // RenderTerrainPBRScale is not a factor of the region scale.
-	LLVector3d region_origin_global = gAgent.getRegion()->getOriginGlobal();
-	F32 offset_x = (F32)fmod(region_origin_global.mdV[VX], 1.0/(F64)sPBRDetailScale)*sPBRDetailScale;
-	F32 offset_y = (F32)fmod(region_origin_global.mdV[VY], 1.0/(F64)sPBRDetailScale)*sPBRDetailScale;
 
     LLGLTFMaterial::TextureTransform base_color_transform;
     base_color_transform.mScale = LLVector2(sPBRDetailScale, sPBRDetailScale);
-    base_color_transform.mOffset = LLVector2(offset_x, offset_y);
+    // *TODO: mOffset and mRotation left at defaults for now. (per-material texture transforms are implemented in another branch)
     F32 base_color_packed[8];
     base_color_transform.getPacked(base_color_packed);
     // *HACK: Use the same texture repeats for all PBR terrain textures for now
