@@ -90,6 +90,7 @@
 void copy_slurl_to_clipboard_callback_inv(const std::string& slurl);
 
 const F32 SOUND_GAIN = 1.0f;
+const F32 FOLDER_LOADING_MESSAGE_DELAY = 0.5f; // Seconds to wait before showing the LOADING... text in folder views
 
 using namespace LLOldEvents;
 
@@ -308,9 +309,9 @@ void LLInvFVBridge::setCreationDate(time_t creation_date_utc)
 
 
 // Can be destroyed (or moved to trash)
-BOOL LLInvFVBridge::isItemRemovable() const
+BOOL LLInvFVBridge::isItemRemovable(bool check_worn) const
 {
-    return get_is_item_removable(getInventoryModel(), mUUID);
+    return get_is_item_removable(getInventoryModel(), mUUID, check_worn);
 }
 
 // Can be moved to another folder
@@ -772,9 +773,6 @@ void hide_context_entries(LLMenuGL& menu,
 
         bool found = false;
 
-        std::string myinput;
-        std::vector<std::string> mylist{ "a", "b", "c" };
-
         menuentry_vec_t::const_iterator itor2 = std::find(entries_to_show.begin(), entries_to_show.end(), name);
         if (itor2 != entries_to_show.end())
         {
@@ -874,7 +872,7 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
             }
 
             items.push_back(std::string("Cut"));
-            if (!isItemMovable() || !isItemRemovable())
+            if (!isItemMovable() || !canMenuCut())
             {
                 disabled_items.push_back(std::string("Cut"));
             }
@@ -923,7 +921,7 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
             if(!single_folder_root)
             {
             items.push_back(std::string("Cut"));
-            if (!isItemMovable() || !isItemRemovable())
+            if (!isItemMovable() || !canMenuCut())
             {
                 disabled_items.push_back(std::string("Cut"));
             }
@@ -1068,7 +1066,7 @@ void LLInvFVBridge::addDeleteContextMenuOptions(menuentry_vec_t &items,
 
     items.push_back(std::string("Delete"));
 
-    if (!isItemRemovable() || isPanelActive("Favorite Items"))
+    if (isPanelActive("Favorite Items") || !canMenuDelete())
     {
         disabled_items.push_back(std::string("Delete"));
     }
@@ -1222,6 +1220,16 @@ void LLInvFVBridge::addLinkReplaceMenuOption(menuentry_vec_t& items, menuentry_v
             disabled_items.push_back(std::string("Replace Links"));
         }
     }
+}
+
+bool LLInvFVBridge::canMenuDelete()
+{
+    return isItemRemovable(false);
+}
+
+bool LLInvFVBridge::canMenuCut()
+{
+    return isItemRemovable(true);
 }
 
 // *TODO: remove this
@@ -2415,45 +2423,16 @@ void LLFolderBridge::update()
     }
 }
 
-
-// Iterate through a folder's children to determine if
-// all the children are removable.
-class LLIsItemRemovable : public LLFolderViewFunctor
-{
-public:
-    LLIsItemRemovable() : mPassed(TRUE) {}
-    virtual void doFolder(LLFolderViewFolder* folder)
-    {
-        mPassed &= folder->getViewModelItem()->isItemRemovable();
-    }
-    virtual void doItem(LLFolderViewItem* item)
-    {
-        mPassed &= item->getViewModelItem()->isItemRemovable();
-    }
-    BOOL mPassed;
-};
-
 // Can be destroyed (or moved to trash)
-BOOL LLFolderBridge::isItemRemovable() const
+BOOL LLFolderBridge::isItemRemovable(bool check_worn) const
 {
-    if (!get_is_category_removable(getInventoryModel(), mUUID))
+    if (!get_is_category_and_children_removable(getInventoryModel(), mUUID, check_worn))
     {
         return FALSE;
     }
 
-    LLInventoryPanel* panel = mInventoryPanel.get();
-    LLFolderViewFolder* folderp = dynamic_cast<LLFolderViewFolder*>(panel ?   panel->getItemByID(mUUID) : NULL);
-    if (folderp)
-    {
-        LLIsItemRemovable folder_test;
-        folderp->applyFunctorToChildren(folder_test);
-        if (!folder_test.mPassed)
-        {
-            return FALSE;
-        }
-    }
-
-    if (isMarketplaceListingsFolder() && (!LLMarketplaceData::instance().isSLMDataFetched() || LLMarketplaceData::instance().getActivationState(mUUID)))
+    if (isMarketplaceListingsFolder()
+        && (!LLMarketplaceData::instance().isSLMDataFetched() || LLMarketplaceData::instance().getActivationState(mUUID)))
     {
         return FALSE;
     }
@@ -4386,6 +4365,10 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
                         disabled_items.push_back("New Settings");
                     }
                 }
+                else
+                {
+                    items.push_back(std::string("New Listing Folder"));
+                }
                 if (menu_items_added)
                 {
                     items.push_back(std::string("Create Separator"));
@@ -4527,7 +4510,7 @@ void LLFolderBridge::buildContextMenuFolderOptions(U32 flags,   menuentry_vec_t&
         return;
     }
 
-    if (!isItemRemovable())
+    if (!canMenuDelete())
     {
         disabled_items.push_back(std::string("Delete"));
     }
@@ -4898,6 +4881,192 @@ void LLFolderBridge::modifyOutfit(BOOL append)
     }
 }
 
+//static
+void LLFolderBridge::onCanDeleteIdle(void* user_data)
+{
+    LLFolderBridge* self = (LLFolderBridge*)user_data;
+
+    // we really need proper onidle mechanics that returns available time
+    const F32 EXPIRY_SECONDS = 0.008f;
+    LLTimer timer;
+    timer.setTimerExpirySec(EXPIRY_SECONDS);
+
+    LLInventoryModel* model = self->getInventoryModel();
+    if (model)
+    {
+        switch (self->mCanDeleteFolderState)
+        {
+            case CDS_INIT_FOLDER_CHECK:
+                // Can still be expensive, split it further?
+                model->collectDescendents(
+                    self->mUUID,
+                    self->mFoldersToCheck,
+                    self->mItemsToCheck,
+                    LLInventoryModel::EXCLUDE_TRASH);
+                self->mCanDeleteFolderState = CDS_PROCESSING_ITEMS;
+                break;
+
+            case CDS_PROCESSING_ITEMS:
+                while (!timer.hasExpired() && !self->mItemsToCheck.empty())
+                {
+                    LLViewerInventoryItem* item = self->mItemsToCheck.back().get();
+                    if (item)
+                    {
+                        if (LLAppearanceMgr::instance().getIsProtectedCOFItem(item))
+                        {
+                            if (get_is_item_worn(item))
+                            {
+                                // At the moment we disable 'cut' if category has worn items (do we need to?)
+                                // but allow 'delete' to happen since it will prompt user to detach
+                                self->mCanCut = false;
+                            }
+                        }
+
+                        if (!item->getIsLinkType() && get_is_item_worn(item))
+                        {
+                            self->mCanCut = false;
+                        }
+                    }
+                    self->mItemsToCheck.pop_back();
+                }
+                self->mCanDeleteFolderState = CDS_PROCESSING_FOLDERS;
+                break;
+            case CDS_PROCESSING_FOLDERS:
+                {
+                    const LLViewerInventoryItem* base_outfit_link = LLAppearanceMgr::instance().getBaseOutfitLink();
+                    LLViewerInventoryCategory* outfit_linked_category = base_outfit_link ? base_outfit_link->getLinkedCategory() : nullptr;
+
+                    while (!timer.hasExpired() && !self->mFoldersToCheck.empty())
+                    {
+                        LLViewerInventoryCategory* cat = self->mFoldersToCheck.back().get();
+                        if (cat)
+                        {
+                            const LLFolderType::EType folder_type = cat->getPreferredType();
+                            if (LLFolderType::lookupIsProtectedType(folder_type))
+                            {
+                                self->mCanCut = false;
+                                self->mCanDelete = false;
+                                self->completeDeleteProcessing();
+                                break;
+                            }
+
+                            // Can't delete the outfit that is currently being worn.
+                            if (folder_type == LLFolderType::FT_OUTFIT)
+                            {
+                                if (cat == outfit_linked_category)
+                                {
+                                    self->mCanCut = false;
+                                    self->mCanDelete = false;
+                                    self->completeDeleteProcessing();
+                                    break;
+                                }
+                            }
+                        }
+                        self->mFoldersToCheck.pop_back();
+                    }
+                }
+                self->mCanDeleteFolderState = CDS_DONE;
+                break;
+            case CDS_DONE:
+                self->completeDeleteProcessing();
+                break;
+        }
+    }
+}
+
+bool LLFolderBridge::canMenuDelete()
+{
+    LLInventoryModel* model = getInventoryModel();
+    if (!model) return false;
+    LLViewerInventoryCategory* category = (LLViewerInventoryCategory*)model->getCategory(mUUID);
+    if (!category)
+    {
+        return false;
+    }
+
+    S32 version = category->getVersion();
+    if (mLastCheckedVersion == version)
+    {
+        return mCanDelete;
+    }
+
+    initCanDeleteProcessing(model, version);
+    return false;
+}
+
+bool LLFolderBridge::canMenuCut()
+{
+    LLInventoryModel* model = getInventoryModel();
+    if (!model) return false;
+    LLViewerInventoryCategory* category = (LLViewerInventoryCategory*)model->getCategory(mUUID);
+    if (!category)
+    {
+        return false;
+    }
+
+    S32 version = category->getVersion();
+    if (mLastCheckedVersion == version)
+    {
+        return mCanCut;
+    }
+
+    initCanDeleteProcessing(model, version);
+    return false;
+}
+
+void LLFolderBridge::initCanDeleteProcessing(LLInventoryModel* model, S32 version)
+{
+    if (mCanDeleteFolderState == CDS_DONE
+        || mInProgressVersion != version)
+    {
+        if (get_is_category_removable(model, mUUID))
+        {
+            // init recursive check of content
+            mInProgressVersion = version;
+            mCanCut = true;
+            mCanDelete = true;
+            mCanDeleteFolderState = CDS_INIT_FOLDER_CHECK;
+            mFoldersToCheck.clear();
+            mItemsToCheck.clear();
+            gIdleCallbacks.addFunction(onCanDeleteIdle, this);
+        }
+        else
+        {
+            // no check needed
+            mCanDelete = false;
+            mCanCut = false;
+            mLastCheckedVersion = version;
+            mCanDeleteFolderState = CDS_DONE;
+            mFoldersToCheck.clear();
+            mItemsToCheck.clear();
+        }
+    }
+}
+
+void LLFolderBridge::completeDeleteProcessing()
+{
+    LLInventoryModel* model = getInventoryModel();
+    LLViewerInventoryCategory* category = model ? (LLViewerInventoryCategory*)model->getCategory(mUUID) : nullptr;
+    if (model && category && category->getVersion() == mInProgressVersion)
+    {
+        mLastCheckedVersion = mInProgressVersion;
+        mCanDeleteFolderState = CDS_DONE;
+        gIdleCallbacks.deleteFunction(onCanDeleteIdle, this);
+    }
+    else
+    {
+        mCanDelete = false;
+        mCanCut = false;
+        mLastCheckedVersion = LLViewerInventoryCategory::VERSION_UNKNOWN;
+        mCanDeleteFolderState = CDS_DONE;
+    }
+
+    if (mRoot)
+    {
+        mRoot->updateMenu();
+    }
+}
+
 
 // +=================================================+
 // |        LLMarketplaceFolderBridge                |
@@ -4941,9 +5110,7 @@ LLUIImagePtr LLMarketplaceFolderBridge::getMarketplaceFolderIcon(BOOL is_open) c
 
 std::string LLMarketplaceFolderBridge::getLabelSuffix() const
 {
-    static LLCachedControl<F32> folder_loading_message_delay(gSavedSettings, "FolderLoadingMessageWaitTime", 0.5f);
-
-    if (mIsLoading && mTimeSinceRequestStart.getElapsedTimeF32() >= folder_loading_message_delay())
+    if (mIsLoading && mTimeSinceRequestStart.getElapsedTimeF32() >= FOLDER_LOADING_MESSAGE_DELAY)
     {
         return llformat(" ( %s ) ", LLTrans::getString("LoadingData").c_str());
     }
@@ -5059,6 +5226,27 @@ void drop_to_favorites_cb(const LLUUID& id, LLPointer<LLInventoryCallback> cb1, 
 {
     cb1->fire(id);
     cb2->fire(id);
+}
+
+LLFolderBridge::LLFolderBridge(LLInventoryPanel* inventory,
+                               LLFolderView* root,
+                               const LLUUID& uuid)
+    : LLInvFVBridge(inventory, root, uuid)
+    , mCallingCards(FALSE)
+    , mWearables(FALSE)
+    , mIsLoading(false)
+    , mShowDescendantsCount(false)
+    , mCanDeleteFolderState(CDS_DONE)
+    , mLastCheckedVersion(S32_MIN)
+    , mInProgressVersion(S32_MIN)
+    , mCanDelete(false)
+    , mCanCut(false)
+{
+}
+
+LLFolderBridge::~LLFolderBridge()
+{
+    gIdleCallbacks.deleteFunction(onCanDeleteIdle, this);
 }
 
 void LLFolderBridge::dropToFavorites(LLInventoryItem* inv_item, LLPointer<LLInventoryCallback> cb)
@@ -6652,6 +6840,26 @@ LLInventoryObject* LLObjectBridge::getObject() const
         object = (LLInventoryObject*)model->getObject(mUUID);
     }
     return object;
+}
+
+LLViewerInventoryItem* LLObjectBridge::getItem() const
+{
+    LLInventoryModel* model = getInventoryModel();
+    if (model)
+    {
+       return model->getItem(mUUID);
+    }
+    return NULL;
+}
+
+LLViewerInventoryCategory* LLObjectBridge::getCategory() const
+{
+    LLInventoryModel* model = getInventoryModel();
+    if (model)
+    {
+        return model->getCategory(mUUID);
+    }
+    return NULL;
 }
 
 // virtual

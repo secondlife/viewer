@@ -137,9 +137,9 @@ void LLControlAvatar::getNewConstraintFixups(LLVector3& new_pos_fixup, F32& new_
         {
             LLVector3 pos_box_offset = point_to_box_offset(vol_pos, unshift_extents);
             F32 offset_dist = pos_box_offset.length();
-            if (offset_dist > max_legal_offset && offset_dist > 0.f)
+            if (offset_dist > MAX_LEGAL_OFFSET && offset_dist > 0.f)
             {
-                F32 target_dist = (offset_dist - max_legal_offset);
+                F32 target_dist = (offset_dist - MAX_LEGAL_OFFSET);
                 new_pos_fixup = (target_dist/offset_dist)*pos_box_offset;
             }
             if (new_pos_fixup != mPositionConstraintFixup)
@@ -152,11 +152,11 @@ void LLControlAvatar::getNewConstraintFixups(LLVector3& new_pos_fixup, F32& new_
 
             }
         }
-        if (box_size/mScaleConstraintFixup > max_legal_size)
+        if (box_size/mScaleConstraintFixup > MAX_LEGAL_SIZE)
         {
-            new_scale_fixup = mScaleConstraintFixup*max_legal_size/box_size;
+            new_scale_fixup = mScaleConstraintFixup* MAX_LEGAL_SIZE /box_size;
             LL_DEBUGS("ConstraintFix") << getFullname() << " scale fix, box_size " << box_size << " fixup "
-                                       << mScaleConstraintFixup << " max legal " << max_legal_size
+                                       << mScaleConstraintFixup << " max legal " << MAX_LEGAL_SIZE
                                        << " -> new scale " << new_scale_fixup << LL_ENDL;
         }
     }
@@ -201,8 +201,7 @@ void LLControlAvatar::matchVolumeTransform()
                 mRoot->setWorldRotation(obj_rot * joint_rot);
                 setRotation(mRoot->getRotation());
 
-                F32 global_scale = gSavedSettings.getF32("AnimatedObjectsGlobalScale");
-                setGlobalScale(global_scale * mScaleConstraintFixup);
+                setGlobalScale(mScaleConstraintFixup);
             }
             else
             {
@@ -252,8 +251,7 @@ void LLControlAvatar::matchVolumeTransform()
             }
             mRoot->setPosition(vol_pos + mPositionConstraintFixup);
 
-            F32 global_scale = gSavedSettings.getF32("AnimatedObjectsGlobalScale");
-            setGlobalScale(global_scale * mScaleConstraintFixup);
+            setGlobalScale(mScaleConstraintFixup);
         }
     }
 }

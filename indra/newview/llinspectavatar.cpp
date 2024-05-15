@@ -261,12 +261,15 @@ void LLInspectAvatar::requestUpdate()
 void LLInspectAvatar::processAvatarData(LLAvatarData* data)
 {
     LLStringUtil::format_map_t args;
-    {
-        std::string birth_date = LLTrans::getString("AvatarBirthDateFormat");
-        LLStringUtil::format(birth_date, LLSD().with("datetime", (S32) data->born_on.secondsSinceEpoch()));
-        args["[BORN_ON]"] = birth_date;
-    }
-    args["[AGE]"] = LLDateUtil::ageFromDate(data->born_on, LLDate::now());
+
+    std::string birth_date = LLTrans::getString(data->hide_age ?
+        "AvatarBirthDateFormatShort" :
+        "AvatarBirthDateFormatFull");
+    LLStringUtil::format(birth_date, LLSD().with("datetime", (S32)data->born_on.secondsSinceEpoch()));
+    args["[BORN_ON]"] = birth_date;
+    args["[AGE]"] = data->hide_age ?
+        LLStringUtilBase<char>::null :
+        LLDateUtil::ageFromDate(data->born_on, LLDate::now());
     args["[SL_PROFILE]"] = data->about_text;
     args["[RW_PROFILE"] = data->fl_about_text;
     args["[ACCTTYPE]"] = LLAvatarPropertiesProcessor::accountType(data);
