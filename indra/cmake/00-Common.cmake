@@ -87,7 +87,7 @@ if (WINDOWS)
   if( ADDRESS_SIZE EQUAL 32 )
     add_compile_options( /arch:SSE2 )
   endif()
-     
+
   # Are we using the crummy Visual Studio KDU build workaround?
   if (NOT VS_DISABLE_FATAL_WARNINGS)
     add_compile_options(/WX)

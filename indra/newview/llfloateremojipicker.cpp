@@ -39,8 +39,8 @@
 #include "llscrolllistctrl.h"
 #include "llscrolllistitem.h"
 #include "llsdserialize.h"
-#include "lltextbox.h" 
-#include "llviewerchat.h" 
+#include "lltextbox.h"
+#include "llviewerchat.h"
 
 namespace {
 // The following variables and constants are used for storing the floater state

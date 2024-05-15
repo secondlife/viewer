@@ -1,4 +1,4 @@
-/** 
+/**
  * @file test_allocator.h
  * @brief quick and dirty allocator for tracking memory allocations
  *
