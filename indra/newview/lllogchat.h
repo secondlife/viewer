@@ -103,6 +103,7 @@ public:
                 const std::string& from,
                 const LLUUID& from_id,
                 const std::string& line);
+    static bool transcriptFilesExist();
     static void findTranscriptFiles(std::string pattern, std::vector<std::string>& list_of_transcriptions);
     static void getListOfTranscriptFiles(std::vector<std::string>& list);
     static void getListOfTranscriptBackupFiles(std::vector<std::string>& list_of_transcriptions);

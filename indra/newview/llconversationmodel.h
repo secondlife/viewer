@@ -82,7 +82,7 @@ public:
     virtual BOOL isItemRenameable() const { return TRUE; }
     virtual BOOL renameItem(const std::string& new_name) { mName = new_name; mNeedsRefresh = true; return TRUE; }
     virtual BOOL isItemMovable( void ) const { return FALSE; }
-    virtual BOOL isItemRemovable( void ) const { return FALSE; }
+    virtual BOOL isItemRemovable(bool check_worn = true) const { return FALSE; }
     virtual BOOL isItemInTrash( void) const { return FALSE; }
     virtual BOOL removeItem() { return FALSE; }
     virtual void removeBatch(std::vector<LLFolderViewModelItem*>& batch) { }

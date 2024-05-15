@@ -41,6 +41,7 @@
 
 const BOOL TAKE_FOCUS_YES = TRUE;
 const BOOL TAKE_FOCUS_NO  = FALSE;
+const S32 DROP_SHADOW_FLOATER = 5;
 
 class LLUICtrl
     : public LLView, public boost::signals2::trackable

@@ -729,7 +729,7 @@ LLSD LLSettingsSky::defaults(const LLSettingsBase::TrackPosition& position)
         dfltsetting[SETTING_CLOUD_POS_DENSITY1] = LLColor4(1.0000, 0.5260, 1.0000, 0.0).getValue();
         dfltsetting[SETTING_CLOUD_POS_DENSITY2] = LLColor4(1.0000, 0.5260, 1.0000, 0.0).getValue();
         dfltsetting[SETTING_CLOUD_SCALE]        = LLSD::Real(0.4199);
-        dfltsetting[SETTING_CLOUD_SCROLL_RATE]  = llsd::array(0.0f, 0.0f);
+        dfltsetting[SETTING_CLOUD_SCROLL_RATE]  = llsd::array(0.2, 0.01);
         dfltsetting[SETTING_CLOUD_SHADOW]       = LLSD::Real(0.2699);
         dfltsetting[SETTING_CLOUD_VARIANCE]     = LLSD::Real(0.0);
 

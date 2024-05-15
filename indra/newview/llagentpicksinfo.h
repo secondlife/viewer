@@ -29,7 +29,7 @@
 
 #include "llsingleton.h"
 
-struct LLAvatarPicks;
+struct LLAvatarData;
 
 /**
  * Class that provides information about Agent Picks
@@ -74,7 +74,7 @@ public:
 
     void decrementNumberOfPicks() { --mNumberOfPicks; }
 
-    void onServerRespond(LLAvatarPicks* picks);
+    void onServerRespond(LLAvatarData* picks);
 
 private:
 
