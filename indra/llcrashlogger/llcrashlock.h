@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llcrashlock.h
  * @brief Maintainence of disk locking files for crash reporting
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -31,7 +31,7 @@
 
 class LLSD;
 
-#if !LL_WINDOWS	//For non-windows platforms.
+#if !LL_WINDOWS //For non-windows platforms.
 #include <signal.h>
 #endif
 
@@ -51,8 +51,8 @@ public:
     LLSD getProcessList();                      //Get next process pid/dir pairs
     void cleanupProcess(std::string proc_dir);               //Remove from list, clean up working dir.
     bool putProcessList(const LLSD& processlist); //Write pid/dir pairs back to disk.
-	static bool fileExists(std::string filename);
-    
+    static bool fileExists(std::string filename);
+
 
     //getters
     S32 getPID();

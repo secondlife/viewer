@@ -5,21 +5,21 @@
  * $LicenseInfo:firstyear=2009&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -54,110 +54,110 @@ static const std::string SAVE_BTN("save_btn");
 static LLPanelInjector<LLPanelOutfitsInventory> t_inventory("panel_outfits_inventory");
 
 LLPanelOutfitsInventory::LLPanelOutfitsInventory() :
-	mMyOutfitsPanel(NULL),
-	mCurrentOutfitPanel(NULL),
-	mActivePanel(NULL),
-	mAppearanceTabs(NULL),
-	mInitialized(false)
+    mMyOutfitsPanel(NULL),
+    mCurrentOutfitPanel(NULL),
+    mActivePanel(NULL),
+    mAppearanceTabs(NULL),
+    mInitialized(false)
 {
-	gAgentWearables.addLoadedCallback(boost::bind(&LLPanelOutfitsInventory::onWearablesLoaded, this));
-	gAgentWearables.addLoadingStartedCallback(boost::bind(&LLPanelOutfitsInventory::onWearablesLoading, this));
+    gAgentWearables.addLoadedCallback(boost::bind(&LLPanelOutfitsInventory::onWearablesLoaded, this));
+    gAgentWearables.addLoadingStartedCallback(boost::bind(&LLPanelOutfitsInventory::onWearablesLoading, this));
 
-	LLOutfitObserver& observer = LLOutfitObserver::instance();
-	observer.addBOFChangedCallback(boost::bind(&LLPanelOutfitsInventory::updateVerbs, this));
-	observer.addCOFChangedCallback(boost::bind(&LLPanelOutfitsInventory::updateVerbs, this));
-	observer.addOutfitLockChangedCallback(boost::bind(&LLPanelOutfitsInventory::updateVerbs, this));
+    LLOutfitObserver& observer = LLOutfitObserver::instance();
+    observer.addBOFChangedCallback(boost::bind(&LLPanelOutfitsInventory::updateVerbs, this));
+    observer.addCOFChangedCallback(boost::bind(&LLPanelOutfitsInventory::updateVerbs, this));
+    observer.addOutfitLockChangedCallback(boost::bind(&LLPanelOutfitsInventory::updateVerbs, this));
 }
 
 LLPanelOutfitsInventory::~LLPanelOutfitsInventory()
 {
-	if (mAppearanceTabs && mInitialized)
-	{
-		gSavedSettings.setS32("LastAppearanceTab", mAppearanceTabs->getCurrentPanelIndex());
-	}
+    if (mAppearanceTabs && mInitialized)
+    {
+        gSavedSettings.setS32("LastAppearanceTab", mAppearanceTabs->getCurrentPanelIndex());
+    }
 }
 
 // virtual
 BOOL LLPanelOutfitsInventory::postBuild()
 {
-	initTabPanels();
-	initListCommandsHandlers();
+    initTabPanels();
+    initListCommandsHandlers();
 
-	// Fetch your outfits folder so that the links are in memory.
-	// ( This is only necessary if we want to show a warning if a user deletes an item that has a
-	// a link in an outfit, see "ConfirmItemDeleteHasLinks". )
+    // Fetch your outfits folder so that the links are in memory.
+    // ( This is only necessary if we want to show a warning if a user deletes an item that has a
+    // a link in an outfit, see "ConfirmItemDeleteHasLinks". )
 
-	const LLUUID &outfits_cat = gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS);
-	if (outfits_cat.notNull())
-	{
-		LLInventoryModelBackgroundFetch::instance().start(outfits_cat);
-	}
+    const LLUUID &outfits_cat = gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS);
+    if (outfits_cat.notNull())
+    {
+        LLInventoryModelBackgroundFetch::instance().start(outfits_cat);
+    }
 
-	getChild<LLButton>(SAVE_BTN)->setCommitCallback(boost::bind(&LLPanelOutfitsInventory::saveOutfit, this, false));
-	getChild<LLButton>(SAVE_AS_BTN)->setCommitCallback(boost::bind(&LLPanelOutfitsInventory::saveOutfit, this, true));
+    getChild<LLButton>(SAVE_BTN)->setCommitCallback(boost::bind(&LLPanelOutfitsInventory::saveOutfit, this, false));
+    getChild<LLButton>(SAVE_AS_BTN)->setCommitCallback(boost::bind(&LLPanelOutfitsInventory::saveOutfit, this, true));
 
-	return TRUE;
+    return TRUE;
 }
 
 // virtual
 void LLPanelOutfitsInventory::onOpen(const LLSD& key)
 {
-	if (!mInitialized)
-	{
-		LLSidepanelAppearance* panel_appearance = getAppearanceSP();
-		if (panel_appearance)
-		{
-			// *TODO: move these methods to LLPanelOutfitsInventory?
-			panel_appearance->fetchInventory();
-			panel_appearance->refreshCurrentOutfitName();
-		}
+    if (!mInitialized)
+    {
+        LLSidepanelAppearance* panel_appearance = getAppearanceSP();
+        if (panel_appearance)
+        {
+            // *TODO: move these methods to LLPanelOutfitsInventory?
+            panel_appearance->fetchInventory();
+            panel_appearance->refreshCurrentOutfitName();
+        }
 
-		if (!mAppearanceTabs->selectTab(gSavedSettings.getS32("LastAppearanceTab")))
-			mAppearanceTabs->selectFirstTab();
+        if (!mAppearanceTabs->selectTab(gSavedSettings.getS32("LastAppearanceTab")))
+            mAppearanceTabs->selectFirstTab();
 
-		mInitialized = true;
-	}
+        mInitialized = true;
+    }
 
-	// Make sure we know which tab is selected, update the filter,
-	// and update verbs.
-	onTabChange();
-	
-	// *TODO: Auto open the first outfit newly created so new users can see sample outfit contents
-	/*
-	static bool should_open_outfit = true;
-	if (should_open_outfit && gAgent.isFirstLogin())
-	{
-		LLInventoryPanel* outfits_panel = getChild<LLInventoryPanel>(OUTFITS_TAB_NAME);
-		if (outfits_panel)
-		{
-			LLUUID my_outfits_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS);
-			LLFolderViewFolder* my_outfits_folder = outfits_panel->getRootFolder()->getFolderByID(my_outfits_id);
-			if (my_outfits_folder)
-			{
-				LLFolderViewFolder* first_outfit = dynamic_cast<LLFolderViewFolder*>(my_outfits_folder->getFirstChild());
-				if (first_outfit)
-				{
-					first_outfit->setOpen(TRUE);
-				}
-			}
-		}
-	}
-	should_open_outfit = false;
-	*/
+    // Make sure we know which tab is selected, update the filter,
+    // and update verbs.
+    onTabChange();
+
+    // *TODO: Auto open the first outfit newly created so new users can see sample outfit contents
+    /*
+    static bool should_open_outfit = true;
+    if (should_open_outfit && gAgent.isFirstLogin())
+    {
+        LLInventoryPanel* outfits_panel = getChild<LLInventoryPanel>(OUTFITS_TAB_NAME);
+        if (outfits_panel)
+        {
+            LLUUID my_outfits_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS);
+            LLFolderViewFolder* my_outfits_folder = outfits_panel->getRootFolder()->getFolderByID(my_outfits_id);
+            if (my_outfits_folder)
+            {
+                LLFolderViewFolder* first_outfit = dynamic_cast<LLFolderViewFolder*>(my_outfits_folder->getFirstChild());
+                if (first_outfit)
+                {
+                    first_outfit->setOpen(TRUE);
+                }
+            }
+        }
+    }
+    should_open_outfit = false;
+    */
 }
 
 void LLPanelOutfitsInventory::updateVerbs()
 {
-	if (mListCommands)
-	{
-		updateListCommands();
-	}
+    if (mListCommands)
+    {
+        updateListCommands();
+    }
 }
 
 // virtual
 void LLPanelOutfitsInventory::onSearchEdit(const std::string& string)
 {
-	if (!mActivePanel) return;
+    if (!mActivePanel) return;
 
     if (!LLInventoryModelBackgroundFetch::instance().inventoryFetchStarted())
     {
@@ -165,79 +165,79 @@ void LLPanelOutfitsInventory::onSearchEdit(const std::string& string)
         LLInventoryModelBackgroundFetch::instance().start();
     }
 
-	// set new filter string
-	mActivePanel->setFilterSubString(string);
+    // set new filter string
+    mActivePanel->setFilterSubString(string);
 }
 
 void LLPanelOutfitsInventory::onWearButtonClick()
 {
-	if(isOutfitsListPanelActive())
-	{
-		if (mMyOutfitsPanel->hasItemSelected())
-		{
-			mMyOutfitsPanel->wearSelectedItems();
-		}
-		else
-		{
-			mMyOutfitsPanel->performAction("replaceoutfit");
-		}
-	}
-	else if(isOutfitsGalleryPanelActive())
-	{
-		mOutfitGalleryPanel->wearSelectedOutfit();
-	}
+    if(isOutfitsListPanelActive())
+    {
+        if (mMyOutfitsPanel->hasItemSelected())
+        {
+            mMyOutfitsPanel->wearSelectedItems();
+        }
+        else
+        {
+            mMyOutfitsPanel->performAction("replaceoutfit");
+        }
+    }
+    else if(isOutfitsGalleryPanelActive())
+    {
+        mOutfitGalleryPanel->wearSelectedOutfit();
+    }
 
 }
 
 bool LLPanelOutfitsInventory::onSaveCommit(const LLSD& notification, const LLSD& response)
 {
-	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-	if (0 == option)
-	{
-		std::string outfit_name = response["message"].asString();
-		LLStringUtil::trim(outfit_name);
-		if( !outfit_name.empty() )
-		{
-			LLAppearanceMgr::getInstance()->makeNewOutfitLinks(outfit_name);
+    S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+    if (0 == option)
+    {
+        std::string outfit_name = response["message"].asString();
+        LLStringUtil::trim(outfit_name);
+        if( !outfit_name.empty() )
+        {
+            LLAppearanceMgr::getInstance()->makeNewOutfitLinks(outfit_name);
 
-			LLSidepanelAppearance* panel_appearance = getAppearanceSP();
-			if (panel_appearance)
-			{
-				panel_appearance->showOutfitsInventoryPanel();
-			}
+            LLSidepanelAppearance* panel_appearance = getAppearanceSP();
+            if (panel_appearance)
+            {
+                panel_appearance->showOutfitsInventoryPanel();
+            }
 
-			if (mAppearanceTabs)
-			{
-				mAppearanceTabs->selectTabByName(OUTFITS_TAB_NAME);
-			}	
-		}
-	}
+            if (mAppearanceTabs)
+            {
+                mAppearanceTabs->selectTabByName(OUTFITS_TAB_NAME);
+            }
+        }
+    }
 
-	return false;
+    return false;
 }
 
 void LLPanelOutfitsInventory::onSave()
 {
-	std::string outfit_name;
+    std::string outfit_name;
 
-	if (!LLAppearanceMgr::getInstance()->getBaseOutfitName(outfit_name))
-	{
-		outfit_name = LLViewerFolderType::lookupNewCategoryName(LLFolderType::FT_OUTFIT);
-	}
+    if (!LLAppearanceMgr::getInstance()->getBaseOutfitName(outfit_name))
+    {
+        outfit_name = LLViewerFolderType::lookupNewCategoryName(LLFolderType::FT_OUTFIT);
+    }
 
-	LLSD args;
-	args["DESC"] = outfit_name;
+    LLSD args;
+    args["DESC"] = outfit_name;
 
-	LLSD payload;
-	//payload["ids"].append(*it);
-	
-	LLNotificationsUtil::add("SaveOutfitAs", args, payload, boost::bind(&LLPanelOutfitsInventory::onSaveCommit, this, _1, _2));
+    LLSD payload;
+    //payload["ids"].append(*it);
+
+    LLNotificationsUtil::add("SaveOutfitAs", args, payload, boost::bind(&LLPanelOutfitsInventory::onSaveCommit, this, _1, _2));
 }
 
 //static
 LLPanelOutfitsInventory* LLPanelOutfitsInventory::findInstance()
 {
-	return dynamic_cast<LLPanelOutfitsInventory*>(LLFloaterSidePanelContainer::getPanel("appearance", "panel_outfits_inventory"));
+    return dynamic_cast<LLPanelOutfitsInventory*>(LLFloaterSidePanelContainer::getPanel("appearance", "panel_outfits_inventory"));
 }
 
 void LLPanelOutfitsInventory::openApearanceTab(const std::string& tab_name)
@@ -251,43 +251,43 @@ void LLPanelOutfitsInventory::openApearanceTab(const std::string& tab_name)
 
 void LLPanelOutfitsInventory::initListCommandsHandlers()
 {
-	mListCommands = getChild<LLPanel>("bottom_panel");
-	mListCommands->childSetAction("wear_btn", boost::bind(&LLPanelOutfitsInventory::onWearButtonClick, this));
-	mMyOutfitsPanel->childSetAction("trash_btn", boost::bind(&LLPanelOutfitsInventory::onTrashButtonClick, this));
-	mOutfitGalleryPanel->childSetAction("trash_btn", boost::bind(&LLPanelOutfitsInventory::onTrashButtonClick, this));
+    mListCommands = getChild<LLPanel>("bottom_panel");
+    mListCommands->childSetAction("wear_btn", boost::bind(&LLPanelOutfitsInventory::onWearButtonClick, this));
+    mMyOutfitsPanel->childSetAction("trash_btn", boost::bind(&LLPanelOutfitsInventory::onTrashButtonClick, this));
+    mOutfitGalleryPanel->childSetAction("trash_btn", boost::bind(&LLPanelOutfitsInventory::onTrashButtonClick, this));
 }
 
 void LLPanelOutfitsInventory::updateListCommands()
 {
-	bool trash_enabled = isActionEnabled("delete");
-	bool wear_enabled =  isActionEnabled("wear");
-	bool wear_visible = !isCOFPanelActive();
-	bool make_outfit_enabled = isActionEnabled("save_outfit");
+    bool trash_enabled = isActionEnabled("delete");
+    bool wear_enabled =  isActionEnabled("wear");
+    bool wear_visible = !isCOFPanelActive();
+    bool make_outfit_enabled = isActionEnabled("save_outfit");
 
-	LLButton* wear_btn = mListCommands->getChild<LLButton>("wear_btn");
-	mMyOutfitsPanel->childSetEnabled("trash_btn", trash_enabled);
-	mOutfitGalleryPanel->childSetEnabled("trash_btn", trash_enabled);
-	wear_btn->setEnabled(wear_enabled);
-	wear_btn->setVisible(wear_visible);
-	getChild<LLButton>(SAVE_BTN)->setEnabled(make_outfit_enabled);
-	wear_btn->setToolTip(getString((!isOutfitsGalleryPanelActive() && mMyOutfitsPanel->hasItemSelected()) ? "wear_items_tooltip" : "wear_outfit_tooltip"));
+    LLButton* wear_btn = mListCommands->getChild<LLButton>("wear_btn");
+    mMyOutfitsPanel->childSetEnabled("trash_btn", trash_enabled);
+    mOutfitGalleryPanel->childSetEnabled("trash_btn", trash_enabled);
+    wear_btn->setEnabled(wear_enabled);
+    wear_btn->setVisible(wear_visible);
+    getChild<LLButton>(SAVE_BTN)->setEnabled(make_outfit_enabled);
+    wear_btn->setToolTip(getString((!isOutfitsGalleryPanelActive() && mMyOutfitsPanel->hasItemSelected()) ? "wear_items_tooltip" : "wear_outfit_tooltip"));
 }
 
 void LLPanelOutfitsInventory::onTrashButtonClick()
 {
-	if(isOutfitsListPanelActive())
-	{
-		mMyOutfitsPanel->removeSelected();
-	}
-	else if(isOutfitsGalleryPanelActive())
-	{
-		mOutfitGalleryPanel->removeSelected();
-	}
+    if(isOutfitsListPanelActive())
+    {
+        mMyOutfitsPanel->removeSelected();
+    }
+    else if(isOutfitsGalleryPanelActive())
+    {
+        mOutfitGalleryPanel->removeSelected();
+    }
 }
 
 bool LLPanelOutfitsInventory::isActionEnabled(const LLSD& userdata)
 {
-	return mActivePanel && mActivePanel->isActionEnabled(userdata);
+    return mActivePanel && mActivePanel->isActionEnabled(userdata);
 }
 
 // List Commands                                                                //
@@ -299,83 +299,83 @@ bool LLPanelOutfitsInventory::isActionEnabled(const LLSD& userdata)
 void LLPanelOutfitsInventory::initTabPanels()
 {
     //TODO: Add LLOutfitGallery change callback
-	mCurrentOutfitPanel = findChild<LLPanelWearing>(COF_TAB_NAME);
-	mCurrentOutfitPanel->setSelectionChangeCallback(boost::bind(&LLPanelOutfitsInventory::updateVerbs, this));
+    mCurrentOutfitPanel = findChild<LLPanelWearing>(COF_TAB_NAME);
+    mCurrentOutfitPanel->setSelectionChangeCallback(boost::bind(&LLPanelOutfitsInventory::updateVerbs, this));
 
-	mMyOutfitsPanel = findChild<LLOutfitsList>(OUTFITS_TAB_NAME);
-	mMyOutfitsPanel->setSelectionChangeCallback(boost::bind(&LLPanelOutfitsInventory::updateVerbs, this));
+    mMyOutfitsPanel = findChild<LLOutfitsList>(OUTFITS_TAB_NAME);
+    mMyOutfitsPanel->setSelectionChangeCallback(boost::bind(&LLPanelOutfitsInventory::updateVerbs, this));
 
     mOutfitGalleryPanel = findChild<LLOutfitGallery>(OUTFIT_GALLERY_TAB_NAME);
     mOutfitGalleryPanel->setSelectionChangeCallback(boost::bind(&LLPanelOutfitsInventory::updateVerbs, this));
 
-	mAppearanceTabs = getChild<LLTabContainer>("appearance_tabs");
-	mAppearanceTabs->setCommitCallback(boost::bind(&LLPanelOutfitsInventory::onTabChange, this));
+    mAppearanceTabs = getChild<LLTabContainer>("appearance_tabs");
+    mAppearanceTabs->setCommitCallback(boost::bind(&LLPanelOutfitsInventory::onTabChange, this));
 }
 
 void LLPanelOutfitsInventory::onTabChange()
 {
-	if (!mAppearanceTabs) return;
-	mActivePanel = dynamic_cast<LLPanelAppearanceTab*>(mAppearanceTabs->getCurrentPanel());
-	if (!mActivePanel) return;
+    if (!mAppearanceTabs) return;
+    mActivePanel = dynamic_cast<LLPanelAppearanceTab*>(mAppearanceTabs->getCurrentPanel());
+    if (!mActivePanel) return;
 
-	mActivePanel->checkFilterSubString();
-	mActivePanel->onOpen(LLSD());
+    mActivePanel->checkFilterSubString();
+    mActivePanel->onOpen(LLSD());
 
-	updateVerbs();
+    updateVerbs();
 }
 
 bool LLPanelOutfitsInventory::isCOFPanelActive() const
 {
-	if (!mActivePanel) return false;
+    if (!mActivePanel) return false;
 
-	return mActivePanel->getName() == COF_TAB_NAME;
+    return mActivePanel->getName() == COF_TAB_NAME;
 }
 
 bool LLPanelOutfitsInventory::isOutfitsListPanelActive() const
 {
-	if (!mActivePanel) return false;
+    if (!mActivePanel) return false;
 
-	return mActivePanel->getName() == OUTFITS_TAB_NAME;
+    return mActivePanel->getName() == OUTFITS_TAB_NAME;
 }
 
 bool LLPanelOutfitsInventory::isOutfitsGalleryPanelActive() const
 {
-	if (!mActivePanel) return false;
+    if (!mActivePanel) return false;
 
-	return mActivePanel->getName() == OUTFIT_GALLERY_TAB_NAME;
+    return mActivePanel->getName() == OUTFIT_GALLERY_TAB_NAME;
 }
 
 void LLPanelOutfitsInventory::setWearablesLoading(bool val)
 {
-	updateVerbs();
+    updateVerbs();
 }
 
 void LLPanelOutfitsInventory::onWearablesLoaded()
 {
-	setWearablesLoading(false);
+    setWearablesLoading(false);
 }
 
 void LLPanelOutfitsInventory::onWearablesLoading()
 {
-	setWearablesLoading(true);
+    setWearablesLoading(true);
 }
 
 // static
 LLSidepanelAppearance* LLPanelOutfitsInventory::getAppearanceSP()
 {
-	LLSidepanelAppearance* panel_appearance =
-		dynamic_cast<LLSidepanelAppearance*>(LLFloaterSidePanelContainer::getPanel("appearance"));
-	return panel_appearance;
+    LLSidepanelAppearance* panel_appearance =
+        dynamic_cast<LLSidepanelAppearance*>(LLFloaterSidePanelContainer::getPanel("appearance"));
+    return panel_appearance;
 }
 
 void LLPanelOutfitsInventory::saveOutfit(bool as_new)
 {
-	if (!as_new && LLAppearanceMgr::getInstance()->updateBaseOutfit())
-	{
-		// we don't need to ask for an outfit name, and updateBaseOutfit() successfully saved.
-		// If updateBaseOutfit fails, ask for an outfit name anyways
-		return;
-	}
+    if (!as_new && LLAppearanceMgr::getInstance()->updateBaseOutfit())
+    {
+        // we don't need to ask for an outfit name, and updateBaseOutfit() successfully saved.
+        // If updateBaseOutfit fails, ask for an outfit name anyways
+        return;
+    }
 
-	onSave();
+    onSave();
 }
