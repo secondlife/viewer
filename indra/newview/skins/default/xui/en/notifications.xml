@@ -415,6 +415,15 @@ Initialization with the Marketplace failed because of a system or network error.
     </notification>
 
     <notification
+     icon="notifytip.tga"
+     name="InvalidKeystroke"
+     type="notifytip">
+There was an invalid keystroke entered.
+[REASON].
+Please input a valid text.
+    </notification>
+
+    <notification
         icon="alertmodal.tga"
         name="MerchantForceValidateListing"
         type="alertmodal">
@@ -4400,14 +4409,28 @@ Are you sure you want to return the selected objects to their owners? Transferab
    icon="alert.tga"
    name="GroupLeaveConfirmMember"
    type="alert">
-You are currently a member of the group &lt;nolink&gt;[GROUP]&lt;/nolink&gt;.
-Leave Group?
+Leave the group &apos;&lt;nolink&gt;[GROUP]&lt;/nolink&gt;&apos;?
+Currently, the fee to join this &quot;group&quot; is L$ [COST].
     <tag>group</tag>
     <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
-     yestext="OK"/>
+     yestext="Leave"/>
+  </notification>
+
+  <notification
+   icon="alert.tga"
+   name="GroupLeaveConfirmMemberNoFee"
+   type="alert">
+Leave the group &apos;&lt;nolink&gt;[GROUP]&lt;/nolink&gt;&apos;?
+There is currently no fee to join this group.
+    <tag>group</tag>
+    <tag>confirm</tag>
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="Leave"/>
   </notification>
 
 
@@ -6170,6 +6193,33 @@ Are you sure you want to delete them?
      notext="Cancel"
      yestext="OK"/>
   </notification>
+    
+  <notification
+   icon="alertmodal.tga"
+   name="DeleteWornItems"
+   type="alertmodal">
+    <unique/>
+Some item(s) you wish to delete are being worn on your avatar.
+Remove these items from your avatar?
+    <tag>confirm</tag>
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="Remove item(s) and delete"/>
+  </notification>
+    
+  <notification
+   icon="alertmodal.tga"
+   name="CantDeleteRequiredClothing"
+   type="alertmodal">
+    <unique/>
+Some item(s) you wish to delete are required clothing layers (skin, shape, hair, eyes).
+You must replace those layers before deleting them.
+    <tag>confirm</tag>
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
 
   <notification
    icon="alertmodal.tga"
@@ -6455,14 +6505,6 @@ Your trash is overflowing. This may cause problems logging in.
          name="okcancelbuttons"
          notext="I will empty trash later"
          yestext="Check trash folder"/>
-  </notification>
-
-  <notification
-   icon="notifytip.tga"
-   name="InventoryLimitReachedAIS"
-   type="notifytip">
-Your inventory is experiencing issues. Please, contact support.
-  <tag>fail</tag>
   </notification>
 
   <notification

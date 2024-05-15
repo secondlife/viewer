@@ -5,21 +5,21 @@
  * $LicenseInfo:firstyear=2022&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2022, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -122,12 +122,19 @@ public:
     F32 mRoughnessFactor = 1.f;
     F32 mAlphaCutoff = 0.5f;
 
-    bool mDoubleSided = false;
     AlphaMode mAlphaMode = ALPHA_MODE_OPAQUE;
+
+    bool mDoubleSided = false;
 
     // override specific flags for state that can't use off-by-epsilon or UUID hack
     bool mOverrideDoubleSided = false;
     bool mOverrideAlphaMode = false;
+
+    // These fields are local to viewer and are a part of local bitmap support
+    typedef std::map<LLUUID, LLUUID> local_tex_map_t;
+    local_tex_map_t                  mTrackingIdToLocalTexture;
+
+public:
 
     // get a UUID based on a hash of this LLGLTFMaterial
     LLUUID getHash() const;
@@ -197,7 +204,7 @@ public:
     void writeToModel(tinygltf::Model& model, S32 mat_index) const;
 
     virtual void applyOverride(const LLGLTFMaterial& override_mat);
-    
+
     // apply the given LLSD override data
     void applyOverrideLLSD(const LLSD& data);
 
@@ -228,10 +235,6 @@ public:
     bool hasLocalTextures() { return !mTrackingIdToLocalTexture.empty(); }
     virtual bool replaceLocalTexture(const LLUUID& tracking_id, const LLUUID &old_id, const LLUUID& new_id);
     virtual void updateTextureTracking();
-
-    // These fields are local to viewer and are a part of local bitmap support
-    typedef std::map<LLUUID, LLUUID> local_tex_map_t;
-    local_tex_map_t mTrackingIdToLocalTexture;
 
 protected:
     static LLVector2 vec2FromJson(const std::map<std::string, tinygltf::Value>& object, const char* key, const LLVector2& default_value);

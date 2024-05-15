@@ -1,25 +1,25 @@
-/** 
+/**
  * @file object_flags.h
  * @brief Flags for object creation and transmission
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -73,12 +73,12 @@ const U32   FLAGS_WORLD                = FLAGS_USE_PHYSICS | FLAGS_PHANTOM | FLA
 
 typedef enum e_havok_joint_type
 {
-	HJT_INVALID = 0,
-	HJT_HINGE  	= 1,
-	HJT_POINT 	= 2,
-//	HJT_LPOINT 	= 3,
-//	HJT_WHEEL 	= 4,
-	HJT_EOF 	= 3
+    HJT_INVALID = 0,
+    HJT_HINGE   = 1,
+    HJT_POINT   = 2,
+//  HJT_LPOINT  = 3,
+//  HJT_WHEEL   = 4,
+    HJT_EOF     = 3
 } EHavokJointType;
 
 #endif

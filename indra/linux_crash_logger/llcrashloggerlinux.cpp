@@ -30,7 +30,7 @@
 
 #include "linden_common.h"
 
-#include "indra_constants.h"	// CRASH_BEHAVIOR_ASK, CRASH_SETTING_NAME
+#include "indra_constants.h"    // CRASH_BEHAVIOR_ASK, CRASH_SETTING_NAME
 #include "llerror.h"
 #include "llfile.h"
 #include "lltimer.h"
@@ -53,7 +53,7 @@ static const char dialog_title[] =
 
 static BOOL do_ask_dialog(void)
 {
-	// Ask to send crash report. Yes/No dialog.
+    // Ask to send crash report. Yes/No dialog.
 }
 
 LLCrashLoggerLinux::LLCrashLoggerLinux(void)
@@ -70,31 +70,31 @@ void LLCrashLoggerLinux::gatherPlatformSpecificFiles()
 
 bool LLCrashLoggerLinux::frame()
 {
-	bool send_logs = true;
-	if(CRASH_BEHAVIOR_ASK == getCrashBehavior())
-	{
-		send_logs = do_ask_dialog();
-	}
-	else if(CRASH_BEHAVIOR_NEVER_SEND == getCrashBehavior())
-	{
-		send_logs = false;
-	}
+    bool send_logs = true;
+    if(CRASH_BEHAVIOR_ASK == getCrashBehavior())
+    {
+        send_logs = do_ask_dialog();
+    }
+    else if(CRASH_BEHAVIOR_NEVER_SEND == getCrashBehavior())
+    {
+        send_logs = false;
+    }
 
-	if(send_logs)
-	{
-		sendCrashLogs();
-	}
-	return true;
+    if(send_logs)
+    {
+        sendCrashLogs();
+    }
+    return true;
 }
 
 bool LLCrashLoggerLinux::cleanup()
 {
-	commonCleanup();
+    commonCleanup();
     mKeyMaster.releaseMaster();
-	return true;
+    return true;
 }
 
 void LLCrashLoggerLinux::updateApplication(const std::string& message)
 {
-	LLCrashLogger::updateApplication(message);
+    LLCrashLogger::updateApplication(message);
 }

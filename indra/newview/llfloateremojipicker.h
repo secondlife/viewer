@@ -45,7 +45,7 @@ public:
 
     LLFloaterEmojiPicker(const LLSD& key);
 
-    virtual	BOOL postBuild() override;
+    virtual BOOL postBuild() override;
     virtual void dirtyRect() override;
     virtual void goneFromFront() override;
 
@@ -94,6 +94,7 @@ private:
     void unselectGridIcon(LLEmojiGridIcon* icon);
 
     void onOpen(const LLSD& key) override;
+    void onClose(bool app_quitting) override;
     virtual BOOL handleKey(KEY key, MASK mask, BOOL called_from_parent) override;
 
     class LLPanel* mGroups { nullptr };

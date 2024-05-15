@@ -70,8 +70,8 @@ static LLAvatarRenderMuteListObserver sAvatarRenderMuteListObserver;
 
 LLFloaterAvatarRenderSettings::LLFloaterAvatarRenderSettings(const LLSD& key)
 :   LLFloater(key),
-	mAvatarSettingsList(NULL),
-	mNeedsUpdate(false)
+    mAvatarSettingsList(NULL),
+    mNeedsUpdate(false)
 {
     mContextMenu = new LLSettingsContextMenu(this);
     LLRenderMuteList::getInstance()->addObserver(&sAvatarRenderMuteListObserver);
@@ -90,7 +90,7 @@ BOOL LLFloaterAvatarRenderSettings::postBuild()
     mAvatarSettingsList = getChild<LLNameListCtrl>("render_settings_list");
     mAvatarSettingsList->setRightMouseDownCallback(boost::bind(&LLFloaterAvatarRenderSettings::onAvatarListRightClick, this, _1, _2, _3));
 
-	return TRUE;
+    return TRUE;
 }
 
 void LLFloaterAvatarRenderSettings::draw()

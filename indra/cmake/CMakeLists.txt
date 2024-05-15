@@ -26,10 +26,8 @@ set(cmake_SOURCE_FILES
         FreeType.cmake
         GLEXT.cmake
         GLH.cmake
-        GoogleMock.cmake
         Havok.cmake
         Hunspell.cmake
-        ICU4C.cmake
         JsonCpp.cmake
         LLAddBuildTest.cmake
         LLAppearance.cmake

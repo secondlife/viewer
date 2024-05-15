@@ -1,25 +1,25 @@
-/** 
+/**
 * @file llperfstats.h
 * @brief Statistics collection to support autotune and perf flaoter.
 *
 * $LicenseInfo:firstyear=2022&license=viewerlgpl$
 * Second Life Viewer Source Code
 * Copyright (C) 2022, Linden Research, Inc.
-* 
+*
 * This library is free software; you can redistribute it and/or
 * modify it under the terms of the GNU Lesser General Public
 * License as published by the Free Software Foundation;
 * version 2.1 of the License only.
-* 
+*
 * This library is distributed in the hope that it will be useful,
 * but WITHOUT ANY WARRANTY; without even the implied warranty of
 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 * Lesser General Public License for more details.
-* 
+*
 * You should have received a copy of the GNU Lesser General Public
 * License along with this library; if not, write to the Free Software
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-* 
+*
 * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 * $/LicenseInfo$
 */
@@ -50,7 +50,7 @@ namespace LLPerfStats
     static constexpr U64 ART_UNLIMITED_NANOS{50000000};
     static constexpr U64 ART_MINIMUM_NANOS{100000};
     static constexpr U64 ART_MIN_ADJUST_UP_NANOS{5000};
-    static constexpr U64 ART_MIN_ADJUST_DOWN_NANOS{10000}; 
+    static constexpr U64 ART_MIN_ADJUST_DOWN_NANOS{10000};
 
     static constexpr F32 PREFERRED_DD{180};
     static constexpr U32 SMOOTHING_PERIODS{50};
@@ -94,7 +94,7 @@ namespace LLPerfStats
     };
 
     struct StatsRecord
-    { 
+    {
         StatType_t  statType;
         ObjType_t   objType;
         LLUUID      avID;
@@ -123,10 +123,10 @@ namespace LLPerfStats
         U32 tuningFlag{0}; // bit mask for changed settings
 
         // proxy variables, used to pas the new value to be set via the mainthread
-        U32 nonImpostors{0}; 
-        S32 reflectionDetail{0}; 
-        F32 farClip{0.0}; 
-        F32 userMinDrawDistance{0.0}; 
+        U32 nonImpostors{0};
+        S32 reflectionDetail{0};
+        F32 farClip{0.0};
+        F32 userMinDrawDistance{0.0};
         F32 userTargetDrawDistance{0.0};
         F32 userImpostorDistance{0.0};
         bool userImpostorDistanceTuningEnabled{false};
@@ -171,7 +171,7 @@ namespace LLPerfStats
         static inline void setFocusAv(const LLUUID& avID){focusAv = avID;};
         static inline const LLUUID& getFocusAv(){return focusAv;};
         static inline void setAutotuneInit(){autotuneInit = true;};
-        
+
         static inline void send(StatsRecord && upd)
         {
             LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
@@ -326,7 +326,7 @@ namespace LLPerfStats
         };
 
         ~RecordTime()
-        { 
+        {
             if(!LLPerfStats::StatsRecorder::enabled())
             {
                 return;
@@ -347,7 +347,7 @@ namespace LLPerfStats
     inline U64 ms_to_raw(double ms)     { return (U64)(LLPerfStats::cpu_hertz * (ms / 1000.0));
 
     }
-    
+
 
     using RecordSceneTime = RecordTime<ObjType_t::OT_GENERAL>;
 

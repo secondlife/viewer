@@ -1,24 +1,24 @@
-/** 
+/**
  * @file llfloaternotificationstabbed.cpp
- * @brief                                  
+ * @brief
  * $LicenseInfo:firstyear=2015&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2015, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -79,7 +79,7 @@ BOOL LLFloaterNotificationsTabbed::postBuild()
     // get a corresponding channel
     initChannel();
     BOOL rv = LLTransientDockableFloater::postBuild();
-    
+
     setTitle(getString("title_notification_tabbed_window"));
     return rv;
 }
@@ -105,8 +105,8 @@ void LLFloaterNotificationsTabbed::onStartUpToastClick(S32 x, S32 y, MASK mask)
 }
 
 //---------------------------------------------------------------------------------
-void LLFloaterNotificationsTabbed::setSysWellChiclet(LLSysWellChiclet* chiclet) 
-{ 
+void LLFloaterNotificationsTabbed::setSysWellChiclet(LLSysWellChiclet* chiclet)
+{
     mSysWellChiclet = chiclet;
     if(NULL != mSysWellChiclet)
     {
@@ -151,10 +151,10 @@ LLPanel * LLFloaterNotificationsTabbed::findItemByID(const LLUUID& id, std::stri
 }
 
 //---------------------------------------------------------------------------------
-void LLFloaterNotificationsTabbed::initChannel() 
+void LLFloaterNotificationsTabbed::initChannel()
 {
     LLNotificationsUI::LLScreenChannelBase* channel = LLNotificationsUI::LLChannelManager::getInstance()->findChannelByID(
-        LLUUID(gSavedSettings.getString("NotificationChannelUUID")));
+        LLNotificationsUI::NOTIFICATION_CHANNEL_UUID);
     mChannel = dynamic_cast<LLNotificationsUI::LLScreenChannel*>(channel);
     if(NULL == mChannel)
     {
@@ -190,7 +190,7 @@ void LLFloaterNotificationsTabbed::setVisible(BOOL visible)
 
     LLTransientDockableFloater::setVisible(visible);
 
-    // update notification channel state	
+    // update notification channel state
     initChannel(); // make sure the channel still exists
     if(mChannel)
     {
@@ -379,7 +379,7 @@ void LLFloaterNotificationsTabbed::clearScreenChannels()
 //---------------------------------------------------------------------------------
 void LLFloaterNotificationsTabbed::onStoreToast(LLPanel* info_panel, LLUUID id)
 {
-    LLNotificationListItem::Params p;	
+    LLNotificationListItem::Params p;
     p.notification_id = id;
     p.title = static_cast<LLToastPanel*>(info_panel)->getTitle();
     LLNotificationPtr notify = mChannel->getToastByNotificationID(id)->getNotification();
@@ -533,7 +533,7 @@ LLPanel* LLNotificationSeparator::findItemByID(std::string& tag, const LLUUID& i
         return mUnTaggedList->getItemByValue(id);
     }
 
-    return NULL;    
+    return NULL;
 }
 
 //static
