@@ -38,6 +38,7 @@
 #include "lluictrl.h"
 #include "llerror.h"
 
+#define THROTTLE_PERIOD 1 // required seconds between throttled functions
 
 LLUIListener::LLUIListener():
     LLEventAPI("UI",
@@ -59,6 +60,7 @@ LLUIListener::LLUIListener():
 
 void LLUIListener::call(const LLSD& event) const
 {
+    static F64 last_throttle_time = 0.0;
     Response response(LLSD(), event);
     LLUICtrl::LLCommitCallbackInfo *info = LLUICtrl::SharedCommitCallbackRegistry::getValue(event["function"]);
     if (!info )
@@ -66,11 +68,22 @@ void LLUIListener::call(const LLSD& event) const
         response.error(STRINGIZE("Function " << std::quoted(event["function"].asString()) << "was not found"));
         return;
     }
-    if (!info->mAllowUntrusted) 
+    if (info->mHandleUntrusted == LLUICtrl::LLCommitCallbackInfo::UNTRUSTED_BLOCK) 
     {
         response.error(STRINGIZE("Function " << std::quoted(event["function"].asString()) << " is not allowed to be called from the script"));
         return;
     }
+    if (info->mHandleUntrusted == LLUICtrl::LLCommitCallbackInfo::UNTRUSTED_THROTTLE)
+    {
+        F64 cur_time = LLTimer::getElapsedSeconds();
+        if (cur_time < last_throttle_time + THROTTLE_PERIOD)
+        {
+            LL_WARNS("LLUIListener") << "Throttled function " << std::quoted(event["function"].asString()) << LL_ENDL;
+            return;
+        }
+        last_throttle_time = cur_time;
+    }
+
     LLUICtrl::commit_callback_t func = info->callback_func;
 
     if (info->callback_func)

@@ -950,17 +950,17 @@ public:
 		LLUICtrl::EnableCallbackRegistry::currentRegistrar().add(name, boost::bind(&view_listener_t::handleEvent, listener, _2));
 	}
 	
-	static void addCommit(view_listener_t* listener, const std::string& name, bool allow_untrusted = false)
+	static void addCommit(view_listener_t *listener, const std::string &name, LLUICtrl::LLCommitCallbackInfo::EUntrustedCall handle_untrusted = LLUICtrl::LLCommitCallbackInfo::UNTRUSTED_BLOCK)
 	{
         LLUICtrl::SharedCommitCallbackRegistry::currentRegistrar().add(name, 
-            LLUICtrl::LLCommitCallbackInfo(boost::bind(&view_listener_t::handleEvent, listener, _2), allow_untrusted));
+            LLUICtrl::LLCommitCallbackInfo(boost::bind(&view_listener_t::handleEvent, listener, _2), handle_untrusted));
 	}
 	
-	static void addMenu(view_listener_t* listener, const std::string& name, bool allow_untrusted = true)
+	static void addMenu(view_listener_t *listener, const std::string &name, LLUICtrl::LLCommitCallbackInfo::EUntrustedCall handle_untrusted = LLUICtrl::LLCommitCallbackInfo::UNTRUSTED_BLOCK)
 	{
 		// For now, add to both click and enable registries
 		addEnable(listener, name);
-        addCommit(listener, name, allow_untrusted);
+        addCommit(listener, name, handle_untrusted);
 	}
 
 	static void cleanup()

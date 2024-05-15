@@ -285,13 +285,20 @@ public:
 
     struct LLCommitCallbackInfo
     {
-        LLCommitCallbackInfo(commit_callback_t func = NULL, bool allow_untrusted = false) 
-            : callback_func(func), mAllowUntrusted(allow_untrusted)
+        enum EUntrustedCall
+        {
+            UNTRUSTED_ALLOW,
+            UNTRUSTED_BLOCK,
+            UNTRUSTED_THROTTLE
+        };
+
+        LLCommitCallbackInfo(commit_callback_t func = NULL, EUntrustedCall handle_untrusted = UNTRUSTED_ALLOW) 
+            : callback_func(func), mHandleUntrusted(handle_untrusted)
         {}
 
       public:
-        bool mAllowUntrusted;
-        commit_callback_t  callback_func;
+        EUntrustedCall mHandleUntrusted;
+        commit_callback_t callback_func;
     };
 
     class SharedCommitCallbackRegistry : public CallbackRegistry<LLCommitCallbackInfo, SharedCommitCallbackRegistry>

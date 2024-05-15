@@ -9361,8 +9361,10 @@ void initialize_edit_menu()
 	view_listener_t::addMenu(new LLEditEnableDeselect(), "Edit.EnableDeselect");
 
 }
-#define COMMIT_ADD(func_name, func) LLUICtrl::SharedCommitCallbackRegistry::currentRegistrar().add(func_name, LLUICtrl::LLCommitCallbackInfo(func, true))
-#define COMMIT_ADD_TRUSTED(func_name, func) LLUICtrl::SharedCommitCallbackRegistry::currentRegistrar().add(func_name, LLUICtrl::LLCommitCallbackInfo(func))
+const LLUICtrl::LLCommitCallbackInfo::EUntrustedCall UNTRUSTED_BLOCK = LLUICtrl::LLCommitCallbackInfo::UNTRUSTED_BLOCK;
+#define COMMIT_ADD(func_name, func) LLUICtrl::SharedCommitCallbackRegistry::currentRegistrar().add(func_name, LLUICtrl::LLCommitCallbackInfo(func))
+#define COMMIT_ADD_TRUSTED(func_name, func) LLUICtrl::SharedCommitCallbackRegistry::currentRegistrar().add(func_name, LLUICtrl::LLCommitCallbackInfo(func, UNTRUSTED_BLOCK))
+
 void initialize_spellcheck_menu()
 {
 	LLUICtrl::EnableCallbackRegistry::Registrar& enable = LLUICtrl::EnableCallbackRegistry::currentRegistrar();
@@ -9676,7 +9678,7 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedDropPacket(), "Advanced.DropPacket");
 
     // Advanced > Cache
-    view_listener_t::addMenu(new LLAdvancedPurgeDiskCache(), "Advanced.PurgeDiskCache", false);
+    view_listener_t::addMenu(new LLAdvancedPurgeDiskCache(), "Advanced.PurgeDiskCache", UNTRUSTED_BLOCK);
 
 	// Advanced > Recorder
 	view_listener_t::addMenu(new LLAdvancedAgentPilot(), "Advanced.AgentPilot");
@@ -9685,19 +9687,19 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedViewerEventRecorder(), "Advanced.EventRecorder");
 
 	// Advanced > Debugging
-	view_listener_t::addMenu(new LLAdvancedForceErrorBreakpoint(), "Advanced.ForceErrorBreakpoint", false);
-    view_listener_t::addMenu(new LLAdvancedForceErrorLlerror(), "Advanced.ForceErrorLlerror", false);
-    view_listener_t::addMenu(new LLAdvancedForceErrorLlerrorMsg(), "Advanced.ForceErrorLlerrorMsg", false);
-    view_listener_t::addMenu(new LLAdvancedForceErrorBadMemoryAccess(), "Advanced.ForceErrorBadMemoryAccess", false);
-    view_listener_t::addMenu(new LLAdvancedForceErrorBadMemoryAccessCoro(), "Advanced.ForceErrorBadMemoryAccessCoro", false);
-    view_listener_t::addMenu(new LLAdvancedForceErrorInfiniteLoop(), "Advanced.ForceErrorInfiniteLoop", false);
-    view_listener_t::addMenu(new LLAdvancedForceErrorSoftwareException(), "Advanced.ForceErrorSoftwareException", false);
-    view_listener_t::addMenu(new LLAdvancedForceOSException(), "Advanced.ForceErrorOSException", false);
-    view_listener_t::addMenu(new LLAdvancedForceErrorSoftwareExceptionCoro(), "Advanced.ForceErrorSoftwareExceptionCoro", false);
-    view_listener_t::addMenu(new LLAdvancedForceErrorDriverCrash(), "Advanced.ForceErrorDriverCrash", false);
-    view_listener_t::addMenu(new LLAdvancedForceErrorCoroutineCrash(), "Advanced.ForceErrorCoroutineCrash", false);
-    view_listener_t::addMenu(new LLAdvancedForceErrorThreadCrash(), "Advanced.ForceErrorThreadCrash", false);
-    view_listener_t::addMenu(new LLAdvancedForceErrorDisconnectViewer(), "Advanced.ForceErrorDisconnectViewer", false);
+    view_listener_t::addMenu(new LLAdvancedForceErrorBreakpoint(), "Advanced.ForceErrorBreakpoint", UNTRUSTED_BLOCK);
+    view_listener_t::addMenu(new LLAdvancedForceErrorLlerror(), "Advanced.ForceErrorLlerror", UNTRUSTED_BLOCK);
+    view_listener_t::addMenu(new LLAdvancedForceErrorLlerrorMsg(), "Advanced.ForceErrorLlerrorMsg", UNTRUSTED_BLOCK);
+    view_listener_t::addMenu(new LLAdvancedForceErrorBadMemoryAccess(), "Advanced.ForceErrorBadMemoryAccess", UNTRUSTED_BLOCK);
+    view_listener_t::addMenu(new LLAdvancedForceErrorBadMemoryAccessCoro(), "Advanced.ForceErrorBadMemoryAccessCoro", UNTRUSTED_BLOCK);
+    view_listener_t::addMenu(new LLAdvancedForceErrorInfiniteLoop(), "Advanced.ForceErrorInfiniteLoop", UNTRUSTED_BLOCK);
+    view_listener_t::addMenu(new LLAdvancedForceErrorSoftwareException(), "Advanced.ForceErrorSoftwareException", UNTRUSTED_BLOCK);
+    view_listener_t::addMenu(new LLAdvancedForceOSException(), "Advanced.ForceErrorOSException", UNTRUSTED_BLOCK);
+    view_listener_t::addMenu(new LLAdvancedForceErrorSoftwareExceptionCoro(), "Advanced.ForceErrorSoftwareExceptionCoro", UNTRUSTED_BLOCK);
+    view_listener_t::addMenu(new LLAdvancedForceErrorDriverCrash(), "Advanced.ForceErrorDriverCrash", UNTRUSTED_BLOCK);
+    view_listener_t::addMenu(new LLAdvancedForceErrorCoroutineCrash(), "Advanced.ForceErrorCoroutineCrash", UNTRUSTED_BLOCK);
+    view_listener_t::addMenu(new LLAdvancedForceErrorThreadCrash(), "Advanced.ForceErrorThreadCrash", UNTRUSTED_BLOCK);
+    view_listener_t::addMenu(new LLAdvancedForceErrorDisconnectViewer(), "Advanced.ForceErrorDisconnectViewer", UNTRUSTED_BLOCK);
 
 	// Advanced (toplevel)
 	view_listener_t::addMenu(new LLAdvancedToggleShowObjectUpdates(), "Advanced.ToggleShowObjectUpdates");
