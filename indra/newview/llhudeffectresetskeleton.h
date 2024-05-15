@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llhudeffectresetskeleton.h
  * @brief LLHUDEffectResetSkeleton class definition
  *
  * $LicenseInfo:firstyear=2024&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2024, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -36,24 +36,24 @@ class LLVOAvatar;
 class LLHUDEffectResetSkeleton final : public LLHUDEffect
 {
 public:
-	friend class LLHUDObject;
+    friend class LLHUDObject;
 
-	/*virtual*/ void markDead();
-	/*virtual*/ void setSourceObject(LLViewerObject* objectp);
+    /*virtual*/ void markDead();
+    /*virtual*/ void setSourceObject(LLViewerObject* objectp);
 
-	void setTargetObject(LLViewerObject *objp);
-	void setResetAnimations(bool enable){ mResetAnimations = enable; };
+    void setTargetObject(LLViewerObject *objp);
+    void setResetAnimations(bool enable){ mResetAnimations = enable; };
 
 protected:
-	LLHUDEffectResetSkeleton(const U8 type);
-	~LLHUDEffectResetSkeleton();
+    LLHUDEffectResetSkeleton(const U8 type);
+    ~LLHUDEffectResetSkeleton();
 
-	/*virtual*/ void packData(LLMessageSystem *mesgsys);
-	/*virtual*/ void unpackData(LLMessageSystem *mesgsys, S32 blocknum);
+    /*virtual*/ void packData(LLMessageSystem *mesgsys);
+    /*virtual*/ void unpackData(LLMessageSystem *mesgsys, S32 blocknum);
 
-	void update();
+    void update();
 private:
-	bool						mResetAnimations;
+    bool                        mResetAnimations;
 };
 
 #endif // LL_LLHUDEFFECTRESETSKELETON_H

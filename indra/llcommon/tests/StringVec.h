@@ -3,7 +3,7 @@
  * @author Nat Goodspeed
  * @date   2012-02-24
  * @brief  Extend TUT ensure_equals() to handle std::vector<std::string>
- * 
+ *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Copyright (c) 2012, Linden Research, Inc.
  * $/LicenseInfo$

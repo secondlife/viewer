@@ -1,24 +1,24 @@
-/** 
+/**
  * @file llfloaterperformance.cpp
  *
  * $LicenseInfo:firstyear=2021&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2021, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -186,7 +186,7 @@ void LLFloaterPerformance::draw()
 {
     enableAutotuneWarning();
 
-    if (mUpdateTimer->hasExpired() && 
+    if (mUpdateTimer->hasExpired() &&
         !LLFloaterReg::instanceVisible("save_pref_preset", PRESETS_GRAPHIC)) // give user a chance to save the graphics settings before updating them
     {
         setFPSText();
@@ -447,7 +447,7 @@ void LLFloaterPerformance::populateNearbyList()
             row[0]["column"] = "complex_visual";
             row[0]["type"] = "bar";
             LLSD& value = row[0]["value"];
-            // The ratio used in the bar is the current cost, as soon as we take action this changes so we keep the 
+            // The ratio used in the bar is the current cost, as soon as we take action this changes so we keep the
             // pre-tune value for the numerical column and sorting.
             value["ratio"] = render_av_gpu_ms / mNearbyMaxGPUTime;
             value["bottom"] = BAR_BOTTOM_PAD;
@@ -571,7 +571,7 @@ void LLFloaterPerformance::updateMaxRenderTime()
 {
     LLAvatarComplexityControls::updateMaxRenderTime(
         mNearbyPanel->getChild<LLSliderCtrl>("RenderAvatarMaxART"),
-        mNearbyPanel->getChild<LLTextBox>("RenderAvatarMaxARTText"), 
+        mNearbyPanel->getChild<LLTextBox>("RenderAvatarMaxARTText"),
         true);
 }
 
@@ -684,7 +684,7 @@ bool is_ALM_available()
 {
     bool bumpshiny = LLCubeMap::sUseCubeMaps && LLFeatureManager::getInstance()->isFeatureAvailable("RenderObjectBump") && gSavedSettings.getBOOL("RenderObjectBump");
     bool shaders = gSavedSettings.getBOOL("WindLightUseAtmosShaders");
-    
+
     return LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") &&
         bumpshiny &&
         shaders;
