@@ -50,8 +50,8 @@ out vec3 vary_position;
 // tangent_space_transform below.
 uniform vec4[2] texture_base_color_transform;
 
-vec2 texture_transform(vec2 vertex_texcoord, vec4[2] khr_gltf_transform, mat4 sl_animation_transform);
-vec3 tangent_space_transform(vec4 vertex_tangent, vec3 vertex_normal, vec4[2] khr_gltf_transform, mat4 sl_animation_transform);
+vec2 terrain_texture_transform(vec2 vertex_texcoord, vec4[2] khr_gltf_transform);
+vec3 terrain_tangent_space_transform(vec4 vertex_tangent, vec3 vertex_normal, vec4[2] khr_gltf_transform);
 
 void main()
 {
@@ -70,7 +70,7 @@ void main()
     // *HACK: Should be using texture_normal_transform here. The KHR texture
     // transform spec requires handling texture transforms separately for each
     // individual texture.
-    vary_tangent = normalize(tangent_space_transform(vec4(t, tangent.w), n, texture_base_color_transform, texture_matrix0));
+    vary_tangent = normalize(terrain_tangent_space_transform(vec4(t, tangent.w), n, texture_base_color_transform));
     vary_sign = tangent.w;
     vary_normal = normalize(n);
 
@@ -80,13 +80,13 @@ void main()
     // separately for each individual texture.
 #if TERRAIN_PLANAR_TEXTURE_SAMPLE_COUNT == 3
     // xy
-    vary_coords[0].xy = texture_transform(position.xy, texture_base_color_transform, texture_matrix0);
+    vary_coords[0].xy = terrain_texture_transform(position.xy, texture_base_color_transform);
     // yz
-    vary_coords[0].zw = texture_transform(position.yz, texture_base_color_transform, texture_matrix0);
+    vary_coords[0].zw = terrain_texture_transform(position.yz, texture_base_color_transform);
     // (-x)z
-    vary_coords[1].xy = texture_transform(position.xz * vec2(-1, 1), texture_base_color_transform, texture_matrix0);
+    vary_coords[1].xy = terrain_texture_transform(position.xz * vec2(-1, 1), texture_base_color_transform);
 #elif TERRAIN_PLANAR_TEXTURE_SAMPLE_COUNT == 1
-    vary_texcoord0.xy = texture_transform(position.xy, texture_base_color_transform, texture_matrix0);
+    vary_texcoord0.xy = terrain_texture_transform(position.xy, texture_base_color_transform);
 #endif
 
     vec4 tc = vec4(texcoord1,0,1);

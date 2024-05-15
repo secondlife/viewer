@@ -69,12 +69,16 @@ void main()
     mirrorClip(vary_position);
 
     vec4 basecolor = texture(diffuseMap, base_color_texcoord.xy).rgba;
+    basecolor.rgb = srgb_to_linear(basecolor.rgb);
+
+    basecolor *= vertex_color;
+
     if (basecolor.a < minimum_alpha)
     {
         discard;
     }
 
-    vec3 col = vertex_color.rgb * srgb_to_linear(basecolor.rgb);
+    vec3 col = basecolor.rgb;
 
     // from mikktspace.com
     vec3 vNt = texture(bumpMap, normal_texcoord.xy).xyz*2.0-1.0;
@@ -108,7 +112,7 @@ void main()
     //emissive = tnorm*0.5+0.5;
     // See: C++: addDeferredAttachments(), GLSL: softenLightF
     frag_data[0] = max(vec4(col, 0.0), vec4(0));                                                   // Diffuse
-    frag_data[1] = max(vec4(spec.rgb,vertex_color.a), vec4(0));                                    // PBR linear packed Occlusion, Roughness, Metal.
+    frag_data[1] = max(vec4(spec.rgb,0.0), vec4(0));                                    // PBR linear packed Occlusion, Roughness, Metal.
     frag_data[2] = vec4(tnorm, GBUFFER_FLAG_HAS_PBR); // normal, environment intensity, flags
     frag_data[3] = max(vec4(emissive,0), vec4(0));                                                // PBR sRGB Emissive
 }

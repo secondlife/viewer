@@ -77,6 +77,19 @@ vec2 texture_transform(vec2 vertex_texcoord, vec4[2] khr_gltf_transform, mat4 sl
     return texcoord;
 }
 
+// Similar to texture_transform but no offset during coordinate system
+// conversion, and no texture animation support.
+vec2 terrain_texture_transform(vec2 vertex_texcoord, vec4[2] khr_gltf_transform)
+{
+    vec2 texcoord = vertex_texcoord;
+
+    texcoord.y = -texcoord.y;
+    texcoord = khr_texture_transform(texcoord, khr_gltf_transform[0].xy, khr_gltf_transform[0].z, khr_gltf_transform[1].xy);
+    texcoord.y = -texcoord.y;
+
+    return texcoord;
+}
+
 // Take the rotation only from both transforms and apply to the tangent. This
 // accounts for the change of the topology of the normal texture when a texture
 // rotation is applied to it.
@@ -116,6 +129,28 @@ vec3 tangent_space_transform(vec4 vertex_tangent, vec3 vertex_normal, vec4[2] kh
 
     // Similar to the MikkTSpace-compatible method of extracting the binormal
     // from the normal and tangent, as seen in the fragment shader
+    vec3 vertex_binormal = vertex_tangent.w * cross(vertex_normal, vertex_tangent.xyz);
+
+    return (weights.x * vertex_binormal.xyz) + (weights.y * vertex_tangent.xyz);
+}
+
+// Similar to tangent_space_transform but no no texture animation support.
+vec3 terrain_tangent_space_transform(vec4 vertex_tangent, vec3 vertex_normal, vec4[2] khr_gltf_transform)
+{
+    // Immediately convert to left-handed coordinate system ((0,1) -> (0, -1))
+    vec2 weights = vec2(0, -1);
+
+    // Apply KHR_texture_transform (rotation only)
+    float khr_rotation = khr_gltf_transform[0].z;
+    mat2 khr_rotation_mat = mat2(
+        cos(khr_rotation),-sin(khr_rotation),
+        sin(khr_rotation), cos(khr_rotation)
+    );
+    weights = khr_rotation_mat * weights;
+
+    // Convert back to right-handed coordinate system
+    weights.y = -weights.y;
+
     vec3 vertex_binormal = vertex_tangent.w * cross(vertex_normal, vertex_tangent.xyz);
 
     return (weights.x * vertex_binormal.xyz) + (weights.y * vertex_tangent.xyz);

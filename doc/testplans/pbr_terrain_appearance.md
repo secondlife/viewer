@@ -2,6 +2,8 @@
 
 ## Tiling
 
+The southwest corner of a region with PBR materials should exactly match up with the bottom left corner of the material texture(s).
+
 If two adjacent regions have the same PBR terrain settings, then:
 
 - There should not be seams between the two regions at their shared border
