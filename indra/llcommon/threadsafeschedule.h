@@ -4,7 +4,7 @@
  * @date   2021-10-02
  * @brief  ThreadSafeSchedule is an ordered queue in which every item has an
  *         associated timestamp.
- * 
+ *
  * $LicenseInfo:firstyear=2021&license=viewerlgpl$
  * Copyright (c) 2021, Linden Research, Inc.
  * $/LicenseInfo$
@@ -18,7 +18,7 @@
 #include "llthreadsafequeue.h"
 #include "tuple.h"
 #include <chrono>
-#include <tuple>  
+#include <tuple>
 
 namespace LL
 {

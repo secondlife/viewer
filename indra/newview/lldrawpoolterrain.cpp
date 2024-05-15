@@ -1,25 +1,25 @@
-/** 
+/**
  * @file lldrawpoolterrain.cpp
  * @brief LLDrawPoolTerrain class implementation
  *
  * $LicenseInfo:firstyear=2002&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -39,7 +39,7 @@
 #include "llsurfacepatch.h"
 #include "llviewerregion.h"
 #include "llvlcomposition.h"
-#include "llviewerparcelmgr.h"		// for gRenderParcelOwnership
+#include "llviewerparcelmgr.h"      // for gRenderParcelOwnership
 #include "llviewerparceloverlay.h"
 #include "llvosurfacepatch.h"
 #include "llviewercamera.h"
@@ -62,47 +62,47 @@ static LLTrace::BlockTimerStatHandle FTM_SHADOW_TERRAIN("Terrain Shadow");
 
 
 LLDrawPoolTerrain::LLDrawPoolTerrain(LLViewerTexture *texturep) :
-	LLFacePool(POOL_TERRAIN),
-	mTexturep(texturep)
+    LLFacePool(POOL_TERRAIN),
+    mTexturep(texturep)
 {
-	// Hack!
-	sDetailScale = 1.f/gSavedSettings.getF32("RenderTerrainScale");
-	sPBRDetailScale = 1.f/gSavedSettings.getF32("RenderTerrainPBRScale");
-	sPBRDetailMode = gSavedSettings.getS32("RenderTerrainPBRDetail");
-	mAlphaRampImagep = LLViewerTextureManager::getFetchedTexture(IMG_ALPHA_GRAD);
+    // Hack!
+    sDetailScale = 1.f/gSavedSettings.getF32("RenderTerrainScale");
+    sPBRDetailScale = 1.f/gSavedSettings.getF32("RenderTerrainPBRScale");
+    sPBRDetailMode = gSavedSettings.getS32("RenderTerrainPBRDetail");
+    mAlphaRampImagep = LLViewerTextureManager::getFetchedTexture(IMG_ALPHA_GRAD);
 
-	//gGL.getTexUnit(0)->bind(mAlphaRampImagep.get());
-	mAlphaRampImagep->setAddressMode(LLTexUnit::TAM_CLAMP);
+    //gGL.getTexUnit(0)->bind(mAlphaRampImagep.get());
+    mAlphaRampImagep->setAddressMode(LLTexUnit::TAM_CLAMP);
 
-	m2DAlphaRampImagep = LLViewerTextureManager::getFetchedTexture(IMG_ALPHA_GRAD_2D);
+    m2DAlphaRampImagep = LLViewerTextureManager::getFetchedTexture(IMG_ALPHA_GRAD_2D);
 
-	//gGL.getTexUnit(0)->bind(m2DAlphaRampImagep.get());
-	m2DAlphaRampImagep->setAddressMode(LLTexUnit::TAM_CLAMP);
-	
-	mTexturep->setBoostLevel(LLGLTexture::BOOST_TERRAIN);
-	
-	//gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+    //gGL.getTexUnit(0)->bind(m2DAlphaRampImagep.get());
+    m2DAlphaRampImagep->setAddressMode(LLTexUnit::TAM_CLAMP);
+
+    mTexturep->setBoostLevel(LLGLTexture::BOOST_TERRAIN);
+
+    //gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 }
 
 LLDrawPoolTerrain::~LLDrawPoolTerrain()
 {
-	llassert( gPipeline.findPool( getType(), getTexture() ) == NULL );
+    llassert( gPipeline.findPool( getType(), getTexture() ) == NULL );
 }
 
-U32 LLDrawPoolTerrain::getVertexDataMask() 
-{ 
-	if (LLPipeline::sShadowRender)
-	{
-		return LLVertexBuffer::MAP_VERTEX;
-	}
-	else if (LLGLSLShader::sCurBoundShaderPtr)
-	{
-		return VERTEX_DATA_MASK & ~(LLVertexBuffer::MAP_TEXCOORD2 | LLVertexBuffer::MAP_TEXCOORD3);
-	}
-	else
-	{
-		return VERTEX_DATA_MASK; 
-	}
+U32 LLDrawPoolTerrain::getVertexDataMask()
+{
+    if (LLPipeline::sShadowRender)
+    {
+        return LLVertexBuffer::MAP_VERTEX;
+    }
+    else if (LLGLSLShader::sCurBoundShaderPtr)
+    {
+        return VERTEX_DATA_MASK & ~(LLVertexBuffer::MAP_TEXCOORD2 | LLVertexBuffer::MAP_TEXCOORD3);
+    }
+    else
+    {
+        return VERTEX_DATA_MASK;
+    }
 }
 
 void LLDrawPoolTerrain::prerender()
@@ -113,50 +113,50 @@ void LLDrawPoolTerrain::prerender()
 void LLDrawPoolTerrain::boostTerrainDetailTextures()
 {
     // Hack! Get the region that this draw pool is rendering from!
-	LLViewerRegion *regionp = mDrawFace[0]->getDrawable()->getVObj()->getRegion();
-	LLVLComposition *compp = regionp->getComposition();
+    LLViewerRegion *regionp = mDrawFace[0]->getDrawable()->getVObj()->getRegion();
+    LLVLComposition *compp = regionp->getComposition();
     compp->boost();
 }
 
 void LLDrawPoolTerrain::beginDeferredPass(S32 pass)
 {
-	LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_RENDER_TERRAIN);
-	LLFacePool::beginRenderPass(pass);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_RENDER_TERRAIN);
+    LLFacePool::beginRenderPass(pass);
 }
 
 void LLDrawPoolTerrain::endDeferredPass(S32 pass)
 {
-	LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_RENDER_TERRAIN);
-	LLFacePool::endRenderPass(pass);
-	sShader->unbind();
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_RENDER_TERRAIN);
+    LLFacePool::endRenderPass(pass);
+    sShader->unbind();
 }
 
 void LLDrawPoolTerrain::renderDeferred(S32 pass)
 {
-	LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_RENDER_TERRAIN);
-	if (mDrawFace.empty())
-	{
-		return;
-	}
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_RENDER_TERRAIN);
+    if (mDrawFace.empty())
+    {
+        return;
+    }
 
     boostTerrainDetailTextures();
 
-	renderFullShader();
+    renderFullShader();
 
-	// Special-case for land ownership feedback
-	if (gSavedSettings.getBOOL("ShowParcelOwners"))
-	{
-		hilightParcelOwners();
-	}
+    // Special-case for land ownership feedback
+    if (gSavedSettings.getBOOL("ShowParcelOwners"))
+    {
+        hilightParcelOwners();
+    }
 
 }
 
 void LLDrawPoolTerrain::beginShadowPass(S32 pass)
 {
-	LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_SHADOW_TERRAIN);
-	LLFacePool::beginRenderPass(pass);
-	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-	gDeferredShadowProgram.bind();
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_SHADOW_TERRAIN);
+    LLFacePool::beginRenderPass(pass);
+    gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+    gDeferredShadowProgram.bind();
 
     LLEnvironment& environment = LLEnvironment::instance();
     gDeferredShadowProgram.uniform1i(LLShaderMgr::SUN_UP_FACTOR, environment.getIsSunUp() ? 1 : 0);
@@ -164,50 +164,50 @@ void LLDrawPoolTerrain::beginShadowPass(S32 pass)
 
 void LLDrawPoolTerrain::endShadowPass(S32 pass)
 {
-	LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_SHADOW_TERRAIN);
-	LLFacePool::endRenderPass(pass);
-	gDeferredShadowProgram.unbind();
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_SHADOW_TERRAIN);
+    LLFacePool::endRenderPass(pass);
+    gDeferredShadowProgram.unbind();
 }
 
 void LLDrawPoolTerrain::renderShadow(S32 pass)
 {
-	LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_SHADOW_TERRAIN);
-	if (mDrawFace.empty())
-	{
-		return;
-	}
-	//LLGLEnable offset(GL_POLYGON_OFFSET);
-	//glCullFace(GL_FRONT);
-	drawLoop();
-	//glCullFace(GL_BACK);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_SHADOW_TERRAIN);
+    if (mDrawFace.empty())
+    {
+        return;
+    }
+    //LLGLEnable offset(GL_POLYGON_OFFSET);
+    //glCullFace(GL_FRONT);
+    drawLoop();
+    //glCullFace(GL_BACK);
 }
 
 
 void LLDrawPoolTerrain::drawLoop()
 {
-	if (!mDrawFace.empty())
-	{
-		for (std::vector<LLFace*>::iterator iter = mDrawFace.begin();
-			 iter != mDrawFace.end(); iter++)
-		{
-			LLFace *facep = *iter;
+    if (!mDrawFace.empty())
+    {
+        for (std::vector<LLFace*>::iterator iter = mDrawFace.begin();
+             iter != mDrawFace.end(); iter++)
+        {
+            LLFace *facep = *iter;
 
             llassert(gGL.getMatrixMode() == LLRender::MM_MODELVIEW);
             LLRenderPass::applyModelMatrix(&facep->getDrawable()->getRegion()->mRenderMatrix);
 
-			facep->renderIndexed();
-		}
-	}
+            facep->renderIndexed();
+        }
+    }
 }
 
 void LLDrawPoolTerrain::renderFullShader()
 {
     const BOOL use_local_materials = gLocalTerrainMaterials.materialsReady(true, false);
-	// Hack! Get the region that this draw pool is rendering from!
-	LLViewerRegion *regionp = mDrawFace[0]->getDrawable()->getVObj()->getRegion();
-	LLVLComposition *compp = regionp->getComposition();
+    // Hack! Get the region that this draw pool is rendering from!
+    LLViewerRegion *regionp = mDrawFace[0]->getDrawable()->getVObj()->getRegion();
+    LLVLComposition *compp = regionp->getComposition();
     const BOOL use_textures = !use_local_materials && (compp->getMaterialType() == LLTerrainMaterials::Type::TEXTURE);
-    
+
     if (use_textures)
     {
         // Use textures
@@ -226,129 +226,129 @@ void LLDrawPoolTerrain::renderFullShader()
 
 void LLDrawPoolTerrain::renderFullShaderTextures()
 {
-	// Hack! Get the region that this draw pool is rendering from!
-	LLViewerRegion *regionp = mDrawFace[0]->getDrawable()->getVObj()->getRegion();
-	LLVLComposition *compp = regionp->getComposition();
+    // Hack! Get the region that this draw pool is rendering from!
+    LLViewerRegion *regionp = mDrawFace[0]->getDrawable()->getVObj()->getRegion();
+    LLVLComposition *compp = regionp->getComposition();
 
-	LLViewerTexture *detail_texture0p = compp->mDetailTextures[0];
-	LLViewerTexture *detail_texture1p = compp->mDetailTextures[1];
-	LLViewerTexture *detail_texture2p = compp->mDetailTextures[2];
-	LLViewerTexture *detail_texture3p = compp->mDetailTextures[3];
+    LLViewerTexture *detail_texture0p = compp->mDetailTextures[0];
+    LLViewerTexture *detail_texture1p = compp->mDetailTextures[1];
+    LLViewerTexture *detail_texture2p = compp->mDetailTextures[2];
+    LLViewerTexture *detail_texture3p = compp->mDetailTextures[3];
 
-	LLVector3d region_origin_global = gAgent.getRegion()->getOriginGlobal();
-	F32 offset_x = (F32)fmod(region_origin_global.mdV[VX], 1.0/(F64)sDetailScale)*sDetailScale;
-	F32 offset_y = (F32)fmod(region_origin_global.mdV[VY], 1.0/(F64)sDetailScale)*sDetailScale;
+    LLVector3d region_origin_global = gAgent.getRegion()->getOriginGlobal();
+    F32 offset_x = (F32)fmod(region_origin_global.mdV[VX], 1.0/(F64)sDetailScale)*sDetailScale;
+    F32 offset_y = (F32)fmod(region_origin_global.mdV[VY], 1.0/(F64)sDetailScale)*sDetailScale;
 
-	LLVector4 tp0, tp1;
-	
-	tp0.setVec(sDetailScale, 0.0f, 0.0f, offset_x);
-	tp1.setVec(0.0f, sDetailScale, 0.0f, offset_y);
+    LLVector4 tp0, tp1;
 
-	//
-	// detail texture 0
-	//
-	S32 detail0 = sShader->enableTexture(LLViewerShaderMgr::TERRAIN_DETAIL0);
-	gGL.getTexUnit(detail0)->bind(detail_texture0p);
+    tp0.setVec(sDetailScale, 0.0f, 0.0f, offset_x);
+    tp1.setVec(0.0f, sDetailScale, 0.0f, offset_y);
+
+    //
+    // detail texture 0
+    //
+    S32 detail0 = sShader->enableTexture(LLViewerShaderMgr::TERRAIN_DETAIL0);
+    gGL.getTexUnit(detail0)->bind(detail_texture0p);
     gGL.getTexUnit(detail0)->setTextureAddressMode(LLTexUnit::TAM_WRAP);
-	gGL.getTexUnit(detail0)->activate();
+    gGL.getTexUnit(detail0)->activate();
 
-	LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
-	llassert(shader);
-		
-	shader->uniform4fv(LLShaderMgr::OBJECT_PLANE_S, 1, tp0.mV);
-	shader->uniform4fv(LLShaderMgr::OBJECT_PLANE_T, 1, tp1.mV);
+    LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
+    llassert(shader);
+
+    shader->uniform4fv(LLShaderMgr::OBJECT_PLANE_S, 1, tp0.mV);
+    shader->uniform4fv(LLShaderMgr::OBJECT_PLANE_T, 1, tp1.mV);
 
     LLSettingsWater::ptr_t pwater = LLEnvironment::instance().getCurrentWater();
 
-	//
-	// detail texture 1
-	//
-	S32 detail1 = sShader->enableTexture(LLViewerShaderMgr::TERRAIN_DETAIL1); 
-	gGL.getTexUnit(detail1)->bind(detail_texture1p);
-	gGL.getTexUnit(detail1)->setTextureAddressMode(LLTexUnit::TAM_WRAP);
-	gGL.getTexUnit(detail1)->activate();
-	
-	// detail texture 2
-	//
-	S32 detail2 = sShader->enableTexture(LLViewerShaderMgr::TERRAIN_DETAIL2);
-	gGL.getTexUnit(detail2)->bind(detail_texture2p);
+    //
+    // detail texture 1
+    //
+    S32 detail1 = sShader->enableTexture(LLViewerShaderMgr::TERRAIN_DETAIL1);
+    gGL.getTexUnit(detail1)->bind(detail_texture1p);
+    gGL.getTexUnit(detail1)->setTextureAddressMode(LLTexUnit::TAM_WRAP);
+    gGL.getTexUnit(detail1)->activate();
+
+    // detail texture 2
+    //
+    S32 detail2 = sShader->enableTexture(LLViewerShaderMgr::TERRAIN_DETAIL2);
+    gGL.getTexUnit(detail2)->bind(detail_texture2p);
     gGL.getTexUnit(detail2)->setTextureAddressMode(LLTexUnit::TAM_WRAP);
-	gGL.getTexUnit(detail2)->activate();
-	
+    gGL.getTexUnit(detail2)->activate();
 
-	// detail texture 3
-	//
-	S32 detail3 = sShader->enableTexture(LLViewerShaderMgr::TERRAIN_DETAIL3);
-	gGL.getTexUnit(detail3)->bind(detail_texture3p);
-	gGL.getTexUnit(detail3)->setTextureAddressMode(LLTexUnit::TAM_WRAP);
-	gGL.getTexUnit(detail3)->activate();
 
-	//
-	// Alpha Ramp 
-	//
-	S32 alpha_ramp = sShader->enableTexture(LLViewerShaderMgr::TERRAIN_ALPHARAMP);
-	gGL.getTexUnit(alpha_ramp)->bind(m2DAlphaRampImagep);
+    // detail texture 3
+    //
+    S32 detail3 = sShader->enableTexture(LLViewerShaderMgr::TERRAIN_DETAIL3);
+    gGL.getTexUnit(detail3)->bind(detail_texture3p);
+    gGL.getTexUnit(detail3)->setTextureAddressMode(LLTexUnit::TAM_WRAP);
+    gGL.getTexUnit(detail3)->activate();
+
+    //
+    // Alpha Ramp
+    //
+    S32 alpha_ramp = sShader->enableTexture(LLViewerShaderMgr::TERRAIN_ALPHARAMP);
+    gGL.getTexUnit(alpha_ramp)->bind(m2DAlphaRampImagep);
     gGL.getTexUnit(alpha_ramp)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
 
-	// GL_BLEND disabled by default
-	drawLoop();
+    // GL_BLEND disabled by default
+    drawLoop();
 
-	// Disable multitexture
-	sShader->disableTexture(LLViewerShaderMgr::TERRAIN_ALPHARAMP);
-	sShader->disableTexture(LLViewerShaderMgr::TERRAIN_DETAIL0);
-	sShader->disableTexture(LLViewerShaderMgr::TERRAIN_DETAIL1);
-	sShader->disableTexture(LLViewerShaderMgr::TERRAIN_DETAIL2);
-	sShader->disableTexture(LLViewerShaderMgr::TERRAIN_DETAIL3);
+    // Disable multitexture
+    sShader->disableTexture(LLViewerShaderMgr::TERRAIN_ALPHARAMP);
+    sShader->disableTexture(LLViewerShaderMgr::TERRAIN_DETAIL0);
+    sShader->disableTexture(LLViewerShaderMgr::TERRAIN_DETAIL1);
+    sShader->disableTexture(LLViewerShaderMgr::TERRAIN_DETAIL2);
+    sShader->disableTexture(LLViewerShaderMgr::TERRAIN_DETAIL3);
 
-	gGL.getTexUnit(alpha_ramp)->unbind(LLTexUnit::TT_TEXTURE);
-	gGL.getTexUnit(alpha_ramp)->disable();
-	gGL.getTexUnit(alpha_ramp)->activate();
-	
-	gGL.getTexUnit(detail3)->unbind(LLTexUnit::TT_TEXTURE);
-	gGL.getTexUnit(detail3)->disable();
-	gGL.getTexUnit(detail3)->activate();
+    gGL.getTexUnit(alpha_ramp)->unbind(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(alpha_ramp)->disable();
+    gGL.getTexUnit(alpha_ramp)->activate();
 
-	gGL.getTexUnit(detail2)->unbind(LLTexUnit::TT_TEXTURE);
-	gGL.getTexUnit(detail2)->disable();
-	gGL.getTexUnit(detail2)->activate();
+    gGL.getTexUnit(detail3)->unbind(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(detail3)->disable();
+    gGL.getTexUnit(detail3)->activate();
 
-	gGL.getTexUnit(detail1)->unbind(LLTexUnit::TT_TEXTURE);
-	gGL.getTexUnit(detail1)->disable();
-	gGL.getTexUnit(detail1)->activate();
-	
-	//----------------------------------------------------------------------------
-	// Restore Texture Unit 0 defaults
-	
-	gGL.getTexUnit(detail0)->unbind(LLTexUnit::TT_TEXTURE);
-	gGL.getTexUnit(detail0)->enable(LLTexUnit::TT_TEXTURE);
-	gGL.getTexUnit(detail0)->activate();
+    gGL.getTexUnit(detail2)->unbind(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(detail2)->disable();
+    gGL.getTexUnit(detail2)->activate();
+
+    gGL.getTexUnit(detail1)->unbind(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(detail1)->disable();
+    gGL.getTexUnit(detail1)->activate();
+
+    //----------------------------------------------------------------------------
+    // Restore Texture Unit 0 defaults
+
+    gGL.getTexUnit(detail0)->unbind(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(detail0)->enable(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(detail0)->activate();
 }
 
 // *TODO: Investigate use of bindFast for PBR terrain textures
 void LLDrawPoolTerrain::renderFullShaderPBR(BOOL local_materials)
 {
-	// Hack! Get the region that this draw pool is rendering from!
-	LLViewerRegion *regionp = mDrawFace[0]->getDrawable()->getVObj()->getRegion();
-	LLVLComposition *compp = regionp->getComposition();
-	LLPointer<LLFetchedGLTFMaterial> (*fetched_materials)[LLVLComposition::ASSET_COUNT] = &compp->mDetailMaterials;
+    // Hack! Get the region that this draw pool is rendering from!
+    LLViewerRegion *regionp = mDrawFace[0]->getDrawable()->getVObj()->getRegion();
+    LLVLComposition *compp = regionp->getComposition();
+    LLPointer<LLFetchedGLTFMaterial> (*fetched_materials)[LLVLComposition::ASSET_COUNT] = &compp->mDetailMaterials;
 
-	constexpr U32 terrain_material_count = LLVLComposition::ASSET_COUNT;
+    constexpr U32 terrain_material_count = LLVLComposition::ASSET_COUNT;
 #ifdef SHOW_ASSERT
-	constexpr U32 shader_material_count = 1 + LLViewerShaderMgr::TERRAIN_DETAIL3_BASE_COLOR - LLViewerShaderMgr::TERRAIN_DETAIL0_BASE_COLOR;
-	llassert(shader_material_count == terrain_material_count);
+    constexpr U32 shader_material_count = 1 + LLViewerShaderMgr::TERRAIN_DETAIL3_BASE_COLOR - LLViewerShaderMgr::TERRAIN_DETAIL0_BASE_COLOR;
+    llassert(shader_material_count == terrain_material_count);
 #endif
 
     if (local_materials)
     {
         // Override region terrain with the global local override terrain
-		fetched_materials = &gLocalTerrainMaterials.mDetailMaterials;
+        fetched_materials = &gLocalTerrainMaterials.mDetailMaterials;
     }
-	const LLGLTFMaterial* materials[terrain_material_count];
-	for (U32 i = 0; i < terrain_material_count; ++i)
-	{
-		materials[i] = (*fetched_materials)[i].get();
-		if (!materials[i]) { materials[i] = &LLGLTFMaterial::sDefault; }
-	}
+    const LLGLTFMaterial* materials[terrain_material_count];
+    for (U32 i = 0; i < terrain_material_count; ++i)
+    {
+        materials[i] = (*fetched_materials)[i].get();
+        if (!materials[i]) { materials[i] = &LLGLTFMaterial::sDefault; }
+    }
 
     S32 detail_basecolor[terrain_material_count];
     S32 detail_normal[terrain_material_count];
@@ -357,19 +357,19 @@ void LLDrawPoolTerrain::renderFullShaderPBR(BOOL local_materials)
 
     for (U32 i = 0; i < terrain_material_count; ++i)
     {
-		LLViewerTexture* detail_basecolor_texturep = nullptr;
-		LLViewerTexture* detail_normal_texturep = nullptr;
-		LLViewerTexture* detail_metalrough_texturep = nullptr;
-		LLViewerTexture* detail_emissive_texturep = nullptr;
+        LLViewerTexture* detail_basecolor_texturep = nullptr;
+        LLViewerTexture* detail_normal_texturep = nullptr;
+        LLViewerTexture* detail_metalrough_texturep = nullptr;
+        LLViewerTexture* detail_emissive_texturep = nullptr;
 
-		const LLFetchedGLTFMaterial* fetched_material = (*fetched_materials)[i].get();
-		if (fetched_material)
-		{
-			detail_basecolor_texturep = fetched_material->mBaseColorTexture;
-			detail_normal_texturep = fetched_material->mNormalTexture;
-			detail_metalrough_texturep = fetched_material->mMetallicRoughnessTexture;
-			detail_emissive_texturep = fetched_material->mEmissiveTexture;
-		}
+        const LLFetchedGLTFMaterial* fetched_material = (*fetched_materials)[i].get();
+        if (fetched_material)
+        {
+            detail_basecolor_texturep = fetched_material->mBaseColorTexture;
+            detail_normal_texturep = fetched_material->mNormalTexture;
+            detail_metalrough_texturep = fetched_material->mMetallicRoughnessTexture;
+            detail_emissive_texturep = fetched_material->mEmissiveTexture;
+        }
 
         detail_basecolor[i] = sShader->enableTexture(LLViewerShaderMgr::TERRAIN_DETAIL0_BASE_COLOR + i);
         if (detail_basecolor_texturep)
@@ -429,8 +429,8 @@ void LLDrawPoolTerrain::renderFullShaderPBR(BOOL local_materials)
         }
     }
 
-	LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
-	llassert(shader);
+    LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
+    llassert(shader);
 
     LLGLTFMaterial::TextureTransform base_color_transform;
     base_color_transform.mScale = LLVector2(sPBRDetailScale, sPBRDetailScale);
@@ -443,11 +443,11 @@ void LLDrawPoolTerrain::renderFullShaderPBR(BOOL local_materials)
 
     LLSettingsWater::ptr_t pwater = LLEnvironment::instance().getCurrentWater();
 
-	//
-	// Alpha Ramp 
-	//
-	S32 alpha_ramp = sShader->enableTexture(LLViewerShaderMgr::TERRAIN_ALPHARAMP);
-	gGL.getTexUnit(alpha_ramp)->bind(m2DAlphaRampImagep);
+    //
+    // Alpha Ramp
+    //
+    S32 alpha_ramp = sShader->enableTexture(LLViewerShaderMgr::TERRAIN_ALPHARAMP);
+    gGL.getTexUnit(alpha_ramp)->bind(m2DAlphaRampImagep);
     gGL.getTexUnit(alpha_ramp)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
 
     //
@@ -492,16 +492,16 @@ void LLDrawPoolTerrain::renderFullShaderPBR(BOOL local_materials)
     }
     shader->uniform4f(LLShaderMgr::TERRAIN_MINIMUM_ALPHAS, minimum_alphas[0], minimum_alphas[1], minimum_alphas[2], minimum_alphas[3]);
 
-	// GL_BLEND disabled by default
-	drawLoop();
+    // GL_BLEND disabled by default
+    drawLoop();
 
-	// Disable multitexture
+    // Disable multitexture
 
-	sShader->disableTexture(LLViewerShaderMgr::TERRAIN_ALPHARAMP);
+    sShader->disableTexture(LLViewerShaderMgr::TERRAIN_ALPHARAMP);
 
-	gGL.getTexUnit(alpha_ramp)->unbind(LLTexUnit::TT_TEXTURE);
-	gGL.getTexUnit(alpha_ramp)->disable();
-	gGL.getTexUnit(alpha_ramp)->activate();
+    gGL.getTexUnit(alpha_ramp)->unbind(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(alpha_ramp)->disable();
+    gGL.getTexUnit(alpha_ramp)->activate();
 
     for (U32 i = 0; i < terrain_material_count; ++i)
     {
@@ -548,466 +548,466 @@ void LLDrawPoolTerrain::renderFullShaderPBR(BOOL local_materials)
 
 void LLDrawPoolTerrain::hilightParcelOwners()
 {
-	{ //use fullbright shader for highlighting
-		LLGLSLShader* old_shader = sShader;
-		sShader->unbind();
-		sShader = &gDeferredHighlightProgram;
-		sShader->bind();
-		gGL.diffuseColor4f(1, 1, 1, 1);
-		LLGLEnable polyOffset(GL_POLYGON_OFFSET_FILL);
-		glPolygonOffset(-1.0f, -1.0f);
-		renderOwnership();
-		sShader = old_shader;
-		sShader->bind();
-	}
-	
+    { //use fullbright shader for highlighting
+        LLGLSLShader* old_shader = sShader;
+        sShader->unbind();
+        sShader = &gDeferredHighlightProgram;
+        sShader->bind();
+        gGL.diffuseColor4f(1, 1, 1, 1);
+        LLGLEnable polyOffset(GL_POLYGON_OFFSET_FILL);
+        glPolygonOffset(-1.0f, -1.0f);
+        renderOwnership();
+        sShader = old_shader;
+        sShader->bind();
+    }
+
 }
 
 void LLDrawPoolTerrain::renderFull4TU()
 {
-	// Hack! Get the region that this draw pool is rendering from!
-	LLViewerRegion *regionp = mDrawFace[0]->getDrawable()->getVObj()->getRegion();
-	LLVLComposition *compp = regionp->getComposition();
-	LLViewerTexture *detail_texture0p = compp->mDetailTextures[0];
-	LLViewerTexture *detail_texture1p = compp->mDetailTextures[1];
-	LLViewerTexture *detail_texture2p = compp->mDetailTextures[2];
-	LLViewerTexture *detail_texture3p = compp->mDetailTextures[3];
+    // Hack! Get the region that this draw pool is rendering from!
+    LLViewerRegion *regionp = mDrawFace[0]->getDrawable()->getVObj()->getRegion();
+    LLVLComposition *compp = regionp->getComposition();
+    LLViewerTexture *detail_texture0p = compp->mDetailTextures[0];
+    LLViewerTexture *detail_texture1p = compp->mDetailTextures[1];
+    LLViewerTexture *detail_texture2p = compp->mDetailTextures[2];
+    LLViewerTexture *detail_texture3p = compp->mDetailTextures[3];
 
-	LLVector3d region_origin_global = gAgent.getRegion()->getOriginGlobal();
-	F32 offset_x = (F32)fmod(region_origin_global.mdV[VX], 1.0/(F64)sDetailScale)*sDetailScale;
-	F32 offset_y = (F32)fmod(region_origin_global.mdV[VY], 1.0/(F64)sDetailScale)*sDetailScale;
+    LLVector3d region_origin_global = gAgent.getRegion()->getOriginGlobal();
+    F32 offset_x = (F32)fmod(region_origin_global.mdV[VX], 1.0/(F64)sDetailScale)*sDetailScale;
+    F32 offset_y = (F32)fmod(region_origin_global.mdV[VY], 1.0/(F64)sDetailScale)*sDetailScale;
 
-	LLVector4 tp0, tp1;
-	
-	tp0.setVec(sDetailScale, 0.0f, 0.0f, offset_x);
-	tp1.setVec(0.0f, sDetailScale, 0.0f, offset_y);
+    LLVector4 tp0, tp1;
 
-	gGL.blendFunc(LLRender::BF_ONE_MINUS_SOURCE_ALPHA, LLRender::BF_SOURCE_ALPHA);
-	
-	//----------------------------------------------------------------------------
-	// Pass 1/1
+    tp0.setVec(sDetailScale, 0.0f, 0.0f, offset_x);
+    tp1.setVec(0.0f, sDetailScale, 0.0f, offset_y);
 
-	//
-	// Stage 0: detail texture 0
-	//
-	gGL.getTexUnit(0)->activate();
-	gGL.getTexUnit(0)->bind(detail_texture0p);
-	
-	glEnable(GL_TEXTURE_GEN_S);
-	glEnable(GL_TEXTURE_GEN_T);
-	glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
-	glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
+    gGL.blendFunc(LLRender::BF_ONE_MINUS_SOURCE_ALPHA, LLRender::BF_SOURCE_ALPHA);
 
-	glTexGenfv(GL_S, GL_OBJECT_PLANE, tp0.mV);
-	glTexGenfv(GL_T, GL_OBJECT_PLANE, tp1.mV);
+    //----------------------------------------------------------------------------
+    // Pass 1/1
 
-	//
-	// Stage 1: Generate alpha ramp for detail0/detail1 transition
-	//
+    //
+    // Stage 0: detail texture 0
+    //
+    gGL.getTexUnit(0)->activate();
+    gGL.getTexUnit(0)->bind(detail_texture0p);
 
-	gGL.getTexUnit(1)->bind(m2DAlphaRampImagep.get());
-	gGL.getTexUnit(1)->enable(LLTexUnit::TT_TEXTURE);
-	gGL.getTexUnit(1)->activate();
-	
-	//
-	// Stage 2: Interpolate detail1 with existing based on ramp
-	//
-	gGL.getTexUnit(2)->bind(detail_texture1p);
-	gGL.getTexUnit(2)->enable(LLTexUnit::TT_TEXTURE);
-	gGL.getTexUnit(2)->activate();
+    glEnable(GL_TEXTURE_GEN_S);
+    glEnable(GL_TEXTURE_GEN_T);
+    glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
+    glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
 
-	glEnable(GL_TEXTURE_GEN_S);
-	glEnable(GL_TEXTURE_GEN_T);
-	glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
-	glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
-	glTexGenfv(GL_S, GL_OBJECT_PLANE, tp0.mV);
-	glTexGenfv(GL_T, GL_OBJECT_PLANE, tp1.mV);
+    glTexGenfv(GL_S, GL_OBJECT_PLANE, tp0.mV);
+    glTexGenfv(GL_T, GL_OBJECT_PLANE, tp1.mV);
 
-	//
-	// Stage 3: Modulate with primary (vertex) color for lighting
-	//
-	gGL.getTexUnit(3)->bind(detail_texture1p);
-	gGL.getTexUnit(3)->enable(LLTexUnit::TT_TEXTURE);
-	gGL.getTexUnit(3)->activate();
-	
-	gGL.getTexUnit(0)->activate();
-	
-	// GL_BLEND disabled by default
-	drawLoop();
+    //
+    // Stage 1: Generate alpha ramp for detail0/detail1 transition
+    //
 
-	//----------------------------------------------------------------------------
-	// Second pass
+    gGL.getTexUnit(1)->bind(m2DAlphaRampImagep.get());
+    gGL.getTexUnit(1)->enable(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(1)->activate();
 
-	// Stage 0: Write detail3 into base
-	//
-	gGL.getTexUnit(0)->activate();
-	gGL.getTexUnit(0)->bind(detail_texture3p);
+    //
+    // Stage 2: Interpolate detail1 with existing based on ramp
+    //
+    gGL.getTexUnit(2)->bind(detail_texture1p);
+    gGL.getTexUnit(2)->enable(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(2)->activate();
 
-	glEnable(GL_TEXTURE_GEN_S);
-	glEnable(GL_TEXTURE_GEN_T);
-	glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
-	glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
-	glTexGenfv(GL_S, GL_OBJECT_PLANE, tp0.mV);
-	glTexGenfv(GL_T, GL_OBJECT_PLANE, tp1.mV);
+    glEnable(GL_TEXTURE_GEN_S);
+    glEnable(GL_TEXTURE_GEN_T);
+    glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
+    glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
+    glTexGenfv(GL_S, GL_OBJECT_PLANE, tp0.mV);
+    glTexGenfv(GL_T, GL_OBJECT_PLANE, tp1.mV);
 
-	//
-	// Stage 1: Generate alpha ramp for detail2/detail3 transition
-	//
-	gGL.getTexUnit(1)->bind(m2DAlphaRampImagep);
-	gGL.getTexUnit(1)->enable(LLTexUnit::TT_TEXTURE);
-	gGL.getTexUnit(1)->activate();
+    //
+    // Stage 3: Modulate with primary (vertex) color for lighting
+    //
+    gGL.getTexUnit(3)->bind(detail_texture1p);
+    gGL.getTexUnit(3)->enable(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(3)->activate();
 
-	// Set the texture matrix
-	gGL.matrixMode(LLRender::MM_TEXTURE);
-	gGL.loadIdentity();
-	gGL.translatef(-2.f, 0.f, 0.f);
+    gGL.getTexUnit(0)->activate();
 
-	//
-	// Stage 2: Interpolate detail2 with existing based on ramp
-	//
-	gGL.getTexUnit(2)->bind(detail_texture2p);
-	gGL.getTexUnit(2)->enable(LLTexUnit::TT_TEXTURE);
-	gGL.getTexUnit(2)->activate();
+    // GL_BLEND disabled by default
+    drawLoop();
 
-	glEnable(GL_TEXTURE_GEN_S);
-	glEnable(GL_TEXTURE_GEN_T);
-	glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
-	glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
-	glTexGenfv(GL_S, GL_OBJECT_PLANE, tp0.mV);
-	glTexGenfv(GL_T, GL_OBJECT_PLANE, tp1.mV);
+    //----------------------------------------------------------------------------
+    // Second pass
 
-	//
-	// Stage 3: Generate alpha ramp for detail1/detail2 transition
-	//
-	gGL.getTexUnit(3)->bind(m2DAlphaRampImagep);
-	gGL.getTexUnit(3)->enable(LLTexUnit::TT_TEXTURE);
-	gGL.getTexUnit(3)->activate();
+    // Stage 0: Write detail3 into base
+    //
+    gGL.getTexUnit(0)->activate();
+    gGL.getTexUnit(0)->bind(detail_texture3p);
 
-	// Set the texture matrix
-	gGL.matrixMode(LLRender::MM_TEXTURE);
-	gGL.loadIdentity();
-	gGL.translatef(-1.f, 0.f, 0.f);
-	gGL.matrixMode(LLRender::MM_MODELVIEW);
+    glEnable(GL_TEXTURE_GEN_S);
+    glEnable(GL_TEXTURE_GEN_T);
+    glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
+    glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
+    glTexGenfv(GL_S, GL_OBJECT_PLANE, tp0.mV);
+    glTexGenfv(GL_T, GL_OBJECT_PLANE, tp1.mV);
 
-	gGL.getTexUnit(0)->activate();
-	{
-		LLGLEnable blend(GL_BLEND);
-		drawLoop();
-	}
+    //
+    // Stage 1: Generate alpha ramp for detail2/detail3 transition
+    //
+    gGL.getTexUnit(1)->bind(m2DAlphaRampImagep);
+    gGL.getTexUnit(1)->enable(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(1)->activate();
 
-	LLVertexBuffer::unbind();
-	// Disable multitexture
-	gGL.getTexUnit(3)->unbind(LLTexUnit::TT_TEXTURE);
-	gGL.getTexUnit(3)->disable();
-	gGL.getTexUnit(3)->activate();
-	
-	gGL.matrixMode(LLRender::MM_TEXTURE);
-	gGL.loadIdentity();
-	gGL.matrixMode(LLRender::MM_MODELVIEW);
+    // Set the texture matrix
+    gGL.matrixMode(LLRender::MM_TEXTURE);
+    gGL.loadIdentity();
+    gGL.translatef(-2.f, 0.f, 0.f);
 
-	gGL.getTexUnit(2)->unbind(LLTexUnit::TT_TEXTURE);
-	gGL.getTexUnit(2)->disable();
-	gGL.getTexUnit(2)->activate();
-	
-	glDisable(GL_TEXTURE_GEN_S);
-	glDisable(GL_TEXTURE_GEN_T);
-	gGL.matrixMode(LLRender::MM_TEXTURE);
-	gGL.loadIdentity();
-	gGL.matrixMode(LLRender::MM_MODELVIEW);
+    //
+    // Stage 2: Interpolate detail2 with existing based on ramp
+    //
+    gGL.getTexUnit(2)->bind(detail_texture2p);
+    gGL.getTexUnit(2)->enable(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(2)->activate();
 
-	gGL.getTexUnit(1)->unbind(LLTexUnit::TT_TEXTURE);	
-	gGL.getTexUnit(1)->disable();
-	gGL.getTexUnit(1)->activate();
- 	
-	gGL.matrixMode(LLRender::MM_TEXTURE);
-	gGL.loadIdentity();
-	gGL.matrixMode(LLRender::MM_MODELVIEW);
+    glEnable(GL_TEXTURE_GEN_S);
+    glEnable(GL_TEXTURE_GEN_T);
+    glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
+    glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
+    glTexGenfv(GL_S, GL_OBJECT_PLANE, tp0.mV);
+    glTexGenfv(GL_T, GL_OBJECT_PLANE, tp1.mV);
 
-	// Restore blend state
-	gGL.setSceneBlendType(LLRender::BT_ALPHA);
-	
-	//----------------------------------------------------------------------------
-	// Restore Texture Unit 0 defaults
-	
-	gGL.getTexUnit(0)->activate();
-	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+    //
+    // Stage 3: Generate alpha ramp for detail1/detail2 transition
+    //
+    gGL.getTexUnit(3)->bind(m2DAlphaRampImagep);
+    gGL.getTexUnit(3)->enable(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(3)->activate();
 
-	
-	glDisable(GL_TEXTURE_GEN_S);
-	glDisable(GL_TEXTURE_GEN_T);
-	gGL.matrixMode(LLRender::MM_TEXTURE);
-	gGL.loadIdentity();
-	gGL.matrixMode(LLRender::MM_MODELVIEW);
+    // Set the texture matrix
+    gGL.matrixMode(LLRender::MM_TEXTURE);
+    gGL.loadIdentity();
+    gGL.translatef(-1.f, 0.f, 0.f);
+    gGL.matrixMode(LLRender::MM_MODELVIEW);
+
+    gGL.getTexUnit(0)->activate();
+    {
+        LLGLEnable blend(GL_BLEND);
+        drawLoop();
+    }
+
+    LLVertexBuffer::unbind();
+    // Disable multitexture
+    gGL.getTexUnit(3)->unbind(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(3)->disable();
+    gGL.getTexUnit(3)->activate();
+
+    gGL.matrixMode(LLRender::MM_TEXTURE);
+    gGL.loadIdentity();
+    gGL.matrixMode(LLRender::MM_MODELVIEW);
+
+    gGL.getTexUnit(2)->unbind(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(2)->disable();
+    gGL.getTexUnit(2)->activate();
+
+    glDisable(GL_TEXTURE_GEN_S);
+    glDisable(GL_TEXTURE_GEN_T);
+    gGL.matrixMode(LLRender::MM_TEXTURE);
+    gGL.loadIdentity();
+    gGL.matrixMode(LLRender::MM_MODELVIEW);
+
+    gGL.getTexUnit(1)->unbind(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(1)->disable();
+    gGL.getTexUnit(1)->activate();
+
+    gGL.matrixMode(LLRender::MM_TEXTURE);
+    gGL.loadIdentity();
+    gGL.matrixMode(LLRender::MM_MODELVIEW);
+
+    // Restore blend state
+    gGL.setSceneBlendType(LLRender::BT_ALPHA);
+
+    //----------------------------------------------------------------------------
+    // Restore Texture Unit 0 defaults
+
+    gGL.getTexUnit(0)->activate();
+    gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+
+
+    glDisable(GL_TEXTURE_GEN_S);
+    glDisable(GL_TEXTURE_GEN_T);
+    gGL.matrixMode(LLRender::MM_TEXTURE);
+    gGL.loadIdentity();
+    gGL.matrixMode(LLRender::MM_MODELVIEW);
 }
 
 void LLDrawPoolTerrain::renderFull2TU()
 {
-	// Hack! Get the region that this draw pool is rendering from!
-	LLViewerRegion *regionp = mDrawFace[0]->getDrawable()->getVObj()->getRegion();
-	LLVLComposition *compp = regionp->getComposition();
-	LLViewerTexture *detail_texture0p = compp->mDetailTextures[0];
-	LLViewerTexture *detail_texture1p = compp->mDetailTextures[1];
-	LLViewerTexture *detail_texture2p = compp->mDetailTextures[2];
-	LLViewerTexture *detail_texture3p = compp->mDetailTextures[3];
+    // Hack! Get the region that this draw pool is rendering from!
+    LLViewerRegion *regionp = mDrawFace[0]->getDrawable()->getVObj()->getRegion();
+    LLVLComposition *compp = regionp->getComposition();
+    LLViewerTexture *detail_texture0p = compp->mDetailTextures[0];
+    LLViewerTexture *detail_texture1p = compp->mDetailTextures[1];
+    LLViewerTexture *detail_texture2p = compp->mDetailTextures[2];
+    LLViewerTexture *detail_texture3p = compp->mDetailTextures[3];
 
-	LLVector3d region_origin_global = gAgent.getRegion()->getOriginGlobal();
-	F32 offset_x = (F32)fmod(region_origin_global.mdV[VX], 1.0/(F64)sDetailScale)*sDetailScale;
-	F32 offset_y = (F32)fmod(region_origin_global.mdV[VY], 1.0/(F64)sDetailScale)*sDetailScale;
+    LLVector3d region_origin_global = gAgent.getRegion()->getOriginGlobal();
+    F32 offset_x = (F32)fmod(region_origin_global.mdV[VX], 1.0/(F64)sDetailScale)*sDetailScale;
+    F32 offset_y = (F32)fmod(region_origin_global.mdV[VY], 1.0/(F64)sDetailScale)*sDetailScale;
 
-	LLVector4 tp0, tp1;
-	
-	tp0.setVec(sDetailScale, 0.0f, 0.0f, offset_x);
-	tp1.setVec(0.0f, sDetailScale, 0.0f, offset_y);
+    LLVector4 tp0, tp1;
 
-	gGL.blendFunc(LLRender::BF_ONE_MINUS_SOURCE_ALPHA, LLRender::BF_SOURCE_ALPHA);
-	
-	//----------------------------------------------------------------------------
-	// Pass 1/4
+    tp0.setVec(sDetailScale, 0.0f, 0.0f, offset_x);
+    tp1.setVec(0.0f, sDetailScale, 0.0f, offset_y);
 
-	//
-	// Stage 0: Render detail 0 into base
-	//
-	gGL.getTexUnit(0)->bind(detail_texture0p);
-	glEnable(GL_TEXTURE_GEN_S);
-	glEnable(GL_TEXTURE_GEN_T);
-	glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
-	glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
+    gGL.blendFunc(LLRender::BF_ONE_MINUS_SOURCE_ALPHA, LLRender::BF_SOURCE_ALPHA);
 
-	glTexGenfv(GL_S, GL_OBJECT_PLANE, tp0.mV);
-	glTexGenfv(GL_T, GL_OBJECT_PLANE, tp1.mV);
+    //----------------------------------------------------------------------------
+    // Pass 1/4
 
-	drawLoop();
+    //
+    // Stage 0: Render detail 0 into base
+    //
+    gGL.getTexUnit(0)->bind(detail_texture0p);
+    glEnable(GL_TEXTURE_GEN_S);
+    glEnable(GL_TEXTURE_GEN_T);
+    glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
+    glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
 
-	//----------------------------------------------------------------------------
-	// Pass 2/4
-	
-	//
-	// Stage 0: Generate alpha ramp for detail0/detail1 transition
-	//
-	gGL.getTexUnit(0)->bind(m2DAlphaRampImagep);
-	
-	glDisable(GL_TEXTURE_GEN_S);
-	glDisable(GL_TEXTURE_GEN_T);
-	
-	//
-	// Stage 1: Write detail1
-	//
-	gGL.getTexUnit(1)->bind(detail_texture1p);
-	gGL.getTexUnit(1)->enable(LLTexUnit::TT_TEXTURE);
-	gGL.getTexUnit(1)->activate();
+    glTexGenfv(GL_S, GL_OBJECT_PLANE, tp0.mV);
+    glTexGenfv(GL_T, GL_OBJECT_PLANE, tp1.mV);
 
-	glEnable(GL_TEXTURE_GEN_S);
-	glEnable(GL_TEXTURE_GEN_T);
-	glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
-	glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
-	glTexGenfv(GL_S, GL_OBJECT_PLANE, tp0.mV);
-	glTexGenfv(GL_T, GL_OBJECT_PLANE, tp1.mV);
+    drawLoop();
 
-	gGL.getTexUnit(0)->activate();
-	{
-		LLGLEnable blend(GL_BLEND);
-		drawLoop();
-	}
-	//----------------------------------------------------------------------------
-	// Pass 3/4
-	
-	//
-	// Stage 0: Generate alpha ramp for detail1/detail2 transition
-	//
-	gGL.getTexUnit(0)->bind(m2DAlphaRampImagep);
+    //----------------------------------------------------------------------------
+    // Pass 2/4
 
-	// Set the texture matrix
-	gGL.matrixMode(LLRender::MM_TEXTURE);
-	gGL.loadIdentity();
-	gGL.translatef(-1.f, 0.f, 0.f);
-	gGL.matrixMode(LLRender::MM_MODELVIEW);
+    //
+    // Stage 0: Generate alpha ramp for detail0/detail1 transition
+    //
+    gGL.getTexUnit(0)->bind(m2DAlphaRampImagep);
 
-	//
-	// Stage 1: Write detail2
-	//
-	gGL.getTexUnit(1)->bind(detail_texture2p);
-	gGL.getTexUnit(1)->enable(LLTexUnit::TT_TEXTURE);
-	gGL.getTexUnit(1)->activate();
-	
-	glEnable(GL_TEXTURE_GEN_S);
-	glEnable(GL_TEXTURE_GEN_T);
-	glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
-	glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
-	glTexGenfv(GL_S, GL_OBJECT_PLANE, tp0.mV);
-	glTexGenfv(GL_T, GL_OBJECT_PLANE, tp1.mV);
+    glDisable(GL_TEXTURE_GEN_S);
+    glDisable(GL_TEXTURE_GEN_T);
 
-	{
-		LLGLEnable blend(GL_BLEND);
-		drawLoop();
-	}
-	
-	//----------------------------------------------------------------------------
-	// Pass 4/4
-	
-	//
-	// Stage 0: Generate alpha ramp for detail2/detail3 transition
-	//
-	gGL.getTexUnit(0)->activate();
-	gGL.getTexUnit(0)->bind(m2DAlphaRampImagep);
-	// Set the texture matrix
-	gGL.matrixMode(LLRender::MM_TEXTURE);
-	gGL.loadIdentity();
-	gGL.translatef(-2.f, 0.f, 0.f);
-	gGL.matrixMode(LLRender::MM_MODELVIEW);
+    //
+    // Stage 1: Write detail1
+    //
+    gGL.getTexUnit(1)->bind(detail_texture1p);
+    gGL.getTexUnit(1)->enable(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(1)->activate();
 
-	// Stage 1: Write detail3
-	gGL.getTexUnit(1)->bind(detail_texture3p);
-	gGL.getTexUnit(1)->enable(LLTexUnit::TT_TEXTURE);
-	gGL.getTexUnit(1)->activate();
+    glEnable(GL_TEXTURE_GEN_S);
+    glEnable(GL_TEXTURE_GEN_T);
+    glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
+    glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
+    glTexGenfv(GL_S, GL_OBJECT_PLANE, tp0.mV);
+    glTexGenfv(GL_T, GL_OBJECT_PLANE, tp1.mV);
 
-	glEnable(GL_TEXTURE_GEN_S);
-	glEnable(GL_TEXTURE_GEN_T);
-	glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
-	glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
-	glTexGenfv(GL_S, GL_OBJECT_PLANE, tp0.mV);
-	glTexGenfv(GL_T, GL_OBJECT_PLANE, tp1.mV);
+    gGL.getTexUnit(0)->activate();
+    {
+        LLGLEnable blend(GL_BLEND);
+        drawLoop();
+    }
+    //----------------------------------------------------------------------------
+    // Pass 3/4
 
-	gGL.getTexUnit(0)->activate();
-	{
-		LLGLEnable blend(GL_BLEND);
-		drawLoop();
-	}
-	
-	// Restore blend state
-	gGL.setSceneBlendType(LLRender::BT_ALPHA);
-	
-	// Disable multitexture
-	
-	gGL.getTexUnit(1)->unbind(LLTexUnit::TT_TEXTURE);
-	gGL.getTexUnit(1)->disable();
-	gGL.getTexUnit(1)->activate();
+    //
+    // Stage 0: Generate alpha ramp for detail1/detail2 transition
+    //
+    gGL.getTexUnit(0)->bind(m2DAlphaRampImagep);
 
-	glDisable(GL_TEXTURE_GEN_S);
-	glDisable(GL_TEXTURE_GEN_T);
-	gGL.matrixMode(LLRender::MM_TEXTURE);
-	gGL.loadIdentity();
-	gGL.matrixMode(LLRender::MM_MODELVIEW);
+    // Set the texture matrix
+    gGL.matrixMode(LLRender::MM_TEXTURE);
+    gGL.loadIdentity();
+    gGL.translatef(-1.f, 0.f, 0.f);
+    gGL.matrixMode(LLRender::MM_MODELVIEW);
 
-	//----------------------------------------------------------------------------
-	// Restore Texture Unit 0 defaults
-	
-	gGL.getTexUnit(0)->activate();
-	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+    //
+    // Stage 1: Write detail2
+    //
+    gGL.getTexUnit(1)->bind(detail_texture2p);
+    gGL.getTexUnit(1)->enable(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(1)->activate();
 
-	glDisable(GL_TEXTURE_GEN_S);
-	glDisable(GL_TEXTURE_GEN_T);
-	gGL.matrixMode(LLRender::MM_TEXTURE);
-	gGL.loadIdentity();
-	gGL.matrixMode(LLRender::MM_MODELVIEW);
+    glEnable(GL_TEXTURE_GEN_S);
+    glEnable(GL_TEXTURE_GEN_T);
+    glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
+    glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
+    glTexGenfv(GL_S, GL_OBJECT_PLANE, tp0.mV);
+    glTexGenfv(GL_T, GL_OBJECT_PLANE, tp1.mV);
+
+    {
+        LLGLEnable blend(GL_BLEND);
+        drawLoop();
+    }
+
+    //----------------------------------------------------------------------------
+    // Pass 4/4
+
+    //
+    // Stage 0: Generate alpha ramp for detail2/detail3 transition
+    //
+    gGL.getTexUnit(0)->activate();
+    gGL.getTexUnit(0)->bind(m2DAlphaRampImagep);
+    // Set the texture matrix
+    gGL.matrixMode(LLRender::MM_TEXTURE);
+    gGL.loadIdentity();
+    gGL.translatef(-2.f, 0.f, 0.f);
+    gGL.matrixMode(LLRender::MM_MODELVIEW);
+
+    // Stage 1: Write detail3
+    gGL.getTexUnit(1)->bind(detail_texture3p);
+    gGL.getTexUnit(1)->enable(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(1)->activate();
+
+    glEnable(GL_TEXTURE_GEN_S);
+    glEnable(GL_TEXTURE_GEN_T);
+    glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
+    glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
+    glTexGenfv(GL_S, GL_OBJECT_PLANE, tp0.mV);
+    glTexGenfv(GL_T, GL_OBJECT_PLANE, tp1.mV);
+
+    gGL.getTexUnit(0)->activate();
+    {
+        LLGLEnable blend(GL_BLEND);
+        drawLoop();
+    }
+
+    // Restore blend state
+    gGL.setSceneBlendType(LLRender::BT_ALPHA);
+
+    // Disable multitexture
+
+    gGL.getTexUnit(1)->unbind(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(1)->disable();
+    gGL.getTexUnit(1)->activate();
+
+    glDisable(GL_TEXTURE_GEN_S);
+    glDisable(GL_TEXTURE_GEN_T);
+    gGL.matrixMode(LLRender::MM_TEXTURE);
+    gGL.loadIdentity();
+    gGL.matrixMode(LLRender::MM_MODELVIEW);
+
+    //----------------------------------------------------------------------------
+    // Restore Texture Unit 0 defaults
+
+    gGL.getTexUnit(0)->activate();
+    gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+
+    glDisable(GL_TEXTURE_GEN_S);
+    glDisable(GL_TEXTURE_GEN_T);
+    gGL.matrixMode(LLRender::MM_TEXTURE);
+    gGL.loadIdentity();
+    gGL.matrixMode(LLRender::MM_MODELVIEW);
 }
 
 
 void LLDrawPoolTerrain::renderSimple()
 {
-	LLVector4 tp0, tp1;
+    LLVector4 tp0, tp1;
 
-	//----------------------------------------------------------------------------
-	// Pass 1/1
+    //----------------------------------------------------------------------------
+    // Pass 1/1
 
-	// Stage 0: Base terrain texture pass
-	mTexturep->addTextureStats(1024.f*1024.f);
+    // Stage 0: Base terrain texture pass
+    mTexturep->addTextureStats(1024.f*1024.f);
 
-	gGL.getTexUnit(0)->activate();
-	gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
-	gGL.getTexUnit(0)->bind(mTexturep);
-	
-	LLVector3 origin_agent = mDrawFace[0]->getDrawable()->getVObj()->getRegion()->getOriginAgent();
-	F32 tscale = 1.f/256.f;
-	tp0.setVec(tscale, 0.f, 0.0f, -1.f*(origin_agent.mV[0]/256.f));
-	tp1.setVec(0.f, tscale, 0.0f, -1.f*(origin_agent.mV[1]/256.f));
-	
-	sShader->uniform4fv(LLShaderMgr::OBJECT_PLANE_S, 1, tp0.mV);
-	sShader->uniform4fv(LLShaderMgr::OBJECT_PLANE_T, 1, tp1.mV);
+    gGL.getTexUnit(0)->activate();
+    gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
+    gGL.getTexUnit(0)->bind(mTexturep);
 
-	drawLoop();
+    LLVector3 origin_agent = mDrawFace[0]->getDrawable()->getVObj()->getRegion()->getOriginAgent();
+    F32 tscale = 1.f/256.f;
+    tp0.setVec(tscale, 0.f, 0.0f, -1.f*(origin_agent.mV[0]/256.f));
+    tp1.setVec(0.f, tscale, 0.0f, -1.f*(origin_agent.mV[1]/256.f));
 
-	//----------------------------------------------------------------------------
-	// Restore Texture Unit 0 defaults
-	
-	gGL.getTexUnit(0)->activate();
-	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-	gGL.matrixMode(LLRender::MM_TEXTURE);
-	gGL.loadIdentity();
-	gGL.matrixMode(LLRender::MM_MODELVIEW);
+    sShader->uniform4fv(LLShaderMgr::OBJECT_PLANE_S, 1, tp0.mV);
+    sShader->uniform4fv(LLShaderMgr::OBJECT_PLANE_T, 1, tp1.mV);
+
+    drawLoop();
+
+    //----------------------------------------------------------------------------
+    // Restore Texture Unit 0 defaults
+
+    gGL.getTexUnit(0)->activate();
+    gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+    gGL.matrixMode(LLRender::MM_TEXTURE);
+    gGL.loadIdentity();
+    gGL.matrixMode(LLRender::MM_MODELVIEW);
 }
 
 //============================================================================
 
 void LLDrawPoolTerrain::renderOwnership()
 {
-	LLGLSPipelineAlpha gls_pipeline_alpha;
+    LLGLSPipelineAlpha gls_pipeline_alpha;
 
-	llassert(!mDrawFace.empty());
+    llassert(!mDrawFace.empty());
 
-	// Each terrain pool is associated with a single region.
-	// We need to peek back into the viewer's data to find out
-	// which ownership overlay texture to use.
-	LLFace					*facep				= mDrawFace[0];
-	LLDrawable				*drawablep			= facep->getDrawable();
-	const LLViewerObject	*objectp				= drawablep->getVObj();
-	const LLVOSurfacePatch	*vo_surface_patchp	= (LLVOSurfacePatch *)objectp;
-	LLSurfacePatch			*surface_patchp		= vo_surface_patchp->getPatch();
-	LLSurface				*surfacep			= surface_patchp->getSurface();
-	LLViewerRegion			*regionp			= surfacep->getRegion();
-	LLViewerParcelOverlay	*overlayp			= regionp->getParcelOverlay();
-	LLViewerTexture			*texturep			= overlayp->getTexture();
+    // Each terrain pool is associated with a single region.
+    // We need to peek back into the viewer's data to find out
+    // which ownership overlay texture to use.
+    LLFace                  *facep              = mDrawFace[0];
+    LLDrawable              *drawablep          = facep->getDrawable();
+    const LLViewerObject    *objectp                = drawablep->getVObj();
+    const LLVOSurfacePatch  *vo_surface_patchp  = (LLVOSurfacePatch *)objectp;
+    LLSurfacePatch          *surface_patchp     = vo_surface_patchp->getPatch();
+    LLSurface               *surfacep           = surface_patchp->getSurface();
+    LLViewerRegion          *regionp            = surfacep->getRegion();
+    LLViewerParcelOverlay   *overlayp           = regionp->getParcelOverlay();
+    LLViewerTexture         *texturep           = overlayp->getTexture();
 
-	gGL.getTexUnit(0)->bind(texturep);
+    gGL.getTexUnit(0)->bind(texturep);
 
-	// *NOTE: Because the region is 256 meters wide, but has 257 pixels, the 
-	// texture coordinates for pixel 256x256 is not 1,1. This makes the
-	// ownership map not line up with the selection. We address this with
-	// a texture matrix multiply.
-	gGL.matrixMode(LLRender::MM_TEXTURE);
-	gGL.pushMatrix();
+    // *NOTE: Because the region is 256 meters wide, but has 257 pixels, the
+    // texture coordinates for pixel 256x256 is not 1,1. This makes the
+    // ownership map not line up with the selection. We address this with
+    // a texture matrix multiply.
+    gGL.matrixMode(LLRender::MM_TEXTURE);
+    gGL.pushMatrix();
 
-	const F32 TEXTURE_FUDGE = 257.f / 256.f;
-	gGL.scalef( TEXTURE_FUDGE, TEXTURE_FUDGE, 1.f );
-	for (std::vector<LLFace*>::iterator iter = mDrawFace.begin();
-		 iter != mDrawFace.end(); iter++)
-	{
-		LLFace *facep = *iter;
-		facep->renderIndexed();
-	}
+    const F32 TEXTURE_FUDGE = 257.f / 256.f;
+    gGL.scalef( TEXTURE_FUDGE, TEXTURE_FUDGE, 1.f );
+    for (std::vector<LLFace*>::iterator iter = mDrawFace.begin();
+         iter != mDrawFace.end(); iter++)
+    {
+        LLFace *facep = *iter;
+        facep->renderIndexed();
+    }
 
-	gGL.matrixMode(LLRender::MM_TEXTURE);
-	gGL.popMatrix();
-	gGL.matrixMode(LLRender::MM_MODELVIEW);
+    gGL.matrixMode(LLRender::MM_TEXTURE);
+    gGL.popMatrix();
+    gGL.matrixMode(LLRender::MM_MODELVIEW);
 }
 
 
 void LLDrawPoolTerrain::dirtyTextures(const std::set<LLViewerFetchedTexture*>& textures)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
-	LLViewerFetchedTexture* tex = LLViewerTextureManager::staticCastToFetchedTexture(mTexturep) ;
-	if (tex && textures.find(tex) != textures.end())
-	{
-		for (std::vector<LLFace*>::iterator iter = mReferences.begin();
-			 iter != mReferences.end(); iter++)
-		{
-			LLFace *facep = *iter;
-			gPipeline.markTextured(facep->getDrawable());
-		}
-	}
+    LLViewerFetchedTexture* tex = LLViewerTextureManager::staticCastToFetchedTexture(mTexturep) ;
+    if (tex && textures.find(tex) != textures.end())
+    {
+        for (std::vector<LLFace*>::iterator iter = mReferences.begin();
+             iter != mReferences.end(); iter++)
+        {
+            LLFace *facep = *iter;
+            gPipeline.markTextured(facep->getDrawable());
+        }
+    }
 }
 
 LLViewerTexture *LLDrawPoolTerrain::getTexture()
 {
-	return mTexturep;
+    return mTexturep;
 }
 
 LLViewerTexture *LLDrawPoolTerrain::getDebugTexture()
 {
-	return mTexturep;
+    return mTexturep;
 }
 
 
 LLColor3 LLDrawPoolTerrain::getDebugColor() const
 {
-	return LLColor3(0.f, 0.f, 1.f);
+    return LLColor3(0.f, 0.f, 1.f);
 }

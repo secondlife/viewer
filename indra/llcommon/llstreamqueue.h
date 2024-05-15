@@ -3,7 +3,7 @@
  * @author Nat Goodspeed
  * @date   2012-01-04
  * @brief  Definition of LLStreamQueue
- * 
+ *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Copyright (c) 2012, Linden Research, Inc.
  * $/LicenseInfo$

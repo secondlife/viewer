@@ -1,24 +1,24 @@
-/** 
+/**
  * @file class1\environment\pbrterrainV.glsl
  *
  * $LicenseInfo:firstyear=2023&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2023, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -56,12 +56,12 @@ vec3 terrain_tangent_space_transform(vec4 vertex_tangent, vec3 vertex_normal, ve
 void main()
 {
     //transform vertex
-	gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0); 
+    gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0);
     vary_position = (modelview_matrix*vec4(position.xyz, 1.0)).xyz;
 
-	vec3 n = normal_matrix * normal;
+    vec3 n = normal_matrix * normal;
     vary_vertex_normal = normal;
-	vec3 t = normal_matrix * tangent.xyz;
+    vec3 t = normal_matrix * tangent.xyz;
 
     vary_tangent = normalize(t);
     // *TODO: Decide if we want this. It may be better to just calculate the
@@ -88,7 +88,7 @@ void main()
 #elif TERRAIN_PLANAR_TEXTURE_SAMPLE_COUNT == 1
     vary_texcoord0.xy = terrain_texture_transform(position.xy, texture_base_color_transform);
 #endif
-    
+
     vec4 tc = vec4(texcoord1,0,1);
     vary_texcoord0.zw = tc.xy;
     vary_texcoord1.xy = tc.xy-vec2(2.0, 0.0);

@@ -39,7 +39,7 @@
 #include "llviewercontrol.h"
 
 namespace
-{   
+{
     // Atmosphere Tab
     const std::string   FIELD_SKY_AMBIENT_LIGHT("ambient_light");
     const std::string   FIELD_SKY_BLUE_HORIZON("blue_horizon");
@@ -484,10 +484,10 @@ void LLPanelSettingsSkyCloudTab::onCloudMapChanged()
 void LLPanelSettingsSkyCloudTab::onCloudDensityChanged()
 {
     if (!mSkySettings) return;
-    LLColor3 density(getChild<LLUICtrl>(FIELD_SKY_CLOUD_DENSITY_X)->getValue().asReal(), 
-        getChild<LLUICtrl>(FIELD_SKY_CLOUD_DENSITY_Y)->getValue().asReal(), 
+    LLColor3 density(getChild<LLUICtrl>(FIELD_SKY_CLOUD_DENSITY_X)->getValue().asReal(),
+        getChild<LLUICtrl>(FIELD_SKY_CLOUD_DENSITY_Y)->getValue().asReal(),
         getChild<LLUICtrl>(FIELD_SKY_CLOUD_DENSITY_D)->getValue().asReal());
-    
+
     mSkySettings->setCloudPosDensity1(density);
     setIsDirty();
 }
@@ -566,7 +566,7 @@ void LLPanelSettingsSkySunMoonTab::refresh()
         getChildView(PANEL_SKY_MOON_LAYOUT)->setAllChildrenEnabled(FALSE);
         getChildView(FIELD_SKY_SUN_BEACON)->setEnabled(TRUE);
         getChildView(FIELD_SKY_MOON_BEACON)->setEnabled(TRUE);
-        
+
         if (!mSkySettings)
             return;
     }
@@ -579,7 +579,7 @@ void LLPanelSettingsSkySunMoonTab::refresh()
     getChild<LLColorSwatchCtrl>(FIELD_SKY_SUN_MOON_COLOR)->set(mSkySettings->getSunlightColor() / SLIDER_SCALE_SUN_AMBIENT);
 
     LLColor3 glow(mSkySettings->getGlow());
-    
+
     // takes 40 - 0.2 range -> 0 - 1.99 UI range
     getChild<LLUICtrl>(FIELD_SKY_GLOW_SIZE)->setValue(2.0 - (glow.mV[0] / SLIDER_SCALE_GLOW_R));
     getChild<LLUICtrl>(FIELD_SKY_GLOW_FOCUS)->setValue(glow.mV[2] / SLIDER_SCALE_GLOW_B);
@@ -629,7 +629,7 @@ void LLPanelSettingsSkySunMoonTab::onGlowChanged()
     LLColor3 glow(getChild<LLUICtrl>(FIELD_SKY_GLOW_SIZE)->getValue().asReal(), 0.0f, getChild<LLUICtrl>(FIELD_SKY_GLOW_FOCUS)->getValue().asReal());
 
     // takes 0 - 1.99 UI range -> 40 -> 0.2 range
-    glow.mV[0] = (2.0f - glow.mV[0]) * SLIDER_SCALE_GLOW_R; 
+    glow.mV[0] = (2.0f - glow.mV[0]) * SLIDER_SCALE_GLOW_R;
     glow.mV[2] *= SLIDER_SCALE_GLOW_B;
 
     mSkySettings->setGlow(glow);
@@ -775,9 +775,9 @@ void LLPanelSettingsSkySunMoonTab::onMoonBrightnessChanged()
     mSkySettings->update();
     setIsDirty();
 }
- 
+
 LLPanelSettingsSkyDensityTab::LLPanelSettingsSkyDensityTab()
-{    
+{
 }
 
 BOOL LLPanelSettingsSkyDensityTab::postBuild()

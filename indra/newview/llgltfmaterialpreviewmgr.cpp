@@ -302,12 +302,12 @@ PreviewSphere create_preview_sphere(LLPointer<LLFetchedGLTFMaterial>& material, 
     LLStrider<LLVector2> texcoords;
     LLStrider<LLColor4U> colors;
     LLStrider<LLVector4a> tangents;
-	buf->getIndexStrider(indices);
-	buf->getVertexStrider(positions);
-	buf->getNormalStrider(normals);
-	buf->getTexCoord0Strider(texcoords);
-	buf->getColorStrider(colors);
-	buf->getTangentStrider(tangents);
+    buf->getIndexStrider(indices);
+    buf->getVertexStrider(positions);
+    buf->getNormalStrider(normals);
+    buf->getTexCoord0Strider(texcoords);
+    buf->getColorStrider(colors);
+    buf->getTangentStrider(tangents);
     U32 index_offset = 0;
     U32 vertex_offset = 0;
     for (const LLVolumeFace& face : volume->getVolumeFaces())
@@ -427,7 +427,7 @@ BOOL LLGLTFPreviewTexture::render()
 
     glClearColor(0, 0, 0, 0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    
+
     LLGLDepthTest(GL_FALSE);
     LLGLDisable stencil(GL_STENCIL_TEST);
     LLGLDisable scissor(GL_SCISSOR_TEST);
@@ -527,27 +527,27 @@ BOOL LLGLTFPreviewTexture::render()
     LLVertexBuffer::unbind();
     gPipeline.generateGlow(&gPipeline.mPostMap);
     gPipeline.combineGlow(&gPipeline.mPostMap, &screen);
-	gPipeline.renderDoF(&screen, &gPipeline.mPostMap);
-	gPipeline.applyFXAA(&gPipeline.mPostMap, &screen);
+    gPipeline.renderDoF(&screen, &gPipeline.mPostMap);
+    gPipeline.applyFXAA(&gPipeline.mPostMap, &screen);
 
     // *HACK: Restore mExposureMap (it will be consumed by generateExposure next frame)
     gPipeline.mExposureMap.swapFBORefs(gPipeline.mLastExposure);
 
     // Final render
 
-	gDeferredPostNoDoFProgram.bind();
+    gDeferredPostNoDoFProgram.bind();
 
-	// From LLPipeline::renderFinalize: "Whatever is last in the above post processing chain should _always_ be rendered directly here.  If not, expect problems."
-	gDeferredPostNoDoFProgram.bindTexture(LLShaderMgr::DEFERRED_DIFFUSE, &screen);
-	gDeferredPostNoDoFProgram.bindTexture(LLShaderMgr::DEFERRED_DEPTH, mBoundTarget, true);
+    // From LLPipeline::renderFinalize: "Whatever is last in the above post processing chain should _always_ be rendered directly here.  If not, expect problems."
+    gDeferredPostNoDoFProgram.bindTexture(LLShaderMgr::DEFERRED_DIFFUSE, &screen);
+    gDeferredPostNoDoFProgram.bindTexture(LLShaderMgr::DEFERRED_DEPTH, mBoundTarget, true);
 
-	{
-		LLGLDepthTest depth_test(GL_TRUE, GL_TRUE, GL_ALWAYS);
-		gPipeline.mScreenTriangleVB->setBuffer();
-		gPipeline.mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
-	}
+    {
+        LLGLDepthTest depth_test(GL_TRUE, GL_TRUE, GL_ALWAYS);
+        gPipeline.mScreenTriangleVB->setBuffer();
+        gPipeline.mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
+    }
 
-	gDeferredPostNoDoFProgram.unbind();
+    gDeferredPostNoDoFProgram.unbind();
 
     // Clean up
     gPipeline.setupHWLights();

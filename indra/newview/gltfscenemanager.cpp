@@ -129,7 +129,7 @@ void GLTFSceneManager::update()
         Asset* asset = mObjects[i]->mGLTFAsset;
 
         asset->update();
-     
+
     }
 }
 
@@ -137,9 +137,9 @@ void GLTFSceneManager::render(bool opaque, bool rigged)
 {
     // for debugging, just render the whole scene as opaque
     // by traversing the whole scenegraph
-    // Assumes camera transform is already set and 
+    // Assumes camera transform is already set and
     // appropriate shader is already bound
-    
+
     gGL.matrixMode(LLRender::MM_MODELVIEW);
 
     for (U32 i = 0; i < mObjects.size(); ++i)
@@ -281,10 +281,10 @@ LLDrawable* GLTFSceneManager::lineSegmentIntersect(const LLVector4a& start, cons
     LLVector4a* intersection,         // return the intersection point
     LLVector2* tex_coord,            // return the texture coordinates of the intersection point
     LLVector4a* normal,               // return the surface normal at the intersection point
-    LLVector4a* tangent)			// return the surface tangent at the intersection point
+    LLVector4a* tangent)            // return the surface tangent at the intersection point
 {
     LLDrawable* drawable = nullptr;
-    
+
     LLVector4a local_end = end;
     LLVector4a position;
 
@@ -314,8 +314,8 @@ LLDrawable* GLTFSceneManager::lineSegmentIntersect(const LLVector4a& start, cons
 
 void drawBoxOutline(const LLVector4a& pos, const LLVector4a& size);
 
-extern LLVector4a		gDebugRaycastStart;
-extern LLVector4a		gDebugRaycastEnd;
+extern LLVector4a       gDebugRaycastStart;
+extern LLVector4a       gDebugRaycastEnd;
 
 void renderOctreeRaycast(const LLVector4a& start, const LLVector4a& end, const LLVolumeOctree* octree);
 
@@ -336,7 +336,7 @@ void renderAssetDebug(LLViewerObject* obj, Asset* asset)
     agent_to_asset.affineTransform(gDebugRaycastStart, start);
     agent_to_asset.affineTransform(gDebugRaycastEnd, end);
 
-    
+
     for (auto& node : asset->mNodes)
     {
         Mesh& mesh = asset->mMeshes[node.mMesh];
@@ -344,7 +344,7 @@ void renderAssetDebug(LLViewerObject* obj, Asset* asset)
         if (node.mMesh != INVALID_INDEX)
         {
             gGL.loadMatrix((F32*)node.mRenderMatrix.mMatrix);
-            
+
             // draw bounding box of mesh primitives
             if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_BBOXES))
             {
@@ -549,7 +549,7 @@ void GLTFSceneManager::renderDebug()
 
             gGL.loadMatrix((F32*) node->mRenderMatrix.mMatrix);
 
-            
+
 
             auto* listener = (LLVolumeOctreeListener*) primitive->mOctree->getListener(0);
             drawBoxOutline(listener->mBounds[0], listener->mBounds[1]);

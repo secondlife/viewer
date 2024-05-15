@@ -462,9 +462,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7ac35da9b1b5c9a05954edeef3fe8e54</string>
+              <string>52c41a4547d2d9aceb4a9a1e9e1680c71e5ffa79</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/113242/980233/emoji_shortcodes-6.1.0.579438-darwin64-579438.tar.bz2</string>
+              <string>https://github.com/secondlife/3p-emoji-shortcodes/releases/download/v6.1.0.5413f58/emoji_shortcodes-6.1.0.5413f58-darwin64-5413f58.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -474,9 +476,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>087ce7e6d93dcd88b477b10d8e1ab259</string>
+              <string>3137e06d376767a631bc9626832d558c4d5e5aa9</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/113243/980244/emoji_shortcodes-6.1.0.579438-windows64-579438.tar.bz2</string>
+              <string>https://github.com/secondlife/3p-emoji-shortcodes/releases/download/v6.1.0.5413f58/emoji_shortcodes-6.1.0.5413f58-windows64-5413f58.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -489,7 +493,7 @@
         <key>copyright</key>
         <string>Copyright 2017-2019 Miles Johnson.</string>
         <key>version</key>
-        <string>6.1.0.579438</string>
+        <string>6.1.0.5413f58</string>
         <key>name</key>
         <string>emoji_shortcodes</string>
         <key>canonical_repo</key>
@@ -954,54 +958,6 @@
         <string>havok-source</string>
         <key>description</key>
         <string>Havok source code for libs and demos</string>
-      </map>
-      <key>icu4c</key>
-      <map>
-        <key>platforms</key>
-        <map>
-          <key>darwin64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>47bc32b991385f1a6530e4c6179b07f64ca6edc7</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
-              <key>url</key>
-              <string>https://github.com/secondlife/3p-icu4c/releases/download/v4.8.1-7d08d82/icu4c-4.8.1-darwin64-7d08d82.tar.zst</string>
-            </map>
-            <key>name</key>
-            <string>darwin64</string>
-          </map>
-          <key>windows64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>b7db881dac80302e4d9010af34c0bf6ca9897df9</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
-              <key>url</key>
-              <string>https://github.com/secondlife/3p-icu4c/releases/download/v4.8.1-7d08d82/icu4c-4.8.1-windows64-7d08d82.tar.zst</string>
-            </map>
-            <key>name</key>
-            <string>windows64</string>
-          </map>
-        </map>
-        <key>license</key>
-        <string>ICU, permissive non-copyleft free software license</string>
-        <key>license_file</key>
-        <string>LICENSES/icu.txt</string>
-        <key>copyright</key>
-        <string>Copyright (c) 1995-2011 International Business Machines Corporation and others &lt;http://source.icu-project.org&gt;</string>
-        <key>version</key>
-        <string>4.8.1-7d08d82</string>
-        <key>name</key>
-        <string>icu4c</string>
-        <key>canonical_repo</key>
-        <string>https://bitbucket.org/lindenlab/3p-icu4c</string>
-        <key>description</key>
-        <string>ICU is a mature, widely used set of C/C++ and Java libraries providing Unicode and Globalization support for software applications. ICU is widely portable and gives applications the same results on all platforms and between C/C++ and Java software.</string>
       </map>
       <key>jpegencoderbasic</key>
       <map>
@@ -1667,6 +1623,18 @@
             </map>
             <key>name</key>
             <string>linux64</string>
+          </map>
+          <key>windows64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>2e5f1f7046a49d8b0bc295aa878116bc</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/60043/564063/llphysicsextensions_stub-1.0.542456-windows-542456.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows64</string>
           </map>
         </map>
         <key>license</key>
@@ -2739,11 +2707,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>eb1316584188dafb591f80b46b357c737f90d1a7</string>
+              <string>8a04e6b3c6ff7f645219955a1389035565eb10d8</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/viewer-manager/releases/download/v3.0-08bf5ee/viewer_manager-3.0-08bf5ee-darwin64-08bf5ee.tar.zst</string>
+              <string>https://github.com/secondlife/viewer-manager/releases/download/v3.0-f14b5ec-D591/viewer_manager-3.0-f14b5ec-darwin64-f14b5ec.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2753,11 +2721,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f4677b0ebd9880f29c118af51ada50883dd0a1e4</string>
+              <string>a1e467c08ecbe6ab24fc8756a815a431a9b00f62</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/viewer-manager/releases/download/v3.0-08bf5ee/viewer_manager-3.0-08bf5ee-linux64-08bf5ee.tar.zst</string>
+              <string>https://github.com/secondlife/viewer-manager/releases/download/v3.0-f14b5ec-D591/viewer_manager-3.0-f14b5ec-linux64-f14b5ec.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -2767,11 +2735,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7426c5a1d7eb231b476625637a1f2daba0a6bc55</string>
+              <string>56b613decdd36b2a17646bf3e2cfc2fed8456b8c</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/viewer-manager/releases/download/v3.0-08bf5ee/viewer_manager-3.0-08bf5ee-windows64-08bf5ee.tar.zst</string>
+              <string>https://github.com/secondlife/viewer-manager/releases/download/v3.0-f14b5ec-D591/viewer_manager-3.0-f14b5ec-windows64-f14b5ec.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -2783,8 +2751,6 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <string>LICENSE</string>
         <key>copyright</key>
         <string>Copyright (c) 2000-2012, Linden Research, Inc.</string>
-        <key>version</key>
-        <string>3.0-08bf5ee</string>
         <key>name</key>
         <string>viewer-manager</string>
         <key>description</key>
@@ -2793,6 +2759,8 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <string>https://bitbucket.org/lindenlab/vmp-standalone</string>
         <key>source_type</key>
         <string>hg</string>
+        <key>version</key>
+        <string>3.0-f14b5ec</string>
       </map>
       <key>vlc-bin</key>
       <map>

@@ -36,7 +36,7 @@ namespace LL
     public:
         ~GLTFSceneManager();
         // load GLTF file from disk
-        
+
         void load(); // open filepicker to choose asset
         void load(const std::string& filename); // load asset from filename
 
@@ -55,7 +55,7 @@ namespace LL
             LLVector4a* intersection,         // return the intersection point
             LLVector2* tex_coord,            // return the texture coordinates of the intersection point
             LLVector4a* normal,               // return the surface normal at the intersection point
-            LLVector4a* tangent);			// return the surface tangent at the intersection point
+            LLVector4a* tangent);           // return the surface tangent at the intersection point
 
         bool lineSegmentIntersect(LLVOVolume* obj, GLTF::Asset* asset, const LLVector4a& start, const LLVector4a& end, S32 face, BOOL pick_transparent, BOOL pick_rigged, BOOL pick_unselectable, S32* face_hitp, S32* primitive_hitp,
             LLVector4a* intersection, LLVector2* tex_coord, LLVector4a* normal, LLVector4a* tangent);
