@@ -282,6 +282,22 @@ public:
 	{
 		LLSINGLETON_EMPTY_CTOR(EnableCallbackRegistry);
 	};
+
+    struct LLCommitCallbackInfo
+    {
+        LLCommitCallbackInfo(commit_callback_t func = NULL, bool allow_untrusted = false) 
+            : callback_func(func), mAllowUntrusted(allow_untrusted)
+        {}
+
+      public:
+        bool mAllowUntrusted;
+        commit_callback_t  callback_func;
+    };
+
+    class SharedCommitCallbackRegistry : public CallbackRegistry<LLCommitCallbackInfo, SharedCommitCallbackRegistry>
+    {
+        LLSINGLETON_EMPTY_CTOR(SharedCommitCallbackRegistry);
+    };
 		
 protected:
 
