@@ -86,6 +86,7 @@ private:
 	S32                 mImageOldBoostLevel;
 	std::string			mSaveFileName;
 	LLFrameTimer		mSavedFileTimer;
+    bool				mSavingMultiple;
 	bool				mLoadingFullImage;
 	bool                mShowKeepDiscard;
 	bool                mCopyToInv;

@@ -67,6 +67,7 @@ const F32 PREVIEW_TEXTURE_MIN_ASPECT = 0.005f;
 LLPreviewTexture::LLPreviewTexture(const LLSD& key)
 	: LLPreview(key),
 	  mLoadingFullImage( false ),
+      mSavingMultiple(false),
 	  mShowKeepDiscard(false),
 	  mCopyToInv(false),
 	  mIsCopyable(false),
@@ -310,8 +311,11 @@ void LLPreviewTexture::saveTextureToFile(const std::vector<std::string>& filenam
 
 	// remember the user-approved/edited file name.
 	mSaveFileName = filenames[0];
+    mSavingMultiple = false;
 	mLoadingFullImage = true;
 	getWindow()->incBusyCount();
+
+    LL_DEBUGS("FileSaveAs") << "Scheduling saving file to " << mSaveFileName << LL_ENDL;
 
 	mImage->forceToSaveRawImage(0);//re-fetch the raw image if the old one is removed.
 	mImage->setLoadedCallback(LLPreviewTexture::onFileLoadedForSave,
@@ -322,34 +326,15 @@ void LLPreviewTexture::saveTextureToFile(const std::vector<std::string>& filenam
 void LLPreviewTexture::saveMultipleToFile(const std::string& file_name)
 {
     std::string texture_location(gSavedSettings.getString("TextureSaveLocation"));	
-    std::string texture_name = file_name.empty() ? getItem()->getName() : file_name;
-    
-    std::string filepath;
-    S32 i = 0;
-    S32 err = 0;
-    std::string extension(".png");
-    do
-    {
-        filepath = texture_location;
-        filepath += gDirUtilp->getDirDelimiter();
-        filepath += texture_name;
+    std::string texture_name = LLDir::getScrubbedFileName(file_name.empty() ? getItem()->getName() : file_name);
 
-        if (i != 0)
-        {
-            filepath += llformat("_%.3d", i);
-        }
+    mSaveFileName = texture_location + gDirUtilp->getDirDelimiter() + texture_name + ".png";
 
-        filepath += extension;
-
-        llstat stat_info;
-        err = LLFile::stat( filepath, &stat_info );
-        i++;
-    } while (-1 != err);  // Search until the file is not found (i.e., stat() gives an error).
-    
-    
-    mSaveFileName = filepath;
+    mSavingMultiple = true;
     mLoadingFullImage = true;
     getWindow()->incBusyCount();
+
+    LL_DEBUGS("FileSaveAs") << "Scheduling saving file to " << mSaveFileName << LL_ENDL;
 
     mImage->forceToSaveRawImage(0);//re-fetch the raw image if the old one is removed.
     mImage->setLoadedCallback(LLPreviewTexture::onFileLoadedForSave,
@@ -451,8 +436,39 @@ void LLPreviewTexture::onFileLoadedForSave(bool success,
 
 	if( self && final && success )
 	{
+        LL_DEBUGS("FileSaveAs") << "Saving file to " << self->mSaveFileName << LL_ENDL;
 		const U32 ext_length = 3;
 		std::string extension = self->mSaveFileName.substr( self->mSaveFileName.length() - ext_length);
+
+        std::string filepath;
+        if (self->mSavingMultiple)
+        {
+            std::string part_path = self->mSaveFileName.substr(0, self->mSaveFileName.length() - ext_length - 1);
+
+            S32 i = 0;
+            S32 err = 0;
+            do
+            {
+                filepath = part_path;
+
+                if (i != 0)
+                {
+                    filepath += llformat("_%.3d", i);
+                }
+
+                filepath += ".";
+                filepath += extension;
+
+                llstat stat_info;
+                err = LLFile::stat(filepath, &stat_info);
+                i++;
+            } while (-1 != err);  // Search until the file is not found (i.e., stat() gives an error).
+        }
+        else
+        {
+            filepath = self->mSaveFileName;
+        }
+
 		LLStringUtil::toLower(extension);
 		// We only support saving in PNG or TGA format
 		LLPointer<LLImageFormatted> image;
@@ -468,13 +484,13 @@ void LLPreviewTexture::onFileLoadedForSave(bool success,
 		if( image && !image->encode( src, 0 ) )
 		{
 			LLSD args;
-			args["FILE"] = self->mSaveFileName;
+			args["FILE"] = filepath;
 			LLNotificationsUtil::add("CannotEncodeFile", args);
 		}
-		else if( image && !image->save( self->mSaveFileName ) )
+		else if( image && !image->save(filepath) )
 		{
 			LLSD args;
-			args["FILE"] = self->mSaveFileName;
+			args["FILE"] = filepath;
 			LLNotificationsUtil::add("CannotWriteFile", args);
 		}
 		else
@@ -482,6 +498,7 @@ void LLPreviewTexture::onFileLoadedForSave(bool success,
 			self->mSavedFileTimer.reset();
 			self->mSavedFileTimer.setTimerExpirySec( SECONDS_TO_SHOW_FILE_SAVED_MSG );
 		}
+        LL_DEBUGS("FileSaveAs") << "Done saving file to " << filepath << LL_ENDL;
 
 		self->mSaveFileName.clear();
 	}
