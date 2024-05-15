@@ -393,9 +393,9 @@ jobs:
           version: ${{ needs.build.outputs.viewer_version }}
 
   release:
-    needs: [build, sign-and-package-windows, sign-and-package-mac]
+    needs: [setvar, build, sign-and-package-windows, sign-and-package-mac]
     runs-on: ubuntu-latest
-    if: env.RELEASE_RUN
+    if: needs.setvar.outputs.release_run
     steps:
       - uses: actions/download-artifact@v4
         with:
