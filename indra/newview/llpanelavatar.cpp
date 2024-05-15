@@ -127,6 +127,54 @@ void LLPanelProfileTab::setApplyProgress(bool started)
     }
 }
 
+static void put_avatar_properties_coro(std::string cap_url, LLUUID agent_id, LLSD data, std::function<void(bool)> callback)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("put_avatar_properties_coro", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+    LLCore::HttpHeaders::ptr_t httpHeaders;
+
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
+    httpOpts->setFollowRedirects(true);
+
+    std::string finalUrl = cap_url + "/" + agent_id.asString();
+
+    LLSD result = httpAdapter->putAndSuspend(httpRequest, finalUrl, data, httpOpts, httpHeaders);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    if (!status)
+    {
+        LL_WARNS("AvatarProperties") << "Failed to put agent information " << data << " for id " << agent_id << LL_ENDL;
+    }
+    else
+    {
+        LL_DEBUGS("AvatarProperties") << "Agent id: " << agent_id << " Data: " << data << " Result: " << httpResults << LL_ENDL;
+    }
+
+    if (callback)
+    {
+        callback(status);
+    }
+}
+
+bool LLPanelProfileTab::saveAgentUserInfoCoro(std::string name, LLSD value, std::function<void(bool)> callback) const
+{
+    std::string cap_url = gAgent.getRegionCapability("AgentProfile");
+    if (cap_url.empty())
+    {
+        LL_WARNS("AvatarProperties") << "Failed to update profile data, no cap found" << LL_ENDL;
+        return false;
+    }
+
+    LLCoros::instance().launch("putAgentUserInfoCoro",
+        boost::bind(put_avatar_properties_coro, cap_url, getAvatarId(), LLSD().with(name, value), callback));
+
+    return true;
+}
+
 LLPanelProfilePropertiesProcessorTab::LLPanelProfilePropertiesProcessorTab()
     : LLPanelProfileTab()
 {
@@ -150,5 +198,15 @@ void LLPanelProfilePropertiesProcessorTab::setAvatarId(const LLUUID & avatar_id)
         }
         LLPanelProfileTab::setAvatarId(avatar_id);
         LLAvatarPropertiesProcessor::getInstance()->addObserver(getAvatarId(), this);
+    }
+}
+
+void LLPanelProfilePropertiesProcessorTab::updateData()
+{
+    LLUUID avatar_id = getAvatarId();
+    if (!getStarted() && avatar_id.notNull())
+    {
+        setIsLoading();
+        LLAvatarPropertiesProcessor::getInstance()->sendAvatarPropertiesRequest(getAvatarId());
     }
 }

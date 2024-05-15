@@ -116,6 +116,11 @@ public:
     void spawnWebBrowser(const std::string& escaped_url, bool async) override;
     F32 getSystemUISize() override;
 
+    bool getInputDevices(U32 device_type_filter,
+                         std::function<bool(std::string&, LLSD&, void*)> osx_callback,
+                         void* win_callback,
+                         void* userdata) override;
+
     static std::vector<std::string> getDisplaysResolutionList();
 
     static std::vector<std::string> getDynamicFallbackFontList();

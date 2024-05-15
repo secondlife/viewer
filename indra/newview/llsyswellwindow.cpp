@@ -128,7 +128,7 @@ void LLSysWellWindow::removeItemByID(const LLUUID& id)
 void LLSysWellWindow::initChannel()
 {
     LLNotificationsUI::LLScreenChannelBase* channel = LLNotificationsUI::LLChannelManager::getInstance()->findChannelByID(
-                                                                LLUUID(gSavedSettings.getString("NotificationChannelUUID")));
+        LLNotificationsUI::NOTIFICATION_CHANNEL_UUID);
     mChannel = dynamic_cast<LLNotificationsUI::LLScreenChannel*>(channel);
     if(NULL == mChannel)
     {
