@@ -417,7 +417,7 @@ LLSD LLNewFileResourceUploadInfo::exportTempFile()
         if (!LLViewerTextureList::createUploadFile(getFileName(), filename, codec))
         {
             errorMessage = llformat("Problem with file %s:\n\n%s\n",
-                getFileName().c_str(), LLImage::getLastError().c_str());
+                getFileName().c_str(), LLImage::getLastThreadError().c_str());
             errorLabel = "ProblemWithFile";
             error = true;
         }

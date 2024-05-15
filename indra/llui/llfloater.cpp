@@ -2039,10 +2039,9 @@ void    LLFloater::drawShadow(LLPanel* panel)
     S32 right = panel->getRect().getWidth() - LLPANEL_BORDER_WIDTH;
     S32 bottom = LLPANEL_BORDER_WIDTH;
 
-    static LLUICachedControl<S32> shadow_offset_S32 ("DropShadowFloater", 0);
     static LLUIColor shadow_color_cached = LLUIColorTable::instance().getColor("ColorDropShadow");
     LLColor4 shadow_color = shadow_color_cached;
-    F32 shadow_offset = (F32)shadow_offset_S32;
+    F32 shadow_offset = (F32)DROP_SHADOW_FLOATER;
 
     if (!panel->isBackgroundOpaque())
     {
@@ -2477,7 +2476,8 @@ void LLFloaterView::reshape(S32 width, S32 height, BOOL called_from_parent)
 void LLFloaterView::restoreAll()
 {
     // make sure all subwindows aren't minimized
-    for (auto child : *getChildList())
+    child_list_t child_list = *(getChildList());
+    for (LLView* child : child_list)
     {
         LLFloater* floaterp = dynamic_cast<LLFloater*>(child);
         if (floaterp)

@@ -342,54 +342,62 @@ void LLFloaterImagePreview::draw()
 //-----------------------------------------------------------------------------
 bool LLFloaterImagePreview::loadImage(const std::string& src_filename)
 {
-    std::string exten = gDirUtilp->getExtension(src_filename);
-    U32 codec = LLImageBase::getCodecFromExtension(exten);
-
-    LLImageDimensionsInfo image_info;
-    if (!image_info.load(src_filename,codec))
+    try
     {
-        mImageLoadError = image_info.getLastError();
+        std::string exten = gDirUtilp->getExtension(src_filename);
+        U32 codec = LLImageBase::getCodecFromExtension(exten);
+
+        LLImageDimensionsInfo image_info;
+        if (!image_info.load(src_filename, codec))
+        {
+            mImageLoadError = image_info.getLastError();
+            return false;
+        }
+
+        S32 max_width = gSavedSettings.getS32("max_texture_dimension_X");
+        S32 max_height = gSavedSettings.getS32("max_texture_dimension_Y");
+
+        if ((image_info.getWidth() > max_width) || (image_info.getHeight() > max_height))
+        {
+            LLStringUtil::format_map_t args;
+            args["WIDTH"] = llformat("%d", max_width);
+            args["HEIGHT"] = llformat("%d", max_height);
+
+            mImageLoadError = LLTrans::getString("texture_load_dimensions_error", args);
+            return false;
+        }
+
+        // Load the image
+        LLPointer<LLImageFormatted> image = LLImageFormatted::createFromType(codec);
+        if (image.isNull())
+        {
+            return false;
+        }
+        if (!image->load(src_filename))
+        {
+            return false;
+        }
+        // Decompress or expand it in a raw image structure
+        LLPointer<LLImageRaw> raw_image = new LLImageRaw;
+        if (!image->decode(raw_image, 0.0f))
+        {
+            return false;
+        }
+        // Check the image constraints
+        if ((image->getComponents() != 3) && (image->getComponents() != 4))
+        {
+            image->setLastError("Image files with less than 3 or more than 4 components are not supported.");
+            return false;
+        }
+
+        raw_image->biasedScaleToPowerOfTwo(LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT);
+        mRawImagep = raw_image;
+    }
+    catch (...)
+    {
+        LOG_UNHANDLED_EXCEPTION("");
         return false;
     }
-
-    S32 max_width = gSavedSettings.getS32("max_texture_dimension_X");
-    S32 max_height = gSavedSettings.getS32("max_texture_dimension_Y");
-
-    if ((image_info.getWidth() > max_width) || (image_info.getHeight() > max_height))
-    {
-        LLStringUtil::format_map_t args;
-        args["WIDTH"] = llformat("%d", max_width);
-        args["HEIGHT"] = llformat("%d", max_height);
-
-        mImageLoadError = LLTrans::getString("texture_load_dimensions_error", args);
-        return false;
-    }
-
-    // Load the image
-    LLPointer<LLImageFormatted> image = LLImageFormatted::createFromType(codec);
-    if (image.isNull())
-    {
-        return false;
-    }
-    if (!image->load(src_filename))
-    {
-        return false;
-    }
-    // Decompress or expand it in a raw image structure
-    LLPointer<LLImageRaw> raw_image = new LLImageRaw;
-    if (!image->decode(raw_image, 0.0f))
-    {
-        return false;
-    }
-    // Check the image constraints
-    if ((image->getComponents() != 3) && (image->getComponents() != 4))
-    {
-        image->setLastError("Image files with less than 3 or more than 4 components are not supported.");
-        return false;
-    }
-
-    raw_image->biasedScaleToPowerOfTwo(LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT);
-    mRawImagep = raw_image;
 
     return true;
 }

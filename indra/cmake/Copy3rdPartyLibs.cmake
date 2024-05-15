@@ -50,7 +50,7 @@ if(WINDOWS)
     endif (ADDRESS_SIZE EQUAL 64)
 
     #*******************************
-    # Misc shared libs
+    # Misc shared libs 
 
     set(release_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
     set(release_files
@@ -61,15 +61,6 @@ if(WINDOWS)
         libhunspell.dll
         uriparser.dll
         )
-
-    # ICU4C (same filenames for 32 and 64 bit builds)
-    set(release_files ${release_files} icudt48.dll)
-    set(release_files ${release_files} icuin48.dll)
-    set(release_files ${release_files} icuio48.dll)
-    set(release_files ${release_files} icule48.dll)
-    set(release_files ${release_files} iculx48.dll)
-    set(release_files ${release_files} icutu48.dll)
-    set(release_files ${release_files} icuuc48.dll)
 
     # OpenSSL
     if(ADDRESS_SIZE EQUAL 64)

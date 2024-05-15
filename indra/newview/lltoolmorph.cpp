@@ -223,6 +223,13 @@ BOOL LLVisualParamHint::render()
     LLVector3 target_pos = target_joint_pos + (target_offset * avatar_rotation);
 
     F32 cam_angle_radians = mVisualParam->getCameraAngle() * DEG_TO_RAD;
+
+    static LLCachedControl<bool> auto_camera_position(gSavedSettings, "AppearanceCameraMovement");
+    if (!auto_camera_position)
+    {
+        cam_angle_radians += F_PI;
+    }
+
     LLVector3 camera_snapshot_offset(
         mVisualParam->getCameraDistance() * cosf( cam_angle_radians ),
         mVisualParam->getCameraDistance() * sinf( cam_angle_radians ),

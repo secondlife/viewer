@@ -61,7 +61,7 @@ LLInspectToast::LLInspectToast(const LLSD& notification_id) :
     LLInspect(LLSD()), mPanel(NULL)
 {
     LLScreenChannelBase* channel = LLChannelManager::getInstance()->findChannelByID(
-                                                                LLUUID(gSavedSettings.getString("NotificationChannelUUID")));
+        LLNotificationsUI::NOTIFICATION_CHANNEL_UUID);
     mScreenChannel = dynamic_cast<LLScreenChannel*>(channel);
     if(NULL == mScreenChannel)
     {

@@ -5,13 +5,13 @@
       <key>Name</key>
       <string>smileys and emotion</string>
       <key>Category</key>
-      <string>buźki and emocje</string>
+      <string>buźki &amp; emocje</string>
     </map>
     <map>
       <key>Name</key>
       <string>people and body</string>
       <key>Category</key>
-      <string>ludzie and ciało</string>
+      <string>ludzie &amp; ciało</string>
     </map>
     <map>
       <key>Name</key>
@@ -23,7 +23,7 @@
       <key>Name</key>
       <string>animals and nature</string>
       <key>Category</key>
-      <string>zwierzęta and przyroda</string>
+      <string>zwierzęta &amp; przyroda</string>
     </map>
     <map>
       <key>Name</key>
@@ -35,7 +35,7 @@
       <key>Name</key>
       <string>travel and places</string>
       <key>Category</key>
-      <string>podróże and miejsca</string>
+      <string>podróże &amp; miejsca</string>
     </map>
     <map>
       <key>Name</key>

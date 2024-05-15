@@ -61,6 +61,10 @@ const BOOL CLOSE_NO = FALSE;
 const BOOL ADJUST_VERTICAL_YES = TRUE;
 const BOOL ADJUST_VERTICAL_NO = FALSE;
 
+const F32 CONTEXT_CONE_IN_ALPHA = 0.f;
+const F32 CONTEXT_CONE_OUT_ALPHA = 1.f;
+const F32 CONTEXT_CONE_FADE_TIME = .08f;
+
 namespace LLFloaterEnums
 {
     enum EOpenPositioning

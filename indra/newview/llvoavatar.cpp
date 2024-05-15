@@ -1351,8 +1351,8 @@ void LLVOAvatar::calculateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
 
-    static LLCachedControl<S32> box_detail_cache(gSavedSettings, "AvatarBoundingBoxComplexity");
-    S32 box_detail = box_detail_cache;
+    const S32 BOX_DETAIL_DEFAULT = 3;
+    S32 box_detail = BOX_DETAIL_DEFAULT;
     if (getOverallAppearance() != AOA_NORMAL)
     {
         if (isControlAvatar())
@@ -4262,10 +4262,10 @@ void LLVOAvatar::updateOrientation(LLAgent& agent, F32 speed, F32 delta_time)
 
             LLVector3 pelvisDir( mRoot->getWorldMatrix().getFwdRow4().mV );
 
-            static LLCachedControl<F32> s_pelvis_rot_threshold_slow(gSavedSettings, "AvatarRotateThresholdSlow", 60.0);
-            static LLCachedControl<F32> s_pelvis_rot_threshold_fast(gSavedSettings, "AvatarRotateThresholdFast", 2.0);
+            const F32 AVATAR_PELVIS_ROTATE_THRESHOLD_SLOW = 60.0f;
+            const F32 AVATAR_PELVIS_ROTATE_THRESHOLD_FAST = 2.0f;
 
-            F32 pelvis_rot_threshold = clamp_rescale(speed, 0.1f, 1.0f, s_pelvis_rot_threshold_slow, s_pelvis_rot_threshold_fast);
+            F32 pelvis_rot_threshold = clamp_rescale(speed, 0.1f, 1.0f, AVATAR_PELVIS_ROTATE_THRESHOLD_SLOW, AVATAR_PELVIS_ROTATE_THRESHOLD_FAST);
 
             if (self_in_mouselook)
             {
@@ -9296,9 +9296,7 @@ void LLVOAvatar::parseAppearanceMessage(LLMessageSystem* mesgsys, LLAppearanceMe
 
     // Parse visual params, if any.
     S32 num_blocks = mesgsys->getNumberOfBlocksFast(_PREHASH_VisualParam);
-    static LLCachedControl<bool> block_some_avatars(gSavedSettings, "BlockSomeAvatarAppearanceVisualParams");
-    bool drop_visual_params_debug = block_some_avatars && (ll_rand(2) == 0); // pretend that ~12% of AvatarAppearance messages arrived without a VisualParam block, for testing
-    if( num_blocks > 1 && !drop_visual_params_debug)
+    if( num_blocks > 1)
     {
         //LL_DEBUGS("Avatar") << avString() << " handle visual params, num_blocks " << num_blocks << LL_ENDL;
 
@@ -9343,14 +9341,7 @@ void LLVOAvatar::parseAppearanceMessage(LLMessageSystem* mesgsys, LLAppearanceMe
     }
     else
     {
-        if (drop_visual_params_debug)
-        {
-            LL_INFOS() << "Debug-faked lack of parameters on AvatarAppearance for object: "  << getID() << LL_ENDL;
-        }
-        else
-        {
-            LL_DEBUGS("Avatar") << "AvatarAppearance msg received without any parameters, object: " << getID() << LL_ENDL;
-        }
+        LL_DEBUGS("Avatar") << "AvatarAppearance msg received without any parameters, object: " << getID() << LL_ENDL;
     }
 
     LLVisualParam* appearance_version_param = getVisualParam(11000);
