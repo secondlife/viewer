@@ -24,30 +24,30 @@
 * $/LicenseInfo$
 */
 
-#ifndef	_LLHTTPSDHANDLER_H_
-#define	_LLHTTPSDHANDLER_H_
+#ifndef _LLHTTPSDHANDLER_H_
+#define _LLHTTPSDHANDLER_H_
 #include "httpcommon.h"
 #include "httphandler.h"
 #include "lluri.h"
 
-/// Handler class LLCore's HTTP library. Splitting with separate success and 
-/// failure routines and parsing the result body into LLSD on success.  It 
+/// Handler class LLCore's HTTP library. Splitting with separate success and
+/// failure routines and parsing the result body into LLSD on success.  It
 /// is intended to be subclassed for specific capability handling.
-/// 
-// *TODO: This class self deletes at the end of onCompleted method.  This is 
+///
+// *TODO: This class self deletes at the end of onCompleted method.  This is
 // less than ideal and should be revisited.
 class LLHttpSDHandler : public LLCore::HttpHandler //,
 //    public std::enable_shared_from_this<LLHttpSDHandler>
 {
 public:
 
-	virtual void onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response);
-	
+    virtual void onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response);
+
 protected:
     LLHttpSDHandler();
 
-	virtual void onSuccess(LLCore::HttpResponse * response, const LLSD &content) = 0;
-	virtual void onFailure(LLCore::HttpResponse * response, LLCore::HttpStatus status) = 0;
+    virtual void onSuccess(LLCore::HttpResponse * response, const LLSD &content) = 0;
+    virtual void onFailure(LLCore::HttpResponse * response, LLCore::HttpStatus status) = 0;
 
 
 };

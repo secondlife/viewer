@@ -34,17 +34,17 @@
 #include "llviewernetwork.h"
 #include "llfiltersd2xmlrpc.h"
 #include "curl/curl.h"
-const char* LLSLURL::SLURL_HTTP_SCHEME		 = "http";
-const char* LLSLURL::SLURL_HTTPS_SCHEME		 = "https";
+const char* LLSLURL::SLURL_HTTP_SCHEME       = "http";
+const char* LLSLURL::SLURL_HTTPS_SCHEME      = "https";
 const char* LLSLURL::SLURL_SECONDLIFE_SCHEME = "secondlife";
-const char* LLSLURL::SLURL_SECONDLIFE_PATH	 = "secondlife";
-const char* LLSLURL::SLURL_COM		         = "slurl.com";
+const char* LLSLURL::SLURL_SECONDLIFE_PATH   = "secondlife";
+const char* LLSLURL::SLURL_COM               = "slurl.com";
 // For DnD - even though www.slurl.com redirects to slurl.com in a browser, you  can copy and drag
 // text with www.slurl.com or a link explicitly pointing at www.slurl.com so testing for this
 // version is required also.
 
-const char* LLSLURL::WWW_SLURL_COM				 = "www.slurl.com";
-const char* LLSLURL::MAPS_SECONDLIFE_COM		 = "maps.secondlife.com";
+const char* LLSLURL::WWW_SLURL_COM               = "www.slurl.com";
+const char* LLSLURL::MAPS_SECONDLIFE_COM         = "maps.secondlife.com";
 const char* LLSLURL::SLURL_X_GRID_LOCATION_INFO_SCHEME = "x-grid-location-info";
 const char* LLSLURL::SLURL_APP_PATH              = "app";
 const char* LLSLURL::SLURL_REGION_PATH           = "region";

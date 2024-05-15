@@ -48,25 +48,25 @@ class LLBlockedListItem : public LLPanel
 {
 public:
 
-	LLBlockedListItem(const LLMute* item);
-	virtual BOOL postBuild();
+    LLBlockedListItem(const LLMute* item);
+    virtual BOOL postBuild();
 
-	void onMouseEnter(S32 x, S32 y, MASK mask);
-	void onMouseLeave(S32 x, S32 y, MASK mask);
+    void onMouseEnter(S32 x, S32 y, MASK mask);
+    void onMouseLeave(S32 x, S32 y, MASK mask);
 
-	virtual void setValue(const LLSD& value);
+    virtual void setValue(const LLSD& value);
 
-	void 					highlightName(const std::string& highlited_text);
-	const std::string&		getName() const { return mItemName; }
-	const LLMute::EType&	getType() const { return mMuteType; }
-	const LLUUID&			getUUID() const { return mItemID;	}
+    void                    highlightName(const std::string& highlited_text);
+    const std::string&      getName() const { return mItemName; }
+    const LLMute::EType&    getType() const { return mMuteType; }
+    const LLUUID&           getUUID() const { return mItemID;   }
 
 private:
 
-	LLTextBox*		mTitleCtrl;
-	const LLUUID	mItemID;
-	std::string		mItemName;
-	LLMute::EType	mMuteType;
+    LLTextBox*      mTitleCtrl;
+    const LLUUID    mItemID;
+    std::string     mItemName;
+    LLMute::EType   mMuteType;
 
 };
 

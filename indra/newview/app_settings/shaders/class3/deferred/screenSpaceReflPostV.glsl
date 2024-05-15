@@ -36,13 +36,13 @@ out vec3 camera_ray;
 
 void main()
 {
-	//transform vertex
-	vec4 pos = vec4(position.xyz, 1.0);
-	gl_Position = pos; 
-	
-	vary_fragcoord = pos.xy * 0.5 + 0.5;
+    //transform vertex
+    vec4 pos = vec4(position.xyz, 1.0);
+    gl_Position = pos;
 
-	vec4 rayOrig = inv_proj * vec4(pos.xy, 1, 1);
+    vary_fragcoord = pos.xy * 0.5 + 0.5;
+
+    vec4 rayOrig = inv_proj * vec4(pos.xy, 1, 1);
     camera_ray = rayOrig.xyz / rayOrig.w;
 
 }
