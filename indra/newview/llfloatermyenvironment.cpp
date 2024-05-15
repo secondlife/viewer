@@ -415,7 +415,7 @@ bool can_delete(const LLUUID& id)
             return false;
         }
     }
-    else if (!get_is_item_removable(&gInventory, id))
+    else if (!get_is_item_removable(&gInventory, id, false))
     {
         return false;
     }

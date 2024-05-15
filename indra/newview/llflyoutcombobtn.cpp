@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llflyoutcombobtn.cpp
  * @brief Represents outfit save/save as combo button.
  *
  * $LicenseInfo:firstyear=2010&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -48,8 +48,8 @@ LLFlyoutComboBtnCtrl::LLFlyoutComboBtnCtrl(LLPanel* parent,
     mParent->childSetAction(flyout_button, [this](LLUICtrl *ctrl, const LLSD &data) { onFlyoutButton(ctrl, data); });
     mParent->childSetAction(action_button, [this](LLUICtrl *ctrl, const LLSD &data) { onFlyoutAction(ctrl, data); });
 
-	mFlyoutMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu> (menu_file, gMenuHolder,
-			LLViewerMenuHolderGL::child_registry_t::instance());
+    mFlyoutMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu> (menu_file, gMenuHolder,
+            LLViewerMenuHolderGL::child_registry_t::instance());
 
     // select the first item in the list.
     setSelectedItem(0);
@@ -87,7 +87,7 @@ void LLFlyoutComboBtnCtrl::setSelectedItem(LLMenuItemGL *pitem)
     }
 
     mSelectedName = pitem->getName();
-    
+
     LLButton *action_button = mParent->getChild<LLButton>(mActionButton);
     action_button->setEnabled(pitem->getEnabled());
     action_button->setLabel(pitem->getLabel());
@@ -120,11 +120,11 @@ void LLFlyoutComboBtnCtrl::setMenuItemLabel(const std::string &item, const std::
 
 void LLFlyoutComboBtnCtrl::onFlyoutButton(LLUICtrl *ctrl, const LLSD &data)
 {
-	S32 x, y;
+    S32 x, y;
     LLUI::getInstance()->getMousePositionLocal(mParent, &x, &y);
 
-	mFlyoutMenu->updateParent(LLMenuGL::sMenuContainer);
-	LLMenuGL::showPopup(mParent, mFlyoutMenu, x, y);
+    mFlyoutMenu->updateParent(LLMenuGL::sMenuContainer);
+    LLMenuGL::showPopup(mParent, mFlyoutMenu, x, y);
 }
 
 void LLFlyoutComboBtnCtrl::onFlyoutItemSelected(LLUICtrl *ctrl, const LLSD &data)

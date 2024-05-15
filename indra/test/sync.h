@@ -7,7 +7,7 @@
  *         mechanisms. Such tests usually want to interleave coroutine
  *         executions in strictly stepwise fashion. This class supports that
  *         paradigm.
- * 
+ *
  * $LicenseInfo:firstyear=2019&license=viewerlgpl$
  * Copyright (c) 2019, Linden Research, Inc.
  * $/LicenseInfo$

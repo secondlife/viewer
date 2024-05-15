@@ -34,27 +34,68 @@
 
 namespace LLTextValidate
 {
-	typedef boost::function<BOOL (const LLWString &wstr)> validate_func_t;
+    class ValidatorImpl
+    {
+    public:
+        ValidatorImpl() {}
+        virtual ~ValidatorImpl() {}
 
-	struct ValidateTextNamedFuncs
-	:	public LLInitParam::TypeValuesHelper<validate_func_t, ValidateTextNamedFuncs>
-	{
-		static void declareValues();
-	};
+        virtual bool validate(const std::string& str) = 0;
+        virtual bool validate(const LLWString& str) = 0;
 
-	bool	validateFloat(const LLWString &str );
-	bool	validateInt(const LLWString &str );
-	bool	validatePositiveS32(const LLWString &str);
-	bool	validateNonNegativeS32(const LLWString &str);
-	bool 	validateNonNegativeS32NoSpace(const LLWString &str);
-	bool	validateAlphaNum(const LLWString &str );
-	bool	validateAlphaNumSpace(const LLWString &str );
-	bool	validateASCIIPrintableNoPipe(const LLWString &str); 
-	bool	validateASCIIPrintableNoSpace(const LLWString &str);
-	bool	validateASCII(const LLWString &str);
-	bool	validateASCIINoLeadingSpace(const LLWString &str);
-	bool	validateASCIIWithNewLine(const LLWString &str);
-}
+        bool setError(std::string name, LLSD values = LLSD()) { return mLastErrorName = name, mLastErrorValues = values, false; }
+        bool resetError() { return mLastErrorName.clear(), mLastErrorValues.clear(), true; }
+        const std::string& getLastErrorName() const { return mLastErrorName; }
+        const LLSD& getLastErrorValues() const { return mLastErrorValues; }
 
+        void setLastErrorShowTime();
+        U32 getLastErrorShowTime() const { return mLastErrorShowTime; }
+
+    protected:
+        std::string mLastErrorName;
+        LLSD mLastErrorValues;
+        U32 mLastErrorShowTime { 0 };
+    };
+
+    class Validator
+    {
+    public:
+        Validator() : mImpl(nullptr) {}
+        Validator(ValidatorImpl& impl) : mImpl(&impl) {}
+        Validator(const Validator& validator) : mImpl(validator.mImpl) {}
+        Validator(const Validator* validator) : mImpl(validator->mImpl) {}
+
+        bool validate(const std::string& str) const { return !mImpl || mImpl->validate(str); }
+        bool validate(const LLWString& str) const { return !mImpl || mImpl->validate(str); }
+
+        operator bool() const { return mImpl; }
+
+        static const U32 SHOW_LAST_ERROR_TIMEOUT_SEC = 30;
+        void showLastErrorUsingTimeout(U32 timeout = SHOW_LAST_ERROR_TIMEOUT_SEC);
+
+    private:
+        ValidatorImpl* mImpl;
+    };
+
+    // Available validators
+    extern Validator validateFloat;
+    extern Validator validateInt;
+    extern Validator validatePositiveS32;
+    extern Validator validateNonNegativeS32;
+    extern Validator validateNonNegativeS32NoSpace;
+    extern Validator validateAlphaNum;
+    extern Validator validateAlphaNumSpace;
+    extern Validator validateASCIIPrintableNoPipe;
+    extern Validator validateASCIIPrintableNoSpace;
+    extern Validator validateASCII;
+    extern Validator validateASCIINoLeadingSpace;
+    extern Validator validateASCIIWithNewLine;
+
+    // Add available validators to the internal map
+    struct Validators : public LLInitParam::TypeValuesHelper<Validator, Validators>
+    {
+        static void declareValues();
+    };
+};
 
 #endif

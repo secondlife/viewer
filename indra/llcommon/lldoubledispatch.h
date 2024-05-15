@@ -3,25 +3,25 @@
  * @author Nat Goodspeed
  * @date   2008-11-11
  * @brief  function calls virtual on more than one parameter
- * 
+ *
  * $LicenseInfo:firstyear=2008&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -41,7 +41,7 @@
  * subset of that problem: function calls which accept two parameters, and
  * select which particular function to call depending on the dynamic type of
  * both.
- * 
+ *
  * Scott Meyers, in More Effective C++ (Item 31), talks about some of the perils
  * and pitfalls lurking down this pathway.  He discusses and dismisses the
  * straightforward approaches of using single-dispatch virtual functions twice,
@@ -50,17 +50,17 @@
  * look up the actual types of both parameters (he uses the classes' string names,
  * via typeid(param).name()) to obtain a pointer to a free (non-member) function
  * that will accept this pair of parameters.
- * 
+ *
  * He does point out that his approach doesn't handle inheritance.  If you have a
  * registry entry for SpaceShip, and you have in hand a MilitaryShip (subclass of
  * SpaceShip) and an Asteroid, you'd like to call the function appropriate for
  * SpaceShips and Asteroids -- but alas, his lookup fails because the class name
  * for your MilitaryShip subclass isn't in the registry.
- * 
+ *
  * This class extends his idea to build a registry whose entries can examine the
  * dynamic type of the parameter in a more flexible way -- using dynamic_cast<>
  * -- thereby supporting inheritance relationships.
- * 
+ *
  * Of course we must allow for the ambiguity this permits. We choose to use a
  * sequence container rather than a map, and require that the client code
  * specify the order in which dispatch-table entries should be searched. The
@@ -69,7 +69,7 @@
  * you catch ErrorBaseClass before you catch ErrorSubclass, then any
  * ErrorSubclass exceptions thrown by the protected code will always match
  * ErrorBaseClass, and you will never reach your catch(ErrorSubclass) clause.
- * 
+ *
  * So, in a similar way, if you have a specific routine to process
  * MilitaryShip and Asteroid, you'd better place that in the table @em before
  * your more general routine that processes SpaceShip and Asteroid, or else
@@ -279,7 +279,7 @@ private:
     /// Look up the first matching entry.
     EntryPtr lookup(const ParamBaseType& param1, const ParamBaseType& param2) const
     {
-        typename DispatchTable::const_iterator found = find(param1, param2);            
+        typename DispatchTable::const_iterator found = find(param1, param2);
         if (found != mDispatch.end())
         {
             // Dereferencing the list iterator gets us an EntryPtr
