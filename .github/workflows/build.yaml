@@ -7,19 +7,22 @@ on:
     branches: ["main", "release/*", "project/*"]
     tags: ["Second_Life*"]
 
-env:
-  # Build with a tag like "Second_Life#abcdef0" to generate a release page
-  # (used for builds we are planning to deploy).
-  RELEASE_RUN: ${{ github.ref_type == 'tag' && startsWith(github.ref_name, 'Second_Life') && 'Y' || '' }}
-
 jobs:
-  # The whole point of the setvar job is that we want to reference global
-  # env.RELEASE_RUN in build.env, but a job.env can't directly reference the
-  # global env context.
+  # The whole point of the setvar job is that we want to set a variable once
+  # that will be consumed by multiple subsequent jobs. We tried setting it in
+  # the global env, but a job.env can't directly reference the global env
+  # context.
   setvar:
     runs-on: ubuntu-latest
     outputs:
       release_run: ${{ steps.setvar.outputs.release_run }}
+    env:
+      # Build with a tag like "Second_Life#abcdef0" to generate a release page
+      # (used for builds we are planning to deploy).
+      # When you want to use a string variable as a workflow YAML boolean, it's
+      # important to ensure it's the empty string when false. If you omit || '',
+      # its value when false is "false", which is interpreted as true.
+      RELEASE_RUN: ${{ github.ref_type == 'tag' && startsWith(github.ref_name, 'Second_Life') && 'Y' || '' }}
     steps:
       - name: Set Variable
         id: setvar
