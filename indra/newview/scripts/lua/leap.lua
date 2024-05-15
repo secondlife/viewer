@@ -161,10 +161,12 @@ function leap.request(pump, data)
     dbg('leap.request(%s, %s) got %s: %s', pump, data, ok, response)
     -- kill off temporary WaitForReqid object, even if error
     pending[reqid] = nil
-    if ok then
-        return response
-    else
+    if not ok then
         error(response)
+    elseif response.error then
+        error(response.error)
+    else
+        return response
     end
 end
 
@@ -186,7 +188,7 @@ function leap.generate(pump, data, checklast)
     local ok, response, resumed_with
     repeat
         ok, response = pcall(waitfor.wait, waitfor)
-        if not ok then
+        if (not ok) or response.error then
             break
         end
         -- can resume(false) to terminate generate() and clean up
@@ -196,6 +198,8 @@ function leap.generate(pump, data, checklast)
     pending[reqid] = nil
     if not ok then
         error(response)
+    elseif response.error then
+        error(response.error)
     end
 end
 
