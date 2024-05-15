@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llcallbacklist.cpp
  * @brief A simple list of callback functions to call.
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -39,7 +39,7 @@
 *****************************************************************************/
 LLCallbackList::LLCallbackList()
 {
-	// nothing
+    // nothing
 }
 
 LLCallbackList::~LLCallbackList()
@@ -48,21 +48,21 @@ LLCallbackList::~LLCallbackList()
 
 LLCallbackList::handle_t LLCallbackList::addFunction( callback_t func, void *data)
 {
-	if (!func)
-	{
-		return {};
-	}
+    if (!func)
+    {
+        return {};
+    }
 
-	// only add one callback per func/data pair
-	//
-	if (containsFunction(func, data))
-	{
-		return {};
-	}
+    // only add one callback per func/data pair
+    //
+    if (containsFunction(func, data))
+    {
+        return {};
+    }
 
-	auto handle = addFunction([func, data]{ func(data); });
-	mLookup.emplace(callback_pair_t(func, data), handle);
-	return handle;
+    auto handle = addFunction([func, data]{ func(data); });
+    mLookup.emplace(callback_pair_t(func, data), handle);
+    return handle;
 }
 
 LLCallbackList::handle_t LLCallbackList::addFunction( const callable_t& func )
@@ -77,17 +77,17 @@ bool LLCallbackList::containsFunction( callback_t func, void *data)
 
 bool LLCallbackList::deleteFunction( callback_t func, void *data)
 {
-	auto found = mLookup.find(callback_pair_t(func, data));
-	if (found != mLookup.end())
-	{
-		mLookup.erase(found);
-		deleteFunction(found->second);
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+    auto found = mLookup.find(callback_pair_t(func, data));
+    if (found != mLookup.end())
+    {
+        mLookup.erase(found);
+        deleteFunction(found->second);
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 void LLCallbackList::deleteFunction( const handle_t& handle )
@@ -97,8 +97,8 @@ void LLCallbackList::deleteFunction( const handle_t& handle )
 
 void LLCallbackList::deleteAllFunctions()
 {
-	mCallbackList = {};
-	mLookup.clear();
+    mCallbackList = {};
+    mLookup.clear();
 }
 
 void LLCallbackList::callFunctions()

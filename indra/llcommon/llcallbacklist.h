@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llcallbacklist.h
  * @brief A simple list of callback functions to call.
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -41,43 +41,43 @@
 *****************************************************************************/
 class LLCallbackList: public LLSingleton<LLCallbackList>
 {
-	LLSINGLETON(LLCallbackList);
+    LLSINGLETON(LLCallbackList);
 public:
-	typedef void (*callback_t)(void*);
+    typedef void (*callback_t)(void*);
 
-	typedef boost::signals2::signal<void()> callback_list_t;
-	typedef callback_list_t::slot_type callable_t;
-	typedef boost::signals2::connection handle_t;
-	typedef boost::signals2::scoped_connection temp_handle_t;
-	typedef std::function<bool ()> bool_func_t;
+    typedef boost::signals2::signal<void()> callback_list_t;
+    typedef callback_list_t::slot_type callable_t;
+    typedef boost::signals2::connection handle_t;
+    typedef boost::signals2::scoped_connection temp_handle_t;
+    typedef std::function<bool ()> bool_func_t;
 
-	~LLCallbackList();
+    ~LLCallbackList();
 
-	handle_t addFunction( callback_t func, void *data = NULL );		// register a callback, which will be called as func(data)
-	handle_t addFunction( const callable_t& func );
-	bool containsFunction( callback_t func, void *data = NULL );	// true if list already contains the function/data pair
-	bool deleteFunction( callback_t func, void *data = NULL );		// removes the first instance of this function/data pair from the list, false if not found
-	void deleteFunction( const handle_t& handle );
-	void callFunctions();											// calls all functions
-	void deleteAllFunctions();
+    handle_t addFunction( callback_t func, void *data = NULL );     // register a callback, which will be called as func(data)
+    handle_t addFunction( const callable_t& func );
+    bool containsFunction( callback_t func, void *data = NULL );    // true if list already contains the function/data pair
+    bool deleteFunction( callback_t func, void *data = NULL );      // removes the first instance of this function/data pair from the list, false if not found
+    void deleteFunction( const handle_t& handle );
+    void callFunctions();                                           // calls all functions
+    void deleteAllFunctions();
 
-	handle_t doOnIdleOneTime( const callable_t& func );
-	handle_t doOnIdleRepeating( const bool_func_t& func );
-	bool isRunning(const handle_t& handle) const { return handle.connected(); };
+    handle_t doOnIdleOneTime( const callable_t& func );
+    handle_t doOnIdleRepeating( const bool_func_t& func );
+    bool isRunning(const handle_t& handle) const { return handle.connected(); };
 
-	static void test();
+    static void test();
 
 protected:
-	callback_list_t	mCallbackList;
+    callback_list_t mCallbackList;
 
-	// "Additional specializations for std::pair and the standard container
-	// types, as well as utility functions to compose hashes are available in
-	// boost::hash."
-	// https://en.cppreference.com/w/cpp/utility/hash
-	typedef std::pair< callback_t,void* >	callback_pair_t;
-	typedef std::unordered_map<callback_pair_t, handle_t,
-		boost::hash<callback_pair_t>> lookup_table;
-	lookup_table mLookup;
+    // "Additional specializations for std::pair and the standard container
+    // types, as well as utility functions to compose hashes are available in
+    // boost::hash."
+    // https://en.cppreference.com/w/cpp/utility/hash
+    typedef std::pair< callback_t,void* >   callback_pair_t;
+    typedef std::unordered_map<callback_pair_t, handle_t,
+        boost::hash<callback_pair_t>> lookup_table;
+    lookup_table mLookup;
 };
 
 /*-------------------- legacy names in global namespace --------------------*/
