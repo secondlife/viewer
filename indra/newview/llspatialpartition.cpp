@@ -1597,6 +1597,8 @@ bool check_rigged_group(LLDrawable* drawable)
 
         if (root->isState(LLDrawable::RIGGED) && root->getSpatialGroup() != group)
         {
+            LL_WARNS() << "[root->isState(LLDrawable::RIGGED) and root->getSpatialGroup() != group] is true"
+                " (" << root->getSpatialGroup() << " != " << group << ")" << LL_ENDL;
             llassert(false);
             return false;
         }
@@ -1606,8 +1608,10 @@ bool check_rigged_group(LLDrawable* drawable)
         {
             for (auto& face : root->getFaces())
             {
-                if ((S32) face->getDrawOrderIndex() <= last_draw_index)
+                if ((S32)face->getDrawOrderIndex() <= last_draw_index)
                 {
+                    LL_WARNS() << "[(S32)face->getDrawOrderIndex() <= last_draw_index] is true"
+                        " (" << (S32)face->getDrawOrderIndex() << " <= " << last_draw_index << ")" << LL_ENDL;
                     llassert(false);
                     return false;
                 }
@@ -1621,8 +1625,10 @@ bool check_rigged_group(LLDrawable* drawable)
             {
                 for (auto& face : child->mDrawable->getFaces())
                 {
-                    if ((S32) face->getDrawOrderIndex() <= last_draw_index)
+                    if ((S32)face->getDrawOrderIndex() <= last_draw_index)
                     {
+                        LL_WARNS() << "[(S32)face->getDrawOrderIndex() <= last_draw_index] is true"
+                            " (" << (S32)face->getDrawOrderIndex() << " <= " << last_draw_index << ")" << LL_ENDL;
                         llassert(false);
                         return false;
                     }
@@ -1632,6 +1638,8 @@ bool check_rigged_group(LLDrawable* drawable)
 
             if (child->mDrawable->getSpatialGroup() != group)
             {
+                LL_WARNS() << "[child->mDrawable->getSpatialGroup() != group] is true"
+                    " (" << child->mDrawable->getSpatialGroup() << " != " << group << ")" << LL_ENDL;
                 llassert(false);
                 return false;
             }

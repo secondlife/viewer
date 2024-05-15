@@ -68,7 +68,7 @@ public:
     F32             getOwnedRatio() const;
 
     // Returns the number of vertices drawn
-    S32             renderPropertyLines();
+    void            renderPropertyLines();
     void            renderPropertyLinesOnMinimap(F32 scale_pixels_per_meter, const F32* parcel_outline_color);
 
     U8              ownership( const LLVector3& pos) const;
@@ -92,12 +92,7 @@ private:
 
     U8      parcelFlags(S32 row, S32 col, U8 flags) const;
 
-    void    addPropertyLine(std::vector<LLVector3>& vertex_array,
-                std::vector<LLColor4U>& color_array,
-                std::vector<LLVector2>& coord_array,
-                const F32 start_x, const F32 start_y,
-                const U32 edge,
-                const LLColor4U& color);
+    void    addPropertyLine(F32 start_x, F32 start_y, F32 dx, F32 dy, F32 tick_dx, F32 tick_dy, const LLColor4U& color);
 
     void    updateOverlayTexture();
     void    updatePropertyLines();
@@ -121,9 +116,13 @@ private:
     LLFrameTimer    mTimeSinceLastUpdate;
     S32             mOverlayTextureIdx;
 
-    S32             mVertexCount;
-    F32*            mVertexArray;
-    U8*             mColorArray;
+    struct Edge
+    {
+        std::vector<LLVector3> vertices;
+        LLColor4U color;
+    };
+
+    std::vector<Edge> mEdges;
 };
 
 #endif

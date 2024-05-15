@@ -59,8 +59,8 @@ protected:
     const LLMultiGesture& operator=(const LLMultiGesture& rhs);
 
 public:
-    KEY mKey;
-    MASK mMask;
+    KEY mKey { 0 };
+    MASK mMask { 0 };
 
     // This name can be empty if the inventory item is not around and
     // the gesture manager has not yet set the name
@@ -75,25 +75,34 @@ public:
     std::vector<LLGestureStep*> mSteps;
 
     // Is the gesture currently playing?
-    BOOL mPlaying;
+    BOOL mPlaying { FALSE };
 
     // "instruction pointer" for steps
-    S32 mCurrentStep;
+    S32 mCurrentStep { 0 };
 
     // We're waiting for triggered animations to stop playing
-    BOOL mWaitingAnimations;
+    BOOL mWaitingAnimations { FALSE };
+
+    // We're waiting for key release
+    BOOL mWaitingKeyRelease { FALSE };
 
     // We're waiting a fixed amount of time
-    BOOL mWaitingTimer;
+    BOOL mWaitingTimer { FALSE };
+
+    // We're waiting for triggered animations to stop playing
+    BOOL mTriggeredByKey { FALSE };
+
+    // Has the key been released?
+    BOOL mKeyReleased { FALSE };
 
     // Waiting after the last step played for all animations to complete
-    BOOL mWaitingAtEnd;
+    BOOL mWaitingAtEnd { FALSE };
 
     // Timer for waiting
     LLFrameTimer mWaitTimer;
 
-    void (*mDoneCallback)(LLMultiGesture* gesture, void* data);
-    void* mCallbackData;
+    void (*mDoneCallback)(LLMultiGesture* gesture, void* data) { NULL };
+    void* mCallbackData { NULL };
 
     // Animations that we requested to start
     std::set<LLUUID> mRequestedAnimIDs;
@@ -210,6 +219,7 @@ public:
 
 const U32 WAIT_FLAG_TIME        = 0x01;
 const U32 WAIT_FLAG_ALL_ANIM    = 0x02;
+const U32 WAIT_FLAG_KEY_RELEASE = 0x04;
 
 class LLGestureStepWait : public LLGestureStep
 {

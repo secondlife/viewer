@@ -30,7 +30,6 @@
 #include "llerror.h"
 #include "llfasttimer.h"
 #include "llsd.h"
-#include <unicode/uchar.h>
 #include <vector>
 
 #if LL_WINDOWS
@@ -758,6 +757,43 @@ std::string utf8str_showBytesUTF8(const std::string& utf8str)
     return result;
 }
 
+// Search for any emoji symbol, return true if found
+bool wstring_has_emoji(const LLWString& wstr)
+{
+    for (const llwchar& wch : wstr)
+    {
+        if (LLStringOps::isEmoji(wch))
+            return true;
+    }
+
+    return false;
+}
+
+// Cut emoji symbols if exist
+bool wstring_remove_emojis(LLWString& wstr)
+{
+    bool found = false;
+    for (size_t i = 0; i < wstr.size(); ++i)
+    {
+        if (LLStringOps::isEmoji(wstr[i]))
+        {
+            wstr.erase(i--, 1);
+            found = true;
+        }
+    }
+    return found;
+}
+
+// Cut emoji symbols if exist
+bool utf8str_remove_emojis(std::string& utf8str)
+{
+    LLWString wstr = utf8str_to_wstring(utf8str);
+    if (!wstring_remove_emojis(wstr))
+        return false;
+    utf8str = wstring_to_utf8str(wstr);
+    return true;
+}
+
 #if LL_WINDOWS
 unsigned int ll_wstring_default_code_page()
 {
@@ -971,39 +1007,17 @@ std::string LLStringOps::sAM;
 std::string LLStringOps::sPM;
 
 // static
-bool LLStringOps::isEmoji(llwchar wch)
+bool LLStringOps::isEmoji(llwchar a)
 {
-    int ublock = ublock_getCode(wch);
-    switch (ublock)
-    {
-        case UBLOCK_GENERAL_PUNCTUATION:
-        case UBLOCK_LETTERLIKE_SYMBOLS:
-        case UBLOCK_ARROWS:
-        case UBLOCK_MISCELLANEOUS_TECHNICAL:
-        case UBLOCK_ENCLOSED_ALPHANUMERICS:
-        case UBLOCK_GEOMETRIC_SHAPES:
-        case UBLOCK_MISCELLANEOUS_SYMBOLS:
-        case UBLOCK_DINGBATS:
-        case UBLOCK_CJK_SYMBOLS_AND_PUNCTUATION:
-        case UBLOCK_ENCLOSED_CJK_LETTERS_AND_MONTHS:
-        case UBLOCK_MISCELLANEOUS_SYMBOLS_AND_PICTOGRAPHS:
-        case UBLOCK_EMOTICONS:
-        case UBLOCK_TRANSPORT_AND_MAP_SYMBOLS:
-#if U_ICU_VERSION_MAJOR_NUM > 56
-        // Boost uses ICU so we can't update it independently
-        case UBLOCK_SUPPLEMENTAL_SYMBOLS_AND_PICTOGRAPHS:
-#endif // U_ICU_VERSION_MAJOR_NUM > 56
-            return true;
-        default:
-#if U_ICU_VERSION_MAJOR_NUM > 56
-            return false;
+#if 0   // Do not consider special characters that might have a corresponding
+        // glyph in the monochorme fallback fonts as a "genuine" emoji. HB
+    return a == 0xa9 || a == 0xae || (a >= 0x2000 && a < 0x3300) ||
+           (a >= 0x1f000 && a < 0x20000);
 #else
-            // See https://en.wikipedia.org/wiki/Supplemental_Symbols_and_Pictographs
-            return wch >= 0x1F900 && wch <= 0x1F9FF;
-#endif // U_ICU_VERSION_MAJOR_NUM > 56
-    }
+    // These are indeed "genuine" emojis, we *do want* rendered as such. HB
+    return a >= 0x1f000 && a < 0x20000;
+#endif
 }
-
 
 S32 LLStringOps::collate(const llwchar* a, const llwchar* b)
 {

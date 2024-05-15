@@ -1961,8 +1961,10 @@ bool idle_startup()
             display_startup();
             return FALSE;
         }
+
         LLInventoryModelBackgroundFetch::instance().start();
-        LLUUID cof_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT);
+        LLAppearanceMgr::instance().initCOFID();
+        LLUUID cof_id = LLAppearanceMgr::instance().getCOF();
         LLViewerInventoryCategory* cof = gInventory.getCategory(cof_id);
         if (cof
             && cof->getVersion() == LLViewerInventoryCategory::VERSION_UNKNOWN)
@@ -2273,7 +2275,7 @@ bool idle_startup()
         static LLFrameTimer wearables_timer;
 
         const F32 wearables_time = wearables_timer.getElapsedTimeF32();
-        static LLCachedControl<F32> max_wearables_time(gSavedSettings, "ClothingLoadingDelay");
+        const F32 MAX_WEARABLES_TIME = 10.f;
 
         if (!gAgent.isOutfitChosen() && isAgentAvatarValid())
         {
@@ -2292,7 +2294,7 @@ bool idle_startup()
 
         display_startup();
 
-        if (gAgent.isOutfitChosen() && (wearables_time > max_wearables_time))
+        if (gAgent.isOutfitChosen() && (wearables_time > MAX_WEARABLES_TIME))
         {
             if (gInventory.isInventoryUsable())
             {
@@ -2710,14 +2712,11 @@ void register_viewer_callbacks(LLMessageSystem* msg)
         LLViewerParcelMgr::processParcelDwellReply);
 
     msg->setHandlerFunc("AvatarPropertiesReply",
-                        &LLAvatarPropertiesProcessor::processAvatarPropertiesReply);
+                        &LLAvatarPropertiesProcessor::processAvatarLegacyPropertiesReply);
     msg->setHandlerFunc("AvatarInterestsReply",
                         &LLAvatarPropertiesProcessor::processAvatarInterestsReply);
     msg->setHandlerFunc("AvatarGroupsReply",
                         &LLAvatarPropertiesProcessor::processAvatarGroupsReply);
-    // ratings deprecated
-    //msg->setHandlerFuncFast(_PREHASH_AvatarStatisticsReply,
-    //                  LLPanelAvatar::processAvatarStatisticsReply);
     msg->setHandlerFunc("AvatarNotesReply",
                         &LLAvatarPropertiesProcessor::processAvatarNotesReply);
     msg->setHandlerFunc("AvatarPicksReply",
@@ -2878,6 +2877,7 @@ void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
     LLAppearanceMgr::instance().setAttachmentInvLinkEnable(true);
     // Initiate creation of COF, since we're also bypassing that.
     gInventory.ensureCategoryForTypeExists(LLFolderType::FT_CURRENT_OUTFIT);
+    LLAppearanceMgr::getInstance()->initCOFID();
 
     ESex gender;
     if (gender_name == "male")
@@ -2990,7 +2990,9 @@ std::string LLStartUp::startupStateToString(EStartupState state)
         RTNENUM( STATE_AGENT_SEND );
         RTNENUM( STATE_AGENT_WAIT );
         RTNENUM( STATE_INVENTORY_SEND );
-        RTNENUM(STATE_INVENTORY_CALLBACKS );
+        RTNENUM( STATE_INVENTORY_CALLBACKS );
+        RTNENUM( STATE_INVENTORY_SKEL );
+        RTNENUM( STATE_INVENTORY_SEND2 );
         RTNENUM( STATE_MISC );
         RTNENUM( STATE_PRECACHE );
         RTNENUM( STATE_WEARABLES_WAIT );
@@ -3033,6 +3035,7 @@ void reset_login()
     gAgent.cleanup();
     gSky.cleanup(); // mVOSkyp is an inworld object.
     LLWorld::getInstance()->resetClass();
+    LLAppearanceMgr::getInstance()->cleanup();
 
     if ( gViewerWindow )
     {   // Hide menus and normal buttons

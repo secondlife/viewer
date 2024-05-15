@@ -1646,7 +1646,9 @@ const   S32   max_format  = (S32)num_formats - 1;
     }
     else
     {
-        LL_WARNS("Window") << "No wgl_ARB_pixel_format extension, using default ChoosePixelFormat!" << LL_ENDL;
+        LLError::LLUserWarningMsg::show(mCallbacks->translateString("MBVideoDrvErr"));
+        // mWindowHandle is 0, going to crash either way
+        LL_ERRS("Window") << "No wgl_ARB_pixel_format extension!" << LL_ENDL;
     }
 
     // Verify what pixel format we actually received.
@@ -1899,12 +1901,16 @@ void LLWindowWin32::destroySharedContext(void* contextPtr)
 
 void LLWindowWin32::toggleVSync(bool enable_vsync)
 {
-    if (!enable_vsync && wglSwapIntervalEXT)
+    if (wglSwapIntervalEXT == nullptr)
+    {
+        LL_INFOS("Window") << "VSync: wglSwapIntervalEXT not initialized" << LL_ENDL;
+    }
+    else if (!enable_vsync)
     {
         LL_INFOS("Window") << "Disabling vertical sync" << LL_ENDL;
         wglSwapIntervalEXT(0);
     }
-    else if (wglSwapIntervalEXT)
+    else
     {
         LL_INFOS("Window") << "Enabling vertical sync" << LL_ENDL;
         wglSwapIntervalEXT(1);
@@ -4475,7 +4481,10 @@ void* LLWindowWin32::getDirectInput8()
     return &gDirectInput8;
 }
 
-bool LLWindowWin32::getInputDevices(U32 device_type_filter, void * di8_devices_callback, void* userdata)
+bool LLWindowWin32::getInputDevices(U32 device_type_filter,
+                                    std::function<bool(std::string&, LLSD&, void*)> osx_callback,
+                                    void * di8_devices_callback,
+                                    void* userdata)
 {
     if (gDirectInput8 != NULL)
     {

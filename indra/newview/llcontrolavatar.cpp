@@ -201,8 +201,7 @@ void LLControlAvatar::matchVolumeTransform()
                 mRoot->setWorldRotation(obj_rot * joint_rot);
                 setRotation(mRoot->getRotation());
 
-                F32 global_scale = gSavedSettings.getF32("AnimatedObjectsGlobalScale");
-                setGlobalScale(global_scale * mScaleConstraintFixup);
+                setGlobalScale(mScaleConstraintFixup);
             }
             else
             {
@@ -252,8 +251,7 @@ void LLControlAvatar::matchVolumeTransform()
             }
             mRoot->setPosition(vol_pos + mPositionConstraintFixup);
 
-            F32 global_scale = gSavedSettings.getF32("AnimatedObjectsGlobalScale");
-            setGlobalScale(global_scale * mScaleConstraintFixup);
+            setGlobalScale(mScaleConstraintFixup);
         }
     }
 }

@@ -37,13 +37,14 @@
 
 const std::string LL_FCP_COMPLETE_NAME("complete_name");
 const std::string LL_FCP_ACCOUNT_NAME("user_name");
+const S32 CONVERSATION_HISTORY_PAGE_SIZE = 100;
 
 LLFloaterConversationPreview::LLFloaterConversationPreview(const LLSD& session_id)
 :   LLFloater(session_id),
     mChatHistory(NULL),
     mSessionID(session_id.asUUID()),
     mCurrentPage(0),
-    mPageSize(gSavedSettings.getS32("ConversationHistoryPageSize")),
+    mPageSize(CONVERSATION_HISTORY_PAGE_SIZE),
     mAccountName(session_id[LL_FCP_ACCOUNT_NAME]),
     mCompleteName(session_id[LL_FCP_COMPLETE_NAME]),
     mMutex(),

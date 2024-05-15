@@ -69,6 +69,8 @@ LLModalDialog::~LLModalDialog()
     {
         LL_ERRS() << "Attempt to delete dialog while still in sModalStack!" << LL_ENDL;
     }
+
+    LLUI::getInstance()->removePopup(this);
 }
 
 // virtual
@@ -290,10 +292,9 @@ BOOL LLModalDialog::handleKeyHere(KEY key, MASK mask )
 void LLModalDialog::draw()
 {
     static LLUIColor shadow_color = LLUIColorTable::instance().getColor("ColorDropShadow");
-    static LLUICachedControl<S32> shadow_lines ("DropShadowFloater", 0);
 
     gl_drop_shadow( 0, getRect().getHeight(), getRect().getWidth(), 0,
-        shadow_color, shadow_lines);
+        shadow_color, DROP_SHADOW_FLOATER);
 
     LLFloater::draw();
 

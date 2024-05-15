@@ -59,7 +59,7 @@ class ViewerManifest(LLManifest):
         # files during the build (see copy_w_viewer_manifest
         # and copy_l_viewer_manifest targets)
         return 'package' in self.args['actions']
-
+    
     def construct(self):
         super(ViewerManifest, self).construct()
         self.path(src="../../scripts/messages/message_template.msg", dst="app_settings/message_template.msg")
@@ -87,7 +87,7 @@ class ViewerManifest(LLManifest):
 
                 # ... and the entire image filters directory
                 self.path("filters")
-
+            
                 # ... and the included spell checking dictionaries
                 pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
                 with self.prefix(src=pkgdir):
@@ -260,14 +260,14 @@ class ViewerManifest(LLManifest):
 
     def app_name_oneword(self):
         return ''.join(self.app_name().split())
-
+    
     def icon_path(self):
         return "icons/" + self.channel_type()
 
     def extract_names(self,src):
         """Extract contributor names from source file, returns string"""
         try:
-            with open(src, 'r') as contrib_file:
+            with open(src, 'r') as contrib_file: 
                 lines = contrib_file.readlines()
         except IOError:
             print("Failed to open '%s'" % src)
@@ -491,7 +491,7 @@ class Windows_x86_64_Manifest(ViewerManifest):
                 raise Exception("Directories are not supported by test_CRT_and_copy_action()")
         else:
             print("Doesn't exist:", src)
-
+        
     def construct(self):
         super().construct()
 
@@ -543,7 +543,7 @@ class Windows_x86_64_Manifest(ViewerManifest):
         self.path2basename(os.path.join(os.pardir,
                                         'llplugin', 'slplugin', self.args['configuration']),
                            "slplugin.exe")
-
+        
         # Get shared libs from the shared libs staging directory
         with self.prefix(src=os.path.join(self.args['build'], os.pardir,
                                           'sharedlibs', self.args['buildtype'])):
@@ -558,10 +558,6 @@ class Windows_x86_64_Manifest(ViewerManifest):
                 # Get openal dll
                 self.path("OpenAL32.dll")
                 self.path("alut.dll")
-
-            # For ICU4C
-            self.path("icudt48.dll")
-            self.path("icuuc48.dll")
 
             # For textures
             self.path("openjp2.dll")
@@ -582,7 +578,7 @@ class Windows_x86_64_Manifest(ViewerManifest):
             # Vivox libraries
             self.path("vivoxsdk_x64.dll")
             self.path("ortp_x64.dll")
-
+            
             # OpenSSL
             self.path("libcrypto-1_1-x64.dll")
             self.path("libssl-1_1-x64.dll")
@@ -709,7 +705,7 @@ class Windows_x86_64_Manifest(ViewerManifest):
                 self.path("plugins/")
 
         if not self.is_packaging_viewer():
-            self.package_file = "copied_deps"
+            self.package_file = "copied_deps"    
 
     def nsi_file_commands(self, install=True):
         def INSTDIR(path):
@@ -768,7 +764,7 @@ class Windows_x86_64_Manifest(ViewerManifest):
 
         installer_file = self.installer_base_name() + '_Setup.exe'
         substitution_strings['installer_file'] = installer_file
-
+        
         version_vars = """
         !define INSTEXE "SLVersionChecker.exe"
         !define VERSION "%(version_short)s"
@@ -777,7 +773,7 @@ class Windows_x86_64_Manifest(ViewerManifest):
         !define VERSION_REGISTRY "%(version_registry)s"
         !define VIEWER_EXE "%(final_exe)s"
         """ % substitution_strings
-
+        
         if self.channel_type() == 'release':
             substitution_strings['caption'] = CHANNEL_VENDOR_BASE
         else:
@@ -908,7 +904,7 @@ class Darwin_x86_64_Manifest(ViewerManifest):
                 # yields a slightly smaller binary but makes crash
                 # logs mostly useless. This may be desirable for the
                 # final release. Or not.
-                if ("package" in self.args['actions'] or
+                if ("package" in self.args['actions'] or 
                     "unpacked" in self.args['actions']):
                     self.run_command(
                         ['strip', '-S', executable])
@@ -933,7 +929,7 @@ class Darwin_x86_64_Manifest(ViewerManifest):
 
                 with self.prefix(src=relpkgdir, dst=""):
                     self.path("libndofdev.dylib")
-                    self.path("libhunspell-*.dylib")
+                    self.path("libhunspell-*.dylib")   
 
                 with self.prefix(src_dst="cursors_mac"):
                     self.path("*.tif")

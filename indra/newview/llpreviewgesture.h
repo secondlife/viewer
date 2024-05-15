@@ -154,6 +154,7 @@ private:
     LLComboBox*         mAnimationCombo;
     LLComboBox*         mSoundCombo;
     LLLineEditor*       mChatEditor;
+    LLCheckBoxCtrl*     mWaitKeyReleaseCheck;
     LLCheckBoxCtrl*     mWaitAnimCheck;
     LLCheckBoxCtrl*     mWaitTimeCheck;
     LLLineEditor*       mWaitTimeEditor;
