@@ -1,25 +1,25 @@
-/** 
+/**
  * @file lldir_linux.h
  * @brief Definition of directory utilities class for linux
  *
  * $LicenseInfo:firstyear=2000&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -39,24 +39,24 @@
 class LLDir_Linux : public LLDir
 {
 public:
-	LLDir_Linux();
-	virtual ~LLDir_Linux();
+    LLDir_Linux();
+    virtual ~LLDir_Linux();
 
-	/*virtual*/ void initAppDirs(const std::string &app_name,
-		const std::string& app_read_only_data_dir);
+    /*virtual*/ void initAppDirs(const std::string &app_name,
+        const std::string& app_read_only_data_dir);
 
-	virtual std::string getCurPath();
-	virtual U32 countFilesInDir(const std::string &dirname, const std::string &mask);
-	/*virtual*/ bool fileExists(const std::string &filename) const;
+    virtual std::string getCurPath();
+    virtual U32 countFilesInDir(const std::string &dirname, const std::string &mask);
+    /*virtual*/ bool fileExists(const std::string &filename) const;
 
-	/*virtual*/ std::string getLLPluginLauncher();
-	/*virtual*/ std::string getLLPluginFilename(std::string base_name);
+    /*virtual*/ std::string getLLPluginLauncher();
+    /*virtual*/ std::string getLLPluginFilename(std::string base_name);
 
 private:
-	DIR *mDirp;
-	int mCurrentDirIndex;
-	int mCurrentDirCount;
-	std::string mCurrentDir;
+    DIR *mDirp;
+    int mCurrentDirIndex;
+    int mCurrentDirCount;
+    std::string mCurrentDir;
 };
 
 #endif // LL_LLDIR_LINUX_H

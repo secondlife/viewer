@@ -533,8 +533,8 @@ class LLManifest(object, metaclass=LLManifestRegistry):
         return path
 
     def run_command(self, command, **kwds):
-        """ 
-        Runs an external command.  
+        """
+        Runs an external command.
         Raises ManifestError exception if the command returns a nonzero status.
         """
         print("Running command:", shlex.join(command))
