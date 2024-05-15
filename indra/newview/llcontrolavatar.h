@@ -41,12 +41,12 @@ public:
     LLControlAvatar(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp);
     virtual void initInstance(); // Called after construction to initialize the class.
     virtual void markDead();
-	virtual	~LLControlAvatar();
+    virtual ~LLControlAvatar();
 
-	// If this is an attachment, return the avatar it is attached to. Otherwise NULL.
-	virtual const LLVOAvatar *getAttachedAvatar() const;
-	virtual LLVOAvatar *getAttachedAvatar();
-	
+    // If this is an attachment, return the avatar it is attached to. Otherwise NULL.
+    virtual const LLVOAvatar *getAttachedAvatar() const;
+    virtual LLVOAvatar *getAttachedAvatar();
+
     void getNewConstraintFixups(LLVector3& new_pos_constraint, F32& new_scale_constraint) const;
     void matchVolumeTransform();
     void updateVolumeGeom();
@@ -60,13 +60,13 @@ public:
     void markForDeath();
 
     virtual void idleUpdate(LLAgent &agent, const F64 &time);
-	virtual bool computeNeedsUpdate();
-	virtual bool updateCharacter(LLAgent &agent);
+    virtual bool computeNeedsUpdate();
+    virtual bool updateCharacter(LLAgent &agent);
 
     void getAnimatedVolumes(std::vector<LLVOVolume*>& volumes);
-    void updateAnimations();  
-    
-	virtual LLViewerObject*	lineSegmentIntersectRiggedAttachments(
+    void updateAnimations();
+
+    virtual LLViewerObject* lineSegmentIntersectRiggedAttachments(
         const LLVector4a& start, const LLVector4a& end,
         S32 face = -1,                    // which face to check, -1 = ALL_SIDES
         BOOL pick_transparent = FALSE,
@@ -78,14 +78,14 @@ public:
         LLVector4a* normal = NULL,         // return the surface normal at the intersection point
         LLVector4a* tangent = NULL);     // return the surface tangent at the intersection point
 
-	virtual void	updateDebugText();
+    virtual void    updateDebugText();
 
     virtual std::string getFullname() const;
 
     virtual bool shouldRenderRigged() const;
 
-	virtual BOOL isImpostor(); 
-    
+    virtual BOOL isImpostor();
+
     bool mPlaying;
 
     F32 mGlobalScale;
@@ -101,9 +101,9 @@ public:
     static const F32 MAX_LEGAL_OFFSET;
     static const F32 MAX_LEGAL_SIZE;
 
-	static void onRegionChanged();
-	bool mRegionChanged;
-	static boost::signals2::connection sRegionChangedSlot;
+    static void onRegionChanged();
+    bool mRegionChanged;
+    static boost::signals2::connection sRegionChangedSlot;
 };
 
 typedef std::map<LLUUID, S32> signaled_animation_map_t;
@@ -112,7 +112,7 @@ typedef std::map<LLUUID, signaled_animation_map_t> object_signaled_animation_map
 // Stores information about previously requested animations, by object id.
 class LLObjectSignaledAnimationMap: public LLSingleton<LLObjectSignaledAnimationMap>
 {
-    LLSINGLETON_EMPTY_CTOR(LLObjectSignaledAnimationMap); 
+    LLSINGLETON_EMPTY_CTOR(LLObjectSignaledAnimationMap);
 
 public:
     object_signaled_animation_map_t mMap;

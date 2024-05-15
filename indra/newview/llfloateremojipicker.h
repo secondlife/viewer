@@ -45,7 +45,7 @@ public:
 
     LLFloaterEmojiPicker(const LLSD& key);
 
-    virtual	BOOL postBuild() override;
+    virtual BOOL postBuild() override;
     virtual void dirtyRect() override;
     virtual void goneFromFront() override;
 

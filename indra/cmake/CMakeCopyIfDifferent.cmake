@@ -10,20 +10,20 @@
 
 MACRO(COPY_IF_DIFFERENT FROM_DIR TO_DIR TARGETS)
 # Macro to implement copy_if_different for a list of files
-# Arguments - 
+# Arguments -
 #   FROM_DIR - this is the source directory
 #   TO_DIR   - this is the destination directory
 #   TARGETS  - A variable to receive a list of targets
-#   FILES    - names of the files to copy 
-#              TODO: add globing. 
+#   FILES    - names of the files to copy
+#              TODO: add globing.
 SET(AddTargets "")
 FOREACH(SRC ${ARGN})
-    GET_FILENAME_COMPONENT(SRCFILE ${SRC} NAME) 
+    GET_FILENAME_COMPONENT(SRCFILE ${SRC} NAME)
     IF("${FROM_DIR}" STREQUAL "")
         SET(FROM ${SRC})
     ELSE("${FROM_DIR}" STREQUAL "")
         SET(FROM ${FROM_DIR}/${SRC})
-    ENDIF("${FROM_DIR}" STREQUAL "")        
+    ENDIF("${FROM_DIR}" STREQUAL "")
     IF("${TO_DIR}" STREQUAL "")
         SET(TO ${SRCFILE})
     ELSE("${TO_DIR}" STREQUAL "")

@@ -4,7 +4,7 @@
  * @date   2019-12-04
  * @brief  LLMainThreadTask dispatches work to the main thread. When invoked on
  *         the main thread, it performs the work inline.
- * 
+ *
  * $LicenseInfo:firstyear=2019&license=viewerlgpl$
  * Copyright (c) 2019, Linden Research, Inc.
  * $/LicenseInfo$
