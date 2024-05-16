@@ -21,6 +21,8 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       release_run: ${{ steps.setvar.outputs.release_run }}
+      branch:   ${{ steps.which-branch.outputs.branch }}
+      relnotes: ${{ steps.which-branch.outputs.relnotes }}
     env:
       # Build with a tag like "Second_Life#abcdef0" to generate a release page
       # (used for builds we are planning to deploy).
@@ -34,6 +36,13 @@ jobs:
         shell: bash
         run: |
           echo "release_run=$RELEASE_RUN" >> "$GITHUB_OUTPUT"
+
+      - name: Determine source branch
+        id: which-branch
+        if: env.BUILD
+        uses: secondlife/viewer-build-util/which-branch@v2
+        with:
+          token: ${{ github.token }}
 
   build:
     needs: setvar
@@ -52,8 +61,6 @@ jobs:
     outputs:
       viewer_channel: ${{ steps.build.outputs.viewer_channel }}
       viewer_version: ${{ steps.build.outputs.viewer_version }}
-      viewer_branch:  ${{ steps.which-branch.outputs.branch }}
-      relnotes:       ${{ steps.which-branch.outputs.relnotes }}
       imagename: ${{ steps.build.outputs.imagename }}
     env:
       AUTOBUILD_ADDRSIZE: 64
@@ -136,19 +143,12 @@ jobs:
         if: env.BUILD && runner.os == 'Windows'
         run: choco install nsis-unicode
 
-      - name: Determine source branch
-        id: which-branch
-        if: env.BUILD
-        uses: secondlife/viewer-build-util/which-branch@v2
-        with:
-          token: ${{ github.token }}
-
       - name: Build
         id: build
         if: env.BUILD
         shell: bash
         env:
-          AUTOBUILD_VCS_BRANCH: ${{ steps.which-branch.outputs.branch }}
+          AUTOBUILD_VCS_BRANCH: ${{ needs.setvar.outputs.branch }}
           RUNNER_OS: ${{ runner.os }}
         run: |
           # set up things the viewer's build.sh script expects
@@ -437,7 +437,7 @@ jobs:
             Build ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
             ${{ needs.build.outputs.viewer_channel }}
             ${{ needs.build.outputs.viewer_version }}
-            ${{ needs.build.outputs.relnotes }}
+            ${{ needs.setvar.outputs.relnotes }}
           prerelease: true
           generate_release_notes: true
           target_commitish: ${{ github.sha }}
