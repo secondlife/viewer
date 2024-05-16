@@ -424,19 +424,21 @@ void LLPanelVolume::getState( )
             volume_type = "Sphere";
         }
 
-		std::string update_type;
-        if (volobjp->getReflectionProbeIsDynamic())
+
+		std::string update_type = "Static";
+
+        if (volobjp->getReflectionProbeIsDynamic() && !volobjp->getReflectionProbeIsMirror())
         {
             update_type = "Dynamic";
         }
-        else if (volobjp->getReflectionProbeIsMirror())
+        else if (volobjp->getReflectionProbeIsMirror() && !volobjp->getReflectionProbeIsDynamic())
         {
             update_type = "Mirror";
 
         }
-        else
-        {
-            update_type = "Static";
+        else if (volobjp->getReflectionProbeIsDynamic() && volobjp->getReflectionProbeIsMirror())
+		{
+			update_type = "Dynamic Mirror";
 		}
 
         getChildView("Probe Ambiance")->setEnabled(update_type != "Mirror");
@@ -1200,6 +1202,7 @@ void LLPanelVolume::onCopyLight()
         clipboard["reflection_probe"]["ambiance"] = volobjp->getReflectionProbeAmbiance();
         clipboard["reflection_probe"]["near_clip"] = volobjp->getReflectionProbeNearClip();
         clipboard["reflection_probe"]["dynamic"] = volobjp->getReflectionProbeIsDynamic();
+        clipboard["reflection_probe"]["mirror"]    = volobjp->getReflectionProbeIsMirror();
     }
 
     mClipboardParams["light"] = clipboard;
@@ -1257,6 +1260,7 @@ void LLPanelVolume::onPasteLight()
             volobjp->setReflectionProbeAmbiance((F32)clipboard["reflection_probe"]["ambiance"].asReal());
             volobjp->setReflectionProbeNearClip((F32)clipboard["reflection_probe"]["near_clip"].asReal());
             volobjp->setReflectionProbeIsDynamic(clipboard["reflection_probe"]["dynamic"].asBoolean());
+            volobjp->setReflectionProbeIsMirror(clipboard["reflection_probe"]["mirror"].asBoolean());
         }
         else
         {
@@ -1428,11 +1432,13 @@ void LLPanelVolume::onCommitProbe(LLUICtrl* ctrl, void* userdata)
 
     std::string update_type = self->getChild<LLUICtrl>("Probe Update Type")->getValue().asString();
 
-	volobjp->setReflectionProbeIsDynamic(update_type == "Dynamic");
-    volobjp->setReflectionProbeIsMirror(update_type == "Mirror");
+	bool is_mirror = update_type.find("Mirror") != std::string::npos;
 
-    self->getChildView("Probe Ambiance")->setEnabled(update_type != "Mirror");
-    self->getChildView("Probe Near Clip")->setEnabled(update_type != "Mirror");
+	volobjp->setReflectionProbeIsDynamic(update_type.find("Dynamic") != std::string::npos);
+    volobjp->setReflectionProbeIsMirror(is_mirror);
+
+    self->getChildView("Probe Ambiance")->setEnabled(!is_mirror);
+    self->getChildView("Probe Near Clip")->setEnabled(!is_mirror);
 
     std::string shape_type = self->getChild<LLUICtrl>("Probe Volume Type")->getValue().asString();
 

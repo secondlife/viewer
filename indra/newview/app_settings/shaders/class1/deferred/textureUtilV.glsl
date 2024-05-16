@@ -84,11 +84,9 @@ vec2 terrain_texture_transform(vec2 vertex_texcoord, vec4[2] khr_gltf_transform)
 {
     vec2 texcoord = vertex_texcoord;
 
-    texcoord.y = 1.0 - texcoord.y;
-    //texcoord.y = -texcoord.y;
+    texcoord.y = -texcoord.y;
     texcoord = khr_texture_transform(texcoord, khr_gltf_transform[0].xy, khr_gltf_transform[0].z, khr_gltf_transform[1].xy);
-    texcoord.y = 1.0 - texcoord.y;
-    //texcoord.y = -texcoord.y;
+    texcoord.y = -texcoord.y;
 
     return texcoord;
 }

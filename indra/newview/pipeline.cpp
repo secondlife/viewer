@@ -2268,7 +2268,8 @@ static LLTrace::BlockTimerStatHandle FTM_CULL("Object Culling");
 // static
 bool LLPipeline::isWaterClip()
 {
-	return (!sRenderTransparentWater || gCubeSnapshot) && !sRenderingHUDs;
+    // We always pretend that we're not clipping water when rendering mirrors.
+	return (gPipeline.mHeroProbeManager.isMirrorPass()) ? false : (!sRenderTransparentWater || gCubeSnapshot) && !sRenderingHUDs;
 }
 
 void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result)
