@@ -1,25 +1,25 @@
-/** 
+/**
  * @file lldrawpoolwater.cpp
  * @brief LLDrawPoolWater class implementation
  *
  * $LicenseInfo:firstyear=2002&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -34,7 +34,7 @@
 #include "m3math.h"
 #include "llrender.h"
 
-#include "llagent.h"		// for gAgent for getRegion for getWaterHeight
+#include "llagent.h"        // for gAgent for getRegion for getWaterHeight
 #include "llcubemap.h"
 #include "lldrawable.h"
 #include "llface.h"
@@ -91,7 +91,7 @@ void LLDrawPoolWater::setNormalMaps(const LLUUID& normalMapId, const LLUUID& nex
 
 void LLDrawPoolWater::prerender()
 {
-	mShaderLevel = LLCubeMap::sUseCubeMaps ? LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_WATER) : 0;
+    mShaderLevel = LLCubeMap::sUseCubeMaps ? LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_WATER) : 0;
 }
 
 S32 LLDrawPoolWater::getNumPostDeferredPasses()
@@ -135,11 +135,11 @@ void LLDrawPoolWater::beginPostDeferredPass(S32 pass)
     }
 }
 
-void LLDrawPoolWater::renderPostDeferred(S32 pass) 
+void LLDrawPoolWater::renderPostDeferred(S32 pass)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
     LLGLDisable blend(GL_BLEND);
-    
+
     gGL.setColorMask(true, true);
 
     LLColor3 light_diffuse(0, 0, 0);
@@ -172,15 +172,15 @@ void LLDrawPoolWater::renderPostDeferred(S32 pass)
     F32 ground_proj_sq = light_dir.mV[0] * light_dir.mV[0] + light_dir.mV[1] * light_dir.mV[1];
     light_exp          = llmax(32.f, 256.f * powf(ground_proj_sq, 16.0f));
     if (0.f < light_diffuse.normalize())  // Normalizing a color? Puzzling...
-	{
+    {
         light_diffuse *= (1.5f + (6.f * ground_proj_sq));
     }
 
     // set up normal maps filtering
     for (auto norm_map : mWaterNormp)
-	    {
+        {
         if (norm_map) norm_map->setFilteringOption(has_normal_mips ? LLTexUnit::TFO_ANISOTROPIC : LLTexUnit::TFO_POINT);
-	    }
+        }
 
     LLColor4      specular(sun_up ? psky->getSunlightColor() : psky->getMoonlightColor());
     F32           phase_time = (F32) LLFrameTimer::getElapsedSeconds() * 0.5f;
@@ -344,9 +344,9 @@ void LLDrawPoolWater::renderPostDeferred(S32 pass)
         gGL.getTexUnit(bumpTex2)->unbind(LLTexUnit::TT_TEXTURE);
     }
 
-	gGL.getTexUnit(0)->activate();
-	gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
-	
+    gGL.getTexUnit(0)->activate();
+    gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
+
     gGL.setColorMask(true, false);
 }
 
@@ -357,5 +357,5 @@ LLViewerTexture *LLDrawPoolWater::getDebugTexture()
 
 LLColor3 LLDrawPoolWater::getDebugColor() const
 {
-	return LLColor3(0.f, 1.f, 1.f);
+    return LLColor3(0.f, 1.f, 1.f);
 }

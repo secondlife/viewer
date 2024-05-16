@@ -49,7 +49,7 @@ if(WINDOWS)
     endif (ADDRESS_SIZE EQUAL 64)
 
     #*******************************
-    # Misc shared libs 
+    # Misc shared libs
 
     set(release_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
     set(release_files
@@ -180,7 +180,7 @@ elseif(DARWIN)
        )
 
     if (TARGET ll::openal)
-	  list(APPEND release_files libalut.dylib libopenal.dylib)
+      list(APPEND release_files libalut.dylib libopenal.dylib)
     endif ()
 
 elseif(LINUX)
