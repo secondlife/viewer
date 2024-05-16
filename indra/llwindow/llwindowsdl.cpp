@@ -647,6 +647,7 @@ BOOL LLWindowSDL::createContext(int x, int y, int width, int height, int bits, B
             {
                     {SDL_HINT_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR,"0"},
                     {SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH,"1"},
+                    {SDL_HINT_IME_INTERNAL_EDITING,"1"}
             };
 
     for( auto hint: hintList )
@@ -2618,4 +2619,18 @@ void LLWindowSDL::toggleVSync(bool enable_vsync)
 U32 LLWindowSDL::getAvailableVRAMMegabytes()
 {
     return 4096;
+}
+
+void LLWindowSDL::setLanguageTextInput(const LLCoordGL& position)
+{
+    LLCoordWindow win_pos;
+    convertCoords( position, &win_pos );
+
+    SDL_Rect r;
+    r.x = win_pos.mX;
+    r.y = win_pos.mY;
+    r.w = 500;
+    r.h = 16;
+
+    SDL_SetTextInputRect(&r);
 }
