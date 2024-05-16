@@ -68,6 +68,11 @@
 #pragma warning (pop)
 #endif
 
+// On Mac, got:
+// #error "Boost.Stacktrace requires `_Unwind_Backtrace` function. Define
+// `_GNU_SOURCE` macro or `BOOST_STACKTRACE_GNU_SOURCE_NOT_REQUIRED` if
+// _Unwind_Backtrace is available without `_GNU_SOURCE`."
+#define BOOST_STACKTRACE_GNU_SOURCE_NOT_REQUIRED
 #include <boost/stacktrace.hpp>
 
 #include <fstream>
