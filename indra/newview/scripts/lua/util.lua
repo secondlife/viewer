@@ -41,4 +41,11 @@ function util.equal(t1, t2)
     return util.empty(temp)
 end
 
+function util.check_response(res)
+  if res.error then
+    error(res.error)
+  end
+  return res
+end
+
 return util

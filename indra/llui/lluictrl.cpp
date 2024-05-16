@@ -284,12 +284,20 @@ LLUICtrl::commit_signal_t::slot_type LLUICtrl::initCommitCallback(const CommitCa
         std::string function_name = cb.function_name;
         setFunctionName(function_name);
         commit_callback_t* func = (CommitCallbackRegistry::getValue(function_name));
+        LLUICtrl::LLCommitCallbackInfo *info = LLUICtrl::SharedCommitCallbackRegistry::getValue(function_name);
         if (func)
         {
             if (cb.parameter.isProvided())
                 return boost::bind((*func), _1, cb.parameter);
             else
                 return commit_signal_t::slot_type(*func);
+        }
+        else if (info && info->callback_func) 
+        {
+            if (cb.parameter.isProvided())
+                return boost::bind((info->callback_func), _1, cb.parameter);
+            else
+                return commit_signal_t::slot_type(info->callback_func);
         }
         else if (!function_name.empty())
         {

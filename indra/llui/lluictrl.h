@@ -284,6 +284,29 @@ public:
         LLSINGLETON_EMPTY_CTOR(EnableCallbackRegistry);
     };
 
+    struct LLCommitCallbackInfo
+    {
+        enum EUntrustedCall
+        {
+            UNTRUSTED_ALLOW,
+            UNTRUSTED_BLOCK,
+            UNTRUSTED_THROTTLE
+        };
+
+        LLCommitCallbackInfo(commit_callback_t func = NULL, EUntrustedCall handle_untrusted = UNTRUSTED_ALLOW) 
+            : callback_func(func), mHandleUntrusted(handle_untrusted)
+        {}
+
+      public:
+        EUntrustedCall mHandleUntrusted;
+        commit_callback_t callback_func;
+    };
+
+    class SharedCommitCallbackRegistry : public CallbackRegistry<LLCommitCallbackInfo, SharedCommitCallbackRegistry>
+    {
+        LLSINGLETON_EMPTY_CTOR(SharedCommitCallbackRegistry);
+    };
+
 protected:
 
     static bool controlListener(const LLSD& newvalue, LLHandle<LLUICtrl> handle, std::string type);
