@@ -40,6 +40,7 @@
 #include "llscrolllistitem.h"
 #include "llsdserialize.h"
 #include "lltextbox.h" 
+#include "lltrans.h"
 #include "llviewerchat.h" 
 
 namespace {
@@ -56,8 +57,7 @@ static const S32 USED_EMOJIS_IMAGE_INDEX = 0x23F2;
 // https://www.compart.com/en/unicode/U+1F6D1
 static const S32 EMPTY_LIST_IMAGE_INDEX = 0x1F6D1;
 // The following categories should follow the required alphabetic order
-static const std::string RECENTLY_USED_CATEGORY = "1 recently used";
-static const std::string FREQUENTLY_USED_CATEGORY = "2 frequently used";
+static const std::string FREQUENTLY_USED_CATEGORY = "frequently used";
 
 // Floater state related variables
 static std::list<llwchar> sRecentlyUsed;
@@ -128,7 +128,7 @@ public:
         , const LLEmojiSearchResult& emoji)
         : LLScrollingPanel(panel_params)
         , mData(emoji)
-        , mText(LLWString(1, emoji.Character))
+        , mChar(LLWString(1, emoji.Character))
     {
     }
 
@@ -138,8 +138,8 @@ public:
 
         F32 x = getRect().getWidth() / 2;
         F32 y = getRect().getHeight() / 2;
-        LLFontGL::getFontEmoji()->render(
-            mText,                      // wstr
+        LLFontGL::getFontEmojiLarge()->render(
+            mChar,                      // wstr
             0,                          // begin_offset
             x,                          // x
             y,                          // y
@@ -154,11 +154,11 @@ public:
     virtual void updatePanel(BOOL allow_modify) override {}
 
     const LLEmojiSearchResult& getData() const { return mData; }
-    LLWString getText() const { return mText; }
+    const LLWString& getChar() const { return mChar; }
 
 private:
     const LLEmojiSearchResult mData;
-    const LLWString mText;
+    const LLWString mChar;
 };
 
 class LLEmojiPreviewPanel : public LLPanel
@@ -229,7 +229,7 @@ protected:
     {
         F32 x0 = x;
         F32 x1 = max_pixels;
-        LLFontGL* font = LLFontGL::getFontEmoji();
+        LLFontGL* font = LLFontGL::getFontEmojiLarge();
         if (mBegin)
         {
             std::string text = mTitle.substr(0, mBegin);
@@ -332,6 +332,14 @@ void LLFloaterEmojiPicker::onOpen(const LLSD& key)
     gFloaterView->adjustToFitScreen(this, FALSE);
 }
 
+void LLFloaterEmojiPicker::onClose(bool app_quitting)
+{
+    if (!app_quitting)
+    {
+        LLEmojiHelper::instance().hideHelper(nullptr, true);
+    }
+}
+
 void LLFloaterEmojiPicker::dirtyRect()
 {
     super::dirtyRect();
@@ -388,9 +396,12 @@ void LLFloaterEmojiPicker::initialize()
         }
         else
         {
-            const std::string prompt("No emoji found for ");
-            std::string title(prompt + '"' + mFilterPattern.substr(1) + '"');
-            mPreview->setData(EMPTY_LIST_IMAGE_INDEX, title, prompt.size() + 1, title.size() - 1);
+            std::size_t begin, end;
+            LLStringUtil::format_map_t args;
+            args["[FILTER]"] = mFilterPattern.substr(1);
+            std::string title(getString("text_no_emoji_for_filter", args));
+            LLEmojiDictionary::searchInShortCode(begin, end, title, mFilterPattern);
+            mPreview->setData(EMPTY_LIST_IMAGE_INDEX, title, begin, end);
             showPreview(true);
         }
         return;
@@ -423,7 +434,7 @@ void LLFloaterEmojiPicker::fillGroups()
     mGroupButtons.clear();
 
     LLButton::Params params;
-    params.font = LLFontGL::getFontEmoji();
+    params.font = LLFontGL::getFontEmojiLarge();
     params.name = "all_categories";
 
     LLRect rect;
@@ -433,11 +444,10 @@ void LLFloaterEmojiPicker::fillGroups()
     // Create button for "All categories"
     createGroupButton(params, rect, ALL_EMOJIS_IMAGE_INDEX);
 
-    // Create group and button for "Recently used" and/or "Frequently used"
-    if (!sRecentlyUsed.empty() || !sFrequentlyUsed.empty())
+    // Create group and button for "Frequently used"
+    if (!sFrequentlyUsed.empty())
     {
         std::map<std::string, std::vector<LLEmojiSearchResult>> cats;
-        fillCategoryRecentlyUsed(cats);
         fillCategoryFrequentlyUsed(cats);
 
         if (!cats.empty())
@@ -468,38 +478,6 @@ void LLFloaterEmojiPicker::fillGroups()
     resizeGroupButtons();
 }
 
-void LLFloaterEmojiPicker::fillCategoryRecentlyUsed(std::map<std::string, std::vector<LLEmojiSearchResult>>& cats)
-{
-    if (sRecentlyUsed.empty())
-        return;
-
-    std::vector<LLEmojiSearchResult> emojis;
-
-    // In case of empty mFilterPattern we'd use sRecentlyUsed directly
-    if (!mFilterPattern.empty())
-    {
-        // List all emojis in "Recently used"
-        const LLEmojiDictionary::emoji2descr_map_t& emoji2descr = LLEmojiDictionary::instance().getEmoji2Descr();
-        std::size_t begin, end;
-        for (llwchar emoji : sRecentlyUsed)
-        {
-            auto e2d = emoji2descr.find(emoji);
-            if (e2d != emoji2descr.end() && !e2d->second->ShortCodes.empty())
-            {
-                const std::string shortcode(e2d->second->ShortCodes.front());
-                if (LLEmojiDictionary::searchInShortCode(begin, end, shortcode, mFilterPattern))
-                {
-                    emojis.emplace_back(emoji, shortcode, begin, end);
-                }
-            }
-        }
-        if (emojis.empty())
-            return;
-    }
-
-    cats.emplace(std::make_pair(RECENTLY_USED_CATEGORY, emojis));
-}
-
 void LLFloaterEmojiPicker::fillCategoryFrequentlyUsed(std::map<std::string, std::vector<LLEmojiSearchResult>>& cats)
 {
     if (sFrequentlyUsed.empty())
@@ -518,12 +496,14 @@ void LLFloaterEmojiPicker::fillCategoryFrequentlyUsed(std::map<std::string, std:
             auto e2d = emoji2descr.find(emoji.first);
             if (e2d != emoji2descr.end() && !e2d->second->ShortCodes.empty())
             {
-                const std::string shortcode(e2d->second->ShortCodes.front());
+                for (const std::string& shortcode : e2d->second->ShortCodes)
+                {
                 if (LLEmojiDictionary::searchInShortCode(begin, end, shortcode, mFilterPattern))
                 {
                     emojis.emplace_back(emoji.first, shortcode, begin, end);
                 }
             }
+        }
         }
         if (emojis.empty())
             return;
@@ -554,12 +534,14 @@ void LLFloaterEmojiPicker::fillGroupEmojis(std::map<std::string, std::vector<LLE
             {
                 if (!descr->ShortCodes.empty())
                 {
-                    const std::string shortcode(descr->ShortCodes.front());
+                    for (const std::string& shortcode : descr->ShortCodes)
+                    {
                     if (LLEmojiDictionary::searchInShortCode(begin, end, shortcode, mFilterPattern))
                     {
                         emojis.emplace_back(descr->Character, shortcode, begin, end);
                     }
                 }
+            }
             }
             if (emojis.empty())
                 continue;
@@ -737,7 +719,6 @@ void LLFloaterEmojiPicker::fillEmojisCategory(const std::vector<LLEmojiSearchRes
 {
     // Place the category title
     std::string title =
-        category == RECENTLY_USED_CATEGORY ? getString("title_for_recently_used") :
         category == FREQUENTLY_USED_CATEGORY ? getString("title_for_frequently_used") :
         isupper(category.front()) ? category : LLStringUtil::capitalize(category);
     LLEmojiGridDivider* div = new LLEmojiGridDivider(row_panel_params, title);
@@ -750,21 +731,7 @@ void LLFloaterEmojiPicker::fillEmojisCategory(const std::vector<LLEmojiSearchRes
     {
         const LLEmojiDictionary::emoji2descr_map_t& emoji2descr = LLEmojiDictionary::instance().getEmoji2Descr();
         LLEmojiSearchResult emoji { 0, "", 0, 0 };
-        if (category == RECENTLY_USED_CATEGORY)
-        {
-            for (llwchar code : sRecentlyUsed)
-            {
-                const LLEmojiDictionary::emoji2descr_map_t::const_iterator& e2d = emoji2descr.find(code);
-                if (e2d != emoji2descr.end() && !e2d->second->ShortCodes.empty())
-                {
-                    emoji.Character = code;
-                    emoji.String = e2d->second->ShortCodes.front();
-                    createEmojiIcon(emoji, category, row_panel_params, row_list_params, icon_params,
-                        icon_rect, max_icons, bg, row, icon_index);
-                }
-            }
-        }
-        else if (category == FREQUENTLY_USED_CATEGORY)
+        if (category == FREQUENTLY_USED_CATEGORY)
         {
             for (const auto& code : sFrequentlyUsed)
             {
@@ -925,7 +892,7 @@ void LLFloaterEmojiPicker::onEmojiMouseUp(LLUICtrl* ctrl)
 
     if (LLEmojiGridIcon* icon = dynamic_cast<LLEmojiGridIcon*>(ctrl))
     {
-        LLSD value(wstring_to_utf8str(icon->getText()));
+        LLSD value(wstring_to_utf8str(icon->getChar()));
         setValue(value);
 
         onCommit();

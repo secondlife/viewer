@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llcallstack.cpp
  * @brief run-time extraction of the current callstack
  *
  * $LicenseInfo:firstyear=2016&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2016, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -91,7 +91,7 @@ LLCallStack::LLCallStack(S32 skip_count, bool verbose):
 
 bool LLCallStack::contains(const std::string& str)
 {
-	for (const std::string& src_str : m_strings)
+    for (const std::string& src_str : m_strings)
     {
         if (src_str.find(str) != std::string::npos)
         {
@@ -104,7 +104,7 @@ bool LLCallStack::contains(const std::string& str)
 std::ostream& operator<<(std::ostream& s, const LLCallStack& call_stack)
 {
 #ifndef LL_RELEASE_FOR_DOWNLOAD
-	for (const std::string& str : call_stack.m_strings)
+    for (const std::string& str : call_stack.m_strings)
     {
         s << str;
     }
@@ -121,27 +121,27 @@ LLContextStrings::LLContextStrings()
 // static
 LLContextStrings* LLContextStrings::getThreadLocalInstance()
 {
-	LLContextStrings *cons = LLThreadLocalSingletonPointer<LLContextStrings>::getInstance();
+    LLContextStrings *cons = LLThreadLocalSingletonPointer<LLContextStrings>::getInstance();
     if (!cons)
     {
         LLThreadLocalSingletonPointer<LLContextStrings>::setInstance(new LLContextStrings);
     }
-	return LLThreadLocalSingletonPointer<LLContextStrings>::getInstance();
+    return LLThreadLocalSingletonPointer<LLContextStrings>::getInstance();
 }
 
 // static
 void LLContextStrings::addContextString(const std::string& str)
 {
-	LLContextStrings *cons = getThreadLocalInstance();
+    LLContextStrings *cons = getThreadLocalInstance();
     //LL_INFOS() << "CTX " << (S32)cons << " ADD " << str << " CNT " << cons->m_contextStrings[str] << LL_ENDL;
-	cons->m_contextStrings[str]++;
+    cons->m_contextStrings[str]++;
 }
 
 // static
 void LLContextStrings::removeContextString(const std::string& str)
 {
-	LLContextStrings *cons = getThreadLocalInstance();
-	cons->m_contextStrings[str]--;
+    LLContextStrings *cons = getThreadLocalInstance();
+    cons->m_contextStrings[str]--;
     //LL_INFOS() << "CTX " << (S32)cons << " REMOVE " << str << " CNT " << cons->m_contextStrings[str] << LL_ENDL;
     if (cons->m_contextStrings[str] == 0)
     {
@@ -175,7 +175,7 @@ void LLContextStrings::output(std::ostream& os)
     }
 }
 
-// static 
+// static
 std::ostream& operator<<(std::ostream& s, const LLContextStatus& context_status)
 {
     LLThreadLocalSingletonPointer<LLContextStrings>::getInstance()->output(s);

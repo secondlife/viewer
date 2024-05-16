@@ -422,7 +422,7 @@ LLWindowSDL::LLWindowSDL(LLWindowCallbacks* callbacks,
 static SDL_Surface *Load_BMP_Resource(const char *basename)
 {
     const int PATH_BUFFER_SIZE=1000;
-    char path_buffer[PATH_BUFFER_SIZE];	/* Flawfinder: ignore */
+    char path_buffer[PATH_BUFFER_SIZE]; /* Flawfinder: ignore */
 
     // Figure out where our BMP is living on the disk
     snprintf(path_buffer, PATH_BUFFER_SIZE-1, "%s%sres-sdl%s%s",
@@ -587,8 +587,8 @@ void LLWindowSDL::tryFindFullscreenSize( int &width, int &height )
     if((width == 0) || (height == 0))
     {
         // Scan through the list of modes, looking for one which has:
-        //		height between 700 and 800
-        //		aspect ratio closest to the user's original mode
+        //      height between 700 and 800
+        //      aspect ratio closest to the user's original mode
         S32 resolutionCount = 0;
         LLWindowResolution *resolutionList = getSupportedResolutions(resolutionCount);
 
@@ -634,7 +634,7 @@ void LLWindowSDL::tryFindFullscreenSize( int &width, int &height )
 
 BOOL LLWindowSDL::createContext(int x, int y, int width, int height, int bits, BOOL fullscreen, BOOL disable_vsync)
 {
-    //bool			glneedsinit = false;
+    //bool          glneedsinit = false;
 
     LL_INFOS() << "createContext, fullscreen=" << fullscreen <<
                " size=" << width << "x" << height << LL_ENDL;
@@ -647,6 +647,7 @@ BOOL LLWindowSDL::createContext(int x, int y, int width, int height, int bits, B
             {
                     {SDL_HINT_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR,"0"},
                     {SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH,"1"},
+                    {SDL_HINT_IME_INTERNAL_EDITING,"1"}
             };
 
     for( auto hint: hintList )
@@ -980,10 +981,10 @@ void LLWindowSDL::restore()
 void LLWindowSDL::close()
 {
     // Is window is already closed?
-    //	if (!mWindow)
-    //	{
-    //		return;
-    //	}
+    //  if (!mWindow)
+    //  {
+    //      return;
+    //  }
 
     // Make sure cursor is visible and we haven't mangled the clipping state.
     setMouseClipping(FALSE);
@@ -1232,7 +1233,7 @@ BOOL LLWindowSDL::getCursorPosition(LLCoordWindow *position)
 F32 LLWindowSDL::getNativeAspectRatio()
 {
     // MBW -- there are a couple of bad assumptions here.  One is that the display list won't include
-    //		ridiculous resolutions nobody would ever use.  The other is that the list is in order.
+    //      ridiculous resolutions nobody would ever use.  The other is that the list is in order.
 
     // New assumptions:
     // - pixels are square (the only reasonable choice, really)
@@ -2056,8 +2057,8 @@ static SDL_Cursor *makeSDLCursorFromBMP(const char *filename, int hotx, int hoty
                     BOOL data_bit = mask_bit && (srcgreen <= 80);//not 0x80
                     unsigned char bit_offset = (cursurface->w/8) * i
                                                + j/8;
-                    cursor_data[bit_offset]	|= (data_bit) << (7 - (j&7));
-                    cursor_mask[bit_offset]	|= (mask_bit) << (7 - (j&7));
+                    cursor_data[bit_offset] |= (data_bit) << (7 - (j&7));
+                    cursor_mask[bit_offset] |= (mask_bit) << (7 - (j&7));
                 }
             }
             sdlcursor = SDL_CreateCursor((Uint8*)cursor_data,
@@ -2386,7 +2387,7 @@ void exec_cmd(const std::string& cmd, const std::string& arg)
                        << strerror(errno) << LL_ENDL;
         }
         // end ourself by running the command
-        execv(cmd.c_str(), argv);	/* Flawfinder: ignore */
+        execv(cmd.c_str(), argv);   /* Flawfinder: ignore */
         // if execv returns at all, there was a problem.
         LL_WARNS() << "execv failure when trying to start " << cmd << LL_ENDL;
         _exit(1); // _exit because we don't want atexit() clean-up!
@@ -2618,4 +2619,18 @@ void LLWindowSDL::toggleVSync(bool enable_vsync)
 U32 LLWindowSDL::getAvailableVRAMMegabytes()
 {
     return 4096;
+}
+
+void LLWindowSDL::setLanguageTextInput(const LLCoordGL& position)
+{
+    LLCoordWindow win_pos;
+    convertCoords( position, &win_pos );
+
+    SDL_Rect r;
+    r.x = win_pos.mX;
+    r.y = win_pos.mY;
+    r.w = 500;
+    r.h = 16;
+
+    SDL_SetTextInputRect(&r);
 }
