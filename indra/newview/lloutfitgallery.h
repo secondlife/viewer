@@ -137,6 +137,7 @@ private:
     void reArrangeRows(S32 row_diff = 0);
     void updateRowsIfNeeded();
     void updateGalleryWidth();
+    void handleInvFavColorChange();
 
     LLOutfitGalleryItem* buildGalleryItem(std::string name, LLUUID outfit_id, bool is_favorite);
     LLOutfitGalleryItem* getSelectedItem();
@@ -191,6 +192,8 @@ private:
 
 
     LLInventoryCategoriesObserver* 	mOutfitsObserver;
+
+    boost::signals2::connection mSavedSettingInvFavColor;
 };
 class LLOutfitGalleryContextMenu : public LLOutfitContextMenu
 {

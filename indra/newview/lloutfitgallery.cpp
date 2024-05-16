@@ -85,6 +85,12 @@ LLOutfitGallery::LLOutfitGallery(const LLOutfitGallery::Params& p)
       mSortMenu(nullptr)
 {
     updateGalleryWidth();
+
+    LLControlVariable* ctrl = gSavedSettings.getControl("InventoryFavoritesColorText");
+    if (ctrl)
+    {
+        mSavedSettingInvFavColor = ctrl->getSignal()->connect(boost::bind(&LLOutfitGallery::handleInvFavColorChange, this));
+    }
 }
 
 LLOutfitGallery::Params::Params()
@@ -479,6 +485,20 @@ void LLOutfitGallery::updateGalleryWidth()
 {
     mRowPanelWidth = mRowPanWidthFactor * mItemsInRow - mItemHorizontalGap;
     mGalleryWidth = mGalleryWidthFactor * mItemsInRow - mItemHorizontalGap;
+}
+
+void LLOutfitGallery::handleInvFavColorChange()
+{
+    for (outfit_map_t::iterator iter = mOutfitMap.begin();
+        iter != mOutfitMap.end();
+        ++iter)
+    {
+        if (!iter->second) continue;
+        LLOutfitGalleryItem* item = (LLOutfitGalleryItem*)iter->second;
+
+        // refresh font color
+        item->setOutfitFavorite(item->isFavorite());
+    }
 }
 
 LLPanel* LLOutfitGallery::addLastRow()
@@ -1001,8 +1021,9 @@ void LLOutfitGalleryItem::draw()
             mTexturep->addTextureStats((F32)(interior.getWidth() * interior.getHeight()));
         }
     }
-    
-    if(mFavorite)
+
+    static LLUICachedControl<bool> draw_star("InventoryFavoritesUseStar", true);
+    if(mFavorite && draw_star())
     {
         const S32 HPAD = 3;
         const S32 VPAD = 6; // includes padding for text and for the image
@@ -1025,7 +1046,9 @@ void LLOutfitGalleryItem::setOutfitName(std::string name)
 void LLOutfitGalleryItem::setOutfitFavorite(bool is_favorite)
 {
     mFavorite = is_favorite;
-    mOutfitNameText->setReadOnlyColor(mFavorite ? sDefaultFavoriteColor.get() : sDefaultTextColor.get());
+
+    LLCachedControl<bool> use_color(gSavedSettings, "InventoryFavoritesColorText");
+    mOutfitNameText->setReadOnlyColor((mFavorite && use_color()) ? sDefaultFavoriteColor.get() : sDefaultTextColor.get());
 }
 
 void LLOutfitGalleryItem::setOutfitWorn(bool value)
@@ -1034,11 +1057,13 @@ void LLOutfitGalleryItem::setOutfitWorn(bool value)
     LLStringUtil::format_map_t worn_string_args;
     std::string worn_string = getString("worn_string", worn_string_args);
     mOutfitWornText->setReadOnlyColor(sDefaultTextColor.get());
-    mOutfitNameText->setReadOnlyColor(mFavorite ? sDefaultFavoriteColor.get() : sDefaultTextColor.get());
     mOutfitWornText->setFont(value ? LLFontGL::getFontSansSerifBold() : LLFontGL::getFontSansSerifSmall());
     mOutfitNameText->setFont(value ? LLFontGL::getFontSansSerifBold() : LLFontGL::getFontSansSerifSmall());
     mOutfitWornText->setValue(value ? worn_string : "");
     mOutfitNameText->setText(mOutfitName); // refresh LLTextViewModel to pick up font changes
+
+    LLCachedControl<bool> use_color(gSavedSettings, "InventoryFavoritesColorText");
+    mOutfitNameText->setReadOnlyColor((mFavorite && use_color()) ? sDefaultFavoriteColor.get() : sDefaultTextColor.get());
 }
 
 void LLOutfitGalleryItem::setSelected(bool value)
