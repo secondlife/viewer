@@ -1,0 +1,365 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel
+  border="true"
+  follows="all"
+  label="Samping"
+  layout="topleft"
+  left="0"
+  name="panel_settings_terrain_transform"
+  top="0">
+  <text
+   type="string"
+   length="1"
+   halign="left"
+   valign="center"
+   follows="left|top"
+   height="20"
+   layout="topleft"
+   name="terrain0ScaleU_label"
+   left="10"
+   top_pad="3"
+   width="170">
+      Scale u
+  </text>
+  <view_border
+   bevel_style="none"
+   follows="top|left"
+   height="0"
+   layout="topleft"
+   left="8"
+   top_pad="-2"
+   name="terrain0ScaleU_horizontal"
+   width="430" />
+  <spinner
+   follows="left|top"
+   height="19"
+   initial_value="1"
+   label="Scale u"
+   label_width="0"
+   layout="topleft"
+   left="10"
+   min_val="-100"
+   max_val="100"
+   name="terrain0ScaleU"
+   width="64" />
+  <spinner
+   follows="left|top"
+   height="19"
+   initial_value="1"
+   label="Scale u"
+   label_width="0"
+   layout="topleft"
+   left_delta="110"
+   min_val="-100"
+   max_val="100"
+   name="terrain1ScaleU"
+   width="64" />
+  <spinner
+   follows="left|top"
+   height="19"
+   initial_value="1"
+   label="Scale u"
+   label_width="0"
+   layout="topleft"
+   left_delta="110"
+   min_val="-100"
+   max_val="100"
+   name="terrain2ScaleU"
+   width="64" />
+  <spinner
+   follows="left|top"
+   height="19"
+   initial_value="1"
+   label="Scale u"
+   label_width="0"
+   layout="topleft"
+   left_delta="110"
+   min_val="-100"
+   max_val="100"
+   name="terrain3ScaleU"
+   width="64" />
+  <text
+   type="string"
+   length="1"
+   halign="left"
+   valign="center"
+   follows="left|top"
+   height="20"
+   layout="topleft"
+   name="terrain0ScaleV_label"
+   left="10"
+   top_pad="3"
+   width="170">
+      Scale v
+  </text>
+  <view_border
+   bevel_style="none"
+   follows="top|left"
+   height="0"
+   layout="topleft"
+   left="8"
+   top_pad="-2"
+   name="terrain0ScaleV_horizontal"
+   width="430" />
+  <spinner
+   follows="left|top"
+   height="19"
+   initial_value="1"
+   label="Scale v"
+   label_width="0"
+   layout="topleft"
+   left="10"
+   min_val="-100"
+   max_val="100"
+   name="terrain0ScaleV"
+   width="64" />
+  <spinner
+   follows="left|top"
+   height="19"
+   initial_value="1"
+   label="Scale u"
+   label_width="0"
+   layout="topleft"
+   left_delta="110"
+   min_val="-100"
+   max_val="100"
+   name="terrain1ScaleV"
+   width="64" />
+  <spinner
+   follows="left|top"
+   height="19"
+   initial_value="1"
+   label="Scale u"
+   label_width="0"
+   layout="topleft"
+   left_delta="110"
+   min_val="-100"
+   max_val="100"
+   name="terrain2ScaleV"
+   width="64" />
+  <spinner
+   follows="left|top"
+   height="19"
+   initial_value="1"
+   label="Scale u"
+   label_width="0"
+   layout="topleft"
+   left_delta="110"
+   min_val="-100"
+   max_val="100"
+   name="terrain3ScaleV"
+   width="64" />
+  <text
+   type="string"
+   length="1"
+   halign="left"
+   valign="center"
+   follows="left|top"
+   height="20"
+   layout="topleft"
+   name="terrain0Rotation_label"
+   left="10"
+   top_pad="3"
+   width="170">
+      Rotation
+  </text>
+  <view_border
+   bevel_style="none"
+   follows="top|left"
+   height="0"
+   layout="topleft"
+   left="8"
+   top_pad="-2"
+   name="terrain0Rotation_horizontal"
+   width="430" />
+  <spinner
+   follows="left|top"
+   height="19"
+   initial_value="0"
+   label="Rotation"
+   label_width="0"
+   layout="topleft"
+   left="10"
+   min_val="-360"
+   max_val="360"
+   name="terrain0Rotation"
+   width="64" />
+  <spinner
+   follows="left|top"
+   height="19"
+   initial_value="0"
+   label="Scale u"
+   label_width="0"
+   layout="topleft"
+   left_delta="110"
+   min_val="-100"
+   max_val="100"
+   name="terrain1Rotation"
+   width="64" />
+  <spinner
+   follows="left|top"
+   height="19"
+   initial_value="0"
+   label="Scale u"
+   label_width="0"
+   layout="topleft"
+   left_delta="110"
+   min_val="-100"
+   max_val="100"
+   name="terrain2Rotation"
+   width="64" />
+  <spinner
+   follows="left|top"
+   height="19"
+   initial_value="0"
+   label="Scale u"
+   label_width="0"
+   layout="topleft"
+   left_delta="110"
+   min_val="-100"
+   max_val="100"
+   name="terrain3Rotation"
+   width="64" />
+  <text
+   type="string"
+   length="1"
+   halign="left"
+   valign="center"
+   follows="left|top"
+   height="20"
+   layout="topleft"
+   name="terrain0OffsetU_label"
+   left="10"
+   top_pad="3"
+   width="170">
+      Offset y
+  </text>
+  <view_border
+   bevel_style="none"
+   follows="top|left"
+   height="0"
+   layout="topleft"
+   left="8"
+   top_pad="-2"
+   name="terrain0OffsetU_horizontal"
+   width="430" />
+  <spinner
+   follows="left|top"
+   height="19"
+   initial_value="0"
+   label="Offset u"
+   label_width="0"
+   layout="topleft"
+   left="10"
+   min_val="-999"
+   max_val="999"
+   name="terrain0OffsetU"
+   width="64" />
+  <spinner
+   follows="left|top"
+   height="19"
+   initial_value="0"
+   label="Scale u"
+   label_width="0"
+   layout="topleft"
+   left_delta="110"
+   min_val="-100"
+   max_val="100"
+   name="terrain1OffsetU"
+   width="64" />
+  <spinner
+   follows="left|top"
+   height="19"
+   initial_value="0"
+   label="Scale u"
+   label_width="0"
+   layout="topleft"
+   left_delta="110"
+   min_val="-100"
+   max_val="100"
+   name="terrain2OffsetU"
+   width="64" />
+  <spinner
+   follows="left|top"
+   height="19"
+   initial_value="0"
+   label="Scale u"
+   label_width="0"
+   layout="topleft"
+   left_delta="110"
+   min_val="-100"
+   max_val="100"
+   name="terrain3OffsetU"
+   width="64" />
+  <text
+   type="string"
+   length="1"
+   halign="left"
+   valign="center"
+   follows="left|top"
+   height="20"
+   layout="topleft"
+   name="terrain0OffsetV_label"
+   left="10"
+   top_pad="3"
+   width="170">
+      Offset v
+  </text>
+  <view_border
+   bevel_style="none"
+   follows="top|left"
+   height="0"
+   layout="topleft"
+   left="8"
+   top_pad="-2"
+   name="terrain0OffsetV_horizontal"
+   width="430" />
+  <spinner
+   follows="left|top"
+   height="19"
+   initial_value="0"
+   label="Offset v"
+   label_width="0"
+   layout="topleft"
+   left="10"
+   min_val="-999"
+   max_val="999"
+   name="terrain0OffsetV"
+   width="64" />
+  <spinner
+   follows="left|top"
+   height="19"
+   initial_value="0"
+   label="Scale u"
+   label_width="0"
+   layout="topleft"
+   left_delta="110"
+   min_val="-100"
+   max_val="100"
+   name="terrain1OffsetV"
+   width="64" />
+  <spinner
+   follows="left|top"
+   height="19"
+   initial_value="0"
+   label="Scale u"
+   label_width="0"
+   layout="topleft"
+   left_delta="110"
+   min_val="-100"
+   max_val="100"
+   name="terrain2OffsetV"
+   width="64" />
+  <spinner
+   follows="left|top"
+   height="19"
+   initial_value="0"
+   label="Scale u"
+   label_width="0"
+   layout="topleft"
+   left_delta="110"
+   min_val="-100"
+   max_val="100"
+   name="terrain3OffsetV"
+   width="64" />
+</panel>

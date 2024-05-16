@@ -55,6 +55,7 @@
 #include "llfloaterregioninfo.h"
 #include "llgltfmateriallist.h"
 #include "llhttpnode.h"
+#include "llpbrterrainfeatures.h"
 #include "llregioninfomodel.h"
 #include "llsdutil.h"
 #include "llstartup.h"
@@ -2462,6 +2463,26 @@ void LLViewerRegion::setSimulatorFeatures(const LLSD& sim_features)
                 gSavedSettings.setS32("max_texture_dimension_Y", 1024);
             }
 
+            if (features.has("PBRTerrainEnabled"))
+            {
+                bool enabled = features["PBRTerrainEnabled"];
+                gSavedSettings.setBOOL("RenderTerrainPBREnabled", enabled);
+            }
+            else
+            {
+                gSavedSettings.setBOOL("RenderTerrainPBREnabled", false);
+            }
+
+            if (features.has("PBRMaterialSwatchEnabled"))
+            {
+                bool enabled = features["PBRMaterialSwatchEnabled"];
+                gSavedSettings.setBOOL("UIPreviewMaterial", enabled);
+            }
+            else
+            {
+                gSavedSettings.setBOOL("UIPreviewMaterial", false);
+            }
+
             if (features.has("GLTFEnabled"))
             {
                 bool enabled = features["GLTFEnabled"];
@@ -2470,6 +2491,16 @@ void LLViewerRegion::setSimulatorFeatures(const LLSD& sim_features)
             else
             {
                 gSavedSettings.setBOOL("GLTFEnabled", false);
+            }
+
+            if (features.has("PBRTerrainTransformsEnabled"))
+            {
+                bool enabled = features["PBRTerrainTransformsEnabled"];
+                gSavedSettings.setBOOL("RenderTerrainTransformsPBREnabled", enabled);
+            }
+            else
+            {
+                gSavedSettings.setBOOL("RenderTerrainTransformsPBREnabled", false);
             }
         };
 
@@ -3109,6 +3140,17 @@ void LLViewerRegion::unpackRegionHandshake()
         {
             compp->setParamsReady();
         }
+
+        LLPBRTerrainFeatures::queueQuery(*this, [](LLUUID region_id, bool success, const LLModifyRegion& composition_changes)
+        {
+            if (!success) { return; }
+            LLViewerRegion* region = LLWorld::getInstance()->getRegionFromID(region_id);
+            if (!region) { return; }
+            LLVLComposition* compp = region->getComposition();
+            if (!compp) { return; }
+            compp->apply(composition_changes);
+            LLFloaterRegionInfo::sRefreshFromRegion(region);
+        });
     }
 
 
@@ -3206,6 +3248,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
     capabilityNames.append("MapLayerGod");
     capabilityNames.append("MeshUploadFlag");
     capabilityNames.append("ModifyMaterialParams");
+    capabilityNames.append("ModifyRegion");
     capabilityNames.append("NavMeshGenerationStatus");
     capabilityNames.append("NewFileAgentInventory");
     capabilityNames.append("ObjectAnimation");
