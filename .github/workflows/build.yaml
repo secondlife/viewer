@@ -35,11 +35,14 @@ jobs:
         id: setvar
         shell: bash
         run: |
+          echo "release_run = ${{ github.event.inputs.release_run }}"
+          echo "ref_type    = ${{ github.ref_type }}"
+          echo "RELEASE_RUN = $RELEASE_RUN"
           echo "release_run=$RELEASE_RUN" >> "$GITHUB_OUTPUT"
+          exit 1
 
       - name: Determine source branch
         id: which-branch
-        if: env.BUILD
         uses: secondlife/viewer-build-util/which-branch@v2
         with:
           token: ${{ github.token }}
