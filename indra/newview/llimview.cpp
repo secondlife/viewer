@@ -3393,8 +3393,9 @@ LLUUID LLIMMgr::addSession(
             im_floater->reloadMessages();
 		}
 	}
+    LLIMModel::LLIMSession *session = LLIMModel::getInstance()->findIMSession(session_id);
 
-	bool new_session = (LLIMModel::getInstance()->findIMSession(session_id) == NULL);
+	bool new_session = (session == NULL);
 
 	//works only for outgoing ad-hoc sessions
 	if (new_session &&
@@ -3417,6 +3418,7 @@ LLUUID LLIMMgr::addSession(
     //Notifies observers that the session was already added
     else
     {
+        session->initVoiceChannel(voiceChannelInfo);
         std::string session_name = LLIMModel::getInstance()->getName(session_id);
         LLIMMgr::getInstance()->notifyObserverSessionActivated(session_id, session_name, other_participant_id);
     }
