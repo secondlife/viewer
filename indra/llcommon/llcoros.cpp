@@ -123,7 +123,7 @@ LLCoros::LLCoros():
     // Previously we used
     // boost::context::guarded_stack_allocator::default_stacksize();
     // empirically this is insufficient.
-    mStackSize(1024*1024),
+    mStackSize(512*1024),
     // mCurrent does NOT own the current CoroData instance -- it simply
     // points to it. So initialize it with a no-op deleter.
     mCurrent{ [](CoroData*){} }
@@ -155,7 +155,7 @@ void LLCoros::cleanupSingleton()
         // don't use llcoro::suspend() because that module depends
         // on this one
         // This will yield current(main) thread and will let active
-        // corutines run once
+        // coroutines run once
         boost::this_fiber::yield();
     }
     printActiveCoroutines("after pumping");
