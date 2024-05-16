@@ -968,9 +968,10 @@ void LLWearableItemsList::ContextMenu::updateItemsVisibility(LLContextMenu* menu
 	U32 n_links = 0;				// number of links among the selected items
 	U32 n_editable = 0;				// number of editable items among the selected ones
 	U32 n_touchable = 0;            // number of touchable items among the selected ones
-    U32 n_favorites = 0;            // number of favorite items among the selected ones
 
 	bool can_be_worn = true;
+    bool can_favorite = false;
+    bool can_unfavorite = false;
 
 	for (uuid_vec_t::const_iterator it = ids.begin(); it != ids.end(); ++it)
 	{
@@ -995,7 +996,8 @@ void LLWearableItemsList::ContextMenu::updateItemsVisibility(LLContextMenu* menu
 
         LLUUID linked_id = item->getLinkedUUID();
         LLViewerInventoryItem* linked_item = gInventory.getItem(linked_id);
-        const bool is_favorite = linked_item->getIsFavorite();
+        can_favorite |= !linked_item->getIsFavorite();
+        can_unfavorite |= linked_item->getIsFavorite();
 
 		if (is_worn)
 		{
@@ -1017,10 +1019,6 @@ void LLWearableItemsList::ContextMenu::updateItemsVisibility(LLContextMenu* menu
 		{
 			++n_already_worn;
 		}
-        if (is_favorite)
-        {
-            ++n_favorites;
-        }
 
 		if (can_be_worn)
 		{
@@ -1045,10 +1043,10 @@ void LLWearableItemsList::ContextMenu::updateItemsVisibility(LLContextMenu* menu
 	setMenuItemVisible(menu, "create_new",			mask & (MASK_CLOTHING|MASK_BODYPART) && n_items == 1);
 	setMenuItemEnabled(menu, "create_new",			LLAppearanceMgr::instance().canAddWearables(ids));
 	setMenuItemVisible(menu, "show_original",		!standalone);
-	setMenuItemEnabled(menu, "show_original",		n_items == 1 && n_links == n_items);
-    setMenuItemVisible(menu, "favorites_add",       n_favorites < n_items);
-    setMenuItemVisible(menu, "favorites_remove",    n_favorites > 0);
-	setMenuItemVisible(menu, "take_off",			mask == MASK_CLOTHING && n_worn == n_items);
+	setMenuItemEnabled(menu, "show_original",       n_items == 1 && n_links == n_items);
+    setMenuItemVisible(menu, "favorites_add",       can_favorite);
+    setMenuItemVisible(menu, "favorites_remove",    can_unfavorite);
+	setMenuItemVisible(menu, "take_off",            mask == MASK_CLOTHING && n_worn == n_items);
 	setMenuItemVisible(menu, "detach",				mask == MASK_ATTACHMENT && n_worn == n_items);
 	setMenuItemVisible(menu, "take_off_or_detach",	mask == (MASK_ATTACHMENT|MASK_CLOTHING));
 	setMenuItemEnabled(menu, "take_off_or_detach",	n_worn == n_items);

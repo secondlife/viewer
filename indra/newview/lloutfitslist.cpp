@@ -1457,10 +1457,6 @@ bool LLOutfitListGearMenuBase::onEnable(LLSD::String param)
     {
         return LLAppearanceMgr::instance().getCanReplaceCOF(mOutfitList->getSelectedOutfitUUID());
     }
-    if ("sort_by_image" == param)
-    {
-        return !gSavedSettings.getBOOL("OutfitGallerySortByName");
-    }
 
     return mOutfitList->isActionEnabled(param);
 }
@@ -1516,10 +1512,6 @@ void LLOutfitListGearMenu::onUpdateItemsVisibility()
     if (!mMenu) return;
     mMenu->setItemVisible("thumbnail", getSelectedOutfitID().notNull());
     mMenu->setItemVisible("favorite", getSelectedOutfitID().notNull());
-    mMenu->setItemVisible("inventory_settings", true);
-    mMenu->setItemVisible("inv_settings_separator", true);
-    mMenu->setItemVisible("sort_order_separator", false);
-    mMenu->setItemVisible("sort_order_by_image", false);
     LLOutfitListGearMenuBase::onUpdateItemsVisibility();
 }
 
@@ -1537,7 +1529,7 @@ LLOutfitListSortMenu::LLOutfitListSortMenu(LLOutfitListBase* parent_panel)
     enable_registrar.add("Sort.OnEnable", boost::bind(&LLOutfitListSortMenu::onEnable, this, _2));
 
     mMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>(
-        "menu_outfit_sort.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+        "menu_outfit_list_sort.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
     llassert(mMenu);
 }
 
@@ -1574,7 +1566,7 @@ bool LLOutfitListSortMenu::onEnable(LLSD::String param)
         return !filter_mode;
     }
 
-    return true;
+    return false;
 }
 
 

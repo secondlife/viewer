@@ -109,18 +109,6 @@
          function="Gear.OnVisible"
          parameter="delete" />
     </menu_item_call>
-    <menu_item_separator
-      name="sort_order_separator"/>
-    <menu_item_check
-     label="Show outfits with images first"
-     layout="topleft"
-     name="sort_order_by_image">
-        <on_click
-         function="Gear.SortByImage" />
-        <on_check
-         function="Gear.OnEnable"
-         parameter="sort_by_image" />
-    </menu_item_check>
   <menu_item_separator/>
             <!-- copied (with minor modifications) from menu_inventory_add.xml -->
             <!--  *TODO: generate dynamically? -->
@@ -282,12 +270,12 @@
             </menu>
             <!-- copied from menu_inventory_add.xml -->
 
-  <menu_item_separator
-    name="inv_settings_separator"/>
+  <menu_item_separator/>
 
   <menu_item_check
    label="Inventory settings..."
    layout="topleft"
+   visible="true"
    name="inventory_settings">
     <menu_item_check.on_check
      function="Floater.Visible"
