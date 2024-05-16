@@ -27,7 +27,7 @@ jobs:
       # When you want to use a string variable as a workflow YAML boolean, it's
       # important to ensure it's the empty string when false. If you omit || '',
       # its value when false is "false", which is interpreted as true.
-      RELEASE_RUN: ${{ (github.event.inputs.release_run || github.ref_type == 'tag' && startsWith(github.ref_name, 'Second_Life')) && 'Y' || '' }}
+      RELEASE_RUN: ${{ (github.event.inputs.release_run || (github.ref_type == 'tag' && startsWith(github.ref_name, 'Second_Life'))) && 'Y' || '' }}
     steps:
       - name: Set Variable
         id: setvar
@@ -403,7 +403,11 @@ jobs:
   release:
     needs: [setvar, build, sign-and-package-windows, sign-and-package-mac]
     runs-on: ubuntu-latest
-    if: needs.setvar.outputs.release_run
+    # action-gh-release requires a tag (presumably for automatic generation of
+    # release notes). Possible TODO: if we arrive here but do not have a
+    # suitable tag for github.sha, create one? If we do that, of course remove
+    # this == 'tag' condition.
+    if: needs.setvar.outputs.release_run && github.ref_type == 'tag'
     steps:
       - uses: actions/download-artifact@v4
         with:
