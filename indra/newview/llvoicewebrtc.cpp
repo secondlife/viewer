@@ -2344,6 +2344,19 @@ void LLVoiceWebRTCConnection::OnRenegotiationNeeded()
         });
 }
 
+// callback from llwebrtc
+void LLVoiceWebRTCConnection::OnPeerConnectionClosed()
+{
+    LL::WorkQueue::postMaybe(mMainQueue,
+        [=] {
+            LL_DEBUGS("Voice") << "Peer connection has closed." << LL_ENDL;
+            if (mVoiceConnectionState == VOICE_STATE_WAIT_FOR_CLOSE)
+            {
+                setVoiceConnectionState(VOICE_STATE_CLOSED);
+                mOutstandingRequests--;
+            }
+        });
+}
 
 void LLVoiceWebRTCConnection::setMuteMic(bool muted)
 {
@@ -2741,8 +2754,13 @@ bool LLVoiceWebRTCConnection::connectionStateMachine()
 
         case VOICE_STATE_SESSION_EXIT:
         {
+            setVoiceConnectionState(VOICE_STATE_WAIT_FOR_CLOSE);
+            mOutstandingRequests++;
             mWebRTCPeerConnectionInterface->shutdownConnection();
-
+            break;
+        case VOICE_STATE_WAIT_FOR_CLOSE:
+            break;
+        case VOICE_STATE_CLOSED:
             if (!mShutDown)
             {
                 mVoiceConnectionState = VOICE_STATE_START_SESSION;

@@ -585,6 +585,7 @@ class LLVoiceWebRTCConnection :
     void OnIceCandidate(const llwebrtc::LLWebRTCIceCandidate &candidate) override;
     void OnOfferAvailable(const std::string &sdp) override;
     void OnRenegotiationNeeded() override;
+    void OnPeerConnectionClosed() override;
     void OnAudioEstablished(llwebrtc::LLWebRTCAudioInterface *audio_interface) override;
     //@}
 
@@ -640,13 +641,15 @@ class LLVoiceWebRTCConnection :
         VOICE_STATE_DISCONNECT             = 0x100,
         VOICE_STATE_WAIT_FOR_EXIT          = 0x200,
         VOICE_STATE_SESSION_EXIT           = 0x400,
-        VOICE_STATE_SESSION_STOPPING       = 0x780
+        VOICE_STATE_WAIT_FOR_CLOSE         = 0x800,
+        VOICE_STATE_CLOSED                 = 0x1000,
+        VOICE_STATE_SESSION_STOPPING       = 0x1F80
     } EVoiceConnectionState;
 
     EVoiceConnectionState mVoiceConnectionState;
     LL::WorkQueue::weak_t mMainQueue;
 
-    void                  setVoiceConnectionState(EVoiceConnectionState new_voice_connection_state)
+    void setVoiceConnectionState(EVoiceConnectionState new_voice_connection_state)
     {
         if (new_voice_connection_state & VOICE_STATE_SESSION_STOPPING)
         {

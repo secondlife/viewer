@@ -670,24 +670,23 @@ void LLWebRTCPeerConnectionImpl::init(LLWebRTCImpl * webrtc_impl)
 }
 void LLWebRTCPeerConnectionImpl::terminate()
 {
-    rtc::scoped_refptr<webrtc::PeerConnectionInterface> connection;
-    mPeerConnection.swap(connection);
-    rtc::scoped_refptr<webrtc::DataChannelInterface> dataChannel;
-    mDataChannel.swap(dataChannel);
-    rtc::scoped_refptr<webrtc::MediaStreamInterface> localStream;
-    mLocalStream.swap(localStream);
-
     mWebRTCImpl->PostSignalingTask(
         [=]()
         {
-            if (connection)
+            if (mDataChannel)
             {
-                connection->Close();
+                mDataChannel->UnregisterObserver();
+                mDataChannel->Close();
+                mDataChannel = nullptr;
             }
-            if (dataChannel)
+            if (mPeerConnection)
             {
-                dataChannel->UnregisterObserver();
-                dataChannel->Close();
+                mPeerConnection->Close();
+                mPeerConnection = nullptr;
+            }
+            for (auto &observer : mSignalingObserverList)
+            {
+                observer->OnPeerConnectionClosed();
             }
         });
 }

@@ -212,6 +212,9 @@ class LLWebRTCSignalingObserver
     // Called when a connection enters a failure state and renegotiation is needed.
     virtual void OnRenegotiationNeeded() = 0;
 
+    // Called when a peer connection has shut down
+    virtual void OnPeerConnectionClosed() = 0;
+
     // Called when the audio channel has been established and audio
     // can begin.
     virtual void OnAudioEstablished(LLWebRTCAudioInterface *audio_interface) = 0;
