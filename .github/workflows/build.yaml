@@ -26,20 +26,20 @@ jobs:
     env:
       # Build with a tag like "Second_Life#abcdef0" to generate a release page
       # (used for builds we are planning to deploy).
+      # Even though inputs.release_run is specified with type boolean, which
+      # correctly presents a checkbox, its *value* is a GH workflow string
+      # 'true' or 'false'. If you simply test github.event.inputs.release_run,
+      # it always evaluates as true because it's a non-empty string either way.
       # When you want to use a string variable as a workflow YAML boolean, it's
       # important to ensure it's the empty string when false. If you omit || '',
-      # its value when false is "false", which is interpreted as true.
+      # its value when false is "false", which (again) is interpreted as true.
       RELEASE_RUN: ${{ (github.event.inputs.release_run != 'false' || (github.ref_type == 'tag' && startsWith(github.ref_name, 'Second_Life'))) && 'Y' || '' }}
     steps:
       - name: Set Variable
         id: setvar
         shell: bash
         run: |
-          echo "release_run = ${{ github.event.inputs.release_run }}"
-          echo "ref_type    = ${{ github.ref_type }}"
-          echo "RELEASE_RUN = $RELEASE_RUN"
           echo "release_run=$RELEASE_RUN" >> "$GITHUB_OUTPUT"
-          exit 1
 
       - name: Determine source branch
         id: which-branch
