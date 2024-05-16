@@ -1,4 +1,4 @@
-/** 
+/**
 * @file llrendernavprim.cpp
 * @brief Implementation of llrendernavprim
 * @author Prep@lindenlab.com
@@ -43,17 +43,17 @@ void LLRenderNavPrim::renderLLTri( const LLVector3& a, const LLVector3& b, const
     gGL.color4ubv(color.mV);
 
     gGL.begin(LLRender::TRIANGLES);
-	{
-		gGL.vertex3fv( a.mV );
-		gGL.vertex3fv( b.mV );
-		gGL.vertex3fv( c.mV );
-	}
-	gGL.end();
+    {
+        gGL.vertex3fv( a.mV );
+        gGL.vertex3fv( b.mV );
+        gGL.vertex3fv( c.mV );
+    }
+    gGL.end();
 }
 //=============================================================================
 void LLRenderNavPrim::renderNavMeshVB( U32 mode, LLVertexBuffer* pVBO, int vertCnt )
-{	
-	pVBO->setBuffer();
-	pVBO->drawArrays( mode, 0, vertCnt );
+{
+    pVBO->setBuffer();
+    pVBO->drawArrays( mode, 0, vertCnt );
 }
 //=============================================================================

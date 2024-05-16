@@ -98,12 +98,6 @@ public:
             return true;
         }
 
-        if (!LLUI::getInstance()->mSettingGroups["config"]->getBOOL("EnablePicks"))
-        {
-            LLNotificationsUtil::add("NoPicks", LLSD(), LLSD(), std::string("SwitchToStandardSkinAndQuit"));
-            return true;
-        }
-
         // handle app/pick/create urls first
         if (params.size() == 1 && params[0].asString() == "create")
         {
@@ -296,17 +290,21 @@ void LLPanelProfilePicks::callbackDeletePick(const LLSD& notification, const LLS
 
 void LLPanelProfilePicks::processProperties(void* data, EAvatarProcessorType type)
 {
-    if (APT_PICKS == type)
+    if (APT_PROPERTIES == type)
     {
-        LLAvatarPicks* avatar_picks = static_cast<LLAvatarPicks*>(data);
-        if (avatar_picks && getAvatarId() == avatar_picks->target_id)
+        LLAvatarData* avatar_picks = static_cast<LLAvatarData*>(data);
+        if (avatar_picks && getAvatarId() == avatar_picks->avatar_id)
         {
+            if (getSelfProfile())
+            {
+                LLAgentPicksInfo::getInstance()->onServerRespond(avatar_picks);
+            }
             processProperties(avatar_picks);
         }
     }
 }
 
-void LLPanelProfilePicks::processProperties(const LLAvatarPicks* avatar_picks)
+void LLPanelProfilePicks::processProperties(const LLAvatarData* avatar_picks)
 {
     LLUUID selected_id = mPickToSelectOnLoad;
     bool has_selection = false;
@@ -324,7 +322,7 @@ void LLPanelProfilePicks::processProperties(const LLAvatarPicks* avatar_picks)
 
     mTabContainer->deleteAllTabs();
 
-    LLAvatarPicks::picks_list_t::const_iterator it = avatar_picks->picks_list.begin();
+    LLAvatarData::picks_list_t::const_iterator it = avatar_picks->picks_list.begin();
     for (; avatar_picks->picks_list.end() != it; ++it)
     {
         LLUUID pick_id = it->first;
@@ -428,7 +426,7 @@ void LLPanelProfilePicks::updateData()
     {
         setIsLoading();
 
-        LLAvatarPropertiesProcessor::getInstance()->sendAvatarPicksRequest(avatar_id);
+        LLAvatarPropertiesProcessor::getInstance()->sendAvatarPropertiesRequest(avatar_id);
     }
     if (!getIsLoaded())
     {
@@ -488,6 +486,8 @@ LLPanelProfilePick::LLPanelProfilePick()
  , mLocationChanged(false)
  , mNewPick(false)
  , mIsEditing(false)
+ , mRegionCallbackConnection()
+ , mParcelCallbackConnection()
 {
 }
 
@@ -504,6 +504,15 @@ LLPanelProfilePick::~LLPanelProfilePick()
     if (mParcelId.notNull())
     {
         LLRemoteParcelInfoProcessor::getInstance()->removeObserver(mParcelId, this);
+    }
+
+    if (mRegionCallbackConnection.connected())
+    {
+        mRegionCallbackConnection.disconnect();
+    }
+    if (mParcelCallbackConnection.connected())
+    {
+        mParcelCallbackConnection.disconnect();
     }
 }
 
@@ -579,6 +588,8 @@ BOOL LLPanelProfilePick::postBuild()
 
     mSnapshotCtrl = getChild<LLTextureCtrl>("pick_snapshot");
     mSnapshotCtrl->setCommitCallback(boost::bind(&LLPanelProfilePick::onSnapshotChanged, this));
+    mSnapshotCtrl->setAllowLocalTexture(FALSE);
+    mSnapshotCtrl->setBakeTextureEnabled(FALSE);
 
     childSetAction("teleport_btn", boost::bind(&LLPanelProfilePick::onClickTeleport, this));
     childSetAction("show_on_map_btn", boost::bind(&LLPanelProfilePick::onClickMap, this));
@@ -667,6 +678,7 @@ void LLPanelProfilePick::setSnapshotId(const LLUUID& id)
 void LLPanelProfilePick::setPickName(const std::string& name)
 {
     mPickName->setValue(name);
+    mPickNameStr = name;
 }
 
 const std::string LLPanelProfilePick::getPickName()
@@ -749,6 +761,14 @@ BOOL LLPanelProfilePick::isDirty() const
 
 void LLPanelProfilePick::onClickSave()
 {
+    if (mRegionCallbackConnection.connected())
+    {
+        mRegionCallbackConnection.disconnect();
+    }
+    if (mParcelCallbackConnection.connected())
+    {
+        mParcelCallbackConnection.disconnect();
+    }
     sendUpdate();
 
     mLocationChanged = false;
@@ -756,6 +776,7 @@ void LLPanelProfilePick::onClickSave()
 
 void LLPanelProfilePick::onClickCancel()
 {
+    updateTabLabel(mPickNameStr);
     LLAvatarPropertiesProcessor::getInstance()->sendPickInfoRequest(getAvatarId(), getPickId());
     mLocationChanged = false;
     enableSaveButton(FALSE);

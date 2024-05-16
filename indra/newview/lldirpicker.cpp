@@ -33,7 +33,7 @@
 #include "lldir.h"
 #include "llframetimer.h"
 #include "lltrans.h"
-#include "llwindow.h"	// beforeDialog()
+#include "llwindow.h"   // beforeDialog()
 #include "llviewercontrol.h"
 #include "llwin32headerslean.h"
 
@@ -63,96 +63,96 @@ LLDirPicker LLDirPicker::sInstance;
 // is enabled and if not, tidy up and indicate we're not allowed to do this.
 bool LLDirPicker::check_local_file_access_enabled()
 {
-	// if local file browsing is turned off, return without opening dialog
-	bool local_file_system_browsing_enabled = gSavedSettings.getBOOL("LocalFileSystemBrowsingEnabled");
-	if ( ! local_file_system_browsing_enabled )
-	{
-		mDir.clear();	// Windows
-		mFileName = NULL; // Mac/Linux
-		return false;
-	}
+    // if local file browsing is turned off, return without opening dialog
+    bool local_file_system_browsing_enabled = gSavedSettings.getBOOL("LocalFileSystemBrowsingEnabled");
+    if ( ! local_file_system_browsing_enabled )
+    {
+        mDir.clear();   // Windows
+        mFileName = NULL; // Mac/Linux
+        return false;
+    }
 
-	return true;
+    return true;
 }
 
 #if LL_WINDOWS
 
 LLDirPicker::LLDirPicker() :
-	mFileName(NULL),
-	mLocked(false)
+    mFileName(NULL),
+    mLocked(false)
 {
-	bi.hwndOwner = NULL;
-	bi.pidlRoot = NULL;
-	bi.pszDisplayName = NULL;
-	bi.lpszTitle = NULL;
-	bi.ulFlags = BIF_USENEWUI;
-	bi.lpfn = NULL;
-	bi.lParam = NULL;
-	bi.iImage = 0;
+    bi.hwndOwner = NULL;
+    bi.pidlRoot = NULL;
+    bi.pszDisplayName = NULL;
+    bi.lpszTitle = NULL;
+    bi.ulFlags = BIF_USENEWUI;
+    bi.lpfn = NULL;
+    bi.lParam = NULL;
+    bi.iImage = 0;
 }
 
 LLDirPicker::~LLDirPicker()
 {
-	// nothing
+    // nothing
 }
 
 BOOL LLDirPicker::getDir(std::string* filename, bool blocking)
 {
-	if( mLocked )
-	{
-		return FALSE;
-	}
+    if( mLocked )
+    {
+        return FALSE;
+    }
 
-	// if local file browsing is turned off, return without opening dialog
-	if ( check_local_file_access_enabled() == false )
-	{
-		return FALSE;
-	}
+    // if local file browsing is turned off, return without opening dialog
+    if ( check_local_file_access_enabled() == false )
+    {
+        return FALSE;
+    }
 
-	BOOL success = FALSE;
+    BOOL success = FALSE;
 
 
-	if (blocking)
-	{
-		// Modal, so pause agent
-		send_agent_pause();
-	}
+    if (blocking)
+    {
+        // Modal, so pause agent
+        send_agent_pause();
+    }
 
-	bi.hwndOwner = (HWND)gViewerWindow->getPlatformWindow();
+    bi.hwndOwner = (HWND)gViewerWindow->getPlatformWindow();
 
-	::OleInitialize(NULL);
-	LPITEMIDLIST pIDL = ::SHBrowseForFolder(&bi);
+    ::OleInitialize(NULL);
+    LPITEMIDLIST pIDL = ::SHBrowseForFolder(&bi);
 
-	if(pIDL != NULL)
-	{
-		WCHAR buffer[_MAX_PATH] = {'\0'};
+    if(pIDL != NULL)
+    {
+        WCHAR buffer[_MAX_PATH] = {'\0'};
 
-		if(::SHGetPathFromIDList(pIDL, buffer) != 0)
-		{
-			// Set the string value.
+        if(::SHGetPathFromIDList(pIDL, buffer) != 0)
+        {
+            // Set the string value.
 
-			mDir = utf16str_to_utf8str(llutf16string(buffer));
-			success = TRUE;
-		}
-		// free the item id list
-		CoTaskMemFree(pIDL);
-	}
+            mDir = utf16str_to_utf8str(llutf16string(buffer));
+            success = TRUE;
+        }
+        // free the item id list
+        CoTaskMemFree(pIDL);
+    }
 
-	::OleUninitialize();
+    ::OleUninitialize();
 
-	if (blocking)
-	{
-		send_agent_resume();
-	}
+    if (blocking)
+    {
+        send_agent_resume();
+    }
 
-	// Account for the fact that the app has been stalled.
-	LLFrameTimer::updateFrameTime();
-	return success;
+    // Account for the fact that the app has been stalled.
+    LLFrameTimer::updateFrameTime();
+    return success;
 }
 
 std::string LLDirPicker::getDirName()
 {
-	return mDir;
+    return mDir;
 }
 
 /////////////////////////////////////////////DARWIN
@@ -162,19 +162,19 @@ LLDirPicker::LLDirPicker() :
 mFileName(NULL),
 mLocked(false)
 {
-	mFilePicker = new LLFilePicker();
-	reset();
+    mFilePicker = new LLFilePicker();
+    reset();
 }
 
 LLDirPicker::~LLDirPicker()
 {
-	delete mFilePicker;
+    delete mFilePicker;
 }
 
 void LLDirPicker::reset()
 {
-	if (mFilePicker)
-		mFilePicker->reset();
+    if (mFilePicker)
+        mFilePicker->reset();
 }
 
 
@@ -188,25 +188,25 @@ BOOL LLDirPicker::getDir(std::string* filename, bool blocking)
 
 std::string LLDirPicker::getDirName()
 {
-	return mFilePicker->getFirstFile();
+    return mFilePicker->getFirstFile();
 }
 
 #elif LL_LINUX
 
 LLDirPicker::LLDirPicker() :
-	mFileName(NULL),
-	mLocked(false)
+    mFileName(NULL),
+    mLocked(false)
 {
 #ifndef LL_FLTK
-	mFilePicker = new LLFilePicker();
+    mFilePicker = new LLFilePicker();
 #endif
-	reset();
+    reset();
 }
 
 LLDirPicker::~LLDirPicker()
 {
 #ifndef LL_FLTK
-	delete mFilePicker;
+    delete mFilePicker;
 #endif
 }
 
@@ -214,54 +214,54 @@ LLDirPicker::~LLDirPicker()
 void LLDirPicker::reset()
 {
 #ifndef LL_FLTK
-	if (mFilePicker)
-		mFilePicker->reset();
+    if (mFilePicker)
+        mFilePicker->reset();
 #else
-	mDir = "";
+    mDir = "";
 #endif
 }
 
 BOOL LLDirPicker::getDir(std::string* filename, bool blocking)
 {
-	reset();
+    reset();
 
-	// if local file browsing is turned off, return without opening dialog
-	if ( check_local_file_access_enabled() == false )
-	{
-		return FALSE;
-	}
+    // if local file browsing is turned off, return without opening dialog
+    if ( check_local_file_access_enabled() == false )
+    {
+        return FALSE;
+    }
 
 #ifdef LL_FLTK
     gViewerWindow->getWindow()->beforeDialog();
-	Fl_Native_File_Chooser flDlg;
-	flDlg.title(LLTrans::getString("choose_the_directory").c_str());
-	flDlg.type(Fl_Native_File_Chooser::BROWSE_DIRECTORY );
-	int res = flDlg.show();
+    Fl_Native_File_Chooser flDlg;
+    flDlg.title(LLTrans::getString("choose_the_directory").c_str());
+    flDlg.type(Fl_Native_File_Chooser::BROWSE_DIRECTORY );
+    int res = flDlg.show();
     gViewerWindow->getWindow()->afterDialog();
-	if( res == 0 )
-	{
-		char const *pDir = flDlg.filename(0);
-		if( pDir )
-			mDir = pDir;
-	}
-	else if( res == -1 )
-	{
-		LL_WARNS() << "FLTK failed: " <<  flDlg.errmsg() << LL_ENDL;
-	}
-	return !mDir.empty();
+    if( res == 0 )
+    {
+        char const *pDir = flDlg.filename(0);
+        if( pDir )
+            mDir = pDir;
+    }
+    else if( res == -1 )
+    {
+        LL_WARNS() << "FLTK failed: " <<  flDlg.errmsg() << LL_ENDL;
+    }
+    return !mDir.empty();
 #endif
 }
 
 std::string LLDirPicker::getDirName()
 {
 #ifndef LL_FLTK
-	if (mFilePicker)
-	{
-		return mFilePicker->getFirstFile();
-	}
-	return "";
+    if (mFilePicker)
+    {
+        return mFilePicker->getFirstFile();
+    }
+    return "";
 #else
-	return mDir;
+    return mDir;
 #endif
 }
 
@@ -269,7 +269,7 @@ std::string LLDirPicker::getDirName()
 
 LLDirPicker::LLDirPicker()
 {
-	reset();
+    reset();
 }
 
 LLDirPicker::~LLDirPicker()
@@ -283,12 +283,12 @@ void LLDirPicker::reset()
 
 BOOL LLDirPicker::getDir(std::string* filename, bool blocking)
 {
-	return FALSE;
+    return FALSE;
 }
 
 std::string LLDirPicker::getDirName()
 {
-	return "";
+    return "";
 }
 
 #endif
@@ -300,9 +300,9 @@ std::queue<LLDirPickerThread*> LLDirPickerThread::sDeadQ;
 void LLDirPickerThread::getFile()
 {
 #if LL_WINDOWS
-	start();
+    start();
 #else
-	run();
+    run();
 #endif
 }
 
@@ -310,76 +310,76 @@ void LLDirPickerThread::getFile()
 void LLDirPickerThread::run()
 {
 #if LL_WINDOWS
-	bool blocking = false;
+    bool blocking = false;
 #else
-	bool blocking = true; // modal
+    bool blocking = true; // modal
 #endif
 
-	LLDirPicker picker;
+    LLDirPicker picker;
 
-	if (picker.getDir(&mProposedName, blocking))
-	{
-		mResponses.push_back(picker.getDirName());
-	}
+    if (picker.getDir(&mProposedName, blocking))
+    {
+        mResponses.push_back(picker.getDirName());
+    }
 
-	{
-		LLMutexLock lock(sMutex);
-		sDeadQ.push(this);
-	}
+    {
+        LLMutexLock lock(sMutex);
+        sDeadQ.push(this);
+    }
 
 }
 
 //static
 void LLDirPickerThread::initClass()
 {
-	sMutex = new LLMutex();
+    sMutex = new LLMutex();
 }
 
 //static
 void LLDirPickerThread::cleanupClass()
 {
-	clearDead();
+    clearDead();
 
-	delete sMutex;
-	sMutex = NULL;
+    delete sMutex;
+    sMutex = NULL;
 }
 
 //static
 void LLDirPickerThread::clearDead()
 {
-	if (!sDeadQ.empty())
-	{
-		LLMutexLock lock(sMutex);
-		while (!sDeadQ.empty())
-		{
-			LLDirPickerThread* thread = sDeadQ.front();
-			thread->notify(thread->mResponses);
-			delete thread;
-			sDeadQ.pop();
-		}
-	}
+    if (!sDeadQ.empty())
+    {
+        LLMutexLock lock(sMutex);
+        while (!sDeadQ.empty())
+        {
+            LLDirPickerThread* thread = sDeadQ.front();
+            thread->notify(thread->mResponses);
+            delete thread;
+            sDeadQ.pop();
+        }
+    }
 }
 
 LLDirPickerThread::LLDirPickerThread(const dir_picked_signal_t::slot_type& cb, const std::string &proposed_name)
-	: LLThread("dir picker"),
-	mFilePickedSignal(NULL)
+    : LLThread("dir picker"),
+    mFilePickedSignal(NULL)
 {
-	mFilePickedSignal = new dir_picked_signal_t();
-	mFilePickedSignal->connect(cb);
+    mFilePickedSignal = new dir_picked_signal_t();
+    mFilePickedSignal->connect(cb);
 }
 
 LLDirPickerThread::~LLDirPickerThread()
 {
-	delete mFilePickedSignal;
+    delete mFilePickedSignal;
 }
 
 void LLDirPickerThread::notify(const std::vector<std::string>& filenames)
 {
-	if (!filenames.empty())
-	{
-		if (mFilePickedSignal)
-		{
-			(*mFilePickedSignal)(filenames, mProposedName);
-		}
-	}
+    if (!filenames.empty())
+    {
+        if (mFilePickedSignal)
+        {
+            (*mFilePickedSignal)(filenames, mProposedName);
+        }
+    }
 }

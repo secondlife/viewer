@@ -3,7 +3,7 @@
  * @author Nat Goodspeed
  * @date   2012-01-05
  * @brief  Test for llstreamqueue.
- * 
+ *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Copyright (c) 2012, Linden Research, Inc.
  * $/LicenseInfo$
@@ -15,9 +15,6 @@
 #include "llstreamqueue.h"
 // STL headers
 #include <vector>
-// std headers
-// external library headers
-#include <boost/foreach.hpp>
 // other Linden headers
 #include "../test/lltut.h"
 #include "stringize.h"
@@ -133,7 +130,7 @@ namespace tut
         std::streamsize leave(5);   // len("craft") above
         std::streamsize skip(total - leave);
         std::streamsize written(0);
-        BOOST_FOREACH(const std::string& block, blocks)
+        for (const std::string& block : blocks)
         {
             written += strq.write(&block[0], block.length());
             ensure_equals("size() after write()", strq.size(), written);
@@ -152,7 +149,7 @@ namespace tut
     {
         set_test_name("concatenate blocks");
         std::string blocks[] = { "abcd", "efghij", "klmnopqrs" };
-        BOOST_FOREACH(const std::string& block, blocks)
+        for (const std::string& block : blocks)
         {
             strq.write(&block[0], block.length());
         }
@@ -170,7 +167,7 @@ namespace tut
     {
         set_test_name("split blocks");
         std::string blocks[] = { "abcdefghijklm", "nopqrstuvwxyz" };
-        BOOST_FOREACH(const std::string& block, blocks)
+        for (const std::string& block : blocks)
         {
             strq.write(&block[0], block.length());
         }

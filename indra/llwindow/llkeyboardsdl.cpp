@@ -70,7 +70,7 @@ LLKeyboardSDL::LLKeyboardSDL()
     //mTranslateKeyMap[SDLK_KP3] = KEY_PAGE_DOWN;
     //mTranslateKeyMap[SDLK_KP0] = KEY_INSERT;
 
-    mTranslateKeyMap[SDLK_SPACE] = ' '; 	// <FS:ND/> Those are handled by SDL2 via text input, do not map them
+    mTranslateKeyMap[SDLK_SPACE] = ' ';     // <FS:ND/> Those are handled by SDL2 via text input, do not map them
     mTranslateKeyMap[SDLK_RETURN] = KEY_RETURN;
     mTranslateKeyMap[SDLK_LEFT] = KEY_LEFT;
     mTranslateKeyMap[SDLK_RIGHT] = KEY_RIGHT;
@@ -229,8 +229,8 @@ static U32 adjustNativekeyFromUnhandledMask(const U32 key, const U32 mask)
 BOOL LLKeyboardSDL::handleKeyDown(const U32 key, const U32 mask)
 {
     U32 adjusted_nativekey;
-    KEY	translated_key = 0;
-    U32	translated_mask = MASK_NONE;
+    KEY translated_key = 0;
+    U32 translated_mask = MASK_NONE;
     BOOL handled = FALSE;
 
     adjusted_nativekey = adjustNativekeyFromUnhandledMask(key, mask);
@@ -249,8 +249,8 @@ BOOL LLKeyboardSDL::handleKeyDown(const U32 key, const U32 mask)
 BOOL LLKeyboardSDL::handleKeyUp(const U32 key, const U32 mask)
 {
     U32 adjusted_nativekey;
-    KEY	translated_key = 0;
-    U32	translated_mask = MASK_NONE;
+    KEY translated_key = 0;
+    U32 translated_mask = MASK_NONE;
     BOOL handled = FALSE;
 
     adjusted_nativekey = adjustNativekeyFromUnhandledMask(key, mask);

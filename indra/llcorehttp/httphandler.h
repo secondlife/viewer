@@ -24,8 +24,8 @@
  * $/LicenseInfo$
  */
 
-#ifndef	_LLCORE_HTTP_HANDLER_H_
-#define	_LLCORE_HTTP_HANDLER_H_
+#ifndef _LLCORE_HTTP_HANDLER_H_
+#define _LLCORE_HTTP_HANDLER_H_
 
 
 #include "httpcommon.h"
@@ -55,38 +55,38 @@ class HttpResponse;
 /// dangling pointer if lifetimes aren't managed correctly.
 ///
 /// *TODO: public std::enable_shared_from_this<HttpHandler>
-class HttpHandler 
+class HttpHandler
 {
 public:
-    typedef boost::shared_ptr<HttpHandler>  ptr_t;
-    typedef boost::weak_ptr<HttpHandler>    wptr_t;
+    typedef std::shared_ptr<HttpHandler>  ptr_t;
+    typedef std::weak_ptr<HttpHandler>    wptr_t;
 
-	virtual ~HttpHandler()
-	{ }
+    virtual ~HttpHandler()
+    { }
 
-	/// Method invoked during calls to @see update().  Each invocation
-	/// represents the completion of some requested operation.  Caller
-	/// can identify the request from the handle and interrogate the
-	/// response argument for success/failure, data and other information.
-	///
-	/// @param	handle			Identifier of the request generating
-	///							the notification.
-	/// @param	response		Supplies detailed information about
-	///							the request including status codes
-	///							(both programming and HTTP), HTTP body
-	///							data and encodings, headers, etc.
-	///							The response object is refcounted and
-	///							the called code may retain the object
-	///							by invoking @see addRef() on it.  The
-	///							library itself drops all references to
-	///							to object on return and never touches
-	///							it again.
-	///
-	virtual void onCompleted(HttpHandle handle, HttpResponse * response) = 0;
+    /// Method invoked during calls to @see update().  Each invocation
+    /// represents the completion of some requested operation.  Caller
+    /// can identify the request from the handle and interrogate the
+    /// response argument for success/failure, data and other information.
+    ///
+    /// @param  handle          Identifier of the request generating
+    ///                         the notification.
+    /// @param  response        Supplies detailed information about
+    ///                         the request including status codes
+    ///                         (both programming and HTTP), HTTP body
+    ///                         data and encodings, headers, etc.
+    ///                         The response object is refcounted and
+    ///                         the called code may retain the object
+    ///                         by invoking @see addRef() on it.  The
+    ///                         library itself drops all references to
+    ///                         to object on return and never touches
+    ///                         it again.
+    ///
+    virtual void onCompleted(HttpHandle handle, HttpResponse * response) = 0;
 
 };  // end class HttpHandler
 
 
 }   // end namespace LLCore
 
-#endif	// _LLCORE_HTTP_HANDLER_H_
+#endif  // _LLCORE_HTTP_HANDLER_H_
