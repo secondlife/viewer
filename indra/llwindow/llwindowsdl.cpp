@@ -2623,14 +2623,14 @@ U32 LLWindowSDL::getAvailableVRAMMegabytes()
 
 void LLWindowSDL::setLanguageTextInput(const LLCoordGL& position)
 {
-	LLCoordWindow win_pos;
-	convertCoords( position, &win_pos );
+    LLCoordWindow win_pos;
+    convertCoords( position, &win_pos );
 
-	SDL_Rect r;
-	r.x = win_pos.mX;
-	r.y = win_pos.mY;
-	r.w = 500;
-	r.h = 16;
+    SDL_Rect r;
+    r.x = win_pos.mX;
+    r.y = win_pos.mY;
+    r.w = 500;
+    r.h = 16;
 
-	SDL_SetTextInputRect(&r);
+    SDL_SetTextInputRect(&r);
 }
