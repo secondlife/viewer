@@ -60,10 +60,15 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
+      - name: Prep pip cache
+        run: printf "autobuild\nllsd\nPyGithub\n" >> requirements-cache.txt
+
       - name: Setup python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: "**/requirements*.txt"
 
       - name: Checkout build variables
         uses: actions/checkout@v4
