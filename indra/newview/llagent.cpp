@@ -1497,6 +1497,11 @@ void LLAgent::pitch(F32 angle)
             check_viewer_camera = true;
         }
     }
+    else if (gAgentCamera.getCameraMode() == CAMERA_MODE_MOUSELOOK)
+    {
+        min_angle = 0.1;
+        max_angle = 179.9;
+    }
 
     if ((angle < 0 && agent_camera_angle_from_skyward < min_angle) ||
         (angle > 0 && agent_camera_angle_from_skyward > max_angle))
