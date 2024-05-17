@@ -532,7 +532,8 @@ struct Windows_SEH_exception: public std::runtime_error
 
 #if LL_WINDOWS
 
-static const U32 STATUS_MSC_EXCEPTION = 0xE06D7363; // compiler specific
+static constexpr U32 STATUS_MSC_EXCEPTION = 0xE06D7363; // compiler specific
+static constexpr U32 STATUS_STACK_FULL    = 0xC00000FD;
 
 U32 seh_filter(U32 code, struct _EXCEPTION_POINTERS*)
 {
@@ -546,7 +547,13 @@ U32 seh_filter(U32 code, struct _EXCEPTION_POINTERS*)
         // This is a non-C++ exception, e.g. hardware check.
         // By the time the handler gets control, the stack has been unwound,
         // so report the stack trace now at filter() time.
-        std::cerr << boost::stacktrace::stacktrace() << std::endl;
+        // Sadly, even though, at the time of this writing, stack overflow is
+        // the problem we would most like to diagnose, calling another
+        // function when the stack is already blown only terminates us faster.
+        if (code != STATUS_STACK_FULL)
+        {
+            std::cerr << boost::stacktrace::stacktrace() << std::endl;
+        }
         // pass control into the handler block
         return EXCEPTION_EXECUTE_HANDLER;
     }
