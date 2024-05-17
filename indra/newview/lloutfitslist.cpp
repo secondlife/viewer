@@ -784,7 +784,6 @@ void LLOutfitsList::onOutfitRightClick(LLUICtrl* ctrl, S32 x, S32 y, const LLUUI
     }
 }
 
-
 void LLOutfitsList::handleInvFavColorChange()
 {
     for (outfits_map_t::iterator iter = mOutfitsMap.begin();
@@ -1563,7 +1562,7 @@ bool LLOutfitListSortMenu::onEnable(LLSD::String param)
     else if ("show_entire_outfit" == param)
     {
         LLCachedControl<bool> filter_mode(gSavedSettings, "OutfitListFilterFullList", 0);
-        return !filter_mode;
+        return filter_mode;
     }
 
     return false;

@@ -15744,7 +15744,7 @@
     <key>OutfitListFilterFullList</key>
     <map>
       <key>Comment</key>
-      <string> 0 - show all items in outfit as long as outfit or item inside matches. 1 - show only matches</string>
+      <string> 0 - show only matches. 1 - show all items in outfit as long as outfit or item inside matches.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
