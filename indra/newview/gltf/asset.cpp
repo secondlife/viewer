@@ -41,6 +41,41 @@ namespace LL
 {
     namespace GLTF
     {
+        Material::AlphaMode gltf_alpha_mode_to_enum(const std::string& alpha_mode)
+        {
+            if (alpha_mode == "OPAQUE")
+            {
+                return Material::AlphaMode::OPAQUE;
+            }
+            else if (alpha_mode == "MASK")
+            {
+                return Material::AlphaMode::MASK;
+            }
+            else if (alpha_mode == "BLEND")
+            {
+                return Material::AlphaMode::BLEND;
+            }
+            else
+            {
+                return Material::AlphaMode::OPAQUE;
+            }
+        }
+
+        std::string enum_to_gltf_alpha_mode(Material::AlphaMode alpha_mode)
+        {
+            switch (alpha_mode)
+            {
+            case Material::AlphaMode::OPAQUE:
+                return "OPAQUE";
+            case Material::AlphaMode::MASK:
+                return "MASK";
+            case Material::AlphaMode::BLEND:
+                return "BLEND";
+            default:
+                return "OPAQUE";
+            }
+        }
+
         template <typename T, typename U>
         void copy(const std::vector<T>& src, std::vector<U>& dst)
         {
@@ -684,7 +719,9 @@ void Asset::render(bool opaque, bool rigged)
                 if (primitive.mMaterial != INVALID_INDEX)
                 {
                     Material& material = mMaterials[primitive.mMaterial];
-                    if ((material.mAlphaMode == "OPAQUE") == opaque)
+                    bool mat_opaque = material.mAlphaMode != Material::AlphaMode::BLEND;
+
+                    if (mat_opaque != opaque)
                     {
                         continue;
                     }
@@ -1247,9 +1284,9 @@ void Material::bind(Asset& asset)
 
     LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
 
-    if (!LLPipeline::sShadowRender || (mAlphaMode == "OPAQUE"))
+    if (!LLPipeline::sShadowRender || (mAlphaMode == Material::AlphaMode::BLEND))
     {
-        if (mAlphaMode == "MASK")
+        if (mAlphaMode == Material::AlphaMode::MASK)
         {
             // dividing the alpha cutoff by transparency here allows the shader to compare against
             // the alpha value of the texture without needing the transparency value
@@ -1309,7 +1346,7 @@ void Material::serialize(object& dst) const
     write(mNormalTexture, "normalTexture", dst);
     write(mOcclusionTexture, "occlusionTexture", dst);
     write(mEmissiveTexture, "emissiveTexture", dst);
-    write(mAlphaMode, "alphaMode", dst, std::string("OPAQUE"));
+    write(mAlphaMode, "alphaMode", dst, Material::AlphaMode::OPAQUE);
     write(mAlphaCutoff, "alphaCutoff", dst, 0.5f);
     write(mDoubleSided, "doubleSided", dst, false);
 }
@@ -1346,7 +1383,7 @@ const Material& Material::operator=(const tinygltf::Material& src)
     mOcclusionTexture = src.occlusionTexture;
     mEmissiveTexture = src.emissiveTexture;
 
-    mAlphaMode = src.alphaMode;
+    mAlphaMode = gltf_alpha_mode_to_enum(src.alphaMode);
     mAlphaCutoff = src.alphaCutoff;
     mDoubleSided = src.doubleSided;
 

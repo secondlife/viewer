@@ -37,6 +37,10 @@
 
 extern F32SecondsImplicit		gFrameTimeSeconds;
 
+// wingdi defines OPAQUE, which conflicts with our enum
+#if defined(OPAQUE)
+#undef OPAQUE
+#endif
 
 // LL GLTF Implementation
 namespace LL
@@ -48,6 +52,14 @@ namespace LL
         class Material
         {
         public:
+
+            enum class AlphaMode
+            {
+                OPAQUE,
+                MASK,
+                BLEND
+            };
+
             class TextureInfo
             {
             public:
@@ -111,7 +123,7 @@ namespace LL
 
             std::string mName;
             vec3 mEmissiveFactor = vec3(0.f, 0.f, 0.f);
-            std::string mAlphaMode = "OPAQUE";
+            AlphaMode mAlphaMode = AlphaMode::OPAQUE;
             F32 mAlphaCutoff = 0.5f;
             bool mDoubleSided = false;
 
@@ -364,5 +376,8 @@ namespace LL
             // updates all bufferview indices in this Asset as needed
             void eraseBufferView(S32 bufferView);
         };
+
+        Material::AlphaMode gltf_alpha_mode_to_enum(const std::string& alpha_mode);
+        std::string enum_to_gltf_alpha_mode(Material::AlphaMode alpha_mode);
     }
 }

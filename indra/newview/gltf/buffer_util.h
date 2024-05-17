@@ -862,6 +862,26 @@ namespace LL
             return true;
         }
 
+        // Material::AlphaMode
+        template<>
+        inline bool copy(const Value& src, Material::AlphaMode& dst)
+        {
+            if (src.is_string())
+            {
+                dst = gltf_alpha_mode_to_enum(src.get_string().c_str());
+                return true;
+            }
+            return true;
+        }
+
+        template<>
+        inline bool write(const Material::AlphaMode& src, Value& dst)
+        {
+            dst = enum_to_gltf_alpha_mode(src);
+            return true;
+        }
+
+        // 
         // ========================================================================================================
 
     }

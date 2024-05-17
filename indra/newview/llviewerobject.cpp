@@ -109,6 +109,8 @@
 #include "llgl.h"
 #include "gltf/asset.h"
 
+#pragma optimize("", off)
+
 //#define DEBUG_UPDATE_TYPE
 
 bool		LLViewerObject::sVelocityInterpolate = true;
@@ -7515,13 +7517,19 @@ void LLViewerObject::shrinkWrap()
 
 void LLViewerObject::setGLTFAsset(const LLUUID& id)
 {
-    LLVolume* volume = getVolume();
-    if (volume && volume->getParams().getSculptID() != id)
-    {
-        LLVolumeParams params;
-        params.setSculptID(id, LL_SCULPT_TYPE_GLTF);
-        setVolume(params, NO_LOD);
-    }
+    //get the sculpt params and set the sculpt type and id
+    auto* param = getExtraParameterEntryCreate(LLNetworkData::PARAMS_SCULPT);
+
+    LLSculptParams* sculpt_params = (LLSculptParams*)param->data;
+    sculpt_params->setSculptTexture(id, LL_SCULPT_TYPE_GLTF);
+    
+    // send sculpt id and type to simulator
+    parameterChanged(LLNetworkData::PARAMS_SCULPT, true);
+
+    // Update the volume
+    LLVolumeParams volume_params;
+    volume_params.setSculptID(id, LL_SCULPT_TYPE_GLTF);
+    updateVolume(volume_params);
 }
 
 

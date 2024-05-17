@@ -76,12 +76,13 @@ preserve any and all "name" members.
 
 "write" and "copy" implementations MUST be stored in buffer_util.h.
 As implementers encounter new data types, you'll see compiler errors
-pointing at templates in buffer_util.h.  See glh::vec3f as a known good 
+pointing at templates in buffer_util.h.  See vec3 as a known good 
 example of how to add support for a new type (there are bad examples, so beware):
 
 ```
+// vec3
 template<>
-bool copy(const Value& src, glh::vec3f& dst)
+inline bool copy(const Value& src, vec3& dst)
 {
     if (src.is_array())
     {
@@ -92,7 +93,7 @@ bool copy(const Value& src, glh::vec3f& dst)
                 arr[1].is_double() &&
                 arr[2].is_double())
             {
-                dst.set_value(arr[0].get_double(), arr[1].get_double(), arr[2].get_double());
+                dst = vec3(arr[0].get_double(), arr[1].get_double(), arr[2].get_double());
             }
             return true;
         }
@@ -101,16 +102,17 @@ bool copy(const Value& src, glh::vec3f& dst)
 }
 
 template<>
-bool write(const glh::vec3f& src, Value& dst)
+inline bool write(const vec3& src, Value& dst)
 {
     dst = boost::json::array();
     boost::json::array& arr = dst.as_array();
     arr.resize(3);
-    arr[0] = src[0];
-    arr[1] = src[1];
-    arr[2] = src[2];
+    arr[0] = src.x;
+    arr[1] = src.y;
+    arr[2] = src.z;
     return true;
 }
+
 ```
 
 "write" MUST return true if ANY data was written

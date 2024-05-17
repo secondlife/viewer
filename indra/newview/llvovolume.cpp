@@ -1413,6 +1413,12 @@ bool LLVOVolume::calcLOD()
 		return false;
 	}
 
+    if (mGLTFAsset != nullptr)
+    {
+        // do not calculate LOD for GLTF objects
+        return false;
+    }
+
 	S32 cur_detail = 0;
 	
 	F32 radius;
@@ -5629,7 +5635,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 	
 			LLVOVolume* vobj = drawablep->getVOVolume();
             
-			if (!vobj || vobj->isDead())
+			if (!vobj || vobj->isDead() || vobj->mGLTFAsset)
 			{
 				continue;
 			}

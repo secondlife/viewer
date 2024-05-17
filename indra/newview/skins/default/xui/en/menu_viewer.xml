@@ -2874,6 +2874,40 @@ function="World.EnvPreset"
            function="Advanced.ClickGLTFUpload" />
         </menu_item_call>
       </menu>
+      <menu
+         create_jump_keys="true"
+         label="Video"
+         name="Video"
+         tear_off="true">
+        <menu_item_call
+         label="1080x1920"
+         name="1080x1920">
+          <menu_item_call.on_click
+           function="Advanced.ClickResizeWindow"
+            parameter="1080x1920"/>
+        </menu_item_call>
+        <menu_item_call
+         label="1920x1080"
+         name="1920x1080">
+          <menu_item_call.on_click
+           function="Advanced.ClickResizeWindow"
+            parameter="1920x1080"/>
+        </menu_item_call>
+        <menu_item_call
+         label="1280x720"
+         name="1280x720">
+          <menu_item_call.on_click
+           function="Advanced.ClickResizeWindow"
+            parameter="1280x720"/>
+          </menu_item_call>
+        <menu_item_call
+          label="720x1280"
+         name="720x1280">
+          <menu_item_call.on_click
+           function="Advanced.ClickResizeWindow"
+            parameter="720x1280"/>
+          </menu_item_call>
+      </menu>
         <menu
          create_jump_keys="true"
          label="Render Tests"
