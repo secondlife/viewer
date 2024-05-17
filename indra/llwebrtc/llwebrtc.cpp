@@ -627,7 +627,6 @@ void LLWebRTCImpl::freePeerConnection(LLWebRTCPeerConnectionInterface* peer_conn
     std::find(mPeerConnections.begin(), mPeerConnections.end(), peer_connection);
     if (it != mPeerConnections.end())
     {
-        (*it)->terminate();
         mPeerConnections.erase(it);
     }
     if (mPeerConnections.empty())
@@ -645,7 +644,6 @@ void LLWebRTCImpl::freePeerConnection(LLWebRTCPeerConnectionInterface* peer_conn
 
 LLWebRTCPeerConnectionImpl::LLWebRTCPeerConnectionImpl() : 
     mWebRTCImpl(nullptr),
-    mClosing(false),
     mPeerConnection(nullptr),
     mMute(false),
     mAnswerReceived(false)
@@ -673,20 +671,32 @@ void LLWebRTCPeerConnectionImpl::terminate()
     mWebRTCImpl->PostSignalingTask(
         [=]()
         {
-            if (mDataChannel)
-            {
-                mDataChannel->UnregisterObserver();
-                mDataChannel->Close();
-                mDataChannel = nullptr;
-            }
             if (mPeerConnection)
             {
+                if (mDataChannel)
+                {
+                    {
+                        mDataChannel->Close();
+                        mDataChannel = nullptr;
+                    }
+                }
+
                 mPeerConnection->Close();
+                if (mLocalStream)
+                {
+                    auto tracks = mLocalStream->GetAudioTracks();
+                    for (auto& track : tracks)
+                    {
+                        mLocalStream->RemoveTrack(track);
+                    }
+                    mLocalStream = nullptr;
+                }
                 mPeerConnection = nullptr;
-            }
-            for (auto &observer : mSignalingObserverList)
-            {
-                observer->OnPeerConnectionClosed();
+
+                for (auto &observer : mSignalingObserverList)
+                {
+                    observer->OnPeerConnectionClosed();
+                }
             }
         });
 }
@@ -810,7 +820,6 @@ bool LLWebRTCPeerConnectionImpl::initializeConnection(const LLWebRTCPeerConnecti
 
 bool LLWebRTCPeerConnectionImpl::shutdownConnection()
 {
-    mClosing = true;
     terminate();
     return true;
 }

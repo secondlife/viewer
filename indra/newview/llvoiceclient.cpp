@@ -157,7 +157,6 @@ LLVoiceClient::LLVoiceClient(LLPumpIO *pump)
 
 LLVoiceClient::~LLVoiceClient()
 {
-    llassert(!mSpatialVoiceModule);
 }
 
 void LLVoiceClient::init(LLPumpIO *pump)
