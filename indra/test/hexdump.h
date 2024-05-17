@@ -3,7 +3,7 @@
  * @author Nat Goodspeed
  * @date   2023-09-08
  * @brief  Provide hexdump() and hexmix() ostream formatters
- * 
+ *
  * $LicenseInfo:firstyear=2023&license=viewerlgpl$
  * Copyright (c) 2023, Linden Research, Inc.
  * $/LicenseInfo$

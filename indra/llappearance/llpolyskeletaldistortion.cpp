@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llpolyskeletaldistortion.cpp
  * @brief Implementation of LLPolySkeletalDistortion classes
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -48,7 +48,7 @@ LLPolySkeletalDistortionInfo::LLPolySkeletalDistortionInfo()
 BOOL LLPolySkeletalDistortionInfo::parseXml(LLXmlTreeNode* node)
 {
         llassert( node->hasName( "param" ) && node->getChildByName( "param_skeleton" ) );
-        
+
         if (!LLViewerVisualParamInfo::parseXml(node))
                 return FALSE;
 
@@ -69,7 +69,7 @@ BOOL LLPolySkeletalDistortionInfo::parseXml(LLXmlTreeNode* node)
                         LLVector3 scale;
                         LLVector3 pos;
                         BOOL haspos = FALSE;
-                        
+
                         static LLStdStringHandle name_string = LLXmlTree::addAttributeString("name");
                         if (!bone->getFastAttributeString(name_string, name))
                         {
@@ -105,24 +105,24 @@ BOOL LLPolySkeletalDistortionInfo::parseXml(LLXmlTreeNode* node)
 // LLPolySkeletalDistortion()
 //-----------------------------------------------------------------------------
 LLPolySkeletalDistortion::LLPolySkeletalDistortion(LLAvatarAppearance *avatarp)
-	: LLViewerVisualParam(),
-	mDefaultVec(),
-	mJointScales(),
-	mJointOffsets(),
-	mAvatar(avatarp)
+    : LLViewerVisualParam(),
+    mDefaultVec(),
+    mJointScales(),
+    mJointOffsets(),
+    mAvatar(avatarp)
 {
-	mDefaultVec.splat(0.001f);
+    mDefaultVec.splat(0.001f);
 }
 
 //-----------------------------------------------------------------------------
 // LLPolySkeletalDistortion()
 //-----------------------------------------------------------------------------
 LLPolySkeletalDistortion::LLPolySkeletalDistortion(const LLPolySkeletalDistortion &pOther)
-	: LLViewerVisualParam(pOther),
-	mDefaultVec(pOther.mDefaultVec),
-	mJointScales(pOther.mJointScales),
-	mJointOffsets(pOther.mJointOffsets),
-	mAvatar(pOther.mAvatar)
+    : LLViewerVisualParam(pOther),
+    mDefaultVec(pOther.mDefaultVec),
+    mJointScales(pOther.mJointScales),
+    mJointOffsets(pOther.mJointOffsets),
+    mAvatar(pOther.mAvatar)
 {
 }
 
@@ -151,7 +151,7 @@ BOOL LLPolySkeletalDistortion::setInfo(LLPolySkeletalDistortionInfo *info)
             // There's no point continuing after this error - means
             // that either the skeleton or lad file is broken.
             LL_WARNS() << "Joint " << bone_info.mBoneName << " not found." << LL_ENDL;
-			return FALSE;
+            return FALSE;
         }
 
         // store it
@@ -179,7 +179,7 @@ BOOL LLPolySkeletalDistortion::setInfo(LLPolySkeletalDistortionInfo *info)
 
 /*virtual*/ LLViewerVisualParam* LLPolySkeletalDistortion::cloneParam(LLWearable* wearable) const
 {
-	return new LLPolySkeletalDistortion(*this);
+    return new LLPolySkeletalDistortion(*this);
 }
 
 //-----------------------------------------------------------------------------
@@ -201,8 +201,8 @@ void LLPolySkeletalDistortion::apply( ESex avatar_sex )
         LLVector3 offset = (effective_weight - mLastWeight) * scaleDelta;
         newScale = newScale + offset;
         //An aspect of attached mesh objects (which contain joint offsets) that need to be cleaned up when detached
-        // needed? 
-        // joint->storeScaleForReset( newScale );				
+        // needed?
+        // joint->storeScaleForReset( newScale );
 
         // BENTO for detailed stack tracing of params.
         std::stringstream ostr;
@@ -217,7 +217,7 @@ void LLPolySkeletalDistortion::apply( ESex avatar_sex )
         joint = offset_pair.first;
         LLVector3 newPosition = joint->getPosition();
         LLVector3 positionDelta = offset_pair.second;
-        newPosition = newPosition + (effective_weight * positionDelta) - (mLastWeight * positionDelta);		
+        newPosition = newPosition + (effective_weight * positionDelta) - (mLastWeight * positionDelta);
         // SL-315
         bool allow_attachment_pos_overrides = true;
         joint->setPosition(newPosition, allow_attachment_pos_overrides);
@@ -232,7 +232,7 @@ void LLPolySkeletalDistortion::apply( ESex avatar_sex )
 
 
 LLPolyMorphData *clone_morph_param_duplicate(const LLPolyMorphData *src_data,
-					     const std::string &name)
+                         const std::string &name)
 {
         LLPolyMorphData* cloned_morph_data = new LLPolyMorphData(*src_data);
         cloned_morph_data->mName = name;
@@ -246,13 +246,13 @@ LLPolyMorphData *clone_morph_param_duplicate(const LLPolyMorphData *src_data,
 }
 
 LLPolyMorphData *clone_morph_param_direction(const LLPolyMorphData *src_data,
-					     const LLVector3 &direction,
-					     const std::string &name)
+                         const LLVector3 &direction,
+                         const std::string &name)
 {
         LLPolyMorphData* cloned_morph_data = new LLPolyMorphData(*src_data);
         cloned_morph_data->mName = name;
-		LLVector4a dir;
-		dir.load3(direction.mV);
+        LLVector4a dir;
+        dir.load3(direction.mV);
 
         for (U32 v=0; v < cloned_morph_data->mNumIndices; v++)
         {
@@ -270,26 +270,26 @@ LLPolyMorphData *clone_morph_param_cleavage(const LLPolyMorphData *src_data,
         LLPolyMorphData* cloned_morph_data = new LLPolyMorphData(*src_data);
         cloned_morph_data->mName = name;
 
-		LLVector4a sc;
-		sc.splat(scale);
+        LLVector4a sc;
+        sc.splat(scale);
 
-		LLVector4a nsc;
-		nsc.set(scale, -scale, scale, scale);
+        LLVector4a nsc;
+        nsc.set(scale, -scale, scale, scale);
 
         for (U32 v=0; v < cloned_morph_data->mNumIndices; v++)
         {
             if (cloned_morph_data->mCoords[v][1] < 0)
             {
                 cloned_morph_data->mCoords[v].setMul(src_data->mCoords[v],nsc);
-				cloned_morph_data->mNormals[v].setMul(src_data->mNormals[v],nsc);
-				cloned_morph_data->mBinormals[v].setMul(src_data->mBinormals[v],nsc);
-			}
-			else
-			{
-				cloned_morph_data->mCoords[v].setMul(src_data->mCoords[v],sc);
-				cloned_morph_data->mNormals[v].setMul(src_data->mNormals[v], sc);
-				cloned_morph_data->mBinormals[v].setMul(src_data->mBinormals[v],sc);
-			}
+                cloned_morph_data->mNormals[v].setMul(src_data->mNormals[v],nsc);
+                cloned_morph_data->mBinormals[v].setMul(src_data->mBinormals[v],nsc);
+            }
+            else
+            {
+                cloned_morph_data->mCoords[v].setMul(src_data->mCoords[v],sc);
+                cloned_morph_data->mNormals[v].setMul(src_data->mNormals[v], sc);
+                cloned_morph_data->mBinormals[v].setMul(src_data->mBinormals[v],sc);
+            }
         }
         return cloned_morph_data;
 }

@@ -35,7 +35,7 @@
 // gltf_* structs are temporary, used to organize the subset of data that eventually goes into the material LLSD
 
 class gltf_sampler
-{   
+{
 public:
     // Uses GL enums
     S32 minFilter;      // GL_NEAREST, GL_LINEAR, GL_NEAREST_MIPMAP_NEAREST, GL_LINEAR_MIPMAP_NEAREST, GL_NEAREST_MIPMAP_LINEAR or GL_LINEAR_MIPMAP_LINEAR
@@ -44,7 +44,7 @@ public:
     S32 wrapT;          // GL_CLAMP_TO_EDGE, GL_MIRRORED_REPEAT or GL_REPEAT
     //S32 wrapR;        // Found in some sample files, but not part of glTF 2.0 spec. Ignored.
     std::string name;   // optional, currently unused
-    // extensions and extras are sampler optional fields that we don't support - at least initially 
+    // extensions and extras are sampler optional fields that we don't support - at least initially
 };
 
 class gltf_image
@@ -85,7 +85,7 @@ public:
     // textures
     U32 baseColorTexIdx;    // always sRGB encoded
     U32 metalRoughTexIdx;   // always linear, roughness in G channel, metalness in B channel
-    U32 normalTexIdx;       // linear, valid range R[0-1], G[0-1], B[0.5-1]. Normal = texel * 2 - vec3(1.0)   
+    U32 normalTexIdx;       // linear, valid range R[0-1], G[0-1], B[0.5-1]. Normal = texel * 2 - vec3(1.0)
     U32 occlusionTexIdx;    // linear, occlusion in R channel, 0 meaning fully occluded, 1 meaning not occluded
     U32 emissiveTexIdx;     // always stored as sRGB, in nits (candela / meter^2)
 
@@ -201,6 +201,6 @@ private:
 
     static std::string preprocessGLTF(std::string filename);
     */
-    
+
 };
 #endif  // LL_LLGLTFLLOADER_H

@@ -1,26 +1,26 @@
-/** 
+/**
  * @file llhttpnode_stub.cpp
  * @brief STUB Implementation of classes for generic HTTP/LSL/REST handling.
  *
  * $LicenseInfo:firstyear=2006&license=viewerlgpl$
- * 
+ *
  * Second Life Viewer Source Code
  * Copyright (c) 2006-2009, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -69,28 +69,28 @@ const LLHTTPNode* LLHTTPNode::findNode(const std::string& name) const { return N
 LLHTTPNode::Response::~Response(){}
 void LLHTTPNode::Response::notFound(const std::string& message)
 {
-	status(404, message);
+    status(404, message);
 }
 void LLHTTPNode::Response::notFound()
 {
-	status(404, "Not Found");
+    status(404, "Not Found");
 }
 void LLHTTPNode::Response::methodNotAllowed()
 {
-	status(405, "Method Not Allowed");
+    status(405, "Method Not Allowed");
 }
 void LLHTTPNode::Response::statusUnknownError(S32 code)
 {
-	status(code, "Unknown Error");
+    status(code, "Unknown Error");
 }
 
 void LLHTTPNode::Response::status(S32 code, const std::string& message)
 {
 }
 
-void LLHTTPNode::Response::addHeader(const std::string& name,const std::string& value) 
+void LLHTTPNode::Response::addHeader(const std::string& name,const std::string& value)
 {
-	mHeaders[name] = value;
+    mHeaders[name] = value;
 }
 void LLHTTPNode::describe(Description& desc) const { }
 
