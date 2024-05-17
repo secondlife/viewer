@@ -3083,7 +3083,8 @@ void LLPanelPreferenceControls::onCancelKeyBind()
 //------------------------LLPanelPreferenceGameControl--------------------------------
 
 // LLPanelPreferenceGameControl is effectively a singleton, so we track its instance
-static LLPanelPreferenceGameControl* gGameControlPanel;
+static LLPanelPreferenceGameControl* gGameControlPanel { nullptr };
+static LLScrollListCell* gSelectedCell { nullptr };
 
 LLPanelPreferenceGameControl::LLPanelPreferenceGameControl()
 {
@@ -3139,8 +3140,6 @@ void LLPanelPreferenceGameControl::saveSettings()
         mSavedValues[flycamMappings] = flycamMappings->getValue();
     }
 }
-
-static LLScrollListCell* gSelectedCell { nullptr };
 
 void LLPanelPreferenceGameControl::onActionSelect()
 {
@@ -3233,9 +3232,20 @@ bool LLPanelPreferenceGameControl::isWaitingForInputChannel()
 }
 
 // static
-void LLPanelPreferenceGameControl::applyGameControlInput(const LLGameControl::InputChannel& channel)
+void LLPanelPreferenceGameControl::applyGameControlInput()
 {
-    if (gGameControlPanel && gSelectedCell && !channel.isNone())
+    if (!gGameControlPanel || !gSelectedCell)
+        return;
+
+    LLGameControl::InputChannel::Type expectedType =
+        gGameControlPanel->mAnalogChannelSelector->getVisible() ? LLGameControl::InputChannel::TYPE_AXIS :
+        gGameControlPanel->mBinaryChannelSelector->getVisible() ? LLGameControl::InputChannel::TYPE_BUTTON :
+        LLGameControl::InputChannel::TYPE_NONE;
+    if (expectedType == LLGameControl::InputChannel::TYPE_NONE)
+        return;
+
+    LLGameControl::InputChannel channel = LLGameControl::getActiveInputChannel();
+    if (channel.mType == expectedType)
     {
         gSelectedCell->setValue(channel.getLocalName());
         gGameControlPanel->mActionTable->deselectAllItems();

@@ -4779,13 +4779,9 @@ void LLAppViewer::idle()
         bool should_send_game_control = LLGameControl::computeFinalStateAndCheckForChanges();
         if (LLPanelPreferenceGameControl::isWaitingForInputChannel())
         {
-            LLGameControl::InputChannel channel = LLGameControl::getActiveInputChannel();
-            if (channel.mType != LLGameControl::InputChannel::TYPE_NONE)
-            {
-                LLPanelPreferenceGameControl::applyGameControlInput(channel);
-                // skip this send because input is being used to set preferences
-                should_send_game_control = false;
-            }
+            LLPanelPreferenceGameControl::applyGameControlInput();
+            // skip this send because input is being used to set preferences
+            should_send_game_control = false;
         }
         if (should_send_game_control)
         {
