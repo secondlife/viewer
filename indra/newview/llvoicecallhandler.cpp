@@ -40,12 +40,6 @@ public:
 
     bool handle(const LLSD& params, const LLSD& query_map, const std::string& grid, LLMediaCtrl* web)
     {
-        if (!LLUI::getInstance()->mSettingGroups["config"]->getBOOL("EnableVoiceCall"))
-        {
-            LLNotificationsUtil::add("NoVoiceCall", LLSD(), LLSD(), std::string("SwitchToStandardSkinAndQuit"));
-            return true;
-        }
-
         //Make sure we have some parameters
         if (params.size() == 0)
         {

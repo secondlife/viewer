@@ -121,7 +121,7 @@ public:
     /**
      * Returns text
      */
-    virtual std::string getText() const { return mText; }
+    virtual const std::string& getText() const { return mText; }
 
     /**
      * Sets text
@@ -153,6 +153,8 @@ public:
      * Draws text box, collapses text box if its expanded and its parent's position changed
      */
     /*virtual*/ void draw();
+
+    virtual ~LLExpandableTextBox();
 
 protected:
 

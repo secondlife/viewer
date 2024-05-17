@@ -90,6 +90,7 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
     std::string edit_text_contents;
     S32 edit_text_max_chars = 0;
     bool is_password = false;
+    bool allow_emoji = false;
 
     LLToastPanel::setBackgroundVisible(FALSE);
     LLToastPanel::setBackgroundOpaque(TRUE);
@@ -134,6 +135,7 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
             edit_text_contents = (*it)["value"].asString();
             edit_text_name = (*it)["name"].asString();
             edit_text_max_chars = (*it)["max_length_chars"].asInteger();
+            allow_emoji = (*it)["allow_emoji"].asBoolean();
         }
         else if (type == "password")
         {
@@ -292,6 +294,7 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
             mLineEditor->reshape(leditor_rect.getWidth(), leditor_rect.getHeight());
             mLineEditor->setRect(leditor_rect);
             mLineEditor->setMaxTextChars(edit_text_max_chars);
+            mLineEditor->setAllowEmoji(allow_emoji);
             mLineEditor->setText(edit_text_contents);
 
             std::string notif_name = mNotification->getName();
@@ -497,10 +500,9 @@ void LLToastAlertPanel::draw()
     }
 
     static LLUIColor shadow_color = LLUIColorTable::instance().getColor("ColorDropShadow");
-    static LLUICachedControl<S32> shadow_lines ("DropShadowFloater", 5);
 
     gl_drop_shadow( 0, LLToastPanel::getRect().getHeight(), LLToastPanel::getRect().getWidth(), 0,
-        shadow_color, shadow_lines);
+        shadow_color, DROP_SHADOW_FLOATER);
 
     LLToastPanel::draw();
 }

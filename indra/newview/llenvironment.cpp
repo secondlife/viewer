@@ -2112,7 +2112,7 @@ void LLEnvironment::coroRequestEnvironment(S32 parcel_id, LLEnvironment::environ
     {
         LL_WARNS("ENVIRONMENT") << "Couldn't retrieve environment settings for " << ((parcel_id == INVALID_PARCEL_ID) ? ("region!") : ("parcel!")) << LL_ENDL;
     }
-    else if (LLApp::isExiting())
+    else if (LLApp::isExiting() || gDisconnected)
     {
         return;
     }

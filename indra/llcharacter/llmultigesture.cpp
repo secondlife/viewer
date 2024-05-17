@@ -42,16 +42,6 @@ const S32 GESTURE_VERSION = 2;
 // LLMultiGesture
 //---------------------------------------------------------------------------
 LLMultiGesture::LLMultiGesture()
-:   mKey(),
-    mMask(),
-    mName(),
-    mTrigger(),
-    mReplaceText(),
-    mSteps(),
-    mPlaying(FALSE),
-    mCurrentStep(0),
-    mDoneCallback(NULL),
-    mCallbackData(NULL)
 {
     reset();
 }
@@ -67,8 +57,11 @@ void LLMultiGesture::reset()
     mPlaying = FALSE;
     mCurrentStep = 0;
     mWaitTimer.reset();
-    mWaitingTimer = FALSE;
     mWaitingAnimations = FALSE;
+    mWaitingKeyRelease = FALSE;
+    mWaitingTimer = FALSE;
+    mTriggeredByKey = FALSE;
+    mKeyReleased = FALSE;
     mWaitingAtEnd = FALSE;
     mRequestedAnimIDs.clear();
     mPlayingAnimIDs.clear();
