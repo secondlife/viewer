@@ -375,19 +375,63 @@ void GLTFSceneManager::addGLTFObject(LLViewerObject* obj, LLUUID gltf_id)
     llassert(obj->getVolume()->getParams().getSculptID() == gltf_id);
     llassert(obj->getVolume()->getParams().getSculptType() == LL_SCULPT_TYPE_GLTF);
 
-    if (std::find(mObjects.begin(), mObjects.end(), obj) == mObjects.end())
-    {
-        mObjects.push_back(obj);
-    }
-
     obj->ref();
     gAssetStorage->getAssetData(gltf_id, LLAssetType::AT_GLTF, onGLTFLoadComplete, obj);
+}
+
+//static
+void GLTFSceneManager::onGLTFBinLoadComplete(const LLUUID& id, LLAssetType::EType asset_type, void* user_data, S32 status, LLExtStat ext_status)
+{
+    LLViewerObject* obj = (LLViewerObject*)user_data;
+    llassert(asset_type == LLAssetType::AT_GLTF_BIN);
+
+    if (status == LL_ERR_NOERR)
+    {
+        if (obj)
+        {
+            // find the Buffer with the given id in the asset
+            if (obj->mGLTFAsset)
+            {
+                for (auto& buffer : obj->mGLTFAsset->mBuffers)
+                {
+                    LLUUID buffer_id;
+                    if (LLUUID::parseUUID(buffer.mUri, &buffer_id) && buffer_id == id)
+                    {
+                        LLFileSystem file(id, asset_type, LLFileSystem::READ);
+
+                        buffer.mData.resize(file.getSize());
+                        file.read((U8*)buffer.mData.data(), buffer.mData.size());
+
+                        obj->mGLTFAsset->mPendingBuffers--;
+
+                        if (obj->mGLTFAsset->mPendingBuffers == 0)
+                        {
+                            obj->mGLTFAsset->allocateGLResources();
+                            GLTFSceneManager& mgr = GLTFSceneManager::instance();
+                            if (std::find(mgr.mObjects.begin(), mgr.mObjects.end(), obj) == mgr.mObjects.end())
+                            {
+                                GLTFSceneManager::instance().mObjects.push_back(obj);
+                            }
+                        }
+                    }
+                }   
+            }
+            
+            
+        }
+    }
+    else
+    {
+        LL_WARNS("GLTF") << "Failed to load GLTF asset: " << id << LL_ENDL;
+        obj->unref();
+    }
 }
 
 //static
 void GLTFSceneManager::onGLTFLoadComplete(const LLUUID& id, LLAssetType::EType asset_type, void* user_data, S32 status, LLExtStat ext_status)
 {
     LLViewerObject* obj = (LLViewerObject*)user_data;
+    llassert(asset_type == LLAssetType::AT_GLTF);
 
     if (status == LL_ERR_NOERR)
     {
@@ -401,6 +445,7 @@ void GLTFSceneManager::onGLTFLoadComplete(const LLUUID& id, LLAssetType::EType a
             boost::json::value json = boost::json::parse(data);
 
             std::shared_ptr<Asset> asset = std::make_shared<Asset>(json);
+            obj->mGLTFAsset = asset;
 
             for (auto& buffer : asset->mBuffers)
             {
@@ -408,9 +453,9 @@ void GLTFSceneManager::onGLTFLoadComplete(const LLUUID& id, LLAssetType::EType a
                 LLUUID buffer_id;
                 if (LLUUID::parseUUID(buffer.mUri, &buffer_id))
                 {
-                    LLFileSystem file(LLUUID(buffer.mUri), LLAssetType::AT_GLTF_BIN, LLFileSystem::READ);
-                    buffer.mData.resize(file.getSize());
-                    file.read((U8*)buffer.mData.data(), buffer.mData.size());
+                    asset->mPendingBuffers++;
+
+                    gAssetStorage->getAssetData(buffer_id, LLAssetType::AT_GLTF_BIN, onGLTFBinLoadComplete, obj);
                 }
                 else
                 {
@@ -419,17 +464,6 @@ void GLTFSceneManager::onGLTFLoadComplete(const LLUUID& id, LLAssetType::EType a
                     return;
                 }
             }
-
-            LLAppViewer::instance()->postToMainCoro([obj, asset]()
-                {
-                    if (obj)
-                    {
-                        obj->mGLTFAsset = asset;
-                        obj->mGLTFAsset->allocateGLResources();
-                        obj->markForUpdate();
-                        obj->unref();
-                    }
-                });
         }
     }
     else

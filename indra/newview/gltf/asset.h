@@ -325,6 +325,8 @@ namespace LL
             S32 mDefaultScene = INVALID_INDEX;
             Value mExtras;
 
+            U32 mPendingBuffers = 0;
+
             // the last time update() was called according to gFrameTimeSeconds
             F32 mLastUpdateTime = gFrameTimeSeconds;
 

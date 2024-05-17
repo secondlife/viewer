@@ -80,6 +80,7 @@ namespace LL
 
         void addGLTFObject(LLViewerObject* object, LLUUID gltf_id);
         static void onGLTFLoadComplete(const LLUUID& id, LLAssetType::EType asset_type, void* user_data, S32 status, LLExtStat ext_status);
+        static void onGLTFBinLoadComplete(const LLUUID& id, LLAssetType::EType asset_type, void* user_data, S32 status, LLExtStat ext_status);
 
         std::vector<LLPointer<LLViewerObject>> mObjects;
 

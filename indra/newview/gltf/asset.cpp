@@ -800,10 +800,11 @@ void Asset::allocateGLResources(const std::string& filename, const tinygltf::Mod
         image.allocateGLResources();
     }
 
+
     // do materials before meshes as meshes may depend on materials
-    for (U32 i = 0; i < mMaterials.size(); ++i)
+    if (!filename.empty())
     {
-        if (!filename.empty())
+        for (U32 i = 0; i < mMaterials.size(); ++i)
         {
             // HACK: local preview mode, load material from model for now
             mMaterials[i].allocateGLResources(*this);
