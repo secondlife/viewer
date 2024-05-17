@@ -2283,11 +2283,11 @@ bool LLItemBridge::isFavorite() const
     LLInventoryModel* model = getInventoryModel();
     if (model)
     {
-        item = (LLViewerInventoryItem*)model->getItem(mUUID);
+        item = model->getItem(mUUID);
     }
     if (item)
     {
-        return item->getIsFavorite();
+        return get_is_favorite(item);
     }
     return false;
 }

@@ -929,6 +929,7 @@ bool LLInventoryGallery::updateAddedItem(LLUUID item_id)
     }
 
     bool res = false;
+    bool is_favorite = get_is_favorite(obj);
 
     LLInventoryGalleryItem* item = buildGalleryItem(
         name,
@@ -940,7 +941,7 @@ bool LLInventoryGallery::updateAddedItem(LLUUID item_id)
         obj->getCreationDate(),
         obj->getIsLinkType(),
         is_worn,
-        obj->getIsFavorite());
+        is_favorite);
     mItemMap.insert(LLInventoryGallery::gallery_item_map_t::value_type(item_id, item));
     if (mGalleryCreated)
     {
@@ -2154,7 +2155,7 @@ void LLInventoryGallery::refreshList(const LLUUID& category_id)
             return;
         }
 
-        updateChangedItemData(*items_iter, obj->getName(), obj->getIsFavorite());
+        updateChangedItemData(*items_iter, obj->getName(), get_is_favorite(obj));
         mNeedsArrange = true;
     }
 

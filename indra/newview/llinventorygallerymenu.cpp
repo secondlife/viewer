@@ -549,7 +549,7 @@ void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* men
 
             if (!is_trash && !is_in_trash && gInventory.getRootFolderID() != selected_id)
             {
-                if (obj->getIsFavorite())
+                if (get_is_favorite(obj))
                 {
                     items.push_back(std::string("Remove from Favorites"));
                 }
@@ -601,7 +601,7 @@ void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* men
                 items.push_back(std::string("Cut"));
                 if (!is_in_trash)
                 {
-                    if (obj->getIsFavorite())
+                    if (get_is_favorite(obj))
                     {
                         items.push_back(std::string("Remove from Favorites"));
                     }
@@ -745,7 +745,7 @@ void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* men
             disabled_items.push_back(std::string("upload_def"));
         }
 
-        if (obj->getIsFavorite())
+        if (get_is_favorite(obj))
         {
             items.push_back(std::string("Remove from Favorites"));
         }
