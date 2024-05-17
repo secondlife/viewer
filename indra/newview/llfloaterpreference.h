@@ -390,7 +390,7 @@ public:
     void onCommitInputChannel(LLUICtrl* ctrl);
 
     static bool isWaitingForInputChannel();
-    static void applyGameControlInput(const LLGameControl::InputChannel& channel);
+    static void applyGameControlInput();
 
 protected:
     BOOL postBuild() override;
