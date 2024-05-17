@@ -3318,6 +3318,13 @@ bool enable_os_exception()
 #endif
 }
 
+
+bool enable_gltf()
+{
+    static LLCachedControl<bool> enablegltf(gSavedSettings, "GLTFEnabled", false);
+    return enablegltf;
+}
+
 class LLSelfRemoveAllAttachments : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
@@ -10060,6 +10067,7 @@ void initialize_menus()
 	commit.add("Pathfinding.Characters.Select", boost::bind(&LLFloaterPathfindingCharacters::openCharactersWithSelectedObjects));
 	enable.add("EnableSelectInPathfindingCharacters", boost::bind(&enable_object_select_in_pathfinding_characters));
     enable.add("Advanced.EnableErrorOSException", boost::bind(&enable_os_exception));
+    enable.add("EnableGLTF", boost::bind(&enable_gltf));
 
 	view_listener_t::addMenu(new LLFloaterVisible(), "FloaterVisible");
 	view_listener_t::addMenu(new LLShowSidetrayPanel(), "ShowSidetrayPanel");
