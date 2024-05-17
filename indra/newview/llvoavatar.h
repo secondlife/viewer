@@ -424,7 +424,6 @@ protected:
 private:
 	bool			mFirstFullyVisible;
     F32				mFirstDecloudTime;
-	F32				mFirstUseDelaySeconds;
 	LLFrameTimer	mFirstAppearanceMessageTimer;
 
 	bool			mFullyLoaded;
