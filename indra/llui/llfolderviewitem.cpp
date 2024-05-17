@@ -767,17 +767,14 @@ void LLFolderViewItem::drawOpenFolderArrow(const Params& default_params, const L
 void LLFolderViewItem::drawFavoriteIcon(const Params& default_params, const LLUIColor& fg_color)
 {
     static LLUICachedControl<bool> draw_star("InventoryFavoritesUseStar", true);
-    if (!draw_star)
-    {
-        return;
-    }
+    static LLUICachedControl<bool> draw_hollow_star("InventoryFavoritesUseHollowStar", true);
     
     LLUIImage* favorite_image = NULL; 
-    if (mIsFavorite)
+    if (draw_star && mIsFavorite)
     {
         favorite_image = default_params.favorite_image;
     }
-    else if (mHasFavorites && !isOpen())
+    else if (draw_hollow_star && mHasFavorites && !isOpen())
     {
         favorite_image = default_params.favorite_content_image;
     }
