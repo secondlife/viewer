@@ -31,6 +31,7 @@
 #include "llagent.h"
 #include "llagentui.h"
 #include "llcombobox.h"
+#include "llfloaterreg.h"
 #include "llinventoryfunctions.h"
 #include "llinventoryobserver.h"
 #include "lllandmarkactions.h"
@@ -286,8 +287,7 @@ void LLFloaterCreateLandmark::onCreateFolderClicked()
             std::string folder_name = resp["message"].asString();
             if (!folder_name.empty())
             {
-                inventory_func_type func = boost::bind(&LLFloaterCreateLandmark::folderCreatedCallback, this, _1);
-                gInventory.createNewCategory(mLandmarksID, LLFolderType::FT_NONE, folder_name, func);
+                gInventory.createNewCategory(mLandmarksID, LLFolderType::FT_NONE, folder_name, folderCreatedCallback);
                 gInventory.notifyObservers();
             }
         }
@@ -296,7 +296,11 @@ void LLFloaterCreateLandmark::onCreateFolderClicked()
 
 void LLFloaterCreateLandmark::folderCreatedCallback(LLUUID folder_id)
 {
-    populateFoldersList(folder_id);
+    LLFloaterCreateLandmark* floater = LLFloaterReg::findTypedInstance<LLFloaterCreateLandmark>("add_landmark");
+    if (floater && !floater->isDead())
+    {
+        floater->populateFoldersList(folder_id);
+    }
 }
 
 void LLFloaterCreateLandmark::onSaveClicked()
@@ -389,6 +393,7 @@ void LLFloaterCreateLandmark::setItem(const uuid_set_t& items)
             {
                 mItem = item;
                 mAssetID = mItem->getAssetUUID();
+                mParentID = mItem->getParentUUID();
                 setVisibleAndFrontmost(true);
                 break;
             }
@@ -418,8 +423,7 @@ void LLFloaterCreateLandmark::updateItem(const uuid_set_t& items, U32 mask)
                 closeFloater();
             }
 
-            LLUUID folder_id = mFolderCombo->getValue().asUUID();
-            if (folder_id != mItem->getParentUUID())
+            if (mParentID != mItem->getParentUUID())
             {
                 // user moved landmark in inventory,
                 // assume that we are done all other changes should already be commited

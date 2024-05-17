@@ -39,15 +39,19 @@ jobs:
     needs: setvar
     strategy:
       matrix:
-        runner: [windows-large, macos-12-xl]
-        configuration: [Release]
+        runner: [windows-large, macos-12-xl, linux-large]
+        configuration: [Release, ReleaseOS]
         Linden: [true]
         include:
           - runner: macos-12-xl
             developer_dir: "/Applications/Xcode_14.0.1.app/Contents/Developer"
+        exclude:
           - runner: windows-large
             configuration: ReleaseOS
-            Linden: false
+          - runner: macos-12-xl
+            configuration: ReleaseOS
+          - runner: linux-large
+            configuration: Release
     runs-on: ${{ matrix.runner }}
     outputs:
       viewer_channel: ${{ steps.build.outputs.viewer_channel }}
@@ -131,6 +135,17 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-64-${{ matrix.configuration }}-
             ${{ runner.os }}-64-
+
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt update
+          sudo apt install -y \
+            libpulse-dev libunwind-dev \
+            libgl1-mesa-dev libglu1-mesa-dev libxinerama-dev \
+            libxcursor-dev libxfixes-dev libgstreamer1.0-dev \
+            libgstreamer-plugins-base1.0-dev ninja-build libxft-dev \
+            llvm mold
 
       - name: Install windows dependencies
         if: env.BUILD && runner.os == 'Windows'
@@ -247,6 +262,13 @@ jobs:
           fi
           export PYTHON_COMMAND_NATIVE="$(native_path "$PYTHON_COMMAND")"
 
+          # Compile with clang, link with mold on linux.
+          if [[ "$RUNNER_OS" == "Linux" ]]; then
+            export CC=clang
+            export CXX=clang++
+            export CMAKE_OPTIONS='-DLINK_WITH_MOLD=ON'
+          fi
+
           ./build.sh
 
           # Each artifact is downloaded as a distinct .zip file. Multiple jobs
@@ -268,12 +290,13 @@ jobs:
           echo "artifact=$RUNNER_OS$cfg_suffix" >> $GITHUB_OUTPUT
 
       - name: Upload executable
-        if: matrix.Linden && steps.build.outputs.viewer_app
+        if: (matrix.Linden && steps.build.outputs.viewer_app) || runner.os == 'Linux'
         uses: actions/upload-artifact@v4
         with:
           name: "${{ steps.build.outputs.artifact }}-app"
           path: |
             ${{ steps.build.outputs.viewer_app }}
+
 
       # The other upload of nontrivial size is the symbol file. Use a distinct
       # artifact for that too.
@@ -412,7 +435,11 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           pattern: "*-metadata"
-      
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: "LinuxOS-app"
+
       - name: Rename metadata
         run: |
           cp Windows-metadata/autobuild-package.xml Windows-autobuild-package.xml
@@ -441,7 +468,7 @@ jobs:
           append_body: true
           fail_on_unmatched_files: true
           files: |
-            macOS-installer/*.dmg 
+            macOS-installer/*.dmg
             Windows-installer/*.exe
             *-autobuild-package.xml
             *-viewer_version.txt

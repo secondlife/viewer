@@ -15,7 +15,6 @@ set(cmake_SOURCE_FILES
         CEFPlugin.cmake
         CEFPlugin.cmake
         CMakeCopyIfDifferent.cmake
-        ConfigurePkgConfig.cmake
         CURL.cmake
         Copy3rdPartyLibs.cmake
         DBusGlib.cmake
@@ -27,7 +26,6 @@ set(cmake_SOURCE_FILES
         FreeType.cmake
         GLEXT.cmake
         GLH.cmake
-        GoogleMock.cmake
         Havok.cmake
         Hunspell.cmake
         JsonCpp.cmake
