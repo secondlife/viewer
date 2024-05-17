@@ -872,11 +872,13 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
         {
             items.push_back(std::string("Remove from Favorites"));
         }
-        else if (is_agent_inventory
-                 && gInventory.getRootFolderID() != mUUID
-                 && !gInventory.isObjectDescendentOf(mUUID, gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH)))
+        else if (is_agent_inventory && !gInventory.isObjectDescendentOf(mUUID, gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH)))
         {
             items.push_back(std::string("Add to Favorites"));
+            if (gInventory.getRootFolderID() == mUUID)
+            {
+                disabled_items.push_back(std::string("Add to Favorites"));
+            }
         }
 
 		if (obj->getIsLinkType())
