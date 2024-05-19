@@ -789,10 +789,15 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id,
 
 void LLIMModel::LLIMSession::initVoiceChannel(const LLSD& voiceChannelInfo)
 {
-	mVoiceChannelStateChangeConnection.disconnect();
 
 	if (mVoiceChannel)
 	{
+		if (mVoiceChannel->isThisVoiceChannel(voiceChannelInfo))
+		{
+			return;
+		}
+		mVoiceChannelStateChangeConnection.disconnect();
+
 		mVoiceChannel->deactivate();
 
 		delete mVoiceChannel;

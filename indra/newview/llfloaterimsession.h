@@ -161,6 +161,8 @@ private:
 
 	void onCallButtonClicked();
 
+	void onVoiceChannelChanged(const LLUUID &session_id);
+
 	void boundVoiceChannel();
 
 	// Add the "User is typing..." indicator.
@@ -194,6 +196,9 @@ private:
 
 	uuid_vec_t mInvitedParticipants;
 	uuid_vec_t mPendingParticipants;
+
+	// notification when the voice channel is swapped out from beneath us.
+	boost::signals2::connection mVoiceChannelChanged;
 
 	// connection to voice channel state change signal
 	boost::signals2::connection mVoiceChannelStateChangeConnection;

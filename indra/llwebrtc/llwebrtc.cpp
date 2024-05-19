@@ -280,9 +280,15 @@ void LLWebRTCImpl::terminate()
     {
         connection->terminate();
     }
-    mPeerConnections.clear();
+
+    // connection->terminate() above spawns a number of Signaling thread calls to
+    // shut down the connection.  The following Blocking Call will wait
+    // until they're done before it's executed, allowing time to clean up.
 
     mSignalingThread->BlockingCall([this]() { mPeerConnectionFactory = nullptr; });
+
+    mPeerConnections.clear();
+
     mWorkerThread->BlockingCall(
         [this]()
         {
@@ -652,7 +658,6 @@ LLWebRTCPeerConnectionImpl::LLWebRTCPeerConnectionImpl() :
 
 LLWebRTCPeerConnectionImpl::~LLWebRTCPeerConnectionImpl()
 {
-    terminate();
     mSignalingObserverList.clear();
     mDataObserverList.clear();
 }
