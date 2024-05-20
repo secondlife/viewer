@@ -163,6 +163,34 @@ public:
         U8 mIndex { 255 };
     };
 
+    // Options is a data structure for storing device-specific settings
+    class Options
+    {
+        std::map<U8, U8> mAxisMap;
+        std::map<U8, U8> mButtonMap;
+
+        struct AxisOptions
+        {
+            bool mInvert { false };
+            U8 mDeadZone { 0 };
+            S16 mOffset { 0 };
+
+            std::string saveToString() const;
+            void loadFromString(std::string options);
+        };
+
+        std::vector<AxisOptions> mAxisOptions;
+
+    public:
+        U8 mapAxis(U8 axis) const;
+        U8 mapButton(U8 button) const;
+
+        S16 fixAxisValue(U8 axis, S16 value) const;
+
+        std::string saveToString() const;
+        void loadFromString(std::string options);
+    };
+
     // State is a minimal class for storing axes and buttons values
     class State
     {
@@ -180,6 +208,7 @@ public:
     {
         const int mJoystickID { -1 };
         const void* mController { nullptr };
+        Options mOptions;
         State mState;
 
     public:

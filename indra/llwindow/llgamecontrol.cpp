@@ -352,7 +352,8 @@ LLGameControl::~LLGameControl()
     terminate();
 }
 
-LLGameControl::State::State() : mButtons(0)
+LLGameControl::State::State()
+: mButtons(0)
 {
     mAxes.resize(NUM_AXES, 0);
     mPrevAxes.resize(NUM_AXES, 0);
@@ -382,8 +383,7 @@ bool LLGameControl::State::onButton(U8 button, bool pressed)
             mButtons &= ~(0x01 << button);
         }
     }
-    bool changed = (old_buttons != mButtons);
-    return changed;
+    return mButtons != old_buttons;
 }
 
 LLGameControl::Device::Device(int joystickID, void* controller)
@@ -391,6 +391,107 @@ LLGameControl::Device::Device(int joystickID, void* controller)
 , mController(controller)
 {
     LL_INFOS("GameController") << "joystick id: " << mJoystickID << ", controller: " << mController << LL_ENDL;
+}
+
+U8 LLGameControl::Options::mapAxis(U8 axis) const
+{
+    auto it = mAxisMap.find(axis);
+    return it == mAxisMap.end() ? axis : it->second;
+}
+
+U8 LLGameControl::Options::mapButton(U8 button) const
+{
+    auto it = mButtonMap.find(button);
+    return it == mButtonMap.end() ? button : it->second;
+}
+
+S16 LLGameControl::Options::fixAxisValue(U8 axis, S16 value) const
+{
+    if (axis >= 0 && axis < mAxisOptions.size())
+    {
+        const AxisOptions& options = mAxisOptions[axis];
+        value += options.mOffset;
+        if ((value > 0 && value < (S16)options.mDeadZone) ||
+            (value < 0 && value > -(S16)options.mDeadZone))
+        {
+            value = 0;
+        }
+        else if (options.mInvert)
+        {
+            value = -value;
+        }
+    }
+    return value;
+}
+
+std::string LLGameControl::Options::AxisOptions::saveToString() const
+{
+    std::list<std::string> options;
+
+    if (mInvert)
+    {
+        options.push_back("invert:1");
+    }
+    if (mDeadZone)
+    {
+        options.push_back(llformat("dead_zone:%u", mDeadZone));
+    }
+    if (mOffset)
+    {
+        options.push_back(llformat("offset:%d", mOffset));
+    }
+
+    std::string result = LLStringOps::join(options);
+
+    return result.empty() ? result : "{" + result + "}";
+}
+
+std::string LLGameControl::Options::saveToString() const
+{
+    std::list<std::string> options;
+
+    auto pair2str = [](const std::pair<U8, U8>& pair) -> std::string
+    {
+        return pair.first == pair.second ? LLStringUtil::null : llformat("%u:%u", pair.first, pair.second);
+    };
+
+    std::string axis_map = LLStringOps::join<std::map<U8, U8>, std::pair<U8, U8>>(mAxisMap, pair2str);
+    if (!axis_map.empty())
+    {
+        options.push_back("axis_map:{" + axis_map + "}");
+    }
+
+    std::string button_map = LLStringOps::join<std::map<U8, U8>, std::pair<U8, U8>>(mButtonMap, pair2str);
+    if (!button_map.empty())
+    {
+        options.push_back("button_map:{" + button_map + "}");
+    }
+
+    auto opts2str = [](size_t i, const AxisOptions& options) -> std::string
+    {
+        std::string string = options.saveToString();
+        return string.empty() ? string : llformat("%u:%s", i, string.c_str());
+    };
+
+    std::string axis_options = LLStringOps::join<std::vector<AxisOptions>, AxisOptions>(mAxisOptions, opts2str);
+    if (!axis_options.empty())
+    {
+        options.push_back("axis_options:{" + axis_options + "}");
+    }
+
+    std::string result = LLStringOps::join(options);
+
+    return result.empty() ? result : "{" + result + "}";
+}
+
+void LLGameControl::Options::AxisOptions::loadFromString(std::string options)
+{
+    // TODO: implement this
+}
+
+void LLGameControl::Options::loadFromString(std::string options)
+{
+    // TODO: implement this
 }
 
 LLGameControllerManager::LLGameControllerManager()
@@ -515,51 +616,104 @@ void LLGameControllerManager::removeController(SDL_JoystickID id)
 
 void LLGameControllerManager::onAxis(SDL_JoystickID id, U8 axis, S16 value)
 {
-    if (axis > MAX_AXIS)
+    device_it it = findDevice(id);
+    if (it == mDevices.end())
     {
+        LL_WARNS("SDL2") << "Unknown device: joystick=0x" << std::hex << id << std::dec
+            << " axis=" << (S32)axis
+            << " value=" << (S32)value << LL_ENDL;
         return;
     }
 
-    device_it it = findDevice(id);
-    if (it != mDevices.end())
+    // Map axis using device-specific settings
+    // or leave the value unchanged
+    U8 mapped_axis = it->mOptions.mapAxis(axis);
+    if (mapped_axis != axis)
     {
-        // Note: the RAW analog joysticks provide NEGATIVE X,Y values for LEFT,FORWARD
-        // whereas those directions are actually POSITIVE in SL's local right-handed
-        // reference frame.  Therefore we implicitly negate those axes here where
-        // they are extracted from SDL, before being used anywhere.
-        if (axis < SDL_CONTROLLER_AXIS_TRIGGERLEFT)
-        {
-            // Note: S16 value is in range [-32768, 32767] which means
-            // the negative range has an extra possible value.  We need
-            // to add (or subtract) one during negation.
-            if (value < 0)
-            {
-                value = - (value + 1);
-            }
-            else if (value > 0)
-            {
-                value = (-value) - 1;
-            }
-        }
+        LL_DEBUGS("SDL2") << "Axis mapped: joystick=0x" << std::hex << id << std::dec
+            << " input axis i=" << (S32)axis
+            << " mapped axis i=" << (S32)mapped_axis << LL_ENDL;
+        axis = mapped_axis;
+    }
 
-        LL_DEBUGS("SDL2") << "joystick=0x" << std::hex << id << std::dec
+    if (axis > MAX_AXIS)
+    {
+        LL_WARNS("SDL2") << "Unknown axis: joystick=0x" << std::hex << id << std::dec
             << " axis=" << (S32)(axis)
             << " value=" << (S32)(value) << LL_ENDL;
-        it->mState.mAxes[axis] = value;
+        return;
     }
+
+    // Fix value using device-specific settings
+    // or leave the value unchanged
+    S16 fixed_value = it->mOptions.fixAxisValue(axis, value);
+    if (fixed_value != value)
+    {
+        LL_DEBUGS("SDL2") << "Value fixed: joystick=0x" << std::hex << id << std::dec
+            << " axis i=" << (S32)axis
+            << " input value=" << (S32)value
+            << " fixed value=" << (S32)fixed_value << LL_ENDL;
+        value = fixed_value;
+    }
+
+    // Note: the RAW analog joysticks provide NEGATIVE X,Y values for LEFT,FORWARD
+    // whereas those directions are actually POSITIVE in SL's local right-handed
+    // reference frame.  Therefore we implicitly negate those axes here where
+    // they are extracted from SDL, before being used anywhere.
+    if (axis < SDL_CONTROLLER_AXIS_TRIGGERLEFT)
+    {
+        // Note: S16 value is in range [-32768, 32767] which means
+        // the negative range has an extra possible value.  We need
+        // to add (or subtract) one during negation.
+        if (value < 0)
+        {
+            value = - (value + 1);
+        }
+        else if (value > 0)
+        {
+            value = (-value) - 1;
+        }
+    }
+
+    LL_DEBUGS("SDL2") << "joystick=0x" << std::hex << id << std::dec
+        << " axis=" << (S32)(axis)
+        << " value=" << (S32)(value) << LL_ENDL;
+    it->mState.mAxes[axis] = value;
 }
 
 void LLGameControllerManager::onButton(SDL_JoystickID id, U8 button, bool pressed)
 {
     device_it it = findDevice(id);
-    if (it != mDevices.end())
+    if (it == mDevices.end())
     {
-        if (it->mState.onButton(button, pressed))
-        {
-            LL_DEBUGS("SDL2") << "joystick=0x" << std::hex << id << std::dec
-                << " button i=" << (S32)(button)
-                << " pressed=" << pressed << LL_ENDL;
-        }
+        LL_WARNS("SDL2") << "Unknown device: joystick=0x" << std::hex << id << std::dec
+            << " button i=" << (S32)button << LL_ENDL;
+        return;
+    }
+
+    // Map button using device-specific settings
+    // or leave the value unchanged
+    U8 mapped_button = it->mOptions.mapButton(button);
+    if (mapped_button != button)
+    {
+        LL_DEBUGS("SDL2") << "Button mapped: joystick=0x" << std::hex << id << std::dec
+            << " input button i=" << (S32)button
+            << " mapped button i=" << (S32)mapped_button << LL_ENDL;
+        button = mapped_button;
+    }
+
+    if (button > MAX_BUTTON)
+    {
+        LL_WARNS("SDL2") << "Unknown button: joystick=0x" << std::hex << id << std::dec
+            << " button i=" << (S32)button << LL_ENDL;
+        return;
+    }
+
+    if (it->mState.onButton(button, pressed))
+    {
+        LL_DEBUGS("SDL2") << "joystick=0x" << std::hex << id << std::dec
+            << " button i=" << (S32)button
+            << " pressed=" << pressed << LL_ENDL;
     }
 }
 
