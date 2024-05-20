@@ -150,7 +150,7 @@ public:
 		LLModel::PhysicsMesh mPhysicsShapeMesh;
 	};
 
-	LLModel(LLVolumeParams& params, F32 detail);
+	LLModel(const LLVolumeParams& params, F32 detail);
 	~LLModel();
 
 	bool loadModel(std::istream& is);
@@ -375,7 +375,7 @@ public:
 	LLMatrix4 mTransform;
 	material_map mMaterial;
 
-	LLModelInstanceBase(LLModel* model, LLMatrix4& transform, material_map& materials)
+	LLModelInstanceBase(LLModel* model, const LLMatrix4& transform, const material_map& materials)
 		: mModel(model), mTransform(transform), mMaterial(materials)
 	{
 	}
@@ -404,7 +404,7 @@ public:
 	LLUUID mMeshID;
 	S32 mLocalMeshID;
 
-	LLModelInstance(LLModel* model, const std::string& label, LLMatrix4& transform, material_map& materials)
+	LLModelInstance(LLModel* model, const std::string& label, const LLMatrix4& transform, const material_map& materials)
 		: LLModelInstanceBase(model, transform, materials), mLabel(label)
 	{
 		mLocalMeshID = -1;

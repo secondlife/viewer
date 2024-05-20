@@ -633,7 +633,7 @@ void LLMediaCtrl::navigateTo( std::string url_in, std::string mime_type, bool cl
 void LLMediaCtrl::navigateToLocalPage( const std::string& subdir, const std::string& filename_in )
 {
 	std::string filename(gDirUtilp->add(subdir, filename_in));
-	std::string expanded_filename = gDirUtilp->findSkinnedFilename(LLDir::HTML, filename);
+	std::string expanded_filename = gDirUtilp->findSkinnedFilename("html", filename);
 
 	if (expanded_filename.empty())
 	{

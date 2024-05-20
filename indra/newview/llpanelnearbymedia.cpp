@@ -260,10 +260,16 @@ bool LLPanelNearByMedia::handleRightMouseDown(S32 x, S32 y, MASK mask)
     S32 x_list, y_list;
     localPointToOtherView(x, y, &x_list, &y_list, mMediaList);
     if (mMoreLessBtn->getToggleState()
-        && mMediaList->pointInView(x_list, y_list)
-        && mMediaList->selectItemAt(x_list, y_list, mask))
+        && mMediaList->pointInView(x_list, y_list))
     {
-        if (mContextMenu)
+        LLScrollListItem* hit_item = mMediaList->hitItem(x_list, y_list);
+        bool selected = hit_item && hit_item->getSelected();
+        if (!selected)
+        {
+            selected = mMediaList->selectItemAt(x_list, y_list, mask);
+        }
+        
+        if (selected && mContextMenu)
         {
             mContextMenu->buildDrawLabels();
             mContextMenu->updateParent(LLMenuGL::sMenuContainer);

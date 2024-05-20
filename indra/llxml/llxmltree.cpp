@@ -35,7 +35,6 @@
 #include "v4math.h"
 #include "llquaternion.h"
 #include "lluuid.h"
-#include "lldir.h"
 
 //////////////////////////////////////////////////////////////
 // LLXmlTree
@@ -61,37 +60,20 @@ void LLXmlTree::cleanup()
 	mNodeNames.cleanup();
 }
 
-bool LLXmlTree::parseFile(const std::string & filename, bool keep_contents)
-{
-	delete mRoot;
-	mRoot = NULL;
 
-	std::string xml = gDirUtilp->getFileContents(filename);
-	if (xml.empty())
-	{
-		LL_WARNS() << "LLXmlTree parse failed. No XML file: " << filename << LL_ENDL;
-		return false;
-	}
-
-	bool success = parseString(xml, keep_contents);
-
-	return success;
-}
-
-bool LLXmlTree::parseString(const std::string &xml, bool keep_contents)
+bool LLXmlTree::parseFile(const std::string &path, bool keep_contents)
 {
 	delete mRoot;
 	mRoot = NULL;
 
 	LLXmlTreeParser parser(this);
-	bool success = parser.parseString(xml, &mRoot, keep_contents);
-	if (!success)
+	bool success = parser.parseFile( path, &mRoot, keep_contents );
+	if( !success )
 	{
 		S32 line_number = parser.getCurrentLineNumber();
 		const char* error =  parser.getErrorString();
 		LL_WARNS() << "LLXmlTree parse failed.  Line " << line_number << ": " << error << LL_ENDL;
 	}
-
 	return success;
 }
 
@@ -554,27 +536,6 @@ bool LLXmlTreeParser::parseFile(const std::string &path, LLXmlTreeNode** root, b
 	return success;
 }
 
-bool LLXmlTreeParser::parseString(const std::string& xml, LLXmlTreeNode** root, bool keep_contents)
-{
-	llassert( !mRoot );
-	llassert( !mCurrent );
-
-	mKeepContents = keep_contents;
-
-	bool success = LLXmlParser::parse(xml.data(), (int)xml.size(), true);
-
-	*root = mRoot;
-	mRoot = NULL;
-
-	if (success)
-	{
-		llassert(!mCurrent);
-	}
-
-	mCurrent = NULL;
-	
-	return success;
-}
 
 const std::string& LLXmlTreeParser::tabs()
 {
