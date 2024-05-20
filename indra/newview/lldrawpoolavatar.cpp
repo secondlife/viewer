@@ -370,6 +370,15 @@ void LLDrawPoolAvatar::renderShadow(S32 pass)
 		return;
 	}
 
+    LLCachedControl<bool> debug_invisible(gSavedSettings, "RenderAvatarFriendsOnly", false);
+    if (debug_invisible()
+        && !avatarp->isControlAvatar()
+        && !avatarp->isSelf()
+        && !avatarp->isBuddy())
+    {
+        return;
+    }
+
     LLVOAvatar::AvatarOverallAppearance oa = avatarp->getOverallAppearance();
 	bool impostor = !LLPipeline::sImpostorRender && avatarp->isImpostor();
     // no shadows if the shadows are causing this avatar to breach the limit.
@@ -722,6 +731,17 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 		// don't render please
 		return;
 	}
+
+    LLCachedControl<bool> friends_only(gSavedSettings, "RenderAvatarFriendsOnly", false);
+    if (!single_avatar
+        && friends_only()
+        && !avatarp->isUIAvatar()
+        && !avatarp->isControlAvatar()
+        && !avatarp->isSelf()
+        && !avatarp->isBuddy())
+    {
+        return;
+    }
 
 	bool impostor = !LLPipeline::sImpostorRender && avatarp->isImpostor() && !single_avatar;
 
