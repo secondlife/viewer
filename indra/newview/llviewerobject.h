@@ -1,3 +1,4 @@
+
 /**
  * @file llviewerobject.h
  * @brief Description of LLViewerObject class, which is the base class for most objects in the viewer.
@@ -742,6 +743,11 @@ public:
 	F32             mPhysicsDensity;
 	F32             mPhysicsRestitution;
 	
+    // set the GLTF asset for this LLViewerObject  to the specified asset id
+    // id MUST be for a GLTF asset (LLAssetType::AT_GLTF)
+    // will relesae any currently held references to a GLTF asset on id change
+    void setGLTFAsset(const LLUUID& id);
+
     // Associated GLTF Asset
     std::shared_ptr<LL::GLTF::Asset> mGLTFAsset;
 

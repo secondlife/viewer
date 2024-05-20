@@ -30,6 +30,7 @@
 #include "buffer_util.h"
 
 using namespace LL::GLTF;
+using namespace boost::json;
 
 void Animation::allocateGLResources(Asset& asset)
 {
@@ -84,7 +85,6 @@ void Animation::apply(Asset& asset, float time)
     }
 };
 
-
 void Animation::Sampler::allocateGLResources(Asset& asset)
 {
     Accessor& accessor = asset.mAccessors[mInput];
@@ -97,8 +97,96 @@ void Animation::Sampler::allocateGLResources(Asset& asset)
     copy(asset, accessor, frame_times);
 }
 
+
+void Animation::Sampler::serialize(object& obj) const
+{
+    write(mInput, "input", obj, INVALID_INDEX);
+    write(mOutput, "output", obj, INVALID_INDEX);
+    write(mInterpolation, "interpolation", obj, std::string("LINEAR"));
+    write(mMinTime, "min_time", obj);
+    write(mMaxTime, "max_time", obj);
+}
+
+const Animation::Sampler& Animation::Sampler::operator=(const Value& src)
+{
+    if (src.is_object())
+    {
+        copy(src, "input", mInput);
+        copy(src, "output", mOutput);
+        copy(src, "interpolation", mInterpolation);
+        copy(src, "min_time", mMinTime);
+        copy(src, "max_time", mMaxTime);
+    }
+    return *this;
+}
+
+
+const Animation::Sampler& Animation::Sampler::operator=(const tinygltf::AnimationSampler& src)
+{
+    mInput = src.input;
+    mOutput = src.output;
+    mInterpolation = src.interpolation;
+
+    return *this;
+}
+
+bool Animation::Channel::Target::operator==(const Channel::Target& rhs) const
+{
+    return mNode == rhs.mNode && mPath == rhs.mPath;
+}
+
+bool Animation::Channel::Target::operator!=(const Channel::Target& rhs) const
+{
+    return !(*this == rhs);
+}
+
+void Animation::Channel::Target::serialize(object& obj) const
+{
+    write(mNode, "node", obj, INVALID_INDEX);
+    write(mPath, "path", obj);
+}
+
+const Animation::Channel::Target& Animation::Channel::Target::operator=(const Value& src)
+{
+    if (src.is_object())
+    {
+        copy(src, "node", mNode);
+        copy(src, "path", mPath);
+    }
+    return *this;
+}
+
+void Animation::Channel::serialize(object& obj) const
+{
+    write(mSampler, "sampler", obj, INVALID_INDEX);
+    write(mTarget, "target", obj);
+}
+
+const Animation::Channel& Animation::Channel::operator=(const Value& src)
+{
+    if (src.is_object())
+    {
+        copy(src, "sampler", mSampler);
+        copy(src, "target", mTarget);
+    }
+    return *this;
+}
+
+const Animation::Channel& Animation::Channel::operator=(const tinygltf::AnimationChannel& src)
+{
+    mSampler = src.sampler;
+
+    mTarget.mNode = src.target_node;
+    mTarget.mPath = src.target_path;
+
+    return *this;
+}
+
+
 void Animation::Sampler::getFrameInfo(Asset& asset, F32 time, U32& frameIndex, F32& t)
 {
+    LL_PROFILE_ZONE_SCOPED;
+
     if (time < mMinTime)
     {
         frameIndex = 0;
@@ -158,13 +246,11 @@ void Animation::RotationChannel::apply(Asset& asset, Sampler& sampler, F32 time)
     else
     {
         // interpolate
-        LLQuaternion q0(mRotations[frameIndex].get_value());
-        LLQuaternion q1(mRotations[frameIndex + 1].get_value());
+        quat qf = glm::slerp(mRotations[frameIndex], mRotations[frameIndex + 1], t);
 
-        LLQuaternion qf = slerp(t, q0, q1);
+        qf = glm::normalize(qf);
 
-        qf.normalize();
-        node.setRotation(glh::quaternionf(qf.mQ));
+        node.setRotation(qf);
     }
 }
 
@@ -191,10 +277,10 @@ void Animation::TranslationChannel::apply(Asset& asset, Sampler& sampler, F32 ti
     else
     {
         // interpolate
-        const glh::vec3f& v0 = mTranslations[frameIndex];
-        const glh::vec3f& v1 = mTranslations[frameIndex + 1];
+        const vec3& v0 = mTranslations[frameIndex];
+        const vec3& v1 = mTranslations[frameIndex + 1];
 
-        glh::vec3f vf = v0 + t * (v1 - v0);
+        vec3 vf = v0 + t * (v1 - v0);
 
         node.setTranslation(vf);
     }
@@ -223,13 +309,59 @@ void Animation::ScaleChannel::apply(Asset& asset, Sampler& sampler, F32 time)
     else
     {
         // interpolate
-        const glh::vec3f& v0 = mScales[frameIndex];
-        const glh::vec3f& v1 = mScales[frameIndex + 1];
+        const vec3& v0 = mScales[frameIndex];
+        const vec3& v1 = mScales[frameIndex + 1];
 
-        glh::vec3f vf = v0 + t * (v1 - v0);
+        vec3 vf = v0 + t * (v1 - v0);
 
         node.setScale(vf);
     }
+}
+
+void Animation::serialize(object& obj) const
+{
+    write(mName, "name", obj);
+    write(mSamplers, "samplers", obj);
+
+    std::vector<Channel> channels;
+    channels.insert(channels.end(), mRotationChannels.begin(), mRotationChannels.end());
+    channels.insert(channels.end(), mTranslationChannels.begin(), mTranslationChannels.end());
+    channels.insert(channels.end(), mScaleChannels.begin(), mScaleChannels.end());
+
+    write(channels, "channels", obj);
+}
+
+const Animation& Animation::operator=(const Value& src)
+{
+    if (src.is_object())
+    {
+        const object& obj = src.as_object();
+
+        copy(obj, "name", mName);
+        copy(obj, "samplers", mSamplers);
+
+        // make a temporory copy of generic channels
+        std::vector<Channel> channels;
+        copy(obj, "channels", channels);
+
+        // break up into channel specific implementations
+        for (auto& channel: channels)
+        {
+            if (channel.mTarget.mPath == "rotation")
+            {
+                mRotationChannels.push_back(channel);
+            }
+            else if (channel.mTarget.mPath == "translation")
+            {
+                mTranslationChannels.push_back(channel);
+            }
+            else if (channel.mTarget.mPath == "scale")
+            {
+                mScaleChannels.push_back(channel);
+            }
+        }
+    }
+    return *this;
 }
 
 const Animation& Animation::operator=(const tinygltf::Animation& src)
@@ -275,6 +407,18 @@ void Skin::allocateGLResources(Asset& asset)
     }
 }
 
+const Skin& Skin::operator=(const Value& src)
+{
+    if (src.is_object())
+    {
+        copy(src, "name", mName);
+        copy(src, "skeleton", mSkeleton);
+        copy(src, "inverseBindMatrices", mInverseBindMatrices);
+        copy(src, "joints", mJoints);
+    }
+    return *this;
+}
+
 const Skin& Skin::operator=(const tinygltf::Skin& src)
 {
     mName = src.name;
@@ -285,3 +429,10 @@ const Skin& Skin::operator=(const tinygltf::Skin& src)
     return *this;
 }
 
+void Skin::serialize(object& obj) const
+{
+    write(mInverseBindMatrices, "inverseBindMatrices", obj, INVALID_INDEX);
+    write(mJoints, "joints", obj);
+    write(mName, "name", obj);
+    write(mSkeleton, "skeleton", obj, INVALID_INDEX);
+}

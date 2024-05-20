@@ -139,6 +139,7 @@
 #include "boost/unordered_map.hpp"
 #include <boost/regex.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/json.hpp>
 #include "llcleanup.h"
 #include "llviewershadermgr.h"
 #include "gltfscenemanager.h"
@@ -3315,6 +3316,13 @@ bool enable_os_exception()
 #else
     return false;
 #endif
+}
+
+
+bool enable_gltf()
+{
+    static LLCachedControl<bool> enablegltf(gSavedSettings, "GLTFEnabled", false);
+    return enablegltf;
 }
 
 class LLSelfRemoveAllAttachments : public view_listener_t
@@ -8047,7 +8055,6 @@ class LLAdvancedClickGLTFOpen: public view_listener_t
 {
     bool handleEvent(const LLSD& userdata)
     {
-        // open personal lighting floater when previewing an HDRI (keeps HDRI from implicitly unloading when opening build tools)
         LL::GLTFSceneManager::instance().load();
         return true;
     }
@@ -8057,7 +8064,6 @@ class LLAdvancedClickGLTFSaveAs : public view_listener_t
 {
     bool handleEvent(const LLSD& userdata)
     {
-        // open personal lighting floater when previewing an HDRI (keeps HDRI from implicitly unloading when opening build tools)
         LL::GLTFSceneManager::instance().saveAs();
         return true;
     }
@@ -8067,11 +8073,38 @@ class LLAdvancedClickGLTFDecompose : public view_listener_t
 {
     bool handleEvent(const LLSD& userdata)
     {
-        // open personal lighting floater when previewing an HDRI (keeps HDRI from implicitly unloading when opening build tools)
         LL::GLTFSceneManager::instance().decomposeSelection();
         return true;
     }
 };
+
+class LLAdvancedClickGLTFUpload: public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata)
+    {
+        LL::GLTFSceneManager::instance().uploadSelection();
+        return true;
+    }
+};
+
+class LLAdvancedClickResizeWindow : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata)
+    {
+        S32 w = 0;
+        S32 h = 0;
+
+        sscanf(userdata.asString().c_str(), "%dx%d", &w, &h);
+
+        if (w > 0 && h > 0)
+        {
+            gViewerWindow->getWindow()->setSize(LLCoordWindow(w, h));
+        }
+
+        return true;
+    }
+};
+
 
 // these are used in the gl menus to set control values that require shader recompilation
 class LLToggleShaderControl : public view_listener_t
@@ -9728,6 +9761,8 @@ void initialize_menus()
     view_listener_t::addMenu(new LLAdvancedClickGLTFOpen(), "Advanced.ClickGLTFOpen");
     view_listener_t::addMenu(new LLAdvancedClickGLTFSaveAs(), "Advanced.ClickGLTFSaveAs");
     view_listener_t::addMenu(new LLAdvancedClickGLTFDecompose(), "Advanced.ClickGLTFDecompose");
+    view_listener_t::addMenu(new LLAdvancedClickGLTFUpload(), "Advanced.ClickGLTFUpload");
+    view_listener_t::addMenu(new LLAdvancedClickResizeWindow(), "Advanced.ClickResizeWindow");
 	view_listener_t::addMenu(new LLAdvancedPurgeShaderCache(), "Advanced.ClearShaderCache");
     view_listener_t::addMenu(new LLAdvancedRebuildTerrain(), "Advanced.RebuildTerrain");
 
@@ -10032,6 +10067,7 @@ void initialize_menus()
 	commit.add("Pathfinding.Characters.Select", boost::bind(&LLFloaterPathfindingCharacters::openCharactersWithSelectedObjects));
 	enable.add("EnableSelectInPathfindingCharacters", boost::bind(&enable_object_select_in_pathfinding_characters));
     enable.add("Advanced.EnableErrorOSException", boost::bind(&enable_os_exception));
+    enable.add("EnableGLTF", boost::bind(&enable_gltf));
 
 	view_listener_t::addMenu(new LLFloaterVisible(), "FloaterVisible");
 	view_listener_t::addMenu(new LLShowSidetrayPanel(), "ShowSidetrayPanel");

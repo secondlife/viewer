@@ -117,6 +117,16 @@ public:
 		mQ = q;
 	}
 
+    bool operator==(const LLVector4a& rhs) const
+    {
+        return equals4(rhs);
+    }
+
+    bool operator!=(const LLVector4a& rhs) const
+    {
+        return !(*this == rhs);
+    }
+
 	////////////////////////////////////
 	// LOAD/STORE
 	////////////////////////////////////

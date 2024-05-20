@@ -273,6 +273,7 @@ public:
     F32 mAlphaCutoff;
 
     AlphaMode mAlphaMode;
+    
     bool mDoubleSided = false;
 
     // Override specific flags for state that can't use off-by-epsilon or UUID

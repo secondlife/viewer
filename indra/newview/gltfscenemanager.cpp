@@ -39,7 +39,14 @@
 #include "gltf/asset.h"
 #include "pipeline.h"
 #include "llviewershadermgr.h"
+#include "llviewertexturelist.h"
+#include "llimagej2c.h"
+#include "llfloaterperms.h"
+#include "llagentbenefits.h"
+#include "llfilesystem.h"
+#include "boost/json.hpp"
 
+#define GLTF_SIM_SUPPORT 1
 
 using namespace LL;
 
@@ -126,6 +133,170 @@ void GLTFSceneManager::decomposeSelection()
     }
 }
 
+void GLTFSceneManager::uploadSelection()
+{
+    if (mUploadingAsset)
+    { // upload already in progress
+        LLNotificationsUtil::add("GLTFUploadInProgress");
+        return;
+    }
+
+    LLViewerObject* obj = LLSelectMgr::instance().getSelection()->getFirstRootObject();
+    if (obj && obj->mGLTFAsset)
+    {
+        // make a copy of the asset prior to uploading
+        mUploadingAsset = std::make_shared<Asset>();
+        mUploadingObject = obj;
+        *mUploadingAsset = *obj->mGLTFAsset;
+
+        GLTF::Asset& asset = *mUploadingAsset;
+
+        for (auto& image : asset.mImages)
+        {
+            if (!image.mData.empty())
+            {
+                mPendingImageUploads++;
+
+                LLPointer<LLImageRaw> raw = new LLImageRaw(image.mWidth, image.mHeight, image.mComponent);
+                U8* data = raw->allocateData();
+                llassert_always(image.mData.size() == raw->getDataSize());
+                memcpy(data, image.mData.data(), image.mData.size());
+
+                // for GLTF native content, store image in GLTF orientation
+                raw->verticalFlip();
+
+                LLPointer<LLImageJ2C> j2c = LLViewerTextureList::convertToUploadFile(raw);
+
+                std::string buffer;
+                buffer.assign((const char*)j2c->getData(), j2c->getDataSize());
+
+                LLUUID asset_id = LLUUID::generateNewID();
+
+                std::string name;
+                S32 idx = (S32)(&image - &asset.mImages[0]);
+
+                if (image.mName.empty())
+                {
+
+                    name = llformat("Image_%d", idx);
+                }
+                else
+                {
+                    name = image.mName;
+                }
+
+                LLNewBufferedResourceUploadInfo::uploadFailure_f failure = [this](LLUUID assetId, LLSD response, std::string reason)
+                    {
+                        // TODO: handle failure
+                        mPendingImageUploads--;
+                        return false;
+                    };
+
+                
+                LLNewBufferedResourceUploadInfo::uploadFinish_f finish = [this, idx, raw, j2c](LLUUID assetId, LLSD response)
+                    {
+                        if (mUploadingAsset && mUploadingAsset->mImages.size() > idx)
+                        {
+                            mUploadingAsset->mImages[idx].mUri = assetId.asString();
+                            mPendingImageUploads--;
+                        }
+                    };
+
+                S32 expected_upload_cost = LLAgentBenefitsMgr::current().getTextureUploadCost(j2c);
+
+                LLResourceUploadInfo::ptr_t uploadInfo(std::make_shared<LLNewBufferedResourceUploadInfo>(
+                    buffer,
+                    asset_id,
+                    name,
+                    name,
+                    0,
+                    LLFolderType::FT_TEXTURE,
+                    LLInventoryType::IT_TEXTURE,
+                    LLAssetType::AT_TEXTURE,
+                    LLFloaterPerms::getNextOwnerPerms("Uploads"),
+                    LLFloaterPerms::getGroupPerms("Uploads"),
+                    LLFloaterPerms::getEveryonePerms("Uploads"),
+                    expected_upload_cost,
+                    false,
+                    finish,
+                    failure));
+
+                upload_new_resource(uploadInfo);
+
+                image.clearData(asset);
+            }
+        }
+
+        // upload .bin
+        for (auto& bin : asset.mBuffers)
+        {
+            mPendingBinaryUploads++;
+
+            S32 idx = (S32)(&bin - &asset.mBuffers[0]);
+
+            std::string buffer;
+            buffer.assign((const char*)bin.mData.data(), bin.mData.size());
+
+            LLUUID asset_id = LLUUID::generateNewID();
+
+            LLNewBufferedResourceUploadInfo::uploadFailure_f failure = [this](LLUUID assetId, LLSD response, std::string reason)
+                {
+                    // TODO: handle failure
+                    mPendingBinaryUploads--;
+                    mUploadingAsset = nullptr;
+                    mUploadingObject = nullptr;
+                    LL_WARNS("GLTF") << "Failed to upload GLTF binary: " << reason << LL_ENDL;
+                    LL_WARNS("GLTF") << response << LL_ENDL;
+                    return false;
+                };
+
+            LLNewBufferedResourceUploadInfo::uploadFinish_f finish = [this, idx](LLUUID assetId, LLSD response)
+                {
+                    if (mUploadingAsset && mUploadingAsset->mBuffers.size() > idx)
+                    {
+                        mUploadingAsset->mBuffers[idx].mUri = assetId.asString();
+                        mPendingBinaryUploads--;
+
+                        // HACK: save buffer to cache to emulate a successful download
+                        LLFileSystem cache(assetId, LLAssetType::AT_GLTF_BIN, LLFileSystem::WRITE);
+                        auto& data = mUploadingAsset->mBuffers[idx].mData;
+
+                        cache.write((const U8*)data.data(), data.size());
+                    }
+                };
+#if GLTF_SIM_SUPPORT
+            S32 expected_upload_cost = 1;
+
+            LLResourceUploadInfo::ptr_t uploadInfo(std::make_shared<LLNewBufferedResourceUploadInfo>(
+                buffer,
+                asset_id,
+                "",
+                "",
+                0,
+                LLFolderType::FT_NONE,
+                LLInventoryType::IT_GLTF_BIN,
+                LLAssetType::AT_GLTF_BIN, 
+                LLFloaterPerms::getNextOwnerPerms("Uploads"),
+                LLFloaterPerms::getGroupPerms("Uploads"),
+                LLFloaterPerms::getEveryonePerms("Uploads"),
+                expected_upload_cost,
+                false,
+                finish,
+                failure));
+
+            upload_new_resource(uploadInfo);
+#else
+            // dummy finish
+            finish(LLUUID::generateNewID(), LLSD());
+#endif
+        }
+    }
+    else
+    {
+        LLNotificationsUtil::add("GLTFUploadSelection");
+    }
+}
+
 void GLTFSceneManager::decomposeSelection(const std::string& filename)
 {
     LLViewerObject* obj = LLSelectMgr::instance().getSelection()->getFirstRootObject();
@@ -176,7 +347,7 @@ void GLTFSceneManager::load(const std::string& filename)
     if (obj)
     { // assign to self avatar
         obj->mGLTFAsset = asset;
-
+        obj->markForUpdate();
         if (std::find(mObjects.begin(), mObjects.end(), obj) == mObjects.end())
         {
             mObjects.push_back(obj);
@@ -199,6 +370,109 @@ void GLTFSceneManager::renderAlpha()
     render(false);
 }
 
+void GLTFSceneManager::addGLTFObject(LLViewerObject* obj, LLUUID gltf_id)
+{
+    llassert(obj->getVolume()->getParams().getSculptID() == gltf_id);
+    llassert(obj->getVolume()->getParams().getSculptType() == LL_SCULPT_TYPE_GLTF);
+
+    obj->ref();
+    gAssetStorage->getAssetData(gltf_id, LLAssetType::AT_GLTF, onGLTFLoadComplete, obj);
+}
+
+//static
+void GLTFSceneManager::onGLTFBinLoadComplete(const LLUUID& id, LLAssetType::EType asset_type, void* user_data, S32 status, LLExtStat ext_status)
+{
+    LLViewerObject* obj = (LLViewerObject*)user_data;
+    llassert(asset_type == LLAssetType::AT_GLTF_BIN);
+
+    if (status == LL_ERR_NOERR)
+    {
+        if (obj)
+        {
+            // find the Buffer with the given id in the asset
+            if (obj->mGLTFAsset)
+            {
+                for (auto& buffer : obj->mGLTFAsset->mBuffers)
+                {
+                    LLUUID buffer_id;
+                    if (LLUUID::parseUUID(buffer.mUri, &buffer_id) && buffer_id == id)
+                    {
+                        LLFileSystem file(id, asset_type, LLFileSystem::READ);
+
+                        buffer.mData.resize(file.getSize());
+                        file.read((U8*)buffer.mData.data(), buffer.mData.size());
+
+                        obj->mGLTFAsset->mPendingBuffers--;
+
+                        if (obj->mGLTFAsset->mPendingBuffers == 0)
+                        {
+                            obj->mGLTFAsset->allocateGLResources();
+                            GLTFSceneManager& mgr = GLTFSceneManager::instance();
+                            if (std::find(mgr.mObjects.begin(), mgr.mObjects.end(), obj) == mgr.mObjects.end())
+                            {
+                                GLTFSceneManager::instance().mObjects.push_back(obj);
+                            }
+                        }
+                    }
+                }   
+            }
+            
+            
+        }
+    }
+    else
+    {
+        LL_WARNS("GLTF") << "Failed to load GLTF asset: " << id << LL_ENDL;
+        obj->unref();
+    }
+}
+
+//static
+void GLTFSceneManager::onGLTFLoadComplete(const LLUUID& id, LLAssetType::EType asset_type, void* user_data, S32 status, LLExtStat ext_status)
+{
+    LLViewerObject* obj = (LLViewerObject*)user_data;
+    llassert(asset_type == LLAssetType::AT_GLTF);
+
+    if (status == LL_ERR_NOERR)
+    {
+        if (obj)
+        {
+            LLFileSystem file(id, asset_type, LLFileSystem::READ);
+            std::string data;
+            data.resize(file.getSize());
+            file.read((U8*)data.data(), data.size());
+
+            boost::json::value json = boost::json::parse(data);
+
+            std::shared_ptr<Asset> asset = std::make_shared<Asset>(json);
+            obj->mGLTFAsset = asset;
+
+            for (auto& buffer : asset->mBuffers)
+            {
+                // for now just assume the buffer is already in the asset cache
+                LLUUID buffer_id;
+                if (LLUUID::parseUUID(buffer.mUri, &buffer_id))
+                {
+                    asset->mPendingBuffers++;
+
+                    gAssetStorage->getAssetData(buffer_id, LLAssetType::AT_GLTF_BIN, onGLTFBinLoadComplete, obj);
+                }
+                else
+                {
+                    LL_WARNS("GLTF") << "Buffer URI is not a valid UUID: " << buffer.mUri << LL_ENDL;
+                    obj->unref();
+                    return;
+                }
+            }
+        }
+    }
+    else
+    {
+        LL_WARNS("GLTF") << "Failed to load GLTF asset: " << id << LL_ENDL;
+        obj->unref();
+    }
+}
+
 void GLTFSceneManager::update()
 {
     for (U32 i = 0; i < mObjects.size(); ++i)
@@ -212,6 +486,107 @@ void GLTFSceneManager::update()
 
         mObjects[i]->mGLTFAsset->update();
     }
+
+    // process pending uploads
+    if (mUploadingAsset && !mGLTFUploadPending)
+    {
+        if (mPendingImageUploads == 0 && mPendingBinaryUploads == 0)
+        {
+            std::string filename(gDirUtilp->getTempDir() + "/upload.gltf");
+#if 0
+            tinygltf::Model model;
+            mUploadingAsset->save(model);
+
+            tinygltf::TinyGLTF writer;
+            
+            writer.WriteGltfSceneToFile(&model, filename, false, false, true, false);
+#else
+            boost::json::object obj;
+            mUploadingAsset->serialize(obj);
+            std::string json = boost::json::serialize(obj, {});
+
+            {
+                std::ofstream o(filename);
+                o << json;
+            }
+#endif
+
+            std::ifstream t(filename);
+            std::stringstream str;
+            str << t.rdbuf();
+
+            std::string buffer = str.str();
+
+            LLNewBufferedResourceUploadInfo::uploadFailure_f failure = [this](LLUUID assetId, LLSD response, std::string reason)
+                {
+                    // TODO: handle failure
+                    LL_WARNS("GLTF") << "Failed to upload GLTF json: " << reason << LL_ENDL;
+                    LL_WARNS("GLTF") << response << LL_ENDL;
+
+                    mUploadingAsset = nullptr;
+                    mUploadingObject = nullptr;
+                    mGLTFUploadPending = false;
+                    return false;
+                };
+
+            LLNewBufferedResourceUploadInfo::uploadFinish_f finish = [this, buffer](LLUUID assetId, LLSD response)
+            {
+                LLAppViewer::instance()->postToMainCoro(
+                    [=]()
+                    {
+                        if (mUploadingAsset)
+                        {
+                            // HACK: save buffer to cache to emulate a successful upload
+                            LLFileSystem cache(assetId, LLAssetType::AT_GLTF, LLFileSystem::WRITE);
+
+                            LL_INFOS("GLTF") << "Uploaded GLTF json: " << assetId << LL_ENDL;
+                            cache.write((const U8 *) buffer.c_str(), buffer.size());
+
+                            mUploadingAsset = nullptr;
+                        }
+
+                        if (mUploadingObject)
+                        {
+                            mUploadingObject->mGLTFAsset = nullptr;
+                            mUploadingObject->setGLTFAsset(assetId);
+                            mUploadingObject->markForUpdate();
+                            mUploadingObject = nullptr;
+                        }
+
+                        mGLTFUploadPending = false;
+                    });
+            };
+
+#if GLTF_SIM_SUPPORT
+            S32 expected_upload_cost = 1;
+            LLUUID asset_id = LLUUID::generateNewID();
+
+            mGLTFUploadPending = true;
+
+            LLResourceUploadInfo::ptr_t uploadInfo(std::make_shared<LLNewBufferedResourceUploadInfo>(
+                buffer,
+                asset_id,
+                "",
+                "",
+                0,
+                LLFolderType::FT_NONE,
+                LLInventoryType::IT_GLTF,
+                LLAssetType::AT_GLTF,
+                LLFloaterPerms::getNextOwnerPerms("Uploads"),
+                LLFloaterPerms::getGroupPerms("Uploads"),
+                LLFloaterPerms::getEveryonePerms("Uploads"),
+                expected_upload_cost,
+                false,
+                finish,
+                failure));
+
+            upload_new_resource(uploadInfo);
+#else
+            // dummy finish
+            finish(LLUUID::generateNewID(), LLSD());
+#endif
+        }
+    }
 }
 
 void GLTFSceneManager::render(bool opaque, bool rigged)
@@ -219,7 +594,7 @@ void GLTFSceneManager::render(bool opaque, bool rigged)
     // for debugging, just render the whole scene as opaque
     // by traversing the whole scenegraph
     // Assumes camera transform is already set and 
-    // appropriate shader is already bound
+    // appropriate shader is already boundd
     
     gGL.matrixMode(LLRender::MM_MODELVIEW);
 
@@ -243,7 +618,8 @@ void GLTFSceneManager::render(bool opaque, bool rigged)
 
         matMul(mat, modelview, modelview);
 
-        asset->updateRenderTransforms(modelview);
+        mat4 mdv = glm::make_mat4(modelview.getF32ptr());
+        asset->updateRenderTransforms(mdv);
         asset->render(opaque, rigged);
 
         gGL.popMatrix();
@@ -411,20 +787,24 @@ void renderAssetDebug(LLViewerObject* obj, Asset* asset)
     // get raycast in asset space
     LLMatrix4a agent_to_asset = obj->getAgentToGLTFAssetTransform();
 
-    LLVector4a start;
-    LLVector4a end;
+    vec4 start;
+    vec4 end;
 
-    agent_to_asset.affineTransform(gDebugRaycastStart, start);
-    agent_to_asset.affineTransform(gDebugRaycastEnd, end);
+    LLVector4a t;
+    agent_to_asset.affineTransform(gDebugRaycastStart, t);
+    start = glm::make_vec4(t.getF32ptr());
+    agent_to_asset.affineTransform(gDebugRaycastEnd, t);
+    end = glm::make_vec4(t.getF32ptr());
 
-    
+    start.w = end.w = 1.0;
+
     for (auto& node : asset->mNodes)
     {
         Mesh& mesh = asset->mMeshes[node.mMesh];
 
         if (node.mMesh != INVALID_INDEX)
         {
-            gGL.loadMatrix((F32*)node.mRenderMatrix.mMatrix);
+            gGL.loadMatrix((F32*)glm::value_ptr(node.mRenderMatrix));
             
             // draw bounding box of mesh primitives
             if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_BBOXES))
@@ -442,24 +822,24 @@ void renderAssetDebug(LLViewerObject* obj, Asset* asset)
                 }
             }
 
-#if 0
+#if 1
             if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_RAYCAST))
             {
                 gGL.flush();
                 glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
                 // convert raycast to node local space
-                LLVector4a local_start;
-                LLVector4a local_end;
-
-                node.mAssetMatrixInv.affineTransform(start, local_start);
-                node.mAssetMatrixInv.affineTransform(end, local_end);
+                vec4 local_start = node.mAssetMatrixInv * start;
+                vec4 local_end = node.mAssetMatrixInv * end;
 
                 for (auto& primitive : mesh.mPrimitives)
                 {
                     if (primitive.mOctree.notNull())
                     {
-                        renderOctreeRaycast(local_start, local_end, primitive.mOctree);
+                        LLVector4a s, e;
+                        s.load3(glm::value_ptr(local_start));
+                        e.load3(glm::value_ptr(local_end));
+                        renderOctreeRaycast(s, e, primitive.mOctree);
                     }
                 }
 
@@ -499,18 +879,18 @@ void GLTFSceneManager::renderDebug()
             continue;
         }
 
-        LLMatrix4a mat = obj->getGLTFAssetToAgentTransform();
+        mat4 mat = glm::make_mat4(obj->getGLTFAssetToAgentTransform().getF32ptr());
 
-        LLMatrix4a modelview;
-        modelview.loadu(gGLModelView);
+        mat4 modelview = glm::make_mat4(gGLModelView);
+        
 
-        matMul(mat, modelview, modelview);
-
+        modelview = modelview * mat;
+        
         Asset* asset = obj->mGLTFAsset.get();
 
         for (auto& node : asset->mNodes)
         {
-            matMul(node.mAssetMatrix, modelview, node.mRenderMatrix);
+            node.mRenderMatrix = modelview * node.mAssetMatrix;
         }
     }
 
@@ -522,13 +902,6 @@ void GLTFSceneManager::renderDebug()
         }
 
         Asset* asset = obj->mGLTFAsset.get();
-
-        LLMatrix4a mat = obj->getGLTFAssetToAgentTransform();
-
-        LLMatrix4a modelview;
-        modelview.loadu(gGLModelView);
-
-        matMul(mat, modelview, modelview);
 
         renderAssetDebug(obj, asset);
     }
@@ -551,21 +924,20 @@ void GLTFSceneManager::renderDebug()
                     continue;
                 }
 
-                LLMatrix4a mat = obj->getGLTFAssetToAgentTransform();
+                mat4 mat = glm::make_mat4(obj->getGLTFAssetToAgentTransform().getF32ptr());
 
-                LLMatrix4a modelview;
-                modelview.loadu(gGLModelView);
+                mat4 modelview = glm::make_mat4(gGLModelView);
 
-                matMul(mat, modelview, modelview);
+                modelview = modelview * mat;
 
                 Asset* asset = obj->mGLTFAsset.get();
 
                 for (auto& node : asset->mNodes)
                 {
                     // force update all mRenderMatrix, not just nodes with meshes
-                    matMul(node.mAssetMatrix, modelview, node.mRenderMatrix);
+                    node.mRenderMatrix = modelview * node.mAssetMatrix;
 
-                    gGL.loadMatrix(node.mRenderMatrix.getF32ptr());
+                    gGL.loadMatrix(glm::value_ptr(node.mRenderMatrix));
                     // render x-axis red, y-axis green, z-axis blue
                     gGL.color4f(1.f, 0.f, 0.f, 0.5f);
                     gGL.begin(LLRender::LINES);
@@ -595,7 +967,9 @@ void GLTFSceneManager::renderDebug()
                     {
                         Node& child = asset->mNodes[child_idx];
                         gGL.vertex3f(0.f, 0.f, 0.f);
-                        gGL.vertex3fv(child.mMatrix.getTranslation().getF32ptr());
+
+                        
+                        gGL.vertex3fv(glm::value_ptr(child.mMatrix[3]));
                     }
                     gGL.end();
                     gGL.flush();
@@ -628,9 +1002,8 @@ void GLTFSceneManager::renderDebug()
             gGL.color3f(1, 0, 1);
             drawBoxOutline(intersection, LLVector4a(0.1f, 0.1f, 0.1f, 0.f));
 
-            gGL.loadMatrix((F32*) node->mRenderMatrix.mMatrix);
+            gGL.loadMatrix(glm::value_ptr(node->mRenderMatrix));
 
-            
 
             auto* listener = (LLVolumeOctreeListener*) primitive->mOctree->getListener(0);
             drawBoxOutline(listener->mBounds[0], listener->mBounds[1]);
@@ -642,4 +1015,6 @@ void GLTFSceneManager::renderDebug()
     }
     gDebugProgram.unbind();
 }
+
+
 

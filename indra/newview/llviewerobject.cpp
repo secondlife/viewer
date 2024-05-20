@@ -4303,7 +4303,9 @@ LLMatrix4a LLViewerObject::getGLTFNodeTransformAgent(S32 node_index) const
 
         LLMatrix4a asset_to_agent = getGLTFAssetToAgentTransform();
         LLMatrix4a node_to_agent;
-        matMul(node.mAssetMatrix, asset_to_agent, node_to_agent);
+        LLMatrix4a am;
+        am.loadu(glm::value_ptr(node.mAssetMatrix));
+        matMul(am, asset_to_agent, node_to_agent);
 
         mat = node_to_agent;
     }
@@ -4314,6 +4316,7 @@ LLMatrix4a LLViewerObject::getGLTFNodeTransformAgent(S32 node_index) const
 
     return mat;
 }
+
 void LLViewerObject::getGLTFNodeTransformAgent(S32 node_index, LLVector3* position, LLQuaternion* rotation, LLVector3* scale) const
 {
     LLMatrix4a node_to_agent = getGLTFNodeTransformAgent(node_index);
@@ -4361,7 +4364,9 @@ void LLViewerObject::setGLTFNodeRotationAgent(S32 node_index, const LLQuaternion
         if (node.mParent != -1)
         {
             auto& parent = mGLTFAsset->mNodes[node.mParent];
-            matMul(agent_to_asset, parent.mAssetMatrixInv, agent_to_node);
+            LLMatrix4a ami;
+            ami.loadu(glm::value_ptr(parent.mAssetMatrixInv));
+            matMul(agent_to_asset, ami, agent_to_node);
         }
 
         LLQuaternion agent_to_node_rot(agent_to_node.asMatrix4());
@@ -4373,9 +4378,13 @@ void LLViewerObject::setGLTFNodeRotationAgent(S32 node_index, const LLQuaternion
         LLVector3 pos;
         LLQuaternion rot;
         LLVector3 scale;
-        decomposeMatrix(node.mMatrix, pos, rot, scale);
+        LLMatrix4a mat;
+        mat.loadu(glm::value_ptr(node.mMatrix));
+        decomposeMatrix(mat, pos, rot, scale);
 
-        node.mMatrix.asMatrix4().initAll(scale, new_rot, pos);
+        mat.asMatrix4().initAll(scale, new_rot, pos);
+
+        node.mMatrix = glm::make_mat4(mat.getF32ptr());
 
         mGLTFAsset->updateTransforms();
     }
@@ -4389,7 +4398,9 @@ void LLViewerObject::moveGLTFNode(S32 node_index, const LLVector3& offset)
 
         LLMatrix4a agent_to_asset = getAgentToGLTFAssetTransform();
         LLMatrix4a agent_to_node;
-        matMul(agent_to_asset, node.mAssetMatrixInv, agent_to_node);
+        LLMatrix4a ami;
+        ami.loadu(glm::value_ptr(node.mAssetMatrixInv));
+        matMul(agent_to_asset, ami, agent_to_node);
 
         LLVector4a origin = LLVector4a::getZero();
         LLVector4a offset_v;
@@ -4406,7 +4417,12 @@ void LLViewerObject::moveGLTFNode(S32 node_index, const LLVector3& offset)
         trans.setIdentity();
         trans.mMatrix[3] = offset_v;
 
-        matMul(trans, node.mMatrix, node.mMatrix);
+        LLMatrix4a mat;
+        mat.loadu(glm::value_ptr(node.mMatrix));
+
+        matMul(trans, mat, mat);
+
+        node.mMatrix = glm::make_mat4(mat.getF32ptr());
 
         // TODO -- only update transforms for this node and its children (or use a dirty flag)
         mGLTFAsset->updateTransforms();
@@ -7496,6 +7512,23 @@ void LLViewerObject::shrinkWrap()
         }
     }
 }
+
+void LLViewerObject::setGLTFAsset(const LLUUID& id)
+{
+    //get the sculpt params and set the sculpt type and id
+    auto* param = getExtraParameterEntryCreate(LLNetworkData::PARAMS_SCULPT);
+
+    LLSculptParams* sculpt_params = (LLSculptParams*)param->data;
+    sculpt_params->setSculptTexture(id, LL_SCULPT_TYPE_GLTF);
+    
+    setParameterEntryInUse(LLNetworkData::PARAMS_SCULPT, true, true);
+    
+    // Update the volume
+    LLVolumeParams volume_params;
+    volume_params.setSculptID(id, LL_SCULPT_TYPE_GLTF);
+    updateVolume(volume_params);
+}
+
 
 class ObjectPhysicsProperties : public LLHTTPNode
 {

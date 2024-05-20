@@ -31,13 +31,51 @@
 #include "../llviewershadermgr.h"
 #include "../llviewercontrol.h"
 #include "../llviewertexturelist.h"
+#include "../pipeline.h"
+#include "buffer_util.h"
 
 using namespace LL::GLTF;
+using namespace boost::json;
 
 namespace LL
 {
     namespace GLTF
     {
+        Material::AlphaMode gltf_alpha_mode_to_enum(const std::string& alpha_mode)
+        {
+            if (alpha_mode == "OPAQUE")
+            {
+                return Material::AlphaMode::OPAQUE;
+            }
+            else if (alpha_mode == "MASK")
+            {
+                return Material::AlphaMode::MASK;
+            }
+            else if (alpha_mode == "BLEND")
+            {
+                return Material::AlphaMode::BLEND;
+            }
+            else
+            {
+                return Material::AlphaMode::OPAQUE;
+            }
+        }
+
+        std::string enum_to_gltf_alpha_mode(Material::AlphaMode alpha_mode)
+        {
+            switch (alpha_mode)
+            {
+            case Material::AlphaMode::OPAQUE:
+                return "OPAQUE";
+            case Material::AlphaMode::MASK:
+                return "MASK";
+            case Material::AlphaMode::BLEND:
+                return "BLEND";
+            default:
+                return "OPAQUE";
+            }
+        }
+
         template <typename T, typename U>
         void copy(const std::vector<T>& src, std::vector<U>& dst)
         {
@@ -45,49 +83,48 @@ namespace LL
             for (U32 i = 0; i < src.size(); ++i)
             {
                 copy(src[i], dst[i]);
-            }
+            }   
         }
 
         void copy(const Node& src, tinygltf::Node& dst)
         {
             if (src.mMatrixValid)
             {
-                if (!src.mMatrix.asMatrix4().isIdentity())
+                if (src.mMatrix != glm::identity<mat4>())
                 {
                     dst.matrix.resize(16);
+                    const F32* m = glm::value_ptr(src.mMatrix);
                     for (U32 i = 0; i < 16; ++i)
                     {
-                        dst.matrix[i] = src.mMatrix.getF32ptr()[i];
+                        dst.matrix[i] = m[i];
                     }
                 }
             }
             else if (src.mTRSValid)
             {
-                if (!src.mRotation.equals(glh::quaternionf::identity(), FLT_EPSILON))
+                if (src.mRotation != glm::identity<quat>())
                 {
                     dst.rotation.resize(4);
-                    for (U32 i = 0; i < 4; ++i)
-                    {
-                        dst.rotation[i] = src.mRotation.get_value()[i];
-                    }
-                }   
-                
-                if (src.mTranslation != glh::vec3f(0.f, 0.f, 0.f))
-                {
-                    dst.translation.resize(3);
-                    for (U32 i = 0; i < 3; ++i)
-                    {
-                        dst.translation[i] = src.mTranslation.v[i];
-                    }
+                    dst.rotation[0] = src.mRotation.x;
+                    dst.rotation[1] = src.mRotation.y;
+                    dst.rotation[2] = src.mRotation.z;
+                    dst.rotation[3] = src.mRotation.w;
                 }
                 
-                if (src.mScale != glh::vec3f(1.f, 1.f, 1.f))
+                if (src.mTranslation != vec3(0.f, 0.f, 0.f))
+                {
+                    dst.translation.resize(3);
+                    dst.translation[0] = src.mTranslation.x;
+                    dst.translation[1] = src.mTranslation.y;
+                    dst.translation[2] = src.mTranslation.z;
+                }
+                
+                if (src.mScale != vec3(1.f, 1.f, 1.f))
                 {
                     dst.scale.resize(3);
-                    for (U32 i = 0; i < 3; ++i)
-                    {
-                        dst.scale[i] = src.mScale.v[i];
-                    }
+                    dst.scale[0] = src.mScale.x;
+                    dst.scale[1] = src.mScale.y;
+                    dst.scale[2] = src.mScale.z;
                 }
             }
 
@@ -143,7 +180,7 @@ namespace LL
 
         void copy(const Material::PbrMetallicRoughness& src, tinygltf::PbrMetallicRoughness& dst)
         {
-            dst.baseColorFactor = { src.mBaseColorFactor.v[0], src.mBaseColorFactor.v[1], src.mBaseColorFactor.v[2], src.mBaseColorFactor.v[3] };
+            dst.baseColorFactor = { src.mBaseColorFactor.r, src.mBaseColorFactor.g, src.mBaseColorFactor.b, src.mBaseColorFactor.a };
             copy(src.mBaseColorTexture, dst.baseColorTexture);
             dst.metallicFactor = src.mMetallicFactor;
             dst.roughnessFactor = src.mRoughnessFactor;
@@ -154,7 +191,7 @@ namespace LL
         {
             material.name = src.mName;
 
-            material.emissiveFactor = { src.mEmissiveFactor.v[0], src.mEmissiveFactor.v[1], src.mEmissiveFactor.v[2] };
+            material.emissiveFactor = { src.mEmissiveFactor.r, src.mEmissiveFactor.g, src.mEmissiveFactor.b };
             copy(src.mPbrMetallicRoughness, material.pbrMetallicRoughness);
             copy(src.mNormalTexture, material.normalTexture);
             copy(src.mEmissiveTexture, material.emissiveTexture);
@@ -193,7 +230,7 @@ namespace LL
             accessor.maxValues = src.mMax;
             
             accessor.count = src.mCount;
-            accessor.type = src.mType;
+            accessor.type = (S32) src.mType;
             accessor.normalized = src.mNormalized;
             accessor.name = src.mName;
         }
@@ -278,7 +315,8 @@ namespace LL
             dst.asset.version = src.mVersion;
             dst.asset.minVersion = src.mMinVersion;
             dst.asset.generator = "Linden Lab Experimental GLTF Export";
-            dst.asset.extras = src.mExtras;
+
+            // NOTE: extras are lost in the conversion for now
 
             copy(src.mScenes, dst.scenes);
             copy(src.mNodes, dst.nodes);
@@ -297,8 +335,8 @@ namespace LL
 }
 void Scene::updateTransforms(Asset& asset)
 {
-    LLMatrix4a identity;
-    identity.setIdentity();
+    mat4 identity = glm::identity<mat4>();
+    
     for (auto& nodeIndex : mNodes)
     {
         Node& node = asset.mNodes[nodeIndex];
@@ -306,7 +344,7 @@ void Scene::updateTransforms(Asset& asset)
     }
 }
 
-void Scene::updateRenderTransforms(Asset& asset, const LLMatrix4a& modelview)
+void Scene::updateRenderTransforms(Asset& asset, const mat4& modelview)
 {
     for (auto& nodeIndex : mNodes)
     {
@@ -315,9 +353,9 @@ void Scene::updateRenderTransforms(Asset& asset, const LLMatrix4a& modelview)
     }
 }
 
-void Node::updateRenderTransforms(Asset& asset, const LLMatrix4a& modelview)
+void Node::updateRenderTransforms(Asset& asset, const mat4& modelview)
 {
-    matMul(mMatrix, modelview, mRenderMatrix);
+    mRenderMatrix = modelview * mMatrix;
 
     for (auto& childIndex : mChildren)
     {
@@ -326,13 +364,12 @@ void Node::updateRenderTransforms(Asset& asset, const LLMatrix4a& modelview)
     }
 }
 
-LLMatrix4a inverse(const LLMatrix4a& mat);
-
-void Node::updateTransforms(Asset& asset, const LLMatrix4a& parentMatrix)
+void Node::updateTransforms(Asset& asset, const mat4& parentMatrix)
 {
     makeMatrixValid();
-    matMul(mMatrix, parentMatrix, mAssetMatrix);
-    mAssetMatrixInv = inverse(mAssetMatrix);
+    mAssetMatrix = parentMatrix * mMatrix;
+    
+    mAssetMatrixInv = glm::inverse(mAssetMatrix);
     
     S32 my_index = this - &asset.mNodes[0];
 
@@ -352,26 +389,13 @@ void Asset::updateTransforms()
     }
 }
 
-void Asset::updateRenderTransforms(const LLMatrix4a& modelview)
+void Asset::updateRenderTransforms(const mat4& modelview)
 {
-#if 0
-    // traverse hierarchy and update render transforms from scratch
-    for (auto& scene : mScenes)
-    {
-        scene.updateRenderTransforms(*this, modelview);
-    }
-#else
     // use mAssetMatrix to update render transforms from node list
     for (auto& node : mNodes)
     {
-        //if (node.mMesh != INVALID_INDEX)
-        {
-            matMul(node.mAssetMatrix, modelview, node.mRenderMatrix);
-        }
+        node.mRenderMatrix = modelview * node.mAssetMatrix;
     }
-
-#endif
-
 }
 
 S32 Asset::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
@@ -398,9 +422,11 @@ S32 Asset::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
             
             bool newHit = false;
 
+            LLMatrix4a ami;
+            ami.loadu(glm::value_ptr(node.mAssetMatrixInv));
             // transform start and end to this node's local space
-            node.mAssetMatrixInv.affineTransform(start, local_start);
-            node.mAssetMatrixInv.affineTransform(asset_end, local_end);
+            ami.affineTransform(start, local_start);
+            ami.affineTransform(asset_end, local_end);
 
             Mesh& mesh = mMeshes[node.mMesh];
             for (auto& primitive : mesh.mPrimitives)
@@ -423,8 +449,10 @@ S32 Asset::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
 
             if (newHit)
             {
+                LLMatrix4a am;
+                am.loadu(glm::value_ptr(node.mAssetMatrix));
                 // shorten line segment on hit
-                node.mAssetMatrix.affineTransform(p, asset_end); 
+                am.affineTransform(p, asset_end); 
 
                 // transform results back to asset space
                 if (intersection)
@@ -434,12 +462,10 @@ S32 Asset::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
 
                 if (normal || tangent)
                 {
-                    LLMatrix4 normalMatrix(node.mAssetMatrixInv.getF32ptr());
-
-                    normalMatrix.transpose();
+                    mat4 normalMatrix = glm::transpose(node.mAssetMatrixInv);
 
                     LLMatrix4a norm_mat;
-                    norm_mat.loadu((F32*)normalMatrix.mMatrix);
+                    norm_mat.loadu(glm::value_ptr(normalMatrix));
 
                     if (normal)
                     {
@@ -481,22 +507,7 @@ void Node::makeMatrixValid()
 {
     if (!mMatrixValid && mTRSValid)
     {
-        glh::matrix4f rot;
-        mRotation.get_value(rot);
-
-        glh::matrix4f trans;
-        trans.set_translate(mTranslation);
-
-        glh::matrix4f sc;
-        sc.set_scale(mScale);
-
-        glh::matrix4f t;
-        //t = sc * rot * trans; 
-        //t = trans * rot * sc; // best so far, still wrong on negative scale
-        //t = sc * trans * rot;
-        t = trans * sc * rot;
-
-        mMatrix.loadu(t.m);
+        mMatrix = glm::recompose(mScale, mRotation, mTranslation, vec3(0,0,0), vec4(0,0,0,1));
         mMatrixValid = true;
     }
 
@@ -507,43 +518,72 @@ void Node::makeTRSValid()
 {
     if (!mTRSValid && mMatrixValid)
     {
-        glh::matrix4f t(mMatrix.getF32ptr());
-
-        glh::vec4f p = t.get_column(3);
-        mTranslation.set_value(p.v[0], p.v[1], p.v[2]);
-
-        mScale.set_value(t.get_column(0).length(), t.get_column(1).length(), t.get_column(2).length());
-        mRotation.set_value(t);
+        vec3 skew;
+        vec4 perspective;
+        glm::decompose(mMatrix, mScale, mRotation, mTranslation, skew, perspective);
+        
         mTRSValid = true;
     }
 
     llassert(mTRSValid);
 }
 
-void Node::setRotation(const glh::quaternionf& q)
+void Node::setRotation(const quat& q)
 {
     makeTRSValid();
     mRotation = q;
     mMatrixValid = false;
 }
 
-void Node::setTranslation(const glh::vec3f& t)
+void Node::setTranslation(const vec3& t)
 {
     makeTRSValid();
     mTranslation = t;
     mMatrixValid = false;
 }
 
-void Node::setScale(const glh::vec3f& s)
+void Node::setScale(const vec3& s)
 {
     makeTRSValid();
     mScale = s;
     mMatrixValid = false;
 }
 
+void Node::serialize(object& dst) const
+{
+    write(mName, "name", dst);
+    write(mMatrix, "matrix", dst, glm::identity<mat4>());
+    write(mRotation, "rotation", dst);
+    write(mTranslation, "translation", dst);
+    write(mScale, "scale", dst, vec3(1.f,1.f,1.f));
+    write(mChildren, "children", dst);
+    write(mMesh, "mesh", dst, INVALID_INDEX);
+    write(mSkin, "skin", dst, INVALID_INDEX);
+}
+
+const Node& Node::operator=(const Value& src)
+{
+    copy(src, "name", mName);
+    mMatrixValid = copy(src, "matrix", mMatrix);
+
+    copy(src, "rotation", mRotation);
+    copy(src, "translation", mTranslation);
+    copy(src, "scale", mScale);
+    copy(src, "children", mChildren);
+    copy(src, "mesh", mMesh);
+    copy(src, "skin", mSkin);
+
+    if (!mMatrixValid)
+    {
+        mTRSValid = true;
+    }
+    
+    return *this;
+}
+
 const Node& Node::operator=(const tinygltf::Node& src)
 {
-    F32* dstMatrix = mMatrix.getF32ptr();
+    F32* dstMatrix = glm::value_ptr(mMatrix);
 
     if (src.matrix.size() == 16)
     {
@@ -560,22 +600,21 @@ const Node& Node::operator=(const tinygltf::Node& src)
         // node has rotation/translation/scale, convert to matrix
         if (src.rotation.size() == 4)
         {
-            mRotation = glh::quaternionf((F32)src.rotation[0], (F32)src.rotation[1], (F32)src.rotation[2], (F32)src.rotation[3]);
+            mRotation = quat((F32)src.rotation[3], (F32)src.rotation[0], (F32)src.rotation[1], (F32)src.rotation[2]);
         }
 
         if (src.translation.size() == 3)
         {
-            mTranslation = glh::vec3f((F32)src.translation[0], (F32)src.translation[1], (F32)src.translation[2]);
+            mTranslation = vec3((F32)src.translation[0], (F32)src.translation[1], (F32)src.translation[2]);
         }
 
-        glh::vec3f scale;
         if (src.scale.size() == 3)
         {
-            mScale = glh::vec3f((F32)src.scale[0], (F32)src.scale[1], (F32)src.scale[2]);
+            mScale = vec3((F32)src.scale[0], (F32)src.scale[1], (F32)src.scale[2]);
         }
         else
         {
-            mScale.set_value(1.f, 1.f, 1.f);
+            mScale = vec3(1.f, 1.f, 1.f);
         }
 
         mTRSValid = true;
@@ -583,7 +622,7 @@ const Node& Node::operator=(const tinygltf::Node& src)
     else
     {
         // node specifies no transformation, set to identity
-        mMatrix.setIdentity();
+        mMatrix = glm::identity<mat4>();
         mMatrixValid = true;
     }
 
@@ -594,6 +633,50 @@ const Node& Node::operator=(const tinygltf::Node& src)
 
     return *this;
 }
+
+void Image::serialize(object& dst) const
+{
+    write(mUri, "uri", dst);
+    write(mMimeType, "mimeType", dst);
+    write(mBufferView, "bufferView", dst, INVALID_INDEX);
+    write(mName, "name", dst);
+    write(mWidth, "width", dst, -1);
+    write(mHeight, "height", dst, -1);
+    write(mComponent, "component", dst, -1);
+    write(mBits, "bits", dst, -1);
+    write(mPixelType, "pixelType", dst, -1);
+}
+
+const Image& Image::operator=(const Value& src)
+{
+    copy(src, "uri", mUri);
+    copy(src, "mimeType", mMimeType);
+    copy(src, "bufferView", mBufferView);
+    copy(src, "name", mName);
+    copy(src, "width", mWidth);
+    copy(src, "height", mHeight);
+    copy(src, "component", mComponent);
+    copy(src, "bits", mBits);
+    copy(src, "pixelType", mPixelType);
+
+    return *this;
+}
+
+const Image& Image::operator=(const tinygltf::Image& src)
+{
+    mName = src.name;
+    mWidth = src.width;
+    mHeight = src.height;
+    mComponent = src.component;
+    mBits = src.bits;
+    mPixelType = src.pixel_type;
+    mUri = src.uri;
+    mBufferView = src.bufferView;
+    mMimeType = src.mimeType;
+    mData = src.image;
+    return *this;
+}
+
 
 void Asset::render(bool opaque, bool rigged)
 {
@@ -623,7 +706,6 @@ void Asset::render(bool opaque, bool rigged)
             continue;
         }
 
-
         if (node.mMesh != INVALID_INDEX)
         {
             Mesh& mesh = mMeshes[node.mMesh];
@@ -631,19 +713,28 @@ void Asset::render(bool opaque, bool rigged)
             {
                 if (!rigged)
                 {
-                    gGL.loadMatrix((F32*)node.mRenderMatrix.mMatrix);
+                    gGL.loadMatrix((F32*)glm::value_ptr(node.mRenderMatrix));
                 }
                 bool cull = true;
                 if (primitive.mMaterial != INVALID_INDEX)
                 {
                     Material& material = mMaterials[primitive.mMaterial];
+                    bool mat_opaque = material.mAlphaMode != Material::AlphaMode::BLEND;
 
-                    if ((material.mMaterial->mAlphaMode == LLGLTFMaterial::ALPHA_MODE_BLEND) == opaque)
+                    if (mat_opaque != opaque)
                     {
                         continue;
                     }
-                    material.mMaterial->bind();
-                    cull = !material.mMaterial->mDoubleSided;
+
+                    if (mMaterials[primitive.mMaterial].mMaterial.notNull())
+                    {
+                        material.mMaterial->bind();
+                    }
+                    else
+                    {
+                        material.bind(*this);
+                    }
+                    cull = !material.mDoubleSided;
                 }
                 else
                 {
@@ -709,11 +800,16 @@ void Asset::allocateGLResources(const std::string& filename, const tinygltf::Mod
         image.allocateGLResources();
     }
 
+
     // do materials before meshes as meshes may depend on materials
-    for (U32 i = 0; i < mMaterials.size(); ++i)
+    if (!filename.empty())
     {
-        mMaterials[i].allocateGLResources(*this);
-        LLTinyGLTFHelper::getMaterialFromModel(filename, model, i, mMaterials[i].mMaterial, mMaterials[i].mName, true);
+        for (U32 i = 0; i < mMaterials.size(); ++i)
+        {
+            // HACK: local preview mode, load material from model for now
+            mMaterials[i].allocateGLResources(*this);
+            LLTinyGLTFHelper::getMaterialFromModel(filename, model, i, mMaterials[i].mMaterial, mMaterials[i].mName, true);
+        }
     }
 
     for (auto& mesh : mMeshes)
@@ -732,16 +828,26 @@ void Asset::allocateGLResources(const std::string& filename, const tinygltf::Mod
     }
 }
 
+Asset::Asset(const tinygltf::Model& src)
+{
+    *this = src;
+}
+
+Asset::Asset(const Value& src)
+{
+    *this = src;
+}
+
 const Asset& Asset::operator=(const tinygltf::Model& src)
 {
     mVersion = src.asset.version;
     mMinVersion = src.asset.minVersion;
     mGenerator = src.asset.generator;
     mCopyright = src.asset.copyright;
-    mExtras = src.asset.extras;
+
+    // note: extras are lost in the conversion for now
 
     mDefaultScene = src.defaultScene;
-    
 
     mScenes.resize(src.scenes.size());
     for (U32 i = 0; i < src.scenes.size(); ++i)
@@ -818,9 +924,67 @@ const Asset& Asset::operator=(const tinygltf::Model& src)
     return *this;
 }
 
+const Asset& Asset::operator=(const Value& src)
+{
+    if (src.is_object())
+    {
+        const object& obj = src.as_object();
+
+        const auto it = obj.find("asset");
+
+        if (it != obj.end())
+        {
+            const Value& asset = it->value();
+
+            copy(asset, "version", mVersion);
+            copy(asset, "minVersion", mMinVersion);
+            copy(asset, "generator", mGenerator);
+            copy(asset, "copyright", mCopyright);
+            copy(asset, "extras", mExtras);
+        }
+
+        copy(obj, "defaultScene", mDefaultScene);
+        copy(obj, "scenes", mScenes);
+        copy(obj, "nodes", mNodes);
+        copy(obj, "meshes", mMeshes);
+        copy(obj, "materials", mMaterials);
+        copy(obj, "buffers", mBuffers);
+        copy(obj, "bufferViews", mBufferViews);
+        copy(obj, "textures", mTextures);
+        copy(obj, "samplers", mSamplers);
+        copy(obj, "images", mImages);
+        copy(obj, "accessors", mAccessors);
+        copy(obj, "animations", mAnimations);
+        copy(obj, "skins", mSkins);
+    }
+
+    return *this;
+}
+
 void Asset::save(tinygltf::Model& dst)
 {
     LL::GLTF::copy(*this, dst);
+}
+
+void Asset::serialize(object& dst) const
+{
+    write(mVersion, "version", dst);
+    write(mMinVersion, "minVersion", dst, std::string());
+    write(mGenerator, "generator", dst);
+    write(mDefaultScene, "defaultScene", dst, 0);
+    
+    write(mScenes, "scenes", dst);
+    write(mNodes, "nodes", dst);
+    write(mMeshes, "meshes", dst);
+    write(mMaterials, "materials", dst);
+    write(mBuffers, "buffers", dst);
+    write(mBufferViews, "bufferViews", dst);
+    write(mTextures, "textures", dst);
+    write(mSamplers, "samplers", dst);
+    write(mImages, "images", dst);
+    write(mAccessors, "accessors", dst);
+    write(mAnimations, "animations", dst);
+    write(mSkins, "skins", dst);
 }
 
 void Asset::decompose(const std::string& filename)
@@ -855,6 +1019,41 @@ void Asset::eraseBufferView(S32 bufferView)
         }
     }
 
+}
+
+LLViewerFetchedTexture* fetch_texture(const LLUUID& id);
+
+void Image::allocateGLResources()
+{
+    LLUUID id;
+    if (LLUUID::parseUUID(mUri, &id) && id.notNull())
+    {
+        mTexture = fetch_texture(id);
+    }
+}
+
+
+void Image::clearData(Asset& asset)
+{
+    if (mBufferView != INVALID_INDEX)
+    {
+        // remove data from buffer
+        BufferView& bufferView = asset.mBufferViews[mBufferView];
+        Buffer& buffer = asset.mBuffers[bufferView.mBuffer];
+
+        buffer.erase(asset, bufferView.mByteOffset, bufferView.mByteLength);
+
+        asset.eraseBufferView(mBufferView);
+    }
+
+    mData.clear();
+    mBufferView = INVALID_INDEX;
+    mWidth = -1;
+    mHeight = -1;
+    mComponent = -1;
+    mBits = -1;
+    mPixelType = -1;
+    mMimeType = "";
 }
 
 void Image::decompose(Asset& asset, const std::string& folder)
@@ -894,12 +1093,9 @@ void Image::decompose(Asset& asset, const std::string& folder)
 
         std::ofstream file(filename, std::ios::binary);
         file.write((const char*)buffer.mData.data() + bufferView.mByteOffset, bufferView.mByteLength);
-        
-        buffer.erase(asset, bufferView.mByteOffset, bufferView.mByteLength);
-
-        asset.eraseBufferView(mBufferView);
     }
 
+#if 0
     if (!mData.empty())
     {
         // save j2c image
@@ -907,27 +1103,69 @@ void Image::decompose(Asset& asset, const std::string& folder)
 
         LLPointer<LLImageRaw> raw = new LLImageRaw(mWidth, mHeight, mComponent);
         U8* data = raw->allocateData();
-        llassert(mData.size() == raw->getDataSize());
+        llassert_always(mData.size() == raw->getDataSize());
         memcpy(data, mData.data(), mData.size());
 
         LLViewerTextureList::createUploadFile(raw, filename, 4096);
 
         mData.clear();
     }
+#endif
 
-    mWidth = -1;
-    mHeight = -1;
-    mComponent = -1;
-    mBits = -1;
-    mPixelType = -1;
-    mMimeType = "";
 
+    clearData(asset);
+}
+
+void Material::TextureInfo::serialize(object& dst) const
+{
+    write(mIndex, "index", dst, INVALID_INDEX);
+    write(mTexCoord, "texCoord", dst, 0);
+}
+
+const Material::TextureInfo& Material::TextureInfo::operator=(const Value& src)
+{
+    if (src.is_object())
+    {
+        copy(src, "index", mIndex);
+        copy(src, "texCoord", mTexCoord);
+    }
+
+    return *this;
+}
+
+bool Material::TextureInfo::operator==(const Material::TextureInfo& rhs) const
+{
+    return mIndex == rhs.mIndex && mTexCoord == rhs.mTexCoord;
+}
+
+bool Material::TextureInfo::operator!=(const Material::TextureInfo& rhs) const
+{
+    return !(*this == rhs);
 }
 
 const Material::TextureInfo& Material::TextureInfo::operator=(const tinygltf::TextureInfo& src)
 {
     mIndex = src.index;
     mTexCoord = src.texCoord;
+    return *this;
+}
+
+void Material::OcclusionTextureInfo::serialize(object& dst) const
+{
+    write(mIndex, "index", dst, INVALID_INDEX);
+    write(mTexCoord, "texCoord", dst, 0);
+    write(mStrength, "strength", dst, 1.f);
+}
+
+const Material::OcclusionTextureInfo& Material::OcclusionTextureInfo::operator=(const Value& src)
+{
+    if (src.is_object())
+    {
+        copy(src, "index", mIndex);
+        copy(src, "texCoord", mTexCoord);
+        copy(src, "strength", mStrength);
+    }
+
     return *this;
 }
 
@@ -939,6 +1177,24 @@ const Material::OcclusionTextureInfo& Material::OcclusionTextureInfo::operator=(
     return *this;
 }
 
+void Material::NormalTextureInfo::serialize(object& dst) const
+{
+    write(mIndex, "index", dst, INVALID_INDEX);
+    write(mTexCoord, "texCoord", dst, 0);
+    write(mScale, "scale", dst, 1.f);
+}
+
+const Material::NormalTextureInfo& Material::NormalTextureInfo::operator=(const Value& src)
+{
+    if (src.is_object())
+    {
+        copy(src, "index", mIndex);
+        copy(src, "texCoord", mTexCoord);
+        copy(src, "scale", mScale);
+    }
+
+    return *this;
+}
 const Material::NormalTextureInfo& Material::NormalTextureInfo::operator=(const tinygltf::NormalTextureInfo& src)
 {
     mIndex = src.index;
@@ -947,11 +1203,48 @@ const Material::NormalTextureInfo& Material::NormalTextureInfo::operator=(const 
     return *this;
 }
 
+const Material::PbrMetallicRoughness& Material::PbrMetallicRoughness::operator=(const Value& src)
+{
+    if (src.is_object())
+    {
+        copy(src, "baseColorFactor", mBaseColorFactor);
+        copy(src, "baseColorTexture", mBaseColorTexture);
+        copy(src, "metallicFactor", mMetallicFactor);
+        copy(src, "roughnessFactor", mRoughnessFactor);
+        copy(src, "metallicRoughnessTexture", mMetallicRoughnessTexture);
+    }
+
+    return *this;
+}
+
+void Material::PbrMetallicRoughness::serialize(object& dst) const
+{
+    write(mBaseColorFactor, "baseColorFactor", dst, vec4(1.f, 1.f, 1.f, 1.f));
+    write(mBaseColorTexture, "baseColorTexture", dst);
+    write(mMetallicFactor, "metallicFactor", dst, 1.f);
+    write(mRoughnessFactor, "roughnessFactor", dst, 1.f);
+    write(mMetallicRoughnessTexture, "metallicRoughnessTexture", dst);
+}
+
+bool Material::PbrMetallicRoughness::operator==(const Material::PbrMetallicRoughness& rhs) const
+{
+    return mBaseColorFactor == rhs.mBaseColorFactor &&
+        mBaseColorTexture == rhs.mBaseColorTexture &&
+        mMetallicFactor == rhs.mMetallicFactor &&
+        mRoughnessFactor == rhs.mRoughnessFactor &&
+        mMetallicRoughnessTexture == rhs.mMetallicRoughnessTexture;
+}
+
+bool Material::PbrMetallicRoughness::operator!=(const Material::PbrMetallicRoughness& rhs) const
+{
+    return !(*this == rhs);
+}
+
 const Material::PbrMetallicRoughness& Material::PbrMetallicRoughness::operator=(const tinygltf::PbrMetallicRoughness& src)
 {
     if (src.baseColorFactor.size() == 4)
     {
-        mBaseColorFactor.set_value(src.baseColorFactor[0], src.baseColorFactor[1], src.baseColorFactor[2], src.baseColorFactor[3]);
+        mBaseColorFactor = vec4(src.baseColorFactor[0], src.baseColorFactor[1], src.baseColorFactor[2], src.baseColorFactor[3]);
     }
     
     mBaseColorTexture = src.baseColorTexture;
@@ -961,13 +1254,129 @@ const Material::PbrMetallicRoughness& Material::PbrMetallicRoughness::operator=(
 
     return *this;
 }
+
+static void bindTexture(Asset& asset, S32 uniform, Material::TextureInfo& info, LLViewerTexture* fallback)
+{
+    if (info.mIndex != INVALID_INDEX)
+    {
+        LLViewerTexture* tex = asset.mImages[asset.mTextures[info.mIndex].mSource].mTexture;
+        if (tex)
+        {
+            tex->addTextureStats(2048.f * 2048.f);
+            LLGLSLShader::sCurBoundShaderPtr->bindTexture(uniform, tex);
+        }
+        else
+        {
+            LLGLSLShader::sCurBoundShaderPtr->bindTexture(uniform, fallback);
+        }
+    }
+    else
+    {
+        LLGLSLShader::sCurBoundShaderPtr->bindTexture(uniform, fallback);
+    }
+}
+
+void Material::bind(Asset& asset)
+{
+    // bind for rendering (derived from LLFetchedGLTFMaterial::bind)
+    // glTF 2.0 Specification 3.9.4. Alpha Coverage
+    // mAlphaCutoff is only valid for LLGLTFMaterial::ALPHA_MODE_MASK
+    F32 min_alpha = -1.0;
+
+    LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
+
+    if (!LLPipeline::sShadowRender || (mAlphaMode == Material::AlphaMode::BLEND))
+    {
+        if (mAlphaMode == Material::AlphaMode::MASK)
+        {
+            // dividing the alpha cutoff by transparency here allows the shader to compare against
+            // the alpha value of the texture without needing the transparency value
+            if (mPbrMetallicRoughness.mBaseColorFactor.a > 0.f)
+            {
+                min_alpha = mAlphaCutoff / mPbrMetallicRoughness.mBaseColorFactor.a;
+            }
+            else
+            {
+                min_alpha = 1024.f;
+            }
+        }
+        shader->uniform1f(LLShaderMgr::MINIMUM_ALPHA, min_alpha);
+    }
+
+    bindTexture(asset, LLShaderMgr::DIFFUSE_MAP, mPbrMetallicRoughness.mBaseColorTexture, LLViewerFetchedTexture::sWhiteImagep);
+
+    F32 base_color_packed[8];
+    //mTextureTransform[GLTF_TEXTURE_INFO_BASE_COLOR].getPacked(base_color_packed);
+    LLGLTFMaterial::sDefault.mTextureTransform[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR].getPacked(base_color_packed);
+    shader->uniform4fv(LLShaderMgr::TEXTURE_BASE_COLOR_TRANSFORM, 2, (F32*)base_color_packed);
+
+    if (!LLPipeline::sShadowRender)
+    {
+        bindTexture(asset, LLShaderMgr::BUMP_MAP, mNormalTexture, LLViewerFetchedTexture::sFlatNormalImagep);      
+        bindTexture(asset, LLShaderMgr::SPECULAR_MAP, mPbrMetallicRoughness.mMetallicRoughnessTexture, LLViewerFetchedTexture::sWhiteImagep);
+        bindTexture(asset, LLShaderMgr::EMISSIVE_MAP, mEmissiveTexture, LLViewerFetchedTexture::sWhiteImagep);
+        
+        // NOTE: base color factor is baked into vertex stream
+
+        shader->uniform1f(LLShaderMgr::ROUGHNESS_FACTOR, mPbrMetallicRoughness.mRoughnessFactor);
+        shader->uniform1f(LLShaderMgr::METALLIC_FACTOR, mPbrMetallicRoughness.mMetallicFactor);
+        shader->uniform3fv(LLShaderMgr::EMISSIVE_COLOR, 1, glm::value_ptr(mEmissiveFactor));
+
+        F32 normal_packed[8];
+        //mTextureTransform[GLTF_TEXTURE_INFO_NORMAL].getPacked(normal_packed);
+        LLGLTFMaterial::sDefault.mTextureTransform[LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL].getPacked(normal_packed);
+        shader->uniform4fv(LLShaderMgr::TEXTURE_NORMAL_TRANSFORM, 2, (F32*)normal_packed);
+
+        F32 metallic_roughness_packed[8];
+        //mTextureTransform[GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS].getPacked(metallic_roughness_packed);
+        LLGLTFMaterial::sDefault.mTextureTransform[LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS].getPacked(metallic_roughness_packed);
+        shader->uniform4fv(LLShaderMgr::TEXTURE_METALLIC_ROUGHNESS_TRANSFORM, 2, (F32*)metallic_roughness_packed);
+
+        F32 emissive_packed[8];
+        //mTextureTransform[GLTF_TEXTURE_INFO_EMISSIVE].getPacked(emissive_packed);
+        LLGLTFMaterial::sDefault.mTextureTransform[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE].getPacked(emissive_packed);
+        shader->uniform4fv(LLShaderMgr::TEXTURE_EMISSIVE_TRANSFORM, 2, (F32*)emissive_packed);
+    }
+}
+
+void Material::serialize(object& dst) const
+{
+    write(mName, "name", dst);
+    write(mEmissiveFactor, "emissiveFactor", dst, vec3(0.f, 0.f, 0.f));
+    write(mPbrMetallicRoughness, "pbrMetallicRoughness", dst);
+    write(mNormalTexture, "normalTexture", dst);
+    write(mOcclusionTexture, "occlusionTexture", dst);
+    write(mEmissiveTexture, "emissiveTexture", dst);
+    write(mAlphaMode, "alphaMode", dst, Material::AlphaMode::OPAQUE);
+    write(mAlphaCutoff, "alphaCutoff", dst, 0.5f);
+    write(mDoubleSided, "doubleSided", dst, false);
+}
+
+const Material& Material::operator=(const Value& src)
+{
+    if (src.is_object())
+    {
+        copy(src, "name", mName);
+        copy(src, "emissiveFactor", mEmissiveFactor);
+        copy(src, "pbrMetallicRoughness", mPbrMetallicRoughness);
+        copy(src, "normalTexture", mNormalTexture);
+        copy(src, "occlusionTexture", mOcclusionTexture);
+        copy(src, "emissiveTexture", mEmissiveTexture);
+        copy(src, "alphaMode", mAlphaMode);
+        copy(src, "alphaCutoff", mAlphaCutoff);
+        copy(src, "doubleSided", mDoubleSided);
+    }
+    return *this;
+}
+
+
 const Material& Material::operator=(const tinygltf::Material& src)
 {
     mName = src.name;
     
     if (src.emissiveFactor.size() == 3)
     {
-        mEmissiveFactor.set_value(src.emissiveFactor[0], src.emissiveFactor[1], src.emissiveFactor[2]);
+        mEmissiveFactor = vec3(src.emissiveFactor[0], src.emissiveFactor[1], src.emissiveFactor[2]);
     }
 
     mPbrMetallicRoughness = src.pbrMetallicRoughness;
@@ -975,7 +1384,7 @@ const Material& Material::operator=(const tinygltf::Material& src)
     mOcclusionTexture = src.occlusionTexture;
     mEmissiveTexture = src.emissiveTexture;
 
-    mAlphaMode = src.alphaMode;
+    mAlphaMode = gltf_alpha_mode_to_enum(src.alphaMode);
     mAlphaCutoff = src.alphaCutoff;
     mDoubleSided = src.doubleSided;
 
@@ -984,10 +1393,31 @@ const Material& Material::operator=(const tinygltf::Material& src)
 
 void Material::allocateGLResources(Asset& asset)
 {
-    // allocate material
+    // HACK: allocate an LLFetchedGLTFMaterial for now
+    // later we'll render directly from the GLTF Images
+    // and BufferViews
     mMaterial = new LLFetchedGLTFMaterial();
 }
 
+void Mesh::serialize(object& dst) const
+{
+    write(mPrimitives, "primitives", dst);
+    write(mWeights, "weights", dst);
+    write(mName, "name", dst);
+}
+
+const Mesh& Mesh::operator=(const Value& src)
+{
+    if (src.is_object())
+    {
+        copy(src, "primitives", mPrimitives);
+        copy(src, "weights", mWeights);
+        copy(src, "name", mName);
+    }
+
+    return *this;
+
+}
 const Mesh& Mesh::operator=(const tinygltf::Mesh& src)
 {
     mPrimitives.resize(src.primitives.size());
@@ -1010,10 +1440,43 @@ void Mesh::allocateGLResources(Asset& asset)
     }
 }
 
+void Scene::serialize(object& dst) const
+{
+    write(mNodes, "nodes", dst);
+    write(mName, "name", dst);
+}
+
+const Scene& Scene::operator=(const Value& src)
+{
+    copy(src, "nodes", mNodes);
+    copy(src, "name", mName);
+    
+    return *this;
+}
+
 const Scene& Scene::operator=(const tinygltf::Scene& src)
 {
     mNodes = src.nodes;
     mName = src.name;
+
+    return *this;
+}
+
+void Texture::serialize(object& dst) const
+{
+    write(mSampler, "sampler", dst, INVALID_INDEX);
+    write(mSource, "source", dst, INVALID_INDEX);
+    write(mName, "name", dst);
+}
+
+const Texture& Texture::operator=(const Value& src)
+{
+    if (src.is_object())
+    {
+        copy(src, "sampler", mSampler);
+        copy(src, "source", mSource);
+        copy(src, "name", mName);
+    }
 
     return *this;
 }
@@ -1023,6 +1486,27 @@ const Texture& Texture::operator=(const tinygltf::Texture& src)
     mSampler = src.sampler;
     mSource = src.source;
     mName = src.name;
+
+    return *this;
+}
+
+
+void Sampler::serialize(object& dst) const
+{
+    write(mMagFilter, "magFilter", dst, LINEAR);
+    write(mMinFilter, "minFilter", dst, LINEAR_MIPMAP_LINEAR);
+    write(mWrapS, "wrapS", dst, REPEAT);
+    write(mWrapT, "wrapT", dst, REPEAT);
+    write(mName, "name", dst);
+}
+
+const Sampler& Sampler::operator=(const Value& src)
+{
+    copy(src, "magFilter", mMagFilter);
+    copy(src, "minFilter", mMinFilter);
+    copy(src, "wrapS", mWrapS);
+    copy(src, "wrapT", mWrapT);
+    copy(src, "name", mName);
 
     return *this;
 }
@@ -1043,23 +1527,14 @@ void Skin::uploadMatrixPalette(Asset& asset, Node& node)
     // prepare matrix palette
 
     // modelview will be applied by the shader, so assume matrix palette is in asset space
-    std::vector<glh::matrix4f> t_mp;
+    std::vector<mat4> t_mp;
 
     t_mp.resize(mJoints.size());
 
     for (U32 i = 0; i < mJoints.size(); ++i)
     {
         Node& joint = asset.mNodes[mJoints[i]];
-        
-        //t_mp[i].set_value(joint.mRenderMatrix.getF32ptr());
-        //t_mp[i] = t_mp[i] * mInverseBindMatricesData[i];
-
-        //t_mp[i].set_value(joint.mRenderMatrix.getF32ptr());
-        //t_mp[i] = mInverseBindMatricesData[i] * t_mp[i];
-
-        t_mp[i].set_value(joint.mRenderMatrix.getF32ptr());
-        t_mp[i] = t_mp[i] * mInverseBindMatricesData[i];
-
+        t_mp[i] = joint.mRenderMatrix * mInverseBindMatricesData[i];
     }
 
     std::vector<F32> glmp;
@@ -1070,7 +1545,7 @@ void Skin::uploadMatrixPalette(Asset& asset, Node& node)
 
     for (U32 i = 0; i < mJoints.size(); ++i)
     {
-        F32* m = (F32*)t_mp[i].m;
+        F32* m = glm::value_ptr(t_mp[i]);
 
         U32 idx = i * 12;
 

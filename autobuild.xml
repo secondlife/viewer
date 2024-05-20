@@ -739,6 +739,48 @@
         <key>description</key>
         <string>glh - is a platform-indepenedent C++ OpenGL helper library</string>
       </map>
+      <key>glm</key>
+      <map>
+        <key>canonical_repo</key>
+        <string>https://github.com/secondlife/3p-glm</string>
+        <key>copyright</key>
+        <string>Copyright (c) 2005 - G-Truc Creation</string>
+        <key>description</key>
+        <string>OpenGL Mathematics</string>
+        <key>license</key>
+        <string>MIT</string>
+        <key>license_file</key>
+        <string>LICENSES/glm_license.txt</string>
+        <key>name</key>
+        <string>glm</string>
+        <key>platforms</key>
+        <map>
+          <key>common</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>353ae3a560143732503a8e14499ae12db1e66056</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://github.com/secondlife/3p-glm/releases/download/v1.0.1-r1/glm-v1.0.1-common-9066386153.tar.zst</string>
+            </map>
+            <key>name</key>
+            <string>common</string>
+          </map>
+        </map>
+        <key>source_type</key>
+        <string>git</string>
+        <key>vcs_branch</key>
+        <string>refs/tags/v1.0.1-r1</string>
+        <key>vcs_revision</key>
+        <string>399cd5ba57a9267a560ce07e50a0f8c5fe3dc66f</string>
+        <key>vcs_url</key>
+        <string>git://github.com/secondlife/3p-glm.git</string>
+        <key>version</key>
+        <string>v1.0.1</string>
+      </map>
       <key>gstreamer</key>
       <map>
         <key>platforms</key>
