@@ -3,7 +3,7 @@
  * @author Nat Goodspeed
  * @date   2012-02-21
  * @brief  Test for llleap.
- * 
+ *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Copyright (c) 2012, Linden Research, Inc.
  * $/LicenseInfo$

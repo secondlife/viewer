@@ -23,7 +23,7 @@
    layout="topleft"
    left_delta="0"
    name="ascii_line_editor"
-   prevalidate_callback="ascii"
+   prevalidator="ascii"
    tool_tip="ascii line editor"
    top_pad="10" 
    width="200">

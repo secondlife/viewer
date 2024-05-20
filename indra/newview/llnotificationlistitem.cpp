@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llnotificationlistitem.cpp
- * @brief                                   
+ * @brief
  *
  * $LicenseInfo:firstyear=2015&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2015, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -60,7 +60,7 @@ BOOL LLNotificationListItem::postBuild()
 {
     BOOL rv = LLPanel::postBuild();
     mTitleBox = getChild<LLTextBox>("notification_title");
-    mTitleBoxExp = getChild<LLTextBox>("notification_title_exp"); 
+    mTitleBoxExp = getChild<LLTextBox>("notification_title_exp");
     mNoticeTextExp = getChild<LLChatEntry>("notification_text_exp");
 
     mTimeBox = getChild<LLTextBox>("notification_time");
@@ -98,7 +98,7 @@ BOOL LLNotificationListItem::postBuild()
 
     mExpandedHeight = (S32)atoi(expanded_height_str.c_str());
     mCondensedHeight = (S32)atoi(condensed_height_str.c_str());
-    
+
     setExpanded(FALSE);
 
     return rv;
@@ -112,33 +112,33 @@ LLNotificationListItem::~LLNotificationListItem()
 std::string LLNotificationListItem::buildNotificationDate(const LLDate& time_stamp, ETimeType time_type)
 {
     std::string timeStr;
-	switch(time_type)
-	{
-		case Local:
-			timeStr = "[" + LLTrans::getString("LTimeMthNum") + "]/["
-        		+LLTrans::getString("LTimeDay")+"]/["
-				+LLTrans::getString("LTimeYear")+"] ["
-				+LLTrans::getString("LTimeHour")+"]:["
-				+LLTrans::getString("LTimeMin")+ "]";
-			break;
-		case UTC:
-			timeStr = "[" + LLTrans::getString("UTCTimeMth") + "]/["
-		      	+LLTrans::getString("UTCTimeDay")+"]/["
-				+LLTrans::getString("UTCTimeYr")+"] ["
-				+LLTrans::getString("UTCTimeHr")+"]:["
-				+LLTrans::getString("UTCTimeMin")+"] ["
-				+LLTrans::getString("UTCTimeTimezone")+"]";
-			break;
-		case SLT:
-		default:
-			timeStr = "[" + LLTrans::getString("TimeMonth") + "]/["
-			   	+LLTrans::getString("TimeDay")+"]/["
-				+LLTrans::getString("TimeYear")+"] ["
-				+LLTrans::getString("TimeHour")+"]:["
-				+LLTrans::getString("TimeMin")+"] ["
-				+LLTrans::getString("TimeTimezone")+"]";
-			break;
-	}
+    switch(time_type)
+    {
+        case Local:
+            timeStr = "[" + LLTrans::getString("LTimeMthNum") + "]/["
+                +LLTrans::getString("LTimeDay")+"]/["
+                +LLTrans::getString("LTimeYear")+"] ["
+                +LLTrans::getString("LTimeHour")+"]:["
+                +LLTrans::getString("LTimeMin")+ "]";
+            break;
+        case UTC:
+            timeStr = "[" + LLTrans::getString("UTCTimeMth") + "]/["
+                +LLTrans::getString("UTCTimeDay")+"]/["
+                +LLTrans::getString("UTCTimeYr")+"] ["
+                +LLTrans::getString("UTCTimeHr")+"]:["
+                +LLTrans::getString("UTCTimeMin")+"] ["
+                +LLTrans::getString("UTCTimeTimezone")+"]";
+            break;
+        case SLT:
+        default:
+            timeStr = "[" + LLTrans::getString("TimeMonth") + "]/["
+                +LLTrans::getString("TimeDay")+"]/["
+                +LLTrans::getString("TimeYear")+"] ["
+                +LLTrans::getString("TimeHour")+"]:["
+                +LLTrans::getString("TimeMin")+"] ["
+                +LLTrans::getString("TimeTimezone")+"]";
+            break;
+    }
     LLSD substitution;
     substitution["datetime"] = time_stamp;
     LLStringUtil::format(timeStr, substitution);
@@ -160,14 +160,14 @@ BOOL LLNotificationListItem::handleMouseUp(S32 x, S32 y, MASK mask)
 
 void LLNotificationListItem::onMouseEnter(S32 x, S32 y, MASK mask)
 {
-	mCondensedViewPanel->setTransparentColor(LLUIColorTable::instance().getColor( "ScrollHoveredColor" ));
-	mExpandedViewPanel->setTransparentColor(LLUIColorTable::instance().getColor( "ScrollHoveredColor" ));
+    mCondensedViewPanel->setTransparentColor(LLUIColorTable::instance().getColor( "ScrollHoveredColor" ));
+    mExpandedViewPanel->setTransparentColor(LLUIColorTable::instance().getColor( "ScrollHoveredColor" ));
 }
 
 void LLNotificationListItem::onMouseLeave(S32 x, S32 y, MASK mask)
 {
-	mCondensedViewPanel->setTransparentColor(LLUIColorTable::instance().getColor( "SysWellItemUnselected" ));
-	mExpandedViewPanel->setTransparentColor(LLUIColorTable::instance().getColor( "SysWellItemUnselected" ));
+    mCondensedViewPanel->setTransparentColor(LLUIColorTable::instance().getColor( "SysWellItemUnselected" ));
+    mExpandedViewPanel->setTransparentColor(LLUIColorTable::instance().getColor( "SysWellItemUnselected" ));
 }
 
 //static
@@ -189,7 +189,7 @@ LLNotificationListItem* LLNotificationListItem::create(const Params& p)
 }
 
 //static
-std::set<std::string> LLNotificationListItem::getGroupInviteTypes() 
+std::set<std::string> LLNotificationListItem::getGroupInviteTypes()
 {
     return LLGroupInviteNotificationListItem::getTypes();
 }
@@ -308,27 +308,27 @@ BOOL LLGroupInviteNotificationListItem::postBuild()
 
 void LLGroupInviteNotificationListItem::onClickJoinBtn()
 {
-	if (!gAgent.canJoinGroups())
-	{
-		LLNotificationsUtil::add("JoinedTooManyGroups");
-		return;
-	}
+    if (!gAgent.canJoinGroups())
+    {
+        LLNotificationsUtil::add("JoinedTooManyGroups");
+        return;
+    }
 
-	send_join_group_response(mParams.group_id, mParams.transaction_id, true, mParams.fee, mParams.use_offline_cap);
+    send_join_group_response(mParams.group_id, mParams.transaction_id, true, mParams.fee, mParams.use_offline_cap);
 
-	LLNotificationListItem::onClickCloseBtn();
+    LLNotificationListItem::onClickCloseBtn();
 }
 
 void LLGroupInviteNotificationListItem::onClickDeclineBtn()
 {
-	send_join_group_response(mParams.group_id, mParams.transaction_id, false, mParams.fee, mParams.use_offline_cap);
+    send_join_group_response(mParams.group_id, mParams.transaction_id, false, mParams.fee, mParams.use_offline_cap);
 
-	LLNotificationListItem::onClickCloseBtn();
+    LLNotificationListItem::onClickCloseBtn();
 }
 
 void LLGroupInviteNotificationListItem::onClickInfoBtn()
 {
-	LLGroupActions::show(mParams.group_id);
+    LLGroupActions::show(mParams.group_id);
 }
 
 void LLGroupInviteNotificationListItem::setFee(S32 fee)
@@ -360,7 +360,7 @@ LLGroupNoticeNotificationListItem::LLGroupNoticeNotificationListItem(const Param
 
 LLGroupNotificationListItem::~LLGroupNotificationListItem()
 {
-	LLGroupMgr::getInstance()->removeObserver(this);
+    LLGroupMgr::getInstance()->removeObserver(this);
 }
 
 BOOL LLGroupNoticeNotificationListItem::postBuild()
@@ -439,7 +439,7 @@ void LLGroupNotificationListItem::changed(LLGroupChange gc)
 {
     if (GC_PROPERTIES == gc)
     {
-    	updateFromCache();
+        updateFromCache();
         LLGroupMgr::getInstance()->removeObserver(this);
     }
 }
@@ -454,8 +454,8 @@ bool LLGroupNotificationListItem::updateFromCache()
 
 void LLGroupNotificationListItem::setGroupId(const LLUUID& value)
 {
-	LLGroupMgr* gm = LLGroupMgr::getInstance();
-	if (mGroupId.notNull())
+    LLGroupMgr* gm = LLGroupMgr::getInstance();
+    if (mGroupId.notNull())
     {
         gm->removeObserver(this);
 
@@ -465,8 +465,8 @@ void LLGroupNotificationListItem::setGroupId(const LLUUID& value)
         // Check if cache already contains image_id for that group
         if (!updateFromCache())
         {
-        	gm->addObserver(this);
-        	gm->sendGroupPropertiesRequest(mGroupId);
+            gm->addObserver(this);
+            gm->sendGroupPropertiesRequest(mGroupId);
         }
     }
 }

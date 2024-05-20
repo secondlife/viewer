@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llimageworker.cpp
  * @brief Base class for images.
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -34,30 +34,31 @@
 class ImageRequest
 {
 public:
-	ImageRequest(const LLPointer<LLImageFormatted>& image,
+    ImageRequest(const LLPointer<LLImageFormatted>& image,
                  S32 discard,
                  BOOL needs_aux,
                  const LLPointer<LLImageDecodeThread::Responder>& responder,
                  U32 request_id);
-	virtual ~ImageRequest();
+    virtual ~ImageRequest();
 
-	/*virtual*/ bool processRequest();
-	/*virtual*/ void finishRequest(bool completed);
+    /*virtual*/ bool processRequest();
+    /*virtual*/ void finishRequest(bool completed);
 
 private:
-	// LLPointers stored in ImageRequest MUST be LLPointer instances rather
-	// than references: we need to increment the refcount when storing these.
-	// input
-	LLPointer<LLImageFormatted> mFormattedImage;
-	S32 mDiscardLevel;
+    // LLPointers stored in ImageRequest MUST be LLPointer instances rather
+    // than references: we need to increment the refcount when storing these.
+    // input
+    LLPointer<LLImageFormatted> mFormattedImage;
+    S32 mDiscardLevel;
     U32 mRequestId;
-	BOOL mNeedsAux;
-	// output
-	LLPointer<LLImageRaw> mDecodedImageRaw;
-	LLPointer<LLImageRaw> mDecodedImageAux;
-	BOOL mDecodedRaw;
-	BOOL mDecodedAux;
-	LLPointer<LLImageDecodeThread::Responder> mResponder;
+    BOOL mNeedsAux;
+    // output
+    LLPointer<LLImageRaw> mDecodedImageRaw;
+    LLPointer<LLImageRaw> mDecodedImageAux;
+    BOOL mDecodedRaw;
+    BOOL mDecodedAux;
+    LLPointer<LLImageDecodeThread::Responder> mResponder;
+    std::string mErrorString;
 };
 
 
@@ -71,7 +72,7 @@ LLImageDecodeThread::LLImageDecodeThread(bool /*threaded*/)
     mThreadPool->start();
 }
 
-//virtual 
+//virtual
 LLImageDecodeThread::~LLImageDecodeThread()
 {}
 
@@ -89,7 +90,7 @@ size_t LLImageDecodeThread::getPending()
 }
 
 LLImageDecodeThread::handle_t LLImageDecodeThread::decodeImage(
-    const LLPointer<LLImageFormatted>& image, 
+    const LLPointer<LLImageFormatted>& image,
     S32 discard,
     BOOL needs_aux,
     const LLPointer<LLImageDecodeThread::Responder>& responder)
@@ -130,21 +131,21 @@ ImageRequest::ImageRequest(const LLPointer<LLImageFormatted>& image,
                            BOOL needs_aux,
                            const LLPointer<LLImageDecodeThread::Responder>& responder,
                            U32 request_id)
-	: mFormattedImage(image),
-	  mDiscardLevel(discard),
-	  mNeedsAux(needs_aux),
-	  mDecodedRaw(FALSE),
-	  mDecodedAux(FALSE),
-	  mResponder(responder),
-	  mRequestId(request_id)
+    : mFormattedImage(image),
+      mDiscardLevel(discard),
+      mNeedsAux(needs_aux),
+      mDecodedRaw(FALSE),
+      mDecodedAux(FALSE),
+      mResponder(responder),
+      mRequestId(request_id)
 {
 }
 
 ImageRequest::~ImageRequest()
 {
-	mDecodedImageRaw = NULL;
-	mDecodedImageAux = NULL;
-	mFormattedImage = NULL;
+    mDecodedImageRaw = NULL;
+    mDecodedImageAux = NULL;
+    mFormattedImage = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -154,57 +155,67 @@ ImageRequest::~ImageRequest()
 bool ImageRequest::processRequest()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
-	const F32 decode_time_slice = 0.f; //disable time slicing
-	bool done = true;
-	if (!mDecodedRaw && mFormattedImage.notNull())
-	{
-		// Decode primary channels
-		if (mDecodedImageRaw.isNull())
-		{
-			// parse formatted header
-			if (!mFormattedImage->updateData())
-			{
-				return true; // done (failed)
-			}
-			if (!(mFormattedImage->getWidth() * mFormattedImage->getHeight() * mFormattedImage->getComponents()))
-			{
-				return true; // done (failed)
-			}
-			if (mDiscardLevel >= 0)
-			{
-				mFormattedImage->setDiscardLevel(mDiscardLevel);
-			}
-			mDecodedImageRaw = new LLImageRaw(mFormattedImage->getWidth(),
-											  mFormattedImage->getHeight(),
-											  mFormattedImage->getComponents());
-		}
-		done = mFormattedImage->decode(mDecodedImageRaw, decode_time_slice);
-		// some decoders are removing data when task is complete and there were errors
-		mDecodedRaw = done && mDecodedImageRaw->getData();
-	}
-	if (done && mNeedsAux && !mDecodedAux && mFormattedImage.notNull())
-	{
-		// Decode aux channel
-		if (!mDecodedImageAux)
-		{
-			mDecodedImageAux = new LLImageRaw(mFormattedImage->getWidth(),
-											  mFormattedImage->getHeight(),
-											  1);
-		}
-		done = mFormattedImage->decodeChannels(mDecodedImageAux, decode_time_slice, 4, 4);
-		mDecodedAux = done && mDecodedImageAux->getData();
-	}
+    const F32 decode_time_slice = 0.f; //disable time slicing
+    bool done = true;
+    mErrorString.clear();
+    if (!mDecodedRaw && mFormattedImage.notNull())
+    {
+        // Decode primary channels
+        if (mDecodedImageRaw.isNull())
+        {
+            // parse formatted header
+            if (!mFormattedImage->updateData())
+            {
+                // Pick up errors from updateData
+                mErrorString = LLImage::getLastThreadError();
+                return true; // done (failed)
+            }
+            if (!(mFormattedImage->getWidth() * mFormattedImage->getHeight() * mFormattedImage->getComponents()))
+            {
+                mErrorString = "Invalid image size";
+                return true; // done (failed)
+            }
+            if (mDiscardLevel >= 0)
+            {
+                mFormattedImage->setDiscardLevel(mDiscardLevel);
+            }
+            mDecodedImageRaw = new LLImageRaw(mFormattedImage->getWidth(),
+                                              mFormattedImage->getHeight(),
+                                              mFormattedImage->getComponents());
+        }
+        done = mFormattedImage->decode(mDecodedImageRaw, decode_time_slice);
+        // some decoders are removing data when task is complete and there were errors
+        mDecodedRaw = done && mDecodedImageRaw->getData();
 
-	return done;
+        // Pick up errors from decoding
+        mErrorString = LLImage::getLastThreadError();
+    }
+    if (done && mNeedsAux && !mDecodedAux && mFormattedImage.notNull())
+    {
+        // Decode aux channel
+        if (!mDecodedImageAux)
+        {
+            mDecodedImageAux = new LLImageRaw(mFormattedImage->getWidth(),
+                                              mFormattedImage->getHeight(),
+                                              1);
+        }
+        done = mFormattedImage->decodeChannels(mDecodedImageAux, decode_time_slice, 4, 4);
+        mDecodedAux = done && mDecodedImageAux->getData();
+
+        // Pick up errors from decoding
+        mErrorString = LLImage::getLastThreadError();
+    }
+
+    return done;
 }
 
 void ImageRequest::finishRequest(bool completed)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
-	if (mResponder.notNull())
-	{
-		bool success = completed && mDecodedRaw && (!mNeedsAux || mDecodedAux);
-		mResponder->completed(success, mDecodedImageRaw, mDecodedImageAux, mRequestId);
-	}
-	// Will automatically be deleted
+    if (mResponder.notNull())
+    {
+        bool success = completed && mDecodedRaw && (!mNeedsAux || mDecodedAux);
+        mResponder->completed(success, mErrorString, mDecodedImageRaw, mDecodedImageAux, mRequestId);
+    }
+    // Will automatically be deleted
 }

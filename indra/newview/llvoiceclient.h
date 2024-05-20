@@ -59,8 +59,8 @@ typedef std::vector<LLVoiceDevice> LLVoiceDeviceList;
 class LLVoiceClientParticipantObserver
 {
 public:
-	virtual ~LLVoiceClientParticipantObserver() { }
-	virtual void onParticipantsChanged() = 0;
+    virtual ~LLVoiceClientParticipantObserver() { }
+    virtual void onParticipantsChanged() = 0;
 };
 
 
@@ -69,38 +69,38 @@ public:
 class LLVoiceClientStatusObserver
 {
 public:
-	typedef enum e_voice_status_type
-	{
-		// NOTE: when updating this enum, please also update the switch in
-		//  LLVoiceClientStatusObserver::status2string().
-		STATUS_LOGIN_RETRY,
-		STATUS_LOGGED_IN,
-		STATUS_JOINING,
-		STATUS_JOINED,
-		STATUS_LEFT_CHANNEL,
-		STATUS_VOICE_DISABLED,
-		STATUS_VOICE_ENABLED,
-		BEGIN_ERROR_STATUS,
-		ERROR_CHANNEL_FULL,
-		ERROR_CHANNEL_LOCKED,
-		ERROR_NOT_AVAILABLE,
-		ERROR_UNKNOWN
-	} EStatusType;
+    typedef enum e_voice_status_type
+    {
+        // NOTE: when updating this enum, please also update the switch in
+        //  LLVoiceClientStatusObserver::status2string().
+        STATUS_LOGIN_RETRY,
+        STATUS_LOGGED_IN,
+        STATUS_JOINING,
+        STATUS_JOINED,
+        STATUS_LEFT_CHANNEL,
+        STATUS_VOICE_DISABLED,
+        STATUS_VOICE_ENABLED,
+        BEGIN_ERROR_STATUS,
+        ERROR_CHANNEL_FULL,
+        ERROR_CHANNEL_LOCKED,
+        ERROR_NOT_AVAILABLE,
+        ERROR_UNKNOWN
+    } EStatusType;
 
-	virtual ~LLVoiceClientStatusObserver() { }
-	virtual void onChange(EStatusType status, const LLSD& channelInfo, bool proximal) = 0;
+    virtual ~LLVoiceClientStatusObserver() { }
+    virtual void onChange(EStatusType status, const LLSD& channelInfo, bool proximal) = 0;
 
-	static std::string status2string(EStatusType inStatus);
+    static std::string status2string(EStatusType inStatus);
 };
 
 struct LLVoiceVersionInfo
 {
-	std::string voiceServerType;
-	std::string internalVoiceServerType;
-	int         majorVersion;
-	int         minorVersion;
-	std::string serverVersion;
-	std::string mBuildVersion;
+    std::string voiceServerType;
+    std::string internalVoiceServerType;
+    int         majorVersion;
+    int         minorVersion;
+    std::string serverVersion;
+    std::string mBuildVersion;
 };
 
 //////////////////////////////////
@@ -145,144 +145,144 @@ typedef boost::shared_ptr<LLVoiceP2PIncomingCallInterface> LLVoiceP2PIncomingCal
 class LLVoiceModuleInterface
 {
 public:
-	LLVoiceModuleInterface() {}
-	virtual ~LLVoiceModuleInterface() {}
+    LLVoiceModuleInterface() {}
+    virtual ~LLVoiceModuleInterface() {}
 
-	virtual void init(LLPumpIO *pump)=0;	// Call this once at application startup (creates connector)
-	virtual void terminate()=0;	// Call this to clean up during shutdown
+    virtual void init(LLPumpIO *pump)=0;    // Call this once at application startup (creates connector)
+    virtual void terminate()=0; // Call this to clean up during shutdown
 
-	virtual void updateSettings()=0; // call after loading settings and whenever they change
+    virtual void updateSettings()=0; // call after loading settings and whenever they change
 
-	virtual bool isVoiceWorking() const = 0; // connected to a voice server and voice channel
+    virtual bool isVoiceWorking() const = 0; // connected to a voice server and voice channel
 
     virtual void setHidden(bool hidden)=0;  //  Hides the user from voice.
 
-	virtual const LLVoiceVersionInfo& getVersion()=0;
+    virtual const LLVoiceVersionInfo& getVersion()=0;
 
 
 
-	/////////////////////
-	/// @name Tuning
-	//@{
-	virtual void tuningStart()=0;
-	virtual void tuningStop()=0;
-	virtual bool inTuningMode()=0;
+    /////////////////////
+    /// @name Tuning
+    //@{
+    virtual void tuningStart()=0;
+    virtual void tuningStop()=0;
+    virtual bool inTuningMode()=0;
 
-	virtual void tuningSetMicVolume(float volume)=0;
-	virtual void tuningSetSpeakerVolume(float volume)=0;
-	virtual float tuningGetEnergy(void)=0;
-	//@}
+    virtual void tuningSetMicVolume(float volume)=0;
+    virtual void tuningSetSpeakerVolume(float volume)=0;
+    virtual float tuningGetEnergy(void)=0;
+    //@}
 
-	/////////////////////
-	/// @name Devices
-	//@{
-	// This returns true when it's safe to bring up the "device settings" dialog in the prefs.
-	// i.e. when the daemon is running and connected, and the device lists are populated.
-	virtual bool deviceSettingsAvailable()=0;
-	virtual bool deviceSettingsUpdated() = 0;
+    /////////////////////
+    /// @name Devices
+    //@{
+    // This returns true when it's safe to bring up the "device settings" dialog in the prefs.
+    // i.e. when the daemon is running and connected, and the device lists are populated.
+    virtual bool deviceSettingsAvailable()=0;
+    virtual bool deviceSettingsUpdated() = 0;
 
-	// Requery the vivox daemon for the current list of input/output devices.
-	// If you pass true for clearCurrentList, deviceSettingsAvailable() will be false until the query has completed
-	// (use this if you want to know when it's done).
-	// If you pass false, you'll have no way to know when the query finishes, but the device lists will not appear empty in the interim.
-	virtual void refreshDeviceLists(bool clearCurrentList = true)=0;
+    // Requery the vivox daemon for the current list of input/output devices.
+    // If you pass true for clearCurrentList, deviceSettingsAvailable() will be false until the query has completed
+    // (use this if you want to know when it's done).
+    // If you pass false, you'll have no way to know when the query finishes, but the device lists will not appear empty in the interim.
+    virtual void refreshDeviceLists(bool clearCurrentList = true)=0;
 
-	virtual void setCaptureDevice(const std::string& name)=0;
-	virtual void setRenderDevice(const std::string& name)=0;
+    virtual void setCaptureDevice(const std::string& name)=0;
+    virtual void setRenderDevice(const std::string& name)=0;
 
-	virtual LLVoiceDeviceList& getCaptureDevices()=0;
-	virtual LLVoiceDeviceList& getRenderDevices()=0;
+    virtual LLVoiceDeviceList& getCaptureDevices()=0;
+    virtual LLVoiceDeviceList& getRenderDevices()=0;
 
-	virtual void getParticipantList(std::set<LLUUID> &participants)=0;
-	virtual bool isParticipant(const LLUUID& speaker_id)=0;
-	//@}
+    virtual void getParticipantList(std::set<LLUUID> &participants)=0;
+    virtual bool isParticipant(const LLUUID& speaker_id)=0;
+    //@}
 
-	////////////////////////////
-	/// @ name Channel stuff
-	//@{
-	// returns true iff the user is currently in a proximal (local spatial) channel.
-	// Note that gestures should only fire if this returns true.
-	virtual bool inProximalChannel()=0;
+    ////////////////////////////
+    /// @ name Channel stuff
+    //@{
+    // returns true iff the user is currently in a proximal (local spatial) channel.
+    // Note that gestures should only fire if this returns true.
+    virtual bool inProximalChannel()=0;
 
-	virtual void setNonSpatialChannel(const LLSD& channelInfo,
-									  bool notify_on_first_join,
-									  bool hangup_on_last_leave)=0;
+    virtual void setNonSpatialChannel(const LLSD& channelInfo,
+                                      bool notify_on_first_join,
+                                      bool hangup_on_last_leave)=0;
 
-	virtual bool setSpatialChannel(const LLSD& channelInfo)=0;
+    virtual bool setSpatialChannel(const LLSD& channelInfo)=0;
 
-	virtual void leaveNonSpatialChannel() = 0;
+    virtual void leaveNonSpatialChannel() = 0;
     virtual void processChannels(bool process) = 0;
 
-	virtual bool isCurrentChannel(const LLSD &channelInfo) = 0;
+    virtual bool isCurrentChannel(const LLSD &channelInfo) = 0;
     virtual bool compareChannels(const LLSD &channelInfo1, const LLSD &channelInfo2) = 0;
 
-	//@}
+    //@}
 
 
-	//////////////////////////
-	/// @name p2p
-	//@{
+    //////////////////////////
+    /// @name p2p
+    //@{
 
     // initiate a call with a peer using the P2P interface, which only applies to some
     // voice server types.  Otherwise, a group call should be used for P2P
     virtual LLVoiceP2POutgoingCallInterface* getOutgoingCallInterface() = 0;
 
-	// an incoming call was received, and the incoming call dialogue is asking for an interface to
-	// answer or decline.
+    // an incoming call was received, and the incoming call dialogue is asking for an interface to
+    // answer or decline.
     virtual LLVoiceP2PIncomingCallInterfacePtr getIncomingCallInterface(const LLSD &voice_call_info) = 0;
-	//@}
+    //@}
 
-	/////////////////////////
-	/// @name Volume/gain
-	//@{
-	virtual void setVoiceVolume(F32 volume)=0;
-	virtual void setMicGain(F32 volume)=0;
-	//@}
+    /////////////////////////
+    /// @name Volume/gain
+    //@{
+    virtual void setVoiceVolume(F32 volume)=0;
+    virtual void setMicGain(F32 volume)=0;
+    //@}
 
-	/////////////////////////
-	/// @name enable disable voice and features
-	//@{
-	virtual void setVoiceEnabled(bool enabled)=0;
-	virtual void setMuteMic(bool muted)=0;		// Set the mute state of the local mic.
-	//@}
+    /////////////////////////
+    /// @name enable disable voice and features
+    //@{
+    virtual void setVoiceEnabled(bool enabled)=0;
+    virtual void setMuteMic(bool muted)=0;      // Set the mute state of the local mic.
+    //@}
 
-	//////////////////////////
-	/// @name nearby speaker accessors
-	//@{
-	virtual std::string getDisplayName(const LLUUID& id)=0;
-	virtual BOOL isParticipantAvatar(const LLUUID &id)=0;
-	virtual BOOL getIsSpeaking(const LLUUID& id)=0;
-	virtual BOOL getIsModeratorMuted(const LLUUID& id)=0;
-	virtual F32 getCurrentPower(const LLUUID& id)=0;		// "power" is related to "amplitude" in a defined way.  I'm just not sure what the formula is...
-	virtual F32 getUserVolume(const LLUUID& id)=0;
-	virtual void setUserVolume(const LLUUID& id, F32 volume)=0; // set's volume for specified agent, from 0-1 (where .5 is nominal)
-	//@}
+    //////////////////////////
+    /// @name nearby speaker accessors
+    //@{
+    virtual std::string getDisplayName(const LLUUID& id)=0;
+    virtual BOOL isParticipantAvatar(const LLUUID &id)=0;
+    virtual BOOL getIsSpeaking(const LLUUID& id)=0;
+    virtual BOOL getIsModeratorMuted(const LLUUID& id)=0;
+    virtual F32 getCurrentPower(const LLUUID& id)=0;        // "power" is related to "amplitude" in a defined way.  I'm just not sure what the formula is...
+    virtual F32 getUserVolume(const LLUUID& id)=0;
+    virtual void setUserVolume(const LLUUID& id, F32 volume)=0; // set's volume for specified agent, from 0-1 (where .5 is nominal)
+    //@}
 
-	//////////////////////////
-	/// @name text chat
-	//@{
-	virtual BOOL isSessionTextIMPossible(const LLUUID& id)=0;
-	virtual BOOL isSessionCallBackPossible(const LLUUID& id)=0;
-	//virtual BOOL sendTextMessage(const LLUUID& participant_id, const std::string& message)=0;
-	//@}
+    //////////////////////////
+    /// @name text chat
+    //@{
+    virtual BOOL isSessionTextIMPossible(const LLUUID& id)=0;
+    virtual BOOL isSessionCallBackPossible(const LLUUID& id)=0;
+    //virtual BOOL sendTextMessage(const LLUUID& participant_id, const std::string& message)=0;
+    //@}
 
-	// authorize the user
-	virtual void userAuthorized(const std::string& user_id,
-								const LLUUID &agentID)=0;
+    // authorize the user
+    virtual void userAuthorized(const std::string& user_id,
+                                const LLUUID &agentID)=0;
 
-	//////////////////////////////
-	/// @name Status notification
-	//@{
-	virtual void addObserver(LLVoiceClientStatusObserver* observer)=0;
-	virtual void removeObserver(LLVoiceClientStatusObserver* observer)=0;
-	virtual void addObserver(LLFriendObserver* observer)=0;
-	virtual void removeObserver(LLFriendObserver* observer)=0;
-	virtual void addObserver(LLVoiceClientParticipantObserver* observer)=0;
-	virtual void removeObserver(LLVoiceClientParticipantObserver* observer)=0;
-	//@}
+    //////////////////////////////
+    /// @name Status notification
+    //@{
+    virtual void addObserver(LLVoiceClientStatusObserver* observer)=0;
+    virtual void removeObserver(LLVoiceClientStatusObserver* observer)=0;
+    virtual void addObserver(LLFriendObserver* observer)=0;
+    virtual void removeObserver(LLFriendObserver* observer)=0;
+    virtual void addObserver(LLVoiceClientParticipantObserver* observer)=0;
+    virtual void removeObserver(LLVoiceClientParticipantObserver* observer)=0;
+    //@}
 
-	virtual std::string sipURIFromID(const LLUUID &id)=0;
-	//@}
+    virtual std::string sipURIFromID(const LLUUID &id)=0;
+    //@}
 
 };
 
@@ -292,8 +292,8 @@ public:
 class LLVoiceEffectObserver
 {
 public:
-	virtual ~LLVoiceEffectObserver() { }
-	virtual void onVoiceEffectChanged(bool effect_list_updated) = 0;
+    virtual ~LLVoiceEffectObserver() { }
+    virtual void onVoiceEffectChanged(bool effect_list_updated) = 0;
 };
 
 typedef std::multimap<const std::string, const LLUUID, LLDictionaryLess> voice_effect_list_t;
@@ -308,228 +308,228 @@ typedef std::multimap<const std::string, const LLUUID, LLDictionaryLess> voice_e
 class LLVoiceEffectInterface
 {
 public:
-	LLVoiceEffectInterface() {}
-	virtual ~LLVoiceEffectInterface() {}
+    LLVoiceEffectInterface() {}
+    virtual ~LLVoiceEffectInterface() {}
 
-	//////////////////////////
-	/// @name Accessors
-	//@{
-	virtual bool setVoiceEffect(const LLUUID& id) = 0;
-	virtual const LLUUID getVoiceEffect() = 0;
-	virtual LLSD getVoiceEffectProperties(const LLUUID& id) = 0;
+    //////////////////////////
+    /// @name Accessors
+    //@{
+    virtual bool setVoiceEffect(const LLUUID& id) = 0;
+    virtual const LLUUID getVoiceEffect() = 0;
+    virtual LLSD getVoiceEffectProperties(const LLUUID& id) = 0;
 
-	virtual void refreshVoiceEffectLists(bool clear_lists) = 0;
-	virtual const voice_effect_list_t &getVoiceEffectList() const = 0;
-	virtual const voice_effect_list_t &getVoiceEffectTemplateList() const = 0;
-	//@}
+    virtual void refreshVoiceEffectLists(bool clear_lists) = 0;
+    virtual const voice_effect_list_t &getVoiceEffectList() const = 0;
+    virtual const voice_effect_list_t &getVoiceEffectTemplateList() const = 0;
+    //@}
 
-	//////////////////////////////
-	/// @name Status notification
-	//@{
-	virtual void addObserver(LLVoiceEffectObserver* observer) = 0;
-	virtual void removeObserver(LLVoiceEffectObserver* observer) = 0;
-	//@}
+    //////////////////////////////
+    /// @name Status notification
+    //@{
+    virtual void addObserver(LLVoiceEffectObserver* observer) = 0;
+    virtual void removeObserver(LLVoiceEffectObserver* observer) = 0;
+    //@}
 
-	//////////////////////////////
-	/// @name Preview buffer
-	//@{
-	virtual void enablePreviewBuffer(bool enable) = 0;
-	virtual void recordPreviewBuffer() = 0;
-	virtual void playPreviewBuffer(const LLUUID& effect_id = LLUUID::null) = 0;
-	virtual void stopPreviewBuffer() = 0;
+    //////////////////////////////
+    /// @name Preview buffer
+    //@{
+    virtual void enablePreviewBuffer(bool enable) = 0;
+    virtual void recordPreviewBuffer() = 0;
+    virtual void playPreviewBuffer(const LLUUID& effect_id = LLUUID::null) = 0;
+    virtual void stopPreviewBuffer() = 0;
 
-	virtual bool isPreviewRecording() = 0;
-	virtual bool isPreviewPlaying() = 0;
-	//@}
+    virtual bool isPreviewRecording() = 0;
+    virtual bool isPreviewPlaying() = 0;
+    //@}
 };
 
 
 class LLVoiceClient: public LLParamSingleton<LLVoiceClient>
 {
-	LLSINGLETON(LLVoiceClient, LLPumpIO *pump);
-	LOG_CLASS(LLVoiceClient);
-	~LLVoiceClient();
+    LLSINGLETON(LLVoiceClient, LLPumpIO *pump);
+    LOG_CLASS(LLVoiceClient);
+    ~LLVoiceClient();
 
 public:
-	typedef boost::signals2::signal<void(void)> micro_changed_signal_t;
-	micro_changed_signal_t mMicroChangedSignal;
+    typedef boost::signals2::signal<void(void)> micro_changed_signal_t;
+    micro_changed_signal_t mMicroChangedSignal;
 
-	void terminate();	// Call this to clean up during shutdown
+    void terminate();   // Call this to clean up during shutdown
 
-	const LLVoiceVersionInfo getVersion();
+    const LLVoiceVersionInfo getVersion();
 
-	static const F32 OVERDRIVEN_POWER_LEVEL;
+    static const F32 OVERDRIVEN_POWER_LEVEL;
 
-	static const F32 VOLUME_MIN;
-	static const F32 VOLUME_DEFAULT;
-	static const F32 VOLUME_MAX;
+    static const F32 VOLUME_MIN;
+    static const F32 VOLUME_DEFAULT;
+    static const F32 VOLUME_MAX;
 
-	void updateSettings(); // call after loading settings and whenever they change
+    void updateSettings(); // call after loading settings and whenever they change
 
-	bool isVoiceWorking() const; // connected to a voice server and voice channel
+    bool isVoiceWorking() const; // connected to a voice server and voice channel
 
-	// tuning
-	void tuningStart();
-	void tuningStop();
-	bool inTuningMode();
+    // tuning
+    void tuningStart();
+    void tuningStop();
+    bool inTuningMode();
 
-	void tuningSetMicVolume(float volume);
-	void tuningSetSpeakerVolume(float volume);
-	float tuningGetEnergy(void);
+    void tuningSetMicVolume(float volume);
+    void tuningSetSpeakerVolume(float volume);
+    float tuningGetEnergy(void);
 
-	// devices
+    // devices
 
-	// This returns true when it's safe to bring up the "device settings" dialog in the prefs.
-	// i.e. when the daemon is running and connected, and the device lists are populated.
-	bool deviceSettingsAvailable();
-	bool deviceSettingsUpdated();	// returns true when the device list has been updated recently.
+    // This returns true when it's safe to bring up the "device settings" dialog in the prefs.
+    // i.e. when the daemon is running and connected, and the device lists are populated.
+    bool deviceSettingsAvailable();
+    bool deviceSettingsUpdated();   // returns true when the device list has been updated recently.
 
-	// Requery the vivox daemon for the current list of input/output devices.
-	// If you pass true for clearCurrentList, deviceSettingsAvailable() will be false until the query has completed
-	// (use this if you want to know when it's done).
-	// If you pass false, you'll have no way to know when the query finishes, but the device lists will not appear empty in the interim.
-	void refreshDeviceLists(bool clearCurrentList = true);
+    // Requery the vivox daemon for the current list of input/output devices.
+    // If you pass true for clearCurrentList, deviceSettingsAvailable() will be false until the query has completed
+    // (use this if you want to know when it's done).
+    // If you pass false, you'll have no way to know when the query finishes, but the device lists will not appear empty in the interim.
+    void refreshDeviceLists(bool clearCurrentList = true);
 
-	void setCaptureDevice(const std::string& name);
-	void setRenderDevice(const std::string& name);
+    void setCaptureDevice(const std::string& name);
+    void setRenderDevice(const std::string& name);
     void setHidden(bool hidden);
 
-	const LLVoiceDeviceList& getCaptureDevices();
-	const LLVoiceDeviceList& getRenderDevices();
+    const LLVoiceDeviceList& getCaptureDevices();
+    const LLVoiceDeviceList& getRenderDevices();
 
-	////////////////////////////
-	// Channel stuff
-	//
+    ////////////////////////////
+    // Channel stuff
+    //
 
-	// returns true iff the user is currently in a proximal (local spatial) channel.
-	// Note that gestures should only fire if this returns true.
-	bool inProximalChannel();
+    // returns true iff the user is currently in a proximal (local spatial) channel.
+    // Note that gestures should only fire if this returns true.
+    bool inProximalChannel();
 
-	void setNonSpatialChannel(const LLSD& channelInfo,
-		                      bool notify_on_first_join,
-							  bool hangup_on_last_leave);
+    void setNonSpatialChannel(const LLSD& channelInfo,
+                              bool notify_on_first_join,
+                              bool hangup_on_last_leave);
 
-	void setSpatialChannel(const LLSD &channelInfo);
+    void setSpatialChannel(const LLSD &channelInfo);
 
-	void activateSpatialChannel(bool activate);
+    void activateSpatialChannel(bool activate);
 
-	void leaveNonSpatialChannel();
+    void leaveNonSpatialChannel();
 
-	bool isCurrentChannel(const LLSD& channelInfo);
+    bool isCurrentChannel(const LLSD& channelInfo);
 
-	bool compareChannels(const LLSD& channelInfo1, const LLSD& channelInfo2);
+    bool compareChannels(const LLSD& channelInfo1, const LLSD& channelInfo2);
 
-	// initiate a call with a peer using the P2P interface, which only applies to some
-	// voice server types.  Otherwise, a group call should be used for P2P
-	LLVoiceP2POutgoingCallInterface* getOutgoingCallInterface(const LLSD& voiceChannelInfo = LLSD());
+    // initiate a call with a peer using the P2P interface, which only applies to some
+    // voice server types.  Otherwise, a group call should be used for P2P
+    LLVoiceP2POutgoingCallInterface* getOutgoingCallInterface(const LLSD& voiceChannelInfo = LLSD());
 
-	LLVoiceP2PIncomingCallInterfacePtr getIncomingCallInterface(const LLSD &voiceCallInfo);
+    LLVoiceP2PIncomingCallInterfacePtr getIncomingCallInterface(const LLSD &voiceCallInfo);
 
-	/////////////////////////////
-	// Sending updates of current state
-
-
-	void setVoiceVolume(F32 volume);
-	void setMicGain(F32 volume);
-	void setUserVolume(const LLUUID& id, F32 volume); // set's volume for specified agent, from 0-1 (where .5 is nominal)
-	bool voiceEnabled();
-	void setMuteMic(bool muted);		// Use this to mute the local mic (for when the client is minimized, etc), ignoring user PTT state.
-	void setUserPTTState(bool ptt);
-	bool getUserPTTState();
-	void toggleUserPTTState(void);
-	void inputUserControlState(bool down);  // interpret any sort of up-down mic-open control input according to ptt-toggle prefs
-	void setVoiceEnabled(bool enabled);
-
-	void setUsePTT(bool usePTT);
-	void setPTTIsToggle(bool PTTIsToggle);
-	bool getPTTIsToggle();
-
-	void updateMicMuteLogic();
-
-	boost::signals2::connection MicroChangedCallback(const micro_changed_signal_t::slot_type& cb ) { return mMicroChangedSignal.connect(cb); }
+    /////////////////////////////
+    // Sending updates of current state
 
 
-	/////////////////////////////
-	// Accessors for data related to nearby speakers
-	BOOL getVoiceEnabled(const LLUUID& id);		// true if we've received data for this avatar
-	std::string getDisplayName(const LLUUID& id);
-	BOOL isOnlineSIP(const LLUUID &id);
-	BOOL isParticipantAvatar(const LLUUID &id);
-	BOOL getIsSpeaking(const LLUUID& id);
-	BOOL getIsModeratorMuted(const LLUUID& id);
-	F32 getCurrentPower(const LLUUID& id);		// "power" is related to "amplitude" in a defined way.  I'm just not sure what the formula is...
-	BOOL getOnMuteList(const LLUUID& id);
-	F32 getUserVolume(const LLUUID& id);
+    void setVoiceVolume(F32 volume);
+    void setMicGain(F32 volume);
+    void setUserVolume(const LLUUID& id, F32 volume); // set's volume for specified agent, from 0-1 (where .5 is nominal)
+    bool voiceEnabled();
+    void setMuteMic(bool muted);        // Use this to mute the local mic (for when the client is minimized, etc), ignoring user PTT state.
+    void setUserPTTState(bool ptt);
+    bool getUserPTTState();
+    void toggleUserPTTState(void);
+    void inputUserControlState(bool down);  // interpret any sort of up-down mic-open control input according to ptt-toggle prefs
+    void setVoiceEnabled(bool enabled);
 
-	/////////////////////////////
-	void getParticipantList(std::set<LLUUID> &participants);
-	bool isParticipant(const LLUUID& speaker_id);
+    void setUsePTT(bool usePTT);
+    void setPTTIsToggle(bool PTTIsToggle);
+    bool getPTTIsToggle();
 
-	//////////////////////////
-	/// @name text chat
-	//@{
-	BOOL isSessionTextIMPossible(const LLUUID& id);
-	BOOL isSessionCallBackPossible(const LLUUID& id);
-	//BOOL sendTextMessage(const LLUUID& participant_id, const std::string& message) const {return true;} ;
-	//@}
+    void updateMicMuteLogic();
 
-	void setSpatialVoiceModule(const std::string& voice_server_type);
-	void setNonSpatialVoiceModule(const std::string &voice_server_type);
+    boost::signals2::connection MicroChangedCallback(const micro_changed_signal_t::slot_type& cb ) { return mMicroChangedSignal.connect(cb); }
 
-	void userAuthorized(const std::string& user_id,
-						const LLUUID &agentID);
 
-	void onRegionChanged();
+    /////////////////////////////
+    // Accessors for data related to nearby speakers
+    BOOL getVoiceEnabled(const LLUUID& id);     // true if we've received data for this avatar
+    std::string getDisplayName(const LLUUID& id);
+    BOOL isOnlineSIP(const LLUUID &id);
+    BOOL isParticipantAvatar(const LLUUID &id);
+    BOOL getIsSpeaking(const LLUUID& id);
+    BOOL getIsModeratorMuted(const LLUUID& id);
+    F32 getCurrentPower(const LLUUID& id);      // "power" is related to "amplitude" in a defined way.  I'm just not sure what the formula is...
+    BOOL getOnMuteList(const LLUUID& id);
+    F32 getUserVolume(const LLUUID& id);
 
-	void addObserver(LLVoiceClientStatusObserver* observer);
-	void removeObserver(LLVoiceClientStatusObserver* observer);
-	void addObserver(LLFriendObserver* observer);
-	void removeObserver(LLFriendObserver* observer);
-	void addObserver(LLVoiceClientParticipantObserver* observer);
-	void removeObserver(LLVoiceClientParticipantObserver* observer);
+    /////////////////////////////
+    void getParticipantList(std::set<LLUUID> &participants);
+    bool isParticipant(const LLUUID& speaker_id);
 
-	std::string sipURIFromID(const LLUUID &id);
+    //////////////////////////
+    /// @name text chat
+    //@{
+    BOOL isSessionTextIMPossible(const LLUUID& id);
+    BOOL isSessionCallBackPossible(const LLUUID& id);
+    //BOOL sendTextMessage(const LLUUID& participant_id, const std::string& message) const {return true;} ;
+    //@}
 
-	//////////////////////////
-	/// @name Voice effects
-	//@{
-	bool getVoiceEffectEnabled() const { return mVoiceEffectEnabled; };
-	LLUUID getVoiceEffectDefault() const { return LLUUID(mVoiceEffectDefault); };
+    void setSpatialVoiceModule(const std::string& voice_server_type);
+    void setNonSpatialVoiceModule(const std::string &voice_server_type);
 
-	// Returns NULL if voice effects are not supported, or not enabled.
-	LLVoiceEffectInterface* getVoiceEffectInterface() const;
-	//@}
+    void userAuthorized(const std::string& user_id,
+                        const LLUUID &agentID);
+
+    void onRegionChanged();
+
+    void addObserver(LLVoiceClientStatusObserver* observer);
+    void removeObserver(LLVoiceClientStatusObserver* observer);
+    void addObserver(LLFriendObserver* observer);
+    void removeObserver(LLFriendObserver* observer);
+    void addObserver(LLVoiceClientParticipantObserver* observer);
+    void removeObserver(LLVoiceClientParticipantObserver* observer);
+
+    std::string sipURIFromID(const LLUUID &id);
+
+    //////////////////////////
+    /// @name Voice effects
+    //@{
+    bool getVoiceEffectEnabled() const { return mVoiceEffectEnabled; };
+    LLUUID getVoiceEffectDefault() const { return LLUUID(mVoiceEffectDefault); };
+
+    // Returns NULL if voice effects are not supported, or not enabled.
+    LLVoiceEffectInterface* getVoiceEffectInterface() const;
+    //@}
 
     void handleSimulatorFeaturesReceived(const LLSD &simulatorFeatures);
 
   private:
 
-	void init(LLPumpIO *pump);
+    void init(LLPumpIO *pump);
 
 protected:
 
-	LLVoiceModuleInterface* mSpatialVoiceModule;
+    LLVoiceModuleInterface* mSpatialVoiceModule;
     LLVoiceModuleInterface* mNonSpatialVoiceModule;
     LLSD                    mSpatialCredentials;  // used to store spatial credentials for vivox
-	                                              // so they're available when the region voice
-	                                              // server is retrieved.
-	LLPumpIO *m_servicePump;
+                                                  // so they're available when the region voice
+                                                  // server is retrieved.
+    LLPumpIO *m_servicePump;
 
     boost::signals2::connection  mSimulatorFeaturesReceivedSlot;
 
-	LLCachedControl<bool> mVoiceEffectEnabled;
-	LLCachedControl<std::string> mVoiceEffectDefault;
+    LLCachedControl<bool> mVoiceEffectEnabled;
+    LLCachedControl<std::string> mVoiceEffectDefault;
 
-	bool		mPTTDirty;
-	bool		mPTT;
+    bool        mPTTDirty;
+    bool        mPTT;
 
-	bool		mUsePTT;
-	S32			mPTTMouseButton;
-	KEY			mPTTKey;
-	bool		mPTTIsToggle;
-	bool		mUserPTTState;
-	bool		mMuteMic;
-	bool		mDisableMic;
+    bool        mUsePTT;
+    S32         mPTTMouseButton;
+    KEY         mPTTKey;
+    bool        mPTTIsToggle;
+    bool        mUserPTTState;
+    bool        mMuteMic;
+    bool        mDisableMic;
 };
 
 /**
@@ -537,50 +537,50 @@ protected:
  **/
 class LLSpeakerVolumeStorage : public LLSingleton<LLSpeakerVolumeStorage>
 {
-	LLSINGLETON_C11(LLSpeakerVolumeStorage);
-	~LLSpeakerVolumeStorage();
-	LOG_CLASS(LLSpeakerVolumeStorage);
+    LLSINGLETON_C11(LLSpeakerVolumeStorage);
+    ~LLSpeakerVolumeStorage();
+    LOG_CLASS(LLSpeakerVolumeStorage);
 
 protected:
     virtual void cleanupSingleton() override;
 
 public:
 
-	/**
-	 * Stores volume level for specified user.
-	 *
-	 * @param[in] speaker_id - LLUUID of user to store volume level for.
-	 * @param[in] volume - volume level to be stored for user.
-	 */
-	void storeSpeakerVolume(const LLUUID& speaker_id, F32 volume);
+    /**
+     * Stores volume level for specified user.
+     *
+     * @param[in] speaker_id - LLUUID of user to store volume level for.
+     * @param[in] volume - volume level to be stored for user.
+     */
+    void storeSpeakerVolume(const LLUUID& speaker_id, F32 volume);
 
-	/**
-	 * Gets stored volume level for specified speaker
-	 *
-	 * @param[in] speaker_id - LLUUID of user to retrieve volume level for.
-	 * @param[out] volume - set to stored volume if found, otherwise unmodified.
-	 * @return - true if a stored volume is found.
-	 */
-	bool getSpeakerVolume(const LLUUID& speaker_id, F32& volume);
+    /**
+     * Gets stored volume level for specified speaker
+     *
+     * @param[in] speaker_id - LLUUID of user to retrieve volume level for.
+     * @param[out] volume - set to stored volume if found, otherwise unmodified.
+     * @return - true if a stored volume is found.
+     */
+    bool getSpeakerVolume(const LLUUID& speaker_id, F32& volume);
 
-	/**
-	 * Removes stored volume level for specified user.
-	 *
-	 * @param[in] speaker_id - LLUUID of user to remove.
-	 */
-	void removeSpeakerVolume(const LLUUID& speaker_id);
+    /**
+     * Removes stored volume level for specified user.
+     *
+     * @param[in] speaker_id - LLUUID of user to remove.
+     */
+    void removeSpeakerVolume(const LLUUID& speaker_id);
 
 private:
-	const static std::string SETTINGS_FILE_NAME;
+    const static std::string SETTINGS_FILE_NAME;
 
-	void load();
-	void save();
+    void load();
+    void save();
 
-	static F32 transformFromLegacyVolume(F32 volume_in);
-	static F32 transformToLegacyVolume(F32 volume_in);
+    static F32 transformFromLegacyVolume(F32 volume_in);
+    static F32 transformToLegacyVolume(F32 volume_in);
 
-	typedef std::map<LLUUID, F32> speaker_data_map_t;
-	speaker_data_map_t mSpeakersData;
+    typedef std::map<LLUUID, F32> speaker_data_map_t;
+    speaker_data_map_t mSpeakersData;
 };
 
 #endif //LL_VOICE_CLIENT_H
