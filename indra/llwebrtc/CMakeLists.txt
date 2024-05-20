@@ -10,8 +10,9 @@ include(WebRTC)
 
 project(llwebrtc)
 
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++ -lc++abi")
-
+if (LINUX)
+    add_compile_options(-Wno-deprecated-declarations) # webrtc::CreateAudioDeviceWithDataObserver is deprecated
+endif (LINUX)
 
 set(llwebrtc_SOURCE_FILES
     llwebrtc.cpp
@@ -26,7 +27,7 @@ set(llwebrtc_HEADER_FILES
 list(APPEND llwebrtc_SOURCE_FILES ${llwebrtc_HEADER_FILES})
 
 add_library (llwebrtc SHARED ${llwebrtc_SOURCE_FILES})
-    
+
 set_target_properties(llwebrtc PROPERTIES PUBLIC_HEADER llwebrtc.h)
 
 if (WINDOWS)
@@ -44,7 +45,7 @@ elseif (LINUX)
     target_link_libraries(llwebrtc PRIVATE ll::webrtc)
 endif (WINDOWS)
     
-target_include_directories( llwebrtc  INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories( llwebrtc INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 
 if (WINDOWS)
     set_property(TARGET llwebrtc PROPERTY

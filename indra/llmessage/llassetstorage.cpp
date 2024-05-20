@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llassetstorage.cpp
  * @brief Implementation of the base asset storage system.
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -74,18 +74,18 @@ namespace
         return false;
     }
 
-// Rider: This is the general case of the operator declared above. The code compares the callback 
-// passed into the LLAssetStorage functions to determine if there are duplicated requests for an 
-// asset.  Unfortunately std::function does not provide a direct way to compare two variables so 
-// we define the operator here. 
-// XCode is not very happy with the variadic temples in use below so we will just define the specific 
+// Rider: This is the general case of the operator declared above. The code compares the callback
+// passed into the LLAssetStorage functions to determine if there are duplicated requests for an
+// asset.  Unfortunately std::function does not provide a direct way to compare two variables so
+// we define the operator here.
+// XCode is not very happy with the variadic temples in use below so we will just define the specific
 // case of comparing two LLGetAssetCallback objects since that is all we really use.
-// 
+//
 //     template<typename T, typename... U>
 //     bool operator == (const std::function<T(U...)> &a, const std::function <T(U...)> &b)
 //     {
 //         typedef T(fnType)(U...);
-// 
+//
 //         auto fnPtrA = a.target<T(*)(U...)>();
 //         auto fnPtrB = b.target<T(*)(U...)>();
 //         if (fnPtrA && fnPtrB)
@@ -112,8 +112,8 @@ LLAssetInfo::LLAssetInfo( void )
 LLAssetInfo::LLAssetInfo( const LLUUID& object_id, const LLUUID& creator_id,
                           LLAssetType::EType type, const char* name,
                           const char* desc )
-    :   mUuid( object_id ), 
-        mCreatorID( creator_id ), 
+    :   mUuid( object_id ),
+        mCreatorID( creator_id ),
         mType( type )
 {
     setName( name );
@@ -355,7 +355,7 @@ void LLAssetStorage::_init(LLMessageSystem *msg,
 LLAssetStorage::~LLAssetStorage()
 {
     mShutDown = TRUE;
-    
+
     _cleanupRequests(TRUE, LL_ERR_CIRCUIT_GONE);
 
     if (gMessageSystem)
@@ -372,7 +372,7 @@ LLAssetStorage::~LLAssetStorage()
 void LLAssetStorage::setUpstream(const LLHost &upstream_host)
 {
     LL_DEBUGS("AppInit") << "AssetStorage: Setting upstream provider to " << upstream_host << LL_ENDL;
-    
+
     mUpstreamHost = upstream_host;
 }
 
@@ -398,7 +398,7 @@ void LLAssetStorage::_cleanupRequests(BOOL all, S32 error)
             // if all is true, we want to clean up everything
             // otherwise just check for timed out requests
             // EXCEPT for upload timeouts
-            if (all 
+            if (all
                 || ((RT_DOWNLOAD == rt)
                     && LL_ASSET_STORAGE_TIMEOUT < (mt_secs - tmp->mTime)))
             {
@@ -406,7 +406,7 @@ void LLAssetStorage::_cleanupRequests(BOOL all, S32 error)
                                          << (all ? "aborted" : "timed out") << " for "
                                          << tmp->getUUID() << "."
                                          << LLAssetType::lookup(tmp->getType()) << LL_ENDL;
-                
+
                 timed_out.push_front(tmp);
                 iter = requests->erase(curiter);
             }
@@ -477,11 +477,11 @@ bool LLAssetStorage::findInCacheAndInvokeCallback(const LLUUID& uuid, LLAssetTyp
 // GET routines
 ///////////////////////////////////////////////////////////////////////////
 
-// IW - uuid is passed by value to avoid side effects, please don't re-add &    
+// IW - uuid is passed by value to avoid side effects, please don't re-add &
 void LLAssetStorage::getAssetData(const LLUUID uuid,
-                                  LLAssetType::EType type, 
+                                  LLAssetType::EType type,
                                   LLAssetStorage::LLGetAssetCallback callback,
-                                  void *user_data, 
+                                  void *user_data,
                                   BOOL is_priority)
 {
     LL_DEBUGS("AssetStorage") << "LLAssetStorage::getAssetData() - " << uuid << "," << LLAssetType::lookup(type) << LL_ENDL;
@@ -546,9 +546,9 @@ void LLAssetStorage::getAssetData(const LLUUID uuid,
             LL_WARNS("AssetStorage") << "Asset vfile " << uuid << ":" << type << " found with bad size " << file.getSize() << ", removing" << LL_ENDL;
             file.remove();
         }
-        
+
         BOOL duplicate = FALSE;
-        
+
         // check to see if there's a pending download of this uuid already
         for (request_list_t::iterator iter = mPendingDownloads.begin();
              iter != mPendingDownloads.end(); ++iter )
@@ -563,7 +563,7 @@ void LLAssetStorage::getAssetData(const LLUUID uuid,
                                              << "." << LLAssetType::lookup(type) << LL_ENDL;
                     return;
                 }
-                
+
                 // this is a duplicate request
                 // queue the request, but don't actually ask for it again
                 duplicate = TRUE;
@@ -571,11 +571,11 @@ void LLAssetStorage::getAssetData(const LLUUID uuid,
         }
         if (duplicate)
         {
-            LL_DEBUGS("AssetStorage") << "Adding additional non-duplicate request for asset " << uuid 
+            LL_DEBUGS("AssetStorage") << "Adding additional non-duplicate request for asset " << uuid
                                       << "." << LLAssetType::lookup(type) << LL_ENDL;
         }
-        
-        _queueDataRequest(uuid, type, callback, user_data, duplicate, is_priority);     
+
+        _queueDataRequest(uuid, type, callback, user_data, duplicate, is_priority);
     }
 }
 
@@ -645,7 +645,7 @@ void LLAssetStorage::downloadCompleteCallback(
 
     // Inefficient since we're doing a find through a list that may have thousands of elements.
     // This is due for refactoring; we will probably change mPendingDownloads into a set.
-    request_list_t::iterator download_iter = std::find(gAssetStorage->mPendingDownloads.begin(), 
+    request_list_t::iterator download_iter = std::find(gAssetStorage->mPendingDownloads.begin(),
                                                        gAssetStorage->mPendingDownloads.end(),
                                                        req);
 
@@ -668,7 +668,7 @@ void LLAssetStorage::downloadCompleteCallback(
         if (vfile.getSize() <= 0)
         {
             LL_WARNS("AssetStorage") << "downloadCompleteCallback has non-existent or zero-size asset " << callback_id << LL_ENDL;
-            
+
             result = LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE;
             vfile.remove();
         }
@@ -693,13 +693,13 @@ void LLAssetStorage::downloadCompleteCallback(
 
 void LLAssetStorage::getEstateAsset(
     const LLHost &object_sim,
-    const LLUUID &agent_id, 
+    const LLUUID &agent_id,
     const LLUUID &session_id,
-    const LLUUID &asset_id, 
-    LLAssetType::EType atype, 
+    const LLUUID &asset_id,
+    LLAssetType::EType atype,
     EstateAssetType etype,
-    LLGetAssetCallback callback, 
-    void *user_data, 
+    LLGetAssetCallback callback,
+    void *user_data,
     BOOL is_priority)
 {
     LL_DEBUGS() << "LLAssetStorage::getEstateAsset() - " << asset_id << "," << LLAssetType::lookup(atype) << ", estatetype " << etype << LL_ENDL;
@@ -723,7 +723,7 @@ void LLAssetStorage::getEstateAsset(
     {
         return;
     }
-    
+
     BOOL exists = LLFileSystem::getExists(asset_id, atype);
     LLFileSystem file(asset_id, atype);
     U32 size = exists ? file.getSize() : 0;
@@ -836,21 +836,21 @@ void LLAssetStorage::downloadEstateAssetCompleteCallback(
 }
 
 void LLAssetStorage::getInvItemAsset(
-    const LLHost &object_sim, 
-    const LLUUID &agent_id, 
+    const LLHost &object_sim,
+    const LLUUID &agent_id,
     const LLUUID &session_id,
     const LLUUID &owner_id,
-    const LLUUID &task_id, 
+    const LLUUID &task_id,
     const LLUUID &item_id,
-    const LLUUID &asset_id, 
+    const LLUUID &asset_id,
     LLAssetType::EType atype,
-    LLGetAssetCallback callback, 
-    void *user_data, 
+    LLGetAssetCallback callback,
+    void *user_data,
     BOOL is_priority)
 {
     LL_DEBUGS() << "LLAssetStorage::getInvItemAsset() - " << asset_id << "," << LLAssetType::lookup(atype) << LL_ENDL;
 
-    bool exists = false; 
+    bool exists = false;
     U32 size = 0;
 
     if(asset_id.notNull())
@@ -910,7 +910,7 @@ void LLAssetStorage::getInvItemAsset(
             spi.setAsset(asset_id, atype);
 
             LL_DEBUGS("ViewerAsset") << "requesting inv item id " << item_id << " asset_id " << asset_id << " type " << LLAssetType::lookup(atype) << LL_ENDL;
-            
+
             // Set our destination file, and the completion callback.
             LLTransferTargetParamsVFile tpvf;
             tpvf.setAsset(asset_id, atype);
@@ -984,9 +984,9 @@ void LLAssetStorage::downloadInvItemCompleteCallback(
 
 // static
 void LLAssetStorage::uploadCompleteCallback(
-    const LLUUID& uuid, 
-    void *user_data, 
-    S32 result, 
+    const LLUUID& uuid,
+    void *user_data,
+    S32 result,
     LLExtStat ext_status) // StoreAssetData callback (fixed)
 {
     if (!gAssetStorage)
@@ -1190,7 +1190,7 @@ const LLAssetRequest* LLAssetStorage::findRequest(const LLAssetStorage::request_
                                                   LLAssetType::EType asset_type,
                                                   const LLUUID& asset_id)
 {
-    if (requests) 
+    if (requests)
     {
         // Search the requests list for the asset.
         request_list_t::const_iterator iter = requests->begin();
@@ -1213,7 +1213,7 @@ LLAssetRequest* LLAssetStorage::findRequest(LLAssetStorage::request_list_t* requ
                                             LLAssetType::EType asset_type,
                                             const LLUUID& asset_id)
 {
-    if (requests) 
+    if (requests)
     {
         // Search the requests list for the asset.
         request_list_t::iterator iter = requests->begin();
@@ -1296,7 +1296,7 @@ bool LLAssetStorage::deletePendingRequestImpl(LLAssetStorage::request_list_t* re
         delete req;
         return true;
     }
-    
+
     return false;
 }
 
@@ -1340,14 +1340,14 @@ const char* LLAssetStorage::getErrorString(S32 status)
     }
 }
 
-void LLAssetStorage::getAssetData(const LLUUID uuid, 
-                                  LLAssetType::EType type, 
-                                  void (*callback)(const char*, 
-                                                   const LLUUID&, 
-                                                   void *, 
-                                                   S32, 
-                                                   LLExtStat), 
-                                  void *user_data, 
+void LLAssetStorage::getAssetData(const LLUUID uuid,
+                                  LLAssetType::EType type,
+                                  void (*callback)(const char*,
+                                                   const LLUUID&,
+                                                   void *,
+                                                   S32,
+                                                   LLExtStat),
+                                  void *user_data,
                                   BOOL is_priority)
 {
     // check for duplicates here, since we're about to fool the normal duplicate checker
@@ -1358,7 +1358,7 @@ void LLAssetStorage::getAssetData(const LLUUID uuid,
 
         auto cbptr = tmp->mDownCallback.target<void(*)(const LLUUID &, LLAssetType::EType, void *, S32, LLExtStat)>();
 
-        if (type == tmp->getType() && 
+        if (type == tmp->getType() &&
             uuid == tmp->getUUID() &&
             (cbptr && (*cbptr == legacyGetDataCallback)) &&
             callback == ((LLLegacyAssetRequest *)tmp->mUserData)->mDownCallback &&
@@ -1369,8 +1369,8 @@ void LLAssetStorage::getAssetData(const LLUUID uuid,
             return;
         }
     }
-    
-    
+
+
     LLLegacyAssetRequest *legacy = new LLLegacyAssetRequest;
 
     legacy->mDownCallback = callback;
@@ -1381,10 +1381,10 @@ void LLAssetStorage::getAssetData(const LLUUID uuid,
 }
 
 // static
-void LLAssetStorage::legacyGetDataCallback(const LLUUID &uuid, 
+void LLAssetStorage::legacyGetDataCallback(const LLUUID &uuid,
                                            LLAssetType::EType type,
-                                           void *user_data, 
-                                           S32 status, 
+                                           void *user_data,
+                                           S32 status,
                                            LLExtStat ext_status)
 {
     LLLegacyAssetRequest *legacy = (LLLegacyAssetRequest *)user_data;
@@ -1403,7 +1403,7 @@ void LLAssetStorage::legacyGetDataCallback(const LLUUID &uuid,
         uuid.toString(uuid_str);
         filename = llformat("%s.%s",gDirUtilp->getExpandedFilename(LL_PATH_CACHE,uuid_str).c_str(),LLAssetType::lookup(type));
 
-        LLFILE* fp = LLFile::fopen(filename, "wb");     /* Flawfinder: ignore */ 
+        LLFILE* fp = LLFile::fopen(filename, "wb");     /* Flawfinder: ignore */
         if (fp)
         {
             const S32 buf_size = 65536;
@@ -1458,7 +1458,7 @@ void LLAssetStorage::reportMetric( const LLUUID& asset_id, const LLAssetType::ET
     std::string filename(in_filename);
     if (filename.empty())
         filename = ll_safe_string(file);
-    
+
     // Create revised message - new_message = "in_message :: file:line"
     std::stringstream new_message;
     new_message << in_message << " :: " << filename << ":" << line;
@@ -1500,7 +1500,7 @@ BOOL LLAssetStorage::isAssetToxic( const LLUUID& uuid )
         {   // Found toxic asset
             (*iter).second = LLFrameTimer::getTotalTime() + TOXIC_ASSET_LIFETIME;
             is_toxic = TRUE;
-        } 
+        }
     }
     return is_toxic;
 }
@@ -1531,7 +1531,7 @@ void LLAssetStorage::flushOldToxicAssets( BOOL force_it )
 
 // Add an item to the toxic asset map
 void LLAssetStorage::markAssetToxic( const LLUUID& uuid )
-{   
+{
     if ( !uuid.isNull() )
     {
         // Set the value to the current time.  Creates a new entry if needed

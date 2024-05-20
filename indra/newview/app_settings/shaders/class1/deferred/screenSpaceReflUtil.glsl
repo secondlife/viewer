@@ -25,7 +25,7 @@
 
 // debug stub
 
-float random (vec2 uv) 
+float random (vec2 uv)
 {
     return 0;
 }

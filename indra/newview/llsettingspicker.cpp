@@ -1,4 +1,4 @@
-/** 
+/**
 * @author Rider Linden
 * @brief LLSettingsPicker class header file including related functions
 *
@@ -82,7 +82,7 @@ LLFloaterSettingsPicker::LLFloaterSettingsPicker(LLView * owner, LLUUID initial_
 }
 
 
-LLFloaterSettingsPicker::~LLFloaterSettingsPicker() 
+LLFloaterSettingsPicker::~LLFloaterSettingsPicker()
 {
 
 }
@@ -99,7 +99,7 @@ BOOL LLFloaterSettingsPicker::postBuild()
 
     mFilterEdit = getChild<LLFilterEditor>(FLT_INVENTORY_SEARCH);
     mFilterEdit->setCommitCallback([this](LLUICtrl*, const LLSD& param){ onFilterEdit(param.asString()); });
-    
+
     mInventoryPanel = getChild<LLInventoryPanel>(PNL_INVENTORY);
     if (mInventoryPanel)
     {
@@ -160,7 +160,7 @@ void LLFloaterSettingsPicker::setValue(const LLSD& value)
     mSettingItemID = value.asUUID();
 }
 
-LLSD LLFloaterSettingsPicker::getValue() const 
+LLSD LLFloaterSettingsPicker::getValue() const
 {
     return LLSD(mSettingItemID);
 }
@@ -335,7 +335,7 @@ void LLFloaterSettingsPicker::onAssetLoaded(LLUUID asset_id, LLSettingsBase::ptr
             }
         }
     }
-    
+
     mSettingAssetID = asset_id;
     track_selection->setEnabled(true);
     track_selection->selectFirstItem();

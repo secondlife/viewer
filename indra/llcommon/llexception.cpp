@@ -3,7 +3,7 @@
  * @author Nat Goodspeed
  * @date   2016-08-12
  * @brief  Implementation for llexception.
- * 
+ *
  * $LicenseInfo:firstyear=2016&license=viewerlgpl$
  * Copyright (c) 2016, Linden Research, Inc.
  * $/LicenseInfo$
@@ -99,8 +99,8 @@ static const U32 STATUS_MSC_EXCEPTION = 0xE06D7363; // compiler specific
 U32 msc_exception_filter(U32 code, struct _EXCEPTION_POINTERS *exception_infop)
 {
     const auto stack = to_string(boost::stacktrace::stacktrace());
-    LL_WARNS() << "SEH Exception handled (that probably shouldn't be): Code " << code 
-        << "\n Stack trace: \n" 
+    LL_WARNS() << "SEH Exception handled (that probably shouldn't be): Code " << code
+        << "\n Stack trace: \n"
         << stack << LL_ENDL;
 
     if (code == STATUS_MSC_EXCEPTION)

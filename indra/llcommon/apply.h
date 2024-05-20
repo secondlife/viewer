@@ -3,7 +3,7 @@
  * @author Nat Goodspeed
  * @date   2022-06-18
  * @brief  C++14 version of std::apply()
- * 
+ *
  * $LicenseInfo:firstyear=2022&license=viewerlgpl$
  * Copyright (c) 2022, Linden Research, Inc.
  * $/LicenseInfo$
@@ -69,7 +69,7 @@ using std::invoke;
 
 // Use invoke() to handle pointer-to-method:
 // derived from https://stackoverflow.com/a/38288251
-template<typename Fn, typename... Args, 
+template<typename Fn, typename... Args,
          typename std::enable_if<std::is_member_pointer<typename std::decay<Fn>::type>::value,
                                  int>::type = 0 >
 auto invoke(Fn&& f, Args&&... args)
@@ -77,7 +77,7 @@ auto invoke(Fn&& f, Args&&... args)
     return std::mem_fn(std::forward<Fn>(f))(std::forward<Args>(args)...);
 }
 
-template<typename Fn, typename... Args, 
+template<typename Fn, typename... Args,
          typename std::enable_if<!std::is_member_pointer<typename std::decay<Fn>::type>::value,
                                  int>::type = 0 >
 auto invoke(Fn&& f, Args&&... args)
@@ -154,7 +154,7 @@ using std::bind_front;
 
 #else  // no std::bind_front()
 
-template<typename Fn, typename... Args, 
+template<typename Fn, typename... Args,
          typename std::enable_if<!std::is_member_pointer<typename std::decay<Fn>::type>::value,
                                  int>::type = 0 >
 auto bind_front(Fn&& f, Args&&... args)
@@ -172,7 +172,7 @@ auto bind_front(Fn&& f, Args&&... args)
     };
 }
 
-template<typename Fn, typename... Args, 
+template<typename Fn, typename... Args,
          typename std::enable_if<std::is_member_pointer<typename std::decay<Fn>::type>::value,
                                  int>::type = 0 >
 auto bind_front(Fn&& f, Args&&... args)

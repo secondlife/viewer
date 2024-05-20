@@ -14,7 +14,7 @@ add_library( ll::colladadom INTERFACE IMPORTED )
 # ND, needs fixup in collada conan pkg
 if( USE_CONAN )
   target_include_directories( ll::colladadom SYSTEM INTERFACE
-    "${CONAN_INCLUDE_DIRS_COLLADADOM}/collada-dom/" 
+    "${CONAN_INCLUDE_DIRS_COLLADADOM}/collada-dom/"
     "${CONAN_INCLUDE_DIRS_COLLADADOM}/collada-dom/1.4/" )
 endif()
 

@@ -6,25 +6,25 @@
  *         https://wiki.lindenlab.com/wiki/Viewer:Messaging/Event_System,
  *         originally introduced in llnotifications.h. It has nothing
  *         whatsoever to do with the older system in llevent.h.
- * 
+ *
  * $LicenseInfo:firstyear=2008&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -39,13 +39,13 @@
 #include <deque>
 #include <functional>
 #if LL_WINDOWS
-	#pragma warning (push)
-	#pragma warning (disable : 4263) // boost::signals2::expired_slot::what() has const mismatch
-	#pragma warning (disable : 4264) 
+    #pragma warning (push)
+    #pragma warning (disable : 4263) // boost::signals2::expired_slot::what() has const mismatch
+    #pragma warning (disable : 4264)
 #endif
 #include <boost/signals2.hpp>
 #if LL_WINDOWS
-	#pragma warning (pop)
+    #pragma warning (pop)
 #endif
 
 #include <boost/bind.hpp>
@@ -310,9 +310,9 @@ public:
     /**
      * Find the named LLEventPump instance. If it exists post the message to it.
      * If the pump does not exist, do nothing.
-     * 
+     *
      * returns the result of the LLEventPump::post. If no pump exists returns false.
-     * 
+     *
      * This is syntactically similar to LLEventPumps::instance().post(name, message),
      * however if the pump does not already exist it will not be created.
      */
@@ -541,10 +541,10 @@ public:
      * instantiate your listener, then passing the same name on each listen()
      * call, allows us to optimize away the second and subsequent dependency
      * sorts.
-     * 
-     * If name is set to LLEventPump::ANONYMOUS listen will bypass the entire 
-     * dependency and ordering calculation. In this case, it is critical that 
-     * the result be assigned to a LLTempBoundListener or the listener is 
+     *
+     * If name is set to LLEventPump::ANONYMOUS listen will bypass the entire
+     * dependency and ordering calculation. In this case, it is critical that
+     * the result be assigned to a LLTempBoundListener or the listener is
      * manually disconnected when no longer needed since there will be no
      * way to later find and disconnect this listener manually.
      */
@@ -607,7 +607,7 @@ protected:
     virtual LLBoundListener listen_impl(const std::string& name, const LLEventListener&,
                                         const NameList& after,
                                         const NameList& before);
-    
+
     /// implement the dispatching
     std::shared_ptr<LLStandardSignal> mSignal;
 
@@ -660,21 +660,21 @@ public:
  * by all listeners, until some listener consumes it. The caveat is that each
  * event *must* eventually reach a listener that will consume it, else the
  * queue will grow to arbitrary length.
- * 
+ *
  * @NOTE: When using an LLEventMailDrop with an LLEventTimeout or
  * LLEventFilter attaching the filter downstream, using Timeout's constructor will
- * cause the MailDrop to discharge any of its stored events. The timeout should 
- * instead be connected upstream using its listen() method.  
+ * cause the MailDrop to discharge any of its stored events. The timeout should
+ * instead be connected upstream using its listen() method.
  */
 class LL_COMMON_API LLEventMailDrop : public LLEventStream
 {
 public:
     LLEventMailDrop(const std::string& name, bool tweak = false) : LLEventStream(name, tweak) {}
     virtual ~LLEventMailDrop() {}
-    
+
     /// Post an event to all listeners
     virtual bool post(const LLSD& event) override;
-    
+
     /// Remove any history stored in the mail drop.
     void discard();
 
