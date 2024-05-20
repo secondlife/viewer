@@ -168,8 +168,6 @@ const Animation::Channel& Animation::Channel::operator=(const Value& src)
     {
         copy(src, "sampler", mSampler);
         copy(src, "target", mTarget);
-        copy(src, "node", mTarget.mNode);
-        copy(src, "path", mTarget.mPath);
     }
     return *this;
 }
