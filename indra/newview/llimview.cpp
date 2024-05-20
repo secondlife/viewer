@@ -789,10 +789,15 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id,
 
 void LLIMModel::LLIMSession::initVoiceChannel(const LLSD& voiceChannelInfo)
 {
-	mVoiceChannelStateChangeConnection.disconnect();
 
 	if (mVoiceChannel)
 	{
+		if (mVoiceChannel->isThisVoiceChannel(voiceChannelInfo))
+		{
+			return;
+		}
+		mVoiceChannelStateChangeConnection.disconnect();
+
 		mVoiceChannel->deactivate();
 
 		delete mVoiceChannel;
@@ -1823,21 +1828,13 @@ EInstantMessage LLIMModel::getType(const LLUUID& session_id) const
 	return session->mType;
 }
 
-LLVoiceChannel* LLIMModel::getVoiceChannel( const LLUUID& session_id, const LLSD& voice_channel_info ) const
+LLVoiceChannel* LLIMModel::getVoiceChannel( const LLUUID& session_id) const
 {
 	LLIMSession* session = findIMSession(session_id);
 	if (!session)
 	{
 		LL_WARNS() << "session " << session_id << "does not exist " << LL_ENDL;
 		return NULL;
-	}
-	if (IM_NOTHING_SPECIAL == session->mType || IM_SESSION_P2P_INVITE == session->mType)
-	{
-		LLVoiceP2POutgoingCallInterface *outgoingInterface = LLVoiceClient::getInstance()->getOutgoingCallInterface(voice_channel_info);
-		if ((outgoingInterface != NULL) != (dynamic_cast<LLVoiceChannelP2P *>(session->mVoiceChannel) != NULL))
-		{
-			session->initVoiceChannel(voice_channel_info);
-		}
 	}
 
 	return session->mVoiceChannel;
@@ -2966,10 +2963,6 @@ void LLIncomingCallDialog::processCallResponse(S32 response, const LLSD &payload
 	LLUUID session_id = payload["session_id"].asUUID();
 	LLUUID caller_id = payload["caller_id"].asUUID();
 	std::string session_name = payload["session_name"].asString();
-	if (session_name.empty())
-	{
-		session_name = payload["caller_name"].asString();
-	}
 	EInstantMessage type = (EInstantMessage)payload["type"].asInteger();
 	LLIMMgr::EInvitationType inv_type = (LLIMMgr::EInvitationType)payload["inv_type"].asInteger();
 	bool voice = true;
@@ -2984,6 +2977,10 @@ void LLIncomingCallDialog::processCallResponse(S32 response, const LLSD &payload
 	{
 		if (type == IM_SESSION_P2P_INVITE)
 		{
+            if (session_name.empty())
+            {
+                session_name = payload["caller_name"].asString();
+            }
 			// create a normal IM session
 			session_id = gIMMgr->addP2PSession(
 				session_name, caller_id, payload["voice_channel_info"]);
@@ -3401,8 +3398,9 @@ LLUUID LLIMMgr::addSession(
             im_floater->reloadMessages();
 		}
 	}
+    LLIMModel::LLIMSession *session = LLIMModel::getInstance()->findIMSession(session_id);
 
-	bool new_session = (LLIMModel::getInstance()->findIMSession(session_id) == NULL);
+	bool new_session = (session == NULL);
 
 	//works only for outgoing ad-hoc sessions
 	if (new_session &&
@@ -3425,6 +3423,7 @@ LLUUID LLIMMgr::addSession(
     //Notifies observers that the session was already added
     else
     {
+        session->initVoiceChannel(voiceChannelInfo);
         std::string session_name = LLIMModel::getInstance()->getName(session_id);
         LLIMMgr::getInstance()->notifyObserverSessionActivated(session_id, session_name, other_participant_id);
     }
@@ -3846,8 +3845,12 @@ void LLIMMgr::removeSessionObserver(LLIMSessionObserver *observer)
 
 bool LLIMMgr::startCall(const LLUUID& session_id, LLVoiceChannel::EDirection direction, const LLSD& voice_channel_info)
 {
-	LLVoiceChannel* voice_channel = LLIMModel::getInstance()->getVoiceChannel(session_id, voice_channel_info);
+	LLVoiceChannel* voice_channel = LLIMModel::getInstance()->getVoiceChannel(session_id);
 	if (!voice_channel) return false;
+	if (!voice_channel_info.isUndefined())
+	{
+		voice_channel->setChannelInfo(voice_channel_info);
+	}
 	voice_channel->setCallDirection(direction);
 	voice_channel->activate();
 	return true;
@@ -3855,7 +3858,7 @@ bool LLIMMgr::startCall(const LLUUID& session_id, LLVoiceChannel::EDirection dir
 
 bool LLIMMgr::endCall(const LLUUID& session_id)
 {
-	LLVoiceChannel* voice_channel = LLIMModel::getInstance()->getVoiceChannel(session_id, LLSD());
+	LLVoiceChannel* voice_channel = LLIMModel::getInstance()->getVoiceChannel(session_id);
 	if (!voice_channel) return false;
 
 	voice_channel->deactivate();

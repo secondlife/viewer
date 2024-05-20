@@ -157,7 +157,6 @@ LLVoiceClient::LLVoiceClient(LLPumpIO *pump)
 
 LLVoiceClient::~LLVoiceClient()
 {
-    llassert(!mSpatialVoiceModule);
 }
 
 void LLVoiceClient::init(LLPumpIO *pump)
@@ -540,9 +539,11 @@ LLVoiceP2POutgoingCallInterface *LLVoiceClient::getOutgoingCallInterface(const L
         LLVoiceVersionInfo versionInfo = LLVoiceClient::getInstance()->getVersion();
         voice_server_type = versionInfo.internalVoiceServerType;
     }
-    if (voiceChannelInfo.has("voice_server_type"))
+    if (voiceChannelInfo.has("voice_server_type") && voiceChannelInfo["voice_server_type"] != voice_server_type)
     {
-        voice_server_type = voiceChannelInfo["voice_server_type"].asString();
+        // there's a mismatch between what the peer is offering and what our server
+        // can handle, so downgrade to vivox
+        voice_server_type = VIVOX_VOICE_SERVER_TYPE;
     }
     LLVoiceModuleInterface *module = getVoiceModule(voice_server_type);
     return dynamic_cast<LLVoiceP2POutgoingCallInterface *>(module);

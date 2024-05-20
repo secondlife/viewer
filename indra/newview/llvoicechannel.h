@@ -93,6 +93,8 @@ public:
 	void setCallDirection(EDirection direction) {mCallDirection = direction;}
 	EDirection getCallDirection() {return mCallDirection;}
 
+	bool isThisVoiceChannel(const LLSD &voiceChannelInfo) { return LLVoiceClient::getInstance()->compareChannels(mChannelInfo, voiceChannelInfo); }
+
 	static LLVoiceChannel* getChannelByID(const LLUUID& session_id);
 	static LLVoiceChannel* getCurrentVoiceChannel();
 
@@ -115,7 +117,7 @@ public:
 	EState		mState;
 	std::string	mSessionName;
 	LLSD        mNotifyArgs;
-	LLSD        mChannelInfo; 
+	LLSD        mChannelInfo;
 	// true if call was ended by agent
 	bool mCallEndedByAgent;
 	bool mIgnoreNextSessionLeave;

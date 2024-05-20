@@ -280,9 +280,15 @@ void LLWebRTCImpl::terminate()
     {
         connection->terminate();
     }
-    mPeerConnections.clear();
+
+    // connection->terminate() above spawns a number of Signaling thread calls to
+    // shut down the connection.  The following Blocking Call will wait
+    // until they're done before it's executed, allowing time to clean up.
 
     mSignalingThread->BlockingCall([this]() { mPeerConnectionFactory = nullptr; });
+
+    mPeerConnections.clear();
+
     mWorkerThread->BlockingCall(
         [this]()
         {
@@ -627,7 +633,6 @@ void LLWebRTCImpl::freePeerConnection(LLWebRTCPeerConnectionInterface* peer_conn
     std::find(mPeerConnections.begin(), mPeerConnections.end(), peer_connection);
     if (it != mPeerConnections.end())
     {
-        (*it)->terminate();
         mPeerConnections.erase(it);
     }
     if (mPeerConnections.empty())
@@ -645,7 +650,6 @@ void LLWebRTCImpl::freePeerConnection(LLWebRTCPeerConnectionInterface* peer_conn
 
 LLWebRTCPeerConnectionImpl::LLWebRTCPeerConnectionImpl() : 
     mWebRTCImpl(nullptr),
-    mClosing(false),
     mPeerConnection(nullptr),
     mMute(false),
     mAnswerReceived(false)
@@ -654,7 +658,6 @@ LLWebRTCPeerConnectionImpl::LLWebRTCPeerConnectionImpl() :
 
 LLWebRTCPeerConnectionImpl::~LLWebRTCPeerConnectionImpl()
 {
-    terminate();
     mSignalingObserverList.clear();
     mDataObserverList.clear();
 }
@@ -670,24 +673,35 @@ void LLWebRTCPeerConnectionImpl::init(LLWebRTCImpl * webrtc_impl)
 }
 void LLWebRTCPeerConnectionImpl::terminate()
 {
-    rtc::scoped_refptr<webrtc::PeerConnectionInterface> connection;
-    mPeerConnection.swap(connection);
-    rtc::scoped_refptr<webrtc::DataChannelInterface> dataChannel;
-    mDataChannel.swap(dataChannel);
-    rtc::scoped_refptr<webrtc::MediaStreamInterface> localStream;
-    mLocalStream.swap(localStream);
-
     mWebRTCImpl->PostSignalingTask(
         [=]()
         {
-            if (connection)
+            if (mPeerConnection)
             {
-                connection->Close();
-            }
-            if (dataChannel)
-            {
-                dataChannel->UnregisterObserver();
-                dataChannel->Close();
+                if (mDataChannel)
+                {
+                    {
+                        mDataChannel->Close();
+                        mDataChannel = nullptr;
+                    }
+                }
+
+                mPeerConnection->Close();
+                if (mLocalStream)
+                {
+                    auto tracks = mLocalStream->GetAudioTracks();
+                    for (auto& track : tracks)
+                    {
+                        mLocalStream->RemoveTrack(track);
+                    }
+                    mLocalStream = nullptr;
+                }
+                mPeerConnection = nullptr;
+
+                for (auto &observer : mSignalingObserverList)
+                {
+                    observer->OnPeerConnectionClosed();
+                }
             }
         });
 }
@@ -811,7 +825,6 @@ bool LLWebRTCPeerConnectionImpl::initializeConnection(const LLWebRTCPeerConnecti
 
 bool LLWebRTCPeerConnectionImpl::shutdownConnection()
 {
-    mClosing = true;
     terminate();
     return true;
 }

@@ -355,8 +355,6 @@ class LLWebRTCPeerConnectionImpl : public LLWebRTCPeerConnectionInterface,
 
     LLWebRTCImpl * mWebRTCImpl;
 
-    bool mClosing;
-
     rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> mPeerConnectionFactory;
 
     bool mMute;

@@ -2344,6 +2344,19 @@ void LLVoiceWebRTCConnection::OnRenegotiationNeeded()
         });
 }
 
+// callback from llwebrtc
+void LLVoiceWebRTCConnection::OnPeerConnectionClosed()
+{
+    LL::WorkQueue::postMaybe(mMainQueue,
+        [=] {
+            LL_DEBUGS("Voice") << "Peer connection has closed." << LL_ENDL;
+            if (mVoiceConnectionState == VOICE_STATE_WAIT_FOR_CLOSE)
+            {
+                setVoiceConnectionState(VOICE_STATE_CLOSED);
+                mOutstandingRequests--;
+            }
+        });
+}
 
 void LLVoiceWebRTCConnection::setMuteMic(bool muted)
 {
@@ -2458,7 +2471,6 @@ void LLVoiceWebRTCConnection::breakVoiceConnectionCoro()
     httpOpts->setWantHeaders(true);
 
     mOutstandingRequests++;
-    setVoiceConnectionState(VOICE_STATE_WAIT_FOR_EXIT);
 
     // tell the server to shut down the connection as a courtesy.
     // shutdownConnection will drop the WebRTC connection which will
@@ -2466,10 +2478,7 @@ void LLVoiceWebRTCConnection::breakVoiceConnectionCoro()
     LLSD result = httpAdapter->postAndSuspend(httpRequest, url, body, httpOpts);
 
     mOutstandingRequests--;
-    if (!LLWebRTCVoiceClient::isShuttingDown())
-    {
-        setVoiceConnectionState(VOICE_STATE_SESSION_EXIT);
-    }
+    setVoiceConnectionState(VOICE_STATE_SESSION_EXIT);
 }
 
 // Tell the simulator to tell the Secondlife WebRTC server that we want a voice
@@ -2732,6 +2741,7 @@ bool LLVoiceWebRTCConnection::connectionStateMachine()
             break;
 
         case VOICE_STATE_DISCONNECT:
+            setVoiceConnectionState(VOICE_STATE_WAIT_FOR_EXIT);
             LLCoros::instance().launch("LLVoiceWebRTCConnection::breakVoiceConnectionCoro",
                                        boost::bind(&LLVoiceWebRTCConnection::breakVoiceConnectionCoro, this));
             break;
@@ -2741,8 +2751,13 @@ bool LLVoiceWebRTCConnection::connectionStateMachine()
 
         case VOICE_STATE_SESSION_EXIT:
         {
+            setVoiceConnectionState(VOICE_STATE_WAIT_FOR_CLOSE);
+            mOutstandingRequests++;
             mWebRTCPeerConnectionInterface->shutdownConnection();
-
+            break;
+        case VOICE_STATE_WAIT_FOR_CLOSE:
+            break;
+        case VOICE_STATE_CLOSED:
             if (!mShutDown)
             {
                 mVoiceConnectionState = VOICE_STATE_START_SESSION;
