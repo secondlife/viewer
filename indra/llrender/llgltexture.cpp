@@ -49,6 +49,10 @@ LLGLTexture::LLGLTexture(const LLImageRaw* raw, BOOL usemipmaps)
     mUseMipMaps = usemipmaps ;
     // Create an empty image of the specified size and width
     mGLTexturep = new LLImageGL(raw, usemipmaps) ;
+    mFullWidth = mGLTexturep->getCurrentWidth();
+    mFullHeight = mGLTexturep->getCurrentHeight();
+    mComponents = mGLTexturep->getComponents();
+    setTexelsPerImage();
 }
 
 LLGLTexture::~LLGLTexture()
