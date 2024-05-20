@@ -225,7 +225,7 @@ public:
     void clearAllStates();
 
     void accumulateInternalState();
-    void computeFinalState(LLGameControl::State& state);
+    void computeFinalState();
 
     LLGameControl::ActionNameType getActionNameType(const std::string& action) const;
     LLGameControl::InputChannel getChannelByAction(const std::string& action) const;
@@ -251,14 +251,14 @@ public:
 private:
     void updateFlycamMap(const std::string& action, LLGameControl::InputChannel channel);
 
-    std::list<LLGameControl::State> mStates; // one state per device
-    using state_it = std::list<LLGameControl::State>::iterator;
-    state_it findState(SDL_JoystickID id)
+    std::list<LLGameControl::Device> mDevices; // all connected devices
+    using device_it = std::list<LLGameControl::Device>::iterator;
+    device_it findDevice(SDL_JoystickID id)
     {
-        return std::find_if(mStates.begin(), mStates.end(),
-            [id](LLGameControl::State& state)
+        return std::find_if(mDevices.begin(), mDevices.end(),
+            [id](LLGameControl::Device& device)
             {
-                return state.getJoystickID() == id;
+                return device.getJoystickID() == id;
             });
     }
 
@@ -358,12 +358,6 @@ LLGameControl::State::State() : mButtons(0)
     mPrevAxes.resize(NUM_AXES, 0);
 }
 
-void LLGameControl::State::setDevice(int joystickID, void* controller)
-{
-    mJoystickID = joystickID;
-    mController = controller;
-}
-
 void LLGameControl::State::clear()
 {
     std::fill(mAxes.begin(), mAxes.end(), 0);
@@ -390,6 +384,13 @@ bool LLGameControl::State::onButton(U8 button, bool pressed)
     }
     bool changed = (old_buttons != mButtons);
     return changed;
+}
+
+LLGameControl::Device::Device(int joystickID, void* controller)
+: mJoystickID(joystickID)
+, mController(controller)
+{
+    LL_INFOS("GameController") << "joystick id: " << mJoystickID << ", controller: " << mController << LL_ENDL;
 }
 
 LLGameControllerManager::LLGameControllerManager()
@@ -490,13 +491,13 @@ void LLGameControllerManager::addController(SDL_JoystickID id, SDL_GameControlle
     llassert(id >= 0);
     llassert(controller);
 
-    if (findState(id) != mStates.end())
+    if (findDevice(id) != mDevices.end())
     {
         LL_WARNS("GameController") << "device already added" << LL_ENDL;
         return;
     }
 
-    mStates.emplace_back().setDevice(id, controller);
+    mDevices.emplace_back(id, controller);
     LL_DEBUGS("SDL2") << "joystick=0x" << std::hex << id << std::dec
         << " controller=" << controller
         << LL_ENDL;
@@ -506,9 +507,9 @@ void LLGameControllerManager::removeController(SDL_JoystickID id)
 {
     LL_INFOS("GameController") << "joystick id: " << id << LL_ENDL;
 
-    mStates.remove_if([id](LLGameControl::State& state)
+    mDevices.remove_if([id](LLGameControl::Device& device)
         {
-            return state.getJoystickID() == id;
+            return device.getJoystickID() == id;
         });
 }
 
@@ -519,8 +520,8 @@ void LLGameControllerManager::onAxis(SDL_JoystickID id, U8 axis, S16 value)
         return;
     }
 
-    state_it it = findState(id);
-    if (it != mStates.end())
+    device_it it = findDevice(id);
+    if (it != mDevices.end())
     {
         // Note: the RAW analog joysticks provide NEGATIVE X,Y values for LEFT,FORWARD
         // whereas those directions are actually POSITIVE in SL's local right-handed
@@ -544,16 +545,16 @@ void LLGameControllerManager::onAxis(SDL_JoystickID id, U8 axis, S16 value)
         LL_DEBUGS("SDL2") << "joystick=0x" << std::hex << id << std::dec
             << " axis=" << (S32)(axis)
             << " value=" << (S32)(value) << LL_ENDL;
-        it->mAxes[axis] = value;
+        it->mState.mAxes[axis] = value;
     }
 }
 
 void LLGameControllerManager::onButton(SDL_JoystickID id, U8 button, bool pressed)
 {
-    state_it it = findState(id);
-    if (it != mStates.end())
+    device_it it = findDevice(id);
+    if (it != mDevices.end())
     {
-        if (it->onButton(button, pressed))
+        if (it->mState.onButton(button, pressed))
         {
             LL_DEBUGS("SDL2") << "joystick=0x" << std::hex << id << std::dec
                 << " button i=" << (S32)(button)
@@ -564,9 +565,9 @@ void LLGameControllerManager::onButton(SDL_JoystickID id, U8 button, bool presse
 
 void LLGameControllerManager::clearAllStates()
 {
-    for (auto& state : mStates)
+    for (auto& device : mDevices)
     {
-        state.clear();
+        device.mState.clear();
     }
     mExternalState.clear();
     mLastActiveFlags = 0;
@@ -580,30 +581,30 @@ void LLGameControllerManager::accumulateInternalState()
     mButtonAccumulator = 0;
 
     // accumulate the controllers
-    for (const auto& state : mStates)
+    for (const auto& device : mDevices)
     {
-        mButtonAccumulator |= state.mButtons;
+        mButtonAccumulator |= device.mState.mButtons;
         for (size_t i = 0; i < NUM_AXES; ++i)
         {
             // Note: we don't bother to clamp the axes yet
             // because at this stage we haven't yet accumulated the "inner" state.
-            mAxesAccumulator[i] += (S32)state.mAxes[i];
+            mAxesAccumulator[i] += (S32)device.mState.mAxes[i];
         }
     }
 }
 
-void LLGameControllerManager::computeFinalState(LLGameControl::State& final_state)
+void LLGameControllerManager::computeFinalState()
 {
     // We assume accumulateInternalState() has already been called and we will
     // finish by accumulating "external" state (if enabled)
-    U32 old_buttons = final_state.mButtons;
-    final_state.mButtons = mButtonAccumulator;
+    U32 old_buttons = g_finalState.mButtons;
+    g_finalState.mButtons = mButtonAccumulator;
     if (g_translateAgentActions)
     {
         // accumulate from mExternalState
-        final_state.mButtons |= mExternalState.mButtons;
+        g_finalState.mButtons |= mExternalState.mButtons;
     }
-    if (old_buttons != final_state.mButtons)
+    if (old_buttons != g_finalState.mButtons)
     {
         g_nextResendPeriod = 0; // packet needs to go out ASAP
     }
@@ -622,15 +623,15 @@ void LLGameControllerManager::computeFinalState(LLGameControl::State& final_stat
         }
         axis = (S16)std::min(std::max(axis, -32768), 32767);
         // check for change
-        if (final_state.mAxes[i] != axis)
+        if (g_finalState.mAxes[i] != axis)
         {
             // When axis changes we explicitly update the corresponding prevAxis
             // prior to storing axis.  The only other place where prevAxis
             // is updated in updateResendPeriod() which is explicitly called after
             // a packet is sent.  The result is: unchanged axes are included in
             // first resend but not later ones.
-            final_state.mPrevAxes[i] = final_state.mAxes[i];
-            final_state.mAxes[i] = axis;
+            g_finalState.mPrevAxes[i] = g_finalState.mAxes[i];
+            g_finalState.mAxes[i] = axis;
             g_nextResendPeriod = 0; // packet needs to go out ASAP
         }
     }
@@ -897,7 +898,7 @@ void LLGameControllerManager::setExternalInput(U32 action_flags, U32 buttons)
 
 void LLGameControllerManager::clear()
 {
-    mStates.clear();
+    mDevices.clear();
 }
 
 U64 get_now_nsec()
@@ -1038,6 +1039,12 @@ void LLGameControl::terminate()
     SDL_Quit();
 }
 
+// static
+const std::list<LLGameControl::Device>& LLGameControl::getDevices()
+{
+    return g_manager.mDevices;
+}
+
 //static
 // returns 'true' if GameControlInput message needs to go out,
 // which will be the case for new data or resend. Call this right
@@ -1046,7 +1053,7 @@ void LLGameControl::terminate()
 bool LLGameControl::computeFinalStateAndCheckForChanges()
 {
     // Note: LLGameControllerManager::computeFinalState() modifies g_nextResendPeriod as a side-effect
-    g_manager.computeFinalState(g_finalState);
+    g_manager.computeFinalState();
 
     // should send input when:
     //     sending is enabled and
