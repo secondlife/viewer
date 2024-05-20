@@ -166,17 +166,28 @@ public:
     // State is a minimal class for storing axes and buttons values
     class State
     {
-        int mJoystickID { -1 };
-        void* mController { nullptr };
     public:
         State();
-        void setDevice(int joystickID, void* controller);
-        int getJoystickID() const { return mJoystickID; }
         void clear();
         bool onButton(U8 button, bool pressed);
         std::vector<S16> mAxes; // [ -32768, 32767 ]
         std::vector<S16> mPrevAxes; // value in last outgoing packet
         U32 mButtons;
+    };
+
+    // Device is a data structure for describing any detected controller
+    class Device
+    {
+        const int mJoystickID { -1 };
+        const void* mController { nullptr };
+        State mState;
+
+    public:
+        Device(int joystickID, void* controller);
+        int getJoystickID() const { return mJoystickID; }
+        const State& getState() { return mState; }
+
+        friend class LLGameControllerManager;
     };
 
     static bool isInitialized();
@@ -186,6 +197,8 @@ public:
         std::function<std::string(const std::string&)> loadString,
         std::function<void(const std::string&, const std::string&)> saveString);
 	static void terminate();
+
+    static const std::list<LLGameControl::Device>& getDevices();
 
     // returns 'true' if GameControlInput message needs to go out,
     // which will be the case for new data or resend. Call this right
