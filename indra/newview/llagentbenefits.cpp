@@ -175,7 +175,7 @@ S32 LLAgentBenefits::getTextureUploadCost(const LLViewerTexture* tex) const
             return getTextureUploadCost();
         }
     }
-    return getTextureUploadCost();
+    return 0;
 }
 
 S32 LLAgentBenefits::getTextureUploadCost(const LLImageBase* tex) const
