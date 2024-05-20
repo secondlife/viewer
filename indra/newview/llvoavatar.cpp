@@ -2586,6 +2586,27 @@ void LLVOAvatar::idleUpdate(LLAgent &agent, const F64 &time)
 		LL_INFOS() << "Warning!  Idle on dead avatar" << LL_ENDL;
 		return;
 	}
+
+    LLCachedControl<bool> friends_only(gSavedSettings, "RenderAvatarFriendsOnly", false);
+    if (friends_only()
+        && !isUIAvatar()
+        && !isControlAvatar()
+        && !isSelf()
+        && !isBuddy())
+    {
+        if (mNameText)
+        {
+            mNameIsSet = false;
+            mNameText->markDead();
+            mNameText = NULL;
+            sNumVisibleChatBubbles--;
+        }
+        deleteParticleSource();
+        mVoiceVisualizer->setVoiceEnabled(false);
+
+        return;
+    }
+
     // record time and refresh "tooSlow" status
     updateTooSlow();
 
@@ -11722,4 +11743,8 @@ F32 LLVOAvatar::getAverageGPURenderTime()
 
     return ret;
 }
+bool LLVOAvatar::isBuddy() const
+{
+    return LLAvatarTracker::instance().isBuddy(getID());
+} 
 
