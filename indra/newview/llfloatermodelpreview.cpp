@@ -1765,8 +1765,14 @@ void LLFloaterModelPreview::onLoDSourceCommit(S32 lod)
     if (index == LLModelPreview::MESH_OPTIMIZER_AUTO
         || index == LLModelPreview::MESH_OPTIMIZER_SLOPPY
         || index == LLModelPreview::MESH_OPTIMIZER_PRECISE)
-    { //rebuild LoD to update triangle counts
+    {
+        // rebuild LoD to update triangle counts
         onLODParamCommit(lod, true);
+    }
+    if (index == LLModelPreview::USE_LOD_ABOVE)
+    {
+        // refresh to pick triangle counts
+        mModelPreview->mDirty = true;
     }
 }
 
