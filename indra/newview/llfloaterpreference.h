@@ -415,6 +415,8 @@ private:
     LLScrollListCtrl* mActionTable;
     LLComboBox* mAnalogChannelSelector;
     LLComboBox* mBinaryChannelSelector;
+
+    std::map<std::string, std::string> mDeviceOptions;
 };
 
 class LLAvatarComplexityControls

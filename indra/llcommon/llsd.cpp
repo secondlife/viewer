@@ -134,7 +134,7 @@ public:
 	virtual Boolean	asBoolean() const			{ return false; }
 	virtual Integer	asInteger() const			{ return 0; }
 	virtual Real	asReal() const				{ return 0.0; }
-	virtual String	asString() const			{ return std::string(); }
+	virtual String	asString() const			{ return String(); }
 	virtual UUID	asUUID() const				{ return LLUUID(); }
 	virtual Date	asDate() const				{ return LLDate(); }
 	virtual URI		asURI() const				{ return LLURI(); }
@@ -839,6 +839,31 @@ void LLSD::assign(const LLSD& other)	{ Impl::assign(impl, other.impl); }
 void LLSD::clear()						{ Impl::assignUndefined(impl); }
 
 LLSD::Type LLSD::type() const			{ return safe(impl).type(); }
+
+bool LLSD::isEmpty() const
+{
+    switch (type())
+    {
+    case TypeUndefined:
+        return true; // Always empty
+    case TypeBinary:
+        return !asBoolean(); // Empty when default
+    case TypeInteger:
+        return !asInteger(); // Empty when default
+    case TypeReal:
+        return !asReal(); // Empty when default
+    case TypeString:
+    case TypeURI:
+        return asString().empty(); // Empty natively
+    case TypeArray:
+    case TypeMap:
+        return !size(); // Empty natively
+    default:;
+    }
+    // All other value types (TypeDate) don't have default values so can't be empty
+    return false;
+}
+
 
 // Scalar Constructors
 LLSD::LLSD(Boolean v) : impl(0)			{ ALLOC_LLSD_OBJECT;	assign(v); }
