@@ -93,7 +93,7 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spe
     float falloff_factor = (12.0 * fa) - 9.0;
     float inverted_la = falloff_factor / la;
     // Yes, it makes me want to cry as well. DJH
-    
+
     vec3 col = vec3(0);
 
     //get light vector
@@ -215,19 +215,19 @@ vec2 encode_normal(vec3 n);
 vec3 getNormal(inout float glossiness)
 {
 #ifdef HAS_NORMAL_MAP
-	vec4 vNt = texture(bumpMap, vary_texcoord1.xy);
+    vec4 vNt = texture(bumpMap, vary_texcoord1.xy);
     glossiness *= vNt.a;
-	vNt.xyz = vNt.xyz * 2 - 1;
+    vNt.xyz = vNt.xyz * 2 - 1;
     float sign = vary_sign;
     vec3 vN = vary_normal;
     vec3 vT = vary_tangent.xyz;
-    
+
     vec3 vB = sign * cross(vN, vT);
     vec3 tnorm = normalize( vNt.x * vT + vNt.y * vB + vNt.z * vN );
 
-	return tnorm;
+    return tnorm;
 #else
-	return normalize(vary_normal);
+    return normalize(vary_normal);
 #endif
 }
 
@@ -264,9 +264,9 @@ void waterClip()
 float getEmissive(vec4 diffcol)
 {
 #if (DIFFUSE_ALPHA_MODE != DIFFUSE_ALPHA_MODE_EMISSIVE)
-	return emissive_brightness;
+    return emissive_brightness;
 #else
-	return max(diffcol.a, emissive_brightness);
+    return max(diffcol.a, emissive_brightness);
 #endif
 }
 
@@ -289,7 +289,7 @@ void main()
 
     // diffcol == diffuse map combined with vertex color
     vec4 diffcol = texture(diffuseMap, vary_texcoord0.xy);
-	diffcol.rgb *= vertex_color.rgb;
+    diffcol.rgb *= vertex_color.rgb;
 
     alphaMask(diffcol.a);
 
@@ -325,7 +325,7 @@ void main()
     vec3 additive;
     vec3 atten;
     calcAtmosphericVarsLinear(pos.xyz, norm.xyz, light_dir, sunlit, amblit, additive, atten);
-    
+
     vec3 sunlit_linear = srgb_to_linear(sunlit);
     vec3 amblit_linear = amblit;
 
@@ -333,7 +333,7 @@ void main()
     vec3 glossenv;
     vec3 legacyenv;
     sampleReflectionProbesLegacy(ambenv, glossenv, legacyenv, pos.xy*0.5+0.5, pos.xyz, norm.xyz, glossiness, env, true, amblit_linear);
-    
+
     color = ambenv;
 
     float da          = clamp(dot(norm.xyz, light_dir.xyz), 0.0, 1.0);
@@ -405,7 +405,7 @@ void main()
 
     frag_color = max(vec4(color, al), vec4(0));
 
-#else // mode is not DIFFUSE_ALPHA_MODE_BLEND, encode to gbuffer 
+#else // mode is not DIFFUSE_ALPHA_MODE_BLEND, encode to gbuffer
     // deferred path               // See: C++: addDeferredAttachment(), shader: softenLightF.glsl
     frag_data[0] = vec4(diffcol.rgb, emissive);        // gbuffer is sRGB for legacy materials
     frag_data[1] = vec4(spec.rgb, glossiness);           // XYZ = Specular color. W = Specular exponent.

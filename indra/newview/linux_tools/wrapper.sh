@@ -62,6 +62,10 @@ export SDL_VIDEO_X11_DGAMOUSE=0
 if [ "$GTK_IM_MODULE" = "scim" ]; then
     export GTK_IM_MODULE=xim
 fi
+if [ "$XMODIFIERS" = "" ]; then
+    ## IME is valid only for fcitx, not when using ibus
+    export XMODIFIERS="@im=fcitx"
+fi
 
 ## - Automatically work around the ATI mouse cursor crash bug:
 ## (this workaround is disabled as most fglrx users do not see the bug)

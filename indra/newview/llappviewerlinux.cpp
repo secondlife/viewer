@@ -5,24 +5,24 @@
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
- */ 
+ */
 
 #include "llviewerprecompiledheaders.h"
 
@@ -31,7 +31,7 @@
 #include "llcommandlineparser.h"
 
 #include "lldiriterator.h"
-#include "llurldispatcher.h"		// SLURL from other app instance
+#include "llurldispatcher.h"        // SLURL from other app instance
 #include "llviewernetwork.h"
 #include "llviewercontrol.h"
 #include "llwindowsdl.h"
@@ -93,59 +93,59 @@ typedef struct
 
 namespace
 {
-	int gArgC = 0;
-	char **gArgV = NULL;
-	void (*gOldTerminateHandler)() = NULL;
+    int gArgC = 0;
+    char **gArgV = NULL;
+    void (*gOldTerminateHandler)() = NULL;
 }
 
 
 static void exceptionTerminateHandler()
 {
-	// reinstall default terminate() handler in case we re-terminate.
-	if (gOldTerminateHandler) std::set_terminate(gOldTerminateHandler);
-	// treat this like a regular viewer crash, with nice stacktrace etc.
+    // reinstall default terminate() handler in case we re-terminate.
+    if (gOldTerminateHandler) std::set_terminate(gOldTerminateHandler);
+    // treat this like a regular viewer crash, with nice stacktrace etc.
     long *null_ptr;
     null_ptr = 0;
     *null_ptr = 0xDEADBEEF; //Force an exception that will trigger breakpad.
-	// we've probably been killed-off before now, but...
-	gOldTerminateHandler(); // call old terminate() handler
+    // we've probably been killed-off before now, but...
+    gOldTerminateHandler(); // call old terminate() handler
 }
 
-int main( int argc, char **argv ) 
+int main( int argc, char **argv )
 {
-	gArgC = argc;
-	gArgV = argv;
+    gArgC = argc;
+    gArgV = argv;
 
-	LLAppViewer* viewer_app_ptr = new LLAppViewerLinux();
+    LLAppViewer* viewer_app_ptr = new LLAppViewerLinux();
 
-	// install unexpected exception handler
-	gOldTerminateHandler = std::set_terminate(exceptionTerminateHandler);
+    // install unexpected exception handler
+    gOldTerminateHandler = std::set_terminate(exceptionTerminateHandler);
 
-	unsetenv( "LD_PRELOAD" ); // <FS:ND/> Get rid of any preloading, we do not want this to happen during startup of plugins.
-	
-	bool ok = viewer_app_ptr->init();
-	if(!ok)
-	{
-		LL_WARNS() << "Application init failed." << LL_ENDL;
-		return -1;
-	}
+    unsetenv( "LD_PRELOAD" ); // <FS:ND/> Get rid of any preloading, we do not want this to happen during startup of plugins.
 
-		// Run the application main loop
-	while (! viewer_app_ptr->frame()) 
-	{}
+    bool ok = viewer_app_ptr->init();
+    if(!ok)
+    {
+        LL_WARNS() << "Application init failed." << LL_ENDL;
+        return -1;
+    }
 
-	if (!LLApp::isError())
-	{
-		//
-		// We don't want to do cleanup here if the error handler got called -
-		// the assumption is that the error handler is responsible for doing
-		// app cleanup if there was a problem.
-		//
-		viewer_app_ptr->cleanup();
-	}
-	delete viewer_app_ptr;
-	viewer_app_ptr = NULL;
-	return 0;
+        // Run the application main loop
+    while (! viewer_app_ptr->frame())
+    {}
+
+    if (!LLApp::isError())
+    {
+        //
+        // We don't want to do cleanup here if the error handler got called -
+        // the assumption is that the error handler is responsible for doing
+        // app cleanup if there was a problem.
+        //
+        viewer_app_ptr->cleanup();
+    }
+    delete viewer_app_ptr;
+    viewer_app_ptr = NULL;
+    return 0;
 }
 
 LLAppViewerLinux::LLAppViewerLinux()
@@ -164,8 +164,8 @@ std::string gCrashBehavior;
 
 static bool dumpCallback(const google_breakpad::MinidumpDescriptor& descriptor, void* context, bool succeeded)
 {
-	if( fork() == 0 )
-		execl( gCrashLogger.c_str(), gCrashLogger.c_str(), descriptor.path(), gVersion.c_str(), gBugsplatDB.c_str(),  gCrashBehavior.c_str(), nullptr );
+    if( fork() == 0 )
+        execl( gCrashLogger.c_str(), gCrashLogger.c_str(), descriptor.path(), gVersion.c_str(), gBugsplatDB.c_str(),  gCrashBehavior.c_str(), nullptr );
     return succeeded;
 }
 
@@ -202,8 +202,8 @@ void setupBreadpad()
                                     << '.' << LL_VIEWER_VERSION_BUILD);
     gBugsplatDB = BugSplat_DB.asString();
 
-	LL_INFOS("BUGSPLAT") << "Initializing with crash logger: " << gCrashLogger << " database: " << gBugsplatDB << " version: " << gVersion << LL_ENDL;
-	
+    LL_INFOS("BUGSPLAT") << "Initializing with crash logger: " << gCrashLogger << " database: " << gBugsplatDB << " version: " << gVersion << LL_ENDL;
+
     google_breakpad::MinidumpDescriptor *descriptor = new google_breakpad::MinidumpDescriptor(gDirUtilp->getExpandedFilename(LL_PATH_DUMP, ""));
     google_breakpad::ExceptionHandler *eh = new google_breakpad::ExceptionHandler(*descriptor, NULL, dumpCallback, NULL, true, -1);
 }
@@ -211,30 +211,30 @@ void setupBreadpad()
 
 bool LLAppViewerLinux::init()
 {
-	bool success = LLAppViewer::init();
+    bool success = LLAppViewer::init();
 
 #if LL_SEND_CRASH_REPORTS
     S32 nCrashSubmitBehavior = gCrashSettings.getS32("CrashSubmitBehavior");
 
-	// For the first version we just consider always send and create a nice dialog for CRASH_BEHAVIOR_ASK later.
+    // For the first version we just consider always send and create a nice dialog for CRASH_BEHAVIOR_ASK later.
     if (success && nCrashSubmitBehavior != CRASH_BEHAVIOR_NEVER_SEND )
-	{
-		if( nCrashSubmitBehavior == CRASH_BEHAVIOR_ASK )
-			gCrashBehavior = "ask";
-		else
-			gCrashBehavior = "send";
+    {
+        if( nCrashSubmitBehavior == CRASH_BEHAVIOR_ASK )
+            gCrashBehavior = "ask";
+        else
+            gCrashBehavior = "send";
         setupBreadpad();
-	}
+    }
 #endif
 
-	return success;
+    return success;
 }
 
 bool LLAppViewerLinux::restoreErrorTrap()
 {
-	// *NOTE:Mani there is a case for implementing this on the mac.
-	// Linux doesn't need it to my knowledge.
-	return true;
+    // *NOTE:Mani there is a case for implementing this on the mac.
+    // Linux doesn't need it to my knowledge.
+    return true;
 }
 
 /////////////////////////////////////////
@@ -326,16 +326,16 @@ void viewerappapi_init(ViewerAppAPI *server)
 //virtual
 bool LLAppViewerLinux::initSLURLHandler()
 {
-	//ViewerAppAPI *api_server = (ViewerAppAPI*)
-	g_object_new(viewerappapi_get_type(), NULL);
+    //ViewerAppAPI *api_server = (ViewerAppAPI*)
+    g_object_new(viewerappapi_get_type(), NULL);
 
-	return true;
+    return true;
 }
 
 //virtual
 bool LLAppViewerLinux::sendURLToOtherInstance(const std::string& url)
 {
-	auto *pBus = g_bus_get_sync(G_BUS_TYPE_SESSION, NULL, nullptr);
+    auto *pBus = g_bus_get_sync(G_BUS_TYPE_SESSION, NULL, nullptr);
 
     if( !pBus )
     {
@@ -380,20 +380,20 @@ bool LLAppViewerLinux::sendURLToOtherInstance(const std::string& url)
 #else // LL_GLIB
 bool LLAppViewerLinux::initSLURLHandler()
 {
-	return false; // not implemented without dbus
+    return false; // not implemented without dbus
 }
 bool LLAppViewerLinux::sendURLToOtherInstance(const std::string& url)
 {
-	return false; // not implemented without dbus
+    return false; // not implemented without dbus
 }
 #endif // LL_GLIB
 
 void LLAppViewerLinux::initCrashReporting(bool reportFreeze)
 {
-	std::string cmd =gDirUtilp->getExecutableDir();
-	cmd += gDirUtilp->getDirDelimiter();
+    std::string cmd =gDirUtilp->getExecutableDir();
+    cmd += gDirUtilp->getDirDelimiter();
 #if LL_LINUX
-	cmd += "linux-crash-logger.bin";
+    cmd += "linux-crash-logger.bin";
 #else
 # error Unknown platform
 #endif
@@ -402,160 +402,160 @@ void LLAppViewerLinux::initCrashReporting(bool reportFreeze)
     pid_str <<  LLApp::getPid();
     std::string logdir = gDirUtilp->getExpandedFilename(LL_PATH_DUMP, "");
     std::string appname = gDirUtilp->getExecutableFilename();
-	std::string grid{ LLGridManager::getInstance()->getGridId() };
-	std::string title{ LLAppViewer::instance()->getSecondLifeTitle() };
-	std::string pidstr{ pid_str.str() };
-	// launch the actual crash logger
-	const char * cmdargv[] =
-		{cmd.c_str(),
-		 "-user",
-		 grid.c_str(),
-		 "-name",
-		 title.c_str(),
-		 "-pid", 
-		 pidstr.c_str(),
-		 "-dumpdir",
-		 logdir.c_str(),
-		 "-procname",
-		 appname.c_str(),
-		 NULL};
-	fflush(NULL);
+    std::string grid{ LLGridManager::getInstance()->getGridId() };
+    std::string title{ LLAppViewer::instance()->getSecondLifeTitle() };
+    std::string pidstr{ pid_str.str() };
+    // launch the actual crash logger
+    const char * cmdargv[] =
+        {cmd.c_str(),
+         "-user",
+         grid.c_str(),
+         "-name",
+         title.c_str(),
+         "-pid",
+         pidstr.c_str(),
+         "-dumpdir",
+         logdir.c_str(),
+         "-procname",
+         appname.c_str(),
+         NULL};
+    fflush(NULL);
 
-	pid_t pid = fork();
-	if (pid == 0)
-	{ // child
-		execv(cmd.c_str(), (char* const*) cmdargv);		/* Flawfinder: ignore */
-		LL_WARNS() << "execv failure when trying to start " << cmd << LL_ENDL;
-		_exit(1); // avoid atexit()
-	} 
-	else
-	{
-		if (pid > 0)
-		{
-			// DO NOT wait for child proc to die; we want
-			// the logger to outlive us while we quit to
-			// free up the screen/keyboard/etc.
-			////int childExitStatus;
-			////waitpid(pid, &childExitStatus, 0);
-		} 
-		else
-		{
-			LL_WARNS() << "fork failure." << LL_ENDL;
-		}
-	}
-	// Sometimes signals don't seem to quit the viewer.  Also, we may
-	// have been called explicitly instead of from a signal handler.
-	// Make sure we exit so as to not totally confuse the user.
-	//_exit(1); // avoid atexit(), else we may re-crash in dtors.
+    pid_t pid = fork();
+    if (pid == 0)
+    { // child
+        execv(cmd.c_str(), (char* const*) cmdargv);     /* Flawfinder: ignore */
+        LL_WARNS() << "execv failure when trying to start " << cmd << LL_ENDL;
+        _exit(1); // avoid atexit()
+    }
+    else
+    {
+        if (pid > 0)
+        {
+            // DO NOT wait for child proc to die; we want
+            // the logger to outlive us while we quit to
+            // free up the screen/keyboard/etc.
+            ////int childExitStatus;
+            ////waitpid(pid, &childExitStatus, 0);
+        }
+        else
+        {
+            LL_WARNS() << "fork failure." << LL_ENDL;
+        }
+    }
+    // Sometimes signals don't seem to quit the viewer.  Also, we may
+    // have been called explicitly instead of from a signal handler.
+    // Make sure we exit so as to not totally confuse the user.
+    //_exit(1); // avoid atexit(), else we may re-crash in dtors.
 }
 
 bool LLAppViewerLinux::beingDebugged()
 {
-	static enum {unknown, no, yes} debugged = unknown;
+    static enum {unknown, no, yes} debugged = unknown;
 
-	if (debugged == unknown)
-	{
-		pid_t ppid = getppid();
-		char *name;
-		int ret;
+    if (debugged == unknown)
+    {
+        pid_t ppid = getppid();
+        char *name;
+        int ret;
 
-		ret = asprintf(&name, "/proc/%d/exe", ppid);
-		if (ret != -1)
-		{
-			char buf[1024];
-			ssize_t n;
-			
-			n = readlink(name, buf, sizeof(buf) - 1);
-			if (n != -1)
-			{
-				char *base = strrchr(buf, '/');
-				buf[n + 1] = '\0';
-				if (base == NULL)
-				{
-					base = buf;
-				} else {
-					base += 1;
-				}
-				
-				if (strcmp(base, "gdb") == 0)
-				{
-					debugged = yes;
-				}
-			}
-			free(name);
-		}
-	}
+        ret = asprintf(&name, "/proc/%d/exe", ppid);
+        if (ret != -1)
+        {
+            char buf[1024];
+            ssize_t n;
 
-	return debugged == yes;
+            n = readlink(name, buf, sizeof(buf) - 1);
+            if (n != -1)
+            {
+                char *base = strrchr(buf, '/');
+                buf[n + 1] = '\0';
+                if (base == NULL)
+                {
+                    base = buf;
+                } else {
+                    base += 1;
+                }
+
+                if (strcmp(base, "gdb") == 0)
+                {
+                    debugged = yes;
+                }
+            }
+            free(name);
+        }
+    }
+
+    return debugged == yes;
 }
 
 void LLAppViewerLinux::initLoggingAndGetLastDuration()
 {
-	// Remove the last stack trace, if any
-	// This file is no longer created, since the move to Google Breakpad
-	// The code is left here to clean out any old state in the log dir
-	std::string old_stack_file =
-		gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"stack_trace.log");
-	LLFile::remove(old_stack_file);
+    // Remove the last stack trace, if any
+    // This file is no longer created, since the move to Google Breakpad
+    // The code is left here to clean out any old state in the log dir
+    std::string old_stack_file =
+        gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"stack_trace.log");
+    LLFile::remove(old_stack_file);
 
-	LLAppViewer::initLoggingAndGetLastDuration();
+    LLAppViewer::initLoggingAndGetLastDuration();
 }
 
 bool LLAppViewerLinux::initParseCommandLine(LLCommandLineParser& clp)
 {
-	if (!clp.parseCommandLine(gArgC, gArgV))
-	{
-		return false;
-	}
+    if (!clp.parseCommandLine(gArgC, gArgV))
+    {
+        return false;
+    }
 
-	// Find the system language.
-	FL_Locale *locale = NULL;
-	FL_Success success = FL_FindLocale(&locale, FL_MESSAGES);
-	if (success != 0)
-	{
-		if (success >= 2 && locale->lang) // confident!
-		{
-			LL_INFOS("AppInit") << "Language " << ll_safe_string(locale->lang) << LL_ENDL;
-			LL_INFOS("AppInit") << "Location " << ll_safe_string(locale->country) << LL_ENDL;
-			LL_INFOS("AppInit") << "Variant " << ll_safe_string(locale->variant) << LL_ENDL;
+    // Find the system language.
+    FL_Locale *locale = NULL;
+    FL_Success success = FL_FindLocale(&locale, FL_MESSAGES);
+    if (success != 0)
+    {
+        if (success >= 2 && locale->lang) // confident!
+        {
+            LL_INFOS("AppInit") << "Language " << ll_safe_string(locale->lang) << LL_ENDL;
+            LL_INFOS("AppInit") << "Location " << ll_safe_string(locale->country) << LL_ENDL;
+            LL_INFOS("AppInit") << "Variant " << ll_safe_string(locale->variant) << LL_ENDL;
 
-			LLControlVariable* c = gSavedSettings.getControl("SystemLanguage");
-			if(c)
-			{
-				c->setValue(std::string(locale->lang), false);
-			}
-		}
-	}
-	FL_FreeLocale(&locale);
+            LLControlVariable* c = gSavedSettings.getControl("SystemLanguage");
+            if(c)
+            {
+                c->setValue(std::string(locale->lang), false);
+            }
+        }
+    }
+    FL_FreeLocale(&locale);
 
-	return true;
+    return true;
 }
 
 std::string LLAppViewerLinux::generateSerialNumber()
 {
-	char serial_md5[MD5HEX_STR_SIZE];
-	serial_md5[0] = 0;
-	std::string best;
-	std::string uuiddir("/dev/disk/by-uuid/");
+    char serial_md5[MD5HEX_STR_SIZE];
+    serial_md5[0] = 0;
+    std::string best;
+    std::string uuiddir("/dev/disk/by-uuid/");
 
-	// trawl /dev/disk/by-uuid looking for a good-looking UUID to grab
-	std::string this_name;
+    // trawl /dev/disk/by-uuid looking for a good-looking UUID to grab
+    std::string this_name;
 
-	LLDirIterator iter(uuiddir, "*");
-	while (iter.next(this_name))
-	{
-		if (this_name.length() > best.length() ||
-		    (this_name.length() == best.length() &&
-		     this_name > best))
-		{
-			// longest (and secondarily alphabetically last) so far
-			best = this_name;
-		}
-	}
+    LLDirIterator iter(uuiddir, "*");
+    while (iter.next(this_name))
+    {
+        if (this_name.length() > best.length() ||
+            (this_name.length() == best.length() &&
+             this_name > best))
+        {
+            // longest (and secondarily alphabetically last) so far
+            best = this_name;
+        }
+    }
 
-	// we don't return the actual serial number, just a hash of it.
-	LLMD5 md5( reinterpret_cast<const unsigned char*>(best.c_str()) );
-	md5.hex_digest(serial_md5);
+    // we don't return the actual serial number, just a hash of it.
+    LLMD5 md5( reinterpret_cast<const unsigned char*>(best.c_str()) );
+    md5.hex_digest(serial_md5);
 
-	return serial_md5;
+    return serial_md5;
 }

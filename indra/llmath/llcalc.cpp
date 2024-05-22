@@ -4,21 +4,21 @@
  * $LicenseInfo:firstyear=2008&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2008, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  *
@@ -71,16 +71,16 @@ LLCalc* LLCalc::sInstance = NULL;
 
 LLCalc::LLCalc() : mLastErrorPos(0)
 {
-	// Init table of constants
-	mConstants["PI"] = F_PI;
-	mConstants["TWO_PI"] = F_TWO_PI;
-	mConstants["PI_BY_TWO"] = F_PI_BY_TWO;
-	mConstants["SQRT_TWO_PI"] = F_SQRT_TWO_PI;
-	mConstants["SQRT2"] = F_SQRT2;
-	mConstants["SQRT3"] = F_SQRT3;
-	mConstants["DEG_TO_RAD"] = DEG_TO_RAD;
-	mConstants["RAD_TO_DEG"] = RAD_TO_DEG;
-	mConstants["GRAVITY"] = GRAVITY;
+    // Init table of constants
+    mConstants["PI"] = F_PI;
+    mConstants["TWO_PI"] = F_TWO_PI;
+    mConstants["PI_BY_TWO"] = F_PI_BY_TWO;
+    mConstants["SQRT_TWO_PI"] = F_SQRT_TWO_PI;
+    mConstants["SQRT2"] = F_SQRT2;
+    mConstants["SQRT3"] = F_SQRT3;
+    mConstants["DEG_TO_RAD"] = DEG_TO_RAD;
+    mConstants["RAD_TO_DEG"] = RAD_TO_DEG;
+    mConstants["GRAVITY"] = GRAVITY;
 }
 
 LLCalc::~LLCalc()
@@ -90,73 +90,73 @@ LLCalc::~LLCalc()
 //static
 void LLCalc::cleanUp()
 {
-	delete sInstance;
-	sInstance = NULL;
+    delete sInstance;
+    sInstance = NULL;
 }
 
 //static
 LLCalc* LLCalc::getInstance()
 {
-    if (!sInstance)	sInstance = new LLCalc();
-	return sInstance;
+    if (!sInstance) sInstance = new LLCalc();
+    return sInstance;
 }
 
 void LLCalc::setVar(const std::string& name, const F32& value)
 {
-	mVariables[name] = value;
+    mVariables[name] = value;
 }
 
 void LLCalc::clearVar(const std::string& name)
 {
-	mVariables.erase(name);
+    mVariables.erase(name);
 }
 
 void LLCalc::clearAllVariables()
 {
-	mVariables.clear();
+    mVariables.clear();
 }
 
 /*
 void LLCalc::updateVariables(LLSD& vars)
 {
-	LLSD::map_iterator cIt = vars.beginMap();
-	for(; cIt != vars.endMap(); cIt++)
-	{
-		setVar(cIt->first, (F32)(LLSD::Real)cIt->second);
-	}
+    LLSD::map_iterator cIt = vars.beginMap();
+    for(; cIt != vars.endMap(); cIt++)
+    {
+        setVar(cIt->first, (F32)(LLSD::Real)cIt->second);
+    }
 }
 */
 
 bool LLCalc::evalString(const std::string& expression, F32& result)
 {
-	std::string expr_upper = expression;
-	LLStringUtil::toUpper(expr_upper);
-	
-	LLCalcParser calc(result, &mConstants, &mVariables);
+    std::string expr_upper = expression;
+    LLStringUtil::toUpper(expr_upper);
 
-	mLastErrorPos = 0;
-	std::string::iterator start = expr_upper.begin();
- 	parse_info<std::string::iterator> info;
-	
-	try
-	{
-		info = parse(start, expr_upper.end(), calc, space_p);
-		LL_DEBUGS() << "Math expression: " << expression << " = " << result << LL_ENDL;
-	}
-	catch(parser_error<std::string, std::string::iterator> &e)
-	{
-		mLastErrorPos = e.where - expr_upper.begin();
-		
-		LL_INFOS() << "Calc parser exception: " << e.descriptor << " at " << mLastErrorPos << " in expression: " << expression << LL_ENDL;
-		return false;
-	}
-	
-	if (!info.full)
-	{
-		mLastErrorPos = info.stop - expr_upper.begin();
-		LL_INFOS() << "Unhandled syntax error at " << mLastErrorPos << " in expression: " << expression << LL_ENDL;
-		return false;
-	}
-	
-	return true;
+    LLCalcParser calc(result, &mConstants, &mVariables);
+
+    mLastErrorPos = 0;
+    std::string::iterator start = expr_upper.begin();
+    parse_info<std::string::iterator> info;
+
+    try
+    {
+        info = parse(start, expr_upper.end(), calc, space_p);
+        LL_DEBUGS() << "Math expression: " << expression << " = " << result << LL_ENDL;
+    }
+    catch(parser_error<std::string, std::string::iterator> &e)
+    {
+        mLastErrorPos = e.where - expr_upper.begin();
+
+        LL_INFOS() << "Calc parser exception: " << e.descriptor << " at " << mLastErrorPos << " in expression: " << expression << LL_ENDL;
+        return false;
+    }
+
+    if (!info.full)
+    {
+        mLastErrorPos = info.stop - expr_upper.begin();
+        LL_INFOS() << "Unhandled syntax error at " << mLastErrorPos << " in expression: " << expression << LL_ENDL;
+        return false;
+    }
+
+    return true;
 }

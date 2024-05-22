@@ -3,7 +3,7 @@
  * @author Nat Goodspeed
  * @date   2016-06-29
  * @brief  Types needed for generic exception handling
- * 
+ *
  * $LicenseInfo:firstyear=2016&license=viewerlgpl$
  * Copyright (c) 2016, Linden Research, Inc.
  * $/LicenseInfo$

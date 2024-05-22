@@ -3,7 +3,7 @@
  * @author Nat Goodspeed
  * @date   2012-02-20
  * @brief  Implementation for llleap.
- * 
+ *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Copyright (c) 2012, Linden Research, Inc.
  * $/LicenseInfo$
@@ -462,10 +462,10 @@ private:
     LLProcessPtr mChild;
     LLTempBoundListener
         mStdinConnection, mStdoutConnection, mStdoutDataConnection, mStderrConnection;
-    boost::scoped_ptr<LLEventPump::Blocker> mBlocker;
+    std::unique_ptr<LLEventPump::Blocker> mBlocker;
     LLProcess::ReadPipe::size_type mExpect;
     LLError::RecorderPtr mRecorder;
-    boost::scoped_ptr<LLLeapListener> mListener;
+    std::unique_ptr<LLLeapListener> mListener;
 };
 
 // These must follow the declaration of LLLeapImpl, so they may as well be last.

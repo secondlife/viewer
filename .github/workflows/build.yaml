@@ -5,7 +5,7 @@ on:
   pull_request:
   push:
     branches: ["main", "release/*", "project/*"]
-    tags: ["Second_Life_*"]
+    tags: ["Second_Life*"]
 
 jobs:
   build:
@@ -19,10 +19,10 @@ jobs:
         exclude:
           - runner: windows-large
             configuration: ReleaseOS
-          - runner: macos-12-xl 
+          - runner: macos-12-xl
             configuration: ReleaseOS
           - runner: linux-large
-            configuration: Release 
+            configuration: Release
     runs-on: ${{ matrix.runner }}
     outputs:
       viewer_channel: ${{ steps.build.outputs.viewer_channel }}
@@ -103,7 +103,7 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y \
-            libsndio-dev libpulse-dev libunwind-dev \
+            libpulse-dev libunwind-dev \
             libgl1-mesa-dev libglu1-mesa-dev libxinerama-dev \
             libxcursor-dev libxfixes-dev libgstreamer1.0-dev \
             libgstreamer-plugins-base1.0-dev ninja-build libxft-dev \
@@ -194,16 +194,22 @@ jobs:
           # seen before, so numerous tests don't know about it.
           [[ "$arch" == "MINGW6" ]] && arch=CYGWIN
           export AUTOBUILD="$(which autobuild)"
-          # Build with a tag like "Second_Life_Project_Shiny#abcdef0" to get a
-          # viewer channel "Second Life Project Shiny" (ignoring "#hash",
-          # needed to disambiguate tags).
-          if [[ "$GITHUB_REF_TYPE" == "tag" && "${GITHUB_REF_NAME:0:12}" == "Second_Life_" ]]
-          then viewer_channel="${GITHUB_REF_NAME%#*}"
-               export viewer_channel="${viewer_channel//_/ }"
-          else export viewer_channel="Second Life Test"
+
+          # determine the viewer channel from the branch name
+          branch=$AUTOBUILD_VCS_BRANCH
+          IFS='/' read -ra ba <<< $branch
+          prefix=${ba[0]}
+          if [ "$prefix" == "project" ]; then
+              IFS='_' read -ra prj <<< "${ba[1]}"
+              # uppercase first letter of each word
+              export viewer_channel="Second Life Project ${prj[*]^}"
+          elif  [[ "$prefix" == "release" || "$prefix" == "main" ]];
+          then
+              export viewer_channel="Second Life Release"
+          else
+              export viewer_channel="Second Life Test"
           fi
           echo "viewer_channel=$viewer_channel" >> "$GITHUB_OUTPUT"
-
           # On windows we need to point the build to the correct python
           # as neither CMake's FindPython nor our custom Python.cmake module
           # will resolve the correct interpreter location.
@@ -221,7 +227,7 @@ jobs:
             export CC=clang
             export CXX=clang++
             export CMAKE_OPTIONS='-DLINK_WITH_MOLD=ON'
-          fi 
+          fi
 
           ./build.sh
 
@@ -380,7 +386,8 @@ jobs:
   release:
     needs: [build, sign-and-package-windows, sign-and-package-mac]
     runs-on: ubuntu-latest
-    if: github.ref_type == 'tag' && startsWith(github.ref_name, 'Second_Life_')
+      # Build with a tag like "Second_Life#abcdef0" to generate a release page (used for builds we are planning to deploy).
+    if: github.ref_type == 'tag' && startsWith(github.ref_name, 'Second_Life')
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -393,7 +400,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           pattern: "LinuxOS-app"
-      
+
       - name: Rename metadata
         run: |
           cp Windows-metadata/autobuild-package.xml Windows-autobuild-package.xml
@@ -422,7 +429,7 @@ jobs:
           append_body: true
           fail_on_unmatched_files: true
           files: |
-            macOS-installer/*.dmg 
+            macOS-installer/*.dmg
             Windows-installer/*.exe
             *-autobuild-package.xml
             *-viewer_version.txt
