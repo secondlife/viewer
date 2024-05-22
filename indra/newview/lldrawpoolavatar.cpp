@@ -370,8 +370,8 @@ void LLDrawPoolAvatar::renderShadow(S32 pass)
 		return;
 	}
 
-    LLCachedControl<bool> debug_invisible(gSavedSettings, "RenderAvatarFriendsOnly", false);
-    if (debug_invisible()
+    static LLCachedControl<bool> friends_only(gSavedSettings, "RenderAvatarFriendsOnly", false);
+    if (friends_only()
         && !avatarp->isControlAvatar()
         && !avatarp->isSelf()
         && !avatarp->isBuddy())
@@ -732,7 +732,7 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 		return;
 	}
 
-    LLCachedControl<bool> friends_only(gSavedSettings, "RenderAvatarFriendsOnly", false);
+    static LLCachedControl<bool> friends_only(gSavedSettings, "RenderAvatarFriendsOnly", false);
     if (!single_avatar
         && friends_only()
         && !avatarp->isUIAvatar()
