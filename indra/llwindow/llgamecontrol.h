@@ -166,29 +166,40 @@ public:
     // Options is a data structure for storing device-specific settings
     class Options
     {
-        std::map<U8, U8> mAxisMap;
-        std::map<U8, U8> mButtonMap;
-
+    public:
         struct AxisOptions
         {
             bool mInvert { false };
-            U8 mDeadZone { 0 };
+            U16 mDeadZone { 0 };
             S16 mOffset { 0 };
+
+            void resetToDefaults()
+            {
+                mInvert = false;
+                mDeadZone = 0;
+                mOffset = 0;
+            }
 
             std::string saveToString() const;
             void loadFromString(std::string options);
         };
 
-        std::vector<AxisOptions> mAxisOptions;
+        Options();
 
-    public:
+        void resetToDefaults();
+
         U8 mapAxis(U8 axis) const;
         U8 mapButton(U8 button) const;
 
         S16 fixAxisValue(U8 axis, S16 value) const;
 
-        std::string saveToString() const;
+        std::string saveToString(const std::string& name, bool force_empty = false) const;
         void loadFromString(std::string options);
+
+    private:
+        std::vector<AxisOptions> mAxisOptions;
+        std::vector<U8> mAxisMap;
+        std::vector<U8> mButtonMap;
     };
 
     // State is a minimal class for storing axes and buttons values
@@ -207,14 +218,21 @@ public:
     class Device
     {
         const int mJoystickID { -1 };
-        const void* mController { nullptr };
+        const std::string mGUID;
+        const std::string mName;
         Options mOptions;
         State mState;
 
     public:
-        Device(int joystickID, void* controller);
+        Device(int joystickID, const std::string& guid, const std::string& name);
         int getJoystickID() const { return mJoystickID; }
+        std::string getGUID() const { return mGUID; }
+        std::string getName() const { return mName; }
         const State& getState() { return mState; }
+
+        void resetOptionsToDefaults() { mOptions.resetToDefaults(); }
+        std::string saveOptionsToString(bool force_empty = false) const { return mOptions.saveToString(mName, force_empty); }
+        void loadOptionsFromString(const std::string& options) { mOptions.loadFromString(options); }
 
         friend class LLGameControllerManager;
     };
@@ -224,10 +242,13 @@ public:
         std::function<bool(const std::string&)> loadBoolean,
         std::function<void(const std::string&, bool)> saveBoolean,
         std::function<std::string(const std::string&)> loadString,
-        std::function<void(const std::string&, const std::string&)> saveString);
+        std::function<void(const std::string&, const std::string&)> saveString,
+        std::function<LLSD(const std::string&)> loadObject,
+        std::function<void(const std::string&, const LLSD&)> saveObject);
 	static void terminate();
 
     static const std::list<LLGameControl::Device>& getDevices();
+    static const std::map<std::string, std::string>& getDeviceOptions();
 
     // returns 'true' if GameControlInput message needs to go out,
     // which will be the case for new data or resend. Call this right
@@ -278,6 +299,14 @@ public:
     static std::string stringifyAnalogMappings(getChannel_t getChannel);
     static std::string stringifyBinaryMappings(getChannel_t getChannel);
     static std::string stringifyFlycamMappings(getChannel_t getChannel);
+
+    static bool parseDeviceOptions(const std::string& options, std::string& name,
+        std::vector<LLGameControl::Options::AxisOptions>& axis_options,
+        std::vector<U8>& axis_map, std::vector<U8>& button_map);
+    static std::string stringifyDeviceOptions(const std::string& name,
+        const std::vector<LLGameControl::Options::AxisOptions>& axis_options,
+        const std::vector<U8>& axis_map, const std::vector<U8>& button_map,
+        bool force_empty = false);
 
     static void initByDefault();
     static void loadFromSettings();

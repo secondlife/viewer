@@ -3107,17 +3107,17 @@ void LLPanelPreferenceGameControl::saveSettings()
 
     // Find the channel visually associated with the specified action
     LLGameControl::getChannel_t getChannel =
-        [&](const std::string& action) -> LLGameControl::InputChannel
+    [&](const std::string& action) -> LLGameControl::InputChannel
+    {
+        for (LLScrollListItem* item : items)
         {
-            for (LLScrollListItem* item : items)
+            if (action == item->getValue() && (item->getNumColumns() >= 2))
             {
-                if (action == item->getValue() && (item->getNumColumns() >= 2))
-                {
-                    return LLGameControl::getChannelByName(item->getColumn(1)->getValue());
-                }
+                return LLGameControl::getChannelByName(item->getColumn(1)->getValue());
             }
-            return LLGameControl::InputChannel();
-        };
+        }
+        return LLGameControl::InputChannel();
+    };
 
     // Use string formatting functions provided by class LLGameControl:
     // stringifyAnalogMappings(), stringifyBinaryMappings(), stringifyFlycamMappings()
@@ -3138,6 +3138,13 @@ void LLPanelPreferenceGameControl::saveSettings()
     {
         flycamMappings->set(LLGameControl::stringifyFlycamMappings(getChannel));
         mSavedValues[flycamMappings] = flycamMappings->getValue();
+    }
+
+    if (LLControlVariable* knownControllers = gSavedSettings.getControl("KnownGameControllers"))
+    {
+        LLSD deviceOptions(mDeviceOptions, true);
+        knownControllers->set(deviceOptions);
+        mSavedValues[knownControllers] = deviceOptions;
     }
 }
 
@@ -3287,6 +3294,16 @@ void LLPanelPreferenceGameControl::onOpen(const LLSD& key)
     populateCells();
 
     updateTableState();
+
+    mDeviceOptions = LLGameControl::getDeviceOptions();
+    // Add missing device settings even if they are default
+    for (const auto& device : LLGameControl::getDevices())
+    {
+        if (mDeviceOptions.find(device.getGUID()) == mDeviceOptions.end())
+        {
+            mDeviceOptions[device.getGUID()] = device.saveOptionsToString(true);
+        }
+    }
 }
 
 void LLPanelPreferenceGameControl::populateActionTable()

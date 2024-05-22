@@ -37,48 +37,182 @@
 #include "indra_constants.h"
 #include "llfile.h"
 #include "llgamecontroltranslator.h"
+#include "llsd.h"
 
 constexpr size_t NUM_AXES = 6;
 constexpr size_t NUM_BUTTONS = 32;
 
-// util for dumping SDL_GameController info
-std::ostream& operator<<(std::ostream& out, SDL_GameController* c)
+namespace std
 {
-    if (!c)
+    std::string to_string(const SDL_JoystickGUID& guid)
     {
-        return out << "nullptr";
+        char buffer[33] = { 0 };
+        SDL_JoystickGetGUIDString(guid, buffer, sizeof(guid));
+        return buffer;
     }
-    out << "{";
-    out << " name='" << SDL_GameControllerName(c) << "'";
-    out << " type='" << SDL_GameControllerGetType(c) << "'";
-    out << " vendor='" << SDL_GameControllerGetVendor(c) << "'";
-    out << " product='" << SDL_GameControllerGetProduct(c) << "'";
-    out << " version='" << SDL_GameControllerGetProductVersion(c) << "'";
-    //CRASH! out << " serial='" << SDL_GameControllerGetSerial(c) << "'";
-    out << " }";
-    return out;
+
+    std::string to_string(SDL_JoystickType type)
+    {
+        switch (type)
+        {
+        case SDL_JOYSTICK_TYPE_GAMECONTROLLER:
+            return "GAMECONTROLLER";
+        case SDL_JOYSTICK_TYPE_WHEEL:
+            return "WHEEL";
+        case SDL_JOYSTICK_TYPE_ARCADE_STICK:
+            return "ARCADE_STICK";
+        case SDL_JOYSTICK_TYPE_FLIGHT_STICK:
+            return "FLIGHT_STICK";
+        case SDL_JOYSTICK_TYPE_DANCE_PAD:
+            return "DANCE_PAD";
+        case SDL_JOYSTICK_TYPE_GUITAR:
+            return "GUITAR";
+        case SDL_JOYSTICK_TYPE_DRUM_KIT:
+            return "DRUM_KIT";
+        case SDL_JOYSTICK_TYPE_ARCADE_PAD:
+            return "ARCADE_PAD";
+        case SDL_JOYSTICK_TYPE_THROTTLE:
+            return "THROTTLE";
+        default:;
+        }
+        return "UNKNOWN";
+    }
+
+    std::string to_string(SDL_GameControllerType type)
+    {
+        switch (type)
+        {
+        case SDL_CONTROLLER_TYPE_XBOX360:
+            return "XBOX360";
+        case SDL_CONTROLLER_TYPE_XBOXONE:
+            return "XBOXONE";
+        case SDL_CONTROLLER_TYPE_PS3:
+            return "PS3";
+        case SDL_CONTROLLER_TYPE_PS4:
+            return "PS4";
+        case SDL_CONTROLLER_TYPE_NINTENDO_SWITCH_PRO:
+            return "NINTENDO_SWITCH_PRO";
+        case SDL_CONTROLLER_TYPE_VIRTUAL:
+            return "VIRTUAL";
+        case SDL_CONTROLLER_TYPE_PS5:
+            return "PS5";
+        case SDL_CONTROLLER_TYPE_AMAZON_LUNA:
+            return "AMAZON_LUNA";
+        case SDL_CONTROLLER_TYPE_GOOGLE_STADIA:
+            return "GOOGLE_STADIA";
+        case SDL_CONTROLLER_TYPE_NVIDIA_SHIELD:
+            return "NVIDIA_SHIELD";
+        case SDL_CONTROLLER_TYPE_NINTENDO_SWITCH_JOYCON_LEFT:
+            return "NINTENDO_SWITCH_JOYCON_LEFT";
+        case SDL_CONTROLLER_TYPE_NINTENDO_SWITCH_JOYCON_RIGHT:
+            return "NINTENDO_SWITCH_JOYCON_RIGHT";
+        case SDL_CONTROLLER_TYPE_NINTENDO_SWITCH_JOYCON_PAIR:
+            return "NINTENDO_SWITCH_JOYCON_PAIR";
+        default:;
+        }
+        return "UNKNOWN";
+    }
+
 }
 
-// util for dumping SDL_Joystick info
-std::ostream& operator<<(std::ostream& out, SDL_Joystick* j)
+// Util for dumping SDL_JoystickGUID info
+std::ostream& operator<<(std::ostream& out, SDL_JoystickGUID& guid)
 {
-    if (!j)
+    return out << std::to_string(guid);
+}
+
+// Util for dumping SDL_JoystickType type name
+std::ostream& operator<<(std::ostream& out, SDL_JoystickType type)
+{
+    return out << std::to_string(type);
+}
+
+// Util for dumping SDL_GameControllerType type name
+std::ostream& operator<<(std::ostream& out, SDL_GameControllerType type)
+{
+    return out << std::to_string(type);
+}
+
+namespace std
+{
+    std::string to_string(SDL_Joystick* joystick)
     {
-        return out << "nullptr";
+        if (!joystick)
+        {
+            return "nullptr";
+        }
+
+        std::stringstream ss;
+
+        ss << "{id:" << SDL_JoystickInstanceID(joystick);
+        SDL_JoystickGUID guid = SDL_JoystickGetGUID(joystick);
+        ss << ",guid:'" << guid << "'";
+        ss << ",type:'" << SDL_JoystickGetType(joystick) << "'";
+        ss << ",name:'" << SDL_JoystickName(joystick) << "'";
+        ss << ",vendor:" << SDL_JoystickGetVendor(joystick);
+        ss << ",product:" << SDL_JoystickGetProduct(joystick);
+        if (U16 version = SDL_JoystickGetProductVersion(joystick))
+        {
+            ss << ",version:" << version;
+        }
+        if (U16 firmware = SDL_JoystickGetFirmwareVersion(joystick))
+        {
+            ss << ",firmware:" << firmware;
+        }
+        if (const char* serial = SDL_JoystickGetSerial(joystick))
+        {
+            ss << ",serial:'" << serial << "'";
+        }
+        ss << ",num_axes:" << SDL_JoystickNumAxes(joystick);
+        ss << ",num_balls:" << SDL_JoystickNumBalls(joystick);
+        ss << ",num_hats:" << SDL_JoystickNumHats(joystick);
+        ss << ",num_buttons:" << SDL_JoystickNumHats(joystick);
+        ss << "}";
+
+        return ss.str();
     }
-    out << "{";
-    out << " p=0x" << (void*)(j);
-    out << " name='" << SDL_JoystickName(j) << "'";
-    out << " type='" << SDL_JoystickGetType(j) << "'";
-    out << " instance='" << SDL_JoystickInstanceID(j) << "'";
-    out << " product='" << SDL_JoystickGetProduct(j) << "'";
-    out << " version='" << SDL_JoystickGetProductVersion(j) << "'";
-    out << " num_axes=" << SDL_JoystickNumAxes(j);
-    out << " num_balls=" << SDL_JoystickNumBalls(j);
-    out << " num_hats=" << SDL_JoystickNumHats(j);
-    out << " num_buttons=" << SDL_JoystickNumHats(j);
-    out << " }";
-    return out;
+
+    std::string to_string(SDL_GameController* controller)
+    {
+        if (!controller)
+        {
+            return "nullptr";
+        }
+
+        std::stringstream ss;
+
+        ss << "{type:'" << SDL_GameControllerGetType(controller) << "'";
+        ss << ",name:'" << SDL_GameControllerName(controller) << "'";
+        ss << ",vendor:" << SDL_GameControllerGetVendor(controller);
+        ss << ",product:" << SDL_GameControllerGetProduct(controller);
+        if (U16 version = SDL_GameControllerGetProductVersion(controller))
+        {
+            ss << ",version:" << version;
+        }
+        if (U16 firmware = SDL_GameControllerGetFirmwareVersion(controller))
+        {
+            ss << ",firmware:" << firmware;
+        }
+        if (const char* serial = SDL_GameControllerGetSerial(controller))
+        {
+            ss << ",serial:'" << serial << "'";
+        }
+        ss << "}";
+
+        return ss.str();
+    }
+}
+
+// Util for dumping SDL_Joystick info
+std::ostream& operator<<(std::ostream& out, SDL_Joystick* joystick)
+{
+    return out << std::to_string(joystick);
+}
+
+// Util for dumping SDL_GameController info
+std::ostream& operator<<(std::ostream& out, SDL_GameController* controller)
+{
+    return out << std::to_string(controller);
 }
 
 std::string LLGameControl::InputChannel::getLocalName() const
@@ -215,8 +349,11 @@ public:
     LLGameControllerManager();
 
     void initializeMappingsByDefault();
+    void resetDeviceOptionsToDefaults();
+    void loadDeviceOptionsFromSettings();
+    void saveDeviceOptionsToSettings() const;
 
-    void addController(SDL_JoystickID id, SDL_GameController* controller);
+    void addController(SDL_JoystickID id, const std::string& guid, const std::string& name);
     void removeController(SDL_JoystickID id);
 
     void onAxis(SDL_JoystickID id, U8 axis, S16 value);
@@ -309,11 +446,17 @@ namespace
 
     constexpr U8 MAX_AXIS = NUM_AXES - 1;
     constexpr U8 MAX_BUTTON = NUM_BUTTONS - 1;
+    constexpr U16 MAX_AXIS_DEAD_ZONE = 16384;
+    constexpr U16 MAX_AXIS_OFFSET = 16384;
+
+    std::map<std::string, std::string> g_deviceOptions;
 
     std::function<bool(const std::string&)> s_loadBoolean;
     std::function<void(const std::string&, bool)> s_saveBoolean;
     std::function<std::string(const std::string&)> s_loadString;
     std::function<void(const std::string&, const std::string&)> s_saveString;
+    std::function<LLSD(const std::string&)> s_loadObject;
+    std::function<void(const std::string&, LLSD&)> s_saveObject;
 
     std::string SETTING_SENDTOSERVER("GameControlToServer");
     std::string SETTING_CONTROLAGENT("GameControlToAgent");
@@ -322,6 +465,7 @@ namespace
     std::string SETTING_ANALOGMAPPINGS("AnalogChannelMappings");
     std::string SETTING_BINARYMAPPINGS("BinaryChannelMappings");
     std::string SETTING_FLYCAMMAPPINGS("FlycamChannelMappings");
+    std::string SETTING_KNOWNCONTROLLERS("KnownGameControllers");
 
     std::string ENUM_AGENTCONTROLMODE_FLYCAM("flycam");
     std::string ENUM_AGENTCONTROLMODE_NONE("none");
@@ -386,31 +530,67 @@ bool LLGameControl::State::onButton(U8 button, bool pressed)
     return mButtons != old_buttons;
 }
 
-LLGameControl::Device::Device(int joystickID, void* controller)
+LLGameControl::Device::Device(int joystickID, const std::string& guid, const std::string& name)
 : mJoystickID(joystickID)
-, mController(controller)
+, mGUID(guid)
+, mName(name)
 {
-    LL_INFOS("GameController") << "joystick id: " << mJoystickID << ", controller: " << mController << LL_ENDL;
+}
+
+LLGameControl::Options::Options()
+{
+    mAxisOptions.resize(NUM_AXES);
+    mAxisMap.resize(NUM_AXES);
+    mButtonMap.resize(NUM_BUTTONS);
+
+    resetToDefaults();
+}
+
+void LLGameControl::Options::resetToDefaults()
+{
+    for (size_t i = 0; i < NUM_AXES; ++i)
+    {
+        mAxisOptions[i].resetToDefaults();
+        mAxisMap[i] = i;
+    }
+
+    for (size_t i = 0; i < NUM_BUTTONS; ++i)
+    {
+        mButtonMap[i] = i;
+    }
 }
 
 U8 LLGameControl::Options::mapAxis(U8 axis) const
 {
-    auto it = mAxisMap.find(axis);
-    return it == mAxisMap.end() ? axis : it->second;
+    if (axis > MAX_AXIS)
+    {
+        LL_WARNS("SDL2") << "Invalid input axis: " << axis << LL_ENDL;
+        return axis;
+    }
+    return mAxisMap[axis];
 }
 
 U8 LLGameControl::Options::mapButton(U8 button) const
 {
-    auto it = mButtonMap.find(button);
-    return it == mButtonMap.end() ? button : it->second;
+    if (button > MAX_BUTTON)
+    {
+        LL_WARNS("SDL2") << "Invalid input button: " << button << LL_ENDL;
+        return button;
+    }
+    return mButtonMap[button];
 }
 
 S16 LLGameControl::Options::fixAxisValue(U8 axis, S16 value) const
 {
-    if (axis >= 0 && axis < mAxisOptions.size())
+    if (axis > MAX_AXIS)
+    {
+        LL_WARNS("SDL2") << "Invalid input axis: " << axis << LL_ENDL;
+    }
+    else
     {
         const AxisOptions& options = mAxisOptions[axis];
-        value += options.mOffset;
+        S32 new_value = (S32)value + (S32)options.mOffset;
+        value = (S16)std::clamp(new_value , -32768, 32767);
         if ((value > 0 && value < (S16)options.mDeadZone) ||
             (value < 0 && value > -(S16)options.mDeadZone))
         {
@@ -441,57 +621,144 @@ std::string LLGameControl::Options::AxisOptions::saveToString() const
         options.push_back(llformat("offset:%d", mOffset));
     }
 
-    std::string result = LLStringOps::join(options);
+    std::string result = LLStringUtil::join(options);
 
     return result.empty() ? result : "{" + result + "}";
 }
 
-std::string LLGameControl::Options::saveToString() const
+// Parse string "{key:value,key:{key:value,key:value}}" and fill the map
+static bool parse(std::map<std::string, std::string>& result, std::string source)
 {
-    std::list<std::string> options;
+    result.clear();
 
-    auto pair2str = [](const std::pair<U8, U8>& pair) -> std::string
+    LLStringUtil::trim(source);
+    if (source.empty())
+        return true;
+
+    if (source.front() != '{' || source.back() != '}')
+        return false;
+
+    source = source.substr(1, source.size() - 2);
+
+    LLStringUtil::trim(source);
+    if (source.empty())
+        return true;
+
+    // Split the string "key:value" and add the pair to the map
+    auto split = [&](const std::string& pair) -> bool
     {
-        return pair.first == pair.second ? LLStringUtil::null : llformat("%u:%u", pair.first, pair.second);
+        size_t pos = pair.find(':');
+        if (!pos || pos == std::string::npos)
+            return false;
+        std::string key = pair.substr(0, pos);
+        std::string value = pair.substr(pos + 1);
+        LLStringUtil::trim(key);
+        LLStringUtil::trim(value);
+        if (key.empty() || value.empty())
+            return false;
+        result[key] = value;
+        return true;
     };
 
-    std::string axis_map = LLStringOps::join<std::map<U8, U8>, std::pair<U8, U8>>(mAxisMap, pair2str);
-    if (!axis_map.empty())
+    U32 depth = 0;
+    size_t offset = 0;
+    while (true)
     {
-        options.push_back("axis_map:{" + axis_map + "}");
+        size_t pos = source.find_first_of(depth ? "{}" : ",{}", offset);
+        if (pos == std::string::npos)
+        {
+            return !depth && split(source);
+        }
+        if (source[pos] == ',')
+        {
+            if (!split(source.substr(0, pos)))
+                return false;
+            source = source.substr(pos + 1);
+            offset = 0;
+        }
+        else if (source[pos] == '{')
+        {
+            depth++;
+            offset = pos + 1;
+        }
+        else if (depth) // Assume '}' here
+        {
+            depth--;
+            offset = pos + 1;
+        }
+        else
+        {
+            return false; // Extra '}' found
+        }
     }
 
-    std::string button_map = LLStringOps::join<std::map<U8, U8>, std::pair<U8, U8>>(mButtonMap, pair2str);
-    if (!button_map.empty())
-    {
-        options.push_back("button_map:{" + button_map + "}");
-    }
-
-    auto opts2str = [](size_t i, const AxisOptions& options) -> std::string
-    {
-        std::string string = options.saveToString();
-        return string.empty() ? string : llformat("%u:%s", i, string.c_str());
-    };
-
-    std::string axis_options = LLStringOps::join<std::vector<AxisOptions>, AxisOptions>(mAxisOptions, opts2str);
-    if (!axis_options.empty())
-    {
-        options.push_back("axis_options:{" + axis_options + "}");
-    }
-
-    std::string result = LLStringOps::join(options);
-
-    return result.empty() ? result : "{" + result + "}";
+    return true;
 }
 
 void LLGameControl::Options::AxisOptions::loadFromString(std::string options)
 {
-    // TODO: implement this
+    resetToDefaults();
+
+    if (options.empty())
+        return;
+
+    std::map<std::string, std::string> pairs;
+    if (!parse(pairs, options))
+    {
+        LL_WARNS("SDL2") << "Invalid axis options: '" << options << "'" << LL_ENDL;
+    }
+
+    std::string invert = pairs["invert"];
+    if (!invert.empty())
+    {
+        if (invert != "1")
+        {
+            LL_WARNS("SDL2") << "Invalid invert value: '" << invert << "'" << LL_ENDL;
+        }
+        else
+        {
+            mInvert = true;
+        }
+    }
+
+    std::string dead_zone = pairs["dead_zone"];
+    if (!dead_zone.empty())
+    {
+        size_t number = std::stoull(dead_zone);
+        if (number > MAX_AXIS_DEAD_ZONE || std::to_string(number) != dead_zone)
+        {
+            LL_WARNS("SDL2") << "Invalid dead_zone value: '" << dead_zone << "'" << LL_ENDL;
+        }
+        else
+        {
+            mDeadZone = (U16)number;
+        }
+    }
+
+    std::string offset = pairs["offset"];
+    if (!offset.empty())
+    {
+        S32 number = std::stoi(offset);
+        if (abs(number) > MAX_AXIS_OFFSET || std::to_string(number) != offset)
+        {
+            LL_WARNS("SDL2") << "Invalid offset value: '" << offset << "'" << LL_ENDL;
+        }
+        else
+        {
+            mOffset = (S16)number;
+        }
+    }
+}
+
+std::string LLGameControl::Options::saveToString(const std::string& name, bool force_empty) const
+{
+    return stringifyDeviceOptions(name, mAxisOptions, mAxisMap, mButtonMap, force_empty);
 }
 
 void LLGameControl::Options::loadFromString(std::string options)
 {
-    // TODO: implement this
+    std::string dummy_name;
+    LLGameControl::parseDeviceOptions(options, dummy_name, mAxisOptions, mAxisMap, mButtonMap);
 }
 
 LLGameControllerManager::LLGameControllerManager()
@@ -585,28 +852,60 @@ void LLGameControllerManager::initializeMappingsByDefault()
     };
 }
 
-void LLGameControllerManager::addController(SDL_JoystickID id, SDL_GameController* controller)
+void LLGameControllerManager::resetDeviceOptionsToDefaults()
 {
-    LL_INFOS("GameController") << "joystick id: " << id << ", controller: " << controller << LL_ENDL;
-
-    llassert(id >= 0);
-    llassert(controller);
-
-    if (findDevice(id) != mDevices.end())
+    for (LLGameControl::Device& device : mDevices)
     {
-        LL_WARNS("GameController") << "device already added" << LL_ENDL;
-        return;
+        device.resetOptionsToDefaults();
+    }
+}
+
+void LLGameControllerManager::loadDeviceOptionsFromSettings()
+{
+    for (LLGameControl::Device& device : mDevices)
+    {
+        device.loadOptionsFromString(g_deviceOptions[device.getGUID()]);
+    }
+}
+
+void LLGameControllerManager::saveDeviceOptionsToSettings() const
+{
+    for (const LLGameControl::Device& device : mDevices)
+    {
+        std::string options = device.saveOptionsToString();
+        if (options.empty())
+        {
+            g_deviceOptions.erase(device.getGUID());
+        }
+        else
+        {
+            g_deviceOptions[device.getGUID()] = options;
+        }
+    }
+}
+
+void LLGameControllerManager::addController(SDL_JoystickID id, const std::string& guid, const std::string& name)
+{
+    llassert(id >= 0);
+
+    for (const LLGameControl::Device& device :  mDevices)
+    {
+        if (device.getJoystickID() == id)
+        {
+            LL_WARNS("SDL2") << "device with id=" << id << " was already added"
+                << ", guid: '" << device.getGUID() << "'"
+                << ", name: '" << device.getName() << "'"
+                << LL_ENDL;
+            return;
+        }
     }
 
-    mDevices.emplace_back(id, controller);
-    LL_DEBUGS("SDL2") << "joystick=0x" << std::hex << id << std::dec
-        << " controller=" << controller
-        << LL_ENDL;
+    mDevices.emplace_back(id, guid, name).loadOptionsFromString(g_deviceOptions[guid]);
 }
 
 void LLGameControllerManager::removeController(SDL_JoystickID id)
 {
-    LL_INFOS("GameController") << "joystick id: " << id << LL_ENDL;
+    LL_INFOS("SDL2") << "joystick id: " << id << LL_ENDL;
 
     mDevices.remove_if([id](LLGameControl::Device& device)
         {
@@ -827,7 +1126,8 @@ LLGameControl::InputChannel LLGameControllerManager::getFlycamChannelByAction(co
 static std::string getMappings(const std::vector<std::string>& actions, LLGameControl::InputChannel::Type type,
     std::function<LLGameControl::InputChannel(const std::string& action)> getChannel)
 {
-    std::string result;
+    std::list<std::string> mappings;
+
     // Walk through the all known actions of the chosen type
     for (const std::string& action : actions)
     {
@@ -835,14 +1135,12 @@ static std::string getMappings(const std::vector<std::string>& actions, LLGameCo
         // Only channels of the expected type should be stored
         if (channel.mType == type)
         {
-            result += action + ":" + channel.getLocalName() + ",";
+            mappings.push_back(action + ":" + channel.getLocalName());
         }
     }
-    // Remove the last comma if exists
-    if (!result.empty())
-    {
-        result.resize(result.size() - 1);
-    }
+
+    std::string result = LLStringUtil::join(mappings);
+
     return result;
 }
 
@@ -1063,47 +1361,67 @@ U64 get_now_nsec()
 
 void onJoystickDeviceAdded(const SDL_Event& event)
 {
-    LL_INFOS("GameController") << "device index: " << event.cdevice.which << LL_ENDL;
+    SDL_JoystickGUID guid(SDL_JoystickGetDeviceGUID(event.cdevice.which));
+    SDL_JoystickType type(SDL_JoystickGetDeviceType(event.cdevice.which));
+    std::string name(SDL_JoystickNameForIndex(event.cdevice.which));
+    std::string path(SDL_JoystickPathForIndex(event.cdevice.which));
+
+    LL_INFOS("SDL2") << "joystick {id:" << event.cdevice.which
+        << ",guid:'" << guid << "'"
+        << ",type:'" << type << "'"
+        << ",name:'" << name << "'"
+        << ",path:'" << path << "'"
+        << "}" << LL_ENDL;
 
     if (SDL_Joystick* joystick = SDL_JoystickOpen(event.cdevice.which))
     {
-        LL_INFOS("GameController") << "joystick: " << joystick << LL_ENDL;
+        LL_INFOS("SDL2") << "joystick " << joystick << LL_ENDL;
     }
     else
     {
-        LL_WARNS("GameController") << "Can't open joystick: " << SDL_GetError() << LL_ENDL;
+        LL_WARNS("SDL2") << "Can't open joystick: " << SDL_GetError() << LL_ENDL;
     }
 }
 
 void onJoystickDeviceRemoved(const SDL_Event& event)
 {
-    LL_INFOS("GameController") << "joystick id: " << event.cdevice.which << LL_ENDL;
+    LL_INFOS("SDL2") << "joystick id: " << event.cdevice.which << LL_ENDL;
 }
 
 void onControllerDeviceAdded(const SDL_Event& event)
 {
-    LL_INFOS("GameController") << "device index: " << event.cdevice.which << LL_ENDL;
+    std::string guid(std::to_string(SDL_JoystickGetDeviceGUID(event.cdevice.which)));
+    SDL_GameControllerType type(SDL_GameControllerTypeForIndex(event.cdevice.which));
+    std::string name(SDL_GameControllerNameForIndex(event.cdevice.which));
+    std::string path(SDL_GameControllerPathForIndex(event.cdevice.which));
+
+    LL_INFOS("SDL2") << "controller {id:" << event.cdevice.which
+        << ",guid:'" << guid << "'"
+        << ",type:'" << type << "'"
+        << ",name:'" << name << "'"
+        << ",path:'" << path << "'"
+        << "}" << LL_ENDL;
 
     SDL_JoystickID id = SDL_JoystickGetDeviceInstanceID(event.cdevice.which);
     if (id < 0)
     {
-        LL_WARNS("GameController") << "Can't get device instance ID: " << SDL_GetError() << LL_ENDL;
+        LL_WARNS("SDL2") << "Can't get device instance ID: " << SDL_GetError() << LL_ENDL;
         return;
     }
 
     SDL_GameController* controller = SDL_GameControllerOpen(event.cdevice.which);
     if (!controller)
     {
-        LL_WARNS("GameController") << "Can't open game controller: " << SDL_GetError() << LL_ENDL;
+        LL_WARNS("SDL2") << "Can't open game controller: " << SDL_GetError() << LL_ENDL;
         return;
     }
 
-    g_manager.addController(id, controller);
+    g_manager.addController(id, guid, name);
 }
 
 void onControllerDeviceRemoved(const SDL_Event& event)
 {
-    LL_INFOS("GameController") << "joystick id=" << event.cdevice.which << LL_ENDL;
+    LL_INFOS("SDL2") << "joystick id=" << event.cdevice.which << LL_ENDL;
 
     SDL_JoystickID id = event.cdevice.which;
     g_manager.removeController(id);
@@ -1138,7 +1456,9 @@ void LLGameControl::init(const std::string& gamecontrollerdb_path,
     std::function<bool(const std::string&)> loadBoolean,
     std::function<void(const std::string&, bool)> saveBoolean,
     std::function<std::string(const std::string&)> loadString,
-    std::function<void(const std::string&, const std::string&)> saveString)
+    std::function<void(const std::string&, const std::string&)> saveString,
+    std::function<LLSD(const std::string&)> loadObject,
+    std::function<void(const std::string&, const LLSD&)> saveObject)
 {
     if (g_gameControl)
         return;
@@ -1147,12 +1467,14 @@ void LLGameControl::init(const std::string& gamecontrollerdb_path,
     llassert(saveBoolean);
     llassert(loadString);
     llassert(saveString);
+    llassert(loadObject);
+    llassert(saveObject);
 
     int result = SDL_InitSubSystem(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER);
     if (result < 0)
     {
         // This error is critical, we stop working with SDL and return
-        LL_WARNS("GameController") << "Error initializing the subsystems : " << SDL_GetError() << LL_ENDL;
+        LL_WARNS("SDL2") << "Error initializing the subsystems : " << SDL_GetError() << LL_ENDL;
         return;
     }
 
@@ -1161,18 +1483,18 @@ void LLGameControl::init(const std::string& gamecontrollerdb_path,
     // The inability to read this file is not critical, we can continue working
     if (!LLFile::isfile(gamecontrollerdb_path.c_str()))
     {
-        LL_WARNS("GameController") << "Device mapping db file not found: " << gamecontrollerdb_path << LL_ENDL;
+        LL_WARNS("SDL2") << "Device mapping db file not found: " << gamecontrollerdb_path << LL_ENDL;
     }
     else
     {
         int count = SDL_GameControllerAddMappingsFromFile(gamecontrollerdb_path.c_str());
         if (count < 0)
         {
-            LL_WARNS("GameController") << "Error adding mappings from " << gamecontrollerdb_path << " : " << SDL_GetError() << LL_ENDL;
+            LL_WARNS("SDL2") << "Error adding mappings from " << gamecontrollerdb_path << " : " << SDL_GetError() << LL_ENDL;
         }
         else
         {
-            LL_INFOS("GameController") << "Total " << count << " mappings added from " << gamecontrollerdb_path << LL_ENDL;
+            LL_INFOS("SDL2") << "Total " << count << " mappings added from " << gamecontrollerdb_path << LL_ENDL;
         }
     }
 
@@ -1182,6 +1504,8 @@ void LLGameControl::init(const std::string& gamecontrollerdb_path,
     s_saveBoolean = saveBoolean;
     s_loadString = loadString;
     s_saveString = saveString;
+    s_loadObject = loadObject;
+    s_saveObject = saveObject;
 
     loadFromSettings();
 }
@@ -1197,6 +1521,12 @@ void LLGameControl::terminate()
 const std::list<LLGameControl::Device>& LLGameControl::getDevices()
 {
     return g_manager.mDevices;
+}
+
+//static
+const std::map<std::string, std::string>& LLGameControl::getDeviceOptions()
+{
+    return g_deviceOptions;
 }
 
 //static
@@ -1484,6 +1814,162 @@ std::string LLGameControl::stringifyFlycamMappings(getChannel_t getChannel)
 }
 
 // static
+bool LLGameControl::parseDeviceOptions(const std::string& options, std::string& name,
+    std::vector<LLGameControl::Options::AxisOptions>& axis_options,
+    std::vector<U8>& axis_map, std::vector<U8>& button_map)
+{
+    if (options.empty())
+        return false;
+
+    name.clear();
+    axis_options.resize(NUM_AXES);
+    axis_map.resize(NUM_AXES);
+    button_map.resize(NUM_BUTTONS);
+
+    for (size_t i = 0; i < NUM_AXES; ++i)
+    {
+        axis_options[i].resetToDefaults();
+        axis_map[i] = i;
+    }
+
+    for (size_t i = 0; i < NUM_BUTTONS; ++i)
+    {
+        button_map[i] = i;
+    }
+
+    std::map<std::string, std::string> pairs;
+    if (!parse(pairs, options))
+    {
+        LL_WARNS("SDL2") << "Invalid options: '" << options << "'" << LL_ENDL;
+        return false;
+    }
+
+    std::map<std::string, std::string> axis_string_options;
+    if (!parse(axis_string_options, pairs["axis_options"]))
+    {
+        LL_WARNS("SDL2") << "Invalid axis_options: '" << pairs["axis_options"] << "'" << LL_ENDL;
+        return false;
+    }
+
+    std::map<std::string, std::string> axis_string_map;
+    if (!parse(axis_string_map, pairs["axis_map"]))
+    {
+        LL_WARNS("SDL2") << "Invalid axis_map: '" << pairs["axis_map"] << "'" << LL_ENDL;
+        return false;
+    }
+
+    std::map<std::string, std::string> button_string_map;
+    if (!parse(button_string_map, pairs["button_map"]))
+    {
+        LL_WARNS("SDL2") << "Invalid button_map: '" << pairs["button_map"] << "'" << LL_ENDL;
+        return false;
+    }
+
+    name = pairs["name"];
+
+    for (size_t i = 0; i < NUM_AXES; ++i)
+    {
+        std::string key = std::to_string(i);
+
+        std::string one_axis_options = axis_string_options[key];
+        if (!one_axis_options.empty())
+        {
+            axis_options[i].loadFromString(one_axis_options);
+        }
+
+        std::string value = axis_string_map[key];
+        if (!value.empty())
+        {
+            size_t number = std::stoull(value);
+            if (number > MAX_BUTTON || std::to_string(number) != value)
+            {
+                LL_WARNS("SDL2") << "Invalid axis mapping: " << i << "->" << value << LL_ENDL;
+            }
+            else
+            {
+                axis_map[i] = (U8)number;
+            }
+        }
+    }
+
+    for (size_t i = 0; i < NUM_BUTTONS; ++i)
+    {
+        std::string value = button_string_map[std::to_string(i)];
+        if (!value.empty())
+        {
+            size_t number = std::stoull(value);
+            if (number > MAX_BUTTON || std::to_string(number) != value)
+            {
+                LL_WARNS("SDL2") << "Invalid button mapping: " << i << "->" << value << LL_ENDL;
+            }
+            else
+            {
+                button_map[i] = (U8)number;
+            }
+        }
+    }
+
+    return true;
+}
+
+// static
+std::string LLGameControl::stringifyDeviceOptions(const std::string& name,
+    const std::vector<LLGameControl::Options::AxisOptions>& axis_options,
+    const std::vector<U8>& axis_map, const std::vector<U8>& button_map,
+    bool force_empty)
+{
+    std::list<std::string> options;
+
+    auto opts2str = [](size_t i, const Options::AxisOptions& options) -> std::string
+        {
+            std::string string = options.saveToString();
+            return string.empty() ? string : llformat("%u:%s", i, string.c_str());
+        };
+
+    std::string axis_options_string = LLStringUtil::join<std::vector<Options::AxisOptions>, Options::AxisOptions>(axis_options, opts2str);
+    if (!axis_options_string.empty())
+    {
+        options.push_back("axis_options:{" + axis_options_string + "}");
+    }
+
+    auto map2str = [](size_t index, const U8& value) -> std::string
+        {
+            return value == index ? LLStringUtil::null : llformat("%u:%u", index, value);
+        };
+
+    std::string axis_map_string = LLStringUtil::join<std::vector<U8>, U8>(axis_map, map2str);
+    if (!axis_map_string.empty())
+    {
+        options.push_back("axis_map:{" + axis_map_string + "}");
+    }
+
+    std::string button_map_string = LLStringUtil::join<std::vector<U8>, U8>(button_map, map2str);
+    if (!button_map_string.empty())
+    {
+        options.push_back("button_map:{" + button_map_string + "}");
+    }
+
+    if (!force_empty && options.empty())
+        return LLStringUtil::null;
+
+    // Remove control characters [',', '{', '}'] from name
+    std::string safe_name;
+    safe_name.reserve(name.size());
+    for (char c : name)
+    {
+        if (c != ',' && c != '{' && c != '}')
+        {
+            safe_name.push_back(c);
+        }
+    }
+    options.push_front(llformat("name:%s", safe_name.c_str()));
+
+    std::string result = LLStringUtil::join(options);
+
+    return "{" + result + "}";
+}
+
+// static
 void LLGameControl::initByDefault()
 {
     g_sendToServer = false;
@@ -1491,6 +1977,8 @@ void LLGameControl::initByDefault()
     g_translateAgentActions = false;
     g_agentControlMode = CONTROL_MODE_AVATAR;
     g_manager.initializeMappingsByDefault();
+    g_manager.resetDeviceOptionsToDefaults();
+    g_deviceOptions.clear();
 }
 
 // static
@@ -1521,6 +2009,14 @@ void LLGameControl::loadFromSettings()
             g_manager.initializeMappingsByDefault();
         }
     }
+
+    g_deviceOptions.clear();
+    LLSD options = s_loadObject(SETTING_KNOWNCONTROLLERS);
+    for (auto it = options.beginMap(); it != options.endMap(); ++it)
+    {
+        g_deviceOptions.emplace(it->first, it->second);
+    }
+    g_manager.loadDeviceOptionsFromSettings();
 }
 
 // static
@@ -1533,4 +2029,8 @@ void LLGameControl::saveToSettings()
     s_saveString(SETTING_ANALOGMAPPINGS, g_manager.getAnalogMappings());
     s_saveString(SETTING_BINARYMAPPINGS, g_manager.getBinaryMappings());
     s_saveString(SETTING_FLYCAMMAPPINGS, g_manager.getFlycamMappings());
+
+    g_manager.saveDeviceOptionsToSettings();
+    LLSD deviceOptions(g_deviceOptions, true);
+    s_saveObject(SETTING_KNOWNCONTROLLERS, deviceOptions);
 }
