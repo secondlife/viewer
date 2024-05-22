@@ -903,21 +903,21 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 
                 keyEvent(key_event, native_key_data);
 #endif
-			}
-			else if (message_name == "enable_media_plugin_debugging")
-			{
-				mEnableMediaPluginDebugging = message_in.getValueBoolean("enable");
-			}
+            }
+            else if (message_name == "enable_media_plugin_debugging")
+            {
+                mEnableMediaPluginDebugging = message_in.getValueBoolean("enable");
+            }
 #if LL_LINUX
-			else if (message_name == "enable_pipewire_volume_catcher")
-			{
-				bool enable = message_in.getValueBoolean("enable");
-				mVolumeCatcher.onEnablePipeWireVolumeCatcher(enable);
-			}
+            else if (message_name == "enable_pipewire_volume_catcher")
+            {
+                bool enable = message_in.getValueBoolean("enable");
+                mVolumeCatcher.onEnablePipeWireVolumeCatcher(enable);
+            }
 #endif
-			if (message_name == "pick_file_response")
-			{
-				LLSD file_list_llsd = message_in.getValueLLSD("file_list");
+            if (message_name == "pick_file_response")
+            {
+                LLSD file_list_llsd = message_in.getValueLLSD("file_list");
 
                 LLSD::array_const_iterator iter = file_list_llsd.beginArray();
                 LLSD::array_const_iterator end = file_list_llsd.endArray();

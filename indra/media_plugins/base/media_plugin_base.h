@@ -61,10 +61,10 @@ extern SymbolGrabber gSymbolGrabber;
 // extern SymbolGrabber gSymbolGrabber;
 
 #define LL_GRAB_SYM(SYMBOL_GRABBER, REQUIRED, SYMBOL_NAME, RETURN, ...) \
-	RETURN (*ll##SYMBOL_NAME)(__VA_ARGS__) = nullptr; \
-	size_t gRegistered##SYMBOL_NAME = SYMBOL_GRABBER.registerSymbol( \
-		{ REQUIRED, #SYMBOL_NAME , (apr_dso_handle_sym_t*)&ll##SYMBOL_NAME} \
-	);
+    RETURN (*ll##SYMBOL_NAME)(__VA_ARGS__) = nullptr; \
+    size_t gRegistered##SYMBOL_NAME = SYMBOL_GRABBER.registerSymbol( \
+        { REQUIRED, #SYMBOL_NAME , (apr_dso_handle_sym_t*)&ll##SYMBOL_NAME} \
+    );
 
 #endif
 

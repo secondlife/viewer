@@ -136,7 +136,7 @@ public:
     bool textInput(const std::string &text, MASK modifiers, LLSD native_key_data);
 
 #if LL_LINUX
-	void enablePipeWireVolumeCatcher( bool enable );
+    void enablePipeWireVolumeCatcher( bool enable );
 #endif
 
     static std::string sOIDcookieUrl;

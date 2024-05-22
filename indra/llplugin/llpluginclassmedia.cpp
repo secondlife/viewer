@@ -984,9 +984,9 @@ void LLPluginClassMedia::enableMediaPluginDebugging( bool enable )
 #if LL_LINUX
 void LLPluginClassMedia::enablePipeWireVolumeCatcher( bool enable )
 {
-	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "enable_pipewire_volume_catcher");
-	message.setValueBoolean( "enable", enable );
-	sendMessage( message );
+    LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "enable_pipewire_volume_catcher");
+    message.setValueBoolean( "enable", enable );
+    sendMessage( message );
 }
 #endif
 

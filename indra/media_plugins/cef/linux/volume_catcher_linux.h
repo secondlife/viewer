@@ -112,22 +112,22 @@ public:
     void pump();
 
     void handleRegistryEventGlobal(
-    	uint32_t id, uint32_t permissions, const char* type,
-    	uint32_t version, const struct spa_dict* props
+        uint32_t id, uint32_t permissions, const char* type,
+        uint32_t version, const struct spa_dict* props
     );
 
     class ChildNode
     {
     public:
-    	bool mActive = false;
+        bool mActive = false;
 
-    	pw_proxy* mProxy = nullptr;
-    	spa_hook mNodeListener {};
-    	spa_hook mProxyListener {};
-    	VolumeCatcherPipeWire* mImpl = nullptr;
+        pw_proxy* mProxy = nullptr;
+        spa_hook mNodeListener {};
+        spa_hook mProxyListener {};
+        VolumeCatcherPipeWire* mImpl = nullptr;
 
-    	void updateVolume();
-    	void destroy();
+        void updateVolume();
+        void destroy();
     };
 
     bool mGotSyms = false;

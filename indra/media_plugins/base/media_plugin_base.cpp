@@ -258,46 +258,46 @@ int WINAPI DllEntryPoint( HINSTANCE hInstance, unsigned long reason, void* param
 #if LL_LINUX
 pid_t getParentPid( pid_t aPid )
 {
-	std::stringstream strm;
-	strm << "/proc/" << aPid << "/status";
-	std::ifstream in{ strm.str() };
+    std::stringstream strm;
+    strm << "/proc/" << aPid << "/status";
+    std::ifstream in{ strm.str() };
 
-	if( !in.is_open() )
-		return 0;
+    if( !in.is_open() )
+        return 0;
 
-	pid_t res {0};
-	while( !in.eof() && res == 0 )
-	{
-		std::string line;
-		line.resize( 1024, 0 );
-		in.getline( &line[0], line.length() );	
+    pid_t res {0};
+    while( !in.eof() && res == 0 )
+    {
+        std::string line;
+        line.resize( 1024, 0 );
+        in.getline( &line[0], line.length() );	
 
-		auto i = line.find( "PPid:"  );
-		
-		if( i == std::string::npos )
-			continue;
-		
-		char const *pIn = line.c_str() + 5; // Skip over pid;
-		while( *pIn != 0 && isspace( *pIn ) )
-			   ++pIn;
+        auto i = line.find( "PPid:"  );
+        
+        if( i == std::string::npos )
+            continue;
+        
+        char const *pIn = line.c_str() + 5; // Skip over pid;
+        while( *pIn != 0 && isspace( *pIn ) )
+               ++pIn;
 
-		if( *pIn )
-			res = atoll( pIn );
-	}
- 	return res;
+        if( *pIn )
+            res = atoll( pIn );
+    }
+     return res;
 }
 
 bool isPluginPid( pid_t aPid )
 {
-	auto myPid = getpid();
+    auto myPid = getpid();
 
-	do
-	{
-		if( aPid == myPid )
-			return true;
-		aPid = getParentPid( aPid );
-	} while( aPid > 1 );
+    do
+    {
+        if( aPid == myPid )
+            return true;
+        aPid = getParentPid( aPid );
+    } while( aPid > 1 );
 
-	return false;
+    return false;
 }
 #endif
