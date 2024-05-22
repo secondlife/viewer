@@ -515,11 +515,11 @@ bool LLFilePicker::getSaveFile(ESaveFilter filter, const std::string& filename, 
 	case FFSAVE_GLTF:
 		if (filename.empty())
 		{
-			wcsncpy( mFilesW,L"untitled.glb", FILENAME_BUFFER_SIZE);	/*Flawfinder: ignore*/
+			wcsncpy( mFilesW,L"untitled.gltf", FILENAME_BUFFER_SIZE);	/*Flawfinder: ignore*/
 		}
-		mOFN.lpstrDefExt = L"glb";
+		mOFN.lpstrDefExt = L"gltf";
 		mOFN.lpstrFilter =
-			L"glTF Asset File (*.gltf *.glb)\0*.gltf;*.glb\0" \
+			L"glTF Asset File (*.gltf)\0*.gltf\0" \
 			L"\0";
 		break;
 	case FFSAVE_XML:
@@ -790,7 +790,7 @@ void set_nav_save_data(LLFilePicker::ESaveFilter filter, std::string &extension,
         case LLFilePicker::FFSAVE_GLTF:
             type = "\?\?\?\?";
             creator = "\?\?\?\?";
-            extension = "glb,gltf";
+            extension = "gltf";
             break;
             
         case LLFilePicker::FFSAVE_XML:

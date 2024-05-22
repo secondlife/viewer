@@ -8069,15 +8069,6 @@ class LLAdvancedClickGLTFSaveAs : public view_listener_t
     }
 };
 
-class LLAdvancedClickGLTFDecompose : public view_listener_t
-{
-    bool handleEvent(const LLSD& userdata)
-    {
-        LL::GLTFSceneManager::instance().decomposeSelection();
-        return true;
-    }
-};
-
 class LLAdvancedClickGLTFUpload: public view_listener_t
 {
     bool handleEvent(const LLSD& userdata)
@@ -9760,7 +9751,6 @@ void initialize_menus()
     view_listener_t::addMenu(new LLAdvancedClickHDRIPreview(), "Advanced.ClickHDRIPreview");
     view_listener_t::addMenu(new LLAdvancedClickGLTFOpen(), "Advanced.ClickGLTFOpen");
     view_listener_t::addMenu(new LLAdvancedClickGLTFSaveAs(), "Advanced.ClickGLTFSaveAs");
-    view_listener_t::addMenu(new LLAdvancedClickGLTFDecompose(), "Advanced.ClickGLTFDecompose");
     view_listener_t::addMenu(new LLAdvancedClickGLTFUpload(), "Advanced.ClickGLTFUpload");
     view_listener_t::addMenu(new LLAdvancedClickResizeWindow(), "Advanced.ClickResizeWindow");
 	view_listener_t::addMenu(new LLAdvancedPurgeShaderCache(), "Advanced.ClearShaderCache");

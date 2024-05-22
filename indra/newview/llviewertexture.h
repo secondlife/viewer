@@ -440,8 +440,6 @@ private:
 	bool  mForceCallbackFetch;
 
 protected:		
-	std::string mLocalFileName;
-
 	S32 mOrigWidth;
 	S32 mOrigHeight;
 

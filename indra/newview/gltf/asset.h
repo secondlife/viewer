@@ -28,12 +28,12 @@
 
 #include "llvertexbuffer.h"
 #include "llvolumeoctree.h"
-#include "../lltinygltfhelper.h"
 #include "accessor.h"
 #include "primitive.h"
 #include "animation.h"
 #include "boost/json.hpp"
 #include "common.h"
+#include "../llviewertexture.h"
 
 extern F32SecondsImplicit		gFrameTimeSeconds;
 
@@ -69,7 +69,6 @@ namespace LL
                 bool operator==(const TextureInfo& rhs) const;
                 bool operator!=(const TextureInfo& rhs) const;
                 
-                const TextureInfo& operator=(const tinygltf::TextureInfo& src);
                 const TextureInfo& operator=(const Value& src);
                 void serialize(boost::json::object& dst) const;
             };
@@ -79,7 +78,6 @@ namespace LL
             public:
                 F32 mScale = 1.0f;
 
-                const NormalTextureInfo& operator=(const tinygltf::NormalTextureInfo& src);
                 const NormalTextureInfo& operator=(const Value& src);
                 void serialize(boost::json::object& dst) const;
             };
@@ -89,7 +87,6 @@ namespace LL
             public:
                 F32 mStrength = 1.0f;
 
-                const OcclusionTextureInfo& operator=(const tinygltf::OcclusionTextureInfo& src);
                 const OcclusionTextureInfo& operator=(const Value& src);
                 void serialize(boost::json::object& dst) const;
             };
@@ -105,21 +102,15 @@ namespace LL
 
                 bool operator==(const PbrMetallicRoughness& rhs) const;
                 bool operator!=(const PbrMetallicRoughness& rhs) const;
-                const PbrMetallicRoughness& operator=(const tinygltf::PbrMetallicRoughness& src);
                 const PbrMetallicRoughness& operator=(const Value& src);
                 void serialize(boost::json::object& dst) const;
             };
 
 
-            // use LLFetchedGLTFMaterial for now, but eventually we'll want to use
-            // a more flexible GLTF material implementation instead of the fixed packing
-            // version we use for sharable GLTF material assets
-            LLPointer<LLFetchedGLTFMaterial> mMaterial;
             PbrMetallicRoughness mPbrMetallicRoughness;
             NormalTextureInfo mNormalTexture;
             OcclusionTextureInfo mOcclusionTexture;
             TextureInfo mEmissiveTexture;
-
 
             std::string mName;
             vec3 mEmissiveFactor = vec3(0.f, 0.f, 0.f);
@@ -129,11 +120,8 @@ namespace LL
 
             // bind for rendering
             void bind(Asset& asset);
-            const Material& operator=(const tinygltf::Material& src);
             const Material& operator=(const Value& src);
             void serialize(boost::json::object& dst) const;
-            
-            void allocateGLResources(Asset& asset);
         };
 
         class Mesh
@@ -143,11 +131,10 @@ namespace LL
             std::vector<double> mWeights;
             std::string mName;
 
-            const Mesh& operator=(const tinygltf::Mesh& src);
             const Mesh& operator=(const Value& src);
             void serialize(boost::json::object& dst) const;
             
-            void allocateGLResources(Asset& asset);
+            bool prep(Asset& asset);
         };
 
         class Node
@@ -178,7 +165,6 @@ namespace LL
 
             std::string mName;
 
-            const Node& operator=(const tinygltf::Node& src);
             const Node& operator=(const Value& src);
             void serialize(boost::json::object& dst) const;
 
@@ -217,10 +203,9 @@ namespace LL
             std::string mName;
             std::vector<mat4> mInverseBindMatricesData;
 
-            void allocateGLResources(Asset& asset);
+            bool prep(Asset& asset);
             void uploadMatrixPalette(Asset& asset, Node& node);
 
-            const Skin& operator=(const tinygltf::Skin& src);
             const Skin& operator=(const Value& src);
             void serialize(boost::json::object& dst) const;
         };
@@ -231,7 +216,6 @@ namespace LL
             std::vector<S32> mNodes;
             std::string mName;
 
-            const Scene& operator=(const tinygltf::Scene& src);
             const Scene& operator=(const Value& src);
             void serialize(boost::json::object& dst) const;
 
@@ -246,7 +230,6 @@ namespace LL
             S32 mSource = INVALID_INDEX;
             std::string mName;
 
-            const Texture& operator=(const tinygltf::Texture& src);
             const Texture& operator=(const Value& src);
             void serialize(boost::json::object& dst) const;
         };
@@ -260,7 +243,6 @@ namespace LL
             S32 mWrapT = REPEAT;
             std::string mName;
 
-            const Sampler& operator=(const tinygltf::Sampler& src);
             const Sampler& operator=(const Value& src);
             void serialize(boost::json::object& dst) const;
         };
@@ -274,7 +256,6 @@ namespace LL
 
             S32 mBufferView = INVALID_INDEX;
 
-            std::vector<U8> mData;
             S32 mWidth = -1;
             S32 mHeight = -1;
             S32 mComponent = -1;
@@ -283,19 +264,20 @@ namespace LL
 
             LLPointer<LLViewerFetchedTexture> mTexture;
 
-            const Image& operator=(const tinygltf::Image& src);
             const Image& operator=(const Value& src);
             void serialize(boost::json::object& dst) const;
             
-            // save image clear local data, and set uri
-            void decompose(Asset& asset, const std::string& filename);
+            // save image to disk
+            // may remove image data from bufferviews and convert to 
+            // file uri if necessary
+            void save(Asset& asset, const std::string& filename);
 
             // erase the buffer view associated with this image
-            // free any associated resources
+            // free any associated GLTF resources
             // preserve only uri and name
             void clearData(Asset& asset);
 
-            void allocateGLResources();
+            bool prep(Asset& asset);
         };
 
         // C++ representation of a GLTF Asset
@@ -322,17 +304,21 @@ namespace LL
             std::string mMinVersion;
             std::string mCopyright;
 
-            S32 mDefaultScene = INVALID_INDEX;
+            S32 mScene = INVALID_INDEX;
             Value mExtras;
 
             U32 mPendingBuffers = 0;
 
+            // local file this asset was loaded from (if any)
+            std::string mFilename;
+
             // the last time update() was called according to gFrameTimeSeconds
             F32 mLastUpdateTime = gFrameTimeSeconds;
 
-            // prepare the asset for rendering
-            void allocateGLResources(const std::string& filename = "", const tinygltf::Model& model = tinygltf::Model());
             
+            // prepare for first time use
+            bool prep();
+
             // Called periodically (typically once per frame)
             // Any ongoing work (such as animations) should be handled here
             // NOT guaranteed to be called every frame
@@ -361,18 +347,16 @@ namespace LL
             );
             
             Asset() = default;
-            Asset(const tinygltf::Model& src);
             Asset(const Value& src);
 
-            const Asset& operator=(const tinygltf::Model& src);
+            bool load(std::string_view filename);
+
             const Asset& operator=(const Value& src);
             void serialize(boost::json::object& dst) const;
 
-            // save the asset to a tinygltf model
-            void save(tinygltf::Model& dst);
-
-            // decompose the asset to the given .gltf file
-            void decompose(const std::string& filename);
+            // save the asset to the given .gltf file
+            // saves images and bins alongside the gltf file
+            void save(const std::string& filename);
 
             // remove the bufferview at the given index
             // updates all bufferview indices in this Asset as needed

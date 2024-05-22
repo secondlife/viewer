@@ -107,32 +107,6 @@ void GLTFSceneManager::saveAs()
     }
 }
 
-void GLTFSceneManager::decomposeSelection()
-{
-    LLViewerObject* obj = LLSelectMgr::instance().getSelection()->getFirstRootObject();
-    if (obj && obj->mGLTFAsset)
-    {
-        LLFilePickerReplyThread::startPicker(
-            [](const std::vector<std::string>& filenames, LLFilePicker::ELoadFilter load_filter, LLFilePicker::ESaveFilter save_filter)
-            {
-                if (LLAppViewer::instance()->quitRequested())
-                {
-                    return;
-                }
-                if (filenames.size() > 0)
-                {
-                    GLTFSceneManager::instance().decomposeSelection(filenames[0]);
-                }
-            },
-            LLFilePicker::FFSAVE_GLTF,
-            "scene.gltf");
-    }
-    else
-    {
-        LLNotificationsUtil::add("GLTFSaveSelection");
-    }
-}
-
 void GLTFSceneManager::uploadSelection()
 {
     if (mUploadingAsset)
@@ -153,17 +127,11 @@ void GLTFSceneManager::uploadSelection()
 
         for (auto& image : asset.mImages)
         {
-            if (!image.mData.empty())
+            if (image.mTexture.notNull())
             {
                 mPendingImageUploads++;
 
-                LLPointer<LLImageRaw> raw = new LLImageRaw(image.mWidth, image.mHeight, image.mComponent);
-                U8* data = raw->allocateData();
-                llassert_always(image.mData.size() == raw->getDataSize());
-                memcpy(data, image.mData.data(), image.mData.size());
-
-                // for GLTF native content, store image in GLTF orientation
-                raw->verticalFlip();
+                LLPointer<LLImageRaw> raw = image.mTexture->getRawImage();
 
                 LLPointer<LLImageJ2C> j2c = LLViewerTextureList::convertToUploadFile(raw);
 
@@ -297,61 +265,41 @@ void GLTFSceneManager::uploadSelection()
     }
 }
 
-void GLTFSceneManager::decomposeSelection(const std::string& filename)
-{
-    LLViewerObject* obj = LLSelectMgr::instance().getSelection()->getFirstRootObject();
-    if (obj && obj->mGLTFAsset)
-    {
-        // copy asset out for decomposition
-        Asset asset = *obj->mGLTFAsset;
-
-        // decompose the asset into component parts
-        asset.decompose(filename);
-
-        // copy decomposed asset into tinygltf for serialization
-        tinygltf::Model model;
-        asset.save(model);
-
-        LLTinyGLTFHelper::saveModel(filename, model);
-    }
-}
-
 void GLTFSceneManager::save(const std::string& filename)
 {
     LLViewerObject* obj = LLSelectMgr::instance().getSelection()->getFirstRootObject();
     if (obj && obj->mGLTFAsset)
     {
         Asset* asset = obj->mGLTFAsset.get();
-        tinygltf::Model model;
-        asset->save(model);
-
-        LLTinyGLTFHelper::saveModel(filename, model);
+        asset->save(filename);
     }
 }
 
 void GLTFSceneManager::load(const std::string& filename)
 {
-    tinygltf::Model model;
-    LLTinyGLTFHelper::loadModel(filename, model);
-
     std::shared_ptr<Asset> asset = std::make_shared<Asset>();
-    *asset = model;
 
-    gDebugProgram.bind(); // bind a shader to satisfy LLVertexBuffer assertions
-    asset->allocateGLResources(filename, model);
-    asset->updateTransforms();
+    if (asset->load(filename))
+    {
+        gDebugProgram.bind(); // bind a shader to satisfy LLVertexBuffer assertions
+        asset->updateTransforms();
 
-    // hang the asset off the currently selected object, or off of the avatar if no object is selected
-    LLViewerObject* obj = LLSelectMgr::instance().getSelection()->getFirstRootObject();
+        // hang the asset off the currently selected object, or off of the avatar if no object is selected
+        LLViewerObject* obj = LLSelectMgr::instance().getSelection()->getFirstRootObject();
 
-    if (obj)
-    { // assign to self avatar
-        obj->mGLTFAsset = asset;
-        obj->markForUpdate();
-        if (std::find(mObjects.begin(), mObjects.end(), obj) == mObjects.end())
-        {
-            mObjects.push_back(obj);
+        if (obj)
+        { // assign to self avatar
+            obj->mGLTFAsset = asset;
+            obj->markForUpdate();
+            if (std::find(mObjects.begin(), mObjects.end(), obj) == mObjects.end())
+            {
+                mObjects.push_back(obj);
+            }
         }
+    }
+    else
+    {
+        LLNotificationsUtil::add("GLTFLoadFailed");
     }
 }
 
@@ -392,32 +340,19 @@ void GLTFSceneManager::onGLTFBinLoadComplete(const LLUUID& id, LLAssetType::ETyp
             // find the Buffer with the given id in the asset
             if (obj->mGLTFAsset)
             {
-                for (auto& buffer : obj->mGLTFAsset->mBuffers)
+                obj->mGLTFAsset->mPendingBuffers--;
+
+
+                if (obj->mGLTFAsset->mPendingBuffers == 0)
                 {
-                    LLUUID buffer_id;
-                    if (LLUUID::parseUUID(buffer.mUri, &buffer_id) && buffer_id == id)
+                    obj->mGLTFAsset->prep();
+                    GLTFSceneManager& mgr = GLTFSceneManager::instance();
+                    if (std::find(mgr.mObjects.begin(), mgr.mObjects.end(), obj) == mgr.mObjects.end())
                     {
-                        LLFileSystem file(id, asset_type, LLFileSystem::READ);
-
-                        buffer.mData.resize(file.getSize());
-                        file.read((U8*)buffer.mData.data(), buffer.mData.size());
-
-                        obj->mGLTFAsset->mPendingBuffers--;
-
-                        if (obj->mGLTFAsset->mPendingBuffers == 0)
-                        {
-                            obj->mGLTFAsset->allocateGLResources();
-                            GLTFSceneManager& mgr = GLTFSceneManager::instance();
-                            if (std::find(mgr.mObjects.begin(), mgr.mObjects.end(), obj) == mgr.mObjects.end())
-                            {
-                                GLTFSceneManager::instance().mObjects.push_back(obj);
-                            }
-                        }
+                        GLTFSceneManager::instance().mObjects.push_back(obj);
                     }
-                }   
+                }
             }
-            
-            
         }
     }
     else
@@ -492,30 +427,9 @@ void GLTFSceneManager::update()
     {
         if (mPendingImageUploads == 0 && mPendingBinaryUploads == 0)
         {
-            std::string filename(gDirUtilp->getTempDir() + "/upload.gltf");
-#if 0
-            tinygltf::Model model;
-            mUploadingAsset->save(model);
-
-            tinygltf::TinyGLTF writer;
-            
-            writer.WriteGltfSceneToFile(&model, filename, false, false, true, false);
-#else
             boost::json::object obj;
             mUploadingAsset->serialize(obj);
-            std::string json = boost::json::serialize(obj, {});
-
-            {
-                std::ofstream o(filename);
-                o << json;
-            }
-#endif
-
-            std::ifstream t(filename);
-            std::stringstream str;
-            str << t.rdbuf();
-
-            std::string buffer = str.str();
+            std::string buffer = boost::json::serialize(obj, {});
 
             LLNewBufferedResourceUploadInfo::uploadFailure_f failure = [this](LLUUID assetId, LLSD response, std::string reason)
                 {

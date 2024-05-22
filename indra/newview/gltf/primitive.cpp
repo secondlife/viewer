@@ -30,12 +30,10 @@
 #include "buffer_util.h"
 #include "../llviewershadermgr.h"
 
-#include "../lltinygltfhelper.h"
-
 using namespace LL::GLTF;
 using namespace boost::json;
 
-void Primitive::allocateGLResources(Asset& asset)
+bool Primitive::prep(Asset& asset)
 {
     // allocate vertex buffer
     // We diverge from the intent of the GLTF format here to work with our existing render pipeline
@@ -179,6 +177,8 @@ void Primitive::allocateGLResources(Asset& asset)
     createOctree();
     
     mVertexBuffer->unbind();
+
+    return true;
 }
 
 void initOctreeTriangle(LLVolumeTriangle* tri, F32 scaler, S32 i0, S32 i1, S32 i2, const LLVector4a& v0, const LLVector4a& v1, const LLVector4a& v2)
@@ -224,7 +224,7 @@ void Primitive::createOctree()
 
     F32 scaler = 0.25f;
 
-    if (mMode == TINYGLTF_MODE_TRIANGLES)
+    if (mMode == Mode::TRIANGLES)
     {
         const U32 num_triangles = mVertexBuffer->getNumIndices() / 3;
         // Initialize all the triangles we need
@@ -248,7 +248,7 @@ void Primitive::createOctree()
             mOctree->insert(tri);
         }
     }
-    else if (mMode == TINYGLTF_MODE_TRIANGLE_STRIP)
+    else if (mMode == Mode::TRIANGLE_STRIP)
     {
         const U32 num_triangles = mVertexBuffer->getNumIndices() - 2;
         // Initialize all the triangles we need
@@ -272,7 +272,7 @@ void Primitive::createOctree()
             mOctree->insert(tri);
         }
     }
-    else if (mMode == TINYGLTF_MODE_TRIANGLE_FAN)
+    else if (mMode == Mode::TRIANGLE_FAN)
     {
         const U32 num_triangles = mVertexBuffer->getNumIndices() - 2;
         // Initialize all the triangles we need
@@ -296,10 +296,10 @@ void Primitive::createOctree()
             mOctree->insert(tri);
         }
     }
-    else if (mMode == TINYGLTF_MODE_POINTS ||
-            mMode == TINYGLTF_MODE_LINE ||
-        mMode == TINYGLTF_MODE_LINE_LOOP ||
-        mMode == TINYGLTF_MODE_LINE_STRIP)
+    else if (mMode == Mode::POINTS ||
+            mMode == Mode::LINES ||
+        mMode == Mode::LINE_LOOP ||
+        mMode == Mode::LINE_STRIP)
     {
         // nothing to do, no volume... maybe add some collision geometry around these primitive types?
     }
@@ -357,23 +357,23 @@ Primitive::~Primitive()
     mOctree = nullptr;
 }
 
-U32 gltf_mode_to_gl_mode(U32 mode)
+LLRender::eGeomModes gltf_mode_to_gl_mode(Primitive::Mode mode)
 {
     switch (mode)
     {
-    case TINYGLTF_MODE_POINTS:
+    case Primitive::Mode::POINTS:
         return LLRender::POINTS;
-    case TINYGLTF_MODE_LINE:
+    case Primitive::Mode::LINES:
         return LLRender::LINES;
-    case TINYGLTF_MODE_LINE_LOOP:
+    case Primitive::Mode::LINE_LOOP:
         return LLRender::LINE_LOOP;
-    case TINYGLTF_MODE_LINE_STRIP:
+    case Primitive::Mode::LINE_STRIP:
         return LLRender::LINE_STRIP;
-    case TINYGLTF_MODE_TRIANGLES:
+    case Primitive::Mode::TRIANGLES:
         return LLRender::TRIANGLES;
-    case TINYGLTF_MODE_TRIANGLE_STRIP:
+    case Primitive::Mode::TRIANGLE_STRIP:
         return LLRender::TRIANGLE_STRIP;
-    case TINYGLTF_MODE_TRIANGLE_FAN:
+    case Primitive::Mode::TRIANGLE_FAN:
         return LLRender::TRIANGLE_FAN;
     default:
         return LLRender::TRIANGLES;
@@ -383,7 +383,7 @@ U32 gltf_mode_to_gl_mode(U32 mode)
 void Primitive::serialize(boost::json::object& dst) const
 {
     write(mMaterial, "material", dst, -1);
-    write(mMode, "mode", dst, TINYGLTF_MODE_TRIANGLES);
+    write(mMode, "mode", dst, Primitive::Mode::TRIANGLES);
     write(mIndices, "indices", dst, INVALID_INDEX);
     write(mAttributes, "attributes", dst);
 }
@@ -402,24 +402,3 @@ const Primitive& Primitive::operator=(const Value& src)
     return *this;
 }
 
-const Primitive& Primitive::operator=(const tinygltf::Primitive& src)
-{
-    // load material
-    mMaterial = src.material;
-
-    // load mode
-    mMode = src.mode;
-
-    // load indices
-    mIndices = src.indices;
-
-    // load attributes
-    for (auto& it : src.attributes)
-    {
-        mAttributes[it.first] = it.second;
-    }
-
-    mGLMode = gltf_mode_to_gl_mode(mMode);
-
-    return *this;
-}

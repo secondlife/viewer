@@ -353,33 +353,29 @@ namespace LL
             const Buffer& buffer = asset.mBuffers[bufferView.mBuffer];
             const U8* src = buffer.mData.data() + bufferView.mByteOffset + accessor.mByteOffset;
 
-            if (accessor.mComponentType == TINYGLTF_COMPONENT_TYPE_FLOAT)
+            if (accessor.mComponentType == Accessor::ComponentType::FLOAT)
             {
                 LL::GLTF::copy(asset, accessor, (const F32*)src, dst, bufferView.mByteStride);
             }
-            else if (accessor.mComponentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT)
-            {
-                LL::GLTF::copy(asset, accessor, (const U16*)src, dst, bufferView.mByteStride);
-            }
-            else if (accessor.mComponentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT)
+            else if (accessor.mComponentType == Accessor::ComponentType::UNSIGNED_INT)
             {
                 LL::GLTF::copy(asset, accessor, (const U32*)src, dst, bufferView.mByteStride);
             }
-            else if (accessor.mComponentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE)
-            {
-                LL::GLTF::copy(asset, accessor, (const U8*)src, dst, bufferView.mByteStride);
-            }
-            else if (accessor.mComponentType == TINYGLTF_COMPONENT_TYPE_SHORT)
+            else if (accessor.mComponentType == Accessor::ComponentType::SHORT)
             {
                 LL::GLTF::copy(asset, accessor, (const S16*)src, dst, bufferView.mByteStride);
             }
-            else if (accessor.mComponentType == TINYGLTF_COMPONENT_TYPE_BYTE)
+            else if (accessor.mComponentType == Accessor::ComponentType::UNSIGNED_SHORT)
+            {
+                LL::GLTF::copy(asset, accessor, (const U16*)src, dst, bufferView.mByteStride);
+            }
+            else if (accessor.mComponentType == Accessor::ComponentType::BYTE)
             {
                 LL::GLTF::copy(asset, accessor, (const S8*)src, dst, bufferView.mByteStride);
             }
-            else if (accessor.mComponentType == TINYGLTF_COMPONENT_TYPE_DOUBLE)
+            else if (accessor.mComponentType == Accessor::ComponentType::UNSIGNED_BYTE)
             {
-                LL::GLTF::copy(asset, accessor, (const F64*)src, dst, bufferView.mByteStride);
+                LL::GLTF::copy(asset, accessor, (const U8*)src, dst, bufferView.mByteStride);
             }
             else
             {
@@ -569,6 +565,44 @@ namespace LL
             }
 
             return false;
+        }
+
+        // Accessor::ComponentType
+        template<>
+        inline bool copy(const Value& src, Accessor::ComponentType& dst)
+        {
+            if (src.is_int64())
+            {
+                dst = (Accessor::ComponentType)src.get_int64();
+                return true;
+            }
+            return false;
+        }
+
+        template<>
+        inline bool write(const Accessor::ComponentType& src, Value& dst)
+        {
+            dst = (S32)src;
+            return true;
+        }
+
+        //Primitive::Mode
+        template<>
+        inline bool copy(const Value& src, Primitive::Mode& dst)
+        {
+            if (src.is_int64())
+            {
+                dst = (Primitive::Mode)src.get_int64();
+                return true;
+            }
+            return false;
+        }
+
+        template<>
+        inline bool write(const Primitive::Mode& src, Value& dst)
+        {
+            dst = (S32)src;
+            return true;
         }
 
         // vec4
