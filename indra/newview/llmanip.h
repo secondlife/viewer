@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file llmanip.h
  * @brief LLManip class definition
  *

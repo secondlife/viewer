@@ -1,4 +1,4 @@
-﻿/**
+/**
 * @file llpanelemojicomplete.h
 * @brief Header file for LLPanelEmojiComplete
 *
