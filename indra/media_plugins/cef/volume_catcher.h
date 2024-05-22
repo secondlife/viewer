@@ -31,21 +31,9 @@
 
 #include "linden_common.h"
 
-class VolumeCatcherImpl
-{
-public:
-	virtual ~VolumeCatcherImpl() = default;
+class VolumeCatcherImpl;
 
-	virtual void setVolume(F32 volume) = 0; // 0.0 - 1.0
-	
-	// Set the left-right pan of audio sources
-	// where -1.0 = left, 0 = center, and 1.0 = right
-	virtual void setPan(F32 pan) = 0; 
-
-	virtual void pump() = 0; // call this at least a few times a second if you can - it affects how quickly we can 'catch' a new audio source and adjust its volume
-};
-
-class VolumeCatcher : public VolumeCatcherImpl
+class VolumeCatcher
 {
 public:
 	VolumeCatcher();
