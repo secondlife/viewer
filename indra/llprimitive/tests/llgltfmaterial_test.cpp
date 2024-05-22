@@ -70,6 +70,7 @@ namespace tut
         material.setNormalId(LLUUID::generateNewID());
         material.setOcclusionRoughnessMetallicId(LLUUID::generateNewID());
         material.setEmissiveId(LLUUID::generateNewID());
+        material.setTransmissionId(LLUUID::generateNewID());
     }
 
     void apply_test_material_texture_transforms(LLGLTFMaterial& material)
@@ -95,6 +96,12 @@ namespace tut
         material.setMetallicFactor(test_fraction);
         material.setRoughnessFactor(test_fraction);
         material.setEmissiveStrength(test_fraction);
+        material.setTransmissionFactor(test_fraction);
+        material.setAttenuationColor(LLColor3(test_fraction_big, test_fraction_big, test_fraction_big));
+        material.setAttenuationDistance(test_fraction);
+        material.setDispersion(test_fraction);
+        material.setThicknessFactor(test_fraction);
+        material.setIOR(test_fraction);
     }
 
     LLGLTFMaterial create_test_material()
@@ -144,7 +151,7 @@ namespace tut
 #if LL_WINDOWS
         // If any fields are added/changed, these tests should be updated (consider also updating ASSET_VERSION in LLGLTFMaterial)
         // This test result will vary between compilers, so only test a single platform
-        ensure_equals("fields supported for GLTF (sizeof check)", sizeof(LLGLTFMaterial), 280);
+        ensure_equals("fields supported for GLTF (sizeof check)", sizeof(LLGLTFMaterial), 312);
 #endif
 #endif
         ensure_equals("LLGLTFMaterial texture info count", (U32)LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT, 5);

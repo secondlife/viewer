@@ -48,6 +48,22 @@ const char* const LLGLTFMaterial::GLTF_FILE_EXTENSION_TRANSFORM_ROTATION = "rota
 const char *const LLGLTFMaterial::GLTF_FILE_EXTENSION_EMISSIVE_STRENGTH = "KHR_materials_emissive_strength";
 const char *const LLGLTFMaterial::GLTF_FILE_EXTENSION_EMISSIVE_STRENGTH_EMISSIVE_STRENGTH = "emissiveStrength";
 
+const char *const LLGLTFMaterial::GLTF_FILE_EXTENSION_TRANSMISSION = "KHR_materials_transmission";
+const char *const LLGLTFMaterial::GLTF_FILE_EXTENSION_TRANSMISSION_TRANSMISSION_FACTOR = "transmissionFactor";
+const char *const LLGLTFMaterial::GLTF_FILE_EXTENSION_TRANSMISSION_TEXTURE             = "transmissionTexture";
+
+const char *const LLGLTFMaterial::GLTF_FILE_EXTENSION_IOR = "KHR_materials_ior";
+const char *const LLGLTFMaterial::GLTF_FILE_EXTENSION_IOR_IOR = "ior";
+
+const char *const LLGLTFMaterial::GLTF_FILE_EXTENSION_VOLUME = "KHR_materials_volume";
+const char *const LLGLTFMaterial::GLTF_FILE_EXTENSION_VOLUME_THICKNESS_FACTOR     = "thicknessFactor";
+const char *const LLGLTFMaterial::GLTF_FILE_EXTENSION_VOLUME_THICKNESS_TEXTURE    = "thicknessTexture";
+const char *const LLGLTFMaterial::GLTF_FILE_EXTENSION_VOLUME_ATTENUATION_DISTANCE = "attenuationDistance";
+const char *const LLGLTFMaterial::GLTF_FILE_EXTENSION_VOLUME_ATTENUATION_COLOR = "attenuationColor";
+
+const char *const LLGLTFMaterial::GLTF_FILE_EXTENSION_DISPERSION = "KHR_materials_dispersion";
+const char *const LLGLTFMaterial::GLTF_FILE_EXTENSION_DISPERSION_DISPERSION = "dispersion";
+
 // special UUID that indicates a null UUID in override data
 const LLUUID LLGLTFMaterial::GLTF_OVERRIDE_NULL_UUID = LLUUID("ffffffff-ffff-ffff-ffff-ffffffffffff");
 
@@ -117,6 +133,13 @@ LLGLTFMaterial& LLGLTFMaterial::operator=(const LLGLTFMaterial& rhs)
     mEmissiveColor = rhs.mEmissiveColor;
     mEmissiveStrength = rhs.mEmissiveStrength;
 
+    mTransmissionFactor = rhs.mTransmissionFactor;
+    mIOR                = rhs.mIOR;
+    mThicknessFactor = rhs.mThicknessFactor;
+    mAttenuationDistance = rhs.mAttenuationDistance;
+    mAttenuationColor    = rhs.mAttenuationColor;
+    mDispersion          = rhs.mDispersion;
+
     mMetallicFactor = rhs.mMetallicFactor;
     mRoughnessFactor = rhs.mRoughnessFactor;
     mAlphaCutoff = rhs.mAlphaCutoff;
@@ -172,6 +195,13 @@ bool LLGLTFMaterial::operator==(const LLGLTFMaterial& rhs) const
         mRoughnessFactor == rhs.mRoughnessFactor &&
         mAlphaCutoff == rhs.mAlphaCutoff &&
 
+        mTransmissionFactor == rhs.mTransmissionFactor &&
+        mIOR == rhs.mIOR &&
+        mThicknessFactor == rhs.mThicknessFactor &&
+        mAttenuationDistance == rhs.mAttenuationDistance &&
+        mAttenuationColor == rhs.mAttenuationColor &&
+        mDispersion == rhs.mDispersion &&
+
         mDoubleSided == rhs.mDoubleSided &&
         mAlphaMode == rhs.mAlphaMode &&
 
@@ -214,25 +244,6 @@ std::string LLGLTFMaterial::asJSON(bool prettyprint) const
     return str.str();
 }
 
-// static
-void LLGLTFMaterial::setEmissiveStrengthFromModel(const tinygltf::Material& model, F32& emissive_strength)
-{
-    LL_PROFILE_ZONE_SCOPED;
-
-    const tinygltf::Value::Object &extensions_object = model.extensions;
-    const auto                     emissive_it      = extensions_object.find(GLTF_FILE_EXTENSION_EMISSIVE_STRENGTH);
-
-    if (emissive_it != extensions_object.end())
-    {
-        const tinygltf::Value &emissive_strength_json = std::get<1>(*emissive_it);
-        if (emissive_strength_json.IsObject())
-        {
-            const tinygltf::Value::Object &emissive_object = emissive_strength_json.Get<tinygltf::Value::Object>();
-            emissive_strength = floatFromJson(emissive_object, GLTF_FILE_EXTENSION_EMISSIVE_STRENGTH_EMISSIVE_STRENGTH, getDefaultEmissiveStrength());
-        }
-    }
-}
-
 void LLGLTFMaterial::setFromModel(const tinygltf::Model& model, S32 mat_index)
 {
     LL_PROFILE_ZONE_SCOPED;
@@ -243,6 +254,10 @@ void LLGLTFMaterial::setFromModel(const tinygltf::Model& model, S32 mat_index)
 
     const tinygltf::Material& material_in = model.materials[mat_index];
 
+    tinygltf::TextureInfo transmissionMap = tinygltf::TextureInfo();
+    TextureTransform transmissionMapTransform = TextureTransform();
+
+
     // Apply base color texture
     setFromTexture(model, material_in.pbrMetallicRoughness.baseColorTexture, GLTF_TEXTURE_INFO_BASE_COLOR);
     // Apply normal map
@@ -252,8 +267,52 @@ void LLGLTFMaterial::setFromModel(const tinygltf::Model& model, S32 mat_index)
     // Apply emissive texture
     setFromTexture(model, material_in.emissiveTexture, GLTF_TEXTURE_INFO_EMISSIVE);
 
+    // We have to do this to populate the extension data for transmission and thickness maps.  Otherwise, when we call setFromTexture, it
+    // will fail to populate the texture transform data.
+    setTextureFromMaterialWithExtension(material_in, GLTF_FILE_EXTENSION_TRANSMISSION, GLTF_FILE_EXTENSION_TRANSMISSION_TEXTURE,
+                                        transmissionMap);
+
+    // Place holder to make tests happy.
+    setFromTexture(model, transmissionMap, GLTF_TEXTURE_INFO_TRANSMISSION_TEXTURE);
+
     // KHR_materials_emissive_strength
-    setEmissiveStrengthFromModel(material_in, mEmissiveStrength);
+    setFloatFromModelWithExtension(material_in, GLTF_FILE_EXTENSION_EMISSIVE_STRENGTH,
+                                   GLTF_FILE_EXTENSION_EMISSIVE_STRENGTH_EMISSIVE_STRENGTH, mEmissiveStrength,
+                                   getDefaultEmissiveStrength());
+
+    // KHR_materials_transmission
+    setFloatFromModelWithExtension(material_in, GLTF_FILE_EXTENSION_TRANSMISSION, GLTF_FILE_EXTENSION_TRANSMISSION_TRANSMISSION_FACTOR,
+                                   mTransmissionFactor, getDefaultTransmissionFactor());
+
+    // KHR_materials_ior
+    setFloatFromModelWithExtension(material_in, GLTF_FILE_EXTENSION_IOR, GLTF_FILE_EXTENSION_IOR_IOR, mIOR, getDefaultIOR());
+
+    // KHR_materials_volume
+    setFloatFromModelWithExtension(material_in,
+                                   GLTF_FILE_EXTENSION_VOLUME,
+                                   GLTF_FILE_EXTENSION_VOLUME_THICKNESS_FACTOR,
+                                   mThicknessFactor,
+                                   getDefaultThicknessFactor());
+
+    setFloatFromModelWithExtension(material_in,
+                                   GLTF_FILE_EXTENSION_VOLUME,
+                                   GLTF_FILE_EXTENSION_VOLUME_ATTENUATION_DISTANCE,
+                                   mAttenuationDistance,
+                                   getDefaultAttenuationDistance());
+
+    setColor3FromMaterialWithExtension(material_in,
+                                    GLTF_FILE_EXTENSION_VOLUME,
+                                    GLTF_FILE_EXTENSION_VOLUME_ATTENUATION_COLOR,
+                                    mAttenuationColor,
+                                    getDefaultAttenuationColor());
+
+    // KHR_materials_dispersion
+    setFloatFromModelWithExtension(material_in,
+                                   GLTF_FILE_EXTENSION_DISPERSION,
+                                   GLTF_FILE_EXTENSION_DISPERSION_DISPERSION,
+                                   mDispersion,
+                                   getDefaultDispersion());
+
 
     setAlphaMode(material_in.alphaMode);
     mAlphaCutoff = llclamp((F32)material_in.alphaCutoff, 0.f, 1.f);
@@ -310,6 +369,32 @@ LLVector2 LLGLTFMaterial::vec2FromJson(const tinygltf::Value::Object& object, co
 }
 
 // static
+LLColor3 LLGLTFMaterial::color3FromJson(const tinygltf::Value::Object &object, const char *key, const LLColor3 &default_value)
+{
+    const auto it = object.find(key);
+    if (it == object.end())
+    {
+        return default_value;
+    }
+    const tinygltf::Value &color_json = std::get<1>(*it);
+    if (!color_json.IsArray() || color_json.ArrayLen() < LENGTHOFCOLOR3)
+    {
+        return default_value;
+    }
+    LLColor3 value;
+    for (U32 i = 0; i < LENGTHOFCOLOR3; ++i)
+    {
+        const tinygltf::Value &real_json = color_json.Get(i);
+        if (!real_json.IsReal())
+        {
+            return default_value;
+        }
+        value.mV[i] = (F32) real_json.Get<double>();
+    }
+    return value;
+}
+
+// static
 F32 LLGLTFMaterial::floatFromJson(const tinygltf::Value::Object& object, const char* key, const F32 default_value)
 {
     const auto it = object.find(key);
@@ -326,11 +411,134 @@ F32 LLGLTFMaterial::floatFromJson(const tinygltf::Value::Object& object, const c
 }
 
 // static
-void LLGLTFMaterial::writeEmissiveStrength(tinygltf::Material &material, F32 emissive_strength)
+void LLGLTFMaterial::writeFloatToMaterialWithExtension(tinygltf::Material &material, const char *extension, const char *key, F32 value)
 {
-    tinygltf::Value::Object emissive_strength_object;
-    emissive_strength_object[LLGLTFMaterial::GLTF_FILE_EXTENSION_EMISSIVE_STRENGTH_EMISSIVE_STRENGTH] = tinygltf::Value(emissive_strength);
-    material.extensions[LLGLTFMaterial::GLTF_FILE_EXTENSION_EMISSIVE_STRENGTH]      = tinygltf::Value(emissive_strength_object);
+    tinygltf::Value::Object extension_object;
+    tinygltf::Value val = tinygltf::Value(value);
+    // See if we already have this extension.
+    auto extension_it = material.extensions.find(extension);
+
+    if (extension_it != material.extensions.end())
+    {
+        material.extensions[extension].Get<tinygltf::Value::Object>()[key] = val;
+    }
+    else
+    {
+        extension_object[key]          = val;
+        material.extensions[extension] = tinygltf::Value(extension_object);
+    }
+}
+
+// static
+void LLGLTFMaterial::setFloatFromModelWithExtension(const tinygltf::Material &material, const char *extension, const char *key, F32 &value,
+                                                    F32 defaultValue)
+{
+    LL_PROFILE_ZONE_SCOPED;
+
+    const tinygltf::Value::Object &extensions_object = material.extensions;
+    const auto                     extension_it       = extensions_object.find(extension);
+
+    if (extension_it != extensions_object.end())
+    {
+        const tinygltf::Value &value_json = std::get<1>(*extension_it);
+        if (value_json.IsObject())
+        {
+            const tinygltf::Value::Object &value_object = value_json.Get<tinygltf::Value::Object>();
+            value                                       = floatFromJson(value_object, key, defaultValue);
+        }
+    }
+}
+
+// static
+void LLGLTFMaterial::writeColor3ToMaterialWithExtension(tinygltf::Material& material, const char* extension, const char* key, const LLColor3& color)
+{
+    tinygltf::Value::Object extension_object;
+    tinygltf::Value::Array  color_array;
+
+    color_array.push_back(tinygltf::Value(color.mV[0]));
+    color_array.push_back(tinygltf::Value(color.mV[1]));
+    color_array.push_back(tinygltf::Value(color.mV[2]));
+
+    // See if we already have this extension.
+    auto extension_it = material.extensions.find(extension);
+    if (extension_it != material.extensions.end())
+    {
+        material.extensions[extension].Get<tinygltf::Value::Object>()[key] = tinygltf::Value(color_array);
+    }
+    else
+    {
+        extension_object[key]          = tinygltf::Value(color_array);
+        material.extensions[extension] = tinygltf::Value(extension_object);
+    }
+}
+
+// static
+void LLGLTFMaterial::setColor3FromMaterialWithExtension(const tinygltf::Material &material, const char *extension, const char *key,
+                                                        LLColor3 &color, LLColor3 defaultColor)
+{
+	LL_PROFILE_ZONE_SCOPED;
+
+	const tinygltf::Value::Object &extensions_object = material.extensions;
+	const auto                     extension_it       = extensions_object.find(extension);
+
+    if (extension_it != extensions_object.end())
+    {
+		const tinygltf::Value &value_json = std::get<1>(*extension_it);
+        if (value_json.IsObject())
+        {
+			const tinygltf::Value::Object &value_object = value_json.Get<tinygltf::Value::Object>();
+            color                                       = color3FromJson(value_object, key, defaultColor);
+		}
+	}
+}
+
+void LLGLTFMaterial::writeTextureToMaterialWithExtension(tinygltf::Material& material, const char* extension, const char* key,
+    const tinygltf::TextureInfo& texture_info)
+{
+    tinygltf::Value::Object extension_object;
+
+    tinygltf::Value::Object texture_object;
+    texture_object["index"] = tinygltf::Value(texture_info.index);
+    texture_object["extensions"] = tinygltf::Value(texture_info.extensions);
+    
+    // See if we already have this extension.
+    auto extension_it = material.extensions.find(extension);
+    if (extension_it != material.extensions.end())
+    {
+        material.extensions[extension].Get<tinygltf::Value::Object>()[key] = tinygltf::Value(texture_object);
+    }
+    else
+    {
+        extension_object[key]          = tinygltf::Value(texture_object);
+        material.extensions[extension] = tinygltf::Value(extension_object);
+    }
+}
+
+void LLGLTFMaterial::setTextureFromMaterialWithExtension(const tinygltf::Material &model, const char *extension, const char *key,
+                                                         tinygltf::TextureInfo &texture_info)
+{
+	LL_PROFILE_ZONE_SCOPED;
+
+	const tinygltf::Value::Object &extensions_object = model.extensions;
+	const auto extension_it = extensions_object.find(extension);
+
+    if (extension_it != extensions_object.end())
+    {
+        // We found the extension data.  Now we need to extract it.
+
+        auto key_it = std::get<1>(*extension_it).Get<tinygltf::Value::Object>().find(key);
+        if (key_it != std::get<1>(*extension_it).Get<tinygltf::Value::Object>().end())
+        {
+			const tinygltf::Value::Object &texture_object = key_it->second.Get<tinygltf::Value::Object>();
+			texture_info.index = (U32)floatFromJson(texture_object, "index", 0);
+
+            if (texture_object.find("extensions") != texture_object.end())
+            {
+				const tinygltf::Value::Object &extensions = texture_object.find("extensions")->second.Get<tinygltf::Value::Object>();
+				texture_info.extensions = extensions;
+			}
+		}
+	}
 }
 
 void LLGLTFMaterial::writeToModel(tinygltf::Model& model, S32 mat_index) const
@@ -342,6 +550,9 @@ void LLGLTFMaterial::writeToModel(tinygltf::Model& model, S32 mat_index) const
     }
 
     tinygltf::Material& material_out = model.materials[mat_index];
+
+    tinygltf::TextureInfo transmissionMap;
+    tinygltf::TextureInfo thicknessMap;
 
     // set base color texture
     writeToTexture(model, material_out.pbrMetallicRoughness.baseColorTexture, GLTF_TEXTURE_INFO_BASE_COLOR);
@@ -356,6 +567,17 @@ void LLGLTFMaterial::writeToModel(tinygltf::Model& model, S32 mat_index) const
     // See: https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#_material_occlusiontexture
     writeToTexture(model, material_out.occlusionTexture, GLTF_TEXTURE_INFO_OCCLUSION);
 
+    // KHR_materials_transmission & KHR_materials_volume textures.  We pack these into a singular texture, but we need to get the locations
+    // regardless even though they share the same texture.
+    writeToTexture(model, transmissionMap, GLTF_TEXTURE_INFO_TRANSMISSION_TEXTURE);
+    writeToTexture(model, thicknessMap, GLTF_TEXTURE_INFO_THICKNESS_TEXTURE);
+
+    
+    // We have to do some scuffed stuff here to make sure that the material has transmission and thickness maps.
+    writeTextureToMaterialWithExtension(material_out, GLTF_FILE_EXTENSION_TRANSMISSION, GLTF_FILE_EXTENSION_TRANSMISSION_TEXTURE,
+                                        transmissionMap);
+    writeTextureToMaterialWithExtension(material_out, GLTF_FILE_EXTENSION_VOLUME, GLTF_FILE_EXTENSION_VOLUME_THICKNESS_TEXTURE,
+                                        thicknessMap);
 
     material_out.alphaMode = getAlphaMode();
     material_out.alphaCutoff = mAlphaCutoff;
@@ -368,7 +590,38 @@ void LLGLTFMaterial::writeToModel(tinygltf::Model& model, S32 mat_index) const
         mEmissiveColor.write(material_out.emissiveFactor);
     }
 
-    writeEmissiveStrength(material_out, mEmissiveStrength);
+    writeFloatToMaterialWithExtension(material_out,
+                                      GLTF_FILE_EXTENSION_EMISSIVE_STRENGTH,
+                                      GLTF_FILE_EXTENSION_EMISSIVE_STRENGTH_EMISSIVE_STRENGTH,
+                                      mEmissiveStrength);
+
+    
+    writeFloatToMaterialWithExtension(material_out, GLTF_FILE_EXTENSION_TRANSMISSION, GLTF_FILE_EXTENSION_TRANSMISSION_TRANSMISSION_FACTOR,
+                                      mTransmissionFactor);
+
+    writeFloatToMaterialWithExtension(material_out,
+                                      GLTF_FILE_EXTENSION_IOR, GLTF_FILE_EXTENSION_IOR_IOR,
+                                      mIOR);
+
+    writeFloatToMaterialWithExtension(material_out,
+                                      GLTF_FILE_EXTENSION_VOLUME,
+                                      GLTF_FILE_EXTENSION_VOLUME_THICKNESS_FACTOR,
+                                      mThicknessFactor);
+
+    writeFloatToMaterialWithExtension(material_out,
+                                      GLTF_FILE_EXTENSION_VOLUME,
+                                      GLTF_FILE_EXTENSION_VOLUME_ATTENUATION_DISTANCE,
+                                      mAttenuationDistance);
+
+    writeColor3ToMaterialWithExtension(material_out,
+        									   GLTF_FILE_EXTENSION_VOLUME,
+        									   GLTF_FILE_EXTENSION_VOLUME_ATTENUATION_COLOR,
+        									   mAttenuationColor);
+    
+    writeFloatToMaterialWithExtension(material_out,
+                                      GLTF_FILE_EXTENSION_DISPERSION,
+                                      GLTF_FILE_EXTENSION_DISPERSION_DISPERSION,
+                                      mDispersion);
 
     material_out.pbrMetallicRoughness.metallicFactor = mMetallicFactor;
     material_out.pbrMetallicRoughness.roughnessFactor = mRoughnessFactor;
@@ -463,6 +716,11 @@ void LLGLTFMaterial::setEmissiveId(const LLUUID& id, bool for_override)
     setTextureId(GLTF_TEXTURE_INFO_EMISSIVE, id, for_override);
 }
 
+void LLGLTFMaterial::setTransmissionId(const LLUUID &id, bool for_override)
+{
+    setTextureId(GLTF_TEXTURE_INFO_TRANSMISSION_TEXTURE, id, for_override);
+}
+
 void LLGLTFMaterial::setBaseColorFactor(const LLColor4& baseColor, bool for_override)
 {
     mBaseColor.set(baseColor);
@@ -525,6 +783,81 @@ void LLGLTFMaterial::setRoughnessFactor(F32 roughness, bool for_override)
 {
     mRoughnessFactor = llclamp(roughness, 0.f, for_override ? 1.f - FLT_EPSILON : 1.f);
 }
+
+void LLGLTFMaterial::setTransmissionFactor(F32 transmission, bool for_override)
+{
+    mTransmissionFactor = llclamp(transmission, 0.f, 1.f);
+    if (for_override)
+    {
+        if (mTransmissionFactor == getDefaultTransmissionFactor())
+        {
+            mTransmissionFactor -= FLT_EPSILON;
+        }
+    }
+}
+
+void LLGLTFMaterial::setIOR(F32 ior, bool for_override)
+{
+    mIOR = llmax(ior, 1.f);
+    if (for_override)
+    {
+        if (mIOR == getDefaultIOR())
+        {
+            mIOR -= FLT_EPSILON;
+        }
+    }
+}
+
+void LLGLTFMaterial::setThicknessFactor(F32 thickness, bool for_override)
+{
+    mThicknessFactor = llmax(thickness, 0.f);
+    if (for_override)
+    {
+        if (mThicknessFactor == getDefaultThicknessFactor())
+        {
+            mThicknessFactor -= FLT_EPSILON;
+        }
+    }
+}
+
+void LLGLTFMaterial::setAttenuationDistance(F32 attenuationDistance, bool for_override)
+{
+    mAttenuationDistance = llmax(attenuationDistance, 0.f);
+    if (for_override)
+    {
+        if (mAttenuationDistance == getDefaultAttenuationDistance())
+        {
+            mAttenuationDistance -= FLT_EPSILON;
+        }
+    }
+}
+
+void LLGLTFMaterial::setAttenuationColor(const LLColor3& attenuationColor, bool for_override)
+{
+    mAttenuationColor = attenuationColor;
+    mAttenuationColor.clamp();
+
+    if (for_override)
+    {  // hack -- nudge off of default value
+        if (mAttenuationColor == getDefaultAttenuationColor())
+        {
+            mAttenuationColor.mV[0] += FLT_EPSILON;
+        }
+    }
+}
+
+void LLGLTFMaterial::setDispersion(F32 dispersion, bool for_override)
+{
+    mDispersion = llmax(dispersion, 0.f);
+    if (for_override)
+    {
+        if (mDispersion == getDefaultDispersion())
+        {
+			mDispersion -= FLT_EPSILON;
+		}
+	}
+}
+
 
 void LLGLTFMaterial::setAlphaMode(const std::string& mode, bool for_override)
 {
@@ -605,6 +938,36 @@ F32 LLGLTFMaterial::getDefaultRoughnessFactor()
     return sDefault.mRoughnessFactor;
 }
 
+F32 LLGLTFMaterial::getDefaultTransmissionFactor()
+{
+    return sDefault.mTransmissionFactor;
+}
+
+F32 LLGLTFMaterial::getDefaultIOR()
+{
+    return sDefault.mIOR;
+}
+
+F32 LLGLTFMaterial::getDefaultThicknessFactor()
+{
+    return sDefault.mThicknessFactor;
+}
+
+F32 LLGLTFMaterial::getDefaultAttenuationDistance()
+{
+    return sDefault.mAttenuationDistance;
+}
+
+LLColor3 LLGLTFMaterial::getDefaultAttenuationColor()
+{
+    return sDefault.mAttenuationColor;
+}
+
+F32 LLGLTFMaterial::getDefaultDispersion()
+{
+    return sDefault.mDispersion;
+}
+
 LLColor4 LLGLTFMaterial::getDefaultBaseColor()
 {
     return sDefault.mBaseColor;
@@ -681,6 +1044,36 @@ void LLGLTFMaterial::applyOverride(const LLGLTFMaterial& override_mat)
     {
 		mEmissiveStrength = override_mat.mEmissiveStrength;
 	}
+
+    if (override_mat.mTransmissionFactor != getDefaultTransmissionFactor())
+    {
+		mTransmissionFactor = override_mat.mTransmissionFactor;
+	}
+
+    if (override_mat.mIOR != getDefaultIOR())
+    {
+        mIOR = override_mat.mIOR;
+    }
+
+    if (override_mat.mThicknessFactor != getDefaultThicknessFactor())
+    {
+		mThicknessFactor = override_mat.mThicknessFactor;
+	}
+
+    if (override_mat.mAttenuationDistance != getDefaultAttenuationDistance())
+    {
+        mAttenuationDistance = override_mat.mAttenuationDistance;
+    }
+
+    if (override_mat.mAttenuationColor != getDefaultAttenuationColor())
+    {
+		mAttenuationColor = override_mat.mAttenuationColor;
+	}
+
+    if (override_mat.mDispersion != getDefaultDispersion())
+	{
+        mDispersion = override_mat.mDispersion;
+    }
 
     if (override_mat.mMetallicFactor != getDefaultMetallicFactor())
     {
@@ -774,6 +1167,36 @@ void LLGLTFMaterial::getOverrideLLSD(const LLGLTFMaterial& override_mat, LLSD& d
     {
         data["rf"] = override_mat.mRoughnessFactor;
     }
+    
+    if (override_mat.mTransmissionFactor != getDefaultTransmissionFactor())
+    {
+        data["tf"] = override_mat.mTransmissionFactor;
+    }
+
+    if (override_mat.mIOR != getDefaultIOR())
+    {
+		data["ir"] = override_mat.mIOR;
+	}
+
+    if (override_mat.mThicknessFactor != getDefaultThicknessFactor())
+    {
+        data["th"] = override_mat.mThicknessFactor;
+    }
+
+    if (override_mat.mAttenuationDistance != getDefaultAttenuationDistance())
+    {
+		data["ad"] = override_mat.mAttenuationDistance;
+	}
+
+    if (override_mat.mAttenuationColor != getDefaultAttenuationColor())
+    {
+        data["atc"] = override_mat.mAttenuationColor.getValue();
+    }
+
+    if (override_mat.mDispersion != getDefaultDispersion())
+    {
+		data["di"] = override_mat.mDispersion;
+	}
 
     if (override_mat.mAlphaMode != getDefaultAlphaMode() || override_mat.mOverrideAlphaMode)
     {
@@ -853,6 +1276,72 @@ void LLGLTFMaterial::applyOverrideLLSD(const LLSD& data)
             // HACK -- nudge by epsilon if we receive a default value (indicates override to default)
             mEmissiveStrength -= FLT_EPSILON;
         }
+    }
+
+    const LLSD &tf = data["tf"];
+    if (tf.isDefined())
+    {
+		mTransmissionFactor = tf.asReal();
+        if (mTransmissionFactor == getDefaultTransmissionFactor())
+        {
+			// HACK -- nudge by epsilon if we receive a default value (indicates override to default)
+			mTransmissionFactor -= FLT_EPSILON;
+		}
+	}
+
+    const LLSD &ir = data["ir"];
+    if (ir.isDefined())
+    {
+		mIOR = ir.asReal();
+        if (mIOR == getDefaultIOR())
+        {
+			// HACK -- nudge by epsilon if we receive a default value (indicates override to default)
+			mIOR -= FLT_EPSILON;
+		}
+	}
+
+    const LLSD &th = data["th"];
+    if (th.isDefined())
+    {
+		mThicknessFactor = th.asReal();
+        if (mThicknessFactor == getDefaultThicknessFactor())
+        {
+			// HACK -- nudge by epsilon if we receive a default value (indicates override to default)
+			mThicknessFactor -= FLT_EPSILON;
+		}
+	}
+
+    const LLSD &ad = data["ad"];
+    if (ad.isDefined())
+    {
+		mAttenuationDistance = ad.asReal();
+        if (mAttenuationDistance == getDefaultAttenuationDistance())
+        {
+			// HACK -- nudge by epsilon if we receive a default value (indicates override to default)
+			mAttenuationDistance -= FLT_EPSILON;
+		}
+	}
+
+    const LLSD &atc = data["atc"];
+    if (atc.isDefined())
+    {
+        mAttenuationColor.setValue(atc);
+        if (mAttenuationColor == getDefaultAttenuationColor())
+        {
+            // HACK -- nudge by epsilon if we receive a default value (indicates override to default)
+            mAttenuationColor.mV[0] += FLT_EPSILON;
+        }
+    }
+
+    const LLSD &di = data["di"];
+    if (di.isDefined())
+    {
+        mDispersion = di.asReal();
+        if (mDispersion == getDefaultDispersion())
+        {
+			// HACK -- nudge by epsilon if we receive a default value (indicates override to default)
+			mDispersion -= FLT_EPSILON;
+		}
     }
 
     const LLSD& mf = data["mf"];
