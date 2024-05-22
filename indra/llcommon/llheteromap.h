@@ -3,7 +3,7 @@
  * @author Nat Goodspeed
  * @date   2016-10-12
  * @brief  Map capable of storing objects of diverse types, looked up by type.
- * 
+ *
  * $LicenseInfo:firstyear=2016&license=viewerlgpl$
  * Copyright (c) 2016, Linden Research, Inc.
  * $/LicenseInfo$

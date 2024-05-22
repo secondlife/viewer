@@ -1,4 +1,4 @@
-/** 
+/**
 * @file   llmaterialid.h
 * @brief  Header file for llmaterialid
 * @author Stinson@lindenlab.com
@@ -35,70 +35,70 @@
 class LLMaterialID
 {
 public:
-	LLMaterialID();
-	LLMaterialID(const LLSD& pMaterialID);
-	LLMaterialID(const LLSD::Binary& pMaterialID);
-	LLMaterialID(const void* pMemory);
-	LLMaterialID(const LLMaterialID& pOtherMaterialID);
-	LLMaterialID(const LLUUID& lluid);
-	~LLMaterialID();
+    LLMaterialID();
+    LLMaterialID(const LLSD& pMaterialID);
+    LLMaterialID(const LLSD::Binary& pMaterialID);
+    LLMaterialID(const void* pMemory);
+    LLMaterialID(const LLMaterialID& pOtherMaterialID);
+    LLMaterialID(const LLUUID& lluid);
+    ~LLMaterialID();
 
-	bool          operator == (const LLMaterialID& pOtherMaterialID) const;
-	bool          operator != (const LLMaterialID& pOtherMaterialID) const;
+    bool          operator == (const LLMaterialID& pOtherMaterialID) const;
+    bool          operator != (const LLMaterialID& pOtherMaterialID) const;
 
-	bool          operator < (const LLMaterialID& pOtherMaterialID) const;
-	bool          operator <= (const LLMaterialID& pOtherMaterialID) const;
-	bool          operator > (const LLMaterialID& pOtherMaterialID) const;
-	bool          operator >= (const LLMaterialID& pOtherMaterialID) const;
+    bool          operator < (const LLMaterialID& pOtherMaterialID) const;
+    bool          operator <= (const LLMaterialID& pOtherMaterialID) const;
+    bool          operator > (const LLMaterialID& pOtherMaterialID) const;
+    bool          operator >= (const LLMaterialID& pOtherMaterialID) const;
 
-	LLMaterialID& operator = (const LLMaterialID& pOtherMaterialID);
+    LLMaterialID& operator = (const LLMaterialID& pOtherMaterialID);
 
-	bool          isNull() const;
+    bool          isNull() const;
 
-	const U8*     get() const;
-	void          set(const void* pMemory);
-	void          clear();
+    const U8*     get() const;
+    void          set(const void* pMemory);
+    void          clear();
 
-	LLSD          asLLSD() const;
-	std::string   asString() const;
+    LLSD          asLLSD() const;
+    std::string   asString() const;
     LLUUID        asUUID() const;
 
-	friend std::ostream& operator<<(std::ostream& s, const LLMaterialID &material_id);
+    friend std::ostream& operator<<(std::ostream& s, const LLMaterialID &material_id);
 
-	static const LLMaterialID null;
+    static const LLMaterialID null;
 
-	// Returns a 64 bits digest of the material Id, by XORing its two 64 bits
-	// long words. HB
-	inline U64 getDigest64() const
-	{
-		U64* tmp = (U64*)mID;
-		return tmp[0] ^ tmp[1];
-	}
+    // Returns a 64 bits digest of the material Id, by XORing its two 64 bits
+    // long words. HB
+    inline U64 getDigest64() const
+    {
+        U64* tmp = (U64*)mID;
+        return tmp[0] ^ tmp[1];
+    }
 
 private:
-	void parseFromBinary(const LLSD::Binary& pMaterialID);
-	void copyFromOtherMaterialID(const LLMaterialID& pOtherMaterialID);
-	int  compareToOtherMaterialID(const LLMaterialID& pOtherMaterialID) const;
+    void parseFromBinary(const LLSD::Binary& pMaterialID);
+    void copyFromOtherMaterialID(const LLMaterialID& pOtherMaterialID);
+    int  compareToOtherMaterialID(const LLMaterialID& pOtherMaterialID) const;
 
-	U8 mID[MATERIAL_ID_SIZE];
+    U8 mID[MATERIAL_ID_SIZE];
 } ;
 
 // std::hash implementation for LLMaterialID
 namespace std
 {
-	template<> struct hash<LLMaterialID>
-	{
-		inline size_t operator()(const LLMaterialID& id) const noexcept
-		{
-			return (size_t)id.getDigest64();
-		}
-	};
+    template<> struct hash<LLMaterialID>
+    {
+        inline size_t operator()(const LLMaterialID& id) const noexcept
+        {
+            return (size_t)id.getDigest64();
+        }
+    };
 }
 
 // For use with boost containers.
 inline size_t hash_value(const LLMaterialID& id) noexcept
 {
-	return (size_t)id.getDigest64();
+    return (size_t)id.getDigest64();
 }
 
 #endif // LL_LLMATERIALID_H

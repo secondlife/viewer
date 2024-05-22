@@ -53,7 +53,7 @@ public:
     struct Params
         : public LLInitParam::Block<Params, LLUICtrl::Params>
     {
-        Optional<LLViewBorder::Params>	    border;
+        Optional<LLViewBorder::Params>      border;
         Optional<LLUIImage*>                image_moon_back,
             image_moon_front,
             image_sphere,
