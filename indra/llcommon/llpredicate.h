@@ -139,10 +139,10 @@ namespace LLPredicate
 		Rule()
 		{}
 
-		void require(ENUM e, bool match)
-		{
-			mRule.set(e, match);
-		}
+        void mandate(ENUM e, bool match)
+        {
+            mRule.set(e, match);
+        }
 
 		void allow(ENUM e)
 		{
@@ -154,10 +154,10 @@ namespace LLPredicate
 			return (mRule && value).someSet();
 		}
 
-		bool requires(const Value<ENUM> value) const
-		{
-			return (mRule && value).someSet() && (!mRule && value).noneSet();
-		}
+        bool mandates(const Value<ENUM> value) const
+        {
+            return (mRule && value).someSet() && (!mRule && value).noneSet();
+        }
 
 		bool isAmbivalent(const Value<ENUM> value) const
 		{
