@@ -36,20 +36,20 @@ class VolumeCatcherImpl;
 class VolumeCatcher
 {
 public:
-	VolumeCatcher();
-	~VolumeCatcher();
+    VolumeCatcher();
+    ~VolumeCatcher();
 
-	void setVolume(F32 volume);
-	void setPan(F32 pan);
+    void setVolume(F32 volume);
+    void setPan(F32 pan);
 
-	void pump();
+    void pump();
 
 #if LL_LINUX
-	void onEnablePipeWireVolumeCatcher(bool enable);
+    void onEnablePipeWireVolumeCatcher(bool enable);
 #endif
 
 private:
-	VolumeCatcherImpl *pimpl;
+    VolumeCatcherImpl *pimpl;
 };
 
 #endif // VOLUME_CATCHER_H

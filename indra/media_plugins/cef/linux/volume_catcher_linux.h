@@ -52,97 +52,97 @@ extern "C" {
 class VolumeCatcherImpl
 {
 public:
-	virtual ~VolumeCatcherImpl() = default;
+    virtual ~VolumeCatcherImpl() = default;
 
-	virtual void setVolume(F32 volume) = 0; // 0.0 - 1.0
+    virtual void setVolume(F32 volume) = 0; // 0.0 - 1.0
 
-	// Set the left-right pan of audio sources
-	// where -1.0 = left, 0 = center, and 1.0 = right
-	virtual void setPan(F32 pan) = 0;
+    // Set the left-right pan of audio sources
+    // where -1.0 = left, 0 = center, and 1.0 = right
+    virtual void setPan(F32 pan) = 0;
 
-	virtual void pump() = 0; // call this at least a few times a second if you can - it affects how quickly we can 'catch' a new audio source and adjust its volume
+    virtual void pump() = 0; // call this at least a few times a second if you can - it affects how quickly we can 'catch' a new audio source and adjust its volume
 };
 
 class VolumeCatcherPulseAudio : public VolumeCatcherImpl
 {
 public:
-	VolumeCatcherPulseAudio();
-	~VolumeCatcherPulseAudio();
+    VolumeCatcherPulseAudio();
+    ~VolumeCatcherPulseAudio();
 
-	void setVolume(F32 volume);
-	void setPan(F32 pan);
-	void pump();
+    void setVolume(F32 volume);
+    void setPan(F32 pan);
+    void pump();
 
-	// for internal use - can't be private because used from our C callbacks
+    // for internal use - can't be private because used from our C callbacks
 
-	bool loadsyms(std::string pa_dso_name);
-	void init();
-	void cleanup();
+    bool loadsyms(std::string pa_dso_name);
+    void init();
+    void cleanup();
 
-	void update_all_volumes(F32 volume);
-	void update_index_volume(U32 index, F32 volume);
-	void connected_okay();
+    void update_all_volumes(F32 volume);
+    void update_index_volume(U32 index, F32 volume);
+    void connected_okay();
 
-	std::set<U32> mSinkInputIndices;
-	std::map<U32,U32> mSinkInputNumChannels;
-	F32 mDesiredVolume;
-	pa_glib_mainloop *mMainloop;
-	pa_context *mPAContext;
-	bool mConnected;
-	bool mGotSyms;
+    std::set<U32> mSinkInputIndices;
+    std::map<U32,U32> mSinkInputNumChannels;
+    F32 mDesiredVolume;
+    pa_glib_mainloop *mMainloop;
+    pa_context *mPAContext;
+    bool mConnected;
+    bool mGotSyms;
 };
 
 class VolumeCatcherPipeWire : public VolumeCatcherImpl
 {
 public:
-	VolumeCatcherPipeWire();
-	~VolumeCatcherPipeWire();
+    VolumeCatcherPipeWire();
+    ~VolumeCatcherPipeWire();
 
-	bool loadsyms(std::string pw_dso_name);
-	void init();
-	void cleanup();
+    bool loadsyms(std::string pw_dso_name);
+    void init();
+    void cleanup();
 
-	// some of these should be private
+    // some of these should be private
 
-	void lock();
-	void unlock();
+    void lock();
+    void unlock();
 
-	void setVolume(F32 volume);
-	void setPan(F32 pan);
-	void pump();
+    void setVolume(F32 volume);
+    void setPan(F32 pan);
+    void pump();
 
-	void handleRegistryEventGlobal(
-		uint32_t id, uint32_t permissions, const char* type,
-		uint32_t version, const struct spa_dict* props
-	);
+    void handleRegistryEventGlobal(
+    	uint32_t id, uint32_t permissions, const char* type,
+    	uint32_t version, const struct spa_dict* props
+    );
 
-	class ChildNode
-	{
-	public:
-		bool mActive = false;
+    class ChildNode
+    {
+    public:
+    	bool mActive = false;
 
-		pw_proxy* mProxy = nullptr;
-		spa_hook mNodeListener {};
-		spa_hook mProxyListener {};
-		VolumeCatcherPipeWire* mImpl = nullptr;
+    	pw_proxy* mProxy = nullptr;
+    	spa_hook mNodeListener {};
+    	spa_hook mProxyListener {};
+    	VolumeCatcherPipeWire* mImpl = nullptr;
 
-		void updateVolume();
-		void destroy();
-	};
+    	void updateVolume();
+    	void destroy();
+    };
 
-	bool mGotSyms = false;
+    bool mGotSyms = false;
 
-	F32 mVolume = 1.0f; // max by default
-	// F32 mPan = 0.0f; // center
+    F32 mVolume = 1.0f; // max by default
+    // F32 mPan = 0.0f; // center
 
-	pw_thread_loop* mThreadLoop = nullptr;
-	pw_context* mContext = nullptr;
-	pw_core* mCore = nullptr;
-	pw_registry* mRegistry = nullptr;
-	spa_hook mRegistryListener;
+    pw_thread_loop* mThreadLoop = nullptr;
+    pw_context* mContext = nullptr;
+    pw_core* mCore = nullptr;
+    pw_registry* mRegistry = nullptr;
+    spa_hook mRegistryListener;
 
-	std::unordered_set<ChildNode*> mChildNodes;
-	std::mutex mChildNodesMutex;
+    std::unordered_set<ChildNode*> mChildNodes;
+    std::mutex mChildNodesMutex;
     std::mutex mCleanupMutex;
 };
 
