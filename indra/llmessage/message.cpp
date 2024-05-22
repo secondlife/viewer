@@ -1947,7 +1947,7 @@ void LLMessageSystem::processUseCircuitCode(LLMessageSystem* msg,
 		// passed the circuit code and session id check, so we will go
 		// ahead and persist the ID associated.
 		LLCircuitData *cdp = msg->mCircuitInfo.findCircuit(msg->getSender());
-		bool had_circuit_already = cdp ? true : false;
+		bool had_circuit_already = cdp != nullptr;
 
 		msg->enableCircuit(msg->getSender(), false);
 		cdp = msg->mCircuitInfo.findCircuit(msg->getSender());

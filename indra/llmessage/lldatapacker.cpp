@@ -298,6 +298,13 @@ bool LLDataPackerBinaryBuffer::unpackBinaryData(U8 *value, S32 &size, const char
 	}
 
 	htolememcpy(&size, mCurBufferp, MVT_S32, 4);
+
+    if (size < 0)
+    {
+        LL_WARNS() << "LLDataPackerBinaryBuffer::unpackBinaryData unpacked invalid size, aborting!" << LL_ENDL;
+        return false;
+    }
+
 	mCurBufferp += 4;
 
 	if (!verifyLength(size, name))

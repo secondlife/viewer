@@ -60,7 +60,6 @@
 #include "v2math.h"
 #include <set>
 #include <boost/tokenizer.hpp>
-#include <boost/foreach.hpp>
 
 // static
 LLMenuHolderGL *LLMenuGL::sMenuContainer = NULL;
@@ -1189,16 +1188,16 @@ void LLMenuItemBranchGL::updateBranchParent(LLView* parentp)
 	}
 }
 
-void LLMenuItemBranchGL::onVisibilityChange( bool new_visibility )
+void LLMenuItemBranchGL::onVisibilityChange(bool new_visibility)
 {
-	if (new_visibility == false && getBranch() && !getBranch()->getTornOff())
+	if (!new_visibility && getBranch() && !getBranch()->getTornOff())
 	{
 		getBranch()->setVisible(false);
 	}
 	LLMenuItemGL::onVisibilityChange(new_visibility);
 }
 
-bool LLMenuItemBranchGL::handleKeyHere( KEY key, MASK mask )
+bool LLMenuItemBranchGL::handleKeyHere(KEY key, MASK mask)
 {
 	LLMenuGL* branch = getBranch();
 	if (!branch)
@@ -2162,7 +2161,7 @@ void LLMenuGL::arrange( void )
 		}
 		else
 		{
-			BOOST_FOREACH(LLMenuItemGL* itemp, mItems)
+			for (LLMenuItemGL* itemp : mItems)
 			{
 				// do first so LLMenuGLItemCall can call on_visible to determine if visible
 				itemp->buildDrawLabel();

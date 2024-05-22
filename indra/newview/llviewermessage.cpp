@@ -119,8 +119,6 @@
 #include "llviewerregion.h"
 #include "llfloaterregionrestarting.h"
 
-#include <boost/foreach.hpp>
-
 #include "llnotificationmanager.h" //
 #include "llexperiencecache.h"
 
@@ -189,7 +187,7 @@ void accept_friendship_coro(std::string url, LLSD notification)
     }
     else
     {
-        if (!result.has("success") || result["success"].asBoolean() == false)
+        if (!result.has("success") || !result["success"].asBoolean())
         {
             LL_WARNS("Friendship") << "Server failed to process accepted friendship. " << httpResults << LL_ENDL;
         }
@@ -232,7 +230,7 @@ void decline_friendship_coro(std::string url, LLSD notification, S32 option)
     }
     else
     {
-        if (!result.has("success") || result["success"].asBoolean() == false)
+        if (!result.has("success") || !result["success"].asBoolean())
         {
             LL_WARNS("Friendship") << "Server failed to process declined friendship. " << httpResults << LL_ENDL;
         }
@@ -276,7 +274,7 @@ bool friendship_offer_callback(const LLSD& notification, const LLSD& response)
 		    // This will also trigger an onlinenotification if the user is online
             std::string url = gAgent.getRegionCapability("AcceptFriendship");
             LL_DEBUGS("Friendship") << "Cap string: " << url << LL_ENDL;
-            if (!url.empty() && payload.has("online") && payload["online"].asBoolean() == false)
+            if (!url.empty() && payload.has("online") && !payload["online"].asBoolean())
             {
                 LL_DEBUGS("Friendship") << "Accepting friendship via capability" << LL_ENDL;
                 LLCoros::instance().launch("LLMessageSystem::acceptFriendshipOffer",
@@ -316,7 +314,7 @@ bool friendship_offer_callback(const LLSD& notification, const LLSD& response)
                 // the rejection to the simulator to delete the pending userop.
                 std::string url = gAgent.getRegionCapability("DeclineFriendship");
                 LL_DEBUGS("Friendship") << "Cap string: " << url << LL_ENDL;
-                if (!url.empty() && payload.has("online") && payload["online"].asBoolean() == false)
+                if (!url.empty() && payload.has("online") && !payload["online"].asBoolean())
                 {
                     LL_DEBUGS("Friendship") << "Declining friendship via capability" << LL_ENDL;
                     LLCoros::instance().launch("LLMessageSystem::declineFriendshipOffer",
@@ -776,7 +774,7 @@ void response_group_invitation_coro(std::string url, LLUUID group_id, bool notif
     }
     else
     {
-        if (!result.has("success") || result["success"].asBoolean() == false)
+        if (!result.has("success") || !result["success"].asBoolean())
         {
             LL_WARNS("GroupInvite") << "Server failed to process group " << group_id << " invitation response. " << httpResults << LL_ENDL;
         }
@@ -2043,25 +2041,29 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 	std::string from_string; // Used in the pop-up.
 	std::string chatHistory_string;  // Used in chat history.
 
-	if (mFromObject == true)
+	if (mFromObject)
 	{
+		std::string quot = LLTrans::getString("'");
 		if (mFromGroup)
 		{
 			std::string group_name;
 			if (gCacheName->getGroupName(mFromID, group_name))
 			{
-				from_string = LLTrans::getString("InvOfferAnObjectNamed") + " "+"'" 
-				+ mFromName + LLTrans::getString("'") +" " + LLTrans::getString("InvOfferOwnedByGroup") 
-				+ " "+ "'" + group_name + "'";
-				
-				chatHistory_string = mFromName + " " + LLTrans::getString("InvOfferOwnedByGroup") 
-				+ " " + group_name + "'";
+				from_string = LLTrans::getString("InvOfferAnObjectNamed") + " " +
+					quot + mFromName + quot + " " +
+					LLTrans::getString("InvOfferOwnedByGroup") + " " +
+					quot + group_name + quot;
+				chatHistory_string = mFromName + " " +
+					LLTrans::getString("InvOfferOwnedByGroup") + " " +
+					quot + group_name + quot;
 			}
 			else
 			{
-				from_string = LLTrans::getString("InvOfferAnObjectNamed") + " "+"'"
-				+ mFromName +"'"+ " " + LLTrans::getString("InvOfferOwnedByUnknownGroup");
-				chatHistory_string = mFromName + " " + LLTrans::getString("InvOfferOwnedByUnknownGroup");
+				from_string = LLTrans::getString("InvOfferAnObjectNamed") + " " +
+					quot + mFromName + quot + " " +
+					LLTrans::getString("InvOfferOwnedByUnknownGroup");
+				chatHistory_string = mFromName + " " +
+					LLTrans::getString("InvOfferOwnedByUnknownGroup");
 			}
 		}
 		else
@@ -2069,15 +2071,19 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 			LLAvatarName av_name;
 			if (LLAvatarNameCache::get(mFromID, &av_name))
 			{
-				from_string = LLTrans::getString("InvOfferAnObjectNamed") + " "+ LLTrans::getString("'") + mFromName 
-					+ LLTrans::getString("'")+" " + LLTrans::getString("InvOfferOwnedBy") + av_name.getUserName();
-				chatHistory_string = mFromName + " " + LLTrans::getString("InvOfferOwnedBy") + " " + av_name.getUserName();
+				from_string = LLTrans::getString("InvOfferAnObjectNamed") + " " +
+					quot + mFromName + quot + " " +
+					LLTrans::getString("InvOfferOwnedBy") + " " + av_name.getUserName();
+				chatHistory_string = mFromName + " " +
+					LLTrans::getString("InvOfferOwnedBy") + " " + av_name.getUserName();
 			}
 			else
 			{
-				from_string = LLTrans::getString("InvOfferAnObjectNamed") + " "+LLTrans::getString("'") 
-				+ mFromName + LLTrans::getString("'")+" " + LLTrans::getString("InvOfferOwnedByUnknownUser");
-				chatHistory_string = mFromName + " " + LLTrans::getString("InvOfferOwnedByUnknownUser");
+				from_string = LLTrans::getString("InvOfferAnObjectNamed") + " " +
+					quot + mFromName + quot + " " +
+					LLTrans::getString("InvOfferOwnedByUnknownUser");
+				chatHistory_string = mFromName + " " +
+					LLTrans::getString("InvOfferOwnedByUnknownUser");
 			}
 		}
 	}
@@ -2085,7 +2091,7 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 	{
 		from_string = chatHistory_string = mFromName;
 	}
-	
+
 	LLUUID destination;
 	bool accept = true;
 
@@ -4165,6 +4171,12 @@ void process_avatar_animation(LLMessageSystem *mesgsys, void **user_data)
 					LLVOAvatar::AnimSourceIterator anim_it = avatarp->mAnimationSources.find(object_id);
 					for (;anim_it != avatarp->mAnimationSources.end(); ++anim_it)
 					{
+						if (anim_it->first != object_id)
+						{
+							// elements with the same key are always contiguous, bail if we went past the
+							// end of this object's animations
+							break;
+						}
 						if (anim_it->second == animation_id)
 						{
 							anim_found = true;
@@ -5627,7 +5639,7 @@ void notify_cautioned_script_question(const LLSD& notification, const LLSD& resp
 		bool caution = false;
 		S32 count = 0;
 		std::string perms;
-		BOOST_FOREACH(script_perm_t script_perm, SCRIPT_PERMISSIONS)
+		for (const script_perm_t& script_perm : SCRIPT_PERMISSIONS)
 		{
 			if ((orig_questions & script_perm.permbit)
 				&& script_perm.caution)
@@ -5871,7 +5883,7 @@ void process_script_question(LLMessageSystem *msg, void **user_data)
 		S32 known_questions = 0;
 		bool has_not_only_debit = questions ^ SCRIPT_PERMISSIONS[SCRIPT_PERMISSION_DEBIT].permbit;
 		// check the received permission flags against each permission
-		BOOST_FOREACH(script_perm_t script_perm, SCRIPT_PERMISSIONS)
+		for (const script_perm_t& script_perm : SCRIPT_PERMISSIONS)
 		{
 			if (questions & script_perm.permbit)
 			{

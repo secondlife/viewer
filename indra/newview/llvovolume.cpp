@@ -3553,9 +3553,10 @@ bool LLVOVolume::isVolumeGlobal() const
 {
 	if (mVolumeImpl)
 	{
-		return mVolumeImpl->isVolumeGlobal() ? true : false;
+		return mVolumeImpl->isVolumeGlobal();
 	}
-	else if (mRiggedVolume.notNull())
+
+	if (mRiggedVolume.notNull())
 	{
 		return true;
 	}
@@ -4577,6 +4578,11 @@ bool LLVOVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a&
         }
     }
 
+    if (getClickAction() == CLICK_ACTION_IGNORE && !LLFloater::isVisible(gFloaterTools))
+    {
+        return false;
+    }
+
 	bool ret = false;
 
 	LLVolume* volume = getVolume();
@@ -5277,7 +5283,7 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 
 	if (mat)
 	{
-		bool is_alpha = (facep->getPoolType() == LLDrawPool::POOL_ALPHA) || (te->getColor().mV[3] < 0.999f) ? true : false;
+		bool is_alpha = (facep->getPoolType() == LLDrawPool::POOL_ALPHA) || (te->getColor().mV[3] < 0.999f);
 		if (type == LLRenderPass::PASS_ALPHA)
 		{
 			shader_mask = mat->getShaderMask(LLMaterial::DIFFUSE_ALPHA_MODE_BLEND, is_alpha);
@@ -6439,7 +6445,7 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 			
 			tex = facep->getTexture();
 
-			bool is_alpha = (facep->getPoolType() == LLDrawPool::POOL_ALPHA) ? true : false;
+			bool is_alpha = facep->getPoolType() == LLDrawPool::POOL_ALPHA;
 
             LLMaterial* mat = nullptr;
             bool can_be_shiny = false;
@@ -6465,7 +6471,7 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 
             if (!gltf_mat)
             {
-                is_alpha = (is_alpha || blinn_phong_transparent) ? true : false;
+                is_alpha |= blinn_phong_transparent;
             }
 
 			if (gltf_mat || (mat && !hud_group))

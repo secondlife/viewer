@@ -1026,7 +1026,6 @@ void LLFloaterPreference::onBtnCancel(const LLSD& userdata)
 	{
         cancel({"RenderQualityPerformance"});
 		LLFloaterReg::hideInstance("prefs_graphics_advanced");
-		updateMaxComplexity();
 	}
 	else
 	{
@@ -1245,7 +1244,7 @@ void LLFloaterPreference::refreshEnabledState()
     ctrl_pbr->setEnabled(true);
 
 	// Cannot have floater active until caps have been received
-	getChild<LLButton>("default_creation_permissions")->setEnabled(LLStartUp::getStartupState() < STATE_STARTED ? false : true);
+	getChild<LLButton>("default_creation_permissions")->setEnabled(LLStartUp::getStartupState() >= STATE_STARTED);
 
 	getChildView("block_list")->setEnabled(LLLoginInstance::getInstance()->authSuccess());
 }
@@ -3282,9 +3281,9 @@ void LLFloaterPreferenceProxy::onChangeSocksSettings()
 	// Check for invalid states for the other HTTP proxy radio
 	LLRadioGroup* otherHttpProxy = getChild<LLRadioGroup>("other_http_proxy_type");
 	if ((otherHttpProxy->getSelectedValue().asString() == "Socks" &&
-			getChild<LLCheckBoxCtrl>("socks_proxy_enabled")->get() == false )||(
+			!getChild<LLCheckBoxCtrl>("socks_proxy_enabled")->get())||(
 					otherHttpProxy->getSelectedValue().asString() == "Web" &&
-					getChild<LLCheckBoxCtrl>("web_proxy_enabled")->get() == false ) )
+					!getChild<LLCheckBoxCtrl>("web_proxy_enabled")->get()))
 	{
 		otherHttpProxy->selectFirstItem();
 	}
@@ -3293,10 +3292,10 @@ void LLFloaterPreferenceProxy::onChangeSocksSettings()
 
 void LLFloaterPreference::onUpdateFilterTerm(bool force)
 {
-	LLWString seachValue = utf8str_to_wstring( mFilterEdit->getValue() );
-	LLWStringUtil::toLower( seachValue );
+	LLWString seachValue = utf8str_to_wstring(mFilterEdit->getValue());
+	LLWStringUtil::toLower(seachValue);
 
-	if( !mSearchData || (mSearchData->mLastFilter == seachValue && !force))
+	if (!mSearchData || (mSearchData->mLastFilter == seachValue && !force))
 		return;
 
     if (mSearchDataDirty)
@@ -3307,14 +3306,13 @@ void LLFloaterPreference::onUpdateFilterTerm(bool force)
 
 	mSearchData->mLastFilter = seachValue;
 
-	if( !mSearchData->mRootTab )
+	if (!mSearchData->mRootTab)
 		return;
 
 	mSearchData->mRootTab->hightlightAndHide( seachValue );
     filterIgnorableNotifications();
 
-	LLTabContainer *pRoot = getChild< LLTabContainer >( "pref core" );
-	if( pRoot )
+	if (LLTabContainer* pRoot = getChild<LLTabContainer>("pref core"))
 		pRoot->selectFirstTab();
 }
 
@@ -3331,72 +3329,69 @@ void LLFloaterPreference::filterIgnorableNotifications()
 
 void collectChildren( LLView const *aView, ll::prefs::PanelDataPtr aParentPanel, ll::prefs::TabContainerDataPtr aParentTabContainer )
 {
-	if( !aView )
+	if (!aView)
 		return;
 
-	llassert_always( aParentPanel || aParentTabContainer );
+	llassert_always(aParentPanel || aParentTabContainer);
 
-	LLView::child_list_const_iter_t itr = aView->beginChild();
-	LLView::child_list_const_iter_t itrEnd = aView->endChild();
-
-	while( itr != itrEnd )
+	for (LLView* pView : *aView->getChildList())
 	{
-		LLView *pView = *itr;
+		if (!pView)
+			continue;
+
 		ll::prefs::PanelDataPtr pCurPanelData = aParentPanel;
 		ll::prefs::TabContainerDataPtr pCurTabContainer = aParentTabContainer;
-		if( !pView )
-			continue;
-		LLPanel const *pPanel = dynamic_cast< LLPanel const *>( pView );
-		LLTabContainer const *pTabContainer = dynamic_cast< LLTabContainer const *>( pView );
-		ll::ui::SearchableControl const *pSCtrl = dynamic_cast< ll::ui::SearchableControl const *>( pView );
 
-		if( pTabContainer )
+		LLPanel const *pPanel = dynamic_cast<LLPanel const*>(pView);
+		LLTabContainer const *pTabContainer = dynamic_cast<LLTabContainer const*>(pView);
+		ll::ui::SearchableControl const *pSCtrl = dynamic_cast<ll::ui::SearchableControl const*>( pView );
+
+		if (pTabContainer)
 		{
 			pCurPanelData.reset();
 
-			pCurTabContainer = ll::prefs::TabContainerDataPtr( new ll::prefs::TabContainerData );
-			pCurTabContainer->mTabContainer = const_cast< LLTabContainer *>( pTabContainer );
+			pCurTabContainer = ll::prefs::TabContainerDataPtr(new ll::prefs::TabContainerData);
+			pCurTabContainer->mTabContainer = const_cast< LLTabContainer *>(pTabContainer);
 			pCurTabContainer->mLabel = pTabContainer->getLabel();
 			pCurTabContainer->mPanel = 0;
 
-			if( aParentPanel )
-				aParentPanel->mChildPanel.push_back( pCurTabContainer );
-			if( aParentTabContainer )
-				aParentTabContainer->mChildPanel.push_back( pCurTabContainer );
+			if (aParentPanel)
+				aParentPanel->mChildPanel.push_back(pCurTabContainer);
+			if (aParentTabContainer)
+				aParentTabContainer->mChildPanel.push_back(pCurTabContainer);
 		}
-		else if( pPanel )
+		else if (pPanel)
 		{
 			pCurTabContainer.reset();
 
-			pCurPanelData = ll::prefs::PanelDataPtr( new ll::prefs::PanelData );
+			pCurPanelData = ll::prefs::PanelDataPtr(new ll::prefs::PanelData);
 			pCurPanelData->mPanel = pPanel;
 			pCurPanelData->mLabel = pPanel->getLabel();
 
 			llassert_always( aParentPanel || aParentTabContainer );
 
-			if( aParentTabContainer )
-				aParentTabContainer->mChildPanel.push_back( pCurPanelData );
-			else if( aParentPanel )
-				aParentPanel->mChildPanel.push_back( pCurPanelData );
+			if (aParentTabContainer)
+				aParentTabContainer->mChildPanel.push_back(pCurPanelData);
+			else if (aParentPanel)
+				aParentPanel->mChildPanel.push_back(pCurPanelData);
 		}
-		else if( pSCtrl && pSCtrl->getSearchText().size() )
+		else if (pSCtrl && pSCtrl->getSearchText().size())
 		{
-			ll::prefs::SearchableItemPtr item = ll::prefs::SearchableItemPtr( new ll::prefs::SearchableItem() );
+			ll::prefs::SearchableItemPtr item = ll::prefs::SearchableItemPtr(new ll::prefs::SearchableItem());
 			item->mView = pView;
 			item->mCtrl = pSCtrl;
 
-			item->mLabel = utf8str_to_wstring( pSCtrl->getSearchText() );
-			LLWStringUtil::toLower( item->mLabel );
+			item->mLabel = utf8str_to_wstring(pSCtrl->getSearchText());
+			LLWStringUtil::toLower(item->mLabel);
 
-			llassert_always( aParentPanel || aParentTabContainer );
+			llassert_always(aParentPanel || aParentTabContainer);
 
-			if( aParentPanel )
-				aParentPanel->mChildren.push_back( item );
-			if( aParentTabContainer )
-				aParentTabContainer->mChildren.push_back( item );
+			if (aParentPanel)
+				aParentPanel->mChildren.push_back(item);
+			if (aParentTabContainer)
+				aParentTabContainer->mChildren.push_back(item);
 		}
-		collectChildren( pView, pCurPanelData, pCurTabContainer );
-		++itr;
+		collectChildren(pView, pCurPanelData, pCurTabContainer);
 	}
 }
 

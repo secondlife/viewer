@@ -1202,7 +1202,7 @@ void LLBVHLoader::optimize()
 						// because it's significantly faster.
 						if (diff_max > 0)
 						{
-							if (ki_max->mIgnoreRot == true)
+							if (ki_max->mIgnoreRot)
 							{
 								ki_max->mIgnoreRot = false;
 								joint->mNumRotKeys++;

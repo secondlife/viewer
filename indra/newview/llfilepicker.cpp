@@ -245,14 +245,14 @@ bool LLFilePicker::setupFilter(ELoadFilter filter)
 
 bool LLFilePicker::getOpenFile(ELoadFilter filter, bool blocking)
 {
-	if( mLocked )
+	if (mLocked)
 	{
 		return false;
 	}
 	bool success = false;
 
 	// if local file browsing is turned off, return without opening dialog
-	if ( check_local_file_access_enabled() == false )
+	if (!check_local_file_access_enabled())
 	{
 		return false;
 	}
@@ -312,7 +312,7 @@ bool LLFilePicker::getMultipleOpenFiles(ELoadFilter filter, bool blocking)
 	bool success = false;
 
 	// if local file browsing is turned off, return without opening dialog
-	if ( check_local_file_access_enabled() == false )
+	if (!check_local_file_access_enabled())
 	{
 		return false;
 	}
@@ -398,7 +398,7 @@ bool LLFilePicker::getSaveFile(ESaveFilter filter, const std::string& filename, 
 	bool success = false;
 
 	// if local file browsing is turned off, return without opening dialog
-	if ( check_local_file_access_enabled() == false )
+	if (!check_local_file_access_enabled())
 	{
 		return false;
 	}
@@ -688,18 +688,18 @@ std::unique_ptr<std::vector<std::string>> LLFilePicker::navOpenFilterProc(ELoadF
 	return allowedv;
 }
 
-bool	LLFilePicker::doNavChooseDialog(ELoadFilter filter)
+bool LLFilePicker::doNavChooseDialog(ELoadFilter filter)
 {
 	// if local file browsing is turned off, return without opening dialog
-	if ( check_local_file_access_enabled() == false )
+	if (!check_local_file_access_enabled())
 	{
 		return false;
 	}
-    
+
 	gViewerWindow->getWindow()->beforeDialog();
-    
+
     std::unique_ptr<std::vector<std::string>> allowed_types = navOpenFilterProc(filter);
-    
+
     std::unique_ptr<std::vector<std::string>> filev  = doLoadDialog(allowed_types.get(),
                                                     mPickOptions);
 
@@ -711,27 +711,27 @@ bool	LLFilePicker::doNavChooseDialog(ELoadFilter filter)
         mFiles.insert(mFiles.end(), filev->begin(), filev->end());
         return true;
     }
-	
+
 	return false;
 }
 
-bool    LLFilePicker::doNavChooseDialogModeless(ELoadFilter filter,
+bool LLFilePicker::doNavChooseDialogModeless(ELoadFilter filter,
                                                 void (*callback)(bool, std::vector<std::string> &,void*),
                                                 void *userdata)
 {
     // if local file browsing is turned off, return without opening dialog
-    if ( check_local_file_access_enabled() == false )
+    if (!check_local_file_access_enabled())
     {
         return false;
     }
-    
+
     std::unique_ptr<std::vector<std::string>> allowed_types=navOpenFilterProc(filter);
-    
+
     doLoadDialogModeless(allowed_types.get(),
                                                     mPickOptions,
                                                     callback,
                                                     userdata);
-    
+
     return true;
 }
 
@@ -819,16 +819,16 @@ void set_nav_save_data(LLFilePicker::ESaveFilter filter, std::string &extension,
     }
 }
 
-bool	LLFilePicker::doNavSaveDialog(ESaveFilter filter, const std::string& filename)
+bool LLFilePicker::doNavSaveDialog(ESaveFilter filter, const std::string& filename)
 {
 	// Setup the type, creator, and extension
     std::string		extension, type, creator;
-    
+
     set_nav_save_data(filter, extension, type, creator);
-	
+
     std::string namestring = filename;
     if (namestring.empty()) namestring="Untitled";
-    
+
 	gViewerWindow->getWindow()->beforeDialog();
 
 	// Run the dialog
@@ -845,20 +845,20 @@ bool	LLFilePicker::doNavSaveDialog(ESaveFilter filter, const std::string& filena
         mFiles.push_back(*filev);
 		return true;
     }
-	
+
 	return false;
 }
 
-bool    LLFilePicker::doNavSaveDialogModeless(ESaveFilter filter,
+bool LLFilePicker::doNavSaveDialogModeless(ESaveFilter filter,
                                               const std::string& filename,
                                               void (*callback)(bool, std::string&, void*),
                                               void *userdata)
 {
     // Setup the type, creator, and extension
     std::string        extension, type, creator;
-    
+
     set_nav_save_data(filter, extension, type, creator);
-    
+
     std::string namestring = filename;
     if (namestring.empty()) namestring="Untitled";
 
@@ -881,19 +881,18 @@ bool LLFilePicker::getOpenFile(ELoadFilter filter, bool blocking)
 	bool success = false;
 
 	// if local file browsing is turned off, return without opening dialog
-	if ( check_local_file_access_enabled() == false )
+	if (!check_local_file_access_enabled())
 	{
 		return false;
 	}
 
 	reset();
-	
+
     mPickOptions &= ~F_MULTIPLE;
     mPickOptions |= F_FILE;
- 
+
     if (filter == FFLOAD_DIRECTORY) //This should only be called from lldirpicker. 
     {
-
         mPickOptions |= ( F_NAV_SUPPORT | F_DIRECTORY );
         mPickOptions &= ~F_FILE;
     }
@@ -933,11 +932,11 @@ bool LLFilePicker::getOpenFileModeless(ELoadFilter filter,
                                        void (*callback)(bool, std::vector<std::string> &, void*),
                                        void *userdata)
 {
-    if( mLocked )
+    if (mLocked)
         return false;
 
     // if local file browsing is turned off, return without opening dialog
-    if ( check_local_file_access_enabled() == false )
+    if (!check_local_file_access_enabled())
     {
         return false;
     }
@@ -964,19 +963,19 @@ bool LLFilePicker::getOpenFileModeless(ELoadFilter filter,
 
 bool LLFilePicker::getMultipleOpenFiles(ELoadFilter filter, bool blocking)
 {
-	if( mLocked )
+	if (mLocked)
 		return false;
 
 	// if local file browsing is turned off, return without opening dialog
-	if ( check_local_file_access_enabled() == false )
+	if (!check_local_file_access_enabled())
 	{
 		return false;
 	}
-    
+
     bool success = false;
 
 	reset();
-    
+
     mPickOptions |= F_FILE;
 
     mPickOptions |= F_MULTIPLE;
@@ -1012,17 +1011,17 @@ bool LLFilePicker::getMultipleOpenFilesModeless(ELoadFilter filter,
                                                 void (*callback)(bool, std::vector<std::string> &, void*),
                                                 void *userdata )
 {
-    if( mLocked )
+    if (mLocked)
         return false;
 
     // if local file browsing is turned off, return without opening dialog
-    if ( check_local_file_access_enabled() == false )
+    if (!check_local_file_access_enabled())
     {
         return false;
     }
 
     reset();
-    
+
     mPickOptions |= F_FILE;
 
     mPickOptions |= F_MULTIPLE;
@@ -1033,18 +1032,19 @@ bool LLFilePicker::getMultipleOpenFilesModeless(ELoadFilter filter,
 bool LLFilePicker::getSaveFile(ESaveFilter filter, const std::string& filename, bool blocking)
 {
 
-	if( mLocked )
+	if (mLocked)
 		return false;
+
 	bool success = false;
 
 	// if local file browsing is turned off, return without opening dialog
-	if ( check_local_file_access_enabled() == false )
+	if (!check_local_file_access_enabled())
 	{
 		return false;
 	}
 
 	reset();
-	
+
     mPickOptions &= ~F_MULTIPLE;
 
 	if (blocking)
@@ -1076,17 +1076,17 @@ bool LLFilePicker::getSaveFileModeless(ESaveFilter filter,
                                        void (*callback)(bool, std::string&, void*),
                                        void *userdata)
 {
-    if( mLocked )
+    if (mLocked)
         return false;
-    
+
     // if local file browsing is turned off, return without opening dialog
-    if ( check_local_file_access_enabled() == false )
+    if (!check_local_file_access_enabled())
     {
         return false;
     }
 
     reset();
-    
+
     mPickOptions &= ~F_MULTIPLE;
 
     return doNavSaveDialogModeless(filter, filename, callback, userdata);
@@ -1365,7 +1365,7 @@ bool LLFilePicker::getSaveFile( ESaveFilter filter, const std::string& filename,
 	bool rtn = false;
 
 	// if local file browsing is turned off, return without opening dialog
-	if ( check_local_file_access_enabled() == false )
+	if (!check_local_file_access_enabled())
 	{
 		return false;
 	}
@@ -1373,7 +1373,7 @@ bool LLFilePicker::getSaveFile( ESaveFilter filter, const std::string& filename,
 	gViewerWindow->getWindow()->beforeDialog();
 
 	reset();
-	
+
 	GtkWindow* picker = buildFilePicker(true, false, "savefile");
 
 	if (picker)
@@ -1441,7 +1441,7 @@ bool LLFilePicker::getSaveFile( ESaveFilter filter, const std::string& filename,
 		default:;
 			break;
 		}
-		
+
 		gtk_window_set_title(GTK_WINDOW(picker), caption.c_str());
 
 		if (filename.empty())
@@ -1482,7 +1482,7 @@ bool LLFilePicker::getOpenFile( ELoadFilter filter, bool blocking )
 	bool rtn = false;
 
 	// if local file browsing is turned off, return without opening dialog
-	if ( check_local_file_access_enabled() == false )
+	if (!check_local_file_access_enabled())
 	{
 		return false;
 	}
@@ -1490,7 +1490,7 @@ bool LLFilePicker::getOpenFile( ELoadFilter filter, bool blocking )
 	gViewerWindow->getWindow()->beforeDialog();
 
 	reset();
-	
+
 	GtkWindow* picker = buildFilePicker(false, false, "openfile");
 
 	if (picker)
@@ -1547,7 +1547,7 @@ bool LLFilePicker::getMultipleOpenFiles( ELoadFilter filter, bool blocking)
 	bool rtn = false;
 
 	// if local file browsing is turned off, return without opening dialog
-	if ( check_local_file_access_enabled() == false )
+	if (!check_local_file_access_enabled())
 	{
 		return false;
 	}
@@ -1584,13 +1584,13 @@ bool LLFilePicker::getSaveFile( ESaveFilter filter, const std::string& filename,
 {
 	// if local file browsing is turned off, return without opening dialog
 	// (Even though this is a stub, I think we still should not return anything at all)
-	if ( check_local_file_access_enabled() == false )
+	if (!check_local_file_access_enabled())
 	{
 		return false;
 	}
 
 	reset();
-	
+
 	LL_INFOS() << "getSaveFile suggested filename is [" << filename
 		<< "]" << LL_ENDL;
 	if (!filename.empty())
@@ -1614,13 +1614,13 @@ bool LLFilePicker::getOpenFile( ELoadFilter filter, bool blocking )
 {
 	// if local file browsing is turned off, return without opening dialog
 	// (Even though this is a stub, I think we still should not return anything at all)
-	if ( check_local_file_access_enabled() == false )
+	if (!check_local_file_access_enabled())
 	{
 		return false;
 	}
 
 	reset();
-	
+
 	// HACK: Static filenames for 'open' until we implement filepicker
 	std::string filename = gDirUtilp->getLindenUserDir() + gDirUtilp->getDirDelimiter() + "upload";
 	switch (filter)
@@ -1647,7 +1647,7 @@ bool LLFilePicker::getMultipleOpenFiles( ELoadFilter filter, bool blocking)
 {
 	// if local file browsing is turned off, return without opening dialog
 	// (Even though this is a stub, I think we still should not return anything at all)
-	if ( check_local_file_access_enabled() == false )
+	if (!check_local_file_access_enabled())
 	{
 		return false;
 	}

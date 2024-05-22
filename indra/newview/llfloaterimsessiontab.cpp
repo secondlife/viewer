@@ -473,7 +473,7 @@ void LLFloaterIMSessionTab::onInputEditorClicked()
 
 void LLFloaterIMSessionTab::onEmojiRecentPanelToggleBtnClicked()
 {
-	bool show = mEmojiRecentPanel->getVisible() ? false : true;
+	bool show = !mEmojiRecentPanel->getVisible();
     if (show)
     {
         initEmojiRecentPanel();

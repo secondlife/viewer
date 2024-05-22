@@ -253,6 +253,7 @@ public:
 
 	virtual bool 	isControlAvatar() const { return mIsControlAvatar; } // True if this avatar is a control av (no associated user)
 	virtual bool 	isUIAvatar() const { return mIsUIAvatar; } // True if this avatar is a supplemental av used in some UI views (no associated user)
+    virtual bool 	isBuddy() const;
 
 	// If this is an attachment, return the avatar it is attached to. Otherwise NULL.
 	virtual const LLVOAvatar *getAttachedAvatar() const { return NULL; }
@@ -382,7 +383,8 @@ public:
 	// Loading state
 	//--------------------------------------------------------------------
 public:
-	bool			isFullyLoaded() const;
+    bool			isFullyLoaded() const;
+    F32				getFirstDecloudTime() const {return mFirstDecloudTime;}
 
     // check and return current state relative to limits
     // default will test only the geometry (combined=false).
@@ -422,7 +424,7 @@ protected:
 
 private:
 	bool			mFirstFullyVisible;
-	F32				mFirstUseDelaySeconds;
+    F32				mFirstDecloudTime;
 	LLFrameTimer	mFirstAppearanceMessageTimer;
 
 	bool			mFullyLoaded;
@@ -715,7 +717,7 @@ public:
 
 	bool			isFullyBaked();
 	static bool		areAllNearbyInstancesBaked(S32& grey_avatars);
-	static void		getNearbyRezzedStats(std::vector<S32>& counts);
+	static void		getNearbyRezzedStats(std::vector<S32>& counts, F32& avg_cloud_time, S32& cloud_avatars);
 	static std::string rezStatusToString(S32 status);
 
 	//--------------------------------------------------------------------
@@ -939,7 +941,7 @@ protected:
 	// Map of attachment points, by ID
 	//--------------------------------------------------------------------
 public:
-	S32 				getAttachmentCount(); // Warning: order(N) not order(1)
+	S32 				getAttachmentCount() const; // Warning: order(N) not order(1)
 	typedef std::map<S32, LLViewerJointAttachment*> attachment_map_t;
 	attachment_map_t 								mAttachmentPoints;
 	std::vector<LLPointer<LLViewerObject> > 		mPendingAttachment;

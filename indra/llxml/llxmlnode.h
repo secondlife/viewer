@@ -126,34 +126,34 @@ public:
 	bool isNull();
 
 	bool deleteChild(LLXMLNode* child);
-    void addChild(LLXMLNodePtr& new_child);
+    void addChild(LLXMLNodePtr& new_child); 
     void setParent(LLXMLNodePtr& new_parent); // reparent if necessary
 
-    // Deserialization
+    // Serialization
 	static bool parseFile(
 		const std::string& filename,
-		LLXMLNodePtr& node,
-		LLXMLNode* defaults_tree,
-		bool cacheable = false);
+		LLXMLNodePtr& node, 
+		LLXMLNode* defaults_tree);
 	static bool parseBuffer(
-		const char* buffer,
+		U8* buffer,
 		U32 length,
-		LLXMLNodePtr& node,
+		LLXMLNodePtr& node, 
 		LLXMLNode* defaults);
 	static bool parseStream(
 		std::istream& str,
-		LLXMLNodePtr& node,
+		LLXMLNodePtr& node, 
 		LLXMLNode* defaults);
 	static bool updateNode(
 		LLXMLNodePtr& node,
 		LLXMLNodePtr& update_node);
-
-	static bool getLayeredXMLNode(LLXMLNodePtr& root, const std::vector<std::string>& paths, bool cacheable = false);
-
+	
+	static bool getLayeredXMLNode(LLXMLNodePtr& root, const std::vector<std::string>& paths);
+	
+	
 	// Write standard XML file header:
 	// <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 	static void writeHeaderToFile(LLFILE *out_file);
-
+	
 	// Write XML to file with one attribute per line.
 	// XML escapes values as they are written.
     void writeToFile(LLFILE *out_file, const std::string& indent = std::string(), bool use_type_decorations=true);
@@ -237,7 +237,7 @@ public:
 	// Setters
 
 	bool setAttributeString(const char* attr, const std::string& value);
-
+	
 	void setBoolValue(const bool value)	{ setBoolValue(1, &value); }
 	void setByteValue(const U8 value, Encoding encoding = ENCODING_DEFAULT) { setByteValue(1, &value, encoding); }
 	void setIntValue(const S32 value, Encoding encoding = ENCODING_DEFAULT) { setIntValue(1, &value, encoding); }

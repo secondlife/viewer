@@ -117,14 +117,14 @@ public:
 	U32				getState()			const	{ return mState; }
 	void			setState(U32 state)			{ mState |= state; }
 	void			clearState(U32 state)		{ mState &= ~state; }
-	bool			isState(U32 state)	const	{ return ((mState & state) != 0) ? true : false; }
+	bool			isState(U32 state)	const	{ return (mState & state) != 0; }
 	void			setVirtualSize(F32 size) { mVSize = size; }
 	void			setPixelArea(F32 area)	{ mPixelArea = area; }
 	F32				getVirtualSize() const { return mVSize; }
 	F32				getPixelArea() const { return mPixelArea; }
 
-	S32             getIndexInTex(U32 ch) const {llassert(ch < LLRender::NUM_TEXTURE_CHANNELS); return mIndexInTex[ch];}
-	void            setIndexInTex(U32 ch, S32 index) { llassert(ch < LLRender::NUM_TEXTURE_CHANNELS);  mIndexInTex[ch] = index ;}
+	S32             getIndexInTex(U32 ch) const      { llassert(ch < LLRender::NUM_TEXTURE_CHANNELS); return mIndexInTex[ch]; }
+	void            setIndexInTex(U32 ch, S32 index) { llassert(ch < LLRender::NUM_TEXTURE_CHANNELS); mIndexInTex[ch] = index; }
 	
 	void			setWorldMatrix(const LLMatrix4& mat);
 	const LLTextureEntry* getTextureEntry()	const { return mVObjp->getTE(mTEOffset); }

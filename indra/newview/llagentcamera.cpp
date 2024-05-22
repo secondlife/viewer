@@ -1778,7 +1778,7 @@ LLVector3d LLAgentCamera::calcCameraPositionTargetGlobal(bool *hit_limit)
 
 		head_offset.clearVec();
 		F32 fixup;
-		if (gAgentAvatarp->hasPelvisFixup(fixup))
+        if (gAgentAvatarp->hasPelvisFixup(fixup) && !gAgentAvatarp->isSitting())
 		{
 			head_offset[VZ] -= fixup;
 		}

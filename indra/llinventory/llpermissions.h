@@ -151,10 +151,10 @@ public:
 	U32				getMaskEveryone() 	const	{ return mMaskEveryone; }
 	U32 getMaskNextOwner() const { return mMaskNextOwner; }
 
-	// return TRUE if the object has any owner
+	// return true if the object has any owner
 	bool isOwned() const { return (mOwner.notNull() || mIsGroupOwned); }
 
-	// return TRUE if group_id is owner.
+	// return true if group_id is owner.
 	bool isGroupOwned() const { return mIsGroupOwned; }
 
 	// This API returns true if the object is owned at all, and false

@@ -361,6 +361,15 @@ void LLSidepanelAppearance::toggleMyOutfitsPanel(bool visible, const std::string
     }
 }
 
+bool LLSidepanelAppearance::isCOFPanelVisible()
+{
+    if (mPanelOutfitsInventory && mPanelOutfitsInventory->getVisible())
+    {
+        return mPanelOutfitsInventory->isCOFPanelActive();
+    }
+    return false;
+}
+
 void LLSidepanelAppearance::toggleOutfitEditPanel(bool visible, bool disable_camera_switch)
 {
 	if (!mOutfitEdit || mOutfitEdit->getVisible() == visible)

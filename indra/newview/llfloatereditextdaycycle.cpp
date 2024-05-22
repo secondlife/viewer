@@ -1213,7 +1213,7 @@ void LLFloaterEditExtDayCycle::updateButtons()
     mDeleteFrameButton->setEnabled(can_manipulate && isRemovingFrameAllowed());
     mLoadFrame->setEnabled(can_manipulate);
 
-    bool enable_play = mEditDay ? true : false;
+    bool enable_play = (bool)mEditDay;
     childSetEnabled(BTN_PLAY, enable_play);
     childSetEnabled(BTN_SKIP_BACK, enable_play);
     childSetEnabled(BTN_SKIP_FORWARD, enable_play);

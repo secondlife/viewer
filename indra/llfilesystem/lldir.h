@@ -72,8 +72,6 @@ class LLDir
 // pure virtual functions
 	virtual std::string getCurPath() = 0;
 	virtual bool fileExists(const std::string &filename) const = 0;
-	virtual bool skinExists(const std::string& subdir, const std::string &skin) const;
-	virtual std::string getFileContents(const std::string& filename) const;
 
 	const std::string findFile(const std::string& filename, const std::vector<std::string> filenames) const; 
 	const std::string findFile(const std::string& filename, const std::string& searchPath1 = "", const std::string& searchPath2 = "", const std::string& searchPath3 = "") const;
@@ -152,7 +150,7 @@ class LLDir
 												  const std::string& filename,
 												  ESkinConstraint constraint=CURRENT_SKIN) const;
 	/// Values for findSkinnedFilenames(subdir) parameter
-	static const char *XUI, *HTML, *TEXTURES, *SKINBASE;
+	static const char *XUI, *TEXTURES, *SKINBASE;
 	/**
 	 * Return the base-language pathname from findSkinnedFilenames(), or
 	 * the empty string if no such file exists. Parameters are identical to

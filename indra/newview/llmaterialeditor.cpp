@@ -2658,7 +2658,7 @@ const std::string LLMaterialEditor::getImageNameFromUri(std::string image_uri, c
     }
 
     // uri doesn't include the type at all
-    if (name_includes_type == false)
+    if (!name_includes_type)
     {
         // uri doesn't include the type and the uri is not empty
         // so we can include everything

@@ -650,56 +650,34 @@ bool LLXMLNode::updateNode(
 	return true;
 }
 
-static std::map<std::string, LLXMLNodePtr> sXMLCache;
-static LLSharedMutex sXMLCacheMutex;
-
-static void saveToCache(const std::string& filename, LLXMLNodePtr& node)
-{
-    LLExclusiveMutexLock lock(&sXMLCacheMutex);
-    sXMLCache.emplace(filename, node.notNull() ? node->deepCopy() : nullptr);
-}
-
-static bool loadFromCache(const std::string& filename, LLXMLNodePtr& node)
-{
-    LLSharedMutexLock lock(&sXMLCacheMutex);
-    auto it = sXMLCache.find(filename);
-    if (it == sXMLCache.end())
-        return false;
-    node = it->second.notNull() ? it->second->deepCopy() : nullptr;
-    return node.notNull();
-}
-
 // static
-bool LLXMLNode::parseFile(const std::string& filename, LLXMLNodePtr& node, LLXMLNode* defaults_tree, bool cacheable)
+bool LLXMLNode::parseFile(const std::string& filename, LLXMLNodePtr& node, LLXMLNode* defaults_tree)
 {
-    // Try to read from cache
-    if (cacheable)
-    {
-        if (loadFromCache(filename, node))
-            return true;
-    }
+	// Read file
+	LL_DEBUGS("XMLNode") << "parsing XML file: " << filename << LL_ENDL;
+	LLFILE* fp = LLFile::fopen(filename, "rb");		/* Flawfinder: ignore */
+	if (fp == NULL)
+	{
+		node = NULL ;
+		return false;
+	}
+	fseek(fp, 0, SEEK_END);
+	U32 length = ftell(fp);
+	fseek(fp, 0, SEEK_SET);
 
-    std::string xml = gDirUtilp->getFileContents(filename);
-    if (xml.empty())
-    {
-        LL_WARNS("XMLNode") << "no XML file: " << filename << LL_ENDL;
-    }
-    else if (parseBuffer(xml.data(), xml.size(), node, defaults_tree))
-    {
-        if (cacheable)
-        {
-            saveToCache(filename, node);
-        }
-        return true;
-    }
+	U8* buffer = new U8[length+1];
+	size_t nread = fread(buffer, 1, length, fp);
+	buffer[nread] = 0;
+	fclose(fp);
 
-    node = nullptr;
-    return false;
+	bool rv = parseBuffer(buffer, nread, node, defaults_tree);
+	delete [] buffer;
+	return rv;
 }
 
 // static
 bool LLXMLNode::parseBuffer(
-	const char* buffer,
+	U8* buffer,
 	U32 length,
 	LLXMLNodePtr& node, 
 	LLXMLNode* defaults)
@@ -718,7 +696,7 @@ bool LLXMLNode::parseBuffer(
 	XML_SetUserData(my_parser, (void *)file_node_ptr);
 
 	// Do the parsing
-	if (XML_Parse(my_parser, buffer, length, true) != XML_STATUS_OK)
+	if (XML_Parse(my_parser, (const char *)buffer, length, true) != XML_STATUS_OK)
 	{
 		LL_WARNS() << "Error parsing xml error code: "
 				<< XML_ErrorString(XML_GetErrorCode(my_parser))
@@ -846,20 +824,18 @@ bool LLXMLNode::isFullyDefault()
 }
 
 // static
-bool LLXMLNode::getLayeredXMLNode(LLXMLNodePtr& root, const std::vector<std::string>& paths, bool cacheable)
+bool LLXMLNode::getLayeredXMLNode(LLXMLNodePtr& root,
+								  const std::vector<std::string>& paths)
 {
-	if (paths.empty())
-	{
-		return false;
-	}
+	if (paths.empty()) return false;
 
 	std::string filename = paths.front();
 	if (filename.empty())
 	{
 		return false;
 	}
-
-	if (!LLXMLNode::parseFile(filename, root, nullptr, cacheable))
+	
+	if (!LLXMLNode::parseFile(filename, root, NULL))
 	{
 		LL_WARNS() << "Problem reading UI description file: " << filename << LL_ENDL;
 		return false;

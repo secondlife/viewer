@@ -106,6 +106,8 @@ public:
 		std::vector<LLVector3> mPositions;
 		std::vector<LLVector3> mNormals;
 
+        ~PhysicsMesh() {}
+
 		void clear()
 		{
 			mPositions.clear();
@@ -131,6 +133,7 @@ public:
 	public:
 		Decomposition() { }
 		Decomposition(LLSD& data);
+		~Decomposition() { }
 		void fromLLSD(LLSD& data);
 		LLSD asLLSD() const;
 		bool hasHullList() const;
@@ -147,7 +150,7 @@ public:
 		LLModel::PhysicsMesh mPhysicsShapeMesh;
 	};
 
-	LLModel(LLVolumeParams& params, F32 detail);
+	LLModel(const LLVolumeParams& params, F32 detail);
 	~LLModel();
 
 	bool loadModel(std::istream& is);
@@ -253,17 +256,18 @@ public:
 		}
 	};
 
-	
 	//Are the doubles the same w/in epsilon specified tolerance
 	bool areEqual( double a, double b ) 
 	{
 		const float epsilon = 1e-5f;
-		return (fabs((a - b)) < epsilon) ? true : false ;
+		return fabs(a - b) < epsilon;
 	}
+
 	//Make sure that we return false for any values that are within the tolerance for equivalence
 	bool jointPositionalLookup( const LLVector3& a, const LLVector3& b ) 
 	{
-		 return ( areEqual( a[0],b[0]) && areEqual( a[1],b[1] ) && areEqual( a[2],b[2]) ) ? true : false;
+		const float epsilon = 1e-5f;
+		return (a - b).length() < epsilon;
 	}
 
 	//copy of position array for this model -- mPosition[idx].mV[X,Y,Z]
@@ -365,13 +369,13 @@ class LLModelInstanceBase
 {
 public:
 	LLPointer<LLModel> mModel;
-	LLPointer<LLModel> mLOD[5];
+	LLPointer<LLModel> mLOD[LLModel::NUM_LODS];
 	LLUUID mMeshID;
 
 	LLMatrix4 mTransform;
 	material_map mMaterial;
 
-	LLModelInstanceBase(LLModel* model, LLMatrix4& transform, material_map& materials)
+	LLModelInstanceBase(LLModel* model, const LLMatrix4& transform, const material_map& materials)
 		: mModel(model), mTransform(transform), mMaterial(materials)
 	{
 	}
@@ -380,6 +384,15 @@ public:
 		: mModel(NULL)
 	{
 	}
+
+    virtual ~LLModelInstanceBase()
+    {
+        mModel = NULL;
+        for (int j = 0; j < LLModel::NUM_LODS; ++j)
+        {
+            mLOD[j] = NULL;
+        }
+    };
 };
 
 typedef std::vector<LLModelInstanceBase> model_instance_list;
@@ -391,13 +404,15 @@ public:
 	LLUUID mMeshID;
 	S32 mLocalMeshID;
 
-	LLModelInstance(LLModel* model, const std::string& label, LLMatrix4& transform, material_map& materials)
+	LLModelInstance(LLModel* model, const std::string& label, const LLMatrix4& transform, const material_map& materials)
 		: LLModelInstanceBase(model, transform, materials), mLabel(label)
 	{
 		mLocalMeshID = -1;
 	}
 
 	LLModelInstance(LLSD& data);
+
+    ~LLModelInstance() {}
 
 	LLSD asLLSD();
 };

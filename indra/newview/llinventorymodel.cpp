@@ -1593,7 +1593,7 @@ LLInventoryModel::cat_array_t* LLInventoryModel::getUnlockedCatArray(const LLUUI
 	cat_array_t* cat_array = get_ptr_in_map(mParentChildCategoryTree, id);
 	if (cat_array)
 	{
-		llassert_always(mCategoryLock[id] == false);
+		llassert_always(!mCategoryLock[id]);
 	}
 	return cat_array;
 }
@@ -1603,7 +1603,7 @@ LLInventoryModel::item_array_t* LLInventoryModel::getUnlockedItemArray(const LLU
 	item_array_t* item_array = get_ptr_in_map(mParentChildItemTree, id);
 	if (item_array)
 	{
-		llassert_always(mItemLock[id] == false);
+		llassert_always(!mItemLock[id]);
 	}
 	return item_array;
 }
@@ -1675,8 +1675,8 @@ void LLInventoryModel::updateCategory(const LLViewerInventoryCategory* cat, U32 
 		}
 
 		// make space in the tree for this category's children.
-		llassert_always(mCategoryLock[new_cat->getUUID()] == false);
-		llassert_always(mItemLock[new_cat->getUUID()] == false);
+		llassert_always(!mCategoryLock[new_cat->getUUID()]);
+		llassert_always(!mItemLock[new_cat->getUUID()]);
 		cat_array_t* catsp = new cat_array_t;
 		item_array_t* itemsp = new item_array_t;
 		mParentChildCategoryTree[new_cat->getUUID()] = catsp;
@@ -2955,13 +2955,13 @@ void LLInventoryModel::buildParentChildMap()
 		cats.push_back(cat);
 		if (mParentChildCategoryTree.count(cat->getUUID()) == 0)
 		{
-			llassert_always(mCategoryLock[cat->getUUID()] == false);
+			llassert_always(!mCategoryLock[cat->getUUID()]);
 			catsp = new cat_array_t;
 			mParentChildCategoryTree[cat->getUUID()] = catsp;
 		}
 		if (mParentChildItemTree.count(cat->getUUID()) == 0)
 		{
-			llassert_always(mItemLock[cat->getUUID()] == false);
+			llassert_always(!mItemLock[cat->getUUID()]);
 			itemsp = new item_array_t;
 			mParentChildItemTree[cat->getUUID()] = itemsp;
 		}
@@ -3550,6 +3550,9 @@ void LLInventoryModel::processUpdateCreateInventoryItem(LLMessageSystem* msg, vo
 
 		gInventoryCallbacks.fire(callback_id, item_id);
 
+        // Message system at the moment doesn't support Thumbnails and potential
+        // newer features so just rerequest whole item
+        //
         // todo: instead of unpacking message fully,
         // grab only an item_id, then fetch
         LLInventoryModelBackgroundFetch::instance().scheduleItemFetch(item_id, true);
@@ -3912,19 +3915,22 @@ void LLInventoryModel::processBulkUpdateInventory(LLMessageSystem* msg, void**)
 
 	for (cat_array_t::iterator cit = folders.begin(); cit != folders.end(); ++cit)
 	{
-		gInventory.updateCategory(*cit);
-
-        // Temporary workaround: just fetch the item using AIS to get missing fields.
-        // If this works fine we might want to extract ids only from the message
-        // then use AIS as a primary fetcher
-        LLInventoryModelBackgroundFetch::instance().scheduleFolderFetch((*cit)->getUUID(), true /*force, since it has changes*/);
+        gInventory.updateCategory(*cit);
+        if ((*cit)->getVersion() != LLViewerInventoryCategory::VERSION_UNKNOWN)
+        {
+            // Temporary workaround: just fetch the item using AIS to get missing fields.
+            // If this works fine we might want to extract 'ids only' from the message
+            // then use AIS as a primary fetcher
+            LLInventoryModelBackgroundFetch::instance().scheduleFolderFetch((*cit)->getUUID(), true /*force, since it has changes*/);
+        }
+        // else already called fetch() above
 	}
 	for (item_array_t::iterator iit = items.begin(); iit != items.end(); ++iit)
 	{
 		gInventory.updateItem(*iit);
 
         // Temporary workaround: just fetch the item using AIS to get missing fields.
-        // If this works fine we might want to extract ids only from the message
+        // If this works fine we might want to extract 'ids only' from the message
         // then use AIS as a primary fetcher
         LLInventoryModelBackgroundFetch::instance().scheduleItemFetch((*iit)->getUUID(), true);
 	}

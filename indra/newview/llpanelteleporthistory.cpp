@@ -949,8 +949,8 @@ void LLTeleportHistoryPanel::onAccordionTabRightClick(LLView *view, S32 x, S32 y
 	mAccordionTabMenu = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>(
 		"menu_teleport_history_tab.xml", LLMenuGL::sMenuContainer, LLViewerMenuHolderGL::child_registry_t::instance());
 
-	mAccordionTabMenu->setItemVisible("TabOpen", !tab->isExpanded() ? true : false);
-	mAccordionTabMenu->setItemVisible("TabClose", tab->isExpanded() ? true : false);
+	mAccordionTabMenu->setItemVisible("TabOpen", !tab->isExpanded());
+	mAccordionTabMenu->setItemVisible("TabClose", tab->isExpanded());
 
 	mAccordionTabMenu->show(x, y);
 	LLMenuGL::showPopup(tab, mAccordionTabMenu, x, y);
@@ -1067,6 +1067,12 @@ void LLTeleportHistoryPanel::onGearMenuAction(const LLSD& userdata)
         LLLandmarkActions::getSLURLfromPosGlobal(globalPos,
             boost::bind(&LLTeleportHistoryPanel::gotSLURLCallback, _1));
     }
+    else if ("remove" == command_name)
+    {
+        LLTeleportHistoryStorage::getInstance()->removeItem(index);
+        LLTeleportHistoryStorage::getInstance()->save();
+        showTeleportHistory();
+    }
 }
 
 bool LLTeleportHistoryPanel::isActionEnabled(const LLSD& userdata) const
@@ -1121,7 +1127,8 @@ bool LLTeleportHistoryPanel::isActionEnabled(const LLSD& userdata) const
     if ("teleport" == command_name
         || "view" == command_name
         || "show_on_map" == command_name
-        || "copy_slurl" == command_name)
+        || "copy_slurl" == command_name
+        || "remove" == command_name)
     {
         if (!mLastSelectedFlatlList)
         {

@@ -6,9 +6,6 @@
 # it relies on the environment that sets up, functions it provides, and
 # the build result post-processing it does.
 #
-# The shared buildscript build.sh invokes this because it is named 'build.sh',
-# which is the default custom build script name in buildscripts/hg/BuildParams
-#
 # PLEASE NOTE:
 #
 # * This script is interpreted on three platforms, including windows and cygwin

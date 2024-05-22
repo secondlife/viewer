@@ -416,7 +416,7 @@ LLViewerFetchedTexture* LLViewerTextureList::getImageFromFile(const std::string&
 		return NULL ;
 	}
 
-	std::string full_path = gDirUtilp->findSkinnedFilename(LLDir::TEXTURES, filename);
+	std::string full_path = gDirUtilp->findSkinnedFilename("textures", filename);
 	if (full_path.empty())
 	{
 		LL_WARNS() << "Failed to find local image file: " << filename << LL_ENDL;
@@ -678,12 +678,12 @@ void LLViewerTextureList::addImageToList(LLViewerFetchedTexture *image)
 	}
 	else
 	{
-	if((mImageList.insert(image)).second != true) 
-	{
+		if (!(mImageList.insert(image)).second) 
+		{
 			LL_WARNS() << "Error happens when insert image " << image->getID()  << " into mImageList!" << LL_ENDL ;
+		}
+		image->setInImageList(true);
 	}
-	image->setInImageList(true) ;
-}
 }
 
 void LLViewerTextureList::removeImageFromList(LLViewerFetchedTexture *image)

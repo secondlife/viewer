@@ -52,13 +52,13 @@ struct hud_object_further_away
 
 bool hud_object_further_away::operator()(const LLPointer<LLHUDObject>& lhs, const LLPointer<LLHUDObject>& rhs) const
 {
-	return (lhs->getDistance() > rhs->getDistance()) ? true : false;
+	return lhs->getDistance() > rhs->getDistance();
 }
 
 
-LLHUDObject::LLHUDObject(const U8 type) : 
-	mPositionGlobal(), 
-	mSourceObject(NULL), 
+LLHUDObject::LLHUDObject(const U8 type) :
+	mPositionGlobal(),
+	mSourceObject(NULL),
 	mTargetObject(NULL)
 {
 	mVisible = true;

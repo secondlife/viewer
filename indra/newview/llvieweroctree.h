@@ -299,14 +299,14 @@ public:
 	LLOcclusionCullingGroup(const LLOcclusionCullingGroup& rhs) : LLViewerOctreeGroup(rhs)
 	{
 		*this = rhs;
-	}	
+	}
 
 	void setOcclusionState(U32 state, S32 mode = STATE_MODE_SINGLE);
 	void clearOcclusionState(U32 state, S32 mode = STATE_MODE_SINGLE);
 	void checkOcclusion(); //read back last occlusion query (if any)
 	void doOcclusion(LLCamera* camera, const LLVector4a* shift = NULL); //issue occlusion query
-	bool isOcclusionState(U32 state) const	{ return mOcclusionState[LLViewerCamera::sCurCameraID] & state ? true : false; }
-	U32  getOcclusionState() const	{ return mOcclusionState[LLViewerCamera::sCurCameraID];}
+	bool isOcclusionState(U32 state) const { return mOcclusionState[LLViewerCamera::sCurCameraID] & state; }
+	U32  getOcclusionState() const { return mOcclusionState[LLViewerCamera::sCurCameraID];}
 
 	bool needsUpdate();
 	U32  getLastOcclusionIssuedTime();
@@ -325,7 +325,7 @@ public:
 protected:
 	void releaseOcclusionQueryObjectNames();
 
-private:	
+private:
 	bool earlyFail(LLCamera* camera, const LLVector4a* bounds);
 
 protected:
@@ -338,7 +338,7 @@ protected:
 	U32		                 mOcclusionQuery[LLViewerCamera::NUM_CAMERAS];
     U32                      mOcclusionCheckCount[LLViewerCamera::NUM_CAMERAS];
 
-public:		
+public:
 	static std::set<U32> sPendingQueries;
 };//LL_ALIGN_POSTFIX(16);
 
@@ -356,7 +356,7 @@ protected:
     // MUST call from destructor of any derived classes (SL-17276)
     void cleanup();
 
-public:	
+public:
 	U32              mPartitionType;
 	U32              mDrawableType;
 	OctreeNode*      mOctree;
@@ -376,7 +376,7 @@ public:
 
 protected:
 	virtual bool earlyFail(LLViewerOctreeGroup* group);	
-	
+
 	//agent space group cull
 	S32 AABBInFrustumNoFarClipGroupBounds(const LLViewerOctreeGroup* group);	
 	S32 AABBSphereIntersectGroupExtents(const LLViewerOctreeGroup* group);
@@ -386,7 +386,7 @@ protected:
 	S32 AABBInFrustumNoFarClipObjectBounds(const LLViewerOctreeGroup* group);
 	S32 AABBSphereIntersectObjectExtents(const LLViewerOctreeGroup* group);	
 	S32 AABBInFrustumObjectBounds(const LLViewerOctreeGroup* group);
-	
+
 	//local region space group cull
 	S32 AABBInRegionFrustumNoFarClipGroupBounds(const LLViewerOctreeGroup* group);
 	S32 AABBInRegionFrustumGroupBounds(const LLViewerOctreeGroup* group);
@@ -396,7 +396,7 @@ protected:
 	S32 AABBInRegionFrustumNoFarClipObjectBounds(const LLViewerOctreeGroup* group);
 	S32 AABBInRegionFrustumObjectBounds(const LLViewerOctreeGroup* group);
 	S32 AABBRegionSphereIntersectObjectExtents(const LLViewerOctreeGroup* group, const LLVector3& shift);	
-	
+
 	virtual S32 frustumCheck(const LLViewerOctreeGroup* group) = 0;
 	virtual S32 frustumCheckObjects(const LLViewerOctreeGroup* group) = 0;
 
@@ -405,7 +405,7 @@ protected:
 	virtual void preprocess(LLViewerOctreeGroup* group);
 	virtual void processGroup(LLViewerOctreeGroup* group);
 	virtual void visit(const OctreeNode* branch);
-	
+
 protected:
 	LLCamera *mCamera;
 	S32 mRes;

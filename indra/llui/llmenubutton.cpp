@@ -95,7 +95,7 @@ void LLMenuButton::setMenu(const std::string& menu_filename, EMenuPosition posit
 	}
 
 	llassert(LLMenuGL::sMenuContainer != NULL);
-	LLToggleableMenu* menu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>(menu_filename, LLMenuGL::sMenuContainer, LLMenuHolderGL::child_registry_t::instance(), true);
+	LLToggleableMenu* menu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>(menu_filename, LLMenuGL::sMenuContainer, LLMenuHolderGL::child_registry_t::instance());
 	if (!menu)
 	{
 		LL_WARNS() << "Error loading menu_button menu" << LL_ENDL;

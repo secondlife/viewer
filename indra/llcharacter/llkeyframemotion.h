@@ -412,7 +412,9 @@ public:
 		// mEmoteName is a facial motion, but it's necessary to appear here so that it's cached.
 		// TODO: LLKeyframeDataCache::getKeyframeData should probably return a class containing 
 		// JointMotionList and mEmoteName, see LLKeyframeMotion::onInitialize.
-		std::string				mEmoteName; 
+		std::string				mEmoteName;
+		LLUUID					mEmoteID;
+
 	public:
 		JointMotionList();
 		~JointMotionList();

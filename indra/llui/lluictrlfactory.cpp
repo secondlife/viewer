@@ -157,7 +157,7 @@ void LLUICtrlFactory::createChildren(LLView* viewp, LLXMLNodePtr node, const wid
 // getLayeredXMLNode()
 //-----------------------------------------------------------------------------
 bool LLUICtrlFactory::getLayeredXMLNode(const std::string &xui_filename, LLXMLNodePtr& root,
-                                        LLDir::ESkinConstraint constraint, bool cacheable)
+                                        LLDir::ESkinConstraint constraint)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
 	std::vector<std::string> paths =
@@ -169,7 +169,7 @@ bool LLUICtrlFactory::getLayeredXMLNode(const std::string &xui_filename, LLXMLNo
 		paths.push_back(xui_filename);
 	}
 
-	return LLXMLNode::getLayeredXMLNode(root, paths, cacheable);
+	return LLXMLNode::getLayeredXMLNode(root, paths);
 }
 
 

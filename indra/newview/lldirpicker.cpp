@@ -91,20 +91,19 @@ void LLDirPicker::reset()
 
 bool LLDirPicker::getDir(std::string* filename, bool blocking)
 {
-	if( mLocked )
+	if (mLocked)
 	{
 		return false;
 	}
 
 	// if local file browsing is turned off, return without opening dialog
-	if ( check_local_file_access_enabled() == false )
+	if (!check_local_file_access_enabled())
 	{
 		return false;
 	}
 
 	bool success = false;
 
-	
 	if (blocking)
 	{
 		// Modal, so pause agent
@@ -236,7 +235,7 @@ bool LLDirPicker::getDir(std::string* filename, bool blocking)
 	reset();
 
 	// if local file browsing is turned off, return without opening dialog
-	if ( check_local_file_access_enabled() == false )
+	if (!check_local_file_access_enabled())
 	{
 		return false;
 	}

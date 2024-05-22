@@ -96,8 +96,8 @@ private:
 public:
 	typedef unsigned int policy_t;
 	
-	typedef boost::shared_ptr<HttpRequest> ptr_t;
-    typedef boost::weak_ptr<HttpRequest>   wptr_t;
+	typedef std::shared_ptr<HttpRequest> ptr_t;
+    typedef std::weak_ptr<HttpRequest>   wptr_t;
 public:
 	/// @name PolicyMethods
 	/// @{
@@ -627,7 +627,7 @@ public:
 protected:
 
 private:
-    typedef boost::shared_ptr<HttpReplyQueue> HttpReplyQueuePtr_t;
+    typedef std::shared_ptr<HttpReplyQueue> HttpReplyQueuePtr_t;
 
 	/// @name InstanceData
 	///

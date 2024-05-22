@@ -143,7 +143,6 @@
 
 // Third party library includes
 #include <boost/bind.hpp>
-#include <boost/foreach.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/regex.hpp>
 #include <boost/throw_exception.hpp>
@@ -1206,7 +1205,7 @@ bool LLAppViewer::init()
             LLSD item(LeapCommand);
             LeapCommand.append(item);
         }
-        BOOST_FOREACH(const std::string& leap, llsd::inArray(LeapCommand))
+        for (const auto& leap : llsd::inArray(LeapCommand))
         {
             LL_INFOS("InitInfo") << "processing --leap \"" << leap << '"' << LL_ENDL;
             // We don't have any better description of this plugin than the
@@ -1711,7 +1710,7 @@ bool LLAppViewer::cleanup()
     LLNotifications::instance().clear();
 
 	// workaround for DEV-35406 crash on shutdown
-	LLEventPumps::instance().reset();
+	LLEventPumps::instance().reset(true);
 
 	//dump scene loading monitor results
 	if (LLSceneMonitor::instanceExists())
@@ -2369,7 +2368,7 @@ bool LLAppViewer::loadSettingsFromDirectory(const std::string& location_key,
 		LL_ERRS() << "Invalid settings location list" << LL_ENDL;
 	}
 
-	BOOST_FOREACH(const SettingsGroup& group, mSettingsLocationList->groups)
+	for (const SettingsGroup& group : mSettingsLocationList->groups)
 	{
 		// skip settings groups that aren't the one we requested
 		if (group.name() != location_key) continue;
@@ -2381,7 +2380,7 @@ bool LLAppViewer::loadSettingsFromDirectory(const std::string& location_key,
 			return false;
 		}
 
-		BOOST_FOREACH(const SettingsFile& file, group.files)
+		for (const SettingsFile& file : group.files)
 		{
 			LL_INFOS("Settings") << "Attempting to load settings for the group " << file.name()
 			    << " - from location " << location_key << LL_ENDL;
@@ -2446,11 +2445,11 @@ bool LLAppViewer::loadSettingsFromDirectory(const std::string& location_key,
 std::string LLAppViewer::getSettingsFilename(const std::string& location_key,
 											 const std::string& file)
 {
-	BOOST_FOREACH(const SettingsGroup& group, mSettingsLocationList->groups)
+	for (const SettingsGroup& group : mSettingsLocationList->groups)
 	{
 		if (group.name() == location_key)
 		{
-			BOOST_FOREACH(const SettingsFile& settings_file, group.files)
+			for (const SettingsFile& settings_file : group.files)
 			{
 				if (settings_file.name() == file)
 				{
@@ -2996,7 +2995,7 @@ void LLAppViewer::initStrings()
 {
 	std::string strings_file = "strings.xml";
 	std::string strings_path_full = gDirUtilp->findSkinnedFilenameBaseLang(LLDir::XUI, strings_file);
-	if (strings_path_full.empty() || !gDirUtilp->fileExists(strings_path_full))
+	if (strings_path_full.empty() || !LLFile::isfile(strings_path_full))
 	{
 		if (strings_path_full.empty())
 		{
@@ -3036,7 +3035,7 @@ void LLAppViewer::initStrings()
 	// Now that we've set "[sourceid]", have to go back through
 	// default_trans_args and reinitialize all those other keys because some
 	// of them, in turn, reference "[sourceid]".
-	BOOST_FOREACH(std::string key, default_trans_args)
+	for (const std::string& key : default_trans_args)
 	{
 		std::string brackets(key), nobrackets(key);
 		// Invalid to inspect key[0] if key is empty(). But then, the entire
@@ -4197,7 +4196,7 @@ U32 LLAppViewer::getObjectCacheVersion()
 bool LLAppViewer::initCache()
 {
 	mPurgeCache = false;
-	bool read_only = mSecondInstance ? true : false;
+	bool read_only = mSecondInstance;
 	LLAppViewer::getTextureCache()->setReadOnly(read_only) ;
 	LLVOCache::initParamSingleton(read_only);
 
@@ -4222,7 +4221,7 @@ bool LLAppViewer::initCache()
 	if (gSavedSettings.getS32("LocalCacheVersion") != LLAppViewer::getTextureCacheVersion())
 	{
 		texture_cache_mismatch = true;
-		if(!read_only)
+		if (!read_only)
 		{
 			gSavedSettings.setS32("LocalCacheVersion", LLAppViewer::getTextureCacheVersion());
 
@@ -4231,7 +4230,7 @@ bool LLAppViewer::initCache()
 		}
 	}
 
-	if(!read_only)
+	if (!read_only)
 	{
 		// Purge cache if user requested it
 		if (gSavedSettings.getBOOL("PurgeCacheOnStartup") ||
@@ -4701,16 +4700,23 @@ void LLAppViewer::idle()
 		// When appropriate, update agent location to the simulator.
 		F32 agent_update_time = agent_update_timer.getElapsedTimeF32();
 		F32 agent_force_update_time = mLastAgentForceUpdate + agent_update_time;
-		bool force_update = gAgent.controlFlagsDirty()
-							|| (mLastAgentControlFlags != gAgent.getControlFlags())
-							|| (agent_force_update_time > (1.0f / (F32) AGENT_FORCE_UPDATES_PER_SECOND));
-		if (force_update || (agent_update_time > (1.0f / (F32) AGENT_UPDATES_PER_SECOND)))
+        bool timed_out = agent_update_time > (1.0f / (F32)AGENT_UPDATES_PER_SECOND);
+        bool force_send =
+            // if there is something to send
+            (gAgent.controlFlagsDirty() && timed_out)
+            // if something changed
+            || (mLastAgentControlFlags != gAgent.getControlFlags())
+            // keep alive
+            || (agent_force_update_time > (1.0f / (F32) AGENT_FORCE_UPDATES_PER_SECOND));
+        // timing out doesn't warranty that an update will be sent,
+        // just that it will be checked.
+		if (force_send || timed_out)
 		{
 			LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
 			// Send avatar and camera info
 			mLastAgentControlFlags = gAgent.getControlFlags();
-			mLastAgentForceUpdate = force_update ? 0 : agent_force_update_time;
-			send_agent_update(force_update);
+			mLastAgentForceUpdate = force_send ? 0 : agent_force_update_time;
+			send_agent_update(force_send);
 			agent_update_timer.reset();
 		}
 	}

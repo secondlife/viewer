@@ -834,7 +834,11 @@ void LLVOAvatarSelf::stopMotionFromSource(const LLUUID& source_id)
 	for (AnimSourceIterator motion_it = mAnimationSources.find(source_id); motion_it != mAnimationSources.end(); )
 	{
 		gAgent.sendAnimationRequest(motion_it->second, ANIM_REQUEST_STOP);
-		mAnimationSources.erase(motion_it++);
+		mAnimationSources.erase(motion_it);
+		// Must find() after each erase() to deal with potential iterator invalidation
+		// This also ensures that we don't go past the end of this source's animations
+		// into those of another source.
+		motion_it = mAnimationSources.find(source_id);
 	}
 
 
@@ -2226,16 +2230,21 @@ void LLVOAvatarSelf::appearanceChangeMetricsCoro(std::string url)
 
     // Status of our own rezzing.
     msg["rez_status"] = LLVOAvatar::rezStatusToString(getRezzedStatus());
+    msg["first_decloud_time"] = getFirstDecloudTime();
 
     // Status of all nearby avs including ourself.
     msg["nearby"] = LLSD::emptyArray();
     std::vector<S32> rez_counts;
-    LLVOAvatar::getNearbyRezzedStats(rez_counts);
+    F32 avg_time;
+    S32 total_cloud_avatars;
+    LLVOAvatar::getNearbyRezzedStats(rez_counts, avg_time, total_cloud_avatars);
     for (S32 rez_stat = 0; rez_stat < rez_counts.size(); ++rez_stat)
     {
         std::string rez_status_name = LLVOAvatar::rezStatusToString(rez_stat);
         msg["nearby"][rez_status_name] = rez_counts[rez_stat];
     }
+    msg["nearby"]["avg_decloud_time"] = avg_time;
+    msg["nearby"]["cloud_total"] = total_cloud_avatars;
 
     //	std::vector<std::string> bucket_fields("timer_name","is_self","grid_x","grid_y","is_using_server_bake");
     std::vector<std::string> by_fields;

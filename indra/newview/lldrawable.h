@@ -162,20 +162,20 @@ public:
 
 	virtual bool updateMove();
 	virtual void movePartition();
-	
+
 	void updateTexture();
 	void updateMaterial();
 	virtual void updateDistance(LLCamera& camera, bool force_update);
 	bool updateGeometry();
 	void updateFaceSize(S32 idx);
-		
+
 	void updateSpecialHoverCursor(bool enabled);
 
 	virtual void shiftPos(const LLVector4a &shift_vector);
 
 	S32 getGeneration() const					{ return mGeneration; }
 
-	bool getLit() const							{ return isState(UNLIT) ? false : true; }
+	bool getLit() const							{ return !isState(UNLIT); }
 	void setLit(bool lit)						{ lit ? clearState(UNLIT) : setState(UNLIT); }
 
 	bool isVisible() const;

@@ -502,7 +502,7 @@ bool LLAvatarList::handleHover(S32 x, S32 y, MASK mask)
 
 void LLAvatarList::setVisible(bool visible)
 {
-	if ( visible == false && mContextMenu )
+	if (!visible && mContextMenu )
 	{
 		mContextMenu->hide();
 	}

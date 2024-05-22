@@ -114,7 +114,7 @@ public:
 	void handleTerrainLinksetsResult(const LLSD &pContent);
 	void handleTerrainLinksetsError();
 
-    typedef boost::shared_ptr<LinksetsResponder> ptr_t;
+    typedef std::shared_ptr<LinksetsResponder> ptr_t;
 
 protected:
 
@@ -139,7 +139,7 @@ private:
 	LLPathfindingObjectPtr                          mTerrainLinksetPtr;
 };
 
-typedef boost::shared_ptr<LinksetsResponder> LinksetsResponderPtr;
+typedef std::shared_ptr<LinksetsResponder> LinksetsResponderPtr;
 
 //---------------------------------------------------------------------------
 // LLPathfindingManager

@@ -251,7 +251,7 @@ static bool handleVSyncChanged(const LLSD& newvalue)
     LLPerfStats::tunables.vsyncEnabled = newvalue.asBoolean();
     gViewerWindow->getWindow()->toggleVSync(newvalue.asBoolean());
 
-    if(newvalue.asBoolean() == true)
+    if (newvalue.asBoolean())
     {
         U32 current_target = gSavedSettings.getU32("TargetFPS");
         gSavedSettings.setU32("TargetFPS", std::min((U32)gViewerWindow->getWindow()->getRefreshRate(), current_target));
@@ -281,12 +281,12 @@ static bool handleAvatarPhysicsLODChanged(const LLSD& newvalue)
 
 static bool handleTerrainLODChanged(const LLSD& newvalue)
 {
-		LLVOSurfacePatch::sLODFactor = (F32)newvalue.asReal();
-		//sqaure lod factor to get exponential range of [0,4] and keep
-		//a value of 1 in the middle of the detail slider for consistency
-		//with other detail sliders (see panel_preferences_graphics1.xml)
-		LLVOSurfacePatch::sLODFactor *= LLVOSurfacePatch::sLODFactor;
-		return true;
+	LLVOSurfacePatch::sLODFactor = (F32)newvalue.asReal();
+	//sqaure lod factor to get exponential range of [0,4] and keep
+	//a value of 1 in the middle of the detail slider for consistency
+	//with other detail sliders (see panel_preferences_graphics1.xml)
+	LLVOSurfacePatch::sLODFactor *= LLVOSurfacePatch::sLODFactor;
+	return true;
 }
 
 static bool handleTreeLODChanged(const LLSD& newvalue)

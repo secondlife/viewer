@@ -478,9 +478,9 @@ namespace llsd
 {
 
 /*****************************************************************************
-*   BOOST_FOREACH() helpers for LLSD
+*   range-based for-loop helpers for LLSD
 *****************************************************************************/
-/// Usage: BOOST_FOREACH(LLSD item, inArray(someLLSDarray)) { ... }
+/// Usage: for (LLSD item : inArray(someLLSDarray)) { ... }
 class inArray
 {
 public:
@@ -503,7 +503,7 @@ private:
 /// MapEntry is what you get from dereferencing an LLSD::map_[const_]iterator.
 typedef std::map<LLSD::String, LLSD>::value_type MapEntry;
 
-/// Usage: BOOST_FOREACH([const] MapEntry& e, inMap(someLLSDmap)) { ... }
+/// Usage: for([const] MapEntry& e : inMap(someLLSDmap)) { ... }
 class inMap
 {
 public:

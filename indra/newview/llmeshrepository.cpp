@@ -411,7 +411,7 @@ namespace {
 static S32 dump_num = 0;
 std::string make_dump_name(std::string prefix, S32 num)
 {
-	return prefix + boost::lexical_cast<std::string>(num) + std::string(".xml");
+	return prefix + std::to_string(num) + std::string(".xml");
 }
 void dump_llsd_to_file(const LLSD& content, std::string filename);
 LLSD llsd_from_file(std::string filename);
@@ -572,10 +572,10 @@ S32 LLMeshRepoThread::sRequestWaterLevel = 0;
 //   LLMeshUploadThread
 
 class LLMeshHandlerBase : public LLCore::HttpHandler,
-    public boost::enable_shared_from_this<LLMeshHandlerBase>
+    public std::enable_shared_from_this<LLMeshHandlerBase>
 {
 public:
-    typedef boost::shared_ptr<LLMeshHandlerBase> ptr_t;
+    typedef std::shared_ptr<LLMeshHandlerBase> ptr_t;
 
 	LOG_CLASS(LLMeshHandlerBase);
 	LLMeshHandlerBase(U32 offset, U32 requested_bytes)
@@ -1355,7 +1355,7 @@ bool LLMeshRepoThread::fetchMeshSkinInfo(const LLUUID& mesh_id, bool can_retry)
 		{
 			//check cache for mesh skin info
 			LLFileSystem file(mesh_id, LLAssetType::AT_MESH);
-			if (file.getSize() >= offset+size)
+			if (file.getSize() >= offset + size)
 			{
 				U8* buffer = new(std::nothrow) U8[size];
 				if (!buffer)
@@ -1372,7 +1372,7 @@ bool LLMeshRepoThread::fetchMeshSkinInfo(const LLUUID& mesh_id, bool can_retry)
 				bool zero = true;
 				for (S32 i = 0; i < llmin(size, 1024) && zero; ++i)
 				{
-					zero = buffer[i] > 0 ? false : true;
+					zero = buffer[i] == 0;
 				}
 
 				if (!zero)
@@ -1486,7 +1486,7 @@ bool LLMeshRepoThread::fetchMeshDecomposition(const LLUUID& mesh_id)
 				bool zero = true;
 				for (S32 i = 0; i < llmin(size, 1024) && zero; ++i)
 				{
-					zero = buffer[i] > 0 ? false : true;
+					zero = buffer[i] == 0;
 				}
 
 				if (!zero)
@@ -1584,7 +1584,7 @@ bool LLMeshRepoThread::fetchMeshPhysicsShape(const LLUUID& mesh_id)
 				bool zero = true;
 				for (S32 i = 0; i < llmin(size, 1024) && zero; ++i)
 				{
-					zero = buffer[i] > 0 ? false : true;
+					zero = buffer[i] == 0;
 				}
 
 				if (!zero)
@@ -1784,7 +1784,7 @@ bool LLMeshRepoThread::fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod, 
 				bool zero = true;
 				for (S32 i = 0; i < llmin(size, 1024) && zero; ++i)
 				{
-					zero = buffer[i] > 0 ? false : true;
+					zero = buffer[i] == 0;
 				}
 
 				if (!zero)

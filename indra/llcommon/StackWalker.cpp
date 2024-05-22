@@ -1256,7 +1256,7 @@ bool StackWalker::ShowCallstack(bool verbose, HANDLE hThread, const CONTEXT *con
   cleanup:
     if (pSym) free( pSym );
 
-  if (bLastEntryCalled == false)
+  if (!bLastEntryCalled)
       this->OnCallstackEntry(lastEntry, csEntry);
 
   if (context == NULL)

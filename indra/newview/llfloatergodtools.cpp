@@ -718,14 +718,14 @@ void LLPanelRegionTools::setParentEstateID(U32 id)
 
 void LLPanelRegionTools::setCheckFlags(U64 flags)
 {
-	getChild<LLUICtrl>("check prelude")->setValue(is_prelude(flags) ? true : false);
-	getChild<LLUICtrl>("check fixed sun")->setValue(flags & REGION_FLAGS_SUN_FIXED ? true : false);
-	getChild<LLUICtrl>("check reset home")->setValue(flags & REGION_FLAGS_RESET_HOME_ON_TELEPORT ? true : false);
-	getChild<LLUICtrl>("check damage")->setValue(flags & REGION_FLAGS_ALLOW_DAMAGE ? true : false);
-	getChild<LLUICtrl>("check visible")->setValue(flags & REGION_FLAGS_EXTERNALLY_VISIBLE ? true : false);
-	getChild<LLUICtrl>("block terraform")->setValue(flags & REGION_FLAGS_BLOCK_TERRAFORM ? true : false);
-	getChild<LLUICtrl>("block dwell")->setValue(flags & REGION_FLAGS_BLOCK_DWELL ? true : false);
-	getChild<LLUICtrl>("is sandbox")->setValue(flags & REGION_FLAGS_SANDBOX ? true : false );
+	getChild<LLUICtrl>("check prelude")->setValue(is_prelude(flags));
+	getChild<LLUICtrl>("check fixed sun")->setValue(is_flag_set(flags, REGION_FLAGS_SUN_FIXED));
+	getChild<LLUICtrl>("check reset home")->setValue(is_flag_set(flags, REGION_FLAGS_RESET_HOME_ON_TELEPORT));
+	getChild<LLUICtrl>("check damage")->setValue(is_flag_set(flags, REGION_FLAGS_ALLOW_DAMAGE));
+	getChild<LLUICtrl>("check visible")->setValue(is_flag_set(flags, REGION_FLAGS_EXTERNALLY_VISIBLE));
+	getChild<LLUICtrl>("block terraform")->setValue(is_flag_set(flags, REGION_FLAGS_BLOCK_TERRAFORM));
+	getChild<LLUICtrl>("block dwell")->setValue(is_flag_set(flags, REGION_FLAGS_BLOCK_DWELL));
+	getChild<LLUICtrl>("is sandbox")->setValue(is_flag_set(flags, REGION_FLAGS_SANDBOX));
 }
 
 void LLPanelRegionTools::setBillableFactor(F32 billable_factor)
@@ -1004,9 +1004,9 @@ U64 LLPanelObjectTools::computeRegionFlags(U64 flags) const
 
 void LLPanelObjectTools::setCheckFlags(U64 flags)
 {
-	getChild<LLUICtrl>("disable scripts")->setValue(flags & REGION_FLAGS_SKIP_SCRIPTS ? true : false);
-	getChild<LLUICtrl>("disable collisions")->setValue(flags & REGION_FLAGS_SKIP_COLLISIONS ? true : false);
-	getChild<LLUICtrl>("disable physics")->setValue(flags & REGION_FLAGS_SKIP_PHYSICS ? true : false);
+	getChild<LLUICtrl>("disable scripts")->setValue(is_flag_set(flags, REGION_FLAGS_SKIP_SCRIPTS));
+	getChild<LLUICtrl>("disable collisions")->setValue(is_flag_set(flags, REGION_FLAGS_SKIP_COLLISIONS));
+	getChild<LLUICtrl>("disable physics")->setValue(is_flag_set(flags, REGION_FLAGS_SKIP_PHYSICS));
 }
 
 

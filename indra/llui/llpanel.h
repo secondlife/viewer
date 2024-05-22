@@ -107,8 +107,7 @@ protected:
 public:
 	typedef std::vector<class LLUICtrl *>				ctrl_list_t;
 
-	bool buildFromFile(const std::string &filename, const LLPanel::Params& default_params, bool cacheable = false);
-	bool buildFromFile(const std::string &filename, bool cacheable = false) { return buildFromFile(filename, getDefaultParams(), cacheable); }
+	bool buildFromFile(const std::string &filename, const LLPanel::Params& default_params = getDefaultParams());
 
 	static LLPanel* createFactoryPanel(const std::string& name);
 
