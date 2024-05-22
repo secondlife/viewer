@@ -35,6 +35,7 @@
 #include "llchat.h"
 #include "llviewercontrol.h"
 
+static const F32 CHAT_THROTTLE_PERIOD = 1.f;
 
 LLFloaterIMNearbyChatListener::LLFloaterIMNearbyChatListener()
   : LLEventAPI("LLChatBar",
@@ -52,6 +53,16 @@ LLFloaterIMNearbyChatListener::LLFloaterIMNearbyChatListener()
 // "sendChat" command
 void LLFloaterIMNearbyChatListener::sendChat(LLSD const & chat_data) const
 {
+    static F64 last_throttle_time = 0.0;
+    F64 cur_time = LLTimer::getElapsedSeconds();
+
+    if (cur_time < last_throttle_time + CHAT_THROTTLE_PERIOD)
+    {
+        LL_DEBUGS("LLFloaterIMNearbyChatListener") << "'sendChat' was  throttled" << LL_ENDL;
+        return;
+    }
+    last_throttle_time = cur_time;
+
     // Extract the data
     std::string chat_text = LUA_PREFIX + chat_data["message"].asString();
 
