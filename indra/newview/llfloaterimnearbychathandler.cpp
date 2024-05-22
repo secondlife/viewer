@@ -301,12 +301,13 @@ void LLFloaterIMNearbyChatScreenChannel::addChat(LLSD& chat)
     {
         LLUUID fromID = chat["from_id"].asUUID();       // agent id or object id
         std::string from = chat["from"].asString();
+        bool is_lua = chat["is_lua"].asBoolean();
         LLToast* toast = m_active_toasts[0].get();
         if (toast)
         {
             LLFloaterIMNearbyChatToastPanel* panel = dynamic_cast<LLFloaterIMNearbyChatToastPanel*>(toast->getPanel());
 
-            if(panel && panel->messageID() == fromID && panel->getFromName() == from && panel->canAddText())
+            if(panel && panel->messageID() == fromID && panel->getFromName() == from && panel->isFromScript() == is_lua && panel->canAddText())
             {
                 panel->addMessage(chat);
                 toast->reshapeToPanel();
@@ -600,15 +601,19 @@ void LLFloaterIMNearbyChatHandler::processChat(const LLChat& chat_msg,
         std::string toast_msg;
         if (chat_msg.mChatStyle == CHAT_STYLE_IRC)
         {
+            if (chat_msg.mIsScript)
+            {
+                toast_msg += LLTrans::getString("ScriptStr");
+            }
             if (!chat_msg.mFromName.empty())
             {
                 toast_msg += chat_msg.mFromName;
             }
-            toast_msg += chat_msg.mText.substr(3);
+            toast_msg += chat_msg.mText.substr(chat_msg.mIsScript ? LUA_PREFIX.size() + 3 : 3);
         }
         else
         {
-            toast_msg = chat_msg.mText;
+            toast_msg = chat_msg.mIsScript ? chat_msg.mText.substr(LUA_PREFIX.size()) : chat_msg.mText;
         }
 
         bool chat_overlaps = false;
@@ -658,6 +663,7 @@ void LLFloaterIMNearbyChatHandler::processChat(const LLChat& chat_msg,
             chat["color_alpha"] = r_color_alpha;
             chat["font_size"] = (S32)LLViewerChat::getChatFontSize() ;
             chat["message"] = toast_msg;
+            chat["is_lua"] = chat_msg.mIsScript;
             channel->addChat(chat);
         }
 

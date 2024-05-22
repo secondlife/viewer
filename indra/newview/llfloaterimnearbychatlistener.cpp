@@ -36,10 +36,9 @@
 #include "llviewercontrol.h"
 
 
-LLFloaterIMNearbyChatListener::LLFloaterIMNearbyChatListener(LLFloaterIMNearbyChat & chatbar)
+LLFloaterIMNearbyChatListener::LLFloaterIMNearbyChatListener()
   : LLEventAPI("LLChatBar",
-               "LLChatBar listener to (e.g.) sendChat, etc."),
-    mChatbar(chatbar)
+               "LLChatBar listener to (e.g.) sendChat, etc.")
 {
     add("sendChat",
         "Send chat to the simulator:\n"
@@ -54,7 +53,7 @@ LLFloaterIMNearbyChatListener::LLFloaterIMNearbyChatListener(LLFloaterIMNearbyCh
 void LLFloaterIMNearbyChatListener::sendChat(LLSD const & chat_data) const
 {
     // Extract the data
-    std::string chat_text = chat_data["message"].asString();
+    std::string chat_text = LUA_PREFIX + chat_data["message"].asString();
 
     S32 channel = 0;
     if (chat_data.has("channel"))
@@ -95,6 +94,6 @@ void LLFloaterIMNearbyChatListener::sendChat(LLSD const & chat_data) const
     }
 
     // Send it as if it was typed in
-    mChatbar.sendChatFromViewer(chat_to_send, type_o_chat, ((BOOL)(channel == 0)) && gSavedSettings.getBOOL("PlayChatAnim"));
+    LLFloaterIMNearbyChat::sendChatFromViewer(chat_to_send, type_o_chat, ((BOOL) (channel == 0)) && gSavedSettings.getBOOL("PlayChatAnim"));
 }
 

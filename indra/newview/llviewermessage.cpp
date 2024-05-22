@@ -2600,8 +2600,10 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 
         BOOL ircstyle = FALSE;
 
+        chat.mIsScript = (mesg.substr(0, LUA_PREFIX.size()) == LUA_PREFIX);
+
         // Look for IRC-style emotes here so chatbubbles work
-        std::string prefix = mesg.substr(0, 4);
+        std::string prefix = mesg.substr(chat.mIsScript ? LUA_PREFIX.size() : 0, 4);
         if (prefix == "/me " || prefix == "/me'")
         {
             ircstyle = TRUE;

@@ -89,7 +89,8 @@ public:
         mPosAgent(),
         mURL(),
         mChatStyle(CHAT_STYLE_NORMAL),
-        mSessionID()
+        mSessionID(),
+        mIsScript(false)
     { }
 
     std::string     mText;      // UTF-8 line of text
@@ -107,6 +108,9 @@ public:
     std::string     mURL;
     EChatStyle      mChatStyle;
     LLUUID          mSessionID;
+
+    bool            mIsScript;
 };
+static const std::string LUA_PREFIX("[LUA]");
 
 #endif
