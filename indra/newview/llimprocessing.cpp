@@ -245,7 +245,7 @@ void inventory_offer_handler(LLOfferInfo* info)
         object_id.generate(msg);
 
     payload["from_id"] = info->mFromID;
-    // Needed by LLScriptFloaterManager to bind original notification with 
+    // Needed by LLScriptFloaterManager to bind original notification with
     // faked for toast one.
     payload["object_id"] = object_id;
     // Flag indicating that this notification is faked for toast.
@@ -285,7 +285,7 @@ void inventory_offer_handler(LLOfferInfo* info)
         p.responder = info;
         // Note: sets inventory_offer_callback as the callback
         // *TODO fix memory leak
-        // inventory_offer_callback() is not invoked if user received notification and 
+        // inventory_offer_callback() is not invoked if user received notification and
         // closes viewer(without responding the notification)
         p.substitutions(args).payload(payload).functor.responder(LLNotificationResponderPtr(info));
         info->mPersist = true;
@@ -489,7 +489,7 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
             LLPostponedNotification::add<LLPostponedIMSystemTipNotification>(params, from_id, false);
             break;
 
-        case IM_NOTHING_SPECIAL:	// p2p IM
+        case IM_NOTHING_SPECIAL:    // p2p IM
             // Don't show dialog, just do IM
             if (!gAgent.isGodlike()
                 && gAgent.getRegion()->isPrelude()
@@ -679,7 +679,7 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
                     U8 item_name[DB_INV_ITEM_NAME_BUF_SIZE];
                 }*notice_bin_bucket;
 
-                // Make sure the binary bucket is big enough to hold the header 
+                // Make sure the binary bucket is big enough to hold the header
                 // and a null terminated item name.
                 if ((binary_bucket_size < (S32)((sizeof(notice_bucket_header_t) + sizeof(U8))))
                     || (binary_bucket[binary_bucket_size - 1] != '\0'))
@@ -852,8 +852,8 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
             {
                 struct offer_agent_bucket_t
                 {
-                    S8		asset_type;
-                    LLUUID	object_id;
+                    S8      asset_type;
+                    LLUUID  object_id;
                 }*bucketp;
 
                 if (sizeof(offer_agent_bucket_t) != binary_bucket_size)
@@ -875,8 +875,8 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
                 }
                 else
                 {
-                    /*RIDER*/ // The previous version of the protocol returned the wrong binary bucket... we 
-                    // still might be able to figure out the type... even though the offer is not retrievable. 
+                    /*RIDER*/ // The previous version of the protocol returned the wrong binary bucket... we
+                    // still might be able to figure out the type... even though the offer is not retrievable.
 
                     // Should be safe to remove once DRTSIM-451 fully deploys
                     std::string str_bucket(reinterpret_cast<char *>(binary_bucket));
@@ -889,7 +889,7 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
 
                     // We could try AT_UNKNOWN which would be more accurate, but that causes an auto decline
                     info->mType = static_cast<LLAssetType::EType>(type);
-                    // Don't break in the case of a bad binary bucket.  Go ahead and show the 
+                    // Don't break in the case of a bad binary bucket.  Go ahead and show the
                     // accept/decline popup even though it will not do anything.
                     LL_WARNS("Messaging") << "Malformed inventory offer from object, type might be " << info->mType << LL_ENDL;
                 }
@@ -1076,7 +1076,7 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
         }
         break;
 
-        case IM_SESSION_SEND:		// ad-hoc or group IMs
+        case IM_SESSION_SEND:       // ad-hoc or group IMs
 
             // Only show messages if we have a session open (which
             // should happen after you get an "invitation"
@@ -1088,7 +1088,7 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
             else if (offline == IM_ONLINE && is_do_not_disturb)
             {
 
-                // return a standard "do not disturb" message, but only do it to online IM 
+                // return a standard "do not disturb" message, but only do it to online IM
                 // (i.e. not other auto responses and not store-and-forward IM)
                 if (!gIMMgr->hasSession(session_id))
                 {
@@ -1597,8 +1597,8 @@ void LLIMProcessing::requestOfflineMessagesCoro(std::string url)
     {
         const LLSD &message_data(*i);
 
-        /* RIDER: Many fields in this message are using a '_' rather than the standard '-'.  This 
-         * should be changed but would require tight coordination with the simulator. 
+        /* RIDER: Many fields in this message are using a '_' rather than the standard '-'.  This
+         * should be changed but would require tight coordination with the simulator.
          */
         LLVector3 position;
         if (message_data.has("position"))

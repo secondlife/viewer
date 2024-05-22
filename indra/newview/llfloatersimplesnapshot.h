@@ -94,7 +94,7 @@ private:
     LLUUID mTaskId;
 
     LLView* mOwner;
-    F32	 mContextConeOpacity;
+    F32  mContextConeOpacity;
     completion_t mUploadCompletionCallback;
 };
 

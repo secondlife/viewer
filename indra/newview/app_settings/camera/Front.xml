@@ -1,16 +1,5 @@
 <llsd>
     <map>
-    <key>AppearanceCameraMovement</key>
-        <map>
-        <key>Comment</key>
-            <string>When entering appearance editing mode, camera zooms in on currently selected portion of avatar</string>
-        <key>Persist</key>
-            <integer>1</integer>
-        <key>Type</key>
-            <string>Boolean</string>
-        <key>Value</key>
-            <integer>1</integer>
-        </map>
     <key>AvatarSitRotation</key>
     <map>
         <key>Comment</key>
@@ -89,17 +78,6 @@
             <string>F32</string>
         <key>Value</key>
             <real>0.90322577953338623</real>
-        </map>
-    <key>EditCameraMovement</key>
-        <map>
-        <key>Comment</key>
-            <string>When entering build mode, camera moves up above avatar</string>
-        <key>Persist</key>
-            <integer>1</integer>
-        <key>Type</key>
-            <string>Boolean</string>
-        <key>Value</key>
-            <integer>0</integer>
         </map>
     <key>FocusOffsetRearView</key>
         <map>

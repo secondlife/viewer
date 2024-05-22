@@ -70,7 +70,7 @@ public:
 
 protected:
     // Lifetime management
-    
+
     void materialBegin();
     void materialComplete();
 

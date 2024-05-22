@@ -3,7 +3,7 @@
  * @author Nat Goodspeed
  * @date   2011-08-16
  * @brief  Supplemental LLView functionality used for simulating UI events.
- * 
+ *
  * $LicenseInfo:firstyear=2011&license=viewerlgpl$
  * Copyright (c) 2011, Linden Research, Inc.
  * $/LicenseInfo$

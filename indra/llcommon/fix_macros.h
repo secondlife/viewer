@@ -6,7 +6,7 @@
  *         generic names, preventing any library from using those names. We've
  *         had to fix these in so many places that it's worth making a header
  *         file to handle it.
- * 
+ *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Copyright (c) 2012, Linden Research, Inc.
  * $/LicenseInfo$

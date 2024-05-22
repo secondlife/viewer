@@ -90,7 +90,7 @@ public:
     /**
      * Returns avatar ID.
      */
-    virtual const LLUUID& getAvatarId() { return mAvatarId; }
+    virtual const LLUUID& getAvatarId() const { return mAvatarId; }
 
     /**
      * Sends update data request to server.
@@ -100,7 +100,7 @@ public:
     /**
      * Clears panel data if viewing avatar info for first time and sends update data request.
      */
-    virtual void onOpen(const LLSD& key);
+    virtual void onOpen(const LLSD& key) override;
 
     /**
      * Clears all data received from server.
@@ -131,6 +131,8 @@ protected:
 
     const bool getSelfProfile() const { return mSelfProfile; }
 
+    bool saveAgentUserInfoCoro(std::string name, LLSD value, std::function<void(bool)> callback = nullptr) const;
+
 public:
     void setIsLoading() { mLoadingState = PROFILE_LOADING; }
     void resetLoading() { mLoadingState = PROFILE_INIT; }
@@ -156,12 +158,14 @@ public:
     LLPanelProfilePropertiesProcessorTab();
     ~LLPanelProfilePropertiesProcessorTab();
 
-    /*virtual*/ void setAvatarId(const LLUUID& avatar_id);
+    void setAvatarId(const LLUUID& avatar_id) override;
+
+    void updateData() override;
 
     /**
      * Processes data received from server via LLAvatarPropertiesObserver.
      */
-    virtual void processProperties(void* data, EAvatarProcessorType type) = 0;
+    virtual void processProperties(void* data, EAvatarProcessorType type) override = 0;
 };
 
 #endif // LL_LLPANELAVATAR_H

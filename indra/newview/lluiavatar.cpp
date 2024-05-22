@@ -52,10 +52,10 @@ void LLUIAvatar::initInstance()
     LLVOAvatar::initInstance();
 
     createDrawable( &gPipeline );
-	setPositionAgent(LLVector3::zero);
-	slamPosition();
-	updateJointLODs();
-	updateGeometry(mDrawable);
+    setPositionAgent(LLVector3::zero);
+    slamPosition();
+    updateJointLODs();
+    updateGeometry(mDrawable);
 
     mInitFlags |= 1<<3;
 }

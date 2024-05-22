@@ -83,7 +83,7 @@ LLVirtualTrackball::LLVirtualTrackball(const LLVirtualTrackball::Params& p)
     mBorder = LLUICtrlFactory::create<LLViewBorder>(border);
     addChild(mBorder);
 
-    
+
     LLButton::Params btn_rt = p.btn_rotate_top;
     btn_rt.rect(LLRect(centerX - axis_offset_lt, border_rect.mTop, centerX + axis_offset_rb, border_rect.mTop - btn_size));
     btn_rt.click_callback.function(boost::bind(&LLVirtualTrackball::onRotateTopClick, this));
@@ -247,7 +247,7 @@ void LLVirtualTrackball::onRotateTopClick()
     if (getEnabled())
     {
         LLQuaternion delta;
-        delta.setAngleAxis(mIncrementBtn, 1, 0, 0); 
+        delta.setAngleAxis(mIncrementBtn, 1, 0, 0);
         mValue *= delta;
         setValueAndCommit(mValue);
 
@@ -316,7 +316,7 @@ void LLVirtualTrackball::onRotateRightMouseEnter()
 
 void LLVirtualTrackball::setValue(const LLSD& value)
 {
-	if (value.isArray() && value.size() == 4)
+    if (value.isArray() && value.size() == 4)
     {
         mValue.setValue(value);
     }
@@ -334,7 +334,7 @@ void LLVirtualTrackball::setValue(F32 x, F32 y, F32 z, F32 w)
 
 void LLVirtualTrackball::setValueAndCommit(const LLQuaternion &value)
 {
-	mValue = value;
+    mValue = value;
     onCommit();
 }
 
@@ -345,7 +345,7 @@ LLSD LLVirtualTrackball::getValue() const
 
 LLQuaternion LLVirtualTrackball::getRotation() const
 {
-	return mValue;
+    return mValue;
 }
 
 // static

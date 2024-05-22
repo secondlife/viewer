@@ -4,7 +4,7 @@
  * @date   2019-12-03
  * @brief  LockStatic class provides mutex-guarded access to the specified
  *         static data.
- * 
+ *
  * $LicenseInfo:firstyear=2019&license=viewerlgpl$
  * Copyright (c) 2019, Linden Research, Inc.
  * $/LicenseInfo$
