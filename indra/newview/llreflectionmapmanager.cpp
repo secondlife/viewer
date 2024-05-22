@@ -73,8 +73,8 @@ void load_exr(const std::string& filename)
         LLImageGL::generateTextures(1, &texName);
 
         gEXRImage = new LLImageGL(texName, 4, GL_TEXTURE_2D, GL_RGB16F, GL_RGB16F, GL_FLOAT, LLTexUnit::TAM_CLAMP);
-        gEXRImage->setHasMipMaps(TRUE);
-        gEXRImage->setUseMipMaps(TRUE);
+        gEXRImage->setHasMipMaps(true);
+        gEXRImage->setUseMipMaps(true);
         gEXRImage->setFilteringOption(LLTexUnit::TFO_TRILINEAR);
 
         gGL.getTexUnit(0)->bind(gEXRImage);

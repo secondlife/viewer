@@ -28,12 +28,14 @@
 
 #include "llvertexbuffer.h"
 #include "llvolumeoctree.h"
+#include "boost/json.hpp"
 
 // LL GLTF Implementation
 namespace LL
 {
     namespace GLTF
     {
+        using Value = boost::json::value;
         class Asset;
 
         constexpr U32 ATTRIBUTE_MASK =
@@ -66,10 +68,10 @@ namespace LL
             std::vector<LLVolumeTriangle> mOctreeTriangles;
             
             S32 mMaterial = -1;
-            U32 mMode = TINYGLTF_MODE_TRIANGLES; // default to triangles
+            S32 mMode = TINYGLTF_MODE_TRIANGLES; // default to triangles
             U32 mGLMode = LLRender::TRIANGLES;
             S32 mIndices = -1;
-            std::unordered_map<std::string, int> mAttributes;
+            std::unordered_map<std::string, S32> mAttributes;
 
             // create octree based on vertex buffer
             // must be called before buffer is unmapped and after buffer is populated with good data
@@ -85,6 +87,8 @@ namespace LL
                 LLVector4a* tangent = NULL             // return the surface tangent at the intersection point
             );
             
+            void serialize(boost::json::object& obj) const;
+            const Primitive& operator=(const Value& src);
             const Primitive& operator=(const tinygltf::Primitive& src);
 
             void allocateGLResources(Asset& asset);

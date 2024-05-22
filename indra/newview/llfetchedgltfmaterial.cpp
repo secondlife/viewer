@@ -77,16 +77,7 @@ void LLFetchedGLTFMaterial::bind(LLViewerTexture* media_tex)
     {
         if (mAlphaMode == LLGLTFMaterial::ALPHA_MODE_MASK)
         {
-            // dividing the alpha cutoff by transparency here allows the shader to compare against
-            // the alpha value of the texture without needing the transparency value
-            if (mBaseColor.mV[3] > 0.f)
-            {
-                min_alpha = mAlphaCutoff / mBaseColor.mV[3];
-            }
-            else
-            {
-                min_alpha = 1024.f;
-            }
+            min_alpha = mAlphaCutoff;
         }
         shader->uniform1f(LLShaderMgr::MINIMUM_ALPHA, min_alpha);
     }
@@ -151,7 +142,6 @@ void LLFetchedGLTFMaterial::bind(LLViewerTexture* media_tex)
         mTextureTransform[GLTF_TEXTURE_INFO_EMISSIVE].getPacked(emissive_packed);
         shader->uniform4fv(LLShaderMgr::TEXTURE_EMISSIVE_TRANSFORM, 2, (F32*)emissive_packed);
     }
-
 }
 
 LLViewerFetchedTexture* fetch_texture(const LLUUID& id)

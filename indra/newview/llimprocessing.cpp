@@ -1637,23 +1637,29 @@ void LLIMProcessing::requestOfflineMessagesCoro(std::string url)
         {
             session_id = message_data["asset_id"].asUUID();
         }
-        LLIMProcessing::processNewMessage(
-            message_data["from_agent_id"].asUUID(),
-            from_group,
-            message_data["to_agent_id"].asUUID(),
-            message_data.has("offline") ? static_cast<U8>(message_data["offline"].asInteger()) : IM_OFFLINE,
-            dialog,
-            session_id,
-            static_cast<U32>(message_data["timestamp"].asInteger()),
-            message_data["from_agent_name"].asString(),
-            message_data["message"].asString(),
-            static_cast<U32>((message_data.has("parent_estate_id")) ? message_data["parent_estate_id"].asInteger() : 1), // 1 - IMMainland
-            message_data["region_id"].asUUID(),
-            position,
-            bin_bucket.data(),
-            bin_bucket.size(),
-            sender,
-            message_data["asset_id"].asUUID());
+
+        LLAppViewer::instance()->postToMainCoro([=]()
+            {
+                std::vector<U8> local_bin_bucket = bin_bucket;
+                LLHost local_sender = sender;
+                LLIMProcessing::processNewMessage(
+                    message_data["from_agent_id"].asUUID(),
+                    from_group,
+                    message_data["to_agent_id"].asUUID(),
+                    message_data.has("offline") ? static_cast<U8>(message_data["offline"].asInteger()) : IM_OFFLINE,
+                    dialog,
+                    session_id,
+                    static_cast<U32>(message_data["timestamp"].asInteger()),
+                    message_data["from_agent_name"].asString(),
+                    message_data["message"].asString(),
+                    static_cast<U32>((message_data.has("parent_estate_id")) ? message_data["parent_estate_id"].asInteger() : 1), // 1 - IMMainland
+                    message_data["region_id"].asUUID(),
+                    position,
+                    local_bin_bucket.data(),
+                    local_bin_bucket.size(),
+                    local_sender,
+                    message_data["asset_id"].asUUID());
+            });
 
     }
 }

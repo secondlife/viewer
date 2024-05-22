@@ -89,6 +89,7 @@
 #include "llsculptidsize.h"
 #include "llavatarappearancedefines.h"
 #include "llgltfmateriallist.h"
+#include "gltfscenemanager.h"
 
 const F32 FORCE_SIMPLE_RENDER_AREA = 512.f;
 const F32 FORCE_CULL_AREA = 8.f;
@@ -1133,6 +1134,11 @@ bool LLVOVolume::setVolume(const LLVolumeParams &params_in, const S32 detail, bo
 			}
 		}
 
+        if ((volume_params.getSculptType() & LL_SCULPT_TYPE_MASK) == LL_SCULPT_TYPE_GLTF)
+        { // notify GLTFSceneManager about new GLTF object
+            LL::GLTFSceneManager::instance().addGLTFObject(this, volume_params.getSculptID());
+        }
+        
         return true;
 	}
 	else if (NO_LOD == lod) 
@@ -1406,6 +1412,12 @@ bool LLVOVolume::calcLOD()
 	{
 		return false;
 	}
+
+    if (mGLTFAsset != nullptr)
+    {
+        // do not calculate LOD for GLTF objects
+        return false;
+    }
 
 	S32 cur_detail = 0;
 	
@@ -3422,8 +3434,15 @@ bool LLVOVolume::setReflectionProbeIsMirror(bool is_mirror)
     {
         if (param_block->getIsMirror() != is_mirror)
         {
+            LL_INFOS() << "Setting reflection probe mirror to " << is_mirror << LL_ENDL;
             param_block->setIsMirror(is_mirror);
             parameterChanged(LLNetworkData::PARAMS_REFLECTION_PROBE, true);
+
+			if (!is_mirror)
+				gPipeline.mHeroProbeManager.unregisterViewerObject(this);
+			else
+				gPipeline.mHeroProbeManager.registerViewerObject(this);
+
             return true;
         }
     }
@@ -5616,7 +5635,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 	
 			LLVOVolume* vobj = drawablep->getVOVolume();
             
-			if (!vobj || vobj->isDead())
+			if (!vobj || vobj->isDead() || vobj->mGLTFAsset)
 			{
 				continue;
 			}

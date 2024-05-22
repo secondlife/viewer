@@ -27,7 +27,6 @@
  */
 
 #include "accessor.h"
-
 // LL GLTF Implementation
 namespace LL
 {
@@ -52,14 +51,10 @@ namespace LL
 
                 void allocateGLResources(Asset& asset);
 
-                const Sampler& operator=(const tinygltf::AnimationSampler& src)
-                {
-                    mInput = src.input;
-                    mOutput = src.output;
-                    mInterpolation = src.interpolation;
-
-                    return *this;
-                }
+                void serialize(boost::json::object& dst) const;
+                const Sampler& operator=(const Value& value);
+                const Sampler& operator=(const tinygltf::AnimationSampler& src);
+                
 
                 // get the frame index and time for the specified time
                 // asset -- the asset to reference for Accessors
@@ -77,27 +72,29 @@ namespace LL
                 public:
                     S32 mNode = INVALID_INDEX;
                     std::string mPath;
+
+                    bool operator==(const Target& other) const;
+                    bool operator!=(const Target& other) const;
+
+                    void serialize(boost::json::object& dst) const;
+                    const Target& operator=(const Value& value);
                 };
 
                 S32 mSampler = INVALID_INDEX;
                 Target mTarget;
 
-                const Channel& operator=(const tinygltf::AnimationChannel& src)
-                {
-                    mSampler = src.sampler;
-
-                    mTarget.mNode = src.target_node;
-                    mTarget.mPath = src.target_path;
-
-                    return *this;
-                }
-
+                void serialize(boost::json::object& dst) const;
+                const Channel& operator=(const Value& value);
+                const Channel& operator=(const tinygltf::AnimationChannel& src);
             };
 
             class RotationChannel : public Channel
             {
             public:
-                std::vector<glh::quaternionf> mRotations;
+                RotationChannel() = default;
+                RotationChannel(const Channel& channel) : Channel(channel) {}
+
+                std::vector<quat> mRotations;
 
                 const RotationChannel& operator=(const tinygltf::AnimationChannel& src)
                 {
@@ -116,7 +113,10 @@ namespace LL
             class TranslationChannel : public Channel
             {
             public:
-                std::vector<glh::vec3f> mTranslations;
+                TranslationChannel() = default;
+                TranslationChannel(const Channel& channel) : Channel(channel) {}
+
+                std::vector<vec3> mTranslations;
 
                 const TranslationChannel& operator=(const tinygltf::AnimationChannel& src)
                 {
@@ -135,7 +135,10 @@ namespace LL
             class ScaleChannel : public Channel
             {
             public:
-                std::vector<glh::vec3f> mScales;
+                ScaleChannel() = default;
+                ScaleChannel(const Channel& channel) : Channel(channel) {}
+
+                std::vector<vec3> mScales;
 
                 const ScaleChannel& operator=(const tinygltf::AnimationChannel& src)
                 {
@@ -165,6 +168,8 @@ namespace LL
             std::vector<TranslationChannel> mTranslationChannels;
             std::vector<ScaleChannel> mScaleChannels;
 
+            void serialize(boost::json::object& dst) const;
+            const Animation& operator=(const Value& value);
             const Animation& operator=(const tinygltf::Animation& src);
             
             void allocateGLResources(Asset& asset);

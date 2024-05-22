@@ -782,7 +782,7 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 
         if (sReflectionProbesEnabled)
         {
-            gCubeSnapshot = TRUE;
+            gCubeSnapshot = true;
             mReflectionMapManager.initReflectionMaps();
         }
 
@@ -1070,7 +1070,7 @@ void LLPipeline::refreshCachedSettings()
     RenderScreenSpaceReflectionAdaptiveStepMultiplier = gSavedSettings.getF32("RenderScreenSpaceReflectionAdaptiveStepMultiplier");
     RenderScreenSpaceReflectionGlossySamples = gSavedSettings.getS32("RenderScreenSpaceReflectionGlossySamples");
 	RenderBufferVisualization = gSavedSettings.getS32("RenderBufferVisualization");
-    if (gSavedSettings.getBOOL("RenderMirrors") != (BOOL)RenderMirrors)
+    if (gSavedSettings.getBOOL("RenderMirrors") != RenderMirrors)
     {
         RenderMirrors = gSavedSettings.getBOOL("RenderMirrors");
         LLViewerShaderMgr::instance()->clearShaderCache();
@@ -2268,7 +2268,8 @@ static LLTrace::BlockTimerStatHandle FTM_CULL("Object Culling");
 // static
 bool LLPipeline::isWaterClip()
 {
-	return (!sRenderTransparentWater || gCubeSnapshot) && !sRenderingHUDs;
+    // We always pretend that we're not clipping water when rendering mirrors.
+	return (gPipeline.mHeroProbeManager.isMirrorPass()) ? false : (!sRenderTransparentWater || gCubeSnapshot) && !sRenderingHUDs;
 }
 
 void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result)

@@ -137,19 +137,19 @@ LLXMLNode::LLXMLNode(const LLXMLNode& rhs) :
 }
 
 // returns a new copy of this node and all its children
-LLXMLNodePtr LLXMLNode::deepCopy()
+LLXMLNodePtr LLXMLNode::deepCopy() const
 {
 	LLXMLNodePtr newnode = LLXMLNodePtr(new LLXMLNode(*this));
 	if (mChildren.notNull())
 	{
-		for (LLXMLChildList::iterator iter = mChildren->map.begin();
+		for (LLXMLChildList::const_iterator iter = mChildren->map.begin();
 			 iter != mChildren->map.end(); ++iter)	
 		{
 			LLXMLNodePtr temp_ptr_for_gcc(iter->second->deepCopy());
 			newnode->addChild(temp_ptr_for_gcc);
 		}
 	}
-	for (LLXMLAttribList::iterator iter = mAttributes.begin();
+	for (LLXMLAttribList::const_iterator iter = mAttributes.begin();
 		 iter != mAttributes.end(); ++iter)
 	{
 		LLXMLNodePtr temp_ptr_for_gcc(iter->second->deepCopy());
@@ -653,10 +653,12 @@ bool LLXMLNode::updateNode(
 static std::map<std::string, LLXMLNodePtr> sXMLCache;
 static LLSharedMutex sXMLCacheMutex;
 
-static void saveToCache(const std::string& filename, LLXMLNodePtr& node)
+static void saveToCache(const std::string& filename, const LLXMLNodePtr& node)
 {
+    LLXMLNodePtr node_copy = node->deepCopy();
+
     LLExclusiveMutexLock lock(&sXMLCacheMutex);
-    sXMLCache.emplace(filename, node.notNull() ? node->deepCopy() : nullptr);
+    sXMLCache.emplace(filename, node_copy);
 }
 
 static bool loadFromCache(const std::string& filename, LLXMLNodePtr& node)
@@ -665,8 +667,8 @@ static bool loadFromCache(const std::string& filename, LLXMLNodePtr& node)
     auto it = sXMLCache.find(filename);
     if (it == sXMLCache.end())
         return false;
-    node = it->second.notNull() ? it->second->deepCopy() : nullptr;
-    return node.notNull();
+    node = it->second->deepCopy();
+    return true;
 }
 
 // static
@@ -676,7 +678,11 @@ bool LLXMLNode::parseFile(const std::string& filename, LLXMLNodePtr& node, LLXML
     if (cacheable)
     {
         if (loadFromCache(filename, node))
+        {
+            node->setDefault(defaults_tree);
+            node->updateDefault();
             return true;
+        }
     }
 
     std::string xml = gDirUtilp->getFileContents(filename);
@@ -684,12 +690,14 @@ bool LLXMLNode::parseFile(const std::string& filename, LLXMLNodePtr& node, LLXML
     {
         LL_WARNS("XMLNode") << "no XML file: " << filename << LL_ENDL;
     }
-    else if (parseBuffer(xml.data(), xml.size(), node, defaults_tree))
+    else if (parseBuffer(xml.data(), xml.size(), node))
     {
         if (cacheable)
         {
             saveToCache(filename, node);
         }
+        node->setDefault(defaults_tree);
+        node->updateDefault();
         return true;
     }
 
@@ -699,10 +707,25 @@ bool LLXMLNode::parseFile(const std::string& filename, LLXMLNodePtr& node, LLXML
 
 // static
 bool LLXMLNode::parseBuffer(
+    const char* buffer,
+    U32 length,
+    LLXMLNodePtr& node,
+    LLXMLNode* defaults)
+{
+    if (parseBuffer(buffer, length, node))
+    {
+        node->setDefault(defaults);
+        node->updateDefault();
+        return true;
+    }
+    return false;
+}
+
+// static
+bool LLXMLNode::parseBuffer(
 	const char* buffer,
 	U32 length,
-	LLXMLNodePtr& node, 
-	LLXMLNode* defaults)
+	LLXMLNodePtr& node)
 {
 	// Init
 	XML_Parser my_parser = XML_ParserCreate(NULL);
@@ -738,9 +761,6 @@ bool LLXMLNode::parseBuffer(
 	}
 
 	LLXMLNode *return_node = file_node->mChildren->map.begin()->second;
-
-	return_node->setDefault(defaults);
-	return_node->updateDefault();
 
 	node = return_node;
 	return true;

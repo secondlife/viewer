@@ -188,7 +188,7 @@ bool LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
     
     if (!shader->attachFragmentObject("deferred/globalF.glsl"))
     {
-        return FALSE;
+        return false;
     }
 
     if (features->hasSrgb || features->hasAtmospherics || features->calculatesAtmospherics || features->isDeferred)
@@ -280,7 +280,7 @@ bool LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
     {
         if (!shader->attachFragmentObject("deferred/pbrterrainUtilF.glsl"))
         {
-            return FALSE;
+            return false;
         }
     }
 	
@@ -1179,7 +1179,9 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("texture_metallic_roughness_transform"); // (GLTF)
     mReservedUniforms.push_back("texture_emissive_transform"); // (GLTF)
 
-    llassert(mReservedUniforms.size() == LLShaderMgr::TEXTURE_EMISSIVE_TRANSFORM+1);
+    mReservedUniforms.push_back("terrain_texture_transforms"); // (GLTF)
+
+    llassert(mReservedUniforms.size() == LLShaderMgr::TERRAIN_TEXTURE_TRANSFORMS +1);
 
 	mReservedUniforms.push_back("viewport");
 
