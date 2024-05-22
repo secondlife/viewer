@@ -131,67 +131,70 @@ void GLTFSceneManager::uploadSelection()
             {
                 mPendingImageUploads++;
 
-                LLPointer<LLImageRaw> raw = image.mTexture->getRawImage();
+                LLPointer<LLImageRaw> raw = image.mTexture->getCachedRawImage();
 
-                LLPointer<LLImageJ2C> j2c = LLViewerTextureList::convertToUploadFile(raw);
-
-                std::string buffer;
-                buffer.assign((const char*)j2c->getData(), j2c->getDataSize());
-
-                LLUUID asset_id = LLUUID::generateNewID();
-
-                std::string name;
-                S32 idx = (S32)(&image - &asset.mImages[0]);
-
-                if (image.mName.empty())
+                if (raw.notNull())
                 {
+                    LLPointer<LLImageJ2C> j2c = LLViewerTextureList::convertToUploadFile(raw);
 
-                    name = llformat("Image_%d", idx);
-                }
-                else
-                {
-                    name = image.mName;
-                }
+                    std::string buffer;
+                    buffer.assign((const char*)j2c->getData(), j2c->getDataSize());
 
-                LLNewBufferedResourceUploadInfo::uploadFailure_f failure = [this](LLUUID assetId, LLSD response, std::string reason)
+                    LLUUID asset_id = LLUUID::generateNewID();
+
+                    std::string name;
+                    S32 idx = (S32)(&image - &asset.mImages[0]);
+
+                    if (image.mName.empty())
                     {
-                        // TODO: handle failure
-                        mPendingImageUploads--;
-                        return false;
-                    };
 
-                
-                LLNewBufferedResourceUploadInfo::uploadFinish_f finish = [this, idx, raw, j2c](LLUUID assetId, LLSD response)
+                        name = llformat("Image_%d", idx);
+                    }
+                    else
                     {
-                        if (mUploadingAsset && mUploadingAsset->mImages.size() > idx)
+                        name = image.mName;
+                    }
+
+                    LLNewBufferedResourceUploadInfo::uploadFailure_f failure = [this](LLUUID assetId, LLSD response, std::string reason)
                         {
-                            mUploadingAsset->mImages[idx].mUri = assetId.asString();
+                            // TODO: handle failure
                             mPendingImageUploads--;
-                        }
-                    };
+                            return false;
+                        };
 
-                S32 expected_upload_cost = LLAgentBenefitsMgr::current().getTextureUploadCost(j2c);
 
-                LLResourceUploadInfo::ptr_t uploadInfo(std::make_shared<LLNewBufferedResourceUploadInfo>(
-                    buffer,
-                    asset_id,
-                    name,
-                    name,
-                    0,
-                    LLFolderType::FT_TEXTURE,
-                    LLInventoryType::IT_TEXTURE,
-                    LLAssetType::AT_TEXTURE,
-                    LLFloaterPerms::getNextOwnerPerms("Uploads"),
-                    LLFloaterPerms::getGroupPerms("Uploads"),
-                    LLFloaterPerms::getEveryonePerms("Uploads"),
-                    expected_upload_cost,
-                    false,
-                    finish,
-                    failure));
+                    LLNewBufferedResourceUploadInfo::uploadFinish_f finish = [this, idx, raw, j2c](LLUUID assetId, LLSD response)
+                        {
+                            if (mUploadingAsset && mUploadingAsset->mImages.size() > idx)
+                            {
+                                mUploadingAsset->mImages[idx].mUri = assetId.asString();
+                                mPendingImageUploads--;
+                            }
+                        };
 
-                upload_new_resource(uploadInfo);
+                    S32 expected_upload_cost = LLAgentBenefitsMgr::current().getTextureUploadCost(j2c);
 
-                image.clearData(asset);
+                    LLResourceUploadInfo::ptr_t uploadInfo(std::make_shared<LLNewBufferedResourceUploadInfo>(
+                        buffer,
+                        asset_id,
+                        name,
+                        name,
+                        0,
+                        LLFolderType::FT_TEXTURE,
+                        LLInventoryType::IT_TEXTURE,
+                        LLAssetType::AT_TEXTURE,
+                        LLFloaterPerms::getNextOwnerPerms("Uploads"),
+                        LLFloaterPerms::getGroupPerms("Uploads"),
+                        LLFloaterPerms::getEveryonePerms("Uploads"),
+                        expected_upload_cost,
+                        false,
+                        finish,
+                        failure));
+
+                    upload_new_resource(uploadInfo);
+
+                    image.clearData(asset);
+                }
             }
         }
 
@@ -271,7 +274,10 @@ void GLTFSceneManager::save(const std::string& filename)
     if (obj && obj->mGLTFAsset)
     {
         Asset* asset = obj->mGLTFAsset.get();
-        asset->save(filename);
+        if (!asset->save(filename))
+        {
+            LLNotificationsUtil::add("GLTFSaveFailed");
+        }
     }
 }
 

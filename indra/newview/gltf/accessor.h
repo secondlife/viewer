@@ -55,7 +55,7 @@ namespace LL
             void serialize(boost::json::object& obj) const;
             const Buffer& operator=(const Value& value);
 
-            void save(Asset& asset, const std::string& folder);
+            bool save(Asset& asset, const std::string& folder);
         };
 
         class BufferView

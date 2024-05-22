@@ -270,7 +270,7 @@ namespace LL
             // save image to disk
             // may remove image data from bufferviews and convert to 
             // file uri if necessary
-            void save(Asset& asset, const std::string& filename);
+            bool save(Asset& asset, const std::string& filename);
 
             // erase the buffer view associated with this image
             // free any associated GLTF resources
@@ -356,7 +356,7 @@ namespace LL
 
             // save the asset to the given .gltf file
             // saves images and bins alongside the gltf file
-            void save(const std::string& filename);
+            bool save(const std::string& filename);
 
             // remove the bufferview at the given index
             // updates all bufferview indices in this Asset as needed

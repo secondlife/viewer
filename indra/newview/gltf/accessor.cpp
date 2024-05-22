@@ -163,12 +163,12 @@ bool Buffer::prep(Asset& asset)
     return true;
 }
 
-void Buffer::save(Asset& asset, const std::string& folder)
+bool Buffer::save(Asset& asset, const std::string& folder)
 {
     if (mUri.substr(0, 5) == "data:")
     {
         LL_WARNS("GLTF") << "Data URIs not yet supported" << LL_ENDL;
-        return;
+        return false;
     }
 
     std::string bin_file = folder + "/";
@@ -192,10 +192,12 @@ void Buffer::save(Asset& asset, const std::string& folder)
     if (!file.is_open())
     {
         LL_WARNS("GLTF") << "Failed to open file: " << bin_file << LL_ENDL;
-        return;
+        return false;
     }
 
     file.write((char*)mData.data(), mData.size());
+
+    return true;
 }
 
 void Buffer::serialize(object& dst) const

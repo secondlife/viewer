@@ -603,7 +603,7 @@ void Asset::serialize(object& dst) const
     write(mSkins, "skins", dst);
 }
 
-void Asset::save(const std::string& filename)
+bool Asset::save(const std::string& filename)
 {
     // get folder path
     std::string folder = gDirUtilp->getDirName(filename);
@@ -611,7 +611,10 @@ void Asset::save(const std::string& filename)
     // save images
     for (auto& image : mImages)
     {
-        image.save(*this, folder);
+        if (!image.save(*this, folder))
+        {
+            return false;
+        }
     }
 
     // save buffers
@@ -619,7 +622,10 @@ void Asset::save(const std::string& filename)
     // may remove image data from buffers
     for (auto& buffer : mBuffers)
     {
-        buffer.save(*this, folder);
+        if (!buffer.save(*this, folder))
+        {
+            return false;
+        }
     }
 
     // save .gltf
@@ -628,6 +634,8 @@ void Asset::save(const std::string& filename)
     std::string buffer = boost::json::serialize(obj, {});
     std::ofstream file(filename, std::ios::binary);
     file.write(buffer.c_str(), buffer.size());
+
+    return true;
 }
 
 void Asset::eraseBufferView(S32 bufferView)
@@ -704,9 +712,15 @@ void Image::clearData(Asset& asset)
     mMimeType = "";
 }
 
-void Image::save(Asset& asset, const std::string& folder)
+bool Image::save(Asset& asset, const std::string& folder)
 {
+    // NOTE:  this *MUST* be a lossless save
+    // Artists use this to save their work repeatedly, so
+    // adding any compression artifacts here will degrade 
+    // images over time.
     std::string name = mName;
+    std::string error;
+    const std::string& delim = gDirUtilp->getDirDelimiter();
     if (name.empty())
     {
         S32 idx = this - asset.mImages.data();
@@ -715,10 +729,11 @@ void Image::save(Asset& asset, const std::string& folder)
 
     if (mBufferView != INVALID_INDEX)
     {
-        // save original image
+        // we have the bytes of the original image, save that out in its
+        // original format
         BufferView& bufferView = asset.mBufferViews[mBufferView];
         Buffer& buffer = asset.mBuffers[bufferView.mBuffer];
-        
+
         std::string extension;
 
         if (mMimeType == "image/jpeg")
@@ -731,10 +746,11 @@ void Image::save(Asset& asset, const std::string& folder)
         }
         else
         {
+            error = "Unknown mime type, saved as .bin";
             extension = ".bin";
         }
 
-        std::string filename = folder + "/" + name + "." + extension;
+        std::string filename = folder + delim + name + delim + extension;
 
         // set URI to non-j2c file for now, but later we'll want to reference the j2c hash
         mUri = name + "." + extension;
@@ -742,8 +758,48 @@ void Image::save(Asset& asset, const std::string& folder)
         std::ofstream file(filename, std::ios::binary);
         file.write((const char*)buffer.mData.data() + bufferView.mByteOffset, bufferView.mByteLength);
     }
+    else if (mTexture.notNull())
+    {
+        auto bitmapmgr = LLLocalBitmapMgr::getInstance();
+        if (bitmapmgr->isLocal(mTexture->getID()))
+        {
+            LLUUID tracking_id = bitmapmgr->getTrackingID(mTexture->getID());
+            if (tracking_id.notNull())
+            { // copy original file to destination folder
+                std::string source = bitmapmgr->getFilename(tracking_id);
+                if (gDirUtilp->fileExists(source))
+                {
+                    std::string filename = gDirUtilp->getBaseFileName(source);
+                    std::string dest = folder + delim + filename;
+
+                    LLFile::copy(source, dest);
+                    mUri = filename;
+                }
+                else
+                {
+                    error = "File not found: " + source;
+                }
+            }
+            else
+            {
+                error = "Local image missing.";
+            }
+        }
+        else
+        {
+            error = "Image is not a local image.";
+        }
+    }
+
+    if (!error.empty())
+    {
+        LL_WARNS("GLTF") << "Failed to save " << name << ": " << error << LL_ENDL;
+        return false;
+    }
 
     clearData(asset);
+
+    return true;
 }
 
 void Material::TextureInfo::serialize(object& dst) const

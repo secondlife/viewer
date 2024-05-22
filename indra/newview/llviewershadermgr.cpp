@@ -228,6 +228,9 @@ LLGLSLShader            gDeferredPBRAlphaProgram;
 LLGLSLShader            gDeferredSkinnedPBRAlphaProgram;
 LLGLSLShader			gDeferredPBRTerrainProgram;
 
+LLGLSLShader            gGLTFPBRMetallicRoughnessProgram;
+
+
 //helper for making a rigged variant of a given shader
 static bool make_rigged_variant(LLGLSLShader& shader, LLGLSLShader& riggedShader)
 {
@@ -235,6 +238,7 @@ static bool make_rigged_variant(LLGLSLShader& shader, LLGLSLShader& riggedShader
     riggedShader.mFeatures = shader.mFeatures;
     riggedShader.mFeatures.hasObjectSkinning = true;
     riggedShader.mDefines = shader.mDefines;    // NOTE: Must come before addPermutation
+
     riggedShader.addPermutation("HAS_SKIN", "1");
     riggedShader.mShaderFiles = shader.mShaderFiles;
     riggedShader.mShaderLevel = shader.mShaderLevel;
@@ -242,6 +246,49 @@ static bool make_rigged_variant(LLGLSLShader& shader, LLGLSLShader& riggedShader
 
     shader.mRiggedVariant = &riggedShader;
     return riggedShader.createShader(NULL, NULL);
+}
+
+
+static bool make_gltf_variant(LLGLSLShader& shader, LLGLSLShader& variant, bool alpha_blend, bool rigged)
+{
+    variant.mName = shader.mName.c_str();
+    variant.mFeatures = shader.mFeatures;
+    variant.mShaderFiles = shader.mShaderFiles;
+    variant.mShaderLevel = shader.mShaderLevel;
+    variant.mShaderGroup = shader.mShaderGroup;
+
+    variant.mDefines = shader.mDefines;    // NOTE: Must come before addPermutation
+
+    if (alpha_blend)
+    {
+        variant.addPermutation("ALPHA_BLEND", "1");
+    }
+    if (rigged)
+    {
+        variant.addPermutation("HAS_SKIN", "1");
+        variant.mFeatures.hasObjectSkinning = true;
+    }
+
+    return variant.createShader(NULL, NULL);
+}
+
+static bool make_gltf_variants(LLGLSLShader& shader)
+{
+    shader.mFeatures.mGLTF = true;
+    shader.mGLTFVariants.resize(LLGLSLShader::NUM_GLTF_VARIANTS);
+
+    for (U32 i = 0; i < LLGLSLShader::NUM_GLTF_VARIANTS; ++i)
+    { 
+        bool alpha_blend = i & 1;
+        bool rigged = i & 2;
+
+        if (!make_gltf_variant(shader, shader.mGLTFVariants[i], alpha_blend, rigged))
+        {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 #ifdef SHOW_ASSERT
@@ -329,6 +376,7 @@ void LLViewerShaderMgr::finalizeShaderList()
     mShaderList.push_back(&gDeferredDiffuseProgram);
     mShaderList.push_back(&gDeferredBumpProgram);
     mShaderList.push_back(&gDeferredPBROpaqueProgram);
+    mShaderList.push_back(&gGLTFPBRMetallicRoughnessProgram);
     mShaderList.push_back(&gDeferredAvatarProgram);
     mShaderList.push_back(&gDeferredTerrainProgram);
     mShaderList.push_back(&gDeferredPBRTerrainProgram);
@@ -1019,6 +1067,7 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         gHUDPBROpaqueProgram.unload();
         gPBRGlowProgram.unload();
         gDeferredPBROpaqueProgram.unload();
+        gGLTFPBRMetallicRoughnessProgram.unload();
         gDeferredSkinnedPBROpaqueProgram.unload();
         gDeferredPBRAlphaProgram.unload();
         gDeferredSkinnedPBRAlphaProgram.unload();
@@ -1206,6 +1255,22 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         {
             success = gDeferredPBROpaqueProgram.createShader(NULL, NULL);
         }
+        llassert(success);
+    }
+
+    if (success)
+    {
+        gGLTFPBRMetallicRoughnessProgram.mName = "GLTF PBR Metallic Roughness Shader";
+        gGLTFPBRMetallicRoughnessProgram.mFeatures.hasSrgb = true;
+
+        gGLTFPBRMetallicRoughnessProgram.mShaderFiles.clear();
+        gGLTFPBRMetallicRoughnessProgram.mShaderFiles.push_back(make_pair("gltf/pbrmetallicroughnessV.glsl", GL_VERTEX_SHADER));
+        gGLTFPBRMetallicRoughnessProgram.mShaderFiles.push_back(make_pair("gltf/pbrmetallicroughnessF.glsl", GL_FRAGMENT_SHADER));
+        gGLTFPBRMetallicRoughnessProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+        gGLTFPBRMetallicRoughnessProgram.clearPermutations();
+        
+        success = make_gltf_variants(gGLTFPBRMetallicRoughnessProgram);
+        
         llassert(success);
     }
 
