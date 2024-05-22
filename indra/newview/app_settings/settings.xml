@@ -2644,6 +2644,17 @@
         <key>Value</key>
         <string>advance:AXIS_1+,pan:AXIS_0+,rise:AXIS_5+,pitch:AXIS_3-,yaw:AXIS_2+</string>
     </map>
+    <key>KnownGameControllers</key>
+    <map>
+        <key>Comment</key>
+        <string>Map of controller device-specific options.</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>LLSD</string>
+        <key>Value</key>
+        <map/>
+    </map>
     <key>EnableGestureSounds</key>
     <map>
       <key>Comment</key>
