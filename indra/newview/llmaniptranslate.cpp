@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file llmaniptranslate.cpp
  * @brief LLManipTranslate class implementation
  *

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file llfloater360capture.cpp
  * @author Callum Prentice (callum@lindenlab.com)
  * @brief Floater code for the 360 Capture feature
