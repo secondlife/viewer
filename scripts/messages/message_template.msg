@@ -6,9 +6,9 @@ version 2.0
 // numbers. Each message must be numbered relative to the
 // other messages of that type. The current highest number 
 // for each type is listed below:
-// Low: 431
+// Low: 430
 // Medium: 18
-// High: 30
+// High: 32
 // PLEASE UPDATE THIS WHEN YOU ADD A NEW MESSAGE!
 
 
@@ -9149,7 +9149,7 @@ version 2.0
 // message will be resent a few times in the hopes the server finally receives it.
 //
 {
-	GameControlInput Medium 431 NotTrusted Zerocoded
+	GameControlInput High 32 NotTrusted Zerocoded
 	{
 		AgentData		Single
 		{	AgentID		LLUUID	}

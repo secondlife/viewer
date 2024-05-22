@@ -213,69 +213,10 @@ public:
 
     static std::string getDatetimeCode (std::string key);
 
-    // Join non-empty strings from values using value itself and delimiter
-    template<class T>
-    static std::string join(const T& values, char delimiter = ',')
-    {
-        std::string result;
-        for (const std::string& value : values)
-        {
-            if (!value.empty())
-            {
-                if (!result.empty())
-                {
-                    result += delimiter;
-                }
-                result += value;
-            }
-        }
-        return result;
-    }
+    static void splitString(const std::string& text, char delimiter,
+        std::function<void(const std::string&)> handler);
 
-    // Join non-empty strings from values using stringify(value) and delimiter
-    template<class T, class V>
-    static std::string join(const T& values, std::function<std::string(const V&)> stringify, char delimiter = ',')
-    {
-        std::string result;
-        for (const V& value : values)
-        {
-            std::string string = stringify(value);
-            if (!string.empty())
-            {
-                if (!result.empty())
-                {
-                    result += delimiter;
-                }
-                result += string;
-            }
-        }
-        return result;
-    }
-
-    // Join non-empty strings from values using stringify(index, value) and delimiter
-    template<class T, class V>
-    static std::string join(const T& values, std::function<std::string(size_t index, const V&)> stringify, char delimiter = ',')
-    {
-        std::string result;
-        for (size_t i = 0; i < values.size(); ++i)
-        {
-            std::string string = stringify(i, values[i]);
-            if (!string.empty())
-            {
-                if (!result.empty())
-                {
-                    result += delimiter;
-                }
-                result += string;
-            }
-        }
-        return result;
-    }
-
-	static void splitString(const std::string& text, char delimiter,
-		std::function<void(const std::string&)> handler);
-
-    // Express a value like 1234567 as "1.23M" 
+    // Express a value like 1234567 as "1.23M"
     static std::string getReadableNumber(F64 num);
 };
 
@@ -495,6 +436,65 @@ public:
 
     static bool     isPartOfWord(T c) { return (c == (T)'_') || LLStringOps::isAlnum(c); }
 
+
+    // Join non-empty strings from values using value itself and delimiter
+    template<class C>
+    static std::string join(const C& values, T delimiter = ',')
+    {
+        std::string result;
+        for (const std::string& value : values)
+        {
+            if (!value.empty())
+            {
+                if (!result.empty())
+                {
+                    result += delimiter;
+                }
+                result += value;
+            }
+        }
+        return result;
+    }
+
+    // Join non-empty strings from values using stringify(value) and delimiter
+    template<class C, class V>
+    static std::string join(const C& values, std::function<std::string(const V&)> stringify, T delimiter = ',')
+    {
+        std::string result;
+        for (const V& value : values)
+        {
+            std::string string = stringify(value);
+            if (!string.empty())
+            {
+                if (!result.empty())
+                {
+                    result += delimiter;
+                }
+                result += string;
+            }
+        }
+        return result;
+    }
+
+    // Join non-empty strings from values using stringify(index, value) and delimiter
+    template<class C, class V>
+    static std::string join(const C& values, std::function<std::string(size_t index, const V&)> stringify, T delimiter = ',')
+    {
+        std::string result;
+        for (size_t i = 0; i < values.size(); ++i)
+        {
+            std::string string = stringify(i, values[i]);
+            if (!string.empty())
+            {
+                if (!result.empty())
+                {
+                    result += delimiter;
+                }
+                result += string;
+            }
+        }
+        return result;
+    }
 
 #ifdef _DEBUG
     LL_COMMON_API static void       testHarness();

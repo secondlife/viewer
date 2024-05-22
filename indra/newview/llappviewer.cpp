@@ -1135,7 +1135,9 @@ bool LLAppViewer::init()
         [&](const std::string& name) -> bool { return gSavedSettings.getBOOL(name); },
         [&](const std::string& name, bool value) { gSavedSettings.setBOOL(name, value); },
         [&](const std::string& name) -> std::string { return gSavedSettings.getString(name); },
-        [&](const std::string& name, const std::string& value) { gSavedSettings.setString(name, value); });
+        [&](const std::string& name, const std::string& value) { gSavedSettings.setString(name, value); },
+        [&](const std::string& name) -> LLSD { return gSavedSettings.getLLSD(name); },
+        [&](const std::string& name, const LLSD& value) { gSavedSettings.setLLSD(name, value); });
 
     try
     {

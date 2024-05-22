@@ -974,6 +974,31 @@ void LLSD::clear()                      { Impl::assignUndefined(impl); }
 
 LLSD::Type LLSD::type() const           { return safe(impl).type(); }
 
+bool LLSD::isEmpty() const
+{
+    switch (type())
+    {
+    case TypeUndefined:
+        return true; // Always empty
+    case TypeBinary:
+        return !asBoolean(); // Empty when default
+    case TypeInteger:
+        return !asInteger(); // Empty when default
+    case TypeReal:
+        return !asReal(); // Empty when default
+    case TypeString:
+    case TypeURI:
+        return asString().empty(); // Empty natively
+    case TypeArray:
+    case TypeMap:
+        return !size(); // Empty natively
+    default:;
+    }
+    // All other value types (TypeDate) don't have default values so can't be empty
+    return false;
+}
+
+
 // Scalar Constructors
 LLSD::LLSD(Boolean v) : impl(0)         { ALLOC_LLSD_OBJECT;    assign(v); }
 LLSD::LLSD(Integer v) : impl(0)         { ALLOC_LLSD_OBJECT;    assign(v); }
