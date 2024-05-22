@@ -1,0 +1,35 @@
+* text eol=lf
+
+# VSTool (normalization disabled)
+indra/tools/vstool/* -text
+
+# Images
+*.bmp binary
+*.BMP binary
+*.gif binary
+*.icns binary
+*.ico binary
+*.j2c binary
+*.j2k binary
+*.jpg binary
+*.png binary
+*.tga binary
+*.tif binary
+
+# Viewer resources
+*.db2 binary
+*.llm binary
+*.nib binary
+*.rtf binary
+*.ttf binary
+
+# Executables
+*.dll binary
+*.exe binary
+
+# Files with Windows line endings
+VivoxAUP.txt text eol=crlf
+FILES_ARE_UNICODE_UTF-16LE.txt text eol=crlf
+
+# Windows Manifest files
+*.manifest text eol=crlf
