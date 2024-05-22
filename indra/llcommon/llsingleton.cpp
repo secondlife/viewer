@@ -33,6 +33,7 @@
 #include "llerrorcontrol.h"
 #include "llexception.h"
 #include "llmainthreadtask.h"
+#include "../test/writestr.h"
 #include <algorithm>
 #include <iostream>                 // std::cerr in dire emergency
 #include <sstream>
@@ -63,6 +64,12 @@ private:
     typedef std::unique_lock<mutex_t> lock_t;
 
     mutex_t mMutex;
+
+public:
+    ~MasterList()
+    {
+        writestr(2, "~MasterList()");
+    }
 
 public:
     // Instantiate this to both obtain a reference to MasterList::instance()
@@ -147,6 +154,7 @@ public:
 private:
     list_t& get_initializing_()
     {
+        writestr(2, "MasterList::get_initializing_()");
         LLSingletonBase::list_t* current = mInitializing.get();
         if (! current)
         {
@@ -163,6 +171,7 @@ private:
     // we pop the list to empty, reset() the running coroutine's local_ptr.
     void cleanup_initializing_()
     {
+        writestr(2, "MasterList::cleanup_initializing_()");
         mInitializing.reset(nullptr);
     }
 };
@@ -272,17 +281,33 @@ void LLSingletonBase::reset_initializing(list_t::size_type size)
 
 void LLSingletonBase::MasterList::LockedInitializing::log(const char* verb, const char* name)
 {
-        LL_DEBUGS("LLSingleton") << verb << ' ' << demangle(name) << ';';
-        if (mList)
+    LL_DEBUGS("LLSingleton") << verb << ' ' << demangle(name) << ';';
+    if (mList)
+    {
+        for (list_t::const_reverse_iterator ri(mList->rbegin()), rend(mList->rend());
+             ri != rend; ++ri)
         {
-            for (list_t::const_reverse_iterator ri(mList->rbegin()), rend(mList->rend());
-                 ri != rend; ++ri)
-            {
-                LLSingletonBase* sb(*ri);
-                LL_CONT << ' ' << classname(sb);
-            }
+            LLSingletonBase* sb(*ri);
+            LL_CONT << ' ' << classname(sb);
         }
-        LL_ENDL;
+    }
+    LL_ENDL;
+}
+
+void LLSingletonBase::capture_dependency(LLSingletonBase* sb)
+{
+    // If we're called very late during application shutdown, the Boost.Fibers
+    // library may have shut down, and MasterList::mInitializing.get() might
+    // blow up. But if we're called that late, there's really no point in
+    // trying to capture this dependency. 
+    writestr(2, "LLSingletonBase::capture_dependency() trampoline");
+    if (boost::fibers::context::active())
+    {
+        writestr(2, "still active");
+        sb->capture_dependency();
+    }
+    else
+        writestr(2, "no longer active");
 }
 
 void LLSingletonBase::capture_dependency()

@@ -112,6 +112,8 @@ protected:
     // If a given call to B::getInstance() happens during either A::A() or
     // A::initSingleton(), record that A directly depends on B.
     void capture_dependency();
+    // trampoline to non-static member function
+    static void capture_dependency(LLSingletonBase*);
 
     // delegate logging calls to llsingleton.cpp
 public:
@@ -202,7 +204,7 @@ struct LLSingleton_manage_master
     }
     void capture_dependency(LLSingletonBase* sb)
     {
-        sb->capture_dependency();
+        LLSingletonBase::capture_dependency(sb);
     }
 };
 
@@ -434,6 +436,11 @@ protected:
 
         // Remove this instance from the master list.
         LLSingleton_manage_master<DERIVED_TYPE>().remove(this);
+        // We should no longer need our LockStatic -- but the fact that we can
+        // query or even resurrect a deleted LLSingleton means we basically
+        // have to shrug and leak our SingletonData. It's not large, and this
+        // only happens at shutdown anyway.
+//      lk.cleanup();
     }
 
 public:

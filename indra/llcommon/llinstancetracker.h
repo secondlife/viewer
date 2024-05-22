@@ -80,6 +80,8 @@ class LLInstanceTracker
     {
         InstanceMap mMap;
     };
+    // Unfortunately there's no umbrella class that owns all LLInstanceTracker
+    // instances, so there's no good place to call LockStatic::cleanup().
     typedef llthread::LockStatic<StaticData> LockStatic;
 
 public:
@@ -169,23 +171,7 @@ public:
         }
 
         // lock static data during construction
-#if ! LL_WINDOWS
         LockStatic mLock;
-#else  // LL_WINDOWS
-        // We want to be able to use (e.g.) our instance_snapshot subclass as:
-        // for (auto& inst : T::instance_snapshot()) ...
-        // But when this snapshot base class directly contains LockStatic, as
-        // above, Visual Studio 2017 requires us to code instead:
-        // for (auto& inst : std::move(T::instance_snapshot())) ...
-        // nat thinks this should be unnecessary, as an anonymous class
-        // instance is already a temporary. It shouldn't need to be cast to
-        // rvalue reference (the role of std::move()). clang evidently agrees,
-        // as the short form works fine with Xcode on Mac.
-        // To support the succinct usage, instead of directly storing
-        // LockStatic, store std::shared_ptr<LockStatic>, which is copyable.
-        std::shared_ptr<LockStatic> mLockp{std::make_shared<LockStatic>()};
-        LockStatic& mLock{*mLockp};
-#endif // LL_WINDOWS
         VectorType mData;
     };
     using snapshot = snapshot_of<T>;
@@ -384,6 +370,7 @@ class LLInstanceTracker<T, void, KEY_COLLISION_BEHAVIOR>
     {
         InstanceSet mSet;
     };
+    // see LockStatic comment in the above specialization for non-void KEY
     typedef llthread::LockStatic<StaticData> LockStatic;
 
 public:
@@ -461,23 +448,7 @@ public:
         }
 
         // lock static data during construction
-#if ! LL_WINDOWS
         LockStatic mLock;
-#else  // LL_WINDOWS
-        // We want to be able to use our instance_snapshot subclass as:
-        // for (auto& inst : T::instance_snapshot()) ...
-        // But when this snapshot base class directly contains LockStatic, as
-        // above, Visual Studio 2017 requires us to code instead:
-        // for (auto& inst : std::move(T::instance_snapshot())) ...
-        // nat thinks this should be unnecessary, as an anonymous class
-        // instance is already a temporary. It shouldn't need to be cast to
-        // rvalue reference (the role of std::move()). clang evidently agrees,
-        // as the short form works fine with Xcode on Mac.
-        // To support the succinct usage, instead of directly storing
-        // LockStatic, store std::shared_ptr<LockStatic>, which is copyable.
-        std::shared_ptr<LockStatic> mLockp{std::make_shared<LockStatic>()};
-        LockStatic& mLock{*mLockp};
-#endif // LL_WINDOWS
         VectorType mData;
     };
     using snapshot = snapshot_of<T>;
