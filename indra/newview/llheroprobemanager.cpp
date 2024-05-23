@@ -192,19 +192,11 @@ void LLHeroProbeManager::update()
             // Iterate through each face of the cube
             for (int i = 0; i < 6; i++)
             {
-                float cube_facing = fmax(-1, fmin(1.0f, cameraDirection * cubeFaces[i])) * 0.6 + 0.4;
+                float cube_facing = fmax(-1, fmin(1.0f, cameraDirection * cubeFaces[i]));
 
-                float updateRate;
-                if (cube_facing < 0.1f)
-                {
-                    updateRate = 0;
-                }
-                else
-                {
-                    updateRate = ceilf(cube_facing * gPipeline.RenderHeroProbeConservativeUpdateMultiplier);
-                }
+                cube_facing = 1 - cube_facing;
 
-                mFaceUpdateList[i] = updateRate;
+                mFaceUpdateList[i] = ceilf(cube_facing * gPipeline.RenderHeroProbeConservativeUpdateMultiplier);
             }
         }
         else
