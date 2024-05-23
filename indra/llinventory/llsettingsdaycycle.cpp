@@ -156,7 +156,7 @@ LLSD LLSettingsDay::getSettings() const
     std::map<std::string, LLSettingsBase::ptr_t> in_use;
 
     LLSD tracks(LLSD::emptyArray());
-    
+
     for (CycleList_t::const_iterator itTrack = mDayTracks.begin(); itTrack != mDayTracks.end(); ++itTrack)
     {
         LLSD trackout(LLSD::emptyArray());
@@ -195,7 +195,7 @@ bool LLSettingsDay::initialize(bool validate_frames)
     LLSD tracks = mSettings[SETTING_TRACKS];
     LLSD frames = mSettings[SETTING_FRAMES];
 
-    // save for later... 
+    // save for later...
     LLUUID assetid;
     if (mSettings.has(SETTING_ASSETID))
     {
@@ -244,7 +244,7 @@ bool LLSettingsDay::initialize(bool validate_frames)
             keyframe = llclamp(keyframe, 0.0f, 1.0f);
             LLSettingsBase::ptr_t setting;
 
-            
+
             if ((*it).has(SETTING_KEYNAME))
             {
                 std::string key_name = (*it)[SETTING_KEYNAME];
@@ -412,7 +412,7 @@ LLSD LLSettingsDay::defaults()
         LLSD waterTrack;
         LLSD skyTrack;
 
-    
+
         const U32 FRAME_COUNT = 8;
         const F32 FRAME_STEP  = 1.0f / F32(FRAME_COUNT);
         F32 time = 0.0f;
@@ -542,7 +542,7 @@ namespace
             {
                 LLSettingsSky::validation_list_t valid_sky = LLSettingsSky::validationList();
                 LLSD res_sky = LLSettingsBase::settingValidation(frame, valid_sky, flags);
-                
+
                 if (res_sky["success"].asInteger() == 0)
                 {
                     LL_WARNS("SETTINGS") << "Sky setting named '" << (*itf).first << "' validation failed!: " << res_sky << LL_ENDL;
@@ -599,9 +599,9 @@ LLSettingsDay::validation_list_t LLSettingsDay::validationList()
 
     if (validation.empty())
     {
-        validation.push_back(Validator(SETTING_TRACKS, true, LLSD::TypeArray, 
+        validation.push_back(Validator(SETTING_TRACKS, true, LLSD::TypeArray,
             &validateDayCycleTrack));
-        validation.push_back(Validator(SETTING_FRAMES, true, LLSD::TypeMap, 
+        validation.push_back(Validator(SETTING_FRAMES, true, LLSD::TypeMap,
             &validateDayCycleFrames));
     }
 

@@ -192,7 +192,7 @@ void GLTFSceneManager::uploadSelection()
                         return false;
                     };
 
-                
+
                 LLNewBufferedResourceUploadInfo::uploadFinish_f finish = [this, idx, raw, j2c](LLUUID assetId, LLSD response)
                     {
                         if (mUploadingAsset && mUploadingAsset->mImages.size() > idx)
@@ -275,7 +275,7 @@ void GLTFSceneManager::uploadSelection()
                 0,
                 LLFolderType::FT_NONE,
                 LLInventoryType::IT_GLTF_BIN,
-                LLAssetType::AT_GLTF_BIN, 
+                LLAssetType::AT_GLTF_BIN,
                 LLFloaterPerms::getNextOwnerPerms("Uploads"),
                 LLFloaterPerms::getGroupPerms("Uploads"),
                 LLFloaterPerms::getEveryonePerms("Uploads"),
@@ -414,10 +414,10 @@ void GLTFSceneManager::onGLTFBinLoadComplete(const LLUUID& id, LLAssetType::ETyp
                             }
                         }
                     }
-                }   
+                }
             }
-            
-            
+
+
         }
     }
     else
@@ -498,7 +498,7 @@ void GLTFSceneManager::update()
             mUploadingAsset->save(model);
 
             tinygltf::TinyGLTF writer;
-            
+
             writer.WriteGltfSceneToFile(&model, filename, false, false, true, false);
 #else
             boost::json::object obj;
@@ -593,9 +593,9 @@ void GLTFSceneManager::render(bool opaque, bool rigged)
 {
     // for debugging, just render the whole scene as opaque
     // by traversing the whole scenegraph
-    // Assumes camera transform is already set and 
+    // Assumes camera transform is already set and
     // appropriate shader is already boundd
-    
+
     gGL.matrixMode(LLRender::MM_MODELVIEW);
 
     for (U32 i = 0; i < mObjects.size(); ++i)
@@ -738,10 +738,10 @@ LLDrawable* GLTFSceneManager::lineSegmentIntersect(const LLVector4a& start, cons
     LLVector4a* intersection,         // return the intersection point
     LLVector2* tex_coord,            // return the texture coordinates of the intersection point
     LLVector4a* normal,               // return the surface normal at the intersection point
-    LLVector4a* tangent)			// return the surface tangent at the intersection point
+    LLVector4a* tangent)            // return the surface tangent at the intersection point
 {
     LLDrawable* drawable = nullptr;
-    
+
     LLVector4a local_end = end;
     LLVector4a position;
 
@@ -771,8 +771,8 @@ LLDrawable* GLTFSceneManager::lineSegmentIntersect(const LLVector4a& start, cons
 
 void drawBoxOutline(const LLVector4a& pos, const LLVector4a& size);
 
-extern LLVector4a		gDebugRaycastStart;
-extern LLVector4a		gDebugRaycastEnd;
+extern LLVector4a       gDebugRaycastStart;
+extern LLVector4a       gDebugRaycastEnd;
 
 void renderOctreeRaycast(const LLVector4a& start, const LLVector4a& end, const LLVolumeOctree* octree);
 
@@ -805,7 +805,7 @@ void renderAssetDebug(LLViewerObject* obj, Asset* asset)
         if (node.mMesh != INVALID_INDEX)
         {
             gGL.loadMatrix((F32*)glm::value_ptr(node.mRenderMatrix));
-            
+
             // draw bounding box of mesh primitives
             if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_BBOXES))
             {
@@ -882,10 +882,10 @@ void GLTFSceneManager::renderDebug()
         mat4 mat = glm::make_mat4(obj->getGLTFAssetToAgentTransform().getF32ptr());
 
         mat4 modelview = glm::make_mat4(gGLModelView);
-        
+
 
         modelview = modelview * mat;
-        
+
         Asset* asset = obj->mGLTFAsset.get();
 
         for (auto& node : asset->mNodes)
@@ -968,7 +968,7 @@ void GLTFSceneManager::renderDebug()
                         Node& child = asset->mNodes[child_idx];
                         gGL.vertex3f(0.f, 0.f, 0.f);
 
-                        
+
                         gGL.vertex3fv(glm::value_ptr(child.mMatrix[3]));
                     }
                     gGL.end();

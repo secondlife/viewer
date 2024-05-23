@@ -37,8 +37,9 @@ class LLUIAvatar:
 
 public:
     LLUIAvatar(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp);
-	virtual void 			initInstance(); // Called after construction to initialize the class.
-	virtual	~LLUIAvatar();
+    virtual void            initInstance(); // Called after construction to initialize the class.
+    virtual ~LLUIAvatar();
+    virtual bool isBuddy() const { return false; }
 };
 
 #endif //LL_CONTROLAVATAR_H

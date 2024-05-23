@@ -35,7 +35,7 @@
 #include "boost/json.hpp"
 #include "common.h"
 
-extern F32SecondsImplicit		gFrameTimeSeconds;
+extern F32SecondsImplicit       gFrameTimeSeconds;
 
 // wingdi defines OPAQUE, which conflicts with our enum
 #if defined(OPAQUE)
@@ -68,7 +68,7 @@ namespace LL
 
                 bool operator==(const TextureInfo& rhs) const;
                 bool operator!=(const TextureInfo& rhs) const;
-                
+
                 const TextureInfo& operator=(const tinygltf::TextureInfo& src);
                 const TextureInfo& operator=(const Value& src);
                 void serialize(boost::json::object& dst) const;
@@ -132,7 +132,7 @@ namespace LL
             const Material& operator=(const tinygltf::Material& src);
             const Material& operator=(const Value& src);
             void serialize(boost::json::object& dst) const;
-            
+
             void allocateGLResources(Asset& asset);
         };
 
@@ -146,7 +146,7 @@ namespace LL
             const Mesh& operator=(const tinygltf::Mesh& src);
             const Mesh& operator=(const Value& src);
             void serialize(boost::json::object& dst) const;
-            
+
             void allocateGLResources(Asset& asset);
         };
 
@@ -167,7 +167,7 @@ namespace LL
 
             // if true, translation/rotation/scale are valid and up to date
             bool mTRSValid = false;
-            
+
             bool mNeedsApplyMatrix = false;
 
             std::vector<S32> mChildren;
@@ -286,7 +286,7 @@ namespace LL
             const Image& operator=(const tinygltf::Image& src);
             const Image& operator=(const Value& src);
             void serialize(boost::json::object& dst) const;
-            
+
             // save image clear local data, and set uri
             void decompose(Asset& asset, const std::string& filename);
 
@@ -332,7 +332,7 @@ namespace LL
 
             // prepare the asset for rendering
             void allocateGLResources(const std::string& filename = "", const tinygltf::Model& model = tinygltf::Model());
-            
+
             // Called periodically (typically once per frame)
             // Any ongoing work (such as animations) should be handled here
             // NOT guaranteed to be called every frame
@@ -345,7 +345,7 @@ namespace LL
 
             // update node render transforms
             void updateRenderTransforms(const mat4& modelview);
-            
+
             void render(bool opaque, bool rigged = false);
             void renderOpaque();
             void renderTransparent();
@@ -359,7 +359,7 @@ namespace LL
                 LLVector4a* tangent = nullptr,             // return the surface tangent at the intersection point
                 S32* primitive_hitp = nullptr           // return the index of the primitive that was hit
             );
-            
+
             Asset() = default;
             Asset(const tinygltf::Model& src);
             Asset(const Value& src);
