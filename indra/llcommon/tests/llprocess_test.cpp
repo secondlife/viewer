@@ -3,7 +3,7 @@
  * @author Nat Goodspeed
  * @date   2011-12-19
  * @brief  Test for llprocess.
- * 
+ *
  * $LicenseInfo:firstyear=2011&license=viewerlgpl$
  * Copyright (c) 2011, Linden Research, Inc.
  * $/LicenseInfo$
@@ -1076,7 +1076,7 @@ namespace tut
     {
         EventListener(LLEventPump& pump)
         {
-            mConnection = 
+            mConnection =
                 pump.listen("EventListener", boost::bind(&EventListener::tick, this, _1));
         }
 
