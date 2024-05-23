@@ -54,6 +54,7 @@ namespace LL
         void save(const std::string& filename); // save selected asset to filename (suitable for use in external programs)
         void decomposeSelection(); // open file picker and choose a location to decompose to
         void decomposeSelection(const std::string& filename); // decompose selected asset into simulator-ready .gltf, .bin, and .j2c files
+        void uploadSelection(); // decompose selected asset and upload to simulator
 
         void update();
         void render(bool opaque, bool rigged = false);
@@ -77,7 +78,18 @@ namespace LL
 
         void renderDebug();
 
+        void addGLTFObject(LLViewerObject* object, LLUUID gltf_id);
+        static void onGLTFLoadComplete(const LLUUID& id, LLAssetType::EType asset_type, void* user_data, S32 status, LLExtStat ext_status);
+        static void onGLTFBinLoadComplete(const LLUUID& id, LLAssetType::EType asset_type, void* user_data, S32 status, LLExtStat ext_status);
+
         std::vector<LLPointer<LLViewerObject>> mObjects;
+
+        std::shared_ptr<GLTF::Asset> mUploadingAsset;
+        bool mGLTFUploadPending = false;
+        LLPointer<LLViewerObject> mUploadingObject;
+        U32 mPendingImageUploads = 0;
+        U32 mPendingBinaryUploads = 0;
+        U32 mPendingGLTFUploads = 0;
     };
 }
 

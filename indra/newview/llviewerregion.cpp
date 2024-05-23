@@ -2462,24 +2462,14 @@ void LLViewerRegion::setSimulatorFeatures(const LLSD& sim_features)
                 gSavedSettings.setS32("max_texture_dimension_Y", 1024);
             }
 
-            if (features.has("PBRTerrainEnabled"))
+            if (features.has("GLTFEnabled"))
             {
-                bool enabled = features["PBRTerrainEnabled"];
-                gSavedSettings.setBOOL("RenderTerrainPBREnabled", enabled);
+                bool enabled = features["GLTFEnabled"];
+                gSavedSettings.setBOOL("GLTFEnabled", enabled);
             }
             else
             {
-                gSavedSettings.setBOOL("RenderTerrainPBREnabled", false);
-            }
-
-            if (features.has("PBRMaterialSwatchEnabled"))
-            {
-                bool enabled = features["PBRMaterialSwatchEnabled"];
-                gSavedSettings.setBOOL("UIPreviewMaterial", enabled);
-            }
-            else
-            {
-                gSavedSettings.setBOOL("UIPreviewMaterial", false);
+                gSavedSettings.setBOOL("GLTFEnabled", false);
             }
         };
 

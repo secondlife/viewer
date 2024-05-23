@@ -2674,7 +2674,13 @@ void LLViewerMediaImpl::mimeDiscoveryCoro(std::string url)
         {
             if (initializeMedia(mimeType))
             {
-                loadURI();
+                ref();
+                LLAppViewer::instance()->postToMainCoro([this]()
+                    {
+                        loadURI();
+                        unref();
+                    });
+
             }
         }
 

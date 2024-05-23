@@ -299,9 +299,17 @@ void LLResourceUploadInfo::assignDefaults()
         mDescription = "(No Description)";
     }
 
+    if (mAssetType == LLAssetType::AT_GLTF ||
+        mAssetType == LLAssetType::AT_GLTF_BIN)
+    {
+        mFolderId = LLUUID::null;
+    }
+    else
+    {
     mFolderId = gInventory.findUserDefinedCategoryUUIDForType(
         (mDestinationFolderType == LLFolderType::FT_NONE) ?
         (LLFolderType::EType)mAssetType : mDestinationFolderType);
+}
 }
 
 std::string LLResourceUploadInfo::getDisplayName() const

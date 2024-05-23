@@ -142,7 +142,6 @@ void LLFetchedGLTFMaterial::bind(LLViewerTexture* media_tex)
         mTextureTransform[GLTF_TEXTURE_INFO_EMISSIVE].getPacked(emissive_packed);
         shader->uniform4fv(LLShaderMgr::TEXTURE_EMISSIVE_TRANSFORM, 2, (F32*)emissive_packed);
     }
-
 }
 
 LLViewerFetchedTexture* fetch_texture(const LLUUID& id)
