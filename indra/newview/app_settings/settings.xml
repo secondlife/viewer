@@ -9225,7 +9225,7 @@
         <key>Comment</key>
         <string>0 - complexity limit applies to everyone, 1 - always show friends, 2 - only show friends</string>
         <key>Persist</key>
-        <integer>0</integer>
+        <integer>1</integer>
         <key>Type</key>
         <string>S32</string>
         <key>Value</key>
