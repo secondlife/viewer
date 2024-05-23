@@ -125,6 +125,7 @@ public:
         mUserNameTextBox(NULL),
         mTimeBoxTextBox(NULL),
         mNeedsTimeBox(true),
+        mIsFromScript(false),
         mAvatarNameCacheConnection()
     {}
 
@@ -658,11 +659,12 @@ public:
 
     const LLUUID&       getAvatarId () const { return mAvatarID;}
 
-    void setup(const LLChat& chat, const LLStyle::Params& style_params, const LLSD& args)
+    void setup(const LLChat& chat, const LLStyle::Params& style_params, const LLSD& args, bool is_script)
     {
         mAvatarID = chat.mFromID;
         mSessionID = chat.mSessionID;
         mSourceType = chat.mSourceType;
+        mIsFromScript = is_script;
 
         // To be able to report a message, we need a copy of it's text
         // and it's easier to store text directly than trying to get
@@ -732,7 +734,7 @@ public:
                 username_end == (chat.mFromName.length() - 1))
             {
                 mFrom = chat.mFromName.substr(0, username_start);
-                user_name->setValue(mFrom);
+                user_name->setValue(mIsFromScript ? LLTrans::getString("ScriptBy") + mFrom : mFrom);
 
                 if (gSavedSettings.getBOOL("NameTagShowUsernames"))
                 {
@@ -774,7 +776,7 @@ public:
         switch (mSourceType)
         {
             case CHAT_SOURCE_AGENT:
-                icon->setValue(chat.mFromID);
+                icon->setValue(mIsFromScript ? LLSD("Inv_Script") : LLSD(chat.mFromID));
                 break;
             case CHAT_SOURCE_OBJECT:
                 icon->setValue(LLSD("OBJECT_Icon"));
@@ -787,7 +789,7 @@ public:
                 icon->setValue(LLSD("Command_Destinations_Icon"));
                 break;
             case CHAT_SOURCE_UNKNOWN:
-                icon->setValue(LLSD("Unknown_Icon"));
+                icon->setValue(mIsFromScript ? LLSD("Inv_Script") : LLSD(chat.mFromID));
         }
 
         // In case the message came from an object, save the object info
@@ -1029,7 +1031,14 @@ private:
         mFrom = av_name.getDisplayName();
 
         LLTextBox* user_name = getChild<LLTextBox>("user_name");
-        user_name->setValue( LLSD(av_name.getDisplayName() ) );
+        if(mIsFromScript) 
+        {
+            user_name->setValue(LLSD(LLTrans::getString("ScriptBy") + av_name.getDisplayName()));
+        }
+        else 
+        {
+            user_name->setValue(LLSD(av_name.getDisplayName()));
+        }
         user_name->setToolTip( av_name.getUserName() );
 
         if (gSavedSettings.getBOOL("NameTagShowUsernames") &&
@@ -1071,6 +1080,8 @@ protected:
 
     bool                mNeedsTimeBox;
 
+    bool mIsFromScript;
+
 private:
     boost::signals2::connection mAvatarNameCacheConnection;
 };
@@ -1088,6 +1099,7 @@ LLChatHistory::LLChatHistory(const LLChatHistory::Params& p)
     mTopHeaderPad(p.top_header_pad),
     mBottomHeaderPad(p.bottom_header_pad),
     mIsLastMessageFromLog(false),
+    mIsLastFromScript(false),
     mNotifyAboutUnreadMsg(p.notify_unread_msg)
 {
     LLTextEditor::Params editor_params(p);
@@ -1185,11 +1197,11 @@ LLView* LLChatHistory::getSeparator()
     return separator;
 }
 
-LLView* LLChatHistory::getHeader(const LLChat& chat,const LLStyle::Params& style_params, const LLSD& args)
+LLView* LLChatHistory::getHeader(const LLChat& chat,const LLStyle::Params& style_params, const LLSD& args, bool is_script)
 {
     LLChatHistoryHeader* header = LLChatHistoryHeader::createInstance(mMessageHeaderFilename);
     if (header)
-        header->setup(chat, style_params, args);
+        header->setup(chat, style_params, args, is_script);
     return header;
 }
 
@@ -1258,8 +1270,8 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
     name_params.color(name_color);
     name_params.readonly_color(name_color);
 
-    std::string prefix = chat.mText.substr(0, 4);
-
+    bool is_lua = (chat.mText.substr(0, LUA_PREFIX.size()) == LUA_PREFIX);
+    std::string prefix = chat.mText.substr(is_lua ? LUA_PREFIX.size() : 0, 4);
     //IRC styled /me messages.
     bool irc_me = prefix == "/me " || prefix == "/me'";
 
@@ -1393,7 +1405,8 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
             && mLastFromID == chat.mFromID
             && mLastMessageTime.notNull()
             && (new_message_time.secondsSinceEpoch() - mLastMessageTime.secondsSinceEpoch()) < 60.0
-            && mIsLastMessageFromLog == message_from_log)  //distinguish between current and previous chat session's histories
+            && mIsLastMessageFromLog == message_from_log  //distinguish between current and previous chat session's histories
+            && mIsLastFromScript == is_lua)
         {
             view = getSeparator();
             if (!view)
@@ -1408,7 +1421,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
         }
         else
         {
-            view = getHeader(chat, name_params, args);
+            view = getHeader(chat, name_params, args, is_lua);
             if (!view)
             {
                 LL_WARNS() << "Failed to create header from " << mMessageHeaderFilename << ": can't append to history" << LL_ENDL;
@@ -1437,6 +1450,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
         mLastFromID = chat.mFromID;
         mLastMessageTime = new_message_time;
         mIsLastMessageFromLog = message_from_log;
+        mIsLastFromScript = is_lua;
     }
 
     // body of the message processing
@@ -1491,7 +1505,8 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
     // usual messages showing
     else if (!teleport_separator)
     {
-        std::string message = irc_me ? chat.mText.substr(3) : chat.mText;
+        std::string message = is_lua ? chat.mText.substr(LUA_PREFIX.size()) : chat.mText;
+        message = irc_me ? message.substr(3) : message;
 
         //MESSAGE TEXT PROCESSING
         //*HACK getting rid of redundant sender names in system notifications sent using sender name (see EXT-5010)
