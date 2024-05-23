@@ -690,6 +690,8 @@ public:
 
 	static LLViewerFetchedTexture* getFetchedTextureFromHost(const LLUUID& image_id, FTType f_type, LLHost host) ;
 
+    static LLViewerFetchedTexture* getFetchedTextureFromMemory(const U8* data, U32 size, std::string_view mimetype);
+
 	static void init() ;
 	static void cleanup() ;
 };

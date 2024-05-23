@@ -83,6 +83,15 @@ bool Primitive::prep(Asset& asset)
     {
         Accessor& accessor = asset.mAccessors[mIndices];
         copy(asset, accessor, mIndexArray);
+
+        for (auto& idx : mIndexArray)
+        {
+            if (idx >= mPositions.size())
+            {
+                LL_WARNS("GLTF") << "Invalid index array" << LL_ENDL;
+                return false;
+            }
+        }
     }
 
     U32 mask = ATTRIBUTE_MASK;

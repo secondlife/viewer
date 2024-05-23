@@ -122,6 +122,9 @@ void Buffer::erase(Asset& asset, S32 offset, S32 length)
 
 bool Buffer::prep(Asset& asset)
 {
+    // PRECONDITION: mByteLength must not be 0
+    llassert(mByteLength != 0);
+
     LLUUID id;
     if (mUri.size() == UUID_STR_SIZE && LLUUID::parseUUID(mUri, &id) && id.notNull())
     { // loaded from an asset, fetch the buffer data from the asset store
@@ -139,10 +142,11 @@ bool Buffer::prep(Asset& asset)
         LL_WARNS() << "Data URIs not yet supported" << LL_ENDL;
         return false;
     }
-    else if (!asset.mFilename.empty())
+    else if (!asset.mFilename.empty() && 
+        !mUri.empty()) // <-- uri could be empty if we're loading from .glb
     { // loaded locally, load the texture as a local preview
         std::string dir = gDirUtilp->getDirName(asset.mFilename);
-        std::string bin_file = dir + "/" + mUri;
+        std::string bin_file = dir + gDirUtilp->getDirDelimiter() + mUri;
 
         std::ifstream file(bin_file, std::ios::binary);
         if (!file.is_open())
@@ -160,6 +164,8 @@ bool Buffer::prep(Asset& asset)
         }
     }
 
+    // POSTCONDITION: on success, mData.size == mByteLength
+    llassert(mData.size() == mByteLength);
     return true;
 }
 

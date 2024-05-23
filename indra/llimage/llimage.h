@@ -323,7 +323,10 @@ class LLImageFormatted : public LLImageBase
 {
 public:
 	static LLImageFormatted* createFromType(S8 codec);
-	static LLImageFormatted* createFromExtension(const std::string& instring);	
+    static LLImageFormatted* loadFromMemory(const U8* data, U32 size, std::string_view mimetype);
+	static LLImageFormatted* createFromExtension(const std::string& instring);
+    static LLImageFormatted* createFromMimeType(std::string_view mimetype);
+    static S8 getCodecFromMimeType(std::string_view mimetype);
 
 protected:
 	/*virtual*/ ~LLImageFormatted();

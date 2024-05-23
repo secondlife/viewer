@@ -34,6 +34,7 @@
 #include "../pipeline.h"
 #include "buffer_util.h"
 #include <boost/url.hpp>
+#include "llimagejpeg.h"
 
 using namespace LL::GLTF;
 using namespace boost::json;
@@ -520,25 +521,136 @@ bool Asset::load(std::string_view filename)
     mFilename = filename;
     std::string ext = gDirUtilp->getExtension(mFilename);
 
-    if (ext == "gltf")
+    std::ifstream file(filename.data(), std::ios::binary);
+    if (file.is_open())
     {
-        std::ifstream file(filename.data(), std::ios::binary);
-        if (file.is_open())
-        {
-            std::string str((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-            file.close();
+        std::string str((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+        file.close();
 
+        if (ext == "gltf")
+        {
             Value val = parse(str);
             *this = val;
-
             return prep();
+        }
+        else if (ext == "glb")
+        {
+            return loadBinary(str);
+        }
+        else
+        {
+            LL_WARNS() << "Unsupported file type: " << ext << LL_ENDL;
+            return false;
         }
     }
     else
     {
-        LL_WARNS() << "Unsupported file type: " << ext << LL_ENDL;
+        LL_WARNS() << "Failed to open file: " << filename << LL_ENDL;
+        return false;
     }
+
     return false;
+}
+
+bool Asset::loadBinary(const std::string& data)
+{
+    // load from binary gltf
+    const U8* ptr = (const U8*)data.data();
+    const U8* end = ptr + data.size();
+
+    if (end - ptr < 12)
+    {
+        LL_WARNS("GLTF") << "GLB file too short" << LL_ENDL;
+        return false;
+    }
+
+    U32 magic = *(U32*)ptr;
+    ptr += 4;
+
+    if (magic != 0x46546C67)
+    {
+        LL_WARNS("GLTF") << "Invalid GLB magic" << LL_ENDL;
+        return false;
+    }
+
+    U32 version = *(U32*)ptr;
+    ptr += 4;
+
+    if (version != 2)
+    {
+        LL_WARNS("GLTF") << "Unsupported GLB version" << LL_ENDL;
+        return false;
+    }
+
+    U32 length = *(U32*)ptr;
+    ptr += 4;
+
+    if (length != data.size())
+    {
+        LL_WARNS("GLTF") << "GLB length mismatch" << LL_ENDL;
+        return false;
+    }
+
+    U32 chunkLength = *(U32*)ptr;
+    ptr += 4;
+
+    if (end - ptr < chunkLength + 8)
+    {
+        LL_WARNS("GLTF") << "GLB chunk too short" << LL_ENDL;
+        return false;
+    }
+
+    U32 chunkType = *(U32*)ptr;
+    ptr += 4;
+
+    if (chunkType != 0x4E4F534A)
+    {
+        LL_WARNS("GLTF") << "Invalid GLB chunk type" << LL_ENDL;
+        return false;
+    }
+
+    Value val = parse(std::string_view((const char*)ptr, chunkLength));
+    *this = val;
+
+    if (mBuffers.size() > 0 && mBuffers[0].mUri.empty())
+    {
+        // load binary chunk
+        ptr += chunkLength;
+
+        if (end - ptr < 8)
+        {
+            LL_WARNS("GLTF") << "GLB chunk too short" << LL_ENDL;
+            return false;
+        }
+
+        chunkLength = *(U32*)ptr;
+        ptr += 4;
+
+        chunkType = *(U32*)ptr;
+        ptr += 4;
+
+        if (chunkType != 0x004E4942)
+        {
+            LL_WARNS("GLTF") << "Invalid GLB chunk type" << LL_ENDL;
+            return false;
+        }
+
+        auto& buffer = mBuffers[0];
+
+        if (ptr + buffer.mByteLength <= end)
+        {
+            buffer.mData.resize(buffer.mByteLength);
+            memcpy(buffer.mData.data(), ptr, buffer.mByteLength);
+            ptr += buffer.mByteLength;
+        }
+        else
+        {
+            LL_WARNS("GLTF") << "Buffer too short" << LL_ENDL;
+            return false;
+        }
+    }
+
+    return prep();
 }
 
 const Asset& Asset::operator=(const Value& src)
@@ -670,20 +782,52 @@ bool Image::prep(Asset& asset)
         mTexture = fetch_texture(id);
     }
     else if (mUri.find("data:") == 0)
-    { // loaded from a data URI, load the texture from the data
+    { // embedded in a data URI, load the texture from the URI
         LL_WARNS() << "Data URIs not yet supported" << LL_ENDL;
         return false;
     }
-    else if (!asset.mFilename.empty())
-    { // loaded locally, load the texture as a local preview
+    else if (mBufferView != INVALID_INDEX)
+    { // embedded in a buffer, load the texture from the buffer
+        BufferView& bufferView = asset.mBufferViews[mBufferView];
+        Buffer& buffer = asset.mBuffers[bufferView.mBuffer];
 
+        U8* data = buffer.mData.data() + bufferView.mByteOffset;
+
+        mTexture = LLViewerTextureManager::getFetchedTextureFromMemory(data, bufferView.mByteLength, mMimeType);
+
+        if (mTexture.isNull())
+        {
+            LL_WARNS("GLTF") << "Failed to load image from buffer:" << LL_ENDL;
+            LL_WARNS("GLTF") << "  image: " << mName << LL_ENDL;
+            LL_WARNS("GLTF") << "  mimeType: " << mMimeType << LL_ENDL;
+
+            return false;
+        }
+    }
+    else if (!asset.mFilename.empty() && !mUri.empty())
+    { // loaded locally and not embedded, load the texture as a local preview
         std::string dir = gDirUtilp->getDirName(asset.mFilename);
         std::string img_file = dir + gDirUtilp->getDirDelimiter() + mUri;
 
         LLUUID tracking_id = LLLocalBitmapMgr::getInstance()->addUnit(img_file);
-        LLUUID world_id = LLLocalBitmapMgr::getInstance()->getWorldID(tracking_id);
+        if (tracking_id.notNull())
+        {
+            LLUUID world_id = LLLocalBitmapMgr::getInstance()->getWorldID(tracking_id);
+            mTexture = LLViewerTextureManager::getFetchedTexture(world_id);
+        }
+        else
+        {
+            LL_WARNS("GLTF") << "Failed to load image from file:" << LL_ENDL;
+            LL_WARNS("GLTF") << "  image: " << mName << LL_ENDL;
+            LL_WARNS("GLTF") << "  file: " << img_file << LL_ENDL;
 
-        mTexture = LLViewerTextureManager::getFetchedTexture(world_id);
+            return false;
+        }
+    }
+    else
+    {
+        LL_WARNS("GLTF") << "Failed to load image: " << mName << LL_ENDL;
+        return false;
     }
 
     return true;

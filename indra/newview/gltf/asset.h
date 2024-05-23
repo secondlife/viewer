@@ -349,7 +349,16 @@ namespace LL
             Asset() = default;
             Asset(const Value& src);
 
+            // load from given file
+            // accepts .gltf and .glb files
+            // Any existing data will be lost
+            // returns result of prep() on success
             bool load(std::string_view filename);
+
+            // load .glb contents from memory
+            // data - binary contents of .glb file
+            // returns result of prep() on success
+            bool loadBinary(const std::string& data);
 
             const Asset& operator=(const Value& src);
             void serialize(boost::json::object& dst) const;
