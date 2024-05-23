@@ -59,7 +59,7 @@ public:
                                                     item_top_pad;
 
         Optional<time_t>                            creation_date;
-        Optional<bool>                              allow_wear;
+        Optional<bool>                              marketplace_item;
         Optional<bool>                              allow_drop;
 
         Optional<LLUIColor>                         font_color;
@@ -121,7 +121,7 @@ protected:
                                 mIsCurSelection,
                                 mDragAndDropTarget,
                                 mIsMouseOverTitle,
-                                mAllowWear,
+                                mMarketplaceItem,
                                 mAllowDrop,
                                 mSingleFolderMode,
                                 mDoubleClickOverride,
