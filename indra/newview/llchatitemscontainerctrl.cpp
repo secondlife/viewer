@@ -402,7 +402,7 @@ void LLFloaterIMNearbyChatToastPanel::draw()
             else if(mSourceType == CHAT_SOURCE_SYSTEM)
                 icon->setValue(LLSD("SL_Logo"));
             else if(mSourceType == CHAT_SOURCE_AGENT)
-                icon->setValue(mIsFromScript ? LLSD("Inv_Script") : mFromID);
+                icon->setValue(mIsFromScript ? LLSD("Inv_Script") : LLSD(mFromID));
             else if(!mFromID.isNull())
                 icon->setValue(mFromID);
         }

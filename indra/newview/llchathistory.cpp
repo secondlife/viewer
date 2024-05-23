@@ -776,7 +776,7 @@ public:
         switch (mSourceType)
         {
             case CHAT_SOURCE_AGENT:
-                icon->setValue(mIsFromScript ? LLSD("Inv_Script") : chat.mFromID);
+                icon->setValue(mIsFromScript ? LLSD("Inv_Script") : LLSD(chat.mFromID));
                 break;
             case CHAT_SOURCE_OBJECT:
                 icon->setValue(LLSD("OBJECT_Icon"));
@@ -789,7 +789,7 @@ public:
                 icon->setValue(LLSD("Command_Destinations_Icon"));
                 break;
             case CHAT_SOURCE_UNKNOWN:
-                icon->setValue(mIsFromScript ? LLSD("Inv_Script") : chat.mFromID);
+                icon->setValue(mIsFromScript ? LLSD("Inv_Script") : LLSD(chat.mFromID));
         }
 
         // In case the message came from an object, save the object info
