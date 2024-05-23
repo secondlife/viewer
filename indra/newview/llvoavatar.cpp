@@ -8091,9 +8091,11 @@ bool LLVOAvatar::shouldRenderRigged() const
 // Maybe better naming could make this clearer?
 bool LLVOAvatar::isVisible() const
 {
+    static LLCachedControl<bool> friends_only(gSavedSettings, "RenderAvatarFriendsOnly", false);
     return mDrawable.notNull()
         && (!mOrphaned || isSelf())
-        && (mDrawable->isVisible() || mIsDummy);
+        && (mDrawable->isVisible() || mIsDummy)
+        && (!friends_only() || isUIAvatar() || isSelf() || isControlAvatar() || isBuddy());
 }
 
 // Determine if we have enough avatar data to render
