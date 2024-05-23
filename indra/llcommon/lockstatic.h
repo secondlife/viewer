@@ -14,19 +14,14 @@
 #define LL_LOCKSTATIC_H
 
 #include "mutex.h"                  // std::unique_lock
-#include "llerror.h"
 #include "llexception.h"
+#include <typeinfo>
 
 namespace llthread
 {
 
-// Instantiate this template to obtain a pointer to the canonical static
-// instance of Static while holding a lock on that instance. Use of
-// Static::mMutex presumes that Static declares some suitable mMutex.
-template <typename Static>
-class LockStatic
+class LockStaticBase
 {
-    typedef std::unique_lock<decltype(Static::mMutex)> lock_t;
 public:
     // trying to lock Static after cleanup() has been called
     struct Dead: public LLException
@@ -34,6 +29,18 @@ public:
         Dead(const std::string& what): LLException(what) {}
     };
 
+protected:
+    static void throwDead(const char* mangled);
+};
+
+// Instantiate this template to obtain a pointer to the canonical static
+// instance of Static while holding a lock on that instance. Use of
+// Static::mMutex presumes that Static declares some suitable mMutex.
+template <typename Static>
+class LockStatic: public LockStaticBase
+{
+    typedef std::unique_lock<decltype(Static::mMutex)> lock_t;
+public:
     LockStatic():
         mData(getStatic()),
         mLock(getLock(mData))
@@ -81,8 +88,7 @@ private:
         // exceptional.
         if (! data)
         {
-            LLTHROW(Dead("LockStatic<" + LLError::Log::classname<LockStatic<Static>>() +
-                         "> called after cleanup()"));
+            throwDead(typeid(LockStatic<Static>).name());
         }
         // Usual case: data isn't nullptr, carry on.
         return lock_t(data->mMutex);
