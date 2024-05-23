@@ -245,6 +245,7 @@ Ansariel Hiller
 	SL-19623
 	SL-4126
 	SL-20224
+	SL-20524
 	https://github.com/secondlife/viewer/issues/1051
 Aralara Rajal
 Arare Chantilly
@@ -389,6 +390,7 @@ Chaser Zaks
     BUG-225599
     BUG-227485
     SL-16874
+	SL-20442
 Cherry Cheevers
 ChickyBabes Zuzu
 Chorazin Allen

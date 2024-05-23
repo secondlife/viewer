@@ -208,7 +208,7 @@ TestString PleaseIgnore
         Description:
       </text>
       <text_editor
-        text_type="ascii_printable_no_pipe"
+        prevalidator="ascii_printable_no_pipe"
         commit_on_focus_lost="true"
         border_style="line"
         border_thickness="1"

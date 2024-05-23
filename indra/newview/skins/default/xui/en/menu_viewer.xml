@@ -399,6 +399,16 @@
            function="Self.EnableRemoveAllAttachments" />
         </menu_item_call>
       </menu>
+      <menu_item_call
+       label="Remove selected attachments"
+       layout="topleft"
+       name="Remove Selected Attachments"
+       shortcut="alt|shift|R">
+        <menu_item_call.on_click
+         function="Attachment.Detach" />
+        <menu_item_call.on_enable
+         function="Attachment.EnableDetach" />
+      </menu_item_call>
       <menu_item_separator/>
       <menu_item_call
         label="Complete avatars..."
@@ -750,6 +760,33 @@
              function="Floater.Show"
              parameter="360capture" />
         </menu_item_call>
+        <menu
+         create_jump_keys="true"
+         label="Zoom level"
+         name="Zoom menu"
+         tear_off="true">
+            <menu_item_call
+             label="Zoom out"
+             name="Zoom Out"
+             shortcut="control|8">
+                <menu_item_call.on_click
+                 function="View.ZoomOut" />
+            </menu_item_call>
+            <menu_item_call
+             label="Default"
+             name="Zoom Default"
+             shortcut="control|9">
+                <menu_item_call.on_click
+                 function="View.ZoomDefault" />
+            </menu_item_call>
+            <menu_item_call
+             label="Zoom in"
+             name="Zoom In"
+             shortcut="control|0">
+                <menu_item_call.on_click
+                 function="View.ZoomIn" />
+            </menu_item_call>
+        </menu>
         <menu_item_separator/>
         <menu_item_call
          label="Place profile"
@@ -2441,29 +2478,6 @@ function="World.EnvPreset"
                  function="View.EnableLastChatter" />
             </menu_item_call>
 
-            <menu_item_separator/>
-
-            <menu_item_call
-             label="Zoom In"
-             name="Zoom In"
-             shortcut="control|0">
-                <menu_item_call.on_click
-                 function="View.ZoomIn" />
-            </menu_item_call>
-            <menu_item_call
-             label="Zoom Default"
-             name="Zoom Default"
-             shortcut="control|9">
-                <menu_item_call.on_click
-                 function="View.ZoomDefault" />
-            </menu_item_call>
-            <menu_item_call
-             label="Zoom Out"
-             name="Zoom Out"
-             shortcut="control|8">
-                <menu_item_call.on_click
-                 function="View.ZoomOut" />
-            </menu_item_call>
         </menu> <!--Shortcuts-->
 
         <menu_item_separator/>

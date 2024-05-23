@@ -28,7 +28,6 @@ set(cmake_SOURCE_FILES
         GLH.cmake
         Havok.cmake
         Hunspell.cmake
-        ICU4C.cmake
         LLAddBuildTest.cmake
         LLAppearance.cmake
         LLAudio.cmake

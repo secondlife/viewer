@@ -1,42 +1,42 @@
-/** 
+/**
  * @file llmd5.cpp
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
 
-// llMD5.CC - source code for the C++/object oriented translation and 
+// llMD5.CC - source code for the C++/object oriented translation and
 //          modification of MD5.
 //
 // Adapted to Linden Lab by Frank Filipanits, 6/25/2002
 // Fixed potential memory leak, James Cook, 6/27/2002
 
-// Translation and modification (c) 1995 by Mordechai T. Abzug 
+// Translation and modification (c) 1995 by Mordechai T. Abzug
 
-// This translation/ modification is provided "as is," without express or 
+// This translation/ modification is provided "as is," without express or
 // implied warranty of any kind.
 
-// The translator/ modifier does not claim (1) that MD5 will do what you think 
-// it does; (2) that this translation/ modification is accurate; or (3) that 
-// this software is "merchantible."  (Language for this disclaimer partially 
+// The translator/ modifier does not claim (1) that MD5 will do what you think
+// it does; (2) that this translation/ modification is accurate; or (3) that
+// this software is "merchantible."  (Language for this disclaimer partially
 // copied from the disclaimer below).
 
 /* based on:
@@ -76,7 +76,7 @@ documentation and/or software.
 
 #include "llmd5.h"
 
-#include <iostream>		// cerr
+#include <iostream>     // cerr
 
 // how many bytes to grab at a time when checking files
 const int LLMD5::BLOCK_LEN = 4096;
@@ -102,7 +102,7 @@ void LLMD5::update (const uint8_t *input, const size_t input_length) {
   size_t buffer_space;                // how much space is left in buffer
 
   if (finalized){  // so we can't update!
-	  std::cerr << "LLMD5::update:  Can't update a finalized digest!" << std::endl;
+      std::cerr << "LLMD5::update:  Can't update a finalized digest!" << std::endl;
     return;
   }
 
@@ -116,21 +116,21 @@ void LLMD5::update (const uint8_t *input, const size_t input_length) {
 
   // now, transform each 64-byte piece of the input, bypassing the buffer
   if (input == NULL || input_length == 0){
-	  std::cerr << "LLMD5::update:  Invalid input!" << std::endl;
-	  return;
+      std::cerr << "LLMD5::update:  Invalid input!" << std::endl;
+      return;
   }
 
   // Transform as many times as possible.
   if (input_length >= buffer_space) { // ie. we have enough to fill the buffer
     // fill the rest of the buffer and transform
-    memcpy(	/* Flawfinder: ignore */
-		buffer + buffer_index,
-		input,
-		buffer_space);
+    memcpy( /* Flawfinder: ignore */
+        buffer + buffer_index,
+        input,
+        buffer_space);
     transform (buffer);
 
-    for (input_index = buffer_space; input_index + 63 < input_length; 
-	 input_index += 64)
+    for (input_index = buffer_space; input_index + 63 < input_length;
+     input_index += 64)
       transform (input+input_index);
 
     buffer_index = 0;  // so we can buffer remaining
@@ -140,7 +140,7 @@ void LLMD5::update (const uint8_t *input, const size_t input_length) {
 
 
   // and here we do the buffering:
-  memcpy(buffer+buffer_index, input+input_index, input_length-input_index);		/* Flawfinder: ignore */
+  memcpy(buffer+buffer_index, input+input_index, input_length-input_index);     /* Flawfinder: ignore */
 }
 
 
@@ -150,7 +150,7 @@ void LLMD5::update (const uint8_t *input, const size_t input_length) {
 
 void LLMD5::update(FILE* file){
 
-  unsigned char buffer[BLOCK_LEN];		/* Flawfinder: ignore */
+  unsigned char buffer[BLOCK_LEN];      /* Flawfinder: ignore */
   int len;
 
   while ( (len=(int)fread(buffer, 1, BLOCK_LEN, file)) )
@@ -165,11 +165,11 @@ void LLMD5::update(FILE* file){
 
 void LLMD5::update(std::istream& stream){
 
-  unsigned char buffer[BLOCK_LEN];		/* Flawfinder: ignore */
+  unsigned char buffer[BLOCK_LEN];      /* Flawfinder: ignore */
   int len;
 
   while (stream.good()){
-    stream.read( (char*)buffer, BLOCK_LEN); 	/* Flawfinder: ignore */		// note that return value of read is unusable.
+    stream.read( (char*)buffer, BLOCK_LEN);     /* Flawfinder: ignore */        // note that return value of read is unusable.
     len=(int)stream.gcount();
     update(buffer, len);
   }
@@ -178,7 +178,7 @@ void LLMD5::update(std::istream& stream){
 
 void  LLMD5::update(const std::string& s)
 {
-	update((unsigned char *)s.c_str(),s.length());
+    update((unsigned char *)s.c_str(),s.length());
 }
 
 // MD5 finalization. Ends an MD5 message-digest operation, writing the
@@ -187,7 +187,7 @@ void  LLMD5::update(const std::string& s)
 
 void LLMD5::finalize (){
 
-  unsigned char bits[8];		/* Flawfinder: ignore */
+  unsigned char bits[8];        /* Flawfinder: ignore */
   size_t index, padLen;
   static uint8_t PADDING[64]={
     0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -245,60 +245,60 @@ LLMD5::LLMD5(std::istream& stream){
 // Digest a string of the format ("%s:%i" % (s, number))
 LLMD5::LLMD5(const unsigned char *string, const unsigned int number)
 {
-	const char *colon = ":";
-	char tbuf[16];		/* Flawfinder: ignore */
-	init();
-	update(string, (U32)strlen((const char *) string));		/* Flawfinder: ignore */
-	update((const unsigned char *) colon, (U32)strlen(colon));		/* Flawfinder: ignore */
-	snprintf(tbuf, sizeof(tbuf), "%i", number);	/* Flawfinder: ignore */
-	update((const unsigned char *) tbuf, (U32)strlen(tbuf));	/* Flawfinder: ignore */
-	finalize();
+    const char *colon = ":";
+    char tbuf[16];      /* Flawfinder: ignore */
+    init();
+    update(string, (U32)strlen((const char *) string));     /* Flawfinder: ignore */
+    update((const unsigned char *) colon, (U32)strlen(colon));      /* Flawfinder: ignore */
+    snprintf(tbuf, sizeof(tbuf), "%i", number); /* Flawfinder: ignore */
+    update((const unsigned char *) tbuf, (U32)strlen(tbuf));    /* Flawfinder: ignore */
+    finalize();
 }
 
 // Digest a string
 LLMD5::LLMD5(const unsigned char *s)
 {
-	init();
-	update(s, (U32)strlen((const char *) s));		/* Flawfinder: ignore */
-	finalize();
+    init();
+    update(s, (U32)strlen((const char *) s));       /* Flawfinder: ignore */
+    finalize();
 }
 
 void LLMD5::raw_digest(unsigned char *s) const
 {
-	if (!finalized)
-	{
-		std::cerr << "LLMD5::raw_digest:  Can't get digest if you haven't "<<
-			"finalized the digest!" << std::endl;
-		s[0] = '\0';
-		return;
-	}
+    if (!finalized)
+    {
+        std::cerr << "LLMD5::raw_digest:  Can't get digest if you haven't "<<
+            "finalized the digest!" << std::endl;
+        s[0] = '\0';
+        return;
+    }
 
-	memcpy(s, digest, 16);		/* Flawfinder: ignore */
-	return;
+    memcpy(s, digest, 16);      /* Flawfinder: ignore */
+    return;
 }
 
 
 
 void LLMD5::hex_digest(char *s) const
 {
-	int i;
+    int i;
 
-	if (!finalized)
-	{
-		std::cerr << "LLMD5::hex_digest:  Can't get digest if you haven't "<<
-		  "finalized the digest!" <<std::endl;
-		s[0] = '\0';
-		return;
-	}
+    if (!finalized)
+    {
+        std::cerr << "LLMD5::hex_digest:  Can't get digest if you haven't "<<
+          "finalized the digest!" <<std::endl;
+        s[0] = '\0';
+        return;
+    }
 
-	for (i=0; i<16; i++)
-	{
-		sprintf(s+i*2, "%02x", digest[i]);		/* Flawfinder: ignore */
-	}
+    for (i=0; i<16; i++)
+    {
+        sprintf(s+i*2, "%02x", digest[i]);      /* Flawfinder: ignore */
+    }
 
-	s[32]='\0';
+    s[32]='\0';
 
-	return;
+    return;
 }
 
 
@@ -308,27 +308,27 @@ void LLMD5::hex_digest(char *s) const
 
 std::ostream& operator<<(std::ostream &stream, LLMD5 context)
 {
-	char s[33];		/* Flawfinder: ignore */
-	context.hex_digest(s);
-	stream << s;
-	return stream;
+    char s[33];     /* Flawfinder: ignore */
+    context.hex_digest(s);
+    stream << s;
+    return stream;
 }
 
 bool operator==(const LLMD5& a, const LLMD5& b)
 {
-	unsigned char a_guts[16];
-	unsigned char b_guts[16];
-	a.raw_digest(a_guts);
-	b.raw_digest(b_guts);
-	if (memcmp(a_guts,b_guts,16)==0)
-		return true;
-	else
-		return false;
+    unsigned char a_guts[16];
+    unsigned char b_guts[16];
+    a.raw_digest(a_guts);
+    b.raw_digest(b_guts);
+    if (memcmp(a_guts,b_guts,16)==0)
+        return true;
+    else
+        return false;
 }
 
 bool operator!=(const LLMD5& a, const LLMD5& b)
 {
-	return !(a==b);
+    return !(a==b);
 }
 
 // PRIVATE METHODS:

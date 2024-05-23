@@ -17,7 +17,6 @@ include(DBusGlib)
 include(DragDrop)
 include(EXPAT)
 include(Hunspell)
-include(ICU4C)
 include(JPEGEncoderBasic)
 include(LLAppearance)
 include(LLAudio)
@@ -1604,6 +1603,8 @@ set(viewer_APPSETTINGS_FILES
     app_settings/autoreplace.xml
     app_settings/cmd_line.xml
     app_settings/commands.xml
+    app_settings/emoji_groups.xml
+    app_settings/foldertypes.xml
     app_settings/grass.xml
     app_settings/ignorable_dialogs.xml
     app_settings/key_bindings.xml
@@ -1910,7 +1911,6 @@ target_link_libraries(${VIEWER_BINARY_NAME}
         ${LLPHYSICSEXTENSIONS_LIBRARIES}
         ll::bugsplat
         ll::tracy
-        ll::icu4c
         )
 
 if( TARGET ll::intel_memops )
@@ -2143,7 +2143,7 @@ if (PACKAGE AND (RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING) AND VIE
         OUTPUT_VARIABLE PARENT_DIRECTORY_CYGWIN
         OUTPUT_STRIP_TRAILING_WHITESPACE)
       add_custom_command(OUTPUT "${VIEWER_SYMBOL_FILE}"
-        # Use of 'tar ...j' here assumes VIEWER_SYMBOL_FILE endswith .tar.xz;
+        # Use of 'tar ...J' here assumes VIEWER_SYMBOL_FILE endswith .tar.xz;
         # testing a string suffix is painful enough in CMake language that
         # we'll continue assuming it until forced to generalize.
         COMMAND "tar"

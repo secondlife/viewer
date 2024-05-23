@@ -28,14 +28,14 @@
 #include "llviewertexture.h"
 
 LLAgentBenefits::LLAgentBenefits():
-	m_initalized(false),
-	m_animated_object_limit(-1),
-	m_animation_upload_cost(-1),
-	m_attachment_limit(-1),
-	m_group_membership_limit(-1),
-	m_picks_limit(-1),
-	m_sound_upload_cost(-1),
-	m_texture_upload_cost(-1)
+    m_initalized(false),
+    m_animated_object_limit(-1),
+    m_animation_upload_cost(-1),
+    m_attachment_limit(-1),
+    m_group_membership_limit(-1),
+    m_picks_limit(-1),
+    m_sound_upload_cost(-1),
+    m_texture_upload_cost(-1)
 {
 }
 
@@ -48,53 +48,53 @@ LLAgentBenefits::~LLAgentBenefits()
 // the viewer cares about are integer.
 bool get_required_S32(const LLSD& sd, const LLSD::String& key, S32& value)
 {
-	value = -1;
-	if (sd.has(key))
-	{
-		value = sd[key].asInteger();
-		return true;
-	}
+    value = -1;
+    if (sd.has(key))
+    {
+        value = sd[key].asInteger();
+        return true;
+    }
 
-	LL_WARNS("Benefits") << "Missing required benefit field " << key << LL_ENDL;
-	return false;
+    LL_WARNS("Benefits") << "Missing required benefit field " << key << LL_ENDL;
+    return false;
 }
 
 bool LLAgentBenefits::init(const LLSD& benefits_sd)
 {
-	LL_DEBUGS("Benefits") << "initializing benefits from " << benefits_sd << LL_ENDL;
+    LL_DEBUGS("Benefits") << "initializing benefits from " << benefits_sd << LL_ENDL;
 
-	if (!get_required_S32(benefits_sd, "animated_object_limit", m_animated_object_limit))
-	{
-		return false;
-	}
-	if (!get_required_S32(benefits_sd, "animation_upload_cost", m_animation_upload_cost))
-	{
-		return false;
-	}
-	if (!get_required_S32(benefits_sd, "attachment_limit", m_attachment_limit))
-	{
-		return false;
-	}
-	if (!get_required_S32(benefits_sd, "create_group_cost", m_create_group_cost))
-	{
-		return false;
-	}
-	if (!get_required_S32(benefits_sd, "group_membership_limit", m_group_membership_limit))
-	{
-		return false;
-	}
-	if (!get_required_S32(benefits_sd, "picks_limit", m_picks_limit))
-	{
-		return false;
-	}
-	if (!get_required_S32(benefits_sd, "sound_upload_cost", m_sound_upload_cost))
-	{
-		return false;
-	}
-	if (!get_required_S32(benefits_sd, "texture_upload_cost", m_texture_upload_cost))
-	{
-		return false;
-	}
+    if (!get_required_S32(benefits_sd, "animated_object_limit", m_animated_object_limit))
+    {
+        return false;
+    }
+    if (!get_required_S32(benefits_sd, "animation_upload_cost", m_animation_upload_cost))
+    {
+        return false;
+    }
+    if (!get_required_S32(benefits_sd, "attachment_limit", m_attachment_limit))
+    {
+        return false;
+    }
+    if (!get_required_S32(benefits_sd, "create_group_cost", m_create_group_cost))
+    {
+        return false;
+    }
+    if (!get_required_S32(benefits_sd, "group_membership_limit", m_group_membership_limit))
+    {
+        return false;
+    }
+    if (!get_required_S32(benefits_sd, "picks_limit", m_picks_limit))
+    {
+        return false;
+    }
+    if (!get_required_S32(benefits_sd, "sound_upload_cost", m_sound_upload_cost))
+    {
+        return false;
+    }
+    if (!get_required_S32(benefits_sd, "texture_upload_cost", m_texture_upload_cost))
+    {
+        return false;
+    }
 
     if (benefits_sd.has("large_texture_upload_cost"))
     {
@@ -116,49 +116,49 @@ bool LLAgentBenefits::init(const LLSD& benefits_sd)
         m_2k_texture_upload_cost.push_back(m_texture_upload_cost);
     }
 
-	// FIXME PREMIUM - either use this field or get rid of it
-	m_initalized = true;
-	return true;
+    // FIXME PREMIUM - either use this field or get rid of it
+    m_initalized = true;
+    return true;
 }
 
 S32 LLAgentBenefits::getAnimatedObjectLimit() const
 {
-	return m_animated_object_limit;
+    return m_animated_object_limit;
 }
 
 S32 LLAgentBenefits::getAnimationUploadCost() const
 {
-	return m_animation_upload_cost;
+    return m_animation_upload_cost;
 }
 
 S32 LLAgentBenefits::getAttachmentLimit() const
 {
-	return m_attachment_limit;
+    return m_attachment_limit;
 }
 
 S32 LLAgentBenefits::getCreateGroupCost() const
 {
-	return m_create_group_cost;
+    return m_create_group_cost;
 }
 
 S32 LLAgentBenefits::getGroupMembershipLimit() const
 {
-	return m_group_membership_limit;
+    return m_group_membership_limit;
 }
 
 S32 LLAgentBenefits::getPicksLimit() const
 {
-	return m_picks_limit;
+    return m_picks_limit;
 }
 
 S32 LLAgentBenefits::getSoundUploadCost() const
 {
-	return m_sound_upload_cost;
+    return m_sound_upload_cost;
 }
 
 S32 LLAgentBenefits::getTextureUploadCost() const
 {
-	return m_texture_upload_cost;
+    return m_texture_upload_cost;
 }
 
 S32 LLAgentBenefits::getTextureUploadCost(const LLViewerTexture* tex) const
@@ -206,23 +206,23 @@ S32 LLAgentBenefits::get2KTextureUploadCost(S32 area) const
 
 bool LLAgentBenefits::findUploadCost(LLAssetType::EType& asset_type, S32& cost) const
 {
-	bool succ = false;
-	if (asset_type == LLAssetType::AT_TEXTURE)
-	{
+    bool succ = false;
+    if (asset_type == LLAssetType::AT_TEXTURE)
+    {
         cost = getTextureUploadCost();
-		succ = true;
-	}
-	else if (asset_type == LLAssetType::AT_SOUND)
-	{
-		cost = getSoundUploadCost();
-		succ = true;
-	}
-	else if (asset_type == LLAssetType::AT_ANIMATION)
-	{
-		cost = getAnimationUploadCost();
-		succ = true;
-	}
-	return succ;
+        succ = true;
+    }
+    else if (asset_type == LLAssetType::AT_SOUND)
+    {
+        cost = getSoundUploadCost();
+        succ = true;
+    }
+    else if (asset_type == LLAssetType::AT_ANIMATION)
+    {
+        cost = getAnimationUploadCost();
+        succ = true;
+    }
+    return succ;
 }
 
 LLAgentBenefitsMgr::LLAgentBenefitsMgr()
@@ -236,65 +236,65 @@ LLAgentBenefitsMgr::~LLAgentBenefitsMgr()
 // static
 const LLAgentBenefits& LLAgentBenefitsMgr::current()
 {
-	return instance().mCurrent;
+    return instance().mCurrent;
 }
 
 // static
 const LLAgentBenefits& LLAgentBenefitsMgr::get(const std::string& package)
 {
-	if (instance().mPackageMap.find(package) != instance().mPackageMap.end())
-	{
-		return instance().mPackageMap[package];
-	}
-	else
-	{
-		return instance().mDefault;
-	}
+    if (instance().mPackageMap.find(package) != instance().mPackageMap.end())
+    {
+        return instance().mPackageMap[package];
+    }
+    else
+    {
+        return instance().mDefault;
+    }
 }
 
 // static
 bool LLAgentBenefitsMgr::init(const std::string& package, const LLSD& benefits_sd)
 {
-	LLAgentBenefits benefits;
-	if (!benefits.init(benefits_sd))
-	{
-		LL_WARNS("Benefits") << "Unable to initialize package " << package << " from sd " << benefits_sd << LL_ENDL;
-		return false;
-	}
-	else
-	{
-		instance().mPackageMap[package] = benefits;
-	}
-	return true;
+    LLAgentBenefits benefits;
+    if (!benefits.init(benefits_sd))
+    {
+        LL_WARNS("Benefits") << "Unable to initialize package " << package << " from sd " << benefits_sd << LL_ENDL;
+        return false;
+    }
+    else
+    {
+        instance().mPackageMap[package] = benefits;
+    }
+    return true;
 
 }
 
 // static
 bool LLAgentBenefitsMgr::initCurrent(const std::string& package, const LLSD& benefits_sd)
 {
-	LLAgentBenefits benefits;
-	if (!benefits.init(benefits_sd))
-	{
-		LL_WARNS("Benefits") << "Unable to initialize package " << package << " from sd " << benefits_sd << LL_ENDL;
-		return false;
-	}
-	else
-	{
-		instance().mCurrent = benefits;
-		instance().mCurrentName = package;
-	}
-	return true;
+    LLAgentBenefits benefits;
+    if (!benefits.init(benefits_sd))
+    {
+        LL_WARNS("Benefits") << "Unable to initialize package " << package << " from sd " << benefits_sd << LL_ENDL;
+        return false;
+    }
+    else
+    {
+        instance().mCurrent = benefits;
+        instance().mCurrentName = package;
+    }
+    return true;
 
 }
 
 // static
 bool LLAgentBenefitsMgr::has(const std::string& package)
 {
-	return instance().mPackageMap.find(package) != instance().mPackageMap.end();
+    return instance().mPackageMap.find(package) != instance().mPackageMap.end();
 }
 
 //static
 bool LLAgentBenefitsMgr::isCurrent(const std::string& package)
 {
-	return instance().mCurrentName == package;
+    return instance().mCurrentName == package;
 }

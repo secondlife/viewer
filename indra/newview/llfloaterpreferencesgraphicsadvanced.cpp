@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llfloaterpreferencesgraphicsadvanced.cpp
  * @brief floater for adjusting camera position
  *
  * $LicenseInfo:firstyear=2021&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2021, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -143,17 +143,17 @@ void LLFloaterPreferenceGraphicsAdvanced::refresh()
     getChild<LLUICtrl>("fsaa")->setValue((LLSD::Integer)  gSavedSettings.getU32("RenderFSAASamples"));
 
     // sliders and their text boxes
-    //	mPostProcess = gSavedSettings.getS32("RenderGlowResolutionPow");
+    //  mPostProcess = gSavedSettings.getS32("RenderGlowResolutionPow");
     // slider text boxes
-    updateSliderText(getChild<LLSliderCtrl>("ObjectMeshDetail",		true), getChild<LLTextBox>("ObjectMeshDetailText",		true));
-    updateSliderText(getChild<LLSliderCtrl>("FlexibleMeshDetail",	true), getChild<LLTextBox>("FlexibleMeshDetailText",	true));
-    updateSliderText(getChild<LLSliderCtrl>("TreeMeshDetail",		true), getChild<LLTextBox>("TreeMeshDetailText",		true));
-    updateSliderText(getChild<LLSliderCtrl>("AvatarMeshDetail",		true), getChild<LLTextBox>("AvatarMeshDetailText",		true));
-    updateSliderText(getChild<LLSliderCtrl>("AvatarPhysicsDetail",	true), getChild<LLTextBox>("AvatarPhysicsDetailText",		true));
-    updateSliderText(getChild<LLSliderCtrl>("TerrainMeshDetail",	true), getChild<LLTextBox>("TerrainMeshDetailText",		true));
-    updateSliderText(getChild<LLSliderCtrl>("RenderPostProcess",	true), getChild<LLTextBox>("PostProcessText",			true));
-    updateSliderText(getChild<LLSliderCtrl>("SkyMeshDetail",		true), getChild<LLTextBox>("SkyMeshDetailText",			true));
-    updateSliderText(getChild<LLSliderCtrl>("TerrainDetail",		true), getChild<LLTextBox>("TerrainDetailText",			true));	
+    updateSliderText(getChild<LLSliderCtrl>("ObjectMeshDetail",     true), getChild<LLTextBox>("ObjectMeshDetailText",      true));
+    updateSliderText(getChild<LLSliderCtrl>("FlexibleMeshDetail",   true), getChild<LLTextBox>("FlexibleMeshDetailText",    true));
+    updateSliderText(getChild<LLSliderCtrl>("TreeMeshDetail",       true), getChild<LLTextBox>("TreeMeshDetailText",        true));
+    updateSliderText(getChild<LLSliderCtrl>("AvatarMeshDetail",     true), getChild<LLTextBox>("AvatarMeshDetailText",      true));
+    updateSliderText(getChild<LLSliderCtrl>("AvatarPhysicsDetail",  true), getChild<LLTextBox>("AvatarPhysicsDetailText",       true));
+    updateSliderText(getChild<LLSliderCtrl>("TerrainMeshDetail",    true), getChild<LLTextBox>("TerrainMeshDetailText",     true));
+    updateSliderText(getChild<LLSliderCtrl>("RenderPostProcess",    true), getChild<LLTextBox>("PostProcessText",           true));
+    updateSliderText(getChild<LLSliderCtrl>("SkyMeshDetail",        true), getChild<LLTextBox>("SkyMeshDetailText",         true));
+    updateSliderText(getChild<LLSliderCtrl>("TerrainDetail",        true), getChild<LLTextBox>("TerrainDetailText",         true));
     LLAvatarComplexityControls::setIndirectControls();
     setMaxNonImpostorsText(
         gSavedSettings.getU32("RenderAvatarMaxNonImpostors"),
@@ -217,7 +217,7 @@ void LLFloaterPreferenceGraphicsAdvanced::updateSliderText(LLSliderCtrl* ctrl, L
     if (value < midPoint)
     {
         text_box->setText(LLTrans::getString("GraphicsQualityLow"));
-    } 
+    }
     else if (value < highPoint)
     {
         text_box->setText(LLTrans::getString("GraphicsQualityMid"));
@@ -267,7 +267,7 @@ void LLFloaterPreferenceGraphicsAdvanced::setMaxNonImpostorsText(U32 value, LLTe
 }
 
 void LLFloaterPreferenceGraphicsAdvanced::disableUnavailableSettings()
-{	
+{
     LLComboBox* ctrl_reflections   = getChild<LLComboBox>("Reflections");
     LLTextBox* reflections_text = getChild<LLTextBox>("ReflectionsText");
     LLCheckBoxCtrl* ctrl_avatar_vp     = getChild<LLCheckBoxCtrl>("AvatarVertexProgram");
@@ -387,7 +387,7 @@ void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
     ctrl_reflections->setEnabled(reflections);
     reflections_text->setEnabled(reflections);
 
-    // Bump & Shiny	
+    // Bump & Shiny
     LLCheckBoxCtrl* bumpshiny_ctrl = getChild<LLCheckBoxCtrl>("BumpShiny");
     bool bumpshiny = LLCubeMap::sUseCubeMaps && LLFeatureManager::getInstance()->isFeatureAvailable("RenderObjectBump");
     bumpshiny_ctrl->setEnabled(bumpshiny);
@@ -436,7 +436,7 @@ void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
 
     ctrl_deferred->setEnabled(enabled);
 #endif
-    
+
     LLCheckBoxCtrl* ctrl_pbr = getChild<LLCheckBoxCtrl>("UsePBRShaders");
 
     //PBR
@@ -461,7 +461,7 @@ void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
     shadow_text->setEnabled(enabled);
 
     // Hardware settings
-    
+
     if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderVBOEnable"))
     {
         getChildView("vbo")->setEnabled(false);

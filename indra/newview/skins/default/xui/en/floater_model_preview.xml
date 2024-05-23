@@ -93,7 +93,7 @@
           height="19"
           max_length_bytes="63"
           name="description_form"
-          prevalidate_callback="ascii"
+          prevalidator="ascii"
           top_pad="5"
           width="290" />
     </panel>

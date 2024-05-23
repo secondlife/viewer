@@ -152,11 +152,11 @@ public:
     LLInventoryGalleryItem* getFirstSelectedItem();
 
     // Copy & paste (LLEditMenuHandler)
-    void	copy() override;
-    bool	canCopy() const override;
+    void    copy() override;
+    bool    canCopy() const override;
 
-    void	cut() override;
-    bool	canCut() const override;
+    void    cut() override;
+    bool    canCut() const override;
 
     void paste() override;
     bool canPaste() const override;
@@ -337,7 +337,7 @@ public:
     std::string getItemName() {return mItemName;}
     std::string getItemNameSuffix() {return mPermSuffix + mWornSuffix;}
     bool isDefaultImage() {return mDefaultImage;}
-    
+
     bool isHidden() {return mHidden;}
     void setHidden(bool hidden) {mHidden = hidden;}
 
@@ -351,7 +351,7 @@ public:
     EInventorySortGroup getSortGroup() { return mSortGroup; }
 
     void updateNameText();
-    
+
 private:
     bool isFadeItem();
 
