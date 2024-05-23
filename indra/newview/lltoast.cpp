@@ -65,15 +65,6 @@ void LLToastLifeTimer::setPeriod(F32 period)
     mPeriod = period;
 }
 
-/*==========================================================================*|
-F32 LLToastLifeTimer::getRemainingTimeF32()
-{
-    F32 et = mEventTimer.getElapsedTimeF32();
-    if (!getStarted() || et > mPeriod) return 0.0f;
-    return mPeriod - et;
-}
-|*==========================================================================*/
-
 //--------------------------------------------------------------------------
 LLToast::Params::Params()
 :   can_fade("can_fade", true),

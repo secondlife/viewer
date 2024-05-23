@@ -57,9 +57,7 @@ public:
     void restart();
     bool getStarted();
     void setPeriod(F32 period);
-//  F32 getRemainingTimeF32();
 
-//  LLTimer&  getEventTimer() { return mEventTimer;}
 private :
     LLToast* mToast;
 };

@@ -127,10 +127,7 @@ public:
         LLAppearanceMgr::instance().setOutfitLocked(false);
         return false;
     }
-//  void reset() { mEventTimer.reset(); }
     bool getStarted() { return isRunning(); }
-
-//  LLTimer&  getEventTimer() { return mEventTimer;}
 };
 
 // support for secondlife:///app/appearance SLapps
