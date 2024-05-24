@@ -480,7 +480,7 @@ namespace
         return LLGameControl::CONTROL_MODE_AVATAR;
     }
 
-    std::string convertAgentControlModeToString(LLGameControl::AgentControlMode mode)
+    const std::string& convertAgentControlModeToString(LLGameControl::AgentControlMode mode)
     {
         if (mode == LLGameControl::CONTROL_MODE_NONE)
             return ENUM_AGENTCONTROLMODE_NONE;
@@ -488,6 +488,12 @@ namespace
             return ENUM_AGENTCONTROLMODE_FLYCAM;
         // All values except NONE and FLYCAM are treated as default (AVATAR)
         return LLStringUtil::null;
+    }
+
+    const std::string& getDeviceOptionsString(const std::string& guid)
+    {
+        const auto& it = g_deviceOptions.find(guid);
+        return it == g_deviceOptions.end() ? LLStringUtil::null : it->second;
     }
 }
 
@@ -864,7 +870,7 @@ void LLGameControllerManager::loadDeviceOptionsFromSettings()
 {
     for (LLGameControl::Device& device : mDevices)
     {
-        device.loadOptionsFromString(g_deviceOptions[device.getGUID()]);
+        device.loadOptionsFromString(getDeviceOptionsString(device.getGUID()));
     }
 }
 
@@ -900,7 +906,7 @@ void LLGameControllerManager::addController(SDL_JoystickID id, const std::string
         }
     }
 
-    mDevices.emplace_back(id, guid, name).loadOptionsFromString(g_deviceOptions[guid]);
+    mDevices.emplace_back(id, guid, name).loadOptionsFromString(getDeviceOptionsString(guid));
 }
 
 void LLGameControllerManager::removeController(SDL_JoystickID id)
