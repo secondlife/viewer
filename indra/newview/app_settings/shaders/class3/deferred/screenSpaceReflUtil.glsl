@@ -92,7 +92,7 @@ bool traceScreenRay(vec3 position, vec3 reflection, out vec4 hitColor, out float
     vec2 screenPosition;
     bool hit = false;
     hitColor = vec4(0);
-    
+
     int i = 0;
     if (depth > depthRejectBias)
     {
@@ -107,7 +107,7 @@ bool traceScreenRay(vec3 position, vec3 reflection, out vec4 hitColor, out float
             }
             depthFromScreen = getLinearDepth(screenPosition);
             delta = abs(marchingPosition.z) - depthFromScreen;
-            
+
             if (depth < depthFromScreen + epsilon && depth > depthFromScreen - epsilon)
             {
                 break;
@@ -151,7 +151,7 @@ bool traceScreenRay(vec3 position, vec3 reflection, out vec4 hitColor, out float
             {
                 step *= 0.5;
                 marchingPosition = marchingPosition - step * sign(delta);
-                
+
                 screenPosition = generateProjectedPosition(marchingPosition);
                 if (screenPosition.x > 1 || screenPosition.x < 0 ||
                     screenPosition.y > 1 || screenPosition.y < 0)
@@ -180,7 +180,7 @@ bool traceScreenRay(vec3 position, vec3 reflection, out vec4 hitColor, out float
             }
         }
     }
-    
+
     return hit;
 }
 
@@ -335,18 +335,18 @@ collectedColor = vec4(1, 0, 1, 1);
     vec2 uv2 = tc * screen_res;
     float c = (uv2.x + uv2.y) * 0.125;
     float jitter = mod( c, 1.0);
-    
+
     vec2 screenpos = 1 - abs(tc * 2 - 1);
     float vignette = clamp((abs(screenpos.x) * abs(screenpos.y)) * 16,0, 1);
     vignette *= clamp((dot(normalize(viewPos), n) * 0.5 + 0.5) * 5.5 - 0.8, 0, 1);
-    
+
     float zFar = 128.0;
     vignette *= clamp(1.0+(viewPos.z/zFar), 0.0, 1.0);
 
     vignette *= clamp(glossiness * 3 - 1.7, 0, 1);
 
     vec4 hitpoint;
-    
+
     glossiness = 1 - glossiness;
 
     totalSamples = int(max(glossySampleCount, glossySampleCount * glossiness * vignette));
@@ -376,7 +376,7 @@ collectedColor = vec4(1, 0, 1, 1);
                     collectedColor.a += 1;
                 }
             }
-            
+
             if (hits > 0)
             {
                 collectedColor /= hits;

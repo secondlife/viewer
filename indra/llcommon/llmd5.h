@@ -1,24 +1,24 @@
-/** 
+/**
  * @file llmd5.h
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -26,17 +26,17 @@
 #ifndef LL_LLMD5_H
 #define LL_LLMD5_H
 
-// LLMD5.CC - source code for the C++/object oriented translation and 
+// LLMD5.CC - source code for the C++/object oriented translation and
 //          modification of MD5.
 
-// Translation and modification (c) 1995 by Mordechai T. Abzug 
+// Translation and modification (c) 1995 by Mordechai T. Abzug
 
-// This translation/ modification is provided "as is," without express or 
+// This translation/ modification is provided "as is," without express or
 // implied warranty of any kind.
 
-// The translator/ modifier does not claim (1) that MD5 will do what you think 
-// it does; (2) that this translation/ modification is accurate; or (3) that 
-// this software is "merchantible."  (Language for this disclaimer partially 
+// The translator/ modifier does not claim (1) that MD5 will do what you think
+// it does; (2) that this translation/ modification is accurate; or (3) that
+// this software is "merchantible."  (Language for this disclaimer partially
 // copied from the disclaimer below).
 
 /* based on:
@@ -95,10 +95,10 @@ public:
   LLMD5              (std::istream& stream);       // digest stream, finalize
   LLMD5              (FILE *file);            // digest file, close, finalize
   LLMD5              (const unsigned char *string, const unsigned int number);
-  
+
 // methods to acquire finalized result
-  void				raw_digest(unsigned char *array) const;	// provide 16-byte array for binary data
-  void				hex_digest(char *string) const;			// provide 33-byte array for ascii-hex string
+  void              raw_digest(unsigned char *array) const; // provide 16-byte array for binary data
+  void              hex_digest(char *string) const;         // provide 33-byte array for ascii-hex string
 
   friend LL_COMMON_API std::ostream&   operator<< (std::ostream&, LLMD5 context);
 
@@ -114,7 +114,7 @@ private:
 
 // last, the private methods, mostly static:
   void init             ();               // called by all constructors
-  void transform        (const uint8_t *buffer);  // does the real update work.  Note 
+  void transform        (const uint8_t *buffer);  // does the real update work.  Note
                                           // that length is implied to be 64.
 
   static void encode    (uint8_t *dest, const uint32_t *src, const size_t length);

@@ -35,7 +35,7 @@
 #include "common.h"
 #include "../llviewertexture.h"
 
-extern F32SecondsImplicit		gFrameTimeSeconds;
+extern F32SecondsImplicit       gFrameTimeSeconds;
 
 // wingdi defines OPAQUE, which conflicts with our enum
 #if defined(OPAQUE)
@@ -68,7 +68,7 @@ namespace LL
 
                 bool operator==(const TextureInfo& rhs) const;
                 bool operator!=(const TextureInfo& rhs) const;
-                
+
                 const TextureInfo& operator=(const Value& src);
                 void serialize(boost::json::object& dst) const;
             };
@@ -133,7 +133,7 @@ namespace LL
 
             const Mesh& operator=(const Value& src);
             void serialize(boost::json::object& dst) const;
-            
+
             bool prep(Asset& asset);
         };
 
@@ -154,7 +154,7 @@ namespace LL
 
             // if true, translation/rotation/scale are valid and up to date
             bool mTRSValid = false;
-            
+
             bool mNeedsApplyMatrix = false;
 
             std::vector<S32> mChildren;
@@ -266,9 +266,9 @@ namespace LL
 
             const Image& operator=(const Value& src);
             void serialize(boost::json::object& dst) const;
-            
+
             // save image to disk
-            // may remove image data from bufferviews and convert to 
+            // may remove image data from bufferviews and convert to
             // file uri if necessary
             bool save(Asset& asset, const std::string& filename);
 
@@ -315,7 +315,7 @@ namespace LL
             // the last time update() was called according to gFrameTimeSeconds
             F32 mLastUpdateTime = gFrameTimeSeconds;
 
-            
+
             // prepare for first time use
             bool prep();
 
@@ -331,7 +331,7 @@ namespace LL
 
             // update node render transforms
             void updateRenderTransforms(const mat4& modelview);
-            
+
             void render(bool opaque, bool rigged = false);
             void renderOpaque();
             void renderTransparent();
@@ -345,7 +345,7 @@ namespace LL
                 LLVector4a* tangent = nullptr,             // return the surface tangent at the intersection point
                 S32* primitive_hitp = nullptr           // return the index of the primitive that was hit
             );
-            
+
             Asset() = default;
             Asset(const Value& src);
 

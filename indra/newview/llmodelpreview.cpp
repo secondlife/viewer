@@ -68,6 +68,8 @@
 #include "lltabcontainer.h"
 #include "lltextbox.h"
 
+#include <filesystem>
+
 #include <boost/algorithm/string.hpp>
 
 bool LLModelPreview::sIgnoreLoadedCallback = false;
@@ -451,13 +453,13 @@ void LLModelPreview::rebuildUploadData()
                     // That's ok, but might not what they wanted. Use default_physics_shape if found.
                     std::ostringstream out;
                     out << "No physics model specified for " << instance.mLabel;
-                    if (mDefaultPhysicsShapeP)
+                    if (mDefaultPhysicsShapeP.notNull())
                     {
                         out << " - using: " << DEFAULT_PHYSICS_MESH_NAME;
                         lod_model = mDefaultPhysicsShapeP;
                     }
                     LL_WARNS() << out.str() << LL_ENDL;
-                    LLFloaterModelPreview::addStringToLog(out, !mDefaultPhysicsShapeP); // Flash log tab if no default.
+                    LLFloaterModelPreview::addStringToLog(out, mDefaultPhysicsShapeP.isNull()); // Flash log tab if no default.
                 }
 
                 if (lod_model)
@@ -1067,6 +1069,29 @@ void LLModelPreview::loadModelCallback(S32 loaded_lod)
     { //only replace given LoD
         mModel[loaded_lod] = mModelLoader->mModelList;
         mScene[loaded_lod] = mModelLoader->mScene;
+
+        // Duplicate the model if it is an internal bounding box model
+        if (loaded_lod == LLModel::LOD_PHYSICS &&
+            mBaseModel.size() > 1 && // This makes sense for multiple models only
+            mModelLoader->mModelList.size() == 1 && // Just on the off-chance
+            mModelLoader->mScene.size() == 1 &&     // Just on the off-chance
+            std::filesystem::path(mModelLoader->mFilename).filename() == "cube.dae")
+        {
+            // Create a copy of the just loaded model for each model in mBaseModel
+            const LLModel* origin = mModelLoader->mModelList.front();
+            const LLModelInstance& mi = mModelLoader->mScene.begin()->second.front();
+            for (U32 i = 1; i < mBaseModel.size(); ++i)
+            {
+                LLPointer<LLModel> copy(new LLModel(origin->getParams(), origin->getDetail()));
+                copy->mLabel = origin->mLabel;
+                copy->copyVolumeFaces(origin);
+                copy->mPosition = origin->mPosition;
+                copy->mMaterialList = origin->mMaterialList;
+                mModel[loaded_lod].push_back(copy);
+                mScene[loaded_lod][mi.mTransform].push_back(LLModelInstance(copy, copy->mLabel, mi.mTransform, mi.mMaterial));
+            }
+        }
+
         mVertexBuffer[loaded_lod].clear();
 
         setPreviewLOD(loaded_lod);
@@ -1088,8 +1113,9 @@ void LLModelPreview::loadModelCallback(S32 loaded_lod)
             if (loaded_lod == LLModel::LOD_PHYSICS)
             {   // Explicitly loading physics. See if there is a default mesh.
                 LLMatrix4 ignored_transform; // Each mesh that uses this will supply their own.
-                mDefaultPhysicsShapeP = nullptr;
-                FindModel(mScene[loaded_lod], DEFAULT_PHYSICS_MESH_NAME + getLodSuffix(loaded_lod), mDefaultPhysicsShapeP, ignored_transform);
+                LLModel* out_model = nullptr;
+                FindModel(mScene[loaded_lod], DEFAULT_PHYSICS_MESH_NAME + getLodSuffix(loaded_lod), out_model, ignored_transform);
+                mDefaultPhysicsShapeP = out_model;
                 mWarnOfUnmatchedPhyicsMeshes = true;
             }
             bool legacyMatching = gSavedSettings.getBOOL("ImporterLegacyMatching");
@@ -1163,6 +1189,17 @@ void LLModelPreview::loadModelCallback(S32 loaded_lod)
                                     LLFloaterModelPreview::addStringToLog(out, false);
                                 }
                                 mModel[loaded_lod][idx]->mLabel = name;
+                                // Rename the correspondent instance as well
+                                [&]()
+                                {
+                                    for (auto& p : mScene[loaded_lod])
+                                        for (auto& i : p.second)
+                                            if (i.mModel == mModel[loaded_lod][idx])
+                                            {
+                                                i.mLabel = name;
+                                                return;
+                                            }
+                                }();
                             }
                         }
                     }
@@ -2784,7 +2821,7 @@ void LLModelPreview::genBuffers(S32 lod, bool include_skin_weights)
 
             LLVertexBuffer* vb = NULL;
 
-            
+
 
             U32 mask = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_NORMAL | LLVertexBuffer::MAP_TEXCOORD0;
 
@@ -3144,7 +3181,7 @@ bool LLModelPreview::render()
     LLGLDisable no_blend(GL_BLEND);
     LLGLEnable cull(GL_CULL_FACE);
     LLGLDepthTest depth(GL_FALSE); // SL-12781 disable z-buffer to render background color
-    
+
     {
         gUIProgram.bind();
 
@@ -3331,9 +3368,9 @@ bool LLModelPreview::render()
     LLQuaternion av_rot = camera_rot;
     F32 camera_distance = skin_weight ? SKIN_WEIGHT_CAMERA_DISTANCE : mCameraDistance;
     LLViewerCamera::getInstance()->setOriginAndLookAt(
-        target_pos + ((LLVector3(camera_distance, 0.f, 0.f) + offset) * av_rot),		// camera
-        LLVector3::z_axis,																	// up
-        target_pos);											// point of interest
+        target_pos + ((LLVector3(camera_distance, 0.f, 0.f) + offset) * av_rot),        // camera
+        LLVector3::z_axis,                                                                  // up
+        target_pos);                                            // point of interest
 
 
     z_near = llclamp(z_far * 0.001f, 0.001f, 0.1f);
@@ -3399,7 +3436,7 @@ bool LLModelPreview::render()
                 LLMatrix4 mat = instance.mTransform;
 
                 gGL.multMatrix((GLfloat*)mat.mMatrix);
-        
+
                 U32 num_models = mVertexBuffer[mPreviewLOD][model].size();
                 for (U32 i = 0; i < num_models; ++i)
                 {
@@ -3664,9 +3701,9 @@ bool LLModelPreview::render()
             bool pelvis_recalc = false;
 
             LLViewerCamera::getInstance()->setOriginAndLookAt(
-                target_pos + ((LLVector3(camera_distance, 0.f, 0.f) + offset) * av_rot),		// camera
-                LLVector3::z_axis,																	// up
-                target_pos);											// point of interest
+                target_pos + ((LLVector3(camera_distance, 0.f, 0.f) + offset) * av_rot),        // camera
+                LLVector3::z_axis,                                                                  // up
+                target_pos);                                            // point of interest
 
             for (LLModelLoader::scene::iterator iter = mScene[mPreviewLOD].begin(); iter != mScene[mPreviewLOD].end(); ++iter)
             {
@@ -3817,22 +3854,22 @@ bool LLModelPreview::render()
 void LLModelPreview::renderGroundPlane(float z_offset)
 {   // Not necesarilly general - beware - but it seems to meet the needs of LLModelPreview::render
 
-	gGL.diffuseColor3f( 1.0f, 0.0f, 1.0f );
+    gGL.diffuseColor3f( 1.0f, 0.0f, 1.0f );
 
-	gGL.begin(LLRender::LINES);
-	gGL.vertex3fv(mGroundPlane[0].mV);
-	gGL.vertex3fv(mGroundPlane[1].mV);
+    gGL.begin(LLRender::LINES);
+    gGL.vertex3fv(mGroundPlane[0].mV);
+    gGL.vertex3fv(mGroundPlane[1].mV);
 
-	gGL.vertex3fv(mGroundPlane[1].mV);
-	gGL.vertex3fv(mGroundPlane[2].mV);
+    gGL.vertex3fv(mGroundPlane[1].mV);
+    gGL.vertex3fv(mGroundPlane[2].mV);
 
-	gGL.vertex3fv(mGroundPlane[2].mV);
-	gGL.vertex3fv(mGroundPlane[3].mV);
+    gGL.vertex3fv(mGroundPlane[2].mV);
+    gGL.vertex3fv(mGroundPlane[3].mV);
 
-	gGL.vertex3fv(mGroundPlane[3].mV);
-	gGL.vertex3fv(mGroundPlane[0].mV);
+    gGL.vertex3fv(mGroundPlane[3].mV);
+    gGL.vertex3fv(mGroundPlane[0].mV);
 
-	gGL.end();
+    gGL.end();
 }
 
 
