@@ -102,14 +102,94 @@ void crash_on_unhandled_exception_(const char*, int, const char*, const std::str
      log_unhandled_exception_(__FILE__, __LINE__, BOOST_CURRENT_FUNCTION, CONTEXT)
 void log_unhandled_exception_(const char*, int, const char*, const std::string&);
 
+/*****************************************************************************
+*   Structured Exception Handling
+*****************************************************************************/
+// this is used in platform-generic code -- define outside #if LL_WINDOWS
+struct Windows_SEH_exception: public std::runtime_error
+{
+    Windows_SEH_exception(const std::string& what): std::runtime_error(what) {}
+};
 
-#if LL_WINDOWS
+#if LL_WINDOWS //-------------------------------------------------------------
+
+#include <functional>
+
+// triadic variant specifies try(), filter(U32, struct _EXCEPTION_POINTERS*),
+// handler(U32, const std::string& stacktrace)
+// stacktrace may or may not be available
+template <typename TRYCODE, typename FILTER, typename HANDLER>
+auto seh_catcher(TRYCODE&& trycode, FILTER&& filter, HANDLER&& handler)
+{
+    // don't try to construct a std::function at the moment of Structured Exception
+    std::function<U32(U32, struct _EXCEPTION_POINTERS*)>
+        filter_function(std::forward<FILTER>(filter));
+    std::string stacktrace;
+    __try
+    {
+        return std::forward<TRYCODE>(trycode)();
+    }
+    __except (ll_seh_filter(
+                  stacktrace,
+                  filter_function,
+                  GetExceptionCode(),
+                  GetExceptionInformation()))
+    {
+        return std::forward<HANDLER>(handler)(GetExceptionCode(), stacktrace);
+    }
+}
+
+// dyadic variant specifies try(), handler(U32, stacktrace), assumes default filter
+template <typename TRYCODE, typename HANDLER>
+auto seh_catcher(TRYCODE&& trycode, HANDLER&& handler)
+{
+    return seh_catcher(
+        std::forward<TRYCODE>(trycode),
+        seh_filter,
+        std::forward<HANDLER>(handler));
+}
+
+// monadic variant specifies try(), assumes default filter and handler
+template <typename TRYCODE>
+auto seh_catcher(TRYCODE&& trycode)
+{
+    return seh_catcher(
+        std::forward<TRYCODE>(trycode),
+        seh_filter,
+        seh_rethrow);
+}
 
 // SEH exception filtering for use in __try __except
 // Separates C++ exceptions from C SEH exceptions
 // Todo: might be good idea to do some kind of seh_to_msc_wrapper(function, ARGS&&);
-U32 msc_exception_filter(U32 code, struct _EXCEPTION_POINTERS *exception_infop);
+U32 ll_seh_filter(
+    std::string& stacktrace,
+    std::function<U32(U32, struct _EXCEPTION_POINTERS*)> filter,
+    U32 code,
+    struct _EXCEPTION_POINTERS* exception_infop);
+U32 seh_filter(U32 code, struct _EXCEPTION_POINTERS* exception_infop);
+void seh_rethrow(U32 code, const std::string& stacktrace);
 
-#endif //LL_WINDOWS
+#else  // not LL_WINDOWS -----------------------------------------------------
+
+template <typename TRYCODE, typename FILTER, typename HANDLER>
+auto seh_catcher(TRYCODE&& trycode, FILTER&&, HANDLER&&)
+{
+    return std::forward<TRYCODE>(trycode)();
+}
+
+template <typename TRYCODE, typename HANDLER>
+auto seh_catcher(TRYCODE&& trycode, HANDLER&&)
+{
+    return std::forward<TRYCODE>(trycode)();
+}
+
+template <typename TRYCODE>
+auto seh_catcher(TRYCODE&& trycode)
+{
+    return std::forward<TRYCODE>(trycode)();
+}
+
+#endif // not LL_WINDOWS -----------------------------------------------------
 
 #endif /* ! defined(LL_LLEXCEPTION_H) */
