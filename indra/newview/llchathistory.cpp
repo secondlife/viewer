@@ -1074,8 +1074,8 @@ protected:
 
     bool                mNeedsTimeBox;
 
-    bool mIsFromScript;
-    std::string mPrefix;
+    bool                mIsFromScript;
+    std::string         mPrefix;
 
 private:
     boost::signals2::connection mAvatarNameCacheConnection;
@@ -1265,11 +1265,8 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
     name_params.color(name_color);
     name_params.readonly_color(name_color);
 
-    bool is_lua = LLStringUtil::startsWith(chat.mText, LUA_PREFIX);
-
-    std::string message = remove_LUA_PREFIX(chat.mText, is_lua); 
+    auto [message, is_lua] = LLStringUtil::withoutPrefix(chat.mText, LUA_PREFIX);
     std::string prefix = message.substr(0, 4);
-
     //IRC styled /me messages.
     bool irc_me = prefix == "/me " || prefix == "/me'";
 

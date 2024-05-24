@@ -599,6 +599,7 @@ void LLFloaterIMNearbyChatHandler::processChat(const LLChat& chat_msg,
     {
         // Handle IRC styled messages.
         std::string toast_msg;
+        std::string msg_text = without_LUA_PREFIX(chat_msg.mText, chat_msg.mIsScript);
         if (chat_msg.mChatStyle == CHAT_STYLE_IRC)
         {
             if (chat_msg.mIsScript)
@@ -609,11 +610,11 @@ void LLFloaterIMNearbyChatHandler::processChat(const LLChat& chat_msg,
             {
                 toast_msg += chat_msg.mFromName;
             }
-            toast_msg += chat_msg.mText.substr(chat_msg.mIsScript ? LUA_PREFIX.size() + 3 : 3);
+            toast_msg += msg_text.substr(3);
         }
         else
         {
-            toast_msg = remove_LUA_PREFIX(chat_msg.mText, chat_msg.mIsScript);
+            toast_msg = msg_text;
         }
 
         bool chat_overlaps = false;

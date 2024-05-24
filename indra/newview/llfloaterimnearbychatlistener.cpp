@@ -34,6 +34,7 @@
 #include "llagent.h"
 #include "llchat.h"
 #include "llviewercontrol.h"
+#include "stringize.h"
 
 static const F32 CHAT_THROTTLE_PERIOD = 1.f;
 
@@ -91,20 +92,14 @@ void LLFloaterIMNearbyChatListener::sendChat(LLSD const & chat_data)
     }
 
     // Have to prepend /42 style channel numbers
-    std::string chat_to_send;
-    if (channel == 0)
+    if (channel)
     {
-        chat_to_send = chat_text;
-    }
-    else
-    {
-        chat_to_send += "/";
-        chat_to_send += chat_data["channel"].asString();
-        chat_to_send += " ";
-        chat_to_send += chat_text;
+        chat_text = stringize("/", chat_data["channel"].asString(), " ", chat_text);
     }
 
     // Send it as if it was typed in
-    LLFloaterIMNearbyChat::sendChatFromViewer(chat_to_send, type_o_chat, ((channel == 0)) && gSavedSettings.getBOOL("PlayChatAnim"));
+    LLFloaterIMNearbyChat::sendChatFromViewer(chat_text, type_o_chat,
+                                              (channel == 0) &&
+                                              gSavedSettings.getBOOL("PlayChatAnim"));
 }
 

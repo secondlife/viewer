@@ -10,9 +10,9 @@ function generateRandomWord(length)
     return table.concat(wordTable)
 end
 
-local msg = "AI says:"
+local msg = {'AI says:'}
 math.randomseed(os.time())
 for i = 1, math.random(1, 10) do
-    msg = msg .. " ".. generateRandomWord(math.random(1, 8))
+    table.insert(msg, generateRandomWord(math.random(1, 8)))
 end
-LLChat.sendNearby(msg)
+LLChat.sendNearby(table.concat(msg, ' '))

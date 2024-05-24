@@ -217,7 +217,7 @@ S32 LLViewerChat::getChatFontSize()
 //static
 void LLViewerChat::formatChatMsg(const LLChat& chat, std::string& formated_msg)
 {
-    std::string tmpmsg = remove_LUA_PREFIX(chat.mText, chat.mIsScript);
+    std::string tmpmsg = without_LUA_PREFIX(chat.mText, chat.mIsScript);
     if(chat.mChatStyle == CHAT_STYLE_IRC)
     {
         formated_msg = chat.mFromName + tmpmsg.substr(3);
