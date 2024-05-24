@@ -387,6 +387,7 @@ void LLPanelVolume::getState( )
 
     // Reflection Probe
     bool is_probe = volobjp && volobjp->isReflectionProbe();
+    bool is_mirror = volobjp && volobjp->getReflectionProbeIsMirror();
     getChild<LLUICtrl>("Reflection Probe")->setValue(is_probe);
     getChildView("Reflection Probe")->setEnabled(editable && single_volume && volobjp && !volobjp->isMesh());
 
@@ -401,8 +402,8 @@ void LLPanelVolume::getState( )
     getChildView("Probe Dynamic")->setEnabled(probe_enabled);
     getChildView("Probe Update Type")->setEnabled(probe_enabled);
     getChildView("Probe Volume Type")->setEnabled(probe_enabled);
-    getChildView("Probe Ambiance")->setEnabled(probe_enabled);
-    getChildView("Probe Near Clip")->setEnabled(probe_enabled);
+    getChildView("Probe Ambiance")->setEnabled(probe_enabled && !is_mirror);
+    getChildView("Probe Near Clip")->setEnabled(probe_enabled && !is_mirror);
     getChildView("Probe Update Label")->setEnabled(probe_enabled);
 
     if (!probe_enabled)
@@ -440,9 +441,6 @@ void LLPanelVolume::getState( )
         {
             update_type = "Dynamic Mirror";
         }
-
-        getChildView("Probe Ambiance")->setEnabled(update_type != "Mirror");
-        getChildView("Probe Near Clip")->setEnabled(update_type != "Mirror");
 
         getChild<LLComboBox>("Probe Volume Type", true)->setValue(volume_type);
         getChild<LLSpinCtrl>("Probe Ambiance", true)->setValue(volobjp->getReflectionProbeAmbiance());
