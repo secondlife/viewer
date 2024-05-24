@@ -248,7 +248,7 @@ void LLGroupActions::startCall(const LLUUID& group_id)
         return;
     }
 
-    LLUUID session_id = gIMMgr->addSession(gdata.mName, IM_SESSION_GROUP_START, group_id, true);
+    LLUUID session_id = gIMMgr->addSession(gdata.mName, IM_SESSION_GROUP_START, group_id, LLSD());
     if (session_id == LLUUID::null)
     {
         LL_WARNS() << "Error adding session" << LL_ENDL;
@@ -370,8 +370,8 @@ void LLGroupActions::processLeaveGroupDataResponse(const LLUUID group_id)
     if (gdatap->mMembershipFee > 0)
     {
         args["COST"] = gdatap->mMembershipFee;
-        LLNotificationsUtil::add("GroupLeaveConfirmMember", args, payload, onLeaveGroup);
-    }
+    LLNotificationsUtil::add("GroupLeaveConfirmMember", args, payload, onLeaveGroup);
+}
     else
     {
         LLNotificationsUtil::add("GroupLeaveConfirmMemberNoFee", args, payload, onLeaveGroup);

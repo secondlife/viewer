@@ -114,8 +114,7 @@ public:
 
     // Implements LLVoiceClientStatusObserver::onChange() to enable the call
     // button when voice is available
-    void onChange(EStatusType status, const std::string &channelURI,
-            bool proximal);
+    void onChange(EStatusType status, const LLSD& channelInfo, bool proximal);
 
     virtual LLTransientFloaterMgr::ETransientGroup getGroup() { return LLTransientFloaterMgr::IM; }
     virtual void onVoiceChannelStateChanged(
@@ -162,6 +161,8 @@ private:
 
     void onCallButtonClicked();
 
+    void onVoiceChannelChanged(const LLUUID &session_id);
+
     void boundVoiceChannel();
 
     // Add the "User is typing..." indicator.
@@ -195,6 +196,9 @@ private:
 
     uuid_vec_t mInvitedParticipants;
     uuid_vec_t mPendingParticipants;
+
+    // notification when the voice channel is swapped out from beneath us.
+    boost::signals2::connection mVoiceChannelChanged;
 
     // connection to voice channel state change signal
     boost::signals2::connection mVoiceChannelStateChangeConnection;

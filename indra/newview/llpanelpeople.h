@@ -55,7 +55,7 @@ public:
     /*virtual*/ bool    notifyChildren(const LLSD& info);
     // Implements LLVoiceClientStatusObserver::onChange() to enable call buttons
     // when voice is available
-    /*virtual*/ void onChange(EStatusType status, const std::string &channelURI, bool proximal);
+    /*virtual*/ void onChange(EStatusType status, const LLSD& channelInfo, bool proximal);
 
     // internals
     class Updater;

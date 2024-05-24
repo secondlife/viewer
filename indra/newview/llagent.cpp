@@ -310,7 +310,7 @@ bool LLAgent::isActionAllowed(const LLSD& sdname)
             }
             else
             {
-                allow_agent_voice = channel->isActive() && channel->callStarted();
+                allow_agent_voice = channel->isActive();
             }
         }
 
@@ -4080,10 +4080,6 @@ bool LLAgent::teleportCore(bool is_local)
         gAgent.setTeleportState( LLAgent::TELEPORT_START );
     }
     make_ui_sound("UISndTeleportOut");
-
-    // MBW -- Let the voice client know a teleport has begun so it can leave the existing channel.
-    // This was breaking the case of teleporting within a single sim.  Backing it out for now.
-//  LLVoiceClient::getInstance()->leaveChannel();
 
     return true;
 }
