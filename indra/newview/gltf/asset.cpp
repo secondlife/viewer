@@ -894,10 +894,10 @@ bool Image::save(Asset& asset, const std::string& folder)
             extension = ".bin";
         }
 
-        std::string filename = folder + delim + name + delim + extension;
+        std::string filename = folder + delim + name + extension;
 
         // set URI to non-j2c file for now, but later we'll want to reference the j2c hash
-        mUri = name + "." + extension;
+        mUri = name + extension;
 
         std::ofstream file(filename, std::ios::binary);
         file.write((const char*)buffer.mData.data() + bufferView.mByteOffset, bufferView.mByteLength);
