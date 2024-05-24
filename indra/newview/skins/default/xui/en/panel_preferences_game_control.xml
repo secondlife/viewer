@@ -10,198 +10,206 @@
     top="1"
     width="517">
     <check_box
+        name="game_control_to_server"
         control_name="GameControlToServer"
-        follows="top|left"
-        height="15"
         label="Send GameControl Data to server"
         layout="topleft"
-        left="10"
-        name="game_control_to_server"
-        top="6"
-        width="232"/>
-    <check_box
-        control_name="GameControlToAgent"
-        follows="top|left"
         height="15"
+        left="10"
+        top="10"/>
+    <check_box
+        name="game_control_to_agent"
+        control_name="GameControlToAgent"
         label="GameControl moves avatar and flycam"
         layout="topleft"
-        left="10"
-        name="game_control_to_agent"
-        top="27"
-        width="232"/>
-    <check_box
-        control_name="AgentToGameControl"
-        follows="top|left"
         height="15"
+        left="10"
+        top="30"/>
+    <check_box
+        name="agent_to_game_control"
+        control_name="AgentToGameControl"
         label="Avatar actions interpreted as GameControl"
         layout="topleft"
+        height="15"
         left="10"
-        name="agent_to_game_control"
-        top="48"
-        width="232"/>
-    <scroll_list
-        draw_heading="true"
+        top="50"/>
+    <tab_container
+        name="game_control_tabs"
+        layout="topleft"
         follows="all"
-        layout="topleft"
-        column_padding="0"
-        selection_type="header"
-        top="66"
-        left="3"
-        bottom="-3"
-        right="-3"
-        can_sort="false"
-        multi_select="false"
-        name="action_table"
-        fg_disable_color="ScrollUnselectedColor"/>
+        top="70"
+        left="2"
+        right="-2"
+        bottom="-2">
+        <panel label="Channel mappings">
+            <scroll_list
+                name="action_table"
+                layout="topleft"
+                follows="all"
+                top="1"
+                left="1"
+                right="-1"
+                bottom="-1"
+                can_sort="false"
+                column_padding="0"
+                multi_select="false"
+                selection_type="header"
+                fg_disable_color="ScrollUnselectedColor">
+                <scroll_list.columns
+                    name="action"
+                    label="Action"
+                    relative_width="0.25" />
+                <scroll_list.columns
+                    label="Channel"
+                    relative_width="0.75" />
+            </scroll_list>
+        </panel>
+        <panel label="Device settings">
+        </panel>
+    </tab_container>
     <combo_box
-        height="23"
-        layout="topleft"
-        left="10"
         name="analog_channel_selector"
-        top_pad="5"
-        width="90">
+        width="380"
+        height="18">
         <combo_box.item
-            label="AXIS_0-"
+            label="AXIS_0- (Left stick: tilt right)"
             name="AXIS_0-"
             value="AXIS_0-"/>
         <combo_box.item
-            label="AXIS_0+"
+            label="AXIS_0+ (Left stick: tilt left)"
             name="AXIS_0+"
             value="AXIS_0+"/>
         <combo_box.item
-            label="AXIS_1-"
+            label="AXIS_1- (Left stick: tilt back)"
             name="AXIS_1-"
             value="AXIS_1-"/>
         <combo_box.item
-            label="AXIS_1+"
+            label="AXIS_1+ (Left stick: tilt forward)"
             name="AXIS_1+"
             value="AXIS_1+"/>
         <combo_box.item
-            label="AXIS_2-"
+            label="AXIS_2- (Right stick: tilt right)"
             name="AXIS_2-"
             value="AXIS_2-"/>
         <combo_box.item
-            label="AXIS_2+"
+            label="AXIS_2+ (Right stick: tilt left)"
             name="AXIS_2+"
             value="AXIS_2+"/>
         <combo_box.item
-            label="AXIS_3-"
+            label="AXIS_3- (Right stick: tilt back)"
             name="AXIS_3-"
             value="AXIS_3-"/>
         <combo_box.item
-            label="AXIS_3+"
+            label="AXIS_3+ (Right stick: tilt forward)"
             name="AXIS_3+"
             value="AXIS_3+"/>
         <combo_box.item
-            label="AXIS_4-"
+            label="AXIS_4- (Left trigger: release)"
             name="AXIS_4-"
             value="AXIS_4-"/>
         <combo_box.item
-            label="AXIS_4+"
+            label="AXIS_4+ (Left trigger: push)"
             name="AXIS_4+"
             value="AXIS_4+"/>
         <combo_box.item
-            label="AXIS_5-"
+            label="AXIS_5- (Right trigger: release)"
             name="AXIS_5-"
             value="AXIS_5-"/>
         <combo_box.item
-            label="AXIS_5+"
+            label="AXIS_5+ (Right trigger: push)"
             name="AXIS_5+"
             value="AXIS_5+"/>
         <combo_box.item
-            label="NONE"
+            label="NONE (No channel mapping)"
             name="NONE"
             value="NONE"/>
     </combo_box>
     <combo_box
-        height="23"
-        layout="topleft"
-        left="10"
         name="binary_channel_selector"
-        top_pad="5"
-        width="90">
+        width="380"
+        height="18">
         <combo_box.item
-            label="BUTTON_0"
+            label="BUTTON_0 ('A' button)"
             name="BUTTON_0"
             value="BUTTON_0"/>
         <combo_box.item
-            label="BUTTON_1"
+            label="BUTTON_1 ('B' button)"
             name="BUTTON_1"
             value="BUTTON_1"/>
         <combo_box.item
-            label="BUTTON_2"
+            label="BUTTON_2 ('X' button)"
             name="BUTTON_2"
             value="BUTTON_2"/>
         <combo_box.item
-            label="BUTTON_3"
+            label="BUTTON_3 ('Y' button)"
             name="BUTTON_3"
             value="BUTTON_3"/>
         <combo_box.item
-            label="BUTTON_4"
+            label="BUTTON_4 (Back button)"
             name="BUTTON_4"
             value="BUTTON_4"/>
         <combo_box.item
-            label="BUTTON_5"
+            label="BUTTON_5 (Guide button)"
             name="BUTTON_5"
             value="BUTTON_5"/>
         <combo_box.item
-            label="BUTTON_6"
+            label="BUTTON_6 (Home button)"
             name="BUTTON_6"
             value="BUTTON_6"/>
         <combo_box.item
-            label="BUTTON_7"
+            label="BUTTON_7 (Left stick)"
             name="BUTTON_7"
             value="BUTTON_7"/>
         <combo_box.item
-            label="BUTTON_8"
+            label="BUTTON_8 (Right stick)"
             name="BUTTON_8"
             value="BUTTON_8"/>
         <combo_box.item
-            label="BUTTON_9"
+            label="BUTTON_9 (Left shoulder)"
             name="BUTTON_9"
             value="BUTTON_9"/>
         <combo_box.item
-            label="BUTTON_10"
+            label="BUTTON_10 (Right shoulder)"
             name="BUTTON_10"
             value="BUTTON_10"/>
         <combo_box.item
-            label="BUTTON_11"
+            label="BUTTON_11 (DPad up)"
             name="BUTTON_11"
             value="BUTTON_11"/>
         <combo_box.item
-            label="BUTTON_12"
+            label="BUTTON_12 (DPad down)"
             name="BUTTON_12"
             value="BUTTON_12"/>
         <combo_box.item
-            label="BUTTON_13"
+            label="BUTTON_13 (DPad left)"
             name="BUTTON_13"
             value="BUTTON_13"/>
         <combo_box.item
-            label="BUTTON_14"
+            label="BUTTON_14 (DPad right)"
             name="BUTTON_14"
             value="BUTTON_14"/>
         <combo_box.item
-            label="BUTTON_15"
+            label="BUTTON_15 (Miscellaneous 1)"
             name="BUTTON_15"
             value="BUTTON_15"/>
         <combo_box.item
-            label="BUTTON_16"
+            label="BUTTON_16 (Paddle 1)"
             name="BUTTON_16"
             value="BUTTON_16"/>
         <combo_box.item
-            label="BUTTON_17"
+            label="BUTTON_17 (Paddle 2)"
             name="BUTTON_17"
             value="BUTTON_17"/>
         <combo_box.item
-            label="BUTTON_18"
+            label="BUTTON_18 (Paddle 3)"
             name="BUTTON_18"
             value="BUTTON_18"/>
         <combo_box.item
-            label="BUTTON_19"
+            label="BUTTON_19 (Paddle 4)"
             name="BUTTON_19"
             value="BUTTON_19"/>
         <combo_box.item
-            label="BUTTON_20"
+            label="BUTTON_20 (Touchpad)"
             name="BUTTON_20"
             value="BUTTON_20"/>
         <combo_box.item
@@ -249,7 +257,7 @@
             name="BUTTON_31"
             value="BUTTON_31"/>
         <combo_box.item
-            label="NONE"
+            label="NONE (No channel mapping)"
             name="NONE"
             value="NONE"/>
     </combo_box>

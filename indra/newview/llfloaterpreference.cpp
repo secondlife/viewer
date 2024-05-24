@@ -3150,18 +3150,18 @@ void LLPanelPreferenceGameControl::saveSettings()
 
 void LLPanelPreferenceGameControl::onActionSelect()
 {
+    clearSelectionState();
+
     if (!mActionTable->getEnabled())
         return;
-
-    clearSelectionState();
 
     if (LLScrollListItem* item = mActionTable->getFirstSelected())
     {
         if (initChannelSelector(item))
             return;
-    }
 
-    mActionTable->deselectAllItems();
+        mActionTable->deselectAllItems();
+    }
 }
 
 bool LLPanelPreferenceGameControl::initChannelSelector(LLScrollListItem* item)
@@ -3197,7 +3197,8 @@ bool LLPanelPreferenceGameControl::initChannelSelector(LLScrollListItem* item)
     if (!channel.isNone())
     {
         std::string channelName = channel.getLocalName();
-        if (channelSelector->itemExists(channelName))
+        std::string channelLabel = getChannelLabel(channelName, channelSelector->getAllData());
+        if (channelSelector->itemExists(channelLabel))
         {
             value = channelName;
         }
@@ -3227,8 +3228,10 @@ void LLPanelPreferenceGameControl::onCommitInputChannel(LLUICtrl* ctrl)
     if (!channelSelector)
         return;
 
-    std::string value = channelSelector->getSelectedItemLabel();
-    gSelectedCell->setValue((value == "NONE") ? " " : value);
+    std::string value = channelSelector->getValue();
+    std::string label = (value == "NONE") ? LLStringUtil::null :
+        channelSelector->getSelectedItemLabel();
+    gSelectedCell->setValue(label);
     mActionTable->deselectAllItems();
     clearSelectionState();
 }
@@ -3244,17 +3247,29 @@ void LLPanelPreferenceGameControl::applyGameControlInput()
     if (!gGameControlPanel || !gSelectedCell)
         return;
 
-    LLGameControl::InputChannel::Type expectedType =
-        gGameControlPanel->mAnalogChannelSelector->getVisible() ? LLGameControl::InputChannel::TYPE_AXIS :
-        gGameControlPanel->mBinaryChannelSelector->getVisible() ? LLGameControl::InputChannel::TYPE_BUTTON :
-        LLGameControl::InputChannel::TYPE_NONE;
-    if (expectedType == LLGameControl::InputChannel::TYPE_NONE)
+    LLComboBox* channelSelector;
+    LLGameControl::InputChannel::Type expectedType;
+    if (gGameControlPanel->mAnalogChannelSelector->getVisible())
+    {
+        channelSelector = gGameControlPanel->mAnalogChannelSelector;
+        expectedType = LLGameControl::InputChannel::TYPE_AXIS;
+    }
+    else if (gGameControlPanel->mBinaryChannelSelector->getVisible())
+    {
+        channelSelector = gGameControlPanel->mBinaryChannelSelector;
+        expectedType = LLGameControl::InputChannel::TYPE_BUTTON;
+    }
+    else
+    {
         return;
+    }
 
     LLGameControl::InputChannel channel = LLGameControl::getActiveInputChannel();
     if (channel.mType == expectedType)
     {
-        gSelectedCell->setValue(channel.getLocalName());
+        std::string channelName = channel.getLocalName();
+        std::string channelLabel = LLPanelPreferenceGameControl::getChannelLabel(channelName, channelSelector->getAllData());
+        gSelectedCell->setValue(channelLabel);
         gGameControlPanel->mActionTable->deselectAllItems();
         gGameControlPanel->clearSelectionState();
     }
@@ -3278,7 +3293,9 @@ bool LLPanelPreferenceGameControl::postBuild()
     mBinaryChannelSelector = getChild<LLComboBox>("binary_channel_selector");
     mBinaryChannelSelector->setCommitCallback(boost::bind(&LLPanelPreferenceGameControl::onCommitInputChannel, this, _1));
 
-    populateActionTable();
+    populateActionTableRows("game_control_table_rows.xml");
+    addActionTableSeparator();
+    populateActionTableRows("game_control_table_camera_rows.xml");
 
     return true;
 }
@@ -3291,7 +3308,7 @@ void LLPanelPreferenceGameControl::onOpen(const LLSD& key)
     mCheckGameControlToAgent->setValue(LLGameControl::getControlAgent());
     mCheckAgentToGameControl->setValue(LLGameControl::getTranslateAgentActions());
 
-    populateCells();
+    populateActionTableCells();
 
     updateTableState();
 
@@ -3306,38 +3323,7 @@ void LLPanelPreferenceGameControl::onOpen(const LLSD& key)
     }
 }
 
-void LLPanelPreferenceGameControl::populateActionTable()
-{
-    if (!populateColumns("game_control_table_columns.xml"))
-        return;
-
-    populateRows("game_control_table_rows.xml");
-    addTableSeparator();
-    populateRows("game_control_table_camera_rows.xml");
-}
-
-bool LLPanelPreferenceGameControl::populateColumns(const std::string& filename)
-{
-    LLScrollListCtrl::Contents contents;
-    if (!parseXmlFile(contents, filename, "columns"))
-        return false;
-
-    for (const LLScrollListColumn::Params& column_params : contents.columns)
-    {
-        mActionTable->addColumn(column_params);
-    }
-
-    // we expect the mActionTable to have at least three columns
-    if (mActionTable->getNumColumns() < 3)
-    {
-        LL_WARNS("Preferences") << "expected at least three columns in '" << filename << "'" << LL_ENDL;
-        return false;
-    }
-
-    return true;
-}
-
-void LLPanelPreferenceGameControl::populateRows(const std::string& filename)
+void LLPanelPreferenceGameControl::populateActionTableRows(const std::string& filename)
 {
     LLScrollListCtrl::Contents contents;
     if (!parseXmlFile(contents, filename, "rows"))
@@ -3348,7 +3334,7 @@ void LLPanelPreferenceGameControl::populateRows(const std::string& filename)
     second_cell_params.font = LLFontGL::getFontSansSerif();
     second_cell_params.font_halign = LLFontGL::LEFT;
     second_cell_params.column = mActionTable->getColumn(1)->mName;
-    second_cell_params.value = ""; // Actual value is assigned in populateCells
+    second_cell_params.value = ""; // Actual value is assigned in populateActionTableCells
 
     for (const LLScrollListItem::Params& row_params : contents.rows)
     {
@@ -3372,9 +3358,12 @@ void LLPanelPreferenceGameControl::populateRows(const std::string& filename)
     }
 }
 
-void LLPanelPreferenceGameControl::populateCells()
+void LLPanelPreferenceGameControl::populateActionTableCells()
 {
     std::vector<LLScrollListItem*> items = mActionTable->getAllData();
+    std::vector<LLScrollListItem*> axes = mAnalogChannelSelector->getAllData();
+    std::vector<LLScrollListItem*> btns = mBinaryChannelSelector->getAllData();
+
     for (LLScrollListItem* item : items)
     {
         if (item->getNumColumns() >= 2) // Skip separators
@@ -3383,7 +3372,12 @@ void LLPanelPreferenceGameControl::populateCells()
             if (!name.empty() && name != "menu_separator")
             {
                 LLGameControl::InputChannel channel = LLGameControl::getChannelByAction(name);
-                item->getColumn(1)->setValue(channel.isNone() ? " " : channel.getLocalName());
+                std::string channelName = channel.getLocalName();
+                std::string channelLabel =
+                    channel.isAxis() ? getChannelLabel(channelName, axes) :
+                    channel.isButton() ? getChannelLabel(channelName, btns) :
+                    LLStringUtil::null;
+                item->getColumn(1)->setValue(channelLabel);
             }
         }
     }
@@ -3410,6 +3404,27 @@ bool LLPanelPreferenceGameControl::parseXmlFile(LLScrollListCtrl::Contents& cont
     return true;
 }
 
+// static
+std::string LLPanelPreferenceGameControl::getChannelLabel(const std::string& channelName,
+    const std::vector<LLScrollListItem*>& items)
+{
+    if (!channelName.empty() && channelName != "NONE")
+    {
+        for (LLScrollListItem* item : items)
+        {
+            if (item->getValue().asString() == channelName)
+            {
+                if (item->getNumColumns())
+                {
+                    return item->getColumn(0)->getValue().asString();
+                }
+                break;
+            }
+        }
+    }
+    return LLStringUtil::null;
+}
+
 void LLPanelPreferenceGameControl::clearSelectionState()
 {
     gSelectedCell = nullptr;
@@ -3417,7 +3432,7 @@ void LLPanelPreferenceGameControl::clearSelectionState()
     mBinaryChannelSelector->setVisible(false);
 }
 
-void LLPanelPreferenceGameControl::addTableSeparator()
+void LLPanelPreferenceGameControl::addActionTableSeparator()
 {
     LLScrollListItem::Params separator_params;
     separator_params.enabled(false);
