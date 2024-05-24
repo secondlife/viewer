@@ -1265,19 +1265,8 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
     name_params.color(name_color);
     name_params.readonly_color(name_color);
 
-<<<<<<< variant A
     auto [message, is_lua] = LLStringUtil::withoutPrefix(chat.mText, LUA_PREFIX);
     std::string prefix = message.substr(0, 4);
->>>>>>> variant B
-    bool is_lua = LLStringUtil::startsWith(chat.mText, LUA_PREFIX);
-
-    std::string message = remove_LUA_PREFIX(chat.mText, is_lua); 
-    std::string prefix = message.substr(0, 4);
-
-####### Ancestor
-    bool is_lua = (chat.mText.substr(0, LUA_PREFIX.size()) == LUA_PREFIX);
-    std::string prefix = chat.mText.substr(is_lua ? LUA_PREFIX.size() : 0, 4);
-======= end
     //IRC styled /me messages.
     bool irc_me = prefix == "/me " || prefix == "/me'";
 
