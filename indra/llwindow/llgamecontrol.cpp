@@ -1236,7 +1236,7 @@ bool LLGameControllerManager::updateActionMap(const std::string& action, LLGameC
     auto action_it = mActions.find(action);
     if (action_it == mActions.end())
     {
-        LL_WARNS("GameControl") << "unmappable action='" << action << "'" << LL_ENDL;
+        LL_WARNS("SDL2") << "unmappable action='" << action << "'" << LL_ENDL;
         return false;
     }
 
