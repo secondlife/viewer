@@ -665,7 +665,7 @@ public:
         mSessionID = chat.mSessionID;
         mSourceType = chat.mSourceType;
         mIsFromScript = is_script;
-        mScriptPrefix = is_script? LLTrans::getString("ScriptBy") : "";
+        mPrefix = mIsFromScript ? LLTrans::getString("ScriptBy") : "";
 
         // To be able to report a message, we need a copy of it's text
         // and it's easier to store text directly than trying to get
@@ -735,7 +735,7 @@ public:
                 username_end == (chat.mFromName.length() - 1))
             {
                 mFrom = chat.mFromName.substr(0, username_start);
-                user_name->setValue(mScriptPrefix + mFrom);
+                user_name->setValue(mPrefix + mFrom);
 
                 if (gSavedSettings.getBOOL("NameTagShowUsernames"))
                 {
@@ -1032,7 +1032,7 @@ private:
         mFrom = av_name.getDisplayName();
 
         LLTextBox* user_name = getChild<LLTextBox>("user_name");
-        user_name->setValue(LLSD(mScriptPrefix + av_name.getDisplayName()));
+        user_name->setValue(LLSD(mPrefix + av_name.getDisplayName()));
         user_name->setToolTip( av_name.getUserName() );
 
         if (gSavedSettings.getBOOL("NameTagShowUsernames") &&
@@ -1064,7 +1064,6 @@ protected:
     std::string         mFrom;
     LLUUID              mSessionID;
     std::string         mText;
-    std::string         mScriptPrefix;
     F64                 mTime; // IM's frame time
     time_t              mCreationTime; // Views's time
 
@@ -1076,6 +1075,7 @@ protected:
     bool                mNeedsTimeBox;
 
     bool                mIsFromScript;
+    std::string         mPrefix;
 
 private:
     boost::signals2::connection mAvatarNameCacheConnection;
@@ -1265,8 +1265,19 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
     name_params.color(name_color);
     name_params.readonly_color(name_color);
 
+<<<<<<< variant A
     auto [message, is_lua] = LLStringUtil::withoutPrefix(chat.mText, LUA_PREFIX);
     std::string prefix = message.substr(0, 4);
+>>>>>>> variant B
+    bool is_lua = LLStringUtil::startsWith(chat.mText, LUA_PREFIX);
+
+    std::string message = remove_LUA_PREFIX(chat.mText, is_lua); 
+    std::string prefix = message.substr(0, 4);
+
+####### Ancestor
+    bool is_lua = (chat.mText.substr(0, LUA_PREFIX.size()) == LUA_PREFIX);
+    std::string prefix = chat.mText.substr(is_lua ? LUA_PREFIX.size() : 0, 4);
+======= end
     //IRC styled /me messages.
     bool irc_me = prefix == "/me " || prefix == "/me'";
 
@@ -1342,6 +1353,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
         // names showing
         if (args["show_names_for_p2p_conv"].asBoolean() && utf8str_trim(chat.mFromName).size())
         {
+            std::string script_prefix = is_lua ? LLTrans::getString("ScriptBy") : "";
             // Don't hotlink any messages from the system (e.g. "Second Life:"), so just add those in plain text.
             if (chat.mSourceType == CHAT_SOURCE_OBJECT && chat.mFromID.notNull())
             {
@@ -1366,7 +1378,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
                 link_params.overwriteFrom(LLStyleMap::instance().lookupAgent(chat.mFromID));
 
                 // Add link to avatar's inspector and delimiter to message.
-                mEditor->appendText(std::string(link_params.link_href) + delimiter,
+                mEditor->appendText(script_prefix + std::string(link_params.link_href) + delimiter,
                     prependNewLineState, link_params);
                 prependNewLineState = false;
             }
@@ -1379,7 +1391,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
             }
             else
             {
-                mEditor->appendText("<nolink>" + chat.mFromName + "</nolink>" + delimiter,
+                mEditor->appendText(script_prefix + "<nolink>" + chat.mFromName + "</nolink>" + delimiter,
                         prependNewLineState, body_message_params);
                 prependNewLineState = false;
             }

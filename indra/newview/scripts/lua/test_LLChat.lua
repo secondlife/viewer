@@ -2,12 +2,12 @@ LLChat = require 'LLChat'
 
 function generateRandomWord(length)
     local alphabet = "abcdefghijklmnopqrstuvwxyz"
-    local word = {}
+    local wordTable = {}
     for i = 1, length do
         local randomIndex = math.random(1, #alphabet)
-        table.insert(word, alphabet:sub(randomIndex, randomIndex))
+        table.insert(wordTable, alphabet:sub(randomIndex, randomIndex))
     end
-    return table.concat(word)
+    return table.concat(wordTable)
 end
 
 local msg = {'AI says:'}

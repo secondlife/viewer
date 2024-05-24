@@ -40,7 +40,8 @@ static const F32 CHAT_THROTTLE_PERIOD = 1.f;
 
 LLFloaterIMNearbyChatListener::LLFloaterIMNearbyChatListener()
   : LLEventAPI("LLChatBar",
-               "LLChatBar listener to (e.g.) sendChat, etc.")
+               "LLChatBar listener to (e.g.) sendChat, etc."),
+    mLastThrottleTime(0)
 {
     add("sendChat",
         "Send chat to the simulator:\n"
