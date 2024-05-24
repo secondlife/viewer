@@ -315,6 +315,14 @@ public:
     static void trim(string_type& string)   { trimHead(string); trimTail(string); }
     static void truncate(string_type& string, size_type count);
 
+    // if string startsWith prefix, remove it and return true
+    static bool removePrefix(string_type& string, const string_type& prefix);
+    // if string startsWith prefix, return (string without prefix, true), else (string, false)
+    static std::pair<string_type, bool> withoutPrefix(const string_type& string, const string_type& prefix);
+    // like removePrefix()
+    static bool removeSuffix(string_type& string, const string_type& suffix);
+    static std::pair<string_type, bool> withoutSuffix(const string_type& string, const string_type& suffix);
+
     static void toUpper(string_type& string);
     static void toLower(string_type& string);
 
@@ -1479,6 +1487,60 @@ void LLStringUtilBase<T>::trimTail(string_type& string)
     }
 }
 
+// if string startsWith prefix, remove it and return true
+template<class T>
+bool LLStringUtilBase<T>::removePrefix(string_type& string, const string_type& prefix)
+{
+    bool found{ startsWith(string, prefix) };
+    if (found)
+    {
+        string.erase(0, prefix.length());
+    }
+    return found;
+}
+
+// if string startsWith prefix, return (string without prefix, true), else (string, false)
+template<class T>
+std::pair<typename LLStringUtilBase<T>::string_type, bool>
+LLStringUtilBase<T>::withoutPrefix(const string_type& string, const string_type& prefix)
+{
+    bool found{ startsWith(string, prefix) };
+    if (! found)
+    {
+        return { string, false };
+    }
+    else
+    {
+        return { string.substr(prefix.length()), true };
+    }
+}
+
+// like removePrefix()
+template<class T>
+bool LLStringUtilBase<T>::removeSuffix(string_type& string, const string_type& suffix)
+{
+    bool found{ endsWith(string, suffix) };
+    if (found)
+    {
+        string.erase(string.length() - suffix.length());
+    }
+    return found;
+}
+
+template<class T>
+std::pair<typename LLStringUtilBase<T>::string_type, bool>
+LLStringUtilBase<T>::withoutSuffix(const string_type& string, const string_type& suffix)
+{
+    bool found{ endsWith(string, suffix) };
+    if (! found)
+    {
+        return { string, false };
+    }
+    else
+    {
+        return { string.substr(0, string.length() - suffix.length()), true };
+    }
+}
 
 // Replace line feeds with carriage return-line feed pairs.
 //static

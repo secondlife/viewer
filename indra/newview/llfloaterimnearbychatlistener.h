@@ -41,7 +41,9 @@ public:
     LLFloaterIMNearbyChatListener();
 
 private:
-    void sendChat(LLSD const & chat_data) const;
+    F64 mLastThrottleTime{ 0.0 };
+
+    void sendChat(LLSD const & chat_data);
 };
 
 #endif // LL_LLFLOATERIMNEARBYCHATLISTENER_H

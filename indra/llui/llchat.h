@@ -113,4 +113,17 @@ public:
 };
 static const std::string LUA_PREFIX("[LUA]");
 
+inline
+std::string without_LUA_PREFIX(const std::string& string, bool is_lua)
+{
+    if (is_lua)
+    {
+        return string.substr(LUA_PREFIX.size());
+    }
+    else
+    {
+        return string;
+    }
+}
+
 #endif
