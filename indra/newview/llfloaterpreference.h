@@ -395,17 +395,18 @@ public:
 protected:
     BOOL postBuild() override;
 
-    void populateActionTable();
-    bool populateColumns(const std::string& filename);
-    void populateRows(const std::string& filename);
-    void populateCells();
+    void populateActionTableRows(const std::string& filename);
+    void populateActionTableCells();
     bool parseXmlFile(LLScrollListCtrl::Contents& contents,
         const std::string& filename, const std::string& what);
+
+    static std::string getChannelLabel(const std::string& channelName,
+        const std::vector<LLScrollListItem*>& items);
 
 private:
     bool initChannelSelector(LLScrollListItem* item);
     void clearSelectionState();
-    void addTableSeparator();
+    void addActionTableSeparator();
     void updateTableState();
 
     LLCheckBoxCtrl  *mCheckGameControlToServer; // send game_control data to server
