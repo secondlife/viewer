@@ -3142,7 +3142,14 @@ void LLPanelPreferenceGameControl::saveSettings()
 
     if (LLControlVariable* knownControllers = gSavedSettings.getControl("KnownGameControllers"))
     {
-        LLSD deviceOptions(mDeviceOptions, true);
+        LLSD deviceOptions(LLSD::emptyMap());
+        for (const auto& pair : mDeviceOptions)
+        {
+            if (!pair.second.empty())
+            {
+                deviceOptions.insert(pair.first, pair.second);
+            }
+        }
         knownControllers->set(deviceOptions);
         mSavedValues[knownControllers] = deviceOptions;
     }
@@ -3277,22 +3284,37 @@ void LLPanelPreferenceGameControl::applyGameControlInput()
 
 bool LLPanelPreferenceGameControl::postBuild()
 {
+    // Above the tab container
     mCheckGameControlToServer = getChild<LLCheckBoxCtrl>("game_control_to_server");
     mCheckGameControlToAgent = getChild<LLCheckBoxCtrl>("game_control_to_agent");
     mCheckAgentToGameControl = getChild<LLCheckBoxCtrl>("agent_to_game_control");
 
-    mCheckGameControlToAgent->setCommitCallback([this](LLUICtrl*, const LLSD&) { updateTableState(); });
-    mCheckAgentToGameControl->setCommitCallback([this](LLUICtrl*, const LLSD&) { updateTableState(); });
+    mCheckGameControlToAgent->setCommitCallback([this](LLUICtrl*, const LLSD&) { updateActionTableState(); });
+    mCheckAgentToGameControl->setCommitCallback([this](LLUICtrl*, const LLSD&) { updateActionTableState(); });
 
+    // 1st tab "Channel mappings"
     mActionTable = getChild<LLScrollListCtrl>("action_table");
     mActionTable->setCommitCallback(boost::bind(&LLPanelPreferenceGameControl::onActionSelect, this));
 
+    // 2nd tab "Device settings"
+    mNoDeviceMessage = getChild<LLTextBox>("nodevice_message");
+    mDevicePrompt = getChild<LLTextBox>("device_prompt");
+    mSingleDevice = getChild<LLTextBox>("single_device");
+    mDeviceList = getChild<LLComboBox>("device_list");
+    mCheckShowAllDevices = getChild<LLCheckBoxCtrl>("show_all_known_devices");
+    mPanelDeviceSettings = getChild<LLPanel>("device_settings");
+
+    mCheckShowAllDevices->setCommitCallback([this](LLUICtrl*, const LLSD&) { populateDeviceTitle(); });
+    mDeviceList->setCommitCallback([this](LLUICtrl*, const LLSD& value) { populateDeviceSettings(value); });
+
+    // Channel selectors
     mAnalogChannelSelector = getChild<LLComboBox>("analog_channel_selector");
-    mAnalogChannelSelector->setCommitCallback(boost::bind(&LLPanelPreferenceGameControl::onCommitInputChannel, this, _1));
+    mAnalogChannelSelector->setCommitCallback([this](LLUICtrl* ctrl, const LLSD&) { onCommitInputChannel(ctrl); });
 
     mBinaryChannelSelector = getChild<LLComboBox>("binary_channel_selector");
-    mBinaryChannelSelector->setCommitCallback(boost::bind(&LLPanelPreferenceGameControl::onCommitInputChannel, this, _1));
+    mBinaryChannelSelector->setCommitCallback([this](LLUICtrl* ctrl, const LLSD&) { onCommitInputChannel(ctrl); });
 
+    // Setup the 1st tab
     populateActionTableRows("game_control_table_rows.xml");
     addActionTableSeparator();
     populateActionTableRows("game_control_table_camera_rows.xml");
@@ -3308,10 +3330,11 @@ void LLPanelPreferenceGameControl::onOpen(const LLSD& key)
     mCheckGameControlToAgent->setValue(LLGameControl::getControlAgent());
     mCheckAgentToGameControl->setValue(LLGameControl::getTranslateAgentActions());
 
+    // Setup the 1st tab
     populateActionTableCells();
+    updateActionTableState();
 
-    updateTableState();
-
+    // Setup the 2nd tab
     mDeviceOptions = LLGameControl::getDeviceOptions();
     // Add missing device settings even if they are default
     for (const auto& device : LLGameControl::getDevices())
@@ -3321,6 +3344,9 @@ void LLPanelPreferenceGameControl::onOpen(const LLSD& key)
             mDeviceOptions[device.getGUID()] = device.saveOptionsToString(true);
         }
     }
+
+    mCheckShowAllDevices->setValue(false);
+    populateDeviceTitle();
 }
 
 void LLPanelPreferenceGameControl::populateActionTableRows(const std::string& filename)
@@ -3356,6 +3382,97 @@ void LLPanelPreferenceGameControl::populateActionTableRows(const std::string& fi
             mActionTable->addRow(row_params, EAddPosition::ADD_BOTTOM);
         }
     }
+}
+
+void LLPanelPreferenceGameControl::populateDeviceTitle()
+{
+    bool showAllDevices = mCheckShowAllDevices->getValue().asBoolean();
+    std::size_t deviceCount = showAllDevices ? mDeviceOptions.size() : LLGameControl::getDevices().size();
+
+    mNoDeviceMessage->setVisible(!deviceCount);
+    mDevicePrompt->setVisible(deviceCount);
+    mSingleDevice->setVisible(deviceCount == 1);
+    mDeviceList->setVisible(deviceCount > 1);
+    mPanelDeviceSettings->setVisible(deviceCount);
+
+    auto makeTitle = [](const std::string& guid, const std::string& name) -> std::string
+    {
+        return guid + ", " + name;
+    };
+
+    auto makeDeviceTitle = [&](const LLGameControl::Device & device) -> std::string
+    {
+        return makeTitle(device.getGUID(), device.getName());
+    };
+
+    // argument 'pair' is a pair of strings <device_guid, device_options>
+    auto makeOptionsTitle = [&](const std::pair<std::string, std::string>& pair)
+    {
+        std::string device_name;
+        // Dummy containers required for LLGameControl::parseDeviceOptions()
+        std::vector<LLGameControl::Options::AxisOptions> axis_options;
+        std::vector<U8> axis_map, button_map;
+
+        // Parse options string from pair.second to get device_name
+        if (!LLGameControl::parseDeviceOptions(pair.second, device_name, axis_options, axis_map, button_map))
+        {
+            llassert_msg(false, llformat("Error parsing device options string: '%s'", pair.second.c_str()));
+            return LLStringUtil::null;
+        }
+
+        return makeTitle(pair.first, device_name);
+    };
+
+    if (deviceCount == 1)
+    {
+        if (showAllDevices)
+        {
+            const std::pair<std::string, std::string>& pair = *mDeviceOptions.begin();
+            mSingleDevice->setValue(makeOptionsTitle(pair));
+            populateDeviceSettings(pair.first);
+        }
+        else
+        {
+            const LLGameControl::Device& device = LLGameControl::getDevices().front();
+            mSingleDevice->setValue(makeDeviceTitle(device));
+            populateDeviceSettings(device.getGUID());
+        }
+    }
+    else if (deviceCount)
+    {
+        mDeviceList->clear();
+        mDeviceList->clearRows();
+
+        auto makeListItem = [](const std::string& guid, const std::string& title)
+        {
+            return LLSD().with("value", guid).with("columns", LLSD().with("label", title));
+        };
+
+        if (showAllDevices)
+        {
+            for (const auto& pair : mDeviceOptions)
+            {
+                mDeviceList->addElement(makeListItem(pair.first, makeOptionsTitle(pair)));
+            }
+        }
+        else
+        {
+            for (const LLGameControl::Device& device : LLGameControl::getDevices())
+            {
+                mDeviceList->addElement(makeListItem(device.getGUID(), makeDeviceTitle(device)));
+            }
+        }
+
+        mDeviceList->selectNthItem(0);
+        populateDeviceSettings(mDeviceList->getValue());
+    }
+}
+
+void LLPanelPreferenceGameControl::populateDeviceSettings(const std::string& guid)
+{
+    LL_INFOS() << "guid: '" << guid << "'" << LL_ENDL;
+
+    // TODO: implement this (https://github.com/secondlife/viewer/issues/1513)
 }
 
 void LLPanelPreferenceGameControl::populateActionTableCells()
@@ -3446,7 +3563,7 @@ void LLPanelPreferenceGameControl::addActionTableSeparator()
     mActionTable->addRow(separator_params, EAddPosition::ADD_BOTTOM);
 }
 
-void LLPanelPreferenceGameControl::updateTableState()
+void LLPanelPreferenceGameControl::updateActionTableState()
 {
     // Enable the table if at least one of the GameControl<-->Agent options is enabled
     bool enable_table = mCheckGameControlToAgent->get() || mCheckAgentToGameControl->get();
