@@ -1522,6 +1522,10 @@ bool LLPanelRegionTerrainInfo::postBuild()
         buffer = llformat("texture_detail_%d", i);
         initCtrl(buffer);
         mTextureDetailCtrl[i] = findChild<LLTextureCtrl>(buffer);
+        if (mTextureDetailCtrl)
+        {
+            mTextureDetailCtrl[i]->setBakeTextureEnabled(false);
+        }
     }
     for(S32 i = 0; i < LLTerrainMaterials::ASSET_COUNT; ++i)
     {
