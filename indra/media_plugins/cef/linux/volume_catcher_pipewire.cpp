@@ -175,6 +175,9 @@ void VolumeCatcherPipeWire::unlock()
     llpw_thread_loop_unlock(mThreadLoop);
 }
 
+const uint32_t channels = 1;
+const float resetVolumes[channels] = { 1.0f };
+
 void VolumeCatcherPipeWire::ChildNode::updateVolume()
 {
     if (!mActive)
@@ -182,9 +185,7 @@ void VolumeCatcherPipeWire::ChildNode::updateVolume()
 
     F32 volume = std::clamp(mImpl->mVolume, 0.0f, 1.0f);
 
-    const uint32_t channels = 1;
-    float volumes[channels];
-    volumes[0] = volume;
+    const float volumes[channels] = { volume };
 
     uint8_t buffer[512];
 
@@ -193,8 +194,15 @@ void VolumeCatcherPipeWire::ChildNode::updateVolume()
 
     spa_pod_frame frame;
     spa_pod_builder_push_object(&builder, &frame, SPA_TYPE_OBJECT_Props, SPA_PARAM_Props);
+
+    // resets system-wide memorized volume for chromium (not google chrome) to 100%
     spa_pod_builder_prop(&builder, SPA_PROP_channelVolumes, 0);
+    spa_pod_builder_array(&builder, sizeof(float), SPA_TYPE_Float, channels, resetVolumes);
+
+    // sets temporary volume
+    spa_pod_builder_prop(&builder, SPA_PROP_softVolumes, 0);
     spa_pod_builder_array(&builder, sizeof(float), SPA_TYPE_Float, channels, volumes);
+
     spa_pod* pod = static_cast<spa_pod*>(spa_pod_builder_pop(&builder, &frame));
 
     {
