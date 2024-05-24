@@ -98,7 +98,7 @@ void LLGameControlTranslator::updateMap(const std::string& action, const LLGameC
     if (actionNameType == LLGameControl::ACTION_NAME_UNKNOWN ||
         actionNameType == LLGameControl::ACTION_NAME_FLYCAM)
     {
-        LL_WARNS("GameControl") << "unmappable action='" << action << "' (type=" << actionNameType << ")" << LL_ENDL;
+        LL_WARNS("SDL2") << "unmappable action='" << action << "' (type=" << actionNameType << ")" << LL_ENDL;
         return;
     }
 
@@ -109,7 +109,7 @@ void LLGameControlTranslator::updateMap(const std::string& action, const LLGameC
         LLGameControl::InputChannel::TYPE_AXIS;
     if (!channel.isNone() && (channel.mType != expectedChannelType))
     {
-        LL_WARNS("GameControl") << "unmappable channel (type=" << channel.mType << ")"
+        LL_WARNS("SDL2") << "unmappable channel (type=" << channel.mType << ")"
             << " for action='" << action << "' (type=" << actionNameType << ")" << LL_ENDL;
         return;
     }
