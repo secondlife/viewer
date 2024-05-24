@@ -65,6 +65,69 @@
             </scroll_list>
         </panel>
         <panel label="Device settings">
+            <text
+                type="string"
+                name="nodevice_message"
+                layout="topleft"
+                follows="all"
+                halign="center"
+                valign="center"
+                top="1"
+                left="1"
+                right="-1"
+                bottom="-1">No device</text>
+            <panel
+                layout="topleft"
+                follows="top|left|right"
+                top="1"
+                left="1"
+                right="-1"
+                height="60">
+                <text
+                    type="string"
+                    name="device_prompt"
+                    layout="topleft"
+                    follows="top|left"
+                    valign="center"
+                    top="10"
+                    left="2"
+                    height="21"
+                    width="200">Device to customize:</text>
+                <text
+                    type="string"
+                    name="single_device"
+                    layout="topleft"
+                    follows="top|left"
+                    valign="center"
+                    top="30"
+                    left="2"
+                    height="21"
+                    width="500"/>
+                <combo_box
+                    name="device_list"
+                    layout="topleft"
+                    follows="top|left"
+                    top="30"
+                    left="2"
+                    width="500"/>
+            </panel>
+            <!-- This checkbox should be placed inside the above panel -->
+            <check_box
+                name="show_all_known_devices"
+                label="Show all known devices"
+                layout="topleft"
+                follows="top|left"
+                top_delta="10"
+                left="310"/>
+            <panel
+                name="device_settings"
+                layout="topleft"
+                follows="all"
+                top="61"
+                left="1"
+                right="-1"
+                bottom="-1">
+            </panel>
         </panel>
     </tab_container>
     <combo_box

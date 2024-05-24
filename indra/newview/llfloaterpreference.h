@@ -395,6 +395,9 @@ protected:
     bool parseXmlFile(LLScrollListCtrl::Contents& contents,
         const std::string& filename, const std::string& what);
 
+    void populateDeviceTitle();
+    void populateDeviceSettings(const std::string& guid);
+
     static std::string getChannelLabel(const std::string& channelName,
         const std::vector<LLScrollListItem*>& items);
 
@@ -402,13 +405,25 @@ private:
     bool initChannelSelector(LLScrollListItem* item);
     void clearSelectionState();
     void addActionTableSeparator();
-    void updateTableState();
+    void updateActionTableState();
 
+    // Above the tab container
     LLCheckBoxCtrl  *mCheckGameControlToServer; // send game_control data to server
     LLCheckBoxCtrl  *mCheckGameControlToAgent; // use game_control data to move avatar
     LLCheckBoxCtrl  *mCheckAgentToGameControl; // translate external avatar actions to game_control data
 
+    // 1st tab "Channel mappings"
     LLScrollListCtrl* mActionTable;
+
+    // 2nd tab "Device settings"
+    LLTextBox* mNoDeviceMessage;
+    LLTextBox* mDevicePrompt;
+    LLTextBox* mSingleDevice;
+    LLComboBox* mDeviceList;
+    LLCheckBoxCtrl* mCheckShowAllDevices;
+    LLPanel* mPanelDeviceSettings;
+
+    // Channel selectors
     LLComboBox* mAnalogChannelSelector;
     LLComboBox* mBinaryChannelSelector;
 
