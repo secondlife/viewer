@@ -4501,13 +4501,12 @@ You already have blocked this name.
 
   <notification
    icon="alert.tga"
-   name="RemoveItemWarn"
+   name="CantModifyContentInNoModTask"
    type="alert">
-Though permitted, deleting contents may damage the object. Do you want to delete that item?
-    <tag>confirm</tag>
+You don't have permission to modify content of this object
+      <tag>confirm</tag>
     <usetemplate
-     name="okcancelbuttons"
-     notext="Cancel"
+     name="okbutton"
      yestext="OK"/>
   </notification>
 

@@ -307,20 +307,27 @@ BOOL LLTaskInvFVBridge::isItemRenameable() const
 BOOL LLTaskInvFVBridge::renameItem(const std::string& new_name)
 {
     LLViewerObject* object = gObjectList.findObject(mPanel->getTaskUUID());
-    if(object)
+    if(!object)
     {
-        LLViewerInventoryItem* item = NULL;
-        item = (LLViewerInventoryItem*)object->getInventoryObject(mUUID);
-        if(item && (gAgent.allowOperation(PERM_MODIFY, item->getPermissions(),
-                                        GP_OBJECT_MANIPULATE, GOD_LIKE)))
-        {
-            LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
-            new_item->rename(new_name);
-            object->updateInventory(
-                new_item,
-                TASK_INVENTORY_ITEM_KEY,
-                false);
-        }
+        return false;
+    }
+    if (!object->permModify())
+    {
+        LLNotificationsUtil::add("CantModifyContentInNoModTask");
+        return false;
+    }
+
+    LLViewerInventoryItem* item = NULL;
+    item = (LLViewerInventoryItem*)object->getInventoryObject(mUUID);
+    if (item && (gAgent.allowOperation(PERM_MODIFY, item->getPermissions(),
+        GP_OBJECT_MANIPULATE, GOD_LIKE)))
+    {
+        LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
+        new_item->rename(new_name);
+        object->updateInventory(
+            new_item,
+            TASK_INVENTORY_ITEM_KEY,
+            false);
     }
     return TRUE;
 }
@@ -387,10 +394,7 @@ BOOL LLTaskInvFVBridge::removeItem()
             }
             else
             {
-                LLSD payload;
-                payload["task_id"] = mPanel->getTaskUUID();
-                payload["inventory_ids"].append(mUUID);
-                LLNotificationsUtil::add("RemoveItemWarn", LLSD(), payload, boost::bind(&remove_task_inventory_callback, _1, _2, mPanel));
+                LLNotificationsUtil::add("CantModifyContentInNoModTask");
                 return FALSE;
             }
         }
@@ -413,15 +417,7 @@ void   LLTaskInvFVBridge::removeBatch(std::vector<LLFolderViewModelItem*>& batch
 
     if (!object->permModify())
     {
-        LLSD payload;
-        payload["task_id"] = mPanel->getTaskUUID();
-        for (S32 i = 0; i < (S32)batch.size(); i++)
-        {
-            LLTaskInvFVBridge* itemp = (LLTaskInvFVBridge*)batch[i];
-            payload["inventory_ids"].append(itemp->getUUID());
-        }
-        LLNotificationsUtil::add("RemoveItemWarn", LLSD(), payload, boost::bind(&remove_task_inventory_callback, _1, _2, mPanel));
-
+        LLNotificationsUtil::add("CantModifyContentInNoModTask");
     }
     else
     {
@@ -1378,7 +1374,23 @@ BOOL LLPanelObjectInventory::postBuild()
 
 void LLPanelObjectInventory::doToSelected(const LLSD& userdata)
 {
-    LLInventoryAction::doToSelected(&gInventory, mFolders, userdata.asString());
+    std::string action = userdata.asString();
+    if ("rename" == action || "delete" == action)
+    {
+        LLViewerObject* objectp = gObjectList.findObject(mTaskUUID);
+        if (objectp && !objectp->permModify())
+        {
+            LLNotificationsUtil::add("CantModifyContentInNoModTask");
+        }
+        else
+        {
+            LLInventoryAction::doToSelected(&gInventory, mFolders, action);
+        }
+    }
+    else
+    {
+        LLInventoryAction::doToSelected(&gInventory, mFolders, action);
+    }
 }
 
 void LLPanelObjectInventory::clearContents()
