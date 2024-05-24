@@ -72,7 +72,7 @@ namespace LL
             void serialize(boost::json::object& obj) const;
             const BufferView& operator=(const Value& value);
         };
-        
+
         class Accessor
         {
         public:

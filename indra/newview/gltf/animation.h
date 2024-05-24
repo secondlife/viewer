@@ -139,7 +139,7 @@ namespace LL
             // min/max time values for all samplers combined
             F32 mMinTime = 0.f;
             F32 mMaxTime = 0.f;
-            
+
             // current time of the animation
             F32 mTime = 0.f;
 

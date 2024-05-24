@@ -84,7 +84,7 @@ namespace LL
 void Scene::updateTransforms(Asset& asset)
 {
     mat4 identity = glm::identity<mat4>();
-    
+ 
     for (auto& nodeIndex : mNodes)
     {
         Node& node = asset.mNodes[nodeIndex];
@@ -116,9 +116,9 @@ void Node::updateTransforms(Asset& asset, const mat4& parentMatrix)
 {
     makeMatrixValid();
     mAssetMatrix = parentMatrix * mMatrix;
-    
+ 
     mAssetMatrixInv = glm::inverse(mAssetMatrix);
-    
+
     S32 my_index = this - &asset.mNodes[0];
 
     for (auto& childIndex : mChildren)
@@ -167,7 +167,6 @@ S32 Asset::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
     {
         if (node.mMesh != INVALID_INDEX)
         {
-            
             bool newHit = false;
 
             LLMatrix4a ami;
@@ -200,7 +199,7 @@ S32 Asset::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
                 LLMatrix4a am;
                 am.loadu(glm::value_ptr(node.mAssetMatrix));
                 // shorten line segment on hit
-                am.affineTransform(p, asset_end); 
+                am.affineTransform(p, asset_end);
 
                 // transform results back to asset space
                 if (intersection)
@@ -269,7 +268,7 @@ void Node::makeTRSValid()
         vec3 skew;
         vec4 perspective;
         glm::decompose(mMatrix, mScale, mRotation, mTranslation, skew, perspective);
-        
+
         mTRSValid = true;
     }
 
@@ -325,7 +324,7 @@ const Node& Node::operator=(const Value& src)
     {
         mTRSValid = true;
     }
-    
+
     return *this;
 }
 
@@ -696,7 +695,7 @@ void Asset::serialize(object& dst) const
 
     dst["asset"] = object{};
     object& asset = dst["asset"].get_object();
-    
+
     write(mVersion, "version", asset);
     write(mMinVersion, "minVersion", asset, std::string());
     write(sGenerator, "generator", asset);
@@ -860,7 +859,7 @@ bool Image::save(Asset& asset, const std::string& folder)
 {
     // NOTE:  this *MUST* be a lossless save
     // Artists use this to save their work repeatedly, so
-    // adding any compression artifacts here will degrade 
+    // adding any compression artifacts here will degrade
     // images over time.
     std::string name = mName;
     std::string error;
@@ -929,9 +928,25 @@ bool Image::save(Asset& asset, const std::string& folder)
                 error = "Local image missing.";
             }
         }
+        else if (!mUri.empty())
+        {
+            std::string from_dir = gDirUtilp->getDirName(asset.mFilename);
+            std::string base_filename = gDirUtilp->getBaseFileName(mUri);
+            std::string filename = from_dir + delim + base_filename;
+            if (gDirUtilp->fileExists(filename))
+            {
+                std::string dest = folder + delim + base_filename;
+                LLFile::copy(filename, dest);
+                mUri = base_filename;
+            }
+            else
+            {
+                error = "Original image file not found: " + filename;
+            }
+        }
         else
         {
-            error = "Image is not a local image.";
+            error = "Image is not a local image and has no uri, cannot save.";
         }
     }
 
@@ -1105,10 +1120,10 @@ void Material::bind(Asset& asset)
 
     if (!LLPipeline::sShadowRender)
     {
-        bindTexture(asset, LLShaderMgr::BUMP_MAP, mNormalTexture, LLViewerFetchedTexture::sFlatNormalImagep);      
+        bindTexture(asset, LLShaderMgr::BUMP_MAP, mNormalTexture, LLViewerFetchedTexture::sFlatNormalImagep);
         bindTexture(asset, LLShaderMgr::SPECULAR_MAP, mPbrMetallicRoughness.mMetallicRoughnessTexture, LLViewerFetchedTexture::sWhiteImagep);
         bindTexture(asset, LLShaderMgr::EMISSIVE_MAP, mEmissiveTexture, LLViewerFetchedTexture::sWhiteImagep);
-        
+
         // NOTE: base color factor is baked into vertex stream
 
         shader->uniform1f(LLShaderMgr::ROUGHNESS_FACTOR, mPbrMetallicRoughness.mRoughnessFactor);
@@ -1206,7 +1221,7 @@ const Scene& Scene::operator=(const Value& src)
 {
     copy(src, "nodes", mNodes);
     copy(src, "name", mName);
-    
+
     return *this;
 }
 

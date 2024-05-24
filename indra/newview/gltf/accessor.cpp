@@ -108,6 +108,8 @@ void Buffer::erase(Asset& asset, S32 offset, S32 length)
 
     mData.erase(mData.begin() + offset, mData.begin() + offset + length);
 
+    mByteLength = mData.size();
+
     for (BufferView& view : asset.mBufferViews)
     {
         if (view.mBuffer == idx)
@@ -142,9 +144,9 @@ bool Buffer::prep(Asset& asset)
         LL_WARNS() << "Data URIs not yet supported" << LL_ENDL;
         return false;
     }
-    else if (!asset.mFilename.empty() && 
+    else if (!asset.mFilename.empty() &&
         !mUri.empty()) // <-- uri could be empty if we're loading from .glb
-    { // loaded locally, load the texture as a local preview
+    {
         std::string dir = gDirUtilp->getDirName(asset.mFilename);
         std::string bin_file = dir + gDirUtilp->getDirDelimiter() + mUri;
 
@@ -155,13 +157,16 @@ bool Buffer::prep(Asset& asset)
             return false;
         }
 
-        mData.resize(mByteLength);
-        file.read((char*)mData.data(), mData.size());
-        if (file.tellg() != mByteLength)
+        file.seekg(0, std::ios::end);
+        if (mByteLength > file.tellg())
         {
-            LL_WARNS("GLTF") << "Unexpected file size: " << bin_file << "is " << file.tellg() << " bytes, expected " << mByteLength << LL_ENDL;
+            LL_WARNS("GLTF") << "Unexpected file size: " << bin_file << " is " << file.tellg() << " bytes, expected " << mByteLength << LL_ENDL;
             return false;
         }
+        file.seekg(0, std::ios::beg);
+
+        mData.resize(mByteLength);
+        file.read((char*)mData.data(), mData.size());
     }
 
     // POSTCONDITION: on success, mData.size == mByteLength
@@ -177,7 +182,7 @@ bool Buffer::save(Asset& asset, const std::string& folder)
         return false;
     }
 
-    std::string bin_file = folder + "/";
+    std::string bin_file = folder + gDirUtilp->getDirDelimiter();
 
     if (mUri.empty())
     {
@@ -191,7 +196,7 @@ bool Buffer::save(Asset& asset, const std::string& folder)
             mUri = mName + ".bin";
         }
     }
-    
+
     bin_file += mUri;
 
     std::ofstream file(bin_file, std::ios::binary);
@@ -220,8 +225,8 @@ const Buffer& Buffer::operator=(const Value& src)
         copy(src, "name", mName);
         copy(src, "uri", mUri);
         copy(src, "byteLength", mByteLength);
-        
-        // NOTE: DO NOT attempt to handle the uri here. 
+
+        // NOTE: DO NOT attempt to handle the uri here.
         // The uri is a reference to a file that is not loaded until
         // after the json document is parsed
     }
