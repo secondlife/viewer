@@ -613,7 +613,7 @@ void LLFloaterIMNearbyChatHandler::processChat(const LLChat& chat_msg,
         }
         else
         {
-            toast_msg = chat_msg.mIsScript ? chat_msg.mText.substr(LUA_PREFIX.size()) : chat_msg.mText;
+            toast_msg = remove_LUA_PREFIX(chat_msg.mText, chat_msg.mIsScript);
         }
 
         bool chat_overlaps = false;
