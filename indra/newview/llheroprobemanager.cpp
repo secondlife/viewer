@@ -112,7 +112,6 @@ void LLHeroProbeManager::update()
 
     LLVector4a probe_pos;
     LLVector3 camera_pos = LLViewerCamera::instance().mOrigin;
-    F32        near_clip  = 0.1f;
     bool       probe_present = false;
     LLQuaternion cameraOrientation = LLViewerCamera::instance().getQuaternion();
     LLVector3    cameraDirection   = LLVector3::z_axis * cameraOrientation;
@@ -198,6 +197,9 @@ void LLHeroProbeManager::update()
 
                 mFaceUpdateList[i] = ceilf(cube_facing * gPipeline.RenderHeroProbeConservativeUpdateMultiplier);
             }
+
+            
+            mProbes[0]->mOrigin = probe_pos;
         }
         else
         {
@@ -206,25 +208,23 @@ void LLHeroProbeManager::update()
 
         mHeroProbeStrength = 1;
     }
-    else
-    {
-        probe_pos.load3(camera_pos.mV);
-    }
+}
 
-
+void LLHeroProbeManager::renderProbes()
+{
     static LLCachedControl<S32> sDetail(gSavedSettings, "RenderHeroReflectionProbeDetail", -1);
     static LLCachedControl<S32> sLevel(gSavedSettings, "RenderHeroReflectionProbeLevel", 3);
 
-    if (mNearestHero != nullptr && (gPipeline.RenderHeroProbeUpdateRate == 0 || (gFrameCount % gPipeline.RenderHeroProbeUpdateRate) == 0))
+    F32 near_clip = 0.01f;
+    if (mNearestHero != nullptr && (gPipeline.RenderHeroProbeUpdateRate == 0 || (gFrameCount % gPipeline.RenderHeroProbeUpdateRate) == 0) &&
+        !gTeleportDisplay && !gDisconnected && !LLAppViewer::instance()->logoutRequestSent())
     {
         LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("hpmu - realtime");
-        // Probe 0 is always our mirror probe.
-        mProbes[0]->mOrigin = probe_pos;
 
         bool radiance_pass = gPipeline.mReflectionMapManager.isRadiancePass();
 
         gPipeline.mReflectionMapManager.mRadiancePass = true;
-        mRenderingMirror = true;
+        mRenderingMirror                              = true;
 
         doOcclusion();
 

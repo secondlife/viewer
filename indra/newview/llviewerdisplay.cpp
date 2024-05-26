@@ -662,6 +662,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("Update hero probes");
             gPipeline.mHeroProbeManager.update();
+            gPipeline.mHeroProbeManager.renderProbes();
         }
 
         LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("display - 1");
@@ -1072,7 +1073,7 @@ void display_cube_face()
     LLSpatialGroup::sNoDelete = TRUE;
 
     S32 occlusion = LLPipeline::sUseOcclusion;
-    LLPipeline::sUseOcclusion = 1; // occlusion data is from main camera point of view, don't read or write it during cube snapshots
+    LLPipeline::sUseOcclusion = 0; // occlusion data is from main camera point of view, don't read or write it during cube snapshots
     //gDepthDirty = TRUE; //let "real" render pipe know it can't trust the depth buffer for occlusion data
 
     static LLCullResult result;

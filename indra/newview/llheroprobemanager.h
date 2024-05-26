@@ -68,6 +68,8 @@ public:
     // maintain reflection probes
     void update();
 
+    void renderProbes();
+
     // debug display, called from llspatialpartition if reflection
     // probe debug display is active
     void renderDebug();
@@ -151,6 +153,7 @@ private:
     
     std::vector<LLPointer<LLVOVolume>>                       mHeroVOList;
     LLPointer<LLVOVolume>                                 mNearestHero;
+
 
 };
 
