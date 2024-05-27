@@ -1885,6 +1885,11 @@ void LLPipeline::updateMovedList(LLDrawable::drawable_vector_t& moved_list)
     {
         LLDrawable::drawable_vector_t::iterator curiter = iter++;
         LLDrawable *drawablep = *curiter;
+        if (!drawablep)
+        {
+            iter = moved_list.erase(curiter);
+            continue;
+        }
         bool done = true;
         if (!drawablep->isDead() && (!drawablep->isState(LLDrawable::EARLY_MOVE)))
         {
