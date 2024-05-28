@@ -82,27 +82,27 @@ public:
     enum ActionNameType
     {
         ACTION_NAME_UNKNOWN,
-        ACTION_NAME_ANALOG,   // E.g., "push"
+        ACTION_NAME_ANALOG,     // E.g., "push"
         ACTION_NAME_ANALOG_POS, // E.g., "push+"
         ACTION_NAME_ANALOG_NEG, // E.g., "push-"
-        ACTION_NAME_BINARY,   // E.g., "stop"
-        ACTION_NAME_FLYCAM    // E.g., "zoom"
+        ACTION_NAME_BINARY,     // E.g., "stop"
+        ACTION_NAME_FLYCAM      // E.g., "zoom"
     };
 
     enum KeyboardAxis : U8
     {
-        AXIS_LEFTX = 0,
+        AXIS_LEFTX,
         AXIS_LEFTY,
         AXIS_RIGHTX,
         AXIS_RIGHTY,
         AXIS_TRIGGERLEFT,
         AXIS_TRIGGERRIGHT,
-        AXIS_LAST
+        NUM_AXES
     };
 
     enum Button
     {
-        BUTTON_A = 0,
+        BUTTON_A,
         BUTTON_B,
         BUTTON_X,
         BUTTON_Y,
@@ -133,8 +133,12 @@ public:
         BUTTON_28,
         BUTTON_29,
         BUTTON_30,
-        BUTTON_31
+        BUTTON_31,
+        NUM_BUTTONS
     };
+
+    static const U16 MAX_AXIS_DEAD_ZONE = 16384;
+    static const U16 MAX_AXIS_OFFSET = 16384;
 
     class InputChannel
     {
@@ -194,7 +198,15 @@ public:
         S16 fixAxisValue(U8 axis, S16 value) const;
 
         std::string saveToString(const std::string& name, bool force_empty = false) const;
-        void loadFromString(std::string options);
+        bool loadFromString(std::string& name, std::string options);
+        bool loadFromString(std::string options);
+
+        const std::vector<AxisOptions>& getAxisOptions() const { return mAxisOptions; }
+        std::vector<AxisOptions>& getAxisOptions() { return mAxisOptions; }
+        const std::vector<U8>& getAxisMap() const { return mAxisMap; }
+        std::vector<U8>& getAxisMap() { return mAxisMap; }
+        const std::vector<U8>& getButtonMap() const { return mButtonMap; }
+        std::vector<U8>& getButtonMap() { return mButtonMap; }
 
     private:
         std::vector<AxisOptions> mAxisOptions;
@@ -228,7 +240,8 @@ public:
         int getJoystickID() const { return mJoystickID; }
         std::string getGUID() const { return mGUID; }
         std::string getName() const { return mName; }
-        const State& getState() { return mState; }
+        const Options& getOptions() const { return mOptions; }
+        const State& getState() const { return mState; }
 
         void resetOptionsToDefaults() { mOptions.resetToDefaults(); }
         std::string saveOptionsToString(bool force_empty = false) const { return mOptions.saveToString(mName, force_empty); }

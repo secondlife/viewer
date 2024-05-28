@@ -127,9 +127,98 @@
                 left="1"
                 right="-1"
                 bottom="-1">
+                <tab_container
+                    name="device_settings_tabs"
+                    layout="topleft"
+                    follows="all"
+                    top="1"
+                    left="1"
+                    right="-1"
+                    bottom="-1">
+                    <panel label="Axis Options">
+                        <scroll_list
+                            name="axis_options"
+                            follows="all"
+                            top="41"
+                            left="1"
+                            right="-1"
+                            bottom="-1"
+                            can_sort="false"
+                            column_padding="0"
+                            draw_heading="true"
+                            multi_select="false"
+                            selection_type="header"
+                            fg_disable_color="ScrollUnselectedColor">
+                            <scroll_list.columns
+                                label="Axis"
+                                relative_width="0.5"/>
+                            <scroll_list.columns
+                                label="Invert"
+                                relative_width="0.1"/>
+                            <scroll_list.columns
+                                label="Dead Zone"
+                                relative_width="0.2"/>
+                            <scroll_list.columns
+                                label="Offset"
+                                relative_width="0.2"/>
+                        </scroll_list>
+                    </panel>
+                    <panel label="Axis Mappings">
+                        <scroll_list
+                            name="axis_mappings"
+                            follows="all"
+                            top="1"
+                            left="1"
+                            right="-1"
+                            bottom="-1"
+                            can_sort="false"
+                            column_padding="0"
+                            multi_select="false"
+                            selection_type="header"
+                            fg_disable_color="ScrollUnselectedColor">
+                            <scroll_list.columns relative_width="0.5"/>
+                            <scroll_list.columns relative_width="0.5"/>
+                        </scroll_list>
+                    </panel>
+                    <panel label="Button Mappings">
+                        <scroll_list
+                            name="button_mappings"
+                            follows="all"
+                            top="1"
+                            left="1"
+                            right="-1"
+                            bottom="-1"
+                            can_sort="false"
+                            column_padding="0"
+                            multi_select="false"
+                            selection_type="header"
+                            fg_disable_color="ScrollUnselectedColor">
+                            <scroll_list.columns relative_width="0.5"/>
+                            <scroll_list.columns relative_width="0.5"/>
+                        </scroll_list>
+                    </panel>
+                </tab_container>
             </panel>
         </panel>
     </tab_container>
+    <spinner
+        name="numeric_value_editor"
+        decimal_digits="0"
+        increment="1"
+        width="100"
+        height="18"/>
+    <combo_box
+        name="axis_selector"
+        width="250"
+        height="18">
+        <combo_box.item label="AXIS_0 (Left stick: tilt left/right)"/>
+        <combo_box.item label="AXIS_1 (Left stick: tilt forward/back)"/>
+        <combo_box.item label="AXIS_2 (Right stick: tilt left/right)"/>
+        <combo_box.item label="AXIS_3 (Right stick: tilt forward/back)"/>
+        <combo_box.item label="AXIS_4 (Left trigger: push/release)"/>
+        <combo_box.item label="AXIS_5 (Right trigger: push/release)"/>
+        <combo_box.item label="NONE (No mapping)"/>
+    </combo_box>
     <combo_box
         name="analog_channel_selector"
         width="380"
@@ -183,7 +272,7 @@
             name="AXIS_5+"
             value="AXIS_5+"/>
         <combo_box.item
-            label="NONE (No channel mapping)"
+            label="NONE (No mapping)"
             name="NONE"
             value="NONE"/>
     </combo_box>
@@ -320,7 +409,7 @@
             name="BUTTON_31"
             value="BUTTON_31"/>
         <combo_box.item
-            label="NONE (No channel mapping)"
+            label="NONE (No mapping)"
             name="NONE"
             value="NONE"/>
     </combo_box>

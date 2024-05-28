@@ -470,6 +470,15 @@ LLScrollListItem* LLScrollListCtrl::getLastData() const
 	return mItemList[mItemList.size() - 1];
 }
 
+LLScrollListItem* LLScrollListCtrl::getNthData(size_t index) const
+{
+	if (mItemList.size() <= index)
+	{
+		return NULL;
+	}
+	return mItemList[index];
+}
+
 std::vector<LLScrollListItem*> LLScrollListCtrl::getAllData() const
 {
 	std::vector<LLScrollListItem*> ret;
@@ -2604,7 +2613,7 @@ void LLScrollListCtrl::selectItem(LLScrollListItem* itemp, S32 cell, BOOL select
 {
 	if (!itemp) return;
 
-	if (!itemp->getSelected())
+	if (!itemp->getSelected() || itemp->getSelectedCell() != cell)
 	{
 		if (mLastSelected)
 		{
