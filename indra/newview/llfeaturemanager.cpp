@@ -387,7 +387,7 @@ bool LLFeatureManager::loadGPUClass()
         F32 gbps;
         try
         {
-            gbps = seh_catcher(gpu_benchmark);
+            gbps = LL::seh::catcher(gpu_benchmark);
         }
         catch (const std::exception& e)
         {

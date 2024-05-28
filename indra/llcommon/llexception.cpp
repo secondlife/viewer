@@ -101,44 +101,36 @@ void annotate_exception_(boost::exception& exc)
 static constexpr U32 STATUS_MSC_EXCEPTION = 0xE06D7363; // compiler specific
 static constexpr U32 STATUS_STACK_FULL    = 0xC00000FD;
 
-U32 ll_seh_filter(
-    std::string& stacktrace,
-    std::function<U32(U32, struct _EXCEPTION_POINTERS*)> filter,
-    U32 code,
-    struct _EXCEPTION_POINTERS* exception_infop)
+void LL::seh::fill_stacktrace(std::string& stacktrace, U32 code)
 {
-    // By the time the handler gets control, the stack has been unwound,
-    // so report the stack trace now at filter() time.
-    // Even though stack overflow is a problem we would very much like to
-    // diagnose, calling another function when the stack is already blown only
-    // terminates us faster.
+    // Sadly, despite its diagnostic importance, trying to capture a
+    // stacktrace when the stack is already blown only terminates us faster.
     if (code == STATUS_STACK_FULL)
     {
         stacktrace = "(stack overflow, no traceback)";
     }
     else
     {
-        stacktrace = boost::stacktrace::stacktrace().to_string();
+        stacktrace = to_string(boost::stacktrace::stacktrace());
     }
-    
-    return filter(code, exception_infop);
 }
 
-U32 seh_filter(U32 code, struct _EXCEPTION_POINTERS*)
+U32 LL::seh::common_filter(U32 code, struct _EXCEPTION_POINTERS*)
 {
     if (code == STATUS_MSC_EXCEPTION)
     {
-        // C++ exception, go on
+        // C++ exception, don't stop at this handler
         return EXCEPTION_CONTINUE_SEARCH;
     }
     else
     {
         // This is a non-C++ exception, e.g. hardware check.
+        // Pass control into the handler block.
         return EXCEPTION_EXECUTE_HANDLER;
     }
 }
 
-void seh_rethrow(U32 code, const std::string& stacktrace)
+void LL::seh::rethrow(U32 code, const std::string& stacktrace)
 {
     std::ostringstream out;
     out << "Windows exception 0x" << std::hex << code;

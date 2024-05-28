@@ -299,7 +299,7 @@ void LLCoros::toplevel(std::string name, callable_t callable)
     // run the code the caller actually wants in the coroutine
     try
     {
-        seh_catcher(callable);
+        LL::seh::catcher(callable);
     }
     catch (const Stop& exc)
     {

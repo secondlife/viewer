@@ -163,7 +163,7 @@ HGLRC SafeCreateContext(HDC &hdc)
 
 GLuint SafeChoosePixelFormat(HDC &hdc, const PIXELFORMATDESCRIPTOR *ppfd)
 {
-    return seh_catcher(ChoosePixelFormat(hdc, ppfd));
+    return LL::seh::catcher([hdc, ppfd]{ return ChoosePixelFormat(hdc, ppfd); });
 }
 
 //static
