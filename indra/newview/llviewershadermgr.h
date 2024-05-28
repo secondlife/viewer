@@ -287,6 +287,9 @@ extern LLGLSLShader         gDeferredPBROpaqueProgram;
 extern LLGLSLShader         gDeferredPBRAlphaProgram;
 extern LLGLSLShader         gHUDPBRAlphaProgram;
 
+// GLTF shaders
+extern LLGLSLShader         gGLTFPBRMetallicRoughnessProgram;
+
 // Encodes detail level for dropping textures, in accordance with the GLTF spec where possible
 // 0 is highest detail, -1 drops emissive, etc
 // Dropping metallic roughness is off-spec - Reserve for potato machines as needed

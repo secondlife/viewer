@@ -332,10 +332,6 @@ namespace LL
             // update node render transforms
             void updateRenderTransforms(const mat4& modelview);
 
-            void render(bool opaque, bool rigged = false);
-            void renderOpaque();
-            void renderTransparent();
-
             // return the index of the node that the line segment intersects with, or -1 if no hit
             // input and output values must be in this asset's local coordinate frame
             S32 lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,

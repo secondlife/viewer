@@ -528,7 +528,6 @@ void GLTFSceneManager::render(bool opaque, bool rigged)
         }
 
         Asset* asset = mObjects[i]->mGLTFAsset.get();
-
         gGL.pushMatrix();
 
         LLMatrix4a mat = mObjects[i]->getGLTFAssetToAgentTransform();
@@ -540,9 +539,107 @@ void GLTFSceneManager::render(bool opaque, bool rigged)
 
         mat4 mdv = glm::make_mat4(modelview.getF32ptr());
         asset->updateRenderTransforms(mdv);
-        asset->render(opaque, rigged);
+
+        render(*asset, opaque, rigged);
 
         gGL.popMatrix();
+    }
+}
+
+void GLTFSceneManager::render(Asset& asset, bool opaque, bool rigged)
+{
+
+    U32 variant = 0;
+    if (rigged)
+    {
+        variant |= LLGLSLShader::GLTFVariant::RIGGED;
+    }
+    if (!opaque)
+    {
+        variant |= LLGLSLShader::GLTFVariant::ALPHA;
+    }
+
+    if (opaque)
+    {
+        gGLTFPBRMetallicRoughnessProgram.bind(variant);
+    }
+    else
+    { // alpha shaders need all the shadow map setup etc
+        gPipeline.bindDeferredShader(gGLTFPBRMetallicRoughnessProgram.mGLTFVariants[variant]);
+    }
+
+    if (rigged)
+    { // NOTE: bind shader before calling loadIdentity
+        gGL.loadIdentity();
+    }
+
+    for (auto& node : asset.mNodes)
+    {
+        if (node.mSkin != INVALID_INDEX)
+        {
+            if (rigged)
+            {
+                Skin& skin = asset.mSkins[node.mSkin];
+                skin.uploadMatrixPalette(asset, node);
+            }
+            else
+            {
+                //skip static nodes if we're rendering rigged
+                continue;
+            }
+        }
+        else if (rigged)
+        {
+            // skip rigged nodes if we're not rendering rigged
+            continue;
+        }
+
+        if (node.mMesh != INVALID_INDEX)
+        {
+            Mesh& mesh = asset.mMeshes[node.mMesh];
+            for (auto& primitive : mesh.mPrimitives)
+            {
+                if (!rigged)
+                {
+                    gGL.loadMatrix((F32*)glm::value_ptr(node.mRenderMatrix));
+                }
+                bool cull = true;
+                if (primitive.mMaterial != INVALID_INDEX)
+                {
+                    Material& material = asset.mMaterials[primitive.mMaterial];
+                    bool mat_opaque = material.mAlphaMode != Material::AlphaMode::BLEND;
+
+                    if (mat_opaque != opaque)
+                    {
+                        continue;
+                    }
+
+                    material.bind(asset);
+
+                    cull = !material.mDoubleSided;
+                }
+                else
+                {
+                    if (!opaque)
+                    {
+                        continue;
+                    }
+                    LLFetchedGLTFMaterial::sDefault.bind();
+                }
+
+                LLGLDisable cull_face(!cull ? GL_CULL_FACE : 0);
+
+                primitive.mVertexBuffer->setBuffer();
+                if (primitive.mVertexBuffer->getNumIndices() > 0)
+                {
+                    primitive.mVertexBuffer->draw(primitive.mGLMode, primitive.mVertexBuffer->getNumIndices(), 0);
+                }
+                else
+                {
+                    primitive.mVertexBuffer->drawArrays(primitive.mGLMode, 0, primitive.mVertexBuffer->getNumVerts());
+                }
+            }
+        }
     }
 }
 

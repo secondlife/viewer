@@ -62,6 +62,12 @@ out vec3 vary_position;
 vec2 texture_transform(vec2 vertex_texcoord, vec4[2] khr_gltf_transform, mat4 sl_animation_transform);
 vec3 tangent_space_transform(vec4 vertex_tangent, vec3 vertex_normal, vec4[2] khr_gltf_transform, mat4 sl_animation_transform);
 
+
+#ifdef ALPHA_BLEND
+out vec3 vary_fragcoord;
+#endif
+
+
 void main()
 {
 #ifdef HAS_SKIN
@@ -71,12 +77,15 @@ void main()
 
     vec3 pos = (mat*vec4(position.xyz,1.0)).xyz;
     vary_position = pos;
-    gl_Position = projection_matrix*vec4(pos,1.0);
+
+    vec4 vert = projection_matrix * vec4(pos, 1.0);
+    gl_Position = vert;
 
 #else
     vary_position = (modelview_matrix*vec4(position.xyz, 1.0)).xyz;
     //transform vertex
-    gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0);
+    vec4 vert = modelview_projection_matrix * vec4(position.xyz, 1.0);
+    gl_Position = vert;
 #endif
 
     base_color_texcoord = texture_transform(texcoord0, texture_base_color_transform, texture_matrix0);
@@ -99,6 +108,9 @@ void main()
     vary_normal = n;
 
     vertex_color = diffuse_color;
+#ifdef ALPHA_BLEND
+    vary_fragcoord = vert.xyz;
+#endif
 }
 
 

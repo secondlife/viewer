@@ -320,20 +320,24 @@ public:
     LLGLSLShader* mRiggedVariant = nullptr;
 
     // variants for use by GLTF renderer
-    // "this" is considered to be OPAQUE
-    enum GLTFVariant
+    // bit 0 = alpha mode blend (1) or opaque (0)
+    // bit 1 = rigged (1) or static (0)
+    struct GLTFVariant
     {
-        STATIC_OPAQUE,
-        STATIC_BLEND,
-        RIGGED_OPAQUE,
-        RIGGED_BLEND,
-        NUM_GLTF_VARIANTS
+        constexpr static U32 RIGGED = 2;
+        constexpr static U32 ALPHA = 1;
+        constexpr static U32 OPAQUE_STATIC = 0;
+        constexpr static U32 ALPHA_STATIC = 1;
+        constexpr static U32 OPAQUE_RIGGED = 2;
+        constexpr static U32 ALPHA_RIGGED = 3;
     };
+
+    constexpr static U32 NUM_GLTF_VARIANTS = 4;
 
     std::vector<LLGLSLShader> mGLTFVariants;
 
     //helper to bind GLTF variant
-    void bind(GLTFVariant variant);
+    void bind(U32 variant);
 
     // hacky flag used for optimization in LLDrawPoolAlpha
     bool mCanBindFast = false;

@@ -1049,9 +1049,10 @@ void LLGLSLShader::bind()
     }
 }
 
-void LLGLSLShader::bind(LLGLSLShader::GLTFVariant variant)
+void LLGLSLShader::bind(U32 variant)
 {
     llassert(mGLTFVariants.size() == LLGLSLShader::NUM_GLTF_VARIANTS);
+    llassert(variant < LLGLSLShader::NUM_GLTF_VARIANTS);
     mGLTFVariants[variant].bind();
 }
 
