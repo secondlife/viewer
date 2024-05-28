@@ -560,7 +560,6 @@ void LLFloaterPreference::saveSettings()
             panel->saveSettings();
         }
     }
-
     saveIgnoredNotifications();
 }
 
@@ -639,7 +638,6 @@ void LLFloaterPreference::cancel(const std::vector<std::string> settings_to_skip
             panel->cancel();
         }
     }
-
     // hide joystick pref floater
     LLFloaterReg::hideInstance("pref_joystick");
 
@@ -667,7 +665,7 @@ void LLFloaterPreference::cancel(const std::vector<std::string> settings_to_skip
     }
     //Need to reload the navmesh if the pathing console is up
     LLHandle<LLFloaterPathfindingConsole> pathfindingConsoleHandle = LLFloaterPathfindingConsole::getInstanceHandle();
-    if ( !pathfindingConsoleHandle.isDead() )
+    if (!pathfindingConsoleHandle.isDead())
     {
         LLFloaterPathfindingConsole* pPathfindingConsole = pathfindingConsoleHandle.get();
         pPathfindingConsole->onRegionBoundaryCross();
@@ -684,6 +682,15 @@ void LLFloaterPreference::cancel(const std::vector<std::string> settings_to_skip
 
 void LLFloaterPreference::onOpen(const LLSD& key)
 {
+    LLTabContainer* tabcontainer = getChild<LLTabContainer>("pref core");
+    for (LLView* view : *tabcontainer->getChildList())
+    {
+        if (LLPanelPreference* panel = dynamic_cast<LLPanelPreference*>(view))
+        {
+            panel->onOpen(key);
+        }
+    }
+
     // this variable and if that follows it are used to properly handle do not disturb mode response message
     static bool initialized = false;
     // if user is logged in and we haven't initialized do not disturb mode response yet, do it
@@ -701,15 +708,6 @@ void LLFloaterPreference::onOpen(const LLSD& key)
         gSavedPerAccountSettings.getControl("DoNotDisturbModeResponse")->getSignal()->connect(boost::bind(&LLFloaterPreference::onDoNotDisturbResponseChanged, this));
     }
     gAgent.sendAgentUserInfoRequest();
-
-    LLTabContainer* tabcontainer = getChild<LLTabContainer>("pref core");
-    for (LLView* view : *tabcontainer->getChildList())
-    {
-        if (LLPanelPreference* panel = dynamic_cast<LLPanelPreference*>(view))
-        {
-            panel->onOpen(key);
-        }
-    }
 
     /////////////////////////// From LLPanelGeneral //////////////////////////
     // if we have no agent, we can't let them choose anything
@@ -760,8 +758,7 @@ void LLFloaterPreference::onOpen(const LLSD& key)
     // while preferences floater was closed.
     buildPopupLists();
 
-
-    //get the options that were checked
+    // get the options that were checked
     onNotificationsChange("FriendIMOptions");
     onNotificationsChange("NonFriendIMOptions");
     onNotificationsChange("ConferenceIMOptions");
@@ -773,7 +770,7 @@ void LLFloaterPreference::onOpen(const LLSD& key)
     refresh();
 
     // Make sure the current state of prefs are saved away when
-    // the floater is opened.  That will make cancel do its job
+    // the floater is opened.  That will make cancel() do its job
     saveSettings();
 
     // Make sure there is a default preference file
@@ -973,9 +970,9 @@ void LLFloaterPreference::onBtnOK(const LLSD& userdata)
         }
 
         //Conversation transcript and log path changed so reload conversations based on new location
-        if(mPriorInstantMessageLogPath.length())
+        if (mPriorInstantMessageLogPath.length())
         {
-            if(moveTranscriptsAndLog())
+            if (moveTranscriptsAndLog())
             {
                 //When floaters are empty but have a chat history files, reload chat history into them
                 LLFloaterIMSessionTab::reloadEmptyFloaters();
@@ -1464,7 +1461,7 @@ bool LLFloaterPreference::moveTranscriptsAndLog()
         //Move the conversation log back
         LLConversationLog::instance().moveLog(targetConversationLogDir, originalConversationLogDir);
 
-        if(madeDirectory)
+        if (madeDirectory)
         {
             LLFile::rmdir(chatLogPath);
         }
@@ -2022,19 +2019,20 @@ bool LLPanelPreference::postBuild()
     if (hasChild("skin_selection", true))
     {
         LLFloaterPreference::refreshSkin(this);
+
         // if skin is set to a skin that no longer exists (silver) set back to default
         if (getChild<LLRadioGroup>("skin_selection")->getSelectedIndex() < 0)
         {
             gSavedSettings.setString("SkinCurrent", "default");
             LLFloaterPreference::refreshSkin(this);
         }
+
     }
 
     //////////////////////PanelPrivacy ///////////////////
     if (hasChild("media_enabled", true))
     {
         bool media_enabled = gSavedSettings.getBOOL("AudioStreamingMedia");
-
         getChild<LLCheckBoxCtrl>("media_enabled")->set(media_enabled);
         getChild<LLCheckBoxCtrl>("autoplay_enabled")->setEnabled(media_enabled);
     }
@@ -2101,16 +2099,16 @@ void LLPanelPreference::apply()
 // virtual
 void LLPanelPreference::saveSettings()
 {
-    LLFloater* advanced = LLFloaterReg::findTypedInstance<LLFloater>("prefs_graphics_advanced");
-
     // Save the value of all controls in the hierarchy
     mSavedValues.clear();
     std::list<LLView*> view_stack;
     view_stack.push_back(this);
-    if (advanced)
+    // Search for 'Advanced' panel and add it if found
+    if (LLFloater* advanced = LLFloaterReg::findTypedInstance<LLFloater>("prefs_graphics_advanced"))
     {
         view_stack.push_back(advanced);
     }
+
     while (!view_stack.empty())
     {
         // Process view on top of the stack
@@ -2192,22 +2190,35 @@ void LLPanelPreference::toggleMuteWhenMinimized()
     }
 }
 
-// virtual
-void LLPanelPreference::cancel()
+void LLPanelPreference::cancel(const std::vector<std::string> settings_to_skip)
 {
-    for (const auto& iter : mSavedValues)
+    for (control_values_map_t::iterator iter =  mSavedValues.begin();
+         iter !=  mSavedValues.end(); ++iter)
+{
+        LLControlVariable* control = iter->first;
+        LLSD ctrl_value = iter->second;
+
+        if((control->getName() == "InstantMessageLogPath") && (ctrl_value.asString() == ""))
     {
-        if ((iter.first->getName() != "InstantMessageLogPath") || !iter.second.asString().empty())
-        {
-            iter.first->set(iter.second);
+            continue;
         }
+
+        auto found = std::find(settings_to_skip.begin(), settings_to_skip.end(), control->getName());
+        if (found != settings_to_skip.end())
+        {
+            continue;
+        }
+
+        control->set(ctrl_value);
     }
 
-    for (const auto& iter : mSavedColors)
+    for (string_color_map_t::iterator iter = mSavedColors.begin();
+         iter != mSavedColors.end(); ++iter)
     {
-        if (LLColorSwatchCtrl* color_swatch = findChild<LLColorSwatchCtrl>(iter.first))
+        LLColorSwatchCtrl* color_swatch = findChild<LLColorSwatchCtrl>(iter->first);
+        if (color_swatch)
         {
-            color_swatch->set(iter.second);
+            color_swatch->set(iter->second);
             color_swatch->onCommit();
         }
     }
@@ -2252,7 +2263,6 @@ void LLPanelPreference::loadPreset(const LLSD& user_data)
     LLFloaterReg::showInstance("load_pref_preset", user_data.asString());
 }
 
-// virtual
 void LLPanelPreference::setHardwareDefaults()
 {
 }
@@ -3173,10 +3183,6 @@ void LLPanelPreferenceGameControl::onActionSelect()
 
 bool LLPanelPreferenceGameControl::initChannelSelector(LLScrollListItem* item)
 {
-    gSelectedCell = nullptr;
-    mAnalogChannelSelector->setVisible(false);
-    mBinaryChannelSelector->setVisible(false);
-
     if (item->getSelectedCell() != 1)
         return false;
 
@@ -3767,10 +3773,10 @@ void LLFloaterPreferenceProxy::onChangeSocksSettings()
 
 void LLFloaterPreference::onUpdateFilterTerm(bool force)
 {
-    LLWString seachValue = utf8str_to_wstring(mFilterEdit->getValue());
-    LLWStringUtil::toLower(seachValue);
+    LLWString seachValue = utf8str_to_wstring( mFilterEdit->getValue() );
+    LLWStringUtil::toLower( seachValue );
 
-    if (!mSearchData || (mSearchData->mLastFilter == seachValue && !force))
+    if( !mSearchData || (mSearchData->mLastFilter == seachValue && !force))
         return;
 
     if (mSearchDataDirty)
@@ -3781,7 +3787,7 @@ void LLFloaterPreference::onUpdateFilterTerm(bool force)
 
     mSearchData->mLastFilter = seachValue;
 
-    if (!mSearchData->mRootTab)
+    if( !mSearchData->mRootTab )
         return;
 
     mSearchData->mRootTab->hightlightAndHide( seachValue );
@@ -3804,10 +3810,10 @@ void LLFloaterPreference::filterIgnorableNotifications()
 
 void collectChildren( LLView const *aView, ll::prefs::PanelDataPtr aParentPanel, ll::prefs::TabContainerDataPtr aParentTabContainer )
 {
-    if (!aView)
+    if( !aView )
         return;
 
-    llassert_always(aParentPanel || aParentTabContainer);
+    llassert_always( aParentPanel || aParentTabContainer );
 
     for (LLView* pView : *aView->getChildList())
     {
@@ -3817,56 +3823,56 @@ void collectChildren( LLView const *aView, ll::prefs::PanelDataPtr aParentPanel,
         ll::prefs::PanelDataPtr pCurPanelData = aParentPanel;
         ll::prefs::TabContainerDataPtr pCurTabContainer = aParentTabContainer;
 
-        LLPanel const *pPanel = dynamic_cast<LLPanel const*>(pView);
-        LLTabContainer const *pTabContainer = dynamic_cast<LLTabContainer const*>(pView);
-        ll::ui::SearchableControl const *pSCtrl = dynamic_cast<ll::ui::SearchableControl const*>( pView );
+        LLPanel const *pPanel = dynamic_cast< LLPanel const *>( pView );
+        LLTabContainer const *pTabContainer = dynamic_cast< LLTabContainer const *>( pView );
+        ll::ui::SearchableControl const *pSCtrl = dynamic_cast< ll::ui::SearchableControl const *>( pView );
 
-        if (pTabContainer)
+        if( pTabContainer )
         {
             pCurPanelData.reset();
 
-            pCurTabContainer = ll::prefs::TabContainerDataPtr(new ll::prefs::TabContainerData);
-            pCurTabContainer->mTabContainer = const_cast< LLTabContainer *>(pTabContainer);
+            pCurTabContainer = ll::prefs::TabContainerDataPtr( new ll::prefs::TabContainerData );
+            pCurTabContainer->mTabContainer = const_cast< LLTabContainer *>( pTabContainer );
             pCurTabContainer->mLabel = pTabContainer->getLabel();
             pCurTabContainer->mPanel = 0;
 
-            if (aParentPanel)
-                aParentPanel->mChildPanel.push_back(pCurTabContainer);
-            if (aParentTabContainer)
-                aParentTabContainer->mChildPanel.push_back(pCurTabContainer);
+            if( aParentPanel )
+                aParentPanel->mChildPanel.push_back( pCurTabContainer );
+            if( aParentTabContainer )
+                aParentTabContainer->mChildPanel.push_back( pCurTabContainer );
         }
-        else if (pPanel)
+        else if( pPanel )
         {
             pCurTabContainer.reset();
 
-            pCurPanelData = ll::prefs::PanelDataPtr(new ll::prefs::PanelData);
+            pCurPanelData = ll::prefs::PanelDataPtr( new ll::prefs::PanelData );
             pCurPanelData->mPanel = pPanel;
             pCurPanelData->mLabel = pPanel->getLabel();
 
             llassert_always( aParentPanel || aParentTabContainer );
 
-            if (aParentTabContainer)
-                aParentTabContainer->mChildPanel.push_back(pCurPanelData);
-            else if (aParentPanel)
-                aParentPanel->mChildPanel.push_back(pCurPanelData);
+            if( aParentTabContainer )
+                aParentTabContainer->mChildPanel.push_back( pCurPanelData );
+            else if( aParentPanel )
+                aParentPanel->mChildPanel.push_back( pCurPanelData );
         }
-        else if (pSCtrl && pSCtrl->getSearchText().size())
+        else if( pSCtrl && pSCtrl->getSearchText().size() )
         {
-            ll::prefs::SearchableItemPtr item = ll::prefs::SearchableItemPtr(new ll::prefs::SearchableItem());
+            ll::prefs::SearchableItemPtr item = ll::prefs::SearchableItemPtr( new ll::prefs::SearchableItem() );
             item->mView = pView;
             item->mCtrl = pSCtrl;
 
-            item->mLabel = utf8str_to_wstring(pSCtrl->getSearchText());
-            LLWStringUtil::toLower(item->mLabel);
+            item->mLabel = utf8str_to_wstring( pSCtrl->getSearchText() );
+            LLWStringUtil::toLower( item->mLabel );
 
-            llassert_always(aParentPanel || aParentTabContainer);
+            llassert_always( aParentPanel || aParentTabContainer );
 
-            if (aParentPanel)
-                aParentPanel->mChildren.push_back(item);
-            if (aParentTabContainer)
-                aParentTabContainer->mChildren.push_back(item);
+            if( aParentPanel )
+                aParentPanel->mChildren.push_back( item );
+            if( aParentTabContainer )
+                aParentTabContainer->mChildren.push_back( item );
         }
-        collectChildren(pView, pCurPanelData, pCurTabContainer);
+        collectChildren( pView, pCurPanelData, pCurTabContainer );
     }
 }
 
