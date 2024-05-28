@@ -177,6 +177,8 @@ bool LLLocalGLTFMaterial::updateSelf()
                         }
                     }
 
+                    materialBegin();
+                    materialComplete(true);
                     updated = true;
                 }
 
@@ -201,6 +203,8 @@ bool LLLocalGLTFMaterial::updateSelf()
                         LLNotificationsUtil::add("LocalBitmapsUpdateFailedFinal", notif_args);
 
                         mLinkStatus = LS_BROKEN;
+                        materialBegin();
+                        materialComplete(false);
                     }
                 }
             }
@@ -218,6 +222,8 @@ bool LLLocalGLTFMaterial::updateSelf()
             LLNotificationsUtil::add("LocalBitmapsUpdateFileNotFound", notif_args);
 
             mLinkStatus = LS_BROKEN;
+            materialBegin();
+            materialComplete(false);
         }
     }
 
