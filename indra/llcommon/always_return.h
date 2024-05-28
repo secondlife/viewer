@@ -79,6 +79,22 @@ namespace LL
         DESIRED mDefault;
     };
 
+    // specialize for AlwaysReturn<void>
+    template <>
+    struct AlwaysReturn<void>
+    {
+    public:
+        AlwaysReturn() {}
+
+        // callable returns a type not convertible to DESIRED, return default
+        template <typename CALLABLE, typename... ARGS>
+        void operator()(CALLABLE&& callable, ARGS&&... args)
+        {
+            // discard whatever callable(args) returns
+            std::forward<CALLABLE>(callable)(std::forward<ARGS>(args)...);
+        }
+    };
+
     /**
      * always_return<T>(some_function, some_args...) calls
      * some_function(some_args...). It is guaranteed to return a value of type

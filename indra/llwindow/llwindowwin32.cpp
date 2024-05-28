@@ -163,18 +163,7 @@ HGLRC SafeCreateContext(HDC &hdc)
 
 GLuint SafeChoosePixelFormat(HDC &hdc, const PIXELFORMATDESCRIPTOR *ppfd)
 {
-    __try
-    {
-        return ChoosePixelFormat(hdc, ppfd);
-    }
-    __except (EXCEPTION_EXECUTE_HANDLER)
-    {
-        // convert to C++ styled exception
-        // C exception don't allow classes, so it's a regular char array
-        char integer_string[32];
-        sprintf(integer_string, "SEH, code: %lu\n", GetExceptionCode());
-        throw std::exception(integer_string);
-    }
+    return LL::seh::catcher([hdc, ppfd]{ return ChoosePixelFormat(hdc, ppfd); });
 }
 
 //static
