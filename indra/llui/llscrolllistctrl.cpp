@@ -470,6 +470,15 @@ LLScrollListItem* LLScrollListCtrl::getLastData() const
     return mItemList[mItemList.size() - 1];
 }
 
+LLScrollListItem* LLScrollListCtrl::getNthData(size_t index) const
+{
+	if (mItemList.size() <= index)
+	{
+		return NULL;
+	}
+	return mItemList[index];
+}
+
 std::vector<LLScrollListItem*> LLScrollListCtrl::getAllData() const
 {
 	std::vector<LLScrollListItem*> ret;
@@ -2604,21 +2613,21 @@ void LLScrollListCtrl::selectItem(LLScrollListItem* itemp, S32 cell, bool select
 {
     if (!itemp) return;
 
-    if (!itemp->getSelected())
-    {
-        if (mLastSelected)
-        {
-            LLScrollListCell* cellp = mLastSelected->getColumn(getSearchColumn());
-            if (cellp)
-            {
-                cellp->highlightText(0, 0);
-            }
-        }
-        if (select_single_item)
-        {
-            deselectAllItems(true);
-        }
-        itemp->setSelected(true);
+	if (!itemp->getSelected() || itemp->getSelectedCell() != cell)
+	{
+		if (mLastSelected)
+		{
+			LLScrollListCell* cellp = mLastSelected->getColumn(getSearchColumn());
+			if (cellp)
+			{
+				cellp->highlightText(0, 0);
+			}
+		}
+		if (select_single_item)
+		{
+			deselectAllItems(true);
+		}
+		itemp->setSelected(true);
         switch (mSelectionType)
         {
         case CELL:

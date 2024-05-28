@@ -42,6 +42,7 @@
 #include "llscrolllistctrl.h"
 #include "llsearcheditor.h"
 #include "llsetkeybinddialog.h"
+#include "llspinctrl.h"
 
 class LLConversationLogObserver;
 class LLPanelPreference;
@@ -381,8 +382,11 @@ public:
     void onOpen(const LLSD& key) override;
     void saveSettings() override;
 
-    void onActionSelect();
+    void onGridSelect(LLUICtrl* ctrl);
     void onCommitInputChannel(LLUICtrl* ctrl);
+
+    void onAxisOptionsSelect();
+    void onCommitNumericValue();
 
     static bool isWaitingForInputChannel();
     static void applyGameControlInput();
@@ -392,17 +396,26 @@ protected:
 
     void populateActionTableRows(const std::string& filename);
     void populateActionTableCells();
-    bool parseXmlFile(LLScrollListCtrl::Contents& contents,
+    static bool parseXmlFile(LLScrollListCtrl::Contents& contents,
         const std::string& filename, const std::string& what);
 
     void populateDeviceTitle();
     void populateDeviceSettings(const std::string& guid);
+    void populateOptionsTableRows();
+    void populateOptionsTableCells();
+    void populateMappingTableRows(LLScrollListCtrl* target,
+        const LLComboBox* source, size_t row_count);
+    void populateMappingTableCells(LLScrollListCtrl* target,
+        const std::vector<U8>& mappings, const LLComboBox* source);
+    LLGameControl::Options& getSelectedDeviceOptions();
 
     static std::string getChannelLabel(const std::string& channelName,
         const std::vector<LLScrollListItem*>& items);
+    static void setNumericLabel(LLScrollListCell* cell, S32 value);
+    static void fitInRect(LLUICtrl* ctrl, LLScrollListCtrl* grid, S32 row_index, S32 col_index);
 
 private:
-    bool initChannelSelector(LLScrollListItem* item);
+    bool initCombobox(LLScrollListItem* item, LLScrollListCtrl* grid);
     void clearSelectionState();
     void addActionTableSeparator();
     void updateActionTableState();
@@ -422,12 +435,25 @@ private:
     LLComboBox* mDeviceList;
     LLCheckBoxCtrl* mCheckShowAllDevices;
     LLPanel* mPanelDeviceSettings;
+    LLScrollListCtrl* mAxisOptions;
+    LLScrollListCtrl* mAxisMappings;
+    LLScrollListCtrl* mButtonMappings;
+
+    // Numeric value editor
+    LLSpinCtrl* mNumericValueEditor;
 
     // Channel selectors
     LLComboBox* mAnalogChannelSelector;
     LLComboBox* mBinaryChannelSelector;
+    LLComboBox* mAxisSelector;
 
-    std::map<std::string, std::string> mDeviceOptions;
+    struct DeviceOptions
+    {
+        std::string name, settings;
+        LLGameControl::Options options;
+    };
+    std::map<std::string, DeviceOptions> mDeviceOptions;
+    std::string mSelectedDeviceGUID;
 };
 
 class LLAvatarComplexityControls

@@ -39,19 +39,21 @@
 #include "llgamecontroltranslator.h"
 #include "llsd.h"
 
-constexpr size_t NUM_AXES = 6;
-constexpr size_t NUM_BUTTONS = 32;
-
 namespace std
 {
-    std::string to_string(const SDL_JoystickGUID& guid)
+    string to_string(const char* text)
+    {
+        return text ? string(text) : LLStringUtil::null;
+    }
+
+    string to_string(const SDL_JoystickGUID& guid)
     {
         char buffer[33] = { 0 };
         SDL_JoystickGetGUIDString(guid, buffer, sizeof(guid));
         return buffer;
     }
 
-    std::string to_string(SDL_JoystickType type)
+    string to_string(SDL_JoystickType type)
     {
         switch (type)
         {
@@ -78,7 +80,7 @@ namespace std
         return "UNKNOWN";
     }
 
-    std::string to_string(SDL_GameControllerType type)
+    string to_string(SDL_GameControllerType type)
     {
         switch (type)
         {
@@ -112,7 +114,6 @@ namespace std
         }
         return "UNKNOWN";
     }
-
 }
 
 // Util for dumping SDL_JoystickGUID info
@@ -135,7 +136,7 @@ std::ostream& operator<<(std::ostream& out, SDL_GameControllerType type)
 
 namespace std
 {
-    std::string to_string(SDL_Joystick* joystick)
+    string to_string(SDL_Joystick* joystick)
     {
         if (!joystick)
         {
@@ -148,7 +149,7 @@ namespace std
         SDL_JoystickGUID guid = SDL_JoystickGetGUID(joystick);
         ss << ",guid:'" << guid << "'";
         ss << ",type:'" << SDL_JoystickGetType(joystick) << "'";
-        ss << ",name:'" << SDL_JoystickName(joystick) << "'";
+        ss << ",name:'" << std::to_string(SDL_JoystickName(joystick)) << "'";
         ss << ",vendor:" << SDL_JoystickGetVendor(joystick);
         ss << ",product:" << SDL_JoystickGetProduct(joystick);
         if (U16 version = SDL_JoystickGetProductVersion(joystick))
@@ -172,17 +173,17 @@ namespace std
         return ss.str();
     }
 
-    std::string to_string(SDL_GameController* controller)
+    string to_string(SDL_GameController* controller)
     {
         if (!controller)
         {
             return "nullptr";
         }
 
-        std::stringstream ss;
+        stringstream ss;
 
         ss << "{type:'" << SDL_GameControllerGetType(controller) << "'";
-        ss << ",name:'" << SDL_GameControllerName(controller) << "'";
+        ss << ",name:'" << std::to_string(SDL_GameControllerName(controller)) << "'";
         ss << ",vendor:" << SDL_GameControllerGetVendor(controller);
         ss << ",product:" << SDL_GameControllerGetProduct(controller);
         if (U16 version = SDL_GameControllerGetProductVersion(controller))
@@ -444,11 +445,6 @@ namespace
     bool g_translateAgentActions = false;
     LLGameControl::AgentControlMode g_agentControlMode = LLGameControl::CONTROL_MODE_AVATAR;
 
-    constexpr U8 MAX_AXIS = NUM_AXES - 1;
-    constexpr U8 MAX_BUTTON = NUM_BUTTONS - 1;
-    constexpr U16 MAX_AXIS_DEAD_ZONE = 16384;
-    constexpr U16 MAX_AXIS_OFFSET = 16384;
-
     std::map<std::string, std::string> g_deviceOptions;
 
     std::function<bool(const std::string&)> s_loadBoolean;
@@ -522,7 +518,7 @@ void LLGameControl::State::clear()
 bool LLGameControl::State::onButton(U8 button, bool pressed)
 {
     U32 old_buttons = mButtons;
-    if (button <= MAX_BUTTON)
+    if (button < NUM_BUTTONS)
     {
         if (pressed)
         {
@@ -568,7 +564,7 @@ void LLGameControl::Options::resetToDefaults()
 
 U8 LLGameControl::Options::mapAxis(U8 axis) const
 {
-    if (axis > MAX_AXIS)
+    if (axis >= NUM_AXES)
     {
         LL_WARNS("SDL2") << "Invalid input axis: " << axis << LL_ENDL;
         return axis;
@@ -578,7 +574,7 @@ U8 LLGameControl::Options::mapAxis(U8 axis) const
 
 U8 LLGameControl::Options::mapButton(U8 button) const
 {
-    if (button > MAX_BUTTON)
+    if (button >= NUM_BUTTONS)
     {
         LL_WARNS("SDL2") << "Invalid input button: " << button << LL_ENDL;
         return button;
@@ -588,7 +584,7 @@ U8 LLGameControl::Options::mapButton(U8 button) const
 
 S16 LLGameControl::Options::fixAxisValue(U8 axis, S16 value) const
 {
-    if (axis > MAX_AXIS)
+    if (axis >= NUM_AXES)
     {
         LL_WARNS("SDL2") << "Invalid input axis: " << axis << LL_ENDL;
     }
@@ -761,15 +757,20 @@ std::string LLGameControl::Options::saveToString(const std::string& name, bool f
     return stringifyDeviceOptions(name, mAxisOptions, mAxisMap, mButtonMap, force_empty);
 }
 
-void LLGameControl::Options::loadFromString(std::string options)
+bool LLGameControl::Options::loadFromString(std::string& name, std::string options)
+{
+    return LLGameControl::parseDeviceOptions(options, name, mAxisOptions, mAxisMap, mButtonMap);
+}
+
+bool LLGameControl::Options::loadFromString(std::string options)
 {
     std::string dummy_name;
-    LLGameControl::parseDeviceOptions(options, dummy_name, mAxisOptions, mAxisMap, mButtonMap);
+    return LLGameControl::parseDeviceOptions(options, dummy_name, mAxisOptions, mAxisMap, mButtonMap);
 }
 
 LLGameControllerManager::LLGameControllerManager()
 {
-    mAxesAccumulator.resize(NUM_AXES, 0);
+    mAxesAccumulator.resize(LLGameControl::NUM_AXES, 0);
 
     mAnalogActions = { "push", "slide", "jump", "turn", "look" };
     mBinaryActions = { "toggle_run", "toggle_fly", "toggle_flycam", "stop" };
@@ -941,7 +942,7 @@ void LLGameControllerManager::onAxis(SDL_JoystickID id, U8 axis, S16 value)
         axis = mapped_axis;
     }
 
-    if (axis > MAX_AXIS)
+    if (axis >= LLGameControl::NUM_AXES)
     {
         LL_WARNS("SDL2") << "Unknown axis: joystick=0x" << std::hex << id << std::dec
             << " axis=" << (S32)(axis)
@@ -1007,7 +1008,7 @@ void LLGameControllerManager::onButton(SDL_JoystickID id, U8 button, bool presse
         button = mapped_button;
     }
 
-    if (button > MAX_BUTTON)
+    if (button >= LLGameControl::NUM_BUTTONS)
     {
         LL_WARNS("SDL2") << "Unknown button: joystick=0x" << std::hex << id << std::dec
             << " button i=" << (S32)button << LL_ENDL;
@@ -1043,7 +1044,7 @@ void LLGameControllerManager::accumulateInternalState()
     for (const auto& device : mDevices)
     {
         mButtonAccumulator |= device.mState.mButtons;
-        for (size_t i = 0; i < NUM_AXES; ++i)
+        for (size_t i = 0; i < LLGameControl::NUM_AXES; ++i)
         {
             // Note: we don't bother to clamp the axes yet
             // because at this stage we haven't yet accumulated the "inner" state.
@@ -1069,7 +1070,7 @@ void LLGameControllerManager::computeFinalState()
     }
 
     // clamp the accumulated axes
-    for (size_t i = 0; i < NUM_AXES; ++i)
+    for (size_t i = 0; i < LLGameControl::NUM_AXES; ++i)
     {
         S32 axis = mAxesAccumulator[i];
         if (g_translateAgentActions)
@@ -1369,8 +1370,8 @@ void onJoystickDeviceAdded(const SDL_Event& event)
 {
     SDL_JoystickGUID guid(SDL_JoystickGetDeviceGUID(event.cdevice.which));
     SDL_JoystickType type(SDL_JoystickGetDeviceType(event.cdevice.which));
-    std::string name(SDL_JoystickNameForIndex(event.cdevice.which));
-    std::string path(SDL_JoystickPathForIndex(event.cdevice.which));
+    std::string name(std::to_string(SDL_JoystickNameForIndex(event.cdevice.which)));
+    std::string path(std::to_string(SDL_JoystickPathForIndex(event.cdevice.which)));
 
     LL_INFOS("SDL2") << "joystick {id:" << event.cdevice.which
         << ",guid:'" << guid << "'"
@@ -1398,8 +1399,8 @@ void onControllerDeviceAdded(const SDL_Event& event)
 {
     std::string guid(std::to_string(SDL_JoystickGetDeviceGUID(event.cdevice.which)));
     SDL_GameControllerType type(SDL_GameControllerTypeForIndex(event.cdevice.which));
-    std::string name(SDL_GameControllerNameForIndex(event.cdevice.which));
-    std::string path(SDL_GameControllerPathForIndex(event.cdevice.which));
+    std::string name(std::to_string(SDL_GameControllerNameForIndex(event.cdevice.which)));
+    std::string path(std::to_string(SDL_GameControllerPathForIndex(event.cdevice.which)));
 
     LL_INFOS("SDL2") << "controller {id:" << event.cdevice.which
         << ",guid:'" << guid << "'"
@@ -1731,7 +1732,7 @@ LLGameControl::InputChannel LLGameControl::getChannelByName(const std::string& n
     LLGameControl::InputChannel channel;
 
     // 'name' has two acceptable formats: AXIS_<index>[sign] or BUTTON_<index>
-    if (!strncmp(name.c_str(), "AXIS_", 5))
+    if (LLStringUtil::startsWith(name, "AXIS_"))
     {
         channel.mType = LLGameControl::InputChannel::Type::TYPE_AXIS;
         // Decimal postfix is only one character
@@ -1740,11 +1741,11 @@ LLGameControl::InputChannel LLGameControl::getChannelByName(const std::string& n
         // Assume positive axis when sign not provided
         channel.mSign = name.back() == '-' ? -1 : 1;
     }
-    else if (!strncmp(name.c_str(), "BUTTON_", 7))
+    else if (LLStringUtil::startsWith(name, "BUTTON_"))
     {
         channel.mType = LLGameControl::InputChannel::Type::TYPE_BUTTON;
         // Decimal postfix is only one or two characters
-        channel.mIndex = atoi(name.substr(7, 2).c_str());
+        channel.mIndex = atoi(name.substr(7).c_str());
     }
 
     return channel;
@@ -1887,7 +1888,7 @@ bool LLGameControl::parseDeviceOptions(const std::string& options, std::string& 
         if (!value.empty())
         {
             size_t number = std::stoull(value);
-            if (number > MAX_BUTTON || std::to_string(number) != value)
+            if (number >= NUM_AXES || std::to_string(number) != value)
             {
                 LL_WARNS("SDL2") << "Invalid axis mapping: " << i << "->" << value << LL_ENDL;
             }
@@ -1904,7 +1905,7 @@ bool LLGameControl::parseDeviceOptions(const std::string& options, std::string& 
         if (!value.empty())
         {
             size_t number = std::stoull(value);
-            if (number > MAX_BUTTON || std::to_string(number) != value)
+            if (number >= NUM_BUTTONS || std::to_string(number) != value)
             {
                 LL_WARNS("SDL2") << "Invalid button mapping: " << i << "->" << value << LL_ENDL;
             }
