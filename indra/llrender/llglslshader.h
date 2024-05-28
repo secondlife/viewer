@@ -44,6 +44,7 @@ public:
     bool hasTransport = false; // implies no lighting (it's possible to have neither though)
     bool hasSkinning = false;
     bool hasObjectSkinning = false;
+    bool mGLTF = false;
     bool hasAtmospherics = false;
     bool hasGamma = false;
     bool hasShadows = false;
@@ -317,6 +318,22 @@ public:
 
     // this pointer should be set to whichever shader represents this shader's rigged variant
     LLGLSLShader* mRiggedVariant = nullptr;
+
+    // variants for use by GLTF renderer
+    // "this" is considered to be OPAQUE
+    enum GLTFVariant
+    {
+        STATIC_OPAQUE,
+        STATIC_BLEND,
+        RIGGED_OPAQUE,
+        RIGGED_BLEND,
+        NUM_GLTF_VARIANTS
+    };
+
+    std::vector<LLGLSLShader> mGLTFVariants;
+
+    //helper to bind GLTF variant
+    void bind(GLTFVariant variant);
 
     // hacky flag used for optimization in LLDrawPoolAlpha
     bool mCanBindFast = false;

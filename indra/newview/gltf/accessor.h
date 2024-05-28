@@ -26,7 +26,6 @@
  * $/LicenseInfo$
  */
 
-#include "../lltinygltfhelper.h"
 #include "llstrider.h"
 #include "boost/json.hpp"
 
@@ -51,9 +50,12 @@ namespace LL
             // also updates all buffer views in given asset that reference this buffer
             void erase(Asset& asset, S32 offset, S32 length);
 
+            bool prep(Asset& asset);
+
             void serialize(boost::json::object& obj) const;
             const Buffer& operator=(const Value& value);
-            const Buffer& operator=(const tinygltf::Buffer& src);
+
+            bool save(Asset& asset, const std::string& folder);
         };
 
         class BufferView
@@ -69,37 +71,44 @@ namespace LL
 
             void serialize(boost::json::object& obj) const;
             const BufferView& operator=(const Value& value);
-            const BufferView& operator=(const tinygltf::BufferView& src);
         };
-        
+
         class Accessor
         {
         public:
-            S32 mBufferView = INVALID_INDEX;
-            S32 mByteOffset = 0;
-            S32 mComponentType = 0;
-            S32 mCount = 0;
-            std::vector<double> mMax;
-            std::vector<double> mMin;
-
-            enum class Type : S32
+            enum class Type : U8
             {
-                SCALAR = TINYGLTF_TYPE_SCALAR,
-                VEC2 = TINYGLTF_TYPE_VEC2,
-                VEC3 = TINYGLTF_TYPE_VEC3,
-                VEC4 = TINYGLTF_TYPE_VEC4,
-                MAT2 = TINYGLTF_TYPE_MAT2,
-                MAT3 = TINYGLTF_TYPE_MAT3,
-                MAT4 = TINYGLTF_TYPE_MAT4
+                SCALAR,
+                VEC2,
+                VEC3,
+                VEC4,
+                MAT2,
+                MAT3,
+                MAT4
             };
 
+            enum class ComponentType : U32
+            {
+                BYTE = 5120,
+                UNSIGNED_BYTE = 5121,
+                SHORT = 5122,
+                UNSIGNED_SHORT = 5123,
+                UNSIGNED_INT = 5125,
+                FLOAT = 5126
+            };
+
+            std::vector<double> mMax;
+            std::vector<double> mMin;
+            std::string mName;
+            S32 mBufferView = INVALID_INDEX;
+            S32 mByteOffset = 0;
+            ComponentType mComponentType = ComponentType::BYTE;
+            S32 mCount = 0;
             Type mType = Type::SCALAR;
             bool mNormalized = false;
-            std::string mName;
 
             void serialize(boost::json::object& obj) const;
             const Accessor& operator=(const Value& value);
-            const Accessor& operator=(const tinygltf::Accessor& src);
         };
 
         // convert from "SCALAR", "VEC2", etc to Accessor::Type

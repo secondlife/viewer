@@ -48,6 +48,17 @@ namespace LL
         class Primitive
         {
         public:
+            enum class Mode : U8
+            {
+                POINTS,
+                LINES,
+                LINE_LOOP,
+                LINE_STRIP,
+                TRIANGLES,
+                TRIANGLE_STRIP,
+                TRIANGLE_FAN
+            };
+
             ~Primitive();
 
             // GPU copy of mesh data
@@ -66,10 +77,10 @@ namespace LL
             // raycast acceleration structure
             LLPointer<LLVolumeOctree> mOctree;
             std::vector<LLVolumeTriangle> mOctreeTriangles;
-            
+
             S32 mMaterial = -1;
-            S32 mMode = TINYGLTF_MODE_TRIANGLES; // default to triangles
-            U32 mGLMode = LLRender::TRIANGLES;
+            Mode mMode = Mode::TRIANGLES; // default to triangles
+            LLRender::eGeomModes mGLMode = LLRender::TRIANGLES; // for use with LLRender
             S32 mIndices = -1;
             std::unordered_map<std::string, S32> mAttributes;
 
@@ -77,7 +88,7 @@ namespace LL
             // must be called before buffer is unmapped and after buffer is populated with good data
             void createOctree();
 
-            //get the LLVolumeTriangle that intersects with the given line segment at the point 
+            //get the LLVolumeTriangle that intersects with the given line segment at the point
             //closest to start.  Moves end to the point of intersection.  Returns nullptr if no intersection.
             //Line segment must be in the same coordinate frame as this Primitive
             const LLVolumeTriangle* lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
@@ -86,12 +97,11 @@ namespace LL
                 LLVector4a* normal = NULL,               // return the surface normal at the intersection point
                 LLVector4a* tangent = NULL             // return the surface tangent at the intersection point
             );
-            
+
             void serialize(boost::json::object& obj) const;
             const Primitive& operator=(const Value& src);
-            const Primitive& operator=(const tinygltf::Primitive& src);
 
-            void allocateGLResources(Asset& asset);
+            bool prep(Asset& asset);
         };
     }
 }

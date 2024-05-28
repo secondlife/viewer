@@ -1091,8 +1091,9 @@ bool LLLocalBitmapMgr::checkTextureDimensions(std::string filename)
         return false;
     }
 
-    S32 max_width = gSavedSettings.getS32("max_texture_dimension_X");
-    S32 max_height = gSavedSettings.getS32("max_texture_dimension_Y");
+    // allow loading up to 4x max rez but implicitly downrez to max rez before upload
+    S32 max_width = gSavedSettings.getS32("max_texture_dimension_X")*4;
+    S32 max_height = gSavedSettings.getS32("max_texture_dimension_Y")*4;
 
     if ((image_info.getWidth() > max_width) || (image_info.getHeight() > max_height))
     {
@@ -1135,6 +1136,20 @@ void LLLocalBitmapMgr::delUnit(LLUUID tracking_id)
             unit = NULL;
         }
     }
+}
+
+LLUUID LLLocalBitmapMgr::getTrackingID(const LLUUID& world_id) const
+{
+    for (local_list_citer iter = mBitmapList.begin(); iter != mBitmapList.end(); iter++)
+    {
+        LLLocalBitmap* unit = *iter;
+        if (unit->getWorldID() == world_id)
+        {
+            return unit->getTrackingID();
+        }
+    }
+
+    return LLUUID::null;
 }
 
 LLUUID LLLocalBitmapMgr::getWorldID(const LLUUID &tracking_id) const

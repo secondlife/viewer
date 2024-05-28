@@ -2233,6 +2233,61 @@ LLImageFormatted* LLImageFormatted::createFromType(S8 codec)
 }
 
 // static
+S8 LLImageFormatted::getCodecFromMimeType(std::string_view mimetype)
+{
+    if (mimetype == "image/bmp")
+    {
+        return IMG_CODEC_BMP;
+    }
+    else if (mimetype == "image/tga")
+    {
+        return IMG_CODEC_TGA;
+    }
+    else if (mimetype == "image/jpeg")
+    {
+        return IMG_CODEC_JPEG;
+    }
+    else if (mimetype == "image/png")
+    {
+        return IMG_CODEC_PNG;
+    }
+    else if (mimetype == "image/j2c")
+    {
+        return IMG_CODEC_J2C;
+    }
+    else if (mimetype == "image/dxt")
+    {
+        return IMG_CODEC_DXT;
+    }
+    return IMG_CODEC_INVALID;
+}
+
+// static
+LLImageFormatted* LLImageFormatted::createFromMimeType(std::string_view mimetype)
+{
+    S8 codec = getCodecFromMimeType(mimetype);
+    return createFromType(codec);
+}
+
+// static
+LLImageFormatted* LLImageFormatted::loadFromMemory(const U8* data_in, U32 size, std::string_view mimetype)
+{
+    LLImageFormatted* image = createFromMimeType(mimetype);
+    if (image)
+    {
+        U8* data = image->allocateData(size);
+        memcpy(data, data_in, size);
+
+        if (!image->updateData())
+        {
+            delete image;
+            image = NULL;
+        }
+    }
+    return image;
+}
+
+// static
 LLImageFormatted* LLImageFormatted::createFromExtension(const std::string& instring)
 {
     std::string exten;
@@ -2411,6 +2466,7 @@ void LLImageFormatted::appendData(U8 *data, S32 size)
 }
 
 //----------------------------------------------------------------------------
+
 
 bool LLImageFormatted::load(const std::string &filename, int load_size)
 {

@@ -49,12 +49,10 @@ namespace LL
                 S32 mOutput = INVALID_INDEX;
                 std::string mInterpolation;
 
-                void allocateGLResources(Asset& asset);
+                bool prep(Asset& asset);
 
                 void serialize(boost::json::object& dst) const;
                 const Sampler& operator=(const Value& value);
-                const Sampler& operator=(const tinygltf::AnimationSampler& src);
-                
 
                 // get the frame index and time for the specified time
                 // asset -- the asset to reference for Accessors
@@ -85,7 +83,6 @@ namespace LL
 
                 void serialize(boost::json::object& dst) const;
                 const Channel& operator=(const Value& value);
-                const Channel& operator=(const tinygltf::AnimationChannel& src);
             };
 
             class RotationChannel : public Channel
@@ -96,16 +93,10 @@ namespace LL
 
                 std::vector<quat> mRotations;
 
-                const RotationChannel& operator=(const tinygltf::AnimationChannel& src)
-                {
-                    Channel::operator=(src);
-                    return *this;
-                }
-
                 // prepare data needed for rendering
                 // asset -- asset to reference for Accessors
                 // sampler -- Sampler associated with this channel
-                void allocateGLResources(Asset& asset, Sampler& sampler);
+                bool prep(Asset& asset, Sampler& sampler);
 
                 void apply(Asset& asset, Sampler& sampler, F32 time);
             };
@@ -118,16 +109,10 @@ namespace LL
 
                 std::vector<vec3> mTranslations;
 
-                const TranslationChannel& operator=(const tinygltf::AnimationChannel& src)
-                {
-                    Channel::operator=(src);
-                    return *this;
-                }
-
                 // prepare data needed for rendering
                 // asset -- asset to reference for Accessors
                 // sampler -- Sampler associated with this channel
-                void allocateGLResources(Asset& asset, Sampler& sampler);
+                bool prep(Asset& asset, Sampler& sampler);
 
                 void apply(Asset& asset, Sampler& sampler, F32 time);
             };
@@ -140,16 +125,10 @@ namespace LL
 
                 std::vector<vec3> mScales;
 
-                const ScaleChannel& operator=(const tinygltf::AnimationChannel& src)
-                {
-                    Channel::operator=(src);
-                    return *this;
-                }
-
                 // prepare data needed for rendering
                 // asset -- asset to reference for Accessors
                 // sampler -- Sampler associated with this channel
-                void allocateGLResources(Asset& asset, Sampler& sampler);
+                bool prep(Asset& asset, Sampler& sampler);
 
                 void apply(Asset& asset, Sampler& sampler, F32 time);
             };
@@ -160,7 +139,7 @@ namespace LL
             // min/max time values for all samplers combined
             F32 mMinTime = 0.f;
             F32 mMaxTime = 0.f;
-            
+
             // current time of the animation
             F32 mTime = 0.f;
 
@@ -170,9 +149,8 @@ namespace LL
 
             void serialize(boost::json::object& dst) const;
             const Animation& operator=(const Value& value);
-            const Animation& operator=(const tinygltf::Animation& src);
-            
-            void allocateGLResources(Asset& asset);
+
+            bool prep(Asset& asset);
 
             void update(Asset& asset, float dt);
 

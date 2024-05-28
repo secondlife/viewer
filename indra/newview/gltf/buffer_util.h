@@ -31,7 +31,7 @@
 // whenever we add support for more types
 
 #ifdef _MSC_VER
-#define LL_FUNCSIG __FUNCSIG__ 
+#define LL_FUNCSIG __FUNCSIG__
 #else
 #define LL_FUNCSIG __PRETTY_FUNCTION__
 #endif
@@ -353,37 +353,29 @@ namespace LL
             const Buffer& buffer = asset.mBuffers[bufferView.mBuffer];
             const U8* src = buffer.mData.data() + bufferView.mByteOffset + accessor.mByteOffset;
 
-            if (accessor.mComponentType == TINYGLTF_COMPONENT_TYPE_FLOAT)
+            switch (accessor.mComponentType)
             {
-                LL::GLTF::copy(asset, accessor, (const F32*)src, dst, bufferView.mByteStride);
-            }
-            else if (accessor.mComponentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT)
-            {
-                LL::GLTF::copy(asset, accessor, (const U16*)src, dst, bufferView.mByteStride);
-            }
-            else if (accessor.mComponentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT)
-            {
-                LL::GLTF::copy(asset, accessor, (const U32*)src, dst, bufferView.mByteStride);
-            }
-            else if (accessor.mComponentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE)
-            {
-                LL::GLTF::copy(asset, accessor, (const U8*)src, dst, bufferView.mByteStride);
-            }
-            else if (accessor.mComponentType == TINYGLTF_COMPONENT_TYPE_SHORT)
-            {
-                LL::GLTF::copy(asset, accessor, (const S16*)src, dst, bufferView.mByteStride);
-            }
-            else if (accessor.mComponentType == TINYGLTF_COMPONENT_TYPE_BYTE)
-            {
-                LL::GLTF::copy(asset, accessor, (const S8*)src, dst, bufferView.mByteStride);
-            }
-            else if (accessor.mComponentType == TINYGLTF_COMPONENT_TYPE_DOUBLE)
-            {
-                LL::GLTF::copy(asset, accessor, (const F64*)src, dst, bufferView.mByteStride);
-            }
-            else
-            {
-                LL_ERRS("GLTF") << "Unsupported component type" << LL_ENDL;
+            case Accessor::ComponentType::FLOAT:
+                copy(asset, accessor, (const F32*)src, dst, bufferView.mByteStride);
+                break;
+            case Accessor::ComponentType::UNSIGNED_INT:
+                copy(asset, accessor, (const U32*)src, dst, bufferView.mByteStride);
+                break;
+            case Accessor::ComponentType::SHORT:
+                copy(asset, accessor, (const S16*)src, dst, bufferView.mByteStride);
+                break;
+            case Accessor::ComponentType::UNSIGNED_SHORT:
+                copy(asset, accessor, (const U16*)src, dst, bufferView.mByteStride);
+                break;
+            case Accessor::ComponentType::BYTE:
+                copy(asset, accessor, (const S8*)src, dst, bufferView.mByteStride);
+                break;
+            case Accessor::ComponentType::UNSIGNED_BYTE:
+                copy(asset, accessor, (const U8*)src, dst, bufferView.mByteStride);
+                break;
+            default:
+                LL_ERRS("GLTF") << "Invalid component type" << LL_ENDL;
+                break;
             }
         }
 
@@ -400,7 +392,7 @@ namespace LL
         //=========================================================================================================
         // boost::json copying utilities
         // ========================================================================================================
-        
+
         //====================== unspecialized base template, single value ===========================
 
         // to/from Value
@@ -528,7 +520,7 @@ namespace LL
             }
             return false;
         }
-        
+
         template<typename T>
         inline bool write(const std::unordered_map<std::string, T>& src, string_view member, boost::json::object& dst, const std::unordered_map<std::string, T>& default_value = std::unordered_map<std::string, T>())
         {
@@ -569,6 +561,44 @@ namespace LL
             }
 
             return false;
+        }
+
+        // Accessor::ComponentType
+        template<>
+        inline bool copy(const Value& src, Accessor::ComponentType& dst)
+        {
+            if (src.is_int64())
+            {
+                dst = (Accessor::ComponentType)src.get_int64();
+                return true;
+            }
+            return false;
+        }
+
+        template<>
+        inline bool write(const Accessor::ComponentType& src, Value& dst)
+        {
+            dst = (S32)src;
+            return true;
+        }
+
+        //Primitive::Mode
+        template<>
+        inline bool copy(const Value& src, Primitive::Mode& dst)
+        {
+            if (src.is_int64())
+            {
+                dst = (Primitive::Mode)src.get_int64();
+                return true;
+            }
+            return false;
+        }
+
+        template<>
+        inline bool write(const Primitive::Mode& src, Value& dst)
+        {
+            dst = (S32)src;
+            return true;
         }
 
         // vec4
@@ -881,7 +911,7 @@ namespace LL
             return true;
         }
 
-        // 
+        //
         // ========================================================================================================
 
     }

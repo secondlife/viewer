@@ -28,6 +28,7 @@
 
 #include "asset.h"
 #include "buffer_util.h"
+#include "llfilesystem.h"
 
 using namespace LL::GLTF;
 using namespace boost::json;
@@ -107,6 +108,8 @@ void Buffer::erase(Asset& asset, S32 offset, S32 length)
 
     mData.erase(mData.begin() + offset, mData.begin() + offset + length);
 
+    mByteLength = mData.size();
+
     for (BufferView& view : asset.mBufferViews)
     {
         if (view.mBuffer == idx)
@@ -117,6 +120,95 @@ void Buffer::erase(Asset& asset, S32 offset, S32 length)
             }
         }
     }
+}
+
+bool Buffer::prep(Asset& asset)
+{
+    // PRECONDITION: mByteLength must not be 0
+    llassert(mByteLength != 0);
+
+    LLUUID id;
+    if (mUri.size() == UUID_STR_SIZE && LLUUID::parseUUID(mUri, &id) && id.notNull())
+    { // loaded from an asset, fetch the buffer data from the asset store
+        LLFileSystem file(id, LLAssetType::AT_GLTF_BIN, LLFileSystem::READ);
+
+        mData.resize(file.getSize());
+        if (!file.read((U8*)mData.data(), mData.size()))
+        {
+            LL_WARNS("GLTF") << "Failed to load buffer data from asset: " << id << LL_ENDL;
+            return false;
+        }
+    }
+    else if (mUri.find("data:") == 0)
+    { // loaded from a data URI, load the texture from the data
+        LL_WARNS() << "Data URIs not yet supported" << LL_ENDL;
+        return false;
+    }
+    else if (!asset.mFilename.empty() &&
+        !mUri.empty()) // <-- uri could be empty if we're loading from .glb
+    {
+        std::string dir = gDirUtilp->getDirName(asset.mFilename);
+        std::string bin_file = dir + gDirUtilp->getDirDelimiter() + mUri;
+
+        std::ifstream file(bin_file, std::ios::binary);
+        if (!file.is_open())
+        {
+            LL_WARNS("GLTF") << "Failed to open file: " << bin_file << LL_ENDL;
+            return false;
+        }
+
+        file.seekg(0, std::ios::end);
+        if (mByteLength > file.tellg())
+        {
+            LL_WARNS("GLTF") << "Unexpected file size: " << bin_file << " is " << file.tellg() << " bytes, expected " << mByteLength << LL_ENDL;
+            return false;
+        }
+        file.seekg(0, std::ios::beg);
+
+        mData.resize(mByteLength);
+        file.read((char*)mData.data(), mData.size());
+    }
+
+    // POSTCONDITION: on success, mData.size == mByteLength
+    llassert(mData.size() == mByteLength);
+    return true;
+}
+
+bool Buffer::save(Asset& asset, const std::string& folder)
+{
+    if (mUri.substr(0, 5) == "data:")
+    {
+        LL_WARNS("GLTF") << "Data URIs not yet supported" << LL_ENDL;
+        return false;
+    }
+
+    std::string bin_file = folder + gDirUtilp->getDirDelimiter();
+
+    if (mUri.empty())
+    {
+        if (mName.empty())
+        {
+            S32 idx = this - &asset.mBuffers[0];
+            mUri = llformat("buffer_%d.bin", idx);
+        }
+        else
+        {
+            mUri = mName + ".bin";
+        }
+    }
+
+    bin_file += mUri;
+
+    std::ofstream file(bin_file, std::ios::binary);
+    if (!file.is_open())
+    {
+        LL_WARNS("GLTF") << "Failed to open file: " << bin_file << LL_ENDL;
+        return false;
+    }
+
+    file.write((char*)mData.data(), mData.size());
+
+    return true;
 }
 
 void Buffer::serialize(object& dst) const
@@ -132,22 +224,14 @@ const Buffer& Buffer::operator=(const Value& src)
     {
         copy(src, "name", mName);
         copy(src, "uri", mUri);
-        
-        // NOTE: DO NOT attempt to handle the uri here. 
+        copy(src, "byteLength", mByteLength);
+
+        // NOTE: DO NOT attempt to handle the uri here.
         // The uri is a reference to a file that is not loaded until
         // after the json document is parsed
     }
     return *this;
 }
-
-const Buffer& Buffer::operator=(const tinygltf::Buffer& src)
-{
-    mData = src.data;
-    mName = src.name;
-    mUri = src.uri;
-    return *this;
-}
-
 
 void BufferView::serialize(object& dst) const
 {
@@ -171,43 +255,6 @@ const BufferView& BufferView::operator=(const Value& src)
         copy(src, "name", mName);
     }
     return *this;
-}
-
-const BufferView& BufferView::operator=(const tinygltf::BufferView& src)
-{
-    mBuffer = src.buffer;
-    mByteLength = src.byteLength;
-    mByteOffset = src.byteOffset;
-    mByteStride = src.byteStride;
-    mTarget = src.target;
-    mName = src.name;
-    return *this;
-}
-
-Accessor::Type tinygltf_type_to_enum(S32 type)
-{
-    switch (type)
-    {
-    case TINYGLTF_TYPE_SCALAR:
-        return Accessor::Type::SCALAR;
-    case TINYGLTF_TYPE_VEC2:
-        return Accessor::Type::VEC2;
-    case TINYGLTF_TYPE_VEC3:
-        return Accessor::Type::VEC3;
-    case TINYGLTF_TYPE_VEC4:
-        return Accessor::Type::VEC4;
-    case TINYGLTF_TYPE_MAT2:
-        return Accessor::Type::MAT2;
-    case TINYGLTF_TYPE_MAT3:
-        return Accessor::Type::MAT3;
-    case TINYGLTF_TYPE_MAT4:
-        return Accessor::Type::MAT4;
-    }
-
-    LL_WARNS("GLTF") << "Unknown tinygltf accessor type: " << type << LL_ENDL;
-    llassert(false);
-
-    return Accessor::Type::SCALAR;
 }
 
 void Accessor::serialize(object& dst) const
@@ -237,21 +284,6 @@ const Accessor& Accessor::operator=(const Value& src)
         copy(src, "max", mMax);
         copy(src, "min", mMin);
     }
-    return *this;
-}
-
-const Accessor& Accessor::operator=(const tinygltf::Accessor& src)
-{
-    mBufferView = src.bufferView;
-    mByteOffset = src.byteOffset;
-    mComponentType = src.componentType;
-    mCount = src.count;
-    mType = tinygltf_type_to_enum(src.type);
-    mNormalized = src.normalized;
-    mName = src.name;
-    mMax = src.maxValues;
-    mMin = src.minValues;
-
     return *this;
 }
 

@@ -2880,14 +2880,6 @@ function="World.EnvPreset"
            function="Advanced.ClickGLTFSaveAs" />
         </menu_item_call>
         <menu_item_call
-         label="Decompose..."
-         name="Decompose...">
-          <menu_item_call.on_enable
-             function="EnableGLTF"/>
-          <menu_item_call.on_click
-           function="Advanced.ClickGLTFDecompose" />
-        </menu_item_call>
-        <menu_item_call
          label="Upload..."
          name="Upload...">
           <menu_item_call.on_enable

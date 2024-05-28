@@ -37,8 +37,8 @@ class LLMutex;
 
 const S32 UUID_BYTES = 16;
 const S32 UUID_WORDS = 4;
-const S32 UUID_STR_LENGTH = 37; // actually wrong, should be 36 and use size below
-const S32 UUID_STR_SIZE = 37;
+const S32 UUID_STR_LENGTH = 37; // number of bytes needed to store a UUID as a string
+const S32 UUID_STR_SIZE = 36; // .size() of a UUID in a std::string
 const S32 UUID_BASE85_LENGTH = 21; // including the trailing NULL.
 
 struct uuid_time_t {
