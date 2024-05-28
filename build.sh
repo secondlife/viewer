@@ -187,7 +187,6 @@ pre_build()
      -DVIEWER_CHANNEL:STRING="${viewer_channel}" \
      -DGRID:STRING="\"$viewer_grid\"" \
      -DUSE_TRACY:BOOL=ON \
-     -DTRACY_TIMER_FALLBACK:BOOL=ON \
      -DTEMPLATE_VERIFIER_OPTIONS:STRING="$template_verifier_options" $template_verifier_master_url \
      "${SIGNING[@]}" \
     || fatal "$variant configuration failed"
