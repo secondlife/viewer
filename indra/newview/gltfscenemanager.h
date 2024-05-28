@@ -28,16 +28,10 @@
 
 #include "llsingleton.h"
 #include "llviewerobject.h"
+#include "gltf/common.h"
+
 class LLVOVolume;
 class LLDrawable;
-
-namespace LL
-{
-    namespace GLTF
-    {
-        class Asset;
-    }
-}
 
 namespace LL
 {
@@ -57,6 +51,9 @@ namespace LL
         void update();
         void render(bool opaque, bool rigged = false);
         void render(LL::GLTF::Asset& asset, bool opaque, bool rigged);
+
+        // bind the given material for rendering
+        void bind(LL::GLTF::Asset& asset, LL::GLTF::Material& material);
 
         void renderOpaque();
         void renderAlpha();

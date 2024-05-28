@@ -33,9 +33,10 @@ uniform sampler2D diffuseMap;  //always in sRGB space
 uniform float metallicFactor;
 uniform float roughnessFactor;
 uniform vec3 emissiveColor;
-uniform sampler2D bumpMap;
+uniform sampler2D normalMap;
 uniform sampler2D emissiveMap;
-uniform sampler2D specularMap; // Packed: Occlusion, Metal, Roughness
+uniform sampler2D metallicRoughnessMap;
+uniform sampler2D occlusionMap;
 
 #ifdef ALPHA_BLEND
 out vec4 frag_color;
@@ -151,7 +152,7 @@ void main()
     vec3 col = basecolor.rgb;
 
     // from mikktspace.com
-    vec3 vNt = texture(bumpMap, normal_texcoord.xy).xyz*2.0-1.0;
+    vec3 vNt = texture(normalMap, normal_texcoord.xy).xyz*2.0-1.0;
     float sign = vary_sign;
     vec3 vN = vary_normal;
     vec3 vT = vary_tangent.xyz;
@@ -164,10 +165,10 @@ void main()
     //   occlusion 1.0
     //   roughness 0.0
     //   metal     0.0
-    vec3 spec = texture(specularMap, metallic_roughness_texcoord.xy).rgb;
-
-    spec.g *= roughnessFactor;
-    spec.b *= metallicFactor;
+    vec3 orm = texture(metallicRoughnessMap, metallic_roughness_texcoord.xy).rgb;
+    orm.r = texture(occlusionMap, metallic_roughness_texcoord.xy).r;
+    orm.g *= roughnessFactor;
+    orm.b *= metallicFactor;
 
     vec3 emissive = emissiveColor;
     emissive *= srgb_to_linear(texture(emissiveMap, emissive_texcoord.xy).rgb);
@@ -194,11 +195,8 @@ void main()
     scol = sampleDirectionalShadow(pos.xyz, norm.xyz, frag);
 #endif
 
-    vec3 orm = texture(specularMap, metallic_roughness_texcoord.xy).rgb; //orm is packed into "emissiveRect" to keep the data in linear color space
-
     float perceptualRoughness = orm.g * roughnessFactor;
     float metallic = orm.b * metallicFactor;
-    float ao = orm.r;
 
     // emissiveColor is the emissive color factor from GLTF and is already in linear space
     vec3 colorEmissive = emissiveColor;
@@ -217,7 +215,7 @@ void main()
 
     vec3 v = -normalize(pos.xyz);
 
-    color = pbrBaseLight(diffuseColor, specularColor, metallic, v, norm.xyz, perceptualRoughness, light_dir, sunlit_linear, scol, radiance, irradiance, colorEmissive, ao, additive, atten);
+    color = pbrBaseLight(diffuseColor, specularColor, metallic, v, norm.xyz, perceptualRoughness, light_dir, sunlit_linear, scol, radiance, irradiance, colorEmissive, orm.r, additive, atten);
 
     vec3 light = vec3(0);
 
@@ -242,7 +240,7 @@ void main()
 #else
     // See: C++: addDeferredAttachments(), GLSL: softenLightF
     frag_data[0] = max(vec4(col, 0.0), vec4(0));
-    frag_data[1] = max(vec4(spec.rgb,0.0), vec4(0));
+    frag_data[1] = max(vec4(orm.rgb,0.0), vec4(0));
     frag_data[2] = vec4(norm, GBUFFER_FLAG_HAS_PBR);
     frag_data[3] = max(vec4(emissive,0), vec4(0));
 #endif

@@ -118,8 +118,6 @@ namespace LL
             F32 mAlphaCutoff = 0.5f;
             bool mDoubleSided = false;
 
-            // bind for rendering
-            void bind(Asset& asset);
             const Material& operator=(const Value& src);
             void serialize(boost::json::object& dst) const;
         };

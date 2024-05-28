@@ -614,7 +614,7 @@ void GLTFSceneManager::render(Asset& asset, bool opaque, bool rigged)
                         continue;
                     }
 
-                    material.bind(asset);
+                    bind(asset, material);
 
                     cull = !material.mDoubleSided;
                 }
@@ -641,6 +641,94 @@ void GLTFSceneManager::render(Asset& asset, bool opaque, bool rigged)
             }
         }
     }
+}
+
+static void bindTexture(Asset& asset, S32 uniform, Material::TextureInfo& info, LLViewerTexture* fallback)
+{
+    if (info.mIndex != INVALID_INDEX)
+    {
+        LLViewerTexture* tex = asset.mImages[asset.mTextures[info.mIndex].mSource].mTexture;
+        if (tex)
+        {
+            tex->addTextureStats(2048.f * 2048.f);
+            LLGLSLShader::sCurBoundShaderPtr->bindTexture(uniform, tex);
+        }
+        else
+        {
+            LLGLSLShader::sCurBoundShaderPtr->bindTexture(uniform, fallback);
+        }
+    }
+    else
+    {
+        LLGLSLShader::sCurBoundShaderPtr->bindTexture(uniform, fallback);
+    }
+}
+
+
+void GLTFSceneManager::bind(Asset& asset, Material& material)
+{
+
+    // bind for rendering (derived from LLFetchedGLTFMaterial::bind)
+    // glTF 2.0 Specification 3.9.4. Alpha Coverage
+    // mAlphaCutoff is only valid for LLGLTFMaterial::ALPHA_MODE_MASK
+    F32 min_alpha = -1.0;
+
+    LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
+
+    if (!LLPipeline::sShadowRender || (material.mAlphaMode == Material::AlphaMode::BLEND))
+    {
+        if (material.mAlphaMode == Material::AlphaMode::MASK)
+        {
+            // dividing the alpha cutoff by transparency here allows the shader to compare against
+            // the alpha value of the texture without needing the transparency value
+            if (material.mPbrMetallicRoughness.mBaseColorFactor.a > 0.f)
+            {
+                min_alpha = material.mAlphaCutoff / material.mPbrMetallicRoughness.mBaseColorFactor.a;
+            }
+            else
+            {
+                min_alpha = 1024.f;
+            }
+        }
+        shader->uniform1f(LLShaderMgr::MINIMUM_ALPHA, min_alpha);
+    }
+
+    bindTexture(asset, LLShaderMgr::DIFFUSE_MAP, material.mPbrMetallicRoughness.mBaseColorTexture, LLViewerFetchedTexture::sWhiteImagep);
+
+    F32 base_color_packed[8];
+    //mTextureTransform[GLTF_TEXTURE_INFO_BASE_COLOR].getPacked(base_color_packed);
+    LLGLTFMaterial::sDefault.mTextureTransform[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR].getPacked(base_color_packed);
+    shader->uniform4fv(LLShaderMgr::TEXTURE_BASE_COLOR_TRANSFORM, 2, (F32*)base_color_packed);
+
+    if (!LLPipeline::sShadowRender)
+    {
+        bindTexture(asset, LLShaderMgr::NORMAL_MAP, material.mNormalTexture, LLViewerFetchedTexture::sFlatNormalImagep);
+        bindTexture(asset, LLShaderMgr::METALLIC_ROUGHNESS_MAP, material.mPbrMetallicRoughness.mMetallicRoughnessTexture, LLViewerFetchedTexture::sWhiteImagep);
+        bindTexture(asset, LLShaderMgr::OCCLUSION_MAP, material.mOcclusionTexture, LLViewerFetchedTexture::sWhiteImagep);
+        bindTexture(asset, LLShaderMgr::EMISSIVE_MAP, material.mEmissiveTexture, LLViewerFetchedTexture::sWhiteImagep);
+
+        // NOTE: base color factor is baked into vertex stream
+
+        shader->uniform1f(LLShaderMgr::ROUGHNESS_FACTOR, material.mPbrMetallicRoughness.mRoughnessFactor);
+        shader->uniform1f(LLShaderMgr::METALLIC_FACTOR, material.mPbrMetallicRoughness.mMetallicFactor);
+        shader->uniform3fv(LLShaderMgr::EMISSIVE_COLOR, 1, glm::value_ptr(material.mEmissiveFactor));
+
+        F32 normal_packed[8];
+        //mTextureTransform[GLTF_TEXTURE_INFO_NORMAL].getPacked(normal_packed);
+        LLGLTFMaterial::sDefault.mTextureTransform[LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL].getPacked(normal_packed);
+        shader->uniform4fv(LLShaderMgr::TEXTURE_NORMAL_TRANSFORM, 2, (F32*)normal_packed);
+
+        F32 metallic_roughness_packed[8];
+        //mTextureTransform[GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS].getPacked(metallic_roughness_packed);
+        LLGLTFMaterial::sDefault.mTextureTransform[LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS].getPacked(metallic_roughness_packed);
+        shader->uniform4fv(LLShaderMgr::TEXTURE_METALLIC_ROUGHNESS_TRANSFORM, 2, (F32*)metallic_roughness_packed);
+
+        F32 emissive_packed[8];
+        //mTextureTransform[GLTF_TEXTURE_INFO_EMISSIVE].getPacked(emissive_packed);
+        LLGLTFMaterial::sDefault.mTextureTransform[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE].getPacked(emissive_packed);
+        shader->uniform4fv(LLShaderMgr::TEXTURE_EMISSIVE_TRANSFORM, 2, (F32*)emissive_packed);
+    }
+
 }
 
 LLMatrix4a inverse(const LLMatrix4a& mat)

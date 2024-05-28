@@ -36,6 +36,7 @@
 #include "glm/ext/quaternion_float.hpp"
 #include "glm/gtx/quaternion.hpp"
 #include "glm/gtx/matrix_decompose.hpp"
+#include <boost/json.hpp>
 
 // Common types and constants used in the GLTF implementation
 namespace LL
@@ -62,6 +63,21 @@ namespace LL
 
 
         class Asset;
+        class Material;
+        class Mesh;
+        class Node;
+        class Scene;
+        class Texture;
+        class Sampler;
+        class Image;
+        class Animation;
+        class Skin;
+        class Camera;
+        class Light;
+        class Primitive;
+        class Accessor;
+        class BufferView;
+        class Buffer;
     }
 }
 

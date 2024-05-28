@@ -555,7 +555,7 @@ void LLDrawPoolAvatar::beginDeferredImpostor()
 
     sVertexProgram = &gDeferredImpostorProgram;
     specular_channel = sVertexProgram->enableTexture(LLViewerShaderMgr::SPECULAR_MAP);
-    normal_channel = sVertexProgram->enableTexture(LLViewerShaderMgr::DEFERRED_NORMAL);
+    normal_channel = sVertexProgram->enableTexture(LLViewerShaderMgr::NORMAL_MAP);
     sDiffuseChannel = sVertexProgram->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
     sVertexProgram->bind();
     sVertexProgram->setMinimumAlpha(0.01f);
@@ -566,7 +566,7 @@ void LLDrawPoolAvatar::endDeferredImpostor()
     LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR
 
     sShaderLevel = mShaderLevel;
-    sVertexProgram->disableTexture(LLViewerShaderMgr::DEFERRED_NORMAL);
+    sVertexProgram->disableTexture(LLViewerShaderMgr::NORMAL_MAP);
     sVertexProgram->disableTexture(LLViewerShaderMgr::SPECULAR_MAP);
     sVertexProgram->disableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
     gPipeline.unbindDeferredShader(*sVertexProgram);
