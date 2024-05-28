@@ -1772,8 +1772,13 @@ namespace LLInitParam
 
 		// implicit conversion
 		operator const container_t&() const { return mValues; } 
+		operator container_t&() { return mValues; } 
 		// explicit conversion
 		const container_t& operator()() const { return mValues; }
+		container_t& operator()() { return mValues; }
+		// direct Nth item access
+		const typename NAME_VALUE_LOOKUP::type_value_t& operator()(size_t index) const { return mValues[index]; }
+		typename NAME_VALUE_LOOKUP::type_value_t& operator()(size_t index) { return mValues[index]; }
 
 		iterator begin() { return mValues.begin(); }
 		iterator end() { return mValues.end(); }
