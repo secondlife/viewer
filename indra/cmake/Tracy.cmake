@@ -15,5 +15,6 @@ if (USE_TRACY)
 
   # See: indra/llcommon/llprofiler.h
   add_compile_definitions(LL_PROFILER_CONFIGURATION=3)
+  add_compile_definitions(TRACY_TIMER_FALLBACK=ON)
 endif (USE_TRACY)
 
