@@ -373,6 +373,11 @@ void Asset::update()
         }
 
         updateTransforms();
+
+        for (auto& skin : mSkins)
+        {
+            skin.uploadMatrixPalette(*this);
+        }
     }
 }
 

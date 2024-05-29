@@ -540,6 +540,11 @@ void GLTFSceneManager::render(bool opaque, bool rigged)
         mat4 mdv = glm::make_mat4(modelview.getF32ptr());
         asset->updateRenderTransforms(mdv);
 
+        if (rigged)
+        { // provide a modelview matrix that goes from asset to camera space for rigged render passes
+            // (matrix palettes are in asset space)
+            gGL.loadMatrix(glm::value_ptr(mdv));
+        }
         render(*asset, opaque, rigged);
 
         gGL.popMatrix();
@@ -567,21 +572,13 @@ void GLTFSceneManager::render(Asset& asset, bool opaque, bool rigged)
         gPipeline.bindDeferredShader(gGLTFPBRMetallicRoughnessProgram.mGLTFVariants[variant]);
     }
 
-    if (rigged)
-    { // NOTE: bind shader before calling loadIdentity
-        gGL.loadIdentity();
-    }
-
     for (auto& node : asset.mNodes)
     {
         if (node.mSkin != INVALID_INDEX)
         {
             if (rigged)
             {
-                // TODO -- only upload the matrix palette when animations update
                 Skin& skin = asset.mSkins[node.mSkin];
-                skin.uploadMatrixPalette(asset, node);
-
                 glBindBufferBase(GL_UNIFORM_BUFFER, LLGLSLShader::UB_GLTF_JOINTS, skin.mUBO);
             }
             else

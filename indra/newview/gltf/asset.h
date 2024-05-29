@@ -206,7 +206,7 @@ namespace LL
             std::vector<mat4> mInverseBindMatricesData;
 
             bool prep(Asset& asset);
-            void uploadMatrixPalette(Asset& asset, Node& node);
+            void uploadMatrixPalette(Asset& asset);
 
             const Skin& operator=(const Value& src);
             void serialize(boost::json::object& dst) const;

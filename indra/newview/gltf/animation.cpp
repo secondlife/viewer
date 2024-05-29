@@ -371,7 +371,7 @@ Skin::~Skin()
     }
 }
 
-void Skin::uploadMatrixPalette(Asset& asset, Node& node)
+void Skin::uploadMatrixPalette(Asset& asset)
 {
     // prepare matrix palette
 
@@ -382,8 +382,6 @@ void Skin::uploadMatrixPalette(Asset& asset, Node& node)
         glGenBuffers(1, &mUBO);
     }
 
-    // modelview will be applied by the shader, so assume matrix palette is in asset space
-    // NOTE: ^^ verify this is true, because it looks like it's not below
     U32 joint_count = llmin(max_joints, mJoints.size());
 
     std::vector<mat4> t_mp;
@@ -393,7 +391,8 @@ void Skin::uploadMatrixPalette(Asset& asset, Node& node)
     for (U32 i = 0; i < joint_count; ++i)
     {
         Node& joint = asset.mNodes[mJoints[i]];
-        t_mp[i] = joint.mRenderMatrix * mInverseBindMatricesData[i];
+        // build matrix palette in asset space
+        t_mp[i] = joint.mAssetMatrix * mInverseBindMatricesData[i];
     }
 
     std::vector<F32> glmp;
