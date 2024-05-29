@@ -132,7 +132,13 @@ bool Buffer::prep(Asset& asset)
     { // loaded from an asset, fetch the buffer data from the asset store
         LLFileSystem file(id, LLAssetType::AT_GLTF_BIN, LLFileSystem::READ);
 
-        mData.resize(file.getSize());
+        if (mByteLength > file.getSize())
+        {
+            LL_WARNS("GLTF") << "Unexpected glbin size: " << id << " is " << file.getSize() << " bytes, expected " << mByteLength << LL_ENDL;
+            return false;
+        }
+
+        mData.resize(mByteLength);
         if (!file.read((U8*)mData.data(), mData.size()))
         {
             LL_WARNS("GLTF") << "Failed to load buffer data from asset: " << id << LL_ENDL;

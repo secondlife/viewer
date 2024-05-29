@@ -351,11 +351,18 @@ void GLTFSceneManager::onGLTFBinLoadComplete(const LLUUID& id, LLAssetType::ETyp
 
                 if (obj->mGLTFAsset->mPendingBuffers == 0)
                 {
-                    obj->mGLTFAsset->prep();
-                    GLTFSceneManager& mgr = GLTFSceneManager::instance();
-                    if (std::find(mgr.mObjects.begin(), mgr.mObjects.end(), obj) == mgr.mObjects.end())
+                    if (obj->mGLTFAsset->prep())
                     {
-                        GLTFSceneManager::instance().mObjects.push_back(obj);
+                        GLTFSceneManager& mgr = GLTFSceneManager::instance();
+                        if (std::find(mgr.mObjects.begin(), mgr.mObjects.end(), obj) == mgr.mObjects.end())
+                        {
+                            GLTFSceneManager::instance().mObjects.push_back(obj);
+                        }
+                    }
+                    else
+                    {
+                        LL_WARNS("GLTF") << "Failed to prepare GLTF asset: " << id << LL_ENDL;
+                        obj->mGLTFAsset = nullptr;
                     }
                 }
             }
