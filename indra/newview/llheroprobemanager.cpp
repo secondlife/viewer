@@ -75,7 +75,7 @@ LLHeroProbeManager::~LLHeroProbeManager()
 // helper class to seed octree with probes
 void LLHeroProbeManager::update()
 {
-    if (!LLPipeline::RenderMirrors || gTeleportDisplay || LLStartUp::getStartupState() < STATE_PRECACHE)
+    if (!LLPipeline::RenderMirrors || !LLPipeline::sReflectionProbesEnabled || gTeleportDisplay || LLStartUp::getStartupState() < STATE_PRECACHE)
     {
         return;
     }
@@ -212,6 +212,12 @@ void LLHeroProbeManager::update()
 
 void LLHeroProbeManager::renderProbes()
 {
+    if (!LLPipeline::RenderMirrors || !LLPipeline::sReflectionProbesEnabled || gTeleportDisplay ||
+        LLStartUp::getStartupState() < STATE_PRECACHE)
+    {
+        return;
+    }
+
     static LLCachedControl<S32> sDetail(gSavedSettings, "RenderHeroReflectionProbeDetail", -1);
     static LLCachedControl<S32> sLevel(gSavedSettings, "RenderHeroReflectionProbeLevel", 3);
 
