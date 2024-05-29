@@ -97,6 +97,12 @@ U32 LLSkinningUtil::getMeshJointCount(const LLMeshSkinInfo *skin)
     return llmin((U32)getMaxJointCount(), (U32)skin->mJointNames.size());
 }
 
+S32 LLSkinningUtil::getMaxGLTFJointCount()
+{
+    // this is the maximum number of 3x4 matrices than can fit in a UBO
+    return gGLManager.mMaxUniformBlockSize / 48;
+}
+
 void LLSkinningUtil::scrubInvalidJoints(LLVOAvatar *avatar, LLMeshSkinInfo* skin)
 {
     if (skin->mInvalidJointsScrubbed)

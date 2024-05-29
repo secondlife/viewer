@@ -87,6 +87,8 @@ namespace LL
         U32 mPendingImageUploads = 0;
         U32 mPendingBinaryUploads = 0;
         U32 mPendingGLTFUploads = 0;
+
+        U32 mJointUBO = 0;
     };
 }
 

@@ -259,10 +259,11 @@ static bool make_gltf_variant(LLGLSLShader& shader, LLGLSLShader& variant, bool 
 
     variant.mDefines = shader.mDefines;    // NOTE: Must come before addPermutation
 
+    variant.addPermutation("MAX_JOINTS_PER_GLTF_OBJECT", std::to_string(LLSkinningUtil::getMaxGLTFJointCount()));
+
     if (rigged)
     {
         variant.addPermutation("HAS_SKIN", "1");
-        variant.mFeatures.hasObjectSkinning = true;
     }
 
     if (alpha_blend)

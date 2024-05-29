@@ -195,8 +195,12 @@ namespace LL
         class Skin
         {
         public:
+            ~Skin();
+
             S32 mInverseBindMatrices = INVALID_INDEX;
             S32 mSkeleton = INVALID_INDEX;
+
+            U32 mUBO = 0;
             std::vector<S32> mJoints;
             std::string mName;
             std::vector<mat4> mInverseBindMatricesData;

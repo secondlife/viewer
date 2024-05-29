@@ -983,17 +983,25 @@ bool LLGLSLShader::mapUniforms(const vector<LLStaticHashedString>* uniforms)
     }
     //........................................................................................................................................
 
-    if (mFeatures.hasReflectionProbes) // Set up block binding, in a way supported by Apple (rather than binding = 1 in .glsl).
-    {   // See slide 35 and more of https://docs.huihoo.com/apple/wwdc/2011/session_420__advances_in_opengl_for_mac_os_x_lion.pdf
-        static const GLuint BLOCKBINDING = 1; //picked by us
-        //Get the index, similar to a uniform location
-        GLuint UBOBlockIndex = glGetUniformBlockIndex(mProgramObject, "ReflectionProbes");
+    // Set up block binding, in a way supported by Apple (rather than binding = 1 in .glsl).
+    // See slide 35 and more of https://docs.huihoo.com/apple/wwdc/2011/session_420__advances_in_opengl_for_mac_os_x_lion.pdf
+    const char* ubo_names[] =
+    {
+        "ReflectionProbes", // UB_REFLECTION_PROBES
+        "GLTFJoints", // UB_GLTF_JOINTS
+    };
+
+    llassert(LL_ARRAY_SIZE(ubo_names) == NUM_UNIFORM_BLOCKS);
+
+    for (U32 i = 0; i < NUM_UNIFORM_BLOCKS; ++i)
+    {
+        GLuint UBOBlockIndex = glGetUniformBlockIndex(mProgramObject, ubo_names[i]);
         if (UBOBlockIndex != GL_INVALID_INDEX)
         {
-            //Set this index to a binding index
-            glUniformBlockBinding(mProgramObject, UBOBlockIndex, BLOCKBINDING);
+            glUniformBlockBinding(mProgramObject, UBOBlockIndex, i);
         }
     }
+    
     unbind();
 
     LL_DEBUGS("ShaderUniform") << "Total Uniform Size: " << mTotalUniformSize << LL_ENDL;

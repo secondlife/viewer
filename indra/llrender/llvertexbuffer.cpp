@@ -687,6 +687,7 @@ bool LLVertexBuffer::validateRange(U32 start, U32 end, U32 count, U32 indices_of
     }
 
     {
+#if 0  // not a reliable test for VBOs that are not backed by a CPU buffer
         U16* idx = (U16*) mMappedIndexData+indices_offset;
         for (U32 i = 0; i < count; ++i)
         {
@@ -724,6 +725,7 @@ bool LLVertexBuffer::validateRange(U32 start, U32 end, U32 count, U32 indices_of
                 }
             }
         }
+#endif
     }
 
     return true;
@@ -1036,8 +1038,7 @@ bool LLVertexBuffer::updateNumIndices(U32 nindices)
 
 bool LLVertexBuffer::allocateBuffer(U32 nverts, U32 nindices)
 {
-    if (nverts < 0 || nindices < 0 ||
-        nverts > 65536)
+    if (nverts < 0 || nindices < 0)
     {
         LL_ERRS() << "Bad vertex buffer allocation: " << nverts << " : " << nindices << LL_ENDL;
     }

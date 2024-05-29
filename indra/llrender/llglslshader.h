@@ -146,6 +146,14 @@ public:
         SG_COUNT
     } eGroup;
 
+    enum UniformBlock : GLuint
+    {
+        UB_REFLECTION_PROBES,
+        UB_GLTF_JOINTS,
+        NUM_UNIFORM_BLOCKS
+    };
+
+
     static std::set<LLGLSLShader*> sInstances;
     static bool sProfileEnabled;
 

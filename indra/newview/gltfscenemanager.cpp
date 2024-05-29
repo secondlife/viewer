@@ -548,7 +548,6 @@ void GLTFSceneManager::render(bool opaque, bool rigged)
 
 void GLTFSceneManager::render(Asset& asset, bool opaque, bool rigged)
 {
-
     U32 variant = 0;
     if (rigged)
     {
@@ -579,8 +578,11 @@ void GLTFSceneManager::render(Asset& asset, bool opaque, bool rigged)
         {
             if (rigged)
             {
+                // TODO -- only upload the matrix palette when animations update
                 Skin& skin = asset.mSkins[node.mSkin];
                 skin.uploadMatrixPalette(asset, node);
+
+                glBindBufferBase(GL_UNIFORM_BUFFER, LLGLSLShader::UB_GLTF_JOINTS, skin.mUBO);
             }
             else
             {
@@ -667,7 +669,6 @@ static void bindTexture(Asset& asset, S32 uniform, Material::TextureInfo& info, 
 
 void GLTFSceneManager::bind(Asset& asset, Material& material)
 {
-
     // bind for rendering (derived from LLFetchedGLTFMaterial::bind)
     // glTF 2.0 Specification 3.9.4. Alpha Coverage
     // mAlphaCutoff is only valid for LLGLTFMaterial::ALPHA_MODE_MASK
@@ -728,7 +729,6 @@ void GLTFSceneManager::bind(Asset& asset, Material& material)
         LLGLTFMaterial::sDefault.mTextureTransform[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE].getPacked(emissive_packed);
         shader->uniform4fv(LLShaderMgr::TEXTURE_EMISSIVE_TRANSFORM, 2, (F32*)emissive_packed);
     }
-
 }
 
 LLMatrix4a inverse(const LLMatrix4a& mat)
