@@ -263,10 +263,7 @@ void LLDrawPoolAlpha::forwardRender(bool rigged)
 
     if (rigged)
     { // draw GLTF scene to depth buffer before rigged alpha
-        gPipeline.bindDeferredShader(gDeferredPBRAlphaProgram);
         LL::GLTFSceneManager::instance().render(false, false);
-
-        gPipeline.bindDeferredShader(*gDeferredPBRAlphaProgram.mRiggedVariant);
         LL::GLTFSceneManager::instance().render(false, true);
     }
 

@@ -28,6 +28,7 @@
 
 #include "asset.h"
 #include "buffer_util.h"
+#include "../llskinningutil.h"
 
 using namespace LL::GLTF;
 using namespace boost::json;
@@ -360,6 +361,71 @@ const Animation& Animation::operator=(const Value& src)
         }
     }
     return *this;
+}
+
+Skin::~Skin()
+{
+    if (mUBO)
+    {
+        glDeleteBuffers(1, &mUBO);
+    }
+}
+
+void Skin::uploadMatrixPalette(Asset& asset)
+{
+    // prepare matrix palette
+
+    U32 max_joints = LLSkinningUtil::getMaxGLTFJointCount();
+
+    if (mUBO == 0)
+    {
+        glGenBuffers(1, &mUBO);
+    }
+
+    U32 joint_count = llmin(max_joints, mJoints.size());
+
+    std::vector<mat4> t_mp;
+
+    t_mp.resize(joint_count);
+
+    for (U32 i = 0; i < joint_count; ++i)
+    {
+        Node& joint = asset.mNodes[mJoints[i]];
+        // build matrix palette in asset space
+        t_mp[i] = joint.mAssetMatrix * mInverseBindMatricesData[i];
+    }
+
+    std::vector<F32> glmp;
+
+    glmp.resize(joint_count * 12);
+
+    F32* mp = glmp.data();
+
+    for (U32 i = 0; i < joint_count; ++i)
+    {
+        F32* m = glm::value_ptr(t_mp[i]);
+
+        U32 idx = i * 12;
+
+        mp[idx + 0] = m[0];
+        mp[idx + 1] = m[1];
+        mp[idx + 2] = m[2];
+        mp[idx + 3] = m[12];
+
+        mp[idx + 4] = m[4];
+        mp[idx + 5] = m[5];
+        mp[idx + 6] = m[6];
+        mp[idx + 7] = m[13];
+
+        mp[idx + 8] = m[8];
+        mp[idx + 9] = m[9];
+        mp[idx + 10] = m[10];
+        mp[idx + 11] = m[14];
+    }
+
+    glBindBuffer(GL_UNIFORM_BUFFER, mUBO);
+    glBufferData(GL_UNIFORM_BUFFER, glmp.size() * sizeof(F32), glmp.data(), GL_STREAM_DRAW);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
 bool Skin::prep(Asset& asset)

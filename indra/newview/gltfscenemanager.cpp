@@ -351,11 +351,18 @@ void GLTFSceneManager::onGLTFBinLoadComplete(const LLUUID& id, LLAssetType::ETyp
 
                 if (obj->mGLTFAsset->mPendingBuffers == 0)
                 {
-                    obj->mGLTFAsset->prep();
-                    GLTFSceneManager& mgr = GLTFSceneManager::instance();
-                    if (std::find(mgr.mObjects.begin(), mgr.mObjects.end(), obj) == mgr.mObjects.end())
+                    if (obj->mGLTFAsset->prep())
                     {
-                        GLTFSceneManager::instance().mObjects.push_back(obj);
+                        GLTFSceneManager& mgr = GLTFSceneManager::instance();
+                        if (std::find(mgr.mObjects.begin(), mgr.mObjects.end(), obj) == mgr.mObjects.end())
+                        {
+                            GLTFSceneManager::instance().mObjects.push_back(obj);
+                        }
+                    }
+                    else
+                    {
+                        LL_WARNS("GLTF") << "Failed to prepare GLTF asset: " << id << LL_ENDL;
+                        obj->mGLTFAsset = nullptr;
                     }
                 }
             }
@@ -528,7 +535,6 @@ void GLTFSceneManager::render(bool opaque, bool rigged)
         }
 
         Asset* asset = mObjects[i]->mGLTFAsset.get();
-
         gGL.pushMatrix();
 
         LLMatrix4a mat = mObjects[i]->getGLTFAssetToAgentTransform();
@@ -540,9 +546,192 @@ void GLTFSceneManager::render(bool opaque, bool rigged)
 
         mat4 mdv = glm::make_mat4(modelview.getF32ptr());
         asset->updateRenderTransforms(mdv);
-        asset->render(opaque, rigged);
+
+        if (rigged)
+        { // provide a modelview matrix that goes from asset to camera space for rigged render passes
+            // (matrix palettes are in asset space)
+            gGL.loadMatrix(glm::value_ptr(mdv));
+        }
+        render(*asset, opaque, rigged);
 
         gGL.popMatrix();
+    }
+}
+
+void GLTFSceneManager::render(Asset& asset, bool opaque, bool rigged)
+{
+    U32 variant = 0;
+    if (rigged)
+    {
+        variant |= LLGLSLShader::GLTFVariant::RIGGED;
+    }
+    if (!opaque)
+    {
+        variant |= LLGLSLShader::GLTFVariant::ALPHA;
+    }
+
+    if (opaque)
+    {
+        gGLTFPBRMetallicRoughnessProgram.bind(variant);
+    }
+    else
+    { // alpha shaders need all the shadow map setup etc
+        gPipeline.bindDeferredShader(gGLTFPBRMetallicRoughnessProgram.mGLTFVariants[variant]);
+    }
+
+    for (auto& node : asset.mNodes)
+    {
+        if (node.mSkin != INVALID_INDEX)
+        {
+            if (rigged)
+            {
+                Skin& skin = asset.mSkins[node.mSkin];
+                glBindBufferBase(GL_UNIFORM_BUFFER, LLGLSLShader::UB_GLTF_JOINTS, skin.mUBO);
+            }
+            else
+            {
+                //skip static nodes if we're rendering rigged
+                continue;
+            }
+        }
+        else if (rigged)
+        {
+            // skip rigged nodes if we're not rendering rigged
+            continue;
+        }
+
+        if (node.mMesh != INVALID_INDEX)
+        {
+            Mesh& mesh = asset.mMeshes[node.mMesh];
+            for (auto& primitive : mesh.mPrimitives)
+            {
+                if (!rigged)
+                {
+                    gGL.loadMatrix((F32*)glm::value_ptr(node.mRenderMatrix));
+                }
+                bool cull = true;
+                if (primitive.mMaterial != INVALID_INDEX)
+                {
+                    Material& material = asset.mMaterials[primitive.mMaterial];
+                    bool mat_opaque = material.mAlphaMode != Material::AlphaMode::BLEND;
+
+                    if (mat_opaque != opaque)
+                    {
+                        continue;
+                    }
+
+                    bind(asset, material);
+
+                    cull = !material.mDoubleSided;
+                }
+                else
+                {
+                    if (!opaque)
+                    {
+                        continue;
+                    }
+                    LLFetchedGLTFMaterial::sDefault.bind();
+                }
+
+                LLGLDisable cull_face(!cull ? GL_CULL_FACE : 0);
+
+                primitive.mVertexBuffer->setBuffer();
+                if (primitive.mVertexBuffer->getNumIndices() > 0)
+                {
+                    primitive.mVertexBuffer->draw(primitive.mGLMode, primitive.mVertexBuffer->getNumIndices(), 0);
+                }
+                else
+                {
+                    primitive.mVertexBuffer->drawArrays(primitive.mGLMode, 0, primitive.mVertexBuffer->getNumVerts());
+                }
+            }
+        }
+    }
+}
+
+static void bindTexture(Asset& asset, S32 uniform, Material::TextureInfo& info, LLViewerTexture* fallback)
+{
+    if (info.mIndex != INVALID_INDEX)
+    {
+        LLViewerTexture* tex = asset.mImages[asset.mTextures[info.mIndex].mSource].mTexture;
+        if (tex)
+        {
+            tex->addTextureStats(2048.f * 2048.f);
+            LLGLSLShader::sCurBoundShaderPtr->bindTexture(uniform, tex);
+        }
+        else
+        {
+            LLGLSLShader::sCurBoundShaderPtr->bindTexture(uniform, fallback);
+        }
+    }
+    else
+    {
+        LLGLSLShader::sCurBoundShaderPtr->bindTexture(uniform, fallback);
+    }
+}
+
+
+void GLTFSceneManager::bind(Asset& asset, Material& material)
+{
+    // bind for rendering (derived from LLFetchedGLTFMaterial::bind)
+    // glTF 2.0 Specification 3.9.4. Alpha Coverage
+    // mAlphaCutoff is only valid for LLGLTFMaterial::ALPHA_MODE_MASK
+    F32 min_alpha = -1.0;
+
+    LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
+
+    if (!LLPipeline::sShadowRender || (material.mAlphaMode == Material::AlphaMode::BLEND))
+    {
+        if (material.mAlphaMode == Material::AlphaMode::MASK)
+        {
+            // dividing the alpha cutoff by transparency here allows the shader to compare against
+            // the alpha value of the texture without needing the transparency value
+            if (material.mPbrMetallicRoughness.mBaseColorFactor.a > 0.f)
+            {
+                min_alpha = material.mAlphaCutoff / material.mPbrMetallicRoughness.mBaseColorFactor.a;
+            }
+            else
+            {
+                min_alpha = 1024.f;
+            }
+        }
+        shader->uniform1f(LLShaderMgr::MINIMUM_ALPHA, min_alpha);
+    }
+
+    bindTexture(asset, LLShaderMgr::DIFFUSE_MAP, material.mPbrMetallicRoughness.mBaseColorTexture, LLViewerFetchedTexture::sWhiteImagep);
+
+    F32 base_color_packed[8];
+    //mTextureTransform[GLTF_TEXTURE_INFO_BASE_COLOR].getPacked(base_color_packed);
+    LLGLTFMaterial::sDefault.mTextureTransform[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR].getPacked(base_color_packed);
+    shader->uniform4fv(LLShaderMgr::TEXTURE_BASE_COLOR_TRANSFORM, 2, (F32*)base_color_packed);
+
+    if (!LLPipeline::sShadowRender)
+    {
+        bindTexture(asset, LLShaderMgr::NORMAL_MAP, material.mNormalTexture, LLViewerFetchedTexture::sFlatNormalImagep);
+        bindTexture(asset, LLShaderMgr::METALLIC_ROUGHNESS_MAP, material.mPbrMetallicRoughness.mMetallicRoughnessTexture, LLViewerFetchedTexture::sWhiteImagep);
+        bindTexture(asset, LLShaderMgr::OCCLUSION_MAP, material.mOcclusionTexture, LLViewerFetchedTexture::sWhiteImagep);
+        bindTexture(asset, LLShaderMgr::EMISSIVE_MAP, material.mEmissiveTexture, LLViewerFetchedTexture::sWhiteImagep);
+
+        // NOTE: base color factor is baked into vertex stream
+
+        shader->uniform1f(LLShaderMgr::ROUGHNESS_FACTOR, material.mPbrMetallicRoughness.mRoughnessFactor);
+        shader->uniform1f(LLShaderMgr::METALLIC_FACTOR, material.mPbrMetallicRoughness.mMetallicFactor);
+        shader->uniform3fv(LLShaderMgr::EMISSIVE_COLOR, 1, glm::value_ptr(material.mEmissiveFactor));
+
+        F32 normal_packed[8];
+        //mTextureTransform[GLTF_TEXTURE_INFO_NORMAL].getPacked(normal_packed);
+        LLGLTFMaterial::sDefault.mTextureTransform[LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL].getPacked(normal_packed);
+        shader->uniform4fv(LLShaderMgr::TEXTURE_NORMAL_TRANSFORM, 2, (F32*)normal_packed);
+
+        F32 metallic_roughness_packed[8];
+        //mTextureTransform[GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS].getPacked(metallic_roughness_packed);
+        LLGLTFMaterial::sDefault.mTextureTransform[LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS].getPacked(metallic_roughness_packed);
+        shader->uniform4fv(LLShaderMgr::TEXTURE_METALLIC_ROUGHNESS_TRANSFORM, 2, (F32*)metallic_roughness_packed);
+
+        F32 emissive_packed[8];
+        //mTextureTransform[GLTF_TEXTURE_INFO_EMISSIVE].getPacked(emissive_packed);
+        LLGLTFMaterial::sDefault.mTextureTransform[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE].getPacked(emissive_packed);
+        shader->uniform4fv(LLShaderMgr::TEXTURE_EMISSIVE_TRANSFORM, 2, (F32*)emissive_packed);
     }
 }
 

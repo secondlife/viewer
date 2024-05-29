@@ -28,16 +28,10 @@
 
 #include "llsingleton.h"
 #include "llviewerobject.h"
+#include "gltf/common.h"
+
 class LLVOVolume;
 class LLDrawable;
-
-namespace LL
-{
-    namespace GLTF
-    {
-        class Asset;
-    }
-}
 
 namespace LL
 {
@@ -56,6 +50,11 @@ namespace LL
 
         void update();
         void render(bool opaque, bool rigged = false);
+        void render(LL::GLTF::Asset& asset, bool opaque, bool rigged);
+
+        // bind the given material for rendering
+        void bind(LL::GLTF::Asset& asset, LL::GLTF::Material& material);
+
         void renderOpaque();
         void renderAlpha();
 
@@ -71,7 +70,7 @@ namespace LL
             LLVector4a* normal,               // return the surface normal at the intersection point
             LLVector4a* tangent);           // return the surface tangent at the intersection point
 
-        bool lineSegmentIntersect(LLVOVolume* obj, GLTF::Asset* asset, const LLVector4a& start, const LLVector4a& end, S32 face, bool pick_transparent, bool pick_rigged, bool pick_unselectable, S32* face_hitp, S32* primitive_hitp,
+        bool lineSegmentIntersect(LLVOVolume* obj, LL::GLTF::Asset* asset, const LLVector4a& start, const LLVector4a& end, S32 face, bool pick_transparent, bool pick_rigged, bool pick_unselectable, S32* face_hitp, S32* primitive_hitp,
             LLVector4a* intersection, LLVector2* tex_coord, LLVector4a* normal, LLVector4a* tangent);
 
         void renderDebug();
@@ -88,6 +87,8 @@ namespace LL
         U32 mPendingImageUploads = 0;
         U32 mPendingBinaryUploads = 0;
         U32 mPendingGLTFUploads = 0;
+
+        U32 mJointUBO = 0;
     };
 }
 

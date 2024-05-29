@@ -1225,6 +1225,9 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("diffuseMap");
     mReservedUniforms.push_back("altDiffuseMap");
     mReservedUniforms.push_back("specularMap");
+    mReservedUniforms.push_back("metallicRoughnessMap");
+    mReservedUniforms.push_back("normalMap");
+    mReservedUniforms.push_back("occlusionMap");
     mReservedUniforms.push_back("emissiveMap");
     mReservedUniforms.push_back("bumpMap");
     mReservedUniforms.push_back("bumpMap2");
@@ -1348,7 +1351,6 @@ void LLShaderMgr::initAttribsAndUniforms()
 
     llassert(mReservedUniforms.size() == LLShaderMgr::DEFERRED_SHADOW5+1);
 
-    mReservedUniforms.push_back("normalMap");
     mReservedUniforms.push_back("positionMap");
     mReservedUniforms.push_back("diffuseRect");
     mReservedUniforms.push_back("specularRect");

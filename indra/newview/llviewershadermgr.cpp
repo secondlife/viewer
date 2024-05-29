@@ -249,7 +249,7 @@ static bool make_rigged_variant(LLGLSLShader& shader, LLGLSLShader& riggedShader
 }
 
 
-static bool make_gltf_variant(LLGLSLShader& shader, LLGLSLShader& variant, bool alpha_blend, bool rigged)
+static bool make_gltf_variant(LLGLSLShader& shader, LLGLSLShader& variant, bool alpha_blend, bool rigged, bool use_sun_shadow)
 {
     variant.mName = shader.mName.c_str();
     variant.mFeatures = shader.mFeatures;
@@ -259,20 +259,50 @@ static bool make_gltf_variant(LLGLSLShader& shader, LLGLSLShader& variant, bool 
 
     variant.mDefines = shader.mDefines;    // NOTE: Must come before addPermutation
 
-    if (alpha_blend)
-    {
-        variant.addPermutation("ALPHA_BLEND", "1");
-    }
+    variant.addPermutation("MAX_JOINTS_PER_GLTF_OBJECT", std::to_string(LLSkinningUtil::getMaxGLTFJointCount()));
+
     if (rigged)
     {
         variant.addPermutation("HAS_SKIN", "1");
-        variant.mFeatures.hasObjectSkinning = true;
     }
 
-    return variant.createShader(NULL, NULL);
+    if (alpha_blend)
+    {
+        variant.addPermutation("ALPHA_BLEND", "1");
+
+        variant.mFeatures.calculatesLighting = false;
+        variant.mFeatures.hasLighting = false;
+        variant.mFeatures.isAlphaLighting = true;
+        variant.mFeatures.hasSrgb = true;
+        variant.mFeatures.calculatesAtmospherics = true;
+        variant.mFeatures.hasAtmospherics = true;
+        variant.mFeatures.hasGamma = true;
+        variant.mFeatures.hasShadows = use_sun_shadow;
+        variant.mFeatures.isDeferred = true; // include deferredUtils
+        variant.mFeatures.hasReflectionProbes = true;
+
+        if (use_sun_shadow)
+        {
+            variant.addPermutation("HAS_SUN_SHADOW", "1");
+        }
+
+        bool success = variant.createShader(NULL, NULL);
+        llassert(success);
+
+        // Alpha Shader Hack
+        // See: LLRender::syncMatrices()
+        variant.mFeatures.calculatesLighting = true;
+        variant.mFeatures.hasLighting = true;
+
+        return success;
+    }
+    else
+    {
+        return variant.createShader(NULL, NULL);
+    }
 }
 
-static bool make_gltf_variants(LLGLSLShader& shader)
+static bool make_gltf_variants(LLGLSLShader& shader, bool use_sun_shadow)
 {
     shader.mFeatures.mGLTF = true;
     shader.mGLTFVariants.resize(LLGLSLShader::NUM_GLTF_VARIANTS);
@@ -282,7 +312,7 @@ static bool make_gltf_variants(LLGLSLShader& shader)
         bool alpha_blend = i & 1;
         bool rigged = i & 2;
 
-        if (!make_gltf_variant(shader, shader.mGLTFVariants[i], alpha_blend, rigged))
+        if (!make_gltf_variant(shader, shader.mGLTFVariants[i], alpha_blend, rigged, use_sun_shadow))
         {
             return false;
         }
@@ -1269,7 +1299,7 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         gGLTFPBRMetallicRoughnessProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
         gGLTFPBRMetallicRoughnessProgram.clearPermutations();
 
-        success = make_gltf_variants(gGLTFPBRMetallicRoughnessProgram);
+        success = make_gltf_variants(gGLTFPBRMetallicRoughnessProgram, use_sun_shadow);
 
         llassert(success);
     }

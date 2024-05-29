@@ -87,6 +87,7 @@ public:
     S32 mGLMaxIndexRange;
     S32 mGLMaxTextureSize;
     F32 mMaxAnisotropy = 0.f;
+    S32 mMaxUniformBlockSize = 0;
 
     // GL 4.x capabilities
     bool mHasCubeMapArray = false;

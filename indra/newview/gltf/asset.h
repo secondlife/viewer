@@ -118,8 +118,6 @@ namespace LL
             F32 mAlphaCutoff = 0.5f;
             bool mDoubleSided = false;
 
-            // bind for rendering
-            void bind(Asset& asset);
             const Material& operator=(const Value& src);
             void serialize(boost::json::object& dst) const;
         };
@@ -197,14 +195,18 @@ namespace LL
         class Skin
         {
         public:
+            ~Skin();
+
             S32 mInverseBindMatrices = INVALID_INDEX;
             S32 mSkeleton = INVALID_INDEX;
+
+            U32 mUBO = 0;
             std::vector<S32> mJoints;
             std::string mName;
             std::vector<mat4> mInverseBindMatricesData;
 
             bool prep(Asset& asset);
-            void uploadMatrixPalette(Asset& asset, Node& node);
+            void uploadMatrixPalette(Asset& asset);
 
             const Skin& operator=(const Value& src);
             void serialize(boost::json::object& dst) const;
@@ -331,10 +333,6 @@ namespace LL
 
             // update node render transforms
             void updateRenderTransforms(const mat4& modelview);
-
-            void render(bool opaque, bool rigged = false);
-            void renderOpaque();
-            void renderTransparent();
 
             // return the index of the node that the line segment intersects with, or -1 if no hit
             // input and output values must be in this asset's local coordinate frame

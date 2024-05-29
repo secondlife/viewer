@@ -84,7 +84,7 @@ namespace LL
 void Scene::updateTransforms(Asset& asset)
 {
     mat4 identity = glm::identity<mat4>();
- 
+
     for (auto& nodeIndex : mNodes)
     {
         Node& node = asset.mNodes[nodeIndex];
@@ -116,7 +116,7 @@ void Node::updateTransforms(Asset& asset, const mat4& parentMatrix)
 {
     makeMatrixValid();
     mAssetMatrix = parentMatrix * mMatrix;
- 
+
     mAssetMatrixInv = glm::inverse(mAssetMatrix);
 
     S32 my_index = this - &asset.mNodes[0];
@@ -356,94 +356,6 @@ const Image& Image::operator=(const Value& src)
     return *this;
 }
 
-void Asset::render(bool opaque, bool rigged)
-{
-    if (rigged)
-    {
-        gGL.loadIdentity();
-    }
-
-    for (auto& node : mNodes)
-    {
-        if (node.mSkin != INVALID_INDEX)
-        {
-            if (rigged)
-            {
-                Skin& skin = mSkins[node.mSkin];
-                skin.uploadMatrixPalette(*this, node);
-            }
-            else
-            {
-                //skip static nodes if we're rendering rigged
-                continue;
-            }
-        }
-        else if (rigged)
-        {
-            // skip rigged nodes if we're not rendering rigged
-            continue;
-        }
-
-        if (node.mMesh != INVALID_INDEX)
-        {
-            Mesh& mesh = mMeshes[node.mMesh];
-            for (auto& primitive : mesh.mPrimitives)
-            {
-                if (!rigged)
-                {
-                    gGL.loadMatrix((F32*)glm::value_ptr(node.mRenderMatrix));
-                }
-                bool cull = true;
-                if (primitive.mMaterial != INVALID_INDEX)
-                {
-                    Material& material = mMaterials[primitive.mMaterial];
-                    bool mat_opaque = material.mAlphaMode != Material::AlphaMode::BLEND;
-
-                    if (mat_opaque != opaque)
-                    {
-                        continue;
-                    }
-
-                    material.bind(*this);
-
-                    cull = !material.mDoubleSided;
-                }
-                else
-                {
-                    if (!opaque)
-                    {
-                        continue;
-                    }
-                    LLFetchedGLTFMaterial::sDefault.bind();
-                }
-
-                LLGLDisable cull_face(!cull ? GL_CULL_FACE : 0);
-
-                primitive.mVertexBuffer->setBuffer();
-                if (primitive.mVertexBuffer->getNumIndices() > 0)
-                {
-                    primitive.mVertexBuffer->draw(primitive.mGLMode, primitive.mVertexBuffer->getNumIndices(), 0);
-                }
-                else
-                {
-                    primitive.mVertexBuffer->drawArrays(primitive.mGLMode, 0, primitive.mVertexBuffer->getNumVerts());
-                }
-
-            }
-        }
-    }
-}
-
-void Asset::renderOpaque()
-{
-    render(true);
-}
-
-void Asset::renderTransparent()
-{
-    render(false);
-}
-
 void Asset::update()
 {
     F32 dt = gFrameTimeSeconds - mLastUpdateTime;
@@ -461,6 +373,11 @@ void Asset::update()
         }
 
         updateTransforms();
+
+        for (auto& skin : mSkins)
+        {
+            skin.uploadMatrixPalette(*this);
+        }
     }
 }
 
@@ -1063,90 +980,6 @@ bool Material::PbrMetallicRoughness::operator!=(const Material::PbrMetallicRough
     return !(*this == rhs);
 }
 
-static void bindTexture(Asset& asset, S32 uniform, Material::TextureInfo& info, LLViewerTexture* fallback)
-{
-    if (info.mIndex != INVALID_INDEX)
-    {
-        LLViewerTexture* tex = asset.mImages[asset.mTextures[info.mIndex].mSource].mTexture;
-        if (tex)
-        {
-            tex->addTextureStats(2048.f * 2048.f);
-            LLGLSLShader::sCurBoundShaderPtr->bindTexture(uniform, tex);
-        }
-        else
-        {
-            LLGLSLShader::sCurBoundShaderPtr->bindTexture(uniform, fallback);
-        }
-    }
-    else
-    {
-        LLGLSLShader::sCurBoundShaderPtr->bindTexture(uniform, fallback);
-    }
-}
-
-void Material::bind(Asset& asset)
-{
-    // bind for rendering (derived from LLFetchedGLTFMaterial::bind)
-    // glTF 2.0 Specification 3.9.4. Alpha Coverage
-    // mAlphaCutoff is only valid for LLGLTFMaterial::ALPHA_MODE_MASK
-    F32 min_alpha = -1.0;
-
-    LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
-
-    if (!LLPipeline::sShadowRender || (mAlphaMode == Material::AlphaMode::BLEND))
-    {
-        if (mAlphaMode == Material::AlphaMode::MASK)
-        {
-            // dividing the alpha cutoff by transparency here allows the shader to compare against
-            // the alpha value of the texture without needing the transparency value
-            if (mPbrMetallicRoughness.mBaseColorFactor.a > 0.f)
-            {
-                min_alpha = mAlphaCutoff / mPbrMetallicRoughness.mBaseColorFactor.a;
-            }
-            else
-            {
-                min_alpha = 1024.f;
-            }
-        }
-        shader->uniform1f(LLShaderMgr::MINIMUM_ALPHA, min_alpha);
-    }
-
-    bindTexture(asset, LLShaderMgr::DIFFUSE_MAP, mPbrMetallicRoughness.mBaseColorTexture, LLViewerFetchedTexture::sWhiteImagep);
-
-    F32 base_color_packed[8];
-    //mTextureTransform[GLTF_TEXTURE_INFO_BASE_COLOR].getPacked(base_color_packed);
-    LLGLTFMaterial::sDefault.mTextureTransform[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR].getPacked(base_color_packed);
-    shader->uniform4fv(LLShaderMgr::TEXTURE_BASE_COLOR_TRANSFORM, 2, (F32*)base_color_packed);
-
-    if (!LLPipeline::sShadowRender)
-    {
-        bindTexture(asset, LLShaderMgr::BUMP_MAP, mNormalTexture, LLViewerFetchedTexture::sFlatNormalImagep);
-        bindTexture(asset, LLShaderMgr::SPECULAR_MAP, mPbrMetallicRoughness.mMetallicRoughnessTexture, LLViewerFetchedTexture::sWhiteImagep);
-        bindTexture(asset, LLShaderMgr::EMISSIVE_MAP, mEmissiveTexture, LLViewerFetchedTexture::sWhiteImagep);
-
-        // NOTE: base color factor is baked into vertex stream
-
-        shader->uniform1f(LLShaderMgr::ROUGHNESS_FACTOR, mPbrMetallicRoughness.mRoughnessFactor);
-        shader->uniform1f(LLShaderMgr::METALLIC_FACTOR, mPbrMetallicRoughness.mMetallicFactor);
-        shader->uniform3fv(LLShaderMgr::EMISSIVE_COLOR, 1, glm::value_ptr(mEmissiveFactor));
-
-        F32 normal_packed[8];
-        //mTextureTransform[GLTF_TEXTURE_INFO_NORMAL].getPacked(normal_packed);
-        LLGLTFMaterial::sDefault.mTextureTransform[LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL].getPacked(normal_packed);
-        shader->uniform4fv(LLShaderMgr::TEXTURE_NORMAL_TRANSFORM, 2, (F32*)normal_packed);
-
-        F32 metallic_roughness_packed[8];
-        //mTextureTransform[GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS].getPacked(metallic_roughness_packed);
-        LLGLTFMaterial::sDefault.mTextureTransform[LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS].getPacked(metallic_roughness_packed);
-        shader->uniform4fv(LLShaderMgr::TEXTURE_METALLIC_ROUGHNESS_TRANSFORM, 2, (F32*)metallic_roughness_packed);
-
-        F32 emissive_packed[8];
-        //mTextureTransform[GLTF_TEXTURE_INFO_EMISSIVE].getPacked(emissive_packed);
-        LLGLTFMaterial::sDefault.mTextureTransform[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE].getPacked(emissive_packed);
-        shader->uniform4fv(LLShaderMgr::TEXTURE_EMISSIVE_TRANSFORM, 2, (F32*)emissive_packed);
-    }
-}
-
 void Material::serialize(object& dst) const
 {
     write(mName, "name", dst);
@@ -1264,52 +1097,4 @@ const Sampler& Sampler::operator=(const Value& src)
     return *this;
 }
 
-void Skin::uploadMatrixPalette(Asset& asset, Node& node)
-{
-    // prepare matrix palette
-
-    // modelview will be applied by the shader, so assume matrix palette is in asset space
-    std::vector<mat4> t_mp;
-
-    t_mp.resize(mJoints.size());
-
-    for (U32 i = 0; i < mJoints.size(); ++i)
-    {
-        Node& joint = asset.mNodes[mJoints[i]];
-        t_mp[i] = joint.mRenderMatrix * mInverseBindMatricesData[i];
-    }
-
-    std::vector<F32> glmp;
-
-    glmp.resize(mJoints.size() * 12);
-
-    F32* mp = glmp.data();
-
-    for (U32 i = 0; i < mJoints.size(); ++i)
-    {
-        F32* m = glm::value_ptr(t_mp[i]);
-
-        U32 idx = i * 12;
-
-        mp[idx + 0] = m[0];
-        mp[idx + 1] = m[1];
-        mp[idx + 2] = m[2];
-        mp[idx + 3] = m[12];
-
-        mp[idx + 4] = m[4];
-        mp[idx + 5] = m[5];
-        mp[idx + 6] = m[6];
-        mp[idx + 7] = m[13];
-
-        mp[idx + 8] = m[8];
-        mp[idx + 9] = m[9];
-        mp[idx + 10] = m[10];
-        mp[idx + 11] = m[14];
-    }
-
-    LLGLSLShader::sCurBoundShaderPtr->uniformMatrix3x4fv(LLViewerShaderMgr::AVATAR_MATRIX,
-        mJoints.size(),
-        GL_FALSE,
-        (GLfloat*)glmp.data());
-}
 
