@@ -131,7 +131,21 @@ void GLTFSceneManager::uploadSelection()
             {
                 mPendingImageUploads++;
 
-                LLPointer<LLImageRaw> raw = image.mTexture->getCachedRawImage();
+                LLPointer<LLImageRaw> raw;
+
+                if (image.mBufferView != INVALID_INDEX)
+                {
+                    BufferView& view = asset.mBufferViews[image.mBufferView];
+                    Buffer& buffer = asset.mBuffers[view.mBuffer];
+
+                    raw = LLViewerTextureManager::getRawImageFromMemory(buffer.mData.data() + view.mByteOffset, view.mByteLength, image.mMimeType);
+
+                    image.clearData(asset);
+                }
+                else
+                {
+                    raw = image.mTexture->getCachedRawImage();
+                }
 
                 if (raw.notNull())
                 {
@@ -192,8 +206,6 @@ void GLTFSceneManager::uploadSelection()
                         failure));
 
                     upload_new_resource(uploadInfo);
-
-                    image.clearData(asset);
                 }
             }
         }

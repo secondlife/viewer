@@ -690,6 +690,12 @@ public:
 
     static LLViewerFetchedTexture* getFetchedTextureFromHost(const LLUUID& image_id, FTType f_type, LLHost host) ;
 
+    // decode a given image data according to given mime type
+    // WARNING: caller is responsible for deleting the returned raw image
+    static LLImageRaw* getRawImageFromMemory(const U8* data, U32 size, std::string_view mimetype);
+
+    // decode given image data according to given mime type
+    // WARNING: caller is responsible for deleting the returned image
     static LLViewerFetchedTexture* getFetchedTextureFromMemory(const U8* data, U32 size, std::string_view mimetype);
 
     static void init() ;
