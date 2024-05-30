@@ -159,6 +159,11 @@ public:
         bool isAxis() const { return mType == TYPE_AXIS; }
         bool isButton() const { return mType == TYPE_BUTTON; }
 
+        bool isEqual(const InputChannel& other)
+        {
+            return mType == other.mType && mSign == other.mSign && mIndex == other.mIndex;
+        }
+
         std::string getLocalName() const; // AXIS_0-, AXIS_0+, BUTTON_0, NONE etc.
         std::string getRemoteName() const; // GAME_CONTROL_AXIS_LEFTX, GAME_CONTROL_BUTTON_A, etc
 
@@ -312,6 +317,7 @@ public:
     static std::string stringifyAnalogMappings(getChannel_t getChannel);
     static std::string stringifyBinaryMappings(getChannel_t getChannel);
     static std::string stringifyFlycamMappings(getChannel_t getChannel);
+    static void getDefaultMappings(std::vector<std::pair<std::string, LLGameControl::InputChannel>>& mappings);
 
     static bool parseDeviceOptions(const std::string& options, std::string& name,
         std::vector<LLGameControl::Options::AxisOptions>& axis_options,

@@ -419,6 +419,11 @@ private:
     void clearSelectionState();
     void addActionTableSeparator();
     void updateActionTableState();
+    void onResetToDefaults();
+    void resetChannelMappingsToDefaults();
+    void resetAxisOptionsToDefaults();
+    void resetAxisMappingsToDefaults();
+    void resetButtonMappingsToDefaults();
 
     // Above the tab container
     LLCheckBoxCtrl  *mCheckGameControlToServer; // send game_control data to server
@@ -426,18 +431,25 @@ private:
     LLCheckBoxCtrl  *mCheckAgentToGameControl; // translate external avatar actions to game_control data
 
     // 1st tab "Channel mappings"
+    LLPanel* mTabChannelMappings;
     LLScrollListCtrl* mActionTable;
 
     // 2nd tab "Device settings"
+    LLPanel* mTabDeviceSettings;
     LLTextBox* mNoDeviceMessage;
     LLTextBox* mDevicePrompt;
     LLTextBox* mSingleDevice;
     LLComboBox* mDeviceList;
     LLCheckBoxCtrl* mCheckShowAllDevices;
     LLPanel* mPanelDeviceSettings;
+    LLPanel* mTabAxisOptions;
     LLScrollListCtrl* mAxisOptions;
+    LLPanel* mTabAxisMappings;
     LLScrollListCtrl* mAxisMappings;
+    LLPanel* mTabButtonMappings;
     LLScrollListCtrl* mButtonMappings;
+
+    LLButton* mResetToDefaults;
 
     // Numeric value editor
     LLSpinCtrl* mNumericValueEditor;
