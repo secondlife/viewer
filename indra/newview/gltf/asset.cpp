@@ -300,8 +300,8 @@ void Node::serialize(object& dst) const
 {
     write(mName, "name", dst);
     write(mMatrix, "matrix", dst, glm::identity<mat4>());
-    write(mRotation, "rotation", dst);
-    write(mTranslation, "translation", dst);
+    write(mRotation, "rotation", dst, glm::identity<quat>());
+    write(mTranslation, "translation", dst, glm::vec3(0.f, 0.f, 0.f));
     write(mScale, "scale", dst, vec3(1.f,1.f,1.f));
     write(mChildren, "children", dst);
     write(mMesh, "mesh", dst, INVALID_INDEX);
@@ -312,7 +312,6 @@ const Node& Node::operator=(const Value& src)
 {
     copy(src, "name", mName);
     mMatrixValid = copy(src, "matrix", mMatrix);
-
     copy(src, "rotation", mRotation);
     copy(src, "translation", mTranslation);
     copy(src, "scale", mScale);

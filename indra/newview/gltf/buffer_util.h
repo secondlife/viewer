@@ -610,14 +610,17 @@ namespace LL
                 const boost::json::array& arr = src.as_array();
                 if (arr.size() == 4)
                 {
-                    if (arr[0].is_double() &&
-                        arr[1].is_double() &&
-                        arr[2].is_double() &&
-                        arr[3].is_double())
-                    {
-                        dst = vec4(arr[0].get_double(), arr[1].get_double(), arr[2].get_double(), arr[3].get_double());
-                        return true;
-                    }
+                    vec4 v;
+                    std::error_code ec;
+
+                    v.x = arr[0].to_number<F32>(ec); if (ec) return false;
+                    v.y = arr[1].to_number<F32>(ec); if (ec) return false;
+                    v.z = arr[2].to_number<F32>(ec); if (ec) return false;
+                    v.w = arr[3].to_number<F32>(ec); if (ec) return false;
+
+                    dst = v;
+
+                    return true;
                 }
             }
             return false;
@@ -645,17 +648,13 @@ namespace LL
                 const boost::json::array& arr = src.as_array();
                 if (arr.size() == 4)
                 {
-                    if (arr[0].is_double() &&
-                        arr[1].is_double() &&
-                        arr[2].is_double() &&
-                        arr[3].is_double())
-                    {
-                        dst.x = arr[0].get_double();
-                        dst.y = arr[1].get_double();
-                        dst.z = arr[2].get_double();
-                        dst.w = arr[3].get_double();
-                        return true;
-                    }
+                    std::error_code ec;
+                    dst.x = arr[0].to_number<F32>(ec); if (ec) return false;
+                    dst.y = arr[1].to_number<F32>(ec); if (ec) return false;
+                    dst.z = arr[2].to_number<F32>(ec); if (ec) return false;
+                    dst.w = arr[3].to_number<F32>(ec); if (ec) return false;
+
+                    return true;
                 }
             }
             return false;
@@ -684,12 +683,13 @@ namespace LL
                 const boost::json::array& arr = src.as_array();
                 if (arr.size() == 3)
                 {
-                    if (arr[0].is_double() &&
-                        arr[1].is_double() &&
-                        arr[2].is_double())
-                    {
-                        dst = vec3(arr[0].get_double(), arr[1].get_double(), arr[2].get_double());
-                    }
+                    std::error_code ec;
+                    vec3 t;
+                    t.x = arr[0].to_number<F32>(ec); if (ec) return false;
+                    t.y = arr[1].to_number<F32>(ec); if (ec) return false;
+                    t.z = arr[2].to_number<F32>(ec); if (ec) return false;
+
+                    dst = t;
                     return true;
                 }
             }
@@ -731,12 +731,10 @@ namespace LL
         template<>
         inline bool copy(const Value& src, F32& dst)
         {
-            if (src.is_double())
-            {
-                dst = src.get_double();
-                return true;
-            }
-            return false;
+            std::error_code ec;
+            F32 t = src.to_number<F32>(ec); if (ec) return false;
+            dst = t;
+            return true;
         }
 
         template<>
@@ -770,12 +768,10 @@ namespace LL
         template<>
         inline bool copy(const Value& src, F64& dst)
         {
-            if (src.is_double())
-            {
-                dst = src.get_double();
-                return true;
-            }
-            return false;
+            std::error_code ec;
+            F64 t = src.to_number<F64>(ec); if (ec) return false;
+            dst = t;
+            return true;
         }
 
         template<>
@@ -860,11 +856,9 @@ namespace LL
 
                     for (U32 i = 0; i < arr.size(); ++i)
                     {
-                        if (arr[i].is_double())
-                        {
-                            p[i] = arr[i].get_double();
-                        }
-                        else
+                        std::error_code ec;
+                        p[i] = arr[i].to_number<F32>(ec);
+                        if (ec)
                         {
                             return false;
                         }

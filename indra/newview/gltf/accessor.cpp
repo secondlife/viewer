@@ -124,8 +124,10 @@ void Buffer::erase(Asset& asset, S32 offset, S32 length)
 
 bool Buffer::prep(Asset& asset)
 {
-    // PRECONDITION: mByteLength must not be 0
-    llassert(mByteLength != 0);
+    if (mByteLength == 0)
+    {
+        return false;
+    }
 
     LLUUID id;
     if (mUri.size() == UUID_STR_SIZE && LLUUID::parseUUID(mUri, &id) && id.notNull())

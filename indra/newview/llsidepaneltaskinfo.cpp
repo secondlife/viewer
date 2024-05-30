@@ -97,7 +97,6 @@ static std::string click_action_to_string_value(U8 click_action)
         default:
             return "Touch";
     }
-    return "Touch";
 }
 
 // Default constructor
