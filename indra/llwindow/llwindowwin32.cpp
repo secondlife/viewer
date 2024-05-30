@@ -361,14 +361,8 @@ struct LLWindowWin32::LLWindowWin32Thread : public LL::ThreadPool
         mGLReady = true;
     }
 
-    // initialzie DXGI adapter (for querying available VRAM)
-    void initDX();
-
-    // initialize D3D (if DXGI cannot be used)
-    void initD3D();
-
-    //clean up DXGI/D3D resources
-    void cleanupDX();
+    // Use DXGI to check memory (because WMI doesn't report more than 4Gb)
+    void checkDXMem();
 
     /// called by main thread to post work to this window thread
     template <typename CALLABLE>
@@ -417,12 +411,9 @@ struct LLWindowWin32::LLWindowWin32Thread : public LL::ThreadPool
     // *HACK: Attempt to prevent startup crashes by deferring memory accounting
     // until after some graphics setup. See SL-20177. -Cosmic,2023-09-18
     bool mGLReady = false;
+    bool mGotGLBuffer = false;
 
     U32 mMaxVRAM = 0; // maximum amount of vram to allow in the "budget", or 0 for no maximum (see updateVRAMUsage)
-
-    IDXGIAdapter3* mDXGIAdapter = nullptr;
-    LPDIRECT3D9 mD3D = nullptr;
-    LPDIRECT3DDEVICE9 mD3DDevice = nullptr;
 };
 
 
@@ -4631,39 +4622,55 @@ private:
     std::string mPrev;
 };
 
-// Print hardware debug info about available graphics adapters in ordinal order
-void debugEnumerateGraphicsAdapters()
+void LLWindowWin32::LLWindowWin32Thread::checkDXMem()
 {
-    LL_INFOS("Window") << "Enumerating graphics adapters..." << LL_ENDL;
+    if (!mGLReady || mGotGLBuffer) { return; }
 
-    IDXGIFactory1* factory;
-    HRESULT res = CreateDXGIFactory1(__uuidof(IDXGIFactory1), (void**)&factory);
-    if (FAILED(res) || !factory)
+    IDXGIFactory4* p_factory = nullptr;
+
+    HRESULT res = CreateDXGIFactory1(__uuidof(IDXGIFactory4), (void**)&p_factory);
+
+    if (FAILED(res))
     {
         LL_WARNS() << "CreateDXGIFactory1 failed: 0x" << std::hex << res << LL_ENDL;
     }
     else
     {
+        IDXGIAdapter3* p_dxgi_adapter = nullptr;
         UINT graphics_adapter_index = 0;
-        IDXGIAdapter3* dxgi_adapter;
         while (true)
         {
-            res = factory->EnumAdapters(graphics_adapter_index, reinterpret_cast<IDXGIAdapter**>(&dxgi_adapter));
+            res = p_factory->EnumAdapters(graphics_adapter_index, reinterpret_cast<IDXGIAdapter**>(&p_dxgi_adapter));
             if (FAILED(res))
             {
                 if (graphics_adapter_index == 0)
                 {
                     LL_WARNS() << "EnumAdapters failed: 0x" << std::hex << res << LL_ENDL;
                 }
-                else
-                {
-                    LL_INFOS("Window") << "Done enumerating graphics adapters" << LL_ENDL;
-                }
             }
             else
             {
+                if (graphics_adapter_index == 0) // Should it check largest one isntead of first?
+                {
+                    DXGI_QUERY_VIDEO_MEMORY_INFO info;
+                    p_dxgi_adapter->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_LOCAL, &info);
+
+                    // Alternatively use GetDesc from below to get adapter's memory
+                    UINT64 budget_mb = info.Budget / (1024 * 1024);
+                    if (gGLManager.mVRAM < (S32)budget_mb)
+                    {
+                        gGLManager.mVRAM = (S32)budget_mb;
+                        LL_INFOS("RenderInit") << "New VRAM Budget (DX9): " << gGLManager.mVRAM << " MB" << LL_ENDL;
+                    }
+                    else
+                    {
+                        LL_INFOS("RenderInit") << "VRAM Budget (DX9): " << budget_mb
+                            << " MB, current (WMI): " << gGLManager.mVRAM << " MB" << LL_ENDL;
+                    }
+                }
+
                 DXGI_ADAPTER_DESC desc;
-                dxgi_adapter->GetDesc(&desc);
+                p_dxgi_adapter->GetDesc(&desc);
                 std::wstring description_w((wchar_t*)desc.Description);
                 std::string description(description_w.begin(), description_w.end());
                 LL_INFOS("Window") << "Graphics adapter index: " << graphics_adapter_index << ", "
@@ -4676,10 +4683,10 @@ void debugEnumerateGraphicsAdapters()
                     << "SharedSystemMemory: " << desc.SharedSystemMemory / 1024 / 1024 << LL_ENDL;
             }
 
-            if (dxgi_adapter)
+            if (p_dxgi_adapter)
             {
-                dxgi_adapter->Release();
-                dxgi_adapter = NULL;
+                p_dxgi_adapter->Release();
+                p_dxgi_adapter = NULL;
             }
             else
             {
@@ -4690,95 +4697,12 @@ void debugEnumerateGraphicsAdapters()
         }
     }
 
-    if (factory)
+    if (p_factory)
     {
-        factory->Release();
-    }
-}
-
-void LLWindowWin32::LLWindowWin32Thread::initDX()
-{
-    if (!mGLReady) { return; }
-
-    if (mDXGIAdapter == NULL)
-    {
-        debugEnumerateGraphicsAdapters();
-
-        IDXGIFactory4* pFactory = nullptr;
-
-        HRESULT res = CreateDXGIFactory1(__uuidof(IDXGIFactory4), (void**)&pFactory);
-
-        if (FAILED(res))
-        {
-            LL_WARNS() << "CreateDXGIFactory1 failed: 0x" << std::hex << res << LL_ENDL;
-        }
-        else
-        {
-            res = pFactory->EnumAdapters(0, reinterpret_cast<IDXGIAdapter**>(&mDXGIAdapter));
-            if (FAILED(res))
-            {
-                LL_WARNS() << "EnumAdapters failed: 0x" << std::hex << res << LL_ENDL;
-            }
-            else
-            {
-                LL_INFOS() << "EnumAdapters success" << LL_ENDL;
-            }
-        }
-
-        if (pFactory)
-        {
-            pFactory->Release();
-        }
-    }
-}
-
-void LLWindowWin32::LLWindowWin32Thread::initD3D()
-{
-    if (!mGLReady) { return; }
-
-    if (mDXGIAdapter == NULL && mD3DDevice == NULL && mWindowHandleThrd != 0)
-    {
-        mD3D = Direct3DCreate9(D3D_SDK_VERSION);
-
-        D3DPRESENT_PARAMETERS d3dpp;
-
-        ZeroMemory(&d3dpp, sizeof(d3dpp));
-        d3dpp.Windowed = TRUE;
-        d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
-
-        HRESULT res = mD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, mWindowHandleThrd, D3DCREATE_SOFTWARE_VERTEXPROCESSING, &d3dpp, &mD3DDevice);
-
-        if (FAILED(res))
-        {
-            LL_WARNS() << "(fallback) CreateDevice failed: 0x" << std::hex << res << LL_ENDL;
-        }
-        else
-        {
-            LL_INFOS() << "(fallback) CreateDevice success" << LL_ENDL;
-        }
-    }
-}
-
-void LLWindowWin32::LLWindowWin32Thread::cleanupDX()
-{
-    //clean up DXGI/D3D resources
-    if (mDXGIAdapter)
-    {
-        mDXGIAdapter->Release();
-        mDXGIAdapter = nullptr;
+        p_factory->Release();
     }
 
-    if (mD3DDevice)
-    {
-        mD3DDevice->Release();
-        mD3DDevice = nullptr;
-    }
-
-    if (mD3D)
-    {
-        mD3D->Release();
-        mD3D = nullptr;
-    }
+    mGotGLBuffer = true;
 }
 
 void LLWindowWin32::LLWindowWin32Thread::run()
@@ -4798,15 +4722,11 @@ void LLWindowWin32::LLWindowWin32Thread::run()
     {
         LL_PROFILE_ZONE_SCOPED_CATEGORY_WIN32;
 
-        // lazily call initD3D inside this loop to catch when mGLReady has been set to true
-        initDX();
+        // Check memory budget using DirectX
+        checkDXMem();
 
         if (mWindowHandleThrd != 0)
         {
-            // lazily call initD3D inside this loop to catch when mWindowHandle has been set, and mGLReady has been set to true
-            // *TODO: Shutdown if this fails when mWindowHandle exists
-            initD3D();
-
             MSG msg;
             BOOL status;
             if (mhDCThrd == 0)
@@ -4847,8 +4767,6 @@ void LLWindowWin32::LLWindowWin32Thread::run()
         }
 #endif
     }
-
-    cleanupDX();
 }
 
 void LLWindowWin32::LLWindowWin32Thread::wakeAndDestroy()
@@ -4948,7 +4866,6 @@ void LLWindowWin32::LLWindowWin32Thread::wakeAndDestroy()
             // very unsafe
             TerminateThread(pair.second.native_handle(), 0);
             pair.second.detach();
-            cleanupDX();
         }
     }
     LL_DEBUGS("Window") << "thread pool shutdown complete" << LL_ENDL;
