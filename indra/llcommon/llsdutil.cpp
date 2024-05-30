@@ -161,7 +161,7 @@ LLSD ll_binary_from_string(const LLSD& sd)
 char* ll_print_sd(const LLSD& sd)
 {
     const U32 bufferSize = 10 * 1024;
-    static char buffer[bufferSize];
+    static char buffer[bufferSize + 1];
     std::ostringstream stream;
     //stream.rdbuf()->pubsetbuf(buffer, bufferSize);
     stream << LLSDOStreamer<LLSDXMLFormatter>(sd);
@@ -183,7 +183,7 @@ char* ll_pretty_print_sd_ptr(const LLSD* sd)
 char* ll_pretty_print_sd(const LLSD& sd)
 {
     const U32 bufferSize = 100 * 1024;
-    static char buffer[bufferSize];
+    static char buffer[bufferSize + 1];
     std::ostringstream stream;
     //stream.rdbuf()->pubsetbuf(buffer, bufferSize);
     stream << LLSDOStreamer<LLSDXMLFormatter>(sd, LLSDFormatter::OPTIONS_PRETTY);

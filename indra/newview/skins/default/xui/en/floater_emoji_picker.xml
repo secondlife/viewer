@@ -13,7 +13,6 @@
     chrome="true"
     height="350"
     width="304">
-  <floater.string name="title_for_recently_used" value="Recently used"/>
   <floater.string name="title_for_frequently_used" value="Frequently used"/>
   <floater.string name="text_no_emoji_for_filter" value="No emoji found for '[FILTER]'"/>
   <scroll_container

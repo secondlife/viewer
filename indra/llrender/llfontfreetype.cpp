@@ -52,7 +52,9 @@
 #include "llfontbitmapcache.h"
 #include "llgl.h"
 
-#define ENABLE_OT_SVG_SUPPORT
+#if !defined(LL_NO_OTSVG)
+    #define ENABLE_OT_SVG_SUPPORT
+#endif
 
 FT_Render_Mode gFontRenderMode = FT_RENDER_MODE_NORMAL;
 
@@ -87,7 +89,7 @@ LLFontManager::LLFontManager()
         FT_Done_FreeType(gFTLibrary);
     }
 
-#ifdef ENABLE_OT_SVG_SUPPORT
+#if defined(ENABLE_OT_SVG_SUPPORT)
     SVG_RendererHooks hooks = {
         LLFontFreeTypeSvgRenderer::OnInit,
         LLFontFreeTypeSvgRenderer::OnFree,
@@ -483,8 +485,8 @@ LLFontGlyphInfo* LLFontFreetype::addGlyph(llwchar wch, EFontGlyphType glyph_type
                     continue;
                 }
                 glyph_index = FT_Get_Char_Index(pair.first->mFTFace, wch);
-                if (glyph_index)
-                {
+            if (glyph_index)
+            {
                     return addGlyphFromFont(pair.first, wch, glyph_index,
                                             glyph_type);
                 }
