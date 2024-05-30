@@ -3209,11 +3209,11 @@ bool LLPanelPreferenceGameControl::initChannelSelector(LLScrollListItem* item)
     LLGameControl::InputChannel channel = LLGameControl::getChannelByName(cell->getValue());
     if (!channel.isNone())
     {
-        std::string channelName = channel.getLocalName();
-        std::string channelLabel = getChannelLabel(channelName, channelSelector->getAllData());
-        if (channelSelector->itemExists(channelLabel))
+        std::string channel_name = channel.getLocalName();
+        std::string channel_label = getChannelLabel(channel_name, combobox->getAllData());
+        if (combobox->itemExists(channel_label))
         {
-            value = channelName;
+            value = channel_name;
         }
     }
     if (value.empty())
@@ -3280,10 +3280,10 @@ void LLPanelPreferenceGameControl::applyGameControlInput()
     LLGameControl::InputChannel channel = LLGameControl::getActiveInputChannel();
     if (channel.mType == expectedType)
     {
-        std::string channelName = channel.getLocalName();
-        std::string channelLabel = LLPanelPreferenceGameControl::getChannelLabel(channelName, channelSelector->getAllData());
-        gSelectedCell->setValue(channelLabel);
-        gGameControlPanel->mActionTable->deselectAllItems();
+        std::string channel_name = channel.getLocalName();
+        std::string channel_label = LLPanelPreferenceGameControl::getChannelLabel(channel_name, combobox->getAllData());
+        gSelectedCell->setValue(channel_label);
+        gSelectedGrid->deselectAllItems();
         gGameControlPanel->clearSelectionState();
     }
 }
@@ -3299,10 +3299,12 @@ bool LLPanelPreferenceGameControl::postBuild()
     mCheckAgentToGameControl->setCommitCallback([this](LLUICtrl*, const LLSD&) { updateActionTableState(); });
 
     // 1st tab "Channel mappings"
+    mTabChannelMappings = getChild<LLPanel>("tab_channel_mappings");
     mActionTable = getChild<LLScrollListCtrl>("action_table");
     mActionTable->setCommitCallback(boost::bind(&LLPanelPreferenceGameControl::onActionSelect, this));
 
     // 2nd tab "Device settings"
+    mTabDeviceSettings = getChild<LLPanel>("tab_device_settings");
     mNoDeviceMessage = getChild<LLTextBox>("nodevice_message");
     mDevicePrompt = getChild<LLTextBox>("device_prompt");
     mSingleDevice = getChild<LLTextBox>("single_device");
@@ -3312,6 +3314,25 @@ bool LLPanelPreferenceGameControl::postBuild()
 
     mCheckShowAllDevices->setCommitCallback([this](LLUICtrl*, const LLSD&) { populateDeviceTitle(); });
     mDeviceList->setCommitCallback([this](LLUICtrl*, const LLSD& value) { populateDeviceSettings(value); });
+
+    mTabAxisOptions = getChild<LLPanel>("tab_axis_options");
+    mAxisOptions = getChild<LLScrollListCtrl>("axis_options");
+    mAxisOptions->setCommitCallback([this](LLUICtrl*, const LLSD&) { onAxisOptionsSelect(); });
+
+    mTabAxisMappings = getChild<LLPanel>("tab_axis_mappings");
+    mAxisMappings = getChild<LLScrollListCtrl>("axis_mappings");
+    mAxisMappings->setCommitCallback([this](LLUICtrl* ctrl, const LLSD&) { onGridSelect(ctrl); });
+
+    mTabButtonMappings = getChild<LLPanel>("tab_button_mappings");
+    mButtonMappings = getChild<LLScrollListCtrl>("button_mappings");
+    mButtonMappings->setCommitCallback([this](LLUICtrl* ctrl, const LLSD&) { onGridSelect(ctrl); });
+
+    mResetToDefaults = getChild<LLButton>("reset_to_defaults");
+    mResetToDefaults->setCommitCallback([this](LLUICtrl* ctrl, const LLSD&) { onResetToDefaults(); });
+
+    // Numeric value editor
+    mNumericValueEditor = getChild<LLSpinCtrl>("numeric_value_editor");
+    mNumericValueEditor->setCommitCallback([this](LLUICtrl*, const LLSD&) { onCommitNumericValue(); });
 
     // Channel selectors
     mAnalogChannelSelector = getChild<LLComboBox>("analog_channel_selector");
@@ -3483,24 +3504,24 @@ void LLPanelPreferenceGameControl::populateDeviceSettings(const std::string& gui
 
 void LLPanelPreferenceGameControl::populateActionTableCells()
 {
-    std::vector<LLScrollListItem*> items = mActionTable->getAllData();
+    std::vector<LLScrollListItem*> rows = mActionTable->getAllData();
     std::vector<LLScrollListItem*> axes = mAnalogChannelSelector->getAllData();
     std::vector<LLScrollListItem*> btns = mBinaryChannelSelector->getAllData();
 
-    for (LLScrollListItem* item : items)
+    for (LLScrollListItem* row : rows)
     {
-        if (item->getNumColumns() >= 2) // Skip separators
+        if (row->getNumColumns() >= 2) // Skip separators
         {
-            std::string name = item->getValue().asString();
+            std::string name = row->getValue().asString();
             if (!name.empty() && name != "menu_separator")
             {
                 LLGameControl::InputChannel channel = LLGameControl::getChannelByAction(name);
-                std::string channelName = channel.getLocalName();
-                std::string channelLabel =
-                    channel.isAxis() ? getChannelLabel(channelName, axes) :
-                    channel.isButton() ? getChannelLabel(channelName, btns) :
+                std::string channel_name = channel.getLocalName();
+                std::string channel_label =
+                    channel.isAxis() ? getChannelLabel(channel_name, axes) :
+                    channel.isButton() ? getChannelLabel(channel_name, btns) :
                     LLStringUtil::null;
-                item->getColumn(1)->setValue(channelLabel);
+                row->getColumn(1)->setValue(channel_label);
             }
         }
     }
@@ -3527,15 +3548,179 @@ bool LLPanelPreferenceGameControl::parseXmlFile(LLScrollListCtrl::Contents& cont
     return true;
 }
 
+void LLPanelPreferenceGameControl::populateDeviceTitle()
+{
+    mSelectedDeviceGUID.clear();
+
+    bool showAllDevices = mCheckShowAllDevices->getValue().asBoolean();
+    std::size_t deviceCount = showAllDevices ? mDeviceOptions.size() : LLGameControl::getDevices().size();
+
+    mNoDeviceMessage->setVisible(!deviceCount);
+    mDevicePrompt->setVisible(deviceCount);
+    mSingleDevice->setVisible(deviceCount == 1);
+    mDeviceList->setVisible(deviceCount > 1);
+    mPanelDeviceSettings->setVisible(deviceCount);
+
+    auto makeTitle = [](const std::string& guid, const std::string& name) -> std::string
+    {
+        return guid + ", " + name;
+    };
+
+    if (deviceCount == 1)
+    {
+        if (showAllDevices)
+        {
+            const std::pair<std::string, DeviceOptions>& pair = *mDeviceOptions.begin();
+            mSingleDevice->setValue(makeTitle(pair.first, pair.second.name));
+            populateDeviceSettings(pair.first);
+        }
+        else
+        {
+            const LLGameControl::Device& device = LLGameControl::getDevices().front();
+            mSingleDevice->setValue(makeTitle(device.getGUID(), device.getName()));
+            populateDeviceSettings(device.getGUID());
+        }
+    }
+    else if (deviceCount)
+    {
+        mDeviceList->clear();
+        mDeviceList->clearRows();
+
+        auto makeListItem = [](const std::string& guid, const std::string& title)
+        {
+            return LLSD().with("value", guid).with("columns", LLSD().with("label", title));
+        };
+
+        if (showAllDevices)
+        {
+            for (const auto& pair : mDeviceOptions)
+            {
+                mDeviceList->addElement(makeListItem(pair.first, makeTitle(pair.first, pair.second.name)));
+            }
+        }
+        else
+        {
+            for (const LLGameControl::Device& device : LLGameControl::getDevices())
+            {
+                mDeviceList->addElement(makeListItem(device.getGUID(), makeTitle(device.getGUID(), device.getName())));
+            }
+        }
+
+        mDeviceList->selectNthItem(0);
+        populateDeviceSettings(mDeviceList->getValue());
+    }
+}
+
+void LLPanelPreferenceGameControl::populateDeviceSettings(const std::string& guid)
+{
+    LL_INFOS() << "guid: '" << guid << "'" << LL_ENDL;
+
+    mSelectedDeviceGUID = guid;
+    auto options_it = mDeviceOptions.find(guid);
+    llassert_always(options_it != mDeviceOptions.end());
+    const DeviceOptions& deviceOptions = options_it->second;
+
+    populateOptionsTableCells();
+    populateMappingTableCells(mAxisMappings, deviceOptions.options.getAxisMap(), mAxisSelector);
+    populateMappingTableCells(mButtonMappings, deviceOptions.options.getButtonMap(), mBinaryChannelSelector);
+}
+
+void LLPanelPreferenceGameControl::populateOptionsTableRows()
+{
+    mAxisOptions->clearRows();
+
+    std::vector<LLScrollListItem*> items = mAnalogChannelSelector->getAllData();
+
+    LLScrollListItem::Params row_params;
+    LLScrollListCell::Params cell_params;
+    cell_params.font = LLFontGL::getFontMonospace();
+    for (size_t i = 0; i < mAxisOptions->getNumColumns(); ++i)
+    {
+        row_params.columns.add(cell_params);
+    }
+
+    row_params.columns(1).type = "checkbox";
+    row_params.columns(2).font_halign = "right";
+    row_params.columns(3).font_halign = "right";
+
+    for (size_t i = 0; i < LLGameControl::NUM_AXES; ++i)
+    {
+        LLScrollListItem* row = mAxisOptions->addRow(row_params);
+        row->getColumn(0)->setValue(items[i]->getColumn(0)->getValue());
+    }
+}
+
+void LLPanelPreferenceGameControl::populateOptionsTableCells()
+{
+    std::vector<LLScrollListItem*> rows = mAxisOptions->getAllData();
+    const auto& all_axis_options = getSelectedDeviceOptions().getAxisOptions();
+    llassert(rows.size() == all_axis_options.size());
+
+    for (size_t i = 0; i < rows.size(); ++i)
+    {
+        LLScrollListItem* row = rows[i];
+        const LLGameControl::Options::AxisOptions& axis_options = all_axis_options[i];
+        row->getColumn(1)->setValue(axis_options.mInvert);
+        setNumericLabel(row->getColumn(2), axis_options.mDeadZone);
+        setNumericLabel(row->getColumn(3), axis_options.mOffset);
+    }
+}
+
+void LLPanelPreferenceGameControl::populateMappingTableRows(LLScrollListCtrl* target,
+    const LLComboBox* source, size_t row_count)
+{
+    target->clearRows();
+
+    std::vector<LLScrollListItem*> items = source->getAllData();
+
+    LLScrollListItem::Params row_params;
+    LLScrollListCell::Params cell_params;
+    cell_params.font = LLFontGL::getFontMonospace();
+    for (size_t i = 0; i < target->getNumColumns(); ++i)
+    {
+        row_params.columns.add(cell_params);
+    }
+
+    for (size_t i = 0; i < row_count; ++i)
+    {
+        LLScrollListItem* row = target->addRow(row_params);
+        row->getColumn(0)->setValue(items[i]->getColumn(0)->getValue());
+    }
+}
+
+void LLPanelPreferenceGameControl::populateMappingTableCells(LLScrollListCtrl* target,
+    const std::vector<U8>& mappings, const LLComboBox* source)
+{
+    std::vector<LLScrollListItem*> rows = target->getAllData();
+    std::vector<LLScrollListItem*> items = source->getAllData();
+    llassert(rows.size() == mappings.size());
+
+    for (size_t i = 0; i < rows.size(); ++i)
+    {
+        U8 mapping = mappings[i];
+        llassert(mapping < items.size());
+        // Default values should look as empty cells
+        rows[i]->getColumn(1)->setValue(mapping == i ? LLSD() :
+            items[mapping]->getColumn(0)->getValue());
+    }
+}
+
+LLGameControl::Options& LLPanelPreferenceGameControl::getSelectedDeviceOptions()
+{
+    auto options_it = mDeviceOptions.find(mSelectedDeviceGUID);
+    llassert_always(options_it != mDeviceOptions.end());
+    return options_it->second.options;
+}
+
 // static
-std::string LLPanelPreferenceGameControl::getChannelLabel(const std::string& channelName,
+std::string LLPanelPreferenceGameControl::getChannelLabel(const std::string& channel_name,
     const std::vector<LLScrollListItem*>& items)
 {
-    if (!channelName.empty() && channelName != "NONE")
+    if (!channel_name.empty() && channel_name != "NONE")
     {
         for (LLScrollListItem* item : items)
         {
-            if (item->getValue().asString() == channelName)
+            if (item->getValue().asString() == channel_name)
             {
                 if (item->getNumColumns())
                 {
@@ -3578,6 +3763,104 @@ void LLPanelPreferenceGameControl::updateActionTableState()
     mActionTable->setEnabled(enable_table);
     mAnalogChannelSelector->setVisible(false);
     mBinaryChannelSelector->setVisible(false);
+}
+
+void LLPanelPreferenceGameControl::onResetToDefaults()
+{
+    clearSelectionState();
+    if (mTabChannelMappings->getVisible())
+    {
+        resetChannelMappingsToDefaults();
+    }
+    else if (mTabDeviceSettings->getVisible() && !mSelectedDeviceGUID.empty())
+    {
+        if (mTabAxisOptions->getVisible())
+        {
+            resetAxisOptionsToDefaults();
+        }
+        else if (mTabAxisMappings->getVisible())
+        {
+            resetAxisMappingsToDefaults();
+        }
+        else if (mTabButtonMappings->getVisible())
+        {
+            resetButtonMappingsToDefaults();
+        }
+    }
+}
+
+void LLPanelPreferenceGameControl::resetChannelMappingsToDefaults()
+{
+    std::vector<std::pair<std::string, LLGameControl::InputChannel>> mappings;
+    LLGameControl::getDefaultMappings(mappings);
+    std::vector<LLScrollListItem*> rows = mActionTable->getAllData();
+    std::vector<LLScrollListItem*> axes = mAnalogChannelSelector->getAllData();
+    std::vector<LLScrollListItem*> btns = mBinaryChannelSelector->getAllData();
+    for (LLScrollListItem* row : rows)
+    {
+        if (row->getNumColumns() >= 2) // Skip separators
+        {
+            std::string action_name = row->getValue().asString();
+            if (!action_name.empty() && action_name != "menu_separator")
+            {
+                std::string channel_label;
+                for (const auto& mapping : mappings)
+                {
+                    if (mapping.first == action_name)
+                    {
+                        std::string channel_name = mapping.second.getLocalName();
+                        channel_label =
+                            mapping.second.isAxis() ? getChannelLabel(channel_name, axes) :
+                            mapping.second.isButton() ? getChannelLabel(channel_name, btns) :
+                            LLStringUtil::null;
+                        break;
+                    }
+                }
+                row->getColumn(1)->setValue(channel_label);
+            }
+        }
+    }
+}
+
+void LLPanelPreferenceGameControl::resetAxisOptionsToDefaults()
+{
+    std::vector<LLScrollListItem*> rows = mAxisOptions->getAllData();
+    llassert(rows.size() == LLGameControl::NUM_AXES);
+    LLGameControl::Options& options = getSelectedDeviceOptions();
+    llassert(options.getAxisOptions().size() == LLGameControl::NUM_AXES);
+    for (U8 i = 0; i < LLGameControl::NUM_AXES; ++i)
+    {
+        rows[i]->getColumn(1)->setValue(false);
+        rows[i]->getColumn(2)->setValue(LLStringUtil::null);
+        rows[i]->getColumn(3)->setValue(LLStringUtil::null);
+        options.getAxisOptions()[i].resetToDefaults();
+    }
+}
+
+void LLPanelPreferenceGameControl::resetAxisMappingsToDefaults()
+{
+    std::vector<LLScrollListItem*> rows = mAxisMappings->getAllData();
+    llassert(rows.size() == LLGameControl::NUM_AXES);
+    LLGameControl::Options& options = getSelectedDeviceOptions();
+    llassert(options.getAxisMap().size() == LLGameControl::NUM_AXES);
+    for (U8 i = 0; i < LLGameControl::NUM_AXES; ++i)
+    {
+        rows[i]->getColumn(1)->setValue(LLStringUtil::null);
+        options.getAxisMap()[i] = i;
+    }
+}
+
+void LLPanelPreferenceGameControl::resetButtonMappingsToDefaults()
+{
+    std::vector<LLScrollListItem*> rows = mButtonMappings->getAllData();
+    llassert(rows.size() == LLGameControl::NUM_BUTTONS);
+    LLGameControl::Options& options = getSelectedDeviceOptions();
+    llassert(options.getButtonMap().size() == LLGameControl::NUM_BUTTONS);
+    for (U8 i = 0; i < LLGameControl::NUM_BUTTONS; ++i)
+    {
+        rows[i]->getColumn(1)->setValue(LLStringUtil::null);
+        options.getButtonMap()[i] = i;
+    }
 }
 
 //------------------------LLFloaterPreferenceProxy--------------------------------
