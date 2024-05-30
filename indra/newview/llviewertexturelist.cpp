@@ -518,15 +518,28 @@ LLViewerFetchedTexture* LLViewerTextureList::getImageFromUrl(const std::string& 
     return imagep;
 }
 
-LLViewerFetchedTexture* LLViewerTextureList::getImageFromMemory(const U8* data, U32 size, std::string_view mimetype)
+LLImageRaw* LLViewerTextureList::getRawImageFromMemory(const U8* data, U32 size, std::string_view mimetype)
 {
     LLPointer<LLImageFormatted> image = LLImageFormatted::loadFromMemory(data, size, mimetype);
 
     if (image)
     {
-        LLPointer<LLImageRaw> raw_image = new LLImageRaw();
+        LLImageRaw* raw_image = new LLImageRaw();
         image->decode(raw_image, 0.f);
-        LLPointer<LLViewerFetchedTexture> imagep = new LLViewerFetchedTexture(raw_image, FTT_LOCAL_FILE, true);
+        return raw_image;
+    }
+    else
+    {
+        return nullptr;
+    }
+}
+
+LLViewerFetchedTexture* LLViewerTextureList::getImageFromMemory(const U8* data, U32 size, std::string_view mimetype)
+{
+    LLPointer<LLImageRaw> raw_image = getRawImageFromMemory(data, size, mimetype);
+    if (raw_image.notNull())
+    {
+        LLViewerFetchedTexture* imagep = new LLViewerFetchedTexture(raw_image, FTT_LOCAL_FILE, true);
         addImage(imagep, TEX_LIST_STANDARD);
 
         imagep->dontDiscard();
