@@ -109,20 +109,19 @@ LL::ThreadPoolBase::~ThreadPoolBase()
 
 void LL::ThreadPoolBase::close()
 {
-    if (! mQueue->isClosed())
+    // mQueue might have been closed already, but in any case we must join or
+    // detach each of our threads before destroying the mThreads vector.
+    LL_DEBUGS("ThreadPool") << mName << " closing queue and joining threads" << LL_ENDL;
+    mQueue->close();
+    for (auto& pair: mThreads)
     {
-        LL_DEBUGS("ThreadPool") << mName << " closing queue and joining threads" << LL_ENDL;
-        mQueue->close();
-        for (auto& pair: mThreads)
+        if (pair.second.joinable())
         {
-            if (pair.second.joinable())
-            {
-                LL_DEBUGS("ThreadPool") << mName << " waiting on thread " << pair.first << LL_ENDL;
-                pair.second.join();
-            }
+            LL_DEBUGS("ThreadPool") << mName << " waiting on thread " << pair.first << LL_ENDL;
+            pair.second.join();
         }
-        LL_DEBUGS("ThreadPool") << mName << " shutdown complete" << LL_ENDL;
     }
+    LL_DEBUGS("ThreadPool") << mName << " shutdown complete" << LL_ENDL;
 }
 
 void LL::ThreadPoolBase::run(const std::string& name)
