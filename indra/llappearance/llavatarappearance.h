@@ -70,7 +70,7 @@ public:
     static void         initClass();
     static void         cleanupClass(); // Cleanup data that's only init'd once per class.
     virtual void        initInstance(); // Called after construction to initialize the instance.
-    S32                 mInitFlags;
+    S32                 mInitFlags{ 0 };
     virtual bool        loadSkeletonNode();
     bool                loadMeshNodes();
     bool                loadLayersets();
@@ -135,8 +135,8 @@ public:
     F32                 getPelvisToFoot() const { return mPelvisToFoot; }
     /*virtual*/ LLJoint*    getRootJoint() { return mRoot; }
 
-    LLVector3           mHeadOffset; // current head position
-    LLAvatarJoint       *mRoot;
+    LLVector3           mHeadOffset{}; // current head position
+    LLAvatarJoint*      mRoot{ nullptr };
 
     typedef std::map<std::string, LLJoint*> joint_map_t;
     joint_map_t         mJointMap;
@@ -167,7 +167,7 @@ protected:
     bool                buildSkeleton(const LLAvatarSkeletonInfo *info);
 
     void                clearSkeleton();
-    bool                mIsBuilt; // state of deferred character building
+    bool                mIsBuilt{ false }; // state of deferred character building
     avatar_joint_list_t mSkeleton;
     LLVector3OverrideMap    mPelvisFixups;
     joint_alias_map_t   mJointAliasMap;
@@ -184,30 +184,30 @@ public:
     LLVector3           mBodySize;
     LLVector3           mAvatarOffset;
 protected:
-    F32                 mPelvisToFoot;
+    F32                 mPelvisToFoot{ 0.f };
 
     //--------------------------------------------------------------------
     // Cached pointers to well known joints
     //--------------------------------------------------------------------
 public:
-    LLJoint*        mPelvisp;
-    LLJoint*        mTorsop;
-    LLJoint*        mChestp;
-    LLJoint*        mNeckp;
-    LLJoint*        mHeadp;
-    LLJoint*        mSkullp;
-    LLJoint*        mEyeLeftp;
-    LLJoint*        mEyeRightp;
-    LLJoint*        mHipLeftp;
-    LLJoint*        mHipRightp;
-    LLJoint*        mKneeLeftp;
-    LLJoint*        mKneeRightp;
-    LLJoint*        mAnkleLeftp;
-    LLJoint*        mAnkleRightp;
-    LLJoint*        mFootLeftp;
-    LLJoint*        mFootRightp;
-    LLJoint*        mWristLeftp;
-    LLJoint*        mWristRightp;
+    LLJoint*        mPelvisp{nullptr};
+    LLJoint*        mTorsop{ nullptr };
+    LLJoint*        mChestp{ nullptr };
+    LLJoint*        mNeckp{ nullptr };
+    LLJoint*        mHeadp{ nullptr };
+    LLJoint*        mSkullp{ nullptr };
+    LLJoint*        mEyeLeftp{ nullptr };
+    LLJoint*        mEyeRightp{ nullptr };
+    LLJoint*        mHipLeftp{ nullptr };
+    LLJoint*        mHipRightp{ nullptr };
+    LLJoint*        mKneeLeftp{ nullptr };
+    LLJoint*        mKneeRightp{ nullptr };
+    LLJoint*        mAnkleLeftp{ nullptr };
+    LLJoint*        mAnkleRightp{ nullptr };
+    LLJoint*        mFootLeftp{ nullptr };
+    LLJoint*        mFootRightp{ nullptr };
+    LLJoint*        mWristLeftp{ nullptr };
+    LLJoint*        mWristRightp{ nullptr };
 
     //--------------------------------------------------------------------
     // XML parse tree
@@ -227,7 +227,7 @@ protected:
  **                    RENDERING
  **/
 public:
-    bool        mIsDummy; // for special views and animated object controllers; local to viewer
+    bool        mIsDummy{ false }; // for special views and animated object controllers; local to viewer
 
     //--------------------------------------------------------------------
     // Morph masks
@@ -290,9 +290,9 @@ public:
     LLColor4        getGlobalColor(const std::string& color_name ) const;
     virtual void    onGlobalColorChanged(const LLTexGlobalColor* global_color) = 0;
 protected:
-    LLTexGlobalColor* mTexSkinColor;
-    LLTexGlobalColor* mTexHairColor;
-    LLTexGlobalColor* mTexEyeColor;
+    LLTexGlobalColor* mTexSkinColor{ nullptr };
+    LLTexGlobalColor* mTexHairColor{ nullptr };
+    LLTexGlobalColor* mTexEyeColor{ nullptr };
 
     //--------------------------------------------------------------------
     // Visibility
@@ -315,7 +315,7 @@ public:
     virtual bool            isWearingWearableType(LLWearableType::EType type ) const;
 
 private:
-    LLWearableData* mWearableData;
+    LLWearableData* mWearableData{ nullptr };
 
 /********************************************************************************
  **                                                                            **
@@ -333,11 +333,11 @@ protected:
     struct BakedTextureData
     {
         LLUUID                              mLastTextureID;
-        LLTexLayerSet*                      mTexLayerSet; // Only exists for self
-        bool                                mIsLoaded;
-        bool                                mIsUsed;
-        LLAvatarAppearanceDefines::ETextureIndex    mTextureIndex;
-        U32                                 mMaskTexName;
+        LLTexLayerSet*                      mTexLayerSet{ nullptr }; // Only exists for self
+        bool                                mIsLoaded{ false };
+        bool                                mIsUsed{ false };
+        LLAvatarAppearanceDefines::ETextureIndex    mTextureIndex{ LLAvatarAppearanceDefines::ETextureIndex::TEX_INVALID };
+        U32                                 mMaskTexName{ 0 };
         // Stores pointers to the joint meshes that this baked texture deals with
         avatar_joint_mesh_list_t            mJointMeshes;
         morph_list_t                        mMaskedMorphs;
@@ -354,9 +354,9 @@ protected:
     // Collision volumes
     //--------------------------------------------------------------------
 public:
-    S32         mNumBones;
-    S32         mNumCollisionVolumes;
-    LLAvatarJointCollisionVolume* mCollisionVolumes;
+    S32         mNumBones{ 0 };
+    S32         mNumCollisionVolumes{ 0 };
+    LLAvatarJointCollisionVolume* mCollisionVolumes{ nullptr };
 protected:
     bool        allocateCollisionVolumes(U32 num);
 
