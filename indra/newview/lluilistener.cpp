@@ -38,7 +38,8 @@
 #include "lluictrl.h"
 #include "llerror.h"
 
-#define THROTTLE_PERIOD 1 // required seconds between throttled functions
+#define THROTTLE_PERIOD 1.5 // required seconds between throttled functions
+#define MIN_THROTTLE 0.5
 
 LLUIListener::LLUIListener():
     LLEventAPI("UI",
@@ -58,9 +59,9 @@ LLUIListener::LLUIListener():
         LLSDMap("path", LLSD())("reply", LLSD()));
 }
 
-void LLUIListener::call(const LLSD& event) const
+typedef LLUICtrl::LLCommitCallbackInfo cb_info;
+void LLUIListener::call(const LLSD& event)
 {
-    static F64 last_throttle_time = 0.0;
     Response response(LLSD(), event);
     LLUICtrl::LLCommitCallbackInfo *info = LLUICtrl::SharedCommitCallbackRegistry::getValue(event["function"]);
     if (!info )
@@ -68,21 +69,30 @@ void LLUIListener::call(const LLSD& event) const
         response.error(STRINGIZE("Function " << std::quoted(event["function"].asString()) << "was not found"));
         return;
     }
-    if (info->mHandleUntrusted == LLUICtrl::LLCommitCallbackInfo::UNTRUSTED_BLOCK) 
+    if (info->mHandleUntrusted == cb_info::UNTRUSTED_BLOCK) 
     {
         response.error(STRINGIZE("Function " << std::quoted(event["function"].asString()) << " is not allowed to be called from the script"));
         return;
     }
-    if (info->mHandleUntrusted == LLUICtrl::LLCommitCallbackInfo::UNTRUSTED_THROTTLE)
+    F64 cur_time = LLTimer::getElapsedSeconds();
+    bool is_untrusted_throttle = info->mHandleUntrusted == cb_info::UNTRUSTED_THROTTLE;
+
+    //Separate UNTRUSTED_THROTTLE and UNTRUSTED_ALLOW functions to have different timeout
+    F64 time_delta = is_untrusted_throttle ? mLastUntrustedThrottle + THROTTLE_PERIOD : mLastMinThrottle + MIN_THROTTLE;
+    if (cur_time < time_delta)
     {
-        F64 cur_time = LLTimer::getElapsedSeconds();
-        if (cur_time < last_throttle_time + THROTTLE_PERIOD)
-        {
-            LL_WARNS("LLUIListener") << "Throttled function " << std::quoted(event["function"].asString()) << LL_ENDL;
-            return;
-        }
-        last_throttle_time = cur_time;
+        LL_WARNS("LLUIListener") << "Throttled function " << std::quoted(event["function"].asString()) << LL_ENDL;
+        return;
     }
+    if (is_untrusted_throttle)
+    {
+        mLastUntrustedThrottle = cur_time;
+    }
+    else
+    {
+        mLastMinThrottle = cur_time;
+    }
+
 
     LLUICtrl::commit_callback_t func = info->callback_func;
 

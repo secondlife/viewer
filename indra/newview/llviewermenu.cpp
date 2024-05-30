@@ -9398,6 +9398,7 @@ void initialize_edit_menu()
 typedef LLUICtrl::LLCommitCallbackInfo cb_info;
 #define COMMIT_ADD(func_name, func) LLUICtrl::SharedCommitCallbackRegistry::currentRegistrar().add(func_name, cb_info(func))
 #define COMMIT_ADD_TRUSTED(func_name, func) LLUICtrl::SharedCommitCallbackRegistry::currentRegistrar().add(func_name, cb_info(func, cb_info::UNTRUSTED_BLOCK))
+#define COMMIT_ADD_THROTTLE(func_name, func) LLUICtrl::SharedCommitCallbackRegistry::currentRegistrar().add(func_name, cb_info(func, cb_info::UNTRUSTED_THROTTLE))
 
 void initialize_spellcheck_menu()
 {
@@ -9553,8 +9554,8 @@ void initialize_menus()
     view_listener_t::addMenu(new LLToolsReleaseKeys(), "Tools.ReleaseKeys");
     view_listener_t::addMenu(new LLToolsEnableReleaseKeys(), "Tools.EnableReleaseKeys");
     COMMIT_ADD("Tools.LookAtSelection", boost::bind(&handle_look_at_selection, _2));
-    COMMIT_ADD("Tools.BuyOrTake", boost::bind(&handle_buy_or_take));
-    COMMIT_ADD("Tools.TakeCopy", boost::bind(&handle_take_copy));
+    COMMIT_ADD_THROTTLE("Tools.BuyOrTake", boost::bind(&handle_buy_or_take));
+    COMMIT_ADD_THROTTLE("Tools.TakeCopy", boost::bind(&handle_take_copy));
     view_listener_t::addMenu(new LLToolsSaveToObjectInventory(), "Tools.SaveToObjectInventory");
     view_listener_t::addMenu(new LLToolsSelectedScriptAction(), "Tools.SelectedScriptAction");
 
@@ -9642,7 +9643,7 @@ void initialize_menus()
     view_listener_t::addMenu(new LLAdvancedBuyCurrencyTest(), "Advanced.BuyCurrencyTest");
     view_listener_t::addMenu(new LLAdvancedDumpSelectMgr(), "Advanced.DumpSelectMgr");
     view_listener_t::addMenu(new LLAdvancedDumpInventory(), "Advanced.DumpInventory");
-    COMMIT_ADD("Advanced.DumpTimers", boost::bind(&handle_dump_timers) );
+    COMMIT_ADD_THROTTLE("Advanced.DumpTimers", boost::bind(&handle_dump_timers));
     COMMIT_ADD("Advanced.DumpFocusHolder", boost::bind(&handle_dump_focus) );
     view_listener_t::addMenu(new LLAdvancedPrintSelectedObjectInfo(), "Advanced.PrintSelectedObjectInfo");
     view_listener_t::addMenu(new LLAdvancedPrintAgentInfo(), "Advanced.PrintAgentInfo");
@@ -9668,7 +9669,7 @@ void initialize_menus()
     view_listener_t::addMenu(new LLAdvancedToggleXUINames(), "Advanced.ToggleXUINames");
     view_listener_t::addMenu(new LLAdvancedCheckXUINames(), "Advanced.CheckXUINames");
     view_listener_t::addMenu(new LLAdvancedSendTestIms(), "Advanced.SendTestIMs");
-    COMMIT_ADD("Advanced.FlushNameCaches", boost::bind(&handle_flush_name_caches));
+    COMMIT_ADD_TRUSTED("Advanced.FlushNameCaches", boost::bind(&handle_flush_name_caches));
 
     // Advanced > Character > Grab Baked Texture
     view_listener_t::addMenu(new LLAdvancedGrabBakedTexture(), "Advanced.GrabBakedTexture");
@@ -9739,7 +9740,7 @@ void initialize_menus()
     view_listener_t::addMenu(new LLAdvancedToggleShowObjectUpdates(), "Advanced.ToggleShowObjectUpdates");
     view_listener_t::addMenu(new LLAdvancedCheckShowObjectUpdates(), "Advanced.CheckShowObjectUpdates");
     view_listener_t::addMenu(new LLAdvancedCompressImage(), "Advanced.CompressImage");
-    view_listener_t::addMenu(new LLAdvancedCompressFileTest(), "Advanced.CompressFileTest");
+    view_listener_t::addMenu(new LLAdvancedCompressFileTest(), "Advanced.CompressFileTest", cb_info::UNTRUSTED_BLOCK);
     view_listener_t::addMenu(new LLAdvancedShowDebugSettings(), "Advanced.ShowDebugSettings");
     view_listener_t::addMenu(new LLAdvancedEnableViewAdminOptions(), "Advanced.EnableViewAdminOptions");
     view_listener_t::addMenu(new LLAdvancedToggleViewAdminOptions(), "Advanced.ToggleViewAdminOptions");
@@ -9754,11 +9755,11 @@ void initialize_menus()
     view_listener_t::addMenu(new LLDevelopSetLoggingLevel(), "Develop.SetLoggingLevel");
 
     //Develop (clear cache immediately)
-    COMMIT_ADD("Develop.ClearCache", boost::bind(&handle_cache_clear_immediately) );
+    COMMIT_ADD_TRUSTED("Develop.ClearCache", boost::bind(&handle_cache_clear_immediately) );
 
     // Develop (Fonts debugging)
-    COMMIT_ADD("Develop.Fonts.Dump", boost::bind(&LLFontGL::dumpFonts));
-    COMMIT_ADD("Develop.Fonts.DumpTextures", boost::bind(&LLFontGL::dumpFontTextures));
+    COMMIT_ADD_THROTTLE("Develop.Fonts.Dump", boost::bind(&LLFontGL::dumpFonts));
+    COMMIT_ADD_THROTTLE("Develop.Fonts.DumpTextures", boost::bind(&LLFontGL::dumpFontTextures));
 
     // Admin >Object
     view_listener_t::addMenu(new LLAdminForceTakeCopy(), "Admin.ForceTakeCopy");
@@ -9802,13 +9803,13 @@ void initialize_menus()
     COMMIT_ADD("Avatar.Eject", boost::bind(&handle_avatar_eject, LLSD()));
     COMMIT_ADD("Avatar.ShowInspector", boost::bind(&handle_avatar_show_inspector));
     view_listener_t::addMenu(new LLAvatarSendIM(), "Avatar.SendIM");
-    view_listener_t::addMenu(new LLAvatarCall(), "Avatar.Call");
+    view_listener_t::addMenu(new LLAvatarCall(), "Avatar.Call", cb_info::UNTRUSTED_BLOCK);
     enable.add("Avatar.EnableCall", boost::bind(&LLAvatarActions::canCall));
-    view_listener_t::addMenu(new LLAvatarReportAbuse(), "Avatar.ReportAbuse");
+    view_listener_t::addMenu(new LLAvatarReportAbuse(), "Avatar.ReportAbuse", cb_info::UNTRUSTED_THROTTLE);
     view_listener_t::addMenu(new LLAvatarToggleMyProfile(), "Avatar.ToggleMyProfile");
     view_listener_t::addMenu(new LLAvatarTogglePicks(), "Avatar.TogglePicks");
     view_listener_t::addMenu(new LLAvatarToggleSearch(), "Avatar.ToggleSearch");
-    view_listener_t::addMenu(new LLAvatarResetSkeleton(), "Avatar.ResetSkeleton");
+    view_listener_t::addMenu(new LLAvatarResetSkeleton(), "Avatar.ResetSkeleton", cb_info::UNTRUSTED_THROTTLE);
     view_listener_t::addMenu(new LLAvatarEnableResetSkeleton(), "Avatar.EnableResetSkeleton");
     view_listener_t::addMenu(new LLAvatarResetSkeletonAndAnimations(), "Avatar.ResetSkeletonAndAnimations");
     view_listener_t::addMenu(new LLAvatarResetSelfSkeletonAndAnimations(), "Avatar.ResetSelfSkeletonAndAnimations");
@@ -9830,14 +9831,13 @@ void initialize_menus()
     view_listener_t::addMenu(new LLObjectAttachToAvatar(false), "Object.AttachAddToAvatar");
     view_listener_t::addMenu(new LLObjectReturn(), "Object.Return");
     COMMIT_ADD("Object.Duplicate", boost::bind(&LLSelectMgr::duplicate, LLSelectMgr::getInstance()));
-    view_listener_t::addMenu(new LLObjectReportAbuse(), "Object.ReportAbuse");
+    view_listener_t::addMenu(new LLObjectReportAbuse(), "Object.ReportAbuse", cb_info::UNTRUSTED_THROTTLE);
     view_listener_t::addMenu(new LLObjectMute(), "Object.Mute");
 
     enable.add("Object.VisibleTake", boost::bind(&visible_take_object));
     enable.add("Object.VisibleBuy", boost::bind(&visible_buy_object));
 
-    COMMIT_ADD("Object.Buy", boost::bind(&handle_buy));
-    COMMIT_ADD("Object.Edit", boost::bind(&handle_object_edit));
+    COMMIT_ADD_THROTTLE("Object.Buy", boost::bind(&handle_buy));
     COMMIT_ADD("Object.Edit", boost::bind(&handle_object_edit));
     COMMIT_ADD("Object.EditGLTFMaterial", boost::bind(&handle_object_edit_gltf_material));
     COMMIT_ADD("Object.Inspect", boost::bind(&handle_object_inspect));
@@ -9884,14 +9884,14 @@ void initialize_menus()
     view_listener_t::addMenu(new LLMuteParticle(), "Particle.Mute");
 
     view_listener_t::addMenu(new LLLandEnableBuyPass(), "Land.EnableBuyPass");
-    COMMIT_ADD("Land.Buy", boost::bind(&handle_buy_land));
+    COMMIT_ADD_THROTTLE("Land.Buy", boost::bind(&handle_buy_land));
 
     // Generic actions
-    COMMIT_ADD("ReportAbuse", boost::bind(&handle_report_abuse));
-    COMMIT_ADD("BuyCurrency", boost::bind(&handle_buy_currency));
+    COMMIT_ADD_THROTTLE("ReportAbuse", boost::bind(&handle_report_abuse));
+    COMMIT_ADD_THROTTLE("BuyCurrency", boost::bind(&handle_buy_currency));
     view_listener_t::addMenu(new LLShowHelp(), "ShowHelp");
     view_listener_t::addMenu(new LLToggleHelp(), "ToggleHelp");
-    view_listener_t::addMenu(new LLToggleSpeak(), "ToggleSpeak");
+    view_listener_t::addMenu(new LLToggleSpeak(), "ToggleSpeak", cb_info::UNTRUSTED_BLOCK);
     view_listener_t::addMenu(new LLPromptShowURL(), "PromptShowURL");
     view_listener_t::addMenu(new LLShowAgentProfile(), "ShowAgentProfile");
     view_listener_t::addMenu(new LLShowAgentProfilePicks(), "ShowAgentProfilePicks");
@@ -9902,7 +9902,7 @@ void initialize_menus()
     view_listener_t::addMenu(new LLGoToObject(), "GoToObject");
     COMMIT_ADD("PayObject", boost::bind(&handle_give_money_dialog));
 
-    COMMIT_ADD("Inventory.NewWindow", boost::bind(&LLPanelMainInventory::newWindow));
+    COMMIT_ADD_THROTTLE("Inventory.NewWindow", boost::bind(&LLPanelMainInventory::newWindow));
 
     enable.add("EnablePayObject", boost::bind(&enable_pay_object));
     enable.add("EnablePayAvatar", boost::bind(&enable_pay_avatar));
