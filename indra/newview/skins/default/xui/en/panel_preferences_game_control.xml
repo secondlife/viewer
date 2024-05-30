@@ -40,16 +40,18 @@
         top="70"
         left="2"
         right="-2"
-        bottom="-2">
-        <panel label="Channel mappings">
+        bottom="-32">
+        <panel
+            name="tab_channel_mappings"
+            label="Channel mappings">
             <scroll_list
                 name="action_table"
                 layout="topleft"
                 follows="all"
                 top="1"
-                left="1"
-                right="-1"
-                bottom="-1"
+                left="6"
+                right="-5"
+                bottom="-4"
                 can_sort="false"
                 column_padding="0"
                 multi_select="false"
@@ -64,7 +66,9 @@
                     relative_width="0.75" />
             </scroll_list>
         </panel>
-        <panel label="Device settings">
+        <panel
+            name="tab_device_settings"
+            label="Device settings">
             <text
                 type="string"
                 name="nodevice_message"
@@ -135,7 +139,9 @@
                     left="1"
                     right="-1"
                     bottom="-1">
-                    <panel label="Axis Options">
+                    <panel
+                        name="tab_axis_options"
+                        label="Axis Options">
                         <scroll_list
                             name="axis_options"
                             follows="all"
@@ -163,7 +169,9 @@
                                 relative_width="0.2"/>
                         </scroll_list>
                     </panel>
-                    <panel label="Axis Mappings">
+                    <panel
+                        name="tab_axis_mappings"
+                        label="Axis Mappings">
                         <scroll_list
                             name="axis_mappings"
                             follows="all"
@@ -180,7 +188,9 @@
                             <scroll_list.columns relative_width="0.5"/>
                         </scroll_list>
                     </panel>
-                    <panel label="Button Mappings">
+                    <panel
+                        name="tab_button_mappings"
+                        label="Button Mappings">
                         <scroll_list
                             name="button_mappings"
                             follows="all"
@@ -201,6 +211,22 @@
             </panel>
         </panel>
     </tab_container>
+    <panel
+        layout="topleft"
+        follows="top|left"
+        top="405"
+        height="41"
+        left="1"
+        right="-1">
+        <button
+            layout="topleft"
+            follows="top|left"
+            name="reset_to_defaults"
+            label="Reset to Defaults"
+            top="1"
+            left="8"
+            width="200"/>
+    </panel>
     <spinner
         name="numeric_value_editor"
         decimal_digits="0"

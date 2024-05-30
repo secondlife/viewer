@@ -349,6 +349,9 @@ public:
     using ActionToChannelMap = std::map< std::string, LLGameControl::InputChannel >;
     LLGameControllerManager();
 
+    static void getDefaultMappings(std::vector<std::pair<std::string, LLGameControl::InputChannel>>& agent_channels,
+        std::vector<LLGameControl::InputChannel>& flycam_channels);
+    void getDefaultMappings(std::vector<std::pair<std::string, LLGameControl::InputChannel>>& mappings);
     void initializeMappingsByDefault();
     void resetDeviceOptionsToDefaults();
     void loadDeviceOptionsFromSettings();
@@ -793,7 +796,7 @@ LLGameControllerManager::LLGameControllerManager()
     }
 
     // Here we build an invariant map between the named agent actions
-    // and control bit sent to the server.  This map will be used,
+    // and control bit sent to the server. This map will be used,
     // in combination with the action->InputChannel map below,
     // to maintain an inverse map from control bit masks to GameControl data.
     LLGameControlTranslator::ActionToMaskMap actionMasks =
@@ -822,14 +825,17 @@ LLGameControllerManager::LLGameControllerManager()
     initializeMappingsByDefault();
 }
 
-void LLGameControllerManager::initializeMappingsByDefault()
+// static
+void LLGameControllerManager::getDefaultMappings(
+    std::vector<std::pair<std::string, LLGameControl::InputChannel>>& agent_channels,
+    std::vector<LLGameControl::InputChannel>& flycam_channels)
 {
     // Here we build a list of pairs between named agent actions and
     // GameControl channels. Note: we only supply the non-signed names
     // (e.g. "push" instead of "push+" and "push-") because mActionTranslator
     // automatially expands action names as necessary.
     using type = LLGameControl::InputChannel::Type;
-    std::vector<std::pair<std::string, LLGameControl::InputChannel>> agent_defaults =
+    agent_channels =
     {
     // Analog actions (associated by common name - without '+' or '-')
         { "push",  { type::TYPE_AXIS,   LLGameControl::AXIS_LEFTY,       1 } },
@@ -843,11 +849,10 @@ void LLGameControllerManager::initializeMappingsByDefault()
         { "toggle_flycam", { type::TYPE_BUTTON, LLGameControl::BUTTON_RIGHTSHOULDER } },
         { "stop",          { type::TYPE_BUTTON, LLGameControl::BUTTON_LEFTSTICK }     }
     };
-    mActionTranslator.setMappings(agent_defaults);
 
     // Flycam actions don't need bitwise translation, so we maintain the map
     // of channels here directly rather than using an LLGameControlTranslator.
-    mFlycamChannels =
+    flycam_channels =
     {
     // Flycam actions (associated just by an order index)
         { type::TYPE_AXIS, LLGameControl::AXIS_LEFTY,        1 }, // advance
@@ -857,6 +862,24 @@ void LLGameControllerManager::initializeMappingsByDefault()
         { type::TYPE_AXIS, LLGameControl::AXIS_RIGHTX,       1 }, // yaw
         { type::TYPE_NONE, 0                                   }  // zoom
     };
+}
+
+void LLGameControllerManager::getDefaultMappings(std::vector<std::pair<std::string, LLGameControl::InputChannel>>& mappings)
+{
+    // Join two different data structures into the one
+    std::vector<LLGameControl::InputChannel> flycam_channels;
+    getDefaultMappings(mappings, flycam_channels);
+    for (size_t i = 0; i < flycam_channels.size(); ++i)
+    {
+        mappings.emplace_back(mFlycamActions[i], flycam_channels[i]);
+    }
+}
+
+void LLGameControllerManager::initializeMappingsByDefault()
+{
+    std::vector<std::pair<std::string, LLGameControl::InputChannel>> agent_channels;
+    getDefaultMappings(agent_channels, mFlycamChannels);
+    mActionTranslator.setMappings(agent_channels);
 }
 
 void LLGameControllerManager::resetDeviceOptionsToDefaults()
@@ -1135,6 +1158,9 @@ static std::string getMappings(const std::vector<std::string>& actions, LLGameCo
 {
     std::list<std::string> mappings;
 
+    std::vector<std::pair<std::string, LLGameControl::InputChannel>> default_mappings;
+    LLGameControl::getDefaultMappings(default_mappings);
+
     // Walk through the all known actions of the chosen type
     for (const std::string& action : actions)
     {
@@ -1142,7 +1168,20 @@ static std::string getMappings(const std::vector<std::string>& actions, LLGameCo
         // Only channels of the expected type should be stored
         if (channel.mType == type)
         {
-            mappings.push_back(action + ":" + channel.getLocalName());
+            bool mapping_differs = false;
+            for (const auto& pair : default_mappings)
+            {
+                if (pair.first == action)
+                {
+                    mapping_differs = !channel.isEqual(pair.second);
+                    break;
+                }
+            }
+            // Only mappings different from the default should be stored
+            if (mapping_differs)
+            {
+                mappings.push_back(action + ":" + channel.getLocalName());
+            }
         }
     }
 
@@ -1183,6 +1222,9 @@ static void setMappings(const std::string& mappings,
     const std::vector<std::string>& actions, LLGameControl::InputChannel::Type type,
     std::function<void(const std::string& action, LLGameControl::InputChannel channel)> updateMap)
 {
+    if (mappings.empty())
+        return;
+
     std::map<std::string, std::string> pairs;
     LLStringOps::splitString(mappings, ',', [&](const std::string& mapping)
         {
@@ -1821,6 +1863,12 @@ std::string LLGameControl::stringifyFlycamMappings(getChannel_t getChannel)
 }
 
 // static
+void LLGameControl::getDefaultMappings(std::vector<std::pair<std::string, LLGameControl::InputChannel>>& mappings)
+{
+    g_manager.getDefaultMappings(mappings);
+}
+
+// static
 bool LLGameControl::parseDeviceOptions(const std::string& options, std::string& name,
     std::vector<LLGameControl::Options::AxisOptions>& axis_options,
     std::vector<U8>& axis_map, std::vector<U8>& button_map)
@@ -1997,26 +2045,17 @@ void LLGameControl::loadFromSettings()
     g_translateAgentActions = s_loadBoolean(SETTING_TRANSLATEACTIONS);
     g_agentControlMode = convertStringToAgentControlMode(s_loadString(SETTING_AGENTCONTROLMODE));
 
+    g_manager.initializeMappingsByDefault();
+
     // Load action-to-channel mappings
     std::string analogMappings = s_loadString(SETTING_ANALOGMAPPINGS);
     std::string binaryMappings = s_loadString(SETTING_BINARYMAPPINGS);
     std::string flycamMappings = s_loadString(SETTING_FLYCAMMAPPINGS);
-    // In case of absence of all required settings the default values are assigned
-    if (analogMappings.empty() && binaryMappings.empty() && flycamMappings.empty())
-    {
-        g_manager.initializeMappingsByDefault();
-    }
-    else
-    {
-        g_manager.setAnalogMappings(analogMappings);
-        g_manager.setBinaryMappings(binaryMappings);
-        g_manager.setFlycamMappings(flycamMappings);
-        if (!g_manager.getMappedFlags()) // No action is mapped?
-        {
-            g_manager.initializeMappingsByDefault();
-        }
-    }
+    g_manager.setAnalogMappings(analogMappings);
+    g_manager.setBinaryMappings(binaryMappings);
+    g_manager.setFlycamMappings(flycamMappings);
 
+    // Load device-specific settings
     g_deviceOptions.clear();
     LLSD options = s_loadObject(SETTING_KNOWNCONTROLLERS);
     for (auto it = options.beginMap(); it != options.endMap(); ++it)
