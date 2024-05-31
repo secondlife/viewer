@@ -3135,6 +3135,29 @@ Would you be my friend?
 
   <notification
    icon="alertmodal.tga"
+   label="Rename Auto-Replace List"
+   name="RemoveAutoReplaceList"
+   type="alertmodal">
+'[LIST_NAME]' contains [MAP_SIZE] entries.
+    
+Are you sure you want to delete this list?
+      <tag>confirm</tag>
+    <form name="form">
+      <button
+       default="true"
+       index="1"
+       name="DeleteList"
+       text="Delete"/>
+      <button
+       default="false"
+       index="0"
+       name="Cancel"
+       text="Cancel"/>
+    </form>
+  </notification>
+
+    <notification
+   icon="alertmodal.tga"
    name="InvalidAutoReplaceEntry"
    type="alertmodal">
     The keyword must be a single word, and the replacement may not be empty.
