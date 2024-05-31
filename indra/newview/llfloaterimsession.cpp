@@ -856,6 +856,14 @@ void LLFloaterIMSession::updateMessages()
             {
                 chat.mSourceType = CHAT_SOURCE_REGION;
             }
+            if (msg.has("trans"))
+            {
+                chat.mTrans = msg["trans"].asString();
+            }
+            if (msg.has("error"))
+            {
+                chat.mError = msg["error"].asString();
+            }
 
             // process offer notification
             if (msg.has("notification_id"))

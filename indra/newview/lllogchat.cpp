@@ -63,6 +63,7 @@ const S32 LOG_RECALL_SIZE = 20480;
 const std::string LL_IM_TIME("time");
 const std::string LL_IM_DATE_TIME("datetime");
 const std::string LL_IM_TEXT("message");
+const std::string LL_IM_TRANS("trans");
 const std::string LL_IM_FROM("from");
 const std::string LL_IM_FROM_ID("from_id");
 const std::string LL_TRANSCRIPT_FILE_EXTENSION("txt");
@@ -401,7 +402,7 @@ void LLLogChat::loadChatHistory(const std::string& file_name, std::list<LLSD>& m
     if (file_name.empty())
     {
         LL_WARNS("LLLogChat::loadChatHistory") << "Local history file name is empty!" << LL_ENDL;
-        return ;
+        return;
     }
 
     bool load_all_history = load_params.has("load_all_history") ? load_params["load_all_history"].asBoolean() : false;

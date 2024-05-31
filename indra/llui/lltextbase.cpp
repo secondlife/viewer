@@ -2328,7 +2328,7 @@ void LLTextBase::appendText(const std::string &new_text, bool prepend_newline, c
 
     if(prepend_newline)
         appendLineBreakSegment(input_params);
-    appendTextImpl(new_text,input_params);
+    appendTextImpl(new_text, input_params);
 }
 
 void LLTextBase::setLabel(const LLStringExplicit& label)
