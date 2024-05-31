@@ -172,36 +172,45 @@ function leap.request(pump, data)
 end
 
 -- Send the specified request LLSD, expecting an arbitrary number of replies.
--- Each one is yielded on receipt. If you omit checklast, this is an infinite
--- generator; it's up to the caller to recognize when the last reply has been
--- received, and stop resuming for more.
--- 
--- If you pass checklast=<callable accepting(event)>, each response event is
--- passed to that callable (after the yield). When the callable returns
--- true, the generator terminates in the usual way.
+-- Each one is returned on request.
+--
+-- Usage:
+-- sequence = leap.generate(pump, data)
+-- repeat
+--     response = sequence.next()
+-- until last(response)
+-- (last() means whatever test the caller wants to perform on response)
+-- sequence.done()
 -- 
 -- See request() remarks about ["reqid"].
+--
+-- Note: this seems like a prime use case for Lua coroutines. But in a script
+-- using fibers.lua, a "wild" coroutine confuses the fiber scheduler. If
+-- generate() were itself a coroutine, it would call WaitForReqid:wait(),
+-- which would yield -- thereby resuming generate() WITHOUT waiting.
 function leap.generate(pump, data, checklast)
     -- Invent a new, unique reqid. Arrange to handle incoming events
     -- bearing that reqid. Stamp the outbound request with that reqid, and
     -- send it.
     local reqid, waitfor = requestSetup(pump, data)
-    local ok, response, resumed_with
-    repeat
-        ok, response = pcall(waitfor.wait, waitfor)
-        if (not ok) or response.error then
-            break
+    return {
+        next = function()
+            dbg('leap.generate(%s).next() about to wait on %s', reqid, tostring(waitfor))
+            local ok, response = pcall(waitfor.wait, waitfor)
+            dbg('leap.generate(%s).next() got %s: %s', reqid, ok, response)
+            if not ok then
+                error(response)
+            elseif response.error then
+                error(response.error)
+            else
+                return response
+            end
+        end,
+        done = function()
+            -- cleanup consists of removing our WaitForReqid from pending
+            pending[reqid] = nil
         end
-        -- can resume(false) to terminate generate() and clean up
-        resumed_with = coroutine.yield(response)
-    until (checklast and checklast(response)) or (resumed_with == false)
-    -- If we break the above loop, whether or not due to error, clean up.
-    pending[reqid] = nil
-    if not ok then
-        error(response)
-    elseif response.error then
-        error(response.error)
-    end
+    }
 end
 
 -- Send the specified request LLSD, expecting an immediate reply followed by
@@ -220,7 +229,9 @@ function leap.eventstream(pump, data, callback)
     end
     -- No error, so far so good:
     -- call the callback with the first response just in case
+    dbg('leap.eventstream(%s): first callback', reqid)
     local ok, done = pcall(callback, response)
+    dbg('leap.eventstream(%s) got %s, %s', reqid, ok, done)
     if not ok then
         -- clean up our WaitForReqid
         waitfor:close()
@@ -236,13 +247,17 @@ function leap.eventstream(pump, data, callback)
         pump,
         function ()
             local ok, done
+            local nth = 1
             repeat
                 event = waitfor:wait()
                 if not event then
                     -- wait() returns nil once the queue is closed (e.g. cancelreq())
                     ok, done = true, true
                 else
+                    nth += 1
+                    dbg('leap.eventstream(%s): callback %d', reqid, nth)
                     ok, done = pcall(callback, event)
+                    dbg('leap.eventstream(%s) got %s, %s', reqid, ok, done)
                 end
                 -- not ok means callback threw an error (caught as 'done')
                 -- done means callback succeeded but wants to stop

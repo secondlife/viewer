@@ -410,11 +410,14 @@ private:
 
 void TimersListener::scheduleAfter(const LLSD& params)
 {
+    // Timer creation functions respond immediately with the reqid of the
+    // created timer, as well as later when the timer fires. That lets the
+    // requester invoke cancel, isRunning or timeUntilCall.
+    Response response(LLSD(), params);
     LLSD::Real after{ params["after"] };
     if (after < MINTIMER)
     {
-        sendReply(llsd::map("error", stringize("after must be at least ", MINTIMER)), params);
-        return;
+        return response.error(stringize("after must be at least ", MINTIMER));
     }
 
     mHandles.emplace(
@@ -432,11 +435,14 @@ void TimersListener::scheduleAfter(const LLSD& params)
 
 void TimersListener::scheduleEvery(const LLSD& params)
 {
+    // Timer creation functions respond immediately with the reqid of the
+    // created timer, as well as later when the timer fires. That lets the
+    // requester invoke cancel, isRunning or timeUntilCall.
+    Response response(LLSD(), params);
     LLSD::Real every{ params["every"] };
     if (every < MINTIMER)
     {
-        sendReply(llsd::map("error", stringize("every must be at least ", MINTIMER)), params);
-        return;
+        return response.error(stringize("every must be at least ", MINTIMER));
     }
 
     mHandles.emplace(
