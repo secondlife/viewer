@@ -422,7 +422,13 @@ bool LLFloaterAutoReplaceSettings::callbackNewListName(const LLSD& notification,
 
     LLSD newList = notification["payload"]["list"];
 
-    if ( response.has("listname") && response["listname"].isString() )
+    S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+    if (option != 1) // Must also match RenameAutoReplaceList
+    {
+        // user cancelled
+        return false;
+    }
+    else if (response.has("listname") && response["listname"].isString() )
     {
         std::string newName = response["listname"].asString();
         LLAutoReplaceSettings::setListName(newList, newName);
