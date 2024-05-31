@@ -40,6 +40,7 @@
 
 local fiber = require('fiber')
 local ErrorQueue = require('ErrorQueue')
+local inspect = require('inspect')
 local function dbg(...) end 
 -- local dbg = require('printf')
 
@@ -74,7 +75,7 @@ local reply, command = LL.get_event_pumps()
 -- pending is NOT a weak table because the caller of request() or generate()
 -- never sees the WaitForReqid object. pending holds the only reference, so
 -- it should NOT be garbage-collected.
-pending = {}
+local pending = {}
 -- Our consumer will instantiate some number of WaitFor subclass objects.
 -- As these are traversed in descending priority order, we must keep
 -- them in a list.
@@ -82,7 +83,7 @@ pending = {}
 -- to it. Once the consuming script drops the reference, allow Lua to
 -- garbage-collect the WaitFor despite its entry in waitfors.
 local weak_values = {__mode='v'}
-waitfors = setmetatable({}, weak_values)
+local waitfors = setmetatable({}, weak_values)
 -- It has been suggested that we should use UUIDs as ["reqid"] values,
 -- since UUIDs are guaranteed unique. However, as the "namespace" for
 -- ["reqid"] values is our very own reply pump, we can get away with
@@ -131,7 +132,7 @@ local function requestSetup(pump, data)
     local waitfor = leap.WaitForReqid:new(reqid)
     pending[reqid] = waitfor
     -- Pass reqid to send() to stamp it into (a copy of) the request data.
-    dbg('requestSetup(%s, %s)', pump, data)
+    dbg('requestSetup(%s, %s) storing %s', pump, data, waitfor.name)
     leap.send(pump, data, reqid)
     return reqid, waitfor
 end
@@ -177,7 +178,7 @@ end
 -- 
 -- If you pass checklast=<callable accepting(event)>, each response event is
 -- passed to that callable (after the yield). When the callable returns
--- True, the generator terminates in the usual way.
+-- true, the generator terminates in the usual way.
 -- 
 -- See request() remarks about ["reqid"].
 function leap.generate(pump, data, checklast)
@@ -203,12 +204,80 @@ function leap.generate(pump, data, checklast)
     end
 end
 
-local function cleanup(message)
-    -- we're done: clean up all pending coroutines
-    for i, waitfor in pairs(pending) do
+-- Send the specified request LLSD, expecting an immediate reply followed by
+-- an arbitrary number of subsequent replies with the same reqid. Block the
+-- calling coroutine until the first (immediate) reply, but launch a separate
+-- fiber on which to call the passed callback with later replies.
+--
+-- Once the callback returns true, the background fiber terminates.
+function leap.eventstream(pump, data, callback)
+    local reqid, waitfor = requestSetup(pump, data)
+    local response = waitfor:wait()
+    if response.error then
+        -- clean up our WaitForReqid
+        waitfor:close()
+        error(response.error)
+    end
+    -- No error, so far so good:
+    -- call the callback with the first response just in case
+    local ok, done = pcall(callback, response)
+    if not ok then
+        -- clean up our WaitForReqid
+        waitfor:close()
+        error(done)
+    end
+    if done then
+        return response
+    end
+    -- callback didn't throw an error, and didn't say stop,
+    -- so set up to handle subsequent events
+    -- TODO: distinguish "daemon" fibers that can be terminated even if waiting
+    fiber.launch(
+        pump,
+        function ()
+            local ok, done
+            repeat
+                event = waitfor:wait()
+                if not event then
+                    -- wait() returns nil once the queue is closed (e.g. cancelreq())
+                    ok, done = true, true
+                else
+                    ok, done = pcall(callback, event)
+                end
+                -- not ok means callback threw an error (caught as 'done')
+                -- done means callback succeeded but wants to stop
+            until (not ok) or done
+            -- once we break this loop, clean up our WaitForReqid
+            waitfor:close()
+            if not ok then
+                -- can't reflect the error back to our caller
+                LL.print_warning(fiber.get_name() .. ': ' .. done)
+            end
+        end)
+    return response
+end
+
+-- we might want to clean up after leap.eventstream() even if the callback has
+-- not yet returned true
+function leap.cancelreq(reqid)
+    dbg('cancelreq(%s)', reqid)
+    local waitfor = pending[reqid]
+    if waitfor ~= nil then
+        -- close() removes the pending entry and also closes the queue,
+        -- breaking the background fiber's wait loop.
+        dbg('cancelreq(%s) canceling %s', reqid, waitfor.name)
         waitfor:close()
     end
-    for i, waitfor in pairs(waitfors) do
+end
+
+local function cleanup(message)
+    -- We're done: clean up all pending coroutines.
+    -- Iterate over copies of the pending and waitfors tables, since the
+    -- close() operation modifies the real tables.
+    for i, waitfor in pairs(table.clone(pending)) do
+        waitfor:close()
+    end
+    for i, waitfor in pairs(table.clone(waitfors)) do
         waitfor:close()
     end
 end
@@ -223,7 +292,8 @@ local function unsolicited(pump, data)
             return
         end
     end
-    LL.print_debug(string.format('unsolicited(%s, %s) discarding unclaimed event', pump, data))
+    LL.print_debug(string.format('unsolicited(%s, %s) discarding unclaimed event',
+                                 pump, inspect(data)))
 end
 
 -- Route incoming (pump, data) event to the appropriate waiting coroutine.
@@ -231,14 +301,17 @@ local function dispatch(pump, data)
     local reqid = data['reqid']
     -- if the response has no 'reqid', it's not from request() or generate()
     if reqid == nil then
+--      dbg('dispatch() found no reqid; calling unsolicited(%s, %s)', pump, data)
         return unsolicited(pump, data)
     end
     -- have reqid; do we have a WaitForReqid?
     local waitfor = pending[reqid]
     if waitfor == nil then
+--      dbg('dispatch() found no WaitForReqid(%s); calling unsolicited(%s, %s)', reqid, pump, data)
         return unsolicited(pump, data)
     end
     -- found the right WaitForReqid object, let it handle the event
+--  dbg('dispatch() calling %s.handle(%s, %s)', waitfor.name, pump, data)
     waitfor:handle(pump, data)
 end
 
@@ -284,11 +357,9 @@ end
 
 -- called by WaitFor.disable()
 local function unregisterWaitFor(waitfor)
-    for i, w in pairs(waitfors) do
-        if w == waitfor then
-            waitfors[i] = nil
-            break
-        end
+    local i = table.find(waitfors, waitfor)
+    if i ~= nil then
+        waitfors[i] = nil
     end
 end
 
@@ -417,6 +488,7 @@ end
 
 -- called by cleanup() at end
 function leap.WaitFor:close()
+    self:disable()
     self._queue:close()
 end
 
@@ -437,6 +509,8 @@ function leap.WaitForReqid:new(reqid)
     setmetatable(obj, self)
     self.__index = self
 
+    obj.reqid = reqid
+
     return obj
 end
 
@@ -445,6 +519,12 @@ function leap.WaitForReqid:filter(pump, data)
     -- interest based on the incoming ["reqid"] value, it's not necessary
     -- to test the event again. Accept every such event.
     return data
+end
+
+function leap.WaitForReqid:close()
+    -- remove this entry from pending table
+    pending[self.reqid] = nil
+    self._queue:close()
 end
 
 return leap
