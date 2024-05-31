@@ -50,32 +50,30 @@ LLUIListener::LLUIListener():
         "Invoke the operation named by [\"function\"], passing [\"parameter\"],\n"
         "as if from a user gesture on a menu -- or a button click.",
         &LLUIListener::call,
-        LLSD().with("function", LLSD()));
+        llsd::map("function", LLSD(), "reply", LLSD()));
 
     add("getValue",
         "For the UI control identified by the path in [\"path\"], return the control's\n"
         "current value as [\"value\"] reply.",
         &LLUIListener::getValue,
-        LLSDMap("path", LLSD())("reply", LLSD()));
+        llsd::map("path", LLSD(), "reply", LLSD()));
 }
 
-typedef LLUICtrl::LLCommitCallbackInfo cb_info;
+typedef LLUICtrl::CommitCallbackInfo cb_info;
 void LLUIListener::call(const LLSD& event)
 {
     Response response(LLSD(), event);
-    LLUICtrl::LLCommitCallbackInfo *info = LLUICtrl::SharedCommitCallbackRegistry::getValue(event["function"]);
+    LLUICtrl::CommitCallbackInfo *info = LLUICtrl::SharedCommitCallbackRegistry::getValue(event["function"]);
     if (!info )
     {
-        response.error(STRINGIZE("Function " << std::quoted(event["function"].asString()) << "was not found"));
-        return;
+        return response.error(stringize("Function ", std::quoted(event["function"].asString()), " was not found"));
     }
-    if (info->mHandleUntrusted == cb_info::UNTRUSTED_BLOCK) 
+    if (info->handle_untrusted == cb_info::UNTRUSTED_BLOCK) 
     {
-        response.error(STRINGIZE("Function " << std::quoted(event["function"].asString()) << " is not allowed to be called from the script"));
-        return;
+        return response.error(stringize("Function ", std::quoted(event["function"].asString()), " is not allowed to be called from the script"));
     }
     F64 cur_time = LLTimer::getElapsedSeconds();
-    bool is_untrusted_throttle = info->mHandleUntrusted == cb_info::UNTRUSTED_THROTTLE;
+    bool is_untrusted_throttle = info->handle_untrusted == cb_info::UNTRUSTED_THROTTLE;
 
     //Separate UNTRUSTED_THROTTLE and UNTRUSTED_ALLOW functions to have different timeout
     F64 time_delta = is_untrusted_throttle ? mLastUntrustedThrottle + THROTTLE_PERIOD : mLastMinThrottle + MIN_THROTTLE;

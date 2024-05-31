@@ -950,11 +950,11 @@ public:
         LLUICtrl::EnableCallbackRegistry::currentRegistrar().add(name, boost::bind(&view_listener_t::handleEvent, listener, _2));
     }
 
-    typedef LLUICtrl::LLCommitCallbackInfo cb_info;
+    typedef LLUICtrl::CommitCallbackInfo cb_info;
     static void addCommit(view_listener_t *listener, const std::string &name, cb_info::EUntrustedCall handle_untrusted = cb_info::UNTRUSTED_ALLOW)
     {
         LLUICtrl::SharedCommitCallbackRegistry::currentRegistrar().add(name, 
-            cb_info(boost::bind(&view_listener_t::handleEvent, listener, _2), handle_untrusted));
+            cb_info([listener](LLUICtrl*, const LLSD& param){ return listener->handleEvent(param); }, handle_untrusted));
     }
 
     static void addMenu(view_listener_t *listener, const std::string &name, cb_info::EUntrustedCall handle_untrusted = cb_info::UNTRUSTED_ALLOW)

@@ -9395,7 +9395,7 @@ void initialize_edit_menu()
 
 }
 
-typedef LLUICtrl::LLCommitCallbackInfo cb_info;
+typedef LLUICtrl::CommitCallbackInfo cb_info;
 #define COMMIT_ADD(func_name, func) LLUICtrl::SharedCommitCallbackRegistry::currentRegistrar().add(func_name, cb_info(func))
 #define COMMIT_ADD_TRUSTED(func_name, func) LLUICtrl::SharedCommitCallbackRegistry::currentRegistrar().add(func_name, cb_info(func, cb_info::UNTRUSTED_BLOCK))
 #define COMMIT_ADD_THROTTLE(func_name, func) LLUICtrl::SharedCommitCallbackRegistry::currentRegistrar().add(func_name, cb_info(func, cb_info::UNTRUSTED_THROTTLE))

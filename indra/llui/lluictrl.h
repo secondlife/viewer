@@ -284,7 +284,7 @@ public:
         LLSINGLETON_EMPTY_CTOR(EnableCallbackRegistry);
     };
 
-    struct LLCommitCallbackInfo
+    struct CommitCallbackInfo
     {
         enum EUntrustedCall
         {
@@ -293,16 +293,16 @@ public:
             UNTRUSTED_THROTTLE
         };
 
-        LLCommitCallbackInfo(commit_callback_t func = NULL, EUntrustedCall handle_untrusted = UNTRUSTED_ALLOW) 
-            : callback_func(func), mHandleUntrusted(handle_untrusted)
+        CommitCallbackInfo(commit_callback_t func = {}, EUntrustedCall handle_untrusted = UNTRUSTED_ALLOW) 
+            : callback_func(func), handle_untrusted(handle_untrusted)
         {}
 
       public:
-        EUntrustedCall mHandleUntrusted;
         commit_callback_t callback_func;
+        EUntrustedCall handle_untrusted;
     };
 
-    class SharedCommitCallbackRegistry : public CallbackRegistry<LLCommitCallbackInfo, SharedCommitCallbackRegistry>
+    class SharedCommitCallbackRegistry : public CallbackRegistry<CommitCallbackInfo, SharedCommitCallbackRegistry>
     {
         LLSINGLETON_EMPTY_CTOR(SharedCommitCallbackRegistry);
     };
