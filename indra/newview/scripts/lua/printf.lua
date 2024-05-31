@@ -2,7 +2,7 @@
 
 local inspect = require 'inspect'
 
-local function printf(...)
+local function printf(format, ...)
     -- string.format() only handles numbers and strings.
     -- Convert anything else to string using the inspect module.
     local args = {}
@@ -13,7 +13,7 @@ local function printf(...)
             table.insert(args, inspect(arg))
         end
     end
-    print(string.format(table.unpack(args)))
+    print(string.format(format, table.unpack(args)))
 end
 
 return printf
