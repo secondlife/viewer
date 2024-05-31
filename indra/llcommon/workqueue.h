@@ -375,6 +375,10 @@ namespace LL
      * CALLABLE that returns bool, a TimePoint and an interval at which to
      * relaunch it. As long as the callable continues returning true, BackJack
      * keeps resubmitting it to the target WorkQueue.
+     *
+     * "You go back, Jack, and do it again -- wheel turning' round and round..."
+     * --Steely Dan, from "Can't Buy a Thrill" (1972)
+     * https://www.youtube.com/watch?v=yCgHTmv4YU8
      */
     // Why is BackJack a class and not a lambda? Because, unlike a lambda, a
     // class method gets its own 'this' pointer -- which we need to resubmit
