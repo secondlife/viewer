@@ -1451,6 +1451,7 @@ bool LLTranslate::shouldTranslateAgent(const LLUUID& agent_id)
     }
     return false;
 }
+
 /* static */
 void LLTranslate::setTranslateAgent(const LLUUID& agent_id, bool translate)
 {

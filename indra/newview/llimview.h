@@ -89,6 +89,8 @@ public:
         void addMessage(const std::string& from,
                         const LLUUID& from_id,
                         const std::string& utf8_text,
+                        const std::string& utf8_trans,
+                        const std::string& utf8_error,
                         const std::string& time,
                         const bool is_history,
                         const bool is_region_msg,
@@ -236,6 +238,8 @@ public:
                     const std::string& from,
                     const LLUUID& from_id,
                     const std::string& utf8_text,
+                    const std::string& utf8_trans,
+                    const std::string& utf8_error,
                     bool log2file,
                     bool is_region_msg,
                     U32 time_stamp);
@@ -244,7 +248,8 @@ public:
      * Similar to addMessage(...) above but won't send a signal about a new message added
      */
     LLIMModel::LLIMSession* addMessageSilently(const LLUUID& session_id, const std::string& from, const LLUUID& from_id,
-        const std::string& utf8_text, bool log2file = true, bool is_region_msg = false, U32 timestamp = 0);
+        const std::string& utf8_text, const std::string& utf8_trans, const std::string& utf8_error,
+        bool log2file = true, bool is_region_msg = false, U32 timestamp = 0);
 
     /**
      * Add a system message to an IM Model
@@ -322,7 +327,9 @@ private:
     /**
      * Add message to a list of message associated with session specified by session_id
      */
-    bool addToHistory(const LLUUID& session_id, const std::string& from, const LLUUID& from_id, const std::string& utf8_text, bool is_region_msg, U32 timestamp);
+    bool addToHistory(const LLUUID& session_id, const std::string& from, const LLUUID& from_id,
+        const std::string& utf8_text, const std::string& utf8_trans, const std::string& utf8_error,
+        bool is_region_msg, U32 timestamp);
 
 };
 

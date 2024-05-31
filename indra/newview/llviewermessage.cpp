@@ -2461,7 +2461,7 @@ void translateSuccess(LLChat chat, LLSD toastArgs, std::string originalMsg, std:
         && ((detected_language.empty()) || (expectLang != detected_language))
         && (LLStringUtil::compareInsensitive(translation, originalMsg) != 0))
     {
-        chat.mText += " (" + LLTranslate::removeNoTranslateTags(translation) + ")";
+        chat.mTrans = LLTranslate::removeNoTranslateTags(translation);
     }
 
     LLTranslate::instance().logSuccess(1);
@@ -2472,7 +2472,7 @@ void translateFailure(LLChat chat, LLSD toastArgs, int status, const std::string
 {
     std::string msg = LLTrans::getString("TranslationFailed", LLSD().with("[REASON]", err_msg));
     LLStringUtil::replaceString(msg, "\n", " "); // we want one-line error messages
-    chat.mText += " (" + msg + ")";
+    chat.mError = msg;
 
     LLTranslate::instance().logFailure(1);
     LLNotificationsUI::LLNotificationManager::instance().onChat(chat, toastArgs);

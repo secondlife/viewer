@@ -79,11 +79,6 @@ const static std::string ADHOC_NAME_SUFFIX(" Conference");
 const static std::string NEARBY_P2P_BY_OTHER("nearby_P2P_by_other");
 const static std::string NEARBY_P2P_BY_AGENT("nearby_P2P_by_agent");
 
-// Markers inserted around translated part of chat text
-const static std::string XL8_START_TAG(" (");
-const static std::string XL8_END_TAG(")");
-const S32 XL8_PADDING = 3;  // XL8_START_TAG.size() + XL8_END_TAG.size()
-
 /** Timeout of outgoing session initialization (in seconds) */
 const static U32 SESSION_INITIALIZATION_TIMEOUT = 30;
 
@@ -522,13 +517,13 @@ void chatterBoxInvitationCoro(std::string url, LLUUID sessionId, LLIMMgr::EInvit
 void translateSuccess(const LLUUID& session_id, const std::string& from, const LLUUID& from_id, const std::string& utf8_text,
                         U64 time_n_flags, std::string originalMsg, std::string expectLang, std::string translation, const std::string detected_language)
 {
-    std::string message_txt(utf8_text);
+    std::string utf8_trans;
     // filter out non-interesting responses
     if (!translation.empty()
         && ((detected_language.empty()) || (expectLang != detected_language))
         && (LLStringUtil::compareInsensitive(translation, originalMsg) != 0))
     {   // Note - if this format changes, also fix code in addMessagesFromServerHistory()
-        message_txt += XL8_START_TAG + LLTranslate::removeNoTranslateTags(translation) + XL8_END_TAG;
+        utf8_trans = LLTranslate::removeNoTranslateTags(translation);
     }
 
     // Extract info packed in time_n_flags
@@ -536,23 +531,21 @@ void translateSuccess(const LLUUID& session_id, const std::string& from, const L
     bool is_region_msg = (bool)(time_n_flags & (1LL << 33));
     U32 time_stamp = (U32)(time_n_flags & 0x00000000ffffffff);
 
-    LLIMModel::getInstance()->processAddingMessage(session_id, from, from_id, message_txt, log2file, is_region_msg, time_stamp);
+    LLIMModel::getInstance()->processAddingMessage(session_id, from, from_id, utf8_text, utf8_trans, LLStringUtil::null, log2file, is_region_msg, time_stamp);
 }
 
 void translateFailure(const LLUUID& session_id, const std::string& from, const LLUUID& from_id, const std::string& utf8_text,
                         U64 time_n_flags, int status, const std::string err_msg)
 {
-    std::string message_txt(utf8_text);
-    std::string msg = LLTrans::getString("TranslationFailed", LLSD().with("[REASON]", err_msg));
-    LLStringUtil::replaceString(msg, "\n", " "); // we want one-line error messages
-    message_txt += XL8_START_TAG + msg + XL8_END_TAG;
+    std::string utf8_error = LLTrans::getString("TranslationFailed", LLSD().with("[REASON]", err_msg));
+    LLStringUtil::replaceString(utf8_error, "\n", " "); // we want one-line error messages
 
     // Extract info packed in time_n_flags
     bool log2file = (bool)(time_n_flags & (1LL << 32));
     bool is_region_msg = (bool)(time_n_flags & (1LL << 33));
     U32 time_stamp = (U32)(time_n_flags & 0x00000000ffffffff);
 
-    LLIMModel::getInstance()->processAddingMessage(session_id, from, from_id, message_txt, log2file, is_region_msg, time_stamp);
+    LLIMModel::getInstance()->processAddingMessage(session_id, from, from_id, utf8_text, LLStringUtil::null, utf8_error, log2file, is_region_msg, time_stamp);
 }
 
 void chatterBoxHistoryCoro(std::string url, LLUUID sessionId, std::string from, std::string message, U32 timestamp)
@@ -894,6 +887,8 @@ void LLIMModel::LLIMSession::sessionInitReplyReceived(const LLUUID& new_session_
 void LLIMModel::LLIMSession::addMessage(const std::string& from,
                                         const LLUUID& from_id,
                                         const std::string& utf8_text,
+                                        const std::string& utf8_trans,
+                                        const std::string& utf8_error,
                                         const std::string& time,
                                         const bool is_history,  // comes from a history file or chat server
                                         const bool is_region_msg,
@@ -908,6 +903,14 @@ void LLIMModel::LLIMSession::addMessage(const std::string& from,
     message["index"] = (LLSD::Integer)mMsgs.size();
     message["is_history"] = is_history;
     message["is_region_msg"] = is_region_msg;
+    if (!utf8_trans.empty())
+    {
+        message["trans"] = utf8_trans;
+    }
+    if (!utf8_error.empty())
+    {
+        message["error"] = utf8_error;
+    }
 
     LL_DEBUGS("UIUsage") << "addMessage " << " from " << from << " from_id " << from_id << " utf8_text " << utf8_text << " time " << time << " is_history " << is_history << " session mType " << mType << LL_ENDL;
     if (from_id == gAgent.getID())
@@ -964,7 +967,7 @@ void LLIMModel::LLIMSession::addMessagesFromHistoryCache(const chat_message_list
         LL_DEBUGS("ChatHistory") << mSessionID << ": Adding history cache message: " << msg << LL_ENDL;
 
         // Add message from history cache to the display
-        addMessage(from, from_id, msg[LL_IM_TEXT], msg[LL_IM_TIME], true, false, 0);   // from history data, not region message, no timestamp
+        addMessage(from, from_id, msg[LL_IM_TEXT], msg[LL_IM_TRANS], LLStringUtil::null, msg[LL_IM_TIME], true, false, 0);   // from history data, not region message, no timestamp
     }
 }
 
@@ -1126,15 +1129,6 @@ void LLIMModel::LLIMSession::addMessagesFromServerHistory(const LLSD& history,  
                         {   // Extra work ... the history_msg_text value may have been translated, i.e. "I am confused (je suis confus)"
                             //  while the server history will only have the first part "I am confused"
                             std::string target_compare(scan_msg[LL_IM_TEXT]);
-                            if (target_compare.size() > history_msg_text.size() + XL8_PADDING &&
-                                target_compare.substr(history_msg_text.size(), XL8_START_TAG.size()) == XL8_START_TAG &&
-                                target_compare.substr(target_compare.size() - XL8_END_TAG.size()) == XL8_END_TAG)
-                            {   // This really looks like a "translated string (cadena traducida)" so just compare the source part
-                                LL_DEBUGS("ChatHistory") << mSessionID << ": Found translated chat " << target_compare
-                                    << " when comparing to history " << history_msg_text
-                                    << ", will truncate" << LL_ENDL;
-                                target_compare = target_compare.substr(0, history_msg_text.size());
-                            }
                             if (history_msg_text == target_compare)
                             {   // Found a match, so don't add a duplicate chat message to the window
                                 LL_DEBUGS("ChatHistory") << mSessionID << ": Found duplicate message text " << history_msg_text
@@ -1219,12 +1213,12 @@ void LLIMModel::LLIMSession::chatFromLogFile(LLLogChat::ELogLineType type, const
     if (type == LLLogChat::LOG_LINE)
     {
         LL_DEBUGS("ChatHistory") << "chatFromLogFile() adding LOG_LINE message from " << msg << LL_ENDL;
-        self->addMessage("", LLSD(), msg["message"].asString(), "", true, false, 0);        // from history data, not region message, no timestamp
+        self->addMessage("", LLSD(), msg["message"].asString(), msg["trans"].asString(), LLStringUtil::null, LLStringUtil::null, true, false, 0);        // from history data, not region message, no timestamp
     }
     else if (type == LLLogChat::LOG_LLSD)
     {
         LL_DEBUGS("ChatHistory") << "chatFromLogFile() adding LOG_LLSD message from " << msg << LL_ENDL;
-        self->addMessage(msg["from"].asString(), msg["from_id"].asUUID(), msg["message"].asString(), msg["time"].asString(), true, false, 0);  // from history data, not region message, no timestamp
+        self->addMessage(msg["from"].asString(), msg["from_id"].asUUID(), msg["message"].asString(), msg["trans"].asString(), LLStringUtil::null, msg["time"].asString(), true, false, 0);  // from history data, not region message, no timestamp
     }
 }
 
@@ -1541,6 +1535,8 @@ bool LLIMModel::addToHistory(const LLUUID& session_id,
                              const std::string& from,
                              const LLUUID& from_id,
                              const std::string& utf8_text,
+                             const std::string& utf8_trans,
+                             const std::string& utf8_error,
                              bool is_region_msg,
                              U32 timestamp)
 {
@@ -1553,7 +1549,7 @@ bool LLIMModel::addToHistory(const LLUUID& session_id,
     }
 
     // This is where a normal arriving message is added to the session.   Note that the time string created here is without the full date
-    session->addMessage(from, from_id, utf8_text, LLLogChat::timestamp2LogString(timestamp, false), false, is_region_msg, timestamp);
+    session->addMessage(from, from_id, utf8_text, utf8_trans, utf8_error, LLLogChat::timestamp2LogString(timestamp, false), false, is_region_msg, timestamp);
 
     return true;
 }
@@ -1604,22 +1600,23 @@ void LLIMModel::addMessage(const LLUUID& session_id, const std::string& from, co
     }
     else
     {
-        processAddingMessage(session_id, from, from_id, utf8_text, log2file, is_region_msg, time_stamp);
+        processAddingMessage(session_id, from, from_id, utf8_text, LLStringUtil::null, LLStringUtil::null, log2file, is_region_msg, time_stamp);
     }
 }
 
 void LLIMModel::processAddingMessage(const LLUUID& session_id, const std::string& from, const LLUUID& from_id,
-    const std::string& utf8_text, bool log2file, bool is_region_msg, U32 time_stamp)
+    const std::string& utf8_text, const std::string& utf8_trans, const std::string& utf8_error, bool log2file, bool is_region_msg, U32 time_stamp)
 {
-    LLIMSession* session = addMessageSilently(session_id, from, from_id, utf8_text, log2file, is_region_msg, time_stamp);
+    LLIMSession* session = addMessageSilently(session_id, from, from_id, utf8_text, utf8_trans, utf8_error, log2file, is_region_msg, time_stamp);
     if (!session)
         return;
 
-    //good place to add some1 to recent list
-    //other places may be called from message history.
-    if( !from_id.isNull() &&
-        ( session->isP2PSessionType() || session->isAdHocSessionType() ) )
+    // good place to add some1 to recent list
+    // other places may be called from message history.
+    if (from_id.notNull() && (session->isP2PSessionType() || session->isAdHocSessionType()))
+    {
         LLRecentPeople::instance().add(from_id);
+    }
 
     // notify listeners
     LLSD arg;
@@ -1632,13 +1629,21 @@ void LLIMModel::processAddingMessage(const LLUUID& session_id, const std::string
     arg["time"] = LLLogChat::timestamp2LogString(time_stamp, true);
     arg["session_type"] = session->mSessionType;
     arg["is_region_msg"] = is_region_msg;
+    if (!utf8_trans.empty())
+    {
+        arg["trans"] = utf8_trans;
+    }
+    if (!utf8_error.empty())
+    {
+        arg["error"] = utf8_error;
+    }
 
     mNewMsgSignal(arg);
 }
 
 LLIMModel::LLIMSession* LLIMModel::addMessageSilently(const LLUUID& session_id, const std::string& from, const LLUUID& from_id,
-                                                      const std::string& utf8_text, bool log2file /* = true */, bool is_region_msg, /* false */
-                                                      U32 timestamp /* = 0 */)
+                                                      const std::string& utf8_text, const std::string& utf8_trans, const std::string& utf8_error,
+                                                      bool log2file /* = true */, bool is_region_msg /* false */, U32 timestamp /* = 0 */)
 {
     LLIMSession* session = findIMSession(session_id);
 
@@ -1654,7 +1659,7 @@ LLIMModel::LLIMSession* LLIMModel::addMessageSilently(const LLUUID& session_id, 
         from_name = SYSTEM_FROM;
     }
 
-    addToHistory(session_id, from_name, from_id, utf8_text, is_region_msg, timestamp);
+    addToHistory(session_id, from_name, from_id, utf8_text, utf8_trans, utf8_error, is_region_msg, timestamp);
     if (log2file)
     {
         logToFile(getHistoryFileName(session_id), from_name, from_id, utf8_text);
@@ -2928,7 +2933,7 @@ void LLIncomingCallDialog::processCallResponse(S32 response, const LLSD &payload
                     LLStringUtil::format_map_t string_args;
                     string_args["[NAME]"] = payload["caller_name"].asString();
                     std::string message = LLTrans::getString("name_started_call", string_args);
-                    LLIMModel::getInstance()->addMessageSilently(session_id, SYSTEM_FROM, LLUUID::null, message);
+                    LLIMModel::getInstance()->addMessageSilently(session_id, SYSTEM_FROM, LLUUID::null, message, LLStringUtil::null, LLStringUtil::null);
                 }
             }
         }

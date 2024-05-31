@@ -204,6 +204,7 @@ extern const std::string GROUP_CHAT_SUFFIX;
 extern const std::string LL_IM_TIME; //("time");
 extern const std::string LL_IM_DATE_TIME; //("datetime");
 extern const std::string LL_IM_TEXT; //("message");
+extern const std::string LL_IM_TRANS; //("trans");
 extern const std::string LL_IM_FROM; //("from");
 extern const std::string LL_IM_FROM_ID; //("from_id");
 extern const std::string LL_TRANSCRIPT_FILE_EXTENSION; //("txt");
