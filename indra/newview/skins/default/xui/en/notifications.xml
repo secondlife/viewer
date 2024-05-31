@@ -3100,9 +3100,13 @@ Would you be my friend?
       <input name="listname" type="text"/>
       <button
        default="true"
-       index="0"
+       index="1"
        name="SetName"
        text="OK"/>
+      <button
+       index="0"
+       name="Cancel"
+       text="Cancel"/>
     </form>
   </notification>
 
