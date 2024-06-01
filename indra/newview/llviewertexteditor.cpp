@@ -233,7 +233,7 @@ public:
         }
 
         F32 right_x;
-        mStyle->getFont()->render(mLabel, 0, image_rect.mRight + EMBEDDED_ITEM_LABEL_PADDING, draw_rect.mTop, color, LLFontGL::LEFT, LLFontGL::TOP, LLFontGL::UNDERLINE, LLFontGL::NO_SHADOW, mLabel.length(), S32_MAX, &right_x);
+        mStyle->getFont()->render(mLabel, 0, image_rect.mRight + EMBEDDED_ITEM_LABEL_PADDING, draw_rect.mTop, color, LLFontGL::LEFT, LLFontGL::TOP, LLFontGL::UNDERLINE, LLFontGL::NO_SHADOW, static_cast<S32>(mLabel.length()), S32_MAX, &right_x);
         return right_x;
     }
 

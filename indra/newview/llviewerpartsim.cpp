@@ -279,7 +279,7 @@ void LLViewerPartGroup::updateParticles(const F32 lastdt)
 
     LLVector3 gravity(0.f, 0.f, GRAVITY);
 
-    LLViewerPartSim::checkParticleCount(mParticles.size());
+    LLViewerPartSim::checkParticleCount(static_cast<U32>(mParticles.size()));
 
     LLViewerCamera* camera = LLViewerCamera::getInstance();
     LLViewerRegion *regionp = getRegion();

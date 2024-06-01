@@ -66,7 +66,7 @@ public:
     static void     onAppFocusLost();
     static void     onAppFocusGained();
 
-    static S32      activeCount() { return sModalStack.size(); }
+    static S32      activeCount() { return static_cast<S32>(sModalStack.size()); }
     static void     shutdownModals();
 
 protected:

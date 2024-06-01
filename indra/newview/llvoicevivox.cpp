@@ -7389,8 +7389,8 @@ LLIOPipe::EStatus LLVivoxProtocolParser::process_impl(
     }
 
     // Look for input delimiter(s) in the input buffer.  If one is found, send the message to the xml parser.
-    int start = 0;
-    int delim;
+    size_t start = 0;
+    size_t delim;
     while((delim = mInput.find("\n\n\n", start)) != std::string::npos)
     {
 
@@ -7401,7 +7401,7 @@ LLIOPipe::EStatus LLVivoxProtocolParser::process_impl(
         XML_SetElementHandler(parser, ExpatStartTag, ExpatEndTag);
         XML_SetCharacterDataHandler(parser, ExpatCharHandler);
         XML_SetUserData(parser, this);
-        XML_Parse(parser, mInput.data() + start, delim - start, false);
+        XML_Parse(parser, mInput.data() + start, static_cast<int>(delim - start), false);
 
         LL_DEBUGS("VivoxProtocolParser") << "parsing: " << mInput.substr(start, delim - start) << LL_ENDL;
         start = delim + 3;

@@ -5199,7 +5199,7 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
     //add face to drawmap
     LLSpatialGroup::drawmap_elem_t& draw_vec = group->mDrawMap[passType];
 
-    S32 idx = draw_vec.size()-1;
+    auto idx = draw_vec.size()-1;
 
     bool fullbright = (type == LLRenderPass::PASS_FULLBRIGHT) ||
         (type == LLRenderPass::PASS_INVISIBLE) ||

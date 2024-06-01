@@ -39,7 +39,7 @@ inline bool LLKeywordToken::isHead(const llwchar* s) const
     // strncmp is much faster than string compare
     bool res = true;
     const llwchar* t = mToken.c_str();
-    S32 len = mToken.size();
+    auto len = mToken.size();
     for (S32 i=0; i<len; i++)
     {
         if (s[i] != t[i])
@@ -55,7 +55,7 @@ inline bool LLKeywordToken::isTail(const llwchar* s) const
 {
     bool res = true;
     const llwchar* t = mDelimiter.c_str();
-    S32 len = mDelimiter.size();
+    auto len = mDelimiter.size();
     for (S32 i=0; i<len; i++)
     {
         if (s[i] != t[i])
@@ -134,7 +134,7 @@ std::string LLKeywords::getArguments(LLSD& arguments)
 
     if (arguments.isArray())
     {
-        U32 argsCount = arguments.size();
+        auto argsCount = arguments.size();
         LLSD::array_iterator arrayIt = arguments.beginArray();
         for ( ; arrayIt != arguments.endArray(); ++arrayIt)
         {
@@ -489,7 +489,7 @@ void LLKeywords::findSegments(std::vector<LLTextSegmentPtr>* seg_list, const LLW
         return;
     }
 
-    S32 text_len = wtext.size() + 1;
+    S32 text_len = static_cast<S32>(wtext.size()) + 1;
 
     seg_list->push_back( new LLNormalTextSegment( style, 0, text_len, editor ) );
 
@@ -707,16 +707,16 @@ void LLKeywords::insertSegments(const LLWString& wtext, std::vector<LLTextSegmen
     {
         if (pos!=seg_start)
         {
-            LLTextSegmentPtr text_segment = new LLNormalTextSegment(cur_token_style, seg_start, pos, editor);
+            LLTextSegmentPtr text_segment = new LLNormalTextSegment(cur_token_style, seg_start, static_cast<S32>(pos), editor);
             text_segment->setToken( cur_token );
             insertSegment( seg_list, text_segment, text_len, style, editor);
         }
 
-        LLTextSegmentPtr text_segment = new LLLineBreakTextSegment(style, pos);
+        LLTextSegmentPtr text_segment = new LLLineBreakTextSegment(style, static_cast<S32>(pos));
         text_segment->setToken( cur_token );
         insertSegment( seg_list, text_segment, text_len, style, editor);
 
-        seg_start = pos+1;
+        seg_start = static_cast<S32>(pos) + 1;
         pos = wtext.find('\n',seg_start);
     }
 

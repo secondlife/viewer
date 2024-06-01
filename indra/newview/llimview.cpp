@@ -741,7 +741,7 @@ void LLIMModel::LLIMSession::onAdHocNameCache(const LLAvatarName& av_name)
 
     if (!av_name.isValidName())
     {
-        S32 separator_index = mName.rfind(" ");
+        auto separator_index = mName.rfind(" ");
         std::string name = mName.substr(0, separator_index);
         ++separator_index;
         std::string conference_word = mName.substr(separator_index, mName.length());
@@ -1188,7 +1188,7 @@ void LLIMModel::LLIMSession::addMessagesFromServerHistory(const LLSD& history,  
         }
     }
 
-    S32 shifted_size = shift_msgs.size();
+    auto shifted_size = shift_msgs.size();
     while (shift_msgs.size() > 0)
     {   // Finally add back any new messages, and tweak the index value to be correct.
         LLSD newer_message = shift_msgs.front();
@@ -1250,7 +1250,7 @@ LLIMModel::LLIMSession* LLIMModel::findIMSession(const LLUUID& session_id) const
 //*TODO consider switching to using std::set instead of std::list for holding LLUUIDs across the whole code
 LLIMModel::LLIMSession* LLIMModel::findAdHocIMSession(const uuid_vec_t& ids)
 {
-    S32 num = ids.size();
+    auto num = ids.size();
     if (!num) return NULL;
 
     if (mId2SessionMap.empty()) return NULL;
@@ -1504,7 +1504,7 @@ void LLIMModel::getMessagesSilently(const LLUUID& session_id, chat_message_list_
         return;
     }
 
-    int i = session->mMsgs.size() - start_index;
+    auto i = session->mMsgs.size() - start_index;
 
     for (chat_message_list_t::iterator iter = session->mMsgs.begin();
         iter != session->mMsgs.end() && i > 0;
@@ -1985,12 +1985,12 @@ void start_deprecated_conference_chat(
 {
     U8* bucket;
     U8* pos;
-    S32 count;
+    size_t count;
     S32 bucket_size;
 
     // *FIX: this could suffer from endian issues
     count = agents_to_invite.size();
-    bucket_size = UUID_BYTES * count;
+    bucket_size = UUID_BYTES * static_cast<S32>(count);
     bucket = new U8[bucket_size];
     pos = bucket;
 
@@ -3830,7 +3830,7 @@ void LLIMMgr::noteOfflineUsers(
     const LLUUID& session_id,
     const std::vector<LLUUID>& ids)
 {
-    S32 count = ids.size();
+    auto count = ids.size();
     if(count == 0)
     {
         const std::string& only_user = LLTrans::getString("only_user_message");
@@ -3868,7 +3868,7 @@ void LLIMMgr::noteMutedUsers(const LLUUID& session_id,
         return;
     }
 
-    S32 count = ids.size();
+    auto count = ids.size();
     if(count > 0)
     {
         LLIMModel* im_model = LLIMModel::getInstance();

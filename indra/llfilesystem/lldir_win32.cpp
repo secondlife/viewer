@@ -233,7 +233,7 @@ LLDir_Win32::LLDir_Win32()
     {
         w_str[size] = '\0';
         mExecutablePathAndName = utf16str_to_utf8str(llutf16string(w_str));
-        S32 path_end = mExecutablePathAndName.find_last_of('\\');
+        auto path_end = mExecutablePathAndName.find_last_of('\\');
         if (path_end != std::string::npos)
         {
             mExecutableDir = mExecutablePathAndName.substr(0, path_end);

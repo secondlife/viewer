@@ -43,13 +43,13 @@ LLViewerTextureAnim::LLViewerTextureAnim(LLVOVolume* vobj) : LLTextureAnim()
     mScaleS = mScaleT = 1;
     mRot = 0;
 
-    mInstanceIndex = sInstanceList.size();
+    mInstanceIndex = static_cast<S32>(sInstanceList.size());
     sInstanceList.push_back(this);
 }
 
 LLViewerTextureAnim::~LLViewerTextureAnim()
 {
-    S32 end_idx = sInstanceList.size()-1;
+    S32 end_idx = static_cast<S32>(sInstanceList.size()) - 1;
 
     if (end_idx != mInstanceIndex)
     {

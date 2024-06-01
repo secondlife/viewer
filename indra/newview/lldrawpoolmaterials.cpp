@@ -250,7 +250,7 @@ void LLDrawPoolMaterials::renderDeferred(S32 pass)
             if (params.mAvatar != lastAvatar)
             {
                 const LLVOAvatar::MatrixPaletteCache& mpc = params.mAvatar->updateSkinInfoMatrixPalette(params.mSkinInfo);
-                U32 count = mpc.mMatrixPalette.size();
+                U32 count = static_cast<U32>(mpc.mMatrixPalette.size());
 
                 if (count == 0)
                 {

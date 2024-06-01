@@ -317,7 +317,7 @@ bool LLVOPartGroup::updateGeometry(LLDrawable *drawable)
     F32 pixel_meter_ratio = LLViewerCamera::getInstance()->getPixelMeterRatio();
     pixel_meter_ratio *= pixel_meter_ratio;
 
-    LLViewerPartSim::checkParticleCount(mViewerPartGroupp->mParticles.size()) ;
+    LLViewerPartSim::checkParticleCount(static_cast<U32>(mViewerPartGroupp->mParticles.size()));
 
     S32 count=0;
     mDepth = 0.f;
@@ -899,7 +899,7 @@ void LLParticlePartition::getGeometry(LLSpatialGroup* group)
         llassert(facep->getGeomCount() == 4);
         llassert(facep->getIndicesCount() == 6);
 
-        S32 idx = draw_vec.size()-1;
+        auto idx = draw_vec.size()-1;
 
         bool fullbright = facep->isState(LLFace::FULLBRIGHT);
 

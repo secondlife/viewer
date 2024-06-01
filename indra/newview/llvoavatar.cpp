@@ -2327,7 +2327,7 @@ void LLVOAvatar::updateMeshData()
 
         S32 f_num = 0 ;
         const U32 VERTEX_NUMBER_THRESHOLD = 128 ;//small number of this means each part of an avatar has its own vertex buffer.
-        const S32 num_parts = mMeshLOD.size();
+        const auto num_parts = mMeshLOD.size();
 
         // this order is determined by number of LODS
         // if a mesh earlier in this list changed LODs while a later mesh doesn't,
@@ -5718,7 +5718,7 @@ void LLVOAvatar::checkTextureLoading()
         return ; //have not been invisible for enough time.
     }
 
-    mLoadedCallbackTextures = pause ? mCallbackTextureList.size() : 0;
+    mLoadedCallbackTextures = pause ? static_cast<S32>(mCallbackTextureList.size()) : 0;
 
     for(LLLoadedCallbackEntry::source_callback_list_t::iterator iter = mCallbackTextureList.begin();
         iter != mCallbackTextureList.end(); ++iter)
@@ -6597,8 +6597,8 @@ void LLVOAvatar::addAttachmentOverridesForObject(LLViewerObject *vo, std::set<LL
 
     if ( vobj && vobj->isMesh() && pSkinData )
     {
-        const int bindCnt = pSkinData->mAlternateBindMatrix.size();
-        const int jointCnt = pSkinData->mJointNames.size();
+        const int bindCnt = static_cast<int>(pSkinData->mAlternateBindMatrix.size());
+        const int jointCnt = static_cast<int>(pSkinData->mJointNames.size());
         if ((bindCnt > 0) && (bindCnt != jointCnt))
         {
             LL_WARNS_ONCE() << "invalid mesh, bindCnt " << bindCnt << "!= jointCnt " << jointCnt << ", joint overrides will be ignored." << LL_ENDL;
@@ -7945,7 +7945,7 @@ LLVOAvatar* LLVOAvatar::findAvatarFromAttachment( LLViewerObject* obj )
 
 S32 LLVOAvatar::getAttachmentCount() const
 {
-    S32 count = 0;
+    size_t count = 0;
 
     for (attachment_map_t::const_iterator iter = mAttachmentPoints.begin(); iter != mAttachmentPoints.end(); ++iter)
     {
@@ -7953,7 +7953,7 @@ S32 LLVOAvatar::getAttachmentCount() const
         count += pAttachment->mAttachedObjects.size();
     }
 
-    return count;
+    return static_cast<S32>(count);
 }
 
 bool LLVOAvatar::isWearingWearableType(LLWearableType::EType type) const
@@ -8982,7 +8982,7 @@ void LLVOAvatar::addChat(const LLChat& chat)
 
     mChats.push_back(chat);
 
-    S32 chat_length = 0;
+    size_t chat_length = 0;
     for( chat_iter = mChats.begin(); chat_iter != mChats.end(); ++chat_iter)
     {
         chat_length += chat_iter->mText.size();
@@ -9594,7 +9594,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
     }
 
     // SUNSHINE CLEANUP - is this case OK now?
-    S32 num_params = contents->mParamWeights.size();
+    auto num_params = contents->mParamWeights.size();
     if (num_params <= 1)
     {
         // In this case, we have no reliable basis for knowing
@@ -9638,7 +9638,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 
 void LLVOAvatar::applyParsedAppearanceMessage(LLAppearanceMessageContents& contents, bool slam_params)
 {
-    S32 num_params = contents.mParamWeights.size();
+    auto num_params = contents.mParamWeights.size();
     ESex old_sex = getSex();
 
     if (applyParsedTEMessage(contents.mTEContents) > 0 && isChanged(TEXTURE))
@@ -9689,7 +9689,7 @@ void LLVOAvatar::applyParsedAppearanceMessage(LLAppearanceMessageContents& conte
         bool interp_params = false;
         S32 params_changed_count = 0;
 
-        for( S32 i = 0; i < num_params; i++ )
+        for( size_t i = 0; i < num_params; i++ )
         {
             LLVisualParam* param = contents.mParams[i];
             F32 newWeight = contents.mParamWeights[i];
@@ -11138,7 +11138,7 @@ void LLVOAvatar::accountRenderComplexityForObject(
                 attached_object->mRiggedAttachedWarned = true;
             }
 
-            hud_object_complexity.texturesCount += textures.size();
+            hud_object_complexity.texturesCount += static_cast<U32>(textures.size());
 
             for (LLVOVolume::texture_cost_t::iterator volume_texture = textures.begin();
                 volume_texture != textures.end();

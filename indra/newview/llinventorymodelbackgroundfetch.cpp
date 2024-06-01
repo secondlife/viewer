@@ -1496,7 +1496,7 @@ void BGFolderHttpHandler::processFailure(LLCore::HttpStatus status, LLCore::Http
             return;
         }
 
-        S32 size = mRequestSD["folders"].size();
+        auto size = mRequestSD["folders"].size();
 
         if (size > 1)
         {
@@ -1513,7 +1513,7 @@ void BGFolderHttpHandler::processFailure(LLCore::HttpStatus status, LLCore::Http
                 {
                     recursive_cats.push_back(folder_id);
                 }
-                if (folders.size() == (S32)(size / 2))
+                if (folders.size() == (size / 2))
                 {
                     LLSD request_body;
                     request_body["folders"] = folders;

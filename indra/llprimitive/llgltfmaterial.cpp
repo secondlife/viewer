@@ -180,7 +180,7 @@ bool LLGLTFMaterial::fromJSON(const std::string& json, std::string& warn_msg, st
 
     tinygltf::Model model_in;
 
-    if (gltf.LoadASCIIFromString(&model_in, &error_msg, &warn_msg, json.c_str(), json.length(), ""))
+    if (gltf.LoadASCIIFromString(&model_in, &error_msg, &warn_msg, json.c_str(), static_cast<unsigned int>(json.length()), ""))
     {
         setFromModel(model_in, 0);
 

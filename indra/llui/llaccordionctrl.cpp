@@ -484,7 +484,7 @@ void LLAccordionCtrl::arrangeMultiple()
             if (mFitParent)
             {
                 // All expanded tabs will have equal height
-                panel_height = calcExpandedTabHeight(i, panel_top);
+                panel_height = calcExpandedTabHeight(static_cast<S32>(i), panel_top);
                 ctrlSetLeftTopAndSize(accordion_tab, panel_left, panel_top, panel_width, panel_height);
 
                 // Try to make accordion tab fit accordion view height.

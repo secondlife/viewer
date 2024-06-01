@@ -376,7 +376,7 @@ void LLOutfitsList::getSelectedItemsUUIDs(uuid_vec_t& selected_uuids) const
         uuid_vec_t uuids;
         (*iter).second->getSelectedUUIDs(uuids);
 
-        S32 prev_size = selected_uuids.size();
+        auto prev_size = selected_uuids.size();
         selected_uuids.resize(prev_size + uuids.size());
         std::copy(uuids.begin(), uuids.end(), selected_uuids.begin() + prev_size);
     }

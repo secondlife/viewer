@@ -210,7 +210,7 @@ void LLQueuedThread::waitOnPending()
 // MAIN thread
 void LLQueuedThread::printQueueStats()
 {
-    U32 size = mRequestQueue.size();
+    auto size = mRequestQueue.size();
     if (size > 0)
     {
         LL_INFOS() << llformat("Pending Requests:%d ", mRequestQueue.size()) << LL_ENDL;

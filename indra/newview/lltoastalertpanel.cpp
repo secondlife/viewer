@@ -161,14 +161,14 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
         options = supplied_options;
     }
 
-    S32 num_options = options.size();
+    auto num_options = options.size();
 
     // Calc total width of buttons
     S32 button_width = 0;
     S32 sp = font->getWidth(std::string("OO"));
     S32 btn_total_width = 0;
     S32 default_size_btns = 0;
-    for( S32 i = 0; i < num_options; i++ )
+    for (size_t i = 0; i < num_options; i++)
     {
         S32 w = S32(font->getWidth( options[i].second ) + 0.99f) + sp + 2 * LLBUTTON_H_PAD;
         if (mButtonData[i].mWidth > w)
@@ -184,7 +184,7 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
 
     if( num_options > 1 )
     {
-        btn_total_width = btn_total_width + (button_width * default_size_btns) + ((num_options - 1) * BTN_HPAD);
+        btn_total_width = btn_total_width + (button_width * default_size_btns) + ((static_cast<S32>(num_options) - 1) * BTN_HPAD);
     }
     else
     {

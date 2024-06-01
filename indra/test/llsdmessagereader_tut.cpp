@@ -318,7 +318,7 @@ namespace tut
         inValue[1] = 1;
 
         LLSDMessageReader msg = testType(inValue);
-        msg.getBinaryData("block", "var", &(outValue[0]), inValue.size());
+        msg.getBinaryData("block", "var", &(outValue[0]), static_cast<S32>(inValue.size()));
         ensure_equals("Ensure Binary", outValue, inValue);
     }
 }

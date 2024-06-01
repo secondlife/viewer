@@ -223,7 +223,7 @@ bool LLFloaterBulkPermission::start()
 // Go to the next object and start if found. Returns false if no objects left, true otherwise.
 bool LLFloaterBulkPermission::nextObject()
 {
-    S32 count;
+    size_t count;
     bool successful_start = false;
     do
     {
@@ -251,7 +251,7 @@ bool LLFloaterBulkPermission::popNext()
 {
     // get the head element from the container, and attempt to get its inventory.
     bool rv = false;
-    S32 count = mObjectIDs.size();
+    auto count = mObjectIDs.size();
     if(mCurrentObjectID.isNull() && (count > 0))
     {
         mCurrentObjectID = mObjectIDs.at(0);

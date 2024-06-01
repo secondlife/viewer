@@ -628,7 +628,7 @@ public:
     /**
      * Returns number of hosted chiclets.
      */
-    S32 getChicletCount() {return mChicletList.size();};
+    S32 getChicletCount() { return static_cast<S32>(mChicletList.size()); }
 
     /**
      * Returns index of chiclet in list.
@@ -854,7 +854,7 @@ T* LLChicletPanel::createChiclet(const LLUUID& session_id, S32 index)
 template<class T>
 T* LLChicletPanel::createChiclet(const LLUUID& session_id)
 {
-    return createChiclet<T>(session_id, mChicletList.size());
+    return createChiclet<T>(session_id, static_cast<S32>(mChicletList.size()));
 }
 
 template<class T>

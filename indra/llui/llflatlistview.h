@@ -264,7 +264,7 @@ public:
     void setCommitOnSelectionChange(bool b)     { mCommitOnSelectionChange = b; }
 
     /** Get number of selected items in the list */
-    U32 numSelected() const {return mSelectedItemPairs.size(); }
+    U32 numSelected() const {return static_cast<U32>(mSelectedItemPairs.size()); }
 
     /** Get number of (visible) items in the list */
     U32 size(const bool only_visible_items = true) const;

@@ -757,7 +757,7 @@ namespace
         LLEnvironment::DayInstance::ptr_t   getBaseDayInstance() const  { return mBaseDayInstance; }
         void                                setBaseDayInstance(const LLEnvironment::DayInstance::ptr_t &baseday);
 
-        S32                                 countExperiencesActive() const { return mActiveExperiences.size(); }
+        S32                                 countExperiencesActive() const { return static_cast<S32>(mActiveExperiences.size()); }
 
         bool                                isOverriddenSky() const { return !mSkyExperience.isNull(); }
         bool                                isOverriddenWater() const { return !mWaterExperience.isNull(); }

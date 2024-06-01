@@ -964,7 +964,7 @@ bool LLAppViewerWin32::sendURLToOtherInstance(const std::string& url)
         COPYDATASTRUCT cds;
         const S32 SLURL_MESSAGE_TYPE = 0;
         cds.dwData = SLURL_MESSAGE_TYPE;
-        cds.cbData = url.length() + 1;
+        cds.cbData = static_cast<DWORD>(url.length()) + 1;
         cds.lpData = (void*)url.c_str();
 
         LRESULT msg_result = SendMessage(other_window, WM_COPYDATA, NULL, (LPARAM)&cds);

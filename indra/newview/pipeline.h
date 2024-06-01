@@ -346,7 +346,7 @@ public:
     void findReferences(LLDrawable *drawablep); // Find the lists which have references to this object
     bool verify();                      // Verify that all data in the pipeline is "correct"
 
-    S32  getLightCount() const { return mLights.size(); }
+    S32  getLightCount() const { return static_cast<S32>(mLights.size()); }
 
     void calcNearbyLights(LLCamera& camera);
     void setupHWLights();

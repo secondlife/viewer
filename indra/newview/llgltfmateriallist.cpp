@@ -207,8 +207,8 @@ void LLGLTFMaterialList::applyOverrideMessage(LLMessageSystem* msg, const std::s
             cache.mObjectId = id;
             cache.mRegionHandle = region->getHandle();
 
-            U32 count = llmin(tes.size(), MAX_TES);
-            for (U32 i = 0; i < count; ++i)
+            auto count = llmin(tes.size(), MAX_TES);
+            for (size_t i = 0; i < count; ++i)
             {
                 LLGLTFMaterial* mat = new LLGLTFMaterial(); // setTEGLTFMaterialOverride and cache will take ownership
                 mat->applyOverrideLLSD(od[i]);
@@ -381,7 +381,7 @@ void LLGLTFMaterialList::flushUpdates(void(*done_callback)(bool))
 {
     LLSD& data = sUpdates;
 
-    S32 i = data.size();
+    auto i = data.size();
 
     for (ModifyMaterialData& e : sModifyQueue)
     {
@@ -492,7 +492,7 @@ void LLGLTFMaterialList::onAssetLoadComplete(const LLUUID& id, LLAssetType::ETyp
                 }
 
                 buffer.resize(size);
-                file.read((U8*)&buffer[0], buffer.size());
+                file.read((U8*)&buffer[0], static_cast<S32>(buffer.size()));
             }
 
             {
@@ -501,7 +501,7 @@ void LLGLTFMaterialList::onAssetLoadComplete(const LLUUID& id, LLAssetType::ETyp
                 LLSD asset;
 
                 // read file into buffer
-                std::istrstream str(&buffer[0], buffer.size());
+                std::istrstream str(&buffer[0], static_cast<S32>(buffer.size()));
 
                 if (LLSDSerialize::deserialize(asset, str, buffer.size()))
                 {
@@ -518,7 +518,7 @@ void LLGLTFMaterialList::onAssetLoadComplete(const LLUUID& id, LLAssetType::ETyp
                                 LL_PROFILE_ZONE_SCOPED;
                                 tinygltf::TinyGLTF gltf;
 
-                                if (!gltf.LoadASCIIFromString(&asset_data->mModelIn, &error_msg, &warn_msg, data.c_str(), data.length(), ""))
+                                if (!gltf.LoadASCIIFromString(&asset_data->mModelIn, &error_msg, &warn_msg, data.c_str(), static_cast<U32>(data.length()), ""))
                                 {
                                     LL_WARNS("GLTF") << "Failed to decode material asset: "
                                         << LL_NEWLINE

@@ -185,7 +185,7 @@ LLSphere LLSphere::getBoundingSphere(const std::vector<LLSphere>& sphere_list)
     // TODO -- improve the accuracy for small collections of spheres
 
     LLSphere bounding_sphere( LLVector3(0.f, 0.f, 0.f), 0.f );
-    S32 sphere_count = sphere_list.size();
+    auto sphere_count = sphere_list.size();
     if (1 == sphere_count)
     {
         // trivial case -- single sphere

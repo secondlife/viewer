@@ -345,7 +345,7 @@ const char *LLFile::tmpdir()
         sep = '\\';
 
         std::vector<wchar_t> utf16path(MAX_PATH + 1);
-        GetTempPathW(utf16path.size(), &utf16path[0]);
+        GetTempPathW(static_cast<DWORD>(utf16path.size()), &utf16path[0]);
         utf8path = ll_convert_wide_to_string(&utf16path[0]);
 #else
         sep = '/';

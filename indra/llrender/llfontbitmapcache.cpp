@@ -108,7 +108,7 @@ bool LLFontBitmapCache::nextOpenPos(S32 width, S32& pos_x, S32& pos_y, EFontGlyp
 
             S32 num_components = getNumComponents(bitmap_type);
             mImageRawVec[bitmap_idx].push_back(new LLImageRaw(mBitmapWidth, mBitmapHeight, num_components));
-            bitmap_num = mImageRawVec[bitmap_idx].size() - 1;
+            bitmap_num = static_cast<U32>(mImageRawVec[bitmap_idx].size()) - 1;
 
             LLImageRaw* image_raw = getImageRaw(bitmap_type, bitmap_num);
             if (EFontGlyphType::Grayscale == bitmap_type)

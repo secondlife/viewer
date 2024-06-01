@@ -657,12 +657,12 @@ LLViewerInventoryCategory* LLInventoryModel::getCategory(const LLUUID& id) const
 
 S32 LLInventoryModel::getItemCount() const
 {
-    return mItemMap.size();
+    return static_cast<S32>(mItemMap.size());
 }
 
 S32 LLInventoryModel::getCategoryCount() const
 {
-    return mCategoryMap.size();
+    return static_cast<S32>(mCategoryMap.size());
 }
 
 // Return the direct descendents of the id provided. The array
@@ -822,17 +822,14 @@ void LLInventoryModel::ensureCategoryForTypeExists(LLFolderType::EType preferred
     }
     else if (root_id.notNull())
     {
-        cat_array_t* cats = NULL;
-        cats = get_ptr_in_map(mParentChildCategoryTree, root_id);
+        cat_array_t* cats = get_ptr_in_map(mParentChildCategoryTree, root_id);
         if (cats)
         {
-            S32 count = cats->size();
-            for (S32 i = 0; i < count; ++i)
+            for (auto& p_cat : *cats)
             {
-                LLViewerInventoryCategory* p_cat = cats->at(i);
                 if (p_cat && p_cat->getPreferredType() == preferred_type)
                 {
-                    const LLUUID& folder_id = cats->at(i)->getUUID();
+                    const LLUUID& folder_id = p_cat->getUUID();
                     if (rv.isNull() || folder_id < rv)
                     {
                         rv = folder_id;
@@ -891,17 +888,14 @@ const LLUUID LLInventoryModel::findCategoryUUIDForTypeInRoot(
     }
     else if (root_id.notNull())
     {
-        cat_array_t* cats = NULL;
-        cats = get_ptr_in_map(mParentChildCategoryTree, root_id);
-        if(cats)
+        cat_array_t* cats = get_ptr_in_map(mParentChildCategoryTree, root_id);
+        if (cats)
         {
-            S32 count = cats->size();
-            for(S32 i = 0; i < count; ++i)
+            for (auto& p_cat : *cats)
             {
-                LLViewerInventoryCategory* p_cat = cats->at(i);
-                if(p_cat && p_cat->getPreferredType() == preferred_type)
+                if (p_cat && p_cat->getPreferredType() == preferred_type)
                 {
-                    const LLUUID& folder_id = cats->at(i)->getUUID();
+                    const LLUUID& folder_id = p_cat->getUUID();
                     if (rv.isNull() || folder_id < rv)
                     {
                         rv = folder_id;
@@ -1286,10 +1280,8 @@ void LLInventoryModel::collectDescendentsIf(const LLUUID& id,
     cat_array_t* cat_array = get_ptr_in_map(mParentChildCategoryTree, id);
     if(cat_array)
     {
-        S32 count = cat_array->size();
-        for(S32 i = 0; i < count; ++i)
+        for (auto& cat : *cat_array)
         {
-            LLViewerInventoryCategory* cat = cat_array->at(i);
             if(add(cat,NULL))
             {
                 cats.push_back(cat);
@@ -1304,10 +1296,8 @@ void LLInventoryModel::collectDescendentsIf(const LLUUID& id,
     // Move onto items
     if(item_array)
     {
-        S32 count = item_array->size();
-        for(S32 i = 0; i < count; ++i)
+        for (auto& item : *item_array)
         {
-            item = item_array->at(i);
             if(add(NULL, item))
             {
                 items.push_back(item);
@@ -1906,10 +1896,10 @@ void LLInventoryModel::onDescendentsPurgedFromServer(const LLUUID& object_id, bo
                            categories,
                            items,
                            LLInventoryModel::INCLUDE_TRASH);
-        S32 count = items.size();
+        auto count = items.size();
 
         LLUUID uu_id;
-        for(S32 i = 0; i < count; ++i)
+        for(size_t i = 0; i < count; ++i)
         {
             uu_id = items.at(i)->getUUID();
 
@@ -2689,8 +2679,8 @@ bool LLInventoryModel::loadSkeleton(
         }
     }
 
-    S32 cached_category_count = 0;
-    S32 cached_item_count = 0;
+    size_t cached_category_count = 0;
+    size_t cached_item_count = 0;
     if(!temp_cats.empty())
     {
         update_map_t child_counts;
@@ -2739,12 +2729,10 @@ bool LLInventoryModel::loadSkeleton(
             // found to generate a set of categories we should add. We
             // will go through each category loaded and if the version
             // does not match, invalidate the version.
-            S32 count = categories.size();
             cat_set_t::iterator not_cached = temp_cats.end();
-            std::set<LLUUID> cached_ids;
-            for(S32 i = 0; i < count; ++i)
+            uuid_set_t cached_ids;
+            for (auto& cat : categories)
             {
-                LLViewerInventoryCategory* cat = categories[i];
                 cat_set_t::iterator cit = temp_cats.find(cat);
                 if (cit == temp_cats.end())
                 {
@@ -2990,13 +2978,11 @@ void LLInventoryModel::buildParentChildMap()
     // Now we have a structure with all of the categories that we can
     // iterate over and insert into the correct place in the child
     // category tree.
-    S32 count = cats.size();
     S32 i;
     S32 lost = 0;
     cat_array_t lost_cats;
-    for(i = 0; i < count; ++i)
+    for (auto& cat : cats)
     {
-        LLViewerInventoryCategory* cat = cats.at(i);
         catsp = getUnlockedCatArray(cat->getParentUUID());
         if(catsp &&
            // Only the two root folders should be children of null.
@@ -3082,13 +3068,10 @@ void LLInventoryModel::buildParentChildMap()
             items.push_back(item);
         }
     }
-    count = items.size();
     lost = 0;
     uuid_vec_t lost_item_ids;
-    for(i = 0; i < count; ++i)
+    for (auto& item : items)
     {
-        LLPointer<LLViewerInventoryItem> item;
-        item = items.at(i);
         itemsp = getUnlockedItemArray(item->getParentUUID());
         if(itemsp)
         {
@@ -3469,12 +3452,9 @@ bool LLInventoryModel::saveToFile(const std::string& filename,
 
         fileXML << LLSDOStreamer<LLSDNotationFormatter>(cache_ver) << std::endl;
 
-        S32 count = categories.size();
         S32 cat_count = 0;
-        S32 i;
-        for (i = 0; i < count; ++i)
+        for (auto& cat : categories)
         {
-            LLViewerInventoryCategory* cat = categories[i];
             if (cat->getVersion() != LLViewerInventoryCategory::VERSION_UNKNOWN)
             {
                 fileXML << LLSDOStreamer<LLSDNotationFormatter>(cat->exportLLSD()) << std::endl;
@@ -3488,10 +3468,10 @@ bool LLInventoryModel::saveToFile(const std::string& filename,
             }
         }
 
-        S32 it_count = items.size();
-        for (i = 0; i < it_count; ++i)
+        auto it_count = items.size();
+        for (auto& item : items)
         {
-            fileXML << LLSDOStreamer<LLSDNotationFormatter>(items[i]->asLLSD()) << std::endl;
+            fileXML << LLSDOStreamer<LLSDNotationFormatter>(item->asLLSD()) << std::endl;
 
             if (fileXML.fail())
             {
@@ -3957,11 +3937,9 @@ void LLInventoryModel::processBulkUpdateInventory(LLMessageSystem* msg, void**)
 
     if (tid.notNull() && tid == LLInventoryState::sWearNewClothingTransactionID)
     {
-        count = wearable_ids.size();
-        for (i = 0; i < count; ++i)
+        for (const auto& wearable_id : wearable_ids)
         {
-            LLViewerInventoryItem* wearable_item;
-            wearable_item = gInventory.getItem(wearable_ids[i]);
+            LLViewerInventoryItem* wearable_item = gInventory.getItem(wearable_id);
             LLAppearanceMgr::instance().wearItemOnAvatar(wearable_item->getUUID(), true, true);
         }
     }
@@ -4056,7 +4034,7 @@ void LLInventoryModel::emptyFolderType(const std::string notification, LLFolderT
             LLInventoryModel::item_array_t items;
             const LLUUID trash_id = findCategoryUUIDForType(preferred_type);
             gInventory.collectDescendents(trash_id, cats, items, LLInventoryModel::INCLUDE_TRASH); //All descendants
-            S32 item_count = items.size() + cats.size();
+            S32 item_count = static_cast<S32>(items.size() + cats.size());
             args["COUNT"] = item_count;
         }
         LLNotificationsUtil::add(notification, args, LLSD(),
@@ -4178,7 +4156,7 @@ void  LLInventoryModel::checkTrashOverflow()
     LLInventoryModel::item_array_t items;
     const LLUUID trash_id = findCategoryUUIDForType(LLFolderType::FT_TRASH);
     gInventory.collectDescendents(trash_id, cats, items, LLInventoryModel::INCLUDE_TRASH);
-    S32 item_count = items.size() + cats.size();
+    auto item_count = items.size() + cats.size();
 
     if (item_count >= trash_max_capacity)
     {
@@ -4987,7 +4965,7 @@ void LLInventoryModel::FetchItemHttpHandler::processData(LLSD & content, LLCore:
     LLInventoryModel::update_map_t update;
     LLUUID folder_id;
     LLSD content_items(content["items"]);
-    const S32 count(content_items.size());
+    const S32 count(static_cast<S32>(content_items.size()));
 
     // Does this loop ever execute more than once?
     for (S32 i(0); i < count; ++i)

@@ -199,9 +199,9 @@ bool LLApp::parseCommandOptions(int argc, char** argv)
 
 #if LL_WINDOWS
         //Windows changed command line parsing.  Deal with it.
-        S32 slen = value.length() - 1;
-        S32 start = 0;
-        S32 end = slen;
+        size_t slen = value.length() - 1;
+        size_t start = 0;
+        size_t end = slen;
         if (argv[ii][start]=='"')start++;
         if (argv[ii][end]=='"')end--;
         if (start!=0 || end!=slen)
@@ -264,9 +264,9 @@ bool LLApp::parseCommandOptions(int argc, wchar_t** wargv)
 
 #if LL_WINDOWS
         //Windows changed command line parsing.  Deal with it.
-        S32 slen = value.length() - 1;
-        S32 start = 0;
-        S32 end = slen;
+        size_t slen = value.length() - 1;
+        size_t start = 0;
+        size_t end = slen;
         if (wargv[ii][start]=='"')start++;
         if (wargv[ii][end]=='"')end--;
         if (start!=0 || end!=slen)

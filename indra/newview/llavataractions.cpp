@@ -653,8 +653,8 @@ void LLAvatarActions::csr(const LLUUID& id, std::string name)
     std::string url = "http://csr.lindenlab.com/agent/";
 
     // slow and stupid, but it's late
-    S32 len = name.length();
-    for (S32 i = 0; i < len; i++)
+    auto len = name.length();
+    for (size_t i = 0; i < len; i++)
     {
         if (name[i] == ' ')
         {
@@ -829,11 +829,11 @@ namespace action_give_inventory
             return;
         }
 
-        S32 count = LLShareInfo::instance().mAvatarNames.size();
+        auto count = LLShareInfo::instance().mAvatarNames.size();
         bool shared = count && !inventory_selected_uuids.empty();
 
         // iterate through avatars
-        for(S32 i = 0; i < count; ++i)
+        for(size_t i = 0; i < count; ++i)
         {
             const LLUUID& avatar_uuid = LLShareInfo::instance().mAvatarUuids[i];
 

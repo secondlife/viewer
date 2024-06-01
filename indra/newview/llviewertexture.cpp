@@ -3516,12 +3516,12 @@ void LLViewerMediaTexture::removeFace(U32 ch, LLFace* facep)
                 return;
             }
 
-            S32 end = te_list.size();
+            auto end = te_list.size();
 
             for(std::list< LLPointer<LLViewerTexture> >::iterator iter = mTextureList.begin();
                 iter != mTextureList.end(); ++iter)
             {
-                S32 i = 0;
+                size_t i = 0;
 
                 for(i = 0; i < end; i++)
                 {

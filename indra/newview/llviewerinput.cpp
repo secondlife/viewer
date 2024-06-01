@@ -1124,7 +1124,7 @@ bool LLViewerInput::handleGlobalBindsKeyDown(KEY key, MASK mask)
         return false;
     }
     S32 mode = getMode();
-    return scanKey(mGlobalKeyBindings[mode], mGlobalKeyBindings[mode].size(), key, mask, true, false, false, false);
+    return scanKey(mGlobalKeyBindings[mode], static_cast<S32>(mGlobalKeyBindings[mode].size()), key, mask, true, false, false, false);
 }
 
 bool LLViewerInput::handleGlobalBindsKeyUp(KEY key, MASK mask)
@@ -1137,7 +1137,7 @@ bool LLViewerInput::handleGlobalBindsKeyUp(KEY key, MASK mask)
     }
 
     S32 mode = getMode();
-    return scanKey(mGlobalKeyBindings[mode], mGlobalKeyBindings[mode].size(), key, mask, false, true, false, false);
+    return scanKey(mGlobalKeyBindings[mode], static_cast<S32>(mGlobalKeyBindings[mode].size()), key, mask, false, true, false, false);
 }
 
 bool LLViewerInput::handleGlobalBindsMouse(EMouseClickType clicktype, MASK mask, bool down)
@@ -1153,18 +1153,18 @@ bool LLViewerInput::handleGlobalBindsMouse(EMouseClickType clicktype, MASK mask,
     S32 mode = getMode();
     if (down)
     {
-        res = scanMouse(mGlobalMouseBindings[mode], mGlobalMouseBindings[mode].size(), clicktype, mask, MOUSE_STATE_DOWN, true);
+        res = scanMouse(mGlobalMouseBindings[mode], static_cast<S32>(mGlobalMouseBindings[mode].size()), clicktype, mask, MOUSE_STATE_DOWN, true);
     }
     else
     {
-        res = scanMouse(mGlobalMouseBindings[mode], mGlobalMouseBindings[mode].size(), clicktype, mask, MOUSE_STATE_UP, true);
+        res = scanMouse(mGlobalMouseBindings[mode], static_cast<S32>(mGlobalMouseBindings[mode].size()), clicktype, mask, MOUSE_STATE_UP, true);
     }
     return res;
 }
 
 bool LLViewerInput::bindKey(const S32 mode, const KEY key, const MASK mask, const std::string& function_name)
 {
-    S32 index;
+    size_t index;
     typedef boost::function<bool(EKeystate)> function_t;
     function_t function = NULL;
     std::string name;
@@ -1211,7 +1211,7 @@ bool LLViewerInput::bindKey(const S32 mode, const KEY key, const MASK mask, cons
     // check for duplicate first and overwrite
     if (result->mIsGlobal)
     {
-        S32 size = mGlobalKeyBindings[mode].size();
+        auto size = mGlobalKeyBindings[mode].size();
         for (index = 0; index < size; index++)
         {
             if (key == mGlobalKeyBindings[mode][index].mKey && mask == mGlobalKeyBindings[mode][index].mMask)
@@ -1223,7 +1223,7 @@ bool LLViewerInput::bindKey(const S32 mode, const KEY key, const MASK mask, cons
     }
     else
     {
-        S32 size = mKeyBindings[mode].size();
+        auto size = mKeyBindings[mode].size();
         for (index = 0; index < size; index++)
         {
             if (key == mKeyBindings[mode][index].mKey && mask == mKeyBindings[mode][index].mMask)
@@ -1254,7 +1254,7 @@ bool LLViewerInput::bindKey(const S32 mode, const KEY key, const MASK mask, cons
 
 bool LLViewerInput::bindMouse(const S32 mode, const EMouseClickType mouse, const MASK mask, const std::string& function_name)
 {
-    S32 index;
+    size_t index;
     typedef boost::function<bool(EKeystate)> function_t;
     function_t function = NULL;
 
@@ -1293,7 +1293,7 @@ bool LLViewerInput::bindMouse(const S32 mode, const EMouseClickType mouse, const
     // check for duplicate first and overwrite
     if (result->mIsGlobal)
     {
-        S32 size = mGlobalMouseBindings[mode].size();
+        auto size = mGlobalMouseBindings[mode].size();
         for (index = 0; index < size; index++)
         {
             if (mouse == mGlobalMouseBindings[mode][index].mMouse && mask == mGlobalMouseBindings[mode][index].mMask)
@@ -1305,7 +1305,7 @@ bool LLViewerInput::bindMouse(const S32 mode, const EMouseClickType mouse, const
     }
     else
     {
-        S32 size = mMouseBindings[mode].size();
+        auto size = mMouseBindings[mode].size();
         for (index = 0; index < size; index++)
         {
             if (mouse == mMouseBindings[mode][index].mMouse && mask == mMouseBindings[mode][index].mMask)
@@ -1608,7 +1608,7 @@ bool LLViewerInput::scanKey(KEY key, bool key_down, bool key_up, bool key_level)
     // don't process key down on repeated keys
     bool repeat = gKeyboard->getKeyRepeated(key);
 
-    bool res = scanKey(mKeyBindings[mode], mKeyBindings[mode].size(), key, mask, key_down, key_up, key_level, repeat);
+    bool res = scanKey(mKeyBindings[mode], static_cast<S32>(mKeyBindings[mode].size()), key, mask, key_down, key_up, key_level, repeat);
 
     return res;
 }
@@ -1744,7 +1744,7 @@ bool LLViewerInput::scanMouse(EMouseClickType click, EMouseState state) const
     bool res = false;
     S32 mode = getMode();
     MASK mask = gKeyboard->currentMask(true);
-    res = scanMouse(mMouseBindings[mode], mMouseBindings[mode].size(), click, mask, state, false);
+    res = scanMouse(mMouseBindings[mode], static_cast<S32>(mMouseBindings[mode].size()), click, mask, state, false);
 
     // No user defined actions found or those actions can't handle the key/button,
     // so handle CONTROL_LBUTTON if nessesary.
@@ -1805,14 +1805,14 @@ void LLViewerInput::scanMouse()
 
 bool LLViewerInput::isMouseBindUsed(const EMouseClickType mouse, const MASK mask, const S32 mode) const
 {
-    S32 size = mMouseBindings[mode].size();
-    for (S32 index = 0; index < size; index++)
+    auto size = mMouseBindings[mode].size();
+    for (size_t index = 0; index < size; index++)
     {
         if (mouse == mMouseBindings[mode][index].mMouse && mask == mMouseBindings[mode][index].mMask)
             return true;
     }
     size = mGlobalMouseBindings[mode].size();
-    for (S32 index = 0; index < size; index++)
+    for (size_t index = 0; index < size; index++)
     {
         if (mouse == mGlobalMouseBindings[mode][index].mMouse && mask == mGlobalMouseBindings[mode][index].mMask)
             return true;

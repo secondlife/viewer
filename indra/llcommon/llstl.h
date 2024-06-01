@@ -326,7 +326,7 @@ inline bool vector_replace_with_last(std::vector<T>& invec, const T& val)
 template <typename T>
 inline T* vector_append(std::vector<T>& invec, S32 N)
 {
-    U32 sz = invec.size();
+    auto sz = invec.size();
     invec.resize(sz+N);
     return &(invec[sz]);
 }

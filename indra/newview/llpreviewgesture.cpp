@@ -549,11 +549,9 @@ void LLPreviewGesture::addAnimations()
 
     // Copy into something we can sort
     std::vector<LLInventoryItem*> animations;
-
-    S32 count = items.size();
-    for(i = 0; i < count; ++i)
+    for (auto& item : items)
     {
-        animations.push_back( items.at(i) );
+        animations.emplace_back(item);
     }
 
     // Do the sort
@@ -594,12 +592,9 @@ void LLPreviewGesture::addSounds()
 
     // Copy sounds into something we can sort
     std::vector<LLInventoryItem*> sounds;
-
-    S32 i;
-    S32 count = items.size();
-    for(i = 0; i < count; ++i)
+    for (auto& item : items)
     {
-        sounds.push_back( items.at(i) );
+        sounds.emplace_back(item);
     }
 
     // Do the sort
@@ -951,8 +946,8 @@ void LLPreviewGesture::loadUIFromGesture(LLMultiGesture* gesture)
     mKeyCombo->setEnabledByValue(LLKeyboard::stringFromKey(KEY_F10), gesture->mMask != MASK_CONTROL);
 
     // Make UI steps for each gesture step
-    S32 i;
-    S32 count = gesture->mSteps.size();
+    size_t i;
+    size_t count = gesture->mSteps.size();
     for (i = 0; i < count; ++i)
     {
         LLGestureStep* step = gesture->mSteps[i];

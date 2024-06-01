@@ -1420,7 +1420,7 @@ void LLFloaterModelPreview::updateAvatarTab(bool highlight_overrides)
                 LLModel* model = instance.mModel;
                 const LLMeshSkinInfo *skin = &model->mSkinInfo;
                 U32 joint_count = LLSkinningUtil::getMeshJointCount(skin);
-                U32 bind_count = highlight_overrides ? skin->mAlternateBindMatrix.size() : 0; // simply do not include overrides if data is not needed
+                U32 bind_count = highlight_overrides ? static_cast<U32>(skin->mAlternateBindMatrix.size()) : 0; // simply do not include overrides if data is not needed
                 if (bind_count > 0 && bind_count != joint_count)
                 {
                     std::ostringstream out;
@@ -1544,7 +1544,7 @@ void LLFloaterModelPreview::addStringToLogTab(const std::string& str, bool flash
     }
 
     LLWString text = utf8str_to_wstring(str);
-    S32 add_text_len = text.length() + 1; // newline
+    S32 add_text_len = static_cast<S32>(text.length()) + 1; // newline
     S32 editor_max_len = mUploadLogText->getMaxTextLength();
     if (add_text_len > editor_max_len)
         {

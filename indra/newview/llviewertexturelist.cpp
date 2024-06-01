@@ -690,7 +690,7 @@ void LLViewerTextureList::removeImageFromList(LLViewerFetchedTexture *image)
     llassert_always(mInitialized) ;
     llassert(image);
 
-    S32 count = 0;
+    size_t count = 0;
     if (image->isInImageList())
     {
         count = mImageList.erase(image) ;
@@ -1223,7 +1223,7 @@ void LLViewerTextureList::decodeAllImages(F32 max_time)
     }
     std::shared_ptr<LL::WorkQueue> main_queue = LLImageGLThread::sEnabledTextures ? LL::WorkQueue::getInstance("mainloop") : NULL;
     // Run threads
-    S32 fetch_pending = 0;
+    size_t fetch_pending = 0;
     while (1)
     {
         LLAppViewer::instance()->getTextureCache()->update(1); // unpauses the texture cache thread

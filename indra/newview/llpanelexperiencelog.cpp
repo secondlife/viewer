@@ -126,7 +126,7 @@ void LLPanelExperienceLog::refresh()
                 events_to_save.erase(day->first);
                 continue;
             }
-            int size = dayArray.size();
+            int size = static_cast<int>(dayArray.size());
             if(itemsToSkip > size)
             {
                 itemsToSkip -= size;
@@ -137,7 +137,7 @@ void LLPanelExperienceLog::refresh()
                 moreItems = true;
                 break;
             }
-            for(int i = dayArray.size() - itemsToSkip - 1; i >= 0; i--)
+            for(int i = static_cast<int>(dayArray.size()) - itemsToSkip - 1; i >= 0; i--)
             {
                 if(items >= mPageSize)
                 {

@@ -7335,7 +7335,7 @@ public:
         const LLSD& input) const
     {
         LLSD object_data = input["body"]["ObjectData"];
-        S32 num_entries = object_data.size();
+        S32 num_entries = static_cast<S32>(object_data.size());
 
         for ( S32 i = 0; i < num_entries; i++ )
         {

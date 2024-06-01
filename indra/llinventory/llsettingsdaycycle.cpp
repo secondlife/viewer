@@ -462,7 +462,7 @@ namespace
         // Trim extra tracks.
         while (value.size() > LLSettingsDay::TRACK_MAX)
         {
-            value.erase(value.size() - 1);
+            value.erase(static_cast<LLSD::Integer>(value.size()) - 1);
         }
 
         S32 framecount(0);
@@ -511,7 +511,7 @@ namespace
 
         }
 
-        int waterTracks = value[0].size();
+        int waterTracks = static_cast<int>(value[0].size());
         int skyTracks   = framecount - waterTracks;
 
         if (waterTracks < 1)
