@@ -1290,7 +1290,6 @@ void LLInventoryModel::collectDescendentsIf(const LLUUID& id,
         }
     }
 
-    LLViewerInventoryItem* item = NULL;
     item_array_t* item_array = get_ptr_in_map(mParentChildItemTree, id);
 
     // Move onto items
