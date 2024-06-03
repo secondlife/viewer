@@ -2094,7 +2094,7 @@ EMeshProcessingResult LLMeshRepoThread::physicsShapeReceived(const LLUUID& mesh_
 
 LLMeshUploadThread::LLMeshUploadThread(LLMeshUploadThread::instance_list& data, LLVector3& scale, bool upload_textures,
                                        bool upload_skin, bool upload_joints, bool lock_scale_if_joint_position,
-                                       const std::string & upload_url, bool do_upload,
+                                       const std::string & upload_url, LLUUID destination_folder_id, bool do_upload,
                                        LLHandle<LLWholeModelFeeObserver> fee_observer,
                                        LLHandle<LLWholeModelUploadObserver> upload_observer)
   : LLThread("mesh upload"),
@@ -2102,6 +2102,7 @@ LLMeshUploadThread::LLMeshUploadThread(LLMeshUploadThread::instance_list& data, 
     mDiscarded(false),
     mDoUpload(do_upload),
     mWholeModelUploadURL(upload_url),
+    mDestinationFolderId(destination_folder_id),
     mFeeObserverHandle(fee_observer),
     mUploadObserverHandle(upload_observer)
 {
@@ -2224,8 +2225,16 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
     LLSD result;
 
     LLSD res;
-    result["folder_id"] = gInventory.findUserDefinedCategoryUUIDForType(LLFolderType::FT_OBJECT);
-    result["texture_folder_id"] = gInventory.findUserDefinedCategoryUUIDForType(LLFolderType::FT_TEXTURE);
+    if (mDestinationFolderId.isNull())
+    {
+        result["folder_id"] = gInventory.findUserDefinedCategoryUUIDForType(LLFolderType::FT_OBJECT);
+        result["texture_folder_id"] = gInventory.findUserDefinedCategoryUUIDForType(LLFolderType::FT_TEXTURE);
+    }
+    else
+    {
+        result["folder_id"] = mDestinationFolderId;
+        result["texture_folder_id"] = mDestinationFolderId;
+    }
     result["asset_type"] = "mesh";
     result["inventory_type"] = "object";
     result["description"] = "(No Description)";
@@ -4338,12 +4347,12 @@ bool LLMeshRepoThread::hasHeader(const LLUUID& mesh_id)
 
 void LLMeshRepository::uploadModel(std::vector<LLModelInstance>& data, LLVector3& scale, bool upload_textures,
                                    bool upload_skin, bool upload_joints, bool lock_scale_if_joint_position,
-                                   std::string upload_url, bool do_upload,
+                                   std::string upload_url, const LLUUID& destination_folder_id, bool do_upload,
                                    LLHandle<LLWholeModelFeeObserver> fee_observer, LLHandle<LLWholeModelUploadObserver> upload_observer)
 {
     LLMeshUploadThread* thread = new LLMeshUploadThread(data, scale, upload_textures,
                                                         upload_skin, upload_joints, lock_scale_if_joint_position,
-                                                        upload_url, do_upload, fee_observer, upload_observer);
+                                                        upload_url, destination_folder_id, do_upload, fee_observer, upload_observer);
     mUploadWaitList.push_back(thread);
 }
 

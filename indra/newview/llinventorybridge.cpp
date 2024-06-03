@@ -4263,6 +4263,7 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
         }
 
         disabled_items.push_back(std::string("New Folder"));
+        disabled_items.push_back(std::string("upload_options"));
         disabled_items.push_back(std::string("upload_def"));
         disabled_items.push_back(std::string("create_new"));
     }
@@ -4286,6 +4287,7 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
     if (getPreferredType() == LLFolderType::FT_MARKETPLACE_STOCK)
     {
         disabled_items.push_back(std::string("New Folder"));
+        disabled_items.push_back(std::string("upload_options"));
         disabled_items.push_back(std::string("upload_def"));
         disabled_items.push_back(std::string("create_new"));
     }
@@ -4351,6 +4353,7 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
                 }
                 if (!isMarketplaceListingsFolder())
                 {
+                    items.push_back(std::string("upload_options"));
                     items.push_back(std::string("upload_def"));
                     items.push_back(std::string("create_new"));
                     items.push_back(std::string("New Script"));
