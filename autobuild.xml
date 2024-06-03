@@ -1418,22 +1418,6 @@
             <key>name</key>
             <string>linux64</string>
           </map>
-          <key>windows</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>creds</key>
-              <string>github</string>
-              <key>hash</key>
-              <string>9c06f431cbbf06e26cf5009527403a7e1e31a513</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
-              <key>url</key>
-              <string>https://api.github.com/repos/secondlife/llphysicsextensions_source/releases/assets/171617693</string>
-            </map>
-            <key>name</key>
-            <string>windows</string>
-          </map>
           <key>windows64</key>
           <map>
             <key>archive</key>
