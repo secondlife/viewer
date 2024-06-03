@@ -115,7 +115,7 @@ mat4 getGLTFSkinTransform()
 #ifdef IS_AMD_CARD
    // If it's AMD make sure the GLSL compiler sees the arrays referenced once by static index. Otherwise it seems to optimise the storage awawy which leads to unfun crashes and artifacts.
    mat3x4 dummy1 = gltf_joints[0];
-   mat3x4 dummy2 = gltf_joints[MAX_JOINTS_PER_MESH_OBJECT-1];
+   mat3x4 dummy2 = gltf_joints[MAX_JOINTS_PER_GLTF_OBJECT-1];
 #endif
 
 }
