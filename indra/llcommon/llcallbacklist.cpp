@@ -28,6 +28,7 @@
 #include "llcallbacklist.h"
 #include "llexception.h"
 #include "llsdutil.h"
+#include <boost/container_hash/hash.hpp>
 #include <vector>
 
 //
@@ -404,7 +405,16 @@ public:
     LLSD timeUntilCall(const LLSD& params);
 
 private:
-    using HandleMap = std::unordered_map<LLSD::Integer, Timers::temp_handle_t>;
+    // We use the incoming reqid to distinguish different timers -- but reqid
+    // by itself is not unique! Each reqid is local to a calling script.
+    // Distinguish scripts by reply-pump name, then reqid within script.
+    // "Additional specializations for std::pair and the standard container
+    // types, as well as utility functions to compose hashes are available in
+    // boost::hash."
+    // https://en.cppreference.com/w/cpp/utility/hash
+    using HandleKey = std::pair<LLSD::String, LLSD::Integer>;
+    using HandleMap = std::unordered_map<HandleKey, Timers::temp_handle_t,
+                                         boost::hash<HandleKey>>;
     HandleMap mHandles;
 };
 
@@ -420,15 +430,16 @@ void TimersListener::scheduleAfter(const LLSD& params)
         return response.error(stringize("after must be at least ", MINTIMER));
     }
 
+    HandleKey key{ params["reply"], params["reqid"] };
     mHandles.emplace(
-        params["reqid"],
+        key,
         Timers::instance().scheduleAfter(
-            [this, params]
+            [this, params, key]
             {
                 // we don't need any content save for the "reqid"
                 sendReply({}, params);
                 // ditch mHandles entry
-                mHandles.erase(params["reqid"]);
+                mHandles.erase(key);
             },
             after));
 }
@@ -446,7 +457,7 @@ void TimersListener::scheduleEvery(const LLSD& params)
     }
 
     mHandles.emplace(
-        params["reqid"],
+        HandleKey{ params["reply"], params["reqid"] },
         Timers::instance().scheduleEvery(
             [params, i=0]() mutable
             {
@@ -460,7 +471,7 @@ void TimersListener::scheduleEvery(const LLSD& params)
 
 LLSD TimersListener::cancel(const LLSD& params)
 {
-    auto found{ mHandles.find(params["id"]) };
+    auto found{ mHandles.find({params["reply"], params["id"]}) };
     bool ok = false;
     if (found != mHandles.end())
     {
@@ -473,7 +484,7 @@ LLSD TimersListener::cancel(const LLSD& params)
 
 LLSD TimersListener::isRunning(const LLSD& params)
 {
-    auto found{ mHandles.find(params["id"]) };
+    auto found{ mHandles.find({params["reply"], params["id"]}) };
     bool running = false;
     if (found != mHandles.end())
     {
@@ -484,7 +495,7 @@ LLSD TimersListener::isRunning(const LLSD& params)
 
 LLSD TimersListener::timeUntilCall(const LLSD& params)
 {
-    auto found{ mHandles.find(params["id"]) };
+    auto found{ mHandles.find({params["reply"], params["id"]}) };
     bool ok = false;
     LLSD::Real remaining = 0;
     if (found != mHandles.end())
