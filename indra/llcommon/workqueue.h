@@ -376,7 +376,7 @@ namespace LL
      * relaunch it. As long as the callable continues returning true, BackJack
      * keeps resubmitting it to the target WorkQueue.
      *
-     * "You go back, Jack, and do it again -- wheel turning' round and round..."
+     * "You go back, Jack, and do it again -- wheel turnin' round and round..."
      * --Steely Dan, from "Can't Buy a Thrill" (1972)
      * https://www.youtube.com/watch?v=yCgHTmv4YU8
      */
