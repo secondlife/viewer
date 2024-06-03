@@ -1529,8 +1529,10 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
         {
             LLStyle::Params trans_params(body_message_params);
             trans_params.font.style = "ITALIC";
-            trans_params.font.size("Small");
-            mEditor->appendText(chat.mTrans, true, trans_params);
+            LLWString icon_wide_text = LLWString(1, 0x279C);
+            std::string icon_text = wstring_to_utf8str(icon_wide_text);
+            std::string text_with_icon = icon_text + " " + chat.mTrans;
+            mEditor->appendText(text_with_icon, true, trans_params);
         }
         if (!chat.mError.empty())
         {
