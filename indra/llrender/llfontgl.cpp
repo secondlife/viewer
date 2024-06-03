@@ -1040,28 +1040,28 @@ LLFontGL::VAlign LLFontGL::vAlignFromName(const std::string& name)
 LLFontGL* LLFontGL::getFontEmojiSmall()
 {
     static LLFontGL* fontp = getFont(LLFontDescriptor("Emoji", "Small", 0));
-    return fontp;;
+    return fontp;
 }
 
 //static
 LLFontGL* LLFontGL::getFontEmojiMedium()
 {
     static LLFontGL* fontp = getFont(LLFontDescriptor("Emoji", "Medium", 0));
-    return fontp;;
+    return fontp;
 }
 
 //static
 LLFontGL* LLFontGL::getFontEmojiLarge()
 {
     static LLFontGL* fontp = getFont(LLFontDescriptor("Emoji", "Large", 0));
-    return fontp;;
+    return fontp;
 }
 
 //static
 LLFontGL* LLFontGL::getFontEmojiHuge()
 {
     static LLFontGL* fontp = getFont(LLFontDescriptor("Emoji", "Huge", 0));
-    return fontp;;
+    return fontp;
 }
 
 //static

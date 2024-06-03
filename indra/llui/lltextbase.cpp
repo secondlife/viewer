@@ -909,7 +909,7 @@ S32 LLTextBase::insertStringNoUndo(S32 pos, const LLWString &wstr, LLTextBase::s
     {
         LLStyleSP emoji_style;
         LLEmojiDictionary* ed = LLEmojiDictionary::instanceExists() ? LLEmojiDictionary::getInstance() : NULL;
-        for (S32 text_kitty = 0, text_len = wstr.size(); text_kitty < text_len; text_kitty++)
+        for (S32 text_kitty = 0; text_kitty < insert_len; text_kitty++)
         {
             llwchar code = wstr[text_kitty];
             bool isEmoji = ed ? ed->isEmoji(code) : LLStringOps::isEmoji(code);
@@ -2387,6 +2387,7 @@ S32 LLTextBase::removeFirstLine()
     return 0;
 }
 
+// virtual
 void LLTextBase::appendLineBreakSegment(const LLStyle::Params& style_params)
 {
     segment_vec_t segments;
@@ -2396,6 +2397,7 @@ void LLTextBase::appendLineBreakSegment(const LLStyle::Params& style_params)
     insertStringNoUndo(getLength(), utf8str_to_wstring("\n"), &segments);
 }
 
+// virtual
 void LLTextBase::appendImageSegment(const LLStyle::Params& style_params)
 {
     if(getPlainText())
@@ -2409,6 +2411,7 @@ void LLTextBase::appendImageSegment(const LLStyle::Params& style_params)
     insertStringNoUndo(getLength(), utf8str_to_wstring(" "), &segments);
 }
 
+// virtual
 void LLTextBase::appendWidget(const LLInlineViewSegment::Params& params, const std::string& text, bool allow_undo)
 {
     segment_vec_t segments;
