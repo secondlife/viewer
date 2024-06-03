@@ -147,7 +147,11 @@ class Timers: public LLSingleton<Timers>
 public:
     // If tasks that come ready during a given tick() take longer than this,
     // defer any subsequent ready tasks to a future tick() call.
-    static constexpr F32 TIMESLICE{ 0.005f };
+    static constexpr F32 DEFAULT_TIMESLICE{ 0.005f };
+    // Setting timeslice to be less than MINIMUM_TIMESLICE could lock up
+    // Timers processing, causing it to believe it's exceeded the allowable
+    // time every tick before processing ANY queue items.
+    static constexpr F32 MINIMUM_TIMESLICE{ 0.001f };
 
     class handle_t
     {
@@ -181,6 +185,9 @@ public:
     // If we're canceling a non-const handle_t, also clear it so we need not
     // cancel again.
     bool cancel(handle_t& timer);
+
+    F32  getTimeslice() const { return mTimeslice; }
+    void setTimeslice(F32 timeslice);
 
     // Store a handle_t returned by scheduleAt(), scheduleAfter() or
     // scheduleEvery() in a temp_handle_t to cancel() automatically on
@@ -278,6 +285,7 @@ private:
     token_t mToken{ 0 };
     // While mQueue is non-empty, register for regular callbacks.
     LLCallbackList::temp_handle_t mLive;
+    F32 mTimeslice{ DEFAULT_TIMESLICE };
 };
 
 } // namespace LL

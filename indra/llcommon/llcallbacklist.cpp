@@ -26,9 +26,11 @@
 
 #include "lazyeventapi.h"
 #include "llcallbacklist.h"
+#include "llerror.h"
 #include "llexception.h"
 #include "llsdutil.h"
 #include <boost/container_hash/hash.hpp>
+#include <iomanip>
 #include <vector>
 
 //
@@ -272,6 +274,24 @@ bool Timers::cancel(const handle_t& timer)
     return true;
 }
 
+void Timers::setTimeslice(F32 timeslice)
+{
+    if (timeslice < MINIMUM_TIMESLICE)
+    {
+        // use stringize() so setprecision() affects only the temporary
+        // ostream, not the common logging ostream
+        LL_WARNS("Timers") << "LL::Timers::setTimeslice("
+                           << stringize(std::setprecision(4), timeslice)
+                           << ") less than "
+                           << stringize(std::setprecision(4), MINIMUM_TIMESLICE)
+                           << ", ignoring" << LL_ENDL;
+    }
+    else
+    {
+        mTimeslice = timeslice;
+    }
+}
+
 // RAII class to set specified variable to specified value
 // only for the duration of containing scope
 template <typename VAR, typename VALUE>
@@ -305,7 +325,7 @@ bool Timers::tick()
     // sharing this thread with everything else, and there's a risk we might
     // starve it if we have a sequence of tasks that take nontrivial time.
     auto now{ LLDate::now().secondsSinceEpoch() };
-    auto cutoff{ now + TIMESLICE };
+    auto cutoff{ now + mTimeslice };
 
     // Capture tasks we've processed but that want to be rescheduled.
     // Defer rescheduling them immediately to avoid getting stuck looping over
