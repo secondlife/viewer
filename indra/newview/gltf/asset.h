@@ -106,8 +106,59 @@ namespace LL
                 void serialize(boost::json::object& dst) const;
             };
 
+            class Transmission
+            {
+            public:
+                F32 mTransmissionFactor = 0.0f;
+                TextureInfo mTransmissionTexture;
+
+                bool operator==(const Transmission& rhs) const;
+                bool operator!=(const Transmission& rhs) const;
+                const Transmission &operator=(const Value &src);
+                void serialize(boost::json::object& dst) const;
+            };
+
+            class IOR
+            {
+            public:
+                F32 mIOR = 1.5f;
+
+                bool operator==(const IOR& rhs) const;
+                bool operator!=(const IOR& rhs) const;
+                const IOR &operator=(const Value &src);
+                void serialize(boost::json::object& dst) const;
+            };
+
+            class Volume
+            {
+            public:
+                F32 mThicknessFactor = 0;
+                TextureInfo mThicknessTexture;
+                F32 mAttenuationDistance = +std::numeric_limits<float>::infinity();
+                vec3 mAttenuationColor = vec3(1, 1, 1);
+
+                bool operator==(const Volume& rhs) const;
+                bool operator!=(const Volume& rhs) const;
+                const Volume &operator=(const Value &src);
+                void serialize(boost::json::object& dst) const;
+            };
+
+            class Dispersion
+            {
+            public:
+                F32 mDispersion = 0;
+
+                bool operator==(const Dispersion& rhs) const;
+                bool operator!=(const Dispersion& rhs) const;
+                const Dispersion &operator=(const Value &src);
+                void serialize(boost::json::object& dst) const;
+            };
 
             PbrMetallicRoughness mPbrMetallicRoughness;
+            Transmission mTransmission;
+            IOR mIOR;
+            Volume mVolume;
+            Dispersion mDispersion;
             NormalTextureInfo mNormalTexture;
             OcclusionTextureInfo mOcclusionTexture;
             TextureInfo mEmissiveTexture;

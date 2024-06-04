@@ -942,6 +942,120 @@ const Material::NormalTextureInfo& Material::NormalTextureInfo::operator=(const 
     return *this;
 }
 
+bool Material::Transmission::operator==(const Transmission& rhs) const
+{
+    return mTransmissionFactor == rhs.mTransmissionFactor &&
+        mTransmissionTexture == rhs.mTransmissionTexture;
+}
+
+bool Material::Transmission::operator!=(const Transmission& rhs) const
+{
+    return !(*this == rhs);
+}
+
+
+const Material::Transmission& Material::Transmission::operator=(const Value& src)
+{
+    if (src.is_object())
+    {
+        copy(src, "transmissionFactor", mTransmissionFactor);
+        copy(src, "transmissionTexture", mTransmissionTexture);
+    }
+
+    return *this;
+}
+
+void Material::Transmission::serialize(boost::json::object& dst) const
+{
+    write(mTransmissionFactor, "transmissionFactor", dst, 0.0f);
+    write(mTransmissionTexture, "transmissionTexture", dst);
+}
+
+bool Material::IOR::operator==(const IOR& rhs) const
+{
+    return mIOR == rhs.mIOR;
+}
+
+bool Material::IOR::operator!=(const IOR& rhs) const
+{
+    return !(*this == rhs);
+}
+
+const Material::IOR& Material::IOR::operator=(const Value& src)
+{
+    if (src.is_object())
+    {
+        copy(src, "ior", mIOR);
+    }
+
+    return *this;
+}
+
+void Material::IOR::serialize(boost::json::object& dst) const
+{
+    write(mIOR, "ior", dst, 1.5f);
+}
+
+
+bool Material::Volume::operator==(const Volume& rhs) const
+{
+    return mThicknessFactor == rhs.mThicknessFactor &&
+        mThicknessTexture == rhs.mThicknessTexture &&
+        mAttenuationDistance == rhs.mAttenuationDistance &&
+        mAttenuationColor == rhs.mAttenuationColor;
+}
+
+bool Material::Volume::operator!=(const Volume& rhs) const
+{
+    return !(*this == rhs);
+}
+
+const Material::Volume& Material::Volume::operator=(const Value& src)
+{
+    if (src.is_object())
+    {
+        copy(src, "thicknessFactor", mThicknessFactor);
+        copy(src, "thicknessTexture", mThicknessTexture);
+        copy(src, "attenuationDistance", mAttenuationDistance);
+        copy(src, "attenuationColor", mAttenuationColor);
+    }
+
+    return *this;
+}
+
+void Material::Volume::serialize(boost::json::object& dst) const
+{
+    write(mThicknessFactor, "thicknessFactor", dst, 0.0f);
+    write(mThicknessTexture, "thicknessTexture", dst);
+    write(mAttenuationDistance, "attenuationDistance", dst, +std::numeric_limits<float>::infinity());
+    write(mAttenuationColor, "attenuationColor", dst, vec3(1, 1, 1));
+}
+
+bool Material::Dispersion::operator==(const Dispersion& rhs) const
+{
+    return mDispersion == rhs.mDispersion;
+}
+
+bool Material::Dispersion::operator!=(const Dispersion& rhs) const
+{
+    return !(*this == rhs);
+}
+
+const Material::Dispersion& Material::Dispersion::operator=(const Value& src)
+{
+    if (src.is_object())
+    {
+        copy(src, "dispersion", mDispersion);
+    }
+
+    return *this;
+}
+
+void Material::Dispersion::serialize(boost::json::object& dst) const
+{
+    write(mDispersion, "dispersion", dst, 0.0f);
+}
+
 const Material::PbrMetallicRoughness& Material::PbrMetallicRoughness::operator=(const Value& src)
 {
     if (src.is_object())
@@ -984,6 +1098,21 @@ void Material::serialize(object& dst) const
     write(mName, "name", dst);
     write(mEmissiveFactor, "emissiveFactor", dst, vec3(0.f, 0.f, 0.f));
     write(mPbrMetallicRoughness, "pbrMetallicRoughness", dst);
+
+    dst["extensions"] = array{};
+    object transmission;
+    write(mTransmission, "KHR_materials_transmission", transmission);
+    dst["extensions"].as_array().push_back(transmission);
+    object ior;
+    write(mIOR, "KHR_materials_ior", ior);
+    dst["extensions"].as_array().push_back(ior);
+    object volume;
+    write(mVolume, "KHR_materials_volume", volume);
+    dst["extensions"].as_array().push_back(volume);
+    object dispersion;
+    write(mDispersion, "KHR_materials_dispersion", dispersion);
+    dst["extensions"].as_array().push_back(dispersion);
+
     write(mNormalTexture, "normalTexture", dst);
     write(mOcclusionTexture, "occlusionTexture", dst);
     write(mEmissiveTexture, "emissiveTexture", dst);
@@ -999,6 +1128,11 @@ const Material& Material::operator=(const Value& src)
         copy(src, "name", mName);
         copy(src, "emissiveFactor", mEmissiveFactor);
         copy(src, "pbrMetallicRoughness", mPbrMetallicRoughness);
+
+        copy(src, "extensions.KHR_materials_transmission", mTransmission);
+        copy(src, "extensions.KHR_materials_ior", mIOR);
+        copy(src, "extensions.KHR_materials_volume", mVolume);
+        copy(src, "extensions.KHR_materials_dispersion", mDispersion);
         copy(src, "normalTexture", mNormalTexture);
         copy(src, "occlusionTexture", mOcclusionTexture);
         copy(src, "emissiveTexture", mEmissiveTexture);
