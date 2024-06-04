@@ -41,9 +41,9 @@
 extern "C" {
 #include <gst/gst.h>
 #include <gst/app/gstappsink.h>
-
 }
-SymbolGrabber gSymbolGrabber;
+
+SymbolGrabber gstSymbolGrabber;
 
 #include "llmediaimplgstreamer_syms_raw.inc"
 
@@ -650,7 +650,7 @@ bool MediaPluginGStreamer10::startup()
         vctDSONames.push_back( "libgstapp-1.0.so.0"  );
         vctDSONames.push_back( "libglib-2.0.so.0" );
         vctDSONames.push_back( "libgobject-2.0.so" );
-        if( !gSymbolGrabber.grabSymbols( vctDSONames ) )
+        if( !gstSymbolGrabber.grabSymbols( vctDSONames ) )
             return false;
 
         if (llgst_segtrap_set_enabled)
@@ -712,7 +712,7 @@ bool MediaPluginGStreamer10::closedown()
     if (!mDoneInit)
         return false; // error
 
-    gSymbolGrabber.ungrabSymbols();
+    gstSymbolGrabber.ungrabSymbols();
     mDoneInit = false;
 
     return true;

@@ -33,14 +33,27 @@ if (LINUX)
       message( "Looking for ${PULSE_FILE} ... found")
     endif()
   endforeach()
-  message( "Building with linux volume catcher" )
-  set(LINUX_VOLUME_CATCHER linux_volume_catcher.cpp)
+  
+  include(FindPipeWire)
+  include_directories(SYSTEM ${PIPEWIRE_INCLUDE_DIRS} ${SPA_INCLUDE_DIRS})
+  
+  message( "Building with Linux volume catcher for PipeWire and PulseAudio" )
+
+  list(APPEND media_plugin_cef_HEADER_FILES
+    linux/volume_catcher_linux.h
+  )
+
+  set(LINUX_VOLUME_CATCHER 
+    linux/volume_catcher_linux.cpp 
+    linux/volume_catcher_pulseaudio.cpp
+    linux/volume_catcher_pipewire.cpp 
+  )
 
   list(APPEND media_plugin_cef_SOURCE_FILES ${LINUX_VOLUME_CATCHER})
   set(CMAKE_SHARED_LINKER_FLAGS  "-Wl,--build-id -Wl,-rpath,'$ORIGIN:$ORIGIN/../../lib'")
   list(APPEND media_plugin_cef_LINK_LIBRARIES llwindow )
 elseif (DARWIN)
-  list(APPEND media_plugin_cef_SOURCE_FILES mac_volume_catcher_null.cpp)
+  list(APPEND media_plugin_cef_SOURCE_FILES volume_catcher_null.cpp)
   find_library(CORESERVICES_LIBRARY CoreServices)
   find_library(AUDIOUNIT_LIBRARY AudioUnit)
   set( media_plugin_cef_LINK_LIBRARIES

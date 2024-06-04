@@ -1,26 +1,26 @@
-/**
- * @file linux_volume_catcher.cpp
+/** 
+ * @file volume_catcher_pulseaudio.cpp
  * @brief A Linux-specific, PulseAudio-specific hack to detect and volume-adjust new audio sources
  *
  * @cond
  * $LicenseInfo:firstyear=2010&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- *
+ * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- *
+ * 
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- *
+ * 
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  * @endcond
@@ -37,29 +37,22 @@
 
 #include "linden_common.h"
 
-#include "volume_catcher.h"
-#include <set>
-#include <map>
-#include <iostream>
+#include "volume_catcher_linux.h"
+
 extern "C" {
 #include <glib.h>
 #include <glib-object.h>
 
 #include <pulse/introspect.h>
-#include <pulse/context.h>
-#include <pulse/subscribe.h>
-#include <pulse/glib-mainloop.h> // There's no special reason why we want the *glib* PA mainloop, but the generic polling implementation seems broken.
 
-#include "apr_pools.h"
-#include "apr_dso.h"
+#include <pulse/subscribe.h>
 }
 
-#include "media_plugin_base.h"
+SymbolGrabber paSymbolGrabber;
 
-SymbolGrabber gSymbolGrabber;
+#include "volume_catcher_pulseaudio_syms.inc"
+#include "volume_catcher_pulseaudio_glib_syms.inc"
 
-#include "linux_volume_catcher_pa_syms.inc"
-#include "linux_volume_catcher_paglib_syms.inc"
 ////////////////////////////////////////////////////
 
 // PulseAudio requires a chain of callbacks with C linkage
@@ -69,35 +62,7 @@ extern "C" {
     void callback_context_state(pa_context *context, void *userdata);
 }
 
-class VolumeCatcherImpl
-{
-public:
-    VolumeCatcherImpl();
-    ~VolumeCatcherImpl();
-
-    void setVolume(F32 volume);
-    void pump(void);
-
-    // for internal use - can't be private because used from our C callbacks
-
-    bool loadsyms(std::string pulse_dso_name);
-    void init();
-    void cleanup();
-
-    void update_all_volumes(F32 volume);
-    void update_index_volume(U32 index, F32 volume);
-    void connected_okay();
-
-    std::set<U32> mSinkInputIndices;
-    std::map<U32,U32> mSinkInputNumChannels;
-    F32 mDesiredVolume;
-    pa_glib_mainloop *mMainloop;
-    pa_context *mPAContext;
-    bool mConnected;
-    bool mGotSyms;
-};
-
-VolumeCatcherImpl::VolumeCatcherImpl()
+VolumeCatcherPulseAudio::VolumeCatcherPulseAudio()
     : mDesiredVolume(0.0f),
       mMainloop(nullptr),
       mPAContext(nullptr),
@@ -107,18 +72,17 @@ VolumeCatcherImpl::VolumeCatcherImpl()
     init();
 }
 
-VolumeCatcherImpl::~VolumeCatcherImpl()
+VolumeCatcherPulseAudio::~VolumeCatcherPulseAudio()
 {
     cleanup();
 }
 
-bool VolumeCatcherImpl::loadsyms(std::string pulse_dso_name)
+bool VolumeCatcherPulseAudio::loadsyms(std::string pulse_dso_name)
 {
-    //return grab_pa_syms({pulse_dso_name});
-    return gSymbolGrabber.grabSymbols( { pulse_dso_name }) ;
+    return paSymbolGrabber.grabSymbols({ pulse_dso_name });
 }
 
-void VolumeCatcherImpl::init()
+void VolumeCatcherPulseAudio::init()
 {
     // try to be as defensive as possible because PA's interface is a
     // bit fragile and (for our purposes) we'd rather simply not function
@@ -129,7 +93,12 @@ void VolumeCatcherImpl::init()
     // probably be loaded separately.  Our Linux DSO framework needs refactoring,
     // we do this sort of thing a lot with practically identical logic...
     mGotSyms = loadsyms("libpulse-mainloop-glib.so.0");
-    if (!mGotSyms) return;
+
+    if (!mGotSyms)
+        mGotSyms = loadsyms("libpulse.so.0");
+
+    if (!mGotSyms)
+        return;
 
     mMainloop = llpa_glib_mainloop_new(g_main_context_default());
 
@@ -175,7 +144,7 @@ void VolumeCatcherImpl::init()
     }
 }
 
-void VolumeCatcherImpl::cleanup()
+void VolumeCatcherPulseAudio::cleanup()
 {
     mConnected = false;
 
@@ -193,11 +162,12 @@ void VolumeCatcherImpl::cleanup()
     mMainloop = nullptr;
 }
 
-void VolumeCatcherImpl::setVolume(F32 volume)
+void VolumeCatcherPulseAudio::setVolume(F32 volume)
 {
     mDesiredVolume = volume;
 
-    if (!mGotSyms) return;
+    if (!mGotSyms)
+        return;
 
     if (mConnected && mPAContext)
     {
@@ -207,13 +177,17 @@ void VolumeCatcherImpl::setVolume(F32 volume)
     pump();
 }
 
-void VolumeCatcherImpl::pump()
+void VolumeCatcherPulseAudio::setPan(F32 pan)
+{
+}
+
+void VolumeCatcherPulseAudio::pump()
 {
     gboolean may_block = FALSE;
     g_main_context_iteration(g_main_context_default(), may_block);
 }
 
-void VolumeCatcherImpl::connected_okay()
+void VolumeCatcherPulseAudio::connected_okay()
 {
     pa_operation *op;
 
@@ -237,7 +211,7 @@ void VolumeCatcherImpl::connected_okay()
     }
 }
 
-void VolumeCatcherImpl::update_all_volumes(F32 volume)
+void VolumeCatcherPulseAudio::update_all_volumes(F32 volume)
 {
     for (std::set<U32>::iterator it = mSinkInputIndices.begin();
          it != mSinkInputIndices.end(); ++it)
@@ -246,7 +220,7 @@ void VolumeCatcherImpl::update_all_volumes(F32 volume)
     }
 }
 
-void VolumeCatcherImpl::update_index_volume(U32 index, F32 volume)
+void VolumeCatcherPulseAudio::update_index_volume(U32 index, F32 volume)
 {
     static pa_cvolume cvol;
     llpa_cvolume_set(&cvol, mSinkInputNumChannels[index],
@@ -263,55 +237,9 @@ void VolumeCatcherImpl::update_index_volume(U32 index, F32 volume)
         llpa_operation_unref(op);
 }
 
-pid_t getParentPid( pid_t aPid )
-{
-    std::stringstream strm;
-    strm << "/proc/" << aPid << "/status";
-    std::ifstream in{ strm.str() };
-
-    if( !in.is_open() )
-        return 0;
-
-    pid_t res {0};
-    while( !in.eof() && res == 0 )
-    {
-        std::string line;
-        line.resize( 1024, 0 );
-        in.getline( &line[0], line.length() );
-
-        auto i = line.find( "PPid:"  );
-
-        if( i == std::string::npos )
-            continue;
-
-        char const *pIn = line.c_str() + 5; // Skip over pid;
-        while( *pIn != 0 && isspace( *pIn ) )
-               ++pIn;
-
-        if( *pIn )
-            res = atoll( pIn );
-    }
-    return res;
-}
-
-
-bool isPluginPid( pid_t aPid )
-{
-    auto myPid = getpid();
-
-    do
-    {
-        if( aPid == myPid )
-            return true;
-        aPid = getParentPid( aPid );
-    } while( aPid > 1 );
-
-    return false;
-}
-
 void callback_discovered_sinkinput(pa_context *context, const pa_sink_input_info *sii, int eol, void *userdata)
 {
-    VolumeCatcherImpl *impl = dynamic_cast<VolumeCatcherImpl*>((VolumeCatcherImpl*)userdata);
+    VolumeCatcherPulseAudio *impl = dynamic_cast<VolumeCatcherPulseAudio*>((VolumeCatcherPulseAudio*)userdata);
     llassert(impl);
 
     if (0 == eol)
@@ -341,7 +269,7 @@ void callback_discovered_sinkinput(pa_context *context, const pa_sink_input_info
 
 void callback_subscription_alert(pa_context *context, pa_subscription_event_type_t t, uint32_t index, void *userdata)
 {
-    VolumeCatcherImpl *impl = dynamic_cast<VolumeCatcherImpl*>((VolumeCatcherImpl*)userdata);
+    VolumeCatcherPulseAudio *impl = dynamic_cast<VolumeCatcherPulseAudio*>((VolumeCatcherPulseAudio*)userdata);
     llassert(impl);
 
     switch (t & PA_SUBSCRIPTION_EVENT_FACILITY_MASK)
@@ -374,7 +302,7 @@ void callback_subscription_alert(pa_context *context, pa_subscription_event_type
 
 void callback_context_state(pa_context *context, void *userdata)
 {
-    VolumeCatcherImpl *impl = dynamic_cast<VolumeCatcherImpl*>((VolumeCatcherImpl*)userdata);
+    VolumeCatcherPulseAudio *impl = dynamic_cast<VolumeCatcherPulseAudio*>((VolumeCatcherPulseAudio*)userdata);
     llassert(impl);
 
     switch (llpa_context_get_state(context))
@@ -391,34 +319,4 @@ void callback_context_state(pa_context *context, void *userdata)
         break;
     default:;
     }
-}
-
-/////////////////////////////////////////////////////
-
-VolumeCatcher::VolumeCatcher()
-{
-    pimpl = new VolumeCatcherImpl();
-}
-
-VolumeCatcher::~VolumeCatcher()
-{
-    delete pimpl;
-    pimpl = nullptr;
-}
-
-void VolumeCatcher::setVolume(F32 volume)
-{
-    llassert(pimpl);
-    pimpl->setVolume(volume);
-}
-
-void VolumeCatcher::setPan(F32 pan)
-{
-    // TODO: implement this (if possible)
-}
-
-void VolumeCatcher::pump()
-{
-    llassert(pimpl);
-    pimpl->pump();
 }

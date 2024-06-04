@@ -135,6 +135,10 @@ public:
     // Text may be unicode (utf8 encoded)
     bool textInput(const std::string &text, MASK modifiers, LLSD native_key_data);
 
+#if LL_LINUX
+    void enablePipeWireVolumeCatcher( bool enable );
+#endif
+
     static std::string sOIDcookieUrl;
     static std::string sOIDcookieName;
     static std::string sOIDcookieValue;
