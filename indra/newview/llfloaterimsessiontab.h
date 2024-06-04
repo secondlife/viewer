@@ -147,7 +147,7 @@ protected:
     std::string appendTime();
     void assignResizeLimits();
 
-    void updateUsedEmojis(LLWString text);
+    void updateUsedEmojis(LLWStringView text);
 
     S32  mFloaterExtraWidth;
 

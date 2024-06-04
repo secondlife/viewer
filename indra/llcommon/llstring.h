@@ -448,6 +448,7 @@ template<class T> std::string LLStringUtilBase<T>::sLocale;
 typedef LLStringUtilBase<char> LLStringUtil;
 typedef LLStringUtilBase<llwchar> LLWStringUtil;
 typedef std::basic_string<llwchar> LLWString;
+typedef std::basic_string_view<llwchar> LLWStringView;
 
 //@ Use this where we want to disallow input in the form of "foo"
 //  This is used to catch places where english text is embedded in the code
@@ -749,7 +750,7 @@ LL_COMMON_API llwchar utf8str_to_wchar(const std::string& utf8str, size_t offset
 
 LL_COMMON_API std::string utf8str_showBytesUTF8(const std::string& utf8str);
 
-LL_COMMON_API bool wstring_has_emoji(const LLWString& wstr);
+LL_COMMON_API bool wstring_has_emoji(LLWStringView wstr);
 
 LL_COMMON_API bool wstring_remove_emojis(LLWString& wstr);
 
