@@ -123,7 +123,7 @@ void LLHeroProbeManager::update()
         float camera_center_distance = 99999.f;
         for (auto vo : mHeroVOList)
         {
-            if (vo && !vo->isDead() && vo->mDrawable.notNull())
+            if (vo && !vo->isDead() && vo->mDrawable.notNull() && vo->isReflectionProbe() && vo->getReflectionProbeIsBox())
             {
                 float distance = (LLViewerCamera::instance().getOrigin() - vo->getPositionAgent()).magVec();
                 float center_distance = cameraDirection * (vo->getPositionAgent() - camera_pos);
