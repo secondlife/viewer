@@ -47,7 +47,9 @@ vec2 texgen_object(vec4 vpos, mat4 mat, vec4 tp0, vec4 tp1)
     
     tcoord.x = dot(vpos, tp0);
     tcoord.y = dot(vpos, tp1);
-    
+    tcoord.z = 0;
+    tcoord.w = 1;
+
     tcoord = mat * tcoord; 
     
     return tcoord.xy; 
