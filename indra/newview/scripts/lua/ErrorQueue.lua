@@ -3,8 +3,8 @@
 -- raise that error.
 
 local WaitQueue = require('WaitQueue')
--- local dbg = require('printf')
 local function dbg(...) end
+-- local dbg = require('printf')
 
 local ErrorQueue = WaitQueue:new()
 

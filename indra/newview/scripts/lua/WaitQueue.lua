@@ -5,8 +5,8 @@
 local fiber = require('fiber')
 local Queue = require('Queue')
 
--- local dbg = require('printf')
 local function dbg(...) end
+-- local dbg = require('printf')
 
 local WaitQueue = Queue:new()
 

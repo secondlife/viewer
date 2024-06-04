@@ -44,8 +44,6 @@ typedef U32 uint32_t;
 #include "llstring.h"
 #endif
 
-#include "boost/range.hpp"
-
 #include "llsd.h"
 #include "llsdserialize.h"
 #include "llsdutil.h"
@@ -2097,7 +2095,8 @@ namespace tut
         NamedTempFile file("llsd", "");
 
         python("Python " + pyformatter,
-               [&](std::ostream& out){ out <<
+               [pyformatter, &file](std::ostream& out) {
+               out <<
                import_llsd <<
                "import struct\n"
                "lenformat = struct.Struct('i')\n"

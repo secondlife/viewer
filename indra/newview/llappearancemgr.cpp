@@ -118,26 +118,16 @@ public:
     LLOutfitUnLockTimer(F32 period) : LLEventTimer(period)
     {
         // restart timer on BOF changed event
-        LLOutfitObserver::instance().addBOFChangedCallback(boost::bind(
-                &LLOutfitUnLockTimer::reset, this));
+        LLOutfitObserver::instance().addBOFChangedCallback([this]{ start(); });
         stop();
     }
 
-    /*virtual*/
-    BOOL tick()
+    bool tick() override
     {
-        if(mEventTimer.hasExpired())
-        {
-            LLAppearanceMgr::instance().setOutfitLocked(false);
-        }
-        return FALSE;
+        LLAppearanceMgr::instance().setOutfitLocked(false);
+        return false;
     }
-    void stop() { mEventTimer.stop(); }
-    void start() { mEventTimer.start(); }
-    void reset() { mEventTimer.reset(); }
-    BOOL getStarted() { return mEventTimer.getStarted(); }
-
-    LLTimer&  getEventTimer() { return mEventTimer;}
+    bool getStarted() { return isRunning(); }
 };
 
 // support for secondlife:///app/appearance SLapps
@@ -332,7 +322,7 @@ public:
 
     // virtual
     // Will be deleted after returning true - only safe to do this if all callbacks have fired.
-    BOOL tick()
+    bool tick() override
     {
         // mPendingRequests will be zero if all requests have been
         // responded to.  mWaitTimes.empty() will be true if we have
@@ -625,8 +615,8 @@ void LLBrokenLinkObserver::changed(U32 mask)
             if (id == mUUID)
             {
                 // Might not be processed yet and it is not a
-                // good idea to update appearane here, postpone.
-                doOnIdleOneTime([this]()
+                // good idea to update appearance here, postpone.
+                doOnIdleOneTime([this]
                                 {
                                     postProcess();
                                 });
@@ -1712,7 +1702,6 @@ void LLAppearanceMgr::setOutfitLocked(bool locked)
     mOutfitLocked = locked;
     if (locked)
     {
-        mUnlockOutfitTimer->reset();
         mUnlockOutfitTimer->start();
     }
     else
