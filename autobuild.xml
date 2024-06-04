@@ -3003,11 +3003,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9e0092c6a3aed1cb40a9e26df689c42c68142c9d</string>
+              <string>8278a2368136cb12319ca00e7aceb2829bf3ebd8</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-tinyexr/releases/download/v1.0.8-r1/tinyexr-v1.0.8-common-8755737750.tar.zst</string>
+              <string>https://github.com/secondlife/3p-tinyexr/releases/download/v1.0.8-ba4bc64/tinyexr-v1.0.8-common-9373975608.tar.zst</string>
             </map>
             <key>name</key>
             <string>common</string>
