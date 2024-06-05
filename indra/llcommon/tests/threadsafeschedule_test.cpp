@@ -47,11 +47,11 @@ namespace tut
         // the timestamp for each one -- but since we're passing explicit
         // timestamps, make the queue reorder them.
         auto now{ Queue::Clock::now() };
-        queue.push(Queue::TimeTuple(now + 200ms, "ghi"));
+        queue.push(Queue::TimeTuple(now + 200ms, "ghi"s));
         // Given the various push() overloads, you have to match the type
         // exactly: conversions are ambiguous.
-        queue.push("abc"s);
-        queue.push(now + 100ms, "def");
+        queue.push(now, "abc"s);
+        queue.push(now + 100ms, "def"s);
         queue.close();
         auto entry = queue.pop();
         ensure_equals("failed to pop first", std::get<0>(entry), "abc"s);
