@@ -233,7 +233,7 @@ void main()
 #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_NORMAL)
         mix2.vNt = mikktspace(mix2.vNt, vary_tangents[0]);
 #endif
-        pbr_mix = mix_pbr(mix, mix2, tm.weight.x);
+        pbr_mix = mix_pbr(pbr_mix, mix2, tm.weight.x);
         break;
     default:
         break;
@@ -275,7 +275,7 @@ void main()
 #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_NORMAL)
         mix2.vNt = mikktspace(mix2.vNt, vary_tangents[1]);
 #endif
-        pbr_mix = mix_pbr(mix, mix2, tm.weight.y);
+        pbr_mix = mix_pbr(pbr_mix, mix2, tm.weight.y);
         break;
     default:
         break;
@@ -317,7 +317,7 @@ void main()
 #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_NORMAL)
         mix2.vNt = mikktspace(mix2.vNt, vary_tangents[2]);
 #endif
-        pbr_mix = mix_pbr(mix, mix2, tm.weight.z);
+        pbr_mix = mix_pbr(pbr_mix, mix2, tm.weight.z);
         break;
     default:
         break;
@@ -359,7 +359,7 @@ void main()
 #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_NORMAL)
         mix2.vNt = mikktspace(mix2.vNt, vary_tangents[3]);
 #endif
-        pbr_mix = mix_pbr(mix, mix2, tm.weight.w);
+        pbr_mix = mix_pbr(pbr_mix, mix2, tm.weight.w);
         break;
     default:
         break;
