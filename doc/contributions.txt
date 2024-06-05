@@ -246,7 +246,7 @@ Ansariel Hiller
 	SL-4126
 	SL-20224
 	SL-20524
-	https://github.com/secondlife/viewer/issues/1051
+	secondlife/viewer#1051
 Aralara Rajal
 Arare Chantilly
 	CHUIBUG-191
