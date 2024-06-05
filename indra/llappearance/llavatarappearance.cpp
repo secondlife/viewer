@@ -494,43 +494,68 @@ void LLAvatarAppearance::computeBodySize()
     mCurrBodySizeState["mAnkleLeft scale"] = mAnkleLeftp->getScale();
     mCurrBodySizeState["mFootLeft pos"] = mFootLeftp->getPosition();
 
-    F32 old_height = mBodySize.mV[VZ];
+    LLVector3 pelvis_scale = mPelvisp->getScale();
+
+    // some of the joints have not been cached
+    LLVector3 skull = mSkullp->getPosition();
+    //LLVector3 skull_scale = mSkullp->getScale();
+
+    LLVector3 neck = mNeckp->getPosition();
+    LLVector3 neck_scale = mNeckp->getScale();
+
+    LLVector3 chest = mChestp->getPosition();
+    LLVector3 chest_scale = mChestp->getScale();
+
+    // the rest of the joints have been cached
+    LLVector3 head = mHeadp->getPosition();
+    LLVector3 head_scale = mHeadp->getScale();
+
+    LLVector3 torso = mTorsop->getPosition();
+    LLVector3 torso_scale = mTorsop->getScale();
+
+    LLVector3 hip = mHipLeftp->getPosition();
+    LLVector3 hip_scale = mHipLeftp->getScale();
+
+    LLVector3 knee = mKneeLeftp->getPosition();
+    LLVector3 knee_scale = mKneeLeftp->getScale();
+
+    LLVector3 ankle = mAnkleLeftp->getPosition();
+    LLVector3 ankle_scale = mAnkleLeftp->getScale();
+
+    LLVector3 foot  = mFootLeftp->getPosition();
+
     F32 old_offset = mAvatarOffset.mV[VZ];
 
-    // TODO: Measure the real depth and width
-    mPelvisToFoot = computePelvisToFoot();
-    F32 new_height = computeBodyHeight();
-    mBodySize.set(DEFAULT_AGENT_DEPTH, DEFAULT_AGENT_WIDTH, new_height);
-    F32 new_offset = getVisualParamWeight(AVATAR_HOVER);
-    mAvatarOffset.set(0, 0, new_offset);
+    mAvatarOffset.mV[VZ] = getVisualParamWeight(AVATAR_HOVER);
 
-    if (mBodySize.mV[VZ] != old_height || new_offset != old_offset)
+    mPelvisToFoot = hip.mV[VZ] * pelvis_scale.mV[VZ] -
+                    knee.mV[VZ] * hip_scale.mV[VZ] -
+                    ankle.mV[VZ] * knee_scale.mV[VZ] -
+                    foot.mV[VZ] * ankle_scale.mV[VZ];
+
+    LLVector3 new_body_size;
+    new_body_size.mV[VZ] = mPelvisToFoot +
+                       // the sqrt(2) correction below is an approximate
+                       // correction to get to the top of the head
+                       F_SQRT2 * (skull.mV[VZ] * head_scale.mV[VZ]) + 
+                       head.mV[VZ] * neck_scale.mV[VZ] + 
+                       neck.mV[VZ] * chest_scale.mV[VZ] + 
+                       chest.mV[VZ] * torso_scale.mV[VZ] + 
+                       torso.mV[VZ] * pelvis_scale.mV[VZ]; 
+
+    // TODO -- measure the real depth and width
+    new_body_size.mV[VX] = DEFAULT_AGENT_DEPTH;
+    new_body_size.mV[VY] = DEFAULT_AGENT_WIDTH;
+
+    mAvatarOffset.mV[VX] = 0.0f;
+    mAvatarOffset.mV[VY] = 0.0f;
+
+    if (new_body_size != mBodySize || old_offset != mAvatarOffset.mV[VZ])
     {
+        mBodySize = new_body_size;
+
         compareJointStateMaps(mLastBodySizeState, mCurrBodySizeState);
     }
-}
-
-F32 LLAvatarAppearance::computeBodyHeight()
-{
-    F32 result = mPelvisToFoot +
-        // all these relative positions usually are positive
-        mPelvisp->getScale().mV[VZ] * mTorsop->getPosition().mV[VZ] +
-        mTorsop->getScale().mV[VZ] * mChestp->getPosition().mV[VZ] +
-        mChestp->getScale().mV[VZ] * mNeckp->getPosition().mV[VZ] +
-        mNeckp->getScale().mV[VZ] * mHeadp->getPosition().mV[VZ] +
-        mHeadp->getScale().mV[VZ] * mSkullp->getPosition().mV[VZ] * 2;
-    return result;
-}
-
-F32 LLAvatarAppearance::computePelvisToFoot()
-{
-    F32 result =
-        // all these relative positions usually are negative
-        mPelvisp->getScale().mV[VZ] * mHipLeftp->getPosition().mV[VZ] +
-        mHipLeftp->getScale().mV[VZ] * mKneeLeftp->getPosition().mV[VZ] +
-        mKneeLeftp->getScale().mV[VZ] * mAnkleLeftp->getPosition().mV[VZ] +
-        mAnkleLeftp->getScale().mV[VZ] * mFootLeftp->getPosition().mV[VZ] / 2;
-    return -result;
 }
 
 //-----------------------------------------------------------------------------
