@@ -90,7 +90,7 @@ public:
     //---------------------------------------------------------------------
     virtual std::string         getSettingsType() const SETTINGS_OVERRIDE { return std::string("daycycle"); }
 
-    // Settings status 
+    // Settings status
     virtual void                blend(const LLSettingsBase::ptr_t &other, F64 mix) SETTINGS_OVERRIDE;
 
     static LLSD                 defaults();
@@ -128,7 +128,7 @@ public:
     static validation_list_t    validationList();
 
     virtual LLSettingsBase::ptr_t buildDerivedClone() const SETTINGS_OVERRIDE { return buildClone(); }
-	
+
     LLSettingsBase::TrackPosition getUpperBoundFrame(S32 track, const LLSettingsBase::TrackPosition& keyframe);
     LLSettingsBase::TrackPosition getLowerBoundFrame(S32 track, const LLSettingsBase::TrackPosition& keyframe);
 

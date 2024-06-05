@@ -1,25 +1,25 @@
-/** 
+/**
  * @file lllegacyatmospherics.h
  * @brief LLVOSky class header file
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -75,7 +75,7 @@ class LLHaze
 {
 public:
     LLHaze() : mG(0), mFalloff(1), mAbsCoef(0.f) {mSigSca.setToBlack();}
-    LLHaze(const F32 g, const LLColor3& sca, const F32 fo = 2.f) : 
+    LLHaze(const F32 g, const LLColor3& sca, const F32 fo = 2.f) :
             mG(g), mSigSca(0.25f/F_PI * sca), mFalloff(fo), mAbsCoef(0.f)
     {
         mAbsCoef = color_intens(mSigSca) / sAirScaIntense;
@@ -111,7 +111,7 @@ public:
     const LLColor3& getSigSca() const // sea level
     {
         return mSigSca;
-    } 
+    }
 
     void setSigSca(const LLColor3& s)
     {
@@ -212,9 +212,9 @@ public:
 
     LLColor3  hazeColor;
     LLColor3  hazeColorBelowCloud;
-	LLColor3  cloudColorSun;
-	LLColor3  cloudColorAmbient;
-	F32       cloudDensity;
+    LLColor3  cloudColorSun;
+    LLColor3  cloudColorAmbient;
+    F32       cloudDensity;
     LLColor3  blue_density;
     LLColor3  blue_horizon;
     F32       haze_density;
@@ -237,7 +237,7 @@ public:
 
 class LLAtmospherics
 {
-public:    
+public:
     LLAtmospherics();
     ~LLAtmospherics();
 
@@ -267,7 +267,7 @@ protected:
     F32                 mHazeConcentration;
     F32                 mCloudDensity;
     F32                 mWind;
-    BOOL                mInitialized;
+    bool                mInitialized;
     LLVector3           mLastLightingDirection;
     LLColor3            mLastTotalAmbient;
     F32                 mAmbientScale;

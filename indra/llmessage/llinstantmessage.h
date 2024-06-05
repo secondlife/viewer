@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llinstantmessage.h
- * @brief Constants and declarations used by instant messages. 
+ * @brief Constants and declarations used by instant messages.
  *
  * $LicenseInfo:firstyear=2002&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -40,127 +40,127 @@ class LLMessageSystem;
 // field, so don't go past the byte boundary
 enum EInstantMessage
 {
-	// default. ID is meaningless, nothing in the binary bucket.
-	IM_NOTHING_SPECIAL = 0,
+    // default. ID is meaningless, nothing in the binary bucket.
+    IM_NOTHING_SPECIAL = 0,
 
-	// pops a messagebox with a single OK button
-	IM_MESSAGEBOX = 1,
+    // pops a messagebox with a single OK button
+    IM_MESSAGEBOX = 1,
 
-	// pops a countdown messagebox with a single OK button
-	// IM_MESSAGEBOX_COUNTDOWN = 2,
+    // pops a countdown messagebox with a single OK button
+    // IM_MESSAGEBOX_COUNTDOWN = 2,
 
-	// You've been invited to join a group.
-	// ID is the group id.
+    // You've been invited to join a group.
+    // ID is the group id.
 
-	// The binary bucket contains a null terminated string
-	// representation of the officer/member status and join cost for
-	// the invitee. (bug # 7672) The format is 1 byte for
-	// officer/member (O for officer, M for member), and as many bytes
-	// as necessary for cost.
-	IM_GROUP_INVITATION = 3,
+    // The binary bucket contains a null terminated string
+    // representation of the officer/member status and join cost for
+    // the invitee. (bug # 7672) The format is 1 byte for
+    // officer/member (O for officer, M for member), and as many bytes
+    // as necessary for cost.
+    IM_GROUP_INVITATION = 3,
 
-	// Inventory offer.
-	// ID is the transaction id
-	// Binary bucket is a list of inventory uuid and type. 
-	IM_INVENTORY_OFFERED = 4,
-	IM_INVENTORY_ACCEPTED = 5,
-	IM_INVENTORY_DECLINED = 6,
+    // Inventory offer.
+    // ID is the transaction id
+    // Binary bucket is a list of inventory uuid and type.
+    IM_INVENTORY_OFFERED = 4,
+    IM_INVENTORY_ACCEPTED = 5,
+    IM_INVENTORY_DECLINED = 6,
 
-	// Group vote
-	// Name is name of person who called vote.
-	// ID is vote ID used for internal tracking
-	// TODO: _DEPRECATED suffix as part of vote removal - DEV-24856
-	IM_GROUP_VOTE = 7,
+    // Group vote
+    // Name is name of person who called vote.
+    // ID is vote ID used for internal tracking
+    // TODO: _DEPRECATED suffix as part of vote removal - DEV-24856
+    IM_GROUP_VOTE = 7,
 
-	// Group message
-	// This means that the message is meant for everyone in the
-	// agent's group. This will result in a database query to find all
-	// participants and start an im session.
-	IM_GROUP_MESSAGE_DEPRECATED = 8,
+    // Group message
+    // This means that the message is meant for everyone in the
+    // agent's group. This will result in a database query to find all
+    // participants and start an im session.
+    IM_GROUP_MESSAGE_DEPRECATED = 8,
 
-	// Task inventory offer.
-	// ID is the transaction id
-	// Binary bucket is a (mostly) complete packed inventory item
-	IM_TASK_INVENTORY_OFFERED = 9,
-	IM_TASK_INVENTORY_ACCEPTED = 10,
-	IM_TASK_INVENTORY_DECLINED = 11,
+    // Task inventory offer.
+    // ID is the transaction id
+    // Binary bucket is a (mostly) complete packed inventory item
+    IM_TASK_INVENTORY_OFFERED = 9,
+    IM_TASK_INVENTORY_ACCEPTED = 10,
+    IM_TASK_INVENTORY_DECLINED = 11,
 
-	// Copied as pending, type LL_NOTHING_SPECIAL, for new users
-	// used by offline tools
-	IM_NEW_USER_DEFAULT = 12,
+    // Copied as pending, type LL_NOTHING_SPECIAL, for new users
+    // used by offline tools
+    IM_NEW_USER_DEFAULT = 12,
 
-	//
-	// session based messaging - the way that people usually actually
-	// communicate with each other.
-	//
+    //
+    // session based messaging - the way that people usually actually
+    // communicate with each other.
+    //
 
-	// Invite users to a session.
-	IM_SESSION_INVITE = 13,
+    // Invite users to a session.
+    IM_SESSION_INVITE = 13,
 
-	IM_SESSION_P2P_INVITE = 14,
+    IM_SESSION_P2P_INVITE = 14,
 
-	// start a session with your gruop
-	IM_SESSION_GROUP_START = 15,
+    // start a session with your gruop
+    IM_SESSION_GROUP_START = 15,
 
-	// start a session without a calling card (finder or objects)
-	IM_SESSION_CONFERENCE_START = 16,
+    // start a session without a calling card (finder or objects)
+    IM_SESSION_CONFERENCE_START = 16,
 
-	// send a message to a session.
-	IM_SESSION_SEND = 17,
+    // send a message to a session.
+    IM_SESSION_SEND = 17,
 
-	// leave a session
-	IM_SESSION_LEAVE = 18,
+    // leave a session
+    IM_SESSION_LEAVE = 18,
 
-	// an instant message from an object - for differentiation on the
-	// viewer, since you can't IM an object yet.
-	IM_FROM_TASK = 19,
+    // an instant message from an object - for differentiation on the
+    // viewer, since you can't IM an object yet.
+    IM_FROM_TASK = 19,
 
-	// sent an IM to a do not disturb user, this is the auto response
-	IM_DO_NOT_DISTURB_AUTO_RESPONSE = 20,
+    // sent an IM to a do not disturb user, this is the auto response
+    IM_DO_NOT_DISTURB_AUTO_RESPONSE = 20,
 
-	// Shows the message in the console and chat history
-	IM_CONSOLE_AND_CHAT_HISTORY = 21,
+    // Shows the message in the console and chat history
+    IM_CONSOLE_AND_CHAT_HISTORY = 21,
 
-	// IM Types used for luring your friends
-	IM_LURE_USER = 22,
-	IM_LURE_ACCEPTED = 23,
-	IM_LURE_DECLINED = 24,
-	IM_GODLIKE_LURE_USER = 25,
-	IM_TELEPORT_REQUEST = 26,
+    // IM Types used for luring your friends
+    IM_LURE_USER = 22,
+    IM_LURE_ACCEPTED = 23,
+    IM_LURE_DECLINED = 24,
+    IM_GODLIKE_LURE_USER = 25,
+    IM_TELEPORT_REQUEST = 26,
 
-	// IM that notifie of a new group election.
-	// Name is name of person who called vote.
-	// ID is election ID used for internal tracking
-	IM_GROUP_ELECTION_DEPRECATED = 27,
+    // IM that notifie of a new group election.
+    // Name is name of person who called vote.
+    // ID is election ID used for internal tracking
+    IM_GROUP_ELECTION_DEPRECATED = 27,
 
-	// IM to tell the user to go to an URL. Put a text message in the
-	// message field, and put the url with a trailing \0 in the binary
-	// bucket.
-	IM_GOTO_URL = 28,
+    // IM to tell the user to go to an URL. Put a text message in the
+    // message field, and put the url with a trailing \0 in the binary
+    // bucket.
+    IM_GOTO_URL = 28,
 
-	// a message generated by a script which we don't want to
-	// be sent through e-mail.  Similar to IM_FROM_TASK, but
-	// it is shown as an alert on the viewer.
-	IM_FROM_TASK_AS_ALERT = 31,
+    // a message generated by a script which we don't want to
+    // be sent through e-mail.  Similar to IM_FROM_TASK, but
+    // it is shown as an alert on the viewer.
+    IM_FROM_TASK_AS_ALERT = 31,
 
-	// IM from group officer to all group members.
-	IM_GROUP_NOTICE = 32,
-	IM_GROUP_NOTICE_INVENTORY_ACCEPTED = 33,
-	IM_GROUP_NOTICE_INVENTORY_DECLINED = 34,
+    // IM from group officer to all group members.
+    IM_GROUP_NOTICE = 32,
+    IM_GROUP_NOTICE_INVENTORY_ACCEPTED = 33,
+    IM_GROUP_NOTICE_INVENTORY_DECLINED = 34,
 
-	IM_GROUP_INVITATION_ACCEPT = 35,
-	IM_GROUP_INVITATION_DECLINE = 36,
+    IM_GROUP_INVITATION_ACCEPT = 35,
+    IM_GROUP_INVITATION_DECLINE = 36,
 
-	IM_GROUP_NOTICE_REQUESTED = 37,
+    IM_GROUP_NOTICE_REQUESTED = 37,
 
-	IM_FRIENDSHIP_OFFERED = 38,
-	IM_FRIENDSHIP_ACCEPTED = 39,
-	IM_FRIENDSHIP_DECLINED_DEPRECATED = 40,
+    IM_FRIENDSHIP_OFFERED = 38,
+    IM_FRIENDSHIP_ACCEPTED = 39,
+    IM_FRIENDSHIP_DECLINED_DEPRECATED = 40,
 
-	IM_TYPING_START = 41,
-	IM_TYPING_STOP = 42,
+    IM_TYPING_START = 41,
+    IM_TYPING_STOP = 42,
 
-	IM_COUNT
+    IM_COUNT
 };
 
 
@@ -178,40 +178,40 @@ extern const std::string INTERACTIVE_SYSTEM_FROM;
 extern const S32 IM_TTL;
 
 void pack_instant_message(
-	LLMessageSystem* msgsystem,
-	const LLUUID& from_id,
-	BOOL from_group,
-	const LLUUID& session_id,
-	const LLUUID& to_id,
-	const std::string& name,
-	const std::string& message,
-	U8 offline = IM_ONLINE,
-	EInstantMessage dialog = IM_NOTHING_SPECIAL,
-	const LLUUID& id = LLUUID::null,
-	U32 parent_estate_id = 0,
-	const LLUUID& region_id = LLUUID::null,
-	const LLVector3& position = LLVector3::zero,
-	U32 timestamp = NO_TIMESTAMP, 
-	const U8* binary_bucket = (U8*)EMPTY_BINARY_BUCKET,
-	S32 binary_bucket_size = EMPTY_BINARY_BUCKET_SIZE);
+    LLMessageSystem* msgsystem,
+    const LLUUID& from_id,
+    bool from_group,
+    const LLUUID& session_id,
+    const LLUUID& to_id,
+    const std::string& name,
+    const std::string& message,
+    U8 offline = IM_ONLINE,
+    EInstantMessage dialog = IM_NOTHING_SPECIAL,
+    const LLUUID& id = LLUUID::null,
+    U32 parent_estate_id = 0,
+    const LLUUID& region_id = LLUUID::null,
+    const LLVector3& position = LLVector3::zero,
+    U32 timestamp = NO_TIMESTAMP,
+    const U8* binary_bucket = (U8*)EMPTY_BINARY_BUCKET,
+    S32 binary_bucket_size = EMPTY_BINARY_BUCKET_SIZE);
 
 void pack_instant_message_block(
-	LLMessageSystem* msgsystem,
-	const LLUUID& from_id,
-	BOOL from_group,
-	const LLUUID& session_id,
-	const LLUUID& to_id,
-	const std::string& name,
-	const std::string& message,
-	U8 offline = IM_ONLINE,
-	EInstantMessage dialog = IM_NOTHING_SPECIAL,
-	const LLUUID& id = LLUUID::null,
-	U32 parent_estate_id = 0,
-	const LLUUID& region_id = LLUUID::null,
-	const LLVector3& position = LLVector3::zero,
-	U32 timestamp = NO_TIMESTAMP, 
-	const U8* binary_bucket = (U8*)EMPTY_BINARY_BUCKET,
-	S32 binary_bucket_size = EMPTY_BINARY_BUCKET_SIZE);
+    LLMessageSystem* msgsystem,
+    const LLUUID& from_id,
+    bool from_group,
+    const LLUUID& session_id,
+    const LLUUID& to_id,
+    const std::string& name,
+    const std::string& message,
+    U8 offline = IM_ONLINE,
+    EInstantMessage dialog = IM_NOTHING_SPECIAL,
+    const LLUUID& id = LLUUID::null,
+    U32 parent_estate_id = 0,
+    const LLUUID& region_id = LLUUID::null,
+    const LLVector3& position = LLVector3::zero,
+    U32 timestamp = NO_TIMESTAMP,
+    const U8* binary_bucket = (U8*)EMPTY_BINARY_BUCKET,
+    S32 binary_bucket_size = EMPTY_BINARY_BUCKET_SIZE);
 
 
 #endif // LL_LLINSTANTMESSAGE_H

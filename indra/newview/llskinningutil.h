@@ -1,4 +1,4 @@
-/** 
+/**
 * @file   llskinningutil.h
 * @brief  Functions for mesh object skinning
 * @author vir@lindenlab.com
@@ -40,6 +40,7 @@ class LLJointRiggingInfoTab;
 namespace LLSkinningUtil
 {
     S32 getMaxJointCount();
+    S32 getMaxGLTFJointCount();
     U32 getMeshJointCount(const LLMeshSkinInfo *skin);
     void scrubInvalidJoints(LLVOAvatar *avatar, LLMeshSkinInfo* skin);
     void initSkinningMatrixPalette(LLMatrix4a* mat, S32 count, const LLMeshSkinInfo* skin, LLVOAvatar *avatar);
@@ -53,13 +54,13 @@ namespace LLSkinningUtil
         LLMatrix4a* mat,
         LLMatrix4a& final_mat,
         LLMatrix4a* src)
-    {    
+    {
         final_mat.clear();
         src[0].setMul(mat[idx[0]], weights[0]);
         src[1].setMul(mat[idx[1]], weights[1]);
         final_mat.add(src[0]);
         final_mat.add(src[1]);
-        src[2].setMul(mat[idx[2]], weights[2]);        
+        src[2].setMul(mat[idx[2]], weights[2]);
         src[3].setMul(mat[idx[3]], weights[3]);
         final_mat.add(src[2]);
         final_mat.add(src[3]);
@@ -67,7 +68,7 @@ namespace LLSkinningUtil
 
     void initJointNums(LLMeshSkinInfo* skin, LLVOAvatar *avatar);
     void updateRiggingInfo(const LLMeshSkinInfo* skin, LLVOAvatar *avatar, LLVolumeFace& vol_face);
-	LLQuaternion getUnscaledQuaternion(const LLMatrix4& mat4);
+    LLQuaternion getUnscaledQuaternion(const LLMatrix4& mat4);
 };
 
 #endif

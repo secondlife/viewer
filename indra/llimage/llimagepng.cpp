@@ -5,21 +5,21 @@
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -27,6 +27,7 @@
 #include "linden_common.h"
 #include "stdtypes.h"
 #include "llerror.h"
+#include "llexception.h"
 
 #include "llimage.h"
 #include "llpngwrapper.h"
@@ -51,31 +52,48 @@ bool LLImagePNG::updateData()
 {
     resetLastError();
 
-    // Check to make sure that this instance has been initialized with data
-    if (!getData() || (0 == getDataSize()))
+    try
     {
-        setLastError("Uninitialized instance of LLImagePNG");
+        LLImageDataLock lock(this);
+
+        // Check to make sure that this instance has been initialized with data
+        if (!getData() || (0 == getDataSize()))
+        {
+            setLastError("Uninitialized instance of LLImagePNG");
+            return false;
+        }
+
+        // Decode the PNG data and extract sizing information
+        LLPngWrapper pngWrapper;
+        if (!pngWrapper.isValidPng(getData()))
+        {
+            setLastError("LLImagePNG data does not have a valid PNG header!");
+            return false;
+        }
+
+        LLPngWrapper::ImageInfo infop;
+        if (!pngWrapper.readPng(getData(), getDataSize(), NULL, &infop))
+        {
+            setLastError(pngWrapper.getErrorMessage());
+            return false;
+        }
+
+        setSize(infop.mWidth, infop.mHeight, infop.mComponents);
+    }
+    catch (const LLContinueError& msg)
+    {
+        setLastError(msg.what());
+        LOG_UNHANDLED_EXCEPTION("");
+        return false;
+    }
+    catch (...)
+    {
+        setLastError("LLImagePNG");
+        LOG_UNHANDLED_EXCEPTION("");
         return false;
     }
 
-	// Decode the PNG data and extract sizing information
-	LLPngWrapper pngWrapper;
-	if (!pngWrapper.isValidPng(getData()))
-	{
-		setLastError("LLImagePNG data does not have a valid PNG header!");
-		return false;
-	}
-
-	LLPngWrapper::ImageInfo infop;
-	if (! pngWrapper.readPng(getData(), getDataSize(), NULL, &infop))
-	{
-		setLastError(pngWrapper.getErrorMessage());
-		return false;
-	}
-
-	setSize(infop.mWidth, infop.mHeight, infop.mComponents);
-
-	return true;
+    return true;
 }
 
 // Virtual
@@ -83,9 +101,12 @@ bool LLImagePNG::updateData()
 // used within SecondLife.
 bool LLImagePNG::decode(LLImageRaw* raw_image, F32 decode_time)
 {
-	llassert_always(raw_image);
+    llassert_always(raw_image);
 
     resetLastError();
+
+    LLImageDataSharedLock lockIn(this);
+    LLImageDataLock lockOut(raw_image);
 
     // Check to make sure that this instance has been initialized with data
     if (!getData() || (0 == getDataSize()))
@@ -94,60 +115,63 @@ bool LLImagePNG::decode(LLImageRaw* raw_image, F32 decode_time)
         return false;
     }
 
-	// Decode the PNG data into the raw image
-	LLPngWrapper pngWrapper;
-	if (!pngWrapper.isValidPng(getData()))
-	{
-		setLastError("LLImagePNG data does not have a valid PNG header!");
-		return false;
-	}
+    // Decode the PNG data into the raw image
+    LLPngWrapper pngWrapper;
+    if (!pngWrapper.isValidPng(getData()))
+    {
+        setLastError("LLImagePNG data does not have a valid PNG header!");
+        return false;
+    }
 
-	if (! pngWrapper.readPng(getData(), getDataSize(), raw_image))
-	{
-		setLastError(pngWrapper.getErrorMessage());
-		return false;
-	}
+    if (! pngWrapper.readPng(getData(), getDataSize(), raw_image))
+    {
+        setLastError(pngWrapper.getErrorMessage());
+        return false;
+    }
 
-	return true;
+    return true;
 }
 
 // Virtual
 // Encode the in memory RGB image into PNG format.
 bool LLImagePNG::encode(const LLImageRaw* raw_image, F32 encode_time)
 {
-	llassert_always(raw_image);
+    llassert_always(raw_image);
 
     resetLastError();
 
-	// Image logical size
-	setSize(raw_image->getWidth(), raw_image->getHeight(), raw_image->getComponents());
+    LLImageDataSharedLock lockIn(raw_image);
+    LLImageDataLock lockOut(this);
 
-	// Temporary buffer to hold the encoded image. Note: the final image
-	// size should be much smaller due to compression.
-	U32 bufferSize = getWidth() * getHeight() * getComponents() + 8192;
-	U8* tmpWriteBuffer = new(std::nothrow) U8[ bufferSize ];
-	if (!tmpWriteBuffer)
-	{
-		setLastError("LLImagePNG::out of memory");
-		return false;
-	}
+    // Image logical size
+    setSize(raw_image->getWidth(), raw_image->getHeight(), raw_image->getComponents());
 
-	// Delegate actual encoding work to wrapper
-	LLPngWrapper pngWrapper;
-	if (!pngWrapper.writePng(raw_image, tmpWriteBuffer, bufferSize))
-	{
-		setLastError(pngWrapper.getErrorMessage());
-		delete[] tmpWriteBuffer;
-		return false;
-	}
+    // Temporary buffer to hold the encoded image. Note: the final image
+    // size should be much smaller due to compression.
+    U32 bufferSize = getWidth() * getHeight() * getComponents() + 8192;
+    U8* tmpWriteBuffer = new(std::nothrow) U8[ bufferSize ];
+    if (!tmpWriteBuffer)
+    {
+        setLastError("LLImagePNG::out of memory");
+        return false;
+    }
 
-	// Resize internal buffer and copy from temp
-	U32 encodedSize = pngWrapper.getFinalSize();
-	allocateData(encodedSize);
-	memcpy(getData(), tmpWriteBuffer, encodedSize);
+    // Delegate actual encoding work to wrapper
+    LLPngWrapper pngWrapper;
+    if (!pngWrapper.writePng(raw_image, tmpWriteBuffer, bufferSize))
+    {
+        setLastError(pngWrapper.getErrorMessage());
+        delete[] tmpWriteBuffer;
+        return false;
+    }
 
-	delete[] tmpWriteBuffer;
+    // Resize internal buffer and copy from temp
+    U32 encodedSize = pngWrapper.getFinalSize();
+    allocateData(encodedSize);
+    memcpy(getData(), tmpWriteBuffer, encodedSize);
 
-	return true;
+    delete[] tmpWriteBuffer;
+
+    return true;
 }
 

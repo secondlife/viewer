@@ -36,16 +36,16 @@ class LLUICtrl;
 class LLFloaterScriptEdPrefs : public LLFloater
 {
 public:
-	LLFloaterScriptEdPrefs(const LLSD& key);
-	BOOL postBuild();
-	
+    LLFloaterScriptEdPrefs(const LLSD& key);
+    bool postBuild() override;
+
 private:
-	~LLFloaterScriptEdPrefs() {};
-	
-	void applyUIColor(LLUICtrl* ctrl, const LLSD& param);
-	void getUIColor(LLUICtrl* ctrl, const LLSD& param);
-	
-	LLScriptEditor* mEditor;
+    ~LLFloaterScriptEdPrefs() {};
+
+    void applyUIColor(LLUICtrl* ctrl, const LLSD& param);
+    void getUIColor(LLUICtrl* ctrl, const LLSD& param);
+
+    LLScriptEditor* mEditor;
 };
 
 #endif // LL_FLOATERSCRIPTEDPREFS_H

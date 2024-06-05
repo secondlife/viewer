@@ -1,25 +1,25 @@
-/** 
+/**
  * @file lltoolmgr.h
  * @brief LLToolMgr class header file
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -33,89 +33,89 @@ class LLTool;
 class LLToolset;
 
 // Key bindings for common operations
-const MASK MASK_VERTICAL		= MASK_CONTROL;
-const MASK MASK_SPIN			= MASK_CONTROL | MASK_SHIFT;
-const MASK MASK_ZOOM			= MASK_NONE;
-const MASK MASK_ORBIT			= MASK_CONTROL;
-const MASK MASK_PAN				= MASK_CONTROL | MASK_SHIFT;
-const MASK MASK_COPY			= MASK_SHIFT;
+const MASK MASK_VERTICAL        = MASK_CONTROL;
+const MASK MASK_SPIN            = MASK_CONTROL | MASK_SHIFT;
+const MASK MASK_ZOOM            = MASK_NONE;
+const MASK MASK_ORBIT           = MASK_CONTROL;
+const MASK MASK_PAN             = MASK_CONTROL | MASK_SHIFT;
+const MASK MASK_COPY            = MASK_SHIFT;
 
 class LLToolMgr : public LLSingleton<LLToolMgr>
 {
-	LLSINGLETON(LLToolMgr);
-	~LLToolMgr();
+    LLSINGLETON(LLToolMgr);
+    ~LLToolMgr();
 public:
 
-	// Must be called after gSavedSettings set up.
-	void			initTools();
+    // Must be called after gSavedSettings set up.
+    void            initTools();
 
-	LLTool*			getCurrentTool(); // returns active tool, taking into account keyboard state
-	LLTool*			getBaseTool(); // returns active tool when overrides are deactivated
+    LLTool*         getCurrentTool(); // returns active tool, taking into account keyboard state
+    LLTool*         getBaseTool(); // returns active tool when overrides are deactivated
 
-	bool			inEdit();
-	bool			canEdit();
-	bool 			buildEnabledOrActive();
+    bool            inEdit();
+    bool            canEdit();
+    bool            buildEnabledOrActive();
     bool            canAccessMarketplace();
-	void			toggleBuildMode(const LLSD& sdname);
-	void			toggleMarketplace(const LLSD& sdname);
-	
-	/* Determines if we are in Build mode or not. */
-	bool			inBuildMode();
+    void            toggleBuildMode(const LLSD& sdname);
+    void            toggleMarketplace(const LLSD& sdname);
 
-	void			setTransientTool(LLTool* tool);
-	void			clearTransientTool();
-	BOOL			usingTransientTool();
+    /* Determines if we are in Build mode or not. */
+    bool            inBuildMode();
 
-	void			setCurrentToolset(LLToolset* current);
-	LLToolset*		getCurrentToolset();
+    void            setTransientTool(LLTool* tool);
+    void            clearTransientTool();
+    bool            usingTransientTool();
 
-	void			onAppFocusGained();
-	void			onAppFocusLost();
+    void            setCurrentToolset(LLToolset* current);
+    LLToolset*      getCurrentToolset();
 
-	void            clearSavedTool();
+    void            onAppFocusGained();
+    void            onAppFocusLost();
 
-protected:
-	friend class LLToolset;  // to allow access to setCurrentTool();
-	void			setCurrentTool(LLTool* tool);
-	void			updateToolStatus();
+    void            clearSavedTool();
 
 protected:
-	LLTool*			mBaseTool;
-	LLTool*			mSavedTool;		// The current tool at the time application focus was lost.
-	LLTool*			mTransientTool;
-	LLTool*			mOverrideTool; // Tool triggered by keyboard override
-	LLTool*			mSelectedTool; // last known active tool
-	LLToolset*		mCurrentToolset;
+    friend class LLToolset;  // to allow access to setCurrentTool();
+    void            setCurrentTool(LLTool* tool);
+    void            updateToolStatus();
+
+protected:
+    LLTool*         mBaseTool;
+    LLTool*         mSavedTool;     // The current tool at the time application focus was lost.
+    LLTool*         mTransientTool;
+    LLTool*         mOverrideTool; // Tool triggered by keyboard override
+    LLTool*         mSelectedTool; // last known active tool
+    LLToolset*      mCurrentToolset;
 };
 
 // Sets of tools for various modes
 class LLToolset
 {
 public:
-	LLToolset() : mSelectedTool(NULL), mIsShowFloaterTools(true) {}
+    LLToolset() : mSelectedTool(NULL), mIsShowFloaterTools(true) {}
 
-	LLTool*			getSelectedTool()				{ return mSelectedTool; }
+    LLTool*         getSelectedTool()               { return mSelectedTool; }
 
-	void			addTool(LLTool* tool);
+    void            addTool(LLTool* tool);
 
-	void			selectTool( LLTool* tool );
-	void			selectToolByIndex( S32 index );
-	void			selectFirstTool();
-	void			selectNextTool();
-	void			selectPrevTool();
+    void            selectTool( LLTool* tool );
+    void            selectToolByIndex( S32 index );
+    void            selectFirstTool();
+    void            selectNextTool();
+    void            selectPrevTool();
 
-	void			handleScrollWheel(S32 clicks);
+    void            handleScrollWheel(S32 clicks);
 
-	BOOL			isToolSelected( S32 index );
+    bool            isToolSelected( S32 index );
 
-	void            setShowFloaterTools(bool pShowFloaterTools) {mIsShowFloaterTools = pShowFloaterTools;};
-	bool            isShowFloaterTools() const                  {return mIsShowFloaterTools;};
+    void            setShowFloaterTools(bool pShowFloaterTools) {mIsShowFloaterTools = pShowFloaterTools;};
+    bool            isShowFloaterTools() const                  {return mIsShowFloaterTools;};
 
 protected:
-	LLTool*			mSelectedTool;
-	typedef std::vector<LLTool*> tool_list_t;
-	tool_list_t 	mToolList;
-	bool            mIsShowFloaterTools;
+    LLTool*         mSelectedTool;
+    typedef std::vector<LLTool*> tool_list_t;
+    tool_list_t     mToolList;
+    bool            mIsShowFloaterTools;
 };
 
 // Globals
@@ -126,6 +126,6 @@ extern LLToolset *gCameraToolset;
 extern LLToolset* gMouselookToolset;
 extern LLToolset* gFaceEditToolset;
 
-extern LLTool*		gToolNull;
+extern LLTool*      gToolNull;
 
 #endif

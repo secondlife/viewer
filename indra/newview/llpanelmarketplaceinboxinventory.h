@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llpanelmarketplaceinboxinventory.h
  * @brief LLInboxInventoryPanel class declaration
  *
  * $LicenseInfo:firstyear=2009&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -39,16 +39,16 @@
 class LLInboxInventoryPanel : public LLInventoryPanel
 {
 public:
-	struct Params : public LLInitParam::Block<Params, LLInventoryPanel::Params>
-	{};
-	
-	LLInboxInventoryPanel(const Params& p);
-	~LLInboxInventoryPanel();
+    struct Params : public LLInitParam::Block<Params, LLInventoryPanel::Params>
+    {};
 
-	// virtual
-	void initFromParams(const LLInventoryPanel::Params&);
-	LLFolderViewFolder*	createFolderViewFolder(LLInvFVBridge * bridge, bool allow_drop);
-	LLFolderViewItem * createFolderViewItem(LLInvFVBridge * bridge);
+    LLInboxInventoryPanel(const Params& p);
+    ~LLInboxInventoryPanel();
+
+    // virtual
+    void initFromParams(const LLInventoryPanel::Params&);
+    LLFolderViewFolder* createFolderViewFolder(LLInvFVBridge * bridge, bool allow_drop);
+    LLFolderViewItem * createFolderViewItem(LLInvFVBridge * bridge);
 
     void onRemoveItemFreshness(const LLUUID& item_id);
 };
@@ -57,86 +57,86 @@ public:
 class LLInboxFolderViewFolder : public LLFolderViewFolder, public LLBadgeOwner
 {
 public:
-	struct Params : public LLInitParam::Block<Params, LLFolderViewFolder::Params>
-	{
-		Optional<LLBadge::Params>	new_badge;
-		
-		Params()
-		:	new_badge("new_badge")
-		{}
-	};
-	
-	LLInboxFolderViewFolder(const Params& p);
-	
+    struct Params : public LLInitParam::Block<Params, LLFolderViewFolder::Params>
+    {
+        Optional<LLBadge::Params>   new_badge;
+
+        Params()
+        :   new_badge("new_badge")
+        {}
+    };
+
+    LLInboxFolderViewFolder(const Params& p);
+
     void addItem(LLFolderViewItem* item);
-	void draw();
-	
-	BOOL handleMouseDown(S32 x, S32 y, MASK mask);
-	BOOL handleDoubleClick(S32 x, S32 y, MASK mask);
-	void selectItem();
+    void draw();
 
-	void computeFreshness();
-	void deFreshify();
+    bool handleMouseDown(S32 x, S32 y, MASK mask);
+    bool handleDoubleClick(S32 x, S32 y, MASK mask);
+    void selectItem();
 
-	bool isFresh() const { return mFresh; }
+    void computeFreshness();
+    void deFreshify();
+
+    bool isFresh() const { return mFresh; }
     void setFresh(bool is_fresh)  { mFresh = is_fresh; }
-	
+
 protected:
-	bool mFresh;
+    bool mFresh;
 };
 
 
 class LLInboxFolderViewItem : public LLFolderViewItem, public LLBadgeOwner
 {
 public:
-	struct Params : public LLInitParam::Block<Params, LLFolderViewItem::Params>
-	{
-		Optional<LLBadge::Params>	new_badge;
+    struct Params : public LLInitParam::Block<Params, LLFolderViewItem::Params>
+    {
+        Optional<LLBadge::Params>   new_badge;
 
-		Params()
-		:	new_badge("new_badge")
-		{}
-	};
+        Params()
+        :   new_badge("new_badge")
+        {}
+    };
 
-	LLInboxFolderViewItem(const Params& p);
+    LLInboxFolderViewItem(const Params& p);
 
-	void addToFolder(LLFolderViewFolder* folder);
-	BOOL handleDoubleClick(S32 x, S32 y, MASK mask);
+    void addToFolder(LLFolderViewFolder* folder);
+    bool handleDoubleClick(S32 x, S32 y, MASK mask);
 
-	void draw();
+    void draw();
 
-	void selectItem();
+    void selectItem();
 
-	void computeFreshness();
-	void deFreshify();
+    void computeFreshness();
+    void deFreshify();
 
-	bool isFresh() const { return mFresh; }
+    bool isFresh() const { return mFresh; }
     void setFresh(bool is_fresh)  { mFresh = is_fresh; }
 
 protected:
-	bool mFresh;
+    bool mFresh;
 };
 
 class LLInboxNewItemsStorage : public LLSingleton<LLInboxNewItemsStorage>
-	, public LLDestroyClass<LLInboxNewItemsStorage>
+    , public LLDestroyClass<LLInboxNewItemsStorage>
 {
-	LLSINGLETON(LLInboxNewItemsStorage);
-	LOG_CLASS(LLInboxNewItemsStorage);
+    LLSINGLETON(LLInboxNewItemsStorage);
+    LOG_CLASS(LLInboxNewItemsStorage);
 public:
-	static void destroyClass();
-	void saveNewItemsIds();
+    static void destroyClass();
+    void saveNewItemsIds();
 
-	void load();
-	
-	void addFreshItem(const LLUUID& id) { mNewItemsIDs.insert(id); }
+    void load();
+
+    void addFreshItem(const LLUUID& id) { mNewItemsIDs.insert(id); }
     void removeItem(const LLUUID& id);
-	bool isItemFresh(const LLUUID& id) { return (mNewItemsIDs.find(id) != mNewItemsIDs.end()); }
+    bool isItemFresh(const LLUUID& id) { return (mNewItemsIDs.find(id) != mNewItemsIDs.end()); }
 
     void addInboxPanel(LLInboxInventoryPanel* inbox) { mInboxPanels.insert(inbox); }
     void removeInboxPanel(LLInboxInventoryPanel* inbox) { mInboxPanels.erase(inbox); }
 
 private:
-	std::set<LLUUID> mNewItemsIDs;
+    std::set<LLUUID> mNewItemsIDs;
 
     std::set<LLInboxInventoryPanel*> mInboxPanels;
 };

@@ -118,7 +118,7 @@ static std::string clean_name_from_im(const std::string& name, EInstantMessage t
 }
 
 static std::string clean_name_from_task_im(const std::string& msg,
-    BOOL from_group)
+    bool from_group)
 {
     boost::smatch match;
     static const boost::regex returned_exp(
@@ -245,11 +245,11 @@ void inventory_offer_handler(LLOfferInfo* info)
         object_id.generate(msg);
 
     payload["from_id"] = info->mFromID;
-    // Needed by LLScriptFloaterManager to bind original notification with 
+    // Needed by LLScriptFloaterManager to bind original notification with
     // faked for toast one.
     payload["object_id"] = object_id;
     // Flag indicating that this notification is faked for toast.
-    payload["give_inventory_notification"] = FALSE;
+    payload["give_inventory_notification"] = false;
     args["OBJECTFROMNAME"] = info->mFromName;
     args["NAME"] = info->mFromName;
     if (info->mFromGroup)
@@ -278,14 +278,14 @@ void inventory_offer_handler(LLOfferInfo* info)
         p.name = info->mFromID == gAgentID ? "OwnObjectGiveItem" : "ObjectGiveItem";
 
         // Pop up inv offer chiclet and let the user accept (keep), or reject (and silently delete) the inventory.
-        LLPostponedNotification::add<LLPostponedOfferNotification>(p, info->mFromID, info->mFromGroup == TRUE);
+        LLPostponedNotification::add<LLPostponedOfferNotification>(p, info->mFromID, info->mFromGroup);
     }
     else // Agent -> Agent Inventory Offer
     {
         p.responder = info;
         // Note: sets inventory_offer_callback as the callback
         // *TODO fix memory leak
-        // inventory_offer_callback() is not invoked if user received notification and 
+        // inventory_offer_callback() is not invoked if user received notification and
         // closes viewer(without responding the notification)
         p.substitutions(args).payload(payload).functor.responder(LLNotificationResponderPtr(info));
         info->mPersist = true;
@@ -315,7 +315,7 @@ void inventory_offer_handler(LLOfferInfo* info)
         if (!bAutoAccept) // if we auto accept, do not pester the user
         {
             // Inform user that there is a script floater via toast system
-            payload["give_inventory_notification"] = TRUE;
+            payload["give_inventory_notification"] = true;
             p.payload = payload;
             LLPostponedNotification::add<LLPostponedOfferNotification>(p, info->mFromID, false);
         }
@@ -412,7 +412,7 @@ static void notification_display_name_callback(const LLUUID& id,
 }
 
 void LLIMProcessing::processNewMessage(LLUUID from_id,
-    BOOL from_group,
+    bool from_group,
     LLUUID to_id,
     U8 offline,
     EInstantMessage dialog, // U8
@@ -445,14 +445,14 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
     // IDEVO convert new-style "Resident" names for display
     name = clean_name_from_im(name, dialog);
 
-    BOOL is_do_not_disturb = gAgent.isDoNotDisturb();
-    BOOL is_muted = LLMuteList::getInstance()->isMuted(from_id, name, LLMute::flagTextChat)
+    bool is_do_not_disturb = gAgent.isDoNotDisturb();
+    bool is_muted = LLMuteList::getInstance()->isMuted(from_id, name, LLMute::flagTextChat)
         // object IMs contain sender object id in session_id (STORM-1209)
         || (dialog == IM_FROM_TASK && LLMuteList::getInstance()->isMuted(session_id));
-    BOOL is_owned_by_me = FALSE;
-    BOOL is_friend = (LLAvatarTracker::instance().getBuddyInfo(from_id) == NULL) ? false : true;
-    BOOL accept_im_from_only_friend = gSavedPerAccountSettings.getBOOL("VoiceCallsFriendsOnly");
-    BOOL is_linden = chat.mSourceType != CHAT_SOURCE_OBJECT &&
+    bool is_owned_by_me = false;
+    bool is_friend = LLAvatarTracker::instance().getBuddyInfo(from_id) != NULL;
+    bool accept_im_from_only_friend = gSavedPerAccountSettings.getBOOL("VoiceCallsFriendsOnly");
+    bool is_linden = chat.mSourceType != CHAT_SOURCE_OBJECT &&
         LLMuteList::isLinden(name);
 
     chat.mMuted = is_muted;
@@ -489,7 +489,7 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
             LLPostponedNotification::add<LLPostponedIMSystemTipNotification>(params, from_id, false);
             break;
 
-        case IM_NOTHING_SPECIAL:	// p2p IM
+        case IM_NOTHING_SPECIAL:    // p2p IM
             // Don't show dialog, just do IM
             if (!gAgent.isGodlike()
                 && gAgent.getRegion()->isPrelude()
@@ -640,8 +640,8 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
             {
                 // aux_id contains group id, binary bucket contains name and asset type
                 group_id = aux_id;
-                has_inventory = binary_bucket_size > 1 ? TRUE : FALSE;
-                from_group = TRUE; // inaccurate value correction
+                has_inventory = binary_bucket_size > 1;
+                from_group = true; // inaccurate value correction
                 if (has_inventory)
                 {
                     std::string str_bucket = ll_safe_string((char*)binary_bucket, binary_bucket_size);
@@ -679,7 +679,7 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
                     U8 item_name[DB_INV_ITEM_NAME_BUF_SIZE];
                 }*notice_bin_bucket;
 
-                // Make sure the binary bucket is big enough to hold the header 
+                // Make sure the binary bucket is big enough to hold the header
                 // and a null terminated item name.
                 if ((binary_bucket_size < (S32)((sizeof(notice_bucket_header_t) + sizeof(U8))))
                     || (binary_bucket[binary_bucket_size - 1] != '\0'))
@@ -852,8 +852,8 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
             {
                 struct offer_agent_bucket_t
                 {
-                    S8		asset_type;
-                    LLUUID	object_id;
+                    S8      asset_type;
+                    LLUUID  object_id;
                 }*bucketp;
 
                 if (sizeof(offer_agent_bucket_t) != binary_bucket_size)
@@ -865,7 +865,7 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
                 bucketp = (struct offer_agent_bucket_t*) &binary_bucket[0];
                 info->mType = (LLAssetType::EType) bucketp->asset_type;
                 info->mObjectID = bucketp->object_id;
-                info->mFromObject = FALSE;
+                info->mFromObject = false;
             }
             else // IM_TASK_INVENTORY_OFFERED
             {
@@ -875,8 +875,8 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
                 }
                 else
                 {
-                    /*RIDER*/ // The previous version of the protocol returned the wrong binary bucket... we 
-                    // still might be able to figure out the type... even though the offer is not retrievable. 
+                    /*RIDER*/ // The previous version of the protocol returned the wrong binary bucket... we
+                    // still might be able to figure out the type... even though the offer is not retrievable.
 
                     // Should be safe to remove once DRTSIM-451 fully deploys
                     std::string str_bucket(reinterpret_cast<char *>(binary_bucket));
@@ -889,12 +889,12 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
 
                     // We could try AT_UNKNOWN which would be more accurate, but that causes an auto decline
                     info->mType = static_cast<LLAssetType::EType>(type);
-                    // Don't break in the case of a bad binary bucket.  Go ahead and show the 
+                    // Don't break in the case of a bad binary bucket.  Go ahead and show the
                     // accept/decline popup even though it will not do anything.
                     LL_WARNS("Messaging") << "Malformed inventory offer from object, type might be " << info->mType << LL_ENDL;
                 }
                 info->mObjectID = LLUUID::null;
-                info->mFromObject = TRUE;
+                info->mFromObject = true;
             }
 
             info->mIM = dialog;
@@ -1076,7 +1076,7 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
         }
         break;
 
-        case IM_SESSION_SEND:		// ad-hoc or group IMs
+        case IM_SESSION_SEND:       // ad-hoc or group IMs
 
             // Only show messages if we have a session open (which
             // should happen after you get an "invitation"
@@ -1088,7 +1088,7 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
             else if (offline == IM_ONLINE && is_do_not_disturb)
             {
 
-                // return a standard "do not disturb" message, but only do it to online IM 
+                // return a standard "do not disturb" message, but only do it to online IM
                 // (i.e. not other auto responses and not store-and-forward IM)
                 if (!gIMMgr->hasSession(session_id))
                 {
@@ -1252,7 +1252,7 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
                 LLSD payload;
                 payload["from_id"] = from_id;
                 payload["lure_id"] = session_id;
-                payload["godlike"] = FALSE;
+                payload["godlike"] = false;
                 payload["region_maturity"] = region_access;
 
                 if (!canUserAccessDstRegion)
@@ -1357,7 +1357,7 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
             LLSD payload;
             payload["from_id"] = from_id;
             payload["lure_id"] = session_id;
-            payload["godlike"] = TRUE;
+            payload["godlike"] = true;
             payload["region_maturity"] = region_access;
 
             if (!canUserAccessDstRegion)
@@ -1494,7 +1494,7 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
 
 void LLIMProcessing::requestOfflineMessages()
 {
-    static BOOL requested = FALSE;
+    static bool requested = false;
     if (!requested
         && gMessageSystem
         && !gDisconnected
@@ -1521,7 +1521,7 @@ void LLIMProcessing::requestOfflineMessages()
             LLCoros::instance().launch("LLIMProcessing::requestOfflineMessagesCoro",
                 boost::bind(&LLIMProcessing::requestOfflineMessagesCoro, cap_url));
         }
-        requested = TRUE;
+        requested = true;
     }
 }
 
@@ -1597,8 +1597,8 @@ void LLIMProcessing::requestOfflineMessagesCoro(std::string url)
     {
         const LLSD &message_data(*i);
 
-        /* RIDER: Many fields in this message are using a '_' rather than the standard '-'.  This 
-         * should be changed but would require tight coordination with the simulator. 
+        /* RIDER: Many fields in this message are using a '_' rather than the standard '-'.  This
+         * should be changed but would require tight coordination with the simulator.
          */
         LLVector3 position;
         if (message_data.has("position"))
@@ -1621,7 +1621,7 @@ void LLIMProcessing::requestOfflineMessagesCoro(std::string url)
         }
 
         // Todo: once drtsim-451 releases, remove the string option
-        BOOL from_group;
+        bool from_group;
         if (message_data["from_group"].isInteger())
         {
             from_group = message_data["from_group"].asInteger();
@@ -1637,23 +1637,29 @@ void LLIMProcessing::requestOfflineMessagesCoro(std::string url)
         {
             session_id = message_data["asset_id"].asUUID();
         }
-        LLIMProcessing::processNewMessage(
-            message_data["from_agent_id"].asUUID(),
-            from_group,
-            message_data["to_agent_id"].asUUID(),
-            message_data.has("offline") ? static_cast<U8>(message_data["offline"].asInteger()) : IM_OFFLINE,
-            dialog,
-            session_id,
-            static_cast<U32>(message_data["timestamp"].asInteger()),
-            message_data["from_agent_name"].asString(),
-            message_data["message"].asString(),
-            static_cast<U32>((message_data.has("parent_estate_id")) ? message_data["parent_estate_id"].asInteger() : 1), // 1 - IMMainland
-            message_data["region_id"].asUUID(),
-            position,
-            bin_bucket.data(),
-            bin_bucket.size(),
-            sender,
-            message_data["asset_id"].asUUID());
+
+        LLAppViewer::instance()->postToMainCoro([=]()
+            {
+                std::vector<U8> local_bin_bucket = bin_bucket;
+                LLHost local_sender = sender;
+                LLIMProcessing::processNewMessage(
+                    message_data["from_agent_id"].asUUID(),
+                    from_group,
+                    message_data["to_agent_id"].asUUID(),
+                    message_data.has("offline") ? static_cast<U8>(message_data["offline"].asInteger()) : IM_OFFLINE,
+                    dialog,
+                    session_id,
+                    static_cast<U32>(message_data["timestamp"].asInteger()),
+                    message_data["from_agent_name"].asString(),
+                    message_data["message"].asString(),
+                    static_cast<U32>((message_data.has("parent_estate_id")) ? message_data["parent_estate_id"].asInteger() : 1), // 1 - IMMainland
+                    message_data["region_id"].asUUID(),
+                    position,
+                    local_bin_bucket.data(),
+                    local_bin_bucket.size(),
+                    local_sender,
+                    message_data["asset_id"].asUUID());
+            });
 
     }
 }

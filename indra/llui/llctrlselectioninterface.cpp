@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llctrlselectioninterface.cpp
  * @brief Programmatic selection of items in a list.
  *
  * $LicenseInfo:firstyear=2006&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -33,14 +33,14 @@
 LLCtrlSelectionInterface::~LLCtrlSelectionInterface()
 { }
 
-BOOL LLCtrlSelectionInterface::selectByValue(LLSD value)
+bool LLCtrlSelectionInterface::selectByValue(LLSD value)
 {
-	return setSelectedByValue(value, TRUE);
+    return setSelectedByValue(value, true);
 }
 
-BOOL LLCtrlSelectionInterface::deselectByValue(LLSD value)
-{ 
-	return setSelectedByValue(value, FALSE); 
+bool LLCtrlSelectionInterface::deselectByValue(LLSD value)
+{
+    return setSelectedByValue(value, false);
 }
 
 
@@ -50,12 +50,12 @@ LLCtrlListInterface::~LLCtrlListInterface()
 
 LLScrollListItem* LLCtrlListInterface::addSimpleElement(const std::string& value)
 {
-	return addSimpleElement(value, ADD_BOTTOM, LLSD());
+    return addSimpleElement(value, ADD_BOTTOM, LLSD());
 }
 
 LLScrollListItem* LLCtrlListInterface::addSimpleElement(const std::string& value, EAddPosition pos)
 {
-	return addSimpleElement(value, pos, LLSD());
+    return addSimpleElement(value, pos, LLSD());
 }
 
 // virtual

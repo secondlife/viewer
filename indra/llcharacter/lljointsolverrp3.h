@@ -1,25 +1,25 @@
-/** 
+/**
  * @file lljointsolverrp3.h
  * @brief Implementation of LLJointSolverRP3 class
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -52,7 +52,7 @@
 // jointB - jointC are cached.  During evaluation these bone lengths are
 // preserved.
 //
-//  A          A 
+//  A          A
 //  |          |
 //  |          |
 //  B          B---CG     A---B---C...G
@@ -87,89 +87,89 @@
 class LLJointSolverRP3
 {
 protected:
-	LLJoint		*mJointA;
-	LLJoint		*mJointB;
-	LLJoint		*mJointC;
-	LLJoint		*mJointGoal;
+    LLJoint     *mJointA;
+    LLJoint     *mJointB;
+    LLJoint     *mJointC;
+    LLJoint     *mJointGoal;
 
-	F32			mLengthAB;
-	F32			mLengthBC;
+    F32         mLengthAB;
+    F32         mLengthBC;
 
-	LLVector3	mPoleVector;
-	LLVector3	mBAxis;
-	BOOL		mbUseBAxis;
+    LLVector3   mPoleVector;
+    LLVector3   mBAxis;
+    bool        mbUseBAxis;
 
-	F32			mTwist;
+    F32         mTwist;
 
-	BOOL		mFirstTime;
-	LLMatrix4	mSavedJointAMat;
-	LLMatrix4	mSavedInvPlaneMat;
+    bool        mFirstTime;
+    LLMatrix4   mSavedJointAMat;
+    LLMatrix4   mSavedInvPlaneMat;
 
-	LLQuaternion	mJointABaseRotation;
-	LLQuaternion	mJointBBaseRotation;
+    LLQuaternion    mJointABaseRotation;
+    LLQuaternion    mJointBBaseRotation;
 
 public:
-	//-------------------------------------------------------------------------
-	// Constructor/Destructor
-	//-------------------------------------------------------------------------
-	LLJointSolverRP3();
-	virtual ~LLJointSolverRP3();
+    //-------------------------------------------------------------------------
+    // Constructor/Destructor
+    //-------------------------------------------------------------------------
+    LLJointSolverRP3();
+    virtual ~LLJointSolverRP3();
 
-	//-------------------------------------------------------------------------
-	// setupJoints()
-	// This must be called one time to setup the solver.
-	// This must be called AFTER the skeleton has been created, all parent/child
-	// relationships are established, and after the joints are placed in
-	// a valid configuration (as distances between them will be cached).
-	//-------------------------------------------------------------------------
-	void setupJoints(	LLJoint* jointA,
-						LLJoint* jointB,
-						LLJoint* jointC,
-						LLJoint* jointGoal );
+    //-------------------------------------------------------------------------
+    // setupJoints()
+    // This must be called one time to setup the solver.
+    // This must be called AFTER the skeleton has been created, all parent/child
+    // relationships are established, and after the joints are placed in
+    // a valid configuration (as distances between them will be cached).
+    //-------------------------------------------------------------------------
+    void setupJoints(   LLJoint* jointA,
+                        LLJoint* jointB,
+                        LLJoint* jointC,
+                        LLJoint* jointGoal );
 
-	//-------------------------------------------------------------------------
-	// getPoleVector()
-	// Returns the current pole vector.
-	//-------------------------------------------------------------------------
-	const LLVector3& getPoleVector();
+    //-------------------------------------------------------------------------
+    // getPoleVector()
+    // Returns the current pole vector.
+    //-------------------------------------------------------------------------
+    const LLVector3& getPoleVector();
 
-	//-------------------------------------------------------------------------
-	// setPoleVector()
-	// Sets the pole vector.
-	// The pole vector is defined relative to (in the space of) jointA's parent.
-	// The default pole vector is (1,0,0), and this is used if this function
-	// is never called.
-	// This vector is normalized when set.
-	//-------------------------------------------------------------------------
-	void setPoleVector( const LLVector3& poleVector );
+    //-------------------------------------------------------------------------
+    // setPoleVector()
+    // Sets the pole vector.
+    // The pole vector is defined relative to (in the space of) jointA's parent.
+    // The default pole vector is (1,0,0), and this is used if this function
+    // is never called.
+    // This vector is normalized when set.
+    //-------------------------------------------------------------------------
+    void setPoleVector( const LLVector3& poleVector );
 
-	//-------------------------------------------------------------------------
-	// setBAxis()
-	// Sets the joint's axis in B's local frame, and enable "smarter" solve(). 
-	// This allows for smarter IK when for twisted limbs.
-	//-------------------------------------------------------------------------
-	void setBAxis( const LLVector3& bAxis );
+    //-------------------------------------------------------------------------
+    // setBAxis()
+    // Sets the joint's axis in B's local frame, and enable "smarter" solve().
+    // This allows for smarter IK when for twisted limbs.
+    //-------------------------------------------------------------------------
+    void setBAxis( const LLVector3& bAxis );
 
-	//-------------------------------------------------------------------------
-	// getTwist()
-	// Returns the current twist in radians.
-	//-------------------------------------------------------------------------
-	F32 getTwist();
+    //-------------------------------------------------------------------------
+    // getTwist()
+    // Returns the current twist in radians.
+    //-------------------------------------------------------------------------
+    F32 getTwist();
 
-	//-------------------------------------------------------------------------
-	// setTwist()
-	// Sets the twist value.
-	// The default is 0.0.
-	//-------------------------------------------------------------------------
-	void setTwist( F32 twist );
+    //-------------------------------------------------------------------------
+    // setTwist()
+    // Sets the twist value.
+    // The default is 0.0.
+    //-------------------------------------------------------------------------
+    void setTwist( F32 twist );
 
-	//-------------------------------------------------------------------------
-	// solve()
-	// This is the "work" function.
-	// When called, the rotations of jointA and jointB will be modified
-	// such that jointC attempts to reach jointGoal.
-	//-------------------------------------------------------------------------
-	void solve();
+    //-------------------------------------------------------------------------
+    // solve()
+    // This is the "work" function.
+    // When called, the rotations of jointA and jointB will be modified
+    // such that jointC attempts to reach jointGoal.
+    //-------------------------------------------------------------------------
+    void solve();
 };
 
 #endif // LL_LLJOINTSOLVERRP3_H

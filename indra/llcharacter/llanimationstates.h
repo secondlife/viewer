@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llanimationstates.h
  * @brief Implementation of animation state support.
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -201,54 +201,54 @@ extern S32 NUM_AGENT_STAND_ANIMS;
 class LLAnimationLibrary
 {
 private:
-	LLStringTable mAnimStringTable;
+    LLStringTable mAnimStringTable;
 
-	typedef std::map<LLUUID, char *> anim_map_t;
-	anim_map_t mAnimMap;
+    typedef std::map<LLUUID, char *> anim_map_t;
+    anim_map_t mAnimMap;
 
 public:
-	LLAnimationLibrary();
-	~LLAnimationLibrary();
+    LLAnimationLibrary();
+    ~LLAnimationLibrary();
 
-	//-----------------------------------------------------------------------------
-	// Return the text name of a single animation state,
-	// Return NULL if the state is invalid
-	//-----------------------------------------------------------------------------
-	const char *animStateToString( const LLUUID& state );
+    //-----------------------------------------------------------------------------
+    // Return the text name of a single animation state,
+    // Return NULL if the state is invalid
+    //-----------------------------------------------------------------------------
+    const char *animStateToString( const LLUUID& state );
 
-	//-----------------------------------------------------------------------------
-	// Return the animation state for the given name.
-	// Retun NULL if the name is invalid.
-	//-----------------------------------------------------------------------------
-	LLUUID stringToAnimState( const std::string& name, BOOL allow_ids = TRUE );
+    //-----------------------------------------------------------------------------
+    // Return the animation state for the given name.
+    // Retun NULL if the name is invalid.
+    //-----------------------------------------------------------------------------
+    LLUUID stringToAnimState( const std::string& name, bool allow_ids = true );
 
-	//-----------------------------------------------------------------------------
-	// Associate an anim state with a name
-	//-----------------------------------------------------------------------------
-	void animStateSetString( const LLUUID& state, const std::string& name);
+    //-----------------------------------------------------------------------------
+    // Associate an anim state with a name
+    //-----------------------------------------------------------------------------
+    void animStateSetString( const LLUUID& state, const std::string& name);
 
-	//-----------------------------------------------------------------------------
-	// Find the name for a given animation, or UUID string if none defined.
-	//-----------------------------------------------------------------------------
-	std::string animationName( const LLUUID& id ) const;
+    //-----------------------------------------------------------------------------
+    // Find the name for a given animation, or UUID string if none defined.
+    //-----------------------------------------------------------------------------
+    std::string animationName( const LLUUID& id ) const;
 };
 
 struct LLAnimStateEntry
 {
-	LLAnimStateEntry(const char* name, const LLUUID& id) :
-		mName(name),
-		mID(id)
-	{ 
-		// LABELS:
-		// Look to newview/LLAnimStateLabels.* for how to get the labels.
-		// The labels should no longer be stored in this structure. The server
-		// shouldn't care about the local friendly name of an animation, and
-		// this is common code.
-	}
+    LLAnimStateEntry(const char* name, const LLUUID& id) :
+        mName(name),
+        mID(id)
+    {
+        // LABELS:
+        // Look to newview/LLAnimStateLabels.* for how to get the labels.
+        // The labels should no longer be stored in this structure. The server
+        // shouldn't care about the local friendly name of an animation, and
+        // this is common code.
+    }
 
 
-	const char* mName;
-	const LLUUID mID;
+    const char* mName;
+    const LLUUID mID;
 };
 
 // Animation states that the user can trigger

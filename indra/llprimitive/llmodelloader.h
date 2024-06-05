@@ -5,21 +5,21 @@
  * $LicenseInfo:firstyear=2004&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -34,13 +34,13 @@
 
 class LLJoint;
 
-typedef std::map<std::string, LLMatrix4>			JointTransformMap;
-typedef std::map<std::string, LLMatrix4>::iterator	JointTransformMapIt;
-typedef std::map<std::string, std::string>			JointMap;
-typedef std::deque<std::string>						JointNameSet;
+typedef std::map<std::string, LLMatrix4>            JointTransformMap;
+typedef std::map<std::string, LLMatrix4>::iterator  JointTransformMapIt;
+typedef std::map<std::string, std::string>          JointMap;
+typedef std::deque<std::string>                     JointNameSet;
 
-const S32 SLM_SUPPORTED_VERSION	= 3;
-const S32 NUM_LOD						= 4;
+const S32 SLM_SUPPORTED_VERSION = 3;
+const S32 NUM_LOD                       = 4;
 
 const U32 LEGACY_RIG_OK = 0;
 const U32 LEGACY_RIG_FLAG_TOO_MANY_JOINTS = 1;
@@ -50,172 +50,172 @@ class LLModelLoader : public LLThread
 {
 public:
 
-	typedef std::map<std::string, LLImportMaterial>			material_map;
-	typedef std::vector<LLPointer<LLModel > >					model_list;	
-	typedef std::vector<LLModelInstance>						model_instance_list;	
-	typedef std::map<LLMatrix4, model_instance_list >		scene;
+    typedef std::map<std::string, LLImportMaterial>         material_map;
+    typedef std::vector<LLPointer<LLModel > >                   model_list;
+    typedef std::vector<LLModelInstance>                        model_instance_list;
+    typedef std::map<LLMatrix4, model_instance_list >       scene;
 
-	// Callback with loaded model data and loaded LoD
-	// 
-	typedef boost::function<void (scene&,model_list&,S32,void*) >		load_callback_t;
+    // Callback with loaded model data and loaded LoD
+    //
+    typedef boost::function<void (scene&,model_list&,S32,void*) >       load_callback_t;
 
-	// Function to provide joint lookup by name
-	// (within preview avi skeleton, for example)
-	//
-	typedef boost::function<LLJoint* (const std::string&,void*) >		joint_lookup_func_t;
+    // Function to provide joint lookup by name
+    // (within preview avi skeleton, for example)
+    //
+    typedef boost::function<LLJoint* (const std::string&,void*) >       joint_lookup_func_t;
 
-	// Func to load and associate material with all it's textures,
-	// returned value is the number of textures loaded
-	// intentionally non-const so func can modify material to
-	// store platform-specific data
-	//
-	typedef boost::function<U32 (LLImportMaterial&,void*) >				texture_load_func_t;
+    // Func to load and associate material with all it's textures,
+    // returned value is the number of textures loaded
+    // intentionally non-const so func can modify material to
+    // store platform-specific data
+    //
+    typedef boost::function<U32 (LLImportMaterial&,void*) >             texture_load_func_t;
 
-	// Callback to inform client of state changes
-	// during loading process (errors will be reported
-	// as state changes here as well)
-	//
-	typedef boost::function<void (U32,void*) >								state_callback_t;
+    // Callback to inform client of state changes
+    // during loading process (errors will be reported
+    // as state changes here as well)
+    //
+    typedef boost::function<void (U32,void*) >                              state_callback_t;
 
-	typedef enum
-	{
-		STARTING = 0,
-		READING_FILE,
-		CREATING_FACES,
-		GENERATING_VERTEX_BUFFERS,
-		GENERATING_LOD,
-		DONE,
-		WARNING_BIND_SHAPE_ORIENTATION,
-		ERROR_PARSING, //basically loading failed
-		ERROR_MATERIALS,
-		ERROR_PASSWORD_REQUIRED,
-		ERROR_NEED_MORE_MEMORY,
-		ERROR_INVALID_FILE,
-		ERROR_LOADER_SETUP,
-		ERROR_INVALID_PARAMETERS,
-		ERROR_OUT_OF_RANGE,
-		ERROR_FILE_VERSION_INVALID,
-		ERROR_MODEL // this error should always be last in this list, error code is passed as ERROR_MODEL+error_code
-	} eLoadState;
+    typedef enum
+    {
+        STARTING = 0,
+        READING_FILE,
+        CREATING_FACES,
+        GENERATING_VERTEX_BUFFERS,
+        GENERATING_LOD,
+        DONE,
+        WARNING_BIND_SHAPE_ORIENTATION,
+        ERROR_PARSING, //basically loading failed
+        ERROR_MATERIALS,
+        ERROR_PASSWORD_REQUIRED,
+        ERROR_NEED_MORE_MEMORY,
+        ERROR_INVALID_FILE,
+        ERROR_LOADER_SETUP,
+        ERROR_INVALID_PARAMETERS,
+        ERROR_OUT_OF_RANGE,
+        ERROR_FILE_VERSION_INVALID,
+        ERROR_MODEL // this error should always be last in this list, error code is passed as ERROR_MODEL+error_code
+    } eLoadState;
 
-	U32 mState;
-	std::string mFilename;
-	
-	S32 mLod;
-	
-	LLMatrix4 mTransform;
-	BOOL mFirstTransform;
-	LLVector3 mExtents[2];
-	
-	bool mTrySLM;
-	bool mCacheOnlyHitIfRigged; // ignore cached SLM if it does not contain rig info (and we want rig info)
+    U32 mState;
+    std::string mFilename;
 
-	model_list		mModelList;
-	scene				mScene;
+    S32 mLod;
 
-	typedef std::queue<LLPointer<LLModel> > model_queue;
+    LLMatrix4 mTransform;
+    bool mFirstTransform;
+    LLVector3 mExtents[2];
 
-	//queue of models that need a physics rep
-	model_queue mPhysicsQ;
+    bool mTrySLM;
+    bool mCacheOnlyHitIfRigged; // ignore cached SLM if it does not contain rig info (and we want rig info)
 
-	//map of avatar joints as named in COLLADA assets to internal joint names
-	JointMap			mJointMap;
-	JointTransformMap&	mJointList;	
-	JointNameSet&		mJointsFromNode;
-    U32					mMaxJointsPerMesh;
+    model_list      mModelList;
+    scene               mScene;
 
-	LLModelLoader(
-		std::string							filename,
-		S32									lod, 
-		LLModelLoader::load_callback_t		load_cb,
-		LLModelLoader::joint_lookup_func_t	joint_lookup_func,
-		LLModelLoader::texture_load_func_t	texture_load_func,
-		LLModelLoader::state_callback_t		state_cb,
-		void*								opaque_userdata,
-		JointTransformMap&					jointTransformMap,
-		JointNameSet&						jointsFromNodes,
+    typedef std::queue<LLPointer<LLModel> > model_queue;
+
+    //queue of models that need a physics rep
+    model_queue mPhysicsQ;
+
+    //map of avatar joints as named in COLLADA assets to internal joint names
+    JointMap            mJointMap;
+    JointTransformMap&  mJointList;
+    JointNameSet&       mJointsFromNode;
+    U32                 mMaxJointsPerMesh;
+
+    LLModelLoader(
+        std::string                         filename,
+        S32                                 lod,
+        LLModelLoader::load_callback_t      load_cb,
+        LLModelLoader::joint_lookup_func_t  joint_lookup_func,
+        LLModelLoader::texture_load_func_t  texture_load_func,
+        LLModelLoader::state_callback_t     state_cb,
+        void*                               opaque_userdata,
+        JointTransformMap&                  jointTransformMap,
+        JointNameSet&                       jointsFromNodes,
         JointMap&                           legalJointNamesMap,
-        U32									maxJointsPerMesh);
-	virtual ~LLModelLoader() ;
+        U32                                 maxJointsPerMesh);
+    virtual ~LLModelLoader() ;
 
-	virtual void setNoNormalize() { mNoNormalize = true; }
-	virtual void setNoOptimize() { mNoOptimize = true; }
+    virtual void setNoNormalize() { mNoNormalize = true; }
+    virtual void setNoOptimize() { mNoOptimize = true; }
 
-	virtual void run();
+    virtual void run();
 
     static bool getSLMFilename(const std::string& model_filename, std::string& slm_filename);
 
-	// Will try SLM or derived class OpenFile as appropriate
-	//
-	virtual bool doLoadModel();
+    // Will try SLM or derived class OpenFile as appropriate
+    //
+    virtual bool doLoadModel();
 
-	// Derived classes need to provide their parsing of files here
-	//
-	virtual bool OpenFile(const std::string& filename) = 0;
+    // Derived classes need to provide their parsing of files here
+    //
+    virtual bool OpenFile(const std::string& filename) = 0;
 
-	bool loadFromSLM(const std::string& filename);
-	
-	void loadModelCallback();
-	void loadTextures() ; //called in the main thread.
-	void setLoadState(U32 state);
+    bool loadFromSLM(const std::string& filename);
 
-	
+    void loadModelCallback();
+    void loadTextures() ; //called in the main thread.
+    void setLoadState(U32 state);
 
-	S32 mNumOfFetchingTextures ; //updated in the main thread
-	bool areTexturesReady() { return !mNumOfFetchingTextures; } //called in the main thread.
 
-	bool verifyCount( int expected, int result );
 
-	//Determines the viability of an asset to be used as an avatar rig (w or w/o joint upload caps)
-	void critiqueRigForUploadApplicability( const std::vector<std::string> &jointListFromAsset );
+    S32 mNumOfFetchingTextures ; //updated in the main thread
+    bool areTexturesReady() { return !mNumOfFetchingTextures; } //called in the main thread.
 
-	//Determines if a rig is a legacy from the joint list
-	U32 determineRigLegacyFlags( const std::vector<std::string> &jointListFromAsset );
+    bool verifyCount( int expected, int result );
 
-	//Determines if a rig is suitable for upload
-	bool isRigSuitableForJointPositionUpload( const std::vector<std::string> &jointListFromAsset );
+    //Determines the viability of an asset to be used as an avatar rig (w or w/o joint upload caps)
+    void critiqueRigForUploadApplicability( const std::vector<std::string> &jointListFromAsset );
 
-	const bool isRigValidForJointPositionUpload( void ) const { return mRigValidJointUpload; }
-	void setRigValidForJointPositionUpload( bool rigValid ) { mRigValidJointUpload = rigValid; }
+    //Determines if a rig is a legacy from the joint list
+    U32 determineRigLegacyFlags( const std::vector<std::string> &jointListFromAsset );
 
-	const bool isLegacyRigValid(void) const { return mLegacyRigFlags == 0; }
-	U32 getLegacyRigFlags() const { return mLegacyRigFlags; }
-	void setLegacyRigFlags( U32 rigFlags ) { mLegacyRigFlags = rigFlags; }
+    //Determines if a rig is suitable for upload
+    bool isRigSuitableForJointPositionUpload( const std::vector<std::string> &jointListFromAsset );
 
-	//-----------------------------------------------------------------------------
-	// isNodeAJoint()
-	//-----------------------------------------------------------------------------
-	bool isNodeAJoint(const char* name)
-	{
-		return name != NULL && mJointMap.find(name) != mJointMap.end();
-	}
+    const bool isRigValidForJointPositionUpload( void ) const { return mRigValidJointUpload; }
+    void setRigValidForJointPositionUpload( bool rigValid ) { mRigValidJointUpload = rigValid; }
 
-	const LLSD logOut() const { return mWarningsArray; }
-	void clearLog() { mWarningsArray.clear(); }
+    const bool isLegacyRigValid(void) const { return mLegacyRigFlags == 0; }
+    U32 getLegacyRigFlags() const { return mLegacyRigFlags; }
+    void setLegacyRigFlags( U32 rigFlags ) { mLegacyRigFlags = rigFlags; }
+
+    //-----------------------------------------------------------------------------
+    // isNodeAJoint()
+    //-----------------------------------------------------------------------------
+    bool isNodeAJoint(const char* name)
+    {
+        return name != NULL && mJointMap.find(name) != mJointMap.end();
+    }
+
+    const LLSD logOut() const { return mWarningsArray; }
+    void clearLog() { mWarningsArray.clear(); }
 
 protected:
 
-	LLModelLoader::load_callback_t		mLoadCallback;
-	LLModelLoader::joint_lookup_func_t	mJointLookupFunc;
-	LLModelLoader::texture_load_func_t	mTextureLoadFunc;
-	LLModelLoader::state_callback_t		mStateCallback;
-	void*								mOpaqueData;
+    LLModelLoader::load_callback_t      mLoadCallback;
+    LLModelLoader::joint_lookup_func_t  mJointLookupFunc;
+    LLModelLoader::texture_load_func_t  mTextureLoadFunc;
+    LLModelLoader::state_callback_t     mStateCallback;
+    void*                               mOpaqueData;
 
-	bool		mRigValidJointUpload;
-	U32			mLegacyRigFlags;
+    bool        mRigValidJointUpload;
+    U32         mLegacyRigFlags;
 
-	bool		mNoNormalize;
-	bool		mNoOptimize;
+    bool        mNoNormalize;
+    bool        mNoOptimize;
 
-	JointTransformMap	mJointTransformMap;
+    JointTransformMap   mJointTransformMap;
 
-	LLSD mWarningsArray; // preview floater will pull logs from here
+    LLSD mWarningsArray; // preview floater will pull logs from here
 
-	static std::list<LLModelLoader*> sActiveLoaderList;
-	static bool isAlive(LLModelLoader* loader) ;
+    static std::list<LLModelLoader*> sActiveLoaderList;
+    static bool isAlive(LLModelLoader* loader) ;
 };
 class LLMatrix4a;
-void stretch_extents(LLModel* model, LLMatrix4a& mat, LLVector4a& min, LLVector4a& max, BOOL& first_transform);
-void stretch_extents(LLModel* model, LLMatrix4& mat, LLVector3& min, LLVector3& max, BOOL& first_transform);
+void stretch_extents(LLModel* model, LLMatrix4a& mat, LLVector4a& min, LLVector4a& max, bool& first_transform);
+void stretch_extents(LLModel* model, LLMatrix4& mat, LLVector3& min, LLVector3& max, bool& first_transform);
 
 #endif  // LL_LLMODELLOADER_H

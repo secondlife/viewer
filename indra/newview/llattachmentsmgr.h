@@ -1,4 +1,4 @@
-/** 
+/**
  * @file llattachmentsmgr.h
  * @brief Batches up attachment requests and sends them all
  * in one message.
@@ -6,21 +6,21 @@
  * $LicenseInfo:firstyear=2004&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -32,7 +32,7 @@
 
 //--------------------------------------------------------------------------------
 // LLAttachmentsMgr
-// 
+//
 // This class manages batching up of requests at two stages of
 // attachment rezzing.
 //
@@ -61,24 +61,24 @@
 class LLAttachmentsMgr: public LLSingleton<LLAttachmentsMgr>
 {
     LLSINGLETON(LLAttachmentsMgr);
-	virtual ~LLAttachmentsMgr();
+    virtual ~LLAttachmentsMgr();
 
 public:
     // Stores info for attachments that will be requested during idle.
-	struct AttachmentsInfo
-	{
-		LLUUID mItemID;
-		U8 mAttachmentPt;
-		BOOL mAdd;
-	};
-	typedef std::deque<AttachmentsInfo> attachments_vec_t;
+    struct AttachmentsInfo
+    {
+        LLUUID mItemID;
+        U8 mAttachmentPt;
+        bool mAdd;
+    };
+    typedef std::deque<AttachmentsInfo> attachments_vec_t;
 
-	void addAttachmentRequest(const LLUUID& item_id,
+    void addAttachmentRequest(const LLUUID& item_id,
                               const U8 attachment_pt,
-                              const BOOL add);
+                              const bool add);
     void onAttachmentRequested(const LLUUID& item_id);
-	void requestAttachments(attachments_vec_t& attachment_requests);
-	static void onIdle(void *);
+    void requestAttachments(attachments_vec_t& attachment_requests);
+    static void onIdle(void *);
 
     void onAttachmentArrived(const LLUUID& inv_item_id);
 
@@ -95,38 +95,38 @@ private:
         LLItemRequestTimes(const std::string& op_name, F32 timeout);
         void addTime(const LLUUID& inv_item_id);
         void removeTime(const LLUUID& inv_item_id);
-        BOOL wasRequestedRecently(const LLUUID& item_id) const;
-        BOOL getTime(const LLUUID& inv_item_id, LLTimer& timer) const;
+        bool wasRequestedRecently(const LLUUID& item_id) const;
+        bool getTime(const LLUUID& inv_item_id, LLTimer& timer) const;
 
     private:
         F32 mTimeout;
         std::string mOpName;
     };
 
-	void removeAttachmentRequestTime(const LLUUID& inv_item_id);
-	void onIdle();
-	void requestPendingAttachments();
-	void linkRecentlyArrivedAttachments();
+    void removeAttachmentRequestTime(const LLUUID& inv_item_id);
+    void onIdle();
+    void requestPendingAttachments();
+    void linkRecentlyArrivedAttachments();
     void expireOldAttachmentRequests();
     void expireOldDetachRequests();
     void checkInvalidCOFLinks();
     void spamStatusInfo();
 
     // Attachments that we are planning to rez but haven't requested from the server yet.
-	attachments_vec_t mPendingAttachments;
+    attachments_vec_t mPendingAttachments;
 
-	// Attachments that have been requested from server but have not arrived yet.
-	LLItemRequestTimes mAttachmentRequests;
+    // Attachments that have been requested from server but have not arrived yet.
+    LLItemRequestTimes mAttachmentRequests;
 
     // Attachments that have been requested to detach but have not gone away yet.
-	LLItemRequestTimes mDetachRequests;
+    LLItemRequestTimes mDetachRequests;
 
     // Attachments that have arrived but have not been linked in the COF yet.
     std::set<LLUUID> mRecentlyArrivedAttachments;
     LLTimer mCOFLinkBatchTimer;
 
     // Attachments that are linked in the COF but may be invalid.
-	LLItemRequestTimes mQuestionableCOFLinks;
+    LLItemRequestTimes mQuestionableCOFLinks;
 };
 
 #endif

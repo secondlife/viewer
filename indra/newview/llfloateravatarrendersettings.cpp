@@ -70,8 +70,8 @@ static LLAvatarRenderMuteListObserver sAvatarRenderMuteListObserver;
 
 LLFloaterAvatarRenderSettings::LLFloaterAvatarRenderSettings(const LLSD& key)
 :   LLFloater(key),
-	mAvatarSettingsList(NULL),
-	mNeedsUpdate(false)
+    mAvatarSettingsList(NULL),
+    mNeedsUpdate(false)
 {
     mContextMenu = new LLSettingsContextMenu(this);
     LLRenderMuteList::getInstance()->addObserver(&sAvatarRenderMuteListObserver);
@@ -84,13 +84,13 @@ LLFloaterAvatarRenderSettings::~LLFloaterAvatarRenderSettings()
     LLRenderMuteList::getInstance()->removeObserver(&sAvatarRenderMuteListObserver);
 }
 
-BOOL LLFloaterAvatarRenderSettings::postBuild()
+bool LLFloaterAvatarRenderSettings::postBuild()
 {
     LLFloater::postBuild();
     mAvatarSettingsList = getChild<LLNameListCtrl>("render_settings_list");
     mAvatarSettingsList->setRightMouseDownCallback(boost::bind(&LLFloaterAvatarRenderSettings::onAvatarListRightClick, this, _1, _2, _3));
 
-	return TRUE;
+    return true;
 }
 
 void LLFloaterAvatarRenderSettings::draw()
@@ -224,10 +224,10 @@ void LLFloaterAvatarRenderSettings::onClickAdd(const LLSD& userdata)
         visual_setting = S32(LLVOAvatar::AV_ALWAYS_RENDER);
     }
 
-    LLView * button = findChild<LLButton>("plus_btn", TRUE);
+    LLView * button = findChild<LLButton>("plus_btn", true);
     LLFloater* root_floater = gFloaterView->getParentFloater(this);
     LLFloaterAvatarPicker * picker = LLFloaterAvatarPicker::show(boost::bind(&LLFloaterAvatarRenderSettings::callbackAvatarPicked, this, _1, visual_setting),
-                                                                    FALSE, TRUE, FALSE, root_floater->getName(), button);
+                                                                    false, true, false, root_floater->getName(), button);
 
     if (root_floater)
     {
@@ -259,14 +259,14 @@ void LLFloaterAvatarRenderSettings::setAvatarRenderSetting(const LLUUID& av_id, 
     }
 }
 
-BOOL LLFloaterAvatarRenderSettings::handleKeyHere(KEY key, MASK mask )
+bool LLFloaterAvatarRenderSettings::handleKeyHere(KEY key, MASK mask )
 {
-    BOOL handled = FALSE;
+    bool handled = false;
 
     if (KEY_DELETE == key)
     {
         setAvatarRenderSetting(mAvatarSettingsList->getCurrentID(), (S32)LLVOAvatar::AV_RENDER_NORMALLY);
-        handled = TRUE;
+        handled = true;
     }
     return handled;
 }

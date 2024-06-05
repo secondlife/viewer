@@ -1,4 +1,4 @@
-/** 
+/**
 * @file   llpanelgroupbulkban.h
 *
 * $LicenseInfo:firstyear=2013&license=viewerlgpl$
@@ -35,15 +35,15 @@ class LLAvatarName;
 class LLPanelGroupBulkBan : public LLPanelGroupBulk
 {
 public:
-	LLPanelGroupBulkBan(const LLUUID& group_id);
-	~LLPanelGroupBulkBan() {}
+    LLPanelGroupBulkBan(const LLUUID& group_id);
+    ~LLPanelGroupBulkBan() {}
 
-	virtual BOOL postBuild();
+    virtual bool postBuild();
 
-	static void callbackClickSubmit(void* userdata);
-	virtual void submit();
+    static void callbackClickSubmit(void* userdata);
+    virtual void submit();
 private:
-	std::string buildResidentsArgument(std::vector<LLAvatarName> avatar_names, const std::string &format);
+    std::string buildResidentsArgument(std::vector<LLAvatarName> avatar_names, const std::string &format);
 };
 
 #endif // LL_LLPANELGROUPBULKBAN_H

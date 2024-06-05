@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llcolorswatch.cpp
  * @brief LLColorSwatch class implementation
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -31,7 +31,7 @@
 
 // Linden library includes
 #include "v4color.h"
-#include "llwindow.h"	// setCursor()
+#include "llwindow.h"   // setCursor()
 
 // Project includes
 #include "llui.h"
@@ -46,250 +46,250 @@
 static LLDefaultChildRegistry::Register<LLColorSwatchCtrl> r("color_swatch");
 
 LLColorSwatchCtrl::Params::Params()
-:	color("color", LLColor4::white),
-	can_apply_immediately("can_apply_immediately", false),
-	alpha_background_image("alpha_background_image"),
-	border_color("border_color"),
+:   color("color", LLColor4::white),
+    can_apply_immediately("can_apply_immediately", false),
+    alpha_background_image("alpha_background_image"),
+    border_color("border_color"),
     label_width("label_width", -1),
-	label_height("label_height", -1),
-	caption_text("caption_text"),
-	border("border")
+    label_height("label_height", -1),
+    caption_text("caption_text"),
+    border("border")
 {
 }
 
 LLColorSwatchCtrl::LLColorSwatchCtrl(const Params& p)
-:	LLUICtrl(p),
-	mValid( TRUE ),
-	mColor(p.color()),
-	mCanApplyImmediately(p.can_apply_immediately),
-	mAlphaGradientImage(p.alpha_background_image),
-	mOnCancelCallback(p.cancel_callback()),
-	mOnSelectCallback(p.select_callback()),
-	mBorderColor(p.border_color()),
-	mLabelWidth(p.label_width),
-	mLabelHeight(p.label_height)
-{	
-	LLTextBox::Params tp = p.caption_text;
-	// use custom label height if it is provided
-	mLabelHeight = mLabelHeight != -1 ? mLabelHeight : BTN_HEIGHT_SMALL;
-	// label_width is specified, not -1
-	if(mLabelWidth!= -1)
-	{
-		tp.rect(LLRect( 0, mLabelHeight, mLabelWidth, 0 ));
-	}
-	else
-	{
-		tp.rect(LLRect( 0, mLabelHeight, getRect().getWidth(), 0 ));
-	}
-	
-	tp.initial_value(p.label());
-	mCaption = LLUICtrlFactory::create<LLTextBox>(tp);
-	addChild( mCaption );
+:   LLUICtrl(p),
+    mValid( true ),
+    mColor(p.color()),
+    mCanApplyImmediately(p.can_apply_immediately),
+    mAlphaGradientImage(p.alpha_background_image),
+    mOnCancelCallback(p.cancel_callback()),
+    mOnSelectCallback(p.select_callback()),
+    mBorderColor(p.border_color()),
+    mLabelWidth(p.label_width),
+    mLabelHeight(p.label_height)
+{
+    LLTextBox::Params tp = p.caption_text;
+    // use custom label height if it is provided
+    mLabelHeight = mLabelHeight != -1 ? mLabelHeight : BTN_HEIGHT_SMALL;
+    // label_width is specified, not -1
+    if(mLabelWidth!= -1)
+    {
+        tp.rect(LLRect( 0, mLabelHeight, mLabelWidth, 0 ));
+    }
+    else
+    {
+        tp.rect(LLRect( 0, mLabelHeight, getRect().getWidth(), 0 ));
+    }
 
-	LLRect border_rect = getLocalRect();
-	border_rect.mTop -= 1;
-	border_rect.mRight -=1;
-	border_rect.mBottom += mLabelHeight;
+    tp.initial_value(p.label());
+    mCaption = LLUICtrlFactory::create<LLTextBox>(tp);
+    addChild( mCaption );
 
-	LLViewBorder::Params params = p.border;
-	params.rect(border_rect);
-	mBorder = LLUICtrlFactory::create<LLViewBorder> (params);
-	addChild(mBorder);
+    LLRect border_rect = getLocalRect();
+    border_rect.mTop -= 1;
+    border_rect.mRight -=1;
+    border_rect.mBottom += mLabelHeight;
+
+    LLViewBorder::Params params = p.border;
+    params.rect(border_rect);
+    mBorder = LLUICtrlFactory::create<LLViewBorder> (params);
+    addChild(mBorder);
 }
 
 LLColorSwatchCtrl::~LLColorSwatchCtrl ()
 {
-	// parent dialog is destroyed so we are too and we need to cancel selection
-	LLFloaterColorPicker* pickerp = (LLFloaterColorPicker*)mPickerHandle.get();
-	if (pickerp)
-	{
-		pickerp->cancelSelection();
-		pickerp->closeFloater();
-	}
+    // parent dialog is destroyed so we are too and we need to cancel selection
+    LLFloaterColorPicker* pickerp = (LLFloaterColorPicker*)mPickerHandle.get();
+    if (pickerp)
+    {
+        pickerp->cancelSelection();
+        pickerp->closeFloater();
+    }
 }
 
-BOOL LLColorSwatchCtrl::handleDoubleClick(S32 x, S32 y, MASK mask)
+bool LLColorSwatchCtrl::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
-	return handleMouseDown(x, y, mask);
+    return handleMouseDown(x, y, mask);
 }
 
-BOOL LLColorSwatchCtrl::handleHover(S32 x, S32 y, MASK mask)
+bool LLColorSwatchCtrl::handleHover(S32 x, S32 y, MASK mask)
 {
-	getWindow()->setCursor(UI_CURSOR_HAND);
-	return TRUE;
+    getWindow()->setCursor(UI_CURSOR_HAND);
+    return true;
 }
 
-BOOL LLColorSwatchCtrl::handleUnicodeCharHere(llwchar uni_char)
+bool LLColorSwatchCtrl::handleUnicodeCharHere(llwchar uni_char)
 {
-	if( ' ' == uni_char )
-	{
-		showPicker(TRUE);
-	}
-	return LLUICtrl::handleUnicodeCharHere(uni_char);
+    if( ' ' == uni_char )
+    {
+        showPicker(true);
+    }
+    return LLUICtrl::handleUnicodeCharHere(uni_char);
 }
 
 // forces color of this swatch and any associated floater to the input value, if currently invalid
 void LLColorSwatchCtrl::setOriginal(const LLColor4& color)
 {
-	mColor = color;
-	LLFloaterColorPicker* pickerp = (LLFloaterColorPicker*)mPickerHandle.get();
-	if (pickerp)
-	{
-		pickerp->setOrigRgb(mColor.mV[VRED], mColor.mV[VGREEN], mColor.mV[VBLUE]);
-	}
+    mColor = color;
+    LLFloaterColorPicker* pickerp = (LLFloaterColorPicker*)mPickerHandle.get();
+    if (pickerp)
+    {
+        pickerp->setOrigRgb(mColor.mV[VRED], mColor.mV[VGREEN], mColor.mV[VBLUE]);
+    }
 }
 
-void LLColorSwatchCtrl::set(const LLColor4& color, BOOL update_picker, BOOL from_event)
+void LLColorSwatchCtrl::set(const LLColor4& color, bool update_picker, bool from_event)
 {
-	mColor = color; 
-	LLFloaterColorPicker* pickerp = (LLFloaterColorPicker*)mPickerHandle.get();
-	if (pickerp && update_picker)
-	{
-		pickerp->setCurRgb(mColor.mV[VRED], mColor.mV[VGREEN], mColor.mV[VBLUE]);
-	}
-	if (!from_event)
-	{
-		setControlValue(mColor.getValue());
-	}
+    mColor = color;
+    LLFloaterColorPicker* pickerp = (LLFloaterColorPicker*)mPickerHandle.get();
+    if (pickerp && update_picker)
+    {
+        pickerp->setCurRgb(mColor.mV[VRED], mColor.mV[VGREEN], mColor.mV[VBLUE]);
+    }
+    if (!from_event)
+    {
+        setControlValue(mColor.getValue());
+    }
 }
 
 void LLColorSwatchCtrl::setLabel(const std::string& label)
 {
-	mCaption->setText(label);
+    mCaption->setText(label);
 }
 
-BOOL LLColorSwatchCtrl::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLColorSwatchCtrl::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	// Route future Mouse messages here preemptively.  (Release on mouse up.)
-	// No handler is needed for capture lost since this object has no state that depends on it.
-	gFocusMgr.setMouseCapture( this );
+    // Route future Mouse messages here preemptively.  (Release on mouse up.)
+    // No handler is needed for capture lost since this object has no state that depends on it.
+    gFocusMgr.setMouseCapture( this );
 
-	return TRUE;
+    return true;
 }
 
 
-BOOL LLColorSwatchCtrl::handleMouseUp(S32 x, S32 y, MASK mask)
+bool LLColorSwatchCtrl::handleMouseUp(S32 x, S32 y, MASK mask)
 {
-	// We only handle the click if the click both started and ended within us
-	if( hasMouseCapture() )
-	{
-		// Release the mouse
-		gFocusMgr.setMouseCapture( NULL );
+    // We only handle the click if the click both started and ended within us
+    if( hasMouseCapture() )
+    {
+        // Release the mouse
+        gFocusMgr.setMouseCapture( NULL );
 
-		// If mouseup in the widget, it's been clicked
-		if ( pointInView(x, y) )
-		{
-			llassert(getEnabled());
-			llassert(getVisible());
+        // If mouseup in the widget, it's been clicked
+        if ( pointInView(x, y) )
+        {
+            llassert(getEnabled());
+            llassert(getVisible());
 
-			// Focus the widget now in order to return the focus
-			// after the color picker is closed.
-			setFocus(TRUE);
+            // Focus the widget now in order to return the focus
+            // after the color picker is closed.
+            setFocus(true);
 
-			showPicker(FALSE);
-		}
-	}
+            showPicker(false);
+        }
+    }
 
-	return TRUE;
+    return true;
 }
 
 // assumes GL state is set for 2D
 void LLColorSwatchCtrl::draw()
 {
-	// If we're in a focused floater, don't apply the floater's alpha to the color swatch (STORM-676).
-	F32 alpha = getTransparencyType() == TT_ACTIVE ? 1.0f : getCurrentTransparency();
+    // If we're in a focused floater, don't apply the floater's alpha to the color swatch (STORM-676).
+    F32 alpha = getTransparencyType() == TT_ACTIVE ? 1.0f : getCurrentTransparency();
 
-	mBorder->setKeyboardFocusHighlight(hasFocus());
-	// Draw border
-	LLRect border( 0, getRect().getHeight(), getRect().getWidth(), mLabelHeight );
-	gl_rect_2d( border, mBorderColor.get(), FALSE );
+    mBorder->setKeyboardFocusHighlight(hasFocus());
+    // Draw border
+    LLRect border( 0, getRect().getHeight(), getRect().getWidth(), mLabelHeight );
+    gl_rect_2d( border, mBorderColor.get(), false );
 
-	LLRect interior = border;
-	interior.stretch( -1 );
+    LLRect interior = border;
+    interior.stretch( -1 );
 
-	// Check state
-	if ( mValid )
-	{
-		if (!mColor.isOpaque())
-		{
-			// Draw checker board.
-			gl_rect_2d_checkerboard(interior, alpha);
-		}
+    // Check state
+    if ( mValid )
+    {
+        if (!mColor.isOpaque())
+        {
+            // Draw checker board.
+            gl_rect_2d_checkerboard(interior, alpha);
+        }
 
-		// Draw the color swatch
-		gl_rect_2d(interior, mColor % alpha, TRUE);
+        // Draw the color swatch
+        gl_rect_2d(interior, mColor % alpha, true);
 
-		if (!mColor.isOpaque())
-		{
-			// Draw semi-transparent center area in filled with mColor.
-			LLColor4 opaque_color = mColor;
-			opaque_color.mV[VALPHA] = alpha;
-			gGL.color4fv(opaque_color.mV);
-			if (mAlphaGradientImage.notNull())
-			{
-				gGL.pushMatrix();
-				{
-					mAlphaGradientImage->draw(interior, mColor % alpha);
-				}
-				gGL.popMatrix();
-			}
-		}
-	}
-	else
-	{
-		if (mFallbackImage.notNull())
-		{
-			mFallbackImage->draw(interior.mLeft, interior.mBottom, interior.getWidth(), interior.getHeight(), LLColor4::white % alpha);
-		}
-		else
-		{
-			// Draw grey and an X
-			gl_rect_2d(interior, LLColor4::grey % alpha, TRUE);
-			
-			gl_draw_x(interior, LLColor4::black % alpha);
-		}
-	}
+        if (!mColor.isOpaque())
+        {
+            // Draw semi-transparent center area in filled with mColor.
+            LLColor4 opaque_color = mColor;
+            opaque_color.mV[VALPHA] = alpha;
+            gGL.color4fv(opaque_color.mV);
+            if (mAlphaGradientImage.notNull())
+            {
+                gGL.pushMatrix();
+                {
+                    mAlphaGradientImage->draw(interior, mColor % alpha);
+                }
+                gGL.popMatrix();
+            }
+        }
+    }
+    else
+    {
+        if (mFallbackImage.notNull())
+        {
+            mFallbackImage->draw(interior.mLeft, interior.mBottom, interior.getWidth(), interior.getHeight(), LLColor4::white % alpha);
+        }
+        else
+        {
+            // Draw grey and an X
+            gl_rect_2d(interior, LLColor4::grey % alpha, true);
 
-	LLUICtrl::draw();
+            gl_draw_x(interior, LLColor4::black % alpha);
+        }
+    }
+
+    LLUICtrl::draw();
 }
 
-void LLColorSwatchCtrl::setEnabled( BOOL enabled )
+void LLColorSwatchCtrl::setEnabled( bool enabled )
 {
-	mCaption->setEnabled( enabled );
-	LLView::setEnabled( enabled );
+    mCaption->setEnabled( enabled );
+    LLView::setEnabled( enabled );
 
-	if (!enabled)
-	{
-		LLFloaterColorPicker* pickerp = (LLFloaterColorPicker*)mPickerHandle.get();
-		if (pickerp)
-		{
-			pickerp->cancelSelection();
-			pickerp->closeFloater();
-		}
-	}
+    if (!enabled)
+    {
+        LLFloaterColorPicker* pickerp = (LLFloaterColorPicker*)mPickerHandle.get();
+        if (pickerp)
+        {
+            pickerp->cancelSelection();
+            pickerp->closeFloater();
+        }
+    }
 }
 
 
 void LLColorSwatchCtrl::setValue(const LLSD& value)
 {
-	set(LLColor4(value), TRUE, TRUE);
+    set(LLColor4(value), true, true);
 }
 
 //////////////////////////////////////////////////////////////////////////////
 // called (infrequently) when the color changes so the subject of the swatch can be updated.
 void LLColorSwatchCtrl::onColorChanged ( void* data, EColorPickOp pick_op )
 {
-	LLColorSwatchCtrl* subject = ( LLColorSwatchCtrl* )data;
-	if ( subject )
-	{
-		LLFloaterColorPicker* pickerp = (LLFloaterColorPicker*)subject->mPickerHandle.get();
-		if (pickerp)
-		{
-			// move color across from selector to internal widget storage
-			LLColor4 updatedColor ( pickerp->getCurR (), 
-									pickerp->getCurG (), 
-									pickerp->getCurB (), 
-									subject->mColor.mV[VALPHA] ); // keep current alpha
+    LLColorSwatchCtrl* subject = ( LLColorSwatchCtrl* )data;
+    if ( subject )
+    {
+        LLFloaterColorPicker* pickerp = (LLFloaterColorPicker*)subject->mPickerHandle.get();
+        if (pickerp)
+        {
+            // move color across from selector to internal widget storage
+            LLColor4 updatedColor ( pickerp->getCurR (),
+                                    pickerp->getCurG (),
+                                    pickerp->getCurB (),
+                                    subject->mColor.mV[VALPHA] ); // keep current alpha
 
             bool color_changed = subject->mColor != updatedColor;
             if (color_changed)
@@ -298,28 +298,28 @@ void LLColorSwatchCtrl::onColorChanged ( void* data, EColorPickOp pick_op )
                 subject->setControlValue(updatedColor.getValue());
             }
 
-			if (pick_op == COLOR_CANCEL && subject->mOnCancelCallback)
-			{
-				subject->mOnCancelCallback( subject, LLSD());
-			}
-			else if (pick_op == COLOR_SELECT && subject->mOnSelectCallback)
-			{
-				subject->mOnSelectCallback( subject, LLSD() );
-			}
-			else
-			{
-				// just commit change
-				subject->onCommit ();
-			}
+            if (pick_op == COLOR_CANCEL && subject->mOnCancelCallback)
+            {
+                subject->mOnCancelCallback( subject, LLSD());
+            }
+            else if (pick_op == COLOR_SELECT && subject->mOnSelectCallback)
+            {
+                subject->mOnSelectCallback( subject, LLSD() );
+            }
+            else
+            {
+                // just commit change
+                subject->onCommit ();
+            }
 
             if (pick_op == COLOR_CANCEL || pick_op == COLOR_SELECT)
             {
                 // both select and cancel close LLFloaterColorPicker
                 // but COLOR_CHANGE does not
-                subject->setFocus(TRUE);
+                subject->setFocus(true);
             }
-		}
-	}
+        }
+    }
 }
 
 // This is called when the main floatercustomize panel is closed.
@@ -327,50 +327,50 @@ void LLColorSwatchCtrl::onColorChanged ( void* data, EColorPickOp pick_op )
 // this class first in order to avoid a crash.
 void LLColorSwatchCtrl::closeFloaterColorPicker()
 {
-	LLFloaterColorPicker* pickerp = (LLFloaterColorPicker*)mPickerHandle.get();
-	if (pickerp)
-	{
-		pickerp->setSwatch(NULL);
-		pickerp->closeFloater();
-	}
+    LLFloaterColorPicker* pickerp = (LLFloaterColorPicker*)mPickerHandle.get();
+    if (pickerp)
+    {
+        pickerp->setSwatch(NULL);
+        pickerp->closeFloater();
+    }
 
-	mPickerHandle.markDead();
+    mPickerHandle.markDead();
 }
 
-void LLColorSwatchCtrl::setValid(BOOL valid )
+void LLColorSwatchCtrl::setValid(bool valid )
 {
-	mValid = valid;
+    mValid = valid;
 
-	LLFloaterColorPicker* pickerp = (LLFloaterColorPicker*)mPickerHandle.get();
-	if (pickerp)
-	{
-		pickerp->setActive(valid);
-	}
+    LLFloaterColorPicker* pickerp = (LLFloaterColorPicker*)mPickerHandle.get();
+    if (pickerp)
+    {
+        pickerp->setActive(valid);
+    }
 }
 
-void LLColorSwatchCtrl::showPicker(BOOL take_focus)
+void LLColorSwatchCtrl::showPicker(bool take_focus)
 {
-	LLFloaterColorPicker* pickerp = (LLFloaterColorPicker*)mPickerHandle.get();
-	if (!pickerp)
-	{
-		pickerp = new LLFloaterColorPicker(this, mCanApplyImmediately);
-		LLFloater* parent = gFloaterView->getParentFloater(this);
-		if (parent)
-		{
-			parent->addDependentFloater(pickerp);
-		}
-		mPickerHandle = pickerp->getHandle();
-	}
+    LLFloaterColorPicker* pickerp = (LLFloaterColorPicker*)mPickerHandle.get();
+    if (!pickerp)
+    {
+        pickerp = new LLFloaterColorPicker(this, mCanApplyImmediately);
+        LLFloater* parent = gFloaterView->getParentFloater(this);
+        if (parent)
+        {
+            parent->addDependentFloater(pickerp);
+        }
+        mPickerHandle = pickerp->getHandle();
+    }
 
-	// initialize picker with current color
-	pickerp->initUI ( mColor.mV [ VRED ], mColor.mV [ VGREEN ], mColor.mV [ VBLUE ] );
+    // initialize picker with current color
+    pickerp->initUI ( mColor.mV [ VRED ], mColor.mV [ VGREEN ], mColor.mV [ VBLUE ] );
 
-	// display it
-	pickerp->showUI ();
+    // display it
+    pickerp->showUI ();
 
-	if (take_focus)
-	{
-		pickerp->setFocus(TRUE);
-	}
+    if (take_focus)
+    {
+        pickerp->setFocus(true);
+    }
 }
 

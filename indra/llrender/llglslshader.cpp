@@ -81,7 +81,7 @@ const std::string gShaderConstsVal[LLGLSLShader::NUM_SHADER_CONSTS] =
 };
 
 
-BOOL shouldChange(const LLVector4& v1, const LLVector4& v2)
+bool shouldChange(const LLVector4& v1, const LLVector4& v2)
 {
     return v1 != v2;
 }
@@ -309,7 +309,7 @@ LLGLSLShader::LLGLSLShader()
     mShaderLevel(0),
     mShaderGroup(SG_DEFAULT),
     mFeatures(),
-    mUniformsDirty(FALSE),
+    mUniformsDirty(false),
     mTimerQuery(0),
     mSamplesQuery(0),
     mPrimitivesQuery(0)
@@ -381,7 +381,7 @@ void LLGLSLShader::unloadInternal()
     stop_glerror();
 }
 
-BOOL LLGLSLShader::createShader(std::vector<LLStaticHashedString>* attributes,
+bool LLGLSLShader::createShader(std::vector<LLStaticHashedString>* attributes,
     std::vector<LLStaticHashedString>* uniforms,
     U32 varying_count,
     const char** varyings)
@@ -415,41 +415,41 @@ BOOL LLGLSLShader::createShader(std::vector<LLStaticHashedString>* attributes,
         // Shouldn't happen if shader related extensions, like ARB_vertex_shader, exist.
         LL_SHADER_LOADING_WARNS() << "Failed to create handle for shader: " << mName << LL_ENDL;
         unloadInternal();
-        return FALSE;
+        return false;
     }
 
-    BOOL success = TRUE;
+    bool success = true;
 
     mUsingBinaryProgram =  LLShaderMgr::instance()->loadCachedProgramBinary(this);
 
-	if (!mUsingBinaryProgram)
-	{
+    if (!mUsingBinaryProgram)
+    {
 #if DEBUG_SHADER_INCLUDES
-	    fprintf(stderr, "--- %s ---\n", mName.c_str());
+        fprintf(stderr, "--- %s ---\n", mName.c_str());
 #endif // DEBUG_SHADER_INCLUDES
 
         //compile new source
-		vector< pair<string, GLenum> >::iterator fileIter = mShaderFiles.begin();
-		for (; fileIter != mShaderFiles.end(); fileIter++)
-		{
-			GLuint shaderhandle = LLShaderMgr::instance()->loadShaderFile((*fileIter).first, mShaderLevel, (*fileIter).second, &mDefines, mFeatures.mIndexedTextureChannels);
-			LL_DEBUGS("ShaderLoading") << "SHADER FILE: " << (*fileIter).first << " mShaderLevel=" << mShaderLevel << LL_ENDL;
-			if (shaderhandle)
-			{
-				attachObject(shaderhandle);
-			}
-			else
-			{
-				success = FALSE;
-			}
-		}
+        vector< pair<string, GLenum> >::iterator fileIter = mShaderFiles.begin();
+        for (; fileIter != mShaderFiles.end(); fileIter++)
+        {
+            GLuint shaderhandle = LLShaderMgr::instance()->loadShaderFile((*fileIter).first, mShaderLevel, (*fileIter).second, &mDefines, mFeatures.mIndexedTextureChannels);
+            LL_DEBUGS("ShaderLoading") << "SHADER FILE: " << (*fileIter).first << " mShaderLevel=" << mShaderLevel << LL_ENDL;
+            if (shaderhandle)
+            {
+                attachObject(shaderhandle);
+            }
+            else
+            {
+                success = false;
+            }
+        }
     }
 
     // Attach existing objects
     if (!LLShaderMgr::instance()->attachShaderFeatures(this))
     {
         unloadInternal();
-        return FALSE;
+        return false;
     }
     // Map attributes and uniforms
     if (success)
@@ -529,7 +529,7 @@ void dumpAttachObject(const char* func_name, GLuint program_object, const std::s
 }
 #endif // DEBUG_SHADER_INCLUDES
 
-BOOL LLGLSLShader::attachVertexObject(std::string object_path)
+bool LLGLSLShader::attachVertexObject(std::string object_path)
 {
     if (LLShaderMgr::instance()->mVertexShaderObjects.count(object_path) > 0)
     {
@@ -539,19 +539,19 @@ BOOL LLGLSLShader::attachVertexObject(std::string object_path)
         dumpAttachObject("attachVertexObject", mProgramObject, object_path);
 #endif // DEBUG_SHADER_INCLUDES
         stop_glerror();
-        return TRUE;
+        return true;
     }
     else
     {
         LL_SHADER_LOADING_WARNS() << "Attempting to attach shader object: '" << object_path << "' that hasn't been compiled." << LL_ENDL;
-        return FALSE;
+        return false;
     }
 }
 
-BOOL LLGLSLShader::attachFragmentObject(std::string object_path)
+bool LLGLSLShader::attachFragmentObject(std::string object_path)
 {
     if(mUsingBinaryProgram)
-        return TRUE;
+        return true;
 
     if (LLShaderMgr::instance()->mFragmentShaderObjects.count(object_path) > 0)
     {
@@ -561,12 +561,12 @@ BOOL LLGLSLShader::attachFragmentObject(std::string object_path)
         dumpAttachObject("attachFragmentObject", mProgramObject, object_path);
 #endif // DEBUG_SHADER_INCLUDES
         stop_glerror();
-        return TRUE;
+        return true;
     }
     else
     {
         LL_SHADER_LOADING_WARNS() << "Attempting to attach shader object: '" << object_path << "' that hasn't been compiled." << LL_ENDL;
-        return FALSE;
+        return false;
     }
 }
 
@@ -602,23 +602,23 @@ void LLGLSLShader::attachObjects(GLuint* objects, S32 count)
     }
 }
 
-BOOL LLGLSLShader::mapAttributes(const std::vector<LLStaticHashedString>* attributes)
+bool LLGLSLShader::mapAttributes(const std::vector<LLStaticHashedString>* attributes)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
 
-	BOOL res = TRUE;
-	if (!mUsingBinaryProgram)
-	{
-		//before linking, make sure reserved attributes always have consistent locations
-		for (U32 i = 0; i < LLShaderMgr::instance()->mReservedAttribs.size(); i++)
-		{
-			const char* name = LLShaderMgr::instance()->mReservedAttribs[i].c_str();
-			glBindAttribLocation(mProgramObject, i, (const GLchar*)name);
-		}
+    bool res = true;
+    if (!mUsingBinaryProgram)
+    {
+        //before linking, make sure reserved attributes always have consistent locations
+        for (U32 i = 0; i < LLShaderMgr::instance()->mReservedAttribs.size(); i++)
+        {
+            const char* name = LLShaderMgr::instance()->mReservedAttribs[i].c_str();
+            glBindAttribLocation(mProgramObject, i, (const GLchar*)name);
+        }
 
-		//link the program
-		res = link();
-	}
+        //link the program
+        res = link();
+    }
 
     mAttribute.clear();
     U32 numAttributes = (attributes == NULL) ? 0 : attributes->size();
@@ -663,10 +663,10 @@ BOOL LLGLSLShader::mapAttributes(const std::vector<LLStaticHashedString>* attrib
             }
         }
 
-        return TRUE;
+        return true;
     }
 
-    return FALSE;
+    return false;
 }
 
 void LLGLSLShader::mapUniform(GLint index, const vector<LLStaticHashedString>* uniforms)
@@ -830,11 +830,11 @@ GLint LLGLSLShader::mapUniformTextureChannel(GLint location, GLenum type, GLint 
     return -1;
 }
 
-BOOL LLGLSLShader::mapUniforms(const vector<LLStaticHashedString>* uniforms)
+bool LLGLSLShader::mapUniforms(const vector<LLStaticHashedString>* uniforms)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
 
-    BOOL res = TRUE;
+    bool res = true;
 
     mTotalUniformSize = 0;
     mActiveTextureChannels = 0;
@@ -983,17 +983,25 @@ BOOL LLGLSLShader::mapUniforms(const vector<LLStaticHashedString>* uniforms)
     }
     //........................................................................................................................................
 
-    if (mFeatures.hasReflectionProbes) // Set up block binding, in a way supported by Apple (rather than binding = 1 in .glsl).
-    {   // See slide 35 and more of https://docs.huihoo.com/apple/wwdc/2011/session_420__advances_in_opengl_for_mac_os_x_lion.pdf
-        static const GLuint BLOCKBINDING = 1; //picked by us
-        //Get the index, similar to a uniform location
-        GLuint UBOBlockIndex = glGetUniformBlockIndex(mProgramObject, "ReflectionProbes");
+    // Set up block binding, in a way supported by Apple (rather than binding = 1 in .glsl).
+    // See slide 35 and more of https://docs.huihoo.com/apple/wwdc/2011/session_420__advances_in_opengl_for_mac_os_x_lion.pdf
+    const char* ubo_names[] =
+    {
+        "ReflectionProbes", // UB_REFLECTION_PROBES
+        "GLTFJoints", // UB_GLTF_JOINTS
+    };
+
+    llassert(LL_ARRAY_SIZE(ubo_names) == NUM_UNIFORM_BLOCKS);
+
+    for (U32 i = 0; i < NUM_UNIFORM_BLOCKS; ++i)
+    {
+        GLuint UBOBlockIndex = glGetUniformBlockIndex(mProgramObject, ubo_names[i]);
         if (UBOBlockIndex != GL_INVALID_INDEX)
         {
-            //Set this index to a binding index
-            glUniformBlockBinding(mProgramObject, UBOBlockIndex, BLOCKBINDING);
+            glUniformBlockBinding(mProgramObject, UBOBlockIndex, i);
         }
     }
+    
     unbind();
 
     LL_DEBUGS("ShaderUniform") << "Total Uniform Size: " << mTotalUniformSize << LL_ENDL;
@@ -1001,11 +1009,11 @@ BOOL LLGLSLShader::mapUniforms(const vector<LLStaticHashedString>* uniforms)
 }
 
 
-BOOL LLGLSLShader::link(BOOL suppress_errors)
+bool LLGLSLShader::link(bool suppress_errors)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
 
-    BOOL success = LLShaderMgr::instance()->linkProgramObject(mProgramObject, suppress_errors);
+    bool success = LLShaderMgr::instance()->linkProgramObject(mProgramObject, suppress_errors);
 
     if (!success && !suppress_errors)
     {
@@ -1045,8 +1053,15 @@ void LLGLSLShader::bind()
     if (mUniformsDirty)
     {
         LLShaderMgr::instance()->updateShaderUniforms(this);
-        mUniformsDirty = FALSE;
+        mUniformsDirty = false;
     }
+}
+
+void LLGLSLShader::bind(U32 variant)
+{
+    llassert(mGLTFVariants.size() == LLGLSLShader::NUM_GLTF_VARIANTS);
+    llassert(variant < LLGLSLShader::NUM_GLTF_VARIANTS);
+    mGLTFVariants[variant].bind();
 }
 
 void LLGLSLShader::bind(bool rigged)
@@ -1190,6 +1205,8 @@ S32 LLGLSLShader::enableTexture(S32 uniform, LLTexUnit::eTextureType mode, LLTex
         LL_SHADER_UNIFORM_ERRS() << "Uniform out of range: " << uniform << LL_ENDL;
         return -1;
     }
+
+
     S32 index = mTexture[uniform];
     if (index != -1)
     {

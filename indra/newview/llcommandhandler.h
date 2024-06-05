@@ -7,21 +7,21 @@
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -37,18 +37,18 @@ class LLFooHandler : public LLCommandHandler
 {
 public:
     // Inform the system you handle commands starting
-	// with "foo" and they are only allowed from
-	// "trusted" (pointed at Linden content) browsers
-	LLFooHandler() : LLCommandHandler("foo", UNTRUSTED_BLOCK) { }
+    // with "foo" and they are only allowed from
+    // "trusted" (pointed at Linden content) browsers
+    LLFooHandler() : LLCommandHandler("foo", UNTRUSTED_BLOCK) { }
 
     // Your code here
-	bool handle(const LLSD& tokens, const LLSD& query_map, const std::string& grid,
-				LLMediaCtrl* web)
-	{
-		if (tokens.size() < 1) return false;
-		LLUUID id( tokens[0] );
-		return do_foo(id);
-	}
+    bool handle(const LLSD& tokens, const LLSD& query_map, const std::string& grid,
+                LLMediaCtrl* web)
+    {
+        if (tokens.size() < 1) return false;
+        LLUUID id( tokens[0] );
+        return do_foo(id);
+    }
 };
 
 // *NOTE: Creating the object registers with the dispatcher.
@@ -61,25 +61,25 @@ class LLMediaCtrl;
 class LLCommandHandler
 {
 public:
-	enum EUntrustedAccess
-	{
-		UNTRUSTED_ALLOW,       // allow commands from untrusted browsers
-		UNTRUSTED_BLOCK,       // ignore commands from untrusted browsers
+    enum EUntrustedAccess
+    {
+        UNTRUSTED_ALLOW,       // allow commands from untrusted browsers
+        UNTRUSTED_BLOCK,       // ignore commands from untrusted browsers
         UNTRUSTED_CLICK_ONLY,  // allow untrusted, but only if clicked
-		UNTRUSTED_THROTTLE     // allow untrusted, but only a few per min.
-	};
+        UNTRUSTED_THROTTLE     // allow untrusted, but only a few per min.
+    };
 
     static const std::string NAV_TYPE_CLICKED;
     static const std::string NAV_TYPE_EXTERNAL;
     static const std::string NAV_TYPE_NAVIGATED;
 
-	LLCommandHandler(const char* command, EUntrustedAccess untrusted_access);
-		// Automatically registers object to get called when 
-		// command is executed.  All commands can be processed
-		// in links from LLMediaCtrl, but some (like teleport)
-		// should not be allowed from outside the app.
-		
-	virtual ~LLCommandHandler();
+    LLCommandHandler(const char* command, EUntrustedAccess untrusted_access);
+        // Automatically registers object to get called when
+        // command is executed.  All commands can be processed
+        // in links from LLMediaCtrl, but some (like teleport)
+        // should not be allowed from outside the app.
+
+    virtual ~LLCommandHandler();
 
     virtual bool canHandleUntrusted(
         const LLSD& params,
@@ -88,35 +88,35 @@ public:
         const std::string& nav_type)
     { return true; }
 
-	virtual bool handle(const LLSD& params,
-						const LLSD& query_map,
-						const std::string& grid,
-						LLMediaCtrl* web) = 0;
-		// For URL secondlife:///app/foo/bar/baz?cat=1&dog=2
-		// @params - array of "bar", "baz", possibly empty
-		// @query_map - map of "cat" -> 1, "dog" -> 2, possibly empty
-		// @web - pointer to web browser control, possibly NULL
-		// Return true if you did something, false if the parameters
-		// are invalid or on error.
+    virtual bool handle(const LLSD& params,
+                        const LLSD& query_map,
+                        const std::string& grid,
+                        LLMediaCtrl* web) = 0;
+        // For URL secondlife:///app/foo/bar/baz?cat=1&dog=2
+        // @params - array of "bar", "baz", possibly empty
+        // @query_map - map of "cat" -> 1, "dog" -> 2, possibly empty
+        // @web - pointer to web browser control, possibly NULL
+        // Return true if you did something, false if the parameters
+        // are invalid or on error.
 };
 
 
 class LLCommandDispatcher
 {
 public:
-	static bool dispatch(const std::string& cmd,
-						 const LLSD& params,
-						 const LLSD& query_map,
-						 const std::string& grid,
-						 LLMediaCtrl* web,
-						 const std::string& nav_type,
-						 bool trusted_browser);
-		// Execute a command registered via the above mechanism,
-		// passing string parameters.
-		// Returns true if command was found and executed correctly.
-	/// Return an LLSD::Map of registered LLCommandHandlers and associated
-	/// info (e.g. EUntrustedAccess).
-	static LLSD enumerate();
+    static bool dispatch(const std::string& cmd,
+                         const LLSD& params,
+                         const LLSD& query_map,
+                         const std::string& grid,
+                         LLMediaCtrl* web,
+                         const std::string& nav_type,
+                         bool trusted_browser);
+        // Execute a command registered via the above mechanism,
+        // passing string parameters.
+        // Returns true if command was found and executed correctly.
+    /// Return an LLSD::Map of registered LLCommandHandlers and associated
+    /// info (e.g. EUntrustedAccess).
+    static LLSD enumerate();
 };
 
 #endif

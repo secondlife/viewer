@@ -35,20 +35,20 @@
 class LLFontFreeTypeSvgRenderer
 {
 public:
-	// Called when the very first OT-SVG glyph is rendered (across the entire lifetime of our FT_Library object)
-	static FT_Error OnInit(FT_Pointer* state);
+    // Called when the very first OT-SVG glyph is rendered (across the entire lifetime of our FT_Library object)
+    static FT_Error OnInit(FT_Pointer* state);
 
-	// Called when the ot-svg module is being freed (but only called if the init hook was called previously)
-	static void     OnFree(FT_Pointer* state);
+    // Called when the ot-svg module is being freed (but only called if the init hook was called previously)
+    static void     OnFree(FT_Pointer* state);
 
-	// Called to preset the glyph slot, twice per glyph:
-	//   - when FT_Load_Glyph needs to preset the glyph slot (with cache == false)
-	//   - right before the svg module calls the render callback hook. (with cache == true)
-	static FT_Error OnPresetGlypthSlot(FT_GlyphSlot glyph_slot, FT_Bool cache, FT_Pointer* state);
+    // Called to preset the glyph slot, twice per glyph:
+    //   - when FT_Load_Glyph needs to preset the glyph slot (with cache == false)
+    //   - right before the svg module calls the render callback hook. (with cache == true)
+    static FT_Error OnPresetGlypthSlot(FT_GlyphSlot glyph_slot, FT_Bool cache, FT_Pointer* state);
 
-	// Called to render an OT-SVG glyph (right after the preset hook OnPresetGlypthSlot was called with cache set to TRUE)
-	static FT_Error OnRender(FT_GlyphSlot glyph_slot, FT_Pointer* state);
+    // Called to render an OT-SVG glyph (right after the preset hook OnPresetGlypthSlot was called with cache set to true)
+    static FT_Error OnRender(FT_GlyphSlot glyph_slot, FT_Pointer* state);
 
-	// Called to deallocate our per glyph slot data
-	static void OnDataFinalizer(void* objectp);
+    // Called to deallocate our per glyph slot data
+    static void OnDataFinalizer(void* objectp);
 };

@@ -1,4 +1,4 @@
-/** 
+/**
  * @file llfloaterreporter.h
  * @author Andrew Meadows
  * @brief Abuse reports.
@@ -6,21 +6,21 @@
  * $LicenseInfo:firstyear=2006&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -44,9 +44,9 @@ class LLMeanCollisionData;
 struct LLResourceData;
 
 // these flags are used to label info requests to the server
-//const U32 BUG_REPORT_REQUEST 		= 0x01 << 0; // DEPRECATED
-const U32 COMPLAINT_REPORT_REQUEST 	= 0x01 << 1;
-const U32 OBJECT_PAY_REQUEST		= 0x01 << 2;
+//const U32 BUG_REPORT_REQUEST      = 0x01 << 0; // DEPRECATED
+const U32 COMPLAINT_REPORT_REQUEST  = 0x01 << 1;
+const U32 OBJECT_PAY_REQUEST        = 0x01 << 2;
 
 
 // ************************************************************
@@ -67,87 +67,87 @@ const U32 OBJECT_PAY_REQUEST		= 0x01 << 2;
 // ************************************************************
 enum EReportType
 {
-	NULL_REPORT = 0,		// don't use this value anywhere
-	UNKNOWN_REPORT = 1,
-	//BUG_REPORT = 2, // DEPRECATED
-	COMPLAINT_REPORT = 3,
-	CS_REQUEST_REPORT = 4
+    NULL_REPORT = 0,        // don't use this value anywhere
+    UNKNOWN_REPORT = 1,
+    //BUG_REPORT = 2, // DEPRECATED
+    COMPLAINT_REPORT = 3,
+    CS_REQUEST_REPORT = 4
 };
 
 class LLFloaterReporter
-:	public LLFloater
+:   public LLFloater
 {
 public:
-	LLFloaterReporter(const LLSD& key);
-	/*virtual*/ ~LLFloaterReporter();
-	/*virtual*/ BOOL postBuild();
-	/*virtual*/ void onOpen(const LLSD& key);
-	/*virtual*/ void onClose(bool app_quitting);
+    LLFloaterReporter(const LLSD& key);
+    /*virtual*/ ~LLFloaterReporter();
+    /*virtual*/ bool postBuild();
+    /*virtual*/ void onOpen(const LLSD& key);
+    /*virtual*/ void onClose(bool app_quitting);
 
-	static void onIdle(void* user_data);
-	
-	void setReportType(EReportType type) { mReportType = type; }
-	
-	// Enables all buttons
-	static void showFromMenu(EReportType report_type);
+    static void onIdle(void* user_data);
 
-	static void showFromObject(const LLUUID& object_id, const LLUUID& experience_id = LLUUID::null);
-	static void showFromAvatar(const LLUUID& avatar_id, const std::string avatar_name);
+    void setReportType(EReportType type) { mReportType = type; }
+
+    // Enables all buttons
+    static void showFromMenu(EReportType report_type);
+
+    static void showFromObject(const LLUUID& object_id, const LLUUID& experience_id = LLUUID::null);
+    static void showFromAvatar(const LLUUID& avatar_id, const std::string avatar_name);
     static void showFromChat(const LLUUID& avatar_id, const std::string& avatar_name, const std::string& time, const std::string& description);
-	static void showFromExperience(const LLUUID& experience_id);
+    static void showFromExperience(const LLUUID& experience_id);
 
-	static void onClickSend			(void *userdata);
-	static void onClickCancel		(void *userdata);
-	static void onClickObjPicker	(void *userdata);
-	void onClickSelectAbuser ();
-	static void closePickTool	(void *userdata);
-	static void uploadDoneCallback(const LLUUID &uuid, void* user_data, S32 result, LLExtStat ext_status);
+    static void onClickSend         (void *userdata);
+    static void onClickCancel       (void *userdata);
+    static void onClickObjPicker    (void *userdata);
+    void onClickSelectAbuser ();
+    static void closePickTool   (void *userdata);
+    static void uploadDoneCallback(const LLUUID &uuid, void* user_data, S32 result, LLExtStat ext_status);
 
-	void setPickedObjectProperties(const std::string& object_name, const std::string& owner_name, const LLUUID owner_id);
+    void setPickedObjectProperties(const std::string& object_name, const std::string& owner_name, const LLUUID owner_id);
 
-	void onLoadScreenshotDialog(const LLSD& notification, const LLSD& response);
+    void onLoadScreenshotDialog(const LLSD& notification, const LLSD& response);
 
-	void takeNewSnapshot();
+    void takeNewSnapshot();
 
 private:
-	static void show(const LLUUID& object_id, const std::string& avatar_name = LLStringUtil::null, const LLUUID& experience_id = LLUUID::null);
+    static void show(const LLUUID& object_id, const std::string& avatar_name = LLStringUtil::null, const LLUUID& experience_id = LLUUID::null);
 
-	void takeScreenshot(bool use_prev_screenshot = false);
-	void uploadImage();
-	bool validateReport();
-	LLSD gatherReport();
-	void sendReportViaLegacy(const LLSD & report);
-	void sendReportViaCaps(std::string url, std::string sshot_url, const LLSD & report);
-	void setPosBox(const LLVector3d &pos);
-	void enableControls(BOOL own_avatar);
-	void getExperienceInfo(const LLUUID& object_id);
-	void getObjectInfo(const LLUUID& object_id);
-	void callbackAvatarID(const uuid_vec_t& ids, const std::vector<LLAvatarName> names);
-	void setFromAvatarID(const LLUUID& avatar_id);
-	void onAvatarNameCache(const LLUUID& avatar_id, const LLAvatarName& av_name);
+    void takeScreenshot(bool use_prev_screenshot = false);
+    void uploadImage();
+    bool validateReport();
+    LLSD gatherReport();
+    void sendReportViaLegacy(const LLSD & report);
+    void sendReportViaCaps(std::string url, std::string sshot_url, const LLSD & report);
+    void setPosBox(const LLVector3d &pos);
+    void enableControls(bool own_avatar);
+    void getExperienceInfo(const LLUUID& object_id);
+    void getObjectInfo(const LLUUID& object_id);
+    void callbackAvatarID(const uuid_vec_t& ids, const std::vector<LLAvatarName> names);
+    void setFromAvatarID(const LLUUID& avatar_id);
+    void onAvatarNameCache(const LLUUID& avatar_id, const LLAvatarName& av_name);
 
-	static void requestAbuseCategoriesCoro(std::string url, LLHandle<LLFloater> handle);
+    static void requestAbuseCategoriesCoro(std::string url, LLHandle<LLFloater> handle);
     static void finishedARPost(const LLSD &);
 
 private:
-	EReportType		mReportType;
-	LLUUID 			mObjectID;
-	LLUUID			mScreenID;
-	LLUUID			mAbuserID;
-	LLUUID			mExperienceID;
-	// Store the real name, not the link, for upstream reporting
-	std::string		mOwnerName;
-	BOOL			mDeselectOnClose;
-	BOOL 			mPicking;
-	LLVector3		mPosition;
-	BOOL			mCopyrightWarningSeen;
-	std::string		mDefaultSummary;
-	LLResourceData* mResourceDatap;
-	boost::signals2::connection mAvatarNameCacheConnection;
+    EReportType     mReportType;
+    LLUUID          mObjectID;
+    LLUUID          mScreenID;
+    LLUUID          mAbuserID;
+    LLUUID          mExperienceID;
+    // Store the real name, not the link, for upstream reporting
+    std::string     mOwnerName;
+    bool            mDeselectOnClose;
+    bool            mPicking;
+    LLVector3       mPosition;
+    bool            mCopyrightWarningSeen;
+    std::string     mDefaultSummary;
+    LLResourceData* mResourceDatap;
+    boost::signals2::connection mAvatarNameCacheConnection;
 
-	LLPointer<LLImageRaw> mImageRaw;
-	LLPointer<LLImageRaw> mPrevImageRaw;
-	LLFrameTimer	mSnapshotTimer;
+    LLPointer<LLImageRaw> mImageRaw;
+    LLPointer<LLImageRaw> mPrevImageRaw;
+    LLFrameTimer    mSnapshotTimer;
 };
 
 #endif

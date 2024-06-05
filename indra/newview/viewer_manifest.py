@@ -547,21 +547,11 @@ class Windows_x86_64_Manifest(ViewerManifest):
         # Get shared libs from the shared libs staging directory
         with self.prefix(src=os.path.join(self.args['build'], os.pardir,
                                           'sharedlibs', self.args['buildtype'])):
-            # Get fmodstudio dll if needed
-            if self.args['fmodstudio'] == 'ON':
-                if(self.args['buildtype'].lower() == 'debug'):
-                    self.path("fmodL.dll")
-                else:
-                    self.path("fmod.dll")
 
             if self.args['openal'] == 'ON':
                 # Get openal dll
                 self.path("OpenAL32.dll")
                 self.path("alut.dll")
-
-            # For ICU4C
-            self.path("icudt48.dll")
-            self.path("icuuc48.dll")
 
             # For textures
             self.path("openjp2.dll")
@@ -1022,19 +1012,14 @@ class Darwin_x86_64_Manifest(ViewerManifest):
                                 'libvivoxsdk.dylib',
                                 ):
                     self.path2basename(relpkgdir, libfile)
-
-                # Fmod studio dylibs (vary based on configuration)
-                if self.args['fmodstudio'] == 'ON':
-                    if self.args['buildtype'].lower() == 'debug':
-                        for libfile in (
-                                    "libfmodL.dylib",
-                                    ):
-                            dylibs += path_optional(os.path.join(debpkgdir, libfile), libfile)
-                    else:
-                        for libfile in (
-                                    "libfmod.dylib",
-                                    ):
-                            dylibs += path_optional(os.path.join(relpkgdir, libfile), libfile)
+                            
+                # OpenAL dylibs
+                if self.args['openal'] == 'ON':
+                    for libfile in (
+                                "libopenal.dylib",
+                                "libalut.dylib",
+                                ):
+                        dylibs += path_optional(os.path.join(relpkgdir, libfile), libfile)
 
                 # our apps
                 executable_path = {}
@@ -1364,16 +1349,6 @@ class Linux_i686_Manifest(LinuxManifest):
                 print("tcmalloc files not found, skipping")
                 pass
 
-            if self.args['fmodstudio'] == 'ON':
-                try:
-                    self.path("libfmod.so.11.7")
-                    self.path("libfmod.so.11")
-                    self.path("libfmod.so")
-                    pass
-                except:
-                    print("Skipping libfmod.so - not found")
-                    pass
-
         # Vivox runtimes
         with self.prefix(src=relpkgdir, dst="bin"):
             self.path("SLVoice")
@@ -1403,11 +1378,9 @@ if __name__ == "__main__":
     print(('%s \\\n%s' %
           (sys.executable,
            ' '.join((("'%s'" % arg) if ' ' in arg else arg) for arg in sys.argv))))
-    # fmodstudio and openal can be used simultaneously and controled by environment
     extra_arguments = [
         dict(name='bugsplat', description="""BugSplat database to which to post crashes,
              if BugSplat crash reporting is desired""", default=''),
-        dict(name='fmodstudio', description="""Indication if fmod studio libraries are needed""", default='OFF'),
         dict(name='openal', description="""Indication openal libraries are needed""", default='OFF'),
         ]
     try:

@@ -5,21 +5,21 @@
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -35,46 +35,46 @@
 
 class LLGroupIconCtrl;
 
-class LLToastIMPanel: public LLToastPanel 
+class LLToastIMPanel: public LLToastPanel
 {
 public:
-	struct Params
-	{
-		LLNotificationPtr	notification;
-		LLUUID				avatar_id,
-							session_id;
-		std::string			from,
-							time,
-							message;
+    struct Params
+    {
+        LLNotificationPtr   notification;
+        LLUUID              avatar_id,
+                            session_id;
+        std::string         from,
+                            time,
+                            message;
 
-		Params() {}
-	};
+        Params() {}
+    };
 
-	LLToastIMPanel(LLToastIMPanel::Params &p);
-	virtual ~LLToastIMPanel();
-	/*virtual*/ BOOL 	handleMouseUp(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	handleToolTip(S32 x, S32 y, MASK mask);
+    LLToastIMPanel(LLToastIMPanel::Params &p);
+    virtual ~LLToastIMPanel();
+    /*virtual*/ bool    handleMouseUp(S32 x, S32 y, MASK mask);
+    /*virtual*/ bool    handleToolTip(S32 x, S32 y, MASK mask);
 private:
-	void showInspector();
+    void showInspector();
 
-	void spawnNameToolTip();
-	void spawnGroupIconToolTip();
+    void spawnNameToolTip();
+    void spawnGroupIconToolTip();
 
-	void initIcon();
+    void initIcon();
 
-	static const S32 DEFAULT_MESSAGE_MAX_LINE_COUNT;
+    static const S32 DEFAULT_MESSAGE_MAX_LINE_COUNT;
 
-	LLNotificationPtr	mNotification;
-	LLUUID				mSessionID;
-	LLUUID				mAvatarID;
-	LLAvatarIconCtrl*	mAvatarIcon;
-	LLGroupIconCtrl*	mGroupIcon;
-	LLAvatarIconCtrl*	mAdhocIcon;
-	LLTextBox*			mAvatarName;
-	LLTextBox*			mTime;
-	LLTextBox*			mMessage;
+    LLNotificationPtr   mNotification;
+    LLUUID              mSessionID;
+    LLUUID              mAvatarID;
+    LLAvatarIconCtrl*   mAvatarIcon;
+    LLGroupIconCtrl*    mGroupIcon;
+    LLAvatarIconCtrl*   mAdhocIcon;
+    LLTextBox*          mAvatarName;
+    LLTextBox*          mTime;
+    LLTextBox*          mMessage;
 
-	bool                mIsGroupMsg;
+    bool                mIsGroupMsg;
 };
 
 #endif // LLTOASTIMPANEL_H_

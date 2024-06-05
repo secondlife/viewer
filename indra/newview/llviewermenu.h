@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llviewermenu.h
  * @brief Builds menus out of objects
  *
  * $LicenseInfo:firstyear=2002&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -61,27 +61,27 @@ void handle_deselect(void*);
 void handle_delete_object();
 void handle_duplicate(void*);
 void handle_duplicate_in_place(void*);
-BOOL enable_not_have_card(void *userdata);
+bool enable_not_have_card(void *userdata);
 void process_grant_godlike_powers(LLMessageSystem* msg, void**);
 
-BOOL enable_cut(void*);
-BOOL enable_copy(void*);
-BOOL enable_paste(void*);
-BOOL enable_select_all(void*);
-BOOL enable_deselect(void*);
-BOOL enable_undo(void*);
-BOOL enable_redo(void*);
+bool enable_cut(void*);
+bool enable_copy(void*);
+bool enable_paste(void*);
+bool enable_select_all(void*);
+bool enable_deselect(void*);
+bool enable_undo(void*);
+bool enable_redo(void*);
 
-BOOL is_agent_mappable(const LLUUID& agent_id);
+bool is_agent_mappable(const LLUUID& agent_id);
 
 void confirm_replace_attachment(S32 option, void* user_data);
 void handle_detach_from_avatar(const LLSD& user_data);
 void attach_label(std::string& label, const LLSD&);
 void detach_label(std::string& label, const LLSD&);
 void handle_detach(void*);
-BOOL enable_god_full(void* user_data);
-BOOL enable_god_liaison(void* user_data);
-BOOL enable_god_basic(void* user_data);
+bool enable_god_full(void* user_data);
+bool enable_god_liaison(void* user_data);
+bool enable_god_basic(void* user_data);
 void check_merchant_status(bool force = false);
 
 void exchange_callingcard(const LLUUID& dest_id);
@@ -103,7 +103,7 @@ bool enable_object_delete();
 
 // Buy either contents or object itself
 void handle_buy();
-void handle_take();
+void handle_take(bool take_separate = false);
 void handle_take_copy();
 void handle_look_at_selection(const LLSD& param);
 void handle_zoom_to_object(LLUUID object_id);
@@ -155,38 +155,38 @@ U64 info_display_from_string(std::string info_display);
 class LLViewerMenuHolderGL : public LLMenuHolderGL
 {
 public:
-	struct Params : public LLInitParam::Block<Params, LLMenuHolderGL::Params>
-	{};
+    struct Params : public LLInitParam::Block<Params, LLMenuHolderGL::Params>
+    {};
 
-	LLViewerMenuHolderGL(const Params& p);
+    LLViewerMenuHolderGL(const Params& p);
 
-	virtual BOOL hideMenus();
-	
-	void setParcelSelection(LLSafeHandle<LLParcelSelection> selection);
-	void setObjectSelection(LLSafeHandle<LLObjectSelection> selection);
+    virtual bool hideMenus();
 
-	virtual const LLRect getMenuRect() const;
+    void setParcelSelection(LLSafeHandle<LLParcelSelection> selection);
+    void setObjectSelection(LLSafeHandle<LLObjectSelection> selection);
+
+    virtual const LLRect getMenuRect() const;
 
 protected:
-	LLSafeHandle<LLParcelSelection> mParcelSelection;
-	LLSafeHandle<LLObjectSelection> mObjectSelection;
+    LLSafeHandle<LLParcelSelection> mParcelSelection;
+    LLSafeHandle<LLObjectSelection> mObjectSelection;
 };
 
-extern LLMenuBarGL*		gMenuBarView;
-//extern LLView*			gMenuBarHolder;
-extern LLMenuGL*		gEditMenu;
-extern LLMenuGL*		gPopupMenuView;
-extern LLViewerMenuHolderGL*	gMenuHolder;
-extern LLMenuBarGL*		gLoginMenuBarView;
+extern LLMenuBarGL*     gMenuBarView;
+//extern LLView*            gMenuBarHolder;
+extern LLMenuGL*        gEditMenu;
+extern LLMenuGL*        gPopupMenuView;
+extern LLViewerMenuHolderGL*    gMenuHolder;
+extern LLMenuBarGL*     gLoginMenuBarView;
 
 // Context menus in 3D scene
-extern LLContextMenu		*gMenuAvatarSelf;
-extern LLContextMenu		*gMenuAvatarOther;
-extern LLContextMenu		*gMenuObject;
-extern LLContextMenu		*gMenuAttachmentSelf;
-extern LLContextMenu		*gMenuAttachmentOther;
-extern LLContextMenu		*gMenuLand;
-extern LLContextMenu		*gMenuMuteParticle;
+extern LLContextMenu        *gMenuAvatarSelf;
+extern LLContextMenu        *gMenuAvatarOther;
+extern LLContextMenu        *gMenuObject;
+extern LLContextMenu        *gMenuAttachmentSelf;
+extern LLContextMenu        *gMenuAttachmentOther;
+extern LLContextMenu        *gMenuLand;
+extern LLContextMenu        *gMenuMuteParticle;
 
 // Needed to build menus when attachment site list available
 extern LLMenuGL* gAttachSubMenu;

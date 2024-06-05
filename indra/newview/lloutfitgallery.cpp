@@ -1,4 +1,4 @@
-/** 
+/**
  * @file lloutfitgallery.cpp
  * @author Pavlo Kryvych
  * @brief Visual gallery of agent's outfits for My Appearance side panel
@@ -6,21 +6,21 @@
  * $LicenseInfo:firstyear=2015&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2015, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -105,9 +105,9 @@ const LLOutfitGallery::Params& LLOutfitGallery::getDefaultParams()
     return LLUICtrlFactory::getDefaultParams<LLOutfitGallery>();
 }
 
-BOOL LLOutfitGallery::postBuild()
+bool LLOutfitGallery::postBuild()
 {
-    BOOL rv = LLOutfitListBase::postBuild();
+    bool rv = LLOutfitListBase::postBuild();
     mScrollPanel = getChild<LLScrollContainer>("gallery_scroll_panel");
     LLPanel::Params params = LLPanel::getDefaultParams(); // Don't parse XML when creating dummy LLPanel
     mGalleryPanel = LLUICtrlFactory::create<LLPanel>(params);
@@ -144,9 +144,9 @@ void LLOutfitGallery::draw()
     }
 }
 
-BOOL LLOutfitGallery::handleKeyHere(KEY key, MASK mask)
+bool LLOutfitGallery::handleKeyHere(KEY key, MASK mask)
 {
-    BOOL handled = FALSE;
+    bool handled = false;
     switch (key)
     {
         case KEY_RETURN:
@@ -156,7 +156,7 @@ BOOL LLOutfitGallery::handleKeyHere(KEY key, MASK mask)
                 // Or should it wearSelectedOutfit?
                 getSelectedItem()->openOutfitsContent();
             }
-            handled = TRUE;
+            handled = true;
             break;
         case KEY_DELETE:
 #if LL_DARWIN
@@ -168,12 +168,12 @@ BOOL LLOutfitGallery::handleKeyHere(KEY key, MASK mask)
             {
                 onRemoveOutfit(mSelectedOutfitUUID);
             }
-            handled = TRUE;
+            handled = true;
             break;
 
         case KEY_F2:
             LLAppearanceMgr::instance().renameOutfit(mSelectedOutfitUUID);
-            handled = TRUE;
+            handled = true;
             break;
 
         case KEY_PAGE_UP:
@@ -181,7 +181,7 @@ BOOL LLOutfitGallery::handleKeyHere(KEY key, MASK mask)
             {
                 mScrollPanel->pageUp(30);
             }
-            handled = TRUE;
+            handled = true;
             break;
 
         case KEY_PAGE_DOWN:
@@ -189,7 +189,7 @@ BOOL LLOutfitGallery::handleKeyHere(KEY key, MASK mask)
             {
                 mScrollPanel->pageDown(30);
             }
-            handled = TRUE;
+            handled = true;
             break;
 
         case KEY_HOME:
@@ -197,7 +197,7 @@ BOOL LLOutfitGallery::handleKeyHere(KEY key, MASK mask)
             {
                 mScrollPanel->goToTop();
             }
-            handled = TRUE;
+            handled = true;
             break;
 
         case KEY_END:
@@ -205,27 +205,27 @@ BOOL LLOutfitGallery::handleKeyHere(KEY key, MASK mask)
             {
                 mScrollPanel->goToBottom();
             }
-            handled = TRUE;
+            handled = true;
             break;
 
         case KEY_LEFT:
             moveLeft();
-            handled = TRUE;
+            handled = true;
             break;
 
         case KEY_RIGHT:
             moveRight();
-            handled = TRUE;
+            handled = true;
             break;
 
         case KEY_UP:
             moveUp();
-            handled = TRUE;
+            handled = true;
             break;
 
         case KEY_DOWN:
             moveDown();
-            handled = TRUE;
+            handled = true;
             break;
 
         default:
@@ -254,7 +254,7 @@ void LLOutfitGallery::moveUp()
                 item = mIndexToItemMap[n];
                 LLUUID item_id = item->getUUID();
                 ChangeOutfitSelection(nullptr, item_id);
-                item->setFocus(TRUE);
+                item->setFocus(true);
 
                 scrollToShowItem(mSelectedOutfitUUID);
             }
@@ -276,7 +276,7 @@ void LLOutfitGallery::moveDown()
                 item = mIndexToItemMap[n];
                 LLUUID item_id = item->getUUID();
                 ChangeOutfitSelection(nullptr, item_id);
-                item->setFocus(TRUE);
+                item->setFocus(true);
 
                 scrollToShowItem(mSelectedOutfitUUID);
             }
@@ -301,7 +301,7 @@ void LLOutfitGallery::moveLeft()
             item = mIndexToItemMap[n];
             LLUUID item_id = item->getUUID();
             ChangeOutfitSelection(nullptr, item_id);
-            item->setFocus(TRUE);
+            item->setFocus(true);
 
             scrollToShowItem(mSelectedOutfitUUID);
         }
@@ -324,7 +324,7 @@ void LLOutfitGallery::moveRight()
             item = mIndexToItemMap[n];
             LLUUID item_id = item->getUUID();
             ChangeOutfitSelection(nullptr, item_id);
-            item->setFocus(TRUE);
+            item->setFocus(true);
 
             scrollToShowItem(mSelectedOutfitUUID);
         }
@@ -431,7 +431,7 @@ bool compareGalleryItem(LLOutfitGalleryItem* item1, LLOutfitGalleryItem* item2)
 }
 
 void LLOutfitGallery::reArrangeRows(S32 row_diff)
-{ 
+{
     std::vector<LLOutfitGalleryItem*> buf_items = mItems;
     for (std::vector<LLOutfitGalleryItem*>::const_reverse_iterator it = buf_items.rbegin(); it != buf_items.rend(); ++it)
     {
@@ -442,7 +442,7 @@ void LLOutfitGallery::reArrangeRows(S32 row_diff)
         buf_items.push_back(*it);
     }
     mHiddenItems.clear();
-    
+
     mItemsInRow += row_diff;
     updateGalleryWidth();
     std::sort(buf_items.begin(), buf_items.end(), compareGalleryItem);
@@ -458,7 +458,7 @@ void LLOutfitGallery::reArrangeRows(S32 row_diff)
         bool hidden = (std::string::npos == outfit_name.find(cur_filter));
         (*it)->setHidden(hidden);
 
-    	addToGallery(*it);
+        addToGallery(*it);
     }
 
     updateMessageVisibility();
@@ -860,11 +860,11 @@ void LLOutfitGallery::onChangeOutfitSelection(LLWearableItemsList* list, const L
         return;
     if (mOutfitMap[mSelectedOutfitUUID])
     {
-        mOutfitMap[mSelectedOutfitUUID]->setSelected(FALSE);
+        mOutfitMap[mSelectedOutfitUUID]->setSelected(false);
     }
     if (mOutfitMap[category_id])
     {
-        mOutfitMap[category_id]->setSelected(TRUE);
+        mOutfitMap[category_id]->setSelected(true);
     }
     // mSelectedOutfitUUID will be set in LLOutfitListBase::ChangeOutfitSelection
 }
@@ -897,15 +897,15 @@ void LLOutfitGallery::updateMessageVisibility()
 {
     if (mItems.empty())
     {
-        mMessageTextBox->setVisible(TRUE);
-        mScrollPanel->setVisible(FALSE);
+        mMessageTextBox->setVisible(true);
+        mScrollPanel->setVisible(false);
         std::string message = getString(getFilterSubString().empty() ? "no_outfits_msg" : "no_matched_outfits_msg");
         mMessageTextBox->setValue(message);
     }
     else
     {
-        mScrollPanel->setVisible(TRUE);
-        mMessageTextBox->setVisible(FALSE);
+        mScrollPanel->setVisible(true);
+        mMessageTextBox->setVisible(false);
     }
 }
 
@@ -934,7 +934,7 @@ LLOutfitGalleryItem::~LLOutfitGalleryItem()
 
 }
 
-BOOL LLOutfitGalleryItem::postBuild()
+bool LLOutfitGalleryItem::postBuild()
 {
     setDefaultImage();
 
@@ -943,18 +943,18 @@ BOOL LLOutfitGalleryItem::postBuild()
     mTextBgPanel = getChild<LLPanel>("text_bg_panel");
     setOutfitWorn(false);
     mHidden = false;
-    return TRUE;
+    return true;
 }
 
 void LLOutfitGalleryItem::draw()
 {
     LLPanel::draw();
-    
+
     // Draw border
     LLUIColor border_color = LLUIColorTable::instance().getColor(mSelected ? "OutfitGalleryItemSelected" : "OutfitGalleryItemUnselected", LLColor4::white);
     LLRect border = getChildView("preview_outfit")->getRect();
     border.mRight = border.mRight + 1;
-    gl_rect_2d(border, border_color.get(), FALSE);
+    gl_rect_2d(border, border_color.get(), false);
 
     // If the floater is focused, don't apply its alpha to the texture (STORM-677).
     const F32 alpha = getTransparencyType() == TT_ACTIVE ? 1.0f : getCurrentTransparency();
@@ -979,7 +979,7 @@ void LLOutfitGalleryItem::draw()
             mTexturep->addTextureStats((F32)(interior.getWidth() * interior.getHeight()));
         }
     }
-    
+
 }
 
 void LLOutfitGalleryItem::setOutfitName(std::string name)
@@ -1010,31 +1010,31 @@ void LLOutfitGalleryItem::setSelected(bool value)
     setOutfitWorn(mWorn);
 }
 
-BOOL LLOutfitGalleryItem::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLOutfitGalleryItem::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-    setFocus(TRUE);
+    setFocus(true);
     return LLUICtrl::handleMouseDown(x, y, mask);
 }
 
-BOOL LLOutfitGalleryItem::handleRightMouseDown(S32 x, S32 y, MASK mask)
+bool LLOutfitGalleryItem::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
-    setFocus(TRUE);
+    setFocus(true);
     return LLUICtrl::handleRightMouseDown(x, y, mask);
 }
 
-BOOL LLOutfitGalleryItem::handleDoubleClick(S32 x, S32 y, MASK mask)
+bool LLOutfitGalleryItem::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
     return openOutfitsContent() || LLPanel::handleDoubleClick(x, y, mask);
 }
 
-BOOL LLOutfitGalleryItem::handleKeyHere(KEY key, MASK mask)
+bool LLOutfitGalleryItem::handleKeyHere(KEY key, MASK mask)
 {
     if (!mGallery)
     {
-        return FALSE;
+        return false;
     }
 
-    BOOL handled = FALSE;
+    bool handled = false;
     switch (key)
     {
         case KEY_LEFT:
@@ -1110,7 +1110,7 @@ bool LLOutfitGalleryItem::setImageAssetId(LLUUID image_asset_id)
     {
         mImageAssetId = image_asset_id;
         mTexturep = texture;
-        getChildView("preview_outfit")->setVisible(FALSE);
+        getChildView("preview_outfit")->setVisible(false);
         mDefaultImage = false;
         mImageUpdatePending = (texture->getDiscardLevel() == -1);
         return true;
@@ -1127,7 +1127,7 @@ void LLOutfitGalleryItem::setDefaultImage()
 {
     mTexturep = NULL;
     mImageAssetId.setNull();
-    getChildView("preview_outfit")->setVisible(TRUE);
+    getChildView("preview_outfit")->setVisible(true);
     mDefaultImage = true;
     mImageUpdatePending = false;
 }
@@ -1137,7 +1137,7 @@ LLContextMenu* LLOutfitGalleryContextMenu::createMenu()
     LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
     LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
     LLUUID selected_id = mUUIDs.front();
-    
+
     registrar.add("Outfit.WearReplace",
                   boost::bind(&LLAppearanceMgr::replaceCurrentOutfit, &LLAppearanceMgr::instance(), selected_id));
     registrar.add("Outfit.WearAdd",
@@ -1152,7 +1152,7 @@ LLContextMenu* LLOutfitGalleryContextMenu::createMenu()
     registrar.add("Outfit.Save", boost::bind(&LLOutfitGalleryContextMenu::onSave, this, selected_id));
     enable_registrar.add("Outfit.OnEnable", boost::bind(&LLOutfitGalleryContextMenu::onEnable, this, _2));
     enable_registrar.add("Outfit.OnVisible", boost::bind(&LLOutfitGalleryContextMenu::onVisible, this, _2));
-    
+
     return createFromFile("menu_gallery_outfit_tab.xml");
 }
 
@@ -1164,7 +1164,7 @@ void LLOutfitGalleryContextMenu::onCreate(const LLSD& data)
         LL_WARNS() << "Invalid wearable type" << LL_ENDL;
         return;
     }
-    
+
     LLAgentWearables::createWearable(type, true);
 }
 
@@ -1187,10 +1187,11 @@ void LLOutfitGalleryGearMenu::onUpdateItemsVisibility()
 {
     if (!mMenu) return;
     bool have_selection = getSelectedOutfitID().notNull();
-    mMenu->setItemVisible("expand", FALSE);
-    mMenu->setItemVisible("collapse", FALSE);
+    mMenu->setItemVisible("expand", false);
+    mMenu->setItemVisible("collapse", false);
     mMenu->setItemVisible("thumbnail", have_selection);
-    mMenu->setItemVisible("sort_folders_by_name", TRUE);
+    mMenu->setItemVisible("sepatator3", true);
+    mMenu->setItemVisible("sort_folders_by_name", true);
     LLOutfitListGearMenuBase::onUpdateItemsVisibility();
 }
 
@@ -1278,7 +1279,7 @@ void LLOutfitGallery::refreshOutfit(const LLUUID& category_id)
                         LLFloater* appearance_floater = LLFloaterReg::getInstance("appearance");
                         if (appearance_floater)
                         {
-                            appearance_floater->setFocus(TRUE);
+                            appearance_floater->setFocus(true);
                         }
                     }
                     if (item_name == LLAppearanceMgr::sExpectedTextureName)
@@ -1298,7 +1299,7 @@ void LLOutfitGallery::refreshOutfit(const LLUUID& category_id)
             mOutfitMap[category_id]->setImageAssetId(asset_id);
         }
     }
-    
+
     if (mGalleryCreated && !LLApp::isExiting())
     {
         reArrangeRows();

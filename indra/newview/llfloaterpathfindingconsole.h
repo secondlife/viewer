@@ -1,4 +1,4 @@
-/** 
+/**
 * @file   llfloaterpathfindingconsole.h
 * @brief  "Pathfinding console" floater, allowing for viewing and testing of the pathfinding navmesh through Havok AI utilities.
 * @author Stinson@lindenlab.com
@@ -50,171 +50,171 @@ class LLTextBase;
 class LLToolset;
 
 class LLFloaterPathfindingConsole
-:	public LLFloater
+:   public LLFloater
 {
-	friend class LLFloaterReg;
+    friend class LLFloaterReg;
 
 public:
-	virtual BOOL postBuild();
-	virtual void onOpen(const LLSD& pKey);
-	virtual void onClose(bool pIsAppQuitting);
+    virtual bool postBuild();
+    virtual void onOpen(const LLSD& pKey);
+    virtual void onClose(bool pIsAppQuitting);
 
-	static LLHandle<LLFloaterPathfindingConsole> getInstanceHandle();
+    static LLHandle<LLFloaterPathfindingConsole> getInstanceHandle();
 
-	BOOL isRenderNavMesh() const;
-	void setRenderNavMesh(BOOL pIsRenderNavMesh);
+    bool isRenderNavMesh() const;
+    void setRenderNavMesh(bool pIsRenderNavMesh);
 
-	BOOL isRenderWalkables() const;
-	void setRenderWalkables(BOOL pIsRenderWalkables);
+    bool isRenderWalkables() const;
+    void setRenderWalkables(bool pIsRenderWalkables);
 
-	BOOL isRenderStaticObstacles() const;
-	void setRenderStaticObstacles(BOOL pIsRenderStaticObstacles);
+    bool isRenderStaticObstacles() const;
+    void setRenderStaticObstacles(bool pIsRenderStaticObstacles);
 
-	BOOL isRenderMaterialVolumes() const;
-	void setRenderMaterialVolumes(BOOL pIsRenderMaterialVolumes);
+    bool isRenderMaterialVolumes() const;
+    void setRenderMaterialVolumes(bool pIsRenderMaterialVolumes);
 
-	BOOL isRenderExclusionVolumes() const;
-	void setRenderExclusionVolumes(BOOL pIsRenderExclusionVolumes);
+    bool isRenderExclusionVolumes() const;
+    void setRenderExclusionVolumes(bool pIsRenderExclusionVolumes);
 
-	BOOL isRenderWorld() const;
-	void setRenderWorld(BOOL pIsRenderWorld);
-	
-	BOOL isRenderWorldMovablesOnly() const;
-	void setRenderWorldMovablesOnly(BOOL pIsRenderWorldMovablesOnly);
+    bool isRenderWorld() const;
+    void setRenderWorld(bool pIsRenderWorld);
 
-	BOOL isRenderWaterPlane() const;
-	void setRenderWaterPlane(BOOL pIsRenderWaterPlane);
-	
-	BOOL isRenderXRay() const;
-	void setRenderXRay(BOOL pIsRenderXRay);
-	
-	BOOL isRenderAnyShapes() const;
-	U32  getRenderShapeFlags();
+    bool isRenderWorldMovablesOnly() const;
+    void setRenderWorldMovablesOnly(bool pIsRenderWorldMovablesOnly);
 
-	LLPathingLib::LLPLCharacterType getRenderHeatmapType() const;
-	void                            setRenderHeatmapType(LLPathingLib::LLPLCharacterType pRenderHeatmapType);
-	void onRegionBoundaryCross();
+    bool isRenderWaterPlane() const;
+    void setRenderWaterPlane(bool pIsRenderWaterPlane);
+
+    bool isRenderXRay() const;
+    void setRenderXRay(bool pIsRenderXRay);
+
+    bool isRenderAnyShapes() const;
+    U32  getRenderShapeFlags();
+
+    LLPathingLib::LLPLCharacterType getRenderHeatmapType() const;
+    void                            setRenderHeatmapType(LLPathingLib::LLPLCharacterType pRenderHeatmapType);
+    void onRegionBoundaryCross();
 protected:
 
 private:
-	typedef enum
-	{
-		kConsoleStateUnknown,
-		kConsoleStateLibraryNotImplemented,
-		kConsoleStateRegionNotEnabled,
-		kConsoleStateRegionLoading,
-		kConsoleStateCheckingVersion,
-		kConsoleStateDownloading,
-		kConsoleStateHasNavMesh,
-		kConsoleStateError
-	} EConsoleState;
+    typedef enum
+    {
+        kConsoleStateUnknown,
+        kConsoleStateLibraryNotImplemented,
+        kConsoleStateRegionNotEnabled,
+        kConsoleStateRegionLoading,
+        kConsoleStateCheckingVersion,
+        kConsoleStateDownloading,
+        kConsoleStateHasNavMesh,
+        kConsoleStateError
+    } EConsoleState;
 
-	// Does its own instance management, so clients not allowed
-	// to allocate or destroy.
-	LLFloaterPathfindingConsole(const LLSD& pSeed);
-	virtual ~LLFloaterPathfindingConsole();
+    // Does its own instance management, so clients not allowed
+    // to allocate or destroy.
+    LLFloaterPathfindingConsole(const LLSD& pSeed);
+    virtual ~LLFloaterPathfindingConsole();
 
-	void onTabSwitch();
-	void onShowWorldSet();
-	void onShowWorldMovablesOnlySet();
-	void onShowNavMeshSet();
-	void onShowWalkabilitySet();
-	void onCharacterWidthSet();
-	void onCharacterTypeSwitch();
-	void onClearPathClicked();
+    void onTabSwitch();
+    void onShowWorldSet();
+    void onShowWorldMovablesOnlySet();
+    void onShowNavMeshSet();
+    void onShowWalkabilitySet();
+    void onCharacterWidthSet();
+    void onCharacterTypeSwitch();
+    void onClearPathClicked();
 
-	void handleNavMeshZoneStatus(LLPathfindingNavMeshZone::ENavMeshZoneRequestStatus pNavMeshZoneRequestStatus);
-	
-	void onPathEvent();
+    void handleNavMeshZoneStatus(LLPathfindingNavMeshZone::ENavMeshZoneRequestStatus pNavMeshZoneRequestStatus);
 
-	void setDefaultInputs();
-	void setConsoleState(EConsoleState pConsoleState);
-	void setWorldRenderState();
-	void setNavMeshRenderState();
-	void updateRenderablesObjects();
+    void onPathEvent();
 
-	void updateControlsOnConsoleState();
-	void updateViewerStatusOnConsoleState();
-	void updateSimulatorStatusOnConsoleState();
+    void setDefaultInputs();
+    void setConsoleState(EConsoleState pConsoleState);
+    void setWorldRenderState();
+    void setNavMeshRenderState();
+    void updateRenderablesObjects();
 
-	void initializeNavMeshZoneForCurrentRegion();
+    void updateControlsOnConsoleState();
+    void updateViewerStatusOnConsoleState();
+    void updateSimulatorStatusOnConsoleState();
 
-	void switchIntoTestPathMode();
-	void switchOutOfTestPathMode();
-	void updateCharacterWidth();
-	void updateCharacterType();
-	void clearPath();
-	void updatePathTestStatus();
+    void initializeNavMeshZoneForCurrentRegion();
 
-	void registerSavedSettingsListeners();
-	void deregisterSavedSettingsListeners();
-	void handleRetrieveNeighborChange(LLControlVariable *pControl, const LLSD &pNewValue);
-	void handleNavMeshColorChange(LLControlVariable *pControl, const LLSD &pNewValue);
-	void fillInColorsForNavMeshVisualization();
-	void cleanupRenderableRestoreItems();
+    void switchIntoTestPathMode();
+    void switchOutOfTestPathMode();
+    void updateCharacterWidth();
+    void updateCharacterType();
+    void clearPath();
+    void updatePathTestStatus();
 
-	LLRootHandle<LLFloaterPathfindingConsole>     mSelfHandle;
-	LLTabContainer                                *mViewTestTabContainer;
-	LLPanel                                       *mViewTab;
-	LLTextBase                                    *mShowLabel;
-	LLCheckBoxCtrl                                *mShowWorldCheckBox;
-	LLCheckBoxCtrl                                *mShowWorldMovablesOnlyCheckBox;
-	LLCheckBoxCtrl                                *mShowNavMeshCheckBox;
-	LLTextBase                                    *mShowNavMeshWalkabilityLabel;
-	LLComboBox                                    *mShowNavMeshWalkabilityComboBox;
-	LLCheckBoxCtrl                                *mShowWalkablesCheckBox;
-	LLCheckBoxCtrl                                *mShowStaticObstaclesCheckBox;
-	LLCheckBoxCtrl                                *mShowMaterialVolumesCheckBox;
-	LLCheckBoxCtrl                                *mShowExclusionVolumesCheckBox;
-	LLCheckBoxCtrl								  *mShowRenderWaterPlaneCheckBox;
-	LLCheckBoxCtrl								  *mShowXRayCheckBox;
-	LLTextBase                                    *mPathfindingViewerStatus;
-	LLTextBase                                    *mPathfindingSimulatorStatus;
-	LLPanel                                       *mTestTab;
-	LLTextBase                                    *mCtrlClickLabel;
-	LLTextBase                                    *mShiftClickLabel;
-	LLTextBase                                    *mCharacterWidthLabel;
-	LLTextBase                                    *mCharacterWidthUnitLabel;
-	LLSliderCtrl                                  *mCharacterWidthSlider;
-	LLTextBase                                    *mCharacterTypeLabel;
-	LLComboBox                                    *mCharacterTypeComboBox;
-	LLTextBase                                    *mPathTestingStatus;
-	LLButton                                      *mClearPathButton;
+    void registerSavedSettingsListeners();
+    void deregisterSavedSettingsListeners();
+    void handleRetrieveNeighborChange(LLControlVariable *pControl, const LLSD &pNewValue);
+    void handleNavMeshColorChange(LLControlVariable *pControl, const LLSD &pNewValue);
+    void fillInColorsForNavMeshVisualization();
+    void cleanupRenderableRestoreItems();
 
-	LLColor4                                      mErrorColor;
-	LLColor4                                      mWarningColor;
+    LLRootHandle<LLFloaterPathfindingConsole>     mSelfHandle;
+    LLTabContainer                                *mViewTestTabContainer;
+    LLPanel                                       *mViewTab;
+    LLTextBase                                    *mShowLabel;
+    LLCheckBoxCtrl                                *mShowWorldCheckBox;
+    LLCheckBoxCtrl                                *mShowWorldMovablesOnlyCheckBox;
+    LLCheckBoxCtrl                                *mShowNavMeshCheckBox;
+    LLTextBase                                    *mShowNavMeshWalkabilityLabel;
+    LLComboBox                                    *mShowNavMeshWalkabilityComboBox;
+    LLCheckBoxCtrl                                *mShowWalkablesCheckBox;
+    LLCheckBoxCtrl                                *mShowStaticObstaclesCheckBox;
+    LLCheckBoxCtrl                                *mShowMaterialVolumesCheckBox;
+    LLCheckBoxCtrl                                *mShowExclusionVolumesCheckBox;
+    LLCheckBoxCtrl                                *mShowRenderWaterPlaneCheckBox;
+    LLCheckBoxCtrl                                *mShowXRayCheckBox;
+    LLTextBase                                    *mPathfindingViewerStatus;
+    LLTextBase                                    *mPathfindingSimulatorStatus;
+    LLPanel                                       *mTestTab;
+    LLTextBase                                    *mCtrlClickLabel;
+    LLTextBase                                    *mShiftClickLabel;
+    LLTextBase                                    *mCharacterWidthLabel;
+    LLTextBase                                    *mCharacterWidthUnitLabel;
+    LLSliderCtrl                                  *mCharacterWidthSlider;
+    LLTextBase                                    *mCharacterTypeLabel;
+    LLComboBox                                    *mCharacterTypeComboBox;
+    LLTextBase                                    *mPathTestingStatus;
+    LLButton                                      *mClearPathButton;
 
-	LLPathfindingNavMeshZone::navmesh_zone_slot_t mNavMeshZoneSlot;
-	LLPathfindingNavMeshZone                      mNavMeshZone;
-	bool                                          mIsNavMeshUpdating;
+    LLColor4                                      mErrorColor;
+    LLColor4                                      mWarningColor;
 
-	boost::signals2::connection                   mRegionBoundarySlot;
-	boost::signals2::connection                   mTeleportFailedSlot;
-	LLPathfindingPathTool::path_event_slot_t      mPathEventSlot;
+    LLPathfindingNavMeshZone::navmesh_zone_slot_t mNavMeshZoneSlot;
+    LLPathfindingNavMeshZone                      mNavMeshZone;
+    bool                                          mIsNavMeshUpdating;
 
-	LLToolset                                     *mPathfindingToolset;
-	LLToolset                                     *mSavedToolset;
+    boost::signals2::connection                   mRegionBoundarySlot;
+    boost::signals2::connection                   mTeleportFailedSlot;
+    LLPathfindingPathTool::path_event_slot_t      mPathEventSlot;
 
-	boost::signals2::connection                   mSavedSettingRetrieveNeighborSlot;
-	boost::signals2::connection                   mSavedSettingWalkableSlot;
-	boost::signals2::connection                   mSavedSettingStaticObstacleSlot;
-	boost::signals2::connection                   mSavedSettingMaterialVolumeSlot;
-	boost::signals2::connection                   mSavedSettingExclusionVolumeSlot;
-	boost::signals2::connection                   mSavedSettingInteriorEdgeSlot;
-	boost::signals2::connection                   mSavedSettingExteriorEdgeSlot;
-	boost::signals2::connection                   mSavedSettingHeatmapMinSlot;
-	boost::signals2::connection                   mSavedSettingHeatmapMaxSlot;
-	boost::signals2::connection                   mSavedSettingNavMeshFaceSlot;
-	boost::signals2::connection                   mSavedSettingTestPathValidEndSlot;
-	boost::signals2::connection                   mSavedSettingTestPathInvalidEndSlot;
-	boost::signals2::connection                   mSavedSettingTestPathSlot;
-	boost::signals2::connection                   mSavedSettingWaterSlot;
+    LLToolset                                     *mPathfindingToolset;
+    LLToolset                                     *mSavedToolset;
 
-	EConsoleState                                 mConsoleState;
- 
-	std::vector<U32>							  mRenderableRestoreList;
+    boost::signals2::connection                   mSavedSettingRetrieveNeighborSlot;
+    boost::signals2::connection                   mSavedSettingWalkableSlot;
+    boost::signals2::connection                   mSavedSettingStaticObstacleSlot;
+    boost::signals2::connection                   mSavedSettingMaterialVolumeSlot;
+    boost::signals2::connection                   mSavedSettingExclusionVolumeSlot;
+    boost::signals2::connection                   mSavedSettingInteriorEdgeSlot;
+    boost::signals2::connection                   mSavedSettingExteriorEdgeSlot;
+    boost::signals2::connection                   mSavedSettingHeatmapMinSlot;
+    boost::signals2::connection                   mSavedSettingHeatmapMaxSlot;
+    boost::signals2::connection                   mSavedSettingNavMeshFaceSlot;
+    boost::signals2::connection                   mSavedSettingTestPathValidEndSlot;
+    boost::signals2::connection                   mSavedSettingTestPathInvalidEndSlot;
+    boost::signals2::connection                   mSavedSettingTestPathSlot;
+    boost::signals2::connection                   mSavedSettingWaterSlot;
 
-	static LLHandle<LLFloaterPathfindingConsole>  sInstanceHandle;
+    EConsoleState                                 mConsoleState;
+
+    std::vector<U32>                              mRenderableRestoreList;
+
+    static LLHandle<LLFloaterPathfindingConsole>  sInstanceHandle;
 };
 
 #endif // LL_LLFLOATERPATHFINDINGCONSOLE_H

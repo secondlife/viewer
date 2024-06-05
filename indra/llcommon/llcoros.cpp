@@ -61,6 +61,23 @@
 #include <excpt.h>
 #endif
 
+// static 
+bool LLCoros::on_main_coro()
+{
+    if (!LLCoros::instanceExists() || LLCoros::getName().empty())
+    {
+        return true;
+    }
+    
+    return false;
+}
+
+// static
+bool LLCoros::on_main_thread_main_coro()
+{
+    return on_main_coro() && on_main_thread();
+}
+
 // static
 LLCoros::CoroData& LLCoros::get_CoroData(const std::string& caller)
 {
@@ -123,7 +140,7 @@ LLCoros::LLCoros():
     // Previously we used
     // boost::context::guarded_stack_allocator::default_stacksize();
     // empirically this is insufficient.
-    mStackSize(900*1024),
+    mStackSize(1024*1024),
     // mCurrent does NOT own the current CoroData instance -- it simply
     // points to it. So initialize it with a no-op deleter.
     mCurrent{ [](CoroData*){} }

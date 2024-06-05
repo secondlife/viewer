@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llavatarjoint.cpp
  * @brief Implementation of LLAvatarJoint class
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -40,16 +40,16 @@ const F32 DEFAULT_AVATAR_JOINT_LOD = 0.0f;
 //-----------------------------------------------------------------------------
 // Static Data
 //-----------------------------------------------------------------------------
-BOOL					LLAvatarJoint::sDisableLOD = FALSE;
+bool                    LLAvatarJoint::sDisableLOD = false;
 
 //-----------------------------------------------------------------------------
 // LLAvatarJoint()
 // Class Constructors
 //-----------------------------------------------------------------------------
 LLAvatarJoint::LLAvatarJoint() :
-	LLJoint()
+    LLJoint()
 {
-	init();
+    init();
 }
 
 LLAvatarJoint::LLAvatarJoint(S32 joint_num) :
@@ -57,22 +57,22 @@ LLAvatarJoint::LLAvatarJoint(S32 joint_num) :
 {
     init();
 }
-    
+
 LLAvatarJoint::LLAvatarJoint(const std::string &name, LLJoint *parent) :
-	LLJoint(name, parent)
+    LLJoint(name, parent)
 {
-	init();
+    init();
 }
 
 void LLAvatarJoint::init()
 {
-	mValid = FALSE;
-	mComponents = SC_JOINT | SC_BONE | SC_AXES;
-	mMinPixelArea = DEFAULT_AVATAR_JOINT_LOD;
-	mPickName = PN_DEFAULT;
-	mVisible = TRUE;
-	mMeshID = 0;
-	mIsTransparent = FALSE;
+    mValid = false;
+    mComponents = SC_JOINT | SC_BONE | SC_AXES;
+    mMinPixelArea = DEFAULT_AVATAR_JOINT_LOD;
+    mPickName = PN_DEFAULT;
+    mVisible = true;
+    mMeshID = 0;
+    mIsTransparent = false;
 }
 
 
@@ -88,133 +88,133 @@ LLAvatarJoint::~LLAvatarJoint()
 //--------------------------------------------------------------------
 // setValid()
 //--------------------------------------------------------------------
-void LLAvatarJoint::setValid( BOOL valid, BOOL recursive )
+void LLAvatarJoint::setValid( bool valid, bool recursive )
 {
-	//----------------------------------------------------------------
-	// set visibility for this joint
-	//----------------------------------------------------------------
-	mValid = valid;
-	
-	//----------------------------------------------------------------
-	// set visibility for children
-	//----------------------------------------------------------------
-	if (recursive)
-	{
-		for (LLJoint* child : mChildren)
-		{
-			LLAvatarJoint* joint = static_cast<LLAvatarJoint*>(child);
-			joint->setValid(valid, TRUE);
-		}
-	}
+    //----------------------------------------------------------------
+    // set visibility for this joint
+    //----------------------------------------------------------------
+    mValid = valid;
+
+    //----------------------------------------------------------------
+    // set visibility for children
+    //----------------------------------------------------------------
+    if (recursive)
+    {
+        for (LLJoint* child : mChildren)
+        {
+            LLAvatarJoint* joint = static_cast<LLAvatarJoint*>(child);
+            joint->setValid(valid, true);
+        }
+    }
 
 }
 
 //--------------------------------------------------------------------
 // setSkeletonComponents()
 //--------------------------------------------------------------------
-void LLAvatarJoint::setSkeletonComponents( U32 comp, BOOL recursive )
+void LLAvatarJoint::setSkeletonComponents( U32 comp, bool recursive )
 {
-	mComponents = comp;
-	if (recursive)
-	{
-		for (auto child : mChildren)
-		{
-			LLAvatarJoint* joint = static_cast<LLAvatarJoint*>(child);
-			joint->setSkeletonComponents(comp, recursive);
-		}
-	}
+    mComponents = comp;
+    if (recursive)
+    {
+        for (auto child : mChildren)
+        {
+            LLAvatarJoint* joint = static_cast<LLAvatarJoint*>(child);
+            joint->setSkeletonComponents(comp, recursive);
+        }
+    }
 }
 
-void LLAvatarJoint::setVisible(BOOL visible, BOOL recursive)
+void LLAvatarJoint::setVisible(bool visible, bool recursive)
 {
-	mVisible = visible;
+    mVisible = visible;
 
-	if (recursive)
-	{
-		for (LLJoint* child : mChildren)
-		{
-			LLAvatarJoint* joint = static_cast<LLAvatarJoint*>(child);
-			joint->setVisible(visible, recursive);
-		}
-	}
+    if (recursive)
+    {
+        for (LLJoint* child : mChildren)
+        {
+            LLAvatarJoint* joint = static_cast<LLAvatarJoint*>(child);
+            joint->setVisible(visible, recursive);
+        }
+    }
 }
 
 void LLAvatarJoint::updateFaceSizes(U32 &num_vertices, U32& num_indices, F32 pixel_area)
 {
-	for (LLJoint* child : mChildren)
-	{
-		LLAvatarJoint* joint = static_cast<LLAvatarJoint*>(child);
-		joint->updateFaceSizes(num_vertices, num_indices, pixel_area);
-	}
+    for (LLJoint* child : mChildren)
+    {
+        LLAvatarJoint* joint = static_cast<LLAvatarJoint*>(child);
+        joint->updateFaceSizes(num_vertices, num_indices, pixel_area);
+    }
 }
 
-void LLAvatarJoint::updateFaceData(LLFace *face, F32 pixel_area, BOOL damp_wind, bool terse_update)
+void LLAvatarJoint::updateFaceData(LLFace *face, F32 pixel_area, bool damp_wind, bool terse_update)
 {
-	for (LLJoint* child : mChildren)
-	{
-		LLAvatarJoint* joint = static_cast<LLAvatarJoint*>(child);
-		joint->updateFaceData(face, pixel_area, damp_wind, terse_update);
-	}
+    for (LLJoint* child : mChildren)
+    {
+        LLAvatarJoint* joint = static_cast<LLAvatarJoint*>(child);
+        joint->updateFaceData(face, pixel_area, damp_wind, terse_update);
+    }
 }
 
 void LLAvatarJoint::updateJointGeometry()
 {
-	for (LLJoint* child : mChildren)
-	{
-		LLAvatarJoint* joint = static_cast<LLAvatarJoint*>(child);
-		joint->updateJointGeometry();
-	}
+    for (LLJoint* child : mChildren)
+    {
+        LLAvatarJoint* joint = static_cast<LLAvatarJoint*>(child);
+        joint->updateJointGeometry();
+    }
 }
 
 
-BOOL LLAvatarJoint::updateLOD(F32 pixel_area, BOOL activate)
+bool LLAvatarJoint::updateLOD(F32 pixel_area, bool activate)
 {
-	BOOL lod_changed = FALSE;
-	BOOL found_lod = FALSE;
+    bool lod_changed = false;
+    bool found_lod = false;
 
-	for (LLJoint* child : mChildren)
-	{
-		LLAvatarJoint* joint = static_cast<LLAvatarJoint*>(child);
-		F32 jointLOD = joint->getLOD();
-		
-		if (found_lod || jointLOD == DEFAULT_AVATAR_JOINT_LOD)
-		{
-			// we've already found a joint to enable, so enable the rest as alternatives
-			lod_changed |= joint->updateLOD(pixel_area, TRUE);
-		}
-		else
-		{
-			if (pixel_area >= jointLOD || sDisableLOD)
-			{
-				lod_changed |= joint->updateLOD(pixel_area, TRUE);
-				found_lod = TRUE;
-			}
-			else
-			{
-				lod_changed |= joint->updateLOD(pixel_area, FALSE);
-			}
-		}
-	}
-	return lod_changed;
+    for (LLJoint* child : mChildren)
+    {
+        LLAvatarJoint* joint = static_cast<LLAvatarJoint*>(child);
+        F32 jointLOD = joint->getLOD();
+
+        if (found_lod || jointLOD == DEFAULT_AVATAR_JOINT_LOD)
+        {
+            // we've already found a joint to enable, so enable the rest as alternatives
+            lod_changed |= joint->updateLOD(pixel_area, true);
+        }
+        else
+        {
+            if (pixel_area >= jointLOD || sDisableLOD)
+            {
+                lod_changed |= joint->updateLOD(pixel_area, true);
+                found_lod = true;
+            }
+            else
+            {
+                lod_changed |= joint->updateLOD(pixel_area, false);
+            }
+        }
+    }
+    return lod_changed;
 }
 
 void LLAvatarJoint::dump()
 {
-	for (LLJoint* child : mChildren)
-	{
-		LLAvatarJoint* joint = static_cast<LLAvatarJoint*>(child);
-		joint->dump();
-	}
+    for (LLJoint* child : mChildren)
+    {
+        LLAvatarJoint* joint = static_cast<LLAvatarJoint*>(child);
+        joint->dump();
+    }
 }
 
 
 void LLAvatarJoint::setMeshesToChildren()
 {
-	removeAllChildren();
-	for (LLAvatarJointMesh* mesh : mMeshParts)
-	{
-		addChild(mesh);
-	}
+    removeAllChildren();
+    for (LLAvatarJointMesh* mesh : mMeshParts)
+    {
+        addChild(mesh);
+    }
 }
 //-----------------------------------------------------------------------------
 // LLAvatarJointCollisionVolume()
@@ -222,94 +222,94 @@ void LLAvatarJoint::setMeshesToChildren()
 
 LLAvatarJointCollisionVolume::LLAvatarJointCollisionVolume()
 {
-	mUpdateXform = FALSE;
+    mUpdateXform = false;
 }
 
 /*virtual*/
-U32 LLAvatarJointCollisionVolume::render( F32 pixelArea, BOOL first_pass, BOOL is_dummy )
+U32 LLAvatarJointCollisionVolume::render( F32 pixelArea, bool first_pass, bool is_dummy )
 {
-	LL_ERRS() << "Cannot call render() on LLAvatarJointCollisionVolume" << LL_ENDL;
-	return 0;
+    LL_ERRS() << "Cannot call render() on LLAvatarJointCollisionVolume" << LL_ENDL;
+    return 0;
 }
 
 LLVector3 LLAvatarJointCollisionVolume::getVolumePos(LLVector3 &offset)
 {
-	mUpdateXform = TRUE;
-	
-	LLVector3 result = offset;
-	result.scaleVec(getScale());
-	result.rotVec(getWorldRotation());
-	result += getWorldPosition();
+    mUpdateXform = true;
 
-	return result;
+    LLVector3 result = offset;
+    result.scaleVec(getScale());
+    result.rotVec(getWorldRotation());
+    result += getWorldPosition();
+
+    return result;
 }
 
 void LLAvatarJointCollisionVolume::renderCollision()
 {
-	updateWorldMatrix();
-	
-	gGL.pushMatrix();
-	gGL.multMatrix( &mXform.getWorldMatrix().mMatrix[0][0] );
+    updateWorldMatrix();
 
-	gGL.diffuseColor3f( 0.f, 0.f, 1.f );
-	
-	gGL.begin(LLRender::LINES);
-	
-	LLVector3 v[] = 
-	{
-		LLVector3(1,0,0),
-		LLVector3(-1,0,0),
-		LLVector3(0,1,0),
-		LLVector3(0,-1,0),
+    gGL.pushMatrix();
+    gGL.multMatrix( &mXform.getWorldMatrix().mMatrix[0][0] );
 
-		LLVector3(0,0,-1),
-		LLVector3(0,0,1),
-	};
+    gGL.diffuseColor3f( 0.f, 0.f, 1.f );
 
-	//sides
-	gGL.vertex3fv(v[0].mV); 
-	gGL.vertex3fv(v[2].mV);
+    gGL.begin(LLRender::LINES);
 
-	gGL.vertex3fv(v[0].mV); 
-	gGL.vertex3fv(v[3].mV);
+    LLVector3 v[] =
+    {
+        LLVector3(1,0,0),
+        LLVector3(-1,0,0),
+        LLVector3(0,1,0),
+        LLVector3(0,-1,0),
 
-	gGL.vertex3fv(v[1].mV); 
-	gGL.vertex3fv(v[2].mV);
+        LLVector3(0,0,-1),
+        LLVector3(0,0,1),
+    };
 
-	gGL.vertex3fv(v[1].mV); 
-	gGL.vertex3fv(v[3].mV);
+    //sides
+    gGL.vertex3fv(v[0].mV);
+    gGL.vertex3fv(v[2].mV);
 
+    gGL.vertex3fv(v[0].mV);
+    gGL.vertex3fv(v[3].mV);
 
-	//top
-	gGL.vertex3fv(v[0].mV); 
-	gGL.vertex3fv(v[4].mV);
+    gGL.vertex3fv(v[1].mV);
+    gGL.vertex3fv(v[2].mV);
 
-	gGL.vertex3fv(v[1].mV); 
-	gGL.vertex3fv(v[4].mV);
-
-	gGL.vertex3fv(v[2].mV); 
-	gGL.vertex3fv(v[4].mV);
-
-	gGL.vertex3fv(v[3].mV); 
-	gGL.vertex3fv(v[4].mV);
+    gGL.vertex3fv(v[1].mV);
+    gGL.vertex3fv(v[3].mV);
 
 
-	//bottom
-	gGL.vertex3fv(v[0].mV); 
-	gGL.vertex3fv(v[5].mV);
+    //top
+    gGL.vertex3fv(v[0].mV);
+    gGL.vertex3fv(v[4].mV);
 
-	gGL.vertex3fv(v[1].mV); 
-	gGL.vertex3fv(v[5].mV);
+    gGL.vertex3fv(v[1].mV);
+    gGL.vertex3fv(v[4].mV);
 
-	gGL.vertex3fv(v[2].mV); 
-	gGL.vertex3fv(v[5].mV);
+    gGL.vertex3fv(v[2].mV);
+    gGL.vertex3fv(v[4].mV);
 
-	gGL.vertex3fv(v[3].mV); 
-	gGL.vertex3fv(v[5].mV);
+    gGL.vertex3fv(v[3].mV);
+    gGL.vertex3fv(v[4].mV);
 
-	gGL.end();
 
-	gGL.popMatrix();
+    //bottom
+    gGL.vertex3fv(v[0].mV);
+    gGL.vertex3fv(v[5].mV);
+
+    gGL.vertex3fv(v[1].mV);
+    gGL.vertex3fv(v[5].mV);
+
+    gGL.vertex3fv(v[2].mV);
+    gGL.vertex3fv(v[5].mV);
+
+    gGL.vertex3fv(v[3].mV);
+    gGL.vertex3fv(v[5].mV);
+
+    gGL.end();
+
+    gGL.popMatrix();
 }
 
 

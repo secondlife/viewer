@@ -6,21 +6,21 @@
  * $LicenseInfo:firstyear=2009&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -38,13 +38,13 @@
 // Stub for LLAvatarNameCache
 bool LLAvatarNameCache::get(const LLUUID& agent_id, LLAvatarName *av_name)
 {
-	return false;
+    return false;
 }
 
 LLAvatarNameCache::callback_connection_t LLAvatarNameCache::get(const LLUUID& agent_id, callback_slot_t slot)
 {
-	callback_connection_t connection;
-	return connection;
+    callback_connection_t connection;
+    return connection;
 }
 
 //
@@ -52,24 +52,24 @@ LLAvatarNameCache::callback_connection_t LLAvatarNameCache::get(const LLUUID& ag
 //
 BOOL LLCacheName::getFullName(const LLUUID& id, std::string& fullname)
 {
-	fullname = "Lynx Linden";
-	return TRUE;
+    fullname = "Lynx Linden";
+    return TRUE;
 }
 
 BOOL LLCacheName::getGroupName(const LLUUID& id, std::string& group)
 {
-	group = "My Group";
-	return TRUE;
+    group = "My Group";
+    return TRUE;
 }
 
 boost::signals2::connection LLCacheName::get(const LLUUID& id, bool is_group, const LLCacheNameCallback& callback)
 {
-	return boost::signals2::connection();
+    return boost::signals2::connection();
 }
 
 boost::signals2::connection LLCacheName::getGroup(const LLUUID& id, const LLCacheNameCallback& callback)
 {
-	return boost::signals2::connection();
+    return boost::signals2::connection();
 }
 
 LLCacheName* gCacheName = NULL;
@@ -80,12 +80,12 @@ LLCacheName* gCacheName = NULL;
 class LLTrans
 {
 public:
-	static std::string getString(const std::string &xml_desc, const LLStringUtil::format_map_t& args);
+    static std::string getString(const std::string &xml_desc, const LLStringUtil::format_map_t& args);
 };
 
 std::string LLTrans::getString(const std::string &xml_desc, const LLStringUtil::format_map_t& args)
 {
-	return std::string();
+    return std::string();
 }
 
 //
@@ -102,65 +102,65 @@ LLStyle::Params::Params()
 
 namespace LLInitParam
 {
-	ParamValue<LLUIColor>::ParamValue(const LLUIColor& color)
-	:	super_t(color)
-	{}
+    ParamValue<LLUIColor>::ParamValue(const LLUIColor& color)
+    :   super_t(color)
+    {}
 
-	void ParamValue<LLUIColor>::updateValueFromBlock() 
-	{}
-	
-	void ParamValue<LLUIColor>::updateBlockFromValue(bool)
-	{}
+    void ParamValue<LLUIColor>::updateValueFromBlock()
+    {}
 
-	bool ParamCompare<const LLFontGL*, false>::equals(const LLFontGL* a, const LLFontGL* b)
-	{
-		return false;
-	}
+    void ParamValue<LLUIColor>::updateBlockFromValue(bool)
+    {}
 
-	ParamValue<const LLFontGL*>::ParamValue(const LLFontGL* fontp)
-	:	super_t(fontp)
-	{}
+    bool ParamCompare<const LLFontGL*, false>::equals(const LLFontGL* a, const LLFontGL* b)
+    {
+        return false;
+    }
 
-	void ParamValue<const LLFontGL*>::updateValueFromBlock()
-	{}
-	
-	void ParamValue<const LLFontGL*>::updateBlockFromValue(bool)
-	{}
+    ParamValue<const LLFontGL*>::ParamValue(const LLFontGL* fontp)
+    :   super_t(fontp)
+    {}
 
-	void TypeValues<LLFontGL::HAlign>::declareValues()
-	{}
+    void ParamValue<const LLFontGL*>::updateValueFromBlock()
+    {}
 
-	void TypeValues<LLFontGL::VAlign>::declareValues()
-	{}
+    void ParamValue<const LLFontGL*>::updateBlockFromValue(bool)
+    {}
 
-	void TypeValues<LLFontGL::ShadowType>::declareValues()
-	{}
+    void TypeValues<LLFontGL::HAlign>::declareValues()
+    {}
 
-	void ParamValue<LLUIImage*>::updateValueFromBlock()
-	{}
-	
-	void ParamValue<LLUIImage*>::updateBlockFromValue(bool)
-	{}
+    void TypeValues<LLFontGL::VAlign>::declareValues()
+    {}
 
-	
-	bool ParamCompare<LLUIImage*, false>::equals(
-		LLUIImage* const &a,
-		LLUIImage* const &b)
-	{
-		return false;
-	}
+    void TypeValues<LLFontGL::ShadowType>::declareValues()
+    {}
 
-	bool ParamCompare<LLUIColor, false>::equals(const LLUIColor &a, const LLUIColor &b)
-	{
-		return false;
-	}
+    void ParamValue<LLUIImage*>::updateValueFromBlock()
+    {}
+
+    void ParamValue<LLUIImage*>::updateBlockFromValue(bool)
+    {}
+
+
+    bool ParamCompare<LLUIImage*, false>::equals(
+        LLUIImage* const &a,
+        LLUIImage* const &b)
+    {
+        return false;
+    }
+
+    bool ParamCompare<LLUIColor, false>::equals(const LLUIColor &a, const LLUIColor &b)
+    {
+        return false;
+    }
 
 }
 
 //static
 LLFontGL* LLFontGL::getFontDefault()
 {
-	return NULL; 
+    return NULL;
 }
 
 char const* const _PREHASH_AgentData = (char *)"AgentData";

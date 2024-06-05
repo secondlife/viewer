@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llfloatereditextdaycycle.cpp
  * @brief Floater to create or edit a day cycle
  *
  * $LicenseInfo:firstyear=2011&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2011, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -203,7 +203,7 @@ LLFloaterEditExtDayCycle::~LLFloaterEditExtDayCycle()
 }
 
 // virtual
-BOOL LLFloaterEditExtDayCycle::postBuild()
+bool LLFloaterEditExtDayCycle::postBuild()
 {
     getChild<LLLineEditor>(TXT_DAY_NAME)->setKeystrokeCallback(boost::bind(&LLFloaterEditExtDayCycle::onCommitName, this, _1, _2), NULL);
 
@@ -242,11 +242,11 @@ BOOL LLFloaterEditExtDayCycle::postBuild()
 
     mTimeSlider->addSlider(0);
 
-    LLTabContainer* tab_container = mSkyTabLayoutContainer->getChild<LLTabContainer>("sky_tabs"); 
+    LLTabContainer* tab_container = mSkyTabLayoutContainer->getChild<LLTabContainer>("sky_tabs");
     S32 tab_count = tab_container->getTabCount();
 
     LLSettingsEditPanel *panel = nullptr;
-    
+
     for (S32 idx = 0; idx < tab_count; ++idx)
     {
         panel = static_cast<LLSettingsEditPanel *>(tab_container->getPanelByIndex(idx));
@@ -264,7 +264,7 @@ BOOL LLFloaterEditExtDayCycle::postBuild()
             panel->setOnDirtyFlagChanged([this](LLPanel *, bool val) { onPanelDirtyFlagChanged(val); });
     }
 
-	return TRUE;
+    return true;
 }
 
 void LLFloaterEditExtDayCycle::onOpen(const LLSD& key)
@@ -327,7 +327,7 @@ void LLFloaterEditExtDayCycle::onOpen(const LLSD& key)
         LLUIString formatted_label = getString("time_label");
         for (int i = 0; i < max_elm; i++)
         {
-            total = ((mDayLength / (max_elm - 1)) * i); 
+            total = ((mDayLength / (max_elm - 1)) * i);
             hrs = total;
             minutes = total - hrs;
 
@@ -423,7 +423,7 @@ void LLFloaterEditExtDayCycle::onClose(bool app_quitting)
 }
 
 
-void LLFloaterEditExtDayCycle::onVisibilityChange(BOOL new_visibility)
+void LLFloaterEditExtDayCycle::onVisibilityChange(bool new_visibility)
 {
 }
 
@@ -534,7 +534,7 @@ void LLFloaterEditExtDayCycle::setEditName(const std::string &name)
 }
 
 /* virtual */
-BOOL LLFloaterEditExtDayCycle::handleKeyUp(KEY key, MASK mask, BOOL called_from_parent)
+bool LLFloaterEditExtDayCycle::handleKeyUp(KEY key, MASK mask, bool called_from_parent)
 {
     if (!mEditDay)
     {
@@ -890,7 +890,7 @@ void LLFloaterEditExtDayCycle::onFrameSliderCallback(const LLSD &data)
         keymap_t::iterator it = mSliderKeyMap.find(curslider);
         if (it != mSliderKeyMap.end())
         {
-            if (gKeyboard->currentMask(TRUE) == MASK_SHIFT && mShiftCopyEnabled && mCanMod)
+            if (gKeyboard->currentMask(true) == MASK_SHIFT && mShiftCopyEnabled && mCanMod)
             {
                 // don't move the point/frame as long as shift is pressed and user is attempting to copy
                 // handleKeyUp will do the move if user releases key too early.
@@ -961,7 +961,7 @@ void LLFloaterEditExtDayCycle::onFrameSliderMouseDown(S32 x, S32 y, MASK mask)
 
     std::string slidername = mFramesSlider->getCurSlider();
 
-    mShiftCopyEnabled = !slidername.empty() && gKeyboard->currentMask(TRUE) == MASK_SHIFT;
+    mShiftCopyEnabled = !slidername.empty() && gKeyboard->currentMask(true) == MASK_SHIFT;
 
     if (!slidername.empty())
     {
@@ -1017,7 +1017,7 @@ void LLFloaterEditExtDayCycle::cloneTrack(const LLSettingsDay::ptr_t &source_day
 
     // don't use replaceCycleTrack because we will end up with references, but we need to clone
 
-    // hold on to a backup of the 
+    // hold on to a backup of the
     LLSettingsDay::CycleTrack_t backup_track = mEditDay->getCycleTrack(dest_index);
 
     mEditDay->clearCycleTrack(dest_index); // because source can be empty
@@ -1098,7 +1098,7 @@ void LLFloaterEditExtDayCycle::selectFrame(F32 frame, F32 slop_factor)
                 }
             }
             mFramesSlider->setCurSlider(iter->first);
-            frame = iter->second.mFrame;  
+            frame = iter->second.mFrame;
             break;
         }
         iter++;
@@ -1213,7 +1213,7 @@ void LLFloaterEditExtDayCycle::updateButtons()
     mDeleteFrameButton->setEnabled(can_manipulate && isRemovingFrameAllowed());
     mLoadFrame->setEnabled(can_manipulate);
 
-    BOOL enable_play = mEditDay ? TRUE : FALSE;
+    bool enable_play = (bool)mEditDay;
     childSetEnabled(BTN_PLAY, enable_play);
     childSetEnabled(BTN_SKIP_BACK, enable_play);
     childSetEnabled(BTN_SKIP_FORWARD, enable_play);
@@ -1269,7 +1269,7 @@ void LLFloaterEditExtDayCycle::updateTimeAndLabel()
     {
         LLUIString formatted_label = getString("time_label");
 
-        LLSettingsDay::Seconds total = (mDayLength  * time); 
+        LLSettingsDay::Seconds total = (mDayLength  * time);
         S32Hours hrs = total;
         S32Minutes minutes = total - hrs;
 
@@ -1327,7 +1327,7 @@ void LLFloaterEditExtDayCycle::removeCurrentSliderFrame()
 
 void LLFloaterEditExtDayCycle::removeSliderFrame(F32 frame)
 {
-    keymap_t::iterator it = std::find_if(mSliderKeyMap.begin(), mSliderKeyMap.end(), 
+    keymap_t::iterator it = std::find_if(mSliderKeyMap.begin(), mSliderKeyMap.end(),
         [frame](const keymap_t::value_type &value) { return fabs(value.second.mFrame - frame) < LLSettingsDay::DEFAULT_FRAME_SLOP_FACTOR; });
 
     if (it != mSliderKeyMap.end())
@@ -1401,7 +1401,7 @@ void LLFloaterEditExtDayCycle::synchronizeTabs()
 
         getChild<LLUICtrl>(ICN_LOCK_EDIT)->setVisible(!canedit);
     }
-    else 
+    else
     {
         psettingW = mScratchWater;
     }
@@ -1538,7 +1538,7 @@ void LLFloaterEditExtDayCycle::loadSettingFromFile(const std::vector<std::string
     LLSettingsDay::ptr_t legacyday = LLEnvironment::createDayCycleFromLegacyPreset(filename, messages);
 
     if (!legacyday)
-    {   
+    {
         LLNotificationsUtil::add("WLImportFail", messages);
         return;
     }
@@ -1562,8 +1562,8 @@ void LLFloaterEditExtDayCycle::startPlay()
     gIdleCallbacks.addFunction(onIdlePlay, this);
     mPlayStartFrame = mTimeSlider->getCurSliderValue();
 
-    getChild<LLView>("play_layout", true)->setVisible(FALSE);
-    getChild<LLView>("pause_layout", true)->setVisible(TRUE);
+    getChild<LLView>("play_layout", true)->setVisible(false);
+    getChild<LLView>("pause_layout", true)->setVisible(true);
 }
 
 void LLFloaterEditExtDayCycle::stopPlay()
@@ -1577,8 +1577,8 @@ void LLFloaterEditExtDayCycle::stopPlay()
     F32 frame = mTimeSlider->getCurSliderValue();
     selectFrame(frame, LLSettingsDay::DEFAULT_FRAME_SLOP_FACTOR);
 
-    getChild<LLView>("play_layout", true)->setVisible(TRUE);
-    getChild<LLView>("pause_layout", true)->setVisible(FALSE);
+    getChild<LLView>("play_layout", true)->setVisible(true);
+    getChild<LLView>("pause_layout", true)->setVisible(false);
 }
 
 //static
@@ -1698,7 +1698,7 @@ void LLFloaterEditExtDayCycle::doOpenInventoryFloater(LLSettingsType::type_e typ
         picker->setTrackMode(LLFloaterSettingsPicker::TRACK_NONE);
     }
     picker->openFloater();
-    picker->setFocus(TRUE);
+    picker->setFocus(true);
 }
 
 void LLFloaterEditExtDayCycle::onPickerCommitSetting(LLUUID item_id, S32 track)
@@ -1726,7 +1726,7 @@ void LLFloaterEditExtDayCycle::showHDRNotification(const LLSettingsDay::ptr_t &p
             LLSettingsSky::ptr_t sky = std::static_pointer_cast<LLSettingsSky>(iter->second);
             if (sky
                 && sky->canAutoAdjust()
-                && sky->getReflectionProbeAmbiance(true) != 0.f) 
+                && sky->getReflectionProbeAmbiance(true) != 0.f)
             {
                 LLNotificationsUtil::add("AutoAdjustHDRSky");
                 return;
@@ -1849,6 +1849,6 @@ void LLFloaterEditExtDayCycle::onAssetLoadedForInsertion(LLUUID item_id, LLUUID 
             return;
         }
     }
-    
+
     cb();
 }

@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llfloaterscriptdebug.cpp
  * @brief Chat window for showing script errors and warnings
  *
  * $LicenseInfo:firstyear=2006&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -53,11 +53,11 @@
 LLFloaterScriptDebug::LLFloaterScriptDebug(const LLSD& key)
   : LLMultiFloater(key)
 {
-	// avoid resizing of the window to match 
-	// the initial size of the tabbed-childs, whenever a tab is opened or closed
-	mAutoResize = FALSE;
-	// enabled autocous blocks controling focus via  LLFloaterReg::showInstance
-	setAutoFocus(FALSE);
+    // avoid resizing of the window to match
+    // the initial size of the tabbed-childs, whenever a tab is opened or closed
+    mAutoResize = false;
+    // enabled autocous blocks controling focus via  LLFloaterReg::showInstance
+    setAutoFocus(false);
 }
 
 LLFloaterScriptDebug::~LLFloaterScriptDebug()
@@ -66,113 +66,113 @@ LLFloaterScriptDebug::~LLFloaterScriptDebug()
 
 void LLFloaterScriptDebug::show(const LLUUID& object_id)
 {
-	addOutputWindow(object_id);
+    addOutputWindow(object_id);
 }
 
-BOOL LLFloaterScriptDebug::postBuild()
+bool LLFloaterScriptDebug::postBuild()
 {
-	LLMultiFloater::postBuild();
+    LLMultiFloater::postBuild();
 
-	if (mTabContainer)
-	{
-		return TRUE;
-	}
+    if (mTabContainer)
+    {
+        return true;
+    }
 
-	return FALSE;
+    return false;
 }
 
-void LLFloaterScriptDebug::setVisible(BOOL visible)
+void LLFloaterScriptDebug::setVisible(bool visible)
 {
-	if(visible)
-	{
-		LLFloaterScriptDebugOutput* floater_output = LLFloaterReg::findTypedInstance<LLFloaterScriptDebugOutput>("script_debug_output", LLUUID::null);
-		if (floater_output == NULL)
-		{
-			floater_output = dynamic_cast<LLFloaterScriptDebugOutput*>(LLFloaterReg::showInstance("script_debug_output", LLUUID::null, FALSE));
-			if (floater_output)
-			{
-				addFloater(floater_output, false);
-			}
-		}
+    if(visible)
+    {
+        LLFloaterScriptDebugOutput* floater_output = LLFloaterReg::findTypedInstance<LLFloaterScriptDebugOutput>("script_debug_output", LLUUID::null);
+        if (floater_output == NULL)
+        {
+            floater_output = dynamic_cast<LLFloaterScriptDebugOutput*>(LLFloaterReg::showInstance("script_debug_output", LLUUID::null, false));
+            if (floater_output)
+            {
+                addFloater(floater_output, false);
+            }
+        }
 
-	}
-	LLMultiFloater::setVisible(visible);
+    }
+    LLMultiFloater::setVisible(visible);
 }
 
 void LLFloaterScriptDebug::closeFloater(bool app_quitting/* = false*/)
 {
-	if(app_quitting)
-	{
-		LLMultiFloater::closeFloater(app_quitting);
-	}
-	else
-	{
-		setVisible(false);
-	}
+    if(app_quitting)
+    {
+        LLMultiFloater::closeFloater(app_quitting);
+    }
+    else
+    {
+        setVisible(false);
+    }
 }
 
 LLFloater* LLFloaterScriptDebug::addOutputWindow(const LLUUID &object_id)
 {
-	LLMultiFloater* host = LLFloaterReg::showTypedInstance<LLMultiFloater>("script_debug", LLSD());
-	if (!host)
-		return NULL;
+    LLMultiFloater* host = LLFloaterReg::showTypedInstance<LLMultiFloater>("script_debug", LLSD());
+    if (!host)
+        return NULL;
 
-	LLFloater::setFloaterHost(host);
-	// prevent stealing focus, see EXT-8040
-	LLFloater* floaterp = LLFloaterReg::showInstance("script_debug_output", object_id, FALSE);
-	LLFloater::setFloaterHost(NULL);
+    LLFloater::setFloaterHost(host);
+    // prevent stealing focus, see EXT-8040
+    LLFloater* floaterp = LLFloaterReg::showInstance("script_debug_output", object_id, false);
+    LLFloater::setFloaterHost(NULL);
 
-	return floaterp;
+    return floaterp;
 }
 
 void LLFloaterScriptDebug::addScriptLine(const std::string &utf8mesg, const std::string &user_name, const LLColor4& color, const LLUUID& source_id)
 {
-	LLViewerObject* objectp = gObjectList.findObject(source_id);
-	std::string floater_label;
+    LLViewerObject* objectp = gObjectList.findObject(source_id);
+    std::string floater_label;
 
-	// Handle /me messages.
-	std::string prefix = utf8mesg.substr(0, 4);
-	std::string message = (prefix == "/me " || prefix == "/me'") ? user_name + utf8mesg.substr(3) : utf8mesg;
+    // Handle /me messages.
+    std::string prefix = utf8mesg.substr(0, 4);
+    std::string message = (prefix == "/me " || prefix == "/me'") ? user_name + utf8mesg.substr(3) : utf8mesg;
 
-	if (objectp)
-	{
-		if(objectp->isHUDAttachment())
-		{
-			if (isAgentAvatarValid())
-			{
-				((LLViewerObject*)gAgentAvatarp)->setIcon(LLViewerTextureManager::getFetchedTextureFromFile("script_error.j2c", FTT_LOCAL_FILE, TRUE, LLGLTexture::BOOST_UI));
-			}
-		}
-		else
-		{
-			objectp->setIcon(LLViewerTextureManager::getFetchedTextureFromFile("script_error.j2c", FTT_LOCAL_FILE, TRUE, LLGLTexture::BOOST_UI));
-		}
-		floater_label = llformat("%s(%.0f, %.0f, %.0f)",
-						user_name.c_str(),
-						objectp->getPositionRegion().mV[VX],
-						objectp->getPositionRegion().mV[VY],
-						objectp->getPositionRegion().mV[VZ]);
-	}
-	else
-	{
-		floater_label = user_name;
-	}
+    if (objectp)
+    {
+        if(objectp->isHUDAttachment())
+        {
+            if (isAgentAvatarValid())
+            {
+                ((LLViewerObject*)gAgentAvatarp)->setIcon(LLViewerTextureManager::getFetchedTextureFromFile("script_error.j2c", FTT_LOCAL_FILE, true, LLGLTexture::BOOST_UI));
+            }
+        }
+        else
+        {
+            objectp->setIcon(LLViewerTextureManager::getFetchedTextureFromFile("script_error.j2c", FTT_LOCAL_FILE, true, LLGLTexture::BOOST_UI));
+        }
+        floater_label = llformat("%s(%.0f, %.0f, %.0f)",
+                        user_name.c_str(),
+                        objectp->getPositionRegion().mV[VX],
+                        objectp->getPositionRegion().mV[VY],
+                        objectp->getPositionRegion().mV[VZ]);
+    }
+    else
+    {
+        floater_label = user_name;
+    }
 
-	addOutputWindow(source_id);
+    addOutputWindow(source_id);
 
-	// add to "All" floater
-	LLFloaterScriptDebugOutput* floaterp = 	LLFloaterReg::getTypedInstance<LLFloaterScriptDebugOutput>("script_debug_output", LLUUID::null);
-	if (floaterp)
-	{
-		floaterp->addLine(message, user_name, color);
-	}
-	
-	// add to specific script instance floater
-	floaterp = LLFloaterReg::getTypedInstance<LLFloaterScriptDebugOutput>("script_debug_output", source_id);
-	if (floaterp)
-	{
-		floaterp->addLine(message, floater_label, color);
-	}
+    // add to "All" floater
+    LLFloaterScriptDebugOutput* floaterp =  LLFloaterReg::getTypedInstance<LLFloaterScriptDebugOutput>("script_debug_output", LLUUID::null);
+    if (floaterp)
+    {
+        floaterp->addLine(message, user_name, color);
+    }
+
+    // add to specific script instance floater
+    floaterp = LLFloaterReg::getTypedInstance<LLFloaterScriptDebugOutput>("script_debug_output", source_id);
+    if (floaterp)
+    {
+        floaterp->addLine(message, floater_label, color);
+    }
 }
 
 //
@@ -181,17 +181,17 @@ void LLFloaterScriptDebug::addScriptLine(const std::string &utf8mesg, const std:
 
 LLFloaterScriptDebugOutput::LLFloaterScriptDebugOutput(const LLSD& object_id)
   : LLFloater(LLSD(object_id)),
-	mObjectID(object_id.asUUID())
+    mObjectID(object_id.asUUID())
 {
-	// enabled autocous blocks controling focus via  LLFloaterReg::showInstance
-	setAutoFocus(FALSE);
+    // enabled autocous blocks controling focus via  LLFloaterReg::showInstance
+    setAutoFocus(false);
 }
 
-BOOL LLFloaterScriptDebugOutput::postBuild()
+bool LLFloaterScriptDebugOutput::postBuild()
 {
-	LLFloater::postBuild();
-	mHistoryEditor = getChild<LLViewerTextEditor>("Chat History Editor");
-	return TRUE;
+    LLFloater::postBuild();
+    mHistoryEditor = getChild<LLViewerTextEditor>("Chat History Editor");
+    return true;
 }
 
 LLFloaterScriptDebugOutput::~LLFloaterScriptDebugOutput()
@@ -200,18 +200,18 @@ LLFloaterScriptDebugOutput::~LLFloaterScriptDebugOutput()
 
 void LLFloaterScriptDebugOutput::addLine(const std::string &utf8mesg, const std::string &user_name, const LLColor4& color)
 {
-	if (mObjectID.isNull())
-	{
-		setCanTearOff(FALSE);
-		setCanClose(FALSE);
-	}
-	else
-	{
-		setTitle(user_name);
-		setShortTitle(user_name);
-	}
+    if (mObjectID.isNull())
+    {
+        setCanTearOff(false);
+        setCanClose(false);
+    }
+    else
+    {
+        setTitle(user_name);
+        setShortTitle(user_name);
+    }
 
-	mHistoryEditor->appendText(utf8mesg, true, LLStyle::Params().color(color));
-	mHistoryEditor->blockUndo();
+    mHistoryEditor->appendText(utf8mesg, true, LLStyle::Params().color(color));
+    mHistoryEditor->blockUndo();
 }
 

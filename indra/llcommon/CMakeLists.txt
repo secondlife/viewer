@@ -3,13 +3,11 @@
 project(llcommon)
 
 include(00-Common)
-include(ICU4C)
 include(LLCommon)
 include(bugsplat)
 include(Linking)
 include(Boost)
 include(LLSharedLibs)
-include(JsonCpp)
 include(Copy3rdPartyLibs)
 include(ZLIBNG)
 include(URIPARSER)
@@ -195,6 +193,7 @@ set(llcommon_HEADER_FILES
     llmetrics.h
     llmetricperformancetester.h
     llmortician.h
+    llmutex.h
     llnametable.h
     llpointer.h
     llprofiler.h
@@ -277,13 +276,11 @@ target_link_libraries(
         llcommon
         ll::apr
         ll::expat
-        ll::jsoncpp
         ll::zlib-ng
         ll::boost
         ll::uriparser
         ll::oslibraries
         ll::tracy
-        ll::icu4c
     )
 
 target_include_directories(llcommon INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})

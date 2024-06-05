@@ -5,21 +5,21 @@
  * $LicenseInfo:firstyear=2009&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -31,11 +31,6 @@
 #include <boost/function.hpp>
 
 #include "llsingleton.h"
-
-namespace Json
-{
-    class Value;
-}
 
 class LLTranslationAPIHandler;
 /**
@@ -52,30 +47,30 @@ class LLTranslationAPIHandler;
  */
 class LLTranslate: public LLSingleton<LLTranslate>
 {
-	LLSINGLETON(LLTranslate);
-	~LLTranslate();
-	LOG_CLASS(LLTranslate);
+    LLSINGLETON(LLTranslate);
+    ~LLTranslate();
+    LOG_CLASS(LLTranslate);
 
 public :
 
-	typedef enum e_service {
-		SERVICE_AZURE,
-		SERVICE_GOOGLE,
-		SERVICE_DEEPL,
-	} EService;
+    typedef enum e_service {
+        SERVICE_AZURE,
+        SERVICE_GOOGLE,
+        SERVICE_DEEPL,
+    } EService;
 
     typedef boost::function<void(EService, bool, S32)> KeyVerificationResult_fn;
     typedef boost::function<void(std::string , std::string )> TranslationSuccess_fn;
     typedef boost::function<void(int, std::string)> TranslationFailure_fn;
 
-	/**
-	 * Translate given text.
-	 *
-	 * @param receiver   Object to pass translation result to.
-	 * @param from_lang  Source language. Leave empty for auto-detection.
-	 * @param to_lang    Target language.
-	 * @param mesg       Text to translate.
-	 */
+    /**
+     * Translate given text.
+     *
+     * @param receiver   Object to pass translation result to.
+     * @param from_lang  Source language. Leave empty for auto-detection.
+     * @param to_lang    Target language.
+     * @param mesg       Text to translate.
+     */
     static void translateMessage(const std::string &from_lang, const std::string &to_lang, const std::string &mesg, TranslationSuccess_fn success, TranslationFailure_fn failure);
 
     /**
@@ -86,32 +81,32 @@ public :
      */
     static void verifyKey(EService service, const LLSD &key, KeyVerificationResult_fn fnc);
 
-	/**
-	 * @return translation target language
-	 */
-	static std::string getTranslateLanguage();
+    /**
+     * @return translation target language
+     */
+    static std::string getTranslateLanguage();
 
-	/**
-	 * @return true if translation is configured properly.
-	 */
-	static bool isTranslationConfigured();
+    /**
+     * @return true if translation is configured properly.
+     */
+    static bool isTranslationConfigured();
 
     static std::string addNoTranslateTags(std::string mesg);
     static std::string removeNoTranslateTags(std::string mesg);
 
-	void logCharsSeen(size_t count);
-	void logCharsSent(size_t count);
-	void logSuccess(S32 count);
-	void logFailure(S32 count);
-	LLSD asLLSD() const;
+    void logCharsSeen(size_t count);
+    void logCharsSent(size_t count);
+    void logSuccess(S32 count);
+    void logFailure(S32 count);
+    LLSD asLLSD() const;
 private:
-	static LLTranslationAPIHandler& getPreferredHandler();
-	static LLTranslationAPIHandler& getHandler(EService service);
+    static LLTranslationAPIHandler& getPreferredHandler();
+    static LLTranslationAPIHandler& getHandler(EService service);
 
-	size_t mCharsSeen;
-	size_t mCharsSent;
-	S32 mFailureCount;
-	S32 mSuccessCount;
+    size_t mCharsSeen;
+    size_t mCharsSent;
+    S32 mFailureCount;
+    S32 mSuccessCount;
 };
 
 #endif

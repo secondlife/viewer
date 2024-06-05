@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llchatitemscontainerctrl.h
  * @brief chat history scrolling panel implementation
  *
  * $LicenseInfo:firstyear=2004&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -37,61 +37,61 @@ class LLChatMsgBox;
 
 typedef enum e_show_item_header
 {
-	CHATITEMHEADER_SHOW_ONLY_NAME = 0,
-	CHATITEMHEADER_SHOW_ONLY_ICON = 1,
-	CHATITEMHEADER_SHOW_BOTH
+    CHATITEMHEADER_SHOW_ONLY_NAME = 0,
+    CHATITEMHEADER_SHOW_ONLY_ICON = 1,
+    CHATITEMHEADER_SHOW_BOTH
 } EShowItemHeader;
 
 class LLFloaterIMNearbyChatToastPanel : public LLPanel
 {
 protected:
         LLFloaterIMNearbyChatToastPanel()
-		: 
-	mIsDirty(false),
-	mSourceType(CHAT_SOURCE_OBJECT)
-	{};
+        :
+    mIsDirty(false),
+    mSourceType(CHAT_SOURCE_OBJECT)
+    {};
 public:
-	~LLFloaterIMNearbyChatToastPanel(){}
-	
-	static LLFloaterIMNearbyChatToastPanel* createInstance();
+    ~LLFloaterIMNearbyChatToastPanel(){}
 
-	const LLUUID& getFromID() const { return mFromID;}
-	const std::string& getFromName() const { return mFromName; }
-	
-	//void	addText		(const std::string& message ,  const LLStyle::Params& input_params = LLStyle::Params());
-	//void	setMessage	(const LLChat& msg);
-	void	snapToMessageHeight	();
+    static LLFloaterIMNearbyChatToastPanel* createInstance();
 
-	bool	canAddText	();
+    const LLUUID& getFromID() const { return mFromID;}
+    const std::string& getFromName() const { return mFromName; }
 
-	void	onMouseLeave	(S32 x, S32 y, MASK mask);
-	void	onMouseEnter	(S32 x, S32 y, MASK mask);
-	BOOL	handleMouseDown	(S32 x, S32 y, MASK mask);
-	BOOL	handleMouseUp	(S32 x, S32 y, MASK mask);
+    //void  addText     (const std::string& message ,  const LLStyle::Params& input_params = LLStyle::Params());
+    //void  setMessage  (const LLChat& msg);
+    void    snapToMessageHeight ();
 
-	virtual BOOL postBuild();
+    bool    canAddText  ();
 
-	void	reshape		(S32 width, S32 height, BOOL called_from_parent = TRUE);
+    void    onMouseLeave    (S32 x, S32 y, MASK mask);
+    void    onMouseEnter    (S32 x, S32 y, MASK mask);
+    bool    handleMouseDown (S32 x, S32 y, MASK mask);
+    bool    handleMouseUp   (S32 x, S32 y, MASK mask);
 
-	void	setHeaderVisibility(EShowItemHeader e);
-	BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask);
+    virtual bool postBuild();
 
-	virtual void init(LLSD& data);
-	virtual void addMessage(LLSD& data);
+    void    reshape     (S32 width, S32 height, bool called_from_parent = true);
 
-	virtual void draw();
+    void    setHeaderVisibility(EShowItemHeader e);
+    bool    handleRightMouseDown(S32 x, S32 y, MASK mask);
 
-	//*TODO REMOVE, why a dup of getFromID?
-	const LLUUID&	messageID() const { return mFromID;}
+    virtual void init(LLSD& data);
+    virtual void addMessage(LLSD& data);
+
+    virtual void draw();
+
+    //*TODO REMOVE, why a dup of getFromID?
+    const LLUUID&   messageID() const { return mFromID;}
 private:
-	LLUUID			mFromID;	// agent id or object id
-	std::string		mFromName;
-	EChatSourceType	mSourceType;
-	LLChatMsgBox* 	mMsgText;
-	
+    LLUUID          mFromID;    // agent id or object id
+    std::string     mFromName;
+    EChatSourceType mSourceType;
+    LLChatMsgBox*   mMsgText;
 
 
-	bool mIsDirty;
+
+    bool mIsDirty;
 };
 
 

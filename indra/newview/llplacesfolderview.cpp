@@ -1,4 +1,4 @@
-/** 
+/**
 * @file llplacesfolderview.cpp
 * @brief llplacesfolderview used within llplacesinventorypanel
 * @author Gilbert@lindenlab.com
@@ -39,10 +39,10 @@ LLPlacesFolderView::LLPlacesFolderView(const LLFolderView::Params& p)
     // we do not need auto select functionality in places landmarks, so override default behavior.
     // this disables applying of the LLSelectFirstFilteredItem in LLFolderView::doIdle.
     // Fixed issues: EXT-1631, EXT-4994.
-    mAutoSelectOverride = TRUE;
+    mAutoSelectOverride = true;
 }
 
-BOOL LLPlacesFolderView::handleRightMouseDown(S32 x, S32 y, MASK mask)
+bool LLPlacesFolderView::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
     // let children to change selection first
     childrenHandleRightMouseDown(x, y, mask);
@@ -70,12 +70,12 @@ BOOL LLPlacesFolderView::handleRightMouseDown(S32 x, S32 y, MASK mask)
 
 void LLPlacesFolderView::updateMenu()
 {
-	LLFolderView::updateMenu();
-	LLMenuGL* menu = (LLMenuGL*)mPopupMenuHandle.get();
-	if (menu && menu->getVisible())
-	{
-		mParentLandmarksPanel->updateMenuVisibility(menu);
-	}
+    LLFolderView::updateMenu();
+    LLMenuGL* menu = (LLMenuGL*)mPopupMenuHandle.get();
+    if (menu && menu->getVisible())
+    {
+        mParentLandmarksPanel->updateMenuVisibility(menu);
+    }
 }
 
 void LLPlacesFolderView::setupMenuHandle(LLInventoryType::EType asset_type, LLHandle<LLView> menu_handle)

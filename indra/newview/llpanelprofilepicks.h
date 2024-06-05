@@ -50,7 +50,7 @@ public:
     LLPanelProfilePicks();
     /*virtual*/ ~LLPanelProfilePicks();
 
-    BOOL postBuild() override;
+    bool postBuild() override;
 
     void onOpen(const LLSD& key) override;
 
@@ -58,7 +58,7 @@ public:
     void selectPick(const LLUUID& pick_id);
 
     void processProperties(void* data, EAvatarProcessorType type) override;
-    void processProperties(const LLAvatarPicks* avatar_picks);
+    void processProperties(const LLAvatarData* avatar_picks);
 
     void resetData() override;
 
@@ -76,8 +76,6 @@ public:
 
     bool hasUnsavedChanges() override;
     void commitUnsavedChanges() override;
-
-    friend void request_avatar_properties_coro(std::string cap_url, LLUUID agent_id);
 
 private:
     void onClickNewBtn();
@@ -110,7 +108,7 @@ public:
 
     /*virtual*/ ~LLPanelProfilePick();
 
-    BOOL postBuild() override;
+    bool postBuild() override;
 
     void setAvatarId(const LLUUID& avatar_id) override;
 
@@ -126,7 +124,7 @@ public:
     /**
      * Returns true if any of Pick properties was changed by user.
      */
-    BOOL isDirty() const override;
+    bool isDirty() const override;
 
     /**
      * Saves changes.
@@ -184,7 +182,7 @@ public:
     /**
      * Enables/disables "Save" button
      */
-    void enableSaveButton(BOOL enable);
+    void enableSaveButton(bool enable);
 
     /**
      * Called when snapshot image changes.

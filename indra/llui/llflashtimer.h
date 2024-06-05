@@ -34,41 +34,41 @@ class LLFlashTimer : public LLEventTimer
 {
 public:
 
-	typedef boost::function<void (bool)> callback_t;
+    typedef boost::function<void (bool)> callback_t;
 
-	/**
-	 * Constructor.
-	 *
-	 * @param count - how many times callback should be called (twice to not change original state)
-	 * @param period - how frequently callback should be called
-	 * @param cb - callback to be called each tick
-	 */
-	LLFlashTimer(callback_t cb = NULL, S32 count = 0, F32 period = 0.0);
-	~LLFlashTimer() {};
+    /**
+     * Constructor.
+     *
+     * @param count - how many times callback should be called (twice to not change original state)
+     * @param period - how frequently callback should be called
+     * @param cb - callback to be called each tick
+     */
+    LLFlashTimer(callback_t cb = NULL, S32 count = 0, F32 period = 0.0);
+    ~LLFlashTimer() {};
 
-	/*virtual*/ BOOL tick();
+    /*virtual*/ bool tick();
 
-	void startFlashing();
-	void stopFlashing();
+    void startFlashing();
+    void stopFlashing();
 
-	bool isFlashingInProgress();
-	bool isCurrentlyHighlighted();
-	/*
-	 * Use this instead of deleting this object.
-	 * The next call to tick() will return true and that will destroy this object.
-	 */
-	void unset();
+    bool isFlashingInProgress();
+    bool isCurrentlyHighlighted();
+    /*
+     * Use this instead of deleting this object.
+     * The next call to tick() will return true and that will destroy this object.
+     */
+    void unset();
 
 private:
-	callback_t		mCallback;
-	/**
-	 * How many times parent will blink.
-	 */
-	S32 mFlashCount;
-	S32 mCurrentTickCount;
-	bool mIsCurrentlyHighlighted;
-	bool mIsFlashingInProgress;
-	bool mUnset;
+    callback_t      mCallback;
+    /**
+     * How many times parent will blink.
+     */
+    S32 mFlashCount;
+    S32 mCurrentTickCount;
+    bool mIsCurrentlyHighlighted;
+    bool mIsFlashingInProgress;
+    bool mUnset;
 };
 
 #endif /* LL_FLASHTIMER_H */

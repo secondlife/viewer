@@ -36,51 +36,51 @@ class LLConversation;
  * This class is a visual representation of LLConversation, each of which is LLConversationLog entry.
  * LLConversationLogList consists of these LLConversationLogListItems.
  * LLConversationLogListItem consists of:
- *		conversaion_type_icon
- *		conversaion_name
- *		conversaion_date
+ *      conversaion_type_icon
+ *      conversaion_name
+ *      conversaion_date
  * Also LLConversationLogListItem holds pointer to its LLConversationLog.
  */
 
 class LLConversationLogListItem : public LLPanel
 {
 public:
-	LLConversationLogListItem(const LLConversation* conversation);
-	virtual ~LLConversationLogListItem();
+    LLConversationLogListItem(const LLConversation* conversation);
+    virtual ~LLConversationLogListItem();
 
-	void onMouseEnter(S32 x, S32 y, MASK mask);
-	void onMouseLeave(S32 x, S32 y, MASK mask);
+    void onMouseEnter(S32 x, S32 y, MASK mask);
+    void onMouseLeave(S32 x, S32 y, MASK mask);
 
-	virtual void setValue(const LLSD& value);
+    virtual void setValue(const LLSD& value);
 
-	virtual BOOL postBuild();
+    virtual bool postBuild();
 
-	void onIMFloaterShown(const LLUUID& session_id);
-	void onRemoveBtnClicked();
+    void onIMFloaterShown(const LLUUID& session_id);
+    void onRemoveBtnClicked();
 
-	const LLConversation* getConversation() const { return mConversation; }
+    const LLConversation* getConversation() const { return mConversation; }
 
-	void highlightNameDate(const std::string& highlited_text);
+    void highlightNameDate(const std::string& highlited_text);
 
-	void onDoubleClick();
+    void onDoubleClick();
 
-	/**
-	 * updates string value of last interaction time from conversation
-	 */
-	void updateTimestamp();
-	void updateName();
-	void updateOfflineIMs();
+    /**
+     * updates string value of last interaction time from conversation
+     */
+    void updateTimestamp();
+    void updateName();
+    void updateOfflineIMs();
 
 private:
 
-	void initIcons();
+    void initIcons();
 
-	const LLConversation* mConversation;
+    const LLConversation* mConversation;
 
-	LLTextBox*		mConversationName;
-	LLTextBox*		mConversationDate;
+    LLTextBox*      mConversationName;
+    LLTextBox*      mConversationDate;
 
-	boost::signals2::connection mIMFloaterShowedConnection;
+    boost::signals2::connection mIMFloaterShowedConnection;
 };
 
 #endif /* LLCONVERSATIONLOGITEM_H_ */

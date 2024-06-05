@@ -16,11 +16,8 @@ include(CubemapToEquirectangularJS)
 include(DBusGlib)
 include(DragDrop)
 include(EXPAT)
-include(FMODSTUDIO)
 include(Hunspell)
-include(ICU4C)
 include(JPEGEncoderBasic)
-include(JsonCpp)
 include(LLAppearance)
 include(LLAudio)
 include(LLCA)
@@ -38,6 +35,7 @@ include(OpenGL)
 include(OpenSSL)
 include(PNG)
 include(TemplateCheck)
+include(TinyEXR)
 include(ThreeJS)
 include(Tracy)
 include(UI)
@@ -72,8 +70,12 @@ if (NOT HAVOK_TPV)
    endif()
 endif (NOT HAVOK_TPV)
 
-
 set(viewer_SOURCE_FILES
+    gltfscenemanager.cpp
+    gltf/asset.cpp
+    gltf/accessor.cpp
+    gltf/primitive.cpp
+    gltf/animation.cpp
     groupchatlistener.cpp
     llaccountingcostmanager.cpp
     llaisapi.cpp
@@ -106,7 +108,6 @@ set(viewer_SOURCE_FILES
     llblockedlistitem.cpp
     llblocklist.cpp
     llbox.cpp
-    llbreadcrumbview.cpp
     llbrowsernotification.cpp
     llbuycurrencyhtml.cpp
     llcallingcard.cpp
@@ -313,6 +314,7 @@ set(viewer_SOURCE_FILES
     llgiveinventory.cpp
     llglsandbox.cpp
     llgltfmateriallist.cpp
+    llgltfmaterialpreviewmgr.cpp
     llgroupactions.cpp
     llgroupiconctrl.cpp
     llgrouplist.cpp
@@ -361,7 +363,6 @@ set(viewer_SOURCE_FILES
     lllandmarkactions.cpp
     lllandmarklist.cpp
     lllegacyatmospherics.cpp
-    lllistbrowser.cpp
     lllistcontextmenu.cpp
     lllistview.cpp
     lllocalbitmaps.cpp
@@ -523,10 +524,10 @@ set(viewer_SOURCE_FILES
     llrecentpeople.cpp
     llreflectionmap.cpp
     llreflectionmapmanager.cpp
+    llheroprobemanager.cpp
     llregioninfomodel.cpp
     llregionposition.cpp
     llremoteparcelrequest.cpp
-    llsavedsettingsglue.cpp
     llsaveoutfitcombobtn.cpp
     llscenemonitor.cpp
     llsceneview.cpp
@@ -623,7 +624,6 @@ set(viewer_SOURCE_FILES
     llurlhistory.cpp
     llurllineeditorctrl.cpp
     llurlwhitelist.cpp
-    llvectorperfoptions.cpp
     llversioninfo.cpp
     llviewchildren.cpp
     llviewerassetstats.cpp
@@ -726,7 +726,13 @@ set(VIEWER_BINARY_NAME "secondlife-bin" CACHE STRING
 set(viewer_HEADER_FILES
     CMakeLists.txt
     ViewerInstall.cmake
+    gltfscenemanager.h
     groupchatlistener.h
+    gltf/asset.h
+    gltf/accessor.h
+    gltf/buffer_util.h
+    gltf/primitive.h
+    gltf/animation.h
     llaccountingcost.h
     llaccountingcostmanager.h
     llaisapi.h
@@ -760,7 +766,6 @@ set(viewer_HEADER_FILES
     llblockedlistitem.h
     llblocklist.h
     llbox.h
-    llbreadcrumbview.h
     llbuycurrencyhtml.h
     llcallingcard.h
     llcapabilityprovider.h
@@ -969,6 +974,7 @@ set(viewer_HEADER_FILES
     llgesturemgr.h
     llgiveinventory.h
     llgltfmateriallist.h
+    llgltfmaterialpreviewmgr.h
     llgroupactions.h
     llgroupiconctrl.h
     llgrouplist.h
@@ -1016,7 +1022,6 @@ set(viewer_HEADER_FILES
     lllandmarkactions.h
     lllandmarklist.h
     lllightconstants.h
-    lllistbrowser.h
     lllistcontextmenu.h
     lllistview.h
     lllocalbitmaps.h
@@ -1165,12 +1170,12 @@ set(viewer_HEADER_FILES
     llrecentpeople.h
     llreflectionmap.h
     llreflectionmapmanager.h
+    llheroprobemanager.h
     llregioninfomodel.h
     llregionposition.h
     llremoteparcelrequest.h
     llresourcedata.h
     llrootview.h
-    llsavedsettingsglue.h
     llsaveoutfitcombobtn.h
     llscenemonitor.h
     llsceneview.h
@@ -1271,7 +1276,6 @@ set(viewer_HEADER_FILES
     llurlhistory.h
     llurllineeditorctrl.h
     llurlwhitelist.h
-    llvectorperfoptions.h
     llversioninfo.h
     llviewchildren.h
     llviewerassetstats.h
@@ -1363,7 +1367,6 @@ set(viewer_HEADER_FILES
     llworldmapview.h
     llxmlrpclistener.h
     llxmlrpctransaction.h
-    macmain.h
     noise.h
     pipeline.h
     roles_constants.h
@@ -1412,7 +1415,6 @@ if (DARWIN)
   # Add resource files to the project.
   set(viewer_RESOURCE_FILES
     secondlife.icns
-    macview.r
     Info-SecondLife.plist
     SecondLife.xib/
     # CMake doesn't seem to support Xcode language variants well just yet
@@ -1601,6 +1603,8 @@ set(viewer_APPSETTINGS_FILES
     app_settings/autoreplace.xml
     app_settings/cmd_line.xml
     app_settings/commands.xml
+    app_settings/emoji_groups.xml
+    app_settings/foldertypes.xml
     app_settings/grass.xml
     app_settings/ignorable_dialogs.xml
     app_settings/key_bindings.xml
@@ -1742,13 +1746,6 @@ if (WINDOWS)
                )
     endif (ADDRESS_SIZE EQUAL 64)
 
-    if (TARGET ll::fmodstudio)
-      list(APPEND COPY_INPUT_DEPENDENCIES
-           ${SHARED_LIB_STAGING_DIR}/fmod.dll
-           ${SHARED_LIB_STAGING_DIR}/fmodL.dll
-          )
-    endif ()
-
     if (TARGET ll::openal)
       list(APPEND COPY_INPUT_DEPENDENCIES
            ${SHARED_LIB_STAGING_DIR}/OpenAL32.dll
@@ -1765,7 +1762,6 @@ if (WINDOWS)
         --arch=${ARCH}
         --artwork=${ARTWORK_DIR}
         "--bugsplat=${BUGSPLAT_DB}"
-        "--fmodstudio=${USE_FMODSTUDIO}"
         "--openal=${USE_OPENAL}"
         --build=${CMAKE_CURRENT_BINARY_DIR}
         --buildtype=$<CONFIG>
@@ -1825,7 +1821,6 @@ if (WINDOWS)
               --arch=${ARCH}
               --artwork=${ARTWORK_DIR}
               "--bugsplat=${BUGSPLAT_DB}"
-              "--fmodstudio=${USE_FMODSTUDIO}"
               "--openal=${USE_OPENAL}"
               --build=${CMAKE_CURRENT_BINARY_DIR}
               --buildtype=$<CONFIG>
@@ -1916,7 +1911,6 @@ target_link_libraries(${VIEWER_BINARY_NAME}
         ${LLPHYSICSEXTENSIONS_LIBRARIES}
         ll::bugsplat
         ll::tracy
-        ll::icu4c
         )
 
 if( TARGET ll::intel_memops )
@@ -1975,7 +1969,6 @@ if (LINUX)
         --arch=${ARCH}
         --artwork=${ARTWORK_DIR}
         "--bugsplat=${BUGSPLAT_DB}"
-        "--fmodstudio=${USE_FMODSTUDIO}"
         "--openal=${USE_OPENAL}"
         --build=${CMAKE_CURRENT_BINARY_DIR}
         --buildtype=${CMAKE_BUILD_TYPE}
@@ -2003,7 +1996,6 @@ if (LINUX)
       --arch=${ARCH}
       --artwork=${ARTWORK_DIR}
       "--bugsplat=${BUGSPLAT_DB}"
-      "--fmodstudio=${USE_FMODSTUDIO}"
       "--openal=${USE_OPENAL}"
       --build=${CMAKE_CURRENT_BINARY_DIR}
       --buildtype=${CMAKE_BUILD_TYPE}
@@ -2081,7 +2073,6 @@ if (DARWIN)
       --arch=${ARCH}
       --artwork=${ARTWORK_DIR}
       "--bugsplat=${BUGSPLAT_DB}"
-      "--fmodstudio=${USE_FMODSTUDIO}"
       "--openal=${USE_OPENAL}"
       --build=${CMAKE_CURRENT_BINARY_DIR}
       --buildtype=$<CONFIG>
@@ -2116,7 +2107,6 @@ if (DARWIN)
               --arch=${ARCH}
               --artwork=${ARTWORK_DIR}
               "--bugsplat=${BUGSPLAT_DB}"
-              "--fmodstudio=${USE_FMODSTUDIO}"
               "--openal=${USE_OPENAL}"
               --build=${CMAKE_CURRENT_BINARY_DIR}
               --buildtype=$<CONFIG>
@@ -2153,7 +2143,7 @@ if (PACKAGE AND (RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING) AND VIE
         OUTPUT_VARIABLE PARENT_DIRECTORY_CYGWIN
         OUTPUT_STRIP_TRAILING_WHITESPACE)
       add_custom_command(OUTPUT "${VIEWER_SYMBOL_FILE}"
-        # Use of 'tar ...j' here assumes VIEWER_SYMBOL_FILE endswith .tar.xz;
+        # Use of 'tar ...J' here assumes VIEWER_SYMBOL_FILE endswith .tar.xz;
         # testing a string suffix is painful enough in CMake language that
         # we'll continue assuming it until forced to generalize.
         COMMAND "tar"

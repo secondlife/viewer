@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llfloateropenobject.h
  * @brief LLFloaterOpenObject class definition
  *
  * $LicenseInfo:firstyear=2004&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -40,43 +40,43 @@ class LLPanelObjectInventory;
 class LLFloaterOpenObject
 : public LLFloater
 {
-	friend class LLFloaterReg;
+    friend class LLFloaterReg;
 public:
-	
-	void dirty();
-	
-	struct LLCatAndWear
-	{
-		LLUUID mCatID;
-		bool mWear;
-		bool mFolderResponded;
-		bool mReplace;
-	};
+
+    void dirty();
+
+    struct LLCatAndWear
+    {
+        LLUUID mCatID;
+        bool mWear;
+        bool mFolderResponded;
+        bool mReplace;
+    };
 
 protected:
 
-	/*virtual*/	BOOL	postBuild();
-	void refresh();
-	void draw();
-	virtual void onOpen(const LLSD& key);
+    /*virtual*/ bool    postBuild();
+    void refresh();
+    void draw();
+    virtual void onOpen(const LLSD& key);
 
-	void moveToInventory(bool wear, bool replace = false);
+    void moveToInventory(bool wear, bool replace = false);
 
-	void onClickMoveToInventory();
-	void onClickCancel();
-	static void callbackCreateInventoryCategory(const LLUUID& category_id, LLUUID object_id, bool wear, bool replace = false);
-	static void callbackMoveInventory(S32 result, void* data);
+    void onClickMoveToInventory();
+    void onClickCancel();
+    static void callbackCreateInventoryCategory(const LLUUID& category_id, LLUUID object_id, bool wear, bool replace = false);
+    static void callbackMoveInventory(S32 result, void* data);
 
 private:
-	
-	LLFloaterOpenObject(const LLSD& key);
-	~LLFloaterOpenObject();
-	
+
+    LLFloaterOpenObject(const LLSD& key);
+    ~LLFloaterOpenObject();
+
 protected:
 
-	LLPanelObjectInventory*	mPanelInventoryObject;
-	LLSafeHandle<LLObjectSelection> mObjectSelection;
-	BOOL mDirty;
+    LLPanelObjectInventory* mPanelInventoryObject;
+    LLSafeHandle<LLObjectSelection> mObjectSelection;
+    bool mDirty;
 };
 
 #endif

@@ -1,4 +1,4 @@
-/** 
+/**
 * @file   llfloaterbigpreview.h
 * @brief  Display of extended (big) preview for snapshots
 * @author merov@lindenlab.com
@@ -32,21 +32,21 @@
 class LLFloaterBigPreview : public LLFloater
 {
 public:
-	LLFloaterBigPreview(const LLSD& key);
+    LLFloaterBigPreview(const LLSD& key);
     ~LLFloaterBigPreview();
-    
-	BOOL postBuild();
-	void draw();
-	void onCancel();
+
+    bool postBuild();
+    void draw();
+    void onCancel();
 
     void setPreview(LLView* previewp) { mPreviewHandle = previewp->getHandle(); }
     void setFloaterOwner(LLFloater* floaterp) { mFloaterOwner = floaterp; }
     bool isFloaterOwner(LLFloater* floaterp) const { return (mFloaterOwner == floaterp); }
     void closeOnFloaterOwnerClosing(LLFloater* floaterp);
-	
+
 private:
-	LLHandle<LLView> mPreviewHandle;
-	LLUICtrl*  mPreviewPlaceholder;
+    LLHandle<LLView> mPreviewHandle;
+    LLUICtrl*  mPreviewPlaceholder;
     LLFloater* mFloaterOwner;
 };
 

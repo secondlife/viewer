@@ -5,21 +5,21 @@
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -46,61 +46,61 @@ class LLLineEditor;
  */
 
 class LLToastAlertPanel
-	: public LLCheckBoxToastPanel
+    : public LLCheckBoxToastPanel
 {
-	LOG_CLASS(LLToastAlertPanel);
+    LOG_CLASS(LLToastAlertPanel);
 public:
-	typedef bool (*display_callback_t)(S32 modal);
+    typedef bool (*display_callback_t)(S32 modal);
 
 public:
-	// User's responsibility to call show() after creating these.
-	LLToastAlertPanel( LLNotificationPtr notep, bool is_modal );
+    // User's responsibility to call show() after creating these.
+    LLToastAlertPanel( LLNotificationPtr notep, bool is_modal );
 
-	virtual BOOL	handleKeyHere(KEY key, MASK mask );
+    virtual bool    handleKeyHere(KEY key, MASK mask );
 
-	virtual void	draw();
-	virtual void	setVisible( BOOL visible );
+    virtual void    draw();
+    virtual void    setVisible( bool visible );
 
-	void			setCaution(BOOL val = TRUE) { mCaution = val; }
-	// If mUnique==TRUE only one copy of this message should exist
-	void			setUnique(BOOL val = TRUE) { mUnique = val; }
-	void			setEditTextArgs(const LLSD& edit_args);
-	
-	void onButtonPressed(const LLSD& data, S32 button);
-	
-private:
-	static std::map<std::string, LLToastAlertPanel*> sUniqueActiveMap;
+    void            setCaution(bool val = true) { mCaution = val; }
+    // If mUnique==true only one copy of this message should exist
+    void            setUnique(bool val = true) { mUnique = val; }
+    void            setEditTextArgs(const LLSD& edit_args);
 
-	virtual ~LLToastAlertPanel();
-	// No you can't kill it.  It can only kill itself.
-
-	// Does it have a readable title label, or minimize or close buttons?
-	BOOL hasTitleBar() const;
+    void onButtonPressed(const LLSD& data, S32 button);
 
 private:
-	static LLControlGroup* sSettings;
+    static std::map<std::string, LLToastAlertPanel*> sUniqueActiveMap;
 
-	struct ButtonData
-	{
-		ButtonData()
-		: mWidth(0)
-		{}
-		
-		LLButton* mButton;
-		std::string mURL;
-		U32 mURLExternal;
-		S32 mWidth;
-	};
-	std::vector<ButtonData> mButtonData;
+    virtual ~LLToastAlertPanel();
+    // No you can't kill it.  It can only kill itself.
 
-	S32				mDefaultOption;
-	BOOL			mCaution;
-	BOOL			mUnique;
-	LLUIString		mLabel;
-	LLFrameTimer	mDefaultBtnTimer;
-	// For Dialogs that take a line as text as input:
-	LLLineEditor* mLineEditor;
-	LLHandle<LLView>	mPreviouslyFocusedView;
+    // Does it have a readable title label, or minimize or close buttons?
+    bool hasTitleBar() const;
+
+private:
+    static LLControlGroup* sSettings;
+
+    struct ButtonData
+    {
+        ButtonData()
+        : mWidth(0)
+        {}
+
+        LLButton* mButton;
+        std::string mURL;
+        U32 mURLExternal;
+        S32 mWidth;
+    };
+    std::vector<ButtonData> mButtonData;
+
+    S32             mDefaultOption;
+    bool            mCaution;
+    bool            mUnique;
+    LLUIString      mLabel;
+    LLFrameTimer    mDefaultBtnTimer;
+    // For Dialogs that take a line as text as input:
+    LLLineEditor* mLineEditor;
+    LLHandle<LLView>    mPreviouslyFocusedView;
 
 };
 

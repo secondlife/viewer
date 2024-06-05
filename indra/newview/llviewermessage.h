@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llviewermessage.h
  * @brief Message system callbacks for viewer.
  *
  * $LicenseInfo:firstyear=2002&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -56,20 +56,20 @@ class LLViewerRegion;
 
 enum InventoryOfferResponse
 {
-	IOR_ACCEPT,
-	IOR_DECLINE,
-	IOR_MUTE,
-	IOR_SHOW
+    IOR_ACCEPT,
+    IOR_DECLINE,
+    IOR_MUTE,
+    IOR_SHOW
 };
 
-BOOL can_afford_transaction(S32 cost);
-void give_money(const LLUUID& uuid, LLViewerRegion* region, S32 amount, BOOL is_group = FALSE,
-				S32 trx_type = TRANS_GIFT, const std::string& desc = LLStringUtil::null);
+bool can_afford_transaction(S32 cost);
+void give_money(const LLUUID& uuid, LLViewerRegion* region, S32 amount, bool is_group = false,
+                S32 trx_type = TRANS_GIFT, const std::string& desc = LLStringUtil::null);
 void send_join_group_response(LLUUID group_id,
-							  LLUUID transaction_id,
-							  bool accept_invite,
-							  S32 fee,
-							  bool use_offline_cap);
+                              LLUUID transaction_id,
+                              bool accept_invite,
+                              S32 fee,
+                              bool use_offline_cap);
 
 void process_logout_reply(LLMessageSystem* msg, void**);
 void process_layer_data(LLMessageSystem *mesgsys, void **user_data);
@@ -81,19 +81,19 @@ void process_script_question(LLMessageSystem *msg, void **user_data);
 void process_chat_from_simulator(LLMessageSystem *mesgsys, void **user_data);
 
 //void process_agent_to_new_region(LLMessageSystem *mesgsys, void **user_data);
-void send_agent_update(BOOL force_send, BOOL send_reliable = FALSE);
+void send_agent_update(bool force_send, bool send_reliable = false);
 void process_object_update(LLMessageSystem *mesgsys, void **user_data);
 void process_compressed_object_update(LLMessageSystem *mesgsys, void **user_data);
 void process_cached_object_update(LLMessageSystem *mesgsys, void **user_data);
 void process_terse_object_update_improved(LLMessageSystem *mesgsys, void **user_data);
 
 void send_simulator_throttle_settings(const LLHost &host);
-void process_kill_object(	LLMessageSystem *mesgsys, void **user_data);
-void process_time_synch(	LLMessageSystem *mesgsys, void **user_data);
+void process_kill_object(   LLMessageSystem *mesgsys, void **user_data);
+void process_time_synch(    LLMessageSystem *mesgsys, void **user_data);
 void process_sound_trigger(LLMessageSystem *mesgsys, void **user_data);
-void process_preload_sound(	LLMessageSystem *mesgsys, void **user_data);
-void process_attached_sound(	LLMessageSystem *mesgsys, void **user_data);
-void process_attached_sound_gain_change(	LLMessageSystem *mesgsys, void **user_data);
+void process_preload_sound( LLMessageSystem *mesgsys, void **user_data);
+void process_attached_sound(    LLMessageSystem *mesgsys, void **user_data);
+void process_attached_sound_gain_change(    LLMessageSystem *mesgsys, void **user_data);
 void process_energy_statistics(LLMessageSystem *mesgsys, void **user_data);
 void process_health_message(LLMessageSystem *mesgsys, void **user_data);
 void process_sim_stats(LLMessageSystem *mesgsys, void **user_data);
@@ -117,7 +117,7 @@ void process_adjust_balance(LLMessageSystem* msg_system, void**);
 bool attempt_standard_notification(LLMessageSystem* msg);
 void process_alert_message(LLMessageSystem* msg, void**);
 void process_agent_alert_message(LLMessageSystem* msgsystem, void** user_data);
-void process_alert_core(const std::string& message, BOOL modal);
+void process_alert_core(const std::string& message, bool modal);
 
 // "Mean" or player-vs-player abuse
 typedef std::list<LLMeanCollisionData*> mean_collision_list_t;
@@ -129,9 +129,9 @@ void process_frozen_message(LLMessageSystem* msg, void**);
 
 void process_derez_container(LLMessageSystem *msg, void**);
 void container_inventory_arrived(LLViewerObject* object,
-								 std::list<LLPointer<LLInventoryObject> >* inventory, //LLInventoryObject::object_list_t
-								 S32 serial_num,
-								 void* data);
+                                 std::list<LLPointer<LLInventoryObject> >* inventory, //LLInventoryObject::object_list_t
+                                 S32 serial_num,
+                                 void* data);
 
 // agent movement
 void send_complete_agent_movement(const LLHost& sim_host);
@@ -147,50 +147,50 @@ void process_teleport_local(LLMessageSystem *msg,void**);
 void process_user_sim_location_reply(LLMessageSystem *msg,void**);
 
 void send_simple_im(const LLUUID& to_id,
-					const std::string& message,
-					EInstantMessage dialog = IM_NOTHING_SPECIAL,
-					const LLUUID& id = LLUUID::null);
+                    const std::string& message,
+                    EInstantMessage dialog = IM_NOTHING_SPECIAL,
+                    const LLUUID& id = LLUUID::null);
 
 void send_group_notice(const LLUUID& group_id,
-					   const std::string& subject,
-					   const std::string& message,
-					   const LLInventoryItem* item);
+                       const std::string& subject,
+                       const std::string& message,
+                       const LLInventoryItem* item);
 
 void send_do_not_disturb_message (LLMessageSystem* msg, const LLUUID& from_id, const LLUUID& session_id = LLUUID::null);
 
 void handle_lure(const LLUUID& invitee);
 void handle_lure(const uuid_vec_t& ids);
 
-// always from gAgent and 
+// always from gAgent and
 // routes through the gAgent's current simulator
 void send_improved_im(const LLUUID& to_id,
-					const std::string& name,
-					const std::string& message,
-					U8 offline = IM_ONLINE,
-					EInstantMessage dialog = IM_NOTHING_SPECIAL,
-					const LLUUID& id = LLUUID::null,
-					U32 timestamp = NO_TIMESTAMP, 
-					const U8* binary_bucket = (U8*)EMPTY_BINARY_BUCKET,
-					S32 binary_bucket_size = EMPTY_BINARY_BUCKET_SIZE);
+                    const std::string& name,
+                    const std::string& message,
+                    U8 offline = IM_ONLINE,
+                    EInstantMessage dialog = IM_NOTHING_SPECIAL,
+                    const LLUUID& id = LLUUID::null,
+                    U32 timestamp = NO_TIMESTAMP,
+                    const U8* binary_bucket = (U8*)EMPTY_BINARY_BUCKET,
+                    S32 binary_bucket_size = EMPTY_BINARY_BUCKET_SIZE);
 
 void process_user_info_reply(LLMessageSystem* msg, void**);
 
-// method to format the time. 
+// method to format the time.
 std::string formatted_time(const time_t& the_time);
 
 void send_places_query(const LLUUID& query_id,
-					   const LLUUID& trans_id,
-					   const std::string& query_text,
-					   U32 query_flags,
-					   S32 category, 
-					   const std::string& sim_name);
+                       const LLUUID& trans_id,
+                       const std::string& query_text,
+                       U32 query_flags,
+                       S32 category,
+                       const std::string& sim_name);
 void process_script_dialog(LLMessageSystem* msg, void**);
 void process_load_url(LLMessageSystem* msg, void**);
 void process_script_teleport_request(LLMessageSystem* msg, void**);
 void process_covenant_reply(LLMessageSystem* msg, void**);
 void onCovenantLoadComplete(const LLUUID& asset_uuid,
-							LLAssetType::EType type,
-							void* user_data, S32 status, LLExtStat ext_status);
+                            LLAssetType::EType type,
+                            void* user_data, S32 status, LLExtStat ext_status);
 
 // calling cards
 void process_offer_callingcard(LLMessageSystem* msg, void**);
@@ -214,60 +214,60 @@ void set_dad_inbox_object(const LLUUID& object_id);
 
 class LLViewerMessage : public  LLSingleton<LLViewerMessage>
 {
-	LLSINGLETON_EMPTY_CTOR(LLViewerMessage);
+    LLSINGLETON_EMPTY_CTOR(LLViewerMessage);
 public:
-	typedef boost::function<void()> teleport_started_callback_t;
-	typedef boost::signals2::signal<void()> teleport_started_signal_t;
-	boost::signals2::connection setTeleportStartedCallback(teleport_started_callback_t cb);
+    typedef boost::function<void()> teleport_started_callback_t;
+    typedef boost::signals2::signal<void()> teleport_started_signal_t;
+    boost::signals2::connection setTeleportStartedCallback(teleport_started_callback_t cb);
 
-	teleport_started_signal_t	mTeleportStartedSignal;
+    teleport_started_signal_t   mTeleportStartedSignal;
 };
 
 class LLOfferInfo : public LLNotificationResponderInterface
 {
 public:
-	LLOfferInfo();
-	LLOfferInfo(const LLSD& sd);
+    LLOfferInfo();
+    LLOfferInfo(const LLSD& sd);
 
-	LLOfferInfo(const LLOfferInfo& info);
+    LLOfferInfo(const LLOfferInfo& info);
 
-	void forceResponse(InventoryOfferResponse response);
+    void forceResponse(InventoryOfferResponse response);
 
     static std::string mResponderType;
-	EInstantMessage mIM;
-	LLUUID mFromID;
-	BOOL mFromGroup;
-	BOOL mFromObject;
-	LLUUID mTransactionID;
-	LLUUID mFolderID;
-	LLUUID mObjectID;
-	LLAssetType::EType mType;
-	std::string mFromName;
-	std::string mDesc;
-	LLHost mHost;
-	bool mPersist;
+    EInstantMessage mIM;
+    LLUUID mFromID;
+    bool mFromGroup;
+    bool mFromObject;
+    LLUUID mTransactionID;
+    LLUUID mFolderID;
+    LLUUID mObjectID;
+    LLAssetType::EType mType;
+    std::string mFromName;
+    std::string mDesc;
+    LLHost mHost;
+    bool mPersist;
 
-	// LLNotificationResponderInterface implementation
-	/*virtual*/ LLSD asLLSD();
-	/*virtual*/ void fromLLSD(const LLSD& params);
-	/*virtual*/ void handleRespond(const LLSD& notification, const LLSD& response);
+    // LLNotificationResponderInterface implementation
+    /*virtual*/ LLSD asLLSD();
+    /*virtual*/ void fromLLSD(const LLSD& params);
+    /*virtual*/ void handleRespond(const LLSD& notification, const LLSD& response);
 
-	void send_auto_receive_response() { sendReceiveResponse(true, mFolderID); }
+    void send_auto_receive_response() { sendReceiveResponse(true, mFolderID); }
 
-	// TODO - replace all references with handleRespond()
-	bool inventory_offer_callback(const LLSD& notification, const LLSD& response);
-	bool inventory_task_offer_callback(const LLSD& notification, const LLSD& response);
+    // TODO - replace all references with handleRespond()
+    bool inventory_offer_callback(const LLSD& notification, const LLSD& response);
+    bool inventory_task_offer_callback(const LLSD& notification, const LLSD& response);
 
 private:
 
-	void initRespondFunctionMap();
-	std::string getSanitizedDescription();
-	void sendReceiveResponse(bool accept, const LLUUID &destination_folder_id);
+    void initRespondFunctionMap();
+    std::string getSanitizedDescription();
+    void sendReceiveResponse(bool accept, const LLUUID &destination_folder_id);
 
-	typedef boost::function<bool (const LLSD&, const LLSD&)> respond_function_t;
-	typedef std::map<std::string, respond_function_t> respond_function_map_t;
+    typedef boost::function<bool (const LLSD&, const LLSD&)> respond_function_t;
+    typedef std::map<std::string, respond_function_t> respond_function_map_t;
 
-	respond_function_map_t mRespondFunctions;
+    respond_function_map_t mRespondFunctions;
 };
 
 void process_feature_disabled_message(LLMessageSystem* msg, void**);

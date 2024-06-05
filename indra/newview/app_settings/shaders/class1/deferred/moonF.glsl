@@ -55,7 +55,7 @@ void main()
 
     frag_data[0] = vec4(0);
     frag_data[1] = vec4(0.0);
-    frag_data[2] = vec4(0.0, 0.0, 0.0, GBUFFER_FLAG_HAS_ATMOS);
+    frag_data[2] = vec4(0.0, 0.0, 0.0, GBUFFER_FLAG_SKIP_ATMOS);
     frag_data[3] = vec4(c.rgb, c.a);
 
     // Added and commented out for a ground truth.  Do not uncomment - Geenz

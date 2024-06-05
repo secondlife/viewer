@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llfloaterexperiences.cpp
  * @brief LLFloaterExperiences class implementation
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2012, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -43,38 +43,38 @@
 
 #define SHOW_RECENT_TAB (0)
 LLFloaterExperiences::LLFloaterExperiences(const LLSD& data)
-	:LLFloater(data)
+    :LLFloater(data)
 {
 }
 
 LLPanelExperiences* LLFloaterExperiences::addTab(const std::string& name, bool select)
 {
-	LLPanelExperiences* newPanel = LLPanelExperiences::create(name);
+    LLPanelExperiences* newPanel = LLPanelExperiences::create(name);
     getChild<LLTabContainer>("xp_tabs")->addTabPanel(LLTabContainer::TabPanelParams().
         panel(newPanel).
         label(LLTrans::getString(name)).
         select_tab(select));
 
-	return newPanel;
+    return newPanel;
 }
 
-BOOL LLFloaterExperiences::postBuild()
+bool LLFloaterExperiences::postBuild()
 {
-	getChild<LLTabContainer>("xp_tabs")->addTabPanel(new LLPanelExperiencePicker());
+    getChild<LLTabContainer>("xp_tabs")->addTabPanel(new LLPanelExperiencePicker());
     addTab("Allowed_Experiences_Tab", true);
     addTab("Blocked_Experiences_Tab", false);
     addTab("Admin_Experiences_Tab", false);
     addTab("Contrib_Experiences_Tab", false);
-	LLPanelExperiences* owned = addTab("Owned_Experiences_Tab", false);
-	owned->setButtonAction("acquire", boost::bind(&LLFloaterExperiences::sendPurchaseRequest, this));
-	owned->enableButton(false);
+    LLPanelExperiences* owned = addTab("Owned_Experiences_Tab", false);
+    owned->setButtonAction("acquire", boost::bind(&LLFloaterExperiences::sendPurchaseRequest, this));
+    owned->enableButton(false);
 #if SHOW_RECENT_TAB
-	addTab("Recent_Experiences_Tab", false);
+    addTab("Recent_Experiences_Tab", false);
 #endif //SHOW_RECENT_TAB
-	getChild<LLTabContainer>("xp_tabs")->addTabPanel(new LLPanelExperienceLog());
+    getChild<LLTabContainer>("xp_tabs")->addTabPanel(new LLPanelExperienceLog());
     resizeToTabs();
 
-   	return TRUE;
+    return true;
 }
 
 
@@ -129,7 +129,7 @@ void LLFloaterExperiences::resizeToTabs()
     {
         rect.mRight = rect.mLeft + tabs->getTotalTabWidth() + TAB_WIDTH_PADDING;
     }
-    reshape(rect.getWidth(), rect.getHeight(), FALSE);
+    reshape(rect.getWidth(), rect.getHeight(), false);
 }
 
 void LLFloaterExperiences::refreshContents()
@@ -152,7 +152,7 @@ void LLFloaterExperiences::refreshContents()
         updateInfo("GetAdminExperiences","Admin_Experiences_Tab");
         updateInfo("GetCreatorExperiences","Contrib_Experiences_Tab");
 
-        retrieveExperienceList(region->getCapability("AgentExperiences"), handle, tabMap, 
+        retrieveExperienceList(region->getCapability("AgentExperiences"), handle, tabMap,
             "ExperienceAcquireFailed", boost::bind(&LLFloaterExperiences::checkPurchaseInfo, this, _1, _2));
     }
 }
@@ -206,7 +206,7 @@ bool LLFloaterExperiences::updatePermissions( const LLSD& permission )
             }
         }
     }
-    
+
     tab = (LLPanelExperiences*)tabs->getPanelByName("Blocked_Experiences_Tab");
     if(tab)
     {
@@ -237,10 +237,10 @@ void LLFloaterExperiences::onClose( bool app_quitting )
 
 void LLFloaterExperiences::checkPurchaseInfo(LLPanelExperiences* panel, const LLSD& content) const
 {
-	panel->enableButton(content.has("purchase"));
+    panel->enableButton(content.has("purchase"));
 
-	LLFloaterExperiences::findInstance()->updateInfo("GetAdminExperiences","Admin_Experiences_Tab");
-	LLFloaterExperiences::findInstance()->updateInfo("GetCreatorExperiences","Contrib_Experiences_Tab");
+    LLFloaterExperiences::findInstance()->updateInfo("GetAdminExperiences","Admin_Experiences_Tab");
+    LLFloaterExperiences::findInstance()->updateInfo("GetCreatorExperiences","Contrib_Experiences_Tab");
 }
 
 void LLFloaterExperiences::checkAndOpen(LLPanelExperiences* panel, const LLSD& content) const
@@ -271,9 +271,9 @@ void LLFloaterExperiences::checkAndOpen(LLPanelExperiences* panel, const LLSD& c
 
 void LLFloaterExperiences::updateInfo(std::string experienceCap, std::string tab)
 {
-	LLViewerRegion* region = gAgent.getRegion();
-	if (region)
-	{
+    LLViewerRegion* region = gAgent.getRegion();
+    if (region)
+    {
         NameMap_t tabMap;
         LLHandle<LLFloaterExperiences> handle = getDerivedHandle<LLFloaterExperiences>();
 
@@ -283,7 +283,7 @@ void LLFloaterExperiences::updateInfo(std::string experienceCap, std::string tab
     }
 }
 
-void LLFloaterExperiences::sendPurchaseRequest() 
+void LLFloaterExperiences::sendPurchaseRequest()
 {
     LLViewerRegion* region = gAgent.getRegion();
 
@@ -311,7 +311,7 @@ void LLFloaterExperiences::sendPurchaseRequest()
 
 LLFloaterExperiences* LLFloaterExperiences::findInstance()
 {
-	return LLFloaterReg::findTypedInstance<LLFloaterExperiences>("experiences");
+    return LLFloaterReg::findTypedInstance<LLFloaterExperiences>("experiences");
 }
 
 
@@ -359,8 +359,8 @@ void LLFloaterExperiences::requestNewExperience(const std::string &url,
 }
 
 
-void LLFloaterExperiences::retrieveExperienceListCoro(std::string url, 
-    LLHandle<LLFloaterExperiences> hparent, NameMap_t tabMapping, 
+void LLFloaterExperiences::retrieveExperienceListCoro(std::string url,
+    LLHandle<LLFloaterExperiences> hparent, NameMap_t tabMapping,
     std::string errorNotify, Callback_t cback, invokationFn_t invoker)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
