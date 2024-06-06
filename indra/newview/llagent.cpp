@@ -1459,68 +1459,64 @@ LLVector3 LLAgent::getReferenceUpVector()
 //-----------------------------------------------------------------------------
 void LLAgent::pitch(F32 angle)
 {
-    if (fabs(angle) <= 1e-4)
-        return;
-
-    LLCoordFrame newCoordFrame(mFrameAgent);
-    newCoordFrame.pitch(angle);
-
-    // don't let user pitch if rotated 180 degree around the vertical axis
-    if ((newCoordFrame.getXAxis()[VX] * mFrameAgent.getXAxis()[VX] < 0) &&
-        (newCoordFrame.getXAxis()[VY] * mFrameAgent.getXAxis()[VY] < 0))
-        return;
-
-    // don't let user pitch if pointed almost all the way down or up
-    LLVector3 skyward = getReferenceUpVector();
-
-    // A dot B = mag(A) * mag(B) * cos(angle between A and B)
-    // so... cos(angle between A and B) = A dot B / mag(A) / mag(B)
-    //                                  = A dot B for unit vectors
-    F32 agent_camera_angle_from_skyward = acos(newCoordFrame.getAtAxis() * skyward) * RAD_TO_DEG;
-
-    F32 min_angle = 1;
-    F32 max_angle = 179;
-    bool check_viewer_camera = false;
-
-    if (gAgentCamera.getCameraMode() == CAMERA_MODE_THIRD_PERSON)
+    if (gAgentCamera.getCameraMode() == CAMERA_MODE_THIRD_PERSON ||
+        gAgentCamera.getCameraMode() == CAMERA_MODE_MOUSELOOK)
     {
-        // These values of min_angle and max_angle are obtained purely empirically
-        if (gAgentCamera.getCameraPreset() == CAMERA_PRESET_REAR_VIEW)
-        {
-            min_angle = 10;
-            check_viewer_camera = true;
-        }
-        else if (gAgentCamera.getCameraPreset() == CAMERA_PRESET_GROUP_VIEW)
-        {
-            min_angle = 10;
-            max_angle = 170;
-            check_viewer_camera = true;
-        }
-    }
-    else if (gAgentCamera.getCameraMode() == CAMERA_MODE_MOUSELOOK)
-    {
-        min_angle = 0.1;
-        max_angle = 179.9;
-    }
+        // Backup the current orientation
+        LLCoordFrame saved_frame_agent(mFrameAgent);
 
-    if ((angle < 0 && agent_camera_angle_from_skyward < min_angle) ||
-        (angle > 0 && agent_camera_angle_from_skyward > max_angle))
-        return;
+        // Optimistic rotation up/down (vertical angle can reach and exceed 0 or 180)
+        mFrameAgent.pitch(angle);
 
-    if (check_viewer_camera)
-    {
-        const LLVector3& viewer_camera_pos = LLViewerCamera::getInstance()->getOrigin();
-        LLVector3 agent_focus_pos = getPosAgentFromGlobal(gAgentCamera.calcFocusPositionTargetGlobal());
-        LLVector3 look_dir = agent_focus_pos - viewer_camera_pos;
-        F32 viewer_camera_angle_from_skyward = angle_between(look_dir, skyward) * RAD_TO_DEG;
-        if ((angle < 0 && viewer_camera_angle_from_skyward < min_angle) ||
-            (angle > 0 && viewer_camera_angle_from_skyward > max_angle))
+        // Cosine of the angle between current agent At and Up directions
+        F32 agent_at_to_up_now_cos = saved_frame_agent.mXAxis * gAgentCamera.getCameraUpVector();
+        bool pitch_away_from_horizont = (angle < 0) ^ (agent_at_to_up_now_cos < 0);
+        // We always allow to pitch in direction to horizont (from zenith or from nadir)
+        if (!pitch_away_from_horizont)
             return;
+
+        // Current angle between agent At and Up directions
+        F32 agent_at_to_up_now = acos(agent_at_to_up_now_cos);
+        // Requested angle between agent At and Up directions
+        F32 agent_at_to_up_new = agent_at_to_up_now + angle;
+        F32 agent_at_to_up_new_sin = sin(agent_at_to_up_new);
+        // Overpitched? Then rollback
+        if (agent_at_to_up_new_sin < 1e-4)
+        {
+            mFrameAgent = saved_frame_agent;
+            return;
+        }
+
+        if (gAgentCamera.getCameraMode() == CAMERA_MODE_THIRD_PERSON ||
+            (isAgentAvatarValid() && gAgentAvatarp->getParent()))
+        {
+            // Camera sight relative to agent frame (focus - offset)
+            LLVector3 camera_offset(gAgentCamera.getCameraOffsetInitial());
+            LLVector3 camera_focus(gAgentCamera.getFocusOffsetInitial());
+            LLVector3 camera_sight(camera_focus - camera_offset);
+            // 2D projection of the camera sight to the XZ plane
+            LLVector2 camera_sight_2d_vert(1, camera_sight[VZ]);
+            camera_sight_2d_vert.normalize();
+            // Cosine of the 2D angle between initial camera At and X axis (in the XZ plane)
+            F32 camera_sight_to_at_2d_vert_cos = camera_sight_2d_vert * LLVector2(LLVector3::x_axis);
+            F32 camera_sight_to_at_2d_vert = acos(camera_sight_to_at_2d_vert_cos);
+            // Requested angle between camera At and Up directions
+            F32 camera_at_to_up_new = agent_at_to_up_new - camera_sight_to_at_2d_vert;
+            F32 camera_at_to_up_new_sin = sin(camera_at_to_up_new);
+            // Overpitched? Then rollback
+            if (camera_at_to_up_new_sin < 1e-4)
+            {
+                mFrameAgent = saved_frame_agent;
+                return;
+            }
+        }
     }
-
-    mFrameAgent = newCoordFrame;
+    else
+    {
+        // No limitations in other modes
+        mFrameAgent.pitch(angle);
+    }
 }
-
 
 //-----------------------------------------------------------------------------
 // roll()

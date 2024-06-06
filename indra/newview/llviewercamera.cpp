@@ -103,18 +103,16 @@ LLViewerCamera::~LLViewerCamera()
     mCameraAngleChangedSignal.disconnect();
 }
 
-void LLViewerCamera::updateCameraLocation(const LLVector3 &center, const LLVector3 &up_direction, const LLVector3 &point_of_interest)
+bool LLViewerCamera::updateCameraLocation(const LLVector3 &center, const LLVector3 &up_direction, const LLVector3 &point_of_interest)
 {
     // do not update if avatar didn't move
     if (!LLViewerJoystick::getInstance()->getCameraNeedsUpdate())
     {
-        return;
+        return true;
     }
 
-    LLVector3 last_position;
-    LLVector3 last_axis;
-    last_position = getOrigin();
-    last_axis     = getAtAxis();
+    LLVector3 last_position = getOrigin();
+    LLVector3 last_axis = getAtAxis();
 
     mLastPointOfInterest = point_of_interest;
 
@@ -139,10 +137,26 @@ void LLViewerCamera::updateCameraLocation(const LLVector3 &center, const LLVecto
         }
     }
 
-    setOriginAndLookAt(origin, up_direction, point_of_interest);
+    LLVector3 at(point_of_interest - origin);
+    at.normalize();
+    if (at.isNull() || !at.isFinite())
+        return false;
 
-    mVelocityDir = origin - last_position ;
-    F32 dpos = mVelocityDir.normVec() ;
+    LLVector3 left(up_direction % at);
+    left.normalize();
+    if (left.isNull() || !left.isFinite())
+        return false;
+
+    LLVector3 up = at % left;
+    up.normalize();
+    if (up.isNull() || !up.isFinite())
+        return false;
+
+    setOrigin(origin);
+    setAxes(at, left, up);
+
+    mVelocityDir = origin - last_position;
+    F32 dpos = mVelocityDir.normVec();
     LLQuaternion rotation;
     rotation.shortestArc(last_axis, getAtAxis());
 
@@ -161,6 +175,8 @@ void LLViewerCamera::updateCameraLocation(const LLVector3 &center, const LLVecto
     mPixelMeterRatio = getViewHeightInPixels()/ (2.f*tanf(mCameraFOVDefault*0.5));
     // update screen pixel area
     mScreenPixelArea =(S32)((F32)getViewHeightInPixels() * ((F32)getViewHeightInPixels() * getAspect()));
+
+    return true;
 }
 
 const LLMatrix4 &LLViewerCamera::getProjection() const
