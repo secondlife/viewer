@@ -1237,27 +1237,35 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 
         // Texture
         {
-            mIsAlpha = false;
             LLGLenum image_format = GL_RGB;
             bool identical_image_format = false;
-            LLSelectedTE::getImageFormat(image_format, identical_image_format);
+            bool missing_asset = false;
+            LLSelectedTE::getImageFormat(image_format, identical_image_format, missing_asset);
 
-            mIsAlpha = false;
-            switch (image_format)
+            if (!missing_asset)
             {
+                mIsAlpha = false;
+                switch (image_format)
+                {
                 case GL_RGBA:
                 case GL_ALPHA:
-                {
-                    mIsAlpha = true;
-                }
-                break;
+                    {
+                        mIsAlpha = true;
+                    }
+                    break;
 
                 case GL_RGB: break;
                 default:
-                {
-                    LL_WARNS() << "Unexpected tex format in LLPanelFace...resorting to no alpha" << LL_ENDL;
+                    {
+                        LL_WARNS() << "Unexpected tex format in LLPanelFace...resorting to no alpha" << LL_ENDL;
+                    }
+                    break;
                 }
-                break;
+            }
+            else
+            {
+                // Don't know image's properties, use material's mode value
+                mIsAlpha = true;
             }
 
             if (LLViewerMedia::getInstance()->textureHasMedia(id))
@@ -1303,10 +1311,12 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
                     texture_ctrl->setTentative(false);
                     texture_ctrl->setEnabled(editable && !has_pbr_material);
                     texture_ctrl->setImageAssetID(id);
-                    getChildView("combobox alphamode")->setEnabled(editable && mIsAlpha && transparency <= 0.f && !has_pbr_material);
-                    getChildView("label alphamode")->setEnabled(editable && mIsAlpha && !has_pbr_material);
-                    getChildView("maskcutoff")->setEnabled(editable && mIsAlpha && !has_pbr_material);
-                    getChildView("label maskcutoff")->setEnabled(editable && mIsAlpha && !has_pbr_material);
+
+                    bool can_change_alpha = editable && mIsAlpha && !missing_asset && !has_pbr_material;
+                    getChildView("combobox alphamode")->setEnabled(can_change_alpha && transparency <= 0.f);
+                    getChildView("label alphamode")->setEnabled(can_change_alpha);
+                    getChildView("maskcutoff")->setEnabled(can_change_alpha);
+                    getChildView("label maskcutoff")->setEnabled(can_change_alpha);
 
                     texture_ctrl->setBakeTextureEnabled(true);
                 }
@@ -1329,10 +1339,12 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
                     texture_ctrl->setTentative(true);
                     texture_ctrl->setEnabled(editable && !has_pbr_material);
                     texture_ctrl->setImageAssetID(id);
-                    getChildView("combobox alphamode")->setEnabled(editable && mIsAlpha && transparency <= 0.f && !has_pbr_material);
-                    getChildView("label alphamode")->setEnabled(editable && mIsAlpha && !has_pbr_material);
-                    getChildView("maskcutoff")->setEnabled(editable && mIsAlpha && !has_pbr_material);
-                    getChildView("label maskcutoff")->setEnabled(editable && mIsAlpha && !has_pbr_material);
+
+                    bool can_change_alpha = editable && mIsAlpha && !missing_asset && !has_pbr_material;
+                    getChildView("combobox alphamode")->setEnabled(can_change_alpha && transparency <= 0.f);
+                    getChildView("label alphamode")->setEnabled(can_change_alpha);
+                    getChildView("maskcutoff")->setEnabled(can_change_alpha);
+                    getChildView("label maskcutoff")->setEnabled(can_change_alpha);
 
                     texture_ctrl->setBakeTextureEnabled(true);
                 }
@@ -3321,13 +3333,14 @@ void LLPanelFace::onSelectTexture(const LLSD& data)
 
     LLGLenum image_format;
     bool identical_image_format = false;
-    LLSelectedTE::getImageFormat(image_format, identical_image_format);
+    bool missing_asset = false;
+    LLSelectedTE::getImageFormat(image_format, identical_image_format, missing_asset);
 
     LLCtrlSelectionInterface* combobox_alphamode =
         childGetSelectionInterface("combobox alphamode");
 
     U32 alpha_mode = LLMaterial::DIFFUSE_ALPHA_MODE_NONE;
-    if (combobox_alphamode)
+    if (combobox_alphamode && !missing_asset)
     {
         switch (image_format)
         {
@@ -5227,19 +5240,51 @@ void LLPanelFace::LLSelectedTE::getFace(LLFace*& face_to_return, bool& identical
     identical_face = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue(&get_te_face_func, face_to_return, false, (LLFace*)nullptr);
 }
 
-void LLPanelFace::LLSelectedTE::getImageFormat(LLGLenum& image_format_to_return, bool& identical_face)
+void LLPanelFace::LLSelectedTE::getImageFormat(LLGLenum& image_format_to_return, bool& identical_face, bool& missing_asset)
 {
-    LLGLenum image_format;
-    struct LLSelectedTEGetImageFormat : public LLSelectedTEGetFunctor<LLGLenum>
+    struct LLSelectedTEGetmatId : public LLSelectedTEFunctor
     {
-        LLGLenum get(LLViewerObject* object, S32 te_index)
+        LLSelectedTEGetmatId()
+            : mImageFormat(GL_RGB)
+            , mIdentical(true)
+            , mMissingAsset(false)
+            , mFirstRun(true)
         {
-            LLViewerTexture* image = object->getTEImage(te_index);
-            return image ? image->getPrimaryFormat() : GL_RGB;
         }
-    } get_glenum;
-    identical_face = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue(&get_glenum, image_format);
-    image_format_to_return = image_format;
+        bool apply(LLViewerObject* object, S32 te_index) override
+        {
+            LLViewerTexture* image = object ? object->getTEImage(te_index) : nullptr;
+            LLGLenum format = GL_RGB;
+            bool missing = false;
+            if (image)
+            {
+                format = image->getPrimaryFormat();
+                missing = image->isMissingAsset();
+            }
+
+            if (mFirstRun)
+            {
+                mFirstRun = false;
+                mImageFormat = format;
+                mMissingAsset = missing;
+            }
+            else
+            {
+                mIdentical &= (mImageFormat == format);
+                mIdentical &= (mMissingAsset == missing);
+            }
+            return true;
+        }
+        LLGLenum mImageFormat;
+        bool mIdentical;
+        bool mMissingAsset;
+        bool mFirstRun;
+    } func;
+    LLSelectMgr::getInstance()->getSelection()->applyToTEs(&func);
+
+    image_format_to_return = func.mImageFormat;
+    identical_face = func.mIdentical;
+    missing_asset = func.mMissingAsset;
 }
 
 void LLPanelFace::LLSelectedTE::getTexId(LLUUID& id, bool& identical)
