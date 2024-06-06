@@ -489,10 +489,7 @@ bool LLMaterialEditor::postBuild()
     }
     else
     {
-        getChild<LLUICtrl>("base_color_upload_fee")->setTextArg("[FEE]", llformat("%d", LLAgentBenefitsMgr::current().getTextureUploadCost(mBaseColorFetched)));
-        getChild<LLUICtrl>("metallic_upload_fee")->setTextArg("[FEE]", llformat("%d", LLAgentBenefitsMgr::current().getTextureUploadCost(mMetallicRoughnessFetched)));
-        getChild<LLUICtrl>("emissive_upload_fee")->setTextArg("[FEE]", llformat("%d", LLAgentBenefitsMgr::current().getTextureUploadCost(mEmissiveFetched)));
-        getChild<LLUICtrl>("normal_upload_fee")->setTextArg("[FEE]", llformat("%d", LLAgentBenefitsMgr::current().getTextureUploadCost(mNormalFetched)));
+        refreshUploadCost();
     }
 
     boost::function<void(LLUICtrl*, void*)> changes_callback = [this](LLUICtrl * ctrl, void* userData)
@@ -811,6 +808,37 @@ void LLMaterialEditor::resetUnsavedChanges()
     }
 }
 
+void LLMaterialEditor::refreshUploadCost()
+{
+    mExpectedUploadCost = 0;
+    if (mBaseColorTextureUploadId.notNull() && mBaseColorTextureUploadId == getBaseColorId() && mBaseColorFetched)
+    {
+        S32 upload_cost = LLAgentBenefitsMgr::current().getTextureUploadCost(mBaseColorFetched);
+        mExpectedUploadCost += upload_cost;
+        getChild<LLUICtrl>("base_color_upload_fee")->setTextArg("[FEE]", llformat("%d", upload_cost));
+    }
+    if (mMetallicTextureUploadId.notNull() && mMetallicTextureUploadId == getMetallicRoughnessId() && mMetallicRoughnessFetched)
+    {
+        S32 upload_cost = LLAgentBenefitsMgr::current().getTextureUploadCost(mMetallicRoughnessFetched);
+        mExpectedUploadCost += upload_cost;
+        getChild<LLUICtrl>("metallic_upload_fee")->setTextArg("[FEE]", llformat("%d", upload_cost));
+    }
+    if (mEmissiveTextureUploadId.notNull() && mEmissiveTextureUploadId == getEmissiveId() && mEmissiveFetched)
+    {
+        S32 upload_cost = LLAgentBenefitsMgr::current().getTextureUploadCost(mEmissiveFetched);
+        mExpectedUploadCost += upload_cost;
+        getChild<LLUICtrl>("emissive_upload_fee")->setTextArg("[FEE]", llformat("%d", upload_cost));
+    }
+    if (mNormalTextureUploadId.notNull() && mNormalTextureUploadId == getNormalId() && mNormalFetched)
+    {
+        S32 upload_cost = LLAgentBenefitsMgr::current().getTextureUploadCost(mNormalFetched);
+        mExpectedUploadCost += upload_cost;
+        getChild<LLUICtrl>("normal_upload_fee")->setTextArg("[FEE]", llformat("%d", upload_cost));
+    }
+
+    getChild<LLUICtrl>("total_upload_fee")->setTextArg("[FEE]", llformat("%d", mExpectedUploadCost));
+}
+
 void LLMaterialEditor::markChangesUnsaved(U32 dirty_flag)
 {
     mUnsavedChanges |= dirty_flag;
@@ -841,25 +869,15 @@ void LLMaterialEditor::markChangesUnsaved(U32 dirty_flag)
         setCanSave(false);
     }
 
-    mExpectedUploadCost = 0;
-    if (mBaseColorTextureUploadId.notNull() && mBaseColorTextureUploadId == getBaseColorId() && mBaseColorFetched)
+    if ((dirty_flag & MATERIAL_BASE_COLOR_TEX_DIRTY)
+        || (dirty_flag & MATERIAL_NORMAL_TEX_DIRTY)
+        || (dirty_flag & MATERIAL_METALLIC_ROUGHTNESS_TEX_DIRTY)
+        || (dirty_flag & MATERIAL_EMISIVE_TEX_DIRTY)
+        || (dirty_flag == 0)
+        || (dirty_flag == U32_MAX))
     {
-        mExpectedUploadCost += LLAgentBenefitsMgr::current().getTextureUploadCost(mBaseColorFetched);
+        refreshUploadCost();
     }
-    if (mMetallicTextureUploadId.notNull() && mMetallicTextureUploadId == getMetallicRoughnessId() && mMetallicRoughnessFetched)
-    {
-        mExpectedUploadCost += LLAgentBenefitsMgr::current().getTextureUploadCost(mMetallicRoughnessFetched);
-    }
-    if (mEmissiveTextureUploadId.notNull() && mEmissiveTextureUploadId == getEmissiveId() && mEmissiveFetched)
-    {
-        mExpectedUploadCost += LLAgentBenefitsMgr::current().getTextureUploadCost(mEmissiveFetched);
-    }
-    if (mNormalTextureUploadId.notNull() && mNormalTextureUploadId == getNormalId() && mNormalFetched)
-    {
-        mExpectedUploadCost += LLAgentBenefitsMgr::current().getTextureUploadCost(mNormalFetched);
-    }
-
-    getChild<LLUICtrl>("total_upload_fee")->setTextArg("[FEE]", llformat("%d", mExpectedUploadCost));
 }
 
 void LLMaterialEditor::setCanSaveAs(bool value)

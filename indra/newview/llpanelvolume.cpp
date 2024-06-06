@@ -401,7 +401,7 @@ void LLPanelVolume::getState( )
 
     getChildView("Probe Dynamic")->setEnabled(probe_enabled);
     getChildView("Probe Update Type")->setEnabled(probe_enabled);
-    getChildView("Probe Volume Type")->setEnabled(probe_enabled);
+    getChildView("Probe Volume Type")->setEnabled(probe_enabled && !is_mirror);
     getChildView("Probe Ambiance")->setEnabled(probe_enabled && !is_mirror);
     getChildView("Probe Near Clip")->setEnabled(probe_enabled && !is_mirror);
     getChildView("Probe Update Label")->setEnabled(probe_enabled);
@@ -1432,6 +1432,8 @@ void LLPanelVolume::onCommitProbe(LLUICtrl* ctrl, void* userdata)
 
     bool is_mirror = update_type.find("Mirror") != std::string::npos;
 
+    self->getChildView("Probe Volume Type")->setEnabled(!is_mirror);
+
     volobjp->setReflectionProbeIsDynamic(update_type.find("Dynamic") != std::string::npos);
     volobjp->setReflectionProbeIsMirror(is_mirror);
 
@@ -1440,7 +1442,7 @@ void LLPanelVolume::onCommitProbe(LLUICtrl* ctrl, void* userdata)
 
     std::string shape_type = self->getChild<LLUICtrl>("Probe Volume Type")->getValue().asString();
 
-    bool is_box = shape_type == "Box";
+    bool is_box = shape_type == "Box" || is_mirror;
 
     if (volobjp->setReflectionProbeIsBox(is_box))
     {
