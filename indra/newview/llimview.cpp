@@ -1554,7 +1554,7 @@ bool LLIMModel::addToHistory(const LLUUID& session_id,
     return true;
 }
 
-bool LLIMModel::logToFile(const std::string& file_name, const std::string& from, const LLUUID& from_id, const std::string& utf8_text)
+bool LLIMModel::logToFile(const std::string& file_name, const std::string& from, const LLUUID& from_id, const std::string& utf8_text, const std::string& utf8_trans)
 {
     if (gSavedPerAccountSettings.getS32("KeepConversationLogTranscripts") > 1)
     {
@@ -1568,7 +1568,7 @@ bool LLIMModel::logToFile(const std::string& file_name, const std::string& from,
             from_name = av_name.getCompleteName();
         }
 
-        LLLogChat::saveHistory(file_name, from_name, from_id, utf8_text);
+        LLLogChat::saveHistory(file_name, from_name, from_id, utf8_text, utf8_trans);
         LLConversationLog::instance().cache(); // update the conversation log too
         return true;
     }
@@ -1662,7 +1662,7 @@ LLIMModel::LLIMSession* LLIMModel::addMessageSilently(const LLUUID& session_id, 
     addToHistory(session_id, from_name, from_id, utf8_text, utf8_trans, utf8_error, is_region_msg, timestamp);
     if (log2file)
     {
-        logToFile(getHistoryFileName(session_id), from_name, from_id, utf8_text);
+        logToFile(getHistoryFileName(session_id), from_name, from_id, utf8_text, utf8_trans);
     }
 
     session->mNumUnread++;

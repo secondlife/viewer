@@ -76,6 +76,7 @@ const static std::string NEW_LINE("\n");
 const static std::string NEW_LINE_SPACE_PREFIX("\n ");
 const static std::string TWO_SPACES("  ");
 const static std::string MULTI_LINE_PREFIX(" ");
+const static std::string TRANS_PREFIX("-\xe2\x96\xba ");
 
 /**
  *  Chat log lines - timestamp and name are optional but message text is mandatory.
@@ -129,9 +130,26 @@ void append_to_last_message(std::list<LLSD>& messages, const std::string& line)
 {
     if (!messages.size()) return;
 
-    std::string im_text = messages.back()[LL_IM_TEXT].asString();
-    im_text.append(line);
-    messages.back()[LL_IM_TEXT] = im_text;
+    LLSD& last_message = messages.back();
+    if (last_message.has(LL_IM_TRANS))
+    {
+        std::string im_text = last_message[LL_IM_TRANS].asString();
+        last_message[LL_IM_TRANS] = im_text + line;
+    }
+    else
+    {
+        std::string im_text = last_message[LL_IM_TEXT].asString();
+        last_message[LL_IM_TEXT] = im_text + line;
+    }
+}
+
+void append_to_last_trans(std::list<LLSD>& messages, const std::string& line)
+{
+    if (!messages.size()) return;
+
+    LLSD& last_message = messages.back();
+    std::string im_text = last_message[LL_IM_TRANS].asString();
+    last_message[LL_IM_TRANS] = im_text + (im_text.empty() ? line : "\n" + line);
 }
 
 const char* remove_utf8_bom(const char* buf)
@@ -352,7 +370,8 @@ std::string LLLogChat::timestamp2LogString(U32 timestamp, bool withdate)
 void LLLogChat::saveHistory(const std::string& filename,
                             const std::string& from,
                             const LLUUID& from_id,
-                            const std::string& line)
+                            const std::string& line,
+                            const std::string& trans)
 {
     std::string tmp_filename = filename;
     LLStringUtil::trim(tmp_filename);
@@ -374,19 +393,25 @@ void LLLogChat::saveHistory(const std::string& filename,
     LLSD item;
 
     if (gSavedPerAccountSettings.getBOOL("LogTimestamp"))
-         item["time"] = LLLogChat::timestamp2LogString(0, gSavedPerAccountSettings.getBOOL("LogTimestampDate"));
+    {
+        item[LL_IM_TIME] = LLLogChat::timestamp2LogString(0, gSavedPerAccountSettings.getBOOL("LogTimestampDate"));
+    }
 
-    item["from_id"] = from_id;
-    item["message"] = line;
+    item[LL_IM_FROM_ID] = from_id;
+    item[LL_IM_TEXT] = line;
+    if (!trans.empty())
+    {
+        item[LL_IM_TRANS] = trans;
+    }
 
     //adding "Second Life:" for all system messages to make chat log history parsing more reliable
     if (from.empty() && from_id.isNull())
     {
-        item["from"] = SYSTEM_FROM;
+        item[LL_IM_FROM] = SYSTEM_FROM;
     }
     else
     {
-        item["from"] = from;
+        item[LL_IM_FROM] = from;
     }
 
     file << LLChatLogFormatter(item) << std::endl;
@@ -484,12 +509,19 @@ void LLLogChat::loadChatHistory(const std::string& file_name, std::list<LLSD>& m
         std::string line(remove_utf8_bom(buffer));
 
         //updated 1.23 plain text log format requires a space added before subsequent lines in a multilined message
-        if (' ' == line[0])
+        if (LLStringUtil::startsWith(line, MULTI_LINE_PREFIX))
         {
             line.erase(0, MULTI_LINE_PREFIX.length());
-            append_to_last_message(messages, '\n' + line);
+            if (LLStringUtil::startsWith(line, TRANS_PREFIX))
+            {
+                append_to_last_trans(messages, line.substr(TRANS_PREFIX.size()));
+            }
+            else
+            {
+                append_to_last_message(messages, '\n' + line);
+            }
         }
-        else if (0 == len && ('\n' == line[0] || '\r' == line[0]))
+        else if (!len && ('\n' == line.front() || '\r' == line.front()))
         {
             //to support old format's multilined messages with new lines used to divide paragraphs
             append_to_last_message(messages, line);
@@ -960,9 +992,18 @@ void LLChatLogFormatter::format(const LLSD& im, std::ostream& ostr) const
     {
         std::string im_text = im[LL_IM_TEXT].asString();
 
-        //multilined text will be saved with prepended spaces
+        // multilined text will be saved with prepended spaces
         boost::replace_all(im_text, NEW_LINE, NEW_LINE_SPACE_PREFIX);
         ostr << im_text;
+    }
+
+    if (im[LL_IM_TRANS].isDefined())
+    {
+        std::string im_trans = im[LL_IM_TRANS].asString();
+
+        // multilined text will be saved with prepended spaces
+        boost::replace_all(im_trans, NEW_LINE, NEW_LINE_SPACE_PREFIX);
+        ostr << NEW_LINE_SPACE_PREFIX << TRANS_PREFIX << im_trans;
     }
 }
 
@@ -1153,7 +1194,7 @@ void LLLoadHistoryThread::loadHistory(const std::string& file_name, std::list<LL
 {
     if (file_name.empty())
     {
-        LL_WARNS("LLLogChat::loadHistory") << "Session name is Empty!" << LL_ENDL;
+        LL_WARNS("LLLoadHistoryThread::loadHistory") << "Session name is Empty!" << LL_ENDL;
         return ;
     }
 
@@ -1221,12 +1262,19 @@ void LLLoadHistoryThread::loadHistory(const std::string& file_name, std::list<LL
         std::string line(remove_utf8_bom(buffer));
 
         //updated 1.23 plaint text log format requires a space added before subsequent lines in a multilined message
-        if (' ' == line[0])
+        if (LLStringUtil::startsWith(line, MULTI_LINE_PREFIX))
         {
             line.erase(0, MULTI_LINE_PREFIX.length());
-            append_to_last_message(*messages, '\n' + line);
+            if (LLStringUtil::startsWith(line, TRANS_PREFIX))
+            {
+                append_to_last_trans(*messages, line.substr(TRANS_PREFIX.size()));
+            }
+            else
+            {
+                append_to_last_message(*messages, '\n' + line);
+            }
         }
-        else if (0 == len && ('\n' == line[0] || '\r' == line[0]))
+        else if (!len && ('\n' == line.front() || '\r' == line.front()))
         {
             //to support old format's multilined messages with new lines used to divide paragraphs
             append_to_last_message(*messages, line);
