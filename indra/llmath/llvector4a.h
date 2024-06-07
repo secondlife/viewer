@@ -127,6 +127,39 @@ public:
         return !(*this == rhs);
     }
 
+    const LLVector4a& operator+=(const LLVector4a& rhs)
+    {
+        add(rhs);
+        return *this;
+    }
+
+    const LLVector4a& operator-=(const LLVector4a& rhs)
+    {
+        sub(rhs);
+        return *this;
+    }
+
+    LLVector4a operator+(const LLVector4a& rhs) const
+    {
+        LLVector4a result = *this;
+        result.add(rhs);
+        return result;
+    }
+
+    LLVector4a operator-(const LLVector4a& rhs) const
+    {
+        LLVector4a result = *this;
+        result.sub(rhs);
+        return result;
+    }
+
+    LLVector4a cross3(const LLVector4a& b) const
+    {
+        LLVector4a result;
+        result.setCross3(*this, b);
+        return result;
+    }
+
     ////////////////////////////////////
     // LOAD/STORE
     ////////////////////////////////////

@@ -66,8 +66,8 @@ vec3 tangent_space_transform(vec4 vertex_tangent, vec3 vertex_normal, vec4[2] kh
 out vec3 vary_fragcoord;
 #endif
 
-
 #ifdef HAS_SKIN
+in uvec4 joint;
 in vec4 weight4;
 
 layout (std140) uniform GLTFJoints
@@ -80,18 +80,12 @@ mat4 getGLTFSkinTransform()
 {
     int i;
 
-    vec4 w = fract(weight4);
-    vec4 index = floor(weight4);
+    vec4 w = weight4;
 
-    index = min(index, vec4(MAX_JOINTS_PER_GLTF_OBJECT-1));
-    index = max(index, vec4( 0.0));
-
-    w *= 1.0/(w.x+w.y+w.z+w.w);
-
-    int i1 = int(index.x);
-    int i2 = int(index.y);
-    int i3 = int(index.z);
-    int i4 = int(index.w);
+    uint i1 = joint.x;
+    uint i2 = joint.y;
+    uint i3 = joint.z;
+    uint i4 = joint.w;
 
     mat3 mat = mat3(gltf_joints[i1])*w.x;
          mat += mat3(gltf_joints[i2])*w.y;

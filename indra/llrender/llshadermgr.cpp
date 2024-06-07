@@ -1157,6 +1157,7 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedAttribs.push_back("weight");
     mReservedAttribs.push_back("weight4");
     mReservedAttribs.push_back("clothing");
+    mReservedAttribs.push_back("joint");
     mReservedAttribs.push_back("texture_index");
 
     //matrix state

@@ -387,6 +387,8 @@ bool LLGLSLShader::createShader(std::vector<LLStaticHashedString>* attributes,
     const char** varyings)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
+    llassert(attributes == nullptr);
+    llassert(uniforms == nullptr);
 
     unloadInternal();
 
@@ -605,6 +607,7 @@ void LLGLSLShader::attachObjects(GLuint* objects, S32 count)
 bool LLGLSLShader::mapAttributes(const std::vector<LLStaticHashedString>* attributes)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
+    llassert(attributes == nullptr);
 
     bool res = true;
     if (!mUsingBinaryProgram)
@@ -672,6 +675,7 @@ bool LLGLSLShader::mapAttributes(const std::vector<LLStaticHashedString>* attrib
 void LLGLSLShader::mapUniform(GLint index, const vector<LLStaticHashedString>* uniforms)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
+    llassert(uniforms == nullptr);
 
     if (index == -1)
     {

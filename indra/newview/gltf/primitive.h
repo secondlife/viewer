@@ -64,12 +64,12 @@ namespace LL
             // GPU copy of mesh data
             LLPointer<LLVertexBuffer> mVertexBuffer;
 
-            // CPU copy of mesh data
+            // CPU copy of mesh data, keep these as LLVector types for compatibility with raycasting code
             std::vector<LLVector2> mTexCoords;
             std::vector<LLVector4a> mNormals;
             std::vector<LLVector4a> mTangents;
             std::vector<LLVector4a> mPositions;
-            std::vector<LLVector4a> mJoints;
+            std::vector<U64> mJoints;
             std::vector<LLVector4a> mWeights;
             std::vector<LLColor4U> mColors;
             std::vector<U32> mIndexArray;
@@ -82,6 +82,10 @@ namespace LL
             Mode mMode = Mode::TRIANGLES; // default to triangles
             LLRender::eGeomModes mGLMode = LLRender::TRIANGLES; // for use with LLRender
             S32 mIndices = -1;
+
+            // true if normals were not specified in the GLTF file
+            // From the GLTF spec: When normals are not specified, client implementations MUST calculate flat normals and the provided tangents (if present) MUST be ignored.
+            bool mFlatShaded = false;
             std::unordered_map<std::string, S32> mAttributes;
 
             // create octree based on vertex buffer
