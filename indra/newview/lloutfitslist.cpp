@@ -567,7 +567,7 @@ void LLOutfitsList::onFilterSubStringChanged(const std::string& new_string, cons
 		LLWearableItemsList* list = dynamic_cast<LLWearableItemsList*>(tab->getAccordionView());
 		if (list)
 		{
-			list->setFilterSubString(new_string, tab->getDisplayChildren());
+			list->setFilterSubString(new_string, true);
 		}
 
 		if (old_string.empty())
