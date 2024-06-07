@@ -314,7 +314,7 @@ public:
     /**
      * Saves an IM message into a file
      */
-    bool logToFile(const std::string& file_name, const std::string& from, const LLUUID& from_id, const std::string& utf8_text);
+    bool logToFile(const std::string& file_name, const std::string& from, const LLUUID& from_id, const std::string& utf8_text, const std::string& utf8_trans = LLStringUtil::null);
 
 private:
 

@@ -238,6 +238,7 @@ void LLFloaterIMNearbyChat::loadHistory()
         chat.mFromName = from;
         chat.mFromID = from_id;
         chat.mText = msg[LL_IM_TEXT].asString();
+        chat.mTrans = msg[LL_IM_TRANS].asString();
         chat.mTimeStr = msg[LL_IM_TIME].asString();
         chat.mChatStyle = CHAT_STYLE_HISTORY;
 
@@ -578,7 +579,7 @@ EChatType LLFloaterIMNearbyChat::processChatTypeTriggers(EChatType type, std::st
     return type;
 }
 
-void LLFloaterIMNearbyChat::sendChat( EChatType type )
+void LLFloaterIMNearbyChat::sendChat(EChatType type)
 {
     if (mInputEditor)
     {
@@ -633,7 +634,7 @@ void LLFloaterIMNearbyChat::sendChat( EChatType type )
     }
 }
 
-void LLFloaterIMNearbyChat::addMessage(const LLChat& chat,bool archive,const LLSD &args)
+void LLFloaterIMNearbyChat::addMessage(const LLChat& chat, bool archive, const LLSD &args)
 {
     appendMessage(chat, args);
 
@@ -663,7 +664,7 @@ void LLFloaterIMNearbyChat::addMessage(const LLChat& chat,bool archive,const LLS
             }
         }
 
-        LLLogChat::saveHistory("chat", from_name, chat.mFromID, chat.mText);
+        LLLogChat::saveHistory("chat", from_name, chat.mFromID, chat.mText, chat.mTrans);
     }
 }
 
