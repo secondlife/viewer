@@ -184,17 +184,14 @@ public:
     // If force_read is true, will force an immediate readback (severe performance penalty)
     bool readProfileQuery(bool for_runtime = false, bool force_read = false);
 
-    bool createShader(std::vector<LLStaticHashedString>* attributes,
-        std::vector<LLStaticHashedString>* uniforms,
-        U32 varying_count = 0,
-        const char** varyings = NULL);
+    bool createShader();
     bool attachFragmentObject(std::string object);
     bool attachVertexObject(std::string object);
     void attachObject(GLuint object);
     void attachObjects(GLuint* objects = NULL, S32 count = 0);
-    bool mapAttributes(const std::vector<LLStaticHashedString>* attributes);
-    bool mapUniforms(const std::vector<LLStaticHashedString>*);
-    void mapUniform(GLint index, const std::vector<LLStaticHashedString>*);
+    bool mapAttributes();
+    bool mapUniforms();
+    void mapUniform(GLint index);
     void uniform1i(U32 index, GLint i);
     void uniform1f(U32 index, GLfloat v);
     void fastUniform1f(U32 index, GLfloat v);
@@ -330,17 +327,15 @@ public:
     // variants for use by GLTF renderer
     // bit 0 = alpha mode blend (1) or opaque (0)
     // bit 1 = rigged (1) or static (0)
+    // bit 2 = unlit (1) or lit (0)
     struct GLTFVariant
     {
+        constexpr static U32 ALPHA_BLEND = 1;
         constexpr static U32 RIGGED = 2;
-        constexpr static U32 ALPHA = 1;
-        constexpr static U32 OPAQUE_STATIC = 0;
-        constexpr static U32 ALPHA_STATIC = 1;
-        constexpr static U32 OPAQUE_RIGGED = 2;
-        constexpr static U32 ALPHA_RIGGED = 3;
+        constexpr static U32 UNLIT = 4;
     };
 
-    constexpr static U32 NUM_GLTF_VARIANTS = 4;
+    constexpr static U32 NUM_GLTF_VARIANTS = 8;
 
     std::vector<LLGLSLShader> mGLTFVariants;
 

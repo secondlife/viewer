@@ -1009,7 +1009,7 @@ F32 gpu_benchmark()
         gBenchmarkProgram.mShaderFiles.push_back(std::make_pair("interface/benchmarkV.glsl", GL_VERTEX_SHADER));
         gBenchmarkProgram.mShaderFiles.push_back(std::make_pair("interface/benchmarkF.glsl", GL_FRAGMENT_SHADER));
         gBenchmarkProgram.mShaderLevel = 1;
-        if (!gBenchmarkProgram.createShader(NULL, NULL))
+        if (!gBenchmarkProgram.createShader())
         {
             return -1.f;
         }

@@ -28,20 +28,61 @@
 
 // GLTF pbrMetallicRoughness implementation
 
-uniform sampler2D diffuseMap;  //always in sRGB space
 
-uniform float metallicFactor;
-uniform float roughnessFactor;
-uniform vec3 emissiveColor;
-uniform sampler2D normalMap;
+// ==================================
+// needed by all variants
+// ==================================
+uniform sampler2D diffuseMap;  //always in sRGB space
 uniform sampler2D emissiveMap;
+uniform vec3 emissiveColor;
+in vec3 vary_position;
+in vec4 vertex_color;
+in vec2 base_color_texcoord;
+in vec2 emissive_texcoord;
+uniform float minimum_alpha;
+
+void mirrorClip(vec3 pos);
+vec3 linear_to_srgb(vec3 c);
+vec3 srgb_to_linear(vec3 c);
+// ==================================
+
+
+// ==================================
+// needed by all lit variants
+// ==================================
+#ifndef UNLIT
+uniform sampler2D normalMap;
 uniform sampler2D metallicRoughnessMap;
 uniform sampler2D occlusionMap;
+uniform float metallicFactor;
+uniform float roughnessFactor;
+in vec3 vary_normal;
+in vec3 vary_tangent;
+flat in float vary_sign;
+in vec2 normal_texcoord;
+in vec2 metallic_roughness_texcoord;
+#endif
+// ==================================
 
+
+// ==================================
+// needed by all alpha variants
+// ==================================
 #ifdef ALPHA_BLEND
-out vec4 frag_color;
-
 in vec3 vary_fragcoord;
+uniform vec4 clipPlane;
+uniform float clipSign;
+void waterClip(vec3 pos);
+void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 norm, vec3 light_dir, out vec3 sunlit, out vec3 amblit, out vec3 atten, out vec3 additive);
+vec4 applySkyAndWaterFog(vec3 pos, vec3 additive, vec3 atten, vec4 color);
+#endif
+// ==================================
+
+
+// ==================================
+// needed by lit alpha
+// ==================================
+#if defined(ALPHA_BLEND) && !defined(UNLIT)
 
 #ifdef HAS_SUN_SHADOW
 uniform sampler2D lightMap;
@@ -60,20 +101,11 @@ uniform int sun_up_factor;
 uniform vec3 sun_dir;
 uniform vec3 moon_dir;
 
-vec3 srgb_to_linear(vec3 c);
-vec3 linear_to_srgb(vec3 c);
-
-void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 norm, vec3 light_dir, out vec3 sunlit, out vec3 amblit, out vec3 atten, out vec3 additive);
-vec4 applySkyAndWaterFog(vec3 pos, vec3 additive, vec3 atten, vec4 color);
-
 void calcHalfVectors(vec3 lv, vec3 n, vec3 v, out vec3 h, out vec3 l, out float nh, out float nl, out float nv, out float vh, out float lightDist);
 float calcLegacyDistanceAttenuation(float distance, float falloff);
 float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen);
 void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
         vec2 tc, vec3 pos, vec3 norm, float glossiness, bool transparent, vec3 amblit_linear);
-
-void mirrorClip(vec3 pos);
-void waterClip(vec3 pos);
 
 void calcDiffuseSpecular(vec3 baseColor, float metallic, inout vec3 diffuseColor, inout vec3 specularColor);
 
@@ -104,44 +136,36 @@ vec3 pbrCalcPointLightOrSpotLight(vec3 diffuseColor, vec3 specularColor,
                     vec3 lightColor,
                     float lightSize, float falloff, float is_pointlight, float ambiance);
 
+#endif
+// ==================================
 
+
+// ==================================
+// output definition
+// ==================================
+#if defined(ALPHA_BLEND) || defined(UNLIT)
+out vec4 frag_color;
 #else
 out vec4 frag_data[4];
 #endif
-
-
-in vec3 vary_position;
-in vec4 vertex_color;
-in vec3 vary_normal;
-in vec3 vary_tangent;
-flat in float vary_sign;
-
-in vec2 base_color_texcoord;
-in vec2 normal_texcoord;
-in vec2 metallic_roughness_texcoord;
-in vec2 emissive_texcoord;
-
-uniform float minimum_alpha;
-
-vec3 linear_to_srgb(vec3 c);
-vec3 srgb_to_linear(vec3 c);
-
-uniform vec4 clipPlane;
-uniform float clipSign;
-
-void mirrorClip(vec3 pos);
-
-uniform mat3 normal_matrix;
+// ==================================
 
 
 void main()
 {
+
+// ==================================
+// all variants
+//   mirror clip
+//   base color
+//   masking
+//   emissive
+// ==================================
     vec3 pos = vary_position;
     mirrorClip(pos);
 
     vec4 basecolor = texture(diffuseMap, base_color_texcoord.xy).rgba;
     basecolor.rgb = srgb_to_linear(basecolor.rgb);
-
     basecolor *= vertex_color;
 
     if (basecolor.a < minimum_alpha)
@@ -149,8 +173,16 @@ void main()
         discard;
     }
 
-    vec3 col = basecolor.rgb;
+    vec3 emissive = emissiveColor;
+    emissive *= srgb_to_linear(texture(emissiveMap, emissive_texcoord.xy).rgb);
+// ==================================
 
+// ==================================
+// all lit variants
+//   prepare norm
+//   prepare orm
+// ==================================
+#ifndef UNLIT
     // from mikktspace.com
     vec3 vNt = texture(normalMap, normal_texcoord.xy).xyz*2.0-1.0;
     float sign = vary_sign;
@@ -159,6 +191,7 @@ void main()
 
     vec3 vB = sign * cross(vN, vT);
     vec3 norm = normalize( vNt.x * vT + vNt.y * vB + vNt.z * vN );
+    norm *= gl_FrontFacing ? 1.0 : -1.0;
 
     // RGB = Occlusion, Roughness, Metal
     // default values, see LLViewerTexture::sDefaultPBRORMImagep
@@ -169,24 +202,49 @@ void main()
     orm.r = texture(occlusionMap, metallic_roughness_texcoord.xy).r;
     orm.g *= roughnessFactor;
     orm.b *= metallicFactor;
+#endif
+// ==================================
 
-    vec3 emissive = emissiveColor;
-    emissive *= srgb_to_linear(texture(emissiveMap, emissive_texcoord.xy).rgb);
+// ==================================
+// non alpha output
+// ==================================
+#ifndef ALPHA_BLEND
+#ifdef UNLIT
+    vec4 color = basecolor;
+    color.rgb += emissive.rgb;
+    frag_color = color;
+#else
+    frag_data[0] = max(vec4(basecolor.rgb, 0.0), vec4(0));
+    frag_data[1] = max(vec4(orm.rgb,0.0), vec4(0));
+    frag_data[2] = vec4(norm, GBUFFER_FLAG_HAS_PBR);
+    frag_data[3] = max(vec4(emissive,0), vec4(0));
+#endif
+#endif
 
-    norm *= gl_FrontFacing ? 1.0 : -1.0;
 
+// ==================================
+// alpha implementation
+// ==================================
 #ifdef ALPHA_BLEND
-    vec3 color = vec3(0,0,0);
-
-    vec3  light_dir   = (sun_up_factor == 1) ? sun_dir : moon_dir;
 
     float scol = 1.0;
     vec3 sunlit;
     vec3 amblit;
     vec3 additive;
     vec3 atten;
+
+    vec3  light_dir;
+
+#ifdef UNLIT
+    light_dir = vec3(0,0,1);
+    vec3 norm = vec3(0,0,1);
+#else
+    light_dir = (sun_up_factor == 1) ? sun_dir : moon_dir;
+#endif
+
     calcAtmosphericVarsLinear(pos.xyz, norm, light_dir, sunlit, amblit, additive, atten);
 
+#ifndef UNLIT
     vec3 sunlit_linear = srgb_to_linear(sunlit);
 
     vec2 frag = vary_fragcoord.xy/vary_fragcoord.z*0.5+0.5;
@@ -198,11 +256,6 @@ void main()
     float perceptualRoughness = orm.g * roughnessFactor;
     float metallic = orm.b * metallicFactor;
 
-    // emissiveColor is the emissive color factor from GLTF and is already in linear space
-    vec3 colorEmissive = emissiveColor;
-    // emissiveMap here is a vanilla RGB texture encoded as sRGB, manually convert to linear
-    colorEmissive *= srgb_to_linear(texture(emissiveMap, emissive_texcoord.xy).rgb);
-
     // PBR IBL
     float gloss      = 1.0 - perceptualRoughness;
     vec3  irradiance = vec3(0);
@@ -211,11 +264,11 @@ void main()
 
     vec3 diffuseColor;
     vec3 specularColor;
-    calcDiffuseSpecular(col.rgb, metallic, diffuseColor, specularColor);
+    calcDiffuseSpecular(basecolor.rgb, metallic, diffuseColor, specularColor);
 
     vec3 v = -normalize(pos.xyz);
 
-    color = pbrBaseLight(diffuseColor, specularColor, metallic, v, norm.xyz, perceptualRoughness, light_dir, sunlit_linear, scol, radiance, irradiance, colorEmissive, orm.r, additive, atten);
+    vec3 color = pbrBaseLight(diffuseColor, specularColor, metallic, v, norm.xyz, perceptualRoughness, light_dir, sunlit_linear, scol, radiance, irradiance, emissive, orm.r, additive, atten);
 
     vec3 light = vec3(0);
 
@@ -237,12 +290,11 @@ void main()
     float a = basecolor.a*vertex_color.a;
 
     frag_color = max(vec4(color.rgb,a), vec4(0));
-#else
-    // See: C++: addDeferredAttachments(), GLSL: softenLightF
-    frag_data[0] = max(vec4(col, 0.0), vec4(0));
-    frag_data[1] = max(vec4(orm.rgb,0.0), vec4(0));
-    frag_data[2] = vec4(norm, GBUFFER_FLAG_HAS_PBR);
-    frag_data[3] = max(vec4(emissive,0), vec4(0));
+#else // UNLIT
+    vec4 color = basecolor;
+    color.rgb += emissive.rgb;
+    frag_color = color;
 #endif
+#endif  // ALPHA_BLEND
 }
 

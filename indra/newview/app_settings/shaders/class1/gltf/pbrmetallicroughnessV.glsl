@@ -42,24 +42,24 @@ uniform vec4[2] texture_emissive_transform;
 
 in vec3 position;
 in vec4 diffuse_color;
+in vec2 texcoord0;
+out vec2 base_color_texcoord;
+out vec2 emissive_texcoord;
+out vec4 vertex_color;
+out vec3 vary_position;
+
+#ifndef UNLIT
 in vec3 normal;
 in vec4 tangent;
-in vec2 texcoord0;
-
-out vec2 base_color_texcoord;
 out vec2 normal_texcoord;
 out vec2 metallic_roughness_texcoord;
-out vec2 emissive_texcoord;
-
-out vec4 vertex_color;
-
 out vec3 vary_tangent;
 flat out float vary_sign;
 out vec3 vary_normal;
-out vec3 vary_position;
+vec3 tangent_space_transform(vec4 vertex_tangent, vec3 vertex_normal, vec4[2] khr_gltf_transform, mat4 sl_animation_transform);
+#endif
 
 vec2 texture_transform(vec2 vertex_texcoord, vec4[2] khr_gltf_transform, mat4 sl_animation_transform);
-vec3 tangent_space_transform(vec4 vertex_tangent, vec3 vertex_normal, vec4[2] khr_gltf_transform, mat4 sl_animation_transform);
 
 
 #ifdef ALPHA_BLEND
@@ -137,10 +137,15 @@ void main()
 #endif
 
     base_color_texcoord = texture_transform(texcoord0, texture_base_color_transform, texture_matrix0);
-    normal_texcoord = texture_transform(texcoord0, texture_normal_transform, texture_matrix0);
-    metallic_roughness_texcoord = texture_transform(texcoord0, texture_metallic_roughness_transform, texture_matrix0);
     emissive_texcoord = texture_transform(texcoord0, texture_emissive_transform, texture_matrix0);
 
+#ifndef UNLIT
+    normal_texcoord = texture_transform(texcoord0, texture_normal_transform, texture_matrix0);
+    metallic_roughness_texcoord = texture_transform(texcoord0, texture_metallic_roughness_transform, texture_matrix0);
+#endif
+    
+
+#ifndef UNLIT
 #ifdef HAS_SKIN
     vec3 n = (mat*vec4(normal.xyz+position.xyz,1.0)).xyz-pos.xyz;
     vec3 t = (mat*vec4(tangent.xyz+position.xyz,1.0)).xyz-pos.xyz;
@@ -150,10 +155,10 @@ void main()
 #endif
 
     n = normalize(n);
-
     vary_tangent = normalize(tangent_space_transform(vec4(t, tangent.w), n, texture_normal_transform, texture_matrix0));
     vary_sign = tangent.w;
     vary_normal = n;
+#endif
 
     vertex_color = diffuse_color;
 #ifdef ALPHA_BLEND

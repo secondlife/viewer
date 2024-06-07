@@ -49,8 +49,8 @@ namespace LL
         void uploadSelection(); // decompose selected asset and upload to simulator
 
         void update();
-        void render(bool opaque, bool rigged = false);
-        void render(LL::GLTF::Asset& asset, bool opaque, bool rigged);
+        void render(bool opaque, bool rigged = false, bool unlit = false);
+        void render(LL::GLTF::Asset& asset, bool opaque, bool rigged, bool unlit);
 
         // bind the given material for rendering
         void bind(LL::GLTF::Asset& asset, LL::GLTF::Material& material);

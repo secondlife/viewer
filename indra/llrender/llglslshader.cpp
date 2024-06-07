@@ -381,15 +381,10 @@ void LLGLSLShader::unloadInternal()
     stop_glerror();
 }
 
-bool LLGLSLShader::createShader(std::vector<LLStaticHashedString>* attributes,
-    std::vector<LLStaticHashedString>* uniforms,
-    U32 varying_count,
-    const char** varyings)
+bool LLGLSLShader::createShader()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
-    llassert(attributes == nullptr);
-    llassert(uniforms == nullptr);
-
+    
     unloadInternal();
 
     sInstances.insert(this);
@@ -456,11 +451,11 @@ bool LLGLSLShader::createShader(std::vector<LLStaticHashedString>* attributes,
     // Map attributes and uniforms
     if (success)
     {
-        success = mapAttributes(attributes);
+        success = mapAttributes();
     }
     if (success)
     {
-        success = mapUniforms(uniforms);
+        success = mapUniforms();
     }
     if (!success)
     {
@@ -471,7 +466,7 @@ bool LLGLSLShader::createShader(std::vector<LLStaticHashedString>* attributes,
         {
             LL_SHADER_LOADING_WARNS() << "Failed to link using shader level " << mShaderLevel << " trying again using shader level " << (mShaderLevel - 1) << LL_ENDL;
             mShaderLevel--;
-            return createShader(attributes, uniforms);
+            return createShader();
         }
         else
         {
@@ -604,10 +599,9 @@ void LLGLSLShader::attachObjects(GLuint* objects, S32 count)
     }
 }
 
-bool LLGLSLShader::mapAttributes(const std::vector<LLStaticHashedString>* attributes)
+bool LLGLSLShader::mapAttributes()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
-    llassert(attributes == nullptr);
 
     bool res = true;
     if (!mUsingBinaryProgram)
@@ -624,11 +618,10 @@ bool LLGLSLShader::mapAttributes(const std::vector<LLStaticHashedString>* attrib
     }
 
     mAttribute.clear();
-    U32 numAttributes = (attributes == NULL) ? 0 : attributes->size();
 #if LL_RELEASE_WITH_DEBUG_INFO
-    mAttribute.resize(LLShaderMgr::instance()->mReservedAttribs.size() + numAttributes, { -1, NULL });
+    mAttribute.resize(LLShaderMgr::instance()->mReservedAttribs.size(), { -1, NULL });
 #else
-    mAttribute.resize(LLShaderMgr::instance()->mReservedAttribs.size() + numAttributes, -1);
+    mAttribute.resize(LLShaderMgr::instance()->mReservedAttribs.size(), -1);
 #endif
 
     if (res)
@@ -652,19 +645,6 @@ bool LLGLSLShader::mapAttributes(const std::vector<LLStaticHashedString>* attrib
                 LL_DEBUGS("ShaderUniform") << "Attribute " << name << " assigned to channel " << index << LL_ENDL;
             }
         }
-        if (attributes != NULL)
-        {
-            for (U32 i = 0; i < numAttributes; i++)
-            {
-                const char* name = (*attributes)[i].String().c_str();
-                S32 index = glGetAttribLocation(mProgramObject, name);
-                if (index != -1)
-                {
-                    mAttribute[LLShaderMgr::instance()->mReservedAttribs.size() + i] = index;
-                    LL_DEBUGS("ShaderUniform") << "Attribute " << name << " assigned to channel " << index << LL_ENDL;
-                }
-            }
-        }
 
         return true;
     }
@@ -672,10 +652,9 @@ bool LLGLSLShader::mapAttributes(const std::vector<LLStaticHashedString>* attrib
     return false;
 }
 
-void LLGLSLShader::mapUniform(GLint index, const vector<LLStaticHashedString>* uniforms)
+void LLGLSLShader::mapUniform(GLint index)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
-    llassert(uniforms == nullptr);
 
     if (index == -1)
     {
@@ -760,21 +739,6 @@ void LLGLSLShader::mapUniform(GLint index, const vector<LLStaticHashedString>* u
                 return;
             }
         }
-
-        if (uniforms != NULL)
-        {
-            for (U32 i = 0; i < uniforms->size(); i++)
-            {
-                if ((mUniform[i + LLShaderMgr::instance()->mReservedUniforms.size()] == -1)
-                    && ((*uniforms)[i].String() == name))
-                {
-                    //found it
-                    mUniform[i + LLShaderMgr::instance()->mReservedUniforms.size()] = location;
-                    mTexture[i + LLShaderMgr::instance()->mReservedUniforms.size()] = mapUniformTextureChannel(location, type, size);
-                    return;
-                }
-            }
-        }
     }
 }
 
@@ -834,7 +798,7 @@ GLint LLGLSLShader::mapUniformTextureChannel(GLint location, GLenum type, GLint 
     return -1;
 }
 
-bool LLGLSLShader::mapUniforms(const vector<LLStaticHashedString>* uniforms)
+bool LLGLSLShader::mapUniforms()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
 
@@ -847,9 +811,8 @@ bool LLGLSLShader::mapUniforms(const vector<LLStaticHashedString>* uniforms)
     mTexture.clear();
     mValue.clear();
     //initialize arrays
-    U32 numUniforms = (uniforms == NULL) ? 0 : uniforms->size();
-    mUniform.resize(numUniforms + LLShaderMgr::instance()->mReservedUniforms.size(), -1);
-    mTexture.resize(numUniforms + LLShaderMgr::instance()->mReservedUniforms.size(), -1);
+    mUniform.resize(LLShaderMgr::instance()->mReservedUniforms.size(), -1);
+    mTexture.resize(LLShaderMgr::instance()->mReservedUniforms.size(), -1);
 
     bind();
 
@@ -950,26 +913,26 @@ bool LLGLSLShader::mapUniforms(const vector<LLStaticHashedString>* uniforms)
 
         if (specularDiff || bumpLessDiff || envLessDiff || refLessDiff)
         {
-            mapUniform(diffuseMap, uniforms);
+            mapUniform(diffuseMap);
             skip_index.insert(diffuseMap);
 
             if (-1 != specularMap) {
-                mapUniform(specularMap, uniforms);
+                mapUniform(specularMap);
                 skip_index.insert(specularMap);
             }
 
             if (-1 != bumpMap) {
-                mapUniform(bumpMap, uniforms);
+                mapUniform(bumpMap);
                 skip_index.insert(bumpMap);
             }
 
             if (-1 != environmentMap) {
-                mapUniform(environmentMap, uniforms);
+                mapUniform(environmentMap);
                 skip_index.insert(environmentMap);
             }
 
             if (-1 != reflectionMap) {
-                mapUniform(reflectionMap, uniforms);
+                mapUniform(reflectionMap);
                 skip_index.insert(reflectionMap);
             }
         }
@@ -983,7 +946,7 @@ bool LLGLSLShader::mapUniforms(const vector<LLStaticHashedString>* uniforms)
         if (skip_index.end() != skip_index.find(i)) continue;
         //........................................................................................
 
-        mapUniform(i, uniforms);
+        mapUniform(i);
     }
     //........................................................................................................................................
 

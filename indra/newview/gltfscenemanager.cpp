@@ -528,7 +528,7 @@ void GLTFSceneManager::update()
     }
 }
 
-void GLTFSceneManager::render(bool opaque, bool rigged)
+void GLTFSceneManager::render(bool opaque, bool rigged, bool unlit)
 {
     // for debugging, just render the whole scene as opaque
     // by traversing the whole scenegraph
@@ -564,13 +564,13 @@ void GLTFSceneManager::render(bool opaque, bool rigged)
             // (matrix palettes are in asset space)
             gGL.loadMatrix(glm::value_ptr(mdv));
         }
-        render(*asset, opaque, rigged);
+        render(*asset, opaque, rigged, unlit);
 
         gGL.popMatrix();
     }
 }
 
-void GLTFSceneManager::render(Asset& asset, bool opaque, bool rigged)
+void GLTFSceneManager::render(Asset& asset, bool opaque, bool rigged, bool unlit)
 {
     U32 variant = 0;
     if (rigged)
@@ -579,7 +579,11 @@ void GLTFSceneManager::render(Asset& asset, bool opaque, bool rigged)
     }
     if (!opaque)
     {
-        variant |= LLGLSLShader::GLTFVariant::ALPHA;
+        variant |= LLGLSLShader::GLTFVariant::ALPHA_BLEND;
+    }
+    if (unlit)
+    {
+        variant |= LLGLSLShader::GLTFVariant::UNLIT;
     }
 
     if (opaque)
