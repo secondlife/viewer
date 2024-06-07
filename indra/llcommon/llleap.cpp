@@ -124,13 +124,9 @@ public:
 
         // Listening on stdout is stateful. In general, we're either waiting
         // for the length prefix or waiting for the specified length of data.
-        // We address that with two different listener methods -- one of which
-        // is blocked at any given time.
+        mReadPrefix = true;
         mStdoutConnection = childout.getPump()
-            .listen("prefix", [this](const LLSD& data){ return rstdout(data); });
-        mStdoutDataConnection = childout.getPump()
-            .listen("data",   [this](const LLSD& data){ return rstdoutData(data); });
-        mBlocker.reset(new LLEventPump::Blocker(mStdoutDataConnection));
+            .listen("LLLeap", [this](const LLSD& data){ return rstdout(data); });
 
         // Log anything sent up through stderr. When a typical program
         // encounters an error, it writes its error message to stderr and
@@ -251,120 +247,120 @@ public:
         return false;
     }
 
-    // Initial state of stateful listening on child stdout: wait for a length
-    // prefix, followed by ':'.
-    bool rstdout(const LLSD& data)
+    // Stateful listening on child stdout:
+    // wait for a length prefix, followed by ':'.
+    bool rstdout(const LLSD&)
     {
         LLProcess::ReadPipe& childout(mChild->getReadPipe(LLProcess::STDOUT));
-        // It's possible we got notified of a couple digit characters without
-        // seeing the ':' -- unlikely, but still. Until we see ':', keep
-        // waiting.
-        if (childout.contains(':'))
+        while (childout.size())
         {
-            std::istream& childstream(childout.get_istream());
-            // Saw ':', read length prefix and store in mExpect.
-            size_t expect;
-            childstream >> expect;
-            int colon(childstream.get());
-            if (colon != ':')
+            /*----------------- waiting for length prefix ------------------*/
+            if (mReadPrefix)
             {
-                // Protocol failure. Clear out the rest of the pending data in
-                // childout (well, up to a max length) to log what was wrong.
-                LLProcess::ReadPipe::size_type
-                    readlen((std::min)(childout.size(), LLProcess::ReadPipe::size_type(80)));
-                bad_protocol(STRINGIZE(expect << char(colon) << childout.read(readlen)));
-            }
-            else
-            {
-                // Saw length prefix, saw colon, life is good. Now wait for
-                // that length of data to arrive.
-                mExpect = expect;
-                LL_DEBUGS("LLLeap") << "got length, waiting for "
-                                    << mExpect << " bytes of data" << LL_ENDL;
-                // Block calls to this method; resetting mBlocker unblocks
-                // calls to the other method.
-                mBlocker.reset(new LLEventPump::Blocker(mStdoutConnection));
-                // Go check if we've already received all the advertised data.
-                if (childout.size())
+                // It's possible we got notified of a couple digit characters without
+                // seeing the ':' -- unlikely, but still. Until we see ':', keep
+                // waiting.
+                if (! childout.contains(':'))
                 {
-                    LLSD updata(data);
-                    updata["len"] = LLSD::Integer(childout.size());
-                    rstdoutData(updata);
+                    if (childout.contains('\n'))
+                    {
+                        // Since this is the initial listening state, this is where we'd
+                        // arrive if the child isn't following protocol at all -- say
+                        // because the user specified 'ls' or some darn thing.
+                        bad_protocol(childout.getline());
+                    }
+                    // Either way, stop looping.
+                    break;
                 }
-            }
-        }
-        else if (childout.contains('\n'))
-        {
-            // Since this is the initial listening state, this is where we'd
-            // arrive if the child isn't following protocol at all -- say
-            // because the user specified 'ls' or some darn thing.
-            bad_protocol(childout.getline());
-        }
-        return false;
-    }
 
-    // State in which we listen on stdout for the specified length of data to
-    // arrive.
-    bool rstdoutData(const LLSD& data)
-    {
-        LLProcess::ReadPipe& childout(mChild->getReadPipe(LLProcess::STDOUT));
-        // Until we've accumulated the promised length of data, keep waiting.
-        if (childout.size() >= mExpect)
-        {
-            // Ready to rock and roll.
-            LL_DEBUGS("LLLeap") << "needed " << mExpect << " bytes, got "
-                                << childout.size() << ", parsing LLSD" << LL_ENDL;
-            LLSD data;
-#if 1
-            // specifically require notation LLSD from child
-            LLPointer<LLSDParser> parser(new LLSDNotationParser());
-            S32 parse_status(parser->parse(childout.get_istream(), data, mExpect));
-            if (parse_status == LLSDParser::PARSE_FAILURE)
-#else
-            // SL-18330: accept any valid LLSD serialization format from child
-            // Unfortunately this runs into trouble we have not yet debugged.
-            bool parse_status(LLSDSerialize::deserialize(data, childout.get_istream(), mExpect));
-            if (! parse_status)
-#endif
-            {
-                bad_protocol("unparseable LLSD data");
+                // Saw ':', read length prefix and store in mExpect.
+                std::istream& childstream(childout.get_istream());
+                size_t expect;
+                childstream >> expect;
+                int colon(childstream.get());
+                if (colon != ':')
+                {
+                    // Protocol failure. Clear out the rest of the pending data in
+                    // childout (well, up to a max length) to log what was wrong.
+                    LLProcess::ReadPipe::size_type
+                        readlen((std::min)(childout.size(),
+                                           LLProcess::ReadPipe::size_type(80)));
+                    bad_protocol(stringize(expect, char(colon), childout.read(readlen)));
+                    break;
+                }
+                else
+                {
+                    // Saw length prefix, saw colon, life is good. Now wait for
+                    // that length of data to arrive.
+                    mExpect = expect;
+                    LL_DEBUGS("LLLeap") << "got length, waiting for "
+                                        << mExpect << " bytes of data" << LL_ENDL;
+                    // Transition to "read data" mode and loop back to check
+                    // if we've already received all the advertised data.
+                    mReadPrefix = false;
+                    continue;
+                }
             }
-            else if (! (data.isMap() && data["pump"].isString() && data.has("data")))
-            {
-                // we got an LLSD object, but it lacks required keys
-                bad_protocol("missing 'pump' or 'data'");
-            }
+            /*----------------- saw prefix, wait for data ------------------*/
             else
             {
-                try
+                // Until we've accumulated the promised length of data, keep waiting.
+                if (childout.size() < mExpect)
                 {
-                    // The LLSD object we got from our stream contains the
-                    // keys we need.
-                    LLEventPumps::instance().obtain(data["pump"]).post(data["data"]);
+                    break;
                 }
-                catch (const std::exception& err)
+
+                // We have the data we were told to expect! Ready to rock and roll.
+                LL_DEBUGS("LLLeap") << "needed " << mExpect << " bytes, got "
+                                    << childout.size() << ", parsing LLSD" << LL_ENDL;
+                LLSD data;
+#if 1
+                // specifically require notation LLSD from child
+                LLPointer<LLSDParser> parser(new LLSDNotationParser());
+                S32 parse_status(parser->parse(childout.get_istream(), data, mExpect));
+                if (parse_status == LLSDParser::PARSE_FAILURE)
+#else
+                // SL-18330: accept any valid LLSD serialization format from child
+                // Unfortunately this runs into trouble we have not yet debugged.
+                bool parse_status(LLSDSerialize::deserialize(data, childout.get_istream(), mExpect));
+                if (! parse_status)
+#endif
                 {
-                    // No plugin should be allowed to crash the viewer by
-                    // driving an exception -- intentionally or not.
-                    LOG_UNHANDLED_EXCEPTION(stringize("handling request ", data));
-                    // Whether or not the plugin added a "reply" key to the
-                    // request, send a reply. We happen to know who originated
-                    // this request, and the reply LLEventPump of interest.
-                    // Not our problem if the plugin ignores the reply event.
-                    data["reply"] = mListener->getReplyPump().getName();
-                    sendReply(llsd::map("error",
-                                        stringize(LLError::Log::classname(err), ": ", err.what())),
-                              data);
+                    bad_protocol("unparseable LLSD data");
+                    break;
                 }
-                // Block calls to this method; resetting mBlocker unblocks
-                // calls to the other method.
-                mBlocker.reset(new LLEventPump::Blocker(mStdoutDataConnection));
-                // Go check for any more pending events in the buffer.
-                if (childout.size())
+                else if (! (data.isMap() && data["pump"].isString() && data.has("data")))
                 {
-                    LLSD updata(data);
-                    data["len"] = LLSD::Integer(childout.size());
-                    rstdout(updata);
+                    // we got an LLSD object, but it lacks required keys
+                    bad_protocol("missing 'pump' or 'data'");
+                    break;
+                }
+                else
+                {
+                    try
+                    {
+                        // The LLSD object we got from our stream contains the
+                        // keys we need.
+                        LLEventPumps::instance().obtain(data["pump"]).post(data["data"]);
+                    }
+                    catch (const std::exception& err)
+                    {
+                        // No plugin should be allowed to crash the viewer by
+                        // driving an exception -- intentionally or not.
+                        LOG_UNHANDLED_EXCEPTION(stringize("handling request ", data));
+                        // Whether or not the plugin added a "reply" key to the
+                        // request, send a reply. We happen to know who originated
+                        // this request, and the reply LLEventPump of interest.
+                        // Not our problem if the plugin ignores the reply event.
+                        data["reply"] = mReplyPump.getName();
+                        sendReply(llsd::map("error",
+                                            stringize(LLError::Log::classname(err), ": ", err.what())),
+                                  data);
+                    }
+                    // Transition to "read prefix" mode and go check for any
+                    // more pending events in the buffer.
+                    mReadPrefix = true;
+                    continue;
                 }
             }
         }
@@ -444,11 +440,12 @@ private:
     std::string mDesc;
     LLEventStream mDonePump;
     LLProcessPtr mChild;
-    LLTempBoundListener mStdoutConnection, mStdoutDataConnection, mStderrConnection;
-    std::unique_ptr<LLEventPump::Blocker> mBlocker;
+    LLTempBoundListener
+        mStdinConnection, mStdoutConnection, mStderrConnection;
     LLProcess::ReadPipe::size_type mExpect;
     LLError::RecorderPtr mRecorder;
     std::unique_ptr<LLLeapListener> mListener;
+    bool mReadPrefix;
 };
 
 // These must follow the declaration of LLLeapImpl, so they may as well be last.
