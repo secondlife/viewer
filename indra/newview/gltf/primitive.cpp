@@ -289,7 +289,7 @@ bool Primitive::prep(Asset& asset)
         }
     }
 
-    U32 mask = ATTRIBUTE_MASK;
+    U32 mask = LLVertexBuffer::MAP_VERTEX;
 
     if (!mWeights.empty())
     {
@@ -302,10 +302,16 @@ bool Primitive::prep(Asset& asset)
         mTexCoords.resize(mPositions.size());
     }
 
+    // TODO: support more than one texcoord set (or no texcoords)
+    mask |= LLVertexBuffer::MAP_TEXCOORD0;
+
     if (mColors.empty())
     {
         mColors.resize(mPositions.size(), LLColor4U::white);
     }
+
+    // TODO: support colorless vertex buffers
+    mask |= LLVertexBuffer::MAP_COLOR;
 
     // bake material basecolor into color array
     if (mMaterial != INVALID_INDEX)
@@ -318,33 +324,75 @@ bool Primitive::prep(Asset& asset)
         }
     }
 
+    mShaderVariant = 0;
+
     if (mNormals.empty())
     {
-        // unroll into non-indexed array of flat shaded triangles
         mTangents.clear();
 
-        MikktMesh data;
-        if (!data.copy(this))
-        {
-            return false;
+        if (mMode == Mode::POINTS || mMode == Mode::LINES || mMode == Mode::LINE_LOOP || mMode == Mode::LINE_STRIP)
+        { //no normals and no surfaces, this primitive is unlit
+            mTangents.clear();
+            mShaderVariant |= LLGLSLShader::GLTFVariant::UNLIT;
         }
+        else
+        {
+            // unroll into non-indexed array of flat shaded triangles
+            MikktMesh data;
+            if (!data.copy(this))
+            {
+                return false;
+            }
 
-        data.genNormals();
-        data.genTangents();
-        data.write(this);
+            data.genNormals();
+            data.genTangents();
+            data.write(this);
+        }
     }
 
-    if (mTangents.empty())
+    bool unlit = (mShaderVariant & LLGLSLShader::GLTFVariant::UNLIT) != 0;
+
+    if (mTangents.empty() && !unlit)
     { // NOTE: must be done last because tangent generation rewrites the other arrays
         // adapted from usage of Mikktspace in llvolume.cpp
-        MikktMesh data;
-        if (!data.copy(this))
+        if (mMode == Mode::POINTS || mMode == Mode::LINES || mMode == Mode::LINE_LOOP || mMode == Mode::LINE_STRIP)
         {
-            return false;
-        }
+            // for points and lines, just make sure tangent is perpendicular to normal
+            mTangents.resize(mNormals.size());
+            LLVector4a up(0.f, 0.f, 1.f, 0.f);
+            LLVector4a left(1.f, 0.f, 0.f, 0.f);
+            for (U32 i = 0; i < mNormals.size(); ++i)
+            {
+                if (fabsf(mNormals[i].getF32ptr()[2]) < 0.999f)
+                {
+                    mTangents[i] = up.cross3(mNormals[i]);
+                }
+                else
+                {
+                    mTangents[i] = left.cross3(mNormals[i]);
+                }
 
-        data.genTangents();
-        data.write(this);
+                mTangents[i].getF32ptr()[3] = 1.f;
+            }
+        }
+        else
+        {
+            MikktMesh data;
+            if (!data.copy(this))
+            {
+                return false;
+            }
+
+            data.genTangents();
+            data.write(this);
+        }
+    }
+
+
+    if (!unlit)
+    {
+        mask |= LLVertexBuffer::MAP_NORMAL;
+        mask |= LLVertexBuffer::MAP_TANGENT;
     }
 
     if (LLGLSLShader::sCurBoundShaderPtr == nullptr)
@@ -358,11 +406,19 @@ bool Primitive::prep(Asset& asset)
     mVertexBuffer->setBuffer();
     mVertexBuffer->setPositionData(mPositions.data());
     mVertexBuffer->setColorData(mColors.data());
-    mVertexBuffer->setNormalData(mNormals.data());
-    mVertexBuffer->setTangentData(mTangents.data());
+
+    if (!mNormals.empty())
+    {
+        mVertexBuffer->setNormalData(mNormals.data());
+    }
+    if (!mTangents.empty())
+    {
+        mVertexBuffer->setTangentData(mTangents.data());
+    }
 
     if (!mWeights.empty())
     {
+        mShaderVariant |= LLGLSLShader::GLTFVariant::RIGGED;
         mVertexBuffer->setWeight4Data(mWeights.data());
         mVertexBuffer->setJointData(mJoints.data());
     }
@@ -386,6 +442,12 @@ bool Primitive::prep(Asset& asset)
     createOctree();
 
     mVertexBuffer->unbind();
+
+    Material& material = asset.mMaterials[mMaterial];
+    if (material.mAlphaMode == Material::AlphaMode::BLEND)
+    {
+        mShaderVariant |= LLGLSLShader::GLTFVariant::ALPHA_BLEND;
+    }
 
     return true;
 }

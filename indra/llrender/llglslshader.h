@@ -330,17 +330,17 @@ public:
     // bit 2 = unlit (1) or lit (0)
     struct GLTFVariant
     {
-        constexpr static U32 ALPHA_BLEND = 1;
-        constexpr static U32 RIGGED = 2;
-        constexpr static U32 UNLIT = 4;
+        constexpr static U8 ALPHA_BLEND = 1;
+        constexpr static U8 RIGGED = 2;
+        constexpr static U8 UNLIT = 4;
     };
 
-    constexpr static U32 NUM_GLTF_VARIANTS = 8;
+    constexpr static U8 NUM_GLTF_VARIANTS = 8;
 
     std::vector<LLGLSLShader> mGLTFVariants;
 
     //helper to bind GLTF variant
-    void bind(U32 variant);
+    void bind(U8 variant);
 
     // hacky flag used for optimization in LLDrawPoolAlpha
     bool mCanBindFast = false;

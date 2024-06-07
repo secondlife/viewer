@@ -50,7 +50,12 @@ namespace LL
 
         void update();
         void render(bool opaque, bool rigged = false, bool unlit = false);
-        void render(LL::GLTF::Asset& asset, bool opaque, bool rigged, bool unlit);
+
+        // render the given variant of all assets
+        // variant - bitmask according to LLGLSLShader::GLTFVariant flags
+        void render(U8 variant);
+
+        void render(LL::GLTF::Asset& asset, U8 variant);
 
         // bind the given material for rendering
         void bind(LL::GLTF::Asset& asset, LL::GLTF::Material& material);

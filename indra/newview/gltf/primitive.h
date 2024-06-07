@@ -38,13 +38,6 @@ namespace LL
         using Value = boost::json::value;
         class Asset;
 
-        constexpr U32 ATTRIBUTE_MASK =
-            LLVertexBuffer::MAP_VERTEX |
-            LLVertexBuffer::MAP_NORMAL |
-            LLVertexBuffer::MAP_TEXCOORD0 |
-            LLVertexBuffer::MAP_TANGENT |
-            LLVertexBuffer::MAP_COLOR;
-
         class Primitive
         {
         public:
@@ -83,9 +76,9 @@ namespace LL
             LLRender::eGeomModes mGLMode = LLRender::TRIANGLES; // for use with LLRender
             S32 mIndices = -1;
 
-            // true if normals were not specified in the GLTF file
-            // From the GLTF spec: When normals are not specified, client implementations MUST calculate flat normals and the provided tangents (if present) MUST be ignored.
-            bool mFlatShaded = false;
+            // shader variant according to LLGLSLShader::GLTFVariant flags
+            U8 mShaderVariant = 0;
+
             std::unordered_map<std::string, S32> mAttributes;
 
             // create octree based on vertex buffer

@@ -36,41 +36,10 @@
 #include "llspatialpartition.h"
 #include "llviewershadermgr.h"
 #include "llrender.h"
+#include "gltfscenemanager.h"
 
 static LLTrace::BlockTimerStatHandle FTM_RENDER_SIMPLE_DEFERRED("Deferred Simple");
 static LLTrace::BlockTimerStatHandle FTM_RENDER_GRASS_DEFERRED("Deferred Grass");
-
-
-static void setup_simple_shader(LLGLSLShader* shader)
-{
-    shader->bind();
-}
-
-static void setup_glow_shader(LLGLSLShader* shader)
-{
-    setup_simple_shader(shader);
-    if (LLPipeline::sRenderDeferred && !LLPipeline::sRenderingHUDs)
-    {
-        shader->uniform1f(LLShaderMgr::TEXTURE_GAMMA, 2.2f);
-    }
-    else
-    {
-        shader->uniform1f(LLShaderMgr::TEXTURE_GAMMA, 1.f);
-    }
-}
-
-static void setup_fullbright_shader(LLGLSLShader* shader)
-{
-    setup_glow_shader(shader);
-
-    S32 channel = shader->enableTexture(LLShaderMgr::EXPOSURE_MAP);
-    if (channel > -1)
-    {
-        gGL.getTexUnit(channel)->bind(&gPipeline.mExposureMap);
-    }
-
-    shader->uniform1f(LLViewerShaderMgr::FULLBRIGHT, 1.f);
-}
 
 
 void LLDrawPoolGlow::renderPostDeferred(S32 pass)
@@ -89,12 +58,12 @@ void LLDrawPoolGlow::renderPostDeferred(S32 pass)
     gGL.setColorMask(false, true);
 
     //first pass -- static objects
-    setup_glow_shader(shader);
+    shader->bind();
     pushBatches(LLRenderPass::PASS_GLOW, true, true);
 
     // second pass -- rigged objects
     shader = shader->mRiggedVariant;
-    setup_glow_shader(shader);
+    shader->bind();
     pushRiggedBatches(LLRenderPass::PASS_GLOW_RIGGED, true, true);
 
     gGL.setColorMask(true, false);
@@ -133,11 +102,11 @@ void LLDrawPoolSimple::renderDeferred(S32 pass)
     LLGLDisable blend(GL_BLEND);
 
     //render static
-    setup_simple_shader(&gDeferredDiffuseProgram);
+    gDeferredDiffuseProgram.bind();
     pushBatches(LLRenderPass::PASS_SIMPLE, true, true);
 
     //render rigged
-    setup_simple_shader(gDeferredDiffuseProgram.mRiggedVariant);
+    gDeferredDiffuseProgram.bind(true);
     pushRiggedBatches(LLRenderPass::PASS_SIMPLE_RIGGED, true, true);
 }
 
@@ -150,11 +119,11 @@ void LLDrawPoolAlphaMask::renderDeferred(S32 pass)
     LLGLSLShader* shader = &gDeferredDiffuseAlphaMaskProgram;
 
     //render static
-    setup_simple_shader(shader);
+    shader->bind();
     pushMaskBatches(LLRenderPass::PASS_ALPHA_MASK, true, true);
 
     //render rigged
-    setup_simple_shader(shader->mRiggedVariant);
+    shader->bind(true);
     pushRiggedMaskBatches(LLRenderPass::PASS_ALPHA_MASK_RIGGED, true, true);
 }
 
@@ -201,13 +170,13 @@ void LLDrawPoolFullbright::renderPostDeferred(S32 pass)
     gGL.setSceneBlendType(LLRender::BT_ALPHA);
 
     // render static
-    setup_fullbright_shader(shader);
+    shader->bind();
     pushBatches(LLRenderPass::PASS_FULLBRIGHT, true, true);
 
     if (!LLPipeline::sRenderingHUDs)
     {
         // render rigged
-        setup_fullbright_shader(shader->mRiggedVariant);
+        shader->bind(true);
         pushRiggedBatches(LLRenderPass::PASS_FULLBRIGHT_RIGGED, true, true);
     }
 }
@@ -215,6 +184,10 @@ void LLDrawPoolFullbright::renderPostDeferred(S32 pass)
 void LLDrawPoolFullbrightAlphaMask::renderPostDeferred(S32 pass)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_RENDER_FULLBRIGHT);
+
+    // render unrigged unlit GLTF
+    LL::GLTFSceneManager::instance().render(true, false, true);
+    LL::GLTFSceneManager::instance().render(true, true, true);
 
     LLGLSLShader* shader = nullptr;
     if (LLPipeline::sRenderingHUDs)
@@ -229,13 +202,13 @@ void LLDrawPoolFullbrightAlphaMask::renderPostDeferred(S32 pass)
     LLGLDisable blend(GL_BLEND);
 
     // render static
-    setup_fullbright_shader(shader);
+    shader->bind();
     pushMaskBatches(LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK, true, true);
 
     if (!LLPipeline::sRenderingHUDs)
     {
         // render rigged
-        setup_fullbright_shader(shader->mRiggedVariant);
+        shader->bind(true);
         pushRiggedMaskBatches(LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK_RIGGED, true, true);
     }
 }
