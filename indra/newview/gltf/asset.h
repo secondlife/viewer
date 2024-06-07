@@ -368,6 +368,10 @@ namespace LL
             // remove the bufferview at the given index
             // updates all bufferview indices in this Asset as needed
             void eraseBufferView(S32 bufferView);
+
+            // return true if this Asset has been loaded as a local preview
+            // Local previews may be uploaded or exported to disk
+            bool isLocalPreview() { return !mFilename.empty(); }
         };
 
         Material::AlphaMode gltf_alpha_mode_to_enum(const std::string& alpha_mode);

@@ -270,6 +270,7 @@ public:
     inline bool allowModifyBy(const LLUUID &agent_id) const;
     inline bool allowCopyBy(const LLUUID& agent_id) const;
     inline bool allowMoveBy(const LLUUID& agent_id) const;
+
     inline bool allowModifyBy(const LLUUID &agent_id, const LLUUID& group) const;
     inline bool allowCopyBy(const LLUUID& agent_id, const LLUUID& group) const;
     inline bool allowMoveBy(const LLUUID &agent_id, const LLUUID &group) const;
@@ -278,27 +279,11 @@ public:
     // current owner is allowed to transfer to the specified agent id.
     inline bool allowTransferTo(const LLUUID &agent_id) const;
 
-    //
-    // DEPRECATED.
-    //
-    // These return true if the given agent can perform the function.
-    // They also return true if the object isn't owned, or the
-    // requesting agent is a system agent.  See llpermissionsflags.h
-    // for bits.
-    //bool  allowDeleteBy(const LLUUID& agent_id)   const       { return allowModifyBy(agent_id); }
-    //bool  allowEditBy(const LLUUID& agent_id)     const       { return allowModifyBy(agent_id); }
-    // saves last owner and sets current owner
-    //bool setOwner(const LLUUID& agent, const LLUUID& owner);
-    // This method saves the last owner, sets the current owner to the
-    // one provided, and sets the base mask as indicated.
-    //bool setOwner(const LLUUID& agent, const LLUUID& owner, U32 new_base_mask);
-
-    // Attempt to set or clear the given bitmask.  Returns true if you
-    // are allowed to modify the permissions.  If you attempt to turn
-    // on bits not allowed by the base bits, the function will return
-    // true, but those bits will not be set.
-    //bool setGroupBits( const LLUUID& agent, bool set, PermissionMask bits);
-    //bool setEveryoneBits(const LLUUID& agent, bool set, PermissionMask bits);
+    // Returns true if the object can exported by the given agent
+    // (e.g. saved as a local .gltf file)
+    // The current test should return true if the agent is the owner
+    // AND the creator of the object.
+    inline bool allowExportBy(const LLUUID& agent_id) const;
 
     //
     // MISC METHODS and OPERATORS
@@ -351,6 +336,11 @@ bool LLPermissions::allowCopyBy(const LLUUID& agent) const
 bool LLPermissions::allowMoveBy(const LLUUID& agent) const
 {
     return allowOperationBy(PERM_MOVE, agent, LLUUID::null);
+}
+
+bool LLPermissions::allowExportBy(const LLUUID& agent) const
+{
+    return agent == mOwner && agent == mCreator;
 }
 
 bool LLPermissions::allowTransferTo(const LLUUID &agent_id) const
