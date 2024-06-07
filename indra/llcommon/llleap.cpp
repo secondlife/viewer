@@ -440,8 +440,7 @@ private:
     std::string mDesc;
     LLEventStream mDonePump;
     LLProcessPtr mChild;
-    LLTempBoundListener
-        mStdinConnection, mStdoutConnection, mStderrConnection;
+    LLTempBoundListener mStdoutConnection, mStderrConnection;
     LLProcess::ReadPipe::size_type mExpect;
     LLError::RecorderPtr mRecorder;
     std::unique_ptr<LLLeapListener> mListener;
