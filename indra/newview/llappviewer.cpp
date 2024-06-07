@@ -4614,7 +4614,6 @@ void LLAppViewer::idle()
 
     LLFrameTimer::updateFrameTime();
     LLFrameTimer::updateFrameCount();
-    LLEventTimer::updateClass();
     LLPerfStats::updateClass();
 
     // LLApp::stepFrame() performs the above three calls plus mRunner.run().

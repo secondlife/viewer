@@ -385,8 +385,7 @@ namespace tut
                                 "result = '' if resp == dict(pump=replypump(), data='ack')\\\n"
                                 "            else 'bad: ' + str(resp)\n"
                                 "send(pump='" << result.getName() << "', data=result)\n";});
-        waitfor(LLLeap::create(get_test_name(),
-                               StringVec{PYTHON, script.getName()}));
+        waitfor(LLLeap::create(get_test_name(), StringVec{PYTHON, script.getName()}));
         result.ensure();
     }
 

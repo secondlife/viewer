@@ -2894,7 +2894,7 @@ public:
     virtual ~LLPostTeleportNotifiers();
 
     //function to be called at the supplied frequency
-    virtual BOOL tick();
+    bool tick() override;
 };
 
 LLPostTeleportNotifiers::LLPostTeleportNotifiers() : LLEventTimer( 2.0 )
@@ -2905,9 +2905,9 @@ LLPostTeleportNotifiers::~LLPostTeleportNotifiers()
 {
 }
 
-BOOL LLPostTeleportNotifiers::tick()
+bool LLPostTeleportNotifiers::tick()
 {
-    BOOL all_done = FALSE;
+    bool all_done = false;
     if ( gAgent.getTeleportState() == LLAgent::TELEPORT_NONE )
     {
         // get callingcards and landmarks available to the user arriving.
@@ -2931,7 +2931,7 @@ BOOL LLPostTeleportNotifiers::tick()
                 gInventory.addObserver(fetcher);
             }
         }
-        all_done = TRUE;
+        all_done = true;
     }
 
     return all_done;

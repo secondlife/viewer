@@ -17,8 +17,8 @@
 -- or with an error).
 
 local printf = require 'printf'
--- local dbg = printf
 local function dbg(...) end
+-- local dbg = printf
 local coro = require 'coro'
 
 local fiber = {}
@@ -303,6 +303,8 @@ function fiber.yield()
     end
     -- We're ready! Just return to caller. In this situation we don't care
     -- whether there are other ready fibers.
+    dbg('fiber.yield() returning to %s (%sothers are ready)',
+        fiber.get_name(), ((not others) and "no " or ""))
 end
 
 -- Run fibers until all but main have terminated: return nil.
