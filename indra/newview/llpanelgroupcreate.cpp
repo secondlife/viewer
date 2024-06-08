@@ -194,7 +194,7 @@ void LLPanelGroupCreate::onBtnCreate()
     // Validate the group name length.
     std::string gr_name = mGroupNameEditor->getText();
     LLStringUtil::trim(gr_name);
-    S32 group_name_len = gr_name.size();
+    S32 group_name_len = static_cast<S32>(gr_name.size());
     if (group_name_len < DB_GROUP_NAME_MIN_LEN
         || group_name_len > DB_GROUP_NAME_STR_LEN)
     {

@@ -282,7 +282,7 @@ bool LLGestureList::trigger(KEY key, MASK mask)
 U8 *LLGestureList::serialize(U8 *buffer) const
 {
     // a single S32 serves as the header that tells us how many to read
-    U32 count = mList.size();
+    auto count = mList.size();
     htolememcpy(buffer, &count, MVT_S32, 4);
     buffer += sizeof(count);
 

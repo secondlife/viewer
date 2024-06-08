@@ -82,8 +82,6 @@ public:
     // to integers, among other things.  Use isNull() or notNull().
     //      operator bool() const;
 
-    // JC: These must return real bool's (not BOOLs) or else use of the STL
-    // will generate bool-to-int performance warnings.
     bool    operator==(const LLUUID &rhs) const;
     bool    operator!=(const LLUUID &rhs) const;
     bool    operator<(const LLUUID &rhs) const;

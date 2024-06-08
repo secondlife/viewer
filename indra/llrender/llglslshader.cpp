@@ -621,7 +621,7 @@ bool LLGLSLShader::mapAttributes(const std::vector<LLStaticHashedString>* attrib
     }
 
     mAttribute.clear();
-    U32 numAttributes = (attributes == NULL) ? 0 : attributes->size();
+    U32 numAttributes = (attributes == NULL) ? 0U : static_cast<U32>(attributes->size());
 #if LL_RELEASE_WITH_DEBUG_INFO
     mAttribute.resize(LLShaderMgr::instance()->mReservedAttribs.size() + numAttributes, { -1, NULL });
 #else
@@ -843,7 +843,7 @@ bool LLGLSLShader::mapUniforms(const vector<LLStaticHashedString>* uniforms)
     mTexture.clear();
     mValue.clear();
     //initialize arrays
-    U32 numUniforms = (uniforms == NULL) ? 0 : uniforms->size();
+    U32 numUniforms = (uniforms == NULL) ? 0U : static_cast<U32>(uniforms->size());
     mUniform.resize(numUniforms + LLShaderMgr::instance()->mReservedUniforms.size(), -1);
     mTexture.resize(numUniforms + LLShaderMgr::instance()->mReservedUniforms.size(), -1);
 

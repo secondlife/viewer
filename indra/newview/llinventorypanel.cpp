@@ -1220,7 +1220,7 @@ LLFolderViewItem* LLInventoryPanel::buildViewsTree(const LLUUID& id,
         // Make sure panel won't lock in a loop over existing items if
         // folder is enormous and at least some work gets done
         const S32 MIN_ITEMS_PER_CALL = 500;
-        const S32 starting_item_count = mItemMap.size();
+        const S32 starting_item_count = static_cast<S32>(mItemMap.size());
 
         LLFolderViewFolder *parentp = dynamic_cast<LLFolderViewFolder*>(folder_view_item);
         bool done = true;
@@ -1251,7 +1251,7 @@ LLFolderViewItem* LLInventoryPanel::buildViewsTree(const LLUUID& id,
 
                 if (!mBuildChildrenViews
                     && mode == BUILD_TIMELIMIT
-                    && MIN_ITEMS_PER_CALL + starting_item_count < mItemMap.size())
+                    && MIN_ITEMS_PER_CALL + starting_item_count < static_cast<S32>(mItemMap.size()))
                 {
                     // Single folder view, check if we still have time
                     //
@@ -1665,7 +1665,7 @@ bool LLInventoryPanel::beginIMSession()
                                                 item_array,
                                                 LLInventoryModel::EXCLUDE_TRASH,
                                                 is_buddy);
-                S32 count = item_array.size();
+                auto count = item_array.size();
                 if(count > 0)
                 {
                     //*TODO by what to replace that?
@@ -1674,7 +1674,7 @@ bool LLInventoryPanel::beginIMSession()
                     // create the session
                     LLAvatarTracker& at = LLAvatarTracker::instance();
                     LLUUID id;
-                    for(S32 i = 0; i < count; ++i)
+                    for(size_t i = 0; i < count; ++i)
                     {
                         id = item_array.at(i)->getCreatorUUID();
                         if(at.isBuddyOnline(id))
@@ -1761,7 +1761,7 @@ void LLInventoryPanel::purgeSelectedItems()
     const std::set<LLFolderViewItem*> inventory_selected = mFolderRoot.get()->getSelectionList();
     if (inventory_selected.empty()) return;
     LLSD args;
-    S32 count = inventory_selected.size();
+    auto count = inventory_selected.size();
     std::vector<LLUUID> selected_items;
     for (std::set<LLFolderViewItem*>::const_iterator it = inventory_selected.begin(), end_it = inventory_selected.end();
         it != end_it;
@@ -1774,7 +1774,7 @@ void LLInventoryPanel::purgeSelectedItems()
         count += items.size() + cats.size();
         selected_items.push_back(item_id);
     }
-    args["COUNT"] = count;
+    args["COUNT"] = static_cast<S32>(count);
     LLNotificationsUtil::add("PurgeSelectedItems", args, LLSD(), boost::bind(callbackPurgeSelectedItems, _1, _2, selected_items));
 }
 

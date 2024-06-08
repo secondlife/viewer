@@ -746,7 +746,7 @@ S32 LLViewerInventoryCategory::getViewerDescendentCount() const
     S32 descendents_actual = 0;
     if(cats && items)
     {
-        descendents_actual = cats->size() + items->size();
+        descendents_actual = static_cast<S32>(cats->size() + items->size());
     }
     return descendents_actual;
 }

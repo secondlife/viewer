@@ -208,7 +208,7 @@ bool LLRenderTarget::addColorAttachment(U32 color_fmt)
         return true;
     }
 
-    U32 offset = mTex.size();
+    U32 offset = static_cast<U32>(mTex.size());
 
     if( offset >= 4 )
     {
@@ -378,11 +378,11 @@ void LLRenderTarget::release()
     if (mFBO && (mTex.size() > 1))
     {
         glBindFramebuffer(GL_FRAMEBUFFER, mFBO);
-        S32 z;
+        size_t z;
         for (z = mTex.size() - 1; z >= 1; z--)
         {
             sBytesAllocated -= mResX*mResY*4;
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0+z, LLTexUnit::getInternalType(mUsage), 0, 0);
+            glFramebufferTexture2D(GL_FRAMEBUFFER, static_cast<GLenum>(GL_COLOR_ATTACHMENT0+z), LLTexUnit::getInternalType(mUsage), 0, 0);
             LLImageGL::deleteTextures(1, &mTex[z]);
         }
         glBindFramebuffer(GL_FRAMEBUFFER, sCurFBO);
@@ -426,7 +426,7 @@ void LLRenderTarget::bindTarget()
                             GL_COLOR_ATTACHMENT1,
                             GL_COLOR_ATTACHMENT2,
                             GL_COLOR_ATTACHMENT3};
-    glDrawBuffers(mTex.size(), drawbuffers);
+    glDrawBuffers(static_cast<GLsizei>(mTex.size()), drawbuffers);
             
     if (mTex.empty())
     { //no color buffer to draw to
@@ -485,7 +485,7 @@ U32 LLRenderTarget::getTexture(U32 attachment) const
 
 U32 LLRenderTarget::getNumTextures() const
 {
-    return mTex.size();
+    return static_cast<U32>(mTex.size());
 }
 
 void LLRenderTarget::bindTexture(U32 index, S32 channel, LLTexUnit::eTextureFilterOptions filter_options)

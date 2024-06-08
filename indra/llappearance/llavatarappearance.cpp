@@ -164,19 +164,7 @@ LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary* LLAvatarAppearance::sAv
 
 LLAvatarAppearance::LLAvatarAppearance(LLWearableData* wearable_data) :
     LLCharacter(),
-    mIsDummy(false),
-    mTexSkinColor( NULL ),
-    mTexHairColor( NULL ),
-    mTexEyeColor( NULL ),
-    mPelvisToFoot(0.f),
-    mHeadOffset(),
-    mRoot(NULL),
-    mWearableData(wearable_data),
-    mNumBones(0),
-    mNumCollisionVolumes(0),
-    mCollisionVolumes(NULL),
-    mIsBuilt(false),
-    mInitFlags(0)
+    mWearableData(wearable_data)
 {
     llassert_always(mWearableData);
     mBakedTextureDatas.resize(LLAvatarAppearanceDefines::BAKED_NUM_INDICES);

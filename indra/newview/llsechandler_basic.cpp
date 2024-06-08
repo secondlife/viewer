@@ -75,7 +75,7 @@ LLBasicCertificate::LLBasicCertificate(const std::string& pem_cert,
 {
     // BIO_new_mem_buf returns a read only bio, but takes a void* which isn't const
     // so we need to cast it.
-    BIO * pem_bio = BIO_new_mem_buf((void*)pem_cert.c_str(), pem_cert.length());
+    BIO * pem_bio = BIO_new_mem_buf((void*)pem_cert.c_str(), static_cast<int>(pem_cert.length()));
     if(pem_bio == NULL)
     {
         LL_WARNS("SECAPI") << "Could not allocate an openssl memory BIO." << LL_ENDL;
@@ -747,7 +747,7 @@ bool _cert_subdomain_wildcard_match(const std::string& subdomain,
 {
     // split wildcard into the portion before the *, and the portion after
 
-    int wildcard_pos = wildcard.find_first_of('*');
+    auto wildcard_pos = wildcard.find_first_of('*');
     // check the case where there is no wildcard.
     if(wildcard_pos == wildcard.npos)
     {
@@ -779,7 +779,7 @@ bool _cert_subdomain_wildcard_match(const std::string& subdomain,
     std::string new_subdomain = subdomain.substr(wildcard_pos, subdomain.npos);
 
     // iterate through the current subdomain, finding instances of the match string.
-    int sub_pos = new_subdomain.find_first_of(new_wildcard_match_string);
+    auto sub_pos = new_subdomain.find_first_of(new_wildcard_match_string);
     while(sub_pos != std::string::npos)
     {
         new_subdomain = new_subdomain.substr(sub_pos, std::string::npos);
@@ -811,8 +811,8 @@ bool _cert_hostname_wildcard_match(const std::string& hostname, const std::strin
     std::string new_cn = common_name;
 
     // find the last '.' in the hostname and the match name.
-    int subdomain_pos = new_hostname.find_last_of('.');
-    int subcn_pos = new_cn.find_last_of('.');
+    auto subdomain_pos = new_hostname.find_last_of('.');
+    auto subcn_pos = new_cn.find_last_of('.');
 
     // if the last char is a '.', strip it
     if(subdomain_pos == (new_hostname.length()-1))
@@ -1860,7 +1860,7 @@ std::string LLSecAPIBasicHandler::_legacyLoadPassword()
     unsigned char unique_id[MAC_ADDRESS_BYTES];
     LLMachineID::getUniqueID(unique_id, sizeof(unique_id));
     LLXORCipher cipher(unique_id, sizeof(unique_id));
-    cipher.decrypt(&buffer[0], buffer.size());
+    cipher.decrypt(&buffer[0], static_cast<U32>(buffer.size()));
 
     return std::string((const char*)&buffer[0], buffer.size());
 }

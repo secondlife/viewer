@@ -257,8 +257,8 @@ void LLInventoryGallery::updateRootFolder()
         {
             updateRemovedItem(mItems[i]->getUUID());
         }
-        S32 hidden_count = mHiddenItems.size();
-        for (S32 i = hidden_count - 1; i >= 0; i--)
+        auto hidden_count = mHiddenItems.size();
+        for (size_t i = hidden_count - 1; i >= 0; i--)
         {
             updateRemovedItem(mHiddenItems[i]->getUUID());
         }
@@ -343,7 +343,7 @@ void LLInventoryGallery::initGallery()
     {
         uuid_vec_t cats;
         getCurrentCategories(cats);
-        int n = cats.size();
+        int n = static_cast<int>(cats.size());
         buildGalleryPanel(n);
         mScrollPanel->addChild(mGalleryPanel);
         for (int i = 0; i < n; i++)
@@ -619,8 +619,8 @@ void LLInventoryGallery::removeFromGalleryMiddle(LLInventoryGalleryItem* item)
         removeFromGalleryLast(mItems[i]);
     }
     removeFromGalleryLast(mItems[n]);
-    int saved_count = saved.size();
-    for (int i = 0; i < saved_count; i++)
+    size_t saved_count = saved.size();
+    for (size_t i = 0; i < saved_count; i++)
     {
         addToGallery(saved.back());
         saved.pop_back();
@@ -1882,13 +1882,10 @@ bool LLInventoryGallery::canPaste() const
     }
 
     // In normal mode, we need to check each element of the clipboard to know if we can paste or not
-    std::vector<LLUUID> objects;
+    uuid_vec_t objects;
     LLClipboard::instance().pasteFromClipboard(objects);
-    S32 count = objects.size();
-    for (S32 i = 0; i < count; i++)
+    for (const auto& item_id : objects)
     {
-        const LLUUID& item_id = objects.at(i);
-
         // Each item must be copyable to be pastable
         if (!isItemCopyable(item_id))
         {

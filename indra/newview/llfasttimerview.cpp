@@ -249,7 +249,7 @@ bool LLFastTimerView::handleHover(S32 x, S32 y, MASK mask)
 
         TimerBar* hover_bar = NULL;
         F32Seconds mouse_time_offset = ((F32)(x - mBarRect.mLeft) / (F32)mBarRect.getWidth()) * mTotalTimeDisplay;
-        for (int bar_index = 0, end_index = LLTrace::BlockTimerStatHandle::instance_tracker_t::instanceCount();
+        for (size_t bar_index = 0, end_index = LLTrace::BlockTimerStatHandle::instance_tracker_t::instanceCount();
             bar_index < end_index;
             ++bar_index)
         {
@@ -706,7 +706,7 @@ void LLFastTimerView::exportCharts(const std::string& base, const std::string& t
 
         gGL.color3fv(base_col.mV);
         U32 count = 0;
-        U32 total_count = base_execution.size();
+        U32 total_count = static_cast<U32>(base_execution.size());
 
         last_p.clear();
 
@@ -728,7 +728,7 @@ void LLFastTimerView::exportCharts(const std::string& base, const std::string& t
             LLGLEnable blend(GL_BLEND);
             gGL.color3fv(cur_col.mV);
             count = 0;
-            total_count = cur_execution.size();
+            total_count = static_cast<U32>(cur_execution.size());
 
             for (std::vector<LLSD::Real>::iterator iter = cur_execution.begin(); iter != cur_execution.end(); ++iter)
             {
@@ -1020,7 +1020,7 @@ void LLFastTimerView::drawLineGraph()
 
     //highlight visible range
     {
-        S32 first_frame = mRecording.getNumRecordedPeriods() - mScrollIndex;
+        S32 first_frame = static_cast<S32>(mRecording.getNumRecordedPeriods()) - mScrollIndex;
         S32 last_frame = first_frame - MAX_VISIBLE_HISTORY;
 
         F32 frame_delta = ((F32) (mGraphRect.getWidth()))/(mRecording.getNumRecordedPeriods()-1);
@@ -1083,7 +1083,7 @@ void LLFastTimerView::drawLineGraph()
         F32 time_scale_factor = (F32)mGraphRect.getHeight() / max_time.value();
         F32 hz_scale_factor = (F32) mGraphRect.getHeight() / (1.f / max_time.value());
 
-        for (U32 j = mRecording.getNumRecordedPeriods();
+        for (U32 j = static_cast<U32>(mRecording.getNumRecordedPeriods());
             j > 0;
             j--)
         {
@@ -1651,7 +1651,7 @@ S32 LLFastTimerView::drawBar(LLRect bar_rect, TimerBarRow& row, S32 image_width,
     bool children_visible = visible && !time_block->getTreeNode().mCollapsed;
 
     bar_index++;
-    const U32 num_bars = LLTrace::BlockTimerStatHandle::instance_tracker_t::instanceCount();
+    const auto num_bars = LLTrace::BlockTimerStatHandle::instance_tracker_t::instanceCount();
     if (bar_index < num_bars && row.mBars[bar_index].mFirstChild)
     {
         bool is_last = false;

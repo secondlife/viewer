@@ -442,7 +442,7 @@ bool HttpLibcurl::completeRequest(CURLM * multi_handle, CURL * handle, CURLcode 
 
 int HttpLibcurl::getActiveCount() const
 {
-    return mActiveOps.size();
+    return static_cast<int>(mActiveOps.size());
 }
 
 

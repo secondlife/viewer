@@ -194,7 +194,7 @@ void LLSkinningUtil::checkSkinWeights(LLVector4a* weights, U32 num_vertices, con
 
 void LLSkinningUtil::scrubSkinWeights(LLVector4a* weights, U32 num_vertices, const LLMeshSkinInfo* skin)
 {
-    const S32 max_joints = skin->mJointNames.size();
+    const S32 max_joints = static_cast<S32>(skin->mJointNames.size());
     for (U32 j=0; j<num_vertices; j++)
     {
         F32 *w = weights[j].getF32ptr();
@@ -318,7 +318,7 @@ void LLSkinningUtil::updateRiggingInfo(const LLMeshSkinInfo* skin, LLVOAvatar *a
     if (vol_face.mJointRiggingInfoTab.needsUpdate())
     {
         S32 num_verts = vol_face.mNumVertices;
-        S32 num_joints = skin->mJointNames.size();
+        S32 num_joints = static_cast<S32>(skin->mJointNames.size());
         if (num_verts > 0 && vol_face.mWeights && num_joints > 0)
         {
             initJointNums(const_cast<LLMeshSkinInfo*>(skin), avatar);

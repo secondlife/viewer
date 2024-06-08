@@ -699,7 +699,7 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
             
             res /= 2;
 
-            S32 mip = i - (mMipChain.size() - mips);
+            GLint mip = static_cast<GLint>(i - (mMipChain.size() - mips));
 
             if (mip >= 0)
             {

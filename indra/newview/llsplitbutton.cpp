@@ -216,7 +216,7 @@ LLSplitButton::LLSplitButton(const LLSplitButton::Params& p)
 
     //a panel for hidden item buttons
     LLPanel::Params panel_params = p.items_panel;
-    mItemsPanel= prepareItemsPanel(panel_params, p.items.numValidElements());
+    mItemsPanel= prepareItemsPanel(panel_params, static_cast<S32>(p.items.numValidElements()));
     addChild(mItemsPanel);
 
 

@@ -342,13 +342,13 @@ void LLPanelGroups::onGroupList(LLUICtrl* ctrl, void* userdata)
 
 void init_group_list(LLScrollListCtrl* group_list, const LLUUID& highlight_id, U64 powers_mask)
 {
-    S32 count = gAgent.mGroups.size();
+    auto count = gAgent.mGroups.size();
     LLUUID id;
     if (!group_list) return;
 
     group_list->operateOnAll(LLCtrlListInterface::OP_DELETE);
 
-    for(S32 i = 0; i < count; ++i)
+    for(size_t i = 0; i < count; ++i)
     {
         id = gAgent.mGroups.at(i).mID;
         LLGroupData* group_datap = &gAgent.mGroups.at(i);

@@ -107,7 +107,7 @@ LLPolyMorphData::~LLPolyMorphData()
 bool LLPolyMorphData::loadBinary(LLFILE *fp, LLPolyMeshSharedData *mesh)
 {
     S32 numVertices;
-    S32 numRead;
+    size_t numRead;
 
     numRead = fread(&numVertices, sizeof(S32), 1, fp);
     llendianswizzle(&numVertices, sizeof(S32), 1);
@@ -384,7 +384,7 @@ bool LLPolyMorphTarget::setInfo(LLPolyMorphTargetInfo* info)
     if (!mMorphData)
     {
         const std::string driven_tag = "_Driven";
-        U32 pos = morph_param_name.find(driven_tag);
+        auto pos = morph_param_name.find(driven_tag);
         if (pos > 0)
         {
             morph_param_name = morph_param_name.substr(0,pos);

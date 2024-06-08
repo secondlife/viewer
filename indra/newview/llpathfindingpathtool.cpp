@@ -35,9 +35,6 @@
 
 #include "llagent.h"
 #include "llpathfindingmanager.h"
-#include "llpathinglib.h"
-#include "llsingleton.h"
-#include "lltool.h"
 #include "llviewercamera.h"
 #include "llviewerregion.h"
 #include "llviewerwindow.h"

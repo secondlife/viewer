@@ -1096,7 +1096,7 @@ bool LLShaderMgr::saveCachedProgramBinary(LLGLSLShader* shader)
         program_binary.resize(binary_info.mBinaryLength);
 
         GLenum error = glGetError(); // Clear current error
-        glGetProgramBinary(shader->mProgramObject, program_binary.size() * sizeof(U8), nullptr, &binary_info.mBinaryFormat, program_binary.data());
+        glGetProgramBinary(shader->mProgramObject, static_cast<GLsizei>(program_binary.size() * sizeof(U8)), nullptr, &binary_info.mBinaryFormat, program_binary.data());
         error = glGetError();
         if (error == GL_NO_ERROR)
         {

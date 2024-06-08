@@ -134,7 +134,7 @@ public:
 
     void handleIRCallback(void **data, const S32 number);
 
-    S32 getNumImages()                  { return mImageList.size(); }
+    S32 getNumImages()                  { return static_cast<S32>(mImageList.size()); }
 
     // Local UI images
     // Local UI images

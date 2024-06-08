@@ -237,7 +237,7 @@ bool LLDataPacker::unpackUUIDs(LLUUID *values, S32 count, const char *name)
 
 bool LLDataPackerBinaryBuffer::packString(const std::string& value, const char *name)
 {
-    S32 length = value.length()+1;
+    S32 length = static_cast<S32>(value.length()) + 1;
 
     if (!verifyLength(length, name))
     {
@@ -740,7 +740,7 @@ bool LLDataPackerAsciiBuffer::packString(const std::string& value, const char *n
     }
     else
     {
-        numCopied = value.length() + 1; /*Flawfinder: ignore*/
+        numCopied = static_cast<S32>(value.length()) + 1; /*Flawfinder: ignore*/
     }
 
     // snprintf returns number of bytes that would have been written

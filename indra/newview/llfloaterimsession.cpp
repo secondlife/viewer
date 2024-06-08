@@ -1190,7 +1190,7 @@ bool LLFloaterIMSession::inviteToSession(const uuid_vec_t& ids)
 
     if (is_region_exist)
     {
-        S32 count = ids.size();
+        auto count = ids.size();
 
         if( isInviteAllowed() && (count > 0) )
         {
@@ -1200,7 +1200,7 @@ bool LLFloaterIMSession::inviteToSession(const uuid_vec_t& ids)
 
             LLSD data;
             data["params"] = LLSD::emptyArray();
-            for (int i = 0; i < count; i++)
+            for (size_t i = 0; i < count; i++)
             {
                 data["params"].append(ids[i]);
             }

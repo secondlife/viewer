@@ -966,8 +966,8 @@ void LLFloaterWorldMap::buildLandmarkIDLists()
     mLandmarkAssetIDList.reserve(mLandmarkAssetIDList.size() + items.size());
     mLandmarkItemIDList.reserve(mLandmarkItemIDList.size() + items.size());
 
-    S32 count = items.size();
-    for(S32 i = 0; i < count; ++i)
+    auto count = items.size();
+    for(size_t i = 0; i < count; ++i)
     {
         LLInventoryItem* item = items.at(i);
 
@@ -1552,7 +1552,7 @@ void LLFloaterWorldMap::updateSims(bool found_null_sim)
     LLScrollListCtrl *list = getChild<LLScrollListCtrl>("search_results");
     list->operateOnAll(LLCtrlListInterface::OP_DELETE);
 
-    S32 name_length = mCompletingRegionName.length();
+    auto name_length = mCompletingRegionName.length();
 
     LLSD match;
 

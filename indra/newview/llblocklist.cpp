@@ -47,7 +47,7 @@ LLBlockList::LLBlockList(const Params& p)
 {
 
     LLMuteList::getInstance()->addObserver(this);
-    mMuteListSize = LLMuteList::getInstance()->getMutes().size();
+    mMuteListSize = static_cast<U32>(LLMuteList::getInstance()->getMutes().size());
 
     // Set up context menu.
     LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
@@ -92,7 +92,7 @@ void LLBlockList::createList()
 BlockListActionType LLBlockList::getCurrentMuteListActionType()
 {
     BlockListActionType type = NONE;
-    U32 curSize = LLMuteList::getInstance()->getMutes().size();
+    U32 curSize = static_cast<U32>(LLMuteList::getInstance()->getMutes().size());
     if( curSize > mMuteListSize)
         type = ADD;
     else if(curSize < mMuteListSize)
@@ -266,7 +266,7 @@ void LLBlockList::refresh()
             selectItemPair(getItemPair(next_selected), true);
         }
     }
-    mMuteListSize = LLMuteList::getInstance()->getMutes().size();
+    mMuteListSize = static_cast<U32>(LLMuteList::getInstance()->getMutes().size());
 
     // Sort the list.
     sort();

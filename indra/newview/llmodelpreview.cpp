@@ -2283,7 +2283,7 @@ void LLModelPreview::updateStatusMessages()
     mModelNoErrors = true;
 
     const U32 lod_high = LLModel::LOD_HIGH;
-    U32 high_submodel_count = mModel[lod_high].size() - countRootModels(mModel[lod_high]);
+    U32 high_submodel_count = static_cast<U32>(mModel[lod_high].size()) - countRootModels(mModel[lod_high]);
 
     for (S32 lod = 0; lod <= lod_high; ++lod)
     {
@@ -2482,10 +2482,10 @@ void LLModelPreview::updateStatusMessages()
 
                 if (!decomp.empty())
                 {
-                    phys_hulls += decomp.size();
+                    phys_hulls += static_cast<S32>(decomp.size());
                     for (U32 i = 0; i < decomp.size(); ++i)
                     {
-                        phys_points += decomp[i].size();
+                        phys_points += static_cast<S32>(decomp[i].size());
                     }
                 }
                 else
@@ -3437,8 +3437,8 @@ bool LLModelPreview::render()
 
                 gGL.multMatrix((GLfloat*)mat.mMatrix);
 
-                U32 num_models = mVertexBuffer[mPreviewLOD][model].size();
-                for (U32 i = 0; i < num_models; ++i)
+                auto num_models = mVertexBuffer[mPreviewLOD][model].size();
+                for (size_t i = 0; i < num_models; ++i)
                 {
                     LLVertexBuffer* buffer = mVertexBuffer[mPreviewLOD][model][i];
 
@@ -3446,7 +3446,7 @@ bool LLModelPreview::render()
 
                     if (textures)
                     {
-                        int materialCnt = instance.mModel->mMaterialList.size();
+                        auto materialCnt = instance.mModel->mMaterialList.size();
                         if (i < materialCnt)
                         {
                             const std::string& binding = instance.mModel->mMaterialList[i];
@@ -3584,9 +3584,9 @@ bool LLModelPreview::render()
 
                         if (render_mesh)
                         {
-                            U32 num_models = mVertexBuffer[LLModel::LOD_PHYSICS][model].size();
+                            auto num_models = mVertexBuffer[LLModel::LOD_PHYSICS][model].size();
                             if (pass > 0){
-                                for (U32 i = 0; i < num_models; ++i)
+                                for (size_t i = 0; i < num_models; ++i)
                                 {
                                     LLVertexBuffer* buffer = mVertexBuffer[LLModel::LOD_PHYSICS][model][i];
 
@@ -3649,8 +3649,8 @@ bool LLModelPreview::render()
 
                                 if (physics.mHull.empty())
                                 {
-                                    U32 num_models = mVertexBuffer[LLModel::LOD_PHYSICS][model].size();
-                                    for (U32 v = 0; v < num_models; ++v)
+                                    auto num_models = mVertexBuffer[LLModel::LOD_PHYSICS][model].size();
+                                    for (size_t v = 0; v < num_models; ++v)
                                     {
                                         LLVertexBuffer* buffer = mVertexBuffer[LLModel::LOD_PHYSICS][model][v];
 
@@ -3717,7 +3717,7 @@ bool LLModelPreview::render()
                         const LLMeshSkinInfo *skin = &model->mSkinInfo;
                         LLSkinningUtil::initJointNums(&model->mSkinInfo, getPreviewAvatar());// inits skin->mJointNums if nessesary
                         U32 joint_count = LLSkinningUtil::getMeshJointCount(skin);
-                        U32 bind_count = skin->mAlternateBindMatrix.size();
+                        auto bind_count = skin->mAlternateBindMatrix.size();
 
                         if (joint_overrides
                             && bind_count > 0
@@ -3762,7 +3762,7 @@ bool LLModelPreview::render()
                             }
                         }
 
-                        for (U32 i = 0, e = mVertexBuffer[mPreviewLOD][model].size(); i < e; ++i)
+                        for (U32 i = 0, e = static_cast<U32>(mVertexBuffer[mPreviewLOD][model].size()); i < e; ++i)
                         {
                             LLVertexBuffer* buffer = mVertexBuffer[mPreviewLOD][model][i];
 
@@ -3773,7 +3773,7 @@ bool LLModelPreview::render()
 
                             if (textures)
                             {
-                                int materialCnt = instance.mModel->mMaterialList.size();
+                                auto materialCnt = instance.mModel->mMaterialList.size();
                                 if (i < materialCnt)
                                 {
                                     const std::string& binding = instance.mModel->mMaterialList[i];

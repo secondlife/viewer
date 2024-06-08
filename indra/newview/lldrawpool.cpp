@@ -315,7 +315,7 @@ void LLFacePool::addFaceReference(LLFace *facep)
 {
     if (-1 == facep->getReferenceIndex())
     {
-        facep->setReferenceIndex(mReferences.size());
+        facep->setReferenceIndex(static_cast<S32>(mReferences.size()));
         mReferences.push_back(facep);
     }
 }
@@ -667,7 +667,7 @@ bool LLRenderPass::uploadMatrixPalette(LLVOAvatar* avatar, LLMeshSkinInfo* skinI
         return false;
     }
     const LLVOAvatar::MatrixPaletteCache& mpc = avatar->updateSkinInfoMatrixPalette(skinInfo);
-    U32 count = mpc.mMatrixPalette.size();
+    U32 count = static_cast<U32>(mpc.mMatrixPalette.size());
 
     if (count == 0)
     {

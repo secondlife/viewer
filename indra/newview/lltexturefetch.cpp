@@ -1655,7 +1655,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
                 return true;
             }
 
-            S32 append_size(mHttpBufferArray->size());
+            S32 append_size(static_cast<S32>(mHttpBufferArray->size()));
             S32 total_size(cur_size + append_size);
             S32 src_offset(0);
             llassert_always(append_size == mRequestedSize);
@@ -2193,7 +2193,7 @@ S32 LLTextureFetchWorker::callbackHttpGet(LLCore::HttpResponse * response,
     {
         // get length of stream:
         LLCore::BufferArray * body(response->getBody());
-        data_size = body ? body->size() : 0;
+        data_size = body ? static_cast<S32>(body->size()) : 0;
 
         LL_DEBUGS(LOG_TXT) << "HTTP RECEIVED: " << mID.asString() << " Bytes: " << data_size << LL_ENDL;
         if (data_size > 0)
@@ -3405,7 +3405,7 @@ void LLTextureFetch::cancelHttpWaiters()
 int LLTextureFetch::getHttpWaitersCount()
 {
     mNetworkQueueMutex.lock();                                          // +Mfnq
-    int ret(mHttpWaitResource.size());
+    int ret(static_cast<int>(mHttpWaitResource.size()));
     mNetworkQueueMutex.unlock();                                        // -Mfnq
     return ret;
 }

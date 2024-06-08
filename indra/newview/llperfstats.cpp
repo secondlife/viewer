@@ -302,7 +302,7 @@ namespace LLPerfStats
         std::vector<LLVector3d> positions;
         uuid_vec_t avatar_ids;
         LLWorld::getInstance()->getAvatars(&avatar_ids, &positions, our_pos, distance);
-        return positions.size();
+        return static_cast<int>(positions.size());
     }
 
     const U32 NUM_PERIODS = 50;

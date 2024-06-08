@@ -26,16 +26,11 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#if LL_WINDOWS
-#pragma warning( disable : 4800 ) // performance warning in <functional>
-#endif
-
 #include "llcallingcard.h"
 
 #include <algorithm>
 
 #include "indra_constants.h"
-//#include "llcachename.h"
 #include "llstl.h"
 #include "lltimer.h"
 #include "lluuid.h"

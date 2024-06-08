@@ -3726,7 +3726,7 @@ void LLPanelEstateAccess::copyListToClipboard(std::string list_name)
         }
     }
 
-    LLClipboard::instance().copyToClipboard(utf8str_to_wstring(list_to_copy), 0, list_to_copy.length());
+    LLClipboard::instance().copyToClipboard(utf8str_to_wstring(list_to_copy), 0, static_cast<S32>(list_to_copy.length()));
 }
 
 bool LLPanelEstateAccess::refreshFromRegion(LLViewerRegion* region)

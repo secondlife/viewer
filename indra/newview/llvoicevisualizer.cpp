@@ -248,7 +248,7 @@ void LLVoiceVisualizer::lipStringToF32s ( std::string& in_string, F32*& out_F32s
 {
     delete[] out_F32s;  // get rid of the current array
 
-    count_F32s = in_string.length();
+    count_F32s = static_cast<U32>(in_string.length());
     if (count_F32s == 0)
     {
         // we don't like zero length arrays

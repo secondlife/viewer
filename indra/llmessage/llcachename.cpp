@@ -562,13 +562,13 @@ std::string LLCacheName::buildLegacyName(const std::string& complete_name)
 {
     //boost::regexp was showing up in the crashreporter, so doing
     //painfully manual parsing using substr. LF
-    S32 open_paren = complete_name.rfind(" (");
-    S32 close_paren = complete_name.rfind(')');
+    auto open_paren = complete_name.rfind(" (");
+    auto close_paren = complete_name.rfind(')');
 
     if (open_paren != std::string::npos &&
         close_paren == complete_name.length()-1)
     {
-        S32 length = close_paren - open_paren - 2;
+        auto length = close_paren - open_paren - 2;
         std::string legacy_name = complete_name.substr(open_paren+2, length);
 
         if (legacy_name.length() > 0)
@@ -577,7 +577,7 @@ std::string LLCacheName::buildLegacyName(const std::string& complete_name)
             LLStringUtil::toUpper(cap_letter);
             legacy_name = cap_letter + legacy_name.substr(1);
 
-            S32 separator = legacy_name.find('.');
+            auto separator = legacy_name.find('.');
 
             if (separator != std::string::npos)
             {

@@ -147,11 +147,11 @@ void LLConsole::draw()
         return;
     }
 
-    U32 num_lines=0;
+    size_t num_lines{ 0 };
 
     paragraph_t::reverse_iterator paragraph_it;
     paragraph_it = mParagraphs.rbegin();
-    U32 paragraph_num=mParagraphs.size();
+    auto paragraph_num=mParagraphs.size();
 
     while (!mParagraphs.empty() && paragraph_it != mParagraphs.rend())
     {
@@ -159,7 +159,7 @@ void LLConsole::draw()
         if(num_lines > mMaxLines
             || ( (mLinePersistTime > (F32)0.f) && ((*paragraph_it).mAddTime - skip_time)/(mLinePersistTime - mFadeTime) <= (F32)0.f))
         {                           //All lines above here are done.  Lose them.
-            for (U32 i=0;i<paragraph_num;i++)
+            for (size_t i = 0; i < paragraph_num; i++)
             {
                 if (!mParagraphs.empty())
                     mParagraphs.pop_front();
@@ -258,7 +258,7 @@ void LLConsole::Paragraph::makeParagraphColorSegments (const LLColor4 &color)
         ParagraphColorSegment color_segment;
 
         color_segment.mColor.setValue(color_llsd);
-        color_segment.mNumChars = color_str.length();
+        color_segment.mNumChars = static_cast<S32>(color_str.length());
 
         mParagraphColorSegments.push_back(color_segment);
     }
@@ -310,7 +310,7 @@ void LLConsole::Paragraph::updateLines(F32 screen_width, const LLFontGL* font, b
             skip_chars = 0;
         }
 
-        U32 drawable = font->maxDrawableChars(mParagraphText.c_str()+paragraph_offset, screen_width, line_end - paragraph_offset, LLFontGL::WORD_BOUNDARY_IF_POSSIBLE);
+        U32 drawable = font->maxDrawableChars(mParagraphText.c_str()+paragraph_offset, screen_width, static_cast<S32>(line_end) - paragraph_offset, LLFontGL::WORD_BOUNDARY_IF_POSSIBLE);
 
         if (drawable != 0)
         {

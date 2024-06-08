@@ -1125,7 +1125,7 @@ S32 LLAssetStorage::getNumPending(LLAssetStorage::ERequestType rt) const
     S32 num_pending = -1;
     if (requests)
     {
-        num_pending = requests->size();
+        num_pending = static_cast<S32>(requests->size());
     }
     return num_pending;
 }

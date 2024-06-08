@@ -273,7 +273,7 @@ bool LLMail::send(
     std::string good_string = "\n..\n";
     while (1)
     {
-        int index = message.find(bad_string);
+        auto index = message.find(bad_string);
         if (index == std::string::npos) break;
         message.replace(index, bad_string.size(), good_string);
     }

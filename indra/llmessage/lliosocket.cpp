@@ -346,7 +346,7 @@ LLIOPipe::EStatus LLIOSocketReader::process_impl(
         PUMP_DEBUG;
         len = READ_BUFFER_SIZE;
         status = apr_socket_recv(mSource->getSocket(), read_buf, &len);
-        buffer->append(channels.out(), (U8*)read_buf, len);
+        buffer->append(channels.out(), (U8*)read_buf, static_cast<S32>(len));
     } while((APR_SUCCESS == status) && (READ_BUFFER_SIZE == len));
     LL_DEBUGS() << "socket read status: " << status << LL_ENDL;
     LLIOPipe::EStatus rv = STATUS_OK;

@@ -916,7 +916,7 @@ void LLMeshRepoThread::run()
             // Dispatch all HttpHandler notifications
             mHttpRequest->update(0L);
         }
-        sRequestWaterLevel = mHttpRequestSet.size();            // Stats data update
+        sRequestWaterLevel = static_cast<S32>(mHttpRequestSet.size());            // Stats data update
 
         // NOTE: order of queue processing intentionally favors LOD requests over header requests
         // Todo: we are processing mLODReqQ, mHeaderReqQ, mSkinRequests, mDecompositionRequests and mPhysicsShapeRequests
@@ -3082,7 +3082,7 @@ void LLMeshHandlerBase::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRespo
         LLCore::BufferArray * body(response->getBody());
         S32 body_offset(0);
         U8 * data(NULL);
-        S32 data_size(body ? body->size() : 0);
+        auto data_size(body ? body->size() : 0);
 
         if (data_size > 0)
         {
@@ -3143,7 +3143,7 @@ void LLMeshHandlerBase::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRespo
             if (data)
             {
                 body->read(body_offset, (char *) data, data_size - body_offset);
-                LLMeshRepository::sBytesReceived += data_size;
+                LLMeshRepository::sBytesReceived += static_cast<U32>(data_size);
             }
             else
             {
@@ -3152,7 +3152,7 @@ void LLMeshHandlerBase::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRespo
             }
         }
 
-        processData(body, body_offset, data, data_size - body_offset);
+        processData(body, body_offset, data, static_cast<S32>(data_size) - body_offset);
 
         delete [] data;
     }
@@ -3624,8 +3624,8 @@ S32 LLMeshRepository::update()
         return 0 ;
     }
 
-    S32 size = mUploadWaitList.size() ;
-    for (S32 i = 0; i < size; ++i)
+    auto size = mUploadWaitList.size() ;
+    for (size_t i = 0; i < size; ++i)
     {
         mUploads.push_back(mUploadWaitList[i]);
         mUploadWaitList[i]->preStart() ;
@@ -3633,7 +3633,7 @@ S32 LLMeshRepository::update()
     }
     mUploadWaitList.clear() ;
 
-    return size ;
+    return static_cast<S32>(size);
 }
 
 void LLMeshRepository::unregisterMesh(LLVOVolume* vobj)
@@ -4864,7 +4864,7 @@ void LLPhysicsDecomp::setMeshData(LLCDMeshData& mesh, bool vertex_based)
 {
     mesh.mVertexBase = mCurRequest->mPositions[0].mV;
     mesh.mVertexStrideBytes = 12;
-    mesh.mNumVertices = mCurRequest->mPositions.size();
+    mesh.mNumVertices = static_cast<int>(mCurRequest->mPositions.size());
 
     if(!vertex_based)
     {
@@ -4872,7 +4872,7 @@ void LLPhysicsDecomp::setMeshData(LLCDMeshData& mesh, bool vertex_based)
         mesh.mIndexBase = &(mCurRequest->mIndices[0]);
         mesh.mIndexStrideBytes = 6;
 
-        mesh.mNumTriangles = mCurRequest->mIndices.size()/3;
+        mesh.mNumTriangles = static_cast<int>(mCurRequest->mIndices.size())/3;
     }
 
     if ((vertex_based || mesh.mNumTriangles > 0) && mesh.mNumVertices > 2)
@@ -5283,10 +5283,10 @@ void LLMeshRepository::buildPhysicsMesh(LLModel::Decomposition& decomp)
 {
     decomp.mMesh.resize(decomp.mHull.size());
 
-    for (U32 i = 0; i < decomp.mHull.size(); ++i)
+    for (size_t i = 0; i < decomp.mHull.size(); ++i)
     {
         LLCDHull hull;
-        hull.mNumVertices = decomp.mHull[i].size();
+        hull.mNumVertices = static_cast<int>(decomp.mHull[i].size());
         hull.mVertexBase = decomp.mHull[i][0].mV;
         hull.mVertexStrideBytes = 12;
 
@@ -5305,7 +5305,7 @@ void LLMeshRepository::buildPhysicsMesh(LLModel::Decomposition& decomp)
     if (!decomp.mBaseHull.empty() && decomp.mBaseHullMesh.empty())
     { //get mesh for base hull
         LLCDHull hull;
-        hull.mNumVertices = decomp.mBaseHull.size();
+        hull.mNumVertices = static_cast<int>(decomp.mBaseHull.size());
         hull.mVertexBase = decomp.mBaseHull[0].mV;
         hull.mVertexStrideBytes = 12;
 

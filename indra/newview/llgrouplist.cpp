@@ -223,7 +223,7 @@ void LLGroupList::refresh()
     if (mForAgent)
     {
         const LLUUID&       highlight_id    = gAgent.getGroupID();
-        S32                 count           = gAgent.mGroups.size();
+        S32                 count           = static_cast<S32>(gAgent.mGroups.size());
         LLUUID              id;
         bool                have_filter     = !mNameFilter.empty();
 

@@ -615,15 +615,13 @@ void LLViewerParcelMgr::removeObserver(LLParcelObserver* observer)
 void LLViewerParcelMgr::notifyObservers()
 {
     std::vector<LLParcelObserver*> observers;
-    S32 count = mObservers.size();
-    S32 i;
-    for(i = 0; i < count; ++i)
+    for (auto observer : mObservers)
     {
-        observers.push_back(mObservers.at(i));
+        observers.emplace_back(observer);
     }
-    for(i = 0; i < count; ++i)
+    for (auto observer : observers)
     {
-        observers.at(i)->changed();
+        observer->changed();
     }
 }
 
@@ -2149,7 +2147,7 @@ void LLViewerParcelMgr::sendParcelAccessListUpdate(U32 which)
 
 void LLViewerParcelMgr::sendParcelAccessListUpdate(U32 flags, const LLAccessEntry::map& entries, LLViewerRegion* region, S32 parcel_local_id)
 {
-    S32 count = entries.size();
+    S32 count = static_cast<S32>(entries.size());
     S32 num_sections = (S32) ceil(count/PARCEL_MAX_ENTRIES_PER_PACKET);
     S32 sequence_id = 1;
     bool start_message = true;

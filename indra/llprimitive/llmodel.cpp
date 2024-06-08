@@ -918,7 +918,7 @@ LLSD LLModel::writeModel(
                         //copy ostr to binary buffer
                         std::string data = ostr.str();
                         const U8* buff = (U8*)data.data();
-                        U32 bytes = data.size();
+                        U32 bytes = static_cast<U32>(data.size());
 
                         LLSD::Binary w(bytes);
                         for (U32 j = 0; j < bytes; ++j)
@@ -965,7 +965,7 @@ LLSD LLModel::writeModelToStream(std::ostream& ostr, LLSD& mdl, bool nowrite, bo
     { //write out skin block
         skin = zip_llsd(mdl["skin"]);
 
-        U32 size = skin.size();
+        U32 size = static_cast<U32>(skin.size());
         if (size > 0)
         {
             header["skin"]["offset"] = (LLSD::Integer) cur_offset;
@@ -980,7 +980,7 @@ LLSD LLModel::writeModelToStream(std::ostream& ostr, LLSD& mdl, bool nowrite, bo
     { //write out convex decomposition
         decomposition = zip_llsd(mdl["physics_convex"]);
 
-        U32 size = decomposition.size();
+        U32 size = static_cast<U32>(decomposition.size());
         if (size > 0)
         {
             header["physics_convex"]["offset"] = (LLSD::Integer) cur_offset;
@@ -1002,7 +1002,7 @@ LLSD LLModel::writeModelToStream(std::ostream& ostr, LLSD& mdl, bool nowrite, bo
         {
             out[i] = zip_llsd(mdl[model_names[i]]);
 
-            U32 size = out[i].size();
+            U32 size = static_cast<U32>(out[i].size());
 
             header[model_names[i]]["offset"] = (LLSD::Integer) cur_offset;
             header[model_names[i]]["size"] = (LLSD::Integer) size;
@@ -1159,7 +1159,7 @@ void LLModel::updateHullCenters()
         mCenterOfHullCenters += cur_center;
         cur_center *= 1.f/mPhysics.mHull[i].size();
         mHullCenter[i] = cur_center;
-        mHullPoints += mPhysics.mHull[i].size();
+        mHullPoints += static_cast<U32>(mPhysics.mHull[i].size());
     }
 
     if (mHullPoints > 0)
@@ -1280,14 +1280,14 @@ bool LLModel::loadModel(std::istream& is)
 
 bool LLModel::isMaterialListSubset( LLModel* ref )
 {
-    int refCnt = ref->mMaterialList.size();
-    int modelCnt = mMaterialList.size();
+    auto refCnt = ref->mMaterialList.size();
+    auto modelCnt = mMaterialList.size();
 
-    for (U32 src = 0; src < modelCnt; ++src)
+    for (size_t src = 0; src < modelCnt; ++src)
     {
         bool foundRef = false;
 
-        for (U32 dst = 0; dst < refCnt; ++dst)
+        for (size_t dst = 0; dst < refCnt; ++dst)
         {
             //LL_INFOS()<<mMaterialList[src]<<" "<<ref->mMaterialList[dst]<<LL_ENDL;
             foundRef = mMaterialList[src] == ref->mMaterialList[dst];
@@ -1630,15 +1630,15 @@ U32 LLMeshSkinInfo::sizeBytes() const
 {
     U32 res = sizeof(LLUUID); // mMeshID
 
-    res += sizeof(std::vector<std::string>) + sizeof(std::string) * mJointNames.size();
+    res += sizeof(std::vector<std::string>) + sizeof(std::string) * static_cast<U32>(mJointNames.size());
     for (U32 i = 0; i < mJointNames.size(); ++i)
     {
-        res += mJointNames[i].size(); // actual size, not capacity
+        res += static_cast<U32>(mJointNames[i].size()); // actual size, not capacity
     }
 
-    res += sizeof(std::vector<S32>) + sizeof(S32) * mJointNums.size();
-    res += sizeof(std::vector<LLMatrix4>) + 16 * sizeof(float) * mInvBindMatrix.size();
-    res += sizeof(std::vector<LLMatrix4>) + 16 * sizeof(float) * mAlternateBindMatrix.size();
+    res += sizeof(std::vector<S32>) + sizeof(S32) * static_cast<U32>(mJointNums.size());
+    res += sizeof(std::vector<LLMatrix4>) + 16 * sizeof(float) * static_cast<U32>(mInvBindMatrix.size());
+    res += sizeof(std::vector<LLMatrix4>) + 16 * sizeof(float) * static_cast<U32>(mAlternateBindMatrix.size());
     res += 16 * sizeof(float); //mBindShapeMatrix
     res += sizeof(float) + 3 * sizeof(bool);
 
@@ -1755,15 +1755,15 @@ U32 LLModel::Decomposition::sizeBytes() const
 {
     U32 res = sizeof(LLUUID); // mMeshID
 
-    res += sizeof(LLModel::convex_hull_decomposition) + sizeof(std::vector<LLVector3>) * mHull.size();
+    res += sizeof(LLModel::convex_hull_decomposition) + sizeof(std::vector<LLVector3>) * static_cast<U32>(mHull.size());
     for (U32 i = 0; i < mHull.size(); ++i)
     {
-        res += mHull[i].size() * sizeof(LLVector3);
+        res += static_cast<U32>(mHull[i].size()) * sizeof(LLVector3);
     }
 
-    res += sizeof(LLModel::hull) + sizeof(LLVector3) * mBaseHull.size();
+    res += sizeof(LLModel::hull) + sizeof(LLVector3) * static_cast<U32>(mBaseHull.size());
 
-    res += sizeof(std::vector<LLModel::PhysicsMesh>) + sizeof(std::vector<LLModel::PhysicsMesh>) * mMesh.size();
+    res += sizeof(std::vector<LLModel::PhysicsMesh>) + sizeof(std::vector<LLModel::PhysicsMesh>) * static_cast<U32>(mMesh.size());
     for (U32 i = 0; i < mMesh.size(); ++i)
     {
         res += mMesh[i].sizeBytes();
@@ -1814,7 +1814,7 @@ LLSD LLModel::Decomposition::asLLSD() const
 
     for (U32 i = 0; i < mHull.size(); ++i)
     {
-        U32 size = mHull[i].size();
+        U32 size = static_cast<U32>(mHull[i].size());
         total += size;
         hulls[i] = (U8) (size);
 

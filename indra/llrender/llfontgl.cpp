@@ -149,7 +149,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 
     if(!sDisplayFont) //do not display texts
     {
-        return wstr.length() ;
+        return static_cast<S32>(wstr.length());
     }
 
     if (wstr.empty())
