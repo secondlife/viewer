@@ -257,8 +257,8 @@ void LLInventoryGallery::updateRootFolder()
         {
             updateRemovedItem(mItems[i]->getUUID());
         }
-        auto hidden_count = mHiddenItems.size();
-        for (size_t i = hidden_count - 1; i >= 0; i--)
+        S32 hidden_count = static_cast<S32>(mHiddenItems.size());
+        for (S32 i = hidden_count - 1; i >= 0; i--)
         {
             updateRemovedItem(mHiddenItems[i]->getUUID());
         }

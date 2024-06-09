@@ -1504,7 +1504,7 @@ void LLIMModel::getMessagesSilently(const LLUUID& session_id, chat_message_list_
         return;
     }
 
-    auto i = session->mMsgs.size() - start_index;
+    int i = static_cast<int>(session->mMsgs.size()) - start_index;
 
     for (chat_message_list_t::iterator iter = session->mMsgs.begin();
         iter != session->mMsgs.end() && i > 0;

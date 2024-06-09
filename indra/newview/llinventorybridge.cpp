@@ -2509,7 +2509,7 @@ bool LLFolderBridge::isClipboardPasteable() const
 
         // Search for the direct descendent of current Friends subfolder among all pasted items,
         // and return false if is found.
-        for(auto i = objects.size() - 1; i >= 0; --i)
+        for (S32 i = static_cast<S32>(objects.size()) - 1; i >= 0; --i)
         {
             const LLUUID &obj_id = objects.at(i);
             if ( LLFriendCardsManager::instance().isObjDirectDescendentOfCategory(model->getObject(obj_id), current_cat) )

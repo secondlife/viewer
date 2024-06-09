@@ -743,7 +743,7 @@ void LLTeleportHistoryPanel::refresh()
             break;
     }
 
-    for (size_t n = mItemContainers.size() - 1; n >= 0; --n)
+    for (S32 n = static_cast<S32>(mItemContainers.size()) - 1; n >= 0; --n)
     {
         LLAccordionCtrlTab* tab = mItemContainers.at(n);
         LLFlatListView* fv = getFlatListViewFromTab(tab);
@@ -805,7 +805,7 @@ void LLTeleportHistoryPanel::replaceItem(S32 removed_index)
 
     // Index of each item, from last to removed item should be decremented
     // to point to the right item in LLTeleportHistoryStorage
-    for (auto tab_idx = mItemContainers.size() - 1; tab_idx >= 0; --tab_idx)
+    for (S32 tab_idx = static_cast<S32>(mItemContainers.size()) - 1; tab_idx >= 0; --tab_idx)
     {
         LLAccordionCtrlTab* tab = mItemContainers.at(tab_idx);
         if (!tab->getVisible())
@@ -859,7 +859,7 @@ void LLTeleportHistoryPanel::showTeleportHistory()
 
     mCurrentItem = static_cast<S32>(mTeleportHistory->getItems().size()) - 1;
 
-    for (auto n = mItemContainers.size() - 1; n >= 0; --n)
+    for (S32 n = static_cast<S32>(mItemContainers.size()) - 1; n >= 0; --n)
     {
         LLAccordionCtrlTab* tab = mItemContainers.at(n);
         if (tab)
