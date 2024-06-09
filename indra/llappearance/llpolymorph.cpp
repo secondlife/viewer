@@ -385,7 +385,7 @@ bool LLPolyMorphTarget::setInfo(LLPolyMorphTargetInfo* info)
     {
         const std::string driven_tag = "_Driven";
         auto pos = morph_param_name.find(driven_tag);
-        if (pos != std::string::npos)
+        if (pos != std::string::npos && pos > 0)
         {
             morph_param_name = morph_param_name.substr(0,pos);
             mMorphData = mMesh->getMorphData(morph_param_name);
