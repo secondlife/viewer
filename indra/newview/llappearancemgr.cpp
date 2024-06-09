@@ -1374,7 +1374,7 @@ static void removeDuplicateItems(LLInventoryModel::item_array_t& items)
     // encountered, so we actually keep the *last* of each duplicate
     // item.  This is needed to give the right priority when adding
     // duplicate items to an existing outfit.
-    for (auto i=items.size()-1; i>=0; i--)
+    for (S32 i = static_cast<S32>(items.size()) - 1; i >= 0; i--)
     {
         LLViewerInventoryItem *item = items.at(i);
         LLUUID item_id = item->getLinkedUUID();

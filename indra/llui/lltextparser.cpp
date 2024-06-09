@@ -74,7 +74,7 @@ S32 LLTextParser::findPattern(const std::string &text, LLSD highlight)
             break;
         case ENDS_WITH:
             auto pos = ltext.rfind(pattern);
-            if (pos >= 0 && (ltext.length()-pattern.length()==pos)) found = pos;
+            if (pos != std::string::npos && pos >= 0 && (ltext.length() - pattern.length() == pos)) found = pos;
             break;
     }
     return static_cast<S32>(found);
