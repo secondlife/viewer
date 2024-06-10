@@ -628,13 +628,6 @@ void LLFace::renderOneWireframe(const LLColor4 &color, F32 fogCfx, bool wirefram
 
     {
         LLGLDisable depth(wireframe_selection ? 0 : GL_BLEND);
-        //LLGLEnable stencil(wireframe_selection ? 0 : GL_STENCIL_TEST);
-
-        if (!wireframe_selection)
-        { //modify wireframe into outline selection mode
-            glStencilFunc(GL_NOTEQUAL, 2, 0xffff);
-            glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-        }
 
         LLGLEnable offset(GL_POLYGON_OFFSET_LINE);
         glPolygonOffset(3.f, 3.f);

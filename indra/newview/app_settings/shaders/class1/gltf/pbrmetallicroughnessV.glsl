@@ -42,32 +42,32 @@ uniform vec4[2] texture_emissive_transform;
 
 in vec3 position;
 in vec4 diffuse_color;
+in vec2 texcoord0;
+out vec2 base_color_texcoord;
+out vec2 emissive_texcoord;
+out vec4 vertex_color;
+out vec3 vary_position;
+
+#ifndef UNLIT
 in vec3 normal;
 in vec4 tangent;
-in vec2 texcoord0;
-
-out vec2 base_color_texcoord;
 out vec2 normal_texcoord;
 out vec2 metallic_roughness_texcoord;
-out vec2 emissive_texcoord;
-
-out vec4 vertex_color;
-
 out vec3 vary_tangent;
 flat out float vary_sign;
 out vec3 vary_normal;
-out vec3 vary_position;
+vec3 tangent_space_transform(vec4 vertex_tangent, vec3 vertex_normal, vec4[2] khr_gltf_transform, mat4 sl_animation_transform);
+#endif
 
 vec2 texture_transform(vec2 vertex_texcoord, vec4[2] khr_gltf_transform, mat4 sl_animation_transform);
-vec3 tangent_space_transform(vec4 vertex_tangent, vec3 vertex_normal, vec4[2] khr_gltf_transform, mat4 sl_animation_transform);
 
 
 #ifdef ALPHA_BLEND
 out vec3 vary_fragcoord;
 #endif
 
-
 #ifdef HAS_SKIN
+in uvec4 joint;
 in vec4 weight4;
 
 layout (std140) uniform GLTFJoints
@@ -80,18 +80,12 @@ mat4 getGLTFSkinTransform()
 {
     int i;
 
-    vec4 w = fract(weight4);
-    vec4 index = floor(weight4);
+    vec4 w = weight4;
 
-    index = min(index, vec4(MAX_JOINTS_PER_GLTF_OBJECT-1));
-    index = max(index, vec4( 0.0));
-
-    w *= 1.0/(w.x+w.y+w.z+w.w);
-
-    int i1 = int(index.x);
-    int i2 = int(index.y);
-    int i3 = int(index.z);
-    int i4 = int(index.w);
+    uint i1 = joint.x;
+    uint i2 = joint.y;
+    uint i3 = joint.z;
+    uint i4 = joint.w;
 
     mat3 mat = mat3(gltf_joints[i1])*w.x;
          mat += mat3(gltf_joints[i2])*w.y;
@@ -143,10 +137,15 @@ void main()
 #endif
 
     base_color_texcoord = texture_transform(texcoord0, texture_base_color_transform, texture_matrix0);
-    normal_texcoord = texture_transform(texcoord0, texture_normal_transform, texture_matrix0);
-    metallic_roughness_texcoord = texture_transform(texcoord0, texture_metallic_roughness_transform, texture_matrix0);
     emissive_texcoord = texture_transform(texcoord0, texture_emissive_transform, texture_matrix0);
 
+#ifndef UNLIT
+    normal_texcoord = texture_transform(texcoord0, texture_normal_transform, texture_matrix0);
+    metallic_roughness_texcoord = texture_transform(texcoord0, texture_metallic_roughness_transform, texture_matrix0);
+#endif
+    
+
+#ifndef UNLIT
 #ifdef HAS_SKIN
     vec3 n = (mat*vec4(normal.xyz+position.xyz,1.0)).xyz-pos.xyz;
     vec3 t = (mat*vec4(tangent.xyz+position.xyz,1.0)).xyz-pos.xyz;
@@ -156,10 +155,10 @@ void main()
 #endif
 
     n = normalize(n);
-
     vary_tangent = normalize(tangent_space_transform(vec4(t, tangent.w), n, texture_normal_transform, texture_matrix0));
     vary_sign = tangent.w;
     vary_normal = n;
+#endif
 
     vertex_color = diffuse_color;
 #ifdef ALPHA_BLEND

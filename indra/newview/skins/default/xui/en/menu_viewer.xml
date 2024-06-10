@@ -2875,7 +2875,7 @@ function="World.EnvPreset"
          label="Save As..."
          name="Save As...">
           <menu_item_call.on_enable
-             function="EnableGLTF"/>
+             function="EnableGLTFSaveAs"/>
           <menu_item_call.on_click
            function="Advanced.ClickGLTFSaveAs" />
         </menu_item_call>
@@ -2883,7 +2883,7 @@ function="World.EnvPreset"
          label="Upload..."
          name="Upload...">
           <menu_item_call.on_enable
-             function="EnableGLTF"/>
+             function="EnableGLTFUpload"/>
           <menu_item_call.on_click
            function="Advanced.ClickGLTFUpload" />
         </menu_item_call>

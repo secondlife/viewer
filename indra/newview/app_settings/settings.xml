@@ -9308,6 +9308,17 @@
       <key>Value</key>
       <real>8.0</real>
     </map>
+    <key>RenderTerrainPBRTransformsEnabled</key>
+    <map>
+      <key>Comment</key>
+      <string>EXPERIMENTAL: Enable PBR Terrain texture transforms.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>RenderTerrainPBRNormalsEnabled</key>
     <map>
       <key>Comment</key>
@@ -15741,7 +15752,7 @@
   <key>GLTFEnabled</key>
   <map>
     <key>Comment</key>
-    <string>Enable GLTF support.  Set by SimulatorFeatures</string>
+    <string>Enable GLTF support.  Set to true by simulator if the simulator you are connected to supports GLTF Asset upload.  WARNING: Manually setting this to true will enable buttons that can drain your L$ balance by implicitly uploading textures without asking.</string>
     <key>Persist</key>
     <integer>0</integer>
     <key>Type</key>

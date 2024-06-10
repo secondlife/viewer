@@ -39,10 +39,15 @@
 using namespace LL::GLTF;
 using namespace boost::json;
 
+
 namespace LL
 {
     namespace GLTF
     {
+        static std::unordered_set<std::string> ExtensionsSupported = {
+            "KHR_materials_unlit"
+        };
+
         Material::AlphaMode gltf_alpha_mode_to_enum(const std::string& alpha_mode)
         {
             if (alpha_mode == "OPAQUE")
@@ -382,6 +387,22 @@ void Asset::update()
 
 bool Asset::prep()
 {
+    // check required extensions and fail if not supported
+    bool unsupported = false;
+    for (auto& extension : mExtensionsRequired)
+    {
+        if (ExtensionsSupported.find(extension) == ExtensionsSupported.end())
+        {
+            LL_WARNS() << "Unsupported extension: " << extension << LL_ENDL;
+            unsupported = true;
+        }
+    }
+
+    if (unsupported)
+    {
+        return false;
+    }
+
     // do buffers first as other resources depend on them
     for (auto& buffer : mBuffers)
     {
@@ -600,6 +621,8 @@ const Asset& Asset::operator=(const Value& src)
         copy(obj, "accessors", mAccessors);
         copy(obj, "animations", mAnimations);
         copy(obj, "skins", mSkins);
+        copy(obj, "extensionsUsed", mExtensionsUsed);
+        copy(obj, "extensionsRequired", mExtensionsRequired);
     }
 
     return *this;
@@ -628,6 +651,8 @@ void Asset::serialize(object& dst) const
     write(mAccessors, "accessors", dst);
     write(mAnimations, "animations", dst);
     write(mSkins, "skins", dst);
+    write(mExtensionsUsed, "extensionsUsed", dst);
+    write(mExtensionsRequired, "extensionsRequired", dst);
 }
 
 bool Asset::save(const std::string& filename)
@@ -1093,6 +1118,17 @@ bool Material::PbrMetallicRoughness::operator!=(const Material::PbrMetallicRough
     return !(*this == rhs);
 }
 
+const Material::Unlit& Material::Unlit::operator=(const Value& src)
+{
+    mPresent = true;
+    return *this;
+}
+
+void Material::Unlit::serialize(object& dst) const
+{
+    // no members and object has already been created, nothing to do
+}
+
 void Material::serialize(object& dst) const
 {
     write(mName, "name", dst);
@@ -1119,6 +1155,7 @@ void Material::serialize(object& dst) const
     write(mAlphaMode, "alphaMode", dst, Material::AlphaMode::OPAQUE);
     write(mAlphaCutoff, "alphaCutoff", dst, 0.5f);
     write(mDoubleSided, "doubleSided", dst, false);
+    write_extensions(dst, &mUnlit, "KHR_materials_unlit");
 }
 
 const Material& Material::operator=(const Value& src)
@@ -1139,6 +1176,8 @@ const Material& Material::operator=(const Value& src)
         copy(src, "alphaMode", mAlphaMode);
         copy(src, "alphaCutoff", mAlphaCutoff);
         copy(src, "doubleSided", mDoubleSided);
+        copy_extensions(src,
+            "KHR_materials_unlit", &mUnlit );
     }
     return *this;
 }
@@ -1161,7 +1200,6 @@ const Mesh& Mesh::operator=(const Value& src)
     }
 
     return *this;
-
 }
 
 bool Mesh::prep(Asset& asset)

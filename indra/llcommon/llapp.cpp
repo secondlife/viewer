@@ -586,9 +586,10 @@ void default_unix_signal_handler(int signum, siginfo_t *info, void *)
     switch (signum)
     {
     case SIGCHLD:
+    case SIGHUP:
         if (LLApp::sLogInSignal)
         {
-            LL_INFOS() << "Signal handler - Got SIGCHLD from " << info->si_pid << LL_ENDL;
+            LL_INFOS() << "Signal handler - Got SIGCHLD or SIGHUP from " << info->si_pid << LL_ENDL;
         }
 
         return;
@@ -603,11 +604,10 @@ void default_unix_signal_handler(int signum, siginfo_t *info, void *)
         raise(signum);
         return;
     case SIGINT:
-    case SIGHUP:
     case SIGTERM:
         if (LLApp::sLogInSignal)
         {
-            LL_WARNS() << "Signal handler - Got SIGINT, HUP, or TERM, exiting gracefully" << LL_ENDL;
+            LL_WARNS() << "Signal handler - Got SIGINT, or TERM, exiting gracefully" << LL_ENDL;
         }
         // Graceful exit
         // Just set our state to quitting, not error

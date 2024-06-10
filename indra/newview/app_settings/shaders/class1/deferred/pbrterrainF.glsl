@@ -193,7 +193,7 @@ void main()
     rm_factors[3] = vec2(roughnessFactors.w, metallicFactors.w);
 #endif
 
-    PBRMix mix = init_pbr_mix();
+    PBRMix pbr_mix = init_pbr_mix();
     PBRMix mix2;
     TerrainCoord terrain_texcoord;
     switch (tm.type & MIX_X)
@@ -233,7 +233,7 @@ void main()
 #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_NORMAL)
         mix2.vNt = mikktspace(mix2.vNt, vary_tangents[0]);
 #endif
-        mix = mix_pbr(mix, mix2, tm.weight.x);
+        pbr_mix = mix_pbr(pbr_mix, mix2, tm.weight.x);
         break;
     default:
         break;
@@ -275,7 +275,7 @@ void main()
 #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_NORMAL)
         mix2.vNt = mikktspace(mix2.vNt, vary_tangents[1]);
 #endif
-        mix = mix_pbr(mix, mix2, tm.weight.y);
+        pbr_mix = mix_pbr(pbr_mix, mix2, tm.weight.y);
         break;
     default:
         break;
@@ -317,7 +317,7 @@ void main()
 #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_NORMAL)
         mix2.vNt = mikktspace(mix2.vNt, vary_tangents[2]);
 #endif
-        mix = mix_pbr(mix, mix2, tm.weight.z);
+        pbr_mix = mix_pbr(pbr_mix, mix2, tm.weight.z);
         break;
     default:
         break;
@@ -359,21 +359,21 @@ void main()
 #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_NORMAL)
         mix2.vNt = mikktspace(mix2.vNt, vary_tangents[3]);
 #endif
-        mix = mix_pbr(mix, mix2, tm.weight.w);
+        pbr_mix = mix_pbr(pbr_mix, mix2, tm.weight.w);
         break;
     default:
         break;
     }
 
     float minimum_alpha = terrain_mix(tm, minimum_alphas);
-    if (mix.col.a < minimum_alpha)
+    if (pbr_mix.col.a < minimum_alpha)
     {
         discard;
     }
     float base_color_factor_alpha = terrain_mix(tm, vec4(baseColorFactors[0].z, baseColorFactors[1].z, baseColorFactors[2].z, baseColorFactors[3].z));
 
 #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_NORMAL)
-    vec3 tnorm = normalize(mix.vNt);
+    vec3 tnorm = normalize(pbr_mix.vNt);
 #else
     vec3 tnorm = vary_normal;
 #endif
@@ -381,21 +381,21 @@ void main()
    
 
 #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
-#define emissive mix.emissive
+#define mix_emissive pbr_mix.emissive
 #else
-#define emissive vec3(0)
+#define mix_emissive vec3(0)
 #endif
 #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_OCCLUSION)
-#define orm mix.orm
+#define mix_orm pbr_mix.orm
 #elif (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_METALLIC_ROUGHNESS)
-#define orm vec3(1.0, mix.rm)
+#define mix_orm vec3(1.0, pbr_mix.rm)
 #else
 // Matte plastic potato terrain
-#define orm vec3(1.0, 1.0, 0.0)
+#define mix_orm vec3(1.0, 1.0, 0.0)
 #endif
-    frag_data[0] = max(vec4(mix.col.xyz, 0.0), vec4(0));                                                   // Diffuse
-    frag_data[1] = max(vec4(orm.rgb, base_color_factor_alpha), vec4(0));                                    // PBR linear packed Occlusion, Roughness, Metal.
+    frag_data[0] = max(vec4(pbr_mix.col.xyz, 0.0), vec4(0));                                                   // Diffuse
+    frag_data[1] = max(vec4(mix_orm.rgb, base_color_factor_alpha), vec4(0));                                    // PBR linear packed Occlusion, Roughness, Metal.
     frag_data[2] = vec4(tnorm, GBUFFER_FLAG_HAS_PBR); // normal, flags
-    frag_data[3] = max(vec4(emissive,0), vec4(0));                                                // PBR sRGB Emissive
+    frag_data[3] = max(vec4(mix_emissive,0), vec4(0));                                                // PBR sRGB Emissive
 }
 

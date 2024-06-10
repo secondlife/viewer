@@ -758,7 +758,7 @@ std::string utf8str_showBytesUTF8(const std::string& utf8str)
 }
 
 // Search for any emoji symbol, return true if found
-bool wstring_has_emoji(const LLWString& wstr)
+bool wstring_has_emoji(LLWStringView wstr)
 {
     for (const llwchar& wch : wstr)
     {

@@ -681,7 +681,7 @@ void LLGLTFMaterial::applyOverride(const LLGLTFMaterial& override_mat)
     }
 }
 
-void LLGLTFMaterial::getOverrideLLSD(const LLGLTFMaterial& override_mat, LLSD& data)
+void LLGLTFMaterial::getOverrideLLSD(const LLGLTFMaterial& override_mat, LLSD& data) const
 {
     LL_PROFILE_ZONE_SCOPED;
     llassert(data.isUndefined());
@@ -690,7 +690,7 @@ void LLGLTFMaterial::getOverrideLLSD(const LLGLTFMaterial& override_mat, LLSD& d
 
     for (U32 i = 0; i < GLTF_TEXTURE_INFO_COUNT; ++i)
     {
-        LLUUID& texture_id = mTextureId[i];
+        const LLUUID& texture_id = mTextureId[i];
         const LLUUID& override_texture_id = override_mat.mTextureId[i];
         if (override_texture_id.notNull() && override_texture_id != texture_id)
         {

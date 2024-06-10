@@ -143,6 +143,7 @@
 #include "llcleanup.h"
 #include "llviewershadermgr.h"
 #include "gltfscenemanager.h"
+#include "gltf/asset.h"
 
 using namespace LLAvatarAppearanceDefines;
 
@@ -3323,6 +3324,33 @@ bool enable_gltf()
 {
     static LLCachedControl<bool> enablegltf(gSavedSettings, "GLTFEnabled", false);
     return enablegltf;
+}
+
+bool enable_gltf_save_as()
+{
+    if (enable_gltf())
+    {
+        LLViewerObject* obj = LLSelectMgr::getInstance()->getSelection()->getFirstRootObject();
+        if (obj)
+        {
+            if (obj->mGLTFAsset && obj->mGLTFAsset->isLocalPreview())
+            {
+                return true;
+            }
+
+            LLPermissions* permissions = LLSelectMgr::getInstance()->findObjectPermissions(obj);
+            if (permissions)
+            {
+                return permissions->allowExportBy(gAgent.getID());
+            }
+        }
+    }
+    return false;
+}
+
+bool enable_gltf_upload()
+{
+    return enable_gltf_save_as();
 }
 
 class LLSelfRemoveAllAttachments : public view_listener_t
@@ -10091,6 +10119,8 @@ void initialize_menus()
     enable.add("EnableSelectInPathfindingCharacters", boost::bind(&enable_object_select_in_pathfinding_characters));
     enable.add("Advanced.EnableErrorOSException", boost::bind(&enable_os_exception));
     enable.add("EnableGLTF", boost::bind(&enable_gltf));
+    enable.add("EnableGLTFSaveAs", boost::bind(&enable_gltf_save_as));
+    enable.add("EnableGLTFUpload", boost::bind(&enable_gltf_upload));
 
     view_listener_t::addMenu(new LLFloaterVisible(), "FloaterVisible");
     view_listener_t::addMenu(new LLShowSidetrayPanel(), "ShowSidetrayPanel");

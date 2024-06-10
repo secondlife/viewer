@@ -49,9 +49,25 @@ namespace LL
     {
         class Asset;
 
+        class Extension
+        {
+        public:
+            // true if this extension is present in the gltf file
+            // otherwise false
+            bool mPresent = false;
+        };
+
+
         class Material
         {
         public:
+
+            class Unlit : public Extension // KHR_materials_unlit implementation
+            {
+            public:
+                const Unlit& operator=(const Value& src);
+                void serialize(boost::json::object& dst) const;
+            };
 
             enum class AlphaMode
             {
@@ -168,6 +184,7 @@ namespace LL
             AlphaMode mAlphaMode = AlphaMode::OPAQUE;
             F32 mAlphaCutoff = 0.5f;
             bool mDoubleSided = false;
+            Unlit mUnlit;
 
             const Material& operator=(const Value& src);
             void serialize(boost::json::object& dst) const;
@@ -351,6 +368,8 @@ namespace LL
             std::vector<Accessor> mAccessors;
             std::vector<Animation> mAnimations;
             std::vector<Skin> mSkins;
+            std::vector<std::string> mExtensionsUsed;
+            std::vector<std::string> mExtensionsRequired;
 
             std::string mVersion;
             std::string mGenerator;
@@ -419,6 +438,10 @@ namespace LL
             // remove the bufferview at the given index
             // updates all bufferview indices in this Asset as needed
             void eraseBufferView(S32 bufferView);
+
+            // return true if this Asset has been loaded as a local preview
+            // Local previews may be uploaded or exported to disk
+            bool isLocalPreview() { return !mFilename.empty(); }
         };
 
         Material::AlphaMode gltf_alpha_mode_to_enum(const std::string& alpha_mode);

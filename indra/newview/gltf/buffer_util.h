@@ -171,6 +171,16 @@ namespace LL
         }
 
         template<>
+        inline void copyVec4<U16, U64>(U16* src, U64& dst)
+        {
+            U16* data = (U16*)&dst;
+            data[0] = src[0];
+            data[1] = src[1];
+            data[2] = src[2];
+            data[3] = src[3];
+        }
+
+        template<>
         inline void copyVec4<U16, LLColor4U>(U16* src, LLColor4U& dst)
         {
             dst.set(src[0], src[1], src[2], src[3]);
@@ -507,6 +517,104 @@ namespace LL
                 return false;
             }
             return true;
+        }
+
+
+        // to/from extension
+
+        // for internal use only, use copy_extensions instead
+        template<typename T>
+        inline bool _copy_extension(const boost::json::object& extensions, std::string_view member, T* dst)
+        {
+            if (extensions.contains(member))
+            {
+                return copy(extensions.at(member), *dst);
+            }
+
+            return false;
+        }
+
+        // Copy all extensions from src.extensions to provided destinations
+        // Usage:
+        //  copy_extensions(src,
+        //                  "KHR_materials_unlit", &mUnlit,
+        //                  "KHR_materials_pbrSpecularGlossiness", &mPbrSpecularGlossiness);
+        // returns true if any of the extensions are copied
+        template<class... Types>
+        inline bool copy_extensions(const boost::json::value& src, Types... args)
+        {
+            // extract the extensions object (don't assume it exists and verify that it is an object)
+            if (src.is_object())
+            {
+                boost::json::object obj = src.get_object();
+                if (obj.contains("extensions"))
+                {
+                    const boost::json::value& extensions = obj.at("extensions");
+                    if (extensions.is_object())
+                    {
+                        const boost::json::object& ext_obj = extensions.as_object();
+                        bool success = false;
+                        // copy each extension, return true if any of them succeed, do not short circuit on success
+                        U32 count = sizeof...(args);
+                        for (U32 i = 0; i < count; i += 2)
+                        {
+                            if (_copy_extension(ext_obj, args...))
+                            {
+                                success = true;
+                            }
+                        }
+                        return success;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        // internal use aonly, use write_extensions instead
+        template<typename T>
+        inline bool _write_extension(boost::json::object& extensions, const T* src, string_view member)
+        {
+            if (src->mPresent)
+            {
+                Value v;
+                if (write(*src, v))
+                {
+                    extensions[member] = v;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // Write all extensions to dst.extensions
+        // Usage:
+        //  write_extensions(dst,
+        //                   "KHR_materials_unlit", mUnlit,
+        //                   "KHR_materials_pbrSpecularGlossiness", mPbrSpecularGlossiness);
+        // returns true if any of the extensions are written
+        template<class... Types>
+        inline bool write_extensions(boost::json::object& dst, Types... args)
+        {
+            bool success = false;
+
+            boost::json::object extensions;
+            U32 count = sizeof...(args) - 1;
+
+            for (U32 i = 0; i < count; i += 2)
+            {
+                if (_write_extension(extensions, args...))
+                {
+                    success = true;
+                }
+            }
+
+            if (success)
+            {
+                dst["extensions"] = extensions;
+            }
+
+            return success;
         }
 
         // conditionally write a member to an object if the member

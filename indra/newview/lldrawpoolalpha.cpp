@@ -93,7 +93,7 @@ S32 LLDrawPoolAlpha::getNumPostDeferredPasses()
 }
 
 // set some common parameters on the given shader to prepare for alpha rendering
-static void prepare_alpha_shader(LLGLSLShader* shader, bool textureGamma, bool deferredEnvironment, F32 water_sign)
+static void prepare_alpha_shader(LLGLSLShader* shader, bool deferredEnvironment, F32 water_sign)
 {
     static LLCachedControl<F32> displayGamma(gSavedSettings, "RenderDeferredDisplayGamma");
     F32 gamma = displayGamma;
@@ -132,15 +132,11 @@ static void prepare_alpha_shader(LLGLSLShader* shader, bool textureGamma, bool d
     {
         shader->setMinimumAlpha(MINIMUM_ALPHA);
     }
-    if (textureGamma)
-    {
-        shader->uniform1f(LLShaderMgr::TEXTURE_GAMMA, 2.2f);
-    }
 
     //also prepare rigged variant
     if (shader->mRiggedVariant && shader->mRiggedVariant != shader)
     {
-        prepare_alpha_shader(shader->mRiggedVariant, textureGamma, deferredEnvironment, water_sign);
+        prepare_alpha_shader(shader->mRiggedVariant, deferredEnvironment, water_sign);
     }
 }
 
@@ -171,36 +167,36 @@ void LLDrawPoolAlpha::renderPostDeferred(S32 pass)
     llassert(LLPipeline::sRenderDeferred);
 
     emissive_shader = &gDeferredEmissiveProgram;
-    prepare_alpha_shader(emissive_shader, true, false, water_sign);
+    prepare_alpha_shader(emissive_shader, false, water_sign);
 
     pbr_emissive_shader = &gPBRGlowProgram;
-    prepare_alpha_shader(pbr_emissive_shader, true, false, water_sign);
+    prepare_alpha_shader(pbr_emissive_shader, false, water_sign);
 
 
     fullbright_shader   =
         (LLPipeline::sImpostorRender) ? &gDeferredFullbrightAlphaMaskProgram :
         (LLPipeline::sRenderingHUDs) ? &gHUDFullbrightAlphaMaskAlphaProgram :
         &gDeferredFullbrightAlphaMaskAlphaProgram;
-    prepare_alpha_shader(fullbright_shader, true, true, water_sign);
+    prepare_alpha_shader(fullbright_shader, true, water_sign);
 
     simple_shader   =
         (LLPipeline::sImpostorRender) ? &gDeferredAlphaImpostorProgram :
         (LLPipeline::sRenderingHUDs) ? &gHUDAlphaProgram :
         &gDeferredAlphaProgram;
 
-    prepare_alpha_shader(simple_shader, false, true, water_sign); //prime simple shader (loads shadow relevant uniforms)
+    prepare_alpha_shader(simple_shader, true, water_sign); //prime simple shader (loads shadow relevant uniforms)
 
     LLGLSLShader* materialShader = gDeferredMaterialProgram;
     for (int i = 0; i < LLMaterial::SHADER_COUNT*2; ++i)
     {
-        prepare_alpha_shader(&materialShader[i], false, true, water_sign);
+        prepare_alpha_shader(&materialShader[i], true, water_sign);
     }
 
     pbr_shader =
         (LLPipeline::sRenderingHUDs) ? &gHUDPBRAlphaProgram :
         &gDeferredPBRAlphaProgram;
 
-    prepare_alpha_shader(pbr_shader, false, true, water_sign);
+    prepare_alpha_shader(pbr_shader, true, water_sign);
 
     // explicitly unbind here so render loop doesn't make assumptions about the last shader
     // already being setup for rendering
@@ -265,6 +261,8 @@ void LLDrawPoolAlpha::forwardRender(bool rigged)
     { // draw GLTF scene to depth buffer before rigged alpha
         LL::GLTFSceneManager::instance().render(false, false);
         LL::GLTFSceneManager::instance().render(false, true);
+        LL::GLTFSceneManager::instance().render(false, false, true);
+        LL::GLTFSceneManager::instance().render(false, true, true);
     }
 
     // If the face is more than 90% transparent, then don't update the Depth buffer for Dof

@@ -162,7 +162,7 @@ extern thread_local bool gProfilerEnabled;
 
 #define LL_LABEL_OBJECT_GL(type, name, length, label)
 
-#if LL_PROFILER_CONFIGURATION > 1
+#if !LL_DARWIN && LL_PROFILER_CONFIGURATION > 1
 #define LL_PROFILE_ALLOC(ptr, size)             TracyAlloc(ptr, size)
 #define LL_PROFILE_FREE(ptr)                    TracyFree(ptr)
 #else
