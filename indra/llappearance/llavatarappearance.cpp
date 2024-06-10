@@ -1422,9 +1422,9 @@ void LLAvatarAppearance::setClothesColor( ETextureIndex te, const LLColor4& new_
     U32 param_name[3];
     if( teToColorParams( te, param_name ) )
     {
-        setVisualParamWeight( param_name[0], new_color.mV[VX]);
-        setVisualParamWeight( param_name[1], new_color.mV[VY]);
-        setVisualParamWeight( param_name[2], new_color.mV[VZ]);
+        setVisualParamWeight( param_name[0], new_color.mV[VRED]);
+        setVisualParamWeight( param_name[1], new_color.mV[VGREEN]);
+        setVisualParamWeight( param_name[2], new_color.mV[VBLUE]);
     }
 }
 
@@ -1434,9 +1434,9 @@ LLColor4 LLAvatarAppearance::getClothesColor( ETextureIndex te )
     U32 param_name[3];
     if( teToColorParams( te, param_name ) )
     {
-        color.mV[VX] = getVisualParamWeight( param_name[0] );
-        color.mV[VY] = getVisualParamWeight( param_name[1] );
-        color.mV[VZ] = getVisualParamWeight( param_name[2] );
+        color.mV[VRED] = getVisualParamWeight( param_name[0] );
+        color.mV[VGREEN] = getVisualParamWeight( param_name[1] );
+        color.mV[VBLUE] = getVisualParamWeight( param_name[2] );
     }
     return color;
 }
