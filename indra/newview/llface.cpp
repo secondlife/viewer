@@ -1255,11 +1255,15 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
         clearState(GLOBAL);
     }
 
-    LLColor4U color = tep->getColor();
-
-    if (tep->getGLTFRenderMaterial())
+    LLColor4U color{};
+    if (tep)
     {
-        color = tep->getGLTFRenderMaterial()->mBaseColor;
+        color = tep->getColor();
+
+        if (tep->getGLTFRenderMaterial())
+        {
+            color = tep->getGLTFRenderMaterial()->mBaseColor;
+        }
     }
 
     if (rebuild_color)
