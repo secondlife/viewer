@@ -313,6 +313,10 @@ bool Primitive::prep(Asset& asset)
     // TODO: support colorless vertex buffers
     mask |= LLVertexBuffer::MAP_COLOR;
 
+    mShaderVariant = 0;
+
+    bool unlit = false;
+
     // bake material basecolor into color array
     if (mMaterial != INVALID_INDEX)
     {
@@ -322,11 +326,15 @@ bool Primitive::prep(Asset& asset)
         {
             dst = LLColor4U(baseColor * LLColor4(dst));
         }
+
+        if (material.mUnlit.mPresent)
+        { // material uses KHR_materials_unlit
+            mShaderVariant |= LLGLSLShader::GLTFVariant::UNLIT;
+            unlit = true;
+        }
     }
 
-    mShaderVariant = 0;
-
-    if (mNormals.empty())
+    if (mNormals.empty() && !unlit)
     {
         mTangents.clear();
 
@@ -334,6 +342,7 @@ bool Primitive::prep(Asset& asset)
         { //no normals and no surfaces, this primitive is unlit
             mTangents.clear();
             mShaderVariant |= LLGLSLShader::GLTFVariant::UNLIT;
+            unlit = true;
         }
         else
         {
@@ -349,8 +358,6 @@ bool Primitive::prep(Asset& asset)
             data.write(this);
         }
     }
-
-    bool unlit = (mShaderVariant & LLGLSLShader::GLTFVariant::UNLIT) != 0;
 
     if (mTangents.empty() && !unlit)
     { // NOTE: must be done last because tangent generation rewrites the other arrays
@@ -388,10 +395,13 @@ bool Primitive::prep(Asset& asset)
         }
     }
 
-
-    if (!unlit)
+    if (!mNormals.empty())
     {
         mask |= LLVertexBuffer::MAP_NORMAL;
+    }
+
+    if (!mTangents.empty())
+    {
         mask |= LLVertexBuffer::MAP_TANGENT;
     }
 

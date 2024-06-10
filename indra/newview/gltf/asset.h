@@ -49,9 +49,25 @@ namespace LL
     {
         class Asset;
 
+        class Extension
+        {
+        public:
+            // true if this extension is present in the gltf file
+            // otherwise false
+            bool mPresent = false;
+        };
+
+
         class Material
         {
         public:
+
+            class Unlit : public Extension // KHR_materials_unlit implementation
+            {
+            public:
+                const Unlit& operator=(const Value& src);
+                void serialize(boost::json::object& dst) const;
+            };
 
             enum class AlphaMode
             {
@@ -117,6 +133,7 @@ namespace LL
             AlphaMode mAlphaMode = AlphaMode::OPAQUE;
             F32 mAlphaCutoff = 0.5f;
             bool mDoubleSided = false;
+            Unlit mUnlit;
 
             const Material& operator=(const Value& src);
             void serialize(boost::json::object& dst) const;
@@ -300,6 +317,8 @@ namespace LL
             std::vector<Accessor> mAccessors;
             std::vector<Animation> mAnimations;
             std::vector<Skin> mSkins;
+            std::vector<std::string> mExtensionsUsed;
+            std::vector<std::string> mExtensionsRequired;
 
             std::string mVersion;
             std::string mGenerator;
