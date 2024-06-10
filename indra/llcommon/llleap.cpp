@@ -341,7 +341,7 @@ public:
                     {
                         // The LLSD object we got from our stream contains the
                         // keys we need.
-                        LLEventPumps::instance().obtain(data["pump"]).post(data["data"]);
+                        LLEventPumps::instance().post(data["pump"], data["data"]);
                     }
                     catch (const std::exception& err)
                     {
@@ -352,7 +352,7 @@ public:
                         // request, send a reply. We happen to know who originated
                         // this request, and the reply LLEventPump of interest.
                         // Not our problem if the plugin ignores the reply event.
-                        data["reply"] = mReplyPump.getName();
+                        data["reply"] = mListener->getReplyPump().getName();
                         sendReply(llsd::map("error",
                                             stringize(LLError::Log::classname(err), ": ", err.what())),
                                   data);
