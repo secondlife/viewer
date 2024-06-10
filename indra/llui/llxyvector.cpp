@@ -25,7 +25,7 @@
 * $/LicenseInfo$
 */
 
-// A control that allows to set two related vector magnitudes by manipulating a single vector on a plane. 
+// A control that allows to set two related vector magnitudes by manipulating a single vector on a plane.
 
 #include "linden_common.h"
 
@@ -158,7 +158,7 @@ void drawArrow(S32 tailX, S32 tailY, S32 tipX, S32 tipY, LLColor4 color)
     S32 dy = tipY - tailY;
 
     S32 arrowLength = (abs(dx) < ARROW_LENGTH_LONG && abs(dy) < ARROW_LENGTH_LONG) ? ARROW_LENGTH_SHORT : ARROW_LENGTH_LONG;
-   
+
     F32 theta = std::atan2(dy, dx);
 
     F32 rad = ARROW_ANGLE * std::atan(1) * 4 / 180;

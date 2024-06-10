@@ -190,7 +190,7 @@ LLImageRaw * LLTinyGLTFHelper::getTexture(const std::string & folder, const tiny
 bool LLTinyGLTFHelper::loadModel(const std::string& filename, tinygltf::Model& model_in)
 {
     std::string exten = gDirUtilp->getExtension(filename);
-    
+
     if (exten == "gltf" || exten == "glb")
     {
         tinygltf::TinyGLTF loader;
@@ -227,7 +227,7 @@ bool LLTinyGLTFHelper::loadModel(const std::string& filename, tinygltf::Model& m
             LL_WARNS("GLTF") << "Cannot load. File has no materials " << filename << LL_ENDL;
             return false;
         }
-        
+
         return true;
     }
 
