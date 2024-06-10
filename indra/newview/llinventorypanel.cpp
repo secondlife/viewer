@@ -563,7 +563,7 @@ void LLInventoryPanel::itemChanged(const LLUUID& item_id, U32 mask, const LLInve
                 view_item->refresh();
             }
             LLFolderViewFolder* parent = view_item->getParentFolder();
-            if(parent)
+            if(parent && parent->getViewModelItem())
             {
                 parent->getViewModelItem()->dirtyDescendantsFilter();
             }
@@ -614,7 +614,7 @@ void LLInventoryPanel::itemChanged(const LLUUID& item_id, U32 mask, const LLInve
     // Sort the folder.
     if (mask & LLInventoryObserver::SORT)
     {
-        if (view_folder)
+        if (view_folder && view_folder->getViewModelItem())
         {
             view_folder->getViewModelItem()->requestSort();
         }
@@ -659,7 +659,8 @@ void LLInventoryPanel::itemChanged(const LLUUID& item_id, U32 mask, const LLInve
             // Don't process the item if it is the root
             if (old_parent)
             {
-                LLFolderViewModelItemInventory* viewmodel_folder = static_cast<LLFolderViewModelItemInventory*>(old_parent->getViewModelItem());
+                LLFolderViewModelItem* old_parent_vmi = old_parent->getViewModelItem();
+                LLFolderViewModelItemInventory* viewmodel_folder = static_cast<LLFolderViewModelItemInventory*>(old_parent_vmi);
                 LLFolderViewFolder* new_parent =   (LLFolderViewFolder*)getItemByID(model_item->getParentUUID());
                 // Item has been moved.
                 if (old_parent != new_parent)
@@ -693,7 +694,10 @@ void LLInventoryPanel::itemChanged(const LLUUID& item_id, U32 mask, const LLInve
                     {
                         updateFolderLabel(viewmodel_folder->getUUID());
                     }
-                    old_parent->getViewModelItem()->dirtyDescendantsFilter();
+                    if (old_parent_vmi)
+                    {
+                        old_parent_vmi->dirtyDescendantsFilter();
+                    }
                 }
             }
         }
@@ -709,11 +713,15 @@ void LLInventoryPanel::itemChanged(const LLUUID& item_id, U32 mask, const LLInve
             view_item->destroyView();
             if(parent)
             {
-                parent->getViewModelItem()->dirtyDescendantsFilter();
-                LLFolderViewModelItemInventory* viewmodel_folder = static_cast<LLFolderViewModelItemInventory*>(parent->getViewModelItem());
-                if(viewmodel_folder)
+                LLFolderViewModelItem* parent_wmi = parent->getViewModelItem();
+                if (parent_wmi)
                 {
-                    updateFolderLabel(viewmodel_folder->getUUID());
+                    parent_wmi->dirtyDescendantsFilter();
+                    LLFolderViewModelItemInventory* viewmodel_folder = static_cast<LLFolderViewModelItemInventory*>(parent_wmi);
+                    if (viewmodel_folder)
+                    {
+                        updateFolderLabel(viewmodel_folder->getUUID());
+                    }
                 }
             }
         }
