@@ -102,7 +102,7 @@ void LLSceneView::draw()
     LLViewerRegion* region = gAgent.getRegion();
     if (region)
     {
-        for (U32 i = 0; i < gObjectList.getNumObjects(); ++i)
+        for (S32 i = 0; i < gObjectList.getNumObjects(); ++i)
         {
             LLViewerObject* object = gObjectList.getObject(i);
 

@@ -326,7 +326,7 @@ void LLFloaterSettingsPicker::onAssetLoaded(LLUUID asset_id, LLSettingsBase::ptr
         // track 1 always present
         track_selection->add(getString(STR_TRACK_GROUND), LLSD::Integer(LLSettingsDay::TRACK_GROUND_LEVEL), ADD_TOP, true);
         LLUIString formatted_label = getString(STR_TRACK_SKY);
-        for (int i = 2; i < LLSettingsDay::TRACK_MAX; i++)
+        for (U32 i = 2; i < LLSettingsDay::TRACK_MAX; i++)
         {
             if (!pday->isTrackEmpty(i))
             {

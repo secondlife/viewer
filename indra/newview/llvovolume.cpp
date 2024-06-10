@@ -3984,7 +3984,7 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
     U32 media_faces = 0;
 
     const LLDrawable* drawablep = mDrawable;
-    U32 num_faces = drawablep->getNumFaces();
+    S32 num_faces = drawablep->getNumFaces();
 
     const LLVolumeParams& volume_params = getVolume()->getParams();
 
@@ -4953,7 +4953,7 @@ void LLRiggedVolume::update(
                 else
             #endif
                 {
-                    for (U32 j = 0; j < dst_face.mNumVertices; ++j)
+                    for (S32 j = 0; j < dst_face.mNumVertices; ++j)
                     {
                         LLMatrix4a final_mat;
                         LLSkinningUtil::getPerVertexSkinMatrix(weight[j].getF32ptr(), mat, false, final_mat, max_joints);
@@ -4980,7 +4980,7 @@ void LLRiggedVolume::update(
                     box_max = max;
                 }
 
-                for (U32 j = 1; j < dst_face.mNumVertices; ++j)
+                for (S32 j = 1; j < dst_face.mNumVertices; ++j)
                 {
                     min.setMin(min, pos[j]);
                     max.setMax(max, pos[j]);

@@ -136,7 +136,7 @@ protected:
     virtual bool                isLargeEnough() = 0;
     virtual void                refreshFromSource() = 0;
 
-    std::string                 getNameForTrackIndex(S32 index);
+    std::string                 getNameForTrackIndex(U32 index);
 
     LLFloaterSettingsPicker *   getSettingsPicker(bool create = true);
     LLFloaterEditExtDayCycle *  getEditFloater(bool create = true);

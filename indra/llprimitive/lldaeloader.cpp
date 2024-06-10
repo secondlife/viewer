@@ -1000,9 +1000,9 @@ bool LLDAELoader::OpenFile(const std::string& filename)
 
     //Verify some basic properties of the dae
     //1. Basic validity check on controller
-    U32 controllerCount = (int) db->getElementCount( NULL, "controller" );
+    U32 controllerCount = db->getElementCount(NULL, "controller");
     bool result = false;
-    for ( int i=0; i<controllerCount; ++i )
+    for (U32 i = 0; i < controllerCount; ++i)
     {
         domController* pController = NULL;
         db->getElement( (daeElement**) &pController, i , NULL, "controller" );
@@ -1255,7 +1255,7 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
         //Some collada setup for accessing the skeleton
         U32 skeleton_count = dae->getDatabase()->getElementCount( NULL, "skeleton" );
         std::vector<domInstance_controller::domSkeleton*> skeletons;
-        for (S32 i=0; i<skeleton_count; i++)
+        for (U32 i = 0; i < skeleton_count; i++)
         {
             daeElement* pElement = 0;
             dae->getDatabase()->getElement( &pElement, i, 0, "skeleton" );

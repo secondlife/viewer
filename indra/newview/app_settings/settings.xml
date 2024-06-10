@@ -12456,7 +12456,7 @@
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
-    <string>S32</string>
+    <string>U32</string>
     <key>Value</key>
     <integer>8</integer>
   </map>

@@ -898,7 +898,7 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
     {
         for (U32 i = 0; i < LLRender::NUM_TEXTURE_CHANNELS; ++i)
         {
-            for (U32 fi = 0; fi < imagep->getNumFaces(i); ++fi)
+            for (S32 fi = 0; fi < imagep->getNumFaces(i); ++fi)
             {
                 LLFace* face = (*(imagep->getFaceList(i)))[fi];
 

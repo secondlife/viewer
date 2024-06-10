@@ -6597,8 +6597,8 @@ void LLVOAvatar::addAttachmentOverridesForObject(LLViewerObject *vo, std::set<LL
 
     if ( vobj && vobj->isMesh() && pSkinData )
     {
-        const int bindCnt = static_cast<int>(pSkinData->mAlternateBindMatrix.size());
-        const int jointCnt = static_cast<int>(pSkinData->mJointNames.size());
+        const unsigned int bindCnt = static_cast<unsigned int>(pSkinData->mAlternateBindMatrix.size());
+        const unsigned int jointCnt = static_cast<unsigned int>(pSkinData->mJointNames.size());
         if ((bindCnt > 0) && (bindCnt != jointCnt))
         {
             LL_WARNS_ONCE() << "invalid mesh, bindCnt " << bindCnt << "!= jointCnt " << jointCnt << ", joint overrides will be ignored." << LL_ENDL;
@@ -6625,10 +6625,10 @@ void LLVOAvatar::addAttachmentOverridesForObject(LLViewerObject *vo, std::set<LL
                 LL_DEBUGS("AnimatedObjects") << "adding attachment overrides for " << mesh_id
                                              << " to root object " << root_object->getID() << LL_ENDL;
             }
-            bool fullRig = jointCnt>=JOINT_COUNT_REQUIRED_FOR_FULLRIG;
+            bool fullRig = jointCnt >= JOINT_COUNT_REQUIRED_FOR_FULLRIG;
             if ( fullRig && !mesh_overrides_loaded )
             {
-                for ( int i=0; i<jointCnt; ++i )
+                for (unsigned int i = 0; i < jointCnt; ++i)
                 {
                     std::string lookingForJoint = pSkinData->mJointNames[i].c_str();
                     LLJoint* pJoint = getJoint( lookingForJoint );
@@ -7499,7 +7499,7 @@ S32 LLVOAvatar::getMaxAttachments() const
 //-----------------------------------------------------------------------------
 bool LLVOAvatar::canAttachMoreObjects(U32 n) const
 {
-    return (getNumAttachments() + n) <= getMaxAttachments();
+    return (getNumAttachments() + n) <= (U32)getMaxAttachments();
 }
 
 //-----------------------------------------------------------------------------
@@ -7533,7 +7533,7 @@ S32 LLVOAvatar::getMaxAnimatedObjectAttachments() const
 //-----------------------------------------------------------------------------
 bool LLVOAvatar::canAttachMoreAnimatedObjects(U32 n) const
 {
-    return (getNumAnimatedObjectAttachments() + n) <= getMaxAnimatedObjectAttachments();
+    return (getNumAnimatedObjectAttachments() + n) <= (U32)getMaxAnimatedObjectAttachments();
 }
 
 //-----------------------------------------------------------------------------

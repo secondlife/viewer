@@ -665,7 +665,7 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
         {  //switches are supported in GLSL 1.30 and later
             if (gGLManager.mIsNVIDIA)
             { //switches are unreliable on some NVIDIA drivers
-                for (U32 i = 0; i < texture_index_channels; ++i)
+                for (S32 i = 0; i < texture_index_channels; ++i)
                 {
                     std::string if_string = llformat("\t%sif (vary_texture_index == %d) { return texture(tex%d, texcoord); }\n", i > 0 ? "else " : "", i, i);
                     extra_code_text[extra_code_count++] = strdup(if_string.c_str());

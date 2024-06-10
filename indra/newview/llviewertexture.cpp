@@ -1326,8 +1326,8 @@ void LLViewerFetchedTexture::addToCreateTexture()
         //
         if(mRequestedDiscardLevel <= mDesiredDiscardLevel && !mForceToSaveRawImage)
         {
-            S32 w = mFullWidth >> mRawDiscardLevel;
-            S32 h = mFullHeight >> mRawDiscardLevel;
+            U32 w = mFullWidth >> mRawDiscardLevel;
+            U32 h = mFullHeight >> mRawDiscardLevel;
 
             //if big image, do not load extra data
             //scale it down to size >= LLViewerTexture::sMinLargeImageSize
@@ -1672,7 +1672,7 @@ void LLViewerFetchedTexture::processTextureStats()
         else
         {
             U32 desired_size = MAX_IMAGE_SIZE_DEFAULT; // MAX_IMAGE_SIZE_DEFAULT = 1024 and max size ever is 2048
-            if(!mKnownDrawWidth || !mKnownDrawHeight || mFullWidth <= mKnownDrawWidth || mFullHeight <= mKnownDrawHeight)
+            if(!mKnownDrawWidth || !mKnownDrawHeight || (S32)mFullWidth <= mKnownDrawWidth || (S32)mFullHeight <= mKnownDrawHeight)
             {
                 if (mFullWidth > desired_size || mFullHeight > desired_size)
                 {

@@ -131,7 +131,7 @@ void LLSkinningUtil::initSkinningMatrixPalette(
 
     LLMatrix4a world[LL_CHARACTER_MAX_ANIMATED_JOINTS];
 
-    for (U32 j = 0; j < count; ++j)
+    for (S32 j = 0; j < count; ++j)
     {
         S32 joint_num = skin->mJointNums[j];
         LLJoint *joint = avatar->getJoint(joint_num);

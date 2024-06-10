@@ -36,6 +36,10 @@
 #include "llthread.h"               // on_main_thread()
 #include "llmainthreadtask.h"
 
+#ifdef LL_WINDOWS
+#pragma warning( disable : 4506 )   // no definition for inline function
+#endif
+
 class LLSingletonBase: private boost::noncopyable
 {
 public:

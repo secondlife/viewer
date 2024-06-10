@@ -643,7 +643,7 @@ void LLVertexBuffer::drawElements(U32 mode, const LLVector4a* pos, const LLVecto
 
     if (tc != nullptr)
     {
-        for (int i = 0; i < num_indices; ++i)
+        for (U32 i = 0; i < num_indices; ++i)
         {
             U16 idx = indicesp[i];
             gGL.texCoord2fv(tc[idx].mV);
@@ -652,7 +652,7 @@ void LLVertexBuffer::drawElements(U32 mode, const LLVector4a* pos, const LLVecto
     }
     else
     {
-        for (int i = 0; i < num_indices; ++i)
+        for (U32 i = 0; i < num_indices; ++i)
         {
             U16 idx = indicesp[i];
             gGL.vertex3fv(pos[idx].getF32ptr());
@@ -669,19 +669,17 @@ bool LLVertexBuffer::validateRange(U32 start, U32 end, U32 count, U32 indices_of
         return true;
     }
 
-    llassert(start < (U32)mNumVerts);
-    llassert(end < (U32)mNumVerts);
+    llassert(start < mNumVerts);
+    llassert(end < mNumVerts);
 
-    if (start >= (U32) mNumVerts ||
-        end >= (U32) mNumVerts)
+    if (start >= mNumVerts ||
+        end >= mNumVerts)
     {
         LL_ERRS() << "Bad vertex buffer draw range: [" << start << ", " << end << "] vs " << mNumVerts << LL_ENDL;
     }
 
-    llassert(mNumIndices >= 0);
-
-    if (indices_offset >= (U32) mNumIndices ||
-        indices_offset + count > (U32) mNumIndices)
+    if (indices_offset >= mNumIndices ||
+        indices_offset + count > mNumIndices)
     {
         LL_ERRS() << "Bad index buffer draw range: [" << indices_offset << ", " << indices_offset+count << "]" << LL_ENDL;
     }
@@ -718,7 +716,7 @@ bool LLVertexBuffer::validateRange(U32 start, U32 end, U32 count, U32 indices_of
             for (U32 i = start; i < end; i++)
             {
                 U32 idx = (U32) (v[i][3]+0.25f);
-                if (idx >= shader->mFeatures.mIndexedTextureChannels)
+                if (idx >= (U32)shader->mFeatures.mIndexedTextureChannels)
                 {
                     LL_ERRS() << "Bad texture index found in vertex data stream." << LL_ENDL;
                 }

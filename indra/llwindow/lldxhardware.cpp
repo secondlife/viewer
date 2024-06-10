@@ -216,7 +216,7 @@ HRESULT GetVideoMemoryViaWMI(WCHAR* strInputDeviceID, DWORD* pdwAdapterRam)
 }
 
 //static
-S32 LLDXHardware::getMBVideoMemoryViaWMI()
+U32 LLDXHardware::getMBVideoMemoryViaWMI()
 {
     DWORD vram = 0;
     if (SUCCEEDED(GetVideoMemoryViaWMI(NULL, &vram)))

@@ -983,7 +983,7 @@ void LLPolyMesh::initializeForMorph()
     LLVector4a::memcpyNonAliased16((F32*) mScaledBinormals, (F32*) mSharedData->mBaseNormals, sizeof(LLVector4a) * mSharedData->mNumVertices);
     LLVector4a::memcpyNonAliased16((F32*) mTexCoords, (F32*) mSharedData->mTexCoords, sizeof(LLVector2) * (mSharedData->mNumVertices + mSharedData->mNumVertices%2));
 
-    for (U32 i = 0; i < mSharedData->mNumVertices; ++i)
+    for (S32 i = 0; i < mSharedData->mNumVertices; ++i)
     {
         mClothingWeights[i].clear();
     }

@@ -113,7 +113,7 @@ void LLOctreeTriangleRayIntersect::traverse(const LLOctreeNode<LLVolumeTriangle,
     if (LLLineSegmentBoxIntersect(mStart, mEnd, vl->mBounds[0], vl->mBounds[1]))
     {
         node->accept(this);
-        for (S32 i = 0; i < node->getChildCount(); ++i)
+        for (U32 i = 0; i < node->getChildCount(); ++i)
         {
             traverse(node->getChild(i));
         }
