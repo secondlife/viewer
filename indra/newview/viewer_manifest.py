@@ -1012,7 +1012,7 @@ class Darwin_x86_64_Manifest(ViewerManifest):
                                 'libvivoxsdk.dylib',
                                 ):
                     self.path2basename(relpkgdir, libfile)
-                            
+
                 # OpenAL dylibs
                 if self.args['openal'] == 'ON':
                     for libfile in (

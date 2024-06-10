@@ -3353,7 +3353,7 @@ bool dragItemIntoFolder(LLUUID folder_id, LLInventoryItem* inv_item, bool drop, 
         {
             //disable dropping in or out of marketplace for now
             return false;
-            
+
             /*const LLViewerInventoryCategory * master_folder = model->getFirstDescendantOf(marketplacelistings_id, folder_id);
             LLViewerInventoryCategory * dest_folder = cat;
             accept = can_move_item_to_marketplace(master_folder, dest_folder, inv_item, tooltip_msg, LLToolDragAndDrop::instance().getCargoCount() - LLToolDragAndDrop::instance().getCargoIndex());*/
