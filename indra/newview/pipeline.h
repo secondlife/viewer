@@ -1060,6 +1060,7 @@ public:
     static bool RenderMirrors;
     static S32 RenderHeroProbeUpdateRate;
     static S32 RenderHeroProbeConservativeUpdateMultiplier;
+	static S32 RenderTransmissionDetail;
 };
 
 void render_bbox(const LLVector3 &min, const LLVector3 &max);

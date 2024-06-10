@@ -43,6 +43,7 @@ namespace tinygltf
     class Model;
     struct TextureInfo;
     class Value;
+    struct Material;
 }
 
 class LLTextureEntry;
@@ -105,6 +106,11 @@ public:
         // -Cosmic,2023-01-26
         GLTF_TEXTURE_INFO_OCCLUSION = GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS,
         GLTF_TEXTURE_INFO_EMISSIVE,
+        GLTF_TEXTURE_INFO_TRANSMISSION_TEXTURE,
+        // Geenz: The GLTF spec for KHR_materials_transmission states that the red channel of the transmission texture defines the
+        // transmission factor, but the spec does not define what the green and blue channels are for. We are using the green channel to
+        // define the thickness of the object, as the spec defines the green channel of the volume extension as thickness in KHR_materials_volume.
+        GLTF_TEXTURE_INFO_THICKNESS_TEXTURE = GLTF_TEXTURE_INFO_TRANSMISSION_TEXTURE,
 
         GLTF_TEXTURE_INFO_COUNT
     };
@@ -114,6 +120,25 @@ public:
     static const char* const GLTF_FILE_EXTENSION_TRANSFORM_OFFSET;
     static const char* const GLTF_FILE_EXTENSION_TRANSFORM_ROTATION;
     static const LLUUID GLTF_OVERRIDE_NULL_UUID;
+    
+    static const char *const GLTF_FILE_EXTENSION_EMISSIVE_STRENGTH;
+    static const char *const GLTF_FILE_EXTENSION_EMISSIVE_STRENGTH_EMISSIVE_STRENGTH;
+
+    static const char *const GLTF_FILE_EXTENSION_TRANSMISSION;
+    static const char *const GLTF_FILE_EXTENSION_TRANSMISSION_TRANSMISSION_FACTOR;
+    static const char *const GLTF_FILE_EXTENSION_TRANSMISSION_TEXTURE;
+    
+    static const char *const GLTF_FILE_EXTENSION_IOR;
+    static const char *const GLTF_FILE_EXTENSION_IOR_IOR;
+    
+    static const char *const GLTF_FILE_EXTENSION_VOLUME;
+    static const char *const GLTF_FILE_EXTENSION_VOLUME_THICKNESS_FACTOR;
+    static const char *const GLTF_FILE_EXTENSION_VOLUME_THICKNESS_TEXTURE;
+    static const char *const GLTF_FILE_EXTENSION_VOLUME_ATTENUATION_DISTANCE;
+    static const char *const GLTF_FILE_EXTENSION_VOLUME_ATTENUATION_COLOR;
+
+    static const char *const GLTF_FILE_EXTENSION_DISPERSION;
+    static const char *const GLTF_FILE_EXTENSION_DISPERSION_DISPERSION;
 
     // *TODO: If/when we implement additional GLTF extensions, they may not be
     // compatible with our GLTF terrain implementation. We may want to disallow
@@ -125,26 +150,39 @@ public:
     //       heightmaps cannot currently be described as finite enclosed
     //       volumes.
     // See also LLPanelRegionTerrainInfo::validateMaterials
+
+    bool mDoubleSided = false;
+    typedef std::map<LLUUID, LLUUID> local_tex_map_t;
+    local_tex_map_t mTrackingIdToLocalTexture;
+
 public:
 
     // get a UUID based on a hash of this LLGLTFMaterial
     LLUUID getHash() const;
 
     //setters for various members (will clamp to acceptable ranges)
-    // for_override - set to true if this value is being set as part of an override (important for handling override to default value)
+    // for_override - set to true if this value is being set as part of an override (important for handling override to default value)x1
 
     void setTextureId(TextureInfo texture_info, const LLUUID& id, bool for_override = false);
 
     void setBaseColorId(const LLUUID& id, bool for_override = false);
     void setNormalId(const LLUUID& id, bool for_override = false);
     void setOcclusionRoughnessMetallicId(const LLUUID& id, bool for_override = false);
-    void setEmissiveId(const LLUUID& id, bool for_override = false);
+    void setEmissiveId(const LLUUID &id, bool for_override = false);
+    void setTransmissionId(const LLUUID &id, bool for_override = false);
 
     void setBaseColorFactor(const LLColor4& baseColor, bool for_override = false);
     void setAlphaCutoff(F32 cutoff, bool for_override = false);
     void setEmissiveColorFactor(const LLColor3& emissiveColor, bool for_override = false);
+    void setEmissiveStrength(F32 emissiveStrength, bool for_override = false);
     void setMetallicFactor(F32 metallic, bool for_override = false);
     void setRoughnessFactor(F32 roughness, bool for_override = false);
+    void setTransmissionFactor(F32 transmission, bool for_override = false);
+    void setIOR(F32 ior, bool for_override = false);
+    void setThicknessFactor(F32 thickness, bool for_override = false);
+    void setAttenuationDistance(F32 attenuationDistance, bool for_override = false);
+    void setAttenuationColor(const LLColor3& attenuationColor, bool for_override = false);
+    void setDispersion(F32 dispersion, bool for_override = false);
     void setAlphaMode(S32 mode, bool for_override = false);
     void setDoubleSided(bool double_sided, bool for_override = false);
 
@@ -159,8 +197,15 @@ public:
     static S32 getDefaultAlphaMode();
     static F32 getDefaultMetallicFactor();
     static F32 getDefaultRoughnessFactor();
+    static F32 getDefaultTransmissionFactor();
+    static F32 getDefaultIOR();
+    static F32 getDefaultThicknessFactor();
+    static F32 getDefaultAttenuationDistance();
+    static LLColor3 getDefaultAttenuationColor();
+    static F32 getDefaultDispersion();
     static LLColor4 getDefaultBaseColor();
     static LLColor3 getDefaultEmissiveColor();
+    static F32 getDefaultEmissiveStrength();
     static bool getDefaultDoubleSided();
     static LLVector2 getDefaultTextureOffset();
     static LLVector2 getDefaultTextureScale();
@@ -226,8 +271,22 @@ public:
     bool hasLocalTextures() { return !mTrackingIdToLocalTexture.empty(); }
     virtual bool replaceLocalTexture(const LLUUID& tracking_id, const LLUUID &old_id, const LLUUID& new_id);
     virtual void updateTextureTracking();
+
+    static void writeFloatToMaterialWithExtension(tinygltf::Material &material, const char *extension, const char *key, F32 value);
+    static void setFloatFromModelWithExtension(const tinygltf::Material &model, const char *extension, const char *key, F32 &value, F32 defaultValue);
+
+    static void writeColor3ToMaterialWithExtension(tinygltf::Material &material, const char *extension, const char *key, const LLColor3 &color);
+    static void setColor3FromMaterialWithExtension(const tinygltf::Material &model, const char *extension, const char *key, LLColor3 &color,
+                                                   LLColor3 defaultColor);
+
+    static void writeTextureToMaterialWithExtension(tinygltf::Material &material, const char *extension, const char *key,
+                                                    const tinygltf::TextureInfo &texture_info);
+    static void setTextureFromMaterialWithExtension(const tinygltf::Material &model, const char *extension, const char *key,
+                                                    tinygltf::TextureInfo &texture_info);
+
 protected:
     static LLVector2 vec2FromJson(const std::map<std::string, tinygltf::Value>& object, const char* key, const LLVector2& default_value);
+    static LLColor3 color3FromJson(const std::map<std::string, tinygltf::Value>& object, const char* key, const LLColor3& default_value);
     static F32 floatFromJson(const std::map<std::string, tinygltf::Value>& object, const char* key, const F32 default_value);
 
     template<typename T>
@@ -236,7 +295,7 @@ protected:
     template<typename T>
     void setFromTexture(const tinygltf::Model& model, const T& texture_info, TextureInfo texture_info_id);
     template<typename T>
-    static void setFromTexture(const tinygltf::Model& model, const T& texture_info, LLUUID& texture_id, TextureTransform& transform);
+    static void setFromTexture(const tinygltf::Model &model, const T &texture_info, LLUUID &texture_id, TextureTransform &transform);
 
     template<typename T>
     void writeToTexture(tinygltf::Model& model, T& texture_info, TextureInfo texture_info_id, bool force_write = false) const;
@@ -253,8 +312,6 @@ public:
     // IMPORTANT: do not move this member down (and do not move
     // mLocalTexDataDigest either): the getHash() method does rely on the
     // current ordering. HB
-    typedef std::map<LLUUID, LLUUID> local_tex_map_t;
-    local_tex_map_t mTrackingIdToLocalTexture;
 
     // Used to store a digest of mTrackingIdToLocalTexture when the latter is
     // not empty, or zero otherwise. HB
@@ -267,14 +324,20 @@ public:
     // NOTE: these values should be in linear color space
     LLColor4 mBaseColor;
     LLColor3 mEmissiveColor;
+    F32      mEmissiveStrength = 1.0f;
 
     F32 mMetallicFactor;
     F32 mRoughnessFactor;
     F32 mAlphaCutoff;
 
+    F32 mTransmissionFactor = 0.0f;
+    F32 mIOR                = 1.5f;
+    F32 mThicknessFactor    = 0.0f;
+    F32 mAttenuationDistance = INFINITY;
+    LLColor3 mAttenuationColor    = LLColor3::white;
+    F32      mDispersion          = 0.0f;
+
     AlphaMode mAlphaMode;
-    
-    bool mDoubleSided = false;
 
     // Override specific flags for state that can't use off-by-epsilon or UUID
     // hack

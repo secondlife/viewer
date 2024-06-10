@@ -79,6 +79,7 @@ public:
     double      normalScale;    // scale applies only to X,Y components of normal
     double      occlusionScale; // strength multiplier for occlusion
     LLColor4    emissiveColor;  // emissive mulitiplier, assumed linear encoding (spec 2.0 is silent)
+    double      emissiveStrength;  // multiplier for emissiveColor
     std::string alphaMode;      // "OPAQUE", "MASK" or "BLEND"
     double      alphaMask;      // alpha cut-off
 
