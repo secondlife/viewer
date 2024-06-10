@@ -407,7 +407,6 @@ LLSettingsSky::LLSettingsSky(const LLSD &data) :
     mNextRainbowTextureId(),
     mNextHaloTextureId()
 {
-    mCanAutoAdjust = !data.has(SETTING_REFLECTION_PROBE_AMBIANCE);
 }
 
 LLSettingsSky::LLSettingsSky():
@@ -430,8 +429,6 @@ void LLSettingsSky::replaceSettings(LLSD settings)
     mNextBloomTextureId.setNull();
     mNextRainbowTextureId.setNull();
     mNextHaloTextureId.setNull();
-
-    mCanAutoAdjust = !settings.has(SETTING_REFLECTION_PROBE_AMBIANCE);
 }
 
 void LLSettingsSky::replaceWithSky(LLSettingsSky::ptr_t pother)
@@ -444,7 +441,6 @@ void LLSettingsSky::replaceWithSky(LLSettingsSky::ptr_t pother)
     mNextBloomTextureId = pother->mNextBloomTextureId;
     mNextRainbowTextureId = pother->mNextRainbowTextureId;
     mNextHaloTextureId = pother->mNextHaloTextureId;
-    mCanAutoAdjust = pother->mCanAutoAdjust;
 }
 
 void LLSettingsSky::blend(const LLSettingsBase::ptr_t &end, F64 blendf)
@@ -1146,7 +1142,6 @@ void LLSettingsSky::setSkyIceLevel(F32 ice_level)
 
 void LLSettingsSky::setReflectionProbeAmbiance(F32 ambiance)
 {
-    mCanAutoAdjust = false; // we've now touched this sky in a "new" way, it can no longer auto adjust
     setValue(SETTING_REFLECTION_PROBE_AMBIANCE, ambiance);
 }
 
@@ -1446,24 +1441,6 @@ F32 LLSettingsSky::getReflectionProbeAmbiance(bool auto_adjust) const
     }
 
     return mSettings[SETTING_REFLECTION_PROBE_AMBIANCE].asReal();
-}
-
-F32 LLSettingsSky::getTotalReflectionProbeAmbiance(F32 cloud_shadow_scale, bool auto_adjust) const
-{
-#if 0
-    // feed cloud shadow back into reflection probe ambiance to mimic pre-reflection-probe behavior
-    // without brightening dark/interior spaces
-    F32 probe_ambiance = getReflectionProbeAmbiance(auto_adjust);
-
-    if (probe_ambiance > 0.f && probe_ambiance < 1.f)
-    {
-        probe_ambiance += (1.f - probe_ambiance) * getCloudShadow() * cloud_shadow_scale;
-    }
-
-    return probe_ambiance;
-#else
-    return getReflectionProbeAmbiance(auto_adjust);
-#endif
 }
 
 F32 LLSettingsSky::getSkyBottomRadius() const
@@ -1810,3 +1787,8 @@ LLUUID LLSettingsSky::getNextBloomTextureId() const
     return mNextBloomTextureId;
 }
 
+// if true, this sky is a candidate for auto-adjustment
+bool LLSettingsSky::canAutoAdjust() const
+{
+    return !mSettings.has(SETTING_REFLECTION_PROBE_AMBIANCE);
+}

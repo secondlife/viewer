@@ -173,7 +173,7 @@ LLObjectSelectionHandle LLToolSelect::handleObjectSelection(const LLPickInfo& pi
 
             if ( ignore_group )
             {
-                LLSelectMgr::getInstance()->selectObjectOnly(object, SELECT_ALL_TES);
+                LLSelectMgr::getInstance()->selectObjectOnly(object, SELECT_ALL_TES, pick.mGLTFNodeIndex, pick.mGLTFPrimitiveIndex);
             }
             else
             {

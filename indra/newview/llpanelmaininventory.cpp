@@ -276,14 +276,12 @@ BOOL LLPanelMainInventory::postBuild()
 
     initListCommandsHandlers();
 
-    const std::string texture_upload_cost_str = std::to_string(LLAgentBenefitsMgr::current().getTextureUploadCost());
     const std::string sound_upload_cost_str = std::to_string(LLAgentBenefitsMgr::current().getSoundUploadCost());
     const std::string animation_upload_cost_str = std::to_string(LLAgentBenefitsMgr::current().getAnimationUploadCost());
 
     LLMenuGL* menu = (LLMenuGL*)mMenuAddHandle.get();
     if (menu)
     {
-        menu->getChild<LLMenuItemGL>("Upload Image")->setLabelArg("[COST]", texture_upload_cost_str);
         menu->getChild<LLMenuItemGL>("Upload Sound")->setLabelArg("[COST]", sound_upload_cost_str);
         menu->getChild<LLMenuItemGL>("Upload Animation")->setLabelArg("[COST]", animation_upload_cost_str);
     }
@@ -2229,11 +2227,9 @@ void LLPanelMainInventory::setUploadCostIfNeeded()
     LLMenuGL* menu = (LLMenuGL*)mMenuAddHandle.get();
     if(mNeedUploadCost && menu)
     {
-        const std::string texture_upload_cost_str = std::to_string(LLAgentBenefitsMgr::current().getTextureUploadCost());
         const std::string sound_upload_cost_str = std::to_string(LLAgentBenefitsMgr::current().getSoundUploadCost());
         const std::string animation_upload_cost_str = std::to_string(LLAgentBenefitsMgr::current().getAnimationUploadCost());
 
-        menu->getChild<LLView>("Upload Image")->setLabelArg("[COST]", texture_upload_cost_str);
         menu->getChild<LLView>("Upload Sound")->setLabelArg("[COST]", sound_upload_cost_str);
         menu->getChild<LLView>("Upload Animation")->setLabelArg("[COST]", animation_upload_cost_str);
     }

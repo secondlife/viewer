@@ -41,6 +41,10 @@ public:
     LLViewerShaderMgr();
     /* virtual */ ~LLViewerShaderMgr();
 
+    // Add shaders to mShaderList for later uniform propagation
+    // Will assert on redundant shader entries in debug builds
+    void finalizeShaderList();
+
     // singleton pattern implementation
     static LLViewerShaderMgr * instance();
     static void releaseInstance();
@@ -153,9 +157,18 @@ extern LLGLSLShader         gGlowCombineProgram;
 extern LLGLSLShader         gReflectionMipProgram;
 extern LLGLSLShader         gGaussianProgram;
 extern LLGLSLShader         gRadianceGenProgram;
+extern LLGLSLShader         gHeroRadianceGenProgram;
 extern LLGLSLShader         gIrradianceGenProgram;
 extern LLGLSLShader         gGlowCombineFXAAProgram;
 extern LLGLSLShader         gDebugProgram;
+enum NormalDebugShaderVariant : S32
+{
+    NORMAL_DEBUG_SHADER_DEFAULT,
+    NORMAL_DEBUG_SHADER_WITH_TANGENTS,
+    NORMAL_DEBUG_SHADER_COUNT
+};
+extern LLGLSLShader         gNormalDebugProgram[NORMAL_DEBUG_SHADER_COUNT];
+extern LLGLSLShader         gSkinnedNormalDebugProgram[NORMAL_DEBUG_SHADER_COUNT];
 extern LLGLSLShader         gClipProgram;
 extern LLGLSLShader         gBenchmarkProgram;
 extern LLGLSLShader         gReflectionProbeDisplayProgram;
@@ -171,7 +184,6 @@ extern LLGLSLShader         gOneTextureFilterProgram;
 //object shaders
 extern LLGLSLShader     gObjectPreviewProgram;
 extern LLGLSLShader        gPhysicsPreviewProgram;
-extern LLGLSLShader        gSkinnedObjectFullbrightAlphaMaskProgram;
 extern LLGLSLShader     gObjectBumpProgram;
 extern LLGLSLShader        gSkinnedObjectBumpProgram;
 extern LLGLSLShader     gObjectAlphaMaskNoColorProgram;
@@ -237,6 +249,7 @@ extern LLGLSLShader         gDeferredPostGammaCorrectProgram;
 extern LLGLSLShader         gNoPostGammaCorrectProgram;
 extern LLGLSLShader         gLegacyPostGammaCorrectProgram;
 extern LLGLSLShader         gExposureProgram;
+extern LLGLSLShader         gExposureProgramNoFade;
 extern LLGLSLShader         gLuminanceProgram;
 extern LLGLSLShader         gDeferredAvatarShadowProgram;
 extern LLGLSLShader         gDeferredAvatarAlphaShadowProgram;
@@ -253,6 +266,7 @@ extern LLGLSLShader         gHUDFullbrightAlphaMaskAlphaProgram;
 extern LLGLSLShader         gDeferredEmissiveProgram;
 extern LLGLSLShader         gDeferredAvatarEyesProgram;
 extern LLGLSLShader         gDeferredAvatarAlphaProgram;
+extern LLGLSLShader         gEnvironmentMapProgram;
 extern LLGLSLShader         gDeferredWLSkyProgram;
 extern LLGLSLShader         gDeferredWLCloudProgram;
 extern LLGLSLShader         gDeferredWLSunProgram;
@@ -272,4 +286,20 @@ extern LLGLSLShader         gPBRGlowProgram;
 extern LLGLSLShader         gDeferredPBROpaqueProgram;
 extern LLGLSLShader         gDeferredPBRAlphaProgram;
 extern LLGLSLShader         gHUDPBRAlphaProgram;
+
+// Encodes detail level for dropping textures, in accordance with the GLTF spec where possible
+// 0 is highest detail, -1 drops emissive, etc
+// Dropping metallic roughness is off-spec - Reserve for potato machines as needed
+// https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#additional-textures
+enum TerrainPBRDetail : S32
+{
+    TERRAIN_PBR_DETAIL_MAX                = 0,
+    TERRAIN_PBR_DETAIL_EMISSIVE           = 0,
+    TERRAIN_PBR_DETAIL_OCCLUSION          = -1,
+    TERRAIN_PBR_DETAIL_NORMAL             = -2,
+    TERRAIN_PBR_DETAIL_METALLIC_ROUGHNESS = -3,
+    TERRAIN_PBR_DETAIL_BASE_COLOR         = -4,
+    TERRAIN_PBR_DETAIL_MIN                = -4,
+};
+extern LLGLSLShader         gDeferredPBRTerrainProgram;
 #endif
