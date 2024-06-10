@@ -76,7 +76,7 @@ void LLPBRTerrainFeatures::queueModify(LLViewerRegion& region, const LLModifyReg
 
     LLCoros::instance().launch("modifyRegionCoro",
         std::bind(&LLPBRTerrainFeatures::modifyRegionCoro,
-            region.getCapability("ModifyRegion"), // TODO: May actually need a cap for this
+            region.getCapability("ModifyRegion"),
             updates,
             nullptr));
 }

@@ -566,15 +566,15 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
 // static
 void LLFloaterRegionInfo::sRefreshFromRegion(LLViewerRegion* region)
 {
-	if (region != gAgent.getRegion()) { return; }
+    if (region != gAgent.getRegion()) { return; }
 
-	LLFloaterRegionInfo* floater = LLFloaterReg::getTypedInstance<LLFloaterRegionInfo>("region_info");
-	if (!floater) { return; }
+    LLFloaterRegionInfo* floater = LLFloaterReg::getTypedInstance<LLFloaterRegionInfo>("region_info");
+    if (!floater) { return; }
 
-	if (floater->getVisible() && region == gAgent.getRegion())
-	{
-		floater->refreshFromRegion(region);
-	}
+    if (floater->getVisible() && region == gAgent.getRegion())
+    {
+        floater->refreshFromRegion(region);
+    }
 }
 
 // static
@@ -852,8 +852,8 @@ void LLPanelRegionInfo::initCtrl(const std::string& name)
 template<typename CTRL>
 void LLPanelRegionInfo::initAndSetCtrl(CTRL*& ctrl, const std::string& name)
 {
-	initCtrl(name);
-	ctrl = findChild<CTRL>(name);
+    initCtrl(name);
+    ctrl = findChild<CTRL>(name);
 }
 
 void LLPanelRegionInfo::onClickManageTelehub()
@@ -1554,21 +1554,21 @@ bool LLPanelRegionTerrainInfo::postBuild()
 
     std::string buffer;
 
-	for(S32 i = 0; i < LLTerrainMaterials::ASSET_COUNT; ++i)
-	{
-		initAndSetCtrl(mTextureDetailCtrl[i], llformat("texture_detail_%d", i));
+    for(S32 i = 0; i < LLTerrainMaterials::ASSET_COUNT; ++i)
+    {
+        initAndSetCtrl(mTextureDetailCtrl[i], llformat("texture_detail_%d", i));
         if (mTextureDetailCtrl[i])
         {
             mTextureDetailCtrl[i]->setBakeTextureEnabled(false);
         }
-		initAndSetCtrl(mMaterialDetailCtrl[i], llformat("material_detail_%d", i));
+        initAndSetCtrl(mMaterialDetailCtrl[i], llformat("material_detail_%d", i));
 
-		initAndSetCtrl(mMaterialScaleUCtrl[i], llformat("terrain%dScaleU", i));
-		initAndSetCtrl(mMaterialScaleVCtrl[i], llformat("terrain%dScaleV", i));
-		initAndSetCtrl(mMaterialRotationCtrl[i], llformat("terrain%dRotation", i));
-		initAndSetCtrl(mMaterialOffsetUCtrl[i], llformat("terrain%dOffsetU", i));
-		initAndSetCtrl(mMaterialOffsetVCtrl[i], llformat("terrain%dOffsetV", i));
-	}
+        initAndSetCtrl(mMaterialScaleUCtrl[i], llformat("terrain%dScaleU", i));
+        initAndSetCtrl(mMaterialScaleVCtrl[i], llformat("terrain%dScaleV", i));
+        initAndSetCtrl(mMaterialRotationCtrl[i], llformat("terrain%dRotation", i));
+        initAndSetCtrl(mMaterialOffsetUCtrl[i], llformat("terrain%dOffsetU", i));
+        initAndSetCtrl(mMaterialOffsetVCtrl[i], llformat("terrain%dOffsetV", i));
+    }
 
     for(S32 i = 0; i < CORNER_COUNT; ++i)
     {
@@ -1802,7 +1802,7 @@ bool LLPanelRegionTerrainInfo::refreshFromRegion(LLViewerRegion* region)
 // virtual
 bool LLPanelRegionTerrainInfo::sendUpdate()
 {
-	LL_INFOS() << __FUNCTION__ << LL_ENDL;
+    LL_INFOS() << __FUNCTION__ << LL_ENDL;
 
     LLUICtrl* apply_btn = getChild<LLUICtrl>("apply_btn");
     if (apply_btn && !apply_btn->getEnabled())
@@ -1910,8 +1910,8 @@ bool LLPanelRegionTerrainInfo::sendUpdate()
 
     sendEstateOwnerMessage(msg, "texturecommit", invoice, strings);
 
-	// ========================================
-	// POST to ModifyRegion endpoint, if enabled
+    // ========================================
+    // POST to ModifyRegion endpoint, if enabled
 
     static LLCachedControl<bool> feature_pbr_terrain_transforms_enabled(gSavedSettings, "RenderTerrainPBRTransformsEnabled", false);
     if (material_type == LLTerrainMaterials::Type::PBR && feature_pbr_terrain_transforms_enabled)
@@ -1920,24 +1920,24 @@ bool LLPanelRegionTerrainInfo::sendUpdate()
         for (S32 i = 0; i < LLTerrainMaterials::ASSET_COUNT; ++i)
         {
             LLPointer<LLGLTFMaterial> mat_override = new LLGLTFMaterial();
-			
-			const bool transform_controls_valid = mMaterialScaleUCtrl[i] && mMaterialScaleVCtrl[i] && mMaterialRotationCtrl[i] && mMaterialOffsetUCtrl[i] && mMaterialOffsetVCtrl[i];
-			if (transform_controls_valid)
-			{
-				// Set texture transforms for all texture infos to the same value,
-				// because the PBR terrain shader doesn't currently support
-				// different transforms per texture info. See also
-				// LLDrawPoolTerrain::renderFullShaderPBR .
-				for (U32 tt = 0; tt < LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT; ++tt)
-				{
-					LLGLTFMaterial::TextureTransform& transform = mat_override->mTextureTransform[tt];
-					transform.mScale.mV[VX] = mMaterialScaleUCtrl[i]->getValue().asReal();
-					transform.mScale.mV[VY] = mMaterialScaleVCtrl[i]->getValue().asReal();
-					transform.mRotation = mMaterialRotationCtrl[i]->getValue().asReal() * DEG_TO_RAD;
-					transform.mOffset.mV[VX] = mMaterialOffsetUCtrl[i]->getValue().asReal();
-					transform.mOffset.mV[VY] = mMaterialOffsetVCtrl[i]->getValue().asReal();
-				}
-			}
+            
+            const bool transform_controls_valid = mMaterialScaleUCtrl[i] && mMaterialScaleVCtrl[i] && mMaterialRotationCtrl[i] && mMaterialOffsetUCtrl[i] && mMaterialOffsetVCtrl[i];
+            if (transform_controls_valid)
+            {
+                // Set texture transforms for all texture infos to the same value,
+                // because the PBR terrain shader doesn't currently support
+                // different transforms per texture info. See also
+                // LLDrawPoolTerrain::renderFullShaderPBR .
+                for (U32 tt = 0; tt < LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT; ++tt)
+                {
+                    LLGLTFMaterial::TextureTransform& transform = mat_override->mTextureTransform[tt];
+                    transform.mScale.mV[VX] = mMaterialScaleUCtrl[i]->getValue().asReal();
+                    transform.mScale.mV[VY] = mMaterialScaleVCtrl[i]->getValue().asReal();
+                    transform.mRotation = mMaterialRotationCtrl[i]->getValue().asReal() * DEG_TO_RAD;
+                    transform.mOffset.mV[VX] = mMaterialOffsetUCtrl[i]->getValue().asReal();
+                    transform.mOffset.mV[VY] = mMaterialOffsetVCtrl[i]->getValue().asReal();
+                }
+            }
 
             if (*mat_override == LLGLTFMaterial::sDefault) { mat_override = nullptr; }
             composition.setMaterialOverride(i, mat_override.get());
@@ -1947,15 +1947,15 @@ bool LLPanelRegionTerrainInfo::sendUpdate()
         //   viewer: POST ModifyRegion
         //   simulator: RegionHandshake
         //   viewer: GET ModifyRegion
-		LLViewerRegion* region = gAgent.getRegion();
-		llassert(region);
-		if (region)
-		{
-			LLPBRTerrainFeatures::queueModify(*region, composition);
-		}
+        LLViewerRegion* region = gAgent.getRegion();
+        llassert(region);
+        if (region)
+        {
+            LLPBRTerrainFeatures::queueModify(*region, composition);
+        }
     }
 
-	return true;
+    return true;
 }
 
 bool LLPanelRegionTerrainInfo::callbackTextureHeights(const LLSD& notification, const LLSD& response)
