@@ -107,7 +107,6 @@ public:
         HERO_PROBE,                         //  "heroProbes"
         CLOUD_NOISE_MAP,                    //  "cloud_noise_texture"
         CLOUD_NOISE_MAP_NEXT,               //  "cloud_noise_texture_next"
-        FULLBRIGHT,                         //  "fullbright"
         LIGHTNORM,                          //  "lightnorm"
         SUNLIGHT_COLOR,                     //  "sunlight_color"
         AMBIENT,                            //  "ambient_color"
@@ -217,7 +216,6 @@ public:
         DEFERRED_BLOOM,                     //  "bloomMap"
         DEFERRED_PROJECTION,                //  "projectionMap"
         DEFERRED_NORM_MATRIX,               //  "norm_mat"
-        TEXTURE_GAMMA,                      //  "texture_gamma"
         SPECULAR_COLOR,                     //  "specular_color"
         ENVIRONMENT_INTENSITY,              //  "env_intensity"
 

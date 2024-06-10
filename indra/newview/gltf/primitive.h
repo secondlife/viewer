@@ -38,13 +38,6 @@ namespace LL
         using Value = boost::json::value;
         class Asset;
 
-        constexpr U32 ATTRIBUTE_MASK =
-            LLVertexBuffer::MAP_VERTEX |
-            LLVertexBuffer::MAP_NORMAL |
-            LLVertexBuffer::MAP_TEXCOORD0 |
-            LLVertexBuffer::MAP_TANGENT |
-            LLVertexBuffer::MAP_COLOR;
-
         class Primitive
         {
         public:
@@ -64,12 +57,12 @@ namespace LL
             // GPU copy of mesh data
             LLPointer<LLVertexBuffer> mVertexBuffer;
 
-            // CPU copy of mesh data
+            // CPU copy of mesh data, keep these as LLVector types for compatibility with raycasting code
             std::vector<LLVector2> mTexCoords;
             std::vector<LLVector4a> mNormals;
             std::vector<LLVector4a> mTangents;
             std::vector<LLVector4a> mPositions;
-            std::vector<LLVector4a> mJoints;
+            std::vector<U64> mJoints;
             std::vector<LLVector4a> mWeights;
             std::vector<LLColor4U> mColors;
             std::vector<U32> mIndexArray;
@@ -82,6 +75,10 @@ namespace LL
             Mode mMode = Mode::TRIANGLES; // default to triangles
             LLRender::eGeomModes mGLMode = LLRender::TRIANGLES; // for use with LLRender
             S32 mIndices = -1;
+
+            // shader variant according to LLGLSLShader::GLTFVariant flags
+            U8 mShaderVariant = 0;
+
             std::unordered_map<std::string, S32> mAttributes;
 
             // create octree based on vertex buffer

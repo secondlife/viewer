@@ -15741,7 +15741,7 @@
   <key>GLTFEnabled</key>
   <map>
     <key>Comment</key>
-    <string>Enable GLTF support.  Set by SimulatorFeatures</string>
+    <string>Enable GLTF support.  Set to true by simulator if the simulator you are connected to supports GLTF Asset upload.  WARNING: Manually setting this to true will enable buttons that can drain your L$ balance by implicitly uploading textures without asking.</string>
     <key>Persist</key>
     <integer>0</integer>
     <key>Type</key>

@@ -23,8 +23,6 @@
  * $/LicenseInfo$
  */
 
- uniform sampler2D exposureMap;
-
 vec3 srgb_to_linear(vec3 cs)
 {
     vec3 low_range = cs / vec3(12.92);

@@ -528,7 +528,26 @@ void GLTFSceneManager::update()
     }
 }
 
-void GLTFSceneManager::render(bool opaque, bool rigged)
+void GLTFSceneManager::render(bool opaque, bool rigged, bool unlit)
+{
+    U8 variant = 0;
+    if (rigged)
+    {
+        variant |= LLGLSLShader::GLTFVariant::RIGGED;
+    }
+    if (!opaque)
+    {
+        variant |= LLGLSLShader::GLTFVariant::ALPHA_BLEND;
+    }
+    if (unlit)
+    {
+        variant |= LLGLSLShader::GLTFVariant::UNLIT;
+    }
+
+    render(variant);
+}
+
+void GLTFSceneManager::render(U8 variant)
 {
     // for debugging, just render the whole scene as opaque
     // by traversing the whole scenegraph
@@ -536,6 +555,8 @@ void GLTFSceneManager::render(bool opaque, bool rigged)
     // appropriate shader is already boundd
 
     gGL.matrixMode(LLRender::MM_MODELVIEW);
+
+    bool rigged = variant & LLGLSLShader::GLTFVariant::RIGGED;
 
     for (U32 i = 0; i < mObjects.size(); ++i)
     {
@@ -564,23 +585,16 @@ void GLTFSceneManager::render(bool opaque, bool rigged)
             // (matrix palettes are in asset space)
             gGL.loadMatrix(glm::value_ptr(mdv));
         }
-        render(*asset, opaque, rigged);
+        render(*asset, variant);
 
         gGL.popMatrix();
     }
 }
 
-void GLTFSceneManager::render(Asset& asset, bool opaque, bool rigged)
+void GLTFSceneManager::render(Asset& asset, U8 variant)
 {
-    U32 variant = 0;
-    if (rigged)
-    {
-        variant |= LLGLSLShader::GLTFVariant::RIGGED;
-    }
-    if (!opaque)
-    {
-        variant |= LLGLSLShader::GLTFVariant::ALPHA;
-    }
+    bool opaque = !(variant & LLGLSLShader::GLTFVariant::ALPHA_BLEND);
+    bool rigged = variant & LLGLSLShader::GLTFVariant::RIGGED;
 
     if (opaque)
     {
@@ -600,16 +614,6 @@ void GLTFSceneManager::render(Asset& asset, bool opaque, bool rigged)
                 Skin& skin = asset.mSkins[node.mSkin];
                 glBindBufferBase(GL_UNIFORM_BUFFER, LLGLSLShader::UB_GLTF_JOINTS, skin.mUBO);
             }
-            else
-            {
-                //skip static nodes if we're rendering rigged
-                continue;
-            }
-        }
-        else if (rigged)
-        {
-            // skip rigged nodes if we're not rendering rigged
-            continue;
         }
 
         if (node.mMesh != INVALID_INDEX)
@@ -617,6 +621,11 @@ void GLTFSceneManager::render(Asset& asset, bool opaque, bool rigged)
             Mesh& mesh = asset.mMeshes[node.mMesh];
             for (auto& primitive : mesh.mPrimitives)
             {
+                if (primitive.mShaderVariant != variant)
+                {
+                    continue;
+                }
+
                 if (!rigged)
                 {
                     gGL.loadMatrix((F32*)glm::value_ptr(node.mRenderMatrix));
@@ -625,23 +634,12 @@ void GLTFSceneManager::render(Asset& asset, bool opaque, bool rigged)
                 if (primitive.mMaterial != INVALID_INDEX)
                 {
                     Material& material = asset.mMaterials[primitive.mMaterial];
-                    bool mat_opaque = material.mAlphaMode != Material::AlphaMode::BLEND;
-
-                    if (mat_opaque != opaque)
-                    {
-                        continue;
-                    }
-
                     bind(asset, material);
 
                     cull = !material.mDoubleSided;
                 }
                 else
                 {
-                    if (!opaque)
-                    {
-                        continue;
-                    }
                     LLFetchedGLTFMaterial::sDefault.bind();
                 }
 

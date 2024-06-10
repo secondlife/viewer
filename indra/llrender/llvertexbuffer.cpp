@@ -600,6 +600,7 @@ const U32 LLVertexBuffer::sTypeSize[LLVertexBuffer::TYPE_MAX] =
     sizeof(F32),       // TYPE_WEIGHT,
     sizeof(LLVector4), // TYPE_WEIGHT4,
     sizeof(LLVector4), // TYPE_CLOTHWEIGHT,
+    sizeof(U64),       // TYPE_JOINT,
     sizeof(LLVector4), // TYPE_TEXTURE_INDEX (actually exists as position.w), no extra data, but stride is 16 bytes
 };
 
@@ -617,6 +618,7 @@ static const std::string vb_type_name[] =
     "TYPE_WEIGHT",
     "TYPE_WEIGHT4",
     "TYPE_CLOTHWEIGHT",
+    "TYPE_JOINT"
     "TYPE_TEXTURE_INDEX",
     "TYPE_MAX",
     "TYPE_INDEX",
@@ -1598,6 +1600,12 @@ void LLVertexBuffer::setupVertexBuffer()
         void* ptr = (void*)(base + mOffsets[TYPE_WEIGHT4]);
         glVertexAttribPointer(loc, 4, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_WEIGHT4], ptr);
     }
+    if (data_mask & MAP_JOINT)
+    {
+        AttributeType loc = TYPE_JOINT;
+        void* ptr = (void*)(base + mOffsets[TYPE_JOINT]);
+        glVertexAttribIPointer(loc, 4, GL_UNSIGNED_SHORT, LLVertexBuffer::sTypeSize[TYPE_JOINT], ptr);
+    }
     if (data_mask & MAP_CLOTHWEIGHT)
     {
         AttributeType loc = TYPE_CLOTHWEIGHT;
@@ -1665,6 +1673,14 @@ void LLVertexBuffer::setWeight4Data(const LLVector4a* data)
     llassert(sGLRenderBuffer == mGLBuffer);
 #endif
     flush_vbo(GL_ARRAY_BUFFER, mOffsets[TYPE_WEIGHT4], mOffsets[TYPE_WEIGHT4] + sTypeSize[TYPE_WEIGHT4] * getNumVerts() - 1, (U8*) data, mMappedData);
+}
+
+void LLVertexBuffer::setJointData(const U64* data)
+{
+#if !LL_DARWIN
+    llassert(sGLRenderBuffer == mGLBuffer);
+#endif
+    flush_vbo(GL_ARRAY_BUFFER, mOffsets[TYPE_JOINT], mOffsets[TYPE_JOINT] + sTypeSize[TYPE_JOINT] * getNumVerts() - 1, (U8*) data, mMappedData);
 }
 
 void LLVertexBuffer::setIndexData(const U16* data)

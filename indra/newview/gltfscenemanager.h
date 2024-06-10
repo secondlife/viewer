@@ -49,8 +49,13 @@ namespace LL
         void uploadSelection(); // decompose selected asset and upload to simulator
 
         void update();
-        void render(bool opaque, bool rigged = false);
-        void render(LL::GLTF::Asset& asset, bool opaque, bool rigged);
+        void render(bool opaque, bool rigged = false, bool unlit = false);
+
+        // render the given variant of all assets
+        // variant - bitmask according to LLGLSLShader::GLTFVariant flags
+        void render(U8 variant);
+
+        void render(LL::GLTF::Asset& asset, U8 variant);
 
         // bind the given material for rendering
         void bind(LL::GLTF::Asset& asset, LL::GLTF::Material& material);
