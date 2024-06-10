@@ -25,11 +25,7 @@
  */
 
 #include "linden_common.h"
-
 #include "lleventtimer.h"
-
-#include "u64.h"
-
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -37,37 +33,36 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
-LLEventTimer::LLEventTimer(F32 period)
-: mEventTimer()
+LLEventTimer::LLEventTimer(F32 period):
+    mPeriod(period)
 {
-    mPeriod = period;
+    start();
 }
 
-LLEventTimer::LLEventTimer(const LLDate& time)
-: mEventTimer()
-{
-    mPeriod = (F32)(time.secondsSinceEpoch() - LLDate::now().secondsSinceEpoch());
-}
-
+LLEventTimer::LLEventTimer(const LLDate& time):
+    LLEventTimer(F32(time.secondsSinceEpoch() - LLDate::now().secondsSinceEpoch()))
+{}
 
 LLEventTimer::~LLEventTimer()
 {
 }
 
-//static
-void LLEventTimer::updateClass()
+void LLEventTimer::start()
 {
-    for (auto& timer : instance_snapshot())
-    {
-        F32 et = timer.mEventTimer.getElapsedTimeF32();
-        if (timer.mEventTimer.getStarted() && et > timer.mPeriod) {
-            timer.mEventTimer.reset();
-            if ( timer.tick() )
-            {
-                delete &timer;
-            }
-        }
-    }
+    mTimer = LL::Timers::instance().scheduleEvery([this]{ return tick(); }, mPeriod);
 }
 
+void LLEventTimer::stop()
+{
+    LL::Timers::instance().cancel(mTimer);
+}
 
+bool LLEventTimer::isRunning()
+{
+    return LL::Timers::instance().isRunning(mTimer);
+}
+
+F32 LLEventTimer::getRemaining()
+{
+    return LL::Timers::instance().timeUntilCall(mTimer);
+}

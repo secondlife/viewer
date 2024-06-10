@@ -310,12 +310,12 @@ public:
     :   LLEventTimer(period),
         LLPanelPeople::Updater(cb)
     {
-        mEventTimer.stop();
+        stop();
     }
 
-    virtual BOOL tick() // from LLEventTimer
+    bool tick() override // from LLEventTimer
     {
-        return FALSE;
+        return false;
     }
 };
 
@@ -353,13 +353,13 @@ public:
         LLAvatarTracker::instance().removeObserver(this);
     }
 
-    /*virtual*/ void changed(U32 mask)
+    void changed(U32 mask) override
     {
         if (mIsActive)
         {
             // events can arrive quickly in bulk - we need not process EVERY one of them -
             // so we wait a short while to let others pile-in, and process them in aggregate.
-            mEventTimer.start();
+            start();
         }
 
         // save-up all the mask-bits which have come-in
@@ -367,7 +367,7 @@ public:
     }
 
 
-    /*virtual*/ BOOL tick()
+    bool tick() override
     {
         if (!mIsActive) return FALSE;
 
@@ -377,14 +377,13 @@ public:
         }
 
         // Stop updates.
-        mEventTimer.stop();
+        stop();
         mMask = 0;
 
-        return FALSE;
+        return false;
     }
 
-    // virtual
-    void setActive(bool active)
+    void setActive(bool active) override
     {
         mIsActive = active;
         if (active)
@@ -493,25 +492,25 @@ public:
         setActive(false);
     }
 
-    /*virtual*/ void setActive(bool val)
+    void setActive(bool val) override
     {
         if (val)
         {
             // update immediately and start regular updates
             update();
-            mEventTimer.start();
+            start();
         }
         else
         {
             // stop regular updates
-            mEventTimer.stop();
+            stop();
         }
     }
 
-    /*virtual*/ BOOL tick()
+    bool tick() override
     {
         update();
-        return FALSE;
+        return false;
     }
 private:
 };

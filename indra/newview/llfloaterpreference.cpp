@@ -1944,7 +1944,7 @@ public:
     :LLEventTimer(period),
      mCallback(cb)
     {
-        mEventTimer.stop();
+        stop();
     }
 
     virtual ~Updater(){}
@@ -1952,17 +1952,17 @@ public:
     void update(const LLSD& new_value)
     {
         mNewValue = new_value;
-        mEventTimer.start();
+        start();
     }
 
 protected:
 
-    BOOL tick()
+    bool tick() override
     {
         mCallback(mNewValue);
-        mEventTimer.stop();
+        stop();
 
-        return FALSE;
+        return false;
     }
 
 private:

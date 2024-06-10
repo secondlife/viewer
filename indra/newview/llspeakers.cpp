@@ -181,13 +181,13 @@ LLSpeakerActionTimer::LLSpeakerActionTimer(action_callback_t action_cb, F32 acti
 {
 }
 
-BOOL LLSpeakerActionTimer::tick()
+bool LLSpeakerActionTimer::tick()
 {
     if (mActionCallback)
     {
         return (BOOL)mActionCallback(mSpeakerId);
     }
-    return TRUE;
+    return true;
 }
 
 void LLSpeakerActionTimer::unset()
