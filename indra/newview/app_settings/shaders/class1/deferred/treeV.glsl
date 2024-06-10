@@ -24,6 +24,7 @@
  */
 
 uniform mat4 texture_matrix0;
+uniform mat4 modelview_matrix;
 uniform mat4 modelview_projection_matrix;
 uniform mat3 normal_matrix;
 
@@ -34,11 +35,14 @@ in vec2 texcoord0;
 out vec3 vary_normal;
 out vec4 vertex_color;
 out vec2 vary_texcoord0;
+out vec3 vary_position;
 
 void main()
 {
     //transform vertex
     gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0);
+    vary_position = (modelview_matrix*vec4(position.xyz, 1.0)).xyz;
+
     vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
 
     vary_normal = normalize(normal_matrix * normal);

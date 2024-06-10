@@ -41,6 +41,7 @@ template <class T, typename T_PTR> class LLOctreeNode;
 class LLVolumeFace;
 class LLVolume;
 class LLVolumeTriangle;
+class LLVolumeOctree;
 
 #include "lluuid.h"
 #include "v4color.h"
@@ -913,7 +914,7 @@ public:
     void createOctree(F32 scaler = 0.25f, const LLVector4a& center = LLVector4a(0,0,0), const LLVector4a& size = LLVector4a(0.5f,0.5f,0.5f));
     void destroyOctree();
     // Get a reference to the octree, which may be null
-    const LLOctreeNode<LLVolumeTriangle, LLVolumeTriangle*>* getOctree() const;
+    const LLVolumeOctree* getOctree() const;
 
     enum
     {
@@ -987,7 +988,7 @@ public:
     LLVector3 mNormalizedScale = LLVector3(1,1,1);
 
 private:
-    LLOctreeNode<LLVolumeTriangle, LLVolumeTriangle*>* mOctree;
+    LLVolumeOctree* mOctree;
     LLVolumeTriangle* mOctreeTriangles;
 
     BOOL createUnCutCubeCap(LLVolume* volume, BOOL partial_build = FALSE);
@@ -1141,6 +1142,8 @@ public:
 };
 
 std::ostream& operator<<(std::ostream &s, const LLVolumeParams &volume_params);
+
+void LLCalculateTangentArray(U32 vertexCount, const LLVector4a *vertex, const LLVector4a *normal, const LLVector2 *texcoord, U32 triangleCount, const U16* index_array, LLVector4a *tangent);
 
 BOOL LLLineSegmentBoxIntersect(const F32* start, const F32* end, const F32* center, const F32* size);
 BOOL LLLineSegmentBoxIntersect(const LLVector3& start, const LLVector3& end, const LLVector3& center, const LLVector3& size);

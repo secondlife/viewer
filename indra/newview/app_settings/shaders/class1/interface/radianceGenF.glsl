@@ -38,6 +38,7 @@ in vec3 vary_dir;
 uniform float mipLevel;
 uniform int u_width;
 uniform float max_probe_lod;
+uniform float probe_strength;
 
 
 // =============================================================================================================
@@ -129,7 +130,7 @@ vec4 prefilterEnvMap(vec3 R)
     float totalWeight = 0.0;
     float envMapDim = float(textureSize(reflectionProbes, 0).s);
     float roughness = mipLevel/max_probe_lod;
-    int numSamples = max(int(32*roughness), 1);
+    int numSamples = max(int(PROBE_FILTER_SAMPLES*roughness), 1);
 
     float numMips = max_probe_lod+1;
 
@@ -163,5 +164,6 @@ void main()
 {
     vec3 N = normalize(vary_dir);
     frag_color = max(prefilterEnvMap(N), vec4(0));
+    frag_color.a *= probe_strength;
 }
 // =============================================================================================================

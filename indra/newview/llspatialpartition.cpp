@@ -47,6 +47,7 @@
 #include "pipeline.h"
 #include "llmeshrepository.h"
 #include "llrender.h"
+#include "lldrawpool.h"
 #include "lloctree.h"
 #include "llphysicsshapebuilderutil.h"
 #include "llvoavatar.h"
@@ -1998,7 +1999,11 @@ void renderBoundingBox(LLDrawable* drawable, BOOL set_color = TRUE)
         drawBoxOutline(pos,size);
     }
 }
-
+// *TODO: LLDrawables which are not part of LLVOVolumes fall into a different
+// code path which uses a shader - it was tested to be faster than mapping a
+// vertex buffer in the terrain case. Consider using it for LLVOVolumes as well
+// to simplify and speed up this debug code. Alternatively, a compute shader is
+// likely faster. -Cosmic,2023-09-28
 void renderNormals(LLDrawable *drawablep)
 {
     if (!drawablep->isVisible())
@@ -2006,11 +2011,13 @@ void renderNormals(LLDrawable *drawablep)
 
     LLVertexBuffer::unbind();
 
+    LLViewerObject* obj = drawablep->getVObj();
     LLVOVolume *vol = drawablep->getVOVolume();
 
-    if (vol)
+    if (obj)
     {
-        LLVolume *volume = vol->getVolume();
+        LLGLEnable blend(GL_BLEND);
+        LLGLDepthTest gl_depth(GL_TRUE, GL_FALSE);
 
         // Drawable's normals & tangents are stored in model space, i.e. before any scaling is applied.
         //
@@ -2019,66 +2026,134 @@ void renderNormals(LLDrawable *drawablep)
         // transform. We get that effect here by pre-applying the inverse scale (twice, because
         // one forward scale will be re-applied via the MVP in the vertex shader)
 
-        LLVector3  scale_v3 = vol->getScale();
-        float      scale_len = scale_v3.length();
-        LLVector4a obj_scale(scale_v3.mV[VX], scale_v3.mV[VY], scale_v3.mV[VZ]);
-        obj_scale.normalize3();
+        LLVector4a inv_scale;
+        float scale_len;
+        if (vol)
+        {
+            LLVector3  scale_v3 = vol->getScale();
+            LLVector4a obj_scale(scale_v3.mV[VX], scale_v3.mV[VY], scale_v3.mV[VZ]);
+            obj_scale.normalize3();
+
+            // Create inverse-scale vector for normals
+            inv_scale.set(1.0 / scale_v3.mV[VX], 1.0 / scale_v3.mV[VY], 1.0 / scale_v3.mV[VZ], 0.0);
+            inv_scale.mul(inv_scale);  // Squared, to apply inverse scale twice
+
+            inv_scale.normalize3fast();
+            scale_len = scale_v3.length();
+        }
+        else
+        {
+            inv_scale.set(1.0, 1.0, 1.0, 0.0);
+            scale_len = 1.0;
+        }
+
+        gGL.pushMatrix();
+        if (vol)
+        {
+            gGL.multMatrix((F32 *) vol->getRelativeXform().mMatrix);
+        }
+
+        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
         // Normals &tangent line segments get scaled along with the object. Divide by scale length
         // to keep the as-viewed lengths (relatively) constant with the debug setting length
         float draw_length = gSavedSettings.getF32("RenderDebugNormalScale") / scale_len;
 
-        // Create inverse-scale vector for normals
-        LLVector4a inv_scale(1.0 / scale_v3.mV[VX], 1.0 / scale_v3.mV[VY], 1.0 / scale_v3.mV[VZ]);
-        inv_scale.mul(inv_scale);  // Squared, to apply inverse scale twice
-        inv_scale.normalize3fast();
-
-        gGL.pushMatrix();
-        gGL.multMatrix((F32 *) vol->getRelativeXform().mMatrix);
-
-        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-
-        for (S32 i = 0; i < volume->getNumVolumeFaces(); ++i)
+        std::vector<LLVolumeFace>* faces = nullptr;
+        std::vector<LLFace*>* drawable_faces = nullptr;
+        if (vol)
         {
-            const LLVolumeFace &face = volume->getVolumeFace(i);
+            LLVolume* volume = vol->getVolume();
+            faces = &volume->getVolumeFaces();
+        }
+        else
+        {
+            drawable_faces = &drawablep->getFaces();
+        }
 
-            gGL.flush();
-            gGL.diffuseColor4f(1, 1, 0, 1);
-            gGL.begin(LLRender::LINES);
-            for (S32 j = 0; j < face.mNumVertices; ++j)
+        if (faces)
+        {
+            for (auto it = faces->begin(); it != faces->end(); ++it)
             {
-                LLVector4a n, p;
+                const LLVolumeFace& face = *it;
 
-                n.setMul(face.mNormals[j], 1.0);
-                n.mul(inv_scale);  // Pre-scale normal, so it's left with an inverse-transpose xform after MVP
-                n.normalize3fast();
-                n.mul(draw_length);
-                p.setAdd(face.mPositions[j], n);
-
-                gGL.vertex3fv(face.mPositions[j].getF32ptr());
-                gGL.vertex3fv(p.getF32ptr());
-            }
-            gGL.end();
-
-            // Tangents are simple vectors and do not require reorientation via pre-scaling
-            if (face.mTangents)
-            {
                 gGL.flush();
-                gGL.diffuseColor4f(0, 1, 1, 1);
+                gGL.diffuseColor4f(1, 1, 0, 1);
                 gGL.begin(LLRender::LINES);
                 for (S32 j = 0; j < face.mNumVertices; ++j)
                 {
-                    LLVector4a t, p;
+                    LLVector4a n, p;
 
-                    t.setMul(face.mTangents[j], 1.0f);
-                    t.normalize3fast();
-                    t.mul(draw_length);
-                    p.setAdd(face.mPositions[j], t);
+                    n.setMul(face.mNormals[j], 1.0);
+                    n.mul(inv_scale);  // Pre-scale normal, so it's left with an inverse-transpose xform after MVP
+                    n.normalize3fast();
+                    n.mul(draw_length);
+                    p.setAdd(face.mPositions[j], n);
 
                     gGL.vertex3fv(face.mPositions[j].getF32ptr());
                     gGL.vertex3fv(p.getF32ptr());
                 }
                 gGL.end();
+
+                // Tangents are simple vectors and do not require reorientation via pre-scaling
+                if (face.mTangents)
+                {
+                    gGL.flush();
+                    gGL.diffuseColor4f(0, 1, 1, 1);
+                    gGL.begin(LLRender::LINES);
+                    for (S32 j = 0; j < face.mNumVertices; ++j)
+                    {
+                        LLVector4a t, p;
+
+                        t.setMul(face.mTangents[j], 1.0f);
+                        t.normalize3fast();
+                        t.mul(draw_length);
+                        p.setAdd(face.mPositions[j], t);
+
+                        gGL.vertex3fv(face.mPositions[j].getF32ptr());
+                        gGL.vertex3fv(p.getF32ptr());
+                    }
+                    gGL.end();
+                }
+            }
+        }
+        else if (drawable_faces)
+        {
+            // *HACK: Prepare to restore previous shader as other debug code depends on a simpler shader being present
+            llassert(LLGLSLShader::sCurBoundShaderPtr == &gDebugProgram);
+            LLGLSLShader* prev_shader = LLGLSLShader::sCurBoundShaderPtr;
+            for (auto it = drawable_faces->begin(); it != drawable_faces->end(); ++it)
+            {
+                LLFace* facep = *it;
+                LLFace& face = **it;
+                LLVertexBuffer* buf = face.getVertexBuffer();
+                if (!buf) { continue; }
+                U32 mask_vn = LLVertexBuffer::TYPE_VERTEX | LLVertexBuffer::TYPE_NORMAL;
+                if ((buf->getTypeMask() & mask_vn) != mask_vn) { continue; }
+
+                LLGLSLShader* shader;
+                if ((buf->getTypeMask() & LLVertexBuffer::TYPE_TANGENT) != LLVertexBuffer::TYPE_TANGENT)
+                {
+                    shader = &gNormalDebugProgram[NORMAL_DEBUG_SHADER_DEFAULT];
+                }
+                else
+                {
+                    shader = &gNormalDebugProgram[NORMAL_DEBUG_SHADER_WITH_TANGENTS];
+                }
+                shader->bind();
+
+                shader->uniform1f(LLShaderMgr::DEBUG_NORMAL_DRAW_LENGTH, draw_length);
+
+                LLRenderPass::applyModelMatrix(&facep->getDrawable()->getRegion()->mRenderMatrix);
+
+                buf->setBuffer();
+                // *NOTE: The render type in the vertex shader is TRIANGLES, but gets converted to LINES in the geometry shader
+                // *NOTE: For terrain normal debug, this seems to also include vertices for water, which is technically not part of the terrain. Should fix that at some point.
+                buf->drawRange(LLRender::TRIANGLES, face.getGeomIndex(), face.getGeomIndex() + face.getGeomCount()-1, face.getIndicesCount(), face.getIndicesStart());
+            }
+            if (prev_shader)
+            {
+                prev_shader->bind();
             }
         }
 
@@ -2799,10 +2874,8 @@ void renderLights(LLDrawable* drawablep)
 class LLRenderOctreeRaycast : public LLOctreeTriangleRayIntersect
 {
 public:
-
-
     LLRenderOctreeRaycast(const LLVector4a& start, const LLVector4a& dir, F32* closest_t)
-        : LLOctreeTriangleRayIntersect(start, dir, NULL, closest_t, NULL, NULL, NULL, NULL)
+        : LLOctreeTriangleRayIntersect(start, dir, nullptr, closest_t, NULL, NULL, NULL, NULL)
     {
 
     }
@@ -2870,6 +2943,13 @@ public:
     }
 };
 
+void renderOctreeRaycast(const LLVector4a& start, const LLVector4a& end, const LLVolumeOctree* octree)
+{
+    F32 t = 1.f;
+    LLRenderOctreeRaycast render(start, end, &t);
+    render.traverse(octree);
+}
+
 void renderRaycast(LLDrawable* drawablep)
 {
     if (drawablep->getNumFaces())
@@ -2931,25 +3011,18 @@ void renderRaycast(LLDrawable* drawablep)
 
                     {
                         //render face positions
-                        LLVertexBuffer::unbind();
-                        gGL.diffuseColor4f(0,1,1,0.5f);
-                        glVertexPointer(3, GL_FLOAT, sizeof(LLVector4a), face.mPositions);
-                        gGL.syncMatrices();
-                        glDrawElements(GL_TRIANGLES, face.mNumIndices, GL_UNSIGNED_SHORT, face.mIndices);
+                        //gGL.diffuseColor4f(0,1,1,0.5f);
+                        //LLVertexBuffer::drawElements(LLRender::TRIANGLES, face.mPositions, nullptr, face.mNumIndices, face.mIndices);
                     }
 
                     if (!volume->isUnique())
                     {
-                        F32 t = 1.f;
-
                         if (!face.getOctree())
                         {
                             ((LLVolumeFace*) &face)->createOctree();
                         }
 
-                        LLRenderOctreeRaycast render(start, dir, &t);
-
-                        render.traverse(face.getOctree());
+                        renderOctreeRaycast(start, end, face.getOctree());
                     }
 
                     gGL.popMatrix();
