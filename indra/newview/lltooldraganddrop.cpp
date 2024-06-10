@@ -363,16 +363,13 @@ void LLToolDragAndDrop::beginDrag(EDragAndDropType type,
                 items,
                 LLInventoryModel::EXCLUDE_TRASH,
                 is_not_preferred);
-            S32 count = cats.size();
-            S32 i;
-            for(i = 0; i < count; ++i)
+            for (auto& cat : cats)
             {
-                folder_ids.push_back(cats.at(i)->getUUID());
+                folder_ids.emplace_back(cat->getUUID());
             }
-            count = items.size();
-            for(i = 0; i < count; ++i)
+            for (auto& item : items)
             {
-                item_ids.push_back(items.at(i)->getUUID());
+                item_ids.emplace_back(item->getUUID());
             }
             if (!folder_ids.empty() || !item_ids.empty())
             {
@@ -414,9 +411,9 @@ void LLToolDragAndDrop::beginMultiDrag(
     {
         // find categories (i.e. inventory folders) in the cargo.
         LLInventoryCategory* cat = NULL;
-        S32 count = llmin(cargo_ids.size(), types.size());
-        std::set<LLUUID> cat_ids;
-        for(S32 i = 0; i < count; ++i)
+        auto count = llmin(cargo_ids.size(), types.size());
+        uuid_set_t cat_ids;
+        for (size_t i = 0; i < count; ++i)
         {
             cat = gInventory.getCategory(cargo_ids[i]);
             if (cat)
@@ -434,10 +431,9 @@ void LLToolDragAndDrop::beginMultiDrag(
                     items,
                     LLInventoryModel::EXCLUDE_TRASH,
                     is_not_preferred);
-                S32 cat_count = cats.size();
-                for(S32 i = 0; i < cat_count; ++i)
+                for (auto& cat : cats)
                 {
-                    cat_ids.insert(cat->getUUID());
+                    cat_ids.emplace(cat->getUUID());
                 }
             }
         }

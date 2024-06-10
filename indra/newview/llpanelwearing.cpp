@@ -478,11 +478,11 @@ void LLPanelWearing::getAttachmentLimitsCoro(std::string url)
 void LLPanelWearing::setAttachmentDetails(LLSD content)
 {
     mObjectNames.clear();
-    S32 number_attachments = content["attachments"].size();
-    for(int i = 0; i < number_attachments; i++)
+    auto number_attachments = content["attachments"].size();
+    for(size_t i = 0; i < number_attachments; i++)
     {
-        S32 number_objects = content["attachments"][i]["objects"].size();
-        for(int j = 0; j < number_objects; j++)
+        auto number_objects = content["attachments"][i]["objects"].size();
+        for(size_t j = 0; j < number_objects; j++)
         {
             LLUUID task_id = content["attachments"][i]["objects"][j]["id"].asUUID();
             std::string name = content["attachments"][i]["objects"][j]["name"].asString();
@@ -594,6 +594,6 @@ void LLPanelWearing::copyToClipboard()
         }
     }
 
-    LLClipboard::instance().copyToClipboard(utf8str_to_wstring(text),0,text.size());
+    LLClipboard::instance().copyToClipboard(utf8str_to_wstring(text), 0, static_cast<S32>(text.size()));
 }
 // EOF

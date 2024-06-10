@@ -959,14 +959,14 @@ void LLWearableItemsList::ContextMenu::updateItemsVisibility(LLContextMenu* menu
         return;
     }
 
-    const uuid_vec_t& ids = mUUIDs; // selected items IDs
-    U32 mask = 0;                   // mask of selected items' types
-    U32 n_items = ids.size();       // number of selected items
-    U32 n_worn = 0;                 // number of worn items among the selected ones
-    U32 n_already_worn = 0;         // number of items worn of same type as selected items
-    U32 n_links = 0;                // number of links among the selected items
-    U32 n_editable = 0;             // number of editable items among the selected ones
-    U32 n_touchable = 0;            // number of touchable items among the selected ones
+    const uuid_vec_t& ids = mUUIDs;             // selected items IDs
+    U32 mask = 0;                               // mask of selected items' types
+    U32 n_items = static_cast<U32>(ids.size()); // number of selected items
+    U32 n_worn = 0;                             // number of worn items among the selected ones
+    U32 n_already_worn = 0;                     // number of items worn of same type as selected items
+    U32 n_links = 0;                            // number of links among the selected items
+    U32 n_editable = 0;                         // number of editable items among the selected ones
+    U32 n_touchable = 0;                        // number of touchable items among the selected ones
 
     bool can_be_worn = true;
 

@@ -1480,7 +1480,7 @@ void LLViewerObjectList::removeFromActiveList(LLViewerObject* objectp)
 
         objectp->setListIndex(-1);
 
-        S32 last_index = mActiveObjects.size()-1;
+        S32 last_index = static_cast<S32>(mActiveObjects.size()) - 1;
 
         if (idx != last_index)
         {
@@ -1511,7 +1511,7 @@ void LLViewerObjectList::updateActive(LLViewerObject *objectp)
             if (idx <= -1)
             {
                 mActiveObjects.push_back(objectp);
-                objectp->setListIndex(mActiveObjects.size()-1);
+                objectp->setListIndex(static_cast<S32>(mActiveObjects.size()) - 1);
             objectp->setOnActiveList(true);
         }
         else

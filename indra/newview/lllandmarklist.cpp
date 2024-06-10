@@ -118,7 +118,7 @@ void LLLandmarkList::processGetAssetReply(
             file.read((U8*)&buffer[0], file_length);
             buffer[file_length] = 0;
 
-            LLLandmark* landmark = LLLandmark::constructFromString(&buffer[0], buffer.size());
+            LLLandmark* landmark = LLLandmark::constructFromString(&buffer[0], static_cast<S32>(buffer.size()));
             if (landmark)
             {
                 gLandmarkList.mList[uuid] = landmark;

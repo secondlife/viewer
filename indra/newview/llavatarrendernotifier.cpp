@@ -306,7 +306,7 @@ void LLHUDRenderNotifier::updateNotificationHUD(hud_complexity_list_t complexity
     }
 
     mHUDComplexityList = complexity;
-    mHUDsCount = mHUDComplexityList.size();
+    mHUDsCount = static_cast<S32>(mHUDComplexityList.size());
 
     static LLCachedControl<U32> show_my_complexity_changes(gSavedSettings, "ShowMyComplexityChanges", 20);
     if (!show_my_complexity_changes)

@@ -1173,7 +1173,7 @@ void LLPanelGroupMembersSubTab::confirmEjectMembers()
     std::vector<LLScrollListItem*> selection = mMembersList->getAllSelected();
     if (selection.empty()) return;
 
-    S32 selection_count = selection.size();
+    auto selection_count = selection.size();
     if (selection_count == 1)
     {
         LLSD args;
@@ -1868,7 +1868,7 @@ void LLPanelGroupMembersSubTab::confirmBanMembers()
     std::vector<LLScrollListItem*> selection = mMembersList->getAllSelected();
     if (selection.empty()) return;
 
-    S32 selection_count = selection.size();
+    auto selection_count = selection.size();
     if (selection_count == 1)
     {
         LLSD args;
@@ -2197,7 +2197,7 @@ void LLPanelGroupRolesSubTab::update(LLGroupChange gc)
                 if (matchesSearchFilter(rd.mRoleName, rd.mRoleTitle))
                 {
                     // If this is the everyone role, then EVERYONE is in it.
-                    S32 members_in_role = (*rit).first.isNull() ? gdatap->mMembers.size() : (*rit).second->getTotalMembersInRole();
+                    S32 members_in_role = (*rit).first.isNull() ? static_cast<S32>(gdatap->mMembers.size()) : (*rit).second->getTotalMembersInRole();
                     LLSD row = createRoleItem((*rit).first,rd.mRoleName, rd.mRoleTitle, members_in_role);
                     item = mRolesList->addElement(row, ((*rit).first.isNull()) ? ADD_TOP : ADD_BOTTOM, this);
                     if (had_selection && ((*rit).first == last_selected))
@@ -3109,7 +3109,7 @@ void LLPanelGroupBanListSubTab::activate()
     {
         mCreateBanButton->setEnabled(gAgent.hasPowerInGroup(mGroupID, GP_GROUP_BAN_ACCESS) &&
                                      group_datap->mBanList.size() < GB_MAX_BANNED_AGENTS);
-        setBanCount(group_datap->mBanList.size());
+        setBanCount(static_cast<U32>(group_datap->mBanList.size()));
     }
     else
     {
@@ -3236,7 +3236,7 @@ void LLPanelGroupBanListSubTab::handleDeleteBanEntry()
 
     // update ban-count related elements
     mCreateBanButton->setEnabled(true);
-    setBanCount(gdatap->mBanList.size());
+    setBanCount(static_cast<U32>(gdatap->mBanList.size()));
 
     LLGroupMgr::getInstance()->sendGroupBanRequest(LLGroupMgr::REQUEST_POST, mGroupID, LLGroupMgr::BAN_DELETE, ban_ids);
 }
@@ -3314,7 +3314,7 @@ void LLPanelGroupBanListSubTab::populateBanList()
     mRefreshBanListButton->setEnabled(true);
     mCreateBanButton->setEnabled(gAgent.hasPowerInGroup(mGroupID, GP_GROUP_BAN_ACCESS) &&
                                  gdatap->mBanList.size() < GB_MAX_BANNED_AGENTS);
-    setBanCount(gdatap->mBanList.size());
+    setBanCount(static_cast<U32>(gdatap->mBanList.size()));
 }
 
 void LLPanelGroupBanListSubTab::setGroupID(const LLUUID& id)

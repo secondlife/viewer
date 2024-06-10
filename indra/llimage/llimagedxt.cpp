@@ -476,7 +476,7 @@ bool LLImageDXT::convertToDXR()
 // virtual
 S32 LLImageDXT::calcHeaderSize()
 {
-    return llmax(sizeof(dxtfile_header_old_t), sizeof(dxtfile_header_t));
+    return static_cast<S32>(llmax(sizeof(dxtfile_header_old_t), sizeof(dxtfile_header_t)));
 }
 
 // virtual

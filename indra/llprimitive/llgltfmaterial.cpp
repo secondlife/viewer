@@ -5,21 +5,21 @@
  * $LicenseInfo:firstyear=2022&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2022, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -72,7 +72,7 @@ LLGLTFMaterial::LLGLTFMaterial()
 #if 0
         mTextureTransform[i].mOffset.clear();
         mTextureTransform[i].mRotation = 0.f;
-#endif    
+#endif
     }
 #if 0
     mLocalTexDataDigest = 0;
@@ -189,7 +189,7 @@ bool LLGLTFMaterial::fromJSON(const std::string& json, std::string& warn_msg, st
 
     tinygltf::Model model_in;
 
-    if (gltf.LoadASCIIFromString(&model_in, &error_msg, &warn_msg, json.c_str(), json.length(), ""))
+    if (gltf.LoadASCIIFromString(&model_in, &error_msg, &warn_msg, json.c_str(), static_cast<unsigned int>(json.length()), ""))
     {
         setFromModel(model_in, 0);
 
@@ -792,7 +792,7 @@ void LLGLTFMaterial::applyOverrideLLSD(const LLSD& data)
     {
         mMetallicFactor = mf.asReal();
         if (mMetallicFactor == getDefaultMetallicFactor())
-        { 
+        {
             // HACK -- nudge by epsilon if we receive a default value (indicates override to default)
             mMetallicFactor -= FLT_EPSILON;
         }
@@ -803,7 +803,7 @@ void LLGLTFMaterial::applyOverrideLLSD(const LLSD& data)
     {
         mRoughnessFactor = rf.asReal();
         if (mRoughnessFactor == getDefaultRoughnessFactor())
-        { 
+        {
             // HACK -- nudge by epsilon if we receive a default value (indicates override to default)
             mRoughnessFactor -= FLT_EPSILON;
         }

@@ -203,7 +203,7 @@ void inventory_offer_handler(LLOfferInfo* info)
 
     // Strip any SLURL from the message display. (DEV-2754)
     std::string msg = info->mDesc;
-    int indx = msg.find(" ( http://slurl.com/secondlife/");
+    auto indx = msg.find(" ( http://slurl.com/secondlife/");
     if (indx == std::string::npos)
     {
         // try to find new slurl host
@@ -701,7 +701,7 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
             }
             else
             {
-                S32 index = original_name.find(" Resident");
+                auto index = original_name.find(" Resident");
                 if (index != std::string::npos)
                 {
                     original_name = original_name.substr(0, index);
@@ -1656,7 +1656,7 @@ void LLIMProcessing::requestOfflineMessagesCoro(std::string url)
                     message_data["region_id"].asUUID(),
                     position,
                     local_bin_bucket.data(),
-                    local_bin_bucket.size(),
+                    S32(local_bin_bucket.size()),
                     local_sender,
                     message_data["asset_id"].asUUID());
             });

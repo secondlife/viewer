@@ -455,7 +455,7 @@ void LLStatBar::draw()
 
             if (mDisplayHistory && mStat.valid)
             {
-                const S32 num_values = frame_recording.getNumRecordedPeriods() - 1;
+                const S32 num_values = static_cast<S32>(frame_recording.getNumRecordedPeriods()) - 1;
                 F32 min_value = 0.f,
                     max_value = 0.f;
 

@@ -384,7 +384,7 @@ void LLGLSLShader::unloadInternal()
 bool LLGLSLShader::createShader()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
-    
+
     unloadInternal();
 
     sInstances.insert(this);
@@ -968,7 +968,7 @@ bool LLGLSLShader::mapUniforms()
             glUniformBlockBinding(mProgramObject, UBOBlockIndex, i);
         }
     }
-    
+
     unbind();
 
     LL_DEBUGS("ShaderUniform") << "Total Uniform Size: " << mTotalUniformSize << LL_ENDL;

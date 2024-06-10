@@ -289,14 +289,14 @@ bool LLPartSysData::unpack(LLDataPacker &dp)
         //skip to LLPartData block
         U8 feh = 0;
 
-        for (U32 i = 0; i < size; ++i)
+        for (S32 i = 0; i < size; ++i)
         {
             dp.unpackU8(feh, "whippang");
         }
 
         dp.unpackS32(size, "partsize");
         //skip LLPartData block
-        for (U32 i = 0; i < size; ++i)
+        for (S32 i = 0; i < size; ++i)
         {
             dp.unpackU8(feh, "whippang");
         }

@@ -995,7 +995,7 @@ void LLComboBox::updateSelection()
         LLWString selected_item = utf8str_to_wstring(getSelectedItemLabel());
         LLWString wtext = left_wstring + selected_item.substr(left_wstring.size(), selected_item.size());
         mTextEntry->setText(wstring_to_utf8str(wtext));
-        mTextEntry->setSelection(left_wstring.size(), mTextEntry->getWText().size());
+        mTextEntry->setSelection(static_cast<S32>(left_wstring.size()), static_cast<S32>(mTextEntry->getWText().size()));
         mTextEntry->endSelection();
         mTextEntry->setTentative(false);
         mHasAutocompletedText = true;

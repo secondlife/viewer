@@ -296,7 +296,7 @@ void LLAttachmentsMgr::LLItemRequestTimes::addTime(const LLUUID& inv_item_id)
 void LLAttachmentsMgr::LLItemRequestTimes::removeTime(const LLUUID& inv_item_id)
 {
     LLInventoryItem *item = gInventory.getItem(inv_item_id);
-    S32 remove_count = (*this).erase(inv_item_id);
+    auto remove_count = (*this).erase(inv_item_id);
     if (remove_count)
     {
         LL_DEBUGS("Avatar") << "ATT " << mOpName << " removing request time "

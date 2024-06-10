@@ -1267,24 +1267,24 @@ void LLManipTranslate::renderSnapGuides()
                 LLVector3 line_end = selection_center + (mSnapOffsetMeters * mSnapOffsetAxis) - (translate_axis * (guide_size_meters * 0.5f + offset_nearest_grid_unit));
                 LLVector3 line_mid = (line_start + line_end) * 0.5f;
 
-                gGL.color4f(line_color.mV[VX], line_color.mV[VY], line_color.mV[VZ], line_color.mV[VW] * 0.2f);
+                gGL.color4f(line_color.mV[VRED], line_color.mV[VGREEN], line_color.mV[VBLUE], line_color.mV[VALPHA] * 0.2f);
                 gGL.vertex3fv(line_start.mV);
-                gGL.color4f(line_color.mV[VX], line_color.mV[VY], line_color.mV[VZ], line_color.mV[VW]);
+                gGL.color4f(line_color.mV[VRED], line_color.mV[VGREEN], line_color.mV[VBLUE], line_color.mV[VALPHA]);
                 gGL.vertex3fv(line_mid.mV);
                 gGL.vertex3fv(line_mid.mV);
-                gGL.color4f(line_color.mV[VX], line_color.mV[VY], line_color.mV[VZ], line_color.mV[VW] * 0.2f);
+                gGL.color4f(line_color.mV[VRED], line_color.mV[VGREEN], line_color.mV[VBLUE], line_color.mV[VALPHA] * 0.2f);
                 gGL.vertex3fv(line_end.mV);
 
                 line_start.setVec(selection_center + (mSnapOffsetAxis * -mSnapOffsetMeters) + (translate_axis * guide_size_meters * 0.5f));
                 line_end.setVec(selection_center + (mSnapOffsetAxis * -mSnapOffsetMeters) - (translate_axis * guide_size_meters * 0.5f));
                 line_mid = (line_start + line_end) * 0.5f;
 
-                gGL.color4f(line_color.mV[VX], line_color.mV[VY], line_color.mV[VZ], line_color.mV[VW] * 0.2f);
+                gGL.color4f(line_color.mV[VRED], line_color.mV[VGREEN], line_color.mV[VBLUE], line_color.mV[VALPHA] * 0.2f);
                 gGL.vertex3fv(line_start.mV);
-                gGL.color4f(line_color.mV[VX], line_color.mV[VY], line_color.mV[VZ], line_color.mV[VW]);
+                gGL.color4f(line_color.mV[VRED], line_color.mV[VGREEN], line_color.mV[VBLUE], line_color.mV[VALPHA]);
                 gGL.vertex3fv(line_mid.mV);
                 gGL.vertex3fv(line_mid.mV);
-                gGL.color4f(line_color.mV[VX], line_color.mV[VY], line_color.mV[VZ], line_color.mV[VW] * 0.2f);
+                gGL.color4f(line_color.mV[VRED], line_color.mV[VGREEN], line_color.mV[VBLUE], line_color.mV[VALPHA] * 0.2f);
                 gGL.vertex3fv(line_end.mV);
 
                 for (S32 i = -num_ticks_per_side; i <= num_ticks_per_side; i++)
@@ -1316,7 +1316,7 @@ void LLManipTranslate::renderSnapGuides()
 
                     tick_end = tick_start + (mSnapOffsetAxis * mSnapOffsetMeters * tick_scale);
 
-                    gGL.color4f(line_color.mV[VX], line_color.mV[VY], line_color.mV[VZ], line_color.mV[VW]);
+                    gGL.color4f(line_color.mV[VRED], line_color.mV[VGREEN], line_color.mV[VBLUE], line_color.mV[VALPHA]);
                     gGL.vertex3fv(tick_start.mV);
                     gGL.vertex3fv(tick_end.mV);
 
@@ -1337,7 +1337,7 @@ void LLManipTranslate::renderSnapGuides()
 
                 gGL.begin(LLRender::LINES);
                 {
-                    gGL.color4f(line_color.mV[VX], line_color.mV[VY], line_color.mV[VZ], line_color.mV[VW]);
+                    gGL.color4f(line_color.mV[VRED], line_color.mV[VGREEN], line_color.mV[VBLUE], line_color.mV[VALPHA]);
 
                     gGL.vertex3fv(line_start.mV);
                     gGL.vertex3fv(line_end.mV);
@@ -1347,7 +1347,7 @@ void LLManipTranslate::renderSnapGuides()
                 // draw snap guide arrow
                 gGL.begin(LLRender::TRIANGLES);
                 {
-                    gGL.color4f(line_color.mV[VX], line_color.mV[VY], line_color.mV[VZ], line_color.mV[VW]);
+                    gGL.color4f(line_color.mV[VRED], line_color.mV[VGREEN], line_color.mV[VBLUE], line_color.mV[VALPHA]);
 
                     LLVector3 arrow_dir;
                     LLVector3 arrow_span = translate_axis;

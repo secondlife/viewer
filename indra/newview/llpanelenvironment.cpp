@@ -339,7 +339,7 @@ void LLPanelEnvironmentInfo::refreshFromEstate()
         refresh();
 }
 
-std::string LLPanelEnvironmentInfo::getNameForTrackIndex(S32 index)
+std::string LLPanelEnvironmentInfo::getNameForTrackIndex(U32 index)
 {
     std::string invname;
     if (!mCurrentEnvironment || index < LLSettingsDay::TRACK_WATER || index >= LLSettingsDay::TRACK_MAX)

@@ -964,7 +964,7 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 {
     LL_INFOS() << "setWearableOutfit() start" << LL_ENDL;
 
-    S32 count = wearables.size();
+    auto count = wearables.size();
     llassert(items.size() == count);
 
     // Check for whether outfit already matches the one requested
@@ -973,7 +973,7 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
     S32 type_counts[arr_size];
     bool update_inventory{ false };
     std::fill(type_counts,type_counts+arr_size,0);
-    for (S32 i = 0; i < count; i++)
+    for (size_t i = 0; i < count; i++)
     {
         LLViewerWearable* new_wearable = wearables[i];
         LLPointer<LLInventoryItem> new_item = items[i];
@@ -1407,7 +1407,7 @@ void LLAgentWearables::userRemoveMultipleAttachments(llvo_vec_t& objects_to_remo
 void LLAgentWearables::userAttachMultipleAttachments(LLInventoryModel::item_array_t& obj_item_array)
 {
     // Build a compound message to send all the objects that need to be rezzed.
-    S32 obj_count = obj_item_array.size();
+    auto obj_count = obj_item_array.size();
     if (obj_count > 0)
     {
         LL_DEBUGS("Avatar") << "ATT attaching multiple, total obj_count " << obj_count << LL_ENDL;

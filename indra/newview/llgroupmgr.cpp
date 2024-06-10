@@ -168,7 +168,7 @@ S32 LLGroupRoleData::getMembersInRole(uuid_vec_t members,
     {
         // This is the everyone role, just return the size of members,
         // because everyone is in the everyone role.
-        return members.size();
+        return static_cast<S32>(members.size());
     }
 
     // Sort the members list, if needed.
@@ -184,7 +184,7 @@ S32 LLGroupRoleData::getMembersInRole(uuid_vec_t members,
     }
 
     // Return the number of members in the intersection.
-    S32 max_size = llmin( members.size(), mMemberIDs.size() );
+    auto max_size = llmin( members.size(), mMemberIDs.size() );
     uuid_vec_t in_role( max_size );
     uuid_vec_t::iterator in_role_end;
     in_role_end = std::set_intersection(mMemberIDs.begin(), mMemberIDs.end(),

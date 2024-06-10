@@ -156,7 +156,7 @@ LLGesture *LLViewerGestureList::create_gesture(U8 **buffer, S32 max_size)
 // output_str
 bool LLViewerGestureList::matchPrefix(const std::string& in_str, std::string* out_str)
 {
-    S32 in_len = in_str.length();
+    S32 in_len = static_cast<S32>(in_str.length());
 
     std::string in_str_lc = in_str;
     LLStringUtil::toLower(in_str_lc);

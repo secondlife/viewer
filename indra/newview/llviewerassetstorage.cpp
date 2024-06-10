@@ -542,7 +542,7 @@ void LLViewerAssetStorage::assetRequestCoro(
 
         const LLSD::Binary &raw = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_RAW].asBinary();
 
-        S32 size = raw.size();
+        S32 size = static_cast<S32>(raw.size());
         if (size > 0)
         {
             mTotalBytesFetched += size;

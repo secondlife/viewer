@@ -130,10 +130,10 @@ protected:
 
     LL_ALIGN_16(LLVector4a  mDefaultVec); // temp holder
     entry_list_t mDriven;
-    LLViewerVisualParam* mCurrentDistortionParam;
+    LLViewerVisualParam* mCurrentDistortionParam{ nullptr };
     // Backlink only; don't make this an LLPointer.
-    LLAvatarAppearance* mAvatarAppearance;
-    LLWearable* mWearablep;
+    LLAvatarAppearance* mAvatarAppearance{ nullptr };
+    LLWearable* mWearablep{ nullptr };
 };
 
 #endif  // LL_LLDRIVERPARAM_H

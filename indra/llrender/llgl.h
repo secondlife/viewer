@@ -119,9 +119,7 @@ public:
     std::string mDriverVersionVendorString;
     std::string mGLVersionString;
 
-    S32 mVRAM; // VRAM in MB
-
-    void getPixelFormat(); // Get the best pixel format
+    U32 mVRAM; // VRAM in MB
 
     std::string getGLInfoString();
     void printGLInfoString();
@@ -139,7 +137,6 @@ public:
 private:
     void initExtensions();
     void initGLStates();
-    void initGLImages();
 };
 
 extern LLGLManager gGLManager;
@@ -161,11 +158,11 @@ void clear_glerror();
 # define llglassertok() assert_glerror()
 
 // stop_glerror is still needed on OS X but has performance implications
-// use macro below to conditionally add stop_glerror to non-release builds 
+// use macro below to conditionally add stop_glerror to non-release builds
 // on OS X
 #if LL_DARWIN && !LL_RELEASE_FOR_DOWNLOAD
 #define STOP_GLERROR stop_glerror()
-#else 
+#else
 #define STOP_GLERROR
 #endif
 

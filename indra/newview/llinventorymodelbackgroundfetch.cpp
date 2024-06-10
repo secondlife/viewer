@@ -734,7 +734,7 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis()
     // Reserve one request for actions outside of fetch (like renames)
     const U32 max_concurrent_fetches = llclamp(ais_pool - 1, 1, 50);
 
-    if (mFetchCount >= max_concurrent_fetches)
+    if ((U32)mFetchCount >= max_concurrent_fetches)
     {
         return;
     }
@@ -747,7 +747,7 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis()
     const F64 end_time = curent_time + max_time;
     S32 last_fetch_count = mFetchCount;
 
-    while (!mFetchFolderQueue.empty() && mFetchCount < max_concurrent_fetches && curent_time < end_time)
+    while (!mFetchFolderQueue.empty() && (U32)mFetchCount < max_concurrent_fetches && curent_time < end_time)
     {
         const FetchQueueInfo & fetch_info(mFetchFolderQueue.front());
         bulkFetchViaAis(fetch_info);
@@ -758,7 +758,7 @@ void LLInventoryModelBackgroundFetch::bulkFetchViaAis()
     // Ideally we shouldn't fetch items if recursive fetch isn't done,
     // but there is a chance some request will start timeouting and recursive
     // fetch will get stuck on a signle folder, don't block item fetch in such case
-    while (!mFetchItemQueue.empty() && mFetchCount < max_concurrent_fetches && curent_time < end_time)
+    while (!mFetchItemQueue.empty() && (U32)mFetchCount < max_concurrent_fetches && curent_time < end_time)
     {
         const FetchQueueInfo& fetch_info(mFetchItemQueue.front());
         bulkFetchViaAis(fetch_info);
@@ -1496,7 +1496,7 @@ void BGFolderHttpHandler::processFailure(LLCore::HttpStatus status, LLCore::Http
             return;
         }
 
-        S32 size = mRequestSD["folders"].size();
+        auto size = mRequestSD["folders"].size();
 
         if (size > 1)
         {
@@ -1513,7 +1513,7 @@ void BGFolderHttpHandler::processFailure(LLCore::HttpStatus status, LLCore::Http
                 {
                     recursive_cats.push_back(folder_id);
                 }
-                if (folders.size() == (S32)(size / 2))
+                if (folders.size() == (size / 2))
                 {
                     LLSD request_body;
                     request_body["folders"] = folders;

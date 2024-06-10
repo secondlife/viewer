@@ -134,7 +134,7 @@ public:
 
     void handleIRCallback(void **data, const S32 number);
 
-    S32 getNumImages()                  { return mImageList.size(); }
+    S32 getNumImages()                  { return static_cast<S32>(mImageList.size()); }
 
     // Local UI images
     // Local UI images
@@ -191,7 +191,7 @@ private:
                                      LLGLenum primary_format = 0,
                                      const LLUUID& force_id = LLUUID::null
                                      );
-    
+
     LLImageRaw* getRawImageFromMemory(const U8* data, U32 size, std::string_view mimetype);
     LLViewerFetchedTexture* getImageFromMemory(const U8* data, U32 size, std::string_view mimetype);
 

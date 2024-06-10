@@ -320,12 +320,12 @@ bool LLTextBase::truncate()
         if (value.type() == LLSD::TypeString)
         {
             // save a copy for strings.
-            utf8_byte_size = value.size();
+            utf8_byte_size = static_cast<S32>(value.size());
         }
         else
         {
             // non string LLSDs need explicit conversion to string
-            utf8_byte_size = value.asString().size();
+            utf8_byte_size = static_cast<S32>(value.asString().size());
         }
 
         if ( utf8_byte_size > mMaxTextByteLength )
@@ -335,7 +335,7 @@ bool LLTextBase::truncate()
             temp_utf8_text = utf8str_truncate( temp_utf8_text, mMaxTextByteLength );
             LLWString text = utf8str_to_wstring( temp_utf8_text );
             // remove extra bit of current string, to preserve formatting, etc.
-            removeStringNoUndo(text.size(), getWText().size() - text.size());
+            removeStringNoUndo(static_cast<S32>(text.size()), static_cast<S32>(getWText().size() - text.size()));
             did_truncate = true;
         }
     }
@@ -617,7 +617,7 @@ void LLTextBase::drawText()
     }
     else if (useLabel())
     {
-        text_len = mLabel.getWString().length();
+        text_len = static_cast<S32>(mLabel.getWString().length());
     }
 
     S32 selection_left = -1;
@@ -686,7 +686,7 @@ void LLTextBase::drawText()
 
                 // Find the start of the first word
                 U32 word_start = seg_start, word_end = -1;
-                U32 text_length = wstrText.length();
+                U32 text_length = static_cast<U32>(wstrText.length());
                 while ( (word_start < text_length) && (!LLStringOps::isAlpha(wstrText[word_start])) )
                 {
                     word_start++;
@@ -789,7 +789,7 @@ void LLTextBase::drawText()
             }
 
             // Draw squiggly lines under any visible misspelled words
-            while ( (mMisspellRanges.end() != misspell_it) && (misspell_it->first < seg_end) && (misspell_it->second > seg_start) )
+            while ( (mMisspellRanges.end() != misspell_it) && (misspell_it->first < (U32)seg_end) && (misspell_it->second > (U32)seg_start) )
             {
                 // Skip the current word if the user is still busy editing it
                 if ( (!mSpellCheckTimer.hasExpired()) && (misspell_it->first <= (U32)mCursorPos) && (misspell_it->second >= (U32)mCursorPos) )
@@ -798,7 +798,7 @@ void LLTextBase::drawText()
                     continue;
                 }
 
-                U32 misspell_start = llmax<U32>(misspell_it->first, seg_start), misspell_end = llmin<U32>(misspell_it->second, seg_end);
+                U32 misspell_start = llmax<U32>(misspell_it->first, (U32)seg_start), misspell_end = llmin<U32>(misspell_it->second, (U32)seg_end);
                 S32 squiggle_start = 0, squiggle_end = 0, pony = 0;
                 cur_segment->getDimensions(seg_start - cur_segment->getStart(), misspell_start - seg_start, squiggle_start, pony);
                 cur_segment->getDimensions(misspell_start - cur_segment->getStart(), misspell_end - misspell_start, squiggle_end, pony);
@@ -821,7 +821,7 @@ void LLTextBase::drawText()
                     squiggle_start += 4;
                 }
 
-                if (misspell_it->second > seg_end)
+                if (misspell_it->second > (U32)seg_end)
                 {
                     break;
                 }
@@ -845,7 +845,7 @@ S32 LLTextBase::insertStringNoUndo(S32 pos, const LLWString &wstr, LLTextBase::s
     beforeValueChange();
 
     S32 old_len = getLength();      // length() returns character length
-    S32 insert_len = wstr.length();
+    S32 insert_len = static_cast<S32>(wstr.length());
 
     pos = getEditableIndex(pos, true);
     if (pos > old_len)
@@ -916,7 +916,7 @@ S32 LLTextBase::insertStringNoUndo(S32 pos, const LLWString &wstr, LLTextBase::s
     {
         LLStyleSP emoji_style;
         LLEmojiDictionary* ed = LLEmojiDictionary::instanceExists() ? LLEmojiDictionary::getInstance() : NULL;
-        for (S32 text_kitty = 0, text_len = wstr.size(); text_kitty < text_len; text_kitty++)
+        for (S32 text_kitty = 0, text_len = static_cast<S32>(wstr.size()); text_kitty < text_len; text_kitty++)
         {
             llwchar code = wstr[text_kitty];
             bool isEmoji = ed ? ed->isEmoji(code) : LLStringOps::isEmoji(code);
@@ -1469,7 +1469,7 @@ const std::string& LLTextBase::getSuggestion(U32 index) const
 
 U32 LLTextBase::getSuggestionCount() const
 {
-    return mSuggestionList.size();
+    return static_cast<U32>(mSuggestionList.size());
 }
 
 void LLTextBase::replaceWithSuggestion(U32 index)
@@ -2335,7 +2335,7 @@ void LLTextBase::resetLabel()
         style->setColor(mTentativeFgColor);
         LLStyleConstSP sp(style);
 
-        LLTextSegmentPtr label = new LLLabelTextSegment(sp, 0, mLabel.getWString().length() + 1, *this);
+        LLTextSegmentPtr label = new LLLabelTextSegment(sp, 0, static_cast<S32>(mLabel.getWString().length()) + 1, *this);
         insertSegment(label);
     }
 }
@@ -2395,7 +2395,7 @@ void LLTextBase::appendWidget(const LLInlineViewSegment::Params& params, const s
 {
     segment_vec_t segments;
     LLWString widget_wide_text = utf8str_to_wstring(text);
-    segments.push_back(new LLInlineViewSegment(params, getLength(), getLength() + widget_wide_text.size()));
+    segments.push_back(new LLInlineViewSegment(params, getLength(), getLength() + static_cast<S32>(widget_wide_text.size())));
 
     insertStringNoUndo(getLength(), widget_wide_text, &segments);
 }
@@ -2436,11 +2436,11 @@ void LLTextBase::appendAndHighlightTextImpl(const std::string &new_text, S32 hig
             {
                 highlight_params.font.style("NORMAL");
                 LLStyleConstSP normal_sp(new LLStyle(highlight_params));
-                segmentp = new LLOnHoverChangeableTextSegment(sp, normal_sp, cur_length, cur_length + wide_text.size(), *this);
+                segmentp = new LLOnHoverChangeableTextSegment(sp, normal_sp, cur_length, cur_length + static_cast<S32>(wide_text.size()), *this);
             }
             else
             {
-                segmentp = new LLNormalTextSegment(sp, cur_length, cur_length + wide_text.size(), *this);
+                segmentp = new LLNormalTextSegment(sp, cur_length, cur_length + static_cast<S32>(wide_text.size()), *this);
             }
             segment_vec_t segments;
             segments.push_back(segmentp);
@@ -2454,7 +2454,7 @@ void LLTextBase::appendAndHighlightTextImpl(const std::string &new_text, S32 hig
 
         segment_vec_t segments;
         S32 segment_start = old_length;
-        S32 segment_end = old_length + wide_text.size();
+        S32 segment_end = old_length + static_cast<S32>(wide_text.size());
         LLStyleConstSP sp(new LLStyle(style_params));
         if (underline_on_hover_only || mSkipLinkUnderline)
         {
@@ -2545,7 +2545,7 @@ void LLTextBase::replaceUrl(const std::string &url,
             S32 start = seg->getStart();
             S32 end = seg->getEnd();
             text = text.substr(0, start) + wlabel + text.substr(end, text.size() - end + 1);
-            seg->setEnd(start + wlabel.size());
+            seg->setEnd(start + static_cast<S32>(wlabel.size()));
             modified = true;
         }
 
@@ -2898,7 +2898,7 @@ bool LLTextBase::setCursor(S32 row, S32 column)
 {
     if (row < 0 || column < 0) return false;
 
-    S32 n_lines = mLineInfoList.size();
+    S32 n_lines = static_cast<S32>(mLineInfoList.size());
     for (S32 line = row; line < n_lines; ++line)
     {
         const line_info& li = mLineInfoList[line];
@@ -3537,7 +3537,7 @@ S32 LLNormalTextSegment::getNumChars(S32 num_pixels, S32 segment_offset, S32 lin
         : LLFontGL::ONLY_WORD_BOUNDARIES;
 
 
-    S32 offsetLength = text.length() - (segment_offset + mStart);
+    S32 offsetLength = static_cast<S32>(text.length()) - (segment_offset + mStart);
 
     if(getLength() < segment_offset + mStart)
     {
@@ -3579,9 +3579,9 @@ S32 LLNormalTextSegment::getNumChars(S32 num_pixels, S32 segment_offset, S32 lin
 void LLNormalTextSegment::dump() const
 {
     LL_INFOS() << "Segment [" <<
-//          mColor.mV[VX] << ", " <<
-//          mColor.mV[VY] << ", " <<
-//          mColor.mV[VZ] << "]\t[" <<
+//          mColor.mV[VRED] << ", " <<
+//          mColor.mV[VGREEN] << ", " <<
+//          mColor.mV[VBLUE] << "]\t[" <<
         mStart << ", " <<
         getEnd() << "]" <<
         LL_ENDL;
@@ -3617,7 +3617,7 @@ const LLWString& LLLabelTextSegment::getWText() const
 /*virtual*/
 const S32 LLLabelTextSegment::getLength() const
 {
-    return mEditor.getWlabel().length();
+    return static_cast<S32>(mEditor.getWlabel().length());
 }
 
 //

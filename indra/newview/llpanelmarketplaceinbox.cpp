@@ -179,7 +179,7 @@ U32 LLPanelMarketplaceInbox::getFreshItemCount() const
 
 U32 LLPanelMarketplaceInbox::getTotalItemCount() const
 {
-    U32 item_count = 0;
+    size_t item_count = 0;
 
     if (mInventoryPanel)
     {
@@ -192,7 +192,7 @@ U32 LLPanelMarketplaceInbox::getTotalItemCount() const
         }
     }
 
-    return item_count;
+    return static_cast<U32>(item_count);
 }
 
 void LLPanelMarketplaceInbox::onClearSearch()

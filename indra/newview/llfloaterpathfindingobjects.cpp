@@ -135,7 +135,7 @@ void LLFloaterPathfindingObjects::draw()
         std::vector<LLScrollListItem *> selectedItems = mObjectsScrollList->getAllSelected();
         if (!selectedItems.empty())
         {
-            int numSelectedItems = selectedItems.size();
+            auto numSelectedItems = selectedItems.size();
             S32 nameColumnIndex = getNameColumnIndex();
             const LLColor4 &beaconColor = getBeaconColor();
             const LLColor4 &beaconTextColor = getBeaconTextColor();
@@ -334,7 +334,7 @@ void LLFloaterPathfindingObjects::rebuildObjectsScrollList(bool update_if_needed
     if (!mHasObjectsToBeSelected)
     {
         std::vector<LLScrollListItem*> selectedItems = mObjectsScrollList->getAllSelected();
-        int numSelectedItems = selectedItems.size();
+        auto numSelectedItems = selectedItems.size();
         if (numSelectedItems > 0)
         {
             mObjectsToBeSelected.reserve(selectedItems.size());
@@ -835,7 +835,7 @@ void LLFloaterPathfindingObjects::selectScrollListItemsInWorld()
     std::vector<LLScrollListItem *> selectedItems = mObjectsScrollList->getAllSelected();
     if (!selectedItems.empty())
     {
-        int numSelectedItems = selectedItems.size();
+        auto numSelectedItems = selectedItems.size();
 
         std::vector<LLViewerObject *>viewerObjects;
         viewerObjects.reserve(numSelectedItems);

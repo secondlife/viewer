@@ -453,7 +453,7 @@ public:
 
         S32 i = data->getBinIndex();
 
-        if (i >= 0 && i < getElementCount())
+        if (i >= 0 && i < (S32)getElementCount())
         {
             if (mData[i] == data)
             { //found it

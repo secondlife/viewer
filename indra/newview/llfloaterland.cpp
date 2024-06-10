@@ -2512,7 +2512,7 @@ void LLPanelLandAccess::refresh()
             // Clear the sort order so we don't re-sort on every add.
             mListAccess->clearSortOrder();
             mListAccess->deleteAllItems();
-            S32 count = parcel->mAccessList.size();
+            auto count = parcel->mAccessList.size();
             getChild<LLUICtrl>("AllowedText")->setTextArg("[COUNT]", llformat("%d",count));
             getChild<LLUICtrl>("AllowedText")->setTextArg("[MAX]", llformat("%d",PARCEL_MAX_ACCESS_LIST));
 
@@ -2560,7 +2560,7 @@ void LLPanelLandAccess::refresh()
             // Clear the sort order so we don't re-sort on every add.
             mListBanned->clearSortOrder();
             mListBanned->deleteAllItems();
-            S32 count = parcel->mBanList.size();
+            auto count = parcel->mBanList.size();
             getChild<LLUICtrl>("BanCheck")->setTextArg("[COUNT]", llformat("%d",count));
             getChild<LLUICtrl>("BanCheck")->setTextArg("[MAX]", llformat("%d",PARCEL_MAX_ACCESS_LIST));
 
@@ -2760,13 +2760,13 @@ void LLPanelLandAccess::refresh_ui()
             getChildView("GroupCheck")->setEnabled(can_manage_allowed && can_allow_groups);
         }
         getChildView("AccessList")->setEnabled(can_manage_allowed);
-        S32 allowed_list_count = parcel->mAccessList.size();
+        auto allowed_list_count = parcel->mAccessList.size();
         getChildView("add_allowed")->setEnabled(can_manage_allowed && allowed_list_count < PARCEL_MAX_ACCESS_LIST);
         bool has_selected = (mListAccess && mListAccess->getSelectionInterface()->getFirstSelectedIndex() >= 0);
         getChildView("remove_allowed")->setEnabled(can_manage_allowed && has_selected);
 
         getChildView("BannedList")->setEnabled(can_manage_banned);
-        S32 banned_list_count = parcel->mBanList.size();
+        auto banned_list_count = parcel->mBanList.size();
         getChildView("add_banned")->setEnabled(can_manage_banned && banned_list_count < PARCEL_MAX_ACCESS_LIST);
         has_selected = (mListBanned && mListBanned->getSelectionInterface()->getFirstSelectedIndex() >= 0);
         getChildView("remove_banned")->setEnabled(can_manage_banned && has_selected);

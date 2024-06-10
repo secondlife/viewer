@@ -587,7 +587,7 @@ void do_bulk_upload(std::vector<std::string> filenames, const LLSD& notification
             tinygltf::Model model;
             if (LLTinyGLTFHelper::loadModel(filename, model))
             {
-                S32 materials_in_file = model.materials.size();
+                S32 materials_in_file = static_cast<S32>(model.materials.size());
 
                 for (S32 i = 0; i < materials_in_file; i++)
                 {
@@ -644,7 +644,7 @@ bool get_bulk_upload_expected_cost(const std::vector<std::string>& filenames, S3
 
             if (LLTinyGLTFHelper::loadModel(filename, model))
             {
-                S32 materials_in_file = model.materials.size();
+                S32 materials_in_file = static_cast<S32>(model.materials.size());
 
                 for (S32 i = 0; i < materials_in_file; i++)
                 {

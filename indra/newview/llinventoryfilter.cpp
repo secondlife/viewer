@@ -434,7 +434,7 @@ bool LLInventoryFilter::checkAgainstFilterType(const LLFolderViewModelItemInvent
                 LLInventoryModel::cat_array_t* cat_array = NULL;
                 LLInventoryModel::item_array_t* item_array = NULL;
                 gInventory.getDirectDescendentsOf(object_id,cat_array,item_array);
-                S32 descendents_actual = 0;
+                size_t descendents_actual = 0;
                 if(cat_array && item_array)
                 {
                     descendents_actual = cat_array->size() + item_array->size();

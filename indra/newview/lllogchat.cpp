@@ -452,11 +452,11 @@ void LLLogChat::loadChatHistory(const std::string& file_name, std::list<LLSD>& m
         return;
     }
 
-    S32 save_num_messages = messages.size();
+    auto save_num_messages = messages.size();
 
     char buffer[LOG_RECALL_SIZE];       /*Flawfinder: ignore*/
     char *bptr;
-    S32 len;
+    size_t len;
     bool firstline = true;
 
     if (load_all_history || fseek(fptr, (LOG_RECALL_SIZE - 1) * -1  , SEEK_END))
@@ -1142,7 +1142,7 @@ void LLLoadHistoryThread::run()
     if(mNewLoad)
     {
         loadHistory(mFileName, mMessages, mLoadParams);
-        int count = mMessages->size();
+        auto count = mMessages->size();
         LL_INFOS() << "mMessages->size(): " << count << LL_ENDL;
         setFinished();
     }
@@ -1189,7 +1189,7 @@ void LLLoadHistoryThread::loadHistory(const std::string& file_name, std::list<LL
     char buffer[LOG_RECALL_SIZE];       /*Flawfinder: ignore*/
 
     char *bptr;
-    S32 len;
+    size_t len;
     bool firstline = true;
 
     if (load_all_history || fseek(fptr, (LOG_RECALL_SIZE - 1) * -1  , SEEK_END))
