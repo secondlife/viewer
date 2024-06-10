@@ -1,25 +1,25 @@
-/**
+/** 
  * @file llvlcomposition.h
  * @brief Viewer-side representation of a composition layer...
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- *
+ * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- *
+ * 
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- *
+ * 
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -38,13 +38,21 @@ class LLViewerFetchedTexture;
 class LLGLTFMaterial;
 class LLFetchedGLTFMaterial;
 
-class LLTerrainMaterials
+class LLModifyRegion
+{
+public:
+    virtual const LLGLTFMaterial* getMaterialOverride(S32 asset) const = 0;
+};
+
+class LLTerrainMaterials : public LLModifyRegion
 {
 public:
     friend class LLDrawPoolTerrain;
 
     LLTerrainMaterials();
     virtual ~LLTerrainMaterials();
+
+    void apply(const LLModifyRegion& other);
 
     // Heights map into textures (or materials) as 0-1 = first, 1-2 = second, etc.
     // So we need to compress heights into this range.
@@ -63,7 +71,7 @@ public:
 
     virtual LLUUID getDetailAssetID(S32 asset);
     virtual void setDetailAssetID(S32 asset, const LLUUID& id);
-    virtual const LLGLTFMaterial* getMaterialOverride(S32 asset);
+    const LLGLTFMaterial* getMaterialOverride(S32 asset) const override;
     virtual void setMaterialOverride(S32 asset, LLGLTFMaterial* mat_override);
     Type getMaterialType();
     bool texturesReady(bool boost, bool strict);
@@ -107,8 +115,8 @@ public:
     bool generateHeights(const F32 x, const F32 y, const F32 width, const F32 height);
     bool generateComposition();
     // Generate texture from composition values.
-    bool generateMinimapTileLand(const F32 x, const F32 y, const F32 width, const F32 height);
-    bool generateTexture(const F32 x, const F32 y, const F32 width, const F32 height);
+    bool generateMinimapTileLand(const F32 x, const F32 y, const F32 width, const F32 height);      
+    bool generateTexture(const F32 x, const F32 y, const F32 width, const F32 height);      
 
     // Use these as indeces ito the get/setters below that use 'corner'
     enum ECorner
