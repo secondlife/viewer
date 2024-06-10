@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llpaneleditwearable.cpp
  * @brief UI panel for editing of a particular wearable item.
  *
  * $LicenseInfo:firstyear=2009&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -216,7 +216,7 @@ LLEditWearableDictionary::LLEditWearableDictionary()
 {
 }
 
-//virtual 
+//virtual
 LLEditWearableDictionary::~LLEditWearableDictionary()
 {
 }
@@ -709,7 +709,7 @@ void LLPanelEditWearable::setWearablePanelVisibilityChangeCallback(LLPanel* body
         }
 }
 
-// virtual 
+// virtual
 BOOL LLPanelEditWearable::postBuild()
 {
         // buttons
@@ -828,7 +828,7 @@ BOOL LLPanelEditWearable::postBuild()
         return TRUE;
 }
 
-// virtual 
+// virtual
 // LLUICtrl
 BOOL LLPanelEditWearable::isDirty() const
 {
@@ -880,7 +880,7 @@ void LLPanelEditWearable::setWearable(LLViewerWearable *wearable, BOOL disable_c
         showWearable(mWearablePtr, TRUE, disable_camera_switch);
 }
 
-//static 
+//static
 void LLPanelEditWearable::onBackButtonClicked(void* userdata)
 {
         LLPanelEditWearable* panel = (LLPanelEditWearable*)userdata;
@@ -890,7 +890,7 @@ void LLPanelEditWearable::onBackButtonClicked(void* userdata)
         }
 }
 
-//static 
+//static
 void LLPanelEditWearable::onRevertButtonClicked(void* userdata)
 {
         LLPanelEditWearable *panel = (LLPanelEditWearable*) userdata;
@@ -1480,9 +1480,9 @@ void LLPanelEditWearable::getSortedParams(value_map_t &sorted_params, const std:
         {
                 LLViewerVisualParam *param = (LLViewerVisualParam*) *iter;
 
-                if (param->getID() == -1 
+                if (param->getID() == -1
                         || !param->isTweakable()
-                        || param->getEditGroup() != edit_group 
+                        || param->getEditGroup() != edit_group
                         || !(param->getSex() & avatar_sex))
                 {
                         continue;
@@ -1596,7 +1596,7 @@ void LLPanelEditWearable::onInvisibilityCommit(LLCheckBoxCtrl* checkbox_ctrl, LL
         {
                 LLLocalTextureObject *lto = getWearable()->getLocalTextureObject(te);
                 mPreviousAlphaTexture[te] = lto->getID();
-                
+
                 LLViewerFetchedTexture* image = LLViewerTextureManager::getFetchedTexture( IMG_INVISIBLE );
                 gAgentAvatarp->setLocalTexture(te, image, FALSE, index);
                 gAgentAvatarp->wearableUpdated(getWearable()->getType());

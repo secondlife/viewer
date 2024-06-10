@@ -51,46 +51,46 @@ HttpReplyQueue::~HttpReplyQueue()
 
 void HttpReplyQueue::addOp(const HttpReplyQueue::opPtr_t &op)
 {
-	{
-		HttpScopedLock lock(mQueueMutex);
+    {
+        HttpScopedLock lock(mQueueMutex);
 
-		mQueue.push_back(op);
-	}
+        mQueue.push_back(op);
+    }
 }
 
 
 HttpReplyQueue::opPtr_t HttpReplyQueue::fetchOp()
 {
-	HttpOperation::ptr_t result;
+    HttpOperation::ptr_t result;
 
-	{
-		HttpScopedLock lock(mQueueMutex);
+    {
+        HttpScopedLock lock(mQueueMutex);
 
-		if (mQueue.empty())
+        if (mQueue.empty())
             return opPtr_t();
 
-		result = mQueue.front();
-		mQueue.erase(mQueue.begin());
-	}
+        result = mQueue.front();
+        mQueue.erase(mQueue.begin());
+    }
 
-	// Caller also acquires the reference count
-	return result;
+    // Caller also acquires the reference count
+    return result;
 }
 
 
 void HttpReplyQueue::fetchAll(OpContainer & ops)
 {
-	// Not valid putting something back on the queue...
-	llassert_always(ops.empty());
+    // Not valid putting something back on the queue...
+    llassert_always(ops.empty());
 
-	{
-		HttpScopedLock lock(mQueueMutex);
+    {
+        HttpScopedLock lock(mQueueMutex);
 
-		if (! mQueue.empty())
-		{
-			mQueue.swap(ops);
-		}
-	}
+        if (! mQueue.empty())
+        {
+            mQueue.swap(ops);
+        }
+    }
 }
 
 

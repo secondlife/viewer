@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llkeybind.cpp
  * @brief Information about key combinations.
  *
  * $LicenseInfo:firstyear=2019&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2019, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -207,7 +207,7 @@ bool LLKeyBind::operator!=(const LLKeyBind& rhs)
 
 bool LLKeyBind::isEmpty() const
 {
-	for (const LLKeyData& key_data : mData)
+    for (const LLKeyData& key_data : mData)
     {
         if (!key_data.isEmpty()) return false;
     }
@@ -225,7 +225,7 @@ LLKeyBind::data_vector_t::const_iterator LLKeyBind::endNonEmpty() const
 LLSD LLKeyBind::asLLSD() const
 {
     LLSD data;
-	for (const LLKeyData& key_data : mData)
+    for (const LLKeyData& key_data : mData)
     {
         // append intermediate entries even if empty to not affect visual
         // representation
@@ -242,7 +242,7 @@ bool LLKeyBind::canHandle(EMouseClickType mouse, KEY key, MASK mask) const
         return false;
     }
 
-	for (const LLKeyData& key_data : mData)
+    for (const LLKeyData& key_data : mData)
     {
         if (key_data.canHandle(mouse, key, mask))
         {
@@ -266,7 +266,7 @@ bool LLKeyBind::hasKeyData(EMouseClickType mouse, KEY key, MASK mask, bool ignor
 {
     if (mouse != CLICK_NONE || key != KEY_NONE)
     {
-		for (const LLKeyData& key_data : mData)
+        for (const LLKeyData& key_data : mData)
         {
             if (key_data.mKey == key
                 && key_data.mMask == mask
@@ -353,7 +353,7 @@ void LLKeyBind::replaceKeyData(const LLKeyData& data, U32 index)
     {
         // if both click and key are none (isEmpty()), we are inserting a placeholder, we don't want to reset anything
         // otherwise reset identical key
-		for (LLKeyData& key_data : mData)
+        for (LLKeyData& key_data : mData)
         {
             if (key_data.mKey == data.mKey
                 && key_data.mMouse == data.mMouse

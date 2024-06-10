@@ -143,7 +143,7 @@ void LLReflectionMapManager::update()
     {
         U32 res = mProbeResolution;
         U32 count = log2((F32)res) + 0.5f;
-        
+
         mMipChain.resize(count);
         for (int i = 0; i < count; ++i)
         {
@@ -153,7 +153,7 @@ void LLReflectionMapManager::update()
     }
 
     llassert(mProbes[0] == mDefaultProbe);
-    
+
     LLVector4a camera_pos;
     camera_pos.load3(LLViewerCamera::instance().getOrigin().mV);
 
@@ -168,7 +168,7 @@ void LLReflectionMapManager::update()
     }
 
     mKillList.clear();
-    
+
     // process create list
     for (auto& probe : mCreateList)
     {
@@ -184,12 +184,12 @@ void LLReflectionMapManager::update()
 
 
     bool did_update = false;
-    
+
     static LLCachedControl<S32> sDetail(gSavedSettings, "RenderReflectionProbeDetail", -1);
     static LLCachedControl<S32> sLevel(gSavedSettings, "RenderReflectionProbeLevel", 3);
 
     bool realtime = sDetail >= (S32)LLReflectionMapManager::DetailLevel::REALTIME;
-    
+
     LLReflectionMap* closestDynamic = nullptr;
 
     LLReflectionMap* oldestProbe = nullptr;
@@ -251,7 +251,7 @@ void LLReflectionMapManager::update()
             --i;
             continue;
         }
-        
+
         if (probe != mDefaultProbe &&
             (!probe->isRelevant() || mPaused))
         { // skip irrelevant probes (or all non-default probes if paused)
@@ -306,8 +306,8 @@ void LLReflectionMapManager::update()
             }
         }
 
-        if (realtime && 
-            closestDynamic == nullptr && 
+        if (realtime &&
+            closestDynamic == nullptr &&
             probe->mCubeIndex != -1 &&
             probe->getIsDynamic())
         {
@@ -322,7 +322,7 @@ void LLReflectionMapManager::update()
         // should do a full irradiance pass on "odd" frames and a radiance pass on "even" frames
         closestDynamic->autoAdjustOrigin();
 
-        // store and override the value of "isRadiancePass" -- parts of the render pipe rely on "isRadiancePass" to set 
+        // store and override the value of "isRadiancePass" -- parts of the render pipe rely on "isRadiancePass" to set
         // lighting values etc
         bool radiance_pass = isRadiancePass();
         mRadiancePass = mRealtimeRadiancePass;
@@ -354,7 +354,7 @@ void LLReflectionMapManager::update()
     {
         LLReflectionMap* probe = oldestProbe;
         llassert(probe->mCubeIndex != -1);
-        
+
         probe->autoAdjustOrigin();
 
         sUpdateCount++;
@@ -543,7 +543,7 @@ void LLReflectionMapManager::doProbeUpdate()
     llassert(mUpdatingProbe != nullptr);
 
     updateProbeFace(mUpdatingProbe, mUpdatingFace);
-    
+
     bool debug_updates = gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_PROBE_UPDATES) && mUpdatingProbe->mViewerObject;
 
     if (++mUpdatingFace == 6)
@@ -573,7 +573,7 @@ void LLReflectionMapManager::doProbeUpdate()
 
 // Do the reflection map update render passes.
 // For every 12 calls of this function, one complete reflection probe radiance map and irradiance map is generated
-// First six passes render the scene with direct lighting only into a scratch space cube map at the end of the cube map array and generate 
+// First six passes render the scene with direct lighting only into a scratch space cube map at the end of the cube map array and generate
 // a simple mip chain (not convolution filter).
 // At the end of these passes, an irradiance map is generated for this probe and placed into the irradiance cube map array at the index for this probe
 // The next six passes render the scene with both radiance and irradiance into the same scratch space cube map and generate a simple mip chain.
@@ -596,11 +596,11 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
         touch_default_probe(probe);
 
         gPipeline.pushRenderTypeMask();
-        
+
         //only render sky, water, terrain, and clouds
         gPipeline.andRenderTypeMask(LLPipeline::RENDER_TYPE_SKY, LLPipeline::RENDER_TYPE_WL_SKY,
             LLPipeline::RENDER_TYPE_WATER, LLPipeline::RENDER_TYPE_VOIDWATER, LLPipeline::RENDER_TYPE_CLOUDS, LLPipeline::RENDER_TYPE_TERRAIN, LLPipeline::END_RENDER_TYPES);
-        
+
         probe->update(mRenderTarget.getWidth(), face);
 
         gPipeline.popRenderTypeMask();
@@ -609,7 +609,7 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
     {
         probe->update(mRenderTarget.getWidth(), face);
     }
-    
+
     gPipeline.mRT = &gPipeline.mMainRT;
 
     S32 sourceIdx = mReflectionProbeCount;
@@ -686,12 +686,12 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
                 gGL.getTexUnit(diffuseChannel)->bind(&(mMipChain[i - 1]));
             }
 
-            
+
             gReflectionMipProgram.uniform1f(resScale, 1.f/(mProbeResolution*2));
-            
+
             gPipeline.mScreenTriangleVB->setBuffer();
             gPipeline.mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
-            
+
             res /= 2;
 
             S32 mip = i - (mMipChain.size() - mips);
@@ -780,7 +780,7 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
 
             gIrradianceGenProgram.uniform1i(sSourceIdx, sourceIdx);
             gIrradianceGenProgram.uniform1f(LLShaderMgr::REFLECTION_PROBE_MAX_LOD, mMaxProbeLOD);
-            
+
             mVertexBuffer->setBuffer();
             int start_mip = 0;
             // find the mip target to start with based on irradiance map resolution
@@ -856,7 +856,7 @@ void LLReflectionMapManager::updateNeighbors(LLReflectionMap* probe)
     //remove from existing neighbors
     {
         LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("rmmun - clear");
-    
+
         for (auto& other : probe->mNeighbors)
         {
             auto const & iter = std::find(other->mNeighbors.begin(), other->mNeighbors.end(), probe);
@@ -898,14 +898,14 @@ void LLReflectionMapManager::updateUniforms()
     // see class3/deferred/reflectionProbeF.glsl
     struct ReflectionProbeData
     {
-        // for box probes, matrix that transforms from camera space to a [-1, 1] cube representing the bounding box of 
+        // for box probes, matrix that transforms from camera space to a [-1, 1] cube representing the bounding box of
         // the box probe
-        LLMatrix4 refBox[LL_MAX_REFLECTION_PROBE_COUNT]; 
+        LLMatrix4 refBox[LL_MAX_REFLECTION_PROBE_COUNT];
 
         // for sphere probes, origin (xyz) and radius (w) of refmaps in clip space
-        LLVector4 refSphere[LL_MAX_REFLECTION_PROBE_COUNT]; 
+        LLVector4 refSphere[LL_MAX_REFLECTION_PROBE_COUNT];
 
-        // extra parameters 
+        // extra parameters
         //  x - irradiance scale
         //  y - radiance scale
         //  z - fade in
@@ -917,14 +917,14 @@ void LLReflectionMapManager::updateUniforms()
         //  [i][1] - index into "refNeighbor" for probes that intersect this probe
         //  [i][2] - number of probes  that intersect this probe, or -1 for no neighbors
         //  [i][3] - priority (probe type stored in sign bit - positive for spheres, negative for boxes)
-        GLint refIndex[LL_MAX_REFLECTION_PROBE_COUNT][4]; 
+        GLint refIndex[LL_MAX_REFLECTION_PROBE_COUNT][4];
 
         // list of neighbor indices
-        GLint refNeighbor[4096]; 
+        GLint refNeighbor[4096];
 
         GLint refBucket[256][4]; //lookup table for which index to start with for the given Z depth
         // numbrer of active refmaps
-        GLint refmapCount;  
+        GLint refmapCount;
     };
 
     mReflectionMaps.resize(mReflectionProbeCount);
@@ -961,7 +961,7 @@ void LLReflectionMapManager::updateUniforms()
     bool is_ambiance_pass = gCubeSnapshot && !isRadiancePass();
     F32 ambscale = is_ambiance_pass ? 0.f : 1.f;
     F32 radscale = is_ambiance_pass ? 0.5f : 1.f;
-    
+
     for (auto* refmap : mReflectionMaps)
     {
         if (refmap == nullptr)
@@ -1093,7 +1093,7 @@ void LLReflectionMapManager::updateUniforms()
     {
         // fill in gaps in refBucket
         S32 probe_idx = mReflectionProbeCount;
-        
+
         for (int i = 0; i < 256; ++i)
         {
             if (i < count)
@@ -1152,7 +1152,7 @@ void LLReflectionMapManager::setUniforms()
     }
 
     if (mUBO == 0)
-    { 
+    {
         updateUniforms();
     }
     glBindBufferBase(GL_UNIFORM_BUFFER, 1, mUBO);
@@ -1329,9 +1329,9 @@ void LLReflectionMapManager::initReflectionMaps()
         buff->allocateBuffer(4, 0);
 
         LLStrider<LLVector3> v;
-        
+
         buff->getVertexStrider(v);
-        
+
         v[0] = LLVector3(-1, -1, -1);
         v[1] = LLVector3(1, -1, -1);
         v[2] = LLVector3(-1, 1, -1);
@@ -1343,8 +1343,8 @@ void LLReflectionMapManager::initReflectionMaps()
     }
 }
 
-void LLReflectionMapManager::cleanup() 
-{ 
+void LLReflectionMapManager::cleanup()
+{
     mVertexBuffer = nullptr;
     mRenderTarget.release();
 
@@ -1359,7 +1359,7 @@ void LLReflectionMapManager::cleanup()
 
     mReflectionMaps.clear();
     mUpdatingFace = 0;
-    
+
     mDefaultProbe = nullptr;
     mUpdatingProbe = nullptr;
 

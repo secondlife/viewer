@@ -3,7 +3,7 @@
  * @author Nat Goodspeed
  * @date   2019-12-05
  * @brief  Implementation for llmainthreadtask.
- * 
+ *
  * $LicenseInfo:firstyear=2019&license=viewerlgpl$
  * Copyright (c) 2019, Linden Research, Inc.
  * $/LicenseInfo$
