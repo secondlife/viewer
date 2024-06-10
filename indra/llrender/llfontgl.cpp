@@ -278,7 +278,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
     LLColor4U text_color(color);
     // Preserve the transparency to render fading emojis in fading text (e.g.
     // for the chat console)... HB
-    LLColor4U emoji_color(255, 255, 255, text_color.mV[VW]);
+    LLColor4U emoji_color(255, 255, 255, text_color.mV[VALPHA]);
 
     std::pair<EFontGlyphType, S32> bitmap_entry = std::make_pair(EFontGlyphType::Grayscale, -1);
     S32 glyph_count = 0;

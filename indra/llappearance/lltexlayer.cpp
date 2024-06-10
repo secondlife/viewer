@@ -1038,7 +1038,7 @@ bool LLTexLayer::render(S32 x, S32 y, S32 width, S32 height, LLRenderTarget* bou
     bool success = true;
 
     // If you can't see the layer, don't render it.
-    if( is_approx_zero( net_color.mV[VW] ) )
+    if( is_approx_zero( net_color.mV[VALPHA] ) )
     {
         return success;
     }
@@ -1213,7 +1213,7 @@ bool LLTexLayer::findNetColor(LLColor4* net_color) const
         {
             net_color->setVec( mTexLayerSet->getAvatarAppearance()->getGlobalColor( getInfo()->mGlobalColor ) );
         }
-        else if (getInfo()->mFixedColor.mV[VW])
+        else if (getInfo()->mFixedColor.mV[VALPHA])
         {
             net_color->setVec( getInfo()->mFixedColor );
         }
@@ -1232,7 +1232,7 @@ bool LLTexLayer::findNetColor(LLColor4* net_color) const
         return true;
     }
 
-    if( getInfo()->mFixedColor.mV[VW] )
+    if( getInfo()->mFixedColor.mV[VALPHA] )
     {
         net_color->setVec( getInfo()->mFixedColor );
         return true;
@@ -1373,7 +1373,7 @@ void LLTexLayer::renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLC
 
     // Draw a rectangle with the layer color to multiply the alpha by that color's alpha.
     // Note: we're still using gGL.blendFunc( GL_DST_ALPHA, GL_ZERO );
-    if ( !is_approx_equal(layer_color.mV[VW], 1.f) )
+    if ( !is_approx_equal(layer_color.mV[VALPHA], 1.f) )
     {
         gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
         gGL.color4fv(layer_color.mV);

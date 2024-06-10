@@ -464,10 +464,10 @@ LLColor4 LLTexLayerParamColor::getNetColor() const
         F32 weight = scaled_weight - index_start;
         const LLColor4 *start = &info->mColors[ index_start ];
         const LLColor4 *end   = &info->mColors[ index_end ];
-        return LLColor4((1.f - weight) * start->mV[VX] + weight * end->mV[VX],
-                        (1.f - weight) * start->mV[VY] + weight * end->mV[VY],
-                        (1.f - weight) * start->mV[VZ] + weight * end->mV[VZ],
-                        (1.f - weight) * start->mV[VW] + weight * end->mV[VW]);
+        return LLColor4((1.f - weight) * start->mV[VRED] + weight * end->mV[VRED],
+                        (1.f - weight) * start->mV[VGREEN] + weight * end->mV[VGREEN],
+                        (1.f - weight) * start->mV[VBLUE] + weight * end->mV[VBLUE],
+                        (1.f - weight) * start->mV[VALPHA] + weight * end->mV[VALPHA]);
     }
 }
 
