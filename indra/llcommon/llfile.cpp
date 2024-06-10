@@ -27,6 +27,12 @@
  * $/LicenseInfo$
  */
 
+#include "linden_common.h"
+#include "llfile.h"
+#include "llstring.h"
+#include "llerror.h"
+#include "stringize.h"
+
 #if LL_WINDOWS
 #include "llwin32headerslean.h"
 #include <stdlib.h>                 // Windows errno
@@ -34,12 +40,6 @@
 #else
 #include <errno.h>
 #endif
-
-#include "linden_common.h"
-#include "llfile.h"
-#include "llstring.h"
-#include "llerror.h"
-#include "stringize.h"
 
 using namespace std;
 

@@ -120,20 +120,20 @@
 #endif  //  LL_WINDOWS
 
 
-// Deal with VC6 problems
+// Deal with VC++ problems
 #if LL_MSVC
-#pragma warning( disable : 4996 )   // warning: deprecated
+#ifndef _CRT_SECURE_NO_WARNINGS
+#define _CRT_SECURE_NO_WARNINGS // disable warnings for methods considered unsafe
+#endif
+#ifndef _WINSOCK_DEPRECATED_NO_WARNINGS
+#define _WINSOCK_DEPRECATED_NO_WARNINGS // disable deprecated WinSock API warnings
+#endif
 
 // level 4 warnings that we need to disable:
-#pragma warning (disable : 4127) // conditional expression is constant (e.g. while(1) )
 #pragma warning (disable : 4244) // possible loss of data on conversions
 #pragma warning (disable : 4396) // the inline specifier cannot be used when a friend declaration refers to a specialization of a function template
-#pragma warning (disable : 4512) // assignment operator could not be generated
-#pragma warning (disable : 4706) // assignment within conditional (even if((x = y)) )
-
 #pragma warning (disable : 4251) // member needs to have dll-interface to be used by clients of class
 #pragma warning (disable : 4275) // non dll-interface class used as base for dll-interface class
-
 #endif  //  LL_MSVC
 
 #if LL_WINDOWS

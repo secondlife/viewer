@@ -454,10 +454,10 @@ void get_wstring(IDxDiagContainer* containerp, WCHAR* wszPropName, WCHAR* wszPro
         switch( var.vt )
         {
             case VT_UI4:
-                swprintf( wszPropValue, L"%d", var.ulVal ); /* Flawfinder: ignore */
+                swprintf( wszPropValue, outputSize, L"%d", var.ulVal ); /* Flawfinder: ignore */
                 break;
             case VT_I4:
-                swprintf( wszPropValue, L"%d", var.lVal );  /* Flawfinder: ignore */
+                swprintf( wszPropValue, outputSize, L"%d", var.lVal );  /* Flawfinder: ignore */
                 break;
             case VT_BOOL:
                 wcscpy( wszPropValue, (var.boolVal) ? L"true" : L"false" ); /* Flawfinder: ignore */
