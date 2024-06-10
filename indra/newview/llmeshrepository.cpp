@@ -448,7 +448,7 @@ U32 get_volume_memory_size(const LLVolume* volume)
     U32 indices = 0;
     U32 vertices = 0;
 
-    for (U32 i = 0; i < volume->getNumVolumeFaces(); ++i)
+    for (S32 i = 0; i < volume->getNumVolumeFaces(); ++i)
     {
         const LLVolumeFace& face = volume->getVolumeFace(i);
         indices += face.mNumIndices;
@@ -5203,16 +5203,16 @@ void LLPhysicsDecomp::Request::assignData(LLModel* mdl)
 {
     if (!mdl)
     {
-        return ;
+        return;
     }
 
     U16 index_offset = 0;
-    U16 tri[3] ;
+    U16 tri[3]{};
 
     mPositions.clear();
     mIndices.clear();
-    mBBox[1] = LLVector3(F32_MIN, F32_MIN, F32_MIN) ;
-    mBBox[0] = LLVector3(F32_MAX, F32_MAX, F32_MAX) ;
+    mBBox[1] = LLVector3(F32_MIN, F32_MIN, F32_MIN);
+    mBBox[0] = LLVector3(F32_MAX, F32_MAX, F32_MAX);
 
     //queue up vertex positions and indices
     for (S32 i = 0; i < mdl->getNumVolumeFaces(); ++i)
@@ -5223,36 +5223,34 @@ void LLPhysicsDecomp::Request::assignData(LLModel* mdl)
             continue;
         }
 
-        for (U32 j = 0; j < face.mNumVertices; ++j)
+        for (S32 j = 0; j < face.mNumVertices; ++j)
         {
             mPositions.push_back(LLVector3(face.mPositions[j].getF32ptr()));
-            for(U32 k = 0 ; k < 3 ; k++)
+            for (U32 k = 0 ; k < 3 ; k++)
             {
-                mBBox[0].mV[k] = llmin(mBBox[0].mV[k], mPositions[j].mV[k]) ;
-                mBBox[1].mV[k] = llmax(mBBox[1].mV[k], mPositions[j].mV[k]) ;
+                mBBox[0].mV[k] = llmin(mBBox[0].mV[k], mPositions[j].mV[k]);
+                mBBox[1].mV[k] = llmax(mBBox[1].mV[k], mPositions[j].mV[k]);
             }
         }
 
-        updateTriangleAreaThreshold() ;
+        updateTriangleAreaThreshold();
 
-        for (U32 j = 0; j+2 < face.mNumIndices; j += 3)
+        for (S32 j = 0; j+2 < face.mNumIndices; j += 3)
         {
             tri[0] = face.mIndices[j] + index_offset ;
-            tri[1] = face.mIndices[j + 1] + index_offset ;
-            tri[2] = face.mIndices[j + 2] + index_offset ;
+            tri[1] = face.mIndices[j + 1] + index_offset;
+            tri[2] = face.mIndices[j + 2] + index_offset;
 
-            if(isValidTriangle(tri[0], tri[1], tri[2]))
+            if (isValidTriangle(tri[0], tri[1], tri[2]))
             {
-                mIndices.push_back(tri[0]);
-                mIndices.push_back(tri[1]);
-                mIndices.push_back(tri[2]);
+                mIndices.emplace_back(tri[0]);
+                mIndices.emplace_back(tri[1]);
+                mIndices.emplace_back(tri[2]);
             }
         }
 
         index_offset += face.mNumVertices;
     }
-
-    return ;
 }
 
 void LLPhysicsDecomp::Request::updateTriangleAreaThreshold()

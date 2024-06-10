@@ -419,9 +419,9 @@ void LLFloater360Capture::mockSnapShot(LLImageRaw* raw)
     unsigned int depth = raw->getComponents();
     unsigned char* pixels = raw->getData();
 
-    for (int y = 0; y < height; y++)
+    for (unsigned int y = 0; y < height; y++)
     {
-        for (int x = 0; x < width; x++)
+        for (unsigned int x = 0; x < width; x++)
         {
             unsigned long offset = y * width * depth + x * depth;
             unsigned char red = x * 256 / width;

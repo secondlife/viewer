@@ -124,12 +124,7 @@
 #if LL_MSVC
 #pragma warning( disable : 4996 )   // warning: deprecated
 
-// Linker optimization with "extern template" generates these warnings
-#pragma warning( disable : 4231 )   // nonstandard extension used : 'extern' before template explicit instantiation
-#pragma warning( disable : 4506 )   // no definition for inline function
-
 // level 4 warnings that we need to disable:
-#pragma warning (disable : 4100) // unreferenced formal parameter
 #pragma warning (disable : 4127) // conditional expression is constant (e.g. while(1) )
 #pragma warning (disable : 4244) // possible loss of data on conversions
 #pragma warning (disable : 4396) // the inline specifier cannot be used when a friend declaration refers to a specialization of a function template
@@ -138,7 +133,6 @@
 
 #pragma warning (disable : 4251) // member needs to have dll-interface to be used by clients of class
 #pragma warning (disable : 4275) // non dll-interface class used as base for dll-interface class
-#pragma warning (disable : 4018) // '<' : signed/unsigned mismatch
 
 #endif  //  LL_MSVC
 

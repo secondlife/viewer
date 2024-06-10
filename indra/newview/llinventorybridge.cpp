@@ -1186,8 +1186,8 @@ void LLInvFVBridge::addMarketplaceContextMenuOptions(U32 flags,
         gInventory.collectDescendents(local_version_folder_id, categories, items, false);
         static LLCachedControl<U32> max_depth(gSavedSettings, "InventoryOutboxMaxFolderDepth", 4);
         static LLCachedControl<U32> max_count(gSavedSettings, "InventoryOutboxMaxFolderCount", 20);
-        if (categories.size() >= max_count
-            || depth > (max_depth + 1))
+        if (categories.size() >= (size_t)max_count
+            || (U32)depth > (max_depth + 1))
         {
             disabled_items.push_back(std::string("New Folder"));
         }

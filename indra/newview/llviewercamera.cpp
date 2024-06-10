@@ -810,7 +810,7 @@ bool LLViewerCamera::areVertsVisible(LLViewerObject* volumep, bool all_verts)
     {
         const LLVolumeFace& face = volume->getVolumeFace(i);
 
-        for (U32 v = 0; v < face.mNumVertices; v++)
+        for (S32 v = 0; v < face.mNumVertices; v++)
         {
             const LLVector4a& src_vec = face.mPositions[v];
             LLVector4a vec;

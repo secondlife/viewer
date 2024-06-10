@@ -1664,7 +1664,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
                 // In case of a partial response, our offset may
                 // not be trivially contiguous with the data we have.
                 // Get back into alignment.
-                if ( (mHttpReplyOffset > cur_size) || (cur_size > mHttpReplyOffset + append_size))
+                if ( ((S32)mHttpReplyOffset > cur_size) || (cur_size > (S32)mHttpReplyOffset + append_size))
                 {
                     LL_WARNS(LOG_TXT) << "Partial HTTP response produces break in image data for texture "
                                       << mID << ".  Aborting load."  << LL_ENDL;

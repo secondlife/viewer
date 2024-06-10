@@ -1387,7 +1387,7 @@ LLSettingsDay::ptr_t LLSettingsVODay::buildDeepCloneAndUncompress() const
     U32 flags = getFlags();
     LLSettingsDay::ptr_t day_clone = std::make_shared<LLSettingsVODay>(settings);
 
-    for (S32 i = 0; i < LLSettingsDay::TRACK_MAX; ++i)
+    for (U32 i = 0; i < LLSettingsDay::TRACK_MAX; ++i)
     {
         const LLSettingsDay::CycleTrack_t& track = getCycleTrackConst(i);
         LLSettingsDay::CycleTrack_t::const_iterator iter = track.begin();

@@ -333,7 +333,7 @@ void LLVOCacheEntry::setState(U32 state)
 
     if(getState() == ACTIVE)
     {
-        const S32 MIN_INTERVAL = 64 + sMinFrameRange;
+        const U32 MIN_INTERVAL = 64U + sMinFrameRange;
         U32 last_visible = getVisible();
 
         setVisible();
@@ -536,7 +536,7 @@ bool LLVOCacheEntry::isAnyVisible(const LLVector4a& camera_origin, const LLVecto
     if(!vis)
     {
         S32 cur_vis = llmax(group->getAnyVisible(), (S32)getVisible());
-        vis = (cur_vis + sMinFrameRange > LLViewerOctreeEntryData::getCurrentFrame());
+        vis = (cur_vis + (S32)sMinFrameRange > LLViewerOctreeEntryData::getCurrentFrame());
     }
 
     //within the back sphere

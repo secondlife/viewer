@@ -100,7 +100,7 @@ void LLImageGLMemory::free_tex_image(U32 texName)
 // track texture free on given texNames
 void LLImageGLMemory::free_tex_images(U32 count, const U32* texNames)
 {
-    for (int i = 0; i < count; ++i)
+    for (U32 i = 0; i < count; ++i)
     {
         free_tex_image(texNames[i]);
     }
@@ -1318,7 +1318,7 @@ void LLImageGL::generateTextures(S32 numTextures, U32 *textures)
         name_count = pool_size;
     }
 
-    if (numTextures <= name_count)
+    if ((U32)numTextures <= name_count)
     {
         //copy teture names off the end of the pool
         memcpy(textures, name_pool + name_count - numTextures, sizeof(U32) * numTextures);

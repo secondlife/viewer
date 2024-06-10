@@ -1333,12 +1333,12 @@ bool can_move_item_to_marketplace(const LLInventoryCategory* root_folder, LLInve
     if (accept)
     {
         // If the dest folder is a stock folder, we do not count the incoming items toward the total (stock items are seen as one)
-        int existing_item_count = (move_in_stock ? 0 : bundle_size);
+        unsigned int existing_item_count = (move_in_stock ? 0 : bundle_size);
 
         // If the dest folder is a stock folder, we do assume that the incoming items are also stock items (they should anyway)
-        int existing_stock_count = (move_in_stock ? bundle_size : 0);
+        unsigned int existing_stock_count = (move_in_stock ? bundle_size : 0);
 
-        int existing_folder_count = 0;
+        unsigned int existing_folder_count = 0;
 
         // Get the version folder: that's where the counts start from
         const LLViewerInventoryCategory * version_folder = ((root_folder && (root_folder != dest_folder)) ? gInventory.getFirstDescendantOf(root_folder->getUUID(), dest_folder->getUUID()) : NULL);
@@ -1457,9 +1457,9 @@ bool can_move_folder_to_marketplace(const LLInventoryCategory* root_folder, LLIn
             existing_stock_count += count_stock_items(existing_items);
         }
 
-        const int total_folder_count = existing_folder_count + dragged_folder_count;
-        const int total_item_count = existing_item_count + dragged_item_count;
-        const int total_stock_count = existing_stock_count + dragged_stock_count;
+        const unsigned int total_folder_count = existing_folder_count + dragged_folder_count;
+        const unsigned int total_item_count = existing_item_count + dragged_item_count;
+        const unsigned int total_stock_count = existing_stock_count + dragged_stock_count;
 
         if (total_folder_count > gSavedSettings.getU32("InventoryOutboxMaxFolderCount"))
         {

@@ -349,7 +349,7 @@ U32 LLPanelEmojiComplete::getMaxShortCodeWidth() const
     U32 max_width = 0;
     for (const LLEmojiSearchResult& result : mEmojis)
     {
-        S32 width = mTextFont->getWidth(result.String);
+        U32 width = mTextFont->getWidth(result.String);
         if (width > max_width)
         {
             max_width = width;

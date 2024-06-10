@@ -172,7 +172,7 @@ static OPJ_OFF_T opj_skip(OPJ_OFF_T bytes, void* user_data)
     JPEG2KBase* jpeg_codec = static_cast<JPEG2KBase*>(user_data);
     jpeg_codec->offset += bytes;
 
-    if (jpeg_codec->offset > jpeg_codec->size)
+    if (jpeg_codec->offset > (OPJ_OFF_T)jpeg_codec->size)
     {
         jpeg_codec->offset = jpeg_codec->size;
         // Indicate end of stream
@@ -793,7 +793,7 @@ bool LLImageJ2COJ::decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 decod
             S32 offset = dest;
             for (S32 y = (height - 1); y >= 0; y--)
             {
-                for (S32 x = 0; x < width; x++)
+                for (U32 x = 0; x < width; x++)
                 {
                     rawp[offset] = image->comps[comp].data[y*comp_width + x];
                     offset += channels;

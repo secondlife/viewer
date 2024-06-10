@@ -145,7 +145,7 @@ void LLReflectionMapManager::update()
         U32 count = log2((F32)res) + 0.5f;
         
         mMipChain.resize(count);
-        for (int i = 0; i < count; ++i)
+        for (U32 i = 0; i < count; ++i)
         {
             mMipChain[i].allocate(res, res, GL_RGB16F);
             res /= 2;
@@ -228,7 +228,7 @@ void LLReflectionMapManager::update()
     // next distribute the free indices
     U32 count = llmin(mReflectionProbeCount, (U32)mProbes.size());
 
-    for (S32 i = 1; i < count && !mCubeFree.empty(); ++i)
+    for (U32 i = 1; i < count && !mCubeFree.empty(); ++i)
     {
         // find the closest probe that needs a cube index
         LLReflectionMap* probe = mProbes[i];
@@ -242,7 +242,7 @@ void LLReflectionMapManager::update()
         }
     }
 
-    for (int i = 0; i < mProbes.size(); ++i)
+    for (unsigned int i = 0; i < mProbes.size(); ++i)
     {
         LLReflectionMap* probe = mProbes[i];
         if (probe->getNumRefs() == 1)
@@ -984,8 +984,8 @@ void LLReflectionMapManager::updateUniforms()
             //      4. For each bucket, store the index of the nearest probe that might influence pixels in that bucket
             //      5. In the shader, lookup the bucket for the pixel depth to get the index of the first probe that could possibly influence
             //          the current pixel.
-            int depth_min = llclamp(llfloor(refmap->mMinDepth), 0, 255);
-            int depth_max = llclamp(llfloor(refmap->mMaxDepth), 0, 255);
+            unsigned int depth_min = llclamp(llfloor(refmap->mMinDepth), 0, 255);
+            unsigned int depth_max = llclamp(llfloor(refmap->mMaxDepth), 0, 255);
             for (U32 i = depth_min; i <= depth_max; ++i)
             {
                 if (refmap->mMinDepth < minDepth[i])

@@ -446,7 +446,7 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
         mMaxCores = llmin(mMaxCores, (U32) 64);
         DWORD_PTR mask = 0;
 
-        for (int i = 0; i < mMaxCores; ++i)
+        for (U32 i = 0; i < mMaxCores; ++i)
         {
             mask |= ((DWORD_PTR) 1) << i;
         }

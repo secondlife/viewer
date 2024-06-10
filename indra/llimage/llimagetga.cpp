@@ -467,7 +467,7 @@ bool LLImageTGA::decodeTruecolorNonRle( LLImageRaw* raw_image, bool &alpha_opaqu
 
     S32 pixels = getWidth() * getHeight();
 
-    if (pixels * (mIs15Bit ? 2 : getComponents()) > getDataSize() - mDataOffset)
+    if (pixels * (mIs15Bit ? 2 : getComponents()) > getDataSize() - (S32)mDataOffset)
     { //here we have situation when data size in src less than actually needed
         return false;
     }
