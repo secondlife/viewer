@@ -138,7 +138,7 @@ protected:
 
     /*virtual*/ LLContextMenu* createMenu()
     {
-        LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+        LLUICtrl::ScopedRegistrarHelper registrar;
 
         registrar.add("Attachment.Touch", boost::bind(handleMultiple, handle_attachment_touch, mUUIDs));
         registrar.add("Attachment.Edit", boost::bind(handleMultiple, handle_item_edit, mUUIDs));
@@ -191,7 +191,7 @@ protected:
 
     /*virtual*/ LLContextMenu* createMenu()
     {
-        LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+        LLUICtrl::ScopedRegistrarHelper registrar;
         LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
         LLUUID selected_id = mUUIDs.back();
 
@@ -251,9 +251,9 @@ protected:
         LLUUID selected_id = mUUIDs.back();
 
         LLPanelOutfitEdit* panel_oe = dynamic_cast<LLPanelOutfitEdit*>(LLFloaterSidePanelContainer::getPanel("appearance", "panel_outfit_edit"));
-        registrar.add("BodyPart.Replace", boost::bind(&LLPanelOutfitEdit::onReplaceMenuItemClicked, panel_oe, selected_id));
-        registrar.add("BodyPart.Edit", boost::bind(LLAgentWearables::editWearable, selected_id));
-        registrar.add("BodyPart.Create", boost::bind(&CofBodyPartContextMenu::createNew, this, selected_id));
+        registrar.add("BodyPart.Replace", { boost::bind(&LLPanelOutfitEdit::onReplaceMenuItemClicked, panel_oe, selected_id) });
+        registrar.add("BodyPart.Edit", { boost::bind(LLAgentWearables::editWearable, selected_id) });
+        registrar.add("BodyPart.Create", { boost::bind(&CofBodyPartContextMenu::createNew, this, selected_id) });
 
         enable_registrar.add("BodyPart.OnEnable", boost::bind(&CofBodyPartContextMenu::onEnable, this, _2));
 

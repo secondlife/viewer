@@ -258,7 +258,7 @@ BOOL LLFloaterRegionInfo::postBuild()
 
     panel = new LLPanelRegionGeneralInfo;
     mInfoPanels.push_back(panel);
-    panel->getCommitCallbackRegistrar().add("RegionInfo.ManageTelehub", boost::bind(&LLPanelRegionInfo::onClickManageTelehub, panel));
+    panel->getCommitCallbackRegistrar().add("RegionInfo.ManageTelehub", { boost::bind(&LLPanelRegionInfo::onClickManageTelehub, panel) });
     panel->buildFromFile("panel_region_general.xml");
     mTab->addTabPanel(panel);
 

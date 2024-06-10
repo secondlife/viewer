@@ -63,7 +63,7 @@ typedef LLUICtrl::CommitCallbackInfo cb_info;
 void LLUIListener::call(const LLSD& event)
 {
     Response response(LLSD(), event);
-    LLUICtrl::CommitCallbackInfo *info = LLUICtrl::SharedCommitCallbackRegistry::getValue(event["function"]);
+    LLUICtrl::CommitCallbackInfo *info = LLUICtrl::CommitCallbackRegistry::getValue(event["function"]);
     if (!info )
     {
         return response.error(stringize("Function ", std::quoted(event["function"].asString()), " was not found"));
