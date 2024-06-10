@@ -82,7 +82,7 @@ LLFloaterIMSessionTab::LLFloaterIMSessionTab(const LLSD& session_id)
     mSession = LLIMModel::getInstance()->findIMSession(mSessionID);
 
     mCommitCallbackRegistrar.add("IMSession.Menu.Action",
-            boost::bind(&LLFloaterIMSessionTab::onIMSessionMenuItemClicked,  this, _2));
+            { boost::bind(&LLFloaterIMSessionTab::onIMSessionMenuItemClicked,  this, _2) });
     mEnableCallbackRegistrar.add("IMSession.Menu.CompactExpandedModes.CheckItem",
             boost::bind(&LLFloaterIMSessionTab::onIMCompactExpandedMenuItemCheck, this, _2));
     mEnableCallbackRegistrar.add("IMSession.Menu.ShowModes.CheckItem",
@@ -93,8 +93,8 @@ LLFloaterIMSessionTab::LLFloaterIMSessionTab(const LLSD& session_id)
     // Right click menu handling
     mEnableCallbackRegistrar.add("Avatar.CheckItem",  boost::bind(&LLFloaterIMSessionTab::checkContextMenuItem, this, _2));
     mEnableCallbackRegistrar.add("Avatar.EnableItem", boost::bind(&LLFloaterIMSessionTab::enableContextMenuItem, this, _2));
-    mCommitCallbackRegistrar.add("Avatar.DoToSelected", boost::bind(&LLFloaterIMSessionTab::doToSelected, this, _2));
-    mCommitCallbackRegistrar.add("Group.DoToSelected", boost::bind(&cb_group_do_nothing));
+    mCommitCallbackRegistrar.add("Avatar.DoToSelected", { boost::bind(&LLFloaterIMSessionTab::doToSelected, this, _2) });
+    mCommitCallbackRegistrar.add("Group.DoToSelected", { boost::bind(&cb_group_do_nothing) });
 
     mMinFloaterHeight = getMinHeight();
 }

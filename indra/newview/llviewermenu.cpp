@@ -9396,19 +9396,17 @@ void initialize_edit_menu()
 }
 
 typedef LLUICtrl::CommitCallbackInfo cb_info;
-#define COMMIT_ADD(func_name, func) LLUICtrl::SharedCommitCallbackRegistry::currentRegistrar().add(func_name, cb_info(func))
-#define COMMIT_ADD_TRUSTED(func_name, func) LLUICtrl::SharedCommitCallbackRegistry::currentRegistrar().add(func_name, cb_info(func, cb_info::UNTRUSTED_BLOCK))
-#define COMMIT_ADD_THROTTLE(func_name, func) LLUICtrl::SharedCommitCallbackRegistry::currentRegistrar().add(func_name, cb_info(func, cb_info::UNTRUSTED_THROTTLE))
 
 void initialize_spellcheck_menu()
 {
+    LLUICtrl::CommitRegistrarHelper registrar(LLUICtrl::CommitCallbackRegistry::defaultRegistrar());
     LLUICtrl::EnableCallbackRegistry::Registrar& enable = LLUICtrl::EnableCallbackRegistry::currentRegistrar();
 
-    COMMIT_ADD_TRUSTED("SpellCheck.ReplaceWithSuggestion", boost::bind(&handle_spellcheck_replace_with_suggestion, _1, _2));
+    registrar.add("SpellCheck.ReplaceWithSuggestion", boost::bind(&handle_spellcheck_replace_with_suggestion, _1, _2), cb_info::UNTRUSTED_BLOCK);
     enable.add("SpellCheck.VisibleSuggestion", boost::bind(&visible_spellcheck_suggestion, _1, _2));
-    COMMIT_ADD_TRUSTED("SpellCheck.AddToDictionary", boost::bind(&handle_spellcheck_add_to_dictionary, _1));
+    registrar.add("SpellCheck.AddToDictionary", boost::bind(&handle_spellcheck_add_to_dictionary, _1), cb_info::UNTRUSTED_BLOCK);
     enable.add("SpellCheck.EnableAddToDictionary", boost::bind(&enable_spellcheck_add_to_dictionary, _1));
-    COMMIT_ADD_TRUSTED("SpellCheck.AddToIgnore", boost::bind(&handle_spellcheck_add_to_ignore, _1));
+    registrar.add("SpellCheck.AddToIgnore", boost::bind(&handle_spellcheck_add_to_ignore, _1), cb_info::UNTRUSTED_BLOCK);
     enable.add("SpellCheck.EnableAddToIgnore", boost::bind(&enable_spellcheck_add_to_ignore, _1));
 }
 
@@ -9432,6 +9430,7 @@ void initialize_menus()
         bool mMult;
     };
 
+    LLUICtrl::CommitRegistrarHelper registrar(LLUICtrl::CommitCallbackRegistry::defaultRegistrar());
     LLUICtrl::EnableCallbackRegistry::Registrar& enable = LLUICtrl::EnableCallbackRegistry::currentRegistrar();
 
     // Generic enable and visible
@@ -9447,11 +9446,11 @@ void initialize_menus()
     enable.add("Conversation.IsConversationLoggingAllowed", boost::bind(&LLFloaterIMContainer::isConversationLoggingAllowed));
 
     // Agent
-    COMMIT_ADD("Agent.toggleFlying", boost::bind(&LLAgent::toggleFlying));
+    registrar.add("Agent.toggleFlying", boost::bind(&LLAgent::toggleFlying));
     enable.add("Agent.enableFlyLand", boost::bind(&enable_fly_land));
-    COMMIT_ADD_TRUSTED("Agent.PressMicrophone", boost::bind(&LLAgent::pressMicrophone, _2));
-    COMMIT_ADD_TRUSTED("Agent.ReleaseMicrophone", boost::bind(&LLAgent::releaseMicrophone, _2));
-    COMMIT_ADD_TRUSTED("Agent.ToggleMicrophone", boost::bind(&LLAgent::toggleMicrophone, _2));
+    registrar.add("Agent.PressMicrophone", boost::bind(&LLAgent::pressMicrophone, _2), cb_info::UNTRUSTED_BLOCK);
+    registrar.add("Agent.ReleaseMicrophone", boost::bind(&LLAgent::releaseMicrophone, _2), cb_info::UNTRUSTED_BLOCK);
+    registrar.add("Agent.ToggleMicrophone", boost::bind(&LLAgent::toggleMicrophone, _2), cb_info::UNTRUSTED_BLOCK);
     enable.add("Agent.IsMicrophoneOn", boost::bind(&LLAgent::isMicrophoneOn, _2));
     enable.add("Agent.IsActionAllowed", boost::bind(&LLAgent::isActionAllowed, _2));
 
@@ -9463,12 +9462,12 @@ void initialize_menus()
     view_listener_t::addMenu(new LLEnableEditShape(), "Edit.EnableEditShape");
     view_listener_t::addMenu(new LLEnableHoverHeight(), "Edit.EnableHoverHeight");
     view_listener_t::addMenu(new LLEnableEditPhysics(), "Edit.EnableEditPhysics");
-    COMMIT_ADD("CustomizeAvatar", boost::bind(&handle_customize_avatar));
-    COMMIT_ADD("NowWearing", boost::bind(&handle_now_wearing));
-    COMMIT_ADD("EditOutfit", boost::bind(&handle_edit_outfit));
-    COMMIT_ADD("EditShape", boost::bind(&handle_edit_shape));
-    COMMIT_ADD("HoverHeight", boost::bind(&handle_hover_height));
-    COMMIT_ADD("EditPhysics", boost::bind(&handle_edit_physics));
+    registrar.add("CustomizeAvatar", boost::bind(&handle_customize_avatar));
+    registrar.add("NowWearing", boost::bind(&handle_now_wearing));
+    registrar.add("EditOutfit", boost::bind(&handle_edit_outfit));
+    registrar.add("EditShape", boost::bind(&handle_edit_shape));
+    registrar.add("HoverHeight", boost::bind(&handle_hover_height));
+    registrar.add("EditPhysics", boost::bind(&handle_edit_physics));
 
     // View menu
     view_listener_t::addMenu(new LLViewMouselook(), "View.Mouselook");
@@ -9501,14 +9500,14 @@ void initialize_menus()
     view_listener_t::addMenu(new LLCommunicateNearbyChat(), "Communicate.NearbyChat");
 
     // Communicate > Voice morphing > Subscribe...
-    COMMIT_ADD("Communicate.VoiceMorphing.Subscribe", boost::bind(&handle_voice_morphing_subscribe));
+    registrar.add("Communicate.VoiceMorphing.Subscribe", boost::bind(&handle_voice_morphing_subscribe));
     // Communicate > Voice morphing > Premium perk...
-    COMMIT_ADD("Communicate.VoiceMorphing.PremiumPerk", boost::bind(&handle_premium_voice_morphing_subscribe));
+    registrar.add("Communicate.VoiceMorphing.PremiumPerk", boost::bind(&handle_premium_voice_morphing_subscribe));
     LLVivoxVoiceClient * voice_clientp = LLVivoxVoiceClient::getInstance();
     enable.add("Communicate.VoiceMorphing.NoVoiceMorphing.Check"
         , boost::bind(&LLVivoxVoiceClient::onCheckVoiceEffect, voice_clientp, "NoVoiceMorphing"));
-    COMMIT_ADD_TRUSTED("Communicate.VoiceMorphing.NoVoiceMorphing.Click"
-        , boost::bind(&LLVivoxVoiceClient::onClickVoiceEffect, voice_clientp, "NoVoiceMorphing"));
+    registrar.add("Communicate.VoiceMorphing.NoVoiceMorphing.Click"
+        , boost::bind(&LLVivoxVoiceClient::onClickVoiceEffect, voice_clientp, "NoVoiceMorphing"), cb_info::UNTRUSTED_BLOCK);
 
     // World menu
     view_listener_t::addMenu(new LLWorldAlwaysRun(), "World.AlwaysRun");
@@ -9548,14 +9547,14 @@ void initialize_menus()
     view_listener_t::addMenu(new LLToolsSnapObjectXY(), "Tools.SnapObjectXY");
     view_listener_t::addMenu(new LLToolsUseSelectionForGrid(), "Tools.UseSelectionForGrid");
     view_listener_t::addMenu(new LLToolsSelectNextPartFace(), "Tools.SelectNextPart");
-    COMMIT_ADD("Tools.Link", boost::bind(&handle_link_objects));
-    COMMIT_ADD("Tools.Unlink", boost::bind(&LLSelectMgr::unlinkObjects, LLSelectMgr::getInstance()));
+    registrar.add("Tools.Link", boost::bind(&handle_link_objects));
+    registrar.add("Tools.Unlink", boost::bind(&LLSelectMgr::unlinkObjects, LLSelectMgr::getInstance()));
     view_listener_t::addMenu(new LLToolsStopAllAnimations(), "Tools.StopAllAnimations");
     view_listener_t::addMenu(new LLToolsReleaseKeys(), "Tools.ReleaseKeys");
     view_listener_t::addMenu(new LLToolsEnableReleaseKeys(), "Tools.EnableReleaseKeys");
-    COMMIT_ADD("Tools.LookAtSelection", boost::bind(&handle_look_at_selection, _2));
-    COMMIT_ADD_THROTTLE("Tools.BuyOrTake", boost::bind(&handle_buy_or_take));
-    COMMIT_ADD_THROTTLE("Tools.TakeCopy", boost::bind(&handle_take_copy));
+    registrar.add("Tools.LookAtSelection", boost::bind(&handle_look_at_selection, _2));
+    registrar.add("Tools.BuyOrTake", boost::bind(&handle_buy_or_take), cb_info::UNTRUSTED_THROTTLE);
+    registrar.add("Tools.TakeCopy", boost::bind(&handle_take_copy), cb_info::UNTRUSTED_THROTTLE);
     view_listener_t::addMenu(new LLToolsSaveToObjectInventory(), "Tools.SaveToObjectInventory");
     view_listener_t::addMenu(new LLToolsSelectedScriptAction(), "Tools.SelectedScriptAction");
 
@@ -9605,7 +9604,7 @@ void initialize_menus()
     view_listener_t::addMenu(new LLAdvancedToggleInfoDisplay(), "Advanced.ToggleInfoDisplay");
     view_listener_t::addMenu(new LLAdvancedCheckInfoDisplay(), "Advanced.CheckInfoDisplay");
     view_listener_t::addMenu(new LLAdvancedSelectedTextureInfo(), "Advanced.SelectedTextureInfo");
-    COMMIT_ADD("Advanced.SelectedMaterialInfo", boost::bind(&handle_selected_material_info));
+    registrar.add("Advanced.SelectedMaterialInfo", boost::bind(&handle_selected_material_info));
     view_listener_t::addMenu(new LLAdvancedToggleWireframe(), "Advanced.ToggleWireframe");
     view_listener_t::addMenu(new LLAdvancedCheckWireframe(), "Advanced.CheckWireframe");
     // Develop > Render
@@ -9636,15 +9635,15 @@ void initialize_menus()
     view_listener_t::addMenu(new LLAdvancedResetInterestLists(), "Advanced.ResetInterestLists");
 
     // Advanced > UI
-    COMMIT_ADD("Advanced.WebBrowserTest", boost::bind(&handle_web_browser_test, _2));   // sigh! this one opens the MEDIA browser
-    COMMIT_ADD("Advanced.WebContentTest", boost::bind(&handle_web_content_test, _2));   // this one opens the Web Content floater
-    COMMIT_ADD("Advanced.ShowURL", boost::bind(&handle_show_url, _2));
-    COMMIT_ADD("Advanced.ReportBug", boost::bind(&handle_report_bug, _2));
+    registrar.add("Advanced.WebBrowserTest", boost::bind(&handle_web_browser_test, _2));  // sigh! this one opens the MEDIA browser
+    registrar.add("Advanced.WebContentTest", boost::bind(&handle_web_content_test, _2));  // this one opens the Web Content floater
+    registrar.add("Advanced.ShowURL", boost::bind(&handle_show_url, _2));
+    registrar.add("Advanced.ReportBug", boost::bind(&handle_report_bug, _2));
     view_listener_t::addMenu(new LLAdvancedBuyCurrencyTest(), "Advanced.BuyCurrencyTest");
     view_listener_t::addMenu(new LLAdvancedDumpSelectMgr(), "Advanced.DumpSelectMgr");
     view_listener_t::addMenu(new LLAdvancedDumpInventory(), "Advanced.DumpInventory");
-    COMMIT_ADD_THROTTLE("Advanced.DumpTimers", boost::bind(&handle_dump_timers));
-    COMMIT_ADD("Advanced.DumpFocusHolder", boost::bind(&handle_dump_focus) );
+    registrar.add("Advanced.DumpTimers", boost::bind(&handle_dump_timers), cb_info::UNTRUSTED_THROTTLE);
+    registrar.add("Advanced.DumpFocusHolder", boost::bind(&handle_dump_focus));
     view_listener_t::addMenu(new LLAdvancedPrintSelectedObjectInfo(), "Advanced.PrintSelectedObjectInfo");
     view_listener_t::addMenu(new LLAdvancedPrintAgentInfo(), "Advanced.PrintAgentInfo");
     view_listener_t::addMenu(new LLAdvancedToggleDebugClicks(), "Advanced.ToggleDebugClicks");
@@ -9665,11 +9664,11 @@ void initialize_menus()
     view_listener_t::addMenu(new LLAdvancedCheckDebugWindowProc(), "Advanced.CheckDebugWindowProc");
 
     // Advanced > XUI
-    COMMIT_ADD("Advanced.ReloadColorSettings", boost::bind(&LLUIColorTable::loadFromSettings, LLUIColorTable::getInstance()));
+    registrar.add("Advanced.ReloadColorSettings", boost::bind(&LLUIColorTable::loadFromSettings, LLUIColorTable::getInstance()));
     view_listener_t::addMenu(new LLAdvancedToggleXUINames(), "Advanced.ToggleXUINames");
     view_listener_t::addMenu(new LLAdvancedCheckXUINames(), "Advanced.CheckXUINames");
     view_listener_t::addMenu(new LLAdvancedSendTestIms(), "Advanced.SendTestIMs");
-    COMMIT_ADD_TRUSTED("Advanced.FlushNameCaches", boost::bind(&handle_flush_name_caches));
+    registrar.add("Advanced.FlushNameCaches", boost::bind(&handle_flush_name_caches), cb_info::UNTRUSTED_BLOCK);
 
     // Advanced > Character > Grab Baked Texture
     view_listener_t::addMenu(new LLAdvancedGrabBakedTexture(), "Advanced.GrabBakedTexture");
@@ -9755,11 +9754,11 @@ void initialize_menus()
     view_listener_t::addMenu(new LLDevelopSetLoggingLevel(), "Develop.SetLoggingLevel");
 
     //Develop (clear cache immediately)
-    COMMIT_ADD_TRUSTED("Develop.ClearCache", boost::bind(&handle_cache_clear_immediately) );
+    registrar.add("Develop.ClearCache", boost::bind(&handle_cache_clear_immediately), cb_info::UNTRUSTED_BLOCK);
 
     // Develop (Fonts debugging)
-    COMMIT_ADD_THROTTLE("Develop.Fonts.Dump", boost::bind(&LLFontGL::dumpFonts));
-    COMMIT_ADD_THROTTLE("Develop.Fonts.DumpTextures", boost::bind(&LLFontGL::dumpFontTextures));
+    registrar.add("Develop.Fonts.Dump", boost::bind(&LLFontGL::dumpFonts), cb_info::UNTRUSTED_THROTTLE);
+    registrar.add("Develop.Fonts.DumpTextures", boost::bind(&LLFontGL::dumpFontTextures), cb_info::UNTRUSTED_THROTTLE);
 
     // Admin >Object
     view_listener_t::addMenu(new LLAdminForceTakeCopy(), "Admin.ForceTakeCopy");
@@ -9796,12 +9795,12 @@ void initialize_menus()
     view_listener_t::addMenu(new LLObjectMute(), "Avatar.Mute");
     view_listener_t::addMenu(new LLAvatarAddFriend(), "Avatar.AddFriend");
     view_listener_t::addMenu(new LLAvatarAddContact(), "Avatar.AddContact");
-    COMMIT_ADD("Avatar.Freeze", boost::bind(&handle_avatar_freeze, LLSD()));
+    registrar.add("Avatar.Freeze", boost::bind(&handle_avatar_freeze, LLSD()));
     view_listener_t::addMenu(new LLAvatarDebug(), "Avatar.Debug");
     view_listener_t::addMenu(new LLAvatarVisibleDebug(), "Avatar.VisibleDebug");
     view_listener_t::addMenu(new LLAvatarInviteToGroup(), "Avatar.InviteToGroup");
-    COMMIT_ADD("Avatar.Eject", boost::bind(&handle_avatar_eject, LLSD()));
-    COMMIT_ADD("Avatar.ShowInspector", boost::bind(&handle_avatar_show_inspector));
+    registrar.add("Avatar.Eject", boost::bind(&handle_avatar_eject, LLSD()));
+    registrar.add("Avatar.ShowInspector", boost::bind(&handle_avatar_show_inspector));
     view_listener_t::addMenu(new LLAvatarSendIM(), "Avatar.SendIM");
     view_listener_t::addMenu(new LLAvatarCall(), "Avatar.Call", cb_info::UNTRUSTED_BLOCK);
     enable.add("Avatar.EnableCall", boost::bind(&LLAvatarActions::canCall));
@@ -9816,34 +9815,34 @@ void initialize_menus()
     enable.add("Avatar.IsMyProfileOpen", boost::bind(&my_profile_visible));
     enable.add("Avatar.IsPicksTabOpen", boost::bind(&picks_tab_visible));
 
-    COMMIT_ADD("Avatar.OpenMarketplace", boost::bind(&LLWeb::loadURLExternal, gSavedSettings.getString("MarketplaceURL")));
+    registrar.add("Avatar.OpenMarketplace", boost::bind(&LLWeb::loadURLExternal, gSavedSettings.getString("MarketplaceURL")));
 
     view_listener_t::addMenu(new LLAvatarEnableAddFriend(), "Avatar.EnableAddFriend");
     enable.add("Avatar.EnableFreezeEject", boost::bind(&enable_freeze_eject, _2));
 
     // Object pie menu
     view_listener_t::addMenu(new LLObjectBuild(), "Object.Build");
-    COMMIT_ADD("Object.Touch", boost::bind(&handle_object_touch));
-    COMMIT_ADD("Object.ShowOriginal", boost::bind(&handle_object_show_original));
-    COMMIT_ADD("Object.SitOrStand", boost::bind(&handle_object_sit_or_stand));
-    COMMIT_ADD("Object.Delete", boost::bind(&handle_object_delete));
+    registrar.add("Object.Touch", boost::bind(&handle_object_touch));
+    registrar.add("Object.ShowOriginal", boost::bind(&handle_object_show_original));
+    registrar.add("Object.SitOrStand", boost::bind(&handle_object_sit_or_stand));
+    registrar.add("Object.Delete", boost::bind(&handle_object_delete));
     view_listener_t::addMenu(new LLObjectAttachToAvatar(true), "Object.AttachToAvatar");
     view_listener_t::addMenu(new LLObjectAttachToAvatar(false), "Object.AttachAddToAvatar");
     view_listener_t::addMenu(new LLObjectReturn(), "Object.Return");
-    COMMIT_ADD("Object.Duplicate", boost::bind(&LLSelectMgr::duplicate, LLSelectMgr::getInstance()));
+    registrar.add("Object.Duplicate", boost::bind(&LLSelectMgr::duplicate, LLSelectMgr::getInstance()));
     view_listener_t::addMenu(new LLObjectReportAbuse(), "Object.ReportAbuse", cb_info::UNTRUSTED_THROTTLE);
     view_listener_t::addMenu(new LLObjectMute(), "Object.Mute");
 
     enable.add("Object.VisibleTake", boost::bind(&visible_take_object));
     enable.add("Object.VisibleBuy", boost::bind(&visible_buy_object));
 
-    COMMIT_ADD_THROTTLE("Object.Buy", boost::bind(&handle_buy));
-    COMMIT_ADD("Object.Edit", boost::bind(&handle_object_edit));
-    COMMIT_ADD("Object.EditGLTFMaterial", boost::bind(&handle_object_edit_gltf_material));
-    COMMIT_ADD("Object.Inspect", boost::bind(&handle_object_inspect));
-    COMMIT_ADD("Object.Open", boost::bind(&handle_object_open));
-    COMMIT_ADD("Object.Take", boost::bind(&handle_take));
-    COMMIT_ADD("Object.ShowInspector", boost::bind(&handle_object_show_inspector));
+    registrar.add("Object.Buy", boost::bind(&handle_buy), cb_info::UNTRUSTED_THROTTLE);
+    registrar.add("Object.Edit", boost::bind(&handle_object_edit));
+    registrar.add("Object.EditGLTFMaterial", boost::bind(&handle_object_edit_gltf_material));
+    registrar.add("Object.Inspect", boost::bind(&handle_object_inspect));
+    registrar.add("Object.Open", boost::bind(&handle_object_open));
+    registrar.add("Object.Take", boost::bind(&handle_take));
+    registrar.add("Object.ShowInspector", boost::bind(&handle_object_show_inspector));
     enable.add("Object.EnableInspect", boost::bind(&enable_object_inspect));
     enable.add("Object.EnableEditGLTFMaterial", boost::bind(&enable_object_edit_gltf_material));
     enable.add("Object.EnableOpen", boost::bind(&enable_object_open));
@@ -9862,7 +9861,7 @@ void initialize_menus()
     enable.add("Object.EnableMute", boost::bind(&enable_object_mute));
     enable.add("Object.EnableUnmute", boost::bind(&enable_object_unmute));
     enable.add("Object.EnableBuy", boost::bind(&enable_buy_object));
-    COMMIT_ADD("Object.ZoomIn", boost::bind(&handle_look_at_selection, "zoom"));
+    registrar.add("Object.ZoomIn", boost::bind(&handle_look_at_selection, "zoom"));
 
     // Attachment pie menu
     enable.add("Attachment.Label", boost::bind(&onEnableAttachmentLabel, _1, _2));
@@ -9884,11 +9883,11 @@ void initialize_menus()
     view_listener_t::addMenu(new LLMuteParticle(), "Particle.Mute");
 
     view_listener_t::addMenu(new LLLandEnableBuyPass(), "Land.EnableBuyPass");
-    COMMIT_ADD_THROTTLE("Land.Buy", boost::bind(&handle_buy_land));
+    registrar.add("Land.Buy", boost::bind(&handle_buy_land), cb_info::UNTRUSTED_THROTTLE);
 
     // Generic actions
-    COMMIT_ADD_THROTTLE("ReportAbuse", boost::bind(&handle_report_abuse));
-    COMMIT_ADD_THROTTLE("BuyCurrency", boost::bind(&handle_buy_currency));
+    registrar.add("ReportAbuse", boost::bind(&handle_report_abuse), cb_info::UNTRUSTED_THROTTLE);
+    registrar.add("BuyCurrency", boost::bind(&handle_buy_currency), cb_info::UNTRUSTED_THROTTLE);
     view_listener_t::addMenu(new LLShowHelp(), "ShowHelp");
     view_listener_t::addMenu(new LLToggleHelp(), "ToggleHelp");
     view_listener_t::addMenu(new LLToggleSpeak(), "ToggleSpeak", cb_info::UNTRUSTED_BLOCK);
@@ -9900,19 +9899,19 @@ void initialize_menus()
     view_listener_t::addMenu(new LLToggleShaderControl(), "ToggleShaderControl");
     view_listener_t::addMenu(new LLCheckControl(), "CheckControl");
     view_listener_t::addMenu(new LLGoToObject(), "GoToObject");
-    COMMIT_ADD("PayObject", boost::bind(&handle_give_money_dialog));
+    registrar.add("PayObject", boost::bind(&handle_give_money_dialog));
 
-    COMMIT_ADD_THROTTLE("Inventory.NewWindow", boost::bind(&LLPanelMainInventory::newWindow));
+    registrar.add("Inventory.NewWindow", boost::bind(&LLPanelMainInventory::newWindow), cb_info::UNTRUSTED_THROTTLE);
 
     enable.add("EnablePayObject", boost::bind(&enable_pay_object));
     enable.add("EnablePayAvatar", boost::bind(&enable_pay_avatar));
     enable.add("EnableEdit", boost::bind(&enable_object_edit));
     enable.add("EnableMuteParticle", boost::bind(&enable_mute_particle));
     enable.add("VisibleBuild", boost::bind(&enable_object_build));
-    COMMIT_ADD("Pathfinding.Linksets.Select", boost::bind(&LLFloaterPathfindingLinksets::openLinksetsWithSelectedObjects));
+    registrar.add("Pathfinding.Linksets.Select", boost::bind(&LLFloaterPathfindingLinksets::openLinksetsWithSelectedObjects));
     enable.add("EnableSelectInPathfindingLinksets", boost::bind(&enable_object_select_in_pathfinding_linksets));
     enable.add("VisibleSelectInPathfindingLinksets", boost::bind(&visible_object_select_in_pathfinding_linksets));
-    COMMIT_ADD("Pathfinding.Characters.Select", boost::bind(&LLFloaterPathfindingCharacters::openCharactersWithSelectedObjects));
+    registrar.add("Pathfinding.Characters.Select", boost::bind(&LLFloaterPathfindingCharacters::openCharactersWithSelectedObjects));
     enable.add("EnableSelectInPathfindingCharacters", boost::bind(&enable_object_select_in_pathfinding_characters));
     enable.add("Advanced.EnableErrorOSException", boost::bind(&enable_os_exception));
 

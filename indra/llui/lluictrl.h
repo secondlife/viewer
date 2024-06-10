@@ -273,17 +273,6 @@ public:
 
     template <typename F, typename DERIVED> class CallbackRegistry : public LLRegistrySingleton<std::string, F, DERIVED >
     {};
-
-    class CommitCallbackRegistry : public CallbackRegistry<commit_callback_t, CommitCallbackRegistry>
-    {
-        LLSINGLETON_EMPTY_CTOR(CommitCallbackRegistry);
-    };
-    // the enable callback registry is also used for visiblity callbacks
-    class EnableCallbackRegistry : public CallbackRegistry<enable_callback_t, EnableCallbackRegistry>
-    {
-        LLSINGLETON_EMPTY_CTOR(EnableCallbackRegistry);
-    };
-
     struct CommitCallbackInfo
     {
         enum EUntrustedCall
@@ -293,18 +282,51 @@ public:
             UNTRUSTED_THROTTLE
         };
 
-        CommitCallbackInfo(commit_callback_t func = {}, EUntrustedCall handle_untrusted = UNTRUSTED_ALLOW) 
-            : callback_func(func), handle_untrusted(handle_untrusted)
-        {}
+        CommitCallbackInfo(commit_callback_t func = {}, EUntrustedCall handle_untrusted = UNTRUSTED_ALLOW) :
+            callback_func(func),
+            handle_untrusted(handle_untrusted)
+        {
+        }
 
       public:
         commit_callback_t callback_func;
-        EUntrustedCall handle_untrusted;
+        EUntrustedCall    handle_untrusted;
+    };
+    typedef LLUICtrl::CommitCallbackInfo cb_info;
+    class CommitCallbackRegistry : public CallbackRegistry<CommitCallbackInfo, CommitCallbackRegistry>
+    {
+        LLSINGLETON_EMPTY_CTOR(CommitCallbackRegistry);
     };
 
-    class SharedCommitCallbackRegistry : public CallbackRegistry<CommitCallbackInfo, SharedCommitCallbackRegistry>
+    class CommitRegistrarHelper
     {
-        LLSINGLETON_EMPTY_CTOR(SharedCommitCallbackRegistry);
+      public:
+        CommitRegistrarHelper(LLUICtrl::CommitCallbackRegistry::Registrar &registrar) : mRegistrar(registrar) {}
+
+        template <typename... ARGS> void add(const std::string &name, ARGS &&...args)
+        {
+            mRegistrar.add(name, {std::forward<ARGS>(args)...});
+        }
+      private:
+        LLUICtrl::CommitCallbackRegistry::Registrar &mRegistrar;
+    };
+
+    class ScopedRegistrarHelper
+    {
+      public:
+        template <typename... ARGS> void add(const std::string &name, ARGS &&...args)
+        {
+            mRegistrar.add(name, {std::forward<ARGS>(args)...});
+        }
+
+      private:
+        LLUICtrl::CommitCallbackRegistry::ScopedRegistrar mRegistrar;
+    };
+
+    // the enable callback registry is also used for visiblity callbacks
+    class EnableCallbackRegistry : public CallbackRegistry<enable_callback_t, EnableCallbackRegistry>
+    {
+        LLSINGLETON_EMPTY_CTOR(EnableCallbackRegistry);
     };
 
 protected:

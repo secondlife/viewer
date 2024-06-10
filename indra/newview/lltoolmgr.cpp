@@ -84,9 +84,9 @@ LLToolMgr::LLToolMgr()
     LLUICtrl::EnableCallbackRegistry::currentRegistrar().add("Build.Active", boost::bind(&LLToolMgr::inEdit, this));
     LLUICtrl::EnableCallbackRegistry::currentRegistrar().add("Build.Enabled", boost::bind(&LLToolMgr::canEdit, this));
     LLUICtrl::EnableCallbackRegistry::currentRegistrar().add("Build.EnabledOrActive", boost::bind(&LLToolMgr::buildEnabledOrActive, this));
-    LLUICtrl::CommitCallbackRegistry::currentRegistrar().add("Build.Toggle", boost::bind(&LLToolMgr::toggleBuildMode, this, _2));
+    LLUICtrl::CommitCallbackRegistry::currentRegistrar().add("Build.Toggle", { boost::bind(&LLToolMgr::toggleBuildMode, this, _2) });
     LLUICtrl::EnableCallbackRegistry::currentRegistrar().add("Marketplace.Enabled", boost::bind(&LLToolMgr::canAccessMarketplace, this));
-    LLUICtrl::CommitCallbackRegistry::currentRegistrar().add("Marketplace.Toggle", boost::bind(&LLToolMgr::toggleMarketplace, this, _2));
+    LLUICtrl::CommitCallbackRegistry::currentRegistrar().add("Marketplace.Toggle", { boost::bind(&LLToolMgr::toggleMarketplace, this, _2) });
 
     gToolNull = new LLTool(LLStringUtil::null);  // Does nothing
     setCurrentTool(gToolNull);

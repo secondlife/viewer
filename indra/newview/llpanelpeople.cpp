@@ -548,18 +548,18 @@ LLPanelPeople::LLPanelPeople()
     mRecentListUpdater = new LLRecentListUpdater(boost::bind(&LLPanelPeople::updateRecentList,  this));
     mButtonsUpdater = new LLButtonsUpdater(boost::bind(&LLPanelPeople::updateButtons, this));
 
-    mCommitCallbackRegistrar.add("People.AddFriend", boost::bind(&LLPanelPeople::onAddFriendButtonClicked, this));
-    mCommitCallbackRegistrar.add("People.AddFriendWizard",  boost::bind(&LLPanelPeople::onAddFriendWizButtonClicked,    this));
-    mCommitCallbackRegistrar.add("People.DelFriend",        boost::bind(&LLPanelPeople::onDeleteFriendButtonClicked,    this));
-    mCommitCallbackRegistrar.add("People.Group.Minus",      boost::bind(&LLPanelPeople::onGroupMinusButtonClicked,  this));
-    mCommitCallbackRegistrar.add("People.Chat",         boost::bind(&LLPanelPeople::onChatButtonClicked,        this));
-    mCommitCallbackRegistrar.add("People.Gear",         boost::bind(&LLPanelPeople::onGearButtonClicked,        this, _1));
+    mCommitCallbackRegistrar.add("People.AddFriend", { boost::bind(&LLPanelPeople::onAddFriendButtonClicked, this) });
+    mCommitCallbackRegistrar.add("People.AddFriendWizard", { boost::bind(&LLPanelPeople::onAddFriendWizButtonClicked, this) });
+    mCommitCallbackRegistrar.add("People.DelFriend", { boost::bind(&LLPanelPeople::onDeleteFriendButtonClicked, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("People.Group.Minus", { boost::bind(&LLPanelPeople::onGroupMinusButtonClicked,  this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("People.Chat", { boost::bind(&LLPanelPeople::onChatButtonClicked, this) });
+    mCommitCallbackRegistrar.add("People.Gear", { boost::bind(&LLPanelPeople::onGearButtonClicked, this, _1) });
 
-    mCommitCallbackRegistrar.add("People.Group.Plus.Action",  boost::bind(&LLPanelPeople::onGroupPlusMenuItemClicked,  this, _2));
-    mCommitCallbackRegistrar.add("People.Friends.ViewSort.Action",  boost::bind(&LLPanelPeople::onFriendsViewSortMenuItemClicked,  this, _2));
-    mCommitCallbackRegistrar.add("People.Nearby.ViewSort.Action",  boost::bind(&LLPanelPeople::onNearbyViewSortMenuItemClicked,  this, _2));
-    mCommitCallbackRegistrar.add("People.Groups.ViewSort.Action",  boost::bind(&LLPanelPeople::onGroupsViewSortMenuItemClicked,  this, _2));
-    mCommitCallbackRegistrar.add("People.Recent.ViewSort.Action",  boost::bind(&LLPanelPeople::onRecentViewSortMenuItemClicked,  this, _2));
+    mCommitCallbackRegistrar.add("People.Group.Plus.Action",  { boost::bind(&LLPanelPeople::onGroupPlusMenuItemClicked,  this, _2), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("People.Friends.ViewSort.Action",  { boost::bind(&LLPanelPeople::onFriendsViewSortMenuItemClicked,  this, _2) });
+    mCommitCallbackRegistrar.add("People.Nearby.ViewSort.Action",  { boost::bind(&LLPanelPeople::onNearbyViewSortMenuItemClicked,  this, _2) });
+    mCommitCallbackRegistrar.add("People.Groups.ViewSort.Action",  { boost::bind(&LLPanelPeople::onGroupsViewSortMenuItemClicked,  this, _2) });
+    mCommitCallbackRegistrar.add("People.Recent.ViewSort.Action",  { boost::bind(&LLPanelPeople::onRecentViewSortMenuItemClicked,  this, _2) });
 
     mEnableCallbackRegistrar.add("People.Friends.ViewSort.CheckItem",   boost::bind(&LLPanelPeople::onFriendsViewSortMenuItemCheck, this, _2));
     mEnableCallbackRegistrar.add("People.Recent.ViewSort.CheckItem",    boost::bind(&LLPanelPeople::onRecentViewSortMenuItemCheck,  this, _2));
