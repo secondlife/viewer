@@ -102,6 +102,22 @@
     width="65">
        Low
   </text>
+  <slider
+    control_name="RenderLocalLightCount"
+    decimal_digits="0"
+    follows="left|top"
+    height="16"
+    increment="1"
+    initial_value="256"
+    label="Max. nearby lights:"
+    label_width="185"
+    layout="topleft"
+    left="30"
+    min_val="0"
+    max_val="8192"
+    name="MaxLights"
+    top_delta="16"
+    width="336" />
 
   <check_box
     control_name="RenderVSyncEnable"
@@ -127,6 +143,42 @@
     width="128">
      Avatar
   </text>
+
+    <text
+      type="string"
+      length="1"
+      follows="left|top"
+      height="16"
+      layout="topleft"
+      left="30"
+      top_delta="16"
+      width="128"
+      name="AvatarComplexityModeLabel"
+      text_readonly_color="LabelDisabledColor">
+        Avatar display:
+    </text>
+
+    <combo_box
+     control_name="RenderAvatarComplexityMode"
+     height="18"
+     layout="topleft"
+     left_delta="130"
+     top_delta="0"
+     name="AvatarComplexityMode"
+     width="150">
+        <combo_box.item
+          label="Limit by complexity"
+          name="0"
+          value="0"/>
+        <combo_box.item
+          label="Always show friends"
+          name="1"
+          value="1"/>
+        <combo_box.item
+          label="Only show friends"
+          name="2"
+          value="2"/>
+    </combo_box>
 
   <slider
     control_name="IndirectMaxComplexity"

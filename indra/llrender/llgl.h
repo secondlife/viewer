@@ -45,9 +45,9 @@
 #include "llglheaders.h"
 #include "glh/glh_linear.h"
 
-extern BOOL gDebugGL;
-extern BOOL gDebugSession;
-extern BOOL gDebugGLSession;
+extern bool gDebugGL;
+extern bool gDebugSession;
+extern bool gDebugGLSession;
 extern llofstream gFailLog;
 
 #define LL_GL_ERRS LL_ERRS("RenderState")
@@ -73,8 +73,8 @@ public:
 
     std::string getRawGLString(); // For sending to simulator
 
-    BOOL mInited;
-    BOOL mIsDisabled;
+    bool mInited;
+    bool mIsDisabled;
 
     // OpenGL limits
     S32 mMaxSamples;
@@ -97,17 +97,17 @@ public:
     // Vendor-specific extensions
     bool mHasAMDAssociations = false;
 
-    BOOL mIsAMD;
-    BOOL mIsNVIDIA;
-    BOOL mIsIntel;
+    bool mIsAMD;
+    bool mIsNVIDIA;
+    bool mIsIntel;
 
 #if LL_DARWIN
     // Needed to distinguish problem cards on older Macs that break with Materials
-    BOOL mIsMobileGF;
+    bool mIsMobileGF;
 #endif
 
     // Whether this version of GL is good enough for SL to use
-    BOOL mHasRequirements;
+    bool mHasRequirements;
 
     S32 mDriverVersionMajor;
     S32 mDriverVersionMinor;
@@ -118,9 +118,7 @@ public:
     std::string mDriverVersionVendorString;
     std::string mGLVersionString;
 
-    S32 mVRAM; // VRAM in MB
-
-    void getPixelFormat(); // Get the best pixel format
+    U32 mVRAM; // VRAM in MB
 
     std::string getGLInfoString();
     void printGLInfoString();
@@ -138,7 +136,6 @@ public:
 private:
     void initExtensions();
     void initGLStates();
-    void initGLImages();
 };
 
 extern LLGLManager gGLManager;
@@ -241,16 +238,16 @@ protected:
     static boost::unordered_map<LLGLenum, LLGLboolean> sStateMap;
 
 public:
-    enum { CURRENT_STATE = -2 };
+    enum { CURRENT_STATE = -2, DISABLED_STATE = 0, ENABLED_STATE = 1 };
     LLGLState(LLGLenum state, S32 enabled = CURRENT_STATE);
     ~LLGLState();
     void setEnabled(S32 enabled);
-    void enable() { setEnabled(TRUE); }
-    void disable() { setEnabled(FALSE); }
+    void enable() { setEnabled(ENABLED_STATE); }
+    void disable() { setEnabled(DISABLED_STATE); }
 protected:
     LLGLenum mState;
-    BOOL mWasEnabled;
-    BOOL mIsEnabled;
+    bool mWasEnabled;
+    bool mIsEnabled;
 };
 
 // New LLGLState class wrappers that don't depend on actual GL flags.
@@ -284,14 +281,14 @@ public:
 class LLGLEnable : public LLGLState
 {
 public:
-    LLGLEnable(LLGLenum state) : LLGLState(state, TRUE) {}
+    LLGLEnable(LLGLenum state) : LLGLState(state, ENABLED_STATE) {}
 };
 
 /// TODO: Being deprecated.
 class LLGLDisable : public LLGLState
 {
 public:
-    LLGLDisable(LLGLenum state) : LLGLState(state, FALSE) {}
+    LLGLDisable(LLGLenum state) : LLGLState(state, DISABLED_STATE) {}
 };
 
 /*
@@ -351,9 +348,9 @@ public:
 
     static std::list<LLGLUpdate*> sGLQ;
 
-    BOOL mInQ;
+    bool mInQ;
     LLGLUpdate()
-        : mInQ(FALSE)
+        : mInQ(false)
     {
     }
     virtual ~LLGLUpdate()
@@ -405,10 +402,10 @@ void init_glstates();
 
 void parse_gl_version( S32* major, S32* minor, S32* release, std::string* vendor_specific, std::string* version_string );
 
-extern BOOL gClothRipple;
-extern BOOL gHeadlessClient;
-extern BOOL gNonInteractive;
-extern BOOL gGLActive;
+extern bool gClothRipple;
+extern bool gHeadlessClient;
+extern bool gNonInteractive;
+extern bool gGLActive;
 
 // Deal with changing glext.h definitions for newer SDK versions, specifically
 // with MAC OSX 10.5 -> 10.6

@@ -47,18 +47,18 @@
 
 LLToolObjPicker::LLToolObjPicker()
 :   LLTool( std::string("ObjPicker"), NULL ),
-    mPicked( FALSE ),
+    mPicked( false ),
     mHitObjectID( LLUUID::null ),
     mExitCallback( NULL ),
     mExitCallbackData( NULL )
 { }
 
 
-// returns TRUE if an object was selected
-BOOL LLToolObjPicker::handleMouseDown(S32 x, S32 y, MASK mask)
+// returns true if an object was selected
+bool LLToolObjPicker::handleMouseDown(S32 x, S32 y, MASK mask)
 {
     LLRootView* viewp = gViewerWindow->getRootView();
-    BOOL handled = viewp->handleMouseDown(x, y, mask);
+    bool handled = viewp->handleMouseDown(x, y, mask);
 
     mHitObjectID.setNull();
 
@@ -66,13 +66,13 @@ BOOL LLToolObjPicker::handleMouseDown(S32 x, S32 y, MASK mask)
     {
         // didn't click in any UI object, so must have clicked in the world
         gViewerWindow->pickAsync(x, y, mask, pickCallback);
-        handled = TRUE;
+        handled = true;
     }
     else
     {
         if (hasMouseCapture())
         {
-            setMouseCapture(FALSE);
+            setMouseCapture(false);
         }
         else
         {
@@ -93,10 +93,10 @@ void LLToolObjPicker::pickCallback(const LLPickInfo& pick_info)
 }
 
 
-BOOL LLToolObjPicker::handleMouseUp(S32 x, S32 y, MASK mask)
+bool LLToolObjPicker::handleMouseUp(S32 x, S32 y, MASK mask)
 {
     LLView* viewp = gViewerWindow->getRootView();
-    BOOL handled = viewp->handleHover(x, y, mask);
+    bool handled = viewp->handleHover(x, y, mask);
     if (handled)
     {
         // let UI handle this
@@ -105,7 +105,7 @@ BOOL LLToolObjPicker::handleMouseUp(S32 x, S32 y, MASK mask)
     LLTool::handleMouseUp(x, y, mask);
     if (hasMouseCapture())
     {
-        setMouseCapture(FALSE);
+        setMouseCapture(false);
     }
     else
     {
@@ -115,10 +115,10 @@ BOOL LLToolObjPicker::handleMouseUp(S32 x, S32 y, MASK mask)
 }
 
 
-BOOL LLToolObjPicker::handleHover(S32 x, S32 y, MASK mask)
+bool LLToolObjPicker::handleHover(S32 x, S32 y, MASK mask)
 {
     LLView *viewp = gViewerWindow->getRootView();
-    BOOL handled = viewp->handleHover(x, y, mask);
+    bool handled = viewp->handleHover(x, y, mask);
     if (!handled)
     {
         // Used to do pick on hover.  Now we just always display the cursor.
@@ -142,7 +142,7 @@ void LLToolObjPicker::onMouseCaptureLost()
         mExitCallbackData = NULL;
     }
 
-    mPicked = FALSE;
+    mPicked = false;
     mHitObjectID.setNull();
 }
 
@@ -157,7 +157,7 @@ void LLToolObjPicker::setExitCallback(void (*callback)(void *), void *callback_d
 void LLToolObjPicker::handleSelect()
 {
     LLTool::handleSelect();
-    setMouseCapture(TRUE);
+    setMouseCapture(true);
 }
 
 // virtual
@@ -166,7 +166,7 @@ void LLToolObjPicker::handleDeselect()
     if (hasMouseCapture())
     {
         LLTool::handleDeselect();
-        setMouseCapture(FALSE);
+        setMouseCapture(false);
     }
 }
 

@@ -94,7 +94,7 @@ LLTransferTargetVFile::LLTransferTargetVFile(
     const LLUUID& uuid,
     LLTransferSourceType src_type) :
     LLTransferTarget(LLTTT_VFILE, uuid, src_type),
-    mNeedsCreate(TRUE)
+    mNeedsCreate(true)
 {
     mTempID.generate();
 }
@@ -141,7 +141,7 @@ LLTSCode LLTransferTargetVFile::dataCallback(const S32 packet_id, U8 *in_datap, 
     LLFileSystem vf(mTempID, mParams.getAssetType(), LLFileSystem::APPEND);
     if (mNeedsCreate)
     {
-        mNeedsCreate = FALSE;
+        mNeedsCreate = false;
     }
 
     if (!in_size)

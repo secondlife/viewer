@@ -132,7 +132,7 @@ public:
     // each line lasts this long after being added
     void            setLinePersistTime(F32 seconds);
 
-    void            reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+    void            reshape(S32 width, S32 height, bool called_from_parent = true);
 
     // -1 = monospace, 0 means small, font size = 1 means big
     void            setFontSize(S32 size_index);

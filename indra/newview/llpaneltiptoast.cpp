@@ -28,7 +28,7 @@
 
 #include "llpaneltiptoast.h"
 
-BOOL LLPanelTipToast::postBuild()
+bool LLPanelTipToast::postBuild()
 {
     mMessageText= findChild<LLUICtrl>("message");
 
@@ -40,10 +40,10 @@ BOOL LLPanelTipToast::postBuild()
     else
     {
         llassert(!"Can't find child 'message' text box.");
-        return FALSE;
+        return false;
     }
 
-    return TRUE;
+    return true;
 }
 
 void LLPanelTipToast::onMessageTextClick()

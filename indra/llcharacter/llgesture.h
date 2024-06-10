@@ -55,10 +55,10 @@ public:
     const std::string&  getOutputString() const { return mOutputString; }
 
     // Triggers if a key/mask matches it
-    virtual BOOL trigger(KEY key, MASK mask);
+    virtual bool trigger(KEY key, MASK mask);
 
     // Triggers if case-insensitive substring matches (assumes string is lowercase)
-    virtual BOOL trigger(const std::string &string);
+    virtual bool trigger(const std::string &string);
 
     // non-endian-neutral serialization
     U8 *serialize(U8 *buffer) const;
@@ -84,13 +84,13 @@ public:
     virtual ~LLGestureList();
 
     // Triggers if a key/mask matches one in the list
-    BOOL trigger(KEY key, MASK mask);
+    bool trigger(KEY key, MASK mask);
 
     // Triggers if substring matches and generates revised string.
-    BOOL triggerAndReviseString(const std::string &string, std::string* revised_string);
+    bool triggerAndReviseString(const std::string &string, std::string* revised_string);
 
     // Used for construction from UI
-    S32 count() const                       { return mList.size(); }
+    S32 count() const                       { return static_cast<S32>(mList.size()); }
     virtual LLGesture* get(S32 i) const     { return mList.at(i); }
     virtual void put(LLGesture* gesture)    { mList.push_back( gesture ); }
     void deleteAll();

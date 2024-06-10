@@ -55,16 +55,16 @@ public:
         mNameMap[tablename] = data;
     }
 
-    BOOL checkName(const std::string& name) const
+    bool checkName(const std::string& name) const
     {
         return checkName(name.c_str());
     }
 
     // "logically const" even though it modifies the global nametable
-    BOOL checkName(const char *name) const
+    bool checkName(const char *name) const
     {
         char *tablename = gStringTable.addString(name);
-        return mNameMap.count(tablename) ? TRUE : FALSE;
+        return mNameMap.find(tablename) != mNameMap.end();
     }
 
     DATA resolveName(const std::string& name) const

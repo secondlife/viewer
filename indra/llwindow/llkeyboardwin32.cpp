@@ -152,22 +152,22 @@ void LLKeyboardWin32::resetMaskKeys()
     // bit to indicate that the key is down.
     if (GetAsyncKeyState(VK_SHIFT) & 0x8000)
     {
-        mKeyLevel[KEY_SHIFT] = TRUE;
+        mKeyLevel[KEY_SHIFT] = true;
     }
 
     if (GetAsyncKeyState(VK_CONTROL) & 0x8000)
     {
-        mKeyLevel[KEY_CONTROL] = TRUE;
+        mKeyLevel[KEY_CONTROL] = true;
     }
 
     if (GetAsyncKeyState(VK_MENU) & 0x8000)
     {
-        mKeyLevel[KEY_ALT] = TRUE;
+        mKeyLevel[KEY_ALT] = true;
     }
 }
 
 
-//void LLKeyboardWin32::setModifierKeyLevel( KEY key, BOOL new_state )
+//void LLKeyboardWin32::setModifierKeyLevel( KEY key, bool new_state )
 //{
 //  if( mKeyLevel[key] != new_state )
 //  {
@@ -191,17 +191,17 @@ MASK LLKeyboardWin32::updateModifiers()
     // (keydown encoded in high order bit of short)
     mKeyLevel[KEY_CAPSLOCK] = (GetKeyState(VK_CAPITAL) & 0x0001) != 0; // Low order bit carries the toggle state.
     // Get mask for keyboard events
-    MASK mask = currentMask(FALSE);
+    MASK mask = currentMask(false);
     return mask;
 }
 
 
 // mask is ignored, except for extended flag -- we poll the modifier keys for the other flags
-BOOL LLKeyboardWin32::handleKeyDown(const U16 key, MASK mask)
+bool LLKeyboardWin32::handleKeyDown(const U16 key, MASK mask)
 {
     KEY     translated_key;
     U32     translated_mask;
-    BOOL    handled = FALSE;
+    bool    handled = false;
 
     translated_mask = updateModifiers();
 
@@ -214,11 +214,11 @@ BOOL LLKeyboardWin32::handleKeyDown(const U16 key, MASK mask)
 }
 
 // mask is ignored, except for extended flag -- we poll the modifier keys for the other flags
-BOOL LLKeyboardWin32::handleKeyUp(const U16 key, MASK mask)
+bool LLKeyboardWin32::handleKeyUp(const U16 key, MASK mask)
 {
     KEY     translated_key;
     U32     translated_mask;
-    BOOL    handled = FALSE;
+    bool    handled = false;
 
     translated_mask = updateModifiers();
 
@@ -231,7 +231,7 @@ BOOL LLKeyboardWin32::handleKeyUp(const U16 key, MASK mask)
 }
 
 
-MASK LLKeyboardWin32::currentMask(BOOL)
+MASK LLKeyboardWin32::currentMask(bool)
 {
     MASK mask = MASK_NONE;
 
@@ -263,8 +263,8 @@ void LLKeyboardWin32::scanKeyboard()
     // Reset edges for next frame
     for (key = 0; key < KEY_COUNT; key++)
     {
-        mKeyUp[key] = FALSE;
-        mKeyDown[key] = FALSE;
+        mKeyUp[key] = false;
+        mKeyDown[key] = false;
         if (mKeyLevel[key])
         {
             mKeyLevelFrameCount[key]++;
@@ -272,7 +272,7 @@ void LLKeyboardWin32::scanKeyboard()
     }
 }
 
-BOOL LLKeyboardWin32::translateExtendedKey(const U16 os_key, const MASK mask, KEY *translated_key)
+bool LLKeyboardWin32::translateExtendedKey(const U16 os_key, const MASK mask, KEY *translated_key)
 {
     return translateKey(os_key, translated_key);
 }

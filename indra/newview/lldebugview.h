@@ -57,7 +57,7 @@ public:
     void init();
     void draw();
 
-    void setStatsVisible(BOOL visible);
+    void setStatsVisible(bool visible);
 
     LLFastTimerView* mFastTimerView;
     LLConsole*       mDebugConsolep;

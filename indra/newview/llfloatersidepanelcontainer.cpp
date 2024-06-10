@@ -125,7 +125,7 @@ LLPanel* LLFloaterSidePanelContainer::openChildPanel(const std::string& panel_na
     }
     else if (!hasFocus())
     {
-        setFocus(TRUE);
+        setFocus(true);
     }
 
     LLPanel* panel = NULL;

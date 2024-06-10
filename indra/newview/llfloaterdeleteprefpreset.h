@@ -38,8 +38,8 @@ class LLFloaterDeletePrefPreset : public LLFloater
 public:
     LLFloaterDeletePrefPreset(const LLSD &key);
 
-    /*virtual*/ BOOL    postBuild();
-    /*virtual*/ void    onOpen(const LLSD& key);
+    bool postBuild() override;
+    void onOpen(const LLSD& key) override;
 
     void onBtnDelete();
     void onBtnCancel();

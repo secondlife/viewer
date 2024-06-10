@@ -58,12 +58,12 @@ public:
 
     LLViewerPartSource(const U32 type);
 
-    virtual void update(const F32 dt); // Return FALSE if this source is dead...
+    virtual void update(const F32 dt); // Return false if this source is dead...
 
     virtual void setDead();
-    BOOL isDead() const             { return mIsDead; }
-    void setSuspended( BOOL state ) { mIsSuspended = state; }
-    BOOL isSuspended() const        { return mIsSuspended; }
+    bool isDead() const             { return mIsDead; }
+    void setSuspended( bool state ) { mIsSuspended = state; }
+    bool isSuspended() const        { return mIsSuspended; }
     U32 getType() const             { return mType; }
     static void updatePart(LLViewerPart &part, const F32 dt);
     void setOwnerUUID(const LLUUID& owner_id) { mOwnerUUID = owner_id; }
@@ -81,8 +81,8 @@ public:
 
 protected:
     U32         mType;
-    BOOL        mIsDead;
-    BOOL        mIsSuspended;
+    bool        mIsDead;
+    bool        mIsSuspended;
     F32         mLastUpdateTime;
     F32         mLastPartTime;
     LLUUID      mOwnerUUID;
@@ -112,7 +112,7 @@ public:
 
     /*virtual*/ void setDead();
 
-    BOOL updateFromMesg();
+    bool updateFromMesg();
 
     // Returns a new particle source to attach to an object...
     static LLPointer<LLViewerPartSourceScript> unpackPSS(LLViewerObject *source_objp, LLPointer<LLViewerPartSourceScript> pssp, const S32 block_num);

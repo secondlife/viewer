@@ -83,24 +83,24 @@ public:
     virtual ~LLMultiSliderCtrl();
 
     F32             getSliderValue(const std::string& name) const   { return mMultiSlider->getSliderValue(name); }
-    void            setSliderValue(const std::string& name, F32 v, BOOL from_event = FALSE);
+    void            setSliderValue(const std::string& name, F32 v, bool from_event = false);
 
     virtual void    setValue(const LLSD& value );
     virtual LLSD    getValue() const        { return mMultiSlider->getValue(); }
-    virtual BOOL    setLabelArg( const std::string& key, const LLStringExplicit& text );
+    virtual bool    setLabelArg( const std::string& key, const LLStringExplicit& text );
 
     const std::string& getCurSlider() const                 { return mMultiSlider->getCurSlider(); }
     F32             getCurSliderValue() const               { return mCurValue; }
     void            setCurSlider(const std::string& name);
     void            resetCurSlider();
-    void            setCurSliderValue(F32 val, BOOL from_event = false) { setSliderValue(mMultiSlider->getCurSlider(), val, from_event); }
+    void            setCurSliderValue(F32 val, bool from_event = false) { setSliderValue(mMultiSlider->getCurSlider(), val, from_event); }
 
     virtual void    setMinValue(const LLSD& min_value)  { setMinValue((F32)min_value.asReal()); }
     virtual void    setMaxValue(const LLSD& max_value)  { setMaxValue((F32)max_value.asReal());  }
 
-    BOOL            isMouseHeldDown();
+    bool            isMouseHeldDown();
 
-    virtual void    setEnabled( BOOL b );
+    virtual void    setEnabled( bool b );
     virtual void    clear();
     virtual void    setPrecision(S32 precision);
     void            setMinValue(F32 min_value) {mMultiSlider->setMinValue(min_value);}
@@ -138,7 +138,7 @@ public:
 
     virtual void    onTabInto();
 
-    virtual void    setTentative(BOOL b);           // marks value as tentative
+    virtual void    setTentative(bool b);           // marks value as tentative
     virtual void    onCommit();                     // mark not tentative, then commit
 
     virtual void        setControlName(const std::string& control_name, LLView* context);
@@ -155,8 +155,8 @@ private:
 
 private:
     const LLFontGL* mFont;
-    BOOL            mShowText;
-    BOOL            mCanEditText;
+    bool            mShowText;
+    bool            mCanEditText;
 
     S32             mPrecision;
     LLTextBox*      mLabelBox;

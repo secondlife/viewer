@@ -3857,6 +3857,16 @@ function="World.EnvPreset"
                      function="ToggleControl"
                      parameter="AllowSelectAvatar" />
                 </menu_item_check>
+                <menu_item_check
+                 label="Render Only Friends"
+                 name="Render Only Friends">
+                    <menu_item_check.on_check
+                     function="CheckControl"
+                     parameter="RenderAvatarFriendsOnly" />
+                    <menu_item_check.on_click
+                     function="ToggleControl"
+                     parameter="RenderAvatarFriendsOnly" />
+                </menu_item_check>
             </menu>
             <menu
              create_jump_keys="true"
@@ -3952,6 +3962,16 @@ function="World.EnvPreset"
                  parameter="DebugCharacterVis" />
                 <menu_item_check.on_click
                  function="Advanced.ToggleDebugCharacterVis" />
+            </menu_item_check>
+            <menu_item_check
+             label="Debug Character Rez State"
+             name="Debug Character Rez State">
+                <menu_item_check.on_check
+                 function="CheckControl"
+                 parameter="NameTagDebugAVRezState" />
+                <menu_item_check.on_click
+                 function="ToggleControl"
+                 parameter="NameTagDebugAVRezState" />
             </menu_item_check>
             <menu_item_check
              label="Show Collision Skeleton"

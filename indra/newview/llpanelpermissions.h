@@ -48,7 +48,7 @@ public:
     LLPanelPermissions();
     virtual ~LLPanelPermissions();
 
-    /*virtual*/ BOOL    postBuild();
+    /*virtual*/ bool    postBuild();
     void updateOwnerName(const LLUUID& owner_id, const LLAvatarName& owner_name, const LLStyle::Params& style_params);
     void updateCreatorName(const LLUUID& creator_id, const LLAvatarName& creator_name, const LLStyle::Params& style_params);
     void refresh();                         // refresh all labels as needed

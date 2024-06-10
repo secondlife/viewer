@@ -104,8 +104,8 @@ public:
     {
         Params()
         {
-            changeDefault(draw_tooltip, FALSE);
-            changeDefault(mouse_opaque, FALSE);
+            changeDefault(draw_tooltip, false);
+            changeDefault(mouse_opaque, false);
             changeDefault(default_icon_name, "Generic_Person");
         };
     };
@@ -214,7 +214,7 @@ protected:
     /**
      * Notifies subscribers about click on chiclet.
      */
-    /*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
+    /*virtual*/ bool handleMouseDown(S32 x, S32 y, MASK mask);
 
     /**
      * Notifies subscribers about chiclet size changed event.
@@ -257,7 +257,7 @@ public:
     /**
      * It is used for default setting up of chicklet:click handler, etc.
      */
-    BOOL postBuild();
+    bool postBuild();
 
     /**
      * Sets IM session name. This name will be displayed in chiclet tooltip.
@@ -303,7 +303,7 @@ public:
     /**
      * Displays popup menu.
      */
-    virtual BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
+    virtual bool handleRightMouseDown(S32 x, S32 y, MASK mask);
 
     void hidePopupMenu();
 
@@ -485,7 +485,7 @@ public:
 
     /*virtual*/ ~LLSysWellChiclet();
 
-    void setToggleState(BOOL toggled);
+    void setToggleState(bool toggled);
 
     void setNewMessagesState(bool new_messages);
     //this method should change a widget according to state of the SysWellWindow
@@ -507,7 +507,7 @@ protected:
     /**
      * Displays menu.
      */
-    virtual BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
+    virtual bool handleRightMouseDown(S32 x, S32 y, MASK mask);
 
     virtual void createMenu() = 0;
 
@@ -628,7 +628,7 @@ public:
     /**
      * Returns number of hosted chiclets.
      */
-    S32 getChicletCount() {return mChicletList.size();};
+    S32 getChicletCount() { return static_cast<S32>(mChicletList.size()); }
 
     /**
      * Returns index of chiclet in list.
@@ -663,7 +663,7 @@ public:
     boost::signals2::connection setChicletClickedCallback(
         const commit_callback_t& cb);
 
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
 
     /**
      * Handler for the Voice Client's signal. Finds a corresponding chiclet and toggles its SpeakerControl
@@ -673,7 +673,7 @@ public:
     /**
      * Reshapes controls and rearranges chiclets if needed.
      */
-    /*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE );
+    /*virtual*/ void reshape(S32 width, S32 height, bool called_from_parent = true );
 
     /*virtual*/ void draw();
 
@@ -778,7 +778,7 @@ protected:
     /**
      * Callback for mouse wheel scrolled, calls scrollRight() or scrollLeft()
      */
-    BOOL handleScrollWheel(S32 x, S32 y, S32 clicks);
+    bool handleScrollWheel(S32 x, S32 y, S32 clicks);
 
     /**
      * Notifies subscribers about click on chiclet.
@@ -854,7 +854,7 @@ T* LLChicletPanel::createChiclet(const LLUUID& session_id, S32 index)
 template<class T>
 T* LLChicletPanel::createChiclet(const LLUUID& session_id)
 {
-    return createChiclet<T>(session_id, mChicletList.size());
+    return createChiclet<T>(session_id, static_cast<S32>(mChicletList.size()));
 }
 
 template<class T>

@@ -48,7 +48,7 @@ public:
     void load(const LLSD& event_options);   // In the format that it comes in from login
     void remove(U32 event_id);
 
-    BOOL hasNotification(const U32 event_id);
+    bool hasNotification(const U32 event_id);
     void serverPushRequest(U32 event_id, bool add);
 
     typedef std::map<U32, LLEventNotification *> en_map;

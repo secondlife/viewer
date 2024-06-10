@@ -284,7 +284,7 @@ bool LLWorkerClass::yield()
     mWorkerThread->checkPause();
     bool res;
     mMutex.lock();
-    res = (getFlags() & WCF_ABORT_REQUESTED) ? true : false;
+    res = (getFlags() & WCF_ABORT_REQUESTED) != 0;
     mMutex.unlock();
     return res;
 }

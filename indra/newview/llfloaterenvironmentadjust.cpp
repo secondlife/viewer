@@ -1,25 +1,25 @@
-/**
+/** 
  * @file llfloaterfixedenvironment.cpp
  * @brief Floaters to create and edit fixed settings for sky and water.
  *
  * $LicenseInfo:firstyear=2011&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2011, Linden Research, Inc.
- *
+ * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- *
+ * 
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- *
+ * 
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -84,7 +84,7 @@ LLFloaterEnvironmentAdjust::~LLFloaterEnvironmentAdjust()
 {}
 
 //-------------------------------------------------------------------------
-BOOL LLFloaterEnvironmentAdjust::postBuild()
+bool LLFloaterEnvironmentAdjust::postBuild()
 {
     getChild<LLUICtrl>(FIELD_SKY_AMBIENT_LIGHT)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onAmbientLightChanged(); });
     getChild<LLUICtrl>(FIELD_SKY_BLUE_HORIZON)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onBlueHorizonChanged(); });
@@ -113,7 +113,7 @@ BOOL LLFloaterEnvironmentAdjust::postBuild()
 
     getChild<LLTextureCtrl>(FIELD_SKY_CLOUD_MAP)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onCloudMapChanged(); });
     getChild<LLTextureCtrl>(FIELD_SKY_CLOUD_MAP)->setDefaultImageAssetID(LLSettingsSky::GetDefaultCloudNoiseTextureId());
-    getChild<LLTextureCtrl>(FIELD_SKY_CLOUD_MAP)->setAllowNoTexture(TRUE);
+    getChild<LLTextureCtrl>(FIELD_SKY_CLOUD_MAP)->setAllowNoTexture(true);
 
     getChild<LLTextureCtrl>(FIELD_WATER_NORMAL_MAP)->setDefaultImageAssetID(LLSettingsWater::GetDefaultWaterNormalAssetId());
     getChild<LLTextureCtrl>(FIELD_WATER_NORMAL_MAP)->setBlankImageAssetID(BLANK_OBJECT_NORMAL);
@@ -122,7 +122,7 @@ BOOL LLFloaterEnvironmentAdjust::postBuild()
     getChild<LLUICtrl>(FIELD_REFLECTION_PROBE_AMBIANCE)->setCommitCallback([this](LLUICtrl*, const LLSD&) { onReflectionProbeAmbianceChanged(); });
 
     refresh();
-    return TRUE;
+    return true;
 }
 
 void LLFloaterEnvironmentAdjust::onOpen(const LLSD& key)
@@ -157,12 +157,12 @@ void LLFloaterEnvironmentAdjust::refresh()
 {
     if (!mLiveSky || !mLiveWater)
     {
-        setAllChildrenEnabled(FALSE);
+        setAllChildrenEnabled(false);
         return;
     }
 
-    setEnabled(TRUE);
-    setAllChildrenEnabled(TRUE);
+    setEnabled(true);
+    setAllChildrenEnabled(true);
 
     getChild<LLColorSwatchCtrl>(FIELD_SKY_AMBIENT_LIGHT)->set(mLiveSky->getAmbientColor() / SLIDER_SCALE_SUN_AMBIENT);
     getChild<LLColorSwatchCtrl>(FIELD_SKY_BLUE_HORIZON)->set(mLiveSky->getBlueHorizon() / SLIDER_SCALE_BLUE_HORIZON_DENSITY);
@@ -260,7 +260,7 @@ void LLFloaterEnvironmentAdjust::onButtonReset()
             LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL);
             LLEnvironment::instance().updateEnvironment();
         }
-    });
+    }); 
 
 }
 //-------------------------------------------------------------------------

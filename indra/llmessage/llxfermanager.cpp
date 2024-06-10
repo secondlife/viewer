@@ -79,7 +79,7 @@ void LLXferManager::init()
     setMaxIncomingXfers(LL_DEFAULT_MAX_REQUEST_FIFO_XFERS);
 
     // Turn on or off ack throttling
-    mUseAckThrottling = FALSE;
+    mUseAckThrottling = false;
     setAckThrottleBPS(100000);
 }
 
@@ -116,7 +116,7 @@ void LLXferManager::setHardLimitOutgoingXfersPerCircuit(S32 max_num)
     mHardLimitOutgoingXfersPerCircuit = max_num;
 }
 
-void LLXferManager::setUseAckThrottling(const BOOL use)
+void LLXferManager::setUseAckThrottling(const bool use)
 {
     mUseAckThrottling = use;
 }
@@ -367,7 +367,7 @@ U64 LLXferManager::getNextID ()
 
 ///////////////////////////////////////////////////////////
 
-S32 LLXferManager::encodePacketNum(S32 packet_num, BOOL is_EOF)
+S32 LLXferManager::encodePacketNum(S32 packet_num, bool is_EOF)
 {
     if (is_EOF)
     {
@@ -385,7 +385,7 @@ S32 LLXferManager::decodePacketNum(S32 packet_num)
 
 ///////////////////////////////////////////////////////////
 
-BOOL LLXferManager::isLastPacket(S32 packet_num)
+bool LLXferManager::isLastPacket(S32 packet_num)
 {
     return(packet_num & 0x80000000);
 }
@@ -396,11 +396,11 @@ U64 LLXferManager::requestFile(const std::string& local_filename,
                                 const std::string& remote_filename,
                                 ELLPath remote_path,
                                 const LLHost& remote_host,
-                                BOOL delete_remote_on_completion,
+                                bool delete_remote_on_completion,
                                 void (*callback)(void**,S32,LLExtStat),
                                 void** user_data,
-                                BOOL is_priority,
-                                BOOL use_big_packets)
+                                bool is_priority,
+                                bool use_big_packets)
 {
     LLXfer_File* file_xfer_p = NULL;
 
@@ -464,7 +464,7 @@ void LLXferManager::requestVFile(const LLUUID& local_id,
                                  const LLHost& remote_host,
                                  void (*callback)(void**,S32,LLExtStat),
                                  void** user_data,
-                                 BOOL is_priority)
+                                 bool is_priority)
 {
     LLXfer_VFile * xfer_p = NULL;
 
@@ -757,7 +757,7 @@ void LLXferManager::processFileRequest (LLMessageSystem *mesgsys, void ** /*user
     LLUUID  uuid;
     LLAssetType::EType type;
     S16 type_s16;
-    BOOL b_use_big_packets;
+    bool b_use_big_packets;
 
     mesgsys->getBOOL("XferID", "UseBigPackets", b_use_big_packets);
 
@@ -853,7 +853,7 @@ void LLXferManager::processFileRequest (LLMessageSystem *mesgsys, void ** /*user
         }
         LL_INFOS("Xfer") << "starting file transfer: " <<  expanded_filename << " to " << mesgsys->getSender() << LL_ENDL;
 
-        BOOL delete_local_on_completion = FALSE;
+        bool delete_local_on_completion = false;
         mesgsys->getBOOL("XferID", "DeleteOnCompletion", delete_local_on_completion);
 
         // -1 chunk_size causes it to use the default
@@ -1005,7 +1005,7 @@ void LLXferManager::processConfirmation (LLMessageSystem *mesgsys, void ** /*use
     if (xferp)
     {
 //      cout << "confirmed packet #" << packetNum << " ping: "<< xferp->ACKTimer.getElapsedTimeF32() <<  endl;
-        xferp->mWaitingForACK = FALSE;
+        xferp->mWaitingForACK = false;
         if (xferp->mStatus == e_LL_XFER_IN_PROGRESS)
         {
             xferp->sendNextPacket();
@@ -1235,7 +1235,7 @@ void LLXferManager::startPendingDownloads()
 
 ///////////////////////////////////////////////////////////
 
-void LLXferManager::addToList(LLXfer* xferp, xfer_list_t & xfer_list, BOOL is_priority)
+void LLXferManager::addToList(LLXfer* xferp, xfer_list_t & xfer_list, bool is_priority)
 {
     if(is_priority)
     {

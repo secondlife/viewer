@@ -33,8 +33,8 @@
 #include "llweb.h"
 
 
-const S32 STACK_WIDTH = 300;
-const S32 STACK_HEIGHT = 505; // content will be 500
+constexpr S32 STACK_WIDTH = 300;
+constexpr S32 STACK_HEIGHT = 505; // content will be 500
 
 LLFloaterHowTo::LLFloaterHowTo(const Params& key) :
     LLFloaterWebContent(key)
@@ -42,11 +42,11 @@ LLFloaterHowTo::LLFloaterHowTo(const Params& key) :
     mShowPageTitle = false;
 }
 
-BOOL LLFloaterHowTo::postBuild()
+bool LLFloaterHowTo::postBuild()
 {
     LLFloaterWebContent::postBuild();
 
-    return TRUE;
+    return true;
 }
 
 void LLFloaterHowTo::onOpen(const LLSD& key)
@@ -78,14 +78,14 @@ LLFloaterHowTo* LLFloaterHowTo::getInstance()
     return LLFloaterReg::getTypedInstance<LLFloaterHowTo>("guidebook");
 }
 
-BOOL LLFloaterHowTo::handleKeyHere(KEY key, MASK mask)
+bool LLFloaterHowTo::handleKeyHere(KEY key, MASK mask)
 {
-    BOOL handled = FALSE;
+    bool handled = false;
 
     if (KEY_F1 == key )
     {
         closeFloater();
-        handled = TRUE;
+        handled = true;
     }
 
     return handled;

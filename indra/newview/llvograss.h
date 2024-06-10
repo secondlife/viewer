@@ -53,10 +53,10 @@ public:
     static void import(LLFILE *file, LLMessageSystem *mesgsys, const LLVector3 &pos);
     /*virtual*/ void exportFile(LLFILE *file, const LLVector3 &position);
 
-    void updateDrawable(BOOL force_damped);
+    void updateDrawable(bool force_damped);
 
     /*virtual*/ LLDrawable* createDrawable(LLPipeline *pipeline);
-    /*virtual*/ BOOL        updateGeometry(LLDrawable *drawable);
+    /*virtual*/ bool        updateGeometry(LLDrawable *drawable);
     /*virtual*/ void        getGeometry(S32 idx,
                                 LLStrider<LLVector4a>& verticesp,
                                 LLStrider<LLVector3>& normalsp,
@@ -67,19 +67,19 @@ public:
 
     void updateFaceSize(S32 idx) { }
     /*virtual*/ void updateTextures();
-    /*virtual*/ BOOL updateLOD();
+    /*virtual*/ bool updateLOD();
     /*virtual*/ void setPixelAreaAndAngle(LLAgent &agent); // generate accurate apparent angle and area
 
     void plantBlades();
 
-    /*virtual*/ BOOL    isActive() const; // Whether this object needs to do an idleUpdate.
+    /*virtual*/ bool    isActive() const; // Whether this object needs to do an idleUpdate.
     /*virtual*/ void idleUpdate(LLAgent &agent, const F64 &time);
 
-    /*virtual*/ BOOL lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
+    /*virtual*/ bool lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
                                           S32 face = -1,                        // which face to check, -1 = ALL_SIDES
-                                          BOOL pick_transparent = FALSE,
-                                          BOOL pick_rigged = FALSE,
-                                          BOOL pick_unselectable = TRUE,
+                                          bool pick_transparent = false,
+                                          bool pick_rigged = false,
+                                          bool pick_unselectable = true,
                                           S32* face_hit = NULL,                 // which face was hit
                                           LLVector4a* intersection = NULL,       // return the intersection point
                                           LLVector2* tex_coord = NULL,          // return the texture coordinates of the intersection point

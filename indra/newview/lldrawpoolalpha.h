@@ -63,12 +63,12 @@ public:
 
     void renderDebugAlpha();
 
-    void renderGroupAlpha(LLSpatialGroup* group, U32 type, U32 mask, BOOL texture = TRUE);
+    void renderGroupAlpha(LLSpatialGroup* group, U32 type, U32 mask, bool texture = true);
     void renderAlpha(U32 mask, bool depth_only = false, bool rigged = false);
     void renderAlphaHighlight();
     bool uploadMatrixPalette(const LLDrawInfo& params);
 
-    static BOOL sShowDebugAlpha;
+    static bool sShowDebugAlpha;
 
 private:
     LLGLSLShader* target_shader;

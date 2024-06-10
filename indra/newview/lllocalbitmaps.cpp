@@ -72,7 +72,7 @@
 /*=======================================*/
 
 static const F32 LL_LOCAL_TIMER_HEARTBEAT   = 3.0;
-static const BOOL LL_LOCAL_USE_MIPMAPS      = true;
+static const bool LL_LOCAL_USE_MIPMAPS      = true;
 static const S32 LL_LOCAL_DISCARD_LEVEL     = 0;
 static const bool LL_LOCAL_SLAM_FOR_DEBUG   = true;
 static const bool LL_LOCAL_REPLACE_ON_DEL   = true;
@@ -438,7 +438,7 @@ std::vector<LLViewerObject*> LLLocalBitmap::prepUpdateObjects(LLUUID old_id, U32
     std::vector<LLViewerObject*> obj_list;
     LLViewerFetchedTexture* old_texture = gTextureList.findImage(old_id, TEX_LIST_STANDARD);
 
-    for(U32 face_iterator = 0; face_iterator < old_texture->getNumFaces(channel); face_iterator++)
+    for (S32 face_iterator = 0; face_iterator < old_texture->getNumFaces(channel); face_iterator++)
     {
         // getting an object from a face
         LLFace* face_to_object = (*old_texture->getFaceList(channel))[face_iterator];
@@ -554,7 +554,7 @@ void LLLocalBitmap::updateUserPrims(LLUUID old_id, LLUUID new_id, U32 channel)
 void LLLocalBitmap::updateUserVolumes(LLUUID old_id, LLUUID new_id, U32 channel)
 {
     LLViewerFetchedTexture* old_texture = gTextureList.findImage(old_id, TEX_LIST_STANDARD);
-    for (U32 volume_iter = 0; volume_iter < old_texture->getNumVolumes(channel); volume_iter++)
+    for (S32 volume_iter = 0; volume_iter < old_texture->getNumVolumes(channel); volume_iter++)
     {
         LLVOVolume* volobjp = (*old_texture->getVolumeList(channel))[volume_iter];
         switch (channel)
@@ -579,7 +579,7 @@ void LLLocalBitmap::updateUserVolumes(LLUUID old_id, LLUUID new_id, U32 channel)
                 LLSculptParams* old_params = (LLSculptParams*)object->getParameterEntry(LLNetworkData::PARAMS_SCULPT);
                 LLSculptParams new_params(*old_params);
                 new_params.setSculptTexture(new_id, (*old_params).getSculptType());
-                object->setParameterEntry(LLNetworkData::PARAMS_SCULPT, new_params, TRUE);
+                object->setParameterEntry(LLNetworkData::PARAMS_SCULPT, new_params, true);
             }
         }
     }
@@ -613,7 +613,7 @@ void LLLocalBitmap::updateUserLayers(LLUUID old_id, LLUUID new_id, LLWearableTyp
                         U32 index;
                         if (gAgentWearables.getWearableIndex(wearable,index))
                         {
-                            gAgentAvatarp->setLocalTexture(reg_texind, gTextureList.getImage(new_id), FALSE, index);
+                            gAgentAvatarp->setLocalTexture(reg_texind, gTextureList.getImage(new_id), false, index);
                             gAgentAvatarp->wearableUpdated(type);
                             /* telling the manager to rebake once update cycle is fully done */
                             LLLocalBitmapMgr::getInstance()->setNeedsRebake();
@@ -1009,10 +1009,10 @@ bool LLLocalBitmapTimer::isRunning()
     return mEventTimer.getStarted();
 }
 
-BOOL LLLocalBitmapTimer::tick()
+bool LLLocalBitmapTimer::tick()
 {
     LLLocalBitmapMgr::getInstance()->doUpdates();
-    return FALSE;
+    return false;
 }
 
 /*=======================================*/

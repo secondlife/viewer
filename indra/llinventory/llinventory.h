@@ -74,7 +74,7 @@ public:
     virtual const std::string& getName() const;
     virtual LLAssetType::EType getType() const;
     LLAssetType::EType getActualType() const; // bypasses indirection for linked items
-    BOOL getIsLinkType() const;
+    bool getIsLinkType() const;
     virtual time_t getCreationDate() const;
 
     //--------------------------------------------------------------------
@@ -98,11 +98,11 @@ public:
     //   between simulator and viewer.
     //--------------------------------------------------------------------
 
-    virtual BOOL importLegacyStream(std::istream& input_stream);
-    virtual BOOL exportLegacyStream(std::ostream& output_stream, BOOL include_asset_key = TRUE) const;
+    virtual bool importLegacyStream(std::istream& input_stream);
+    virtual bool exportLegacyStream(std::ostream& output_stream, bool include_asset_key = true) const;
 
-    virtual void updateParentOnServer(BOOL) const;
-    virtual void updateServer(BOOL) const;
+    virtual void updateParentOnServer(bool) const;
+    virtual void updateServer(bool) const;
 
     //--------------------------------------------------------------------
     // Member Variables
@@ -190,17 +190,17 @@ public:
     // Assumes you have already called nextBlock().
     virtual void packMessage(LLMessageSystem* msg) const;
 
-    // Returns TRUE if the inventory item came through the network correctly.
+    // Returns true if the inventory item came through the network correctly.
     // Uses a simple crc check which is defeatable, but we want to detect
     // network mangling somehow.
-    virtual BOOL unpackMessage(LLMessageSystem* msg, const char* block, S32 block_num = 0);
+    virtual bool unpackMessage(LLMessageSystem* msg, const char* block, S32 block_num = 0);
 
     //--------------------------------------------------------------------
     // File Support
     //--------------------------------------------------------------------
 public:
-    virtual BOOL importLegacyStream(std::istream& input_stream);
-    virtual BOOL exportLegacyStream(std::ostream& output_stream, BOOL include_asset_key = TRUE) const;
+    virtual bool importLegacyStream(std::istream& input_stream);
+    virtual bool exportLegacyStream(std::ostream& output_stream, bool include_asset_key = true) const;
 
     //--------------------------------------------------------------------
     // Helper Functions
@@ -267,8 +267,8 @@ public:
     // File Support
     //--------------------------------------------------------------------
 public:
-    virtual BOOL importLegacyStream(std::istream& input_stream);
-    virtual BOOL exportLegacyStream(std::ostream& output_stream, BOOL include_asset_key = TRUE) const;
+    virtual bool importLegacyStream(std::istream& input_stream);
+    virtual bool exportLegacyStream(std::ostream& output_stream, bool include_asset_key = true) const;
 
     LLSD exportLLSD() const;
     bool importLLSD(const LLSD& cat_data);

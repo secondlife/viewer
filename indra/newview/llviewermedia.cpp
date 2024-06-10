@@ -79,10 +79,10 @@
 #include <boost/bind.hpp>   // for SkinFolder listener
 #include <boost/signals2.hpp>
 
-extern BOOL gCubeSnapshot;
+extern bool gCubeSnapshot;
 
 // *TODO: Consider enabling mipmaps (they have been disabled for a long time). Likely has a significant performance impact for tiled/high texture repeat media. Mip generation in a shader may also be an option if necessary.
-constexpr BOOL USE_MIPMAPS = FALSE;
+constexpr bool USE_MIPMAPS = false;
 
 void init_threaded_picker_load_dialog(LLPluginClassMedia* plugin, LLFilePicker::ELoadFilter filter, bool get_multiple)
 {
@@ -1661,7 +1661,7 @@ void LLViewerMediaImpl::destroyMediaSource()
     LLViewerMediaTexture* oldImage = LLViewerTextureManager::findMediaTexture( mTextureId );
     if (oldImage)
     {
-        oldImage->setPlaying(FALSE) ;
+        oldImage->setPlaying(false) ;
     }
 
     cancelMimeTypeProbe();
@@ -2337,7 +2337,7 @@ void LLViewerMediaImpl::onMouseCaptureLost()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-BOOL LLViewerMediaImpl::handleMouseUp(S32 x, S32 y, MASK mask)
+bool LLViewerMediaImpl::handleMouseUp(S32 x, S32 y, MASK mask)
 {
     // NOTE: this is called when the mouse is released when we have capture.
     // Due to the way mouse coordinates are mapped to the object, we can't use the x and y coordinates that come in with the event.
@@ -2345,10 +2345,10 @@ BOOL LLViewerMediaImpl::handleMouseUp(S32 x, S32 y, MASK mask)
     if(hasMouseCapture())
     {
         // Release the mouse -- this will also send a mouseup to the media
-        gFocusMgr.setMouseCapture( FALSE );
+        gFocusMgr.setMouseCapture( nullptr );
     }
 
-    return TRUE;
+    return true;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -2757,7 +2757,7 @@ bool LLViewerMediaImpl::handleUnicodeCharHere(llwchar uni_char)
         {
             LLSD native_key_data = gViewerWindow->getWindow()->getNativeKeyData();
 
-            mMediaSource->textInput(wstring_to_utf8str(LLWString(1, uni_char)), gKeyboard->currentMask(FALSE), native_key_data);
+            mMediaSource->textInput(wstring_to_utf8str(LLWString(1, uni_char)), gKeyboard->currentMask(false), native_key_data);
         }
     }
 
@@ -2767,7 +2767,7 @@ bool LLViewerMediaImpl::handleUnicodeCharHere(llwchar uni_char)
 //////////////////////////////////////////////////////////////////////////////////////////
 bool LLViewerMediaImpl::canNavigateForward()
 {
-    BOOL result = FALSE;
+    bool result = false;
     if (mMediaSource)
     {
         result = mMediaSource->getHistoryForwardAvailable();
@@ -2778,7 +2778,7 @@ bool LLViewerMediaImpl::canNavigateForward()
 //////////////////////////////////////////////////////////////////////////////////////////
 bool LLViewerMediaImpl::canNavigateBack()
 {
-    BOOL result = FALSE;
+    bool result = false;
     if (mMediaSource)
     {
         result = mMediaSource->getHistoryBackAvailable();
@@ -2933,7 +2933,7 @@ bool LLViewerMediaImpl::preMediaTexUpdate(LLViewerMediaTexture*& media_tex, U8*&
             //S32 media_depth = mMediaSource->getTextureDepth();
 
             // Since we're updating this texture, we know it's playing.  Tell the texture to do its replacement magic so it gets rendered.
-            media_tex->setPlaying(TRUE);
+            media_tex->setPlaying(true);
 
             if (mMediaSource->getDirty(&dirty_rect))
             {
@@ -2980,7 +2980,7 @@ void LLViewerMediaImpl::doMediaTexUpdate(LLViewerMediaTexture* media_tex, U8* da
     // -Cosmic,2023-04-04
     // Allocate GL texture based on LLImageRaw but do NOT copy to GL
     LLGLuint tex_name = 0;
-    media_tex->createGLTexture(0, raw, 0, TRUE, LLGLTexture::OTHER, true, &tex_name);
+    media_tex->createGLTexture(0, raw, 0, true, LLGLTexture::OTHER, true, &tex_name);
 
     // copy just the subimage covered by the image raw to GL
     media_tex->setSubImage(data, data_width, data_height, x_pos, y_pos, width, height, tex_name);
@@ -3498,13 +3498,13 @@ LLViewerMediaImpl::cut()
 
 ////////////////////////////////////////////////////////////////////////////////
 // virtual
-BOOL
+bool
 LLViewerMediaImpl::canCut() const
 {
     if (mMediaSource)
         return mMediaSource->canCut();
     else
-        return FALSE;
+        return false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -3518,13 +3518,13 @@ LLViewerMediaImpl::copy()
 
 ////////////////////////////////////////////////////////////////////////////////
 // virtual
-BOOL
+bool
 LLViewerMediaImpl::canCopy() const
 {
     if (mMediaSource)
         return mMediaSource->canCopy();
     else
-        return FALSE;
+        return false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -3538,21 +3538,21 @@ LLViewerMediaImpl::paste()
 
 ////////////////////////////////////////////////////////////////////////////////
 // virtual
-BOOL
+bool
 LLViewerMediaImpl::canPaste() const
 {
     if (mMediaSource)
         return mMediaSource->canPaste();
     else
-        return FALSE;
+        return false;
 }
 
-void LLViewerMediaImpl::setUpdated(BOOL updated)
+void LLViewerMediaImpl::setUpdated(bool updated)
 {
     mIsUpdated = updated ;
 }
 
-BOOL LLViewerMediaImpl::isUpdated()
+bool LLViewerMediaImpl::isUpdated()
 {
     return mIsUpdated ;
 }

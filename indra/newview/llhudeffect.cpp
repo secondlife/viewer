@@ -42,9 +42,9 @@ LLHUDEffect::LLHUDEffect(const U8 type)
     mDuration(1.f),
     mColor()
 {
-    mNeedsSendToSim = FALSE;
-    mOriginatedHere = FALSE;
-    mDead = FALSE;
+    mNeedsSendToSim = false;
+    mOriginatedHere = false;
+    mDead = false;
 }
 
 LLHUDEffect::~LLHUDEffect()
@@ -94,23 +94,23 @@ void LLHUDEffect::setDuration(const F32 duration)
     mDuration = duration;
 }
 
-void LLHUDEffect::setNeedsSendToSim(const BOOL send_to_sim)
+void LLHUDEffect::setNeedsSendToSim(const bool send_to_sim)
 {
     mNeedsSendToSim = send_to_sim;
 }
 
-BOOL LLHUDEffect::getNeedsSendToSim() const
+bool LLHUDEffect::getNeedsSendToSim() const
 {
     return mNeedsSendToSim;
 }
 
 
-void LLHUDEffect::setOriginatedHere(const BOOL orig_here)
+void LLHUDEffect::setOriginatedHere(const bool orig_here)
 {
     mOriginatedHere = orig_here;
 }
 
-BOOL LLHUDEffect::getOriginatedHere() const
+bool LLHUDEffect::getOriginatedHere() const
 {
     return mOriginatedHere;
 }
@@ -122,7 +122,7 @@ void LLHUDEffect::getIDType(LLMessageSystem *mesgsys, S32 blocknum, LLUUID &id, 
     mesgsys->getU8Fast(_PREHASH_Effect, _PREHASH_Type, type, blocknum);
 }
 
-BOOL LLHUDEffect::isDead() const
+bool LLHUDEffect::isDead() const
 {
     return mDead;
 }

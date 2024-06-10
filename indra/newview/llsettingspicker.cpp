@@ -1,4 +1,4 @@
-/**
+/** 
 * @author Rider Linden
 * @brief LLSettingsPicker class header file including related functions
 *
@@ -78,20 +78,20 @@ LLFloaterSettingsPicker::LLFloaterSettingsPicker(LLView * owner, LLUUID initial_
     mOwnerHandle = owner->getHandle();
 
     buildFromFile(FLOATER_DEFINITION_XML);
-    setCanMinimize(FALSE);
+    setCanMinimize(false);
 }
 
 
-LLFloaterSettingsPicker::~LLFloaterSettingsPicker()
+LLFloaterSettingsPicker::~LLFloaterSettingsPicker() 
 {
 
 }
 
 //-------------------------------------------------------------------------
-BOOL LLFloaterSettingsPicker::postBuild()
+bool LLFloaterSettingsPicker::postBuild()
 {
     if (!LLFloater::postBuild())
-        return FALSE;
+        return false;
 
     std::string prefix = getString(STR_TITLE_PREFIX);
     std::string label = getString(STR_TITLE_SETTINGS);
@@ -99,7 +99,7 @@ BOOL LLFloaterSettingsPicker::postBuild()
 
     mFilterEdit = getChild<LLFilterEditor>(FLT_INVENTORY_SEARCH);
     mFilterEdit->setCommitCallback([this](LLUICtrl*, const LLSD& param){ onFilterEdit(param.asString()); });
-
+    
     mInventoryPanel = getChild<LLInventoryPanel>(PNL_INVENTORY);
     if (mInventoryPanel)
     {
@@ -115,7 +115,7 @@ BOOL LLFloaterSettingsPicker::postBuild()
 
         // Disable auto selecting first filtered item because it takes away
         // selection from the item set by LLTextureCtrl owning this floater.
-        mInventoryPanel->getRootFolder()->setAutoSelectOverride(TRUE);
+        mInventoryPanel->getRootFolder()->setAutoSelectOverride(true);
 
         // don't put keyboard focus on selected item, because the selection callback
         // will assume that this was user input
@@ -127,7 +127,7 @@ BOOL LLFloaterSettingsPicker::postBuild()
         getChild<LLView>(BTN_SELECT)->setEnabled(mSettingItemID.notNull());
     }
 
-    mNoCopySettingsSelected = FALSE;
+    mNoCopySettingsSelected = false;
 
     childSetAction(BTN_CANCEL, [this](LLUICtrl*, const LLSD& param){ onButtonCancel(); });
     childSetAction(BTN_SELECT, [this](LLUICtrl*, const LLSD& param){ onButtonSelect(); });
@@ -135,9 +135,9 @@ BOOL LLFloaterSettingsPicker::postBuild()
     getChild<LLPanel>(PNL_COMBO)->setVisible(mTrackMode != TRACK_NONE);
 
     // update permission filter once UI is fully initialized
-    mSavedFolderState.setApply(FALSE);
+    mSavedFolderState.setApply(false);
 
-    return TRUE;
+    return true;
 }
 
 void LLFloaterSettingsPicker::onClose(bool app_quitting)
@@ -149,7 +149,7 @@ void LLFloaterSettingsPicker::onClose(bool app_quitting)
     LLView *owner = mOwnerHandle.get();
     if (owner)
     {
-        owner->setFocus(TRUE);
+        owner->setFocus(true);
     }
     mSettingItemID.setNull();
     mInventoryPanel->getRootFolder()->clearSelection();
@@ -160,7 +160,7 @@ void LLFloaterSettingsPicker::setValue(const LLSD& value)
     mSettingItemID = value.asUUID();
 }
 
-LLSD LLFloaterSettingsPicker::getValue() const
+LLSD LLFloaterSettingsPicker::getValue() const 
 {
     return LLSD(mSettingItemID);
 }
@@ -218,7 +218,7 @@ void LLFloaterSettingsPicker::onFilterEdit(const std::string& search_string)
             return;
         }
 
-        mSavedFolderState.setApply(TRUE);
+        mSavedFolderState.setApply(true);
         mInventoryPanel->getRootFolder()->applyFunctorRecursively(mSavedFolderState);
         // add folder with current item to list of previously opened folders
         LLOpenFoldersWithSelection opener;
@@ -231,7 +231,7 @@ void LLFloaterSettingsPicker::onFilterEdit(const std::string& search_string)
         // first letter in search term, save existing folder open state
         if (!mInventoryPanel->getFilter().isNotDefault())
         {
-            mSavedFolderState.setApply(FALSE);
+            mSavedFolderState.setApply(false);
             mInventoryPanel->getRootFolder()->applyFunctorRecursively(mSavedFolderState);
         }
     }
@@ -326,7 +326,7 @@ void LLFloaterSettingsPicker::onAssetLoaded(LLUUID asset_id, LLSettingsBase::ptr
         // track 1 always present
         track_selection->add(getString(STR_TRACK_GROUND), LLSD::Integer(LLSettingsDay::TRACK_GROUND_LEVEL), ADD_TOP, true);
         LLUIString formatted_label = getString(STR_TRACK_SKY);
-        for (int i = 2; i < LLSettingsDay::TRACK_MAX; i++)
+        for (U32 i = 2; i < LLSettingsDay::TRACK_MAX; i++)
         {
             if (!pday->isTrackEmpty(i))
             {
@@ -335,7 +335,7 @@ void LLFloaterSettingsPicker::onAssetLoaded(LLUUID asset_id, LLSettingsBase::ptr
             }
         }
     }
-
+    
     mSettingAssetID = asset_id;
     track_selection->setEnabled(true);
     track_selection->selectFirstItem();
@@ -359,9 +359,9 @@ void LLFloaterSettingsPicker::onButtonSelect()
     closeFloater();
 }
 
-BOOL LLFloaterSettingsPicker::handleDoubleClick(S32 x, S32 y, MASK mask)
+bool LLFloaterSettingsPicker::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
-    BOOL result = FALSE;
+    bool result = false;
     if (mSettingItemID.notNull()
         && mInventoryPanel)
     {
@@ -387,7 +387,7 @@ BOOL LLFloaterSettingsPicker::handleDoubleClick(S32 x, S32 y, MASK mask)
                     }
                     closeFloater();
                     // hit inside panel on selected item, double click should do nothing
-                    result = TRUE;
+                    result = true;
                 }
             }
         }
@@ -400,7 +400,7 @@ BOOL LLFloaterSettingsPicker::handleDoubleClick(S32 x, S32 y, MASK mask)
     return result;
 }
 
-BOOL LLFloaterSettingsPicker::handleKeyHere(KEY key, MASK mask)
+bool LLFloaterSettingsPicker::handleKeyHere(KEY key, MASK mask)
 {
     if ((key == KEY_RETURN) && (mask == MASK_NONE))
     {
@@ -416,7 +416,7 @@ BOOL LLFloaterSettingsPicker::handleKeyHere(KEY key, MASK mask)
                 (*mCommitSignal)(this, res);
             }
             closeFloater();
-            return TRUE;
+            return true;
         }
     }
 

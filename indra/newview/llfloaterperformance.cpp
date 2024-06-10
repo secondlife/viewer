@@ -1,24 +1,24 @@
-/**
+/** 
  * @file llfloaterperformance.cpp
  *
  * $LicenseInfo:firstyear=2021&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2021, Linden Research, Inc.
- *
+ * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- *
+ * 
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- *
+ * 
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -91,7 +91,7 @@ LLFloaterPerformance::~LLFloaterPerformance()
     delete mUpdateTimer;
 }
 
-BOOL LLFloaterPerformance::postBuild()
+bool LLFloaterPerformance::postBuild()
 {
     mMainPanel = getChild<LLPanel>("panel_performance_main");
     mNearbyPanel = getChild<LLPanel>("panel_performance_nearby");
@@ -152,16 +152,16 @@ BOOL LLFloaterPerformance::postBuild()
     mStartAutotuneBtn->setCommitCallback(boost::bind(&LLFloaterPerformance::startAutotune, this));
     mStopAutotuneBtn->setCommitCallback(boost::bind(&LLFloaterPerformance::stopAutotune, this));
 
-    gSavedPerAccountSettings.declareBOOL("HadEnabledAutoFPS", FALSE, "User had enabled AutoFPS at least once", LLControlVariable::PERSIST_ALWAYS);
+    gSavedPerAccountSettings.declareBOOL("HadEnabledAutoFPS", false, "User had enabled AutoFPS at least once", LLControlVariable::PERSIST_ALWAYS);
 
-    return TRUE;
+    return true;
 }
 
 void LLFloaterPerformance::showSelectedPanel(LLPanel* selected_panel)
 {
     hidePanels();
-    mMainPanel->setVisible(FALSE);
-    selected_panel->setVisible(TRUE);
+    mMainPanel->setVisible(false);
+    selected_panel->setVisible(true);
 
     if (mHUDsPanel == selected_panel)
     {
@@ -186,7 +186,7 @@ void LLFloaterPerformance::draw()
 {
     enableAutotuneWarning();
 
-    if (mUpdateTimer->hasExpired() &&
+    if (mUpdateTimer->hasExpired() && 
         !LLFloaterReg::instanceVisible("save_pref_preset", PRESETS_GRAPHIC)) // give user a chance to save the graphics settings before updating them
     {
         setFPSText();
@@ -214,16 +214,16 @@ void LLFloaterPerformance::draw()
 void LLFloaterPerformance::showMainPanel()
 {
     hidePanels();
-    mMainPanel->setVisible(TRUE);
+    mMainPanel->setVisible(true);
 }
 
 void LLFloaterPerformance::hidePanels()
 {
-    mNearbyPanel->setVisible(FALSE);
-    mComplexityPanel->setVisible(FALSE);
-    mHUDsPanel->setVisible(FALSE);
-    mSettingsPanel->setVisible(FALSE);
-    mAutoadjustmentsPanel->setVisible(FALSE);
+    mNearbyPanel->setVisible(false);
+    mComplexityPanel->setVisible(false);
+    mHUDsPanel->setVisible(false);
+    mSettingsPanel->setVisible(false);
+    mAutoadjustmentsPanel->setVisible(false);
 }
 
 void LLFloaterPerformance::initBackBtn(LLPanel* panel)
@@ -321,7 +321,7 @@ void LLFloaterPerformance::populateHUDList()
             }
         }
     }
-    mHUDList->sortByColumnIndex(1, FALSE);
+    mHUDList->sortByColumnIndex(1, false);
     mHUDList->setScrollPos(prev_pos);
     mHUDList->selectItemBySpecialId(prev_selected_id);
 }
@@ -413,7 +413,7 @@ void LLFloaterPerformance::populateObjectList()
             }
         }
     }
-    mObjectList->sortByColumnIndex(1, FALSE);
+    mObjectList->sortByColumnIndex(1, false);
     mObjectList->setScrollPos(prev_pos);
     mObjectList->selectItemBySpecialId(prev_selected_id);
 }
@@ -447,7 +447,7 @@ void LLFloaterPerformance::populateNearbyList()
             row[0]["column"] = "complex_visual";
             row[0]["type"] = "bar";
             LLSD& value = row[0]["value"];
-            // The ratio used in the bar is the current cost, as soon as we take action this changes so we keep the
+            // The ratio used in the bar is the current cost, as soon as we take action this changes so we keep the 
             // pre-tune value for the numerical column and sorting.
             value["ratio"] = render_av_gpu_ms / mNearbyMaxGPUTime;
             value["bottom"] = BAR_BOTTOM_PAD;
@@ -503,7 +503,7 @@ void LLFloaterPerformance::populateNearbyList()
         }
         char_iter++;
     }
-    mNearbyList->sortByColumnIndex(1, FALSE);
+    mNearbyList->sortByColumnIndex(1, false);
     mNearbyList->setScrollPos(prev_pos);
     mNearbyList->selectByID(prev_selected_id);
 }
@@ -571,7 +571,7 @@ void LLFloaterPerformance::updateMaxRenderTime()
 {
     LLAvatarComplexityControls::updateMaxRenderTime(
         mNearbyPanel->getChild<LLSliderCtrl>("RenderAvatarMaxART"),
-        mNearbyPanel->getChild<LLTextBox>("RenderAvatarMaxARTText"),
+        mNearbyPanel->getChild<LLTextBox>("RenderAvatarMaxARTText"), 
         true);
 }
 
@@ -684,7 +684,7 @@ bool is_ALM_available()
 {
     bool bumpshiny = LLCubeMap::sUseCubeMaps && LLFeatureManager::getInstance()->isFeatureAvailable("RenderObjectBump") && gSavedSettings.getBOOL("RenderObjectBump");
     bool shaders = gSavedSettings.getBOOL("WindLightUseAtmosShaders");
-
+    
     return LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") &&
         bumpshiny &&
         shaders;
@@ -732,7 +732,7 @@ void LLFloaterPerformance::enableAutotuneWarning()
 {
     if (!gSavedPerAccountSettings.getBOOL("HadEnabledAutoFPS") && LLPerfStats::tunables.userAutoTuneEnabled)
     {
-        gSavedPerAccountSettings.setBOOL("HadEnabledAutoFPS", TRUE);
+        gSavedPerAccountSettings.setBOOL("HadEnabledAutoFPS", true);
 
         LLNotificationsUtil::add("EnableAutoFPSWarning", LLSD(), LLSD(),
             [](const LLSD& notif, const LLSD& resp)

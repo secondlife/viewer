@@ -83,7 +83,7 @@ public:
         mSourceType(CHAT_SOURCE_AGENT),
         mChatType(CHAT_TYPE_NORMAL),
         mAudible(CHAT_AUDIBLE_FULLY),
-        mMuted(FALSE),
+        mMuted(false),
         mTime(0.0),
         mTimeStr(),
         mPosAgent(),
@@ -100,7 +100,7 @@ public:
     EChatSourceType mSourceType;
     EChatType       mChatType;
     EChatAudible    mAudible;
-    BOOL            mMuted;     // pass muted chat to maintain list of chatters
+    bool            mMuted;     // pass muted chat to maintain list of chatters
     F64             mTime;      // viewer only, seconds from viewer start
     std::string     mTimeStr;
     LLVector3       mPosAgent;

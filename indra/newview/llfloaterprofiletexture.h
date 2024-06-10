@@ -54,12 +54,12 @@ public:
     boost::signals2::connection setImageLoadedCallback(const image_loaded_signal_t::slot_type& cb);
 private:
     void onImageLoaded(bool success, LLViewerFetchedTexture* src_vi);
-    static void onImageLoaded(BOOL success,
+    static void onImageLoaded(bool success,
                               LLViewerFetchedTexture* src_vi,
                               LLImageRaw* src,
                               LLImageRaw* aux_src,
                               S32 discard_level,
-                              BOOL final,
+                              bool final,
                               void* userdata);
     void releaseTexture();
 
@@ -85,13 +85,13 @@ public:
     void resetAsset();
     void loadAsset(const LLUUID &image_id);
 
-    void onImageLoaded(BOOL success, LLViewerFetchedTexture* imagep);
+    void onImageLoaded(bool success, LLViewerFetchedTexture* imagep);
 
-    void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE) override;
+    void reshape(S32 width, S32 height, bool called_from_parent = true) override;
 
     LLHandle<LLFloater> getHandle() const { return LLFloater::getHandle(); }
 protected:
-    BOOL postBuild() override;
+    bool postBuild() override;
 
 private:
     void updateDimensions();

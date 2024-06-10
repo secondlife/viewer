@@ -141,9 +141,9 @@ void LLDrawPoolTree::endShadowPass(S32 pass)
     gDeferredTreeShadowProgram.unbind();
 }
 
-BOOL LLDrawPoolTree::verify() const
+bool LLDrawPoolTree::verify() const
 {
-    return TRUE;
+    return true;
 }
 
 LLViewerTexture *LLDrawPoolTree::getTexture()

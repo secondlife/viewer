@@ -48,7 +48,7 @@ public:
      * Need to be tested after creation of a tester instance so to know if the tester is correctly handled.
      * A tester might not be added to the map if another tester with the same name already exists.
      */
-    BOOL isValid() const { return mValidInstance; }
+    bool isValid() const { return mValidInstance; }
 
     /**
      * @brief Write a set of test results to the log LLSD.
@@ -122,7 +122,7 @@ private:
 
     std::string mName ;                         // Name of this tester instance
     S32 mCount ;                                // Current record count
-    BOOL mValidInstance;                        // TRUE if the instance is managed by the map
+    bool mValidInstance;                        // true if the instance is managed by the map
     std::vector< std::string > mMetricStrings ; // Metrics strings
 
 // Static members managing the collection of testers
@@ -144,15 +144,15 @@ public:
     static void deleteTester(std::string name);
 
     /**
-     * @return Returns TRUE if that metric *or* the default catch all metric has been requested to be logged
+     * @return Returns true if that metric *or* the default catch all metric has been requested to be logged
      * @param[in] name - Name of the tester queried.
      */
-    static BOOL isMetricLogRequested(std::string name);
+    static bool isMetricLogRequested(std::string name);
 
     /**
-     * @return Returns TRUE if there's a tester defined, FALSE otherwise.
+     * @return Returns true if there's a tester defined, false otherwise.
      */
-    static BOOL hasMetricPerformanceTesters() { return !sTesterMap.empty() ;}
+    static bool hasMetricPerformanceTesters() { return !sTesterMap.empty() ;}
     /**
      * @brief Delete all testers and reset the tester map
      */
@@ -160,7 +160,7 @@ public:
 
 private:
     // Add a tester to the map. Returns false if adding fails.
-    static BOOL addTester(LLMetricPerformanceTesterBasic* tester) ;
+    static bool addTester(LLMetricPerformanceTesterBasic* tester) ;
 };
 
 /**

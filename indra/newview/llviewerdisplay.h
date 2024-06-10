@@ -32,15 +32,15 @@ class LLPostProcess;
 void display_startup();
 void display_cleanup();
 
-void display(BOOL rebuild = TRUE, F32 zoom_factor = 1.f, int subfield = 0, BOOL for_snapshot = FALSE);
+void display(bool rebuild = true, F32 zoom_factor = 1.f, int subfield = 0, bool for_snapshot = false);
 
-extern BOOL gDisplaySwapBuffers;
-extern BOOL gDepthDirty;
-extern BOOL gTeleportDisplay;
+extern bool gDisplaySwapBuffers;
+extern bool gDepthDirty;
+extern bool gTeleportDisplay;
 extern LLFrameTimer gTeleportDisplayTimer;
-extern BOOL         gForceRenderLandFence;
-extern BOOL gResizeScreenTexture;
-extern BOOL gResizeShadowTexture;
-extern BOOL gWindowResized;
+extern bool         gForceRenderLandFence;
+extern bool gResizeScreenTexture;
+extern bool gResizeShadowTexture;
+extern bool gWindowResized;
 
 #endif // LL_LLVIEWERDISPLAY_H

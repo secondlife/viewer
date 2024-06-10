@@ -50,16 +50,16 @@ LLSpeaker::LLSpeaker(const LLUUID& id, const std::string& name, const ESpeakerTy
     mStatus(LLSpeaker::STATUS_TEXT_ONLY),
     mLastSpokeTime(0.f),
     mSpeechVolume(0.f),
-    mHasSpoken(FALSE),
-    mHasLeftCurrentCall(FALSE),
+    mHasSpoken(false),
+    mHasLeftCurrentCall(false),
     mDotColor(LLColor4::white),
     mID(id),
-    mTyping(FALSE),
+    mTyping(false),
     mSortIndex(0),
     mType(type),
-    mIsModerator(FALSE),
-    mModeratorMutedVoice(FALSE),
-    mModeratorMutedText(FALSE)
+    mIsModerator(false),
+    mModeratorMutedVoice(false),
+    mModeratorMutedText(false)
 {
     if (name.empty() && type == SPEAKER_AGENT)
     {
@@ -181,13 +181,13 @@ LLSpeakerActionTimer::LLSpeakerActionTimer(action_callback_t action_cb, F32 acti
 {
 }
 
-BOOL LLSpeakerActionTimer::tick()
+bool LLSpeakerActionTimer::tick()
 {
     if (mActionCallback)
     {
-        return (BOOL)mActionCallback(mSpeakerId);
+        return (bool)mActionCallback(mSpeakerId);
     }
-    return TRUE;
+    return true;
 }
 
 void LLSpeakerActionTimer::unset()
@@ -357,7 +357,7 @@ void LLSpeakerMgr::initVoiceModerateMode()
     }
 }
 
-void LLSpeakerMgr::update(BOOL resort_ok)
+void LLSpeakerMgr::update(bool resort_ok)
 {
     if (!LLVoiceClient::getInstance())
     {
@@ -373,7 +373,7 @@ void LLSpeakerMgr::update(BOOL resort_ok)
     }
 
     // update status of all current speakers
-    BOOL voice_channel_active = (!mVoiceChannel && LLVoiceClient::getInstance()->inProximalChannel()) || (mVoiceChannel && mVoiceChannel->isActive());
+    bool voice_channel_active = (!mVoiceChannel && LLVoiceClient::getInstance()->inProximalChannel()) || (mVoiceChannel && mVoiceChannel->isActive());
     for (speaker_map_t::iterator speaker_it = mSpeakers.begin(); speaker_it != mSpeakers.end(); speaker_it++)
     {
         LLUUID speaker_id = speaker_it->first;
@@ -382,7 +382,7 @@ void LLSpeakerMgr::update(BOOL resort_ok)
         if (voice_channel_active && LLVoiceClient::getInstance()->getVoiceEnabled(speaker_id))
         {
             speakerp->mSpeechVolume = LLVoiceClient::getInstance()->getCurrentPower(speaker_id);
-            BOOL moderator_muted_voice = LLVoiceClient::getInstance()->getIsModeratorMuted(speaker_id);
+            bool moderator_muted_voice = LLVoiceClient::getInstance()->getIsModeratorMuted(speaker_id);
             if (moderator_muted_voice != speakerp->mModeratorMutedVoice)
             {
                 speakerp->mModeratorMutedVoice = moderator_muted_voice;
@@ -400,7 +400,7 @@ void LLSpeakerMgr::update(BOOL resort_ok)
                 if (speakerp->mStatus != LLSpeaker::STATUS_SPEAKING)
                 {
                     speakerp->mLastSpokeTime = mSpeechTimer.getElapsedTimeF32();
-                    speakerp->mHasSpoken = TRUE;
+                    speakerp->mHasSpoken = true;
                     fireEvent(new LLSpeakerUpdateSpeakerEvent(speakerp), "update_speaker");
                 }
                 speakerp->mStatus = LLSpeaker::STATUS_SPEAKING;
@@ -584,7 +584,7 @@ bool LLSpeakerMgr::removeSpeaker(const LLUUID& speaker_id)
     LL_DEBUGS("Speakers") << "Removed speaker " << speaker_id << LL_ENDL;
     fireEvent(new LLSpeakerListChangeEvent(this, speaker_id), "remove");
 
-    update(TRUE);
+    update(true);
 
     return false;
 }
@@ -602,7 +602,7 @@ LLPointer<LLSpeaker> LLSpeakerMgr::findSpeaker(const LLUUID& speaker_id)
     return found_it->second;
 }
 
-void LLSpeakerMgr::getSpeakerList(speaker_list_t* speaker_list, BOOL include_text)
+void LLSpeakerMgr::getSpeakerList(speaker_list_t* speaker_list, bool include_text)
 {
     speaker_list->clear();
     for (speaker_map_t::iterator speaker_it = mSpeakers.begin(); speaker_it != mSpeakers.end(); ++speaker_it)
@@ -626,7 +626,7 @@ bool LLSpeakerMgr::isSpeakerToBeRemoved(const LLUUID& speaker_id)
     return mSpeakerDelayRemover && mSpeakerDelayRemover->isTimerStarted(speaker_id);
 }
 
-void LLSpeakerMgr::setSpeakerTyping(const LLUUID& speaker_id, BOOL typing)
+void LLSpeakerMgr::setSpeakerTyping(const LLUUID& speaker_id, bool typing)
 {
     LLPointer<LLSpeaker> speakerp = findSpeaker(speaker_id);
     if (speakerp.notNull())
@@ -642,12 +642,12 @@ void LLSpeakerMgr::speakerChatted(const LLUUID& speaker_id)
     if (speakerp.notNull())
     {
         speakerp->mLastSpokeTime = mSpeechTimer.getElapsedTimeF32();
-        speakerp->mHasSpoken = TRUE;
+        speakerp->mHasSpoken = true;
         fireEvent(new LLSpeakerUpdateSpeakerEvent(speakerp), "update_speaker");
     }
 }
 
-BOOL LLSpeakerMgr::isVoiceActive()
+bool LLSpeakerMgr::isVoiceActive()
 {
     // mVoiceChannel = NULL means current voice channel, whatever it is
     return LLVoiceClient::getInstance()->voiceEnabled() && mVoiceChannel && mVoiceChannel->isActive();
@@ -692,7 +692,7 @@ void LLIMSpeakerMgr::setSpeakers(const LLSD& speakers)
 
             if ( speaker_it->second.isMap() )
             {
-                BOOL is_moderator = speakerp->mIsModerator;
+                bool is_moderator = speakerp->mIsModerator;
                 speakerp->mIsModerator = speaker_it->second["is_moderator"];
                 speakerp->mModeratorMutedText =
                     speaker_it->second["mutes"]["text"];
@@ -767,7 +767,7 @@ void LLIMSpeakerMgr::updateSpeakers(const LLSD& update)
 
                 if (agent_info.has("is_moderator"))
                 {
-                    BOOL is_moderator = speakerp->mIsModerator;
+                    bool is_moderator = speakerp->mIsModerator;
                     speakerp->mIsModerator = agent_info["is_moderator"];
                     // Fire event only if moderator changed
                     if ( is_moderator != speakerp->mIsModerator )
@@ -838,7 +838,7 @@ void LLIMSpeakerMgr::moderateVoiceParticipant(const LLUUID& avatar_id, bool unmu
     if (!speakerp) return;
 
     // *NOTE: mantipov: probably this condition will be incorrect when avatar will be blocked for
-    // text chat via moderation (LLSpeaker::mModeratorMutedText == TRUE)
+    // text chat via moderation (LLSpeaker::mModeratorMutedText == true)
     bool is_in_voice = speakerp->mStatus <= LLSpeaker::STATUS_VOICE_ACTIVE || speakerp->mStatus == LLSpeaker::STATUS_MUTED;
 
     // do not send voice moderation changes for avatars not in voice channel

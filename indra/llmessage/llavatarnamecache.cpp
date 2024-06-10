@@ -240,7 +240,7 @@ void LLAvatarNameCache::handleAvNameCacheSuccess(const LLSD &data, const LLSD &h
 
     // Same logic as error response case
     const LLSD& unresolved_agents = data["bad_ids"];
-    S32  num_unresolved = unresolved_agents.size();
+    auto num_unresolved = unresolved_agents.size();
     if (num_unresolved > 0)
     {
         LL_WARNS("AvNameCache") << "LLAvatarNameResponder::result " << num_unresolved << " unresolved ids; "

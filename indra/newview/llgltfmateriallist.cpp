@@ -47,9 +47,6 @@
 #include "tinygltf/tiny_gltf.h"
 #include <strstream>
 
-#include "json/reader.h"
-#include "json/value.h"
-
 #include <unordered_set>
 
 LLGLTFMaterialList gGLTFMaterialList;
@@ -78,7 +75,7 @@ static bool is_valid_update(const LLSD& data)
         ++count;
     }
     else
-    {
+    { 
         LL_WARNS() << "Missing required parameter: object_id" << LL_ENDL;
         return false;
     }
@@ -98,7 +95,7 @@ static bool is_valid_update(const LLSD& data)
         ++count;
     }
     else
-    {
+    { 
         LL_WARNS() << "Missing required parameter: side" << LL_ENDL;
         return false;
     }
@@ -124,7 +121,7 @@ static bool is_valid_update(const LLSD& data)
     }
 
     if (count < 3)
-    {
+    { 
         LL_WARNS() << "Only specified object_id and side, update won't actually change anything and is just noise" << LL_ENDL;
         return false;
     }
@@ -178,7 +175,7 @@ void LLGLTFMaterialList::applyOverrideMessage(LLMessageSystem* msg, const std::s
     LLSDSerialize::fromNotation(data, str, data_in.length());
 
     const LLHost& host = msg->getSender();
-
+    
     LLViewerRegion* region = LLWorld::instance().getRegion(host);
     llassert(region);
 
@@ -204,14 +201,14 @@ void LLGLTFMaterialList::applyOverrideMessage(LLMessageSystem* msg, const std::s
         bool has_te[MAX_TES] = { false };
 
         if (tes.isArray()) // NOTE: if no "te" array exists, this is a malformed message (null out all overrides will come in as an empty te array)
-        {
+        { 
             LLGLTFOverrideCacheEntry cache;
             cache.mLocalId = local_id;
             cache.mObjectId = id;
             cache.mRegionHandle = region->getHandle();
 
-            U32 count = llmin(tes.size(), MAX_TES);
-            for (U32 i = 0; i < count; ++i)
+            auto count = llmin(tes.size(), MAX_TES);
+            for (size_t i = 0; i < count; ++i)
             {
                 LLGLTFMaterial* mat = new LLGLTFMaterial(); // setTEGLTFMaterialOverride and cache will take ownership
                 mat->applyOverrideLLSD(od[i]);
@@ -256,7 +253,7 @@ void LLGLTFMaterialList::queueOverrideUpdate(const LLUUID& id, S32 side, LLGLTFM
 {
 #if 0
     override_list_t& overrides = mQueuedOverrides[id];
-
+    
     if (overrides.size() < side + 1)
     {
         overrides.resize(side + 1);
@@ -376,7 +373,7 @@ void LLGLTFMaterialList::queueUpdate(const LLSD& data)
     {
         sUpdates = LLSD::emptyArray();
     }
-
+    
     sUpdates[sUpdates.size()] = data;
 }
 
@@ -384,7 +381,7 @@ void LLGLTFMaterialList::flushUpdates(void(*done_callback)(bool))
 {
     LLSD& data = sUpdates;
 
-    S32 i = data.size();
+    auto i = data.size();
 
     for (ModifyMaterialData& e : sModifyQueue)
     {
@@ -396,7 +393,7 @@ void LLGLTFMaterialList::flushUpdates(void(*done_callback)(bool))
 
         data[i]["object_id"] = e.object_id;
         data[i]["side"] = e.side;
-
+         
         if (e.has_override)
         {
             data[i]["gltf_json"] = e.override_data.asJSON();
@@ -495,7 +492,7 @@ void LLGLTFMaterialList::onAssetLoadComplete(const LLUUID& id, LLAssetType::ETyp
                 }
 
                 buffer.resize(size);
-                file.read((U8*)&buffer[0], buffer.size());
+                file.read((U8*)&buffer[0], static_cast<S32>(buffer.size()));
             }
 
             {
@@ -504,7 +501,7 @@ void LLGLTFMaterialList::onAssetLoadComplete(const LLUUID& id, LLAssetType::ETyp
                 LLSD asset;
 
                 // read file into buffer
-                std::istrstream str(&buffer[0], buffer.size());
+                std::istrstream str(&buffer[0], static_cast<S32>(buffer.size()));
 
                 if (LLSDSerialize::deserialize(asset, str, buffer.size()))
                 {
@@ -521,7 +518,7 @@ void LLGLTFMaterialList::onAssetLoadComplete(const LLUUID& id, LLAssetType::ETyp
                                 LL_PROFILE_ZONE_SCOPED;
                                 tinygltf::TinyGLTF gltf;
 
-                                if (!gltf.LoadASCIIFromString(&asset_data->mModelIn, &error_msg, &warn_msg, data.c_str(), data.length(), ""))
+                                if (!gltf.LoadASCIIFromString(&asset_data->mModelIn, &error_msg, &warn_msg, data.c_str(), static_cast<U32>(data.length()), ""))
                                 {
                                     LL_WARNS("GLTF") << "Failed to decode material asset: "
                                         << LL_NEWLINE
@@ -582,7 +579,7 @@ LLFetchedGLTFMaterial* LLGLTFMaterialList::getMaterial(const LLUUID& id)
 
             gAssetStorage->getAssetData(id, LLAssetType::AT_MATERIAL, onAssetLoadComplete, (void*)user_data);
         }
-
+        
         return mat;
     }
 

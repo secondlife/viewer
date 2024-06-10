@@ -144,7 +144,7 @@ void LLFirstUse::firstUseNotification(const std::string& control_var, bool enabl
         LL_DEBUGS("LLFirstUse") << "Disabling first use notification " << notification_name << LL_ENDL;
         LLNotifications::instance().cancelByName(notification_name);
         // redundantly clear settings var here, in case there are no notifications to cancel
-        gWarningSettings.setBOOL(control_var, FALSE);
+        gWarningSettings.setBOOL(control_var, false);
     }
 
 }
@@ -169,7 +169,7 @@ bool LLFirstUse::processNotification(const LLSD& notify)
         if (notification)
         {
             // disable any future notifications
-            gWarningSettings.setBOOL(notification->getPayload()["control_var"], FALSE);
+            gWarningSettings.setBOOL((std::string)notification->getPayload()["control_var"], false);
         }
     }
     return false;

@@ -80,7 +80,7 @@
 #include <boost/algorithm/string.hpp>
 
 #ifdef TOGGLE_HACKED_GODLIKE_VIEWER
-BOOL                gHackGodmode = FALSE;
+bool                gHackGodmode = false;
 #endif
 
 // Should you contemplate changing the name "Global", please first grep for
@@ -93,9 +93,9 @@ LLControlGroup gWarningSettings("Warnings"); // persists ignored dialogs/warning
 
 std::string gLastRunVersion;
 
-extern BOOL gResizeScreenTexture;
-extern BOOL gResizeShadowTexture;
-extern BOOL gDebugGL;
+extern bool gResizeScreenTexture;
+extern bool gResizeShadowTexture;
+extern bool gDebugGL;
 ////////////////////////////////////////////////////////////////////////////
 // Listeners
 
@@ -251,7 +251,7 @@ static bool handleVSyncChanged(const LLSD& newvalue)
     LLPerfStats::tunables.vsyncEnabled = newvalue.asBoolean();
     gViewerWindow->getWindow()->toggleVSync(newvalue.asBoolean());
 
-    if(newvalue.asBoolean() == true)
+    if (newvalue.asBoolean())
     {
         U32 current_target = gSavedSettings.getU32("TargetFPS");
         gSavedSettings.setU32("TargetFPS", std::min((U32)gViewerWindow->getWindow()->getRefreshRate(), current_target));
@@ -281,12 +281,12 @@ static bool handleAvatarPhysicsLODChanged(const LLSD& newvalue)
 
 static bool handleTerrainLODChanged(const LLSD& newvalue)
 {
-        LLVOSurfacePatch::sLODFactor = (F32)newvalue.asReal();
-        //sqaure lod factor to get exponential range of [0,4] and keep
-        //a value of 1 in the middle of the detail slider for consistency
-        //with other detail sliders (see panel_preferences_graphics1.xml)
-        LLVOSurfacePatch::sLODFactor *= LLVOSurfacePatch::sLODFactor;
-        return true;
+    LLVOSurfacePatch::sLODFactor = (F32)newvalue.asReal();
+    //sqaure lod factor to get exponential range of [0,4] and keep
+    //a value of 1 in the middle of the detail slider for consistency
+    //with other detail sliders (see panel_preferences_graphics1.xml)
+    LLVOSurfacePatch::sLODFactor *= LLVOSurfacePatch::sLODFactor;
+    return true;
 }
 
 static bool handleTreeLODChanged(const LLSD& newvalue)
@@ -361,7 +361,7 @@ static void handleAudioVolumeChanged(const LLSD& newvalue)
 
 static bool handleJoystickChanged(const LLSD& newvalue)
 {
-    LLViewerJoystick::getInstance()->setCameraNeedsUpdate(TRUE);
+    LLViewerJoystick::getInstance()->setCameraNeedsUpdate(true);
     return true;
 }
 
@@ -426,7 +426,7 @@ static bool handleRenderDebugPipelineChanged(const LLSD& newvalue)
 
 static bool handleRenderResolutionDivisorChanged(const LLSD&)
 {
-    gResizeScreenTexture = TRUE;
+    gResizeScreenTexture = true;
     return true;
 }
 
@@ -441,6 +441,7 @@ static bool handleLogFileChanged(const LLSD& newvalue)
     std::string log_filename = newvalue.asString();
     LLFile::remove(log_filename);
     LLError::logToFile(log_filename);
+    LL_INFOS() << "Logging switched to " << log_filename << LL_ENDL;
     return true;
 }
 
@@ -461,7 +462,7 @@ bool handleHighResSnapshotChanged(const LLSD& newvalue)
     // High Res Snapshot active, must uncheck RenderUIInSnapshot
     if (newvalue.asBoolean())
     {
-        gSavedSettings.setBOOL( "RenderUIInSnapshot", FALSE );
+        gSavedSettings.setBOOL( "RenderUIInSnapshot", false);
     }
     return true;
 }
@@ -640,8 +641,13 @@ void handlePerformanceStatsEnabledChanged(const LLSD& newValue)
 }
 void handleUserImpostorByDistEnabledChanged(const LLSD& newValue)
 {
-    const auto newval = gSavedSettings.getBOOL("AutoTuneImpostorByDistEnabled");
-    LLPerfStats::tunables.userImpostorDistanceTuningEnabled = newval;
+    bool auto_tune_newval = false;
+    S32 mode = gSavedSettings.getS32("RenderAvatarComplexityMode");
+    if (mode != LLVOAvatar::AV_RENDER_ONLY_SHOW_FRIENDS)
+    {
+        auto_tune_newval = gSavedSettings.getBOOL("AutoTuneImpostorByDistEnabled");
+    }
+    LLPerfStats::tunables.userImpostorDistanceTuningEnabled = auto_tune_newval;
 }
 void handleUserImpostorDistanceChanged(const LLSD& newValue)
 {
@@ -710,6 +716,7 @@ void settings_setup_listeners()
     setting_setup_signal_listener(gSavedSettings, "RenderGlowNoise", handleSetShaderChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderGammaFull", handleSetShaderChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderVolumeLODFactor", handleVolumeLODChanged);
+    setting_setup_signal_listener(gSavedSettings, "RenderAvatarComplexityMode", handleUserImpostorByDistEnabledChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderAvatarLODFactor", handleAvatarLODChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderAvatarPhysicsLODFactor", handleAvatarPhysicsLODChanged);
     setting_setup_signal_listener(gSavedSettings, "RenderTerrainLODFactor", handleTerrainLODChanged);
@@ -841,7 +848,7 @@ DECL_LLCC(U32, (U32)666);
 DECL_LLCC(S32, (S32)-666);
 DECL_LLCC(F32, (F32)-666.666);
 DECL_LLCC(bool, true);
-DECL_LLCC(BOOL, FALSE);
+DECL_LLCC(bool, false);
 static LLCachedControl<std::string> mySetting_string("TestCachedControlstring", "Default String Value");
 DECL_LLCC(LLVector3, LLVector3(1.0f, 2.0f, 3.0f));
 DECL_LLCC(LLVector3d, LLVector3d(6.0f, 5.0f, 4.0f));
@@ -860,7 +867,7 @@ void test_cached_control()
     TEST_LLCC(S32, (S32)-666);
     TEST_LLCC(F32, (F32)-666.666);
     TEST_LLCC(bool, true);
-    TEST_LLCC(BOOL, FALSE);
+    TEST_LLCC(bool, false);
     if((std::string)mySetting_string != "Default String Value") LL_ERRS() << "Fail string" << LL_ENDL;
     TEST_LLCC(LLVector3, LLVector3(1.0f, 2.0f, 3.0f));
     TEST_LLCC(LLVector3d, LLVector3d(6.0f, 5.0f, 4.0f));

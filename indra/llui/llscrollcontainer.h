@@ -86,12 +86,12 @@ public:
 
     virtual void    setValue(const LLSD& value) { mInnerRect.setValue(value); }
 
-    void            setBorderVisible( BOOL b );
+    void            setBorderVisible( bool b );
 
     void            scrollToShowRect( const LLRect& rect, const LLRect& constraint);
     void            scrollToShowRect( const LLRect& rect) { scrollToShowRect(rect, LLRect(0, mInnerRect.getHeight(), mInnerRect.getWidth(), 0)); }
 
-    void            setReserveScrollCorner( BOOL b ) { mReserveScrollCorner = b; }
+    void            setReserveScrollCorner( bool b ) { mReserveScrollCorner = b; }
     LLRect          getVisibleContentRect();
     LLRect          getContentWindowRect();
     virtual const LLRect    getScrolledViewRect() const { return mScrolledView ? mScrolledView->getRect() : LLRect::null; }
@@ -106,12 +106,12 @@ public:
     S32             getBorderWidth() const;
 
     // LLView functionality
-    virtual void    reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
-    virtual BOOL    handleKeyHere(KEY key, MASK mask);
-    virtual BOOL    handleUnicodeCharHere(llwchar uni_char);
-    virtual BOOL    handleScrollWheel( S32 x, S32 y, S32 clicks );
-    virtual BOOL    handleScrollHWheel( S32 x, S32 y, S32 clicks );
-    virtual BOOL    handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+    virtual void    reshape(S32 width, S32 height, bool called_from_parent = true);
+    virtual bool    handleKeyHere(KEY key, MASK mask);
+    virtual bool    handleUnicodeCharHere(llwchar uni_char);
+    virtual bool    handleScrollWheel( S32 x, S32 y, S32 clicks );
+    virtual bool    handleScrollHWheel( S32 x, S32 y, S32 clicks );
+    virtual bool    handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
                                    EDragAndDropType cargo_type,
                                    void* cargo_data,
                                    EAcceptance* accept,
@@ -135,16 +135,16 @@ private:
     virtual void scrollVertical( S32 new_pos );
     void updateScroll();
     bool autoScroll(S32 x, S32 y, bool do_scroll);
-    void calcVisibleSize( S32 *visible_width, S32 *visible_height, BOOL* show_h_scrollbar, BOOL* show_v_scrollbar ) const;
+    void calcVisibleSize( S32 *visible_width, S32 *visible_height, bool* show_h_scrollbar, bool* show_v_scrollbar ) const;
 
     LLScrollbar* mScrollbar[ORIENTATION_COUNT];
     S32         mSize;
-    BOOL        mIsOpaque;
+    bool        mIsOpaque;
     LLUIColor   mBackgroundColor;
     LLRect      mInnerRect;
     LLViewBorder* mBorder;
-    BOOL        mReserveScrollCorner;
-    BOOL        mAutoScrolling;
+    bool        mReserveScrollCorner;
+    bool        mAutoScrolling;
     F32         mAutoScrollRate;
     F32         mMinAutoScrollRate;
     F32         mMaxAutoScrollRate;

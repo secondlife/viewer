@@ -114,7 +114,7 @@ public:
     ~LLSceneMonitorView();
     virtual void draw();
 
-    virtual void onVisibilityChange(BOOL visible);
+    virtual void onVisibilityChange(bool visible);
 
 protected:
     virtual void onClose(bool app_quitting=false);

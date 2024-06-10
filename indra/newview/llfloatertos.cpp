@@ -56,7 +56,7 @@ LLFloaterTOS::LLFloaterTOS(const LLSD& data)
 {
 }
 
-BOOL LLFloaterTOS::postBuild()
+bool LLFloaterTOS::postBuild()
 {
     childSetAction("Continue", onContinue, this);
     childSetAction("Cancel", onCancel, this);
@@ -66,11 +66,11 @@ BOOL LLFloaterTOS::postBuild()
     {
         // this displays the critical message
         LLUICtrl *tos_text = getChild<LLUICtrl>("tos_text");
-        tos_text->setEnabled( FALSE );
-        tos_text->setFocus(TRUE);
+        tos_text->setEnabled(false);
+        tos_text->setFocus(true);
         tos_text->setValue(LLSD(mMessage));
 
-        return TRUE;
+        return true;
     }
 
     // disable Agree to TOS radio button until the page has fully loaded
@@ -78,7 +78,7 @@ BOOL LLFloaterTOS::postBuild()
 
     // hide the SL text widget if we're displaying TOS with using a browser widget.
     LLUICtrl *editor = getChild<LLUICtrl>("tos_text");
-    editor->setVisible( FALSE );
+    editor->setVisible(false);
 
     LLMediaCtrl* web_browser = getChild<LLMediaCtrl>("tos_html");
     if ( web_browser )
@@ -111,7 +111,7 @@ BOOL LLFloaterTOS::postBuild()
 #endif
     }
 
-    return TRUE;
+    return true;
 }
 
 void LLFloaterTOS::setSiteIsAlive( bool alive )

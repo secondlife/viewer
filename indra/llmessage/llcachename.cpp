@@ -99,7 +99,7 @@ public:
     }
 
     void done()         { mID.setNull(); }
-    bool isDone() const { return mID.isNull() != FALSE; }
+    bool isDone() const { return mID.isNull(); }
 };
 
 class ReplySender
@@ -215,7 +215,7 @@ public:
     Impl(LLMessageSystem* msg);
     ~Impl();
 
-    BOOL getName(const LLUUID& id, std::string& first, std::string& last);
+    bool getName(const LLUUID& id, std::string& first, std::string& last);
 
     boost::signals2::connection addPending(const LLUUID& id, const LLCacheNameCallback& callback);
     void addPending(const LLUUID& id, const LLHost& host);
@@ -402,13 +402,13 @@ void LLCacheName::exportFile(std::ostream& ostr)
 }
 
 
-BOOL LLCacheName::Impl::getName(const LLUUID& id, std::string& first, std::string& last)
+bool LLCacheName::Impl::getName(const LLUUID& id, std::string& first, std::string& last)
 {
     if(id.isNull())
     {
         first = sCacheName["nobody"];
         last.clear();
-        return TRUE;
+        return true;
     }
 
     LLCacheNameEntry* entry = get_ptr_in_map(mCache, id );
@@ -416,7 +416,7 @@ BOOL LLCacheName::Impl::getName(const LLUUID& id, std::string& first, std::strin
     {
         first = entry->mFirstName;
         last =  entry->mLastName;
-        return TRUE;
+        return true;
     }
     else
     {
@@ -426,7 +426,7 @@ BOOL LLCacheName::Impl::getName(const LLUUID& id, std::string& first, std::strin
         {
             mAskNameQueue.insert(id);
         }
-        return FALSE;
+        return false;
     }
 
 }
@@ -440,22 +440,22 @@ void LLCacheName::localizeCacheName(std::string key, std::string value)
         LL_WARNS()<< " Error localizing cache key " << key << " To "<< value<<LL_ENDL;
 }
 
-BOOL LLCacheName::getFullName(const LLUUID& id, std::string& fullname)
+bool LLCacheName::getFullName(const LLUUID& id, std::string& fullname)
 {
     std::string first_name, last_name;
-    BOOL res = impl.getName(id, first_name, last_name);
+    bool res = impl.getName(id, first_name, last_name);
     fullname = buildFullName(first_name, last_name);
     return res;
 }
 
 
 
-BOOL LLCacheName::getGroupName(const LLUUID& id, std::string& group)
+bool LLCacheName::getGroupName(const LLUUID& id, std::string& group)
 {
     if(id.isNull())
     {
         group = sCacheName["none"];
-        return TRUE;
+        return true;
     }
 
     LLCacheNameEntry* entry = get_ptr_in_map(impl.mCache,id);
@@ -471,7 +471,7 @@ BOOL LLCacheName::getGroupName(const LLUUID& id, std::string& group)
     if (entry)
     {
         group = entry->mGroupName;
-        return TRUE;
+        return true;
     }
     else
     {
@@ -480,27 +480,27 @@ BOOL LLCacheName::getGroupName(const LLUUID& id, std::string& group)
         {
             impl.mAskGroupQueue.insert(id);
         }
-        return FALSE;
+        return false;
     }
 }
 
-BOOL LLCacheName::getUUID(const std::string& first, const std::string& last, LLUUID& id)
+bool LLCacheName::getUUID(const std::string& first, const std::string& last, LLUUID& id)
 {
     std::string full_name = buildFullName(first, last);
     return getUUID(full_name, id);
 }
 
-BOOL LLCacheName::getUUID(const std::string& full_name, LLUUID& id)
+bool LLCacheName::getUUID(const std::string& full_name, LLUUID& id)
 {
     ReverseCache::iterator iter = impl.mReverseCache.find(full_name);
     if (iter != impl.mReverseCache.end())
     {
         id = iter->second;
-        return TRUE;
+        return true;
     }
     else
     {
-        return FALSE;
+        return false;
     }
 }
 
@@ -562,13 +562,13 @@ std::string LLCacheName::buildLegacyName(const std::string& complete_name)
 {
     //boost::regexp was showing up in the crashreporter, so doing
     //painfully manual parsing using substr. LF
-    S32 open_paren = complete_name.rfind(" (");
-    S32 close_paren = complete_name.rfind(')');
+    auto open_paren = complete_name.rfind(" (");
+    auto close_paren = complete_name.rfind(')');
 
     if (open_paren != std::string::npos &&
         close_paren == complete_name.length()-1)
     {
-        S32 length = close_paren - open_paren - 2;
+        auto length = close_paren - open_paren - 2;
         std::string legacy_name = complete_name.substr(open_paren+2, length);
 
         if (legacy_name.length() > 0)
@@ -577,7 +577,7 @@ std::string LLCacheName::buildLegacyName(const std::string& complete_name)
             LLStringUtil::toUpper(cap_letter);
             legacy_name = cap_letter + legacy_name.substr(1);
 
-            S32 separator = legacy_name.find('.');
+            auto separator = legacy_name.find('.');
 
             if (separator != std::string::npos)
             {

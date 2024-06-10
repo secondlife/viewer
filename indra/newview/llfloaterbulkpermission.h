@@ -41,16 +41,16 @@ class LLFloaterBulkPermission : public LLFloater, public LLVOInventoryListener
     friend class LLFloaterReg;
 public:
 
-    BOOL postBuild();
+    bool postBuild();
 
 private:
 
     LLFloaterBulkPermission(const LLSD& seed);
     virtual ~LLFloaterBulkPermission() {}
 
-    BOOL start(); // returns TRUE if the queue has started, otherwise FALSE.
-    BOOL nextObject();
-    BOOL popNext();
+    bool start(); // returns true if the queue has started, otherwise false.
+    bool nextObject();
+    bool popNext();
 
     // This is the callback method for the viewer object currently
     // being worked on.
@@ -73,15 +73,15 @@ private:
     void onOkBtn();
     void onApplyBtn();
     void onCommitCopy();
-    void onCheckAll() { doCheckUncheckAll(TRUE); }
-    void onUncheckAll() { doCheckUncheckAll(FALSE); }
+    void onCheckAll() { doCheckUncheckAll(true); }
+    void onUncheckAll() { doCheckUncheckAll(false); }
 
     // returns true if this is done
-    BOOL isDone() const { return (mCurrentObjectID.isNull() || (mObjectIDs.size() == 0)); }
+    bool isDone() const { return (mCurrentObjectID.isNull() || (mObjectIDs.size() == 0)); }
 
     //Read the settings and Apply the permissions
     void doApply();
-    void doCheckUncheckAll(BOOL check);
+    void doCheckUncheckAll(bool check);
 
 private:
     // UI
@@ -91,7 +91,7 @@ private:
     // Object Queue
     std::vector<LLUUID> mObjectIDs;
     LLUUID mCurrentObjectID;
-    BOOL mDone;
+    bool mDone;
 
     bool mBulkChangeIncludeAnimations;
     bool mBulkChangeIncludeBodyParts;

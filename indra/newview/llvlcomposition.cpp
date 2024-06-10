@@ -60,7 +60,7 @@ F32 bilinear(const F32 v00, const F32 v01, const F32 v10, const F32 v11, const F
 
 LLVLComposition::LLVLComposition(LLSurface *surfacep, const U32 width, const F32 scale) :
     LLViewerLayer(width, scale),
-    mParamsReady(FALSE)
+    mParamsReady(false)
 {
     mSurfacep = surfacep;
 
@@ -78,7 +78,7 @@ LLVLComposition::LLVLComposition(LLSurface *surfacep, const U32 width, const F32
     }
     mTexScaleX = 16.f;
     mTexScaleY = 16.f;
-    mTexturesLoaded = FALSE;
+    mTexturesLoaded = false;
 }
 
 
@@ -106,13 +106,13 @@ void LLVLComposition::setDetailTextureID(S32 corner, const LLUUID& id)
     mRawImages[corner] = NULL;
 }
 
-BOOL LLVLComposition::generateHeights(const F32 x, const F32 y,
+bool LLVLComposition::generateHeights(const F32 x, const F32 y,
                                       const F32 width, const F32 height)
 {
     if (!mParamsReady)
     {
         // All the parameters haven't been set yet (we haven't gotten the message from the sim)
-        return FALSE;
+        return false;
     }
 
     llassert(mSurfacep);
@@ -120,7 +120,7 @@ BOOL LLVLComposition::generateHeights(const F32 x, const F32 y,
     if (!mSurfacep || !mSurfacep->getRegion())
     {
         // We don't always have the region yet here....
-        return FALSE;
+        return false;
     }
 
     S32 x_begin, y_begin, x_end, y_end;
@@ -206,18 +206,18 @@ BOOL LLVLComposition::generateHeights(const F32 x, const F32 y,
             *(mDatap + i + j*mWidth) = scaled_noisy_height;
         }
     }
-    return TRUE;
+    return true;
 }
 
 static const U32 BASE_SIZE = 128;
 
-BOOL LLVLComposition::generateComposition()
+bool LLVLComposition::generateComposition()
 {
 
     if (!mParamsReady)
     {
         // All the parameters haven't been set yet (we haven't gotten the message from the sim)
-        return FALSE;
+        return false;
     }
 
     for (S32 i = 0; i < 4; i++)
@@ -226,7 +226,7 @@ BOOL LLVLComposition::generateComposition()
         {
             mDetailTextures[i]->setBoostLevel(LLGLTexture::BOOST_TERRAIN); // in case we are at low detail
             mDetailTextures[i]->addTextureStats(BASE_SIZE*BASE_SIZE);
-            return FALSE;
+            return false;
         }
         if ((mDetailTextures[i]->getDiscardLevel() != 0 &&
              (mDetailTextures[i]->getWidth() < BASE_SIZE ||
@@ -244,14 +244,14 @@ BOOL LLVLComposition::generateComposition()
             mDetailTextures[i]->setBoostLevel(LLGLTexture::BOOST_TERRAIN); // in case we are at low detail
             mDetailTextures[i]->setMinDiscardLevel(ddiscard);
             mDetailTextures[i]->addTextureStats(BASE_SIZE*BASE_SIZE); // priority
-            return FALSE;
+            return false;
         }
     }
 
-    return TRUE;
+    return true;
 }
 
-BOOL LLVLComposition::generateTexture(const F32 x, const F32 y,
+bool LLVLComposition::generateTexture(const F32 x, const F32 y,
                                       const F32 width, const F32 height)
 {
     LL_PROFILE_ZONE_SCOPED
@@ -284,7 +284,7 @@ BOOL LLVLComposition::generateTexture(const F32 x, const F32 y,
                 min_dim /= 2;
             }
 
-            BOOL delete_raw = (mDetailTextures[i]->reloadRawImage(ddiscard) != NULL) ;
+            bool delete_raw = (mDetailTextures[i]->reloadRawImage(ddiscard) != NULL) ;
             if(mDetailTextures[i]->getRawImageLevel() != ddiscard)//raw iamge is not ready, will enter here again later.
             {
                 if (mDetailTextures[i]->getFetchPriority() <= 0.0f && !mDetailTextures[i]->hasSavedRawImage())
@@ -298,7 +298,7 @@ BOOL LLVLComposition::generateTexture(const F32 x, const F32 y,
                     mDetailTextures[i]->destroyRawImage() ;
                 }
                 LL_DEBUGS("Terrain") << "cached raw data for terrain detail texture is not ready yet: " << mDetailTextures[i]->getID() << " Discard: " << ddiscard << LL_ENDL;
-                return FALSE;
+                return false;
             }
 
             mRawImages[i] = mDetailTextures[i]->getRawImage() ;
@@ -369,7 +369,7 @@ BOOL LLVLComposition::generateTexture(const F32 x, const F32 y,
     if (tex_comps != st_comps)
     {
         LL_WARNS("Terrain") << "Base texture comps != input texture comps" << LL_ENDL;
-        return FALSE;
+        return false;
     }
 
     tex_x_scalef = (F32)tex_width / (F32)mWidth;
@@ -466,7 +466,7 @@ BOOL LLVLComposition::generateTexture(const F32 x, const F32 y,
         mDetailTextures[i]->setMinDiscardLevel(MAX_DISCARD_LEVEL + 1);
     }
 
-    return TRUE;
+    return true;
 }
 
 LLUUID LLVLComposition::getDetailTextureID(S32 corner)

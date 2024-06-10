@@ -60,7 +60,7 @@ public:
 
         bool add(ref_const_key_t key, ref_const_value_t value)
         {
-            if (mMap.insert(std::make_pair(key, value)).second == false)
+            if (!mMap.insert(std::make_pair(key, value)).second)
             {
                 LL_WARNS() << "Tried to register " << key << " but it was already registered!" << LL_ENDL;
                 return false;

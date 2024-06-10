@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater name="simple_outfit_snapshot" title="ZDJĘCIE STROJU">
-	<button label="Zrób zdjęcie" name="new_snapshot_btn" />
-	<button label="Zapisz ([UPLOAD_COST]L$)" name="save_btn" />
-	<button label="Anuluj" name="cancel_btn" />
-</floater>

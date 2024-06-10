@@ -52,7 +52,7 @@
 
 #include "llenvironment.h"
 
-BOOL LLDrawPoolAlpha::sShowDebugAlpha = FALSE;
+bool LLDrawPoolAlpha::sShowDebugAlpha = false;
 
 #define current_shader (LLGLSLShader::sCurBoundShaderPtr)
 
@@ -143,7 +143,7 @@ static void prepare_alpha_shader(LLGLSLShader* shader, bool textureGamma, bool d
     }
 }
 
-extern BOOL gCubeSnapshot;
+extern bool gCubeSnapshot;
 
 void LLDrawPoolAlpha::renderPostDeferred(S32 pass)
 {
@@ -577,8 +577,8 @@ void LLDrawPoolAlpha::renderRiggedPbrEmissives(std::vector<LLDrawInfo*>& emissiv
 void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
-    BOOL initialized_lighting = FALSE;
-    BOOL light_enabled = TRUE;
+    bool initialized_lighting = false;
+    bool light_enabled = true;
 
     LLVOAvatar* lastAvatar = nullptr;
     U64 lastMeshId = 0;
@@ -700,18 +700,18 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
                         // Turn off lighting if it hasn't already been so.
                         if (light_enabled || !initialized_lighting)
                         {
-                            initialized_lighting = TRUE;
+                            initialized_lighting = true;
                             target_shader = fullbright_shader;
 
-                            light_enabled = FALSE;
+                            light_enabled = false;
                         }
                     }
                     // Turn on lighting if it isn't already.
                     else if (!light_enabled || !initialized_lighting)
                     {
-                        initialized_lighting = TRUE;
+                        initialized_lighting = true;
                         target_shader = simple_shader;
-                        light_enabled = TRUE;
+                        light_enabled = true;
                     }
 
                     if (LLPipeline::sRenderingHUDs)
@@ -918,7 +918,7 @@ bool LLDrawPoolAlpha::uploadMatrixPalette(const LLDrawInfo& params)
         return false;
     }
     const LLVOAvatar::MatrixPaletteCache& mpc = params.mAvatar.get()->updateSkinInfoMatrixPalette(params.mSkinInfo);
-    U32 count = mpc.mMatrixPalette.size();
+    U32 count = static_cast<U32>(mpc.mMatrixPalette.size());
 
     if (count == 0)
     {
@@ -928,7 +928,7 @@ bool LLDrawPoolAlpha::uploadMatrixPalette(const LLDrawInfo& params)
 
     LLGLSLShader::sCurBoundShaderPtr->uniformMatrix3x4fv(LLViewerShaderMgr::AVATAR_MATRIX,
         count,
-        FALSE,
+        false,
         (GLfloat*)&(mpc.mGLMp[0]));
 
     return true;
