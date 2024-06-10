@@ -24,6 +24,8 @@
  * $/LicenseInfo$
  */
 
+#include "linden_common.h"
+
 #include <iostream>
 #include <cstdio>
 #include <cstdlib>
@@ -32,8 +34,6 @@
 #if !defined(WIN32)
 #include <pthread.h>
 #endif
-
-#include "linden_common.h"
 
 #include "httpcommon.h"
 #include "httprequest.h"
