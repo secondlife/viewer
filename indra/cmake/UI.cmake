@@ -7,7 +7,6 @@ add_library( ll::uilibraries INTERFACE IMPORTED )
 
 if (LINUX)
   use_prebuilt_binary(fltk)
-  target_compile_definitions(ll::uilibraries INTERFACE LL_FLTK=1 LL_X11=1 )
 
   if( USE_CONAN )
     return()
