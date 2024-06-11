@@ -9430,7 +9430,7 @@ void initialize_menus()
         bool mMult;
     };
 
-    LLUICtrl::CommitRegistrarHelper registrar(LLUICtrl::CommitCallbackRegistry::defaultRegistrar());
+    LLUICtrl::CommitRegistrarHelper registrar(LLUICtrl::CommitCallbackRegistry::currentRegistrar());
     LLUICtrl::EnableCallbackRegistry::Registrar& enable = LLUICtrl::EnableCallbackRegistry::currentRegistrar();
 
     // Generic enable and visible
