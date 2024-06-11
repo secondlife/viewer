@@ -51,18 +51,18 @@
 LLFloaterBump::LLFloaterBump(const LLSD& key)
 :   LLFloater(key)
 {
-    mCommitCallbackRegistrar.add("Avatar.SendIM", boost::bind(&LLFloaterBump::startIM, this));
-    mCommitCallbackRegistrar.add("Avatar.ReportAbuse", boost::bind(&LLFloaterBump::reportAbuse, this));
-    mCommitCallbackRegistrar.add("ShowAgentProfile", boost::bind(&LLFloaterBump::showProfile, this));
-    mCommitCallbackRegistrar.add("Avatar.InviteToGroup", boost::bind(&LLFloaterBump::inviteToGroup, this));
-    mCommitCallbackRegistrar.add("Avatar.Call", boost::bind(&LLFloaterBump::startCall, this));
+    mCommitCallbackRegistrar.add("Avatar.SendIM", { boost::bind(&LLFloaterBump::startIM, this), cb_info::UNTRUSTED_THROTTLE });
+    mCommitCallbackRegistrar.add("Avatar.ReportAbuse", { boost::bind(&LLFloaterBump::reportAbuse, this), cb_info::UNTRUSTED_THROTTLE });
+    mCommitCallbackRegistrar.add("ShowAgentProfile", { boost::bind(&LLFloaterBump::showProfile, this), cb_info::UNTRUSTED_THROTTLE });
+    mCommitCallbackRegistrar.add("Avatar.InviteToGroup", { boost::bind(&LLFloaterBump::inviteToGroup, this), cb_info::UNTRUSTED_THROTTLE });
+    mCommitCallbackRegistrar.add("Avatar.Call", { boost::bind(&LLFloaterBump::startCall, this), cb_info::UNTRUSTED_BLOCK });
     mEnableCallbackRegistrar.add("Avatar.EnableCall", boost::bind(&LLAvatarActions::canCall));
-    mCommitCallbackRegistrar.add("Avatar.AddFriend", boost::bind(&LLFloaterBump::addFriend, this));
+    mCommitCallbackRegistrar.add("Avatar.AddFriend", { boost::bind(&LLFloaterBump::addFriend, this), cb_info::UNTRUSTED_THROTTLE });
     mEnableCallbackRegistrar.add("Avatar.EnableAddFriend", boost::bind(&LLFloaterBump::enableAddFriend, this));
-    mCommitCallbackRegistrar.add("Avatar.Mute", boost::bind(&LLFloaterBump::muteAvatar, this));
+    mCommitCallbackRegistrar.add("Avatar.Mute", { boost::bind(&LLFloaterBump::muteAvatar, this), cb_info::UNTRUSTED_BLOCK });
     mEnableCallbackRegistrar.add("Avatar.EnableMute", boost::bind(&LLFloaterBump::enableMute, this));
-    mCommitCallbackRegistrar.add("PayObject", boost::bind(&LLFloaterBump::payAvatar, this));
-    mCommitCallbackRegistrar.add("Tools.LookAtSelection", boost::bind(&LLFloaterBump::zoomInAvatar, this));
+    mCommitCallbackRegistrar.add("PayObject", { boost::bind(&LLFloaterBump::payAvatar, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Tools.LookAtSelection", { boost::bind(&LLFloaterBump::zoomInAvatar, this) });
 }
 
 

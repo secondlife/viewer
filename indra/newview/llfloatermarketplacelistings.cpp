@@ -58,7 +58,7 @@ LLPanelMarketplaceListings::LLPanelMarketplaceListings()
 , mSortOrder(LLInventoryFilter::SO_FOLDERS_BY_NAME)
 , mFilterListingFoldersOnly(false)
 {
-    mCommitCallbackRegistrar.add("Marketplace.ViewSort.Action",  boost::bind(&LLPanelMarketplaceListings::onViewSortMenuItemClicked,  this, _2));
+    mCommitCallbackRegistrar.add("Marketplace.ViewSort.Action",  { boost::bind(&LLPanelMarketplaceListings::onViewSortMenuItemClicked,  this, _2) });
     mEnableCallbackRegistrar.add("Marketplace.ViewSort.CheckItem",  boost::bind(&LLPanelMarketplaceListings::onViewSortMenuItemCheck,   this, _2));
 }
 
