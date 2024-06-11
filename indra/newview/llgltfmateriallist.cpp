@@ -55,8 +55,6 @@ LLGLTFMaterialList::modify_queue_t LLGLTFMaterialList::sModifyQueue;
 LLGLTFMaterialList::apply_queue_t LLGLTFMaterialList::sApplyQueue;
 LLSD LLGLTFMaterialList::sUpdates;
 
-const LLUUID LLGLTFMaterialList::BLANK_MATERIAL_ASSET_ID("968cbad0-4dad-d64e-71b5-72bf13ad051a");
-
 #ifdef SHOW_ASSERT
 // return true if given data is (probably) valid update message for ModifyMaterialParams capability
 static bool is_valid_update(const LLSD& data)
@@ -75,7 +73,7 @@ static bool is_valid_update(const LLSD& data)
         ++count;
     }
     else
-    {
+    { 
         LL_WARNS() << "Missing required parameter: object_id" << LL_ENDL;
         return false;
     }
@@ -95,7 +93,7 @@ static bool is_valid_update(const LLSD& data)
         ++count;
     }
     else
-    {
+    { 
         LL_WARNS() << "Missing required parameter: side" << LL_ENDL;
         return false;
     }
@@ -121,7 +119,7 @@ static bool is_valid_update(const LLSD& data)
     }
 
     if (count < 3)
-    {
+    { 
         LL_WARNS() << "Only specified object_id and side, update won't actually change anything and is just noise" << LL_ENDL;
         return false;
     }
@@ -175,7 +173,7 @@ void LLGLTFMaterialList::applyOverrideMessage(LLMessageSystem* msg, const std::s
     LLSDSerialize::fromNotation(data, str, data_in.length());
 
     const LLHost& host = msg->getSender();
-
+    
     LLViewerRegion* region = LLWorld::instance().getRegion(host);
     llassert(region);
 
@@ -201,7 +199,7 @@ void LLGLTFMaterialList::applyOverrideMessage(LLMessageSystem* msg, const std::s
         bool has_te[MAX_TES] = { false };
 
         if (tes.isArray()) // NOTE: if no "te" array exists, this is a malformed message (null out all overrides will come in as an empty te array)
-        {
+        { 
             LLGLTFOverrideCacheEntry cache;
             cache.mLocalId = local_id;
             cache.mObjectId = id;
@@ -244,6 +242,7 @@ void LLGLTFMaterialList::applyOverrideMessage(LLMessageSystem* msg, const std::s
             }
 
             region->cacheFullUpdateGLTFOverride(cache);
+            LL_DEBUGS("GLTF") << "GLTF Material Override: " << cache.mObjectId << " " << cache.mLocalId << " " << cache.mRegionHandle << " (sides:" << (cache.mSides.size()) << ")" << LL_ENDL;
         }
 
     }
@@ -253,7 +252,7 @@ void LLGLTFMaterialList::queueOverrideUpdate(const LLUUID& id, S32 side, LLGLTFM
 {
 #if 0
     override_list_t& overrides = mQueuedOverrides[id];
-
+    
     if (overrides.size() < side + 1)
     {
         overrides.resize(side + 1);
@@ -373,7 +372,7 @@ void LLGLTFMaterialList::queueUpdate(const LLSD& data)
     {
         sUpdates = LLSD::emptyArray();
     }
-
+    
     sUpdates[sUpdates.size()] = data;
 }
 
@@ -393,7 +392,7 @@ void LLGLTFMaterialList::flushUpdates(void(*done_callback)(bool))
 
         data[i]["object_id"] = e.object_id;
         data[i]["side"] = e.side;
-
+         
         if (e.has_override)
         {
             data[i]["gltf_json"] = e.override_data.asJSON();
@@ -468,7 +467,7 @@ void LLGLTFMaterialList::onAssetLoadComplete(const LLUUID& id, LLAssetType::ETyp
     if (status != LL_ERR_NOERR)
     {
         LL_WARNS("GLTF") << "Error getting material asset data: " << LLAssetStorage::getErrorString(status) << " (" << status << ")" << LL_ENDL;
-        asset_data->mMaterial->materialComplete();
+        asset_data->mMaterial->materialComplete(false);
         delete asset_data;
     }
     else
@@ -553,7 +552,7 @@ void LLGLTFMaterialList::onAssetLoadComplete(const LLUUID& id, LLAssetType::ETyp
                 LL_DEBUGS("GLTF") << "Failed to get material " << id << LL_ENDL;
             }
 
-            asset_data->mMaterial->materialComplete();
+            asset_data->mMaterial->materialComplete(true);
 
             delete asset_data;
         });
@@ -579,7 +578,7 @@ LLFetchedGLTFMaterial* LLGLTFMaterialList::getMaterial(const LLUUID& id)
 
             gAssetStorage->getAssetData(id, LLAssetType::AT_MATERIAL, onAssetLoadComplete, (void*)user_data);
         }
-
+        
         return mat;
     }
 

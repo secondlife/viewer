@@ -35,6 +35,7 @@ include(OpenGL)
 include(OpenSSL)
 include(PNG)
 include(TemplateCheck)
+include(TinyEXR)
 include(ThreeJS)
 include(Tracy)
 include(UI)
@@ -69,8 +70,12 @@ if (NOT HAVOK_TPV)
    endif()
 endif (NOT HAVOK_TPV)
 
-
 set(viewer_SOURCE_FILES
+    gltfscenemanager.cpp
+    gltf/asset.cpp
+    gltf/accessor.cpp
+    gltf/primitive.cpp
+    gltf/animation.cpp
     groupchatlistener.cpp
     llaccountingcostmanager.cpp
     llaisapi.cpp
@@ -309,6 +314,7 @@ set(viewer_SOURCE_FILES
     llgiveinventory.cpp
     llglsandbox.cpp
     llgltfmateriallist.cpp
+    llgltfmaterialpreviewmgr.cpp
     llgroupactions.cpp
     llgroupiconctrl.cpp
     llgrouplist.cpp
@@ -518,6 +524,7 @@ set(viewer_SOURCE_FILES
     llrecentpeople.cpp
     llreflectionmap.cpp
     llreflectionmapmanager.cpp
+    llheroprobemanager.cpp
     llregioninfomodel.cpp
     llregionposition.cpp
     llremoteparcelrequest.cpp
@@ -719,7 +726,13 @@ set(VIEWER_BINARY_NAME "secondlife-bin" CACHE STRING
 set(viewer_HEADER_FILES
     CMakeLists.txt
     ViewerInstall.cmake
+    gltfscenemanager.h
     groupchatlistener.h
+    gltf/asset.h
+    gltf/accessor.h
+    gltf/buffer_util.h
+    gltf/primitive.h
+    gltf/animation.h
     llaccountingcost.h
     llaccountingcostmanager.h
     llaisapi.h
@@ -961,6 +974,7 @@ set(viewer_HEADER_FILES
     llgesturemgr.h
     llgiveinventory.h
     llgltfmateriallist.h
+    llgltfmaterialpreviewmgr.h
     llgroupactions.h
     llgroupiconctrl.h
     llgrouplist.h
@@ -1156,6 +1170,7 @@ set(viewer_HEADER_FILES
     llrecentpeople.h
     llreflectionmap.h
     llreflectionmapmanager.h
+    llheroprobemanager.h
     llregioninfomodel.h
     llregionposition.h
     llremoteparcelrequest.h

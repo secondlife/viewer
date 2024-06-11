@@ -286,6 +286,7 @@ public:
         ANIMATED_CHILD  = 0x01000000,
         ACTIVE_CHILD    = 0x02000000,
         FOR_UNLOAD      = 0x04000000, //should be unload from memory
+        MIRROR          = 0x08000000, // Used as a mirror, needs a hero probe position to be calculated.
     } EDrawableFlags;
 
 public:

@@ -58,9 +58,9 @@ public:
         POOL_SIMPLE,
         POOL_FULLBRIGHT,
         POOL_BUMP,
-        POOL_TERRAIN,
         POOL_MATERIALS,
         POOL_GLTF_PBR,
+        POOL_TERRAIN,
         POOL_GRASS,
         POOL_GLTF_PBR_ALPHA_MASK,
         POOL_TREE,
@@ -349,8 +349,8 @@ public:
     void resetDrawOrders() { }
 
     static void applyModelMatrix(const LLDrawInfo& params);
-    // Use before a non-GLTF batch if it is interleaved with GLTF batches that share the same shader
-    static void resetGLTFTextureTransform();
+    // For rendering that doesn't use LLDrawInfo for some reason
+    static void applyModelMatrix(const LLMatrix4* model_matrix);
     void pushBatches(U32 type, bool texture = true, bool batch_textures = false);
     void pushUntexturedBatches(U32 type);
 
@@ -374,10 +374,10 @@ public:
     void pushUntexturedRiggedGLTFBatches(U32 type);
 
     // push a single GLTF draw call
-    void pushGLTFBatch(LLDrawInfo& params);
-    void pushRiggedGLTFBatch(LLDrawInfo& params, LLVOAvatar*& lastAvatar, U64& lastMeshId);
-    void pushUntexturedGLTFBatch(LLDrawInfo& params);
-    void pushUntexturedRiggedGLTFBatch(LLDrawInfo& params, LLVOAvatar*& lastAvatar, U64& lastMeshId);
+    static void pushGLTFBatch(LLDrawInfo& params);
+    static void pushRiggedGLTFBatch(LLDrawInfo& params, LLVOAvatar*& lastAvatar, U64& lastMeshId);
+    static void pushUntexturedGLTFBatch(LLDrawInfo& params);
+    static void pushUntexturedRiggedGLTFBatch(LLDrawInfo& params, LLVOAvatar*& lastAvatar, U64& lastMeshId);
 
     void pushMaskBatches(U32 type, bool texture = true, bool batch_textures = false);
     void pushRiggedMaskBatches(U32 type, bool texture = true, bool batch_textures = false);

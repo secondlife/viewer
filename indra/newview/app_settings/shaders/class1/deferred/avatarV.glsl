@@ -35,6 +35,7 @@ in vec4 weight;
 
 out vec3 vary_normal;
 out vec2 vary_texcoord0;
+out vec3 vary_position;
 
 void main()
 {
@@ -57,6 +58,7 @@ void main()
 
     vary_normal = norm;
 
+    vary_position = pos.xyz;
     gl_Position = projection_matrix * pos;
 }
 

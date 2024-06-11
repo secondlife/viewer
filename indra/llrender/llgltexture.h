@@ -42,7 +42,7 @@ class LLGLTexture : public LLTexture
 public:
     enum
     {
-        MAX_IMAGE_SIZE_DEFAULT = 1024,
+        MAX_IMAGE_SIZE_DEFAULT = 2048,
         INVALID_DISCARD_LEVEL = 0x7fff
     };
 
@@ -52,10 +52,11 @@ public:
         BOOST_AVATAR        ,
         BOOST_AVATAR_BAKED  ,
         BOOST_SCULPTED      ,
+        BOOST_TERRAIN       , // Needed for minimap generation for now. Lower than BOOST_HIGH so the texture stats don't get forced, i.e. texture stats are manually managed by minimap/terrain instead.
 
         BOOST_HIGH          = 10,
         BOOST_BUMP          ,
-        BOOST_TERRAIN       , // has to be high priority for minimap / low detail
+        BOOST_UNUSED_1      , // Placeholder to avoid disrupting habits around texture debug
         BOOST_SELECTED      ,
         BOOST_AVATAR_BAKED_SELF ,
         BOOST_AVATAR_SELF   , // needed for baking avatar

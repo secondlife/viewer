@@ -112,6 +112,7 @@ public:
     LLSurfacePatch *resolvePatchGlobal(const LLVector3d &position_global) const;
 
     // Update methods (called during idle, normally)
+    template<bool PBR>
     bool idleUpdate(F32 max_update_time);
 
     bool containsPosition(const LLVector3 &position);
@@ -223,6 +224,9 @@ private:
     LLViewerRegion *mRegionp; // Patch whose coordinate system this surface is using.
     static S32  sTextureSize;               // Size of the surface texture
 };
+
+extern template bool LLSurface::idleUpdate</*PBR=*/false>(F32 max_update_time);
+extern template bool LLSurface::idleUpdate</*PBR=*/true>(F32 max_update_time);
 
 
 

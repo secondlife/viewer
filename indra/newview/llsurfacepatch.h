@@ -77,6 +77,7 @@ public:
 
     void updateVerticalStats();
     void updateCompositionStats();
+    template<bool PBR>
     void updateNormals();
 
     void updateEastEdge();
@@ -102,8 +103,17 @@ public:
     LLVector3 getPointAgent(const U32 x, const U32 y) const; // get the point at the offset.
     LLVector2 getTexCoords(const U32 x, const U32 y) const;
 
+    // Per-vertex normals
+    // *TODO: PBR=true is a test implementation solely for proof-of-concept.
+    // Final implementation would likely be very different and may not even use
+    // this function. If we decide to keep calcNormalFlat, remove index as it
+    // is a debug parameter for testing.
+    template<bool PBR>
     void calcNormal(const U32 x, const U32 y, const U32 stride);
     const LLVector3 &getNormal(const U32 x, const U32 y) const;
+
+    // Per-triangle normals for flat edges
+    void calcNormalFlat(LLVector3& normal_out, const U32 x, const U32 y, const U32 index /* 0 or 1 */);
 
     void eval(const U32 x, const U32 y, const U32 stride,
                 LLVector3 *vertex, LLVector3 *normal, LLVector2 *tex0, LLVector2 *tex1);
@@ -180,6 +190,9 @@ protected:
 
     LLSurface *mSurfacep; // Pointer to "parent" surface
 };
+
+extern template void LLSurfacePatch::updateNormals</*PBR=*/false>();
+extern template void LLSurfacePatch::updateNormals</*PBR=*/true>();
 
 
 #endif // LL_LLSURFACEPATCH_H

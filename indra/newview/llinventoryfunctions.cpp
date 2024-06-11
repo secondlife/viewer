@@ -843,12 +843,6 @@ bool get_is_category_and_children_removable(LLInventoryModel* model, const LLUUI
         return false;
     }
 
-    const LLUUID mp_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS);
-    if (mp_id.notNull() && gInventory.isObjectDescendentOf(folder_id, mp_id))
-    {
-        return false;
-    }
-
     LLInventoryModel::cat_array_t cat_array;
     LLInventoryModel::item_array_t item_array;
     model->collectDescendents(

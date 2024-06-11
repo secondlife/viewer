@@ -64,13 +64,6 @@ bool get_is_predefined_texture(LLUUID asset_id);
 LLUUID get_copy_free_item_by_asset_id(LLUUID image_id, bool no_trans_perm = false);
 bool get_can_copy_texture(LLUUID image_id);
 
-enum LLPickerSource
-{
-    PICKER_INVENTORY,
-    PICKER_LOCAL,
-    PICKER_BAKE,
-    PICKER_UNKNOWN, // on cancel, default ids
-};
 
 typedef enum e_pick_inventory_type
 {
@@ -78,6 +71,23 @@ typedef enum e_pick_inventory_type
     PICK_TEXTURE = 1,
     PICK_MATERIAL = 2,
 } EPickInventoryType;
+
+namespace LLInitParam
+{
+    template<>
+    struct TypeValues<EPickInventoryType> : public TypeValuesHelper<EPickInventoryType>
+    {
+        static void declareValues();
+    };
+}
+
+enum LLPickerSource
+{
+    PICKER_INVENTORY,
+    PICKER_LOCAL,
+    PICKER_BAKE,
+    PICKER_UNKNOWN, // on cancel, default ids
+};
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // LLTextureCtrl
@@ -100,6 +110,7 @@ public:
         Optional<LLUUID>        image_id;
         Optional<LLUUID>        default_image_id;
         Optional<std::string>   default_image_name;
+        Optional<EPickInventoryType> pick_type;
         Optional<bool>          allow_no_texture;
         Optional<bool>          can_apply_immediately;
         Optional<bool>          no_commit_on_selection; // alternative mode: commit occurs and the widget gets dirty
@@ -117,6 +128,7 @@ public:
         :   image_id("image"),
             default_image_id("default_image_id"),
             default_image_name("default_image_name"),
+            pick_type("pick_type", PICK_TEXTURE),
             allow_no_texture("allow_no_texture", false),
             can_apply_immediately("can_apply_immediately"),
             no_commit_on_selection("no_commit_on_selection", false),
@@ -136,26 +148,28 @@ public:
 
     // LLView interface
 
-    virtual bool    handleMouseDown(S32 x, S32 y, MASK mask);
-    virtual bool    handleDragAndDrop(S32 x, S32 y, MASK mask,
-                        bool drop, EDragAndDropType cargo_type, void *cargo_data,
-                        EAcceptance *accept,
-                        std::string& tooltip_msg);
-    virtual bool    handleHover(S32 x, S32 y, MASK mask);
-    virtual bool    handleUnicodeCharHere(llwchar uni_char);
+    bool handleMouseDown(S32 x, S32 y, MASK mask) override;
+    bool handleDragAndDrop(S32 x, S32 y, MASK mask,
+        bool drop, EDragAndDropType cargo_type, void *cargo_data,
+        EAcceptance *accept,
+        std::string& tooltip_msg) override;
+    bool handleHover(S32 x, S32 y, MASK mask) override;
+    bool handleUnicodeCharHere(llwchar uni_char) override;
 
-    virtual void    draw();
-    virtual void    setVisible( bool visible );
-    virtual void    setEnabled( bool enabled );
+    void draw() override;
+    void setVisible( bool visible ) override;
+    void setEnabled( bool enabled ) override;
 
-    void            setValid(bool valid);
+    void onVisibilityChange(bool new_visibility) override;
+
+    void setValid(bool valid);
 
     // LLUICtrl interface
-    virtual void    clear();
+    void clear() override;
 
     // Takes a UUID, wraps get/setImageAssetID
-    virtual void    setValue(const LLSD& value);
-    virtual LLSD    getValue() const;
+    void setValue(const LLSD& value) override;
+    LLSD getValue() const override;
 
     // LLTextureCtrl interface
     void            showPicker(bool take_focus);
@@ -250,6 +264,8 @@ private:
     commit_callback_t           mOnCloseCallback;
     texture_selected_callback   mOnTextureSelectedCallback;
     LLPointer<LLViewerFetchedTexture> mTexturep;
+    LLPointer<LLFetchedGLTFMaterial> mGLTFMaterial;
+    LLPointer<LLViewerTexture> mGLTFPreview;
     LLUIColor                   mBorderColor;
     LLUUID                      mImageItemID;
     LLUUID                      mImageAssetID;
@@ -382,6 +398,7 @@ protected:
 
     LLPointer<LLViewerTexture> mTexturep;
     LLPointer<LLFetchedGLTFMaterial> mGLTFMaterial;
+    LLPointer<LLViewerTexture> mGLTFPreview;
     LLView*             mOwner;
 
     LLUUID              mImageAssetID; // Currently selected texture

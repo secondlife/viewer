@@ -685,6 +685,7 @@ S32 LLTextureEntry::setMaterialParams(const LLMaterialPtr pMaterialParams)
         mMaterialUpdatePending = true;
     }
     mMaterial = pMaterialParams;
+
     return TEM_CHANGE_TEXTURE;
 }
 

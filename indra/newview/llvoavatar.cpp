@@ -4752,7 +4752,7 @@ bool LLVOAvatar::updateCharacter(LLAgent &agent)
     mSpeed = speed;
 
     // update animations
-    if (!visible)
+    if (!visible && !isSelf()) // NOTE: never do a "hidden update" for self avatar as it interrupts controller processing
     {
         updateMotions(LLCharacter::HIDDEN_UPDATE);
     }
@@ -5303,9 +5303,6 @@ U32 LLVOAvatar::renderRigid()
     {
         return 0;
     }
-
-    bool should_alpha_mask = shouldAlphaMask();
-    LLGLState test(GL_ALPHA_TEST, should_alpha_mask);
 
     if (isTextureVisible(TEX_EYES_BAKED) || (getOverallAppearance() == AOA_JELLYDOLL && !isControlAvatar()) || isUIAvatar())
     {

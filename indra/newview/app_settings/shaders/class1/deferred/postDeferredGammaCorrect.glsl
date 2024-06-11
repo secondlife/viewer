@@ -97,6 +97,7 @@ vec3 toneMapACES_Hill(vec3 color)
 
 uniform float exposure;
 uniform float gamma;
+uniform float aces_mix;
 
 vec3 toneMap(vec3 color)
 {
@@ -106,7 +107,7 @@ vec3 toneMap(vec3 color)
     color *= exposure * exp_scale;
 
     // mix ACES and Linear here as a compromise to avoid over-darkening legacy content
-    color = mix(toneMapACES_Hill(color), color, 0.3);
+    color = mix(toneMapACES_Hill(color), color, aces_mix);
 #endif
 
     return color;
@@ -152,6 +153,15 @@ float noise(vec2 x) {
 
 //=============================
 
+void debugExposure(inout vec3 color)
+{
+    float exp_scale = texture(exposureMap, vec2(0.5,0.5)).r;
+    exp_scale *= 0.5;
+    if (abs(vary_fragcoord.y-exp_scale) < 0.01 && vary_fragcoord.x < 0.1)
+    {
+        color = vec3(1,0,0);
+    }
+}
 
 vec3 legacyGamma(vec3 color)
 {
@@ -181,6 +191,7 @@ void main()
     vec3 nz = vec3(noise(seed.rg), noise(seed.gb), noise(seed.rb));
     diff.rgb += nz*0.003;
 
+    //debugExposure(diff.rgb);
     frag_color = max(diff, vec4(0));
 }
 

@@ -1,9 +1,9 @@
 /**
- * @file encodeNormF.glsl
+ * @file normaldebugF.glsl
  *
- * $LicenseInfo:firstyear=2018&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2023&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2018, Linden Research, Inc.
+ * Copyright (C) 2023, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -23,12 +23,11 @@
  * $/LicenseInfo$
  */
 
-// Lambert Azimuthal Equal-Area projection
-// See: https://aras-p.info/texts/CompactNormalStorage.html
-// Also see: A_bit_more_deferred_-_CryEngine3.ppt
-vec2 encode_normal(vec3 n)
-{
-    float f = sqrt(8 * n.z + 8);
-    return n.xy / f + 0.5;
-}
+out vec4 frag_color;
 
+in vec4 vertex_color;
+
+void main()
+{
+    frag_color = max(vertex_color, vec4(0));
+}

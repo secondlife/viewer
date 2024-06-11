@@ -387,21 +387,9 @@
       name="FSAADisabled"
       value="0" />
     <combo_box.item
-      label="2x"
-      name="2x"
+      label="FXAA"
+      name="FXAA"
       value="2" />
-    <combo_box.item
-     label="4x"
-     name="4x"
-     value="4" />
-    <combo_box.item
-     label="8x"
-     name="8x"
-     value="8" />
-    <combo_box.item
-     label="16x"
-     name="16x"
-     value="16" />
   </combo_box>
   <text
     type="string"
@@ -409,44 +397,23 @@
     follows="left|top"
     height="16"
     layout="topleft"
-    left_pad="10"
-    name="antialiasing restart"
-    top_delta="0"
-    width="130">
-     (requires restart)
-  </text>
-   <view_border
-      bevel_style="in"
-      height="322"
-      layout="topleft"
-      left="385"
-      name="vert_border"
-      top="16"      
-      width="0"/>
-  <text
-    type="string"
-    length="1"
-    follows="left|top"
-    height="16"
-    layout="topleft"
     name="MeshText"
-    top_delta="20"
-    left="400"
-  	top="21"
+    top_delta="16"
+    left="10"
     width="128">
-     Mesh
+    Mesh
   </text>
 
   <slider
     control_name="RenderTerrainLODFactor"
-    follows="left|top"
+    follows="topleft"
     height="16"
     increment="0.125"
     initial_value="160"
     label="Terrain Mesh Detail:"
     label_width="185"
     layout="topleft"
-    left="420"
+    left="30"
     min_val="1"
     max_val="2"
     name="TerrainMeshDetail"
@@ -460,7 +427,7 @@
   <text
     type="string"
     length="1"
-    follows="left|top"
+    follows="topleft"
     height="16"
     layout="topleft"
     name="TerrainMeshDetailText"
@@ -468,19 +435,19 @@
     top_delta="0"
     left_delta="304"
     width="65">
-       Low
+    Low
   </text>
 
   <slider
     control_name="RenderTreeLODFactor"
-    follows="left|top"
+    follows="topleft"
     height="16"
     increment="0.125"
     initial_value="160"
     label="Trees:"
     label_width="185"
     layout="topleft"
-    left="420"
+    left="30"
     name="TreeMeshDetail"
     show_text="false"
     top_delta="16"
@@ -499,7 +466,7 @@
     top_delta="0"
     left_delta="304"
     width="65">
-       Low
+    Low
   </text>
 
   <slider
@@ -511,7 +478,7 @@
     label="Objects:"
     label_width="185"
     layout="topleft"
-    left="420"
+    left="30"
     min_val="0"
     max_val="4"
     name="ObjectMeshDetail"
@@ -532,7 +499,7 @@
     top_delta="0"
     left_delta="304"
     width="65">
-       Low
+    Low
   </text>
 
   <slider
@@ -543,7 +510,7 @@
     label="Flexiprims:"
     label_width="185"
     layout="topleft"
-    left="420"
+    left="30"
     name="FlexibleMeshDetail"
     show_text="false"
     top_delta="16"
@@ -562,8 +529,28 @@
     top_delta="0"
     left_delta="304"
     width="65">
-       Low
+    Low
   </text>
+  <text
+    type="string"
+    length="1"
+    follows="left|top"
+    height="16"
+    layout="topleft"
+    left_pad="10"
+    name="antialiasing restart"
+    top_delta="0"
+    width="130">
+     (requires restart)
+  </text>
+   <view_border
+      bevel_style="in"
+      height="322"
+      layout="topleft"
+      left="385"
+      name="vert_border"
+      top="16"      
+      width="0"/>
   
   <text
     type="string"
@@ -572,7 +559,7 @@
     height="16"
     layout="topleft"
     name="ShadersText"
-    top_delta="20"
+    top_delta="-10"
     left="400"
     width="128">
      Shaders
@@ -586,7 +573,7 @@
     layout="topleft"
     left="420"
     name="TransparentWater"
-    top_delta="16"
+    top_delta="18"
     width="300">
     <check_box.commit_callback
       function="Pref.RenderOptionUpdate" />
@@ -607,7 +594,7 @@
     max_val="128"
     name="SkyMeshDetail"
     show_text="false"
-    top_delta="16"
+    top_delta="22"
     width="260">
     <slider.commit_callback
       function="Pref.UpdateSliderText"
@@ -635,7 +622,7 @@
     layout="topleft"
     left="420"
     name="UseSSAO"
-    top_delta="16"
+    top_delta="22"
     width="240">
     <check_box.commit_callback
       function="Pref.RenderOptionUpdate" />
@@ -649,7 +636,7 @@
     layout="topleft"
     left="420"
     name="UseDoF"
-    top_delta="16"
+    top_delta="20"
     width="240">
     <check_box.commit_callback
       function="Pref.RenderOptionUpdate" />
@@ -664,7 +651,7 @@
     left="420"
     name="RenderShadowDetailText"
     text_readonly_color="LabelDisabledColor"
-    top_delta="16"
+    top_delta="22"
     width="128">
       Shadows:
   </text>
@@ -698,7 +685,7 @@
     layout="topleft"
     left="420"
     name="ScreenSpaceReflections"
-    top_delta="16"
+    top_delta="24"
     width="240">
     <check_box.commit_callback
       function="Pref.RenderOptionUpdate" />
@@ -713,7 +700,7 @@
     left="420"
     name="ReflectionDetailText"
     text_readonly_color="LabelDisabledColor"
-    top_delta="16"
+    top_delta="22"
     width="128">
     Reflection Detail:
   </text>
@@ -749,7 +736,7 @@
     left="420"
     name="ReflectionProbeText"
     text_readonly_color="LabelDisabledColor"
-    top_delta="16"
+    top_delta="22"
     width="128">
     Reflection Coverage:
   </text>
@@ -795,9 +782,105 @@
     max_val="1.5"
     name="RenderExposure"
     show_text="true"
-    top_delta="20"
+    top_delta="24"
     width="260">
   </slider>
+
+  <!-- Mirror settings. -->
+  <check_box
+    control_name="RenderMirrors"
+    height="16"
+    initial_value="false"
+    label="Mirrors"
+    layout="topleft"
+    left="420"
+    name="Mirrors"
+    top_delta="24"
+    width="240">
+    <check_box.commit_callback
+      function="Pref.RenderOptionUpdate" />
+  </check_box>
+
+  <text
+    type="string"
+    length="1"
+    follows="left|top"
+    height="16"
+    layout="topleft"
+    left="420"
+    name="MirrorResolutionText"
+    text_readonly_color="LabelDisabledColor"
+    top_delta="22"
+    width="128">
+    Mirror Resolution:
+  </text>
+
+  <combo_box
+   control_name="RenderHeroProbeResolution"
+   height="18"
+   layout="topleft"
+   left_delta="130"
+   top_delta="0"
+   name="MirrorResolution"
+   width="150">
+    <combo_box.item
+      label="256"
+      name="0"
+      value="256"/>
+    <combo_box.item
+      label="512"
+      name="1"
+      value="512"/>
+    <combo_box.item
+      label="1024"
+      name="2"
+      value="1024"/>
+    <combo_box.item
+      label="2048"
+      name="3"
+      value="2048"/>
+  </combo_box>
+
+  <text
+    type="string"
+    length="1"
+    follows="left|top"
+    height="16"
+    layout="topleft"
+    left="420"
+    name="HeroProbeUpdateText"
+    text_readonly_color="LabelDisabledColor"
+    top_delta="22"
+    width="128">
+    Mirror Update Rate:
+  </text>
+
+  <combo_box
+   control_name="RenderHeroProbeUpdateRate"
+   height="18"
+   layout="topleft"
+   left_delta="130"
+   top_delta="0"
+   name="HeroProbeUpdateRate"
+   width="150">
+    <combo_box.item
+      label="Every Frame"
+      name="0"
+      value="1"/>
+    <combo_box.item
+      label="Every 2nd Frame"
+      name="1"
+      value="2"/>
+    <combo_box.item
+      label="Every 3rd Frame"
+      name="2"
+      value="3"/>
+    <combo_box.item
+      label="Every 4th Frame"
+      name="3"
+      value="4"/>
+  </combo_box>
+  <!-- End of mirror settings -->
 
   <!-- End of Advanced Settings block -->
 	<view_border

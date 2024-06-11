@@ -85,17 +85,8 @@ void LLDrawPoolTree::renderDeferred(S32 pass)
         {
             LLMatrix4* model_matrix = &(face->getDrawable()->getRegion()->mRenderMatrix);
 
-            if (model_matrix != gGLLastMatrix)
-            {
-                gGLLastMatrix = model_matrix;
-                gGL.loadMatrix(gGLModelView);
-                if (model_matrix)
-                {
-                    llassert(gGL.getMatrixMode() == LLRender::MM_MODELVIEW);
-                    gGL.multMatrix((GLfloat*)model_matrix->mMatrix);
-                }
-                gPipeline.mMatrixOpCount++;
-            }
+            llassert(gGL.getMatrixMode() == LLRender::MM_MODELVIEW);
+            LLRenderPass::applyModelMatrix(model_matrix);
 
             buff->setBuffer();
             buff->drawRange(LLRender::TRIANGLES, 0, buff->getNumVerts() - 1, buff->getNumIndices(), 0);

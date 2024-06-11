@@ -119,6 +119,8 @@ public:
     LLUUID          mParticleOwnerID;
     LLUUID          mParticleSourceID;
     S32             mObjectFace;
+    S32             mGLTFNodeIndex = -1;
+    S32             mGLTFPrimitiveIndex = -1;
     LLHUDIcon*      mHUDIcon;
     LLVector3       mIntersection;
     LLVector2       mUVCoords;
@@ -375,7 +377,8 @@ public:
     // index - cube index in the array to use (cube index, not face-layer)
     // face - which cube face to update
     // near_clip - near clip setting to use
-    bool cubeSnapshot(const LLVector3& origin, LLCubeMapArray* cubearray, S32 index, S32 face, F32 near_clip, bool render_avatars);
+    bool cubeSnapshot(const LLVector3 &origin, LLCubeMapArray *cubearray, S32 index, S32 face, F32 near_clip, bool render_avatars,
+                      bool customCullingPlane = false, LLPlane cullingPlane = LLPlane(LLVector3(0, 0, 0), LLVector3(0, 0, 1)));
 
 
     // special implementation of simpleSnapshot for reflection maps
@@ -423,6 +426,8 @@ public:
                                     bool pick_unselectable = true,
                                     bool pick_reflection_probe = true,
                                     S32* face_hit = NULL,
+                                    S32* gltf_node_hit = nullptr,
+                                    S32* gltf_primitive_hit = nullptr,
                                     LLVector4a *intersection = NULL,
                                     LLVector2 *uv = NULL,
                                     LLVector4a *normal = NULL,
