@@ -2665,7 +2665,7 @@ EAcceptance LLToolDragAndDrop::dad3dUpdateInventory(
 
     // *HACK: In order to resolve SL-22177, we need to block drags
     // from notecards and objects onto other objects.
-    if ((SOURCE_WORLD == mSource) || (SOURCE_NOTECARD == mSource))
+    if((SOURCE_WORLD == mSource) || (SOURCE_NOTECARD == mSource))
     {
         return ACCEPT_NO;
     }

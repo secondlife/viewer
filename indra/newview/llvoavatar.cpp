@@ -6622,7 +6622,7 @@ void LLVOAvatar::addAttachmentOverridesForObject(LLViewerObject *vo, std::set<LL
                 LL_DEBUGS("AnimatedObjects") << "adding attachment overrides for " << mesh_id
                                              << " to root object " << root_object->getID() << LL_ENDL;
             }
-            bool fullRig = jointCnt>=JOINT_COUNT_REQUIRED_FOR_FULLRIG;
+            bool fullRig = jointCnt >= JOINT_COUNT_REQUIRED_FOR_FULLRIG;
             if ( fullRig && !mesh_overrides_loaded )
             {
                 for (unsigned int i = 0; i < jointCnt; ++i)

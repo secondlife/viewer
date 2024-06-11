@@ -198,7 +198,7 @@ void Animation::Sampler::getFrameInfo(Asset& asset, F32 time, U32& frameIndex, F
             return;
         }
 
-        for (U32 i = 0; i < mFrameTimes.size() - 1; i++)
+        for (U32 i = 0; i < (U32)mFrameTimes.size() - 1; i++)
         {
             if (time >= mFrameTimes[i] && time < mFrameTimes[i + 1])
             {

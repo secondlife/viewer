@@ -102,7 +102,7 @@ void main()
 
     // Initialize temp variables
     vec3 sunlight = (sun_up_factor == 1) ? sunlight_color : moonlight_color * 0.7; //magic 0.7 to match legacy color
-    
+
     // Sunlight attenuation effect (hue and brightness) due to atmosphere
     // this is used later for sunlight modulation at various altitudes
     vec3 light_atten = (blue_density + vec3(haze_density * 0.25)) * (density_multiplier * max_y);
@@ -152,7 +152,7 @@ void main()
     sunlight *= max(0.0, (1. - cloud_shadow));
 
     // Haze color below cloud
-    vec3 add_below_cloud = (blue_horizon * blue_weight * (sunlight + ambient) 
+    vec3 add_below_cloud = (blue_horizon * blue_weight * (sunlight + ambient)
                          + (haze_horizon * haze_weight) * (sunlight * haze_glow + ambient));
 
     // Attenuate cloud color by atmosphere

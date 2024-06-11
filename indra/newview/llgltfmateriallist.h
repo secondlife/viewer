@@ -79,14 +79,14 @@ public:
     static void flushUpdates(void(*done_callback)(bool) = nullptr);
 
     static void addSelectionUpdateCallback(void(*update_callback)(const LLUUID& object_id, S32 side));
-    
+
     // Queue an explicit LLSD ModifyMaterialParams update apply given override data
     //  overrides -- LLSD map (or array of maps) in the format:
     //      object_id   UUID(required)      id of object
     //      side        integer(required)   TE index of face to set, or -1 for all faces
     //      gltf_json   string(optional)    override data to set, empty string nulls out override data, omissions of this parameter keeps existing data
     //      asset_id    UUID(optional)      id of material asset to set, omission of this parameter keeps existing material asset id
-    //    
+    //
     // NOTE: Unless you already have a gltf_json string you want to send, strongly prefer using queueModify
     // If the queue/flush API is insufficient, extend it.
     static void queueUpdate(const LLSD& data);

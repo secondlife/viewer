@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llvlcomposition.cpp
  * @brief Viewer-side representation of a composition layer...
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -220,7 +220,7 @@ LLTerrainMaterials::Type LLTerrainMaterials::getMaterialType()
 {
     LL_PROFILE_ZONE_SCOPED;
 
-    const BOOL use_textures = texturesReady(false, false) || !materialsReady(false, false);
+    const bool use_textures = texturesReady(false, false) || !materialsReady(false, false);
     return use_textures ? Type::TEXTURE : Type::PBR;
 }
 
@@ -428,8 +428,7 @@ const LLUUID (&LLVLComposition::getDefaultTextures())[ASSET_COUNT]
 
 LLVLComposition::LLVLComposition(LLSurface *surfacep, const U32 width, const F32 scale) :
     LLTerrainMaterials(),
-    LLViewerLayer(width, scale),
-    mParamsReady(false)
+    LLViewerLayer(width, scale)
 {
     // Load Terrain Textures - Original ones
     const LLUUID (&default_textures)[LLVLComposition::ASSET_COUNT] = LLVLComposition::getDefaultTextures();
@@ -471,7 +470,7 @@ bool LLVLComposition::generateHeights(const F32 x, const F32 y,
 
     llassert(mSurfacep);
 
-    if (!mSurfacep || !mSurfacep->getRegion()) 
+    if (!mSurfacep || !mSurfacep->getRegion())
     {
         // We don't always have the region yet here....
         return false;
@@ -539,7 +538,7 @@ bool LLVLComposition::generateHeights(const F32 x, const F32 y,
             vec[1] = (F32)(origin_global.mdV[VY]+location.mV[VY])*xyScaleInv;
             vec[2] = height*zScaleInv;
             //
-            //  Choose material value by adding to the exact height a random value 
+            //  Choose material value by adding to the exact height a random value
             //
             vec1[0] = vec[0]*(0.2222222222f);
             vec1[1] = vec[1]*(0.2222222222f);
@@ -873,7 +872,7 @@ bool LLVLComposition::generateMinimapTileLand(const F32 x, const F32 y,
     U32 st_comps = 3;
     U32 st_width = BASE_SIZE;
     U32 st_height = BASE_SIZE;
-    
+
     if (tex_comps != st_comps)
     {
         llassert(false);
@@ -978,7 +977,7 @@ bool LLVLComposition::generateMinimapTileLand(const F32 x, const F32 y,
     {
         unboost_minimap_material(mDetailMaterials[i]);
     }
-    
+
     return true;
 }
 

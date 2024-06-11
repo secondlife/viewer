@@ -1877,13 +1877,13 @@ void LLVOCache::removeGenericExtrasForHandle(U64 handle)
     auto* entry = mHandleEntryMap[handle];
     if (entry)
     {
+        LL_WARNS("GLTF", "VOCache") << "Removing generic extras for handle " << entry->mHandle << "Filename: " << getObjectCacheExtrasFilename(handle) << LL_ENDL;
         removeEntry(entry);
     }
     else
     {
         //shouldn't happen, but if it does, we should remove the extras file since it's orphaned
-        LL_WARNS("GLTF", "VOCache") << "Removing generic extras for handle " << entry->mHandle << "Filename: " << getObjectCacheExtrasFilename(handle) << LL_ENDL;
-        LLFile::remove(getObjectCacheExtrasFilename(entry->mHandle));
+        LLFile::remove(getObjectCacheExtrasFilename(handle));
     }
 }
 
@@ -1902,9 +1902,7 @@ void LLVOCache::writeGenericExtrasToCache(U64 handle, const LLUUID& id, const LL
         return;
     }
 
-    // <FS:Beq> FIRE-33808 - Material Override Cache causes long delays
     std::string filename = getObjectCacheExtrasFilename(handle);
-    // </FS:Beq>
     llofstream out(filename, std::ios::out | std::ios::binary);
     if(!out.good())
     {

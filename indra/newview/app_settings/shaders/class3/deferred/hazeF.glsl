@@ -67,16 +67,16 @@ void main()
     calcAtmosphericVarsLinear(pos.xyz, norm.xyz, light_dir, sunlit, amblit, additive, atten);
 
     vec3 sunlit_linear = srgb_to_linear(sunlit);
-    
+
     // mask off atmospherics below water (when camera is under water)
     bool do_atmospherics = false;
-        
+
     if (dot(vec3(0), waterPlane.xyz) + waterPlane.w > 0.0 ||
         dot(pos.xyz, waterPlane.xyz) + waterPlane.w > 0.0)
     {
         do_atmospherics = true;
     }
-    
+
     vec3  irradiance = vec3(0);
     vec3  radiance  = vec3(0);
 
@@ -101,5 +101,5 @@ void main()
     }
 
     frag_color = max(vec4(color.rgb, alpha), vec4(0)); //output linear since local lights will be added to this shader's results
-    
+
 }
