@@ -21,6 +21,12 @@ local function mapargs(names, ...)
     -- array items it contains, if there are any holes. Track that by hand.
     -- We must be able to handle f(1, nil, 3) calls.
     local maxpos = 0
+
+    -- For convenience, allow passing 'names' as a string 'n0,n1,...'
+    if type(names) == 'string' then
+        names = string.split(names, ',')
+    end
+
     if not (args.n == 1 and type(args[1]) == 'table') then
         -- If caller passes more than one argument, or if the first argument
         -- is not a table, then it's classic positional function-call syntax:
