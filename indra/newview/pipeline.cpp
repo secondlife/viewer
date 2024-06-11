@@ -778,12 +778,9 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
     { // hacky -- allocate auxillary buffer
 
         gCubeSnapshot = TRUE;
-        mReflectionMapManager.initReflectionMaps();
-        mHeroProbeManager.initReflectionMaps();
 
         if (sReflectionProbesEnabled)
         {
-            gCubeSnapshot = TRUE;
             mReflectionMapManager.initReflectionMaps();
         }
 
