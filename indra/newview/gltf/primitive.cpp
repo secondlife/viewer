@@ -58,11 +58,24 @@ struct MikktMesh
         bool indexed = !prim->mIndexArray.empty();
         U32 vert_count = indexed ? prim->mIndexArray.size() : prim->mPositions.size();
 
-        if (prim->mMode != Primitive::Mode::TRIANGLES)
+        U32 triangle_count = 0;
+
+        if (prim->mMode == Primitive::Mode::TRIANGLE_STRIP ||
+            prim->mMode == Primitive::Mode::TRIANGLE_FAN)
         {
-            LL_WARNS("GLTF") << "Unsupported primitive mode for conversion to triangles: " << (S32) prim->mMode << LL_ENDL;
+            triangle_count = vert_count - 2;
+        }
+        else if (prim->mMode == Primitive::Mode::TRIANGLES)
+        {
+            triangle_count = vert_count / 3;
+        }
+        else
+        {
+            LL_WARNS("GLTF") << "Unsupported primitive mode for conversion to triangles: " << (S32)prim->mMode << LL_ENDL;
             return false;
         }
+
+        vert_count = triangle_count * 3;
 
         p.resize(vert_count);
         n.resize(vert_count);
@@ -93,28 +106,63 @@ struct MikktMesh
             tc1.resize(vert_count);
         }
 
-        for (int i = 0; i < vert_count; ++i)
+        for (int tri_idx = 0; tri_idx < triangle_count; ++tri_idx)
         {
-            U32 idx = indexed ? prim->mIndexArray[i] : i;
+            U32 idx[3];
 
-            p[i].set(prim->mPositions[idx].getF32ptr());
-            tc0[i].set(prim->mTexCoords0[idx]);
-            c[i] = prim->mColors[idx];
-
-            if (multi_uv)
+            if (prim->mMode == Primitive::Mode::TRIANGLES)
             {
-                tc1[i].set(prim->mTexCoords1[idx]);
+                idx[0] = tri_idx * 3;
+                idx[1] = tri_idx * 3 + 1;
+                idx[2] = tri_idx * 3 + 2;
+            }
+            else if (prim->mMode == Primitive::Mode::TRIANGLE_STRIP)
+            {
+                idx[0] = tri_idx;
+                idx[1] = tri_idx + 1;
+                idx[2] = tri_idx + 2;
+
+                if (tri_idx % 2 != 0)
+                {
+                    std::swap(idx[1], idx[2]);
+                }
+            }
+            else if (prim->mMode == Primitive::Mode::TRIANGLE_FAN)
+            {
+                idx[0] = 0;
+                idx[1] = tri_idx + 1;
+                idx[2] = tri_idx + 2;
             }
 
-            if (has_normals)
+            if (indexed)
             {
-                n[i].set(prim->mNormals[idx].getF32ptr());
+                idx[0] = prim->mIndexArray[idx[0]];
+                idx[1] = prim->mIndexArray[idx[1]];
+                idx[2] = prim->mIndexArray[idx[2]];
             }
 
-            if (rigged)
+            for (U32 v = 0; v < 3; ++v)
             {
-                w[i].set(prim->mWeights[idx].getF32ptr());
-                j[i] = prim->mJoints[idx];
+                U32 i = tri_idx * 3 + v;
+                p[i].set(prim->mPositions[idx[v]].getF32ptr());
+                tc0[i].set(prim->mTexCoords0[idx[v]]);
+                c[i] = prim->mColors[idx[v]];
+
+                if (multi_uv)
+                {
+                    tc1[i].set(prim->mTexCoords1[idx[v]]);
+                }
+
+                if (has_normals)
+                {
+                    n[i].set(prim->mNormals[idx[v]].getF32ptr());
+                }
+
+                if (rigged)
+                {
+                    w[i].set(prim->mWeights[idx[v]].getF32ptr());
+                    j[i] = prim->mJoints[idx[v]];
+                }
             }
         }
 
@@ -507,10 +555,13 @@ bool Primitive::prep(Asset& asset)
 
     mVertexBuffer->unbind();
 
-    Material& material = asset.mMaterials[mMaterial];
-    if (material.mAlphaMode == Material::AlphaMode::BLEND)
+    if (mMaterial != INVALID_INDEX)
     {
-        mShaderVariant |= LLGLSLShader::GLTFVariant::ALPHA_BLEND;
+        Material& material = asset.mMaterials[mMaterial];
+        if (material.mAlphaMode == Material::AlphaMode::BLEND)
+        {
+            mShaderVariant |= LLGLSLShader::GLTFVariant::ALPHA_BLEND;
+        }
     }
 
     return true;
