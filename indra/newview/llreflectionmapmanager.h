@@ -43,6 +43,8 @@ class LLViewerObject;
 // reflection probe mininum scale
 #define LL_REFLECTION_PROBE_MINIMUM_SCALE 1.f;
 
+void renderReflectionProbe(LLReflectionMap* probe);
+
 class alignas(16) LLReflectionMapManager
 {
     LL_ALIGN_NEW
@@ -65,7 +67,7 @@ public:
 
     // add a probe for the given spatial group
     LLReflectionMap* addProbe(LLSpatialGroup* group = nullptr);
-
+    
     // Populate "maps" with the N most relevant Reflection Maps where N is no more than maps.size()
     // If less than maps.size() ReflectionMaps are available, will assign trailing elements to nullptr.
     //  maps -- presized array of Reflection Map pointers
@@ -85,7 +87,8 @@ public:
     void reset();
 
     // pause all updates other than the default probe
-    void pause();
+    // duration - number of seconds to pause (default 10)
+    void pause(F32 duration = 10.f);
 
     // unpause (see pause)
     void resume();
@@ -106,8 +109,14 @@ public:
     // perform occlusion culling on all active reflection probes
     void doOcclusion();
 
+    // *HACK: "cull" all reflection probes except the default one. Only call
+    // this if you don't intend to call updateUniforms directly. Call again
+    // with false when done.
+    void forceDefaultProbeAndUpdateUniforms(bool force = true);
+
 private:
     friend class LLPipeline;
+    friend class LLHeroProbeManager;
 
     // initialize mCubeFree array to default values
     void initCubeFree();
@@ -151,7 +160,7 @@ private:
 
     // update the specified face of the specified probe
     void updateProbeFace(LLReflectionMap* probe, U32 face);
-
+    
     // list of active reflection maps
     std::vector<LLPointer<LLReflectionMap> > mProbes;
 
@@ -200,5 +209,6 @@ private:
 
     // if true, only update the default probe
     bool mPaused = false;
+    F32 mResumeTime = 0.f;
 };
 

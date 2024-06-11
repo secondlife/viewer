@@ -36,6 +36,7 @@
 #include "llpanel.h"
 #include "llextendedstatus.h"
 #include "llpanelenvironment.h"
+#include "llvlcomposition.h"
 
 #include "lleventcoro.h"
 
@@ -55,6 +56,7 @@ class LLRadioGroup;
 class LLSliderCtrl;
 class LLSpinCtrl;
 class LLTextBox;
+class LLTextureCtrl;
 
 class LLPanelRegionGeneralInfo;
 class LLPanelRegionDebugInfo;
@@ -75,9 +77,9 @@ class LLFloaterRegionInfo : public LLFloater
 public:
 
 
-    /*virtual*/ void onOpen(const LLSD& key);
-    /*virtual*/ void onClose(bool app_quitting);
-    /*virtual*/ BOOL postBuild();
+    void onOpen(const LLSD& key) override;
+    void onClose(bool app_quitting) override;
+    BOOL postBuild() override;
 
     static void processEstateOwnerRequest(LLMessageSystem* msg, void**);
 
@@ -98,7 +100,7 @@ public:
     static LLPanelRegionEnvironment* getPanelEnvironment();
 
     // from LLPanel
-    virtual void refresh();
+    void refresh() override;
 
     void onRegionChanged();
     void requestRegionInfo();
@@ -144,7 +146,7 @@ public:
     virtual bool refreshFromRegion(LLViewerRegion* region);
     virtual bool estateUpdate(LLMessageSystem* msg) { return true; }
 
-    virtual BOOL postBuild();
+    BOOL postBuild() override;
     virtual void updateChild(LLUICtrl* child_ctrl);
 
     void enableButton(const std::string& btn_name, BOOL enable = TRUE);
@@ -184,16 +186,15 @@ public:
         :   LLPanelRegionInfo() {}
     ~LLPanelRegionGeneralInfo() {}
 
-    virtual bool refreshFromRegion(LLViewerRegion* region);
+    bool refreshFromRegion(LLViewerRegion* region) override;
 
-    // LLPanel
-    virtual BOOL postBuild();
+    BOOL postBuild() override;
 
     void onBtnSet();
     void setObjBonusFactor(F32 object_bonus_factor) {mObjBonusFactor = object_bonus_factor;}
 
 protected:
-    virtual BOOL sendUpdate();
+    BOOL sendUpdate() override;
     void onClickKick();
     void onKickCommit(const uuid_vec_t& ids);
     static void onClickKickAll(void* userdata);
@@ -214,13 +215,13 @@ public:
     LLPanelRegionDebugInfo()
         :   LLPanelRegionInfo(), mTargetAvatar() {}
     ~LLPanelRegionDebugInfo() {}
-    // LLPanel
-    virtual BOOL postBuild();
 
-    virtual bool refreshFromRegion(LLViewerRegion* region);
+    BOOL postBuild() override;
+
+    bool refreshFromRegion(LLViewerRegion* region) override;
 
 protected:
-    virtual BOOL sendUpdate();
+    BOOL sendUpdate() override;
 
     void onClickChooseAvatar();
     void callbackAvatarID(const uuid_vec_t& ids, const std::vector<LLAvatarName> names);
@@ -244,20 +245,22 @@ class LLPanelRegionTerrainInfo : public LLPanelRegionInfo
     LOG_CLASS(LLPanelRegionTerrainInfo);
 
 public:
-    LLPanelRegionTerrainInfo() : LLPanelRegionInfo() {}
+    LLPanelRegionTerrainInfo();
     ~LLPanelRegionTerrainInfo() {}
 
-    virtual BOOL postBuild();                                               // LLPanel
+    BOOL postBuild() override;
 
-    virtual bool refreshFromRegion(LLViewerRegion* region);                 // refresh local settings from region update from simulator
+    bool refreshFromRegion(LLViewerRegion* region) override;                // refresh local settings from region update from simulator
     void setEnvControls(bool available);                                    // Whether environment settings are available for this region
 
-    BOOL validateTextureSizes();
+    bool validateTextureSizes();
+    bool validateMaterials();
     BOOL validateTextureHeights();
 
     //static void onChangeAnything(LLUICtrl* ctrl, void* userData);         // callback for any change, to enable commit button
 
-    virtual BOOL sendUpdate();
+    void onSelectMaterialType();
+    void updateForMaterialType();
 
     static void onClickDownloadRaw(void*);
     static void onClickUploadRaw(void*);
@@ -265,9 +268,17 @@ public:
     bool callbackBakeTerrain(const LLSD& notification, const LLSD& response);
     bool callbackTextureHeights(const LLSD& notification, const LLSD& response);
 
+protected:
+    BOOL sendUpdate() override;
+
 private:
     bool mConfirmedTextureHeights;
     bool mAskedTextureHeights;
+    LLCheckBoxCtrl* mMaterialTypeCtrl = nullptr;
+    LLTextureCtrl* mTextureDetailCtrl[LLTerrainMaterials::ASSET_COUNT];
+    LLTextureCtrl* mMaterialDetailCtrl[LLTerrainMaterials::ASSET_COUNT];
+    LLUUID mLastSetTextures[LLTerrainMaterials::ASSET_COUNT];
+    LLUUID mLastSetMaterials[LLTerrainMaterials::ASSET_COUNT];
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -303,13 +314,12 @@ public:
     static void updateEstateName(const std::string& name);
     static void updateEstateOwnerName(const std::string& name);
 
-    virtual bool refreshFromRegion(LLViewerRegion* region);
-    virtual bool estateUpdate(LLMessageSystem* msg);
+    bool refreshFromRegion(LLViewerRegion* region) override;
+    bool estateUpdate(LLMessageSystem* msg) override;
 
-    // LLPanel
-    virtual BOOL postBuild();
-    virtual void updateChild(LLUICtrl* child_ctrl);
-    virtual void refresh();
+    BOOL postBuild() override;
+    void updateChild(LLUICtrl* child_ctrl) override;
+    void refresh() override;
 
     void refreshFromEstate();
 
@@ -319,7 +329,7 @@ public:
     void setOwnerName(const std::string& name);
 
 protected:
-    virtual BOOL sendUpdate();
+    BOOL sendUpdate() override;
     // confirmation dialog callback
     bool callbackChangeLindenEstate(const LLSD& notification, const LLSD& response);
 
@@ -339,17 +349,16 @@ public:
     LLPanelEstateCovenant();
     ~LLPanelEstateCovenant() {}
 
-    // LLPanel
-    virtual BOOL postBuild();
-    virtual void updateChild(LLUICtrl* child_ctrl);
-    virtual bool refreshFromRegion(LLViewerRegion* region);
-    virtual bool estateUpdate(LLMessageSystem* msg);
+    BOOL postBuild() override;
+    void updateChild(LLUICtrl* child_ctrl) override;
+    bool refreshFromRegion(LLViewerRegion* region) override;
+    bool estateUpdate(LLMessageSystem* msg) override;
 
     // LLView overrides
     BOOL handleDragAndDrop(S32 x, S32 y, MASK mask,
                            BOOL drop, EDragAndDropType cargo_type,
                            void *cargo_data, EAcceptance *accept,
-                           std::string& tooltip_msg);
+                           std::string& tooltip_msg) override;
     static bool confirmChangeCovenantCallback(const LLSD& notification, const LLSD& response);
     static void resetCovenantID(void* userdata);
     static bool confirmResetCovenantCallback(const LLSD& notification, const LLSD& response);
@@ -382,7 +391,7 @@ public:
     } EAssetStatus;
 
 protected:
-    virtual BOOL sendUpdate();
+    BOOL sendUpdate() override;
     LLTextBox*              mEstateNameText;
     LLTextBox*              mEstateOwnerText;
     LLTextBox*              mLastModifiedText;
@@ -401,16 +410,19 @@ class LLPanelRegionExperiences : public LLPanelRegionInfo
 
 public:
     LLPanelRegionExperiences(){}
-    /*virtual*/ BOOL postBuild();
-    virtual BOOL sendUpdate();
+    BOOL postBuild() override;
 
     static bool experienceCoreConfirm(const LLSD& notification, const LLSD& response);
     static void sendEstateExperienceDelta(U32 flags, const LLUUID& agent_id);
 
     static void infoCallback(LLHandle<LLPanelRegionExperiences> handle, const LLSD& content);
-    bool refreshFromRegion(LLViewerRegion* region);
+    bool refreshFromRegion(LLViewerRegion* region) override;
     void sendPurchaseRequest()const;
     void processResponse( const LLSD& content );
+
+protected:
+    BOOL sendUpdate() override;
+
 private:
     void refreshRegionExperiences();
 
@@ -435,8 +447,8 @@ class LLPanelEstateAccess : public LLPanelRegionInfo
 public:
     LLPanelEstateAccess();
 
-    virtual BOOL postBuild();
-    virtual void updateChild(LLUICtrl* child_ctrl);
+    BOOL postBuild() override;
+    void updateChild(LLUICtrl* child_ctrl) override;
 
     void updateControls(LLViewerRegion* region);
     void updateLists();
@@ -444,7 +456,7 @@ public:
     void setPendingUpdate(bool pending) { mPendingUpdate = pending; }
     bool getPendingUpdate() { return mPendingUpdate; }
 
-    virtual bool refreshFromRegion(LLViewerRegion* region);
+    bool refreshFromRegion(LLViewerRegion* region) override;
 
 private:
     void onClickAddAllowedAgent();

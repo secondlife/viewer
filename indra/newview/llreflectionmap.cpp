@@ -49,7 +49,7 @@ LLReflectionMap::~LLReflectionMap()
     }
 }
 
-void LLReflectionMap::update(U32 resolution, U32 face)
+void LLReflectionMap::update(U32 resolution, U32 face, bool force_dynamic, F32 near_clip, bool useClipPlane, LLPlane clipPlane)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
     mLastUpdateTime = gFrameTimeSeconds;
@@ -63,7 +63,10 @@ void LLReflectionMap::update(U32 resolution, U32 face)
     {
         resolution /= 2;
     }
-    gViewerWindow->cubeSnapshot(LLVector3(mOrigin), mCubeArray, mCubeIndex, face, getNearClip(), getIsDynamic());
+
+    F32 clip = (near_clip > 0) ? near_clip : getNearClip();
+    
+    gViewerWindow->cubeSnapshot(LLVector3(mOrigin), mCubeArray, mCubeIndex, face, clip, getIsDynamic() || force_dynamic, useClipPlane, clipPlane);
 }
 
 void LLReflectionMap::autoAdjustOrigin()
@@ -165,7 +168,7 @@ void LLReflectionMap::autoAdjustOrigin()
             
         }
     }
-    else if (mViewerObject)
+    else if (mViewerObject && !mViewerObject->isDead())
     {
         mPriority = 1;
         mOrigin.load3(mViewerObject->getPositionAgent().mV);
