@@ -41,8 +41,8 @@ LLFloaterSettingsDebug::LLFloaterSettingsDebug(const LLSD& key)
 :   LLFloater(key),
     mSettingList(NULL)
 {
-    mCommitCallbackRegistrar.add("CommitSettings",  boost::bind(&LLFloaterSettingsDebug::onCommitSettings, this));
-    mCommitCallbackRegistrar.add("ClickDefault",    boost::bind(&LLFloaterSettingsDebug::onClickDefault, this));
+    mCommitCallbackRegistrar.add("CommitSettings",  { boost::bind(&LLFloaterSettingsDebug::onCommitSettings, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("ClickDefault",    { boost::bind(&LLFloaterSettingsDebug::onClickDefault, this), cb_info::UNTRUSTED_BLOCK });
 }
 
 LLFloaterSettingsDebug::~LLFloaterSettingsDebug()

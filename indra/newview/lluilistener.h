@@ -41,8 +41,12 @@ public:
 
 // FIXME These fields are intended to be private, changed here to support very hacky code in llluamanager.cpp 
 public:
-    void call(const LLSD& event) const;
+    void call(const LLSD& event);
     void getValue(const LLSD&event) const;
+
+ private:
+    F64 mLastUntrustedThrottle {0.f};
+    F64 mLastMinThrottle {0.f};
 };
 
 #endif /* ! defined(LL_LLUILISTENER_H) */

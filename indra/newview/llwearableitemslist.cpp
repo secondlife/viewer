@@ -888,7 +888,7 @@ void LLWearableItemsList::ContextMenu::show(LLView* spawning_view, LLWearableTyp
     }
 
     LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
-    registrar.add("Wearable.CreateNew", boost::bind(createNewWearableByType, w_type));
+    registrar.add("Wearable.CreateNew", { boost::bind(createNewWearableByType, w_type), cb_info::UNTRUSTED_THROTTLE });
     menup = createFromFile("menu_wearable_list_item.xml");
     if (!menup)
     {
@@ -914,7 +914,7 @@ void LLWearableItemsList::ContextMenu::show(LLView* spawning_view, LLWearableTyp
 // virtual
 LLContextMenu* LLWearableItemsList::ContextMenu::createMenu()
 {
-    LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+    LLUICtrl::ScopedRegistrarHelper registrar;
     const uuid_vec_t& ids = mUUIDs;     // selected items IDs
     LLUUID selected_id = ids.front();   // ID of the first selected item
 

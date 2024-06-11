@@ -39,7 +39,7 @@ LLSaveOutfitComboBtn::LLSaveOutfitComboBtn(LLPanel* parent, bool saveAsDefaultAc
     mParent(parent), mSaveAsDefaultAction(saveAsDefaultAction)
 {
     // register action mapping before creating menu
-    LLUICtrl::CommitCallbackRegistry::ScopedRegistrar save_registar;
+    LLUICtrl::ScopedRegistrarHelper save_registar;
     save_registar.add("Outfit.Save.Action", boost::bind(
             &LLSaveOutfitComboBtn::saveOutfit, this, false));
     save_registar.add("Outfit.SaveAs.Action", boost::bind(

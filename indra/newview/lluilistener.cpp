@@ -38,6 +38,8 @@
 #include "lluictrl.h"
 #include "llerror.h"
 
+#define THROTTLE_PERIOD 1.5 // required seconds between throttled functions
+#define MIN_THROTTLE 0.5
 
 LLUIListener::LLUIListener():
     LLEventAPI("UI",
@@ -48,41 +50,64 @@ LLUIListener::LLUIListener():
         "Invoke the operation named by [\"function\"], passing [\"parameter\"],\n"
         "as if from a user gesture on a menu -- or a button click.",
         &LLUIListener::call,
-        LLSD().with("function", LLSD()));
+        llsd::map("function", LLSD(), "reply", LLSD()));
 
     add("getValue",
         "For the UI control identified by the path in [\"path\"], return the control's\n"
         "current value as [\"value\"] reply.",
         &LLUIListener::getValue,
-        LLSDMap("path", LLSD())("reply", LLSD()));
+        llsd::map("path", LLSD(), "reply", LLSD()));
 }
 
-void LLUIListener::call(const LLSD& event) const
+typedef LLUICtrl::CommitCallbackInfo cb_info;
+void LLUIListener::call(const LLSD& event)
 {
-    LLUICtrl::commit_callback_t* func =
-        LLUICtrl::CommitCallbackRegistry::getValue(event["function"]);
-    if (! func)
+    Response response(LLSD(), event);
+    LLUICtrl::CommitCallbackInfo *info = LLUICtrl::CommitCallbackRegistry::getValue(event["function"]);
+    if (!info )
     {
-        // This API is intended for use by a script. It's a fire-and-forget
-        // API: we provide no reply. Therefore, a typo in the script will
-        // provide no feedback whatsoever to that script. To rub the coder's
-        // nose in such an error, crump rather than quietly ignoring it.
-        LL_WARNS("LLUIListener") << "function '" << event["function"] << "' not found" << LL_ENDL;
+        return response.error(stringize("Function ", std::quoted(event["function"].asString()), " was not found"));
+    }
+    if (info->handle_untrusted == cb_info::UNTRUSTED_BLOCK) 
+    {
+        return response.error(stringize("Function ", std::quoted(event["function"].asString()), " is not allowed to be called from the script"));
+    }
+    F64 cur_time = LLTimer::getElapsedSeconds();
+    bool is_untrusted_throttle = info->handle_untrusted == cb_info::UNTRUSTED_THROTTLE;
+
+    //Separate UNTRUSTED_THROTTLE and UNTRUSTED_ALLOW functions to have different timeout
+    F64 time_delta = is_untrusted_throttle ? mLastUntrustedThrottle + THROTTLE_PERIOD : mLastMinThrottle + MIN_THROTTLE;
+    if (cur_time < time_delta)
+    {
+        LL_WARNS("LLUIListener") << "Throttled function " << std::quoted(event["function"].asString()) << LL_ENDL;
+        return;
+    }
+    if (is_untrusted_throttle)
+    {
+        mLastUntrustedThrottle = cur_time;
     }
     else
+    {
+        mLastMinThrottle = cur_time;
+    }
+
+
+    LLUICtrl::commit_callback_t func = info->callback_func;
+
+    if (info->callback_func)
     {
         // Interestingly, view_listener_t::addMenu() (addCommit(),
         // addEnable()) constructs a commit_callback_t callable that accepts
         // two parameters but discards the first. Only the second is passed to
         // handleEvent(). Therefore we feel completely safe passing NULL for
         // the first parameter.
-        (*func)(NULL, event["parameter"]);
+        (func)(NULL, event["parameter"]);
     }
 }
 
 void LLUIListener::getValue(const LLSD&event) const
 {
-    LLSD reply = LLSD::emptyMap();
+    Response response(LLSD(), event);
 
     const LLView* root = LLUI::getInstance()->getRootView();
     const LLView* view = LLUI::getInstance()->resolvePath(root, event["path"].asString());
@@ -90,12 +115,10 @@ void LLUIListener::getValue(const LLSD&event) const
 
     if (ctrl) 
     {
-        reply["value"] = ctrl->getValue();
+        response["value"] = ctrl->getValue();
     }
     else
     {
-        // *TODO: ??? return something indicating failure to resolve
+        response.error(STRINGIZE("UI control " << std::quoted(event["path"].asString()) << " was not found"));
     }
-    
-    sendReply(reply, event);
 }

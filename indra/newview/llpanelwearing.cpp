@@ -62,7 +62,7 @@ public:
     LLWearingGearMenu(LLPanelWearing* panel_wearing)
     :   mMenu(NULL), mPanelWearing(panel_wearing)
     {
-        LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+        LLUICtrl::ScopedRegistrarHelper registrar;
         LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
 
         registrar.add("Gear.TouchAttach", boost::bind(&LLWearingGearMenu::handleMultiple, this, handle_attachment_touch));
@@ -103,7 +103,7 @@ class LLWearingContextMenu : public LLListContextMenu
 protected:
     /* virtual */ LLContextMenu* createMenu()
     {
-        LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+        LLUICtrl::ScopedRegistrarHelper registrar;
 
         registrar.add("Wearing.TouchAttach", boost::bind(handleMultiple, handle_attachment_touch, mUUIDs));
         registrar.add("Wearing.EditItem", boost::bind(handleMultiple, handle_item_edit, mUUIDs));
@@ -180,7 +180,7 @@ public:
 protected:
     /* virtual */ LLContextMenu* createMenu()
     {
-        LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+        LLUICtrl::ScopedRegistrarHelper registrar;
 
         registrar.add("Wearing.EditItem", boost::bind(&LLPanelWearing::onEditAttachment, mPanelWearing));
         registrar.add("Wearing.Detach", boost::bind(&LLPanelWearing::onRemoveAttachment, mPanelWearing));

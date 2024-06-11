@@ -109,7 +109,7 @@ LLFloaterIMNearbyChat::LLFloaterIMNearbyChat(const LLSD& llsd)
     // Required by LLFloaterIMSessionTab::mGearBtn
     // But nearby floater has no 'per agent' menu items,
     mEnableCallbackRegistrar.add("Avatar.EnableGearItem", boost::bind(&cb_do_nothing));
-    mCommitCallbackRegistrar.add("Avatar.GearDoToSelected", boost::bind(&cb_do_nothing));
+    mCommitCallbackRegistrar.add("Avatar.GearDoToSelected", { boost::bind(&cb_do_nothing) });
     mEnableCallbackRegistrar.add("Avatar.CheckGearItem", boost::bind(&cb_do_nothing));
 
     mMinFloaterHeight = EXPANDED_MIN_HEIGHT;
