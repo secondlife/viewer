@@ -1,4 +1,4 @@
-version 56
+version 57
 // The version number above should be incremented IF AND ONLY IF some
 // change has been made that is sufficiently important to justify
 // resetting the graphics preferences of all users to the recommended
@@ -45,6 +45,8 @@ RenderObjectBump			1	1
 RenderLocalLightCount		1	4096
 RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
+RenderTerrainPBRDetail      1   0
+RenderTerrainPBRPlanarSampleCount 1   3
 RenderTransparentWater		1	1
 RenderTreeLODFactor			1	1.0
 RenderVBOEnable				1	1
@@ -72,6 +74,7 @@ RenderReflectionsEnabled    1   1
 RenderReflectionProbeDetail	1	2
 RenderScreenSpaceReflections 1  1
 RenderReflectionProbeLevel  1   3
+RenderMirrors				1	1
 
 //
 // Low Graphics Settings
@@ -89,6 +92,8 @@ RenderLocalLightCount		1	8
 RenderMaxPartCount			1	0
 RenderTerrainDetail			1	0
 RenderTerrainLODFactor		1	1
+RenderTerrainPBRDetail      1   -4
+RenderTerrainPBRPlanarSampleCount 1   1
 RenderTransparentWater		1	0
 RenderTreeLODFactor			1	0
 RenderVolumeLODFactor		1	1.125
@@ -101,6 +106,11 @@ RenderReflectionsEnabled    1   1
 RenderReflectionProbeDetail	1	0
 RenderScreenSpaceReflections 1  0
 RenderReflectionProbeLevel  1   0
+RenderMirrors				1	0
+RenderHeroProbeResolution	1	256
+RenderHeroProbeDistance		1	4
+RenderHeroProbeUpdateRate	1	4
+RenderHeroProbeConservativeUpdateMultiplier 1 16
 
 //
 // Medium Low Graphics Settings
@@ -118,6 +128,8 @@ RenderMaxPartCount			1	2048
 RenderLocalLightCount		1	256
 RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	1.0
+RenderTerrainPBRDetail      1   -1
+RenderTerrainPBRPlanarSampleCount 1   1
 RenderTransparentWater		1	1
 RenderTreeLODFactor			1	0.5
 RenderVolumeLODFactor		1	1.125
@@ -130,6 +142,11 @@ RenderReflectionsEnabled    1   1
 RenderReflectionProbeDetail	1	0
 RenderScreenSpaceReflections 1  0
 RenderReflectionProbeLevel  1   0
+RenderMirrors				1	0
+RenderHeroProbeResolution	1	256
+RenderHeroProbeDistance		1	6
+RenderHeroProbeUpdateRate	1	3
+RenderHeroProbeConservativeUpdateMultiplier 1 16
 
 //
 // Medium Graphics Settings (standard)
@@ -147,6 +164,8 @@ RenderMaxPartCount			1	4096
 RenderLocalLightCount		1	512
 RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
+RenderTerrainPBRDetail      1   0
+RenderTerrainPBRPlanarSampleCount 1   1
 RenderTransparentWater		1	1
 RenderTreeLODFactor			1	0.5
 RenderVolumeLODFactor		1	1.25
@@ -159,6 +178,11 @@ RenderReflectionsEnabled    1   1
 RenderReflectionProbeDetail	1	0
 RenderScreenSpaceReflections 1  0
 RenderReflectionProbeLevel  1   0
+RenderMirrors				1	0
+RenderHeroProbeResolution	1	512
+RenderHeroProbeDistance		1	6
+RenderHeroProbeUpdateRate	1	3
+RenderHeroProbeConservativeUpdateMultiplier 1 16
 
 //
 // Medium High Graphics Settings
@@ -176,6 +200,8 @@ RenderMaxPartCount			1	4096
 RenderLocalLightCount		1	1024
 RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
+RenderTerrainPBRDetail      1   0
+RenderTerrainPBRPlanarSampleCount 1   1
 RenderTransparentWater		1	1
 RenderTreeLODFactor			1	0.5
 RenderVolumeLODFactor		1	1.375
@@ -188,6 +214,11 @@ RenderReflectionsEnabled    1   1
 RenderReflectionProbeDetail	1	0
 RenderScreenSpaceReflections 1  0
 RenderReflectionProbeLevel  1   0
+RenderMirrors				1	0
+RenderHeroProbeResolution	1	512
+RenderHeroProbeDistance		1	6
+RenderHeroProbeUpdateRate	1	2
+RenderHeroProbeConservativeUpdateMultiplier 1 8
 
 //
 // High Graphics Settings (SSAO + sun shadows)
@@ -205,6 +236,8 @@ RenderMaxPartCount			1	4096
 RenderLocalLightCount		1	2048
 RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
+RenderTerrainPBRDetail      1   0
+RenderTerrainPBRPlanarSampleCount 1   3
 RenderTransparentWater		1	1
 RenderTreeLODFactor			1	0.5
 RenderVolumeLODFactor		1	1.5
@@ -217,6 +250,11 @@ RenderReflectionsEnabled    1   1
 RenderReflectionProbeDetail	1	1
 RenderScreenSpaceReflections 1  0
 RenderReflectionProbeLevel  1   1
+RenderMirrors				1	1
+RenderHeroProbeResolution	1	512
+RenderHeroProbeDistance		1	8
+RenderHeroProbeUpdateRate	1	2
+RenderHeroProbeConservativeUpdateMultiplier 1 8
 
 //
 // High Ultra Graphics Settings (SSAO + all shadows)
@@ -234,6 +272,8 @@ RenderMaxPartCount			1	4096
 RenderLocalLightCount		1	4096
 RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
+RenderTerrainPBRDetail      1   0
+RenderTerrainPBRPlanarSampleCount 1   3
 RenderTransparentWater		1	1
 RenderTreeLODFactor			1	0.5
 RenderVolumeLODFactor		1	1.75
@@ -246,6 +286,11 @@ RenderReflectionsEnabled    1   1
 RenderReflectionProbeDetail	1	1
 RenderScreenSpaceReflections 1  0
 RenderReflectionProbeLevel  1   2
+RenderMirrors				1	1
+RenderHeroProbeResolution	1	512
+RenderHeroProbeDistance		1	16
+RenderHeroProbeUpdateRate	1	1
+RenderHeroProbeConservativeUpdateMultiplier 1 4
 
 //
 // Ultra graphics (REALLY PURTY!)
@@ -262,6 +307,8 @@ RenderLocalLightCount		1	8192
 RenderMaxPartCount			1	8192
 RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
+RenderTerrainPBRDetail      1   0
+RenderTerrainPBRPlanarSampleCount 1   3
 RenderTransparentWater		1	1
 RenderTreeLODFactor			1	1.0
 RenderVolumeLODFactor		1	2.0
@@ -275,6 +322,11 @@ RenderReflectionsEnabled    1   1
 RenderReflectionProbeDetail	1	1
 RenderScreenSpaceReflections 1  0
 RenderReflectionProbeLevel  1   3
+RenderMirrors				1	1
+RenderHeroProbeResolution	1	1024
+RenderHeroProbeDistance		1	16
+RenderHeroProbeUpdateRate	1	1
+RenderHeroProbeConservativeUpdateMultiplier 1 4
 
 //
 // Class Unknown Hardware (unknown)
@@ -283,6 +335,7 @@ list Unknown
 RenderShadowDetail			1	0
 RenderDeferredSSAO			1	0
 RenderUseAdvancedAtmospherics 1 0
+RenderMirrors				1	0
 
 
 //
@@ -304,9 +357,13 @@ RenderTerrainDetail 		1	0
 RenderDeferredSSAO			0	0
 RenderUseAdvancedAtmospherics 0 0
 RenderShadowDetail			0	0
+RenderMirrors				0	0
 
 list TexUnit8orLess
 RenderDeferredSSAO			0	0
+
+list TexUnit16orLess
+RenderTerrainPBRDetail      1   -1
 
 list AMD
 RenderDeferredSSAO			1	0
@@ -319,3 +376,4 @@ list GL3
 RenderFSAASamples           0   0
 RenderReflectionProbeDetail	0	0
 RenderReflectionsEnabled    0   0
+RenderMirrors				0	0

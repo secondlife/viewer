@@ -32,13 +32,14 @@ uniform sampler2D diffuseMap;
 in vec4 vertex_color;
 in vec3 vary_normal;
 in vec2 vary_texcoord0;
+in vec3 vary_position;
 
 uniform float minimum_alpha;
 
-vec2 encode_normal(vec3 n);
-
+void mirrorClip(vec3 pos);
 void main()
 {
+    mirrorClip(vary_position);
     vec4 col = texture(diffuseMap, vary_texcoord0.xy);
     if (col.a < minimum_alpha)
     {
@@ -48,6 +49,6 @@ void main()
     frag_data[0] = vec4(vertex_color.rgb*col.rgb, 0.0);
     frag_data[1] = vec4(0,0,0,0);
     vec3 nvn = normalize(vary_normal);
-    frag_data[2] = vec4(encode_normal(nvn.xyz), 0.0, GBUFFER_FLAG_HAS_ATMOS);
+    frag_data[2] = vec4(nvn.xyz, GBUFFER_FLAG_HAS_ATMOS);
     frag_data[3] = vec4(0);
 }

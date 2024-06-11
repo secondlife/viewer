@@ -657,7 +657,7 @@ void LLVertexBuffer::drawElements(U32 mode, const LLVector4a* pos, const LLVecto
             U16 idx = indicesp[i];
             gGL.vertex3fv(pos[idx].getF32ptr());
         }
-}
+    }
     gGL.end();
     gGL.flush();
 }
@@ -741,8 +741,8 @@ void LLVertexBuffer::drawRange(U32 mode, U32 start, U32 end, U32 count, U32 indi
     llassert(mGLBuffer == sGLRenderBuffer);
     llassert(mGLIndices == sGLRenderIndices);
     gGL.syncMatrices();
-    glDrawRangeElements(sGLMode[mode], start, end, count, GL_UNSIGNED_SHORT,
-        (GLvoid*) (indices_offset * sizeof(U16)));
+    glDrawRangeElements(sGLMode[mode], start, end, count, mIndicesType,
+        (GLvoid*) (indices_offset * (size_t) mIndicesStride));
 }
 
 void LLVertexBuffer::draw(U32 mode, U32 count, U32 indices_offset) const
@@ -1139,7 +1139,7 @@ U8* LLVertexBuffer::mapIndexBuffer(U32 index, S32 count)
 }
 
 // flush the given byte range
-//  target -- "targret" parameter for glBufferSubData
+//  target -- "target" parameter for glBufferSubData
 //  start -- first byte to copy
 //  end -- last byte to copy (NOT last byte + 1)
 //  data -- mMappedData or mMappedIndexData
@@ -1301,6 +1301,8 @@ bool LLVertexBuffer::getVertexStrider(LLStrider<LLVector4a>& strider, U32 index,
 }
 bool LLVertexBuffer::getIndexStrider(LLStrider<U16>& strider, U32 index, S32 count)
 {
+    llassert(mIndicesStride == 2); // cannot access 32-bit indices with U16 strider
+    llassert(mIndicesType == GL_UNSIGNED_SHORT);
     return VertexBufferStrider<U16,TYPE_INDEX>::get(*this, strider, index, count);
 }
 bool LLVertexBuffer::getTexCoord0Strider(LLStrider<LLVector2>& strider, U32 index, S32 count)
@@ -1318,6 +1320,10 @@ bool LLVertexBuffer::getTexCoord2Strider(LLStrider<LLVector2>& strider, U32 inde
 bool LLVertexBuffer::getNormalStrider(LLStrider<LLVector3>& strider, U32 index, S32 count)
 {
     return VertexBufferStrider<LLVector3,TYPE_NORMAL>::get(*this, strider, index, count);
+}
+bool LLVertexBuffer::getNormalStrider(LLStrider<LLVector4a>& strider, U32 index, S32 count)
+{
+    return VertexBufferStrider<LLVector4a, TYPE_NORMAL>::get(*this, strider, index, count);
 }
 bool LLVertexBuffer::getTangentStrider(LLStrider<LLVector3>& strider, U32 index, S32 count)
 {
@@ -1503,4 +1509,39 @@ void LLVertexBuffer::setColorData(const LLColor4U* data)
     flush_vbo(GL_ARRAY_BUFFER, mOffsets[TYPE_COLOR], mOffsets[TYPE_COLOR] + sTypeSize[TYPE_COLOR] * getNumVerts() - 1, (U8*) data);
 }
 
+void LLVertexBuffer::setNormalData(const LLVector4a* data)
+{
+    llassert(sGLRenderBuffer == mGLBuffer);
+    flush_vbo(GL_ARRAY_BUFFER, mOffsets[TYPE_NORMAL], mOffsets[TYPE_NORMAL] + sTypeSize[TYPE_NORMAL] * getNumVerts() - 1, (U8*) data);
+}
+
+void LLVertexBuffer::setTangentData(const LLVector4a* data)
+{
+    llassert(sGLRenderBuffer == mGLBuffer);
+    flush_vbo(GL_ARRAY_BUFFER, mOffsets[TYPE_TANGENT], mOffsets[TYPE_TANGENT] + sTypeSize[TYPE_TANGENT] * getNumVerts() - 1, (U8*) data);
+}
+
+void LLVertexBuffer::setWeight4Data(const LLVector4a* data)
+{
+    llassert(sGLRenderBuffer == mGLBuffer);
+    flush_vbo(GL_ARRAY_BUFFER, mOffsets[TYPE_WEIGHT4], mOffsets[TYPE_WEIGHT4] + sTypeSize[TYPE_WEIGHT4] * getNumVerts() - 1, (U8*) data);
+}
+
+void LLVertexBuffer::setIndexData(const U16* data)
+{
+    llassert(sGLRenderIndices == mGLIndices);
+    flush_vbo(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(U16) * getNumIndices() - 1, (U8*) data);
+}
+
+void LLVertexBuffer::setIndexData(const U32* data)
+{
+    llassert(sGLRenderIndices == mGLIndices);
+    if (mIndicesType != GL_UNSIGNED_INT)
+    { // HACK -- vertex buffers are initialized as 16-bit indices, but can be switched to 32-bit indices
+        mIndicesType = GL_UNSIGNED_INT;
+        mIndicesStride = 4;
+        mNumIndices /= 2;
+    }
+    flush_vbo(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(U32) * getNumIndices() - 1, (U8*)data);
+}
 

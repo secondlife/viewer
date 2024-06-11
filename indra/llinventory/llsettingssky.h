@@ -62,7 +62,7 @@ public:
     static const std::string SETTING_DOME_OFFSET;
     static const std::string SETTING_DOME_RADIUS;
     static const std::string SETTING_GAMMA;
-    static const std::string SETTING_GLOW;
+    static const std::string SETTING_GLOW;    
     static const std::string SETTING_LIGHT_NORMAL;
     static const std::string SETTING_MAX_Y;
     static const std::string SETTING_MOON_ROTATION;
@@ -92,7 +92,7 @@ public:
         static const std::string SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR;
         static const std::string SETTING_DENSITY_PROFILE_LINEAR_TERM;
         static const std::string SETTING_DENSITY_PROFILE_CONSTANT_TERM;
-
+        
     static const std::string SETTING_SKY_MOISTURE_LEVEL;
     static const std::string SETTING_SKY_DROPLET_RADIUS;
     static const std::string SETTING_SKY_ICE_LEVEL;
@@ -117,7 +117,7 @@ public:
     virtual std::string getSettingsType() const SETTINGS_OVERRIDE { return std::string("sky"); }
     virtual LLSettingsType::type_e getSettingsTypeValue() const SETTINGS_OVERRIDE { return LLSettingsType::ST_SKY; }
 
-    // Settings status
+    // Settings status 
     virtual void blend(const LLSettingsBase::ptr_t &end, F64 blendf) SETTINGS_OVERRIDE;
 
     virtual void replaceSettings(LLSD settings) SETTINGS_OVERRIDE;
@@ -129,7 +129,7 @@ public:
     F32 getSkyBottomRadius() const;
     F32 getSkyTopRadius() const;
     F32 getSunArcRadians() const;
-    F32 getMieAnisotropy() const;
+    F32 getMieAnisotropy() const;   
 
     F32 getSkyMoistureLevel() const;
     F32 getSkyDropletRadius() const;
@@ -138,10 +138,6 @@ public:
     // get the probe ambiance setting as stored in the sky settings asset
     // auto_adjust - if true and canAutoAdjust() is true, return 1.0
     F32 getReflectionProbeAmbiance(bool auto_adjust = false) const;
-
-    // get the probe ambiance setting to use for rendering (adjusted by cloud shadow, aka cloud coverage)
-    // auto_adjust - if true and canAutoAdjust() is true, return 1.0
-    F32 getTotalReflectionProbeAmbiance(F32 cloud_shadow_scale, bool auto_adjust = false) const;
 
     // Return first (only) profile layer represented in LLSD
     LLSD getRayleighConfig() const;
@@ -200,7 +196,7 @@ public:
 
     F32 getCloudShadow() const;
     void setCloudShadow(F32 val);
-
+    
     F32 getCloudVariance() const;
     void setCloudVariance(F32 val);
 
@@ -299,7 +295,7 @@ public:
 
     // color based on brightness
     LLColor3  getMoonlightColor() const;
-
+    
     LLColor4  getMoonAmbient() const;
     LLColor3  getMoonDiffuse() const;
     LLColor4  getSunAmbient() const;
@@ -340,7 +336,7 @@ public:
     virtual void        updateSettings() SETTINGS_OVERRIDE;
 
     // if true, this sky is a candidate for auto-adjustment
-    bool canAutoAdjust() const { return mCanAutoAdjust; }
+    bool canAutoAdjust() const;
 
 protected:
     static const std::string SETTING_LEGACY_EAST_ANGLE;
@@ -384,9 +380,6 @@ private:
     mutable LLColor3    mSunDiffuse;
     mutable LLColor4    mTotalAmbient;
     mutable LLColor4    mHazeColor;
-
-    // if true, this sky is a candidate for auto adjustment
-    bool mCanAutoAdjust = true;
 
     typedef std::map<std::string, S32> mapNameToUniformId_t;
 
