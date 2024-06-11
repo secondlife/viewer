@@ -35,6 +35,8 @@ vec3 scaleSoftClipFragLinear(vec3 l);
 void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 norm, vec3 light_dir, out vec3 sunlit, out vec3 amblit, out vec3 atten, out vec3 additive);
 vec4 applyWaterFogViewLinear(vec3 pos, vec4 color);
 
+void mirrorClip(vec3 pos);
+
 // PBR interface
 vec2 BRDF(float NoV, float roughness);
 
@@ -129,6 +131,7 @@ vec3 getPositionWithNDC(vec3 ndc);
 
 void main()
 {
+    mirrorClip(vary_position);
     vN = vary_normal;
     vT = vary_tangent;
     vB = cross(vN, vT);

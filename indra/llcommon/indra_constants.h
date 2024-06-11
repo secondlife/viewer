@@ -236,6 +236,8 @@ LL_COMMON_API extern const LLUUID DEFAULT_OBJECT_SPECULAR;
 LL_COMMON_API extern const LLUUID DEFAULT_OBJECT_NORMAL;
 LL_COMMON_API extern const LLUUID BLANK_OBJECT_NORMAL;
 
+LL_COMMON_API extern const LLUUID BLANK_MATERIAL_ASSET_ID;
+
 // radius within which a chat message is fully audible
 const F32 CHAT_NORMAL_RADIUS = 20.f;
 

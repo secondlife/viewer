@@ -701,8 +701,7 @@ void LLBumpImageList::updateImages()
 {
     for (bump_image_map_t::iterator iter = mBrightnessEntries.begin(); iter != mBrightnessEntries.end(); )
     {
-        bump_image_map_t::iterator curiter = iter++;
-        LLViewerTexture* image = curiter->second;
+        LLViewerTexture* image = iter->second;
         if( image )
         {
             BOOL destroy = TRUE;
@@ -721,9 +720,11 @@ void LLBumpImageList::updateImages()
             if( destroy )
             {
                 //LL_INFOS() << "*** Destroying bright " << (void*)image << LL_ENDL;
-                mBrightnessEntries.erase(curiter);   // deletes the image thanks to reference counting
+                iter = mBrightnessEntries.erase(iter);   // deletes the image thanks to reference counting
+                continue;
             }
         }
+        ++iter;
     }
 
     for (bump_image_map_t::iterator iter = mDarknessEntries.begin(); iter != mDarknessEntries.end(); )

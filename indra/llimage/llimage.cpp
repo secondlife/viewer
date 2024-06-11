@@ -31,6 +31,7 @@
 
 #include "llmath.h"
 #include "v4coloru.h"
+#include "v3color.h"
 
 #include "llimagebmp.h"
 #include "llimagetga.h"
@@ -984,6 +985,28 @@ void LLImageRaw::verticalFlip()
 }
 
 
+bool LLImageRaw::checkHasTransparentPixels()
+{
+    if (getComponents() != 4)
+    {
+        return false;
+    }
+
+    U8* data = getData();
+    U32 pixels = getWidth() * getHeight();
+
+    // check alpha channel for all 255
+    for (U32 i = 0; i < pixels; ++i)
+    {
+        if (data[i * 4 + 3] != 255)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 bool LLImageRaw::optimizeAwayAlpha()
 {
     if (getComponents() == 4)
@@ -1007,6 +1030,34 @@ bool LLImageRaw::optimizeAwayAlpha()
         {
             U32 di = i * 3;
             U32 si = i * 4;
+            for (U32 j = 0; j < 3; ++j)
+            {
+                new_data[di+j] = data[si+j];
+            }
+        }
+
+        setDataAndSize(new_data, getWidth(), getHeight(), 3);
+
+        return true;
+    }
+
+    return false;
+}
+
+bool LLImageRaw::makeAlpha()
+{
+    if (getComponents() == 3)
+    {
+        U8* data = getData();
+        U32 pixels = getWidth() * getHeight();
+
+        // alpha channel doesn't exist, make a new copy of data with alpha channel
+        U8* new_data = (U8*) ll_aligned_malloc_16(getWidth() * getHeight() * 4);
+
+        for (U32 i = 0; i < pixels; ++i)
+        {
+            U32 di = i * 4;
+            U32 si = i * 3;
             for (U32 j = 0; j < 3; ++j)
             {
                 new_data[di+j] = data[si+j];
@@ -1105,7 +1156,7 @@ void LLImageRaw::composite( LLImageRaw* src )
         return;
     }
 
-    llassert(3 == src->getComponents());
+    llassert((3 == src->getComponents()) || (4 == src->getComponents()));
     llassert(3 == dst->getComponents());
 
     if( 3 == dst->getComponents() )
@@ -1260,6 +1311,30 @@ void LLImageRaw::fill( const LLColor4U& color )
             data[2] = color.mV[2];
             data += 3;
         }
+    }
+}
+
+void LLImageRaw::tint( const LLColor3& color )
+{
+    llassert( (3 == getComponents()) || (4 == getComponents()) );
+    if (isBufferInvalid())
+    {
+        LL_WARNS() << "Invalid image buffer" << LL_ENDL;
+        return;
+    }
+
+    S32 pixels = getWidth() * getHeight();
+    const S32 components = getComponents();
+    U8* data = getData();
+    for( S32 i = 0; i < pixels; i++ )
+    {
+        const float c0 = data[0] * color.mV[0];
+        const float c1 = data[1] * color.mV[1];
+        const float c2 = data[2] * color.mV[2];
+        data[0] = llclamp((U8)c0, 0, 255);
+        data[1] = llclamp((U8)c1, 0, 255);
+        data[2] = llclamp((U8)c2, 0, 255);
+        data += components;
     }
 }
 
@@ -1793,6 +1868,73 @@ void LLImageRaw::compositeRowScaled4onto3( U8* in, U8* out, S32 in_pixel_len, S3
         out += OUT_COMPONENTS;
     }
 }
+
+
+void LLImageRaw::addEmissive(LLImageRaw* src)
+{
+    LLImageRaw* dst = this;  // Just for clarity.
+
+    if (!validateSrcAndDst(__FUNCTION__, src, dst))
+    {
+        return;
+    }
+
+    llassert((3 == src->getComponents()) || (4 == src->getComponents()));
+    llassert(3 == dst->getComponents());
+
+    if( 3 == dst->getComponents() )
+    {
+        if( (src->getWidth() == dst->getWidth()) && (src->getHeight() == dst->getHeight()) )
+        {
+            addEmissiveUnscaled(src);
+        }
+        else
+        {
+            addEmissiveScaled(src);
+        }
+    }
+}
+
+void LLImageRaw::addEmissiveUnscaled(LLImageRaw* src)
+{
+    LLImageRaw* dst = this;  // Just for clarity.
+
+    llassert((3 == src->getComponents()) || (4 == src->getComponents()));
+    llassert((3 == dst->getComponents()) || (4 == dst->getComponents()));
+    llassert( (src->getWidth() == dst->getWidth()) && (src->getHeight() == dst->getHeight()) );
+
+    U8* const src_data = src->getData();
+    U8* const dst_data = dst->getData();
+    for(S32 y = 0; y < dst->getHeight(); ++y)
+    {
+        const S32 src_row_offset = src->getComponents() * src->getWidth() * y;
+        const S32 dst_row_offset = dst->getComponents() * dst->getWidth() * y;
+        for (S32 x = 0; x < dst->getWidth(); ++x)
+        {
+            const S32 src_offset = src_row_offset + (x * src->getComponents());
+            const S32 dst_offset = dst_row_offset + (x * dst->getComponents());
+            U8* const src_pixel = src_data + src_offset;
+            U8* const dst_pixel = dst_data + dst_offset;
+            dst_pixel[0] = llmin(255, dst_pixel[0] + src_pixel[0]);
+            dst_pixel[1] = llmin(255, dst_pixel[1] + src_pixel[1]);
+            dst_pixel[2] = llmin(255, dst_pixel[2] + src_pixel[2]);
+        }
+    }
+}
+
+void LLImageRaw::addEmissiveScaled(LLImageRaw* src)
+{
+    LLImageRaw* dst = this;  // Just for clarity.
+
+    llassert( (4 == src->getComponents()) && (3 == dst->getComponents()) );
+
+    LLImageRaw temp(dst->getWidth(), dst->getHeight(), dst->getComponents());
+    llassert_always(temp.getDataSize() > 0);
+    temp.copyScaled(src);
+
+    dst->addEmissiveUnscaled(&temp);
+}
+
 
 bool LLImageRaw::validateSrcAndDst(std::string func, LLImageRaw* src, LLImageRaw* dst)
 {

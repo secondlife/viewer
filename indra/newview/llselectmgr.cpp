@@ -474,7 +474,7 @@ void LLSelectMgr::overrideAvatarUpdates()
 //-----------------------------------------------------------------------------
 // Select just the object, not any other group members.
 //-----------------------------------------------------------------------------
-LLObjectSelectionHandle LLSelectMgr::selectObjectOnly(LLViewerObject* object, S32 face)
+LLObjectSelectionHandle LLSelectMgr::selectObjectOnly(LLViewerObject* object, S32 face, S32 gltf_node, S32 gltf_primitive)
 {
     llassert( object );
 
@@ -499,7 +499,7 @@ LLObjectSelectionHandle LLSelectMgr::selectObjectOnly(LLViewerObject* object, S3
 
     // Place it in the list and tag it.
     // This will refresh dialogs.
-    addAsIndividual(object, face);
+    addAsIndividual(object, face, TRUE, gltf_node, gltf_primitive);
 
     // Stop the object from moving (this anticipates changes on the
     // simulator in LLTask::userSelect)
@@ -1051,7 +1051,7 @@ void LLSelectMgr::addAsFamily(std::vector<LLViewerObject*>& objects, BOOL add_to
 //-----------------------------------------------------------------------------
 // addAsIndividual() - a single object, face, etc
 //-----------------------------------------------------------------------------
-void LLSelectMgr::addAsIndividual(LLViewerObject *objectp, S32 face, BOOL undoable)
+void LLSelectMgr::addAsIndividual(LLViewerObject *objectp, S32 face, BOOL undoable, S32 gltf_node, S32 gltf_primitive)
 {
     // check to see if object is already in list
     LLSelectNode *nodep = mSelectedObjects->findNode(objectp);
@@ -1096,6 +1096,13 @@ void LLSelectMgr::addAsIndividual(LLViewerObject *objectp, S32 face, BOOL undoab
     {
         LL_ERRS() << "LLSelectMgr::add face " << face << " out-of-range" << LL_ENDL;
         return;
+    }
+
+    // Handle glTF node selection
+    if (gltf_node >= 0)
+    {
+        nodep->selectGLTFNode(gltf_node, gltf_primitive, TRUE);
+
     }
 
     saveSelectedObjectTransform(SELECT_ACTION_TYPE_PICK);
@@ -1800,7 +1807,7 @@ bool LLObjectSelection::applyRestrictedPbrMaterialToTEs(LLViewerInventoryItem* i
     LLUUID asset_id = item->getAssetUUID();
     if (asset_id.isNull())
     {
-        asset_id = LLGLTFMaterialList::BLANK_MATERIAL_ASSET_ID;
+        asset_id = BLANK_MATERIAL_ASSET_ID;
     }
 
     bool material_copied_all_faces = true;
@@ -2005,7 +2012,7 @@ bool LLSelectMgr::selectionSetGLTFMaterial(const LLUUID& mat_id)
                 asset_id = mItem->getAssetUUID();
                 if (asset_id.isNull())
                 {
-                    asset_id = LLGLTFMaterialList::BLANK_MATERIAL_ASSET_ID;
+                    asset_id = BLANK_MATERIAL_ASSET_ID;
                 }
             }
 
@@ -5229,46 +5236,57 @@ void LLSelectMgr::saveSelectedObjectTransform(EActionType action_type)
             {
                 return true; // skip
             }
-            selectNode->mSavedPositionLocal = object->getPosition();
-            if (object->isAttachment())
+
+            if (selectNode->mSelectedGLTFNode != -1)
             {
-                if (object->isRootEdit())
-                {
-                    LLXform* parent_xform = object->mDrawable->getXform()->getParent();
-                    if (parent_xform)
-                    {
-                        selectNode->mSavedPositionGlobal = gAgent.getPosGlobalFromAgent((object->getPosition() * parent_xform->getWorldRotation()) + parent_xform->getWorldPosition());
-                    }
-                    else
-                    {
-                        selectNode->mSavedPositionGlobal = object->getPositionGlobal();
-                    }
-                }
-                else
-                {
-                    LLViewerObject* attachment_root = (LLViewerObject*)object->getParent();
-                    LLXform* parent_xform = attachment_root ? attachment_root->mDrawable->getXform()->getParent() : NULL;
-                    if (parent_xform)
-                    {
-                        LLVector3 root_pos = (attachment_root->getPosition() * parent_xform->getWorldRotation()) + parent_xform->getWorldPosition();
-                        LLQuaternion root_rot = (attachment_root->getRotation() * parent_xform->getWorldRotation());
-                        selectNode->mSavedPositionGlobal = gAgent.getPosGlobalFromAgent((object->getPosition() * root_rot) + root_pos);
-                    }
-                    else
-                    {
-                        selectNode->mSavedPositionGlobal = object->getPositionGlobal();
-                    }
-                }
-                selectNode->mSavedRotation = object->getRenderRotation();
+                // save GLTF node state
+                object->getGLTFNodeTransformAgent(selectNode->mSelectedGLTFNode, &selectNode->mSavedPositionLocal, &selectNode->mSavedRotation, &selectNode->mSavedScale);
+                selectNode->mSavedPositionGlobal = gAgent.getPosGlobalFromAgent(selectNode->mSavedPositionLocal);
+                selectNode->mLastMoveLocal.setZero();
             }
             else
             {
-                selectNode->mSavedPositionGlobal = object->getPositionGlobal();
-                selectNode->mSavedRotation = object->getRotationRegion();
-            }
+                selectNode->mSavedPositionLocal = object->getPosition();
+                if (object->isAttachment())
+                {
+                    if (object->isRootEdit())
+                    {
+                        LLXform* parent_xform = object->mDrawable->getXform()->getParent();
+                        if (parent_xform)
+                        {
+                            selectNode->mSavedPositionGlobal = gAgent.getPosGlobalFromAgent((object->getPosition() * parent_xform->getWorldRotation()) + parent_xform->getWorldPosition());
+                        }
+                        else
+                        {
+                            selectNode->mSavedPositionGlobal = object->getPositionGlobal();
+                        }
+                    }
+                    else
+                    {
+                        LLViewerObject* attachment_root = (LLViewerObject*)object->getParent();
+                        LLXform* parent_xform = attachment_root ? attachment_root->mDrawable->getXform()->getParent() : NULL;
+                        if (parent_xform)
+                        {
+                            LLVector3 root_pos = (attachment_root->getPosition() * parent_xform->getWorldRotation()) + parent_xform->getWorldPosition();
+                            LLQuaternion root_rot = (attachment_root->getRotation() * parent_xform->getWorldRotation());
+                            selectNode->mSavedPositionGlobal = gAgent.getPosGlobalFromAgent((object->getPosition() * root_rot) + root_pos);
+                        }
+                        else
+                        {
+                            selectNode->mSavedPositionGlobal = object->getPositionGlobal();
+                        }
+                    }
+                    selectNode->mSavedRotation = object->getRenderRotation();
+                }
+                else
+                {
+                    selectNode->mSavedPositionGlobal = object->getPositionGlobal();
+                    selectNode->mSavedRotation = object->getRotationRegion();
+                }
 
-            selectNode->mSavedScale = object->getScale();
-            selectNode->saveTextureScaleRatios(mManager->mTextureChannel);
+                selectNode->mSavedScale = object->getScale();
+                selectNode->saveTextureScaleRatios(mManager->mTextureChannel);
+            }
             return true;
         }
     } func(action_type, this);
@@ -6700,7 +6718,6 @@ LLSelectNode::~LLSelectNode()
         }
     }
 
-
     delete mPermissions;
     mPermissions = NULL;
 }
@@ -6727,6 +6744,17 @@ void LLSelectNode::selectTE(S32 te_index, BOOL selected)
         mTESelectMask &= ~mask;
     }
     mLastTESelected = te_index;
+}
+
+void LLSelectNode::selectGLTFNode(S32 node_index, S32 primitive_index, bool selected)
+{
+    if (node_index < 0)
+    {
+        return;
+    }
+
+    mSelectedGLTFNode = node_index;
+    mSelectedGLTFPrimitive = primitive_index;
 }
 
 BOOL LLSelectNode::isTESelected(S32 te_index) const
