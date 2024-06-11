@@ -65,7 +65,7 @@ void LLReflectionMap::update(U32 resolution, U32 face, bool force_dynamic, F32 n
     }
 
     F32 clip = (near_clip > 0) ? near_clip : getNearClip();
-    
+
     gViewerWindow->cubeSnapshot(LLVector3(mOrigin), mCubeArray, mCubeIndex, face, clip, getIsDynamic() || force_dynamic, useClipPlane, clipPlane);
 }
 

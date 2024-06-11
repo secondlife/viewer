@@ -31,7 +31,7 @@
 // whenever we add support for more types
 
 #ifdef _MSC_VER
-#define LL_FUNCSIG __FUNCSIG__ 
+#define LL_FUNCSIG __FUNCSIG__
 #else
 #define LL_FUNCSIG __PRETTY_FUNCTION__
 #endif

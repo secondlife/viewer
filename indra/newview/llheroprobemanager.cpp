@@ -198,7 +198,7 @@ void LLHeroProbeManager::update()
                 mFaceUpdateList[i] = ceilf(cube_facing * gPipeline.RenderHeroProbeConservativeUpdateMultiplier);
             }
 
-            
+
             mProbes[0]->mOrigin = probe_pos;
         }
         else

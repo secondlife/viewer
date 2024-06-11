@@ -71,7 +71,7 @@ void Node::updateTransforms(Asset& asset, const LLMatrix4a& parentMatrix)
     makeMatrixValid();
     matMul(mMatrix, parentMatrix, mAssetMatrix);
     mAssetMatrixInv = inverse(mAssetMatrix);
-    
+
     S32 my_index = this - &asset.mNodes[0];
 
     for (auto& childIndex : mChildren)
@@ -133,7 +133,7 @@ S32 Asset::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
     {
         if (node.mMesh != INVALID_INDEX)
         {
-            
+
             bool newHit = false;
 
             // transform start and end to this node's local space
@@ -162,7 +162,7 @@ S32 Asset::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
             if (newHit)
             {
                 // shorten line segment on hit
-                node.mAssetMatrix.affineTransform(p, asset_end); 
+                node.mAssetMatrix.affineTransform(p, asset_end);
 
                 // transform results back to asset space
                 if (intersection)
@@ -229,7 +229,7 @@ void Node::makeMatrixValid()
         sc.set_scale(mScale);
 
         glh::matrix4f t;
-        //t = sc * rot * trans; 
+        //t = sc * rot * trans;
         //t = trans * rot * sc; // best so far, still wrong on negative scale
         //t = sc * trans * rot;
         t = trans * sc * rot;
@@ -538,7 +538,7 @@ const Asset& Asset::operator=(const tinygltf::Model& src)
     {
         mSkins[i] = src.skins[i];
     }
- 
+
     return *this;
 }
 
@@ -616,7 +616,7 @@ void Skin::uploadMatrixPalette(Asset& asset, Node& node)
     for (U32 i = 0; i < mJoints.size(); ++i)
     {
         Node& joint = asset.mNodes[mJoints[i]];
-        
+
         //t_mp[i].set_value(joint.mRenderMatrix.getF32ptr());
         //t_mp[i] = t_mp[i] * mInverseBindMatricesData[i];
 

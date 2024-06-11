@@ -525,11 +525,11 @@ void LLAvatarAppearance::computeBodySize()
     new_body_size.mV[VZ] = mPelvisToFoot +
                        // the sqrt(2) correction below is an approximate
                        // correction to get to the top of the head
-                       F_SQRT2 * (skull.mV[VZ] * head_scale.mV[VZ]) + 
-                       head.mV[VZ] * neck_scale.mV[VZ] + 
-                       neck.mV[VZ] * chest_scale.mV[VZ] + 
-                       chest.mV[VZ] * torso_scale.mV[VZ] + 
-                       torso.mV[VZ] * pelvis_scale.mV[VZ]; 
+                       F_SQRT2 * (skull.mV[VZ] * head_scale.mV[VZ]) +
+                       head.mV[VZ] * neck_scale.mV[VZ] +
+                       neck.mV[VZ] * chest_scale.mV[VZ] +
+                       chest.mV[VZ] * torso_scale.mV[VZ] +
+                       torso.mV[VZ] * pelvis_scale.mV[VZ];
 
     // TODO -- measure the real depth and width
     new_body_size.mV[VX] = DEFAULT_AGENT_DEPTH;

@@ -9,7 +9,7 @@
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
- * version 2.1 of the License only. 
+ * version 2.1 of the License only.
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -86,7 +86,7 @@ void Primitive::allocateGLResources(Asset& asset)
     }
 
     U32 mask = ATTRIBUTE_MASK;
-    
+
     if (!mWeights.empty())
     {
         mask |= LLVertexBuffer::MAP_WEIGHT4;
@@ -124,7 +124,7 @@ void Primitive::allocateGLResources(Asset& asset)
     {
         mColors.resize(mPositions.size(), LLColor4U::white);
     }
-    
+
     // bake material basecolor into color array
     if (mMaterial != INVALID_INDEX)
     {
@@ -142,7 +142,7 @@ void Primitive::allocateGLResources(Asset& asset)
     {
         mNormals.resize(mPositions.size(), LLVector4a(0, 0, 1, 0));
     }
-    
+
     mVertexBuffer->setNormalData(mNormals.data());
 
     if (mTangents.empty())
@@ -169,9 +169,9 @@ void Primitive::allocateGLResources(Asset& asset)
 
         mVertexBuffer->setWeight4Data(weight_data.data());
     }
-    
+
     createOctree();
-    
+
     mVertexBuffer->unbind();
 }
 
@@ -235,9 +235,9 @@ void Primitive::createOctree()
             const LLVector4a& v0 = mPositions[i0];
             const LLVector4a& v1 = mPositions[i1];
             const LLVector4a& v2 = mPositions[i2];
-            
+
             initOctreeTriangle(tri, scaler, i0, i1, i2, v0, v1, v2);
-            
+
             //insert
             mOctree->insert(tri);
         }
@@ -297,7 +297,7 @@ void Primitive::createOctree()
     {
         // nothing to do, no volume... maybe add some collision geometry around these primitive types?
     }
-    
+
     else
     {
         LL_ERRS() << "Unsupported Primitive mode" << LL_ENDL;

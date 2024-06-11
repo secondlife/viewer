@@ -61,9 +61,9 @@ namespace LL
             std::string mName;
 
             const BufferView& operator=(const tinygltf::BufferView& src);
-            
+
         };
-        
+
         class Accessor
         {
         public:
