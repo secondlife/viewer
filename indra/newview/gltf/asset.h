@@ -122,7 +122,7 @@ namespace LL
                 void serialize(boost::json::object& dst) const;
             };
 
-            class Transmission
+            class Transmission : public Extension
             {
             public:
                 F32 mTransmissionFactor = 0.0f;
@@ -134,7 +134,7 @@ namespace LL
                 void serialize(boost::json::object& dst) const;
             };
 
-            class IOR
+            class IOR : public Extension
             {
             public:
                 F32 mIOR = 1.5f;
@@ -145,7 +145,7 @@ namespace LL
                 void serialize(boost::json::object& dst) const;
             };
 
-            class Volume
+            class Volume : public Extension
             {
             public:
                 F32 mThicknessFactor = 0;
@@ -159,7 +159,7 @@ namespace LL
                 void serialize(boost::json::object& dst) const;
             };
 
-            class Dispersion
+            class Dispersion : public Extension
             {
             public:
                 F32 mDispersion = 0;
