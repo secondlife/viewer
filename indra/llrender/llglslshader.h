@@ -328,14 +328,16 @@ public:
     // bit 0 = alpha mode blend (1) or opaque (0)
     // bit 1 = rigged (1) or static (0)
     // bit 2 = unlit (1) or lit (0)
+    // bit 3 = single (0) or multi (1) uv coordinates
     struct GLTFVariant
     {
         constexpr static U8 ALPHA_BLEND = 1;
         constexpr static U8 RIGGED = 2;
         constexpr static U8 UNLIT = 4;
+        constexpr static U8 MULTI_UV = 8;
     };
 
-    constexpr static U8 NUM_GLTF_VARIANTS = 8;
+    constexpr static U8 NUM_GLTF_VARIANTS = 16;
 
     std::vector<LLGLSLShader> mGLTFVariants;
 

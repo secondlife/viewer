@@ -910,6 +910,24 @@ void Material::TextureInfo::serialize(object& dst) const
     write_extensions(dst, &mTextureTransform, "KHR_texture_transform");
 }
 
+S32 Material::TextureInfo::getTexCoord() const
+{
+    if (mTextureTransform.mPresent && mTextureTransform.mTexCoord != INVALID_INDEX)
+    {
+        return mTextureTransform.mTexCoord;
+    }
+    return mTexCoord;
+}
+
+bool Material::isMultiUV() const
+{
+    return mPbrMetallicRoughness.mBaseColorTexture.getTexCoord() != 0 ||
+        mPbrMetallicRoughness.mMetallicRoughnessTexture.getTexCoord() != 0 ||
+        mNormalTexture.getTexCoord() != 0 ||
+        mOcclusionTexture.getTexCoord() != 0 ||
+        mEmissiveTexture.getTexCoord() != 0;
+}
+
 const Material::TextureInfo& Material::TextureInfo::operator=(const Value& src)
 {
     if (src.is_object())
@@ -1048,7 +1066,7 @@ void TextureTransform::serialize(object& dst) const
     write(mOffset, "offset", dst, vec2(0.f, 0.f));
     write(mRotation, "rotation", dst, 0.f);
     write(mScale, "scale", dst, vec2(1.f, 1.f));
-    write(mTexCoord, "texCoord", dst, 0);
+    write(mTexCoord, "texCoord", dst, -1);
 }
 
 

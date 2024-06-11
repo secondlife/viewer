@@ -102,6 +102,10 @@ namespace LL
                 bool operator==(const TextureInfo& rhs) const;
                 bool operator!=(const TextureInfo& rhs) const;
 
+                // get the UV channel that should be used for sampling this texture
+                // returns mTextureTransform.mTexCoord if present and valid, otherwise mTexCoord
+                S32 getTexCoord() const;
+
                 const TextureInfo& operator=(const Value& src);
                 void serialize(boost::json::object& dst) const;
             };
@@ -151,6 +155,8 @@ namespace LL
             F32 mAlphaCutoff = 0.5f;
             bool mDoubleSided = false;
             Unlit mUnlit;
+
+            bool isMultiUV() const;
 
             const Material& operator=(const Value& src);
             void serialize(boost::json::object& dst) const;
