@@ -244,7 +244,8 @@ void GLTFSceneManager::uploadSelection()
                         LLFileSystem cache(assetId, LLAssetType::AT_GLTF_BIN, LLFileSystem::WRITE);
                         auto& data = mUploadingAsset->mBuffers[idx].mData;
 
-                        cache.write((const U8*)data.data(), data.size());
+                        llassert(data.size() <= size_t(S32_MAX));
+                        cache.write((const U8 *) data.data(), S32(data.size()));
                     }
                 };
 #if GLTF_SIM_SUPPORT
@@ -399,8 +400,9 @@ void GLTFSceneManager::onGLTFLoadComplete(const LLUUID& id, LLAssetType::EType a
         {
             LLFileSystem file(id, asset_type, LLFileSystem::READ);
             std::string data;
-            data.resize(file.getSize());
-            file.read((U8*)data.data(), data.size());
+            S32 file_size = file.getSize();
+            data.resize(file_size);
+            file.read((U8*)data.data(), file_size);
 
             boost::json::value json = boost::json::parse(data);
 
@@ -479,7 +481,8 @@ void GLTFSceneManager::update()
                             LLFileSystem cache(assetId, LLAssetType::AT_GLTF, LLFileSystem::WRITE);
 
                             LL_INFOS("GLTF") << "Uploaded GLTF json: " << assetId << LL_ENDL;
-                            cache.write((const U8 *) buffer.c_str(), buffer.size());
+                            llassert(buffer.size() <= size_t(S32_MAX));
+                            cache.write((const U8 *) buffer.c_str(), S32(buffer.size()));
 
                             mUploadingAsset = nullptr;
                         }

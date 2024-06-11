@@ -55,7 +55,7 @@ struct MikktMesh
     bool copy(const Primitive* prim)
     {
         bool indexed = !prim->mIndexArray.empty();
-        U32 vert_count = indexed ? prim->mIndexArray.size() : prim->mPositions.size();
+        auto vert_count = indexed ? prim->mIndexArray.size() : prim->mPositions.size();
 
         if (prim->mMode != Primitive::Mode::TRIANGLES)
         {
@@ -85,7 +85,7 @@ struct MikktMesh
             j.resize(vert_count);
         }
 
-        for (int i = 0; i < vert_count; ++i)
+        for (U32 i = 0; i < vert_count; ++i)
         {
             U32 idx = indexed ? prim->mIndexArray[i] : i;
 
@@ -110,8 +110,8 @@ struct MikktMesh
 
     void genNormals()
     {
-        U32 tri_count = p.size() / 3;
-        for (U32 i = 0; i < tri_count; ++i)
+        size_t tri_count = p.size() / 3;
+        for (size_t i = 0; i < tri_count; ++i)
         {
             LLVector3 v0 = p[i * 3];
             LLVector3 v1 = p[i * 3 + 1];
@@ -166,7 +166,7 @@ struct MikktMesh
             prim->mWeights.resize(vert_count);
             prim->mJoints.resize(vert_count);
         }
-        
+
         prim->mIndexArray.resize(remap.size());
 
         for (int i = 0; i < remap.size(); ++i)
@@ -411,7 +411,10 @@ bool Primitive::prep(Asset& asset)
     }
 
     mVertexBuffer = new LLVertexBuffer(mask);
-    mVertexBuffer->allocateBuffer(mPositions.size(), mIndexArray.size() * 2); // double the size of the index buffer for 32-bit indices
+    // we store these buffer sizes as S32 elsewhere
+    llassert(mPositions.size() <= size_t(S32_MAX));
+    llassert(mIndexArray.size() <= size_t(S32_MAX / 2));
+    mVertexBuffer->allocateBuffer(U32(mPositions.size()), U32(mIndexArray.size() * 2)); // double the size of the index buffer for 32-bit indices
 
     mVertexBuffer->setBuffer();
     mVertexBuffer->setPositionData(mPositions.data());
@@ -619,8 +622,8 @@ const LLVolumeTriangle* Primitive::lineSegmentIntersect(const LLVector4a& start,
     face.mTangents = mTangents.data();
     face.mIndices = nullptr; // unreferenced
 
-    face.mNumIndices = mIndexArray.size();
-    face.mNumVertices = mPositions.size();
+    face.mNumIndices = S32(mIndexArray.size());
+    face.mNumVertices = S32(mPositions.size());
 
     LLOctreeTriangleRayIntersect intersect(start, dir, &face, &closest_t, intersection, tex_coord, normal, tangent_out);
     intersect.traverse(mOctree);

@@ -108,7 +108,8 @@ void Buffer::erase(Asset& asset, S32 offset, S32 length)
 
     mData.erase(mData.begin() + offset, mData.begin() + offset + length);
 
-    mByteLength = mData.size();
+    llassert(mData.size() <= size_t(INT_MAX));
+    mByteLength = S32(mData.size());
 
     for (BufferView& view : asset.mBufferViews)
     {
@@ -141,7 +142,7 @@ bool Buffer::prep(Asset& asset)
         }
 
         mData.resize(mByteLength);
-        if (!file.read((U8*)mData.data(), mData.size()))
+        if (!file.read((U8*)mData.data(), mByteLength))
         {
             LL_WARNS("GLTF") << "Failed to load buffer data from asset: " << id << LL_ENDL;
             return false;
