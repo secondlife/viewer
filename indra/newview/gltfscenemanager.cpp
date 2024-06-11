@@ -549,10 +549,16 @@ void GLTFSceneManager::render(bool opaque, bool rigged, bool unlit)
 
 void GLTFSceneManager::render(U8 variant)
 {
-    // for debugging, just render the whole scene as opaque
-    // by traversing the whole scenegraph
-    // Assumes camera transform is already set and
-    // appropriate shader is already boundd
+    // just render the whole scene by traversing the whole scenegraph
+    // Assumes camera transform is already set and appropriate shader is already bound.
+    // Eventually we'll want a smarter render pipe that has pre-sorted the scene graph
+    // into buckets by material and shader.
+
+    // HACK -- implicitly render multi-uv variant
+    if (!(variant & LLGLSLShader::GLTFVariant::MULTI_UV))
+    {
+        render((U8) (variant | LLGLSLShader::GLTFVariant::MULTI_UV));
+    }
 
     gGL.matrixMode(LLRender::MM_MODELVIEW);
 
@@ -732,6 +738,7 @@ void GLTFSceneManager::bind(Asset& asset, Material& material)
     F32 tf[8];
     material.mPbrMetallicRoughness.mBaseColorTexture.mTextureTransform.getPacked(tf);
     shader->uniform4fv(LLShaderMgr::TEXTURE_BASE_COLOR_TRANSFORM, 2, tf);
+    shader->uniform1i(LLShaderMgr::BASE_COLOR_TEXCOORD, material.mPbrMetallicRoughness.mBaseColorTexture.getTexCoord());
 
     if (!LLPipeline::sShadowRender)
     {
@@ -748,15 +755,19 @@ void GLTFSceneManager::bind(Asset& asset, Material& material)
 
         material.mNormalTexture.mTextureTransform.getPacked(tf);
         shader->uniform4fv(LLShaderMgr::TEXTURE_NORMAL_TRANSFORM, 2, tf);
+        shader->uniform1i(LLShaderMgr::NORMAL_TEXCOORD, material.mNormalTexture.getTexCoord());
 
         material.mPbrMetallicRoughness.mMetallicRoughnessTexture.mTextureTransform.getPacked(tf);
         shader->uniform4fv(LLShaderMgr::TEXTURE_METALLIC_ROUGHNESS_TRANSFORM, 2, tf);
+        shader->uniform1i(LLShaderMgr::METALLIC_ROUGHNESS_TEXCOORD, material.mPbrMetallicRoughness.mMetallicRoughnessTexture.getTexCoord());
 
         material.mOcclusionTexture.mTextureTransform.getPacked(tf);
         shader->uniform4fv(LLShaderMgr::TEXTURE_OCCLUSION_TRANSFORM, 2, tf);
+        shader->uniform1i(LLShaderMgr::OCCLUSION_TEXCOORD, material.mOcclusionTexture.getTexCoord());
 
         material.mEmissiveTexture.mTextureTransform.getPacked(tf);
         shader->uniform4fv(LLShaderMgr::TEXTURE_EMISSIVE_TRANSFORM, 2, tf);
+        shader->uniform1i(LLShaderMgr::EMISSIVE_TEXCOORD, material.mEmissiveTexture.getTexCoord());
     }
 }
 

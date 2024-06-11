@@ -826,7 +826,7 @@ namespace LL
                 if (arr.size() == 2)
                 {
                     std::error_code ec;
-                    vec3 t;
+                    vec2 t;
                     t.x = arr[0].to_number<F32>(ec); if (ec) return false;
                     t.y = arr[1].to_number<F32>(ec); if (ec) return false;
 

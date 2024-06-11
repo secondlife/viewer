@@ -42,13 +42,14 @@ using namespace boost::json;
 // Mesh data useful for Mikktspace tangent generation (and flat normal generation)
 struct MikktMesh
 {
-    std::vector<LLVector3> p;
-    std::vector<LLVector3> n;
-    std::vector<LLVector2> tc;
-    std::vector<LLVector4> w;
-    std::vector<LLVector4> t;
-    std::vector<LLColor4U> c;
-    std::vector<U64> j;
+    std::vector<LLVector3> p;       //positions
+    std::vector<LLVector3> n;       //normals
+    std::vector<LLVector4> t;       //tangents
+    std::vector<LLVector2> tc0;     //texcoords 0
+    std::vector<LLVector2> tc1;     //texcoords 1
+    std::vector<LLColor4U> c;       //colors
+    std::vector<LLVector4> w;       //weights
+    std::vector<U64> j;             //joints
 
     // initialize from src primitive and make an unrolled triangle list
     // returns false if the Primitive cannot be converted to a triangle list
@@ -65,7 +66,7 @@ struct MikktMesh
 
         p.resize(vert_count);
         n.resize(vert_count);
-        tc.resize(vert_count);
+        tc0.resize(vert_count);
         c.resize(vert_count);
 
         bool has_normals = !prim->mNormals.empty();
@@ -78,6 +79,7 @@ struct MikktMesh
         {
             t.resize(vert_count);
         }
+
         bool rigged = !prim->mWeights.empty();
         if (rigged)
         {
@@ -85,13 +87,24 @@ struct MikktMesh
             j.resize(vert_count);
         }
 
+        bool multi_uv = !prim->mTexCoords1.empty();
+        if (multi_uv)
+        {
+            tc1.resize(vert_count);
+        }
+
         for (int i = 0; i < vert_count; ++i)
         {
             U32 idx = indexed ? prim->mIndexArray[i] : i;
 
             p[i].set(prim->mPositions[idx].getF32ptr());
-            tc[i].set(prim->mTexCoords[idx]);
+            tc0[i].set(prim->mTexCoords0[idx]);
             c[i] = prim->mColors[idx];
+
+            if (multi_uv)
+            {
+                tc1[i].set(prim->mTexCoords1[idx]);
+            }
 
             if (has_normals)
             {
@@ -138,25 +151,34 @@ struct MikktMesh
     void write(Primitive* prim) const
     {
         //re-weld
-        meshopt_Stream mos[] =
+        std::vector<meshopt_Stream> mos =
         {
             { &p[0], sizeof(LLVector3), sizeof(LLVector3) },
             { &n[0], sizeof(LLVector3), sizeof(LLVector3) },
             { &t[0], sizeof(LLVector4), sizeof(LLVector4) },
-            { &tc[0], sizeof(LLVector2), sizeof(LLVector2) },
-            { &c[0], sizeof(LLColor4U), sizeof(LLColor4U) },
-            { w.empty() ? nullptr : &w[0], sizeof(LLVector4), sizeof(LLVector4) },
-            { j.empty() ? nullptr : &j[0], sizeof(U64), sizeof(U64) }
+            { &tc0[0], sizeof(LLVector2), sizeof(LLVector2) },
+            { &c[0], sizeof(LLColor4U), sizeof(LLColor4U) }
         };
+
+        if (!w.empty())
+        {
+            mos.push_back({ &w[0], sizeof(LLVector4), sizeof(LLVector4) });
+            mos.push_back({ &j[0], sizeof(U64), sizeof(U64) });
+        }
+
+        if (!tc1.empty())
+        {
+            mos.push_back({ &tc1[0], sizeof(LLVector2), sizeof(LLVector2) });
+        }
 
         std::vector<U32> remap;
         remap.resize(p.size());
 
-        U32 stream_count = w.empty() ? 5 : 7;
+        U32 stream_count = mos.size();
 
-        size_t vert_count = meshopt_generateVertexRemapMulti(&remap[0], nullptr, p.size(), p.size(), mos, stream_count);
+        size_t vert_count = meshopt_generateVertexRemapMulti(&remap[0], nullptr, p.size(), p.size(), mos.data(), stream_count);
 
-        prim->mTexCoords.resize(vert_count);
+        prim->mTexCoords0.resize(vert_count);
         prim->mNormals.resize(vert_count);
         prim->mTangents.resize(vert_count);
         prim->mPositions.resize(vert_count);
@@ -165,6 +187,10 @@ struct MikktMesh
         {
             prim->mWeights.resize(vert_count);
             prim->mJoints.resize(vert_count);
+        }
+        if (!tc1.empty())
+                    {
+            prim->mTexCoords1.resize(vert_count);
         }
         
         prim->mIndexArray.resize(remap.size());
@@ -178,7 +204,7 @@ struct MikktMesh
 
             prim->mPositions[dst_idx].load3(p[src_idx].mV);
             prim->mNormals[dst_idx].load3(n[src_idx].mV);
-            prim->mTexCoords[dst_idx] = tc[src_idx];
+            prim->mTexCoords0[dst_idx] = tc0[src_idx];
             prim->mTangents[dst_idx].loadua(t[src_idx].mV);
             prim->mColors[dst_idx] = c[src_idx];
 
@@ -186,6 +212,11 @@ struct MikktMesh
             {
                 prim->mWeights[dst_idx].loadua(w[src_idx].mV);
                 prim->mJoints[dst_idx] = j[src_idx];
+            }
+
+            if (!tc1.empty())
+            {
+                prim->mTexCoords1[dst_idx] = tc1[src_idx];
             }
         }
 
@@ -210,8 +241,8 @@ struct MikktMesh
 
     mikk::float3 GetTexCoord(const uint32_t face_num, const uint32_t vert_num)
     {
-        F32* uv = tc[face_num * 3 + vert_num].mV;
-        return mikk::float3(uv[0], uv[1], 1.0f);
+        F32* uv = tc0[face_num * 3 + vert_num].mV;
+        return mikk::float3(uv[0], 1.f-uv[1], 1.0f);
     }
 
     mikk::float3 GetNormal(const uint32_t face_num, const uint32_t vert_num)
@@ -227,6 +258,14 @@ struct MikktMesh
     }
 };
 
+
+static void vertical_flip(std::vector<LLVector2>& texcoords)
+{
+    for (auto& tc : texcoords)
+    {
+        tc[1] = 1.f - tc[1];
+    }
+}
 
 bool Primitive::prep(Asset& asset)
 {
@@ -261,7 +300,11 @@ bool Primitive::prep(Asset& asset)
         }
         else if (attribName == "TEXCOORD_0")
         {
-            copy(asset, accessor, mTexCoords);
+            copy(asset, accessor, mTexCoords0);
+        }
+        else if (attribName == "TEXCOORD_1")
+        {
+            copy(asset, accessor, mTexCoords1);
         }
         else if (attribName == "JOINTS_0")
         {
@@ -297,23 +340,27 @@ bool Primitive::prep(Asset& asset)
         mask |= LLVertexBuffer::MAP_JOINT;
     }
 
-    if (mTexCoords.empty())
+    if (mTexCoords0.empty())
     {
-        mTexCoords.resize(mPositions.size());
+        mTexCoords0.resize(mPositions.size());
     }
 
-    // TODO: support more than one texcoord set (or no texcoords)
     mask |= LLVertexBuffer::MAP_TEXCOORD0;
+
+    if (!mTexCoords1.empty())
+    {
+        mask |= LLVertexBuffer::MAP_TEXCOORD1;
+    }
 
     if (mColors.empty())
     {
         mColors.resize(mPositions.size(), LLColor4U::white);
     }
 
+    mShaderVariant = 0;
+
     // TODO: support colorless vertex buffers
     mask |= LLVertexBuffer::MAP_COLOR;
-
-    mShaderVariant = 0;
 
     bool unlit = false;
 
@@ -331,6 +378,11 @@ bool Primitive::prep(Asset& asset)
         { // material uses KHR_materials_unlit
             mShaderVariant |= LLGLSLShader::GLTFVariant::UNLIT;
             unlit = true;
+        }
+
+        if (material.isMultiUV())
+        {
+            mShaderVariant |= LLGLSLShader::GLTFVariant::MULTI_UV;
         }
     }
 
@@ -434,15 +486,17 @@ bool Primitive::prep(Asset& asset)
     }
 
     // flip texcoord y, upload, then flip back (keep the off-spec data in vram only)
-    for (auto& tc : mTexCoords)
+    vertical_flip(mTexCoords0);
+    mVertexBuffer->setTexCoord0Data(mTexCoords0.data());
+    vertical_flip(mTexCoords0);
+
+    if (!mTexCoords1.empty())
     {
-        tc[1] = 1.f - tc[1];
+        vertical_flip(mTexCoords1);
+        mVertexBuffer->setTexCoord1Data(mTexCoords1.data());
+        vertical_flip(mTexCoords1);
     }
-    mVertexBuffer->setTexCoordData(mTexCoords.data());
-    for (auto& tc : mTexCoords)
-    {
-        tc[1] = 1.f - tc[1];
-    }
+    
 
     if (!mIndexArray.empty())
     {
@@ -614,7 +668,7 @@ const LLVolumeTriangle* Primitive::lineSegmentIntersect(const LLVector4a& start,
     //create a proxy LLVolumeFace for the raycast
     LLVolumeFace face;
     face.mPositions = mPositions.data();
-    face.mTexCoords = mTexCoords.data();
+    face.mTexCoords = mTexCoords0.data();
     face.mNormals = mNormals.data();
     face.mTangents = mTangents.data();
     face.mIndices = nullptr; // unreferenced

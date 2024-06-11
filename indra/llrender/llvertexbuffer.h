@@ -196,7 +196,8 @@ public:
     void setTangentData(const LLVector4a* data);
     void setWeight4Data(const LLVector4a* data);
     void setJointData(const U64* data);
-    void setTexCoordData(const LLVector2* data);
+    void setTexCoord0Data(const LLVector2* data);
+    void setTexCoord1Data(const LLVector2* data);
     void setColorData(const LLColor4U* data);
     void setIndexData(const U16* data);
     void setIndexData(const U32* data);

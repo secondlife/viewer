@@ -58,7 +58,8 @@ namespace LL
             LLPointer<LLVertexBuffer> mVertexBuffer;
 
             // CPU copy of mesh data, keep these as LLVector types for compatibility with raycasting code
-            std::vector<LLVector2> mTexCoords;
+            std::vector<LLVector2> mTexCoords0;
+            std::vector<LLVector2> mTexCoords1;
             std::vector<LLVector4a> mNormals;
             std::vector<LLVector4a> mTangents;
             std::vector<LLVector4a> mPositions;
