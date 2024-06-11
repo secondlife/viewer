@@ -39,6 +39,7 @@ uniform vec4[2] texture_base_color_transform;
 uniform vec4[2] texture_normal_transform;
 uniform vec4[2] texture_metallic_roughness_transform;
 uniform vec4[2] texture_emissive_transform;
+uniform vec4[2] texture_occlusion_transform;
 
 in vec3 position;
 in vec4 diffuse_color;
@@ -53,13 +54,37 @@ in vec3 normal;
 in vec4 tangent;
 out vec2 normal_texcoord;
 out vec2 metallic_roughness_texcoord;
+out vec2 occlusion_texcoord;
 out vec3 vary_tangent;
 flat out float vary_sign;
 out vec3 vary_normal;
 vec3 tangent_space_transform(vec4 vertex_tangent, vec3 vertex_normal, vec4[2] khr_gltf_transform, mat4 sl_animation_transform);
 #endif
 
-vec2 texture_transform(vec2 vertex_texcoord, vec4[2] khr_gltf_transform, mat4 sl_animation_transform);
+vec2 gltf_texture_transform(vec2 texcoord, vec4[2] p)
+{
+    texcoord.y = 1.0 - texcoord.y;
+
+    vec2 Scale = p[0].xy;
+    float Rotation = -p[0].z;
+    vec2 Offset = vec2(p[0].w, p[1].x);
+
+    mat3 translation = mat3(1,0,0, 0,1,0, Offset.x, Offset.y, 1);
+    mat3 rotation = mat3(
+        cos(Rotation), sin(Rotation), 0,
+        -sin(Rotation), cos(Rotation), 0,
+        0, 0, 1);
+
+    mat3 scale = mat3(Scale.x,0,0, 0,Scale.y,0, 0,0,1);
+
+    mat3 matrix = translation * rotation * scale;
+
+    vec2 uvTransformed = ( matrix * vec3(texcoord.xy, 1) ).xy;
+
+    uvTransformed.y = 1.0 - uvTransformed.y;
+
+    return uvTransformed;
+}
 
 
 #ifdef ALPHA_BLEND
@@ -136,14 +161,14 @@ void main()
     gl_Position = vert;
 #endif
 
-    base_color_texcoord = texture_transform(texcoord0, texture_base_color_transform, texture_matrix0);
-    emissive_texcoord = texture_transform(texcoord0, texture_emissive_transform, texture_matrix0);
+    base_color_texcoord = gltf_texture_transform(texcoord0, texture_base_color_transform);
+    emissive_texcoord = gltf_texture_transform(texcoord0, texture_emissive_transform);
 
 #ifndef UNLIT
-    normal_texcoord = texture_transform(texcoord0, texture_normal_transform, texture_matrix0);
-    metallic_roughness_texcoord = texture_transform(texcoord0, texture_metallic_roughness_transform, texture_matrix0);
+    normal_texcoord = gltf_texture_transform(texcoord0, texture_normal_transform);
+    metallic_roughness_texcoord = gltf_texture_transform(texcoord0, texture_metallic_roughness_transform);
+    occlusion_texcoord = gltf_texture_transform(texcoord0, texture_occlusion_transform);
 #endif
-    
 
 #ifndef UNLIT
 #ifdef HAS_SKIN

@@ -590,8 +590,8 @@ namespace LL
         // Write all extensions to dst.extensions
         // Usage:
         //  write_extensions(dst,
-        //                   "KHR_materials_unlit", mUnlit,
-        //                   "KHR_materials_pbrSpecularGlossiness", mPbrSpecularGlossiness);
+        //                   mUnlit, "KHR_materials_unlit",
+        //                   mPbrSpecularGlossiness, "KHR_materials_pbrSpecularGlossiness");
         // returns true if any of the extensions are written
         template<class... Types>
         inline bool write_extensions(boost::json::object& dst, Types... args)
@@ -813,6 +813,39 @@ namespace LL
             arr[0] = src.x;
             arr[1] = src.y;
             arr[2] = src.z;
+            return true;
+        }
+
+        // vec2
+        template<>
+        inline bool copy(const Value& src, vec2& dst)
+        {
+            if (src.is_array())
+            {
+                const boost::json::array& arr = src.as_array();
+                if (arr.size() == 2)
+                {
+                    std::error_code ec;
+                    vec3 t;
+                    t.x = arr[0].to_number<F32>(ec); if (ec) return false;
+                    t.y = arr[1].to_number<F32>(ec); if (ec) return false;
+
+                    dst = t;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        template<>
+        inline bool write(const vec2& src, Value& dst)
+        {
+            dst = boost::json::array();
+            boost::json::array& arr = dst.as_array();
+            arr.resize(2);
+            arr[0] = src.x;
+            arr[1] = src.y;
+            
             return true;
         }
 
