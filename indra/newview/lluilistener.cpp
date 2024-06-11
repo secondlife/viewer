@@ -64,45 +64,43 @@ void LLUIListener::call(const LLSD& event)
 {
     Response response(LLSD(), event);
     LLUICtrl::CommitCallbackInfo *info = LLUICtrl::CommitCallbackRegistry::getValue(event["function"]);
-    if (!info )
+    if (!info || !info->callback_func)
     {
         return response.error(stringize("Function ", std::quoted(event["function"].asString()), " was not found"));
     }
     if (info->handle_untrusted == cb_info::UNTRUSTED_BLOCK) 
     {
-        return response.error(stringize("Function ", std::quoted(event["function"].asString()), " is not allowed to be called from the script"));
+        return response.error(stringize("Function ", std::quoted(event["function"].asString()), " may not be called from the script"));
     }
-    F64 cur_time = LLTimer::getElapsedSeconds();
-    bool is_untrusted_throttle = info->handle_untrusted == cb_info::UNTRUSTED_THROTTLE;
 
     //Separate UNTRUSTED_THROTTLE and UNTRUSTED_ALLOW functions to have different timeout
-    F64 time_delta = is_untrusted_throttle ? mLastUntrustedThrottle + THROTTLE_PERIOD : mLastMinThrottle + MIN_THROTTLE;
+    F64 *throttlep, period;
+    if (info->handle_untrusted == cb_info::UNTRUSTED_THROTTLE)
+    {
+        throttlep = &mLastUntrustedThrottle;
+        period = THROTTLE_PERIOD;
+    }
+    else
+    {
+        throttlep = &mLastMinThrottle;
+        period = MIN_THROTTLE;
+    }
+
+    F64 cur_time = LLTimer::getElapsedSeconds();
+    F64 time_delta = *throttlep + period;
     if (cur_time < time_delta)
     {
         LL_WARNS("LLUIListener") << "Throttled function " << std::quoted(event["function"].asString()) << LL_ENDL;
         return;
     }
-    if (is_untrusted_throttle)
-    {
-        mLastUntrustedThrottle = cur_time;
-    }
-    else
-    {
-        mLastMinThrottle = cur_time;
-    }
+    *throttlep = cur_time;
 
-
-    LLUICtrl::commit_callback_t func = info->callback_func;
-
-    if (info->callback_func)
-    {
-        // Interestingly, view_listener_t::addMenu() (addCommit(),
-        // addEnable()) constructs a commit_callback_t callable that accepts
-        // two parameters but discards the first. Only the second is passed to
-        // handleEvent(). Therefore we feel completely safe passing NULL for
-        // the first parameter.
-        (func)(NULL, event["parameter"]);
-    }
+    // Interestingly, view_listener_t::addMenu() (addCommit(),
+    // addEnable()) constructs a commit_callback_t callable that accepts
+    // two parameters but discards the first. Only the second is passed to
+    // handleEvent(). Therefore we feel completely safe passing NULL for
+    // the first parameter.
+    (info->callback_func)(NULL, event["parameter"]);
 }
 
 void LLUIListener::getValue(const LLSD&event) const
@@ -119,6 +117,6 @@ void LLUIListener::getValue(const LLSD&event) const
     }
     else
     {
-        response.error(STRINGIZE("UI control " << std::quoted(event["path"].asString()) << " was not found"));
+        response.error(stringize("UI control ", std::quoted(event["path"].asString()), " was not found"));
     }
 }
