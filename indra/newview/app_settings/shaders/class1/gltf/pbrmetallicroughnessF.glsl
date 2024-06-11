@@ -61,6 +61,7 @@ in vec3 vary_tangent;
 flat in float vary_sign;
 in vec2 normal_texcoord;
 in vec2 metallic_roughness_texcoord;
+in vec2 occlusion_texcoord;
 #endif
 // ==================================
 
@@ -199,7 +200,7 @@ void main()
     //   roughness 0.0
     //   metal     0.0
     vec3 orm = texture(metallicRoughnessMap, metallic_roughness_texcoord.xy).rgb;
-    orm.r = texture(occlusionMap, metallic_roughness_texcoord.xy).r;
+    orm.r = texture(occlusionMap, occlusion_texcoord.xy).r;
     orm.g *= roughnessFactor;
     orm.b *= metallicFactor;
 #endif

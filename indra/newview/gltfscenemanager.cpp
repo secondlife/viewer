@@ -663,11 +663,30 @@ static void bindTexture(Asset& asset, S32 uniform, Material::TextureInfo& info, 
 {
     if (info.mIndex != INVALID_INDEX)
     {
-        LLViewerTexture* tex = asset.mImages[asset.mTextures[info.mIndex].mSource].mTexture;
+        Texture& texture = asset.mTextures[info.mIndex];
+
+        LLViewerTexture* tex = asset.mImages[texture.mSource].mTexture;
         if (tex)
         {
             tex->addTextureStats(2048.f * 2048.f);
-            LLGLSLShader::sCurBoundShaderPtr->bindTexture(uniform, tex);
+            S32 channel = LLGLSLShader::sCurBoundShaderPtr->bindTexture(uniform, tex);
+
+            if (channel != -1 && texture.mSampler != -1)
+            { // set sampler state
+                Sampler& sampler = asset.mSamplers[texture.mSampler];
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, sampler.mWrapS);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, sampler.mWrapT);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, sampler.mMagFilter);
+
+                // NOTE: do not set min filter.  Always respect client preference for min filter
+            }
+            else
+            {
+                // set default sampler state
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            }
         }
         else
         {
@@ -710,10 +729,9 @@ void GLTFSceneManager::bind(Asset& asset, Material& material)
 
     bindTexture(asset, LLShaderMgr::DIFFUSE_MAP, material.mPbrMetallicRoughness.mBaseColorTexture, LLViewerFetchedTexture::sWhiteImagep);
 
-    F32 base_color_packed[8];
-    //mTextureTransform[GLTF_TEXTURE_INFO_BASE_COLOR].getPacked(base_color_packed);
-    LLGLTFMaterial::sDefault.mTextureTransform[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR].getPacked(base_color_packed);
-    shader->uniform4fv(LLShaderMgr::TEXTURE_BASE_COLOR_TRANSFORM, 2, (F32*)base_color_packed);
+    F32 tf[8];
+    material.mPbrMetallicRoughness.mBaseColorTexture.mTextureTransform.getPacked(tf);
+    shader->uniform4fv(LLShaderMgr::TEXTURE_BASE_COLOR_TRANSFORM, 2, tf);
 
     if (!LLPipeline::sShadowRender)
     {
@@ -728,20 +746,17 @@ void GLTFSceneManager::bind(Asset& asset, Material& material)
         shader->uniform1f(LLShaderMgr::METALLIC_FACTOR, material.mPbrMetallicRoughness.mMetallicFactor);
         shader->uniform3fv(LLShaderMgr::EMISSIVE_COLOR, 1, glm::value_ptr(material.mEmissiveFactor));
 
-        F32 normal_packed[8];
-        //mTextureTransform[GLTF_TEXTURE_INFO_NORMAL].getPacked(normal_packed);
-        LLGLTFMaterial::sDefault.mTextureTransform[LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL].getPacked(normal_packed);
-        shader->uniform4fv(LLShaderMgr::TEXTURE_NORMAL_TRANSFORM, 2, (F32*)normal_packed);
+        material.mNormalTexture.mTextureTransform.getPacked(tf);
+        shader->uniform4fv(LLShaderMgr::TEXTURE_NORMAL_TRANSFORM, 2, tf);
 
-        F32 metallic_roughness_packed[8];
-        //mTextureTransform[GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS].getPacked(metallic_roughness_packed);
-        LLGLTFMaterial::sDefault.mTextureTransform[LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS].getPacked(metallic_roughness_packed);
-        shader->uniform4fv(LLShaderMgr::TEXTURE_METALLIC_ROUGHNESS_TRANSFORM, 2, (F32*)metallic_roughness_packed);
+        material.mPbrMetallicRoughness.mMetallicRoughnessTexture.mTextureTransform.getPacked(tf);
+        shader->uniform4fv(LLShaderMgr::TEXTURE_METALLIC_ROUGHNESS_TRANSFORM, 2, tf);
 
-        F32 emissive_packed[8];
-        //mTextureTransform[GLTF_TEXTURE_INFO_EMISSIVE].getPacked(emissive_packed);
-        LLGLTFMaterial::sDefault.mTextureTransform[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE].getPacked(emissive_packed);
-        shader->uniform4fv(LLShaderMgr::TEXTURE_EMISSIVE_TRANSFORM, 2, (F32*)emissive_packed);
+        material.mOcclusionTexture.mTextureTransform.getPacked(tf);
+        shader->uniform4fv(LLShaderMgr::TEXTURE_OCCLUSION_TRANSFORM, 2, tf);
+
+        material.mEmissiveTexture.mTextureTransform.getPacked(tf);
+        shader->uniform4fv(LLShaderMgr::TEXTURE_EMISSIVE_TRANSFORM, 2, tf);
     }
 }
 

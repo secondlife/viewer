@@ -1178,6 +1178,7 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("texture_base_color_transform"); // (GLTF)
     mReservedUniforms.push_back("texture_normal_transform"); // (GLTF)
     mReservedUniforms.push_back("texture_metallic_roughness_transform"); // (GLTF)
+    mReservedUniforms.push_back("texture_occlusion_transform"); // (GLTF)
     mReservedUniforms.push_back("texture_emissive_transform"); // (GLTF)
 
     mReservedUniforms.push_back("terrain_texture_transforms"); // (GLTF)
