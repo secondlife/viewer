@@ -43,6 +43,8 @@ class LLCamera;
 class LLGLTFOverrideCacheEntry
 {
 public:
+    static const std::string VERSION_LABEL;
+    static const int VERSION;
     bool fromLLSD(const LLSD& data);
     LLSD toLLSD() const;
 
@@ -94,12 +96,6 @@ public:
                 return lhs < rhs;
             }
         }
-    };
-
-    struct ExtrasEntry
-    {
-        LLSD extras;
-        std::string extras_raw;
     };
 
 protected:
@@ -289,12 +285,13 @@ public:
     void initCache(ELLPath location, U32 size, U32 cache_version);
     void removeCache(ELLPath location, bool started = false) ;
 
-    void readFromCache(U64 handle, const LLUUID& id, LLVOCacheEntry::vocache_entry_map_t& cache_entry_map) ;
-    void readGenericExtrasFromCache(U64 handle, const LLUUID& id, LLVOCacheEntry::vocache_gltf_overrides_map_t& cache_extras_entry_map);
+    bool readFromCache(U64 handle, const LLUUID& id, LLVOCacheEntry::vocache_entry_map_t& cache_entry_map) ;
+    void readGenericExtrasFromCache(U64 handle, const LLUUID& id, LLVOCacheEntry::vocache_gltf_overrides_map_t& cache_extras_entry_map, const LLVOCacheEntry::vocache_entry_map_t& cache_entry_map);
 
     void writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry::vocache_entry_map_t& cache_entry_map, BOOL dirty_cache, bool removal_enabled);
     void writeGenericExtrasToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry::vocache_gltf_overrides_map_t& cache_extras_entry_map, BOOL dirty_cache, bool removal_enabled);
     void removeEntry(U64 handle) ;
+    void removeGenericExtrasForHandle(U64 handle);
 
     U32 getCacheEntries() { return mNumEntries; }
     U32 getCacheEntriesMax() { return mCacheSize; }

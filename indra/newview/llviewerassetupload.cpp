@@ -156,9 +156,9 @@ LLSD LLResourceUploadInfo::generatePostBody()
     body["next_owner_mask"] = LLSD::Integer(mNextOwnerPerms);
     body["group_mask"] = LLSD::Integer(mGroupPerms);
     body["everyone_mask"] = LLSD::Integer(mEveryonePerms);
+    body["expected_upload_cost"] = mExpectedUploadCost;
 
     return body;
-
 }
 
 void LLResourceUploadInfo::logPreparedUpload()

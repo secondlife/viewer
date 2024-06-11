@@ -656,113 +656,124 @@ BOOL LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
     LLVector3 clamped_relative_move_f = (F32)axis_magnitude * axis_f; // scalar multiply
 
     for (LLObjectSelection::iterator iter = mObjectSelection->begin();
-         iter != mObjectSelection->end(); iter++)
+        iter != mObjectSelection->end(); iter++)
     {
         LLSelectNode* selectNode = *iter;
         LLViewerObject* object = selectNode->getObject();
 
-        // Only apply motion to root objects and objects selected
-        // as "individual".
-        if (!object->isRootEdit() && !selectNode->mIndividualSelection)
+        if (selectNode->mSelectedGLTFNode != -1)
         {
-            continue;
+            // manipulating a GLTF node
+            clamped_relative_move_f -= selectNode->mLastMoveLocal;
+            object->moveGLTFNode(selectNode->mSelectedGLTFNode, clamped_relative_move_f);
+            selectNode->mLastMoveLocal += clamped_relative_move_f;
         }
-
-        if (!object->isRootEdit())
+        else
         {
-            // child objects should not update if parent is selected
-            LLViewerObject* editable_root = (LLViewerObject*)object->getParent();
-            if (editable_root->isSelected())
+            // Only apply motion to root objects and objects selected
+            // as "individual".
+            if (!object->isRootEdit() && !selectNode->mIndividualSelection)
             {
-                // we will be moved properly by our parent, so skip
                 continue;
             }
-        }
 
-        LLViewerObject* root_object = (object == NULL) ? NULL : object->getRootEdit();
-        if (object->permMove() && !object->isPermanentEnforced() &&
-            ((root_object == NULL) || !root_object->isPermanentEnforced()))
-        {
-            // handle attachments in local space
-            if (object->isAttachment() && object->mDrawable.notNull())
+            if (!object->isRootEdit())
             {
-                // calculate local version of relative move
-                LLQuaternion objWorldRotation = object->mDrawable->mXform.getParent()->getWorldRotation();
-                objWorldRotation.transQuat();
-
-                LLVector3 old_position_local = object->getPosition();
-                LLVector3 new_position_local = selectNode->mSavedPositionLocal + (clamped_relative_move_f * objWorldRotation);
-
-                //RN: I forget, but we need to do this because of snapping which doesn't often result
-                // in position changes even when the mouse moves
-                object->setPosition(new_position_local);
-                rebuild(object);
-                gAgentAvatarp->clampAttachmentPositions();
-                new_position_local = object->getPosition();
-
-                if (selectNode->mIndividualSelection)
+                // child objects should not update if parent is selected
+                LLViewerObject* editable_root = (LLViewerObject*)object->getParent();
+                if (editable_root->isSelected())
                 {
-                    // counter-translate child objects if we are moving the root as an individual
-                    object->resetChildrenPosition(old_position_local - new_position_local, TRUE) ;
+                    // we will be moved properly by our parent, so skip
+                    continue;
                 }
             }
-            else
+
+            LLViewerObject* root_object = (object == NULL) ? NULL : object->getRootEdit();
+            if (object->permMove() && !object->isPermanentEnforced() &&
+                ((root_object == NULL) || !root_object->isPermanentEnforced()))
             {
-                // compute new position to send to simulators, but don't set it yet.
-                // We need the old position to know which simulator to send the move message to.
-                LLVector3d new_position_global = selectNode->mSavedPositionGlobal + clamped_relative_move;
-
-                // Don't let object centers go too far underground
-                F64 min_height = LLWorld::getInstance()->getMinAllowedZ(object, object->getPositionGlobal());
-                if (new_position_global.mdV[VZ] < min_height)
+                // handle attachments in local space
+                if (object->isAttachment() && object->mDrawable.notNull())
                 {
-                    new_position_global.mdV[VZ] = min_height;
-                }
+                    // calculate local version of relative move
+                    LLQuaternion objWorldRotation = object->mDrawable->mXform.getParent()->getWorldRotation();
+                    objWorldRotation.transQuat();
 
-                // For safety, cap heights where objects can be dragged
-                if (new_position_global.mdV[VZ] > MAX_OBJECT_Z)
-                {
-                    new_position_global.mdV[VZ] = MAX_OBJECT_Z;
-                }
+                    LLVector3 old_position_local = object->getPosition();
+                    LLVector3 new_position_local = selectNode->mSavedPositionLocal + (clamped_relative_move_f * objWorldRotation);
 
-                // Grass is always drawn on the ground, so clamp its position to the ground
-                if (object->getPCode() == LL_PCODE_LEGACY_GRASS)
-                {
-                    new_position_global.mdV[VZ] = LLWorld::getInstance()->resolveLandHeightGlobal(new_position_global) + 1.f;
-                }
-
-                if (object->isRootEdit())
-                {
-                    new_position_global = LLWorld::getInstance()->clipToVisibleRegions(object->getPositionGlobal(), new_position_global);
-                }
-
-                // PR: Only update if changed
-                LLVector3 old_position_agent = object->getPositionAgent();
-                LLVector3 new_position_agent = gAgent.getPosAgentFromGlobal(new_position_global);
-                if (object->isRootEdit())
-                {
-                    // finally, move parent object after children have calculated new offsets
-                    object->setPositionAgent(new_position_agent);
+                    //RN: I forget, but we need to do this because of snapping which doesn't often result
+                    // in position changes even when the mouse moves
+                    object->setPosition(new_position_local);
                     rebuild(object);
+                    gAgentAvatarp->clampAttachmentPositions();
+                    new_position_local = object->getPosition();
+
+                    if (selectNode->mIndividualSelection)
+                    {
+                        // counter-translate child objects if we are moving the root as an individual
+                        object->resetChildrenPosition(old_position_local - new_position_local, TRUE);
+                    }
                 }
                 else
                 {
-                    LLViewerObject* root_object = object->getRootEdit();
-                    new_position_agent -= root_object->getPositionAgent();
-                    new_position_agent = new_position_agent * ~root_object->getRotation();
-                    object->setPositionParent(new_position_agent, FALSE);
-                    rebuild(object);
-                }
+                    // compute new position to send to simulators, but don't set it yet.
+                    // We need the old position to know which simulator to send the move message to.
+                    LLVector3d new_position_global = selectNode->mSavedPositionGlobal + clamped_relative_move;
 
-                if (selectNode->mIndividualSelection)
-                {
-                    // counter-translate child objects if we are moving the root as an individual
-                    object->resetChildrenPosition(old_position_agent - new_position_agent, TRUE) ;
+                    // Don't let object centers go too far underground
+                    F64 min_height = LLWorld::getInstance()->getMinAllowedZ(object, object->getPositionGlobal());
+                    if (new_position_global.mdV[VZ] < min_height)
+                    {
+                        new_position_global.mdV[VZ] = min_height;
+                    }
+
+                    // For safety, cap heights where objects can be dragged
+                    if (new_position_global.mdV[VZ] > MAX_OBJECT_Z)
+                    {
+                        new_position_global.mdV[VZ] = MAX_OBJECT_Z;
+                    }
+
+                    // Grass is always drawn on the ground, so clamp its position to the ground
+                    if (object->getPCode() == LL_PCODE_LEGACY_GRASS)
+                    {
+                        new_position_global.mdV[VZ] = LLWorld::getInstance()->resolveLandHeightGlobal(new_position_global) + 1.f;
+                    }
+
+                    if (object->isRootEdit())
+                    {
+                        new_position_global = LLWorld::getInstance()->clipToVisibleRegions(object->getPositionGlobal(), new_position_global);
+                    }
+
+                    // PR: Only update if changed
+                    LLVector3 old_position_agent = object->getPositionAgent();
+                    LLVector3 new_position_agent = gAgent.getPosAgentFromGlobal(new_position_global);
+                    if (object->isRootEdit())
+                    {
+                        // finally, move parent object after children have calculated new offsets
+                        object->setPositionAgent(new_position_agent);
+                        rebuild(object);
+                    }
+                    else
+                    {
+                        LLViewerObject* root_object = object->getRootEdit();
+                        new_position_agent -= root_object->getPositionAgent();
+                        new_position_agent = new_position_agent * ~root_object->getRotation();
+                        object->setPositionParent(new_position_agent, FALSE);
+                        rebuild(object);
+                    }
+
+                    if (selectNode->mIndividualSelection)
+                    {
+                        // counter-translate child objects if we are moving the root as an individual
+                        object->resetChildrenPosition(old_position_agent - new_position_agent, TRUE);
+                    }
                 }
+                selectNode->mLastPositionLocal = object->getPosition();
             }
-            selectNode->mLastPositionLocal  = object->getPosition();
         }
     }
+
 
     LLSelectMgr::getInstance()->updateSelectionCenter();
     gAgentCamera.clearFocusObject();
