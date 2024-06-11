@@ -1094,7 +1094,8 @@ S32 LLGLSLShader::bindTexture(S32 uniform, LLTexture* texture, LLTexUnit::eTextu
 
     if (uniform < 0 || uniform >= (S32)mTexture.size())
     {
-        LL_SHADER_UNIFORM_ERRS() << "Uniform out of range: " << uniform << LL_ENDL;
+        LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << uniform << LL_ENDL;
+        llassert(false);
         return -1;
     }
 
@@ -1115,6 +1116,8 @@ S32 LLGLSLShader::bindTexture(S32 uniform, LLRenderTarget* texture, bool depth, 
 
     if (uniform < 0 || uniform >= (S32)mTexture.size())
     {
+        LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << uniform << LL_ENDL;
+        llassert(false);
         return -1;
     }
 
@@ -1162,7 +1165,8 @@ S32 LLGLSLShader::unbindTexture(S32 uniform, LLTexUnit::eTextureType mode)
 
     if (uniform < 0 || uniform >= (S32)mTexture.size())
     {
-        LL_SHADER_UNIFORM_ERRS() << "Uniform out of range: " << uniform << LL_ENDL;
+        LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << uniform << LL_ENDL;
+        llassert(false);
         return -1;
     }
 
@@ -1187,7 +1191,8 @@ S32 LLGLSLShader::enableTexture(S32 uniform, LLTexUnit::eTextureType mode, LLTex
 
     if (uniform < 0 || uniform >= (S32)mTexture.size())
     {
-        LL_SHADER_UNIFORM_ERRS() << "Uniform out of range: " << uniform << LL_ENDL;
+        LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << uniform << LL_ENDL;
+        llassert(false);
         return -1;
     }
 
@@ -1208,7 +1213,8 @@ S32 LLGLSLShader::disableTexture(S32 uniform, LLTexUnit::eTextureType mode, LLTe
 
     if (uniform < 0 || uniform >= (S32)mTexture.size())
     {
-        LL_SHADER_UNIFORM_ERRS() << "Uniform out of range: " << uniform << LL_ENDL;
+        LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << uniform << LL_ENDL;
+        llassert(false);
         return -1;
     }
     S32 index = mTexture[uniform];
@@ -1239,7 +1245,8 @@ void LLGLSLShader::uniform1i(U32 index, GLint x)
     {
         if (mUniform.size() <= index)
         {
-            LL_SHADER_UNIFORM_ERRS() << "Uniform index out of bounds." << LL_ENDL;
+            LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << index << LL_ENDL;
+            llassert(false);
             return;
         }
 
@@ -1264,7 +1271,8 @@ void LLGLSLShader::uniform1f(U32 index, GLfloat x)
     {
         if (mUniform.size() <= index)
         {
-            LL_SHADER_UNIFORM_ERRS() << "Uniform index out of bounds." << LL_ENDL;
+            LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << index << LL_ENDL;
+            llassert(false);
             return;
         }
 
@@ -1299,7 +1307,8 @@ void LLGLSLShader::uniform2f(U32 index, GLfloat x, GLfloat y)
     {
         if (mUniform.size() <= index)
         {
-            LL_SHADER_UNIFORM_ERRS() << "Uniform index out of bounds." << LL_ENDL;
+            LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << index << LL_ENDL;
+            llassert(false);
             return;
         }
 
@@ -1325,7 +1334,8 @@ void LLGLSLShader::uniform3f(U32 index, GLfloat x, GLfloat y, GLfloat z)
     {
         if (mUniform.size() <= index)
         {
-            LL_SHADER_UNIFORM_ERRS() << "Uniform index out of bounds." << LL_ENDL;
+            LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << index << LL_ENDL;
+            llassert(false);
             return;
         }
 
@@ -1351,7 +1361,8 @@ void LLGLSLShader::uniform4f(U32 index, GLfloat x, GLfloat y, GLfloat z, GLfloat
     {
         if (mUniform.size() <= index)
         {
-            LL_SHADER_UNIFORM_ERRS() << "Uniform index out of bounds." << LL_ENDL;
+            LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << index << LL_ENDL;
+            llassert(false);
             return;
         }
 
@@ -1377,7 +1388,8 @@ void LLGLSLShader::uniform1iv(U32 index, U32 count, const GLint* v)
     {
         if (mUniform.size() <= index)
         {
-            LL_SHADER_UNIFORM_ERRS() << "Uniform index out of bounds." << LL_ENDL;
+            LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << index << LL_ENDL;
+            llassert(false);
             return;
         }
 
@@ -1403,7 +1415,8 @@ void LLGLSLShader::uniform4iv(U32 index, U32 count, const GLint* v)
     {
         if (mUniform.size() <= index)
         {
-            LL_SHADER_UNIFORM_ERRS() << "Uniform index out of bounds." << LL_ENDL;
+            LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << index << LL_ENDL;
+            llassert(false);
             return;
         }
 
@@ -1430,7 +1443,8 @@ void LLGLSLShader::uniform1fv(U32 index, U32 count, const GLfloat* v)
     {
         if (mUniform.size() <= index)
         {
-            LL_SHADER_UNIFORM_ERRS() << "Uniform index out of bounds." << LL_ENDL;
+            LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << index << LL_ENDL;
+            llassert(false);
             return;
         }
 
@@ -1456,7 +1470,8 @@ void LLGLSLShader::uniform2fv(U32 index, U32 count, const GLfloat* v)
     {
         if (mUniform.size() <= index)
         {
-            LL_SHADER_UNIFORM_ERRS() << "Uniform index out of bounds." << LL_ENDL;
+            LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << index << LL_ENDL;
+            llassert(false);
             return;
         }
 
@@ -1482,7 +1497,8 @@ void LLGLSLShader::uniform3fv(U32 index, U32 count, const GLfloat* v)
     {
         if (mUniform.size() <= index)
         {
-            LL_SHADER_UNIFORM_ERRS() << "Uniform index out of bounds." << LL_ENDL;
+            LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << index << LL_ENDL;
+            llassert(false);
             return;
         }
 
@@ -1508,7 +1524,8 @@ void LLGLSLShader::uniform4fv(U32 index, U32 count, const GLfloat* v)
     {
         if (mUniform.size() <= index)
         {
-            LL_SHADER_UNIFORM_ERRS() << "Uniform index out of bounds." << LL_ENDL;
+            LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << index << LL_ENDL;
+            llassert(false);
             return;
         }
 
@@ -1535,7 +1552,8 @@ void LLGLSLShader::uniformMatrix2fv(U32 index, U32 count, GLboolean transpose, c
     {
         if (mUniform.size() <= index)
         {
-            LL_SHADER_UNIFORM_ERRS() << "Uniform index out of bounds." << LL_ENDL;
+            LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << index << LL_ENDL;
+            llassert(false);
             return;
         }
 
@@ -1555,7 +1573,8 @@ void LLGLSLShader::uniformMatrix3fv(U32 index, U32 count, GLboolean transpose, c
     {
         if (mUniform.size() <= index)
         {
-            LL_SHADER_UNIFORM_ERRS() << "Uniform index out of bounds." << LL_ENDL;
+            LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << index << LL_ENDL;
+            llassert(false);
             return;
         }
 
@@ -1575,7 +1594,8 @@ void LLGLSLShader::uniformMatrix3x4fv(U32 index, U32 count, GLboolean transpose,
     {
         if (mUniform.size() <= index)
         {
-            LL_SHADER_UNIFORM_ERRS() << "Uniform index out of bounds." << LL_ENDL;
+            LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << index << LL_ENDL;
+            llassert(false);
             return;
         }
 
@@ -1595,7 +1615,8 @@ void LLGLSLShader::uniformMatrix4fv(U32 index, U32 count, GLboolean transpose, c
     {
         if (mUniform.size() <= index)
         {
-            LL_SHADER_UNIFORM_ERRS() << "Uniform index out of bounds." << LL_ENDL;
+            LL_WARNS_ONCE("Shader") << "Uniform index out of bounds. Size: " << (S32)mUniform.size() << " index: " << index << LL_ENDL;
+            llassert(false);
             return;
         }
 
