@@ -60,7 +60,7 @@ local resp = leap.request("LLFloaterReg", key)
 COMMAND_PUMP_NAME = resp.command_name
 reqid = resp.reqid
 
-catch_events = leap.WaitFor:new(-1, "all_events")
+catch_events = leap.WaitFor(-1, "all_events")
 function catch_events:filter(pump, data)
   if data.reqid == reqid then
     return data

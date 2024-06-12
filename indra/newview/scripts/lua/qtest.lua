@@ -21,8 +21,8 @@ function resume(co, ...)
 end
 
 -- ------------------ Queue variables are instance-specific ------------------
-q1 = Queue:new()
-q2 = Queue:new()
+q1 = Queue()
+q2 = Queue()
 
 q1:Enqueue(17)
 
@@ -33,8 +33,8 @@ assert(q1:Dequeue() == nil)
 assert(q2:Dequeue() == nil)
 
 -- ----------------------------- test WaitQueue ------------------------------
-q1 = WaitQueue:new()
-q2 = WaitQueue:new()
+q1 = WaitQueue()
+q2 = WaitQueue()
 result = {}
 values = { 1, 1, 2, 3, 5, 8, 13, 21 }
 
@@ -76,7 +76,7 @@ print('result:', inspect(result))
 assert(util.equal(values, result))
 
 -- try incrementally enqueueing values
-q3 = WaitQueue:new()
+q3 = WaitQueue()
 result = {}
 values = { 'This', 'is', 'a', 'test', 'script' }
 
@@ -124,7 +124,7 @@ print(string.format('%q', table.concat(result, ' ')))
 assert(util.equal(values, result))
 
 -- ----------------------------- test ErrorQueue -----------------------------
-q4 = ErrorQueue:new()
+q4 = ErrorQueue()
 result = {}
 values = { 'This', 'is', 'a', 'test', 'script' }
 

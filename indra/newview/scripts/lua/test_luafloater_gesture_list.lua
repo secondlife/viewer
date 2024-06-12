@@ -58,7 +58,7 @@ local key = {xml_path = XML_FILE_PATH, op = "showLuaFloater"}
 key.extra_events={gesture_list = {_event("double_click")}}
 handleEvents(leap.request("LLFloaterReg", key))
 
-catch_events = leap.WaitFor:new(-1, "all_events")
+catch_events = leap.WaitFor(-1, "all_events")
 function catch_events:filter(pump, data)
   if data.reqid == reqid then
     return data

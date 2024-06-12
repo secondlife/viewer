@@ -2,7 +2,7 @@ local Floater = require 'Floater'
 local leap = require 'leap'
 local startup = require 'startup'
 
-local flt = Floater:new(
+local flt = Floater(
     'luafloater_demo.xml',
     {show_time_lbl = {"right_mouse_down", "double_click"}})
 

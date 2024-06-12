@@ -7,6 +7,8 @@
 -- But had to resist
 -- For fear it might be too obscua. 
 
+local util = require 'util'
+
 local Queue = {}
 
 function Queue:new()
@@ -19,6 +21,8 @@ function Queue:new()
 
     return obj
 end
+
+util.classctor(Queue)
 
 -- Check if the queue is empty
 function Queue:IsEmpty()
