@@ -76,8 +76,8 @@ bool LLFloaterLandHoldings::postBuild()
     grant_list->sortByColumnIndex(0, true);
     grant_list->setDoubleClickCallback(onGrantList, this);
 
-    S32 count = gAgent.mGroups.size();
-    for(S32 i = 0; i < count; ++i)
+    auto count = gAgent.mGroups.size();
+    for(size_t i = 0; i < count; ++i)
     {
         LLUUID id(gAgent.mGroups.at(i).mID);
         LLUIString areastr = getString("area_string");

@@ -56,9 +56,9 @@ struct MikktMesh
     bool copy(const Primitive* prim)
     {
         bool indexed = !prim->mIndexArray.empty();
-        U32 vert_count = indexed ? prim->mIndexArray.size() : prim->mPositions.size();
+        size_t vert_count = indexed ? prim->mIndexArray.size() : prim->mPositions.size();
 
-        U32 triangle_count = 0;
+        size_t triangle_count = 0;
 
         if (prim->mMode == Primitive::Mode::TRIANGLE_STRIP ||
             prim->mMode == Primitive::Mode::TRIANGLE_FAN)
@@ -76,6 +76,7 @@ struct MikktMesh
         }
 
         vert_count = triangle_count * 3;
+        llassert(vert_count <= size_t(U32_MAX));  // triangle_count will also naturally be under the limit
 
         p.resize(vert_count);
         n.resize(vert_count);
@@ -106,7 +107,7 @@ struct MikktMesh
             tc1.resize(vert_count);
         }
 
-        for (int tri_idx = 0; tri_idx < triangle_count; ++tri_idx)
+        for (U32 tri_idx = 0; tri_idx < U32(triangle_count); ++tri_idx)
         {
             U32 idx[3];
 
@@ -171,8 +172,8 @@ struct MikktMesh
 
     void genNormals()
     {
-        U32 tri_count = p.size() / 3;
-        for (U32 i = 0; i < tri_count; ++i)
+        size_t tri_count = p.size() / 3;
+        for (size_t i = 0; i < tri_count; ++i)
         {
             LLVector3 v0 = p[i * 3];
             LLVector3 v1 = p[i * 3 + 1];
@@ -222,7 +223,7 @@ struct MikktMesh
         std::vector<U32> remap;
         remap.resize(p.size());
 
-        U32 stream_count = mos.size();
+        size_t stream_count = mos.size();
 
         size_t vert_count = meshopt_generateVertexRemapMulti(&remap[0], nullptr, p.size(), p.size(), mos.data(), stream_count);
 
@@ -240,7 +241,7 @@ struct MikktMesh
                     {
             prim->mTexCoords1.resize(vert_count);
         }
-        
+
         prim->mIndexArray.resize(remap.size());
 
         for (int i = 0; i < remap.size(); ++i)
@@ -511,7 +512,10 @@ bool Primitive::prep(Asset& asset)
     }
 
     mVertexBuffer = new LLVertexBuffer(mask);
-    mVertexBuffer->allocateBuffer(mPositions.size(), mIndexArray.size() * 2); // double the size of the index buffer for 32-bit indices
+    // we store these buffer sizes as S32 elsewhere
+    llassert(mPositions.size() <= size_t(S32_MAX));
+    llassert(mIndexArray.size() <= size_t(S32_MAX / 2));
+    mVertexBuffer->allocateBuffer(U32(mPositions.size()), U32(mIndexArray.size() * 2)); // double the size of the index buffer for 32-bit indices
 
     mVertexBuffer->setBuffer();
     mVertexBuffer->setPositionData(mPositions.data());
@@ -544,7 +548,7 @@ bool Primitive::prep(Asset& asset)
         mVertexBuffer->setTexCoord1Data(mTexCoords1.data());
         vertical_flip(mTexCoords1);
     }
-    
+
 
     if (!mIndexArray.empty())
     {
@@ -724,8 +728,8 @@ const LLVolumeTriangle* Primitive::lineSegmentIntersect(const LLVector4a& start,
     face.mTangents = mTangents.data();
     face.mIndices = nullptr; // unreferenced
 
-    face.mNumIndices = mIndexArray.size();
-    face.mNumVertices = mPositions.size();
+    face.mNumIndices = S32(mIndexArray.size());
+    face.mNumVertices = S32(mPositions.size());
 
     LLOctreeTriangleRayIntersect intersect(start, dir, &face, &closest_t, intersection, tex_coord, normal, tangent_out);
     intersect.traverse(mOctree);

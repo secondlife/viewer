@@ -365,7 +365,7 @@ public:
     inline operator LLQuad() const;
 
 private:
-    LLQuad mQ;
+    LLQuad mQ{};
 };
 
 inline void update_min_max(LLVector4a& min, LLVector4a& max, const LLVector4a& p)

@@ -781,8 +781,8 @@ void LLCircuitData::checkPacketInID(TPACKETID id, bool receive_resent)
 void LLCircuit::updateWatchDogTimers(LLMessageSystem *msgsys)
 {
     F64Seconds cur_time = LLMessageSystem::getMessageTimeSeconds();
-    S32 count = mPingSet.size();
-    S32 cur = 0;
+    size_t count = mPingSet.size();
+    size_t cur = 0;
 
     // Only process each circuit once at most, stop processing if no circuits
     while((cur < count) && !mPingSet.empty())

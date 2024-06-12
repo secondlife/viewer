@@ -122,8 +122,8 @@ public:
         U32 sizeBytes() const
         {
             U32 res = sizeof(std::vector<LLVector3>) * 2;
-            res += sizeof(LLVector3) * mPositions.size();
-            res += sizeof(LLVector3) * mNormals.size();
+            res += sizeof(LLVector3) * static_cast<U32>(mPositions.size());
+            res += sizeof(LLVector3) * static_cast<U32>(mNormals.size());
             return res;
         }
     };
@@ -357,7 +357,7 @@ public:
 protected:
 
     LLUUID      mDiffuseMapID;
-    void*           mOpaqueData;    // allow refs to viewer/platform-specific structs for each material
+    void*       mOpaqueData{ nullptr };    // allow refs to viewer/platform-specific structs for each material
     // currently only stores an LLPointer< LLViewerFetchedTexture > > to
     // maintain refs to textures associated with each material for free
     // ref counting.

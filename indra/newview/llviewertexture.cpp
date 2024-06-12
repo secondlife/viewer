@@ -335,7 +335,7 @@ LLViewerFetchedTexture* LLViewerTextureManager::getFetchedTextureFromUrl(const s
     return gTextureList.getImageFromUrl(url, f_type, usemipmaps, boost_priority, texture_type, internal_format, primary_format, force_id);
 }
 
-//static 
+//static
 LLImageRaw* LLViewerTextureManager::getRawImageFromMemory(const U8* data, U32 size, std::string_view mimetype)
 {
     return gTextureList.getRawImageFromMemory(data, size, mimetype);
@@ -777,8 +777,8 @@ void LLViewerTexture::removeFace(U32 ch, LLFace* facep)
     if(mNumFaces[ch] > 1)
     {
         S32 index = facep->getIndexInTex(ch);
-        llassert(index < mFaceList[ch].size());
-        llassert(index < mNumFaces[ch]);
+        llassert(index < (S32)mFaceList[ch].size());
+        llassert(index < (S32)mNumFaces[ch]);
         mFaceList[ch][index] = mFaceList[ch][--mNumFaces[ch]];
         mFaceList[ch][index]->setIndexInTex(ch, index);
     }
@@ -830,8 +830,8 @@ void LLViewerTexture::removeVolume(U32 ch, LLVOVolume* volumep)
     if (mNumVolumes[ch] > 1)
     {
         S32 index = volumep->getIndexInTex(ch);
-        llassert(index < mVolumeList[ch].size());
-        llassert(index < mNumVolumes[ch]);
+        llassert(index < (S32)mVolumeList[ch].size());
+        llassert(index < (S32)mNumVolumes[ch]);
         mVolumeList[ch][index] = mVolumeList[ch][--mNumVolumes[ch]];
         mVolumeList[ch][index]->setIndexInTex(ch, index);
     }
@@ -1338,8 +1338,8 @@ void LLViewerFetchedTexture::addToCreateTexture()
         //
         if(mRequestedDiscardLevel <= mDesiredDiscardLevel && !mForceToSaveRawImage)
         {
-            S32 w = mFullWidth >> mRawDiscardLevel;
-            S32 h = mFullHeight >> mRawDiscardLevel;
+            U32 w = mFullWidth >> mRawDiscardLevel;
+            U32 h = mFullHeight >> mRawDiscardLevel;
 
             //if big image, do not load extra data
             //scale it down to size >= LLViewerTexture::sMinLargeImageSize
@@ -1684,7 +1684,7 @@ void LLViewerFetchedTexture::processTextureStats()
         else
         {
             U32 desired_size = MAX_IMAGE_SIZE_DEFAULT; // MAX_IMAGE_SIZE_DEFAULT = 2048 and max size ever is 4096
-            if(!mKnownDrawWidth || !mKnownDrawHeight || mFullWidth <= mKnownDrawWidth || mFullHeight <= mKnownDrawHeight)
+            if(!mKnownDrawWidth || !mKnownDrawHeight || (S32)mFullWidth <= mKnownDrawWidth || (S32)mFullHeight <= mKnownDrawHeight)
             {
                 if (mFullWidth > desired_size || mFullHeight > desired_size)
                 {
@@ -3536,12 +3536,12 @@ void LLViewerMediaTexture::removeFace(U32 ch, LLFace* facep)
                 return;
             }
 
-            S32 end = te_list.size();
+            auto end = te_list.size();
 
             for(std::list< LLPointer<LLViewerTexture> >::iterator iter = mTextureList.begin();
                 iter != mTextureList.end(); ++iter)
             {
-                S32 i = 0;
+                size_t i = 0;
 
                 for(i = 0; i < end; i++)
                 {

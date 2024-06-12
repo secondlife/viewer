@@ -450,7 +450,7 @@ bool LLPluginSharedMemory::create(size_t size)
                  NULL,                      // default security
                  PAGE_READWRITE,            // read/write access
                  0,                         // max. object size
-                 mSize,                     // buffer size
+                 static_cast<DWORD>(mSize), // buffer size
                  mName.c_str());            // name of mapping object
 
     if(mImpl->mMapFile == NULL)

@@ -73,8 +73,8 @@ LLCharacter::~LLCharacter()
         delete param;
     }
 
-    U32 i ;
-    U32 size = sInstances.size() ;
+    size_t i ;
+    size_t size = sInstances.size() ;
     for(i = 0 ; i < size ; i++)
     {
         if(sInstances[i] == this)

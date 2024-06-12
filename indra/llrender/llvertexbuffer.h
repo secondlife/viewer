@@ -110,7 +110,7 @@ public:
         TYPE_WEIGHT,            //  "weight"
         TYPE_WEIGHT4,           //  "weight4"
         TYPE_CLOTHWEIGHT,       //  "clothing"
-        TYPE_JOINT,             //  "joint" 
+        TYPE_JOINT,             //  "joint"
         TYPE_TEXTURE_INDEX,     //  "texture_index"
         TYPE_MAX,   // TYPE_MAX is the size/boundary marker for attributes that go in the vertex buffer
         TYPE_INDEX, // TYPE_INDEX is beyond _MAX because it lives in a separate (index) buffer

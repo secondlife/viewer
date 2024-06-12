@@ -845,7 +845,7 @@ namespace LL
             arr.resize(2);
             arr[0] = src.x;
             arr[1] = src.y;
-            
+
             return true;
         }
 

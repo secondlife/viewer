@@ -1787,7 +1787,7 @@ bool LLPanelRegionTerrainInfo::refreshFromRegion(LLViewerRegion* region)
         LL_DEBUGS() << "no region set" << LL_ENDL;
         getChild<LLUICtrl>("region_text")->setValue(LLSD(""));
     }
-    
+
     // Update visibility of terrain swatches, etc
     refresh();
 
@@ -1920,7 +1920,7 @@ bool LLPanelRegionTerrainInfo::sendUpdate()
         for (S32 i = 0; i < LLTerrainMaterials::ASSET_COUNT; ++i)
         {
             LLPointer<LLGLTFMaterial> mat_override = new LLGLTFMaterial();
-            
+
             const bool transform_controls_valid = mMaterialScaleUCtrl[i] && mMaterialScaleVCtrl[i] && mMaterialRotationCtrl[i] && mMaterialOffsetUCtrl[i] && mMaterialOffsetVCtrl[i];
             if (transform_controls_valid)
             {
@@ -4145,7 +4145,7 @@ void LLPanelEstateAccess::copyListToClipboard(std::string list_name)
         }
     }
 
-    LLClipboard::instance().copyToClipboard(utf8str_to_wstring(list_to_copy), 0, list_to_copy.length());
+    LLClipboard::instance().copyToClipboard(utf8str_to_wstring(list_to_copy), 0, static_cast<S32>(list_to_copy.length()));
 }
 
 bool LLPanelEstateAccess::refreshFromRegion(LLViewerRegion* region)

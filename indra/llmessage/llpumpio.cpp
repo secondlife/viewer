@@ -818,7 +818,7 @@ void LLPumpIO::rebuildPollset()
     running_chains_t::iterator run_end = mRunningChains.end();
     for(; run_it != run_end; ++run_it)
     {
-        size += (*run_it).mDescriptors.size();
+        size += static_cast<U32>((*run_it).mDescriptors.size());
     }
     //LL_DEBUGS() << "found " << size << " descriptors." << LL_ENDL;
     if(size)

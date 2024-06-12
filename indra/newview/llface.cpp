@@ -1173,7 +1173,7 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
 
     if (mVertexBuffer.notNull())
     {
-        if (num_indices + (S32) mIndicesIndex > mVertexBuffer->getNumIndices())
+        if (num_indices + mIndicesIndex > mVertexBuffer->getNumIndices())
         {
             if (gDebugGL)
             {
@@ -1189,7 +1189,7 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
             return false;
         }
 
-        if (num_vertices + mGeomIndex > mVertexBuffer->getNumVerts())
+        if (num_vertices + (U32)mGeomIndex > mVertexBuffer->getNumVerts())
         {
             if (gDebugGL)
             {
@@ -1248,11 +1248,15 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
         clearState(GLOBAL);
     }
 
-    LLColor4U color = tep->getColor();
+    LLColor4U color{};
+    if (tep)
+    {
+        color = tep->getColor();
 
     if (tep->getGLTFRenderMaterial())
     {
         color = tep->getGLTFRenderMaterial()->mBaseColor;
+    }
     }
 
     if (rebuild_color)
@@ -1588,7 +1592,7 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
                             mask.setElement<2>();
                             mask.setElement<3>();
 
-                            U32 count = num_vertices/2 + num_vertices%2;
+                            S32 count = num_vertices/2 + num_vertices%2;
 
                             for (S32 i = 0; i < count; i++)
                             {
@@ -2285,7 +2289,7 @@ bool LLFace::verify(const U32* indices_array) const
     }
 
     // First, check whether the face data fits within the pool's range.
-    if ((mGeomIndex + mGeomCount) > mVertexBuffer->getNumVerts())
+    if ((U32)(mGeomIndex + mGeomCount) > mVertexBuffer->getNumVerts())
     {
         ok = false;
         LL_INFOS() << "Face references invalid vertices!" << LL_ENDL;

@@ -1187,7 +1187,7 @@ bool LLNotificationChannel::isEmpty() const
 
 S32 LLNotificationChannel::size() const
 {
-    return mItems.size();
+    return static_cast<S32>(mItems.size());
 }
 
 size_t LLNotificationChannel::size()

@@ -47,7 +47,7 @@ public:
     typedef typename std::vector<Type>::size_type size_type;
 protected:
     std::vector<Type> mVector;
-    std::map<Key, U32> mIndexMap;
+    std::map<Key, size_t> mIndexMap;
 
 public:
     LLIndexedVector() { mVector.reserve(BlockSize); }
@@ -68,10 +68,10 @@ public:
 
     Type& operator[](const Key& k)
     {
-        typename std::map<Key, U32>::const_iterator iter = mIndexMap.find(k);
+        typename std::map<Key, size_t>::const_iterator iter = mIndexMap.find(k);
         if (iter == mIndexMap.end())
         {
-            U32 n = mVector.size();
+            auto n = mVector.size();
             mIndexMap[k] = n;
             mVector.push_back(Type());
             llassert(mVector.size() == mIndexMap.size());
@@ -85,7 +85,7 @@ public:
 
     const_iterator find(const Key& k) const
     {
-        typename std::map<Key, U32>::const_iterator iter = mIndexMap.find(k);
+        typename std::map<Key, size_t>::const_iterator iter = mIndexMap.find(k);
         if(iter == mIndexMap.end())
         {
             return mVector.end();

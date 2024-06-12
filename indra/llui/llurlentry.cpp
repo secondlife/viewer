@@ -389,7 +389,7 @@ bool LLUrlEntryInvalidSLURL::isSLURLvalid(const std::string &url) const
 
     LLURI uri(url);
     LLSD path_array = uri.pathArray();
-    S32 path_parts = path_array.size();
+    auto path_parts = path_array.size();
     S32 x,y,z;
 
     if (path_parts == actual_parts)
@@ -454,7 +454,7 @@ std::string LLUrlEntrySLURL::getLabel(const std::string &url, const LLUrlLabelCa
 
     LLURI uri(url);
     LLSD path_array = uri.pathArray();
-    S32 path_parts = path_array.size();
+    auto path_parts = path_array.size();
     if (path_parts == 5)
     {
         // handle slurl with (X,Y,Z) coordinates
@@ -1074,7 +1074,7 @@ LLUrlEntryParcel::~LLUrlEntryParcel()
 std::string LLUrlEntryParcel::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
 {
     LLSD path_array = LLURI(url).pathArray();
-    S32 path_parts = path_array.size();
+    auto path_parts = path_array.size();
 
     if (path_parts < 3) // no parcel id
     {
@@ -1165,7 +1165,7 @@ std::string LLUrlEntryPlace::getLabel(const std::string &url, const LLUrlLabelCa
     LLURI uri(url);
     std::string location = unescapeUrl(uri.hostName());
     LLSD path_array = uri.pathArray();
-    S32 path_parts = path_array.size();
+    auto path_parts = path_array.size();
     if (path_parts == 3)
     {
         // handle slurl with (X,Y,Z) coordinates
@@ -1214,7 +1214,7 @@ std::string LLUrlEntryRegion::getLabel(const std::string &url, const LLUrlLabelC
     //
 
     LLSD path_array = LLURI(url).pathArray();
-    S32 path_parts = path_array.size();
+    auto path_parts = path_array.size();
 
     if (path_parts < 3) // no region name
     {
@@ -1278,7 +1278,7 @@ std::string LLUrlEntryTeleport::getLabel(const std::string &url, const LLUrlLabe
     //
     LLURI uri(url);
     LLSD path_array = uri.pathArray();
-    S32 path_parts = path_array.size();
+    auto path_parts = path_array.size();
     std::string host = uri.hostName();
     std::string label = LLTrans::getString("SLurlLabelTeleport");
     if (!host.empty())
@@ -1413,7 +1413,7 @@ std::string LLUrlEntryWorldMap::getLabel(const std::string &url, const LLUrlLabe
     //
     LLURI uri(url);
     LLSD path_array = uri.pathArray();
-    S32 path_parts = path_array.size();
+    auto path_parts = path_array.size();
     if (path_parts < 3)
     {
         return url;
@@ -1505,7 +1505,7 @@ LLUrlEntryEmail::LLUrlEntryEmail()
 
 std::string LLUrlEntryEmail::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
 {
-    int pos = url.find("mailto:");
+    auto pos = url.find("mailto:");
 
     if (pos == std::string::npos)
     {

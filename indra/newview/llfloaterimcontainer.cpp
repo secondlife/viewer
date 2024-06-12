@@ -1787,8 +1787,8 @@ void LLFloaterIMContainer::setNearbyDistances()
         // Get the position of the agent
         const LLVector3d& me_pos = gAgent.getPositionGlobal();
         // For each nearby avatar, compute and update the distance
-        int avatar_count = positions.size();
-        for (int i = 0; i < avatar_count; i++)
+        auto avatar_count = positions.size();
+        for (size_t i = 0; i < avatar_count; i++)
         {
             F64 dist = dist_vec_squared(positions[i], me_pos);
             item->setDistance(avatar_ids[i],dist);

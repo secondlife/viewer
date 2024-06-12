@@ -606,7 +606,7 @@ LLSD LLNewBufferedResourceUploadInfo::exportTempFile()
 
     // copy buffer to the cache for upload
     LLFileSystem file(getAssetId(), getAssetType(), LLFileSystem::APPEND);
-    file.write((U8*) mBuffer.c_str(), mBuffer.size());
+    file.write((U8*) mBuffer.c_str(), static_cast<S32>(mBuffer.size()));
 
     return LLSD();
 }
@@ -708,7 +708,7 @@ LLSD LLBufferedAssetUploadInfo::prepareUpload()
 
     LLFileSystem file(getAssetId(), getAssetType(), LLFileSystem::APPEND);
 
-    S32 size = mContents.length() + 1;
+    S32 size = static_cast<S32>(mContents.length()) + 1;
     file.write((U8*)mContents.c_str(), size);
 
     mStoredToCache = true;

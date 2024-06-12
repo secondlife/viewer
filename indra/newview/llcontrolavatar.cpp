@@ -424,11 +424,11 @@ void LLControlAvatar::updateDebugText()
         S32 total_linkset_count = 0;
         if (mRootVolp)
         {
-            total_linkset_count = 1 + mRootVolp->getChildren().size();
+            total_linkset_count = 1 + static_cast<S32>(mRootVolp->getChildren().size());
         }
         std::vector<LLVOVolume*> volumes;
         getAnimatedVolumes(volumes);
-        S32 animated_volume_count = volumes.size();
+        S32 animated_volume_count = static_cast<S32>(volumes.size());
         std::string active_string;
         std::string type_string;
         std::string lod_string;

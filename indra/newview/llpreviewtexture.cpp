@@ -673,7 +673,7 @@ void LLPreviewTexture::adjustAspectRatio()
                 std::string ratio = std::to_string(num)+":" + std::to_string(denom);
                 mRatiosList.push_back(ratio);
                 combo->add(ratio);
-                combo->setCurrentByIndex(mRatiosList.size()- 1);
+                combo->setCurrentByIndex(static_cast<S32>(mRatiosList.size()) - 1);
             }
             else
             {

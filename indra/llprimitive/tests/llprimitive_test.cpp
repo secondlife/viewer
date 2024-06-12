@@ -109,7 +109,7 @@ void LLPrimTextureList::take(LLPrimTextureList &other_list) { }
 void LLPrimTextureList::setSize(S32 new_size) { mEntryList.resize(new_size); }
 void LLPrimTextureList::setAllIDs(const LLUUID &id) { }
 LLTextureEntry * LLPrimTextureList::getTexture(const U8 index) const { return nullptr; }
-S32 LLPrimTextureList::size() const { return mEntryList.size(); }
+S32 LLPrimTextureList::size() const { return static_cast<S32>(mEntryList.size()); }
 
 class PRIMITIVE_TEST_SETUP
 {

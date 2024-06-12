@@ -1135,7 +1135,7 @@ void LLOcclusionCullingGroup::checkOcclusion()
                 mOcclusionCheckCount[LLViewerCamera::sCurCameraID]++;
             }
 
-            static LLCachedControl<S32> occlusion_timeout(gSavedSettings, "RenderOcclusionTimeout", 4);
+            static LLCachedControl<U32> occlusion_timeout(gSavedSettings, "RenderOcclusionTimeout", 4);
 
             if (available || mOcclusionCheckCount[LLViewerCamera::sCurCameraID] > occlusion_timeout)
             {

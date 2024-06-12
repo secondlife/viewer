@@ -431,7 +431,7 @@ bool LLFloaterIMNearbyChat::handleKeyHere( KEY key, MASK mask )
 
 bool LLFloaterIMNearbyChat::matchChatTypeTrigger(const std::string& in_str, std::string* out_str)
 {
-    U32 in_len = in_str.length();
+    auto in_len = in_str.length();
     S32 cnt = sizeof(sChatTypeTriggers) / sizeof(*sChatTypeTriggers);
 
     bool string_was_found = false;
@@ -470,7 +470,7 @@ void LLFloaterIMNearbyChat::onChatBoxKeystroke()
     // to eat trailing spaces that might be part of a gesture.
     LLWStringUtil::trimHead(raw_text);
 
-    S32 length = raw_text.length();
+    auto length = raw_text.length();
 
     if( (length > 0) && (raw_text[0] != '/') )  // forward slash is used for escape (eg. emote) sequences
     {
@@ -517,7 +517,7 @@ void LLFloaterIMNearbyChat::onChatBoxKeystroke()
                 mInputEditor->setText(utf8_trigger + rest_of_match); // keep original capitalization for user-entered part
                 // Select to end of line, starting from the character
                 // after the last one the user typed.
-                mInputEditor->selectByCursorPosition(utf8_out_str.size()-rest_of_match.size(),utf8_out_str.size());
+                mInputEditor->selectByCursorPosition(static_cast<S32>(utf8_out_str.size() - rest_of_match.size()), static_cast<S32>(utf8_out_str.size()));
             }
 
         }
@@ -549,7 +549,7 @@ void LLFloaterIMNearbyChat::onChatBoxFocusReceived()
 
 EChatType LLFloaterIMNearbyChat::processChatTypeTriggers(EChatType type, std::string &str)
 {
-    U32 length = str.length();
+    auto length = str.length();
     S32 cnt = sizeof(sChatTypeTriggers) / sizeof(*sChatTypeTriggers);
 
     for (S32 n = 0; n < cnt; n++)
@@ -560,7 +560,7 @@ EChatType LLFloaterIMNearbyChat::processChatTypeTriggers(EChatType type, std::st
 
             if (!LLStringUtil::compareInsensitive(trigger, sChatTypeTriggers[n].name))
             {
-                U32 trigger_length = sChatTypeTriggers[n].name.length();
+                auto trigger_length = sChatTypeTriggers[n].name.length();
 
                 // It's to remove space after trigger name
                 if (length > trigger_length && str[trigger_length] == ' ')
@@ -754,8 +754,8 @@ void LLFloaterIMNearbyChat::sendChatFromViewer(const LLWString &wtext, EChatType
 bool LLFloaterIMNearbyChat::isWordsName(const std::string& name)
 {
     // checking to see if it's display name plus username in parentheses
-    S32 open_paren = name.find(" (", 0);
-    S32 close_paren = name.find(')', 0);
+    auto open_paren = name.find(" (", 0);
+    auto close_paren = name.find(')', 0);
 
     if (open_paren != std::string::npos &&
         close_paren == name.length()-1)
@@ -765,7 +765,7 @@ bool LLFloaterIMNearbyChat::isWordsName(const std::string& name)
     else
     {
         //checking for a single space
-        S32 pos = name.find(' ', 0);
+        auto pos = name.find(' ', 0);
         return std::string::npos != pos && name.rfind(' ', name.length()) == pos && 0 != pos && name.length()-1 != pos;
     }
 }

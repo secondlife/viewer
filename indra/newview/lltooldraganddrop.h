@@ -87,7 +87,7 @@ public:
 
     void setCargoCount(U32 count) { mCargoCount = count; }
     void resetCargoCount() { mCargoCount = 0; }
-    U32 getCargoCount() const { return (mCargoCount > 0) ? mCargoCount : mCargoIDs.size(); }
+    U32 getCargoCount() const { return (mCargoCount > 0) ? mCargoCount : static_cast<S32>(mCargoIDs.size()); }
     S32 getCargoIndex() const { return mCurItemIndex; }
 
     static S32 getOperationId() { return sOperationId; }

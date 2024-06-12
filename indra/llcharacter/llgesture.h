@@ -90,7 +90,7 @@ public:
     bool triggerAndReviseString(const std::string &string, std::string* revised_string);
 
     // Used for construction from UI
-    S32 count() const                       { return mList.size(); }
+    S32 count() const                       { return static_cast<S32>(mList.size()); }
     virtual LLGesture* get(S32 i) const     { return mList.at(i); }
     virtual void put(LLGesture* gesture)    { mList.push_back( gesture ); }
     void deleteAll();

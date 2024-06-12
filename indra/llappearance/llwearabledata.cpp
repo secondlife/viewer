@@ -334,7 +334,7 @@ U32 LLWearableData::getWearableCount(const LLWearableType::EType type) const
         return 0;
     }
     const wearableentry_vec_t& wearable_vec = wearable_iter->second;
-    return wearable_vec.size();
+    return static_cast<U32>(wearable_vec.size());
 }
 
 U32 LLWearableData::getWearableCount(const U32 tex_index) const

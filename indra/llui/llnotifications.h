@@ -249,7 +249,7 @@ public:
     void fromLLSD(const LLSD& sd);
     LLSD asLLSD() const;
 
-    S32 getNumElements() { return mFormData.size(); }
+    S32 getNumElements() { return static_cast<S32>(mFormData.size()); }
     LLSD getElement(S32 index) { return mFormData.get(index); }
     LLSD getElement(const std::string& element_name);
     void getElements(LLSD& elements, S32 offset = 0);

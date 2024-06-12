@@ -420,7 +420,7 @@ public:
         ~JointMotionList();
         U32 dumpDiagInfo();
         JointMotion* getJointMotion(U32 index) const { llassert(index < mJointMotionArray.size()); return mJointMotionArray[index]; }
-        U32 getNumJointMotions() const { return mJointMotionArray.size(); }
+        U32 getNumJointMotions() const { return static_cast<U32>(mJointMotionArray.size()); }
     };
 
 protected:

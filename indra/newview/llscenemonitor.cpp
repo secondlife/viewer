@@ -527,7 +527,7 @@ void LLSceneMonitor::dumpToFile(const std::string &file_name)
         os << std::setprecision(10);
 
         LLTrace::PeriodicRecording& scene_load_recording = mSceneLoadRecording.getResults();
-        const U32 frame_count = scene_load_recording.getNumRecordedPeriods();
+        const auto frame_count = scene_load_recording.getNumRecordedPeriods();
 
         F64Seconds frame_time;
 

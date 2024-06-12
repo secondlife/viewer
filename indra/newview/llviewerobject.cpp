@@ -7513,9 +7513,9 @@ void LLViewerObject::setGLTFAsset(const LLUUID& id)
 
     LLSculptParams* sculpt_params = (LLSculptParams*)param->data;
     sculpt_params->setSculptTexture(id, LL_SCULPT_TYPE_GLTF);
-    
+
     setParameterEntryInUse(LLNetworkData::PARAMS_SCULPT, true, true);
-    
+
     // Update the volume
     LLVolumeParams volume_params;
     volume_params.setSculptID(id, LL_SCULPT_TYPE_GLTF);
@@ -7532,7 +7532,7 @@ public:
         const LLSD& input) const
     {
         LLSD object_data = input["body"]["ObjectData"];
-        S32 num_entries = object_data.size();
+        S32 num_entries = static_cast<S32>(object_data.size());
 
         for ( S32 i = 0; i < num_entries; i++ )
         {

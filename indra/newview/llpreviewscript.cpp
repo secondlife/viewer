@@ -1203,9 +1203,9 @@ struct LLEntryAndEdCore
 
 void LLScriptEdCore::deleteBridges()
 {
-    S32 count = mBridges.size();
+    auto count = mBridges.size();
     LLEntryAndEdCore* eandc;
-    for(S32 i = 0; i < count; i++)
+    for(size_t i = 0; i < count; i++)
     {
         eandc = mBridges.at(i);
         delete eandc;

@@ -939,7 +939,7 @@ public:
     {
         // takes (count, pointer)
         // &vector[0] gets pointer to contiguous array
-        LLImageGL::generateTextures(source.size(), &source[0]);
+        LLImageGL::generateTextures(static_cast<S32>(source.size()), &source[0]);
     }
 
     ~TextureHolder()
@@ -950,7 +950,7 @@ public:
                 texUnit->unbind(LLTexUnit::TT_TEXTURE);
         }
         // ensure that we delete these textures regardless of how we exit
-        LLImageGL::deleteTextures(source.size(), &source[0]);
+        LLImageGL::deleteTextures(static_cast<S32>(source.size()), &source[0]);
     }
 
     bool bind(U32 index)

@@ -212,7 +212,7 @@ public:
     void highlightConversationItemWidget(const LLUUID& session_id, bool is_highlighted);
     bool isScrolledOutOfSight(LLConversationViewSession* conversation_item_widget);
     boost::signals2::connection mMicroChangedSignal;
-    S32 getConversationListItemSize() { return mConversationsWidgets.size(); }
+    S32 getConversationListItemSize() { return static_cast<S32>(mConversationsWidgets.size()); }
     typedef std::list<LLFloater*> floater_list_t;
     void getDetachedConversationFloaters(floater_list_t& floaters);
 

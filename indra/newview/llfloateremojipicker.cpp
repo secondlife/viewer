@@ -39,9 +39,9 @@
 #include "llscrolllistctrl.h"
 #include "llscrolllistitem.h"
 #include "llsdserialize.h"
-#include "lltextbox.h" 
+#include "lltextbox.h"
 #include "lltrans.h"
-#include "llviewerchat.h" 
+#include "llviewerchat.h"
 
 namespace {
 // The following variables and constants are used for storing the floater state
@@ -103,16 +103,16 @@ public:
         F32 x = 4; // padding-left
         F32 y = getRect().getHeight() / 2;
         LLFontGL::getFontSansSerif()->render(
-            mText,                      // wstr
-            0,                          // begin_offset
-            x,                          // x
-            y,                          // y
-            LLColor4::white,            // color
-            LLFontGL::LEFT,             // halign
-            LLFontGL::VCENTER,          // valign
-            LLFontGL::NORMAL,           // style
-            LLFontGL::DROP_SHADOW_SOFT, // shadow
-            mText.size());              // max_chars
+            mText,                           // wstr
+            0,                               // begin_offset
+            x,                               // x
+            y,                               // y
+            LLColor4::white,                 // color
+            LLFontGL::LEFT,                  // halign
+            LLFontGL::VCENTER,               // valign
+            LLFontGL::NORMAL,                // style
+            LLFontGL::DROP_SHADOW_SOFT,      // shadow
+            static_cast<S32>(mText.size())); // max_chars
     }
 
     virtual void updatePanel(bool allow_modify) override {}
@@ -235,17 +235,17 @@ protected:
         {
             std::string text = mTitle.substr(0, mBegin);
             font->renderUTF8(
-                text,                       // text
-                0,                          // begin_offset
-                x0,                         // x
-                y,                          // y
-                color,                      // color
-                LLFontGL::LEFT,             // halign
-                LLFontGL::VCENTER,          // valign
-                LLFontGL::NORMAL,           // style
-                LLFontGL::DROP_SHADOW_SOFT, // shadow
-                text.size(),                // max_chars
-                x1);                        // max_pixels
+                text,                          // text
+                0,                             // begin_offset
+                x0,                            // x
+                y,                             // y
+                color,                         // color
+                LLFontGL::LEFT,                // halign
+                LLFontGL::VCENTER,             // valign
+                LLFontGL::NORMAL,              // style
+                LLFontGL::DROP_SHADOW_SOFT,    // shadow
+                static_cast<S32>(text.size()), // max_chars
+                x1);                           // max_pixels
             F32 dx = font->getWidthF32(text);
             x0 += dx;
             x1 -= dx;
@@ -254,17 +254,17 @@ protected:
         {
             std::string text = mTitle.substr(mBegin, mEnd - mBegin);
             font->renderUTF8(
-                text,                       // text
-                0,                          // begin_offset
-                x0,                         // x
-                y,                          // y
-                LLColor4::yellow6,          // color
-                LLFontGL::LEFT,             // halign
-                LLFontGL::VCENTER,          // valign
-                LLFontGL::NORMAL,           // style
-                LLFontGL::DROP_SHADOW_SOFT, // shadow
-                text.size(),                // max_chars
-                x1);                        // max_pixels
+                text,                          // text
+                0,                             // begin_offset
+                x0,                            // x
+                y,                             // y
+                LLColor4::yellow6,             // color
+                LLFontGL::LEFT,                // halign
+                LLFontGL::VCENTER,             // valign
+                LLFontGL::NORMAL,              // style
+                LLFontGL::DROP_SHADOW_SOFT,    // shadow
+                static_cast<S32>(text.size()), // max_chars
+                x1);                           // max_pixels
             F32 dx = font->getWidthF32(text);
             x0 += dx;
             x1 -= dx;
@@ -273,17 +273,17 @@ protected:
         {
             std::string text = mEnd ? mTitle.substr(mEnd) : mTitle;
             font->renderUTF8(
-                text,                       // text
-                0,                          // begin_offset
-                x0,                         // x
-                y,                          // y
-                color,                      // color
-                LLFontGL::LEFT,             // halign
-                LLFontGL::VCENTER,          // valign
-                LLFontGL::NORMAL,           // style
-                LLFontGL::DROP_SHADOW_SOFT, // shadow
-                text.size(),                // max_chars
-                x1);                        // max_pixels
+                text,                          // text
+                0,                             // begin_offset
+                x0,                            // x
+                y,                             // y
+                color,                         // color
+                LLFontGL::LEFT,                // halign
+                LLFontGL::VCENTER,             // valign
+                LLFontGL::NORMAL,              // style
+                LLFontGL::DROP_SHADOW_SOFT,    // shadow
+                static_cast<S32>(text.size()), // max_chars
+                x1);                           // max_pixels
         }
     }
 
@@ -413,9 +413,9 @@ void LLFloaterEmojiPicker::initialize()
     showPreview(true);
 
     mSelectedGroupIndex = groupIndex == ALL_EMOJIS_GROUP_INDEX ? 0 :
-        (1 + std::distance(mFilteredEmojiGroups.begin(),
+        static_cast<U32>((1 + std::distance(mFilteredEmojiGroups.begin(),
             std::find(mFilteredEmojiGroups.begin(), mFilteredEmojiGroups.end(), groupIndex))) %
-        (1 + mFilteredEmojiGroups.size());
+        (1 + mFilteredEmojiGroups.size()));
 
     mGroupButtons[mSelectedGroupIndex]->setToggleState(true);
     mGroupButtons[mSelectedGroupIndex]->setUseFontColor(true);
@@ -991,15 +991,15 @@ bool LLFloaterEmojiPicker::moveFocusedIconUp()
 
 bool LLFloaterEmojiPicker::moveFocusedIconDown()
 {
-    S32 rowCount = mEmojiGrid->getPanelList().size();
-    for (S32 i = mFocusedIconRow + 1; i < rowCount; ++i)
+    auto rowCount = mEmojiGrid->getPanelList().size();
+    for (size_t i = mFocusedIconRow + 1; i < rowCount; ++i)
     {
         LLScrollingPanel* panel = mEmojiGrid->getPanelList()[i];
         LLEmojiGridRow* row = dynamic_cast<LLEmojiGridRow*>(panel);
         if (row && row->mList->getPanelList().size() > mFocusedIconCol)
         {
             mEmojiScroll->scrollToShowRect(row->getBoundingRect());
-            mFocusedIconRow = i;
+            mFocusedIconRow = static_cast<S32>(i);
             selectFocusedIcon();
             return true;
         }
@@ -1027,7 +1027,7 @@ bool LLFloaterEmojiPicker::moveFocusedIconPrev()
         if (row && row->mList->getPanelList().size())
         {
             mEmojiScroll->scrollToShowRect(row->getBoundingRect());
-            mFocusedIconCol = row->mList->getPanelList().size() - 1;
+            mFocusedIconCol = static_cast<S32>(row->mList->getPanelList().size()) - 1;
             mFocusedIconRow = i;
             selectFocusedIcon();
             return true;
@@ -1044,7 +1044,7 @@ bool LLFloaterEmojiPicker::moveFocusedIconNext()
 
     LLScrollingPanel* panel = mEmojiGrid->getPanelList()[mFocusedIconRow];
     LLEmojiGridRow* row = dynamic_cast<LLEmojiGridRow*>(panel);
-    S32 colCount = row ? row->mList->getPanelList().size() : 0;
+    S32 colCount = row ? static_cast<S32>(row->mList->getPanelList().size()) : 0;
     if (mFocusedIconCol < colCount - 1)
     {
         mFocusedIconCol++;
@@ -1052,8 +1052,8 @@ bool LLFloaterEmojiPicker::moveFocusedIconNext()
         return true;
     }
 
-    S32 rowCount = mEmojiGrid->getPanelList().size();
-    for (S32 i = mFocusedIconRow + 1; i < rowCount; ++i)
+    auto rowCount = mEmojiGrid->getPanelList().size();
+    for (size_t i = mFocusedIconRow + 1; i < rowCount; ++i)
     {
         LLScrollingPanel* panel = mEmojiGrid->getPanelList()[i];
         LLEmojiGridRow* row = dynamic_cast<LLEmojiGridRow*>(panel);
@@ -1061,7 +1061,7 @@ bool LLFloaterEmojiPicker::moveFocusedIconNext()
         {
             mEmojiScroll->scrollToShowRect(row->getBoundingRect());
             mFocusedIconCol = 0;
-            mFocusedIconRow = i;
+            mFocusedIconRow = static_cast<S32>(i);
             selectFocusedIcon();
             return true;
         }
@@ -1112,10 +1112,10 @@ bool LLFloaterEmojiPicker::handleKey(KEY key, MASK mask, bool called_from_parent
         switch (key)
         {
         case KEY_LEFT:
-            selectEmojiGroup((mSelectedGroupIndex + mFilteredEmojis.size()) % mGroupButtons.size());
+            selectEmojiGroup(static_cast<U32>((mSelectedGroupIndex + mFilteredEmojis.size()) % mGroupButtons.size()));
             return true;
         case KEY_RIGHT:
-            selectEmojiGroup((mSelectedGroupIndex + 1) % mGroupButtons.size());
+            selectEmojiGroup(static_cast<U32>((mSelectedGroupIndex + 1) % mGroupButtons.size()));
             return true;
         }
     }

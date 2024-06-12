@@ -210,7 +210,7 @@ void LLEmojiDictionary::findByShortCode(
                 std::size_t begin, end;
                 if (searchInShortCode(begin, end, shortCode, needle))
                 {
-                    results[begin].emplace_back(d.Character, shortCode, begin, end);
+                    results[static_cast<llwchar>(begin)].emplace_back(d.Character, shortCode, begin, end);
                 }
             }
         }
