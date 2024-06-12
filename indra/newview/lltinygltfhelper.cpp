@@ -206,7 +206,7 @@ LLImageRaw * LLTinyGLTFHelper::getTexture(const std::string & folder, const tiny
 bool LLTinyGLTFHelper::loadModel(const std::string& filename, tinygltf::Model& model_in)
 {
     std::string exten = gDirUtilp->getExtension(filename);
-    
+
     if (exten == "gltf" || exten == "glb")
     {
         tinygltf::TinyGLTF loader;
@@ -243,7 +243,7 @@ bool LLTinyGLTFHelper::loadModel(const std::string& filename, tinygltf::Model& m
             LL_WARNS("GLTF") << "Cannot load. File has no materials " << filename << LL_ENDL;
             return false;
         }
-        
+
         return true;
     }
 
@@ -264,12 +264,12 @@ bool LLTinyGLTFHelper::saveModel(const std::string& filename, tinygltf::Model& m
         std::string filename_lc = filename;
         LLStringUtil::toLower(filename_lc);
 
-        
+
         bool embed_images = false;
         bool embed_buffers = false;
         bool pretty_print = true;
         bool write_binary = false;
-        
+
 
         if (std::string::npos == filename_lc.rfind(".gltf"))
         {  // file is binary
