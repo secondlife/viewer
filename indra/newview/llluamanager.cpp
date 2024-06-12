@@ -254,7 +254,7 @@ void LLLUAmanager::runScriptLine(LuaState& L, const std::string& chunk, script_r
     if (shortchunk.length() > shortlen)
         shortchunk = stringize(shortchunk.substr(0, shortlen), "...");
 
-    std::string desc{ stringize("lua: ", shortchunk) };
+    std::string desc{ "lua: " + shortchunk };
     LLCoros::instance().launch(desc, [&L, desc, chunk, cb]()
     {
         auto [count, result] = L.expr(desc, chunk);
