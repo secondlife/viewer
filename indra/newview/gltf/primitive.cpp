@@ -56,9 +56,9 @@ struct MikktMesh
     bool copy(const Primitive* prim)
     {
         bool indexed = !prim->mIndexArray.empty();
-        auto vert_count = indexed ? prim->mIndexArray.size() : prim->mPositions.size();
+        size_t vert_count = indexed ? prim->mIndexArray.size() : prim->mPositions.size();
 
-        U32 triangle_count = 0;
+        size_t triangle_count = 0;
 
         if (prim->mMode == Primitive::Mode::TRIANGLE_STRIP ||
             prim->mMode == Primitive::Mode::TRIANGLE_FAN)
@@ -76,6 +76,7 @@ struct MikktMesh
         }
 
         vert_count = triangle_count * 3;
+        llassert(vert_count <= size_t(U32_MAX));  // triangle_count will also naturally be under the limit
 
         p.resize(vert_count);
         n.resize(vert_count);
@@ -106,7 +107,7 @@ struct MikktMesh
             tc1.resize(vert_count);
         }
 
-        for (int tri_idx = 0; tri_idx < triangle_count; ++tri_idx)
+        for (U32 tri_idx = 0; tri_idx < U32(triangle_count); ++tri_idx)
         {
             U32 idx[3];
 
@@ -222,7 +223,7 @@ struct MikktMesh
         std::vector<U32> remap;
         remap.resize(p.size());
 
-        U32 stream_count = mos.size();
+        size_t stream_count = mos.size();
 
         size_t vert_count = meshopt_generateVertexRemapMulti(&remap[0], nullptr, p.size(), p.size(), mos.data(), stream_count);
 
