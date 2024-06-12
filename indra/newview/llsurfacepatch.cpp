@@ -221,7 +221,9 @@ void LLSurfacePatch::eval(const U32 x, const U32 y, const U32 stride, LLVector3 
     *vertex     = pos_agent-mVObjp->getRegion()->getOriginAgent();
 
     LLVector3 rel_pos = pos_agent - mSurfacep->getOriginAgent();
-    LLVector3 tex_pos = rel_pos * (1.f/surface_stride);
+    // *NOTE: Only PBR terrain uses the UVs right now. Texture terrain just ignores it.
+    // *NOTE: In the future, UVs and horizontal position will no longer have a 1:1 relationship for PBR terrain
+    LLVector3 tex_pos = rel_pos;
     tex0->mV[0]  = tex_pos.mV[0];
     tex0->mV[1]  = tex_pos.mV[1];
     tex1->mV[0] = mSurfacep->getRegion()->getCompositionXY(llfloor(mOriginRegion.mV[0])+x, llfloor(mOriginRegion.mV[1])+y);
@@ -241,7 +243,8 @@ void LLSurfacePatch::eval(const U32 x, const U32 y, const U32 stride, LLVector3 
 }
 
 
-void LLSurfacePatch::calcNormal(const U32 x, const U32 y, const U32 stride)
+template<>
+void LLSurfacePatch::calcNormal</*PBR=*/false>(const U32 x, const U32 y, const U32 stride)
 {
     U32 patch_width = mSurfacep->mPVArray.mPatchWidth;
     U32 surface_stride = mSurfacep->getGridsPerEdge();
@@ -354,6 +357,166 @@ void LLSurfacePatch::calcNormal(const U32 x, const U32 y, const U32 stride)
     *(mDataNorm + surface_stride * y + x) = normal;
 }
 
+template<>
+void LLSurfacePatch::calcNormal</*PBR=*/true>(const U32 x, const U32 y, const U32 stride)
+{
+    llassert(mDataNorm);
+    constexpr U32 index = 0;
+
+    const U32 surface_stride = mSurfacep->getGridsPerEdge();
+    LLVector3& normal_out = *(mDataNorm + surface_stride * y + x);
+    calcNormalFlat(normal_out, x, y, index);
+}
+
+// Calculate the flat normal of a triangle whose least coordinate is specified by the given x,y values.
+// If index = 0, calculate the normal of the first triangle, otherwise calculate the normal of the second.
+void LLSurfacePatch::calcNormalFlat(LLVector3& normal_out, const U32 x, const U32 y, const U32 index)
+{
+    llassert(index == 0 || index == 1);
+
+    U32 patch_width = mSurfacep->mPVArray.mPatchWidth;
+    U32 surface_stride = mSurfacep->getGridsPerEdge();
+
+    // Vertex stride is always 1 because we want the flat surface of the current triangle face
+    constexpr U32 stride = 1;
+
+    const F32 mpg = mSurfacep->getMetersPerGrid() * stride;
+
+    S32 poffsets[2][2][2];
+    poffsets[0][0][0] = x;
+    poffsets[0][0][1] = y;
+
+    poffsets[0][1][0] = x;
+    poffsets[0][1][1] = y + stride;
+
+    poffsets[1][0][0] = x + stride;
+    poffsets[1][0][1] = y;
+
+    poffsets[1][1][0] = x + stride;
+    poffsets[1][1][1] = y + stride;
+
+    const LLSurfacePatch *ppatches[2][2];
+
+    // LLVector3 p1, p2, p3, p4;
+
+    ppatches[0][0] = this;
+    ppatches[0][1] = this;
+    ppatches[1][0] = this;
+    ppatches[1][1] = this;
+
+    U32 i, j;
+    for (i = 0; i < 2; i++)
+    {
+        for (j = 0; j < 2; j++)
+        {
+            if (poffsets[i][j][0] < 0)
+            {
+                if (!ppatches[i][j]->getNeighborPatch(WEST))
+                {
+                    poffsets[i][j][0] = 0;
+                }
+                else
+                {
+                    poffsets[i][j][0] += patch_width;
+                    ppatches[i][j] = ppatches[i][j]->getNeighborPatch(WEST);
+                }
+            }
+            if (poffsets[i][j][1] < 0)
+            {
+                if (!ppatches[i][j]->getNeighborPatch(SOUTH))
+                {
+                    poffsets[i][j][1] = 0;
+                }
+                else
+                {
+                    poffsets[i][j][1] += patch_width;
+                    ppatches[i][j] = ppatches[i][j]->getNeighborPatch(SOUTH);
+                }
+            }
+            if (poffsets[i][j][0] >= (S32)patch_width)
+            {
+                if (!ppatches[i][j]->getNeighborPatch(EAST))
+                {
+                    poffsets[i][j][0] = patch_width - 1;
+                }
+                else
+                {
+                    poffsets[i][j][0] -= patch_width;
+                    ppatches[i][j] = ppatches[i][j]->getNeighborPatch(EAST);
+                }
+            }
+            if (poffsets[i][j][1] >= (S32)patch_width)
+            {
+                if (!ppatches[i][j]->getNeighborPatch(NORTH))
+                {
+                    poffsets[i][j][1] = patch_width - 1;
+                }
+                else
+                {
+                    poffsets[i][j][1] -= patch_width;
+                    ppatches[i][j] = ppatches[i][j]->getNeighborPatch(NORTH);
+                }
+            }
+        }
+    }
+
+    LLVector3 p00(-mpg,-mpg,
+                  *(ppatches[0][0]->mDataZ
+                  + poffsets[0][0][0]
+                  + poffsets[0][0][1]*surface_stride));
+    LLVector3 p01(-mpg,+mpg,
+                  *(ppatches[0][1]->mDataZ
+                  + poffsets[0][1][0]
+                  + poffsets[0][1][1]*surface_stride));
+    LLVector3 p10(+mpg,-mpg,
+                  *(ppatches[1][0]->mDataZ
+                  + poffsets[1][0][0]
+                  + poffsets[1][0][1]*surface_stride));
+    LLVector3 p11(+mpg,+mpg,
+                  *(ppatches[1][1]->mDataZ
+                  + poffsets[1][1][0]
+                  + poffsets[1][1][1]*surface_stride));
+
+    // Triangle index / coordinate convention
+    // for a single surface patch
+    //
+    // p01          p11
+    //
+    // ^   ._____.
+    // |   |\    |
+    // |   | \ 1 |
+    // |   |  \  |
+    //     | 0 \ |
+    // y   |____\|
+    //
+    // p00  x --->  p10
+    //
+    // (z up / out of the screen due to right-handed coordinate system)
+
+    LLVector3 normal;
+    if (index == 0)
+    {
+        LLVector3 c1 = p10 - p00;
+        LLVector3 c2 = p01 - p00;
+
+        normal = c1;
+        normal %= c2;
+        normal.normVec();
+    }
+    else // index == 1
+    {
+        LLVector3 c1 = p11 - p01;
+        LLVector3 c2 = p11 - p10;
+
+        normal = c1;
+        normal %= c2;
+        normal.normVec();
+    }
+
+    llassert(&normal_out);
+    normal_out = normal;
+}
+
 const LLVector3 &LLSurfacePatch::getNormal(const U32 x, const U32 y) const
 {
     U32 surface_stride = mSurfacep->getGridsPerEdge();
@@ -451,6 +614,7 @@ void LLSurfacePatch::updateVerticalStats()
 }
 
 
+template<bool PBR>
 void LLSurfacePatch::updateNormals()
 {
     if (mSurfacep->mType == 'w')
@@ -468,9 +632,9 @@ void LLSurfacePatch::updateNormals()
     {
         for (j = 0; j <= grids_per_patch_edge; j++)
         {
-            calcNormal(grids_per_patch_edge, j, 2);
-            calcNormal(grids_per_patch_edge - 1, j, 2);
-            calcNormal(grids_per_patch_edge - 2, j, 2);
+            calcNormal<PBR>(grids_per_patch_edge, j, 2);
+            calcNormal<PBR>(grids_per_patch_edge - 1, j, 2);
+            calcNormal<PBR>(grids_per_patch_edge - 2, j, 2);
         }
 
         dirty_patch = TRUE;
@@ -481,9 +645,9 @@ void LLSurfacePatch::updateNormals()
     {
         for (i = 0; i <= grids_per_patch_edge; i++)
         {
-            calcNormal(i, grids_per_patch_edge, 2);
-            calcNormal(i, grids_per_patch_edge - 1, 2);
-            calcNormal(i, grids_per_patch_edge - 2, 2);
+            calcNormal<PBR>(i, grids_per_patch_edge, 2);
+            calcNormal<PBR>(i, grids_per_patch_edge - 1, 2);
+            calcNormal<PBR>(i, grids_per_patch_edge - 2, 2);
         }
 
         dirty_patch = TRUE;
@@ -494,8 +658,8 @@ void LLSurfacePatch::updateNormals()
     {
         for (j = 0; j < grids_per_patch_edge; j++)
         {
-            calcNormal(0, j, 2);
-            calcNormal(1, j, 2);
+            calcNormal<PBR>(0, j, 2);
+            calcNormal<PBR>(1, j, 2);
         }
         dirty_patch = TRUE;
     }
@@ -505,8 +669,8 @@ void LLSurfacePatch::updateNormals()
     {
         for (i = 0; i < grids_per_patch_edge; i++)
         {
-            calcNormal(i, 0, 2);
-            calcNormal(i, 1, 2);
+            calcNormal<PBR>(i, 0, 2);
+            calcNormal<PBR>(i, 1, 2);
         }
         dirty_patch = TRUE;
     }
@@ -582,10 +746,10 @@ void LLSurfacePatch::updateNormals()
             // We've got a northeast patch in the same surface.
             // The z and normals will be handled by that patch.
         }
-        calcNormal(grids_per_patch_edge, grids_per_patch_edge, 2);
-        calcNormal(grids_per_patch_edge, grids_per_patch_edge - 1, 2);
-        calcNormal(grids_per_patch_edge - 1, grids_per_patch_edge, 2);
-        calcNormal(grids_per_patch_edge - 1, grids_per_patch_edge - 1, 2);
+        calcNormal<PBR>(grids_per_patch_edge, grids_per_patch_edge, 2);
+        calcNormal<PBR>(grids_per_patch_edge, grids_per_patch_edge - 1, 2);
+        calcNormal<PBR>(grids_per_patch_edge - 1, grids_per_patch_edge, 2);
+        calcNormal<PBR>(grids_per_patch_edge - 1, grids_per_patch_edge - 1, 2);
         dirty_patch = TRUE;
     }
 
@@ -596,7 +760,7 @@ void LLSurfacePatch::updateNormals()
         {
             for (i=2; i < grids_per_patch_edge - 2; i++)
             {
-                calcNormal(i, j, 2);
+                calcNormal<PBR>(i, j, 2);
             }
         }
         dirty_patch = TRUE;
@@ -612,6 +776,9 @@ void LLSurfacePatch::updateNormals()
         mNormalsInvalid[i] = FALSE;
     }
 }
+
+template void LLSurfacePatch::updateNormals</*PBR=*/false>();
+template void LLSurfacePatch::updateNormals</*PBR=*/true>();
 
 void LLSurfacePatch::updateEastEdge()
 {
@@ -739,7 +906,7 @@ void LLSurfacePatch::updateGL()
 
     updateCompositionStats();
     F32 tex_patch_size = meters_per_grid*grids_per_patch_edge;
-    if (comp->generateTexture((F32)origin_region[VX], (F32)origin_region[VY],
+    if (comp->generateMinimapTileLand((F32)origin_region[VX], (F32)origin_region[VY],
                               tex_patch_size, tex_patch_size))
     {
         mSTexUpdate = FALSE;

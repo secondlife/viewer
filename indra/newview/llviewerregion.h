@@ -163,6 +163,9 @@ public:
     // Call this whenever you change the height data in the region.
     // (Automatically called by LLSurfacePatch's update routine)
     void dirtyHeights();
+    // Call this whenever you want to force all terrain to rebuild.
+    // (For example, if a global terrain config option has changed)
+    void dirtyAllPatches();
 
     LLViewerParcelOverlay *getParcelOverlay() const
             { return mParcelOverlay; }
@@ -375,7 +378,8 @@ public:
     LLViewerObject* updateCacheEntry(U32 local_id, LLViewerObject* objectp);
     void findOrphans(U32 parent_id);
     void clearCachedVisibleObjects();
-    void dumpCache();
+    void dumpCache  ();
+    void clearVOCacheFromMemory();
 
     void unpackRegionHandshake();
 

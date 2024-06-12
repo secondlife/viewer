@@ -556,6 +556,7 @@ void LLManipRotate::drag( S32 x, S32 y )
 
     BOOL damped = mSmoothRotate;
     mSmoothRotate = FALSE;
+    bool gltf_mode = false;
 
     for (LLObjectSelection::iterator iter = mObjectSelection->begin();
          iter != mObjectSelection->end(); iter++)
@@ -569,151 +570,174 @@ void LLManipRotate::drag( S32 x, S32 y )
             ((root_object == NULL) || !root_object->isPermanentEnforced()) &&
             (object->isRootEdit() || selectNode->mIndividualSelection))
         {
-            if (!object->isRootEdit())
+
+            if (selectNode->mSelectedGLTFNode != -1)
             {
-                // child objects should not update if parent is selected
-                LLViewerObject* editable_root = (LLViewerObject*)object->getParent();
-                if (editable_root->isSelected())
+                LLQuaternion new_rot = selectNode->mSavedRotation * mRotation;
+
+                object->setGLTFNodeRotationAgent(selectNode->mSelectedGLTFNode, new_rot);
+
+                gltf_mode = true;
+            }
+            else if (!gltf_mode)
+            {
+                if (!object->isRootEdit())
                 {
-                    // we will be moved properly by our parent, so skip
-                    continue;
-                }
-            }
-
-            LLQuaternion new_rot = selectNode->mSavedRotation * mRotation;
-            std::vector<LLVector3>& child_positions = object->mUnselectedChildrenPositions ;
-            std::vector<LLQuaternion> child_rotations;
-            if (object->isRootEdit() && selectNode->mIndividualSelection)
-            {
-                object->saveUnselectedChildrenRotation(child_rotations) ;
-                object->saveUnselectedChildrenPosition(child_positions) ;
-            }
-
-            if (object->getParent() && object->mDrawable.notNull())
-            {
-                LLQuaternion invParentRotation = object->mDrawable->mXform.getParent()->getWorldRotation();
-                invParentRotation.transQuat();
-
-                object->setRotation(new_rot * invParentRotation, damped);
-                rebuild(object);
-            }
-            else
-            {
-                object->setRotation(new_rot, damped);
-                LLVOAvatar* avatar = object->asAvatar();
-                if (avatar && avatar->isSelf()
-                    && LLSelectMgr::getInstance()->mAllowSelectAvatar
-                    && !object->getParent())
-                {
-                    // Normal avatars use object's orienttion, but self uses
-                    // separate LLCoordFrame
-                    // See LVOAvatar::updateOrientation()
-                    if (gAgentCamera.getFocusOnAvatar())
+                    // child objects should not update if parent is selected
+                    LLViewerObject* editable_root = (LLViewerObject*)object->getParent();
+                    if (editable_root->isSelected())
                     {
-                        //Don't rotate camera with avatar
-                        gAgentCamera.setFocusOnAvatar(false, false, false);
+                        // we will be moved properly by our parent, so skip
+                        continue;
                     }
-
-                    LLVector3 at_axis = mAgentSelfAtAxis;
-                    at_axis *= mRotation;
-                    at_axis.mV[VZ] = 0.f;
-                    at_axis.normalize();
-                    gAgent.resetAxes(at_axis);
                 }
-                rebuild(object);
-            }
 
-            // for individually selected roots, we need to counterrotate all the children
-            if (object->isRootEdit() && selectNode->mIndividualSelection)
-            {
-                //RN: must do non-damped updates on these objects so relative rotation appears constant
-                // instead of having two competing slerps making the child objects appear to "wobble"
-                object->resetChildrenRotationAndPosition(child_rotations, child_positions) ;
+                LLQuaternion new_rot = selectNode->mSavedRotation * mRotation;
+                std::vector<LLVector3>& child_positions = object->mUnselectedChildrenPositions;
+                std::vector<LLQuaternion> child_rotations;
+                if (object->isRootEdit() && selectNode->mIndividualSelection)
+                {
+                    object->saveUnselectedChildrenRotation(child_rotations);
+                    object->saveUnselectedChildrenPosition(child_positions);
+                }
+
+                if (object->getParent() && object->mDrawable.notNull())
+                {
+                    LLQuaternion invParentRotation = object->mDrawable->mXform.getParent()->getWorldRotation();
+                    invParentRotation.transQuat();
+
+                    object->setRotation(new_rot * invParentRotation, damped);
+                    rebuild(object);
+                }
+                else
+                {
+                    object->setRotation(new_rot, damped);
+                    LLVOAvatar* avatar = object->asAvatar();
+                    if (avatar && avatar->isSelf()
+                        && LLSelectMgr::getInstance()->mAllowSelectAvatar
+                        && !object->getParent())
+                    {
+                        // Normal avatars use object's orienttion, but self uses
+                        // separate LLCoordFrame
+                        // See LVOAvatar::updateOrientation()
+                        if (gAgentCamera.getFocusOnAvatar())
+                        {
+                            //Don't rotate camera with avatar
+                            gAgentCamera.setFocusOnAvatar(false, false, false);
+                        }
+
+                        LLVector3 at_axis = mAgentSelfAtAxis;
+                        at_axis *= mRotation;
+                        at_axis.mV[VZ] = 0.f;
+                        at_axis.normalize();
+                        gAgent.resetAxes(at_axis);
+                    }
+                    rebuild(object);
+                }
+
+                // for individually selected roots, we need to counterrotate all the children
+                if (object->isRootEdit() && selectNode->mIndividualSelection)
+                {
+                    //RN: must do non-damped updates on these objects so relative rotation appears constant
+                    // instead of having two competing slerps making the child objects appear to "wobble"
+                    object->resetChildrenRotationAndPosition(child_rotations, child_positions);
+                }
             }
         }
     }
 
     // update positions
-    for (LLObjectSelection::iterator iter = mObjectSelection->begin();
-         iter != mObjectSelection->end(); iter++)
+    if (!gltf_mode)
     {
-        LLSelectNode* selectNode = *iter;
-        LLViewerObject* object = selectNode->getObject();
-        LLViewerObject* root_object = (object == NULL) ? NULL : object->getRootEdit();
-
-        // to avoid cumulative position changes we calculate the objects new position using its saved position
-        if (object && object->permMove() && !object->isPermanentEnforced() &&
-            ((root_object == NULL) || !root_object->isPermanentEnforced()))
+        for (LLObjectSelection::iterator iter = mObjectSelection->begin();
+            iter != mObjectSelection->end(); iter++)
         {
-            LLVector3 center   = gAgent.getPosAgentFromGlobal( mRotationCenter );
+            LLSelectNode* selectNode = *iter;
+            LLViewerObject* object = selectNode->getObject();
+            LLViewerObject* root_object = (object == NULL) ? NULL : object->getRootEdit();
 
-            LLVector3 old_position;
-            LLVector3 new_position;
 
-            if (object->isAttachment() && object->mDrawable.notNull())
+            // to avoid cumulative position changes we calculate the objects new position using its saved position
+            if (object && object->permMove() && !object->isPermanentEnforced() &&
+                ((root_object == NULL) || !root_object->isPermanentEnforced()))
             {
-                // need to work in drawable space to handle selected items from multiple attachments
-                // (which have no shared frame of reference other than their render positions)
-                LLXform* parent_xform = object->mDrawable->getXform()->getParent();
-                new_position = (selectNode->mSavedPositionLocal * parent_xform->getWorldRotation()) + parent_xform->getWorldPosition();
-                old_position = (object->getPosition() * parent_xform->getWorldRotation()) + parent_xform->getWorldPosition();//object->getRenderPosition();
-            }
-            else
-            {
-                new_position = gAgent.getPosAgentFromGlobal( selectNode->mSavedPositionGlobal );
-                old_position = object->getPositionAgent();
-            }
+                LLVector3 center = gAgent.getPosAgentFromGlobal(mRotationCenter);
 
-            new_position = (new_position - center) * mRotation;     // new relative rotated position
-            new_position += center;
+                LLVector3 old_position;
+                LLVector3 new_position;
 
-            if (object->isRootEdit() && !object->isAttachment())
-            {
-                LLVector3d new_pos_global = gAgent.getPosGlobalFromAgent(new_position);
-                new_pos_global = LLWorld::getInstance()->clipToVisibleRegions(selectNode->mSavedPositionGlobal, new_pos_global);
-                new_position = gAgent.getPosAgentFromGlobal(new_pos_global);
-            }
-
-            // for individually selected child objects
-            if (!object->isRootEdit() && selectNode->mIndividualSelection)
-            {
-                LLViewerObject* parentp = (LLViewerObject*)object->getParent();
-                if (!parentp->isSelected())
+                if (selectNode->mSelectedGLTFNode != -1)
                 {
-                    if (object->isAttachment() && object->mDrawable.notNull())
-                    {
-                        // find position relative to render position of parent
-                        object->setPosition((new_position - parentp->getRenderPosition()) * ~parentp->getRenderRotation());
-                        rebuild(object);
-                    }
-                    else
-                    {
-                        object->setPositionParent((new_position - parentp->getPositionAgent()) * ~parentp->getRotationRegion());
-                        rebuild(object);
-                    }
-                }
-            }
-            else if (object->isRootEdit())
-            {
-                if (object->isAttachment() && object->mDrawable.notNull())
-                {
-                    LLXform* parent_xform = object->mDrawable->getXform()->getParent();
-                    object->setPosition((new_position - parent_xform->getWorldPosition()) * ~parent_xform->getWorldRotation());
-                    rebuild(object);
+
                 }
                 else
                 {
-                    object->setPositionAgent(new_position);
-                    rebuild(object);
-                }
-            }
+                    if (object->isAttachment() && object->mDrawable.notNull())
+                    {
+                        // need to work in drawable space to handle selected items from multiple attachments
+                        // (which have no shared frame of reference other than their render positions)
+                        LLXform* parent_xform = object->mDrawable->getXform()->getParent();
+                        new_position = (selectNode->mSavedPositionLocal * parent_xform->getWorldRotation()) + parent_xform->getWorldPosition();
+                        old_position = (object->getPosition() * parent_xform->getWorldRotation()) + parent_xform->getWorldPosition();//object->getRenderPosition();
+                    }
+                    else
+                    {
+                        new_position = gAgent.getPosAgentFromGlobal(selectNode->mSavedPositionGlobal);
+                        old_position = object->getPositionAgent();
+                    }
 
-            // for individually selected roots, we need to counter-translate all unselected children
-            if (object->isRootEdit() && selectNode->mIndividualSelection)
-            {
-                // only offset by parent's translation as we've already countered parent's rotation
-                rebuild(object);
-                object->resetChildrenPosition(old_position - new_position) ;
+                    new_position = (new_position - center) * mRotation;     // new relative rotated position
+                    new_position += center;
+
+                    if (object->isRootEdit() && !object->isAttachment())
+                    {
+                        LLVector3d new_pos_global = gAgent.getPosGlobalFromAgent(new_position);
+                        new_pos_global = LLWorld::getInstance()->clipToVisibleRegions(selectNode->mSavedPositionGlobal, new_pos_global);
+                        new_position = gAgent.getPosAgentFromGlobal(new_pos_global);
+                    }
+
+                    // for individually selected child objects
+                    if (!object->isRootEdit() && selectNode->mIndividualSelection)
+                    {
+                        LLViewerObject* parentp = (LLViewerObject*)object->getParent();
+                        if (!parentp->isSelected())
+                        {
+                            if (object->isAttachment() && object->mDrawable.notNull())
+                            {
+                                // find position relative to render position of parent
+                                object->setPosition((new_position - parentp->getRenderPosition()) * ~parentp->getRenderRotation());
+                                rebuild(object);
+                            }
+                            else
+                            {
+                                object->setPositionParent((new_position - parentp->getPositionAgent()) * ~parentp->getRotationRegion());
+                                rebuild(object);
+                            }
+                        }
+                    }
+                    else if (object->isRootEdit())
+                    {
+                        if (object->isAttachment() && object->mDrawable.notNull())
+                        {
+                            LLXform* parent_xform = object->mDrawable->getXform()->getParent();
+                            object->setPosition((new_position - parent_xform->getWorldPosition()) * ~parent_xform->getWorldRotation());
+                            rebuild(object);
+                        }
+                        else
+                        {
+                            object->setPositionAgent(new_position);
+                            rebuild(object);
+                        }
+                    }
+
+                    // for individually selected roots, we need to counter-translate all unselected children
+                    if (object->isRootEdit() && selectNode->mIndividualSelection)
+                    {
+                        // only offset by parent's translation as we've already countered parent's rotation
+                        rebuild(object);
+                        object->resetChildrenPosition(old_position - new_position);
+                    }
+                }
             }
         }
     }
@@ -725,12 +749,13 @@ void LLManipRotate::drag( S32 x, S32 y )
         LLSelectNode* selectNode = *iter;
         LLViewerObject*cur = selectNode->getObject();
         LLViewerObject *root_object = (cur == NULL) ? NULL : cur->getRootEdit();
+
         if( cur->permModify() && cur->permMove() && !cur->isPermanentEnforced() &&
             ((root_object == NULL) || !root_object->isPermanentEnforced()) &&
             (!cur->isAvatar() || LLSelectMgr::getInstance()->mAllowSelectAvatar))
         {
-            selectNode->mLastRotation = cur->getRotation();
-            selectNode->mLastPositionLocal = cur->getPosition();
+           selectNode->mLastRotation = cur->getRotation();
+           selectNode->mLastPositionLocal = cur->getPosition();
         }
     }
 

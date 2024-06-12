@@ -45,8 +45,8 @@ public:
     void getValue(const LLSD&event) const;
 
  private:
-    F64 mLastUntrustedThrottle {0.f};
-    F64 mLastMinThrottle {0.f};
+    F64 mLastUntrustedThrottle {0};
+    F64 mLastMinThrottle {0};
 };
 
 #endif /* ! defined(LL_LLUILISTENER_H) */

@@ -23,6 +23,7 @@
  * $/LicenseInfo$
  */
 
+uniform mat4 modelview_matrix;
 uniform mat3 normal_matrix;
 uniform mat4 texture_matrix0;
 uniform mat4 modelview_projection_matrix;
@@ -38,11 +39,11 @@ out vec3 vary_mat1;
 out vec3 vary_mat2;
 out vec4 vertex_color;
 out vec2 vary_texcoord0;
+out vec3 vary_position;
 
 #ifdef HAS_SKIN
 mat4 getObjectSkinnedTransform();
 uniform mat4 projection_matrix;
-uniform mat4 modelview_matrix;
 #endif
 
 void main()
@@ -52,11 +53,13 @@ void main()
     mat4 mat = getObjectSkinnedTransform();
     mat = modelview_matrix * mat;
     vec3 pos = (mat*vec4(position.xyz, 1.0)).xyz;
+    vary_position = pos;
     gl_Position = projection_matrix*vec4(pos, 1.0);
 
     vec3 n = normalize((mat * vec4(normal.xyz+position.xyz, 1.0)).xyz-pos.xyz);
     vec3 t = normalize((mat * vec4(tangent.xyz+position.xyz, 1.0)).xyz-pos.xyz);
 #else
+    vary_position = (modelview_matrix*vec4(position.xyz, 1.0)).xyz;
     gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0);
     vec3 n = normalize(normal_matrix * normal);
     vec3 t = normalize(normal_matrix * tangent.xyz);
