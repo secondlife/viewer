@@ -11,7 +11,7 @@ local popup_meta = {
         return leap.request('LLNotifications',
                             {op='requestAdd', name=notification,
                              substitutions=vars,
-                             payload=payload or {}})
+                             payload=payload})
     end
 }
 
