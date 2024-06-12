@@ -57,6 +57,21 @@ namespace LL
             bool mPresent = false;
         };
 
+        class TextureTransform : public Extension // KHR_texture_transform implementation
+        {
+        public:
+            vec2 mOffset = vec2(0.f, 0.f);
+            F32 mRotation = 0.f;
+            vec2 mScale = vec2(1.f, 1.f);
+            S32 mTexCoord = INVALID_INDEX;
+
+            // get the texture transform as a packed array of floats
+            // dst MUST point to at least 8 floats
+            void getPacked(F32* dst) const;
+
+            const TextureTransform& operator=(const Value& src);
+            void serialize(boost::json::object& dst) const;
+        };
 
         class Material
         {
@@ -82,8 +97,14 @@ namespace LL
                 S32 mIndex = INVALID_INDEX;
                 S32 mTexCoord = 0;
 
+                TextureTransform mTextureTransform;
+
                 bool operator==(const TextureInfo& rhs) const;
                 bool operator!=(const TextureInfo& rhs) const;
+
+                // get the UV channel that should be used for sampling this texture
+                // returns mTextureTransform.mTexCoord if present and valid, otherwise mTexCoord
+                S32 getTexCoord() const;
 
                 const TextureInfo& operator=(const Value& src);
                 void serialize(boost::json::object& dst) const;
@@ -134,6 +155,8 @@ namespace LL
             F32 mAlphaCutoff = 0.5f;
             bool mDoubleSided = false;
             Unlit mUnlit;
+
+            bool isMultiUV() const;
 
             const Material& operator=(const Value& src);
             void serialize(boost::json::object& dst) const;

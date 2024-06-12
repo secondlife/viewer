@@ -56,7 +56,13 @@ public:
         TEXTURE_BASE_COLOR_TRANSFORM,         //  "texture_base_color_transform" (GLTF)
         TEXTURE_NORMAL_TRANSFORM,             //  "texture_normal_transform" (GLTF)
         TEXTURE_METALLIC_ROUGHNESS_TRANSFORM, //  "texture_metallic_roughness_transform" (GLTF)
+        TEXTURE_OCCLUSION_TRANSFORM,          //  "texture_occlusion_transform" (GLTF)
         TEXTURE_EMISSIVE_TRANSFORM,           //  "texture_emissive_transform" (GLTF)
+        BASE_COLOR_TEXCOORD,                  //  "base_color_texcoord" (GLTF)
+        EMISSIVE_TEXCOORD,                    //  "emissive_texcoord" (GLTF)
+        NORMAL_TEXCOORD,                      //  "normal_texcoord" (GLTF)
+        METALLIC_ROUGHNESS_TEXCOORD,          //  "metallic_roughness_texcoord" (GLTF)
+        OCCLUSION_TEXCOORD,                   //  "occlusion_texcoord" (GLTF)
 
         TERRAIN_TEXTURE_TRANSFORMS,           //  "terrain_texture_transforms" (GLTF)
 

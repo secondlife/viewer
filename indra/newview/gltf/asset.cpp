@@ -45,7 +45,8 @@ namespace LL
     namespace GLTF
     {
         static std::unordered_set<std::string> ExtensionsSupported = {
-            "KHR_materials_unlit"
+            "KHR_materials_unlit",
+            "KHR_texture_transform"
         };
 
         Material::AlphaMode gltf_alpha_mode_to_enum(const std::string& alpha_mode)
@@ -906,6 +907,25 @@ void Material::TextureInfo::serialize(object& dst) const
 {
     write(mIndex, "index", dst, INVALID_INDEX);
     write(mTexCoord, "texCoord", dst, 0);
+    write_extensions(dst, &mTextureTransform, "KHR_texture_transform");
+}
+
+S32 Material::TextureInfo::getTexCoord() const
+{
+    if (mTextureTransform.mPresent && mTextureTransform.mTexCoord != INVALID_INDEX)
+    {
+        return mTextureTransform.mTexCoord;
+    }
+    return mTexCoord;
+}
+
+bool Material::isMultiUV() const
+{
+    return mPbrMetallicRoughness.mBaseColorTexture.getTexCoord() != 0 ||
+        mPbrMetallicRoughness.mMetallicRoughnessTexture.getTexCoord() != 0 ||
+        mNormalTexture.getTexCoord() != 0 ||
+        mOcclusionTexture.getTexCoord() != 0 ||
+        mEmissiveTexture.getTexCoord() != 0;
 }
 
 const Material::TextureInfo& Material::TextureInfo::operator=(const Value& src)
@@ -914,6 +934,7 @@ const Material::TextureInfo& Material::TextureInfo::operator=(const Value& src)
     {
         copy(src, "index", mIndex);
         copy(src, "texCoord", mTexCoord);
+        copy_extensions(src, "KHR_texture_transform", &mTextureTransform);
     }
 
     return *this;
@@ -931,17 +952,16 @@ bool Material::TextureInfo::operator!=(const Material::TextureInfo& rhs) const
 
 void Material::OcclusionTextureInfo::serialize(object& dst) const
 {
-    write(mIndex, "index", dst, INVALID_INDEX);
-    write(mTexCoord, "texCoord", dst, 0);
+    TextureInfo::serialize(dst);
     write(mStrength, "strength", dst, 1.f);
 }
 
 const Material::OcclusionTextureInfo& Material::OcclusionTextureInfo::operator=(const Value& src)
 {
+    TextureInfo::operator=(src);
+
     if (src.is_object())
     {
-        copy(src, "index", mIndex);
-        copy(src, "texCoord", mTexCoord);
         copy(src, "strength", mStrength);
     }
 
@@ -950,13 +970,13 @@ const Material::OcclusionTextureInfo& Material::OcclusionTextureInfo::operator=(
 
 void Material::NormalTextureInfo::serialize(object& dst) const
 {
-    write(mIndex, "index", dst, INVALID_INDEX);
-    write(mTexCoord, "texCoord", dst, 0);
+    TextureInfo::serialize(dst);
     write(mScale, "scale", dst, 1.f);
 }
 
 const Material::NormalTextureInfo& Material::NormalTextureInfo::operator=(const Value& src)
 {
+    TextureInfo::operator=(src);
     if (src.is_object())
     {
         copy(src, "index", mIndex);
@@ -1014,6 +1034,41 @@ void Material::Unlit::serialize(object& dst) const
 {
     // no members and object has already been created, nothing to do
 }
+
+void TextureTransform::getPacked(F32* packed) const
+{
+    packed[0] = mScale.x;
+    packed[1] = mScale.y;
+    packed[2] = mRotation;
+    packed[3] = mOffset.x;
+    packed[4] = mOffset.y;
+
+    packed[5] = packed[6] = packed[7] = 0.f;
+}
+
+
+const TextureTransform& TextureTransform::operator=(const Value& src)
+{
+    mPresent = true;
+    if (src.is_object())
+    {
+        copy(src, "offset", mOffset);
+        copy(src, "rotation", mRotation);
+        copy(src, "scale", mScale);
+        copy(src, "texCoord", mTexCoord);
+    }
+
+    return *this;
+}
+
+void TextureTransform::serialize(object& dst) const
+{
+    write(mOffset, "offset", dst, vec2(0.f, 0.f));
+    write(mRotation, "rotation", dst, 0.f);
+    write(mScale, "scale", dst, vec2(1.f, 1.f));
+    write(mTexCoord, "texCoord", dst, -1);
+}
+
 
 void Material::serialize(object& dst) const
 {

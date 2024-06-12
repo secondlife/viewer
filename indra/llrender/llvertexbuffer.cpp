@@ -1633,12 +1633,20 @@ void LLVertexBuffer::setPositionData(const LLVector4a* data)
     flush_vbo(GL_ARRAY_BUFFER, 0, sizeof(LLVector4a) * getNumVerts()-1, (U8*) data, mMappedData);
 }
 
-void LLVertexBuffer::setTexCoordData(const LLVector2* data)
+void LLVertexBuffer::setTexCoord0Data(const LLVector2* data)
 {
 #if !LL_DARWIN
     llassert(sGLRenderBuffer == mGLBuffer);
 #endif
     flush_vbo(GL_ARRAY_BUFFER, mOffsets[TYPE_TEXCOORD0], mOffsets[TYPE_TEXCOORD0] + sTypeSize[TYPE_TEXCOORD0] * getNumVerts() - 1, (U8*)data, mMappedData);
+}
+
+void LLVertexBuffer::setTexCoord1Data(const LLVector2* data)
+{
+#if !LL_DARWIN
+    llassert(sGLRenderBuffer == mGLBuffer);
+#endif
+    flush_vbo(GL_ARRAY_BUFFER, mOffsets[TYPE_TEXCOORD1], mOffsets[TYPE_TEXCOORD1] + sTypeSize[TYPE_TEXCOORD1] * getNumVerts() - 1, (U8*)data, mMappedData);
 }
 
 void LLVertexBuffer::setColorData(const LLColor4U* data)

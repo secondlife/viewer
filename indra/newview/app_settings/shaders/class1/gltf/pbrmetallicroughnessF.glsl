@@ -37,8 +37,8 @@ uniform sampler2D emissiveMap;
 uniform vec3 emissiveColor;
 in vec3 vary_position;
 in vec4 vertex_color;
-in vec2 base_color_texcoord;
-in vec2 emissive_texcoord;
+in vec2 base_color_uv;
+in vec2 emissive_uv;
 uniform float minimum_alpha;
 
 void mirrorClip(vec3 pos);
@@ -59,8 +59,9 @@ uniform float roughnessFactor;
 in vec3 vary_normal;
 in vec3 vary_tangent;
 flat in float vary_sign;
-in vec2 normal_texcoord;
-in vec2 metallic_roughness_texcoord;
+in vec2 normal_uv;
+in vec2 metallic_roughness_uv;
+in vec2 occlusion_uv;
 #endif
 // ==================================
 
@@ -164,7 +165,7 @@ void main()
     vec3 pos = vary_position;
     mirrorClip(pos);
 
-    vec4 basecolor = texture(diffuseMap, base_color_texcoord.xy).rgba;
+    vec4 basecolor = texture(diffuseMap, base_color_uv.xy).rgba;
     basecolor.rgb = srgb_to_linear(basecolor.rgb);
     basecolor *= vertex_color;
 
@@ -174,7 +175,7 @@ void main()
     }
 
     vec3 emissive = emissiveColor;
-    emissive *= srgb_to_linear(texture(emissiveMap, emissive_texcoord.xy).rgb);
+    emissive *= srgb_to_linear(texture(emissiveMap, emissive_uv.xy).rgb);
 // ==================================
 
 // ==================================
@@ -184,7 +185,7 @@ void main()
 // ==================================
 #ifndef UNLIT
     // from mikktspace.com
-    vec3 vNt = texture(normalMap, normal_texcoord.xy).xyz*2.0-1.0;
+    vec3 vNt = texture(normalMap, normal_uv.xy).xyz*2.0-1.0;
     float sign = vary_sign;
     vec3 vN = vary_normal;
     vec3 vT = vary_tangent.xyz;
@@ -198,8 +199,8 @@ void main()
     //   occlusion 1.0
     //   roughness 0.0
     //   metal     0.0
-    vec3 orm = texture(metallicRoughnessMap, metallic_roughness_texcoord.xy).rgb;
-    orm.r = texture(occlusionMap, metallic_roughness_texcoord.xy).r;
+    vec3 orm = texture(metallicRoughnessMap, metallic_roughness_uv.xy).rgb;
+    orm.r = texture(occlusionMap, occlusion_uv.xy).r;
     orm.g *= roughnessFactor;
     orm.b *= metallicFactor;
 #endif

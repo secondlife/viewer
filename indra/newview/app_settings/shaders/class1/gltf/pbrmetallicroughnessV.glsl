@@ -33,33 +33,97 @@ uniform mat4 projection_matrix;
 uniform mat3 normal_matrix;
 uniform mat4 modelview_projection_matrix;
 #endif
-uniform mat4 texture_matrix0;
 
 uniform vec4[2] texture_base_color_transform;
 uniform vec4[2] texture_normal_transform;
 uniform vec4[2] texture_metallic_roughness_transform;
 uniform vec4[2] texture_emissive_transform;
+uniform vec4[2] texture_occlusion_transform;
 
 in vec3 position;
 in vec4 diffuse_color;
 in vec2 texcoord0;
-out vec2 base_color_texcoord;
-out vec2 emissive_texcoord;
+out vec2 base_color_uv;
+out vec2 emissive_uv;
 out vec4 vertex_color;
 out vec3 vary_position;
 
 #ifndef UNLIT
 in vec3 normal;
 in vec4 tangent;
-out vec2 normal_texcoord;
-out vec2 metallic_roughness_texcoord;
+out vec2 normal_uv;
+out vec2 metallic_roughness_uv;
+out vec2 occlusion_uv;
 out vec3 vary_tangent;
 flat out float vary_sign;
 out vec3 vary_normal;
-vec3 tangent_space_transform(vec4 vertex_tangent, vec3 vertex_normal, vec4[2] khr_gltf_transform, mat4 sl_animation_transform);
 #endif
 
-vec2 texture_transform(vec2 vertex_texcoord, vec4[2] khr_gltf_transform, mat4 sl_animation_transform);
+#ifdef MULTI_UV
+in vec2 texcoord1;
+uniform int base_color_texcoord;
+uniform int emissive_texcoord;
+#ifndef UNLIT
+uniform int normal_texcoord;
+uniform int metallic_roughness_texcoord;
+uniform int occlusion_texcoord;
+#endif
+#endif
+
+vec2 gltf_texture_transform(vec2 texcoord, vec4[2] p)
+{
+    texcoord.y = 1.0 - texcoord.y;
+
+    vec2 Scale = p[0].xy;
+    float Rotation = -p[0].z;
+    vec2 Offset = vec2(p[0].w, p[1].x);
+
+    mat3 translation = mat3(1,0,0, 0,1,0, Offset.x, Offset.y, 1);
+    mat3 rotation = mat3(
+        cos(Rotation), sin(Rotation), 0,
+        -sin(Rotation), cos(Rotation), 0,
+        0, 0, 1);
+
+    mat3 scale = mat3(Scale.x,0,0, 0,Scale.y,0, 0,0,1);
+
+    mat3 matrix = translation * rotation * scale;
+
+    vec2 uvTransformed = ( matrix * vec3(texcoord.xy, 1) ).xy;
+
+    uvTransformed.y = 1.0 - uvTransformed.y;
+
+    return uvTransformed;
+}
+
+#ifndef UNLIT
+vec3 gltf_tangent_space_transform(vec4 vertex_tangent, vec3 vertex_normal, vec4[2] khr_gltf_transform)
+{ //derived from tangent_space_transform in textureUtilV.glsl
+    vec2 weights = vec2(0, 1);
+
+    // Convert to left-handed coordinate system
+    weights.y = -weights.y;
+
+    // Apply KHR_texture_transform (rotation only)
+    float khr_rotation = khr_gltf_transform[0].z;
+    mat2 khr_rotation_mat = mat2(
+        cos(khr_rotation),-sin(khr_rotation),
+        sin(khr_rotation), cos(khr_rotation)
+    );
+    weights = khr_rotation_mat * weights;
+
+    // Convert back to right-handed coordinate system
+    weights.y = -weights.y;
+
+    // Similar to the MikkTSpace-compatible method of extracting the binormal
+    // from the normal and tangent, as seen in the fragment shader
+    vec3 vertex_binormal = vertex_tangent.w * cross(vertex_normal, vertex_tangent.xyz);
+
+    return (weights.x * vertex_binormal.xyz) + (weights.y * vertex_tangent.xyz);
+
+    return vertex_tangent.xyz;
+}
+#endif
+
 
 
 #ifdef ALPHA_BLEND
@@ -136,14 +200,41 @@ void main()
     gl_Position = vert;
 #endif
 
-    base_color_texcoord = texture_transform(texcoord0, texture_base_color_transform, texture_matrix0);
-    emissive_texcoord = texture_transform(texcoord0, texture_emissive_transform, texture_matrix0);
+    vec2 bcuv;
+    vec2 emuv;
+
+#ifdef MULTI_UV
+    vec2 uv[2];
+    uv[0] = texcoord0;
+    uv[1] = texcoord1;
+
+    bcuv = uv[base_color_texcoord];
+    emuv = uv[emissive_texcoord];
+#else
+    bcuv = texcoord0;
+    emuv = texcoord0;
+#endif
+
+    base_color_uv = gltf_texture_transform(bcuv, texture_base_color_transform);
+    emissive_uv = gltf_texture_transform(emuv, texture_emissive_transform);
 
 #ifndef UNLIT
-    normal_texcoord = texture_transform(texcoord0, texture_normal_transform, texture_matrix0);
-    metallic_roughness_texcoord = texture_transform(texcoord0, texture_metallic_roughness_transform, texture_matrix0);
+    vec2 normuv;
+    vec2 rmuv;
+    vec2 ouv;
+#ifdef MULTI_UV
+    normuv = uv[normal_texcoord];
+    rmuv = uv[metallic_roughness_texcoord];
+    ouv = uv[occlusion_texcoord];
+#else
+    normuv = texcoord0;
+    rmuv = texcoord0;
+    ouv = texcoord0;
 #endif
-    
+    normal_uv = gltf_texture_transform(normuv, texture_normal_transform);
+    metallic_roughness_uv = gltf_texture_transform(rmuv, texture_metallic_roughness_transform);
+    occlusion_uv = gltf_texture_transform(ouv, texture_occlusion_transform);
+#endif
 
 #ifndef UNLIT
 #ifdef HAS_SKIN
@@ -155,7 +246,7 @@ void main()
 #endif
 
     n = normalize(n);
-    vary_tangent = normalize(tangent_space_transform(vec4(t, tangent.w), n, texture_normal_transform, texture_matrix0));
+    vary_tangent = normalize(gltf_tangent_space_transform(vec4(t, tangent.w), n, texture_normal_transform));
     vary_sign = tangent.w;
     vary_normal = n;
 #endif
