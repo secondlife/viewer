@@ -71,9 +71,8 @@
 						     <string>Inventory</string>
 						     <string>SceneLoadTiming</string>
 						     <string>Avatar</string>
-						     <string>Voice</string>		
+						     <string>Voice</string>
 						-->
-                            <string>GLSLTextureChannels</string>
 						</array>
 				</map>
       </array>

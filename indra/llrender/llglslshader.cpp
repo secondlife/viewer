@@ -503,6 +503,10 @@ bool LLGLSLShader::createShader()
         {
             mActiveTextureChannels = llmax(mActiveTextureChannels, tex + 1);
         }
+
+        // when indexed texture channels are used, enforce an upper limit of 16
+        // this should act as a canary in the coal mine for adding textures
+        // and breaking machines that are limited to 16 texture channels
         llassert(mActiveTextureChannels <= 16);
         unbind();
     }
@@ -812,7 +816,6 @@ GLint LLGLSLShader::mapUniformTextureChannel(GLint location, GLenum type, GLint 
             glUniform1iv(location, size, channel);
         }
 
-        llassert(mActiveTextureChannels <= 16); // too many textures (probably)
         return ret;
     }
     return -1;
