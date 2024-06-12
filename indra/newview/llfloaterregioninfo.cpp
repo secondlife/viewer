@@ -1669,8 +1669,8 @@ bool LLPanelRegionTerrainInfo::refreshFromRegion(LLViewerRegion* region)
 
         static LLCachedControl<bool> feature_pbr_terrain_enabled(gSavedSettings, "RenderTerrainPBREnabled", false);
 
-        const bool textures_ready = compp->texturesReady(false, false);
-        const bool materials_ready = feature_pbr_terrain_enabled && compp->materialsReady(false, false);
+        const bool textures_ready = compp->makeTexturesReady(false, false);
+        const bool materials_ready = feature_pbr_terrain_enabled && compp->makeMaterialsReady(false, false);
 
         bool set_texture_swatches;
         bool set_material_swatches;

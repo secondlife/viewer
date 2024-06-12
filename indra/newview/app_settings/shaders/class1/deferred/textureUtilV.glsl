@@ -135,8 +135,7 @@ vec3 tangent_space_transform(vec4 vertex_tangent, vec3 vertex_normal, vec4[2] kh
     return (weights.x * vertex_binormal.xyz) + (weights.y * vertex_tangent.xyz);
 }
 
-// Similar to tangent_space_transform but no offset during coordinate system
-// conversion, and no texture animation support.
+// Similar to tangent_space_transform but no texture animation support.
 vec3 terrain_tangent_space_transform(vec4 vertex_tangent, vec3 vertex_normal, vec4[2] khr_gltf_transform)
 {
     // Immediately convert to left-handed coordinate system ((0,1) -> (0, -1))
