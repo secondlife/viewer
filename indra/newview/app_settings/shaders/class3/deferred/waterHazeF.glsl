@@ -28,8 +28,6 @@ out vec4 frag_color;
 // Inputs
 in vec4 vary_fragcoord;
 
-uniform sampler2D normalMap;
-
 vec4 getPositionWithDepth(vec2 pos_screen, float depth);
 float getDepth(vec2 pos_screen);
 

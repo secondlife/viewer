@@ -25,8 +25,6 @@
 
 out vec4 frag_color;
 
-uniform sampler2D normalMap;
-
 // Inputs
 uniform vec3 sun_dir;
 uniform vec3 moon_dir;

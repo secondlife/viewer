@@ -295,7 +295,7 @@ bool LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 
     if (features->hasLighting)
     {
-        if (features->disableTextureIndex)
+        if (features->mIndexedTextureChannels <= 1)
         {
             if (features->hasAlphaMask)
             {

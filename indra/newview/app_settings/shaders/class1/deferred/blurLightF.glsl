@@ -27,7 +27,6 @@
 
 out vec4 frag_color;
 
-uniform sampler2D normalMap;
 uniform sampler2D lightMap;
 
 uniform float dist_factor;

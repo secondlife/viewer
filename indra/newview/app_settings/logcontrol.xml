@@ -73,6 +73,7 @@
 						     <string>Avatar</string>
 						     <string>Voice</string>		
 						-->
+                            <string>GLSLTextureChannels</string>
 						</array>
 				</map>
       </array>

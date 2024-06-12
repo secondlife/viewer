@@ -515,8 +515,8 @@ void LLViewerShaderMgr::setShaders()
     // when using indexed texture rendering, leave some texture units available for shadow and reflection maps
     static LLCachedControl<S32> reserved_texture_units(gSavedSettings, "RenderReservedTextureIndices", 14);
 
-    LLGLSLShader::sIndexedTextureChannels =
-        llclamp<S32>(max_texture_index, 1, gGLManager.mNumTextureImageUnits-reserved_texture_units);
+    LLGLSLShader::sIndexedTextureChannels = 4;
+        //llclamp<S32>(max_texture_index, 1, gGLManager.mNumTextureImageUnits-reserved_texture_units);
 
     reentrance = true;
 
@@ -1432,7 +1432,6 @@ bool LLViewerShaderMgr::loadShadersDeferred()
                 (mapping == 1 ? "flat" : "triplanar"));
         gDeferredPBRTerrainProgram.mFeatures.hasSrgb = true;
         gDeferredPBRTerrainProgram.mFeatures.isAlphaLighting = true;
-        gDeferredPBRTerrainProgram.mFeatures.disableTextureIndex = true; //hack to disable auto-setup of texture channels
         gDeferredPBRTerrainProgram.mFeatures.calculatesAtmospherics = true;
         gDeferredPBRTerrainProgram.mFeatures.hasAtmospherics = true;
         gDeferredPBRTerrainProgram.mFeatures.hasGamma = true;
@@ -1646,7 +1645,6 @@ bool LLViewerShaderMgr::loadShadersDeferred()
             shader->mFeatures.calculatesLighting = false;
             shader->mFeatures.hasLighting = false;
             shader->mFeatures.isAlphaLighting = true;
-            shader->mFeatures.disableTextureIndex = true; //hack to disable auto-setup of texture channels
             shader->mFeatures.hasSrgb = true;
             shader->mFeatures.calculatesAtmospherics = true;
             shader->mFeatures.hasAtmospherics = true;
@@ -1754,7 +1752,6 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         gDeferredAvatarEyesProgram.mFeatures.calculatesAtmospherics = true;
         gDeferredAvatarEyesProgram.mFeatures.hasGamma = true;
         gDeferredAvatarEyesProgram.mFeatures.hasAtmospherics = true;
-        gDeferredAvatarEyesProgram.mFeatures.disableTextureIndex = true;
         gDeferredAvatarEyesProgram.mFeatures.hasSrgb = true;
         gDeferredAvatarEyesProgram.mFeatures.hasShadows = true;
 
@@ -2155,7 +2152,6 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         gDeferredTerrainProgram.mName = "Deferred Terrain Shader";
         gDeferredTerrainProgram.mFeatures.hasSrgb = true;
         gDeferredTerrainProgram.mFeatures.isAlphaLighting = true;
-        gDeferredTerrainProgram.mFeatures.disableTextureIndex = true; //hack to disable auto-setup of texture channels
         gDeferredTerrainProgram.mFeatures.calculatesAtmospherics = true;
         gDeferredTerrainProgram.mFeatures.hasAtmospherics = true;
         gDeferredTerrainProgram.mFeatures.hasGamma = true;
@@ -2187,7 +2183,6 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         gDeferredAvatarAlphaProgram.mFeatures.calculatesLighting = false;
         gDeferredAvatarAlphaProgram.mFeatures.hasLighting = false;
         gDeferredAvatarAlphaProgram.mFeatures.isAlphaLighting = true;
-        gDeferredAvatarAlphaProgram.mFeatures.disableTextureIndex = true;
         gDeferredAvatarAlphaProgram.mFeatures.hasSrgb = true;
         gDeferredAvatarAlphaProgram.mFeatures.calculatesAtmospherics = true;
         gDeferredAvatarAlphaProgram.mFeatures.hasAtmospherics = true;
@@ -2426,7 +2421,6 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         gDeferredWLSunProgram.mFeatures.hasAtmospherics = true;
         gDeferredWLSunProgram.mFeatures.hasGamma = true;
         gDeferredWLSunProgram.mFeatures.hasAtmospherics = true;
-        gDeferredWLSunProgram.mFeatures.disableTextureIndex = true;
         gDeferredWLSunProgram.mFeatures.hasSrgb = true;
         gDeferredWLSunProgram.mShaderFiles.clear();
         gDeferredWLSunProgram.mShaderFiles.push_back(make_pair("deferred/sunDiscV.glsl", GL_VERTEX_SHADER));
@@ -2445,7 +2439,6 @@ bool LLViewerShaderMgr::loadShadersDeferred()
         gDeferredWLMoonProgram.mFeatures.hasGamma = true;
         gDeferredWLMoonProgram.mFeatures.hasAtmospherics = true;
         gDeferredWLMoonProgram.mFeatures.hasSrgb = true;
-        gDeferredWLMoonProgram.mFeatures.disableTextureIndex = true;
 
         gDeferredWLMoonProgram.mShaderFiles.clear();
         gDeferredWLMoonProgram.mShaderFiles.push_back(make_pair("deferred/moonV.glsl", GL_VERTEX_SHADER));
@@ -2549,7 +2542,6 @@ bool LLViewerShaderMgr::loadShadersObject()
         gObjectAlphaMaskNoColorProgram.mFeatures.hasGamma = true;
         gObjectAlphaMaskNoColorProgram.mFeatures.hasAtmospherics = true;
         gObjectAlphaMaskNoColorProgram.mFeatures.hasLighting = true;
-        gObjectAlphaMaskNoColorProgram.mFeatures.disableTextureIndex = true;
         gObjectAlphaMaskNoColorProgram.mFeatures.hasAlphaMask = true;
         gObjectAlphaMaskNoColorProgram.mShaderFiles.clear();
         gObjectAlphaMaskNoColorProgram.mShaderFiles.push_back(make_pair("objects/simpleNoColorV.glsl", GL_VERTEX_SHADER));
@@ -2561,7 +2553,6 @@ bool LLViewerShaderMgr::loadShadersObject()
     if (success)
     {
         gImpostorProgram.mName = "Impostor Shader";
-        gImpostorProgram.mFeatures.disableTextureIndex = true;
         gImpostorProgram.mFeatures.hasSrgb = true;
         gImpostorProgram.mShaderFiles.clear();
         gImpostorProgram.mShaderFiles.push_back(make_pair("objects/impostorV.glsl", GL_VERTEX_SHADER));
@@ -2573,7 +2564,6 @@ bool LLViewerShaderMgr::loadShadersObject()
     if (success)
     {
         gObjectPreviewProgram.mName = "Object Preview Shader";
-        gObjectPreviewProgram.mFeatures.disableTextureIndex = true;
         gObjectPreviewProgram.mShaderFiles.clear();
         gObjectPreviewProgram.mShaderFiles.push_back(make_pair("objects/previewV.glsl", GL_VERTEX_SHADER));
         gObjectPreviewProgram.mShaderFiles.push_back(make_pair("objects/previewF.glsl", GL_FRAGMENT_SHADER));
@@ -2592,8 +2582,6 @@ bool LLViewerShaderMgr::loadShadersObject()
         gPhysicsPreviewProgram.mFeatures.hasGamma = false;
         gPhysicsPreviewProgram.mFeatures.hasAtmospherics = false;
         gPhysicsPreviewProgram.mFeatures.hasLighting = false;
-        gPhysicsPreviewProgram.mFeatures.mIndexedTextureChannels = 0;
-        gPhysicsPreviewProgram.mFeatures.disableTextureIndex = true;
         gPhysicsPreviewProgram.mShaderFiles.clear();
         gPhysicsPreviewProgram.mShaderFiles.push_back(make_pair("objects/previewPhysicsV.glsl", GL_VERTEX_SHADER));
         gPhysicsPreviewProgram.mShaderFiles.push_back(make_pair("objects/previewPhysicsF.glsl", GL_FRAGMENT_SHADER));
@@ -2634,7 +2622,6 @@ bool LLViewerShaderMgr::loadShadersAvatar()
         gAvatarProgram.mFeatures.hasAtmospherics = true;
         gAvatarProgram.mFeatures.hasLighting = true;
         gAvatarProgram.mFeatures.hasAlphaMask = true;
-        gAvatarProgram.mFeatures.disableTextureIndex = true;
         gAvatarProgram.mShaderFiles.clear();
         gAvatarProgram.mShaderFiles.push_back(make_pair("avatar/avatarV.glsl", GL_VERTEX_SHADER));
         gAvatarProgram.mShaderFiles.push_back(make_pair("avatar/avatarF.glsl", GL_FRAGMENT_SHADER));
@@ -2658,7 +2645,6 @@ bool LLViewerShaderMgr::loadShadersAvatar()
         gAvatarEyeballProgram.mFeatures.hasAtmospherics = true;
         gAvatarEyeballProgram.mFeatures.hasLighting = true;
         gAvatarEyeballProgram.mFeatures.hasAlphaMask = true;
-        gAvatarEyeballProgram.mFeatures.disableTextureIndex = true;
         gAvatarEyeballProgram.mShaderFiles.clear();
         gAvatarEyeballProgram.mShaderFiles.push_back(make_pair("avatar/eyeballV.glsl", GL_VERTEX_SHADER));
         gAvatarEyeballProgram.mShaderFiles.push_back(make_pair("avatar/eyeballF.glsl", GL_FRAGMENT_SHADER));

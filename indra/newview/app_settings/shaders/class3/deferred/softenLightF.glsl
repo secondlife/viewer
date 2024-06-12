@@ -29,7 +29,6 @@ out vec4 frag_color;
 
 uniform sampler2D diffuseRect;
 uniform sampler2D specularRect;
-uniform sampler2D normalMap;
 uniform sampler2D emissiveRect; // PBR linear packed Occlusion, Roughness, Metal. See: pbropaqueF.glsl
 
 const float M_PI = 3.14159265;
@@ -38,7 +37,6 @@ const float M_PI = 3.14159265;
 uniform sampler2D lightMap;
 #endif
 
-uniform sampler2D depthMap;
 uniform sampler2D     lightFunc;
 
 uniform float blur_size;
