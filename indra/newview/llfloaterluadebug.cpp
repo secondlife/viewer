@@ -153,13 +153,19 @@ void LLFloaterLUADebug::completion(int count, const LLSD& result)
         mResultOutput->endOfDoc();
         return;
     }
+    if (count == 0)
+    {
+        // no results
+        mResultOutput->pasteTextWithLinebreaks(stringize("ok ", ++mAck));
+        return;
+    }
     if (count == 1)
     {
         // single result
         mResultOutput->pasteTextWithLinebreaks(stringize(result));
         return;
     }
-    // 0 or multiple results
+    // multiple results
     const char* sep = "";
     for (const auto& item : llsd::inArray(result))
     {
