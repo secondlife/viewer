@@ -2495,11 +2495,11 @@ void LLViewerRegion::setSimulatorFeatures(const LLSD& sim_features)
             if (features.has("PBRTerrainTransformsEnabled"))
             {
                 bool enabled = features["PBRTerrainTransformsEnabled"];
-                gSavedSettings.setBOOL("RenderTerrainTransformsPBREnabled", enabled);
+                gSavedSettings.setBOOL("RenderTerrainPBRTransformsEnabled", enabled);
             }
             else
             {
-                gSavedSettings.setBOOL("RenderTerrainTransformsPBREnabled", false);
+                gSavedSettings.setBOOL("RenderTerrainPBRTransformsEnabled", false);
             }
         };
 
