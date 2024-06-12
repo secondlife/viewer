@@ -546,21 +546,39 @@ void do_bulk_upload(std::vector<std::string> filenames, const LLSD& notification
         std::string ext = gDirUtilp->getExtension(filename);
         LLAssetType::EType asset_type;
         U32 codec;
-        S32 expected_upload_cost;
-        if (LLResourceUploadInfo::findAssetTypeAndCodecOfExtension(ext, asset_type, codec) &&
-            LLAgentBenefitsMgr::current().findUploadCost(asset_type, expected_upload_cost))
-        {
-            LLResourceUploadInfo::ptr_t uploadInfo(new LLNewFileResourceUploadInfo(
-                filename,
-                asset_name,
-                asset_name, 0,
-                LLFolderType::FT_NONE, LLInventoryType::IT_NONE,
-                LLFloaterPerms::getNextOwnerPerms("Uploads"),
-                LLFloaterPerms::getGroupPerms("Uploads"),
-                LLFloaterPerms::getEveryonePerms("Uploads"),
-                expected_upload_cost));
+        S32 expected_upload_cost = 0;
 
-            upload_new_resource(uploadInfo);
+        if (LLResourceUploadInfo::findAssetTypeAndCodecOfExtension(ext, asset_type, codec))
+        {
+            bool resource_upload = false;
+            if (asset_type == LLAssetType::AT_TEXTURE)
+            {
+                LLPointer<LLImageFormatted> image_frmted = LLImageFormatted::createFromType(codec);
+                if (gDirUtilp->fileExists(filename) && image_frmted->load(filename))
+                {
+                    expected_upload_cost = LLAgentBenefitsMgr::current().getTextureUploadCost(image_frmted);
+                    resource_upload = true;
+                }
+            }
+            else if (LLAgentBenefitsMgr::current().findUploadCost(asset_type, expected_upload_cost))
+            {
+                resource_upload = true;
+            }
+
+            if (resource_upload)
+            {
+                LLResourceUploadInfo::ptr_t uploadInfo(new LLNewFileResourceUploadInfo(
+                    filename,
+                    asset_name,
+                    asset_name, 0,
+                    LLFolderType::FT_NONE, LLInventoryType::IT_NONE,
+                    LLFloaterPerms::getNextOwnerPerms("Uploads"),
+                    LLFloaterPerms::getGroupPerms("Uploads"),
+                    LLFloaterPerms::getEveryonePerms("Uploads"),
+                    expected_upload_cost));
+
+                upload_new_resource(uploadInfo);
+            }
         }
 
         // gltf does not use normal upload procedure
@@ -602,17 +620,26 @@ bool get_bulk_upload_expected_cost(const std::vector<std::string>& filenames, S3
         U32 codec;
         S32 cost;
 
-        if (LLResourceUploadInfo::findAssetTypeAndCodecOfExtension(ext, asset_type, codec) &&
-            LLAgentBenefitsMgr::current().findUploadCost(asset_type, cost))
+        if (LLResourceUploadInfo::findAssetTypeAndCodecOfExtension(ext, asset_type, codec))
         {
-            total_cost += cost;
-            file_count++;
+            if (asset_type == LLAssetType::AT_TEXTURE)
+            {
+                LLPointer<LLImageFormatted> image_frmted = LLImageFormatted::createFromType(codec);
+                if (gDirUtilp->fileExists(filename) && image_frmted->load(filename))
+                {
+                    total_cost += LLAgentBenefitsMgr::current().getTextureUploadCost(image_frmted);
+                    file_count++;
+                }
+            }
+            else if (LLAgentBenefitsMgr::current().findUploadCost(asset_type, cost))
+            {
+                total_cost += cost;
+                file_count++;
+            }
         }
 
         if (ext == "gltf" || ext == "glb")
         {
-            S32 texture_upload_cost = LLAgentBenefitsMgr::current().getTextureUploadCost();
-
             tinygltf::Model model;
 
             if (LLTinyGLTFHelper::loadModel(filename, model))
@@ -629,24 +656,22 @@ bool get_bulk_upload_expected_cost(const std::vector<std::string>& filenames, S3
                     {
                         // Todo: make it account for possibility of same texture in different
                         // materials and even in scope of same material
-                        S32 texture_count = 0;
-                        if (material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR].notNull())
+                        if (material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR].notNull() && material->mBaseColorTexture)
                         {
-                            texture_count++;
+                            total_cost += LLAgentBenefitsMgr::current().getTextureUploadCost(material->mBaseColorTexture);
                         }
-                        if (material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS].notNull())
+                        if (material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS].notNull() && material->mMetallicRoughnessTexture)
                         {
-                            texture_count++;
+                            total_cost += LLAgentBenefitsMgr::current().getTextureUploadCost(material->mMetallicRoughnessTexture);
                         }
-                        if (material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL].notNull())
+                        if (material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL].notNull() && material->mNormalTexture)
                         {
-                            texture_count++;
+                            total_cost += LLAgentBenefitsMgr::current().getTextureUploadCost(material->mNormalTexture);
                         }
-                        if (material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE].notNull())
+                        if (material->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE].notNull() && material->mEmissiveTexture)
                         {
-                            texture_count++;
+                            total_cost += LLAgentBenefitsMgr::current().getTextureUploadCost(material->mEmissiveTexture);
                         }
-                        total_cost += texture_count * texture_upload_cost;
                         file_count++;
                     }
                 }

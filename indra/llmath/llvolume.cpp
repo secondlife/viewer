@@ -45,16 +45,15 @@
 #include "llmatrix3a.h"
 #include "lloctree.h"
 #include "llvolume.h"
-#include "llvolumeoctree.h"
 #include "llstl.h"
 #include "llsdserialize.h"
 #include "llvector4a.h"
 #include "llmatrix4a.h"
 #include "llmeshoptimizer.h"
 #include "lltimer.h"
+#include "llvolumeoctree.h"
 
-#include "mikktspace/mikktspace.h"
-#include "mikktspace/mikktspace.c" // insert mikktspace implementation into llvolume object file
+#include "mikktspace/mikktspace.hh"
 
 #include "meshoptimizer/meshoptimizer.h"
 
@@ -376,77 +375,6 @@ BOOL LLTriangleRayIntersect(const LLVector3& vert0, const LLVector3& vert1, cons
                 intersection_a, intersection_b, intersection_t);
     }
 }
-
-class LLVolumeOctreeRebound : public LLOctreeTravelerDepthFirst<LLVolumeTriangle, LLVolumeTriangle*>
-{
-public:
-    const LLVolumeFace* mFace;
-
-    LLVolumeOctreeRebound(const LLVolumeFace* face)
-    {
-        mFace = face;
-    }
-
-    virtual void visit(const LLOctreeNode<LLVolumeTriangle, LLVolumeTriangle*>* branch)
-    { //this is a depth first traversal, so it's safe to assum all children have complete
-        //bounding data
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME
-
-        LLVolumeOctreeListener* node = (LLVolumeOctreeListener*) branch->getListener(0);
-
-        LLVector4a& min = node->mExtents[0];
-        LLVector4a& max = node->mExtents[1];
-
-        if (!branch->isEmpty())
-        { //node has data, find AABB that binds data set
-            const LLVolumeTriangle* tri = *(branch->getDataBegin());
-
-            //initialize min/max to first available vertex
-            min = *(tri->mV[0]);
-            max = *(tri->mV[0]);
-
-            for (LLOctreeNode<LLVolumeTriangle, LLVolumeTriangle*>::const_element_iter iter = branch->getDataBegin(); iter != branch->getDataEnd(); ++iter)
-            { //for each triangle in node
-
-                //stretch by triangles in node
-                tri = *iter;
-
-                min.setMin(min, *tri->mV[0]);
-                min.setMin(min, *tri->mV[1]);
-                min.setMin(min, *tri->mV[2]);
-
-                max.setMax(max, *tri->mV[0]);
-                max.setMax(max, *tri->mV[1]);
-                max.setMax(max, *tri->mV[2]);
-            }
-        }
-        else if (branch->getChildCount() > 0)
-        { //no data, but child nodes exist
-            LLVolumeOctreeListener* child = (LLVolumeOctreeListener*) branch->getChild(0)->getListener(0);
-
-            //initialize min/max to extents of first child
-            min = child->mExtents[0];
-            max = child->mExtents[1];
-        }
-        else
-        {
-            llassert(!branch->isLeaf()); // Empty leaf
-        }
-
-        for (S32 i = 0; i < branch->getChildCount(); ++i)
-        {  //stretch by child extents
-            LLVolumeOctreeListener* child = (LLVolumeOctreeListener*) branch->getChild(i)->getListener(0);
-            min.setMin(min, child->mExtents[0]);
-            max.setMax(max, child->mExtents[1]);
-        }
-
-        node->mBounds[0].setAdd(min, max);
-        node->mBounds[0].mul(0.5f);
-
-        node->mBounds[1].setSub(max,min);
-        node->mBounds[1].mul(0.5f);
-    }
-};
 
 //-------------------------------------------------------------------
 // statics
@@ -5507,8 +5435,41 @@ struct MikktData
             }
         }
     }
-};
 
+    uint32_t GetNumFaces()
+    {
+        return uint32_t(face->mNumIndices / 3);
+    }
+
+    uint32_t GetNumVerticesOfFace(const uint32_t face_num)
+    {
+        return 3;
+    }
+
+    mikk::float3 GetPosition(const uint32_t face_num, const uint32_t vert_num)
+    {
+        F32* v = p[face_num * 3 + vert_num].mV;
+        return mikk::float3(v);
+    }
+
+    mikk::float3 GetTexCoord(const uint32_t face_num, const uint32_t vert_num)
+    {
+        F32* uv = tc[face_num * 3 + vert_num].mV;
+        return mikk::float3(uv[0], uv[1], 1.0f);
+    }
+
+    mikk::float3 GetNormal(const uint32_t face_num, const uint32_t vert_num)
+    {
+        F32* normal = n[face_num * 3 + vert_num].mV;
+        return mikk::float3(normal);
+    }
+
+    void SetTangentSpace(const uint32_t face_num, const uint32_t vert_num, mikk::float3 T, bool orientation)
+    {
+        S32 i = face_num * 3 + vert_num;
+        t[i].set(T.x, T.y, T.z, orientation ? 1.0f : -1.0f);
+    }
+};
 
 bool LLVolumeFace::cacheOptimize(bool gen_tangents)
 { //optimize for vertex cache according to Forsyth method:
@@ -5520,62 +5481,9 @@ bool LLVolumeFace::cacheOptimize(bool gen_tangents)
     { // generate mikkt space tangents before cache optimizing since the index buffer may change
         // a bit of a hack to do this here, but this function gets called exactly once for the lifetime of a mesh
         // and is executed on a background thread
-        SMikkTSpaceInterface ms;
-
-        ms.m_getNumFaces = [](const SMikkTSpaceContext* pContext)
-        {
-            MikktData* data = (MikktData*)pContext->m_pUserData;
-            LLVolumeFace* face = data->face;
-            return face->mNumIndices / 3;
-        };
-
-        ms.m_getNumVerticesOfFace = [](const SMikkTSpaceContext* pContext, const int iFace)
-        {
-            return 3;
-        };
-
-        ms.m_getPosition = [](const SMikkTSpaceContext* pContext, float fvPosOut[], const int iFace, const int iVert)
-        {
-            MikktData* data = (MikktData*)pContext->m_pUserData;
-            F32* v = data->p[iFace * 3 + iVert].mV;
-            fvPosOut[0] = v[0];
-            fvPosOut[1] = v[1];
-            fvPosOut[2] = v[2];
-        };
-
-        ms.m_getNormal = [](const SMikkTSpaceContext* pContext, float fvNormOut[], const int iFace, const int iVert)
-        {
-            MikktData* data = (MikktData*)pContext->m_pUserData;
-            F32* n = data->n[iFace * 3 + iVert].mV;
-            fvNormOut[0] = n[0];
-            fvNormOut[1] = n[1];
-            fvNormOut[2] = n[2];
-        };
-
-        ms.m_getTexCoord = [](const SMikkTSpaceContext* pContext, float fvTexcOut[], const int iFace, const int iVert)
-        {
-            MikktData* data = (MikktData*)pContext->m_pUserData;
-            F32* tc = data->tc[iFace * 3 + iVert].mV;
-            fvTexcOut[0] = tc[0];
-            fvTexcOut[1] = tc[1];
-        };
-
-        ms.m_setTSpaceBasic = [](const SMikkTSpaceContext* pContext, const float fvTangent[], const float fSign, const int iFace, const int iVert)
-        {
-            MikktData* data = (MikktData*)pContext->m_pUserData;
-            S32 i = iFace * 3 + iVert;
-
-            data->t[i].set(fvTangent);
-            data->t[i].mV[3] = fSign;
-        };
-
-        ms.m_setTSpace = nullptr;
-
         MikktData data(this);
-
-        SMikkTSpaceContext ctx = { &ms, &data };
-
-        genTangSpaceDefault(&ctx);
+        mikk::Mikktspace ctx(data);
+        ctx.genTangSpace();
 
         //re-weld
         meshopt_Stream mos[] =
@@ -5596,9 +5504,6 @@ bool LLVolumeFace::cacheOptimize(bool gen_tangents)
 
         if (vert_count < 65535 && vert_count != 0)
         {
-            std::vector<U32> indices;
-            indices.resize(mNumIndices);
-
             //copy results back into volume
             resizeVertices(vert_count);
 
@@ -5687,8 +5592,7 @@ void LLVolumeFace::createOctree(F32 scaler, const LLVector4a& center, const LLVe
 
     llassert(mNumIndices % 3 == 0);
 
-    mOctree = new LLOctreeRoot<LLVolumeTriangle, LLVolumeTriangle*>(center, size, NULL);
-    new LLVolumeOctreeListener(mOctree);
+    mOctree = new LLVolumeOctree(center, size);
     const U32 num_triangles = mNumIndices / 3;
     // Initialize all the triangles we need
     mOctreeTriangles = new LLVolumeTriangle[num_triangles];
@@ -5743,7 +5647,7 @@ void LLVolumeFace::createOctree(F32 scaler, const LLVector4a& center, const LLVe
     while (!mOctree->balance()) { }
 
     //calculate AABB for each node
-    LLVolumeOctreeRebound rebound(this);
+    LLVolumeOctreeRebound rebound;
     rebound.traverse(mOctree);
 
     if (gDebugGL)
@@ -5756,12 +5660,12 @@ void LLVolumeFace::createOctree(F32 scaler, const LLVector4a& center, const LLVe
 void LLVolumeFace::destroyOctree()
 {
     delete mOctree;
-    mOctree = NULL;
+    mOctree = nullptr;
     delete[] mOctreeTriangles;
-    mOctreeTriangles = NULL;
+    mOctreeTriangles = nullptr;
 }
 
-const LLOctreeNode<LLVolumeTriangle, LLVolumeTriangle*>* LLVolumeFace::getOctree() const
+const LLVolumeOctree* LLVolumeFace::getOctree() const
 {
     return mOctree;
 }
@@ -6476,9 +6380,6 @@ BOOL LLVolumeFace::createCap(LLVolume* volume, BOOL partial_build)
     return TRUE;
 }
 
-void CalculateTangentArray(U32 vertexCount, const LLVector4a *vertex, const LLVector4a *normal,
-        const LLVector2 *texcoord, U32 triangleCount, const U16* index_array, LLVector4a *tangent);
-
 void LLVolumeFace::createTangents()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
@@ -6496,7 +6397,7 @@ void LLVolumeFace::createTangents()
             (*ptr++).clear();
         }
 
-        CalculateTangentArray(mNumVertices, mPositions, mNormals, mTexCoords, mNumIndices / 3, mIndices, mTangents);
+        LLCalculateTangentArray(mNumVertices, mPositions, mNormals, mTexCoords, mNumIndices / 3, mIndices, mTangents);
 
         //normalize normals
         for (U32 i = 0; i < mNumVertices; i++)
@@ -7206,7 +7107,7 @@ BOOL LLVolumeFace::createSide(LLVolume* volume, BOOL partial_build)
 }
 
 //adapted from Lengyel, Eric. "Computing Tangent Space Basis Vectors for an Arbitrary Mesh". Terathon Software 3D Graphics Library, 2001. http://www.terathon.com/code/tangent.html
-void CalculateTangentArray(U32 vertexCount, const LLVector4a *vertex, const LLVector4a *normal,
+void LLCalculateTangentArray(U32 vertexCount, const LLVector4a *vertex, const LLVector4a *normal,
         const LLVector2 *texcoord, U32 triangleCount, const U16* index_array, LLVector4a *tangent)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME

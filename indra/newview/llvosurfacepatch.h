@@ -63,7 +63,7 @@ public:
     /*virtual*/ BOOL        updateGeometry(LLDrawable *drawable);
     /*virtual*/ BOOL        updateLOD();
     /*virtual*/ void        updateFaceSize(S32 idx);
-    void getGeometry(LLStrider<LLVector3> &verticesp,
+    void getTerrainGeometry(LLStrider<LLVector3> &verticesp,
                                 LLStrider<LLVector3> &normalsp,
                                 LLStrider<LLVector2> &texCoords0p,
                                 LLStrider<LLVector2> &texCoords1p,

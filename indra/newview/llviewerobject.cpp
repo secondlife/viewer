@@ -1535,6 +1535,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 
                     // alpha was flipped so that it zero encoded better
                     coloru.mV[3] = 255 - coloru.mV[3];
+
                     mText->setColor(LLColor4(coloru));
                     mText->setString(temp_string);
 
@@ -1914,6 +1915,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
                 {
                     std::string temp_string;
                     dp->unpackString(temp_string, "Text");
+
                     LLColor4U coloru;
                     dp->unpackBinaryDataFixed(coloru.mV, 4, "Color");
                     coloru.mV[3] = 255 - coloru.mV[3];
@@ -4365,6 +4367,168 @@ const LLVector3 &LLViewerObject::getPositionAgent() const
     return mPositionAgent;
 }
 
+LLMatrix4a LLViewerObject::getGLTFAssetToAgentTransform() const
+{
+    LLMatrix4 root;
+    root.initScale(getScale());
+    root.rotate(getRenderRotation());
+    root.translate(getPositionAgent());
+
+    LLMatrix4a mat;
+    mat.loadu((F32*)root.mMatrix);
+
+    return mat;
+}
+
+LLVector3 LLViewerObject::getGLTFNodePositionAgent(S32 node_index) const
+{
+    LLVector3 ret;
+    getGLTFNodeTransformAgent(node_index, &ret, nullptr, nullptr);
+    return ret;
+
+}
+
+LLMatrix4a LLViewerObject::getAgentToGLTFAssetTransform() const
+{
+    LLMatrix4 root;
+    LLVector3 scale = getScale();
+    scale.mV[0] = 1.f / scale.mV[0];
+    scale.mV[1] = 1.f / scale.mV[1];
+    scale.mV[2] = 1.f / scale.mV[2];
+
+    root.translate(-getPositionAgent());
+    root.rotate(~getRenderRotation());
+
+    LLMatrix4 scale_mat;
+    scale_mat.initScale(scale);
+
+    root *= scale_mat;
+    LLMatrix4a mat;
+    mat.loadu((F32*)root.mMatrix);
+
+    return mat;
+}
+
+LLMatrix4a LLViewerObject::getGLTFNodeTransformAgent(S32 node_index) const
+{
+    LLMatrix4a mat;
+
+    if (mGLTFAsset.notNull() && node_index >= 0 && node_index < mGLTFAsset->mNodes.size())
+    {
+        auto& node = mGLTFAsset->mNodes[node_index];
+
+        LLMatrix4a asset_to_agent = getGLTFAssetToAgentTransform();
+        LLMatrix4a node_to_agent;
+        matMul(node.mAssetMatrix, asset_to_agent, node_to_agent);
+
+        mat = node_to_agent;
+    }
+    else
+    {
+        mat.setIdentity();
+    }
+
+    return mat;
+}
+void LLViewerObject::getGLTFNodeTransformAgent(S32 node_index, LLVector3* position, LLQuaternion* rotation, LLVector3* scale) const
+{
+    LLMatrix4a node_to_agent = getGLTFNodeTransformAgent(node_index);
+
+    if (position)
+    {
+        LLVector4a p = node_to_agent.getTranslation();
+        position->set(p.getF32ptr());
+    }
+
+    if (rotation)
+    {
+        rotation->set(node_to_agent.asMatrix4());
+    }
+
+    if (scale)
+    {
+        scale->mV[0] = node_to_agent.mMatrix[0].getLength3().getF32();
+        scale->mV[1] = node_to_agent.mMatrix[1].getLength3().getF32();
+        scale->mV[2] = node_to_agent.mMatrix[2].getLength3().getF32();
+    }
+}
+
+void decomposeMatrix(const LLMatrix4a& mat, LLVector3& position, LLQuaternion& rotation, LLVector3& scale)
+{
+    LLVector4a p = mat.getTranslation();
+    position.set(p.getF32ptr());
+
+    rotation.set(mat.asMatrix4());
+
+    scale.mV[0] = mat.mMatrix[0].getLength3().getF32();
+    scale.mV[1] = mat.mMatrix[1].getLength3().getF32();
+    scale.mV[2] = mat.mMatrix[2].getLength3().getF32();
+}
+
+void LLViewerObject::setGLTFNodeRotationAgent(S32 node_index, const LLQuaternion& rotation)
+{
+    if (mGLTFAsset.notNull() && node_index >= 0 && node_index < mGLTFAsset->mNodes.size())
+    {
+        auto& node = mGLTFAsset->mNodes[node_index];
+
+        LLMatrix4a agent_to_asset = getAgentToGLTFAssetTransform();
+        LLMatrix4a agent_to_node = agent_to_asset;
+
+        if (node.mParent != -1)
+        {
+            auto& parent = mGLTFAsset->mNodes[node.mParent];
+            matMul(agent_to_asset, parent.mAssetMatrixInv, agent_to_node);
+        }
+
+        LLQuaternion agent_to_node_rot(agent_to_node.asMatrix4());
+        LLQuaternion new_rot;
+
+        new_rot = rotation * agent_to_node_rot;
+        new_rot.normalize();
+
+        LLVector3 pos;
+        LLQuaternion rot;
+        LLVector3 scale;
+        decomposeMatrix(node.mMatrix, pos, rot, scale);
+
+        node.mMatrix.asMatrix4().initAll(scale, new_rot, pos);
+
+        mGLTFAsset->updateTransforms();
+    }
+}
+
+void LLViewerObject::moveGLTFNode(S32 node_index, const LLVector3& offset)
+{
+    if (mGLTFAsset.notNull() && node_index >= 0 && node_index < mGLTFAsset->mNodes.size())
+    {
+        auto& node = mGLTFAsset->mNodes[node_index];
+
+        LLMatrix4a agent_to_asset = getAgentToGLTFAssetTransform();
+        LLMatrix4a agent_to_node;
+        matMul(agent_to_asset, node.mAssetMatrixInv, agent_to_node);
+
+        LLVector4a origin = LLVector4a::getZero();
+        LLVector4a offset_v;
+        offset_v.load3(offset.mV);
+
+
+        agent_to_node.affineTransform(offset_v, offset_v);
+        agent_to_node.affineTransform(origin, origin);
+
+        offset_v.sub(origin);
+        offset_v.getF32ptr()[3] = 1.f;
+
+        LLMatrix4a trans;
+        trans.setIdentity();
+        trans.mMatrix[3] = offset_v;
+
+        matMul(trans, node.mMatrix, node.mMatrix);
+
+        // TODO -- only update transforms for this node and its children (or use a dirty flag)
+        mGLTFAsset->updateTransforms();
+    }
+}
+
 const LLVector3 &LLViewerObject::getPositionRegion() const
 {
     if (!isRoot())
@@ -5351,7 +5515,6 @@ S32 LLViewerObject::setTEFullbright(const U8 te, const U8 fullbright)
     }
     return retval;
 }
-
 
 S32 LLViewerObject::setTEMediaFlags(const U8 te, const U8 media_flags)
 {

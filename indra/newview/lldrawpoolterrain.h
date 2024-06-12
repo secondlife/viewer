@@ -37,13 +37,12 @@ public:
     {
         VERTEX_DATA_MASK = LLVertexBuffer::MAP_VERTEX |
                     LLVertexBuffer::MAP_NORMAL |
+                    LLVertexBuffer::MAP_TANGENT | // Only PBR terrain uses this currently
                     LLVertexBuffer::MAP_TEXCOORD0 |
                     LLVertexBuffer::MAP_TEXCOORD1
     };
 
     virtual U32 getVertexDataMask();
-    static S32 getDetailMode();
-
     LLDrawPoolTerrain(LLViewerTexture *texturep);
     virtual ~LLDrawPoolTerrain();
 
@@ -67,8 +66,9 @@ public:
     LLPointer<LLViewerTexture> m2DAlphaRampImagep;
     LLPointer<LLViewerTexture> mAlphaNoiseImagep;
 
-    static S32 sDetailMode;
-    static F32 sDetailScale; // meters per texture
+    static S32 sPBRDetailMode;
+    static F32 sDetailScale; // textures per meter
+    static F32 sPBRDetailScale; // textures per meter
 
 protected:
     void boostTerrainDetailTextures();
@@ -79,6 +79,8 @@ protected:
     void renderFull2TU();
     void renderFull4TU();
     void renderFullShader();
+    void renderFullShaderTextures();
+    void renderFullShaderPBR(BOOL local_materials = false);
     void drawLoop();
 
 private:

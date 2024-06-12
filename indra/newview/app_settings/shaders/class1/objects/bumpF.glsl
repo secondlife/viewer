@@ -30,9 +30,13 @@ uniform sampler2D texture1;
 
 in vec2 vary_texcoord0;
 in vec2 vary_texcoord1;
+in vec3 vary_position;
+
+void mirrorClip(vec3 pos);
 
 void main()
 {
+    mirrorClip(vary_position);
     float tex0 = texture(texture0, vary_texcoord0.xy).a;
     float tex1 = texture(texture1, vary_texcoord1.xy).a;
 

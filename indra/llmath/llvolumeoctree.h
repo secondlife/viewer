@@ -62,7 +62,7 @@ public:
     LL_ALIGN_16(LLVector4a mPositionGroup);
 
     const LLVector4a* mV[3];
-    U16 mIndex[3];
+    U32 mIndex[3];
 
     F32 mRadius;
     mutable S32 mBinIndex;
@@ -112,7 +112,6 @@ public:
 class LLOctreeTriangleRayIntersect : public LLOctreeTraveler<LLVolumeTriangle, LLVolumeTriangle*>
 {
 public:
-    const LLVolumeFace* mFace;
     LLVector4a mStart;
     LLVector4a mDir;
     LLVector4a mEnd;
@@ -121,10 +120,13 @@ public:
     LLVector4a* mNormal;
     LLVector4a* mTangent;
     F32* mClosestT;
+    LLVolumeFace* mFace;
     bool mHitFace;
+    const LLVolumeTriangle* mHitTriangle = nullptr;
 
     LLOctreeTriangleRayIntersect(const LLVector4a& start, const LLVector4a& dir,
-                                   const LLVolumeFace* face, F32* closest_t,
+                                    LLVolumeFace* face,
+                                   F32* closest_t,
                                    LLVector4a* intersection,LLVector2* tex_coord, LLVector4a* normal, LLVector4a* tangent);
 
     void traverse(const LLOctreeNode<LLVolumeTriangle, LLVolumeTriangle*>* node);
@@ -135,6 +137,93 @@ public:
 class LLVolumeOctreeValidate : public LLOctreeTraveler<LLVolumeTriangle, LLVolumeTriangle*>
 {
     virtual void visit(const LLOctreeNode<LLVolumeTriangle, LLVolumeTriangle*>* branch);
+};
+
+class LLVolumeOctreeRebound : public LLOctreeTravelerDepthFirst<LLVolumeTriangle, LLVolumeTriangle*>
+{
+public:
+    LLVolumeOctreeRebound()
+    {
+    }
+
+    virtual void visit(const LLOctreeNode<LLVolumeTriangle, LLVolumeTriangle*>* branch)
+    { //this is a depth first traversal, so it's safe to assum all children have complete
+        //bounding data
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME
+
+            LLVolumeOctreeListener* node = (LLVolumeOctreeListener*)branch->getListener(0);
+
+        LLVector4a& min = node->mExtents[0];
+        LLVector4a& max = node->mExtents[1];
+
+        if (!branch->isEmpty())
+        { //node has data, find AABB that binds data set
+            const LLVolumeTriangle* tri = *(branch->getDataBegin());
+
+            //initialize min/max to first available vertex
+            min = *(tri->mV[0]);
+            max = *(tri->mV[0]);
+
+            for (LLOctreeNode<LLVolumeTriangle, LLVolumeTriangle*>::const_element_iter iter = branch->getDataBegin(); iter != branch->getDataEnd(); ++iter)
+            { //for each triangle in node
+
+                //stretch by triangles in node
+                tri = *iter;
+
+                min.setMin(min, *tri->mV[0]);
+                min.setMin(min, *tri->mV[1]);
+                min.setMin(min, *tri->mV[2]);
+
+                max.setMax(max, *tri->mV[0]);
+                max.setMax(max, *tri->mV[1]);
+                max.setMax(max, *tri->mV[2]);
+            }
+        }
+        else if (branch->getChildCount() > 0)
+        { //no data, but child nodes exist
+            LLVolumeOctreeListener* child = (LLVolumeOctreeListener*)branch->getChild(0)->getListener(0);
+
+            //initialize min/max to extents of first child
+            min = child->mExtents[0];
+            max = child->mExtents[1];
+        }
+        else
+        {
+            llassert(!branch->isLeaf()); // Empty leaf
+        }
+
+        for (S32 i = 0; i < branch->getChildCount(); ++i)
+        {  //stretch by child extents
+            LLVolumeOctreeListener* child = (LLVolumeOctreeListener*)branch->getChild(i)->getListener(0);
+            min.setMin(min, child->mExtents[0]);
+            max.setMax(max, child->mExtents[1]);
+        }
+
+        node->mBounds[0].setAdd(min, max);
+        node->mBounds[0].mul(0.5f);
+
+        node->mBounds[1].setSub(max, min);
+        node->mBounds[1].mul(0.5f);
+    }
+};
+
+class LLVolumeOctree : public LLOctreeRoot<LLVolumeTriangle, LLVolumeTriangle*>, public LLRefCount
+{
+public:
+    LLVolumeOctree(const LLVector4a& center, const LLVector4a& size)
+        :
+        LLOctreeRoot<LLVolumeTriangle, LLVolumeTriangle*>(center, size, nullptr),
+        LLRefCount()
+    {
+        new LLVolumeOctreeListener(this);
+    }
+
+    LLVolumeOctree()
+        : LLOctreeRoot<LLVolumeTriangle, LLVolumeTriangle*>(LLVector4a::getZero(), LLVector4a(1.f,1.f,1.f), nullptr),
+        LLRefCount()
+    {
+        new LLVolumeOctreeListener(this);
+    }
 };
 
 #endif
