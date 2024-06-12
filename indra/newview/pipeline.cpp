@@ -10224,7 +10224,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar, bool preview_avatar, bool 
     result.clear();
     grabReferences(result);
 
-    if (!avatar || !avatar->mDrawable)
+    if (!avatar || avatar->isDead() || !avatar->mDrawable)
     {
         LL_WARNS_ONCE("AvatarRenderPipeline") << "Avatar is " << (avatar ? "not drawable" : "null") << LL_ENDL;
         return;
