@@ -259,6 +259,7 @@ set(llcommon_HEADER_FILES
     lualistener.h
     stdtypes.h
     stringize.h
+    tempset.h
     threadpool.h
     threadpool_fwd.h
     threadsafeschedule.h

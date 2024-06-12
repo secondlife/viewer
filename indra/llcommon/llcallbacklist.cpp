@@ -29,6 +29,7 @@
 #include "llerror.h"
 #include "llexception.h"
 #include "llsdutil.h"
+#include "tempset.h"
 #include <boost/container_hash/hash.hpp>
 #include <iomanip>
 #include <vector>
@@ -291,32 +292,6 @@ void Timers::setTimeslice(F32 timeslice)
         mTimeslice = timeslice;
     }
 }
-
-// RAII class to set specified variable to specified value
-// only for the duration of containing scope
-template <typename VAR, typename VALUE>
-class TempSet
-{
-public:
-    TempSet(VAR& var, const VALUE& value):
-        mVar(var),
-        mOldValue(mVar)
-    {
-        mVar = value;
-    }
-
-    TempSet(const TempSet&) = delete;
-    TempSet& operator=(const TempSet&) = delete;
-
-    ~TempSet()
-    {
-        mVar = mOldValue;
-    }
-
-private:
-    VAR& mVar;
-    VALUE mOldValue;
-};
 
 bool Timers::tick()
 {
