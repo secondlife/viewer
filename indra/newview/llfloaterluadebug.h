@@ -66,6 +66,7 @@ private:
     LLLineEditor* mLineInput;
     LLLineEditor* mScriptPath;
     LuaState mState;
+    bool mExecuting{ false };
 };
 
 #endif  // LL_LLFLOATERLUADEBUG_H
