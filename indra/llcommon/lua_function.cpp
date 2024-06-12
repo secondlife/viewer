@@ -529,6 +529,7 @@ std::pair<int, LLSD> LuaState::expr(const std::string& desc, const std::string& 
         lluau::check_interrupts_counter(L);
     };
 
+    LL_INFOS("Lua") << desc << " run" << LL_ENDL;
     if (! checkLua(desc, lluau::dostring(mState, desc, text)))
     {
         LL_WARNS("Lua") << desc << " error: " << mError << LL_ENDL;
