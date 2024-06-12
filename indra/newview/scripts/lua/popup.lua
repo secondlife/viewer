@@ -1,4 +1,4 @@
-leap = require 'leap'
+local leap = require 'leap'
 
 -- notification is any name defined in notifications.xml as
 -- <notification name=>

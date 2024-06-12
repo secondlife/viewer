@@ -1,4 +1,4 @@
-leap = require 'leap'
+local leap = require 'leap'
 
 local LLChat = {}
 
