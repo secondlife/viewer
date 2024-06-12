@@ -44,6 +44,7 @@ using std::make_pair;
 using std::string;
 
 LLShaderMgr * LLShaderMgr::sInstance = NULL;
+bool LLShaderMgr::sMirrorsEnabled = false;
 
 LLShaderMgr::LLShaderMgr()
 {
@@ -183,7 +184,13 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
     // Attach Fragment Shader Features Next
     ///////////////////////////////////////
 
-// NOTE order of shader object attaching is VERY IMPORTANT!!!
+    // NOTE order of shader object attaching is VERY IMPORTANT!!!
+
+    if (!shader->attachFragmentObject("deferred/globalF.glsl"))
+    {
+        return FALSE;
+    }
+
     if (features->hasSrgb || features->hasAtmospherics || features->calculatesAtmospherics || features->isDeferred)
     {
         if (!shader->attachFragmentObject("environment/srgbF.glsl"))
@@ -257,14 +264,6 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
         }
     }
 
-    if (features->encodesNormal)
-    {
-        if (!shader->attachFragmentObject("environment/encodeNormF.glsl"))
-        {
-            return FALSE;
-        }
-    }
-
     if (features->hasAtmospherics || features->isDeferred)
     {
         if (!shader->attachFragmentObject("windlight/atmosphericsFuncs.glsl")) {
@@ -272,6 +271,14 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
         }
 
         if (!shader->attachFragmentObject("windlight/atmosphericsF.glsl"))
+        {
+            return FALSE;
+        }
+    }
+
+    if (features->isPBRTerrain)
+    {
+        if (!shader->attachFragmentObject("deferred/pbrterrainUtilF.glsl"))
         {
             return FALSE;
         }
@@ -321,7 +328,7 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
                     return FALSE;
                 }
             }
-            shader->mFeatures.mIndexedTextureChannels = llmax(LLGLSLShader::sIndexedTextureChannels-1, 1);
+            shader->mFeatures.mIndexedTextureChannels = llmax(LLGLSLShader::sIndexedTextureChannels, 1);
         }
     }
 
@@ -572,14 +579,30 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
         }
         else
         {
-            //set version to 1.40
-            shader_code_text[shader_code_count++] = strdup("#version 140\n");
-            //some implementations of GLSL 1.30 require integer precision be explicitly declared
-            extra_code_text[extra_code_count++] = strdup("precision mediump int;\n");
-            extra_code_text[extra_code_count++] = strdup("precision highp float;\n");
+            if (type == GL_GEOMETRY_SHADER)
+            {
+                //set version to 1.50
+                shader_code_text[shader_code_count++] = strdup("#version 150\n");
+                //some implementations of GLSL 1.30 require integer precision be explicitly declared
+                extra_code_text[extra_code_count++] = strdup("precision mediump int;\n");
+                extra_code_text[extra_code_count++] = strdup("precision highp float;\n");
+            }
+            else
+            {
+                //set version to 1.40
+                shader_code_text[shader_code_count++] = strdup("#version 140\n");
+                //some implementations of GLSL 1.30 require integer precision be explicitly declared
+                extra_code_text[extra_code_count++] = strdup("precision mediump int;\n");
+                extra_code_text[extra_code_count++] = strdup("precision highp float;\n");
+            }
         }
 
         extra_code_text[extra_code_count++] = strdup("#define FXAA_GLSL_130 1\n");
+    }
+
+    if (sMirrorsEnabled)
+    {
+        extra_code_text[extra_code_count++] = strdup("#define HERO_PROBES 1\n");
     }
 
     // Use alpha float to store bit flags
@@ -587,6 +610,7 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
     extra_code_text[extra_code_count++] = strdup("#define GBUFFER_FLAG_SKIP_ATMOS   0.0 \n"); // atmo kill
     extra_code_text[extra_code_count++] = strdup("#define GBUFFER_FLAG_HAS_ATMOS    0.34\n"); // bit 0
     extra_code_text[extra_code_count++] = strdup("#define GBUFFER_FLAG_HAS_PBR      0.67\n"); // bit 1
+    extra_code_text[extra_code_count++] = strdup("#define GBUFFER_FLAG_HAS_HDRI      1.0\n");  // bit 2
     extra_code_text[extra_code_count++] = strdup("#define GET_GBUFFER_FLAG(flag)    (abs(norm.w-flag)< 0.1)\n");
 
     if (defines)
@@ -1192,6 +1216,9 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("emissiveColor");
     mReservedUniforms.push_back("metallicFactor");
     mReservedUniforms.push_back("roughnessFactor");
+    mReservedUniforms.push_back("mirror_flag");
+    mReservedUniforms.push_back("clipPlane");
+    mReservedUniforms.push_back("clipSign");
 
     mReservedUniforms.push_back("diffuseMap");
     mReservedUniforms.push_back("altDiffuseMap");
@@ -1204,6 +1231,7 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("sceneDepth");
     mReservedUniforms.push_back("reflectionProbes");
     mReservedUniforms.push_back("irradianceProbes");
+    mReservedUniforms.push_back("heroProbes");
     mReservedUniforms.push_back("cloud_noise_texture");
     mReservedUniforms.push_back("cloud_noise_texture_next");
     mReservedUniforms.push_back("fullbright");
@@ -1374,7 +1402,31 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("detail_1");
     mReservedUniforms.push_back("detail_2");
     mReservedUniforms.push_back("detail_3");
+
     mReservedUniforms.push_back("alpha_ramp");
+
+    mReservedUniforms.push_back("detail_0_base_color");
+    mReservedUniforms.push_back("detail_1_base_color");
+    mReservedUniforms.push_back("detail_2_base_color");
+    mReservedUniforms.push_back("detail_3_base_color");
+    mReservedUniforms.push_back("detail_0_normal");
+    mReservedUniforms.push_back("detail_1_normal");
+    mReservedUniforms.push_back("detail_2_normal");
+    mReservedUniforms.push_back("detail_3_normal");
+    mReservedUniforms.push_back("detail_0_metallic_roughness");
+    mReservedUniforms.push_back("detail_1_metallic_roughness");
+    mReservedUniforms.push_back("detail_2_metallic_roughness");
+    mReservedUniforms.push_back("detail_3_metallic_roughness");
+    mReservedUniforms.push_back("detail_0_emissive");
+    mReservedUniforms.push_back("detail_1_emissive");
+    mReservedUniforms.push_back("detail_2_emissive");
+    mReservedUniforms.push_back("detail_3_emissive");
+
+    mReservedUniforms.push_back("baseColorFactors");
+    mReservedUniforms.push_back("metallicFactors");
+    mReservedUniforms.push_back("roughnessFactors");
+    mReservedUniforms.push_back("emissiveColors");
+    mReservedUniforms.push_back("minimum_alphas");
 
     mReservedUniforms.push_back("origin");
     mReservedUniforms.push_back("display_gamma");
@@ -1397,6 +1449,7 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("cloud_variance");
     mReservedUniforms.push_back("reflection_probe_ambiance");
     mReservedUniforms.push_back("max_probe_lod");
+    mReservedUniforms.push_back("probe_strength");
 
     mReservedUniforms.push_back("sh_input_r");
     mReservedUniforms.push_back("sh_input_g");
@@ -1406,6 +1459,8 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("water_edge");
     mReservedUniforms.push_back("sun_up_factor");
     mReservedUniforms.push_back("moonlight_color");
+
+    mReservedUniforms.push_back("debug_normal_draw_length");
 
     llassert(mReservedUniforms.size() == END_RESERVED_UNIFORMS);
 

@@ -68,7 +68,6 @@ void waterClip(vec3 pos);
 vec3 srgb_to_linear(vec3 c);
 vec3 linear_to_srgb(vec3 c);
 
-vec2 encode_normal (vec3 n);
 vec4 applySkyAndWaterFog(vec3 pos, vec3 additive, vec3 atten, vec4 color);
 void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 norm, vec3 light_dir, out vec3 sunlit, out vec3 amblit, out vec3 atten, out vec3 additive);
 
@@ -77,6 +76,8 @@ float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen);
 #endif
 
 float getAmbientClamp();
+
+void mirrorClip(vec3 pos);
 
 void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout vec3 legacyenv,
         vec2 tc, vec3 pos, vec3 norm, float glossiness, float envIntensity, bool transparent, vec3 amblit_linear);
@@ -167,6 +168,8 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 diffuse, vec3 v, vec3 n, vec
 
 void main()
 {
+    mirrorClip(vary_position);
+
     vec2 frag = vary_fragcoord.xy/vary_fragcoord.z*0.5+0.5;
 
     vec4 pos = vec4(vary_position, 1.0);

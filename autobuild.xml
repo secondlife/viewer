@@ -1760,6 +1760,18 @@
       </map>
       <key>mikktspace</key>
       <map>
+        <key>canonical_repo</key>
+        <string>https://bitbucket.org/lindenlab/3p-mikktspace</string>
+        <key>copyright</key>
+        <string>Copyright (C) 2011 by Morten S. Mikkelsen, Copyright (C) 2022 Blender Authors</string>
+        <key>description</key>
+        <string>Mikktspace Tangent Generator</string>
+        <key>license</key>
+        <string>Apache 2.0</string>
+        <key>license_file</key>
+        <string>mikktspace.txt</string>
+        <key>name</key>
+        <string>mikktspace</string>
         <key>platforms</key>
         <map>
           <key>darwin64</key>
@@ -1767,52 +1779,46 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b48b7ac0792d3ea8f087d99d9e4a29d8</string>
+              <string>65edf85c36a10001e32bdee582bec4732137208b</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/104415/914944/mikktspace-1-darwin64-574859.tar.bz2</string>
+              <string>https://github.com/secondlife/3p-mikktspace/releases/download/v2-e967e1b/mikktspace-1-darwin64-8756084692.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
           </map>
-          <key>windows</key>
+          <key>linux64</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>0a016b9c0c1e2c0b557e0124094da6c5</string>
+              <string>fa9dcee4584df7e7271fdf69c08e6fd3122a47fc</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/104407/914918/mikktspace-1-windows-574859.tar.bz2</string>
+              <string>https://github.com/secondlife/3p-mikktspace/releases/download/v2-e967e1b/mikktspace-1-linux64-8756084692.tar.zst</string>
             </map>
             <key>name</key>
-            <string>windows</string>
+            <string>linux64</string>
           </map>
           <key>windows64</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>02e9e5b6fe6788f4d2babb83ec544843</string>
+              <string>130b33a70bdb3a8a188376c6a91840bdb61380a8</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/104406/914909/mikktspace-1-windows64-574859.tar.bz2</string>
+              <string>https://github.com/secondlife/3p-mikktspace/releases/download/v2-e967e1b/mikktspace-1-windows64-8756084692.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
-        <key>license</key>
-        <string>Copyright (C) 2011 by Morten S. Mikkelsen</string>
-        <key>license_file</key>
-        <string>mikktspace.txt</string>
-        <key>copyright</key>
-        <string>Copyright (C) 2011 by Morten S. Mikkelsen</string>
         <key>version</key>
         <string>1</string>
-        <key>name</key>
-        <string>mikktspace</string>
-        <key>canonical_repo</key>
-        <string>https://bitbucket.org/lindenlab/3p-mikktspace</string>
-        <key>description</key>
-        <string>Mikktspace Tangent Generator</string>
       </map>
       <key>minizip-ng</key>
       <map>
@@ -3100,61 +3106,45 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>description</key>
         <string>zlib data compression library for the next generation systems</string>
       </map>
-      <key>webrtc-shim</key>
+      <key>tinyexr</key>
       <map>
         <key>platforms</key>
         <map>
-          <key>darwin64</key>
+          <key>common</key>
           <map>
             <key>archive</key>
             <map>
-              <key>creds</key>
-              <string>github</string>
               <key>hash</key>
-              <string>a23ffe29c49f8fabb8c5f2de9879bed9d7e0e0ca</string>
+              <string>8278a2368136cb12319ca00e7aceb2829bf3ebd8</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/3p-webrtc-shim/releases/assets/155507516</string>
+              <string>https://github.com/secondlife/3p-tinyexr/releases/download/v1.0.8-ba4bc64/tinyexr-v1.0.8-common-9373975608.tar.zst</string>
             </map>
             <key>name</key>
-            <string>darwin64</string>
-          </map>
-          <key>windows64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>creds</key>
-              <string>github</string>
-              <key>hash</key>
-              <string>b264c6ed008bd45c4687c5dc4d7532727c74624a</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
-              <key>url</key>
-              <string>https://api.github.com/repos/secondlife/3p-webrtc-shim/releases/assets/155507520</string>
-            </map>
-            <key>name</key>
-            <string>windows64</string>
+            <string>common</string>
           </map>
         </map>
         <key>license</key>
-        <string>MIT</string>
+        <string>3-clause BSD</string>
         <key>license_file</key>
-        <string>LICENSES/webrtc-license.txt</string>
+        <string>LICENSES/tinyexr_license.txt</string>
         <key>copyright</key>
-        <string>Copyright (c) 2011, The WebRTC project authors. All rights reserved.</string>
+        <string>Copyright (c) 2014 - 2021, Syoyo Fujita and many contributors.</string>
         <key>version</key>
-        <string>m114.0.26.d4b8b92</string>
+        <string>v1.0.8</string>
         <key>name</key>
-        <string>webrtc-shim</string>
+        <string>tinyexr</string>
         <key>vcs_branch</key>
-        <string>main</string>
+        <string>dependabot/github_actions/secondlife/action-autobuild-4</string>
         <key>vcs_revision</key>
-        <string>d4b8b921825ae4344d87fdb0c9179c358c6e3698</string>
+        <string>4dc4d1d90d82a22843e2adf5130f9ecb5ee5769e</string>
         <key>vcs_url</key>
-        <string>https://github.com/secondlife/3p-webrtc-shim</string>
-        <key>canonical_repo</key>
-        <string>https://github.com/secondlife/3p-webrtc-shim</string>
+        <string>https://github.com/secondlife/3p-tinyexr</string>
+        <key>description</key>
+        <string>tinyexr import library</string>
+        <key>source_type</key>
+        <string>git</string>
       </map>
     </map>
     <key>package_description</key>

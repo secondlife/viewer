@@ -288,6 +288,7 @@ private:
     // utility function for building a description of the imported material
     // based on what we know about it.
     const std::string buildMaterialDescription();
+    void refreshUploadCost();
 
     void resetUnsavedChanges();
     void markChangesUnsaved(U32 dirty_flag);
