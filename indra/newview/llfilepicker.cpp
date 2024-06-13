@@ -40,7 +40,7 @@
 #include "llwindowsdl.h" // for some X/GTK utils to help with filepickers
 #endif // LL_SDL
 
-#ifdef LL_LINUX
+#ifdef LL_FLTK
   #include "FL/Fl.H"
   #include "FL/Fl_Native_File_Chooser.H"
 #endif
@@ -1101,7 +1101,7 @@ BOOL LLFilePicker::getSaveFileModeless(ESaveFilter filter,
 
 #elif LL_LINUX
 
-#if LL_LINUX
+#if LL_FLTK
 
 BOOL LLFilePicker::getSaveFileModeless(ESaveFilter filter,
                                        const std::string& filename,
@@ -1410,7 +1410,7 @@ BOOL LLFilePicker::getMultipleOpenFilesModeless(ELoadFilter filter,
     return FALSE;
 }
 
-#endif // LL_LINUX
+#endif // LL_FLTK
 
 #else // not implemented
 
