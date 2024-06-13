@@ -35,7 +35,7 @@
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_endian.h"
 
-#if LL_LINUX
+#if LL_X11
 // get X11-specific headers for use in low-level stuff like copy-and-paste support
 #include "SDL2/SDL_syswm.h"
 #endif
@@ -184,7 +184,7 @@ public:
 
     // Not great that these are public, but they have to be accessible
     // by non-class code and it's better than making them global.
-#if LL_LINUX
+#if LL_X11
     Window mSDL_XWindowID;
     Display *mSDL_Display;
 #endif
@@ -193,13 +193,13 @@ public:
 
     void (*Unlock_Display)(void);
 
-#if LL_LINUX
+#if LL_X11
 
     static Window get_SDL_XWindowID(void);
 
     static Display *get_SDL_Display(void);
 
-#endif // LL_LINUX
+#endif // LL_X11
 
     void *createSharedContext() override;
 
@@ -282,20 +282,20 @@ protected:
     friend class LLWindowManager;
 
 private:
-#if LL_LINUX
+#if LL_X11
 
     void x11_set_urgent(BOOL urgent);
 
     BOOL mFlashing;
     LLTimer mFlashTimer;
-#endif //LL_LINUX
+#endif //LL_X11
 
     U32 mKeyVirtualKey;
     U32 mKeyModifiers;
     std::string mInputType;
 
 public:
-#if LL_LINUX
+#if LL_X11
 
     static Display *getSDLDisplay();
 

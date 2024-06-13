@@ -172,7 +172,7 @@ private:
                                  void *userdata);
 #endif
 
-#if LL_LINUX
+#if LL_FLTK
     enum EType
     {
      eSaveFile, eOpenFile, eOpenMultiple

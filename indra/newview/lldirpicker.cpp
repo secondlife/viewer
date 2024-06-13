@@ -41,7 +41,7 @@
 # include "llfilepicker.h"
 #endif
 
-#ifdef LL_LINUX
+#ifdef LL_FLTK
   #include "FL/Fl.H"
   #include "FL/Fl_Native_File_Chooser.H"
 #endif
@@ -197,7 +197,7 @@ LLDirPicker::LLDirPicker() :
     mFileName(NULL),
     mLocked(false)
 {
-#ifndef LL_LINUX
+#ifndef LL_FLTK
     mFilePicker = new LLFilePicker();
 #endif
     reset();
@@ -205,7 +205,7 @@ LLDirPicker::LLDirPicker() :
 
 LLDirPicker::~LLDirPicker()
 {
-#ifndef LL_LINUX
+#ifndef LL_FLTK
     delete mFilePicker;
 #endif
 }
@@ -213,7 +213,7 @@ LLDirPicker::~LLDirPicker()
 
 void LLDirPicker::reset()
 {
-#ifndef LL_LINUX
+#ifndef LL_FLTK
     if (mFilePicker)
         mFilePicker->reset();
 #else
@@ -231,7 +231,7 @@ BOOL LLDirPicker::getDir(std::string* filename, bool blocking)
         return FALSE;
     }
 
-#ifdef LL_LINUX
+#ifdef LL_FLTK
     gViewerWindow->getWindow()->beforeDialog();
     Fl_Native_File_Chooser flDlg;
     flDlg.title(LLTrans::getString("choose_the_directory").c_str());
@@ -254,7 +254,7 @@ BOOL LLDirPicker::getDir(std::string* filename, bool blocking)
 
 std::string LLDirPicker::getDirName()
 {
-#ifndef LL_LINUX
+#ifndef LL_FLTK
     if (mFilePicker)
     {
         return mFilePicker->getFirstFile();

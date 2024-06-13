@@ -66,9 +66,9 @@ static bool ATIbug = false;
 // LLWindowSDL
 //
 
-#if LL_LINUX
+#if LL_X11
 # include <X11/Xutil.h>
-#endif //LL_LINUX
+#endif //LL_X11
 
 // TOFU HACK -- (*exactly* the same hack as LLWindowMacOSX for a similar
 // set of reasons): Stash a pointer to the LLWindowSDL object here and
@@ -93,7 +93,7 @@ void maybe_unlock_display(void)
 }
 
 
-#if LL_LINUX
+#if LL_X11
 // static
 Window LLWindowSDL::get_SDL_XWindowID(void)
 {
@@ -111,9 +111,9 @@ Display* LLWindowSDL::get_SDL_Display(void)
     }
     return NULL;
 }
-#endif // LL_LINUX
+#endif // LL_X11
 
-#if LL_LINUX
+#if LL_X11
 
 // Clipboard handing via native X11, base on the implementation in Cool VL by Henri Beauchamp
 
@@ -382,10 +382,10 @@ LLWindowSDL::LLWindowSDL(LLWindowCallbacks* callbacks,
     mIsMinimized = -1;
     mFSAASamples = fsaa_samples;
 
-#if LL_LINUX
+#if LL_X11
     mSDL_XWindowID = None;
     mSDL_Display = NULL;
-#endif // LL_LINUX
+#endif // LL_X11
 
     // Assume 4:3 aspect ratio until we know better
     mOriginalAspectRatio = 1024.0 / 768.0;
@@ -410,10 +410,10 @@ LLWindowSDL::LLWindowSDL(LLWindowCallbacks* callbacks,
     // Stash an object pointer for OSMessageBox()
     gWindowImplementation = this;
 
-#if LL_LINUX
+#if LL_X11
     mFlashing = FALSE;
     initialiseX11Clipboard();
-#endif // LL_LINUX
+#endif // LL_X11
 
     mKeyVirtualKey = 0;
     mKeyModifiers = KMOD_NONE;
@@ -435,7 +435,7 @@ static SDL_Surface *Load_BMP_Resource(const char *basename)
     return SDL_LoadBMP(path_buffer);
 }
 
-#if LL_LINUX
+#if LL_X11
 // This is an XFree86/XOrg-specific hack for detecting the amount of Video RAM
 // on this machine.  It works by searching /var/log/var/log/Xorg.?.log or
 // /var/log/XFree86.?.log for a ': (VideoRAM ?|Memory): (%d+) kB' regex, where
@@ -572,7 +572,7 @@ static int x11_detect_VRAM_kb()
     }
     return rtn;
 }
-#endif // LL_LINUX
+#endif // LL_X11
 
 void LLWindowSDL::setTitle(const std::string title)
 {
@@ -800,13 +800,13 @@ BOOL LLWindowSDL::createContext(int x, int y, int width, int height, int bits, B
     }
 
     // Detect video memory size.
-# if LL_LINUX
+# if LL_X11
     gGLManager.mVRAM = x11_detect_VRAM_kb() / 1024;
     if (gGLManager.mVRAM != 0)
     {
         LL_INFOS() << "X11 log-parser detected " << gGLManager.mVRAM << "MB VRAM." << LL_ENDL;
     } else
-# endif // LL_LINUX
+# endif // LL_X11
     {
         // fallback to letting SDL detect VRAM.
         // note: I've not seen SDL's detection ever actually find
@@ -856,7 +856,7 @@ BOOL LLWindowSDL::createContext(int x, int y, int width, int height, int bits, B
         return FALSE;
     }
 
-#if LL_LINUX
+#if LL_X11
     /* Grab the window manager specific information */
     SDL_SysWMinfo info;
     SDL_VERSION(&info.version);
@@ -879,7 +879,7 @@ BOOL LLWindowSDL::createContext(int x, int y, int width, int height, int bits, B
         LL_WARNS() << "We're not running under any known WM.  Wild."
                    << LL_ENDL;
     }
-#endif // LL_LINUX
+#endif // LL_X11
 
 
     SDL_StartTextInput();
@@ -923,12 +923,12 @@ void LLWindowSDL::destroyContext()
     LL_INFOS() << "destroyContext begins" << LL_ENDL;
 
     SDL_StopTextInput();
-#if LL_LINUX
+#if LL_X11
     mSDL_Display = NULL;
     mSDL_XWindowID = None;
     Lock_Display = NULL;
     Unlock_Display = NULL;
-#endif // LL_LINUX
+#endif // LL_X11
 
     // Clean up remaining GL state before blowing away window
     LL_INFOS() << "shutdownGL begins" << LL_ENDL;
@@ -1180,7 +1180,7 @@ void LLWindowSDL::setMinSize(U32 min_width, U32 min_height, bool enforce_immedia
 {
     LLWindow::setMinSize(min_width, min_height, enforce_immediately);
 
-#if LL_LINUX
+#if LL_X11
     // Set the minimum size limits for X11 window
     // so the window manager doesn't allow resizing below those limits.
     XSizeHints* hints = XAllocSizeHints();
@@ -1278,9 +1278,9 @@ F32 LLWindowSDL::getPixelAspectRatio()
 void LLWindowSDL::beforeDialog()
 {
     bool running_x11 = false;
-#if LL_LINUX
+#if LL_X11
     running_x11 = (mSDL_XWindowID != None);
-#endif //LL_LINUX
+#endif //LL_X11
 
     LL_INFOS() << "LLWindowSDL::beforeDialog()" << LL_ENDL;
 
@@ -1298,7 +1298,7 @@ void LLWindowSDL::beforeDialog()
         }
     }
 
-#if LL_LINUX
+#if LL_X11
     if (mSDL_Display)
     {
         // Everything that we/SDL asked for should happen before we
@@ -1307,7 +1307,7 @@ void LLWindowSDL::beforeDialog()
         XSync(mSDL_Display, False);
         maybe_unlock_display();
     }
-#endif // LL_LINUX
+#endif // LL_X11
 
     maybe_lock_display();
 }
@@ -1315,9 +1315,9 @@ void LLWindowSDL::beforeDialog()
 void LLWindowSDL::afterDialog()
 {
     bool running_x11 = false;
-#if LL_LINUX
+#if LL_X11
     running_x11 = (mSDL_XWindowID != None);
-#endif //LL_LINUX
+#endif //LL_X11
 
     LL_INFOS() << "LLWindowSDL::afterDialog()" << LL_ENDL;
 
@@ -1335,7 +1335,7 @@ void LLWindowSDL::afterDialog()
 }
 
 
-#if LL_LINUX
+#if LL_X11
 // set/reset the XWMHints flag for 'urgency' that usually makes the icon flash
 void LLWindowSDL::x11_set_urgent(BOOL urgent)
 {
@@ -1361,13 +1361,13 @@ void LLWindowSDL::x11_set_urgent(BOOL urgent)
         maybe_unlock_display();
     }
 }
-#endif // LL_LINUX
+#endif // LL_X11
 
 void LLWindowSDL::flashIcon(F32 seconds)
 {
     if (getMinimized())
     {
-#if !LL_LINUX
+#if !LL_X11
         LL_INFOS() << "Stub LLWindowSDL::flashIcon(" << seconds << ")" << LL_ENDL;
 #else
         LL_INFOS() << "X11 LLWindowSDL::flashIcon(" << seconds << ")" << LL_ENDL;
@@ -1380,7 +1380,7 @@ void LLWindowSDL::flashIcon(F32 seconds)
 
         x11_set_urgent(TRUE);
         mFlashing = TRUE;
-#endif // LL_LINUX
+#endif // LL_X11
     }
 }
 
@@ -1550,7 +1550,7 @@ BOOL LLWindowSDL::SDLReallyCaptureInput(BOOL capture)
 
     bool newGrab = wantGrab;
 
-#if LL_LINUX
+#if LL_X11
     if (!mFullscreen) /* only bother if we're windowed anyway */
     {
         if (mSDL_Display)
@@ -1590,7 +1590,7 @@ BOOL LLWindowSDL::SDLReallyCaptureInput(BOOL capture)
             }
         }
     }
-#endif // LL_LINUX
+#endif // LL_X11
     // return boolean success for whether we ended up in the desired state
     return capture == newGrab;
 }
@@ -1994,7 +1994,7 @@ void LLWindowSDL::gatherInput()
 
     updateCursor();
 
-#if LL_LINUX
+#if LL_X11
     // This is a good time to stop flashing the icon if our mFlashTimer has
     // expired.
     if (mFlashing && mFlashTimer.hasExpired())
@@ -2002,7 +2002,7 @@ void LLWindowSDL::gatherInput()
         x11_set_urgent(FALSE);
         mFlashing = FALSE;
     }
-#endif // LL_LINUX
+#endif // LL_X11
 }
 
 static SDL_Cursor *makeSDLCursorFromBMP(const char *filename, int hotx, int hoty)
@@ -2428,7 +2428,7 @@ void LLWindowSDL::spawnWebBrowser(const std::string& escaped_url, bool async)
     LL_INFOS() << "spawn_web_browser: " << escaped_url << LL_ENDL;
 
 #if LL_LINUX
-# if LL_LINUX
+# if LL_X11
     if (mSDL_Display)
     {
         maybe_lock_display();
@@ -2436,7 +2436,7 @@ void LLWindowSDL::spawnWebBrowser(const std::string& escaped_url, bool async)
         XSync(mSDL_Display, False);
         maybe_unlock_display();
     }
-# endif // LL_LINUX
+# endif // LL_X11
 
     std::string cmd, arg;
     cmd  = gDirUtilp->getAppRODataDir();
@@ -2466,7 +2466,7 @@ void LLWindowSDL::bringToFront()
     // This is currently used when we are 'launched' to a specific
     // map position externally.
     LL_INFOS() << "bringToFront" << LL_ENDL;
-#if LL_LINUX
+#if LL_X11
     if (mSDL_Display && !mFullscreen)
     {
         maybe_lock_display();
@@ -2474,7 +2474,7 @@ void LLWindowSDL::bringToFront()
         XSync(mSDL_Display, False);
         maybe_unlock_display();
     }
-#endif // LL_LINUX
+#endif // LL_X11
 }
 
 //static
