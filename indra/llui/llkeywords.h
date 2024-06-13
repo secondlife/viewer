@@ -82,8 +82,8 @@ public:
     {
     }
 
-    S32                 getLengthHead() const   { return mToken.size(); }
-    S32                 getLengthTail() const   { return mDelimiter.size(); }
+    S32                 getLengthHead() const   { return static_cast<S32>(mToken.size()); }
+    S32                 getLengthTail() const   { return static_cast<S32>(mDelimiter.size()); }
     bool                isHead(const llwchar* s) const;
     bool                isTail(const llwchar* s) const;
     const LLWString&    getToken() const        { return mToken; }

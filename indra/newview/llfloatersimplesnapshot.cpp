@@ -50,7 +50,7 @@ const S32 LLFloaterSimpleSnapshot::THUMBNAIL_SNAPSHOT_DIM_MIN = 64;
 
 static const std::string THUMBNAIL_UPLOAD_CAP = "InventoryThumbnailUpload";
 
-void post_thumbnail_image_coro(std::string cap_url, std::string path_to_image, LLSD first_data)
+void post_thumbnail_image_coro(std::string cap_url, std::string path_to_image, LLSD first_data, LLFloaterSimpleSnapshot::completion_t callback)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -129,6 +129,11 @@ void post_thumbnail_image_coro(std::string cap_url, std::string path_to_image, L
         {
             LL_WARNS("Thumbnail") << "Failed to upload image " << result << LL_ENDL;
         }
+
+        if (callback)
+        {
+            callback(LLUUID());
+        }
         return;
     }
 
@@ -152,6 +157,11 @@ void post_thumbnail_image_coro(std::string cap_url, std::string path_to_image, L
         }
         // Are we supposed to get BulkUpdateInventory?
         gInventory.addChangedMask(LLInventoryObserver::INTERNAL, item_id);
+    }
+
+    if (callback)
+    {
+        callback(result["new_asset"].asUUID());
     }
 }
 
@@ -218,8 +228,8 @@ void LLFloaterSimpleSnapshot::Impl::updateResolution(void* data)
         if (original_width != width || original_height != height)
         {
             // hide old preview as the aspect ratio could be wrong
-            checkAutoSnapshot(previewp, FALSE);
-            previewp->updateSnapshot(TRUE);
+            checkAutoSnapshot(previewp, false);
+            previewp->updateSnapshot(true);
         }
     }
 }
@@ -258,7 +268,7 @@ LLFloaterSimpleSnapshot::~LLFloaterSimpleSnapshot()
 {
 }
 
-BOOL LLFloaterSimpleSnapshot::postBuild()
+bool LLFloaterSimpleSnapshot::postBuild()
 {
     childSetAction("new_snapshot_btn", ImplBase::onClickNewSnapshot, this);
     childSetAction("save_btn", boost::bind(&LLFloaterSimpleSnapshot::onSend, this));
@@ -281,15 +291,15 @@ BOOL LLFloaterSimpleSnapshot::postBuild()
     impl->setAdvanced(true);
     impl->setSkipReshaping(true);
 
-    previewp->mKeepAspectRatio = FALSE;
+    previewp->mKeepAspectRatio = false;
     previewp->setThumbnailPlaceholderRect(getThumbnailPlaceholderRect());
     previewp->setAllowRenderUI(false);
-    previewp->setThumbnailSubsampled(TRUE);
+    previewp->setThumbnailSubsampled(true);
 
-    return TRUE;
+    return true;
 }
 
-const S32 PREVIEW_OFFSET_Y = 70;
+constexpr S32 PREVIEW_OFFSET_Y = 70;
 
 void LLFloaterSimpleSnapshot::draw()
 {
@@ -338,12 +348,12 @@ void LLFloaterSimpleSnapshot::onOpen(const LLSD& key)
     LLSnapshotLivePreview* preview = getPreviewView();
     if (preview)
     {
-        preview->updateSnapshot(TRUE);
+        preview->updateSnapshot(true);
     }
-    focusFirstItem(FALSE);
-    gSnapshotFloaterView->setEnabled(TRUE);
-    gSnapshotFloaterView->setVisible(TRUE);
-    gSnapshotFloaterView->adjustToFitScreen(this, FALSE);
+    focusFirstItem(false);
+    gSnapshotFloaterView->setEnabled(true);
+    gSnapshotFloaterView->setVisible(true);
+    gSnapshotFloaterView->adjustToFitScreen(this, false);
 
     impl->updateControls(this);
     impl->setStatus(ImplBase::STATUS_READY);
@@ -364,7 +374,7 @@ void LLFloaterSimpleSnapshot::onSend()
     std::string temp_file = gDirUtilp->getTempFilename();
     if (previewp->createUploadFile(temp_file, THUMBNAIL_SNAPSHOT_DIM_MAX, THUMBNAIL_SNAPSHOT_DIM_MIN))
     {
-        uploadImageUploadFile(temp_file, mInventoryId, mTaskId);
+        uploadImageUploadFile(temp_file, mInventoryId, mTaskId, mUploadCompletionCallback);
         closeFloater();
     }
     else
@@ -372,6 +382,10 @@ void LLFloaterSimpleSnapshot::onSend()
         LLSD notif_args;
         notif_args["REASON"] = LLImage::getLastThreadError().c_str();
         LLNotificationsUtil::add("CannotUploadTexture", notif_args);
+        if (mUploadCompletionCallback)
+        {
+            mUploadCompletionCallback(LLUUID::null);
+        }
     }
 }
 
@@ -381,7 +395,10 @@ void LLFloaterSimpleSnapshot::postSave()
 }
 
 // static
-void LLFloaterSimpleSnapshot::uploadThumbnail(const std::string &file_path, const LLUUID &inventory_id, const LLUUID &task_id)
+void LLFloaterSimpleSnapshot::uploadThumbnail(const std::string &file_path,
+                                              const LLUUID &inventory_id,
+                                              const LLUUID &task_id,
+                                              completion_t callback)
 {
     // generate a temp texture file for coroutine
     std::string temp_file = gDirUtilp->getTempFilename();
@@ -394,11 +411,14 @@ void LLFloaterSimpleSnapshot::uploadThumbnail(const std::string &file_path, cons
         LL_WARNS("Thumbnail") << "Failed to upload thumbnail for " << inventory_id << " " << task_id << ", reason: " << notif_args["REASON"].asString() << LL_ENDL;
         return;
     }
-    uploadImageUploadFile(temp_file, inventory_id, task_id);
+    uploadImageUploadFile(temp_file, inventory_id, task_id, callback);
 }
 
 // static
-void LLFloaterSimpleSnapshot::uploadThumbnail(LLPointer<LLImageRaw> raw_image, const LLUUID& inventory_id, const LLUUID& task_id)
+void LLFloaterSimpleSnapshot::uploadThumbnail(LLPointer<LLImageRaw> raw_image,
+                                              const LLUUID& inventory_id,
+                                              const LLUUID& task_id,
+                                              completion_t callback)
 {
     std::string temp_file = gDirUtilp->getTempFilename();
     if (!LLViewerTextureList::createUploadFile(raw_image, temp_file, THUMBNAIL_SNAPSHOT_DIM_MAX, THUMBNAIL_SNAPSHOT_DIM_MIN))
@@ -409,11 +429,14 @@ void LLFloaterSimpleSnapshot::uploadThumbnail(LLPointer<LLImageRaw> raw_image, c
         LL_WARNS("Thumbnail") << "Failed to upload thumbnail for " << inventory_id << " " << task_id << ", reason: " << notif_args["REASON"].asString() << LL_ENDL;
         return;
     }
-    uploadImageUploadFile(temp_file, inventory_id, task_id);
+    uploadImageUploadFile(temp_file, inventory_id, task_id, callback);
 }
 
 // static
-void LLFloaterSimpleSnapshot::uploadImageUploadFile(const std::string &temp_file, const LLUUID &inventory_id, const LLUUID &task_id)
+void LLFloaterSimpleSnapshot::uploadImageUploadFile(const std::string &temp_file,
+                                                    const LLUUID &inventory_id,
+                                                    const LLUUID &task_id,
+                                                    completion_t callback)
 {
     LLSD data;
 
@@ -442,7 +465,7 @@ void LLFloaterSimpleSnapshot::uploadImageUploadFile(const std::string &temp_file
     }
 
     LLCoros::instance().launch("postAgentUserImageCoro",
-        boost::bind(post_thumbnail_image_coro, cap_url, temp_file, data));
+        boost::bind(post_thumbnail_image_coro, cap_url, temp_file, data, callback));
 }
 
 void LLFloaterSimpleSnapshot::update()
@@ -482,7 +505,7 @@ void LLFloaterSimpleSnapshot::saveTexture()
         return;
     }
 
-    previewp->saveTexture(TRUE, getInventoryId().asString());
+    previewp->saveTexture(true, getInventoryId().asString());
     closeFloater();
 }
 

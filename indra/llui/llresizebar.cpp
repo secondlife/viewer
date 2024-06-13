@@ -89,9 +89,9 @@ LLResizeBar::LLResizeBar(const LLResizeBar::Params& p)
     }
 }
 
-BOOL LLResizeBar::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLResizeBar::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-    if (!canResize()) return FALSE;
+    if (!canResize()) return false;
 
     // Route future Mouse messages here preemptively.  (Release on mouse up.)
     // No handler needed for focus lost since this clas has no state that depends on it.
@@ -101,31 +101,31 @@ BOOL LLResizeBar::handleMouseDown(S32 x, S32 y, MASK mask)
     mLastMouseScreenX = mDragLastScreenX;
     mLastMouseScreenY = mDragLastScreenY;
 
-    return TRUE;
+    return true;
 }
 
 
-BOOL LLResizeBar::handleMouseUp(S32 x, S32 y, MASK mask)
+bool LLResizeBar::handleMouseUp(S32 x, S32 y, MASK mask)
 {
-    BOOL    handled = FALSE;
+    bool    handled = false;
 
     if( hasMouseCapture() )
     {
         // Release the mouse
         gFocusMgr.setMouseCapture( NULL );
-        handled = TRUE;
+        handled = true;
     }
     else
     {
-        handled = TRUE;
+        handled = true;
     }
     return handled;
 }
 
 
-BOOL LLResizeBar::handleHover(S32 x, S32 y, MASK mask)
+bool LLResizeBar::handleHover(S32 x, S32 y, MASK mask)
 {
-    BOOL    handled = FALSE;
+    bool    handled = false;
 
     // We only handle the click if the click both started and ended within us
     if( hasMouseCapture() )
@@ -289,11 +289,11 @@ BOOL LLResizeBar::handleHover(S32 x, S32 y, MASK mask)
             }
         }
 
-        handled = TRUE;
+        handled = true;
     }
     else
     {
-        handled = TRUE;
+        handled = true;
     }
 
     if( handled && canResize() )
@@ -320,7 +320,7 @@ BOOL LLResizeBar::handleHover(S32 x, S32 y, MASK mask)
     return handled;
 } // end LLResizeBar::handleHover
 
-BOOL LLResizeBar::handleDoubleClick(S32 x, S32 y, MASK mask)
+bool LLResizeBar::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
     LLRect orig_rect = mResizingView->getRect();
     LLRect scaled_rect = orig_rect;
@@ -350,7 +350,7 @@ BOOL LLResizeBar::handleDoubleClick(S32 x, S32 y, MASK mask)
         mResizingView->setShape(scaled_rect, true);
     }
 
-    return TRUE;
+    return true;
 }
 
 void LLResizeBar::setImagePanel(LLPanel * panelp)

@@ -249,7 +249,7 @@ public:
     void fromLLSD(const LLSD& sd);
     LLSD asLLSD() const;
 
-    S32 getNumElements() { return mFormData.size(); }
+    S32 getNumElements() { return static_cast<S32>(mFormData.size()); }
     LLSD getElement(S32 index) { return mFormData.get(index); }
     LLSD getElement(const std::string& element_name);
     void getElements(LLSD& elements, S32 offset = 0);
@@ -444,11 +444,11 @@ public:
     // return response LLSD filled in with default form contents and (optionally) the default button selected
     LLSD getResponseTemplate(EResponseTemplateType type = WITHOUT_DEFAULT_BUTTON);
 
-    // returns index of first button with value==TRUE
+    // returns index of first button with value==true
     // usually this the button the user clicked on
     // returns -1 if no button clicked (e.g. form has not been displayed)
     static S32 getSelectedOption(const LLSD& notification, const LLSD& response);
-    // returns name of first button with value==TRUE
+    // returns name of first button with value==true
     static std::string getSelectedOptionName(const LLSD& notification);
 
     // after someone responds to a notification (usually by clicking a button,

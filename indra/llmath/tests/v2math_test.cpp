@@ -93,15 +93,15 @@ namespace tut
     {
         F32 x =-2.0f, y = -3.0f ;
         LLVector2 vec2(x,y);
-        ensure_equals("abs():Fail", vec2.abs(), TRUE);
+        ensure_equals("abs():Fail", vec2.abs(), true);
         ensure("abs() x", is_approx_equal(vec2.mV[VX], 2.f));
         ensure("abs() y", is_approx_equal(vec2.mV[VY], 3.f));
 
-        ensure("isNull():Fail ", FALSE == vec2.isNull());   //Returns TRUE if vector has a _very_small_ length
+        ensure("isNull():Fail ", false == vec2.isNull());   //Returns true if vector has a _very_small_ length
 
         x =.00000001f, y = .000001001f;
         vec2.setVec(x, y);
-        ensure("isNull(): Fail ", TRUE == vec2.isNull());
+        ensure("isNull(): Fail ", true == vec2.isNull());
     }
 
     template<> template<>
@@ -111,12 +111,12 @@ namespace tut
         LLVector2 vec2(x, y), vec3;
         vec3 = vec3.scaleVec(vec2);
         ensure("scaleVec: Fail ", vec3.mV[VX] == 0. && vec3.mV[VY] == 0.);
-        ensure("isExactlyZero(): Fail", TRUE == vec3.isExactlyZero());
+        ensure("isExactlyZero(): Fail", true == vec3.isExactlyZero());
 
         vec3.setVec(2.f, 1.f);
         vec3 = vec3.scaleVec(vec2);
         ensure("scaleVec: Fail ", (2.f == vec3.mV[VX]) && (2.f == vec3.mV[VY]));
-        ensure("isExactlyZero():Fail", FALSE == vec3.isExactlyZero());
+        ensure("isExactlyZero():Fail", false == vec3.isExactlyZero());
     }
 
     template<> template<>
@@ -254,7 +254,7 @@ namespace tut
         vec3.clearVec();
         vec2.setVec(x1, y1);
         vec3.setVec(vec2);
-        ensure("2:operator!= failed", (FALSE == (vec2 != vec3)));
+        ensure("2:operator!= failed", (false == (vec2 != vec3)));
     }
     template<> template<>
     void v2math_object::test<13>()
@@ -373,7 +373,7 @@ namespace tut
         x1 = 1.0f, y1 = 2.0f, x2 = 1.0f, y2 = 3.2234f;
         vec2.setVec(x1, y1);
         vec3.setVec(x2, y2);
-        ensure("2:operator < failed", (FALSE == (vec3 < vec2)));
+        ensure("2:operator < failed", (false == (vec3 < vec2)));
     }
 
     template<> template<>

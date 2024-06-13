@@ -52,7 +52,7 @@ void LLPanelHome::onOpen(const LLSD& key)
     mFirstView = false;
 }
 
-BOOL LLPanelHome::postBuild()
+bool LLPanelHome::postBuild()
 {
     mBrowser = getChild<LLMediaCtrl>("browser");
     if (mBrowser)
@@ -64,7 +64,7 @@ BOOL LLPanelHome::postBuild()
         mBrowser->setHomePageUrl(url);
     }
 
-    return TRUE;
+    return true;
 }
 
 void LLPanelHome::handleMediaEvent(LLPluginClassMedia *self, EMediaEvent event)

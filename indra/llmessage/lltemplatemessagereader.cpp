@@ -284,11 +284,11 @@ void LLTemplateMessageReader::getU8(const char *block, const char *var,
 }
 
 void LLTemplateMessageReader::getBOOL(const char *block, const char *var,
-                                          BOOL &b, S32 blocknum )
+                                          bool &b, S32 blocknum )
 {
     U8 value;
     getData(block, var, &value, sizeof(U8), blocknum);
-    b = (BOOL) value;
+    b = (bool)value;
 }
 
 void LLTemplateMessageReader::getS16(const char *block, const char *var,
@@ -443,7 +443,7 @@ S32 LLTemplateMessageReader::getMessageSize() const
 }
 
 // Returns template for the message contained in buffer
-BOOL LLTemplateMessageReader::decodeTemplate(
+bool LLTemplateMessageReader::decodeTemplate(
         const U8* buffer, S32 buffer_size,  // inputs
         LLMessageTemplate** msg_template ) // outputs
 {
@@ -453,7 +453,7 @@ BOOL LLTemplateMessageReader::decodeTemplate(
     if (buffer_size <= 0)
     {
         LL_WARNS() << "No message waiting for decode!" << LL_ENDL;
-        return(FALSE);
+        return(false);
     }
 
     U32 num = 0;
@@ -489,7 +489,7 @@ BOOL LLTemplateMessageReader::decodeTemplate(
     {
         LL_WARNS() << "Packet with unusable length received (too short): "
                 << buffer_size << LL_ENDL;
-        return(FALSE);
+        return(false);
     }
 
     LLMessageTemplate* temp = get_ptr_in_map(mMessageNumbers,num);
@@ -503,10 +503,10 @@ BOOL LLTemplateMessageReader::decodeTemplate(
         LL_WARNS_ONCE() << "Message #" << std::hex << num << std::dec
                         << " received but not registered!" << LL_ENDL;
         //gMessageSystem->callExceptionFunc(MX_UNREGISTERED_MESSAGE);
-        return(FALSE);
+        return(false);
     }
 
-    return(TRUE);
+    return(true);
 }
 
 void LLTemplateMessageReader::logRanOffEndOfPacket( const LLHost& host, const S32 where, const S32 wanted )
@@ -531,7 +531,7 @@ void LLTemplateMessageReader::logRanOffEndOfPacket( const LLHost& host, const S3
 static LLTrace::BlockTimerStatHandle FTM_PROCESS_MESSAGES("Process Messages");
 
 // decode a given message
-BOOL LLTemplateMessageReader::decodeData(const U8* buffer, const LLHost& sender )
+bool LLTemplateMessageReader::decodeData(const U8* buffer, const LLHost& sender )
 {
     LL_RECORD_BLOCK_TIME(FTM_PROCESS_MESSAGES);
 
@@ -592,7 +592,7 @@ BOOL LLTemplateMessageReader::decodeData(const U8* buffer, const LLHost& sender 
         else
         {
             LL_ERRS() << "Unknown block type" << LL_ENDL;
-            return FALSE;
+            return false;
         }
 
         LLMsgBlkData* cur_data_block = NULL;
@@ -698,7 +698,7 @@ BOOL LLTemplateMessageReader::decodeData(const U8* buffer, const LLHost& sender 
         && !mCurrentRMessageTemplate->mMemberBlocks.empty())
     {
         LL_DEBUGS() << "Empty message '" << mCurrentRMessageTemplate->mName << "' (no blocks)" << LL_ENDL;
-        return FALSE;
+        return false;
     }
 
     {
@@ -747,16 +747,16 @@ BOOL LLTemplateMessageReader::decodeData(const U8* buffer, const LLHost& sender 
             }
         }
     }
-    return TRUE;
+    return true;
 }
 
-BOOL LLTemplateMessageReader::validateMessage(const U8* buffer,
+bool LLTemplateMessageReader::validateMessage(const U8* buffer,
                                               S32 buffer_size,
                                               const LLHost& sender,
                                               bool trusted)
 {
     mReceiveSize = buffer_size;
-    BOOL valid = decodeTemplate(buffer, buffer_size, &mCurrentRMessageTemplate );
+    bool valid = decodeTemplate(buffer, buffer_size, &mCurrentRMessageTemplate );
     if(valid)
     {
         mCurrentRMessageTemplate->mReceiveCount++;
@@ -773,7 +773,7 @@ BOOL LLTemplateMessageReader::validateMessage(const U8* buffer,
             << " from "
             << ((trusted) ? "trusted " : "untrusted ")
             << sender << LL_ENDL;
-        valid = FALSE;
+        valid = false;
     }
 
     if(valid && isUdpBanned())
@@ -781,12 +781,12 @@ BOOL LLTemplateMessageReader::validateMessage(const U8* buffer,
         LL_WARNS() << "Received UDP black listed message "
                 <<  getMessageName()
                 << " from " << sender << LL_ENDL;
-        valid = FALSE;
+        valid = false;
     }
     return valid;
 }
 
-BOOL LLTemplateMessageReader::readMessage(const U8* buffer,
+bool LLTemplateMessageReader::readMessage(const U8* buffer,
                                           const LLHost& sender)
 {
     return decodeData(buffer, sender);

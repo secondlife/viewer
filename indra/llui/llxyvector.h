@@ -59,18 +59,18 @@ public:
         Optional<LLUIColor>                 ghost_color;
         Optional<LLUIColor>                 area_color;
         Optional<LLUIColor>                 grid_color;
-        Optional<BOOL>                      logarithmic;
+        Optional<bool>                      logarithmic;
 
         Params();
     };
 
 
     virtual ~LLXYVector();
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
 
-    virtual BOOL    handleHover(S32 x, S32 y, MASK mask);
-    virtual BOOL    handleMouseUp(S32 x, S32 y, MASK mask);
-    virtual BOOL    handleMouseDown(S32 x, S32 y, MASK mask);
+    virtual bool    handleHover(S32 x, S32 y, MASK mask);
+    virtual bool    handleMouseUp(S32 x, S32 y, MASK mask);
+    virtual bool    handleMouseDown(S32 x, S32 y, MASK mask);
 
     virtual void    draw();
 
@@ -113,7 +113,7 @@ private:
     LLUIColor mAreaColor;
     LLUIColor mGridColor;
 
-    BOOL mLogarithmic;
+    bool mLogarithmic;
     F32 mLogScaleX;
     F32 mLogScaleY;
 };

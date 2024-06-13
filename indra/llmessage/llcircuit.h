@@ -100,7 +100,7 @@ public:
     void setRemoteID(const LLUUID& id) { mRemoteID = id; }
     void setRemoteSessionID(const LLUUID& id) { mRemoteSessionID = id; }
 
-    void        setTrusted(BOOL t);
+    void        setTrusted(bool t);
 
     // The local end point ID is used when establishing a trusted circuit.
     // no matching set function for getLocalEndPointID()
@@ -111,9 +111,9 @@ public:
     S32             getPingsInTransit() const           { return mPingsInTransit; }
 
     // ACCESSORS
-    BOOL        isAlive() const;
-    BOOL        isBlocked() const;
-    BOOL        getAllowTimeout() const;
+    bool        isAlive() const;
+    bool        isBlocked() const;
+    bool        getAllowTimeout() const;
     F32Milliseconds getPingDelayAveraged();
     F32Milliseconds getPingInTransitTime();
     U32         getPacketsIn() const;
@@ -122,7 +122,7 @@ public:
     U32         getPacketsOut() const;
     U32         getPacketsLost() const;
     TPACKETID   getPacketOutID() const;
-    BOOL        getTrusted() const;
+    bool        getTrusted() const;
     F32         getAgeInSeconds() const;
     S32         getUnackedPacketCount() const   { return mUnackedPacketCount; }
     S32         getUnackedPacketBytes() const   { return mUnackedPacketBytes; }
@@ -164,31 +164,31 @@ public:
 protected:
     TPACKETID       nextPacketOutID();
     void                setPacketInID(TPACKETID id);
-    void                    checkPacketInID(TPACKETID id, BOOL receive_resent);
+    void                    checkPacketInID(TPACKETID id, bool receive_resent);
     void            setPingDelay(U32Milliseconds ping);
-    BOOL            checkCircuitTimeout();  // Return FALSE if the circuit is dead and should be cleaned up
+    bool            checkCircuitTimeout();  // Return false if the circuit is dead and should be cleaned up
 
     void            addBytesIn(S32Bytes bytes);
     void            addBytesOut(S32Bytes bytes);
 
     U8              nextPingID()            { mLastPingID++; return mLastPingID; }
 
-    BOOL            updateWatchDogTimers(LLMessageSystem *msgsys);  // Return FALSE if the circuit is dead and should be cleaned up
+    bool            updateWatchDogTimers(LLMessageSystem *msgsys);  // Return false if the circuit is dead and should be cleaned up
 
     void            addReliablePacket(S32 mSocket, U8 *buf_ptr, S32 buf_len, LLReliablePacketParams *params);
-    BOOL            isDuplicateResend(TPACKETID packetnum);
+    bool            isDuplicateResend(TPACKETID packetnum);
     // Call this method when a reliable message comes in - this will
     // correctly place the packet in the correct list to be acked
     // later. RAack = requested ack
-    BOOL collectRAck(TPACKETID packet_num);
+    bool collectRAck(TPACKETID packet_num);
 
 
     void            setTimeoutCallback(void (*callback_func)(const LLHost &host, void *user_data), void *user_data);
 
 
 
-    void            setAlive(BOOL b_alive);
-    void            setAllowTimeout(BOOL allow);
+    void            setAlive(bool b_alive);
+    void            setAllowTimeout(bool allow);
 
 protected:
     // Identification for this circuit.
@@ -212,12 +212,12 @@ protected:
     void    (*mTimeoutCallback)(const LLHost &host, void *user_data);
     void    *mTimeoutUserData;
 
-    BOOL    mTrusted;                   // Is this circuit trusted?
-    BOOL    mbAllowTimeout;             // Machines can "pause" circuits, forcing them not to be dropped
+    bool    mTrusted;                   // Is this circuit trusted?
+    bool    mbAllowTimeout;             // Machines can "pause" circuits, forcing them not to be dropped
 
-    BOOL    mbAlive;                    // Indicates whether a circuit is "alive", i.e. responded to pings
+    bool    mbAlive;                    // Indicates whether a circuit is "alive", i.e. responded to pings
 
-    BOOL    mBlocked;                   // Blocked is true if the circuit is hosed, i.e. far behind on pings
+    bool    mBlocked;                   // Blocked is true if the circuit is hosed, i.e. far behind on pings
 
     // Not sure what the difference between this and mLastPingSendTime is
     F64Seconds  mPingTime;                  // Time at which a ping was sent.
@@ -293,7 +293,7 @@ public:
 
     // ACCESSORS
     LLCircuitData* findCircuit(const LLHost& host) const;
-    BOOL isCircuitAlive(const LLHost& host) const;
+    bool isCircuitAlive(const LLHost& host) const;
 
     // MANIPULATORS
     LLCircuitData   *addCircuitData(const LLHost &host, TPACKETID in_id);

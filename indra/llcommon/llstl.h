@@ -326,7 +326,7 @@ inline bool vector_replace_with_last(std::vector<T>& invec, const T& val)
 template <typename T>
 inline T* vector_append(std::vector<T>& invec, S32 N)
 {
-    U32 sz = invec.size();
+    auto sz = invec.size();
     invec.resize(sz+N);
     return &(invec[sz]);
 }
@@ -532,7 +532,7 @@ bool before(const std::type_info* lhs, const std::type_info* rhs)
     return strcmp(lhs->name(), rhs->name()) < 0;
 #else  // not Linux, or gcc 4.4+
     // Just use before(), as we normally would
-    return lhs->before(*rhs) ? true : false;
+    return lhs->before(*rhs);
 #endif
 }
 

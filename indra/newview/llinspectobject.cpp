@@ -70,7 +70,7 @@ public:
     LLInspectObject(const LLSD& object_id);
     virtual ~LLInspectObject();
 
-    /*virtual*/ BOOL postBuild(void);
+    /*virtual*/ bool postBuild(void);
 
     // Because floater is single instance, need to re-parse data on each spawn
     // (for example, inspector about same avatar but in different position)
@@ -149,7 +149,7 @@ LLInspectObject::~LLInspectObject()
 }
 
 /*virtual*/
-BOOL LLInspectObject::postBuild(void)
+bool LLInspectObject::postBuild(void)
 {
     // The XML file has sample data in it.  Clear that out so we don't
     // flicker when data arrives off network.
@@ -187,7 +187,7 @@ BOOL LLInspectObject::postBuild(void)
             boost::bind(&LLInspectObject::update, this));
     }
 
-    return TRUE;
+    return true;
 }
 
 // Multiple calls to showInstance("inspect_avatar", foo) will provide different
@@ -218,14 +218,14 @@ void LLInspectObject::onOpen(const LLSD& data)
         LLViewerMediaFocus::getInstance()->clearFocus();
 
         LLSelectMgr::instance().deselectAll();
-        mObjectSelection = LLSelectMgr::instance().selectObjectAndFamily(obj,FALSE,TRUE);
+        mObjectSelection = LLSelectMgr::instance().selectObjectAndFamily(obj,false,true);
 
         // Mark this as a transient selection
         struct SetTransient : public LLSelectedNodeFunctor
         {
             bool apply(LLSelectNode* node)
             {
-                node->setTransient(TRUE);
+                node->setTransient(true);
                 return true;
             }
         } functor;
@@ -372,7 +372,7 @@ void LLInspectObject::updateButtons(LLSelectNode* nodep)
     }
 
     // No flash
-    focusFirstItem(FALSE, FALSE);
+    focusFirstItem(false, false);
 }
 
 void LLInspectObject::updateSitLabel(LLSelectNode* nodep)

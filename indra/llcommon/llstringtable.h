@@ -51,7 +51,7 @@ public:
     ~LLStringTableEntry();
 
     void incCount()     { mCount++; }
-    BOOL decCount()     { return --mCount; }
+    bool decCount()     { return --mCount != 0; }
 
     char *mString;
     S32  mCount;

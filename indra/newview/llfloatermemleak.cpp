@@ -40,9 +40,9 @@ U32 LLFloaterMemLeak::sMemLeakingSpeed = 0 ; //bytes leaked per frame
 U32 LLFloaterMemLeak::sMaxLeakedMem = 0 ; //maximum allowed leaked memory
 U32 LLFloaterMemLeak::sTotalLeaked = 0 ;
 S32 LLFloaterMemLeak::sStatus = LLFloaterMemLeak::STOP ;
-BOOL LLFloaterMemLeak::sbAllocationFailed = FALSE ;
+bool LLFloaterMemLeak::sbAllocationFailed = false ;
 
-extern BOOL gSimulateMemLeak;
+extern bool gSimulateMemLeak;
 
 LLFloaterMemLeak::LLFloaterMemLeak(const LLSD& key)
     : LLFloater(key)
@@ -57,7 +57,7 @@ LLFloaterMemLeak::LLFloaterMemLeak(const LLSD& key)
 }
 //----------------------------------------------
 
-BOOL LLFloaterMemLeak::postBuild(void)
+bool LLFloaterMemLeak::postBuild(void)
 {
     F32 a, b ;
     a = getChild<LLUICtrl>("leak_speed")->getValue().asReal();
@@ -79,8 +79,8 @@ BOOL LLFloaterMemLeak::postBuild(void)
         sMaxLeakedMem = ((U32)b) << 20 ;
     }
 
-    sbAllocationFailed = FALSE ;
-    return TRUE ;
+    sbAllocationFailed = false ;
+    return true ;
 }
 LLFloaterMemLeak::~LLFloaterMemLeak()
 {
@@ -105,14 +105,14 @@ void LLFloaterMemLeak::release()
 
     sStatus = STOP ;
     sTotalLeaked = 0 ;
-    sbAllocationFailed = FALSE ;
-    gSimulateMemLeak = FALSE;
+    sbAllocationFailed = false ;
+    gSimulateMemLeak = false;
 }
 
 void LLFloaterMemLeak::stop()
 {
     sStatus = STOP ;
-    sbAllocationFailed = TRUE ;
+    sbAllocationFailed = true ;
 }
 
 void LLFloaterMemLeak::idle()
@@ -122,7 +122,7 @@ void LLFloaterMemLeak::idle()
         return ;
     }
 
-    sbAllocationFailed = FALSE ;
+    sbAllocationFailed = false ;
 
     if(RELEASE == sStatus)
     {
@@ -183,7 +183,7 @@ void LLFloaterMemLeak::onChangeMaxMemLeaking()
 void LLFloaterMemLeak::onClickStart()
 {
     sStatus = START ;
-    gSimulateMemLeak = TRUE;
+    gSimulateMemLeak = true;
 }
 
 void LLFloaterMemLeak::onClickStop()
@@ -198,7 +198,7 @@ void LLFloaterMemLeak::onClickRelease()
 
 void LLFloaterMemLeak::onClickClose()
 {
-    setVisible(FALSE);
+    setVisible(false);
 }
 
 void LLFloaterMemLeak::draw()

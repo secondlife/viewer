@@ -35,7 +35,7 @@ const S32 FLYOUT_BUTTON_ARROW_WIDTH = 24;
 
 LLFlyoutButton::LLFlyoutButton(const Params& p)
 :   LLComboBox(p),
-    mToggleState(FALSE),
+    mToggleState(false),
     mActionButton(NULL)
 {
     // Always use text box
@@ -69,7 +69,7 @@ void LLFlyoutButton::draw()
     LLComboBox::draw();
 }
 
-void LLFlyoutButton::setToggleState(BOOL state)
+void LLFlyoutButton::setToggleState(bool state)
 {
     mToggleState = state;
 }

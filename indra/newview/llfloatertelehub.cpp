@@ -53,7 +53,7 @@ LLFloaterTelehub::LLFloaterTelehub(const LLSD& key)
 {
 }
 
-BOOL LLFloaterTelehub::postBuild()
+bool LLFloaterTelehub::postBuild()
 {
     gMessageSystem->setHandlerFunc("TelehubInfo", processTelehubInfo);
 
@@ -66,10 +66,10 @@ BOOL LLFloaterTelehub::postBuild()
     if (list)
     {
         // otherwise you can't walk with arrow keys while floater is up
-        list->setAllowKeyboardMovement(FALSE);
+        list->setAllowKeyboardMovement(false);
     }
 
-    return TRUE;
+    return true;
 }
 void LLFloaterTelehub::onOpen(const LLSD& key)
 {
@@ -100,29 +100,29 @@ void LLFloaterTelehub::draw()
 // Per-frame updates, because we don't have a selection manager observer.
 void LLFloaterTelehub::refresh()
 {
-    const BOOL children_ok = TRUE;
+    constexpr bool children_ok = true;
     LLViewerObject* object = mObjectSelection->getFirstRootObject(children_ok);
 
-    BOOL have_selection = (object != NULL);
-    BOOL all_volume = LLSelectMgr::getInstance()->selectionAllPCode( LL_PCODE_VOLUME );
+    bool have_selection = (object != NULL);
+    bool all_volume = LLSelectMgr::getInstance()->selectionAllPCode( LL_PCODE_VOLUME );
     getChildView("connect_btn")->setEnabled(have_selection && all_volume);
 
-    BOOL have_telehub = mTelehubObjectID.notNull();
+    bool have_telehub = mTelehubObjectID.notNull();
     getChildView("disconnect_btn")->setEnabled(have_telehub);
 
-    BOOL space_avail = (mNumSpawn < MAX_SPAWNPOINTS_PER_TELEHUB);
+    bool space_avail = (mNumSpawn < MAX_SPAWNPOINTS_PER_TELEHUB);
     getChildView("add_spawn_point_btn")->setEnabled(have_selection && all_volume && space_avail);
 
     LLScrollListCtrl* list = getChild<LLScrollListCtrl>("spawn_points_list");
     if (list)
     {
-        BOOL enable_remove = (list->getFirstSelected() != NULL);
+        bool enable_remove = (list->getFirstSelected() != NULL);
         getChildView("remove_spawn_point_btn")->setEnabled(enable_remove);
     }
 }
 
 // static
-BOOL LLFloaterTelehub::renderBeacons()
+bool LLFloaterTelehub::renderBeacons()
 {
     // only render if we've got a telehub
     LLFloaterTelehub* floater = LLFloaterReg::findTypedInstance<LLFloaterTelehub>("telehubs");

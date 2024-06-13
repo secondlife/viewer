@@ -190,7 +190,7 @@ void* LLMemory::tryToAlloc(void* address, U32 size)
 }
 
 //static
-void LLMemory::logMemoryInfo(BOOL update)
+void LLMemory::logMemoryInfo(bool update)
 {
     LL_PROFILE_ZONE_SCOPED
     if(update)
@@ -327,8 +327,8 @@ void* ll_aligned_malloc_fallback( size_t size, int align )
         __asm int 3;
     }
     DWORD old;
-    BOOL Res = VirtualProtect((void*)((char*)p + for_alloc), sysinfo.dwPageSize, PAGE_NOACCESS, &old);
-    if(FALSE == Res) {
+    bool Res = VirtualProtect((void*)((char*)p + for_alloc), sysinfo.dwPageSize, PAGE_NOACCESS, &old);
+    if(false == Res) {
         // call debugger
         __asm int 3;
     }

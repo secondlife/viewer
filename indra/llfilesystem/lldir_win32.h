@@ -50,7 +50,7 @@ public:
     /*virtual*/ std::string getLLPluginFilename(std::string base_name);
 
 private:
-    void* mDirSearch_h;
+    void* mDirSearch_h{ nullptr };
     llutf16string mCurrentDir;
 };
 

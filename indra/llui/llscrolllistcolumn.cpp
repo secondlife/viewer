@@ -52,7 +52,7 @@ LLScrollColumnHeader::Params::Params()
 LLScrollColumnHeader::LLScrollColumnHeader(const LLScrollColumnHeader::Params& p)
 :   LLButton(p), // use combobox params to steal images
     mColumn(p.column),
-    mHasResizableElement(FALSE)
+    mHasResizableElement(false)
 {
     setClickedCallback(boost::bind(&LLScrollColumnHeader::onClick, this, _2));
 
@@ -74,12 +74,12 @@ LLScrollColumnHeader::~LLScrollColumnHeader()
 void LLScrollColumnHeader::draw()
 {
     std::string sort_column = mColumn->mParentCtrl->getSortColumnName();
-    BOOL draw_arrow = !mColumn->mLabel.empty()
+    bool draw_arrow = !mColumn->mLabel.empty()
             && mColumn->mParentCtrl->isSorted()
             // check for indirect sorting column as well as column's sorting name
             && (sort_column == mColumn->mSortingColumn || sort_column == mColumn->mName);
 
-    BOOL is_ascending = mColumn->mParentCtrl->getSortAscending();
+    bool is_ascending = mColumn->mParentCtrl->getSortAscending();
     if (draw_arrow)
     {
         setImageOverlay(is_ascending ? "up_arrow.tga" : "down_arrow.tga", LLFontGL::RIGHT, LLColor4::white);
@@ -93,7 +93,7 @@ void LLScrollColumnHeader::draw()
     LLButton::draw();
 }
 
-BOOL LLScrollColumnHeader::handleDoubleClick(S32 x, S32 y, MASK mask)
+bool LLScrollColumnHeader::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
     if (canResize() && mResizeBar->getRect().pointInRect(x, y))
     {
@@ -107,7 +107,7 @@ BOOL LLScrollColumnHeader::handleDoubleClick(S32 x, S32 y, MASK mask)
     {
         onClick(LLSD());
     }
-    return TRUE;
+    return true;
 }
 
 void LLScrollColumnHeader::onClick(const LLSD& data)
@@ -241,7 +241,7 @@ void LLScrollColumnHeader::handleReshape(const LLRect& new_rect, bool by_user)
     }
 }
 
-void LLScrollColumnHeader::setHasResizableElement(BOOL resizable)
+void LLScrollColumnHeader::setHasResizableElement(bool resizable)
 {
     if (mHasResizableElement != resizable)
     {
@@ -270,7 +270,7 @@ void LLScrollColumnHeader::updateResizeBars()
     {
         LLScrollListColumn* columnp = mColumn->mParentCtrl->getColumn(col);
         if (!columnp || !columnp->mHeader) continue;
-        BOOL enable = num_resizable_columns >= 2 && num_resizers_enabled < (num_resizable_columns - 1) && columnp->mHeader->canResize();
+        bool enable = num_resizable_columns >= 2 && num_resizers_enabled < (num_resizable_columns - 1) && columnp->mHeader->canResize();
         columnp->mHeader->enableResizeBar(enable);
         if (enable)
         {
@@ -279,12 +279,12 @@ void LLScrollColumnHeader::updateResizeBars()
     }
 }
 
-void LLScrollColumnHeader::enableResizeBar(BOOL enable)
+void LLScrollColumnHeader::enableResizeBar(bool enable)
 {
     mResizeBar->setEnabled(enable);
 }
 
-BOOL LLScrollColumnHeader::canResize()
+bool LLScrollColumnHeader::canResize()
 {
     return getVisible() && (mHasResizableElement || mColumn->mDynamicWidth);
 }

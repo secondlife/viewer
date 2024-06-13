@@ -49,7 +49,7 @@ class LLPanelSnapshotProfile
 public:
     LLPanelSnapshotProfile();
 
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
     /*virtual*/ void onOpen(const LLSD& key);
 
 private:
@@ -73,7 +73,7 @@ LLPanelSnapshotProfile::LLPanelSnapshotProfile()
 }
 
 // virtual
-BOOL LLPanelSnapshotProfile::postBuild()
+bool LLPanelSnapshotProfile::postBuild()
 {
     return LLPanelSnapshot::postBuild();
 }

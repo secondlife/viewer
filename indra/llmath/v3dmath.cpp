@@ -52,31 +52,31 @@ const LLVector3d LLVector3d::z_axis_neg(0, 0, -1);
 
 
 // Clamps each values to range (min,max).
-// Returns TRUE if data changed.
-BOOL LLVector3d::clamp(F64 min, F64 max)
+// Returns true if data changed.
+bool LLVector3d::clamp(F64 min, F64 max)
 {
-    BOOL ret = FALSE;
+    bool ret{ false };
 
-    if (mdV[0] < min) { mdV[0] = min; ret = TRUE; }
-    if (mdV[1] < min) { mdV[1] = min; ret = TRUE; }
-    if (mdV[2] < min) { mdV[2] = min; ret = TRUE; }
+    if (mdV[0] < min) { mdV[0] = min; ret = true; }
+    if (mdV[1] < min) { mdV[1] = min; ret = true; }
+    if (mdV[2] < min) { mdV[2] = min; ret = true; }
 
-    if (mdV[0] > max) { mdV[0] = max; ret = TRUE; }
-    if (mdV[1] > max) { mdV[1] = max; ret = TRUE; }
-    if (mdV[2] > max) { mdV[2] = max; ret = TRUE; }
+    if (mdV[0] > max) { mdV[0] = max; ret = true; }
+    if (mdV[1] > max) { mdV[1] = max; ret = true; }
+    if (mdV[2] > max) { mdV[2] = max; ret = true; }
 
     return ret;
 }
 
 // Sets all values to absolute value of their original values
-// Returns TRUE if data changed
-BOOL LLVector3d::abs()
+// Returns true if data changed
+bool LLVector3d::abs()
 {
-    BOOL ret = FALSE;
+    bool ret{ false };
 
-    if (mdV[0] < 0.0) { mdV[0] = -mdV[0]; ret = TRUE; }
-    if (mdV[1] < 0.0) { mdV[1] = -mdV[1]; ret = TRUE; }
-    if (mdV[2] < 0.0) { mdV[2] = -mdV[2]; ret = TRUE; }
+    if (mdV[0] < 0.0) { mdV[0] = -mdV[0]; ret = true; }
+    if (mdV[1] < 0.0) { mdV[1] = -mdV[1]; ret = true; }
+    if (mdV[2] < 0.0) { mdV[2] = -mdV[2]; ret = true; }
 
     return ret;
 }
@@ -127,11 +127,11 @@ const LLVector3d&   LLVector3d::rotVec(F64 angle, F64 x, F64 y, F64 z)
 }
 
 
-BOOL LLVector3d::parseVector3d(const std::string& buf, LLVector3d* value)
+bool LLVector3d::parseVector3d(const std::string& buf, LLVector3d* value)
 {
-    if( buf.empty() || value == NULL)
+    if( buf.empty() || value == nullptr)
     {
-        return FALSE;
+        return false;
     }
 
     LLVector3d v;
@@ -139,9 +139,9 @@ BOOL LLVector3d::parseVector3d(const std::string& buf, LLVector3d* value)
     if( 3 == count )
     {
         value->setVec( v );
-        return TRUE;
+        return true;
     }
 
-    return FALSE;
+    return false;
 }
 

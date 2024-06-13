@@ -77,7 +77,6 @@ uniform float is_mirror;
 
 uniform vec3 sun_dir;
 uniform vec3 moon_dir;
-in vec2 vary_fragcoord;
 
 uniform mat4 proj_mat;
 uniform mat4 inv_proj;

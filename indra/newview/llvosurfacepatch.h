@@ -60,8 +60,8 @@ public:
 
     /*virtual*/ LLDrawable* createDrawable(LLPipeline *pipeline);
     /*virtual*/ void        updateGL();
-    /*virtual*/ BOOL        updateGeometry(LLDrawable *drawable);
-    /*virtual*/ BOOL        updateLOD();
+    /*virtual*/ bool        updateGeometry(LLDrawable *drawable);
+    /*virtual*/ bool        updateLOD();
     /*virtual*/ void        updateFaceSize(S32 idx);
     void getTerrainGeometry(LLStrider<LLVector3> &verticesp,
                                 LLStrider<LLVector3> &normalsp,
@@ -73,7 +73,7 @@ public:
     /*virtual*/ void setPixelAreaAndAngle(LLAgent &agent); // generate accurate apparent angle and area
 
     /*virtual*/ void updateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax);
-    /*virtual*/ BOOL isActive() const; // Whether this object needs to do an idleUpdate.
+    /*virtual*/ bool isActive() const; // Whether this object needs to do an idleUpdate.
 
     void setPatch(LLSurfacePatch *patchp);
     LLSurfacePatch  *getPatch() const       { return mPatchp; }
@@ -81,11 +81,11 @@ public:
     void dirtyPatch();
     void dirtyGeom();
 
-    /*virtual*/ BOOL lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
+    /*virtual*/ bool lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
                                           S32 face = -1,                        // which face to check, -1 = ALL_SIDES
-                                          BOOL pick_transparent = FALSE,
-                                          BOOL pick_rigged = FALSE,
-                                          BOOL pick_unselectable = TRUE,
+                                          bool pick_transparent = false,
+                                          bool pick_rigged = false,
+                                          bool pick_unselectable = true,
                                           S32* face_hit = NULL,                 // which face was hit
                                           LLVector4a* intersection = NULL,       // return the intersection point
                                           LLVector2* tex_coord = NULL,          // return the texture coordinates of the intersection point
@@ -93,7 +93,7 @@ public:
                                           LLVector4a* tangent = NULL           // return the surface tangent at the intersection point
         );
 
-    BOOL            mDirtiedPatch;
+    bool            mDirtiedPatch;
 protected:
     ~LLVOSurfacePatch();
 
@@ -101,8 +101,8 @@ protected:
     LLFacePool      *getPool();
     S32             mBaseComp;
     LLSurfacePatch  *mPatchp;
-    BOOL            mDirtyTexture;
-    BOOL            mDirtyTerrain;
+    bool            mDirtyTexture;
+    bool            mDirtyTerrain;
 
     S32             mLastNorthStride;
     S32             mLastEastStride;

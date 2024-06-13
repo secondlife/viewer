@@ -48,8 +48,8 @@
 // Default constructor
 LLSidepanelInventorySubpanel::LLSidepanelInventorySubpanel(const LLPanel::Params& p)
   : LLPanel(p),
-    mIsDirty(TRUE),
-    mIsEditing(FALSE),
+    mIsDirty(true),
+    mIsEditing(false),
     mCancelBtn(NULL)
 {
 }
@@ -60,7 +60,7 @@ LLSidepanelInventorySubpanel::~LLSidepanelInventorySubpanel()
 }
 
 // virtual
-BOOL LLSidepanelInventorySubpanel::postBuild()
+bool LLSidepanelInventorySubpanel::postBuild()
 {
 
     mCancelBtn = findChild<LLButton>("cancel_btn");
@@ -68,10 +68,10 @@ BOOL LLSidepanelInventorySubpanel::postBuild()
     {
         mCancelBtn->setClickedCallback(boost::bind(&LLSidepanelInventorySubpanel::onCancelButtonClicked, this));
     }
-    return TRUE;
+    return true;
 }
 
-void LLSidepanelInventorySubpanel::setVisible(BOOL visible)
+void LLSidepanelInventorySubpanel::setVisible(bool visible)
 {
     if (visible)
     {
@@ -80,22 +80,22 @@ void LLSidepanelInventorySubpanel::setVisible(BOOL visible)
     LLPanel::setVisible(visible);
 }
 
-void LLSidepanelInventorySubpanel::setIsEditing(BOOL edit)
+void LLSidepanelInventorySubpanel::setIsEditing(bool edit)
 {
     mIsEditing = edit;
-    mIsDirty = TRUE;
+    mIsDirty = true;
 }
 
-BOOL LLSidepanelInventorySubpanel::getIsEditing() const
+bool LLSidepanelInventorySubpanel::getIsEditing() const
 {
 
-    return TRUE; // Default everything to edit mode since we're not using an edit button anymore.
+    return true; // Default everything to edit mode since we're not using an edit button anymore.
     // return mIsEditing;
 }
 
 void LLSidepanelInventorySubpanel::reset()
 {
-    mIsDirty = TRUE;
+    mIsDirty = true;
 }
 
 void LLSidepanelInventorySubpanel::draw()
@@ -104,7 +104,7 @@ void LLSidepanelInventorySubpanel::draw()
     {
         refresh();
         updateVerbs();
-        mIsDirty = FALSE;
+        mIsDirty = false;
     }
 
     LLPanel::draw();
@@ -112,8 +112,8 @@ void LLSidepanelInventorySubpanel::draw()
 
 void LLSidepanelInventorySubpanel::dirty()
 {
-    mIsDirty = TRUE;
-    setIsEditing(FALSE);
+    mIsDirty = true;
+    setIsEditing(false);
 }
 
 void LLSidepanelInventorySubpanel::updateVerbs()
@@ -126,14 +126,14 @@ void LLSidepanelInventorySubpanel::updateVerbs()
 
 void LLSidepanelInventorySubpanel::onEditButtonClicked()
 {
-    setIsEditing(TRUE);
+    setIsEditing(true);
     refresh();
     updateVerbs();
 }
 
 void LLSidepanelInventorySubpanel::onCancelButtonClicked()
 {
-    setIsEditing(FALSE);
+    setIsEditing(false);
     refresh();
     updateVerbs();
 }

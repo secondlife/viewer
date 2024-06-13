@@ -55,7 +55,7 @@ public:
     virtual ~LLXmlTree();
     void cleanup();
 
-    virtual BOOL    parseFile(const std::string &path, BOOL keep_contents = TRUE);
+    virtual bool    parseFile(const std::string &path, bool keep_contents = true);
 
     LLXmlTreeNode*  getRoot() { return mRoot; }
 
@@ -97,50 +97,50 @@ public:
     {
         return mName;
     }
-    BOOL hasName( const std::string& name )
+    bool hasName( const std::string& name )
     {
         return mName == name;
     }
 
-    BOOL hasAttribute( const std::string& name );
+    bool hasAttribute( const std::string& name );
 
     // Fast versions use cannonical_name handlee to entru in LLXmlTree::sAttributeKeys string table
-    BOOL            getFastAttributeBOOL(       LLStdStringHandle cannonical_name, BOOL& value );
-    BOOL            getFastAttributeU8(         LLStdStringHandle cannonical_name, U8& value );
-    BOOL            getFastAttributeS8(         LLStdStringHandle cannonical_name, S8& value );
-    BOOL            getFastAttributeU16(        LLStdStringHandle cannonical_name, U16& value );
-    BOOL            getFastAttributeS16(        LLStdStringHandle cannonical_name, S16& value );
-    BOOL            getFastAttributeU32(        LLStdStringHandle cannonical_name, U32& value );
-    BOOL            getFastAttributeS32(        LLStdStringHandle cannonical_name, S32& value );
-    BOOL            getFastAttributeF32(        LLStdStringHandle cannonical_name, F32& value );
-    BOOL            getFastAttributeF64(        LLStdStringHandle cannonical_name, F64& value );
-    BOOL            getFastAttributeColor(      LLStdStringHandle cannonical_name, LLColor4& value );
-    BOOL            getFastAttributeColor4(     LLStdStringHandle cannonical_name, LLColor4& value );
-    BOOL            getFastAttributeColor4U(    LLStdStringHandle cannonical_name, LLColor4U& value );
-    BOOL            getFastAttributeVector3(    LLStdStringHandle cannonical_name, LLVector3& value );
-    BOOL            getFastAttributeVector3d(   LLStdStringHandle cannonical_name, LLVector3d& value );
-    BOOL            getFastAttributeQuat(       LLStdStringHandle cannonical_name, LLQuaternion& value );
-    BOOL            getFastAttributeUUID(       LLStdStringHandle cannonical_name, LLUUID& value );
-    BOOL            getFastAttributeString(     LLStdStringHandle cannonical_name, std::string& value );
+    bool            getFastAttributeBOOL(       LLStdStringHandle cannonical_name, bool& value );
+    bool            getFastAttributeU8(         LLStdStringHandle cannonical_name, U8& value );
+    bool            getFastAttributeS8(         LLStdStringHandle cannonical_name, S8& value );
+    bool            getFastAttributeU16(        LLStdStringHandle cannonical_name, U16& value );
+    bool            getFastAttributeS16(        LLStdStringHandle cannonical_name, S16& value );
+    bool            getFastAttributeU32(        LLStdStringHandle cannonical_name, U32& value );
+    bool            getFastAttributeS32(        LLStdStringHandle cannonical_name, S32& value );
+    bool            getFastAttributeF32(        LLStdStringHandle cannonical_name, F32& value );
+    bool            getFastAttributeF64(        LLStdStringHandle cannonical_name, F64& value );
+    bool            getFastAttributeColor(      LLStdStringHandle cannonical_name, LLColor4& value );
+    bool            getFastAttributeColor4(     LLStdStringHandle cannonical_name, LLColor4& value );
+    bool            getFastAttributeColor4U(    LLStdStringHandle cannonical_name, LLColor4U& value );
+    bool            getFastAttributeVector3(    LLStdStringHandle cannonical_name, LLVector3& value );
+    bool            getFastAttributeVector3d(   LLStdStringHandle cannonical_name, LLVector3d& value );
+    bool            getFastAttributeQuat(       LLStdStringHandle cannonical_name, LLQuaternion& value );
+    bool            getFastAttributeUUID(       LLStdStringHandle cannonical_name, LLUUID& value );
+    bool            getFastAttributeString(     LLStdStringHandle cannonical_name, std::string& value );
 
     // Normal versions find 'name' in LLXmlTree::sAttributeKeys then call fast versions
-    virtual BOOL        getAttributeBOOL(       const std::string& name, BOOL& value );
-    virtual BOOL        getAttributeU8(         const std::string& name, U8& value );
-    virtual BOOL        getAttributeS8(         const std::string& name, S8& value );
-    virtual BOOL        getAttributeU16(        const std::string& name, U16& value );
-    virtual BOOL        getAttributeS16(        const std::string& name, S16& value );
-    virtual BOOL        getAttributeU32(        const std::string& name, U32& value );
-    virtual BOOL        getAttributeS32(        const std::string& name, S32& value );
-    virtual BOOL        getAttributeF32(        const std::string& name, F32& value );
-    virtual BOOL        getAttributeF64(        const std::string& name, F64& value );
-    virtual BOOL        getAttributeColor(      const std::string& name, LLColor4& value );
-    virtual BOOL        getAttributeColor4(     const std::string& name, LLColor4& value );
-    virtual BOOL        getAttributeColor4U(    const std::string& name, LLColor4U& value );
-    virtual BOOL        getAttributeVector3(    const std::string& name, LLVector3& value );
-    virtual BOOL        getAttributeVector3d(   const std::string& name, LLVector3d& value );
-    virtual BOOL        getAttributeQuat(       const std::string& name, LLQuaternion& value );
-    virtual BOOL        getAttributeUUID(       const std::string& name, LLUUID& value );
-    virtual BOOL        getAttributeString(     const std::string& name, std::string& value );
+    virtual bool        getAttributeBOOL(       const std::string& name, bool& value );
+    virtual bool        getAttributeU8(         const std::string& name, U8& value );
+    virtual bool        getAttributeS8(         const std::string& name, S8& value );
+    virtual bool        getAttributeU16(        const std::string& name, U16& value );
+    virtual bool        getAttributeS16(        const std::string& name, S16& value );
+    virtual bool        getAttributeU32(        const std::string& name, U32& value );
+    virtual bool        getAttributeS32(        const std::string& name, S32& value );
+    virtual bool        getAttributeF32(        const std::string& name, F32& value );
+    virtual bool        getAttributeF64(        const std::string& name, F64& value );
+    virtual bool        getAttributeColor(      const std::string& name, LLColor4& value );
+    virtual bool        getAttributeColor4(     const std::string& name, LLColor4& value );
+    virtual bool        getAttributeColor4U(    const std::string& name, LLColor4U& value );
+    virtual bool        getAttributeVector3(    const std::string& name, LLVector3& value );
+    virtual bool        getAttributeVector3d(   const std::string& name, LLVector3d& value );
+    virtual bool        getAttributeQuat(       const std::string& name, LLQuaternion& value );
+    virtual bool        getAttributeUUID(       const std::string& name, LLUUID& value );
+    virtual bool        getAttributeString(     const std::string& name, std::string& value );
 
     const std::string& getContents()
     {
@@ -199,7 +199,7 @@ public:
     LLXmlTreeParser(LLXmlTree* tree);
     virtual ~LLXmlTreeParser();
 
-    BOOL parseFile(const std::string &path, LLXmlTreeNode** root, BOOL keep_contents );
+    bool parseFile(const std::string &path, LLXmlTreeNode** root, bool keep_contents );
 
 protected:
     const std::string& tabs();
@@ -227,8 +227,8 @@ protected:
     LLXmlTree*      mTree;
     LLXmlTreeNode*  mRoot;
     LLXmlTreeNode*  mCurrent;
-    BOOL            mDump;  // Dump parse tree to LL_INFOS() as it is read.
-    BOOL            mKeepContents;
+    bool            mDump;  // Dump parse tree to LL_INFOS() as it is read.
+    bool            mKeepContents;
 };
 
 #endif  // LL_LLXMLTREE_H

@@ -52,17 +52,17 @@ public:
     virtual ~LLAvatarJoint();
 
     // Gets the validity of this joint
-    BOOL getValid() { return mValid; }
+    bool getValid() { return mValid; }
 
     // Sets the validity of this joint
-    virtual void setValid( BOOL valid, BOOL recursive=FALSE );
+    virtual void setValid( bool valid, bool recursive=false );
 
     // Returns true if this object is transparent.
     // This is used to determine in which order to draw objects.
-    virtual BOOL isTransparent() { return mIsTransparent; }
+    virtual bool isTransparent() { return mIsTransparent; }
 
     // Returns true if this object should inherit scale modifiers from its immediate parent
-    virtual BOOL inheritScale() { return FALSE; }
+    virtual bool inheritScale() { return false; }
 
     enum Components
     {
@@ -72,7 +72,7 @@ public:
     };
 
     // Selects which skeleton components to draw
-    void setSkeletonComponents( U32 comp, BOOL recursive = TRUE );
+    void setSkeletonComponents( U32 comp, bool recursive = true );
 
     // Returns which skeleton components are enables for drawing
     U32 getSkeletonComponents() { return mComponents; }
@@ -90,34 +90,34 @@ public:
     void setPickName(LLJointPickName name) { mPickName = name; }
     LLJointPickName getPickName() { return mPickName; }
 
-    void setVisible( BOOL visible, BOOL recursive );
+    void setVisible( bool visible, bool recursive );
 
     // Takes meshes in mMeshParts and sets each one as a child joint
     void setMeshesToChildren();
 
     // LLViewerJoint interface
-    virtual U32 render( F32 pixelArea, BOOL first_pass = TRUE, BOOL is_dummy = FALSE ) = 0;
+    virtual U32 render( F32 pixelArea, bool first_pass = true, bool is_dummy = false ) = 0;
     virtual void updateFaceSizes(U32 &num_vertices, U32& num_indices, F32 pixel_area);
-    virtual void updateFaceData(LLFace *face, F32 pixel_area, BOOL damp_wind = FALSE, bool terse_update = false);
-    virtual BOOL updateLOD(F32 pixel_area, BOOL activate);
+    virtual void updateFaceData(LLFace *face, F32 pixel_area, bool damp_wind = false, bool terse_update = false);
+    virtual bool updateLOD(F32 pixel_area, bool activate);
     virtual void updateJointGeometry();
     virtual void dump();
 
 
 public:
-    static BOOL sDisableLOD;
+    static bool sDisableLOD;
     avatar_joint_mesh_list_t mMeshParts; //LLViewerJointMesh*
     void setMeshID( S32 id ) {mMeshID = id;}
 
 protected:
     void init();
 
-    BOOL        mValid;
-    BOOL        mIsTransparent;
+    bool        mValid;
+    bool        mIsTransparent;
     U32         mComponents;
     F32         mMinPixelArea;
     LLJointPickName mPickName;
-    BOOL        mVisible;
+    bool        mVisible;
     S32         mMeshID;
 };
 
@@ -127,8 +127,8 @@ public:
     LLAvatarJointCollisionVolume();
     virtual ~LLAvatarJointCollisionVolume() {};
 
-    /*virtual*/ BOOL inheritScale() { return TRUE; }
-    /*virtual*/ U32 render( F32 pixelArea, BOOL first_pass = TRUE, BOOL is_dummy = FALSE );
+    /*virtual*/ bool inheritScale() { return true; }
+    /*virtual*/ U32 render( F32 pixelArea, bool first_pass = true, bool is_dummy = false );
 
     void renderCollision();
 

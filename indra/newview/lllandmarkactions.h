@@ -45,7 +45,7 @@ public:
     /**
      * @brief Fetches landmark LLViewerInventoryItems for the given landmark name.
      */
-    static LLInventoryModel::item_array_t fetchLandmarksByName(std::string& name, BOOL if_use_substring);
+    static LLInventoryModel::item_array_t fetchLandmarksByName(std::string& name, bool if_use_substring);
     /**
      * @brief Checks whether landmark exists for current agent position.
      */

@@ -45,7 +45,7 @@ public:
 
     // LLView override
     virtual void    draw();
-    BOOL postBuild();
+    bool postBuild();
 
     void    initKeywords();
     void    loadKeywords();

@@ -38,7 +38,7 @@
 #include "llvoavatar.h"
 #include "pipeline.h"
 
-static const S32 MIN_PIXEL_AREA_3PASS_HAIR = 64*64;
+static constexpr S32 MIN_PIXEL_AREA_3PASS_HAIR = 64*64;
 
 //-----------------------------------------------------------------------------
 // LLViewerJoint()
@@ -67,7 +67,7 @@ LLViewerJoint::~LLViewerJoint()
 //--------------------------------------------------------------------
 // render()
 //--------------------------------------------------------------------
-U32 LLViewerJoint::render( F32 pixelArea, BOOL first_pass, BOOL is_dummy )
+U32 LLViewerJoint::render( F32 pixelArea, bool first_pass, bool is_dummy )
 {
     stop_glerror();
 
@@ -107,13 +107,13 @@ U32 LLViewerJoint::render( F32 pixelArea, BOOL first_pass, BOOL is_dummy )
                 // second pass writes to z buffer only
                 gGL.setColorMask(false, false);
                 {
-                    triangle_count += drawShape( pixelArea, FALSE, is_dummy  );
+                    triangle_count += drawShape( pixelArea, false, is_dummy  );
                 }
                 // third past respects z buffer and writes color
                 gGL.setColorMask(true, false);
                 {
                     LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
-                    triangle_count += drawShape( pixelArea, FALSE, is_dummy  );
+                    triangle_count += drawShape( pixelArea, false, is_dummy  );
                 }
             }
             else
@@ -127,7 +127,7 @@ U32 LLViewerJoint::render( F32 pixelArea, BOOL first_pass, BOOL is_dummy )
                 // Render Outside (write to the Z buffer)
                 glCullFace(GL_BACK);
                 {
-                    triangle_count += drawShape( pixelArea, FALSE, is_dummy  );
+                    triangle_count += drawShape( pixelArea, false, is_dummy  );
                 }
             }
         }
@@ -149,7 +149,7 @@ U32 LLViewerJoint::render( F32 pixelArea, BOOL first_pass, BOOL is_dummy )
         F32 jointLOD = joint->getLOD();
         if (pixelArea >= jointLOD || sDisableLOD)
         {
-            triangle_count += joint->render( pixelArea, TRUE, is_dummy );
+            triangle_count += joint->render( pixelArea, true, is_dummy );
 
             if (jointLOD != DEFAULT_AVATAR_JOINT_LOD)
             {
@@ -164,7 +164,7 @@ U32 LLViewerJoint::render( F32 pixelArea, BOOL first_pass, BOOL is_dummy )
 //--------------------------------------------------------------------
 // drawShape()
 //--------------------------------------------------------------------
-U32 LLViewerJoint::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy )
+U32 LLViewerJoint::drawShape( F32 pixelArea, bool first_pass, bool is_dummy )
 {
     return 0;
 }

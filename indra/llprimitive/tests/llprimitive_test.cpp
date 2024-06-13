@@ -46,7 +46,7 @@ public:
         if (mVolumeTest.isNull() || volume_params != mCurrParamsTest || detail != mCurrDetailTest)
         {
             F32 volume_detail = LLVolumeLODGroup::getVolumeScaleFromDetail(detail);
-            mVolumeTest = new LLVolume(volume_params, volume_detail, FALSE, FALSE);
+            mVolumeTest = new LLVolume(volume_params, volume_detail, false, false);
             mCurrParamsTest = volume_params;
             mCurrDetailTest = detail;
             return mVolumeTest;
@@ -109,7 +109,7 @@ void LLPrimTextureList::take(LLPrimTextureList &other_list) { }
 void LLPrimTextureList::setSize(S32 new_size) { mEntryList.resize(new_size); }
 void LLPrimTextureList::setAllIDs(const LLUUID &id) { }
 LLTextureEntry * LLPrimTextureList::getTexture(const U8 index) const { return nullptr; }
-S32 LLPrimTextureList::size() const { return mEntryList.size(); }
+S32 LLPrimTextureList::size() const { return static_cast<S32>(mEntryList.size()); }
 
 class PRIMITIVE_TEST_SETUP
 {
@@ -193,7 +193,7 @@ namespace tut
         ensure(!primitive.isChanged(LLXform::GEOMETRY));
 
         // Make sure setVolume returns true
-        ensure(primitive.setVolume(params, 0, true) == TRUE);
+        ensure(primitive.setVolume(params, 0, true) == true);
         LLVolume* new_volume = primitive.getVolume();
 
         // make sure new volume was actually created
@@ -210,12 +210,12 @@ namespace tut
         ensure(primitive.isChanged(LLXform::GEOMETRY));
 
         // Run it twice to make sure it doesn't create a different one if params are the same
-        ensure(primitive.setVolume(params, 0, true) == FALSE);
+        ensure(primitive.setVolume(params, 0, true) == false);
         ensure(new_volume == primitive.getVolume());
 
         // Change the param definition and try setting it again.
         params.setRevolutions(4);
-        ensure(primitive.setVolume(params, 0, true) == TRUE);
+        ensure(primitive.setVolume(params, 0, true) == true);
 
         // Ensure that we now have a different volume
         ensure(new_volume != primitive.getVolume());
@@ -238,7 +238,7 @@ namespace tut
         ensure(!primitive.isChanged(LLXform::GEOMETRY));
 
         // Make sure setVolume returns true
-        ensure(primitive.setVolume(params, 0, false) == TRUE);
+        ensure(primitive.setVolume(params, 0, false) == true);
 
         LLVolume* new_volume = primitive.getVolume();
 
@@ -256,12 +256,12 @@ namespace tut
         ensure(primitive.isChanged(LLXform::GEOMETRY));
 
         // Run it twice to make sure it doesn't create a different one if params are the same
-        ensure(primitive.setVolume(params, 0, false) == FALSE);
+        ensure(primitive.setVolume(params, 0, false) == false);
         ensure(new_volume == primitive.getVolume());
 
         // Change the param definition and try setting it again.
         params.setRevolutions(4);
-        ensure(primitive.setVolume(params, 0, false) == TRUE);
+        ensure(primitive.setVolume(params, 0, false) == true);
 
         // Ensure that we now have a different volume
         ensure(new_volume != primitive.getVolume());

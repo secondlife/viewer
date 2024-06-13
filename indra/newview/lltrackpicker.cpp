@@ -57,11 +57,11 @@ LLFloaterTrackPicker::~LLFloaterTrackPicker()
 {
 }
 
-BOOL LLFloaterTrackPicker::postBuild()
+bool LLFloaterTrackPicker::postBuild()
 {
     childSetAction(BTN_CANCEL, [this](LLUICtrl*, const LLSD& param){ onButtonCancel(); });
     childSetAction(BTN_SELECT, [this](LLUICtrl*, const LLSD& param){ onButtonSelect(); });
-    return TRUE;
+    return true;
 }
 
 void LLFloaterTrackPicker::onClose(bool app_quitting)
@@ -72,7 +72,7 @@ void LLFloaterTrackPicker::onClose(bool app_quitting)
     LLView *owner = mOwnerHandle.get();
     if (owner)
     {
-        owner->setFocus(TRUE);
+        owner->setFocus(true);
     }
 }
 
@@ -94,12 +94,12 @@ void LLFloaterTrackPicker::showPicker(const LLSD &args)
         if (can_enable && select_item)
         {
             select_item = false;
-            getChild<LLRadioGroup>(RDO_TRACK_SELECTION, true)->setSelectedByValue(LLSD(track_id), TRUE);
+            getChild<LLRadioGroup>(RDO_TRACK_SELECTION, true)->setSelectedByValue(LLSD(track_id), true);
         }
     }
 
     openFloater(getKey());
-    setFocus(TRUE);
+    setFocus(true);
 }
 
 void LLFloaterTrackPicker::draw()

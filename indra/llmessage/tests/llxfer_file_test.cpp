@@ -51,7 +51,7 @@ namespace tut
             oversized_filename += 'X';
         }
 
-        LLXfer_File xff(oversized_filename, FALSE, 1);
+        LLXfer_File xff(oversized_filename, false, 1);
         ensure("oversized local_filename nul-terminated",
                xff.getFileName().length() < LL_MAX_PATH);
     }

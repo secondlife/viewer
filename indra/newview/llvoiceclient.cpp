@@ -369,7 +369,7 @@ bool LLVoiceClient::isParticipant(const LLUUID &speaker_id)
 // text chat
 
 
-BOOL LLVoiceClient::isSessionTextIMPossible(const LLUUID& id)
+bool LLVoiceClient::isSessionTextIMPossible(const LLUUID& id)
 {
     if (mVoiceModule)
     {
@@ -377,11 +377,11 @@ BOOL LLVoiceClient::isSessionTextIMPossible(const LLUUID& id)
     }
     else
     {
-        return FALSE;
+        return false;
     }
 }
 
-BOOL LLVoiceClient::isSessionCallBackPossible(const LLUUID& id)
+bool LLVoiceClient::isSessionCallBackPossible(const LLUUID& id)
 {
     if (mVoiceModule)
     {
@@ -389,12 +389,12 @@ BOOL LLVoiceClient::isSessionCallBackPossible(const LLUUID& id)
     }
     else
     {
-        return FALSE;
+        return false;
     }
 }
 
 /* obsolete
-BOOL LLVoiceClient::sendTextMessage(const LLUUID& participant_id, const std::string& message)
+bool LLVoiceClient::sendTextMessage(const LLUUID& participant_id, const std::string& message)
 {
     if (mVoiceModule)
     {
@@ -402,7 +402,7 @@ BOOL LLVoiceClient::sendTextMessage(const LLUUID& participant_id, const std::str
     }
     else
     {
-        return FALSE;
+        return false;
     }
 }
 */
@@ -575,12 +575,12 @@ void LLVoiceClient::updateMicMuteLogic()
     if (mVoiceModule) mVoiceModule->setMuteMic(new_mic_mute);
 }
 
-void LLVoiceClient::setLipSyncEnabled(BOOL enabled)
+void LLVoiceClient::setLipSyncEnabled(bool enabled)
 {
     if (mVoiceModule) mVoiceModule->setLipSyncEnabled(enabled);
 }
 
-BOOL LLVoiceClient::lipSyncEnabled()
+bool LLVoiceClient::lipSyncEnabled()
 {
     if (mVoiceModule)
     {
@@ -673,7 +673,7 @@ void LLVoiceClient::toggleUserPTTState(void)
 //-------------------------------------------
 // nearby speaker accessors
 
-BOOL LLVoiceClient::getVoiceEnabled(const LLUUID& id)
+bool LLVoiceClient::getVoiceEnabled(const LLUUID& id)
 {
     if (mVoiceModule)
     {
@@ -681,7 +681,7 @@ BOOL LLVoiceClient::getVoiceEnabled(const LLUUID& id)
     }
     else
     {
-        return FALSE;
+        return false;
     }
 }
 
@@ -706,7 +706,7 @@ bool LLVoiceClient::isVoiceWorking() const
     return false;
 }
 
-BOOL LLVoiceClient::isParticipantAvatar(const LLUUID& id)
+bool LLVoiceClient::isParticipantAvatar(const LLUUID& id)
 {
     if (mVoiceModule)
     {
@@ -714,16 +714,16 @@ BOOL LLVoiceClient::isParticipantAvatar(const LLUUID& id)
     }
     else
     {
-        return FALSE;
+        return false;
     }
 }
 
-BOOL LLVoiceClient::isOnlineSIP(const LLUUID& id)
+bool LLVoiceClient::isOnlineSIP(const LLUUID& id)
 {
-        return FALSE;
+        return false;
 }
 
-BOOL LLVoiceClient::getIsSpeaking(const LLUUID& id)
+bool LLVoiceClient::getIsSpeaking(const LLUUID& id)
 {
     if (mVoiceModule)
     {
@@ -731,11 +731,11 @@ BOOL LLVoiceClient::getIsSpeaking(const LLUUID& id)
     }
     else
     {
-        return FALSE;
+        return false;
     }
 }
 
-BOOL LLVoiceClient::getIsModeratorMuted(const LLUUID& id)
+bool LLVoiceClient::getIsModeratorMuted(const LLUUID& id)
 {
     if (mVoiceModule)
     {
@@ -743,7 +743,7 @@ BOOL LLVoiceClient::getIsModeratorMuted(const LLUUID& id)
     }
     else
     {
-        return FALSE;
+        return false;
     }
 }
 
@@ -759,7 +759,7 @@ F32 LLVoiceClient::getCurrentPower(const LLUUID& id)
     }
 }
 
-BOOL LLVoiceClient::getOnMuteList(const LLUUID& id)
+bool LLVoiceClient::getOnMuteList(const LLUUID& id)
 {
     if (mVoiceModule)
     {
@@ -767,7 +767,7 @@ BOOL LLVoiceClient::getOnMuteList(const LLUUID& id)
     }
     else
     {
-        return FALSE;
+        return false;
     }
 }
 
@@ -852,7 +852,7 @@ LLVoiceEffectInterface* LLVoiceClient::getVoiceEffectInterface() const
 
 class LLViewerRequiredVoiceVersion : public LLHTTPNode
 {
-    static BOOL sAlertedUser;
+    static bool sAlertedUser;
     virtual void post(
                       LLHTTPNode::ResponsePtr response,
                       const LLSD& context,
@@ -872,9 +872,9 @@ class LLViewerRequiredVoiceVersion : public LLHTTPNode
             {
                 if (!sAlertedUser)
                 {
-                    //sAlertedUser = TRUE;
+                    //sAlertedUser = true;
                     LLNotificationsUtil::add("VoiceVersionMismatch");
-                    gSavedSettings.setBOOL("EnableVoiceChat", FALSE); // toggles listener
+                    gSavedSettings.setBOOL("EnableVoiceChat", false); // toggles listener
                 }
             }
         }
@@ -1087,7 +1087,7 @@ void LLSpeakerVolumeStorage::save()
     }
 }
 
-BOOL LLViewerRequiredVoiceVersion::sAlertedUser = FALSE;
+bool LLViewerRequiredVoiceVersion::sAlertedUser = false;
 
 LLHTTPRegistration<LLViewerParcelVoiceInfo>
 gHTTPRegistrationMessageParcelVoiceInfo(

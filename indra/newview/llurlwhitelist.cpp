@@ -128,8 +128,8 @@ bool LLUrlWhiteList::clear ()
 std::string url_cleanup(std::string pattern)
 {
     LLStringUtil::trim(pattern);
-    S32 length = pattern.length();
-    S32 position = 0;
+    size_t length = pattern.length();
+    size_t position = 0;
     std::string::reverse_iterator it = pattern.rbegin();
     ++it;   // skip last char, might be '/'
     ++position;
@@ -139,7 +139,7 @@ std::string url_cleanup(std::string pattern)
         if (c == '/')
         {
             // found second to last '/'
-            S32 desired_length = length - position;
+            auto desired_length = length - position;
             LLStringUtil::truncate(pattern, desired_length);
             break;
         }

@@ -93,12 +93,12 @@ public:
     }
     /*virtual*/ bool    canEdit() const { return false; }
     // eat handleMouseDown event so we get the mouseup event
-    /*virtual*/ BOOL    handleMouseDown(S32 x, S32 y, MASK mask) { return TRUE; }
-    /*virtual*/ BOOL    handleMouseUp(S32 x, S32 y, MASK mask) { mEditor.onCommit(); return TRUE; }
-    /*virtual*/ BOOL    handleHover(S32 x, S32 y, MASK mask)
+    /*virtual*/ bool    handleMouseDown(S32 x, S32 y, MASK mask) { return true; }
+    /*virtual*/ bool    handleMouseUp(S32 x, S32 y, MASK mask) { mEditor.onCommit(); return true; }
+    /*virtual*/ bool    handleHover(S32 x, S32 y, MASK mask)
     {
         LLUI::getInstance()->getWindow()->setCursor(UI_CURSOR_HAND);
-        return TRUE;
+        return true;
     }
 private:
     LLTextBase& mEditor;
@@ -115,11 +115,11 @@ LLExpandableTextBox::LLTextBoxEx::LLTextBoxEx(const Params& p)
     mExpanderLabel(p.label.isProvided() ? p.label : LLTrans::getString("More")),
     mExpanderVisible(false)
 {
-    setIsChrome(TRUE);
+    setIsChrome(true);
     setMaxTextLength(p.max_text_length);
 }
 
-void LLExpandableTextBox::LLTextBoxEx::reshape(S32 width, S32 height, BOOL called_from_parent)
+void LLExpandableTextBox::LLTextBoxEx::reshape(S32 width, S32 height, bool called_from_parent)
 {
     LLTextEditor::reshape(width, height, called_from_parent);
 }
@@ -253,11 +253,11 @@ void LLExpandableTextBox::draw()
 {
     if(mBGVisible && !mExpanded)
     {
-        gl_rect_2d(getLocalRect(), mBGColor.get(), TRUE);
+        gl_rect_2d(getLocalRect(), mBGColor.get(), true);
     }
     if(mExpandedBGVisible && mExpanded)
     {
-        gl_rect_2d(getLocalRect(), mExpandedBGColor.get(), TRUE);
+        gl_rect_2d(getLocalRect(), mExpandedBGColor.get(), true);
     }
 
     collapseIfPosChanged();
@@ -389,10 +389,10 @@ void LLExpandableTextBox::expandTextBox()
 
     // expand text box
     localRectToOtherView(expanded_rect, &expanded_screen_rect, getParent());
-    reshape(expanded_screen_rect.getWidth(), expanded_screen_rect.getHeight(), FALSE);
+    reshape(expanded_screen_rect.getWidth(), expanded_screen_rect.getHeight(), false);
     setRect(expanded_screen_rect);
 
-    setFocus(TRUE);
+    setFocus(true);
     // this lets us receive top_lost event(needed to collapse text box)
     // it also draws text box above all other ui elements
     gViewerWindow->addPopup(this);
@@ -409,7 +409,7 @@ void LLExpandableTextBox::collapseTextBox()
 
     mExpanded = false;
 
-    reshape(mCollapsedRect.getWidth(), mCollapsedRect.getHeight(), FALSE);
+    reshape(mCollapsedRect.getWidth(), mCollapsedRect.getHeight(), false);
     setRect(mCollapsedRect);
 
     updateTextBoxRect();
@@ -436,7 +436,7 @@ void LLExpandableTextBox::updateTextShape()
     updateTextBoxRect();
 }
 
-void LLExpandableTextBox::reshape(S32 width, S32 height, BOOL called_from_parent)
+void LLExpandableTextBox::reshape(S32 width, S32 height, bool called_from_parent)
 {
     mExpanded = false;
     LLUICtrl::reshape(width, height, called_from_parent);

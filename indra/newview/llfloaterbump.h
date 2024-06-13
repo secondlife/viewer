@@ -43,8 +43,8 @@ protected:
     void onScrollListRightClicked(LLUICtrl* ctrl, S32 x, S32 y);
 
 public:
-    /*virtual*/ BOOL postBuild();
-    /*virtual*/ void onOpen(const LLSD& key);
+    bool postBuild() override;
+    void onOpen(const LLSD& key) override;
 
     static LLFloaterBump* getInstance();
 

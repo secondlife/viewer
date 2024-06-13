@@ -61,10 +61,10 @@ LLPathfindingLinkset::LLPathfindingLinkset(const LLSD& pTerrainData)
     : LLPathfindingObject(),
     mIsTerrain(true),
     mLandImpact(0U),
-    mIsModifiable(FALSE),
-    mCanBeVolume(FALSE),
-    mIsScripted(FALSE),
-    mHasIsScripted(TRUE),
+    mIsModifiable(false),
+    mCanBeVolume(false),
+    mIsScripted(false),
+    mHasIsScripted(true),
     mLinksetUse(kUnknown),
     mWalkabilityCoefficientA(MIN_WALKABILITY_VALUE),
     mWalkabilityCoefficientB(MIN_WALKABILITY_VALUE),
@@ -78,10 +78,10 @@ LLPathfindingLinkset::LLPathfindingLinkset(const std::string &pUUID, const LLSD&
     : LLPathfindingObject(pUUID, pLinksetData),
     mIsTerrain(false),
     mLandImpact(0U),
-    mIsModifiable(TRUE),
-    mCanBeVolume(TRUE),
-    mIsScripted(FALSE),
-    mHasIsScripted(FALSE),
+    mIsModifiable(true),
+    mCanBeVolume(true),
+    mIsScripted(false),
+    mHasIsScripted(false),
     mLinksetUse(kUnknown),
     mWalkabilityCoefficientA(MIN_WALKABILITY_VALUE),
     mWalkabilityCoefficientB(MIN_WALKABILITY_VALUE),
@@ -131,14 +131,14 @@ LLPathfindingLinkset& LLPathfindingLinkset::operator =(const LLPathfindingLinkse
     return *this;
 }
 
-BOOL LLPathfindingLinkset::isPhantom() const
+bool LLPathfindingLinkset::isPhantom() const
 {
     return isPhantom(getLinksetUse());
 }
 
 LLPathfindingLinkset::ELinksetUse LLPathfindingLinkset::getLinksetUseWithToggledPhantom(ELinksetUse pLinksetUse)
 {
-    BOOL isPhantom = LLPathfindingLinkset::isPhantom(pLinksetUse);
+    bool isPhantom = LLPathfindingLinkset::isPhantom(pLinksetUse);
     ENavMeshGenerationCategory navMeshGenerationCategory = getNavMeshGenerationCategory(pLinksetUse);
 
     return getLinksetUse(!isPhantom, navMeshGenerationCategory);
@@ -259,9 +259,9 @@ void LLPathfindingLinkset::parsePathfindingData(const LLSD &pLinksetData)
     llassert(mWalkabilityCoefficientD <= MAX_WALKABILITY_VALUE);
 }
 
-BOOL LLPathfindingLinkset::isPhantom(ELinksetUse pLinksetUse)
+bool LLPathfindingLinkset::isPhantom(ELinksetUse pLinksetUse)
 {
-    BOOL retVal;
+    bool retVal;
 
     switch (pLinksetUse)
     {

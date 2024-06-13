@@ -51,7 +51,7 @@ LLFloaterSoundDevices::~LLFloaterSoundDevices()
 }
 
 // virtual
-BOOL LLFloaterSoundDevices::postBuild()
+bool LLFloaterSoundDevices::postBuild()
 {
     LLTransientDockableFloater::postBuild();
 
@@ -65,7 +65,7 @@ BOOL LLFloaterSoundDevices::postBuild()
         getChild<LLUICtrl>("voice_output_device")->setCommitCallback(boost::bind(&LLPanelVoiceDeviceSettings::apply, panel));
         getChild<LLUICtrl>("mic_volume_slider")->setCommitCallback(boost::bind(&LLPanelVoiceDeviceSettings::apply, panel));
     }
-    return TRUE;
+    return true;
 }
 
 //virtual
@@ -75,7 +75,7 @@ void LLFloaterSoundDevices::setDocked(bool docked, bool pop_on_undock/* = true*/
 }
 
 // virtual
-void LLFloaterSoundDevices::setFocus( BOOL b )
+void LLFloaterSoundDevices::setFocus(bool b)
 {
     LLTransientDockableFloater::setFocus(b);
 

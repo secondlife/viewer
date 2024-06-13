@@ -47,22 +47,22 @@ public:
 
     virtual void makePristine();
 
-    /*virtual*/ void onVisibilityChange( BOOL new_visibility );
+    /*virtual*/ void onVisibilityChange( bool new_visibility );
 
     // mousehandler overrides
-    virtual BOOL    handleMouseDown(S32 x, S32 y, MASK mask);
-    virtual BOOL    handleMouseUp(S32 x, S32 y, MASK mask);
-    virtual BOOL    handleHover(S32 x, S32 y, MASK mask);
-    virtual BOOL    handleDoubleClick(S32 x, S32 y, MASK mask );
+    virtual bool    handleMouseDown(S32 x, S32 y, MASK mask);
+    virtual bool    handleMouseUp(S32 x, S32 y, MASK mask);
+    virtual bool    handleHover(S32 x, S32 y, MASK mask);
+    virtual bool    handleDoubleClick(S32 x, S32 y, MASK mask );
 
-    virtual BOOL    handleDragAndDrop(S32 x, S32 y, MASK mask,
-                                        BOOL drop, EDragAndDropType cargo_type,
+    virtual bool    handleDragAndDrop(S32 x, S32 y, MASK mask,
+                                        bool drop, EDragAndDropType cargo_type,
                                         void *cargo_data, EAcceptance *accept, std::string& tooltip_msg);
 
     const class LLInventoryItem* getDragItem() const { return mDragItem; }
-    virtual BOOL    importBuffer(const char* buffer, S32 length);
+    virtual bool    importBuffer(const char* buffer, S32 length);
     virtual bool    importStream(std::istream& str);
-    virtual BOOL    exportBuffer(std::string& buffer);
+    virtual bool    exportBuffer(std::string& buffer);
     virtual void    onValueChange(S32 start, S32 end);
 
     void setNotecardInfo(const LLUUID& notecard_item_id, const LLUUID& object_id, const LLUUID& preview_id)
@@ -95,8 +95,8 @@ private:
     void findEmbeddedItemSegments(S32 start, S32 end);
     virtual llwchar pasteEmbeddedItem(llwchar ext_char);
 
-    BOOL            openEmbeddedItemAtPos( S32 pos );
-    BOOL            openEmbeddedItem(LLPointer<LLInventoryItem> item, llwchar wc);
+    bool            openEmbeddedItemAtPos( S32 pos );
+    bool            openEmbeddedItem(LLPointer<LLInventoryItem> item, llwchar wc);
 
     S32             insertEmbeddedItem(S32 pos, LLInventoryItem* item);
 
@@ -118,7 +118,7 @@ private:
     LLPointer<LLInventoryItem> mDragItem;
     LLTextSegment* mDragSegment;
     llwchar mDragItemChar;
-    BOOL mDragItemSaved;
+    bool mDragItemSaved;
     class LLEmbeddedItems* mEmbeddedItemList;
 
     LLUUID mObjectID;

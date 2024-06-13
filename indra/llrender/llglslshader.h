@@ -44,6 +44,7 @@ public:
     bool hasTransport = false; // implies no lighting (it's possible to have neither though)
     bool hasSkinning = false;
     bool hasObjectSkinning = false;
+    bool mGLTF = false;
     bool hasAtmospherics = false;
     bool hasGamma = false;
     bool hasShadows = false;
@@ -69,8 +70,8 @@ public:
     template<typename T>
     struct UniformSetting
     {
-        S32 mUniform;
-        T mValue;
+        S32 mUniform{ 0 };
+        T mValue{};
     };
 
     typedef UniformSetting<S32> IntSetting;
@@ -145,6 +146,14 @@ public:
         SG_COUNT
     } eGroup;
 
+    enum UniformBlock : GLuint
+    {
+        UB_REFLECTION_PROBES,
+        UB_GLTF_JOINTS,
+        NUM_UNIFORM_BLOCKS
+    };
+
+
     static std::set<LLGLSLShader*> sInstances;
     static bool sProfileEnabled;
 
@@ -175,17 +184,14 @@ public:
     // If force_read is true, will force an immediate readback (severe performance penalty)
     bool readProfileQuery(bool for_runtime = false, bool force_read = false);
 
-    BOOL createShader(std::vector<LLStaticHashedString>* attributes,
-        std::vector<LLStaticHashedString>* uniforms,
-        U32 varying_count = 0,
-        const char** varyings = NULL);
-    BOOL attachFragmentObject(std::string object);
-    BOOL attachVertexObject(std::string object);
+    bool createShader();
+    bool attachFragmentObject(std::string object);
+    bool attachVertexObject(std::string object);
     void attachObject(GLuint object);
     void attachObjects(GLuint* objects = NULL, S32 count = 0);
-    BOOL mapAttributes(const std::vector<LLStaticHashedString>* attributes);
-    BOOL mapUniforms(const std::vector<LLStaticHashedString>*);
-    void mapUniform(GLint index, const std::vector<LLStaticHashedString>*);
+    bool mapAttributes();
+    bool mapUniforms();
+    void mapUniform(GLint index);
     void uniform1i(U32 index, GLint i);
     void uniform1f(U32 index, GLfloat v);
     void fastUniform1f(U32 index, GLfloat v);
@@ -252,7 +258,7 @@ public:
     S32 unbindTexture(const std::string& uniform, LLTexUnit::eTextureType mode = LLTexUnit::TT_TEXTURE);
     S32 unbindTexture(S32 uniform, LLTexUnit::eTextureType mode = LLTexUnit::TT_TEXTURE);
 
-    BOOL link(BOOL suppress_errors = FALSE);
+    bool link(bool suppress_errors = false);
     void bind();
     //helper to conditionally bind mRiggedVariant instead of this
     void bind(bool rigged);
@@ -290,7 +296,7 @@ public:
     S32 mActiveTextureChannels;
     S32 mShaderLevel;
     S32 mShaderGroup; // see LLGLSLShader::eGroup
-    BOOL mUniformsDirty;
+    bool mUniformsDirty;
     LLShaderFeatures mFeatures;
     std::vector< std::pair< std::string, GLenum > > mShaderFiles;
     std::string mName;
@@ -317,6 +323,26 @@ public:
 
     // this pointer should be set to whichever shader represents this shader's rigged variant
     LLGLSLShader* mRiggedVariant = nullptr;
+
+    // variants for use by GLTF renderer
+    // bit 0 = alpha mode blend (1) or opaque (0)
+    // bit 1 = rigged (1) or static (0)
+    // bit 2 = unlit (1) or lit (0)
+    // bit 3 = single (0) or multi (1) uv coordinates
+    struct GLTFVariant
+    {
+        constexpr static U8 ALPHA_BLEND = 1;
+        constexpr static U8 RIGGED = 2;
+        constexpr static U8 UNLIT = 4;
+        constexpr static U8 MULTI_UV = 8;
+    };
+
+    constexpr static U8 NUM_GLTF_VARIANTS = 16;
+
+    std::vector<LLGLSLShader> mGLTFVariants;
+
+    //helper to bind GLTF variant
+    void bind(U8 variant);
 
     // hacky flag used for optimization in LLDrawPoolAlpha
     bool mCanBindFast = false;

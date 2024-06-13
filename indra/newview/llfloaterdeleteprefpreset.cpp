@@ -42,7 +42,7 @@ LLFloaterDeletePrefPreset::LLFloaterDeletePrefPreset(const LLSD &key)
 }
 
 // virtual
-BOOL LLFloaterDeletePrefPreset::postBuild()
+bool LLFloaterDeletePrefPreset::postBuild()
 {
     LLFloaterPreference* preferences = LLFloaterReg::getTypedInstance<LLFloaterPreference>("preferences");
     if (preferences)
@@ -53,7 +53,7 @@ BOOL LLFloaterDeletePrefPreset::postBuild()
     getChild<LLButton>("cancel")->setCommitCallback(boost::bind(&LLFloaterDeletePrefPreset::onBtnCancel, this));
     LLPresetsManager::instance().setPresetListChangeCallback(boost::bind(&LLFloaterDeletePrefPreset::onPresetsListChange, this));
 
-    return TRUE;
+    return true;
 }
 
 void LLFloaterDeletePrefPreset::onOpen(const LLSD& key)

@@ -83,6 +83,8 @@ LLInventoryDictionary::LLInventoryDictionary()
     addEntry(LLInventoryType::IT_ANIMATION,           new InventoryEntry("animation", "animation",     1, LLAssetType::AT_ANIMATION));
     addEntry(LLInventoryType::IT_GESTURE,             new InventoryEntry("gesture",   "gesture",       1, LLAssetType::AT_GESTURE));
     addEntry(LLInventoryType::IT_MESH,                new InventoryEntry("mesh",      "mesh",          1, LLAssetType::AT_MESH));
+    addEntry(LLInventoryType::IT_GLTF,                new InventoryEntry("gltf",      "gltf",          1, LLAssetType::AT_GLTF));
+    addEntry(LLInventoryType::IT_GLTF_BIN,            new InventoryEntry("glbin",     "glbin",         1, LLAssetType::AT_GLTF_BIN));
     addEntry(LLInventoryType::IT_WIDGET,              new InventoryEntry("widget",    "widget",        1, LLAssetType::AT_WIDGET));
     addEntry(LLInventoryType::IT_PERSON,              new InventoryEntry("person",    "person",        1, LLAssetType::AT_PERSON));
     addEntry(LLInventoryType::IT_SETTINGS,            new InventoryEntry("settings",  "settings",      1, LLAssetType::AT_SETTINGS));
@@ -153,9 +155,12 @@ DEFAULT_ASSET_FOR_INV_TYPE[LLAssetType::AT_COUNT] =
     LLInventoryType::IT_NONE,           // 52   AT_RESERVED_3
     LLInventoryType::IT_NONE,           // 53   AT_RESERVED_4
     LLInventoryType::IT_NONE,           // 54   AT_RESERVED_5
+    LLInventoryType::IT_NONE,           // 55   AT_RESERVED_6
 
-    LLInventoryType::IT_SETTINGS,       // 55   AT_SETTINGS <- why doesnt this match the value in llassettype.h? -brad
+    LLInventoryType::IT_SETTINGS,       // 56   AT_SETTINGS
     LLInventoryType::IT_MATERIAL,       // 57   AT_MATERIAL
+    LLInventoryType::IT_GLTF,           // 58   AT_GLTF
+    LLInventoryType::IT_GLTF_BIN,       // 59   AT_GLTF_BIN
 };
 
 // static

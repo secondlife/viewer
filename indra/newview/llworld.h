@@ -81,7 +81,7 @@ public:
     LLViewerRegion*         getRegionFromPosAgent(const LLVector3 &pos);
     LLViewerRegion*         getRegionFromHandle(const U64 &handle);
     LLViewerRegion*         getRegionFromID(const LLUUID& region_id);
-    BOOL                    positionRegionValidGlobal(const LLVector3d& pos);           // true if position is in valid region
+    bool                    positionRegionValidGlobal(const LLVector3d& pos);           // true if position is in valid region
     LLVector3d              clipToVisibleRegions(const LLVector3d &start_pos, const LLVector3d &end_pos);
 
     void                    updateAgentOffset(const LLVector3d &offset);

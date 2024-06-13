@@ -32,6 +32,7 @@
 
 #include "AL/al.h"
 #include "AL/alut.h"
+#include "AL/alext.h"
 
 class LLListener_OpenAL  : public LLListener
 {

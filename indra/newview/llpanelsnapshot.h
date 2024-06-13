@@ -43,8 +43,8 @@ class LLPanelSnapshot: public LLPanel
 public:
     LLPanelSnapshot();
 
-    /*virtual*/ BOOL postBuild();
-    /*virtual*/ void onOpen(const LLSD& key);
+    bool postBuild() override;
+    void onOpen(const LLSD& key) override;
 
     virtual std::string getWidthSpinnerName() const = 0;
     virtual std::string getHeightSpinnerName() const = 0;
@@ -56,11 +56,11 @@ public:
     virtual S32 getTypedPreviewHeight() const;
     virtual LLSpinCtrl* getWidthSpinner();
     virtual LLSpinCtrl* getHeightSpinner();
-    virtual void enableAspectRatioCheckbox(BOOL enable);
+    virtual void enableAspectRatioCheckbox(bool enable);
     virtual LLSnapshotModel::ESnapshotFormat getImageFormat() const;
     virtual LLSnapshotModel::ESnapshotType getSnapshotType();
     virtual void updateControls(const LLSD& info) = 0; ///< Update controls from saved settings
-    void enableControls(BOOL enable);
+    void enableControls(bool enable);
 
 protected:
     LLSideTrayPanelContainer* getParentContainer();

@@ -209,7 +209,7 @@ std::string ll_stream_notation_sd(const LLSD& sd)
 //are not of the same type, false is returned or if the LLSDs are not
 //of the same value.  Ordering of arrays matters
 //Otherwise, returns true
-BOOL compare_llsd_with_template(
+bool compare_llsd_with_template(
     const LLSD& llsd_to_test,
     const LLSD& template_llsd,
     LLSD& resultant_llsd)
@@ -221,12 +221,12 @@ BOOL compare_llsd_with_template(
         template_llsd.isDefined() )
     {
         resultant_llsd = template_llsd;
-        return TRUE;
+        return true;
     }
     else if ( llsd_to_test.type() != template_llsd.type() )
     {
         resultant_llsd = LLSD();
-        return FALSE;
+        return false;
     }
 
     if ( llsd_to_test.isArray() )
@@ -255,7 +255,7 @@ BOOL compare_llsd_with_template(
                      data) )
             {
                 resultant_llsd = LLSD();
-                return FALSE;
+                return false;
             }
             else
             {
@@ -298,7 +298,7 @@ BOOL compare_llsd_with_template(
                          value) )
                 {
                     resultant_llsd = LLSD();
-                    return FALSE;
+                    return false;
                 }
                 else
                 {
@@ -321,7 +321,7 @@ BOOL compare_llsd_with_template(
     }
 
 
-    return TRUE;
+    return true;
 }
 
 // filter_llsd_with_template() is a direct clone (copy-n-paste) of

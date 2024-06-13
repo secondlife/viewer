@@ -162,24 +162,24 @@ public:
 
     virtual void navigateToFolder(bool new_window = false, bool change_mode = false) = 0;
 
-    virtual BOOL isItemWearable() const { return FALSE; }
+    virtual bool isItemWearable() const { return false; }
 
-    virtual BOOL isItemRenameable() const = 0;
-    virtual BOOL renameItem(const std::string& new_name) = 0;
+    virtual bool isItemRenameable() const = 0;
+    virtual bool renameItem(const std::string& new_name) = 0;
 
-    virtual BOOL isItemMovable( void ) const = 0;       // Can be moved to another folder
+    virtual bool isItemMovable( void ) const = 0;       // Can be moved to another folder
     virtual void move( LLFolderViewModelItem* parent_listener ) = 0;
 
-    virtual BOOL isItemRemovable( bool check_worn = true ) const = 0;       // Can be destroyed
-    virtual BOOL removeItem() = 0;
+    virtual bool isItemRemovable( bool check_worn = true ) const = 0;       // Can be destroyed
+    virtual bool removeItem() = 0;
     virtual void removeBatch(std::vector<LLFolderViewModelItem*>& batch) = 0;
 
     virtual bool isItemCopyable(bool can_copy_as_link = true) const = 0;
-    virtual BOOL copyToClipboard() const = 0;
-    virtual BOOL cutToClipboard() = 0;
+    virtual bool copyToClipboard() const = 0;
+    virtual bool cutToClipboard() = 0;
     virtual bool isCutToClipboard() { return false; };
 
-    virtual BOOL isClipboardPasteable() const = 0;
+    virtual bool isClipboardPasteable() const = 0;
     virtual void pasteFromClipboard() = 0;
     virtual void pasteLinkFromClipboard() = 0;
 
@@ -207,10 +207,10 @@ public:
     virtual void clearChildren() = 0;
 
     // This method will be called to determine if a drop can be
-    // performed, and will set drop to TRUE if a drop is
-    // requested. Returns TRUE if a drop is possible/happened,
-    // otherwise FALSE.
-    virtual BOOL dragOrDrop(MASK mask, BOOL drop,
+    // performed, and will set drop to true if a drop is
+    // requested. Returns true if a drop is possible/happened,
+    // otherwise false.
+    virtual bool dragOrDrop(MASK mask, bool drop,
                             EDragAndDropType cargo_type,
                             void* cargo_data,
                             std::string& tooltip_msg) = 0;

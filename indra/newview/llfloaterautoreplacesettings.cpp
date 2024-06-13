@@ -82,7 +82,7 @@ void LLFloaterAutoReplaceSettings::onClose(bool app_quitting)
     cleanUp();
 }
 
-BOOL LLFloaterAutoReplaceSettings::postBuild(void)
+bool LLFloaterAutoReplaceSettings::postBuild(void)
 {
     // get copies of the current settings that we will operate on
     mEnabled  = gSavedSettings.getBOOL("AutoReplace");
