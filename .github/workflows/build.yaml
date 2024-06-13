@@ -400,6 +400,9 @@ jobs:
           channel: ${{ needs.build.outputs.viewer_channel }}
           version: ${{ needs.build.outputs.viewer_version }}
 
+  # Build with a tag like "Second_Life#abcdef0" to generate a release page (used for builds we are planning to deploy).
+  # Note that the term release is overloaded here, this has nothing to do with vvm channel or with release vs. debug builds.
+  # Also note that the tag is no longer used to determine the viewer channel; that is now determined by the branch name.
   release:
     needs: [setvar, build, sign-and-package-windows, sign-and-package-mac]
     runs-on: ubuntu-latest

@@ -1242,7 +1242,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
     LLColor4 txt_color = LLUIColorTable::instance().getColor("White");
     LLColor4 name_color(txt_color);
 
-    LLViewerChat::getChatColor(chat,txt_color);
+    LLViewerChat::getChatColor(chat, txt_color);
     LLFontGL* fontp = LLViewerChat::getChatFont();
     std::string font_name = LLFontGL::nameFromFont(fontp);
     std::string font_size = LLFontGL::sizeFromFont(fontp);
@@ -1524,6 +1524,24 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
         }
 
         mEditor->appendText(message, prependNewLineState, body_message_params);
+
+        if (!chat.mTrans.empty())
+        {
+            LLStyle::Params trans_params(body_message_params);
+            trans_params.font.style = "ITALIC";
+            LLWString icon_wide_text = LLWString(1, 0x279C);
+            std::string icon_text = wstring_to_utf8str(icon_wide_text);
+            std::string text_with_icon = icon_text + " " + chat.mTrans;
+            mEditor->appendText(text_with_icon, true, trans_params);
+        }
+        if (!chat.mError.empty())
+        {
+            LLStyle::Params error_params(body_message_params);
+            error_params.color(LLUIColor(LLColor4::red));
+            error_params.font.size("Small");
+            mEditor->appendText(chat.mError, true, error_params);
+        }
+
         prependNewLineState = false;
     }
 

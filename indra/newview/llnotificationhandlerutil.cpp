@@ -104,7 +104,7 @@ void LLHandlerUtil::logToIM(const EInstantMessage& session_type,
         S32 unread = session->mNumUnread;
         S32 participant_unread = session->mParticipantUnreadMessageCount;
         LLIMModel::instance().addMessageSilently(session_id, from, from_id,
-                message);
+                message, LLStringUtil::null, LLStringUtil::null);
         // we shouldn't increment counters when logging, so restore them
         session->mNumUnread = unread;
         session->mParticipantUnreadMessageCount = participant_unread;

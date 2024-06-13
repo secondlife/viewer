@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater
  legacy_header_height="18"
- height="470"
+ height="530"
  layout="topleft"
  name="floater_translation_settings"
  help_topic="translation_settings"
@@ -17,21 +17,14 @@
  <string name="google_api_key_verified">Google API key verified.</string>
  <string name="deepl_api_key_verified">DeepL API key verified.</string>
 
- <check_box
-  height="16"     
-  label="Enable machine translation while chatting"
-  layout="topleft"
-  left="10"
-  name="translate_chat_checkbox"
-  top="30"
-  width="20" />
+ 
  <text
   height="20"
   follows="left|top"
   layout="topleft"
-  left="40"
+  left="10"
   name="translate_language_label"
-  top_pad="20"
+  top="30"
   width="130">
   Translate chat into: 
  </text>
@@ -116,6 +109,15 @@
    value="ko" />
  </combo_box>
 
+<check_box
+  height="16"     
+  label="Enable machine translation while chatting"
+  layout="topleft"
+  left="10"
+  name="translate_chat_checkbox"
+  top_pad="30"
+  width="20" />
+  
  <text
   follows="top|left|right"
   height="15"
@@ -130,7 +132,7 @@
 
  <radio_group
   follows="top|left"
-  height="260"
+  height="320"
   layout="topleft"
   left_delta="10"
   name="translation_service_rg"
@@ -161,8 +163,8 @@
    layout="topleft"
    left="185"
    length="1"
-   name="azure_links_text"
-   top_pad="-262"
+   name="google_links_text"
+   top_pad="-322"
    type="string"
    width="100">
     [https://learn.microsoft.com/en-us/azure/cognitive-services/translator/create-translator-resource Setup]

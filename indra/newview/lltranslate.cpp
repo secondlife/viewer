@@ -39,8 +39,12 @@
 #include "json/reader.h"
 #include "llcorehttputil.h"
 #include "llurlregistry.h"
+#include "llagent.h"
+#include "llviewerregion.h"
+#include "llsdserialize.h"
 #include "stringize.h"
-
+#include "llchat.h"
+#include "llinstantmessage.h"
 
 static const std::string AZURE_NOTRANSLATE_OPENING_TAG("<div translate=\"no\">");
 static const std::string AZURE_NOTRANSLATE_CLOSING_TAG("</div>");
@@ -55,6 +59,11 @@ class LLTranslationAPIHandler
 {
 public:
     typedef std::pair<std::string, std::string> LanguagePair_t;
+
+   /**
+     * Get the name of the translation service.
+    */
+    virtual std::string getName() const = 0;
 
     /**
     * Get URL for translation of the given string.
@@ -104,6 +113,7 @@ public:
     * @param[out]    err_msg       Error message (in case of error).
     */
     virtual bool parseResponse(
+        const LLSD& full_response,
         const LLSD& http_response,
         int& status,
         const std::string& body,
@@ -155,7 +165,7 @@ void LLTranslationAPIHandler::verifyKeyCoro(LLTranslate::EService service, LLSD 
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
-        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("getMerchantStatusCoro", httpPolicy));
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("verifyKeyCoro", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
     LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
     LLCore::HttpHeaders::ptr_t httpHeaders(new LLCore::HttpHeaders);
@@ -176,7 +186,7 @@ void LLTranslationAPIHandler::verifyKeyCoro(LLTranslate::EService service, LLSD 
     std::string url = this->getKeyVerificationURL(key);
     if (url.empty())
     {
-        LL_INFOS("Translate") << "No translation URL" << LL_ENDL;
+        LL_INFOS("Translate") << "No key verification URL" << LL_ENDL;
         return;
     }
 
@@ -210,7 +220,7 @@ void LLTranslationAPIHandler::translateMessageCoro(LanguagePair_t fromTo, std::s
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
-        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("getMerchantStatusCoro", httpPolicy));
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("translateMessageCoro", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
     LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
     LLCore::HttpHeaders::ptr_t httpHeaders(new LLCore::HttpHeaders);
@@ -230,31 +240,34 @@ void LLTranslationAPIHandler::translateMessageCoro(LanguagePair_t fromTo, std::s
     if (url.empty())
     {
         LL_INFOS("Translate") << "No translation URL" << LL_ENDL;
+        failure(0,"no translation URL");
         return;
     }
 
-    LLSD result = sendMessageAndSuspend(httpAdapter, httpRequest, httpOpts, httpHeaders, url, msg, fromTo.first, fromTo.second);
+    LL_INFOS("Translate") << "Sending translation request, URL: " << url << LL_ENDL;
+    LLSD fullResults = sendMessageAndSuspend(httpAdapter, httpRequest, httpOpts, httpHeaders, url, msg, fromTo.first, fromTo.second);
 
     if (LLApp::isQuitting())
     {
         return;
     }
 
-    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLSD httpResults = fullResults[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
+    LL_INFOS("Translate") << "sendMessageAndSuspend call got result " << fullResults << " httpResults " << httpResults << LL_ENDL;
     std::string translation, err_msg;
     std::string detected_lang(fromTo.second);
 
     int parseResult = status.getType();
-    const LLSD::Binary &rawBody = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_RAW].asBinary();
+    const LLSD::Binary &rawBody = fullResults[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_RAW].asBinary();
     std::string body(rawBody.begin(), rawBody.end());
 
     bool res = false;
 
     try
     {
-        res = parseResponse(httpResults, parseResult, body, translation, detected_lang, err_msg);
+        res = this->parseResponse(fullResults, httpResults, parseResult, body, translation, detected_lang, err_msg);
     }
     catch (std::out_of_range&)
     {
@@ -303,6 +316,7 @@ class LLGoogleTranslationHandler : public LLTranslationAPIHandler
     LOG_CLASS(LLGoogleTranslationHandler);
 
 public:
+    std::string getName() const override { return "google"; }
     std::string getTranslateURL(
         const std::string &from_lang,
         const std::string &to_lang,
@@ -313,6 +327,7 @@ public:
         const LLSD &response,
         int status) const override;
     bool parseResponse(
+        const LLSD& full_response,
         const LLSD& http_response,
         int& status,
         const std::string& body,
@@ -389,6 +404,7 @@ bool LLGoogleTranslationHandler::checkVerificationResponse(
 
 // virtual
 bool LLGoogleTranslationHandler::parseResponse(
+    const LLSD& full_response,
     const LLSD& http_response,
     int& status,
     const std::string& body,
@@ -533,6 +549,7 @@ class LLAzureTranslationHandler : public LLTranslationAPIHandler
     LOG_CLASS(LLAzureTranslationHandler);
 
 public:
+    std::string getName() const override { return "azure"; }
     std::string getTranslateURL(
         const std::string &from_lang,
         const std::string &to_lang,
@@ -543,6 +560,7 @@ public:
         const LLSD &response,
         int status) const override;
     bool parseResponse(
+        const LLSD& full_response,
         const LLSD& http_response,
         int& status,
         const std::string& body,
@@ -666,6 +684,7 @@ bool LLAzureTranslationHandler::checkVerificationResponse(
 
 // virtual
 bool LLAzureTranslationHandler::parseResponse(
+    const LLSD& full_response,
     const LLSD& http_response,
     int& status,
     const std::string& body,
@@ -858,6 +877,7 @@ class LLDeepLTranslationHandler: public LLTranslationAPIHandler
     LOG_CLASS(LLDeepLTranslationHandler);
 
 public:
+    std::string getName() const override { return "deepl"; }
     std::string getTranslateURL(
         const std::string& from_lang,
         const std::string& to_lang,
@@ -868,6 +888,7 @@ public:
         const LLSD& response,
         int status) const override;
     bool parseResponse(
+        const LLSD& full_response,
         const LLSD& http_response,
         int& status,
         const std::string& body,
@@ -959,6 +980,7 @@ bool LLDeepLTranslationHandler::checkVerificationResponse(
 
 // virtual
 bool LLDeepLTranslationHandler::parseResponse(
+    const LLSD& full_response,
     const LLSD& http_response,
     int& status,
     const std::string& body,
@@ -1120,11 +1142,242 @@ LLSD LLDeepLTranslationHandler::verifyAndSuspend(LLCoreHttpUtil::HttpCoroutineAd
 }
 
 //=========================================================================
+/// Simulator Translation API handler.
+class LLSimulatorTranslationHandler: public LLTranslationAPIHandler
+{
+    LOG_CLASS(LLSimulatorTranslationHandler);
+
+public:
+    std::string getName() const override { return "simulator"; }
+    std::string getTranslateURL(
+        const std::string& from_lang,
+        const std::string& to_lang,
+        const std::string& text) const override;
+    std::string getKeyVerificationURL(
+        const LLSD& key) const override;
+    bool checkVerificationResponse(
+        const LLSD& response,
+        int status) const override;
+    bool parseResponse(
+        const LLSD& full_response,
+        const LLSD& http_response,
+        int& status,
+        const std::string& body,
+        std::string& translation,
+        std::string& detected_lang,
+        std::string& err_msg) const override;
+    bool isConfigured() const override;
+
+    LLTranslate::EService getCurrentService() override
+    {
+        return LLTranslate::EService::SERVICE_SIMULATOR;
+    }
+
+    void verifyKey(const LLSD& key, LLTranslate::KeyVerificationResult_fn fnc) override;
+
+    void initHttpHeader(LLCore::HttpHeaders::ptr_t headers, const std::string& user_agent) const override;
+    void initHttpHeader(LLCore::HttpHeaders::ptr_t headers, const std::string& user_agent, const LLSD& key) const override;
+    LLSD sendMessageAndSuspend(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t adapter,
+                               LLCore::HttpRequest::ptr_t request,
+                               LLCore::HttpOptions::ptr_t options,
+                               LLCore::HttpHeaders::ptr_t headers,
+                               const std::string& url,
+                               const std::string& msg,
+                               const std::string& from_lang,
+                               const std::string& to_lang) const override;
+
+    LLSD verifyAndSuspend(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t adapter,
+                          LLCore::HttpRequest::ptr_t request,
+                          LLCore::HttpOptions::ptr_t options,
+                          LLCore::HttpHeaders::ptr_t headers,
+                          const std::string& url) const override;
+private:
+    static std::string parseErrorResponse(
+        const std::string& body);
+    static LLSD getAPIKey();
+    static std::string getAPILanguageCode(const std::string& lang);
+};
+//-------------------------------------------------------------------------
+// virtual
+std::string LLSimulatorTranslationHandler::getTranslateURL(
+    const std::string& from_lang,
+    const std::string& to_lang,
+    const std::string& text) const
+{
+    std::string url;
+    if (gAgent.getRegion())
+    {
+        url = gAgent.getRegion()->getCapability("Translation");
+    }
+    if (!url.empty())
+    {
+        url += "/agent/" + gAgentID.asString();
+        url += "/translation";
+    }
+    return url;
+}
+
+
+// virtual
+std::string LLSimulatorTranslationHandler::getKeyVerificationURL(
+    const LLSD& key) const
+{
+    return std::string("");
+}
+
+//virtual
+bool LLSimulatorTranslationHandler::checkVerificationResponse(
+    const LLSD& response,
+    int status) const
+{
+    // FIXME REPLACE CODE HERE
+
+    // Might need to parse body to make sure we got
+    // a valid response and not a message
+    return status == HTTP_OK;
+}
+
+// virtual
+bool LLSimulatorTranslationHandler::parseResponse(
+    const LLSD& full_response,
+    const LLSD& http_response,
+    int& status,
+    const std::string& body,
+    std::string& translation,
+    std::string& detected_lang,
+    std::string& err_msg) const
+{
+    LL_INFOS("Translation") << "Response " << http_response << LL_ENDL;
+
+    if (status != HTTP_OK)
+    {
+        if (http_response.has("error_body"))
+            err_msg = parseErrorResponse(http_response["error_body"].asString());
+        return false;
+    }
+
+    if (full_response.has("text"))
+    {
+        translation = full_response["text"].asString();
+        return true;
+    }
+    LL_WARNS("Translation") << "Field(s) missing from result, can't translate" << LL_ENDL;
+    return false;
+}
+
+// virtual
+bool LLSimulatorTranslationHandler::isConfigured() const
+{
+    return true;
+}
+
+//static
+std::string LLSimulatorTranslationHandler::parseErrorResponse(
+    const std::string& body)
+{
+    // FIXME REPLACE CODE HERE
+    // Example: "{\"message\":\"One of the request inputs is not valid.\"}"
+
+    Json::Value root;
+    Json::Reader reader;
+
+    if (!reader.parse(body, root))
+    {
+        return std::string();
+    }
+
+    if (!root.isObject() || !root.isMember("message"))
+    {
+        return std::string();
+    }
+
+    return root["message"].asString();
+}
+
+// static
+LLSD LLSimulatorTranslationHandler::getAPIKey()
+{
+    return LLSD();
+}
+
+// static
+std::string LLSimulatorTranslationHandler::getAPILanguageCode(const std::string& lang)
+{
+    // FIXME REPLACE CODE HERE
+    return lang == "zh" ? "zh-CHT" : lang; // treat Chinese as Traditional Chinese
+}
+
+/*virtual*/
+void LLSimulatorTranslationHandler::verifyKey(const LLSD& key, LLTranslate::KeyVerificationResult_fn fnc)
+{
+    LL_WARNS() << "No key verification for simulator" << LL_ENDL;
+    return;
+}
+
+/*virtual*/
+void LLSimulatorTranslationHandler::initHttpHeader(
+    LLCore::HttpHeaders::ptr_t headers,
+    const std::string& user_agent) const
+{
+    initHttpHeader(headers, user_agent, getAPIKey());
+}
+
+/*virtual*/
+void LLSimulatorTranslationHandler::initHttpHeader(
+    LLCore::HttpHeaders::ptr_t headers,
+    const std::string& user_agent,
+    const LLSD& key) const
+{
+    headers->append("Accept", "application/llsd+xml");
+    headers->append("Content-Type", "application/llsd+xml");
+    headers->append(HTTP_OUT_HEADER_USER_AGENT, user_agent);
+
+    if (key.has("id"))
+    {
+        std::string authkey = "DeepL-Auth-Key " + key["id"].asString();
+        headers->append(HTTP_OUT_HEADER_AUTHORIZATION, authkey);
+    }
+}
+
+LLSD LLSimulatorTranslationHandler::sendMessageAndSuspend(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t adapter,
+                                                      LLCore::HttpRequest::ptr_t request,
+                                                      LLCore::HttpOptions::ptr_t options,
+                                                      LLCore::HttpHeaders::ptr_t headers,
+                                                      const std::string& url,
+                                                      const std::string& msg,
+                                                      const std::string& from_lang,
+                                                      const std::string& to_lang) const
+{
+    LLSD body = LLSD::emptyMap();
+    body["text"] = msg;
+    body["source_lang"] = "auto";
+    body["target_lang"] = to_lang;
+    LL_INFOS() << "requesting to url " << url << " body " << body << LL_ENDL;
+    return adapter->postAndSuspend(request, url, body, options, headers);
+}
+
+LLSD LLSimulatorTranslationHandler::verifyAndSuspend(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t adapter,
+                                                 LLCore::HttpRequest::ptr_t request,
+                                                 LLCore::HttpOptions::ptr_t options,
+                                                 LLCore::HttpHeaders::ptr_t headers,
+                                                 const std::string& url) const
+{
+    // FIXME REPLACE CODE HERE
+    LLCore::BufferArray::ptr_t rawbody(new LLCore::BufferArray);
+    LLCore::BufferArrayStream outs(rawbody.get());
+    outs << "text=&target_lang=EN";
+
+    return adapter->postRawAndSuspend(request, url, rawbody, options, headers);
+}
+
+
+//=========================================================================
 LLTranslate::LLTranslate():
     mCharsSeen(0),
     mCharsSent(0),
     mFailureCount(0),
-    mSuccessCount(0)
+    mSuccessCount(0),
+    mTransConfigMode(CONFIG_MODE_OPT_OUT)
 {
 }
 
@@ -1133,27 +1386,117 @@ LLTranslate::~LLTranslate()
 }
 
 /*static*/
+std::string LLTranslate::getTransConfigModeString() const
+{
+    switch (instance().mTransConfigMode)
+    {
+    case CONFIG_MODE_ALWAYS:
+        return "always";
+    case CONFIG_MODE_OPT_IN:
+        return "opt_in";
+    case CONFIG_MODE_OPT_OUT:
+        return "opt_out";
+    case CONFIG_MODE_NEVER:
+        return "never";
+    default:
+        return "unknown";
+    }
+}
+
+/*static*/
+bool LLTranslate::shouldTranslate(const LLChat& chat)
+{
+    if (!shouldTranslateAgent(chat.mFromID))
+    {
+        return false;
+    }
+    if (chat.mSourceType == CHAT_SOURCE_SYSTEM)
+    {
+        return false;
+    }
+
+    return getPreferredHandler() != nullptr;
+}
+
+/* static */
+bool LLTranslate::shouldTranslate(const LLUUID& from_id, const std::string& from_str)
+{
+    if (!shouldTranslateAgent(from_id))
+    {
+        return false;
+    }
+    if (from_str == SYSTEM_FROM)
+    {
+        return false;
+    }
+    return getPreferredHandler() != nullptr;
+}
+
+/* static */
+bool LLTranslate::shouldTranslateAgent(const LLUUID& agent_id)
+{
+    if (instance().mTransConfigMode == CONFIG_MODE_ALWAYS)
+    {
+        return true;
+    }
+    else if (instance().mTransConfigMode == CONFIG_MODE_OPT_OUT)
+    {
+        // Translate unless this agent is explicitly disabled
+        return instance().mNoTranslateAgents.find(agent_id) == instance().mNoTranslateAgents.end();
+    }
+    else if (instance().mTransConfigMode == CONFIG_MODE_OPT_IN)
+    {
+        // Translate only if this agent is explicitly enabled
+        return instance().mTranslateAgents.find(agent_id) != instance().mTranslateAgents.end();
+    }
+    return false;
+}
+
+/* static */
+void LLTranslate::setTranslateAgent(const LLUUID& agent_id, bool translate)
+{
+    if (translate)
+    {
+        instance().mTranslateAgents.insert(agent_id);
+        instance().mNoTranslateAgents.erase(agent_id);
+    }
+    else
+    {
+        instance().mTranslateAgents.erase(agent_id);
+        instance().mNoTranslateAgents.insert(agent_id);
+    }
+}
+
+/* static */
+void LLTranslate::toggleTranslateAgent(const LLUUID& agent_id)
+{
+    setTranslateAgent(agent_id, !shouldTranslateAgent(agent_id));
+}
+
+/*static*/
 void LLTranslate::translateMessage(const std::string &from_lang, const std::string &to_lang,
     const std::string &mesg, TranslationSuccess_fn success, TranslationFailure_fn failure)
 {
-    LLTranslationAPIHandler& handler = getPreferredHandler();
-
-    handler.translateMessage(LLTranslationAPIHandler::LanguagePair_t(from_lang, to_lang), addNoTranslateTags(mesg), success, failure);
+    LLTranslationAPIHandler *handler = getPreferredHandler();
+    if (handler)
+    {
+        handler->translateMessage(LLTranslationAPIHandler::LanguagePair_t(from_lang, to_lang), addNoTranslateTags(mesg), success, failure);
+    }
+    else
+    {
+        if (!failure.empty())
+        {
+            LLCore::HttpStatus status(400);
+            std::string err_msg = "No translation service configured";
+            failure(status, err_msg);
+        }
+    }
 }
 
 std::string LLTranslate::addNoTranslateTags(std::string mesg)
 {
-    if (getPreferredHandler().getCurrentService() == SERVICE_GOOGLE)
-    {
-        return mesg;
-    }
-
-    if (getPreferredHandler().getCurrentService() == SERVICE_DEEPL)
-    {
-        return mesg;
-    }
-
-    if (getPreferredHandler().getCurrentService() == SERVICE_AZURE)
+    LLTranslationAPIHandler *handler = getPreferredHandler();
+    if (handler && handler->getCurrentService() == SERVICE_AZURE)
     {
         // https://learn.microsoft.com/en-us/azure/cognitive-services/translator/prevent-translation
         std::string upd_msg(mesg);
@@ -1169,21 +1512,15 @@ std::string LLTranslate::addNoTranslateTags(std::string mesg)
         }
         return upd_msg;
     }
+
+    // Default no-op
     return mesg;
 }
 
 std::string LLTranslate::removeNoTranslateTags(std::string mesg)
 {
-    if (getPreferredHandler().getCurrentService() == SERVICE_GOOGLE)
-    {
-        return mesg;
-    }
-    if (getPreferredHandler().getCurrentService() == SERVICE_DEEPL)
-    {
-        return mesg;
-    }
-
-    if (getPreferredHandler().getCurrentService() == SERVICE_AZURE)
+    LLTranslationAPIHandler *handler = getPreferredHandler();
+    if (handler && handler->getCurrentService() == SERVICE_AZURE)
     {
         std::string upd_msg(mesg);
         LLUrlMatch match;
@@ -1210,15 +1547,23 @@ std::string LLTranslate::removeNoTranslateTags(std::string mesg)
         return upd_msg;
     }
 
+    // Default no-op
     return mesg;
 }
 
 /*static*/
 void LLTranslate::verifyKey(EService service, const LLSD &key, KeyVerificationResult_fn fnc)
 {
-    LLTranslationAPIHandler& handler = getHandler(service);
+    LLTranslationAPIHandler *handler = getHandler(service);
 
-    handler.verifyKey(key, fnc);
+    if (handler)
+    {
+        handler->verifyKey(key, fnc);
+    }
+    else
+    {
+        LL_WARNS() << "No translation service set" << LL_ENDL;
+    }
 }
 
 
@@ -1237,7 +1582,8 @@ std::string LLTranslate::getTranslateLanguage()
 // static
 bool LLTranslate::isTranslationConfigured()
 {
-    return getPreferredHandler().isConfigured();
+    LLTranslationAPIHandler *handler = getPreferredHandler();
+    return (handler && handler->isConfigured());
 }
 
 void LLTranslate::logCharsSeen(size_t count)
@@ -1263,58 +1609,89 @@ void LLTranslate::logFailure(S32 count)
 LLSD LLTranslate::asLLSD() const
 {
     LLSD res;
-    bool on = gSavedSettings.getBOOL("TranslateChat");
+    bool on_client = gSavedSettings.getBOOL("TranslateChat");
+    bool on_server = (gAgent.getRegion() && gAgent.getRegion()->getCapability("Translation").size() > 0);
+    bool on = on_client || on_server;
     res["on"] = on;
+    res["on_client"] = on_client;
+    res["on_server"] = on_server;
     res["chars_seen"] = (S32) mCharsSeen;
-    if (on)
+    LLTranslationAPIHandler *handler = getPreferredHandler();
+    if (handler)
     {
         res["chars_sent"] = (S32) mCharsSent;
         res["success_count"] = mSuccessCount;
         res["failure_count"] = mFailureCount;
         res["language"] = getTranslateLanguage();
-        res["service"] = gSavedSettings.getString("TranslationService");
+        res["service"] = handler->getName();
+        res["config_mode"] = getTransConfigModeString();
     }
     return res;
 }
 
 // static
-LLTranslationAPIHandler& LLTranslate::getPreferredHandler()
+LLTranslationAPIHandler* LLTranslate::getPreferredHandler()
 {
-    EService service = SERVICE_AZURE;
 
-    std::string service_str = gSavedSettings.getString("TranslationService");
-    if (service_str == "google")
+    // If translation has been specifically configured, use that setting.
+    EService service = SERVICE_NONE;
+
+    if (gSavedSettings.getBOOL("TranslateChat"))
     {
-        service = SERVICE_GOOGLE;
-    }
-    if (service_str == "azure")
-    {
-        service = SERVICE_AZURE;
-    }
-    if (service_str == "deepl")
-    {
-        service = SERVICE_DEEPL;
+        std::string service_str = gSavedSettings.getString("TranslationService");
+        if (service_str == "google")
+        {
+            service = SERVICE_GOOGLE;
+        }
+        if (service_str == "azure")
+        {
+            service = SERVICE_AZURE;
+        }
+        if (service_str == "deepl")
+        {
+            service = SERVICE_DEEPL;
+        }
+        if (service != SERVICE_NONE)
+        {
+            return getHandler(service);
+        }
+        else
+        {
+            return nullptr;
+        }
     }
 
-    return getHandler(service);
+    // If translation is supported by the region, use the simulator.
+    if (gAgent.getRegion() && gAgent.getRegion()->getCapability("Translation").size() > 0)
+    {
+        return getHandler(SERVICE_SIMULATOR);
+    }
+
+    // Otherwise, don't translate
+    return nullptr;
 }
 
 // static
-LLTranslationAPIHandler& LLTranslate::getHandler(EService service)
+LLTranslationAPIHandler* LLTranslate::getHandler(EService service)
 {
-    static LLGoogleTranslationHandler google;
-    static LLAzureTranslationHandler azure;
-    static LLDeepLTranslationHandler deepl;
+    static LLGoogleTranslationHandler google_handler;
+    static LLAzureTranslationHandler azure_handler;
+    static LLDeepLTranslationHandler deepl_handler;
+    static LLSimulatorTranslationHandler simulator_handler;
 
     switch (service)
     {
         case SERVICE_AZURE:
-            return azure;
+            return &azure_handler;
         case SERVICE_GOOGLE:
-            return google;
+            return &google_handler;
         case SERVICE_DEEPL:
-            return deepl;
+            return &deepl_handler;
+        case SERVICE_SIMULATOR:
+            return &simulator_handler;
+        case SERVICE_NONE:
+            return nullptr;
     }
 
-    return azure;
+    return nullptr;
 }

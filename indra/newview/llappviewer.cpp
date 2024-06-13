@@ -128,6 +128,8 @@
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
 
+#include "lltranslate.h"
+
 #include "llleap.h"
 #include "stringize.h"
 #include "llcoros.h"
@@ -857,6 +859,9 @@ bool LLAppViewer::init()
     LLUrlAction::setOpenURLInternalCallback(boost::bind(&LLWeb::loadURLInternal, _1, LLStringUtil::null, LLStringUtil::null, false));
     LLUrlAction::setOpenURLExternalCallback(boost::bind(&LLWeb::loadURLExternal, _1, true, LLStringUtil::null));
     LLUrlAction::setExecuteSLURLCallback(&LLURLDispatcher::dispatchFromTextEditor);
+    LLUrlAction::setToggleTranslateCallback(&LLTranslate::toggleTranslateAgent);
+    LLUrlAction::setShouldTranslateAgentCallback(&LLTranslate::shouldTranslateAgent);
+    LLUrlAction::setIsTranslationConfiguredCallback(&LLTranslate::isTranslationConfigured);
 
     // Let code in llui access the viewer help floater
     LLUI::getInstance()->mHelpImpl = LLViewerHelp::getInstance();

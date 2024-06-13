@@ -2656,6 +2656,12 @@ void LLTextEditor::onMouseCaptureLost()
 
 BOOL LLTextEditor::importBuffer(const char* buffer, S32 length )
 {
+    if (!buffer)
+    {
+        LL_WARNS() << "Invalid (nullptr) Linden text file buffer" << LL_ENDL;
+        return FALSE;
+    }
+
     std::istringstream instream(buffer);
 
     // Version 1 format:
@@ -2672,7 +2678,7 @@ BOOL LLTextEditor::importBuffer(const char* buffer, S32 length )
     instream.getline(tbuf, MAX_STRING);
     if( 1 != sscanf(tbuf, "Linden text version %d", &version) )
     {
-        LL_WARNS() << "Invalid Linden text file header " << LL_ENDL;
+        LL_WARNS() << "Invalid Linden text file header" << LL_ENDL;
         return FALSE;
     }
 

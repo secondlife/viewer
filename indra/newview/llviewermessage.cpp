@@ -2461,7 +2461,7 @@ void translateSuccess(LLChat chat, LLSD toastArgs, std::string originalMsg, std:
         && ((detected_language.empty()) || (expectLang != detected_language))
         && (LLStringUtil::compareInsensitive(translation, originalMsg) != 0))
     {
-        chat.mText += " (" + LLTranslate::removeNoTranslateTags(translation) + ")";
+        chat.mTrans = LLTranslate::removeNoTranslateTags(translation);
     }
 
     LLTranslate::instance().logSuccess(1);
@@ -2472,7 +2472,7 @@ void translateFailure(LLChat chat, LLSD toastArgs, int status, const std::string
 {
     std::string msg = LLTrans::getString("TranslationFailed", LLSD().with("[REASON]", err_msg));
     LLStringUtil::replaceString(msg, "\n", " "); // we want one-line error messages
-    chat.mText += " (" + msg + ")";
+    chat.mError = msg;
 
     LLTranslate::instance().logFailure(1);
     LLNotificationsUI::LLNotificationManager::instance().onChat(chat, toastArgs);
@@ -2557,6 +2557,18 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
     if (is_muted && (chat.mSourceType == CHAT_SOURCE_OBJECT))
     {
         return;
+    }
+
+    if (chat.mChatType == CHAT_TYPE_DEBUG_MSG)
+    {
+        if(gSavedSettings.getBOOL("ShowScriptErrors") == FALSE)
+            return;
+
+        // don't process debug messages from not owned objects, see EXT-7762
+        if (gAgentID != chat.mOwnerID)
+        {
+            return;
+        }
     }
 
     BOOL is_audible = (CHAT_AUDIBLE_FULLY == chat.mAudible);
@@ -2709,8 +2721,17 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
         LLSD args;
         chat.mOwnerID = owner_id;
 
+        // don't call notification for debug messages from not owned objects
+        if (chat.mChatType == CHAT_TYPE_DEBUG_MSG)
+        {
+            if (gAgentID != chat.mOwnerID)
+            {
+                return;
+            }
+        }
+
         LLTranslate::instance().logCharsSeen(mesg.size());
-        if (gSavedSettings.getBOOL("TranslateChat") && chat.mSourceType != CHAT_SOURCE_SYSTEM)
+        if (LLTranslate::shouldTranslate(chat))
         {
             if (chat.mChatStyle == CHAT_STYLE_IRC)
             {
@@ -2720,9 +2741,10 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
             const std::string to_lang = LLTranslate::getTranslateLanguage();
 
             LLTranslate::instance().logCharsSent(mesg.size());
+            const std::string detected_lang;
             LLTranslate::translateMessage(from_lang, to_lang, mesg,
-                boost::bind(&translateSuccess, chat, args, mesg, from_lang, _1, _2),
-                boost::bind(&translateFailure, chat, args, _1, _2));
+                                          boost::bind(&translateSuccess, chat, args, mesg, from_lang, _1, _2),
+                                          boost::bind(&translateFailure, chat, args, _1, _2));
 
         }
         else
@@ -2730,14 +2752,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
             LLNotificationsUI::LLNotificationManager::instance().onChat(chat, args);
         }
 
-        // don't call notification for debug messages from not owned objects
-        if (chat.mChatType == CHAT_TYPE_DEBUG_MSG)
-        {
-            if (gAgentID != chat.mOwnerID)
-            {
-                return;
-            }
-        }
+
 
         if (mesg != "")
         {

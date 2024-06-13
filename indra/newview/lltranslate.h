@@ -32,6 +32,8 @@
 
 #include "llsingleton.h"
 
+class LLChat;
+
 namespace Json
 {
     class Value;
@@ -62,11 +64,31 @@ public :
         SERVICE_AZURE,
         SERVICE_GOOGLE,
         SERVICE_DEEPL,
+        SERVICE_SIMULATOR,
+        SERVICE_NONE
     } EService;
+
+    typedef enum e_translation_config_mode {
+        CONFIG_MODE_OPT_IN,
+        CONFIG_MODE_OPT_OUT,
+        CONFIG_MODE_ALWAYS,
+        CONFIG_MODE_NEVER
+    } ETransConfigMode;
 
     typedef boost::function<void(EService, bool, S32)> KeyVerificationResult_fn;
     typedef boost::function<void(std::string , std::string )> TranslationSuccess_fn;
     typedef boost::function<void(int, std::string)> TranslationFailure_fn;
+
+    std::string getTransConfigModeString() const;
+
+    /**
+     * Should the given chat message be translated? Depends on preference settings, message type, etc.
+     */
+    static bool shouldTranslate(const LLChat& chat);
+    static bool shouldTranslate(const LLUUID& from_id, const std::string& from_str);
+    static bool shouldTranslateAgent(const LLUUID& agent_id);
+    static void setTranslateAgent(const LLUUID& agent_id, bool translate);
+    static void toggleTranslateAgent(const LLUUID& agent_id);
 
     /**
      * Translate given text.
@@ -105,13 +127,18 @@ public :
     void logFailure(S32 count);
     LLSD asLLSD() const;
 private:
-    static LLTranslationAPIHandler& getPreferredHandler();
-    static LLTranslationAPIHandler& getHandler(EService service);
+    static LLTranslationAPIHandler* getPreferredHandler();
+    static LLTranslationAPIHandler* getHandler(EService service);
+
+    std::set<LLUUID> mTranslateAgents;
+    std::set<LLUUID> mNoTranslateAgents;
 
     size_t mCharsSeen;
     size_t mCharsSent;
     S32 mFailureCount;
     S32 mSuccessCount;
+
+    ETransConfigMode mTransConfigMode;
 };
 
 #endif

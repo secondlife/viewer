@@ -37,7 +37,9 @@ LLUrlAction::url_callback_t         LLUrlAction::sOpenURLCallback;
 LLUrlAction::url_callback_t         LLUrlAction::sOpenURLInternalCallback;
 LLUrlAction::url_callback_t         LLUrlAction::sOpenURLExternalCallback;
 LLUrlAction::execute_url_callback_t LLUrlAction::sExecuteSLURLCallback;
-
+LLUrlAction::agent_callback_t       LLUrlAction::sToggleTranslateCallback;
+LLUrlAction::bool_agent_callback_t  LLUrlAction::sShouldTranslateAgentCallback;
+LLUrlAction::bool_null_callback_t   LLUrlAction::sIsTranslationConfiguredCallback;
 
 void LLUrlAction::setOpenURLCallback(url_callback_t cb)
 {
@@ -57,6 +59,31 @@ void LLUrlAction::setOpenURLExternalCallback(url_callback_t cb)
 void LLUrlAction::setExecuteSLURLCallback(execute_url_callback_t cb)
 {
     sExecuteSLURLCallback = cb;
+}
+
+void LLUrlAction::setToggleTranslateCallback(agent_callback_t cb)
+{
+    sToggleTranslateCallback = cb;
+}
+
+void LLUrlAction::setShouldTranslateAgentCallback(bool_agent_callback_t cb)
+{
+    sShouldTranslateAgentCallback = cb;
+}
+
+LLUrlAction::bool_agent_callback_t LLUrlAction::getShouldTranslateAgentCallback()
+{
+    return sShouldTranslateAgentCallback;
+}
+
+void LLUrlAction::setIsTranslationConfiguredCallback(bool_null_callback_t cb)
+{
+    sIsTranslationConfiguredCallback = cb;
+}
+
+LLUrlAction::bool_null_callback_t LLUrlAction::getIsTranslationConfiguredCallback()
+{
+    return sIsTranslationConfiguredCallback;
 }
 
 void LLUrlAction::openURL(std::string url)
@@ -222,6 +249,18 @@ void LLUrlAction::removeFriend(std::string url)
     }
 }
 
+void LLUrlAction::toggleTranslateChat(std::string url)
+{
+    std::string id_str = getUserID(url);
+    if (LLUUID::validate(id_str))
+    {
+        if (sToggleTranslateCallback)
+        {
+            LLUUID user_id(id_str);
+            sToggleTranslateCallback(user_id);
+        }
+    }
+}
 void LLUrlAction::reportAbuse(std::string url)
 {
     std::string id_str = getUserID(url);

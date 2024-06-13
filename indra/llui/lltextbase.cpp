@@ -909,7 +909,7 @@ S32 LLTextBase::insertStringNoUndo(S32 pos, const LLWString &wstr, LLTextBase::s
     {
         LLStyleSP emoji_style;
         LLEmojiDictionary* ed = LLEmojiDictionary::instanceExists() ? LLEmojiDictionary::getInstance() : NULL;
-        for (S32 text_kitty = 0, text_len = wstr.size(); text_kitty < text_len; text_kitty++)
+        for (S32 text_kitty = 0; text_kitty < insert_len; text_kitty++)
         {
             llwchar code = wstr[text_kitty];
             bool isEmoji = ed ? ed->isEmoji(code) : LLStringOps::isEmoji(code);
@@ -2096,6 +2096,7 @@ void LLTextBase::createUrlContextMenu(S32 x, S32 y, const std::string &in_url)
     registrar.add("Url.ShowProfile", boost::bind(&LLUrlAction::showProfile, url));
     registrar.add("Url.AddFriend", boost::bind(&LLUrlAction::addFriend, url));
     registrar.add("Url.RemoveFriend", boost::bind(&LLUrlAction::removeFriend, url));
+    registrar.add("Url.ToggleTranslateChat", boost::bind(&LLUrlAction::toggleTranslateChat, url));
     registrar.add("Url.ReportAbuse", boost::bind(&LLUrlAction::reportAbuse, url));
     registrar.add("Url.SendIM", boost::bind(&LLUrlAction::sendIM, url));
     registrar.add("Url.ShowOnMap", boost::bind(&LLUrlAction::showLocationOnMap, url));
@@ -2142,6 +2143,30 @@ void LLTextBase::createUrlContextMenu(S32 x, S32 y, const std::string &in_url)
                 unblockButton->setVisible(is_blocked);
             }
         }
+
+        LLUrlAction::bool_null_callback_t is_translation_configured_cb = LLUrlAction::getIsTranslationConfiguredCallback();
+        LLUrlAction::bool_agent_callback_t is_translating_chat_cb = LLUrlAction::getShouldTranslateAgentCallback();
+        if (is_translating_chat_cb && is_translation_configured_cb)
+        {
+            LLUUID agent_id = LLUUID(LLUrlAction::getUserID(url));
+            LLView* translateChatButton = menu->getChild<LLView>("translate_chat");
+            LLView* noTranslateChatButton = menu->getChild<LLView>("no_translate_chat");
+            if (translateChatButton && noTranslateChatButton)
+            {
+                bool is_configured = is_translation_configured_cb();
+                if (is_configured)
+                {
+                    translateChatButton->setEnabled(!is_translating_chat_cb(agent_id));
+                    noTranslateChatButton->setEnabled(is_translating_chat_cb(agent_id));
+                }
+                else
+                {
+                    translateChatButton->setVisible(false);
+                    noTranslateChatButton->setVisible(false);
+                }
+            }
+        }
+
         menu->show(x, y);
         LLMenuGL::showPopup(this, menu, x, y);
     }
@@ -2172,7 +2197,7 @@ void LLTextBase::setText(const LLStringExplicit &utf8str, const LLStyle::Params&
     onValueChange(0, getLength());
 }
 
-// virtual
+//virtual
 const std::string& LLTextBase::getText() const
 {
     return getViewModel()->getStringValue();
@@ -2303,7 +2328,7 @@ void LLTextBase::appendText(const std::string &new_text, bool prepend_newline, c
 
     if(prepend_newline)
         appendLineBreakSegment(input_params);
-    appendTextImpl(new_text,input_params);
+    appendTextImpl(new_text, input_params);
 }
 
 void LLTextBase::setLabel(const LLStringExplicit& label)
@@ -2362,6 +2387,7 @@ S32 LLTextBase::removeFirstLine()
     return 0;
 }
 
+// virtual
 void LLTextBase::appendLineBreakSegment(const LLStyle::Params& style_params)
 {
     segment_vec_t segments;
@@ -2371,6 +2397,7 @@ void LLTextBase::appendLineBreakSegment(const LLStyle::Params& style_params)
     insertStringNoUndo(getLength(), utf8str_to_wstring("\n"), &segments);
 }
 
+// virtual
 void LLTextBase::appendImageSegment(const LLStyle::Params& style_params)
 {
     if(getPlainText())
@@ -2384,6 +2411,7 @@ void LLTextBase::appendImageSegment(const LLStyle::Params& style_params)
     insertStringNoUndo(getLength(), utf8str_to_wstring(" "), &segments);
 }
 
+// virtual
 void LLTextBase::appendWidget(const LLInlineViewSegment::Params& params, const std::string& text, bool allow_undo)
 {
     segment_vec_t segments;

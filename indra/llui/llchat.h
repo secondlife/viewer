@@ -89,7 +89,9 @@ public:
         mPosAgent(),
         mURL(),
         mChatStyle(CHAT_STYLE_NORMAL),
-        mSessionID()
+        mSessionID(),
+        mTrans(),
+        mError()
     { }
 
     std::string     mText;      // UTF-8 line of text
@@ -107,6 +109,8 @@ public:
     std::string     mURL;
     EChatStyle      mChatStyle;
     LLUUID          mSessionID;
+    std::string     mTrans;     // UTF-8 line of translated text
+    std::string     mError;     // UTF-8 line of error message
 };
 
 #endif

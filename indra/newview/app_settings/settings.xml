@@ -379,7 +379,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>AutoAcceptNewInventory</key>
+  <key>AutoAcceptNewInventory</key>
     <map>
       <key>Comment</key>
       <string>Automatically accept new notecards/textures/landmarks</string>
@@ -11528,7 +11528,7 @@
     <key>TranslationService</key>
     <map>
       <key>Comment</key>
-      <string>Translation API to use. (google|azure)</string>
+      <string>Translation API to use. (azure|google|deepl)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
