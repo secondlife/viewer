@@ -1418,6 +1418,14 @@
       </map>
       <key>llphysicsextensions_source</key>
       <map>
+        <key>copyright</key>
+        <string>Copyright (c) 2010, Linden Research, Inc.</string>
+        <key>license</key>
+        <string>internal</string>
+        <key>license_file</key>
+        <string>LICENSES/llphysicsextensions.txt</string>
+        <key>name</key>
+        <string>llphysicsextensions_source</string>
         <key>platforms</key>
         <map>
           <key>darwin64</key>
@@ -1427,11 +1435,11 @@
               <key>creds</key>
               <string>github</string>
               <key>hash</key>
-              <string>b037cc0b29ea70ee834cfae6dda5b7a25cd57174</string>
+              <string>755a3de464149ae88b048f976828a8c0c46e3bdb</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/llphysicsextensions_source/releases/assets/144851460</string>
+              <string>https://api.github.com/repos/secondlife/llphysicsextensions_source/releases/assets/172966323</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1443,11 +1451,11 @@
               <key>creds</key>
               <string>github</string>
               <key>hash</key>
-              <string>bdea1fd5c4da9da5afde088d16188b45d0853e04</string>
+              <string>813e7b5e294d7958e3d69e2252752ff346953b0c</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/llphysicsextensions_source/releases/assets/144851461</string>
+              <string>https://api.github.com/repos/secondlife/llphysicsextensions_source/releases/assets/172966322</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -1459,26 +1467,18 @@
               <key>creds</key>
               <string>github</string>
               <key>hash</key>
-              <string>f652ce0d6aef864689f0ed44255da4d9cd65a43f</string>
+              <string>67f647538b1b49d0152fd9d03cfb9bdf978e33d1</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/llphysicsextensions_source/releases/assets/144851463</string>
+              <string>https://api.github.com/repos/secondlife/llphysicsextensions_source/releases/assets/172966328</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
-        <key>license</key>
-        <string>internal</string>
-        <key>license_file</key>
-        <string>LICENSES/llphysicsextensions.txt</string>
-        <key>copyright</key>
-        <string>Copyright (c) 2010, Linden Research, Inc.</string>
         <key>version</key>
-        <string>1.0.479d20a</string>
-        <key>name</key>
-        <string>llphysicsextensions_source</string>
+        <string>1.0.b8b1f73</string>
       </map>
       <key>llphysicsextensions_stub</key>
       <map>

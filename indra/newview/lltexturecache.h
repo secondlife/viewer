@@ -140,8 +140,8 @@ public:
     void unlockWorkers() { mWorkersMutex.unlock(); }
 
     // debug
-    S32 getNumReads() { return mReaders.size(); }
-    S32 getNumWrites() { return mWriters.size(); }
+    S32 getNumReads() { return static_cast<S32>(mReaders.size()); }
+    S32 getNumWrites() { return static_cast<S32>(mWriters.size()); }
     S64Bytes getUsage() { return S64Bytes(mTexturesSizeTotal); }
     S64Bytes getMaxUsage() { return S64Bytes(sCacheMaxTexturesSize); }
     U32 getEntries() { return mHeaderEntriesInfo.mEntries; }

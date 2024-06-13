@@ -1,4 +1,4 @@
-/** 
+/**
 * @author Rider Linden
 * @brief LLSettingsPicker class header file including related functions
 *
@@ -82,7 +82,7 @@ LLFloaterSettingsPicker::LLFloaterSettingsPicker(LLView * owner, LLUUID initial_
 }
 
 
-LLFloaterSettingsPicker::~LLFloaterSettingsPicker() 
+LLFloaterSettingsPicker::~LLFloaterSettingsPicker()
 {
 
 }
@@ -99,7 +99,7 @@ bool LLFloaterSettingsPicker::postBuild()
 
     mFilterEdit = getChild<LLFilterEditor>(FLT_INVENTORY_SEARCH);
     mFilterEdit->setCommitCallback([this](LLUICtrl*, const LLSD& param){ onFilterEdit(param.asString()); });
-    
+
     mInventoryPanel = getChild<LLInventoryPanel>(PNL_INVENTORY);
     if (mInventoryPanel)
     {
@@ -160,7 +160,7 @@ void LLFloaterSettingsPicker::setValue(const LLSD& value)
     mSettingItemID = value.asUUID();
 }
 
-LLSD LLFloaterSettingsPicker::getValue() const 
+LLSD LLFloaterSettingsPicker::getValue() const
 {
     return LLSD(mSettingItemID);
 }
@@ -326,7 +326,7 @@ void LLFloaterSettingsPicker::onAssetLoaded(LLUUID asset_id, LLSettingsBase::ptr
         // track 1 always present
         track_selection->add(getString(STR_TRACK_GROUND), LLSD::Integer(LLSettingsDay::TRACK_GROUND_LEVEL), ADD_TOP, true);
         LLUIString formatted_label = getString(STR_TRACK_SKY);
-        for (int i = 2; i < LLSettingsDay::TRACK_MAX; i++)
+        for (U32 i = 2; i < LLSettingsDay::TRACK_MAX; i++)
         {
             if (!pday->isTrackEmpty(i))
             {
@@ -335,7 +335,7 @@ void LLFloaterSettingsPicker::onAssetLoaded(LLUUID asset_id, LLSettingsBase::ptr
             }
         }
     }
-    
+
     mSettingAssetID = asset_id;
     track_selection->setEnabled(true);
     track_selection->selectFirstItem();

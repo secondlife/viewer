@@ -164,19 +164,7 @@ LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary* LLAvatarAppearance::sAv
 
 LLAvatarAppearance::LLAvatarAppearance(LLWearableData* wearable_data) :
     LLCharacter(),
-    mIsDummy(false),
-    mTexSkinColor( NULL ),
-    mTexHairColor( NULL ),
-    mTexEyeColor( NULL ),
-    mPelvisToFoot(0.f),
-    mHeadOffset(),
-    mRoot(NULL),
-    mWearableData(wearable_data),
-    mNumBones(0),
-    mNumCollisionVolumes(0),
-    mCollisionVolumes(NULL),
-    mIsBuilt(false),
-    mInitFlags(0)
+    mWearableData(wearable_data)
 {
     llassert_always(mWearableData);
     mBakedTextureDatas.resize(LLAvatarAppearanceDefines::BAKED_NUM_INDICES);
@@ -537,11 +525,11 @@ void LLAvatarAppearance::computeBodySize()
     new_body_size.mV[VZ] = mPelvisToFoot +
                        // the sqrt(2) correction below is an approximate
                        // correction to get to the top of the head
-                       F_SQRT2 * (skull.mV[VZ] * head_scale.mV[VZ]) + 
-                       head.mV[VZ] * neck_scale.mV[VZ] + 
-                       neck.mV[VZ] * chest_scale.mV[VZ] + 
-                       chest.mV[VZ] * torso_scale.mV[VZ] + 
-                       torso.mV[VZ] * pelvis_scale.mV[VZ]; 
+                       F_SQRT2 * (skull.mV[VZ] * head_scale.mV[VZ]) +
+                       head.mV[VZ] * neck_scale.mV[VZ] +
+                       neck.mV[VZ] * chest_scale.mV[VZ] +
+                       chest.mV[VZ] * torso_scale.mV[VZ] +
+                       torso.mV[VZ] * pelvis_scale.mV[VZ];
 
     // TODO -- measure the real depth and width
     new_body_size.mV[VX] = DEFAULT_AGENT_DEPTH;
@@ -1459,9 +1447,9 @@ void LLAvatarAppearance::setClothesColor( ETextureIndex te, const LLColor4& new_
     U32 param_name[3];
     if( teToColorParams( te, param_name ) )
     {
-        setVisualParamWeight( param_name[0], new_color.mV[VX]);
-        setVisualParamWeight( param_name[1], new_color.mV[VY]);
-        setVisualParamWeight( param_name[2], new_color.mV[VZ]);
+        setVisualParamWeight( param_name[0], new_color.mV[VRED]);
+        setVisualParamWeight( param_name[1], new_color.mV[VGREEN]);
+        setVisualParamWeight( param_name[2], new_color.mV[VBLUE]);
     }
 }
 
@@ -1471,9 +1459,9 @@ LLColor4 LLAvatarAppearance::getClothesColor( ETextureIndex te )
     U32 param_name[3];
     if( teToColorParams( te, param_name ) )
     {
-        color.mV[VX] = getVisualParamWeight( param_name[0] );
-        color.mV[VY] = getVisualParamWeight( param_name[1] );
-        color.mV[VZ] = getVisualParamWeight( param_name[2] );
+        color.mV[VRED] = getVisualParamWeight( param_name[0] );
+        color.mV[VGREEN] = getVisualParamWeight( param_name[1] );
+        color.mV[VBLUE] = getVisualParamWeight( param_name[2] );
     }
     return color;
 }

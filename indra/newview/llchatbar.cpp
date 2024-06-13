@@ -470,7 +470,7 @@ void LLChatBar::onInputEditorKeystroke( LLLineEditor* caller, void* userdata )
     // to eat trailing spaces that might be part of a gesture.
     LLWStringUtil::trimHead(raw_text);
 
-    S32 length = raw_text.length();
+    auto length = raw_text.length();
 
     if( (length > 0) && (raw_text[0] != '/') )  // forward slash is used for escape (eg. emote) sequences
     {
@@ -518,7 +518,7 @@ void LLChatBar::onInputEditorKeystroke( LLLineEditor* caller, void* userdata )
 
                 // Select to end of line, starting from the character
                 // after the last one the user typed.
-                self->mInputEditor->setSelection(length, outlength);
+                self->mInputEditor->setSelection(static_cast<S32>(length), outlength);
             }
         }
 

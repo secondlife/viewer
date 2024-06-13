@@ -72,13 +72,13 @@ LLVolumeImplFlexible::LLVolumeImplFlexible(LLViewerObject* vo, LLFlexibleObjectD
         mVO->mDrawable->makeActive() ;
     }
 
-    mInstanceIndex = sInstanceList.size();
+    mInstanceIndex = static_cast<S32>(sInstanceList.size());
     sInstanceList.push_back(this);
 }//-----------------------------------------------
 
 LLVolumeImplFlexible::~LLVolumeImplFlexible()
 {
-    S32 end_idx = sInstanceList.size()-1;
+    S32 end_idx = static_cast<S32>(sInstanceList.size()) - 1;
 
     if (end_idx != mInstanceIndex)
     {

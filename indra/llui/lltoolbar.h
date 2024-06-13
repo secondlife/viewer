@@ -178,12 +178,12 @@ public:
 
     protected:
         friend class LLUICtrlFactory;
-        LLCenterLayoutPanel(const Params& params) : LLLayoutPanel(params), mButtonPanel(NULL) {}
+        LLCenterLayoutPanel(const Params& params) : LLLayoutPanel(params) {};
 
     private:
         reshape_callback_t                  mReshapeCallback;
-        LLToolBarEnums::EToolBarLocation    mLocationId;
-        LLPanel *                           mButtonPanel;
+        LLToolBarEnums::EToolBarLocation    mLocationId{ LLToolBarEnums::EToolBarLocation::TOOLBAR_NONE };
+        LLPanel *                           mButtonPanel{ nullptr };
     };
 
     struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>

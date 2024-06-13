@@ -60,7 +60,7 @@ public:
     LLImageGL* getImageGL(EFontGlyphType bitmapType, U32 bitmapNum) const;
 
     S32 getMaxCharWidth() const { return mMaxCharWidth; }
-    U32 getNumBitmaps(EFontGlyphType bitmapType) const { return (bitmapType < EFontGlyphType::Count) ? mImageRawVec[static_cast<U32>(bitmapType)].size() : 0; }
+    U32 getNumBitmaps(EFontGlyphType bitmapType) const { return (bitmapType < EFontGlyphType::Count) ? static_cast<U32>(mImageRawVec[static_cast<U32>(bitmapType)].size()) : 0U; }
     S32 getBitmapWidth() const { return mBitmapWidth; }
     S32 getBitmapHeight() const { return mBitmapHeight; }
 

@@ -378,8 +378,8 @@ bool LLCommandLineParser::parseCommandLineString(const std::string& str)
     if (!str.empty())
     {
         bool add_last_c = true;
-        S32 last_c_pos = str.size() - 1; //don't get out of bounds on pos+1, last char will be processed separately
-        for (S32 pos = 0; pos < last_c_pos; ++pos)
+        auto last_c_pos = str.size() - 1; //don't get out of bounds on pos+1, last char will be processed separately
+        for (size_t pos = 0; pos < last_c_pos; ++pos)
         {
             cmd_line_string.append(&str[pos], 1);
             if (str[pos] == '\\')

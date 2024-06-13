@@ -696,7 +696,7 @@ void LLGrassPartition::getGeometry(LLSpatialGroup* group)
         vertex_count += facep->getGeomCount();
         index_count += facep->getIndicesCount();
 
-        S32 idx = draw_vec.size()-1;
+        S32 idx = static_cast<S32>(draw_vec.size()) - 1;
 
         bool fullbright = facep->isState(LLFace::FULLBRIGHT);
 

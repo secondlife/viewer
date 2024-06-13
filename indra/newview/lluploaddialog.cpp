@@ -102,7 +102,7 @@ void LLUploadDialog::setMessage( const std::string& msg)
     S32 max_msg_width = 0;
     std::list<std::string> msg_lines;
 
-    S32 size = msg.size() + 1;
+    auto size = msg.size() + 1;
     std::vector<char> temp_msg(size); // non-const copy to make strtok happy
     strcpy( &temp_msg[0], msg.c_str());
     char* token = strtok( &temp_msg[0], "\n" );
@@ -117,7 +117,7 @@ void LLUploadDialog::setMessage( const std::string& msg)
 
     S32 line_height = font->getLineHeight();
     S32 dialog_width = max_msg_width + 2 * HPAD;
-    S32 dialog_height = line_height * msg_lines.size() + 2 * VPAD;
+    S32 dialog_height = line_height * static_cast<S32>(msg_lines.size()) + 2 * VPAD;
 
     reshape( dialog_width, dialog_height, false );
 

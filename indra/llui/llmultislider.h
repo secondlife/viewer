@@ -118,7 +118,7 @@ public:
     /*virtual*/ void    draw() override;
 
     S32             getMaxNumSliders() { return mMaxNumSliders; }
-    S32             getCurNumSliders() { return mValue.size(); }
+    S32             getCurNumSliders() { return static_cast<S32>(mValue.size()); }
     F32             getOverlapThreshold() { return mOverlapThreshold; }
     bool            canAddSliders() { return mValue.size() < mMaxNumSliders; }
 

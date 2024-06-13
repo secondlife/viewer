@@ -71,7 +71,7 @@ void LLURL::init(const char * url)
 
     char *parse;
     char *leftover_url = url_copy;
-    S32 span = 0;
+    size_t span = 0;
 
     // copy and lop off tag
     if ((parse = strchr(url_copy,'#')))

@@ -670,7 +670,7 @@ bool LLXMLNode::parseFile(const std::string& filename, LLXMLNodePtr& node, LLXML
     buffer[nread] = 0;
     fclose(fp);
 
-    bool rv = parseBuffer(buffer, nread, node, defaults_tree);
+    bool rv = parseBuffer(buffer, static_cast<U32>(nread), node, defaults_tree);
     delete [] buffer;
     return rv;
 }
@@ -2681,7 +2681,7 @@ U32 LLXMLNode::getChildCount() const
 {
     if (mChildren.notNull())
     {
-        return mChildren->map.size();
+        return static_cast<U32>(mChildren->map.size());
     }
     return 0;
 }
@@ -2700,7 +2700,7 @@ LLXMLNode *get_rand_node(LLXMLNode *node)
 {
     if (node->mChildren.notNull())
     {
-        U32 num_children = node->mChildren->map.size();
+        U32 num_children = static_cast<U32>(node->mChildren->map.size());
         if (get_rand(2) == 0)
         {
             while (true)

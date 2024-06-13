@@ -390,7 +390,7 @@ U32 LLFlatListView::size(const bool only_visible_items) const
     }
     else
     {
-        return mItemPairs.size();
+        return static_cast<U32>(mItemPairs.size());
     }
 }
 
@@ -563,7 +563,7 @@ void LLFlatListView::rearrangeItems()
     }
 
     // add paddings between items, excluding invisible ones
-    height += mItemPad * (mItemPairs.size() - invisible_children_count - 1);
+    height += mItemPad * (static_cast<S32>(mItemPairs.size()) - invisible_children_count - 1);
 
     LLRect rc = mItemsPanel->getRect();
     S32 width = mItemsNoScrollWidth;

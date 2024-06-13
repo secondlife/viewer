@@ -1022,7 +1022,7 @@ public:
     U8 getProfileType() const                               { return mParams.getProfileParams().getCurveType(); }
     U8 getPathType() const                                  { return mParams.getPathParams().getCurveType(); }
     S32 getNumFaces() const;
-    S32 getNumVolumeFaces() const                           { return mVolumeFaces.size(); }
+    S32 getNumVolumeFaces() const                           { return static_cast<S32>(mVolumeFaces.size()); }
     F32 getDetail() const                                   { return mDetail; }
     F32 getSurfaceArea() const                              { return mSurfaceArea; }
     const LLVolumeParams& getParams() const                 { return mParams; }

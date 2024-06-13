@@ -86,7 +86,7 @@ public:
 
     void addPanel(LLLayoutPanel* panel, EAnimate animate = NO_ANIMATE);
     void collapsePanel(LLPanel* panel, bool collapsed = true);
-    S32 getNumPanels() { return mPanels.size(); }
+    S32 getNumPanels() { return static_cast<S32>(mPanels.size()); }
 
     void updateLayout();
 

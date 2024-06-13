@@ -46,7 +46,7 @@ LLFetchedGLTFMaterial::LLFetchedGLTFMaterial()
 
 LLFetchedGLTFMaterial::~LLFetchedGLTFMaterial()
 {
-    
+
 }
 
 LLFetchedGLTFMaterial& LLFetchedGLTFMaterial::operator=(const LLFetchedGLTFMaterial& rhs)
@@ -253,4 +253,3 @@ void LLFetchedGLTFMaterial::materialComplete(bool success)
     materialCompleteCallbacks.clear();
     materialCompleteCallbacks.shrink_to_fit();
 }
-

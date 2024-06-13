@@ -2243,8 +2243,11 @@ void LLTextureCtrl::draw()
             }
             else
             {
-                preview = LLViewerTextureManager::getFetchedTexture(mImageAssetID, FTT_DEFAULT, true, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
-                preview->setBoostLevel(LLGLTexture::BOOST_PREVIEW);
+                mTexturep = LLViewerTextureManager::getFetchedTexture(mImageAssetID, FTT_DEFAULT, true, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+                mTexturep->setBoostLevel(LLGLTexture::BOOST_PREVIEW);
+                mTexturep->forceToSaveRawImage(0);
+
+                preview = mTexturep;
             }
         }
     }

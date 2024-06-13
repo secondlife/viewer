@@ -757,7 +757,7 @@ namespace
         LLEnvironment::DayInstance::ptr_t   getBaseDayInstance() const  { return mBaseDayInstance; }
         void                                setBaseDayInstance(const LLEnvironment::DayInstance::ptr_t &baseday);
 
-        S32                                 countExperiencesActive() const { return mActiveExperiences.size(); }
+        S32                                 countExperiencesActive() const { return static_cast<S32>(mActiveExperiences.size()); }
 
         bool                                isOverriddenSky() const { return !mSkyExperience.isNull(); }
         bool                                isOverriddenWater() const { return !mWaterExperience.isNull(); }
@@ -2512,7 +2512,7 @@ LLSettingsDay::ptr_t LLEnvironment::createDayCycleFromEnvironment(EnvSelection_t
 
     if (type == "sky")
     {
-        for (S32 idx = 1; idx < LLSettingsDay::TRACK_MAX; ++idx)
+        for (U32 idx = 1; idx < LLSettingsDay::TRACK_MAX; ++idx)
             day->clearCycleTrack(idx);
         day->setSettingsAtKeyframe(settings, 0.0f, 1);
     }

@@ -328,7 +328,7 @@ S32 LLFontFreetype::ftOpenFace(const std::string& filename, S32 face_n)
         pFtStream = new LLFT_Stream();
         pFtStream->base = 0;
         pFtStream->pos = 0;
-        pFtStream->size = file_size;
+        pFtStream->size = static_cast<unsigned long>(file_size);
         pFtStream->descriptor.pointer = pFileStream;
         pFtStream->read = ft_read_cb;
         pFtStream->close = ft_close_cb;

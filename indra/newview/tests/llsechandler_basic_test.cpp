@@ -634,19 +634,19 @@ namespace tut
 
             // Read each of the 4 Pem certs and store in mX509*Cert pointers
             BIO * validation_bio;
-            validation_bio = BIO_new_mem_buf((void*)mPemTestCert.c_str(), mPemTestCert.length());
+            validation_bio = BIO_new_mem_buf((void*)mPemTestCert.c_str(), static_cast<S32>(mPemTestCert.length()));
             PEM_read_bio_X509(validation_bio, &mX509TestCert, 0, NULL);
             BIO_free(validation_bio);
 
-            validation_bio = BIO_new_mem_buf((void*)mPemRootCert.c_str(), mPemRootCert.length());
+            validation_bio = BIO_new_mem_buf((void*)mPemRootCert.c_str(), static_cast<S32>(mPemRootCert.length()));
             PEM_read_bio_X509(validation_bio, &mX509RootCert, 0, NULL);
             BIO_free(validation_bio);
 
-            validation_bio = BIO_new_mem_buf((void*)mPemIntermediateCert.c_str(), mPemIntermediateCert.length());
+            validation_bio = BIO_new_mem_buf((void*)mPemIntermediateCert.c_str(), static_cast<S32>(mPemIntermediateCert.length()));
             PEM_read_bio_X509(validation_bio, &mX509IntermediateCert, 0, NULL);
             BIO_free(validation_bio);
 
-            validation_bio = BIO_new_mem_buf((void*)mPemChildCert.c_str(), mPemChildCert.length());
+            validation_bio = BIO_new_mem_buf((void*)mPemChildCert.c_str(), static_cast<S32>(mPemChildCert.length()));
             PEM_read_bio_X509(validation_bio, &mX509ChildCert, 0, NULL);
             BIO_free(validation_bio);
         }

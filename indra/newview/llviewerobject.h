@@ -294,7 +294,7 @@ public:
     virtual void addChild(LLViewerObject *childp);
     virtual void removeChild(LLViewerObject *childp);
     const_child_list_t& getChildren() const {   return mChildList; }
-    S32 numChildren() const { return mChildList.size(); }
+    S32 numChildren() const { return static_cast<S32>(mChildList.size()); }
     void addThisAndAllChildren(std::vector<LLViewerObject*>& objects);
     void addThisAndNonJointChildren(std::vector<LLViewerObject*>& objects);
     bool isChild(LLViewerObject *childp) const;

@@ -422,7 +422,7 @@ const LLVector4a*   LLDriverParam::getNextDistortion(U32 *index, LLPolyMesh **po
 
 S32 LLDriverParam::getDrivenParamsCount() const
 {
-    return mDriven.size();
+    return static_cast<S32>(mDriven.size());
 }
 
 const LLViewerVisualParam* LLDriverParam::getDrivenParam(S32 index) const

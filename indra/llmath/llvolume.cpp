@@ -2320,7 +2320,7 @@ bool LLVolume::unpackVolumeFaces(U8* in_data, S32 size)
 bool LLVolume::unpackVolumeFacesInternal(const LLSD& mdl)
 {
     {
-        U32 face_count = mdl.size();
+        auto face_count = mdl.size();
 
         if (face_count == 0)
         { //no faces unpacked, treat as failed decode
@@ -2352,7 +2352,7 @@ bool LLVolume::unpackVolumeFacesInternal(const LLSD& mdl)
             LLSD::Binary idx = mdl[i]["TriangleList"];
 
             //copy out indices
-            S32 num_indices = idx.size() / 2;
+            auto num_indices = idx.size() / 2;
             const S32 indices_to_discard = num_indices % 3;
             if (indices_to_discard > 0)
             {
@@ -2360,7 +2360,7 @@ bool LLVolume::unpackVolumeFacesInternal(const LLSD& mdl)
                 LL_WARNS() << "Incomplete triangle discarded from face! Indices count " << num_indices << " was not divisible by 3. face index: " << i << " Total: " << face_count << LL_ENDL;
                 num_indices -= indices_to_discard;
             }
-            face.resizeIndices(num_indices);
+            face.resizeIndices(static_cast<S32>(num_indices));
 
             if (num_indices > 2 && !face.mIndices)
             {
@@ -2381,7 +2381,7 @@ bool LLVolume::unpackVolumeFacesInternal(const LLSD& mdl)
             }
 
             //copy out vertices
-            U32 num_verts = pos.size()/(3*2);
+            U32 num_verts = static_cast<U32>(pos.size())/(3*2);
             face.resizeVertices(num_verts);
 
             if (num_verts > 0 && !face.mPositions)
@@ -2645,7 +2645,7 @@ bool LLVolume::unpackVolumeFacesInternal(const LLSD& mdl)
 
             if (do_reverse_triangles)
             {
-                for (U32 j = 0; j < face.mNumIndices; j += 3)
+                for (S32 j = 0; j < face.mNumIndices; j += 3)
                 {
                     // swap the 2nd and 3rd index
                     S32 swap = face.mIndices[j+1];
@@ -2682,7 +2682,7 @@ bool LLVolume::unpackVolumeFacesInternal(const LLSD& mdl)
                     min_tc = face.mTexCoords[0];
                     max_tc = face.mTexCoords[0];
 
-                    for (U32 j = 1; j < face.mNumVertices; ++j)
+                    for (S32 j = 1; j < face.mNumVertices; ++j)
                     {
                         update_min_max(min_tc, max_tc, face.mTexCoords[j]);
                     }
@@ -3778,7 +3778,7 @@ void LLVolume::generateSilhouetteVertices(std::vector<LLVector3> &vertices,
             LLVector4a* v = (LLVector4a*)face.mPositions;
             LLVector4a* n = (LLVector4a*)face.mNormals;
 
-            for (U32 j = 0; j < face.mNumIndices / 3; j++)
+            for (S32 j = 0; j < face.mNumIndices / 3; j++)
             {
                 for (S32 k = 0; k < 3; k++)
                 {
@@ -3904,7 +3904,7 @@ void LLVolume::generateSilhouetteVertices(std::vector<LLVector3> &vertices,
             LLVector4a* v = (LLVector4a*) face.mPositions;
             LLVector4a* n = (LLVector4a*) face.mNormals;
 
-            for (U32 j = 0; j < face.mNumIndices/3; j++)
+            for (S32 j = 0; j < face.mNumIndices/3; j++)
             {
                 //approximate normal
                 S32 v1 = face.mIndices[j*3+0];
@@ -3941,7 +3941,7 @@ void LLVolume::generateSilhouetteVertices(std::vector<LLVector3> &vertices,
             }
 
             //for each triangle
-            for (U32 j = 0; j < face.mNumIndices/3; j++)
+            for (S32 j = 0; j < face.mNumIndices/3; j++)
             {
                 if (fFacing[j] == (AWAY | TOWARDS))
                 { //this is a degenerate triangle
@@ -4943,13 +4943,13 @@ void LLVolumeFace::remap()
 {
     // Generate a remap buffer
     std::vector<unsigned int> remap(mNumVertices);
-    S32 remap_vertices_count = LLMeshOptimizer::generateRemapMultiU16(&remap[0],
+    S32 remap_vertices_count = static_cast<S32>(LLMeshOptimizer::generateRemapMultiU16(&remap[0],
         mIndices,
         mNumIndices,
         mPositions,
         mNormals,
         mTexCoords,
-        mNumVertices);
+        mNumVertices));
 
     // Allocate new buffers
     S32 size = ((mNumIndices * sizeof(U16)) + 0xF) & ~0xF;
@@ -4994,7 +4994,7 @@ void LLVolumeFace::optimize(F32 angle_cutoff)
     range.setSub(mExtents[1],mExtents[0]);
 
     //remove redundant vertices
-    for (U32 i = 0; i < mNumIndices; ++i)
+    for (S32 i = 0; i < mNumIndices; ++i)
     {
         U16 index = mIndices[i];
 
@@ -5380,7 +5380,7 @@ struct MikktData
         LLVector3 inv_scale(1.f / face->mNormalizedScale.mV[0], 1.f / face->mNormalizedScale.mV[1], 1.f / face->mNormalizedScale.mV[2]);
 
 
-        for (int i = 0; i < face->mNumIndices; ++i)
+        for (S32 i = 0; i < face->mNumIndices; ++i)
         {
             U32 idx = face->mIndices[i];
 
@@ -5390,17 +5390,6 @@ struct MikktData
             n[i].scaleVec(inv_scale);
             n[i].normalize();
             tc[i].set(face->mTexCoords[idx]);
-
-            if (idx >= face->mNumVertices)
-            {
-                // invalid index
-                // replace with a valid index to avoid crashes
-                idx = face->mNumVertices - 1;
-                face->mIndices[i] = idx;
-
-                // Needs better logging
-                LL_DEBUGS_ONCE("LLVOLUME") << "Invalid index, substituting" << LL_ENDL;
-            }
 
             if (face->mWeights)
             {
@@ -5473,7 +5462,7 @@ bool LLVolumeFace::cacheOptimize(bool gen_tangents)
 
         U32 stream_count = data.w.empty() ? 4 : 5;
 
-        size_t vert_count = meshopt_generateVertexRemapMulti(&remap[0], nullptr, data.p.size(), data.p.size(), mos, stream_count);
+        S32 vert_count = static_cast<S32>(meshopt_generateVertexRemapMulti(&remap[0], nullptr, data.p.size(), data.p.size(), mos, stream_count));
 
         if (vert_count < 65535 && vert_count != 0)
         {
@@ -5487,11 +5476,11 @@ bool LLVolumeFace::cacheOptimize(bool gen_tangents)
 
             allocateTangents(mNumVertices);
 
-            for (int i = 0; i < mNumIndices; ++i)
+            for (S32 i = 0; i < mNumIndices; ++i)
             {
                 U32 src_idx = i;
                 U32 dst_idx = remap[i];
-                if (dst_idx >= mNumVertices)
+                if (dst_idx >= (U32)mNumVertices)
                 {
                     dst_idx = mNumVertices - 1;
                     // Shouldn't happen, figure out what gets returned in remap and why.
@@ -5518,7 +5507,7 @@ bool LLVolumeFace::cacheOptimize(bool gen_tangents)
             scale.load3(mNormalizedScale.mV);
             scale.getF32ptr()[3] = 1.f;
 
-            for (int i = 0; i < mNumVertices; ++i)
+            for (S32 i = 0; i < mNumVertices; ++i)
             {
                 mPositions[i].mul(inv_scale);
                 mNormals[i].mul(scale);
@@ -6373,7 +6362,7 @@ void LLVolumeFace::createTangents()
         LLCalculateTangentArray(mNumVertices, mPositions, mNormals, mTexCoords, mNumIndices / 3, mIndices, mTangents);
 
         //normalize normals
-        for (U32 i = 0; i < mNumVertices; i++)
+        for (S32 i = 0; i < mNumVertices; i++)
         {
             //bump map/planar projection code requires normals to be normalized
             mNormals[i].normalize3fast();
@@ -6549,8 +6538,8 @@ void LLVolumeFace::pushIndex(const U16& idx)
 
 void LLVolumeFace::fillFromLegacyData(std::vector<LLVolumeFace::VertexData>& v, std::vector<U16>& idx)
 {
-    resizeVertices(v.size());
-    resizeIndices(idx.size());
+    resizeVertices(static_cast<S32>(v.size()));
+    resizeIndices(static_cast<S32>(idx.size()));
 
     for (U32 i = 0; i < v.size(); ++i)
     {
@@ -6645,7 +6634,7 @@ bool LLVolumeFace::createSide(LLVolume* volume, bool partial_build)
             {
                 // Get s value for tex-coord.
                 S32 index = mBeginS + s;
-                if (index >= profile.size())
+                if (index >= (S32)profile.size())
                 {
                     // edge?
                     ss = flat ? 1.f - begin_stex : 1.f;

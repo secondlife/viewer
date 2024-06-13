@@ -430,8 +430,9 @@ void LLKeyframeMotion::JointMotion::update(LLJointState* joint_state, F32 time, 
 //-----------------------------------------------------------------------------
 LLKeyframeMotion::LLKeyframeMotion(const LLUUID &id)
     : LLMotion(id),
-        mJointMotionList(NULL),
-        mPelvisp(NULL),
+        mJointMotionList(nullptr),
+        mPelvisp(nullptr),
+        mCharacter(nullptr),
         mLastSkeletonSerialNum(0),
         mLastUpdateTime(0.f),
         mLastLoopedTime(0.f),
@@ -2079,7 +2080,7 @@ bool LLKeyframeMotion::serialize(LLDataPacker& dp) const
         JointMotion* joint_motionp = mJointMotionList->getJointMotion(i);
         success &= dp.packString(joint_motionp->mJointName, "joint_name");
         success &= dp.packS32(joint_motionp->mPriority, "joint_priority");
-        success &= dp.packS32(joint_motionp->mRotationCurve.mKeys.size(), "num_rot_keys");
+        success &= dp.packS32(static_cast<S32>(joint_motionp->mRotationCurve.mKeys.size()), "num_rot_keys");
 
         LL_DEBUGS("BVH") << "Joint " << i
             << " name: " << joint_motionp->mJointName
@@ -2105,7 +2106,7 @@ bool LLKeyframeMotion::serialize(LLDataPacker& dp) const
             LL_DEBUGS("BVH") << "  rot: t " << rot_key.mTime << " angles " << rot_angles.mV[VX] <<","<< rot_angles.mV[VY] <<","<< rot_angles.mV[VZ] << LL_ENDL;
         }
 
-        success &= dp.packS32(joint_motionp->mPositionCurve.mKeys.size(), "num_pos_keys");
+        success &= dp.packS32(static_cast<S32>(joint_motionp->mPositionCurve.mKeys.size()), "num_pos_keys");
         for (PositionCurve::key_map_t::value_type& pos_pair : joint_motionp->mPositionCurve.mKeys)
         {
             PositionKey& pos_key = pos_pair.second;
@@ -2125,7 +2126,7 @@ bool LLKeyframeMotion::serialize(LLDataPacker& dp) const
         }
     }
 
-    success &= dp.packS32(mJointMotionList->mConstraints.size(), "num_constraints");
+    success &= dp.packS32(static_cast<S32>(mJointMotionList->mConstraints.size()), "num_constraints");
     LL_DEBUGS("BVH") << "num_constraints " << mJointMotionList->mConstraints.size() << LL_ENDL;
     for (JointConstraintSharedData* shared_constraintp : mJointMotionList->mConstraints)
     {

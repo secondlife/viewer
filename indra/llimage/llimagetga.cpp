@@ -467,7 +467,7 @@ bool LLImageTGA::decodeTruecolorNonRle( LLImageRaw* raw_image, bool &alpha_opaqu
 
     S32 pixels = getWidth() * getHeight();
 
-    if (pixels * (mIs15Bit ? 2 : getComponents()) > getDataSize() - mDataOffset)
+    if (pixels * (mIs15Bit ? 2 : getComponents()) > getDataSize() - (S32)mDataOffset)
     { //here we have situation when data size in src less than actually needed
         return false;
     }
@@ -1179,7 +1179,7 @@ bool LLImageTGA::decodeAndProcess( LLImageRaw* raw_image, F32 domain, F32 weight
 // Reads a .tga file and creates an LLImageTGA with its data.
 bool LLImageTGA::loadFile( const std::string& path )
 {
-    S32 len = path.size();
+    auto len = path.size();
     if( len < 5 )
     {
         return false;
@@ -1206,7 +1206,7 @@ bool LLImageTGA::loadFile( const std::string& path )
     }
 
     U8* buffer = allocateData(file_size);
-    S32 bytes_read = fread(buffer, 1, file_size, file);
+    S32 bytes_read = static_cast<S32>(fread(buffer, 1, file_size, file));
     if( bytes_read != file_size )
     {
         deleteData();

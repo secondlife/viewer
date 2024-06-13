@@ -423,7 +423,7 @@ void LLViewerJointMesh::updateFaceData(LLFace *face, F32 pixel_area, bool damp_w
 
             const S32 offset = (S32) mMesh->mFaceVertexOffset;
 
-            for (S32 i = 0; i < idx_count; ++i)
+            for (U32 i = 0; i < idx_count; ++i)
             {
                 *(idx++) = *(src_idx++)+offset;
             }

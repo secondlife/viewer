@@ -403,7 +403,7 @@ void LLPanelScriptLimitsRegionMemory::setRegionDetails(LLSD content)
         return;
     }
 
-    S32 number_parcels = content["parcels"].size();
+    auto number_parcels = content["parcels"].size();
 
     LLStringUtil::format_map_t args_parcels;
     args_parcels["[PARCELS]"] = llformat ("%d", number_parcels);
@@ -418,10 +418,10 @@ void LLPanelScriptLimitsRegionMemory::setRegionDetails(LLSD content)
     bool has_locations = false;
     bool has_local_ids = false;
 
-    for(S32 i = 0; i < number_parcels; i++)
+    for(size_t i = 0; i < number_parcels; i++)
     {
         std::string parcel_name = content["parcels"][i]["name"].asString();
-        S32 number_objects = content["parcels"][i]["objects"].size();
+        auto number_objects = content["parcels"][i]["objects"].size();
 
         S32 local_id = 0;
         if(content["parcels"][i].has("local_id"))
@@ -431,7 +431,7 @@ void LLPanelScriptLimitsRegionMemory::setRegionDetails(LLSD content)
             local_id = content["parcels"][i]["local_id"].asInteger();
         }
 
-        for(S32 j = 0; j < number_objects; j++)
+        for(size_t j = 0; j < number_objects; j++)
         {
             S32 size = content["parcels"][i]["objects"][j]["resources"]["memory"].asInteger() / SIZE_OF_ONE_KB;
 
@@ -898,10 +898,10 @@ void LLPanelScriptLimitsRegionMemory::returnObjects()
         return;
     }
 
-    S32 number_parcels = mContent["parcels"].size();
+    auto number_parcels = mContent["parcels"].size();
 
     // a message per parcel containing all objects to be returned from that parcel
-    for(S32 i = 0; i < number_parcels; i++)
+    for(size_t i = 0; i < number_parcels; i++)
     {
         S32 local_id = 0;
         if(mContent["parcels"][i].has("local_id"))

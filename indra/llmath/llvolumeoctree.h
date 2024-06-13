@@ -186,7 +186,7 @@ public:
             llassert(!branch->isLeaf()); // Empty leaf
         }
 
-        for (S32 i = 0; i < branch->getChildCount(); ++i)
+        for (U32 i = 0; i < branch->getChildCount(); ++i)
         {  //stretch by child extents
             LLVolumeOctreeListener* child = (LLVolumeOctreeListener*)branch->getChild(i)->getListener(0);
             min.setMin(min, child->mExtents[0]);

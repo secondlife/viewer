@@ -328,10 +328,10 @@ bool LLPngWrapper::writePng(const LLImageRaw* rawImage, U8* dest, size_t destSiz
         mWriteInfoPtr = png_create_info_struct(mWritePngPtr);
 
         // Setup write function
-        PngDataInfo dataPtr;
+        PngDataInfo dataPtr{};
         dataPtr.mData = dest;
         dataPtr.mOffset = 0;
-        dataPtr.mDataSize = destSize;
+        dataPtr.mDataSize = static_cast<S32>(destSize);
         png_set_write_fn(mWritePngPtr, &dataPtr, &writeDataCallback, &writeFlush);
 
         // Setup image params

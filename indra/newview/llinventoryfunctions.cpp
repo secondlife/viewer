@@ -156,7 +156,7 @@ S32 count_descendants_items(const LLUUID& cat_id)
     LLInventoryModel::item_array_t* item_array;
     gInventory.getDirectDescendentsOf(cat_id,cat_array,item_array);
 
-    S32 count = item_array->size();
+    S32 count = static_cast<S32>(item_array->size());
 
     LLInventoryModel::cat_array_t cat_array_copy = *cat_array;
     for (LLInventoryModel::cat_array_t::iterator iter = cat_array_copy.begin(); iter != cat_array_copy.end(); iter++)
@@ -1098,7 +1098,7 @@ S32 compute_stock_count(LLUUID cat_uuid, bool force_count /* false */)
         LLInventoryModel::cat_array_t* cat_array;
         LLInventoryModel::item_array_t* item_array;
         gInventory.getDirectDescendentsOf(cat_uuid,cat_array,item_array);
-        return item_array->size();
+        return static_cast<S32>(item_array->size());
     }
 
     // When force_count is true, we do not do any verification of the marketplace status and simply compute
@@ -1327,12 +1327,12 @@ bool can_move_item_to_marketplace(const LLInventoryCategory* root_folder, LLInve
     if (accept)
     {
         // If the dest folder is a stock folder, we do not count the incoming items toward the total (stock items are seen as one)
-        int existing_item_count = (move_in_stock ? 0 : bundle_size);
+        unsigned int existing_item_count = (move_in_stock ? 0 : bundle_size);
 
         // If the dest folder is a stock folder, we do assume that the incoming items are also stock items (they should anyway)
-        int existing_stock_count = (move_in_stock ? bundle_size : 0);
+        unsigned int existing_stock_count = (move_in_stock ? bundle_size : 0);
 
-        int existing_folder_count = 0;
+        unsigned int existing_folder_count = 0;
 
         // Get the version folder: that's where the counts start from
         const LLViewerInventoryCategory * version_folder = ((root_folder && (root_folder != dest_folder)) ? gInventory.getFirstDescendantOf(root_folder->getUUID(), dest_folder->getUUID()) : NULL);
@@ -1352,7 +1352,7 @@ bool can_move_item_to_marketplace(const LLInventoryCategory* root_folder, LLInve
 
             existing_item_count += count_copyable_items(existing_items) + count_stock_folders(existing_categories);
             existing_stock_count += count_stock_items(existing_items);
-            existing_folder_count += existing_categories.size();
+            existing_folder_count += static_cast<S32>(existing_categories.size());
 
             // If the incoming item is a nocopy (stock) item, we need to consider that it will create a stock folder
             if (!inv_item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID(), gAgent.getGroupID()) && !move_in_stock)
@@ -1424,7 +1424,7 @@ bool can_move_folder_to_marketplace(const LLInventoryCategory* root_folder, LLIn
         LLInventoryModel::item_array_t descendent_items;
         gInventory.collectDescendents(inv_cat->getUUID(), descendent_categories, descendent_items, false);
 
-        int dragged_folder_count = descendent_categories.size() + bundle_size;  // Note: We assume that we're moving a bunch of folders in. That might be wrong...
+        int dragged_folder_count = static_cast<int>(descendent_categories.size()) + bundle_size;  // Note: We assume that we're moving a bunch of folders in. That might be wrong...
         int dragged_item_count = count_copyable_items(descendent_items) + count_stock_folders(descendent_categories);
         int dragged_stock_count = count_stock_items(descendent_items);
         int existing_item_count = 0;
@@ -1446,14 +1446,14 @@ bool can_move_folder_to_marketplace(const LLInventoryCategory* root_folder, LLIn
             LLInventoryModel::item_array_t existing_items;
             gInventory.collectDescendents(version_folder->getUUID(), existing_categories, existing_items, false);
 
-            existing_folder_count += existing_categories.size();
+            existing_folder_count += static_cast<int>(existing_categories.size());
             existing_item_count += count_copyable_items(existing_items) + count_stock_folders(existing_categories);
             existing_stock_count += count_stock_items(existing_items);
         }
 
-        const int total_folder_count = existing_folder_count + dragged_folder_count;
-        const int total_item_count = existing_item_count + dragged_item_count;
-        const int total_stock_count = existing_stock_count + dragged_stock_count;
+        const unsigned int total_folder_count = existing_folder_count + dragged_folder_count;
+        const unsigned int total_item_count = existing_item_count + dragged_item_count;
+        const unsigned int total_stock_count = existing_stock_count + dragged_stock_count;
 
         if (total_folder_count > gSavedSettings.getU32("InventoryOutboxMaxFolderCount"))
         {
@@ -1876,7 +1876,7 @@ void validate_marketplacelistings(
     }
 
     // How many types of items? Which type is it if only one?
-    S32 count = items_vector.size();
+    auto count = items_vector.size();
     U32 default_key = (U32)(LLInventoryType::IT_COUNT) << 24; // This is the key for any normal copyable item
     U32 unique_key = (count == 1 ? items_vector.begin()->first : default_key); // The key in the case of one item type only
 

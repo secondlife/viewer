@@ -217,8 +217,8 @@ bool LLViewerDynamicTexture::updateAllInstances()
             LLViewerDynamicTexture *dynamicTexture = *iter;
             if (dynamicTexture->needsRender())
             {
-                llassert(dynamicTexture->getFullWidth() <= LLPipeline::MAX_BAKE_WIDTH);
-                llassert(dynamicTexture->getFullHeight() <= LLPipeline::MAX_BAKE_WIDTH);
+                llassert(dynamicTexture->getFullWidth() <= S32(LLPipeline::MAX_BAKE_WIDTH));
+                llassert(dynamicTexture->getFullHeight() <= S32(LLPipeline::MAX_BAKE_WIDTH));
 
                 glClear(GL_DEPTH_BUFFER_BIT);
 
