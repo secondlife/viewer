@@ -85,7 +85,11 @@ public:
 
         void sessionInitReplyReceived(const LLUUID& new_session_id);
         void addMessagesFromHistoryCache(const std::list<LLSD>& history);        // From local file
-        void addMessagesFromServerHistory(const LLSD& history, const std::string& target_from, const std::string& target_message, U32 timestamp);  // From chat server
+        void addMessagesFromServerHistory(const LLSD& history,
+                        const std::string& target_from,
+                        const std::string& target_message,
+                        U32 timestamp);  // From chat server
+        void addMessagesFromIMHistory(LLSD &messages);     // From direct IM history
         void addMessage(const std::string& from,
                         const LLUUID& from_id,
                         const std::string& utf8_text,
@@ -115,6 +119,7 @@ public:
         void buildHistoryFileName();
 
         void loadHistory();
+        void loadIMHistory();
 
         LLUUID mSessionID;
         std::string mName;

@@ -66,6 +66,7 @@
 #include "lltoolbarview.h"
 #include "llviewercontrol.h"
 #include "llviewerparcelmgr.h"
+#include "llvoavatarself.h"
 #include "llconversationlog.h"
 #include "message.h"
 #include "llviewerregion.h"
@@ -90,6 +91,7 @@ const static U32 SESSION_INITIALIZATION_TIMEOUT = 30;
 void startConfrenceCoro(std::string url, LLUUID tempSessionId, LLUUID creatorId, LLUUID otherParticipantId, LLSD agents);
 void chatterBoxInvitationCoro(std::string url, LLUUID sessionId, LLIMMgr::EInvitationType invitationType);
 void chatterBoxHistoryCoro(std::string url, LLUUID sessionId, std::string from, std::string message, U32 timestamp);
+void directIMHistoryCoro(std::string url, LLUUID session_id, LLUUID with_id);
 void start_deprecated_conference_chat(const LLUUID& temp_session_id, const LLUUID& creator_id, const LLUUID& other_participant_id, const LLSD& agents_to_invite);
 
 const LLUUID LLOutgoingCallDialog::OCD_KEY = LLUUID("7CF78E11-0CFE-498D-ADB9-1417BF03DDB4");
@@ -555,6 +557,92 @@ void translateFailure(const LLUUID& session_id, const std::string& from, const L
     LLIMModel::getInstance()->processAddingMessage(session_id, from, from_id, message_txt, log2file, is_region_msg, time_stamp);
 }
 
+
+// Fetch direct IM chat history
+void directIMHistoryCoro(std::string url,
+                        LLUUID session_id,
+                        LLUUID with_id)
+{   // Fetch chat history for a one-on-one IM session
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("IMHistory", httpPolicy));
+    LLCore::HttpRequest::ptr_t                  httpRequest(new LLCore::HttpRequest);
+
+    LLSD postData = LLSD::emptyMap();
+    postData["method"]     = "fetch im history";
+    postData["session-id"] = session_id;
+
+    LLSD & param_data = (postData["params"] = LLSD::emptyMap());
+    param_data["agent_id"] = with_id;             // the other person in the chat
+    param_data["count"]    = LLSD::Integer(10);   // how many messages in the page - make a pref?
+    param_data["reverse"] = LLSD::Integer(1);     // reverse order of messages: fetch most recent chat
+    // param_data["last"] = LLSD::String("");     // key to start from when doing successive page requests
+
+    LL_DEBUGS("ChatHistory") << "Fetching IM chat history with data " << postData
+        << " to " << url << LL_ENDL;
+
+    LLSD result = httpAdapter->postAndSuspend(httpRequest, url, postData);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+    if (!status)
+    {
+        LL_WARNS("ChatHistory") << "Bad HTTP response in directIMHistoryCoro"
+                                << ", results: " << httpResults << LL_ENDL;
+        return;
+    }
+
+    if (LLApp::isExiting() || gDisconnected)
+    {
+        LL_DEBUGS("ChatHistory") << "Ignoring IM history response"
+                                 << " for session " << session_id << LL_ENDL;
+        return;
+    }
+
+    LL_DEBUGS("ChatHistory") << "IM history fetch has results " << result
+        << " for session " << session_id << LL_ENDL;
+    result.erase(LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS);
+
+    if (!result.has("messages") ||
+        !result["messages"].isArray() ||
+        result["messages"].size() == 0)
+    {
+        LL_DEBUGS("ChatHistory") << "No messages in IM history response"
+                                 << " for session " << session_id << LL_ENDL;
+        return;
+    }
+
+    // Add history messages to IM session
+    LLSD messages = result["messages"];
+
+    LLIMModel::LLIMSession *session = LLIMModel::getInstance()->findIMSession(session_id);
+    if (session)
+    {
+        try
+        {
+            session->addMessagesFromIMHistory(messages);
+
+            // Display the newly added messages
+            LLFloaterIMSession *floater = LLFloaterReg::findTypedInstance<LLFloaterIMSession>("impanel", session_id);
+            if (floater && floater->isInVisibleChain())
+            {
+                floater->updateMessages();
+            }
+        }
+        catch (...)
+        {
+            LOG_UNHANDLED_EXCEPTION("directIMHistoryCoro");
+            LL_WARNS("ChatHistory") << "directIMHistoryCoro unhandled exception while processing data for session " << session_id
+                                    << LL_ENDL;
+        }
+    }
+    else
+    {
+        LL_WARNS("ChatHistory") << session_id << ": Unable to find session after fetching IM history" << LL_ENDL;
+    }
+}
+
+
 void chatterBoxHistoryCoro(std::string url, LLUUID sessionId, std::string from, std::string message, U32 timestamp)
 {   // if parameters from, message and timestamp have values, they are a message that opened chat
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
@@ -726,6 +814,7 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string&
 
     buildHistoryFileName();
     loadHistory();
+    loadIMHistory();  // Proof-of-concept - load direct IM history from server
 
     // Localizing name of ad-hoc session. STORM-153
     // Changing name should happen here- after the history file was created, so that
@@ -1210,6 +1299,78 @@ void LLIMModel::LLIMSession::addMessagesFromServerHistory(const LLSD& history,  
 }
 
 
+void LLIMModel::LLIMSession::addMessagesFromIMHistory(LLSD & messages)
+{
+    // This is very basic, and doesn't yet fully take into account for
+    // a message that opened the chat window and is already added at the front.
+    // See the group chat addMessagesFromServerHistory() for a more complete implementation.
+
+    if (messages.size() == 0)
+    {
+        LL_DEBUGS("ChatHistory") << "addMessagesFromIMHistory() has empty history, nothing to merge" << LL_ENDL;
+        return;
+    }
+
+    chat_message_list_t shift_msgs;
+    if (mMsgs.size() == 1)
+    {   // Easy implementation to deal with the case of a message opening the session
+        // and and already at the front of the list
+        LLSD cur_msg = mMsgs.front();    // Get most recent message from the chat display (front of mMsgs list)
+        shift_msgs.push_front(cur_msg);  // Move chat message to temp list.
+        mMsgs.pop_front();               // Normally this is just one message
+    }
+
+    for (LLSD::reverse_array_iterator cur_im_hist = messages.rbeginArray();
+            cur_im_hist != messages.rendArray();
+            cur_im_hist++)
+    {   // Messages come in with most recent first
+        if ((*cur_im_hist).isMap())
+        {   // {'language':'en','message':'I really hope this works','sender_id':'77e48a07-06f1-4ae4-9d33-6eab4d445e2d','timestamp':'2024-06-11T18:38:03.461853Z','translations':{}}
+            LL_DEBUGS("ChatHistory") << "Adding IM history message " << (*cur_im_hist) << LL_ENDL;
+
+            LLSD message          = LLSD::emptyMap();
+            message["from_id"]    = (*cur_im_hist)["sender_id"].asString();
+            message["message"]    = (*cur_im_hist)["message"].asString();
+            message["index"]      = (LLSD::Integer) mMsgs.size();
+            message["is_history"] = true;
+
+            // Clean up time string - needs to be done properly with integration
+            //   and resolution with LLLogChat
+            LLDate msg_time((*cur_im_hist)["timestamp"].asString());
+            message["time"] = LLLogChat::timestamp2LogString((U32) msg_time.secondsSinceEpoch(), true);
+
+            LLAvatarName av_name;
+            if (LLAvatarNameCache::get((*cur_im_hist)["sender_id"], &av_name))
+            {
+                message["from"] = av_name.getCompleteName();
+            }
+            if ((*cur_im_hist)["sender_id"] == gAgent.getID())
+            {   // Know thyself
+                message["from"] = gAgentAvatarp->getFullname();
+            }
+            else // Name isn't cached yet, happens on initial login
+            {   // and IM opening due to an offline message
+                message["from"] = "???";  // Need something better?
+            }
+            // TBD - is this needed?
+            // timestamp from server is iso8601 format, convert to LLDate and timestamp int
+            LLDate adjust_ts((*cur_im_hist)["timestamp"].asString());
+            message["timestamp"] = (S32) adjust_ts.secondsSinceEpoch();
+
+            mMsgs.push_front(message);
+        }
+    }
+
+    // Get rid of the last one, which _should_ be the original that opened chat
+    if (shift_msgs.size() == 1)
+    {   // Restore the original message to the front
+        LLSD cur_msg = shift_msgs.front();
+        mMsgs.pop_front();
+        mMsgs.push_front(cur_msg);
+    }
+}
+
+
 void LLIMModel::LLIMSession::chatFromLogFile(LLLogChat::ELogLineType type, const LLSD& msg, void* userdata)
 {
     if (!userdata) return;
@@ -1227,6 +1388,25 @@ void LLIMModel::LLIMSession::chatFromLogFile(LLLogChat::ELogLineType type, const
         self->addMessage(msg["from"].asString(), msg["from_id"].asUUID(), msg["message"].asString(), msg["time"].asString(), true, false, 0);  // from history data, not region message, no timestamp
     }
 }
+
+
+void LLIMModel::LLIMSession::loadIMHistory()
+{   // If this is a one-on-one IM session, ask server for history
+
+    // Note - this is proof-of-concept code, need to get a full design to
+    // managing chat history with the addition of server-side storage
+    if (isP2P() && gSavedPerAccountSettings.getBOOL("InstantMessageHistory"))
+    {
+        std::string chat_url = gAgent.getRegionCapability("ChatSessionRequest");
+        if (!chat_url.empty())
+        {
+            // Fetch direct IM session history from the server
+            LLCoros::instance().launch("directIMHistoryCoro",
+                                       boost::bind(&directIMHistoryCoro, chat_url, mSessionID, mOtherParticipantID));
+        }
+    }
+}
+
 
 void LLIMModel::LLIMSession::loadHistory()
 {
