@@ -74,18 +74,18 @@ public:
     const LLGLTFMaterial* getMaterialOverride(S32 asset) const override;
     virtual void setMaterialOverride(S32 asset, LLGLTFMaterial* mat_override);
     Type getMaterialType();
-    bool texturesReady(bool boost, bool strict);
+    bool makeTexturesReady(bool boost, bool strict);
     // strict = true -> all materials must be sufficiently loaded
     // strict = false -> at least one material must be loaded
-    bool materialsReady(bool boost, bool strict);
+    bool makeMaterialsReady(bool boost, bool strict);
 
 protected:
     void unboost();
-    static bool textureReady(LLPointer<LLViewerFetchedTexture>& tex, bool boost);
+    static bool makeTextureReady(LLPointer<LLViewerFetchedTexture>& tex, bool boost);
     // strict = true -> all materials must be sufficiently loaded
     // strict = false -> at least one material must be loaded
-    static bool materialReady(LLPointer<LLFetchedGLTFMaterial>& mat, bool& textures_set, bool boost, bool strict);
-    // *NOTE: Prefer calling materialReady if mat is known to be LLFetchedGLTFMaterial
+    static bool makeMaterialReady(LLPointer<LLFetchedGLTFMaterial>& mat, bool& textures_set, bool boost, bool strict);
+    // *NOTE: Prefer calling makeMaterialReady if mat is known to be LLFetchedGLTFMaterial
     static bool materialTexturesReady(LLPointer<LLFetchedGLTFMaterial>& mat, bool& textures_set, bool boost, bool strict);
 
     LLPointer<LLViewerFetchedTexture> mDetailTextures[ASSET_COUNT];

@@ -591,11 +591,19 @@ void LLView::deleteAllChildren()
     updateBoundingRect();
 }
 
-void LLView::setAllChildrenEnabled(bool b)
+void LLView::setAllChildrenEnabled(bool b, bool recursive /*= false*/)
 {
     for (LLView* viewp : mChildList)
     {
         viewp->setEnabled(b);
+    }
+
+    if (recursive)
+    {
+        for (LLView* viewp : mChildList)
+        {
+            viewp->setAllChildrenEnabled(b, recursive);
+        }
     }
 }
 
