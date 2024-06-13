@@ -7042,7 +7042,7 @@
   <key>OctreeAlphaDistanceFactor</key>
   <map>
     <key>Comment</key>
-    <string>Multiplier on alpha object distance for determining octree node size </string>
+    <string>Multiplier on alpha object distance for determining octree node size.  First two parameters are currently unused.  Third parameter is distance at which to perform detailed alpha sorting.</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
@@ -7051,7 +7051,7 @@
     <array>
       <real>0.1</real>
       <real>0.0</real>
-      <real>0.0</real>
+      <real>64.0</real>
     </array>
   </map>
 
@@ -7159,17 +7159,6 @@
     <string>F32</string>
     <key>Value</key>
     <real>32.0</real>
-  </map>
-  <key>RenderCloudShadowAmbianceFactor</key>
-  <map>
-    <key>Comment</key>
-    <string>Amount that cloud shadow (aka cloud coverage) contributes to reflection probe ambiance</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>F32</string>
-    <key>Value</key>
-    <real>0.1</real>
   </map>
   <key>RenderCPUBasis</key>
   <map>
@@ -7485,6 +7474,17 @@
       <real>0.00</real>
     </array>
   </map>
+  <key>RenderMirrors</key>
+  <map>
+    <key>Comment</key>
+    <string>Renders realtime mirrors.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
   <key>RenderScreenSpaceReflections</key>
   <map>
     <key>Comment</key>
@@ -7595,6 +7595,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>RenderDesaturateIrradiance</key>
+    <map>
+      <key>Comment</key>
+      <string>Desaturate irradiance to remove blue tint</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>RenderDebugAlphaMask</key>
     <map>
       <key>Comment</key>
@@ -7661,6 +7672,50 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
+  <key>RenderHDRIExposure</key>
+  <map>
+    <key>Comment</key>
+    <string>Exposure adjustment of HDRI when previewing an HDRI.  Units are EV.  Sane values would be -10 to 10.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.0</real>
+  </map>
+  <key>RenderHDRIRotation</key>
+  <map>
+    <key>Comment</key>
+    <string>Rotation (in degrees) of environment when previewing an HDRI.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.0</real>
+  </map>
+  <key>RenderHDRISplitScreen</key>
+  <map>
+    <key>Comment</key>
+    <string>What percentage of screen to render using HDRI vs EEP sky.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>1.0</real>
+  </map>
+  <key>RenderHDRIIrradianceOnly</key>
+  <map>
+    <key>Comment</key>
+    <string>Only use HDRI sky for irradiance map when RenderHDRISplitScreen is 0</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
   <key>RenderMaxOpenGLVersion</key>
   <map>
     <key>Comment</key>
@@ -7693,6 +7748,17 @@
     <string>U32</string>
     <key>Value</key>
     <integer>16</integer>
+  </map>
+  <key>RenderMaxTextureResolution</key>
+  <map>
+    <key>Comment</key>
+    <string>Maximum texture resolution to download for non-boosted textures.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>2048</integer>
   </map>
     <key>RenderDebugTextureBind</key>
     <map>
@@ -8689,6 +8755,50 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>RenderHeroProbeResolution</key>
+    <map>
+        <key>Comment</key>
+        <string>Resolution to render hero probes used for mirrors, water, etc.</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>S32</string>
+        <key>Value</key>
+        <integer>1024</integer>
+    </map>
+	<key>RenderHeroProbeDistance</key>
+	<map>
+		<key>Comment</key>
+		<string>Distance in meters for hero probes to render out to.</string>
+		<key>Persist</key>
+		<integer>1</integer>
+		<key>Type</key>
+		<string>F32</string>
+		<key>Value</key>
+		<real>8</real>
+	</map>
+  <key>RenderHeroProbeUpdateRate</key>
+  <map>
+    <key>Comment</key>
+    <string>How many frames to wait for until it's time to render the probe. E.g., every other frame (1), every two frames (2), every three frames (3) etc.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>S32</string>
+    <key>Value</key>
+    <integer>2</integer>
+  </map>
+  <key>RenderHeroProbeConservativeUpdateMultiplier</key>
+  <map>
+    <key>Comment</key>
+    <string>How many probe updates to wait until it's time to update faces that are not directly facing the camera.  Acts as a multiplier.  E.g., frames to the periphery of the camera updating once every 3 updates, vs ones directly facing the camera updating every update.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>S32</string>
+    <key>Value</key>
+    <integer>16</integer>
+  </map>
     <key>RenderReflectionProbeVolumes</key>
     <map>
       <key>Comment</key>
@@ -8901,38 +9011,49 @@
     <integer>3</integer>
   </map>
   <key>RenderReflectionRes</key>
-    <map>
-      <key>Comment</key>
-      <string>Reflection map resolution.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>64</integer>
-    </map>
-    <key>RenderResolutionDivisor</key>
-    <map>
-      <key>Comment</key>
-      <string>Divisor for rendering 3D scene at reduced resolution.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>U32</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>RenderShaderLightingMaxLevel</key>
-    <map>
-      <key>Comment</key>
-      <string>Max lighting level to use in the shader (class 3 is default, 2 is less lights, 1 is sun/moon only.  Works around shader compiler bugs on certain platforms.)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>3</integer>
-    </map>
+  <map>
+    <key>Comment</key>
+    <string>Reflection map resolution.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>S32</string>
+    <key>Value</key>
+    <integer>64</integer>
+  </map>
+  <key>RenderReservedTextureIndices</key>
+  <map>
+    <key>Comment</key>
+    <string>Count of texture indices to reserve for shadow and reflection maps when using indexed texture rendering.  Probably only want to set from the login screen.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>S32</string>
+    <key>Value</key>
+    <integer>14</integer>
+  </map>
+  <key>RenderResolutionDivisor</key>
+  <map>
+    <key>Comment</key>
+    <string>Divisor for rendering 3D scene at reduced resolution.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>RenderShaderLightingMaxLevel</key>
+  <map>
+    <key>Comment</key>
+    <string>Max lighting level to use in the shader (class 3 is default, 2 is less lights, 1 is sun/moon only.  Works around shader compiler bugs on certain platforms.)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>S32</string>
+    <key>Value</key>
+    <integer>3</integer>
+  </map>
   <key>RenderSkyAutoAdjustLegacy</key>
   <map>
     <key>Comment</key>
@@ -9055,6 +9176,17 @@
     <key>Value</key>
     <real>0.5</real>
   </map>
+  <key>RenderDiffuseLuminanceScale</key>
+  <map>
+    <key>Comment</key>
+    <string>Luminance adjustment for diffuse surfaces to aid auto-exposure behavior</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.5</real>
+  </map>
     <key>RenderShaderLODThreshold</key>
     <map>
       <key>Comment</key>
@@ -9113,13 +9245,90 @@
     <key>RenderTerrainScale</key>
     <map>
       <key>Comment</key>
-      <string>Terrain detail texture scale</string>
+      <string>Terrain detail texture scale (meters)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
       <real>12.0</real>
+    </map>
+    <key>RenderTerrainPBREnabled</key>
+    <map>
+      <key>Comment</key>
+      <string>EXPERIMENTAL: Enable PBR Terrain features.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>RenderTerrainPBRForce</key>
+    <map>
+      <key>Comment</key>
+      <string>Force-load PBR terrain if enabled</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>RenderTerrainPBRDetail</key>
+    <map>
+      <key>Comment</key>
+      <string>Detail level for PBR terrain. 0 is full detail. Negative values drop rendering features, in accordance with the GLTF specification when possible, which reduces the number of texture binds.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>RenderTerrainPBRScale</key>
+    <map>
+      <key>Comment</key>
+      <string>PBR terrain detail texture scale (meters)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>8.0</real>
+    </map>
+    <key>RenderTerrainPBRPlanarSampleCount</key>
+    <map>
+      <key>Comment</key>
+      <string>How many UV planes to sample PBR terrain textures from. 1 is "flat", 3 is triplanar mapping (aka box mapping)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <real>3</real>
+    </map>
+    <key>RenderTerrainPBRTriplanarBlendFactor</key>
+    <map>
+      <key>Comment</key>
+      <string>Higher values create sharper transitions, but are more likely to produce artifacts.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>8.0</real>
+    </map>
+    <key>RenderTerrainPBRNormalsEnabled</key>
+    <map>
+      <key>Comment</key>
+      <string>EXPERIMENTAL: Change normal gen for PBR Terrain.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
     </map>
     <key>RenderTrackerBeacon</key>
     <map>
@@ -11778,6 +11987,17 @@
       <key>Value</key>
       <integer>2</integer>
     </map>
+    <key>UIPreviewMaterial</key>
+    <map>
+      <key>Comment</key>
+      <string>Whether or not PBR material swatch is enabled</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <real>0</real>
+    </map>
     <key>UIResizeBarHeight</key>
     <map>
       <key>Comment</key>
@@ -13560,7 +13780,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>2048</integer>
+      <integer>1024</integer>
     </map>
     <key>max_texture_dimension_Y</key>
     <map>
@@ -13571,7 +13791,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>2048</integer>
+      <integer>1024</integer>
     </map>
     <!-- End of back compatibility settings -->
     <key>teleport_offer_invitation_max_length</key>
@@ -14347,6 +14567,50 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
+    </map>
+	<key>LocalTerrainAsset1</key>
+    <map>
+      <key>Comment</key>
+      <string>If set to a non-null UUID, overrides the terrain asset locally for all regions with material assets. Local terrain assets are not visible to others. Please keep in mind that this debug setting may be temporary. Do not rely on this setting existing in future viewer builds.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>00000000-0000-0000-0000-000000000000</string>
+    </map>
+	<key>LocalTerrainAsset2</key>
+    <map>
+      <key>Comment</key>
+      <string>If set to a non-null UUID, overrides the terrain asset locally for all regions with material assets. Local terrain assets are not visible to others. Please keep in mind that this debug setting may be temporary. Do not rely on this setting existing in future viewer builds.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>00000000-0000-0000-0000-000000000000</string>
+    </map>
+	<key>LocalTerrainAsset3</key>
+    <map>
+      <key>Comment</key>
+      <string>If set to a non-null UUID, overrides the terrain asset locally for all regions with material assets. Local terrain assets are not visible to others. Please keep in mind that this debug setting may be temporary. Do not rely on this setting existing in future viewer builds.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>00000000-0000-0000-0000-000000000000</string>
+    </map>
+	<key>LocalTerrainAsset4</key>
+    <map>
+      <key>Comment</key>
+      <string>If set to a non-null UUID, overrides the terrain asset locally for all regions with material assets. Local terrain assets are not visible to others. Please keep in mind that this debug setting may be temporary. Do not rely on this setting existing in future viewer builds.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>00000000-0000-0000-0000-000000000000</string>
     </map>
 	<key>PathfindingRetrieveNeighboringRegion</key>
     <map>

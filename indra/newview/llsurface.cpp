@@ -643,17 +643,18 @@ void LLSurface::updatePatchVisibilities(LLAgent &agent)
     }
 }
 
-BOOL LLSurface::idleUpdate(F32 max_update_time)
+template<bool PBR>
+bool LLSurface::idleUpdate(F32 max_update_time)
 {
     if (!gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_TERRAIN))
     {
-        return FALSE;
+        return false;
     }
 
     // Perform idle time update of non-critical stuff.
     // In this case, texture and normal updates.
     LLTimer update_timer;
-    BOOL did_update = FALSE;
+    bool did_update = false;
 
     // If the Z height data has changed, we need to rebuild our
     // property line vertex arrays.
@@ -669,13 +670,13 @@ BOOL LLSurface::idleUpdate(F32 max_update_time)
     {
         std::set<LLSurfacePatch *>::iterator curiter = iter++;
         LLSurfacePatch *patchp = *curiter;
-        patchp->updateNormals();
+        patchp->updateNormals<PBR>();
         patchp->updateVerticalStats();
         if (max_update_time == 0.f || update_timer.getElapsedTimeF32() < max_update_time)
         {
             if (patchp->updateTexture())
             {
-                did_update = TRUE;
+                did_update = true;
                 patchp->clearDirty();
                 mDirtyPatchList.erase(curiter);
             }
@@ -690,6 +691,9 @@ BOOL LLSurface::idleUpdate(F32 max_update_time)
 
     return did_update;
 }
+
+template bool LLSurface::idleUpdate</*PBR=*/false>(F32 max_update_time);
+template bool LLSurface::idleUpdate</*PBR=*/true>(F32 max_update_time);
 
 void LLSurface::decompressDCTPatch(LLBitPack &bitpack, LLGroupHeader *gopp, BOOL b_large_patch)
 {

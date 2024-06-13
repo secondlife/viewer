@@ -55,9 +55,11 @@ in vec4 view;
 in vec3 vary_position;
 
 vec4 applyWaterFogViewLinearNoClip(vec3 pos, vec4 color);
+void mirrorClip(vec3 position);
 
 void main()
 {
+    mirrorClip(vary_position);
     vec4 color;
 
     //get detail normals

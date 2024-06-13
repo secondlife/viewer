@@ -45,6 +45,7 @@
 #include "llbbox.h"
 #include "llrigginginfo.h"
 #include "llreflectionmap.h"
+#include "gltf/asset.h"
 
 class LLAgent;          // TODO: Get rid of this.
 class LLAudioSource;
@@ -313,6 +314,18 @@ public:
     virtual const LLVector3 getPositionEdit() const;
     virtual const LLVector3 &getPositionAgent() const;
     virtual const LLVector3 getRenderPosition() const;
+
+    LLMatrix4a getAgentToGLTFAssetTransform() const;
+    LLMatrix4a getGLTFAssetToAgentTransform() const;
+    LLVector3 getGLTFNodePositionAgent(S32 node_index) const;
+    LLMatrix4a getGLTFNodeTransformAgent(S32 node_index) const;
+    void getGLTFNodeTransformAgent(S32 node_index, LLVector3* position, LLQuaternion* rotation, LLVector3* scale) const;
+
+    // move the node at the given index by the given offset in agent space
+    void moveGLTFNode(S32 node_index, const LLVector3& offset);
+
+    // set the rotation in agent space of the given node
+    void setGLTFNodeRotationAgent(S32 node_index, const LLQuaternion& rotation);
 
     virtual const LLVector3 getPivotPositionAgent() const; // Usually = to getPositionAgent, unless like flex objects it's not
 
@@ -722,6 +735,8 @@ public:
     F32             mPhysicsDensity;
     F32             mPhysicsRestitution;
 
+    // Associated GLTF Asset
+    LLPointer<LL::GLTF::Asset> mGLTFAsset;
 
     // Pipeline classes
     LLPointer<LLDrawable> mDrawable;
@@ -944,6 +959,7 @@ public:
     // reflection probe state
     bool mIsReflectionProbe = false;  // if true, this object should register itself with LLReflectionProbeManager
     LLPointer<LLReflectionMap> mReflectionProbe = nullptr; // reflection probe coupled to this viewer object.  If not null, should be deregistered when this object is destroyed
+    bool mIsHeroProbe = false; // This is a special case for mirrors and other high resolution probes.
 
     // the amount of GPU time (in ms) it took to render this object according to LLPipeline::profileAvatar
     // -1.f if no profile data available

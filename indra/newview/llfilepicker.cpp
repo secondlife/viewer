@@ -61,6 +61,7 @@ LLFilePicker LLFilePicker::sInstance;
 #define RAW_FILTER L"RAW files (*.raw)\0*.raw\0"
 #define MODEL_FILTER L"Model files (*.dae)\0*.dae\0"
 #define MATERIAL_FILTER L"GLTF Files (*.gltf; *.glb)\0*.gltf;*.glb\0"
+#define HDRI_FILTER L"HDRI Files (*.exr)\0*.exr\0"
 #define MATERIAL_TEXTURES_FILTER L"GLTF Import (*.gltf; *.glb; *.tga; *.bmp; *.jpg; *.jpeg; *.png)\0*.gltf;*.glb;*.tga;*.bmp;*.jpg;*.jpeg;*.png\0"
 #define SCRIPT_FILTER L"Script files (*.lsl)\0*.lsl\0"
 #define DICTIONARY_FILTER L"Dictionary files (*.dic; *.xcu)\0*.dic;*.xcu\0"
@@ -226,6 +227,10 @@ BOOL LLFilePicker::setupFilter(ELoadFilter filter)
         mOFN.lpstrFilter = MATERIAL_TEXTURES_FILTER \
             MATERIAL_FILTER \
             IMAGE_FILTER \
+            L"\0";
+        break;
+    case FFLOAD_HDRI:
+        mOFN.lpstrFilter = HDRI_FILTER \
             L"\0";
         break;
     case FFLOAD_SCRIPT:
@@ -663,6 +668,8 @@ std::unique_ptr<std::vector<std::string>> LLFilePicker::navOpenFilterProc(ELoadF
             allowedv->push_back("gltf");
             allowedv->push_back("glb");
             break;
+        case FFLOAD_HDRI:
+            allowedv->push_back("exr");
         case FFLOAD_COLLADA:
             allowedv->push_back("dae");
             break;

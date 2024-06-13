@@ -175,6 +175,7 @@ public:
 
     void selectAllTEs(BOOL b);
     void selectTE(S32 te_index, BOOL selected);
+    void selectGLTFNode(S32 node_index, S32 primitive_index, bool selected);
     BOOL isTESelected(S32 te_index) const;
     bool hasSelectedTE() const { return TE_SELECT_MASK_ALL & mTESelectMask; }
     S32 getLastSelectedTE() const;
@@ -217,6 +218,7 @@ public:
     S16             mInventorySerial;
     LLVector3       mSavedPositionLocal;    // for interactively modifying object position
     LLVector3       mLastPositionLocal;
+    LLVector3       mLastMoveLocal;
     LLVector3d      mSavedPositionGlobal;   // for interactively modifying object position
     LLVector3       mSavedScale;            // for interactively modifying object scale
     LLVector3       mLastScale;
@@ -240,11 +242,14 @@ public:
     std::vector<LLVector3>  mSilhouetteVertices;    // array of vertices to render silhouette of object
     std::vector<LLVector3>  mSilhouetteNormals; // array of normals to render silhouette of object
     BOOL                    mSilhouetteExists;  // need to generate silhouette?
+    S32             mSelectedGLTFNode = -1;
+    S32             mSelectedGLTFPrimitive = -1;
 
 protected:
     LLPointer<LLViewerObject>   mObject;
     S32             mTESelectMask;
     S32             mLastTESelected;
+
 };
 
 class LLObjectSelection : public LLRefCount
@@ -533,7 +538,7 @@ public:
     LLObjectSelectionHandle selectObjectAndFamily(LLViewerObject* object, BOOL add_to_end = FALSE, BOOL ignore_select_owned = FALSE);
 
     // For when you want just a child object.
-    LLObjectSelectionHandle selectObjectOnly(LLViewerObject* object, S32 face = SELECT_ALL_TES);
+    LLObjectSelectionHandle selectObjectOnly(LLViewerObject* object, S32 face = SELECT_ALL_TES, S32 gltf_node = -1, S32 gltf_primitive = -1);
 
     // Same as above, but takes a list of objects.  Used by rectangle select.
     LLObjectSelectionHandle selectObjectAndFamily(const std::vector<LLViewerObject*>& object_list, BOOL send_to_sim = TRUE);
@@ -833,7 +838,7 @@ public:
     void remove(std::vector<LLViewerObject*>& objects);
     void remove(LLViewerObject* object, S32 te = SELECT_ALL_TES, BOOL undoable = TRUE);
     void removeAll();
-    void addAsIndividual(LLViewerObject* object, S32 te = SELECT_ALL_TES, BOOL undoable = TRUE);
+    void addAsIndividual(LLViewerObject* object, S32 te = SELECT_ALL_TES, BOOL undoable = TRUE, S32 gltf_node = -1, S32 gltf_primitive = -1);
     void promoteSelectionToRoot();
     void demoteSelectionToIndividuals();
 

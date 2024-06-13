@@ -65,7 +65,6 @@ class LLCamera
 :   public LLCoordFrame
 {
 public:
-
     LLCamera(const LLCamera& rhs)
     {
         *this = rhs;
