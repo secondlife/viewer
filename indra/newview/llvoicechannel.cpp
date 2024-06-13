@@ -43,7 +43,7 @@ LLVoiceChannel* LLVoiceChannel::sCurrentVoiceChannel = NULL;
 LLVoiceChannel* LLVoiceChannel::sSuspendedVoiceChannel = NULL;
 LLVoiceChannel::channel_changed_signal_t LLVoiceChannel::sCurrentVoiceChannelChangedSignal;
 
-BOOL LLVoiceChannel::sSuspended = FALSE;
+bool LLVoiceChannel::sSuspended = false;
 
 //
 // Constants
@@ -58,7 +58,7 @@ LLVoiceChannel::LLVoiceChannel(const LLUUID& session_id, const std::string& sess
     mState(STATE_NO_CHANNEL_INFO),
     mSessionName(session_name),
     mCallDirection(OUTGOING_CALL),
-    mIgnoreNextSessionLeave(FALSE),
+    mIgnoreNextSessionLeave(false),
     mCallEndedByAgent(false)
 {
     mNotifyArgs["VOICE_CHANNEL_NAME"] = mSessionName;
@@ -187,13 +187,13 @@ void LLVoiceChannel::handleError(EStatusType type)
     setState(STATE_ERROR);
 }
 
-BOOL LLVoiceChannel::isActive()
+bool LLVoiceChannel::isActive()
 {
     // only considered active when currently bound channel matches what our channel
     return callStarted() && LLVoiceClient::getInstance()->isCurrentChannel(mChannelInfo);
 }
 
-BOOL LLVoiceChannel::callStarted()
+bool LLVoiceChannel::callStarted()
 {
     return mState >= STATE_CALL_STARTED;
 }
@@ -203,7 +203,7 @@ void LLVoiceChannel::deactivate()
     if (mState >= STATE_RINGING)
     {
         // ignore session leave event
-        mIgnoreNextSessionLeave = TRUE;
+        mIgnoreNextSessionLeave = true;
     }
 
     if (callStarted())
@@ -344,7 +344,7 @@ void LLVoiceChannel::suspend()
     if (!sSuspended)
     {
         sSuspendedVoiceChannel = sCurrentVoiceChannel;
-        sSuspended = TRUE;
+        sSuspended = true;
     }
 }
 
@@ -364,7 +364,7 @@ void LLVoiceChannel::resume()
                 LLVoiceChannelProximal::getInstance()->activate();
             }
         }
-        sSuspended = FALSE;
+        sSuspended = false;
     }
 }
 
@@ -391,7 +391,7 @@ LLVoiceChannelGroup::LLVoiceChannelGroup(const LLUUID      &session_id,
                                          mIsP2P(is_p2p)
 {
     mRetries = DEFAULT_RETRIES_COUNT;
-    mIsRetrying = FALSE;
+    mIsRetrying = false;
 }
 
 void LLVoiceChannelGroup::deactivate()
@@ -513,7 +513,7 @@ void LLVoiceChannelGroup::handleStatusChange(EStatusType type)
     {
     case STATUS_JOINED:
         mRetries = 3;
-        mIsRetrying = FALSE;
+        mIsRetrying = false;
     default:
         break;
     }
@@ -537,8 +537,8 @@ void LLVoiceChannelGroup::handleError(EStatusType status)
         if ( mRetries > 0 )
         {
             mRetries--;
-            mIsRetrying = TRUE;
-            mIgnoreNextSessionLeave = TRUE;
+            mIsRetrying = true;
+            mIgnoreNextSessionLeave = true;
 
             requestChannelInfo();
             return;
@@ -547,7 +547,7 @@ void LLVoiceChannelGroup::handleError(EStatusType status)
         {
             notify = "VoiceChannelJoinFailed";
             mRetries = DEFAULT_RETRIES_COUNT;
-            mIsRetrying = FALSE;
+            mIsRetrying = false;
         }
 
         break;
@@ -662,7 +662,7 @@ LLVoiceChannelProximal::LLVoiceChannelProximal() :
 {
 }
 
-BOOL LLVoiceChannelProximal::isActive()
+bool LLVoiceChannelProximal::isActive()
 {
     return callStarted() && LLVoiceClient::getInstance()->inProximalChannel();
 }
@@ -765,7 +765,7 @@ LLVoiceChannelP2P::LLVoiceChannelP2P(const LLUUID      &session_id,
                                     LLVoiceP2POutgoingCallInterface* outgoing_call_interface) :
     LLVoiceChannelGroup(session_id, session_name, true),
     mOtherUserID(other_user_id),
-    mReceivedCall(FALSE),
+    mReceivedCall(false),
     mOutgoingCallInterface(outgoing_call_interface)
 {
 }
@@ -793,12 +793,12 @@ void LLVoiceChannelP2P::handleStatusChange(EStatusType type)
             }
             deactivate();
         }
-        mIgnoreNextSessionLeave = FALSE;
+        mIgnoreNextSessionLeave = false;
         return;
     case STATUS_JOINING:
         // because we join session we expect to process session leave event in the future. EXT-7371
         // may be this should be done in the LLVoiceChannel::handleStatusChange.
-        mIgnoreNextSessionLeave = FALSE;
+        mIgnoreNextSessionLeave = false;
         break;
 
     default:
@@ -836,7 +836,7 @@ void LLVoiceChannelP2P::activate()
         // no session handle yet, we're starting the call
         if (mIncomingCallInterface == nullptr)
         {
-            mReceivedCall = FALSE;
+            mReceivedCall = false;
             mOutgoingCallInterface->callUser(mOtherUserID);
         }
         // otherwise answering the call
@@ -887,7 +887,7 @@ void LLVoiceChannelP2P::requestChannelInfo()
 void LLVoiceChannelP2P::setChannelInfo(const LLSD& channel_info)
 {
     mChannelInfo        = channel_info;
-    BOOL needs_activate = FALSE;
+    BOOL needs_activate = false;
     if (callStarted())
     {
         // defer to lower agent id when already active
@@ -895,7 +895,7 @@ void LLVoiceChannelP2P::setChannelInfo(const LLSD& channel_info)
         {
             // pretend we haven't started the call yet, so we can connect to this session instead
             deactivate();
-            needs_activate = TRUE;
+            needs_activate = true;
         }
         else
         {

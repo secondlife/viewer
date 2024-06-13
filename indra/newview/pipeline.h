@@ -277,7 +277,7 @@ public:
 
     void stateSort(LLCamera& camera, LLCullResult& result);
     void stateSort(LLSpatialGroup* group, LLCamera& camera);
-    void stateSort(LLSpatialBridge* bridge, LLCamera& camera, BOOL fov_changed = FALSE);
+    void stateSort(LLSpatialBridge* bridge, LLCamera& camera, bool fov_changed = false);
     void stateSort(LLDrawable* drawablep, LLCamera& camera);
     void postSort(LLCamera& camera);
 
@@ -351,7 +351,7 @@ public:
     void findReferences(LLDrawable *drawablep); // Find the lists which have references to this object
     bool verify();                      // Verify that all data in the pipeline is "correct"
 
-    S32  getLightCount() const { return mLights.size(); }
+    S32  getLightCount() const { return static_cast<S32>(mLights.size()); }
 
     void calcNearbyLights(LLCamera& camera);
     void setupHWLights();

@@ -52,7 +52,7 @@ protected:
         };
 
         // adds or removes "More" link as needed
-        /*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+        /*virtual*/ void reshape(S32 width, S32 height, bool called_from_parent = true);
         /*virtual*/ void setText(const LLStringExplicit& text, const LLStyle::Params& input_params = LLStyle::Params());
         void setTextBase(const std::string& text) { LLTextBase::setText(text); }
 
@@ -147,7 +147,7 @@ public:
      * *HACK: Update the inner textbox shape.
      */
     void updateTextShape();
-    virtual void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+    virtual void reshape(S32 width, S32 height, bool called_from_parent = true);
 
     /**
      * Draws text box, collapses text box if its expanded and its parent's position changed

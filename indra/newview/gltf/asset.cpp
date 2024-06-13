@@ -30,13 +30,67 @@
 #include "llvolumeoctree.h"
 #include "../llviewershadermgr.h"
 #include "../llviewercontrol.h"
+#include "../llviewertexturelist.h"
+#include "../pipeline.h"
+#include "buffer_util.h"
+#include <boost/url.hpp>
+#include "llimagejpeg.h"
 
 using namespace LL::GLTF;
+using namespace boost::json;
+
+
+namespace LL
+{
+    namespace GLTF
+    {
+        static std::unordered_set<std::string> ExtensionsSupported = {
+            "KHR_materials_unlit",
+            "KHR_texture_transform"
+        };
+
+        Material::AlphaMode gltf_alpha_mode_to_enum(const std::string& alpha_mode)
+        {
+            if (alpha_mode == "OPAQUE")
+            {
+                return Material::AlphaMode::OPAQUE;
+            }
+            else if (alpha_mode == "MASK")
+            {
+                return Material::AlphaMode::MASK;
+            }
+            else if (alpha_mode == "BLEND")
+            {
+                return Material::AlphaMode::BLEND;
+            }
+            else
+            {
+                return Material::AlphaMode::OPAQUE;
+            }
+        }
+
+        std::string enum_to_gltf_alpha_mode(Material::AlphaMode alpha_mode)
+        {
+            switch (alpha_mode)
+            {
+            case Material::AlphaMode::OPAQUE:
+                return "OPAQUE";
+            case Material::AlphaMode::MASK:
+                return "MASK";
+            case Material::AlphaMode::BLEND:
+                return "BLEND";
+            default:
+                return "OPAQUE";
+            }
+        }
+    }
+}
+
 
 void Scene::updateTransforms(Asset& asset)
 {
-    LLMatrix4a identity;
-    identity.setIdentity();
+    mat4 identity = glm::identity<mat4>();
+
     for (auto& nodeIndex : mNodes)
     {
         Node& node = asset.mNodes[nodeIndex];
@@ -44,7 +98,7 @@ void Scene::updateTransforms(Asset& asset)
     }
 }
 
-void Scene::updateRenderTransforms(Asset& asset, const LLMatrix4a& modelview)
+void Scene::updateRenderTransforms(Asset& asset, const mat4& modelview)
 {
     for (auto& nodeIndex : mNodes)
     {
@@ -53,9 +107,9 @@ void Scene::updateRenderTransforms(Asset& asset, const LLMatrix4a& modelview)
     }
 }
 
-void Node::updateRenderTransforms(Asset& asset, const LLMatrix4a& modelview)
+void Node::updateRenderTransforms(Asset& asset, const mat4& modelview)
 {
-    matMul(mMatrix, modelview, mRenderMatrix);
+    mRenderMatrix = modelview * mMatrix;
 
     for (auto& childIndex : mChildren)
     {
@@ -64,14 +118,13 @@ void Node::updateRenderTransforms(Asset& asset, const LLMatrix4a& modelview)
     }
 }
 
-LLMatrix4a inverse(const LLMatrix4a& mat);
-
-void Node::updateTransforms(Asset& asset, const LLMatrix4a& parentMatrix)
+void Node::updateTransforms(Asset& asset, const mat4& parentMatrix)
 {
     makeMatrixValid();
-    matMul(mMatrix, parentMatrix, mAssetMatrix);
-    mAssetMatrixInv = inverse(mAssetMatrix);
-    
+    mAssetMatrix = parentMatrix * mMatrix;
+
+    mAssetMatrixInv = glm::inverse(mAssetMatrix);
+
     S32 my_index = this - &asset.mNodes[0];
 
     for (auto& childIndex : mChildren)
@@ -90,26 +143,13 @@ void Asset::updateTransforms()
     }
 }
 
-void Asset::updateRenderTransforms(const LLMatrix4a& modelview)
+void Asset::updateRenderTransforms(const mat4& modelview)
 {
-#if 0
-    // traverse hierarchy and update render transforms from scratch
-    for (auto& scene : mScenes)
-    {
-        scene.updateRenderTransforms(*this, modelview);
-    }
-#else
     // use mAssetMatrix to update render transforms from node list
     for (auto& node : mNodes)
     {
-        //if (node.mMesh != INVALID_INDEX)
-        {
-            matMul(node.mAssetMatrix, modelview, node.mRenderMatrix);
-        }
+        node.mRenderMatrix = modelview * node.mAssetMatrix;
     }
-
-#endif
-
 }
 
 S32 Asset::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
@@ -133,12 +173,13 @@ S32 Asset::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
     {
         if (node.mMesh != INVALID_INDEX)
         {
-            
             bool newHit = false;
 
+            LLMatrix4a ami;
+            ami.loadu(glm::value_ptr(node.mAssetMatrixInv));
             // transform start and end to this node's local space
-            node.mAssetMatrixInv.affineTransform(start, local_start);
-            node.mAssetMatrixInv.affineTransform(asset_end, local_end);
+            ami.affineTransform(start, local_start);
+            ami.affineTransform(asset_end, local_end);
 
             Mesh& mesh = mMeshes[node.mMesh];
             for (auto& primitive : mesh.mPrimitives)
@@ -161,8 +202,10 @@ S32 Asset::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
 
             if (newHit)
             {
+                LLMatrix4a am;
+                am.loadu(glm::value_ptr(node.mAssetMatrix));
                 // shorten line segment on hit
-                node.mAssetMatrix.affineTransform(p, asset_end); 
+                am.affineTransform(p, asset_end);
 
                 // transform results back to asset space
                 if (intersection)
@@ -172,12 +215,10 @@ S32 Asset::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
 
                 if (normal || tangent)
                 {
-                    LLMatrix4 normalMatrix(node.mAssetMatrixInv.getF32ptr());
-
-                    normalMatrix.transpose();
+                    mat4 normalMatrix = glm::transpose(node.mAssetMatrixInv);
 
                     LLMatrix4a norm_mat;
-                    norm_mat.loadu((F32*)normalMatrix.mMatrix);
+                    norm_mat.loadu(glm::value_ptr(normalMatrix));
 
                     if (normal)
                     {
@@ -219,199 +260,105 @@ void Node::makeMatrixValid()
 {
     if (!mMatrixValid && mTRSValid)
     {
-        glh::matrix4f rot;
-        mRotation.get_value(rot);
-
-        glh::matrix4f trans;
-        trans.set_translate(mTranslation);
-
-        glh::matrix4f sc;
-        sc.set_scale(mScale);
-
-        glh::matrix4f t;
-        //t = sc * rot * trans; 
-        //t = trans * rot * sc; // best so far, still wrong on negative scale
-        //t = sc * trans * rot;
-        t = trans * sc * rot;
-
-        mMatrix.loadu(t.m);
+        mMatrix = glm::recompose(mScale, mRotation, mTranslation, vec3(0,0,0), vec4(0,0,0,1));
         mMatrixValid = true;
     }
+
+    llassert(mMatrixValid);
 }
 
 void Node::makeTRSValid()
 {
     if (!mTRSValid && mMatrixValid)
     {
-        glh::matrix4f t(mMatrix.getF32ptr());
+        vec3 skew;
+        vec4 perspective;
+        glm::decompose(mMatrix, mScale, mRotation, mTranslation, skew, perspective);
 
-        glh::vec4f p = t.get_column(3);
-        mTranslation.set_value(p.v[0], p.v[1], p.v[2]);
-
-        mScale.set_value(t.get_column(0).length(), t.get_column(1).length(), t.get_column(2).length());
-        mRotation.set_value(t);
         mTRSValid = true;
     }
+
+    llassert(mTRSValid);
 }
 
-void Node::setRotation(const glh::quaternionf& q)
+void Node::setRotation(const quat& q)
 {
     makeTRSValid();
     mRotation = q;
     mMatrixValid = false;
 }
 
-void Node::setTranslation(const glh::vec3f& t)
+void Node::setTranslation(const vec3& t)
 {
     makeTRSValid();
     mTranslation = t;
     mMatrixValid = false;
 }
 
-void Node::setScale(const glh::vec3f& s)
+void Node::setScale(const vec3& s)
 {
     makeTRSValid();
     mScale = s;
     mMatrixValid = false;
 }
 
-const Node& Node::operator=(const tinygltf::Node& src)
+void Node::serialize(object& dst) const
 {
-    F32* dstMatrix = mMatrix.getF32ptr();
+    write(mName, "name", dst);
+    write(mMatrix, "matrix", dst, glm::identity<mat4>());
+    write(mRotation, "rotation", dst, glm::identity<quat>());
+    write(mTranslation, "translation", dst, glm::vec3(0.f, 0.f, 0.f));
+    write(mScale, "scale", dst, vec3(1.f,1.f,1.f));
+    write(mChildren, "children", dst);
+    write(mMesh, "mesh", dst, INVALID_INDEX);
+    write(mSkin, "skin", dst, INVALID_INDEX);
+}
 
-    if (src.matrix.size() == 16)
+const Node& Node::operator=(const Value& src)
+{
+    copy(src, "name", mName);
+    mMatrixValid = copy(src, "matrix", mMatrix);
+    copy(src, "rotation", mRotation);
+    copy(src, "translation", mTranslation);
+    copy(src, "scale", mScale);
+    copy(src, "children", mChildren);
+    copy(src, "mesh", mMesh);
+    copy(src, "skin", mSkin);
+
+    if (!mMatrixValid)
     {
-        // Node has a transformation matrix, just copy it
-        for (U32 i = 0; i < 16; ++i)
-        {
-            dstMatrix[i] = (F32)src.matrix[i];
-        }
-
-        mMatrixValid = true;
-    }
-    else if (!src.rotation.empty() || !src.translation.empty() || !src.scale.empty())
-    {
-        // node has rotation/translation/scale, convert to matrix
-        if (src.rotation.size() == 4)
-        {
-            mRotation = glh::quaternionf((F32)src.rotation[0], (F32)src.rotation[1], (F32)src.rotation[2], (F32)src.rotation[3]);
-        }
-
-        if (src.translation.size() == 3)
-        {
-            mTranslation = glh::vec3f((F32)src.translation[0], (F32)src.translation[1], (F32)src.translation[2]);
-        }
-
-        glh::vec3f scale;
-        if (src.scale.size() == 3)
-        {
-            mScale = glh::vec3f((F32)src.scale[0], (F32)src.scale[1], (F32)src.scale[2]);
-        }
-        else
-        {
-            mScale.set_value(1.f, 1.f, 1.f);
-        }
-
         mTRSValid = true;
     }
-    else
-    {
-        // node specifies no transformation, set to identity
-        mMatrix.setIdentity();
-    }
-
-    mChildren = src.children;
-    mMesh = src.mesh;
-    mSkin = src.skin;
-    mName = src.name;
 
     return *this;
 }
 
-void Asset::render(bool opaque, bool rigged)
+void Image::serialize(object& dst) const
 {
-    if (rigged)
-    {
-        gGL.loadIdentity();
-    }
-
-    for (auto& node : mNodes)
-    {
-        if (node.mSkin != INVALID_INDEX)
-        {
-            if (rigged)
-            {
-                Skin& skin = mSkins[node.mSkin];
-                skin.uploadMatrixPalette(*this, node);
-            }
-            else
-            {
-                //skip static nodes if we're rendering rigged
-                continue;
-            }
-        }
-        else if (rigged)
-        {
-            // skip rigged nodes if we're not rendering rigged
-            continue;
-        }
-
-
-        if (node.mMesh != INVALID_INDEX)
-        {
-            Mesh& mesh = mMeshes[node.mMesh];
-            for (auto& primitive : mesh.mPrimitives)
-            {
-                if (!rigged)
-                {
-                    gGL.loadMatrix((F32*)node.mRenderMatrix.mMatrix);
-                }
-                bool cull = true;
-                if (primitive.mMaterial != INVALID_INDEX)
-                {
-                    Material& material = mMaterials[primitive.mMaterial];
-
-                    if ((material.mMaterial->mAlphaMode == LLGLTFMaterial::ALPHA_MODE_BLEND) == opaque)
-                    {
-                        continue;
-                    }
-                    material.mMaterial->bind();
-                    cull = !material.mMaterial->mDoubleSided;
-                }
-                else
-                {
-                    if (!opaque)
-                    {
-                        continue;
-                    }
-                    LLFetchedGLTFMaterial::sDefault.bind();
-                }
-
-                LLGLDisable cull_face(!cull ? GL_CULL_FACE : 0);
-
-                primitive.mVertexBuffer->setBuffer();
-                if (primitive.mVertexBuffer->getNumIndices() > 0)
-                {
-                    primitive.mVertexBuffer->draw(primitive.mGLMode, primitive.mVertexBuffer->getNumIndices(), 0);
-                }
-                else
-                {
-                    primitive.mVertexBuffer->drawArrays(primitive.mGLMode, 0, primitive.mVertexBuffer->getNumVerts());
-                }
-
-            }
-        }
-    }
+    write(mUri, "uri", dst);
+    write(mMimeType, "mimeType", dst);
+    write(mBufferView, "bufferView", dst, INVALID_INDEX);
+    write(mName, "name", dst);
+    write(mWidth, "width", dst, -1);
+    write(mHeight, "height", dst, -1);
+    write(mComponent, "component", dst, -1);
+    write(mBits, "bits", dst, -1);
+    write(mPixelType, "pixelType", dst, -1);
 }
 
-void Asset::renderOpaque()
+const Image& Image::operator=(const Value& src)
 {
-    render(true);
-}
+    copy(src, "uri", mUri);
+    copy(src, "mimeType", mMimeType);
+    copy(src, "bufferView", mBufferView);
+    copy(src, "name", mName);
+    copy(src, "width", mWidth);
+    copy(src, "height", mHeight);
+    copy(src, "component", mComponent);
+    copy(src, "bits", mBits);
+    copy(src, "pixelType", mPixelType);
 
-void Asset::renderTransparent()
-{
-    render(false);
+    return *this;
 }
 
 void Asset::update()
@@ -431,234 +378,815 @@ void Asset::update()
         }
 
         updateTransforms();
+
+        for (auto& skin : mSkins)
+        {
+            skin.uploadMatrixPalette(*this);
+        }
     }
 }
 
-void Asset::allocateGLResources(const std::string& filename, const tinygltf::Model& model)
+bool Asset::prep()
 {
-    // do images first as materials may depend on images
-    for (auto& image : mImages)
+    // check required extensions and fail if not supported
+    bool unsupported = false;
+    for (auto& extension : mExtensionsRequired)
     {
-        image.allocateGLResources();
+        if (ExtensionsSupported.find(extension) == ExtensionsSupported.end())
+        {
+            LL_WARNS() << "Unsupported extension: " << extension << LL_ENDL;
+            unsupported = true;
+        }
     }
 
-    // do materials before meshes as meshes may depend on materials
-    for (U32 i = 0; i < mMaterials.size(); ++i)
+    if (unsupported)
     {
-        mMaterials[i].allocateGLResources(*this);
-        LLTinyGLTFHelper::getMaterialFromModel(filename, model, i, mMaterials[i].mMaterial, mMaterials[i].mName, true);
+        return false;
+    }
+
+    // do buffers first as other resources depend on them
+    for (auto& buffer : mBuffers)
+    {
+        if (!buffer.prep(*this))
+        {
+            return false;
+        }
+    }
+
+    for (auto& image : mImages)
+    {
+        if (!image.prep(*this))
+        {
+            return false;
+        }
     }
 
     for (auto& mesh : mMeshes)
     {
-        mesh.allocateGLResources(*this);
+        if (!mesh.prep(*this))
+        {
+            return false;
+        }
     }
 
     for (auto& animation : mAnimations)
     {
-        animation.allocateGLResources(*this);
+        if (!animation.prep(*this))
+        {
+            return false;
+        }
     }
 
     for (auto& skin : mSkins)
     {
-        skin.allocateGLResources(*this);
+        if (!skin.prep(*this))
+        {
+            return false;
+        }
     }
+
+    return true;
 }
 
-const Asset& Asset::operator=(const tinygltf::Model& src)
+Asset::Asset(const Value& src)
 {
-    mScenes.resize(src.scenes.size());
-    for (U32 i = 0; i < src.scenes.size(); ++i)
+    *this = src;
+}
+
+bool Asset::load(std::string_view filename)
+{
+    mFilename = filename;
+    std::string ext = gDirUtilp->getExtension(mFilename);
+
+    std::ifstream file(filename.data(), std::ios::binary);
+    if (file.is_open())
     {
-        mScenes[i] = src.scenes[i];
+        std::string str((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+        file.close();
+
+        if (ext == "gltf")
+        {
+            Value val = parse(str);
+            *this = val;
+            return prep();
+        }
+        else if (ext == "glb")
+        {
+            return loadBinary(str);
+        }
+        else
+        {
+            LL_WARNS() << "Unsupported file type: " << ext << LL_ENDL;
+            return false;
+        }
+    }
+    else
+    {
+        LL_WARNS() << "Failed to open file: " << filename << LL_ENDL;
+        return false;
     }
 
-    mNodes.resize(src.nodes.size());
-    for (U32 i = 0; i < src.nodes.size(); ++i)
+    return false;
+}
+
+bool Asset::loadBinary(const std::string& data)
+{
+    // load from binary gltf
+    const U8* ptr = (const U8*)data.data();
+    const U8* end = ptr + data.size();
+
+    if (end - ptr < 12)
     {
-        mNodes[i] = src.nodes[i];
+        LL_WARNS("GLTF") << "GLB file too short" << LL_ENDL;
+        return false;
     }
 
-    mMeshes.resize(src.meshes.size());
-    for (U32 i = 0; i < src.meshes.size(); ++i)
+    U32 magic = *(U32*)ptr;
+    ptr += 4;
+
+    if (magic != 0x46546C67)
     {
-        mMeshes[i] = src.meshes[i];
+        LL_WARNS("GLTF") << "Invalid GLB magic" << LL_ENDL;
+        return false;
     }
 
-    mMaterials.resize(src.materials.size());
-    for (U32 i = 0; i < src.materials.size(); ++i)
+    U32 version = *(U32*)ptr;
+    ptr += 4;
+
+    if (version != 2)
     {
-        mMaterials[i] = src.materials[i];
+        LL_WARNS("GLTF") << "Unsupported GLB version" << LL_ENDL;
+        return false;
     }
 
-    mBuffers.resize(src.buffers.size());
-    for (U32 i = 0; i < src.buffers.size(); ++i)
+    U32 length = *(U32*)ptr;
+    ptr += 4;
+
+    if (length != data.size())
     {
-        mBuffers[i] = src.buffers[i];
+        LL_WARNS("GLTF") << "GLB length mismatch" << LL_ENDL;
+        return false;
     }
 
-    mBufferViews.resize(src.bufferViews.size());
-    for (U32 i = 0; i < src.bufferViews.size(); ++i)
+    U32 chunkLength = *(U32*)ptr;
+    ptr += 4;
+
+    if (end - ptr < chunkLength + 8)
     {
-        mBufferViews[i] = src.bufferViews[i];
+        LL_WARNS("GLTF") << "GLB chunk too short" << LL_ENDL;
+        return false;
     }
 
-    mTextures.resize(src.textures.size());
-    for (U32 i = 0; i < src.textures.size(); ++i)
+    U32 chunkType = *(U32*)ptr;
+    ptr += 4;
+
+    if (chunkType != 0x4E4F534A)
     {
-        mTextures[i] = src.textures[i];
+        LL_WARNS("GLTF") << "Invalid GLB chunk type" << LL_ENDL;
+        return false;
     }
 
-    mSamplers.resize(src.samplers.size());
-    for (U32 i = 0; i < src.samplers.size(); ++i)
+    Value val = parse(std::string_view((const char*)ptr, chunkLength));
+    *this = val;
+
+    if (mBuffers.size() > 0 && mBuffers[0].mUri.empty())
     {
-        mSamplers[i] = src.samplers[i];
+        // load binary chunk
+        ptr += chunkLength;
+
+        if (end - ptr < 8)
+        {
+            LL_WARNS("GLTF") << "GLB chunk too short" << LL_ENDL;
+            return false;
+        }
+
+        chunkLength = *(U32*)ptr;
+        ptr += 4;
+
+        chunkType = *(U32*)ptr;
+        ptr += 4;
+
+        if (chunkType != 0x004E4942)
+        {
+            LL_WARNS("GLTF") << "Invalid GLB chunk type" << LL_ENDL;
+            return false;
+        }
+
+        auto& buffer = mBuffers[0];
+
+        if (ptr + buffer.mByteLength <= end)
+        {
+            buffer.mData.resize(buffer.mByteLength);
+            memcpy(buffer.mData.data(), ptr, buffer.mByteLength);
+            ptr += buffer.mByteLength;
+        }
+        else
+        {
+            LL_WARNS("GLTF") << "Buffer too short" << LL_ENDL;
+            return false;
+        }
     }
 
-    mImages.resize(src.images.size());
-    for (U32 i = 0; i < src.images.size(); ++i)
+    return prep();
+}
+
+const Asset& Asset::operator=(const Value& src)
+{
+    if (src.is_object())
     {
-        mImages[i] = src.images[i];
+        const object& obj = src.as_object();
+
+        const auto it = obj.find("asset");
+
+        if (it != obj.end())
+        {
+            const Value& asset = it->value();
+
+            copy(asset, "version", mVersion);
+            copy(asset, "minVersion", mMinVersion);
+            copy(asset, "generator", mGenerator);
+            copy(asset, "copyright", mCopyright);
+            copy(asset, "extras", mExtras);
+        }
+
+        copy(obj, "scene", mScene);
+        copy(obj, "scenes", mScenes);
+        copy(obj, "nodes", mNodes);
+        copy(obj, "meshes", mMeshes);
+        copy(obj, "materials", mMaterials);
+        copy(obj, "buffers", mBuffers);
+        copy(obj, "bufferViews", mBufferViews);
+        copy(obj, "textures", mTextures);
+        copy(obj, "samplers", mSamplers);
+        copy(obj, "images", mImages);
+        copy(obj, "accessors", mAccessors);
+        copy(obj, "animations", mAnimations);
+        copy(obj, "skins", mSkins);
+        copy(obj, "extensionsUsed", mExtensionsUsed);
+        copy(obj, "extensionsRequired", mExtensionsRequired);
     }
 
-    mAccessors.resize(src.accessors.size());
-    for (U32 i = 0; i < src.accessors.size(); ++i)
-    {
-        mAccessors[i] = src.accessors[i];
-    }
-
-    mAnimations.resize(src.animations.size());
-    for (U32 i = 0; i < src.animations.size(); ++i)
-    {
-        mAnimations[i] = src.animations[i];
-    }
-
-    mSkins.resize(src.skins.size());
-    for (U32 i = 0; i < src.skins.size(); ++i)
-    {
-        mSkins[i] = src.skins[i];
-    }
- 
     return *this;
 }
 
-const Material& Material::operator=(const tinygltf::Material& src)
+void Asset::serialize(object& dst) const
 {
-    mName = src.name;
-    return *this;
+    static const std::string sGenerator = "Linden Lab GLTF Prototype v0.1";
+
+    dst["asset"] = object{};
+    object& asset = dst["asset"].get_object();
+
+    write(mVersion, "version", asset);
+    write(mMinVersion, "minVersion", asset, std::string());
+    write(sGenerator, "generator", asset);
+    write(mScene, "scene", dst, INVALID_INDEX);
+    write(mScenes, "scenes", dst);
+    write(mNodes, "nodes", dst);
+    write(mMeshes, "meshes", dst);
+    write(mMaterials, "materials", dst);
+    write(mBuffers, "buffers", dst);
+    write(mBufferViews, "bufferViews", dst);
+    write(mTextures, "textures", dst);
+    write(mSamplers, "samplers", dst);
+    write(mImages, "images", dst);
+    write(mAccessors, "accessors", dst);
+    write(mAnimations, "animations", dst);
+    write(mSkins, "skins", dst);
+    write(mExtensionsUsed, "extensionsUsed", dst);
+    write(mExtensionsRequired, "extensionsRequired", dst);
 }
 
-void Material::allocateGLResources(Asset& asset)
+bool Asset::save(const std::string& filename)
 {
-    // allocate material
-    mMaterial = new LLFetchedGLTFMaterial();
-}
+    // get folder path
+    std::string folder = gDirUtilp->getDirName(filename);
 
-const Mesh& Mesh::operator=(const tinygltf::Mesh& src)
-{
-    mPrimitives.resize(src.primitives.size());
-    for (U32 i = 0; i < src.primitives.size(); ++i)
+    // save images
+    for (auto& image : mImages)
     {
-        mPrimitives[i] = src.primitives[i];
+        if (!image.save(*this, folder))
+        {
+            return false;
+        }
     }
 
-    mWeights = src.weights;
-    mName = src.name;
+    // save buffers
+    // NOTE: save buffers after saving images as saving images
+    // may remove image data from buffers
+    for (auto& buffer : mBuffers)
+    {
+        if (!buffer.save(*this, folder))
+        {
+            return false;
+        }
+    }
+
+    // save .gltf
+    object obj;
+    serialize(obj);
+    std::string buffer = boost::json::serialize(obj, {});
+    std::ofstream file(filename, std::ios::binary);
+    file.write(buffer.c_str(), buffer.size());
+
+    return true;
+}
+
+void Asset::eraseBufferView(S32 bufferView)
+{
+    mBufferViews.erase(mBufferViews.begin() + bufferView);
+
+    for (auto& accessor : mAccessors)
+    {
+        if (accessor.mBufferView > bufferView)
+        {
+            accessor.mBufferView--;
+        }
+    }
+
+    for (auto& image : mImages)
+    {
+        if (image.mBufferView > bufferView)
+        {
+            image.mBufferView--;
+        }
+    }
+
+}
+
+LLViewerFetchedTexture* fetch_texture(const LLUUID& id);
+
+bool Image::prep(Asset& asset)
+{
+    LLUUID id;
+    if (mUri.size() == UUID_STR_SIZE && LLUUID::parseUUID(mUri, &id) && id.notNull())
+    { // loaded from an asset, fetch the texture from the asset system
+        mTexture = fetch_texture(id);
+    }
+    else if (mUri.find("data:") == 0)
+    { // embedded in a data URI, load the texture from the URI
+        LL_WARNS() << "Data URIs not yet supported" << LL_ENDL;
+        return false;
+    }
+    else if (mBufferView != INVALID_INDEX)
+    { // embedded in a buffer, load the texture from the buffer
+        BufferView& bufferView = asset.mBufferViews[mBufferView];
+        Buffer& buffer = asset.mBuffers[bufferView.mBuffer];
+
+        U8* data = buffer.mData.data() + bufferView.mByteOffset;
+
+        mTexture = LLViewerTextureManager::getFetchedTextureFromMemory(data, bufferView.mByteLength, mMimeType);
+
+        if (mTexture.isNull())
+        {
+            LL_WARNS("GLTF") << "Failed to load image from buffer:" << LL_ENDL;
+            LL_WARNS("GLTF") << "  image: " << mName << LL_ENDL;
+            LL_WARNS("GLTF") << "  mimeType: " << mMimeType << LL_ENDL;
+
+            return false;
+        }
+    }
+    else if (!asset.mFilename.empty() && !mUri.empty())
+    { // loaded locally and not embedded, load the texture as a local preview
+        std::string dir = gDirUtilp->getDirName(asset.mFilename);
+        std::string img_file = dir + gDirUtilp->getDirDelimiter() + mUri;
+
+        LLUUID tracking_id = LLLocalBitmapMgr::getInstance()->addUnit(img_file);
+        if (tracking_id.notNull())
+        {
+            LLUUID world_id = LLLocalBitmapMgr::getInstance()->getWorldID(tracking_id);
+            mTexture = LLViewerTextureManager::getFetchedTexture(world_id);
+        }
+        else
+        {
+            LL_WARNS("GLTF") << "Failed to load image from file:" << LL_ENDL;
+            LL_WARNS("GLTF") << "  image: " << mName << LL_ENDL;
+            LL_WARNS("GLTF") << "  file: " << img_file << LL_ENDL;
+
+            return false;
+        }
+    }
+    else
+    {
+        LL_WARNS("GLTF") << "Failed to load image: " << mName << LL_ENDL;
+        return false;
+    }
+
+    return true;
+}
+
+
+void Image::clearData(Asset& asset)
+{
+    if (mBufferView != INVALID_INDEX)
+    {
+        // remove data from buffer
+        BufferView& bufferView = asset.mBufferViews[mBufferView];
+        Buffer& buffer = asset.mBuffers[bufferView.mBuffer];
+
+        buffer.erase(asset, bufferView.mByteOffset, bufferView.mByteLength);
+
+        asset.eraseBufferView(mBufferView);
+    }
+
+    mBufferView = INVALID_INDEX;
+    mWidth = -1;
+    mHeight = -1;
+    mComponent = -1;
+    mBits = -1;
+    mPixelType = -1;
+    mMimeType = "";
+}
+
+bool Image::save(Asset& asset, const std::string& folder)
+{
+    // NOTE:  this *MUST* be a lossless save
+    // Artists use this to save their work repeatedly, so
+    // adding any compression artifacts here will degrade
+    // images over time.
+    std::string name = mName;
+    std::string error;
+    const std::string& delim = gDirUtilp->getDirDelimiter();
+    if (name.empty())
+    {
+        S32 idx = this - asset.mImages.data();
+        name = llformat("image_%d", idx);
+    }
+
+    if (mBufferView != INVALID_INDEX)
+    {
+        // we have the bytes of the original image, save that out in its
+        // original format
+        BufferView& bufferView = asset.mBufferViews[mBufferView];
+        Buffer& buffer = asset.mBuffers[bufferView.mBuffer];
+
+        std::string extension;
+
+        if (mMimeType == "image/jpeg")
+        {
+            extension = ".jpg";
+        }
+        else if (mMimeType == "image/png")
+        {
+            extension = ".png";
+        }
+        else
+        {
+            error = "Unknown mime type, saved as .bin";
+            extension = ".bin";
+        }
+
+        std::string filename = folder + delim + name + extension;
+
+        // set URI to non-j2c file for now, but later we'll want to reference the j2c hash
+        mUri = name + extension;
+
+        std::ofstream file(filename, std::ios::binary);
+        file.write((const char*)buffer.mData.data() + bufferView.mByteOffset, bufferView.mByteLength);
+    }
+    else if (mTexture.notNull())
+    {
+        auto bitmapmgr = LLLocalBitmapMgr::getInstance();
+        if (bitmapmgr->isLocal(mTexture->getID()))
+        {
+            LLUUID tracking_id = bitmapmgr->getTrackingID(mTexture->getID());
+            if (tracking_id.notNull())
+            { // copy original file to destination folder
+                std::string source = bitmapmgr->getFilename(tracking_id);
+                if (gDirUtilp->fileExists(source))
+                {
+                    std::string filename = gDirUtilp->getBaseFileName(source);
+                    std::string dest = folder + delim + filename;
+
+                    LLFile::copy(source, dest);
+                    mUri = filename;
+                }
+                else
+                {
+                    error = "File not found: " + source;
+                }
+            }
+            else
+            {
+                error = "Local image missing.";
+            }
+        }
+        else if (!mUri.empty())
+        {
+            std::string from_dir = gDirUtilp->getDirName(asset.mFilename);
+            std::string base_filename = gDirUtilp->getBaseFileName(mUri);
+            std::string filename = from_dir + delim + base_filename;
+            if (gDirUtilp->fileExists(filename))
+            {
+                std::string dest = folder + delim + base_filename;
+                LLFile::copy(filename, dest);
+                mUri = base_filename;
+            }
+            else
+            {
+                error = "Original image file not found: " + filename;
+            }
+        }
+        else
+        {
+            error = "Image is not a local image and has no uri, cannot save.";
+        }
+    }
+
+    if (!error.empty())
+    {
+        LL_WARNS("GLTF") << "Failed to save " << name << ": " << error << LL_ENDL;
+        return false;
+    }
+
+    clearData(asset);
+
+    return true;
+}
+
+void Material::TextureInfo::serialize(object& dst) const
+{
+    write(mIndex, "index", dst, INVALID_INDEX);
+    write(mTexCoord, "texCoord", dst, 0);
+    write_extensions(dst, &mTextureTransform, "KHR_texture_transform");
+}
+
+S32 Material::TextureInfo::getTexCoord() const
+{
+    if (mTextureTransform.mPresent && mTextureTransform.mTexCoord != INVALID_INDEX)
+    {
+        return mTextureTransform.mTexCoord;
+    }
+    return mTexCoord;
+}
+
+bool Material::isMultiUV() const
+{
+    return mPbrMetallicRoughness.mBaseColorTexture.getTexCoord() != 0 ||
+        mPbrMetallicRoughness.mMetallicRoughnessTexture.getTexCoord() != 0 ||
+        mNormalTexture.getTexCoord() != 0 ||
+        mOcclusionTexture.getTexCoord() != 0 ||
+        mEmissiveTexture.getTexCoord() != 0;
+}
+
+const Material::TextureInfo& Material::TextureInfo::operator=(const Value& src)
+{
+    if (src.is_object())
+    {
+        copy(src, "index", mIndex);
+        copy(src, "texCoord", mTexCoord);
+        copy_extensions(src, "KHR_texture_transform", &mTextureTransform);
+    }
 
     return *this;
 }
 
-void Mesh::allocateGLResources(Asset& asset)
+bool Material::TextureInfo::operator==(const Material::TextureInfo& rhs) const
+{
+    return mIndex == rhs.mIndex && mTexCoord == rhs.mTexCoord;
+}
+
+bool Material::TextureInfo::operator!=(const Material::TextureInfo& rhs) const
+{
+    return !(*this == rhs);
+}
+
+void Material::OcclusionTextureInfo::serialize(object& dst) const
+{
+    TextureInfo::serialize(dst);
+    write(mStrength, "strength", dst, 1.f);
+}
+
+const Material::OcclusionTextureInfo& Material::OcclusionTextureInfo::operator=(const Value& src)
+{
+    TextureInfo::operator=(src);
+
+    if (src.is_object())
+    {
+        copy(src, "strength", mStrength);
+    }
+
+    return *this;
+}
+
+void Material::NormalTextureInfo::serialize(object& dst) const
+{
+    TextureInfo::serialize(dst);
+    write(mScale, "scale", dst, 1.f);
+}
+
+const Material::NormalTextureInfo& Material::NormalTextureInfo::operator=(const Value& src)
+{
+    TextureInfo::operator=(src);
+    if (src.is_object())
+    {
+        copy(src, "index", mIndex);
+        copy(src, "texCoord", mTexCoord);
+        copy(src, "scale", mScale);
+    }
+
+    return *this;
+}
+
+const Material::PbrMetallicRoughness& Material::PbrMetallicRoughness::operator=(const Value& src)
+{
+    if (src.is_object())
+    {
+        copy(src, "baseColorFactor", mBaseColorFactor);
+        copy(src, "baseColorTexture", mBaseColorTexture);
+        copy(src, "metallicFactor", mMetallicFactor);
+        copy(src, "roughnessFactor", mRoughnessFactor);
+        copy(src, "metallicRoughnessTexture", mMetallicRoughnessTexture);
+    }
+
+    return *this;
+}
+
+void Material::PbrMetallicRoughness::serialize(object& dst) const
+{
+    write(mBaseColorFactor, "baseColorFactor", dst, vec4(1.f, 1.f, 1.f, 1.f));
+    write(mBaseColorTexture, "baseColorTexture", dst);
+    write(mMetallicFactor, "metallicFactor", dst, 1.f);
+    write(mRoughnessFactor, "roughnessFactor", dst, 1.f);
+    write(mMetallicRoughnessTexture, "metallicRoughnessTexture", dst);
+}
+
+bool Material::PbrMetallicRoughness::operator==(const Material::PbrMetallicRoughness& rhs) const
+{
+    return mBaseColorFactor == rhs.mBaseColorFactor &&
+        mBaseColorTexture == rhs.mBaseColorTexture &&
+        mMetallicFactor == rhs.mMetallicFactor &&
+        mRoughnessFactor == rhs.mRoughnessFactor &&
+        mMetallicRoughnessTexture == rhs.mMetallicRoughnessTexture;
+}
+
+bool Material::PbrMetallicRoughness::operator!=(const Material::PbrMetallicRoughness& rhs) const
+{
+    return !(*this == rhs);
+}
+
+const Material::Unlit& Material::Unlit::operator=(const Value& src)
+{
+    mPresent = true;
+    return *this;
+}
+
+void Material::Unlit::serialize(object& dst) const
+{
+    // no members and object has already been created, nothing to do
+}
+
+void TextureTransform::getPacked(F32* packed) const
+{
+    packed[0] = mScale.x;
+    packed[1] = mScale.y;
+    packed[2] = mRotation;
+    packed[3] = mOffset.x;
+    packed[4] = mOffset.y;
+
+    packed[5] = packed[6] = packed[7] = 0.f;
+}
+
+
+const TextureTransform& TextureTransform::operator=(const Value& src)
+{
+    mPresent = true;
+    if (src.is_object())
+    {
+        copy(src, "offset", mOffset);
+        copy(src, "rotation", mRotation);
+        copy(src, "scale", mScale);
+        copy(src, "texCoord", mTexCoord);
+    }
+
+    return *this;
+}
+
+void TextureTransform::serialize(object& dst) const
+{
+    write(mOffset, "offset", dst, vec2(0.f, 0.f));
+    write(mRotation, "rotation", dst, 0.f);
+    write(mScale, "scale", dst, vec2(1.f, 1.f));
+    write(mTexCoord, "texCoord", dst, -1);
+}
+
+
+void Material::serialize(object& dst) const
+{
+    write(mName, "name", dst);
+    write(mEmissiveFactor, "emissiveFactor", dst, vec3(0.f, 0.f, 0.f));
+    write(mPbrMetallicRoughness, "pbrMetallicRoughness", dst);
+    write(mNormalTexture, "normalTexture", dst);
+    write(mOcclusionTexture, "occlusionTexture", dst);
+    write(mEmissiveTexture, "emissiveTexture", dst);
+    write(mAlphaMode, "alphaMode", dst, Material::AlphaMode::OPAQUE);
+    write(mAlphaCutoff, "alphaCutoff", dst, 0.5f);
+    write(mDoubleSided, "doubleSided", dst, false);
+    write_extensions(dst, &mUnlit, "KHR_materials_unlit");
+}
+
+const Material& Material::operator=(const Value& src)
+{
+    if (src.is_object())
+    {
+        copy(src, "name", mName);
+        copy(src, "emissiveFactor", mEmissiveFactor);
+        copy(src, "pbrMetallicRoughness", mPbrMetallicRoughness);
+        copy(src, "normalTexture", mNormalTexture);
+        copy(src, "occlusionTexture", mOcclusionTexture);
+        copy(src, "emissiveTexture", mEmissiveTexture);
+        copy(src, "alphaMode", mAlphaMode);
+        copy(src, "alphaCutoff", mAlphaCutoff);
+        copy(src, "doubleSided", mDoubleSided);
+        copy_extensions(src,
+            "KHR_materials_unlit", &mUnlit );
+    }
+    return *this;
+}
+
+
+void Mesh::serialize(object& dst) const
+{
+    write(mPrimitives, "primitives", dst);
+    write(mWeights, "weights", dst);
+    write(mName, "name", dst);
+}
+
+const Mesh& Mesh::operator=(const Value& src)
+{
+    if (src.is_object())
+    {
+        copy(src, "primitives", mPrimitives);
+        copy(src, "weights", mWeights);
+        copy(src, "name", mName);
+    }
+
+    return *this;
+}
+
+bool Mesh::prep(Asset& asset)
 {
     for (auto& primitive : mPrimitives)
     {
-        primitive.allocateGLResources(asset);
+        if (!primitive.prep(asset))
+        {
+            return false;
+        }
     }
+
+    return true;
 }
 
-const Scene& Scene::operator=(const tinygltf::Scene& src)
+void Scene::serialize(object& dst) const
 {
-    mNodes = src.nodes;
-    mName = src.name;
+    write(mNodes, "nodes", dst);
+    write(mName, "name", dst);
+}
+
+const Scene& Scene::operator=(const Value& src)
+{
+    copy(src, "nodes", mNodes);
+    copy(src, "name", mName);
 
     return *this;
 }
 
-const Texture& Texture::operator=(const tinygltf::Texture& src)
+void Texture::serialize(object& dst) const
 {
-    mSampler = src.sampler;
-    mSource = src.source;
-    mName = src.name;
-
-    return *this;
+    write(mSampler, "sampler", dst, INVALID_INDEX);
+    write(mSource, "source", dst, INVALID_INDEX);
+    write(mName, "name", dst);
 }
 
-const Sampler& Sampler::operator=(const tinygltf::Sampler& src)
+const Texture& Texture::operator=(const Value& src)
 {
-    mMagFilter = src.magFilter;
-    mMinFilter = src.minFilter;
-    mWrapS = src.wrapS;
-    mWrapT = src.wrapT;
-    mName = src.name;
-
-    return *this;
-}
-
-void Skin::uploadMatrixPalette(Asset& asset, Node& node)
-{
-    // prepare matrix palette
-
-    // modelview will be applied by the shader, so assume matrix palette is in asset space
-    std::vector<glh::matrix4f> t_mp;
-
-    t_mp.resize(mJoints.size());
-
-    for (U32 i = 0; i < mJoints.size(); ++i)
+    if (src.is_object())
     {
-        Node& joint = asset.mNodes[mJoints[i]];
-        
-        //t_mp[i].set_value(joint.mRenderMatrix.getF32ptr());
-        //t_mp[i] = t_mp[i] * mInverseBindMatricesData[i];
-
-        //t_mp[i].set_value(joint.mRenderMatrix.getF32ptr());
-        //t_mp[i] = mInverseBindMatricesData[i] * t_mp[i];
-
-        t_mp[i].set_value(joint.mRenderMatrix.getF32ptr());
-        t_mp[i] = t_mp[i] * mInverseBindMatricesData[i];
-
+        copy(src, "sampler", mSampler);
+        copy(src, "source", mSource);
+        copy(src, "name", mName);
     }
 
-    std::vector<F32> glmp;
-
-    glmp.resize(mJoints.size() * 12);
-
-    F32* mp = glmp.data();
-
-    for (U32 i = 0; i < mJoints.size(); ++i)
-    {
-        F32* m = (F32*)t_mp[i].m;
-
-        U32 idx = i * 12;
-
-        mp[idx + 0] = m[0];
-        mp[idx + 1] = m[1];
-        mp[idx + 2] = m[2];
-        mp[idx + 3] = m[12];
-
-        mp[idx + 4] = m[4];
-        mp[idx + 5] = m[5];
-        mp[idx + 6] = m[6];
-        mp[idx + 7] = m[13];
-
-        mp[idx + 8] = m[8];
-        mp[idx + 9] = m[9];
-        mp[idx + 10] = m[10];
-        mp[idx + 11] = m[14];
-    }
-
-    LLGLSLShader::sCurBoundShaderPtr->uniformMatrix3x4fv(LLViewerShaderMgr::AVATAR_MATRIX,
-        mJoints.size(),
-        FALSE,
-        (GLfloat*)glmp.data());
+    return *this;
 }
+
+void Sampler::serialize(object& dst) const
+{
+    write(mMagFilter, "magFilter", dst, LINEAR);
+    write(mMinFilter, "minFilter", dst, LINEAR_MIPMAP_LINEAR);
+    write(mWrapS, "wrapS", dst, REPEAT);
+    write(mWrapT, "wrapT", dst, REPEAT);
+    write(mName, "name", dst);
+}
+
+const Sampler& Sampler::operator=(const Value& src)
+{
+    copy(src, "magFilter", mMagFilter);
+    copy(src, "minFilter", mMinFilter);
+    copy(src, "wrapS", mWrapS);
+    copy(src, "wrapT", mWrapT);
+    copy(src, "name", mName);
+
+    return *this;
+}
+
 

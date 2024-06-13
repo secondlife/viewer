@@ -36,8 +36,8 @@
 //
 LLParcelSelection::LLParcelSelection() :
     mParcel(NULL),
-    mSelectedMultipleOwners(FALSE),
-    mWholeParcelSelected(FALSE),
+    mSelectedMultipleOwners(false),
+    mWholeParcelSelected(false),
     mSelectedSelfCount(0),
     mSelectedOtherCount(0),
     mSelectedPublicCount(0)
@@ -46,8 +46,8 @@ LLParcelSelection::LLParcelSelection() :
 
 LLParcelSelection::LLParcelSelection(LLParcel* parcel)  :
     mParcel(parcel),
-    mSelectedMultipleOwners(FALSE),
-    mWholeParcelSelected(FALSE),
+    mSelectedMultipleOwners(false),
+    mWholeParcelSelected(false),
     mSelectedSelfCount(0),
     mSelectedOtherCount(0),
     mSelectedPublicCount(0)
@@ -58,13 +58,13 @@ LLParcelSelection::~LLParcelSelection()
 {
 }
 
-BOOL LLParcelSelection::getMultipleOwners() const
+bool LLParcelSelection::getMultipleOwners() const
 {
     return mSelectedMultipleOwners;
 }
 
 
-BOOL LLParcelSelection::getWholeParcelSelected() const
+bool LLParcelSelection::getWholeParcelSelected() const
 {
     return mWholeParcelSelected;
 }

@@ -3,7 +3,6 @@
 project(llmessage)
 
 include(00-Common)
-include(GoogleMock)
 include(LLAddBuildTest)
 include(LLCommon)
 include(LLCoreHttp)
@@ -11,7 +10,6 @@ include(LLAddBuildTest)
 include(Python)
 include(Tut)
 include(Python)
-include(JsonCpp)
 
 set(llmessage_SOURCE_FILES
     llassetstorage.cpp

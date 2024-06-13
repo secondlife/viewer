@@ -281,9 +281,9 @@ void LLScrollListText::highlightText(S32 offset, S32 num_chars)
 }
 
 //virtual
-BOOL LLScrollListText::isText() const
+bool LLScrollListText::isText() const
 {
-    return TRUE;
+    return true;
 }
 
 // virtual
@@ -298,7 +298,7 @@ const std::string &LLScrollListText::getToolTip() const
 }
 
 // virtual
-BOOL LLScrollListText::needsToolTip() const
+bool LLScrollListText::needsToolTip() const
 {
     // If base class has a tooltip, return that
     if (LLScrollListCell::needsToolTip())
@@ -309,7 +309,7 @@ BOOL LLScrollListText::needsToolTip() const
 }
 
 //virtual
-BOOL LLScrollListText::getVisible() const
+bool LLScrollListText::getVisible() const
 {
     return mVisible;
 }
@@ -335,7 +335,7 @@ S32 LLScrollListText::getContentWidth() const
 void LLScrollListText::setColor(const LLColor4& color)
 {
     mColor = color;
-    mUseColor = TRUE;
+    mUseColor = true;
 }
 
 void LLScrollListText::setText(const LLStringExplicit& text)
@@ -436,7 +436,7 @@ void LLScrollListText::draw(const LLColor4& color, const LLColor4& highlight_col
                     string_chars,
                     getTextWidth(),
                     &right_x,
-                    TRUE);
+                    true);
 }
 
 //
@@ -480,14 +480,14 @@ void LLScrollListCheck::draw(const LLColor4& color, const LLColor4& highlight_co
     mCheckBox->draw();
 }
 
-BOOL LLScrollListCheck::handleClick()
+bool LLScrollListCheck::handleClick()
 {
     if (mCheckBox->getEnabled())
     {
         mCheckBox->toggle();
     }
     // don't change selection when clicking on embedded checkbox
-    return TRUE;
+    return true;
 }
 
 /*virtual*/
@@ -509,7 +509,7 @@ void LLScrollListCheck::onCommit()
 }
 
 /*virtual*/
-void LLScrollListCheck::setEnabled(BOOL enable)
+void LLScrollListCheck::setEnabled(bool enable)
 {
     mCheckBox->setEnabled(enable);
 }
@@ -660,7 +660,7 @@ void LLScrollListIconText::draw(const LLColor4& color, const LLColor4& highlight
         string_chars,
         getTextWidth(),
         &right_x,
-        TRUE);
+        true);
 
     if (mIcon)
     {

@@ -40,7 +40,7 @@ const F32 DEFAULT_AVATAR_JOINT_LOD = 0.0f;
 //-----------------------------------------------------------------------------
 // Static Data
 //-----------------------------------------------------------------------------
-BOOL                    LLAvatarJoint::sDisableLOD = FALSE;
+bool                    LLAvatarJoint::sDisableLOD = false;
 
 //-----------------------------------------------------------------------------
 // LLAvatarJoint()
@@ -66,13 +66,13 @@ LLAvatarJoint::LLAvatarJoint(const std::string &name, LLJoint *parent) :
 
 void LLAvatarJoint::init()
 {
-    mValid = FALSE;
+    mValid = false;
     mComponents = SC_JOINT | SC_BONE | SC_AXES;
     mMinPixelArea = DEFAULT_AVATAR_JOINT_LOD;
     mPickName = PN_DEFAULT;
-    mVisible = TRUE;
+    mVisible = true;
     mMeshID = 0;
-    mIsTransparent = FALSE;
+    mIsTransparent = false;
 }
 
 
@@ -88,7 +88,7 @@ LLAvatarJoint::~LLAvatarJoint()
 //--------------------------------------------------------------------
 // setValid()
 //--------------------------------------------------------------------
-void LLAvatarJoint::setValid( BOOL valid, BOOL recursive )
+void LLAvatarJoint::setValid( bool valid, bool recursive )
 {
     //----------------------------------------------------------------
     // set visibility for this joint
@@ -103,7 +103,7 @@ void LLAvatarJoint::setValid( BOOL valid, BOOL recursive )
         for (LLJoint* child : mChildren)
         {
             LLAvatarJoint* joint = static_cast<LLAvatarJoint*>(child);
-            joint->setValid(valid, TRUE);
+            joint->setValid(valid, true);
         }
     }
 
@@ -112,7 +112,7 @@ void LLAvatarJoint::setValid( BOOL valid, BOOL recursive )
 //--------------------------------------------------------------------
 // setSkeletonComponents()
 //--------------------------------------------------------------------
-void LLAvatarJoint::setSkeletonComponents( U32 comp, BOOL recursive )
+void LLAvatarJoint::setSkeletonComponents( U32 comp, bool recursive )
 {
     mComponents = comp;
     if (recursive)
@@ -125,7 +125,7 @@ void LLAvatarJoint::setSkeletonComponents( U32 comp, BOOL recursive )
     }
 }
 
-void LLAvatarJoint::setVisible(BOOL visible, BOOL recursive)
+void LLAvatarJoint::setVisible(bool visible, bool recursive)
 {
     mVisible = visible;
 
@@ -148,7 +148,7 @@ void LLAvatarJoint::updateFaceSizes(U32 &num_vertices, U32& num_indices, F32 pix
     }
 }
 
-void LLAvatarJoint::updateFaceData(LLFace *face, F32 pixel_area, BOOL damp_wind, bool terse_update)
+void LLAvatarJoint::updateFaceData(LLFace *face, F32 pixel_area, bool damp_wind, bool terse_update)
 {
     for (LLJoint* child : mChildren)
     {
@@ -167,10 +167,10 @@ void LLAvatarJoint::updateJointGeometry()
 }
 
 
-BOOL LLAvatarJoint::updateLOD(F32 pixel_area, BOOL activate)
+bool LLAvatarJoint::updateLOD(F32 pixel_area, bool activate)
 {
-    BOOL lod_changed = FALSE;
-    BOOL found_lod = FALSE;
+    bool lod_changed = false;
+    bool found_lod = false;
 
     for (LLJoint* child : mChildren)
     {
@@ -180,18 +180,18 @@ BOOL LLAvatarJoint::updateLOD(F32 pixel_area, BOOL activate)
         if (found_lod || jointLOD == DEFAULT_AVATAR_JOINT_LOD)
         {
             // we've already found a joint to enable, so enable the rest as alternatives
-            lod_changed |= joint->updateLOD(pixel_area, TRUE);
+            lod_changed |= joint->updateLOD(pixel_area, true);
         }
         else
         {
             if (pixel_area >= jointLOD || sDisableLOD)
             {
-                lod_changed |= joint->updateLOD(pixel_area, TRUE);
-                found_lod = TRUE;
+                lod_changed |= joint->updateLOD(pixel_area, true);
+                found_lod = true;
             }
             else
             {
-                lod_changed |= joint->updateLOD(pixel_area, FALSE);
+                lod_changed |= joint->updateLOD(pixel_area, false);
             }
         }
     }
@@ -222,11 +222,11 @@ void LLAvatarJoint::setMeshesToChildren()
 
 LLAvatarJointCollisionVolume::LLAvatarJointCollisionVolume()
 {
-    mUpdateXform = FALSE;
+    mUpdateXform = false;
 }
 
 /*virtual*/
-U32 LLAvatarJointCollisionVolume::render( F32 pixelArea, BOOL first_pass, BOOL is_dummy )
+U32 LLAvatarJointCollisionVolume::render( F32 pixelArea, bool first_pass, bool is_dummy )
 {
     LL_ERRS() << "Cannot call render() on LLAvatarJointCollisionVolume" << LL_ENDL;
     return 0;
@@ -234,7 +234,7 @@ U32 LLAvatarJointCollisionVolume::render( F32 pixelArea, BOOL first_pass, BOOL i
 
 LLVector3 LLAvatarJointCollisionVolume::getVolumePos(LLVector3 &offset)
 {
-    mUpdateXform = TRUE;
+    mUpdateXform = true;
 
     LLVector3 result = offset;
     result.scaleVec(getScale());

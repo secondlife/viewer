@@ -115,19 +115,29 @@ LLTerrainMaterials::~LLTerrainMaterials()
     unboost();
 }
 
-BOOL LLTerrainMaterials::generateMaterials()
+void LLTerrainMaterials::apply(const LLModifyRegion& other)
+{
+    for (S32 i = 0; i < LLTerrainMaterials::ASSET_COUNT; ++i)
+    {
+        const LLGLTFMaterial* other_override = other.getMaterialOverride(i);
+        LLGLTFMaterial* material_override = other_override ? new LLGLTFMaterial(*other_override) : nullptr;
+        setMaterialOverride(i, material_override);
+    }
+}
+
+bool LLTerrainMaterials::generateMaterials()
 {
     if (texturesReady(true, true))
     {
-        return TRUE;
+        return true;
     }
 
     if (materialsReady(true, true))
     {
-        return TRUE;
+        return true;
     }
 
-    return FALSE;
+    return false;
 }
 
 void LLTerrainMaterials::boost()
@@ -188,14 +198,29 @@ void LLTerrainMaterials::setDetailAssetID(S32 asset, const LLUUID& id)
     mDetailTextures[asset] = fetch_terrain_texture(id);
     LLPointer<LLFetchedGLTFMaterial>& mat = mDetailMaterials[asset];
     mat = id.isNull() ? nullptr : gGLTFMaterialList.getMaterial(id);
+    mDetailRenderMaterials[asset] = nullptr;
     mMaterialTexturesSet[asset] = false;
+}
+
+const LLGLTFMaterial* LLTerrainMaterials::getMaterialOverride(S32 asset) const
+{
+    return mDetailMaterialOverrides[asset];
+}
+
+void LLTerrainMaterials::setMaterialOverride(S32 asset, LLGLTFMaterial* mat_override)
+{
+    // Non-null overrides must be nontrivial. Otherwise, please set the override to null instead.
+    llassert(!mat_override || *mat_override != LLGLTFMaterial::sDefault);
+
+    mDetailMaterialOverrides[asset] = mat_override;
+    mDetailRenderMaterials[asset] = nullptr;
 }
 
 LLTerrainMaterials::Type LLTerrainMaterials::getMaterialType()
 {
     LL_PROFILE_ZONE_SCOPED;
 
-    const BOOL use_textures = texturesReady(false, false) || !materialsReady(false, false);
+    const bool use_textures = texturesReady(false, false) || !materialsReady(false, false);
     return use_textures ? Type::TEXTURE : Type::PBR;
 }
 
@@ -221,13 +246,36 @@ bool LLTerrainMaterials::texturesReady(bool boost, bool strict)
     return one_ready;
 }
 
+namespace
+{
+    bool material_asset_ready(LLFetchedGLTFMaterial* mat) { return mat && mat->isLoaded(); }
+};
+
 bool LLTerrainMaterials::materialsReady(bool boost, bool strict)
 {
     bool ready[ASSET_COUNT];
-    // *NOTE: Calls to materialReady may boost materials/textures. Do not early-return.
+    // *NOTE: This section may boost materials/textures. Do not early-return if ready[i] is false.
     for (S32 i = 0; i < ASSET_COUNT; i++)
     {
-        ready[i] = materialReady(mDetailMaterials[i], mMaterialTexturesSet[i], boost, strict);
+        ready[i] = false;
+        LLPointer<LLFetchedGLTFMaterial>& mat = mDetailMaterials[i];
+        if (!material_asset_ready(mat)) { continue; }
+
+        LLPointer<LLFetchedGLTFMaterial>& render_mat = mDetailRenderMaterials[i];
+        if (!render_mat)
+        {
+            render_mat = new LLFetchedGLTFMaterial();
+            *render_mat = *mat;
+            // This render_mat is effectively already loaded, because it gets its data from mat.
+
+            LLPointer<LLGLTFMaterial>& override_mat = mDetailMaterialOverrides[i];
+            if (override_mat)
+            {
+                render_mat->applyOverride(*override_mat);
+            }
+        }
+
+        ready[i] = materialTexturesReady(render_mat, mMaterialTexturesSet[i], boost, strict);
     }
 
 #if 1
@@ -308,15 +356,13 @@ bool LLTerrainMaterials::textureReady(LLPointer<LLViewerFetchedTexture>& tex, bo
     return true;
 }
 
-// Boost the loading priority of every known texture in the material
-// Return true when ready to use
+// Make sure to call material_asset_ready first
+// strict = true -> all materials must be sufficiently loaded
+// strict = false -> at least one material must be loaded
 // static
-bool LLTerrainMaterials::materialReady(LLPointer<LLFetchedGLTFMaterial> &mat, bool &textures_set, bool boost, bool strict)
+bool LLTerrainMaterials::materialTexturesReady(LLPointer<LLFetchedGLTFMaterial>& mat, bool& textures_set, bool boost, bool strict)
 {
-    if (!mat || !mat->isLoaded())
-    {
-        return false;
-    }
+    llassert(mat);
 
     // Material is loaded, but textures may not be
     if (!textures_set)
@@ -355,6 +401,16 @@ bool LLTerrainMaterials::materialReady(LLPointer<LLFetchedGLTFMaterial> &mat, bo
     }
 
     return true;
+}
+
+// Boost the loading priority of every known texture in the material
+// Return true when ready to use
+// static
+bool LLTerrainMaterials::materialReady(LLPointer<LLFetchedGLTFMaterial> &mat, bool &textures_set, bool boost, bool strict)
+{
+    if (!material_asset_ready(mat)) { return false; }
+
+    return materialTexturesReady(mat, textures_set, boost, strict);
 }
 
 // static
@@ -403,13 +459,13 @@ void LLVLComposition::setSurface(LLSurface *surfacep)
     mSurfacep = surfacep;
 }
 
-BOOL LLVLComposition::generateHeights(const F32 x, const F32 y,
+bool LLVLComposition::generateHeights(const F32 x, const F32 y,
                                       const F32 width, const F32 height)
 {
     if (!mParamsReady)
     {
         // All the parameters haven't been set yet (we haven't gotten the message from the sim)
-        return FALSE;
+        return false;
     }
 
     llassert(mSurfacep);
@@ -417,7 +473,7 @@ BOOL LLVLComposition::generateHeights(const F32 x, const F32 y,
     if (!mSurfacep || !mSurfacep->getRegion())
     {
         // We don't always have the region yet here....
-        return FALSE;
+        return false;
     }
 
     S32 x_begin, y_begin, x_end, y_end;
@@ -499,17 +555,17 @@ BOOL LLVLComposition::generateHeights(const F32 x, const F32 y,
             *(mDatap + i + j*mWidth) = scaled_noisy_height;
         }
     }
-    return TRUE;
+    return true;
 }
 
 LLTerrainMaterials gLocalTerrainMaterials;
 
-BOOL LLVLComposition::generateComposition()
+bool LLVLComposition::generateComposition()
 {
     if (!mParamsReady)
     {
         // All the parameters haven't been set yet (we haven't gotten the message from the sim)
-        return FALSE;
+        return false;
     }
 
     return LLTerrainMaterials::generateMaterials();
@@ -586,7 +642,7 @@ namespace
         };
         PendingImage* pending_image = new PendingImage(raw_image, ddiscard, tex->getID());
 
-        loaded_callback_func cb = [](BOOL success, LLViewerFetchedTexture * src_vi, LLImageRaw * src, LLImageRaw * src_aux, S32 discard_level, BOOL is_final, void* userdata) {
+        loaded_callback_func cb = [](bool success, LLViewerFetchedTexture * src_vi, LLImageRaw * src, LLImageRaw * src_aux, S32 discard_level, bool is_final, void* userdata) {
             PendingImage* pending = (PendingImage*)userdata;
             // Owning LLVLComposition still exists
 
@@ -617,7 +673,7 @@ namespace
     }
 };
 
-BOOL LLVLComposition::generateMinimapTileLand(const F32 x, const F32 y,
+bool LLVLComposition::generateMinimapTileLand(const F32 x, const F32 y,
                                       const F32 width, const F32 height)
 {
     LL_PROFILE_ZONE_SCOPED
@@ -638,11 +694,11 @@ BOOL LLVLComposition::generateMinimapTileLand(const F32 x, const F32 y,
     const bool use_textures = getMaterialType() != LLTerrainMaterials::Type::PBR;
     if (use_textures)
     {
-        if (!texturesReady(true, true)) { return FALSE; }
+        if (!texturesReady(true, true)) { return false; }
     }
     else
     {
-        if (!materialsReady(true, true)) { return FALSE; }
+        if (!materialsReady(true, true)) { return false; }
     }
 
     for (S32 i = 0; i < ASSET_COUNT; i++)
@@ -668,27 +724,28 @@ BOOL LLVLComposition::generateMinimapTileLand(const F32 x, const F32 y,
             }
             else
             {
-                tex = mDetailMaterials[i]->mBaseColorTexture;
-                tex_emissive = mDetailMaterials[i]->mEmissiveTexture;
-                base_color_factor = LLColor3(mDetailMaterials[i]->mBaseColor);
+                LLPointer<LLFetchedGLTFMaterial>& mat = mDetailRenderMaterials[i];
+                tex = mat->mBaseColorTexture;
+                tex_emissive = mat->mEmissiveTexture;
+                base_color_factor = LLColor3(mat->mBaseColor);
                 // *HACK: Treat alpha as black
-                base_color_factor *= (mDetailMaterials[i]->mBaseColor.mV[VW]);
-                emissive_factor = mDetailMaterials[i]->mEmissiveColor;
+                base_color_factor *= (mat->mBaseColor.mV[VW]);
+                emissive_factor = mat->mEmissiveColor;
                 has_base_color_factor = (base_color_factor.mV[VX] != 1.f ||
                                          base_color_factor.mV[VY] != 1.f ||
                                          base_color_factor.mV[VZ] != 1.f);
                 has_emissive_factor = (emissive_factor.mV[VX] != 1.f ||
                                        emissive_factor.mV[VY] != 1.f ||
                                        emissive_factor.mV[VZ] != 1.f);
-                has_alpha = mDetailMaterials[i]->mAlphaMode != LLGLTFMaterial::ALPHA_MODE_OPAQUE;
+                has_alpha = mat->mAlphaMode != LLGLTFMaterial::ALPHA_MODE_OPAQUE;
             }
 
             if (!tex) { tex = LLViewerFetchedTexture::sWhiteImagep; }
 
             bool delete_raw_post = false;
             bool delete_raw_post_emissive = false;
-            if (!prepare_raw_image(mRawImagesBaseColor[i], false, tex, delete_raw_post)) { return FALSE; }
-            if (tex_emissive && !prepare_raw_image(mRawImagesEmissive[i], true, tex_emissive, delete_raw_post_emissive)) { return FALSE; }
+            if (!prepare_raw_image(mRawImagesBaseColor[i], false, tex, delete_raw_post)) { return false; }
+            if (tex_emissive && !prepare_raw_image(mRawImagesEmissive[i], true, tex_emissive, delete_raw_post_emissive)) { return false; }
             // tex_emissive can be null, and then will be ignored
 
             // In the simplest case, the minimap image is just the base color.
@@ -819,7 +876,7 @@ BOOL LLVLComposition::generateMinimapTileLand(const F32 x, const F32 y,
     if (tex_comps != st_comps)
     {
         llassert(false);
-        return FALSE;
+        return false;
     }
 
     tex_x_scalef = (F32)tex_width / (F32)mWidth;
@@ -921,7 +978,7 @@ BOOL LLVLComposition::generateMinimapTileLand(const F32 x, const F32 y,
         unboost_minimap_material(mDetailMaterials[i]);
     }
 
-    return TRUE;
+    return true;
 }
 
 F32 LLVLComposition::getStartHeight(S32 corner)

@@ -36,6 +36,10 @@
 #include "llthread.h"               // on_main_thread()
 #include "llmainthreadtask.h"
 
+#ifdef LL_WINDOWS
+#pragma warning( disable : 4506 )   // no definition for inline function
+#endif
+
 class LLSingletonBase: private boost::noncopyable
 {
 public:
@@ -528,6 +532,7 @@ public:
                          classname<DERIVED_TYPE>(),
                          " -- creating new instance"});
                 // fall through
+                [[fallthrough]];
             case UNINITIALIZED:
             case QUEUED:
                 // QUEUED means some secondary thread has already requested an
@@ -807,17 +812,6 @@ private:                                                                \
     DERIVED_CLASS(__VA_ARGS__)
 
 /**
- * A slight variance from the above, but includes the "override" keyword
- */
-#define LLSINGLETON_C11(DERIVED_CLASS)                                  \
-private:                                                                \
-    /* implement LLSingleton pure virtual method whose sole purpose */  \
-    /* is to remind people to use this macro */                         \
-    virtual void you_must_use_LLSINGLETON_macro() override {}           \
-    friend class LLSingleton<DERIVED_CLASS>;                            \
-    DERIVED_CLASS()
-
-/**
  * Use LLSINGLETON_EMPTY_CTOR(Foo); at the start of an LLSingleton<Foo>
  * subclass body when the constructor is trivial:
  *
@@ -834,10 +828,6 @@ private:                                                                \
 #define LLSINGLETON_EMPTY_CTOR(DERIVED_CLASS)                           \
     /* LLSINGLETON() is carefully implemented to permit exactly this */ \
     LLSINGLETON(DERIVED_CLASS) {}
-
-#define LLSINGLETON_EMPTY_CTOR_C11(DERIVED_CLASS)                       \
-    /* LLSINGLETON() is carefully implemented to permit exactly this */ \
-    LLSINGLETON_C11(DERIVED_CLASS) {}
 
 // Relatively unsafe singleton implementation that is much faster
 // and simpler than LLSingleton, but has no dependency tracking

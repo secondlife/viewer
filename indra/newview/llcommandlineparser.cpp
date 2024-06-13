@@ -378,8 +378,8 @@ bool LLCommandLineParser::parseCommandLineString(const std::string& str)
     if (!str.empty())
     {
         bool add_last_c = true;
-        S32 last_c_pos = str.size() - 1; //don't get out of bounds on pos+1, last char will be processed separately
-        for (S32 pos = 0; pos < last_c_pos; ++pos)
+        auto last_c_pos = str.size() - 1; //don't get out of bounds on pos+1, last char will be processed separately
+        for (size_t pos = 0; pos < last_c_pos; ++pos)
         {
             cmd_line_string.append(&str[pos], 1);
             if (str[pos] == '\\')
@@ -571,8 +571,8 @@ void setControlValueCB(const LLCommandLineParser::token_vector_t& value,
                 std::string token(onevalue(option, value));
 
                 // There's a token. check the string for true/false/1/0 etc.
-                BOOL result = false;
-                BOOL gotSet = LLStringUtil::convertToBOOL(token, result);
+                bool result = false;
+                bool gotSet = LLStringUtil::convertToBOOL(token, result);
                 if (gotSet)
                 {
                     ctrl->setValue(LLSD(result), false);

@@ -171,7 +171,7 @@ private:
 
 // Build time optimization, generate once in .cpp file
 #ifndef LLBADGE_CPP
-extern template class LLBadge* LLView::getChild<class LLBadge>(const std::string& name, BOOL recurse) const;
+extern template class LLBadge* LLView::getChild<class LLBadge>(const std::string& name, bool recurse) const;
 #endif
 
 #endif  // LL_LLBADGE_H

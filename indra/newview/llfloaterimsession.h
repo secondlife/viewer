@@ -64,15 +64,15 @@ public:
     void initIMFloater();
 
     // LLView overrides
-    /*virtual*/ BOOL postBuild();
-    /*virtual*/ void setMinimized(BOOL b);
-    /*virtual*/ void setVisible(BOOL visible);
-    /*virtual*/ BOOL getVisible();
-    /*virtual*/ void setFocus(BOOL focus);
+    /*virtual*/ bool postBuild();
+    /*virtual*/ void setMinimized(bool b);
+    /*virtual*/ void setVisible(bool visible);
+    /*virtual*/ bool getVisible();
+    /*virtual*/ void setFocus(bool focus);
     // Check typing timeout timer.
 
     /*virtual*/ void draw();
-    /*virtual*/ BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+    /*virtual*/ bool handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
         EDragAndDropType cargo_type,
         void* cargo_data,
         EAcceptance* accept,
@@ -121,7 +121,7 @@ public:
             const LLVoiceChannel::EState& old_state,
             const LLVoiceChannel::EState& new_state);
 
-    void processIMTyping(const LLUUID& from_id, BOOL typing);
+    void processIMTyping(const LLUUID& from_id, bool typing);
     void processAgentListUpdates(const LLSD& body);
     void processSessionUpdate(const LLSD& session_update);
 
@@ -147,8 +147,8 @@ private:
 
     bool dropPerson(LLUUID* person_id, bool drop);
 
-    BOOL isInviteAllowed() const;
-    BOOL inviteToSession(const uuid_vec_t& agent_ids);
+    bool isInviteAllowed() const;
+    bool inviteToSession(const uuid_vec_t& agent_ids);
     static void onInputEditorFocusReceived( LLFocusableElement* caller,void* userdata );
     static void onInputEditorFocusLost(LLFocusableElement* caller, void* userdata);
     static void onInputEditorKeystroke(LLTextEditor* caller, void* userdata);

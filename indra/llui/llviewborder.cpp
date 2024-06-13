@@ -63,7 +63,7 @@ LLViewBorder::Params::Params()
 LLViewBorder::LLViewBorder(const LLViewBorder::Params& p)
 :   LLView(p),
     mTexture( NULL ),
-    mHasKeyboardFocus( FALSE ),
+    mHasKeyboardFocus( false ),
     mBorderWidth(p.border_thickness),
     mHighlightLight(p.highlight_light_color()),
     mHighlightDark(p.highlight_dark_color()),
@@ -114,7 +114,7 @@ void LLViewBorder::draw()
         }
         else
         {
-            llassert( FALSE );  // not implemented
+            llassert( false );  // not implemented
         }
     }
 
@@ -239,7 +239,7 @@ void LLViewBorder::drawTwoPixelLines()
     gl_line_2d(left+1, bottom+1, right-1, bottom+1);
 }
 
-BOOL LLViewBorder::getBevelFromAttribute(LLXMLNodePtr node, LLViewBorder::EBevel& bevel_style)
+bool LLViewBorder::getBevelFromAttribute(LLXMLNodePtr node, LLViewBorder::EBevel& bevel_style)
 {
     if (node->hasAttribute("bevel_style"))
     {
@@ -263,8 +263,8 @@ BOOL LLViewBorder::getBevelFromAttribute(LLXMLNodePtr node, LLViewBorder::EBevel
         {
             bevel_style = LLViewBorder::BEVEL_BRIGHT;
         }
-        return TRUE;
+        return true;
     }
-    return FALSE;
+    return false;
 }
 

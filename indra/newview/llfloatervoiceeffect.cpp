@@ -56,7 +56,7 @@ LLFloaterVoiceEffect::~LLFloaterVoiceEffect()
 }
 
 // virtual
-BOOL LLFloaterVoiceEffect::postBuild()
+bool LLFloaterVoiceEffect::postBuild()
 {
     setDefaultBtn("record_btn");
     getChild<LLButton>("record_btn")->setFocus(true);
@@ -81,7 +81,7 @@ BOOL LLFloaterVoiceEffect::postBuild()
     refreshEffectList();
     updateControls();
 
-    return TRUE;
+    return true;
 }
 
 // virtual

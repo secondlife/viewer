@@ -71,7 +71,7 @@ class LLVivoxVoiceClient :  public LLSingleton<LLVivoxVoiceClient>,
                             virtual public LLVoiceEffectInterface,
                             virtual public LLVoiceP2POutgoingCallInterface
 {
-    LLSINGLETON_C11(LLVivoxVoiceClient);
+    LLSINGLETON(LLVivoxVoiceClient);
     LOG_CLASS(LLVivoxVoiceClient);
     virtual ~LLVivoxVoiceClient();
 
@@ -127,17 +127,17 @@ public:
     bool isParticipant(const LLUUID& speaker_id) override;
 
     // Send a text message to the specified user, initiating the session if necessary.
-    // virtual BOOL sendTextMessage(const LLUUID& participant_id, const std::string& message) const {return false;};
+    // virtual bool sendTextMessage(const LLUUID& participant_id, const std::string& message) const {return false;};
 
     // Returns true if calling back the session URI after the session has closed is possible.
     // Currently this will be false only for PSTN P2P calls.
     // NOTE: this will return true if the session can't be found.
-    BOOL isSessionCallBackPossible(const LLUUID &session_id) override;
+    bool isSessionCallBackPossible(const LLUUID &session_id) override;
 
     // Returns true if the session can accepte text IM's.
     // Currently this will be false only for PSTN P2P calls.
     // NOTE: this will return true if the session can't be found.
-    BOOL isSessionTextIMPossible(const LLUUID &session_id) override;
+    bool isSessionTextIMPossible(const LLUUID &session_id) override;
 
     ////////////////////////////
     /// @name Channel stuff
@@ -198,9 +198,9 @@ public:
     /// @name nearby speaker accessors
     //@{
     std::string getDisplayName(const LLUUID& id) override;
-    BOOL isParticipantAvatar(const LLUUID &id) override;
-    BOOL getIsSpeaking(const LLUUID& id) override;
-    BOOL getIsModeratorMuted(const LLUUID& id) override;
+    bool isParticipantAvatar(const LLUUID &id) override;
+    bool getIsSpeaking(const LLUUID& id) override;
+    bool getIsModeratorMuted(const LLUUID& id) override;
     F32 getCurrentPower(const LLUUID& id) override;     // "power" is related to "amplitude" in a defined way.  I'm just not sure what the formula is...
     F32 getUserVolume(const LLUUID& id) override;
     void setUserVolume(const LLUUID& id, F32 volume) override; // set's volume for specified agent, from 0-1 (where .5 is nominal)
@@ -508,7 +508,7 @@ protected:
     // Accessors for data related to nearby speakers
 
     // MBW -- XXX -- Not sure how to get this data out of the TVC
-    BOOL getUsingPTT(const LLUUID& id);
+    bool getUsingPTT(const LLUUID& id);
     std::string getGroupID(const LLUUID& id);       // group ID if the user is in group chat (empty string if not applicable)
 
     /////////////////////////////

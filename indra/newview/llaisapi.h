@@ -134,7 +134,7 @@ private:
     // Todo: make throttle work over all fetch requests isntead of per-request
     const F32 AIS_EXPIRY_SECONDS = 0.008f;
 
-    typedef std::map<LLUUID,S32> uuid_int_map_t;
+    typedef std::map<LLUUID,size_t> uuid_int_map_t;
     uuid_int_map_t mCatDescendentDeltas;
     uuid_int_map_t mCatDescendentsKnown;
     uuid_int_map_t mCatVersionsUpdated;

@@ -17,7 +17,7 @@ if [[ -f "$CONFIG_FILE" ]]; then
                                    --asc-provider $ASC_PROVIDER \
                                    --file "$zip_file" 2>&1)
         echo $res
-        
+
         requestUUID=$(echo $res | awk '/RequestUUID/ { print $NF; }')
         if [[ -n $requestUUID ]]; then
             in_progress=1
@@ -26,7 +26,7 @@ if [[ -f "$CONFIG_FILE" ]]; then
                 res=$(xcrun altool --notarization-info "$requestUUID" \
                                             --username $USERNAME \
                                             --password $PASSWORD 2>&1)
-                if [[ $res != *"in progress"* ]]; then 
+                if [[ $res != *"in progress"* ]]; then
                     in_progress=0
                 fi
                 echo "."

@@ -48,7 +48,7 @@ public:
 
     LLSysWellWindow(const LLSD& key);
     virtual ~LLSysWellWindow();
-    BOOL postBuild();
+    bool postBuild();
 
     // other interface functions
     // check is window empty
@@ -59,11 +59,11 @@ public:
     LLPanel * findItemByID(const LLUUID& id);
 
     // Operating with outfit
-    virtual void setVisible(BOOL visible);
+    virtual void setVisible(bool visible);
     void adjustWindowPosition();
     /*virtual*/ void    setDocked(bool docked, bool pop_on_undock = true);
     // override LLFloater's minimization according to EXT-1216
-    /*virtual*/ void    setMinimized(BOOL minimize);
+    /*virtual*/ void    setMinimized(bool minimize);
     /*virtual*/ void    handleReshape(const LLRect& rect, bool by_user);
 
     void onStartUpToastClick(S32 x, S32 y, MASK mask);
@@ -71,8 +71,8 @@ public:
     void setSysWellChiclet(LLSysWellChiclet* chiclet);
 
     // size constants for the window and for its elements
-    static const S32 MAX_WINDOW_HEIGHT      = 200;
-    static const S32 MIN_WINDOW_WIDTH       = 318;
+    static constexpr S32 MAX_WINDOW_HEIGHT      = 200;
+    static constexpr S32 MIN_WINDOW_WIDTH       = 318;
 
 protected:
     // init Window's channel
@@ -111,7 +111,7 @@ public:
     static LLIMWellWindow* findInstance(const LLSD& key = LLSD());
     static void initClass() { getInstance(); }
 
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
 
     void addObjectRow(const LLUUID& notification_id, bool new_message = false);
     void removeObjectRow(const LLUUID& notification_id);
@@ -133,8 +133,8 @@ private:
         virtual ~ObjectRowPanel();
         /*virtual*/ void onMouseEnter(S32 x, S32 y, MASK mask);
         /*virtual*/ void onMouseLeave(S32 x, S32 y, MASK mask);
-        /*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
-        /*virtual*/ BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
+        /*virtual*/ bool handleMouseDown(S32 x, S32 y, MASK mask);
+        /*virtual*/ bool handleRightMouseDown(S32 x, S32 y, MASK mask);
 
     private:
         void onClosePanel();

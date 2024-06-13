@@ -74,7 +74,7 @@ protected:
     StateMap            mStates;
     Transitions         mDefaultTransitions;
     LLFSMState*         mDefaultState;
-    BOOL                mUseDefaultState;
+    bool                mUseDefaultState;
 
 public:
     LLStateDiagram();
@@ -82,13 +82,13 @@ public:
 
 protected:
     // add a state to the state graph, executed implicitly when adding transitions
-    BOOL addState(LLFSMState *state);
+    bool addState(LLFSMState *state);
 
     // add a directed transition between 2 states
-    BOOL addTransition(LLFSMState& start_state, LLFSMState& end_state, LLFSMTransition& transition);
+    bool addTransition(LLFSMState& start_state, LLFSMState& end_state, LLFSMTransition& transition);
 
     // add an undirected transition between 2 states
-    BOOL addUndirectedTransition(LLFSMState& start_state, LLFSMState& end_state, LLFSMTransition& transition);
+    bool addUndirectedTransition(LLFSMState& start_state, LLFSMState& end_state, LLFSMTransition& transition);
 
     // add a transition that is taken if none other exist
     void addDefaultTransition(LLFSMState& end_state, LLFSMTransition& transition);
@@ -103,14 +103,14 @@ protected:
     S32 numDeadendStates();
 
     // does this state exist in the state diagram?
-    BOOL stateIsValid(LLFSMState& state);
+    bool stateIsValid(LLFSMState& state);
 
     // get a state pointer by ID
     LLFSMState* getState(U32 state_id);
 
 public:
     // save the graph in a DOT file for rendering and visualization
-    BOOL saveDotFile(const std::string& filename);
+    bool saveDotFile(const std::string& filename);
 };
 
 class LLStateMachine
@@ -138,10 +138,10 @@ public:
     void runCurrentState(void *data);
 
     // set state by state pointer
-    BOOL setCurrentState(LLFSMState *initial_state, void* user_data, BOOL skip_entry = TRUE);
+    bool setCurrentState(LLFSMState *initial_state, void* user_data, bool skip_entry = true);
 
     // set state by unique ID
-    BOOL setCurrentState(U32 state_id, void* user_data, BOOL skip_entry = TRUE);
+    bool setCurrentState(U32 state_id, void* user_data, bool skip_entry = true);
 };
 
 #endif //_LL_LLSTATEMACHINE_H

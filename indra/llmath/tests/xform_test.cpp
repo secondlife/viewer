@@ -91,7 +91,7 @@ namespace tut
         xform_obj.setPositionZ(z);
         ensure("setPositionX/Y/Z failed: ", xform_obj.getPosition() == vec);
 
-        xform_obj.setScaleChildOffset(TRUE);
+        xform_obj.setScaleChildOffset(true);
         ensure("setScaleChildOffset failed: ", xform_obj.getScaleChildOffset());
 
         vec.setVec(x, y, z);
@@ -121,7 +121,7 @@ namespace tut
         // Is that the expected behavior?
     }
 
-    // test cases for inline BOOL setParent(LLXform *parent) and getParent() fn.
+    // test cases for inline bool setParent(LLXform *parent) and getParent() fn.
     template<> template<>
     void xform_test_object_t::test<3>()
     {
@@ -216,7 +216,7 @@ namespace tut
         parent.setPosition(llvecpospar);
 
         LLVector3 llvecparentscale(1.0, 2.0, 0);
-        parent.setScaleChildOffset(TRUE);
+        parent.setScaleChildOffset(true);
         parent.setScale(llvecparentscale);
 
         LLQuaternion quat(1, 2, 3, 4);

@@ -1,5 +1,5 @@
 repos:
-  - repo: https://github.com/secondlife/git-hooks.git 
+  - repo: https://github.com/secondlife/git-hooks.git
     rev: v1.0.2
     hooks:
       - id: opensource-license
@@ -16,3 +16,5 @@ repos:
     hooks:
       - id: check-xml
       - id: mixed-line-ending
+      - id: trailing-whitespace
+        files: \.(cpp|c|h|inl|py|glsl|cmake|yaml|sh)$

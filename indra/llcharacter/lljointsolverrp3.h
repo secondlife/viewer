@@ -97,11 +97,11 @@ protected:
 
     LLVector3   mPoleVector;
     LLVector3   mBAxis;
-    BOOL        mbUseBAxis;
+    bool        mbUseBAxis;
 
     F32         mTwist;
 
-    BOOL        mFirstTime;
+    bool        mFirstTime;
     LLMatrix4   mSavedJointAMat;
     LLMatrix4   mSavedInvPlaneMat;
 

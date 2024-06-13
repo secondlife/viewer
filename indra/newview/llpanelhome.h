@@ -44,7 +44,7 @@ class LLPanelHome :
 public:
     LLPanelHome();
 
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
     /*virtual*/ void onOpen(const LLSD& key);
 
 private:

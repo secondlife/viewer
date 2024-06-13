@@ -265,7 +265,7 @@ public:
 
     void preload(const LLUUID &audio_id); // Only used for preloading UI sounds, now.
 
-    void addAudioData(LLAudioData *adp, bool set_current = TRUE);
+    void addAudioData(LLAudioData *adp, bool set_current = true);
 
     void setForcedPriority(const bool ambient)                      { mForcedPriority = ambient; }
     bool isForcedPriority() const                                   { return mForcedPriority; }

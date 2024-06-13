@@ -47,11 +47,11 @@ public:
                                 LLPanelEnvironmentInfo();
     virtual                     ~LLPanelEnvironmentInfo();
 
-    virtual BOOL                postBuild() override;
+    virtual bool                postBuild() override;
     virtual void                onOpen(const LLSD& key) override;
 
-    virtual BOOL                isDirty() const override            { return getIsDirty(); }
-    virtual void                onVisibilityChange(BOOL new_visibility) override;
+    virtual bool                isDirty() const override            { return getIsDirty(); }
+    virtual void                onVisibilityChange(bool new_visibility) override;
 
     virtual void                refresh() override;
 
@@ -136,7 +136,7 @@ protected:
     virtual bool                isLargeEnough() = 0;
     virtual void                refreshFromSource() = 0;
 
-    std::string                 getNameForTrackIndex(S32 index);
+    std::string                 getNameForTrackIndex(U32 index);
 
     LLFloaterSettingsPicker *   getSettingsPicker(bool create = true);
     LLFloaterEditExtDayCycle *  getEditFloater(bool create = true);
@@ -206,7 +206,7 @@ public:
     LLSettingsDropTarget(const Params&);
     ~LLSettingsDropTarget() {};
 
-    virtual BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+    virtual bool handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
         EDragAndDropType cargo_type,
         void* cargo_data,
         EAcceptance* accept,

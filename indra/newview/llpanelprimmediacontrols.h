@@ -46,14 +46,14 @@ class LLPanelPrimMediaControls : public LLPanel
 public:
     LLPanelPrimMediaControls();
     virtual ~LLPanelPrimMediaControls();
-    /*virtual*/ BOOL postBuild();
-    virtual void draw();
-    virtual BOOL handleScrollWheel(S32 x, S32 y, S32 clicks);
-    virtual BOOL handleScrollHWheel(S32 x, S32 y, S32 clicks);
+    bool postBuild() override;
+    void draw() override;
+    bool handleScrollWheel(S32 x, S32 y, S32 clicks) override;
+    bool handleScrollHWheel(S32 x, S32 y, S32 clicks) override;
 
-    virtual BOOL handleMouseDown(S32 x, S32 y, MASK mask);
-    virtual BOOL handleMouseUp(S32 x, S32 y, MASK mask);
-    virtual BOOL handleKeyHere(KEY key, MASK mask);
+    bool handleMouseDown(S32 x, S32 y, MASK mask) override;
+    bool handleMouseUp(S32 x, S32 y, MASK mask) override;
+    bool handleKeyHere(KEY key, MASK mask) override;
 
     void updateShape();
     bool isMouseOver();

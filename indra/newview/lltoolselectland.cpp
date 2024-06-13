@@ -47,12 +47,12 @@ LLToolSelectLand::LLToolSelectLand( )
 :   LLTool( std::string("Parcel") ),
     mDragStartGlobal(),
     mDragEndGlobal(),
-    mDragEndValid(FALSE),
+    mDragEndValid(false),
     mDragStartX(0),
     mDragStartY(0),
     mDragEndX(0),
     mDragEndY(0),
-    mMouseOutsideSlop(FALSE),
+    mMouseOutsideSlop(false),
     mWestSouthBottom(),
     mEastNorthTop()
 { }
@@ -62,19 +62,19 @@ LLToolSelectLand::~LLToolSelectLand()
 }
 
 
-BOOL LLToolSelectLand::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLToolSelectLand::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-    BOOL hit_land = gViewerWindow->mousePointOnLandGlobal(x, y, &mDragStartGlobal);
+    bool hit_land = gViewerWindow->mousePointOnLandGlobal(x, y, &mDragStartGlobal);
     if (hit_land)
     {
-        setMouseCapture( TRUE );
+        setMouseCapture( true );
 
         mDragStartX = x;
         mDragStartY = y;
         mDragEndX = x;
         mDragEndY = y;
 
-        mDragEndValid       = TRUE;
+        mDragEndValid       = true;
         mDragEndGlobal      = mDragStartGlobal;
 
         sanitize_corners(mDragStartGlobal, mDragEndGlobal, mWestSouthBottom, mEastNorthTop);
@@ -85,7 +85,7 @@ BOOL LLToolSelectLand::handleMouseDown(S32 x, S32 y, MASK mask)
         roundXY(mWestSouthBottom);
         roundXY(mEastNorthTop);
 
-        mMouseOutsideSlop = TRUE; //FALSE;
+        mMouseOutsideSlop = true; //false;
 
         LLViewerParcelMgr::getInstance()->deselectLand();
     }
@@ -94,25 +94,25 @@ BOOL LLToolSelectLand::handleMouseDown(S32 x, S32 y, MASK mask)
 }
 
 
-BOOL LLToolSelectLand::handleDoubleClick(S32 x, S32 y, MASK mask)
+bool LLToolSelectLand::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
     LLVector3d pos_global;
-    BOOL hit_land = gViewerWindow->mousePointOnLandGlobal(x, y, &pos_global);
+    bool hit_land = gViewerWindow->mousePointOnLandGlobal(x, y, &pos_global);
     if (hit_land)
     {
         // Auto-select this parcel
         LLViewerParcelMgr::getInstance()->selectParcelAt( pos_global );
-        return TRUE;
+        return true;
     }
-    return FALSE;
+    return false;
 }
 
 
-BOOL LLToolSelectLand::handleMouseUp(S32 x, S32 y, MASK mask)
+bool LLToolSelectLand::handleMouseUp(S32 x, S32 y, MASK mask)
 {
     if( hasMouseCapture() )
     {
-        setMouseCapture( FALSE );
+        setMouseCapture( false );
 
         if (mMouseOutsideSlop && mDragEndValid)
         {
@@ -129,35 +129,35 @@ BOOL LLToolSelectLand::handleMouseUp(S32 x, S32 y, MASK mask)
             roundXY(mEastNorthTop);
 
             // Don't auto-select entire parcel.
-            mSelection = LLViewerParcelMgr::getInstance()->selectLand( mWestSouthBottom, mEastNorthTop, FALSE );
+            mSelection = LLViewerParcelMgr::getInstance()->selectLand( mWestSouthBottom, mEastNorthTop, false );
         }
 
-        mMouseOutsideSlop = FALSE;
-        mDragEndValid = FALSE;
+        mMouseOutsideSlop = false;
+        mDragEndValid = false;
 
-        return TRUE;
+        return true;
     }
-    return FALSE;
+    return false;
 }
 
 
-BOOL LLToolSelectLand::handleHover(S32 x, S32 y, MASK mask)
+bool LLToolSelectLand::handleHover(S32 x, S32 y, MASK mask)
 {
     if( hasMouseCapture() )
     {
         if (mMouseOutsideSlop || outsideSlop(x, y, mDragStartX, mDragStartY))
         {
-            mMouseOutsideSlop = TRUE;
+            mMouseOutsideSlop = true;
 
             // Must do this every frame, in case the camera moved or the land moved
             // since last frame.
 
             // If doesn't hit land, doesn't change old value
             LLVector3d land_global;
-            BOOL hit_land = gViewerWindow->mousePointOnLandGlobal(x, y, &land_global);
+            bool hit_land = gViewerWindow->mousePointOnLandGlobal(x, y, &land_global);
             if (hit_land)
             {
-                mDragEndValid = TRUE;
+                mDragEndValid = true;
                 mDragEndGlobal = land_global;
 
                 sanitize_corners(mDragStartGlobal, mDragEndGlobal, mWestSouthBottom, mEastNorthTop);
@@ -173,7 +173,7 @@ BOOL LLToolSelectLand::handleHover(S32 x, S32 y, MASK mask)
             }
             else
             {
-                mDragEndValid = FALSE;
+                mDragEndValid = false;
                 LL_DEBUGS("UserInput") << "hover handled by LLToolSelectLand (active, no land)" << LL_ENDL;
                 gViewerWindow->setCursor(UI_CURSOR_NO);
             }
@@ -193,7 +193,7 @@ BOOL LLToolSelectLand::handleHover(S32 x, S32 y, MASK mask)
         gViewerWindow->setCursor(UI_CURSOR_ARROW);
     }
 
-    return TRUE;
+    return true;
 }
 
 
@@ -225,7 +225,7 @@ void LLToolSelectLand::roundXY(LLVector3d &vec)
 
 
 // true if x,y outside small box around start_x,start_y
-BOOL LLToolSelectLand::outsideSlop(S32 x, S32 y, S32 start_x, S32 start_y)
+bool LLToolSelectLand::outsideSlop(S32 x, S32 y, S32 start_x, S32 start_y)
 {
     S32 dx = x - start_x;
     S32 dy = y - start_y;

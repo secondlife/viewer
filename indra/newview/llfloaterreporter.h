@@ -80,7 +80,7 @@ class LLFloaterReporter
 public:
     LLFloaterReporter(const LLSD& key);
     /*virtual*/ ~LLFloaterReporter();
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
     /*virtual*/ void onOpen(const LLSD& key);
     /*virtual*/ void onClose(bool app_quitting);
 
@@ -119,7 +119,7 @@ private:
     void sendReportViaLegacy(const LLSD & report);
     void sendReportViaCaps(std::string url, std::string sshot_url, const LLSD & report);
     void setPosBox(const LLVector3d &pos);
-    void enableControls(BOOL own_avatar);
+    void enableControls(bool own_avatar);
     void getExperienceInfo(const LLUUID& object_id);
     void getObjectInfo(const LLUUID& object_id);
     void callbackAvatarID(const uuid_vec_t& ids, const std::vector<LLAvatarName> names);
@@ -137,10 +137,10 @@ private:
     LLUUID          mExperienceID;
     // Store the real name, not the link, for upstream reporting
     std::string     mOwnerName;
-    BOOL            mDeselectOnClose;
-    BOOL            mPicking;
+    bool            mDeselectOnClose;
+    bool            mPicking;
     LLVector3       mPosition;
-    BOOL            mCopyrightWarningSeen;
+    bool            mCopyrightWarningSeen;
     std::string     mDefaultSummary;
     LLResourceData* mResourceDatap;
     boost::signals2::connection mAvatarNameCacheConnection;

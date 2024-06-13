@@ -110,7 +110,7 @@ public:
 
     LLHintPopup(const Params&);
 
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
 
     void onClickClose()
     {
@@ -180,7 +180,7 @@ LLHintPopup::LLHintPopup(const LLHintPopup::Params& p)
     }
 }
 
-BOOL LLHintPopup::postBuild()
+bool LLHintPopup::postBuild()
 {
     LLTextBox& hint_text = getChildRef<LLTextBox>("hint_text");
     hint_text.setText(mNotification->getMessage());
@@ -193,7 +193,7 @@ BOOL LLHintPopup::postBuild()
     reshape(getRect().getWidth(), getRect().getHeight() + delta_height);
     hint_text.reshape(hint_text.getRect().getWidth(), hint_text.getRect().getHeight() + delta_height);
 //  hint_text.translate(0, -delta_height);
-    return TRUE;
+    return true;
 }
 
 void LLHintPopup::draw()

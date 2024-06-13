@@ -80,7 +80,7 @@ LLPanelMediaSettingsGeneral::LLPanelMediaSettingsGeneral() :
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-BOOL LLPanelMediaSettingsGeneral::postBuild()
+bool LLPanelMediaSettingsGeneral::postBuild()
 {
     // connect member vars with UI widgets
     mAutoLoop = getChild< LLCheckBoxCtrl >( LLMediaEntry::AUTO_LOOP_KEY );
@@ -121,7 +121,7 @@ void LLPanelMediaSettingsGeneral::draw()
     checkHomeUrlPassesWhitelist();
 
     // enable/disable pixel values image entry based on auto scale checkbox
-    if ( mAutoScale->getValue().asBoolean() == false )
+    if (!mAutoScale->getValue().asBoolean())
     {
         getChildView( LLMediaEntry::WIDTH_PIXELS_KEY )->setEnabled( true );
         getChildView( LLMediaEntry::HEIGHT_PIXELS_KEY )->setEnabled( true );
@@ -134,10 +134,9 @@ void LLPanelMediaSettingsGeneral::draw()
 
     // enable/disable UI based on type of media
     bool reset_button_is_active = true;
-    if( mPreviewMedia )
+    if (mPreviewMedia)
     {
-        LLPluginClassMedia* media_plugin = mPreviewMedia->getMediaPlugin();
-        if( media_plugin )
+        if (LLPluginClassMedia* media_plugin = mPreviewMedia->getMediaPlugin())
         {
             // turn off volume (if we can) for preview. Note: this really only
             // works for QuickTime movies right now - no way to control the
@@ -147,8 +146,7 @@ void LLPanelMediaSettingsGeneral::draw()
             // some controls are only appropriate for time or browser type plugins
             // so we selectively enable/disable them - need to do it in draw
             // because the information from plugins arrives assynchronously
-            bool show_time_controls = media_plugin->pluginSupportsMediaTime();
-            if ( show_time_controls )
+            if (media_plugin->pluginSupportsMediaTime())
             {
                 getChildView( LLMediaEntry::CURRENT_URL_KEY )->setEnabled( false );
                 reset_button_is_active = false;

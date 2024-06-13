@@ -38,7 +38,7 @@
 //static variables definitions
 //-----------------------------------------------------------------------------------
 U32 LLViewerOctreeEntryData::sCurVisible = 10; //reserve the low numbers for special use.
-BOOL LLViewerOctreeDebug::sInDebug = FALSE;
+bool LLViewerOctreeDebug::sInDebug = false;
 
 static LLTrace::CountStatHandle<S32> sOcclusionQueries("occlusion_queries", "Number of occlusion queries executed"),
                                      sNumObjectsOccluded("occluded_objects", "Count of objects being occluded by a query"),
@@ -566,7 +566,7 @@ void LLViewerOctreeGroup::rebound()
     }
     else if (mOctreeNode->getChildCount() == 0)
     { //copy object bounding box if this is a leaf
-        boundObjects(TRUE, mExtents[0], mExtents[1]);
+        boundObjects(true, mExtents[0], mExtents[1]);
         mBounds[0] = mObjectBounds[0];
         mBounds[1] = mObjectBounds[1];
     }
@@ -594,7 +594,7 @@ void LLViewerOctreeGroup::rebound()
             newMin.setMin(newMin, min);
         }
 
-        boundObjects(FALSE, newMin, newMax);
+        boundObjects(false, newMin, newMax);
 
         mBounds[0].setAdd(newMin, newMax);
         mBounds[0].mul(0.5f);
@@ -700,7 +700,7 @@ LLViewerOctreeGroup* LLViewerOctreeGroup::getParent()
 }
 
 //virtual
-bool LLViewerOctreeGroup::boundObjects(BOOL empty, LLVector4a& minOut, LLVector4a& maxOut)
+bool LLViewerOctreeGroup::boundObjects(bool empty, LLVector4a& minOut, LLVector4a& maxOut)
 {
     const OctreeNode* node = mOctreeNode;
 
@@ -754,19 +754,19 @@ bool LLViewerOctreeGroup::boundObjects(BOOL empty, LLVector4a& minOut, LLVector4
         maxOut.setMax(maxOut, newMax);
     }
 
-    return TRUE;
+    return true;
 }
 
 //virtual
-BOOL LLViewerOctreeGroup::isVisible() const
+bool LLViewerOctreeGroup::isVisible() const
 {
-    return mVisible[LLViewerCamera::sCurCameraID] >= LLViewerOctreeEntryData::getCurrentFrame() ? TRUE : FALSE;
+    return mVisible[LLViewerCamera::sCurCameraID] >= LLViewerOctreeEntryData::getCurrentFrame();
 }
 
 //virtual
-BOOL LLViewerOctreeGroup::isRecentlyVisible() const
+bool LLViewerOctreeGroup::isRecentlyVisible() const
 {
-    return FALSE;
+    return false;
 }
 
 void LLViewerOctreeGroup::setVisible()
@@ -886,18 +886,18 @@ LLOcclusionCullingGroup::~LLOcclusionCullingGroup()
     releaseOcclusionQueryObjectNames();
 }
 
-BOOL LLOcclusionCullingGroup::needsUpdate()
+bool LLOcclusionCullingGroup::needsUpdate()
 {
-    return (LLDrawable::getCurrentFrame() % mSpatialPartition->mLODPeriod == mLODHash) ? TRUE : FALSE;
+    return LLDrawable::getCurrentFrame() % mSpatialPartition->mLODPeriod == mLODHash;
 }
 
-BOOL LLOcclusionCullingGroup::isRecentlyVisible() const
+bool LLOcclusionCullingGroup::isRecentlyVisible() const
 {
     const S32 MIN_VIS_FRAME_RANGE = 2;
     return (LLDrawable::getCurrentFrame() - mVisible[LLViewerCamera::sCurCameraID]) < MIN_VIS_FRAME_RANGE ;
 }
 
-BOOL LLOcclusionCullingGroup::isAnyRecentlyVisible() const
+bool LLOcclusionCullingGroup::isAnyRecentlyVisible() const
 {
     const S32 MIN_VIS_FRAME_RANGE = 2;
     return (LLDrawable::getCurrentFrame() - mAnyVisible) < MIN_VIS_FRAME_RANGE ;
@@ -906,7 +906,7 @@ BOOL LLOcclusionCullingGroup::isAnyRecentlyVisible() const
 //virtual
 void LLOcclusionCullingGroup::handleChildAddition(const OctreeNode* parent, OctreeNode* child)
 {
-    if (child->getListenerCount() == 0)
+    if (!child->hasListeners())
     {
         new LLOcclusionCullingGroup(child, mSpatialPartition);
     }
@@ -1055,12 +1055,12 @@ void LLOcclusionCullingGroup::clearOcclusionState(U32 state, S32 mode /* = STATE
     }
 }
 
-BOOL LLOcclusionCullingGroup::earlyFail(LLCamera* camera, const LLVector4a* bounds)
+bool LLOcclusionCullingGroup::earlyFail(LLCamera* camera, const LLVector4a* bounds)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_OCTREE;
     if (camera->getOrigin().isExactlyZero())
     {
-        return FALSE;
+        return false;
     }
 
     const F32 vel = SG_OCCLUSION_FUDGE*2.f;
@@ -1073,7 +1073,7 @@ BOOL LLOcclusionCullingGroup::earlyFail(LLCamera* camera, const LLVector4a* boun
 
     /*if (r.magVecSquared() > 1024.0*1024.0)
     {
-        return TRUE;
+        return true;
     }*/
 
     LLVector4a e;
@@ -1087,16 +1087,16 @@ BOOL LLOcclusionCullingGroup::earlyFail(LLCamera* camera, const LLVector4a* boun
     S32 lt = e.lessThan(min).getGatheredBits() & 0x7;
     if (lt)
     {
-        return FALSE;
+        return false;
     }
 
     S32 gt = e.greaterThan(max).getGatheredBits() & 0x7;
     if (gt)
     {
-        return FALSE;
+        return false;
     }
 
-    return TRUE;
+    return true;
 }
 
 U32 LLOcclusionCullingGroup::getLastOcclusionIssuedTime()
@@ -1135,7 +1135,7 @@ void LLOcclusionCullingGroup::checkOcclusion()
                 mOcclusionCheckCount[LLViewerCamera::sCurCameraID]++;
             }
 
-            static LLCachedControl<S32> occlusion_timeout(gSavedSettings, "RenderOcclusionTimeout", 4);
+            static LLCachedControl<U32> occlusion_timeout(gSavedSettings, "RenderOcclusionTimeout", 4);
 
             if (available || mOcclusionCheckCount[LLViewerCamera::sCurCameraID] > occlusion_timeout)
             {
@@ -1301,7 +1301,7 @@ void LLOcclusionCullingGroup::doOcclusion(LLCamera* camera, const LLVector4a* sh
 //-----------------------------------------------------------------------------------
 LLViewerOctreePartition::LLViewerOctreePartition() :
     mRegionp(NULL),
-    mOcclusionEnabled(TRUE),
+    mOcclusionEnabled(true),
     mDrawableType(0),
     mLODSeed(0),
     mLODPeriod(1)
@@ -1324,7 +1324,7 @@ void LLViewerOctreePartition::cleanup()
     mOctree = nullptr;
 }
 
-BOOL LLViewerOctreePartition::isOcclusionEnabled()
+bool LLViewerOctreePartition::isOcclusionEnabled()
 {
     return mOcclusionEnabled || LLPipeline::sUseOcclusion > 2;
 }

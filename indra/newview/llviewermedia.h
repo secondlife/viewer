@@ -182,7 +182,7 @@ private:
 
 // Implementation functions not exported into header file
 class LLViewerMediaImpl
-    :   public LLMouseHandler, public LLRefCount, public LLPluginClassMediaOwner, public LLViewerMediaEventEmitter, public LLEditMenuHandler
+    :   public LLMouseHandler, public LLThreadSafeRefCount, public LLPluginClassMediaOwner, public LLViewerMediaEventEmitter, public LLEditMenuHandler
 {
     LOG_CLASS(LLViewerMediaImpl);
 public:
@@ -317,45 +317,45 @@ public:
 
     // need these to handle mouseup...
     /*virtual*/ void    onMouseCaptureLost();
-    /*virtual*/ BOOL    handleMouseUp(S32 x, S32 y, MASK mask);
+    /*virtual*/ bool    handleMouseUp(S32 x, S32 y, MASK mask);
 
     // Grr... the only thing I want as an LLMouseHandler are the onMouseCaptureLost and handleMouseUp calls.
     // Sadly, these are all pure virtual, so I have to supply implementations here:
-    /*virtual*/ BOOL    handleMouseDown(S32 x, S32 y, MASK mask) { return FALSE; };
-    /*virtual*/ BOOL    handleHover(S32 x, S32 y, MASK mask) { return FALSE; };
-    /*virtual*/ BOOL    handleScrollWheel(S32 x, S32 y, S32 clicks) { return FALSE; };
-    /*virtual*/ BOOL    handleScrollHWheel(S32 x, S32 y, S32 clicks) { return FALSE; };
-    /*virtual*/ BOOL    handleDoubleClick(S32 x, S32 y, MASK mask) { return FALSE; };
-    /*virtual*/ BOOL    handleRightMouseDown(S32 x, S32 y, MASK mask) { return FALSE; };
-    /*virtual*/ BOOL    handleRightMouseUp(S32 x, S32 y, MASK mask) { return FALSE; };
-    /*virtual*/ BOOL    handleToolTip(S32 x, S32 y, MASK mask) { return FALSE; };
-    /*virtual*/ BOOL    handleMiddleMouseDown(S32 x, S32 y, MASK mask) { return FALSE; };
-    /*virtual*/ BOOL    handleMiddleMouseUp(S32 x, S32 y, MASK mask) {return FALSE; };
+    /*virtual*/ bool    handleMouseDown(S32 x, S32 y, MASK mask) { return false; };
+    /*virtual*/ bool    handleHover(S32 x, S32 y, MASK mask) { return false; };
+    /*virtual*/ bool    handleScrollWheel(S32 x, S32 y, S32 clicks) { return false; };
+    /*virtual*/ bool    handleScrollHWheel(S32 x, S32 y, S32 clicks) { return false; };
+    /*virtual*/ bool    handleDoubleClick(S32 x, S32 y, MASK mask) { return false; };
+    /*virtual*/ bool    handleRightMouseDown(S32 x, S32 y, MASK mask) { return false; };
+    /*virtual*/ bool    handleRightMouseUp(S32 x, S32 y, MASK mask) { return false; };
+    /*virtual*/ bool    handleToolTip(S32 x, S32 y, MASK mask) { return false; };
+    /*virtual*/ bool    handleMiddleMouseDown(S32 x, S32 y, MASK mask) { return false; };
+    /*virtual*/ bool    handleMiddleMouseUp(S32 x, S32 y, MASK mask) {return false; };
     /*virtual*/ const std::string& getName() const;
 
     /*virtual*/ void    screenPointToLocal(S32 screen_x, S32 screen_y, S32* local_x, S32* local_y) const {};
     /*virtual*/ void    localPointToScreen(S32 local_x, S32 local_y, S32* screen_x, S32* screen_y) const {};
-    /*virtual*/ BOOL hasMouseCapture() { return gFocusMgr.getMouseCapture() == this; };
+    /*virtual*/ bool hasMouseCapture() { return gFocusMgr.getMouseCapture() == this; };
 
     // Inherited from LLPluginClassMediaOwner
     /*virtual*/ void handleMediaEvent(LLPluginClassMedia* plugin, LLPluginClassMediaOwner::EMediaEvent);
 
     // LLEditMenuHandler overrides
     /*virtual*/ void    cut();
-    /*virtual*/ BOOL    canCut() const;
+    /*virtual*/ bool    canCut() const;
 
     /*virtual*/ void    copy();
-    /*virtual*/ BOOL    canCopy() const;
+    /*virtual*/ bool    canCopy() const;
 
     /*virtual*/ void    paste();
-    /*virtual*/ BOOL    canPaste() const;
+    /*virtual*/ bool    canPaste() const;
 
     void addObject(LLVOVolume* obj) ;
     void removeObject(LLVOVolume* obj) ;
     const std::list< LLVOVolume* >* getObjectList() const ;
     LLVOVolume *getSomeObject();
-    void setUpdated(BOOL updated) ;
-    BOOL isUpdated() ;
+    void setUpdated(bool updated) ;
+    bool isUpdated() ;
 
     // updates the javascript object in the embedded browser with viewer values
     void updateJavascriptObject();
@@ -432,7 +432,7 @@ private:
 private:
     // a single media url with some data and an impl.
     std::shared_ptr<LLPluginClassMedia> mMediaSource;
-    LLMutex mLock;
+    LLCoros::Mutex mLock;
     F64     mZoomFactor;
     LLUUID mTextureId;
     bool  mMovieImageHasMips;
@@ -488,7 +488,7 @@ private:
     static std::vector<std::string> sMimeTypesFailed;
     LLPointer<LLImageRaw> mRawImage; //backing buffer for texture updates
 private:
-    BOOL mIsUpdated ;
+    bool mIsUpdated ;
     std::list< LLVOVolume* > mObjectList ;
 
     void mimeDiscoveryCoro(std::string url);

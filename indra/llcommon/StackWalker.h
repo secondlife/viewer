@@ -112,9 +112,9 @@ public:
     LPVOID      pUserData  // optional data, which was passed in "ShowCallstack"
     );
 
-  BOOL LoadModules();
+  bool LoadModules();
 
-  BOOL ShowCallstack(
+  bool ShowCallstack(
     bool verbose,
     HANDLE hThread = GetCurrentThread(),
     const CONTEXT *context = NULL,
@@ -159,7 +159,7 @@ protected:
   StackWalkerInternal *m_sw;
   HANDLE m_hProcess;
   DWORD m_dwProcessId;
-  BOOL m_modulesLoaded;
+  bool m_modulesLoaded;
   LPSTR m_szSymPath;
 
   bool m_verbose;

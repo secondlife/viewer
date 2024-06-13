@@ -102,7 +102,7 @@ protected:
 
 protected:
 
-    /*virtual*/ BOOL    postBuild();
+    /*virtual*/ bool    postBuild();
     // When the floater is going away, reset any options that need to be
     // cleared.
     void resetToolState();
@@ -127,7 +127,7 @@ public:
     LLPanelRegionTools();
     /*virtual*/ ~LLPanelRegionTools();
 
-    BOOL postBuild();
+    bool postBuild();
 
     /*virtual*/ void refresh();
 
@@ -189,7 +189,7 @@ public:
     LLPanelGridTools();
     virtual ~LLPanelGridTools();
 
-    BOOL postBuild();
+    bool postBuild();
 
     void refresh();
 
@@ -213,7 +213,7 @@ public:
     LLPanelObjectTools();
     /*virtual*/ ~LLPanelObjectTools();
 
-    BOOL postBuild();
+    bool postBuild();
 
     /*virtual*/ void refresh();
 
@@ -254,7 +254,7 @@ public:
     LLPanelRequestTools();
     /*virtual*/ ~LLPanelRequestTools();
 
-    BOOL postBuild();
+    bool postBuild();
 
     void refresh();
 

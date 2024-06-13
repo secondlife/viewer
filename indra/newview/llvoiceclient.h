@@ -250,9 +250,9 @@ public:
     /// @name nearby speaker accessors
     //@{
     virtual std::string getDisplayName(const LLUUID& id)=0;
-    virtual BOOL isParticipantAvatar(const LLUUID &id)=0;
-    virtual BOOL getIsSpeaking(const LLUUID& id)=0;
-    virtual BOOL getIsModeratorMuted(const LLUUID& id)=0;
+    virtual bool isParticipantAvatar(const LLUUID &id)=0;
+    virtual bool getIsSpeaking(const LLUUID& id)=0;
+    virtual bool getIsModeratorMuted(const LLUUID& id)=0;
     virtual F32 getCurrentPower(const LLUUID& id)=0;        // "power" is related to "amplitude" in a defined way.  I'm just not sure what the formula is...
     virtual F32 getUserVolume(const LLUUID& id)=0;
     virtual void setUserVolume(const LLUUID& id, F32 volume)=0; // set's volume for specified agent, from 0-1 (where .5 is nominal)
@@ -261,9 +261,9 @@ public:
     //////////////////////////
     /// @name text chat
     //@{
-    virtual BOOL isSessionTextIMPossible(const LLUUID& id)=0;
-    virtual BOOL isSessionCallBackPossible(const LLUUID& id)=0;
-    //virtual BOOL sendTextMessage(const LLUUID& participant_id, const std::string& message)=0;
+    virtual bool isSessionTextIMPossible(const LLUUID& id)=0;
+    virtual bool isSessionCallBackPossible(const LLUUID& id)=0;
+    //virtual bool sendTextMessage(const LLUUID& participant_id, const std::string& message)=0;
     //@}
 
     // authorize the user
@@ -451,14 +451,14 @@ public:
 
     /////////////////////////////
     // Accessors for data related to nearby speakers
-    BOOL getVoiceEnabled(const LLUUID& id);     // true if we've received data for this avatar
+    bool getVoiceEnabled(const LLUUID& id);     // true if we've received data for this avatar
     std::string getDisplayName(const LLUUID& id);
-    BOOL isOnlineSIP(const LLUUID &id);
-    BOOL isParticipantAvatar(const LLUUID &id);
-    BOOL getIsSpeaking(const LLUUID& id);
-    BOOL getIsModeratorMuted(const LLUUID& id);
+    bool isOnlineSIP(const LLUUID &id);
+    bool isParticipantAvatar(const LLUUID &id);
+    bool getIsSpeaking(const LLUUID& id);
+    bool getIsModeratorMuted(const LLUUID& id);
     F32 getCurrentPower(const LLUUID& id);      // "power" is related to "amplitude" in a defined way.  I'm just not sure what the formula is...
-    BOOL getOnMuteList(const LLUUID& id);
+    bool getOnMuteList(const LLUUID& id);
     F32 getUserVolume(const LLUUID& id);
 
     /////////////////////////////
@@ -468,8 +468,8 @@ public:
     //////////////////////////
     /// @name text chat
     //@{
-    BOOL isSessionTextIMPossible(const LLUUID& id);
-    BOOL isSessionCallBackPossible(const LLUUID& id);
+    bool isSessionTextIMPossible(const LLUUID& id);
+    bool isSessionCallBackPossible(const LLUUID& id);
     //BOOL sendTextMessage(const LLUUID& participant_id, const std::string& message) const {return true;} ;
     //@}
 
@@ -537,7 +537,7 @@ protected:
  **/
 class LLSpeakerVolumeStorage : public LLSingleton<LLSpeakerVolumeStorage>
 {
-    LLSINGLETON_C11(LLSpeakerVolumeStorage);
+    LLSINGLETON(LLSpeakerVolumeStorage);
     ~LLSpeakerVolumeStorage();
     LOG_CLASS(LLSpeakerVolumeStorage);
 

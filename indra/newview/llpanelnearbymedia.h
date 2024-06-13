@@ -36,6 +36,7 @@ class LLSlider;
 class LLSliderCtrl;
 class LLCheckBoxCtrl;
 class LLTextBox;
+class LLToggleableMenu;
 class LLComboBox;
 class LLViewerMediaImpl;
 
@@ -43,10 +44,12 @@ class LLPanelNearByMedia : public LLPanelPulldown
 {
 public:
 
-    /*virtual*/ BOOL postBuild();
-    /*virtual*/ void draw();
-    /*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent);
-    /*virtual*/ BOOL handleHover(S32 x, S32 y, MASK mask);
+    bool postBuild() override;
+    void draw() override;
+    void reshape(S32 width, S32 height, bool called_from_parent) override;
+    bool handleHover(S32 x, S32 y, MASK mask) override;
+    bool handleRightMouseDown(S32 x, S32 y, MASK mask) override;
+    void onVisibilityChange(bool new_visibility) override;
 
     // this is part of the nearby media *dialog* so we can track whether
     // the user *implicitly* wants audio on or off via their *explicit*
@@ -104,15 +107,12 @@ private:
     void onClickDisableAll();
     void onClickEnableParcelMedia();
     void onClickDisableParcelMedia();
-    void onClickMuteParcelMedia();
-    void onParcelMediaVolumeSlider();
     void onClickParcelMediaPlay();
     void onClickParcelMediaStop();
     void onClickParcelMediaPause();
     void onClickParcelAudioPlay();
     void onClickParcelAudioStop();
     void onClickParcelAudioPause();
-    void onCheckAutoPlay();
     void onAdvancedButtonClick();
     void onMoreLess();
 
@@ -124,6 +124,7 @@ private:
     bool setDisabled(const LLUUID &id, bool disabled);
 
     static void getNameAndUrlHelper(LLViewerMediaImpl* impl, std::string& name, std::string & url, const std::string &defaultName);
+    std::string getSelectedUrl();
 
     void updateColumns();
 
@@ -141,6 +142,8 @@ private:
     void onCommitSelectedMediaVolume();
     void onClickSelectedMediaZoom();
     void onClickSelectedMediaUnzoom();
+    void onMenuAction(const LLSD& userdata);
+    bool onMenuVisible(const LLSD& userdata);
 
     LLUICtrl*           mNearbyMediaPanel;
     LLScrollListCtrl*       mMediaList;
@@ -158,8 +161,8 @@ private:
     LLUICtrl*           mUnzoomCtrl;
     LLSlider*           mVolumeSlider;
     LLButton*           mMuteBtn;
+    LLButton*           mMoreLessBtn;
 
-    bool                mAllMediaDisabled;
     bool                mDebugInfoVisible;
     bool                mParcelAudioAutoStart;
     std::string         mEmptyNameString;
@@ -171,6 +174,7 @@ private:
     LLRect              mLessRect;
     LLScrollListItem*   mParcelMediaItem;
     LLScrollListItem*   mParcelAudioItem;
+    LLToggleableMenu*   mContextMenu;
 };
 
 

@@ -34,7 +34,6 @@
 #include "llpluginmessageclasses.h"
 #include "llsdserialize.h"
 #include "stringize.h"
-
 #include "llapr.h"
 
 //virtual
@@ -46,7 +45,7 @@ LLPluginProcessParentOwner::~LLPluginProcessParentOwner()
 bool LLPluginProcessParent::sUseReadThread = false;
 apr_pollset_t *LLPluginProcessParent::sPollSet = NULL;
 bool LLPluginProcessParent::sPollsetNeedsRebuild = false;
-LLMutex *LLPluginProcessParent::sInstancesMutex;
+LLCoros::Mutex *LLPluginProcessParent::sInstancesMutex;
 LLPluginProcessParent::mapInstances_t LLPluginProcessParent::sInstances;
 LLThread *LLPluginProcessParent::sReadThread = NULL;
 
@@ -106,7 +105,7 @@ LLPluginProcessParent::LLPluginProcessParent(LLPluginProcessParentOwner *owner):
 {
     if(!sInstancesMutex)
     {
-        sInstancesMutex = new LLMutex();
+        sInstancesMutex = new LLCoros::Mutex();
     }
 
     mOwner = owner;
@@ -176,7 +175,7 @@ LLPluginProcessParent::ptr_t LLPluginProcessParent::create(LLPluginProcessParent
 
     // Don't add to the global list until fully constructed.
     {
-        LLMutexLock lock(sInstancesMutex);
+        LLCoros::LockType lock(*sInstancesMutex);
         sInstances.insert(mapInstances_t::value_type(that.get(), that));
     }
 
@@ -186,7 +185,7 @@ LLPluginProcessParent::ptr_t LLPluginProcessParent::create(LLPluginProcessParent
 /*static*/
 void LLPluginProcessParent::shutdown()
 {
-    LLMutexLock lock(sInstancesMutex);
+    LLCoros::LockType lock(*sInstancesMutex);
 
     mapInstances_t::iterator it;
     for (it = sInstances.begin(); it != sInstances.end(); ++it)
@@ -244,7 +243,7 @@ bool LLPluginProcessParent::pollTick()
         {
             // this grabs a copy of the smart pointer to ourselves to ensure that we do not
             // get destroyed until after this method returns.
-            LLMutexLock lock(sInstancesMutex);
+            LLCoros::LockType lock(*sInstancesMutex);
             mapInstances_t::iterator it = sInstances.find(this);
             if (it != sInstances.end())
                 that = (*it).second;
@@ -263,7 +262,7 @@ void LLPluginProcessParent::removeFromProcessing()
     // Remove from the global list before beginning destruction.
     {
         // Make sure to get the global mutex _first_ here, to avoid a possible deadlock against LLPluginProcessParent::poll()
-        LLMutexLock lock(sInstancesMutex);
+        LLCoros::LockType lock(*sInstancesMutex);
         {
             LLMutexLock lock2(&mIncomingQueueMutex);
             sInstances.erase(this);
@@ -845,7 +844,7 @@ void LLPluginProcessParent::updatePollset()
         return;
     }
 
-    LLMutexLock lock(sInstancesMutex);
+    LLCoros::LockType lock(*sInstancesMutex);
 
     if(sPollSet)
     {
@@ -968,7 +967,7 @@ void LLPluginProcessParent::poll(F64 timeout)
                 mapInstances_t::iterator it;
 
                 {
-                    LLMutexLock lock(sInstancesMutex);
+                    LLCoros::LockType lock(*sInstancesMutex);
                     it = sInstances.find(thatId);
                     if (it != sInstances.end())
                         that = (*it).second;

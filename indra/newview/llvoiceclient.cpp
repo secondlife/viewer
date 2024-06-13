@@ -422,16 +422,16 @@ bool LLVoiceClient::isParticipant(const LLUUID &speaker_id)
 //--------------------------------------------------
 // text chat
 
-BOOL LLVoiceClient::isSessionTextIMPossible(const LLUUID& id)
+bool LLVoiceClient::isSessionTextIMPossible(const LLUUID& id)
 {
     // all sessions can do TextIM, as we no longer support PSTN
-    return TRUE;
+    return true;
 }
 
-BOOL LLVoiceClient::isSessionCallBackPossible(const LLUUID& id)
+bool LLVoiceClient::isSessionCallBackPossible(const LLUUID& id)
 {
     // we don't support PSTN calls anymore.  (did we ever?)
-    return TRUE;
+    return true;
 }
 
 //----------------------------------------------
@@ -686,9 +686,9 @@ void LLVoiceClient::toggleUserPTTState(void)
 //-------------------------------------------
 // nearby speaker accessors
 
-BOOL LLVoiceClient::getVoiceEnabled(const LLUUID& id)
+bool LLVoiceClient::getVoiceEnabled(const LLUUID& id)
 {
-    return isParticipant(id) ? TRUE : FALSE;
+    return isParticipant(id);
 }
 
 std::string LLVoiceClient::getDisplayName(const LLUUID& id)
@@ -707,23 +707,23 @@ bool LLVoiceClient::isVoiceWorking() const
            LLWebRTCVoiceClient::getInstance()->isVoiceWorking();
 }
 
-BOOL LLVoiceClient::isParticipantAvatar(const LLUUID& id)
+bool LLVoiceClient::isParticipantAvatar(const LLUUID& id)
 {
-    return TRUE;
+    return true;
 }
 
-BOOL LLVoiceClient::isOnlineSIP(const LLUUID& id)
+bool LLVoiceClient::isOnlineSIP(const LLUUID& id)
 {
-    return FALSE;
+    return false;
 }
 
-BOOL LLVoiceClient::getIsSpeaking(const LLUUID& id)
+bool LLVoiceClient::getIsSpeaking(const LLUUID& id)
 {
     return LLWebRTCVoiceClient::getInstance()->getIsSpeaking(id) ||
            LLVivoxVoiceClient::getInstance()->getIsSpeaking(id);
 }
 
-BOOL LLVoiceClient::getIsModeratorMuted(const LLUUID& id)
+bool LLVoiceClient::getIsModeratorMuted(const LLUUID& id)
 {
     // don't bother worrying about p2p calls, as
     // p2p calls don't have mute.
@@ -737,7 +737,7 @@ F32 LLVoiceClient::getCurrentPower(const LLUUID& id)
                      LLWebRTCVoiceClient::getInstance()->getCurrentPower(id));
 }
 
-BOOL LLVoiceClient::getOnMuteList(const LLUUID& id)
+bool LLVoiceClient::getOnMuteList(const LLUUID& id)
 {
     // don't bother worrying about p2p calls, as
     // p2p calls don't have mute.

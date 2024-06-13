@@ -34,10 +34,10 @@ class LLFloaterSpellCheckerSettings : public LLFloater
 public:
     LLFloaterSpellCheckerSettings(const LLSD& key);
 
-    /*virtual*/ void draw();
-    /*virtual*/ BOOL postBuild();
-    /*virtual*/ void onOpen(const LLSD& key);
-    /*virtual*/ void onClose(bool app_quitting);
+    void draw() override;
+    bool postBuild() override;
+    void onOpen(const LLSD& key) override;
+    void onClose(bool app_quitting) override;
 
 protected:
     void onBtnImport();
@@ -52,7 +52,7 @@ class LLFloaterSpellCheckerImport : public LLFloater
 public:
     LLFloaterSpellCheckerImport(const LLSD& key);
 
-    /*virtual*/ BOOL postBuild();
+    bool postBuild() override;
 
 protected:
     void onBtnBrowse();

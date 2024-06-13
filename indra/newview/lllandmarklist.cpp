@@ -118,7 +118,7 @@ void LLLandmarkList::processGetAssetReply(
             file.read((U8*)&buffer[0], file_length);
             buffer[file_length] = 0;
 
-            LLLandmark* landmark = LLLandmark::constructFromString(&buffer[0], buffer.size());
+            LLLandmark* landmark = LLLandmark::constructFromString(&buffer[0], static_cast<S32>(buffer.size()));
             if (landmark)
             {
                 gLandmarkList.mList[uuid] = landmark;
@@ -176,12 +176,12 @@ void LLLandmarkList::processGetAssetReply(
     }
 }
 
-BOOL LLLandmarkList::isAssetInLoadedCallbackMap(const LLUUID& asset_uuid)
+bool LLLandmarkList::isAssetInLoadedCallbackMap(const LLUUID& asset_uuid)
 {
     return mLoadedCallbackMap.find(asset_uuid) != mLoadedCallbackMap.end();
 }
 
-BOOL LLLandmarkList::assetExists(const LLUUID& asset_uuid)
+bool LLLandmarkList::assetExists(const LLUUID& asset_uuid)
 {
     return mList.count(asset_uuid) != 0 || mBadList.count(asset_uuid) != 0;
 }

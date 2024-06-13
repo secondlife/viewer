@@ -51,7 +51,7 @@ class LLSessionTimeoutTimer : public LLEventTimer
 public:
     LLSessionTimeoutTimer(const LLUUID& session_id, F32 period) : LLEventTimer(period), mSessionId(session_id) {}
     virtual ~LLSessionTimeoutTimer() {};
-    /* virtual */ BOOL tick();
+    /* virtual */ bool tick();
 
 private:
     LLUUID mSessionId;
@@ -300,7 +300,7 @@ public:
     static void sendLeaveSession(const LLUUID& session_id, const LLUUID& other_participant_id);
     static bool sendStartSession(const LLUUID& temp_session_id, const LLUUID& other_participant_id,
                           const uuid_vec_t& ids, EInstantMessage dialog, bool p2p_as_adhoc_call);
-    static void sendTypingState(LLUUID session_id, LLUUID other_participant_id, BOOL typing);
+    static void sendTypingState(LLUUID session_id, LLUUID other_participant_id, bool typing);
     static void sendMessage(const std::string& utf8_text, const LLUUID& im_session_id,
                                 const LLUUID& other_participant_id, EInstantMessage dialog);
 
@@ -333,7 +333,7 @@ class LLIMSessionObserver
 {
 public:
     virtual ~LLIMSessionObserver() {}
-    virtual void sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id, BOOL has_offline_msg) = 0;
+    virtual void sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id, bool has_offline_msg) = 0;
     virtual void sessionActivated(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id) = 0;
     virtual void sessionVoiceOrIMStarted(const LLUUID& session_id) = 0;
     virtual void sessionRemoved(const LLUUID& session_id) = 0;
@@ -441,7 +441,7 @@ public:
     // good connection.
     void disconnectAllSessions();
 
-    BOOL hasSession(const LLUUID& session_id);
+    bool hasSession(const LLUUID& session_id);
 
     static LLUUID computeSessionID(EInstantMessage dialog, const LLUUID& other_participant_id);
 
@@ -501,7 +501,7 @@ private:
     void noteOfflineUsers(const LLUUID& session_id, const std::vector<LLUUID>& ids);
     void noteMutedUsers(const LLUUID& session_id, const std::vector<LLUUID>& ids);
 
-    void processIMTypingCore(const LLUUID& from_id, const EInstantMessage im_type, BOOL typing);
+    void processIMTypingCore(const LLUUID& from_id, const EInstantMessage im_type, bool typing);
 
     static void onInviteNameLookup(LLSD payload, const LLUUID& id, const LLAvatarName& name);
 
@@ -556,7 +556,7 @@ public:
     LLCallDialog(const LLSD& payload);
     virtual ~LLCallDialog();
 
-    virtual BOOL postBuild();
+    virtual bool postBuild();
 
     void dockToToolbarButton(const std::string& toolbarButtonName);
 
@@ -601,7 +601,7 @@ public:
         }
     }
 
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
     /*virtual*/ void onOpen(const LLSD& key);
 
     static void onAccept(void* user_data);
@@ -627,7 +627,7 @@ class LLOutgoingCallDialog : public LLCallDialog
 public:
     LLOutgoingCallDialog(const LLSD& payload);
 
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
     void show(const LLSD& key);
 
     static void onCancel(void* user_data);

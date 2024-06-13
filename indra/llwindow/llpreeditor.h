@@ -34,7 +34,7 @@ class LLPreeditor
 public:
 
     typedef std::vector<S32> segment_lengths_t;
-    typedef std::vector<BOOL> standouts_t;
+    typedef std::deque<bool> standouts_t;
 
     // We don't delete against LLPreeditor, but compilers complain without this...
 
@@ -79,7 +79,7 @@ public:
     // Locations are relative to the app window and measured in GL coordinate space (before scaling.)
     // query_position is IN argument, and other three are OUT.
 
-    virtual BOOL getPreeditLocation(S32 query_position, LLCoordGL *coord, LLRect *bounds, LLRect *control) const = 0;
+    virtual bool getPreeditLocation(S32 query_position, LLCoordGL *coord, LLRect *bounds, LLRect *control) const = 0;
 
     // Get the size (height) of the current font used in this preeditor.
 
@@ -93,9 +93,9 @@ public:
     // Handle a UTF-32 char on this preeditor, i.e., add the character
     // to the contents.
     // This is a back door of the method of same name of LLWindowCallback.
-    // called_from_parent should be set to FALSE if calling through LLPreeditor.
+    // called_from_parent should be set to false if calling through LLPreeditor.
 
-    virtual BOOL handleUnicodeCharHere(llwchar uni_char) = 0;
+    virtual bool handleUnicodeCharHere(llwchar uni_char) = 0;
 };
 
 #endif

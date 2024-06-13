@@ -53,16 +53,16 @@ public:
     LLWorldMapView();
     virtual ~LLWorldMapView();
 
-    virtual BOOL    postBuild();
+    virtual bool    postBuild();
 
-    virtual void    reshape(S32 width, S32 height, BOOL called_from_parent = TRUE );
-    virtual void    setVisible(BOOL visible);
+    virtual void    reshape(S32 width, S32 height, bool called_from_parent = true );
+    virtual void    setVisible(bool visible);
 
-    virtual BOOL    handleMouseDown(S32 x, S32 y, MASK mask);
-    virtual BOOL    handleMouseUp(S32 x, S32 y, MASK mask);
-    virtual BOOL    handleDoubleClick( S32 x, S32 y, MASK mask );
-    virtual BOOL    handleHover( S32 x, S32 y, MASK mask );
-    virtual BOOL    handleToolTip( S32 x, S32 y, MASK mask);
+    virtual bool    handleMouseDown(S32 x, S32 y, MASK mask);
+    virtual bool    handleMouseUp(S32 x, S32 y, MASK mask);
+    virtual bool    handleDoubleClick( S32 x, S32 y, MASK mask );
+    virtual bool    handleHover( S32 x, S32 y, MASK mask );
+    virtual bool    handleToolTip( S32 x, S32 y, MASK mask);
 
     bool            checkItemHit(S32 x, S32 y, LLItemInfo& item, LLUUID* id, bool track);
     void            handleClick(S32 x, S32 y, MASK mask, S32* hit_type, LLUUID* id);
@@ -79,8 +79,8 @@ public:
     static F32 getScaleSetting();
     // Pan is in pixels relative to the center of the map.
     void translatePan( S32 delta_x, S32 delta_y );
-    void setPan( S32 x, S32 y, BOOL snap = TRUE );
-    void setPanWithInterpTime(S32 x, S32 y, BOOL snap, F32 interp_time);
+    void setPan( S32 x, S32 y, bool snap = true );
+    void setPanWithInterpTime(S32 x, S32 y, bool snap, F32 interp_time);
     // Return true if the current scale level is above the threshold for accessing region info
     bool showRegionInfo();
 
@@ -102,7 +102,7 @@ public:
 
     // Draw the tracking indicator, doing the right thing if it's outside
     // the view area.
-    void            drawTracking( const LLVector3d& pos_global, const LLColor4& color, BOOL draw_arrow = TRUE,
+    void            drawTracking( const LLVector3d& pos_global, const LLColor4& color, bool draw_arrow = true,
                                   const std::string& label = std::string(), const std::string& tooltip = std::string(),
                                   S32 vert_offset = 0);
     static void     drawTrackingArrow(const LLRect& view_rect, S32 x, S32 y,
@@ -131,7 +131,7 @@ public:
                                     const std::string& second_line);
 
     // Prevents accidental double clicks
-    static void     clearLastClick() { sHandledLastClick = FALSE; }
+    static void     clearLastClick() { sHandledLastClick = false; }
 
     // if the view changes, download additional sim info as needed
     void            updateVisibleBlocks();
@@ -163,7 +163,7 @@ public:
     static LLUIImagePtr sForSaleImage;
     static LLUIImagePtr sForSaleAdultImage;
 
-    BOOL            mItemPicked;
+    bool            mItemPicked;
 
     F32 mPanX; // in pixels
     F32 mPanY; // in pixels
@@ -174,7 +174,7 @@ public:
     static bool     sVisibleTilesLoaded;
 
     // Are we mid-pan from a user drag?
-    BOOL            mPanning;
+    bool            mPanning;
     S32             mMouseDownPanX;     // value at start of drag
     S32             mMouseDownPanY;     // value at start of drag
     S32             mMouseDownX;
@@ -191,7 +191,7 @@ public:
     LLTextBox*      mTextBoxSouthWest;
     LLTextBox*      mTextBoxScrollHint;
 
-    static BOOL     sHandledLastClick;
+    static bool     sHandledLastClick;
     S32             mSelectIDStart;
 
     // Keep the list of regions that are displayed on screen. Avoids iterating through the whole region map after draw().

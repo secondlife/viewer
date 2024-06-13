@@ -34,7 +34,7 @@ class LLFloaterCameraPresets : public LLFloater
 {
     friend class LLFloaterReg;
 
-    virtual BOOL postBuild();
+    virtual bool postBuild();
     virtual void onOpen(const LLSD& key);
 
     void populateList();
@@ -55,7 +55,7 @@ public:
 
     void setValue(const LLSD& value);
 
-    virtual BOOL postBuild();
+    virtual bool postBuild();
     virtual void onMouseEnter(S32 x, S32 y, MASK mask);
     virtual void onMouseLeave(S32 x, S32 y, MASK mask);
 

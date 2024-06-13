@@ -185,7 +185,7 @@ public:
     /**
      * Hide all notification toasts when we show dockable floater
      */
-    /*virtual*/ void setVisible(BOOL visible);
+    /*virtual*/ void setVisible(bool visible);
 
     bool getSavePosition() { return mSaveFloaterPosition; }
 

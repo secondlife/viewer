@@ -120,11 +120,11 @@ public:
                 }
         }
 
-        BOOL initialize();
+        bool initialize();
 
         ~LLPhysicsMotion() {}
 
-        BOOL onUpdate(F32 time);
+        bool onUpdate(F32 time);
 
         LLPointer<LLJointState> getJointState()
         {
@@ -217,20 +217,20 @@ default_controller_map_t initDefaultController()
 
 default_controller_map_t LLPhysicsMotion::sDefaultController = initDefaultController();
 
-BOOL LLPhysicsMotion::initialize()
+bool LLPhysicsMotion::initialize()
 {
         if (!mJointState->setJoint(mCharacter->getJoint(mJointName.c_str())))
-                return FALSE;
+                return false;
         mJointState->setUsage(LLJointState::ROT);
 
         mParamDriver = (LLViewerVisualParam*)mCharacter->getVisualParam(mParamDriverName.c_str());
         if (mParamDriver == NULL)
         {
                 LL_INFOS() << "Failure reading in  [ " << mParamDriverName << " ]" << LL_ENDL;
-                return FALSE;
+                return false;
         }
 
-        return TRUE;
+        return true;
 }
 
 LLPhysicsMotionController::LLPhysicsMotionController(const LLUUID &id) :
@@ -250,9 +250,9 @@ LLPhysicsMotionController::~LLPhysicsMotionController()
         }
 }
 
-BOOL LLPhysicsMotionController::onActivate()
+bool LLPhysicsMotionController::onActivate()
 {
-        return TRUE;
+        return true;
 }
 
 void LLPhysicsMotionController::onDeactivate()
@@ -282,7 +282,7 @@ LLMotion::LLMotionInitStatus LLPhysicsMotionController::onInitialize(LLCharacter
                                                                                                           controller);
                 if (!motion->initialize())
                 {
-                        llassert_always(FALSE);
+                        llassert_always(false);
                         return STATUS_FAILURE;
                 }
                 addMotion(motion);
@@ -305,7 +305,7 @@ LLMotion::LLMotionInitStatus LLPhysicsMotionController::onInitialize(LLCharacter
                                                                                                           controller);
                 if (!motion->initialize())
                 {
-                        llassert_always(FALSE);
+                        llassert_always(false);
                         return STATUS_FAILURE;
                 }
                 addMotion(motion);
@@ -328,7 +328,7 @@ LLMotion::LLMotionInitStatus LLPhysicsMotionController::onInitialize(LLCharacter
                                                                                                           controller);
                 if (!motion->initialize())
                 {
-                        llassert_always(FALSE);
+                        llassert_always(false);
                         return STATUS_FAILURE;
                 }
                 addMotion(motion);
@@ -350,7 +350,7 @@ LLMotion::LLMotionInitStatus LLPhysicsMotionController::onInitialize(LLCharacter
                                                                                                           controller);
                 if (!motion->initialize())
                 {
-                        llassert_always(FALSE);
+                        llassert_always(false);
                         return STATUS_FAILURE;
                 }
                 addMotion(motion);
@@ -373,7 +373,7 @@ LLMotion::LLMotionInitStatus LLPhysicsMotionController::onInitialize(LLCharacter
                                                                                                           controller);
                 if (!motion->initialize())
                 {
-                        llassert_always(FALSE);
+                        llassert_always(false);
                         return STATUS_FAILURE;
                 }
                 addMotion(motion);
@@ -396,7 +396,7 @@ LLMotion::LLMotionInitStatus LLPhysicsMotionController::onInitialize(LLCharacter
                                                                                                           controller);
                 if (!motion->initialize())
                 {
-                        llassert_always(FALSE);
+                        llassert_always(false);
                         return STATUS_FAILURE;
                 }
                 addMotion(motion);
@@ -451,16 +451,16 @@ F32 LLPhysicsMotion::calculateAcceleration_local(const F32 velocity_local, const
         return smoothed_acceleration_local;
 }
 
-BOOL LLPhysicsMotionController::onUpdate(F32 time, U8* joint_mask)
+bool LLPhysicsMotionController::onUpdate(F32 time, U8* joint_mask)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
         // Skip if disabled globally.
         if (!gSavedSettings.getBOOL("AvatarPhysics"))
         {
-                return TRUE;
+                return true;
         }
 
-        BOOL update_visuals = FALSE;
+        bool update_visuals = false;
         for (motion_vec_t::iterator iter = mMotions.begin();
              iter != mMotions.end();
              ++iter)
@@ -472,21 +472,21 @@ BOOL LLPhysicsMotionController::onUpdate(F32 time, U8* joint_mask)
         if (update_visuals)
                 mCharacter->updateVisualParams();
 
-        return TRUE;
+        return true;
 }
 
-// Return TRUE if character has to update visual params.
-BOOL LLPhysicsMotion::onUpdate(F32 time)
+// Return true if character has to update visual params.
+bool LLPhysicsMotion::onUpdate(F32 time)
 {
         // static FILE *mFileWrite = fopen("c:\\temp\\avatar_data.txt","w");
 
         if (!mParamDriver)
-                return FALSE;
+                return false;
 
         if (!mLastTime || mLastTime >= time)
         {
                 mLastTime = time;
-                return FALSE;
+                return false;
         }
 
         ////////////////////////////////////////////////////////////////////////////////
@@ -499,7 +499,7 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
         if (time_delta > 1.0)
         {
                 mLastTime = time;
-                return FALSE;
+                return false;
         }
 
         // Higher LOD is better.  This controls the granularity
@@ -507,7 +507,7 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
         const F32 lod_factor = LLVOAvatar::sPhysicsLODFactor;
         if (lod_factor == 0)
         {
-                return TRUE;
+                return true;
         }
 
         LLJoint *joint = mJointState->getJoint();
@@ -520,7 +520,7 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
         const F32 behavior_drag = getParamValue(DRAG);
         F32 behavior_maxeffect = getParamValue(MAX_EFFECT);
 
-        const BOOL physics_test = FALSE; // Enable this to simulate bouncing on all parts.
+        const bool physics_test = false; // Enable this to simulate bouncing on all parts.
 
         if (physics_test)
                 behavior_maxeffect = 1.0f;
@@ -548,7 +548,7 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
     // End velocity and acceleration
     ////////////////////////////////////////////////////////////////////////////////
 
-    BOOL update_visuals = FALSE;
+    bool update_visuals = false;
 
     // Break up the physics into a bunch of iterations so that differing framerates will show
     // roughly the same behavior.
@@ -700,14 +700,14 @@ BOOL LLPhysicsMotion::onUpdate(F32 time)
         const F32 area_for_this_setting = area_for_max_settings + (area_for_min_settings-area_for_max_settings)*(1.0-lod_factor);
             const F32 pixel_area = sqrtf(mCharacter->getPixelArea());
 
-        const BOOL is_self = (dynamic_cast<LLVOAvatarSelf *>(mCharacter) != NULL);
+        const bool is_self = (dynamic_cast<LLVOAvatarSelf *>(mCharacter) != NULL);
         if ((pixel_area > area_for_this_setting) || is_self)
         {
             const F32 position_diff_local = llabs(mPositionLastUpdate_local-position_new_local_clamped);
             const F32 min_delta = (1.0001f-lod_factor)*0.4f;
             if (llabs(position_diff_local) > min_delta)
             {
-                update_visuals = TRUE;
+                update_visuals = true;
                 mPositionLastUpdate_local = position_new_local;
             }
         }

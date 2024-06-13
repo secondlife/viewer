@@ -43,8 +43,8 @@ LLControlVariable* LLControlGroup::declareString(const std::string& name,
                                    const std::string& initial_val,
                                    const std::string& comment,
                                    LLControlVariable::ePersist persist) {return NULL;}
-void LLControlGroup::setString(const std::string& name, const std::string& val){}
-std::string LLControlGroup::getString(const std::string& name)
+void LLControlGroup::setString(std::string_view name, const std::string& val){}
+std::string LLControlGroup::getString(std::string_view name)
 {
     return "";
 }
@@ -109,10 +109,10 @@ namespace tut
     {
         // retrieve an unknown handler
 
-        ensure("'Unknown' handler should be NULL", !(BOOL)getSecHandler("unknown"));
+        ensure("'Unknown' handler should be NULL", getSecHandler("unknown") == nullptr);
         LLPointer<LLSecAPIHandler> test1_handler =  new LLSecAPIBasicHandler();
         registerSecHandler("sectest1", test1_handler);
-        ensure("'Unknown' handler should be NULL", !(BOOL)getSecHandler("unknown"));
+        ensure("'Unknown' handler should be NULL", getSecHandler("unknown") == nullptr);
         LLPointer<LLSecAPIHandler> retrieved_test1_handler = getSecHandler("sectest1");
         ensure("Retrieved sectest1 handler should be the same",
                retrieved_test1_handler == test1_handler);
@@ -120,7 +120,7 @@ namespace tut
         // insert a second handler
         LLPointer<LLSecAPIHandler> test2_handler =  new LLSecAPIBasicHandler();
         registerSecHandler("sectest2", test2_handler);
-        ensure("'Unknown' handler should be NULL", !(BOOL)getSecHandler("unknown"));
+        ensure("'Unknown' handler should be NULL", getSecHandler("unknown") == nullptr);
         retrieved_test1_handler = getSecHandler("sectest1");
         ensure("Retrieved sectest1 handler should be the same",
                retrieved_test1_handler == test1_handler);

@@ -231,7 +231,7 @@ void LLOutputMonitorCtrl::draw()
     //  }
 
     //  // Draw rectangle filled with the color.
-    //  gl_rect_2d(xpos, recttop, xpos+rectw, rectbtm, rect_color, TRUE);
+    //  gl_rect_2d(xpos, recttop, xpos+rectw, rectbtm, rect_color, true);
     //  xpos += period;
     //}
 
@@ -239,11 +239,11 @@ void LLOutputMonitorCtrl::draw()
     // Draw bounding box.
     //
     if(mBorder)
-        gl_rect_2d(0, monh, monw, 0, sColorBound, FALSE);
+        gl_rect_2d(0, monh, monw, 0, sColorBound, false);
 }
 
 // virtual
-BOOL LLOutputMonitorCtrl::handleMouseUp(S32 x, S32 y, MASK mask)
+bool LLOutputMonitorCtrl::handleMouseUp(S32 x, S32 y, MASK mask)
 {
     if (mSpeakerId != gAgentID)
     {
@@ -254,7 +254,7 @@ BOOL LLOutputMonitorCtrl::handleMouseUp(S32 x, S32 y, MASK mask)
         LLFloaterReg::showInstance("chat_voice", LLSD());
     }
 
-    return TRUE;
+    return true;
 }
 
 void LLOutputMonitorCtrl::setIsActiveChannel(bool val)
@@ -267,8 +267,8 @@ void LLOutputMonitorCtrl::setChannelState(EChannelState state)
     mChannelState = state;
     if (state == INACTIVE_CHANNEL)
     {
-        // switchIndicator will set it to TRUE when channel becomes active
-        setVisible(FALSE);
+        // switchIndicator will set it to true when channel becomes active
+        setVisible(false);
     }
 }
 
@@ -325,7 +325,7 @@ void LLOutputMonitorCtrl::onChangeDetailed(const LLMute& mute)
 // virtual
 void LLOutputMonitorCtrl::switchIndicator(bool switch_on)
 {
-    if ((mChannelState != INACTIVE_CHANNEL) && (getVisible() != (BOOL)switch_on))
+    if ((mChannelState != INACTIVE_CHANNEL) && (getVisible() != (bool)switch_on))
     {
         setVisible(switch_on);
 

@@ -46,7 +46,7 @@ LLFetchedGLTFMaterial::LLFetchedGLTFMaterial()
 
 LLFetchedGLTFMaterial::~LLFetchedGLTFMaterial()
 {
-    
+
 }
 
 LLFetchedGLTFMaterial& LLFetchedGLTFMaterial::operator=(const LLFetchedGLTFMaterial& rhs)
@@ -142,7 +142,6 @@ void LLFetchedGLTFMaterial::bind(LLViewerTexture* media_tex)
         mTextureTransform[GLTF_TEXTURE_INFO_EMISSIVE].getPacked(emissive_packed);
         shader->uniform4fv(LLShaderMgr::TEXTURE_EMISSIVE_TRANSFORM, 2, (F32*)emissive_packed);
     }
-
 }
 
 LLViewerFetchedTexture* fetch_texture(const LLUUID& id)
@@ -150,8 +149,8 @@ LLViewerFetchedTexture* fetch_texture(const LLUUID& id)
     LLViewerFetchedTexture* img = nullptr;
     if (id.notNull())
     {
-        img = LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
-        img->addTextureStats(64.f * 64.f, TRUE);
+        img = LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, true, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+        img->addTextureStats(64.f * 64.f, true);
     }
     return img;
 };

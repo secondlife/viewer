@@ -49,9 +49,9 @@ LLFloaterBuildOptions::LLFloaterBuildOptions(const LLSD& key)
 LLFloaterBuildOptions::~LLFloaterBuildOptions()
 {}
 
-BOOL LLFloaterBuildOptions::postBuild()
+bool LLFloaterBuildOptions::postBuild()
 {
-    return TRUE;
+    return true;
 }
 
 // virtual
@@ -63,5 +63,5 @@ void LLFloaterBuildOptions::onOpen(const LLSD& key)
 // virtual
 void LLFloaterBuildOptions::onClose(bool app_quitting)
 {
-    mObjectSelection = NULL;
+    mObjectSelection = nullptr;
 }
