@@ -476,6 +476,7 @@ bool LLGLSLShader::createShader()
     }
     else if (mFeatures.mIndexedTextureChannels > 0)
     { //override texture channels for indexed texture rendering
+        llassert(mFeatures.mIndexedTextureChannels == LLGLSLShader::sIndexedTextureChannels); // these numbers must always match
         bind();
         S32 channel_count = mFeatures.mIndexedTextureChannels;
 
@@ -485,17 +486,39 @@ bool LLGLSLShader::createShader()
             uniform1i(uniName, i);
         }
 
-        S32 cur_tex = channel_count; //adjust any texture channels that might have been overwritten
+        //adjust any texture channels that might have been overwritten
         for (U32 i = 0; i < mTexture.size(); i++)
         {
-            if (mTexture[i] > -1 && mTexture[i] < channel_count)
+            if (mTexture[i] > -1)
             {
-                llassert(cur_tex < gGLManager.mNumTextureImageUnits);
-                uniform1i(i, cur_tex);
-                mTexture[i] = cur_tex++;
+                S32 new_tex = mTexture[i] + channel_count;
+                uniform1i(i, new_tex);
+                mTexture[i] = new_tex;
             }
         }
+
+        // get the true number of active texture channels
+        mActiveTextureChannels = channel_count;
+        for (auto& tex : mTexture)
+        {
+            mActiveTextureChannels = llmax(mActiveTextureChannels, tex + 1);
+        }
+
+        // when indexed texture channels are used, enforce an upper limit of 16
+        // this should act as a canary in the coal mine for adding textures
+        // and breaking machines that are limited to 16 texture channels
+        llassert(mActiveTextureChannels <= 16);
         unbind();
+    }
+
+    LL_DEBUGS("GLSLTextureChannels") << mName << " has " << mActiveTextureChannels << " active texture channels" << LL_ENDL;
+
+    for (U32 i = 0; i < mTexture.size(); i++)
+    {
+        if (mTexture[i] > -1)
+        {
+            LL_DEBUGS("GLSLTextureChannels") << "Texture " << LLShaderMgr::instance()->mReservedUniforms[i] << " assigned to channel " << mTexture[i] << LL_ENDL;
+        }
     }
 
 #ifdef LL_PROFILER_ENABLE_RENDER_DOC
@@ -736,6 +759,10 @@ void LLGLSLShader::mapUniform(GLint index)
                 //found it
                 mUniform[i] = location;
                 mTexture[i] = mapUniformTextureChannel(location, type, size);
+                if (mTexture[i] != -1)
+                {
+                    LL_DEBUGS("GLSLTextureChannels") << name << " assigned to texture channel " << mTexture[i] << LL_ENDL;
+                }
                 return;
             }
         }
@@ -774,25 +801,21 @@ GLint LLGLSLShader::mapUniformTextureChannel(GLint location, GLenum type, GLint 
         if (size == 1)
         {
             glUniform1i(location, mActiveTextureChannels);
-            LL_DEBUGS("ShaderUniform") << "Assigned to texture channel " << mActiveTextureChannels << LL_ENDL;
             mActiveTextureChannels++;
         }
         else
         {
             //is array of textures, make sequential after this texture
-            GLint channel[32]; // <=== only support up to 32 texture channels
-            llassert(size <= 32);
-            size = llmin(size, 32);
+            GLint channel[16]; // <=== only support up to 16 texture channels
+            llassert(size <= 16);
+            size = llmin(size, 16);
             for (int i = 0; i < size; ++i)
             {
                 channel[i] = mActiveTextureChannels++;
             }
             glUniform1iv(location, size, channel);
-            LL_DEBUGS("ShaderUniform") << "Assigned to texture channel " <<
-                (mActiveTextureChannels - size) << " through " << (mActiveTextureChannels - 1) << LL_ENDL;
         }
 
-        llassert(mActiveTextureChannels <= 32); // too many textures (probably)
         return ret;
     }
     return -1;

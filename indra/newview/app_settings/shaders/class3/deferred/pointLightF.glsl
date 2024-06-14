@@ -29,10 +29,8 @@ out vec4 frag_color;
 
 uniform sampler2D diffuseRect;
 uniform sampler2D specularRect;
-uniform sampler2D normalMap;
 uniform sampler2D emissiveRect; // PBR linear packed Occlusion, Roughness, Metal. See: pbropaqueF.glsl
 uniform sampler2D lightFunc;
-uniform sampler2D depthMap;
 
 uniform vec3 env_mat[3];
 uniform float sun_wash;
