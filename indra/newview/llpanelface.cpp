@@ -5230,7 +5230,7 @@ void LLPanelFace::LLSelectedTE::getFace(LLFace*& face_to_return, bool& identical
 
 void LLPanelFace::LLSelectedTE::getImageFormat(LLGLenum& image_format_to_return, bool& identical_face)
 {
-    LLGLenum image_format;
+    LLGLenum image_format{};
     struct LLSelectedTEGetImageFormat : public LLSelectedTEGetFunctor<LLGLenum>
     {
         LLGLenum get(LLViewerObject* object, S32 te_index)
@@ -5496,4 +5496,3 @@ void LLPanelFace::LLSelectedTE::getMaxDiffuseRepeats(F32& repeats, bool& identic
     } max_diff_repeats_func;
     identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue( &max_diff_repeats_func, repeats );
 }
-

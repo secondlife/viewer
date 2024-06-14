@@ -35,8 +35,13 @@ public:
     LLKeyboardHeadless();
     /*virtual*/ ~LLKeyboardHeadless() {};
 
-    /*virtual*/ BOOL    handleKeyUp(const U16 key, MASK mask);
-    /*virtual*/ BOOL    handleKeyDown(const U16 key, MASK mask);
+#ifndef LL_SDL
+    /*virtual*/ BOOL    handleKeyUp(const U16 key, MASK mask) { return FALSE; }
+    /*virtual*/ BOOL    handleKeyDown(const U16 key, MASK mask) { return FALSE; }
+#else
+    /*virtual*/ BOOL    handleKeyUp(const U32 key, MASK mask) { return FALSE; }
+    /*virtual*/ BOOL    handleKeyDown(const U32 key, MASK mask) { return FALSE; }
+#endif
     /*virtual*/ void    resetMaskKeys();
     /*virtual*/ MASK    currentMask(BOOL for_mouse_event);
     /*virtual*/ void    scanKeyboard();

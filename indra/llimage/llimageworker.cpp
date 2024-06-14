@@ -170,7 +170,7 @@ bool ImageRequest::processRequest()
                 mErrorString = LLImage::getLastThreadError();
                 return true; // done (failed)
             }
-            if (!(mFormattedImage->getWidth() * mFormattedImage->getHeight() * mFormattedImage->getComponents()))
+            if (0 == (mFormattedImage->getWidth() * mFormattedImage->getHeight() * mFormattedImage->getComponents()))
             {
                 mErrorString = "Invalid image size";
                 return true; // done (failed)

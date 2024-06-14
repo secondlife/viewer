@@ -925,11 +925,11 @@ void LLOutfitListBase::onIdleRefreshList()
         {
             std::string name = cat->getName();
             updateChangedCategoryName(cat, name);
-        }
 
         curent_time = LLTimer::getTotalSeconds();
         if (curent_time >= end_time)
             return;
+    }
     }
 
     sortOutfits();

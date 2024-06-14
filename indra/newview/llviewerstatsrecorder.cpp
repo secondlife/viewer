@@ -317,5 +317,3 @@ F32 LLViewerStatsRecorder::getTimeSinceStart()
 {
     return (F32) (LLFrameTimer::getTotalSeconds() - mFileOpenTime);
 }
-
-

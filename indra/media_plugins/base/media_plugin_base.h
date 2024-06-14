@@ -32,6 +32,41 @@
 #include "llpluginmessage.h"
 #include "llpluginmessageclasses.h"
 
+#if LL_LINUX
+
+struct SymbolToGrab
+{
+    bool mRequired;
+    char const *mName;
+    apr_dso_handle_sym_t *mPPFunc;
+};
+
+class SymbolGrabber
+{
+public:
+    size_t registerSymbol( SymbolToGrab aSymbol );
+    bool grabSymbols(std::vector< std::string > const &aDSONames);
+    void ungrabSymbols();
+
+private:
+    std::vector< SymbolToGrab > gSymbolsToGrab;
+
+    bool sSymsGrabbed = false;
+    apr_pool_t *sSymDSOMemoryPool = nullptr;
+    std::vector<apr_dso_handle_t *> sLoadedLibraries;
+};
+
+extern SymbolGrabber gSymbolGrabber;
+
+// extern SymbolGrabber gSymbolGrabber;
+
+#define LL_GRAB_SYM(SYMBOL_GRABBER, REQUIRED, SYMBOL_NAME, RETURN, ...) \
+    RETURN (*ll##SYMBOL_NAME)(__VA_ARGS__) = nullptr; \
+    size_t gRegistered##SYMBOL_NAME = SYMBOL_GRABBER.registerSymbol( \
+        { REQUIRED, #SYMBOL_NAME , (apr_dso_handle_sym_t*)&ll##SYMBOL_NAME} \
+    );
+
+#endif
 
 class MediaPluginBase
 {
@@ -46,7 +81,6 @@ public:
     static void staticReceiveMessage(const char *message_string, void **user_data);
 
 protected:
-
    /** Plugin status. */
     typedef enum
     {
@@ -126,4 +160,7 @@ int init_media_plugin(
     LLPluginInstance::sendMessageFunction *plugin_send_func,
     void **plugin_user_data);
 
-
+#if LL_LINUX
+pid_t getParentPid(pid_t aPid);
+bool isPluginPid(pid_t aPid);
+#endif

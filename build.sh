@@ -45,7 +45,7 @@ build_dir_Darwin()
 
 build_dir_Linux()
 {
-  echo build-linux-i686
+  echo build-linux-x86_64
 }
 
 build_dir_CYGWIN()
@@ -154,6 +154,22 @@ pre_build()
                   "-DSIGNING_IDENTITY:STRING=Developer ID Application: Linden Research, Inc.")
     fi
 
+    if [[ "$arch" == "Linux" ]]
+    then
+      # RELEASE_CRASH_REPORTING is tuned on unconditionaly, this is fine but not for Linux as of now (due to missing breakpad/crashpad support)
+      RELEASE_CRASH_REPORTING=OFF
+
+      # Builds turn on HAVOK even when config is ReleaseOS.
+      # This needs AUTOBUILD_GITHUB_TOKEN to be set in the environment. But this is not set for PRs apparently.
+      # Still this seemlingy works on Windows and Mac, why not on the Linux runner? Mystery to be solved elsewhere.
+
+
+      if [[ "$variant" == "ReleaseOS" ]]
+      then
+          HAVOK=OFF
+      fi
+    fi
+
     if [ "${RELEASE_CRASH_REPORTING:-}" != "OFF" ]
     then
         case "$arch" in
@@ -176,9 +192,17 @@ pre_build()
     # honor autobuild_configure_parameters same as sling-buildscripts
     eval_autobuild_configure_parameters=$(eval $(echo echo $autobuild_configure_parameters))
 
+    # We build the viewer on Linux, but we haven't committed to support the
+    # Linux viewer. As of 2024-05-30, Linux build-time test infrastructure is
+    # not in place, so don't even bother running tests on Linux.
+    if [[ "$RUNNER_OS" == "Linux" ]]
+    then LL_TESTS=OFF
+    else LL_TESTS=ON
+    fi
+
     "$autobuild" configure --quiet -c $variant \
      ${eval_autobuild_configure_parameters:---} \
-     -DLL_TESTS:BOOL=ON \
+     -DLL_TESTS:BOOL=$LL_TESTS \
      -DPACKAGE:BOOL=ON \
      -DHAVOK:BOOL="$HAVOK" \
      -DRELEASE_CRASH_REPORTING:BOOL="$RELEASE_CRASH_REPORTING" \
@@ -187,6 +211,7 @@ pre_build()
      -DVIEWER_CHANNEL:STRING="${viewer_channel}" \
      -DGRID:STRING="\"$viewer_grid\"" \
      -DTEMPLATE_VERIFIER_OPTIONS:STRING="$template_verifier_options" $template_verifier_master_url \
+     $CMAKE_OPTIONS \
      "${SIGNING[@]}" \
     || fatal "$variant configuration failed"
 
@@ -199,14 +224,14 @@ package_llphysicsextensions_tpv()
   tpv_status=0
   # nat 2016-12-21: without HAVOK, can't build PhysicsExtensions_TPV.
   if [ "$variant" = "Release" -a "${HAVOK:-}" != "OFF" ]
-  then 
+  then
       tpvconfig="$build_dir/packages/llphysicsextensions/autobuild-tpv.xml"
       test -r "$tpvconfig" || fatal "No llphysicsextensions_tpv autobuild configuration found"
       # SL-19942: autobuild ignores -c switch if AUTOBUILD_CONFIGURATION set
       unset AUTOBUILD_CONFIGURATION
       "$autobuild" build --quiet --config-file "$(native_path "$tpvconfig")" -c Tpv \
           || fatal "failed to build llphysicsextensions_tpv"
-      
+
       # capture the package file name for use in upload later...
       PKGTMP=`mktemp -t pgktpv.XXXXXX`
       cleanup="$cleanup ; rm $PKGTMP* 2>/dev/null"
@@ -239,7 +264,7 @@ build()
     || fatal "failed building $variant"
     echo true >"$build_dir"/build_ok
     end_section "autobuild $variant"
-    
+
     begin_section "extensions $variant"
     # Run build extensions
     if [ -d ${build_dir}/packages/build-extensions ]
@@ -312,7 +337,7 @@ begin_section "select viewer channel"
 # Look for a branch-specific viewer_channel setting
 #    changeset_branch is set in the sling-buildscripts
 viewer_build_branch=$(echo -n "${changeset_branch:-$(repo_branch ${BUILDSCRIPTS_SRC:-$(pwd)})}" | tr -Cs 'A-Za-z0-9_' '_' | sed -E 's/^_+//; s/_+$//')
-if [ -n "$viewer_build_branch" ] 
+if [ -n "$viewer_build_branch" ]
 then
     branch_viewer_channel_var="${viewer_build_branch}_viewer_channel"
     if [ -n "${!branch_viewer_channel_var}" ]
@@ -434,7 +459,7 @@ do
       record_event "configure for $variant failed: build skipped"
   fi
 
-  if ! $succeeded 
+  if ! $succeeded
   then
       record_event "remaining variants skipped due to $variant failure"
       break
@@ -499,7 +524,7 @@ then
         fi
       done
       end_section "Upload Debian Repository"
-      
+
     else
       record_event "debian build not enabled"
     fi

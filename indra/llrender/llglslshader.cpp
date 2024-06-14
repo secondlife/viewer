@@ -279,7 +279,7 @@ bool LLGLSLShader::readProfileQuery(bool for_runtime, bool force_read)
             GLuint64 samples_passed = 0;
             glGetQueryObjectui64v(mSamplesQuery, GL_QUERY_RESULT, &samples_passed);
 
-            U64 primitives_generated = 0;
+            GLuint64 primitives_generated = 0;
             glGetQueryObjectui64v(mPrimitivesQuery, GL_QUERY_RESULT, &primitives_generated);
             sTotalTimeElapsed += time_elapsed;
 
