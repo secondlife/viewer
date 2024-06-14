@@ -1291,6 +1291,9 @@ bool LLFilePicker::openFileDialog( int32_t filter, bool blocking, EType aType )
             case FFLOAD_MATERIAL_TEXTURE:
                 file_dialog_filter = "*.{gltf,glb,tga,bmp,jpg,jpeg,png}";
                 file_type = "image_files";
+                break;
+            case FFLOAD_HDRI:
+                file_dialog_filter = "*.exr";
 
         }
         if (aType == EType::eOpenMultiple)
