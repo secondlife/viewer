@@ -489,10 +489,17 @@ void draw_shockwave(F32 center_z, F32 t, S32 steps, LLColor4 color)
     gGL.end();
 }
 
+
 void LLTracker::drawBeacon(LLVector3 pos_agent, std::string direction, LLColor4 fogged_color, F32 dist)
 {
-    const U32 BEACON_VERTS = 256;
-    F32 step;
+    const F32 MAX_HEIGHT = 5020.f;
+    const U32 BEACON_ROWS = 256;
+
+    U32 nRows;
+    F32 height;
+    F32 rowHeight;
+
+    LLColor4 c_col, col_next, col_edge, col_edge_next;
 
     gGL.matrixMode(LLRender::MM_MODELVIEW);
     gGL.pushMatrix();
@@ -501,59 +508,99 @@ void LLTracker::drawBeacon(LLVector3 pos_agent, std::string direction, LLColor4 
     {
         gGL.translatef(pos_agent.mV[0], pos_agent.mV[1], pos_agent.mV[2]);
         draw_shockwave(1024.f, gRenderStartTime.getElapsedTimeF32(), 32, fogged_color);
-        step = (5020.0f - pos_agent.mV[2]) / BEACON_VERTS;
+        height = MAX_HEIGHT - pos_agent.mV[2];
     }
     else
     {
         gGL.translatef(pos_agent.mV[0], pos_agent.mV[1], 0);
-        step = pos_agent.mV[2] / BEACON_VERTS;
+        height = pos_agent.mV[2];
     }
 
-        gGL.color4fv(fogged_color.mV);
+    nRows = ceil((BEACON_ROWS * height) / MAX_HEIGHT);
+    if(nRows<2) nRows=2;
+    rowHeight = height / nRows;
 
-        LLVector3 x_axis = LLViewerCamera::getInstance()->getLeftAxis();
-        F32 t = gRenderStartTime.getElapsedTimeF32();
+    gGL.color4fv(fogged_color.mV);
 
-        for (U32 i = 0; i < BEACON_VERTS; i++)
-        {
-            F32 x = x_axis.mV[0];
-            F32 y = x_axis.mV[1];
+    LLVector3 x_axis = LLViewerCamera::getInstance()->getLeftAxis();
+    F32 t = gRenderStartTime.getElapsedTimeF32();
 
-            F32 z = i * step;
-            F32 z_next = (i+1)*step;
+    F32 x = x_axis.mV[0];
+    F32 y = x_axis.mV[1];
+    F32 z = 0.f;
+    F32 z_next;
 
-        bool tracking_avatar = getTrackingStatus() == TRACKING_AVATAR;
-        F32 a = pulse_func(t, z, tracking_avatar, direction);
-        F32 an = pulse_func(t, z_next, tracking_avatar, direction);
+    F32 a,an;
+    F32 xa,xan;
+    F32 ya,yan;
 
-            LLColor4 c_col = fogged_color + LLColor4(a,a,a,a);
-            LLColor4 col_next = fogged_color + LLColor4(an,an,an,an);
-            LLColor4 col_edge = fogged_color * LLColor4(a,a,a,0.0f);
-            LLColor4 col_edge_next = fogged_color * LLColor4(an,an,an,0.0f);
+    bool tracking_avatar = getTrackingStatus() == TRACKING_AVATAR;
 
-            a *= 2.f;
-        a += 1.0f;
+    gGL.begin(LLRender::TRIANGLES);
 
-            an *= 2.f;
-        an += 1.0f;
+    for (U32 i = 0; i < nRows; i++)
+    {
+        z_next = z + rowHeight;
 
-            gGL.begin(LLRender::TRIANGLE_STRIP);
-            gGL.color4fv(col_edge.mV);
-            gGL.vertex3f(-x*a, -y*a, z);
-            gGL.color4fv(col_edge_next.mV);
-            gGL.vertex3f(-x*an, -y*an, z_next);
+        a = pulse_func(t, z, tracking_avatar, direction);
+        an = pulse_func(t, z_next, tracking_avatar, direction);
 
-            gGL.color4fv(c_col.mV);
-            gGL.vertex3f(0, 0, z);
-            gGL.color4fv(col_next.mV);
-            gGL.vertex3f(0, 0, z_next);
+        c_col = fogged_color + LLColor4(a, a, a, a);
+        col_next = fogged_color + LLColor4(an, an, an, an);
+        col_edge = fogged_color * LLColor4(a, a, a, 0.0f);
+        col_edge_next = fogged_color * LLColor4(an, an, an, 0.0f);
 
-            gGL.color4fv(col_edge.mV);
-            gGL.vertex3f(x*a,y*a,z);
-            gGL.color4fv(col_edge_next.mV);
-            gGL.vertex3f(x*an,y*an,z_next);
-        gGL.end();
+        a = a + a + 1.f;
+        an = an + an + 1.f;
+
+        xa = x*a;
+        ya = y*a;
+        xan = x*an;
+        yan = y*an;
+
+        gGL.color4fv(col_edge.mV);
+        gGL.vertex3f(-xa, -ya, z);
+
+        gGL.color4fv(col_next.mV);
+        gGL.vertex3f(0, 0, z_next);
+
+        gGL.color4fv(col_edge_next.mV);
+        gGL.vertex3f(-xan, -yan, z_next);
+
+
+        gGL.color4fv(col_edge.mV);
+        gGL.vertex3f(-xa, -ya, z);
+
+        gGL.color4fv(c_col.mV);
+        gGL.vertex3f(0, 0, z);
+
+        gGL.color4fv(col_next.mV);
+        gGL.vertex3f(0, 0, z_next);
+
+
+        gGL.color4fv(c_col.mV);
+        gGL.vertex3f(0, 0, z);
+
+        gGL.color4fv(col_edge_next.mV);
+        gGL.vertex3f(xan, yan, z_next);
+
+        gGL.color4fv(col_next.mV);
+        gGL.vertex3f(0, 0, z_next);
+
+
+        gGL.color4fv(c_col.mV);
+        gGL.vertex3f(0, 0, z);
+
+        gGL.color4fv(col_edge.mV);
+        gGL.vertex3f(xa, ya, z);
+
+        gGL.color4fv(col_edge_next.mV);
+        gGL.vertex3f(xan, yan, z_next);
+
+        z += rowHeight;
     }
+
+    gGL.end();
     gGL.popMatrix();
 }
 
