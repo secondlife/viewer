@@ -341,7 +341,6 @@
                  name="emoji_recent_empty_text"
                  follows="top|left|right"
                  layout="topleft"
-                 auto_resize="false"
                  h_pad="20"
                  v_pad="10"
                  top="0"
