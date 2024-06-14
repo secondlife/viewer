@@ -67,7 +67,14 @@ F32 angle_between(const LLVector2& a, const LLVector2& b)
     return angle;
 }
 
-BOOL are_parallel(const LLVector2 &a, const LLVector2 &b, float epsilon)
+F32 signed_angle_between(const LLVector2& a, const LLVector2& b)
+{
+    F32 angle = angle_between(a, b);
+    F32 romb_square = a[VX] * b[VY] - b[VX] * a[VY];
+    return romb_square < 0 ? -angle : angle;
+}
+
+BOOL are_parallel(const LLVector2 &a, const LLVector2 &b, F32 epsilon)
 {
     LLVector2 an = a;
     LLVector2 bn = b;

@@ -122,18 +122,22 @@ bool LLViewerCamera::updateCameraLocation(const LLVector3 &center, const LLVecto
         regp = gAgent.getRegion();
     }
 
-    F32 water_height = (NULL != regp) ? regp->getWaterHeight() : 0.f;
+    F32 water_height = regp ? regp->getWaterHeight() : 0.f;
 
     LLVector3 origin = center;
 
+    // Move origin[VZ] far enough (up or down) from the water surface
+    static const F32 MIN_DIST_TO_WATER = 0.2f;
+    F32& zpos = origin.mV[VZ];
+    if (zpos < water_height + MIN_DIST_TO_WATER)
     {
-        if (origin.mV[2] > water_height)
+        if (zpos >= water_height)
         {
-            origin.mV[2] = llmax(origin.mV[2], water_height + 0.20f);
+            zpos = water_height + MIN_DIST_TO_WATER;
         }
-        else
+        else if (zpos > water_height - MIN_DIST_TO_WATER)
         {
-            origin.mV[2] = llmin(origin.mV[2], water_height - 0.20f);
+            zpos = water_height - MIN_DIST_TO_WATER;
         }
     }
 
@@ -160,8 +164,7 @@ bool LLViewerCamera::updateCameraLocation(const LLVector3 &center, const LLVecto
     LLQuaternion rotation;
     rotation.shortestArc(last_axis, getAtAxis());
 
-    F32 x, y, z;
-    F32 drot;
+    F32 drot, x, y, z;
     rotation.getAngleAxis(&drot, &x, &y, &z);
 
     add(sVelocityStat, dpos);
@@ -172,9 +175,9 @@ bool LLViewerCamera::updateCameraLocation(const LLVector3 &center, const LLVecto
     mCosHalfCameraFOV = cosf(0.5f * getView() * llmax(1.0f, getAspect()));
 
     // update pixel meter ratio using default fov, not modified one
-    mPixelMeterRatio = getViewHeightInPixels()/ (2.f*tanf(mCameraFOVDefault*0.5));
+    mPixelMeterRatio = getViewHeightInPixels() / (2.f * tanf(mCameraFOVDefault * 0.5));
     // update screen pixel area
-    mScreenPixelArea =(S32)((F32)getViewHeightInPixels() * ((F32)getViewHeightInPixels() * getAspect()));
+    mScreenPixelArea = (S32)((F32)getViewHeightInPixels() * ((F32)getViewHeightInPixels() * getAspect()));
 
     return true;
 }
@@ -183,7 +186,6 @@ const LLMatrix4 &LLViewerCamera::getProjection() const
 {
     calcProjection(getFar());
     return mProjectionMatrix;
-
 }
 
 const LLMatrix4 &LLViewerCamera::getModelview() const
@@ -196,19 +198,18 @@ const LLMatrix4 &LLViewerCamera::getModelview() const
 
 void LLViewerCamera::calcProjection(const F32 far_distance) const
 {
-    F32 fov_y, z_far, z_near, aspect, f;
-    fov_y = getView();
-    z_far = far_distance;
-    z_near = getNear();
-    aspect = getAspect();
+    F32 fov_y = getView();
+    F32 z_far = far_distance;
+    F32 z_near = getNear();
+    F32 aspect = getAspect();
 
-    f = 1/tan(fov_y*0.5f);
+    F32 f = 1 / tan(fov_y * 0.5f);
 
     mProjectionMatrix.setZero();
-    mProjectionMatrix.mMatrix[0][0] = f/aspect;
+    mProjectionMatrix.mMatrix[0][0] = f / aspect;
     mProjectionMatrix.mMatrix[1][1] = f;
-    mProjectionMatrix.mMatrix[2][2] = (z_far + z_near)/(z_near - z_far);
-    mProjectionMatrix.mMatrix[3][2] = (2*z_far*z_near)/(z_near - z_far);
+    mProjectionMatrix.mMatrix[2][2] = (z_far + z_near) / (z_near - z_far);
+    mProjectionMatrix.mMatrix[3][2] = (2 * z_far * z_near) / (z_near - z_far);
     mProjectionMatrix.mMatrix[2][3] = -1;
 }
 
@@ -230,71 +231,71 @@ void LLViewerCamera::updateFrustumPlanes(LLCamera& camera, BOOL ortho, BOOL zfli
         proj[i] = (F64) gGLProjection[i];
     }
 
-    GLdouble objX,objY,objZ;
+    GLdouble objX, objY, objZ;
 
     LLVector3 frust[8];
 
     if (no_hacks)
     {
-        gluUnProject(viewport[0],viewport[1],0,model,proj,viewport,&objX,&objY,&objZ);
-        frust[0].setVec((F32)objX,(F32)objY,(F32)objZ);
-        gluUnProject(viewport[0]+viewport[2],viewport[1],0,model,proj,viewport,&objX,&objY,&objZ);
-        frust[1].setVec((F32)objX,(F32)objY,(F32)objZ);
-        gluUnProject(viewport[0]+viewport[2],viewport[1]+viewport[3],0,model,proj,viewport,&objX,&objY,&objZ);
-        frust[2].setVec((F32)objX,(F32)objY,(F32)objZ);
-        gluUnProject(viewport[0],viewport[1]+viewport[3],0,model,proj,viewport,&objX,&objY,&objZ);
-        frust[3].setVec((F32)objX,(F32)objY,(F32)objZ);
+        gluUnProject(viewport[0], viewport[1], 0, model, proj, viewport, &objX, &objY, &objZ);
+        frust[0].setVec((F32)objX, (F32)objY, (F32)objZ);
+        gluUnProject(viewport[0] + viewport[2], viewport[1], 0, model, proj, viewport, &objX, &objY, &objZ);
+        frust[1].setVec((F32)objX, (F32)objY, (F32)objZ);
+        gluUnProject(viewport[0] + viewport[2], viewport[1] + viewport[3], 0, model, proj, viewport, &objX, &objY, &objZ);
+        frust[2].setVec((F32)objX, (F32)objY, (F32)objZ);
+        gluUnProject(viewport[0], viewport[1] + viewport[3], 0, model, proj, viewport, &objX, &objY, &objZ);
+        frust[3].setVec((F32)objX, (F32)objY, (F32)objZ);
 
-        gluUnProject(viewport[0],viewport[1],1,model,proj,viewport,&objX,&objY,&objZ);
-        frust[4].setVec((F32)objX,(F32)objY,(F32)objZ);
-        gluUnProject(viewport[0]+viewport[2],viewport[1],1,model,proj,viewport,&objX,&objY,&objZ);
-        frust[5].setVec((F32)objX,(F32)objY,(F32)objZ);
-        gluUnProject(viewport[0]+viewport[2],viewport[1]+viewport[3],1,model,proj,viewport,&objX,&objY,&objZ);
-        frust[6].setVec((F32)objX,(F32)objY,(F32)objZ);
-        gluUnProject(viewport[0],viewport[1]+viewport[3],1,model,proj,viewport,&objX,&objY,&objZ);
-        frust[7].setVec((F32)objX,(F32)objY,(F32)objZ);
+        gluUnProject(viewport[0], viewport[1], 1, model, proj, viewport, &objX, &objY, &objZ);
+        frust[4].setVec((F32)objX, (F32)objY, (F32)objZ);
+        gluUnProject(viewport[0] + viewport[2], viewport[1], 1, model, proj, viewport, &objX, &objY, &objZ);
+        frust[5].setVec((F32)objX, (F32)objY, (F32)objZ);
+        gluUnProject(viewport[0] + viewport[2], viewport[1] + viewport[3], 1, model, proj, viewport, &objX, &objY, &objZ);
+        frust[6].setVec((F32)objX, (F32)objY, (F32)objZ);
+        gluUnProject(viewport[0], viewport[1] + viewport[3], 1, model, proj, viewport, &objX, &objY, &objZ);
+        frust[7].setVec((F32)objX, (F32)objY, (F32)objZ);
     }
     else if (zflip)
     {
-        gluUnProject(viewport[0],viewport[1]+viewport[3],0,model,proj,viewport,&objX,&objY,&objZ);
-        frust[0].setVec((F32)objX,(F32)objY,(F32)objZ);
-        gluUnProject(viewport[0]+viewport[2],viewport[1]+viewport[3],0,model,proj,viewport,&objX,&objY,&objZ);
-        frust[1].setVec((F32)objX,(F32)objY,(F32)objZ);
-        gluUnProject(viewport[0]+viewport[2],viewport[1],0,model,proj,viewport,&objX,&objY,&objZ);
-        frust[2].setVec((F32)objX,(F32)objY,(F32)objZ);
-        gluUnProject(viewport[0],viewport[1],0,model,proj,viewport,&objX,&objY,&objZ);
-        frust[3].setVec((F32)objX,(F32)objY,(F32)objZ);
+        gluUnProject(viewport[0], viewport[1] + viewport[3], 0, model, proj, viewport, &objX, &objY, &objZ);
+        frust[0].setVec((F32)objX, (F32)objY, (F32)objZ);
+        gluUnProject(viewport[0] + viewport[2], viewport[1] + viewport[3], 0, model, proj, viewport, &objX, &objY, &objZ);
+        frust[1].setVec((F32)objX, (F32)objY, (F32)objZ);
+        gluUnProject(viewport[0] + viewport[2], viewport[1], 0, model, proj, viewport, &objX, &objY, &objZ);
+        frust[2].setVec((F32)objX, (F32)objY, (F32)objZ);
+        gluUnProject(viewport[0], viewport[1], 0, model, proj, viewport, &objX, &objY, &objZ);
+        frust[3].setVec((F32)objX, (F32)objY, (F32)objZ);
 
-        gluUnProject(viewport[0],viewport[1]+viewport[3],1,model,proj,viewport,&objX,&objY,&objZ);
-        frust[4].setVec((F32)objX,(F32)objY,(F32)objZ);
-        gluUnProject(viewport[0]+viewport[2],viewport[1]+viewport[3],1,model,proj,viewport,&objX,&objY,&objZ);
-        frust[5].setVec((F32)objX,(F32)objY,(F32)objZ);
-        gluUnProject(viewport[0]+viewport[2],viewport[1],1,model,proj,viewport,&objX,&objY,&objZ);
-        frust[6].setVec((F32)objX,(F32)objY,(F32)objZ);
-        gluUnProject(viewport[0],viewport[1],1,model,proj,viewport,&objX,&objY,&objZ);
-        frust[7].setVec((F32)objX,(F32)objY,(F32)objZ);
+        gluUnProject(viewport[0], viewport[1] + viewport[3], 1, model, proj, viewport, &objX, &objY, &objZ);
+        frust[4].setVec((F32)objX, (F32)objY, (F32)objZ);
+        gluUnProject(viewport[0] + viewport[2], viewport[1] + viewport[3], 1, model, proj, viewport, &objX, &objY, &objZ);
+        frust[5].setVec((F32)objX, (F32)objY, (F32)objZ);
+        gluUnProject(viewport[0] + viewport[2], viewport[1], 1, model, proj, viewport, &objX, &objY, &objZ);
+        frust[6].setVec((F32)objX, (F32)objY, (F32)objZ);
+        gluUnProject(viewport[0], viewport[1], 1, model, proj, viewport, &objX, &objY, &objZ);
+        frust[7].setVec((F32)objX, (F32)objY, (F32)objZ);
 
         for (U32 i = 0; i < 4; i++)
         {
-            frust[i+4] = frust[i+4]-frust[i];
-            frust[i+4].normVec();
-            frust[i+4] = frust[i] + frust[i+4]*camera.getFar();
+            frust[i + 4] = frust[i + 4] - frust[i];
+            frust[i + 4].normVec();
+            frust[i + 4] = frust[i] + frust[i + 4] * camera.getFar();
         }
     }
     else
     {
-        gluUnProject(viewport[0],viewport[1],0,model,proj,viewport,&objX,&objY,&objZ);
-        frust[0].setVec((F32)objX,(F32)objY,(F32)objZ);
-        gluUnProject(viewport[0]+viewport[2],viewport[1],0,model,proj,viewport,&objX,&objY,&objZ);
-        frust[1].setVec((F32)objX,(F32)objY,(F32)objZ);
-        gluUnProject(viewport[0]+viewport[2],viewport[1]+viewport[3],0,model,proj,viewport,&objX,&objY,&objZ);
-        frust[2].setVec((F32)objX,(F32)objY,(F32)objZ);
-        gluUnProject(viewport[0],viewport[1]+viewport[3],0,model,proj,viewport,&objX,&objY,&objZ);
-        frust[3].setVec((F32)objX,(F32)objY,(F32)objZ);
+        gluUnProject(viewport[0], viewport[1], 0, model, proj, viewport, &objX, &objY, &objZ);
+        frust[0].setVec((F32)objX, (F32)objY, (F32)objZ);
+        gluUnProject(viewport[0] + viewport[2], viewport[1], 0, model, proj, viewport, &objX, &objY, &objZ);
+        frust[1].setVec((F32)objX, (F32)objY, (F32)objZ);
+        gluUnProject(viewport[0] + viewport[2], viewport[1] + viewport[3], 0, model, proj, viewport, &objX, &objY, &objZ);
+        frust[2].setVec((F32)objX, (F32)objY, (F32)objZ);
+        gluUnProject(viewport[0], viewport[1] + viewport[3], 0, model, proj, viewport, &objX, &objY, &objZ);
+        frust[3].setVec((F32)objX, (F32)objY, (F32)objZ);
 
         if (ortho)
         {
-            LLVector3 far_shift = camera.getAtAxis()*camera.getFar()*2.f;
+            LLVector3 far_shift = camera.getAtAxis() * camera.getFar() * 2.f;
             for (U32 i = 0; i < 4; i++)
             {
                 frust[i+4] = frust[i] + far_shift;
@@ -306,7 +307,7 @@ void LLViewerCamera::updateFrustumPlanes(LLCamera& camera, BOOL ortho, BOOL zfli
             {
                 LLVector3 vec = frust[i] - camera.getOrigin();
                 vec.normVec();
-                frust[i+4] = camera.getOrigin() + vec*camera.getFar();
+                frust[i + 4] = camera.getOrigin() + vec * camera.getFar();
             }
         }
     }
@@ -344,11 +345,13 @@ void LLViewerCamera::setPerspective(BOOL for_selection,
         // make a tiny little viewport
         // anything drawn into this viewport will be "selected"
 
-        GLint viewport[4];
-        viewport[0] = gViewerWindow->getWorldViewRectRaw().mLeft;
-        viewport[1] = gViewerWindow->getWorldViewRectRaw().mBottom;
-        viewport[2] = gViewerWindow->getWorldViewRectRaw().getWidth();
-        viewport[3] = gViewerWindow->getWorldViewRectRaw().getHeight();
+        GLint viewport[] =
+        {
+            gViewerWindow->getWorldViewRectRaw().mLeft,
+            gViewerWindow->getWorldViewRectRaw().mBottom,
+            gViewerWindow->getWorldViewRectRaw().getWidth(),
+            gViewerWindow->getWorldViewRectRaw().getHeight()
+        };
 
         proj_mat = gl_pick_matrix(x+width/2.f, y_from_bot+height/2.f, (GLfloat) width, (GLfloat) height, viewport);
 
@@ -405,7 +408,7 @@ void LLViewerCamera::setPerspective(BOOL for_selection,
 
     glh::matrix4f modelview((GLfloat*) OGL_TO_CFR_ROTATION);
 
-    GLfloat         ogl_matrix[16];
+    GLfloat ogl_matrix[16];
 
     getOpenGLTransform(ogl_matrix);
 
@@ -418,11 +421,13 @@ void LLViewerCamera::setPerspective(BOOL for_selection,
         // NB: as of this writing, i believe the code below is broken (doesn't take into account the world view, assumes entire window)
         // however, it is also unused (the GL matricies are used for selection, (see LLCamera::sphereInFrustum())) and so i'm not
         // comfortable hacking on it.
-        calculateFrustumPlanesFromWindow((F32)(x - width / 2) / (F32)gViewerWindow->getWindowWidthScaled() - 0.5f,
-                                (F32)(y_from_bot - height / 2) / (F32)gViewerWindow->getWindowHeightScaled() - 0.5f,
-                                (F32)(x + width / 2) / (F32)gViewerWindow->getWindowWidthScaled() - 0.5f,
-                                (F32)(y_from_bot + height / 2) / (F32)gViewerWindow->getWindowHeightScaled() - 0.5f);
-
+        calculateFrustumPlanesFromWindow
+        (
+            (F32)(x - width / 2) / (F32)gViewerWindow->getWindowWidthScaled() - 0.5f,
+            (F32)(y_from_bot - height / 2) / (F32)gViewerWindow->getWindowHeightScaled() - 0.5f,
+            (F32)(x + width / 2) / (F32)gViewerWindow->getWindowWidthScaled() - 0.5f,
+            (F32)(y_from_bot + height / 2) / (F32)gViewerWindow->getWindowHeightScaled() - 0.5f
+        );
     }
 
     // if not picking and not doing a snapshot, cache various GL matrices
