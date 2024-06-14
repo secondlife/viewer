@@ -145,6 +145,7 @@ void Asset::updateTransforms()
 
 void Asset::updateRenderTransforms(const mat4& modelview)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_GLTF;
     // use mAssetMatrix to update render transforms from node list
     for (auto& node : mNodes)
     {
@@ -388,6 +389,7 @@ void Asset::update()
 
 bool Asset::prep()
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_GLTF;
     // check required extensions and fail if not supported
     bool unsupported = false;
     for (auto& extension : mExtensionsRequired)
@@ -455,6 +457,7 @@ Asset::Asset(const Value& src)
 
 bool Asset::load(std::string_view filename)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_GLTF;
     mFilename = filename;
     std::string ext = gDirUtilp->getExtension(mFilename);
 

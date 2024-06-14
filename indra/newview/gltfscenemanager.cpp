@@ -552,6 +552,7 @@ void GLTFSceneManager::render(bool opaque, bool rigged, bool unlit)
 
 void GLTFSceneManager::render(U8 variant)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_GLTF;
     // just render the whole scene by traversing the whole scenegraph
     // Assumes camera transform is already set and appropriate shader is already bound.
     // Eventually we'll want a smarter render pipe that has pre-sorted the scene graph
@@ -600,8 +601,54 @@ void GLTFSceneManager::render(U8 variant)
     }
 }
 
+bool GLTFSceneManager::cull(Asset& asset, U8 variant)
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_GLTF;
+
+
+    bool empty = true;
+    // material count for this asset is the number of materials + 1 for the default material
+    U32 mat_count = asset.mMaterials.size()+1;
+
+    for (U32 i = 0; i < 2; ++i)
+    {
+        mDrawInfo[i].resize(mat_count);
+        for (U32 j = 0; j < mat_count; ++j)
+        {
+            mDrawInfo[i][j].resize(0);
+        }
+    }
+
+    for (auto& node : asset.mNodes)
+    {
+        // TODO: skip nodes that are not visible
+        if (node.mMesh != INVALID_INDEX)
+        {
+            Mesh& mesh = asset.mMeshes[node.mMesh];
+            for (auto& primitive : mesh.mPrimitives)
+            {
+                if (primitive.mShaderVariant == variant)
+                {
+                    DrawInfo info;
+                    info.mNodeIndex = &node - &asset.mNodes[0];
+                    info.mPrimitiveIndex = &primitive - &mesh.mPrimitives[0];
+
+                    S32 ds = primitive.mMaterial != INVALID_INDEX ? asset.mMaterials[primitive.mMaterial].mDoubleSided : 0;
+
+                    empty = false;
+                    mDrawInfo[ds][primitive.mMaterial+1].push_back(info);
+                }
+            }
+        }
+    }
+
+    return !empty;
+}
+
 void GLTFSceneManager::render(Asset& asset, U8 variant)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_GLTF;
+
     bool opaque = !(variant & LLGLSLShader::GLTFVariant::ALPHA_BLEND);
     bool rigged = variant & LLGLSLShader::GLTFVariant::RIGGED;
 
@@ -614,54 +661,68 @@ void GLTFSceneManager::render(Asset& asset, U8 variant)
         gPipeline.bindDeferredShader(gGLTFPBRMetallicRoughnessProgram.mGLTFVariants[variant]);
     }
 
-    for (auto& node : asset.mNodes)
+    if (!cull(asset, variant))
     {
-        if (node.mSkin != INVALID_INDEX)
+        return;
+    }
+
+    for (U32 ds = 0; ds < 2; ++ds)
+    {
+        LLGLDisable cull_face(ds == 1 ? GL_CULL_FACE : 0);
+
+        for (U32 i = 0; i < mDrawInfo[ds].size(); ++i)
         {
-            if (rigged)
+            if (mDrawInfo[ds][i].empty())
             {
-                Skin& skin = asset.mSkins[node.mSkin];
-                glBindBufferBase(GL_UNIFORM_BUFFER, LLGLSLShader::UB_GLTF_JOINTS, skin.mUBO);
+                continue;
             }
-        }
-
-        if (node.mMesh != INVALID_INDEX)
-        {
-            Mesh& mesh = asset.mMeshes[node.mMesh];
-            for (auto& primitive : mesh.mPrimitives)
+            S32 mat_idx = i - 1;
+            if (mat_idx != INVALID_INDEX)
             {
-                if (primitive.mShaderVariant != variant)
-                {
-                    continue;
-                }
+                Material& material = asset.mMaterials[mat_idx];
+                bind(asset, material);
+            }
+            else
+            {
+                LLFetchedGLTFMaterial::sDefault.bind();
+            }
 
-                if (!rigged)
+            for (auto& info : mDrawInfo[ds][i])
+            {
+                LL_PROFILE_ZONE_NAMED_CATEGORY_GLTF("GLTF draw call");
+                Node& node = asset.mNodes[info.mNodeIndex];
+                Mesh& mesh = asset.mMeshes[node.mMesh];
+                Primitive& primitive = mesh.mPrimitives[info.mPrimitiveIndex];
+
+                if (rigged)
                 {
+                    LL_PROFILE_ZONE_NAMED_CATEGORY_GLTF("gltfdc - bind skin");
+                    llassert(node.mSkin != INVALID_INDEX);
+                    Skin& skin = asset.mSkins[node.mSkin];
+                    glBindBufferBase(GL_UNIFORM_BUFFER, LLGLSLShader::UB_GLTF_JOINTS, skin.mUBO);
+                }
+                else
+                {
+                    LL_PROFILE_ZONE_NAMED_CATEGORY_GLTF("gltfdc - load matrix");
                     gGL.loadMatrix((F32*)glm::value_ptr(node.mRenderMatrix));
                 }
-                bool cull = true;
-                if (primitive.mMaterial != INVALID_INDEX)
-                {
-                    Material& material = asset.mMaterials[primitive.mMaterial];
-                    bind(asset, material);
 
-                    cull = !material.mDoubleSided;
-                }
-                else
                 {
-                    LLFetchedGLTFMaterial::sDefault.bind();
+                    LL_PROFILE_ZONE_NAMED_CATEGORY_GLTF("gltfdc - set vb");
+                    primitive.mVertexBuffer->setBuffer();
                 }
 
-                LLGLDisable cull_face(!cull ? GL_CULL_FACE : 0);
+                {
+                    LL_PROFILE_ZONE_NAMED_CATEGORY_GLTF("gltfdc - push vb");
 
-                primitive.mVertexBuffer->setBuffer();
-                if (primitive.mVertexBuffer->getNumIndices() > 0)
-                {
-                    primitive.mVertexBuffer->draw(primitive.mGLMode, primitive.mVertexBuffer->getNumIndices(), 0);
-                }
-                else
-                {
-                    primitive.mVertexBuffer->drawArrays(primitive.mGLMode, 0, primitive.mVertexBuffer->getNumVerts());
+                    if (primitive.mVertexBuffer->getNumIndices() > 0)
+                    {
+                        primitive.mVertexBuffer->draw(primitive.mGLMode, primitive.mVertexBuffer->getNumIndices(), 0);
+                    }
+                    else
+                    {
+                        primitive.mVertexBuffer->drawArrays(primitive.mGLMode, 0, primitive.mVertexBuffer->getNumVerts());
+                    }
                 }
             }
         }
@@ -670,6 +731,7 @@ void GLTFSceneManager::render(Asset& asset, U8 variant)
 
 static void bindTexture(Asset& asset, S32 uniform, Material::TextureInfo& info, LLViewerTexture* fallback)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_GLTF;
     if (info.mIndex != INVALID_INDEX)
     {
         Texture& texture = asset.mTextures[info.mIndex];
@@ -711,6 +773,7 @@ static void bindTexture(Asset& asset, S32 uniform, Material::TextureInfo& info, 
 
 void GLTFSceneManager::bind(Asset& asset, Material& material)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_GLTF;
     // bind for rendering (derived from LLFetchedGLTFMaterial::bind)
     // glTF 2.0 Specification 3.9.4. Alpha Coverage
     // mAlphaCutoff is only valid for LLGLTFMaterial::ALPHA_MODE_MASK

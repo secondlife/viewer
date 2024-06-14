@@ -51,6 +51,11 @@ namespace LL
         void update();
         void render(bool opaque, bool rigged = false, bool unlit = false);
 
+        // Populate mDrawInfo with DrawInfo instances for the given asset
+        // that use the given variant
+        // returns true if the asset has any draw calls that use the given variant
+        bool cull(LL::GLTF::Asset& asset, U8 variant);
+
         // render the given variant of all assets
         // variant - bitmask according to LLGLSLShader::GLTFVariant flags
         void render(U8 variant);
@@ -94,6 +99,17 @@ namespace LL
         U32 mPendingGLTFUploads = 0;
 
         U32 mJointUBO = 0;
+
+        struct DrawInfo
+        {
+            S32 mNodeIndex = -1;
+            S32 mPrimitiveIndex = -1;
+        };
+
+        // draw info vector
+        // Indexing is mDrawInfo[double_sided][material_index][draw_call]
+        std::vector<std::vector<DrawInfo>> mDrawInfo[2];
+
     };
 }
 
