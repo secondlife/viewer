@@ -43,7 +43,14 @@ public:
 private:
     void sendChat(LLSD const & chat_data);
 
+    void listenChat(LLSD const &chat_data);
+    void stopListeningChat(LLSD const &chat_data);
+
     F64 mLastThrottleTime{ 0.0 };
+
+    LLTempBoundListener mOutConnection;
+    std::map<std::string, std::string> mReplyPumps;
+
 };
 
 #endif // LL_LLFLOATERIMNEARBYCHATLISTENER_H

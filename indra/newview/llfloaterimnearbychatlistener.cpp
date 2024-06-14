@@ -33,6 +33,7 @@
 
 #include "llagent.h"
 #include "llchat.h"
+#include "llluamanager.h"
 #include "llviewercontrol.h"
 #include "stringize.h"
 
@@ -49,6 +50,35 @@ LLFloaterIMNearbyChatListener::LLFloaterIMNearbyChatListener()
         "[\"channel\"] chat channel number [default = 0]\n"
         "[\"type\"] chat type \"whisper\", \"normal\", \"shout\" [default = \"normal\"]",
         &LLFloaterIMNearbyChatListener::sendChat);
+
+    add("listen",
+        "Start listening to the Nearby chat, chat messages will be resent to the script event pump",
+        &LLFloaterIMNearbyChatListener::listenChat,
+        llsd::map("coro_name", LLSD(), "reply", LLSD()));
+
+    add("stopListening",
+        "Stop listening to the Nearby chat",
+        &LLFloaterIMNearbyChatListener::stopListeningChat,
+        llsd::map("coro_name", LLSD()));
+ 
+    mOutConnection = LLEventPumps::instance().obtain("LLNearbyChat").listen("LLFloaterIMNearbyChatListener", [this](const LLSD &data)
+    {
+        std::map<std::string, std::string> reply_pumps = mReplyPumps;
+        std::map<std::string, std::string> scripts = LLLUAmanager::getScriptNames();
+        for (auto &it : reply_pumps)
+        {
+            //check if listener script is still running
+            if (scripts.find(it.first) != scripts.end())
+            {
+                LLEventPumps::instance().obtain(it.second).post(data);
+            }
+            else
+            {
+                mReplyPumps.erase(it.first);
+            }
+        }
+        return false;
+    });
 }
 
 
@@ -103,3 +133,13 @@ void LLFloaterIMNearbyChatListener::sendChat(LLSD const & chat_data)
                                               gSavedSettings.getBOOL("PlayChatAnim"));
 }
 
+
+void LLFloaterIMNearbyChatListener::listenChat(LLSD const &chat_data)
+{
+    mReplyPumps[chat_data["coro_name"].asString()] = chat_data["reply"].asString();
+}
+
+void LLFloaterIMNearbyChatListener::stopListeningChat(LLSD const &chat_data)
+{
+    mReplyPumps.erase(chat_data["coro_name"].asString());
+}
