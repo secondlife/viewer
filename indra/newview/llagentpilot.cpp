@@ -322,9 +322,7 @@ void LLAgentPilot::moveCamera()
 
         LLViewerCamera::getInstance()->setView(view);
         LLViewerCamera::getInstance()->setOrigin(origin);
-        LLViewerCamera::getInstance()->mXAxis = LLVector3(mat.mMatrix[0]);
-        LLViewerCamera::getInstance()->mYAxis = LLVector3(mat.mMatrix[1]);
-        LLViewerCamera::getInstance()->mZAxis = LLVector3(mat.mMatrix[2]);
+        LLViewerCamera::getInstance()->setAxes(mat);
     }
 }
 

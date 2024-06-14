@@ -1232,7 +1232,7 @@ void LLAgentCamera::updateCamera()
     }
 
     //NOTE - this needs to be integrated into a general upVector system here within llAgent.
-    if ( camera_mode == CAMERA_MODE_FOLLOW && mFocusOnAvatar )
+    if (camera_mode == CAMERA_MODE_FOLLOW && mFocusOnAvatar)
     {
         mCameraUpVector = mFollowCam.getUpVector();
     }
@@ -1496,7 +1496,7 @@ void LLAgentCamera::updateCamera()
             LLVector3(0.08f, 0.f, 0.05f) * gAgentAvatarp->mHeadp->getWorldRotation() +
             LLVector3(0.1f, 0.f, 0.f) * gAgentAvatarp->mPelvisp->getWorldRotation();
         LLVector3 diff = position_agent - head_pos;
-        diff = diff * ~gAgentAvatarp->mRoot->getWorldRotation();
+        diff *= ~gAgentAvatarp->mRoot->getWorldRotation();
 
         LLJoint* torso_joint = gAgentAvatarp->mTorsop;
         LLJoint* chest_joint = gAgentAvatarp->mChestp;
