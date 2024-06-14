@@ -386,10 +386,10 @@ void LLRequireResolver::findModule()
 
     std::vector<fsyspath> lib_paths
     {
-        gDirUtilp->getExpandedFilename(LL_PATH_SCRIPTS, "lua"),
+        gDirUtilp->getExpandedFilename(LL_PATH_SCRIPTS, "lua", "require"),
 #ifdef LL_TEST
         // Build-time tests don't have the app bundle - use source tree.
-        fsyspath(__FILE__).parent_path() / "scripts" / "lua",
+        fsyspath(__FILE__).parent_path() / "scripts" / "lua" / "require",
 #endif
     };
 
