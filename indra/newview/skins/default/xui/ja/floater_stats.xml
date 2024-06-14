@@ -3,15 +3,15 @@
 	<scroll_container name="statistics_scroll">
 		<container_view name="statistics_view">
 			<stat_view label="基本" name="basic">
-				<stat_bar label="ＦＰＳ" name="fps" unit_label="／秒"/>
+				<stat_bar label="FPS" name="fps" unit_label="／秒"/>
 				<stat_bar name="frame_mean" label="フレーム（平均）" unit_label="㎳"/>
 				<stat_bar name="frame_median" label="フレーム（中央値）" unit_label="㎳"/>
 				<stat_bar name="framet_jitter" label="ジッタ"/>
-				<stat_bar label="受信したＵＤＰデータ" name="bandwidth"/>
+				<stat_bar label="受信したUDPデータ" name="bandwidth"/>
 				<stat_bar label="パケットロス" name="packet_loss"/>
 				<stat_bar label="シムのPing" name="ping"/>
 			</stat_view>
-			<stat_view label="拡張" name="advanced">
+			<stat_view label="詳細" name="advanced">
 				<stat_view label="描画" name="render">
 					<stat_bar label="フレームあたりのKTris" name="ktrisframe" unit_label="ktris／フレーム"/>
 					<stat_bar label="秒あたりのKTris" name="ktrissec"/>
@@ -27,15 +27,15 @@
 					<stat_bar label="キャッシュヒット率" name="texture_cache_hits"/>
 					<stat_bar label="キャッシュ読み取り遅延" name="texture_cache_read_latency"/>
 					<stat_bar label="カウント" name="numimagesstat"/>
-					<stat_bar label="ＲＡＷカウント" name="numrawimagesstat"/>
-					<stat_bar label="ＧＬメモリ" name="gltexmemstat"/>
+					<stat_bar label="Rawカウント" name="numrawimagesstat"/>
+					<stat_bar label="GLメモリ" name="gltexmemstat"/>
 					<stat_bar label="フォーマット済メモリ" name="formattedmemstat"/>
-					<stat_bar label="ＲＡＷメモリ" name="rawmemstat"/>
+					<stat_bar label="Rawメモリ" name="rawmemstat"/>
 					<stat_bar label="統合メモリ" name="glboundmemstat"/>
 				</stat_view>
 				<stat_view label="メモリ使用量" name="memory">
-					<stat_bar label="ＬＬトレース" name="LLTrace"/>
-					<stat_bar label="ＵＩ" name="LLView"/>
+					<stat_bar label="LLトレース" name="LLTrace"/>
+					<stat_bar label="UI" name="LLView"/>
 					<stat_bar label="フォント" name="LLFontFreetype"/>
 					<stat_bar label="インベントリ" name="LLInventoryObject"/>
 					<stat_bar label="ビューアオブジェクト" name="LLViewerObject"/>
@@ -47,7 +47,7 @@
 					<stat_bar label="描画情報" name="LLDrawInfo"/>
 					<stat_bar label="テクスチャデータ" name="LLTexture"/>
 					<stat_bar label="画像データ" name="LLImage"/>
-					<stat_bar label="ＧＬ画像データ" name="LLImageGL"/>
+					<stat_bar label="GL画像データ" name="LLImageGL"/>
 					<stat_bar label="頂点バッファ" name="LLVertexBuffer"/>
 				</stat_view>
 				<stat_view label="ネットワーク" name="network">
@@ -63,11 +63,11 @@
 			</stat_view>
 			<stat_view label="シミュレーター" name="sim">
 				<stat_bar label="遅延時間" name="simtimedilation"/>
-				<stat_bar label="シムのＦＰＳ" name="simfps"/>
-				<stat_bar label="物理作用のＦＰＳ" name="simphysicsfps"/>
+				<stat_bar label="シムのFPS" name="simfps"/>
+				<stat_bar label="物理作用のFPS" name="simphysicsfps"/>
 				<stat_view label="物理作用の詳細" name="physicsdetail">
 					<stat_bar label="ピン留めオブジェクト" name="physicspinnedtasks"/>
-					<stat_bar label="低ＬＯＤオブジェクト" name="physicslodtasks"/>
+					<stat_bar label="低LODオブジェクト" name="physicslodtasks"/>
 					<stat_bar label="メモリ配分" name="physicsmemoryallocated"/>
 				</stat_view>
 				<stat_bar label="エージェントの更新／秒" name="simagentups"/>
@@ -79,7 +79,7 @@
 				<stat_bar label="スクリプト実行" name="simpctscriptsrun"/>
 				<stat_bar label="スクリプトイベント" name="simscripteps" unit_label="eps"/>
 				<stat_view label="経路探索" name="simpathfinding">
-					<stat_bar label="ＡＩステップ時間" name="simsimaistepmsec"/>
+					<stat_bar label="AIステップ時間" name="simsimaistepmsec"/>
 					<stat_bar label="スキップされたシルエットステップ" name="simsimskippedsilhouettesteps" unit_label="／秒"/>
 					<stat_bar label="更新されたキャラクター" name="simsimpctsteppedcharacters" unit_label="％"/>
 				</stat_view>
