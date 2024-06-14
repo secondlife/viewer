@@ -231,6 +231,9 @@ jobs:
           elif  [[ "$prefix" == "release" || "$prefix" == "main" ]];
           then
               export viewer_channel="Second Life Release"
+          elif  [[ "$branch" == "develop" ]];
+          then
+              export viewer_channel="Second Life Develop"
           else
               export viewer_channel="Second Life Test"
           fi
