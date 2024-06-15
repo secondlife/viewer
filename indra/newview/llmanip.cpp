@@ -355,8 +355,14 @@ LLVector3 LLManip::getSavedPivotPoint() const
 
 LLVector3 LLManip::getPivotPoint()
 {
-    if (mObjectSelection->getFirstObject() && mObjectSelection->getObjectCount() == 1 && mObjectSelection->getSelectType() != SELECT_TYPE_HUD)
+    LLViewerObject* object = mObjectSelection->getFirstObject();
+    if (object && mObjectSelection->getObjectCount() == 1 && mObjectSelection->getSelectType() != SELECT_TYPE_HUD)
     {
+        LLSelectNode* select_node = mObjectSelection->getFirstNode();
+        if (select_node->mSelectedGLTFNode != -1)
+        {
+            return object->getGLTFNodePositionAgent(select_node->mSelectedGLTFNode);
+        }
         return mObjectSelection->getFirstObject()->getPivotPositionAgent();
     }
     return LLSelectMgr::getInstance()->getBBoxOfSelection().getCenterAgent();

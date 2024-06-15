@@ -1258,7 +1258,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
     if (rebuild_color)
     { //decide if shiny goes in alpha channel of color
         if (tep &&
-            !isInAlphaPool())  // <--- alpha channel MUST contain transparency, not shiny
+            !isInAlphaPool() && tep->getGLTFRenderMaterial() == nullptr)  // <--- alpha channel MUST contain transparency, not shiny
     {
             LLMaterial* mat = tep->getMaterialParams().get();
 
@@ -1848,7 +1848,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
             S32* vp = (S32*) &val;
             *vp = index;
 
-            llassert(index <= LLGLSLShader::sIndexedTextureChannels-1);
+            llassert(index < LLGLSLShader::sIndexedTextureChannels);
 
             LLVector4Logical mask;
             mask.clear();

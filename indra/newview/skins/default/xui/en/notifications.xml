@@ -4011,10 +4011,39 @@ Are you sure you want to return objects owned by [USER_NAME]?
    icon="alertmodal.tga"
    name="InvalidTerrainBitDepth"
    type="alertmodal">
+    <unique combine="cancel_old" />
 Couldn&apos;t set region textures:
 Terrain texture [TEXTURE_NUM] has an invalid bit depth of [TEXTURE_BIT_DEPTH].
 
-Replace texture [TEXTURE_NUM] with a 24-bit [MAX_SIZE]x[MAX_SIZE] or smaller image then click &quot;Apply&quot; again.
+Replace texture [TEXTURE_NUM] with an RGB [MAX_SIZE]x[MAX_SIZE] or smaller image then click &quot;Apply&quot; again.
+  <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="InvalidTerrainAlphaNotFullyLoaded"
+   type="alertmodal">
+    <unique combine="cancel_old" />
+Couldn&apos;t set region textures:
+Terrain texture [TEXTURE_NUM] is not fully loaded, but is assumed to contain transparency due to a bit depth of [TEXTURE_BIT_DEPTH]. Transparency is not currently supported for terrain textures.
+
+If texture [TEXTURE_NUM] is opaque, wait for the texture to fully load and then click &quot;Apply&quot; again.
+
+Alpha is only supported for terrain materials (PBR Metallic Roughness), when alphaMode="MASK" and doubleSided=false.
+  <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="InvalidTerrainAlpha"
+   type="alertmodal">
+    <unique combine="cancel_old" />
+Couldn&apos;t set region textures:
+Terrain texture [TEXTURE_NUM] contains transparency. Transparency is not currently supported for terrain textures.
+
+Replace texture [TEXTURE_NUM] with an opaque RGB image, then click &quot;Apply&quot; again.
+
+Alpha is only supported for terrain materials (PBR Metallic Roughness), when alphaMode="MASK" and doubleSided=false.
   <tag>fail</tag>
   </notification>
 
@@ -4022,10 +4051,55 @@ Replace texture [TEXTURE_NUM] with a 24-bit [MAX_SIZE]x[MAX_SIZE] or smaller ima
    icon="alertmodal.tga"
    name="InvalidTerrainSize"
    type="alertmodal">
+    <unique combine="cancel_old" />
 Couldn&apos;t set region textures:
 Terrain texture [TEXTURE_NUM] is too large at [TEXTURE_SIZE_X]x[TEXTURE_SIZE_Y].
 
-Replace texture [TEXTURE_NUM] with a 24-bit [MAX_SIZE]x[MAX_SIZE] or smaller image then click &quot;Apply&quot; again.
+Replace texture [TEXTURE_NUM] with an RGB [MAX_SIZE]x[MAX_SIZE] or smaller image then click &quot;Apply&quot; again.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="InvalidTerrainMaterialNotLoaded"
+   type="alertmodal">
+    <unique combine="cancel_old" />
+Couldn&apos;t set region materials:
+Terrain material [MATERIAL_NUM] is not loaded.
+
+Wait for the material to load, or replace material [MATERIAL_NUM] with a valid material.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="InvalidTerrainMaterialLoadFailed"
+   type="alertmodal">
+    <unique combine="cancel_old" />
+Couldn&apos;t set region materials:
+Terrain material [MATERIAL_NUM] failed to load.
+
+Replace material [MATERIAL_NUM] with a valid material.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="InvalidTerrainMaterialDoubleSided"
+   type="alertmodal">
+    <unique combine="cancel_old" />
+Couldn&apos;t set region materials:
+Terrain material [MATERIAL_NUM] is double-sided. Double-sided materials are not currently supported for PBR terrain.
+
+Replace material [MATERIAL_NUM] with a material with doubleSided=false.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="InvalidTerrainMaterialAlphaMode"
+   type="alertmodal">
+    <unique combine="cancel_old" />
+Couldn&apos;t set region materials:
+Terrain material [MATERIAL_NUM] is using the unsupported alphaMode="[MATERIAL_ALPHA_MODE]".
+
+Replace material [MATERIAL_NUM] with a material with alphaMode="OPAQUE" or alphaMode="MASK".
   </notification>
 
   <notification
@@ -9295,6 +9369,15 @@ Unable to upload texture: &apos;[NAME]&apos;
   </notification>
 
   <notification
+ icon="alertmodal.tga"
+ name="CannotLoad"
+ type="alertmodal">
+    Unable to load [WHAT].
+    [REASON]
+    <tag>fail</tag>
+  </notification>
+
+  <notification
    icon="alertmodal.tga"
    name="CannotUploadMaterial"
    type="alertmodal">
@@ -12364,5 +12447,16 @@ are wearing now.
         name="okignore"
         yestext="OK"/>
   </notification>
-  
+
+  <notification
+   icon="alertmodal.tga"
+   name="GLTFPreviewSelection"
+   type="alert">
+    You must select an object to act as a handle to the GLTF asset you are previewing.
+    <tag>fail</tag>
+    <usetemplate
+      name="okbutton"
+      yestext="OK"/>
+  </notification>
+
 </notifications>
