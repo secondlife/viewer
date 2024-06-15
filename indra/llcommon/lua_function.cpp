@@ -489,6 +489,37 @@ void LuaState::initLuaState()
 
 LuaState::~LuaState()
 {
+    // We're just about to destroy this lua_State mState. lua_close() doesn't
+    // implicitly garbage-collect everything, so (for instance) any lingering
+    // objects with __gc metadata methods aren't cleaned up. This is why we
+    // provide atexit().
+    luaL_checkstack(mState, 3, nullptr);
+    // look up Registry["atexit"]
+    lua_getfield(mState, LUA_REGISTRYINDEX, "atexit");
+    // stack contains Registry["atexit"]
+    if (lua_istable(mState, -1))
+    {
+        lua_pushnil(mState);        // first key
+        while (lua_next(mState, -2))
+        {
+            // stack contains Registry["atexit"], key, value
+            // Call value(), no args, no return values.
+            // Use lua_pcall() because errors in any one atexit() function
+            // shouldn't cancel the rest of them.
+            if (lua_pcall(mState, 0, 0, 0) != LUA_OK)
+            {
+                auto error{ lua_tostdstring(mState, -1) };
+                LL_WARNS("Lua") << "atexit() function error: " << error << LL_ENDL;
+                // pop error message
+                lua_pop(mState, 1);
+            }
+            // Normally we would pop value, keeping the key for the next
+            // iteration. But lua_pcall() has already popped the value.
+        }
+    }
+    // pop Registry["atexit"] (either table or nil)
+    lua_pop(mState, 1);
+
     // Did somebody call obtainListener() on this LuaState?
     // That is, is there a LuaListener key in its registry?
     LuaListener::destruct(getListener());
@@ -509,7 +540,7 @@ bool LuaState::checkLua(const std::string& desc, int r)
         mError = lua_tostring(mState, -1);
         lua_pop(mState, 1);
 
-        LL_WARNS() << desc << ": " << mError << LL_ENDL;
+        LL_WARNS("Lua") << desc << ": " << mError << LL_ENDL;
         return false;
     }
     return true;
@@ -683,6 +714,49 @@ LuaListener::ptr_t LuaState::obtainListener(lua_State* L)
         lua_setfield(L, LUA_REGISTRYINDEX, "event.listener");
     }
     return listener;
+}
+
+/*****************************************************************************
+*   atexit()
+*****************************************************************************/
+lua_function(atexit, "register a Lua function to be called at script termination")
+{
+    luaL_checkstack(L, 4, nullptr);
+    // look up the global name "table"
+    lua_getglobal(L, "table");
+    // stack contains function, "table"
+    // look up table.insert
+    lua_getfield(L, -1, "insert");
+    // stack contains function, "table", "insert"
+    // look up the "atexit" table in the Registry
+    lua_getfield(L, LUA_REGISTRYINDEX, "atexit");
+    // stack contains function, "table", "insert", Registry["atexit"]
+    if (! lua_istable(L, -1))
+    {
+        llassert(lua_isnil(L, -1));
+        // stack contains function, "table", "insert", nil
+        lua_pop(L, 1);
+        // make a new, empty table
+        lua_newtable(L);
+        // stack contains function, "table", "insert", {}
+        // duplicate the table reference on the stack
+        lua_pushvalue(L, -1);
+        // stack contains function, "table", "insert", {}, {}
+        // store the new empty "atexit" table to the Registry, leaving a
+        // reference on the stack
+        lua_setfield(L, LUA_REGISTRYINDEX, "atexit");
+    }
+    // stack contains function, "table", "insert", Registry["atexit"]
+    // we were called with a Lua function to append to that Registry["atexit"]
+    // table -- push that function
+    lua_pushvalue(L, 1);            // or -4
+    // stack contains function, "table", "insert", Registry["atexit"], function
+    // call table.insert(atexit, function)
+    // don't use pcall(): if there's an error, let it propagate
+    lua_call(L, 2, 0);
+    // stack contains function, "table" -- pop everything
+    lua_settop(L, 0);
+    return 0;
 }
 
 /*****************************************************************************
