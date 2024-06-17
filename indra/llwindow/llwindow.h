@@ -164,8 +164,6 @@ public:
     virtual F32 getPixelAspectRatio() = 0;
     virtual void setNativeAspectRatio(F32 aspect) = 0;
 
-    virtual void setMaxVRAMMegabytes(U32 max_vram) = 0;
-
     virtual void beforeDialog() {}; // prepare to put up an OS dialog (if special measures are required, such as in fullscreen mode)
     virtual void afterDialog() {};  // undo whatever was done in beforeDialog()
 
@@ -286,14 +284,14 @@ protected:
 
 // Platform-neutral for accessing the platform specific message box
 S32 OSMessageBox(const std::string& text, const std::string& caption, U32 type);
-const U32 OSMB_OK = 0;
-const U32 OSMB_OKCANCEL = 1;
-const U32 OSMB_YESNO = 2;
+constexpr U32 OSMB_OK = 0;
+constexpr U32 OSMB_OKCANCEL = 1;
+constexpr U32 OSMB_YESNO = 2;
 
-const S32 OSBTN_YES = 0;
-const S32 OSBTN_NO = 1;
-const S32 OSBTN_OK = 2;
-const S32 OSBTN_CANCEL = 3;
+constexpr S32 OSBTN_YES = 0;
+constexpr S32 OSBTN_NO = 1;
+constexpr S32 OSBTN_OK = 2;
+constexpr S32 OSBTN_CANCEL = 3;
 
 //
 // LLWindowManager
@@ -313,7 +311,6 @@ public:
         bool ignore_pixel_depth = false,
         U32 fsaa_samples = 0,
         U32 max_cores = 0,
-        U32 max_vram = 0,
         F32 max_gl_version = 4.6f);
     static bool destroyWindow(LLWindow* window);
     static bool isWindowValid(LLWindow *window);
@@ -328,7 +325,5 @@ extern bool gDebugWindowProc;
 extern const S32 gURLProtocolWhitelistCount;
 extern const std::string gURLProtocolWhitelist[];
 //extern const std::string gURLProtocolWhitelistHandler[];
-
-void simpleEscapeString ( std::string& stringIn  );
 
 #endif // _LL_window_h_
