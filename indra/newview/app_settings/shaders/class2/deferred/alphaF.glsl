@@ -79,8 +79,6 @@ float getAmbientClamp();
 
 void mirrorClip(vec3 pos);
 
-void mirrorClip(vec3 pos);
-
 void sampleReflectionProbesLegacy(out vec3 ambenv, out vec3 glossenv, out vec3 legacyenv,
         vec2 tc, vec3 pos, vec3 norm, float glossiness, float envIntensity, bool transparent, vec3 amblit_linear);
 
