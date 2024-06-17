@@ -29,7 +29,6 @@ Estabelecer a distância: [DRAW_DISTANCE]m
 Largura da banda: [NET_BANDWITH]kbit/s
 LOD fator: [LOD_FACTOR]
 Qualidade de renderização: [RENDER_QUALITY]
-Modelo avançado de luzes: [GPU_SHADERS]
 Memória de textura: [TEXTURE_MEMORY]MB</string>
 	<string name="AboutOSXHiDPI">HiDPI modo de exibição: [HIDPI]</string>
 	<string name="AboutLibs">Versão do J2C Decoder: [J2C_VERSION] 

@@ -69,7 +69,6 @@
 頻寬：[NET_BANDWITH]千位元/秒
 細節層次率：[LOD_FACTOR]
 呈像品質：[RENDER_QUALITY]
-進階照明模型：[GPU_SHADERS]
 材質記憶體：[TEXTURE_MEMORY]MB
 	</string>
 	<string name="AboutOSXHiDPI">
