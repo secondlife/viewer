@@ -139,10 +139,10 @@ lua_function(get_event_pumps,
              "post_on(commandpump, ...) to engage LLEventAPI operations (see helpleap()).")
 {
     luaL_checkstack(L, 2, nullptr);
-    auto listener{ LuaState::obtainListener(L) };
+    auto& listener{ LuaState::obtainListener(L) };
     // return the reply pump name and the command pump name on caller's lua_State
-    lua_pushstdstring(L, listener->getReplyName());
-    lua_pushstdstring(L, listener->getCommandName());
+    lua_pushstdstring(L, listener.getReplyName());
+    lua_pushstdstring(L, listener.getCommandName());
     return 2;
 }
 
@@ -153,8 +153,8 @@ lua_function(get_event_next,
              "event becomes available.")
 {
     luaL_checkstack(L, 2, nullptr);
-    auto listener{ LuaState::obtainListener(L) };
-    const auto& [pump, data]{ listener->getNext() };
+    auto& listener{ LuaState::obtainListener(L) };
+    const auto& [pump, data]{ listener.getNext() };
     lua_pushstdstring(L, pump);
     lua_pushllsd(L, data);
     lluau::set_interrupts_counter(L, 0);

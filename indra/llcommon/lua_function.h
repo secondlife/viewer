@@ -102,16 +102,10 @@ public:
 
     operator lua_State*() const { return mState; }
 
-    // Return LuaListener for this LuaState if we already have one, else empty
-    // shared_ptr.
-    std::shared_ptr<LuaListener> getListener() { return getListener(mState); }
-    // Find or create LuaListener for this LuaState, returning its ptr_t.
-    std::shared_ptr<LuaListener> obtainListener() { return obtainListener(mState); }
-    // Return LuaListener for passed lua_State if we already have one, else
-    // empty shared_ptr.
-    static std::shared_ptr<LuaListener> getListener(lua_State* L);
-    // Find or create LuaListener for passed lua_State, returning its ptr_t.
-    static std::shared_ptr<LuaListener> obtainListener(lua_State* L);
+    // Find or create LuaListener for this LuaState.
+    LuaListener& obtainListener() { return obtainListener(mState); }
+    // Find or create LuaListener for passed lua_State.
+    static LuaListener& obtainListener(lua_State* L);
 
 private:
     script_finished_fn mCallback;
@@ -350,7 +344,7 @@ T* lua_toclass(lua_State* L, int index)
         return nullptr;
     // Derive the optT* from ptr. If in future lua_emplace() must manually
     // align our optT* within the Lua-provided void*, adjust accordingly.
-    optT* tptr(ptr);
+    optT* tptr(static_cast<optT*>(ptr));
     // make sure our optT isn't empty
     if (! *tptr)
         return nullptr;

@@ -520,10 +520,6 @@ LuaState::~LuaState()
     // pop Registry["atexit"] (either table or nil)
     lua_pop(mState, 1);
 
-    // Did somebody call obtainListener() on this LuaState?
-    // That is, is there a LuaListener key in its registry?
-    LuaListener::destruct(getListener());
-
     lua_close(mState);
 
     if (mCallback)
@@ -677,43 +673,30 @@ std::pair<int, LLSD> LuaState::expr(const std::string& desc, const std::string& 
     return result;
 }
 
-LuaListener::ptr_t LuaState::getListener(lua_State* L)
+LuaListener& LuaState::obtainListener(lua_State* L)
 {
-    // have to use one more stack slot
-    luaL_checkstack(L, 1, nullptr);
-    LuaListener::ptr_t listener;
-    // Does this lua_State already have a LuaListener stored in the registry?
-    auto keytype{ lua_getfield(L, LUA_REGISTRYINDEX, "event.listener") };
-    llassert(keytype == LUA_TNIL || keytype == LUA_TNUMBER);
-    if (keytype == LUA_TNUMBER)
+    luaL_checkstack(L, 2, nullptr);
+    lua_getfield(L, LUA_REGISTRYINDEX, "LuaListener");
+    // compare lua_type() because lua_isuserdata() also accepts light userdata
+    if (lua_type(L, -1) != LUA_TUSERDATA)
     {
-        // We do already have a LuaListener. Retrieve it.
-        int isint;
-        listener = LuaListener::getInstance(lua_tointegerx(L, -1, &isint));
-        // Nobody should have destroyed this LuaListener instance!
-        llassert(isint && listener);
+        llassert(lua_type(L, -1) == LUA_TNIL);
+        lua_pop(L, 1);
+        // push a userdata containing new LuaListener, binding L
+        lua_emplace<LuaListener>(L, L);
+        // duplicate the top stack entry so we can store one copy
+        lua_pushvalue(L, -1);
+        lua_setfield(L, LUA_REGISTRYINDEX, "LuaListener");
     }
-    // pop the int "event.listener" key
+    // At this point, one way or the other, the stack top should be (a Lua
+    // userdata containing) our LuaListener.
+    LuaListener* listener{ lua_toclass<LuaListener>(L, -1) };
+    // userdata objects created by lua_emplace<T>() are bound on the atexit()
+    // queue, and are thus never garbage collected: they're destroyed only
+    // when ~LuaState() walks that queue. That's why we dare pop the userdata
+    // value off the stack while still depending on a pointer into its data.
     lua_pop(L, 1);
-    return listener;
-}
-
-LuaListener::ptr_t LuaState::obtainListener(lua_State* L)
-{
-    auto listener{ getListener(L) };
-    if (! listener)
-    {
-        // have to use one more stack slot
-        luaL_checkstack(L, 1, nullptr);
-        // instantiate a new LuaListener, binding the L state -- but use a
-        // no-op deleter: we do NOT want this ptr_t to manage the lifespan of
-        // this new LuaListener!
-        listener.reset(new LuaListener(L), [](LuaListener*){});
-        // set its key in the field where we'll look for it later
-        lua_pushinteger(L, listener->getKey());
-        lua_setfield(L, LUA_REGISTRYINDEX, "event.listener");
-    }
-    return listener;
+    return *listener;
 }
 
 /*****************************************************************************
@@ -938,10 +921,10 @@ lua_function(
     lua_settop(L, 0);
 
     auto& outpump{ LLEventPumps::instance().obtain("lua output") };
-    auto listener{ LuaState::obtainListener(L) };
+    auto& listener{ LuaState::obtainListener(L) };
     LLEventStream replyPump("leaphelp", true);
     // ask the LuaListener's LeapListener and suspend calling coroutine until reply
-    auto reply{ llcoro::postAndSuspend(request, listener->getCommandName(), replyPump, "reply") };
+    auto reply{ llcoro::postAndSuspend(request, listener.getCommandName(), replyPump, "reply") };
     reply.erase("reqid");
 
     if (auto error = reply["error"]; error.isString())
