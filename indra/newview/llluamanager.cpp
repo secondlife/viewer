@@ -128,7 +128,7 @@ lua_function(post_on, "post_on(pumpname, data): post specified data to specified
     LLSD data{ lua_tollsd(L, 2) };
     lua_pop(L, 2);
     LL_DEBUGS("Lua") << "post_on('" << pumpname << "', " << data << ")" << LL_ENDL;
-    LLEventPumps::instance().obtain(pumpname).post(data.with("coro_name", LLCoros::getName()));
+    LLEventPumps::instance().obtain(pumpname).post(data);
     return 0;
 }
 

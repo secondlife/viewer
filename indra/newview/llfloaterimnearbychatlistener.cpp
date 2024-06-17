@@ -54,12 +54,11 @@ LLFloaterIMNearbyChatListener::LLFloaterIMNearbyChatListener()
     add("listen",
         "Start listening to the Nearby chat, chat messages will be resent to the script event pump",
         &LLFloaterIMNearbyChatListener::listenChat,
-        llsd::map("coro_name", LLSD(), "reply", LLSD()));
+        llsd::map("reply", LLSD()));
 
     add("stopListening",
         "Stop listening to the Nearby chat",
-        &LLFloaterIMNearbyChatListener::stopListeningChat,
-        llsd::map("coro_name", LLSD()));
+        &LLFloaterIMNearbyChatListener::stopListeningChat);
  
     mOutConnection = LLEventPumps::instance().obtain("LLNearbyChat").listen("LLFloaterIMNearbyChatListener", [this](const LLSD &data)
     {
@@ -136,10 +135,10 @@ void LLFloaterIMNearbyChatListener::sendChat(LLSD const & chat_data)
 
 void LLFloaterIMNearbyChatListener::listenChat(LLSD const &chat_data)
 {
-    mReplyPumps[chat_data["coro_name"].asString()] = chat_data["reply"].asString();
+    mReplyPumps[LLCoros::getName()] = chat_data["reply"].asString();
 }
 
 void LLFloaterIMNearbyChatListener::stopListeningChat(LLSD const &chat_data)
 {
-    mReplyPumps.erase(chat_data["coro_name"].asString());
+    mReplyPumps.erase(LLCoros::getName());
 }
