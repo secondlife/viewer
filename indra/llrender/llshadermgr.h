@@ -63,6 +63,7 @@ public:
         NORMAL_TEXCOORD,                      //  "normal_texcoord" (GLTF)
         METALLIC_ROUGHNESS_TEXCOORD,          //  "metallic_roughness_texcoord" (GLTF)
         OCCLUSION_TEXCOORD,                   //  "occlusion_texcoord" (GLTF)
+        GLTF_NODE_ID,                         //  "gltf_node_id" (GLTF)
 
         TERRAIN_TEXTURE_TRANSFORMS,           //  "terrain_texture_transforms" (GLTF)
 

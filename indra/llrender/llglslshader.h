@@ -150,6 +150,7 @@ public:
     {
         UB_REFLECTION_PROBES,
         UB_GLTF_JOINTS,
+        UB_GLTF_NODES,
         NUM_UNIFORM_BLOCKS
     };
 

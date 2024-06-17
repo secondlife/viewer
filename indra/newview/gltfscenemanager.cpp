@@ -564,8 +564,6 @@ void GLTFSceneManager::render(U8 variant)
         render((U8) (variant | LLGLSLShader::GLTFVariant::MULTI_UV));
     }
 
-    gGL.matrixMode(LLRender::MM_MODELVIEW);
-
     bool rigged = variant & LLGLSLShader::GLTFVariant::RIGGED;
 
     for (U32 i = 0; i < mObjects.size(); ++i)
@@ -582,100 +580,69 @@ void GLTFSceneManager::render(U8 variant)
 
         LLMatrix4a mat = mObjects[i]->getGLTFAssetToAgentTransform();
 
-        LLMatrix4a modelview;
-        modelview.loadu(gGLModelView);
+        // provide a modelview matrix that goes from asset to camera space
+        // (matrix palettes are in asset space)
+        gGL.loadMatrix(gGLModelView);
+        gGL.multMatrix(mat.getF32ptr());
 
-        matMul(mat, modelview, modelview);
-
-        mat4 mdv = glm::make_mat4(modelview.getF32ptr());
-        asset->updateRenderTransforms(mdv);
-
-        if (rigged)
-        { // provide a modelview matrix that goes from asset to camera space for rigged render passes
-            // (matrix palettes are in asset space)
-            gGL.loadMatrix(glm::value_ptr(mdv));
-        }
         render(*asset, variant);
 
         gGL.popMatrix();
     }
 }
 
-bool GLTFSceneManager::cull(Asset& asset, U8 variant)
-{
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_GLTF;
-
-
-    bool empty = true;
-    // material count for this asset is the number of materials + 1 for the default material
-    size_t mat_count = asset.mMaterials.size()+1;
-
-    for (U32 i = 0; i < 2; ++i)
-    {
-        mDrawInfo[i].resize(mat_count);
-        for (U32 j = 0; j < mat_count; ++j)
-        {
-            mDrawInfo[i][j].resize(0);
-        }
-    }
-
-    for (auto& node : asset.mNodes)
-    {
-        // TODO: skip nodes that are not visible
-        if (node.mMesh != INVALID_INDEX)
-        {
-            Mesh& mesh = asset.mMeshes[node.mMesh];
-            for (auto& primitive : mesh.mPrimitives)
-            {
-                if (primitive.mShaderVariant == variant)
-                {
-                    DrawInfo info;
-                    info.mNodeIndex = &node - &asset.mNodes[0];
-                    info.mPrimitiveIndex = &primitive - &mesh.mPrimitives[0];
-
-                    S32 ds = primitive.mMaterial != INVALID_INDEX ? asset.mMaterials[primitive.mMaterial].mDoubleSided : 0;
-
-                    empty = false;
-                    mDrawInfo[ds][primitive.mMaterial+1].push_back(info);
-                }
-            }
-        }
-    }
-
-    return !empty;
-}
-
 void GLTFSceneManager::render(Asset& asset, U8 variant)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_GLTF;
 
-    bool opaque = !(variant & LLGLSLShader::GLTFVariant::ALPHA_BLEND);
-    bool rigged = variant & LLGLSLShader::GLTFVariant::RIGGED;
-
-    if (opaque)
-    {
-        gGLTFPBRMetallicRoughnessProgram.bind(variant);
-    }
-    else
-    { // alpha shaders need all the shadow map setup etc
-        gPipeline.bindDeferredShader(gGLTFPBRMetallicRoughnessProgram.mGLTFVariants[variant]);
-    }
-
-    if (!cull(asset, variant))
-    {
-        return;
-    }
-
     for (U32 ds = 0; ds < 2; ++ds)
     {
+        RenderData& rd = asset.mRenderData[ds];
+        auto& batches = rd.mBatches[variant];
+
+        if (batches.empty())
+        {
+            return;
+        }
+
         LLGLDisable cull_face(ds == 1 ? GL_CULL_FACE : 0);
 
-        for (U32 i = 0; i < mDrawInfo[ds].size(); ++i)
+        bool opaque = !(variant & LLGLSLShader::GLTFVariant::ALPHA_BLEND);
+        bool rigged = variant & LLGLSLShader::GLTFVariant::RIGGED;
+
+        bool shader_bound = false;
+
+        for (U32 i = 0; i < batches.size(); ++i)
         {
-            if (mDrawInfo[ds][i].empty())
+            if (batches[i].mPrimitives.empty() || batches[i].mVertexBuffer.isNull())
             {
                 continue;
             }
+
+            if (!shader_bound)
+            { // don't bind the shader until we know we have somthing to render
+                if (opaque)
+                {
+                    gGLTFPBRMetallicRoughnessProgram.bind(variant);
+                }
+                else
+                { // alpha shaders need all the shadow map setup etc
+                    gPipeline.bindDeferredShader(gGLTFPBRMetallicRoughnessProgram.mGLTFVariants[variant]);
+                }
+
+                if (!rigged)
+                {
+                    glBindBufferBase(GL_UNIFORM_BUFFER, LLGLSLShader::UB_GLTF_NODES, asset.mTransformsUBO);
+                }
+                gGL.syncMatrices();
+                shader_bound = true;
+            }
+
+            {
+                LL_PROFILE_ZONE_NAMED_CATEGORY_GLTF("gltfdc - set vb");
+                batches[i].mVertexBuffer->setBuffer();
+            }
+
             S32 mat_idx = i - 1;
             if (mat_idx != INVALID_INDEX)
             {
@@ -687,12 +654,12 @@ void GLTFSceneManager::render(Asset& asset, U8 variant)
                 LLFetchedGLTFMaterial::sDefault.bind();
             }
 
-            for (auto& info : mDrawInfo[ds][i])
+            for (auto& pdata : batches[i].mPrimitives)
             {
                 LL_PROFILE_ZONE_NAMED_CATEGORY_GLTF("GLTF draw call");
-                Node& node = asset.mNodes[info.mNodeIndex];
+                Node& node = asset.mNodes[pdata.mNodeIndex];
                 Mesh& mesh = asset.mMeshes[node.mMesh];
-                Primitive& primitive = mesh.mPrimitives[info.mPrimitiveIndex];
+                Primitive& primitive = mesh.mPrimitives[pdata.mPrimitiveIndex];
 
                 if (rigged)
                 {
@@ -703,19 +670,13 @@ void GLTFSceneManager::render(Asset& asset, U8 variant)
                 }
                 else
                 {
-                    LL_PROFILE_ZONE_NAMED_CATEGORY_GLTF("gltfdc - load matrix");
-                    gGL.loadMatrix((F32*)glm::value_ptr(node.mRenderMatrix));
-                }
-
-                {
-                    LL_PROFILE_ZONE_NAMED_CATEGORY_GLTF("gltfdc - set vb");
-                    primitive.mVertexBuffer->setBuffer();
+                    LLGLSLShader::sCurBoundShaderPtr->uniform1i(LLShaderMgr::GLTF_NODE_ID, pdata.mNodeIndex);
                 }
 
                 {
                     LL_PROFILE_ZONE_NAMED_CATEGORY_GLTF("gltfdc - push vb");
 
-                    primitive.mVertexBuffer->drawRange(primitive.mGLMode, primitive.mVertexOffset, primitive.mVertexOffset + primitive.getVertexCount()-1, primitive.getIndexCount(), primitive.mIndexOffset);
+                    primitive.mVertexBuffer->drawRangeFast(primitive.mGLMode, primitive.mVertexOffset, primitive.mVertexOffset + primitive.getVertexCount() - 1, primitive.getIndexCount(), primitive.mIndexOffset);
                 }
             }
         }
@@ -1008,7 +969,8 @@ void renderAssetDebug(LLViewerObject* obj, Asset* asset)
 
         if (node.mMesh != INVALID_INDEX)
         {
-            gGL.loadMatrix((F32*)glm::value_ptr(node.mRenderMatrix));
+            gGL.pushMatrix();
+            gGL.multMatrix((F32*)glm::value_ptr(node.mAssetMatrix));
 
             // draw bounding box of mesh primitives
             if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_BBOXES))
@@ -1051,6 +1013,7 @@ void renderAssetDebug(LLViewerObject* obj, Asset* asset)
                 glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
             }
 #endif
+            gGL.popMatrix();
         }
     }
 
@@ -1074,29 +1037,6 @@ void GLTFSceneManager::renderDebug()
     gGL.setSceneBlendType(LLRender::BT_ALPHA);
     gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
     gPipeline.disableLights();
-
-    // force update all mRenderMatrix, not just nodes with meshes
-    for (auto& obj : mObjects)
-    {
-        if (obj->isDead() || obj->mGLTFAsset == nullptr)
-        {
-            continue;
-        }
-
-        mat4 mat = glm::make_mat4(obj->getGLTFAssetToAgentTransform().getF32ptr());
-
-        mat4 modelview = glm::make_mat4(gGLModelView);
-
-
-        modelview = modelview * mat;
-
-        Asset* asset = obj->mGLTFAsset.get();
-
-        for (auto& node : asset->mNodes)
-        {
-            node.mRenderMatrix = modelview * node.mAssetMatrix;
-        }
-    }
 
     for (auto& obj : mObjects)
     {
@@ -1138,10 +1078,8 @@ void GLTFSceneManager::renderDebug()
 
                 for (auto& node : asset->mNodes)
                 {
-                    // force update all mRenderMatrix, not just nodes with meshes
-                    node.mRenderMatrix = modelview * node.mAssetMatrix;
-
-                    gGL.loadMatrix(glm::value_ptr(node.mRenderMatrix));
+                    gGL.pushMatrix();
+                    gGL.multMatrix(glm::value_ptr(node.mAssetMatrix));
                     // render x-axis red, y-axis green, z-axis blue
                     gGL.color4f(1.f, 0.f, 0.f, 0.5f);
                     gGL.begin(LLRender::LINES);
@@ -1177,6 +1115,7 @@ void GLTFSceneManager::renderDebug()
                     }
                     gGL.end();
                     gGL.flush();
+                    gGL.popMatrix();
                 }
             }
 
@@ -1206,8 +1145,7 @@ void GLTFSceneManager::renderDebug()
             gGL.color3f(1, 0, 1);
             drawBoxOutline(intersection, LLVector4a(0.1f, 0.1f, 0.1f, 0.f));
 
-            gGL.loadMatrix(glm::value_ptr(node->mRenderMatrix));
-
+            gGL.multMatrix(glm::value_ptr(node->mAssetMatrix));
 
             auto* listener = (LLVolumeOctreeListener*) primitive->mOctree->getListener(0);
             drawBoxOutline(listener->mBounds[0], listener->mBounds[1]);

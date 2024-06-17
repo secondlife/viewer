@@ -806,6 +806,13 @@ void LLVertexBuffer::drawRange(U32 mode, U32 start, U32 end, U32 count, U32 indi
     STOP_GLERROR;
 }
 
+void LLVertexBuffer::drawRangeFast(U32 mode, U32 start, U32 end, U32 count, U32 indices_offset) const
+{
+    glDrawRangeElements(sGLMode[mode], start, end, count, mIndicesType,
+        (GLvoid*)(indices_offset * (size_t)mIndicesStride));
+}
+
+
 void LLVertexBuffer::draw(U32 mode, U32 count, U32 indices_offset) const
 {
     drawRange(mode, 0, mNumVerts-1, count, indices_offset);

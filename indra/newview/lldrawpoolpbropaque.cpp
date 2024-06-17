@@ -54,7 +54,10 @@ void LLDrawPoolGLTFPBR::renderDeferred(S32 pass)
 {
     llassert(!LLPipeline::sRenderingHUDs);
 
-    LL::GLTFSceneManager::instance().renderOpaque();
+    if (mRenderType == LLPipeline::RENDER_TYPE_PASS_GLTF_PBR_ALPHA_MASK)
+    {
+        LL::GLTFSceneManager::instance().renderOpaque();
+    }
 
     gDeferredPBROpaqueProgram.bind();
     pushGLTFBatches(mRenderType);

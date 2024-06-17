@@ -26,13 +26,8 @@
 // GLTF pbrMetallicRoughness implementation
 
 uniform mat4 modelview_matrix;
-
-#ifdef HAS_SKIN
 uniform mat4 projection_matrix;
-#else
-uniform mat3 normal_matrix;
-uniform mat4 modelview_projection_matrix;
-#endif
+
 
 uniform vec4[2] texture_base_color_transform;
 uniform vec4[2] texture_normal_transform;
@@ -124,23 +119,22 @@ vec3 gltf_tangent_space_transform(vec4 vertex_tangent, vec3 vertex_normal, vec4[
 }
 #endif
 
-
-
 #ifdef ALPHA_BLEND
 out vec3 vary_fragcoord;
 #endif
 
 #ifdef HAS_SKIN
-in uvec4 joint;
-in vec4 weight4;
 
 layout (std140) uniform GLTFJoints
 {
-    // list of OBBs for user override probes
     mat3x4 gltf_joints[MAX_JOINTS_PER_GLTF_OBJECT];
 };
 
-mat4 getGLTFSkinTransform()
+
+in uvec4 joint;
+in vec4 weight4;
+
+mat4 getGLTFTransform()
 {
     int i;
 
@@ -175,15 +169,36 @@ mat4 getGLTFSkinTransform()
    mat3x4 dummy1 = gltf_joints[0];
    mat3x4 dummy2 = gltf_joints[MAX_JOINTS_PER_GLTF_OBJECT-1];
 #endif
+}
 
+#else
+
+layout (std140) uniform GLTFNodes
+{
+    mat3x4 gltf_nodes[MAX_JOINTS_PER_GLTF_OBJECT];
+};
+
+uniform int gltf_node_id = 0;
+
+mat4 getGLTFTransform()
+{
+    mat4 ret;
+    mat3x4 src = gltf_nodes[gltf_node_id];
+
+    ret[0] = vec4(src[0].xyz, 0);
+    ret[1] = vec4(src[1].xyz, 0);
+    ret[2] = vec4(src[2].xyz, 0);
+
+    ret[3] = vec4(src[0].w, src[1].w, src[2].w, 1);
+
+    return ret;
 }
 
 #endif
 
 void main()
 {
-#ifdef HAS_SKIN
-    mat4 mat = getGLTFSkinTransform();
+    mat4 mat = getGLTFTransform();
 
     mat = modelview_matrix * mat;
 
@@ -192,13 +207,6 @@ void main()
 
     vec4 vert = projection_matrix * vec4(pos, 1.0);
     gl_Position = vert;
-
-#else
-    vary_position = (modelview_matrix*vec4(position.xyz, 1.0)).xyz;
-    //transform vertex
-    vec4 vert = modelview_projection_matrix * vec4(position.xyz, 1.0);
-    gl_Position = vert;
-#endif
 
     vec2 bcuv;
     vec2 emuv;
@@ -237,13 +245,8 @@ void main()
 #endif
 
 #ifndef UNLIT
-#ifdef HAS_SKIN
     vec3 n = (mat*vec4(normal.xyz+position.xyz,1.0)).xyz-pos.xyz;
     vec3 t = (mat*vec4(tangent.xyz+position.xyz,1.0)).xyz-pos.xyz;
-#else //HAS_SKIN
-    vec3 n = normal_matrix * normal;
-    vec3 t = normal_matrix * tangent.xyz;
-#endif
 
     n = normalize(n);
     vary_tangent = normalize(gltf_tangent_space_transform(vec4(t, tangent.w), n, texture_normal_transform));

@@ -231,6 +231,10 @@ public:
     void drawArrays(U32 mode, U32 offset, U32 count) const;
     void drawRange(U32 mode, U32 start, U32 end, U32 count, U32 indices_offset) const;
 
+    // draw without syncing matrices.  If you're positive there have been no matrix
+    // since the last call to syncMatrices, this is much faster than drawRange
+    void drawRangeFast(U32 mode, U32 start, U32 end, U32 count, U32 indices_offset) const;
+
     //for debugging, validate data in given range is valid
     bool validateRange(U32 start, U32 end, U32 count, U32 offset) const;
 

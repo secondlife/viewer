@@ -165,6 +165,10 @@ void main()
     vec3 pos = vary_position;
     mirrorClip(pos);
 
+#ifdef ALPHA_BLEND
+    //waterClip(pos);
+#endif
+
     vec4 basecolor = texture(diffuseMap, base_color_uv.xy).rgba;
     basecolor.rgb = srgb_to_linear(basecolor.rgb);
     basecolor *= vertex_color;

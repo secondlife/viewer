@@ -956,6 +956,7 @@ bool LLGLSLShader::mapUniforms()
     {
         "ReflectionProbes", // UB_REFLECTION_PROBES
         "GLTFJoints", // UB_GLTF_JOINTS
+        "GLTFNodes", // UB_GLTF_NODES
     };
 
     llassert(LL_ARRAY_SIZE(ubo_names) == NUM_UNIFORM_BLOCKS);

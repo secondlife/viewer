@@ -180,7 +180,6 @@ namespace LL
         {
         public:
             mat4 mMatrix = glm::identity<mat4>(); //local transform
-            mat4 mRenderMatrix; //transform for rendering
             mat4 mAssetMatrix; //transform from local to asset space
             mat4 mAssetMatrixInv; //transform from asset to local space
 
@@ -206,10 +205,6 @@ namespace LL
 
             const Node& operator=(const Value& src);
             void serialize(boost::json::object& dst) const;
-
-            // Set mRenderMatrix to a transform that can be used for the current render pass
-            // modelview -- parent's render matrix
-            void updateRenderTransforms(Asset& asset, const mat4& modelview);
 
             // update mAssetMatrix and mAssetMatrixInv
             void updateTransforms(Asset& asset, const mat4& parentMatrix);
@@ -342,7 +337,7 @@ namespace LL
         {
         public:
             // list of render batches
-            // indexed by material index
+            // indexed by [material index + 1](0 is reserved for default material)
             // there should be exactly one render batch per material per variant
             std::vector<RenderBatch> mBatches[LLGLSLShader::NUM_GLTF_VARIANTS];
         };
@@ -386,7 +381,12 @@ namespace LL
             F32 mLastUpdateTime = gFrameTimeSeconds;
 
             // data used for rendering
-            RenderData mRenderData;
+            // 0 - single sided
+            // 1 - double sided
+            RenderData mRenderData[2];
+
+            // UBO for storing node transforms
+            U32 mTransformsUBO = 0;
 
             // prepare for first time use
             bool prep();
@@ -401,8 +401,8 @@ namespace LL
             // update asset-to-node and node-to-asset transforms
             void updateTransforms();
 
-            // update node render transforms
-            void updateRenderTransforms(const mat4& modelview);
+            // upload matrices to UBOs
+            void uploadTransforms();
 
             // return the index of the node that the line segment intersects with, or -1 if no hit
             // input and output values must be in this asset's local coordinate frame
