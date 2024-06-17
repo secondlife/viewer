@@ -378,7 +378,10 @@ public:
     static void staticFolderOptionsMenu();
 
 protected:
-    void outfitFolderCreatedCallback(LLUUID cat_source_id, LLUUID cat_dest_id, LLPointer<LLInventoryCallback> cb);
+    static void outfitFolderCreatedCallback(LLUUID cat_source_id,
+                                            LLUUID cat_dest_id,
+                                            LLPointer<LLInventoryCallback> cb,
+                                            LLHandle<LLInventoryPanel> inventory_panel);
     void callback_pasteFromClipboard(const LLSD& notification, const LLSD& response);
     void perform_pasteFromClipboard();
     void gatherMessage(std::string& message, S32 depth, LLError::ELevel log_level);

@@ -453,7 +453,7 @@ void boxIntersectionDebug( in vec3 ro, in vec3 p, vec3 boxSize, inout vec4 col)
 void boxIntersectDebug(vec3 origin, vec3 pos, mat4 i, inout vec4 col)
 {
     mat4 clipToLocal = i;
-    
+
     // transform into unit cube space
     origin = (clipToLocal * vec4(origin, 1.0)).xyz;
     pos = (clipToLocal * vec4(pos, 1.0)).xyz;
@@ -837,7 +837,7 @@ vec4 sampleReflectionProbesDebug(vec3 pos)
     return col;
 }
 
-void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout vec3 legacyenv,
+void sampleReflectionProbesLegacy(out vec3 ambenv, out vec3 glossenv, out vec3 legacyenv,
         vec2 tc, vec3 pos, vec3 norm, float glossiness, float envIntensity, bool transparent, vec3 amblit)
 {
     float reflection_lods = max_probe_lod;

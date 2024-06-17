@@ -46,7 +46,7 @@ public:
     void hidePanels();
     void showAutoadjustmentsPanel();
 
-    void detachItem(const LLUUID& item_id);
+    void detachObject(const LLUUID& obj_id);
 
     void onAvatarListRightClick(LLUICtrl* ctrl, S32 x, S32 y);
 

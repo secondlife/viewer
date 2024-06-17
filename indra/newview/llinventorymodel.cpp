@@ -1744,7 +1744,7 @@ void LLInventoryModel::changeItemParent(LLViewerInventoryItem* item,
             << " from " << make_inventory_info(item->getParentUUID())
             << " to " << make_inventory_info(new_parent_id) << LL_ENDL;
 
-        LLInventoryModel::LLCategoryUpdate old_folder(item->getParentUUID(), -1);
+        LLInventoryModel::LLCategoryUpdate old_folder(item->getParentUUID(),-1);
         accountForUpdate(old_folder);
         LLInventoryModel::LLCategoryUpdate new_folder(new_parent_id, 1, false);
         accountForUpdate(new_folder);
@@ -2046,8 +2046,8 @@ void LLInventoryModel::deleteObject(const LLUUID& id, bool fix_broken_links, boo
         {
             LL_WARNS(LOG_INV) << "Deleting cat " << id << " while it still has child cats" << LL_ENDL;
         }
-        delete cat_list;
         mParentChildCategoryTree.erase(id);
+        delete cat_list;
     }
     addChangedMask(LLInventoryObserver::REMOVE, id);
 
@@ -2540,7 +2540,7 @@ void LLInventoryModel::accountForUpdate(const LLCategoryUpdate& update) const
                 cat->setDescendentCount(descendents_actual);
                 if (update.mChangeVersion)
                 {
-                    cat->setVersion(++version);
+                cat->setVersion(++version);
                 }
                 LL_DEBUGS(LOG_INV) << "accounted: '" << cat->getName() << "' "
                                    << version << " with " << descendents_actual
@@ -5056,4 +5056,3 @@ void LLInventoryModel::FetchItemHttpHandler::processFailure(const char * const r
                       << LLCoreHttpUtil::responseToString(response) << "]" << LL_ENDL;
     gInventory.notifyObservers();
 }
-

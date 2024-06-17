@@ -117,7 +117,7 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set(FIND_LIBRARY_USE_LIB64_PATHS ON)
   endif (ADDRESS_SIZE EQUAL 32)
 
-  execute_process(COMMAND dpkg-architecture -a${DEB_ARCHITECTURE} -qDEB_HOST_MULTIARCH
+  execute_process(COMMAND dpkg-architecture -a${DEB_ARCHITECTURE} -qDEB_HOST_MULTIARCH 
       RESULT_VARIABLE DPKG_RESULT
       OUTPUT_VARIABLE DPKG_ARCH
       OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET)
@@ -126,8 +126,6 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set(CMAKE_LIBRARY_ARCHITECTURE ${DPKG_ARCH})
     set(CMAKE_SYSTEM_LIBRARY_PATH /usr/lib/${DPKG_ARCH} /usr/local/lib/${DPKG_ARCH} ${CMAKE_SYSTEM_LIBRARY_PATH})
   endif (DPKG_RESULT EQUAL 0)
-
-  include(ConfigurePkgConfig)
 
   if (INSTALL_PROPRIETARY)
     # Only turn on headless if we can find osmesa libraries.

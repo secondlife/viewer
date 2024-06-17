@@ -10,13 +10,11 @@ add_library( ll::SDL INTERFACE IMPORTED )
 
 if (LINUX)
   #Must come first as use_system_binary can exit this file early
-  target_compile_definitions( ll::SDL INTERFACE LL_SDL=1)
+  target_compile_definitions( ll::SDL INTERFACE LL_SDL_VERSION=2 LL_SDL)
 
-  use_system_binary(SDL)
-  use_prebuilt_binary(SDL)
+  #find_package(SDL2 REQUIRED)
+  #target_link_libraries( ll::SDL INTERFACE SDL2::SDL2 SDL2::SDL2main X11)
 
-  target_include_directories( ll::SDL SYSTEM INTERFACE ${LIBS_PREBUILT_DIR}/include)
-  target_link_libraries( ll::SDL INTERFACE SDL directfb fusion direct X11)
+  use_prebuilt_binary(SDL2)
+  target_link_libraries( ll::SDL INTERFACE SDL2 X11)
 endif (LINUX)
-
-
