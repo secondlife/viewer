@@ -1253,10 +1253,10 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
     {
         color = tep->getColor();
 
-    if (tep->getGLTFRenderMaterial())
-    {
-        color = tep->getGLTFRenderMaterial()->mBaseColor;
-    }
+        if (tep->getGLTFRenderMaterial())
+        {
+            color = tep->getGLTFRenderMaterial()->mBaseColor;
+        }
     }
 
     if (rebuild_color)

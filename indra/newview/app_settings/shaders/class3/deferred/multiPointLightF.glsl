@@ -27,7 +27,6 @@
 
 out vec4 frag_color;
 
-uniform sampler2D depthMap;
 uniform sampler2D diffuseRect;
 uniform sampler2D specularRect;
 uniform sampler2D emissiveRect; // PBR linear packed Occlusion, Roughness, Metal. See: pbropaqueF.glsl

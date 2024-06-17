@@ -91,14 +91,14 @@ void LLTinyGLTFHelper::initFetchedTextures(tinygltf::Material& material,
         {
             if (material.pbrMetallicRoughness.metallicRoughnessTexture.index != material.occlusionTexture.index)
             {
-                LLImageDataLock lockIn(occlusion_img);
-                LLImageDataLock lockOut(mr_img);
                 // occlusion is a distinct texture from pbrMetallicRoughness
                 // pack into mr red channel
                 int occlusion_idx = material.occlusionTexture.index;
                 int mr_idx = material.pbrMetallicRoughness.metallicRoughnessTexture.index;
                 if (occlusion_idx != mr_idx)
                 {
+                    LLImageDataLock lockIn(occlusion_img);
+                    LLImageDataLock lockOut(mr_img);
                     //scale occlusion image to match resolution of mr image
                     occlusion_img->scale(mr_img->getWidth(), mr_img->getHeight());
 

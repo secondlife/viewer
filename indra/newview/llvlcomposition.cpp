@@ -127,12 +127,12 @@ void LLTerrainMaterials::apply(const LLModifyRegion& other)
 
 bool LLTerrainMaterials::generateMaterials()
 {
-    if (texturesReady(true, true))
+    if (makeTexturesReady(true, true))
     {
         return true;
     }
 
-    if (materialsReady(true, true))
+    if (makeMaterialsReady(true, true))
     {
         return true;
     }
@@ -220,17 +220,17 @@ LLTerrainMaterials::Type LLTerrainMaterials::getMaterialType()
 {
     LL_PROFILE_ZONE_SCOPED;
 
-    const bool use_textures = texturesReady(false, false) || !materialsReady(false, false);
+    const bool use_textures = makeTexturesReady(false, false) || !makeMaterialsReady(false, false);
     return use_textures ? Type::TEXTURE : Type::PBR;
 }
 
-bool LLTerrainMaterials::texturesReady(bool boost, bool strict)
+bool LLTerrainMaterials::makeTexturesReady(bool boost, bool strict)
 {
     bool ready[ASSET_COUNT];
-    // *NOTE: Calls to textureReady may boost textures. Do not early-return.
+    // *NOTE: Calls to makeTextureReady may boost textures. Do not early-return.
     for (S32 i = 0; i < ASSET_COUNT; i++)
     {
-        ready[i] = mDetailTextures[i].notNull() && textureReady(mDetailTextures[i], boost);
+        ready[i] = mDetailTextures[i].notNull() && makeTextureReady(mDetailTextures[i], boost);
     }
 
     bool one_ready = false;
@@ -251,7 +251,7 @@ namespace
     bool material_asset_ready(LLFetchedGLTFMaterial* mat) { return mat && mat->isLoaded(); }
 };
 
-bool LLTerrainMaterials::materialsReady(bool boost, bool strict)
+bool LLTerrainMaterials::makeMaterialsReady(bool boost, bool strict)
 {
     bool ready[ASSET_COUNT];
     // *NOTE: This section may boost materials/textures. Do not early-return if ready[i] is false.
@@ -315,7 +315,7 @@ bool LLTerrainMaterials::materialsReady(bool boost, bool strict)
 // Boost the texture loading priority
 // Return true when ready to use (i.e. texture is sufficiently loaded)
 // static
-bool LLTerrainMaterials::textureReady(LLPointer<LLViewerFetchedTexture>& tex, bool boost)
+bool LLTerrainMaterials::makeTextureReady(LLPointer<LLViewerFetchedTexture>& tex, bool boost)
 {
     llassert(tex);
     if (!tex) { return false; }
@@ -377,17 +377,17 @@ bool LLTerrainMaterials::materialTexturesReady(LLPointer<LLFetchedGLTFMaterial>&
         mat->mEmissiveTexture          = fetch_terrain_texture(mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE]);
     }
 
-    // *NOTE: Calls to textureReady may boost textures. Do not early-return.
+    // *NOTE: Calls to makeTextureReady may boost textures. Do not early-return.
     bool ready[LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT];
     ready[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR] =
-        mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR].isNull() || textureReady(mat->mBaseColorTexture, boost);
+        mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR].isNull() || makeTextureReady(mat->mBaseColorTexture, boost);
     ready[LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL] =
-        mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL].isNull() || textureReady(mat->mNormalTexture, boost);
+        mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL].isNull() || makeTextureReady(mat->mNormalTexture, boost);
     ready[LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS] =
         mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS].isNull() ||
-        textureReady(mat->mMetallicRoughnessTexture, boost);
+        makeTextureReady(mat->mMetallicRoughnessTexture, boost);
     ready[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE] =
-        mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE].isNull() || textureReady(mat->mEmissiveTexture, boost);
+        mat->mTextureId[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE].isNull() || makeTextureReady(mat->mEmissiveTexture, boost);
 
     if (strict)
     {
@@ -406,7 +406,7 @@ bool LLTerrainMaterials::materialTexturesReady(LLPointer<LLFetchedGLTFMaterial>&
 // Boost the loading priority of every known texture in the material
 // Return true when ready to use
 // static
-bool LLTerrainMaterials::materialReady(LLPointer<LLFetchedGLTFMaterial> &mat, bool &textures_set, bool boost, bool strict)
+bool LLTerrainMaterials::makeMaterialReady(LLPointer<LLFetchedGLTFMaterial> &mat, bool &textures_set, bool boost, bool strict)
 {
     if (!material_asset_ready(mat)) { return false; }
 
@@ -694,11 +694,11 @@ bool LLVLComposition::generateMinimapTileLand(const F32 x, const F32 y,
     const bool use_textures = getMaterialType() != LLTerrainMaterials::Type::PBR;
     if (use_textures)
     {
-        if (!texturesReady(true, true)) { return false; }
+        if (!makeTexturesReady(true, true)) { return false; }
     }
     else
     {
-        if (!materialsReady(true, true)) { return false; }
+        if (!makeMaterialsReady(true, true)) { return false; }
     }
 
     for (S32 i = 0; i < ASSET_COUNT; i++)
