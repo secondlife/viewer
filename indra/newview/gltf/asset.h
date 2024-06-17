@@ -34,6 +34,7 @@
 #include "boost/json.hpp"
 #include "common.h"
 #include "../llviewertexture.h"
+#include "llglslshader.h"
 
 extern F32SecondsImplicit       gFrameTimeSeconds;
 
@@ -322,6 +323,31 @@ namespace LL
             bool prep(Asset& asset);
         };
 
+        // Render Batch -- vertex buffer and list of primitives to render using
+        // said vertex buffer
+        class RenderBatch
+        {
+        public:
+            struct PrimitiveData
+            {
+                S32 mPrimitiveIndex = INVALID_INDEX;
+                S32 mNodeIndex = INVALID_INDEX;
+            };
+
+            LLPointer<LLVertexBuffer> mVertexBuffer;
+            std::vector<PrimitiveData> mPrimitives;
+        };
+
+        class RenderData
+        {
+        public:
+            // list of render batches
+            // indexed by material index
+            // there should be exactly one render batch per material per variant
+            std::vector<RenderBatch> mBatches[LLGLSLShader::NUM_GLTF_VARIANTS];
+        };
+
+
         // C++ representation of a GLTF Asset
         class Asset
         {
@@ -359,6 +385,8 @@ namespace LL
             // the last time update() was called according to gFrameTimeSeconds
             F32 mLastUpdateTime = gFrameTimeSeconds;
 
+            // data used for rendering
+            RenderData mRenderData;
 
             // prepare for first time use
             bool prep();

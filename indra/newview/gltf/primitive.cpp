@@ -380,11 +380,22 @@ bool Primitive::prep(Asset& asset)
             }
         }
     }
+    else
+    { //everything must be indexed at runtime
+        mIndexArray.resize(mPositions.size());
+        for (U32 i = 0; i < mPositions.size(); ++i)
+        {
+            mIndexArray[i] = i;
+        }
+    }
 
     U32 mask = LLVertexBuffer::MAP_VERTEX;
 
+    mShaderVariant = 0;
+
     if (!mWeights.empty())
     {
+        mShaderVariant |= LLGLSLShader::GLTFVariant::RIGGED;
         mask |= LLVertexBuffer::MAP_WEIGHT4;
         mask |= LLVertexBuffer::MAP_JOINT;
     }
@@ -406,9 +417,6 @@ bool Primitive::prep(Asset& asset)
         mColors.resize(mPositions.size(), LLColor4U::white);
     }
 
-    mShaderVariant = 0;
-
-    // TODO: support colorless vertex buffers
     mask |= LLVertexBuffer::MAP_COLOR;
 
     bool unlit = false;
@@ -506,58 +514,7 @@ bool Primitive::prep(Asset& asset)
         mask |= LLVertexBuffer::MAP_TANGENT;
     }
 
-    if (LLGLSLShader::sCurBoundShaderPtr == nullptr)
-    { // make sure a shader is bound to satisfy mVertexBuffer->setBuffer
-        gDebugProgram.bind();
-    }
-
-    mVertexBuffer = new LLVertexBuffer(mask);
-    // we store these buffer sizes as S32 elsewhere
-    llassert(mPositions.size() <= size_t(S32_MAX));
-    llassert(mIndexArray.size() <= size_t(S32_MAX / 2));
-    mVertexBuffer->allocateBuffer(U32(mPositions.size()), U32(mIndexArray.size() * 2)); // double the size of the index buffer for 32-bit indices
-
-    mVertexBuffer->setBuffer();
-    mVertexBuffer->setPositionData(mPositions.data());
-    mVertexBuffer->setColorData(mColors.data());
-
-    if (!mNormals.empty())
-    {
-        mVertexBuffer->setNormalData(mNormals.data());
-    }
-    if (!mTangents.empty())
-    {
-        mVertexBuffer->setTangentData(mTangents.data());
-    }
-
-    if (!mWeights.empty())
-    {
-        mShaderVariant |= LLGLSLShader::GLTFVariant::RIGGED;
-        mVertexBuffer->setWeight4Data(mWeights.data());
-        mVertexBuffer->setJointData(mJoints.data());
-    }
-
-    // flip texcoord y, upload, then flip back (keep the off-spec data in vram only)
-    vertical_flip(mTexCoords0);
-    mVertexBuffer->setTexCoord0Data(mTexCoords0.data());
-    vertical_flip(mTexCoords0);
-
-    if (!mTexCoords1.empty())
-    {
-        vertical_flip(mTexCoords1);
-        mVertexBuffer->setTexCoord1Data(mTexCoords1.data());
-        vertical_flip(mTexCoords1);
-    }
-
-
-    if (!mIndexArray.empty())
-    {
-        mVertexBuffer->setIndexData(mIndexArray.data());
-    }
-
-    createOctree();
-
-    mVertexBuffer->unbind();
+    mAttributeMask = mask;
 
     if (mMaterial != INVALID_INDEX)
     {
@@ -568,7 +525,68 @@ bool Primitive::prep(Asset& asset)
         }
     }
 
+    createOctree();
+
     return true;
+}
+
+void Primitive::upload(LLVertexBuffer* buffer)
+{
+    mVertexBuffer = buffer;
+    // we store these buffer sizes as S32 elsewhere
+    llassert(mPositions.size() <= size_t(S32_MAX));
+    llassert(mIndexArray.size() <= size_t(S32_MAX / 2));
+
+    llassert(mVertexBuffer != nullptr);
+
+    // assert that buffer can hold this primitive
+    llassert(mVertexBuffer->getNumVerts() >= mPositions.size() + mVertexOffset);
+    llassert(mVertexBuffer->getNumIndices() >= mIndexArray.size() + mIndexOffset);
+    llassert(mVertexBuffer->getTypeMask() == mAttributeMask);
+
+    U32 offset = mVertexOffset;
+    U32 count = getVertexCount();
+
+    mVertexBuffer->setPositionData(mPositions.data(), offset, count);
+    mVertexBuffer->setColorData(mColors.data(), offset, count);
+
+    if (!mNormals.empty())
+    {
+        mVertexBuffer->setNormalData(mNormals.data(), offset, count);
+    }
+    if (!mTangents.empty())
+    {
+        mVertexBuffer->setTangentData(mTangents.data(), offset, count);
+    }
+
+    if (!mWeights.empty())
+    {
+        mVertexBuffer->setWeight4Data(mWeights.data(), offset, count);
+        mVertexBuffer->setJointData(mJoints.data(), offset, count);
+    }
+
+    // flip texcoord y, upload, then flip back (keep the off-spec data in vram only)
+    vertical_flip(mTexCoords0);
+    mVertexBuffer->setTexCoord0Data(mTexCoords0.data(), offset, count);
+    vertical_flip(mTexCoords0);
+
+    if (!mTexCoords1.empty())
+    {
+        vertical_flip(mTexCoords1);
+        mVertexBuffer->setTexCoord1Data(mTexCoords1.data(), offset, count);
+        vertical_flip(mTexCoords1);
+    }
+
+    if (!mIndexArray.empty())
+    {
+        std::vector<U32> index_array;
+        index_array.resize(mIndexArray.size());
+        for (U32 i = 0; i < mIndexArray.size(); ++i)
+        {
+            index_array[i] = mIndexArray[i] + mVertexOffset;
+        }
+        mVertexBuffer->setIndexData(index_array.data(), mIndexOffset, getIndexCount());
+    }
 }
 
 void initOctreeTriangle(LLVolumeTriangle* tri, F32 scaler, S32 i0, S32 i1, S32 i2, const LLVector4a& v0, const LLVector4a& v1, const LLVector4a& v2)
@@ -616,7 +634,7 @@ void Primitive::createOctree()
 
     if (mMode == Mode::TRIANGLES)
     {
-        const U32 num_triangles = mVertexBuffer->getNumIndices() / 3;
+        const U32 num_triangles = getIndexCount() / 3;
         // Initialize all the triangles we need
         mOctreeTriangles.resize(num_triangles);
 
@@ -640,7 +658,7 @@ void Primitive::createOctree()
     }
     else if (mMode == Mode::TRIANGLE_STRIP)
     {
-        const U32 num_triangles = mVertexBuffer->getNumIndices() - 2;
+        const U32 num_triangles = getIndexCount() - 2;
         // Initialize all the triangles we need
         mOctreeTriangles.resize(num_triangles);
 
@@ -664,7 +682,7 @@ void Primitive::createOctree()
     }
     else if (mMode == Mode::TRIANGLE_FAN)
     {
-        const U32 num_triangles = mVertexBuffer->getNumIndices() - 2;
+        const U32 num_triangles = getIndexCount() - 2;
         // Initialize all the triangles we need
         mOctreeTriangles.resize(num_triangles);
 

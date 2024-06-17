@@ -2866,8 +2866,8 @@ function="World.EnvPreset"
         <menu_item_call
          label="Open..."
          name="Open...">
-          <menu_item_call.on_enable
-             function="EnableGLTF"/>
+            <!--<menu_item_call.on_enable
+             function="EnableGLTF"/>-->
           <menu_item_call.on_click
            function="Advanced.ClickGLTFOpen" />
         </menu_item_call>

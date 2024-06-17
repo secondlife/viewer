@@ -202,6 +202,18 @@ public:
     void setIndexData(const U16* data);
     void setIndexData(const U32* data);
 
+    void setPositionData(const LLVector4a* data, U32 offset, U32 count);
+    void setNormalData(const LLVector4a* data, U32 offset, U32 count);
+    void setTangentData(const LLVector4a* data, U32 offset, U32 count);
+    void setWeight4Data(const LLVector4a* data, U32 offset, U32 count);
+    void setJointData(const U64* data, U32 offset, U32 count);
+    void setTexCoord0Data(const LLVector2* data, U32 offset, U32 count);
+    void setTexCoord1Data(const LLVector2* data, U32 offset, U32 count);
+    void setColorData(const LLColor4U* data, U32 offset, U32 count);
+    void setIndexData(const U16* data, U32 offset, U32 count);
+    void setIndexData(const U32* data, U32 offset, U32 count);
+
+
     U32 getNumVerts() const                 { return mNumVerts; }
     U32 getNumIndices() const               { return mNumIndices; }
 
@@ -255,6 +267,8 @@ private:
     // TODO: move these classes into viewer repository
     friend class LLNavShapeVBOManager;
     friend class LLNavMeshVBOManager;
+
+    void flush_vbo(GLenum target, U32 start, U32 end, void* data, U8* dst);
 
     LLVertexBuffer(U32 typemask, U32 usage)
         : LLVertexBuffer(typemask)

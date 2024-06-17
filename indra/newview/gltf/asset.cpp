@@ -447,6 +447,91 @@ bool Asset::prep()
         }
     }
 
+    // prepare vertex buffers
+
+    // material count is number of materials + 1 for default material
+    U32 mat_count = (U32) mMaterials.size() + 1;
+
+    for (U32 i = 0; i < LLGLSLShader::NUM_GLTF_VARIANTS; ++i)
+    {
+        mRenderData.mBatches[i].resize(mat_count);
+    }
+
+    if (LLGLSLShader::sCurBoundShaderPtr == nullptr)
+    { // make sure a shader is bound to satisfy mVertexBuffer->setBuffer
+        gDebugProgram.bind();
+    }
+
+    // for each material
+    for (S32 mat_id = -1; mat_id < (S32) mMaterials.size(); ++mat_id)
+    {
+        // for each shader variant
+        U32 vertex_count[LLGLSLShader::NUM_GLTF_VARIANTS] = { 0 };
+        U32 index_count[LLGLSLShader::NUM_GLTF_VARIANTS] = { 0 };
+
+        for (U32 variant = 0; variant < LLGLSLShader::NUM_GLTF_VARIANTS; ++variant)
+        {
+            U32 attribute_mask = 0;
+            // for each mesh
+            for (auto& mesh : mMeshes)
+            {
+                // for each primitive
+                for (auto& primitive : mesh.mPrimitives)
+                {
+                    if (primitive.mMaterial == mat_id && primitive.mShaderVariant == variant)
+                    {
+                        // accumulate vertex and index counts
+                        primitive.mVertexOffset = vertex_count[variant];
+                        primitive.mIndexOffset = index_count[variant];
+
+                        vertex_count[variant] += primitive.getVertexCount();
+                        index_count[variant] += primitive.getIndexCount();
+
+                        // all primitives of a given variant and material should all have the same attribute mask
+                        llassert(attribute_mask == 0 || primitive.mAttributeMask == attribute_mask);
+                        attribute_mask |= primitive.mAttributeMask;
+                    }
+                }
+            }
+
+            // allocate vertex buffer and pack it
+            if (vertex_count[variant] > 0)
+            {
+                U32 mat_idx = mat_id + 1;
+                LLVertexBuffer* vb = new LLVertexBuffer(attribute_mask);
+
+                mRenderData.mBatches[variant][mat_idx].mVertexBuffer = vb;
+                vb->allocateBuffer(vertex_count[variant],
+                    index_count[variant]*2); // hack double index count... TODO: find a better way to indicate 32-bit indices will be used
+                vb->setBuffer();
+
+                for (auto& mesh : mMeshes)
+                {
+                    for (auto& primitive : mesh.mPrimitives)
+                    {
+                        if (primitive.mMaterial == mat_id && primitive.mShaderVariant == variant)
+                        {
+                            primitive.upload(vb);
+                        }
+                    }
+                }
+
+                vb->unmapBuffer();
+
+                vb->unbind();
+            }
+        }
+    }
+
+    // sanity check that all primitives have a vertex buffer
+    for (auto& mesh : mMeshes)
+    {
+        for (auto& primitive : mesh.mPrimitives)
+        {
+            llassert(primitive.mVertexBuffer.notNull());
+        }
+    }
+
     return true;
 }
 

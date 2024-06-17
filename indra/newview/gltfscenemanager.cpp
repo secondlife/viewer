@@ -608,7 +608,7 @@ bool GLTFSceneManager::cull(Asset& asset, U8 variant)
 
     bool empty = true;
     // material count for this asset is the number of materials + 1 for the default material
-    U32 mat_count = asset.mMaterials.size()+1;
+    size_t mat_count = asset.mMaterials.size()+1;
 
     for (U32 i = 0; i < 2; ++i)
     {
@@ -715,14 +715,7 @@ void GLTFSceneManager::render(Asset& asset, U8 variant)
                 {
                     LL_PROFILE_ZONE_NAMED_CATEGORY_GLTF("gltfdc - push vb");
 
-                    if (primitive.mVertexBuffer->getNumIndices() > 0)
-                    {
-                        primitive.mVertexBuffer->draw(primitive.mGLMode, primitive.mVertexBuffer->getNumIndices(), 0);
-                    }
-                    else
-                    {
-                        primitive.mVertexBuffer->drawArrays(primitive.mGLMode, 0, primitive.mVertexBuffer->getNumVerts());
-                    }
+                    primitive.mVertexBuffer->drawRange(primitive.mGLMode, primitive.mVertexOffset, primitive.mVertexOffset + primitive.getVertexCount()-1, primitive.getIndexCount(), primitive.mIndexOffset);
                 }
             }
         }
