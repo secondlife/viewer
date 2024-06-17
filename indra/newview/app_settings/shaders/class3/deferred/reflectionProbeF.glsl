@@ -452,7 +452,7 @@ void boxIntersectionDebug( in vec3 ro, in vec3 p, vec3 boxSize, inout vec4 col)
 
 void boxIntersectDebug(vec3 origin, vec3 pos, mat4 i, inout vec4 col)
 {
-    mat4 clipToLocal = refBox[i];
+    mat4 clipToLocal = i;
 
     // transform into unit cube space
     origin = (clipToLocal * vec4(origin, 1.0)).xyz;

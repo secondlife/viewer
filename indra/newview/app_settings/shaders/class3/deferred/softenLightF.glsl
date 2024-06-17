@@ -169,7 +169,7 @@ void main()
 
     if (GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_PBR))
     {
-        vec3 orm = texture(specularRect, tc).rgb;
+        vec3 orm = spec.rgb;
         float perceptualRoughness = orm.g;
         float metallic = orm.b;
         float ao = orm.r;
@@ -179,7 +179,7 @@ void main()
         float gloss      = 1.0 - perceptualRoughness;
         
         sampleReflectionProbes(irradiance, radiance, tc, pos.xyz, norm.xyz, gloss, false, amblit_linear);
-        
+
         adjustIrradiance(irradiance, ambocc);
 
         vec3 diffuseColor;
@@ -215,7 +215,7 @@ void main()
         vec3 legacyenv = vec3(0);
 
         sampleReflectionProbesLegacy(irradiance, glossenv, legacyenv, tc, pos.xyz, norm.xyz, spec.a, envIntensity, false, amblit_linear);
-        
+
         adjustIrradiance(irradiance, ambocc);
 
         // apply lambertian IBL only (see pbrIbl)
