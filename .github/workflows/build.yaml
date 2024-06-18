@@ -1,12 +1,6 @@
 name: Build
 
 on:
-  workflow_dispatch:
-    inputs:
-      release_run:
-        type: boolean
-        description: Do a release of this build
-        default: false
   pull_request:
   push:
     branches: ["main", "release/*", "project/*"]
