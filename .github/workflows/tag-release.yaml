@@ -8,17 +8,17 @@ on:
     - cron: "21 2 * * 2,4,6"     # 2:21am UTC tues/thurs/sat == 7:21pm PDT mon/wed/fri -- see https://crontab.guru/#21_01_*_*_2,4,6
   workflow_dispatch:
     inputs:
-      - channel:
+      channel:
         description: "Channel to configure the build"
         required: true
         type: choice
         default: "Test"
         options:
-          - "Test"
-          - "Develop"
-          - "Project"
-          - "Release"
-      - project:
+        - "Test"
+        - "Develop"
+        - "Project"
+        - "Release"
+      project:
         description: "Project Name (used for channel name in project builds, and tag name for all builds)"
         default: "hippo"
       # TODO - add an input for selecting another sha to build other than head of branch
