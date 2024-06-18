@@ -320,7 +320,7 @@ void LLWebRTCVoiceClient::updateSettings()
     config.mNoiseSuppressionLevel = (llwebrtc::LLWebRTCDeviceInterface::AudioConfig::ENoiseSuppressionLevel) (U32)sNoiseSuppressionLevel;
 
     mWebRTCDeviceInterface->setAudioConfig(config);
-    
+
 }
 
 // Observers
@@ -620,10 +620,10 @@ void LLWebRTCVoiceClient::setDevicesListUpdated(bool state)
 void LLWebRTCVoiceClient::OnDevicesChanged(const llwebrtc::LLWebRTCVoiceDeviceList& render_devices,
                                            const llwebrtc::LLWebRTCVoiceDeviceList& capture_devices)
 {
-    
+
     LL::WorkQueue::postMaybe(mMainQueue,
-                             [=] 
-        { 
+                             [=]
+        {
             OnDevicesChangedImpl(render_devices, capture_devices);
         });
 }
@@ -647,7 +647,7 @@ void LLWebRTCVoiceClient::OnDevicesChangedImpl(const llwebrtc::LLWebRTCVoiceDevi
     for (auto &device : capture_devices)
     {
         LL_DEBUGS("Voice") << "Checking capture device:'" << device.mID << "'" << LL_ENDL;
- 
+
         addCaptureDevice(LLVoiceDevice(device.mDisplayName, device.mID));
     }
     setCaptureDevice(inputDevice);
@@ -2287,7 +2287,7 @@ void LLVoiceWebRTCConnection::processIceUpdatesCoro()
 void LLVoiceWebRTCConnection::OnOfferAvailable(const std::string &sdp)
 {
     LL::WorkQueue::postMaybe(mMainQueue,
-        [=] { 
+        [=] {
             if (mShutDown)
             {
                 return;
@@ -2336,7 +2336,7 @@ void LLVoiceWebRTCConnection::OnAudioEstablished(llwebrtc::LLWebRTCAudioInterfac
 void LLVoiceWebRTCConnection::OnRenegotiationNeeded()
 {
     LL::WorkQueue::postMaybe(mMainQueue,
-        [=] { 
+        [=] {
             LL_DEBUGS("Voice") << "Voice channel requires renegotiation." << LL_ENDL;
             if (!mShutDown)
             {
@@ -2625,7 +2625,7 @@ bool LLVoiceWebRTCConnection::connectionStateMachine()
             }
             mIceCompleted = false;
             setVoiceConnectionState(VOICE_STATE_WAIT_FOR_SESSION_START);
-            
+
             // tell the webrtc library that we want a connection.  The library will
             // respond with an offer on a separate thread, which will cause
             // the session state to change.
@@ -2799,7 +2799,7 @@ void LLVoiceWebRTCConnection::OnDataReceived(const std::string& data, bool binar
 
 //
 // The LLWebRTCVoiceConnection object will not be deleted
-// before the webrtc connection itself is shut down, so 
+// before the webrtc connection itself is shut down, so
 // we shouldn't be getting this callback on a nonexistant
 // this pointer.
 void LLVoiceWebRTCConnection::OnDataReceivedImpl(const std::string &data, bool binary)
@@ -2832,7 +2832,7 @@ void LLVoiceWebRTCConnection::OnDataReceivedImpl(const std::string &data, bool b
         boost::json::object user_gain;
         for (auto &participant_elem : voice_data)
         {
-            boost::json::string participant_id(participant_elem.key()); 
+            boost::json::string participant_id(participant_elem.key());
             LLUUID agent_id(participant_id.c_str());
             if (agent_id.isNull())
             {
@@ -2973,7 +2973,7 @@ void LLVoiceWebRTCConnection::sendJoin()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE
 
-    
+
     boost::json::object root;
     boost::json::object join_obj;
     LLUUID           regionID = gAgent.getRegion()->getRegionID();

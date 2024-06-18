@@ -16,7 +16,7 @@ elseif (DARWIN)
     FIND_LIBRARY(AUDIOTOOLBOX_LIBRARY AudioToolbox)
     FIND_LIBRARY(COREFOUNDATION_LIBRARY CoreFoundation)
     FIND_LIBRARY(COCOA_LIBRARY Cocoa)
-    
+
     target_link_libraries( ll::webrtc INTERFACE
         libwebrtc.a
         ${COREAUDIO_LIBRARY}
