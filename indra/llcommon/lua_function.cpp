@@ -75,8 +75,11 @@ fsyspath lluau::source_path(lua_State* L)
 {
     //Luau lua_Debug and lua_getinfo() are different compared to default Lua:
     //see https://github.com/luau-lang/luau/blob/80928acb92d1e4b6db16bada6d21b1fb6fa66265/VM/include/lua.h
+    // In particular:
+    // passing level=1 gets you info about the deepest function call
+    // passing level=lua_stackdepth() gets you info about the topmost script
     lua_Debug ar;
-    lua_getinfo(L, 1, "s", &ar);
+    lua_getinfo(L, lua_stackdepth(L), "s", &ar);
     return ar.source;
 }
 
