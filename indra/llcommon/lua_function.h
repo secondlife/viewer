@@ -473,7 +473,7 @@ public:
     template <typename... ARGS>
     void operator()(ARGS&&... args)
     {
-        LL_INFOS("Lua") << mBlock << ' ';
+        LL_DEBUGS("Lua") << mBlock << ' ';
         stream_to(LL_CONT, std::forward<ARGS>(args)...);
         LL_ENDL;
     }
