@@ -337,4 +337,10 @@ function fiber.run()
     return idle_done
 end
 
+-- Make sure we finish up with a call to run(). That allows a consuming script
+-- to kick off some number of fibers, do some work on the main thread and then
+-- fall off the end of the script without explicitly calling fiber.run().
+-- run() ensures the rest of the fibers run to completion (or error).
+LL.atexit(fiber.run)
+
 return fiber
