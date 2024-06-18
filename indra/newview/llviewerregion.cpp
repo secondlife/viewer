@@ -2854,7 +2854,11 @@ bool LLViewerRegion::probeCache(U32 local_id, U32 crc, U32 flags, U8 &cache_miss
 
             if(entry->isState(LLVOCacheEntry::ACTIVE))
             {
-                ((LLDrawable*)entry->getEntry()->getDrawable())->getVObj()->loadFlags(flags);
+                LLDrawable* drawable = (LLDrawable*)entry->getEntry()->getDrawable();
+                if (drawable && drawable->getVObj())
+                {
+                    drawable->getVObj()->loadFlags(flags);
+                }
                 return true;
             }
 
