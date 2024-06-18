@@ -181,7 +181,7 @@ public:
     void            setAllowNoTexture( BOOL b )                 { mAllowNoTexture = b; }
     bool            getAllowNoTexture() const                   { return mAllowNoTexture; }
 
-    void            setAllowLocalTexture(BOOL b)                    { mAllowLocalTexture = b; }
+    void            setAllowLocalTexture(BOOL b);
     BOOL            getAllowLocalTexture() const                    { return mAllowLocalTexture; }
 
     const LLUUID&   getImageItemID() { return mImageItemID; }
@@ -455,6 +455,7 @@ private:
     set_on_update_image_stats_callback mOnUpdateImageStatsCallback;
 
     BOOL mBakeTextureEnabled;
+    bool mLocalTextureEnabled;
 
     static S32 sLastPickerMode;
 };
