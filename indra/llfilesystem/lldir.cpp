@@ -881,10 +881,10 @@ std::string LLDir::getScrubbedFileName(const std::string uncleanFileName)
     std::string name(uncleanFileName);
     const std::string illegalChars(getForbiddenFileChars());
     // replace any illegal file chars with and underscore '_'
-    for( unsigned int i = 0; i < illegalChars.length(); i++ )
+    for( const char &ch : illegalChars)
     {
         std::string::size_type j = -1;
-        while((j = name.find(illegalChars[i])) > std::string::npos)
+        while((j = name.find(ch)) != std::string::npos)
         {
             name[j] = '_';
         }
