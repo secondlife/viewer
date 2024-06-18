@@ -66,11 +66,48 @@ namespace LL
             vec2 mScale = vec2(1.f, 1.f);
             S32 mTexCoord = INVALID_INDEX;
 
-            // get the texture transform as a packed array of floats
-            // dst MUST point to at least 8 floats
-            void getPacked(F32* dst) const;
+            // get the texture transform as a packed array of vec4's
+            // dst MUST point to at least 2 vec4's
+            void getPacked(vec4* dst) const;
 
             const TextureTransform& operator=(const Value& src);
+            void serialize(boost::json::object& dst) const;
+        };
+
+        class TextureInfo
+        {
+        public:
+            S32 mIndex = INVALID_INDEX;
+            S32 mTexCoord = 0;
+
+            TextureTransform mTextureTransform;
+
+            bool operator==(const TextureInfo& rhs) const;
+            bool operator!=(const TextureInfo& rhs) const;
+
+            // get the UV channel that should be used for sampling this texture
+            // returns mTextureTransform.mTexCoord if present and valid, otherwise mTexCoord
+            S32 getTexCoord() const;
+
+            const TextureInfo& operator=(const Value& src);
+            void serialize(boost::json::object& dst) const;
+        };
+
+        class NormalTextureInfo : public TextureInfo
+        {
+        public:
+            F32 mScale = 1.0f;
+
+            const NormalTextureInfo& operator=(const Value& src);
+            void serialize(boost::json::object& dst) const;
+        };
+
+        class OcclusionTextureInfo : public TextureInfo
+        {
+        public:
+            F32 mStrength = 1.0f;
+
+            const OcclusionTextureInfo& operator=(const Value& src);
             void serialize(boost::json::object& dst) const;
         };
 
@@ -92,42 +129,6 @@ namespace LL
                 BLEND
             };
 
-            class TextureInfo
-            {
-            public:
-                S32 mIndex = INVALID_INDEX;
-                S32 mTexCoord = 0;
-
-                TextureTransform mTextureTransform;
-
-                bool operator==(const TextureInfo& rhs) const;
-                bool operator!=(const TextureInfo& rhs) const;
-
-                // get the UV channel that should be used for sampling this texture
-                // returns mTextureTransform.mTexCoord if present and valid, otherwise mTexCoord
-                S32 getTexCoord() const;
-
-                const TextureInfo& operator=(const Value& src);
-                void serialize(boost::json::object& dst) const;
-            };
-
-            class NormalTextureInfo : public TextureInfo
-            {
-            public:
-                F32 mScale = 1.0f;
-
-                const NormalTextureInfo& operator=(const Value& src);
-                void serialize(boost::json::object& dst) const;
-            };
-
-            class OcclusionTextureInfo : public TextureInfo
-            {
-            public:
-                F32 mStrength = 1.0f;
-
-                const OcclusionTextureInfo& operator=(const Value& src);
-                void serialize(boost::json::object& dst) const;
-            };
 
             class PbrMetallicRoughness
             {
@@ -386,7 +387,10 @@ namespace LL
             RenderData mRenderData[2];
 
             // UBO for storing node transforms
-            U32 mTransformsUBO = 0;
+            U32 mNodesUBO = 0;
+
+            // UBO for storing material data
+            U32 mMaterialsUBO = 0;
 
             // prepare for first time use
             bool prep();
@@ -401,8 +405,11 @@ namespace LL
             // update asset-to-node and node-to-asset transforms
             void updateTransforms();
 
-            // upload matrices to UBOs
+            // upload matrices to UBO
             void uploadTransforms();
+
+            // upload materils to UBO
+            void uploadMaterials();
 
             // return the index of the node that the line segment intersects with, or -1 if no hit
             // input and output values must be in this asset's local coordinate frame

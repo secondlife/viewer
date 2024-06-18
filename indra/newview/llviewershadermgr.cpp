@@ -259,7 +259,18 @@ static bool make_gltf_variant(LLGLSLShader& shader, LLGLSLShader& variant, bool 
 
     variant.mDefines = shader.mDefines;    // NOTE: Must come before addPermutation
 
-    variant.addPermutation("MAX_JOINTS_PER_GLTF_OBJECT", std::to_string(LLSkinningUtil::getMaxGLTFJointCount()));
+    U32 node_size = 16 * 3;
+    U32 max_nodes = gGLManager.mMaxUniformBlockSize / node_size;
+    variant.addPermutation("MAX_NODES_PER_GLTF_OBJECT", std::to_string(max_nodes));
+
+    U32 material_size = 16 * 12;
+    U32 max_materials = gGLManager.mMaxUniformBlockSize / material_size;
+    LLGLSLShader::sMaxGLTFMaterials = max_materials;
+
+    variant.addPermutation("MAX_MATERIALS_PER_GLTF_OBJECT", std::to_string(max_materials));
+
+    U32 max_vec4s = gGLManager.mMaxUniformBlockSize / 16;
+    variant.addPermutation("MAX_UBO_VEC4S", std::to_string(max_vec4s));
 
     if (rigged)
     {

@@ -148,9 +148,10 @@ public:
 
     enum UniformBlock : GLuint
     {
-        UB_REFLECTION_PROBES,
-        UB_GLTF_JOINTS,
-        UB_GLTF_NODES,
+        UB_REFLECTION_PROBES,   // "ReflectionProbes"
+        UB_GLTF_JOINTS,         // "GLTFJoints"
+        UB_GLTF_NODES,          // "GLTFNodes"
+        UB_GLTF_MATERIALS,      // "GLTFMaterials"
         NUM_UNIFORM_BLOCKS
     };
 
@@ -164,6 +165,9 @@ public:
     static GLuint sCurBoundShader;
     static LLGLSLShader* sCurBoundShaderPtr;
     static S32 sIndexedTextureChannels;
+
+    static U32 sMaxGLTFMaterials;
+    static U32 sMaxGLTFNodes;
 
     static void initProfile();
     static void finishProfile(bool emit_report = true);
