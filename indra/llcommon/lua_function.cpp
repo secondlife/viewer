@@ -496,17 +496,24 @@ LuaState::~LuaState()
     // implicitly garbage-collect everything, so (for instance) any lingering
     // objects with __gc metadata methods aren't cleaned up. This is why we
     // provide atexit().
-    luaL_checkstack(mState, 3, nullptr);
-    // look up Registry["atexit"]
+    luaL_checkstack(mState, 2, nullptr);
+    // look up Registry.atexit
     lua_getfield(mState, LUA_REGISTRYINDEX, "atexit");
-    // stack contains Registry["atexit"]
+    // stack contains Registry.atexit
     if (lua_istable(mState, -1))
     {
-        lua_pushnil(mState);        // first key
-        while (lua_next(mState, -2))
+        // We happen to know that Registry.atexit is built by appending array
+        // entries using table.insert(). That's important because it means
+        // there are no holes, and therefore lua_objlen() should be correct.
+        // That's important because we walk the atexit table backwards, to
+        // destroy last the things we created (passed to LL.atexit()) first.
+        for (int i(lua_objlen(mState, -1)); i >= 1; --i)
         {
-            // stack contains Registry["atexit"], key, value
-            // Call value(), no args, no return values.
+            lua_pushinteger(mState, i);
+            // stack contains Registry.atexit, i
+            lua_gettable(mState, -2);
+            // stack contains Registry.atexit, atexit[i]
+            // Call atexit[i](), no args, no return values.
             // Use lua_pcall() because errors in any one atexit() function
             // shouldn't cancel the rest of them.
             if (lua_pcall(mState, 0, 0, 0) != LUA_OK)
@@ -516,11 +523,10 @@ LuaState::~LuaState()
                 // pop error message
                 lua_pop(mState, 1);
             }
-            // Normally we would pop value, keeping the key for the next
-            // iteration. But lua_pcall() has already popped the value.
+            // lua_pcall() has already popped atexit[i]: stack contains atexit
         }
     }
-    // pop Registry["atexit"] (either table or nil)
+    // pop Registry.atexit (either table or nil)
     lua_pop(mState, 1);
 
     lua_close(mState);
@@ -710,37 +716,24 @@ lua_function(atexit, "register a Lua function to be called at script termination
     luaL_checkstack(L, 4, nullptr);
     // look up the global name "table"
     lua_getglobal(L, "table");
-    // stack contains function, "table"
+    // stack contains function, table
     // look up table.insert
     lua_getfield(L, -1, "insert");
-    // stack contains function, "table", "insert"
-    // look up the "atexit" table in the Registry
-    lua_getfield(L, LUA_REGISTRYINDEX, "atexit");
-    // stack contains function, "table", "insert", Registry["atexit"]
-    if (! lua_istable(L, -1))
-    {
-        llassert(lua_isnil(L, -1));
-        // stack contains function, "table", "insert", nil
-        lua_pop(L, 1);
-        // make a new, empty table
-        lua_newtable(L);
-        // stack contains function, "table", "insert", {}
-        // duplicate the table reference on the stack
-        lua_pushvalue(L, -1);
-        // stack contains function, "table", "insert", {}, {}
-        // store the new empty "atexit" table to the Registry, leaving a
-        // reference on the stack
-        lua_setfield(L, LUA_REGISTRYINDEX, "atexit");
-    }
-    // stack contains function, "table", "insert", Registry["atexit"]
-    // we were called with a Lua function to append to that Registry["atexit"]
-    // table -- push that function
-    lua_pushvalue(L, 1);            // or -4
-    // stack contains function, "table", "insert", Registry["atexit"], function
-    // call table.insert(atexit, function)
+    // stack contains function, table, table.insert
+    // ditch table
+    lua_replace(L, -2);
+    // stack contains function, table.insert
+    // find or create the "atexit" table in the Registry
+    luaL_newmetatable(L, "atexit");
+    // stack contains function, table.insert, Registry.atexit
+    // we were called with a Lua function to append to that Registry.atexit
+    // table -- push function
+    lua_pushvalue(L, 1);            // or -3
+    // stack contains function, table.insert, Registry.atexit, function
+    // call table.insert(Registry.atexit, function)
     // don't use pcall(): if there's an error, let it propagate
     lua_call(L, 2, 0);
-    // stack contains function, "table" -- pop everything
+    // stack contains function -- pop everything
     lua_settop(L, 0);
     return 0;
 }
