@@ -508,7 +508,6 @@
   </text>
   <combo_box
       control_name="VoiceNoiseSuppressionLevel"
-      enabled_control="AudioStreamingMedia"
       layout="topleft"
       height="23"
       left_pad="10"
