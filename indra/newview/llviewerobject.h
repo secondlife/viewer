@@ -266,6 +266,7 @@ public:
     virtual bool isRiggedMesh() const               { return false; }
     virtual bool hasLightTexture() const            { return false; }
     virtual bool isReflectionProbe() const          { return false; }
+    virtual bool getReflectionProbeIsBox() const    { return false; }
 
     // This method returns true if the object is over land owned by
     // the agent, one of its groups, or it encroaches and

@@ -550,8 +550,6 @@ private:
     // Object temporarily hovered over while dragging
     LLPointer<LLViewerObject>   mDragHoveredObject;
 
-    boost::signals2::connection mMaxVRAMControlConnection;
-
     static LLTrace::SampleStatHandle<>  sMouseVelocityStat;
 };
 

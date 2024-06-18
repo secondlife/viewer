@@ -100,8 +100,6 @@ public:
     F32 getPixelAspectRatio() override;
     void setNativeAspectRatio(F32 ratio) override { mOverrideAspectRatio = ratio; }
 
-    virtual void setMaxVRAMMegabytes(U32 max_vram) override {}
-
     void beforeDialog() override;
     void afterDialog() override;
 
@@ -154,8 +152,7 @@ protected:
         const std::string& title, const std::string& name, int x, int y, int width, int height, U32 flags,
         bool fullscreen, bool clearBg, bool enable_vsync, bool use_gl,
         bool ignore_pixel_depth,
-        U32 fsaa_samples,
-        U32 max_vram);
+        U32 fsaa_samples);
         ~LLWindowMacOSX();
 
     void    initCursors();
