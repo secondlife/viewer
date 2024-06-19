@@ -2587,7 +2587,7 @@ void LLVOAvatar::idleUpdate(LLAgent &agent, const F64 &time)
         return;
     }
 
-    LLCachedControl<bool> friends_only(gSavedSettings, "RenderAvatarFriendsOnly", false);
+    static LLCachedControl<bool> friends_only(gSavedSettings, "RenderAvatarFriendsOnly", false);
     if (friends_only()
         && !isUIAvatar()
         && !isControlAvatar()
@@ -8473,17 +8473,29 @@ bool LLVOAvatar::isTooComplex() const
 
 bool LLVOAvatar::isTooSlow() const
 {
+    if (mIsControlAvatar)
+    {
+        return mTooSlow;
+    }
+
     static LLCachedControl<S32> compelxity_render_mode(gSavedSettings, "RenderAvatarComplexityMode");
-    bool render_friend =  (LLAvatarTracker::instance().isBuddy(getID()) && compelxity_render_mode > AV_RENDER_LIMIT_BY_COMPLEXITY);
+    static LLCachedControl<bool> friends_only(gSavedSettings, "RenderAvatarFriendsOnly", false);
+    bool is_friend = LLAvatarTracker::instance().isBuddy(getID());
+    bool render_friend = is_friend && compelxity_render_mode > AV_RENDER_LIMIT_BY_COMPLEXITY;
 
     if (render_friend || mVisuallyMuteSetting == AV_ALWAYS_RENDER)
     {
         return false;
     }
-    else if (compelxity_render_mode == AV_RENDER_ONLY_SHOW_FRIENDS && !mIsControlAvatar)
+    else if (compelxity_render_mode == AV_RENDER_ONLY_SHOW_FRIENDS)
     {
         return true;
     }
+    else if (!is_friend && friends_only())
+    {
+        return true;
+    }
+
     return mTooSlow;
 }
 
