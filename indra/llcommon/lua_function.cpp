@@ -78,8 +78,13 @@ fsyspath lluau::source_path(lua_State* L)
     // In particular:
     // passing level=1 gets you info about the deepest function call
     // passing level=lua_stackdepth() gets you info about the topmost script
+    // Empirically, lua_getinfo(level > 1) behaves strangely (including
+    // crashing the program) unless you iterate from 1 to desired level.
     lua_Debug ar{};
-    lua_getinfo(L, lua_stackdepth(L), "s", &ar);
+    for (int i(0), depth(lua_stackdepth(L)); i <= depth; ++i)
+    {
+        lua_getinfo(L, i, "s", &ar);
+    }
     return ar.source;
 }
 
