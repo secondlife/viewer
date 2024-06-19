@@ -28,6 +28,7 @@
 #include "lleventcoro.h"
 #include "llsd.h"
 #include "llsdutil.h"
+#include "llstring.h"
 #include "lualistener.h"
 #include "stringize.h"
 
@@ -716,7 +717,8 @@ LuaListener& LuaState::obtainListener(lua_State* L)
 /*****************************************************************************
 *   atexit()
 *****************************************************************************/
-lua_function(atexit, "register a Lua function to be called at script termination")
+lua_function(atexit, "atexit(function): "
+             "register Lua function to be called at script termination")
 {
     luaL_checkstack(L, 4, nullptr);
     // look up the global name "table"
@@ -804,7 +806,7 @@ std::pair<LuaFunction::Registry&, LuaFunction::Lookup&> LuaFunction::getState()
 /*****************************************************************************
 *   source_path()
 *****************************************************************************/
-lua_function(source_path, "return the source path of the running Lua script")
+lua_function(source_path, "source_path(): return the source path of the running Lua script")
 {
     luaL_checkstack(L, 1, nullptr);
     lua_pushstdstring(L, lluau::source_path(L).u8string());
@@ -814,7 +816,7 @@ lua_function(source_path, "return the source path of the running Lua script")
 /*****************************************************************************
 *   source_dir()
 *****************************************************************************/
-lua_function(source_dir, "return the source directory of the running Lua script")
+lua_function(source_dir, "source_dir(): return the source directory of the running Lua script")
 {
     luaL_checkstack(L, 1, nullptr);
     lua_pushstdstring(L, lluau::source_path(L).parent_path().u8string());
@@ -824,7 +826,7 @@ lua_function(source_dir, "return the source directory of the running Lua script"
 /*****************************************************************************
 *   abspath()
 *****************************************************************************/
-lua_function(abspath,
+lua_function(abspath, "abspath(path): "
              "for given filesystem path relative to running script, return absolute path")
 {
     auto path{ lua_tostdstring(L, 1) };
@@ -836,7 +838,7 @@ lua_function(abspath,
 /*****************************************************************************
 *   check_stop()
 *****************************************************************************/
-lua_function(check_stop, "ensure that a Lua script responds to viewer shutdown")
+lua_function(check_stop, "check_stop(): ensure that a Lua script responds to viewer shutdown")
 {
     LLCoros::checkStop();
     return 0;
@@ -857,7 +859,7 @@ lua_function(help,
         for (const auto& [name, pair] : registry)
         {
             const auto& [fptr, helptext] = pair;
-            luapump.post(helptext);
+            luapump.post("LL." + helptext);
         }
     }
     else
@@ -869,6 +871,7 @@ lua_function(help,
             if (lua_type(L, idx) == LUA_TSTRING)
             {
                 arg = lua_tostdstring(L, idx);
+                LLStringUtil::removePrefix(arg, "LL.");
             }
             else if (lua_type(L, idx) == LUA_TFUNCTION)
             {
@@ -887,7 +890,7 @@ lua_function(help,
 
             if (auto found = registry.find(arg); found != registry.end())
             {
-                luapump.post(found->second.second);
+                luapump.post("LL." + found->second.second);
             }
             else
             {
