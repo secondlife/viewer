@@ -1,8 +1,10 @@
 local fiber = require 'fiber'
 local inspect = require 'inspect'
+local leap = require 'leap'
 
 local LLChatListener = {}
 local waitfor = {}
+local listener_name = {}
 
 function LLChatListener:new()
     local obj = setmetatable({}, self)
@@ -13,14 +15,16 @@ function LLChatListener:new()
 end
 
 function LLChatListener:handleMessages(event_data)
-    --print(inspect(event_data))
+    print(inspect(event_data))
     return true
 end
 
 function LLChatListener:start()
     waitfor = leap.WaitFor:new(-1, self.name)
     function waitfor:filter(pump, data)
-        return data
+        if pump == "LLNearbyChat" then
+          return data
+        end
     end
 
     fiber.launch(self.name, function()
@@ -30,11 +34,11 @@ function LLChatListener:start()
         end
     end)
 
-    leap.send('LLChatBar', {op='listen'})
+    listener_name = leap.request(leap.cmdpump(), {op='listen', source='LLNearbyChat', listener="ChatListener", tweak=true}).listener
 end
 
 function LLChatListener:stop()
-    leap.send('LLChatBar', {op='stopListening'})
+    leap.send(leap.cmdpump(), {op='stoplistening', source='LLNearbyChat', listener=listener_name})
     waitfor:close()
 end
 

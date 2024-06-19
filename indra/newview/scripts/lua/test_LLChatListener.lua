@@ -1,5 +1,6 @@
 local LLChatListener = require 'LLChatListener'
 local LLChat = require 'LLChat'
+local leap = require 'leap'
 
 function openOrEcho(message)
     local floater_name = string.match(message, "^open%s+(%w+)")
@@ -21,7 +22,7 @@ function listener:handleMessages(event_data)
     else
       openOrEcho(event_data.message)
     end
-    return LLChatListener.handleMessages(self, event_data)
+    return true
 end
 
 listener:start()
