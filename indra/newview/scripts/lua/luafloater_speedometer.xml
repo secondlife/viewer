@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ height="60"
+ layout="topleft"
+ name="lua_speedometer"
+ title="Speedometer"
+ can_minimize="false"
+ width="170">
+    <text
+     type="string"
+     follows="left|top"     
+     font="SansSerifBold"
+     font.size="Huge"
+     text_color="White"
+     layout="topleft"
+     top="25"
+     left_delta="30"
+     width="70"
+     height="30"
+     name="speed_lbl"/>
+    <text
+     type="string"
+     follows="left|top"
+     width="55"
+     height="30"
+     font="SansSerifBold"
+     font.size="Huge"
+     text_color="White"
+     layout="topleft"
+     left_pad="2"
+     name="mps_lbl">
+      m/s
+    </text> 
+</floater>
