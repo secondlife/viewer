@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llsingleton.cpp
  * @author Brad Kittenbrink
  *
  * $LicenseInfo:firstyear=2009&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -27,12 +27,12 @@
 #include "linden_common.h"
 #include "llsingleton.h"
 
+#include "llcoros.h"
+#include "lldependencies.h"
 #include "llerror.h"
 #include "llerrorcontrol.h"
-#include "lldependencies.h"
 #include "llexception.h"
-#include "llcoros.h"
-#include <boost/foreach.hpp>
+#include "llmainthreadtask.h"
 #include <algorithm>
 #include <iostream>                 // std::cerr in dire emergency
 #include <sstream>
@@ -272,17 +272,29 @@ void LLSingletonBase::reset_initializing(list_t::size_type size)
 
 void LLSingletonBase::MasterList::LockedInitializing::log(const char* verb, const char* name)
 {
-        LL_DEBUGS("LLSingleton") << verb << ' ' << demangle(name) << ';';
-        if (mList)
+    LL_DEBUGS("LLSingleton") << verb << ' ' << demangle(name) << ';';
+    if (mList)
+    {
+        for (list_t::const_reverse_iterator ri(mList->rbegin()), rend(mList->rend());
+             ri != rend; ++ri)
         {
-            for (list_t::const_reverse_iterator ri(mList->rbegin()), rend(mList->rend());
-                 ri != rend; ++ri)
-            {
-                LLSingletonBase* sb(*ri);
-                LL_CONT << ' ' << classname(sb);
-            }
+            LLSingletonBase* sb(*ri);
+            LL_CONT << ' ' << classname(sb);
         }
-        LL_ENDL;
+    }
+    LL_ENDL;
+}
+
+void LLSingletonBase::capture_dependency(LLSingletonBase* sb)
+{
+    // If we're called very late during application shutdown, the Boost.Fibers
+    // library may have shut down, and MasterList::mInitializing.get() might
+    // blow up. But if we're called that late, there's really no point in
+    // trying to capture this dependency.
+    if (boost::fibers::context::active())
+    {
+        sb->capture_dependency();
+    }
 }
 
 void LLSingletonBase::capture_dependency()
@@ -364,7 +376,7 @@ LLSingletonBase::vec_t LLSingletonBase::dep_sort()
     // should happen basically once: for deleteAll().
     typedef LLDependencies<LLSingletonBase*> SingletonDeps;
     SingletonDeps sdeps;
-    // Lock while traversing the master list 
+    // Lock while traversing the master list
     MasterList::LockedMaster master;
     for (LLSingletonBase* sp : master.get())
     {
@@ -411,7 +423,7 @@ void LLSingletonBase::cleanup_()
 void LLSingletonBase::deleteAll()
 {
     // It's essential to traverse these in dependency order.
-    BOOST_FOREACH(LLSingletonBase* sp, dep_sort())
+    for (LLSingletonBase* sp : dep_sort())
     {
         // Capture the class name first: in case of exception, don't count on
         // being able to extract it later.
@@ -456,7 +468,7 @@ std::ostream& operator<<(std::ostream& out, const LLSingletonBase::string_params
     return out;
 }
 
-} // anonymous namespace        
+} // anonymous namespace
 
 //static
 void LLSingletonBase::logwarns(const string_params& args)
@@ -485,4 +497,30 @@ void LLSingletonBase::logerrs(const string_params& args)
 std::string LLSingletonBase::demangle(const char* mangled)
 {
     return LLError::Log::demangle(mangled);
+}
+
+LLSingletonBase* LLSingletonBase::getInstanceForSecondaryThread(
+    const std::string& name,
+    const std::string& method,
+    const std::function<LLSingletonBase*()>& getInstance)
+{
+    // Normally it would be the height of folly to reference-bind args into a
+    // lambda to be executed on some other thread! By the time that thread
+    // executed the lambda, the references would all be dangling, and Bad
+    // Things would result. But LLMainThreadTask::dispatch() promises to block
+    // the calling thread until the passed task has completed. So in this case
+    // we know the references will remain valid until the lambda has run, so
+    // we dare to bind references.
+    return LLMainThreadTask::dispatch(
+        [&name, &method, &getInstance](){
+            // VERY IMPORTANT to call getInstance() on the main thread,
+            // rather than going straight to constructSingleton()!
+            // During the time window before mInitState is INITIALIZED,
+            // multiple requests might be queued. It's essential that, as
+            // the main thread processes them, only the FIRST such request
+            // actually constructs the instance -- every subsequent one
+            // simply returns the existing instance.
+            loginfos({name, "::", method, " on main thread"});
+            return getInstance();
+        });
 }

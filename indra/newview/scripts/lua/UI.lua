@@ -6,7 +6,7 @@ local UI = {}
 
 function UI.call(func, parameter)
     -- 'call' is fire-and-forget
-    leap.send('UI', {op='call', ['function']=func, parameter=parameter})
+    leap.request('UI', {op='call', ['function']=func, parameter=parameter})
 end
 
 function UI.getValue(path)

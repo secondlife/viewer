@@ -51,7 +51,7 @@ protected:
     {
         LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
         LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
-        registrar.add("Settings.SetRendering", boost::bind(&LLFloaterAvatarRenderSettings::onCustomAction, mFloaterSettings, _2, mUUIDs.front()));
+        registrar.add("Settings.SetRendering", { boost::bind(&LLFloaterAvatarRenderSettings::onCustomAction, mFloaterSettings, _2, mUUIDs.front()) });
         enable_registrar.add("Settings.IsSelected", boost::bind(&LLFloaterAvatarRenderSettings::isActionChecked, mFloaterSettings, _2, mUUIDs.front()));
         LLContextMenu* menu = createFromFile("menu_avatar_rendering_settings.xml");
 
@@ -70,12 +70,12 @@ static LLAvatarRenderMuteListObserver sAvatarRenderMuteListObserver;
 
 LLFloaterAvatarRenderSettings::LLFloaterAvatarRenderSettings(const LLSD& key)
 :   LLFloater(key),
-	mAvatarSettingsList(NULL),
-	mNeedsUpdate(false)
+    mAvatarSettingsList(NULL),
+    mNeedsUpdate(false)
 {
     mContextMenu = new LLSettingsContextMenu(this);
     LLRenderMuteList::getInstance()->addObserver(&sAvatarRenderMuteListObserver);
-    mCommitCallbackRegistrar.add("Settings.AddNewEntry", boost::bind(&LLFloaterAvatarRenderSettings::onClickAdd, this, _2));
+    mCommitCallbackRegistrar.add("Settings.AddNewEntry", {boost::bind(&LLFloaterAvatarRenderSettings::onClickAdd, this, _2)});
 }
 
 LLFloaterAvatarRenderSettings::~LLFloaterAvatarRenderSettings()
@@ -90,7 +90,7 @@ BOOL LLFloaterAvatarRenderSettings::postBuild()
     mAvatarSettingsList = getChild<LLNameListCtrl>("render_settings_list");
     mAvatarSettingsList->setRightMouseDownCallback(boost::bind(&LLFloaterAvatarRenderSettings::onAvatarListRightClick, this, _1, _2, _3));
 
-	return TRUE;
+    return TRUE;
 }
 
 void LLFloaterAvatarRenderSettings::draw()

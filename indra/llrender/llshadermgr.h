@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llshadermgr.h
  * @brief Shader Manager
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -33,8 +33,8 @@
 class LLShaderMgr
 {
 public:
-	LLShaderMgr();
-	virtual ~LLShaderMgr();
+    LLShaderMgr();
+    virtual ~LLShaderMgr();
 
     // clang-format off
     typedef enum
@@ -85,6 +85,9 @@ public:
         EMISSIVE_COLOR,                     //  "emissiveColor"
         METALLIC_FACTOR,                    //  "metallicFactor"
         ROUGHNESS_FACTOR,                   //  "roughnessFactor"
+        MIRROR_FLAG,                        //  "mirror_flag"
+        CLIP_PLANE,                         //  "clipPlane"
+        CLIP_SIGN,                          //  "clipSign"
         DIFFUSE_MAP,                        //  "diffuseMap"
         ALTERNATE_DIFFUSE_MAP,              //  "altDiffuseMap"
         SPECULAR_MAP,                       //  "specularMap"
@@ -96,6 +99,7 @@ public:
         SCENE_DEPTH,                        //  "sceneDepth"
         REFLECTION_PROBES,                  //  "reflectionProbes"
         IRRADIANCE_PROBES,                  //  "irradianceProbes"
+        HERO_PROBE,                         //  "heroProbes"
         CLOUD_NOISE_MAP,                    //  "cloud_noise_texture"
         CLOUD_NOISE_MAP_NEXT,               //  "cloud_noise_texture_next"
         FULLBRIGHT,                         //  "fullbright"
@@ -251,7 +255,31 @@ public:
         TERRAIN_DETAIL1,                    //  "detail_1"
         TERRAIN_DETAIL2,                    //  "detail_2"
         TERRAIN_DETAIL3,                    //  "detail_3"
+
         TERRAIN_ALPHARAMP,                  //  "alpha_ramp"
+
+        TERRAIN_DETAIL0_BASE_COLOR,                //  "detail_0_base_color" (GLTF)
+        TERRAIN_DETAIL1_BASE_COLOR,                //  "detail_1_base_color" (GLTF)
+        TERRAIN_DETAIL2_BASE_COLOR,                //  "detail_2_base_color" (GLTF)
+        TERRAIN_DETAIL3_BASE_COLOR,                //  "detail_3_base_color" (GLTF)
+        TERRAIN_DETAIL0_NORMAL,                    //  "detail_0_normal" (GLTF)
+        TERRAIN_DETAIL1_NORMAL,                    //  "detail_1_normal" (GLTF)
+        TERRAIN_DETAIL2_NORMAL,                    //  "detail_2_normal" (GLTF)
+        TERRAIN_DETAIL3_NORMAL,                    //  "detail_3_normal" (GLTF)
+        TERRAIN_DETAIL0_METALLIC_ROUGHNESS,        //  "detail_0_metallic_roughness" (GLTF)
+        TERRAIN_DETAIL1_METALLIC_ROUGHNESS,        //  "detail_1_metallic_roughness" (GLTF)
+        TERRAIN_DETAIL2_METALLIC_ROUGHNESS,        //  "detail_2_metallic_roughness" (GLTF)
+        TERRAIN_DETAIL3_METALLIC_ROUGHNESS,        //  "detail_3_metallic_roughness" (GLTF)
+        TERRAIN_DETAIL0_EMISSIVE,                  //  "detail_0_emissive" (GLTF)
+        TERRAIN_DETAIL1_EMISSIVE,                  //  "detail_1_emissive" (GLTF)
+        TERRAIN_DETAIL2_EMISSIVE,                  //  "detail_2_emissive" (GLTF)
+        TERRAIN_DETAIL3_EMISSIVE,                  //  "detail_3_emissive" (GLTF)
+
+        TERRAIN_BASE_COLOR_FACTORS,                //  "baseColorFactors" (GLTF)
+        TERRAIN_METALLIC_FACTORS,                  //  "metallicFactors" (GLTF)
+        TERRAIN_ROUGHNESS_FACTORS,                 //  "roughnessFactors" (GLTF)
+        TERRAIN_EMISSIVE_COLORS,                   //  "emissiveColors" (GLTF)
+        TERRAIN_MINIMUM_ALPHAS,                    //  "minimum_alphas" (GLTF)
 
         SHINY_ORIGIN,                       //  "origin"
         DISPLAY_GAMMA,                      //  "display_gamma"
@@ -279,6 +307,7 @@ public:
 
         REFLECTION_PROBE_AMBIANCE,          //  "reflection_probe_ambiance"
         REFLECTION_PROBE_MAX_LOD,            //  "max_probe_lod"
+        REFLECTION_PROBE_STRENGTH,            //  "probe_strength"
         SH_INPUT_L1R,                       //  "sh_input_r"
         SH_INPUT_L1G,                       //  "sh_input_g"
         SH_INPUT_L1B,                       //  "sh_input_b"
@@ -287,27 +316,30 @@ public:
         WATER_EDGE_FACTOR,                  //  "water_edge"
         SUN_UP_FACTOR,                      //  "sun_up_factor"
         MOONLIGHT_COLOR,                    //  "moonlight_color"
+
+        DEBUG_NORMAL_DRAW_LENGTH,           //  "debug_normal_draw_length"
+
         END_RESERVED_UNIFORMS
     } eGLSLReservedUniforms;
     // clang-format on
 
-	// singleton pattern implementation
-	static LLShaderMgr * instance();
+    // singleton pattern implementation
+    static LLShaderMgr * instance();
 
-	virtual void initAttribsAndUniforms(void);
+    virtual void initAttribsAndUniforms(void);
 
-	BOOL attachShaderFeatures(LLGLSLShader * shader);
-	void dumpObjectLog(GLuint ret, BOOL warns = TRUE, const std::string& filename = "");
+    BOOL attachShaderFeatures(LLGLSLShader * shader);
+    void dumpObjectLog(GLuint ret, BOOL warns = TRUE, const std::string& filename = "");
     void dumpShaderSource(U32 shader_code_count, GLchar** shader_code_text);
-	BOOL	linkProgramObject(GLuint obj, BOOL suppress_errors = FALSE);
-	BOOL	validateProgramObject(GLuint obj);
-	GLuint loadShaderFile(const std::string& filename, S32 & shader_level, GLenum type, std::map<std::string, std::string>* defines = NULL, S32 texture_index_channels = -1);
+    BOOL    linkProgramObject(GLuint obj, BOOL suppress_errors = FALSE);
+    BOOL    validateProgramObject(GLuint obj);
+    GLuint loadShaderFile(const std::string& filename, S32 & shader_level, GLenum type, std::map<std::string, std::string>* defines = NULL, S32 texture_index_channels = -1);
 
-	// Implemented in the application to actually point to the shader directory.
-	virtual std::string getShaderDirPrefix(void) = 0; // Pure Virtual
+    // Implemented in the application to actually point to the shader directory.
+    virtual std::string getShaderDirPrefix(void) = 0; // Pure Virtual
 
-	// Implemented in the application to actually update out of date uniforms for a particular shader
-	virtual void updateShaderUniforms(LLGLSLShader * shader) = 0; // Pure Virtual
+    // Implemented in the application to actually update out of date uniforms for a particular shader
+    virtual void updateShaderUniforms(LLGLSLShader * shader) = 0; // Pure Virtual
 
     void initShaderCache(bool enabled, const LLUUID& old_cache_version, const LLUUID& current_cache_version);
     void clearShaderCache();
@@ -317,14 +349,14 @@ public:
     bool saveCachedProgramBinary(LLGLSLShader* shader);
 
 public:
-	// Map of shader names to compiled
+    // Map of shader names to compiled
     std::map<std::string, GLuint> mVertexShaderObjects;
     std::map<std::string, GLuint> mFragmentShaderObjects;
 
-	//global (reserved slot) shader parameters
-	std::vector<std::string> mReservedAttribs;
+    //global (reserved slot) shader parameters
+    std::vector<std::string> mReservedAttribs;
 
-	std::vector<std::string> mReservedUniforms;
+    std::vector<std::string> mReservedUniforms;
 
     struct ProgramBinaryData
     {
@@ -336,11 +368,12 @@ public:
     bool mShaderCacheInitialized = false;
     bool mShaderCacheEnabled = false;
     std::string mShaderCacheDir;
+    static bool sMirrorsEnabled;
 
 protected:
 
-	// our parameter manager singleton instance
-	static LLShaderMgr * sInstance;
+    // our parameter manager singleton instance
+    static LLShaderMgr * sInstance;
 
 }; //LLShaderMgr
 

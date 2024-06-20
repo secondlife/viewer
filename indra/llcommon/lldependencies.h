@@ -8,21 +8,21 @@
  * $LicenseInfo:firstyear=2008&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -30,6 +30,8 @@
 #if ! defined(LL_LLDEPENDENCIES_H)
 #define LL_LLDEPENDENCIES_H
 
+#include "linden_common.h"
+#include "llexception.h"
 #include <string>
 #include <vector>
 #include <set>
@@ -40,7 +42,6 @@
 #include <boost/range/iterator_range.hpp>
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
-#include "llexception.h"
 
 /*****************************************************************************
 *   Utilities
@@ -177,7 +178,7 @@ struct LLDependenciesEmpty
      * values such as NULL or 0 rather than having to write
      * LLDependenciesEmpty().
      */
-    LLDependenciesEmpty(void*) {}    
+    LLDependenciesEmpty(void*) {}
 };
 
 /**
@@ -209,7 +210,7 @@ class LLDependencies: public LLDependenciesBase
             before(before_)
         {}
         NODE node;
-        dep_set after, before;    
+        dep_set after, before;
     };
     typedef std::map<KEY, DepNode> DepNodeMap;
     typedef typename DepNodeMap::value_type DepNodeMapEntry;
@@ -239,7 +240,7 @@ public:
      * NODE& reference.
      *
      * @note
-     * Actual dependency analysis is deferred to the sort() method, so 
+     * Actual dependency analysis is deferred to the sort() method, so
      * you can add an arbitrary number of nodes without incurring analysis
      * overhead for each. The flip side of this is that add()ing nodes that
      * define a cycle leaves this object in a state in which sort() will
@@ -598,7 +599,7 @@ public:
         return sorted_range(begin, end);
     }
 
-	using LLDependenciesBase::describe; // unhide virtual std::string describe(bool full=true) const;
+    using LLDependenciesBase::describe; // unhide virtual std::string describe(bool full=true) const;
 
     /// Override base-class describe() with actual implementation
     virtual std::ostream& describe(std::ostream& out, bool full=true) const

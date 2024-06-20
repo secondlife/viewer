@@ -220,12 +220,21 @@ void LLEventPumps::clear()
     }
 }
 
-void LLEventPumps::reset()
+void LLEventPumps::reset(bool log_pumps)
 {
     // Reset every known LLEventPump instance. Leave it up to each instance to
     // decide what to do with the reset() call.
+    if (log_pumps)
+    {
+        LL_INFOS() << "Resetting " << (S32)mPumpMap.size() << " pumps" << LL_ENDL;
+    }
+
     for (PumpMap::value_type& pair : mPumpMap)
     {
+        if (log_pumps)
+        {
+            LL_INFOS() << "Resetting pump " << pair.first << LL_ENDL;
+        }
         pair.second->reset();
     }
 }
@@ -350,8 +359,7 @@ const std::string LLEventPump::ANONYMOUS = std::string();
 
 LLEventPump::LLEventPump(const std::string& name, bool tweak):
     // Register every new instance with LLEventPumps
-    mRegistry(LLEventPumps::instance().getHandle()),
-    mName(mRegistry.get()->registerNew(*this, name, tweak)),
+    mName(LLEventPumps::instance().registerNew(*this, name, tweak)),
     mSignal(std::make_shared<LLStandardSignal>()),
     mEnabled(true)
 {}
@@ -364,10 +372,9 @@ LLEventPump::~LLEventPump()
 {
     // Unregister this doomed instance from LLEventPumps -- but only if
     // LLEventPumps is still around!
-    LLEventPumps* registry = mRegistry.get();
-    if (registry)
+    if (LLEventPumps::instanceExists())
     {
-        registry->unregister(*this);
+        LLEventPumps::instance().unregister(*this);
     }
 }
 
@@ -382,9 +389,11 @@ std::string LLEventPump::inventName(const std::string& pfx)
 
 void LLEventPump::clear()
 {
+    LLMutexLock lock(&mConnectionListMutex);
     // Destroy the original LLStandardSignal instance, replacing it with a
     // whole new one.
     mSignal = std::make_shared<LLStandardSignal>();
+
     mConnections.clear();
 }
 
@@ -392,6 +401,7 @@ void LLEventPump::reset()
 {
     // Resetting mSignal is supposed to disconnect everything on its own
     // But due to crash on 'reset' added explicit cleanup to get more data
+    LLMutexLock lock(&mConnectionListMutex);
     ConnectionMap::const_iterator iter = mConnections.begin();
     ConnectionMap::const_iterator end = mConnections.end();
     while (iter!=end)
@@ -415,6 +425,8 @@ LLBoundListener LLEventPump::listen_impl(const std::string& name, const LLEventL
         // connect will fail, return dummy
         return LLBoundListener();
     }
+
+    LLMutexLock lock(&mConnectionListMutex);
 
     float nodePosition = 1.0;
 
@@ -575,8 +587,9 @@ LLBoundListener LLEventPump::listen_impl(const std::string& name, const LLEventL
     return bound;
 }
 
-LLBoundListener LLEventPump::getListener(const std::string& name) const
+LLBoundListener LLEventPump::getListener(const std::string& name)
 {
+    LLMutexLock lock(&mConnectionListMutex);
     ConnectionMap::const_iterator found = mConnections.find(name);
     if (found != mConnections.end())
     {
@@ -588,6 +601,7 @@ LLBoundListener LLEventPump::getListener(const std::string& name) const
 
 void LLEventPump::stopListening(const std::string& name)
 {
+    LLMutexLock lock(&mConnectionListMutex);
     ConnectionMap::iterator found = mConnections.find(name);
     if (found != mConnections.end())
     {
@@ -743,6 +757,9 @@ bool sendReply(LLSD reply, const LLSD& request, const std::string& replyKey)
     LLReqID reqID(request);
     // and copy it to 'reply'.
     reqID.stamp(reply);
-    // Send reply on LLEventPump named in request[replyKey].
-    return LLEventPumps::instance().obtain(request[replyKey]).post(reply);
+    // Send reply on LLEventPump named in request[replyKey] -- if that
+    // LLEventPump exists. If it does not, don't create it.
+    // This addresses the case in which a requester goes away before a
+    // particular LLEventAPI responds.
+    return LLEventPumps::instance().post(request[replyKey], reply);
 }

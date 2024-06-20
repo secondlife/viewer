@@ -3,7 +3,7 @@
  * @author Nat Goodspeed
  * @date   2011-12-19
  * @brief  Test for llprocess.
- * 
+ *
  * $LicenseInfo:firstyear=2011&license=viewerlgpl$
  * Copyright (c) 2011, Linden Research, Inc.
  * $/LicenseInfo$
@@ -21,7 +21,6 @@
 // external library headers
 #include "llapr.h"
 #include "apr_thread_proc.h"
-#include <boost/foreach.hpp>
 #include <boost/function.hpp>
 #include <boost/algorithm/string/find_iterator.hpp>
 #include <boost/algorithm/string/finder.hpp>
@@ -260,6 +259,7 @@ public:
     }
 
     std::string getName() const { return mPath.string(); }
+    std::string getNormalName() const { return mPath.lexically_normal().make_preferred().string(); }
 
 private:
     boost::filesystem::path mPath;
@@ -323,7 +323,7 @@ namespace tut
     {
 /*==========================================================================*|
         std::string reason_str;
-        BOOST_FOREACH(const ReasonCode& rcp, reasons)
+        for (const ReasonCode& rcp : reasons)
         {
             if (reason == rcp.code)
             {
@@ -554,7 +554,7 @@ namespace tut
         catch (const failure&)
         {
             std::cout << "History:\n";
-            BOOST_FOREACH(const Item& item, history)
+            for (const Item& item : history)
             {
                 std::string what(item.what);
                 if ((! what.empty()) && what[what.length() - 1] == '\n')
@@ -591,7 +591,7 @@ namespace tut
                                  "    f.write(os.path.normcase(os.path.normpath(os.getcwd())))\n");
         // Before running, call setWorkingDirectory()
         py.mParams.cwd = tempdir.getName();
-        std::string expected{ tempdir.getName() };
+        std::string expected{ tempdir.getNormalName() };
 #if LL_WINDOWS
         // SIGH, don't get tripped up by "C:" != "c:" --
         // but on the Mac, using tolower() fails because "/users" != "/Users"!
@@ -1076,7 +1076,7 @@ namespace tut
     {
         EventListener(LLEventPump& pump)
         {
-            mConnection = 
+            mConnection =
                 pump.listen("EventListener", boost::bind(&EventListener::tick, this, _1));
         }
 

@@ -3,7 +3,7 @@
  * @author Nat Goodspeed
  * @date   2012-01-13
  * @brief  NamedTempFile class for tests that need disk files as fixtures.
- * 
+ *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Copyright (c) 2012, Linden Research, Inc.
  * $/LicenseInfo$

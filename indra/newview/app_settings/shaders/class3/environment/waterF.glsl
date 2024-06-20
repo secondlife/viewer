@@ -1,28 +1,28 @@
-/** 
+/**
  * @file waterF.glsl
  *
  * $LicenseInfo:firstyear=2022&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2022, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
+
 // class3/environment/waterF.glsl
 
 out vec4 frag_color;
@@ -34,6 +34,8 @@ float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen);
 vec3 scaleSoftClipFragLinear(vec3 l);
 void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 norm, vec3 light_dir, out vec3 sunlit, out vec3 amblit, out vec3 atten, out vec3 additive);
 vec4 applyWaterFogViewLinear(vec3 pos, vec4 color);
+
+void mirrorClip(vec3 pos);
 
 // PBR interface
 vec2 BRDF(float NoV, float roughness);
@@ -127,8 +129,9 @@ void sampleReflectionProbesWater(inout vec3 ambenv, inout vec3 glossenv,
 
 vec3 getPositionWithNDC(vec3 ndc);
 
-void main() 
+void main()
 {
+    mirrorClip(vary_position);
     vN = vary_normal;
     vT = vary_tangent;
     vB = cross(vN, vT);
@@ -157,7 +160,7 @@ void main()
     vec3 wave3 = BlendNormal(wave3_a, wave3_b);
 
     vec2 distort = (refCoord.xy/refCoord.z) * 0.5 + 0.5;
-     
+
     //wave1 = transform_normal(wave1);
     //wave2 = transform_normal(wave2);
     //wave3 = transform_normal(wave3);
@@ -168,7 +171,7 @@ void main()
 
     vec3 up = transform_normal(vec3(0,0,1));
     float vdu = -dot(viewVec, up)*2;
-    
+
     vec3 wave_ibl = wavef;
     wave_ibl.z *= 2.0;
     wave_ibl = transform_normal(normalize(wave_ibl));
@@ -182,13 +185,13 @@ void main()
 
     //wavef = vec3(0, 0, 1);
     wavef = transform_normal(wavef);
-    
-	float dist2 = dist;
-	dist = max(dist, 5.0);
-	
-	float dmod = sqrt(dist);
-	
-	//figure out distortion vector (ripply)   
+
+    float dist2 = dist;
+    dist = max(dist, 5.0);
+
+    float dmod = sqrt(dist);
+
+    //figure out distortion vector (ripply)
     vec2 distort2 = distort + waver.xy * refScale / max(dmod, 1.0);
 
     distort2 = clamp(distort2, vec2(0), vec2(0.999));
@@ -232,7 +235,7 @@ void main()
     float metallic = 0.0;
     float perceptualRoughness = 0.05;
     float gloss      = 1.0 - perceptualRoughness;
-    
+
     vec3  irradiance = vec3(0);
     vec3  radiance  = vec3(0);
     sampleReflectionProbesWater(irradiance, radiance, distort2, pos.xyz, wave_ibl.xyz, gloss, amblit);
@@ -248,7 +251,7 @@ void main()
     vec3 colorEmissive = vec3(0);
     float ao = 1.0;
     vec3 light_dir = transform_normal(lightDir);
-    
+
     perceptualRoughness = 0.0;
     metallic = 1.0;
 
@@ -281,7 +284,7 @@ void main()
     color = ((1.0 - f) * color) + fb.rgb;
 
     float spec = min(max(max(punctual.r, punctual.g), punctual.b), 0.05);
-    
+
     frag_color = max(vec4(color, spec), vec4(0));
 }
 

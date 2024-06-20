@@ -34,6 +34,8 @@ in vec2 vary_fragcoord;
 
 uniform sampler2D diffuseRect;
 uniform sampler2D emissiveRect;
+uniform sampler2D normalMap;
+uniform float diffuse_luminance_scale;
 
 float lum(vec3 col)
 {
@@ -45,7 +47,21 @@ void main()
 {
     vec2 tc = vary_fragcoord*0.6+0.2;
     tc.y -= 0.1; // HACK - nudge exposure sample down a little bit to favor ground over sky
-    vec3 c = texture(diffuseRect, tc).rgb + texture(emissiveRect, tc).rgb;
+    vec3 c = texture(diffuseRect, tc).rgb;
+    
+    vec4  norm         = texture(normalMap, tc);
+
+    if (!GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_HDRI) &&
+        !GET_GBUFFER_FLAG(GBUFFER_FLAG_SKIP_ATMOS))
+    {
+        // Apply the diffuse luminance scale to objects but not the sky
+        // Prevents underexposing when looking at bright environments
+        // while still allowing for realistically bright skies.
+        c *= diffuse_luminance_scale;
+    }
+
+    c += texture(emissiveRect, tc).rgb;
+
     float L = lum(c);
     frag_color = vec4(max(L, 0.0));
 }

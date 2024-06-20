@@ -1,4 +1,4 @@
-/** 
+/**
 * @file llpathfindingcharacterlist.cpp
 * @brief Implementation of llpathfindingcharacterlist
 * @author Stinson@lindenlab.com

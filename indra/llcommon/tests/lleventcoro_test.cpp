@@ -101,7 +101,7 @@ namespace tut
         int which;
         LLTestApp testApp;
 
-        void explicit_wait(boost::shared_ptr<LLCoros::Promise<std::string>>& cbp);
+        void explicit_wait(std::shared_ptr<LLCoros::Promise<std::string>>& cbp);
         void waitForEventOn1();
         void coroPump();
         void postAndWait1();
@@ -111,7 +111,7 @@ namespace tut
     typedef coroutine_group::object object;
     coroutine_group coroutinegrp("coroutine");
 
-    void test_data::explicit_wait(boost::shared_ptr<LLCoros::Promise<std::string>>& cbp)
+    void test_data::explicit_wait(std::shared_ptr<LLCoros::Promise<std::string>>& cbp)
     {
         DEBUG;
         mSync.bump();
@@ -121,13 +121,13 @@ namespace tut
         // provides a callback-style notification (and prove that it
         // works).
 
-        // Perhaps we would send a request to a remote server and arrange
-        // for cbp->set_value() to be called on response.
-        // For test purposes, instead of handing 'callback' (or an
-        // adapter) off to some I/O subsystem, we'll just pass it back to
-        // our caller.
-        cbp = boost::make_shared<LLCoros::Promise<std::string>>();
-        LLCoros::Future<std::string> future = LLCoros::getFuture(*cbp);
+            // Perhaps we would send a request to a remote server and arrange
+            // for cbp->set_value() to be called on response.
+            // For test purposes, instead of handing 'callback' (or an
+            // adapter) off to some I/O subsystem, we'll just pass it back to
+            // our caller.
+            cbp = std::make_shared<LLCoros::Promise<std::string>>();
+            LLCoros::Future<std::string> future = LLCoros::getFuture(*cbp);
 
         // calling get() on the future causes us to suspend
         debug("about to suspend");
@@ -143,7 +143,7 @@ namespace tut
         DEBUG;
 
         // Construct the coroutine instance that will run explicit_wait.
-        boost::shared_ptr<LLCoros::Promise<std::string>> respond;
+        std::shared_ptr<LLCoros::Promise<std::string>> respond;
         LLCoros::instance().launch("test<1>",
                                    [this, &respond](){ explicit_wait(respond); });
         mSync.bump();

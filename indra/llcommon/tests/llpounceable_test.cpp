@@ -3,7 +3,7 @@
  * @author Nat Goodspeed
  * @date   2015-05-22
  * @brief  Test for llpounceable.
- * 
+ *
  * $LicenseInfo:firstyear=2015&license=viewerlgpl$
  * Copyright (c) 2015, Linden Research, Inc.
  * $/LicenseInfo$

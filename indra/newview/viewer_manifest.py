@@ -168,6 +168,7 @@ class ViewerManifest(LLManifest):
 
             with self.prefix(src_dst="scripts/lua"):
                 self.path("*.lua")
+                self.path("*.xml")
 
             #build_data.json.  Standard with exception handling is fine.  If we can't open a new file for writing, we have worse problems
             #platform is computed above with other arg parsing
@@ -561,10 +562,6 @@ class Windows_x86_64_Manifest(ViewerManifest):
                 # Get openal dll
                 self.path("OpenAL32.dll")
                 self.path("alut.dll")
-
-            # For ICU4C
-            self.path("icudt48.dll")
-            self.path("icuuc48.dll")
 
             # For textures
             self.path("openjp2.dll")

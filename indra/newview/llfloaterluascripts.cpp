@@ -41,22 +41,22 @@ LLFloaterLUAScripts::LLFloaterLUAScripts(const LLSD &key)
     mUpdateTimer(new LLTimer()),
     mContextMenuHandle()
 {
-    mCommitCallbackRegistrar.add("Script.OpenFolder", [this](LLUICtrl*, const LLSD &userdata) 
+    mCommitCallbackRegistrar.add("Script.OpenFolder", {[this](LLUICtrl*, const LLSD &userdata) 
     { 
         if (mScriptList->hasSelectedItem())
         {
             std::string target_folder_path = std::filesystem::path((mScriptList->getFirstSelected()->getColumn(1)->getValue().asString())).parent_path().string();
             gViewerWindow->getWindow()->openFolder(target_folder_path);
         }
-    });
-    mCommitCallbackRegistrar.add("Script.Terminate", [this](LLUICtrl*, const LLSD &userdata) 
+    }, cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("Script.Terminate", {[this](LLUICtrl*, const LLSD &userdata) 
     { 
         if (mScriptList->hasSelectedItem())
         {
             std::string coro_name = mScriptList->getSelectedValue();
             LLCoros::instance().killreq(coro_name);
         }
-    });
+    }, cb_info::UNTRUSTED_BLOCK });
 }
 
 

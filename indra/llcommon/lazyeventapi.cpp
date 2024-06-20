@@ -3,7 +3,7 @@
  * @author Nat Goodspeed
  * @date   2022-06-17
  * @brief  Implementation for lazyeventapi.
- * 
+ *
  * $LicenseInfo:firstyear=2022&license=viewerlgpl$
  * Copyright (c) 2022, Linden Research, Inc.
  * $/LicenseInfo$
@@ -47,7 +47,9 @@ LL::LazyEventAPIBase::~LazyEventAPIBase()
     // case, do NOT unregister their name out from under them!
     // If this is a static instance being destroyed at process shutdown,
     // LLEventPumps will probably have been cleaned up already.
-    if (mRegistered && ! LLEventPumps::wasDeleted())
+    // That said, in a test program, LLEventPumps might never have been
+    // constructed to start with.
+    if (mRegistered && LLEventPumps::instanceExists())
     {
         // unregister the callback to this doomed instance
         LLEventPumps::instance().unregisterPumpFactory(mParams.name);

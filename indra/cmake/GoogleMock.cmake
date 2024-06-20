@@ -9,7 +9,7 @@ if(USE_CONAN)
   target_link_libraries( ll::googlemock INTERFACE  CONAN_PKG::gtest )
 
   #Not very nice, but for the moment we need this for tut.hpp
-  target_include_directories( ll::googlemock SYSTEM INTERFACE ${LIBS_PREBUILT_DIR}/include ) 
+  target_include_directories( ll::googlemock SYSTEM INTERFACE ${LIBS_PREBUILT_DIR}/include )
   return()
 endif()
 

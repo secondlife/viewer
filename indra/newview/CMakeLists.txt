@@ -18,7 +18,6 @@ include(DragDrop)
 include(EXPAT)
 include(FMODSTUDIO)
 include(Hunspell)
-include(ICU4C)
 include(JPEGEncoderBasic)
 include(JsonCpp)
 include(LLAppearance)
@@ -38,6 +37,7 @@ include(OpenGL)
 include(OpenSSL)
 include(PNG)
 include(TemplateCheck)
+include(TinyEXR)
 include(ThreeJS)
 include(Tracy)
 include(UI)
@@ -73,8 +73,12 @@ if (NOT HAVOK_TPV)
    endif()
 endif (NOT HAVOK_TPV)
 
-
 set(viewer_SOURCE_FILES
+    gltfscenemanager.cpp
+    gltf/asset.cpp
+    gltf/accessor.cpp
+    gltf/primitive.cpp
+    gltf/animation.cpp
     groupchatlistener.cpp
     llaccountingcostmanager.cpp
     llaisapi.cpp
@@ -236,6 +240,7 @@ set(viewer_SOURCE_FILES
     llfloaterimcontainer.cpp
     llfloaterinspect.cpp
     llfloaterinventorysettings.cpp
+    llfloaterinventorythumbnailshelper.cpp
     llfloaterjoystick.cpp
     llfloaterlagmeter.cpp
     llfloaterland.cpp
@@ -315,6 +320,7 @@ set(viewer_SOURCE_FILES
     llgiveinventory.cpp
     llglsandbox.cpp
     llgltfmateriallist.cpp
+    llgltfmaterialpreviewmgr.cpp
     llgroupactions.cpp
     llgroupiconctrl.cpp
     llgrouplist.cpp
@@ -526,6 +532,7 @@ set(viewer_SOURCE_FILES
     llrecentpeople.cpp
     llreflectionmap.cpp
     llreflectionmapmanager.cpp
+    llheroprobemanager.cpp
     llregioninfomodel.cpp
     llregionposition.cpp
     llremoteparcelrequest.cpp
@@ -729,7 +736,13 @@ set(VIEWER_BINARY_NAME "secondlife-bin" CACHE STRING
 set(viewer_HEADER_FILES
     CMakeLists.txt
     ViewerInstall.cmake
+    gltfscenemanager.h
     groupchatlistener.h
+    gltf/asset.h
+    gltf/accessor.h
+    gltf/buffer_util.h
+    gltf/primitive.h
+    gltf/animation.h
     llaccountingcost.h
     llaccountingcostmanager.h
     llaisapi.h
@@ -895,6 +908,7 @@ set(viewer_HEADER_FILES
     llfloaterimcontainer.h
     llfloaterinspect.h
     llfloaterinventorysettings.h
+    llfloaterinventorythumbnailshelper.h
     llfloaterjoystick.h
     llfloaterlagmeter.h
     llfloaterland.h
@@ -973,6 +987,7 @@ set(viewer_HEADER_FILES
     llgesturemgr.h
     llgiveinventory.h
     llgltfmateriallist.h
+    llgltfmaterialpreviewmgr.h
     llgroupactions.h
     llgroupiconctrl.h
     llgrouplist.h
@@ -1170,6 +1185,7 @@ set(viewer_HEADER_FILES
     llrecentpeople.h
     llreflectionmap.h
     llreflectionmapmanager.h
+    llheroprobemanager.h
     llregioninfomodel.h
     llregionposition.h
     llremoteparcelrequest.h
@@ -1585,34 +1601,15 @@ endif (WINDOWS)
 
 # Add the xui files. This is handy for searching for xui elements
 # from within the IDE.
-set(viewer_XUI_FILES
-    skins/default/colors.xml
-    skins/default/default_languages.xml
-    skins/default/textures/textures.xml
-    )
-file(GLOB DEFAULT_XUI_FILE_GLOB_LIST
-     ${CMAKE_CURRENT_SOURCE_DIR}/skins/*/xui/en/*.xml)
-list(APPEND viewer_XUI_FILES ${DEFAULT_XUI_FILE_GLOB_LIST})
-
-file(GLOB DEFAULT_WIDGET_FILE_GLOB_LIST
-     ${CMAKE_CURRENT_SOURCE_DIR}/skins/*/xui/en/widgets/*.xml)
-list(APPEND viewer_XUI_FILES ${DEFAULT_WIDGET_FILE_GLOB_LIST})
-
-# Cannot append empty lists in CMake, wait until we have files here.
-#file(GLOB SILVER_WIDGET_FILE_GLOB_LIST
-#     ${CMAKE_CURRENT_SOURCE_DIR}/skins/silver/xui/en-us/widgets/*.xml)
-#list(APPEND viewer_XUI_FILES ${SILVER_WIDGET_FILE_GLOB_LIST})
-
-list(SORT viewer_XUI_FILES)
-
-source_group("XUI Files" FILES ${viewer_XUI_FILES})
-
-set_source_files_properties(${viewer_XUI_FILES}
+file(GLOB_RECURSE viewer_XUI_FILES LIST_DIRECTORIES FALSE
+    ${CMAKE_CURRENT_SOURCE_DIR}/skins/*.xml)
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/skins PREFIX "XUI Files" FILES ${viewer_XUI_FILES})
+set_source_files_properties(${viewer_XUI_FILES} 
                             PROPERTIES HEADER_FILE_ONLY TRUE)
-
 list(APPEND viewer_SOURCE_FILES ${viewer_XUI_FILES})
 
-file(GLOB_RECURSE viewer_SHADER_FILES LIST_DIRECTORIES TRUE
+# Add the shader sources
+file(GLOB_RECURSE viewer_SHADER_FILES LIST_DIRECTORIES FALSE
     ${CMAKE_CURRENT_SOURCE_DIR}/app_settings/shaders/*.glsl)
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/app_settings/shaders PREFIX "Shaders" FILES ${viewer_SHADER_FILES})
 set_source_files_properties(${viewer_SHADER_FILES} 
@@ -1622,8 +1619,11 @@ list(APPEND viewer_SOURCE_FILES ${viewer_SHADER_FILES})
 
 set(viewer_APPSETTINGS_FILES
     app_settings/anim.ini
+    app_settings/autoreplace.xml
     app_settings/cmd_line.xml
     app_settings/commands.xml
+    app_settings/emoji_groups.xml
+    app_settings/foldertypes.xml
     app_settings/grass.xml
     app_settings/ignorable_dialogs.xml
     app_settings/key_bindings.xml
@@ -1920,7 +1920,6 @@ target_link_libraries(${VIEWER_BINARY_NAME}
         llappearance
         ${LLPHYSICSEXTENSIONS_LIBRARIES}
         ll::bugsplat
-        ll::icu4c
         ll::lualibs
         ll::ndof
         ll::tracy

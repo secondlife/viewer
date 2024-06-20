@@ -46,10 +46,18 @@ function Floater:new(path, extra)
 end
 
 function Floater:show()
-    local event = leap.request('LLFloaterReg', self._command)
+    -- leap.eventstream() returns the first response, and launches a
+    -- background fiber to call the passed callback with all subsequent
+    -- responses.
+    local event = leap.eventstream(
+        'LLFloaterReg',
+        self._command,
+        -- handleEvents() returns false when done.
+        -- eventstream() expects a true return when done.
+        function(event) return not self:handleEvents(event) end)
     self._pump = event.command_name
-    -- we use the returned reqid to claim subsequent unsolicited events
-    local reqid = event.reqid
+    -- we might need the returned reqid to cancel the eventstream() fiber
+    self.reqid = event.reqid
 
     -- The response to 'showLuaFloater' *is* the 'post_build' event. Check if
     -- subclass has a post_build() method. Honor the convention that if
@@ -57,22 +65,6 @@ function Floater:show()
     if not self:handleEvents(event) then
         return
     end
-
-    local waitfor = leap.WaitFor:new(-1, self.name)
-    function waitfor:filter(pump, data)
-        if data.reqid == reqid then
-            return data
-        end
-    end
-
-    fiber.launch(
-        self.name,
-        function ()
-            event = waitfor:wait()
-            while event and self:handleEvents(event) do
-                event = waitfor:wait()
-            end
-        end)
 end
 
 function Floater:post(action)
@@ -125,7 +117,7 @@ function Floater:handleEvents(event_data)
     -- We check for event() method before recognizing floater_close in case
     -- the consumer needs to react specially to closing the floater. Now that
     -- we've checked, recognize it ourselves. Returning false terminates the
-    -- anonymous fiber function launched by show().
+    -- anonymous fiber function launched by leap.eventstream().
     if event == _event('floater_close') then
         LL.print_warning(self.name .. ' closed')
         return false

@@ -5,21 +5,21 @@
  * $LicenseInfo:firstyear=2009&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2011, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -33,12 +33,12 @@
 #include "llsettingsbase.h"
 #include "llsettingssky.h"
 
-class WLColorControl 
+class WLColorControl
 {
 public:
     inline WLColorControl(LLColor4 color, const std::string& n, const std::string& slider_name = std::string()):
-        mColor(color), 
-        mName(n), 
+        mColor(color),
+        mName(n),
         mSliderName(slider_name),
         mHasSliderName(false),
         mIsSunOrAmbientColor(false),
@@ -67,12 +67,12 @@ public:
         return mColor;
     }
 
-    inline LLColor3 getColor3(void) const 
+    inline LLColor3 getColor3(void) const
     {
         return vec4to3(mColor);
     }
 
-    inline void update(const LLSettingsBase::ptr_t &psetting) const 
+    inline void update(const LLSettingsBase::ptr_t &psetting) const
     {
         psetting->setValue(mName, mColor);
     }
@@ -139,37 +139,37 @@ public:
 
 private:
     LLColor4    mColor;         /// [3] is intensity, not alpha
-    std::string mName;			/// name to use to dereference params
-    std::string mSliderName;	/// name of the slider in menu
-    bool        mHasSliderName;			/// only set slider name for true color types
-    bool        mIsSunOrAmbientColor;			/// flag for if it's the sun or ambient color controller
-    bool        mIsBlueHorizonOrDensity;		/// flag for if it's the Blue Horizon or Density color controller
+    std::string mName;          /// name to use to dereference params
+    std::string mSliderName;    /// name of the slider in menu
+    bool        mHasSliderName;         /// only set slider name for true color types
+    bool        mIsSunOrAmbientColor;           /// flag for if it's the sun or ambient color controller
+    bool        mIsBlueHorizonOrDensity;        /// flag for if it's the Blue Horizon or Density color controller
 
 };
 
 // float slider control
-class WLFloatControl 
+class WLFloatControl
 {
 public:
     inline WLFloatControl(F32 val, const std::string& n, F32 m = 1.0f):
-        x(val), 
-        mName(n), 
+        x(val),
+        mName(n),
         mult(m)
     {
     }
 
-    inline WLFloatControl &operator = (F32 val) 
+    inline WLFloatControl &operator = (F32 val)
     {
         x = val;
         return *this;
     }
 
-    inline operator F32 (void) const 
+    inline operator F32 (void) const
     {
         return x;
     }
 
-    inline void update(const LLSettingsBase::ptr_t &psetting) const 
+    inline void update(const LLSettingsBase::ptr_t &psetting) const
     {
         psetting->setValue(mName, x);
     }
@@ -193,7 +193,7 @@ private:
 class WLXFloatControl
 {
 public:
-    inline WLXFloatControl(F32 val, const std::string& n, F32 b): 
+    inline WLXFloatControl(F32 val, const std::string& n, F32 b):
         mExp(val),
         mBase(b),
         mName(n)
@@ -246,9 +246,9 @@ private:
 class WLVect2Control
 {
 public:
-    inline WLVect2Control(LLVector2 val, const std::string& n): 
-        mU(val.mV[0]), 
-        mV(val.mV[1]), 
+    inline WLVect2Control(LLVector2 val, const std::string& n):
+        mU(val.mV[0]),
+        mV(val.mV[1]),
         mName(n)
     {
     }
@@ -413,21 +413,21 @@ class LLSkySettingsAdapter
 {
 public:
     typedef std::shared_ptr<LLSkySettingsAdapter> ptr_t;
-    
+
     LLSkySettingsAdapter();
 
     WLFloatControl  mWLGamma;
 
     /// Lighting
     WLColorControl  mLightnorm;
-    WLColorControl  mSunlight;    
+    WLColorControl  mSunlight;
     WLColorControl  mGlow;
 
     /// Clouds
     WLColorControl  mCloudColor;
     WLColorControl  mCloudMain;
     WLFloatControl  mCloudCoverage;
-    WLColorControl  mCloudDetail;    
+    WLColorControl  mCloudDetail;
     WLFloatControl  mCloudScale;
 };
 

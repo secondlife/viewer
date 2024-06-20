@@ -1,4 +1,4 @@
-/** 
+/**
  * @file lloutfitgallery.cpp
  * @author Pavlo Kryvych
  * @brief Visual gallery of agent's outfits for My Appearance side panel
@@ -6,29 +6,27 @@
  * $LicenseInfo:firstyear=2015&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2015, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
 
 #include "llviewerprecompiledheaders.h" // must be first include
 #include "lloutfitgallery.h"
-
-#include <boost/foreach.hpp>
 
 // llcommon
 #include "llcommonutils.h"
@@ -433,7 +431,7 @@ bool compareGalleryItem(LLOutfitGalleryItem* item1, LLOutfitGalleryItem* item2)
 }
 
 void LLOutfitGallery::reArrangeRows(S32 row_diff)
-{ 
+{
     std::vector<LLOutfitGalleryItem*> buf_items = mItems;
     for (std::vector<LLOutfitGalleryItem*>::const_reverse_iterator it = buf_items.rbegin(); it != buf_items.rend(); ++it)
     {
@@ -444,7 +442,7 @@ void LLOutfitGallery::reArrangeRows(S32 row_diff)
         buf_items.push_back(*it);
     }
     mHiddenItems.clear();
-    
+
     mItemsInRow += row_diff;
     updateGalleryWidth();
     std::sort(buf_items.begin(), buf_items.end(), compareGalleryItem);
@@ -460,7 +458,7 @@ void LLOutfitGallery::reArrangeRows(S32 row_diff)
         bool hidden = (std::string::npos == outfit_name.find(cur_filter));
         (*it)->setHidden(hidden);
 
-    	addToGallery(*it);
+        addToGallery(*it);
     }
 
     updateMessageVisibility();
@@ -951,7 +949,7 @@ BOOL LLOutfitGalleryItem::postBuild()
 void LLOutfitGalleryItem::draw()
 {
     LLPanel::draw();
-    
+
     // Draw border
     LLUIColor border_color = LLUIColorTable::instance().getColor(mSelected ? "OutfitGalleryItemSelected" : "OutfitGalleryItemUnselected", LLColor4::white);
     LLRect border = getChildView("preview_outfit")->getRect();
@@ -981,7 +979,7 @@ void LLOutfitGalleryItem::draw()
             mTexturep->addTextureStats((F32)(interior.getWidth() * interior.getHeight()));
         }
     }
-    
+
 }
 
 void LLOutfitGalleryItem::setOutfitName(std::string name)
@@ -1136,10 +1134,10 @@ void LLOutfitGalleryItem::setDefaultImage()
 
 LLContextMenu* LLOutfitGalleryContextMenu::createMenu()
 {
-    LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+    LLUICtrl::ScopedRegistrarHelper registrar;
     LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
     LLUUID selected_id = mUUIDs.front();
-    
+
     registrar.add("Outfit.WearReplace",
                   boost::bind(&LLAppearanceMgr::replaceCurrentOutfit, &LLAppearanceMgr::instance(), selected_id));
     registrar.add("Outfit.WearAdd",
@@ -1148,23 +1146,14 @@ LLContextMenu* LLOutfitGalleryContextMenu::createMenu()
                   boost::bind(&LLAppearanceMgr::takeOffOutfit, &LLAppearanceMgr::instance(), selected_id));
     registrar.add("Outfit.Edit", boost::bind(editOutfit));
     registrar.add("Outfit.Rename", boost::bind(renameOutfit, selected_id));
-    registrar.add("Outfit.Delete", boost::bind(LLOutfitGallery::onRemoveOutfit, selected_id));
-    registrar.add("Outfit.Create", boost::bind(&LLOutfitGalleryContextMenu::onCreate, this, _2));
+    registrar.add("Outfit.Delete", boost::bind(LLOutfitGallery::onRemoveOutfit, selected_id), LLUICtrl::cb_info::UNTRUSTED_BLOCK);
+    registrar.add("Outfit.Create", boost::bind(&LLOutfitGalleryContextMenu::onCreate, this, _2), LLUICtrl::cb_info::UNTRUSTED_BLOCK);
     registrar.add("Outfit.Thumbnail", boost::bind(&LLOutfitGalleryContextMenu::onThumbnail, this, selected_id));
+    registrar.add("Outfit.Save", boost::bind(&LLOutfitGalleryContextMenu::onSave, this, selected_id));
     enable_registrar.add("Outfit.OnEnable", boost::bind(&LLOutfitGalleryContextMenu::onEnable, this, _2));
     enable_registrar.add("Outfit.OnVisible", boost::bind(&LLOutfitGalleryContextMenu::onVisible, this, _2));
-    
-    return createFromFile("menu_gallery_outfit_tab.xml");
-}
 
-void LLOutfitGalleryContextMenu::onThumbnail(const LLUUID& outfit_cat_id)
-{
-    LLOutfitGallery* gallery = dynamic_cast<LLOutfitGallery*>(mOutfitList);
-    if (gallery && outfit_cat_id.notNull())
-    {
-        LLSD data(outfit_cat_id);
-        LLFloaterReg::showInstance("change_item_thumbnail", data);
-    }
+    return createFromFile("menu_gallery_outfit_tab.xml");
 }
 
 void LLOutfitGalleryContextMenu::onCreate(const LLSD& data)
@@ -1175,7 +1164,7 @@ void LLOutfitGalleryContextMenu::onCreate(const LLSD& data)
         LL_WARNS() << "Invalid wearable type" << LL_ENDL;
         return;
     }
-    
+
     LLAgentWearables::createWearable(type, true);
 }
 
@@ -1201,7 +1190,6 @@ void LLOutfitGalleryGearMenu::onUpdateItemsVisibility()
     mMenu->setItemVisible("expand", FALSE);
     mMenu->setItemVisible("collapse", FALSE);
     mMenu->setItemVisible("thumbnail", have_selection);
-    mMenu->setItemVisible("sepatator3", TRUE);
     mMenu->setItemVisible("sort_folders_by_name", TRUE);
     LLOutfitListGearMenuBase::onUpdateItemsVisibility();
 }
@@ -1249,7 +1237,7 @@ void LLOutfitGallery::refreshOutfit(const LLUUID& category_id)
                 sub_cat_array,
                 outfit_item_array,
                 LLInventoryModel::EXCLUDE_TRASH);
-            BOOST_FOREACH(LLViewerInventoryItem* outfit_item, outfit_item_array)
+            for (LLViewerInventoryItem* outfit_item : outfit_item_array)
             {
                 LLViewerInventoryItem* linked_item = outfit_item->getLinkedItem();
                 LLUUID asset_id, inv_id;
@@ -1310,7 +1298,7 @@ void LLOutfitGallery::refreshOutfit(const LLUUID& category_id)
             mOutfitMap[category_id]->setImageAssetId(asset_id);
         }
     }
-    
+
     if (mGalleryCreated && !LLApp::isExiting())
     {
         reArrangeRows();

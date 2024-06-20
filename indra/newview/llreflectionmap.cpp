@@ -49,7 +49,7 @@ LLReflectionMap::~LLReflectionMap()
     }
 }
 
-void LLReflectionMap::update(U32 resolution, U32 face)
+void LLReflectionMap::update(U32 resolution, U32 face, bool force_dynamic, F32 near_clip, bool useClipPlane, LLPlane clipPlane)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
     mLastUpdateTime = gFrameTimeSeconds;
@@ -63,19 +63,24 @@ void LLReflectionMap::update(U32 resolution, U32 face)
     {
         resolution /= 2;
     }
-    gViewerWindow->cubeSnapshot(LLVector3(mOrigin), mCubeArray, mCubeIndex, face, getNearClip(), getIsDynamic());
+
+    F32 clip = (near_clip > 0) ? near_clip : getNearClip();
+    
+    gViewerWindow->cubeSnapshot(LLVector3(mOrigin), mCubeArray, mCubeIndex, face, clip, getIsDynamic() || force_dynamic, useClipPlane, clipPlane);
 }
 
 void LLReflectionMap::autoAdjustOrigin()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
 
-    if (mGroup && !mComplete)
+
+    if (mGroup && !mComplete && !mGroup->hasState(LLViewerOctreeGroup::DEAD))
     {
         const LLVector4a* bounds = mGroup->getBounds();
         auto* node = mGroup->getOctreeNode();
+        LLSpatialPartition* part = mGroup->getSpatialPartition();
 
-        if (mGroup->getSpatialPartition()->mPartitionType == LLViewerRegion::PARTITION_VOLUME)
+        if (part && part->mPartitionType == LLViewerRegion::PARTITION_VOLUME)
         {
             mPriority = 0;
             // cast a ray towards 8 corners of bounding box
@@ -163,7 +168,7 @@ void LLReflectionMap::autoAdjustOrigin()
             
         }
     }
-    else if (mViewerObject)
+    else if (mViewerObject && !mViewerObject->isDead())
     {
         mPriority = 1;
         mOrigin.load3(mViewerObject->getPositionAgent().mV);

@@ -28,7 +28,9 @@
 out vec4 frag_color;
 
 uniform sampler2D emissiveRect;
+#ifdef USE_LAST_EXPOSURE
 uniform sampler2D exposureMap;
+#endif
 
 uniform float dt;
 uniform vec2 noiseVec;
@@ -51,10 +53,12 @@ void main()
     L /= max_L;
     L = pow(L, 2.0);
     float s = mix(dynamic_exposure_params.z, dynamic_exposure_params.y, L);
-
+    
+#ifdef USE_LAST_EXPOSURE
     float prev = texture(exposureMap, vec2(0.5,0.5)).r;
 
     s = mix(prev, s, min(dt*2.0*abs(prev-s), 0.04));
+#endif
     
     frag_color = max(vec4(s, s, s, dt), vec4(0.0));
 }

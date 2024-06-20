@@ -87,19 +87,29 @@ void LLTinyGLTFHelper::initFetchedTextures(tinygltf::Material& material,
     {
         strip_alpha_channel(mr_img);
 
-        if (occlusion_img && material.pbrMetallicRoughness.metallicRoughnessTexture.index != material.occlusionTexture.index)
+        if (occlusion_img)
         {
-            // occlusion is a distinct texture from pbrMetallicRoughness
-            // pack into mr red channel
-            int occlusion_idx = material.occlusionTexture.index;
-            int mr_idx = material.pbrMetallicRoughness.metallicRoughnessTexture.index;
-            if (occlusion_idx != mr_idx)
+            if (material.pbrMetallicRoughness.metallicRoughnessTexture.index != material.occlusionTexture.index)
             {
-                //scale occlusion image to match resolution of mr image
-                occlusion_img->scale(mr_img->getWidth(), mr_img->getHeight());
+                // occlusion is a distinct texture from pbrMetallicRoughness
+                // pack into mr red channel
+                int occlusion_idx = material.occlusionTexture.index;
+                int mr_idx = material.pbrMetallicRoughness.metallicRoughnessTexture.index;
+                if (occlusion_idx != mr_idx)
+                {
+                    //scale occlusion image to match resolution of mr image
+                    occlusion_img->scale(mr_img->getWidth(), mr_img->getHeight());
 
-                copy_red_channel(occlusion_img, mr_img);
+                    copy_red_channel(occlusion_img, mr_img);
+                }
             }
+        }
+        else if (material.occlusionTexture.index == -1)
+        {
+            // no occlusion, make sure red channel of ORM is all 255
+            occlusion_img = new LLImageRaw(mr_img->getWidth(), mr_img->getHeight(), 3);
+            occlusion_img->clear(255, 255, 255);
+            copy_red_channel(occlusion_img, mr_img);
         }
     }
     else if (occlusion_img)
@@ -147,7 +157,7 @@ const tinygltf::Image * LLTinyGLTFHelper::getImageFromTextureIndex(const tinyglt
     return nullptr;
 }
 
-LLImageRaw * LLTinyGLTFHelper::getTexture(const std::string & folder, const tinygltf::Model & model, S32 texture_index, std::string & name)
+LLImageRaw * LLTinyGLTFHelper::getTexture(const std::string & folder, const tinygltf::Model & model, S32 texture_index, std::string & name, bool flip)
 {
     const tinygltf::Image* image = getImageFromTextureIndex(model, texture_index);
     LLImageRaw* rawImage = nullptr;
@@ -159,14 +169,17 @@ LLImageRaw * LLTinyGLTFHelper::getTexture(const std::string & folder, const tiny
     {
         name = image->name;
         rawImage = new LLImageRaw(&image->image[0], image->width, image->height, image->component);
-        rawImage->verticalFlip();
+        if (flip)
+        {
+            rawImage->verticalFlip();
+        }
         rawImage->optimizeAwayAlpha();
     }
 
     return rawImage;
 }
 
-LLImageRaw * LLTinyGLTFHelper::getTexture(const std::string & folder, const tinygltf::Model & model, S32 texture_index)
+LLImageRaw * LLTinyGLTFHelper::getTexture(const std::string & folder, const tinygltf::Model & model, S32 texture_index, bool flip)
 {
     const tinygltf::Image* image = getImageFromTextureIndex(model, texture_index);
     LLImageRaw* rawImage = nullptr;
@@ -177,7 +190,10 @@ LLImageRaw * LLTinyGLTFHelper::getTexture(const std::string & folder, const tiny
         image->component <= 4)
     {
         rawImage = new LLImageRaw(&image->image[0], image->width, image->height, image->component);
-        rawImage->verticalFlip();
+        if (flip)
+        {
+            rawImage->verticalFlip();
+        }
         rawImage->optimizeAwayAlpha();
     }
 
@@ -237,7 +253,8 @@ bool LLTinyGLTFHelper::getMaterialFromModel(
     const tinygltf::Model& model_in,
     S32 mat_index,
     LLFetchedGLTFMaterial* material,
-    std::string& material_name)
+    std::string& material_name,
+    bool flip)
 {
     llassert(material);
 
@@ -256,18 +273,18 @@ bool LLTinyGLTFHelper::getMaterialFromModel(
     material_name = material_in.name;
 
     // get base color texture
-    LLPointer<LLImageRaw> base_img = LLTinyGLTFHelper::getTexture(folder, model_in, material_in.pbrMetallicRoughness.baseColorTexture.index);
+    LLPointer<LLImageRaw> base_img = LLTinyGLTFHelper::getTexture(folder, model_in, material_in.pbrMetallicRoughness.baseColorTexture.index, flip);
     // get normal map
-    LLPointer<LLImageRaw> normal_img = LLTinyGLTFHelper::getTexture(folder, model_in, material_in.normalTexture.index);
+    LLPointer<LLImageRaw> normal_img = LLTinyGLTFHelper::getTexture(folder, model_in, material_in.normalTexture.index, flip);
     // get metallic-roughness texture
-    LLPointer<LLImageRaw> mr_img = LLTinyGLTFHelper::getTexture(folder, model_in, material_in.pbrMetallicRoughness.metallicRoughnessTexture.index);
+    LLPointer<LLImageRaw> mr_img = LLTinyGLTFHelper::getTexture(folder, model_in, material_in.pbrMetallicRoughness.metallicRoughnessTexture.index, flip);
     // get emissive texture
-    LLPointer<LLImageRaw> emissive_img = LLTinyGLTFHelper::getTexture(folder, model_in, material_in.emissiveTexture.index);
+    LLPointer<LLImageRaw> emissive_img = LLTinyGLTFHelper::getTexture(folder, model_in, material_in.emissiveTexture.index, flip);
     // get occlusion map if needed
     LLPointer<LLImageRaw> occlusion_img;
     if (material_in.occlusionTexture.index != material_in.pbrMetallicRoughness.metallicRoughnessTexture.index)
     {
-        occlusion_img = LLTinyGLTFHelper::getTexture(folder, model_in, material_in.occlusionTexture.index);
+        occlusion_img = LLTinyGLTFHelper::getTexture(folder, model_in, material_in.occlusionTexture.index, flip);
     }
 
     LLPointer<LLViewerFetchedTexture> base_color_tex;

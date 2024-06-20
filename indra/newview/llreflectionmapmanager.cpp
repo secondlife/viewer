@@ -27,6 +27,9 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llreflectionmapmanager.h"
+
+#include <vector>
+
 #include "llviewercamera.h"
 #include "llspatialpartition.h"
 #include "llviewerregion.h"
@@ -35,6 +38,86 @@
 #include "llviewercontrol.h"
 #include "llenvironment.h"
 #include "llstartup.h"
+#include "llviewermenufile.h"
+#include "llnotificationsutil.h"
+
+#if LL_WINDOWS
+#pragma warning (push)
+#pragma warning (disable : 4702) // compiler complains unreachable code
+#endif
+#define TINYEXR_USE_MINIZ 0
+#include "zlib.h"
+#define TINYEXR_IMPLEMENTATION
+#include "tinyexr/tinyexr.h"
+#if LL_WINDOWS
+#pragma warning (pop)
+#endif
+
+LLPointer<LLImageGL> gEXRImage;
+
+void load_exr(const std::string& filename)
+{
+    // reset reflection maps when previewing a new HDRI
+    gPipeline.mReflectionMapManager.reset();
+    gPipeline.mReflectionMapManager.initReflectionMaps();
+
+    float* out; // width * height * RGBA
+    int width;
+    int height;
+    const char* err = NULL; // or nullptr in C++11
+
+    int ret =  LoadEXRWithLayer(&out, &width, &height, filename.c_str(), /* layername */ nullptr, &err);
+    if (ret == TINYEXR_SUCCESS) 
+    {
+        U32 texName = 0;
+        LLImageGL::generateTextures(1, &texName);
+
+        gEXRImage = new LLImageGL(texName, 4, GL_TEXTURE_2D, GL_RGB16F, GL_RGB16F, GL_FLOAT, LLTexUnit::TAM_CLAMP);
+        gEXRImage->setHasMipMaps(TRUE);
+        gEXRImage->setUseMipMaps(TRUE);
+        gEXRImage->setFilteringOption(LLTexUnit::TFO_TRILINEAR);
+
+        gGL.getTexUnit(0)->bind(gEXRImage);
+
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGBA, GL_FLOAT, out);
+        free(out); // release memory of image data
+
+        glGenerateMipmap(GL_TEXTURE_2D);
+
+        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+
+    }
+    else 
+    {
+        LLSD notif_args;
+        notif_args["WHAT"] = filename;
+        notif_args["REASON"] = "Unknown";
+        if (err) 
+        {
+            notif_args["REASON"] = std::string(err);
+            FreeEXRErrorMessage(err); // release memory of error message.
+        }
+        LLNotificationsUtil::add("CannotLoad", notif_args);
+    }
+}
+
+void hdri_preview()
+{
+    LLFilePickerReplyThread::startPicker(
+        [](const std::vector<std::string>& filenames, LLFilePicker::ELoadFilter load_filter, LLFilePicker::ESaveFilter save_filter)
+        {
+            if (LLAppViewer::instance()->quitRequested())
+            {
+                return;
+            }
+            if (filenames.size() > 0)
+            {
+                load_exr(filenames[0]);
+            }
+        },
+        LLFilePicker::FFLOAD_HDRI,
+        true);
+}
 
 extern BOOL gCubeSnapshot;
 extern BOOL gTeleportDisplay;
@@ -128,6 +211,11 @@ void LLReflectionMapManager::update()
     if (LLAppViewer::instance()->logoutRequestSent())
     {
         return;
+    }
+
+    if (mPaused && gFrameTimeSeconds > mResumeTime)
+    {
+        resume();
     }
 
     initReflectionMaps();
@@ -306,8 +394,8 @@ void LLReflectionMapManager::update()
             }
         }
 
-        if (realtime && 
-            closestDynamic == nullptr && 
+        if (realtime &&
+            closestDynamic == nullptr &&
             probe->mCubeIndex != -1 &&
             probe->getIsDynamic())
         {
@@ -322,7 +410,7 @@ void LLReflectionMapManager::update()
         // should do a full irradiance pass on "odd" frames and a radiance pass on "even" frames
         closestDynamic->autoAdjustOrigin();
 
-        // store and override the value of "isRadiancePass" -- parts of the render pipe rely on "isRadiancePass" to set 
+        // store and override the value of "isRadiancePass" -- parts of the render pipe rely on "isRadiancePass" to set
         // lighting values etc
         bool radiance_pass = isRadiancePass();
         mRadiancePass = mRealtimeRadiancePass;
@@ -573,7 +661,7 @@ void LLReflectionMapManager::doProbeUpdate()
 
 // Do the reflection map update render passes.
 // For every 12 calls of this function, one complete reflection probe radiance map and irradiance map is generated
-// First six passes render the scene with direct lighting only into a scratch space cube map at the end of the cube map array and generate 
+// First six passes render the scene with direct lighting only into a scratch space cube map at the end of the cube map array and generate
 // a simple mip chain (not convolution filter).
 // At the end of these passes, an irradiance map is generated for this probe and placed into the irradiance cube map array at the index for this probe
 // The next six passes render the scene with both radiance and irradiance into the same scratch space cube map and generate a simple mip chain.
@@ -734,6 +822,7 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
             mTexture->bind(channel);
             gRadianceGenProgram.uniform1i(sSourceIdx, sourceIdx);
             gRadianceGenProgram.uniform1f(LLShaderMgr::REFLECTION_PROBE_MAX_LOD, mMaxProbeLOD);
+            gRadianceGenProgram.uniform1f(LLShaderMgr::REFLECTION_PROBE_STRENGTH, 1.f);
 
             U32 res = mMipChain[0].getWidth();
 
@@ -827,9 +916,10 @@ void LLReflectionMapManager::reset()
     mReset = true;
 }
 
-void LLReflectionMapManager::pause()
+void LLReflectionMapManager::pause(F32 duration)
 {
     mPaused = true;
+    mResumeTime = gFrameTimeSeconds + duration;
 }
 
 void LLReflectionMapManager::resume()
@@ -898,33 +988,41 @@ void LLReflectionMapManager::updateUniforms()
     // see class3/deferred/reflectionProbeF.glsl
     struct ReflectionProbeData
     {
-        // for box probes, matrix that transforms from camera space to a [-1, 1] cube representing the bounding box of 
+        // for box probes, matrix that transforms from camera space to a [-1, 1] cube representing the bounding box of
         // the box probe
-        LLMatrix4 refBox[LL_MAX_REFLECTION_PROBE_COUNT]; 
+        LLMatrix4 refBox[LL_MAX_REFLECTION_PROBE_COUNT];
+
+        LLMatrix4 heroBox;
 
         // for sphere probes, origin (xyz) and radius (w) of refmaps in clip space
-        LLVector4 refSphere[LL_MAX_REFLECTION_PROBE_COUNT]; 
+        LLVector4 refSphere[LL_MAX_REFLECTION_PROBE_COUNT];
 
-        // extra parameters 
+        // extra parameters
         //  x - irradiance scale
         //  y - radiance scale
         //  z - fade in
         //  w - znear
         LLVector4 refParams[LL_MAX_REFLECTION_PROBE_COUNT];
 
+        LLVector4 heroSphere;
+
         // indices used by probe:
         //  [i][0] - cubemap array index for this probe
         //  [i][1] - index into "refNeighbor" for probes that intersect this probe
         //  [i][2] - number of probes  that intersect this probe, or -1 for no neighbors
         //  [i][3] - priority (probe type stored in sign bit - positive for spheres, negative for boxes)
-        GLint refIndex[LL_MAX_REFLECTION_PROBE_COUNT][4]; 
+        GLint refIndex[LL_MAX_REFLECTION_PROBE_COUNT][4];
 
         // list of neighbor indices
-        GLint refNeighbor[4096]; 
+        GLint refNeighbor[4096];
 
         GLint refBucket[256][4]; //lookup table for which index to start with for the given Z depth
         // numbrer of active refmaps
-        GLint refmapCount;  
+        GLint refmapCount;
+
+        GLint     heroShape;
+        GLint     heroMipCount;
+        GLint     heroProbeCount;
     };
 
     mReflectionMaps.resize(mReflectionProbeCount);
@@ -954,9 +1052,8 @@ void LLReflectionMapManager::updateUniforms()
     LLEnvironment& environment = LLEnvironment::instance();
     LLSettingsSky::ptr_t psky = environment.getCurrentSky();
 
-    static LLCachedControl<F32> cloud_shadow_scale(gSavedSettings, "RenderCloudShadowAmbianceFactor", 0.125f);
     static LLCachedControl<bool> should_auto_adjust(gSavedSettings, "RenderSkyAutoAdjustLegacy", true);
-    F32 minimum_ambiance = psky->getTotalReflectionProbeAmbiance(cloud_shadow_scale, should_auto_adjust);
+    F32 minimum_ambiance = psky->getReflectionProbeAmbiance(should_auto_adjust);
 
     bool is_ambiance_pass = gCubeSnapshot && !isRadiancePass();
     F32 ambscale = is_ambiance_pass ? 0.f : 1.f;
@@ -1012,7 +1109,6 @@ void LLReflectionMapManager::updateUniforms()
                 {
                     refmap->mRadius = refmap->mViewerObject->getScale().mV[0] * 0.5f;
                 }
-
             }
             modelview.affineTransform(refmap->mOrigin, oa);
             rpd.refSphere[count].set(oa.getF32ptr());
@@ -1115,6 +1211,16 @@ void LLReflectionMapManager::updateUniforms()
 
     rpd.refmapCount = count;
 
+    gPipeline.mHeroProbeManager.updateUniforms();
+
+    // Get the hero data.
+
+    rpd.heroBox = gPipeline.mHeroProbeManager.mHeroData.heroBox;
+    rpd.heroSphere = gPipeline.mHeroProbeManager.mHeroData.heroSphere;
+    rpd.heroShape  = gPipeline.mHeroProbeManager.mHeroData.heroShape;
+    rpd.heroMipCount = gPipeline.mHeroProbeManager.mHeroData.heroMipCount;
+    rpd.heroProbeCount = gPipeline.mHeroProbeManager.mHeroData.heroProbeCount;
+
     //copy rpd into uniform buffer object
     if (mUBO == 0)
     {
@@ -1152,7 +1258,7 @@ void LLReflectionMapManager::setUniforms()
     }
 
     if (mUBO == 0)
-    { 
+    {
         updateUniforms();
     }
     glBindBufferBase(GL_UNIFORM_BUFFER, 1, mUBO);
@@ -1262,6 +1368,8 @@ void LLReflectionMapManager::initReflectionMaps()
 
     if (mTexture.isNull() || mReflectionProbeCount != count || mReset)
     {
+        gEXRImage = nullptr;
+
         mReset = false;
         mReflectionProbeCount = count;
         mProbeResolution = nhpo2(llclamp(gSavedSettings.getU32("RenderReflectionProbeResolution"), (U32)64, (U32)512));
@@ -1319,7 +1427,6 @@ void LLReflectionMapManager::initReflectionMaps()
         mDefaultProbe->mComplete = default_complete;
 
         touch_default_probe(mDefaultProbe);
-
     }
 
     if (mVertexBuffer.isNull())
@@ -1343,8 +1450,8 @@ void LLReflectionMapManager::initReflectionMaps()
     }
 }
 
-void LLReflectionMapManager::cleanup() 
-{ 
+void LLReflectionMapManager::cleanup()
+{
     mVertexBuffer = nullptr;
     mRenderTarget.release();
 
@@ -1381,5 +1488,41 @@ void LLReflectionMapManager::doOcclusion()
         {
             probe->doOcclusion(eye);
         }
+    }
+}
+
+void LLReflectionMapManager::forceDefaultProbeAndUpdateUniforms(bool force)
+{
+    static std::vector<bool> mProbeWasOccluded;
+
+    if (force)
+    {
+        llassert(mProbeWasOccluded.empty());
+
+        for (size_t i = 0; i < mProbes.size(); ++i)
+        {
+            auto& probe = mProbes[i];
+            mProbeWasOccluded.push_back(probe->mOccluded);
+            if (probe != nullptr && probe != mDefaultProbe)
+            {
+                probe->mOccluded = true;
+            }
+        }
+
+        updateUniforms();
+    }
+    else
+    {
+        llassert(mProbes.size() == mProbeWasOccluded.size());
+
+        const size_t n = llmin(mProbes.size(), mProbeWasOccluded.size());
+        for (size_t i = 0; i < n; ++i)
+        {
+            auto& probe = mProbes[i];
+            llassert(probe->mOccluded == (probe != mDefaultProbe));
+            probe->mOccluded = mProbeWasOccluded[i];
+        }
+        mProbeWasOccluded.clear();
+        mProbeWasOccluded.shrink_to_fit();
     }
 }
