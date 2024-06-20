@@ -540,6 +540,7 @@ bool LLVOCacheEntry::isAnyVisible(const LLVector4a& camera_origin, const LLVecto
     // Honestly, the entire VOCache partition system needs to be removed since it doubles the overhead of
     // the spatial partition system and is redundant to the object cache, but this is a start
     //  - davep 2024.06.07
+
     LLOcclusionCullingGroup* group = (LLOcclusionCullingGroup*)getGroup();
     if(!group)
     {
