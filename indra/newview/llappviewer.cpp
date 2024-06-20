@@ -3360,14 +3360,14 @@ LLSD LLAppViewer::getViewerInfo() const
         LLVoiceVersionInfo version = LLVoiceClient::getInstance()->getVersion();
         const std::string build_version = version.mBuildVersion;
         std::ostringstream version_string;
-        if (std::equal(build_version.begin(), build_version.begin() + version.serverVersion.size(),
+        if (std::equal(version.mBuildVersion.begin(), version.mBuildVersion.begin() + version.serverVersion.size(),
                        version.serverVersion.begin()))
         {  // Normal case: Show type and build version.
-            version_string << version.serverType << " " << build_version << std::endl;
+            version_string << version.voiceServerType << " " << version.mBuildVersion << std::endl;
         }
         else
         {  // Mismatch: Show both versions.
-            version_string << version.serverVersion << "/" << build_version << std::endl;
+            version_string << version.voiceServerType << " " << version.serverVersion << "/" << version.mBuildVersion << std::endl;
         }
         info["VOICE_VERSION"] = version_string.str();
     }
@@ -5149,7 +5149,7 @@ void LLAppViewer::sendLogoutRequest()
 
         if(LLVoiceClient::instanceExists())
         {
-            LLVoiceClient::getInstance()->leaveChannel();
+            LLVoiceClient::getInstance()->setVoiceEnabled(false);
         }
     }
 }

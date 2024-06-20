@@ -45,7 +45,7 @@ public:
     // requests will be throttled from a non-trusted browser
     LLHelpHandler() : LLCommandHandler("help", UNTRUSTED_CLICK_ONLY) {}
 
-    bool handle(const LLSD& params, const LLSD& query_map, const std::string& grid, LLMediaCtrl* web)
+    bool handle(const LLSD& params, const LLSD& query_map, const std::string& grid, LLMediaCtrl* web) override
     {
         LLViewerHelp* vhelp = LLViewerHelp::getInstance();
         if (! vhelp)
