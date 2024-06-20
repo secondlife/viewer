@@ -543,6 +543,32 @@ void LLModelPreview::rebuildUploadData()
             }
             instance.mTransform = mat;
             mUploadData.push_back(instance);
+
+            // if uploading textures, make sure textures are present
+            if (mFMP->childGetValue("upload_textures").asBoolean()) // too early to cheack if still loading
+            {
+                for (auto& mat_pair : instance.mMaterial)
+                {
+                    LLImportMaterial& material = mat_pair.second;
+
+                    if (material.mDiffuseMapFilename.size())
+                    {
+                        LLViewerFetchedTexture* texture = LLMeshUploadThread::FindViewerTexture(material);
+                        if (texture && texture->isMissingAsset())
+                        {
+                            // in case user provided a missing file later
+                            texture->setIsMissingAsset(false);
+                            texture->setLoadedCallback(LLModelPreview::textureLoadedCallback, 0, true, false, this, NULL, false);
+                            texture->forceToSaveRawImage(0, F32_MAX);
+                            texture->updateFetch();
+                            if (mModelLoader)
+                            {
+                                mModelLoader->mNumOfFetchingTextures++;
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 
