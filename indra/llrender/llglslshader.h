@@ -52,7 +52,6 @@ public:
     bool hasSrgb = false;
     bool isDeferred = false;
     bool hasScreenSpaceReflections = false;
-    bool disableTextureIndex = false;
     bool hasAlphaMask = false;
     bool hasReflectionProbes = false;
     bool attachNothing = false;

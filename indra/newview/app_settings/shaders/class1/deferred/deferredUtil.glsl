@@ -50,7 +50,6 @@ SOFTWARE.
 
 uniform sampler2D   normalMap;
 uniform sampler2D   depthMap;
-uniform sampler2D emissiveRect;
 uniform sampler2D projectionMap; // rgba
 uniform sampler2D brdfLut;
 

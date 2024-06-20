@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
-  height="400"
+  height="411"
   layout="topleft"
   name="prefs_graphics_advanced"
   help_topic="Preferences_Graphics_Advanced"
@@ -545,7 +545,7 @@
   </text>
    <view_border
       bevel_style="in"
-      height="322"
+      height="357"
       layout="topleft"
       left="385"
       name="vert_border"
@@ -889,7 +889,7 @@
       layout="topleft"
       left="13"
       name="horiz_border"
-      top="338"
+      top="373"
       top_delta="5"
       width="774"/>
   <button
@@ -899,7 +899,7 @@
     layout="topleft"
     left="20"
     name="Defaults"
-    top_delta="20"
+    top_delta="7"
     width="210">
     <button.commit_callback
       function="Pref.HardwareDefaults" />

@@ -1867,15 +1867,6 @@ LLViewerWindow::LLViewerWindow(const Params& p)
     U32 max_core_count = gSavedSettings.getU32("EmulateCoreCount");
     F32 max_gl_version = gSavedSettings.getF32("RenderMaxOpenGLVersion");
 
-    LLControlVariable* vram_control = gSavedSettings.getControl("RenderMaxVRAMBudget");
-    U32 max_vram = vram_control->getValue().asInteger();
-    mMaxVRAMControlConnection = vram_control->getSignal()->connect(
-        [this](LLControlVariable* control, const LLSD& new_val, const LLSD& old_val)
-        {
-            if (mWindow) mWindow->setMaxVRAMMegabytes(new_val.asInteger());
-        });
-
-
     mWindow = LLWindowManager::createWindow(this,
         p.title, p.name, p.x, p.y, p.width, p.height, 0,
         p.fullscreen,
@@ -1885,7 +1876,6 @@ LLViewerWindow::LLViewerWindow(const Params& p)
         p.ignore_pixel_depth,
         0,
         max_core_count,
-        max_vram,
         max_gl_version); //don't use window level anti-aliasing
 
     if (NULL == mWindow)
@@ -2436,8 +2426,6 @@ LLViewerWindow::~LLViewerWindow()
         LLViewerShaderMgr::releaseInstance();
         LLViewerShaderMgr::sInitialized = false;
     }
-
-    mMaxVRAMControlConnection.disconnect();
 }
 
 

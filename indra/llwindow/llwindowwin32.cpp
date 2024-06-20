@@ -404,7 +404,6 @@ struct LLWindowWin32::LLWindowWin32Thread : public LL::ThreadPool
 
     using FuncType = std::function<void()>;
     // call GetMessage() and pull enqueue messages for later processing
-    void gatherInput();
     HWND mWindowHandleThrd = NULL;
     HDC mhDCThrd = 0;
 
@@ -412,8 +411,6 @@ struct LLWindowWin32::LLWindowWin32Thread : public LL::ThreadPool
     // until after some graphics setup. See SL-20177. -Cosmic,2023-09-18
     bool mGLReady = false;
     bool mGotGLBuffer = false;
-
-    U32 mMaxVRAM = 0; // maximum amount of vram to allow in the "budget", or 0 for no maximum (see updateVRAMUsage)
 };
 
 
@@ -425,7 +422,6 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
                              bool ignore_pixel_depth,
                              U32 fsaa_samples,
                              U32 max_cores,
-                             U32 max_vram,
                              F32 max_gl_version)
     :
     LLWindow(callbacks, fullscreen, flags),
@@ -434,7 +430,6 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 {
     sMainThreadId = LLThread::currentID();
     mWindowThread = new LLWindowWin32Thread();
-    mWindowThread->mMaxVRAM = max_vram;
 
     //MAINT-516 -- force a load of opengl32.dll just in case windows went sideways
     LoadLibrary(L"opengl32.dll");
@@ -4545,15 +4540,6 @@ std::vector<std::string> LLWindowWin32::getDynamicFallbackFontList()
     // Fonts previously in getFontListSans() have moved to fonts.xml.
     return std::vector<std::string>();
 }
-
-void LLWindowWin32::setMaxVRAMMegabytes(U32 max_vram)
-{
-    if (mWindowThread)
-    {
-        mWindowThread->mMaxVRAM = max_vram;
-    }
-}
-
 #endif // LL_WINDOWS
 
 inline LLWindowWin32::LLWindowWin32Thread::LLWindowWin32Thread()

@@ -756,9 +756,12 @@ void LLRenderPass::pushGLTFBatch(LLDrawInfo& params)
 {
     auto& mat = params.mGLTFMaterial;
 
-    mat->bind(params.mTexture);
+    if (mat.notNull())
+    {
+        mat->bind(params.mTexture);
+    }
 
-    LLGLDisable cull_face(mat->mDoubleSided ? GL_CULL_FACE : 0);
+    LLGLDisable cull_face(mat.notNull() && mat->mDoubleSided ? GL_CULL_FACE : 0);
 
     setup_texture_matrix(params);
 
