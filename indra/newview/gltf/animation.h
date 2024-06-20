@@ -49,6 +49,9 @@ namespace LL
                 S32 mOutput = INVALID_INDEX;
                 std::string mInterpolation;
 
+                F32 mLastFrameTime = 0.f;
+                U32 mLastFrameIndex = 0;
+
                 bool prep(Asset& asset);
 
                 void serialize(boost::json::object& dst) const;

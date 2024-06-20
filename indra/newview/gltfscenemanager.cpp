@@ -437,6 +437,8 @@ void GLTFSceneManager::onGLTFLoadComplete(const LLUUID& id, LLAssetType::EType a
 
 void GLTFSceneManager::update()
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_GLTF;
+
     for (U32 i = 0; i < mObjects.size(); ++i)
     {
         if (mObjects[i]->isDead() || mObjects[i]->mGLTFAsset == nullptr)

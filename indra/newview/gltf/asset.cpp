@@ -87,7 +87,6 @@ namespace LL
     }
 }
 
-
 void Scene::updateTransforms(Asset& asset)
 {
     mat4 identity = glm::identity<mat4>();
@@ -118,6 +117,7 @@ void Node::updateTransforms(Asset& asset, const mat4& parentMatrix)
 
 void Asset::updateTransforms()
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_GLTF;
     for (auto& scene : mScenes)
     {
         scene.updateTransforms(*this);
@@ -185,6 +185,7 @@ void Asset::uploadTransforms()
 
 void Asset::uploadMaterials()
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_GLTF;
     // see pbrmetallicroughnessV.glsl for the layout of the material UBO
     std::vector<vec4> md;
 
@@ -466,12 +467,16 @@ void Asset::update()
 
         uploadMaterials();
 
-        for (auto& image : mImages)
         {
-            if (image.mTexture.notNull())
-            { // HACK - force texture to be loaded full rez
-                // TODO: calculate actual vsize
-                image.mTexture->addTextureStats(2048.f * 2048.f);
+            LL_PROFILE_ZONE_NAMED_CATEGORY_GLTF("gltf - addTextureStats");
+
+            for (auto& image : mImages)
+            {
+                if (image.mTexture.notNull())
+                { // HACK - force texture to be loaded full rez
+                    // TODO: calculate actual vsize
+                    image.mTexture->addTextureStats(2048.f * 2048.f);
+                }
             }
         }
     }

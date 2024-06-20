@@ -388,6 +388,7 @@ void LLHeroProbeManager::updateProbeFace(LLReflectionMap* probe, U32 face, bool 
 // Useful when we may not always be rendering a full set of faces of the probe.
 void LLHeroProbeManager::generateRadiance(LLReflectionMap* probe)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
     S32 sourceIdx = mReflectionProbeCount;
 
     // Unlike the reflectionmap manager, all probes are considered "realtime" for hero probes.
