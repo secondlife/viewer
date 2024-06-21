@@ -97,6 +97,9 @@ LLImageDecodeThread::handle_t LLImageDecodeThread::decodeImage(
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 
     U32 decode_id = ++mDecodeCount;
+    if (decode_id == 0)
+        decode_id = ++mDecodeCount;
+
     // Instantiate the ImageRequest right in the lambda, why not?
     bool posted = mThreadPool->getQueue().post(
         [req = ImageRequest(image, discard, needs_aux, responder, decode_id)]
