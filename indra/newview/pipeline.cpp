@@ -2436,6 +2436,7 @@ void LLPipeline::doOcclusion(LLCamera& camera)
         mCubeVB->setBuffer();
 
         mReflectionMapManager.doOcclusion();
+        mHeroProbeManager.doOcclusion();
         gOcclusionCubeProgram.unbind();
 
         gGL.setColorMask(true, true);

@@ -35,6 +35,7 @@
 #include "buffer_util.h"
 #include <boost/url.hpp>
 #include "llimagejpeg.h"
+#include "../llskinningutil.h"
 
 using namespace LL::GLTF;
 using namespace boost::json;
@@ -86,7 +87,6 @@ namespace LL
     }
 }
 
-
 void Scene::updateTransforms(Asset& asset)
 {
     mat4 identity = glm::identity<mat4>();
@@ -95,26 +95,6 @@ void Scene::updateTransforms(Asset& asset)
     {
         Node& node = asset.mNodes[nodeIndex];
         node.updateTransforms(asset, identity);
-    }
-}
-
-void Scene::updateRenderTransforms(Asset& asset, const mat4& modelview)
-{
-    for (auto& nodeIndex : mNodes)
-    {
-        Node& node = asset.mNodes[nodeIndex];
-        node.updateRenderTransforms(asset, modelview);
-    }
-}
-
-void Node::updateRenderTransforms(Asset& asset, const mat4& modelview)
-{
-    mRenderMatrix = modelview * mMatrix;
-
-    for (auto& childIndex : mChildren)
-    {
-        Node& child = asset.mNodes[childIndex];
-        child.updateRenderTransforms(asset, mRenderMatrix);
     }
 }
 
@@ -137,19 +117,119 @@ void Node::updateTransforms(Asset& asset, const mat4& parentMatrix)
 
 void Asset::updateTransforms()
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_GLTF;
     for (auto& scene : mScenes)
     {
         scene.updateTransforms(*this);
     }
+
+    uploadTransforms();
 }
 
-void Asset::updateRenderTransforms(const mat4& modelview)
+void Asset::uploadTransforms()
 {
-    // use mAssetMatrix to update render transforms from node list
-    for (auto& node : mNodes)
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_GLTF;
+    // prepare matrix palette
+    U32 max_nodes = LLSkinningUtil::getMaxGLTFJointCount();
+
+    size_t node_count = llmin<size_t>(max_nodes, mNodes.size());
+
+    std::vector<mat4> t_mp;
+
+    t_mp.resize(node_count);
+
+    for (U32 i = 0; i < node_count; ++i)
     {
-        node.mRenderMatrix = modelview * node.mAssetMatrix;
+        Node& node = mNodes[i];
+        // build matrix palette in asset space
+        t_mp[i] = node.mAssetMatrix;
     }
+
+    std::vector<F32> glmp;
+
+    glmp.resize(node_count * 12);
+
+    F32* mp = glmp.data();
+
+    for (U32 i = 0; i < node_count; ++i)
+    {
+        F32* m = glm::value_ptr(t_mp[i]);
+
+        U32 idx = i * 12;
+
+        mp[idx + 0] = m[0];
+        mp[idx + 1] = m[1];
+        mp[idx + 2] = m[2];
+        mp[idx + 3] = m[12];
+
+        mp[idx + 4] = m[4];
+        mp[idx + 5] = m[5];
+        mp[idx + 6] = m[6];
+        mp[idx + 7] = m[13];
+
+        mp[idx + 8] = m[8];
+        mp[idx + 9] = m[9];
+        mp[idx + 10] = m[10];
+        mp[idx + 11] = m[14];
+    }
+
+    if (mNodesUBO == 0)
+    {
+        glGenBuffers(1, &mNodesUBO);
+    }
+
+    glBindBuffer(GL_UNIFORM_BUFFER, mNodesUBO);
+    glBufferData(GL_UNIFORM_BUFFER, glmp.size() * sizeof(F32), glmp.data(), GL_STREAM_DRAW);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+}
+
+void Asset::uploadMaterials()
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_GLTF;
+    // see pbrmetallicroughnessV.glsl for the layout of the material UBO
+    std::vector<vec4> md;
+
+    U32 material_size = sizeof(vec4) * 12;
+    U32 max_materials = gGLManager.mMaxUniformBlockSize / material_size;
+
+    U32 mat_count = (U32)mMaterials.size();
+    mat_count = llmin(mat_count, max_materials);
+
+    md.resize(mat_count * 12);
+
+    for (U32 i = 0; i < mat_count*12; i += 12)
+    {
+        Material& material = mMaterials[i/12];
+
+        // add texture transforms and UV indices
+        material.mPbrMetallicRoughness.mBaseColorTexture.mTextureTransform.getPacked(&md[i+0]);
+        md[i + 1].g = (F32)material.mPbrMetallicRoughness.mBaseColorTexture.getTexCoord();
+        material.mNormalTexture.mTextureTransform.getPacked(&md[i + 2]);
+        md[i + 3].g = (F32)material.mNormalTexture.getTexCoord();
+        material.mPbrMetallicRoughness.mMetallicRoughnessTexture.mTextureTransform.getPacked(&md[i+4]);
+        md[i + 5].g = (F32)material.mPbrMetallicRoughness.mMetallicRoughnessTexture.getTexCoord();
+        material.mEmissiveTexture.mTextureTransform.getPacked(&md[i + 6]);
+        md[i + 7].g = (F32)material.mEmissiveTexture.getTexCoord();
+        material.mOcclusionTexture.mTextureTransform.getPacked(&md[i + 8]);
+        md[i + 9].g = (F32)material.mOcclusionTexture.getTexCoord();
+
+        // add material properties
+        F32 min_alpha = material.mAlphaMode == Material::AlphaMode::MASK ? material.mAlphaCutoff : -1.0f;
+        md[i + 10] = vec4(material.mEmissiveFactor, 1.f);
+        md[i + 11] = vec4(0.f,
+            material.mPbrMetallicRoughness.mRoughnessFactor,
+            material.mPbrMetallicRoughness.mMetallicFactor,
+            min_alpha);
+    }
+
+    if (mMaterialsUBO == 0)
+    {
+        glGenBuffers(1, &mMaterialsUBO);
+    }
+
+    glBindBuffer(GL_UNIFORM_BUFFER, mMaterialsUBO);
+    glBufferData(GL_UNIFORM_BUFFER, md.size() * sizeof(vec4), md.data(), GL_STREAM_DRAW);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
 S32 Asset::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
@@ -363,6 +443,7 @@ const Image& Image::operator=(const Value& src)
 
 void Asset::update()
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_GLTF;
     F32 dt = gFrameTimeSeconds - mLastUpdateTime;
 
     if (dt > 0.f)
@@ -383,11 +464,27 @@ void Asset::update()
         {
             skin.uploadMatrixPalette(*this);
         }
+
+        uploadMaterials();
+
+        {
+            LL_PROFILE_ZONE_NAMED_CATEGORY_GLTF("gltf - addTextureStats");
+
+            for (auto& image : mImages)
+            {
+                if (image.mTexture.notNull())
+                { // HACK - force texture to be loaded full rez
+                    // TODO: calculate actual vsize
+                    image.mTexture->addTextureStats(2048.f * 2048.f);
+                }
+            }
+        }
     }
 }
 
 bool Asset::prep()
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_GLTF;
     // check required extensions and fail if not supported
     bool unsupported = false;
     for (auto& extension : mExtensionsRequired)
@@ -445,6 +542,127 @@ bool Asset::prep()
         }
     }
 
+    // prepare vertex buffers
+
+    // material count is number of materials + 1 for default material
+    U32 mat_count = (U32) mMaterials.size() + 1;
+
+    if (LLGLSLShader::sCurBoundShaderPtr == nullptr)
+    { // make sure a shader is bound to satisfy mVertexBuffer->setBuffer
+        gDebugProgram.bind();
+    }
+
+    for (S32 double_sided = 0; double_sided < 2; ++double_sided)
+    {
+        RenderData& rd = mRenderData[double_sided];
+        for (U32 i = 0; i < LLGLSLShader::NUM_GLTF_VARIANTS; ++i)
+        {
+            rd.mBatches[i].resize(mat_count);
+        }
+
+        // for each material
+        for (S32 mat_id = -1; mat_id < (S32)mMaterials.size(); ++mat_id)
+        {
+            // for each shader variant
+            U32 vertex_count[LLGLSLShader::NUM_GLTF_VARIANTS] = { 0 };
+            U32 index_count[LLGLSLShader::NUM_GLTF_VARIANTS] = { 0 };
+
+            S32 ds_mat = mat_id == -1 ? 0 : mMaterials[mat_id].mDoubleSided;
+            if (ds_mat != double_sided)
+            {
+                continue;
+            }
+
+            for (U32 variant = 0; variant < LLGLSLShader::NUM_GLTF_VARIANTS; ++variant)
+            {
+                U32 attribute_mask = 0;
+                // for each mesh
+                for (auto& mesh : mMeshes)
+                {
+                    // for each primitive
+                    for (auto& primitive : mesh.mPrimitives)
+                    {
+                        if (primitive.mMaterial == mat_id && primitive.mShaderVariant == variant)
+                        {
+                            // accumulate vertex and index counts
+                            primitive.mVertexOffset = vertex_count[variant];
+                            primitive.mIndexOffset = index_count[variant];
+
+                            vertex_count[variant] += primitive.getVertexCount();
+                            index_count[variant] += primitive.getIndexCount();
+
+                            // all primitives of a given variant and material should all have the same attribute mask
+                            llassert(attribute_mask == 0 || primitive.mAttributeMask == attribute_mask);
+                            attribute_mask |= primitive.mAttributeMask;
+                        }
+                    }
+                }
+
+                // allocate vertex buffer and pack it
+                if (vertex_count[variant] > 0)
+                {
+                    U32 mat_idx = mat_id + 1;
+                    LLVertexBuffer* vb = new LLVertexBuffer(attribute_mask);
+
+                    rd.mBatches[variant][mat_idx].mVertexBuffer = vb;
+                    vb->allocateBuffer(vertex_count[variant],
+                        index_count[variant] * 2); // hack double index count... TODO: find a better way to indicate 32-bit indices will be used
+                    vb->setBuffer();
+
+                    for (auto& mesh : mMeshes)
+                    {
+                        for (auto& primitive : mesh.mPrimitives)
+                        {
+                            if (primitive.mMaterial == mat_id && primitive.mShaderVariant == variant)
+                            {
+                                primitive.upload(vb);
+                            }
+                        }
+                    }
+
+                    vb->unmapBuffer();
+
+                    vb->unbind();
+                }
+            }
+        }
+    }
+
+    // sanity check that all primitives have a vertex buffer
+    for (auto& mesh : mMeshes)
+    {
+        for (auto& primitive : mesh.mPrimitives)
+        {
+            llassert(primitive.mVertexBuffer.notNull());
+        }
+    }
+
+    // build render batches
+    for (S32 node_id = 0; node_id < mNodes.size(); ++node_id)
+    {
+        Node& node = mNodes[node_id];
+
+        if (node.mMesh != INVALID_INDEX)
+        {
+            auto& mesh = mMeshes[node.mMesh];
+
+            S32 mat_idx = mesh.mPrimitives[0].mMaterial + 1;
+
+            S32 double_sided = mat_idx == 0 ? 0 : mMaterials[mat_idx - 1].mDoubleSided;
+
+            for (S32 j = 0; j < mesh.mPrimitives.size(); ++j)
+            {
+                auto& primitive = mesh.mPrimitives[j];
+
+                S32 variant = primitive.mShaderVariant;
+
+                RenderData& rd = mRenderData[double_sided];
+                RenderBatch& rb = rd.mBatches[variant][mat_idx];
+
+                rb.mPrimitives.push_back({ j, node_id });
+            }
+        }
+    }
     return true;
 }
 
@@ -455,6 +673,7 @@ Asset::Asset(const Value& src)
 
 bool Asset::load(std::string_view filename)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_GLTF;
     mFilename = filename;
     std::string ext = gDirUtilp->getExtension(mFilename);
 
@@ -903,14 +1122,14 @@ bool Image::save(Asset& asset, const std::string& folder)
     return true;
 }
 
-void Material::TextureInfo::serialize(object& dst) const
+void TextureInfo::serialize(object& dst) const
 {
     write(mIndex, "index", dst, INVALID_INDEX);
     write(mTexCoord, "texCoord", dst, 0);
     write_extensions(dst, &mTextureTransform, "KHR_texture_transform");
 }
 
-S32 Material::TextureInfo::getTexCoord() const
+S32 TextureInfo::getTexCoord() const
 {
     if (mTextureTransform.mPresent && mTextureTransform.mTexCoord != INVALID_INDEX)
     {
@@ -928,7 +1147,7 @@ bool Material::isMultiUV() const
         mEmissiveTexture.getTexCoord() != 0;
 }
 
-const Material::TextureInfo& Material::TextureInfo::operator=(const Value& src)
+const TextureInfo& TextureInfo::operator=(const Value& src)
 {
     if (src.is_object())
     {
@@ -940,23 +1159,23 @@ const Material::TextureInfo& Material::TextureInfo::operator=(const Value& src)
     return *this;
 }
 
-bool Material::TextureInfo::operator==(const Material::TextureInfo& rhs) const
+bool TextureInfo::operator==(const TextureInfo& rhs) const
 {
     return mIndex == rhs.mIndex && mTexCoord == rhs.mTexCoord;
 }
 
-bool Material::TextureInfo::operator!=(const Material::TextureInfo& rhs) const
+bool TextureInfo::operator!=(const TextureInfo& rhs) const
 {
     return !(*this == rhs);
 }
 
-void Material::OcclusionTextureInfo::serialize(object& dst) const
+void OcclusionTextureInfo::serialize(object& dst) const
 {
     TextureInfo::serialize(dst);
     write(mStrength, "strength", dst, 1.f);
 }
 
-const Material::OcclusionTextureInfo& Material::OcclusionTextureInfo::operator=(const Value& src)
+const OcclusionTextureInfo& OcclusionTextureInfo::operator=(const Value& src)
 {
     TextureInfo::operator=(src);
 
@@ -968,13 +1187,13 @@ const Material::OcclusionTextureInfo& Material::OcclusionTextureInfo::operator=(
     return *this;
 }
 
-void Material::NormalTextureInfo::serialize(object& dst) const
+void NormalTextureInfo::serialize(object& dst) const
 {
     TextureInfo::serialize(dst);
     write(mScale, "scale", dst, 1.f);
 }
 
-const Material::NormalTextureInfo& Material::NormalTextureInfo::operator=(const Value& src)
+const NormalTextureInfo& NormalTextureInfo::operator=(const Value& src)
 {
     TextureInfo::operator=(src);
     if (src.is_object())
@@ -1035,17 +1254,11 @@ void Material::Unlit::serialize(object& dst) const
     // no members and object has already been created, nothing to do
 }
 
-void TextureTransform::getPacked(F32* packed) const
+void TextureTransform::getPacked(vec4* packed) const
 {
-    packed[0] = mScale.x;
-    packed[1] = mScale.y;
-    packed[2] = mRotation;
-    packed[3] = mOffset.x;
-    packed[4] = mOffset.y;
-
-    packed[5] = packed[6] = packed[7] = 0.f;
+    packed[0] = vec4(mScale.x, mScale.y, mRotation, mOffset.x);
+    packed[1] = vec4(mOffset.y, 0.f, 0.f, 0.f);
 }
-
 
 const TextureTransform& TextureTransform::operator=(const Value& src)
 {

@@ -26,19 +26,95 @@
 // GLTF pbrMetallicRoughness implementation
 
 uniform mat4 modelview_matrix;
-
-#ifdef HAS_SKIN
 uniform mat4 projection_matrix;
-#else
-uniform mat3 normal_matrix;
-uniform mat4 modelview_projection_matrix;
+
+#ifdef MULTI_UV
+in vec2 texcoord1;
+int base_color_texcoord = 0;
+int emissive_texcoord = 0;
+#ifndef UNLIT
+int normal_texcoord = 0;
+int metallic_roughness_texcoord = 0;
+int occlusion_texcoord = 0;
+#endif
 #endif
 
-uniform vec4[2] texture_base_color_transform;
-uniform vec4[2] texture_normal_transform;
-uniform vec4[2] texture_metallic_roughness_transform;
-uniform vec4[2] texture_emissive_transform;
-uniform vec4[2] texture_occlusion_transform;
+uniform int gltf_material_id;
+
+layout (std140) uniform GLTFMaterials
+{
+    // index by gltf_material_id*12
+
+    // [gltf_material_id + [0-1]] -  base color transform
+    // [gltf_material_id + [2-3]] -  normal transform
+    // [gltf_material_id + [4-5]] -  metallic roughness transform
+    // [gltf_material_id + [6-7]] -  emissive transform
+    // [gltf_material_id + [8-9]] -  occlusion transform
+    // [gltf_material_id + 10]    -  emissive factor
+    // [gltf_material_id + 11]    -  .r unused, .g roughness, .b metalness, .a minimum alpha
+
+    // Transforms are packed as follows
+    // packed[0] = vec4(scale.x, scale.y, rotation, offset.x)
+    // packed[1] = vec4(mScale.y, texcoord, 0, 0)
+    vec4 gltf_material_data[MAX_UBO_VEC4S];
+};
+
+vec4[2] texture_base_color_transform;
+vec4[2] texture_normal_transform;
+vec4[2] texture_metallic_roughness_transform;
+vec4[2] texture_emissive_transform;
+vec4[2] texture_occlusion_transform;
+
+void unpackTextureTransforms()
+{
+    if (gltf_material_id != -1)
+    {
+        int idx = gltf_material_id*12;
+
+        texture_base_color_transform[0] = gltf_material_data[idx+0];
+        texture_base_color_transform[1] = gltf_material_data[idx+1];
+
+        texture_normal_transform[0] = gltf_material_data[idx+2];
+        texture_normal_transform[1] = gltf_material_data[idx+3];
+
+        texture_metallic_roughness_transform[0] = gltf_material_data[idx+4];
+        texture_metallic_roughness_transform[1] = gltf_material_data[idx+5];
+
+        texture_emissive_transform[0] = gltf_material_data[idx+6];
+        texture_emissive_transform[1] = gltf_material_data[idx+7];
+
+        texture_occlusion_transform[0] = gltf_material_data[idx+8];
+        texture_occlusion_transform[1] = gltf_material_data[idx+9];
+
+#ifdef MULTI_UV
+        base_color_texcoord = int(gltf_material_data[idx+1].g);
+        emissive_texcoord = int(gltf_material_data[idx+7].g);
+#ifndef UNLIT
+        normal_texcoord = int(gltf_material_data[idx+3].g);
+        metallic_roughness_texcoord = int(gltf_material_data[idx+5].g);
+        occlusion_texcoord = int(gltf_material_data[idx+9].g);
+#endif
+#endif
+    }
+    else
+    {
+        texture_base_color_transform[0] = vec4(1.0, 1.0, 0.0, 0.0);
+        texture_base_color_transform[1] = vec4(0.0, 0.0, 0.0, 0.0);
+
+        texture_normal_transform[0] = vec4(1.0, 1.0, 0.0, 0.0);
+        texture_normal_transform[1] = vec4(0.0, 0.0, 0.0, 0.0);
+
+        texture_metallic_roughness_transform[0] = vec4(1.0, 1.0, 0.0, 0.0);
+        texture_metallic_roughness_transform[1] = vec4(0.0, 0.0, 0.0, 0.0);
+
+        texture_emissive_transform[0] = vec4(1.0, 1.0, 0.0, 0.0);
+        texture_emissive_transform[1] = vec4(0.0, 0.0, 0.0, 0.0);
+
+        texture_occlusion_transform[0] = vec4(1.0, 1.0, 0.0, 0.0);
+        texture_occlusion_transform[1] = vec4(0.0, 0.0, 0.0, 0.0);
+    }
+}
+
 
 in vec3 position;
 in vec4 diffuse_color;
@@ -57,17 +133,6 @@ out vec2 occlusion_uv;
 out vec3 vary_tangent;
 flat out float vary_sign;
 out vec3 vary_normal;
-#endif
-
-#ifdef MULTI_UV
-in vec2 texcoord1;
-uniform int base_color_texcoord;
-uniform int emissive_texcoord;
-#ifndef UNLIT
-uniform int normal_texcoord;
-uniform int metallic_roughness_texcoord;
-uniform int occlusion_texcoord;
-#endif
 #endif
 
 vec2 gltf_texture_transform(vec2 texcoord, vec4[2] p)
@@ -124,23 +189,22 @@ vec3 gltf_tangent_space_transform(vec4 vertex_tangent, vec3 vertex_normal, vec4[
 }
 #endif
 
-
-
 #ifdef ALPHA_BLEND
 out vec3 vary_fragcoord;
 #endif
 
 #ifdef HAS_SKIN
-in uvec4 joint;
-in vec4 weight4;
 
 layout (std140) uniform GLTFJoints
 {
-    // list of OBBs for user override probes
-    mat3x4 gltf_joints[MAX_JOINTS_PER_GLTF_OBJECT];
+    mat3x4 gltf_joints[MAX_NODES_PER_GLTF_OBJECT];
 };
 
-mat4 getGLTFSkinTransform()
+
+in uvec4 joint;
+in vec4 weight4;
+
+mat4 getGLTFTransform()
 {
     int i;
 
@@ -169,21 +233,37 @@ mat4 getGLTFSkinTransform()
     ret[3] = vec4(trans, 1.0);
 
     return ret;
+}
 
-#ifdef IS_AMD_CARD
-   // If it's AMD make sure the GLSL compiler sees the arrays referenced once by static index. Otherwise it seems to optimise the storage awawy which leads to unfun crashes and artifacts.
-   mat3x4 dummy1 = gltf_joints[0];
-   mat3x4 dummy2 = gltf_joints[MAX_JOINTS_PER_GLTF_OBJECT-1];
-#endif
+#else
 
+layout (std140) uniform GLTFNodes
+{
+    mat3x4 gltf_nodes[MAX_NODES_PER_GLTF_OBJECT];
+};
+
+uniform int gltf_node_id = 0;
+
+mat4 getGLTFTransform()
+{
+    mat4 ret;
+    mat3x4 src = gltf_nodes[gltf_node_id];
+
+    ret[0] = vec4(src[0].xyz, 0);
+    ret[1] = vec4(src[1].xyz, 0);
+    ret[2] = vec4(src[2].xyz, 0);
+
+    ret[3] = vec4(src[0].w, src[1].w, src[2].w, 1);
+
+    return ret;
 }
 
 #endif
 
 void main()
 {
-#ifdef HAS_SKIN
-    mat4 mat = getGLTFSkinTransform();
+    unpackTextureTransforms();
+    mat4 mat = getGLTFTransform();
 
     mat = modelview_matrix * mat;
 
@@ -192,13 +272,6 @@ void main()
 
     vec4 vert = projection_matrix * vec4(pos, 1.0);
     gl_Position = vert;
-
-#else
-    vary_position = (modelview_matrix*vec4(position.xyz, 1.0)).xyz;
-    //transform vertex
-    vec4 vert = modelview_projection_matrix * vec4(position.xyz, 1.0);
-    gl_Position = vert;
-#endif
 
     vec2 bcuv;
     vec2 emuv;
@@ -237,13 +310,8 @@ void main()
 #endif
 
 #ifndef UNLIT
-#ifdef HAS_SKIN
     vec3 n = (mat*vec4(normal.xyz+position.xyz,1.0)).xyz-pos.xyz;
     vec3 t = (mat*vec4(tangent.xyz+position.xyz,1.0)).xyz-pos.xyz;
-#else //HAS_SKIN
-    vec3 n = normal_matrix * normal;
-    vec3 t = normal_matrix * tangent.xyz;
-#endif
 
     n = normalize(n);
     vary_tangent = normalize(gltf_tangent_space_transform(vec4(t, tangent.w), n, texture_normal_transform));

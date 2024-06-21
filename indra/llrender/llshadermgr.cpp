@@ -1185,6 +1185,8 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("normal_texcoord"); // (GLTF)
     mReservedUniforms.push_back("metallic_roughness_texcoord"); // (GLTF)
     mReservedUniforms.push_back("occlusion_texcoord"); // (GLTF)
+    mReservedUniforms.push_back("gltf_node_id"); // (GLTF)
+    mReservedUniforms.push_back("gltf_material_id"); // (GLTF)
 
     mReservedUniforms.push_back("terrain_texture_transforms"); // (GLTF)
 

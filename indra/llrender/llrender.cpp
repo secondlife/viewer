@@ -991,6 +991,8 @@ void LLRender::syncLightState()
 void LLRender::syncMatrices()
 {
     STOP_GLERROR;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
+
     static const U32 name[] =
     {
         LLShaderMgr::MODELVIEW_MATRIX,

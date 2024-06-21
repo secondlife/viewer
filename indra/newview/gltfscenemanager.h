@@ -59,7 +59,7 @@ namespace LL
 
         // bind the given material for rendering
         void bind(LL::GLTF::Asset& asset, LL::GLTF::Material& material);
-
+        void bindTexture(LL::GLTF::Asset& asset, LL::GLTF::TextureType texture_type, LL::GLTF::TextureInfo& info, LLViewerTexture* fallback);
         void renderOpaque();
         void renderAlpha();
 
@@ -94,6 +94,11 @@ namespace LL
         U32 mPendingGLTFUploads = 0;
 
         U32 mJointUBO = 0;
+
+
+        // render loop state
+        S32 mLastTexture[GLTF::TEXTURE_TYPE_COUNT] = { -2, -2, -2, -2, -2 };
+
     };
 }
 

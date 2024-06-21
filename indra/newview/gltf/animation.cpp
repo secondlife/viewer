@@ -70,6 +70,14 @@ bool Animation::prep(Asset& asset)
         }
     }
 
+    for (auto& channel : mScaleChannels)
+    {
+        if (!channel.prep(asset, mSamplers[channel.mSampler]))
+        {
+            return false;
+        }
+    }
+
     return true;
 }
 
@@ -82,18 +90,37 @@ void Animation::update(Asset& asset, F32 dt)
 
 void Animation::apply(Asset& asset, float time)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_GLTF;
+
     // convert time to animation loop time
     time = fmod(time, mMaxTime - mMinTime) + mMinTime;
 
     // apply each channel
-    for (auto& channel : mRotationChannels)
     {
-        channel.apply(asset, mSamplers[channel.mSampler], time);
+        LL_PROFILE_ZONE_NAMED_CATEGORY_GLTF("gltfanim - rotation");
+
+        for (auto& channel : mRotationChannels)
+        {
+            channel.apply(asset, mSamplers[channel.mSampler], time);
+        }
     }
 
-    for (auto& channel : mTranslationChannels)
     {
-        channel.apply(asset, mSamplers[channel.mSampler], time);
+        LL_PROFILE_ZONE_NAMED_CATEGORY_GLTF("gltfanim - translation");
+
+        for (auto& channel : mTranslationChannels)
+        {
+            channel.apply(asset, mSamplers[channel.mSampler], time);
+        }
+    }
+
+    {
+        LL_PROFILE_ZONE_NAMED_CATEGORY_GLTF("gltfanim - scale");
+
+        for (auto& channel : mScaleChannels)
+        {
+            channel.apply(asset, mSamplers[channel.mSampler], time);
+        }
     }
 };
 
@@ -178,7 +205,8 @@ const Animation::Channel& Animation::Channel::operator=(const Value& src)
 
 void Animation::Sampler::getFrameInfo(Asset& asset, F32 time, U32& frameIndex, F32& t)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_GLTF;
+    llassert(mFrameTimes.size() > 1); // if there is only one frame, there is no need to interpolate
 
     if (time < mMinTime)
     {
@@ -187,31 +215,32 @@ void Animation::Sampler::getFrameInfo(Asset& asset, F32 time, U32& frameIndex, F
         return;
     }
 
-    if (mFrameTimes.size() > 1)
-    {
-        llassert(mFrameTimes.size() <= size_t(U32_MAX));
-        frameIndex = U32(mFrameTimes.size()) - 2;
-        t = 1.f;
+    frameIndex = U32(mFrameTimes.size()) - 2;
+    t = 1.f;
 
-        if (time > mMaxTime)
+    if (time > mMaxTime)
+    {
+        return;
+    }
+
+    if (time < mLastFrameTime)
+    {
+        mLastFrameIndex = 0;
+    }
+
+    mLastFrameTime = time;
+
+    U32 idx = mLastFrameIndex;
+
+    for (U32 i = idx; i < (U32)mFrameTimes.size() - 1; i++)
+    {
+        if (time >= mFrameTimes[i] && time < mFrameTimes[i + 1])
         {
+            frameIndex = i;
+            t = (time - mFrameTimes[i]) / (mFrameTimes[i + 1] - mFrameTimes[i]);
+            mLastFrameIndex = frameIndex;
             return;
         }
-
-        for (U32 i = 0; i < (U32)mFrameTimes.size() - 1; i++)
-        {
-            if (time >= mFrameTimes[i] && time < mFrameTimes[i + 1])
-            {
-                frameIndex = i;
-                t = (time - mFrameTimes[i]) / (mFrameTimes[i + 1] - mFrameTimes[i]);
-                return;
-            }
-        }
-    }
-    else
-    {
-        frameIndex = 0;
-        t = 0.0f;
     }
 }
 
@@ -231,14 +260,14 @@ void Animation::RotationChannel::apply(Asset& asset, Sampler& sampler, F32 time)
 
     Node& node = asset.mNodes[mTarget.mNode];
 
-    sampler.getFrameInfo(asset, time, frameIndex, t);
-
-    if (sampler.mFrameTimes.size() == 1)
+    if (sampler.mFrameTimes.size() < 2)
     {
         node.setRotation(mRotations[0]);
     }
     else
     {
+        sampler.getFrameInfo(asset, time, frameIndex, t);
+
         // interpolate
         quat qf = glm::slerp(mRotations[frameIndex], mRotations[frameIndex + 1], t);
 
@@ -264,14 +293,14 @@ void Animation::TranslationChannel::apply(Asset& asset, Sampler& sampler, F32 ti
 
     Node& node = asset.mNodes[mTarget.mNode];
 
-    sampler.getFrameInfo(asset, time, frameIndex, t);
-
-    if (sampler.mFrameTimes.size() == 1)
+    if (sampler.mFrameTimes.size() < 2)
     {
         node.setTranslation(mTranslations[0]);
     }
     else
     {
+        sampler.getFrameInfo(asset, time, frameIndex, t);
+
         // interpolate
         const vec3& v0 = mTranslations[frameIndex];
         const vec3& v1 = mTranslations[frameIndex + 1];
@@ -298,14 +327,14 @@ void Animation::ScaleChannel::apply(Asset& asset, Sampler& sampler, F32 time)
 
     Node& node = asset.mNodes[mTarget.mNode];
 
-    sampler.getFrameInfo(asset, time, frameIndex, t);
-
-    if (sampler.mFrameTimes.size() == 1)
+    if (sampler.mFrameTimes.size() < 2)
     {
         node.setScale(mScales[0]);
     }
     else
     {
+        sampler.getFrameInfo(asset, time, frameIndex, t);
+
         // interpolate
         const vec3& v0 = mScales[frameIndex];
         const vec3& v1 = mScales[frameIndex + 1];
@@ -373,6 +402,7 @@ Skin::~Skin()
 void Skin::uploadMatrixPalette(Asset& asset)
 {
     // prepare matrix palette
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_GLTF;
 
     U32 max_joints = LLSkinningUtil::getMaxGLTFJointCount();
 

@@ -54,10 +54,7 @@ namespace LL
 
             ~Primitive();
 
-            // GPU copy of mesh data
-            LLPointer<LLVertexBuffer> mVertexBuffer;
-
-            // CPU copy of mesh data, keep these as LLVector types for compatibility with raycasting code
+            // CPU copy of mesh data
             std::vector<LLVector2> mTexCoords0;
             std::vector<LLVector2> mTexCoords1;
             std::vector<LLVector4a> mNormals;
@@ -80,6 +77,17 @@ namespace LL
             // shader variant according to LLGLSLShader::GLTFVariant flags
             U8 mShaderVariant = 0;
 
+            // vertex attribute mask
+            U32 mAttributeMask = 0;
+
+            // backpointer to vertex buffer (owned by Asset)
+            LLPointer<LLVertexBuffer> mVertexBuffer;
+            U32 mVertexOffset = 0;
+            U32 mIndexOffset = 0;
+
+            U32 getVertexCount() const { return (U32) mPositions.size(); }
+            U32 getIndexCount() const { return (U32) mIndexArray.size(); }
+
             std::unordered_map<std::string, S32> mAttributes;
 
             // create octree based on vertex buffer
@@ -100,6 +108,11 @@ namespace LL
             const Primitive& operator=(const Value& src);
 
             bool prep(Asset& asset);
+
+            // upload geometry to given vertex buffer
+            // asserts that buffer is bound
+            // asserts that buffer is valid for this primitive
+            void upload(LLVertexBuffer* buffer);
         };
     }
 }

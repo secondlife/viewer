@@ -54,6 +54,8 @@ using std::string;
 GLuint LLGLSLShader::sCurBoundShader = 0;
 LLGLSLShader* LLGLSLShader::sCurBoundShaderPtr = NULL;
 S32 LLGLSLShader::sIndexedTextureChannels = 0;
+U32 LLGLSLShader::sMaxGLTFMaterials = 0;
+U32 LLGLSLShader::sMaxGLTFNodes = 0;
 bool LLGLSLShader::sProfileEnabled = false;
 std::set<LLGLSLShader*> LLGLSLShader::sInstances;
 LLGLSLShader::defines_map_t LLGLSLShader::sGlobalDefines;
@@ -978,7 +980,9 @@ bool LLGLSLShader::mapUniforms()
     const char* ubo_names[] =
     {
         "ReflectionProbes", // UB_REFLECTION_PROBES
-        "GLTFJoints", // UB_GLTF_JOINTS
+        "GLTFJoints",       // UB_GLTF_JOINTS
+        "GLTFNodes",        // UB_GLTF_NODES
+        "GLTFMaterials",    // UB_GLTF_MATERIALS
     };
 
     llassert(LL_ARRAY_SIZE(ubo_names) == NUM_UNIFORM_BLOCKS);

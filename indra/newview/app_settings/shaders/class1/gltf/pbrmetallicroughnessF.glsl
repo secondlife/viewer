@@ -28,18 +28,40 @@
 
 // GLTF pbrMetallicRoughness implementation
 
+uniform int gltf_material_id;
+
+vec3 emissiveColor = vec3(0,0,0);
+float metallicFactor = 1.0;
+float roughnessFactor = 1.0;
+float minimum_alpha = -1.0;
+
+layout (std140) uniform GLTFMaterials
+{
+    // see pbrmetallicroughnessV.glsl for packing
+    vec4 gltf_material_data[MAX_UBO_VEC4S];
+};
+
+void unpackMaterial()
+{
+    if (gltf_material_id > -1)
+    {
+        int idx = gltf_material_id*12;
+        emissiveColor = gltf_material_data[idx+10].rgb;
+        roughnessFactor = gltf_material_data[idx+11].g;
+        metallicFactor = gltf_material_data[idx+11].b;
+        minimum_alpha -= gltf_material_data[idx+11].a;
+    }
+}
 
 // ==================================
 // needed by all variants
 // ==================================
 uniform sampler2D diffuseMap;  //always in sRGB space
 uniform sampler2D emissiveMap;
-uniform vec3 emissiveColor;
 in vec3 vary_position;
 in vec4 vertex_color;
 in vec2 base_color_uv;
 in vec2 emissive_uv;
-uniform float minimum_alpha;
 
 void mirrorClip(vec3 pos);
 vec3 linear_to_srgb(vec3 c);
@@ -54,8 +76,6 @@ vec3 srgb_to_linear(vec3 c);
 uniform sampler2D normalMap;
 uniform sampler2D metallicRoughnessMap;
 uniform sampler2D occlusionMap;
-uniform float metallicFactor;
-uniform float roughnessFactor;
 in vec3 vary_normal;
 in vec3 vary_tangent;
 flat in float vary_sign;
@@ -154,7 +174,7 @@ out vec4 frag_data[4];
 
 void main()
 {
-
+    unpackMaterial();
 // ==================================
 // all variants
 //   mirror clip
@@ -164,6 +184,10 @@ void main()
 // ==================================
     vec3 pos = vary_position;
     mirrorClip(pos);
+
+#ifdef ALPHA_BLEND
+    //waterClip(pos);
+#endif
 
     vec4 basecolor = texture(diffuseMap, base_color_uv.xy).rgba;
     basecolor.rgb = srgb_to_linear(basecolor.rgb);

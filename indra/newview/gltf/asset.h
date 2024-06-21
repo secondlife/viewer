@@ -34,6 +34,7 @@
 #include "boost/json.hpp"
 #include "common.h"
 #include "../llviewertexture.h"
+#include "llglslshader.h"
 
 extern F32SecondsImplicit       gFrameTimeSeconds;
 
@@ -65,11 +66,48 @@ namespace LL
             vec2 mScale = vec2(1.f, 1.f);
             S32 mTexCoord = INVALID_INDEX;
 
-            // get the texture transform as a packed array of floats
-            // dst MUST point to at least 8 floats
-            void getPacked(F32* dst) const;
+            // get the texture transform as a packed array of vec4's
+            // dst MUST point to at least 2 vec4's
+            void getPacked(vec4* dst) const;
 
             const TextureTransform& operator=(const Value& src);
+            void serialize(boost::json::object& dst) const;
+        };
+
+        class TextureInfo
+        {
+        public:
+            S32 mIndex = INVALID_INDEX;
+            S32 mTexCoord = 0;
+
+            TextureTransform mTextureTransform;
+
+            bool operator==(const TextureInfo& rhs) const;
+            bool operator!=(const TextureInfo& rhs) const;
+
+            // get the UV channel that should be used for sampling this texture
+            // returns mTextureTransform.mTexCoord if present and valid, otherwise mTexCoord
+            S32 getTexCoord() const;
+
+            const TextureInfo& operator=(const Value& src);
+            void serialize(boost::json::object& dst) const;
+        };
+
+        class NormalTextureInfo : public TextureInfo
+        {
+        public:
+            F32 mScale = 1.0f;
+
+            const NormalTextureInfo& operator=(const Value& src);
+            void serialize(boost::json::object& dst) const;
+        };
+
+        class OcclusionTextureInfo : public TextureInfo
+        {
+        public:
+            F32 mStrength = 1.0f;
+
+            const OcclusionTextureInfo& operator=(const Value& src);
             void serialize(boost::json::object& dst) const;
         };
 
@@ -91,42 +129,6 @@ namespace LL
                 BLEND
             };
 
-            class TextureInfo
-            {
-            public:
-                S32 mIndex = INVALID_INDEX;
-                S32 mTexCoord = 0;
-
-                TextureTransform mTextureTransform;
-
-                bool operator==(const TextureInfo& rhs) const;
-                bool operator!=(const TextureInfo& rhs) const;
-
-                // get the UV channel that should be used for sampling this texture
-                // returns mTextureTransform.mTexCoord if present and valid, otherwise mTexCoord
-                S32 getTexCoord() const;
-
-                const TextureInfo& operator=(const Value& src);
-                void serialize(boost::json::object& dst) const;
-            };
-
-            class NormalTextureInfo : public TextureInfo
-            {
-            public:
-                F32 mScale = 1.0f;
-
-                const NormalTextureInfo& operator=(const Value& src);
-                void serialize(boost::json::object& dst) const;
-            };
-
-            class OcclusionTextureInfo : public TextureInfo
-            {
-            public:
-                F32 mStrength = 1.0f;
-
-                const OcclusionTextureInfo& operator=(const Value& src);
-                void serialize(boost::json::object& dst) const;
-            };
 
             class PbrMetallicRoughness
             {
@@ -179,7 +181,6 @@ namespace LL
         {
         public:
             mat4 mMatrix = glm::identity<mat4>(); //local transform
-            mat4 mRenderMatrix; //transform for rendering
             mat4 mAssetMatrix; //transform from local to asset space
             mat4 mAssetMatrixInv; //transform from asset to local space
 
@@ -205,10 +206,6 @@ namespace LL
 
             const Node& operator=(const Value& src);
             void serialize(boost::json::object& dst) const;
-
-            // Set mRenderMatrix to a transform that can be used for the current render pass
-            // modelview -- parent's render matrix
-            void updateRenderTransforms(Asset& asset, const mat4& modelview);
 
             // update mAssetMatrix and mAssetMatrixInv
             void updateTransforms(Asset& asset, const mat4& parentMatrix);
@@ -322,6 +319,31 @@ namespace LL
             bool prep(Asset& asset);
         };
 
+        // Render Batch -- vertex buffer and list of primitives to render using
+        // said vertex buffer
+        class RenderBatch
+        {
+        public:
+            struct PrimitiveData
+            {
+                S32 mPrimitiveIndex = INVALID_INDEX;
+                S32 mNodeIndex = INVALID_INDEX;
+            };
+
+            LLPointer<LLVertexBuffer> mVertexBuffer;
+            std::vector<PrimitiveData> mPrimitives;
+        };
+
+        class RenderData
+        {
+        public:
+            // list of render batches
+            // indexed by [material index + 1](0 is reserved for default material)
+            // there should be exactly one render batch per material per variant
+            std::vector<RenderBatch> mBatches[LLGLSLShader::NUM_GLTF_VARIANTS];
+        };
+
+
         // C++ representation of a GLTF Asset
         class Asset
         {
@@ -359,6 +381,16 @@ namespace LL
             // the last time update() was called according to gFrameTimeSeconds
             F32 mLastUpdateTime = gFrameTimeSeconds;
 
+            // data used for rendering
+            // 0 - single sided
+            // 1 - double sided
+            RenderData mRenderData[2];
+
+            // UBO for storing node transforms
+            U32 mNodesUBO = 0;
+
+            // UBO for storing material data
+            U32 mMaterialsUBO = 0;
 
             // prepare for first time use
             bool prep();
@@ -373,8 +405,11 @@ namespace LL
             // update asset-to-node and node-to-asset transforms
             void updateTransforms();
 
-            // update node render transforms
-            void updateRenderTransforms(const mat4& modelview);
+            // upload matrices to UBO
+            void uploadTransforms();
+
+            // upload materils to UBO
+            void uploadMaterials();
 
             // return the index of the node that the line segment intersects with, or -1 if no hit
             // input and output values must be in this asset's local coordinate frame
