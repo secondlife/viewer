@@ -864,21 +864,21 @@
    name="HeroProbeUpdateRate"
    width="150">
     <combo_box.item
-      label="Every Frame"
-      name="0"
-      value="1"/>
+      label="Low"
+      name="6"
+      value="6"/>
     <combo_box.item
-      label="Every 2nd Frame"
+      label="Medium"
+      name="3"
+      value="3"/>
+    <combo_box.item
+      label="High"
       name="1"
       value="2"/>
     <combo_box.item
-      label="Every 3rd Frame"
-      name="2"
-      value="3"/>
-    <combo_box.item
-      label="Every 4th Frame"
-      name="3"
-      value="4"/>
+      label="Ultra"
+      name="0"
+      value="1"/>
   </combo_box>
   <!-- End of mirror settings -->
 

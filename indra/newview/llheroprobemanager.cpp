@@ -188,18 +188,8 @@ void LLHeroProbeManager::update()
                 LLVector3(0, 0, -1)
             };
 
-            // Iterate through each face of the cube
-            for (int i = 0; i < 6; i++)
-            {
-                float cube_facing = fmax(-1, fmin(1.0f, cameraDirection * cubeFaces[i]));
-
-                cube_facing = 1 - cube_facing;
-
-                mFaceUpdateList[i] = ceilf(cube_facing * gPipeline.RenderHeroProbeConservativeUpdateMultiplier);
-                }
-
-
             mProbes[0]->mOrigin = probe_pos;
+            mProbes[0]->mRadius = mNearestHero->getScale().magVec() * 0.5f;
         }
         else
         {
@@ -220,9 +210,10 @@ void LLHeroProbeManager::renderProbes()
 
     static LLCachedControl<S32> sDetail(gSavedSettings, "RenderHeroReflectionProbeDetail", -1);
     static LLCachedControl<S32> sLevel(gSavedSettings, "RenderHeroReflectionProbeLevel", 3);
+    static LLCachedControl<S32> sUpdateRate(gSavedSettings, "RenderHeroProbeUpdateRate", 0);
 
     F32 near_clip = 0.01f;
-    if (mNearestHero != nullptr && (gPipeline.RenderHeroProbeUpdateRate == 0 || (gFrameCount % gPipeline.RenderHeroProbeUpdateRate) == 0) &&
+    if (mNearestHero != nullptr &&
         !gTeleportDisplay && !gDisconnected && !LLAppViewer::instance()->logoutRequestSent())
     {
         LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("hpmu - realtime");
@@ -232,20 +223,36 @@ void LLHeroProbeManager::renderProbes()
         gPipeline.mReflectionMapManager.mRadiancePass = true;
         mRenderingMirror = true;
 
-        doOcclusion();
+        S32 rate = sUpdateRate;
 
-        for (U32 j = 0; j < mProbes.size(); j++)
+        // rate must be divisor of 6 (1, 2, 3, or 6)
+        if (rate < 1)
         {
+            rate = 1;
+        }
+        else if (rate > 3)
+        {
+            rate = 6;
+        }
+
+        S32 face = gFrameCount % 6;
+
+        if (!mProbes.empty() && !mProbes[0].isNull() && !mProbes[0]->mOccluded)
+        {
+            LL_PROFILE_ZONE_NUM(gFrameCount % rate);
+            LL_PROFILE_ZONE_NUM(rate);
+
             for (U32 i = 0; i < 6; ++i)
             {
-                if (mFaceUpdateList[i] > 0 && mCurrentProbeUpdateFrame % mFaceUpdateList[i] == 0)
-                {
-                    updateProbeFace(mProbes[j], i, mNearestHero->getReflectionProbeIsDynamic() && sDetail > 0, near_clip);
-                    mCurrentProbeUpdateFrame = 0;
+                if ((gFrameCount % rate) == (i % rate))
+                { // update 6/rate faces per frame
+                    LL_PROFILE_ZONE_NUM(i);
+                    updateProbeFace(mProbes[0], i, mNearestHero->getReflectionProbeIsDynamic() && sDetail > 0, near_clip);
                 }
             }
-            generateRadiance(mProbes[j]);
+            generateRadiance(mProbes[0]);
         }
+
         mRenderingMirror = false;
 
         gPipeline.mReflectionMapManager.mRadiancePass = radiance_pass;
@@ -253,8 +260,6 @@ void LLHeroProbeManager::renderProbes()
         mProbes[0]->mViewerObject = mNearestHero;
         mProbes[0]->autoAdjustOrigin();
     }
-
-    mCurrentProbeUpdateFrame++;
 }
 
 // Do the reflection map update render passes.
@@ -595,7 +600,7 @@ void LLHeroProbeManager::doOcclusion()
 
     for (auto& probe : mProbes)
     {
-        if (probe != nullptr && probe != mDefaultProbe)
+        if (probe != nullptr)
         {
             probe->doOcclusion(eye);
         }

@@ -147,9 +147,6 @@ private:
     bool mReset = false;
 
     bool mRenderingMirror = false;
-    std::map<int, int> mFaceUpdateList;
-
-    U32 mCurrentProbeUpdateFrame = 0;
 
     std::vector<LLPointer<LLVOVolume>>                       mHeroVOList;
     LLPointer<LLVOVolume>                                 mNearestHero;
