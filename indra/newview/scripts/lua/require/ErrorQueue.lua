@@ -5,8 +5,11 @@
 local WaitQueue = require('WaitQueue')
 local function dbg(...) end
 -- local dbg = require('printf')
+local util = require('util')
 
-local ErrorQueue = WaitQueue:new()
+local ErrorQueue = WaitQueue()
+
+util.classctor(ErrorQueue)
 
 function ErrorQueue:Error(message)
     -- Setting Error() is a marker, like closing the queue. Once we reach the

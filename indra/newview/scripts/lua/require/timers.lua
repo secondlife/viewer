@@ -1,6 +1,7 @@
 -- Access to the viewer's time-delay facilities
 
 local leap = require 'leap'
+local util = require 'util'
 
 local timers = {}
 
@@ -77,6 +78,8 @@ function timers.Timer:new(delay, callback, iterate)
 
     return obj
 end
+
+util.classctor(timers.Timer)
 
 function timers.Timer:tick()
     error('Pass a callback to Timer:new(), or override Timer:tick()')

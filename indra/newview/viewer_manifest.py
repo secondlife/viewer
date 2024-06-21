@@ -169,6 +169,8 @@ class ViewerManifest(LLManifest):
             with self.prefix(src_dst="scripts/lua"):
                 self.path("*.lua")
                 self.path("*.xml")
+                with self.prefix(src_dst='require'):
+                    self.path("*.lua")
 
             #build_data.json.  Standard with exception handling is fine.  If we can't open a new file for writing, we have worse problems
             #platform is computed above with other arg parsing
@@ -285,7 +287,7 @@ class ViewerManifest(LLManifest):
         # A line that starts with a non-whitespace character is a name; all others describe contributions, so collect the names
         names = []
         for line in lines :
-            if re.match("\S", line) :
+            if re.match(r"\S", line) :
                 names.append(line.rstrip())
         # It's not fair to always put the same people at the head of the list
         random.shuffle(names)

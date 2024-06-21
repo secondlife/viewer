@@ -398,7 +398,7 @@ namespace tut
 
         LuaState L;
         auto future = LLLUAmanager::startScriptLine(L, lua);
-        auto replyname{ L.obtainListener()->getReplyName() };
+        auto replyname{ L.obtainListener().getReplyName() };
         auto& replypump{ LLEventPumps::instance().obtain(replyname) };
         // LuaState::expr() periodically interrupts a running chunk to ensure
         // the rest of our coroutines get cycles. Nonetheless, for this test

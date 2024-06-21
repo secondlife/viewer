@@ -2,6 +2,31 @@
 
 local util = {}
 
+-- Allow MyClass(ctor args...) equivalent to MyClass:new(ctor args...)
+-- Usage:
+-- local MyClass = {}
+-- function MyClass:new(...)
+--     ...
+-- end
+-- ...
+-- util.classctor(MyClass)
+-- or if your constructor is named something other than MyClass:new(), e.g.
+-- MyClass:construct():
+-- util.classctor(MyClass, MyClass.construct)
+-- return MyClass
+function util.classctor(class, ctor)
+    -- get the metatable for the passed class
+    local mt = getmetatable(class)
+    if mt == nil then
+        -- if it doesn't already have a metatable, then create one
+        mt = {}
+        setmetatable(class, mt)
+    end
+    -- now that class has a metatable, set its __call method to the specified
+    -- constructor method (class.new if not specified)
+    mt.__call = ctor or class.new
+end
+
 -- check if array-like table contains certain value
 function util.contains(t, v)
     return table.find(t, v) ~= nil

@@ -2,6 +2,7 @@
 
 local leap = require 'leap'
 local fiber = require 'fiber'
+local util = require 'util'
 
 -- list of all the events that a LLLuaFloater might send
 local event_list = leap.request("LLFloaterReg", {op="getFloaterEvents"}).events
@@ -44,6 +45,8 @@ function Floater:new(path, extra)
 
     return obj
 end
+
+util.classctor(Floater)
 
 function Floater:show()
     -- leap.eventstream() returns the first response, and launches a

@@ -15,8 +15,7 @@
 #include "lualistener.h"
 // STL headers
 // std headers
-#include <cstdlib>                  // std::rand()
-#include <cstring>                  // std::memcpy()
+#include <iomanip>                  // std::quoted()
 // external library headers
 #include "luau/lua.h"
 // other Linden headers
@@ -28,11 +27,11 @@ const int MAX_QSIZE = 1000;
 
 std::ostream& operator<<(std::ostream& out, const LuaListener& self)
 {
-    return out << "LuaListener(" << self.getReplyName() << ", " << self.getCommandName() << ")";
+    return out << "LuaListener(" << std::quoted(self.mCoroName) << ", "
+               << self.getReplyName() << ", " << self.getCommandName() << ")";
 }
 
 LuaListener::LuaListener(lua_State* L):
-    super(getUniqueKey()),
     mCoroName(LLCoros::getName()),
     mListener(new LLLeapListener(
         "LuaListener",
@@ -49,24 +48,13 @@ LuaListener::LuaListener(lua_State* L):
                 // viewer shutdown, close the queue to wake up getNext().
                 mQueue.close();
             }))
-{}
+{
+    LL_DEBUGS("Lua") << "LuaListener(" << std::quoted(mCoroName) << ")" << LL_ENDL;
+}
 
 LuaListener::~LuaListener()
-{}
-
-int LuaListener::getUniqueKey()
 {
-    // Find a random key that does NOT already correspond to a LuaListener
-    // instance. Passing a duplicate key to LLInstanceTracker would do Bad
-    // Things.
-    int key;
-    do
-    {
-        key = std::rand();
-    } while (LuaListener::getInstance(key));
-    // This is theoretically racy, if we were instantiating new
-    // LuaListeners on multiple threads. Don't.
-    return key;
+    LL_DEBUGS("Lua") << "~LuaListener(" << std::quoted(mCoroName) << ")" << LL_ENDL;
 }
 
 std::string LuaListener::getReplyName() const
@@ -86,7 +74,7 @@ bool LuaListener::queueEvent(const std::string& pump, const LLSD& data)
     // capacity or we'd block the post() call trying to propagate this event!
     if (auto size = mQueue.size(); size > MAX_QSIZE)
     {
-        LL_WARNS("Lua") << "LuaListener queue for " << getReplyName()
+        LL_WARNS("Lua") << "LuaListener queue for " << mCoroName
                         << " exceeds " << MAX_QSIZE << ": " << size
                         << " -- discarding event" << LL_ENDL;
     }
@@ -107,7 +95,7 @@ LuaListener::PumpData LuaListener::getNext()
     catch (const LLThreadSafeQueueInterrupt&)
     {
         // mQueue has been closed. The only way that happens is when we detect
-        // viewer shutdown. Terminate the calling coroutine.
+        // viewer shutdown. Terminate the calling Lua coroutine.
         LLCoros::checkStop();
         return {};
     }

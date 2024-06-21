@@ -28,6 +28,7 @@
 #include "lleventcoro.h"
 #include "llsd.h"
 #include "llsdutil.h"
+#include "llstring.h"
 #include "lualistener.h"
 #include "stringize.h"
 
@@ -75,8 +76,16 @@ fsyspath lluau::source_path(lua_State* L)
 {
     //Luau lua_Debug and lua_getinfo() are different compared to default Lua:
     //see https://github.com/luau-lang/luau/blob/80928acb92d1e4b6db16bada6d21b1fb6fa66265/VM/include/lua.h
-    lua_Debug ar;
-    lua_getinfo(L, 1, "s", &ar);
+    // In particular:
+    // passing level=1 gets you info about the deepest function call
+    // passing level=lua_stackdepth() gets you info about the topmost script
+    // Empirically, lua_getinfo(level > 1) behaves strangely (including
+    // crashing the program) unless you iterate from 1 to desired level.
+    lua_Debug ar{};
+    for (int i(0), depth(lua_stackdepth(L)); i <= depth; ++i)
+    {
+        lua_getinfo(L, i, "s", &ar);
+    }
     return ar.source;
 }
 
@@ -489,9 +498,42 @@ void LuaState::initLuaState()
 
 LuaState::~LuaState()
 {
-    // Did somebody call obtainListener() on this LuaState?
-    // That is, is there a LuaListener key in its registry?
-    LuaListener::destruct(getListener());
+    // We're just about to destroy this lua_State mState. lua_close() doesn't
+    // implicitly garbage-collect everything, so (for instance) any lingering
+    // objects with __gc metadata methods aren't cleaned up. This is why we
+    // provide atexit().
+    luaL_checkstack(mState, 2, nullptr);
+    // look up Registry.atexit
+    lua_getfield(mState, LUA_REGISTRYINDEX, "atexit");
+    // stack contains Registry.atexit
+    if (lua_istable(mState, -1))
+    {
+        // We happen to know that Registry.atexit is built by appending array
+        // entries using table.insert(). That's important because it means
+        // there are no holes, and therefore lua_objlen() should be correct.
+        // That's important because we walk the atexit table backwards, to
+        // destroy last the things we created (passed to LL.atexit()) first.
+        for (int i(lua_objlen(mState, -1)); i >= 1; --i)
+        {
+            lua_pushinteger(mState, i);
+            // stack contains Registry.atexit, i
+            lua_gettable(mState, -2);
+            // stack contains Registry.atexit, atexit[i]
+            // Call atexit[i](), no args, no return values.
+            // Use lua_pcall() because errors in any one atexit() function
+            // shouldn't cancel the rest of them.
+            if (lua_pcall(mState, 0, 0, 0) != LUA_OK)
+            {
+                auto error{ lua_tostdstring(mState, -1) };
+                LL_WARNS("Lua") << "atexit() function error: " << error << LL_ENDL;
+                // pop error message
+                lua_pop(mState, 1);
+            }
+            // lua_pcall() has already popped atexit[i]: stack contains atexit
+        }
+    }
+    // pop Registry.atexit (either table or nil)
+    lua_pop(mState, 1);
 
     lua_close(mState);
 
@@ -509,7 +551,7 @@ bool LuaState::checkLua(const std::string& desc, int r)
         mError = lua_tostring(mState, -1);
         lua_pop(mState, 1);
 
-        LL_WARNS() << desc << ": " << mError << LL_ENDL;
+        LL_WARNS("Lua") << desc << ": " << mError << LL_ENDL;
         return false;
     }
     return true;
@@ -529,6 +571,7 @@ std::pair<int, LLSD> LuaState::expr(const std::string& desc, const std::string& 
         lluau::check_interrupts_counter(L);
     };
 
+    LL_INFOS("Lua") << desc << " run" << LL_ENDL;
     if (! checkLua(desc, lluau::dostring(mState, desc, text)))
     {
         LL_WARNS("Lua") << desc << " error: " << mError << LL_ENDL;
@@ -645,43 +688,61 @@ std::pair<int, LLSD> LuaState::expr(const std::string& desc, const std::string& 
     return result;
 }
 
-LuaListener::ptr_t LuaState::getListener(lua_State* L)
+LuaListener& LuaState::obtainListener(lua_State* L)
 {
-    // have to use one more stack slot
-    luaL_checkstack(L, 1, nullptr);
-    LuaListener::ptr_t listener;
-    // Does this lua_State already have a LuaListener stored in the registry?
-    auto keytype{ lua_getfield(L, LUA_REGISTRYINDEX, "event.listener") };
-    llassert(keytype == LUA_TNIL || keytype == LUA_TNUMBER);
-    if (keytype == LUA_TNUMBER)
+    luaL_checkstack(L, 2, nullptr);
+    lua_getfield(L, LUA_REGISTRYINDEX, "LuaListener");
+    // compare lua_type() because lua_isuserdata() also accepts light userdata
+    if (lua_type(L, -1) != LUA_TUSERDATA)
     {
-        // We do already have a LuaListener. Retrieve it.
-        int isint;
-        listener = LuaListener::getInstance(lua_tointegerx(L, -1, &isint));
-        // Nobody should have destroyed this LuaListener instance!
-        llassert(isint && listener);
+        llassert(lua_type(L, -1) == LUA_TNIL);
+        lua_pop(L, 1);
+        // push a userdata containing new LuaListener, binding L
+        lua_emplace<LuaListener>(L, L);
+        // duplicate the top stack entry so we can store one copy
+        lua_pushvalue(L, -1);
+        lua_setfield(L, LUA_REGISTRYINDEX, "LuaListener");
     }
-    // pop the int "event.listener" key
+    // At this point, one way or the other, the stack top should be (a Lua
+    // userdata containing) our LuaListener.
+    LuaListener* listener{ lua_toclass<LuaListener>(L, -1) };
+    // userdata objects created by lua_emplace<T>() are bound on the atexit()
+    // queue, and are thus never garbage collected: they're destroyed only
+    // when ~LuaState() walks that queue. That's why we dare pop the userdata
+    // value off the stack while still depending on a pointer into its data.
     lua_pop(L, 1);
-    return listener;
+    return *listener;
 }
 
-LuaListener::ptr_t LuaState::obtainListener(lua_State* L)
+/*****************************************************************************
+*   atexit()
+*****************************************************************************/
+lua_function(atexit, "atexit(function): "
+             "register Lua function to be called at script termination")
 {
-    auto listener{ getListener(L) };
-    if (! listener)
-    {
-        // have to use one more stack slot
-        luaL_checkstack(L, 1, nullptr);
-        // instantiate a new LuaListener, binding the L state -- but use a
-        // no-op deleter: we do NOT want this ptr_t to manage the lifespan of
-        // this new LuaListener!
-        listener.reset(new LuaListener(L), [](LuaListener*){});
-        // set its key in the field where we'll look for it later
-        lua_pushinteger(L, listener->getKey());
-        lua_setfield(L, LUA_REGISTRYINDEX, "event.listener");
-    }
-    return listener;
+    luaL_checkstack(L, 4, nullptr);
+    // look up the global name "table"
+    lua_getglobal(L, "table");
+    // stack contains function, table
+    // look up table.insert
+    lua_getfield(L, -1, "insert");
+    // stack contains function, table, table.insert
+    // ditch table
+    lua_replace(L, -2);
+    // stack contains function, table.insert
+    // find or create the "atexit" table in the Registry
+    luaL_newmetatable(L, "atexit");
+    // stack contains function, table.insert, Registry.atexit
+    // we were called with a Lua function to append to that Registry.atexit
+    // table -- push function
+    lua_pushvalue(L, 1);            // or -3
+    // stack contains function, table.insert, Registry.atexit, function
+    // call table.insert(Registry.atexit, function)
+    // don't use pcall(): if there's an error, let it propagate
+    lua_call(L, 2, 0);
+    // stack contains function -- pop everything
+    lua_settop(L, 0);
+    return 0;
 }
 
 /*****************************************************************************
@@ -745,7 +806,7 @@ std::pair<LuaFunction::Registry&, LuaFunction::Lookup&> LuaFunction::getState()
 /*****************************************************************************
 *   source_path()
 *****************************************************************************/
-lua_function(source_path, "return the source path of the running Lua script")
+lua_function(source_path, "source_path(): return the source path of the running Lua script")
 {
     luaL_checkstack(L, 1, nullptr);
     lua_pushstdstring(L, lluau::source_path(L).u8string());
@@ -755,7 +816,7 @@ lua_function(source_path, "return the source path of the running Lua script")
 /*****************************************************************************
 *   source_dir()
 *****************************************************************************/
-lua_function(source_dir, "return the source directory of the running Lua script")
+lua_function(source_dir, "source_dir(): return the source directory of the running Lua script")
 {
     luaL_checkstack(L, 1, nullptr);
     lua_pushstdstring(L, lluau::source_path(L).parent_path().u8string());
@@ -765,7 +826,7 @@ lua_function(source_dir, "return the source directory of the running Lua script"
 /*****************************************************************************
 *   abspath()
 *****************************************************************************/
-lua_function(abspath,
+lua_function(abspath, "abspath(path): "
              "for given filesystem path relative to running script, return absolute path")
 {
     auto path{ lua_tostdstring(L, 1) };
@@ -777,7 +838,7 @@ lua_function(abspath,
 /*****************************************************************************
 *   check_stop()
 *****************************************************************************/
-lua_function(check_stop, "ensure that a Lua script responds to viewer shutdown")
+lua_function(check_stop, "check_stop(): ensure that a Lua script responds to viewer shutdown")
 {
     LLCoros::checkStop();
     return 0;
@@ -798,7 +859,7 @@ lua_function(help,
         for (const auto& [name, pair] : registry)
         {
             const auto& [fptr, helptext] = pair;
-            luapump.post(helptext);
+            luapump.post("LL." + helptext);
         }
     }
     else
@@ -810,6 +871,7 @@ lua_function(help,
             if (lua_type(L, idx) == LUA_TSTRING)
             {
                 arg = lua_tostdstring(L, idx);
+                LLStringUtil::removePrefix(arg, "LL.");
             }
             else if (lua_type(L, idx) == LUA_TFUNCTION)
             {
@@ -828,7 +890,7 @@ lua_function(help,
 
             if (auto found = registry.find(arg); found != registry.end())
             {
-                luapump.post(found->second.second);
+                luapump.post("LL." + found->second.second);
             }
             else
             {
@@ -863,10 +925,10 @@ lua_function(
     lua_settop(L, 0);
 
     auto& outpump{ LLEventPumps::instance().obtain("lua output") };
-    auto listener{ LuaState::obtainListener(L) };
+    auto& listener{ LuaState::obtainListener(L) };
     LLEventStream replyPump("leaphelp", true);
     // ask the LuaListener's LeapListener and suspend calling coroutine until reply
-    auto reply{ llcoro::postAndSuspend(request, listener->getCommandName(), replyPump, "reply") };
+    auto reply{ llcoro::postAndSuspend(request, listener.getCommandName(), replyPump, "reply") };
     reply.erase("reqid");
 
     if (auto error = reply["error"]; error.isString())

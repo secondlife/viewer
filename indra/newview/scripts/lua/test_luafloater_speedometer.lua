@@ -1,10 +1,10 @@
 local Floater = require 'Floater'
 local leap = require 'leap'
-local LLNotification = require 'LLNotification'
+local popup = require 'popup'
 local startup = require 'startup'
 local Timer = (require 'timers').Timer
 local max_speed = 0
-local flt = Floater:new("luafloater_speedometer.xml")
+local flt = Floater("luafloater_speedometer.xml")
 startup.wait('STATE_STARTED')
 
 local timer
@@ -13,8 +13,7 @@ function flt:floater_close(event_data)
     if timer then
         timer:cancel()
     end
-    msg = "Registered max speed: " .. string.format("%.2f", max_speed) .. " m/s";
-    LLNotification.add('SystemMessageTip', {MESSAGE = msg})
+    popup:tip(string.format("Registered max speed: %.2f m/s", max_speed))
 end
 
 local function idle(event_data)
@@ -24,9 +23,9 @@ local function idle(event_data)
 end
 
 msg = 'Are you sure you want to run this "speedometer" script?'
-response = LLNotification.requestAdd('GenericAlertYesCancel', {MESSAGE = msg})
+response = popup:alertYesCancel(msg)
 
 if response.OK_okcancelbuttons then
     flt:show()
-    timer = Timer:new(1, idle, true) -- iterate
+    timer = Timer(1, idle, true) -- iterate
 end

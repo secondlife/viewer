@@ -1,6 +1,6 @@
 -- Engage the LLGesture LLEventAPI
 
-leap = require 'leap'
+local leap = require 'leap'
 
 local LLGesture = {}
 

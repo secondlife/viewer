@@ -1,6 +1,6 @@
 -- Engage the LLFloaterAbout LLEventAPI
 
-leap = require 'leap'
+local leap = require 'leap'
 
 local LLFloaterAbout = {}
 

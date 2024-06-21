@@ -43,6 +43,7 @@ local ErrorQueue = require('ErrorQueue')
 local inspect = require('inspect')
 local function dbg(...) end 
 -- local dbg = require('printf')
+local util = require('util')
 
 local leap = {}
 
@@ -129,7 +130,7 @@ local function requestSetup(pump, data)
     -- because, unlike the WaitFor base class, WaitForReqid does not
     -- self-register on our waitfors list. Instead, capture the new
     -- WaitForReqid object in pending so dispatch() can find it.
-    local waitfor = leap.WaitForReqid:new(reqid)
+    local waitfor = leap.WaitForReqid(reqid)
     pending[reqid] = waitfor
     -- Pass reqid to send() to stamp it into (a copy of) the request data.
     dbg('requestSetup(%s, %s) storing %s', pump, data, waitfor.name)
@@ -432,7 +433,7 @@ function leap.WaitFor:new(priority, name)
         self._id += 1
         obj.name = 'WaitFor' .. self._id
     end
-    obj._queue = ErrorQueue:new()
+    obj._queue = ErrorQueue()
     obj._registered = false
     -- if no priority, then don't enable() - remember 0 is truthy
     if priority then
@@ -441,6 +442,8 @@ function leap.WaitFor:new(priority, name)
 
     return obj
 end
+
+util.classctor(leap.WaitFor)
 
 -- Re-enable a disable()d WaitFor object. New WaitFor objects are
 -- enable()d by default.
@@ -514,13 +517,13 @@ function leap.WaitFor:exception(message)
 end
 
 -- ------------------------------ WaitForReqid -------------------------------
-leap.WaitForReqid = leap.WaitFor:new()
+leap.WaitForReqid = leap.WaitFor()
 
 function leap.WaitForReqid:new(reqid)
     -- priority is meaningless, since this object won't be added to the
     -- priority-sorted waitfors list. Use the reqid as the debugging name
     -- string.
-    local obj = leap.WaitFor:new(nil, 'WaitForReqid(' .. reqid .. ')')
+    local obj = leap.WaitFor(nil, 'WaitForReqid(' .. reqid .. ')')
     setmetatable(obj, self)
     self.__index = self
 
@@ -528,6 +531,8 @@ function leap.WaitForReqid:new(reqid)
 
     return obj
 end
+
+util.classctor(leap.WaitForReqid)
 
 function leap.WaitForReqid:filter(pump, data)
     -- Because we expect to directly look up the WaitForReqid object of
