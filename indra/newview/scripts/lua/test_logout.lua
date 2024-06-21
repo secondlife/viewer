@@ -1,0 +1,3 @@
+logout = require 'logout'
+
+logout()
