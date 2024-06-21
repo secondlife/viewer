@@ -887,7 +887,7 @@ void LLVoiceChannelP2P::requestChannelInfo()
 void LLVoiceChannelP2P::setChannelInfo(const LLSD& channel_info)
 {
     mChannelInfo        = channel_info;
-    BOOL needs_activate = false;
+    bool needs_activate = false;
     if (callStarted())
     {
         // defer to lower agent id when already active
@@ -906,7 +906,7 @@ void LLVoiceChannelP2P::setChannelInfo(const LLSD& channel_info)
         }
     }
 
-    mReceivedCall = TRUE;
+    mReceivedCall = true;
     if (!channel_info.isUndefined())
     {
         mIncomingCallInterface = LLVoiceClient::getInstance()->getIncomingCallInterface(channel_info);

@@ -1294,7 +1294,7 @@ bool LLWebRTCVoiceClient::isVoiceWorking() const
 bool LLWebRTCVoiceClient::isSessionCallBackPossible(const LLUUID &session_id)
 {
     sessionStatePtr_t session(findP2PSession(session_id));
-    return session && session->isCallbackPossible() ? true : false;
+    return session && session->isCallbackPossible();
 }
 
 // Channel Management
