@@ -53,17 +53,17 @@ public:
     U32         getNumTexLayers() const;
     LLUUID      getID() const;
     S32         getDiscard() const;
-    BOOL        getBakedReady() const;
+    bool        getBakedReady() const;
 
     void setImage(LLGLTexture* new_image);
-    BOOL setTexLayer(LLTexLayer *new_tex_layer, U32 index);
-    BOOL addTexLayer(LLTexLayer *new_tex_layer, LLWearable *wearable);
-    BOOL addTexLayer(LLTexLayerTemplate *new_tex_layer, LLWearable *wearable);
-    BOOL removeTexLayer(U32 index);
+    bool setTexLayer(LLTexLayer *new_tex_layer, U32 index);
+    bool addTexLayer(LLTexLayer *new_tex_layer, LLWearable *wearable);
+    bool addTexLayer(LLTexLayerTemplate *new_tex_layer, LLWearable *wearable);
+    bool removeTexLayer(U32 index);
 
     void setID(LLUUID new_id);
     void setDiscard(S32 new_discard);
-    void setBakedReady(BOOL ready);
+    void setBakedReady(bool ready);
 
 protected:
 
@@ -78,7 +78,7 @@ private:
 
     LLUUID          mID;
 
-    BOOL mIsBakedReady;
+    bool mIsBakedReady;
     S32 mDiscard;
 };
 

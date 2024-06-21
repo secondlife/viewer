@@ -42,7 +42,7 @@ public:
     LLFloaterEvent(const LLSD& key);
     /*virtual*/ ~LLFloaterEvent();
 
-    /*virtual*/ BOOL postBuild();
+    bool postBuild() override;
 
     void setEventID(const U32 event_id);
 
@@ -51,7 +51,7 @@ public:
 
 
 protected:
-    /*virtual*/ void handleMediaEvent(LLPluginClassMedia *self, EMediaEvent event);
+    void handleMediaEvent(LLPluginClassMedia *self, EMediaEvent event) override;
 
     U32             mEventID;
 

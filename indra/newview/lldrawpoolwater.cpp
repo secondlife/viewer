@@ -49,12 +49,12 @@
 #include "llsettingssky.h"
 #include "llsettingswater.h"
 
-BOOL LLDrawPoolWater::sSkipScreenCopy = FALSE;
-BOOL LLDrawPoolWater::sNeedsReflectionUpdate = TRUE;
-BOOL LLDrawPoolWater::sNeedsDistortionUpdate = TRUE;
+bool LLDrawPoolWater::sSkipScreenCopy = false;
+bool LLDrawPoolWater::sNeedsReflectionUpdate = true;
+bool LLDrawPoolWater::sNeedsDistortionUpdate = true;
 F32 LLDrawPoolWater::sWaterFogEnd = 0.f;
 
-extern BOOL gCubeSnapshot;
+extern bool gCubeSnapshot;
 
 LLDrawPoolWater::LLDrawPoolWater() : LLFacePool(POOL_WATER)
 {
@@ -256,7 +256,7 @@ void LLDrawPoolWater::renderPostDeferred(S32 pass)
 
         if (mShaderLevel == 1)
         {
-            fog_color.mV[VW] = log(fog_density) / log(2);
+            fog_color.mV[VALPHA] = log(fog_density) / log(2);
         }
 
         F32 water_height = environment.getWaterHeight();
@@ -325,8 +325,8 @@ void LLDrawPoolWater::renderPostDeferred(S32 pass)
                 // Note non-void water being drawn, updates required
                 if (!edge)  // SL-16461 remove !LLPipeline::sUseOcclusion check
                 {
-                    sNeedsReflectionUpdate = TRUE;
-                    sNeedsDistortionUpdate = TRUE;
+                    sNeedsReflectionUpdate = true;
+                    sNeedsDistortionUpdate = true;
                 }
             }
         }

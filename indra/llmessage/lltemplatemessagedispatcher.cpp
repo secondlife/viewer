@@ -44,7 +44,7 @@ void LLTemplateMessageDispatcher::dispatch(const std::string& msg_name,
                                            LLHTTPNode::ResponsePtr responsep)
 {
     std::vector<U8> data = message["body"]["binary-template-data"].asBinary();
-    U32 size = data.size();
+    auto size = data.size();
     if(size == 0)
     {
         return;
@@ -53,7 +53,7 @@ void LLTemplateMessageDispatcher::dispatch(const std::string& msg_name,
     LLHost host;
     host = gMessageSystem->getSender();
 
-    bool validate_message = mTemplateMessageReader.validateMessage(&(data[0]), data.size(), host, true);
+    bool validate_message = mTemplateMessageReader.validateMessage(&(data[0]), static_cast<S32>(size), host, true);
 
     if (validate_message)
     {

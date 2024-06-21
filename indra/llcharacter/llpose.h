@@ -65,11 +65,11 @@ public:
     // Destructor
     ~LLPose();
     // add a joint state in this pose
-    BOOL addJointState(const LLPointer<LLJointState>& jointState);
+    bool addJointState(const LLPointer<LLJointState>& jointState);
     // remove a joint state from this pose
-    BOOL removeJointState(const LLPointer<LLJointState>& jointState);
+    bool removeJointState(const LLPointer<LLJointState>& jointState);
     // removes all joint states from this pose
-    BOOL removeAllJointStates();
+    bool removeAllJointStates();
     // set weight for all joint states in this pose
     void setWeight(F32 weight);
     // get weight for this pose
@@ -87,12 +87,12 @@ class LLJointStateBlender
 protected:
     LLPointer<LLJointState> mJointStates[JSB_NUM_JOINT_STATES];
     S32             mPriorities[JSB_NUM_JOINT_STATES];
-    BOOL            mAdditiveBlends[JSB_NUM_JOINT_STATES];
+    bool            mAdditiveBlends[JSB_NUM_JOINT_STATES];
 public:
     LLJointStateBlender();
     ~LLJointStateBlender();
-    void blendJointStates(BOOL apply_now = TRUE);
-    BOOL addJointState(const LLPointer<LLJointState>& joint_state, S32 priority, BOOL additive_blend);
+    void blendJointStates(bool apply_now = true);
+    bool addJointState(const LLPointer<LLJointState>& joint_state, S32 priority, bool additive_blend);
     void interpolate(F32 u);
     void clear();
     void resetCachedJoint();
@@ -120,7 +120,7 @@ public:
     ~LLPoseBlender();
 
     // request motion joint states to be added to pose blender joint state records
-    BOOL addMotion(LLMotion* motion);
+    bool addMotion(LLMotion* motion);
 
     // blend all joint states and apply to skeleton
     void blendAndApply();
@@ -129,7 +129,7 @@ public:
     void clearBlenders();
 
     // blend all joint states and cache results
-    void blendAndCache(BOOL reset_cached_joints);
+    void blendAndCache(bool reset_cached_joints);
 
     // interpolate all joints towards cached values
     void interpolate(F32 u);

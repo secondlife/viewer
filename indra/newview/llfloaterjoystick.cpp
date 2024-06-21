@@ -132,7 +132,7 @@ void LLFloaterJoystick::draw()
     LLFloater::draw();
 }
 
-BOOL LLFloaterJoystick::postBuild()
+bool LLFloaterJoystick::postBuild()
 {
     center();
     F32 range = gSavedSettings.getBOOL("Cursor3D") ? 128.f : 2.f;
@@ -160,7 +160,7 @@ BOOL LLFloaterJoystick::postBuild()
 
     refresh();
     refreshListOfDevices();
-    return TRUE;
+    return true;
 }
 
 LLFloaterJoystick::~LLFloaterJoystick()
@@ -416,7 +416,7 @@ void LLFloaterJoystick::onCommitJoystickEnabled(LLUICtrl*, void *joy_panel)
         joystick_enabled = true;
     }
     gSavedSettings.setBOOL("JoystickEnabled", joystick_enabled);
-    BOOL flycam_enabled = self->mCheckFlycamEnabled->get();
+    bool flycam_enabled = self->mCheckFlycamEnabled->get();
 
     if (!joystick_enabled || !flycam_enabled)
     {

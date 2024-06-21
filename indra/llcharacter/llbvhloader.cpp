@@ -184,7 +184,7 @@ LLBVHLoader::LLBVHLoader(const char* buffer, ELoadStatus &loadStatus, S32 &error
     LL_DEBUGS("BVH") << "After translations and optimize" << LL_ENDL;
     dumpBVHInfo();
 
-    mInitialized = TRUE;
+    mInitialized = true;
 }
 
 
@@ -227,7 +227,7 @@ ELoadStatus LLBVHLoader::loadTranslationTable(const char *fileName)
     //--------------------------------------------------------------------
     // load data one line at a time
     //--------------------------------------------------------------------
-    BOOL loadingGlobals = FALSE;
+    bool loadingGlobals = false;
     while ( getLine(fp) )
     {
         //----------------------------------------------------------------
@@ -251,7 +251,7 @@ ELoadStatus LLBVHLoader::loadTranslationTable(const char *fileName)
 
             if (strcmp(name, "GLOBALS")==0)
             {
-                loadingGlobals = TRUE;
+                loadingGlobals = true;
                 continue;
             }
         }
@@ -298,7 +298,7 @@ ELoadStatus LLBVHLoader::loadTranslationTable(const char *fileName)
 
             if ( sscanf(mLine, " %*s = %f %f", &loop_in, &loop_out) == 2 )
             {
-                mLoop = TRUE;
+                mLoop = true;
             }
             else if ( sscanf(mLine, " %*s = %127s", trueFalse) == 1 )   /* Flawfinder: ignore */
             {
@@ -496,8 +496,8 @@ void LLBVHLoader::makeTranslation(std::string alias_name, std::string joint_name
 
 if (joint_name == "mPelvis")
     {
-        newTrans.mRelativePositionKey = TRUE;
-        newTrans.mRelativeRotationKey = TRUE;
+        newTrans.mRelativePositionKey = true;
+        newTrans.mRelativeRotationKey = true;
     }
 
 }
@@ -609,7 +609,7 @@ ELoadStatus LLBVHLoader::loadBVHFile(const char *buffer, char* error_text, S32 &
     //--------------------------------------------------------------------
     // consume joints
     //--------------------------------------------------------------------
-    while (TRUE)
+    while (true)
     {
         //----------------------------------------------------------------
         // get next line
@@ -969,7 +969,7 @@ void LLBVHLoader::applyTranslations()
         if ( trans.mIgnore )
         {
             //LL_INFOS() << "NOTE: Ignoring " << joint->mName.c_str() << LL_ENDL;
-            joint->mIgnore = TRUE;
+            joint->mIgnore = true;
             continue;
         }
 
@@ -983,10 +983,10 @@ void LLBVHLoader::applyTranslations()
         }
 
         //Allow joint position changes as of SL-318
-        joint->mIgnorePositions = FALSE;
+        joint->mIgnorePositions = false;
         if (joint->mNumChannels == 3)
         {
-            joint->mIgnorePositions = TRUE;
+            joint->mIgnorePositions = true;
         }
 
         //----------------------------------------------------------------
@@ -995,13 +995,13 @@ void LLBVHLoader::applyTranslations()
         if ( trans.mRelativePositionKey )
         {
 //          LL_INFOS() << "NOTE: Removing 1st position offset from all keys for " << joint->mOutName.c_str() << LL_ENDL;
-            joint->mRelativePositionKey = TRUE;
+            joint->mRelativePositionKey = true;
         }
 
         if ( trans.mRelativeRotationKey )
         {
 //          LL_INFOS() << "NOTE: Removing 1st rotation from all keys for " << joint->mOutName.c_str() << LL_ENDL;
-            joint->mRelativeRotationKey = TRUE;
+            joint->mRelativeRotationKey = true;
         }
 
         if ( trans.mRelativePosition.magVec() > 0.0f )
@@ -1065,8 +1065,8 @@ void LLBVHLoader::optimize()
 
     for (Joint* joint : mJoints)
     {
-        BOOL pos_changed = FALSE;
-        BOOL rot_changed = FALSE;
+        bool pos_changed = false;
+        bool rot_changed = false;
 
         if ( ! joint->mIgnore )
         {
@@ -1079,7 +1079,7 @@ void LLBVHLoader::optimize()
             // no keys?
             if (first_key == joint->mKeys.end())
             {
-                joint->mIgnore = TRUE;
+                joint->mIgnore = true;
                 continue;
             }
 
@@ -1092,13 +1092,13 @@ void LLBVHLoader::optimize()
             {
                 // *FIX: use single frame to move pelvis
                 // if only one keyframe force output for this joint
-                rot_changed = TRUE;
+                rot_changed = true;
             }
             else
             {
                 // if more than one keyframe, use first frame as reference and skip to second
-                first_key->mIgnorePos = TRUE;
-                first_key->mIgnoreRot = TRUE;
+                first_key->mIgnorePos = true;
+                first_key->mIgnoreRot = true;
                 ++ki;
             }
 
@@ -1119,7 +1119,7 @@ void LLBVHLoader::optimize()
                     joint->mNumPosKeys++;
                     if (dist_vec_squared(LLVector3(ki_prev->mPos), first_frame_pos) > POSITION_MOTION_THRESHOLD_SQUARED)
                     {
-                        pos_changed = TRUE;
+                        pos_changed = true;
                     }
                 }
                 else
@@ -1132,12 +1132,12 @@ void LLBVHLoader::optimize()
 
                     if (dist_vec_squared(current_pos, first_frame_pos) > POSITION_MOTION_THRESHOLD_SQUARED)
                     {
-                        pos_changed = TRUE;
+                        pos_changed = true;
                     }
 
                     if (dist_vec_squared(interp_pos, test_pos) < POSITION_KEYFRAME_THRESHOLD_SQUARED)
                     {
-                        ki_prev->mIgnorePos = TRUE;
+                        ki_prev->mIgnorePos = true;
                         numPosFramesConsidered++;
                     }
                     else
@@ -1158,7 +1158,7 @@ void LLBVHLoader::optimize()
 
                     if (rot_test > ROTATION_MOTION_THRESHOLD)
                     {
-                        rot_changed = TRUE;
+                        rot_changed = true;
                     }
                 }
                 else
@@ -1180,7 +1180,7 @@ void LLBVHLoader::optimize()
                     rot_test = x_delta + y_delta;
                     if (rot_test > ROTATION_MOTION_THRESHOLD)
                     {
-                        rot_changed = TRUE;
+                        rot_changed = true;
                     }
                     x_delta = dist_vec(LLVector3::x_axis * interp_rot, LLVector3::x_axis * test_rot);
                     y_delta = dist_vec(LLVector3::y_axis * interp_rot, LLVector3::y_axis * test_rot);
@@ -1202,9 +1202,9 @@ void LLBVHLoader::optimize()
                         // because it's significantly faster.
                         if (diff_max > 0)
                         {
-                            if (ki_max->mIgnoreRot == TRUE)
+                            if (ki_max->mIgnoreRot)
                             {
-                                ki_max->mIgnoreRot = FALSE;
+                                ki_max->mIgnoreRot = false;
                                 joint->mNumRotKeys++;
                             }
                             diff_max = 0;
@@ -1213,7 +1213,7 @@ void LLBVHLoader::optimize()
                     else
                     {
                         // This keyframe isn't significant enough, throw it away.
-                        ki_prev->mIgnoreRot = TRUE;
+                        ki_prev->mIgnoreRot = true;
                         numRotFramesConsidered++;
                         // Store away the keyframe that has the largest deviation from the interpolated line, for insertion later.
                         if (rot_test > diff_max)
@@ -1232,7 +1232,7 @@ void LLBVHLoader::optimize()
         if (!(pos_changed || rot_changed))
         {
             //LL_INFOS() << "Ignoring joint " << joint->mName << LL_ENDL;
-            joint->mIgnore = TRUE;
+            joint->mIgnore = true;
         }
     }
 }
@@ -1245,13 +1245,13 @@ void LLBVHLoader::reset()
     mDuration = 0.0f;
 
     mPriority = 2;
-    mLoop = FALSE;
+    mLoop = false;
     mLoopInPoint = 0.f;
     mLoopOutPoint = 0.f;
     mEaseIn = 0.3f;
     mEaseOut = 0.3f;
     mHand = 1;
-    mInitialized = FALSE;
+    mInitialized = false;
 
     mEmoteName = "";
     mLineNumber = 0;
@@ -1262,19 +1262,19 @@ void LLBVHLoader::reset()
 //------------------------------------------------------------------------
 // LLBVHLoader::getLine()
 //------------------------------------------------------------------------
-BOOL LLBVHLoader::getLine(apr_file_t* fp)
+bool LLBVHLoader::getLine(apr_file_t* fp)
 {
     if (apr_file_eof(fp) == APR_EOF)
     {
-        return FALSE;
+        return false;
     }
     if ( apr_file_gets(mLine, BVH_PARSER_LINE_SIZE, fp) == APR_SUCCESS)
     {
         mLineNumber++;
-        return TRUE;
+        return true;
     }
 
-    return FALSE;
+    return false;
 }
 
 // returns required size of output buffer
@@ -1287,7 +1287,7 @@ U32 LLBVHLoader::getOutputSize()
 }
 
 // writes contents to datapacker
-BOOL LLBVHLoader::serialize(LLDataPacker& dp)
+bool LLBVHLoader::serialize(LLDataPacker& dp)
 {
     F32 time;
 
@@ -1496,5 +1496,5 @@ BOOL LLBVHLoader::serialize(LLDataPacker& dp)
         }
 
 
-    return TRUE;
+    return true;
 }

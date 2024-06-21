@@ -99,10 +99,10 @@ void disconnect_smtp()
     }
 }
 
-// Returns TRUE on success.
+// Returns true on success.
 // message should NOT be SMTP escaped.
 // static
-BOOL LLMail::send(
+bool LLMail::send(
     const char* from_name,
     const char* from_address,
     const char* to_name,
@@ -120,7 +120,7 @@ BOOL LLMail::send(
         headers);
     if(header.empty())
     {
-        return FALSE;
+        return false;
     }
 
     std::string message_str;
@@ -129,8 +129,8 @@ BOOL LLMail::send(
         message_str = message;
     }
     bool rv = send(header, message_str, to_address, from_address);
-    if(rv) return TRUE;
-    return FALSE;
+    if(rv) return true;
+    return false;
 }
 
 // static
@@ -273,7 +273,7 @@ bool LLMail::send(
     std::string good_string = "\n..\n";
     while (1)
     {
-        int index = message.find(bad_string);
+        auto index = message.find(bad_string);
         if (index == std::string::npos) break;
         message.replace(index, bad_string.size(), good_string);
     }

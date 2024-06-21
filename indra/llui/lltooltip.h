@@ -44,11 +44,11 @@ public:
         Params();
     };
     LLToolTipView(const LLToolTipView::Params&);
-    /*virtual*/ BOOL handleHover(S32 x, S32 y, MASK mask);
-    /*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
-    /*virtual*/ BOOL handleMiddleMouseDown(S32 x, S32 y, MASK mask);
-    /*virtual*/ BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
-    /*virtual*/ BOOL handleScrollWheel( S32 x, S32 y, S32 clicks );
+    /*virtual*/ bool handleHover(S32 x, S32 y, MASK mask);
+    /*virtual*/ bool handleMouseDown(S32 x, S32 y, MASK mask);
+    /*virtual*/ bool handleMiddleMouseDown(S32 x, S32 y, MASK mask);
+    /*virtual*/ bool handleRightMouseDown(S32 x, S32 y, MASK mask);
+    /*virtual*/ bool handleScrollWheel( S32 x, S32 y, S32 clicks );
 
     void drawStickyRect();
 
@@ -99,9 +99,9 @@ public:
         Params();
     };
     /*virtual*/ void draw();
-    /*virtual*/ BOOL handleHover(S32 x, S32 y, MASK mask);
+    /*virtual*/ bool handleHover(S32 x, S32 y, MASK mask);
     /*virtual*/ void onMouseLeave(S32 x, S32 y, MASK mask);
-    /*virtual*/ void setVisible(BOOL visible);
+    /*virtual*/ void setVisible(bool visible);
 
     bool isFading();
     F32 getVisibleTime();

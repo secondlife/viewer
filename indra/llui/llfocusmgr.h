@@ -45,8 +45,8 @@ public:
     LLFocusableElement();
     virtual ~LLFocusableElement();
 
-    virtual void    setFocus( BOOL b );
-    virtual BOOL    hasFocus() const;
+    virtual void    setFocus( bool b );
+    virtual bool    hasFocus() const;
 
     typedef boost::signals2::signal<void(LLFocusableElement*)> focus_signal_t;
 
@@ -56,9 +56,9 @@ public:
     boost::signals2::connection setTopLostCallback(const focus_signal_t::slot_type& cb);
 
     // These were brought up the hierarchy from LLView so that we don't have to use dynamic_cast when dealing with keyboard focus.
-    virtual BOOL    handleKey(KEY key, MASK mask, BOOL called_from_parent);
-    virtual BOOL    handleKeyUp(KEY key, MASK mask, BOOL called_from_parent);
-    virtual BOOL    handleUnicodeChar(llwchar uni_char, BOOL called_from_parent);
+    virtual bool    handleKey(KEY key, MASK mask, bool called_from_parent);
+    virtual bool    handleKeyUp(KEY key, MASK mask, bool called_from_parent);
+    virtual bool    handleUnicodeChar(llwchar uni_char, bool called_from_parent);
 
     /**
      * If true this LLFocusableElement wants to receive KEYUP and KEYDOWN messages
@@ -89,23 +89,23 @@ public:
     void            setMouseCapture(LLMouseHandler* new_captor);    // new_captor = NULL to release the mouse.
     LLMouseHandler* getMouseCapture() const { return mMouseCaptor; }
     void            removeMouseCaptureWithoutCallback( const LLMouseHandler* captor );
-    BOOL            childHasMouseCapture( const LLView* parent ) const;
+    bool            childHasMouseCapture( const LLView* parent ) const;
 
     // Keyboard Focus
-    void            setKeyboardFocus(LLFocusableElement* new_focus, BOOL lock = FALSE, BOOL keystrokes_only = FALSE);       // new_focus = NULL to release the focus.
+    void            setKeyboardFocus(LLFocusableElement* new_focus, bool lock = false, bool keystrokes_only = false);       // new_focus = NULL to release the focus.
     LLFocusableElement*     getKeyboardFocus() const { return mKeyboardFocus; }
     LLFocusableElement*     getLastKeyboardFocus() const { return mLastKeyboardFocus; }
-    BOOL            childHasKeyboardFocus( const LLView* parent ) const;
+    bool            childHasKeyboardFocus( const LLView* parent ) const;
     void            removeKeyboardFocusWithoutCallback( const LLFocusableElement* focus );
-    BOOL            getKeystrokesOnly() { return mKeystrokesOnly; }
-    void            setKeystrokesOnly(BOOL keystrokes_only) { mKeystrokesOnly = keystrokes_only; }
+    bool            getKeystrokesOnly() { return mKeystrokesOnly; }
+    void            setKeystrokesOnly(bool keystrokes_only) { mKeystrokesOnly = keystrokes_only; }
 
     F32             getFocusFlashAmt() const;
     S32             getFocusFlashWidth() const { return ll_round(lerp(1.f, 3.f, getFocusFlashAmt())); }
     LLColor4        getFocusColor() const;
     void            triggerFocusFlash();
-    BOOL            getAppHasFocus() const { return mAppHasFocus; }
-    void            setAppHasFocus(BOOL focus);
+    bool            getAppHasFocus() const { return mAppHasFocus; }
+    void            setAppHasFocus(bool focus);
     LLView*     getLastFocusForGroup(LLView* subtree_root) const;
     void            clearLastFocusForGroup(LLView* subtree_root);
 
@@ -119,13 +119,13 @@ public:
     void            setTopCtrl(LLUICtrl* new_top);
     LLUICtrl*       getTopCtrl() const                  { return mTopCtrl; }
     void            removeTopCtrlWithoutCallback( const LLUICtrl* top_view );
-    BOOL            childIsTopCtrl( const LLView* parent ) const;
+    bool            childIsTopCtrl( const LLView* parent ) const;
 
     // All Three
     void            releaseFocusIfNeeded( LLView* top_view );
     void            lockFocus();
     void            unlockFocus();
-    BOOL            focusLocked() const { return mLockedView != NULL; }
+    bool            focusLocked() const { return mLockedView != NULL; }
 
     bool            keyboardFocusHasAccelerators() const;
 
@@ -141,14 +141,14 @@ private:
     LLFocusableElement* mKeyboardFocus;             // Keyboard events are preemptively routed to this object
     LLFocusableElement* mLastKeyboardFocus;         // who last had focus
     LLFocusableElement* mDefaultKeyboardFocus;
-    BOOL                mKeystrokesOnly;
+    bool                mKeystrokesOnly;
 
     // Top View
     LLUICtrl*           mTopCtrl;
 
     LLFrameTimer        mFocusFlashTimer;
 
-    BOOL                mAppHasFocus;
+    bool                mAppHasFocus;
 
     Impl * mImpl;
 };

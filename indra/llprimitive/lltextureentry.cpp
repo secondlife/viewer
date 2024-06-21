@@ -407,9 +407,9 @@ S32 LLTextureEntry::setColor(const LLColor3 &color)
 
 S32 LLTextureEntry::setAlpha(const F32 alpha)
 {
-    if (mColor.mV[VW] != alpha)
+    if (mColor.mV[VALPHA] != alpha)
     {
-        mColor.mV[VW] = alpha;
+        mColor.mV[VALPHA] = alpha;
         return TEM_CHANGE_COLOR;
     }
     return TEM_CHANGE_NONE;

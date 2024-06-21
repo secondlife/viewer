@@ -40,7 +40,7 @@ class LLScrollingPanel : public LLPanel
 {
 public:
     LLScrollingPanel(const LLPanel::Params& params) : LLPanel(params) {}
-    virtual void updatePanel(BOOL allow_modify) = 0;
+    virtual void updatePanel(bool allow_modify) = 0;
 };
 
 
@@ -74,7 +74,7 @@ public:
     S32                 addPanel(LLScrollingPanel* panel, bool back = false);
     void                removePanel(LLScrollingPanel* panel);
     void                removePanel(U32 panel_index);
-    void                updatePanels(BOOL allow_modify);
+    void                updatePanels(bool allow_modify);
     void                rearrange();
 
     const panel_list_t& getPanelList() const { return mPanelList; }

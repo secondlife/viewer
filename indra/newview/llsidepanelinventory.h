@@ -53,7 +53,7 @@ public:
     void observeInboxCreation();
     void observeInboxModifications(const LLUUID& inboxID);
 
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
     /*virtual*/ void onOpen(const LLSD& key);
 
     LLInventoryPanel* getActivePanel(); // Returns an active inventory panel, if any.
@@ -61,7 +61,7 @@ public:
     LLInventoryPanel* getInboxPanel() const { return mInventoryPanelInbox.get(); }
 
     LLPanelMainInventory* getMainInventoryPanel() const { return mPanelMainInventory; }
-    BOOL isMainInventoryPanelActive() const;
+    bool isMainInventoryPanelActive() const;
 
     void clearSelections(bool clearMain, bool clearInbox);
     std::set<LLFolderViewItem*> getInboxSelectionList();
@@ -88,7 +88,7 @@ protected:
     // Tracks highlighted (selected) item in inventory panel.
     LLInventoryItem *getSelectedItem();
     U32 getSelectedCount();
-    void onSelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action);
+    void onSelectionChange(const std::deque<LLFolderViewItem*> &items, bool user_action);
     // "wear", "teleport", etc.
     void performActionOnSelection(const std::string &action);
 

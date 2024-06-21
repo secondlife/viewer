@@ -37,8 +37,8 @@ class LLMutex;
 
 const S32 UUID_BYTES = 16;
 const S32 UUID_WORDS = 4;
-const S32 UUID_STR_LENGTH = 37; // actually wrong, should be 36 and use size below
-const S32 UUID_STR_SIZE = 37;
+const S32 UUID_STR_LENGTH = 37; // number of bytes needed to store a UUID as a string
+const S32 UUID_STR_SIZE = 36; // .size() of a UUID in a std::string
 const S32 UUID_BASE85_LENGTH = 21; // including the trailing NULL.
 
 struct uuid_time_t {
@@ -65,8 +65,8 @@ public:
 
     static LLUUID generateNewID(std::string stream = "");   //static version of above for use in initializer expressions such as constructor params, etc.
 
-    BOOL    set(const char *in_string, BOOL emit = TRUE);   // Convert from string, if emit is FALSE, do not emit warnings
-    BOOL    set(const std::string& in_string, BOOL emit = TRUE);    // Convert from string, if emit is FALSE, do not emit warnings
+    bool    set(const char *in_string, bool emit = true);   // Convert from string, if emit is false, do not emit warnings
+    bool    set(const std::string& in_string, bool emit = true);    // Convert from string, if emit is false, do not emit warnings
     void    setNull();                  // Faster than setting to LLUUID::null.
 
     S32     cmpTime(uuid_time_t *t1, uuid_time_t *t2);
@@ -76,14 +76,12 @@ public:
     //
     // ACCESSORS
     //
-    BOOL    isNull() const;         // Faster than comparing to LLUUID::null.
-    BOOL    notNull() const;        // Faster than comparing to LLUUID::null.
+    bool    isNull() const;         // Faster than comparing to LLUUID::null.
+    bool    notNull() const;        // Faster than comparing to LLUUID::null.
     // JC: This is dangerous.  It allows UUIDs to be cast automatically
     // to integers, among other things.  Use isNull() or notNull().
     //      operator bool() const;
 
-    // JC: These must return real bool's (not BOOLs) or else use of the STL
-    // will generate bool-to-int performance warnings.
     bool    operator==(const LLUUID &rhs) const;
     bool    operator!=(const LLUUID &rhs) const;
     bool    operator<(const LLUUID &rhs) const;
@@ -124,7 +122,7 @@ public:
         return tmp[0] ^ tmp[1];
     }
 
-    static BOOL validate(const std::string& in_string); // Validate that the UUID string is legal.
+    static bool validate(const std::string& in_string); // Validate that the UUID string is legal.
 
     static const LLUUID null;
     static LLMutex * mMutex;
@@ -132,7 +130,7 @@ public:
     static U32 getRandomSeed();
     static S32 getNodeID(unsigned char * node_id);
 
-    static BOOL parseUUID(const std::string& buf, LLUUID* value);
+    static bool parseUUID(const std::string& buf, LLUUID* value);
 
     U8 mData[UUID_BYTES];
 };
@@ -153,7 +151,7 @@ struct lluuid_less
 {
     bool operator()(const LLUUID& lhs, const LLUUID& rhs) const
     {
-        return (lhs < rhs) ? true : false;
+        return lhs < rhs;
     }
 };
 

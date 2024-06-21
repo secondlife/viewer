@@ -49,7 +49,7 @@ public:
 
     LLFloaterPostProcess(const LLSD& key);
     virtual ~LLFloaterPostProcess();
-    /*virtual*/ BOOL    postBuild();
+    bool postBuild();
 
     /// post process callbacks
     static void onBoolToggle(LLUICtrl* ctrl, void* userData);
@@ -67,11 +67,6 @@ public:
 
     /// sync up sliders
     void syncMenu();
-
-/*
-    void refresh();
-*/
-public:
 };
 
 #endif

@@ -80,11 +80,11 @@ public:
 
     // Load gesture into in-memory active form.
     // Can be called even if the inventory item isn't loaded yet.
-    // inform_server TRUE will send message upstream to update database
+    // inform_server true will send message upstream to update database
     // user_gesture_active table, which isn't necessary on login.
     // deactivate_similar will cause other gestures with the same trigger phrase
     // or keybinding to be deactivated.
-    void activateGestureWithAsset(const LLUUID& item_id, const LLUUID& asset_id, BOOL inform_server, BOOL deactivate_similar);
+    void activateGestureWithAsset(const LLUUID& item_id, const LLUUID& asset_id, bool inform_server, bool deactivate_similar);
 
     // Takes gesture out of active list and deletes it.
     void deactivateGesture(const LLUUID& item_id);
@@ -93,18 +93,18 @@ public:
     // or this hot key.
     void deactivateSimilarGestures(LLMultiGesture* gesture, const LLUUID& in_item_id);
 
-    BOOL isGestureActive(const LLUUID& item_id);
+    bool isGestureActive(const LLUUID& item_id);
 
-    BOOL isGesturePlaying(const LLUUID& item_id);
+    bool isGesturePlaying(const LLUUID& item_id);
 
-    BOOL isGesturePlaying(LLMultiGesture* gesture);
+    bool isGesturePlaying(LLMultiGesture* gesture);
 
     const item_map_t& getActiveGestures() const { return mActive; }
     // Force a gesture to be played, for example, if it is being
     // previewed.
     void playGesture(LLMultiGesture* gesture, bool fromKeyPress);
     void playGesture(LLMultiGesture* gesture) {
-        playGesture(gesture, FALSE);
+        playGesture(gesture, false);
     }
     void playGesture(const LLUUID& item_id);
 
@@ -122,18 +122,18 @@ public:
         mCallbackMap[inv_item_id] = cb;
     }
     // Trigger a random gesture that matches this key.
-    // Returns TRUE if it finds a gesture bound to that key.
-    BOOL triggerGesture(KEY key, MASK mask);
+    // Returns true if it finds a gesture bound to that key.
+    bool triggerGesture(KEY key, MASK mask);
 
     // Trigger release wait on all gestures that matches this key.
-    // Returns TRUE if it finds a gesture bound to that key.
-    BOOL triggerGestureRelease(KEY key, MASK mask);
+    // Returns true if it finds a gesture bound to that key.
+    bool triggerGestureRelease(KEY key, MASK mask);
 
     // Trigger all gestures referenced as substrings in this string
-    BOOL triggerAndReviseString(const std::string &str, std::string *revised_string = NULL);
+    bool triggerAndReviseString(const std::string &str, std::string *revised_string = NULL);
 
     // Does some gesture have this key bound?
-    BOOL isKeyBound(KEY key, MASK mask);
+    bool isKeyBound(KEY key, MASK mask);
 
     S32 getPlayingCount() const;
 
@@ -144,7 +144,7 @@ public:
     // Overriding so we can update active gesture names and notify observers
     void changed(U32 mask) override;
 
-    BOOL matchPrefix(const std::string& in_str, std::string* out_str);
+    bool matchPrefix(const std::string& in_str, std::string* out_str);
 
     // Copy item ids into the vector
     void getItemIDs(uuid_vec_t* ids);
@@ -187,7 +187,7 @@ private:
     std::vector<LLGestureManagerObserver*> mObservers;
     callback_map_t mCallbackMap;
     std::vector<LLMultiGesture*> mPlaying;
-    BOOL mValid;
+    bool mValid;
 
     std::set<LLUUID> mLoadingAssets;
 

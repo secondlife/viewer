@@ -606,6 +606,7 @@ Henri Beauchamp
 	SL-19110
 	SL-19159
 	[NO JIRA] (fullbright HUD alpha fix)
+    secondlife/viewer#1744
 herina Bode
 Hikkoshi Sakai
 	VWR-429

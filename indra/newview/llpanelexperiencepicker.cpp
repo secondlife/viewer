@@ -70,28 +70,28 @@ LLPanelExperiencePicker::~LLPanelExperiencePicker()
 {
 }
 
-BOOL LLPanelExperiencePicker::postBuild()
+bool LLPanelExperiencePicker::postBuild()
 {
     getChild<LLLineEditor>(TEXT_EDIT)->setKeystrokeCallback( boost::bind(&LLPanelExperiencePicker::editKeystroke, this, _1, _2),NULL);
 
     childSetAction(BTN_FIND, boost::bind(&LLPanelExperiencePicker::onBtnFind, this));
-    getChildView(BTN_FIND)->setEnabled(TRUE);
+    getChildView(BTN_FIND)->setEnabled(true);
 
     LLScrollListCtrl* searchresults = getChild<LLScrollListCtrl>(LIST_RESULTS);
     searchresults->setDoubleClickCallback( boost::bind(&LLPanelExperiencePicker::onBtnSelect, this));
     searchresults->setCommitCallback(boost::bind(&LLPanelExperiencePicker::onList, this));
-    getChildView(LIST_RESULTS)->setEnabled(FALSE);
+    getChildView(LIST_RESULTS)->setEnabled(false);
     getChild<LLScrollListCtrl>(LIST_RESULTS)->setCommentText(getString("no_results"));
 
     childSetAction(BTN_OK, boost::bind(&LLPanelExperiencePicker::onBtnSelect, this));
-    getChildView(BTN_OK)->setEnabled(FALSE);
+    getChildView(BTN_OK)->setEnabled(false);
     childSetAction(BTN_CANCEL, boost::bind(&LLPanelExperiencePicker::onBtnClose, this));
     childSetAction(BTN_PROFILE, boost::bind(&LLPanelExperiencePicker::onBtnProfile, this));
-    getChildView(BTN_PROFILE)->setEnabled(FALSE);
+    getChildView(BTN_PROFILE)->setEnabled(false);
 
     getChild<LLComboBox>(TEXT_MATURITY)->setCurrentByIndex(gSavedPerAccountSettings.getU32("ExperienceSearchMaturity"));
     getChild<LLComboBox>(TEXT_MATURITY)->setCommitCallback(boost::bind(&LLPanelExperiencePicker::onMaturity, this));
-    getChild<LLUICtrl>(TEXT_EDIT)->setFocus(TRUE);
+    getChild<LLUICtrl>(TEXT_EDIT)->setFocus(true);
 
     childSetAction(BTN_LEFT, boost::bind(&LLPanelExperiencePicker::onPage, this, -1));
     childSetAction(BTN_RIGHT, boost::bind(&LLPanelExperiencePicker::onPage, this, 1));
@@ -102,7 +102,7 @@ BOOL LLPanelExperiencePicker::postBuild()
         // Start searching when Return is pressed in the line editor.
         search_panel->setDefaultBtn(BTN_FIND);
     }
-    return TRUE;
+    return true;
 }
 
 void LLPanelExperiencePicker::editKeystroke( class LLLineEditor* caller, void* user_data )
@@ -140,11 +140,11 @@ void LLPanelExperiencePicker::onBtnFind()
                     getChild<LLScrollListCtrl>(LIST_RESULTS)->deleteAllItems();
                     getChild<LLScrollListCtrl>(LIST_RESULTS)->setCommentText(getString("searching"));
 
-                    getChildView(BTN_OK)->setEnabled(FALSE);
-                    getChildView(BTN_PROFILE)->setEnabled(FALSE);
+                    getChildView(BTN_OK)->setEnabled(false);
+                    getChildView(BTN_PROFILE)->setEnabled(false);
 
-                    getChildView(BTN_RIGHT)->setEnabled(FALSE);
-                    getChildView(BTN_LEFT)->setEnabled(FALSE);
+                    getChildView(BTN_RIGHT)->setEnabled(false);
+                    getChildView(BTN_LEFT)->setEnabled(false);
                     LLExperienceCache::instance().get(experience_id, boost::bind(&LLPanelExperiencePicker::onBtnFind, this));
                     return;
                 }
@@ -176,11 +176,11 @@ void LLPanelExperiencePicker::find()
     getChild<LLScrollListCtrl>(LIST_RESULTS)->deleteAllItems();
     getChild<LLScrollListCtrl>(LIST_RESULTS)->setCommentText(getString("searching"));
 
-    getChildView(BTN_OK)->setEnabled(FALSE);
-    getChildView(BTN_PROFILE)->setEnabled(FALSE);
+    getChildView(BTN_OK)->setEnabled(false);
+    getChildView(BTN_PROFILE)->setEnabled(false);
 
-    getChildView(BTN_RIGHT)->setEnabled(FALSE);
-    getChildView(BTN_LEFT)->setEnabled(FALSE);
+    getChildView(BTN_RIGHT)->setEnabled(false);
+    getChildView(BTN_LEFT)->setEnabled(false);
 }
 
 /*static*/
@@ -266,10 +266,10 @@ void LLPanelExperiencePicker::onBtnSelect()
 
         getSelectedExperienceIds(results, experience_ids);
         mSelectionCallback(experience_ids);
-        getChild<LLScrollListCtrl>(LIST_RESULTS)->deselectAllItems(TRUE);
+        getChild<LLScrollListCtrl>(LIST_RESULTS)->deselectAllItems(true);
         if(mCloseOnSelect)
         {
-            mCloseOnSelect = FALSE;
+            mCloseOnSelect = false;
             onBtnClose();
         }
     }
@@ -368,14 +368,14 @@ void LLPanelExperiencePicker::filterContent()
     {
         getChildView(BTN_OK)->setEnabled(true);
         search_results->setEnabled(true);
-        search_results->sortByColumnIndex(1, TRUE);
+        search_results->sortByColumnIndex(1, true);
         std::string text = getChild<LLUICtrl>(TEXT_EDIT)->getValue().asString();
-        if (!search_results->selectItemByLabel(text, TRUE, 1))
+        if (!search_results->selectItemByLabel(text, true, 1))
         {
             search_results->selectFirstItem();
         }
         onList();
-        search_results->setFocus(TRUE);
+        search_results->setFocus(true);
     }
 }
 

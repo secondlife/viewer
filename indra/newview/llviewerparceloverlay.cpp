@@ -56,15 +56,15 @@ static const F32 LINE_WIDTH = 0.0625f;
 LLViewerParcelOverlay::LLViewerParcelOverlay(LLViewerRegion* region, F32 region_width_meters)
 :   mRegion( region ),
     mParcelGridsPerEdge( S32( region_width_meters / PARCEL_GRID_STEP_METERS ) ),
-    mDirty( FALSE ),
+    mDirty( false ),
     mTimeSinceLastUpdate(),
     mOverlayTextureIdx(-1)
 {
     // Create a texture to hold color information.
     // 4 components
-    // Use mipmaps = FALSE, clamped, NEAREST filter, for sharp edges
+    // Use mipmaps = false, clamped, NEAREST filter, for sharp edges
     mImageRaw = new LLImageRaw(mParcelGridsPerEdge, mParcelGridsPerEdge, OVERLAY_IMG_COMPONENTS);
-    mTexture = LLViewerTextureManager::getLocalTexture(mImageRaw.get(), FALSE);
+    mTexture = LLViewerTextureManager::getLocalTexture(mImageRaw.get(), false);
     mTexture->setAddressMode(LLTexUnit::TAM_CLAMP);
     mTexture->setFilteringOption(LLTexUnit::TFO_POINT);
 
@@ -102,28 +102,28 @@ LLViewerParcelOverlay::~LLViewerParcelOverlay()
 //---------------------------------------------------------------------------
 // ACCESSORS
 //---------------------------------------------------------------------------
-BOOL LLViewerParcelOverlay::isOwned(const LLVector3& pos) const
+bool LLViewerParcelOverlay::isOwned(const LLVector3& pos) const
 {
     S32 row =    S32(pos.mV[VY] / PARCEL_GRID_STEP_METERS);
     S32 column = S32(pos.mV[VX] / PARCEL_GRID_STEP_METERS);
     return (PARCEL_PUBLIC != ownership(row, column));
 }
 
-BOOL LLViewerParcelOverlay::isOwnedSelf(const LLVector3& pos) const
+bool LLViewerParcelOverlay::isOwnedSelf(const LLVector3& pos) const
 {
     S32 row =    S32(pos.mV[VY] / PARCEL_GRID_STEP_METERS);
     S32 column = S32(pos.mV[VX] / PARCEL_GRID_STEP_METERS);
     return (PARCEL_SELF == ownership(row, column));
 }
 
-BOOL LLViewerParcelOverlay::isOwnedGroup(const LLVector3& pos) const
+bool LLViewerParcelOverlay::isOwnedGroup(const LLVector3& pos) const
 {
     S32 row =    S32(pos.mV[VY] / PARCEL_GRID_STEP_METERS);
     S32 column = S32(pos.mV[VX] / PARCEL_GRID_STEP_METERS);
     return (PARCEL_GROUP == ownership(row, column));
 }
 
-BOOL LLViewerParcelOverlay::isOwnedOther(const LLVector3& pos) const
+bool LLViewerParcelOverlay::isOwnedOther(const LLVector3& pos) const
 {
     S32 row =    S32(pos.mV[VY] / PARCEL_GRID_STEP_METERS);
     S32 column = S32(pos.mV[VX] / PARCEL_GRID_STEP_METERS);
@@ -246,7 +246,7 @@ bool LLViewerParcelOverlay::encroachesOnNearbyParcel(const std::vector<LLBBox>& 
     return false;
 }
 
-BOOL LLViewerParcelOverlay::isSoundLocal(const LLVector3& pos) const
+bool LLViewerParcelOverlay::isSoundLocal(const LLVector3& pos) const
 {
     S32 row =    S32(pos.mV[VY] / PARCEL_GRID_STEP_METERS);
     S32 column = S32(pos.mV[VX] / PARCEL_GRID_STEP_METERS);
@@ -497,7 +497,7 @@ void LLViewerParcelOverlay::updatePropertyLines()
     }
 
     // Everything's clean now
-    mDirty = FALSE;
+    mDirty = false;
 }
 
 void LLViewerParcelOverlay::addPropertyLine(F32 start_x, F32 start_y, F32 dx, F32 dy, F32 tick_dx, F32 tick_dy, const LLColor4U& color)
@@ -606,7 +606,7 @@ void LLViewerParcelOverlay::addPropertyLine(F32 start_x, F32 start_y, F32 dx, F3
 
 void LLViewerParcelOverlay::setDirty()
 {
-    mDirty = TRUE;
+    mDirty = true;
 }
 
 void LLViewerParcelOverlay::updateGL()

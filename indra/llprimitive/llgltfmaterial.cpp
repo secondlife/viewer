@@ -47,16 +47,58 @@ const char* const LLGLTFMaterial::GLTF_FILE_EXTENSION_TRANSFORM_ROTATION = "rota
 // special UUID that indicates a null UUID in override data
 const LLUUID LLGLTFMaterial::GLTF_OVERRIDE_NULL_UUID = LLUUID("ffffffff-ffff-ffff-ffff-ffffffffffff");
 
-void LLGLTFMaterial::TextureTransform::getPacked(F32 (&packed)[8]) const
+LLGLTFMaterial::LLGLTFMaterial()
+{
+    // IMPORTANT: since we use the hash of the member variables memory block of
+    // this class to detect changes, we must ensure that all its padding bytes
+    // have been zeroed out. But of course, we must leave the LLRefCount member
+    // variable untouched (and skip it when hashing), and we cannot either
+    // touch the local texture overrides map (else we destroy pointers, and
+    // sundry private data, which would lead to a crash when using that map).
+    // The variable members have therefore been arranged so that anything,
+    // starting at mLocalTexDataDigest and up to the end of the members, can be
+    // safely zeroed. HB
+    const size_t offset = intptr_t(&mLocalTexDataDigest) - intptr_t(this);
+    memset((void*)((const char*)this + offset), 0, sizeof(*this) - offset);
+
+    // Now that we zeroed out our member variables, we can set the ones that
+    // should not be zero to their default value. HB
+    mBaseColor.set(1.f, 1.f, 1.f, 1.f);
+    mMetallicFactor = mRoughnessFactor = 1.f;
+    mAlphaCutoff = 0.5f;
+    for (U32 i = 0; i < GLTF_TEXTURE_INFO_COUNT; ++i)
+    {
+        mTextureTransform[i].mScale.set(1.f, 1.f);
+#if 0
+        mTextureTransform[i].mOffset.clear();
+        mTextureTransform[i].mRotation = 0.f;
+#endif
+    }
+#if 0
+    mLocalTexDataDigest = 0;
+    mAlphaMode = ALPHA_MODE_OPAQUE;    // This is 0
+    mOverrideDoubleSided = mOverrideAlphaMode = false;
+#endif
+}
+
+void LLGLTFMaterial::TextureTransform::getPacked(Pack& packed) const
 {
     packed[0] = mScale.mV[VX];
     packed[1] = mScale.mV[VY];
     packed[2] = mRotation;
-    // packed[3] = unused
     packed[4] = mOffset.mV[VX];
     packed[5] = mOffset.mV[VY];
-    // packed[6] = unused
-    // packed[7] = unused
+    // Not used but nonetheless zeroed for proper hashing. HB
+    packed[3] = packed[6] = packed[7] = 0.f;
+}
+
+void LLGLTFMaterial::TextureTransform::getPackedTight(PackTight& packed) const
+{
+    packed[0] = mScale.mV[VX];
+    packed[1] = mScale.mV[VY];
+    packed[2] = mRotation;
+    packed[3] = mOffset.mV[VX];
+    packed[4] = mOffset.mV[VY];
 }
 
 bool LLGLTFMaterial::TextureTransform::operator==(const TextureTransform& other) const
@@ -89,11 +131,35 @@ LLGLTFMaterial& LLGLTFMaterial::operator=(const LLGLTFMaterial& rhs)
     mOverrideDoubleSided = rhs.mOverrideDoubleSided;
     mOverrideAlphaMode = rhs.mOverrideAlphaMode;
 
-    mTrackingIdToLocalTexture = rhs.mTrackingIdToLocalTexture;
-
-    updateTextureTracking();
+    if (rhs.mTrackingIdToLocalTexture.empty())
+    {
+        mTrackingIdToLocalTexture.clear();
+        mLocalTexDataDigest = 0;
+    }
+    else
+    {
+        mTrackingIdToLocalTexture = rhs.mTrackingIdToLocalTexture;
+        updateLocalTexDataDigest();
+        updateTextureTracking();
+    }
 
     return *this;
+}
+
+void LLGLTFMaterial::updateLocalTexDataDigest()
+{
+    mLocalTexDataDigest = 0;
+    if (!mTrackingIdToLocalTexture.empty())
+    {
+        for (local_tex_map_t::const_iterator
+                it = mTrackingIdToLocalTexture.begin(),
+                end = mTrackingIdToLocalTexture.end();
+             it != end; ++it)
+        {
+            mLocalTexDataDigest ^= it->first.getDigest64() ^
+                                   it->second.getDigest64();
+        }
+    }
 }
 
 bool LLGLTFMaterial::operator==(const LLGLTFMaterial& rhs) const
@@ -123,7 +189,7 @@ bool LLGLTFMaterial::fromJSON(const std::string& json, std::string& warn_msg, st
 
     tinygltf::Model model_in;
 
-    if (gltf.LoadASCIIFromString(&model_in, &error_msg, &warn_msg, json.c_str(), json.length(), ""))
+    if (gltf.LoadASCIIFromString(&model_in, &error_msg, &warn_msg, json.c_str(), static_cast<unsigned int>(json.length()), ""))
     {
         setFromModel(model_in, 0);
 
@@ -547,7 +613,7 @@ void LLGLTFMaterial::applyOverride(const LLGLTFMaterial& override_mat)
 {
     LL_PROFILE_ZONE_SCOPED;
 
-    for (int i = 0; i < GLTF_TEXTURE_INFO_COUNT; ++i)
+    for (U32 i = 0; i < GLTF_TEXTURE_INFO_COUNT; ++i)
     {
         LLUUID& texture_id = mTextureId[i];
         const LLUUID& override_texture_id = override_mat.mTextureId[i];
@@ -588,7 +654,7 @@ void LLGLTFMaterial::applyOverride(const LLGLTFMaterial& override_mat)
         mDoubleSided = override_mat.mDoubleSided;
     }
 
-    for (int i = 0; i < GLTF_TEXTURE_INFO_COUNT; ++i)
+    for (U32 i = 0; i < GLTF_TEXTURE_INFO_COUNT; ++i)
     {
         if (override_mat.mTextureTransform[i].mOffset != getDefaultTextureOffset())
         {
@@ -606,21 +672,25 @@ void LLGLTFMaterial::applyOverride(const LLGLTFMaterial& override_mat)
         }
     }
 
-    mTrackingIdToLocalTexture.insert(override_mat.mTrackingIdToLocalTexture.begin(), override_mat.mTrackingIdToLocalTexture.begin());
-
-    updateTextureTracking();
+    if (!override_mat.mTrackingIdToLocalTexture.empty())
+    {
+        auto it = override_mat.mTrackingIdToLocalTexture.begin();
+        mTrackingIdToLocalTexture.insert(it, it);
+        updateLocalTexDataDigest();
+        updateTextureTracking();
+    }
 }
 
-void LLGLTFMaterial::getOverrideLLSD(const LLGLTFMaterial& override_mat, LLSD& data)
+void LLGLTFMaterial::getOverrideLLSD(const LLGLTFMaterial& override_mat, LLSD& data) const
 {
     LL_PROFILE_ZONE_SCOPED;
     llassert(data.isUndefined());
 
     // make every effort to shave bytes here
 
-    for (int i = 0; i < GLTF_TEXTURE_INFO_COUNT; ++i)
+    for (U32 i = 0; i < GLTF_TEXTURE_INFO_COUNT; ++i)
     {
-        LLUUID& texture_id = mTextureId[i];
+        const LLUUID& texture_id = mTextureId[i];
         const LLUUID& override_texture_id = override_mat.mTextureId[i];
         if (override_texture_id.notNull() && override_texture_id != texture_id)
         {
@@ -663,7 +733,7 @@ void LLGLTFMaterial::getOverrideLLSD(const LLGLTFMaterial& override_mat, LLSD& d
         data["ds"] = override_mat.mDoubleSided;
     }
 
-    for (int i = 0; i < GLTF_TEXTURE_INFO_COUNT; ++i)
+    for (U32 i = 0; i < GLTF_TEXTURE_INFO_COUNT; ++i)
     {
         if (override_mat.mTextureTransform[i].mOffset != getDefaultTextureOffset())
         {
@@ -767,7 +837,7 @@ void LLGLTFMaterial::applyOverrideLLSD(const LLSD& data)
     const LLSD& ti = data["ti"];
     if (ti.isArray())
     {
-        for (int i = 0; i < GLTF_TEXTURE_INFO_COUNT; ++i)
+        for (U32 i = 0; i < GLTF_TEXTURE_INFO_COUNT; ++i)
         {
             const LLSD& o = ti[i]["o"];
             if (o.isDefined())
@@ -793,27 +863,36 @@ void LLGLTFMaterial::applyOverrideLLSD(const LLSD& data)
 LLUUID LLGLTFMaterial::getHash() const
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
-    // HACK - hash the bytes of this object but don't include the ref count
-    LLUUID hash;
-    HBXXH128::digest(hash, (unsigned char*)this + sizeof(LLRefCount), sizeof(*this) - sizeof(LLRefCount));
-    return hash;
+    // *HACK: hash the bytes of this object but do not include the ref count
+    // neither the local texture overrides (which is a map, with pointers to
+    // key/value pairs that would change from one LLGLTFMaterial instance to
+    // the other, even though the key/value pairs could be the same, and stored
+    // elsewhere in the memory heap or on the stack).
+    // Note: this does work properly to compare two LLGLTFMaterial instances
+    // only because the padding bytes between their member variables have been
+    // dutifully zeroed in the constructor. HB
+    const size_t offset = intptr_t(&mLocalTexDataDigest) - intptr_t(this);
+    return HBXXH128::digest((const void*)((const char*)this + offset),
+                            sizeof(*this) - offset);
 }
 
 void LLGLTFMaterial::addLocalTextureTracking(const LLUUID& tracking_id, const LLUUID& tex_id)
 {
     mTrackingIdToLocalTexture[tracking_id] = tex_id;
+    updateLocalTexDataDigest();
 }
 
 void LLGLTFMaterial::removeLocalTextureTracking(const LLUUID& tracking_id)
 {
     mTrackingIdToLocalTexture.erase(tracking_id);
+    updateLocalTexDataDigest();
 }
 
 bool LLGLTFMaterial::replaceLocalTexture(const LLUUID& tracking_id, const LLUUID& old_id, const LLUUID& new_id)
 {
     bool res = false;
 
-    for (int i = 0; i < GLTF_TEXTURE_INFO_COUNT; ++i)
+    for (U32 i = 0; i < GLTF_TEXTURE_INFO_COUNT; ++i)
     {
         if (mTextureId[i] == old_id)
         {
@@ -834,6 +913,7 @@ bool LLGLTFMaterial::replaceLocalTexture(const LLUUID& tracking_id, const LLUUID
     {
         mTrackingIdToLocalTexture.erase(tracking_id);
     }
+    updateLocalTexDataDigest();
 
     return res;
 }

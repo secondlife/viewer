@@ -64,7 +64,7 @@ LLToastGroupNotifyPanel::LLToastGroupNotifyPanel(const LLNotificationPtr& notifi
     }
 
     //group icon
-    LLGroupIconCtrl* pGroupIcon = getChild<LLGroupIconCtrl>("group_icon", TRUE);
+    LLGroupIconCtrl* pGroupIcon = getChild<LLGroupIconCtrl>("group_icon", true);
 
     // We should already have this data preloaded, so no sense in setting icon through setValue(group_id)
     pGroupIcon->setIconId(groupData.mInsigniaID);
@@ -106,23 +106,23 @@ LLToastGroupNotifyPanel::LLToastGroupNotifyPanel(const LLNotificationPtr& notifi
     LLFontGL* subject_font = LLFontGL::getFontByName(getString("subject_font"));
     if (subject_font)
         style.font = subject_font;
-    pMessageText->appendText(subject, FALSE, style);
+    pMessageText->appendText(subject, false, style);
 
     LLFontGL* date_font = LLFontGL::getFontByName(getString("date_font"));
     if (date_font)
         style.font = date_font;
-    pMessageText->appendText(timeStr + "\n", TRUE, style);
+    pMessageText->appendText(timeStr + "\n", true, style);
 
     style.font = pMessageText->getFont();
-    pMessageText->appendText(message, TRUE, style);
+    pMessageText->appendText(message, true, style);
 
     //attachment
-    BOOL hasInventory = payload["inventory_offer"].isDefined();
+    bool hasInventory = payload["inventory_offer"].isDefined();
 
     //attachment text
     LLTextBox * pAttachLink = getChild<LLTextBox>("attachment");
     //attachment icon
-    LLIconCtrl* pAttachIcon = getChild<LLIconCtrl>("attachment_icon", TRUE);
+    LLIconCtrl* pAttachIcon = getChild<LLIconCtrl>("attachment_icon", true);
 
     //If attachment is empty let it be invisible and not take place at the panel
     pAttachLink->setVisible(hasInventory);
@@ -190,8 +190,8 @@ void LLToastGroupNotifyPanel::onClickAttachment()
         pAttachLink->setColor(textColor);
 
         LLIconCtrl* pAttachIcon =
-                getChild<LLIconCtrl> ("attachment_icon", TRUE);
-        pAttachIcon->setEnabled(FALSE);
+                getChild<LLIconCtrl> ("attachment_icon", true);
+        pAttachIcon->setEnabled(false);
 
         //if attachment isn't openable - notify about saving
         if (!isAttachmentOpenable(mInventoryOffer->mType)) {

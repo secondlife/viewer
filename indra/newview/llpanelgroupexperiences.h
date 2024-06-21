@@ -40,7 +40,7 @@ public:
     // LLPanelGroupTab
     virtual void activate();
 
-    virtual BOOL postBuild();
+    virtual bool postBuild();
 
     virtual void setGroupID(const LLUUID& id);
 

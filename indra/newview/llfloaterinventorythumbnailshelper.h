@@ -40,7 +40,7 @@ class LLFloaterInventoryThumbnailsHelper:
         friend class LLFloaterReg;
     private:
         LLFloaterInventoryThumbnailsHelper(const LLSD& key);
-        BOOL postBuild() override;
+        bool postBuild() override;
         ~LLFloaterInventoryThumbnailsHelper();
 
         LLScrollListCtrl* mInventoryThumbnailsList;

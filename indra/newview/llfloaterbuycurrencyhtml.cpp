@@ -42,13 +42,13 @@ LLFloaterBuyCurrencyHTML::LLFloaterBuyCurrencyHTML( const LLSD& key ):
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-BOOL LLFloaterBuyCurrencyHTML::postBuild()
+bool LLFloaterBuyCurrencyHTML::postBuild()
 {
     // observer media events
     mBrowser = getChild<LLMediaCtrl>( "browser" );
     mBrowser->addObserver( this );
 
-    return TRUE;
+    return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

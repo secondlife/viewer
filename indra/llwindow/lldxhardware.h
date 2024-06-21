@@ -37,12 +37,12 @@ class LLVersion
 {
 public:
     LLVersion();
-    BOOL set(const std::string &version_string);
+    bool set(const std::string &version_string);
     S32 getField(const S32 field_num);
 protected:
     std::string mVersionString;
     S32 mFields[4];
-    BOOL mValid;
+    bool mValid;
 };
 
 class LLDXDriverFile
@@ -84,9 +84,9 @@ public:
     void setWriteDebugFunc(void (*func)(const char*));
     void cleanup();
 
-    // Returns TRUE on success.
-    // vram_only TRUE does a "light" probe.
-    BOOL getInfo(BOOL vram_only);
+    // Returns true on success.
+    // vram_only true does a "light" probe.
+    bool getInfo(bool vram_only);
 
     // WMI can return multiple GPU drivers
     // specify which one to output
@@ -104,7 +104,7 @@ public:
 
     // Will get memory of best GPU in MB, return memory on sucsess, 0 on failure
     // Note: WMI is not accurate in some cases
-    static S32 getMBVideoMemoryViaWMI();
+    static U32 getMBVideoMemoryViaWMI();
 
     // Find a particular device that matches the following specs.
     // Empty strings indicate that you don't care.

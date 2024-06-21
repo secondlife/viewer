@@ -56,7 +56,7 @@ public:
     static S32 getVolumeDetailFromScale(F32 scale);
 
     LLVolume* refLOD(const S32 detail);
-    BOOL derefLOD(LLVolume *volumep);
+    bool derefLOD(LLVolume *volumep);
     S32 getNumRefs() const { return mRefs; }
 
     const LLVolumeParams* getVolumeParams() const { return &mVolumeParams; };
@@ -80,7 +80,7 @@ class LLVolumeMgr
 public:
     LLVolumeMgr();
     virtual ~LLVolumeMgr();
-    BOOL cleanup();         // Cleanup all volumes being managed, returns TRUE if no dangling references
+    bool cleanup();         // Cleanup all volumes being managed, returns true if no dangling references
 
     virtual LLVolumeLODGroup* getGroup( const LLVolumeParams& volume_params ) const;
 

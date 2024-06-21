@@ -38,11 +38,11 @@ do
         -h|--help)
             Action=USAGE
             ;;
-        
+
         -v|--verbose)
             Verbose=true
             ;;
-        
+
         ##
         ## Select the revision to compare against
         ##
@@ -79,7 +79,7 @@ do
                 break
             fi
             ;;
-    esac           
+    esac
 
     shift # always consume 1
 done
@@ -107,10 +107,10 @@ then
     cat <<USAGE
 
 Usage:
-    
+
     modified-strings.sh [ { -v | --verbose } ] [-r <revision>] [<path-to-xui>]
 
-    where 
+    where
           --verbose shows progress messages on stderr (the command takes a while, so this is reassuring)
 
           -r <revision> specifies a git revision (branch, tag, commit, or relative specifier)
@@ -124,9 +124,9 @@ Usage:
         the path of a file that has a string change (columns 2 and 3 are empty for lines with a filename)
     name
         the name attribute of a string or label whose value changed
-    English value    
+    English value
         the current value of the string or label whose value changed
-        for strings, newlines are changed to '\n' and tab characters are changed to '\t' 
+        for strings, newlines are changed to '\n' and tab characters are changed to '\t'
 
     There is also a column for each of the language directories following the English.
 

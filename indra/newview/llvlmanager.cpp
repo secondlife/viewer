@@ -89,7 +89,7 @@ void LLVLManager::unpackData(const S32 num_packets)
         decode_patch_group_header(bit_pack, &goph);
         if (LAND_LAYER_CODE == datap->mType)
         {
-            datap->mRegionp->getLand().decompressDCTPatch(bit_pack, &goph, FALSE);
+            datap->mRegionp->getLand().decompressDCTPatch(bit_pack, &goph, false);
         }
         else if (WIND_LAYER_CODE == datap->mType)
         {

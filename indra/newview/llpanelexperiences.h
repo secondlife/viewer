@@ -40,7 +40,7 @@ class LLPanelSearchExperiences
 public:
     LLPanelSearchExperiences(){}
     static LLPanelSearchExperiences* create(const std::string& name);
-    /*virtual*/ BOOL postBuild(void);
+    /*virtual*/ bool postBuild(void);
 
     void doSearch();
 };
@@ -53,8 +53,7 @@ public:
 
     static LLPanelExperiences* create(const std::string& name);
 
-    /*virtual*/ BOOL postBuild(void);
-    /*virtual*/ void onClosePanel();
+    /*virtual*/ bool postBuild(void);
 
     void setExperienceList(const LLSD& experiences);
     void getExperienceIdsList(std::vector<LLUUID>& result);

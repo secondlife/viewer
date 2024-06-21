@@ -58,7 +58,7 @@ LLPanelExperiences* LLFloaterExperiences::addTab(const std::string& name, bool s
     return newPanel;
 }
 
-BOOL LLFloaterExperiences::postBuild()
+bool LLFloaterExperiences::postBuild()
 {
     getChild<LLTabContainer>("xp_tabs")->addTabPanel(new LLPanelExperiencePicker());
     addTab("Allowed_Experiences_Tab", true);
@@ -74,7 +74,7 @@ BOOL LLFloaterExperiences::postBuild()
     getChild<LLTabContainer>("xp_tabs")->addTabPanel(new LLPanelExperienceLog());
     resizeToTabs();
 
-    return TRUE;
+    return true;
 }
 
 
@@ -129,7 +129,7 @@ void LLFloaterExperiences::resizeToTabs()
     {
         rect.mRight = rect.mLeft + tabs->getTotalTabWidth() + TAB_WIDTH_PADDING;
     }
-    reshape(rect.getWidth(), rect.getHeight(), FALSE);
+    reshape(rect.getWidth(), rect.getHeight(), false);
 }
 
 void LLFloaterExperiences::refreshContents()

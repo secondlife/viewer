@@ -38,7 +38,7 @@ void LLBBox::addPointLocal(const LLVector3& p)
     {
         mMinLocal = p;
         mMaxLocal = p;
-        mEmpty = FALSE;
+        mEmpty = false;
     }
     else
     {
@@ -140,7 +140,7 @@ LLVector3 LLBBox::agentToLocalBasis(const LLVector3& v) const
     return v * m;
 }
 
-BOOL LLBBox::containsPointLocal(const LLVector3& p) const
+bool LLBBox::containsPointLocal(const LLVector3& p) const
 {
     if (  (p.mV[VX] < mMinLocal.mV[VX])
         ||(p.mV[VX] > mMaxLocal.mV[VX])
@@ -149,12 +149,12 @@ BOOL LLBBox::containsPointLocal(const LLVector3& p) const
         ||(p.mV[VZ] < mMinLocal.mV[VZ])
         ||(p.mV[VZ] > mMaxLocal.mV[VZ]))
     {
-        return FALSE;
+        return false;
     }
-    return TRUE;
+    return true;
 }
 
-BOOL LLBBox::containsPointAgent(const LLVector3& p) const
+bool LLBBox::containsPointAgent(const LLVector3& p) const
 {
     LLVector3 point_local = agentToLocal(p);
     return containsPointLocal(point_local);

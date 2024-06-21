@@ -154,7 +154,7 @@ std::string LLMute::getDisplayType() const
 // LLMuteList()
 //-----------------------------------------------------------------------------
 LLMuteList::LLMuteList() :
-    mIsLoaded(FALSE)
+    mIsLoaded(false)
 {
     gGenericDispatcher.addHandler("emptymutelist", &sDispatchEmptyMuteList);
 
@@ -227,7 +227,7 @@ static LLVOAvatar* find_avatar(const LLUUID& id)
     }
 }
 
-BOOL LLMuteList::add(const LLMute& mute, U32 flags)
+bool LLMuteList::add(const LLMute& mute, U32 flags)
 {
     // Can't mute text from Lindens
     if ((mute.mType == LLMute::AGENT)
@@ -235,7 +235,7 @@ BOOL LLMuteList::add(const LLMute& mute, U32 flags)
     {
         LL_WARNS() << "Trying to mute a Linden; ignored" << LL_ENDL;
         LLNotifications::instance().add("MuteLinden", LLSD(), LLSD());
-        return FALSE;
+        return false;
     }
 
     // Can't mute self.
@@ -243,7 +243,7 @@ BOOL LLMuteList::add(const LLMute& mute, U32 flags)
         && mute.mID == gAgent.getID())
     {
         LL_WARNS() << "Trying to self; ignored" << LL_ENDL;
-        return FALSE;
+        return false;
     }
 
     static LLCachedControl<S32> mute_list_limit(gSavedSettings, "MuteListLimit", 1000);
@@ -253,7 +253,7 @@ BOOL LLMuteList::add(const LLMute& mute, U32 flags)
         LLSD args;
         args["MUTE_LIMIT"] = mute_list_limit;
         LLNotifications::instance().add(LLNotification::Params("MuteLimitReached").substitutions(args));
-        return FALSE;
+        return false;
     }
 
     if (mute.mType == LLMute::BY_NAME)
@@ -262,14 +262,14 @@ BOOL LLMuteList::add(const LLMute& mute, U32 flags)
         if (mute.mName.empty())
         {
             LL_WARNS() << "Trying to mute empty string by-name" << LL_ENDL;
-            return FALSE;
+            return false;
         }
 
         // Null mutes must have uuid null
         if (mute.mID.notNull())
         {
             LL_WARNS() << "Trying to add by-name mute with non-null id" << LL_ENDL;
-            return FALSE;
+            return false;
         }
 
         std::pair<string_set_t::iterator, bool> result = mLegacyMutes.insert(mute.mName);
@@ -279,13 +279,13 @@ BOOL LLMuteList::add(const LLMute& mute, U32 flags)
             updateAdd(mute);
             notifyObservers();
             notifyObserversDetailed(mute);
-            return TRUE;
+            return true;
         }
         else
         {
             LL_INFOS() << "duplicate mute ignored" << LL_ENDL;
             // was duplicate
-            return FALSE;
+            return false;
         }
     }
     else
@@ -341,13 +341,13 @@ BOOL LLMuteList::add(const LLMute& mute, U32 flags)
                 {
                     LLNotifications::instance().cancelByOwner(localmute.mID);
                 }
-                return TRUE;
+                return true;
             }
         }
     }
 
     // If we were going to return success, we'd have done it by now.
-    return FALSE;
+    return false;
 }
 
 void LLMuteList::updateAdd(const LLMute& mute)
@@ -375,13 +375,13 @@ void LLMuteList::updateAdd(const LLMute& mute)
     {
         LL_WARNS() << "Added elements to non-initialized block list" << LL_ENDL;
     }
-    mIsLoaded = TRUE; // why is this here? -MG
+    mIsLoaded = true; // why is this here? -MG
 }
 
 
-BOOL LLMuteList::remove(const LLMute& mute, U32 flags)
+bool LLMuteList::remove(const LLMute& mute, U32 flags)
 {
-    BOOL found = FALSE;
+    bool found = false;
 
     // First, remove from main list.
     mute_set_t::iterator it = mMutes.find(mute);
@@ -505,14 +505,14 @@ void notify_automute_callback(const LLUUID& agent_id, const LLAvatarName& full_n
 }
 
 
-BOOL LLMuteList::autoRemove(const LLUUID& agent_id, const EAutoReason reason)
+bool LLMuteList::autoRemove(const LLUUID& agent_id, const EAutoReason reason)
 {
-    BOOL removed = FALSE;
+    bool removed = false;
 
     if (isMuted(agent_id))
     {
         LLMute automute(agent_id, LLStringUtil::null, LLMute::AGENT);
-        removed = TRUE;
+        removed = true;
         remove(automute);
 
         LLAvatarName av_name;
@@ -559,19 +559,19 @@ std::vector<LLMute> LLMuteList::getMutes() const
 //-----------------------------------------------------------------------------
 // loadFromFile()
 //-----------------------------------------------------------------------------
-BOOL LLMuteList::loadFromFile(const std::string& filename)
+bool LLMuteList::loadFromFile(const std::string& filename)
 {
     if(!filename.size())
     {
         LL_WARNS() << "Mute List Filename is Empty!" << LL_ENDL;
-        return FALSE;
+        return false;
     }
 
     LLFILE* fp = LLFile::fopen(filename, "rb");     /*Flawfinder: ignore*/
     if (!fp)
     {
         LL_WARNS() << "Couldn't open mute list " << filename << LL_ENDL;
-        return FALSE;
+        return false;
     }
 
     // *NOTE: Changing the size of these buffers will require changes
@@ -616,25 +616,25 @@ BOOL LLMuteList::loadFromFile(const std::string& filename)
     }
     mPendingAgentNameUpdates.clear();
 
-    return TRUE;
+    return true;
 }
 
 //-----------------------------------------------------------------------------
 // saveToFile()
 //-----------------------------------------------------------------------------
-BOOL LLMuteList::saveToFile(const std::string& filename)
+bool LLMuteList::saveToFile(const std::string& filename)
 {
     if(!filename.size())
     {
         LL_WARNS() << "Mute List Filename is Empty!" << LL_ENDL;
-        return FALSE;
+        return false;
     }
 
     LLFILE* fp = LLFile::fopen(filename, "wb");     /*Flawfinder: ignore*/
     if (!fp)
     {
         LL_WARNS() << "Couldn't open mute list " << filename << LL_ENDL;
-        return FALSE;
+        return false;
     }
     // legacy mutes have null uuid
     std::string id_string;
@@ -659,11 +659,11 @@ BOOL LLMuteList::saveToFile(const std::string& filename)
         }
     }
     fclose(fp);
-    return TRUE;
+    return true;
 }
 
 
-BOOL LLMuteList::isMuted(const LLUUID& id, const std::string& name, U32 flags) const
+bool LLMuteList::isMuted(const LLUUID& id, const std::string& name, U32 flags) const
 {
     // for objects, check for muting on their parent prim
     LLViewerObject* mute_object = get_object_to_mute_from_id(id);
@@ -677,21 +677,21 @@ BOOL LLMuteList::isMuted(const LLUUID& id, const std::string& name, U32 flags) c
         // If any of the flags the caller passed are set, this item isn't considered muted for this caller.
         if(flags & mute_it->mFlags)
         {
-            return FALSE;
+            return false;
         }
-        return TRUE;
+        return true;
     }
 
     // empty names can't be legacy-muted
     bool avatar = mute_object && mute_object->isAvatar();
-    if (name.empty() || avatar) return FALSE;
+    if (name.empty() || avatar) return false;
 
     // Look in legacy pile
     string_set_t::const_iterator legacy_it = mLegacyMutes.find(name);
     return legacy_it != mLegacyMutes.end();
 }
 
-BOOL LLMuteList::isMuted(const std::string& username, U32 flags) const
+bool LLMuteList::isMuted(const std::string& username, U32 flags) const
 {
     mute_set_t::const_iterator mute_iter = mMutes.begin();
     while(mute_iter != mMutes.end())
@@ -700,11 +700,11 @@ BOOL LLMuteList::isMuted(const std::string& username, U32 flags) const
         if (mute_iter->mType == LLMute::AGENT
             && LLCacheName::buildUsername(mute_iter->mName) == username)
         {
-            return TRUE;
+            return true;
         }
         mute_iter++;
     }
-    return FALSE;
+    return false;
 }
 
 //-----------------------------------------------------------------------------
@@ -739,7 +739,7 @@ void LLMuteList::requestFromServer(const LLUUID& agent_id)
     }
     // Double amount of retries due to this request happening during busy stage
     // Ideally this should be turned into a capability
-    gMessageSystem->sendReliable(gAgent.getRegionHost(), LL_DEFAULT_RELIABLE_RETRIES * 2, TRUE, LL_PING_BASED_TIMEOUT_DUMMY, NULL, NULL);
+    gMessageSystem->sendReliable(gAgent.getRegionHost(), LL_DEFAULT_RELIABLE_RETRIES * 2, true, LL_PING_BASED_TIMEOUT_DUMMY, NULL, NULL);
 }
 
 //-----------------------------------------------------------------------------
@@ -782,7 +782,7 @@ void LLMuteList::processMuteListUpdate(LLMessageSystem* msg, void**)
                               filename,
                               LL_PATH_CACHE,
                               msg->getSender(),
-                              TRUE, // make the remote file temporary.
+                              true, // make the remote file temporary.
                               onFileMuteList,
                               (void**)local_filename_and_path,
                               LLXferManager::HIGH_PRIORITY);
@@ -866,7 +866,7 @@ void LLMuteList::removeObserver(LLMuteListObserver* observer)
 
 void LLMuteList::setLoaded()
 {
-    mIsLoaded = TRUE;
+    mIsLoaded = true;
     notifyObservers();
 }
 

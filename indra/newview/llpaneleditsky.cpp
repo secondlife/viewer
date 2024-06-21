@@ -139,7 +139,7 @@ LLPanelSettingsSkyAtmosTab::LLPanelSettingsSkyAtmosTab() :
 }
 
 
-BOOL LLPanelSettingsSkyAtmosTab::postBuild()
+bool LLPanelSettingsSkyAtmosTab::postBuild()
 {
     getChild<LLUICtrl>(FIELD_SKY_AMBIENT_LIGHT)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onAmbientLightChanged(); });
     getChild<LLUICtrl>(FIELD_SKY_BLUE_HORIZON)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onBlueHorizonChanged(); });
@@ -156,11 +156,11 @@ BOOL LLPanelSettingsSkyAtmosTab::postBuild()
     getChild<LLUICtrl>(FIELD_REFLECTION_PROBE_AMBIANCE)->setCommitCallback([this](LLUICtrl*, const LLSD&) { onReflectionProbeAmbianceChanged(); });
     refresh();
 
-    return TRUE;
+    return true;
 }
 
 //virtual
-void LLPanelSettingsSkyAtmosTab::setEnabled(BOOL enabled)
+void LLPanelSettingsSkyAtmosTab::setEnabled(bool enabled)
 {
     LLPanelSettingsSky::setEnabled(enabled);
 
@@ -184,8 +184,8 @@ void LLPanelSettingsSkyAtmosTab::refresh()
 {
     if (!mSkySettings)
     {
-        setAllChildrenEnabled(FALSE);
-        setEnabled(FALSE);
+        setAllChildrenEnabled(false);
+        setEnabled(false);
         return;
     }
 
@@ -357,7 +357,7 @@ LLPanelSettingsSkyCloudTab::LLPanelSettingsSkyCloudTab() :
 {
 }
 
-BOOL LLPanelSettingsSkyCloudTab::postBuild()
+bool LLPanelSettingsSkyCloudTab::postBuild()
 {
     getChild<LLUICtrl>(FIELD_SKY_CLOUD_COLOR)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onCloudColorChanged(); });
     getChild<LLUICtrl>(FIELD_SKY_CLOUD_COVERAGE)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onCloudCoverageChanged(); });
@@ -367,7 +367,7 @@ BOOL LLPanelSettingsSkyCloudTab::postBuild()
     getChild<LLUICtrl>(FIELD_SKY_CLOUD_SCROLL_XY)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onCloudScrollChanged(); });
     getChild<LLTextureCtrl>(FIELD_SKY_CLOUD_MAP)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onCloudMapChanged(); });
     getChild<LLTextureCtrl>(FIELD_SKY_CLOUD_MAP)->setDefaultImageAssetID(LLSettingsSky::GetDefaultCloudNoiseTextureId());
-    getChild<LLTextureCtrl>(FIELD_SKY_CLOUD_MAP)->setAllowNoTexture(TRUE);
+    getChild<LLTextureCtrl>(FIELD_SKY_CLOUD_MAP)->setAllowNoTexture(true);
 
     getChild<LLUICtrl>(FIELD_SKY_CLOUD_DENSITY_X)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onCloudDensityChanged(); });
     getChild<LLUICtrl>(FIELD_SKY_CLOUD_DENSITY_Y)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onCloudDensityChanged(); });
@@ -378,11 +378,11 @@ BOOL LLPanelSettingsSkyCloudTab::postBuild()
 
     refresh();
 
-    return TRUE;
+    return true;
 }
 
 //virtual
-void LLPanelSettingsSkyCloudTab::setEnabled(BOOL enabled)
+void LLPanelSettingsSkyCloudTab::setEnabled(bool enabled)
 {
     LLPanelSettingsSky::setEnabled(enabled);
 
@@ -405,8 +405,8 @@ void LLPanelSettingsSkyCloudTab::refresh()
 {
     if (!mSkySettings)
     {
-        setAllChildrenEnabled(FALSE);
-        setEnabled(FALSE);
+        setAllChildrenEnabled(false);
+        setEnabled(false);
         return;
     }
 
@@ -510,7 +510,7 @@ LLPanelSettingsSkySunMoonTab::LLPanelSettingsSkySunMoonTab() :
 }
 
 
-BOOL LLPanelSettingsSkySunMoonTab::postBuild()
+bool LLPanelSettingsSkySunMoonTab::postBuild()
 {
     getChild<LLUICtrl>(FIELD_SKY_SUN_MOON_COLOR)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onSunMoonColorChanged(); });
     getChild<LLUICtrl>(FIELD_SKY_GLOW_FOCUS)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onGlowChanged(); });
@@ -523,24 +523,24 @@ BOOL LLPanelSettingsSkySunMoonTab::postBuild()
     getChild<LLUICtrl>(FIELD_SKY_SUN_SCALE)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onSunScaleChanged(); });
     getChild<LLTextureCtrl>(FIELD_SKY_SUN_IMAGE)->setBlankImageAssetID(LLSettingsSky::GetBlankSunTextureId());
     getChild<LLTextureCtrl>(FIELD_SKY_SUN_IMAGE)->setDefaultImageAssetID(LLSettingsSky::GetBlankSunTextureId());
-    getChild<LLTextureCtrl>(FIELD_SKY_SUN_IMAGE)->setAllowNoTexture(TRUE);
+    getChild<LLTextureCtrl>(FIELD_SKY_SUN_IMAGE)->setAllowNoTexture(true);
     getChild<LLUICtrl>(FIELD_SKY_MOON_ROTATION)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onMoonRotationChanged(); });
     getChild<LLUICtrl>(FIELD_SKY_MOON_AZIMUTH)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onMoonAzimElevChanged(); });
     getChild<LLUICtrl>(FIELD_SKY_MOON_ELEVATION)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onMoonAzimElevChanged(); });
     getChild<LLUICtrl>(FIELD_SKY_MOON_IMAGE)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onMoonImageChanged(); });
     getChild<LLTextureCtrl>(FIELD_SKY_MOON_IMAGE)->setDefaultImageAssetID(LLSettingsSky::GetDefaultMoonTextureId());
     getChild<LLTextureCtrl>(FIELD_SKY_MOON_IMAGE)->setBlankImageAssetID(LLSettingsSky::GetDefaultMoonTextureId());
-    getChild<LLTextureCtrl>(FIELD_SKY_MOON_IMAGE)->setAllowNoTexture(TRUE);
+    getChild<LLTextureCtrl>(FIELD_SKY_MOON_IMAGE)->setAllowNoTexture(true);
     getChild<LLUICtrl>(FIELD_SKY_MOON_SCALE)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onMoonScaleChanged(); });
     getChild<LLUICtrl>(FIELD_SKY_MOON_BRIGHTNESS)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onMoonBrightnessChanged(); });
 
     refresh();
 
-    return TRUE;
+    return true;
 }
 
 //virtual
-void LLPanelSettingsSkySunMoonTab::setEnabled(BOOL enabled)
+void LLPanelSettingsSkySunMoonTab::setEnabled(bool enabled)
 {
     LLPanelSettingsSky::setEnabled(enabled);
 
@@ -553,8 +553,8 @@ void LLPanelSettingsSkySunMoonTab::setEnabled(BOOL enabled)
         getChild<LLUICtrl>(FIELD_SKY_SUN_SCALE)->setEnabled(enabled);
         getChild<LLUICtrl>(FIELD_SKY_MOON_SCALE)->setEnabled(enabled);
         getChild<LLUICtrl>(FIELD_SKY_MOON_BRIGHTNESS)->setEnabled(enabled);
-        getChildView(PANEL_SKY_SUN_LAYOUT)->setAllChildrenEnabled(TRUE);
-        getChildView(PANEL_SKY_MOON_LAYOUT)->setAllChildrenEnabled(TRUE);
+        getChildView(PANEL_SKY_SUN_LAYOUT)->setAllChildrenEnabled(true);
+        getChildView(PANEL_SKY_MOON_LAYOUT)->setAllChildrenEnabled(true);
     }
 }
 
@@ -562,18 +562,18 @@ void LLPanelSettingsSkySunMoonTab::refresh()
 {
     if (!mSkySettings || !getCanChangeSettings())
     {
-        getChildView(PANEL_SKY_SUN_LAYOUT)->setAllChildrenEnabled(FALSE);
-        getChildView(PANEL_SKY_MOON_LAYOUT)->setAllChildrenEnabled(FALSE);
-        getChildView(FIELD_SKY_SUN_BEACON)->setEnabled(TRUE);
-        getChildView(FIELD_SKY_MOON_BEACON)->setEnabled(TRUE);
+        getChildView(PANEL_SKY_SUN_LAYOUT)->setAllChildrenEnabled(false);
+        getChildView(PANEL_SKY_MOON_LAYOUT)->setAllChildrenEnabled(false);
+        getChildView(FIELD_SKY_SUN_BEACON)->setEnabled(true);
+        getChildView(FIELD_SKY_MOON_BEACON)->setEnabled(true);
 
         if (!mSkySettings)
             return;
     }
     else
     {
-        setEnabled(TRUE);
-        setAllChildrenEnabled(TRUE);
+        setEnabled(true);
+        setAllChildrenEnabled(true);
     }
 
     getChild<LLColorSwatchCtrl>(FIELD_SKY_SUN_MOON_COLOR)->set(mSkySettings->getSunlightColor() / SLIDER_SCALE_SUN_AMBIENT);
@@ -780,7 +780,7 @@ LLPanelSettingsSkyDensityTab::LLPanelSettingsSkyDensityTab()
 {
 }
 
-BOOL LLPanelSettingsSkyDensityTab::postBuild()
+bool LLPanelSettingsSkyDensityTab::postBuild()
 {
     getChild<LLUICtrl>(FIELD_SKY_DENSITY_RAYLEIGH_EXPONENTIAL)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onRayleighExponentialChanged(); });
     getChild<LLUICtrl>(FIELD_SKY_DENSITY_RAYLEIGH_EXPONENTIAL_SCALE)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onRayleighExponentialScaleChanged(); });
@@ -803,10 +803,10 @@ BOOL LLPanelSettingsSkyDensityTab::postBuild()
     getChild<LLUICtrl>(FIELD_SKY_DENSITY_ABSORPTION_MAX_ALTITUDE)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onAbsorptionMaxAltitudeChanged(); });
 
     refresh();
-    return TRUE;
+    return true;
 }
 
-void LLPanelSettingsSkyDensityTab::setEnabled(BOOL enabled)
+void LLPanelSettingsSkyDensityTab::setEnabled(bool enabled)
 {
     LLPanelSettingsSky::setEnabled(enabled);
 
@@ -838,8 +838,8 @@ void LLPanelSettingsSkyDensityTab::refresh()
 {
     if (!mSkySettings)
     {
-        setAllChildrenEnabled(FALSE);
-        setEnabled(FALSE);
+        setAllChildrenEnabled(false);
+        setEnabled(false);
         return;
     }
 

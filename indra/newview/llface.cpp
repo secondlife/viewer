@@ -68,7 +68,7 @@
 static LLStaticHashedString sTextureIndexIn("texture_index_in");
 static LLStaticHashedString sColorIn("color_in");
 
-BOOL LLFace::sSafeRenderSelect = TRUE; // FALSE
+bool LLFace::sSafeRenderSelect = true; // false
 
 
 #define DOTVEC(a,b) (a.mV[0]*b.mV[0] + a.mV[1]*b.mV[1] + a.mV[2]*b.mV[2])
@@ -328,7 +328,7 @@ void LLFace::dirtyTexture()
                 LLVOVolume* vobj = drawablep->getVOVolume();
                 if (vobj)
                 {
-                    vobj->mLODChanged = TRUE;
+                    vobj->mLODChanged = true;
 
                     vobj->updateVisualComplexity();
                 }
@@ -628,13 +628,6 @@ void LLFace::renderOneWireframe(const LLColor4 &color, F32 fogCfx, bool wirefram
 
     {
         LLGLDisable depth(wireframe_selection ? 0 : GL_BLEND);
-        //LLGLEnable stencil(wireframe_selection ? 0 : GL_STENCIL_TEST);
-
-        if (!wireframe_selection)
-        { //modify wireframe into outline selection mode
-            glStencilFunc(GL_NOTEQUAL, 2, 0xffff);
-            glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-        }
 
         LLGLEnable offset(GL_POLYGON_OFFSET_LINE);
         glPolygonOffset(3.f, 3.f);
@@ -807,8 +800,8 @@ bool less_than_max_mag(const LLVector4a& vec)
     return lt == 0x7;
 }
 
-BOOL LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
-                             const LLMatrix4& mat_vert_in, BOOL global_volume)
+bool LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
+                             const LLMatrix4& mat_vert_in, bool global_volume)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_FACE
 
@@ -833,7 +826,7 @@ BOOL LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
         {
             LL_DEBUGS("RiggedBox") << "skipping face " << f << ", bad num vertices "
                                    << face.mNumVertices << " " << face.mNumIndices << " " << face.mWeights << LL_ENDL;
-            return FALSE;
+            return false;
         }
 
         //VECTORIZE THIS
@@ -873,7 +866,7 @@ BOOL LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
         updateCenterAgent();
     }
 
-    return TRUE;
+    return true;
 }
 
 
@@ -1143,7 +1136,7 @@ void push_for_transform(LLVertexBuffer* buff, U32 source_count, U32 dest_count)
     }
 }
 
-BOOL LLFace::getGeometryVolume(const LLVolume& volume,
+bool LLFace::getGeometryVolume(const LLVolume& volume,
                                 S32 face_index,
                                 const LLMatrix4& mat_vert_in,
                                 const LLMatrix3& mat_norm_in,
@@ -1164,7 +1157,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
                 " Attempt get access to: " << face_index << LL_ENDL;
             llassert(no_debug_assert);
         }
-        return FALSE;
+        return false;
     }
 
     bool rigged = isState(RIGGED);
@@ -1180,7 +1173,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
     if (mVertexBuffer.notNull())
     {
-        if (num_indices + (S32) mIndicesIndex > mVertexBuffer->getNumIndices())
+        if (num_indices + mIndicesIndex > mVertexBuffer->getNumIndices())
         {
             if (gDebugGL)
             {
@@ -1193,17 +1186,17 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
                         << " Pool Type: " << mPoolType << LL_ENDL;
                 llassert(no_debug_assert);
             }
-            return FALSE;
+            return false;
         }
 
-        if (num_vertices + mGeomIndex > mVertexBuffer->getNumVerts())
+        if (num_vertices + (U32)mGeomIndex > mVertexBuffer->getNumVerts())
         {
             if (gDebugGL)
             {
                 LL_WARNS() << "Vertex buffer overflow!" << LL_ENDL;
                 llassert(no_debug_assert);
             }
-            return FALSE;
+            return false;
         }
     }
 
@@ -1217,9 +1210,9 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
     LLStrider<U16> indicesp;
     LLStrider<LLVector4> wght;
 
-    BOOL full_rebuild = force_rebuild || mDrawablep->isState(LLDrawable::REBUILD_VOLUME);
+    bool full_rebuild = force_rebuild || mDrawablep->isState(LLDrawable::REBUILD_VOLUME);
 
-    BOOL global_volume = mDrawablep->getVOVolume()->isVolumeGlobal();
+    bool global_volume = mDrawablep->getVOVolume()->isVolumeGlobal();
     LLVector3 scale;
     if (global_volume)
     {
@@ -1241,8 +1234,8 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
     const LLTextureEntry *tep = mVObjp->getTE(face_index);
     const U8 bump_code = tep ? tep->getBumpmap() : 0;
 
-    BOOL is_static = mDrawablep->isStatic();
-    BOOL is_global = is_static;
+    bool is_static = mDrawablep->isStatic();
+    bool is_global = is_static;
 
     LLVector3 center_sum(0.f, 0.f, 0.f);
 
@@ -1255,11 +1248,15 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
         clearState(GLOBAL);
     }
 
-    LLColor4U color = tep->getColor();
-
-    if (tep->getGLTFRenderMaterial())
+    LLColor4U color{};
+    if (tep)
     {
-        color = tep->getGLTFRenderMaterial()->mBaseColor;
+        color = tep->getColor();
+
+        if (tep->getGLTFRenderMaterial())
+        {
+            color = tep->getGLTFRenderMaterial()->mBaseColor;
+        }
     }
 
     if (rebuild_color)
@@ -1595,7 +1592,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
                             mask.setElement<2>();
                             mask.setElement<3>();
 
-                            U32 count = num_vertices/2 + num_vertices%2;
+                            S32 count = num_vertices/2 + num_vertices%2;
 
                             for (S32 i = 0; i < count; i++)
                             {
@@ -2011,7 +2008,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
     }
 
 
-    return TRUE;
+    return true;
 }
 
 void LLFace::renderIndexed()
@@ -2024,18 +2021,18 @@ void LLFace::renderIndexed()
 }
 
 //check if the face has a media
-BOOL LLFace::hasMedia() const
+bool LLFace::hasMedia() const
 {
     if(mHasMedia)
     {
-        return TRUE ;
+        return true ;
     }
     if(mTexture[LLRender::DIFFUSE_MAP].notNull())
     {
         return mTexture[LLRender::DIFFUSE_MAP]->hasParcelMedia() ;  //if has a parcel media
     }
 
-    return FALSE ; //no media.
+    return false ; //no media.
 }
 
 const F32 LEAST_IMPORTANCE = 0.05f ;
@@ -2052,7 +2049,7 @@ F32 LLFace::getTextureVirtualSize()
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
     F32 radius;
     F32 cos_angle_to_view_dir;
-    BOOL in_frustum = calcPixelArea(cos_angle_to_view_dir, radius);
+    bool in_frustum = calcPixelArea(cos_angle_to_view_dir, radius);
 
     if (mPixelArea < F_ALMOST_ZERO || !in_frustum)
     {
@@ -2096,7 +2093,7 @@ F32 LLFace::getTextureVirtualSize()
     return face_area;
 }
 
-BOOL LLFace::calcPixelArea(F32& cos_angle_to_view_dir, F32& radius)
+bool LLFace::calcPixelArea(F32& cos_angle_to_view_dir, F32& radius)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_FACE;
 
@@ -2282,19 +2279,19 @@ F32 LLFace::adjustPixelArea(F32 importance, F32 pixel_area)
     return pixel_area ;
 }
 
-BOOL LLFace::verify(const U32* indices_array) const
+bool LLFace::verify(const U32* indices_array) const
 {
-    BOOL ok = TRUE;
+    bool ok = true;
 
     if( mVertexBuffer.isNull() )
     { //no vertex buffer, face is implicitly valid
-        return TRUE;
+        return true;
     }
 
     // First, check whether the face data fits within the pool's range.
-    if ((mGeomIndex + mGeomCount) > mVertexBuffer->getNumVerts())
+    if ((U32)(mGeomIndex + mGeomCount) > mVertexBuffer->getNumVerts())
     {
-        ok = FALSE;
+        ok = false;
         LL_INFOS() << "Face references invalid vertices!" << LL_ENDL;
     }
 
@@ -2302,18 +2299,18 @@ BOOL LLFace::verify(const U32* indices_array) const
 
     if (!indices_count)
     {
-        return TRUE;
+        return true;
     }
 
     if (indices_count > LL_MAX_INDICES_COUNT)
     {
-        ok = FALSE;
+        ok = false;
         LL_INFOS() << "Face has bogus indices count" << LL_ENDL;
     }
 
     if (mIndicesIndex + mIndicesCount > mVertexBuffer->getNumIndices())
     {
-        ok = FALSE;
+        ok = false;
         LL_INFOS() << "Face references invalid indices!" << LL_ENDL;
     }
 
@@ -2330,13 +2327,13 @@ BOOL LLFace::verify(const U32* indices_array) const
         {
             LL_WARNS() << "Face index too low!" << LL_ENDL;
             LL_INFOS() << "i:" << i << " Index:" << indicesp[i] << " GStart: " << geom_start << LL_ENDL;
-            ok = FALSE;
+            ok = false;
         }
         else if (delta >= geom_count)
         {
             LL_WARNS() << "Face index too high!" << LL_ENDL;
             LL_INFOS() << "i:" << i << " Index:" << indicesp[i] << " GEnd: " << geom_start + geom_count << LL_ENDL;
-            ok = FALSE;
+            ok = false;
         }
     }
 #endif

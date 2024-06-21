@@ -69,11 +69,11 @@ public:
 
     /*virtual*/ void destroyView();
 
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
     /*virtual*/ void draw();
-    /*virtual*/ BOOL handleMouseDown( S32 x, S32 y, MASK mask );
-    /*virtual*/ BOOL handleRightMouseDown( S32 x, S32 y, MASK mask );
-    /*virtual*/ BOOL handleMouseUp( S32 x, S32 y, MASK mask );
+    /*virtual*/ bool handleMouseDown( S32 x, S32 y, MASK mask );
+    /*virtual*/ bool handleRightMouseDown( S32 x, S32 y, MASK mask );
+    /*virtual*/ bool handleMouseUp( S32 x, S32 y, MASK mask );
 
     /*virtual*/ S32 arrange(S32* width, S32* height);
 
@@ -83,7 +83,7 @@ public:
 
     void toggleCollapsedMode(bool is_collapsed);
 
-    void setVisibleIfDetached(BOOL visible);
+    void setVisibleIfDetached(bool visible);
     LLConversationViewParticipant* findParticipant(const LLUUID& participant_id);
 
     void showVoiceIndicator(bool visible);
@@ -151,14 +151,14 @@ public:
     void onMouseLeave(S32 x, S32 y, MASK mask);
 
     /*virtual*/ S32 getLabelXPos();
-    /*virtual*/ BOOL handleMouseDown( S32 x, S32 y, MASK mask );
+    /*virtual*/ bool handleMouseDown( S32 x, S32 y, MASK mask );
     void allowSpeakingIndicator(bool val);
 
 protected:
     friend class LLUICtrlFactory;
     LLConversationViewParticipant( const Params& p );
     void initFromParams(const Params& params);
-    BOOL postBuild();
+    bool postBuild();
     /*virtual*/ void draw();
     /*virtual*/ S32 arrange(S32* width, S32* height);
 

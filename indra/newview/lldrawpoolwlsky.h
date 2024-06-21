@@ -43,7 +43,7 @@ public:
     LLDrawPoolWLSky(void);
     /*virtual*/ ~LLDrawPoolWLSky();
 
-    /*virtual*/ BOOL isDead() { return FALSE; }
+    /*virtual*/ bool isDead() { return false; }
 
     /*virtual*/ S32 getNumDeferredPasses() { return 1; }
     /*virtual*/ void beginDeferredPass(S32 pass);
@@ -52,13 +52,13 @@ public:
 
     /*virtual*/ LLViewerTexture *getDebugTexture();
     /*virtual*/ U32 getVertexDataMask() { return SKY_VERTEX_DATA_MASK; }
-    /*virtual*/ BOOL verify() const { return TRUE; }        // Verify that all data in the draw pool is correct!
+    /*virtual*/ bool verify() const { return true; }        // Verify that all data in the draw pool is correct!
     /*virtual*/ S32 getShaderLevel() const { return mShaderLevel; }
 
     //static LLDrawPool* createPool(const U32 type, LLViewerTexture *tex0 = NULL);
 
     /*virtual*/ LLViewerTexture* getTexture();
-    /*virtual*/ BOOL isFacePool() { return FALSE; }
+    /*virtual*/ bool isFacePool() { return false; }
     /*virtual*/ void resetDrawOrders();
 
     static void cleanupGL();

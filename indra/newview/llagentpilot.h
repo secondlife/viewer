@@ -68,35 +68,35 @@ public:
     void addWaypoint();
     void moveCamera();
 
-    void setReplaySession(BOOL new_val) { mReplaySession = new_val; }
-    BOOL getReplaySession() { return mReplaySession; }
+    void setReplaySession(bool new_val) { mReplaySession = new_val; }
+    bool getReplaySession() { return mReplaySession; }
 
-    void setLoop(BOOL new_val) { mLoop = new_val; }
-    BOOL getLoop() { return mLoop; }
+    void setLoop(bool new_val) { mLoop = new_val; }
+    bool getLoop() { return mLoop; }
 
-    void setQuitAfterRuns(BOOL quit_val) { mQuitAfterRuns = quit_val; }
+    void setQuitAfterRuns(bool quit_val) { mQuitAfterRuns = quit_val; }
     void setNumRuns(S32 num_runs) { mNumRuns = num_runs; }
 
 private:
 
 
 
-    BOOL    mLoop;
-    BOOL    mReplaySession;
+    bool    mLoop;
+    bool    mReplaySession;
 
     S32     mNumRuns;
-    BOOL    mQuitAfterRuns;
+    bool    mQuitAfterRuns;
 
     void setAutopilotTarget(const S32 id);
 
-    BOOL    mRecording;
+    bool    mRecording;
     F32     mLastRecordTime;
 
-    BOOL    mStarted;
-    BOOL    mPlaying;
+    bool    mStarted;
+    bool    mPlaying;
     S32     mCurrentAction;
 
-    BOOL    mOverrideCamera;
+    bool    mOverrideCamera;
 
     class Action
     {

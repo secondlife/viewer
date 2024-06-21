@@ -58,7 +58,7 @@ LLPanelMediaSettingsSecurity::LLPanelMediaSettingsSecurity() :
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-BOOL LLPanelMediaSettingsSecurity::postBuild()
+bool LLPanelMediaSettingsSecurity::postBuild()
 {
     mEnableWhiteList = getChild< LLCheckBoxCtrl >( LLMediaEntry::WHITELIST_ENABLE_KEY );
     mWhiteListList = getChild< LLScrollListCtrl >( LLMediaEntry::WHITELIST_KEY );

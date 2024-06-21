@@ -51,7 +51,7 @@ LLFloaterAvatarTextures::~LLFloaterAvatarTextures()
 {
 }
 
-BOOL LLFloaterAvatarTextures::postBuild()
+bool LLFloaterAvatarTextures::postBuild()
 {
     for (U32 i=0; i < TEX_NUM_INDICES; i++)
     {
@@ -63,7 +63,7 @@ BOOL LLFloaterAvatarTextures::postBuild()
     childSetAction("Dump", onClickDump, this);
 
     refresh();
-    return TRUE;
+    return true;
 }
 
 void LLFloaterAvatarTextures::draw()

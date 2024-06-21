@@ -124,14 +124,14 @@ bool LLFileSystem::renameFile(const LLUUID& old_file_id, const LLAssetType::ETyp
 
     if (LLFile::rename(old_filename, new_filename) != 0)
     {
-        // We would like to return FALSE here indicating the operation
+        // We would like to return false here indicating the operation
         // failed but the original code does not and doing so seems to
         // break a lot of things so we go with the flow...
-        //return FALSE;
+        //return false;
         LL_WARNS() << "Failed to rename " << old_file_id << " to " << new_id_str << " reason: "  << strerror(errno) << LL_ENDL;
     }
 
-    return TRUE;
+    return true;
 }
 
 // static
@@ -153,9 +153,9 @@ S32 LLFileSystem::getFileSize(const LLUUID& file_id, const LLAssetType::EType fi
     return file_size;
 }
 
-BOOL LLFileSystem::read(U8* buffer, S32 bytes)
+bool LLFileSystem::read(U8* buffer, S32 bytes)
 {
-    BOOL success = FALSE;
+    bool success = false;
 
     std::string id;
     mFileID.toString(id);
@@ -183,7 +183,7 @@ BOOL LLFileSystem::read(U8* buffer, S32 bytes)
         mPosition += mBytesRead;
         if (mBytesRead)
         {
-            success = TRUE;
+            success = true;
         }
     }
 
@@ -195,19 +195,19 @@ S32 LLFileSystem::getLastBytesRead()
     return mBytesRead;
 }
 
-BOOL LLFileSystem::eof()
+bool LLFileSystem::eof()
 {
     return mPosition >= getSize();
 }
 
-BOOL LLFileSystem::write(const U8* buffer, S32 bytes)
+bool LLFileSystem::write(const U8* buffer, S32 bytes)
 {
     std::string id_str;
     mFileID.toString(id_str);
     const std::string extra_info = "";
     const std::string filename =  LLDiskCache::getInstance()->metaDataToFilepath(id_str, mFileType, extra_info);
 
-    BOOL success = FALSE;
+    bool success = false;
 
     if (mMode == APPEND)
     {
@@ -218,7 +218,7 @@ BOOL LLFileSystem::write(const U8* buffer, S32 bytes)
 
             mPosition = ofs.tellp(); // <FS:Ansariel> Fix asset caching
 
-            success = TRUE;
+            success = true;
         }
     }
     // <FS:Ansariel> Fix asset caching
@@ -231,7 +231,7 @@ BOOL LLFileSystem::write(const U8* buffer, S32 bytes)
             ofs.seekp(mPosition, std::ios::beg);
             ofs.write((const char*)buffer, bytes);
             mPosition += bytes;
-            success = TRUE;
+            success = true;
         }
         else
         {
@@ -241,7 +241,7 @@ BOOL LLFileSystem::write(const U8* buffer, S32 bytes)
             {
                 ofs.write((const char*)buffer, bytes);
                 mPosition += bytes;
-                success = TRUE;
+                success = true;
             }
         }
     }
@@ -255,14 +255,14 @@ BOOL LLFileSystem::write(const U8* buffer, S32 bytes)
 
             mPosition += bytes;
 
-            success = TRUE;
+            success = true;
         }
     }
 
     return success;
 }
 
-BOOL LLFileSystem::seek(S32 offset, S32 origin)
+bool LLFileSystem::seek(S32 offset, S32 origin)
 {
     if (-1 == origin)
     {
@@ -278,18 +278,18 @@ BOOL LLFileSystem::seek(S32 offset, S32 origin)
         LL_WARNS() << "Attempt to seek past end of file" << LL_ENDL;
 
         mPosition = size;
-        return FALSE;
+        return false;
     }
     else if (new_pos < 0)
     {
         LL_WARNS() << "Attempt to seek past beginning of file" << LL_ENDL;
 
         mPosition = 0;
-        return FALSE;
+        return false;
     }
 
     mPosition = new_pos;
-    return TRUE;
+    return true;
 }
 
 S32 LLFileSystem::tell() const
@@ -308,19 +308,19 @@ S32 LLFileSystem::getMaxSize()
     return INT_MAX;
 }
 
-BOOL LLFileSystem::rename(const LLUUID& new_id, const LLAssetType::EType new_type)
+bool LLFileSystem::rename(const LLUUID& new_id, const LLAssetType::EType new_type)
 {
     LLFileSystem::renameFile(mFileID, mFileType, new_id, new_type);
 
     mFileID = new_id;
     mFileType = new_type;
 
-    return TRUE;
+    return true;
 }
 
-BOOL LLFileSystem::remove()
+bool LLFileSystem::remove()
 {
     LLFileSystem::removeFile(mFileID, mFileType);
 
-    return TRUE;
+    return true;
 }

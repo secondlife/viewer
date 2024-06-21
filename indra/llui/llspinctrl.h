@@ -66,12 +66,12 @@ public:
             F32     get() const { return getValueF32(); }
             void    set(F32 value) { setValue(value); mInitialValue = value; }
 
-    BOOL            isMouseHeldDown() const;
+    bool            isMouseHeldDown() const;
 
-    virtual void    setEnabled( BOOL b );
-    virtual void    setFocus( BOOL b );
+    virtual void    setEnabled( bool b );
+    virtual void    setFocus( bool b );
     virtual void    clear();
-    virtual BOOL    isDirty() const { return( getValueF32() != mInitialValue ); }
+    virtual bool    isDirty() const { return( getValueF32() != mInitialValue ); }
     virtual void    resetDirty() { mInitialValue = getValueF32(); }
 
     virtual void    setPrecision(S32 precision);
@@ -79,17 +79,17 @@ public:
     void            setLabel(const LLStringExplicit& label);
     void            setLabelColor(const LLColor4& c)            { mTextEnabledColor = c; updateLabelColor(); }
     void            setDisabledLabelColor(const LLColor4& c)    { mTextDisabledColor = c; updateLabelColor();}
-    void            setAllowEdit(BOOL allow_edit);
+    void            setAllowEdit(bool allow_edit);
 
     virtual void    onTabInto();
 
-    virtual void    setTentative(BOOL b);           // marks value as tentative
+    virtual void    setTentative(bool b);           // marks value as tentative
     virtual void    onCommit();                     // mark not tentative, then commit
 
     void            forceEditorCommit();            // for commit on external button
 
-    virtual BOOL    handleScrollWheel(S32 x,S32 y,S32 clicks);
-    virtual BOOL    handleKeyHere(KEY key, MASK mask);
+    virtual bool    handleScrollWheel(S32 x,S32 y,S32 clicks);
+    virtual bool    handleKeyHere(KEY key, MASK mask);
 
     void            onEditorCommit(const LLSD& data);
     static void     onEditorGainFocus(LLFocusableElement* caller, void *userdata);
@@ -117,8 +117,8 @@ private:
     class LLButton*     mUpBtn;
     class LLButton*     mDownBtn;
 
-    BOOL            mbHasBeenSet;
-    BOOL            mAllowEdit;
+    bool            mbHasBeenSet;
+    bool            mAllowEdit;
 };
 
 #endif  // LL_LLSPINCTRL_H

@@ -64,7 +64,7 @@ public:
     //-------------------------------------------------------------------------
 
     // motions must specify whether or not they loop
-    virtual BOOL getLoop() { return TRUE; }
+    virtual bool getLoop() { return true; }
 
     // motions must report their total duration
     virtual F32 getDuration() { return 0.0; }
@@ -89,14 +89,14 @@ public:
     virtual LLMotionInitStatus onInitialize(LLCharacter *character);
 
     // called when a motion is activated
-    // must return TRUE to indicate success, or else
+    // must return true to indicate success, or else
     // it will be deactivated
-    virtual BOOL onActivate();
+    virtual bool onActivate();
 
     // called per time step
-    // must return TRUE while it is active, and
-    // must return FALSE when the motion is completed.
-    virtual BOOL onUpdate(F32 time, U8* joint_mask);
+    // must return true while it is active, and
+    // must return false when the motion is completed.
+    virtual bool onUpdate(F32 time, U8* joint_mask);
 
     // called when a motion is deactivated
     virtual void onDeactivate();
@@ -147,7 +147,7 @@ public:
     //-------------------------------------------------------------------------
 
     // motions must specify whether or not they loop
-    virtual BOOL getLoop() { return TRUE; }
+    virtual bool getLoop() { return true; }
 
     // motions must report their total duration
     virtual F32 getDuration() { return 0.0; }
@@ -172,16 +172,16 @@ public:
     virtual LLMotionInitStatus onInitialize(LLCharacter *character);
 
     // called when a motion is activated
-    // must return TRUE to indicate success, or else
+    // must return true to indicate success, or else
     // it will be deactivated
-    virtual BOOL onActivate();
+    virtual bool onActivate();
 
     void adjustEyeTarget(LLVector3* targetPos, LLJointState& left_eye_state, LLJointState& right_eye_state);
 
     // called per time step
-    // must return TRUE while it is active, and
-    // must return FALSE when the motion is completed.
-    virtual BOOL onUpdate(F32 time, U8* joint_mask);
+    // must return true while it is active, and
+    // must return false when the motion is completed.
+    virtual bool onUpdate(F32 time, U8* joint_mask);
 
     // called when a motion is deactivated
     virtual void onDeactivate();
@@ -209,7 +209,7 @@ public:
     // eye blinking
     LLFrameTimer        mEyeBlinkTimer;
     F32                 mEyeBlinkTime;
-    BOOL                mEyesClosed;
+    bool                mEyesClosed;
 };
 
 #endif // LL_LLHEADROTMOTION_H

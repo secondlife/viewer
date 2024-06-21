@@ -38,8 +38,8 @@ class LLFloaterLoadPrefPreset : public LLFloater
 public:
     LLFloaterLoadPrefPreset(const LLSD &key);
 
-    /*virtual*/ BOOL    postBuild();
-    /*virtual*/ void    onOpen(const LLSD& key);
+    bool postBuild() override;
+    void onOpen(const LLSD& key) override;
 
     void onBtnOk();
     void onBtnCancel();

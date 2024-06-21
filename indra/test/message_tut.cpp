@@ -75,7 +75,7 @@ namespace tut
                                    1,
                                    0,
                                    0,
-                                   FALSE,
+                                   false,
                                    "notasharedsecret",
                                    NULL,
                                    false,

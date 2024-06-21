@@ -125,7 +125,7 @@ public:
     void removeObserver(LLConversationLogObserver* observer);
 
     // LLIMSessionObserver triggers
-    virtual void sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id, BOOL has_offline_msg) override;
+    virtual void sessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id, bool has_offline_msg) override;
     virtual void sessionActivated(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id) override {}; // Stub
     virtual void sessionRemoved(const LLUUID& session_id) override{}                                            // Stub
     virtual void sessionVoiceOrIMStarted(const LLUUID& session_id) override{};                              // Stub
@@ -179,7 +179,7 @@ private:
     /**
      * adds conversation to the conversation list and notifies observers
      */
-    void logConversation(const LLUUID& session_id, BOOL has_offline_msg);
+    void logConversation(const LLUUID& session_id, bool has_offline_msg);
 
     void notifyParticularConversationObservers(const LLUUID& session_id, U32 mask);
 
@@ -191,7 +191,7 @@ private:
     void createConversation(const LLIMModel::LLIMSession* session);
     void updateConversationTimestamp(LLConversation* conversation);
     void updateConversationName(const LLIMModel::LLIMSession* session, const std::string& name);
-    void updateOfflineIMs(const LLIMModel::LLIMSession* session, BOOL new_messages);
+    void updateOfflineIMs(const LLIMModel::LLIMSession* session, bool new_messages);
 
 
 

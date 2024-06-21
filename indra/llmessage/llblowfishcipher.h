@@ -46,7 +46,7 @@ public:
     /*virtual*/ U32 requiredEncryptionSpace(U32 src_len) const;
 
 #ifdef _DEBUG
-    static BOOL testHarness();
+    static bool testHarness();
 #endif
 
 private:

@@ -68,7 +68,7 @@ public:
     LLCOFWearables();
     virtual ~LLCOFWearables();
 
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
 
     LLUUID getSelectedUUID();
     bool getSelectedUUIDs(uuid_vec_t& selected_ids);

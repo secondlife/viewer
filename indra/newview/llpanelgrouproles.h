@@ -53,14 +53,14 @@ public:
     friend class LLPanelGroupRolesSubTab;
     friend class LLPanelGroupActionsSubTab;
 
-    virtual BOOL postBuild();
-    virtual BOOL isVisibleByAgent(LLAgent* agentp);
+    virtual bool postBuild();
+    virtual bool isVisibleByAgent(LLAgent* agentp);
 
 
     bool handleSubTabSwitch(const LLSD& data);
 
     // Checks if the current tab needs to be applied, and tries to switch to the requested tab.
-    BOOL attemptTransition();
+    bool attemptTransition();
 
     // Switches to the requested tab (will close() if requested is NULL)
     void transitionToTab();
@@ -73,7 +73,7 @@ public:
     virtual void activate();
     virtual void deactivate();
     virtual bool needsApply(std::string& mesg);
-    virtual BOOL hasModal();
+    virtual bool hasModal();
     virtual bool apply(std::string& mesg);
     virtual void cancel();
     virtual void update(LLGroupChange gc);
@@ -84,7 +84,7 @@ protected:
     LLPanelGroupTab*        mCurrentTab;
     LLPanelGroupTab*        mRequestedTab;
     LLTabContainer* mSubTabContainer;
-    BOOL                    mFirstUse;
+    bool                    mFirstUse;
 
     std::string             mDefaultNeedsApplyMesg;
     std::string             mWantApplyMesg;
@@ -97,10 +97,10 @@ public:
     LLPanelGroupSubTab();
     virtual ~LLPanelGroupSubTab();
 
-    virtual BOOL postBuild();
+    virtual bool postBuild();
 
     // This allows sub-tabs to collect child widgets from a higher level in the view hierarchy.
-    virtual BOOL postBuildSubTab(LLView* root);
+    virtual bool postBuildSubTab(LLView* root);
 
     virtual void setSearchFilter( const std::string& filter );
 
@@ -111,7 +111,7 @@ public:
     bool matchesActionSearchFilter(std::string action);
 
 
-    void setFooterEnabled(BOOL enable);
+    void setFooterEnabled(bool enable);
 
     virtual void setGroupID(const LLUUID& id);
 protected:
@@ -119,23 +119,24 @@ protected:
                                  U64 allowed_by_some,
                                  U64 allowed_by_all,
                                  LLUICtrl::commit_callback_t commit_callback,
-                                 BOOL show_all,
-                                 BOOL filter,
-                                 BOOL is_owner_role);
+                                 bool show_all,
+                                 bool filter,
+                                 bool is_owner_role);
     void buildActionCategory(LLScrollListCtrl* ctrl,
                                     U64 allowed_by_some,
                                     U64 allowed_by_all,
                                     LLRoleActionSet* action_set,
                                     LLUICtrl::commit_callback_t commit_callback,
-                                    BOOL show_all,
-                                    BOOL filter,
-                                    BOOL is_owner_role);
+                                    bool show_all,
+                                    bool filter,
+                                    bool is_owner_role);
 
 protected:
     LLPanel* mHeader; // Might not be present in xui of derived class (NULL)
     LLPanel* mFooter;
 
     LLFilterEditor* mSearchEditor;
+    boost::signals2::connection mSearchCommitConnection;
 
     std::string mSearchFilter;
 
@@ -146,7 +147,7 @@ protected:
     bool mHasGroupBanPower; // Used to communicate between action sets due to the dependency between
                             // GP_GROUP_BAN_ACCESS and GP_EJECT_MEMBER and GP_ROLE_REMOVE_MEMBER
 
-    void setOthersVisible(BOOL b);
+    void setOthersVisible(bool b);
 };
 
 
@@ -156,7 +157,7 @@ public:
     LLPanelGroupMembersSubTab();
     virtual ~LLPanelGroupMembersSubTab();
 
-    virtual BOOL postBuildSubTab(LLView* root);
+    virtual bool postBuildSubTab(LLView* root);
 
     static void onMemberSelect(LLUICtrl*, void*);
     void handleMemberSelect();
@@ -219,9 +220,9 @@ protected:
     LLButton*           mEjectBtn;
     LLButton*           mBanBtn;
 
-    BOOL mChanged;
-    BOOL mPendingMemberUpdate;
-    BOOL mHasMatch;
+    bool mChanged;
+    bool mPendingMemberUpdate;
+    bool mHasMatch;
 
     LLTextEditor*   mActionDescription;
 
@@ -240,7 +241,7 @@ public:
     LLPanelGroupRolesSubTab();
     virtual ~LLPanelGroupRolesSubTab();
 
-    virtual BOOL postBuildSubTab(LLView* root);
+    virtual bool postBuildSubTab(LLView* root);
 
     virtual void activate();
     virtual void deactivate();
@@ -281,7 +282,7 @@ public:
 
     virtual void setGroupID(const LLUUID& id);
 
-    BOOL    mFirstOpen;
+    bool    mFirstOpen;
 
 protected:
     void handleActionCheck(LLUICtrl* ctrl, bool force);
@@ -302,7 +303,7 @@ protected:
     LLButton*       mCopyRoleButton;
 
     LLUUID  mSelectedRole;
-    BOOL    mHasRoleChange;
+    bool    mHasRoleChange;
     std::string mRemoveEveryoneTxt;
 };
 
@@ -313,7 +314,7 @@ public:
     LLPanelGroupActionsSubTab();
     virtual ~LLPanelGroupActionsSubTab();
 
-    virtual BOOL postBuildSubTab(LLView* root);
+    virtual bool postBuildSubTab(LLView* root);
 
 
     virtual void activate();
@@ -341,7 +342,7 @@ public:
     LLPanelGroupBanListSubTab();
     virtual ~LLPanelGroupBanListSubTab() {}
 
-    virtual BOOL postBuildSubTab(LLView* root);
+    virtual bool postBuildSubTab(LLView* root);
 
     virtual void activate();
     virtual void update(LLGroupChange gc);

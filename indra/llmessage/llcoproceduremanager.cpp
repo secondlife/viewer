@@ -87,7 +87,7 @@ public:
     ///
     inline S32 count() const
     {
-        return countPending() + countActive();
+        return static_cast<S32>(countPending() + countActive());
     }
 
     void close();

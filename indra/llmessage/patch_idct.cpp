@@ -74,8 +74,8 @@ S32 gDeCopyMatrix[LARGE_PATCH_SIZE*LARGE_PATCH_SIZE];
 void build_decopy_matrix(S32 size)
 {
     S32 i, j, count;
-    BOOL    b_diag = FALSE;
-    BOOL    b_right = TRUE;
+    bool    b_diag = false;
+    bool    b_right = true;
 
     i = 0;
     j = 0;
@@ -96,8 +96,8 @@ void build_decopy_matrix(S32 size)
                     i++;
                 else
                     j++;
-                b_right = FALSE;
-                b_diag = TRUE;
+                b_right = false;
+                b_diag = true;
             }
             else
             {
@@ -105,8 +105,8 @@ void build_decopy_matrix(S32 size)
                     j++;
                 else
                     i++;
-                b_right = TRUE;
-                b_diag = TRUE;
+                b_right = true;
+                b_diag = true;
             }
         }
         else
@@ -118,7 +118,7 @@ void build_decopy_matrix(S32 size)
                 if (  (i == size - 1)
                     ||(j == 0))
                 {
-                    b_diag = FALSE;
+                    b_diag = false;
                 }
             }
             else
@@ -128,7 +128,7 @@ void build_decopy_matrix(S32 size)
                 if (  (i == 0)
                     ||(j == size - 1))
                 {
-                    b_diag = FALSE;
+                    b_diag = false;
                 }
             }
         }
@@ -658,8 +658,8 @@ void decompress_patchv(LLVector3 *v, S32 *cpatch, LLPatchHeader *ph)
     F32     mult = ooq*range;
     F32     addval = mult*(F32)(1<<(prequant - 1))+hmin;
 
-//  BOOL    b_diag = FALSE;
-//  BOOL    b_right = TRUE;
+//  bool    b_diag = false;
+//  bool    b_right = true;
 
     for (i = 0; i < size*size; i++)
     {

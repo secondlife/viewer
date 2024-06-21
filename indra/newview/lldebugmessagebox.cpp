@@ -45,7 +45,7 @@ std::map<std::string, LLDebugVarMessageBox*> LLDebugVarMessageBox::sInstances;
 
 LLDebugVarMessageBox::LLDebugVarMessageBox(const std::string& title, EDebugVarType var_type, void *var) :
     LLFloater(LLSD()),
-    mVarType(var_type), mVarData(var), mAnimate(FALSE)
+    mVarType(var_type), mVarData(var), mAnimate(false)
 {
     setRect(LLRect(10,160,400,10));
 

@@ -87,11 +87,11 @@ private:
         LLVolumeInterfaceType getInterfaceType() const      { return INTERFACE_FLEXIBLE; }
         void updateRenderRes();
         void doIdleUpdate();
-        BOOL doUpdateGeometry(LLDrawable *drawable);
+        bool doUpdateGeometry(LLDrawable *drawable);
         LLVector3 getPivotPosition() const;
         void onSetVolume(const LLVolumeParams &volume_params, const S32 detail);
-        void onSetScale(const LLVector3 &scale, BOOL damped);
-        void onParameterChanged(U16 param_type, LLNetworkData *data, BOOL in_use, bool local_origin);
+        void onSetScale(const LLVector3 &scale, bool damped);
+        void onParameterChanged(U16 param_type, LLNetworkData *data, bool in_use, bool local_origin);
         void onShift(const LLVector4a &shift_vector);
         bool isVolumeUnique() const { return true; }
         bool isVolumeGlobal() const { return true; }
@@ -125,8 +125,8 @@ private:
         LLQuaternion                mParentRotation;
         LLQuaternion                mLastFrameRotation;
         LLQuaternion                mLastSegmentRotation;
-        BOOL                        mInitialized;
-        BOOL                        mUpdated;
+        bool                        mInitialized;
+        bool                        mUpdated;
         LLFlexibleObjectData*       mAttributes;
         LLFlexibleObjectSection     mSection    [ (1<<FLEXIBLE_OBJECT_MAX_SECTIONS)+1 ];
         S32                         mInitializedRes;

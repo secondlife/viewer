@@ -47,7 +47,7 @@ public:
     typedef LLHandle<LLFloaterExperiencePicker> PickerHandle;
     LLPanelExperienceListEditor();
     ~LLPanelExperienceListEditor();
-    BOOL postBuild();
+    bool postBuild();
 
     void loading();
 

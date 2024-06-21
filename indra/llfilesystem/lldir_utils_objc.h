@@ -1,6 +1,6 @@
 /**
  * @file lldir_utils_objc.h
- * @brief Definition of directory utilities class for Mac OS X
+ * @brief Definition of directory utilities class for macOS
  *
  * $LicenseInfo:firstyear=2020&license=viewerlgpl$
  * Second Life Viewer Source Code

@@ -76,7 +76,7 @@ class LLXferManager
     S32    mHardLimitOutgoingXfersPerCircuit;   // At this limit, kill off the connection
     S32    mMaxIncomingXfers;
 
-    BOOL    mUseAckThrottling; // Use ack throttling to cap file xfer bandwidth
+    bool    mUseAckThrottling; // Use ack throttling to cap file xfer bandwidth
     std::deque<LLXferAckInfo> mXferAckQueue;
     LLThrottle mAckThrottle;
  public:
@@ -85,8 +85,8 @@ class LLXferManager
     // an xfer must happen asap.
     enum
     {
-        LOW_PRIORITY = FALSE,
-        HIGH_PRIORITY = TRUE,
+        LOW_PRIORITY = false,
+        HIGH_PRIORITY = true,
     };
 
     // Linked FIFO list, add to the front and pull from back
@@ -100,7 +100,7 @@ class LLXferManager
  protected:
     // implementation methods
     virtual void startPendingDownloads();
-    virtual void addToList(LLXfer* xferp, xfer_list_t & xfer_list, BOOL is_priority);
+    virtual void addToList(LLXfer* xferp, xfer_list_t & xfer_list, bool is_priority);
     std::multiset<std::string> mExpectedTransfers; // files that are authorized to transfer out
     std::multiset<std::string> mExpectedRequests;  // files that are authorized to be downloaded on top of
     std::multiset<std::string> mExpectedVFileTransfers; // files that are authorized to transfer out
@@ -113,7 +113,7 @@ class LLXferManager
     virtual void init();
     virtual void cleanup();
 
-    void setUseAckThrottling(const BOOL use);
+    void setUseAckThrottling(const bool use);
     void setAckThrottleBPS(const F32 bps);
 
 // list management routines
@@ -135,9 +135,9 @@ class LLXferManager
 // general utility routines
     virtual void registerCallbacks(LLMessageSystem *mesgsys);
     virtual U64 getNextID ();
-    virtual S32 encodePacketNum(S32 packet_num, BOOL is_eof);
+    virtual S32 encodePacketNum(S32 packet_num, bool is_eof);
     virtual S32 decodePacketNum(S32 packet_num);
-    virtual BOOL isLastPacket(S32 packet_num);
+    virtual bool isLastPacket(S32 packet_num);
 
 // file requesting routines
 // .. to file
@@ -145,19 +145,19 @@ class LLXferManager
                              const std::string& remote_filename,
                              ELLPath remote_path,
                              const LLHost& remote_host,
-                             BOOL delete_remote_on_completion,
+                             bool delete_remote_on_completion,
                              void (*callback)(void**,S32,LLExtStat), void** user_data,
-                             BOOL is_priority = FALSE,
-                             BOOL use_big_packets = FALSE);
+                             bool is_priority = false,
+                             bool use_big_packets = false);
     /*
 // .. to memory
     virtual void requestFile(const std::string& remote_filename,
                              ELLPath remote_path,
                              const LLHost &remote_host,
-                             BOOL delete_remote_on_completion,
+                             bool delete_remote_on_completion,
                              void (*callback)(void*, S32, void**, S32, LLExtStat),
                              void** user_data,
-                             BOOL is_priority = FALSE);
+                             bool is_priority = false);
     */
 // vfile requesting
 // .. to vfile
@@ -165,7 +165,7 @@ class LLXferManager
                               LLAssetType::EType type,
                               const LLHost& remote_host,
                               void (*callback)(void**,S32,LLExtStat), void** user_data,
-                              BOOL is_priority = FALSE);
+                              bool is_priority = false);
     /**
         When arbitrary files are requested to be transfered (by giving a dir of LL_PATH_NONE)
        they must be "expected", but having something pre-authorize them. This pair of functions

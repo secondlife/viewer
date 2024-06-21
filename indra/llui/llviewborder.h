@@ -66,12 +66,12 @@ protected:
 public:
     virtual void setValue(const LLSD& val) { setRect(LLRect(val)); }
 
-    virtual BOOL isCtrl() const { return FALSE; }
+    virtual bool isCtrl() const { return false; }
 
     // llview functionality
     virtual void draw();
 
-    static BOOL getBevelFromAttribute(LLXMLNodePtr node, LLViewBorder::EBevel& bevel_style);
+    static bool getBevelFromAttribute(LLXMLNodePtr node, LLViewBorder::EBevel& bevel_style);
 
     void        setBorderWidth(S32 width)           { mBorderWidth = width; }
     S32         getBorderWidth() const              { return mBorderWidth; }
@@ -87,7 +87,7 @@ public:
 
     EStyle      getStyle() const { return mStyle; }
 
-    void        setKeyboardFocusHighlight( BOOL b ) { mHasKeyboardFocus = b; }
+    void        setKeyboardFocusHighlight( bool b ) { mHasKeyboardFocus = b; }
 
 private:
     void        drawOnePixelLines();
@@ -103,7 +103,7 @@ private:
     LLUIColor   mBackgroundColor;
     S32         mBorderWidth;
     LLPointer<LLUIImage>    mTexture;
-    BOOL        mHasKeyboardFocus;
+    bool        mHasKeyboardFocus;
 };
 
 #endif // LL_LLVIEWBORDER_H

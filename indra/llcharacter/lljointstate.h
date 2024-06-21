@@ -80,7 +80,7 @@ public:
     // joint that this state is applied to
     LLJoint* getJoint()             { return mJoint; }
     const LLJoint* getJoint() const { return mJoint; }
-    BOOL setJoint( LLJoint *joint ) { mJoint = joint; return mJoint != NULL; }
+    bool setJoint( LLJoint *joint ) { mJoint = joint; return mJoint != NULL; }
 
     // transform type (bitwise flags can be combined)
     // Note that these are set automatically when various

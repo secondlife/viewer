@@ -27,9 +27,9 @@
 #include "llmousehandler.h"
 
 //virtual
-BOOL LLMouseHandler::handleAnyMouseClick(S32 x, S32 y, MASK mask, EMouseClickType clicktype, BOOL down)
+bool LLMouseHandler::handleAnyMouseClick(S32 x, S32 y, MASK mask, EMouseClickType clicktype, bool down)
 {
-    BOOL handled = FALSE;
+    bool handled = false;
     if (down)
     {
         switch (clicktype)

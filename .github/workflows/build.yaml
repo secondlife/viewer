@@ -1,12 +1,6 @@
 name: Build
 
 on:
-  workflow_dispatch:
-    inputs:
-      release_run:
-        type: boolean
-        description: Do a release of this build
-        default: false
   pull_request:
   push:
     branches: ["main", "release/*", "project/*"]
@@ -231,6 +225,9 @@ jobs:
           elif  [[ "$prefix" == "release" || "$prefix" == "main" ]];
           then
               export viewer_channel="Second Life Release"
+          elif  [[ "$branch" == "develop" ]];
+          then
+              export viewer_channel="Second Life Develop"
           else
               export viewer_channel="Second Life Test"
           fi

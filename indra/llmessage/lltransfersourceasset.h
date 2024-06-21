@@ -38,7 +38,7 @@ public:
     LLTransferSourceParamsAsset();
     virtual ~LLTransferSourceParamsAsset() {}
     /*virtual*/ void packParams(LLDataPacker &dp) const;
-    /*virtual*/ BOOL unpackParams(LLDataPacker &dp);
+    /*virtual*/ bool unpackParams(LLDataPacker &dp);
 
     void setAsset(const LLUUID &asset_id, const LLAssetType::EType asset_type);
 
@@ -65,15 +65,15 @@ protected:
                                       const S32 max_bytes,
                                       U8 **datap,
                                       S32 &returned_bytes,
-                                      BOOL &delete_returned);
+                                      bool &delete_returned);
     /*virtual*/ void completionCallback(const LLTSCode status);
 
     virtual void packParams(LLDataPacker& dp) const;
-    /*virtual*/ BOOL unpackParams(LLDataPacker &dp);
+    /*virtual*/ bool unpackParams(LLDataPacker &dp);
 
 protected:
     LLTransferSourceParamsAsset mParams;
-    BOOL mGotResponse;
+    bool mGotResponse;
 
     S32 mCurPos;
 };

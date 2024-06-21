@@ -80,12 +80,12 @@ namespace tut
     void string_index_object_t::test<3>()
     {
         std::string str("Len=5");
-        ensure("isValidIndex failed", LLStringUtil::isValidIndex(str, 0) == TRUE &&
-                                      LLStringUtil::isValidIndex(str, 5) == TRUE &&
-                                      LLStringUtil::isValidIndex(str, 6) == FALSE);
+        ensure("isValidIndex failed", LLStringUtil::isValidIndex(str, 0) == true &&
+                                      LLStringUtil::isValidIndex(str, 5) == true &&
+                                      LLStringUtil::isValidIndex(str, 6) == false);
 
         std::string str1;
-        ensure("isValidIndex failed fo rempty string", LLStringUtil::isValidIndex(str1, 0) == FALSE);
+        ensure("isValidIndex failed fo rempty string", LLStringUtil::isValidIndex(str1, 0) == false);
     }
 
     template<> template<>
@@ -153,10 +153,10 @@ namespace tut
     void string_index_object_t::test<10>()
     {
         std::string str_val("Second");
-        ensure("1. isHead failed", LLStringUtil::isHead(str_val, "SecondLife Source") == TRUE);
-        ensure("2. isHead failed", LLStringUtil::isHead(str_val, " SecondLife Source") == FALSE);
+        ensure("1. isHead failed", LLStringUtil::isHead(str_val, "SecondLife Source") == true);
+        ensure("2. isHead failed", LLStringUtil::isHead(str_val, " SecondLife Source") == false);
         std::string str_val2("");
-        ensure("3. isHead failed", LLStringUtil::isHead(str_val2, "") == FALSE);
+        ensure("3. isHead failed", LLStringUtil::isHead(str_val2, "") == false);
     }
 
     template<> template<>
@@ -206,10 +206,10 @@ namespace tut
     void string_index_object_t::test<15>()
     {
         std::string str_val("Hello.\n\r\t");
-        ensure("containsNonprintable failed", LLStringUtil::containsNonprintable(str_val) == TRUE);
+        ensure("containsNonprintable failed", LLStringUtil::containsNonprintable(str_val) == true);
 
         str_val = "ABC ";
-        ensure("containsNonprintable failed", LLStringUtil::containsNonprintable(str_val) == FALSE);
+        ensure("containsNonprintable failed", LLStringUtil::containsNonprintable(str_val) == false);
     }
 
     template<> template<>
@@ -231,7 +231,7 @@ namespace tut
     template<> template<>
     void string_index_object_t::test<17>()
     {
-        BOOL value;
+        bool value;
         std::string str_val("1");
         ensure("convertToBOOL 1 failed", LLStringUtil::convertToBOOL(str_val, value) && value);
         str_val = "T";
@@ -457,17 +457,17 @@ namespace tut
         std::string lhs_str("PROgraM12files");
         std::string rhs_str("PROgram12Files");
         ensure("compareDict 1 failed", LLStringUtil::compareDict(lhs_str, rhs_str) < 0);
-        ensure("precedesDict 1 failed", LLStringUtil::precedesDict(lhs_str, rhs_str) == TRUE);
+        ensure("precedesDict 1 failed", LLStringUtil::precedesDict(lhs_str, rhs_str) == true);
 
         lhs_str = "PROgram12Files";
         rhs_str = "PROgram12Files";
         ensure("compareDict 2 failed", LLStringUtil::compareDict(lhs_str, rhs_str) == 0);
-        ensure("precedesDict 2 failed", LLStringUtil::precedesDict(lhs_str, rhs_str) == FALSE);
+        ensure("precedesDict 2 failed", LLStringUtil::precedesDict(lhs_str, rhs_str) == false);
 
         lhs_str = "PROgram12Files";
         rhs_str = "PROgRAM12FILES";
         ensure("compareDict 3 failed", LLStringUtil::compareDict(lhs_str, rhs_str) > 0);
-        ensure("precedesDict 3 failed", LLStringUtil::precedesDict(lhs_str, rhs_str) == FALSE);
+        ensure("precedesDict 3 failed", LLStringUtil::precedesDict(lhs_str, rhs_str) == false);
     }
 
     template<> template<>

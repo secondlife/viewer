@@ -72,7 +72,7 @@ LL_COMMON_API std::string ll_stream_notation_sd(const LLSD& sd);
 //Returns false if the test is of same type but values differ in type
 //Otherwise, returns true
 
-LL_COMMON_API BOOL compare_llsd_with_template(
+LL_COMMON_API bool compare_llsd_with_template(
     const LLSD& llsd_to_test,
     const LLSD& template_llsd,
     LLSD& resultant_llsd);

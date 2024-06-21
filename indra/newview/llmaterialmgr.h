@@ -102,7 +102,7 @@ private:
         const LLMaterialMgr::TEMaterialPair& lhs,
         const LLMaterialMgr::TEMaterialPair& rhs)
     {
-        return (lhs.te  < rhs.te) ? TRUE :
+        return (lhs.te  < rhs.te) ? true :
             (lhs.materialID < rhs.materialID);
     }
 

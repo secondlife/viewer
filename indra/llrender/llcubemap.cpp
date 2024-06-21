@@ -78,7 +78,7 @@ void LLCubeMap::initGL()
 
             for (int i = 0; i < 6; i++)
             {
-                mImages[i] = new LLImageGL(RESOLUTION, RESOLUTION, 4, FALSE);
+                mImages[i] = new LLImageGL(RESOLUTION, RESOLUTION, 4, false);
             #if USE_SRGB_DECODE
                 if (mIssRGB) {
                     mImages[i]->setExplicitFormat(GL_SRGB8_ALPHA8, GL_RGBA);
@@ -111,6 +111,9 @@ void LLCubeMap::initRawData(const std::vector<LLPointer<LLImageRaw> >& rawimages
     // Yes, I know that this is inefficient! - djs 08/08/02
     for (int i = 0; i < 6; i++)
     {
+        LLImageDataSharedLock lockIn(rawimages[i]);
+        LLImageDataLock lockOut(mRawImages[i]);
+
         const U8 *sd = rawimages[i]->getData();
         U8 *td = mRawImages[i]->getData();
 
@@ -173,7 +176,7 @@ void LLCubeMap::initReflectionMap(U32 resolution, U32 components)
 
     LLImageGL::generateTextures(1, &texname);
 
-    mImages[0] = new LLImageGL(resolution, resolution, components, TRUE);
+    mImages[0] = new LLImageGL(resolution, resolution, components, true);
     mImages[0]->setTexName(texname);
     mImages[0]->setTarget(mTargets[0], LLTexUnit::TT_CUBE_MAP);
     gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_CUBE_MAP, texname);
@@ -197,7 +200,7 @@ void LLCubeMap::initEnvironmentMap(const std::vector<LLPointer<LLImageRaw> >& ra
         llassert(rawimages[i]->getHeight() == resolution);
         llassert(rawimages[i]->getComponents() == components);
 
-        mImages[i] = new LLImageGL(resolution, resolution, components, TRUE);
+        mImages[i] = new LLImageGL(resolution, resolution, components, true);
         mImages[i]->setTarget(mTargets[i], LLTexUnit::TT_CUBE_MAP);
         mRawImages[i] = rawimages[i];
         mImages[i]->createGLTexture(0, mRawImages[i], texname);
@@ -221,8 +224,8 @@ void LLCubeMap::generateMipMaps()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 
-    mImages[0]->setUseMipMaps(TRUE);
-    mImages[0]->setHasMipMaps(TRUE);
+    mImages[0]->setUseMipMaps(true);
+    mImages[0]->setHasMipMaps(true);
     enableTexture(0);
     bind();
     mImages[0]->setFilteringOption(LLTexUnit::TFO_BILINEAR);

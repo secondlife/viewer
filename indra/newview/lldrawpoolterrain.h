@@ -80,7 +80,7 @@ protected:
     void renderFull4TU();
     void renderFullShader();
     void renderFullShaderTextures();
-    void renderFullShaderPBR(BOOL local_materials = false);
+    void renderFullShaderPBR(bool local_materials = false);
     void drawLoop();
 
 private:

@@ -674,7 +674,7 @@ void LLPanelGroupLandMoney::cancel()
 }
 
 
-BOOL LLPanelGroupLandMoney::postBuild()
+bool LLPanelGroupLandMoney::postBuild()
 {
     /* This power was removed to make group roles simpler
     bool has_parcel_view     = gAgent.hasPowerInGroup(mGroupID,
@@ -722,12 +722,12 @@ BOOL LLPanelGroupLandMoney::postBuild()
 
     if ( mImplementationp->mGroupOverLimitTextp )
     {
-        mImplementationp->mGroupOverLimitTextp->setVisible(FALSE);
+        mImplementationp->mGroupOverLimitTextp->setVisible(false);
     }
 
     if ( mImplementationp->mGroupOverLimitIconp )
     {
-        mImplementationp->mGroupOverLimitIconp->setVisible(FALSE);
+        mImplementationp->mGroupOverLimitIconp->setVisible(false);
     }
 
     if ( !can_view )
@@ -736,7 +736,7 @@ BOOL LLPanelGroupLandMoney::postBuild()
         {
             mImplementationp->mGroupParcelsp->setCommentText(
                             mImplementationp->mCantViewParcelsText);
-            mImplementationp->mGroupParcelsp->setEnabled(FALSE);
+            mImplementationp->mGroupParcelsp->setEnabled(false);
         }
     }
 
@@ -831,7 +831,7 @@ void LLPanelGroupLandMoney::onLandSelectionChanged()
     mImplementationp->mMapButtonp->setEnabled( mImplementationp->mGroupParcelsp->getItemCount() > 0 );
 }
 
-BOOL LLPanelGroupLandMoney::isVisibleByAgent(LLAgent* agentp)
+bool LLPanelGroupLandMoney::isVisibleByAgent(LLAgent* agentp)
 {
     return mAllowEdit && agentp->isInGroup(mGroupID);
 }
@@ -1557,12 +1557,12 @@ void LLPanelGroupLandMoney::setGroupID(const LLUUID& id)
 
     if ( mImplementationp->mGroupOverLimitTextp )
     {
-        mImplementationp->mGroupOverLimitTextp->setVisible(FALSE);
+        mImplementationp->mGroupOverLimitTextp->setVisible(false);
     }
 
     if ( mImplementationp->mGroupOverLimitIconp )
     {
-        mImplementationp->mGroupOverLimitIconp->setVisible(FALSE);
+        mImplementationp->mGroupOverLimitIconp->setVisible(false);
     }
 
     if ( mImplementationp->mGroupParcelsp )
@@ -1572,7 +1572,7 @@ void LLPanelGroupLandMoney::setGroupID(const LLUUID& id)
 
     if ( !can_view && mImplementationp->mGroupParcelsp )
     {
-        mImplementationp->mGroupParcelsp->setEnabled(FALSE);
+        mImplementationp->mGroupParcelsp->setEnabled(false);
     }
 
 

@@ -220,7 +220,7 @@ public:
     // Return the animation state for the given name.
     // Retun NULL if the name is invalid.
     //-----------------------------------------------------------------------------
-    LLUUID stringToAnimState( const std::string& name, BOOL allow_ids = TRUE );
+    LLUUID stringToAnimState( const std::string& name, bool allow_ids = true );
 
     //-----------------------------------------------------------------------------
     // Associate an anim state with a name

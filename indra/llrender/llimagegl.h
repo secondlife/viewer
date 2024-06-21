@@ -47,6 +47,14 @@ class LLWindow;
 #define BYTES_TO_MEGA_BYTES(x) ((x) >> 20)
 #define MEGA_BYTES_TO_BYTES(x) ((x) << 20)
 
+namespace LLImageGLMemory
+{
+    void alloc_tex_image(U32 width, U32 height, U32 pixformat);
+    void free_tex_image(U32 texName);
+    void free_tex_images(U32 count, const U32* texNames);
+    void free_cur_tex_image();
+}
+
 //============================================================================
 class LLImageGL : public LLRefCount
 {
@@ -68,7 +76,7 @@ public:
     static S64 dataFormatBytes(S32 dataformat, S32 width, S32 height);
     static S32 dataFormatComponents(S32 dataformat);
 
-    BOOL updateBindStats() const ;
+    bool updateBindStats() const ;
     F32 getTimePassedSinceLastBound();
     void forceUpdateBindStats(void) const;
 
@@ -76,7 +84,7 @@ public:
     static void updateStats(F32 current_time);
 
     // Save off / restore GL textures
-    static void destroyGL(BOOL save_state = TRUE);
+    static void destroyGL(bool save_state = true);
     static void restoreGL();
     static void dirtyTexOptions();
 
@@ -85,14 +93,14 @@ public:
     //for server side use only.
     // Not currently necessary for LLImageGL, but required in some derived classes,
     // so include for compatability
-    static BOOL create(LLPointer<LLImageGL>& dest, BOOL usemipmaps = TRUE);
-    static BOOL create(LLPointer<LLImageGL>& dest, U32 width, U32 height, U8 components, BOOL usemipmaps = TRUE);
-    static BOOL create(LLPointer<LLImageGL>& dest, const LLImageRaw* imageraw, BOOL usemipmaps = TRUE);
+    static bool create(LLPointer<LLImageGL>& dest, bool usemipmaps = true);
+    static bool create(LLPointer<LLImageGL>& dest, U32 width, U32 height, U8 components, bool usemipmaps = true);
+    static bool create(LLPointer<LLImageGL>& dest, const LLImageRaw* imageraw, bool usemipmaps = true);
 
 public:
-    LLImageGL(BOOL usemipmaps = TRUE);
-    LLImageGL(U32 width, U32 height, U8 components, BOOL usemipmaps = TRUE);
-    LLImageGL(const LLImageRaw* imageraw, BOOL usemipmaps = TRUE);
+    LLImageGL(bool usemipmaps = true);
+    LLImageGL(U32 width, U32 height, U8 components, bool usemipmaps = true);
+    LLImageGL(const LLImageRaw* imageraw, bool usemipmaps = true);
 
     // For wrapping textures created via GL elsewhere with our API only. Use with caution.
     LLImageGL(LLGLuint mTexName, U32 components, LLGLenum target, LLGLint  formatInternal, LLGLenum formatPrimary, LLGLenum formatType, LLTexUnit::eTextureAddressMode addressMode);
@@ -112,29 +120,29 @@ public:
 
     static void setManualImage(U32 target, S32 miplevel, S32 intformat, S32 width, S32 height, U32 pixformat, U32 pixtype, const void *pixels, bool allow_compression = true);
 
-    BOOL createGLTexture() ;
-    BOOL createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S32 usename = 0, BOOL to_create = TRUE,
+    bool createGLTexture() ;
+    bool createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S32 usename = 0, bool to_create = true,
         S32 category = sMaxCategories-1, bool defer_copy = false, LLGLuint* tex_name = nullptr);
-    BOOL createGLTexture(S32 discard_level, const U8* data, BOOL data_hasmips = FALSE, S32 usename = 0, bool defer_copy = false, LLGLuint* tex_name = nullptr);
+    bool createGLTexture(S32 discard_level, const U8* data, bool data_hasmips = false, S32 usename = 0, bool defer_copy = false, LLGLuint* tex_name = nullptr);
     void setImage(const LLImageRaw* imageraw);
-    BOOL setImage(const U8* data_in, BOOL data_hasmips = FALSE, S32 usename = 0);
+    bool setImage(const U8* data_in, bool data_hasmips = false, S32 usename = 0);
     // *TODO: This function may not work if the textures is compressed (i.e.
     // RenderCompressTextures is 0). Partial image updates do not work on
     // compressed textures.
-    BOOL setSubImage(const LLImageRaw* imageraw, S32 x_pos, S32 y_pos, S32 width, S32 height, BOOL force_fast_update = FALSE, LLGLuint use_name = 0);
-    BOOL setSubImage(const U8* datap, S32 data_width, S32 data_height, S32 x_pos, S32 y_pos, S32 width, S32 height, BOOL force_fast_update = FALSE, LLGLuint use_name = 0);
-    BOOL setSubImageFromFrameBuffer(S32 fb_x, S32 fb_y, S32 x_pos, S32 y_pos, S32 width, S32 height);
+    bool setSubImage(const LLImageRaw* imageraw, S32 x_pos, S32 y_pos, S32 width, S32 height, bool force_fast_update = false, LLGLuint use_name = 0);
+    bool setSubImage(const U8* datap, S32 data_width, S32 data_height, S32 x_pos, S32 y_pos, S32 width, S32 height, bool force_fast_update = false, LLGLuint use_name = 0);
+    bool setSubImageFromFrameBuffer(S32 fb_x, S32 fb_y, S32 x_pos, S32 y_pos, S32 width, S32 height);
 
     // wait for gl commands to finish on current thread and push
     // a lambda to main thread to swap mNewTexName and mTexName
     void syncToMainThread(LLGLuint new_tex_name);
 
     // Read back a raw image for this discard level, if it exists
-    BOOL readBackRaw(S32 discard_level, LLImageRaw* imageraw, bool compressed_ok) const;
+    bool readBackRaw(S32 discard_level, LLImageRaw* imageraw, bool compressed_ok) const;
     void destroyGLTexture();
     void forceToInvalidateGLTexture();
 
-    void setExplicitFormat(LLGLint internal_format, LLGLenum primary_format, LLGLenum type_format = 0, BOOL swap_bytes = FALSE);
+    void setExplicitFormat(LLGLint internal_format, LLGLenum primary_format, LLGLenum type_format = 0, bool swap_bytes = false);
     void setComponents(S8 ncomponents) { mComponents = ncomponents; }
 
     S32  getDiscardLevel() const        { return mCurrentDiscardLevel; }
@@ -147,18 +155,18 @@ public:
     U8   getComponents() const { return mComponents; }
     S64  getBytes(S32 discard_level = -1) const;
     S64  getMipBytes(S32 discard_level = -1) const;
-    BOOL getBoundRecently() const;
-    BOOL isJustBound() const;
-    BOOL getHasExplicitFormat() const { return mHasExplicitFormat; }
+    bool getBoundRecently() const;
+    bool isJustBound() const;
+    bool getHasExplicitFormat() const { return mHasExplicitFormat; }
     LLGLenum getPrimaryFormat() const { return mFormatPrimary; }
     LLGLenum getFormatType() const { return mFormatType; }
 
-    BOOL getHasGLTexture() const { return mTexName != 0; }
+    bool getHasGLTexture() const { return mTexName != 0; }
     LLGLuint getTexName() const { return mTexName; }
 
-    BOOL getIsAlphaMask() const;
+    bool getIsAlphaMask() const;
 
-    BOOL getIsResident(BOOL test_now = FALSE); // not const
+    bool getIsResident(bool test_now = false); // not const
 
     void setTarget(const LLGLenum target, const LLTexUnit::eTextureType bind_target);
 
@@ -166,11 +174,11 @@ public:
     bool isGLTextureCreated(void) const { return mGLTextureCreated ; }
     void setGLTextureCreated (bool initialized) { mGLTextureCreated = initialized; }
 
-    BOOL getUseMipMaps() const { return mUseMipMaps; }
-    void setUseMipMaps(BOOL usemips) { mUseMipMaps = usemips; }
-    void setHasMipMaps(BOOL hasmips) { mHasMipMaps = hasmips; }
+    bool getUseMipMaps() const { return mUseMipMaps; }
+    void setUseMipMaps(bool usemips) { mUseMipMaps = usemips; }
+    void setHasMipMaps(bool hasmips) { mHasMipMaps = hasmips; }
     void updatePickMask(S32 width, S32 height, const U8* data_in);
-    BOOL getMask(const LLVector2 &tc);
+    bool getMask(const LLVector2 &tc);
 
     void checkTexSize(bool forced = false) const ;
 
@@ -192,12 +200,12 @@ public:
     U32      getTexelsInGLTexture()const {return mTexelsInGLTexture;}
 
 
-    void init(BOOL usemipmaps);
+    void init(bool usemipmaps);
     virtual void cleanup(); // Clean up the LLImageGL so it can be reinitialized.  Be careful when using this in derived class destructors
 
-    void setNeedsAlphaAndPickMask(BOOL need_mask);
+    void setNeedsAlphaAndPickMask(bool need_mask);
 
-    BOOL preAddToAtlas(S32 discard_level, const LLImageRaw* raw_image);
+    bool preAddToAtlas(S32 discard_level, const LLImageRaw* raw_image);
     void postAddToAtlas() ;
 
 #if LL_IMAGEGL_THREAD_CHECK
@@ -222,11 +230,11 @@ private:
     U16 mPickMaskWidth;
     U16 mPickMaskHeight;
     S8 mUseMipMaps;
-    BOOL mHasExplicitFormat; // If false (default), GL format is f(mComponents)
+    bool mHasExplicitFormat; // If false (default), GL format is f(mComponents)
     bool mAutoGenMips = false;
 
-    BOOL mIsMask;
-    BOOL mNeedsAlphaAndPickMask;
+    bool mIsMask;
+    bool mNeedsAlphaAndPickMask;
     S8   mAlphaStride ;
     S8   mAlphaOffset ;
 
@@ -261,9 +269,9 @@ protected:
     LLGLint  mFormatInternal; // = GL internalformat
     LLGLenum mFormatPrimary;  // = GL format (pixel data format)
     LLGLenum mFormatType;
-    BOOL     mFormatSwapBytes;// if true, use glPixelStorei(GL_UNPACK_SWAP_BYTES, 1)
+    bool     mFormatSwapBytes;// if true, use glPixelStorei(GL_UNPACK_SWAP_BYTES, 1)
 
-    BOOL mExternalTexture;
+    bool mExternalTexture;
 
     // STATICS
 public:
@@ -275,28 +283,28 @@ public:
     // Global memory statistics
     static U32 sBindCount;                  // Tracks number of texture binds for current frame
     static U32 sUniqueCount;                // Tracks number of unique texture binds for current frame
-    static BOOL sGlobalUseAnisotropic;
+    static bool sGlobalUseAnisotropic;
     static LLImageGL* sDefaultGLTexture ;
-    static BOOL sAutomatedTest;
+    static bool sAutomatedTest;
     static bool sCompressTextures;          //use GL texture compression
 #if DEBUG_MISS
-    BOOL mMissed; // Missed on last bind?
-    BOOL getMissed() const { return mMissed; };
+    bool mMissed; // Missed on last bind?
+    bool getMissed() const { return mMissed; };
 #else
-    BOOL getMissed() const { return FALSE; };
+    bool getMissed() const { return false; };
 #endif
 
 public:
-    static void initClass(LLWindow* window, S32 num_catagories, BOOL skip_analyze_alpha = false, bool thread_texture_loads = false, bool thread_media_updates = false);
+    static void initClass(LLWindow* window, S32 num_catagories, bool skip_analyze_alpha = false, bool thread_texture_loads = false, bool thread_media_updates = false);
     static void cleanupClass() ;
 
 private:
     static S32 sMaxCategories;
-    static BOOL sSkipAnalyzeAlpha;
+    static bool sSkipAnalyzeAlpha;
 
     //the flag to allow to call readBackRaw(...).
     //can be removed if we do not use that function at all.
-    static BOOL sAllowReadBackRaw ;
+    static bool sAllowReadBackRaw ;
 //
 //****************************************************************************************************
 //The below for texture auditing use only
@@ -317,7 +325,7 @@ public:
     static S32 sCurTexSizeBar ;
     static S32 sCurTexPickSize ;
 
-    static void setCurTexSizebar(S32 index, BOOL set_pick_size = TRUE) ;
+    static void setCurTexSizebar(S32 index, bool set_pick_size = true) ;
     static void resetCurTexSizebar();
 
 //****************************************************************************************************

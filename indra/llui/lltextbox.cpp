@@ -39,7 +39,7 @@ static LLDefaultChildRegistry::Register<LLTextBox> r("text");
 
 // Compiler optimization, generate extern template
 template class LLTextBox* LLView::getChild<class LLTextBox>(
-    const std::string& name, BOOL recurse) const;
+    const std::string& name, bool recurse) const;
 
 LLTextBox::LLTextBox(const LLTextBox::Params& p)
 :   LLTextBase(p),
@@ -52,9 +52,9 @@ LLTextBox::LLTextBox(const LLTextBox::Params& p)
 LLTextBox::~LLTextBox()
 {}
 
-BOOL LLTextBox::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLTextBox::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-    BOOL    handled = LLTextBase::handleMouseDown(x, y, mask);
+    bool    handled = LLTextBase::handleMouseDown(x, y, mask);
 
     if (getSoundFlags() & MOUSE_DOWN)
     {
@@ -63,7 +63,7 @@ BOOL LLTextBox::handleMouseDown(S32 x, S32 y, MASK mask)
 
     if (!handled && mClickedCallback)
     {
-        handled = TRUE;
+        handled = true;
     }
 
     if (handled)
@@ -75,9 +75,9 @@ BOOL LLTextBox::handleMouseDown(S32 x, S32 y, MASK mask)
     return handled;
 }
 
-BOOL LLTextBox::handleMouseUp(S32 x, S32 y, MASK mask)
+bool LLTextBox::handleMouseUp(S32 x, S32 y, MASK mask)
 {
-    BOOL    handled = LLTextBase::handleMouseUp(x, y, mask);
+    bool    handled = LLTextBase::handleMouseUp(x, y, mask);
 
     if (getSoundFlags() & MOUSE_UP)
     {
@@ -96,26 +96,26 @@ BOOL LLTextBox::handleMouseUp(S32 x, S32 y, MASK mask)
         if (mClickedCallback && !handled)
         {
             mClickedCallback();
-            handled = TRUE;
+            handled = true;
         }
     }
 
     return handled;
 }
 
-BOOL LLTextBox::handleHover(S32 x, S32 y, MASK mask)
+bool LLTextBox::handleHover(S32 x, S32 y, MASK mask)
 {
-    BOOL handled = LLTextBase::handleHover(x, y, mask);
+    bool handled = LLTextBase::handleHover(x, y, mask);
     if (!handled && mClickedCallback && mShowCursorHand)
     {
         // Clickable text boxes change the cursor to a hand
         LLUI::getInstance()->getWindow()->setCursor(UI_CURSOR_HAND);
-        return TRUE;
+        return true;
     }
     return handled;
 }
 
-void LLTextBox::setEnabled(BOOL enabled)
+void LLTextBox::setEnabled(bool enabled)
 {
     // just treat enabled as read-only flag
     bool read_only = !enabled;
@@ -156,16 +156,16 @@ LLSD LLTextBox::getValue() const
     return getViewModel()->getValue();
 }
 
-BOOL LLTextBox::setTextArg( const std::string& key, const LLStringExplicit& text )
+bool LLTextBox::setTextArg( const std::string& key, const LLStringExplicit& text )
 {
     mText.setArg(key, text);
     LLTextBase::setText(mText.getString());
 
-    return TRUE;
+    return true;
 }
 
 
-void LLTextBox::reshapeToFitText(BOOL called_from_parent)
+void LLTextBox::reshapeToFitText(bool called_from_parent)
 {
     reflow();
 

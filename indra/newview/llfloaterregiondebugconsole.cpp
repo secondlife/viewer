@@ -106,7 +106,7 @@ LLFloaterRegionDebugConsole::~LLFloaterRegionDebugConsole()
     mReplySignalConnection.disconnect();
 }
 
-BOOL LLFloaterRegionDebugConsole::postBuild()
+bool LLFloaterRegionDebugConsole::postBuild()
 {
     LLLineEditor* input = getChild<LLLineEditor>("region_debug_console_input");
     input->setEnableLineHistory(true);
@@ -126,12 +126,12 @@ BOOL LLFloaterRegionDebugConsole::postBuild()
             mOutput->appendText(
                 CONSOLE_NOT_SUPPORTED + PROMPT,
                 false);
-            return TRUE;
+            return true;
         }
     }
 
     mOutput->appendText("> ", false);
-    return TRUE;
+    return true;
 }
 
 void LLFloaterRegionDebugConsole::onInput(LLUICtrl* ctrl, const LLSD& param)

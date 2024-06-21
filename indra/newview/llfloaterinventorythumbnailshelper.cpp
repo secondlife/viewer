@@ -52,7 +52,7 @@ LLFloaterInventoryThumbnailsHelper::~LLFloaterInventoryThumbnailsHelper()
 {
 }
 
-BOOL LLFloaterInventoryThumbnailsHelper::postBuild()
+bool LLFloaterInventoryThumbnailsHelper::postBuild()
 {
     mInventoryThumbnailsList = getChild<LLScrollListCtrl>("inventory_thumbnails_list");
     mInventoryThumbnailsList->setAllowMultipleSelection(true);

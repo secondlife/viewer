@@ -32,6 +32,7 @@ class LL_COMMON_API LLBase64
 {
 public:
     static std::string encode(const U8* input, size_t input_size);
+    static std::string decodeAsString(const std::string& input);
 };
 
 #endif

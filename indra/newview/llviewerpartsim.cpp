@@ -137,7 +137,7 @@ LLViewerPartGroup::LLViewerPartGroup(const LLVector3 &center_agent, const F32 bo
  : mHud(hud)
 {
     mVOPartGroupp = NULL;
-    mUniformParticles = TRUE;
+    mUniformParticles = true;
 
     mRegionp = LLWorld::getInstance()->getRegionFromPosAgent(center_agent);
     llassert_always(center_agent.isFinite());
@@ -220,48 +220,48 @@ void LLViewerPartGroup::cleanup()
     }
 }
 
-BOOL LLViewerPartGroup::posInGroup(const LLVector3 &pos, const F32 desired_size)
+bool LLViewerPartGroup::posInGroup(const LLVector3 &pos, const F32 desired_size)
 {
     if ((pos.mV[VX] < mMinObjPos.mV[VX])
         || (pos.mV[VY] < mMinObjPos.mV[VY])
         || (pos.mV[VZ] < mMinObjPos.mV[VZ]))
     {
-        return FALSE;
+        return false;
     }
 
     if ((pos.mV[VX] > mMaxObjPos.mV[VX])
         || (pos.mV[VY] > mMaxObjPos.mV[VY])
         || (pos.mV[VZ] > mMaxObjPos.mV[VZ]))
     {
-        return FALSE;
+        return false;
     }
 
     if (desired_size > 0 &&
         (desired_size < mBoxRadius*0.5f ||
         desired_size > mBoxRadius*2.f))
     {
-        return FALSE;
+        return false;
     }
 
-    return TRUE;
+    return true;
 }
 
 
-BOOL LLViewerPartGroup::addPart(LLViewerPart* part, F32 desired_size)
+bool LLViewerPartGroup::addPart(LLViewerPart* part, F32 desired_size)
 {
     if (part->mFlags & LLPartData::LL_PART_HUD && !mHud)
     {
-        return FALSE;
+        return false;
     }
 
-    BOOL uniform_part = part->mScale.mV[0] == part->mScale.mV[1] &&
+    bool uniform_part = part->mScale.mV[0] == part->mScale.mV[1] &&
                     !(part->mFlags & LLPartData::LL_PART_FOLLOW_VELOCITY_MASK);
 
     if (!posInGroup(part->mPosAgent, desired_size) ||
         (mUniformParticles && !uniform_part) ||
         (!mUniformParticles && uniform_part))
     {
-        return FALSE;
+        return false;
     }
 
     gPipeline.markRebuild(mVOPartGroupp->mDrawable, LLDrawable::REBUILD_ALL);
@@ -269,7 +269,7 @@ BOOL LLViewerPartGroup::addPart(LLViewerPart* part, F32 desired_size)
     mParticles.push_back(part);
     part->mSkipOffset=mSkippedTime;
     LLViewerPartSim::incPartCount(1);
-    return TRUE;
+    return true;
 }
 
 
@@ -279,7 +279,7 @@ void LLViewerPartGroup::updateParticles(const F32 lastdt)
 
     LLVector3 gravity(0.f, 0.f, GRAVITY);
 
-    LLViewerPartSim::checkParticleCount(mParticles.size());
+    LLViewerPartSim::checkParticleCount(static_cast<U32>(mParticles.size()));
 
     LLViewerCamera* camera = LLViewerCamera::getInstance();
     LLViewerRegion *regionp = getRegion();
@@ -525,11 +525,11 @@ void LLViewerPartSim::destroyClass()
 }
 
 //static
-BOOL LLViewerPartSim::shouldAddPart()
+bool LLViewerPartSim::shouldAddPart()
 {
     if (sParticleCount >= MAX_PART_COUNT)
     {
-        return FALSE;
+        return false;
     }
 
     if (sParticleCount > PART_THROTTLE_THRESHOLD*sMaxParticleCount)
@@ -540,7 +540,7 @@ BOOL LLViewerPartSim::shouldAddPart()
         if (ll_frand() < frac)
         {
             // Skip...
-            return FALSE;
+            return false;
         }
     }
 
@@ -548,10 +548,10 @@ BOOL LLViewerPartSim::shouldAddPart()
     const F32 MIN_FRAME_RATE_FOR_NEW_PARTICLES = 4.f;
     if (gFPSClamped < MIN_FRAME_RATE_FOR_NEW_PARTICLES)
     {
-        return FALSE;
+        return false;
     }
 
-    return TRUE;
+    return true;
 }
 
 void LLViewerPartSim::addPart(LLViewerPart* part)
@@ -701,30 +701,30 @@ void LLViewerPartSim::updateSimulation()
 
         if (!mViewerPartSources[i]->isDead())
         {
-            BOOL upd = TRUE;
+            bool upd = true;
             LLViewerObject* vobj = mViewerPartSources[i]->mSourceObjectp;
 
             if (vobj && vobj->isAvatar() && ((LLVOAvatar*)vobj)->isInMuteList())
             {
-                upd = FALSE;
+                upd = false;
             }
 
             if(vobj && vobj->isOwnerInMuteList(mViewerPartSources[i]->getOwnerUUID()))
             {
-                upd = FALSE;
+                upd = false;
             }
 
             if (upd && vobj && (vobj->getPCode() == LL_PCODE_VOLUME))
             {
                 if(vobj->getAvatar() && vobj->getAvatar()->isTooComplex() && vobj->getAvatar()->isTooSlow())
                 {
-                    upd = FALSE;
+                    upd = false;
                 }
 
                 LLVOVolume* vvo = (LLVOVolume *)vobj;
                 if (!LLPipeline::sRenderAttachedParticles && vvo && vvo->isAttachment())
                 {
-                    upd = FALSE;
+                    upd = false;
                 }
             }
 

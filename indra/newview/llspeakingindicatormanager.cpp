@@ -109,9 +109,9 @@ private:
      * Changes state of indicators specified by LLUUIDs
      *
      * @param speakers_uuids - avatars' LLUUIDs whose speaking indicators should be switched
-     * @param switch_on - if TRUE specified indicator will be switched on, off otherwise.
+     * @param switch_on - if true specified indicator will be switched on, off otherwise.
      */
-    void switchSpeakerIndicators(const speaker_ids_t& speakers_uuids, BOOL switch_on);
+    void switchSpeakerIndicators(const speaker_ids_t& speakers_uuids, bool switch_on);
 
     /**
      * Ensures that passed instance of Speaking Indicator does not exist among registered ones.
@@ -154,7 +154,7 @@ void SpeakingIndicatorManager::registerSpeakingIndicator(const LLUUID& speaker_i
     mSpeakingIndicators.insert(value_type);
 
     speaker_ids_t speakers_uuids;
-    BOOL is_in_same_voice = LLVoiceClient::getInstance()->isParticipant(speaker_id);
+    bool is_in_same_voice = LLVoiceClient::getInstance()->isParticipant(speaker_id);
 
     speakers_uuids.insert(speaker_id);
     switchSpeakerIndicators(speakers_uuids, is_in_same_voice);
@@ -201,7 +201,7 @@ void SpeakingIndicatorManager::cleanupSingleton()
 
 void SpeakingIndicatorManager::sOnCurrentChannelChanged(const LLUUID& /*session_id*/)
 {
-    switchSpeakerIndicators(mSwitchedIndicatorsOn, FALSE);
+    switchSpeakerIndicators(mSwitchedIndicatorsOn, false);
     mSwitchedIndicatorsOn.clear();
 }
 
@@ -214,15 +214,15 @@ void SpeakingIndicatorManager::onParticipantsChanged()
 
     LL_DEBUGS("SpeakingIndicator") << "Switching all OFF, count: " << mSwitchedIndicatorsOn.size() << LL_ENDL;
     // switch all indicators off
-    switchSpeakerIndicators(mSwitchedIndicatorsOn, FALSE);
+    switchSpeakerIndicators(mSwitchedIndicatorsOn, false);
     mSwitchedIndicatorsOn.clear();
 
     LL_DEBUGS("SpeakingIndicator") << "Switching all ON, count: " << speakers_uuids.size() << LL_ENDL;
     // then switch current voice participants indicators on
-    switchSpeakerIndicators(speakers_uuids, TRUE);
+    switchSpeakerIndicators(speakers_uuids, true);
 }
 
-void SpeakingIndicatorManager::switchSpeakerIndicators(const speaker_ids_t& speakers_uuids, BOOL switch_on)
+void SpeakingIndicatorManager::switchSpeakerIndicators(const speaker_ids_t& speakers_uuids, bool switch_on)
 {
     LLVoiceChannel* voice_channel = LLVoiceChannel::getCurrentVoiceChannel();
     LLUUID session_id;

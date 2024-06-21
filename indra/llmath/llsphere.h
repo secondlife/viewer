@@ -47,11 +47,11 @@ public:
     const LLVector3& getCenter() const;
     F32 getRadius() const;
 
-    // returns TRUE if this sphere completely contains other_sphere
-    BOOL contains(const LLSphere& other_sphere) const;
+    // returns true if this sphere completely contains other_sphere
+    bool contains(const LLSphere& other_sphere) const;
 
-    // returns TRUE if this sphere overlaps other_sphere
-    BOOL overlaps(const LLSphere& other_sphere) const;
+    // returns true if this sphere overlaps other_sphere
+    bool overlaps(const LLSphere& other_sphere) const;
 
     // returns overlap distance
     // negative overlap is closest approach

@@ -99,7 +99,7 @@ namespace tut
     {
         F32 x = 2.32f, y = 1.212f, z = -.12f;
         LLVector3 vec3(x,y,z);
-        ensure("1:isFinite= Fail to initialize ", (TRUE == vec3.isFinite()));//need more test cases:
+        ensure("1:isFinite= Fail to initialize ", (true == vec3.isFinite()));//need more test cases:
         vec3.clearVec();
         ensure("2:clearVec:Fail to set values ", ((0.f == vec3.mV[VX]) && (0.f == vec3.mV[VY]) && (0.f == vec3.mV[VZ])));
         vec3.setVec(x,y,z);
@@ -137,10 +137,10 @@ namespace tut
         F32 x = 2.32f, y = 3.212f, z = -.12f;
         F32 min = 0.0001f, max = 3.0f;
         LLVector3 vec3(x,y,z);
-        ensure("1:clamp:Fail  ", TRUE == vec3.clamp(min, max) && x == vec3.mV[VX] && max == vec3.mV[VY] && min == vec3.mV[VZ]);
+        ensure("1:clamp:Fail  ", true == vec3.clamp(min, max) && x == vec3.mV[VX] && max == vec3.mV[VY] && min == vec3.mV[VZ]);
         x = 1.f, y = 2.2f, z = 2.8f;
         vec3.setVec(x,y,z);
-        ensure("2:clamp:Fail  ", FALSE == vec3.clamp(min, max));
+        ensure("2:clamp:Fail  ", false == vec3.clamp(min, max));
     }
 
     template<> template<>
@@ -157,11 +157,11 @@ namespace tut
     {
         F32 x =-2.0f, y = -3.0f, z = 1.23f ;
         LLVector3 vec3(x,y,z);
-        ensure("1:abs():Fail ", (TRUE == vec3.abs()));
-        ensure("2:isNull():Fail", (FALSE == vec3.isNull()));    //Returns TRUE if vector has a _very_small_ length
+        ensure("1:abs():Fail ", (true == vec3.abs()));
+        ensure("2:isNull():Fail", (false == vec3.isNull()));    //Returns true if vector has a _very_small_ length
         x =.00000001f, y = .000001001f, z = .000001001f;
         vec3.setVec(x,y,z);
-        ensure("3:isNull(): Fail ", (TRUE == vec3.isNull()));
+        ensure("3:isNull(): Fail ", (true == vec3.isNull()));
     }
 
     template<> template<>
@@ -169,13 +169,13 @@ namespace tut
     {
         F32 x =-2.0f, y = -3.0f, z = 1.f ;
         LLVector3 vec3(x,y,z),vec3a;
-        ensure("1:isExactlyZero():Fail ", (TRUE == vec3a.isExactlyZero()));
+        ensure("1:isExactlyZero():Fail ", (true == vec3a.isExactlyZero()));
         vec3a = vec3a.scaleVec(vec3);
         ensure("2:scaleVec: Fail ", vec3a.mV[VX] == 0.f && vec3a.mV[VY] == 0.f && vec3a.mV[VZ] == 0.f);
         vec3a.setVec(x,y,z);
         vec3a = vec3a.scaleVec(vec3);
         ensure("3:scaleVec: Fail ", ((4 == vec3a.mV[VX]) && (9 == vec3a.mV[VY]) &&(1 == vec3a.mV[VZ])));
-        ensure("4:isExactlyZero():Fail ", (FALSE == vec3.isExactlyZero()));
+        ensure("4:isExactlyZero():Fail ", (false == vec3.isExactlyZero()));
     }
 
     template<> template<>
@@ -356,7 +356,7 @@ namespace tut
         vec3.clearVec();
         vec3.clearVec();
         vec3a.setVec(vec3);
-        ensure("2:operator!= failed", ( FALSE == (vec3a != vec3)));
+        ensure("2:operator!= failed", ( false == (vec3a != vec3)));
     }
 
     template<> template<>
@@ -454,15 +454,15 @@ namespace tut
     {
         F32 x1 =-2.3f, y1 = 2.f,z1 = 1.2f, x2 = 1.3f, y2 = 1.11f, z2 = 1234.234f;
         LLVector3 vec3(x1,y1,z1), vec3a(x2,y2,z2);
-        ensure("1:operator< failed", (TRUE == (vec3 < vec3a)));
+        ensure("1:operator< failed", (true == (vec3 < vec3a)));
         x1 =-2.3f, y1 = 2.f,z1 = 1.2f, x2 = 1.3f, y2 = 2.f, z2 = 1234.234f;
         vec3.setVec(x1,y1,z1);
         vec3a.setVec(x2,y2,z2);
-        ensure("2:operator< failed ", (TRUE == (vec3 < vec3a)));
+        ensure("2:operator< failed ", (true == (vec3 < vec3a)));
         x1 =2.3f, y1 = 2.f,z1 = 1.2f, x2 = 1.3f,
         vec3.setVec(x1,y1,z1);
         vec3a.setVec(x2,y2,z2);
-        ensure("3:operator< failed ", (FALSE == (vec3 < vec3a)));
+        ensure("3:operator< failed ", (false == (vec3 < vec3a)));
     }
 
     template<> template<>

@@ -786,7 +786,7 @@ void AISAPI::FetchOrphans(completion_t callback)
 void AISAPI::EnqueueAISCommand(const std::string &procName, LLCoprocedureManager::CoProcedure_t proc)
 {
     LLCoprocedureManager &inst = LLCoprocedureManager::instance();
-    S32 pending_in_pool = inst.countPending("AIS");
+    auto pending_in_pool = inst.countPending("AIS");
     std::string procFullName = "AIS(" + procName + ")";
     if (pending_in_pool < MAX_SIMULTANEOUS_COROUTINES)
     {
@@ -815,7 +815,7 @@ void AISAPI::onIdle(void *userdata)
     if (!sPostponedQuery.empty())
     {
         LLCoprocedureManager &inst = LLCoprocedureManager::instance();
-        S32 pending_in_pool = inst.countPending("AIS");
+        auto pending_in_pool = inst.countPending("AIS");
         while (pending_in_pool < MAX_SIMULTANEOUS_COROUTINES && !sPostponedQuery.empty())
         {
             ais_query_item_t &item = sPostponedQuery.front();
@@ -1198,7 +1198,7 @@ void AISUpdate::parseItem(const LLSD& item_map)
         // Default to current values where not provided.
         new_item->copyViewerItem(curr_item);
     }
-    BOOL rv = new_item->unpackMessage(item_map);
+    bool rv = new_item->unpackMessage(item_map);
     if (rv)
     {
         if (mFetch)
@@ -1243,7 +1243,7 @@ void AISUpdate::parseLink(const LLSD& link_map, S32 depth)
         // Default to current values where not provided.
         new_link->copyViewerItem(curr_link);
     }
-    BOOL rv = new_link->unpackMessage(link_map);
+    bool rv = new_link->unpackMessage(link_map);
     if (rv)
     {
         const LLUUID& parent_id = new_link->getParentUUID();
@@ -1340,7 +1340,7 @@ void AISUpdate::parseCategory(const LLSD& category_map, S32 depth)
             new_cat = new LLViewerInventoryCategory(LLUUID::null);
         }
     }
-    BOOL rv = new_cat->unpackMessage(category_map);
+    bool rv = new_cat->unpackMessage(category_map);
     // *NOTE: unpackMessage does not unpack version or descendent count.
     if (rv)
     {
@@ -1356,7 +1356,7 @@ void AISUpdate::parseCategory(const LLSD& category_map, S32 depth)
             uuid_int_map_t::const_iterator lookup_it = mCatDescendentsKnown.find(category_id);
             if (mCatDescendentsKnown.end() != lookup_it)
             {
-                S32 descendent_count = lookup_it->second;
+                S32 descendent_count = static_cast<S32>(lookup_it->second);
                 LL_DEBUGS("Inventory") << "Setting descendents count to " << descendent_count
                     << " for category " << category_id << LL_ENDL;
                 new_cat->setDescendentCount(descendent_count);
@@ -1409,7 +1409,7 @@ void AISUpdate::parseCategory(const LLSD& category_map, S32 depth)
             uuid_int_map_t::const_iterator lookup_it = mCatDescendentsKnown.find(category_id);
             if (mCatDescendentsKnown.end() != lookup_it)
             {
-                S32 descendent_count = lookup_it->second;
+                S32 descendent_count = static_cast<S32>(lookup_it->second);
                 LL_DEBUGS("Inventory") << "Setting descendents count to " << descendent_count
                     << " for new category " << category_id << LL_ENDL;
                 new_cat->setDescendentCount(descendent_count);
@@ -1585,7 +1585,7 @@ void AISUpdate::doUpdate()
     checkTimeout();
 
     // Do version/descendant accounting.
-    for (std::map<LLUUID,S32>::const_iterator catit = mCatDescendentDeltas.begin();
+    for (std::map<LLUUID,size_t>::const_iterator catit = mCatDescendentDeltas.begin();
          catit != mCatDescendentDeltas.end(); ++catit)
     {
         LL_DEBUGS("Inventory") << "descendant accounting for " << catit->first << LL_ENDL;
@@ -1609,7 +1609,7 @@ void AISUpdate::doUpdate()
         LLViewerInventoryCategory* cat = gInventory.getCategory(cat_id);
         if (cat)
         {
-            S32 descendent_delta = catit->second;
+            S32 descendent_delta = static_cast<S32>(catit->second);
             S32 old_count = cat->getDescendentCount();
             LL_DEBUGS("Inventory") << "Updating descendant count for "
                                    << cat->getName() << " " << cat_id
@@ -1678,7 +1678,7 @@ void AISUpdate::doUpdate()
                 LLPointer<LLViewerInventoryItem> new_item = lost_it->second;
 
                 new_item->setParent(lost_uuid);
-                new_item->updateParentOnServer(FALSE);
+                new_item->updateParentOnServer(false);
             }
         }
     }
@@ -1733,7 +1733,7 @@ void AISUpdate::doUpdate()
          ucv_it != mCatVersionsUpdated.end(); ++ucv_it)
     {
         const LLUUID id = ucv_it->first;
-        S32 version = ucv_it->second;
+        S32 version = static_cast<S32>(ucv_it->second);
         LLViewerInventoryCategory *cat = gInventory.getCategory(id);
         LL_DEBUGS("Inventory") << "cat version update " << cat->getName() << " to version " << cat->getVersion() << LL_ENDL;
         if (cat->getVersion() != version)

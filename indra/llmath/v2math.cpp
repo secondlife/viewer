@@ -42,13 +42,13 @@ LLVector2 LLVector2::zero(0,0);
 // Non-member functions
 
 // Sets all values to absolute value of their original values
-// Returns TRUE if data changed
-BOOL LLVector2::abs()
+// Returns true if data changed
+bool LLVector2::abs()
 {
-    BOOL ret = FALSE;
+    bool ret{ false };
 
-    if (mV[0] < 0.f) { mV[0] = -mV[0]; ret = TRUE; }
-    if (mV[1] < 0.f) { mV[1] = -mV[1]; ret = TRUE; }
+    if (mV[0] < 0.f) { mV[0] = -mV[0]; ret = true; }
+    if (mV[1] < 0.f) { mV[1] = -mV[1]; ret = true; }
 
     return ret;
 }
@@ -67,7 +67,7 @@ F32 angle_between(const LLVector2& a, const LLVector2& b)
     return angle;
 }
 
-BOOL are_parallel(const LLVector2 &a, const LLVector2 &b, float epsilon)
+bool are_parallel(const LLVector2 &a, const LLVector2 &b, float epsilon)
 {
     LLVector2 an = a;
     LLVector2 bn = b;
@@ -76,9 +76,9 @@ BOOL are_parallel(const LLVector2 &a, const LLVector2 &b, float epsilon)
     F32 dot = an * bn;
     if ( (1.0f - fabs(dot)) < epsilon)
     {
-        return TRUE;
+        return true;
     }
-    return FALSE;
+    return false;
 }
 
 

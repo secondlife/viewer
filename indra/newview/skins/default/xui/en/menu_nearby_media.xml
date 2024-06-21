@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu
+     name="menu_nearby_media"
+     left="0"
+     bottom="0"
+     visible="false"
+     mouse_opaque="false">
+    <menu_item_call
+     label="Copy Url"
+     name="copy_url">
+        <menu_item_call.on_click
+         function="SelectedMediaCtrl.Action"
+         parameter="copy_url" />
+    </menu_item_call>
+    <menu_item_call
+     label="Copy Data"
+     name="copy_data">
+        <menu_item_call.on_click
+         function="SelectedMediaCtrl.Action"
+         parameter="copy_data" />
+        <menu_item_call.on_visible
+         function="SelectedMediaCtrl.Visible"
+         parameter="copy_data" />
+    </menu_item_call>
+</toggleable_menu>

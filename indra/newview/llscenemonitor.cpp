@@ -154,7 +154,7 @@ void LLSceneMonitor::generateDitheringTexture(S32 width, S32 height)
         }
     }
 
-    mDitheringTexture = LLViewerTextureManager::getLocalTexture(image_raw.get(), FALSE) ;
+    mDitheringTexture = LLViewerTextureManager::getLocalTexture(image_raw.get(), false) ;
     mDitheringTexture->setAddressMode(LLTexUnit::TAM_WRAP);
     mDitheringTexture->setFilteringOption(LLTexUnit::TFO_POINT);
 
@@ -233,7 +233,7 @@ void LLSceneMonitor::freezeScene()
     }
 
     // freeze everything else
-    gSavedSettings.setBOOL("FreezeTime", TRUE);
+    gSavedSettings.setBOOL("FreezeTime", true);
 
     //disable sky, water and clouds
     gPipeline.clearRenderTypeMask(LLPipeline::RENDER_TYPE_SKY, LLPipeline::RENDER_TYPE_WL_SKY,
@@ -254,7 +254,7 @@ void LLSceneMonitor::unfreezeScene()
     }
 
     // thaw everything else
-    gSavedSettings.setBOOL("FreezeTime", FALSE);
+    gSavedSettings.setBOOL("FreezeTime", false);
 
     //enable sky, water and clouds
     gPipeline.setRenderTypeMask(LLPipeline::RENDER_TYPE_SKY, LLPipeline::RENDER_TYPE_WL_SKY,
@@ -527,7 +527,7 @@ void LLSceneMonitor::dumpToFile(const std::string &file_name)
         os << std::setprecision(10);
 
         LLTrace::PeriodicRecording& scene_load_recording = mSceneLoadRecording.getResults();
-        const U32 frame_count = scene_load_recording.getNumRecordedPeriods();
+        const auto frame_count = scene_load_recording.getNumRecordedPeriods();
 
         F64Seconds frame_time;
 
@@ -673,7 +673,7 @@ LLSceneMonitorView::LLSceneMonitorView(const LLRect& rect)
     :   LLFloater(LLSD())
 {
     setRect(rect);
-    setVisible(FALSE);
+    setVisible(false);
 
     setCanMinimize(false);
     setCanClose(true);
@@ -704,7 +704,7 @@ void LLSceneMonitorView::onTeleportFinished()
     }
 }
 
-void LLSceneMonitorView::onVisibilityChange(BOOL visible)
+void LLSceneMonitorView::onVisibilityChange(bool visible)
 {
     LLSceneMonitor::getInstance()->setDebugViewerVisible(visible);
 }

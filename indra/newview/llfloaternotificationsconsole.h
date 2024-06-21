@@ -41,7 +41,7 @@ class LLFloaterNotificationConsole :
 public:
 
     // LLPanel
-    BOOL postBuild();
+    bool postBuild();
 
     void addChannel(const std::string& type, bool open = false);
     void updateResizeLimits(LLLayoutStack &stack);
@@ -64,7 +64,7 @@ public:
     LLFloaterNotification(LLNotification* note);
 
     // LLPanel
-    BOOL postBuild();
+    bool postBuild();
     void respond();
 
 private:

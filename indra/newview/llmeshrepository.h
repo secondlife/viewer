@@ -533,13 +533,13 @@ public:
     // Inherited from LLCore::HttpHandler
     virtual void onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response);
 
-        LLViewerFetchedTexture* FindViewerTexture(const LLImportMaterial& material);
+    static LLViewerFetchedTexture* FindViewerTexture(const LLImportMaterial& material);
 
 private:
     LLHandle<LLWholeModelFeeObserver> mFeeObserverHandle;
     LLHandle<LLWholeModelUploadObserver> mUploadObserverHandle;
 
-    bool mDoUpload; // if FALSE only model data will be requested, otherwise the model will be uploaded
+    bool mDoUpload; // if false only model data will be requested, otherwise the model will be uploaded
     LLSD mModelData;
 
     // llcorehttp library interface objects.

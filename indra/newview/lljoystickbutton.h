@@ -63,9 +63,9 @@ public:
     };
     LLJoystick(const Params&);
 
-    virtual BOOL    handleMouseDown(S32 x, S32 y, MASK mask);
-    virtual BOOL    handleMouseUp(S32 x, S32 y, MASK mask);
-    virtual BOOL    handleHover(S32 x, S32 y, MASK mask);
+    virtual bool    handleMouseDown(S32 x, S32 y, MASK mask);
+    virtual bool    handleMouseUp(S32 x, S32 y, MASK mask);
+    virtual bool    handleHover(S32 x, S32 y, MASK mask);
 
     virtual void    onMouseUp() {}
     virtual void    onHeldDown() = 0;
@@ -100,7 +100,7 @@ protected:
     S32                 mVertSlopFar;               // where the slop regions end
     S32                 mHorizSlopNear;             // where the slop regions end
     S32                 mHorizSlopFar;              // where the slop regions end
-    BOOL                mHeldDown;
+    bool                mHeldDown;
     LLFrameTimer        mHeldDownTimer;
 };
 
@@ -145,11 +145,11 @@ public:
 
     LLJoystickCameraRotate(const LLJoystickCameraRotate::Params&);
 
-    virtual void    setToggleState( BOOL left, BOOL top, BOOL right, BOOL bottom );
+    virtual void    setToggleState( bool left, bool top, bool right, bool bottom );
 
-    virtual BOOL    handleMouseDown(S32 x, S32 y, MASK mask);
-    virtual BOOL    handleMouseUp(S32 x, S32 y, MASK mask);
-    virtual BOOL    handleHover(S32 x, S32 y, MASK mask);
+    virtual bool    handleMouseDown(S32 x, S32 y, MASK mask);
+    virtual bool    handleMouseUp(S32 x, S32 y, MASK mask);
+    virtual bool    handleHover(S32 x, S32 y, MASK mask);
     virtual void    onHeldDown();
     virtual void    resetJoystickCamera();
     virtual void    draw();
@@ -160,11 +160,11 @@ protected:
     void            drawRotatedImage( LLPointer<LLUIImage> image, S32 rotations );
 
 protected:
-    BOOL            mInLeft;
-    BOOL            mInTop;
-    BOOL            mInRight;
-    BOOL            mInBottom;
-    BOOL            mInCenter;
+    bool            mInLeft;
+    bool            mInTop;
+    bool            mInRight;
+    bool            mInBottom;
+    bool            mInCenter;
 
     std::string     mCenterImageName;
 };
@@ -199,10 +199,10 @@ public:
 
     LLJoystickQuaternion(const LLJoystickQuaternion::Params &);
 
-    virtual void    setToggleState(BOOL left, BOOL top, BOOL right, BOOL bottom);
+    virtual void    setToggleState(bool left, bool top, bool right, bool bottom);
 
-    virtual BOOL    handleMouseDown(S32 x, S32 y, MASK mask);
-    virtual BOOL    handleMouseUp(S32 x, S32 y, MASK mask);
+    virtual bool    handleMouseDown(S32 x, S32 y, MASK mask);
+    virtual bool    handleMouseUp(S32 x, S32 y, MASK mask);
     virtual void    onHeldDown();
     virtual void    draw();
 
@@ -214,10 +214,10 @@ protected:
     virtual void    updateSlop();
     void            drawRotatedImage(LLPointer<LLUIImage> image, S32 rotations);
 
-    BOOL            mInLeft;
-    BOOL            mInTop;
-    BOOL            mInRight;
-    BOOL            mInBottom;
+    bool            mInLeft;
+    bool            mInTop;
+    bool            mInRight;
+    bool            mInBottom;
 
     S32             mXAxisIndex;
     S32             mYAxisIndex;

@@ -124,7 +124,7 @@ public:
     LLPanelOutfitEdit();
     /*virtual*/ ~LLPanelOutfitEdit();
 
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
     /*virtual*/ void onOpen(const LLSD& key);
 
     void moveWearable(bool closer_to_body);
@@ -181,7 +181,7 @@ public:
 
     void resetAccordionState();
 
-    virtual BOOL    handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+    virtual bool    handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
                                       EDragAndDropType cargo_type,
                                       void* cargo_data,
                                       EAcceptance* accept,

@@ -1945,6 +1945,15 @@
             <key>tooltip</key>
             <string/>
          </map>
+         <key>INVENTORY_SETTING</key>
+         <map>
+            <key>type</key>
+            <string>integer</string>
+            <key>value</key>
+            <integer>56</integer>
+            <key>tooltip</key>
+            <string/>
+         </map>
          <key>INVENTORY_SOUND</key>
          <map>
             <key>type</key>

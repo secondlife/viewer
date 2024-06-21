@@ -27,7 +27,7 @@ for LLKDECONFIG in kde-config kde4-config; do
         LLKDEPROTODIR=`$LLKDECONFIG --path services | cut -d ':' -f 1`
         if [ -d "$LLKDEPROTODIR" ]; then
             LLKDEPROTOFILE=${LLKDEPROTODIR}/secondlife.protocol
-            cat > ${LLKDEPROTOFILE} <<EOF || echo Warning: Did not register secondlife:// handler with KDE: Could not write ${LLKDEPROTOFILE} 
+            cat > ${LLKDEPROTOFILE} <<EOF || echo Warning: Did not register secondlife:// handler with KDE: Could not write ${LLKDEPROTOFILE}
 [Protocol]
 exec=${HANDLER} '%u'
 protocol=secondlife

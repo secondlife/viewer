@@ -27,7 +27,6 @@
 
 out vec4 frag_color;
 
-uniform sampler2D depthMap;
 uniform sampler2D diffuseRect;
 uniform sampler2D specularRect;
 uniform sampler2D emissiveRect; // PBR linear packed Occlusion, Roughness, Metal. See: pbropaqueF.glsl
@@ -56,8 +55,8 @@ vec3 srgb_to_linear(vec3 c);
 // Util
 vec3 hue_to_rgb(float hue);
 
-vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor, 
-                    float perceptualRoughness, 
+vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
+                    float perceptualRoughness,
                     float metallic,
                     vec3 n, // normal
                     vec3 v, // surface point to camera
@@ -91,7 +90,7 @@ void main()
         float metallic = orm.b;
         vec3 f0 = vec3(0.04);
         vec3 baseColor = diffuse.rgb;
-        
+
         vec3 diffuseColor = baseColor.rgb*(vec3(1.0)-f0);
         diffuseColor *= 1.0 - metallic;
 

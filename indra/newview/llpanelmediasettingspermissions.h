@@ -44,7 +44,7 @@ public:
     LLPanelMediaSettingsPermissions();
     ~LLPanelMediaSettingsPermissions();
 
-    BOOL postBuild();
+    bool postBuild();
     virtual void draw();
 
     // XXX TODO: put these into a common parent class?

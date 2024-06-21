@@ -471,13 +471,13 @@ namespace tut
 
         LLRectf rect(1.0f, 3.0f, 3.0f, 1.0f);
 
-        ensure("(0,0) not in rect", rect.pointInRect(0.0f, 0.0f) == FALSE);
-        ensure("(2,2) in rect", rect.pointInRect(2.0f, 2.0f) == TRUE);
-        ensure("(1,1) in rect", rect.pointInRect(1.0f, 1.0f) == TRUE);
-        ensure("(3,3) not in rect", rect.pointInRect(3.0f, 3.0f) == FALSE);
-        ensure("(2.999,2.999) in rect", rect.pointInRect(2.999f, 2.999f) == TRUE);
-        ensure("(2.999,3.0) not in rect", rect.pointInRect(2.999f, 3.0f) == FALSE);
-        ensure("(3.0,2.999) not in rect", rect.pointInRect(3.0f, 2.999f) == FALSE);
+        ensure("(0,0) not in rect", rect.pointInRect(0.0f, 0.0f) == false);
+        ensure("(2,2) in rect", rect.pointInRect(2.0f, 2.0f) == true);
+        ensure("(1,1) in rect", rect.pointInRect(1.0f, 1.0f) == true);
+        ensure("(3,3) not in rect", rect.pointInRect(3.0f, 3.0f) == false);
+        ensure("(2.999,2.999) in rect", rect.pointInRect(2.999f, 2.999f) == true);
+        ensure("(2.999,3.0) not in rect", rect.pointInRect(2.999f, 3.0f) == false);
+        ensure("(3.0,2.999) not in rect", rect.pointInRect(3.0f, 2.999f) == false);
     }
 
     template<> template<>
@@ -489,13 +489,13 @@ namespace tut
 
         LLRectf rect(1.0f, 3.0f, 3.0f, 1.0f);
 
-        ensure("(0,0) in local rect", rect.localPointInRect(0.0f, 0.0f) == TRUE);
-        ensure("(-0.0001,-0.0001) not in local rect", rect.localPointInRect(-0.0001f, -0.001f) == FALSE);
-        ensure("(1,1) in local rect", rect.localPointInRect(1.0f, 1.0f) == TRUE);
-        ensure("(2,2) not in local rect", rect.localPointInRect(2.0f, 2.0f) == FALSE);
-        ensure("(1.999,1.999) in local rect", rect.localPointInRect(1.999f, 1.999f) == TRUE);
-        ensure("(1.999,2.0) not in local rect", rect.localPointInRect(1.999f, 2.0f) == FALSE);
-        ensure("(2.0,1.999) not in local rect", rect.localPointInRect(2.0f, 1.999f) == FALSE);
+        ensure("(0,0) in local rect", rect.localPointInRect(0.0f, 0.0f) == true);
+        ensure("(-0.0001,-0.0001) not in local rect", rect.localPointInRect(-0.0001f, -0.001f) == false);
+        ensure("(1,1) in local rect", rect.localPointInRect(1.0f, 1.0f) == true);
+        ensure("(2,2) not in local rect", rect.localPointInRect(2.0f, 2.0f) == false);
+        ensure("(1.999,1.999) in local rect", rect.localPointInRect(1.999f, 1.999f) == true);
+        ensure("(1.999,2.0) not in local rect", rect.localPointInRect(1.999f, 2.0f) == false);
+        ensure("(2.0,1.999) not in local rect", rect.localPointInRect(2.0f, 1.999f) == false);
     }
 
     template<> template<>

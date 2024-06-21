@@ -70,7 +70,7 @@ static F32 sCurMaxTexPriority = 1.f;
 
 //static counter for frame to switch LOD on
 
-void sg_assert(BOOL expr)
+void sg_assert(bool expr)
 {
 #if LL_OCTREE_PARANOIA_CHECK
     if (!expr)
@@ -136,7 +136,7 @@ void LLSpatialGroup::clearDrawMap()
     mDrawMap.clear();
 }
 
-BOOL LLSpatialGroup::isHUDGroup()
+bool LLSpatialGroup::isHUDGroup()
 {
     return getSpatialPartition() && getSpatialPartition()->isHUDPartition() ;
 }
@@ -218,7 +218,7 @@ void LLSpatialGroup::validateDrawMap()
 #endif
 }
 
-BOOL LLSpatialGroup::updateInGroup(LLDrawable *drawablep, BOOL immediate)
+bool LLSpatialGroup::updateInGroup(LLDrawable *drawablep, bool immediate)
 {
     LL_PROFILE_ZONE_SCOPED;
     drawablep->updateSpatialExtents();
@@ -233,10 +233,10 @@ BOOL LLSpatialGroup::updateInGroup(LLDrawable *drawablep, BOOL immediate)
         unbound();
         setState(OBJECT_DIRTY);
         //setState(GEOM_DIRTY);
-        return TRUE;
+        return true;
     }
 
-    return FALSE;
+    return false;
 }
 
 void LLSpatialGroup::expandExtents(const LLVector4a* addingExtents, const LLXformMatrix& currentTransform)
@@ -293,11 +293,11 @@ void LLSpatialGroup::expandExtents(const LLVector4a* addingExtents, const LLXfor
     mBounds[1].mul(0.5f);
 }
 
-BOOL LLSpatialGroup::addObject(LLDrawable *drawablep)
+bool LLSpatialGroup::addObject(LLDrawable *drawablep)
 {
     if(!drawablep)
     {
-        return FALSE;
+        return false;
     }
     {
         drawablep->setGroup(this);
@@ -314,7 +314,7 @@ BOOL LLSpatialGroup::addObject(LLDrawable *drawablep)
         }
     }
 
-    return TRUE;
+    return true;
 }
 
 void LLSpatialGroup::rebuildGeom()
@@ -407,13 +407,13 @@ LLSpatialGroup* LLSpatialGroup::getParent()
     return (LLSpatialGroup*)LLViewerOctreeGroup::getParent();
     }
 
-BOOL LLSpatialGroup::removeObject(LLDrawable *drawablep, BOOL from_octree)
+bool LLSpatialGroup::removeObject(LLDrawable *drawablep, bool from_octree)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SPATIAL
 
     if(!drawablep)
     {
-        return FALSE;
+        return false;
     }
 
     unbound();
@@ -444,7 +444,7 @@ BOOL LLSpatialGroup::removeObject(LLDrawable *drawablep, BOOL from_octree)
             clearDrawMap();
         }
     }
-    return TRUE;
+    return true;
 }
 
 void LLSpatialGroup::shift(const LLVector4a &offset)
@@ -727,14 +727,14 @@ F32 LLSpatialGroup::getUpdateUrgency() const
     }
 }
 
-BOOL LLSpatialGroup::changeLOD()
+bool LLSpatialGroup::changeLOD()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SPATIAL
 
     if (hasState(ALPHA_DIRTY | OBJECT_DIRTY))
     {
         //a rebuild is going to happen, update distance and LoD
-        return TRUE;
+        return true;
     }
 
     if (getSpatialPartition()->mSlopRatio > 0.f)
@@ -763,16 +763,16 @@ BOOL LLSpatialGroup::changeLOD()
                                    << " fab ratio " << fabsf(ratio)
                                    << " slop " << getSpatialPartition()->mSlopRatio << LL_ENDL;
 
-            return TRUE;
+            return true;
         }
     }
 
     if (needsUpdate())
     {
-        return TRUE;
+        return true;
     }
 
-    return FALSE;
+    return false;
 }
 
 void LLSpatialGroup::handleInsertion(const TreeNode* node, LLViewerOctreeEntry* entry)
@@ -784,7 +784,7 @@ void LLSpatialGroup::handleInsertion(const TreeNode* node, LLViewerOctreeEntry* 
 
 void LLSpatialGroup::handleRemoval(const TreeNode* node, LLViewerOctreeEntry* entry)
 {
-    removeObject((LLDrawable*)entry->getDrawable(), TRUE);
+    removeObject((LLDrawable*)entry->getDrawable(), true);
     LLViewerOctreeGroup::handleRemoval(node, entry);
 }
 
@@ -911,15 +911,15 @@ void LLSpatialGroup::destroyGLState(bool keep_occlusion)
 
 //==============================================
 
-LLSpatialPartition::LLSpatialPartition(U32 data_mask, BOOL render_by_group, LLViewerRegion* regionp)
+LLSpatialPartition::LLSpatialPartition(U32 data_mask, bool render_by_group, LLViewerRegion* regionp)
 : mRenderByGroup(render_by_group), mBridge(NULL)
 {
     mRegionp = regionp;
     mPartitionType = LLViewerRegion::PARTITION_NONE;
     mVertexDataMask = data_mask;
-    mDepthMask = FALSE;
+    mDepthMask = false;
     mSlopRatio = 0.25f;
-    mInfiniteFarClip = FALSE;
+    mInfiniteFarClip = false;
 
     new LLSpatialGroup(mOctree, this);
 }
@@ -930,7 +930,7 @@ LLSpatialPartition::~LLSpatialPartition()
     cleanup();
 }
 
-LLSpatialGroup *LLSpatialPartition::put(LLDrawable *drawablep, BOOL was_visible)
+LLSpatialGroup *LLSpatialPartition::put(LLDrawable *drawablep, bool was_visible)
 {
     LL_PROFILE_ZONE_SCOPED;
     drawablep->updateSpatialExtents();
@@ -956,7 +956,7 @@ LLSpatialGroup *LLSpatialPartition::put(LLDrawable *drawablep, BOOL was_visible)
     return group;
 }
 
-BOOL LLSpatialPartition::remove(LLDrawable *drawablep, LLSpatialGroup *curp)
+bool LLSpatialPartition::remove(LLDrawable *drawablep, LLSpatialGroup *curp)
 {
     LL_PROFILE_ZONE_SCOPED;
     if (!curp->removeObject(drawablep))
@@ -970,10 +970,10 @@ BOOL LLSpatialPartition::remove(LLDrawable *drawablep, LLSpatialGroup *curp)
 
     assert_octree_valid(mOctree);
 
-    return TRUE;
+    return true;
 }
 
-void LLSpatialPartition::move(LLDrawable *drawablep, LLSpatialGroup *curp, BOOL immediate)
+void LLSpatialPartition::move(LLDrawable *drawablep, LLSpatialGroup *curp, bool immediate)
 {
     LL_PROFILE_ZONE_SCOPED;
     // sanity check submitted by open source user bushing Spatula
@@ -984,7 +984,7 @@ void LLSpatialPartition::move(LLDrawable *drawablep, LLSpatialGroup *curp, BOOL 
         return;
     }
 
-    BOOL was_visible = curp ? curp->isVisible() : FALSE;
+    bool was_visible = curp ? curp->isVisible() : false;
 
     if (curp && curp->getSpatialPartition() != this)
     {
@@ -1133,7 +1133,7 @@ class LLOctreeCullVisExtents: public LLOctreeCullShadow
 {
 public:
     LLOctreeCullVisExtents(LLCamera* camera, LLVector4a& min, LLVector4a& max)
-        : LLOctreeCullShadow(camera), mMin(min), mMax(max), mEmpty(TRUE) { }
+        : LLOctreeCullShadow(camera), mMin(min), mMax(max), mEmpty(true) { }
 
     virtual bool earlyFail(LLViewerOctreeGroup* base_group)
     {
@@ -1186,7 +1186,7 @@ public:
         {
             if (AABBInFrustumObjectBounds(group) > 0)
             {
-                mEmpty = FALSE;
+                mEmpty = false;
                 const LLVector4a* exts = group->getObjectExtents();
                 update_min_max(mMin, mMax, exts[0]);
                 update_min_max(mMin, mMax, exts[1]);
@@ -1194,14 +1194,14 @@ public:
         }
         else
         {
-            mEmpty = FALSE;
+            mEmpty = false;
             const LLVector4a* exts = group->getExtents();
             update_min_max(mMin, mMax, exts[0]);
             update_min_max(mMin, mMax, exts[1]);
         }
     }
 
-    BOOL mEmpty;
+    bool mEmpty;
     LLVector4a& mMin;
     LLVector4a& mMax;
 };
@@ -1210,7 +1210,7 @@ class LLOctreeCullDetectVisible: public LLOctreeCullShadow
 {
 public:
     LLOctreeCullDetectVisible(LLCamera* camera)
-        : LLOctreeCullShadow(camera), mResult(FALSE) { }
+        : LLOctreeCullShadow(camera), mResult(false) { }
 
     virtual bool earlyFail(LLViewerOctreeGroup* base_group)
     {
@@ -1231,11 +1231,11 @@ public:
     {
         if (base_group->isVisible())
         {
-            mResult = TRUE;
+            mResult = true;
         }
     }
 
-    BOOL mResult;
+    bool mResult;
 };
 
 class LLOctreeSelect : public LLOctreeCull
@@ -1263,7 +1263,7 @@ public:
             {
                 if (drawable->isSpatialBridge())
                 {
-                    drawable->setVisible(*mCamera, mResults, TRUE);
+                    drawable->setVisible(*mCamera, mResults, true);
                 }
                 else
                 {
@@ -1379,7 +1379,7 @@ void LLSpatialPartition::restoreGL()
 {
 }
 
-BOOL LLSpatialPartition::getVisibleExtents(LLCamera& camera, LLVector3& visMin, LLVector3& visMax)
+bool LLSpatialPartition::getVisibleExtents(LLCamera& camera, LLVector3& visMin, LLVector3& visMax)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SPATIAL;
     LLVector4a visMina, visMaxa;
@@ -1399,14 +1399,14 @@ BOOL LLSpatialPartition::getVisibleExtents(LLCamera& camera, LLVector3& visMin, 
     return vis.mEmpty;
 }
 
-BOOL LLSpatialPartition::visibleObjectsInFrustum(LLCamera& camera)
+bool LLSpatialPartition::visibleObjectsInFrustum(LLCamera& camera)
 {
     LLOctreeCullDetectVisible vis(&camera);
     vis.traverse(mOctree);
     return vis.mResult;
 }
 
-S32 LLSpatialPartition::cull(LLCamera &camera, std::vector<LLDrawable *>* results, BOOL for_select)
+S32 LLSpatialPartition::cull(LLCamera &camera, std::vector<LLDrawable *>* results, bool for_select)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SPATIAL;
 #if LL_OCTREE_PARANOIA_CHECK
@@ -1427,7 +1427,7 @@ S32 LLSpatialPartition::cull(LLCamera &camera, std::vector<LLDrawable *>* result
     return 0;
 }
 
-extern BOOL gCubeSnapshot;
+extern bool gCubeSnapshot;
 
 S32 LLSpatialPartition::cull(LLCamera &camera, bool do_occlusion)
 {
@@ -1609,7 +1609,7 @@ bool check_rigged_group(LLDrawable* drawable)
         {
             for (auto& face : root->getFaces())
             {
-                if ((S32)face->getDrawOrderIndex() <= last_draw_index)
+                if ((S32) face->getDrawOrderIndex() <= last_draw_index)
                 {
                     LL_WARNS() << "[(S32)face->getDrawOrderIndex() <= last_draw_index] is true"
                         " (" << (S32)face->getDrawOrderIndex() << " <= " << last_draw_index << ")" << LL_ENDL;
@@ -1626,7 +1626,7 @@ bool check_rigged_group(LLDrawable* drawable)
             {
                 for (auto& face : child->mDrawable->getFaces())
                 {
-                    if ((S32)face->getDrawOrderIndex() <= last_draw_index)
+                    if ((S32) face->getDrawOrderIndex() <= last_draw_index)
                     {
                         LL_WARNS() << "[(S32)face->getDrawOrderIndex() <= last_draw_index] is true"
                             " (" << (S32)face->getDrawOrderIndex() << " <= " << last_draw_index << ")" << LL_ENDL;
@@ -1662,7 +1662,7 @@ void renderOctree(LLSpatialGroup* group)
         col.setVec(0.1f,0.1f,1,0.1f);
 
         {
-            LLGLDepthTest gl_depth(FALSE, FALSE);
+            LLGLDepthTest gl_depth(false, false);
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
             gGL.diffuseColor4f(1,0,0,group->mBuilt);
@@ -1792,7 +1792,7 @@ std::set<LLSpatialGroup*> visible_selected_groups;
 
 void renderXRay(LLSpatialGroup* group, LLCamera* camera)
 {
-    BOOL render_objects = (!LLPipeline::sUseOcclusion || !group->isOcclusionState(LLSpatialGroup::OCCLUDED)) && group->isVisible() &&
+    bool render_objects = (!LLPipeline::sUseOcclusion || !group->isOcclusionState(LLSpatialGroup::OCCLUDED)) && group->isVisible() &&
                             !group->isEmpty();
 
     if (render_objects)
@@ -1884,7 +1884,7 @@ void renderUpdateType(LLDrawable* drawablep)
     }
 }
 
-void renderBoundingBox(LLDrawable* drawable, BOOL set_color = TRUE)
+void renderBoundingBox(LLDrawable* drawable, bool set_color = true)
 {
     if (set_color)
     {
@@ -2364,12 +2364,12 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume, bool wireframe
                     LLCDMeshData mesh;
                     mesh.mIndexBase = &index[0];
                     mesh.mVertexBase = pos[0].mV;
-                    mesh.mNumVertices = pos.size();
+                    mesh.mNumVertices = static_cast<int>(pos.size());
                     mesh.mVertexStrideBytes = 12;
                     mesh.mIndexStrideBytes = 6;
                     mesh.mIndexType = LLCDMeshData::INT_16;
 
-                    mesh.mNumTriangles = index.size()/3;
+                    mesh.mNumTriangles = static_cast<int>(index.size())/3;
 
                     LLCDMeshData res;
 
@@ -2765,7 +2765,7 @@ void renderTexelDensity(LLDrawable* drawable)
 
         checkerboard_matrix.initScale(LLVector3(texturep->getWidth(discard_level) / 8, texturep->getHeight(discard_level) / 8, 1.f));
 
-        gGL.getTexUnit(0)->bind(LLViewerTexture::sCheckerBoardImagep, TRUE);
+        gGL.getTexUnit(0)->bind(LLViewerTexture::sCheckerBoardImagep, true);
         gGL.matrixMode(LLRender::MM_TEXTURE);
         gGL.loadMatrix((GLfloat*)&checkerboard_matrix.mMatrix);
 
@@ -2818,7 +2818,7 @@ void renderTexelDensity(LLDrawable* drawable)
     //  //gGL.matrixMode(LLRender::MM_TEXTURE);
     //  glLoadMatrixf((GLfloat*) checkboard_matrix.mMatrix);
 
-    //  gGL.getTexUnit(i)->bind(LLViewerTexture::sCheckerBoardImagep, TRUE);
+    //  gGL.getTexUnit(i)->bind(LLViewerTexture::sCheckerBoardImagep, true);
 
     //  pushVerts(params, LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0 | LLVertexBuffer::MAP_COLOR | LLVertexBuffer::MAP_NORMAL );
 
@@ -3455,7 +3455,7 @@ public:
         {
                 continue;
             }
-            renderBoundingBox(drawable, FALSE);
+            renderBoundingBox(drawable, false);
         }
     }
 };
@@ -3644,14 +3644,14 @@ bool LLSpatialPartition::isHUDPartition()
     return mPartitionType == LLViewerRegion::PARTITION_HUD ;
 }
 
-BOOL LLSpatialPartition::isVisible(const LLVector3& v)
+bool LLSpatialPartition::isVisible(const LLVector3& v)
 {
     if (!LLViewerCamera::getInstance()->sphereInFrustum(v, 4.0f))
     {
-        return FALSE;
+        return false;
     }
 
-    return TRUE;
+    return true;
 }
 
 LL_ALIGN_PREFIX(16)
@@ -3667,12 +3667,12 @@ public:
     LLVector4a *mNormal;
     LLVector4a *mTangent;
     LLDrawable* mHit;
-    BOOL mPickTransparent;
-    BOOL mPickRigged;
-    BOOL mPickUnselectable;
-    BOOL mPickReflectionProbe;
+    bool mPickTransparent;
+    bool mPickRigged;
+    bool mPickUnselectable;
+    bool mPickReflectionProbe;
 
-    LLOctreeIntersect(const LLVector4a& start, const LLVector4a& end, BOOL pick_transparent, BOOL pick_rigged, BOOL pick_unselectable, BOOL pick_reflection_probe,
+    LLOctreeIntersect(const LLVector4a& start, const LLVector4a& end, bool pick_transparent, bool pick_rigged, bool pick_unselectable, bool pick_reflection_probe,
                       S32* face_hit, LLVector4a* intersection, LLVector2* tex_coord, LLVector4a* normal, LLVector4a* tangent)
         : mStart(start),
           mEnd(end),
@@ -3793,7 +3793,7 @@ public:
                 }
 
                 if (!skip_check && vobj->lineSegmentIntersect(mStart, mEnd, -1,
-                    (mPickReflectionProbe && vobj->isReflectionProbe()) ? TRUE : mPickTransparent, // always pick transparent when picking selection probe
+                    (mPickReflectionProbe && vobj->isReflectionProbe()) ? true : mPickTransparent, // always pick transparent when picking selection probe
                     mPickRigged, mPickUnselectable, mFaceHit, &intersection, mTexCoord, mNormal, mTangent))
                 {
                     mEnd = intersection;  // shorten ray so we only find CLOSER hits
@@ -3812,10 +3812,10 @@ public:
 } LL_ALIGN_POSTFIX(16);
 
 LLDrawable* LLSpatialPartition::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
-                                                     BOOL pick_transparent,
-                                                     BOOL pick_rigged,
-                                                     BOOL pick_unselectable,
-                                                     BOOL pick_reflection_probe,
+                                                     bool pick_transparent,
+                                                     bool pick_rigged,
+                                                     bool pick_unselectable,
+                                                     bool pick_reflection_probe,
                                                      S32* face_hit,                   // return the face hit
                                                      LLVector4a* intersection,         // return the intersection point
                                                      LLVector2* tex_coord,            // return the texture coordinates of the intersection point
@@ -3831,10 +3831,10 @@ LLDrawable* LLSpatialPartition::lineSegmentIntersect(const LLVector4a& start, co
 }
 
 LLDrawable* LLSpatialGroup::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
-    BOOL pick_transparent,
-    BOOL pick_rigged,
-    BOOL pick_unselectable,
-    BOOL pick_reflection_probe,
+    bool pick_transparent,
+    bool pick_rigged,
+    bool pick_unselectable,
+    bool pick_reflection_probe,
     S32* face_hit,                   // return the face hit
     LLVector4a* intersection,         // return the intersection point
     LLVector2* tex_coord,            // return the texture coordinates of the intersection point

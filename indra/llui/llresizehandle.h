@@ -51,14 +51,14 @@ protected:
     friend class LLUICtrlFactory;
 public:
     virtual void    draw();
-    virtual BOOL    handleHover(S32 x, S32 y, MASK mask);
-    virtual BOOL    handleMouseDown(S32 x, S32 y, MASK mask);
-    virtual BOOL    handleMouseUp(S32 x, S32 y, MASK mask);
+    virtual bool    handleHover(S32 x, S32 y, MASK mask);
+    virtual bool    handleMouseDown(S32 x, S32 y, MASK mask);
+    virtual bool    handleMouseUp(S32 x, S32 y, MASK mask);
 
     void            setResizeLimits( S32 min_width, S32 min_height ) { mMinWidth = min_width; mMinHeight = min_height; }
 
 private:
-    BOOL            pointInHandle( S32 x, S32 y );
+    bool            pointInHandle( S32 x, S32 y );
 
     S32             mDragLastScreenX;
     S32             mDragLastScreenY;

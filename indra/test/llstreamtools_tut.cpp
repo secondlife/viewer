@@ -846,7 +846,7 @@ namespace tut
         char buf[255] = {0};
 
         fullread(is, buf, 255);
-        ensure_memory_matches("fullread: read with newlines", (void*) buf,  str.size()-1, (void*) str.c_str(), str.size()-1);
+        ensure_memory_matches("fullread: read with newlines", (void*) buf, static_cast<U32>(str.size())-1, (void*) str.c_str(), static_cast<U32>(str.size())-1);
 
         is.clear();
         is.str(str = "First Line.\nSecond Line\n");

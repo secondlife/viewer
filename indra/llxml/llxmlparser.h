@@ -43,7 +43,7 @@ public:
     virtual ~LLXmlParser();
 
     // Parses entire file
-    BOOL parseFile(const std::string &path);
+    bool parseFile(const std::string &path);
 
     //  Parses some input. Returns 0 if a fatal error is detected.
     //  The last call must have isFinal true;

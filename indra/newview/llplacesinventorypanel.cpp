@@ -48,7 +48,7 @@ LLPlacesInventoryPanel::LLPlacesInventoryPanel(const Params& p) :
 {
     mInvFVBridgeBuilder = &PLACES_INVENTORY_BUILDER;
     mSavedFolderState = new LLSaveFolderState();
-    mSavedFolderState->setApply(FALSE);
+    mSavedFolderState->setApply(false);
 }
 
 
@@ -90,14 +90,14 @@ LLFolderView * LLPlacesInventoryPanel::createFolderRoot(LLUUID root_id )
 // save current folder open state
 void LLPlacesInventoryPanel::saveFolderState()
 {
-    mSavedFolderState->setApply(FALSE);
+    mSavedFolderState->setApply(false);
     mFolderRoot.get()->applyFunctorRecursively(*mSavedFolderState);
 }
 
 // re-open folders which state was saved
 void LLPlacesInventoryPanel::restoreFolderState()
 {
-    mSavedFolderState->setApply(TRUE);
+    mSavedFolderState->setApply(true);
     mFolderRoot.get()->applyFunctorRecursively(*mSavedFolderState);
     LLOpenFoldersWithSelection opener;
     mFolderRoot.get()->applyFunctorRecursively(opener);
@@ -121,12 +121,12 @@ S32 LLPlacesInventoryPanel::notify(const LLSD& info)
     return 0;
 }
 
-BOOL LLPlacesInventoryPanel::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop, EDragAndDropType cargo_type, void *cargo_data,
+bool LLPlacesInventoryPanel::handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop, EDragAndDropType cargo_type, void *cargo_data,
                                                       EAcceptance *accept, std::string &tooltip_msg)
 {
     if (mAcceptsDragAndDrop)
     {
         return LLInventoryPanel::handleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
     }
-    return FALSE;
+    return false;
 }

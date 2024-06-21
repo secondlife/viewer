@@ -282,7 +282,7 @@ void LLXMLRPCTransaction::Handler::onCompleted(LLCore::HttpHandle handle,
 
     body->read(0, bodydata, body->size());
 
-    mImpl->mResponse = XMLRPC_REQUEST_FromXML(bodydata, body->size(), 0);
+    mImpl->mResponse = XMLRPC_REQUEST_FromXML(bodydata, static_cast<int>(body->size()), 0);
 
     delete[] bodydata;
 

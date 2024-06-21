@@ -63,13 +63,13 @@ void LLXfer::init (S32 chunk_size)
     mXferSize = 0;
 
     mStatus = e_LL_XFER_UNINITIALIZED;
-    mWaitingForACK = FALSE;
+    mWaitingForACK = false;
 
     mCallback = NULL;
     mCallbackDataHandle = NULL;
     mCallbackResult = 0;
 
-    mBufferContainsEOF = FALSE;
+    mBufferContainsEOF = false;
     mBuffer = NULL;
     mBufferLength = 0;
     mBufferStartOffset = 0;
@@ -187,7 +187,7 @@ void LLXfer::sendPacket(S32 packet_num)
 {
     char fdata_buf[LL_XFER_LARGE_PAYLOAD+4];        /* Flawfinder: ignore */
     S32 fdata_size = mChunkSize;
-    BOOL last_packet = FALSE;
+    bool last_packet = false;
     S32 num_copy = 0;
 
     // if the desired packet is not in our current buffered excerpt from the file. . .
@@ -217,7 +217,7 @@ void LLXfer::sendPacket(S32 packet_num)
 
     if (((U32)(desired_read_position + fdata_size) >= (U32)mBufferLength) && (mBufferContainsEOF))
     {
-        last_packet = TRUE;
+        last_packet = true;
     }
 
     if (packet_num)
@@ -270,7 +270,7 @@ void LLXfer::sendPacket(S32 packet_num)
         }
 
         ACKTimer.reset();
-        mWaitingForACK = TRUE;
+        mWaitingForACK = true;
     }
     if (last_packet)
     {
@@ -327,7 +327,7 @@ S32 LLXfer::processEOF()
 
 ///////////////////////////////////////////////////////////
 
-S32 LLXfer::encodePacketNum(S32 packet_num, BOOL is_EOF)
+S32 LLXfer::encodePacketNum(S32 packet_num, bool is_EOF)
 {
     if (is_EOF)
     {

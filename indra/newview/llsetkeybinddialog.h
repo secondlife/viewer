@@ -59,7 +59,7 @@ public:
     LLSetKeyBindDialog(const LLSD& key);
     ~LLSetKeyBindDialog();
 
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
     /*virtual*/ void onOpen(const LLSD& data);
     /*virtual*/ void onClose(bool app_quiting);
     /*virtual*/ void draw();
@@ -68,9 +68,9 @@ public:
 
     // Wrapper around recordAndHandleKey
     // It does not record, it handles, but handleKey function is already in use
-    static bool recordKey(KEY key, MASK mask, BOOL down);
+    static bool recordKey(KEY key, MASK mask, bool down);
 
-    BOOL handleAnyMouseClick(S32 x, S32 y, MASK mask, EMouseClickType clicktype, BOOL down);
+    bool handleAnyMouseClick(S32 x, S32 y, MASK mask, EMouseClickType clicktype, bool down);
     static void onCancel(void* user_data);
     static void onBlank(void* user_data);
     static void onDefault(void* user_data);
@@ -81,7 +81,7 @@ public:
     class Updater;
 
 private:
-    bool recordAndHandleKey(KEY key, MASK mask, BOOL down);
+    bool recordAndHandleKey(KEY key, MASK mask, bool down);
     void setKeyBind(EMouseClickType click, KEY key, MASK mask, bool all_modes);
     LLKeyBindResponderInterface *pParent;
     LLCheckBoxCtrl *pCheckBox;

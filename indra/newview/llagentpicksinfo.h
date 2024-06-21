@@ -60,7 +60,7 @@ public:
     S32 getMaxNumberOfPicks() { return mMaxNumberOfPicks; }
 
     /**
-     * Returns TRUE if Agent has maximum allowed number of Picks.
+     * Returns true if Agent has maximum allowed number of Picks.
      */
     bool isPickLimitReached();
 

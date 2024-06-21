@@ -52,7 +52,7 @@ float random (vec2 uv);
 
 float tapScreenSpaceReflection(int totalSamples, vec2 tc, vec3 viewPos, vec3 n, inout vec4 collectedColor, sampler2D source, float glossiness);
 
-void main() 
+void main()
 {
     vec2  tc = vary_fragcoord.xy;
     float depth = linearDepth01(getDepth(tc), zNear, zFar);
@@ -60,13 +60,13 @@ void main()
     vec3 pos = getPositionWithDepth(tc, getDepth(tc)).xyz;
     vec4 spec    = texture(specularRect, tc);
     vec2 hitpixel;
-    
+
     vec4 diffuse = texture(diffuseRect, tc);
     vec3 specCol = spec.rgb;
 
     vec4 fcol = texture(diffuseMap, tc);
 
-    if (GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_PBR)) 
+    if (GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_PBR))
     {
         vec3 orm = specCol.rgb;
         float perceptualRoughness = orm.g;

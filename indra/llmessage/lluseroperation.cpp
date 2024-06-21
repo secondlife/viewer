@@ -41,7 +41,7 @@ LLUserOperationMgr* gUserOperationMgr = NULL;
 LLUserOperation::LLUserOperation(const LLUUID& agent_id)
 :   mAgentID(agent_id),
     mTimer(),
-    mNoExpire(FALSE)
+    mNoExpire(false)
 {
     mTransactionID.generate();
 }
@@ -51,7 +51,7 @@ LLUserOperation::LLUserOperation(const LLUUID& agent_id,
     mAgentID(agent_id),
     mTransactionID(transaction_id),
     mTimer(),
-    mNoExpire(FALSE)
+    mNoExpire(false)
 {
 }
 
@@ -59,7 +59,7 @@ LLUserOperation::LLUserOperation(const LLUUID& agent_id,
 // transaction, agent, et. after construction.
 LLUserOperation::LLUserOperation() :
     mTimer(),
-    mNoExpire(FALSE)
+    mNoExpire(false)
 {
 }
 
@@ -67,19 +67,19 @@ LLUserOperation::~LLUserOperation()
 {
 }
 
-void LLUserOperation::SetNoExpireFlag(const BOOL flag)
+void LLUserOperation::SetNoExpireFlag(const bool flag)
 {
     mNoExpire = flag;
 }
 
-BOOL LLUserOperation::isExpired()
+bool LLUserOperation::isExpired()
 {
     if (!mNoExpire)
     {
         const F32 EXPIRE_TIME_SECS = 10.f;
         return mTimer.getElapsedTimeF32() > EXPIRE_TIME_SECS;
     }
-    return FALSE;
+    return false;
 }
 
 void LLUserOperation::expire()
@@ -128,7 +128,7 @@ LLUserOperation* LLUserOperationMgr::findOperation(const LLUUID& tid)
 }
 
 
-BOOL LLUserOperationMgr::deleteOperation(LLUserOperation* op)
+bool LLUserOperationMgr::deleteOperation(LLUserOperation* op)
 {
     size_t rv = 0;
     if(op)
@@ -138,7 +138,7 @@ BOOL LLUserOperationMgr::deleteOperation(LLUserOperation* op)
         delete op;
         op = NULL;
     }
-    return rv ? TRUE : FALSE;
+    return rv != 0;
 }
 
 void LLUserOperationMgr::deleteExpiredOperations()

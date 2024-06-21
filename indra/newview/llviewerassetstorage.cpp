@@ -199,12 +199,12 @@ void LLViewerAssetStorage::storeAssetData(
             // Read the data from the cache if it'll fit in this packet.
             if (asset_size + 100 < MTUBYTES)
             {
-                BOOL res = vfile.read(buffer, asset_size);      /* Flawfinder: ignore */
+                bool res = vfile.read(buffer, asset_size);      /* Flawfinder: ignore */
                 S32 bytes_read = res ? vfile.getLastBytesRead() : 0;
 
                 if( bytes_read == asset_size )
                 {
-                    req->mDataSentInFirstPacket = TRUE;
+                    req->mDataSentInFirstPacket = true;
                     //LL_INFOS() << "LLViewerAssetStorage::createAsset sending data in first packet" << LL_ENDL;
                 }
                 else
@@ -361,8 +361,8 @@ void LLViewerAssetStorage::_queueDataRequest(
     LLAssetType::EType atype,
     LLGetAssetCallback callback,
     void *user_data,
-    BOOL duplicate,
-    BOOL is_priority)
+    bool duplicate,
+    bool is_priority)
 {
     mCountRequests++;
     queueRequestHttp(uuid, atype, callback, user_data, duplicate, is_priority);
@@ -373,8 +373,8 @@ void LLViewerAssetStorage::queueRequestHttp(
     LLAssetType::EType atype,
     LLGetAssetCallback callback,
     void *user_data,
-    BOOL duplicate,
-    BOOL is_priority)
+    bool duplicate,
+    bool is_priority)
 {
     LL_DEBUGS("ViewerAsset") << "Request asset via HTTP " << uuid << " type " << LLAssetType::lookup(atype) << LL_ENDL;
 
@@ -542,7 +542,7 @@ void LLViewerAssetStorage::assetRequestCoro(
 
         const LLSD::Binary &raw = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_RAW].asBinary();
 
-        S32 size = raw.size();
+        S32 size = static_cast<S32>(raw.size());
         if (size > 0)
         {
             mTotalBytesFetched += size;

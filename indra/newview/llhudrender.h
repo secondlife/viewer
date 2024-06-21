@@ -41,7 +41,7 @@ void hud_render_text(const LLWString &wstr,
                      const F32 x_offset,
                      const F32 y_offset,
                      const LLColor4& color,
-                     const BOOL orthographic);
+                     const bool orthographic);
 
 // Legacy, slower
 void hud_render_utf8text(const std::string &str,
@@ -52,7 +52,7 @@ void hud_render_utf8text(const std::string &str,
                          const F32 x_offset,
                          const F32 y_offset,
                          const LLColor4& color,
-                         const BOOL orthographic);
+                         const bool orthographic);
 
 
 #endif //LL_LLHUDRENDER_H

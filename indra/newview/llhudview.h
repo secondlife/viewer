@@ -42,7 +42,7 @@ public:
     virtual void draw();
 
 protected:
-    /*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
+    /*virtual*/ bool handleMouseDown(S32 x, S32 y, MASK mask);
 };
 
 extern LLHUDView *gHUDView;

@@ -68,7 +68,7 @@ public:
     // Called from MAIN THREAD.
     void pause();
     void unpause();
-    bool isPaused() { return isStopped() || mPaused == TRUE; }
+    bool isPaused() { return isStopped() || mPaused; }
 
     // Cause the thread to wake up and check its condition
     void wake();

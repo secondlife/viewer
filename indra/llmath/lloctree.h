@@ -453,7 +453,7 @@ public:
 
         S32 i = data->getBinIndex();
 
-        if (i >= 0 && i < getElementCount())
+        if (i >= 0 && i < (S32)getElementCount())
         {
             if (mData[i] == data)
             { //found it
@@ -548,7 +548,7 @@ public:
         }
     }
 
-    void addChild(oct_node* child, BOOL silent = FALSE)
+    void addChild(oct_node* child, bool silent = false)
     {
 #if LL_OCTREE_PARANOIA_CHECK
 
@@ -591,7 +591,7 @@ public:
         }
     }
 
-    void removeChild(S32 index, BOOL destroy = FALSE)
+    void removeChild(S32 index, bool destroy = false)
     {
         for (U32 i = 0; i < this->getListenerCount(); i++)
         {
@@ -638,7 +638,7 @@ public:
         {
             if (getChild(i) == node)
             {
-                removeChild(i, TRUE);
+                removeChild(i, true);
                 return;
             }
         }
@@ -707,7 +707,7 @@ public:
             //(don't notify listeners of addition)
             for (U32 i = 0; i < child->getChildCount(); i++)
             {
-                this->addChild(child->getChild(i), TRUE);
+                this->addChild(child->getChild(i), true);
             }
 
             //destroy child
@@ -723,7 +723,7 @@ public:
     // LLOctreeRoot::insert
     bool insert(T* data) override
     {
-        if (data == NULL)
+        if (data == nullptr)
         {
             OCT_ERRS << "!!! INVALID ELEMENT ADDED TO OCTREE ROOT !!!" << LL_ENDL;
             return false;

@@ -53,10 +53,10 @@ LLColor4U::operator LLColor4()
 /*
 LLColor4U::LLColor4U(const LLColor3 &vec)
 {
-    mV[VX] = vec.mV[VX];
-    mV[VY] = vec.mV[VY];
-    mV[VZ] = vec.mV[VZ];
-    mV[VW] = 255;
+    mV[VRED] = vec.mV[VRED];
+    mV[VGREEN] = vec.mV[VGREEN];
+    mV[VBLUE] = vec.mV[VBLUE];
+    mV[VALPHA] = 255;
 }
 */
 
@@ -70,12 +70,12 @@ LLColor4U::LLColor4U(const LLColor3 &vec)
 /*
 LLColor4U LLColor4U::operator=(const LLColor3 &a)
 {
-    mV[VX] = a.mV[VX];
-    mV[VY] = a.mV[VY];
-    mV[VZ] = a.mV[VZ];
+    mV[VRED] = a.mV[VRED];
+    mV[VGREEN] = a.mV[VGREEN];
+    mV[VBLUE] = a.mV[VBLUE];
 
 // converting from an rgb sets a=1 (opaque)
-    mV[VW] = 255;
+    mV[VALPHA] = 255;
     return (*this);
 }
 */
@@ -83,16 +83,16 @@ LLColor4U LLColor4U::operator=(const LLColor3 &a)
 
 std::ostream& operator<<(std::ostream& s, const LLColor4U &a)
 {
-    s << "{ " << (S32)a.mV[VX] << ", " << (S32)a.mV[VY] << ", " << (S32)a.mV[VZ] << ", " << (S32)a.mV[VW] << " }";
+    s << "{ " << (S32)a.mV[VRED] << ", " << (S32)a.mV[VGREEN] << ", " << (S32)a.mV[VBLUE] << ", " << (S32)a.mV[VALPHA] << " }";
     return s;
 }
 
 // static
-BOOL LLColor4U::parseColor4U(const std::string& buf, LLColor4U* value)
+bool LLColor4U::parseColor4U(const std::string& buf, LLColor4U* value)
 {
-    if( buf.empty() || value == NULL)
+    if( buf.empty() || value == nullptr)
     {
-        return FALSE;
+        return false;
     }
 
     U32 v[4];
@@ -104,17 +104,17 @@ BOOL LLColor4U::parseColor4U(const std::string& buf, LLColor4U* value)
     }
     if( 4 != count )
     {
-        return FALSE;
+        return false;
     }
 
     for( S32 i = 0; i < 4; i++ )
     {
         if( v[i] > U8_MAX )
         {
-            return FALSE;
+            return false;
         }
     }
 
     value->set( U8(v[0]), U8(v[1]), U8(v[2]), U8(v[3]) );
-    return TRUE;
+    return true;
 }

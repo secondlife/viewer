@@ -41,13 +41,13 @@ public:
     virtual ~LLFloaterToybox();
 
     // virtuals
-    BOOL postBuild();
-    void draw();
-    /*virtual*/ BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+    bool postBuild() override;
+    void draw() override;
+    bool handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
         EDragAndDropType cargo_type,
         void* cargo_data,
         EAcceptance* accept,
-        std::string& tooltip_msg);
+        std::string& tooltip_msg) override;
 
 protected:
     void onBtnClearAll();

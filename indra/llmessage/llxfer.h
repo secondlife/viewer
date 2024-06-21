@@ -63,11 +63,11 @@ class LLXfer
     char *mBuffer;
     U32 mBufferLength;          // Size of valid data, not actual allocated buffer size
     U32 mBufferStartOffset;
-    BOOL mBufferContainsEOF;
+    bool mBufferContainsEOF;
 
     ELLXferStatus mStatus;
 
-    BOOL mWaitingForACK;
+    bool mWaitingForACK;
 
     void (*mCallback)(void **,S32,LLExtStat);
     void **mCallbackDataHandle;
@@ -103,7 +103,7 @@ class LLXfer
     virtual S32 suck(S32 start_position);
     virtual S32 flush();
 
-    virtual S32 encodePacketNum(S32 packet_num, BOOL is_eof);
+    virtual S32 encodePacketNum(S32 packet_num, bool is_eof);
     virtual void setXferSize (S32 data_size);
     virtual S32  getMaxBufferSize();
 

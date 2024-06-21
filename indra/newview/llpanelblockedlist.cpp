@@ -74,10 +74,10 @@ void LLPanelBlockedList::removePicker()
     }
 }
 
-BOOL LLPanelBlockedList::postBuild()
+bool LLPanelBlockedList::postBuild()
 {
     mBlockedList = getChild<LLBlockList>("blocked");
-    mBlockedList->setCommitOnSelectionChange(TRUE);
+    mBlockedList->setCommitOnSelectionChange(true);
     this->setVisibleCallback(boost::bind(&LLPanelBlockedList::removePicker, this));
 
     switch (gSavedSettings.getU32("BlockPeopleSortOrder"))
@@ -181,7 +181,7 @@ void LLPanelBlockedList::onCustomAction(const LLSD& userdata)
     }
 }
 
-BOOL LLPanelBlockedList::isActionChecked(const LLSD& userdata)
+bool LLPanelBlockedList::isActionChecked(const LLSD& userdata)
 {
     std::string item = userdata.asString();
     U32 sort_order = gSavedSettings.getU32("BlockPeopleSortOrder");
@@ -200,13 +200,13 @@ BOOL LLPanelBlockedList::isActionChecked(const LLSD& userdata)
 
 void LLPanelBlockedList::blockResidentByName()
 {
-    const BOOL allow_multiple = FALSE;
-    const BOOL close_on_select = TRUE;
+    const bool allow_multiple = false;
+    const bool close_on_select = true;
 
-    LLView * button = findChild<LLButton>("plus_btn", TRUE);
+    LLView * button = findChild<LLButton>("plus_btn", true);
     LLFloater* root_floater = gFloaterView->getParentFloater(this);
     LLFloaterAvatarPicker * picker = LLFloaterAvatarPicker::show(boost::bind(&LLPanelBlockedList::callbackBlockPicked, this, _1, _2),
-                                                                                    allow_multiple, close_on_select, FALSE, root_floater->getName(), button);
+                                                                                    allow_multiple, close_on_select, false, root_floater->getName(), button);
 
     if (root_floater)
     {
@@ -243,7 +243,7 @@ void LLPanelBlockedList::callbackBlockByName(const std::string& text)
     if (text.empty()) return;
 
     LLMute mute(LLUUID::null, text, LLMute::BY_NAME);
-    BOOL success = LLMuteList::getInstance()->add(mute);
+    bool success = LLMuteList::getInstance()->add(mute);
     if (!success)
     {
         LLNotificationsUtil::add("MuteByNameFailed");
@@ -267,7 +267,7 @@ LLFloaterGetBlockedObjectName::~LLFloaterGetBlockedObjectName()
     gFocusMgr.releaseFocusIfNeeded( this );
 }
 
-BOOL LLFloaterGetBlockedObjectName::postBuild()
+bool LLFloaterGetBlockedObjectName::postBuild()
 {
     getChild<LLButton>("OK")->      setCommitCallback(boost::bind(&LLFloaterGetBlockedObjectName::applyBlocking, this));
     getChild<LLButton>("Cancel")->  setCommitCallback(boost::bind(&LLFloaterGetBlockedObjectName::cancelBlocking, this));
@@ -276,17 +276,17 @@ BOOL LLFloaterGetBlockedObjectName::postBuild()
     return LLFloater::postBuild();
 }
 
-BOOL LLFloaterGetBlockedObjectName::handleKeyHere(KEY key, MASK mask)
+bool LLFloaterGetBlockedObjectName::handleKeyHere(KEY key, MASK mask)
 {
     if (key == KEY_RETURN && mask == MASK_NONE)
     {
         applyBlocking();
-        return TRUE;
+        return true;
     }
     else if (key == KEY_ESCAPE && mask == MASK_NONE)
     {
         cancelBlocking();
-        return TRUE;
+        return true;
     }
 
     return LLFloater::handleKeyHere(key, mask);

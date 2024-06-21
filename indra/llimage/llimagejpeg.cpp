@@ -50,6 +50,8 @@ bool LLImageJPEG::updateData()
 {
     resetLastError();
 
+    LLImageDataLock lock(this);
+
     // Check to make sure that this instance has been initialized with data
     if (!getData() || (0 == getDataSize()))
     {
@@ -188,6 +190,9 @@ bool LLImageJPEG::decode(LLImageRaw* raw_image, F32 decode_time)
     llassert_always(raw_image);
 
     resetLastError();
+
+    LLImageDataLock lockIn(this);
+    LLImageDataLock lockOut(raw_image);
 
     // Check to make sure that this instance has been initialized with data
     if (!getData() || (0 == getDataSize()))
@@ -408,6 +413,8 @@ void LLImageJPEG::encodeTermDestination( j_compress_ptr cinfo )
 {
     LLImageJPEG* self = (LLImageJPEG*) cinfo->client_data;
 
+    LLImageDataLock lock(self);
+
     S32 file_bytes = (S32)(self->mOutputBufferSize - cinfo->dest->free_in_buffer);
     self->allocateData(file_bytes);
 
@@ -483,6 +490,9 @@ bool LLImageJPEG::encode( const LLImageRaw* raw_image, F32 encode_time )
     llassert_always(raw_image);
 
     resetLastError();
+
+    LLImageDataSharedLock lockIn(raw_image);
+    LLImageDataLock lockOut(this);
 
     switch( raw_image->getComponents() )
     {

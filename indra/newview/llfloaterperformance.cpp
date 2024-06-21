@@ -91,7 +91,7 @@ LLFloaterPerformance::~LLFloaterPerformance()
     delete mUpdateTimer;
 }
 
-BOOL LLFloaterPerformance::postBuild()
+bool LLFloaterPerformance::postBuild()
 {
     mMainPanel = getChild<LLPanel>("panel_performance_main");
     mNearbyPanel = getChild<LLPanel>("panel_performance_nearby");
@@ -152,16 +152,16 @@ BOOL LLFloaterPerformance::postBuild()
     mStartAutotuneBtn->setCommitCallback(boost::bind(&LLFloaterPerformance::startAutotune, this));
     mStopAutotuneBtn->setCommitCallback(boost::bind(&LLFloaterPerformance::stopAutotune, this));
 
-    gSavedPerAccountSettings.declareBOOL("HadEnabledAutoFPS", FALSE, "User had enabled AutoFPS at least once", LLControlVariable::PERSIST_ALWAYS);
+    gSavedPerAccountSettings.declareBOOL("HadEnabledAutoFPS", false, "User had enabled AutoFPS at least once", LLControlVariable::PERSIST_ALWAYS);
 
-    return TRUE;
+    return true;
 }
 
 void LLFloaterPerformance::showSelectedPanel(LLPanel* selected_panel)
 {
     hidePanels();
-    mMainPanel->setVisible(FALSE);
-    selected_panel->setVisible(TRUE);
+    mMainPanel->setVisible(false);
+    selected_panel->setVisible(true);
 
     if (mHUDsPanel == selected_panel)
     {
@@ -214,16 +214,16 @@ void LLFloaterPerformance::draw()
 void LLFloaterPerformance::showMainPanel()
 {
     hidePanels();
-    mMainPanel->setVisible(TRUE);
+    mMainPanel->setVisible(true);
 }
 
 void LLFloaterPerformance::hidePanels()
 {
-    mNearbyPanel->setVisible(FALSE);
-    mComplexityPanel->setVisible(FALSE);
-    mHUDsPanel->setVisible(FALSE);
-    mSettingsPanel->setVisible(FALSE);
-    mAutoadjustmentsPanel->setVisible(FALSE);
+    mNearbyPanel->setVisible(false);
+    mComplexityPanel->setVisible(false);
+    mHUDsPanel->setVisible(false);
+    mSettingsPanel->setVisible(false);
+    mAutoadjustmentsPanel->setVisible(false);
 }
 
 void LLFloaterPerformance::initBackBtn(LLPanel* panel)
@@ -321,7 +321,7 @@ void LLFloaterPerformance::populateHUDList()
             }
         }
     }
-    mHUDList->sortByColumnIndex(1, FALSE);
+    mHUDList->sortByColumnIndex(1, false);
     mHUDList->setScrollPos(prev_pos);
     mHUDList->selectItemBySpecialId(prev_selected_id);
 }
@@ -413,7 +413,7 @@ void LLFloaterPerformance::populateObjectList()
             }
         }
     }
-    mObjectList->sortByColumnIndex(1, FALSE);
+    mObjectList->sortByColumnIndex(1, false);
     mObjectList->setScrollPos(prev_pos);
     mObjectList->selectItemBySpecialId(prev_selected_id);
 }
@@ -503,7 +503,7 @@ void LLFloaterPerformance::populateNearbyList()
         }
         char_iter++;
     }
-    mNearbyList->sortByColumnIndex(1, FALSE);
+    mNearbyList->sortByColumnIndex(1, false);
     mNearbyList->setScrollPos(prev_pos);
     mNearbyList->selectByID(prev_selected_id);
 }
@@ -732,7 +732,7 @@ void LLFloaterPerformance::enableAutotuneWarning()
 {
     if (!gSavedPerAccountSettings.getBOOL("HadEnabledAutoFPS") && LLPerfStats::tunables.userAutoTuneEnabled)
     {
-        gSavedPerAccountSettings.setBOOL("HadEnabledAutoFPS", TRUE);
+        gSavedPerAccountSettings.setBOOL("HadEnabledAutoFPS", true);
 
         LLNotificationsUtil::add("EnableAutoFPSWarning", LLSD(), LLSD(),
             [](const LLSD& notif, const LLSD& resp)

@@ -107,7 +107,7 @@ LLCommandManager::~LLCommandManager()
 
 U32 LLCommandManager::commandCount() const
 {
-    return mCommands.size();
+    return static_cast<U32>(mCommands.size());
 }
 
 LLCommand * LLCommandManager::getCommand(U32 commandIndex)

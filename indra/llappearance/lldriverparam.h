@@ -65,7 +65,7 @@ public:
     LLDriverParamInfo();
     /*virtual*/ ~LLDriverParamInfo() {};
 
-    /*virtual*/ BOOL parseXml(LLXmlTreeNode* node);
+    /*virtual*/ bool parseXml(LLXmlTreeNode* node);
 
     /*virtual*/ void toStream(std::ostream &out);
 
@@ -90,7 +90,7 @@ public:
     // Special: These functions are overridden by child classes
     LLDriverParamInfo* getInfo() const { return (LLDriverParamInfo*)mInfo; }
     //   This sets mInfo and calls initialization functions
-    BOOL                    setInfo(LLDriverParamInfo* info);
+    bool                    setInfo(LLDriverParamInfo* info);
 
     LLAvatarAppearance* getAvatarAppearance() { return mAvatarAppearance; }
     const LLAvatarAppearance* getAvatarAppearance() const { return mAvatarAppearance; }
@@ -104,7 +104,7 @@ public:
     /*virtual*/ void                setWeight(F32 weight);
     /*virtual*/ void                setAnimationTarget(F32 target_value);
     /*virtual*/ void                stopAnimating();
-    /*virtual*/ BOOL                linkDrivenParams(visual_param_mapper mapper, BOOL only_cross_params);
+    /*virtual*/ bool                linkDrivenParams(visual_param_mapper mapper, bool only_cross_params);
     /*virtual*/ void                resetDrivenParams();
 
     // LLViewerVisualParam Virtual functions
@@ -130,10 +130,10 @@ protected:
 
     LL_ALIGN_16(LLVector4a  mDefaultVec); // temp holder
     entry_list_t mDriven;
-    LLViewerVisualParam* mCurrentDistortionParam;
+    LLViewerVisualParam* mCurrentDistortionParam{ nullptr };
     // Backlink only; don't make this an LLPointer.
-    LLAvatarAppearance* mAvatarAppearance;
-    LLWearable* mWearablep;
+    LLAvatarAppearance* mAvatarAppearance{ nullptr };
+    LLWearable* mWearablep{ nullptr };
 };
 
 #endif  // LL_LLDRIVERPARAM_H

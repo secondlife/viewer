@@ -66,17 +66,17 @@ LLXmlParser::~LLXmlParser()
 }
 
 
-BOOL LLXmlParser::parseFile(const std::string &path)
+bool LLXmlParser::parseFile(const std::string &path)
 {
     llassert( !mDepth );
 
-    BOOL success = TRUE;
+    bool success = true;
 
     LLFILE* file = LLFile::fopen(path, "rb");       /* Flawfinder: ignore */
     if( !file )
     {
         mAuxErrorString = llformat( "Couldn't open file %s", path.c_str());
-        success = FALSE;
+        success = false;
     }
     else
     {
@@ -90,7 +90,7 @@ BOOL LLXmlParser::parseFile(const std::string &path)
         if( !buffer )
         {
             mAuxErrorString = llformat( "Unable to allocate XML buffer while reading file %s", path.c_str() );
-            success = FALSE;
+            success = false;
             goto exit_label;
         }
 
@@ -98,14 +98,14 @@ BOOL LLXmlParser::parseFile(const std::string &path)
         if( bytes_read <= 0 )
         {
             mAuxErrorString = llformat( "Error while reading file  %s", path.c_str() );
-            success = FALSE;
+            success = false;
             goto exit_label;
         }
 
-        if( !XML_ParseBuffer(mParser, bytes_read, TRUE ) )
+        if( !XML_ParseBuffer(mParser, bytes_read, true ) )
         {
             mAuxErrorString = llformat( "Error while parsing file  %s", path.c_str() );
-            success = FALSE;
+            success = false;
         }
 
 exit_label:

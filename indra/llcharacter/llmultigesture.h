@@ -46,8 +46,8 @@ public:
     // Maximum number of bytes this could hold once serialized.
     S32 getMaxSerialSize() const;
 
-    BOOL serialize(LLDataPacker& dp) const;
-    BOOL deserialize(LLDataPacker& dp);
+    bool serialize(LLDataPacker& dp) const;
+    bool deserialize(LLDataPacker& dp);
 
     void dump();
 
@@ -75,28 +75,28 @@ public:
     std::vector<LLGestureStep*> mSteps;
 
     // Is the gesture currently playing?
-    BOOL mPlaying { FALSE };
+    bool mPlaying { false };
 
     // "instruction pointer" for steps
     S32 mCurrentStep { 0 };
 
     // We're waiting for triggered animations to stop playing
-    BOOL mWaitingAnimations { FALSE };
+    bool mWaitingAnimations { false };
 
     // We're waiting for key release
-    BOOL mWaitingKeyRelease { FALSE };
+    bool mWaitingKeyRelease { false };
 
     // We're waiting a fixed amount of time
-    BOOL mWaitingTimer { FALSE };
+    bool mWaitingTimer { false };
 
     // We're waiting for triggered animations to stop playing
-    BOOL mTriggeredByKey { FALSE };
+    bool mTriggeredByKey { false };
 
     // Has the key been released?
-    BOOL mKeyReleased { FALSE };
+    bool mKeyReleased { false };
 
     // Waiting after the last step played for all animations to complete
-    BOOL mWaitingAtEnd { FALSE };
+    bool mWaitingAtEnd { false };
 
     // Timer for waiting
     LLFrameTimer mWaitTimer;
@@ -138,8 +138,8 @@ public:
     virtual std::vector<std::string> getLabel() const = 0;
 
     virtual S32 getMaxSerialSize() const = 0;
-    virtual BOOL serialize(LLDataPacker& dp) const = 0;
-    virtual BOOL deserialize(LLDataPacker& dp) = 0;
+    virtual bool serialize(LLDataPacker& dp) const = 0;
+    virtual bool deserialize(LLDataPacker& dp) = 0;
 
     virtual void dump() = 0;
 };
@@ -160,8 +160,8 @@ public:
     virtual std::vector<std::string> getLabel() const;
 
     virtual S32 getMaxSerialSize() const;
-    virtual BOOL serialize(LLDataPacker& dp) const;
-    virtual BOOL deserialize(LLDataPacker& dp);
+    virtual bool serialize(LLDataPacker& dp) const;
+    virtual bool deserialize(LLDataPacker& dp);
 
     virtual void dump();
 
@@ -183,8 +183,8 @@ public:
     virtual std::vector<std::string> getLabel() const;
 
     virtual S32 getMaxSerialSize() const;
-    virtual BOOL serialize(LLDataPacker& dp) const;
-    virtual BOOL deserialize(LLDataPacker& dp);
+    virtual bool serialize(LLDataPacker& dp) const;
+    virtual bool deserialize(LLDataPacker& dp);
 
     virtual void dump();
 
@@ -206,8 +206,8 @@ public:
     virtual std::vector<std::string> getLabel() const;
 
     virtual S32 getMaxSerialSize() const;
-    virtual BOOL serialize(LLDataPacker& dp) const;
-    virtual BOOL deserialize(LLDataPacker& dp);
+    virtual bool serialize(LLDataPacker& dp) const;
+    virtual bool deserialize(LLDataPacker& dp);
 
     virtual void dump();
 
@@ -232,8 +232,8 @@ public:
     virtual std::vector<std::string> getLabel() const;
 
     virtual S32 getMaxSerialSize() const;
-    virtual BOOL serialize(LLDataPacker& dp) const;
-    virtual BOOL deserialize(LLDataPacker& dp);
+    virtual bool serialize(LLDataPacker& dp) const;
+    virtual bool deserialize(LLDataPacker& dp);
 
     virtual void dump();
 

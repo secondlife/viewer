@@ -1,28 +1,28 @@
-/** 
+/**
  * @file class1\deferred\terrainF.glsl
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2007, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
+
 /*[EXTRA_CODE_HERE]*/
 
 out vec4 frag_data[4];
@@ -44,7 +44,7 @@ void main()
 {
     mirrorClip(pos);
     /// Note: This should duplicate the blending functionality currently used for the terrain rendering.
-    
+
     vec4 color0 = texture(detail_0, vary_texcoord0.xy);
     vec4 color1 = texture(detail_1, vary_texcoord0.xy);
     vec4 color2 = texture(detail_2, vary_texcoord0.xy);
@@ -54,10 +54,10 @@ void main()
     float alpha2 = texture(alpha_ramp,vary_texcoord1.xy).a;
     float alphaFinal = texture(alpha_ramp, vary_texcoord1.zw).a;
     vec4 outColor = mix( mix(color3, color2, alpha2), mix(color1, color0, alpha1), alphaFinal );
-   
-    outColor.a = 0.0; // yes, downstream atmospherics 
-    
-    frag_data[0] = outColor;
+
+    outColor.a = 0.0; // yes, downstream atmospherics
+
+    frag_data[0] = max(outColor, vec4(0));
     frag_data[1] = vec4(0.0,0.0,0.0,-1.0);
     vec3 nvn = normalize(vary_normal);
     frag_data[2] = vec4(nvn.xyz, GBUFFER_FLAG_HAS_ATMOS);

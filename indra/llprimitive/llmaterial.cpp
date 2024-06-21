@@ -427,7 +427,7 @@ bool LLMaterial::operator != (const LLMaterial& rhs) const
 }
 
 
-U32 LLMaterial::getShaderMask(U32 alpha_mode, BOOL is_alpha)
+U32 LLMaterial::getShaderMask(U32 alpha_mode, bool is_alpha)
 { //NEVER incorporate this value into the message system -- this function will vary depending on viewer implementation
 
     //two least significant bits are "diffuse alpha mode"

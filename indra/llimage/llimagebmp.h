@@ -45,10 +45,10 @@ public:
     /*virtual*/ bool encode(const LLImageRaw* raw_image, F32 encode_time);
 
 protected:
-    bool        decodeColorTable8( U8* dst, U8* src );
-    bool        decodeColorMask16( U8* dst, U8* src );
-    bool        decodeTruecolor24( U8* dst, U8* src );
-    bool        decodeColorMask32( U8* dst, U8* src );
+    bool        decodeColorTable8( U8* dst, const U8* src );
+    bool        decodeColorMask16( U8* dst, const U8* src );
+    bool        decodeTruecolor24( U8* dst, const U8* src );
+    bool        decodeColorMask32( U8* dst, const U8* src );
 
     U32         countTrailingZeros( U32 m );
 

@@ -64,15 +64,15 @@ public:
 
     virtual ~LLRadioGroup();
 
-    virtual BOOL postBuild();
+    virtual bool postBuild();
 
-    virtual BOOL handleKeyHere(KEY key, MASK mask);
+    virtual bool handleKeyHere(KEY key, MASK mask);
 
-    void setIndexEnabled(S32 index, BOOL enabled);
+    void setIndexEnabled(S32 index, bool enabled);
     // return the index value of the selected item
     S32 getSelectedIndex() const { return mSelectedIndex; }
     // set the index value programatically
-    BOOL setSelectedIndex(S32 index, BOOL from_event = FALSE);
+    bool setSelectedIndex(S32 index, bool from_event = false);
     // foxus child by index if it can get focus
     void focusSelectedRadioBtn();
 
@@ -87,19 +87,19 @@ public:
     LLCtrlSelectionInterface* getSelectionInterface()   { return (LLCtrlSelectionInterface*)this; };
 
     // LLCtrlSelectionInterface functions
-    /*virtual*/ S32     getItemCount() const                { return mRadioButtons.size(); }
-    /*virtual*/ BOOL    getCanSelect() const                { return TRUE; }
-    /*virtual*/ BOOL    selectFirstItem()                   { return setSelectedIndex(0); }
-    /*virtual*/ BOOL    selectNthItem( S32 index )          { return setSelectedIndex(index); }
-    /*virtual*/ BOOL    selectItemRange( S32 first, S32 last ) { return setSelectedIndex(first); }
+    /*virtual*/ S32     getItemCount() const                { return static_cast<S32>(mRadioButtons.size()); }
+    /*virtual*/ bool    getCanSelect() const                { return true; }
+    /*virtual*/ bool    selectFirstItem()                   { return setSelectedIndex(0); }
+    /*virtual*/ bool    selectNthItem( S32 index )          { return setSelectedIndex(index); }
+    /*virtual*/ bool    selectItemRange( S32 first, S32 last ) { return setSelectedIndex(first); }
     /*virtual*/ S32     getFirstSelectedIndex() const       { return getSelectedIndex(); }
-    /*virtual*/ BOOL    setCurrentByID( const LLUUID& id );
+    /*virtual*/ bool    setCurrentByID( const LLUUID& id );
     /*virtual*/ LLUUID  getCurrentID() const;               // LLUUID::null if no items in menu
-    /*virtual*/ BOOL    setSelectedByValue(const LLSD& value, BOOL selected);
+    /*virtual*/ bool    setSelectedByValue(const LLSD& value, bool selected);
     /*virtual*/ LLSD    getSelectedValue();
-    /*virtual*/ BOOL    isSelected(const LLSD& value) const;
-    /*virtual*/ BOOL    operateOnSelection(EOperation op);
-    /*virtual*/ BOOL    operateOnAll(EOperation op);
+    /*virtual*/ bool    isSelected(const LLSD& value) const;
+    /*virtual*/ bool    operateOnSelection(EOperation op);
+    /*virtual*/ bool    operateOnAll(EOperation op);
 
 private:
     const LLFontGL*     mFont;

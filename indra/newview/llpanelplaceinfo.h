@@ -62,7 +62,7 @@ public:
     LLPanelPlaceInfo();
     /*virtual*/ ~LLPanelPlaceInfo();
 
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
 
     // Ignore all old location information, useful if you are
     // recycling an existing dialog and need to clear it.
@@ -89,7 +89,7 @@ public:
 
     /*virtual*/ void processParcelInfo(const LLParcelData& parcel_data);
 
-    /*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+    /*virtual*/ void reshape(S32 width, S32 height, bool called_from_parent = true);
 
     // Create a pick for the location specified
     // by global_pos.

@@ -247,11 +247,11 @@ bool LLDir_Linux::fileExists(const std::string &filename) const
     int res = stat(filename.c_str(), &stat_data);
     if (!res)
     {
-        return TRUE;
+        return true;
     }
     else
     {
-        return FALSE;
+        return false;
     }
 }
 

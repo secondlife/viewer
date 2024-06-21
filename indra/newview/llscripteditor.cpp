@@ -54,7 +54,7 @@ LLScriptEditor::LLScriptEditor(const Params& p)
     }
 }
 
-BOOL LLScriptEditor::postBuild()
+bool LLScriptEditor::postBuild()
 {
     gSavedSettings.getControl("LSLFontSizeName")->getCommitSignal()->connect(boost::bind(&LLScriptEditor::onFontSizeChange, this));
     return LLTextEditor::postBuild();
@@ -120,7 +120,7 @@ void LLScriptEditor::drawLineNumbers()
             if(line.mLineNum != last_line_num && line.mRect.mTop <= scrolled_view_rect.mTop)
             {
                 const LLWString ltext = utf8str_to_wstring(llformat("%d", line.mLineNum ));
-                BOOL is_cur_line = cursor_line == line.mLineNum;
+                bool is_cur_line = cursor_line == line.mLineNum;
                 const U8 style = is_cur_line ? LLFontGL::BOLD : LLFontGL::NORMAL;
                 const LLColor4 fg_color = is_cur_line ? mCursorColor : mReadOnlyFgColor;
                 getScriptFont()->render(

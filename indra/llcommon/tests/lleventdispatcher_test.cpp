@@ -491,7 +491,7 @@ namespace tut
             // Partial defaults arrays.
             for (LLSD::String a: ab)
             {
-                LLSD::Integer partition(std::min(partial_offset, dft_array_full[a].size()));
+                LLSD::Integer partition(static_cast<LLSD::Integer>(std::min(partial_offset, dft_array_full[a].size())));
                 dft_array_partial[a] =
                     llsd_copy_array(dft_array_full[a].beginArray() + partition,
                                     dft_array_full[a].endArray());
@@ -508,7 +508,7 @@ namespace tut
                 // (params, dft_array_full). Part of the point of using map-style
                 // defaults is to allow any subset of the target function's
                 // parameters to be optional, not just the rightmost.
-                for (LLSD::Integer ix = 0, ixend = params[a].size(); ix < ixend; ix += 2)
+                for (LLSD::Integer ix = 0, ixend = static_cast<LLSD::Integer>(params[a].size()); ix < ixend; ix += 2)
                 {
                     dft_map_partial[a][params[a][ix].asString()] = dft_array_full[a][ix];
                 }
@@ -696,7 +696,7 @@ namespace tut
         LLSD zipmap(const LLSD& keys, const LLSD& values)
         {
             LLSD map;
-            for (LLSD::Integer i = 0, iend = keys.size(); i < iend; ++i)
+            for (LLSD::Integer i = 0, iend = static_cast<LLSD::Integer>(keys.size()); i < iend; ++i)
             {
                 // Have to select asString() since you can index an LLSD
                 // object with either String or Integer.
@@ -955,7 +955,7 @@ namespace tut
             allreq[a] = zipmap(params[a], LLSD::emptyArray());
             // Same for leftreq, save that we use the subset of the params not
             // supplied by dft_array_partial[a].
-            LLSD::Integer partition(params[a].size() - dft_array_partial[a].size());
+            LLSD::Integer partition(static_cast<LLSD::Integer>(params[a].size() - dft_array_partial[a].size()));
             leftreq[a] = zipmap(llsd_copy_array(params[a].beginArray(),
                                                 params[a].beginArray() + partition),
                                 LLSD::emptyArray());

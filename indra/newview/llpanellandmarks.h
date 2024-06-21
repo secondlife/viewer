@@ -52,7 +52,7 @@ public:
     LLLandmarksPanel(bool is_landmark_panel);
     virtual ~LLLandmarksPanel();
 
-    BOOL postBuild() override;
+    bool postBuild() override;
     void onSearchEdit(const std::string& string) override;
     void onShowOnMap() override;
     void onShowProfile() override;
@@ -68,7 +68,7 @@ public:
     /**
      * Processes drag-n-drop of the Landmarks and folders into trash button.
      */
-    bool handleDragAndDropToTrash(BOOL drop, EDragAndDropType cargo_type, void* cargo_data, EAcceptance* accept) override;
+    bool handleDragAndDropToTrash(bool drop, EDragAndDropType cargo_type, void* cargo_data, EAcceptance* accept) override;
 
     void setCurrentSelectedList(LLPlacesInventoryPanel* inventory_list)
     {
@@ -78,7 +78,7 @@ public:
     /**
      * Selects item with "obj_id" in one of accordion tabs.
      */
-    void setItemSelected(const LLUUID& obj_id, BOOL take_keyboard_focus);
+    void setItemSelected(const LLUUID& obj_id, bool take_keyboard_focus);
 
     void updateMenuVisibility(LLUICtrl* menu);
 
@@ -162,7 +162,7 @@ class LLFavoritesPanel : public LLLandmarksPanel
 public:
     LLFavoritesPanel();
 
-    BOOL postBuild() override;
+    bool postBuild() override;
     void initFavoritesInventoryPanel();
 };
 

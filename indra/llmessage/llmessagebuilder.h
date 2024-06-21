@@ -49,14 +49,14 @@ public:
     virtual void newMessage(const char* name) = 0;
 
     virtual void nextBlock(const char* blockname) = 0;
-    virtual BOOL removeLastBlock() = 0; // TODO: babbage: remove this horror
+    virtual bool removeLastBlock() = 0; // TODO: babbage: remove this horror
 
     /** All add* methods expect pointers to canonical strings. */
     virtual void addBinaryData(
         const char* varname,
         const void* data,
         S32 size) = 0;
-    virtual void addBOOL(const char* varname, BOOL b) = 0;
+    virtual void addBOOL(const char* varname, bool b) = 0;
     virtual void addS8(const char* varname, S8 s) = 0;
     virtual void addU8(const char* varname, U8 u) = 0;
     virtual void addS16(const char* varname, S16 i) = 0;
@@ -76,12 +76,12 @@ public:
     virtual void addString(const char* varname, const char* s) = 0;
     virtual void addString(const char* varname, const std::string& s) = 0;
 
-    virtual BOOL isMessageFull(const char* blockname) const = 0;
+    virtual bool isMessageFull(const char* blockname) const = 0;
     virtual void compressMessage(U8*& buf_ptr, U32& buffer_length) = 0;
     virtual S32 getMessageSize() = 0;
 
-    virtual BOOL isBuilt() const = 0;
-    virtual BOOL isClear() const = 0;
+    virtual bool isBuilt() const = 0;
+    virtual bool isClear() const = 0;
     virtual U32 buildMessage(
         U8* buffer,
         U32 buffer_size,
@@ -90,7 +90,7 @@ public:
     virtual void clearMessage() = 0;
 
     // TODO: babbage: remove this horror
-    virtual void setBuilt(BOOL b) = 0;
+    virtual void setBuilt(bool b) = 0;
 
     virtual const char* getMessageName() const = 0;
 

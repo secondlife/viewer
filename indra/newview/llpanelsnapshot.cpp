@@ -41,7 +41,7 @@
 
 #include "llagentbenefits.h"
 
-const S32 MAX_TEXTURE_SIZE = 512 ; //max upload texture size 512 * 512
+constexpr S32 MAX_TEXTURE_SIZE = 512 ; //max upload texture size 512 * 512
 
 S32 power_of_two(S32 sz, S32 upper)
 {
@@ -59,7 +59,7 @@ LLPanelSnapshot::LLPanelSnapshot()
 {}
 
 // virtual
-BOOL LLPanelSnapshot::postBuild()
+bool LLPanelSnapshot::postBuild()
 {
     getChild<LLUICtrl>("save_btn")->setLabelArg("[UPLOAD_COST]", std::to_string(LLAgentBenefitsMgr::current().getTextureUploadCost()));
     getChild<LLUICtrl>(getImageSizeComboName())->setCommitCallback(boost::bind(&LLPanelSnapshot::onResolutionComboCommit, this, _1));
@@ -78,7 +78,7 @@ BOOL LLPanelSnapshot::postBuild()
     updateControls(LLSD());
 
     mSnapshotFloater = getParentByType<LLFloaterSnapshotBase>();
-    return TRUE;
+    return true;
 }
 
 // virtual
@@ -104,7 +104,7 @@ LLSnapshotModel::ESnapshotFormat LLPanelSnapshot::getImageFormat() const
     return LLSnapshotModel::SNAPSHOT_FORMAT_JPEG;
 }
 
-void LLPanelSnapshot::enableControls(BOOL enable)
+void LLPanelSnapshot::enableControls(bool enable)
 {
     setCtrlsEnabled(enable);
 }
@@ -133,7 +133,7 @@ S32 LLPanelSnapshot::getTypedPreviewHeight() const
     return getChild<LLUICtrl>(getHeightSpinnerName())->getValue().asInteger();
 }
 
-void LLPanelSnapshot::enableAspectRatioCheckbox(BOOL enable)
+void LLPanelSnapshot::enableAspectRatioCheckbox(bool enable)
 {
     llassert(!getAspectRatioCBName().empty());
     getChild<LLUICtrl>(getAspectRatioCBName())->setEnabled(enable);

@@ -46,8 +46,8 @@ public:
     bool isShowPhantomToggleWarning(LLPathfindingLinkset::ELinksetUse pLinksetUse) const;
     bool isShowCannotBeVolumeWarning(LLPathfindingLinkset::ELinksetUse pLinksetUse) const;
 
-    void determinePossibleStates(BOOL &pCanBeWalkable, BOOL &pCanBeStaticObstacle, BOOL &pCanBeDynamicObstacle,
-        BOOL &pCanBeMaterialVolume, BOOL &pCanBeExclusionVolume, BOOL &pCanBeDynamicPhantom) const;
+    void determinePossibleStates(bool &pCanBeWalkable, bool &pCanBeStaticObstacle, bool &pCanBeDynamicObstacle,
+        bool &pCanBeMaterialVolume, bool &pCanBeExclusionVolume, bool &pCanBeDynamicPhantom) const;
 
 protected:
 

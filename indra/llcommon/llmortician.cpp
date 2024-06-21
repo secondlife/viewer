@@ -30,7 +30,7 @@
 
 std::list<LLMortician*> LLMortician::sGraveyard;
 
-BOOL LLMortician::sDestroyImmediate = FALSE;
+bool LLMortician::sDestroyImmediate = false;
 
 LLMortician::~LLMortician()
 {
@@ -88,19 +88,19 @@ void LLMortician::die()
     if (sDestroyImmediate)
     {
         // *NOTE: This is a hack to ensure destruction order on shutdown (relative to non-mortician controlled classes).
-        mIsDead = TRUE;
+        mIsDead = true;
         delete this;
         return;
     }
     else if (!mIsDead)
     {
-        mIsDead = TRUE;
+        mIsDead = true;
         sGraveyard.push_back(this);
     }
 }
 
 // static
-void LLMortician::setZealous(BOOL b)
+void LLMortician::setZealous(bool b)
 {
     sDestroyImmediate = b;
 }

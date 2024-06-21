@@ -109,7 +109,7 @@ RenderReflectionProbeLevel  1   0
 RenderMirrors				1	0
 RenderHeroProbeResolution	1	256
 RenderHeroProbeDistance		1	4
-RenderHeroProbeUpdateRate	1	4
+RenderHeroProbeUpdateRate	1   6
 RenderHeroProbeConservativeUpdateMultiplier 1 16
 
 //

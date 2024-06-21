@@ -40,7 +40,7 @@ public:
     LLPanelLandmarkInfo();
     /*virtual*/ ~LLPanelLandmarkInfo();
 
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
 
     /*virtual*/ void resetLocation();
 
@@ -55,15 +55,15 @@ public:
     // Displays landmark owner, creator and creation date info.
     void displayItemInfo(const LLInventoryItem* pItem);
 
-    void toggleLandmarkEditMode(BOOL enabled);
-    void setCanEdit(BOOL enabled);
+    void toggleLandmarkEditMode(bool enabled);
+    void setCanEdit(bool enabled);
 
     const std::string& getLandmarkTitle() const;
     const std::string getLandmarkNotes() const;
     const LLUUID getLandmarkFolder() const;
 
     // Select current landmark folder in combobox.
-    BOOL setLandmarkFolder(const LLUUID& id);
+    bool setLandmarkFolder(const LLUUID& id);
 
     typedef std::vector<LLPointer<LLViewerInventoryCategory> > cat_array_t;
     static std::string getFullFolderName(const LLViewerInventoryCategory* cat);

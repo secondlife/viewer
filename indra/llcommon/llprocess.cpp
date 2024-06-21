@@ -561,9 +561,9 @@ LLProcess::LLProcess(const LLSDOrParams& params):
     // IQA-490, CHOP-900: On Windows, ask APR to jump through hoops to
     // constrain the set of handles passed to the child process. Before we
     // changed to APR, the Windows implementation of LLProcessLauncher called
-    // CreateProcess(bInheritHandles=FALSE), meaning to pass NO open handles
+    // CreateProcess(bInheritHandles=false), meaning to pass NO open handles
     // to the child process. Now that we support pipes, though, we must allow
-    // apr_proc_create() to pass bInheritHandles=TRUE. But without taking
+    // apr_proc_create() to pass bInheritHandles=true. But without taking
     // special pains, that causes trouble in a number of ways, due to the fact
     // that the viewer is constantly opening and closing files -- most of
     // which CreateProcess() passes to every child process!

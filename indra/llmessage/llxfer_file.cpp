@@ -49,10 +49,10 @@ S32 copy_file(const std::string& from, const std::string& to);
 LLXfer_File::LLXfer_File (S32 chunk_size)
 : LLXfer(chunk_size)
 {
-    init(LLStringUtil::null, FALSE, chunk_size);
+    init(LLStringUtil::null, false, chunk_size);
 }
 
-LLXfer_File::LLXfer_File (const std::string& local_filename, BOOL delete_local_on_completion, S32 chunk_size)
+LLXfer_File::LLXfer_File (const std::string& local_filename, bool delete_local_on_completion, S32 chunk_size)
 : LLXfer(chunk_size)
 {
     init(local_filename, delete_local_on_completion, chunk_size);
@@ -67,7 +67,7 @@ LLXfer_File::~LLXfer_File ()
 
 ///////////////////////////////////////////////////////////
 
-void LLXfer_File::init (const std::string& local_filename, BOOL delete_local_on_completion, S32 chunk_size)
+void LLXfer_File::init (const std::string& local_filename, bool delete_local_on_completion, S32 chunk_size)
 {
 
     mFp = NULL;
@@ -75,8 +75,8 @@ void LLXfer_File::init (const std::string& local_filename, BOOL delete_local_on_
     mRemoteFilename.clear();
     mRemotePath = LL_PATH_NONE;
     mTempFilename.clear();
-    mDeleteLocalOnCompletion = FALSE;
-    mDeleteRemoteOnCompletion = FALSE;
+    mDeleteLocalOnCompletion = false;
+    mDeleteRemoteOnCompletion = false;
 
     if (!local_filename.empty())
     {
@@ -120,7 +120,7 @@ S32 LLXfer_File::initializeRequest(U64 xfer_id,
                    const std::string& remote_filename,
                    ELLPath remote_path,
                    const LLHost& remote_host,
-                   BOOL delete_remote_on_completion,
+                   bool delete_remote_on_completion,
                    void (*callback)(void**,S32,LLExtStat),
                    void** user_data)
 {
@@ -174,7 +174,7 @@ S32 LLXfer_File::startDownload()
         gMessageSystem->addStringFast(_PREHASH_Filename, mRemoteFilename);
         gMessageSystem->addU8("FilePath", (U8) mRemotePath);
         gMessageSystem->addBOOL("DeleteOnCompletion", mDeleteRemoteOnCompletion);
-        gMessageSystem->addBOOL("UseBigPackets", BOOL(mChunkSize == LL_XFER_LARGE_PAYLOAD));
+        gMessageSystem->addBOOL("UseBigPackets", mChunkSize == LL_XFER_LARGE_PAYLOAD);
         gMessageSystem->addUUIDFast(_PREHASH_VFileID, LLUUID::null);
         gMessageSystem->addS16Fast(_PREHASH_VFileType, -1);
 
@@ -287,11 +287,11 @@ S32 LLXfer_File::suck(S32 start_position)
 
         if (feof(mFp))
         {
-            mBufferContainsEOF = TRUE;
+            mBufferContainsEOF = true;
         }
         else
         {
-            mBufferContainsEOF = FALSE;
+            mBufferContainsEOF = false;
         }
     }
     else
@@ -317,7 +317,7 @@ S32 LLXfer_File::flush()
 
         if (mFp)
         {
-            S32 write_size = fwrite(mBuffer,1,mBufferLength,mFp);
+            S32 write_size = static_cast<S32>(fwrite(mBuffer,1,mBufferLength,mFp));
             if (write_size != mBufferLength)
             {
                 LL_WARNS("Xfer") << "Non-matching write size, requested " << mBufferLength
@@ -412,14 +412,14 @@ S32 LLXfer_File::processEOF()
 
 ///////////////////////////////////////////////////////////
 
-BOOL LLXfer_File::matchesLocalFilename(const std::string& filename)
+bool LLXfer_File::matchesLocalFilename(const std::string& filename)
 {
     return (filename == mLocalFilename);
 }
 
 ///////////////////////////////////////////////////////////
 
-BOOL LLXfer_File::matchesRemoteFilename(const std::string& filename, ELLPath remote_path)
+bool LLXfer_File::matchesRemoteFilename(const std::string& filename, ELLPath remote_path)
 {
     return ((filename == mRemoteFilename) && (remote_path == mRemotePath));
 }

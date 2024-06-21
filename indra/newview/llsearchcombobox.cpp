@@ -71,7 +71,7 @@ LLSearchComboBox::LLSearchComboBox(const Params&p)
     button_params.click_callback.function(boost::bind(&LLSearchComboBox::onSelectionCommit, this));
     mSearchButton = LLUICtrlFactory::create<LLButton>(button_params);
     mTextEntry->addChild(mSearchButton);
-    mTextEntry->setPassDelete(TRUE);
+    mTextEntry->setPassDelete(true);
 
     setButtonVisible(p.dropdown_button_visible);
     mTextEntry->setCommitCallback(boost::bind(&LLComboBox::onTextCommit, this, _2));
@@ -124,7 +124,7 @@ void LLSearchComboBox::onTextEntry(LLLineEditor* line_editor)
 
 void LLSearchComboBox::focusTextEntry()
 {
-    // We can't use "mTextEntry->setFocus(TRUE)" instead because
+    // We can't use "mTextEntry->setFocus(true)" instead because
     // if the "select_on_focus" parameter is true it places the cursor
     // at the beginning (after selecting text), thus screwing up updateSelection().
     if (mTextEntry)
@@ -164,9 +164,9 @@ void LLSearchComboBox::onSelectionCommit()
     setControlValue(search_query);
 }
 
-BOOL LLSearchComboBox::remove(const std::string& name)
+bool LLSearchComboBox::remove(const std::string& name)
 {
-    BOOL found = mList->selectItemByLabel(name, FALSE);
+    bool found = mList->selectItemByLabel(name, false);
 
     if (found)
     {
@@ -186,7 +186,7 @@ void LLSearchComboBox::clearHistory()
     setTextEntry(LLStringUtil::null);
 }
 
-BOOL LLSearchComboBox::handleKeyHere(KEY key,MASK mask )
+bool LLSearchComboBox::handleKeyHere(KEY key,MASK mask )
 {
     if(mTextEntry->hasFocus() && MASK_NONE == mask && KEY_DOWN == key)
     {

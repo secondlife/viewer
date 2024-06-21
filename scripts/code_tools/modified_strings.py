@@ -49,7 +49,7 @@ into google sheets.
 
 If the --rev revision already contains a translation for the text, it
 will be included in the spreadsheet for reference.
-    
+
 Normally you would want --rev_base to be the last revision to have
 translations added, and --rev to be the tip of the current
 project. You can find the last commit with translation work using "git log --grep INTL- | head"
@@ -242,7 +242,7 @@ def find_deletions(mod_tree, base_tree, lang, args, f):
         mod_filename = transl_filename.replace("/xui/{}/".format(lang), "/xui/{}/".format(args.base_lang))
         #print("checking",transl_filename,"against",mod_filename)
         try:
-            mod_blob = mod_tree[mod_filename] 
+            mod_blob = mod_tree[mod_filename]
         except:
             print("  delete file", transl_filename, file=f)
             continue
@@ -257,7 +257,7 @@ def find_deletions(mod_tree, base_tree, lang, args, f):
             if not elt_key in mod_dict:
                 if lines == 0:
                     print("  in file", transl_filename, file=f)
-                lines += 1   
+                lines += 1
                 print("    delete element", elt_key, file=f)
             else:
                 transl_elt = transl_dict[elt_key]
@@ -266,14 +266,14 @@ def find_deletions(mod_tree, base_tree, lang, args, f):
                     if not a in mod_elt.attrib:
                         if lines == 0:
                             print("  in file", transl_filename, file=f)
-                        lines += 1   
+                        lines += 1
                         print("    delete attribute", a, "from", elt_key, file=f)
                 if transl_elt.text and (not mod_elt.text):
                     if lines == 0:
                         print("  in file", transl_filename, file=f)
-                    lines += 1   
+                    lines += 1
                     print("    delete text from", elt_key, file=f)
-    
+
 def save_translation_file(per_lang_data, aux_data, outfile):
 
     langs = sorted(per_lang_data.keys())
@@ -310,12 +310,12 @@ def save_translation_file(per_lang_data, aux_data, outfile):
 
     # Reference info, not for translation
     for aux, data in list(aux_data.items()):
-        df = pd.DataFrame(data, columns = ["Key", "Value"]) 
+        df = pd.DataFrame(data, columns = ["Key", "Value"])
         df.to_excel(writer, index=False, sheet_name=aux)
         worksheet = writer.sheets[aux]
         worksheet.set_column('A:A', 50, bold_wrap_format)
         worksheet.set_column('B:B', 80, wrap_format)
-        
+
     print("Writing", outfile)
     writer.save()
 

@@ -48,47 +48,47 @@ public:
     /*virtual*/ void show();
     /*virtual*/ void hide();
     /*virtual*/ void close();
-    /*virtual*/ BOOL getVisible();
-    /*virtual*/ BOOL getMinimized();
-    /*virtual*/ BOOL getMaximized();
-    /*virtual*/ BOOL maximize();
+    /*virtual*/ bool getVisible();
+    /*virtual*/ bool getMinimized();
+    /*virtual*/ bool getMaximized();
+    /*virtual*/ bool maximize();
     /*virtual*/ void minimize();
     /*virtual*/ void restore();
-    /*virtual*/ BOOL getFullscreen();
-    /*virtual*/ BOOL getPosition(LLCoordScreen *position);
-    /*virtual*/ BOOL getSize(LLCoordScreen *size);
-    /*virtual*/ BOOL getSize(LLCoordWindow *size);
-    /*virtual*/ BOOL setPosition(LLCoordScreen position);
-    /*virtual*/ BOOL setSizeImpl(LLCoordScreen size);
-    /*virtual*/ BOOL setSizeImpl(LLCoordWindow size);
-    /*virtual*/ BOOL switchContext(BOOL fullscreen, const LLCoordScreen &size, BOOL enable_vsync, const LLCoordScreen * const posp = NULL);
+    /*virtual*/ bool getFullscreen();
+    /*virtual*/ bool getPosition(LLCoordScreen *position);
+    /*virtual*/ bool getSize(LLCoordScreen *size);
+    /*virtual*/ bool getSize(LLCoordWindow *size);
+    /*virtual*/ bool setPosition(LLCoordScreen position);
+    /*virtual*/ bool setSizeImpl(LLCoordScreen size);
+    /*virtual*/ bool setSizeImpl(LLCoordWindow size);
+    /*virtual*/ bool switchContext(bool fullscreen, const LLCoordScreen &size, bool enable_vsync, const LLCoordScreen * const posp = NULL);
     /*virtual*/ void setTitle(const std::string title);
     void* createSharedContext() override;
     void makeContextCurrent(void* context) override;
     void destroySharedContext(void* context) override;
     /*virtual*/ void toggleVSync(bool enable_vsync);
-    /*virtual*/ BOOL setCursorPosition(LLCoordWindow position);
-    /*virtual*/ BOOL getCursorPosition(LLCoordWindow *position);
-    /*virtual*/ BOOL getCursorDelta(LLCoordCommon* delta);
+    /*virtual*/ bool setCursorPosition(LLCoordWindow position);
+    /*virtual*/ bool getCursorPosition(LLCoordWindow *position);
+    /*virtual*/ bool getCursorDelta(LLCoordCommon* delta);
     /*virtual*/ void showCursor();
     /*virtual*/ void hideCursor();
     /*virtual*/ void showCursorFromMouseMove();
     /*virtual*/ void hideCursorUntilMouseMove();
-    /*virtual*/ BOOL isCursorHidden();
+    /*virtual*/ bool isCursorHidden();
     /*virtual*/ void updateCursor();
     /*virtual*/ ECursorType getCursor() const;
     /*virtual*/ void captureMouse();
     /*virtual*/ void releaseMouse();
-    /*virtual*/ void setMouseClipping( BOOL b );
-    /*virtual*/ BOOL isClipboardTextAvailable();
-    /*virtual*/ BOOL pasteTextFromClipboard(LLWString &dst);
-    /*virtual*/ BOOL copyTextToClipboard(const LLWString &src);
+    /*virtual*/ void setMouseClipping( bool b );
+    /*virtual*/ bool isClipboardTextAvailable();
+    /*virtual*/ bool pasteTextFromClipboard(LLWString &dst);
+    /*virtual*/ bool copyTextToClipboard(const LLWString &src);
     /*virtual*/ void flashIcon(F32 seconds);
     /*virtual*/ F32 getGamma();
-    /*virtual*/ BOOL setGamma(const F32 gamma); // Set the gamma
+    /*virtual*/ bool setGamma(const F32 gamma); // Set the gamma
     /*virtual*/ void setFSAASamples(const U32 fsaa_samples);
     /*virtual*/ U32 getFSAASamples();
-    /*virtual*/ BOOL restoreGamma();            // Restore original gamma table (before updating gamma)
+    /*virtual*/ bool restoreGamma();            // Restore original gamma table (before updating gamma)
     /*virtual*/ ESwapMethod getSwapMethod() { return mSwapMethod; }
     /*virtual*/ void gatherInput();
     /*virtual*/ void delayInputProcessing();
@@ -96,27 +96,25 @@ public:
     /*virtual*/ void restoreGLContext() {};
 
     // handy coordinate space conversion routines
-    /*virtual*/ BOOL convertCoords(LLCoordScreen from, LLCoordWindow *to);
-    /*virtual*/ BOOL convertCoords(LLCoordWindow from, LLCoordScreen *to);
-    /*virtual*/ BOOL convertCoords(LLCoordWindow from, LLCoordGL *to);
-    /*virtual*/ BOOL convertCoords(LLCoordGL from, LLCoordWindow *to);
-    /*virtual*/ BOOL convertCoords(LLCoordScreen from, LLCoordGL *to);
-    /*virtual*/ BOOL convertCoords(LLCoordGL from, LLCoordScreen *to);
+    /*virtual*/ bool convertCoords(LLCoordScreen from, LLCoordWindow *to);
+    /*virtual*/ bool convertCoords(LLCoordWindow from, LLCoordScreen *to);
+    /*virtual*/ bool convertCoords(LLCoordWindow from, LLCoordGL *to);
+    /*virtual*/ bool convertCoords(LLCoordGL from, LLCoordWindow *to);
+    /*virtual*/ bool convertCoords(LLCoordScreen from, LLCoordGL *to);
+    /*virtual*/ bool convertCoords(LLCoordGL from, LLCoordScreen *to);
 
     /*virtual*/ LLWindowResolution* getSupportedResolutions(S32 &num_resolutions);
     /*virtual*/ F32 getNativeAspectRatio();
     /*virtual*/ F32 getPixelAspectRatio();
     /*virtual*/ void setNativeAspectRatio(F32 ratio) { mOverrideAspectRatio = ratio; }
 
-    U32 getAvailableVRAMMegabytes() override;
-
-    /*virtual*/ BOOL dialogColorPicker(F32 *r, F32 *g, F32 *b );
+    /*virtual*/ bool dialogColorPicker(F32 *r, F32 *g, F32 *b );
 
     /*virtual*/ void *getPlatformWindow();
     /*virtual*/ void bringToFront();
     /*virtual*/ void focusClient();
 
-    /*virtual*/ void allowLanguageTextInput(LLPreeditor *preeditor, BOOL b);
+    /*virtual*/ void allowLanguageTextInput(LLPreeditor *preeditor, bool b);
     /*virtual*/ void setLanguageTextInput( const LLCoordGL & pos );
     /*virtual*/ void updateLanguageTextInputArea();
     /*virtual*/ void interruptLanguageTextInput();
@@ -141,47 +139,43 @@ public:
 protected:
     LLWindowWin32(LLWindowCallbacks* callbacks,
         const std::string& title, const std::string& name, int x, int y, int width, int height, U32 flags,
-        BOOL fullscreen, BOOL clearBg, BOOL enable_vsync, BOOL use_gl,
-        BOOL ignore_pixel_depth, U32 fsaa_samples, U32 max_cores, U32 max_vram, F32 max_gl_version);
+        bool fullscreen, bool clearBg, bool enable_vsync, bool use_gl,
+        bool ignore_pixel_depth, U32 fsaa_samples, U32 max_cores, F32 max_gl_version);
     ~LLWindowWin32();
 
     void    initCursors();
-    void    initInputDevices();
     HCURSOR loadColorCursor(LPCTSTR name);
-    BOOL    isValid();
+    bool    isValid();
     void    moveWindow(const LLCoordScreen& position,const LLCoordScreen& size);
     virtual LLSD    getNativeKeyData();
 
     // Changes display resolution. Returns true if successful
-    BOOL    setDisplayResolution(S32 width, S32 height, S32 bits, S32 refresh);
+    bool    setDisplayResolution(S32 width, S32 height, S32 bits, S32 refresh);
 
     // Go back to last fullscreen display resolution.
-    BOOL    setFullscreenResolution();
+    bool    setFullscreenResolution();
 
     // Restore the display resolution to its value before we ran the app.
-    BOOL    resetDisplayResolution();
+    bool    resetDisplayResolution();
 
-    BOOL    shouldPostQuit() { return mPostQuit; }
+    bool    shouldPostQuit() { return mPostQuit; }
 
-    void    fillCompositionForm(const LLRect& bounds, COMPOSITIONFORM *form);
     void    fillCandidateForm(const LLCoordGL& caret, const LLRect& bounds, CANDIDATEFORM *form);
     void    fillCharPosition(const LLCoordGL& caret, const LLRect& bounds, const LLRect& control, IMECHARPOSITION *char_position);
     void    fillCompositionLogfont(LOGFONT *logfont);
     U32     fillReconvertString(const LLWString &text, S32 focus, S32 focus_length, RECONVERTSTRING *reconvert_string);
     void    handleStartCompositionMessage();
     void    handleCompositionMessage(U32 indexes);
-    BOOL    handleImeRequests(WPARAM request, LPARAM param, LRESULT *result);
+    bool    handleImeRequests(WPARAM request, LPARAM param, LRESULT *result);
 
 protected:
     //
     // Platform specific methods
     //
 
-    BOOL    getClientRectInScreenSpace(RECT* rectp);
-    void    updateJoystick( );
+    bool    getClientRectInScreenSpace(RECT* rectp);
 
     static LRESULT CALLBACK mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_param, LPARAM l_param);
-    static BOOL CALLBACK enumChildWindows(HWND h_wnd, LPARAM l_param);
 
 
     //
@@ -209,7 +203,7 @@ protected:
 
     MASK        mMouseMask;
 
-    static BOOL sIsClassRegistered; // has the window class been registered?
+    static bool sIsClassRegistered; // has the window class been registered?
 
     F32         mCurrentGamma;
     U32         mFSAASamples;
@@ -217,16 +211,16 @@ protected:
     F32         mMaxGLVersion; // maximum OpenGL version to attempt to use (clamps to 3.2 - 4.6)
     WORD        mPrevGammaRamp[3][256];
     WORD        mCurrentGammaRamp[3][256];
-    BOOL        mCustomGammaSet;
+    bool        mCustomGammaSet;
 
     LPWSTR      mIconResource;
-    BOOL        mInputProcessingPaused;
+    bool        mInputProcessingPaused;
 
     // The following variables are for Language Text Input control.
     // They are all static, since one context is shared by all LLWindowWin32
     // instances.
-    static BOOL     sLanguageTextInputAllowed;
-    static BOOL     sWinIMEOpened;
+    static bool     sLanguageTextInputAllowed;
+    static bool     sWinIMEOpened;
     static HKL      sWinInputLocale;
     static DWORD    sWinIMEConversionMode;
     static DWORD    sWinIMESentenceMode;
@@ -245,7 +239,7 @@ protected:
     U32             mRawWParam;
     U32             mRawLParam;
 
-    BOOL            mMouseVanish;
+    bool            mMouseVanish;
 
     // Cached values of GetWindowRect and GetClientRect to be used by app thread
     void updateWindowRect();
@@ -287,8 +281,6 @@ private:
 
 extern LLW32MsgCallback gAsyncMsgCallback;
 extern LPWSTR gIconResource;
-
-static void handleMessage( const MSG& msg );
 
 S32 OSMessageBoxWin32(const std::string& text, const std::string& caption, U32 type);
 

@@ -676,13 +676,13 @@ LLVector3   *LLNameValue::getVec3()
 }
 
 
-BOOL LLNameValue::sendToData() const
+bool LLNameValue::sendToData() const
 {
     return (mSendto == NVS_DATA_SIM || mSendto == NVS_DATA_SIM_VIEWER);
 }
 
 
-BOOL LLNameValue::sendToViewer() const
+bool LLNameValue::sendToViewer() const
 {
     return (mSendto == NVS_SIM_VIEWER || mSendto == NVS_DATA_SIM_VIEWER);
 }

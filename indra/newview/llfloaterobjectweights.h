@@ -58,7 +58,7 @@ public:
     LLFloaterObjectWeights(const LLSD& key);
     ~LLFloaterObjectWeights();
 
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
 
     /*virtual*/ void onOpen(const LLSD& key);
 

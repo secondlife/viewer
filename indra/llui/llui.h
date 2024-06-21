@@ -77,7 +77,10 @@ enum EDragAndDropType
     DAD_PERSON          = 17,
     DAD_SETTINGS        = 18,
     DAD_MATERIAL        = 19,
-    DAD_COUNT           = 20,   // number of types in this enum
+    DAD_GLTF            = 20,
+    DAD_GLTF_BIN        = 21,
+
+    DAD_COUNT           = 22,   // number of types in this enum
 };
 
 // Reasons for drags to be denied.
@@ -234,7 +237,7 @@ public:
 
 
     private:
-        S32 mValue;
+        S32 mValue{ 0 };
     };
 
     //

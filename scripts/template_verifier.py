@@ -73,8 +73,8 @@ from indra.ipc import tokenstream
 from indra.ipc import llmessage
 
 def getstatusall(command):
-    """ Like commands.getstatusoutput, but returns stdout and 
-    stderr separately(to get around "killed by signal 15" getting 
+    """ Like commands.getstatusoutput, but returns stdout and
+    stderr separately(to get around "killed by signal 15" getting
     included as part of the file).  Also, works on Windows."""
     (input, out, err) = os.popen3(command, 't')
     status = input.close() # send no input to the command
@@ -257,7 +257,7 @@ http://wiki.secondlife.com/wiki/Template_verifier.py
     elif len(args) == 1:
         master_url = None
         current_filename = args[0]
-        print("master:", options.master_url) 
+        print("master:", options.master_url)
         print("current:", current_filename)
         current_url = 'file://%s' % current_filename
     # nothing specified, use defaults for everything
@@ -269,7 +269,7 @@ http://wiki.secondlife.com/wiki/Template_verifier.py
 
     if master_url is None:
         master_url = options.master_url
-        
+
     if current_url is None:
         current_filename = local_template_filename()
         print("master:", options.master_url)
@@ -307,7 +307,7 @@ http://wiki.secondlife.com/wiki/Template_verifier.py
             print("Syntax-checking the local template ONLY, no compatibility check is being run.")
             print("Cause: %s\n\n" % e)
             return 0
-        
+
     acceptable, compat = compare(
         master_parsed, current_parsed, options.mode)
 

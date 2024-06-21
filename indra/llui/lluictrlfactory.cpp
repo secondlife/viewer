@@ -124,7 +124,7 @@ void LLUICtrlFactory::createChildren(LLView* viewp, LLXMLNodePtr node, const wid
         LLXMLNodePtr outputChild;
         if (output_node)
         {
-            outputChild = output_node->createChild("", FALSE);
+            outputChild = output_node->createChild("", false);
         }
 
         if (!instance().createFromXML(child_node, viewp, LLStringUtil::null, registry, outputChild))

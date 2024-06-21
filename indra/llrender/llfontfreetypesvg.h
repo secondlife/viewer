@@ -46,7 +46,7 @@ public:
     //   - right before the svg module calls the render callback hook. (with cache == true)
     static FT_Error OnPresetGlypthSlot(FT_GlyphSlot glyph_slot, FT_Bool cache, FT_Pointer* state);
 
-    // Called to render an OT-SVG glyph (right after the preset hook OnPresetGlypthSlot was called with cache set to TRUE)
+    // Called to render an OT-SVG glyph (right after the preset hook OnPresetGlypthSlot was called with cache set to true)
     static FT_Error OnRender(FT_GlyphSlot glyph_slot, FT_Pointer* state);
 
     // Called to deallocate our per glyph slot data

@@ -274,12 +274,12 @@ void LLFilterSD2XMLRPC::streamOut(std::ostream& ostr, const LLSD& sd)
         if(!buffer.empty())
         {
             // *TODO: convert to LLBase64
-            int b64_buffer_length = apr_base64_encode_len(buffer.size());
+            int b64_buffer_length = apr_base64_encode_len(static_cast<int>(buffer.size()));
             char* b64_buffer = new char[b64_buffer_length];
             b64_buffer_length = apr_base64_encode_binary(
                 b64_buffer,
                 &buffer[0],
-                buffer.size());
+                static_cast<int>(buffer.size()));
             ostr.write(b64_buffer, b64_buffer_length - 1);
             delete[] b64_buffer;
         }

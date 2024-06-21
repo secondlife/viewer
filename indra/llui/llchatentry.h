@@ -84,7 +84,7 @@ private:
      */
     void    updateHistory();
 
-    BOOL    handleSpecialKey(const KEY key, const MASK mask);
+    bool    handleSpecialKey(const KEY key, const MASK mask);
 
 
     // Fired when text height expanded to mExpandLinesCount

@@ -68,9 +68,9 @@ class LLVector3d
             return ret;
         }
 
-        inline BOOL isFinite() const;                                   // checks to see if all values of LLVector3d are finite
-        BOOL        clamp(const F64 min, const F64 max);        // Clamps all values to (min,max), returns TRUE if data changed
-        BOOL        abs();                      // sets all values to absolute value of original value (first octant), returns TRUE if changed
+        inline bool isFinite() const;                                   // checks to see if all values of LLVector3d are finite
+        bool        clamp(const F64 min, const F64 max);        // Clamps all values to (min,max), returns true if data changed
+        bool        abs();                      // sets all values to absolute value of original value (first octant), returns true if changed
 
         inline const LLVector3d&    clear();        // Clears LLVector3d to (0, 0, 0, 1)
         inline const LLVector3d&    clearVec();     // deprecated
@@ -98,8 +98,8 @@ class LLVector3d
         const LLVector3d&   rotVec(const LLMatrix3 &mat);               // Rotates by LLMatrix4 mat
         const LLVector3d&   rotVec(const LLQuaternion &q);              // Rotates by LLQuaternion q
 
-        BOOL isNull() const;            // Returns TRUE if vector has a _very_small_ length
-        BOOL isExactlyZero() const      { return !mdV[VX] && !mdV[VY] && !mdV[VZ]; }
+        bool isNull() const;            // Returns true if vector has a _very_small_ length
+        bool isExactlyZero() const      { return !mdV[VX] && !mdV[VY] && !mdV[VZ]; }
 
         const LLVector3d&   operator=(const LLVector4 &a);
 
@@ -126,7 +126,7 @@ class LLVector3d
 
         friend std::ostream&     operator<<(std::ostream& s, const LLVector3d& a);      // Stream a
 
-        static BOOL parseVector3d(const std::string& buf, LLVector3d* value);
+        static bool parseVector3d(const std::string& buf, LLVector3d* value);
 
 };
 
@@ -189,7 +189,7 @@ inline LLVector3d::LLVector3d(const LLVector3d &copy)
 // Destructors
 
 // checker
-inline BOOL LLVector3d::isFinite() const
+inline bool LLVector3d::isFinite() const
 {
     return (llfinite(mdV[VX]) && llfinite(mdV[VY]) && llfinite(mdV[VZ]));
 }
@@ -472,13 +472,13 @@ inline LLVector3d lerp(const LLVector3d& a, const LLVector3d& b, const F64 u)
 }
 
 
-inline BOOL LLVector3d::isNull() const
+inline bool LLVector3d::isNull() const
 {
     if ( F_APPROXIMATELY_ZERO > mdV[VX]*mdV[VX] + mdV[VY]*mdV[VY] + mdV[VZ]*mdV[VZ] )
     {
-        return TRUE;
+        return true;
     }
-    return FALSE;
+    return false;
 }
 
 
@@ -495,7 +495,7 @@ inline F64 angle_between(const LLVector3d& a, const LLVector3d& b)
     return angle;
 }
 
-inline BOOL are_parallel(const LLVector3d& a, const LLVector3d& b, const F64 epsilon)
+inline bool are_parallel(const LLVector3d& a, const LLVector3d& b, const F64 epsilon)
 {
     LLVector3d an = a;
     LLVector3d bn = b;
@@ -504,10 +504,9 @@ inline BOOL are_parallel(const LLVector3d& a, const LLVector3d& b, const F64 eps
     F64 dot = an * bn;
     if ( (1.0f - fabs(dot)) < epsilon)
     {
-        return TRUE;
+        return true;
     }
-    return FALSE;
-
+    return false;
 }
 
 inline LLVector3d projected_vec(const LLVector3d& a, const LLVector3d& b)

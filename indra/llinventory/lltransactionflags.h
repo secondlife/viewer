@@ -39,10 +39,10 @@ extern const TransactionFlags TRANSACTION_FLAG_SIMULTANEOUS_CONTRIBUTION;
 extern const TransactionFlags TRANSACTION_FLAG_SIMULTANEOUS_CONTRIBUTION_REMOVAL;
 
 // very simple helper functions
-TransactionFlags pack_transaction_flags(BOOL is_source_group, BOOL is_dest_group);
-BOOL is_tf_source_group(TransactionFlags flags);
-BOOL is_tf_dest_group(TransactionFlags flags);
-BOOL is_tf_owner_group(TransactionFlags flags);
+TransactionFlags pack_transaction_flags(bool is_source_group, bool is_dest_group);
+bool is_tf_source_group(TransactionFlags flags);
+bool is_tf_dest_group(TransactionFlags flags);
+bool is_tf_owner_group(TransactionFlags flags);
 
 // stupid helper functions which should be replaced with some kind of
 // internationalizeable message.

@@ -46,7 +46,7 @@
 #include "llsettingsvo.h"
 #include "llviewercontrol.h"
 
-extern BOOL gCubeSnapshot;
+extern bool gCubeSnapshot;
 
 static LLStaticHashedString sCamPosLocal("camPosLocal");
 static LLStaticHashedString sCustomAlpha("custom_alpha");

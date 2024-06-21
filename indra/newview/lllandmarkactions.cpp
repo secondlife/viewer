@@ -84,12 +84,12 @@ class LLFetchLandmarksByName : public LLInventoryCollectFunctor
 {
 private:
     std::string name;
-    BOOL use_substring;
+    bool use_substring;
     //this member will be contain copy of founded items to keep the result unique
     std::set<std::string> check_duplicate;
 
 public:
-LLFetchLandmarksByName(std::string &landmark_name, BOOL if_use_substring)
+LLFetchLandmarksByName(std::string &landmark_name, bool if_use_substring)
 :name(landmark_name),
 use_substring(if_use_substring)
     {
@@ -178,7 +178,7 @@ static void fetch_landmarks(LLInventoryModel::cat_array_t& cats,
         add);
 }
 
-LLInventoryModel::item_array_t LLLandmarkActions::fetchLandmarksByName(std::string& name, BOOL use_substring)
+LLInventoryModel::item_array_t LLLandmarkActions::fetchLandmarksByName(std::string& name, bool use_substring)
 {
     LLInventoryModel::cat_array_t cats;
     LLInventoryModel::item_array_t items;

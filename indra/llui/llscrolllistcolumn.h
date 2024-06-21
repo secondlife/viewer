@@ -50,23 +50,23 @@ public:
     ~LLScrollColumnHeader();
 
     /*virtual*/ void draw();
-    /*virtual*/ BOOL handleDoubleClick(S32 x, S32 y, MASK mask);
+    /*virtual*/ bool handleDoubleClick(S32 x, S32 y, MASK mask);
 
     /*virtual*/ LLView* findSnapEdge(S32& new_edge_val, const LLCoordGL& mouse_dir, ESnapEdge snap_edge, ESnapType snap_type, S32 threshold, S32 padding);
     /*virtual*/ void handleReshape(const LLRect& new_rect, bool by_user = false);
 
     LLScrollListColumn* getColumn() { return mColumn; }
-    void setHasResizableElement(BOOL resizable);
+    void setHasResizableElement(bool resizable);
     void updateResizeBars();
-    BOOL canResize();
-    void enableResizeBar(BOOL enable);
+    bool canResize();
+    void enableResizeBar(bool enable);
 
     void onClick(const LLSD& data);
 
 private:
     LLScrollListColumn* mColumn;
     LLResizeBar*        mResizeBar;
-    BOOL                mHasResizableElement;
+    bool                mHasResizableElement;
 };
 
 /*
@@ -158,7 +158,7 @@ public:
     ESortDirection          mSortDirection;
     LLUIString              mLabel;
     F32                     mRelWidth;
-    BOOL                    mDynamicWidth;
+    bool                    mDynamicWidth;
     S32                     mMaxContentWidth;
     S32                     mIndex;
     LLScrollListCtrl*       mParentCtrl;

@@ -365,7 +365,7 @@ void LLXSDWriter::writeXSD(const std::string& type_name, LLXMLNodePtr node, cons
 
     // duplicate element choices
     LLXMLNodeList children;
-    mElementNode->getChildren("xs:element", children, FALSE);
+    mElementNode->getChildren("xs:element", children, false);
     for (LLXMLNodeList::iterator child_it = children.begin(); child_it != children.end(); ++child_it)
     {
         LLXMLNodePtr child_copy = child_it->second->deepCopy();
@@ -930,10 +930,10 @@ bool LLXUIParser::writeFlag(Parser& parser, const void* val_ptr, name_stack_t& s
 
 bool LLXUIParser::readBoolValue(Parser& parser, void* val_ptr)
 {
-    S32 value;
+    bool value;
     LLXUIParser& self = static_cast<LLXUIParser&>(parser);
     bool success = self.mCurReadNode->getBoolValue(1, &value);
-    *((bool*)val_ptr) = (value != FALSE);
+    *((bool*)val_ptr) = value;
     return success;
 }
 
@@ -1426,7 +1426,7 @@ bool LLSimpleXUIParser::readXUI(const std::string& filename, LLInitParam::BaseBl
 
     mEmptyLeafNode.push_back(false);
 
-    if( !XML_ParseBuffer(mParser, bytes_read, TRUE ) )
+    if( !XML_ParseBuffer(mParser, bytes_read, true ) )
     {
         LL_WARNS("ReadXUI") << "Error while parsing file  " << filename << LL_ENDL;
         XML_ParserFree( mParser );

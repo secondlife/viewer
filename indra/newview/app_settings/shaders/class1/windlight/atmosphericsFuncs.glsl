@@ -57,9 +57,9 @@ void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, ou
 
     vec3  rel_pos_norm = normalize(rel_pos);
     float rel_pos_len  = length(rel_pos);
-    
+
     vec3  sunlight     = (sun_up_factor == 1) ? sunlight_color: moonlight_color;
-    
+
     // sunlight attenuation effect (hue and brightness) due to atmosphere
     // this is used later for sunlight modulation at various altitudes
     vec3 light_atten = (blue_density + vec3(haze_density * 0.25)) * (density_multiplier * max_y);
@@ -119,7 +119,7 @@ void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, ou
     additive = (blue_horizon.rgb * blue_weight.rgb) * (cs + tmpAmbient.rgb) + (haze_horizon * haze_weight.rgb) * (cs * haze_glow + tmpAmbient.rgb);
 
     // brightness of surface both sunlight and ambient
-    
+
     sunlit = sunlight.rgb;
     amblit = tmpAmbient;
 
@@ -128,7 +128,7 @@ void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, ou
 
 vec3 srgb_to_linear(vec3 col);
 
-// provide a touch of lighting in the opposite direction of the sun light 
+// provide a touch of lighting in the opposite direction of the sun light
     // so areas in shadow don't lose all detail
 float ambientLighting(vec3 norm, vec3 light_dir)
 {
@@ -150,7 +150,7 @@ void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 norm, vec3 light_dir, ou
     // (allows for mixing of light sources other than sunlight e.g. reflection probes)
     sunlit *= sky_sunlight_scale;
     amblit *= sky_ambient_scale;
-    
+
     amblit = srgb_to_linear(amblit);
     amblit *= ambientLighting(norm, light_dir);
 }

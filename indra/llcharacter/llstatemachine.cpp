@@ -49,7 +49,7 @@ bool    operator!=(const LLUniqueID &a, const LLUniqueID &b)
 LLStateDiagram::LLStateDiagram()
 {
     mDefaultState = NULL;
-    mUseDefaultState = FALSE;
+    mUseDefaultState = false;
 }
 
 LLStateDiagram::~LLStateDiagram()
@@ -58,14 +58,14 @@ LLStateDiagram::~LLStateDiagram()
 }
 
 // add a state to the state graph
-BOOL LLStateDiagram::addState(LLFSMState *state)
+bool LLStateDiagram::addState(LLFSMState *state)
 {
     mStates[state] = Transitions();
-    return TRUE;
+    return true;
 }
 
 // add a directed transition between 2 states
-BOOL LLStateDiagram::addTransition(LLFSMState& start_state, LLFSMState& end_state, LLFSMTransition& transition)
+bool LLStateDiagram::addTransition(LLFSMState& start_state, LLFSMState& end_state, LLFSMTransition& transition)
 {
     StateMap::iterator state_it;
     state_it = mStates.find(&start_state);
@@ -89,17 +89,17 @@ BOOL LLStateDiagram::addTransition(LLFSMState& start_state, LLFSMState& end_stat
     if (transition_it != state_transitions->end())
     {
         LL_ERRS() << "LLStateTable::addDirectedTransition() : transition already exists" << LL_ENDL;
-        return FALSE; // transition already exists
+        return false; // transition already exists
     }
 
     (*state_transitions)[&transition] = &end_state;
-    return TRUE;
+    return true;
 }
 
 // add an undirected transition between 2 states
-BOOL LLStateDiagram::addUndirectedTransition(LLFSMState& start_state, LLFSMState& end_state, LLFSMTransition& transition)
+bool LLStateDiagram::addUndirectedTransition(LLFSMState& start_state, LLFSMState& end_state, LLFSMTransition& transition)
 {
-    BOOL result;
+    bool result;
     result = addTransition(start_state, end_state, transition);
     if (result)
     {
@@ -162,7 +162,7 @@ LLFSMState* LLStateDiagram::processTransition(LLFSMState& start_state, LLFSMTran
 
 void LLStateDiagram::setDefaultState(LLFSMState& default_state)
 {
-    mUseDefaultState = TRUE;
+    mUseDefaultState = true;
     mDefaultState = &default_state;
 }
 
@@ -179,13 +179,13 @@ S32 LLStateDiagram::numDeadendStates()
     return numDeadends;
 }
 
-BOOL LLStateDiagram::stateIsValid(LLFSMState& state)
+bool LLStateDiagram::stateIsValid(LLFSMState& state)
 {
     if (mStates.find(&state) != mStates.end())
     {
-        return TRUE;
+        return true;
     }
-    return FALSE;
+    return false;
 }
 
 LLFSMState* LLStateDiagram::getState(U32 state_id)
@@ -200,7 +200,7 @@ LLFSMState* LLStateDiagram::getState(U32 state_id)
     return NULL;
 }
 
-BOOL LLStateDiagram::saveDotFile(const std::string& filename)
+bool LLStateDiagram::saveDotFile(const std::string& filename)
 {
     LLAPRFile outfile ;
     outfile.open(filename, LL_APR_W);
@@ -209,7 +209,7 @@ BOOL LLStateDiagram::saveDotFile(const std::string& filename)
     if (!dot_file)
     {
         LL_WARNS() << "LLStateDiagram::saveDotFile() : Couldn't open " << filename << " to save state diagram." << LL_ENDL;
-        return FALSE;
+        return false;
     }
     apr_file_printf(dot_file, "digraph StateMachine {\n\tsize=\"100,100\";\n\tfontsize=40;\n\tlabel=\"Finite State Machine\";\n\torientation=landscape\n\tratio=.77\n");
 
@@ -248,7 +248,7 @@ BOOL LLStateDiagram::saveDotFile(const std::string& filename)
 
     apr_file_printf(dot_file, "}\n");
 
-    return TRUE;
+    return true;
 }
 
 std::ostream& operator<<(std::ostream &s, LLStateDiagram &FSM)
@@ -308,7 +308,7 @@ void LLStateMachine::runCurrentState(void *data)
 }
 
 // set current state
-BOOL LLStateMachine::setCurrentState(LLFSMState *initial_state, void* user_data, BOOL skip_entry)
+bool LLStateMachine::setCurrentState(LLFSMState *initial_state, void* user_data, bool skip_entry)
 {
     llassert(mStateDiagram);
 
@@ -319,13 +319,13 @@ BOOL LLStateMachine::setCurrentState(LLFSMState *initial_state, void* user_data,
         {
             initial_state->onEntry(user_data);
         }
-        return TRUE;
+        return true;
     }
 
-    return FALSE;
+    return false;
 }
 
-BOOL LLStateMachine::setCurrentState(U32 state_id, void* user_data, BOOL skip_entry)
+bool LLStateMachine::setCurrentState(U32 state_id, void* user_data, bool skip_entry)
 {
     llassert(mStateDiagram);
 
@@ -338,10 +338,10 @@ BOOL LLStateMachine::setCurrentState(U32 state_id, void* user_data, BOOL skip_en
         {
             state->onEntry(user_data);
         }
-        return TRUE;
+        return true;
     }
 
-    return FALSE;
+    return false;
 }
 
 void LLStateMachine::processTransition(LLFSMTransition& transition, void* user_data)

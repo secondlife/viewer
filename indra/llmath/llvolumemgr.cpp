@@ -59,9 +59,9 @@ LLVolumeMgr::~LLVolumeMgr()
     mDataMutex = NULL;
 }
 
-BOOL LLVolumeMgr::cleanup()
+bool LLVolumeMgr::cleanup()
 {
-    BOOL no_refs = TRUE;
+    bool no_refs = true;
     if (mDataMutex)
     {
         mDataMutex->lock();
@@ -71,9 +71,9 @@ BOOL LLVolumeMgr::cleanup()
          iter != end; iter++)
     {
         LLVolumeLODGroup *volgroupp = iter->second;
-        if (volgroupp->cleanupRefs() == false)
+        if (!volgroupp->cleanupRefs())
         {
-            no_refs = FALSE;
+            no_refs = false;
         }
         delete volgroupp;
     }
@@ -301,7 +301,7 @@ LLVolume* LLVolumeLODGroup::refLOD(const S32 lod)
     return mVolumeLODs[lod];
 }
 
-BOOL LLVolumeLODGroup::derefLOD(LLVolume *volumep)
+bool LLVolumeLODGroup::derefLOD(LLVolume *volumep)
 {
     llassert_always(mRefs > 0);
     mRefs--;
@@ -317,11 +317,11 @@ BOOL LLVolumeLODGroup::derefLOD(LLVolume *volumep)
                 mVolumeLODs[i] = NULL;
             }
 #endif
-            return TRUE;
+            return true;
         }
     }
     LL_ERRS() << "Deref of non-matching LOD in volume LOD group" << LL_ENDL;
-    return FALSE;
+    return false;
 }
 
 S32 LLVolumeLODGroup::getDetailFromTan(const F32 tan_angle)

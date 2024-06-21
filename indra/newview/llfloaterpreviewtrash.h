@@ -39,7 +39,7 @@ public:
 
     LLFloaterPreviewTrash(const LLSD& key);
     ~LLFloaterPreviewTrash();
-    /*virtual*/ BOOL    postBuild();
+    bool postBuild() override;
 
 protected:
     void onClickEmpty();

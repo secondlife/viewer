@@ -57,12 +57,12 @@ public:
 
     const LLUUID&   getAvatarId() const { return mAvatarId; }
 
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
     /*virtual*/ void draw();
 
     virtual boost::signals2::connection setLeftButtonClickCallback(
                                                                    const commit_callback_t& cb);
-    virtual BOOL handleMouseDown(S32 x, S32 y, MASK mask);
+    virtual bool handleMouseDown(S32 x, S32 y, MASK mask);
 
     void onClick();
 private:
@@ -75,7 +75,7 @@ private:
         const LLUUID& id,
         const std::string& first,
         const std::string& last,
-        BOOL is_group);
+        bool is_group);
 
     LLAvatarIconCtrl*       mIcon;          /// status tracking avatar icon
     LLTextBox*              mName;          /// displays avatar name

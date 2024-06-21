@@ -45,7 +45,7 @@ public:
 
     boost::signals2::connection setVisibilityChangeCallback( const commit_signal_t::slot_type& cb );
 
-    virtual void onVisibilityChange (BOOL curVisibilityIn);
+    virtual void onVisibilityChange (bool curVisibilityIn);
 
     virtual bool addChild (LLView* view, S32 tab_group = 0);
 

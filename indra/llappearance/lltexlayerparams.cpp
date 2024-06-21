@@ -69,7 +69,7 @@ LLTexLayerParam::LLTexLayerParam(const LLTexLayerParam& pOther)
 {
 }
 
-BOOL LLTexLayerParam::setInfo(LLViewerVisualParamInfo *info, BOOL add_to_appearance)
+bool LLTexLayerParam::setInfo(LLViewerVisualParamInfo *info, bool add_to_appearance)
 {
     LLViewerVisualParam::setInfo(info);
 
@@ -79,7 +79,7 @@ BOOL LLTexLayerParam::setInfo(LLViewerVisualParamInfo *info, BOOL add_to_appeara
         this->setParamLocation(mAvatarAppearance->isSelf() ? LOC_AV_SELF : LOC_AV_OTHER);
     }
 
-    return TRUE;
+    return true;
 }
 
 
@@ -123,8 +123,8 @@ LLTexLayerParamAlpha::LLTexLayerParamAlpha(LLTexLayerInterface* layer)
     mCachedProcessedTexture(NULL),
     mStaticImageTGA(),
     mStaticImageRaw(),
-    mNeedsCreateTexture(FALSE),
-    mStaticImageInvalid(FALSE),
+    mNeedsCreateTexture(false),
+    mStaticImageInvalid(false),
     mAvgDistortionVec(1.f, 1.f, 1.f),
     mCachedEffectiveWeight(0.f)
 {
@@ -136,8 +136,8 @@ LLTexLayerParamAlpha::LLTexLayerParamAlpha(LLAvatarAppearance* appearance)
     mCachedProcessedTexture(NULL),
     mStaticImageTGA(),
     mStaticImageRaw(),
-    mNeedsCreateTexture(FALSE),
-    mStaticImageInvalid(FALSE),
+    mNeedsCreateTexture(false),
+    mStaticImageInvalid(false),
     mAvgDistortionVec(1.f, 1.f, 1.f),
     mCachedEffectiveWeight(0.f)
 {
@@ -173,10 +173,10 @@ void LLTexLayerParamAlpha::deleteCaches()
     mStaticImageTGA = NULL; // deletes image
     mCachedProcessedTexture = NULL;
     mStaticImageRaw = NULL;
-    mNeedsCreateTexture = FALSE;
+    mNeedsCreateTexture = false;
 }
 
-BOOL LLTexLayerParamAlpha::getMultiplyBlend() const
+bool LLTexLayerParamAlpha::getMultiplyBlend() const
 {
     return ((LLTexLayerParamAlphaInfo *)getInfo())->mMultiplyBlend;
 }
@@ -216,7 +216,7 @@ void LLTexLayerParamAlpha::setAnimationTarget(F32 target_value)
 
     mTargetWeight = target_value;
     setWeight(target_value);
-    mIsAnimating = TRUE;
+    mIsAnimating = true;
     if (mNext)
     {
         mNext->setAnimationTarget(target_value);
@@ -231,11 +231,11 @@ void LLTexLayerParamAlpha::animate(F32 delta)
     }
 }
 
-BOOL LLTexLayerParamAlpha::getSkip() const
+bool LLTexLayerParamAlpha::getSkip() const
 {
     if (!mTexLayer)
     {
-        return TRUE;
+        return true;
     }
 
     const LLAvatarAppearance *appearance = mTexLayer->getTexLayerSet()->getAvatarAppearance();
@@ -245,24 +245,24 @@ BOOL LLTexLayerParamAlpha::getSkip() const
         F32 effective_weight = (appearance->getSex() & getSex()) ? mCurWeight : getDefaultWeight();
         if (is_approx_zero(effective_weight))
         {
-            return TRUE;
+            return true;
         }
     }
 
     LLWearableType::EType type = (LLWearableType::EType)getWearableType();
     if ((type != LLWearableType::WT_INVALID) && !appearance->isWearingWearableType(type))
     {
-        return TRUE;
+        return true;
     }
 
-    return FALSE;
+    return false;
 }
 
 
-BOOL LLTexLayerParamAlpha::render(S32 x, S32 y, S32 width, S32 height)
+bool LLTexLayerParamAlpha::render(S32 x, S32 y, S32 width, S32 height)
 {
     LL_PROFILE_ZONE_SCOPED;
-    BOOL success = TRUE;
+    bool success = true;
 
     if (!mTexLayer)
     {
@@ -270,7 +270,7 @@ BOOL LLTexLayerParamAlpha::render(S32 x, S32 y, S32 width, S32 height)
     }
 
     F32 effective_weight = (mTexLayer->getTexLayerSet()->getAvatarAppearance()->getSex() & getSex()) ? mCurWeight : getDefaultWeight();
-    BOOL weight_changed = effective_weight != mCachedEffectiveWeight;
+    bool weight_changed = effective_weight != mCachedEffectiveWeight;
     if (getSkip())
     {
         return success;
@@ -294,13 +294,13 @@ BOOL LLTexLayerParamAlpha::render(S32 x, S32 y, S32 width, S32 height)
             // Don't load the image file until we actually need it the first time.  Like now.
             mStaticImageTGA = LLTexLayerStaticImageList::getInstance()->getImageTGA(info->mStaticImageFileName);
             // We now have something in one of our caches
-            LLTexLayerSet::sHasCaches |= mStaticImageTGA.notNull() ? TRUE : FALSE;
+            LLTexLayerSet::sHasCaches |= mStaticImageTGA.notNull();
 
             if (mStaticImageTGA.isNull())
             {
                 LL_WARNS() << "Unable to load static file: " << info->mStaticImageFileName << LL_ENDL;
-                mStaticImageInvalid = TRUE; // don't try again.
-                return FALSE;
+                mStaticImageInvalid = true; // don't try again.
+                return false;
             }
         }
 
@@ -316,10 +316,10 @@ BOOL LLTexLayerParamAlpha::render(S32 x, S32 y, S32 width, S32 height)
             if (!mCachedProcessedTexture)
             {
                 llassert(gTextureManagerBridgep);
-                mCachedProcessedTexture = gTextureManagerBridgep->getLocalTexture(image_tga_width, image_tga_height, 1, FALSE);
+                mCachedProcessedTexture = gTextureManagerBridgep->getLocalTexture(image_tga_width, image_tga_height, 1, false);
 
                 // We now have something in one of our caches
-                LLTexLayerSet::sHasCaches |= mCachedProcessedTexture ? TRUE : FALSE;
+                LLTexLayerSet::sHasCaches |= mCachedProcessedTexture.notNull();
 
                 mCachedProcessedTexture->setExplicitFormat(GL_ALPHA8, GL_ALPHA);
             }
@@ -328,7 +328,7 @@ BOOL LLTexLayerParamAlpha::render(S32 x, S32 y, S32 width, S32 height)
             mStaticImageRaw = NULL;
             mStaticImageRaw = new LLImageRaw;
             mStaticImageTGA->decodeAndProcess(mStaticImageRaw, info->mDomain, effective_weight);
-            mNeedsCreateTexture = TRUE;
+            mNeedsCreateTexture = true;
             LL_DEBUGS() << "Built Cached Alpha: " << info->mStaticImageFileName << ": (" << mStaticImageRaw->getWidth() << ", " << mStaticImageRaw->getHeight() << ") " << "Domain: " << info->mDomain << " Weight: " << effective_weight << LL_ENDL;
         }
 
@@ -339,7 +339,7 @@ BOOL LLTexLayerParamAlpha::render(S32 x, S32 y, S32 width, S32 height)
                 if (mNeedsCreateTexture)
                 {
                     mCachedProcessedTexture->createGLTexture(0, mStaticImageRaw);
-                    mNeedsCreateTexture = FALSE;
+                    mNeedsCreateTexture = false;
                     gGL.getTexUnit(0)->bind(mCachedProcessedTexture);
                     mCachedProcessedTexture->setAddressMode(LLTexUnit::TAM_CLAMP);
                 }
@@ -372,23 +372,23 @@ BOOL LLTexLayerParamAlpha::render(S32 x, S32 y, S32 width, S32 height)
 // LLTexLayerParamAlphaInfo
 //-----------------------------------------------------------------------------
 LLTexLayerParamAlphaInfo::LLTexLayerParamAlphaInfo() :
-    mMultiplyBlend(FALSE),
-    mSkipIfZeroWeight(FALSE),
+    mMultiplyBlend(false),
+    mSkipIfZeroWeight(false),
     mDomain(0.f)
 {
 }
 
-BOOL LLTexLayerParamAlphaInfo::parseXml(LLXmlTreeNode* node)
+bool LLTexLayerParamAlphaInfo::parseXml(LLXmlTreeNode* node)
 {
     llassert(node->hasName("param") && node->getChildByName("param_alpha"));
 
     if (!LLViewerVisualParamInfo::parseXml(node))
-        return FALSE;
+        return false;
 
     LLXmlTreeNode* param_alpha_node = node->getChildByName("param_alpha");
     if (!param_alpha_node)
     {
-        return FALSE;
+        return false;
     }
 
     static LLStdStringHandle tga_file_string = LLXmlTree::addAttributeString("tga_file");
@@ -410,7 +410,7 @@ BOOL LLTexLayerParamAlphaInfo::parseXml(LLXmlTreeNode* node)
     static LLStdStringHandle domain_string = LLXmlTree::addAttributeString("domain");
     param_alpha_node->getFastAttributeF32(domain_string, mDomain);
 
-    return TRUE;
+    return true;
 }
 
 
@@ -464,10 +464,10 @@ LLColor4 LLTexLayerParamColor::getNetColor() const
         F32 weight = scaled_weight - index_start;
         const LLColor4 *start = &info->mColors[ index_start ];
         const LLColor4 *end   = &info->mColors[ index_end ];
-        return LLColor4((1.f - weight) * start->mV[VX] + weight * end->mV[VX],
-                        (1.f - weight) * start->mV[VY] + weight * end->mV[VY],
-                        (1.f - weight) * start->mV[VZ] + weight * end->mV[VZ],
-                        (1.f - weight) * start->mV[VW] + weight * end->mV[VW]);
+        return LLColor4((1.f - weight) * start->mV[VRED] + weight * end->mV[VRED],
+                        (1.f - weight) * start->mV[VGREEN] + weight * end->mV[VGREEN],
+                        (1.f - weight) * start->mV[VBLUE] + weight * end->mV[VBLUE],
+                        (1.f - weight) * start->mV[VALPHA] + weight * end->mV[VALPHA]);
     }
 }
 
@@ -514,7 +514,7 @@ void LLTexLayerParamColor::setAnimationTarget(F32 target_value)
     // set value first then set interpolating flag to ignore further updates
     mTargetWeight = target_value;
     setWeight(target_value);
-    mIsAnimating = TRUE;
+    mIsAnimating = true;
     if (mNext)
     {
         mNext->setAnimationTarget(target_value);
@@ -538,17 +538,17 @@ LLTexLayerParamColorInfo::LLTexLayerParamColorInfo() :
 {
 }
 
-BOOL LLTexLayerParamColorInfo::parseXml(LLXmlTreeNode *node)
+bool LLTexLayerParamColorInfo::parseXml(LLXmlTreeNode *node)
 {
     llassert(node->hasName("param") && node->getChildByName("param_color"));
 
     if (!LLViewerVisualParamInfo::parseXml(node))
-        return FALSE;
+        return false;
 
     LLXmlTreeNode* param_color_node = node->getChildByName("param_color");
     if (!param_color_node)
     {
-        return FALSE;
+        return false;
     }
 
     std::string op_string;
@@ -581,14 +581,14 @@ BOOL LLTexLayerParamColorInfo::parseXml(LLXmlTreeNode *node)
     if (!mNumColors)
     {
         LL_WARNS() << "<param_color> is missing <value> sub-elements" << LL_ENDL;
-        return FALSE;
+        return false;
     }
 
     if ((mOperation == LLTexLayerParamColor::OP_BLEND) && (mNumColors != 1))
     {
         LL_WARNS() << "<param_color> with operation\"blend\" must have exactly one <value>" << LL_ENDL;
-        return FALSE;
+        return false;
     }
 
-    return TRUE;
+    return true;
 }

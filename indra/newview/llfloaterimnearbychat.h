@@ -50,11 +50,11 @@ public:
 
     static LLFloaterIMNearbyChat* buildFloater(const LLSD& key);
 
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
     /*virtual*/ void onOpen(const LLSD& key);
     /*virtual*/ void onClose(bool app_quitting);
-    /*virtual*/ void setVisible(BOOL visible);
-    /*virtual*/ void setVisibleAndFrontmost(BOOL take_focus=TRUE, const LLSD& key = LLSD());
+    /*virtual*/ void setVisible(bool visible);
+    /*virtual*/ void setVisibleAndFrontmost(bool take_focus=true, const LLSD& key = LLSD());
     /*virtual*/ void closeHostedFloater();
 
     void loadHistory();
@@ -70,22 +70,22 @@ public:
     LLChatEntry* getChatBox() { return mInputEditor; }
 
     std::string getCurrentChat();
-    S32 getMessageArchiveLength() {return mMessageArchive.size();}
+    S32 getMessageArchiveLength() { return static_cast<S32>(mMessageArchive.size()); }
 
-    virtual BOOL handleKeyHere( KEY key, MASK mask );
+    virtual bool handleKeyHere( KEY key, MASK mask );
 
     static void startChat(const char* line);
     static void stopChat();
 
-    static void sendChatFromViewer(const std::string &utf8text, EChatType type, BOOL animate);
-    static void sendChatFromViewer(const LLWString &wtext, EChatType type, BOOL animate);
+    static void sendChatFromViewer(const std::string &utf8text, EChatType type, bool animate);
+    static void sendChatFromViewer(const LLWString &wtext, EChatType type, bool animate);
 
     static bool isWordsName(const std::string& name);
 
     void showHistory();
 
 protected:
-    static BOOL matchChatTypeTrigger(const std::string& in_str, std::string* out_str);
+    static bool matchChatTypeTrigger(const std::string& in_str, std::string* out_str);
     void onChatBoxKeystroke();
     void onChatBoxFocusLost();
     void onChatBoxFocusReceived();

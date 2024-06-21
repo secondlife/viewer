@@ -371,7 +371,7 @@ bool LLPluginMessagePipe::pumpInput(F64 timeout)
 void LLPluginMessagePipe::processInput(void)
 {
     // Look for input delimiter(s) in the input buffer.
-    int delim;
+    size_t delim;
     mInputMutex.lock();
     while((delim = mInput.find(MESSAGE_DELIMITER)) != std::string::npos)
     {

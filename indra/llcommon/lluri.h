@@ -99,7 +99,7 @@ public:
   std::string userName() const;
   std::string password() const;
   U16 hostPort() const;         // ex.: 80, will include implicit port
-  BOOL defaultPort() const;     // true if port is default for scheme
+  bool defaultPort() const;     // true if port is default for scheme
   const std::string& escapedPath() const { return mEscapedPath; }
   std::string path() const;     // ex.: "/abc/def", includes leading slash
   LLSD pathArray() const;           // above decoded into an array of strings

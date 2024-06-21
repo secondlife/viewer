@@ -60,7 +60,7 @@ LLFloaterURLEntry::~LLFloaterURLEntry()
     sInstance = NULL;
 }
 
-BOOL LLFloaterURLEntry::postBuild()
+bool LLFloaterURLEntry::postBuild()
 {
     mMediaURLEdit = getChild<LLComboBox>("media_entry");
 
@@ -71,7 +71,7 @@ BOOL LLFloaterURLEntry::postBuild()
     childSetAction("clear_btn", onBtnClear, this);
     // clear media list button
     LLSD parcel_history = LLURLHistory::getURLHistory("parcel");
-    bool enable_clear_button = parcel_history.size() > 0 ? true : false;
+    bool enable_clear_button = parcel_history.size() > 0;
     getChildView("clear_btn")->setEnabled(enable_clear_button );
 
     // OK button
@@ -80,7 +80,7 @@ BOOL LLFloaterURLEntry::postBuild()
     setDefaultBtn("ok_btn");
     buildURLHistory();
 
-    return TRUE;
+    return true;
 }
 void LLFloaterURLEntry::buildURLHistory()
 {

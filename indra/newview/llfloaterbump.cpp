@@ -77,7 +77,7 @@ LLFloaterBump::~LLFloaterBump()
     }
 }
 
-BOOL LLFloaterBump::postBuild()
+bool LLFloaterBump::postBuild()
 {
     mList = getChild<LLScrollListCtrl>("bump_list");
     mList->setAllowMultipleSelection(false);
@@ -93,7 +93,7 @@ BOOL LLFloaterBump::postBuild()
         menu->setItemVisible(std::string("Impostor seperator"), false);
     }
 
-    return TRUE;
+    return true;
 }
 // virtual
 void LLFloaterBump::onOpen(const LLSD& key)

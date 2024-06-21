@@ -72,7 +72,7 @@ const S32 POINTAT_PRIORITIES[POINTAT_NUM_TARGETS] =
 
 // statics
 
-BOOL LLHUDEffectPointAt::sDebugPointAt;
+bool LLHUDEffectPointAt::sDebugPointAt;
 
 
 //-----------------------------------------------------------------------------
@@ -219,39 +219,39 @@ void LLHUDEffectPointAt::setTargetPosGlobal(const LLVector3d &target_pos_global)
 // setPointAt()
 // called by agent logic to set look at behavior locally, and propagate to sim
 //-----------------------------------------------------------------------------
-BOOL LLHUDEffectPointAt::setPointAt(EPointAtType target_type, LLViewerObject *object, LLVector3 position)
+bool LLHUDEffectPointAt::setPointAt(EPointAtType target_type, LLViewerObject *object, LLVector3 position)
 {
     if (!mSourceObject)
     {
-        return FALSE;
+        return false;
     }
 
     if (target_type >= POINTAT_NUM_TARGETS)
     {
         LL_WARNS() << "Bad target_type " << (int)target_type << " - ignoring." << LL_ENDL;
-        return FALSE;
+        return false;
     }
 
     // must be same or higher priority than existing effect
     if (POINTAT_PRIORITIES[target_type] < POINTAT_PRIORITIES[mTargetType])
     {
-        return FALSE;
+        return false;
     }
 
     F32 current_time  = mTimer.getElapsedTimeF32();
 
     // type of pointat behavior or target object has changed
-    BOOL targetTypeChanged = (target_type != mTargetType) ||
+    bool targetTypeChanged = (target_type != mTargetType) ||
         (object != mTargetObject);
 
-    BOOL targetPosChanged = (dist_vec_squared(position, mLastSentOffsetGlobal) > MIN_DELTAPOS_FOR_UPDATE_SQUARED) &&
+    bool targetPosChanged = (dist_vec_squared(position, mLastSentOffsetGlobal) > MIN_DELTAPOS_FOR_UPDATE_SQUARED) &&
         ((current_time - mLastSendTime) > (1.f / MAX_SENDS_PER_SEC));
 
     if (targetTypeChanged || targetPosChanged)
     {
         mLastSentOffsetGlobal = position;
         setDuration(POINTAT_TIMEOUTS[target_type]);
-        setNeedsSendToSim(TRUE);
+        setNeedsSendToSim(true);
 //      LL_INFOS() << "Sending pointat data" << LL_ENDL;
     }
 
@@ -278,7 +278,7 @@ BOOL LLHUDEffectPointAt::setPointAt(EPointAtType target_type, LLViewerObject *ob
         update();
     }
 
-    return TRUE;
+    return true;
 }
 
 //-----------------------------------------------------------------------------

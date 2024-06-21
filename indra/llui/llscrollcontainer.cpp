@@ -82,7 +82,7 @@ LLScrollContainer::Params::Params()
 // Default constructor
 LLScrollContainer::LLScrollContainer(const LLScrollContainer::Params& p)
 :   LLUICtrl(p),
-    mAutoScrolling( FALSE ),
+    mAutoScrolling( false ),
     mAutoScrollRate( 0.f ),
     mBackgroundColor(p.bg_color()),
     mIsOpaque(p.is_opaque),
@@ -180,7 +180,7 @@ void LLScrollContainer::scrollVertical( S32 new_pos )
 
 // LLView functionality
 void LLScrollContainer::reshape(S32 width, S32 height,
-                                        BOOL called_from_parent)
+                                        bool called_from_parent)
 {
     LLUICtrl::reshape( width, height, called_from_parent );
 
@@ -193,8 +193,8 @@ void LLScrollContainer::reshape(S32 width, S32 height,
 
         S32 visible_width = 0;
         S32 visible_height = 0;
-        BOOL show_v_scrollbar = FALSE;
-        BOOL show_h_scrollbar = FALSE;
+        bool show_v_scrollbar = false;
+        bool show_h_scrollbar = false;
         calcVisibleSize( &visible_width, &visible_height, &show_h_scrollbar, &show_v_scrollbar );
 
         mScrollbar[VERTICAL]->setDocSize( scrolled_rect.getHeight() );
@@ -207,7 +207,7 @@ void LLScrollContainer::reshape(S32 width, S32 height,
 }
 
 // virtual
-BOOL LLScrollContainer::handleKeyHere(KEY key, MASK mask)
+bool LLScrollContainer::handleKeyHere(KEY key, MASK mask)
 {
     if (mIgnoreArrowKeys)
     {
@@ -221,7 +221,7 @@ BOOL LLScrollContainer::handleKeyHere(KEY key, MASK mask)
         case KEY_PAGE_DOWN:
         case KEY_HOME:
         case KEY_END:
-            return FALSE;
+            return false;
         default:
             break;
         }
@@ -234,35 +234,35 @@ BOOL LLScrollContainer::handleKeyHere(KEY key, MASK mask)
     // call LLScrollContainer::handleKeyHere in turn
     if (mScrolledView && mScrolledView->handleKeyHere(key, mask))
     {
-        return TRUE;
+        return true;
     }
     for( S32 i = 0; i < ORIENTATION_COUNT; i++ )
     {
         if( mScrollbar[i]->handleKeyHere(key, mask) )
         {
             updateScroll();
-            return TRUE;
+            return true;
         }
     }
 
-    return FALSE;
+    return false;
 }
 
-BOOL LLScrollContainer::handleUnicodeCharHere(llwchar uni_char)
+bool LLScrollContainer::handleUnicodeCharHere(llwchar uni_char)
 {
     if (mScrolledView && mScrolledView->handleUnicodeCharHere(uni_char))
     {
-        return TRUE;
+        return true;
     }
-    return FALSE;
+    return false;
 }
 
-BOOL LLScrollContainer::handleScrollWheel( S32 x, S32 y, S32 clicks )
+bool LLScrollContainer::handleScrollWheel( S32 x, S32 y, S32 clicks )
 {
     // Give event to my child views - they may have scroll bars
     // (Bad UI design, but technically possible.)
     if (LLUICtrl::handleScrollWheel(x,y,clicks))
-        return TRUE;
+        return true;
 
     // When the vertical scrollbar is visible, scroll wheel
     // only affects vertical scrolling.  It's confusing to have
@@ -278,7 +278,7 @@ BOOL LLScrollContainer::handleScrollWheel( S32 x, S32 y, S32 clicks )
             updateScroll();
         }
         // Always eat the event
-        return TRUE;
+        return true;
     }
 
     LLScrollbar* horizontal = mScrollbar[HORIZONTAL];
@@ -289,16 +289,16 @@ BOOL LLScrollContainer::handleScrollWheel( S32 x, S32 y, S32 clicks )
         && horizontal->handleScrollWheel( 0, 0, clicks ) )
     {
         updateScroll();
-        return TRUE;
+        return true;
     }
-    return FALSE;
+    return false;
 }
 
-BOOL LLScrollContainer::handleScrollHWheel(S32 x, S32 y, S32 clicks)
+bool LLScrollContainer::handleScrollHWheel(S32 x, S32 y, S32 clicks)
 {
     if (LLUICtrl::handleScrollHWheel(x,y,clicks))
     {
-        return TRUE;
+        return true;
     }
 
     LLScrollbar* horizontal = mScrollbar[HORIZONTAL];
@@ -307,14 +307,14 @@ BOOL LLScrollContainer::handleScrollHWheel(S32 x, S32 y, S32 clicks)
         && horizontal->handleScrollHWheel( 0, 0, clicks ) )
     {
         updateScroll();
-        return TRUE;
+        return true;
     }
 
-    return FALSE;
+    return false;
 }
 
-BOOL LLScrollContainer::handleDragAndDrop(S32 x, S32 y, MASK mask,
-                                                  BOOL drop,
+bool LLScrollContainer::handleDragAndDrop(S32 x, S32 y, MASK mask,
+                                                  bool drop,
                                                   EDragAndDropType cargo_type,
                                                   void* cargo_data,
                                                   EAcceptance* accept,
@@ -322,7 +322,7 @@ BOOL LLScrollContainer::handleDragAndDrop(S32 x, S32 y, MASK mask,
 {
     // Scroll folder view if needed.  Never accepts a drag or drop.
     *accept = ACCEPT_NO;
-    BOOL handled = autoScroll(x, y);
+    bool handled = autoScroll(x, y);
 
     if( !handled )
     {
@@ -330,7 +330,7 @@ BOOL LLScrollContainer::handleDragAndDrop(S32 x, S32 y, MASK mask,
                                             cargo_data, accept, tooltip_msg) != NULL;
     }
 
-    return TRUE;
+    return true;
 }
 
 bool LLScrollContainer::canAutoScroll(S32 x, S32 y)
@@ -387,7 +387,7 @@ bool LLScrollContainer::autoScroll(S32 x, S32 y, bool do_scroll)
                 if (do_scroll)
                 {
                     mScrollbar[HORIZONTAL]->setDocPos(mScrollbar[HORIZONTAL]->getDocPos() - auto_scroll_speed);
-                    mAutoScrolling = TRUE;
+                    mAutoScrolling = true;
                 }
                 scrolling = true;
             }
@@ -399,7 +399,7 @@ bool LLScrollContainer::autoScroll(S32 x, S32 y, bool do_scroll)
                 if (do_scroll)
                 {
                     mScrollbar[HORIZONTAL]->setDocPos(mScrollbar[HORIZONTAL]->getDocPos() + auto_scroll_speed);
-                    mAutoScrolling = TRUE;
+                    mAutoScrolling = true;
                 }
                 scrolling = true;
             }
@@ -413,7 +413,7 @@ bool LLScrollContainer::autoScroll(S32 x, S32 y, bool do_scroll)
                 if (do_scroll)
                 {
                     mScrollbar[VERTICAL]->setDocPos(mScrollbar[VERTICAL]->getDocPos() + auto_scroll_speed);
-                    mAutoScrolling = TRUE;
+                    mAutoScrolling = true;
                 }
                 scrolling = true;
             }
@@ -425,7 +425,7 @@ bool LLScrollContainer::autoScroll(S32 x, S32 y, bool do_scroll)
                 if (do_scroll)
                 {
                     mScrollbar[VERTICAL]->setDocPos(mScrollbar[VERTICAL]->getDocPos() - auto_scroll_speed);
-                    mAutoScrolling = TRUE;
+                    mAutoScrolling = true;
                 }
                 scrolling = true;
             }
@@ -434,7 +434,7 @@ bool LLScrollContainer::autoScroll(S32 x, S32 y, bool do_scroll)
     return scrolling;
 }
 
-void LLScrollContainer::calcVisibleSize( S32 *visible_width, S32 *visible_height, BOOL* show_h_scrollbar, BOOL* show_v_scrollbar ) const
+void LLScrollContainer::calcVisibleSize( S32 *visible_width, S32 *visible_height, bool* show_h_scrollbar, bool* show_v_scrollbar ) const
 {
     const LLRect& doc_rect = getScrolledViewRect();
     static LLUICachedControl<S32> scrollbar_size_control ("UIScrollbarSize", 0);
@@ -447,8 +447,8 @@ void LLScrollContainer::calcVisibleSize( S32 *visible_width, S32 *visible_height
     *visible_width = getRect().getWidth() - 2 * border_width;
     *visible_height = getRect().getHeight() - 2 * border_width;
 
-    *show_v_scrollbar = FALSE;
-    *show_h_scrollbar = FALSE;
+    *show_v_scrollbar = false;
+    *show_h_scrollbar = false;
 
     if (!mHideScrollbar)
     {
@@ -456,12 +456,12 @@ void LLScrollContainer::calcVisibleSize( S32 *visible_width, S32 *visible_height
         // the display of sliders.
         if ((doc_height - *visible_height) > 1)
         {
-            *show_v_scrollbar = TRUE;
+            *show_v_scrollbar = true;
             *visible_width -= scrollbar_size;
         }
         if ((doc_width - *visible_width) > 1)
         {
-            *show_h_scrollbar = TRUE;
+            *show_h_scrollbar = true;
             *visible_height -= scrollbar_size;
             // Note: Do *not* recompute *show_v_scrollbar here because with
             // The view inside the scroll container should not be extended
@@ -470,7 +470,7 @@ void LLScrollContainer::calcVisibleSize( S32 *visible_width, S32 *visible_height
 
             if( !*show_v_scrollbar && ((doc_height - *visible_height) > 1) )
             {
-                *show_v_scrollbar = TRUE;
+                *show_v_scrollbar = true;
                 *visible_width -= scrollbar_size;
             }
         }
@@ -494,7 +494,7 @@ void LLScrollContainer::draw()
         mAutoScrollRate = mMinAutoScrollRate;
     }
     // clear this flag to be set on next call to autoScroll
-    mAutoScrolling = FALSE;
+    mAutoScrolling = false;
 
     // auto-focus when scrollbar active
     // this allows us to capture user intent (i.e. stop automatically scrolling the view/etc)
@@ -527,8 +527,8 @@ void LLScrollContainer::draw()
             {
                 S32 visible_width = 0;
                 S32 visible_height = 0;
-                BOOL show_v_scrollbar = FALSE;
-                BOOL show_h_scrollbar = FALSE;
+                bool show_v_scrollbar = false;
+                bool show_h_scrollbar = false;
                 calcVisibleSize( &visible_width, &visible_height, &show_h_scrollbar, &show_v_scrollbar );
 
                 LLLocalClipRect clip(LLRect(mInnerRect.mLeft,
@@ -599,8 +599,8 @@ void LLScrollContainer::updateScroll()
     S32 doc_height = doc_rect.getHeight();
     S32 visible_width = 0;
     S32 visible_height = 0;
-    BOOL show_v_scrollbar = FALSE;
-    BOOL show_h_scrollbar = FALSE;
+    bool show_v_scrollbar = false;
+    bool show_h_scrollbar = false;
     calcVisibleSize( &visible_width, &visible_height, &show_h_scrollbar, &show_v_scrollbar );
 
     S32 border_width = getBorderWidth();
@@ -612,14 +612,14 @@ void LLScrollContainer::updateScroll()
         }
 
         scrollVertical( mScrollbar[VERTICAL]->getDocPos() );
-        mScrollbar[VERTICAL]->setVisible( TRUE );
+        mScrollbar[VERTICAL]->setVisible( true );
 
         S32 v_scrollbar_height = visible_height;
         if( !show_h_scrollbar && mReserveScrollCorner )
         {
             v_scrollbar_height -= scrollbar_size;
         }
-        mScrollbar[VERTICAL]->reshape( scrollbar_size, v_scrollbar_height, TRUE );
+        mScrollbar[VERTICAL]->reshape( scrollbar_size, v_scrollbar_height, true );
 
         // Make room for the horizontal scrollbar (or not)
         S32 v_scrollbar_offset = 0;
@@ -635,7 +635,7 @@ void LLScrollContainer::updateScroll()
     {
         mScrolledView->translate( 0, getRect().getHeight() - border_width - doc_rect.mTop );
 
-        mScrollbar[VERTICAL]->setVisible( FALSE );
+        mScrollbar[VERTICAL]->setVisible( false );
         mScrollbar[VERTICAL]->setDocPos( 0 );
     }
 
@@ -651,19 +651,19 @@ void LLScrollContainer::updateScroll()
             scrollHorizontal( mScrollbar[HORIZONTAL]->getDocPos() );
         }
 
-        mScrollbar[HORIZONTAL]->setVisible( TRUE );
+        mScrollbar[HORIZONTAL]->setVisible( true );
         S32 h_scrollbar_width = visible_width;
         if( !show_v_scrollbar && mReserveScrollCorner )
         {
             h_scrollbar_width -= scrollbar_size;
         }
-        mScrollbar[HORIZONTAL]->reshape( h_scrollbar_width, scrollbar_size, TRUE );
+        mScrollbar[HORIZONTAL]->reshape( h_scrollbar_width, scrollbar_size, true );
     }
     else
     {
         mScrolledView->translate( border_width - doc_rect.mLeft, 0 );
 
-        mScrollbar[HORIZONTAL]->setVisible( FALSE );
+        mScrollbar[HORIZONTAL]->setVisible( false );
         mScrollbar[HORIZONTAL]->setDocPos( 0 );
     }
 
@@ -674,7 +674,7 @@ void LLScrollContainer::updateScroll()
     mScrollbar[VERTICAL]->setPageSize( visible_height );
 } // end updateScroll
 
-void LLScrollContainer::setBorderVisible(BOOL b)
+void LLScrollContainer::setBorderVisible(bool b)
 {
     mBorder->setVisible( b );
     // Recompute inner rect, as border visibility changes it
@@ -697,8 +697,8 @@ LLRect LLScrollContainer::getContentWindowRect()
     LLRect scroller_view_rect;
     S32 visible_width = 0;
     S32 visible_height = 0;
-    BOOL show_h_scrollbar = FALSE;
-    BOOL show_v_scrollbar = FALSE;
+    bool show_h_scrollbar = false;
+    bool show_v_scrollbar = false;
     calcVisibleSize( &visible_width, &visible_height, &show_h_scrollbar, &show_v_scrollbar );
     S32 border_width = getBorderWidth();
     scroller_view_rect.setOriginAndSize(border_width,

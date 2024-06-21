@@ -53,15 +53,15 @@ public:
     LLFloaterScriptQueue(const LLSD& key);
     virtual ~LLFloaterScriptQueue();
 
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
 
     void setMono(bool mono) { mMono = mono; }
 
     // addObject() accepts an object id.
     void addObject(const LLUUID& id, std::string name);
 
-    // start() returns TRUE if the queue has started, otherwise FALSE.
-    BOOL start();
+    // start() returns true if the queue has started, otherwise false.
+    bool start();
 
     void addProcessingMessage(const std::string &message, const LLSD &args);
     void addStringMessage(const std::string &message);
@@ -72,7 +72,7 @@ protected:
     static void onCloseBtn(void* user_data);
 
     // returns true if this is done
-    BOOL isDone() const;
+    bool isDone() const;
 
     virtual bool startQueue() = 0;
 
@@ -123,7 +123,7 @@ class LLFloaterCompileQueue : public LLFloaterScriptQueue
 public:
 
     void experienceIdsReceived( const LLSD& content );
-    BOOL hasExperience(const LLUUID& id)const;
+    bool hasExperience(const LLUUID& id)const;
 
 protected:
     LLFloaterCompileQueue(const LLSD& key);

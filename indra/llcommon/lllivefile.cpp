@@ -170,10 +170,10 @@ namespace
             : LLEventTimer(refresh), mLiveFile(f)
             { }
 
-        BOOL tick()
+        bool tick()
         {
             mLiveFile.checkAndReload();
-            return FALSE;
+            return false;
         }
 
     private:

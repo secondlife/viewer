@@ -73,11 +73,11 @@ namespace tut
                                 const std::string& block,
                                 const std::string& var,
                                 S32 blocknum,
-                                BOOL expected)
+                                bool expected)
         {
             LLSDMessageReader msg;
             msg.setMessage("fakename", msg_data);
-            BOOL test_data;
+            bool test_data;
             msg.getBOOL(block.c_str(), var.c_str(), test_data, blocknum);
             ensure_equals(  "Ensure bool field", test_data, expected);
         }
@@ -118,8 +118,8 @@ namespace tut
     {
         LLSD message = LLSD::emptyMap();
         message["block1"] = LLSD::emptyArray();
-        BOOL bool_true = TRUE;
-        BOOL bool_false = FALSE;
+        bool bool_true = true;
+        bool bool_false = false;
         message["block1"][0] = LLSD::emptyMap();
         message["block1"][0]["BoolField1"] = bool_true;
         message["block1"][1] = LLSD::emptyMap();
@@ -127,9 +127,9 @@ namespace tut
         message["block1"][1]["BoolField2"] = bool_true;
 
         ensureMessageName("name3", message, "name3");
-        ensureBool(message, "block1", "BoolField1", 0, TRUE);
-        ensureBool(message, "block1", "BoolField1", 1, FALSE);
-        ensureBool(message, "block1", "BoolField2", 1, TRUE);
+        ensureBool(message, "block1", "BoolField1", 0, true);
+        ensureBool(message, "block1", "BoolField1", 1, false);
+        ensureBool(message, "block1", "BoolField2", 1, true);
         ensureNumberOfBlocks(message, "block1", 2);
         ensureMessageSize(message, 0);
     }
@@ -318,7 +318,7 @@ namespace tut
         inValue[1] = 1;
 
         LLSDMessageReader msg = testType(inValue);
-        msg.getBinaryData("block", "var", &(outValue[0]), inValue.size());
+        msg.getBinaryData("block", "var", &(outValue[0]), static_cast<S32>(inValue.size()));
         ensure_equals("Ensure Binary", outValue, inValue);
     }
 }

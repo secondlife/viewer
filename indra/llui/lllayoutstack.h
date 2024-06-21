@@ -71,9 +71,9 @@ public:
     /*virtual*/ void draw();
     /*virtual*/ void deleteAllChildren();
     /*virtual*/ void removeChild(LLView*);
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
     /*virtual*/ bool addChild(LLView* child, S32 tab_group = 0);
-    /*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+    /*virtual*/ void reshape(S32 width, S32 height, bool called_from_parent = true);
 
 
     static LLView* fromXML(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr output_node = NULL);
@@ -85,8 +85,8 @@ public:
     } EAnimate;
 
     void addPanel(LLLayoutPanel* panel, EAnimate animate = NO_ANIMATE);
-    void collapsePanel(LLPanel* panel, BOOL collapsed = TRUE);
-    S32 getNumPanels() { return mPanels.size(); }
+    void collapsePanel(LLPanel* panel, bool collapsed = true);
+    S32 getNumPanels() { return static_cast<S32>(mPanels.size()); }
 
     void updateLayout();
 
@@ -156,10 +156,10 @@ public:
 
     void handleReshape(const LLRect& new_rect, bool by_user);
 
-    void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+    void reshape(S32 width, S32 height, bool called_from_parent = true);
 
 
-    void setVisible(BOOL visible);
+    void setVisible(bool visible);
 
     S32 getLayoutDim() const;
     S32 getTargetDim() const;

@@ -44,7 +44,7 @@
 #include "lldraghandle.h"
 #include "llpanelexperiencepicker.h"
 
-LLFloaterExperiencePicker* LLFloaterExperiencePicker::show( select_callback_t callback, const LLUUID& key, BOOL allow_multiple, BOOL close_on_select, filter_list filters, LLView * frustumOrigin )
+LLFloaterExperiencePicker* LLFloaterExperiencePicker::show( select_callback_t callback, const LLUUID& key, bool allow_multiple, bool close_on_select, filter_list filters, LLView * frustumOrigin )
 {
     LLFloaterExperiencePicker* floater =
         LLFloaterReg::showTypedInstance<LLFloaterExperiencePicker>("experience_search", key);
@@ -99,7 +99,7 @@ LLFloaterExperiencePicker::~LLFloaterExperiencePicker()
     gFocusMgr.releaseFocusIfNeeded( this );
 }
 
-BOOL LLFloaterExperiencePicker::postBuild()
+bool LLFloaterExperiencePicker::postBuild()
 {
     mSearchPanel = new LLPanelExperiencePicker();
     addChild(mSearchPanel);

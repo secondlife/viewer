@@ -39,7 +39,7 @@ class LLPanelLandAudio
 public:
     LLPanelLandAudio(LLSafeHandle<LLParcelSelection>& parcelp);
     /*virtual*/ ~LLPanelLandAudio();
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
     void refresh();
 
 private:

@@ -247,7 +247,7 @@ public:
     void                setSearchVisibilityTypes(const Params& params);
 
     void                setFilterSubString(const std::string& string);
-    const std::string&  getFilterSubString(BOOL trim = FALSE) const;
+    const std::string&  getFilterSubString(bool trim = false) const;
     const std::string&  getFilterSubStringOrig() const { return mFilterSubStringOrig; }
     bool                hasFilterString() const;
 
@@ -257,7 +257,7 @@ public:
     PermissionMask      getFilterPermissions() const;
 
     void                setDateRange(time_t min_date, time_t max_date);
-    void                setDateRangeLastLogoff(BOOL sl);
+    void                setDateRangeLastLogoff(bool sl);
     time_t              getMinDate() const;
     time_t              getMaxDate() const;
 

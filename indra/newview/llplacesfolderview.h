@@ -49,7 +49,7 @@ public:
      * Contains workaround for EXT-2786: sets current selected list for landmark
      * panel using @c mParentLandmarksPanel which is set in @c LLLandmarksPanel::initLandmarksPanel
      */
-    /*virtual*/ BOOL handleRightMouseDown( S32 x, S32 y, MASK mask );
+    /*virtual*/ bool handleRightMouseDown( S32 x, S32 y, MASK mask );
 
     /*virtual*/ void updateMenu();
 

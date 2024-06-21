@@ -59,12 +59,12 @@ LLNameBox::~LLNameBox()
     LLNameBox::sInstances.erase(this);
 }
 
-void LLNameBox::setNameID(const LLUUID& name_id, BOOL is_group)
+void LLNameBox::setNameID(const LLUUID& name_id, bool is_group)
 {
     mNameID = name_id;
 
     std::string name;
-    BOOL got_name = FALSE;
+    bool got_name = false;
 
     if (!is_group)
     {
@@ -105,7 +105,7 @@ void LLNameBox::refreshAll(const LLUUID& id, const std::string& full_name, bool 
     }
 }
 
-void LLNameBox::setName(const std::string& name, BOOL is_group)
+void LLNameBox::setName(const std::string& name, bool is_group)
 {
     if (mLink)
     {

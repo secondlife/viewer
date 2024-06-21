@@ -79,8 +79,8 @@ private:
     LLVector2               *mDetailTexCoords;
     F32                     *mWeights;
 
-    BOOL                    mHasWeights;
-    BOOL                    mHasDetailTexCoords;
+    bool                    mHasWeights;
+    bool                    mHasDetailTexCoords;
 
     // face data
     S32                     mNumFaces;
@@ -119,17 +119,17 @@ private:
     void setRotation( const LLQuaternion &rot ) { mRotation = rot; }
     void setScale( const LLVector3 &scale ) { mScale = scale; }
 
-    BOOL allocateVertexData( U32 numVertices );
+    bool allocateVertexData( U32 numVertices );
 
-    BOOL allocateFaceData( U32 numFaces );
+    bool allocateFaceData( U32 numFaces );
 
-    BOOL allocateJointNames( U32 numJointNames );
+    bool allocateJointNames( U32 numJointNames );
 
     // Retrieve the number of KB of memory used by this instance
     U32 getNumKB();
 
     // Load mesh data from file
-    BOOL loadMesh( const std::string& fileName );
+    bool loadMesh( const std::string& fileName );
 
 public:
     void genIndices(S32 offset);
@@ -138,7 +138,7 @@ public:
 
     const S32   *getSharedVert(S32 vert);
 
-    BOOL isLOD() { return (mReferenceData != NULL); }
+    bool isLOD() { return (mReferenceData != NULL); }
 };
 
 
@@ -204,13 +204,13 @@ public:
     }
 
     // Returns whether or not the mesh has detail texture coords
-    BOOL hasDetailTexCoords() {
+    bool hasDetailTexCoords() {
         llassert (mSharedData);
         return mSharedData->mHasDetailTexCoords;
     }
 
     // Returns whether or not the mesh has vertex weights
-    BOOL hasWeights() const{
+    bool hasWeights() const{
         llassert (mSharedData);
         return mSharedData->mHasWeights;
     }
@@ -316,7 +316,7 @@ public:
     // Get indices
     U32*    getIndices() { return mSharedData ? mSharedData->mTriangleIndices : NULL; }
 
-    BOOL    isLOD() { return mSharedData && mSharedData->isLOD(); }
+    bool    isLOD() { return mSharedData && mSharedData->isLOD(); }
 
     void setAvatar(LLAvatarAppearance* avatarp) { mAvatarp = avatarp; }
     LLAvatarAppearance* getAvatar() { return mAvatarp; }

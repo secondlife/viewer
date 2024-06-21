@@ -72,7 +72,7 @@ public:
     void updateSky();
 
     S32  mLightingGeneration;
-    BOOL mUpdatedThisFrame;
+    bool mUpdatedThisFrame;
 
     void setFogRatio(const F32 fog_ratio);      // Fog distance as fraction of cull distance.
     F32 getFogRatio() const;

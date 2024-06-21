@@ -32,7 +32,7 @@ class LLObjectSelection;
 class LLUUID;
 class LLViewerRegion;
 
-typedef void (*money_callback)(const LLUUID&, LLViewerRegion*,S32,BOOL,S32,const std::string&);
+typedef void (*money_callback)(const LLUUID&, LLViewerRegion*,S32,bool,S32,const std::string&);
 
 namespace LLFloaterPayUtil
 {

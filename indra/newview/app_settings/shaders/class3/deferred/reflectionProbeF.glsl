@@ -51,7 +51,7 @@ layout (std140) uniform ReflectionProbes
     mat4 heroBox;
     // list of bounding spheres for reflection probes sorted by distance to camera (closest first)
     vec4 refSphere[MAX_REFMAP_COUNT];
-    // extra parameters 
+    // extra parameters
     //  x - irradiance scale
     //  y - radiance scale
     //  z - fade in
@@ -102,7 +102,7 @@ bool shouldSampleProbe(int i, vec3 pos)
     if (refIndex[i].w < 0)
     {
         vec4 v = refBox[i] * vec4(pos, 1.0);
-        if (abs(v.x) > 1 || 
+        if (abs(v.x) > 1 ||
             abs(v.y) > 1 ||
             abs(v.z) > 1)
         {
@@ -229,7 +229,7 @@ void preProbeSample(vec3 pos)
                         }
                     }
                     count++;
-                    
+
                     ++neighborIdx;
                 }
 
@@ -251,56 +251,56 @@ void preProbeSample(vec3 pos)
 
 // original reference implementation:
 /*
-bool intersect(const Ray &ray) const 
-{ 
-        float t0, t1; // solutions for t if the ray intersects 
-#if 0 
+bool intersect(const Ray &ray) const
+{
+        float t0, t1; // solutions for t if the ray intersects
+#if 0
         // geometric solution
-        Vec3f L = center - orig; 
-        float tca = L.dotProduct(dir); 
+        Vec3f L = center - orig;
+        float tca = L.dotProduct(dir);
         // if (tca < 0) return false;
-        float d2 = L.dotProduct(L) - tca * tca; 
-        if (d2 > radius2) return false; 
-        float thc = sqrt(radius2 - d2); 
-        t0 = tca - thc; 
-        t1 = tca + thc; 
-#else 
+        float d2 = L.dotProduct(L) - tca * tca;
+        if (d2 > radius2) return false;
+        float thc = sqrt(radius2 - d2);
+        t0 = tca - thc;
+        t1 = tca + thc;
+#else
         // analytic solution
-        Vec3f L = orig - center; 
-        float a = dir.dotProduct(dir); 
-        float b = 2 * dir.dotProduct(L); 
-        float c = L.dotProduct(L) - radius2; 
-        if (!solveQuadratic(a, b, c, t0, t1)) return false; 
-#endif 
-        if (t0 > t1) std::swap(t0, t1); 
- 
-        if (t0 < 0) { 
-            t0 = t1; // if t0 is negative, let's use t1 instead 
-            if (t0 < 0) return false; // both t0 and t1 are negative 
-        } 
- 
-        t = t0; 
- 
-        return true; 
+        Vec3f L = orig - center;
+        float a = dir.dotProduct(dir);
+        float b = 2 * dir.dotProduct(L);
+        float c = L.dotProduct(L) - radius2;
+        if (!solveQuadratic(a, b, c, t0, t1)) return false;
+#endif
+        if (t0 > t1) std::swap(t0, t1);
+
+        if (t0 < 0) {
+            t0 = t1; // if t0 is negative, let's use t1 instead
+            if (t0 < 0) return false; // both t0 and t1 are negative
+        }
+
+        t = t0;
+
+        return true;
 } */
 
 // adapted -- assume that origin is inside sphere, return intersection of ray with edge of sphere
 vec3 sphereIntersect(vec3 origin, vec3 dir, vec3 center, float radius2)
-{ 
-        float t0, t1; // solutions for t if the ray intersects 
+{
+        float t0, t1; // solutions for t if the ray intersects
 
-        vec3 L = center - origin; 
+        vec3 L = center - origin;
         float tca = dot(L,dir);
 
-        float d2 = dot(L,L) - tca * tca; 
+        float d2 = dot(L,L) - tca * tca;
 
-        float thc = sqrt(radius2 - d2); 
-        t0 = tca - thc; 
-        t1 = tca + thc; 
- 
+        float thc = sqrt(radius2 - d2);
+        t0 = tca - thc;
+        t1 = tca + thc;
+
         vec3 v = origin + dir * t1;
-        return v; 
-} 
+        return v;
+}
 
 void swap(inout float a, inout float b)
 {
@@ -312,17 +312,17 @@ void swap(inout float a, inout float b)
 // debug implementation, make no assumptions about origin
 void sphereIntersectDebug(vec3 origin, vec3 dir, vec3 center, float radius2, float depth, inout vec4 col)
 {
-    float t[2]; // solutions for t if the ray intersects 
+    float t[2]; // solutions for t if the ray intersects
 
     // geometric solution
-    vec3 L = center - origin; 
+    vec3 L = center - origin;
     float tca = dot(L, dir);
     // if (tca < 0) return false;
-    float d2 = dot(L, L) - tca * tca; 
-    if (d2 > radius2) return; 
-    float thc = sqrt(radius2 - d2); 
-    t[0] = tca - thc; 
-    t[1] = tca + thc; 
+    float d2 = dot(L, L) - tca * tca;
+    if (d2 > radius2) return;
+    float thc = sqrt(radius2 - d2);
+    t[0] = tca - thc;
+    t[1] = tca + thc;
 
     for (int i = 0; i < 2; ++i)
     {
@@ -411,8 +411,8 @@ void debugBoxCol(vec3 ro, vec3 rd, float t, vec3 p, inout vec4 col)
     bool behind = dot(v,v) > dot(pos,pos);
 
     float w = 0.25;
-   
-    if (behind) 
+
+    if (behind)
     {
         w *= 0.5;
         w /= (length(v)-length(pos))*0.5+1.0;
@@ -426,7 +426,7 @@ void debugBoxCol(vec3 ro, vec3 rd, float t, vec3 p, inout vec4 col)
 
 // cribbed from https://iquilezles.org/articles/intersectors/
 // axis aligned box centered at the origin, with size boxSize
-void boxIntersectionDebug( in vec3 ro, in vec3 p, vec3 boxSize, inout vec4 col) 
+void boxIntersectionDebug( in vec3 ro, in vec3 p, vec3 boxSize, inout vec4 col)
 {
     vec3 rd = normalize(p-ro);
 
@@ -453,7 +453,7 @@ void boxIntersectionDebug( in vec3 ro, in vec3 p, vec3 boxSize, inout vec4 col)
 void boxIntersectDebug(vec3 origin, vec3 pos, mat4 i, inout vec4 col)
 {
     mat4 clipToLocal = i;
-    
+
     // transform into unit cube space
     origin = (clipToLocal * vec4(origin, 1.0)).xyz;
     pos = (clipToLocal * vec4(pos, 1.0)).xyz;
@@ -471,7 +471,7 @@ void boxIntersectDebug(vec3 origin, vec3 pos, mat4 i, inout vec4 col)
 // dw - distance weight
 float sphereWeight(vec3 pos, vec3 dir, vec3 origin, float r, vec4 i, out float dw)
 {
-    float r1 = r * 0.5; // 50% of radius (outer sphere to start interpolating down) 
+    float r1 = r * 0.5; // 50% of radius (outer sphere to start interpolating down)
     vec3 delta = pos.xyz - origin;
     float d2 = max(length(delta), 0.001);
 
@@ -495,7 +495,7 @@ float sphereWeight(vec3 pos, vec3 dir, vec3 origin, float r, vec4 i, out float d
 // lod - which mip to sample (lower is higher res, sharper reflections)
 // c - center of probe
 // r2 - radius of probe squared
-// i - index of probe 
+// i - index of probe
 vec3 tapRefMap(vec3 pos, vec3 dir, out float w, out float dw, float lod, vec3 c, int i)
 {
     // parallax adjustment
@@ -514,7 +514,7 @@ vec3 tapRefMap(vec3 pos, vec3 dir, out float w, out float dw, float lod, vec3 c,
 
         float rr = r * r;
 
-        v = sphereIntersect(pos, dir, c, 
+        v = sphereIntersect(pos, dir, c,
         refIndex[i].w < 1 ? 4096.0*4096.0 : // <== effectively disable parallax correction for automatically placed probes to keep from bombing the world with obvious spheres
                 rr);
 
@@ -525,7 +525,7 @@ vec3 tapRefMap(vec3 pos, vec3 dir, out float w, out float dw, float lod, vec3 c,
     vec3 d = normalize(v);
 
     v = env_mat * v;
-    
+
     vec4 ret = textureLod(reflectionProbes, vec4(v.xyz, refIndex[i].x), lod) * refParams[i].y;
 
     return ret.rgb;
@@ -536,7 +536,7 @@ vec3 tapRefMap(vec3 pos, vec3 dir, out float w, out float dw, float lod, vec3 c,
 // dir - pixel normal
 // w - weight of sample (distance and angular attenuation)
 // dw - weight of sample (distance only)
-// i - index of probe 
+// i - index of probe
 vec3 tapIrradianceMap(vec3 pos, vec3 dir, out float w, out float dw, vec3 c, int i, vec3 amblit)
 {
     // parallax adjustment
@@ -554,7 +554,7 @@ vec3 tapIrradianceMap(vec3 pos, vec3 dir, out float w, out float dw, vec3 c, int
         // pad sphere for manual probe extending into automatic probe space
         float rr = r * r;
 
-        v = sphereIntersect(pos, dir, c, 
+        v = sphereIntersect(pos, dir, c,
         refIndex[i].w < 1 ? 4096.0*4096.0 : // <== effectively disable parallax correction for automatically placed probes to keep from bombing the world with obvious spheres
                 rr);
 
@@ -563,7 +563,7 @@ vec3 tapIrradianceMap(vec3 pos, vec3 dir, out float w, out float dw, vec3 c, int
 
     v -= c;
     v = env_mat * v;
-    
+
     vec3 col = textureLod(irradianceProbes, vec4(v.xyz, refIndex[i].x), 0).rgb * refParams[i].x;
 
     col = mix(amblit, col, min(refParams[i].x, 1.0));
@@ -625,7 +625,7 @@ vec3 sampleProbes(vec3 pos, vec3 dir, float lod)
         col[1] *= 1.0/wsum[1];
         col[0] = vec3(0);
     }
-    
+
     return col[1]+col[0];
 }
 
@@ -654,7 +654,7 @@ vec3 sampleProbeAmbient(vec3 pos, vec3 dir, vec3 amblit)
         {
             continue;
         }
-        
+
         {
             float w = 0;
             float dw = 0;
@@ -684,7 +684,7 @@ vec3 sampleProbeAmbient(vec3 pos, vec3 dir, vec3 amblit)
         col[1] *= 1.0/wsum[1];
         col[0] = vec3(0);
     }
-    
+
     return col[1]+col[0];
 }
 
@@ -704,13 +704,13 @@ void tapHeroProbe(inout vec3 glossenv, vec3 pos, vec3 norm, float glossiness)
     {
         float d = 0;
         boxIntersect(pos, norm, heroBox, d, 1.0);
-        
+
         w = max(d, 0);
     }
     else
     {
         float r = heroSphere.w;
-        
+
         w = sphereWeight(pos, refnormpersp, heroSphere.xyz, r, vec4(1), dw);
     }
 
@@ -851,9 +851,9 @@ void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout 
     {
         float lod = (1.0-glossiness)*reflection_lods;
         glossenv = sampleProbes(pos, normalize(refnormpersp), lod);
-        
+
     }
-    
+
     if (envIntensity > 0.0)
     {
         legacyenv = sampleProbes(pos, normalize(refnormpersp), 0.0);

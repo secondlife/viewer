@@ -50,7 +50,7 @@ LLSysWellWindow::LLSysWellWindow(const LLSD& key) : LLTransientDockableFloater(N
 }
 
 //---------------------------------------------------------------------------------
-BOOL LLSysWellWindow::postBuild()
+bool LLSysWellWindow::postBuild()
 {
     mMessageList = getChild<LLFlatListView>("notification_list");
 
@@ -61,7 +61,7 @@ BOOL LLSysWellWindow::postBuild()
 }
 
 //---------------------------------------------------------------------------------
-void LLSysWellWindow::setMinimized(BOOL minimize)
+void LLSysWellWindow::setMinimized(bool minimize)
 {
     LLTransientDockableFloater::setMinimized(minimize);
 }
@@ -77,7 +77,7 @@ void LLSysWellWindow::handleReshape(const LLRect& rect, bool by_user)
 void LLSysWellWindow::onStartUpToastClick(S32 x, S32 y, MASK mask)
 {
     // just set floater visible. Screen channels will be cleared.
-    setVisible(TRUE);
+    setVisible(true);
 }
 
 void LLSysWellWindow::setSysWellChiclet(LLSysWellChiclet* chiclet)
@@ -114,7 +114,7 @@ void LLSysWellWindow::removeItemByID(const LLUUID& id)
     // hide chiclet window if there are no items left
     if(isWindowEmpty())
     {
-        setVisible(FALSE);
+        setVisible(false);
     }
 }
 
@@ -137,7 +137,7 @@ void LLSysWellWindow::initChannel()
 }
 
 //---------------------------------------------------------------------------------
-void LLSysWellWindow::setVisible(BOOL visible)
+void LLSysWellWindow::setVisible(bool visible)
 {
     if (visible)
     {
@@ -150,7 +150,7 @@ void LLSysWellWindow::setVisible(BOOL visible)
     }
 
     // do not show empty window
-    if (NULL == mMessageList || isWindowEmpty()) visible = FALSE;
+    if (NULL == mMessageList || isWindowEmpty()) visible = false;
 
     LLTransientDockableFloater::setVisible(visible);
 
@@ -198,7 +198,7 @@ void LLSysWellWindow::reshapeWindow()
         S32 newWidth = curRect.getWidth() < MIN_WINDOW_WIDTH ? MIN_WINDOW_WIDTH : curRect.getWidth();
 
         curRect.setLeftTopAndSize(curRect.mLeft, curRect.mTop, newWidth, new_window_height);
-        reshape(curRect.getWidth(), curRect.getHeight(), TRUE);
+        reshape(curRect.getWidth(), curRect.getHeight(), true);
         setRect(curRect);
     }
 
@@ -277,20 +277,20 @@ void LLIMWellWindow::ObjectRowPanel::onMouseLeave(S32 x, S32 y, MASK mask)
 
 //---------------------------------------------------------------------------------
 // virtual
-BOOL LLIMWellWindow::ObjectRowPanel::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLIMWellWindow::ObjectRowPanel::handleMouseDown(S32 x, S32 y, MASK mask)
 {
     // Pass the mouse down event to the chiclet (EXT-596).
     if (!mChiclet->pointInView(x, y) && !mCloseBtn->getRect().pointInRect(x, y)) // prevent double call of LLIMChiclet::onMouseDown()
     {
         mChiclet->onMouseDown();
-        return TRUE;
+        return true;
     }
 
     return LLPanel::handleMouseDown(x, y, mask);
 }
 
 // virtual
-BOOL LLIMWellWindow::ObjectRowPanel::handleRightMouseDown(S32 x, S32 y, MASK mask)
+bool LLIMWellWindow::ObjectRowPanel::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
     return mChiclet->handleRightMouseDown(x, y, mask);
 }
@@ -323,9 +323,9 @@ LLIMWellWindow* LLIMWellWindow::findInstance(const LLSD& key /*= LLSD()*/)
     return LLFloaterReg::findTypedInstance<LLIMWellWindow>("im_well_window", key);
 }
 
-BOOL LLIMWellWindow::postBuild()
+bool LLIMWellWindow::postBuild()
 {
-    BOOL rv = LLSysWellWindow::postBuild();
+    bool rv = LLSysWellWindow::postBuild();
     setTitle(getString("title_im_well_window"));
 
     LLIMChiclet::sFindChicletsSignal.connect(boost::bind(&LLIMWellWindow::findObjectChiclet, this, _1));
@@ -375,7 +375,7 @@ void LLIMWellWindow::removeObjectRow(const LLUUID& notification_id)
     // hide chiclet window if there are no items left
     if(isWindowEmpty())
     {
-        setVisible(FALSE);
+        setVisible(false);
     }
 }
 

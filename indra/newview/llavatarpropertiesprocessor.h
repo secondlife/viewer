@@ -110,7 +110,7 @@ struct LLAvatarData
 struct LLAvatarData::LLGroupData
 {
     U64 group_powers;
-    BOOL accept_notices;
+    bool accept_notices;
     std::string group_title;
     LLUUID group_id;
     std::string group_name;
@@ -122,14 +122,14 @@ struct LLPickData
     LLUUID agent_id;
     LLUUID pick_id;
     LLUUID creator_id;
-    BOOL top_pick;
+    bool top_pick;
     LLUUID parcel_id;
     std::string name;
     std::string desc;
     LLUUID snapshot_id;
     LLVector3d pos_global;
     S32 sort_order;
-    BOOL enabled;
+    bool enabled;
 
     //used only in read requests
     std::string user_name;

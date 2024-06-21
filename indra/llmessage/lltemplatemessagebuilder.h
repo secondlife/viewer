@@ -49,12 +49,12 @@ public:
     virtual void newMessage(const char* name);
 
     virtual void nextBlock(const char* blockname);
-    virtual BOOL removeLastBlock(); // TODO: babbage: remove this horror...
+    virtual bool removeLastBlock(); // TODO: babbage: remove this horror...
 
     /** All add* methods expect pointers to canonical varname strings. */
     virtual void addBinaryData(const char *varname, const void *data,
                                S32 size);
-    virtual void addBOOL(const char* varname, BOOL b);
+    virtual void addBOOL(const char* varname, bool b);
     virtual void addS8(const char* varname, S8 s);
     virtual void addU8(const char* varname, U8 u);
     virtual void addS16(const char* varname, S16 i);
@@ -74,18 +74,18 @@ public:
     virtual void addString(const char* varname, const char* s);
     virtual void addString(const char* varname, const std::string& s);
 
-    virtual BOOL isMessageFull(const char* blockname) const;
+    virtual bool isMessageFull(const char* blockname) const;
     virtual void compressMessage(U8*& buf_ptr, U32& buffer_length);
 
-    virtual BOOL isBuilt() const;
-    virtual BOOL isClear() const;
+    virtual bool isBuilt() const;
+    virtual bool isClear() const;
     virtual U32 buildMessage(U8* buffer, U32 buffer_size, U8 offset_to_data);
         /**< Return built message size */
 
     virtual void clearMessage();
 
     // TODO: babbage: remove this horror.
-    virtual void setBuilt(BOOL b);
+    virtual void setBuilt(bool b);
 
     virtual S32 getMessageSize();
     virtual const char* getMessageName() const;
@@ -106,8 +106,8 @@ private:
     LLMsgBlkData* mCurrentSDataBlock;
     char* mCurrentSMessageName;
     char* mCurrentSBlockName;
-    BOOL mbSBuilt;
-    BOOL mbSClear;
+    bool mbSBuilt;
+    bool mbSClear;
     S32  mCurrentSendTotal;
     const message_template_name_map_t& mMessageTemplates;
 };

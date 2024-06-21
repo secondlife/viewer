@@ -78,7 +78,7 @@ def compare_trees(file_trees):
         compare_matched_nodes(key,items,summary)
     print("Summary:")
     print(summary)
-                
+
 def dump_appearance_params(tree):
     vals = []
     for e in tree.getroot().iter():
@@ -89,8 +89,8 @@ def dump_appearance_params(tree):
                 #print e.get("id"), e.get("name"), e.get("group"), e.get("u8")
     if len(vals)==253:
         print(", ".join(vals))
-        
-    
+
+
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="compare avatar XML archetype files")

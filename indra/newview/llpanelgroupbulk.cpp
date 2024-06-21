@@ -93,7 +93,7 @@ void LLPanelGroupBulkImpl::callbackClickAdd(void* userdata)
         LLView* button = panelp->findChild<LLButton>("add_button");
         LLFloater* root_floater = gFloaterView->getParentFloater(panelp);
         LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(
-            boost::bind(callbackAddUsers, _1, panelp->mImplementation), TRUE, FALSE, FALSE, root_floater->getName(), button);
+            boost::bind(callbackAddUsers, _1, panelp->mImplementation), true, false, false, root_floater->getName(), button);
         if(picker)
         {
             root_floater->addDependentFloater(picker);
@@ -181,12 +181,12 @@ void LLPanelGroupBulkImpl::handleRemove()
     }
 
     mBulkAgentList->deleteSelectedItems();
-    mRemoveButton->setEnabled(FALSE);
+    mRemoveButton->setEnabled(false);
 
     if( mOKButton && mOKButton->getEnabled() &&
         mBulkAgentList->isEmpty())
     {
-        mOKButton->setEnabled(FALSE);
+        mOKButton->setEnabled(false);
     }
 }
 
@@ -194,9 +194,9 @@ void LLPanelGroupBulkImpl::handleSelection()
 {
     std::vector<LLScrollListItem*> selection = mBulkAgentList->getAllSelected();
     if (selection.empty())
-        mRemoveButton->setEnabled(FALSE);
+        mRemoveButton->setEnabled(false);
     else
-        mRemoveButton->setEnabled(TRUE);
+        mRemoveButton->setEnabled(true);
 }
 
 void LLPanelGroupBulkImpl::addUsers(const std::vector<std::string>& names, const uuid_vec_t& agent_ids)
@@ -241,7 +241,7 @@ void LLPanelGroupBulkImpl::addUsers(const std::vector<std::string>& names, const
 
         // We've successfully added someone to the list.
         if(mOKButton && !mOKButton->getEnabled())
-            mOKButton->setEnabled(TRUE);
+            mOKButton->setEnabled(true);
     }
 }
 
@@ -273,7 +273,7 @@ void LLPanelGroupBulk::clear()
         mImplementation->mBulkAgentList->deleteAllItems();
 
     if(mImplementation->mOKButton)
-        mImplementation->mOKButton->setEnabled(FALSE);
+        mImplementation->mOKButton->setEnabled(false);
 }
 
 void LLPanelGroupBulk::update()

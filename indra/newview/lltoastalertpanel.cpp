@@ -92,8 +92,8 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
     bool is_password = false;
     bool allow_emoji = false;
 
-    LLToastPanel::setBackgroundVisible(FALSE);
-    LLToastPanel::setBackgroundOpaque(TRUE);
+    LLToastPanel::setBackgroundVisible(false);
+    LLToastPanel::setBackgroundOpaque(true);
 
 
     typedef std::vector<std::pair<std::string, std::string> > options_t;
@@ -161,14 +161,14 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
         options = supplied_options;
     }
 
-    S32 num_options = options.size();
+    auto num_options = options.size();
 
     // Calc total width of buttons
     S32 button_width = 0;
     S32 sp = font->getWidth(std::string("OO"));
     S32 btn_total_width = 0;
     S32 default_size_btns = 0;
-    for( S32 i = 0; i < num_options; i++ )
+    for (size_t i = 0; i < num_options; i++)
     {
         S32 w = S32(font->getWidth( options[i].second ) + 0.99f) + sp + 2 * LLBUTTON_H_PAD;
         if (mButtonData[i].mWidth > w)
@@ -184,7 +184,7 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
 
     if( num_options > 1 )
     {
-        btn_total_width = btn_total_width + (button_width * default_size_btns) + ((num_options - 1) * BTN_HPAD);
+        btn_total_width = btn_total_width + (button_width * default_size_btns) + ((static_cast<S32>(num_options) - 1) * BTN_HPAD);
     }
     else
     {
@@ -249,7 +249,7 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
         dialog_width += 32 + HPAD;
     }
 
-    LLToastPanel::reshape( dialog_width, dialog_height, FALSE );
+    LLToastPanel::reshape( dialog_width, dialog_height, false );
 
     S32 msg_y = LLToastPanel::getRect().getHeight() - VPAD;
     S32 msg_x = HPAD;
@@ -372,7 +372,7 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
 
             if( i == mDefaultOption )
             {
-                btn->setFocus(TRUE);
+                btn->setFocus(true);
             }
         }
         button_left += ((mButtonData[i].mWidth == 0) ? button_width : mButtonData[i].mWidth) + BTN_HPAD;
@@ -381,11 +381,11 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
     setCheckBoxes(HPAD, VPAD);
 
     // *TODO: check necessity of this code
-    //gFloaterView->adjustToFitScreen(this, FALSE);
+    //gFloaterView->adjustToFitScreen(this, false);
     if (mLineEditor)
     {
         mLineEditor->selectAll();
-        mLineEditor->setFocus(TRUE);
+        mLineEditor->setFocus(true);
     }
     if(mDefaultOption >= 0)
     {
@@ -398,7 +398,7 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
             LLTransientFloaterMgr::GLOBAL, this);
 }
 
-void LLToastAlertPanel::setVisible( BOOL visible )
+void LLToastAlertPanel::setVisible( bool visible )
 {
     // only make the "ding" sound if it's newly visible
     if( visible && !LLToastPanel::getVisible() )
@@ -431,16 +431,16 @@ LLToastAlertPanel::~LLToastAlertPanel()
         if (current_selection)
         {
             // If the focus moved to some other view though, move the focus there
-            current_selection->setFocus(TRUE);
+            current_selection->setFocus(true);
         }
         else
         {
-            mPreviouslyFocusedView.get()->setFocus(TRUE);
+            mPreviouslyFocusedView.get()->setFocus(true);
         }
     }
 }
 
-BOOL LLToastAlertPanel::hasTitleBar() const
+bool LLToastAlertPanel::hasTitleBar() const
 {
     // *TODO: check necessity of this code
     /*
@@ -451,7 +451,7 @@ BOOL LLToastAlertPanel::hasTitleBar() const
     return false;
 }
 
-BOOL LLToastAlertPanel::handleKeyHere(KEY key, MASK mask )
+bool LLToastAlertPanel::handleKeyHere(KEY key, MASK mask )
 {
     if( KEY_RETURN == key && mask == MASK_NONE )
     {
@@ -461,31 +461,31 @@ BOOL LLToastAlertPanel::handleKeyHere(KEY key, MASK mask )
             // If we have a default button, click it when return is pressed
             defaultBtn->onCommit();
         }
-        return TRUE;
+        return true;
     }
     else if (KEY_RIGHT == key)
     {
-        LLToastPanel::focusNextItem(FALSE);
-        return TRUE;
+        LLToastPanel::focusNextItem(false);
+        return true;
     }
     else if (KEY_LEFT == key)
     {
-        LLToastPanel::focusPrevItem(FALSE);
-        return TRUE;
+        LLToastPanel::focusPrevItem(false);
+        return true;
     }
     else if (KEY_TAB == key && mask == MASK_NONE)
     {
-        LLToastPanel::focusNextItem(FALSE);
-        return TRUE;
+        LLToastPanel::focusNextItem(false);
+        return true;
     }
     else if (KEY_TAB == key && mask == MASK_SHIFT)
     {
-        LLToastPanel::focusPrevItem(FALSE);
-        return TRUE;
+        LLToastPanel::focusPrevItem(false);
+        return true;
     }
     else
     {
-        return TRUE;
+        return true;
     }
 }
 

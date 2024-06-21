@@ -82,7 +82,7 @@ private:
         std::string mText;
         S32     mCursorPos;
         S32     mScrollHPos;
-        BOOL    mIsSelecting;
+        bool    mIsSelecting;
         S32     mSelectionStart;
         S32     mSelectionEnd;
     }; // end class LLURLLineEditorRollback

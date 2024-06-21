@@ -96,7 +96,7 @@ void LLHUDManager::sendEffects()
             msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
             msg->nextBlockFast(_PREHASH_Effect);
             hep->packData(msg);
-            hep->setNeedsSendToSim(FALSE);
+            hep->setNeedsSendToSim(false);
             gAgent.sendMessage();
         }
     }
@@ -125,7 +125,7 @@ void LLHUDManager::cleanupEffects()
     }
 }
 
-LLHUDEffect *LLHUDManager::createViewerEffect(const U8 type, BOOL send_to_sim, BOOL originated_here)
+LLHUDEffect *LLHUDManager::createViewerEffect(const U8 type, bool send_to_sim, bool originated_here)
 {
     // SJB: DO NOT USE addHUDObject!!! Not all LLHUDObjects are LLHUDEffects!
     LLHUDEffect *hep = LLHUDObject::addHUDEffect(type);
@@ -191,7 +191,7 @@ void LLHUDManager::processViewerEffect(LLMessageSystem *mesgsys, void **user_dat
         {
             if (!effectp)
             {
-                effectp = LLHUDManager::getInstance()->createViewerEffect(effect_type, FALSE, FALSE);
+                effectp = LLHUDManager::getInstance()->createViewerEffect(effect_type, false, false);
             }
 
             if (effectp)

@@ -59,11 +59,9 @@ public:
     LLProfileDropTarget(const Params&);
     ~LLProfileDropTarget() {}
 
-    void doDrop(EDragAndDropType cargo_type, void* cargo_data);
-
     //
     // LLView functionality
-    virtual BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+    virtual bool handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
                                    EDragAndDropType cargo_type,
                                    void* cargo_data,
                                    EAcceptance* accept,
@@ -97,7 +95,7 @@ public:
     /**
      * Sends update data request to server.
      */
-    virtual void updateData(){};
+    virtual void updateData() {};
 
     /**
      * Clears panel data if viewing avatar info for first time and sends update data request.

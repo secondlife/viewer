@@ -63,7 +63,7 @@ def update_stats(stats,rec):
                 # handle fps record as special case
                 pass
             else:
-                #print "field",field 
+                #print "field",field
                 stats.setdefault(field,{})
                 type_stats = stats.get(field)
                 newcount = val["resp_count"]
@@ -75,9 +75,9 @@ def update_stats(stats,rec):
                     type_stats["sum_bytes"] = type_stats.get("sum_bytes",0) + val["resp_count"] * val.get("resp_mean_bytes",0)
                 type_stats["enqueued"] = type_stats.get("enqueued",0) + val["enqueued"]
                 type_stats["dequeued"] = type_stats.get("dequeued",0) + val["dequeued"]
-                
-            
-    
+
+
+
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="process metric xml files for viewer asset fetching")

@@ -389,7 +389,7 @@ LLSDParser::~LLSDParser()
 
 S32 LLSDParser::parse(std::istream& istr, LLSD& data, llssize max_bytes, S32 max_depth)
 {
-    mCheckLimits = (LLSDSerialize::SIZE_UNLIMITED == max_bytes) ? false : true;
+    mCheckLimits = LLSDSerialize::SIZE_UNLIMITED != max_bytes;
     mMaxBytesLeft = max_bytes;
     return doParse(istr, data, max_depth);
 }
@@ -1546,7 +1546,7 @@ S32 LLSDBinaryFormatter::format_impl(const LLSD& data, std::ostream& ostr,
     case LLSD::TypeMap:
     {
         ostr.put('{');
-        U32 size_nbo = htonl(data.size());
+        U32 size_nbo = htonl(static_cast<u_long>(data.size()));
         ostr.write((const char*)(&size_nbo), sizeof(U32));
         LLSD::map_const_iterator iter = data.beginMap();
         LLSD::map_const_iterator end = data.endMap();
@@ -1563,7 +1563,7 @@ S32 LLSDBinaryFormatter::format_impl(const LLSD& data, std::ostream& ostr,
     case LLSD::TypeArray:
     {
         ostr.put('[');
-        U32 size_nbo = htonl(data.size());
+        U32 size_nbo = htonl(static_cast<u_long>(data.size()));
         ostr.write((const char*)(&size_nbo), sizeof(U32));
         LLSD::array_const_iterator iter = data.beginArray();
         LLSD::array_const_iterator end = data.endArray();
@@ -1630,7 +1630,7 @@ S32 LLSDBinaryFormatter::format_impl(const LLSD& data, std::ostream& ostr,
     {
         ostr.put('b');
         const std::vector<U8>& buffer = data.asBinary();
-        U32 size_nbo = htonl(buffer.size());
+        U32 size_nbo = htonl(static_cast<u_long>(buffer.size()));
         ostr.write((const char*)(&size_nbo), sizeof(U32));
         if(buffer.size()) ostr.write((const char*)&buffer[0], buffer.size());
         break;
@@ -1648,7 +1648,7 @@ void LLSDBinaryFormatter::formatString(
     const std::string& string,
     std::ostream& ostr) const
 {
-    U32 size_nbo = htonl(string.size());
+    U32 size_nbo = htonl(static_cast<u_long>(string.size()));
     ostr.write((const char*)(&size_nbo), sizeof(U32));
     ostr.write(string.c_str(), string.size());
 }

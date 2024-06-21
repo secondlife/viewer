@@ -46,7 +46,7 @@ class LLWearableList : public LLSingleton<LLWearableList>
 public:
     void cleanup() ;
 
-    S32                 getLength() const { return mList.size(); }
+    S32                 getLength() const { return static_cast<S32>(mList.size()); }
 
     void                getAsset(const LLAssetID& assetID,
                                  const std::string& wearable_name,

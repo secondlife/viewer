@@ -35,14 +35,14 @@ void LLKeyboardHeadless::resetMaskKeys()
 { }
 
 
-BOOL LLKeyboardHeadless::handleKeyDown(const U16 key, const U32 mask)
-{ return FALSE; }
+bool LLKeyboardHeadless::handleKeyDown(const U16 key, const U32 mask)
+{ return false; }
 
 
-BOOL LLKeyboardHeadless::handleKeyUp(const U16 key, const U32 mask)
-{ return FALSE; }
+bool LLKeyboardHeadless::handleKeyUp(const U16 key, const U32 mask)
+{ return false; }
 
-MASK LLKeyboardHeadless::currentMask(BOOL for_mouse_event)
+MASK LLKeyboardHeadless::currentMask(bool for_mouse_event)
 { return MASK_NONE; }
 
 #ifdef LL_DARWIN
@@ -69,8 +69,8 @@ void LLKeyboardHeadless::scanKeyboard()
     // Reset edges for next frame
     for (S32 key = 0; key < KEY_COUNT; key++)
     {
-        mKeyUp[key] = FALSE;
-        mKeyDown[key] = FALSE;
+        mKeyUp[key] = false;
+        mKeyDown[key] = false;
         if (mKeyLevel[key])
         {
             mKeyLevelFrameCount[key]++;

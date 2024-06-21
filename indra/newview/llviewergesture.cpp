@@ -70,37 +70,37 @@ LLViewerGesture::LLViewerGesture(const LLViewerGesture &rhs)
 {
 }
 
-BOOL LLViewerGesture::trigger(KEY key, MASK mask)
+bool LLViewerGesture::trigger(KEY key, MASK mask)
 {
     if (mKey == key && mMask == mask)
     {
-        doTrigger( TRUE );
-        return TRUE;
+        doTrigger( true );
+        return true;
     }
     else
     {
-        return FALSE;
+        return false;
     }
 }
 
 
-BOOL LLViewerGesture::trigger(const std::string &trigger_string)
+bool LLViewerGesture::trigger(const std::string &trigger_string)
 {
     // Assumes trigger_string is lowercase
     if (mTriggerLower == trigger_string)
     {
-        doTrigger( FALSE );
-        return TRUE;
+        doTrigger( false );
+        return true;
     }
     else
     {
-        return FALSE;
+        return false;
     }
 }
 
 
 // private
-void LLViewerGesture::doTrigger( BOOL send_chat )
+void LLViewerGesture::doTrigger( bool send_chat )
 {
     if (mSoundItemID != LLUUID::null)
     {
@@ -132,7 +132,7 @@ void LLViewerGesture::doTrigger( BOOL send_chat )
         // Don't play nodding animation, since that might not blend
         // with the gesture animation.
         (LLFloaterReg::getTypedInstance<LLFloaterIMNearbyChat>("nearby_chat"))->
-                sendChatFromViewer(mOutputString, CHAT_TYPE_NORMAL, FALSE);
+                sendChatFromViewer(mOutputString, CHAT_TYPE_NORMAL, false);
     }
 }
 
@@ -140,7 +140,7 @@ void LLViewerGesture::doTrigger( BOOL send_chat )
 LLViewerGestureList::LLViewerGestureList()
 :   LLGestureList()
 {
-    mIsLoaded = FALSE;
+    mIsLoaded = false;
 }
 
 
@@ -151,12 +151,12 @@ LLGesture *LLViewerGestureList::create_gesture(U8 **buffer, S32 max_size)
 }
 
 
-// See if the prefix matches any gesture.  If so, return TRUE
+// See if the prefix matches any gesture.  If so, return true
 // and place the full text of the gesture trigger into
 // output_str
-BOOL LLViewerGestureList::matchPrefix(const std::string& in_str, std::string* out_str)
+bool LLViewerGestureList::matchPrefix(const std::string& in_str, std::string* out_str)
 {
-    S32 in_len = in_str.length();
+    S32 in_len = static_cast<S32>(in_str.length());
 
     std::string in_str_lc = in_str;
     LLStringUtil::toLower(in_str_lc);
@@ -177,10 +177,10 @@ BOOL LLViewerGestureList::matchPrefix(const std::string& in_str, std::string* ou
         if (in_str_lc == trigger_trunc)
         {
             *out_str = trigger;
-            return TRUE;
+            return true;
         }
     }
-    return FALSE;
+    return false;
 }
 
 
@@ -197,7 +197,7 @@ void LLViewerGestureList::xferCallback(void *data, S32 size, void** /*user_data*
             LL_ERRS() << "Read off of end of array, error in serialization" << LL_ENDL;
         }
 
-        gGestureList.mIsLoaded = TRUE;
+        gGestureList.mIsLoaded = true;
     }
     else
     {

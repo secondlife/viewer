@@ -60,9 +60,9 @@ protected:
     friend class LLUICtrlFactory;
 public:
     virtual ~LLSlider();
-    void            setValue( F32 value, BOOL from_event = FALSE );
+    void            setValue( F32 value, bool from_event = false );
     // overrides for LLF32UICtrl methods
-    virtual void    setValue(const LLSD& value )    { setValue((F32)value.asReal(), TRUE); }
+    virtual void    setValue(const LLSD& value )    { setValue((F32)value.asReal(), true); }
 
     virtual void    setMinValue(const LLSD& min_value) { setMinValue((F32)min_value.asReal()); }
     virtual void    setMaxValue(const LLSD& max_value) { setMaxValue((F32)max_value.asReal()); }
@@ -72,18 +72,18 @@ public:
     boost::signals2::connection setMouseDownCallback( const commit_signal_t::slot_type& cb );
     boost::signals2::connection setMouseUpCallback( const commit_signal_t::slot_type& cb );
 
-    virtual BOOL    handleHover(S32 x, S32 y, MASK mask);
-    virtual BOOL    handleMouseUp(S32 x, S32 y, MASK mask);
-    virtual BOOL    handleMouseDown(S32 x, S32 y, MASK mask);
-    virtual BOOL    handleKeyHere(KEY key, MASK mask);
-    virtual BOOL    handleScrollWheel(S32 x, S32 y, S32 clicks);
+    virtual bool    handleHover(S32 x, S32 y, MASK mask);
+    virtual bool    handleMouseUp(S32 x, S32 y, MASK mask);
+    virtual bool    handleMouseDown(S32 x, S32 y, MASK mask);
+    virtual bool    handleKeyHere(KEY key, MASK mask);
+    virtual bool    handleScrollWheel(S32 x, S32 y, S32 clicks);
     virtual void    draw();
 
 private:
     void            setValueAndCommit(F32 value);
     void            updateThumbRect();
 
-    BOOL            mVolumeSlider;
+    bool            mVolumeSlider;
     S32             mMouseOffset;
     LLRect          mDragStartThumbRect;
 

@@ -55,7 +55,7 @@ public:
   void logKeyEvent(KEY key, MASK mask);
   void logKeyUnicodeEvent(llwchar uni_char);
 
-  void logVisibilityChange(std::string xui, std::string name, BOOL visibility, std::string event_subtype);
+  void logVisibilityChange(std::string xui, std::string name, bool visibility, std::string event_subtype);
 
   void clear_xui();
   std::string get_xui();

@@ -65,17 +65,17 @@ void LLFloaterPathfindingCharacters::onClose(bool pIsAppQuitting)
     LLFloaterPathfindingObjects::onClose( pIsAppQuitting );
 }
 
-BOOL LLFloaterPathfindingCharacters::isShowPhysicsCapsule() const
+bool LLFloaterPathfindingCharacters::isShowPhysicsCapsule() const
 {
     return mShowPhysicsCapsuleCheckBox->get();
 }
 
-void LLFloaterPathfindingCharacters::setShowPhysicsCapsule(BOOL pIsShowPhysicsCapsule)
+void LLFloaterPathfindingCharacters::setShowPhysicsCapsule(bool pIsShowPhysicsCapsule)
 {
     mShowPhysicsCapsuleCheckBox->set(pIsShowPhysicsCapsule && (LLPathingLib::getInstance() != NULL));
 }
 
-BOOL LLFloaterPathfindingCharacters::isPhysicsCapsuleEnabled(LLUUID& id, LLVector3& pos, LLQuaternion& rot) const
+bool LLFloaterPathfindingCharacters::isPhysicsCapsuleEnabled(LLUUID& id, LLVector3& pos, LLQuaternion& rot) const
 {
     id = mSelectedCharacterId;
     // Physics capsule is enable if the checkbox is enabled and if we can get the required render
@@ -117,7 +117,7 @@ LLFloaterPathfindingCharacters::~LLFloaterPathfindingCharacters()
 {
 }
 
-BOOL LLFloaterPathfindingCharacters::postBuild()
+bool LLFloaterPathfindingCharacters::postBuild()
 {
     mBeaconColor = LLUIColorTable::getInstance()->getColor("PathfindingCharacterBeaconColor");
 
@@ -195,7 +195,7 @@ void LLFloaterPathfindingCharacters::onShowPhysicsCapsuleClicked()
     {
         if (isShowPhysicsCapsule())
         {
-            setShowPhysicsCapsule(FALSE);
+            setShowPhysicsCapsule(false);
         }
     }
     else
@@ -246,7 +246,7 @@ void LLFloaterPathfindingCharacters::updateStateOnDisplayControls()
     mShowPhysicsCapsuleCheckBox->setEnabled(isEditEnabled);
     if (!isEditEnabled)
     {
-        setShowPhysicsCapsule(FALSE);
+        setShowPhysicsCapsule(false);
     }
 }
 
@@ -284,7 +284,7 @@ void LLFloaterPathfindingCharacters::showCapsule() const
             if (LLPathingLib::getInstance() != NULL)
             {
                 LLPathingLib::getInstance()->createPhysicsCapsuleRep(character->getLength(), character->getRadius(),
-                    character->isHorizontal(), character->getUUID());
+                    (BOOL)character->isHorizontal(), character->getUUID());
             }
         }
 

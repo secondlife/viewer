@@ -79,23 +79,23 @@ public:
     virtual LLPointer<LLUIImage> getOpenIcon() const { return getIcon(); }
     virtual LLFontGL::StyleFlags getLabelStyle() const { return LLFontGL::NORMAL; }
     virtual std::string getLabelSuffix() const { return LLStringUtil::null; }
-    virtual BOOL isItemRenameable() const { return TRUE; }
-    virtual BOOL renameItem(const std::string& new_name) { mName = new_name; mNeedsRefresh = true; return TRUE; }
-    virtual BOOL isItemMovable( void ) const { return FALSE; }
-    virtual BOOL isItemRemovable(bool check_worn = true) const { return FALSE; }
-    virtual BOOL isItemInTrash( void) const { return FALSE; }
-    virtual BOOL removeItem() { return FALSE; }
+    virtual bool isItemRenameable() const { return true; }
+    virtual bool renameItem(const std::string& new_name) { mName = new_name; mNeedsRefresh = true; return true; }
+    virtual bool isItemMovable( void ) const { return false; }
+    virtual bool isItemRemovable(bool check_worn = true) const { return false; }
+    virtual bool isItemInTrash( void) const { return false; }
+    virtual bool removeItem() { return false; }
     virtual void removeBatch(std::vector<LLFolderViewModelItem*>& batch) { }
     virtual void move( LLFolderViewModelItem* parent_listener ) { }
     virtual bool isItemCopyable(bool can_copy_as_link = true) const { return false; }
-    virtual BOOL copyToClipboard() const { return FALSE; }
-    virtual BOOL cutToClipboard() { return FALSE; }
-    virtual BOOL isClipboardPasteable() const { return FALSE; }
+    virtual bool copyToClipboard() const { return false; }
+    virtual bool cutToClipboard() { return false; }
+    virtual bool isClipboardPasteable() const { return false; }
     virtual void pasteFromClipboard() { }
     virtual void pasteLinkFromClipboard() { }
     virtual void buildContextMenu(LLMenuGL& menu, U32 flags) { }
-    virtual BOOL isUpToDate() const { return TRUE; }
-    virtual bool hasChildren() const { return FALSE; }
+    virtual bool isUpToDate() const { return true; }
+    virtual bool hasChildren() const { return false; }
     virtual void addChild(LLFolderViewModelItem* child);
 
     virtual bool potentiallyVisible() { return true; }
@@ -119,13 +119,13 @@ public:
     virtual const bool getDistanceToAgent(F64& distance) const { return false; }
 
     // This method will be called to determine if a drop can be
-    // performed, and will set drop to TRUE if a drop is
+    // performed, and will set drop to true if a drop is
     // requested.
-    // Returns TRUE if a drop is possible/happened, FALSE otherwise.
-    virtual BOOL dragOrDrop(MASK mask, BOOL drop,
+    // Returns true if a drop is possible/happened, false otherwise.
+    virtual bool dragOrDrop(MASK mask, bool drop,
                             EDragAndDropType cargo_type,
                             void* cargo_data,
-                            std::string& tooltip_msg) { return FALSE; }
+                            std::string& tooltip_msg) { return false; }
 
 //  bool hasSameValues(std::string name, const LLUUID& uuid) { return ((name == mName) && (uuid == mUUID)); }
     bool hasSameValue(const LLUUID& uuid) { return (uuid == mUUID); }
@@ -160,7 +160,7 @@ public:
     ~LLConversationItemSession();
 
     /*virtual*/ bool hasChildren() const;
-    LLPointer<LLUIImage> getIcon() const { return NULL; }
+    LLPointer<LLUIImage> getIcon() const { return nullptr; }
     void setSessionID(const LLUUID& session_id) { mUUID = session_id; mNeedsRefresh = true; }
     void addParticipant(LLConversationItemParticipant* participant);
     void updateName(LLConversationItemParticipant* participant);

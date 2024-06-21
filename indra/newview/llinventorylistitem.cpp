@@ -158,12 +158,12 @@ void LLPanelInventoryListItemBase::setShowWidget(LLUICtrl* ctrl, bool show)
     ctrl->setEnabled(show);
 }
 
-BOOL LLPanelInventoryListItemBase::postBuild()
+bool LLPanelInventoryListItemBase::postBuild()
 {
     LLViewerInventoryItem* inv_item = getItem();
     if (inv_item)
     {
-        mIconImage = LLInventoryIcon::getIcon(inv_item->getType(), inv_item->getInventoryType(), inv_item->getFlags(), FALSE);
+        mIconImage = LLInventoryIcon::getIcon(inv_item->getType(), inv_item->getInventoryType(), inv_item->getFlags(), false);
         updateItem(inv_item->getName());
     }
 
@@ -172,7 +172,7 @@ BOOL LLPanelInventoryListItemBase::postBuild()
     setWidgetsVisible(false);
     reshapeWidgets();
 
-    return TRUE;
+    return true;
 }
 
 void LLPanelInventoryListItemBase::setValue(const LLSD& value)
@@ -182,7 +182,7 @@ void LLPanelInventoryListItemBase::setValue(const LLSD& value)
     mSelected = value["selected"];
 }
 
-BOOL LLPanelInventoryListItemBase::handleHover(S32 x, S32 y, MASK mask)
+bool LLPanelInventoryListItemBase::handleHover(S32 x, S32 y, MASK mask)
 {
     mHovered = true;
     return LLPanel::handleHover(x, y, mask);
@@ -399,13 +399,13 @@ void LLPanelInventoryListItemBase::setTitle(const std::string& title,
         highlit_text);
 }
 
-BOOL LLPanelInventoryListItemBase::handleToolTip( S32 x, S32 y, MASK mask)
+bool LLPanelInventoryListItemBase::handleToolTip( S32 x, S32 y, MASK mask)
 {
     LLRect text_box_rect = mTitleCtrl->getRect();
     if (text_box_rect.pointInRect(x, y) &&
         mTitleCtrl->getTextPixelWidth() <= text_box_rect.getWidth())
     {
-        return FALSE;
+        return false;
     }
     return LLPanel::handleToolTip(x, y, mask);
 }

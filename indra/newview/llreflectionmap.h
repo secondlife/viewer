@@ -36,7 +36,7 @@ class alignas(16) LLReflectionMap : public LLRefCount
 {
     LL_ALIGN_NEW
 public:
-    
+
     enum class ProbeType
     {
         ALL = 0,
@@ -44,8 +44,8 @@ public:
         IRRADIANCE,
         REFLECTION
     };
-    
-    // allocate an environment map of the given resolution 
+
+    // allocate an environment map of the given resolution
     LLReflectionMap();
 
     ~LLReflectionMap();
@@ -86,7 +86,7 @@ public:
 
     // point at which environment map was last generated from (in agent space)
     LLVector4a mOrigin;
-    
+
     // distance from main viewer camera
     F32 mDistance = -1.f;
 
@@ -106,7 +106,7 @@ public:
     // cube map used to sample this environment map
     LLPointer<LLCubeMapArray> mCubeArray;
     S32 mCubeIndex = -1; // index into cube map array or -1 if not currently stored in cube map array
-    
+
     // probe has had at least one full update and is ready to render
     bool mComplete = false;
 
@@ -136,7 +136,7 @@ public:
     GLuint mOcclusionQuery = 0;
     bool mOccluded = false;
     U32 mOcclusionPendingFrames = 0;
-    
+
     ProbeType mType;
 };
 

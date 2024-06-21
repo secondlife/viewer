@@ -126,14 +126,14 @@ namespace tut
 
     template<> template<>
     void LLSDMessageBuilderTestObject::test<2>()
-         // BOOL
+         // bool
     {
-      BOOL outValue, inValue = TRUE;
+      bool outValue, inValue = true;
       LLSDMessageBuilder builder = defaultBuilder();
       builder.addBOOL("var", inValue);
       LLSDMessageReader reader = setReader(builder);
       reader.getBOOL("block", "var", outValue);
-      ensure_equals("Ensure BOOL", inValue, outValue);
+      ensure_equals("Ensure bool", inValue, outValue);
     }
 
     template<> template<>
@@ -688,13 +688,13 @@ namespace tut
     template<> template<>
     void LLSDMessageBuilderTestObject::test<39>()
     {
-      BOOL valueTrue = true;
-      BOOL valueFalse = false;
+      bool valueTrue = true;
+      bool valueFalse = false;
 
       LLMsgData* md = new LLMsgData("testMessage");
       LLMsgBlkData* mbd = new LLMsgBlkData("testBlock", 0);
-      addValue(mbd, (char *)"testBoolFalse", &valueFalse, MVT_BOOL, sizeof(BOOL));
-      addValue(mbd, (char *)"testBoolTrue", &valueTrue, MVT_BOOL, sizeof(BOOL));
+      addValue(mbd, (char *)"testBoolFalse", &valueFalse, MVT_BOOL, sizeof(bool));
+      addValue(mbd, (char *)"testBoolTrue", &valueTrue, MVT_BOOL, sizeof(bool));
       md->addBlock(mbd);
       LLSDMessageBuilder builder = defaultBuilder();
 

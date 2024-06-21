@@ -43,7 +43,7 @@ public:
                                     LLFloaterMyEnvironment(const LLSD& key);
     virtual                         ~LLFloaterMyEnvironment();
 
-    virtual BOOL                    postBuild() override;
+    virtual bool                    postBuild() override;
     virtual void                    refresh() override;
 
     virtual void                    onOpen(const LLSD& key) override;

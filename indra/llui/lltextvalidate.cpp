@@ -1,25 +1,25 @@
-/** 
+/**
  * @file lltextvalidate.cpp
  * @brief Text validation helper functions
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -73,7 +73,7 @@ class ValidatorFloat : public ValidatorImpl
 
         std::basic_string<CHAR> trimmed = str;
         LLStringUtilBase<CHAR>::trim(trimmed);
-        S32 len = trimmed.length();
+        auto len = trimmed.length();
         if (0 < len)
         {
             // May be a comma or period, depending on the locale
@@ -118,7 +118,7 @@ class ValidatorInt : public ValidatorImpl
 
         std::basic_string<CHAR> trimmed = str;
         LLStringUtilBase<CHAR>::trim(trimmed);
-        S32 len = trimmed.length();
+        auto len = trimmed.length();
         if (0 < len)
         {
             S32 i = 0;
@@ -157,7 +157,7 @@ class ValidatorPositiveS32 : public ValidatorImpl
 
         std::basic_string<CHAR> trimmed = str;
         LLStringUtilBase<CHAR>::trim(trimmed);
-        S32 len = trimmed.length();
+        auto len = trimmed.length();
         if (0 < len)
         {
             CHAR ch = trimmed.front();
@@ -167,7 +167,7 @@ class ValidatorPositiveS32 : public ValidatorImpl
                 return setError("Validator_ShouldNotBeMinusOrZero", LLSD().with("CH", llsd(ch)));
             }
 
-            for (S32 i = 0; i < len; ++i)
+            for (size_t i = 0; i < len; ++i)
             {
                 ch = trimmed[i];
                 if (!LLStringOps::isDigit(ch))
@@ -177,7 +177,7 @@ class ValidatorPositiveS32 : public ValidatorImpl
             }
         }
 
-        S32 val = strtol(trimmed);
+        auto val = strtol(trimmed);
         if (val <= 0)
         {
             return setError("Validator_InvalidNumericString", LLSD().with("STR", llsd(trimmed)));
@@ -201,7 +201,7 @@ class ValidatorNonNegativeS32 : public ValidatorImpl
 
         std::basic_string<CHAR> trimmed = str;
         LLStringUtilBase<CHAR>::trim(trimmed);
-        S32 len = trimmed.length();
+        auto len = trimmed.length();
         if (0 < len)
         {
             CHAR ch = trimmed.front();
@@ -211,7 +211,7 @@ class ValidatorNonNegativeS32 : public ValidatorImpl
                 return setError("Validator_ShouldNotBeMinus", LLSD().with("CH", llsd(ch)));
             }
 
-            for (S32 i = 0; i < len; ++i)
+            for (size_t i = 0; i < len; ++i)
             {
                 ch = trimmed[i];
                 if (!LLStringOps::isDigit(ch))
@@ -221,7 +221,7 @@ class ValidatorNonNegativeS32 : public ValidatorImpl
             }
         }
 
-        S32 val = strtol(trimmed);
+        auto val = strtol(trimmed);
         if (val < 0)
         {
             return setError("Validator_InvalidNumericString", LLSD().with("STR", llsd(trimmed)));
@@ -244,7 +244,7 @@ class ValidatorNonNegativeS32NoSpace : public ValidatorImpl
         LLLocale locale(LLLocale::USER_LOCALE);
 
         std::basic_string<CHAR> test_str = str;
-        S32 len = test_str.length();
+        auto len = test_str.length();
         if (0 < len)
         {
             CHAR ch = test_str.front();
@@ -254,7 +254,7 @@ class ValidatorNonNegativeS32NoSpace : public ValidatorImpl
                 return setError("Validator_ShouldNotBeMinus", LLSD().with("CH", llsd(ch)));
             }
 
-            for (S32 i = 0; i < len; ++i)
+            for (size_t i = 0; i < len; ++i)
             {
                 ch = test_str[i];
                 if (!LLStringOps::isDigit(ch) || LLStringOps::isSpace(ch))
@@ -264,7 +264,7 @@ class ValidatorNonNegativeS32NoSpace : public ValidatorImpl
             }
         }
 
-        S32 val = strtol(test_str);
+        auto val = strtol(test_str);
         if (val < 0)
         {
             return setError("Validator_InvalidNumericString", LLSD().with("STR", llsd(test_str)));
@@ -286,7 +286,7 @@ class ValidatorAlphaNum : public ValidatorImpl
     {
         LLLocale locale(LLLocale::USER_LOCALE);
 
-        S32 len = str.length();
+        auto len = str.length();
         while (len--)
         {
             CHAR ch = str[len];
@@ -313,7 +313,7 @@ class ValidatorAlphaNumSpace : public ValidatorImpl
     {
         LLLocale locale(LLLocale::USER_LOCALE);
 
-        S32 len = str.length();
+        auto len = str.length();
         while (len--)
         {
             CHAR ch = str[len];
@@ -341,7 +341,7 @@ class ValidatorASCIIPrintableNoPipe : public ValidatorImpl
     template <class CHAR>
     bool validate(const std::basic_string<CHAR>& str)
     {
-        S32 len = str.length();
+        auto len = str.length();
         while (len--)
         {
             CHAR ch = str[len];
@@ -368,7 +368,7 @@ class ValidatorASCIIPrintableNoSpace : public ValidatorImpl
     template <class CHAR>
     bool validate(const std::basic_string<CHAR>& str)
     {
-        S32 len = str.length();
+        auto len = str.length();
         while (len--)
         {
             CHAR ch = str[len];
@@ -395,7 +395,7 @@ protected:
     template <class CHAR>
     bool validate(const std::basic_string<CHAR>& str)
     {
-        S32 len = str.length();
+        auto len = str.length();
         while (len--)
         {
             CHAR ch = str[len];
@@ -441,7 +441,7 @@ class ValidatorASCIIWithNewLine : public ValidatorImpl
     template <class CHAR>
     bool validate(const std::basic_string<CHAR>& str)
     {
-        S32 len = str.length();
+        auto len = str.length();
         while (len--)
         {
             CHAR ch = str[len];

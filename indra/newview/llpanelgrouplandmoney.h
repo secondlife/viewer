@@ -36,8 +36,8 @@ class LLPanelGroupLandMoney : public LLPanelGroupTab
 public:
     LLPanelGroupLandMoney();
     virtual ~LLPanelGroupLandMoney();
-    virtual BOOL postBuild();
-    virtual BOOL isVisibleByAgent(LLAgent* agentp);
+    virtual bool postBuild();
+    virtual bool isVisibleByAgent(LLAgent* agentp);
 
     virtual void activate();
     virtual bool needsApply(std::string& mesg);

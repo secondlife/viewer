@@ -45,16 +45,16 @@ public:
     LLFloaterChangeItemThumbnail(const LLSD& key);
     ~LLFloaterChangeItemThumbnail();
 
-    BOOL postBuild() override;
+    bool postBuild() override;
     void onOpen(const LLSD& key) override;
     void onFocusReceived() override;
     void onMouseEnter(S32 x, S32 y, MASK mask) override;
 
-    BOOL handleDragAndDrop(
+    bool handleDragAndDrop(
         S32 x,
         S32 y,
         MASK mask,
-        BOOL drop,
+        bool drop,
         EDragAndDropType cargo_type,
         void *cargo_data,
         EAcceptance *accept,
@@ -83,27 +83,28 @@ private:
     static void onRemovalConfirmation(const LLSD& notification, const LLSD& response, LLHandle<LLFloater> handle);
 
     void assignAndValidateAsset(const LLUUID &asset_id, bool silent = false);
-    static void onImageDataLoaded(BOOL success,
+    static void onImageDataLoaded(bool success,
         LLViewerFetchedTexture *src_vi,
         LLImageRaw* src,
         LLImageRaw* aux_src,
         S32 discard_level,
-        BOOL final,
+        bool final,
         void* userdata);
-    static void onFullImageLoaded(BOOL success,
+    static void onFullImageLoaded(bool success,
                                   LLViewerFetchedTexture* src_vi,
                                   LLImageRaw* src,
                                   LLImageRaw* aux_src,
                                   S32 discard_level,
-                                  BOOL final,
+                                  bool final,
                                   void* userdata);
 
     void showTexturePicker(const LLUUID &thumbnail_id);
     void onTexturePickerCommit();
+    static void onUploadComplete(const LLUUID& asset_id, const LLUUID& task_id, const uuid_set_t& inventory_ids, LLHandle<LLFloater> handle);
 
     void setThumbnailId(const LLUUID &new_thumbnail_id);
-    static void setThumbnailId(const LLUUID& new_thumbnail_id, const LLUUID& object_id);
-    static void setThumbnailId(const LLUUID& new_thumbnail_id, const LLUUID& object_id, LLInventoryObject* obj);
+    static void setThumbnailId(const LLUUID& new_thumbnail_id, const LLUUID& task_id, const LLUUID& inv_obj_id);
+    static void setThumbnailId(const LLUUID& new_thumbnail_id, const LLUUID& inv_obj_id, LLInventoryObject* obj);
 
     enum EToolTipState
     {
@@ -120,8 +121,9 @@ private:
     void onButtonMouseLeave(LLUICtrl* button, const LLSD& param, EToolTipState state);
 
     bool mObserverInitialized;
+    bool mMultipleThumbnails; // for multiselection
     EToolTipState mTooltipState;
-    LLUUID mItemId;
+    uuid_set_t mItemList;
     LLUUID mTaskId;
     LLUUID mExpectingAssetId;
 
@@ -129,6 +131,7 @@ private:
     LLUICtrl *mItemNameText;
     LLThumbnailCtrl *mThumbnailCtrl;
     LLTextBox *mToolTipTextBox;
+    LLTextBox *mMultipleTextBox;
     LLButton *mCopyToClipboardBtn;
     LLButton *mPasteFromClipboardBtn;
     LLButton *mRemoveImageBtn;

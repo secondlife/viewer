@@ -57,29 +57,28 @@ protected:
 public:
     virtual ~LLFavoritesBarCtrl();
 
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild() override;
 
-    /*virtual*/ BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
-                                   EDragAndDropType cargo_type,
-                                   void* cargo_data,
-                                   EAcceptance* accept,
-                                   std::string& tooltip_msg);
+    /*virtual*/ bool handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
+        EDragAndDropType cargo_type, void* cargo_data, EAcceptance* accept, std::string& tooltip_msg) override;
+    bool handleDragAndDropToMenu(S32 x, S32 y, MASK mask, bool drop,
+        EDragAndDropType cargo_type, void* cargo_data, EAcceptance* accept, std::string& tooltip_msg);
 
-    /*virtual*/ BOOL    handleHover(S32 x, S32 y, MASK mask);
-    /*virtual*/ BOOL    handleRightMouseDown(S32 x, S32 y, MASK mask);
+    /*virtual*/ bool    handleHover(S32 x, S32 y, MASK mask) override;
+    /*virtual*/ bool    handleRightMouseDown(S32 x, S32 y, MASK mask) override;
     // LLInventoryObserver observer trigger
-    virtual void changed(U32 mask);
-    virtual void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
-    virtual void draw();
+    /*virtual*/ void changed(U32 mask) override;
+    /*virtual*/ void reshape(S32 width, S32 height, bool called_from_parent = true) override;
+    /*virtual*/ void draw() override;
 
-    void showDragMarker(BOOL show) { mShowDragMarker = show; }
+    void showDragMarker(bool show) { mShowDragMarker = show; }
     void setLandingTab(LLUICtrl* tab) { mLandingTab = tab; }
 
 protected:
     void updateButtons(bool force_update = false);
     LLButton* createButton(const LLPointer<LLViewerInventoryItem> item, const LLButton::Params& button_params, S32 x_offset );
     const LLButton::Params& getButtonParams();
-    BOOL collectFavoriteItems(LLInventoryModel::item_array_t &items);
+    bool collectFavoriteItems(LLInventoryModel::item_array_t &items);
 
     void onButtonClick(LLUUID id);
     void onButtonRightClick(LLUUID id,LLView* button,S32 x,S32 y,MASK mask);
@@ -92,7 +91,7 @@ protected:
     bool enableSelected(const LLSD& userdata);
     void doToSelected(const LLSD& userdata);
     static bool onRenameCommit(const LLSD& notification, const LLSD& response);
-    BOOL isClipboardPasteable() const;
+    bool isClipboardPasteable() const;
     void pasteFromClipboard() const;
 
     void showDropDownMenu();
@@ -108,7 +107,7 @@ protected:
     S32 mDropDownItemsCount;
     bool mUpdateDropDownItems;
     bool mRestoreOverflowMenu;
-
+    bool mDragToOverflowMenu;
     bool mGetPrevItems;
 
     LLUUID mSelectedItemID;
@@ -118,21 +117,23 @@ protected:
 private:
     /*
      * Helper function to make code more readable. It handles all drag and drop
-     * operations of the existing favorites items on the favorites bar.
+     * operations of the existing favorites items to the favorites bar to on the overflow menu.
      */
     void handleExistingFavoriteDragAndDrop(S32 x, S32 y);
 
     /*
      * Helper function to make code more readable. It handles all drag and drop
-     * operations of the new landmark to the favorites bar.
+     * operations of the new landmark to the favorites bar or to the overflow menu.
      */
     void handleNewFavoriteDragAndDrop(LLInventoryItem *item, const LLUUID& favorites_id, S32 x, S32 y);
 
     // finds a control under the specified LOCAL point
     LLUICtrl* findChildByLocalCoords(S32 x, S32 y);
 
+    bool findDragAndDropTarget(LLUUID &target_id, bool &insert_before, S32 x, S32 y);
+
     // checks if the current order of the favorites items must be saved
-    BOOL needToSaveItemsOrder(const LLInventoryModel::item_array_t& items);
+    bool needToSaveItemsOrder(const LLInventoryModel::item_array_t& items);
 
     /**
      * inserts an item identified by insertedItemId BEFORE an item identified by beforeItemId.
@@ -145,23 +146,23 @@ private:
 
     void createOverflowMenu();
 
-    void updateMenuItems(LLToggleableMenu* menu);
+    void updateOverflowMenuItems();
 
     // Fits menu item label width with favorites menu width
     void fitLabelWidth(LLMenuItemCallGL* menu_item);
 
     void addOpenLandmarksMenuItem(LLToggleableMenu* menu);
 
-    void positionAndShowMenu(LLToggleableMenu* menu);
+    void positionAndShowOverflowMenu();
 
-    BOOL mShowDragMarker;
+    bool mShowDragMarker;
     LLUICtrl* mLandingTab;
     LLUICtrl* mLastTab;
     LLTextBox* mMoreTextBox;
     LLTextBox* mBarLabel;
 
     LLUUID mDragItemId;
-    BOOL mStartDrag;
+    bool mStartDrag;
     LLInventoryModel::item_array_t mItems;
 
     static F64 sWaitingForCallabck;
@@ -224,8 +225,8 @@ public:
     // Remove record of current user's favorites from file on disk.
     static void removeFavoritesRecordOfUser();
 
-    BOOL saveFavoritesRecord(bool pref_changed = false);
-    void showFavoritesOnLoginChanged(BOOL show);
+    bool saveFavoritesRecord(bool pref_changed = false);
+    void showFavoritesOnLoginChanged(bool show);
 
     bool isStorageUpdateNeeded();
 

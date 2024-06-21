@@ -87,19 +87,19 @@ public:
 
 
     // MANIPULATORS
-    void start() { reset(); mStarted = TRUE; }
-    void stop() { mStarted = FALSE; }
+    void start() { reset(); mStarted = true; }
+    void stop() { mStarted = false; }
     void reset();                               // Resets the timer
     void setLastClockCount(U64 current_count);      // Sets the timer so that the next elapsed call will be relative to this time
     void setTimerExpirySec(F32SecondsImplicit expiration);
-    BOOL checkExpirationAndReset(F32 expiration);
-    BOOL hasExpired() const;
+    bool checkExpirationAndReset(F32 expiration);
+    bool hasExpired() const;
     F32SecondsImplicit getElapsedTimeAndResetF32(); // Returns elapsed time in seconds with reset
     F64SecondsImplicit getElapsedTimeAndResetF64();
 
     F32SecondsImplicit getRemainingTimeF32() const;
 
-    static BOOL knownBadTimer();
+    static bool knownBadTimer();
 
     // ACCESSORS
     F32SecondsImplicit getElapsedTimeF32() const;           // Returns elapsed time in seconds
@@ -171,14 +171,14 @@ extern LL_COMMON_API S32 gUTCOffset;
 
 // Is the current computer (in its current time zone)
 // observing daylight savings time?
-LL_COMMON_API BOOL is_daylight_savings();
+LL_COMMON_API bool is_daylight_savings();
 
 // Converts internal "struct tm" time buffer to Pacific Standard/Daylight Time
 // Usage:
 // S32 utc_time;
 // utc_time = time_corrected();
 // struct tm* internal_time = utc_to_pacific_time(utc_time, gDaylight);
-LL_COMMON_API struct tm* utc_to_pacific_time(time_t utc_time, BOOL pacific_daylight_time);
+LL_COMMON_API struct tm* utc_to_pacific_time(time_t utc_time, bool pacific_daylight_time);
 
 LL_COMMON_API void microsecondsToTimecodeString(U64MicrosecondsImplicit current_time, std::string& tcstring);
 LL_COMMON_API void secondsToTimecodeString(F32SecondsImplicit current_time, std::string& tcstring);

@@ -340,11 +340,11 @@ namespace tut
         LLBBox bbox1(LLVector3(1.0f, 1.0f, 1.0f), LLQuaternion(),
                      LLVector3(1.0f, 2.0f, 3.0f), LLVector3(3.0f, 4.0f, 5.0f));
 
-        ensure("containsPointLocal(0,0,0)", bbox1.containsPointLocal(LLVector3(0.0f, 0.0f, 0.0f)) == FALSE);
-        ensure("containsPointLocal(1,2,3)", bbox1.containsPointLocal(LLVector3(1.0f, 2.0f, 3.0f)) == TRUE);
-        ensure("containsPointLocal(0.999,2,3)", bbox1.containsPointLocal(LLVector3(0.999f, 2.0f, 3.0f)) == FALSE);
-        ensure("containsPointLocal(3,4,5)", bbox1.containsPointLocal(LLVector3(3.0f, 4.0f, 5.0f)) == TRUE);
-        ensure("containsPointLocal(3,4,5.001)", bbox1.containsPointLocal(LLVector3(3.0f, 4.0f, 5.001f)) == FALSE);
+        ensure("containsPointLocal(0,0,0)", bbox1.containsPointLocal(LLVector3(0.0f, 0.0f, 0.0f)) == false);
+        ensure("containsPointLocal(1,2,3)", bbox1.containsPointLocal(LLVector3(1.0f, 2.0f, 3.0f)) == true);
+        ensure("containsPointLocal(0.999,2,3)", bbox1.containsPointLocal(LLVector3(0.999f, 2.0f, 3.0f)) == false);
+        ensure("containsPointLocal(3,4,5)", bbox1.containsPointLocal(LLVector3(3.0f, 4.0f, 5.0f)) == true);
+        ensure("containsPointLocal(3,4,5.001)", bbox1.containsPointLocal(LLVector3(3.0f, 4.0f, 5.001f)) == false);
     }
 
     template<> template<>
@@ -357,11 +357,11 @@ namespace tut
         LLBBox bbox1(LLVector3(1.0f, 1.0f, 1.0f), LLQuaternion(),
                      LLVector3(1.0f, 2.0f, 3.0f), LLVector3(3.0f, 4.0f, 5.0f));
 
-        ensure("containsPointAgent(0,0,0)", bbox1.containsPointAgent(LLVector3(0.0f, 0.0f, 0.0f)) == FALSE);
-        ensure("containsPointAgent(2,3,4)", bbox1.containsPointAgent(LLVector3(2.0f, 3.0f, 4.0f)) == TRUE);
-        ensure("containsPointAgent(2,2.999,4)", bbox1.containsPointAgent(LLVector3(2.0f, 2.999f, 4.0f)) == FALSE);
-        ensure("containsPointAgent(4,5,6)", bbox1.containsPointAgent(LLVector3(4.0f, 5.0f, 6.0f)) == TRUE);
-        ensure("containsPointAgent(4,5.001,6)", bbox1.containsPointAgent(LLVector3(4.0f, 5.001f, 6.0f)) == FALSE);
+        ensure("containsPointAgent(0,0,0)", bbox1.containsPointAgent(LLVector3(0.0f, 0.0f, 0.0f)) == false);
+        ensure("containsPointAgent(2,3,4)", bbox1.containsPointAgent(LLVector3(2.0f, 3.0f, 4.0f)) == true);
+        ensure("containsPointAgent(2,2.999,4)", bbox1.containsPointAgent(LLVector3(2.0f, 2.999f, 4.0f)) == false);
+        ensure("containsPointAgent(4,5,6)", bbox1.containsPointAgent(LLVector3(4.0f, 5.0f, 6.0f)) == true);
+        ensure("containsPointAgent(4,5.001,6)", bbox1.containsPointAgent(LLVector3(4.0f, 5.001f, 6.0f)) == false);
     }
 }
 

@@ -43,18 +43,18 @@ public:
      * this callback is being used to add a user whose fullname isn't been loaded before invoking of addUsers().
      */
     void addUserCallback(const LLUUID& id, const LLAvatarName& av_name);
-    void clear();
+    void clear() override;
     void update();
 
     void setCloseCallback(void (*close_callback)(void*), void* data);
 
-    virtual void draw();
-    virtual BOOL postBuild();
+    void draw() override;
+    bool postBuild() override;
 protected:
     class impl;
     impl* mImplementation;
 
-    BOOL mPendingUpdate;
+    bool mPendingUpdate;
     LLUUID mStoreSelected;
     void updateLists();
 };

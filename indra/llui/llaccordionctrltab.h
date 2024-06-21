@@ -134,7 +134,7 @@ public:
     void canOpenClose(bool can_open_close) { mCanOpenClose = can_open_close; };
     bool canOpenClose() const { return mCanOpenClose; };
 
-    virtual BOOL postBuild();
+    virtual bool postBuild();
 
     S32 notifyParent(const LLSD& info);
     S32 notify(const LLSD& info);
@@ -153,22 +153,22 @@ protected:
 public:
 
     // Call reshape after changing size
-    virtual void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+    virtual void reshape(S32 width, S32 height, bool called_from_parent = true);
 
     /**
      * Raises notifyParent event with "child_visibility_change" = new_visibility
      */
-    void onVisibilityChange(BOOL new_visibility);
+    void onVisibilityChange(bool new_visibility);
     virtual void onUpdateScrollToChild(const LLUICtrl * cntrl);
 
     // Changes expand/collapse state and triggers expand/collapse callbacks
-    virtual BOOL handleMouseDown(S32 x, S32 y, MASK mask);
+    virtual bool handleMouseDown(S32 x, S32 y, MASK mask);
 
-    virtual BOOL handleMouseUp(S32 x, S32 y, MASK mask);
-    virtual BOOL handleKey(KEY key, MASK mask, BOOL called_from_parent);
+    virtual bool handleMouseUp(S32 x, S32 y, MASK mask);
+    virtual bool handleKey(KEY key, MASK mask, bool called_from_parent);
 
-    virtual BOOL handleToolTip(S32 x, S32 y, MASK mask);
-    virtual BOOL handleScrollWheel( S32 x, S32 y, S32 clicks );
+    virtual bool handleToolTip(S32 x, S32 y, MASK mask);
+    virtual bool handleScrollWheel( S32 x, S32 y, S32 clicks );
 
 
     virtual bool addChild(LLView* child, S32 tab_group = 0 );

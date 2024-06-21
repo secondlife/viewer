@@ -66,7 +66,7 @@ void LLToastNotifyPanel::addDefaultButton()
 {
     LLSD form_element;
     form_element.with("name", "OK").with("text", LLTrans::getString("ok")).with("default", true);
-    LLButton* ok_btn = createButton(form_element, FALSE);
+    LLButton* ok_btn = createButton(form_element, false);
     LLRect new_btn_rect(ok_btn->getRect());
 
     new_btn_rect.setOriginAndSize(llabs(getRect().getWidth() - BUTTON_WIDTH)/ 2, BOTTOM_PAD,
@@ -77,7 +77,7 @@ void LLToastNotifyPanel::addDefaultButton()
     mNumButtons = 1;
     mAddedDefaultBtn = true;
 }
-LLButton* LLToastNotifyPanel::createButton(const LLSD& form_element, BOOL is_option)
+LLButton* LLToastNotifyPanel::createButton(const LLSD& form_element, bool is_option)
 {
     InstanceAndS32* userdata = new InstanceAndS32;
     userdata->mSelf = this;
@@ -224,7 +224,7 @@ void LLToastNotifyPanel::adjustPanelForScriptNotice(S32 button_panel_width, S32 
 void LLToastNotifyPanel::adjustPanelForTipNotice()
 {
     //we don't need display ControlPanel for tips because they doesn't contain any buttons.
-    mControlPanel->setVisible(FALSE);
+    mControlPanel->setVisible(false);
     reshape(getRect().getWidth(), mInfoPanel->getRect().getHeight());
 
     if (mNotification->getPayload().has("respond_on_mousedown")
@@ -251,7 +251,7 @@ void LLToastNotifyPanel::onClickButton(void* data)
     }
 
     // disable all buttons
-    self->mControlPanel->setEnabled(FALSE);
+    self->mControlPanel->setEnabled(false);
 
     // this might repost notification with new form data/enabled buttons
     self->mNotification->respond(response);
@@ -266,7 +266,7 @@ void LLToastNotifyPanel::init( LLRect rect, bool show_images )
     setXMLFilename("");
     buildFromFile("panel_notification.xml");
 
-    if (rect != LLRect::null)
+    if(rect != LLRect::null)
     {
         this->setShape(rect);
     }
@@ -319,7 +319,7 @@ void LLToastNotifyPanel::init( LLRect rect, bool show_images )
     }
 
     mTextBox->setMaxTextLength(LLToastPanel::MAX_TEXT_LENGTH);
-    mTextBox->setVisible(TRUE);
+    mTextBox->setVisible(true);
     mTextBox->setPlainText(!show_images);
     mTextBox->setUseEmoji(!mIsScriptDialog);
     mTextBox->setContentTrusted(is_content_trusted);
@@ -351,7 +351,7 @@ void LLToastNotifyPanel::init( LLRect rect, bool show_images )
                 // a textbox pretending to be a button.
                 continue;
             }
-            LLButton* new_button = createButton(form_element, TRUE);
+            LLButton* new_button = createButton(form_element, true);
             buttons_width += new_button->getRect().getWidth();
             S32 index = form_element["index"].asInteger();
             buttons.push_back(index_button_pair_t(index,new_button));
@@ -484,7 +484,7 @@ LLIMToastNotifyPanel::~LLIMToastNotifyPanel()
 {
 }
 
-void LLIMToastNotifyPanel::reshape(S32 width, S32 height, BOOL called_from_parent /* = TRUE */)
+void LLIMToastNotifyPanel::reshape(S32 width, S32 height, bool called_from_parent /* = true */)
 {
     LLToastPanel::reshape(width, height, called_from_parent);
     snapToMessageHeight();

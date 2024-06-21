@@ -51,28 +51,12 @@ char LLResMgr::getDecimalPoint() const
 {
     char decimal = localeconv()->decimal_point[0];
 
-#if LL_DARWIN
-    // On the Mac, locale support is broken before 10.4, which causes things to go all pear-shaped.
-    if(decimal == 0)
-    {
-        decimal = '.';
-    }
-#endif
-
     return decimal;
 }
 
 char LLResMgr::getThousandsSeparator() const
 {
     char separator = localeconv()->thousands_sep[0];
-
-#if LL_DARWIN
-    // On the Mac, locale support is broken before 10.4, which causes things to go all pear-shaped.
-    if(separator == 0)
-    {
-        separator = ',';
-    }
-#endif
 
     return separator;
 }
@@ -81,28 +65,12 @@ char LLResMgr::getMonetaryDecimalPoint() const
 {
     char decimal = localeconv()->mon_decimal_point[0];
 
-#if LL_DARWIN
-    // On the Mac, locale support is broken before 10.4, which causes things to go all pear-shaped.
-    if(decimal == 0)
-    {
-        decimal = '.';
-    }
-#endif
-
     return decimal;
 }
 
 char LLResMgr::getMonetaryThousandsSeparator() const
 {
     char separator = localeconv()->mon_thousands_sep[0];
-
-#if LL_DARWIN
-    // On the Mac, locale support is broken before 10.4, which causes things to go all pear-shaped.
-    if(separator == 0)
-    {
-        separator = ',';
-    }
-#endif
 
     return separator;
 }
@@ -115,29 +83,6 @@ std::string LLResMgr::getMonetaryString( S32 input ) const
 
     LLLocale locale(LLLocale::USER_LOCALE);
     struct lconv *conv = localeconv();
-
-#if LL_DARWIN
-    // On the Mac, locale support is broken before 10.4, which causes things to go all pear-shaped.
-    // Fake up a conv structure with some reasonable values for the fields this function uses.
-    struct lconv fakeconv;
-    char fake_neg[2] = "-";
-    char fake_mon_group[4] = "\x03\x03\x00"; // commas every 3 digits
-    if(conv->negative_sign[0] == 0) // Real locales all seem to have something here...
-    {
-        fakeconv = *conv;   // start with what's there.
-        switch(mLocale)
-        {
-            default:            // Unknown -- use the US defaults.
-            case LLLOCALE_USA:
-            case LLLOCALE_UK:   // UK ends up being the same as US for the items used here.
-                fakeconv.negative_sign = fake_neg;
-                fakeconv.mon_grouping = fake_mon_group;
-                fakeconv.n_sign_posn = 1; // negative sign before the string
-            break;
-        }
-        conv = &fakeconv;
-    }
-#endif
 
     char* negative_sign = conv->negative_sign;
     char separator = getMonetaryThousandsSeparator();
@@ -154,9 +99,9 @@ std::string LLResMgr::getMonetaryString( S32 input ) const
 
 
     // Note: we assume here that the currency symbol goes on the left. (Hey, it's Lindens! We can just decide.)
-    BOOL negative = (input < 0 );
-    BOOL negative_before = negative && (conv->n_sign_posn != 2);
-    BOOL negative_after = negative && (conv->n_sign_posn == 2);
+    bool negative = (input < 0 );
+    bool negative_before = negative && (conv->n_sign_posn != 2);
+    bool negative_after = negative && (conv->n_sign_posn == 2);
 
     std::string digits = llformat("%u", abs(input));
     if( !grouping || !grouping[0] )
@@ -195,7 +140,7 @@ std::string LLResMgr::getMonetaryString( S32 input ) const
     S32 output_pos = 0;
 
     cur_group = 0;
-    S32 pos = digits.size()-1;
+    S32 pos = static_cast<S32>(digits.size()) - 1;
     S32 count_within_group = 0;
     while( (pos >= 0) && (groupings[cur_group] >= 0) )
     {

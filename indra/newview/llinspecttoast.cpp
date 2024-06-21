@@ -46,7 +46,7 @@ public:
     virtual ~LLInspectToast();
 
     /*virtual*/ void onOpen(const LLSD& notification_id);
-    /*virtual*/ BOOL handleToolTip(S32 x, S32 y, MASK mask);
+    /*virtual*/ bool handleToolTip(S32 x, S32 y, MASK mask);
     /*virtual*/ void deleteAllChildren();
     /*virtual*/ void removeChild(LLView* child);
 private:
@@ -96,14 +96,14 @@ void LLInspectToast::onOpen(const LLSD& notification_id)
         LL_WARNS() << "Could not get toast's panel." << LL_ENDL;
         return;
     }
-    panel->setVisible(TRUE);
-    panel->setMouseOpaque(FALSE);
+    panel->setVisible(true);
+    panel->setMouseOpaque(false);
     if(mPanel != NULL && mPanel->getParent() == this)
     {
         LLInspect::removeChild(mPanel);
     }
     addChild(panel);
-    panel->setFocus(TRUE);
+    panel->setFocus(true);
     mPanel = panel;
 
 
@@ -115,7 +115,7 @@ void LLInspectToast::onOpen(const LLSD& notification_id)
 }
 
 // virtual
-BOOL LLInspectToast::handleToolTip(S32 x, S32 y, MASK mask)
+bool LLInspectToast::handleToolTip(S32 x, S32 y, MASK mask)
 {
     // We don't like the way LLInspect handles tooltips
     // (black tooltips look weird),

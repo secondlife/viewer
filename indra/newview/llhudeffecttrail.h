@@ -76,7 +76,7 @@ private:
     F32                             mOffset[NUM_TRAIL_POINTS];
     */
 
-    BOOL                            mbInit;
+    bool                            mbInit;
     LLPointer<LLViewerPartSource>   mPartSourcep;
 
     F32                             mKillTime;

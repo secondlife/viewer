@@ -114,7 +114,7 @@ void LLSDMessageReader::getBinaryData(const char *block, const char *var,
 
 //virtual
 void LLSDMessageReader::getBOOL(const char *block, const char *var,
-                                BOOL &data,
+                                bool &data,
                                 S32 blocknum)
 {
     data = getLLSD(mMessage, block, var, blocknum);
@@ -242,7 +242,7 @@ void LLSDMessageReader::getString(const char *block, const char *var,
         return;
     }
     std::string data = getLLSD(mMessage, block, var, blocknum);
-    S32 data_size = data.size();
+    auto data_size = data.size();
     if (data_size >= buffer_size)
     {
         data_size = buffer_size - 1;
@@ -261,7 +261,7 @@ void LLSDMessageReader::getString(const char *block, const char *var,
 //virtual
 S32 LLSDMessageReader::getNumberOfBlocks(const char *blockname)
 {
-    return mMessage[blockname].size();
+    return static_cast<S32>(mMessage[blockname].size());
 }
 
 S32 getElementSize(const LLSD& llsd)
@@ -276,7 +276,7 @@ S32 getElementSize(const LLSD& llsd)
     case LLSD::TypeReal:
         return sizeof(F64);
     case LLSD::TypeString:
-        return llsd.size();
+        return static_cast<S32>(llsd.size());
     case LLSD::TypeUUID:
         return sizeof(LLUUID);
     case LLSD::TypeDate:
@@ -286,7 +286,7 @@ S32 getElementSize(const LLSD& llsd)
     case LLSD::TypeBinary:
     {
         std::vector<U8> data = llsd;
-        return data.size() * sizeof(U8);
+        return static_cast<S32>(data.size() * sizeof(U8));
     }
     case LLSD::TypeMap:
     case LLSD::TypeArray:

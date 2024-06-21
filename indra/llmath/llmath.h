@@ -59,34 +59,34 @@
 #define tanf(x)     ((F32)tan((F64)(x)))
 #endif*/
 
-const F32   GRAVITY         = -9.8f;
+constexpr F32   GRAVITY         = -9.8f;
 
 // mathematical constants
-const F32   F_PI        = 3.1415926535897932384626433832795f;
-const F32   F_TWO_PI    = 6.283185307179586476925286766559f;
-const F32   F_PI_BY_TWO = 1.5707963267948966192313216916398f;
-const F32   F_SQRT_TWO_PI = 2.506628274631000502415765284811f;
-const F32   F_E         = 2.71828182845904523536f;
-const F32   F_SQRT2     = 1.4142135623730950488016887242097f;
-const F32   F_SQRT3     = 1.73205080756888288657986402541f;
-const F32   OO_SQRT2    = 0.7071067811865475244008443621049f;
-const F32   OO_SQRT3    = 0.577350269189625764509f;
-const F32   DEG_TO_RAD  = 0.017453292519943295769236907684886f;
-const F32   RAD_TO_DEG  = 57.295779513082320876798154814105f;
-const F32   F_APPROXIMATELY_ZERO = 0.00001f;
-const F32   F_LN10      = 2.3025850929940456840179914546844f;
-const F32   OO_LN10     = 0.43429448190325182765112891891661;
-const F32   F_LN2       = 0.69314718056f;
-const F32   OO_LN2      = 1.4426950408889634073599246810019f;
+constexpr F32   F_PI        = 3.1415926535897932384626433832795f;
+constexpr F32   F_TWO_PI    = 6.283185307179586476925286766559f;
+constexpr F32   F_PI_BY_TWO = 1.5707963267948966192313216916398f;
+constexpr F32   F_SQRT_TWO_PI = 2.506628274631000502415765284811f;
+constexpr F32   F_E         = 2.71828182845904523536f;
+constexpr F32   F_SQRT2     = 1.4142135623730950488016887242097f;
+constexpr F32   F_SQRT3     = 1.73205080756888288657986402541f;
+constexpr F32   OO_SQRT2    = 0.7071067811865475244008443621049f;
+constexpr F32   OO_SQRT3    = 0.577350269189625764509f;
+constexpr F32   DEG_TO_RAD  = 0.017453292519943295769236907684886f;
+constexpr F32   RAD_TO_DEG  = 57.295779513082320876798154814105f;
+constexpr F32   F_APPROXIMATELY_ZERO = 0.00001f;
+constexpr F32   F_LN10      = 2.3025850929940456840179914546844f;
+constexpr F32   OO_LN10     = 0.43429448190325182765112891891661;
+constexpr F32   F_LN2       = 0.69314718056f;
+constexpr F32   OO_LN2      = 1.4426950408889634073599246810019f;
 
-const F32   F_ALMOST_ZERO   = 0.0001f;
-const F32   F_ALMOST_ONE    = 1.0f - F_ALMOST_ZERO;
+constexpr F32   F_ALMOST_ZERO   = 0.0001f;
+constexpr F32   F_ALMOST_ONE    = 1.0f - F_ALMOST_ZERO;
 
-const F32   GIMBAL_THRESHOLD = 0.000436f; // sets the gimballock threshold 0.025 away from +/-90 degrees
+constexpr F32   GIMBAL_THRESHOLD = 0.000436f; // sets the gimballock threshold 0.025 away from +/-90 degrees
 // formula: GIMBAL_THRESHOLD = sin(DEG_TO_RAD * gimbal_threshold_angle);
 
 // BUG: Eliminate in favor of F_APPROXIMATELY_ZERO above?
-const F32 FP_MAG_THRESHOLD = 0.0000001f;
+constexpr F32 FP_MAG_THRESHOLD = 0.0000001f;
 
 // TODO: Replace with logic like is_approx_equal
 inline bool is_approx_zero( F32 f ) { return (-F_APPROXIMATELY_ZERO < f) && (f < F_APPROXIMATELY_ZERO); }
@@ -123,13 +123,13 @@ inline bool is_zero(F32 x)
 
 inline bool is_approx_equal(F32 x, F32 y)
 {
-    const S32 COMPARE_MANTISSA_UP_TO_BIT = 0x02;
+    constexpr S32 COMPARE_MANTISSA_UP_TO_BIT = 0x02;
     return (std::abs((S32) ((U32&)x - (U32&)y) ) < COMPARE_MANTISSA_UP_TO_BIT);
 }
 
 inline bool is_approx_equal(F64 x, F64 y)
 {
-    const S64 COMPARE_MANTISSA_UP_TO_BIT = 0x02;
+    constexpr S64 COMPARE_MANTISSA_UP_TO_BIT = 0x02;
     return (std::abs((S32) ((U64&)x - (U64&)y) ) < COMPARE_MANTISSA_UP_TO_BIT);
 }
 
@@ -272,8 +272,8 @@ inline F64 ll_round( F64 val, F64 nearest )
 // peak error = -31.4 dB
 // RMS  error = -28.1 dB
 
-const F32 FAST_MAG_ALPHA = 0.960433870103f;
-const F32 FAST_MAG_BETA = 0.397824734759f;
+constexpr F32 FAST_MAG_ALPHA = 0.960433870103f;
+constexpr F32 FAST_MAG_BETA = 0.397824734759f;
 
 // these provide minimum RMS error
 //
@@ -281,8 +281,8 @@ const F32 FAST_MAG_BETA = 0.397824734759f;
 // peak error = -32.6 dB
 // RMS  error = -25.7 dB
 //
-//const F32 FAST_MAG_ALPHA = 0.948059448969f;
-//const F32 FAST_MAG_BETA = 0.392699081699f;
+//constexpr F32 FAST_MAG_ALPHA = 0.948059448969f;
+//constexpr F32 FAST_MAG_BETA = 0.392699081699f;
 
 inline F32 fastMagnitude(F32 a, F32 b)
 {
@@ -299,8 +299,8 @@ inline F32 fastMagnitude(F32 a, F32 b)
 //
 // Culled from www.stereopsis.com/FPU.html
 
-const F64 LL_DOUBLE_TO_FIX_MAGIC    = 68719476736.0*1.5;     //2^36 * 1.5,  (52-_shiftamt=36) uses limited precisicion to floor
-const S32 LL_SHIFT_AMOUNT           = 16;                    //16.16 fixed point representation,
+constexpr F64 LL_DOUBLE_TO_FIX_MAGIC    = 68719476736.0*1.5;     //2^36 * 1.5,  (52-_shiftamt=36) uses limited precisicion to floor
+constexpr S32 LL_SHIFT_AMOUNT           = 16;                    //16.16 fixed point representation,
 
 // Endian dependent code
 #ifdef LL_LITTLE_ENDIAN
@@ -517,7 +517,7 @@ inline void ll_remove_outliers(std::vector<VEC_TYPE>& data, F32 k)
         i++;
     }
 
-    S32 j = data.size()-1;
+    size_t j = data.size()-1;
     while (j > 0 && data[j] > max)
     {
         j--;

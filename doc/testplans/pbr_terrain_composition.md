@@ -12,6 +12,10 @@ All tests in this section assume the PBR terrain feature flag is enabled, and th
 
 ### Feature Availability
 
+These features are related to UI, where the Region/Estate floater is opened to the terrain Tab.
+
+#### Feature: PBR Terrain
+
 On the client, the advanced setting `RenderTerrainPBREnabled` is the PBR terrain feature flag.
 
 The PBR terrain feature flag should be set automatically when logging in/teleporting to a new region.
@@ -28,6 +32,24 @@ When the PBR terrain feature flag is enabled:
 
 - The "PBR Metallic Roughness" checkbox should be visible
 - The user should be able to apply PBR terrain or textures to the region, depending on if the "PBR Metallic Roughness" checkbox is checked.
+
+#### Feature: PBR Terrain Texture Transforms
+
+On the client, the advanced setting, `RenderTerrainPBRTransformsEnabled` is the PBR terrain texture transform flag. Generally, this feature should not be expected to work correctly unless the PBR terrain feature is also enabled.
+
+The PBR terrain texture transform flag should be set automatically when logging in/teleporting to a new region.
+
+- The flag should be enabled on regions where the PBR terrain texture transform feature is enabled
+- Otherwise the flag should be disabled
+
+When the PBR terrain texture transform feature is enabled, the UI of the Terrain tab should be overhauled. Availability of features depends on the type of terrain.
+
+When "PBR Metallic Roughness" is checked:
+
+- There should be a way for the user to change the texture transforms for the terrain in the current region
+- For each of the four swatches, the user can change the scale, offset, and rotation of that swatch. Nonuniform scale is allowed
+
+When "PBR Metallic Roughness" is unchecked, the controls for texture transforms should be hidden.
 
 ### Current Composition Type
 

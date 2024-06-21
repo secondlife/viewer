@@ -58,7 +58,7 @@ LLNameEditor::~LLNameEditor()
     LLNameEditor::sInstances.erase(this);
 }
 
-void LLNameEditor::setNameID(const LLUUID& name_id, BOOL is_group)
+void LLNameEditor::setNameID(const LLUUID& name_id, bool is_group)
 {
     mNameID = name_id;
 
@@ -100,7 +100,7 @@ void LLNameEditor::refreshAll(const LLUUID& id, const std::string& full_name, bo
 
 void LLNameEditor::setValue( const LLSD& value )
 {
-    setNameID(value.asUUID(), FALSE);
+    setNameID(value.asUUID(), false);
 }
 
 LLSD LLNameEditor::getValue() const

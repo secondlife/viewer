@@ -67,8 +67,8 @@ public:
     //-------------------------------------------------------------------------
 
     // motions must specify whether or not they loop
-    virtual BOOL getLoop() {
-        return TRUE;
+    virtual bool getLoop() {
+        return true;
     }
 
     // motions must report their total duration
@@ -102,14 +102,14 @@ public:
     virtual LLMotionInitStatus onInitialize(LLCharacter *character);
 
     // called when a motion is activated
-    // must return TRUE to indicate success, or else
+    // must return true to indicate success, or else
     // it will be deactivated
-    virtual BOOL onActivate();
+    virtual bool onActivate();
 
     // called per time step
-    // must return TRUE while it is active, and
-    // must return FALSE when the motion is completed.
-    virtual BOOL onUpdate(F32 time, U8* joint_mask);
+    // must return true while it is active, and
+    // must return false when the motion is completed.
+    virtual bool onUpdate(F32 time, U8* joint_mask);
 
     // called when a motion is deactivated
     virtual void onDeactivate();
@@ -128,12 +128,12 @@ protected:
     };
 
     // add a motion and associated parameter triplet
-    BOOL addKeyframeMotion(char *name, const LLUUID &id, char *param, F32 value);
+    bool addKeyframeMotion(char *name, const LLUUID &id, char *param, F32 value);
 
     // set default motion for LOD and retrieving blend constants
     void setDefaultKeyframeMotion(char *);
 
-    BOOL loadMotions();
+    bool loadMotions();
 
 protected:
     //-------------------------------------------------------------------------

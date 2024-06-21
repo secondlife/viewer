@@ -125,7 +125,7 @@ public:
     //-------------------------------------------------------------------------
     // registers a motion with the character
     // returns true if successfull
-    BOOL registerMotion( const LLUUID& id, LLMotionConstructor create );
+    bool registerMotion( const LLUUID& id, LLMotionConstructor create );
 
     void removeMotion( const LLUUID& id );
 
@@ -137,13 +137,13 @@ public:
 
     // start a motion
     // returns true if successful, false if an error occurred
-    virtual BOOL startMotion( const LLUUID& id, F32 start_offset = 0.f);
+    virtual bool startMotion( const LLUUID& id, F32 start_offset = 0.f);
 
     // stop a motion
-    virtual BOOL stopMotion( const LLUUID& id, BOOL stop_immediate = FALSE );
+    virtual bool stopMotion( const LLUUID& id, bool stop_immediate = false );
 
     // is this motion active?
-    BOOL isMotionActive( const LLUUID& id );
+    bool isMotionActive( const LLUUID& id );
 
     // Event handler for motion deactivation.
     // Called when a motion has completely stopped and has been deactivated.
@@ -156,7 +156,7 @@ public:
     void updateMotions(e_update_t update_type);
 
     LLAnimPauseRequest requestPause();
-    BOOL areAnimationsPaused() const { return mMotionController.isPaused(); }
+    bool areAnimationsPaused() const { return mMotionController.isPaused(); }
     void setAnimTimeFactor(F32 factor) { mMotionController.setTimeFactor(factor); }
     void setTimeStep(F32 time_step) { mMotionController.setTimeStep(time_step); }
 
@@ -190,9 +190,9 @@ public:
     void addVisualParam(LLVisualParam *param);
     void addSharedVisualParam(LLVisualParam *param);
 
-    virtual BOOL setVisualParamWeight(const LLVisualParam *which_param, F32 weight);
-    virtual BOOL setVisualParamWeight(const char* param_name, F32 weight);
-    virtual BOOL setVisualParamWeight(S32 index, F32 weight);
+    virtual bool setVisualParamWeight(const LLVisualParam *which_param, F32 weight);
+    virtual bool setVisualParamWeight(const char* param_name, F32 weight);
+    virtual bool setVisualParamWeight(S32 index, F32 weight);
 
     // get visual param weight by param or name
     F32 getVisualParamWeight(LLVisualParam *distortion);
@@ -256,7 +256,7 @@ public:
     void            setSkeletonSerialNum( U32 num ) { mSkeletonSerialNum = num; }
 
     static std::vector< LLCharacter* > sInstances;
-    static BOOL sAllowInstancesChange ; //debug use
+    static bool sAllowInstancesChange ; //debug use
 
     virtual void    setHoverOffset(const LLVector3& hover_offset, bool send_update=true) { mHoverOffset = hover_offset; }
     const LLVector3& getHoverOffset() const { return mHoverOffset; }

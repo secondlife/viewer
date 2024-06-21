@@ -53,8 +53,8 @@ bool ll_get_stack_trace(std::vector<std::string>& lines)
     const S32 MAX_STACK_DEPTH = 32;
     const S32 STRING_NAME_LENGTH = 200;
     const S32 FRAME_SKIP = 2;
-    static BOOL symbolsLoaded = false;
-    static BOOL firstCall = true;
+    static bool symbolsLoaded = false;
+    static bool firstCall = true;
 
     HANDLE hProc = GetCurrentProcess();
 
@@ -92,7 +92,7 @@ bool ll_get_stack_trace(std::vector<std::string>& lines)
         for(S32 i=0; i < depth; i++)
         {
             std::stringstream stack_line;
-            BOOL ret;
+            bool ret;
 
             DWORD64 addr = (DWORD64)frames[i];
             ret = SymGetSymFromAddr64(hProc, addr, 0, pSym);
@@ -134,7 +134,7 @@ void ll_get_stack_trace_internal(std::vector<std::string>& lines)
     const S32 STRING_NAME_LENGTH = 256;
 
     HANDLE process = GetCurrentProcess();
-    SymInitialize( process, NULL, TRUE );
+    SymInitialize( process, NULL, true );
 
     void *stack[MAX_STACK_DEPTH];
 

@@ -135,7 +135,7 @@ LLVersionInfo::ViewerMaturity LLVersionInfo::getViewerMaturity()
     std::string channel = getChannel();
 
     static const boost::regex is_test_channel("\\bTest\\b");
-    static const boost::regex is_beta_channel("\\bBeta\\b");
+    static const boost::regex is_beta_channel("\\b(Beta|Develop)\\b");  // Develop is an alias for Beta
     static const boost::regex is_project_channel("\\bProject\\b");
     static const boost::regex is_release_channel("\\bRelease\\b");
 

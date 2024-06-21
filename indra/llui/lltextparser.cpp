@@ -73,11 +73,11 @@ S32 LLTextParser::findPattern(const std::string &text, LLSD highlight)
             found = (! ltext.find(pattern) ? 0 : std::string::npos);
             break;
         case ENDS_WITH:
-            S32 pos = ltext.rfind(pattern);
-            if (pos >= 0 && (ltext.length()-pattern.length()==pos)) found = pos;
+            auto pos = ltext.rfind(pattern);
+            if (pos != std::string::npos && pos >= 0 && (ltext.length() - pattern.length() == pos)) found = pos;
             break;
     }
-    return found;
+    return static_cast<S32>(found);
 }
 
 LLSD LLTextParser::parsePartialLineHighlights(const std::string &text, const LLColor4 &color, EHighlightPosition part, S32 index)
@@ -99,8 +99,8 @@ LLSD LLTextParser::parsePartialLineHighlights(const std::string &text, const LLC
                 S32 start = findPattern(text,mHighlights[i]);
                 if (start >= 0 )
                 {
-                    S32 end =  std::string(mHighlights[i]["pattern"]).length();
-                    S32 len = text.length();
+                    auto end =  std::string(mHighlights[i]["pattern"]).length();
+                    auto len = text.length();
                     EHighlightPosition newpart;
                     if (start==0)
                     {
@@ -184,11 +184,11 @@ bool LLTextParser::parseFullLineHighlights(const std::string &text, LLColor4 *co
             {
                 LLSD color_llsd = mHighlights[i]["color"];
                 color->setValue(color_llsd);
-                return TRUE;
+                return true;
             }
         }
     }
-    return FALSE;   //No matches found.
+    return false;   //No matches found.
 }
 
 std::string LLTextParser::getFileName()
@@ -229,11 +229,11 @@ bool LLTextParser::saveToDisk(LLSD highlights)
     if (filename.empty())
     {
         LL_WARNS() << "LLTextParser::saveToDisk() no valid user directory." << LL_ENDL;
-        return FALSE;
+        return false;
     }
     llofstream file;
     file.open(filename.c_str());
     LLSDSerialize::toPrettyXML(mHighlights, file);
     file.close();
-    return TRUE;
+    return true;
 }

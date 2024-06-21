@@ -141,15 +141,15 @@ bool LLPathfindingLinksetList::isShowCannotBeVolumeWarning(LLPathfindingLinkset:
     return isShowWarning;
 }
 
-void LLPathfindingLinksetList::determinePossibleStates(BOOL &pCanBeWalkable, BOOL &pCanBeStaticObstacle, BOOL &pCanBeDynamicObstacle,
-    BOOL &pCanBeMaterialVolume, BOOL &pCanBeExclusionVolume, BOOL &pCanBeDynamicPhantom) const
+void LLPathfindingLinksetList::determinePossibleStates(bool &pCanBeWalkable, bool &pCanBeStaticObstacle, bool &pCanBeDynamicObstacle,
+    bool &pCanBeMaterialVolume, bool &pCanBeExclusionVolume, bool &pCanBeDynamicPhantom) const
 {
-    pCanBeWalkable = FALSE;
-    pCanBeStaticObstacle = FALSE;
-    pCanBeDynamicObstacle = FALSE;
-    pCanBeMaterialVolume = FALSE;
-    pCanBeExclusionVolume = FALSE;
-    pCanBeDynamicPhantom = FALSE;
+    pCanBeWalkable = false;
+    pCanBeStaticObstacle = false;
+    pCanBeDynamicObstacle = false;
+    pCanBeMaterialVolume = false;
+    pCanBeExclusionVolume = false;
+    pCanBeDynamicPhantom = false;
 
     for (const_iterator objectIter = begin();
         !(pCanBeWalkable && pCanBeStaticObstacle && pCanBeDynamicObstacle && pCanBeMaterialVolume && pCanBeExclusionVolume && pCanBeDynamicPhantom) && (objectIter != end());
@@ -160,36 +160,36 @@ void LLPathfindingLinksetList::determinePossibleStates(BOOL &pCanBeWalkable, BOO
 
         if (linkset->isTerrain())
         {
-            pCanBeWalkable = TRUE;
+            pCanBeWalkable = true;
         }
         else
         {
             if (linkset->isModifiable())
             {
-                pCanBeWalkable = TRUE;
-                pCanBeStaticObstacle = TRUE;
-                pCanBeDynamicObstacle = TRUE;
-                pCanBeDynamicPhantom = TRUE;
+                pCanBeWalkable = true;
+                pCanBeStaticObstacle = true;
+                pCanBeDynamicObstacle = true;
+                pCanBeDynamicPhantom = true;
                 if (linkset->canBeVolume())
                 {
-                    pCanBeMaterialVolume = TRUE;
-                    pCanBeExclusionVolume = TRUE;
+                    pCanBeMaterialVolume = true;
+                    pCanBeExclusionVolume = true;
                 }
             }
             else if (linkset->isPhantom())
             {
-                pCanBeDynamicPhantom = TRUE;
+                pCanBeDynamicPhantom = true;
                 if (linkset->canBeVolume())
                 {
-                    pCanBeMaterialVolume = TRUE;
-                    pCanBeExclusionVolume = TRUE;
+                    pCanBeMaterialVolume = true;
+                    pCanBeExclusionVolume = true;
                 }
             }
             else
             {
-                pCanBeWalkable = TRUE;
-                pCanBeStaticObstacle = TRUE;
-                pCanBeDynamicObstacle = TRUE;
+                pCanBeWalkable = true;
+                pCanBeStaticObstacle = true;
+                pCanBeDynamicObstacle = true;
             }
         }
     }

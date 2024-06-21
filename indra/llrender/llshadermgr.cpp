@@ -66,14 +66,14 @@ LLShaderMgr * LLShaderMgr::instance()
     return sInstance;
 }
 
-BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
+bool LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 {
     llassert_always(shader != NULL);
     LLShaderFeatures *features = & shader->mFeatures;
 
     if (features->attachNothing)
     {
-        return TRUE;
+        return true;
     }
     //////////////////////////////////////
     // Attach Vertex Shader Features First
@@ -84,7 +84,7 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
     {
         if (!shader->attachVertexObject("windlight/atmosphericsVarsV.glsl"))
         {
-            return FALSE;
+            return false;
         }
     }
 
@@ -92,7 +92,7 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
     {
         if (!shader->attachVertexObject("windlight/atmosphericsHelpersV.glsl"))
         {
-            return FALSE;
+            return false;
         }
     }
 
@@ -102,40 +102,40 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
         {
             if (!shader->attachVertexObject("lighting/lightFuncSpecularV.glsl"))
             {
-                return FALSE;
+                return false;
             }
 
             if (!features->isAlphaLighting)
             {
                 if (!shader->attachVertexObject("lighting/sumLightsSpecularV.glsl"))
                 {
-                    return FALSE;
+                    return false;
                 }
             }
 
             if (!shader->attachVertexObject("lighting/lightSpecularV.glsl"))
             {
-                return FALSE;
+                return false;
             }
         }
         else
         {
             if (!shader->attachVertexObject("lighting/lightFuncV.glsl"))
             {
-                return FALSE;
+                return false;
             }
 
             if (!features->isAlphaLighting)
             {
                 if (!shader->attachVertexObject("lighting/sumLightsV.glsl"))
                 {
-                    return FALSE;
+                    return false;
                 }
             }
 
             if (!shader->attachVertexObject("lighting/lightV.glsl"))
             {
-                return FALSE;
+                return false;
             }
         }
     }
@@ -145,16 +145,16 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
     {
         if (!shader->attachVertexObject("environment/srgbF.glsl")) // NOTE -- "F" suffix is superfluous here, there is nothing fragment specific in srgbF
         {
-            return FALSE;
+            return false;
         }
 
         if (!shader->attachVertexObject("windlight/atmosphericsFuncs.glsl")) {
-            return FALSE;
+            return false;
         }
 
         if (!shader->attachVertexObject("windlight/atmosphericsV.glsl"))
         {
-            return FALSE;
+            return false;
         }
     }
 
@@ -162,7 +162,7 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
     {
         if (!shader->attachVertexObject("avatar/avatarSkinV.glsl"))
         {
-            return FALSE;
+            return false;
         }
     }
 
@@ -171,13 +171,13 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
         shader->mRiggedVariant = shader;
         if (!shader->attachVertexObject("avatar/objectSkinV.glsl"))
         {
-            return FALSE;
+            return false;
         }
     }
 
     if (!shader->attachVertexObject("deferred/textureUtilV.glsl"))
     {
-        return FALSE;
+        return false;
     }
 
     ///////////////////////////////////////
@@ -188,14 +188,14 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 
     if (!shader->attachFragmentObject("deferred/globalF.glsl"))
     {
-        return FALSE;
+        return false;
     }
 
     if (features->hasSrgb || features->hasAtmospherics || features->calculatesAtmospherics || features->isDeferred)
     {
         if (!shader->attachFragmentObject("environment/srgbF.glsl"))
         {
-            return FALSE;
+            return false;
         }
     }
 
@@ -203,7 +203,7 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
     {
         if (!shader->attachFragmentObject("windlight/atmosphericsVarsF.glsl"))
         {
-            return FALSE;
+            return false;
         }
     }
 
@@ -211,7 +211,7 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
     {
         if (!shader->attachFragmentObject("windlight/atmosphericsHelpersF.glsl"))
         {
-            return FALSE;
+            return false;
         }
     }
 
@@ -220,7 +220,7 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
     {
         if (!shader->attachFragmentObject("deferred/deferredUtil.glsl"))
         {
-            return FALSE;
+            return false;
         }
     }
 
@@ -228,7 +228,7 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
     {
         if (!shader->attachFragmentObject("deferred/screenSpaceReflUtil.glsl"))
         {
-            return FALSE;
+            return false;
         }
     }
 
@@ -236,7 +236,7 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
     {
         if (!shader->attachFragmentObject("deferred/shadowUtil.glsl"))
         {
-            return FALSE;
+            return false;
         }
     }
 
@@ -244,7 +244,7 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
     {
         if (!shader->attachFragmentObject("deferred/reflectionProbeF.glsl"))
         {
-            return FALSE;
+            return false;
         }
     }
 
@@ -252,7 +252,7 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
     {
         if (!shader->attachFragmentObject("deferred/aoUtil.glsl"))
         {
-            return FALSE;
+            return false;
         }
     }
 
@@ -260,19 +260,19 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
     {
         if (!shader->attachFragmentObject("windlight/gammaF.glsl"))
         {
-            return FALSE;
+            return false;
         }
     }
 
     if (features->hasAtmospherics || features->isDeferred)
     {
         if (!shader->attachFragmentObject("windlight/atmosphericsFuncs.glsl")) {
-            return FALSE;
+            return false;
         }
 
         if (!shader->attachFragmentObject("windlight/atmosphericsF.glsl"))
         {
-            return FALSE;
+            return false;
         }
     }
 
@@ -280,7 +280,7 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
     {
         if (!shader->attachFragmentObject("deferred/pbrterrainUtilF.glsl"))
         {
-            return FALSE;
+            return false;
         }
     }
 
@@ -289,26 +289,26 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
     {
         if (!shader->attachFragmentObject("environment/waterFogF.glsl"))
         {
-            return FALSE;
+            return false;
         }
     }
 
     if (features->hasLighting)
     {
-        if (features->disableTextureIndex)
+        if (features->mIndexedTextureChannels <= 1)
         {
             if (features->hasAlphaMask)
             {
                 if (!shader->attachFragmentObject("lighting/lightAlphaMaskNonIndexedF.glsl"))
                 {
-                    return FALSE;
+                    return false;
                 }
             }
             else
             {
                 if (!shader->attachFragmentObject("lighting/lightNonIndexedF.glsl"))
                 {
-                    return FALSE;
+                    return false;
                 }
             }
         }
@@ -318,14 +318,14 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
             {
                 if (!shader->attachFragmentObject("lighting/lightAlphaMaskF.glsl"))
                 {
-                    return FALSE;
+                    return false;
                 }
             }
             else
             {
                 if (!shader->attachFragmentObject("lighting/lightF.glsl"))
                 {
-                    return FALSE;
+                    return false;
                 }
             }
             shader->mFeatures.mIndexedTextureChannels = llmax(LLGLSLShader::sIndexedTextureChannels, 1);
@@ -336,18 +336,18 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
     {
         if (!shader->attachVertexObject("objects/nonindexedTextureV.glsl"))
         {
-            return FALSE;
+            return false;
         }
     }
     else
     {
         if (!shader->attachVertexObject("objects/indexedTextureV.glsl"))
         {
-            return FALSE;
+            return false;
         }
     }
 
-    return TRUE;
+    return true;
 }
 
 //============================================================================
@@ -421,7 +421,7 @@ void LLShaderMgr::dumpShaderSource(U32 shader_code_count, GLchar** shader_code_t
     LL_CONT << LL_ENDL;
 }
 
-void LLShaderMgr::dumpObjectLog(GLuint ret, BOOL warns, const std::string& filename)
+void LLShaderMgr::dumpObjectLog(GLuint ret, bool warns, const std::string& filename)
 {
     std::string log;
     log = get_object_log(ret);
@@ -689,7 +689,7 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
         {  //switches are supported in GLSL 1.30 and later
             if (gGLManager.mIsNVIDIA)
             { //switches are unreliable on some NVIDIA drivers
-                for (U32 i = 0; i < texture_index_channels; ++i)
+                for (S32 i = 0; i < texture_index_channels; ++i)
                 {
                     std::string if_string = llformat("\t%sif (vary_texture_index == %d) { return texture(tex%d, texcoord); }\n", i > 0 ? "else " : "", i, i);
                     extra_code_text[extra_code_count++] = strdup(if_string.c_str());
@@ -877,7 +877,7 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
         {
             //an error occured, print log
             LL_WARNS("ShaderLoading") << "GLSL Compilation Error:" << LL_ENDL;
-            dumpObjectLog(ret, TRUE, open_file_name);
+            dumpObjectLog(ret, true, open_file_name);
             dumpShaderSource(shader_code_count, shader_code_text);
             glDeleteShader(ret); //no longer need handle
             ret = 0;
@@ -919,7 +919,7 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
     return ret;
 }
 
-BOOL LLShaderMgr::linkProgramObject(GLuint obj, BOOL suppress_errors)
+bool LLShaderMgr::linkProgramObject(GLuint obj, bool suppress_errors)
 {
     //check for errors
     {
@@ -936,7 +936,7 @@ BOOL LLShaderMgr::linkProgramObject(GLuint obj, BOOL suppress_errors)
         {
             //an error occured, print log
             LL_SHADER_LOADING_WARNS() << "GLSL Linker Error:" << LL_ENDL;
-            dumpObjectLog(obj, TRUE, "linker");
+            dumpObjectLog(obj, true, "linker");
             return success;
         }
     }
@@ -947,12 +947,12 @@ BOOL LLShaderMgr::linkProgramObject(GLuint obj, BOOL suppress_errors)
     {
         LL_SHADER_LOADING_WARNS() << "GLSL Linker: Running in Software:" << LL_ENDL;
         success = GL_FALSE;
-        suppress_errors = FALSE;
+        suppress_errors = false;
     }
     return success;
 }
 
-BOOL LLShaderMgr::validateProgramObject(GLuint obj)
+bool LLShaderMgr::validateProgramObject(GLuint obj)
 {
     //check program validity against current GL
     glValidateProgram(obj);
@@ -965,7 +965,7 @@ BOOL LLShaderMgr::validateProgramObject(GLuint obj)
     }
     else
     {
-        dumpObjectLog(obj, FALSE);
+        dumpObjectLog(obj, false);
     }
 
     return success;
@@ -1120,7 +1120,7 @@ bool LLShaderMgr::saveCachedProgramBinary(LLGLSLShader* shader)
         program_binary.resize(binary_info.mBinaryLength);
 
         GLenum error = glGetError(); // Clear current error
-        glGetProgramBinary(shader->mProgramObject, program_binary.size() * sizeof(U8), nullptr, &binary_info.mBinaryFormat, program_binary.data());
+        glGetProgramBinary(shader->mProgramObject, static_cast<GLsizei>(program_binary.size() * sizeof(U8)), nullptr, &binary_info.mBinaryFormat, program_binary.data());
         error = glGetError();
         if (error == GL_NO_ERROR)
         {
@@ -1157,6 +1157,7 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedAttribs.push_back("weight");
     mReservedAttribs.push_back("weight4");
     mReservedAttribs.push_back("clothing");
+    mReservedAttribs.push_back("joint");
     mReservedAttribs.push_back("texture_index");
 
     //matrix state
@@ -1177,9 +1178,19 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("texture_base_color_transform"); // (GLTF)
     mReservedUniforms.push_back("texture_normal_transform"); // (GLTF)
     mReservedUniforms.push_back("texture_metallic_roughness_transform"); // (GLTF)
+    mReservedUniforms.push_back("texture_occlusion_transform"); // (GLTF)
     mReservedUniforms.push_back("texture_emissive_transform"); // (GLTF)
+    mReservedUniforms.push_back("base_color_texcoord"); // (GLTF)
+    mReservedUniforms.push_back("emissive_texcoord"); // (GLTF)
+    mReservedUniforms.push_back("normal_texcoord"); // (GLTF)
+    mReservedUniforms.push_back("metallic_roughness_texcoord"); // (GLTF)
+    mReservedUniforms.push_back("occlusion_texcoord"); // (GLTF)
+    mReservedUniforms.push_back("gltf_node_id"); // (GLTF)
+    mReservedUniforms.push_back("gltf_material_id"); // (GLTF)
 
-    llassert(mReservedUniforms.size() == LLShaderMgr::TEXTURE_EMISSIVE_TRANSFORM+1);
+    mReservedUniforms.push_back("terrain_texture_transforms"); // (GLTF)
+
+    llassert(mReservedUniforms.size() == LLShaderMgr::TERRAIN_TEXTURE_TRANSFORMS +1);
 
     mReservedUniforms.push_back("viewport");
 
@@ -1223,6 +1234,9 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("diffuseMap");
     mReservedUniforms.push_back("altDiffuseMap");
     mReservedUniforms.push_back("specularMap");
+    mReservedUniforms.push_back("metallicRoughnessMap");
+    mReservedUniforms.push_back("normalMap");
+    mReservedUniforms.push_back("occlusionMap");
     mReservedUniforms.push_back("emissiveMap");
     mReservedUniforms.push_back("bumpMap");
     mReservedUniforms.push_back("bumpMap2");
@@ -1234,7 +1248,6 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("heroProbes");
     mReservedUniforms.push_back("cloud_noise_texture");
     mReservedUniforms.push_back("cloud_noise_texture_next");
-    mReservedUniforms.push_back("fullbright");
     mReservedUniforms.push_back("lightnorm");
     mReservedUniforms.push_back("sunlight_color");
     mReservedUniforms.push_back("ambient_color");
@@ -1346,7 +1359,6 @@ void LLShaderMgr::initAttribsAndUniforms()
 
     llassert(mReservedUniforms.size() == LLShaderMgr::DEFERRED_SHADOW5+1);
 
-    mReservedUniforms.push_back("normalMap");
     mReservedUniforms.push_back("positionMap");
     mReservedUniforms.push_back("diffuseRect");
     mReservedUniforms.push_back("specularRect");
@@ -1359,7 +1371,6 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("bloomMap");
     mReservedUniforms.push_back("projectionMap");
     mReservedUniforms.push_back("norm_mat");
-    mReservedUniforms.push_back("texture_gamma");
 
     mReservedUniforms.push_back("specular_color");
     mReservedUniforms.push_back("env_intensity");

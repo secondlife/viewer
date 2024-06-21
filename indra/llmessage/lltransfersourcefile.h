@@ -35,17 +35,17 @@ public:
     LLTransferSourceParamsFile();
     virtual ~LLTransferSourceParamsFile() {}
     /*virtual*/ void packParams(LLDataPacker &dp) const;
-    /*virtual*/ BOOL unpackParams(LLDataPacker &dp);
+    /*virtual*/ bool unpackParams(LLDataPacker &dp);
 
     void setFilename(const std::string &filename)       { mFilename = filename; }
     std::string getFilename() const                 { return mFilename; }
 
-    void setDeleteOnCompletion(BOOL enabled)        { mDeleteOnCompletion = enabled; }
-    BOOL getDeleteOnCompletion()                    { return mDeleteOnCompletion; }
+    void setDeleteOnCompletion(bool enabled)        { mDeleteOnCompletion = enabled; }
+    bool getDeleteOnCompletion()                    { return mDeleteOnCompletion; }
 protected:
     std::string mFilename;
     // ONLY DELETE THINGS OFF THE SIM IF THE FILENAME BEGINS IN 'TEMP'
-    BOOL mDeleteOnCompletion;
+    bool mDeleteOnCompletion;
 };
 
 class LLTransferSourceFile : public LLTransferSource
@@ -61,11 +61,11 @@ protected:
                                       const S32 max_bytes,
                                       U8 **datap,
                                       S32 &returned_bytes,
-                                      BOOL &delete_returned);
+                                      bool &delete_returned);
     /*virtual*/ void completionCallback(const LLTSCode status);
 
     virtual void packParams(LLDataPacker& dp) const;
-    /*virtual*/ BOOL unpackParams(LLDataPacker &dp);
+    /*virtual*/ bool unpackParams(LLDataPacker &dp);
 
 protected:
     LLTransferSourceParamsFile mParams;

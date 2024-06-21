@@ -46,6 +46,34 @@ public:
         loadu(val);
     }
 
+    explicit LLMatrix4a(const F32* val)
+    {
+        loadu(val);
+    }
+
+    static const LLMatrix4a& identity()
+    {
+        static const F32 v[] =
+        {   1.f, 0.f, 0.f, 0.f,
+            0.f, 1.f, 0.f, 0.f,
+            0.f, 0.f, 1.f, 0.f,
+            0.f, 0.f, 0.f, 1.f
+        };
+        static LLMatrix4a identity_mat(v);
+
+        return identity_mat;
+    }
+
+    bool operator==(const LLMatrix4a& rhs) const
+    {
+        return mMatrix[0] == rhs.mMatrix[0] && mMatrix[1] == rhs.mMatrix[1] && mMatrix[2] == rhs.mMatrix[2] && mMatrix[3] == rhs.mMatrix[3];
+    }
+
+    bool operator!=(const LLMatrix4a& rhs) const
+    {
+        return !(*this == rhs);
+    }
+
     inline F32* getF32ptr()
     {
         return (F32*) &mMatrix;

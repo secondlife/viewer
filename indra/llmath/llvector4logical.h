@@ -120,7 +120,7 @@ public:
 
 private:
 
-    LLQuad mQ;
+    LLQuad mQ{};
 };
 
 #endif //LL_VECTOR4ALOGICAL_H

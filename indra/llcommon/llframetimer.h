@@ -39,7 +39,7 @@
 class LL_COMMON_API LLFrameTimer
 {
 public:
-    LLFrameTimer() : mStartTime( sFrameTime ), mExpiry(0), mStarted(TRUE) {}
+    LLFrameTimer() : mStartTime( sFrameTime ), mExpiry(0), mStarted(true) {}
 
     // Return the number of seconds since the start of this
     // application instance.
@@ -84,16 +84,16 @@ public:
     void unpause();
     void setTimerExpirySec(F32 expiration);
     void setExpiryAt(F64 seconds_since_epoch);
-    BOOL checkExpirationAndReset(F32 expiration);
+    bool checkExpirationAndReset(F32 expiration);
     F32 getElapsedTimeAndResetF32()                 { F32 t = F32(sFrameTime - mStartTime); reset(); return t; }
 
     void setAge(const F64 age)                      { mStartTime = sFrameTime - age; }
 
     // ACCESSORS
-    BOOL hasExpired() const                         { return (sFrameTime >= mExpiry); }
+    bool hasExpired() const                         { return (sFrameTime >= mExpiry); }
     F32  getTimeToExpireF32() const                 { return (F32)(mExpiry - sFrameTime); }
     F32  getElapsedTimeF32() const                  { return mStarted ? (F32)(sFrameTime - mStartTime) : (F32)mStartTime; }
-    BOOL getStarted() const                         { return mStarted; }
+    bool getStarted() const                         { return mStarted; }
 
     // return the seconds since epoch when this timer will expire.
     F64 expiresAt() const;
@@ -142,7 +142,7 @@ protected:
 
     // Useful bit of state usually associated with timers, but does
     // not affect actual functionality
-    BOOL mStarted;
+    bool mStarted;
 };
 
 // Glue code for Havok (or anything else that doesn't want the full .h files)

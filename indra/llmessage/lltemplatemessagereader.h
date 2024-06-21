@@ -47,7 +47,7 @@ public:
     virtual void getBinaryData(const char *blockname, const char *varname,
                                void *datap, S32 size, S32 blocknum = 0,
                                S32 max_size = S32_MAX);
-    virtual void getBOOL(const char *block, const char *var, BOOL &data,
+    virtual void getBOOL(const char *block, const char *var, bool &data,
                          S32 blocknum = 0);
     virtual void getS8(const char *block, const char *var, S8 &data,
                        S32 blocknum = 0);
@@ -98,9 +98,9 @@ public:
 
     virtual void copyToBuilder(LLMessageBuilder&) const;
 
-    BOOL validateMessage(const U8* buffer, S32 buffer_size,
+    bool validateMessage(const U8* buffer, S32 buffer_size,
                          const LLHost& sender, bool trusted = false);
-    BOOL readMessage(const U8* buffer, const LLHost& sender);
+    bool readMessage(const U8* buffer, const LLHost& sender);
 
     bool isTrusted() const;
     bool isBanned(bool trusted_source) const;
@@ -111,12 +111,12 @@ private:
     void getData(const char *blockname, const char *varname, void *datap,
                  S32 size = 0, S32 blocknum = 0, S32 max_size = S32_MAX);
 
-    BOOL decodeTemplate(const U8* buffer, S32 buffer_size,  // inputs
+    bool decodeTemplate(const U8* buffer, S32 buffer_size,  // inputs
                         LLMessageTemplate** msg_template ); // outputs
 
     void logRanOffEndOfPacket( const LLHost& host, const S32 where, const S32 wanted );
 
-    BOOL decodeData(const U8* buffer, const LLHost& sender );
+    bool decodeData(const U8* buffer, const LLHost& sender );
 
     S32 mReceiveSize;
     LLMessageTemplate* mCurrentRMessageTemplate;

@@ -77,7 +77,7 @@ void LLToolSelectRect::handleRectangleSelection(S32 x, S32 y, MASK mask)
     F32 select_dist_squared = gSavedSettings.getF32("MaxSelectDistance");
     select_dist_squared = select_dist_squared * select_dist_squared;
 
-    BOOL deselect = (mask == MASK_CONTROL);
+    bool deselect = (mask == MASK_CONTROL);
     S32 left =  llmin(x, mDragStartX);
     S32 right = llmax(x, mDragStartX);
     S32 top =   llmax(y, mDragStartY);
@@ -94,16 +94,16 @@ void LLToolSelectRect::handleRectangleSelection(S32 x, S32 y, MASK mask)
     S32 width = right - left + 1;
     S32 height = top - bottom + 1;
 
-    BOOL grow_selection = FALSE;
-    BOOL shrink_selection = FALSE;
+    bool grow_selection = false;
+    bool shrink_selection = false;
 
     if (height > mDragLastHeight || width > mDragLastWidth)
     {
-        grow_selection = TRUE;
+        grow_selection = true;
     }
     if (height < mDragLastHeight || width < mDragLastWidth)
     {
-        shrink_selection = TRUE;
+        shrink_selection = true;
     }
 
     if (!grow_selection && !shrink_selection)
@@ -122,7 +122,7 @@ void LLToolSelectRect::handleRectangleSelection(S32 x, S32 y, MASK mask)
     gGL.matrixMode(LLRender::MM_PROJECTION);
     gGL.pushMatrix();
 
-    BOOL limit_select_distance = gSavedSettings.getBOOL("LimitSelectDistance");
+    bool limit_select_distance = gSavedSettings.getBOOL("LimitSelectDistance");
     if (limit_select_distance)
     {
         // ...select distance from control
@@ -187,7 +187,7 @@ void LLToolSelectRect::handleRectangleSelection(S32 x, S32 y, MASK mask)
                 LLSpatialPartition* part = region->getSpatialPartition(i);
                 if (part)
                 {
-                    part->cull(*LLViewerCamera::getInstance(), &potentials, TRUE);
+                    part->cull(*LLViewerCamera::getInstance(), &potentials, true);
                 }
             }
         }
@@ -605,7 +605,7 @@ void LLViewerParcelMgr::renderHighlightSegments(const U8* segments, LLViewerRegi
 }
 
 
-void LLViewerParcelMgr::renderCollisionSegments(U8* segments, BOOL use_pass, LLViewerRegion* regionp)
+void LLViewerParcelMgr::renderCollisionSegments(U8* segments, bool use_pass, LLViewerRegion* regionp)
 {
 
     S32 x, y;
@@ -744,7 +744,7 @@ void LLViewerParcelMgr::renderCollisionSegments(U8* segments, BOOL use_pass, LLV
 void LLViewerParcelMgr::resetCollisionTimer()
 {
     mCollisionTimer.reset();
-    mRenderCollision = TRUE;
+    mRenderCollision = true;
 }
 
 void draw_line_cube(F32 width, const LLVector3& center)
@@ -869,7 +869,7 @@ void LLViewerObjectList::renderObjectBeacons()
             }
             LLHUDText *hud_textp = (LLHUDText *)LLHUDObject::addHUDObject(LLHUDObject::LL_HUD_TEXT);
 
-            hud_textp->setZCompare(FALSE);
+            hud_textp->setZCompare(false);
             LLColor4 color;
             color = debug_beacon.mTextColor;
             color.mV[3] *= 1.f;
@@ -939,7 +939,7 @@ public:
     {
         // takes (count, pointer)
         // &vector[0] gets pointer to contiguous array
-        LLImageGL::generateTextures(source.size(), &source[0]);
+        LLImageGL::generateTextures(static_cast<S32>(source.size()), &source[0]);
     }
 
     ~TextureHolder()
@@ -950,7 +950,7 @@ public:
                 texUnit->unbind(LLTexUnit::TT_TEXTURE);
         }
         // ensure that we delete these textures regardless of how we exit
-        LLImageGL::deleteTextures(source.size(), &source[0]);
+        LLImageGL::deleteTextures(static_cast<S32>(source.size()), &source[0]);
     }
 
     bool bind(U32 index)
@@ -1009,7 +1009,7 @@ F32 gpu_benchmark()
         gBenchmarkProgram.mShaderFiles.push_back(std::make_pair("interface/benchmarkV.glsl", GL_VERTEX_SHADER));
         gBenchmarkProgram.mShaderFiles.push_back(std::make_pair("interface/benchmarkF.glsl", GL_FRAGMENT_SHADER));
         gBenchmarkProgram.mShaderLevel = 1;
-        if (!gBenchmarkProgram.createShader(NULL, NULL))
+        if (!gBenchmarkProgram.createShader())
         {
             return -1.f;
         }

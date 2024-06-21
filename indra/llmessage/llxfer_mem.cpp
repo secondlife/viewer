@@ -52,7 +52,7 @@ void LLXfer_Mem::init ()
 {
     mRemoteFilename.clear();
     mRemotePath = LL_PATH_NONE;
-    mDeleteRemoteOnCompletion = FALSE;
+    mDeleteRemoteOnCompletion = false;
 }
 
 ///////////////////////////////////////////////////////////
@@ -73,7 +73,7 @@ void LLXfer_Mem::setXferSize (S32 xfer_size)
 
     mBufferLength = 0;
     mBufferStartOffset = 0;
-    mBufferContainsEOF = TRUE;
+    mBufferContainsEOF = true;
 
 //  cout << "starting transfer of size: " << xfer_size << endl;
 }
@@ -124,7 +124,7 @@ S32 LLXfer_Mem::initializeRequest(U64 xfer_id,
                                   const std::string& remote_filename,
                                   ELLPath remote_path,
                                   const LLHost& remote_host,
-                                  BOOL delete_remote_on_completion,
+                                  bool delete_remote_on_completion,
                                   void (*callback)(void*,S32,void**,S32,LLExtStat),
                                   void** user_data)
 {
@@ -164,7 +164,7 @@ S32 LLXfer_Mem::startDownload()
     gMessageSystem->addStringFast(_PREHASH_Filename, mRemoteFilename);
     gMessageSystem->addU8("FilePath", (U8) mRemotePath);
     gMessageSystem->addBOOL("DeleteOnCompletion", mDeleteRemoteOnCompletion);
-    gMessageSystem->addBOOL("UseBigPackets", BOOL(mChunkSize == LL_XFER_LARGE_PAYLOAD));
+    gMessageSystem->addBOOL("UseBigPackets", mChunkSize == LL_XFER_LARGE_PAYLOAD);
     gMessageSystem->addUUIDFast(_PREHASH_VFileID, LLUUID::null);
     gMessageSystem->addS16Fast(_PREHASH_VFileType, -1);
 

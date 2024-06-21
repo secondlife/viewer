@@ -42,8 +42,8 @@ LLTemplateMessageBuilder::LLTemplateMessageBuilder(const message_template_name_m
     mCurrentSDataBlock(NULL),
     mCurrentSMessageName(NULL),
     mCurrentSBlockName(NULL),
-    mbSBuilt(FALSE),
-    mbSClear(TRUE),
+    mbSBuilt(false),
+    mbSClear(true),
     mCurrentSendTotal(0),
     mMessageTemplates(name_template_map)
 {
@@ -59,8 +59,8 @@ LLTemplateMessageBuilder::~LLTemplateMessageBuilder()
 // virtual
 void LLTemplateMessageBuilder::newMessage(const char *name)
 {
-    mbSBuilt = FALSE;
-    mbSClear = FALSE;
+    mbSBuilt = false;
+    mbSClear = false;
 
     mCurrentSendTotal = 0;
 
@@ -103,8 +103,8 @@ void LLTemplateMessageBuilder::newMessage(const char *name)
 // virtual
 void LLTemplateMessageBuilder::clearMessage()
 {
-    mbSBuilt = FALSE;
-    mbSClear = TRUE;
+    mbSBuilt = false;
+    mbSClear = true;
 
     mCurrentSendTotal = 0;
 
@@ -220,7 +220,7 @@ void LLTemplateMessageBuilder::nextBlock(const char* blockname)
 }
 
 // TODO: Remove this horror...
-BOOL LLTemplateMessageBuilder::removeLastBlock()
+bool LLTemplateMessageBuilder::removeLastBlock()
 {
     if (mCurrentSBlockName)
     {
@@ -262,24 +262,24 @@ BOOL LLTemplateMessageBuilder::removeLastBlock()
 
                 if (num_blocks <= 1)
                 {
-                    // we just blew away the last one, so return FALSE
+                    // we just blew away the last one, so return false
                     LL_WARNS() << "not blowing away the only block of message "
                             << mCurrentSMessageName
                             << ". Block: " << block_name
                             << ". Number: " << num_blocks
                             << LL_ENDL;
-                    return FALSE;
+                    return false;
                 }
                 else
                 {
                     // Decrement the counter.
                     block_data->mBlockNumber--;
-                    return TRUE;
+                    return true;
                 }
             }
         }
     }
-    return FALSE;
+    return false;
 }
 
 // add data to variable in current block
@@ -445,10 +445,8 @@ void LLTemplateMessageBuilder::addIPPort(const char *varname, U16 u)
     addData(varname, &u, MVT_IP_PORT, sizeof(u));
 }
 
-void LLTemplateMessageBuilder::addBOOL(const char* varname, BOOL b)
+void LLTemplateMessageBuilder::addBOOL(const char* varname, bool b)
 {
-    // Can't just cast a BOOL (actually a U32) to a U8.
-    // In some cases the low order bits will be zero.
     U8 temp = (b != 0);
     addData(varname, &temp, MVT_BOOL, sizeof(temp));
 }
@@ -584,15 +582,15 @@ void LLTemplateMessageBuilder::compressMessage(U8*& buf_ptr, U32& buffer_length)
     }
 }
 
-BOOL LLTemplateMessageBuilder::isMessageFull(const char* blockname) const
+bool LLTemplateMessageBuilder::isMessageFull(const char* blockname) const
 {
     if(mCurrentSendTotal > MTUBYTES)
     {
-        return TRUE;
+        return true;
     }
     if(!blockname)
     {
-        return FALSE;
+        return false;
     }
     char* bnamep = (char*)blockname;
     S32 max;
@@ -614,9 +612,9 @@ BOOL LLTemplateMessageBuilder::isMessageFull(const char* blockname) const
     }
     if(mCurrentSMessageData->mMemberBlocks[bnamep]->mBlockNumber >= max)
     {
-        return TRUE;
+        return true;
     }
-    return FALSE;
+    return false;
 }
 
 static S32 buildBlock(U8* buffer, S32 buffer_size, const LLMessageBlock* template_data, LLMsgData* message_data)
@@ -823,7 +821,7 @@ U32 LLTemplateMessageBuilder::buildMessage(
     {
         result += buildBlock(buffer + result, buffer_size - result, *iter, mCurrentSMessageData);
     }
-    mbSBuilt = TRUE;
+    mbSBuilt = true;
 
     return result;
 }
@@ -877,13 +875,13 @@ void LLTemplateMessageBuilder::copyFromLLSD(const LLSD&)
 }
 
 //virtual
-void LLTemplateMessageBuilder::setBuilt(BOOL b) { mbSBuilt = b; }
+void LLTemplateMessageBuilder::setBuilt(bool b) { mbSBuilt = b; }
 
 //virtual
-BOOL LLTemplateMessageBuilder::isBuilt() const {return mbSBuilt;}
+bool LLTemplateMessageBuilder::isBuilt() const {return mbSBuilt;}
 
 //virtual
-BOOL LLTemplateMessageBuilder::isClear() const {return mbSClear;}
+bool LLTemplateMessageBuilder::isClear() const {return mbSClear;}
 
 //virtual
 S32 LLTemplateMessageBuilder::getMessageSize() {return mCurrentSendTotal;}

@@ -138,7 +138,7 @@ S32 LLXfer_VFile::initializeRequest(U64 xfer_id,
     mBufferLength = 0;
     mPacketNum = 0;
     mTempID.generate();
-    mDeleteTempFile = TRUE;
+    mDeleteTempFile = true;
     mStatus = e_LL_XFER_PENDING;
     return retval;
 }
@@ -156,8 +156,8 @@ S32 LLXfer_VFile::startDownload()
     gMessageSystem->addU64Fast(_PREHASH_ID, mID);
     gMessageSystem->addStringFast(_PREHASH_Filename, "");
     gMessageSystem->addU8("FilePath", (U8) LL_PATH_NONE);
-    gMessageSystem->addBOOL("DeleteOnCompletion", FALSE);
-    gMessageSystem->addBOOL("UseBigPackets", BOOL(mChunkSize == LL_XFER_LARGE_PAYLOAD));
+    gMessageSystem->addBOOL("DeleteOnCompletion", false);
+    gMessageSystem->addBOOL("UseBigPackets", mChunkSize == LL_XFER_LARGE_PAYLOAD);
     gMessageSystem->addUUIDFast(_PREHASH_VFileID, mRemoteID);
     gMessageSystem->addS16Fast(_PREHASH_VFileType, (S16)mType);
 
@@ -345,7 +345,7 @@ S32 LLXfer_VFile::processEOF()
             {
                 // Rename worked: the original file is gone.   Clear mDeleteTempFile
                 // so we don't attempt to delete the file in cleanup()
-                mDeleteTempFile = FALSE;
+                mDeleteTempFile = false;
             }
         }
         else
@@ -367,14 +367,14 @@ S32 LLXfer_VFile::processEOF()
 
 ////////////////////////////////////////////////////////////
 
-BOOL LLXfer_VFile::matchesLocalFile(const LLUUID &id, LLAssetType::EType type)
+bool LLXfer_VFile::matchesLocalFile(const LLUUID &id, LLAssetType::EType type)
 {
     return (id == mLocalID && type == mType);
 }
 
 //////////////////////////////////////////////////////////
 
-BOOL LLXfer_VFile::matchesRemoteFile(const LLUUID &id, LLAssetType::EType type)
+bool LLXfer_VFile::matchesRemoteFile(const LLUUID &id, LLAssetType::EType type)
 {
     return (id == mRemoteID && type == mType);
 }

@@ -43,22 +43,22 @@ public:
 
     virtual void        draw();
 
-    virtual BOOL        canSaveAs() const;
+    virtual bool        canSaveAs() const;
     virtual void        saveAs();
 
     virtual void        loadAsset();
     virtual EAssetStatus    getAssetStatus();
 
-    virtual void        reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+    virtual void        reshape(S32 width, S32 height, bool called_from_parent = true);
     virtual void        onFocusReceived();
 
     static void         onFileLoadedForSave(
-                            BOOL success,
+                            bool success,
                             LLViewerFetchedTexture *src_vi,
                             LLImageRaw* src,
                             LLImageRaw* aux_src,
                             S32 discard_level,
-                            BOOL final,
+                            bool final,
                             void* userdata );
     void                openToSave();
 
@@ -73,7 +73,7 @@ public:
 protected:
     void                init();
     void                populateRatioList();
-    /* virtual */ BOOL  postBuild();
+    /* virtual */ bool  postBuild();
     bool                setAspectRatio(const F32 width, const F32 height);
     static void         onAspectRatioCommit(LLUICtrl*,void* userdata);
     void                adjustAspectRatio();
@@ -86,18 +86,19 @@ private:
     S32                 mImageOldBoostLevel;
     std::string         mSaveFileName;
     LLFrameTimer        mSavedFileTimer;
-    BOOL                mLoadingFullImage;
-    BOOL                mShowKeepDiscard;
-    BOOL                mCopyToInv;
+    bool                mSavingMultiple;
+    bool                mLoadingFullImage;
+    bool                mShowKeepDiscard;
+    bool                mCopyToInv;
 
     // Save the image once it's loaded.
-    BOOL                mPreviewToSave;
+    bool                mPreviewToSave;
 
     // This is stored off in a member variable, because the save-as
     // button and drag and drop functionality need to know.
-    BOOL mIsCopyable;
-    BOOL mIsFullPerm;
-    BOOL mUpdateDimensions;
+    bool mIsCopyable;
+    bool mIsFullPerm;
+    bool mUpdateDimensions;
     S32 mLastHeight;
     S32 mLastWidth;
     F32 mAspectRatio;

@@ -36,7 +36,7 @@ class LLFloaterHUD : public LLFloater
     friend class LLFloaterReg;
 public:
 
-    BOOL postBuild();
+    bool postBuild() override;
 
 private:
     // Handles its own construction and destruction, so private.
