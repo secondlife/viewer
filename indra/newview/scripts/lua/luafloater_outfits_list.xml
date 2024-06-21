@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ height="185"
+ layout="topleft"
+ name="lua_outfits"
+ title="Outfits"
+ width="320">
+    <scroll_list
+     draw_heading="false"
+     left="5"
+     width="310"
+     height="150"
+     top_pad ="25"
+     follows="all"
+     name="outfits_list">
+        <scroll_list.columns
+          name="outfit_name"
+          label="Name"/>
+    </scroll_list>
+</floater>

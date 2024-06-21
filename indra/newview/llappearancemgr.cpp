@@ -31,6 +31,7 @@
 #include "llagent.h"
 #include "llagentcamera.h"
 #include "llagentwearables.h"
+#include "llappearancelistener.h"
 #include "llappearancemgr.h"
 #include "llattachmentsmgr.h"
 #include "llcommandhandler.h"
@@ -70,6 +71,8 @@
 // disable boost::lexical_cast warning
 #pragma warning (disable:4702)
 #endif
+
+LLAppearanceListener sAppearanceListener;
 
 namespace
 {
@@ -2900,8 +2903,7 @@ void LLAppearanceMgr::wearInventoryCategoryOnAvatar( LLInventoryCategory* catego
     LLAppearanceMgr::changeOutfit(TRUE, category->getUUID(), append);
 }
 
-// FIXME do we really want to search entire inventory for matching name?
-void LLAppearanceMgr::wearOutfitByName(const std::string& name)
+bool LLAppearanceMgr::wearOutfitByName(const std::string& name, bool append, std::string& error_msg)
 {
     LL_INFOS("Avatar") << self_av_string() << "Wearing category " << name << LL_ENDL;
 
@@ -2936,13 +2938,29 @@ void LLAppearanceMgr::wearOutfitByName(const std::string& name)
 
     if(cat)
     {
-        LLAppearanceMgr::wearInventoryCategory(cat, copy_items, false);
+        bool is_system_folder = LLFolderType::lookupIsProtectedType(cat->getPreferredType());
+        if (is_system_folder)
+        {
+            error_msg = stringize("Can't wear system folder ", std::quoted(name));
+            return false;
+        }
+        bool can_wear = append ? getCanAddToCOF(cat->getUUID()) : getCanReplaceCOF(cat->getUUID());
+        if (!can_wear)
+        {
+            std::string msg = append ? "Can't add to COF outfit " : "Can't replace COF with outfit ";
+            error_msg = stringize(msg, std::quoted(name), " , id: ", cat->getUUID());
+            LL_WARNS() << error_msg << LL_ENDL;
+            return false;
+        }
+        LLAppearanceMgr::wearInventoryCategory(cat, copy_items, append);
     }
     else
     {
-        LL_WARNS() << "Couldn't find outfit " <<name<< " in wearOutfitByName()"
-                << LL_ENDL;
+        error_msg = stringize("Couldn't find outfit ", std::quoted(name));
+        LL_WARNS() << error_msg << LL_ENDL;
+        return false;
     }
+    return true;
 }
 
 bool areMatchingWearables(const LLViewerInventoryItem *a, const LLViewerInventoryItem *b)
