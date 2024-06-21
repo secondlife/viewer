@@ -1,5 +1,5 @@
 /**
- * @file llprofiler_ategories.h
+ * @file llprofilercategories.h
  * @brief Profiling categories to minimize Tracy memory usage when viewing captures.
  *
  * $LicenseInfo:firstyear=2022&license=viewerlgpl$
@@ -33,7 +33,7 @@
 //    LL_PROFILER_CATEGORY_ENABLE_DRAWPOOL
 //    LL_PROFILER_CATEGORY_ENABLE_LLSD
 //    LL_PROFILER_CATEGORY_ENABLE_MEMORY
-//    LL_PROFILER_CATEGORY_ENABLE_SHADERS
+//    LL_PROFILER_CATEGORY_ENABLE_SHADER
 //
 // NOTE: You can still manually use:
 //     LL_PROFILE_ZONE_SCOPED();
@@ -68,6 +68,7 @@
 #define LL_PROFILER_CATEGORY_ENABLE_VOLUME      1
 #define LL_PROFILER_CATEGORY_ENABLE_WIN32       1
 #define LL_PROFILER_CATEGORY_ENABLE_GLTF        1
+#define LL_PROFILER_CATEGORY_ENABLE_VOICE       1
 
 #if LL_PROFILER_CATEGORY_ENABLE_APP
     #define LL_PROFILE_ZONE_NAMED_CATEGORY_APP  LL_PROFILE_ZONE_NAMED
@@ -283,6 +284,13 @@
 #else
     #define LL_PROFILE_ZONE_NAMED_CATEGORY_GLTF(name)
     #define LL_PROFILE_ZONE_SCOPED_CATEGORY_GLTF
+#endif
+#if LL_PROFILER_CATEGORY_ENABLE_VOICE
+    #define LL_PROFILE_ZONE_NAMED_CATEGORY_VOICE  LL_PROFILE_ZONE_NAMED
+    #define LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE LL_PROFILE_ZONE_SCOPED
+#else
+    #define LL_PROFILE_ZONE_NAMED_CATEGORY_VOICE(name)
+    #define LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE
 #endif
 
 #endif // LL_PROFILER_CATEGORIES_H

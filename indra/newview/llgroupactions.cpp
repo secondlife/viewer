@@ -248,7 +248,7 @@ void LLGroupActions::startCall(const LLUUID& group_id)
         return;
     }
 
-    LLUUID session_id = gIMMgr->addSession(gdata.mName, IM_SESSION_GROUP_START, group_id, true);
+    LLUUID session_id = gIMMgr->addSession(gdata.mName, IM_SESSION_GROUP_START, group_id, LLSD());
     if (session_id == LLUUID::null)
     {
         LL_WARNS() << "Error adding session" << LL_ENDL;
