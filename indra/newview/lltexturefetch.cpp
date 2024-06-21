@@ -1806,11 +1806,15 @@ bool LLTextureFetchWorker::doWork(S32 param)
         // In case worked manages to request decode, be shut down,
         // then init and request decode again with first decode
         // still in progress, assign a sufficiently unique id
-        mDecodeHandle = LLAppViewer::getImageDecodeThread()->decodeImage(mFormattedImage,
+        auto handle = LLAppViewer::getImageDecodeThread()->decodeImage(mFormattedImage,
                                                                        discard,
                                                                        mNeedsAux,
                                                                        new DecodeResponder(mFetcher, mID, this));
-        if (mDecodeHandle == 0)
+        if (handle.has_value())
+        {
+            mDecodeHandle = handle.value();
+        }
+        else
         {
             // Abort, failed to put into queue.
             // Happens if viewer is shutting down

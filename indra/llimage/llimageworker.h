@@ -30,6 +30,7 @@
 #include "llimage.h"
 #include "llpointer.h"
 #include "threadpool_fwd.h"
+#include <optional>
 
 class LLImageDecodeThread
 {
@@ -48,12 +49,11 @@ public:
 
     // meant to resemble LLQueuedThread::handle_t
     typedef U32 handle_t;
-    handle_t decodeImage(const LLPointer<LLImageFormatted>& image,
-                         S32 discard, bool needs_aux,
-                         const LLPointer<Responder>& responder);
+    std::optional<handle_t> decodeImage(const LLPointer<LLImageFormatted>& image,
+                                        S32 discard, bool needs_aux,
+                                        const LLPointer<Responder>& responder);
     size_t getPending();
     size_t update(F32 max_time_ms);
-    S32 getTotalDecodeCount() { return mDecodeCount; }
     void shutdown();
 
 private:
@@ -61,7 +61,7 @@ private:
     // LLQueuedThread - instead this is the API by which we submit work to the
     // "ImageDecode" ThreadPool.
     std::unique_ptr<LL::ThreadPool> mThreadPool;
-    LLAtomicU32 mDecodeCount;
+    LLAtomicU32 mDecodeHandle;
 };
 
 #endif

@@ -65,7 +65,7 @@ private:
 
 // MAIN THREAD
 LLImageDecodeThread::LLImageDecodeThread(bool /*threaded*/)
-    : mDecodeCount(0)
+    : mDecodeHandle(0)
 {
     mThreadPool.reset(new LL::ThreadPool("ImageDecode", 8));
     mThreadPool->start();
@@ -88,7 +88,7 @@ size_t LLImageDecodeThread::getPending()
     return mThreadPool->getQueue().size();
 }
 
-LLImageDecodeThread::handle_t LLImageDecodeThread::decodeImage(
+std::optional<LLImageDecodeThread::handle_t> LLImageDecodeThread::decodeImage(
     const LLPointer<LLImageFormatted>& image,
     S32 discard,
     bool needs_aux,
@@ -96,7 +96,7 @@ LLImageDecodeThread::handle_t LLImageDecodeThread::decodeImage(
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 
-    U32 decode_id = ++mDecodeCount;
+    U32 decode_id = ++mDecodeHandle;
     // Instantiate the ImageRequest right in the lambda, why not?
     bool posted = mThreadPool->getQueue().post(
         [req = ImageRequest(image, discard, needs_aux, responder, decode_id)]
@@ -108,7 +108,7 @@ LLImageDecodeThread::handle_t LLImageDecodeThread::decodeImage(
     if (! posted)
     {
         LL_DEBUGS() << "Tried to start decoding on shutdown" << LL_ENDL;
-        return 0;
+        return std::nullopt;
     }
 
     return decode_id;
