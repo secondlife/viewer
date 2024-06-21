@@ -2749,6 +2749,11 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
             msg_notify["from_id"] = chat.mFromID;
             msg_notify["source_type"] = chat.mSourceType;
             on_new_message(msg_notify);
+
+
+            msg_notify["chat_type"] = chat.mChatType;
+            msg_notify["message"] = mesg;
+            LLEventPumps::instance().obtain("LLNearbyChat").post(msg_notify);
         }
 
     }
