@@ -4267,7 +4267,7 @@ public:
                 return;
             }
 
-            BOOL session_type_p2p = input["body"]["voice"].get("invitation_type").asInteger() == EMultiAgentChatSessionType::P2P_CHAT_SESSION;
+            bool session_type_p2p = input["body"]["voice"].get("invitation_type").asInteger() == EMultiAgentChatSessionType::P2P_CHAT_SESSION;
             LL_DEBUGS("Voice") << "Received voice information from the server: " << input["body"]<< LL_ENDL;
             gIMMgr->inviteToSession(
                 input["body"]["session_id"].asUUID(),

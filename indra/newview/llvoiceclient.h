@@ -470,7 +470,7 @@ public:
     //@{
     bool isSessionTextIMPossible(const LLUUID& id);
     bool isSessionCallBackPossible(const LLUUID& id);
-    //BOOL sendTextMessage(const LLUUID& participant_id, const std::string& message) const {return true;} ;
+    //bool sendTextMessage(const LLUUID& participant_id, const std::string& message) const {return true;} ;
     //@}
 
     void setSpatialVoiceModule(const std::string& voice_server_type);
