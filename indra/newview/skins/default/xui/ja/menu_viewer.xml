@@ -74,7 +74,6 @@
 		<menu_item_check label="ボイスチャット" name="Speak"/>
 		<menu_item_check name="Conversation Log..." label="会話ログ…"/>
 		<menu_item_separator/>
-		<menu label="ボイスモーフィング" name="VoiceMorphing"/>
 		<menu_item_check label="ジェスチャー…" name="Gestures"/>
 		<menu_item_separator/>
 		<menu_item_check label="フレンド" name="My Friends"/>

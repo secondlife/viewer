@@ -508,6 +508,8 @@ public:
 
 protected:
 
+    static bool onVoiceEffectsNotSupported(const LLSD &notification, const LLSD &response);
+
     LLVoiceModuleInterface* mSpatialVoiceModule;
     LLVoiceModuleInterface* mNonSpatialVoiceModule;
     LLSD                    mSpatialCredentials;  // used to store spatial credentials for vivox
@@ -519,6 +521,7 @@ protected:
 
     LLCachedControl<bool> mVoiceEffectEnabled;
     LLCachedControl<std::string> mVoiceEffectDefault;
+    bool        mVoiceEffectSupportNotified;
 
     bool        mPTTDirty;
     bool        mPTT;
