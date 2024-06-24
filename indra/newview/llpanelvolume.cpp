@@ -151,6 +151,7 @@ bool    LLPanelVolume::postBuild()
     {
         childSetCommitCallback("Reflection Probe", onCommitIsReflectionProbe, this);
         childSetCommitCallback("Probe Update Type", onCommitProbe, this);
+        childSetCommitCallback("Probe Dynamic", onCommitProbe, this);
         childSetCommitCallback("Probe Volume Type", onCommitProbe, this);
         childSetCommitCallback("Probe Ambiance", onCommitProbe, this);
         childSetCommitCallback("Probe Near Clip", onCommitProbe, this);
@@ -412,6 +413,7 @@ void LLPanelVolume::getState( )
         getChild<LLSpinCtrl>("Probe Ambiance", true)->clear();
         getChild<LLSpinCtrl>("Probe Near Clip", true)->clear();
         getChild<LLComboBox>("Probe Update Type", true)->clear();
+        getChild<LLUICtrl>("Probe Dynamic")->setValue(false);
     }
     else
     {
@@ -446,6 +448,7 @@ void LLPanelVolume::getState( )
         getChild<LLSpinCtrl>("Probe Ambiance", true)->setValue(volobjp->getReflectionProbeAmbiance());
         getChild<LLSpinCtrl>("Probe Near Clip", true)->setValue(volobjp->getReflectionProbeNearClip());
         getChild<LLComboBox>("Probe Update Type", true)->setValue(update_type);
+        getChild<LLUICtrl>("Probe Dynamic")->setValue(volobjp->getReflectionProbeIsDynamic());
     }
 
     // Animated Mesh
@@ -733,6 +736,7 @@ void LLPanelVolume::clearCtrls()
     getChildView("Reflection Probe")->setEnabled(false);;
     getChildView("Probe Volume Type")->setEnabled(false);
     getChildView("Probe Update Type")->setEnabled(false);
+    getChildView("Probe Dynamic")->setEnabled(false);
     getChildView("Probe Ambiance")->setEnabled(false);
     getChildView("Probe Near Clip")->setEnabled(false);
     getChildView("Animated Mesh Checkbox Ctrl")->setEnabled(false);
@@ -1428,15 +1432,26 @@ void LLPanelVolume::onCommitProbe(LLUICtrl* ctrl, void* userdata)
     volobjp->setReflectionProbeAmbiance((F32)self->getChild<LLUICtrl>("Probe Ambiance")->getValue().asReal());
     volobjp->setReflectionProbeNearClip((F32)self->getChild<LLUICtrl>("Probe Near Clip")->getValue().asReal());
 
-    std::string update_type = self->getChild<LLUICtrl>("Probe Update Type")->getValue().asString();
+    bool mirrors_enabled = LLPipeline::RenderMirrors;
+    bool is_mirror = false;
 
-    bool is_mirror = update_type.find("Mirror") != std::string::npos;
+    if (mirrors_enabled)
+    {
+        std::string update_type = self->getChild<LLUICtrl>("Probe Update Type")->getValue().asString();
+
+        is_mirror = update_type.find("Mirror") != std::string::npos;
+
+        volobjp->setReflectionProbeIsDynamic(update_type.find("Dynamic") != std::string::npos);
+        volobjp->setReflectionProbeIsMirror(is_mirror);
+    }
+    else
+    {
+        is_mirror = volobjp->getReflectionProbeIsMirror();
+        bool is_dynamic = self->getChild<LLUICtrl>("Probe Dynamic")->getValue().asBoolean();
+        volobjp->setReflectionProbeIsDynamic(is_dynamic);
+    }
 
     self->getChildView("Probe Volume Type")->setEnabled(!is_mirror);
-
-    volobjp->setReflectionProbeIsDynamic(update_type.find("Dynamic") != std::string::npos);
-    volobjp->setReflectionProbeIsMirror(is_mirror);
-
     self->getChildView("Probe Ambiance")->setEnabled(!is_mirror);
     self->getChildView("Probe Near Clip")->setEnabled(!is_mirror);
 
