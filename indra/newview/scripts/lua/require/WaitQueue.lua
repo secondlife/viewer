@@ -4,14 +4,15 @@
 
 local fiber = require('fiber')
 local Queue = require('Queue')
+local util  = require('util')
 
 local function dbg(...) end
 -- local dbg = require('printf')
 
-local WaitQueue = Queue:new()
+local WaitQueue = Queue()
 
 function WaitQueue:new()
-    local obj = Queue:new()
+    local obj = Queue()
     setmetatable(obj, self)
     self.__index = self
 
@@ -19,6 +20,8 @@ function WaitQueue:new()
     obj._closed = false
     return obj
 end
+
+util.classctor(WaitQueue)
 
 function WaitQueue:Enqueue(value)
     if self._closed then

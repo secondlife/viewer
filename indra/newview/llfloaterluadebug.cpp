@@ -41,6 +41,7 @@
 #include "llsdutil.h"
 #include "lua_function.h"
 #include "stringize.h"
+#include "tempset.h"
 
 
 LLFloaterLUADebug::LLFloaterLUADebug(const LLSD &key)
@@ -77,6 +78,17 @@ LLFloaterLUADebug::~LLFloaterLUADebug()
 
 void LLFloaterLUADebug::onExecuteClicked()
 {
+    // Empirically, running Lua code that indirectly invokes the
+    // "LLNotifications" listener can result (via mysterious labyrinthine
+    // viewer UI byways) in a recursive call to this handler. We've seen Bad
+    // Things happen to the viewer with a second call to runScriptLine() with
+    // the same cmd on the same LuaState.
+    if (mExecuting)
+    {
+        LL_DEBUGS("Lua") << "recursive call to onExecuteClicked()" << LL_ENDL;
+        return;
+    }
+    TempSet executing(mExecuting, true);
     mResultOutput->setValue("");
 
     std::string cmd = mLineInput->getText();
@@ -94,6 +106,12 @@ void LLFloaterLUADebug::onBtnBrowse()
 
 void LLFloaterLUADebug::onBtnRun()
 {
+    if (mExecuting)
+    {
+        LL_DEBUGS("Lua") << "recursive call to onBtnRun()" << LL_ENDL;
+        return;
+    }
+    TempSet executing(mExecuting, true);
     std::vector<std::string> filenames;
     std::string filepath = mScriptPath->getText();
     if (!filepath.empty())
@@ -105,6 +123,12 @@ void LLFloaterLUADebug::onBtnRun()
 
 void LLFloaterLUADebug::runSelectedScript(const std::vector<std::string> &filenames)
 {
+    if (mExecuting)
+    {
+        LL_DEBUGS("Lua") << "recursive call to runSelectedScript()" << LL_ENDL;
+        return;
+    }
+    TempSet executing(mExecuting, true);
     mResultOutput->setValue("");
 
     std::string filepath = filenames[0];
@@ -129,13 +153,19 @@ void LLFloaterLUADebug::completion(int count, const LLSD& result)
         mResultOutput->endOfDoc();
         return;
     }
+    if (count == 0)
+    {
+        // no results
+        mResultOutput->pasteTextWithLinebreaks(stringize("ok ", ++mAck));
+        return;
+    }
     if (count == 1)
     {
         // single result
         mResultOutput->pasteTextWithLinebreaks(stringize(result));
         return;
     }
-    // 0 or multiple results
+    // multiple results
     const char* sep = "";
     for (const auto& item : llsd::inArray(result))
     {

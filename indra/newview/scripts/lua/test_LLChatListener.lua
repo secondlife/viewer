@@ -11,7 +11,7 @@ function openOrEcho(message)
     end
 end
 
-local listener = LLChatListener:new()
+local listener = LLChatListener()
 
 function listener:handleMessages(event_data)
     if string.find(event_data.message, '[LUA]') then

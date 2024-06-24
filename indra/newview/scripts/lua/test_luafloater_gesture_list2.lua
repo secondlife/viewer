@@ -2,7 +2,7 @@ local Floater = require 'Floater'
 local LLGesture = require 'LLGesture'
 local startup = require 'startup'
 
-local flt = Floater:new(
+local flt = Floater(
     "luafloater_gesture_list.xml",
     {gesture_list = {"double_click"}})
 

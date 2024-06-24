@@ -1,6 +1,7 @@
 local fiber = require 'fiber'
 local inspect = require 'inspect'
 local leap = require 'leap'
+local util = require 'util'
 
 local LLChatListener = {}
 local waitfor = {}
@@ -13,6 +14,8 @@ function LLChatListener:new()
 
     return obj
 end
+
+util.classctor(LLChatListener)
 
 function LLChatListener:handleMessages(event_data)
     print(inspect(event_data))

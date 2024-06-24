@@ -42,7 +42,7 @@ _autobuild_env=os.environ.copy()
 # Coerce stdout encoding to utf-8 as cygwin's will be detected as cp1252 otherwise.
 _autobuild_env["PYTHONIOENCODING"] = "utf-8"
 
-pkg_line=re.compile('^([\w-]+):\s+(.*)$')
+pkg_line=re.compile(r'^([\w-]+):\s+(.*)$')
 
 def autobuild(*args):
     """

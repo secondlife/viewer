@@ -12,6 +12,8 @@ local function dbg(...) end
 -- local dbg = require 'printf'
 
 -- ---------------------------------------------------------------------------
+local startup = {}
+
 -- Get the list of startup states from the viewer.
 local bynum = leap.request('LLStartUp', {op='getStateTable'})['table']
 
@@ -19,7 +21,7 @@ local byname = setmetatable(
     {},
     -- set metatable to throw an error if you look up invalid state name
     {__index=function(t, k)
-         local v = t[k]
+         local v = rawget(t, k)
          if v then
              return v
          end
@@ -35,7 +37,7 @@ end
 
 -- specialize a WaitFor to track the viewer's startup state
 local startup_pump = 'StartupState'
-local waitfor = leap.WaitFor:new(0, startup_pump)
+local waitfor = leap.WaitFor(0, startup_pump)
 function waitfor:filter(pump, data)
     if pump == self.name then
         return data
@@ -57,8 +59,6 @@ leap.request(leap.cmdpump(),
 leap.send('LLStartUp', {op='postStartupState'})
 
 -- ---------------------------------------------------------------------------
-startup = {}
-
 -- wait for response from postStartupState
 while not startup._state do
     dbg('startup.state() waiting for first StartupState event')
@@ -98,4 +98,3 @@ function startup.wait(state)
 end
 
 return startup
-

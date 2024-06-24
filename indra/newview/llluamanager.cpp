@@ -139,10 +139,10 @@ lua_function(get_event_pumps,
              "post_on(commandpump, ...) to engage LLEventAPI operations (see helpleap()).")
 {
     luaL_checkstack(L, 2, nullptr);
-    auto listener{ LuaState::obtainListener(L) };
+    auto& listener{ LuaState::obtainListener(L) };
     // return the reply pump name and the command pump name on caller's lua_State
-    lua_pushstdstring(L, listener->getReplyName());
-    lua_pushstdstring(L, listener->getCommandName());
+    lua_pushstdstring(L, listener.getReplyName());
+    lua_pushstdstring(L, listener.getCommandName());
     return 2;
 }
 
@@ -153,8 +153,8 @@ lua_function(get_event_next,
              "event becomes available.")
 {
     luaL_checkstack(L, 2, nullptr);
-    auto listener{ LuaState::obtainListener(L) };
-    const auto& [pump, data]{ listener->getNext() };
+    auto& listener{ LuaState::obtainListener(L) };
+    const auto& [pump, data]{ listener.getNext() };
     lua_pushstdstring(L, pump);
     lua_pushllsd(L, data);
     lluau::set_interrupts_counter(L, 0);
@@ -254,7 +254,7 @@ void LLLUAmanager::runScriptLine(LuaState& L, const std::string& chunk, script_r
     if (shortchunk.length() > shortlen)
         shortchunk = stringize(shortchunk.substr(0, shortlen), "...");
 
-    std::string desc{ stringize("lua: ", shortchunk) };
+    std::string desc{ "lua: " + shortchunk };
     LLCoros::instance().launch(desc, [&L, desc, chunk, cb]()
     {
         auto [count, result] = L.expr(desc, chunk);
@@ -386,10 +386,10 @@ void LLRequireResolver::findModule()
 
     std::vector<fsyspath> lib_paths
     {
-        gDirUtilp->getExpandedFilename(LL_PATH_SCRIPTS, "lua"),
+        gDirUtilp->getExpandedFilename(LL_PATH_SCRIPTS, "lua", "require"),
 #ifdef LL_TEST
         // Build-time tests don't have the app bundle - use source tree.
-        fsyspath(__FILE__).parent_path() / "scripts" / "lua",
+        fsyspath(__FILE__).parent_path() / "scripts" / "lua" / "require",
 #endif
     };
 
@@ -454,45 +454,70 @@ bool LLRequireResolver::findModuleImpl(const std::string& absolutePath)
 void LLRequireResolver::runModule(const std::string& desc, const std::string& code)
 {
     // Here we just loaded a new module 'code', need to run it and get its result.
-    // Module needs to run in a new thread, isolated from the rest.
-    // Note: we create ML on main thread so that it doesn't inherit environment of L.
-    lua_State *GL = lua_mainthread(L);
-//  lua_State *ML = lua_newthread(GL);
-    // Try loading modules on Lua's main thread instead.
-    lua_State *ML = GL;
-    // lua_newthread() pushed the new thread object on GL's stack. Move to L's.
-//  lua_xmove(GL, L, 1);
-
-    // new thread needs to have the globals sandboxed
-//  luaL_sandboxthread(ML);
+    lua_State *ML = lua_mainthread(L);
 
     {
         // If loadstring() returns (! LUA_OK) then there's an error message on
         // the stack. If it returns LUA_OK then the newly-loaded module code
         // is on the stack.
-        if (lluau::loadstring(ML, desc, code) == LUA_OK)
+        LL_DEBUGS("Lua") << "Loading module " << desc << LL_ENDL;
+        if (lluau::loadstring(ML, desc, code) != LUA_OK)
         {
-            // luau uses Lua 5.3's version of lua_resume():
-            // run the coroutine on ML, "from" L, passing no arguments.
-//          int status = lua_resume(ML, L, 0);
-            // we expect one return value
-            int status = lua_pcall(ML, 0, 1, 0);
+            // error message on stack top
+            LL_DEBUGS("Lua") << "Error loading module " << desc << ": "
+                             << lua_tostring(ML, -1) << LL_ENDL;
+            lua_pushliteral(ML, "loadstring: ");
+            // stack contains error, "loadstring: "
+            // swap: insert stack top at position -2
+            lua_insert(ML, -2);
+            // stack contains "loadstring: ", error
+            lua_concat(ML, 2);
+            // stack contains "loadstring: " + error
+        }
+        else                        // module code on stack top
+        {
+            // push debug module
+            lua_getglobal(ML, "debug");
+            // push debug.traceback
+            lua_getfield(ML, -1, "traceback");
+            // stack contains module code, debug, debug.traceback
+            // ditch debug
+            lua_replace(ML, -2);
+            // stack contains module code, debug.traceback
+            // swap: insert stack top at position -2
+            lua_insert(ML, -2);
+            // stack contains debug.traceback, module code
+            LL_DEBUGS("Lua") << "Loaded module " << desc << ", running" << LL_ENDL;
+            // no arguments, one return value
+            // pass debug.traceback as the error function
+            int status = lua_pcall(ML, 0, 1, -2);
+            // lua_pcall() has popped the module code and replaced it with its
+            // return value. Regardless of status or the type of the stack
+            // top, get rid of debug.traceback on the stack.
+            lua_remove(ML, -2);
 
             if (status == LUA_OK)
             {
-                if (lua_gettop(ML) == 0)
-                    lua_pushfstring(ML, "module %s must return a value", desc.data());
-                else if (!lua_istable(ML, -1) && !lua_isfunction(ML, -1))
+                auto top{ lua_gettop(ML) };
+                std::string type{ (top == 0)? "nothing"
+                                  : lua_typename(ML, lua_type(ML, -1)) };
+                LL_DEBUGS("Lua") << "Module " << desc << " returned " << type << LL_ENDL;
+                if ((top == 0) || ! (lua_istable(ML, -1) || lua_isfunction(ML, -1)))
+                {
                     lua_pushfstring(ML, "module %s must return a table or function, not %s",
-                                    desc.data(), lua_typename(ML, lua_type(ML, -1)));
+                                    desc.data(), type.data());
+                }
             }
             else if (status == LUA_YIELD)
             {
+                LL_DEBUGS("Lua") << "Module " << desc << " yielded" << LL_ENDL;
                 lua_pushfstring(ML, "module %s can not yield", desc.data());
             }
-            else if (!lua_isstring(ML, -1))
+            else
             {
-                lua_pushfstring(ML, "unknown error while running module %s", desc.data());
+                llassert(lua_isstring(ML, -1));
+                LL_DEBUGS("Lua") << "Module " << desc << " error: "
+                                 << lua_tostring(ML, -1) << LL_ENDL;
             }
         }
     }
@@ -502,8 +527,4 @@ void LLRequireResolver::runModule(const std::string& desc, const std::string& co
     {
         lua_xmove(ML, L, 1);
     }
-    // remove ML from L's stack
-//  lua_remove(L, -2);
-//  // DON'T call lua_close(ML)! Since ML is only a thread of L, corrupts L too!    
-//  lua_close(ML);
 }

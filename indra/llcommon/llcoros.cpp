@@ -270,7 +270,7 @@ std::string LLCoros::launch(const std::string& prefix, const callable_t& callabl
     // std::allocator_arg is a flag to indicate that the following argument is
     // a StackAllocator.
     // protected_fixedsize_stack sets a guard page past the end of the new
-    // stack so that stack underflow will result in an access violation
+    // stack so that stack overflow will result in an access violation
     // instead of weird, subtle, possibly undiagnosed memory stomps.
 
     try
@@ -355,10 +355,12 @@ void LLCoros::toplevel(std::string name, callable_t callable)
     // set it as current
     mCurrent.reset(&corodata);
 
+    LL_DEBUGS("LLCoros") << "entering " << name << LL_ENDL;
     // run the code the caller actually wants in the coroutine
     try
     {
         sehandle(callable);
+        LL_DEBUGS("LLCoros") << "done " << name << LL_ENDL;
     }
     catch (const Stop& exc)
     {
@@ -370,7 +372,7 @@ void LLCoros::toplevel(std::string name, callable_t callable)
         // Any uncaught exception derived from LLContinueError will be caught
         // here and logged. This coroutine will terminate but the rest of the
         // viewer will carry on.
-        LOG_UNHANDLED_EXCEPTION(stringize("coroutine ", name));
+        LOG_UNHANDLED_EXCEPTION("coroutine " + name);
     }
     catch (...)
     {

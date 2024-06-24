@@ -30,7 +30,7 @@
 #define LL_LLAPPVIEWERLISTENER_H
 
 #include "lleventapi.h"
-#include <boost/function.hpp>
+#include <functional>
 
 class LLAppViewer;
 class LLSD;
@@ -39,11 +39,12 @@ class LLSD;
 class LLAppViewerListener: public LLEventAPI
 {
 public:
-    typedef boost::function<LLAppViewer*(void)> LLAppViewerGetter;
+    typedef std::function<LLAppViewer*(void)> LLAppViewerGetter;
     /// Bind the LLAppViewer instance to use (e.g. LLAppViewer::instance()).
     LLAppViewerListener(const LLAppViewerGetter& getter);
 
 private:
+    void userQuit(const LLSD& event);
     void requestQuit(const LLSD& event);
     void forceQuit(const LLSD& event);
 
