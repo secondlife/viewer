@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ can_resize="true"
+ default_tab_group="1"
+ height="891"
+ width="256"
+ min_height="500"
+ min_width="256"
+ layout="topleft"
+ name="gltf asset editor"
+ title="[OBJECT_NAME]">
+    <panel
+     bottom="-1"
+     follows="all"
+     layout="topleft"
+     name="item_list_panel"
+     top_pad="0"
+     left="5"
+     right="-1"/>
+</floater>
