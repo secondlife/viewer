@@ -83,9 +83,8 @@ public:
     // needs to be called every frame
     static void updateStats(F32 current_time);
 
-    // Save off / restore GL textures
-    static void destroyGL(bool save_state = true);
-    static void restoreGL();
+    // cleanup GL state
+    static void destroyGL();
     static void dirtyTexOptions();
 
     static bool checkSize(S32 width, S32 height);

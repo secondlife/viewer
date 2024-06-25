@@ -2712,35 +2712,11 @@ void LLViewerFetchedTexture::readbackRawImage()
 
     if (mGLTexturep.notNull() && mGLTexturep->getTexName() != 0 && mRawImage.isNull())
     {
-        U32 type = mGLTexturep->getFormatType();
-
-        if (type != GL_UNSIGNED_BYTE)
+        mRawImage = new LLImageRaw();
+        if (!mGLTexturep->readBackRaw(-1, mRawImage, false))
         {
-            LL_WARNS() << "LLViewerFetchedTexture::readbackRawImage() - unsupported type " << type << LL_ENDL;
-            return;
+            mRawImage = nullptr;
         }
-
-        LLTexUnit::eTextureType target = mGLTexturep->getTarget();
-
-        if (target != LLTexUnit::TT_TEXTURE)
-        {
-            LL_WARNS() << "LLViewerFetchedTexture::readbackRawImage() - unsupported target " << target << LL_ENDL;
-            return;
-        }
-
-        U32 width = mGLTexturep->getWidth();
-        U32 height = mGLTexturep->getHeight();
-        U8 components = mGLTexturep->getComponents();
-
-        gGL.getTexUnit(0)->bind(mGLTexturep);
-
-        U32 format = mGLTexturep->getPrimaryFormat();
-
-        mRawImage = new LLImageRaw(width, height, components);
-
-        glGetTexImage(GL_TEXTURE_2D, 0, format, type, mRawImage->getData());
-
-        gGL.getTexUnit(0)->unbind(target);
     }
 }
 

@@ -381,15 +381,9 @@ void LLViewerTextureList::dump()
     }
 }
 
-void LLViewerTextureList::destroyGL(bool save_state)
+void LLViewerTextureList::destroyGL()
 {
-    LLImageGL::destroyGL(save_state);
-}
-
-void LLViewerTextureList::restoreGL()
-{
-    llassert_always(mInitialized) ;
-    LLImageGL::restoreGL();
+    LLImageGL::destroyGL();
 }
 
 /* Vertical tab container button image IDs

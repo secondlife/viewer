@@ -130,7 +130,6 @@ S32 LLImageGL::sCount                   = 0;
 
 bool LLImageGL::sGlobalUseAnisotropic   = false;
 F32 LLImageGL::sLastFrameTime           = 0.f;
-bool LLImageGL::sAllowReadBackRaw       = false ;
 LLImageGL* LLImageGL::sDefaultGLTexture = NULL ;
 bool LLImageGL::sCompressTextures = false;
 std::set<LLImageGL*> LLImageGL::sImageList;
@@ -360,56 +359,11 @@ void LLImageGL::updateStats(F32 current_time)
 //----------------------------------------------------------------------------
 
 //static
-void LLImageGL::destroyGL(bool save_state)
+void LLImageGL::destroyGL()
 {
     for (S32 stage = 0; stage < gGLManager.mNumTextureImageUnits; stage++)
     {
         gGL.getTexUnit(stage)->unbind(LLTexUnit::TT_TEXTURE);
-    }
-
-    sAllowReadBackRaw = true ;
-    for (std::set<LLImageGL*>::iterator iter = sImageList.begin();
-         iter != sImageList.end(); iter++)
-    {
-        LLImageGL* glimage = *iter;
-        if (glimage->mTexName)
-        {
-            if (save_state && glimage->isGLTextureCreated() && glimage->mComponents)
-            {
-                glimage->mSaveData = new LLImageRaw;
-                if(!glimage->readBackRaw(glimage->mCurrentDiscardLevel, glimage->mSaveData, false)) //necessary, keep it.
-                {
-                    glimage->mSaveData = NULL ;
-                }
-            }
-
-            glimage->destroyGLTexture();
-            stop_glerror();
-        }
-    }
-    sAllowReadBackRaw = false ;
-}
-
-//static
-void LLImageGL::restoreGL()
-{
-    for (std::set<LLImageGL*>::iterator iter = sImageList.begin();
-         iter != sImageList.end(); iter++)
-    {
-        LLImageGL* glimage = *iter;
-        if(glimage->getTexName())
-        {
-            LL_ERRS() << "tex name is not 0." << LL_ENDL ;
-        }
-        if (glimage->mSaveData.notNull())
-        {
-            if (glimage->getComponents() && glimage->mSaveData->getComponents())
-            {
-                glimage->createGLTexture(glimage->mCurrentDiscardLevel, glimage->mSaveData, 0, true, glimage->getCategory());
-                stop_glerror();
-            }
-            glimage->mSaveData = NULL; // deletes data
-        }
     }
 }
 
@@ -1830,8 +1784,7 @@ void LLImageGL::syncTexName(LLGLuint texname)
 
 bool LLImageGL::readBackRaw(S32 discard_level, LLImageRaw* imageraw, bool compressed_ok) const
 {
-    llassert_always(sAllowReadBackRaw) ;
-    //LL_ERRS() << "should not call this function!" << LL_ENDL ;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 
     if (discard_level < 0)
     {
