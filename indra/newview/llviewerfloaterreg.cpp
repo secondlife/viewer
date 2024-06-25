@@ -76,6 +76,7 @@
 #include "llfloaterfonttest.h"
 #include "llfloaterforgetuser.h"
 #include "llfloatergesture.h"
+#include "llfloatergltfasseteditor.h"
 #include "llfloatergodtools.h"
 #include "llfloatergridstatus.h"
 #include "llfloatergroups.h"
@@ -372,6 +373,7 @@ void LLViewerFloaterReg::registerFloaters()
     LLFloaterReg::add("forget_username", "floater_forget_user.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterForgetUser>);
 
     LLFloaterReg::add("gestures", "floater_gesture.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterGesture>);
+    LLFloaterReg::add("gltf_asset_editor", "floater_gltf_asset_editor.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterGltfAssetEditor>);
     LLFloaterReg::add("god_tools", "floater_god_tools.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterGodTools>);
     LLFloaterReg::add("grid_status", "floater_grid_status.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterGridStatus>);
     LLFloaterReg::add("group_picker", "floater_choose_group.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterGroupPicker>);
