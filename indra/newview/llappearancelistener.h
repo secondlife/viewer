@@ -37,7 +37,10 @@ public:
 private:
     void wearOutfit(LLSD const &data);
     void wearOutfitByName(LLSD const &data);
+    void wearItem(LLSD const &data);
+    void detachItem(LLSD const &data);
     void getOutfitsList(LLSD const &data);
+    void getOutfitItems(LLSD const &data);
 };
 
 #endif // LL_LLAPPEARANCELISTENER_H

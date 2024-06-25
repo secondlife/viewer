@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  legacy_header_height="18"
- height="185"
+ height="205"
  layout="topleft"
  name="lua_outfits"
  title="Outfits"
- width="320">
+ width="325">
     <scroll_list
      draw_heading="false"
      left="5"
-     width="310"
+     width="315"
      height="150"
      top_pad ="25"
      follows="all"
@@ -18,4 +18,34 @@
           name="outfit_name"
           label="Name"/>
     </scroll_list>
+    <button
+     follows="left|bottom"
+     height="23"
+     label="Replace COF"
+     layout="topleft"
+     name="replace_btn"
+     enabled="false"
+     top_pad="5"
+     width="95" >
+    </button>
+    <button
+     follows="left|bottom"
+     height="23"
+     label="Add to COF"
+     left_pad="7"
+     layout="topleft"
+     name="add_btn"
+     enabled="false"
+     width="95" >
+    </button>
+    <button
+     follows="left|bottom"
+     height="23"
+     label="Show wearables"
+     left_pad="7"
+     layout="topleft"
+     name="select_btn"
+     enabled="false"
+     width="111" >
+    </button>
 </floater>

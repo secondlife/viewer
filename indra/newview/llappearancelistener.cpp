@@ -30,6 +30,7 @@
 #include "llappearancemgr.h"
 #include "llinventoryfunctions.h"
 #include "stringize.h"
+#include "llwearableitemslist.h"
 
 LLAppearanceListener::LLAppearanceListener()
   : LLEventAPI("LLAppearance",
@@ -49,9 +50,23 @@ LLAppearanceListener::LLAppearanceListener()
         &LLAppearanceListener::wearOutfitByName,
         llsd::map("folder_name", LLSD(), "append", LLSD()));
 
+    add("wearItem",
+        "Wear item by item id: [item_id]",
+        &LLAppearanceListener::wearItem,
+        llsd::map("item_id", LLSD(), "replace", LLSD()));
+
+    add("detachItem",
+        "Detach item by item id: [item_id]",
+        &LLAppearanceListener::detachItem,
+        llsd::map("item_id", LLSD()));
+
     add("getOutfitsList",
-        "Return the table of Outfits(id and name) which are send to the script",
+        "Return the table with Outfits info(id and name)",
          &LLAppearanceListener::getOutfitsList);
+
+    add("getOutfitItems",
+        "Return the table of items(id and name) inside specified outfit folder",
+         &LLAppearanceListener::getOutfitItems);
 }
 
 
@@ -90,6 +105,16 @@ void LLAppearanceListener::wearOutfitByName(LLSD const &data)
     }
 }
 
+void LLAppearanceListener::wearItem(LLSD const &data)
+{
+    LLAppearanceMgr::instance().wearItemOnAvatar(data["item_id"].asUUID(), true, data["replace"].asBoolean());
+}
+
+void LLAppearanceListener::detachItem(LLSD const &data)
+{
+    LLAppearanceMgr::instance().removeItemFromAvatar(data["item_id"].asUUID());
+}
+
 void LLAppearanceListener::getOutfitsList(LLSD const &data)
 {
     Response response(LLSD(), data);
@@ -107,4 +132,27 @@ void LLAppearanceListener::getOutfitsList(LLSD const &data)
         outfits_data[cat->getUUID().asString()] = cat->getName();
     }
     response["outfits"] = outfits_data;
+}
+
+void LLAppearanceListener::getOutfitItems(LLSD const &data)
+{
+    Response response(LLSD(), data);
+    LLUUID outfit_id(data["outfit_id"].asUUID());
+    LLViewerInventoryCategory *cat = gInventory.getCategory(outfit_id);
+    if (!cat || cat->getPreferredType() != LLFolderType::FT_OUTFIT)
+    {
+        response.error(stringize("Can't find outfit folder with id: ", outfit_id.asString()));
+    }
+    LLInventoryModel::cat_array_t  cat_array;
+    LLInventoryModel::item_array_t item_array;
+
+    gInventory.collectDescendentsIf(outfit_id, cat_array, item_array, LLInventoryModel::EXCLUDE_TRASH, LLFindOutfitItems());
+
+    LLSD items_data;
+    for (const LLPointer<LLViewerInventoryItem> &it : item_array)
+    {
+        items_data[it->getUUID().asString()] = it->getName();
+    }
+
+    response["items"] = items_data;
 }
