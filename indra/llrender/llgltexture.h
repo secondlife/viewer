@@ -75,7 +75,6 @@ public:
         AVATAR_SCRATCH_TEX,
         DYNAMIC_TEX,
         MEDIA,
-        ATLAS,
         OTHER,
         MAX_GL_IMAGE_CATEGORY
     };
@@ -156,10 +155,7 @@ public:
     bool       isJustBound()const ;
     void       forceUpdateBindStats(void) const;
 
-    U32        getTexelsInAtlas() const ;
-    U32        getTexelsInGLTexture() const ;
     bool       isGLTextureCreated() const ;
-    S32        getDiscardLevelInAtlas() const ;
     LLGLTextureState getTextureState() const { return mTextureState; }
 
     //---------------------------------------------------------------------------------------------

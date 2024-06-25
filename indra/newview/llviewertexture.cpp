@@ -2935,9 +2935,14 @@ void LLViewerLODTexture::processTextureStats()
 
 bool LLViewerLODTexture::scaleDown()
 {
-    // TODO: use GPU to scale down image in vram and update mDiscardLevel
-    return false;
+    if (mGLTexturep.isNull())
+    {
+        return false;
+    }
+
+    return mGLTexturep->scaleDown(mDesiredDiscardLevel);
 }
+
 //----------------------------------------------------------------------------------------------
 //end of LLViewerLODTexture
 //----------------------------------------------------------------------------------------------

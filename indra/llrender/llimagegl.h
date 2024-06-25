@@ -39,6 +39,7 @@
 #include "llrender.h"
 #include "threadpool.h"
 #include "workqueue.h"
+#include <unordered_set>
 
 #define LL_IMAGEGL_THREAD_CHECK 0 //set to 1 to enable thread debugging for ImageGL
 
@@ -193,25 +194,25 @@ public:
     void setFilteringOption(LLTexUnit::eTextureFilterOptions option);
     LLTexUnit::eTextureFilterOptions getFilteringOption(void) const { return mFilterOption; }
 
-    LLGLenum getTexTarget()const { return mTarget ;}
-    S8       getDiscardLevelInAtlas()const {return mDiscardLevelInAtlas;}
-    U32      getTexelsInAtlas()const { return mTexelsInAtlas ;}
-    U32      getTexelsInGLTexture()const {return mTexelsInGLTexture;}
-
+    LLGLenum getTexTarget()const { return mTarget; }
 
     void init(bool usemipmaps);
     virtual void cleanup(); // Clean up the LLImageGL so it can be reinitialized.  Be careful when using this in derived class destructors
 
     void setNeedsAlphaAndPickMask(bool need_mask);
 
-    bool preAddToAtlas(S32 discard_level, const LLImageRaw* raw_image);
-    void postAddToAtlas() ;
-
 #if LL_IMAGEGL_THREAD_CHECK
     // thread debugging
     std::thread::id mActiveThread;
     void checkActiveThread();
 #endif
+
+    // scale down to the desired discard level using GPU
+    // returns true if texture was scaled down
+    // desired discard will be clamped to max discard
+    // if desired discard is less than or equal to current discard, no scaling will occur
+    // only works for GL_TEXTURE_2D target
+    bool scaleDown(S32 desired_discard);
 
 public:
     // Various GL/Rendering options
@@ -239,14 +240,9 @@ private:
 
     bool     mGLTextureCreated ;
     LLGLuint mTexName;
-    //LLGLuint mNewTexName = 0; // tex name set by background thread to be applied in main thread
     U16      mWidth;
     U16      mHeight;
     S8       mCurrentDiscardLevel;
-
-    S8       mDiscardLevelInAtlas;
-    U32      mTexelsInAtlas ;
-    U32      mTexelsInGLTexture;
 
     bool mAllowCompression;
 
@@ -274,7 +270,7 @@ protected:
 
     // STATICS
 public:
-    static std::set<LLImageGL*> sImageList;
+    static std::unordered_set<LLImageGL*> sImageList;
     static S32 sCount;
 
     static F32 sLastFrameTime;
