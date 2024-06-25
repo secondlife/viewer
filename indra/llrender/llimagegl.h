@@ -296,6 +296,8 @@ public:
 private:
     static S32 sMaxCategories;
     static bool sSkipAnalyzeAlpha;
+    static U32 sScratchPBO;
+    static U32 sScratchPBOSize;
 
     //the flag to allow to call readBackRaw(...).
     //can be removed if we do not use that function at all.

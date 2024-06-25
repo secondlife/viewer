@@ -150,6 +150,9 @@ S32 LLImageGL::sMaxCategories = 1 ;
 
 //optimization for when we don't need to calculate mIsMask
 bool LLImageGL::sSkipAnalyzeAlpha;
+U32  LLImageGL::sScratchPBO = 0;
+U32  LLImageGL::sScratchPBOSize = 0;
+
 
 //------------------------
 //****************************************************************************************************
@@ -238,6 +241,11 @@ void LLImageGL::initClass(LLWindow* window, S32 num_catagories, bool skip_analyz
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
     sSkipAnalyzeAlpha = skip_analyze_alpha;
 
+    if (sScratchPBO == 0)
+    {
+        glGenBuffers(1, &sScratchPBO);
+    }
+
     if (thread_texture_loads || thread_media_updates)
     {
         LLImageGLThread::createInstance(window);
@@ -251,6 +259,12 @@ void LLImageGL::cleanupClass()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
     LLImageGLThread::deleteSingleton();
+    if (sScratchPBO != 0)
+    {
+        glDeleteBuffers(1, &sScratchPBO);
+        sScratchPBO = 0;
+        sScratchPBOSize = 0;
+    }
 }
 
 
@@ -2322,20 +2336,39 @@ bool LLImageGL::scaleDown(S32 desired_discard)
     S32 desired_height = getHeight(desired_discard);
 
     U64 size = getBytes(desired_discard);
-
-    U8* data = new U8[size];
-
+    llassert(size <= 2048*2048*4); // we shouldn't be using this method to downscale huge textures, but it'll work
     gGL.getTexUnit(0)->bind(this);
 
-    glGetTexImage(mTarget, mip, mFormatPrimary, mFormatType, data);
+
+    if (sScratchPBO == 0)
+    {
+        glGenBuffers(1, &sScratchPBO);
+        sScratchPBOSize = 0;
+    }
+
+    glBindBuffer(GL_PIXEL_PACK_BUFFER, sScratchPBO);
+
+    if (size > sScratchPBOSize)
+    {
+        glBufferData(GL_PIXEL_PACK_BUFFER, size, NULL, GL_STREAM_COPY);
+        sScratchPBOSize = size;
+    }
+
+    glGetTexImage(mTarget, mip, mFormatPrimary, mFormatType, nullptr);
 
     free_tex_image(mTexName);
-    glTexImage2D(mTarget, 0, mFormatPrimary, desired_width, desired_height, 0, mFormatPrimary, mFormatType, data);
+
+    glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
+
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, sScratchPBO);
+    glTexImage2D(mTarget, 0, mFormatPrimary, desired_width, desired_height, 0, mFormatPrimary, mFormatType, nullptr);
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 
     alloc_tex_image(desired_width, desired_height, mFormatPrimary);
 
     if (mHasMipMaps)
     {
+        LL_PROFILE_ZONE_NAMED_CATEGORY_TEXTURE("scaleDown - glGenerateMipmap");
         glGenerateMipmap(mTarget);
     }
 
