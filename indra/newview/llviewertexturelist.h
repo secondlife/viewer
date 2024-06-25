@@ -33,7 +33,7 @@
 #include "llviewertexture.h"
 #include "llui.h"
 #include <list>
-#include <set>
+#include <unordered_set>
 #include "lluiimage.h"
 
 const U32 LL_IMAGE_REZ_LOSSLESS_CUTOFF = 128;
@@ -188,7 +188,7 @@ private:
                                      LLViewerTexture::EBoostLevel boost_priority = LLGLTexture::BOOST_NONE,     // Get the requested level immediately upon creation.
                                      S8 texture_type = LLViewerTexture::FETCHED_TEXTURE,
                                      LLGLint internal_format = 0,
-                                     LLGLenum primary_format = 0,
+                                      LLGLenum primary_format = 0,
                                      const LLUUID& force_id = LLUUID::null
                                      );
 
@@ -211,7 +211,7 @@ private:
     { return getImage(image_id, f_type, true, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE, 0, 0, host); }
 
 public:
-    typedef std::set<LLPointer<LLViewerFetchedTexture> > image_list_t;
+    typedef std::unordered_set<LLPointer<LLViewerFetchedTexture> > image_list_t;
     image_list_t mLoadingStreamList;
     image_list_t mCreateTextureList;
     image_list_t mCallbackList;
@@ -222,16 +222,19 @@ public:
 
     bool mForceResetTextureStats;
 
+    // to make "for (auto& imagep : gTextureList)" work
+    const image_list_t::iterator begin() const { return mImageList.begin(); }
+    const image_list_t::iterator end() const { return mImageList.end(); }
+
 private:
     typedef std::map< LLTextureKey, LLPointer<LLViewerFetchedTexture> > uuid_map_t;
     uuid_map_t mUUIDMap;
     LLTextureKey mLastUpdateKey;
 
-    typedef std::set < LLPointer<LLViewerFetchedTexture> > image_priority_list_t;
-    image_priority_list_t mImageList;
+    image_list_t mImageList;
 
     // simply holds on to LLViewerFetchedTexture references to stop them from being purged too soon
-    std::set<LLPointer<LLViewerFetchedTexture> > mImagePreloads;
+    std::unordered_set<LLPointer<LLViewerFetchedTexture> > mImagePreloads;
 
     bool mInitialized ;
     LLFrameTimer mForceDecodeTimer;

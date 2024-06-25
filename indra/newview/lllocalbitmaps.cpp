@@ -215,7 +215,6 @@ bool LLLocalBitmap::updateSelf(EUpdateType optional_firstupdate)
                         ("file://"+mFilename, FTT_LOCAL_FILE, mWorldID, LL_LOCAL_USE_MIPMAPS);
 
                     texture->createGLTexture(LL_LOCAL_DISCARD_LEVEL, raw_image);
-                    texture->setCachedRawImage(LL_LOCAL_DISCARD_LEVEL, raw_image);
                     texture->ref();
 
                     gTextureList.addImage(texture, TEX_LIST_STANDARD);

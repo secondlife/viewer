@@ -165,8 +165,6 @@ public:
     S32 getNumVolumes(U32 channel) const;
     const ll_volume_list_t* getVolumeList(U32 channel) const { return &mVolumeList[channel]; }
 
-
-    virtual void setCachedRawImage(S32 discard_level, LLImageRaw* imageraw) ;
     bool isLargeImage() ;
 
     void setParcelMedia(LLViewerMediaTexture* media) {mParcelMedia = media;}
@@ -183,8 +181,6 @@ protected:
 private:
     friend class LLBumpImageList;
     friend class LLUIImageList;
-
-    virtual void switchToCachedImage();
 
 protected:
     friend class LLViewerTextureList;
@@ -370,7 +366,6 @@ public:
     U32 getFetchPriority() const { return mFetchPriority ;}
     F32 getDownloadProgress() const {return mDownloadProgress ;}
 
-    LLImageRaw* reloadRawImage(S8 discard_level) ;
     void destroyRawImage();
     bool needsToSaveRawImage();
 
@@ -389,17 +384,20 @@ public:
     bool isForSculptOnly() const;
 
     //raw image management
-    void        checkCachedRawSculptImage() ;
     LLImageRaw* getRawImage()const { return mRawImage ;}
     S32         getRawImageLevel() const {return mRawDiscardLevel;}
-    LLImageRaw* getCachedRawImage() const { return mCachedRawImage ;}
-    S32         getCachedRawImageLevel() const {return mCachedRawDiscardLevel;}
-    bool        isCachedRawImageReady() const {return mCachedRawImageReady ;}
     bool        isRawImageValid()const { return mIsRawImageValid ; }
     void        forceToSaveRawImage(S32 desired_discard = 0, F32 kept_time = 0.f) ;
-    /*virtual*/ void setCachedRawImage(S32 discard_level, LLImageRaw* imageraw) override;
+
+    // readback the raw image from OpenGL if mRawImage is not valid
+    void        readbackRawImage();
+
     void        destroySavedRawImage() ;
     LLImageRaw* getSavedRawImage() ;
+    S32         getSavedRawImageLevel() const {return mSavedRawDiscardLevel; }
+
+    const LLImageRaw* getSavedRawImage() const;
+    const LLImageRaw* getAuxRawImage() const { return mAuxRawImage; }
     bool        hasSavedRawImage() const ;
     F32         getElapsedLastReferencedSavedRawImageTime() const ;
     bool        isFullyLoaded() const;
@@ -416,7 +414,6 @@ public:
     /*virtual*/bool  isActiveFetching() override; //is actively in fetching by the fetching pipeline.
 
 protected:
-    /*virtual*/ void switchToCachedImage() override;
     S32 getCurrentDiscardLevelForFetching() ;
     void forceToRefetchTexture(S32 desired_discard = 0, F32 kept_time = 60.f);
 
@@ -425,7 +422,6 @@ private:
     void cleanup() ;
 
     void saveRawImage() ;
-    void setCachedRawImage() ;
 
     //for atlas
     void resetFaceAtlas() ;
@@ -496,11 +492,6 @@ protected:
     S32 mDesiredSavedRawDiscardLevel;
     F32 mLastReferencedSavedRawImageTime ;
     F32 mKeptSavedRawImageTime ;
-
-    //a small version of the copy of the raw image (<= 64 * 64)
-    LLPointer<LLImageRaw> mCachedRawImage;
-    S32 mCachedRawDiscardLevel;
-    bool mCachedRawImageReady; //the rez of the mCachedRawImage reaches the upper limit.
 
     LLHost mTargetHost; // if invalid, just request from agent's simulator
 

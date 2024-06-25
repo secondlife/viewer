@@ -144,7 +144,7 @@ void GLTFSceneManager::uploadSelection()
                 }
                 else
                 {
-                    raw = image.mTexture->getCachedRawImage();
+                    raw = image.mTexture->getRawImage();
                 }
 
                 if (raw.notNull())
