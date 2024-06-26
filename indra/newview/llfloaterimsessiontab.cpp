@@ -705,8 +705,8 @@ void LLFloaterIMSessionTab::removeConversationViewParticipant(const LLUUID& part
             }
         }
         widget->destroyView();
-	}
-	mConversationsWidgets.erase(participant_id);
+    }
+    mConversationsWidgets.erase(participant_id);
 }
 
 void LLFloaterIMSessionTab::updateConversationViewParticipant(const LLUUID& participant_id)
