@@ -102,6 +102,26 @@ LLFloaterIMSessionTab::LLFloaterIMSessionTab(const LLSD& session_id)
 LLFloaterIMSessionTab::~LLFloaterIMSessionTab()
 {
     delete mRefreshTimer;
+
+    LLFloaterIMContainer* im_container = LLFloaterIMContainer::findInstance();
+    if (im_container)
+    {
+        LLParticipantList* session = dynamic_cast<LLParticipantList*>(im_container->getSessionModel(mSessionID));
+        if (session)
+        {
+            for (const conversations_widgets_map::value_type& widget_pair : mConversationsWidgets)
+            {
+                LLFolderViewItem* widget = widget_pair.second;
+                LLFolderViewModelItem* item_vmi = widget->getViewModelItem();
+                if (item_vmi && item_vmi->getNumRefs() == 1)
+                {
+                    // This is the last pointer, remove participant from session
+                    // before participant gets deleted on destroyView.
+                    session->removeChild(item_vmi);
+                }
+            }
+        }
+    }
 }
 
 // static
@@ -663,6 +683,27 @@ void LLFloaterIMSessionTab::removeConversationViewParticipant(const LLUUID& part
     LLFolderViewItem* widget = get_ptr_in_map(mConversationsWidgets,participant_id);
     if (widget)
     {
+        LLFolderViewModelItem* item_vmi = widget->getViewModelItem();
+        if (item_vmi && item_vmi->getNumRefs() == 1)
+        {
+            // This is the last pointer, remove participant from session
+            // before participant gets deleted on destroyView.
+            // 
+            // Floater (widget) and participant's view can simultaneously
+            // co-own the model, in which case view is responsible for
+            // the deletion and floater is free to clear and recreate
+            // the list, yet there are cases where only widget owns
+            // the pointer so it should do the cleanup.
+            // See "add_participant".
+            //
+            // Todo: If it keeps causing issues turn participants
+            // into LLPointers in the session 
+            LLParticipantList* session = getParticipantList();
+            if (session)
+            {
+                session->removeChild(item_vmi);
+            }
+        }
         widget->destroyView();
     }
     mConversationsWidgets.erase(participant_id);
