@@ -3853,7 +3853,7 @@ bool LLIMMgr::startCall(const LLUUID& session_id, LLVoiceChannel::EDirection dir
 {
     LLVoiceChannel* voice_channel = LLIMModel::getInstance()->getVoiceChannel(session_id);
     if (!voice_channel) return false;
-    if (!voice_channel_info.isUndefined())
+    if (voice_channel_info.isDefined() && voice_channel_info.isMap() && voice_channel_info.size() > 0)
     {
         voice_channel->setChannelInfo(voice_channel_info);
     }
