@@ -29,6 +29,7 @@
 #include "llfloaterinventorysettings.h"
 
 #include "llcolorswatch.h"
+#include "llviewercontrol.h"
 
 LLFloaterInventorySettings::LLFloaterInventorySettings(const LLSD& key)
   : LLFloater(key)
@@ -43,13 +44,17 @@ LLFloaterInventorySettings::~LLFloaterInventorySettings()
 BOOL LLFloaterInventorySettings::postBuild()
 {
     getChild<LLUICtrl>("favorites_color")->setCommitCallback(boost::bind(&LLFloaterInventorySettings::updateColorSwatch, this));
+
+    bool enable_color = gSavedSettings.getBOOL("InventoryFavoritesColorText");
+    getChild<LLUICtrl>("favorites_swatch")->setEnabled(enable_color);
+
     return TRUE;
 }
 
 void LLFloaterInventorySettings::updateColorSwatch()
 {
-    bool val = getChild<LLUICtrl>("favorites_color")->getEnabled();
-    getChild<LLUICtrl>("favorites_color")->setEnabled(val);
+    bool val = getChild<LLUICtrl>("favorites_color")->getValue();
+    getChild<LLUICtrl>("favorites_swatch")->setEnabled(val);
 }
 
 void LLFloaterInventorySettings::applyUIColor(LLUICtrl* ctrl, const LLSD& param)

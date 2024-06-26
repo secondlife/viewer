@@ -2514,12 +2514,12 @@ void set_favorite(const LLUUID& obj_id, bool favorite)
 
     if (obj && obj->getIsLinkType())
     {
-        obj = gInventory.getObject(obj_id);
+        obj = gInventory.getObject(obj->getLinkedUUID());
     }
 
     if (obj && obj->getIsFavorite() != favorite)
     {
-        favorite_send(obj, obj_id, favorite);
+        favorite_send(obj, obj->getUUID(), favorite);
     }
 }
 
@@ -2528,12 +2528,12 @@ void toggle_favorite(const LLUUID& obj_id)
     LLInventoryObject* obj = gInventory.getObject(obj_id);
     if (obj && obj->getIsLinkType())
     {
-        obj = gInventory.getObject(obj_id);
+        obj = gInventory.getObject(obj->getLinkedUUID());
     }
 
     if (obj)
     {
-        favorite_send(obj, obj_id, !obj->getIsFavorite());
+        favorite_send(obj, obj->getUUID(), !obj->getIsFavorite());
     }
 }
 

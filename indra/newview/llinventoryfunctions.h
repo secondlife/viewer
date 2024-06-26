@@ -331,9 +331,6 @@ protected:
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLFavoritesCollector
-//
-// Simple class that collects calling cards that are not null, and not
-// the agent. Duplicates are possible.
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class LLFavoritesCollector : public LLInventoryCollectFunctor
 {
