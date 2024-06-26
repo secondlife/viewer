@@ -2327,7 +2327,7 @@ bool LLImageGL::scaleDown(S32 desired_discard)
 
     if (desired_discard <= mCurrentDiscardLevel)
     {
-        return true;
+        return false;
     }
 
     S32 mip = desired_discard - mCurrentDiscardLevel;
