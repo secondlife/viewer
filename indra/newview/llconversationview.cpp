@@ -57,7 +57,7 @@ public:
     :   conversation(conv)
     {}
 
-    virtual void onChange(EStatusType status, const std::string &channelURI, bool proximal)
+    virtual void onChange(EStatusType status, const LLSD& channelInfo, bool proximal)
     {
         conversation->showVoiceIndicator(conversation
             && status != STATUS_JOINING

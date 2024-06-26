@@ -529,6 +529,16 @@ F32 LLVOCacheEntry::getSquaredPixelThreshold(bool is_front)
 
 bool LLVOCacheEntry::isAnyVisible(const LLVector4a& camera_origin, const LLVector4a& local_camera_origin, F32 dist_threshold)
 {
+#if 0
+    // this is ill-conceived and should be removed pending QA
+    // In the name of saving memory, we evict objects that are still within view distance from memory
+    // This results in constant paging of objects in and out of memory, leading to poor performance
+    // and many unacceptable visual glitches when rotating the camera
+
+    // Honestly, the entire VOCache partition system needs to be removed since it doubles the overhead of
+    // the spatial partition system and is redundant to the object cache, but this is a start
+    //  - davep 2024.06.07
+
     LLOcclusionCullingGroup* group = (LLOcclusionCullingGroup*)getGroup();
     if(!group)
     {
@@ -565,6 +575,9 @@ bool LLVOCacheEntry::isAnyVisible(const LLVector4a& camera_origin, const LLVecto
     }
 
     return vis;
+#else
+    return true;
+#endif
 }
 
 void LLVOCacheEntry::calcSceneContribution(const LLVector4a& camera_origin, bool needs_update, U32 last_update, F32 max_dist)

@@ -974,7 +974,7 @@ void LLPanelProfileSecondLife::fillCommonData(const LLAvatarData* avatar_data)
 
     setDescriptionText(avatar_data->about_text);
 
-    mSecondLifePic->setValue(avatar_data->image_id);
+        mSecondLifePic->setValue(avatar_data->image_id);
 
     if (getSelfProfile())
     {
@@ -1122,10 +1122,10 @@ void LLPanelProfileSecondLife::fillAgeData(const LLAvatarData* avatar_data)
     }
     else
     {
-        std::string register_date = getString("age_format");
-        LLSD args_age;
+    std::string register_date = getString("age_format");
+    LLSD args_age;
         args_age["[AGE]"] = LLDateUtil::ageFromDate(avatar_data->born_on, LLDate::now());
-        LLStringUtil::format(register_date, args_age);
+    LLStringUtil::format(register_date, args_age);
         userAgeCtrl->setValue(register_date);
     }
 
@@ -1172,7 +1172,7 @@ void LLPanelProfileSecondLife::changed(U32 mask)
 }
 
 // virtual, called by LLVoiceClient
-void LLPanelProfileSecondLife::onChange(EStatusType status, const std::string &channelURI, bool proximal)
+void LLPanelProfileSecondLife::onChange(EStatusType status, const LLSD& channelInfo, bool proximal)
 {
     if(status == STATUS_JOINING || status == STATUS_LEFT_CHANNEL)
     {
@@ -1568,12 +1568,12 @@ void LLPanelProfileSecondLife::onShowInSearchCallback()
     if (value == mAllowPublish)
         return;
 
-    mAllowPublish = value;
+        mAllowPublish = value;
     saveAgentUserInfoCoro("allow_publish", value);
-}
+    }
 
 void LLPanelProfileSecondLife::onHideAgeCallback()
-{
+    {
     bool value = mHideAgeCombo->getValue().asInteger();
     if (value == mHideAge)
         return;
@@ -1722,35 +1722,35 @@ void LLPanelProfileSecondLife::onCommitProfileImage(const LLUUID& id)
     if (mSecondLifePic->getImageAssetId() == id)
         return;
 
-    std::function<void(bool)> callback = [id](bool result)
-    {
-        if (result)
+        std::function<void(bool)> callback = [id](bool result)
         {
-            LLAvatarIconIDCache::getInstance()->add(gAgentID, id);
+            if (result)
+            {
+                LLAvatarIconIDCache::getInstance()->add(gAgentID, id);
             // Should trigger callbacks in icon controls (or request Legacy)
-            LLAvatarPropertiesProcessor::getInstance()->sendAvatarPropertiesRequest(gAgentID);
-        }
-    };
+                LLAvatarPropertiesProcessor::getInstance()->sendAvatarPropertiesRequest(gAgentID);
+            }
+        };
 
     if (!saveAgentUserInfoCoro("sl_image_id", id, callback))
         return;
 
     mSecondLifePic->setValue(id);
 
-    LLFloater *floater = mFloaterProfileTextureHandle.get();
-    if (floater)
-    {
-        LLFloaterProfileTexture * texture_view = dynamic_cast<LLFloaterProfileTexture*>(floater);
+        LLFloater *floater = mFloaterProfileTextureHandle.get();
+        if (floater)
+        {
+            LLFloaterProfileTexture * texture_view = dynamic_cast<LLFloaterProfileTexture*>(floater);
         if (id == LLUUID::null)
-        {
-            texture_view->resetAsset();
-        }
-        else
-        {
+            {
+                texture_view->resetAsset();
+            }
+            else
+            {
             texture_view->loadAsset(id);
+            }
         }
     }
-}
 
 //////////////////////////////////////////////////////////////////////////
 // LLPanelProfileWeb

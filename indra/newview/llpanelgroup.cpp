@@ -279,9 +279,9 @@ void LLPanelGroup::onBtnJoin()
     }
     else
     {
-        LL_DEBUGS() << "joining group: " << mID << LL_ENDL;
-        LLGroupActions::join(mID);
-    }
+    LL_DEBUGS() << "joining group: " << mID << LL_ENDL;
+    LLGroupActions::join(mID);
+}
 }
 
 void LLPanelGroup::changed(LLGroupChange gc)
@@ -292,7 +292,7 @@ void LLPanelGroup::changed(LLGroupChange gc)
 }
 
 // virtual
-void LLPanelGroup::onChange(EStatusType status, const std::string &channelURI, bool proximal)
+void LLPanelGroup::onChange(EStatusType status, const LLSD& channelInfo, bool proximal)
 {
     if(status == STATUS_JOINING || status == STATUS_LEFT_CHANNEL)
     {

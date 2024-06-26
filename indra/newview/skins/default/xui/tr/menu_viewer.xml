@@ -40,12 +40,6 @@
 		<menu_item_call label="Facebook..." name="Facebook"/>
 		<menu_item_call label="Twitter..." name="Twitter"/>
 		<menu_item_call label="Flickr..." name="Flickr"/>
-		<menu label="Ses şekillendirme" name="VoiceMorphing">
-			<menu_item_check label="Ses şekillendirme yok" name="NoVoiceMorphing"/>
-			<menu_item_check label="Önizleme..." name="Preview"/>
-			<menu_item_call label="Abone ol..." name="Subscribe"/>
-			<menu_item_call label="Özel üye avantajı..." name="PremiumPerk"/>
-		</menu>
 		<menu_item_check label="Mimikler..." name="Gestures"/>
 		<menu_item_check label="Arkadaşlar" name="My Friends"/>
 		<menu_item_check label="Gruplar" name="My Groups"/>

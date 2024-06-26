@@ -85,7 +85,7 @@ public:
 
     // Implements LLVoiceClientStatusObserver::onChange() to enable the call
     // button when voice is available
-    void onChange(EStatusType status, const std::string &channelURI, bool proximal) override;
+    void onChange(EStatusType status, const LLSD& channelInfo, bool proximal) override;
 
     void setAvatarId(const LLUUID& avatar_id) override;
 
