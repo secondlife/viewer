@@ -1,7 +1,7 @@
 /**
  * @file llfloatergltfasseteditor.cpp
- * @author Brad Payne
- * @brief LLFloaterFontTest class implementation
+ * @author Andrii Kleshchev
+ * @brief LLFloaterGltfAssetEditor class implementation
  *
  * $LicenseInfo:firstyear=2008&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -29,72 +29,48 @@
 
 #include "llfloatergltfasseteditor.h"
 
-#include "llfolderviewitem.h"
-#include "llgltffolderviews.h"
+#include "gltf/asset.h"
+#include "llcallbacklist.h"
+#include "llselectmgr.h"
+#include "llviewerobject.h"
 
-bool LLGLTFSort::operator()(const LLGLTFItem* const& a, const LLGLTFItem* const& b) const
-{
-    // Comparison operator: returns "true" is a comes before b, "false" otherwise
-    S32 compare = LLStringUtil::compareDict(a->getName(), b->getName());
-    return (compare < 0);
-}
+const LLColor4U DEFAULT_WHITE(255, 255, 255);
 
-/// LLGLTFViewModel
+/// LLFloaterGLTFAssetEditor
 
-LLGLTFViewModel::LLGLTFViewModel()
-    : base_t(new LLGLTFSort(), new LLGLTFFilter())
-{}
-
-void LLGLTFViewModel::sort(LLFolderViewFolder* folder)
-{
-    base_t::sort(folder);
-}
-
- /// LLGLTFNode
-// LLUICtrlFactory::create<LLGLTFNode>(params);
-class LLGLTFNode : public LLFolderViewItem
-{
-public:
-    struct Params : public LLInitParam::Block<Params, LLFolderViewItem::Params>
-    {
-        Params();
-    };
-    ~LLGLTFNode();
-protected:
-    LLGLTFNode(const Params& p);
-};
-
-LLGLTFNode::LLGLTFNode(const LLGLTFNode::Params& p)
-    : LLFolderViewItem(p)
-{
-}
-
-LLGLTFNode::~LLGLTFNode()
-{
-}
-
-LLFloaterGltfAssetEditor::LLFloaterGltfAssetEditor(const LLSD& key)
+LLFloaterGLTFAssetEditor::LLFloaterGLTFAssetEditor(const LLSD& key)
     : LLFloater(key)
+    , mUIColor(LLUIColorTable::instance().getColor("MenuItemEnabledColor", DEFAULT_WHITE))
 {
     setTitle("GLTF Asset Editor (WIP)");
 }
 
-/// LLFloaterGltfAssetEditor
-
-LLFloaterGltfAssetEditor::~LLFloaterGltfAssetEditor()
+LLFloaterGLTFAssetEditor::~LLFloaterGLTFAssetEditor()
 {
+    gIdleCallbacks.deleteFunction(idle, this);
 }
 
-bool LLFloaterGltfAssetEditor::postBuild()
+bool LLFloaterGLTFAssetEditor::postBuild()
 {
     mItemListPanel = getChild<LLPanel>("item_list_panel");
 
+    LLRect scroller_view_rect = mItemListPanel->getRect();
+    scroller_view_rect.translate(-scroller_view_rect.mLeft, -scroller_view_rect.mBottom);
+    LLScrollContainer::Params scroller_params(LLUICtrlFactory::getDefaultParams<LLFolderViewScrollContainer>());
+    scroller_params.rect(scroller_view_rect);
+    scroller_params.name("folder_scroller");
+    mScroller = LLUICtrlFactory::create<LLFolderViewScrollContainer>(scroller_params);
+    mScroller->setFollowsAll();
+
+    // Insert that scroller into the panel widgets hierarchy
+    mItemListPanel->addChild(mScroller);
+
     // Create the root model and view for all conversation sessions
-    LLGLTFItem* base_item = new LLGLTFItem(mGLTFViewModel);
+    LLGLTFFolderItem* base_item = new LLGLTFFolderItem(mGLTFViewModel);
 
     LLFolderView::Params p(LLUICtrlFactory::getDefaultParams<LLFolderView>());
-    p.name = getName();
-    p.title = getLabel();
+    p.name = "Root";
+    p.title = "Root";
     p.rect = LLRect(0, 0, getRect().getWidth(), 0);
     p.parent_panel = mItemListPanel;
     p.tool_tip = p.name;
@@ -103,9 +79,176 @@ bool LLFloaterGltfAssetEditor::postBuild()
     p.root = NULL;
     p.use_ellipses = true;
     p.options_menu = "menu_gltf.xml"; // *TODO : create this or fix to be optional
-    mConversationsRoot = LLUICtrlFactory::create<LLFolderView>(p);
-    mConversationsRoot->setCallbackRegistrar(&mCommitCallbackRegistrar);
-    mConversationsRoot->setEnableRegistrar(&mEnableCallbackRegistrar);
+    mFolderRoot = LLUICtrlFactory::create<LLFolderView>(p);
+    mFolderRoot->setCallbackRegistrar(&mCommitCallbackRegistrar);
+    mFolderRoot->setEnableRegistrar(&mEnableCallbackRegistrar);
+    // Attach root to the scroller
+    mScroller->addChild(mFolderRoot);
+    mFolderRoot->setScrollContainer(mScroller);
+    mFolderRoot->setFollowsAll();
+    mFolderRoot->setOpen(true);
+    mScroller->setVisible(true);
+
+    gIdleCallbacks.addFunction(idle, this);
 
     return true;
 }
+
+void LLFloaterGLTFAssetEditor::onOpen(const LLSD& key)
+{
+    loadFromSelection();
+}
+
+void LLFloaterGLTFAssetEditor::idle(void* user_data)
+{
+    LLFloaterGLTFAssetEditor* floater = (LLFloaterGLTFAssetEditor*)user_data;
+
+    if (floater->mFolderRoot)
+    {
+        floater->mFolderRoot->update();
+    }
+}
+
+void LLFloaterGLTFAssetEditor::loadItem(S32 id, const std::string& name, LLGLTFFolderItem::EType type, LLFolderViewFolder* parent)
+{
+    LLGLTFFolderItem* listener = new LLGLTFFolderItem(id, name, type, mGLTFViewModel);
+
+    LLFolderViewItem::Params params;
+    params.name(name);
+    params.creation_date(0);
+    params.root(mFolderRoot);
+    params.listener(listener);
+    params.rect(LLRect());
+    params.tool_tip = params.name;
+    params.font_color = mUIColor;
+    params.font_highlight_color = mUIColor;
+    LLFolderViewItem* view = LLUICtrlFactory::create<LLFolderViewItem>(params);
+
+    view->addToFolder(parent);
+    view->setVisible(true);
+}
+
+void LLFloaterGLTFAssetEditor::loadFromNode(S32 node_id, LLFolderViewFolder* parent)
+{
+    if (mAsset->mNodes.size() <= node_id)
+    {
+        return;
+    }
+
+    LL::GLTF::Node& node = mAsset->mNodes[node_id];
+
+    std::string name = node.mName;
+    if (node.mName.empty())
+    {
+        name = getString("node_tittle");
+    }
+    else
+    {
+        name = node.mName;
+    }
+
+    LLGLTFFolderItem* listener = new LLGLTFFolderItem(node_id, name, LLGLTFFolderItem::TYPE_NODE, mGLTFViewModel);
+
+    LLFolderViewFolder::Params p;
+    p.root = mFolderRoot;
+    p.listener = listener;
+    p.name = name;
+    p.tool_tip = name;
+    p.font_color = mUIColor;
+    p.font_highlight_color = mUIColor;
+    LLFolderViewFolder* view = LLUICtrlFactory::create<LLFolderViewFolder>(p);
+
+    view->addToFolder(parent);
+    view->setVisible(true);
+    view->setOpen(true);
+
+    for (S32& node_id : node.mChildren)
+    {
+        loadFromNode(node_id, view);
+    }
+
+    if (node.mMesh != LL::GLTF::INVALID_INDEX && mAsset->mMeshes.size() > node.mMesh)
+    {
+        std::string name = mAsset->mMeshes[node.mMesh].mName;
+        if (name.empty())
+        {
+            name = getString("mesh_tittle");
+        }
+        loadItem(node.mMesh, name, LLGLTFFolderItem::TYPE_MESH, view);
+    }
+
+    if (node.mSkin != LL::GLTF::INVALID_INDEX && mAsset->mSkins.size() > node.mSkin)
+    {
+        std::string name = mAsset->mSkins[node.mSkin].mName;
+        if (name.empty())
+        {
+            name = getString("skin_tittle");
+        }
+        loadItem(node.mSkin, name, LLGLTFFolderItem::TYPE_SKIN, view);
+    }
+
+    view->setChildrenInited(true);
+}
+
+void LLFloaterGLTFAssetEditor::loadFromSelection()
+{
+    if (!mFolderRoot || LLSelectMgr::getInstance()->getSelection()->getObjectCount() != 1)
+    {
+        return;
+    }
+
+    LLViewerObject* objectp = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
+    if (!objectp)
+    {
+        return;
+    }
+
+    mAsset = objectp->mGLTFAsset;
+    if (!mAsset)
+    {
+        return;
+    }
+
+    LLUIColor item_color = LLUIColorTable::instance().getColor("MenuItemEnabledColor", DEFAULT_WHITE);
+    for (S32 i = 0; i < mAsset->mScenes.size(); i++)
+    {
+        LL::GLTF::Scene& scene = mAsset->mScenes[i];
+        std::string name = scene.mName;
+        if (scene.mName.empty())
+        {
+            name = getString("scene_tittle");
+        }
+        else
+        {
+            name = scene.mName;
+        }
+
+        LLGLTFFolderItem* listener = new LLGLTFFolderItem(i, name, LLGLTFFolderItem::TYPE_SCENE, mGLTFViewModel);
+
+
+        LLFolderViewFolder::Params p;
+        p.name = name;
+        p.root = mFolderRoot;
+        p.listener = listener;
+        p.tool_tip = name;
+        p.font_color = mUIColor;
+        p.font_highlight_color = mUIColor;
+        LLFolderViewFolder* view = LLUICtrlFactory::create<LLFolderViewFolder>(p);
+
+        view->addToFolder(mFolderRoot);
+        view->setVisible(true);
+        view->setOpen(true);
+
+        for (S32& node_id : scene.mNodes)
+        {
+            loadFromNode(node_id, view);
+        }
+        view->setChildrenInited(true);
+    }
+
+    mGLTFViewModel.requestSortAll();
+    mFolderRoot->setChildrenInited(true);
+    mFolderRoot->arrangeAll();
+    mFolderRoot->update();
+}
+

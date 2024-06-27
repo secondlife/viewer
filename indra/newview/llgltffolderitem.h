@@ -1,7 +1,7 @@
 /**
- * @file llgltffolderviews.h
+ * @file llgltffolderitem.h
  * @author Andrey Kleshchev
- * @brief floater to exercise standard fonts
+ * @brief LLGLTFFolderItem header file
  *
  * $LicenseInfo:firstyear=2024&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -25,19 +25,28 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERGLTFFOLDERVIEWS_H
-#define LL_LLFLOATERGLTFFOLDERVIEWS_H
+#ifndef LL_LLGLTFFOLDERITEM_H
+#define LL_LLGLTFFOLDERITEM_H
 
 #include "llfloater.h"
 
 #include "llfolderviewmodel.h"
 
-class LLGLTFItem : public LLFolderViewModelItemCommon
+class LLGLTFFolderItem : public LLFolderViewModelItemCommon
 {
 public:
-    LLGLTFItem(std::string display_name, LLFolderViewModelInterface& root_view_model);
-    LLGLTFItem(LLFolderViewModelInterface& root_view_model);
-    virtual ~LLGLTFItem();
+    enum EType
+    {
+        TYPE_ROOT,
+        TYPE_SCENE,
+        TYPE_NODE,
+        TYPE_MESH,
+        TYPE_SKIN,
+    };
+
+    LLGLTFFolderItem(S32 id, const std::string &display_name, EType type, LLFolderViewModelInterface& root_view_model);
+    LLGLTFFolderItem(LLFolderViewModelInterface& root_view_model);
+    virtual ~LLGLTFFolderItem();
 
     void init();
 
@@ -102,9 +111,18 @@ public:
     bool filterChildItem(LLFolderViewModelItem* item, LLFolderViewFilter& filter);
     bool filter(LLFolderViewFilter& filter) override;
 
+    EType getType() const { return mItemType; }
+    S32 getId() const { return mItemId; }
+
 private:
     LLUIImagePtr pIcon;
     std::string mName;
+    EType mItemType = TYPE_ROOT;
+
+    // mItemId can be an id in a mesh vector, node vector or any other vector.
+    // mItemId is not nessesarily unique, ex: some nodes can reuse the same
+    // mesh or skin, so mesh-items can have the same id.
+    S32 mItemId = -1;
 };
 
-#endif LL_LLFLOATERGLTFFOLDERVIEWS_H
+#endif LL_LLGLTFFOLDERITEM_H

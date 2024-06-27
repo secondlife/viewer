@@ -1,7 +1,7 @@
 /**
  * @file llfloatergltfasseteditor.h
- * @author Brad Payne
- * @brief floater to exercise standard fonts
+ * @author Andrii Kleshchev
+ * @brief LLFloaterGltfAssetEditor header file
  *
  * $LicenseInfo:firstyear=2024&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -30,85 +30,40 @@
 
 #include "llfloater.h"
 
-#include "llfolderviewmodel.h"
-#include "llgltffolderviews.h"
+#include "llgltffoldermodel.h"
 
-class LLGLTFViewModel;
-class LLFolderViewFolder;
-class LLFolderViewModelItem;
+namespace LL
+{
+    namespace GLTF
+    {
+        class Asset;
+    }
+}
 
-class LLGLTFSort
+class LLFloaterGLTFAssetEditor : public LLFloater
 {
 public:
-    LLGLTFSort() { }
-    bool operator()(const LLGLTFItem* const& a, const LLGLTFItem* const& b) const;
-private:
-};
-
-class LLGLTFFilter : public LLFolderViewFilter
-{
-public:
-    LLGLTFFilter() { mEmpty = ""; }
-    ~LLGLTFFilter() {}
-
-    bool                check(const LLFolderViewModelItem* item) { return true; }
-    bool                checkFolder(const LLFolderViewModelItem* folder) const { return true; }
-    void                setEmptyLookupMessage(const std::string& message) { }
-    std::string         getEmptyLookupMessage(bool is_empty_folder = false) const { return mEmpty; }
-    bool                showAllResults() const { return true; }
-    std::string::size_type getStringMatchOffset(LLFolderViewModelItem* item) const { return std::string::npos; }
-    std::string::size_type getFilterStringSize() const { return 0; }
-
-    bool                isActive() const { return false; }
-    bool                isModified() const { return false; }
-    void                clearModified() { }
-    const std::string& getName() const { return mEmpty; }
-    const std::string& getFilterText() { return mEmpty; }
-    void                setModified(EFilterModified behavior = FILTER_RESTART) { }
-
-    void                resetTime(S32 timeout) { }
-    bool                isTimedOut() { return false; }
-
-    bool                isDefault() const { return true; }
-    bool                isNotDefault() const { return false; }
-    void                markDefault() { }
-    void                resetDefault() { }
-
-    S32                 getCurrentGeneration() const { return 0; }
-    S32                 getFirstSuccessGeneration() const { return 0; }
-    S32                 getFirstRequiredGeneration() const { return 0; }
-private:
-    std::string mEmpty;
-};
-
-class LLGLTFViewModel
-    : public LLFolderViewModel<LLGLTFSort, LLGLTFItem, LLGLTFItem, LLGLTFFilter>
-{
-public:
-    typedef LLFolderViewModel< LLGLTFSort, LLGLTFItem, LLGLTFItem, LLGLTFFilter> base_t;
-    LLGLTFViewModel();
-
-    void sort(LLFolderViewFolder* folder);
-    bool startDrag(std::vector<LLFolderViewModelItem*>& items) { return false; }
-
-private:
-};
-
-class LLFloaterGltfAssetEditor : public LLFloater
-{
-public:
-    LLFloaterGltfAssetEditor(const LLSD& key);
-    ~LLFloaterGltfAssetEditor();
+    LLFloaterGLTFAssetEditor(const LLSD& key);
+    ~LLFloaterGLTFAssetEditor();
 
     bool postBuild() override;
+    void onOpen(const LLSD& key) override;
 
     LLGLTFViewModel& getRootViewModel() { return mGLTFViewModel; }
 
+    static void idle(void* user_data);
+    void loadItem(S32 id, const std::string& name, LLGLTFFolderItem::EType type, LLFolderViewFolder* parent);
+    void loadFromNode(S32 node, LLFolderViewFolder* parent);
+    void loadFromSelection();
+
 private:
     LLGLTFViewModel mGLTFViewModel;
+    LLUIColor mUIColor;
 
     LLPanel* mItemListPanel = nullptr;
-    LLFolderView* mConversationsRoot = nullptr;
+    LLFolderView* mFolderRoot = nullptr;
+    LLScrollContainer* mScroller = nullptr;
+    std::shared_ptr<LL::GLTF::Asset> mAsset;
 };
 
 #endif LL_LLFLOATERGLTFASSETEDITOR_H

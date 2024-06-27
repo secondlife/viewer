@@ -3,19 +3,24 @@
  legacy_header_height="18"
  can_resize="true"
  default_tab_group="1"
- height="891"
+ height="400"
  width="256"
- min_height="500"
- min_width="256"
+ min_height="200"
+ min_width="200"
  layout="topleft"
  name="gltf asset editor"
  title="[OBJECT_NAME]">
+    <floater.string name="scene_tittle" value="Scene"/>
+    <floater.string name="node_tittle" value="Node"/>
+    <floater.string name="mesh_tittle" value="Mesh"/>
+    <floater.string name="skin_tittle" value="Skin"/>
     <panel
-     bottom="-1"
      follows="all"
      layout="topleft"
      name="item_list_panel"
-     top_pad="0"
+     visible="true"
+     bottom="-1"
+     top="16"
      left="5"
      right="-1"/>
 </floater>
