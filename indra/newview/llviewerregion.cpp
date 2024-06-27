@@ -1269,8 +1269,12 @@ U32 LLViewerRegion::getNumOfVisibleGroups() const
     return mImpl ? static_cast<U32>(mImpl->mVisibleGroups.size()) : 0;
 }
 
-void LLViewerRegion::updateReflectionProbes()
+void LLViewerRegion::updateReflectionProbes(bool full_update)
 {
+    if (!full_update && mReflectionMaps.empty())
+    {
+        return;
+    }
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
     const F32 probe_spacing = 32.f;
     const F32 probe_radius = sqrtf((probe_spacing * 0.5f) * (probe_spacing * 0.5f) * 3.f);

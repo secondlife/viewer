@@ -114,8 +114,6 @@ public:
     // Viewer side hack to generate composition values
     bool generateHeights(const F32 x, const F32 y, const F32 width, const F32 height);
     bool generateComposition();
-    // Generate texture from composition values.
-    bool generateMinimapTileLand(const F32 x, const F32 y, const F32 width, const F32 height);
 
     // Use these as indeces ito the get/setters below that use 'corner'
     enum ECorner
