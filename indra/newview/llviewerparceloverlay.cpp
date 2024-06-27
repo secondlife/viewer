@@ -538,7 +538,7 @@ void LLViewerParcelOverlay::addPropertyLine(F32 start_x, F32 start_y, F32 dx, F3
         };
 
     // First part, only one vertex
-    outside_z = land.resolveHeightRegion( outside_x, outside_y );
+    outside_z = land.resolveHeightRegion(outside_x, outside_y);
 
     edge.vertices.emplace_back(outside_x, outside_y, outside_z);
 
@@ -549,8 +549,8 @@ void LLViewerParcelOverlay::addPropertyLine(F32 start_x, F32 start_y, F32 dx, F3
     outside_y += dy * LINE_WIDTH;
 
     // Then the "actual edge"
-    inside_z = land.resolveHeightRegion( inside_x, inside_y );
-    outside_z = land.resolveHeightRegion( outside_x, outside_y );
+    inside_z = land.resolveHeightRegion(inside_x, inside_y);
+    outside_z = land.resolveHeightRegion(outside_x, outside_y);
 
     edge.vertices.emplace_back(inside_x, inside_y, inside_z);
     edge.vertices.emplace_back(outside_x, outside_y, outside_z);
@@ -562,11 +562,11 @@ void LLViewerParcelOverlay::addPropertyLine(F32 start_x, F32 start_y, F32 dx, F3
     outside_y += dy * (dy - LINE_WIDTH);
 
     // Middle part, full width
-    const S32 GRID_STEP = S32( PARCEL_GRID_STEP_METERS );
+    const S32 GRID_STEP = (S32)PARCEL_GRID_STEP_METERS;
     for (S32 i = 1; i < GRID_STEP; i++)
     {
-        inside_z = land.resolveHeightRegion( inside_x, inside_y );
-        outside_z = land.resolveHeightRegion( outside_x, outside_y );
+        inside_z = land.resolveHeightRegion(inside_x, inside_y);
+        outside_z = land.resolveHeightRegion(outside_x, outside_y);
 
         checkForSplit();
 
@@ -587,8 +587,8 @@ void LLViewerParcelOverlay::addPropertyLine(F32 start_x, F32 start_y, F32 dx, F3
     outside_x -= dx * LINE_WIDTH;
     outside_y -= dy * LINE_WIDTH;
 
-    inside_z = land.resolveHeightRegion( inside_x, inside_y );
-    outside_z = land.resolveHeightRegion( outside_x, outside_y );
+    inside_z = land.resolveHeightRegion(inside_x, inside_y);
+    outside_z = land.resolveHeightRegion(outside_x, outside_y);
 
     checkForSplit();
 
@@ -599,7 +599,7 @@ void LLViewerParcelOverlay::addPropertyLine(F32 start_x, F32 start_y, F32 dx, F3
     outside_y += dy * LINE_WIDTH;
 
     // Last edge is not drawn to the edge
-    outside_z = land.resolveHeightRegion( outside_x, outside_y );
+    outside_z = land.resolveHeightRegion(outside_x, outside_y);
 
     edge.vertices.emplace_back(outside_x, outside_y, outside_z);
 }
@@ -647,7 +647,9 @@ void LLViewerParcelOverlay::renderPropertyLines()
         return;
 
     LLSurface& land = mRegion->getLand();
-    F32 water_z = land.getWaterHeight() + 0.01f;
+
+    bool render_water = gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_VOIDWATER);
+    F32 water_z = render_water ? land.getWaterHeight() + 0.01f : 0;
 
     LLGLSUIDefault gls_ui; // called from pipeline
     gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);

@@ -78,7 +78,7 @@
 
 // Increment this if the inventory contents change in a non-backwards-compatible way.
 // For viewer 2, the addition of link items makes a pre-viewer-2 cache incorrect.
-const S32 LLInventoryModel::sCurrentInvCacheVersion = 3;
+const S32 LLInventoryModel::sCurrentInvCacheVersion = 4;
 BOOL LLInventoryModel::sFirstTimeInViewer2 = TRUE;
 
 S32 LLInventoryModel::sPendingSystemFolders = 0;
@@ -1744,7 +1744,7 @@ void LLInventoryModel::changeItemParent(LLViewerInventoryItem* item,
             << " from " << make_inventory_info(item->getParentUUID())
             << " to " << make_inventory_info(new_parent_id) << LL_ENDL;
 
-        LLInventoryModel::LLCategoryUpdate old_folder(item->getParentUUID(), -1);
+        LLInventoryModel::LLCategoryUpdate old_folder(item->getParentUUID(),-1);
         accountForUpdate(old_folder);
         LLInventoryModel::LLCategoryUpdate new_folder(new_parent_id, 1, false);
         accountForUpdate(new_folder);
@@ -2540,7 +2540,7 @@ void LLInventoryModel::accountForUpdate(const LLCategoryUpdate& update) const
                 cat->setDescendentCount(descendents_actual);
                 if (update.mChangeVersion)
                 {
-                    cat->setVersion(++version);
+                cat->setVersion(++version);
                 }
                 LL_DEBUGS(LOG_INV) << "accounted: '" << cat->getName() << "' "
                                    << version << " with " << descendents_actual
@@ -2776,8 +2776,9 @@ bool LLInventoryModel::loadSkeleton(
                     cached_ids.insert(tcat->getUUID());
 
                     // At the moment download does not provide a thumbnail
-                    // uuid, use the one from cache
+                    // uuid or favorite, use values from cache
                     tcat->setThumbnailUUID(cat->getThumbnailUUID());
+                    tcat->setFavorite(cat->getIsFavorite());
                 }
             }
 

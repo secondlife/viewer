@@ -548,6 +548,5 @@ glh::matrix4f gl_perspective(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloa
 glh::matrix4f gl_lookat(LLVector3 eye, LLVector3 center, LLVector3 up);
 
 #define LL_SHADER_LOADING_WARNS(...) LL_WARNS()
-#define LL_SHADER_UNIFORM_ERRS(...)  LL_ERRS("Shader")
 
 #endif
