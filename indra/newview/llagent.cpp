@@ -5000,7 +5000,7 @@ static S32 g_deltaFrame { 0 };
 
 void LLAgent::applyExternalActionFlags()
 {
-    if (! LLGameControl::willControlAvatar())
+    if (! LLGameControl::isEnabled() || ! LLGameControl::willControlAvatar())
     {
         return;
     }

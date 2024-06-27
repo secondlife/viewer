@@ -1713,6 +1713,16 @@ void LLScrollListCtrl::setEnabled(bool enabled)
     mCanSelect = enabled;
     setTabStop(enabled);
     mScrollbar->setTabStop(!enabled && mScrollbar->getPageSize() < mScrollbar->getDocSize());
+
+    // when the table is disabled also disable its items
+    for (LLScrollListItem* item : mItemList)
+    {
+        item->setEnabled(enabled);
+        if (!enabled)
+        {
+            item->setSelected(false);
+        }
+    }
 }
 
 bool LLScrollListCtrl::handleScrollWheel(S32 x, S32 y, S32 clicks)

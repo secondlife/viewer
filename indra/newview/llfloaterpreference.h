@@ -172,7 +172,7 @@ public:
     void setPersonalInfo(const std::string& visibility);
     void refreshEnabledState();
     void onCommitWindowedMode();
-    void refresh(); // Refresh enable/disable
+    void refresh() override; // Refresh enable/disable
     // if the quality radio buttons are changed
     void onChangeQuality(const LLSD& data);
 
@@ -426,6 +426,7 @@ private:
     bool initCombobox(LLScrollListItem* item, LLScrollListCtrl* grid);
     void clearSelectionState();
     void addActionTableSeparator();
+    void updateEnable();
     void updateActionTableState();
     void onResetToDefaults();
     void resetChannelMappingsToDefaults();
@@ -434,6 +435,7 @@ private:
     void resetButtonMappingsToDefaults();
 
     // Above the tab container
+    LLCheckBoxCtrl  *mCheckEnableGameControl;
     LLCheckBoxCtrl  *mCheckGameControlToServer; // send game_control data to server
     LLCheckBoxCtrl  *mCheckGameControlToAgent; // use game_control data to move avatar
     LLCheckBoxCtrl  *mCheckAgentToGameControl; // translate external avatar actions to game_control data

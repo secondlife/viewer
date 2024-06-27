@@ -255,6 +255,9 @@ public:
         friend class LLGameControllerManager;
     };
 
+    static bool isEnabled();
+    static void setEnabled(bool enabled);
+
     static bool isInitialized();
     static void init(const std::string& gamecontrollerdb_path,
         std::function<bool(const std::string&)> loadBoolean,
