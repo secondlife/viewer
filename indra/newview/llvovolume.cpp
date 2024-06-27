@@ -1247,6 +1247,20 @@ void LLVOVolume::sculpt()
         S32 discard_level = mSculptTexture->getRawImageLevel() ;
         LLImageRaw* raw_image = mSculptTexture->getRawImage() ;
 
+        if (!raw_image)
+        {
+            raw_image = mSculptTexture->getSavedRawImage();
+            S32 discard_level = mSculptTexture->getSavedRawImageLevel();
+        }
+
+        if (!raw_image)
+        {
+            // last resort, read back from GL
+            mSculptTexture->readbackRawImage();
+            raw_image = mSculptTexture->getRawImage();
+            discard_level = mSculptTexture->getRawImageLevel();
+        }
+
         S32 max_discard = mSculptTexture->getMaxDiscardLevel();
         if (discard_level > max_discard)
         {
