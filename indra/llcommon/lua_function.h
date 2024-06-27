@@ -195,26 +195,34 @@ int name##_luasub::call(lua_State* L)
 /*****************************************************************************
 *   lua_emplace<T>(), lua_toclass<T>()
 *****************************************************************************/
+// Every instance of DistinctInt has a different int value, barring int
+// wraparound.
+class DistinctInt
+{
+public:
+    DistinctInt(): mValue(++mValues) {}
+    int get() const { return mValue; }
+    operator int() const { return mValue; }
+private:
+    static int mValues;
+    int mValue;
+};
+
 namespace {
 
-// If we start engaging lua_emplace<T>() from more than one thread, type_tags
-// will need locking.
-std::unordered_map<std::type_index, int> type_tags;
-
-// find or create a new Luau userdata "tag" for type T
 template <typename T>
-int type_tag()
+struct TypeTag
 {
-    // The first time we encounter a given type T, assign a new distinct tag
-    // value based on the number of previously-created tags. But avoid tag 0,
-    // which is evidently the default for userdata objects created without
-    // explicit tags. Don't try to destroy a nonexistent T object in a random
-    // userdata object!
-    auto [entry, created] = type_tags.emplace(std::type_index(typeid(T)), int(type_tags.size()+1));
-    // Luau only permits up to LUA_UTAG_LIMIT distinct userdata tags (ca. 128)
-    llassert(entry->second < LUA_UTAG_LIMIT);
-    return entry->second;
-}
+    // For   (std::is_same<T, U>), &TypeTag<T>::value == &TypeTag<U>::value.
+    // For (! std::is_same<T, U>), &TypeTag<T>::value != &TypeTag<U>::value.
+    // And every distinct instance of DistinctInt has a distinct value.
+    // Therefore, TypeTag<T>::value is an int uniquely associated with each
+    // distinct T.
+    static DistinctInt value;
+};
+
+template <typename T>
+DistinctInt TypeTag<T>::value;
 
 } // anonymous namespace
 
@@ -233,7 +241,7 @@ template <class T, typename... ARGS>
 void lua_emplace(lua_State* L, ARGS&&... args)
 {
     luaL_checkstack(L, 1, nullptr);
-    int tag{ type_tag<T>() };
+    int tag{ TypeTag<T>::value };
     if (! lua_getuserdatadtor(L, tag))
     {
         // We haven't yet told THIS lua_State the destructor to use for this tag.
@@ -267,7 +275,7 @@ template <class T>
 T* lua_toclass(lua_State* L, int index)
 {
     // get void* pointer to userdata (if that's what it is)
-    void* ptr{ lua_touserdatatagged(L, index, type_tag<T>()) };
+    void* ptr{ lua_touserdatatagged(L, index, TypeTag<T>::value) };
     // Derive the T* from ptr. If in future lua_emplace() must manually
     // align our T* within the Lua-provided void*, adjust accordingly.
     return static_cast<T*>(ptr);

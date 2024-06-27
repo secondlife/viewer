@@ -38,6 +38,8 @@ const S32 INTERRUPTS_SUSPEND_LIMIT = 100;
 #define lua_register(L, n, f) (lua_pushcfunction(L, (f), n), lua_setglobal(L, (n)))
 #define lua_rawlen lua_objlen
 
+int DistinctInt::mValues{0};
+
 /*****************************************************************************
 *   luau namespace
 *****************************************************************************/
