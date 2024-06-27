@@ -105,6 +105,7 @@ public:
     static void updateShowFavoritesCheckbox(bool val);
 
     void processProperties( void* pData, EAvatarProcessorType type ) override;
+    void saveAvatarProperties( void );
     static void saveAvatarPropertiesCoro(const std::string url, bool allow_publish);
     void selectPrivacyPanel();
     void selectChatPanel();
@@ -299,8 +300,6 @@ public:
     void resetDirtyChilds();
     void setHardwareDefaults() override;
     void setPresetText();
-
-    static const std::string getPresetsPath();
 
 protected:
     bool hasDirtyChilds();
