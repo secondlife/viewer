@@ -59,8 +59,6 @@
 #include "llvoavatarself.h"
 #include "lltexlayer.h"
 
-extern F32 texmem_lower_bound_scale;
-
 LLTextureView *gTextureView = NULL;
 
 #define HIGH_PRIORITY 100000000.f

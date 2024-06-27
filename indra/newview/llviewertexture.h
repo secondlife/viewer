@@ -117,6 +117,7 @@ protected:
 public:
     static void initClass();
     static void updateClass();
+    static bool isSystemMemoryLow();
 
     LLViewerTexture(bool usemipmaps = true);
     LLViewerTexture(const LLUUID& id, bool usemipmaps) ;

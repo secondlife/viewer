@@ -101,6 +101,7 @@ U32 LLViewerTexture::sMaxSmallImageSize = MAX_CACHED_RAW_IMAGE_AREA;
 bool LLViewerTexture::sFreezeImageUpdates = false;
 F32 LLViewerTexture::sCurrentTime = 0.0f;
 
+constexpr F32 MEMORY_CHECK_WAIT_TIME = 1.0f;
 constexpr F32 MIN_VRAM_BUDGET = 768.f;
 F32 LLViewerTexture::sFreeVRAMMegabytes = MIN_VRAM_BUDGET;
 
@@ -482,10 +483,6 @@ void LLViewerTexture::initClass()
     LLImageGL::sDefaultGLTexture = LLViewerFetchedTexture::sDefaultImagep->getGLTexture();
 }
 
-// non-const (used externally
-F32 texmem_lower_bound_scale = 0.85f;
-F32 texmem_middle_bound_scale = 0.925f;
-
 //static
 void LLViewerTexture::updateClass()
 {
@@ -517,14 +514,49 @@ void LLViewerTexture::updateClass()
     sFreeVRAMMegabytes = target - used;
 
     F32 over_pct = llmax((used-target) / target, 0.f);
-    sDesiredDiscardBias = llmax(sDesiredDiscardBias, 1.f + over_pct);
 
-    if (sDesiredDiscardBias > 1.f)
+    if (isSystemMemoryLow())
     {
-        sDesiredDiscardBias -= gFrameIntervalSeconds * 0.01;
+        // System RAM is low -> ramp up discard bias over time to free memory
+        if (sEvaluationTimer.getElapsedTimeF32() > MEMORY_CHECK_WAIT_TIME)
+        {
+            static LLCachedControl<F32> low_mem_min_discard_increment(gSavedSettings, "RenderLowMemMinDiscardIncrement", .1f);
+            sDesiredDiscardBias += llmax(low_mem_min_discard_increment, over_pct);
+            sEvaluationTimer.reset();
+        }
+    }
+    else
+    {
+        sDesiredDiscardBias = llmax(sDesiredDiscardBias, 1.f + over_pct);
+
+        if (sDesiredDiscardBias > 1.f)
+        {
+            sDesiredDiscardBias -= gFrameIntervalSeconds * 0.01;
+        }
     }
 
-    LLViewerTexture::sFreezeImageUpdates = false; // sDesiredDiscardBias > (desired_discard_bias_max - 1.0f);
+    LLViewerTexture::sFreezeImageUpdates = false;
+}
+
+//static
+bool LLViewerTexture::isSystemMemoryLow()
+{
+    static LLFrameTimer timer;
+    static U32Megabytes physical_res = U32Megabytes(U32_MAX);
+
+    static LLCachedControl<U32> min_free_main_memory(gSavedSettings, "RenderMinFreeMainMemoryThreshold", 512);
+    const U32Megabytes MIN_FREE_MAIN_MEMORY(min_free_main_memory);
+
+    if (timer.getElapsedTimeF32() < MEMORY_CHECK_WAIT_TIME) //call this once per second.
+    {
+        return physical_res < MIN_FREE_MAIN_MEMORY;
+    }
+
+    timer.reset();
+
+    LLMemory::updateMemoryInfo();
+    physical_res = LLMemory::getAvailableMemKB();
+    return physical_res < MIN_FREE_MAIN_MEMORY;
 }
 
 //end of static functions
