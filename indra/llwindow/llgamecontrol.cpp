@@ -556,12 +556,12 @@ void LLGameControl::Options::resetToDefaults()
     for (size_t i = 0; i < NUM_AXES; ++i)
     {
         mAxisOptions[i].resetToDefaults();
-        mAxisMap[i] = i;
+        mAxisMap[i] = (U8)i;
     }
 
     for (size_t i = 0; i < NUM_BUTTONS; ++i)
     {
-        mButtonMap[i] = i;
+        mButtonMap[i] = (U8)i;
     }
 }
 
@@ -1305,7 +1305,7 @@ void LLGameControllerManager::updateFlycamMap(const std::string& action, LLGameC
     auto flycam_it = std::find(mFlycamActions.begin(), mFlycamActions.end(), action);
     llassert(flycam_it != mFlycamActions.end());
     std::ptrdiff_t index = std::distance(mFlycamActions.begin(), flycam_it);
-    llassert(index >= 0 && index < mFlycamChannels.size());
+    llassert(index >= 0 && (std::size_t)index < mFlycamChannels.size());
     mFlycamChannels[(std::size_t)index] = channel;
 }
 
@@ -1884,12 +1884,12 @@ bool LLGameControl::parseDeviceOptions(const std::string& options, std::string& 
     for (size_t i = 0; i < NUM_AXES; ++i)
     {
         axis_options[i].resetToDefaults();
-        axis_map[i] = i;
+        axis_map[i] = (U8)i;
     }
 
     for (size_t i = 0; i < NUM_BUTTONS; ++i)
     {
-        button_map[i] = i;
+        button_map[i] = (U8)i;
     }
 
     std::map<std::string, std::string> pairs;

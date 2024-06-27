@@ -182,7 +182,7 @@ void LLKeyboardWin32::resetMaskKeys()
 //}
 
 
-MASK LLKeyboardWin32::updateModifiers(U32 mask)
+MASK LLKeyboardWin32::updateModifiers(const U32 mask)
 {
     //RN: this seems redundant, as we should have already received the appropriate
     // messages for the modifier keys
@@ -191,8 +191,7 @@ MASK LLKeyboardWin32::updateModifiers(U32 mask)
     // (keydown encoded in high order bit of short)
     mKeyLevel[KEY_CAPSLOCK] = (GetKeyState(VK_CAPITAL) & 0x0001) != 0; // Low order bit carries the toggle state.
     // Get mask for keyboard events
-    MASK mask = currentMask(false);
-    return mask;
+    return currentMask(false);
 }
 
 
@@ -203,7 +202,7 @@ bool LLKeyboardWin32::handleKeyDown(const U16 key, MASK mask)
     U32     translated_mask;
     bool    handled = false;
 
-    translated_mask = updateModifiers();
+    translated_mask = updateModifiers(mask);
 
     if (translateExtendedKey(key, mask, &translated_key))
     {
@@ -220,7 +219,7 @@ bool LLKeyboardWin32::handleKeyUp(const U16 key, MASK mask)
     U32     translated_mask;
     bool    handled = false;
 
-    translated_mask = updateModifiers();
+    translated_mask = updateModifiers(mask);
 
     if (translateExtendedKey(key, mask, &translated_key))
     {
