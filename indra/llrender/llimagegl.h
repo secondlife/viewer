@@ -148,6 +148,10 @@ public:
     S32  getDiscardLevel() const        { return mCurrentDiscardLevel; }
     S32  getMaxDiscardLevel() const     { return mMaxDiscardLevel; }
 
+    // override the current discard level
+    // should only be used for local textures where you know exactly what you're doing
+    void setDiscardLevel(S32 level) { mCurrentDiscardLevel = level; }
+
     S32  getCurrentWidth() const { return mWidth ;}
     S32  getCurrentHeight() const { return mHeight ;}
     S32  getWidth(S32 discard_level = -1) const;

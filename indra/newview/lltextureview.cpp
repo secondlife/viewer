@@ -461,7 +461,7 @@ public:
         :   texture_view("texture_view")
         {
             S32 line_height = LLFontGL::getFontMonospace()->getLineHeight();
-            changeDefault(rect, LLRect(0,0,100,line_height * 4));
+            changeDefault(rect, LLRect(0,0,0,line_height * 7));
         }
     };
 
@@ -556,6 +556,10 @@ void LLGLTexMemBar::draw()
     U32 texFetchLatMin = U32(recording.getMin(LLTextureFetch::sTexFetchLatency).value() * 1000.0f);
     U32 texFetchLatMed = U32(recording.getMean(LLTextureFetch::sTexFetchLatency).value() * 1000.0f);
     U32 texFetchLatMax = U32(recording.getMax(LLTextureFetch::sTexFetchLatency).value() * 1000.0f);
+
+    // draw a background above first line.... no idea where the rest of the background comes from for the below text
+    gGL.color4f(0.f, 0.f, 0.f, 0.25f);
+    gl_rect_2d(-10, getRect().getHeight() + line_height + 1, getRect().getWidth()+2, getRect().getHeight()+2);
 
     text = llformat("Est. Free: %d MB Sys Free: %d MB FBO: %d MB Bias: %.2f Cache: %.1f/%.1f MB",
                     (S32)LLViewerTexture::sFreeVRAMMegabytes,
