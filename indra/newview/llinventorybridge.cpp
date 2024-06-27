@@ -836,6 +836,8 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 {
     const LLInventoryObject *obj = getInventoryObject();
     bool single_folder_root = (mRoot == NULL);
+    bool is_cof = isCOFFolder();
+    bool is_inbox = isInboxFolder();
 
     if (obj)
     {
@@ -850,7 +852,8 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
             disabled_items.push_back(std::string("Copy"));
         }
 
-        if (isAgentInventory() && !single_folder_root)
+        bool is_agent_inventory = isAgentInventory();
+        if (is_agent_inventory && !single_folder_root && !is_cof && !is_inbox)
         {
             items.push_back(std::string("New folder from selected"));
             items.push_back(std::string("Subfolder Separator"));
@@ -860,6 +863,19 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
             if (!is_only_items_selected(ids) && !is_only_cats_selected(ids))
             {
                 disabled_items.push_back(std::string("New folder from selected"));
+            }
+        }
+
+        if (isFavorite())
+        {
+            items.push_back(std::string("Remove from Favorites"));
+        }
+        else if (is_agent_inventory && !gInventory.isObjectDescendentOf(mUUID, gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH)))
+        {
+            items.push_back(std::string("Add to Favorites"));
+            if (gInventory.getRootFolderID() == mUUID)
+            {
+                disabled_items.push_back(std::string("Add to Favorites"));
             }
         }
 
@@ -875,6 +891,7 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
             if (!isItemMovable() || !canMenuCut())
             {
                 disabled_items.push_back(std::string("Cut"));
+                disabled_items.push_back(std::string("New folder from selected"));
             }
         }
         else
@@ -884,7 +901,7 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
                 items.push_back(std::string("Find Links"));
             }
 
-            if (!isInboxFolder() && !single_folder_root)
+            if (!is_inbox && !single_folder_root)
             {
                 items.push_back(std::string("Rename"));
                 if (!isItemRenameable() || ((flags & FIRST_SELECTED_ITEM) == 0))
@@ -924,6 +941,7 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
             if (!isItemMovable() || !canMenuCut())
             {
                 disabled_items.push_back(std::string("Cut"));
+                disabled_items.push_back(std::string("New folder from selected"));
             }
 
             if (canListOnMarketplace() && !isMarketplaceListingsFolder() && !isInboxFolder())
@@ -946,7 +964,7 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
     }
 
     // Don't allow items to be pasted directly into the COF or the inbox
-    if (!isCOFFolder() && !isInboxFolder())
+    if (!is_cof && !is_inbox)
     {
         items.push_back(std::string("Paste"));
     }
@@ -1188,8 +1206,8 @@ void LLInvFVBridge::addMarketplaceContextMenuOptions(U32 flags,
         LLInventoryModel::cat_array_t categories;
         LLInventoryModel::item_array_t items;
         gInventory.collectDescendents(local_version_folder_id, categories, items, FALSE);
-        LLCachedControl<U32> max_depth(gSavedSettings, "InventoryOutboxMaxFolderDepth", 4);
-        LLCachedControl<U32> max_count(gSavedSettings, "InventoryOutboxMaxFolderCount", 20);
+        static LLCachedControl<U32> max_depth(gSavedSettings, "InventoryOutboxMaxFolderDepth", 4);
+        static LLCachedControl<U32> max_count(gSavedSettings, "InventoryOutboxMaxFolderCount", 20);
         if (categories.size() >= max_count
             || depth > (max_depth + 1))
         {
@@ -1331,12 +1349,19 @@ BOOL LLInvFVBridge::isLinkedObjectMissing() const
     return FALSE;
 }
 
-BOOL LLInvFVBridge::isAgentInventory() const
+bool LLInvFVBridge::isAgentInventory() const
 {
     const LLInventoryModel* model = getInventoryModel();
     if(!model) return FALSE;
     if(gInventory.getRootFolderID() == mUUID) return TRUE;
     return model->isObjectDescendentOf(mUUID, gInventory.getRootFolderID());
+}
+
+bool LLInvFVBridge::isAgentInventoryRoot() const
+{
+    const LLInventoryModel* model = getInventoryModel();
+    if(!model) return false;
+    return gInventory.getRootFolderID() == mUUID;
 }
 
 BOOL LLInvFVBridge::isCOFFolder() const
@@ -2260,6 +2285,21 @@ const LLUUID& LLItemBridge::getThumbnailUUID() const
     return LLUUID::null;
 }
 
+bool LLItemBridge::isFavorite() const
+{
+    LLViewerInventoryItem* item = NULL;
+    LLInventoryModel* model = getInventoryModel();
+    if (model)
+    {
+        item = model->getItem(mUUID);
+    }
+    if (item)
+    {
+        return get_is_favorite(item);
+    }
+    return false;
+}
+
 BOOL LLItemBridge::isItemPermissive() const
 {
     LLViewerInventoryItem* item = getItem();
@@ -2403,6 +2443,16 @@ const LLUUID& LLFolderBridge::getThumbnailUUID() const
         return cat->getThumbnailUUID();
     }
     return LLUUID::null;
+}
+
+bool LLFolderBridge::isFavorite() const
+{
+    LLViewerInventoryCategory* cat = getCategory();
+    if (cat)
+    {
+        return cat->getIsFavorite();
+    }
+    return false;
 }
 
 void LLFolderBridge::update()
@@ -4386,6 +4436,15 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
             {
                 items.push_back(std::string("Rename"));
                 items.push_back(std::string("thumbnail"));
+
+                if (cat->getIsFavorite())
+                {
+                    items.push_back(std::string("Remove from Favorites"));
+                }
+                else
+                {
+                    items.push_back(std::string("Add to Favorites"));
+                }
 
                 addDeleteContextMenuOptions(items, disabled_items);
                 // EXT-4030: disallow deletion of currently worn outfit
@@ -8005,7 +8064,8 @@ void LLObjectBridgeAction::attachOrDetach()
     }
     else
     {
-        LLAppearanceMgr::instance().wearItemOnAvatar(mUUID, true, false); // Don't replace if adding.
+        static LLCachedControl<bool> inventory_linking(gSavedSettings, "InventoryAddAttachmentBehavior", false);
+        LLAppearanceMgr::instance().wearItemOnAvatar(mUUID, true, inventory_linking()); // Don't replace if adding.
     }
 }
 
@@ -8042,7 +8102,7 @@ protected:
     BOOL isItemInTrash() const;
     // return true if the item is in agent inventory. if false, it
     // must be lost or in the inventory library.
-    BOOL isAgentInventory() const;
+    bool isAgentInventory() const;
     void wearOnAvatar();
 };
 
@@ -8053,7 +8113,7 @@ BOOL LLWearableBridgeAction::isItemInTrash() const
     return mModel->isObjectDescendentOf(mUUID, trash_id);
 }
 
-BOOL LLWearableBridgeAction::isAgentInventory() const
+bool LLWearableBridgeAction::isAgentInventory() const
 {
     if(!mModel) return FALSE;
     if(gInventory.getRootFolderID() == mUUID) return TRUE;
@@ -8196,6 +8256,7 @@ void LLRecentItemsFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
         buildContextMenuOptions(flags, items, disabled_items);
 
     items.erase(std::remove(items.begin(), items.end(), std::string("New Folder")), items.end());
+    items.erase(std::remove(items.begin(), items.end(), std::string("New folder from selected")), items.end());
 
     hide_context_entries(menu, items, disabled_items);
 }
@@ -8230,6 +8291,51 @@ LLInvFVBridge* LLRecentInventoryBridgeBuilder::createBridge(
     return new_listener;
 }
 
+/************************************************************************/
+/* Favorites Inventory Panel related classes                               */
+/************************************************************************/
+void LLFavoritesFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
+{
+    // todo: consider things that should be disabled
+    menuentry_vec_t disabled_items, items;
+    buildContextMenuOptions(flags, items, disabled_items);
+
+    items.erase(std::remove(items.begin(), items.end(), std::string("New Folder")), items.end());
+    items.erase(std::remove(items.begin(), items.end(), std::string("New folder from selected")), items.end());
+
+    hide_context_entries(menu, items, disabled_items);
+}
+
+LLInvFVBridge* LLFavoritesInventoryBridgeBuilder::createBridge(
+    LLAssetType::EType asset_type,
+    LLAssetType::EType actual_asset_type,
+    LLInventoryType::EType inv_type,
+    LLInventoryPanel* inventory,
+    LLFolderViewModelInventory* view_model,
+    LLFolderView* root,
+    const LLUUID& uuid,
+    U32 flags /*= 0x00*/) const
+{
+    LLInvFVBridge* new_listener = NULL;
+    if (asset_type == LLAssetType::AT_CATEGORY
+        && actual_asset_type != LLAssetType::AT_LINK_FOLDER)
+    {
+        new_listener = new LLFavoritesFolderBridge(inv_type, inventory, root, uuid);
+    }
+    else
+    {
+        new_listener = LLInventoryFolderViewModelBuilder::createBridge(asset_type,
+            actual_asset_type,
+            inv_type,
+            inventory,
+            view_model,
+            root,
+            uuid,
+            flags);
+    }
+    return new_listener;
+}
+
 LLFolderViewGroupedItemBridge::LLFolderViewGroupedItemBridge()
 {
 }
@@ -8240,7 +8346,7 @@ void LLFolderViewGroupedItemBridge::groupFilterContextMenu(folder_view_item_dequ
     menuentry_vec_t disabled_items;
     if (get_selection_item_uuids(selected_items, ids))
     {
-        if (!LLAppearanceMgr::instance().canAddWearables(ids) && canWearSelected(ids))
+        if (!LLAppearanceMgr::instance().canAddWearables(ids, false) && canWearSelected(ids))
         {
             disabled_items.push_back(std::string("Wearable And Object Wear"));
             disabled_items.push_back(std::string("Wearable Add"));

@@ -43,6 +43,16 @@
     follows="left|top"
     visible="false"
     image_name="Inv_Link"/>
+  <icon
+   layout="topleft"
+   follows="left|top"
+   name="fav_icon"
+   left="110"
+   top_pad="-14"
+   height="14"
+   width="14"
+   visible="true"
+   image_name="Inv_Favorite_Star_Full"/>
   <panel
    background_visible="false"
    background_opaque="true"

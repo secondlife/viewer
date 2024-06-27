@@ -47,7 +47,8 @@ public:
     virtual void showProperties(void) = 0;
     virtual BOOL isItemInTrash( void) const { return FALSE; } // TODO: make   into pure virtual.
     virtual bool isItemInOutfits() const { return false; }
-    virtual BOOL isAgentInventory() const { return FALSE; }
+    virtual bool isAgentInventory() const { return false; }
+    virtual bool isAgentInventoryRoot() const { return false; }
     virtual BOOL isUpToDate() const = 0;
     virtual void addChild(LLFolderViewModelItem* child);
     virtual bool hasChildren() const = 0;

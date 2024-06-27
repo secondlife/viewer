@@ -115,7 +115,7 @@ void LLInventoryItemsList::doIdle()
 {
     if (mRefreshState == REFRESH_COMPLETE) return;
 
-    if (isInVisibleChain() || mForceRefresh )
+    if (isInVisibleChain() || mForceRefresh || !getFilterSubString().empty())
     {
         refresh();
 

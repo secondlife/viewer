@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu
+ layout="topleft"
+ visible="false"
+ name="Sort Outfit">  
+  <menu_item_check
+   label="Sort favorites to top"
+   layout="topleft"
+   visible="true"
+   name="sort_favorites_to_top">
+    <on_click
+     function="Sort.OnSort"
+    parameter="favorites_to_top" />
+    <on_check
+     function="Sort.OnEnable"
+     parameter="favorites_to_top" />
+  </menu_item_check>
+  <menu_item_check
+   label="Sort images to top"
+   layout="topleft"
+   visible="true"
+   name="sort_images_to_top">
+    <on_click
+     function="Sort.OnSort"
+    parameter="images_to_top" />
+    <on_check
+     function="Sort.OnEnable"
+     parameter="images_to_top" />
+  </menu_item_check>
+  <menu_item_check
+   label="Sort by name"
+   layout="topleft"
+   visible="true"
+   name="sort_by_name">
+    <on_click
+     function="Sort.OnSort"
+    parameter="by_name" />
+    <on_check
+     function="Sort.OnEnable"
+     parameter="by_name" />
+  </menu_item_check>
+</toggleable_menu>

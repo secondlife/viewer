@@ -186,6 +186,20 @@ void LLInventoryGalleryContextMenu::doToSelected(const LLSD& userdata)
     {
         ungroup_folder_items(mUUIDs.front());
     }
+    else if ("add_to_favorites" == action)
+    {
+        for (const LLUUID& id : mUUIDs)
+        {
+            set_favorite(id, true);
+        }
+    }
+    else if ("remove_from_favorites" == action)
+    {
+        for (const LLUUID& id : mUUIDs)
+        {
+            set_favorite(id, false);
+        }
+    }
     else if ("take_off" == action || "detach" == action)
     {
         for (LLUUID& selected_id : mUUIDs)
@@ -519,6 +533,18 @@ void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* men
                 items.push_back(std::string("New Outfit"));
             }
 
+            if (!is_trash && !is_in_trash && gInventory.getRootFolderID() != selected_id)
+            {
+                if (get_is_favorite(obj))
+                {
+                    items.push_back(std::string("Remove from Favorites"));
+                }
+                else
+                {
+                    items.push_back(std::string("Add to Favorites"));
+                }
+            }
+
             items.push_back(std::string("Subfolder Separator"));
             if (!is_system_folder && !isRootFolder())
             {
@@ -564,6 +590,17 @@ void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* men
             if(is_agent_inventory)
             {
                 items.push_back(std::string("Cut"));
+                if (!is_in_trash)
+                {
+                    if (get_is_favorite(obj))
+                    {
+                        items.push_back(std::string("Remove from Favorites"));
+                    }
+                    else
+                    {
+                        items.push_back(std::string("Add to Favorites"));
+                    }
+                }
                 if (!is_link || !is_cof || !get_is_item_worn(selected_id))
                 {
                     items.push_back(std::string("Delete"));
@@ -702,6 +739,15 @@ void LLInventoryGalleryContextMenu::updateMenuItemsVisibility(LLContextMenu* men
             disabled_items.push_back(std::string("New Folder"));
             disabled_items.push_back(std::string("upload_options"));
             disabled_items.push_back(std::string("upload_def"));
+        }
+
+        if (get_is_favorite(obj))
+        {
+            items.push_back(std::string("Remove from Favorites"));
+        }
+        else if (is_agent_inventory)
+        {
+            items.push_back(std::string("Add to Favorites"));
         }
     }
 

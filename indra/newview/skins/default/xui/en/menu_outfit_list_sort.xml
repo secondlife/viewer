@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu
+ layout="topleft"
+ visible="false"
+ name="Sort Outfit">
+    <menu_item_call
+     label="Expand all folders"
+     layout="topleft"
+     name="expand">
+        <on_click
+         function="Sort.Expand" />
+    </menu_item_call>
+    <menu_item_call
+     label="Collapse all folders"
+     layout="topleft"
+     visible="true"
+     name="collapse">
+        <on_click
+         function="Sort.Collapse" />
+    </menu_item_call>
+  
+  <menu_item_separator/>
+
+  <menu_item_check
+   label="Sort favorites to top"
+   layout="topleft"
+   name="sort_favorites_to_top">
+    <on_click
+     function="Sort.OnSort"
+    parameter="favorites_to_top" />
+    <on_check
+     function="Sort.OnEnable"
+     parameter="favorites_to_top" />
+  </menu_item_check>
+
+  <menu_item_separator/>
+
+  <menu_item_check
+   label="Show entire outfit in search"
+   layout="topleft"
+   name="show_entire_outfit_in_search">
+    <on_click
+     function="Sort.OnSort"
+    parameter="show_entire_outfit" />
+    <on_check
+     function="Sort.OnEnable"
+     parameter="show_entire_outfit" />
+  </menu_item_check>
+</toggleable_menu>

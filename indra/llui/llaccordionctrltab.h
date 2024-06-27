@@ -140,7 +140,7 @@ public:
     S32 notify(const LLSD& info);
     bool notifyChildren(const LLSD& info);
 
-    void draw();
+    virtual void draw();
 
     void storeOpenCloseState();
     void restoreOpenCloseState();
