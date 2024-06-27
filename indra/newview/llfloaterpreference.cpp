@@ -3250,7 +3250,7 @@ bool LLPanelPreferenceGameControl::initCombobox(LLScrollListItem* item, LLScroll
     }
 
     combobox->setValue(value);
-    combobox->setVisible(TRUE);
+    combobox->setVisible(true);
     combobox->showList();
 
     gSelectedGrid = grid;
@@ -3370,7 +3370,7 @@ void LLPanelPreferenceGameControl::onAxisOptionsSelect()
                 mNumericValueEditor->setMaxValue(LLGameControl::MAX_AXIS_OFFSET);
                 mNumericValueEditor->setValue(deviceOptions.getAxisOptions()[row_index].mOffset);
             }
-            mNumericValueEditor->setVisible(TRUE);
+            mNumericValueEditor->setVisible(true);
         }
 
         initCombobox(row, mAxisOptions);
@@ -3403,7 +3403,7 @@ void LLPanelPreferenceGameControl::onCommitNumericValue()
     }
 }
 
-BOOL LLPanelPreferenceGameControl::postBuild()
+bool LLPanelPreferenceGameControl::postBuild()
 {
     // Above the tab container
     mCheckGameControlToServer = getChild<LLCheckBoxCtrl>("game_control_to_server");
@@ -3479,7 +3479,7 @@ BOOL LLPanelPreferenceGameControl::postBuild()
     mAxisOptions->setRect(rect);
     mAxisOptions->updateLayout();
 
-    return TRUE;
+    return true;
 }
 
 // Update all UI control values from real objects
@@ -3821,10 +3821,10 @@ void LLPanelPreferenceGameControl::clearSelectionState()
     gSelectedGrid = nullptr;
     gSelectedItem = nullptr;
     gSelectedCell = nullptr;
-    mNumericValueEditor->setVisible(FALSE);
-    mAnalogChannelSelector->setVisible(FALSE);
-    mBinaryChannelSelector->setVisible(FALSE);
-    mAxisSelector->setVisible(FALSE);
+    mNumericValueEditor->setVisible(false);
+    mAnalogChannelSelector->setVisible(false);
+    mBinaryChannelSelector->setVisible(false);
+    mAxisSelector->setVisible(false);
 }
 
 void LLPanelPreferenceGameControl::addActionTableSeparator()
@@ -3848,8 +3848,8 @@ void LLPanelPreferenceGameControl::updateActionTableState()
 
     mActionTable->deselectAllItems();
     mActionTable->setEnabled(enable_table);
-    mAnalogChannelSelector->setVisible(FALSE);
-    mBinaryChannelSelector->setVisible(FALSE);
+    mAnalogChannelSelector->setVisible(false);
+    mBinaryChannelSelector->setVisible(false);
 }
 
 void LLPanelPreferenceGameControl::onResetToDefaults()
