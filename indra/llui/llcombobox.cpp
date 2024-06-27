@@ -147,8 +147,8 @@ LLComboBox::LLComboBox(const LLComboBox::Params& p)
         {
             item_params.columns.add().value(item_params.label());
         }
-		mList->addRow(item_params);
-	}
+        mList->addRow(item_params);
+    }
 
     createLineEditor(p);
 

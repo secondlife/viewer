@@ -67,8 +67,8 @@
 // LLGameControl is a singleton with pure static public interface
 class LLGameControl : public LLSingleton<LLGameControl>
 {
-	LLSINGLETON_EMPTY_CTOR(LLGameControl);
-	virtual ~LLGameControl();
+    LLSINGLETON_EMPTY_CTOR(LLGameControl);
+    virtual ~LLGameControl();
     LOG_CLASS(LLGameControl);
 
 public:
@@ -255,15 +255,18 @@ public:
         friend class LLGameControllerManager;
     };
 
+    static bool isEnabled();
+    static void setEnabled(bool enabled);
+
     static bool isInitialized();
-	static void init(const std::string& gamecontrollerdb_path,
+    static void init(const std::string& gamecontrollerdb_path,
         std::function<bool(const std::string&)> loadBoolean,
         std::function<void(const std::string&, bool)> saveBoolean,
         std::function<std::string(const std::string&)> loadString,
         std::function<void(const std::string&, const std::string&)> saveString,
         std::function<LLSD(const std::string&)> loadObject,
         std::function<void(const std::string&, const LLSD&)> saveObject);
-	static void terminate();
+    static void terminate();
 
     static const std::list<LLGameControl::Device>& getDevices();
     static const std::map<std::string, std::string>& getDeviceOptions();
