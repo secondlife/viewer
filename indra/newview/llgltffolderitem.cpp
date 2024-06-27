@@ -1,7 +1,7 @@
 /**
- * @file llgltffolderviews.cpp
+ * @file llgltffolderitem.cpp
  * @author Andrey Kleshchev
- * @brief LLFloaterFontTest class implementation
+ * @brief LLGLTFFolderItem class implementation
  *
  * $LicenseInfo:firstyear=2008&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -27,36 +27,58 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "llgltffolderviews.h"
+#include "llgltffolderitem.h"
+
 #include "llinventoryicon.h"
 
 /// LLGLTFItem
 
-LLGLTFItem::LLGLTFItem(std::string display_name, LLFolderViewModelInterface& root_view_model)
+LLGLTFFolderItem::LLGLTFFolderItem(S32 id, const std::string &display_name, EType type, LLFolderViewModelInterface& root_view_model)
     : LLFolderViewModelItemCommon(root_view_model)
     , mName(display_name)
+    , mItemType(type)
+    , mItemId(id)
 {
     init();
 }
 
-LLGLTFItem::LLGLTFItem(LLFolderViewModelInterface& root_view_model)
+LLGLTFFolderItem::LLGLTFFolderItem(LLFolderViewModelInterface& root_view_model)
     : LLFolderViewModelItemCommon(root_view_model)
 {
     init();
 }
 
-LLGLTFItem::~LLGLTFItem()
+LLGLTFFolderItem::~LLGLTFFolderItem()
 {
 
 }
 
-void LLGLTFItem::init()
+void LLGLTFFolderItem::init()
 {
-    pIcon = LLInventoryIcon::getIcon(LLInventoryType::ICONNAME_OBJECT);
+    // using inventory icons as a placeholder.
+    // Todo: GLTF needs to have own icons
+    switch (mItemType)
+    {
+    case TYPE_SCENE:
+        pIcon = LLInventoryIcon::getIcon(LLInventoryType::ICONNAME_OBJECT_MULTI);
+        break;
+    case TYPE_NODE:
+        pIcon = LLInventoryIcon::getIcon(LLInventoryType::ICONNAME_OBJECT);
+        break;
+    case TYPE_MESH:
+        pIcon = LLInventoryIcon::getIcon(LLInventoryType::ICONNAME_MESH);
+        break;
+    case TYPE_SKIN:
+        pIcon = LLInventoryIcon::getIcon(LLInventoryType::ICONNAME_BODYPART_SKIN);
+        break;
+    default:
+        pIcon = LLInventoryIcon::getIcon(LLInventoryType::ICONNAME_OBJECT);
+        break;
+    }
 }
 
 
-bool LLGLTFItem::filterChildItem(LLFolderViewModelItem* item, LLFolderViewFilter& filter)
+bool LLGLTFFolderItem::filterChildItem(LLFolderViewModelItem* item, LLFolderViewFilter& filter)
 {
     S32 filter_generation = filter.getCurrentGeneration();
 
@@ -72,21 +94,20 @@ bool LLGLTFItem::filterChildItem(LLFolderViewModelItem* item, LLFolderViewFilter
         // Update latest generation to pass filter in parent and propagate up to root
         if (item->passedFilter())
         {
-            LLGLTFItem* view_model = this;
+            LLGLTFFolderItem* view_model = this;
 
             while (view_model && view_model->mMostFilteredDescendantGeneration < filter_generation)
             {
                 view_model->mMostFilteredDescendantGeneration = filter_generation;
-                view_model = static_cast<LLGLTFItem*>(view_model->mParent);
+                view_model = static_cast<LLGLTFFolderItem*>(view_model->mParent);
             }
         }
     }
     return continue_filtering;
 }
 
-bool LLGLTFItem::filter(LLFolderViewFilter& filter)
+bool LLGLTFFolderItem::filter(LLFolderViewFilter& filter)
 {
-
     const S32 filter_generation = filter.getCurrentGeneration();
     const S32 must_pass_generation = filter.getFirstRequiredGeneration();
 
@@ -129,11 +150,11 @@ bool LLGLTFItem::filter(LLFolderViewFilter& filter)
         const bool passed_filter = filter.check(this);
         if (passed_filter && mChildren.empty() && is_folder) // Update the latest filter generation for empty folders
         {
-            LLGLTFItem* view_model = this;
+            LLGLTFFolderItem* view_model = this;
             while (view_model && view_model->mMostFilteredDescendantGeneration < filter_generation)
             {
                 view_model->mMostFilteredDescendantGeneration = filter_generation;
-                view_model = static_cast<LLGLTFItem*>(view_model->mParent);
+                view_model = static_cast<LLGLTFFolderItem*>(view_model->mParent);
             }
         }
         setPassedFilter(passed_filter, filter_generation, filter.getStringMatchOffset(this), filter.getFilterStringSize());
