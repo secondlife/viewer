@@ -550,7 +550,7 @@ int main(int argc, char **argv)
     // specific test we want to monitor, and some viewer integration tests are
     // quite verbose. In addition to noticing plain LOGTEST= (for all tests),
     // also notice LOGTEST_progname= (for a specific test).
-    std::string basename{ fsyspath(argv[0]).stem() };
+    std::string basename(fsyspath(argv[0]).stem());
     // don't make user set LOGTEST_INTEGRATION_TEST_progname or (worse)
     // LOGTEST_PROJECT_foo_TEST_bar -- only LOGTEST_progname or LOGTEST_bar
     auto _TEST_ = basename.find("_TEST_");
@@ -558,7 +558,7 @@ int main(int argc, char **argv)
     {
         basename.erase(0, _TEST_+6);
     }
-    std::string LOGTEST_prog_key{ "LOGTEST_" + basename };
+    std::string LOGTEST_prog_key("LOGTEST_" + basename);
     const char* LOGTEST_prog = getenv(LOGTEST_prog_key.c_str());
 //  std::cout << LOGTEST_prog_key << "='" << (LOGTEST_prog? LOGTEST_prog : "") << "'" << std::endl;
     if (LOGTEST_prog && *LOGTEST_prog)
