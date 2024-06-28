@@ -121,6 +121,8 @@ class LLCustomProcessor : public webrtc::CustomProcessing
 
     float getMicrophoneEnergy() { return mMicrophoneEnergy; }
 
+    void setGain(float gain) { mGain = gain; }
+
   protected:
     static const int NUM_PACKETS_TO_FILTER = 30;  // 300 ms of smoothing
     int              mSampleRateHz;
@@ -128,6 +130,7 @@ class LLCustomProcessor : public webrtc::CustomProcessing
 
     float mSumVector[NUM_PACKETS_TO_FILTER];
     float mMicrophoneEnergy;
+    float mGain;
 };
 
 
@@ -159,6 +162,8 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceS
     void setTuningMode(bool enable) override;
     float getTuningAudioLevel() override;
     float getPeerConnectionAudioLevel() override;
+
+    void setPeerConnectionGain(float gain) override;
 
     //
     // AudioDeviceSink
@@ -230,7 +235,7 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceS
 
     // The factory that allows creation of native webrtc PeerConnections.
     rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> mPeerConnectionFactory;
-
+    
     rtc::scoped_refptr<webrtc::AudioProcessing>                mAudioProcessingModule;
 
     // more native webrtc stuff

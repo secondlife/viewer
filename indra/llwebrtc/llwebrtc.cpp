@@ -35,6 +35,7 @@
 #include "api/media_stream_interface.h"
 #include "api/media_stream_track.h"
 #include "modules/audio_processing/audio_buffer.h"
+#include "modules/audio_mixer/audio_mixer_impl.h"
 
 namespace llwebrtc
 {
@@ -88,7 +89,7 @@ void LLAudioDeviceObserver::OnRenderData(const void    *audio_samples,
 {
 }
 
-LLCustomProcessor::LLCustomProcessor() : mSampleRateHz(0), mNumChannels(0), mMicrophoneEnergy(0.0)
+LLCustomProcessor::LLCustomProcessor() : mSampleRateHz(0), mNumChannels(0), mMicrophoneEnergy(0.0), mGain(1.0)
 {
     memset(mSumVector, 0, sizeof(mSumVector));
 }
@@ -128,8 +129,12 @@ void LLCustomProcessor::Process(webrtc::AudioBuffer *audio_in)
     for (size_t index = 0; index < stream_config.num_samples(); index++)
     {
         float sample = frame_samples[index];
+        sample       = sample * mGain; // apply gain
+        frame_samples[index] = sample; // write processed sample back to buffer.
         energy += sample * sample;
     }
+
+    audio_in->CopyFrom(&frame[0], stream_config);
 
     // smooth it.
     size_t buffer_size = sizeof(mSumVector) / sizeof(mSumVector[0]);
@@ -236,9 +241,9 @@ void LLWebRTCImpl::init()
     webrtc::AudioProcessing::Config apm_config;
     apm_config.echo_canceller.enabled         = false;
     apm_config.echo_canceller.mobile_mode     = false;
-    apm_config.gain_controller1.enabled       = true;
+    apm_config.gain_controller1.enabled       = false;
     apm_config.gain_controller1.mode          = webrtc::AudioProcessing::Config::GainController1::kAdaptiveAnalog;
-    apm_config.gain_controller2.enabled       = true;
+    apm_config.gain_controller2.enabled       = false;
     apm_config.high_pass_filter.enabled       = true;
     apm_config.noise_suppression.enabled      = true;
     apm_config.noise_suppression.level        = webrtc::AudioProcessing::Config::NoiseSuppression::kVeryHigh;
@@ -259,6 +264,7 @@ void LLWebRTCImpl::init()
 
     mAudioProcessingModule->ApplyConfig(apm_config);
     mAudioProcessingModule->Initialize(processing_config);
+
 
     mPeerConnectionFactory = webrtc::CreatePeerConnectionFactory(mNetworkThread.get(),
                                                                  mWorkerThread.get(),
@@ -336,9 +342,9 @@ void LLWebRTCImpl::setAudioConfig(LLWebRTCDeviceInterface::AudioConfig config)
     webrtc::AudioProcessing::Config apm_config;
     apm_config.echo_canceller.enabled         = config.mEchoCancellation;
     apm_config.echo_canceller.mobile_mode     = false;
-    apm_config.gain_controller1.enabled       = true;
+    apm_config.gain_controller1.enabled       = config.mAGC;
     apm_config.gain_controller1.mode          = webrtc::AudioProcessing::Config::GainController1::kAdaptiveAnalog;
-    apm_config.gain_controller2.enabled       = true;
+    apm_config.gain_controller2.enabled       = false;
     apm_config.high_pass_filter.enabled       = true;
     apm_config.transient_suppression.enabled  = true;
     apm_config.pipeline.multi_channel_render  = true;
@@ -452,7 +458,7 @@ void ll_set_device_module_render_device(rtc::scoped_refptr<webrtc::AudioDeviceMo
     {
         device_module->SetPlayoutDevice(webrtc::AudioDeviceModule::kDefaultDevice);
     }
-    else
+    else 
     {
         device_module->SetPlayoutDevice(device);
     }
@@ -612,6 +618,8 @@ float LLWebRTCImpl::getTuningAudioLevel() { return -20 * log10f(mTuningAudioDevi
 
 float LLWebRTCImpl::getPeerConnectionAudioLevel() { return -20 * log10f(mPeerCustomProcessor->getMicrophoneEnergy()); }
 
+void LLWebRTCImpl::setPeerConnectionGain(float gain) { mPeerCustomProcessor->setGain(gain); }
+
 
 //
 // Peer Connection Helpers
@@ -648,7 +656,7 @@ void LLWebRTCImpl::freePeerConnection(LLWebRTCPeerConnectionInterface* peer_conn
 // Most peer connection (signaling) happens on
 // the signaling thread.
 
-LLWebRTCPeerConnectionImpl::LLWebRTCPeerConnectionImpl() :
+LLWebRTCPeerConnectionImpl::LLWebRTCPeerConnectionImpl() : 
     mWebRTCImpl(nullptr),
     mPeerConnection(nullptr),
     mMute(false),
@@ -937,7 +945,7 @@ void LLWebRTCPeerConnectionImpl::setSendVolume(float volume)
             {
                 for (auto &track : mLocalStream->GetAudioTracks())
                 {
-                    track->GetSource()->SetVolume(volume);
+                    track->GetSource()->SetVolume(volume*5.0);
                 }
             }
         });
@@ -1163,7 +1171,7 @@ void LLWebRTCPeerConnectionImpl::OnSuccess(webrtc::SessionDescriptionInterface *
     {
         observer->OnOfferAvailable(mangled_sdp);
     }
-
+    
    mPeerConnection->SetLocalDescription(std::unique_ptr<webrtc::SessionDescriptionInterface>(
                                                      webrtc::CreateSessionDescription(webrtc::SdpType::kOffer, mangled_sdp)),
                                                  rtc::scoped_refptr<webrtc::SetLocalDescriptionObserverInterface>(this));
