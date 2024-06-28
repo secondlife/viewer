@@ -550,7 +550,9 @@ int main(int argc, char **argv)
     // specific test we want to monitor, and some viewer integration tests are
     // quite verbose. In addition to noticing plain LOGTEST= (for all tests),
     // also notice LOGTEST_progname= (for a specific test).
-    std::string basename(fsyspath(argv[0]).stem());
+    // (Why doesn't MSVC notice fsyspath::operator std::string()?
+    // Why must we explicitly call fsyspath::string()?)
+    std::string basename(fsyspath(argv[0]).stem().string());
     // don't make user set LOGTEST_INTEGRATION_TEST_progname or (worse)
     // LOGTEST_PROJECT_foo_TEST_bar -- only LOGTEST_progname or LOGTEST_bar
     auto _TEST_ = basename.find("_TEST_");
