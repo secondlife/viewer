@@ -44,15 +44,15 @@ class LLFloaterColorPicker
     : public LLFloater
 {
     public:
-        LLFloaterColorPicker (LLColorSwatchCtrl* swatch, BOOL show_apply_immediate = FALSE);
+        LLFloaterColorPicker (LLColorSwatchCtrl* swatch, bool show_apply_immediate = false);
         virtual ~LLFloaterColorPicker ();
 
         // overrides
-        virtual BOOL postBuild ();
+        virtual bool postBuild ();
         virtual void draw ();
-        virtual BOOL handleMouseDown ( S32 x, S32 y, MASK mask );
-        virtual BOOL handleMouseUp ( S32 x, S32 y, MASK mask );
-        virtual BOOL handleHover ( S32 x, S32 y, MASK mask );
+        virtual bool handleMouseDown ( S32 x, S32 y, MASK mask );
+        virtual bool handleMouseUp ( S32 x, S32 y, MASK mask );
+        virtual bool handleHover ( S32 x, S32 y, MASK mask );
         virtual void onMouseCaptureLost();
         virtual F32  getSwatchTransparency();
 
@@ -87,7 +87,7 @@ class LLFloaterColorPicker
         F32  getCurL () { return curL; };
 
         // updates current RGB/HSL values based on point in picker
-        BOOL updateRgbHslFromPoint ( S32 xPosIn, S32 yPosIn );
+        bool updateRgbHslFromPoint ( S32 xPosIn, S32 yPosIn );
 
         // updates text entry fields with current RGB/HSL
         void updateTextEntry ();
@@ -95,16 +95,16 @@ class LLFloaterColorPicker
         void stopUsingPipette();
 
         // mutator / accessor for mouse button pressed in region
-        void setMouseDownInHueRegion ( BOOL mouse_down_in_region );
-        BOOL getMouseDownInHueRegion () { return mMouseDownInHueRegion; };
+        void setMouseDownInHueRegion ( bool mouse_down_in_region );
+        bool getMouseDownInHueRegion () { return mMouseDownInHueRegion; };
 
-        void setMouseDownInLumRegion ( BOOL mouse_down_in_region );
-        BOOL getMouseDownInLumRegion () { return mMouseDownInLumRegion; };
+        void setMouseDownInLumRegion ( bool mouse_down_in_region );
+        bool getMouseDownInLumRegion () { return mMouseDownInLumRegion; };
 
-        void setMouseDownInSwatch (BOOL mouse_down_in_swatch);
-        BOOL getMouseDownInSwatch () { return mMouseDownInSwatch; }
+        void setMouseDownInSwatch (bool mouse_down_in_swatch);
+        bool getMouseDownInSwatch () { return mMouseDownInSwatch; }
 
-        BOOL isColorChanged ();
+        bool isColorChanged ();
 
         // called when text entries (RGB/HSL etc.) are changed by user
         void onTextEntryChanged ( LLUICtrl* ctrl );
@@ -113,7 +113,7 @@ class LLFloaterColorPicker
         void hslToRgb ( F32 hValIn, F32 sValIn, F32 lValIn, F32& rValOut, F32& gValOut, F32& bValOut );
         F32  hueToRgb ( F32 val1In, F32 val2In, F32 valHUeIn );
 
-        void setActive(BOOL active);
+        void setActive(bool active);
 
     protected:
         // callbacks
@@ -142,9 +142,9 @@ class LLFloaterColorPicker
 
         const S32 mComponents;
 
-        BOOL mMouseDownInLumRegion;
-        BOOL mMouseDownInHueRegion;
-        BOOL mMouseDownInSwatch;
+        bool mMouseDownInLumRegion;
+        bool mMouseDownInHueRegion;
+        bool mMouseDownInSwatch;
 
         const S32 mRGBViewerImageLeft;
         const S32 mRGBViewerImageTop;
@@ -181,11 +181,11 @@ class LLFloaterColorPicker
         LLColorSwatchCtrl* mSwatch;
 
         // are we actively tied to some output?
-        BOOL    mActive;
+        bool    mActive;
 
         // enable/disable immediate updates
         LLCheckBoxCtrl* mApplyImmediateCheck;
-        BOOL mCanApplyImmediately;
+        bool mCanApplyImmediately;
 
         LLButton* mSelectBtn;
         LLButton* mCancelBtn;

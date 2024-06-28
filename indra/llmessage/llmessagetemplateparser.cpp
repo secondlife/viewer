@@ -42,7 +42,7 @@
 //  *   - repeat last check
 
 // checks 'a'
-BOOL    b_return_alphanumeric_ok(char c)
+bool    b_return_alphanumeric_ok(char c)
 {
     if (  (  (c < 'A')
            ||(c > 'Z'))
@@ -51,26 +51,26 @@ BOOL    b_return_alphanumeric_ok(char c)
         &&(  (c < '0')
            ||(c > '9')))
     {
-        return FALSE;
+        return false;
     }
-    return TRUE;
+    return true;
 }
 
 // checks 'c'
-BOOL    b_return_character_ok(char c)
+bool    b_return_character_ok(char c)
 {
     if (  (  (c < 'A')
            ||(c > 'Z'))
         &&(  (c < 'a')
            ||(c > 'z')))
     {
-        return FALSE;
+        return false;
     }
-    return TRUE;
+    return true;
 }
 
 // checks 'f'
-BOOL    b_return_first_variable_ok(char c)
+bool    b_return_first_variable_ok(char c)
 {
     if (  (  (c < 'A')
            ||(c > 'Z'))
@@ -78,13 +78,13 @@ BOOL    b_return_first_variable_ok(char c)
            ||(c > 'z'))
         &&(c != '_'))
     {
-        return FALSE;
+        return false;
     }
-    return TRUE;
+    return true;
 }
 
 // checks 'v'
-BOOL    b_return_variable_ok(char c)
+bool    b_return_variable_ok(char c)
 {
     if (  (  (c < 'A')
            ||(c > 'Z'))
@@ -94,35 +94,35 @@ BOOL    b_return_variable_ok(char c)
            ||(c > '9'))
         &&(c != '_'))
     {
-        return FALSE;
+        return false;
     }
-    return TRUE;
+    return true;
 }
 
 // checks 's'
-BOOL    b_return_signed_integer_ok(char c)
+bool    b_return_signed_integer_ok(char c)
 {
     if (  (  (c < '0')
            ||(c > '9'))
         &&(c != '-'))
     {
-        return FALSE;
+        return false;
     }
-    return TRUE;
+    return true;
 }
 
 // checks 'd'
-BOOL    b_return_integer_ok(char c)
+bool    b_return_integer_ok(char c)
 {
     if (  (c < '0')
         ||(c > '9'))
     {
-        return FALSE;
+        return false;
     }
-    return TRUE;
+    return true;
 }
 
-BOOL    (*gParseCheckCharacters[])(char c) =
+bool    (*gParseCheckCharacters[])(char c) =
 {
     b_return_alphanumeric_ok,
     b_return_character_ok,
@@ -156,7 +156,7 @@ S32 get_checker_number(char checker)
 }
 
 // check token based on passed simplified regular expression
-BOOL    b_check_token(const char *token, const char *regexp)
+bool    b_check_token(const char *token, const char *regexp)
 {
     S32 tptr, rptr = 0;
     S32 current_checker, next_checker = 0;
@@ -166,13 +166,13 @@ BOOL    b_check_token(const char *token, const char *regexp)
     if (current_checker == -1)
     {
         LL_ERRS() << "Invalid regular expression value!" << LL_ENDL;
-        return FALSE;
+        return false;
     }
 
     if (current_checker == 9999)
     {
         LL_ERRS() << "Regular expression can't start with *!" << LL_ENDL;
-        return FALSE;
+        return false;
     }
 
     for (tptr = 0; token[tptr]; tptr++)
@@ -180,12 +180,12 @@ BOOL    b_check_token(const char *token, const char *regexp)
         if (current_checker == -1)
         {
             LL_ERRS() << "Input exceeds regular expression!\nDid you forget a *?" << LL_ENDL;
-            return FALSE;
+            return false;
         }
 
         if (!gParseCheckCharacters[current_checker](token[tptr]))
         {
-            return FALSE;
+            return false;
         }
         if (next_checker != 9999)
         {
@@ -196,40 +196,40 @@ BOOL    b_check_token(const char *token, const char *regexp)
             }
         }
     }
-    return TRUE;
+    return true;
 }
 
 // C variable can be made up of upper or lower case letters, underscores, or numbers, but can't start with a number
-BOOL    b_variable_ok(const char *token)
+bool    b_variable_ok(const char *token)
 {
     if (!b_check_token(token, "fv*"))
     {
         LL_WARNS() << "Token '" << token << "' isn't a variable!" << LL_ENDL;
-        return FALSE;
+        return false;
     }
-    return TRUE;
+    return true;
 }
 
 // An integer is made up of the digits 0-9 and may be preceded by a '-'
-BOOL    b_integer_ok(const char *token)
+bool    b_integer_ok(const char *token)
 {
     if (!b_check_token(token, "sd*"))
     {
         LL_WARNS() << "Token isn't an integer!" << LL_ENDL;
-        return FALSE;
+        return false;
     }
-    return TRUE;
+    return true;
 }
 
 // An integer is made up of the digits 0-9
-BOOL    b_positive_integer_ok(const char *token)
+bool    b_positive_integer_ok(const char *token)
 {
     if (!b_check_token(token, "d*"))
     {
         LL_WARNS() << "Token isn't an integer!" << LL_ENDL;
-        return FALSE;
+        return false;
     }
-    return TRUE;
+    return true;
 }
 
 

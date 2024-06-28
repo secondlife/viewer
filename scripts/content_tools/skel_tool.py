@@ -29,7 +29,7 @@ $/LicenseInfo$
 import argparse
 
 from lxml import etree
- 
+
 def get_joint_names(tree):
     joints = [element.get('name') for element in tree.getroot().iter() if element.tag in ['bone','collision_volume']]
     print("joints:",joints)
@@ -45,10 +45,10 @@ def get_aliases(tree):
                 val = element.get('aliases')
                 aliases[name] = val
     return aliases
-    
+
 def fix_name(element):
     pass
-        
+
 def enforce_precision_rules(element):
     pass
 
@@ -104,7 +104,7 @@ def enforce_symmetry(tree, element, field, fix=False):
 def get_element_by_name(tree,name):
     if tree is None:
         return None
-    matches = [elt for elt in tree.getroot().iter() if elt.get("name")==name] 
+    matches = [elt for elt in tree.getroot().iter() if elt.get("name")==name]
     if len(matches)==1:
         return matches[0]
     elif len(matches)>1:
@@ -117,7 +117,7 @@ def list_skel_tree(tree):
     for element in tree.getroot().iter():
         if element.tag == "bone":
             print(element.get("name"),"-",element.get("support"))
-    
+
 def validate_child_order(tree, ogtree, fix=False):
     unfixable = 0
 
@@ -182,7 +182,7 @@ def validate_skel_tree(tree, ogtree, reftree, fix=False):
     print("validate_skel_tree")
     (num_bones,num_cvs) = (0,0)
     unfixable = 0
-    defaults = {"connected": "false", 
+    defaults = {"connected": "false",
                 "group": "Face"
                 }
     for element in tree.getroot().iter():
@@ -232,7 +232,7 @@ def validate_skel_tree(tree, ogtree, reftree, fix=False):
         if element.get("support")=="extended":
             if element.get("pos") != element.get("pivot"):
                 print("extended joint",element.get("name"),"has mismatched pos, pivot")
-        
+
 
         if element.tag == "linden_skeleton":
             num_bones = int(element.get("num_bones"))
@@ -253,7 +253,7 @@ def validate_skel_tree(tree, ogtree, reftree, fix=False):
 
     if fix and (unfixable > 0):
         print("BAD FILE:", unfixable,"errs could not be fixed")
-            
+
 
 def slider_info(ladtree,skeltree):
     for param in ladtree.iter("param"):
@@ -287,7 +287,7 @@ def slider_info(ladtree,skeltree):
                     print("    Offset MaxX", offset_max[0])
                     print("    Offset MaxY", offset_max[1])
                     print("    Offset MaxZ", offset_max[2])
-    
+
 # Check contents of avatar_lad file relative to a specified skeleton
 def validate_lad_tree(ladtree,skeltree,orig_ladtree):
     print("validate_lad_tree")
@@ -344,7 +344,7 @@ def validate_lad_tree(ladtree,skeltree,orig_ladtree):
                         expected_offset = tuple([bone_offset[0],-bone_offset[1],bone_offset[2]])
                     if left_offset != expected_offset:
                         print("offset mismatch between",bone_name,"and",left_name,"in param",param.get("id","-1"))
-                    
+
     drivers = {}
     for driven_param in ladtree.iter("driven"):
         driver = driven_param.getparent().getparent()
@@ -380,7 +380,7 @@ def validate_lad_tree(ladtree,skeltree,orig_ladtree):
             print("removed",set(orig_message_ids) - set(message_ids))
         else:
             print("message ids OK")
-    
+
 def remove_joint_by_name(tree, name):
     print("remove joint:",name)
     elt = get_element_by_name(tree,name)
@@ -395,7 +395,7 @@ def remove_joint_by_name(tree, name):
         elt[:] = []
         print("parent now:",[e.get("name") for e in list(parent)])
         elt = get_element_by_name(tree,name)
-    
+
 def compare_skel_trees(atree,btree):
     diffs = {}
     realdiffs = {}
@@ -513,7 +513,7 @@ if __name__ == "__main__":
 
     if ladtree and tree and args.slider_info:
         slider_info(ladtree,tree)
-        
+
     if args.outfilename:
         f = open(args.outfilename,"w")
         print(etree.tostring(tree, pretty_print=True), file=f) #need update to get: , short_empty_elements=True)

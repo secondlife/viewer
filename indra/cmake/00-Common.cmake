@@ -108,6 +108,9 @@ if (WINDOWS)
   # https://github.com/actions/runner-images/issues/10004#issuecomment-2153445161
   # can be removed after the above issue is resolved and deployed across GHA
   add_compile_definitions(_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR)
+
+  # Allow use of sprintf etc
+  add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
 endif (WINDOWS)
 
 
@@ -186,6 +189,10 @@ if (LINUX OR DARWIN)
   endif (NOT GCC_DISABLE_FATAL_WARNINGS)
 
   list(APPEND GCC_WARNINGS -Wno-reorder -Wno-non-virtual-dtor )
+
+  if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 13)
+    list(APPEND GCC_WARNINGS -Wno-unused-but-set-variable -Wno-unused-variable )
+  endif()
 
   add_compile_options(${GCC_WARNINGS})
   add_compile_options(-m${ADDRESS_SIZE})

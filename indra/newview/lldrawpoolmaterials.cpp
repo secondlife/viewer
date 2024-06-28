@@ -250,7 +250,7 @@ void LLDrawPoolMaterials::renderDeferred(S32 pass)
             if (params.mAvatar != lastAvatar)
             {
                 const LLVOAvatar::MatrixPaletteCache& mpc = params.mAvatar->updateSkinInfoMatrixPalette(params.mSkinInfo);
-                U32 count = mpc.mMatrixPalette.size();
+                U32 count = static_cast<U32>(mpc.mMatrixPalette.size());
 
                 if (count == 0)
                 {
@@ -260,7 +260,7 @@ void LLDrawPoolMaterials::renderDeferred(S32 pass)
 
                 mShader->uniformMatrix3x4fv(LLViewerShaderMgr::AVATAR_MATRIX,
                     count,
-                    FALSE,
+                    false,
                     (GLfloat*)&(mpc.mGLMp[0]));
             }
         }

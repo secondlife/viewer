@@ -49,15 +49,15 @@ class LLToolBrushLand : public LLTool, public LLEditMenuHandler, public LLSingle
 public:
 
     // x,y in window coords, 0,0 = left,bot
-    virtual BOOL handleMouseDown( S32 x, S32 y, MASK mask ) override;
-    virtual BOOL handleMouseUp( S32 x, S32 y, MASK mask ) override;
-    virtual BOOL handleHover( S32 x, S32 y, MASK mask ) override;
+    virtual bool handleMouseDown( S32 x, S32 y, MASK mask ) override;
+    virtual bool handleMouseUp( S32 x, S32 y, MASK mask ) override;
+    virtual bool handleHover( S32 x, S32 y, MASK mask ) override;
     virtual void handleSelect() override;
     virtual void handleDeselect() override;
 
     // isAlwaysRendered() - return true if this is a tool that should
     // always be rendered regardless of selection.
-    virtual BOOL isAlwaysRendered()  override { return TRUE; }
+    virtual bool isAlwaysRendered()  override { return true; }
 
     // Draw the area that will be affected.
     virtual void render() override;
@@ -69,7 +69,7 @@ public:
 
     void modifyLandInSelectionGlobal();
     virtual void    undo() override;
-    virtual BOOL    canUndo() const  override { return TRUE; }
+    virtual bool    canUndo() const  override { return true; }
 
 protected:
     void brush( void );
@@ -95,8 +95,8 @@ protected:
     S32 mMouseX;
     S32 mMouseY;
     F32 mBrushSize;
-    BOOL mGotHover;
-    BOOL mBrushSelected;
+    bool mGotHover;
+    bool mBrushSelected;
     // Order doesn't matter and we do check for existance of regions, so use a set
     region_list_t mLastAffectedRegions;
 

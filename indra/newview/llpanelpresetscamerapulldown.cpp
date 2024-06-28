@@ -54,7 +54,7 @@ LLPanelPresetsCameraPulldown::LLPanelPresetsCameraPulldown()
     buildFromFile( "panel_presets_camera_pulldown.xml");
 }
 
-BOOL LLPanelPresetsCameraPulldown::postBuild()
+bool LLPanelPresetsCameraPulldown::postBuild()
 {
     LLPresetsManager* presetsMgr = LLPresetsManager::getInstance();
     if (presetsMgr)
@@ -128,9 +128,9 @@ void LLPanelPresetsCameraPulldown::onRowClick(const LLSD& user_data)
             LLFloaterCamera::switchToPreset(name);
 
             // Scroll grabbed focus, drop it to prevent selection of parent menu
-            setFocus(FALSE);
+            setFocus(false);
 
-            setVisible(FALSE);
+            setVisible(false);
         }
         else
         {
@@ -146,7 +146,7 @@ void LLPanelPresetsCameraPulldown::onRowClick(const LLSD& user_data)
 void LLPanelPresetsCameraPulldown::onViewButtonClick(const LLSD& user_data)
 {
     // close the minicontrol, we're bringing up the big one
-    setVisible(FALSE);
+    setVisible(false);
 
     LLFloaterReg::toggleInstanceOrBringToFront("camera");
 }

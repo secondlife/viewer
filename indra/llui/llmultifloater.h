@@ -43,16 +43,16 @@ public:
 
     void buildTabContainer();
 
-    virtual BOOL postBuild();
+    virtual bool postBuild();
     /*virtual*/ void onClose(bool app_quitting);
     virtual void draw();
-    virtual void setVisible(BOOL visible);
-    /*virtual*/ BOOL handleKeyHere(KEY key, MASK mask);
+    virtual void setVisible(bool visible);
+    /*virtual*/ bool handleKeyHere(KEY key, MASK mask);
     /*virtual*/ bool addChild(LLView* view, S32 tab_group = 0);
 
-    virtual void setCanResize(BOOL can_resize);
+    virtual void setCanResize(bool can_resize);
     virtual void growToFit(S32 content_width, S32 content_height);
-    virtual void addFloater(LLFloater* floaterp, BOOL select_added_floater, LLTabContainer::eInsertionPoint insertion_point = LLTabContainer::END);
+    virtual void addFloater(LLFloater* floaterp, bool select_added_floater, LLTabContainer::eInsertionPoint insertion_point = LLTabContainer::END);
 
     virtual void showFloater(LLFloater* floaterp, LLTabContainer::eInsertionPoint insertion_point = LLTabContainer::END);
     virtual void removeFloater(LLFloater* floaterp);
@@ -60,16 +60,16 @@ public:
     virtual void tabOpen(LLFloater* opened_floater, bool from_click);
     virtual void tabClose();
 
-    virtual BOOL selectFloater(LLFloater* floaterp);
+    virtual bool selectFloater(LLFloater* floaterp);
     virtual void selectNextFloater();
     virtual void selectPrevFloater();
 
     virtual LLFloater*  getActiveFloater();
-    virtual BOOL        isFloaterFlashing(LLFloater* floaterp);
+    virtual bool        isFloaterFlashing(LLFloater* floaterp);
     virtual S32         getFloaterCount();
 
-    virtual void setFloaterFlashing(LLFloater* floaterp, BOOL flashing);
-    virtual BOOL closeAllFloaters();    //Returns FALSE if the floater could not be closed due to pending confirmation dialogs
+    virtual void setFloaterFlashing(LLFloater* floaterp, bool flashing);
+    virtual bool closeAllFloaters();    //Returns false if the floater could not be closed due to pending confirmation dialogs
     void setTabContainer(LLTabContainer* tab_container) { if (!mTabContainer) mTabContainer = tab_container; }
     void onTabSelected();
 
@@ -81,9 +81,9 @@ protected:
     {
         S32         mWidth;
         S32         mHeight;
-        BOOL        mCanMinimize;
-        BOOL        mCanResize;
-        BOOL        mSaveRect;
+        bool        mCanMinimize;
+        bool        mCanResize;
+        bool        mSaveRect;
     };
 
     LLTabContainer*     mTabContainer;
@@ -92,7 +92,7 @@ protected:
     floater_data_map_t  mFloaterDataMap;
 
     LLTabContainer::TabPosition mTabPos;
-    BOOL                mAutoResize;
+    bool                mAutoResize;
     S32                 mOrigMinWidth, mOrigMinHeight;  // logically const but initialized late
 
 private:

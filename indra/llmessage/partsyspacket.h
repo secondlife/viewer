@@ -102,7 +102,7 @@ struct LLPartInitData {
         //How much of an effect does gravity have
     F32 globalLifetime;
         //If particles re-spawn, a system can exist forever.
-        //If (ActionFlags & PART_SYS_GLOBAL_DIE) is TRUE this variable is used to determine how long the system lasts.
+        //If (ActionFlags & PART_SYS_GLOBAL_DIE) is true this variable is used to determine how long the system lasts.
     F32 individualLifetime;
         //How long does each particle last if nothing else happens to it
     F32 individualLifetimeRange;
@@ -132,7 +132,7 @@ const int PART_SYS_SLOW_ANIM_BYTE = 0; // slow animation down by a factor of 10
 const int PART_SYS_SLOW_ANIM_BIT = 1;  // useful for tweaking anims during debugging
 
 const int PART_SYS_FOLLOW_VEL_BYTE = 0; // indicates whether to orient sprites towards
-const int PART_SYS_FOLLOW_VEL_BIT = 4;  // their velocity vector -- default is FALSE
+const int PART_SYS_FOLLOW_VEL_BIT = 4;  // their velocity vector -- default is false
 
 const int PART_SYS_IS_LIGHT_BYTE = 0;   // indicates whether a particular particle system
 const int PART_SYS_IS_LIGHT_BIT = 8;    // is also a light object -- for andrew
@@ -202,10 +202,10 @@ class LLPartSysCompressedPacket
 public:
     LLPartSysCompressedPacket();
     ~LLPartSysCompressedPacket();
-    BOOL    fromLLPartInitData(LLPartInitData *in, U32 &bytesUsed);
-    BOOL    toLLPartInitData(LLPartInitData *out, U32 *bytesUsed);
-    BOOL    fromUnsignedBytes(U8 *in, U32 bytesUsed);
-    BOOL    toUnsignedBytes(U8 *out);
+    bool    fromLLPartInitData(LLPartInitData *in, U32 &bytesUsed);
+    bool    toLLPartInitData(LLPartInitData *out, U32 *bytesUsed);
+    bool    fromUnsignedBytes(U8 *in, U32 bytesUsed);
+    bool    toUnsignedBytes(U8 *out);
     U32     bufferSize();
     U8      *getBytePtr();
 

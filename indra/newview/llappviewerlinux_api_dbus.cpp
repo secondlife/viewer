@@ -52,7 +52,7 @@ bool grab_dbus_syms(std::string dbus_dso_name)
     if (sSymsGrabbed)
     {
         // already have grabbed good syms
-        return TRUE;
+        return true;
     }
 
     bool sym_error = false;

@@ -61,7 +61,7 @@ LLLayoutPanel::LLLayoutPanel(const Params& p)
     mMinDim(p.min_dim),
     mAutoResize(p.auto_resize),
     mUserResize(p.user_resize),
-    mCollapsed(FALSE),
+    mCollapsed(false),
     mCollapseAmt(0.f),
     mVisibleAmt(1.f), // default to fully visible
     mResizeBar(NULL),
@@ -144,16 +144,14 @@ void LLLayoutPanel::setOrientation( LLView::EOrientation orientation )
         ? getRect().getWidth()
         : getRect().getHeight()));
 
-    if (mAutoResize == FALSE
-        && mUserResize == TRUE
-        && mMinDim == -1 )
+    if (!mAutoResize && mUserResize && mMinDim == -1)
     {
         setMinDim(layout_dim);
     }
     mTargetDim = llmax(layout_dim, getMinDim());
 }
 
-void LLLayoutPanel::setVisible( BOOL visible )
+void LLLayoutPanel::setVisible( bool visible )
 {
     if (visible != getVisible())
     {
@@ -166,11 +164,11 @@ void LLLayoutPanel::setVisible( BOOL visible )
     LLPanel::setVisible(visible);
 }
 
-void LLLayoutPanel::reshape( S32 width, S32 height, BOOL called_from_parent /*= TRUE*/ )
+void LLLayoutPanel::reshape( S32 width, S32 height, bool called_from_parent /*= true*/ )
 {
     if (width == getRect().getWidth() && height == getRect().getHeight() && !LLView::sForceReshape) return;
 
-    if (!mIgnoreReshape && mAutoResize == false)
+    if (!mIgnoreReshape && !mAutoResize)
     {
         mTargetDim = (mOrientation == LLLayoutStack::HORIZONTAL) ? width : height;
         LLLayoutStack* stackp = dynamic_cast<LLLayoutStack*>(getParent());
@@ -314,10 +312,10 @@ void LLLayoutStack::removeChild(LLView* view)
     }
 }
 
-BOOL LLLayoutStack::postBuild()
+bool LLLayoutStack::postBuild()
 {
     updateLayout();
-    return TRUE;
+    return true;
 }
 
 bool LLLayoutStack::addChild(LLView* child, S32 tab_group)
@@ -330,7 +328,7 @@ bool LLLayoutStack::addChild(LLView* child, S32 tab_group)
         createResizeBar(panelp);
         mNeedsLayout = true;
     }
-    BOOL result = LLView::addChild(child, tab_group);
+    bool result = LLView::addChild(child, tab_group);
 
     updateFractionalSizes();
     return result;
@@ -344,11 +342,11 @@ void LLLayoutStack::addPanel(LLLayoutPanel* panel, EAnimate animate)
     if (animate == ANIMATE)
     {
         panel->mVisibleAmt = 0.f;
-        panel->setVisible(TRUE);
+        panel->setVisible(true);
     }
 }
 
-void LLLayoutStack::collapsePanel(LLPanel* panel, BOOL collapsed)
+void LLLayoutStack::collapsePanel(LLPanel* panel, bool collapsed)
 {
     LLLayoutPanel* panel_container = findEmbeddedPanel(panel);
     if (!panel_container) return;
@@ -615,7 +613,7 @@ void LLLayoutStack::createResizeBar(LLLayoutPanel* panelp)
                 border_params.shadow_dark_color = LLUIColorTable::instance().getColor("ResizebarBorderDark");
 
                 addBorder(border_params);
-                setBorderVisible(TRUE);
+                setBorderVisible(true);
 
                 LLImagePanel::Params image_panel;
                 mDragHandleImage = LLUI::getUIImage(LLResizeBar::RIGHT == mSide ? "Vertical Drag Handle" : "Horizontal Drag Handle");
@@ -628,7 +626,7 @@ void LLLayoutStack::createResizeBar(LLLayoutPanel* panelp)
 
             //if (mShowDragHandle)
             //{
-            //  setBackgroundVisible(TRUE);
+            //  setBackgroundVisible(true);
             //  setTransparentColor(LLUIColorTable::instance().getColor("ResizebarBody"));
             //}
 
@@ -985,7 +983,7 @@ void LLLayoutStack::updatePanelRect( LLLayoutPanel* resized_panel, const LLRect&
     //normalizeFractionalSizes();
 }
 
-void LLLayoutStack::reshape(S32 width, S32 height, BOOL called_from_parent)
+void LLLayoutStack::reshape(S32 width, S32 height, bool called_from_parent)
 {
     mNeedsLayout = true;
     LLView::reshape(width, height, called_from_parent);
@@ -998,7 +996,7 @@ void LLLayoutStack::updateResizeBarLimits()
     {
         if (!visible_panelp->getVisible() || visible_panelp->mCollapsed)
         {
-            visible_panelp->mResizeBar->setVisible(FALSE);
+            visible_panelp->mResizeBar->setVisible(false);
             continue;
         }
 
@@ -1008,14 +1006,14 @@ void LLLayoutStack::updateResizeBarLimits()
             && (visible_panelp->mAutoResize || visible_panelp->mUserResize)                         // current panel is resizable
             && (previous_visible_panelp->mAutoResize || previous_visible_panelp->mUserResize))      // previous panel is resizable
         {
-            visible_panelp->mResizeBar->setVisible(TRUE);
+            visible_panelp->mResizeBar->setVisible(true);
             S32 previous_panel_headroom = previous_visible_panelp->getVisibleDim() - previous_visible_panelp->getRelevantMinDim();
             visible_panelp->mResizeBar->setResizeLimits(visible_panelp->getRelevantMinDim(),
                                                         visible_panelp->getVisibleDim() + previous_panel_headroom);
         }
         else
         {
-            visible_panelp->mResizeBar->setVisible(FALSE);
+            visible_panelp->mResizeBar->setVisible(false);
         }
 
         previous_visible_panelp = visible_panelp;

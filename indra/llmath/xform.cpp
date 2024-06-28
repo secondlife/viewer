@@ -52,12 +52,12 @@ LLXform* LLXform::getRoot() const
     return (LLXform*)root;
 }
 
-BOOL LLXform::isRoot() const
+bool LLXform::isRoot() const
 {
     return (!mParent);
 }
 
-BOOL LLXform::isRootEdit() const
+bool LLXform::isRootEdit() const
 {
     return (!mParent);
 }
@@ -86,7 +86,7 @@ void LLXformMatrix::update()
     }
 }
 
-void LLXformMatrix::updateMatrix(BOOL update_bounds)
+void LLXformMatrix::updateMatrix(bool update_bounds)
 {
     update();
 

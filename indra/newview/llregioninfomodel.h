@@ -70,7 +70,7 @@ public:
     F32         mTerrainLowerLimit;
     F32         mSunHour; // 6..30
 
-    BOOL        mUseEstateSun;
+    bool        mUseEstateSun;
 
     std::string mSimName;
     std::string mSimType;

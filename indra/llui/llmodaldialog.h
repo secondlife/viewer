@@ -39,34 +39,34 @@ class LLModalDialog;
 class LLModalDialog : public LLFloater
 {
 public:
-    LLModalDialog( const LLSD& key, BOOL modal = true );
+    LLModalDialog( const LLSD& key, bool modal = true );
     virtual     ~LLModalDialog();
 
-    /*virtual*/ BOOL    postBuild();
+    /*virtual*/ bool    postBuild();
 
     /*virtual*/ void    openFloater(const LLSD& key = LLSD());
     /*virtual*/ void    onOpen(const LLSD& key);
 
-    /*virtual*/ void    reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+    /*virtual*/ void    reshape(S32 width, S32 height, bool called_from_parent = true);
 
-    /*virtual*/ BOOL    handleMouseDown(S32 x, S32 y, MASK mask);
-    /*virtual*/ BOOL    handleMouseUp(S32 x, S32 y, MASK mask);
-    /*virtual*/ BOOL    handleHover(S32 x, S32 y, MASK mask);
-    /*virtual*/ BOOL    handleScrollWheel(S32 x, S32 y, S32 clicks);
-    /*virtual*/ BOOL    handleDoubleClick(S32 x, S32 y, MASK mask);
-    /*virtual*/ BOOL    handleRightMouseDown(S32 x, S32 y, MASK mask);
-    /*virtual*/ BOOL    handleKeyHere(KEY key, MASK mask );
+    /*virtual*/ bool    handleMouseDown(S32 x, S32 y, MASK mask);
+    /*virtual*/ bool    handleMouseUp(S32 x, S32 y, MASK mask);
+    /*virtual*/ bool    handleHover(S32 x, S32 y, MASK mask);
+    /*virtual*/ bool    handleScrollWheel(S32 x, S32 y, S32 clicks);
+    /*virtual*/ bool    handleDoubleClick(S32 x, S32 y, MASK mask);
+    /*virtual*/ bool    handleRightMouseDown(S32 x, S32 y, MASK mask);
+    /*virtual*/ bool    handleKeyHere(KEY key, MASK mask );
 
-    /*virtual*/ void    setVisible(BOOL visible);
+    /*virtual*/ void    setVisible(bool visible);
     /*virtual*/ void    draw();
 
-    BOOL            isModal() const { return mModal; }
+    bool            isModal() const { return mModal; }
     void            stopModal();
 
     static void     onAppFocusLost();
     static void     onAppFocusGained();
 
-    static S32      activeCount() { return sModalStack.size(); }
+    static S32      activeCount() { return static_cast<S32>(sModalStack.size()); }
     static void     shutdownModals();
 
 protected:
@@ -75,7 +75,7 @@ protected:
 private:
 
     LLFrameTimer    mVisibleTime;
-    const BOOL      mModal;
+    const bool      mModal;
 
     static std::list<LLModalDialog*> sModalStack;  // Top of stack is currently being displayed
 };

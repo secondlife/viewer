@@ -80,7 +80,7 @@ LLFloaterMove::LLFloaterMove(const LLSD& key)
 LLFloaterMove::~LLFloaterMove()
 {
     // Ensure LLPanelStandStopFlying panel is not among floater's children. See EXT-8458.
-    setVisible(FALSE);
+    setVisible(false);
 
     // Otherwise it can be destroyed and static pointer in LLPanelStandStopFlying::getInstance() will become invalid.
     // Such situation was possible when LLFloaterReg returns "dead" instance of floater.
@@ -88,7 +88,7 @@ LLFloaterMove::~LLFloaterMove()
 }
 
 // virtual
-BOOL LLFloaterMove::postBuild()
+bool LLFloaterMove::postBuild()
 {
     updateTransparency(TT_ACTIVE); // force using active floater transparency (STORM-730)
 
@@ -142,12 +142,12 @@ BOOL LLFloaterMove::postBuild()
 
     gAgent.addParcelChangedCallback(LLFloaterMove::sUpdateFlyingStatus);
 
-    return TRUE;
+    return true;
 }
 
 // *NOTE: we assume that setVisible() is called on floater close.
 // virtual
-void LLFloaterMove::setVisible(BOOL visible)
+void LLFloaterMove::setVisible(bool visible)
 {
     // Do nothing with Stand/Stop Flying panel in excessive calls of this method.
     if (getVisible() == visible)
@@ -190,7 +190,7 @@ F32 LLFloaterMove::getYawRate( F32 time )
 
 
 // static
-void LLFloaterMove::setFlyingMode(BOOL fly)
+void LLFloaterMove::setFlyingMode(bool fly)
 {
     LLFloaterMove* instance = LLFloaterReg::findTypedInstance<LLFloaterMove>("moveview");
     if (instance)
@@ -222,7 +222,7 @@ void LLFloaterMove::setAlwaysRunMode(bool run)
     }
 }
 
-void LLFloaterMove::setFlyingModeImpl(BOOL fly)
+void LLFloaterMove::setFlyingModeImpl(bool fly)
 {
     updateButtonsWithMovementMode(fly ? MM_FLY : (gAgent.getAlwaysRun() ? MM_RUN : MM_WALK));
 }
@@ -236,7 +236,7 @@ void LLFloaterMove::setAlwaysRunModeImpl(bool run)
 }
 
 //static
-void LLFloaterMove::setSittingMode(BOOL bSitting)
+void LLFloaterMove::setSittingMode(bool bSitting)
 {
     if (bSitting)
     {
@@ -310,7 +310,7 @@ void LLFloaterMove::setMovementMode(const EMovementMode mode)
     }
     else
     {
-        gAgent.setFlying(FALSE);
+        gAgent.setFlying(false);
     }
 
     // attempts to set avatar flying can not set it real flying in some cases.
@@ -451,7 +451,7 @@ void LLFloaterMove::sUpdateFlyingStatus()
 
 }
 
-void LLFloaterMove::showModeButtons(BOOL bShow)
+void LLFloaterMove::showModeButtons(bool bShow)
 {
     if (mModeActionsPanel->getVisible() == bShow)
         return;
@@ -466,7 +466,7 @@ void LLFloaterMove::enableInstance()
     {
         if (gAgent.getFlying())
         {
-            instance->showModeButtons(FALSE);
+            instance->showModeButtons(false);
         }
         else
         {
@@ -479,14 +479,14 @@ void LLFloaterMove::onOpen(const LLSD& key)
 {
     if (gAgent.getFlying())
     {
-        setFlyingMode(TRUE);
-        showModeButtons(FALSE);
+        setFlyingMode(true);
+        showModeButtons(false);
     }
 
     if (isAgentAvatarValid() && gAgentAvatarp->isSitting())
     {
-        setSittingMode(TRUE);
-        showModeButtons(FALSE);
+        setSittingMode(true);
+        showModeButtons(false);
     }
 
     sUpdateFlyingStatus();
@@ -499,10 +499,10 @@ void LLFloaterMove::setModeButtonToggleState(const EMovementMode mode)
     mode_control_button_map_t::const_iterator it = mModeControlButtonMap.begin();
     for (; it != mModeControlButtonMap.end(); ++it)
     {
-        it->second->setToggleState(FALSE);
+        it->second->setToggleState(false);
     }
 
-    mModeControlButtonMap[mode]->setToggleState(TRUE);
+    mModeControlButtonMap[mode]->setToggleState(true);
 }
 
 
@@ -542,7 +542,7 @@ void LLPanelStandStopFlying::setStandStopFlyingMode(EStandStopFlyingMode mode)
     panel->mStopFlyingButton->setVisible(SSFM_STOP_FLYING == mode);
 
     //visibility of it should be updated after updating visibility of the buttons
-    panel->setVisible(TRUE);
+    panel->setVisible(true);
 }
 
 //static
@@ -551,10 +551,10 @@ void LLPanelStandStopFlying::clearStandStopFlyingMode(EStandStopFlyingMode mode)
     LLPanelStandStopFlying* panel = getInstance();
     switch(mode) {
     case SSFM_STAND:
-        panel->mStandButton->setVisible(FALSE);
+        panel->mStandButton->setVisible(false);
         break;
     case SSFM_STOP_FLYING:
-        panel->mStopFlyingButton->setVisible(FALSE);
+        panel->mStopFlyingButton->setVisible(false);
         break;
     default:
         LL_ERRS() << "Unexpected EStandStopFlyingMode is passed: " << mode << LL_ENDL;
@@ -562,26 +562,26 @@ void LLPanelStandStopFlying::clearStandStopFlyingMode(EStandStopFlyingMode mode)
 
 }
 
-BOOL LLPanelStandStopFlying::postBuild()
+bool LLPanelStandStopFlying::postBuild()
 {
     mStandButton = getChild<LLButton>("stand_btn");
     mStandButton->setCommitCallback(boost::bind(&LLPanelStandStopFlying::onStandButtonClick, this));
     mStandButton->setCommitCallback(boost::bind(&LLFloaterMove::enableInstance));
-    mStandButton->setVisible(FALSE);
+    mStandButton->setVisible(false);
     LLHints::getInstance()->registerHintTarget("stand_btn", mStandButton->getHandle());
 
     mStopFlyingButton = getChild<LLButton>("stop_fly_btn");
-    //mStopFlyingButton->setCommitCallback(boost::bind(&LLFloaterMove::setFlyingMode, FALSE));
+    //mStopFlyingButton->setCommitCallback(boost::bind(&LLFloaterMove::setFlyingMode, false));
     mStopFlyingButton->setCommitCallback(boost::bind(&LLPanelStandStopFlying::onStopFlyingButtonClick, this));
-    mStopFlyingButton->setVisible(FALSE);
+    mStopFlyingButton->setVisible(false);
 
     gViewerWindow->setOnWorldViewRectUpdated(boost::bind(&LLPanelStandStopFlying::updatePosition, this));
 
-    return TRUE;
+    return true;
 }
 
 //virtual
-void LLPanelStandStopFlying::setVisible(BOOL visible)
+void LLPanelStandStopFlying::setVisible(bool visible)
 {
     //we dont need to show the panel if these buttons are not activated
     if (gAgentCamera.getCameraMode() == CAMERA_MODE_MOUSELOOK) visible = false;
@@ -603,7 +603,7 @@ void LLPanelStandStopFlying::setVisible(BOOL visible)
     LLPanel::setVisible(visible);
 }
 
-BOOL LLPanelStandStopFlying::handleToolTip(S32 x, S32 y, MASK mask)
+bool LLPanelStandStopFlying::handleToolTip(S32 x, S32 y, MASK mask)
 {
     LLToolTipMgr::instance().unblockToolTips();
 
@@ -671,7 +671,7 @@ LLPanelStandStopFlying* LLPanelStandStopFlying::getStandStopFlyingPanel()
     LLPanelStandStopFlying* panel = new LLPanelStandStopFlying();
     panel->buildFromFile("panel_stand_stop_flying.xml");
 
-    panel->setVisible(FALSE);
+    panel->setVisible(false);
     //LLUI::getInstance()->getRootView()->addChild(panel);
 
     LL_INFOS() << "Build LLPanelStandStopFlying panel" << LL_ENDL;
@@ -687,14 +687,14 @@ void LLPanelStandStopFlying::onStandButtonClick()
     LLSelectMgr::getInstance()->deselectAllForStandingUp();
     gAgent.setControlFlags(AGENT_CONTROL_STAND_UP);
 
-    setFocus(FALSE);
+    setFocus(false);
 }
 
 void LLPanelStandStopFlying::onStopFlyingButtonClick()
 {
-    gAgent.setFlying(FALSE);
+    gAgent.setFlying(false);
 
-    setFocus(FALSE); // EXT-482
+    setFocus(false); // EXT-482
 }
 
 /**

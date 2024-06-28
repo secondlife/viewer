@@ -135,10 +135,19 @@ void LLAudioEngine_OpenAL::shutdown()
     LL_INFOS() << "About to LLAudioEngine::shutdown()" << LL_ENDL;
     LLAudioEngine::shutdown();
 
+    // If a subsequent error occurs while there is still an error recorded
+    // internally, the second error will simply be ignored.
+    // Clear previous error to make sure we will captuare a valid failure reason
+    ALenum error = alutGetError();
+    if (error != ALUT_ERROR_NO_ERROR)
+    {
+        LL_WARNS() << "Uncleared error state prior to shutdown: "
+            << alutGetErrorString(error) << LL_ENDL;
+    }
+
     LL_INFOS() << "About to alutExit()" << LL_ENDL;
     if(!alutExit())
     {
-        LL_WARNS() << "Nuts." << LL_ENDL;
         LL_WARNS() << "LLAudioEngine_OpenAL::shutdown() ALUT shutdown failed: " << alutGetErrorString (alutGetError ()) << LL_ENDL;
     }
 
@@ -518,7 +527,7 @@ void LLAudioEngine_OpenAL::updateWind(LLVector3 wind_vec, F32 camera_altitude)
         }
 
         alBufferData(buffer,
-                 AL_FORMAT_STEREO16,
+                 AL_FORMAT_STEREO_FLOAT32,
                  mWindGen->windGenerate(mWindBuf,
                             mWindBufSamples),
                  mWindBufBytes,

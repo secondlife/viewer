@@ -66,7 +66,7 @@ public:
     /*virtual*/ void updateTextures();
 
     /*virtual*/ LLDrawable* createDrawable(LLPipeline *pipeline);
-    /*virtual*/ BOOL        updateGeometry(LLDrawable *drawable);
+    /*virtual*/ bool        updateGeometry(LLDrawable *drawable);
     /*virtual*/ void        updateSpatialExtents(LLVector4a &min, LLVector4a &max);
 
     virtual U32 getPartitionType() const;
@@ -107,11 +107,11 @@ public:
                                  F32 branches,
                                  F32 alpha);
 
-     /*virtual*/ BOOL lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
+     /*virtual*/ bool lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
                                           S32 face = -1,                        // which face to check, -1 = ALL_SIDES
-                                          BOOL pick_transparent = FALSE,
-                                          BOOL pick_rigged = FALSE,
-                                          BOOL pick_unselectable = TRUE,
+                                          bool pick_transparent = false,
+                                          bool pick_rigged = false,
+                                          bool pick_unselectable = true,
                                           S32* face_hit = NULL,                 // which face was hit
                                           LLVector4a* intersection = NULL,       // return the intersection point
                                           LLVector2* tex_coord = NULL,          // return the texture coordinates of the intersection point

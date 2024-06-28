@@ -36,7 +36,7 @@
 
 #include "llclassifiedflags.h"
 
-ClassifiedFlags pack_classified_flags_request(BOOL auto_renew, BOOL inc_pg, BOOL inc_mature, BOOL inc_adult)
+ClassifiedFlags pack_classified_flags_request(bool auto_renew, bool inc_pg, bool inc_mature, bool inc_adult)
 {
     U8 rv = 0;
     if(inc_pg) rv |= CLASSIFIED_QUERY_INC_PG;
@@ -47,7 +47,7 @@ ClassifiedFlags pack_classified_flags_request(BOOL auto_renew, BOOL inc_pg, BOOL
     return rv;
 }
 
-ClassifiedFlags pack_classified_flags(BOOL auto_renew, BOOL inc_pg, BOOL inc_mature, BOOL inc_adult)
+ClassifiedFlags pack_classified_flags(bool auto_renew, bool inc_pg, bool inc_mature, bool inc_adult)
 {
     U8 rv = 0;
     if(inc_pg) rv |= CLASSIFIED_QUERY_INC_PG;

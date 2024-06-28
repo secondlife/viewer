@@ -57,7 +57,7 @@ public:
 
     virtual LLSettingsBase::ptr_t   getEditSettings()   const = 0;
 
-    virtual BOOL            isDirty() const override            { return getIsDirty(); }
+    virtual bool            isDirty() const override            { return getIsDirty(); }
 
 protected:
     typedef std::function<void()> on_confirm_fn;

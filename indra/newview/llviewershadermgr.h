@@ -35,7 +35,7 @@
 class LLViewerShaderMgr: public LLShaderMgr
 {
 public:
-    static BOOL sInitialized;
+    static bool sInitialized;
     static bool sSkipReload;
 
     LLViewerShaderMgr();
@@ -58,12 +58,12 @@ public:
     // name of a file error happened at, otherwise
     // returns an empty string
     std::string loadBasicShaders();
-    BOOL loadShadersEffects();
-    BOOL loadShadersDeferred();
-    BOOL loadShadersObject();
-    BOOL loadShadersAvatar();
-    BOOL loadShadersWater();
-    BOOL loadShadersInterface();
+    bool loadShadersEffects();
+    bool loadShadersDeferred();
+    bool loadShadersObject();
+    bool loadShadersAvatar();
+    bool loadShadersWater();
+    bool loadShadersInterface();
 
     std::vector<S32> mShaderLevel;
     S32 mMaxAvatarShaderLevel;
@@ -286,6 +286,9 @@ extern LLGLSLShader         gPBRGlowProgram;
 extern LLGLSLShader         gDeferredPBROpaqueProgram;
 extern LLGLSLShader         gDeferredPBRAlphaProgram;
 extern LLGLSLShader         gHUDPBRAlphaProgram;
+
+// GLTF shaders
+extern LLGLSLShader         gGLTFPBRMetallicRoughnessProgram;
 
 // Encodes detail level for dropping textures, in accordance with the GLTF spec where possible
 // 0 is highest detail, -1 drops emissive, etc

@@ -87,12 +87,12 @@ void LLGLTFMaterial::setFromTexture(const tinygltf::Model& model, const T& textu
 template<typename T>
 void LLGLTFMaterial::allocateTextureImage(tinygltf::Model& model, T& texture_info, const std::string& uri)
 {
-    const S32 image_idx = model.images.size();
+    const S32 image_idx = static_cast<S32>(model.images.size());
     model.images.emplace_back();
     model.images[image_idx].uri = uri;
 
     // The texture, not to be confused with the texture info
-    const S32 texture_idx = model.textures.size();
+    const S32 texture_idx = static_cast<S32>(model.textures.size());
     model.textures.emplace_back();
     tinygltf::Texture& texture = model.textures[texture_idx];
     texture.source = image_idx;

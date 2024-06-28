@@ -46,7 +46,7 @@ LLSceneView::LLSceneView(const LLRect& rect)
     :   LLFloater(LLSD())
 {
     setRect(rect);
-    setVisible(FALSE);
+    setVisible(false);
 
     setCanMinimize(false);
     setCanClose(true);
@@ -102,7 +102,7 @@ void LLSceneView::draw()
     LLViewerRegion* region = gAgent.getRegion();
     if (region)
     {
-        for (U32 i = 0; i < gObjectList.getNumObjects(); ++i)
+        for (S32 i = 0; i < gObjectList.getNumObjects(); ++i)
         {
             LLViewerObject* object = gObjectList.getObject(i);
 
@@ -194,13 +194,13 @@ void LLSceneView::draw()
 
             F32 size_range = size_domain[1]-size_domain[0];
 
-            U32 count = size[idx].size();
+            auto count = size[idx].size();
 
             F32 total = 0.f;
 
             gGL.begin(LLRender::LINE_STRIP);
 
-            for (U32 i = 0; i < count; ++i)
+            for (size_t i = 0; i < count; ++i)
             {
                 F32 rad = size[idx][i];
                 total += rad;
@@ -260,11 +260,11 @@ void LLSceneView::draw()
 
             U32 triangle_range = tri_domain[1]-tri_domain[0];
 
-            U32 count = triangles[idx].size();
+            auto count = triangles[idx].size();
 
             gGL.begin(LLRender::LINE_STRIP);
             //plot triangles
-            for (U32 i = 0; i < count; ++i)
+            for (size_t i = 0; i < count; ++i)
             {
                 U32 tri_count = triangles[idx][i];
                 F32 y = (F32) (tri_count-tri_domain[0])/triangle_range*tri_rect.getHeight()+tri_rect.mBottom;
@@ -325,13 +325,13 @@ void LLSceneView::draw()
 
             F32 cost_range = streaming_domain[1]-streaming_domain[0];
 
-            U32 count = streaming_cost[idx].size();
+            auto count = streaming_cost[idx].size();
 
             F32 total = 0;
 
             gGL.begin(LLRender::LINE_STRIP);
             //plot triangles
-            for (U32 i = 0; i < count; ++i)
+            for (size_t i = 0; i < count; ++i)
             {
                 F32 sc = streaming_cost[idx][i];
                 total += sc;
@@ -391,13 +391,13 @@ void LLSceneView::draw()
 
             F32 cost_range = physics_domain[1]-physics_domain[0];
 
-            U32 count = physics_cost[idx].size();
+            auto count = physics_cost[idx].size();
 
             F32 total = 0;
 
             gGL.begin(LLRender::LINE_STRIP);
             //plot triangles
-            for (U32 i = 0; i < count; ++i)
+            for (size_t i = 0; i < count; ++i)
             {
                 F32 pc = physics_cost[idx][i];
                 total += pc;

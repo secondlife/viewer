@@ -209,37 +209,37 @@ public:
     LLParcel();
     LLParcel(
         const LLUUID &owner_id,
-        BOOL modify,
-        BOOL terraform,
-        BOOL damage,
+        bool modify,
+        bool terraform,
+        bool damage,
         time_t claim_date,
         S32 claim_price,
         S32 rent_price,
         S32 area,
         S32 sim_object_limit,
         F32 parcel_object_bonus,
-        BOOL is_group_owned = FALSE);
+        bool is_group_owned = false);
     virtual ~LLParcel();
 
     void init(
         const LLUUID &owner_id,
-        BOOL modify,
-        BOOL terraform,
-        BOOL damage,
+        bool modify,
+        bool terraform,
+        bool damage,
         time_t claim_date,
         S32 claim_price,
         S32 rent_price,
         S32 area,
         S32 sim_object_limit,
         F32 parcel_object_bonus,
-        BOOL is_group_owned = FALSE);
+        bool is_group_owned = false);
 
     // TODO: make an actual copy constructor for this
     void overrideParcelFlags(U32 flags);
     // if you specify an agent id here, the group id will be zeroed
     void overrideOwner(
         const LLUUID& owner_id,
-        BOOL is_group_owned = FALSE);
+        bool is_group_owned = false);
     void overrideSaleTimerExpires(F32 secs_left) { mSaleTimerExpires.setTimerExpirySec(secs_left); }
 
     // MANIPULATORS
@@ -277,35 +277,35 @@ public:
     void setUserLocation(const LLVector3& pos)  { mUserLocation = pos; }
     void setUserLookAt(const LLVector3& rot)    { mUserLookAt = rot; }
     void setLandingType(const ELandingType type) { mLandingType = type; }
-    void setSeeAVs(BOOL see_avs)    { mSeeAVs = see_avs;    }
+    void setSeeAVs(bool see_avs)    { mSeeAVs = see_avs;    }
     void setHaveNewParcelLimitData(bool have_new_parcel_data)       { mHaveNewParcelLimitData = have_new_parcel_data;       }       // Remove this once hidden AV feature is fully available grid-wide
 
     void setAuctionID(U32 auction_id) { mAuctionID = auction_id;}
 
     void    setAllParcelFlags(U32 flags);
-    void    setParcelFlag(U32 flag, BOOL b);
+    void    setParcelFlag(U32 flag, bool b);
 
     virtual void setArea(S32 area, S32 sim_object_limit);
     void    setDiscountRate(F32 rate);
 
-    void    setAllowModify(BOOL b)  { setParcelFlag(PF_CREATE_OBJECTS, b); }
-    void    setAllowGroupModify(BOOL b) { setParcelFlag(PF_CREATE_GROUP_OBJECTS, b); }
-    void    setAllowAllObjectEntry(BOOL b)  { setParcelFlag(PF_ALLOW_ALL_OBJECT_ENTRY, b); }
-    void    setAllowGroupObjectEntry(BOOL b)    { setParcelFlag(PF_ALLOW_GROUP_OBJECT_ENTRY, b); }
-    void    setAllowTerraform(BOOL b){setParcelFlag(PF_ALLOW_TERRAFORM, b); }
-    void    setAllowDamage(BOOL b)  { setParcelFlag(PF_ALLOW_DAMAGE, b); }
-    void    setAllowFly(BOOL b)     { setParcelFlag(PF_ALLOW_FLY, b); }
-    void    setAllowGroupScripts(BOOL b)    { setParcelFlag(PF_ALLOW_GROUP_SCRIPTS, b); }
-    void    setAllowOtherScripts(BOOL b)    { setParcelFlag(PF_ALLOW_OTHER_SCRIPTS, b); }
-    void    setAllowDeedToGroup(BOOL b) { setParcelFlag(PF_ALLOW_DEED_TO_GROUP, b); }
-    void    setContributeWithDeed(BOOL b) { setParcelFlag(PF_CONTRIBUTE_WITH_DEED, b); }
-    void    setForSale(BOOL b)      { setParcelFlag(PF_FOR_SALE, b); }
-    void    setSoundOnly(BOOL b)    { setParcelFlag(PF_SOUND_LOCAL, b); }
-    void    setDenyAnonymous(BOOL b) { setParcelFlag(PF_DENY_ANONYMOUS, b); }
-    void    setDenyAgeUnverified(BOOL b) { setParcelFlag(PF_DENY_AGEUNVERIFIED, b); }
-    void    setRestrictPushObject(BOOL b) { setParcelFlag(PF_RESTRICT_PUSHOBJECT, b); }
-    void    setAllowGroupAVSounds(BOOL b)   { mAllowGroupAVSounds = b;      }
-    void    setAllowAnyAVSounds(BOOL b)     { mAllowAnyAVSounds = b;        }
+    void    setAllowModify(bool b)  { setParcelFlag(PF_CREATE_OBJECTS, b); }
+    void    setAllowGroupModify(bool b) { setParcelFlag(PF_CREATE_GROUP_OBJECTS, b); }
+    void    setAllowAllObjectEntry(bool b)  { setParcelFlag(PF_ALLOW_ALL_OBJECT_ENTRY, b); }
+    void    setAllowGroupObjectEntry(bool b)    { setParcelFlag(PF_ALLOW_GROUP_OBJECT_ENTRY, b); }
+    void    setAllowTerraform(bool b){setParcelFlag(PF_ALLOW_TERRAFORM, b); }
+    void    setAllowDamage(bool b)  { setParcelFlag(PF_ALLOW_DAMAGE, b); }
+    void    setAllowFly(bool b)     { setParcelFlag(PF_ALLOW_FLY, b); }
+    void    setAllowGroupScripts(bool b)    { setParcelFlag(PF_ALLOW_GROUP_SCRIPTS, b); }
+    void    setAllowOtherScripts(bool b)    { setParcelFlag(PF_ALLOW_OTHER_SCRIPTS, b); }
+    void    setAllowDeedToGroup(bool b) { setParcelFlag(PF_ALLOW_DEED_TO_GROUP, b); }
+    void    setContributeWithDeed(bool b) { setParcelFlag(PF_CONTRIBUTE_WITH_DEED, b); }
+    void    setForSale(bool b)      { setParcelFlag(PF_FOR_SALE, b); }
+    void    setSoundOnly(bool b)    { setParcelFlag(PF_SOUND_LOCAL, b); }
+    void    setDenyAnonymous(bool b) { setParcelFlag(PF_DENY_ANONYMOUS, b); }
+    void    setDenyAgeUnverified(bool b) { setParcelFlag(PF_DENY_AGEUNVERIFIED, b); }
+    void    setRestrictPushObject(bool b) { setParcelFlag(PF_RESTRICT_PUSHOBJECT, b); }
+    void    setAllowGroupAVSounds(bool b)   { mAllowGroupAVSounds = b;      }
+    void    setAllowAnyAVSounds(bool b)     { mAllowAnyAVSounds = b;        }
     void    setObscureMOAP(bool b)  { mObscureMOAP = b; }
 
     void    setDrawDistance(F32 dist)   { mDrawDistance = dist; }
@@ -315,9 +315,9 @@ public:
     void    setPassPrice(S32 price)             { mPassPrice = price; }
     void    setPassHours(F32 hours)             { mPassHours = hours; }
 
-//  BOOL    importStream(std::istream& input_stream);
-    BOOL    importAccessEntry(std::istream& input_stream, LLAccessEntry* entry);
-    // BOOL exportStream(std::ostream& output_stream);
+//  bool    importStream(std::istream& input_stream);
+    bool    importAccessEntry(std::istream& input_stream, LLAccessEntry* entry);
+    // bool exportStream(std::ostream& output_stream);
 
     void    packMessage(LLMessageSystem* msg);
     void    packMessage(LLSD& msg);
@@ -343,11 +343,11 @@ public:
     // time earlier than "now".
     void expirePasses(S32 now);
 
-    // Add to list, suppressing duplicates.  Returns TRUE if added.
-    BOOL addToAccessList(const LLUUID& agent_id, S32 time);
-    BOOL addToBanList(const LLUUID& agent_id, S32 time);
-    BOOL removeFromAccessList(const LLUUID& agent_id);
-    BOOL removeFromBanList(const LLUUID& agent_id);
+    // Add to list, suppressing duplicates.  Returns true if added.
+    bool addToAccessList(const LLUUID& agent_id, S32 time);
+    bool addToBanList(const LLUUID& agent_id, S32 time);
+    bool removeFromAccessList(const LLUUID& agent_id);
+    bool removeFromBanList(const LLUUID& agent_id);
 
     // ACCESSORS
     const LLUUID&   getID() const               { return mID; }
@@ -372,19 +372,19 @@ public:
     const LLUUID&   getGroupID() const          { return mGroupID; }
     S32             getPassPrice() const        { return mPassPrice; }
     F32             getPassHours() const        { return mPassHours; }
-    BOOL            getIsGroupOwned() const     { return mGroupOwned; }
+    bool            getIsGroupOwned() const     { return mGroupOwned; }
 
     U32 getAuctionID() const    { return mAuctionID; }
     bool isInEscrow() const     { return mInEscrow; }
 
-    BOOL isPublic() const;
+    bool isPublic() const;
 
     // Region-local user-specified position
     const LLVector3& getUserLocation() const    { return mUserLocation; }
     const LLVector3& getUserLookAt() const  { return mUserLookAt; }
     ELandingType getLandingType() const { return mLandingType; }
-    BOOL getSeeAVs() const          { return mSeeAVs;       }
-    BOOL getHaveNewParcelLimitData() const      { return mHaveNewParcelLimitData;   }
+    bool getSeeAVs() const          { return mSeeAVs;       }
+    bool getHaveNewParcelLimitData() const      { return mHaveNewParcelLimitData;   }
 
     // User-specified snapshot
     const LLUUID&   getSnapshotID() const       { return mSnapshotID; }
@@ -395,7 +395,7 @@ public:
     const LLUUID& getAuthorizedBuyerID() const { return mAuthBuyerID; }
 
     // helper function
-    BOOL isBuyerAuthorized(const LLUUID& buyer_id) const;
+    bool isBuyerAuthorized(const LLUUID& buyer_id) const;
 
     // The buyer of a plot is set when someone indicates they want to
     // buy the plot, and the system is simply waiting for tier-up
@@ -419,10 +419,10 @@ public:
 
     // dealing with sales and parcel conversion.
     //
-    // the isSaleTimerExpired will trivially return FALSE if there is
+    // the isSaleTimerExpired will trivially return false if there is
     // no sale going on. Pass in the current time in usec which will
     // be used for comparison.
-    BOOL isSaleTimerExpired(const U64& time);
+    bool isSaleTimerExpired(const U64& time);
 
     F32 getSaleTimerExpires() { return mSaleTimerExpires.getRemainingTimeF32(); }
 
@@ -431,7 +431,7 @@ public:
 
     // need to record a few things with the parcel when a sale
     // starts.
-    void startSale(const LLUUID& buyer_id, BOOL is_buyer_group);
+    void startSale(const LLUUID& buyer_id, bool is_buyer_group);
 
     // do the expiration logic, which needs to return values usable in
     // a L$ transaction.
@@ -440,86 +440,54 @@ public:
     void clearSale();
 
 
-    BOOL isMediaResetTimerExpired(const U64& time);
+    bool isMediaResetTimerExpired(const U64& time);
 
 
     // more accessors
-    U32     getParcelFlags() const          { return mParcelFlags; }
+    U32     getParcelFlags() const { return mParcelFlags; }
 
-    BOOL    getParcelFlag(U32 flag) const
-                    { return (mParcelFlags & flag) ? TRUE : FALSE; }
+    bool    getParcelFlag(U32 flag) const { return (mParcelFlags & flag) != 0; }
 
     // objects can be added or modified by anyone (only parcel owner if disabled)
-    BOOL    getAllowModify() const
-                    { return (mParcelFlags & PF_CREATE_OBJECTS) ? TRUE : FALSE; }
+    bool    getAllowModify() const                     { return getParcelFlag(PF_CREATE_OBJECTS); }
 
     // objects can be added or modified by group members
-    BOOL    getAllowGroupModify() const
-                    { return (mParcelFlags & PF_CREATE_GROUP_OBJECTS) ? TRUE : FALSE; }
+    bool    getAllowGroupModify() const                { return getParcelFlag(PF_CREATE_GROUP_OBJECTS); }
 
     // the parcel can be deeded to the group
-    BOOL    getAllowDeedToGroup() const
-                    { return (mParcelFlags & PF_ALLOW_DEED_TO_GROUP) ? TRUE : FALSE; }
+    bool    getAllowDeedToGroup() const                { return getParcelFlag(PF_ALLOW_DEED_TO_GROUP); }
 
     // Does the owner want to make a contribution along with the deed.
-    BOOL getContributeWithDeed() const
-    { return (mParcelFlags & PF_CONTRIBUTE_WITH_DEED) ? TRUE : FALSE; }
+    bool    getContributeWithDeed() const              { return getParcelFlag(PF_CONTRIBUTE_WITH_DEED); }
 
     // heightfield can be modified
-    BOOL    getAllowTerraform() const
-                    { return (mParcelFlags & PF_ALLOW_TERRAFORM) ? TRUE : FALSE; }
+    bool    getAllowTerraform() const                  { return getParcelFlag(PF_ALLOW_TERRAFORM); }
 
     // avatars can be hurt here
-    BOOL    getAllowDamage() const
-                    { return (mParcelFlags & PF_ALLOW_DAMAGE) ? TRUE : FALSE; }
+    bool    getAllowDamage() const                     { return getParcelFlag(PF_ALLOW_DAMAGE); }
 
-    BOOL    getAllowFly() const
-                    { return (mParcelFlags & PF_ALLOW_FLY) ? TRUE : FALSE; }
+    bool    getAllowFly() const                        { return getParcelFlag(PF_ALLOW_FLY); }
+    bool    getAllowGroupScripts() const               { return getParcelFlag(PF_ALLOW_GROUP_SCRIPTS); }
+    bool    getAllowOtherScripts() const               { return getParcelFlag(PF_ALLOW_OTHER_SCRIPTS); }
+    bool    getAllowAllObjectEntry() const             { return getParcelFlag(PF_ALLOW_ALL_OBJECT_ENTRY); }
+    bool    getAllowGroupObjectEntry() const           { return getParcelFlag(PF_ALLOW_GROUP_OBJECT_ENTRY); }
+    bool    getForSale() const                         { return getParcelFlag(PF_FOR_SALE); }
+    bool    getSoundLocal() const                      { return getParcelFlag(PF_SOUND_LOCAL); }
+    bool    getParcelFlagAllowVoice() const            { return getParcelFlag(PF_ALLOW_VOICE_CHAT); }
+    bool    getParcelFlagUseEstateVoiceChannel() const { return getParcelFlag(PF_USE_ESTATE_VOICE_CHAN); }
+    bool    getAllowPublish() const                    { return getParcelFlag(PF_ALLOW_PUBLISH); }
+    bool    getMaturePublish() const                   { return getParcelFlag(PF_MATURE_PUBLISH); }
+    bool    getRestrictPushObject() const              { return getParcelFlag(PF_RESTRICT_PUSHOBJECT); }
 
-    BOOL    getAllowGroupScripts() const
-                    { return (mParcelFlags & PF_ALLOW_GROUP_SCRIPTS) ? TRUE : FALSE; }
-
-    BOOL    getAllowOtherScripts() const
-                    { return (mParcelFlags & PF_ALLOW_OTHER_SCRIPTS) ? TRUE : FALSE; }
-
-    BOOL    getAllowAllObjectEntry() const
-                    { return (mParcelFlags & PF_ALLOW_ALL_OBJECT_ENTRY) ? TRUE : FALSE; }
-
-    BOOL    getAllowGroupObjectEntry() const
-                    { return (mParcelFlags & PF_ALLOW_GROUP_OBJECT_ENTRY) ? TRUE : FALSE; }
-
-    BOOL    getForSale() const
-                    { return (mParcelFlags & PF_FOR_SALE) ? TRUE : FALSE; }
-    BOOL    getSoundLocal() const
-                    { return (mParcelFlags & PF_SOUND_LOCAL) ? TRUE : FALSE; }
-    BOOL    getParcelFlagAllowVoice() const
-                    { return (mParcelFlags & PF_ALLOW_VOICE_CHAT) ? TRUE : FALSE; }
-    BOOL    getParcelFlagUseEstateVoiceChannel() const
-                    { return (mParcelFlags & PF_USE_ESTATE_VOICE_CHAN) ? TRUE : FALSE; }
-    BOOL    getAllowPublish() const
-                    { return (mParcelFlags & PF_ALLOW_PUBLISH) ? TRUE : FALSE; }
-    BOOL    getMaturePublish() const
-                    { return (mParcelFlags & PF_MATURE_PUBLISH) ? TRUE : FALSE; }
-    BOOL    getRestrictPushObject() const
-                    { return (mParcelFlags & PF_RESTRICT_PUSHOBJECT) ? TRUE : FALSE; }
-    BOOL    getRegionPushOverride() const
-                    { return mRegionPushOverride; }
-    BOOL    getRegionDenyAnonymousOverride() const
-                    { return mRegionDenyAnonymousOverride; }
-    BOOL    getRegionDenyAgeUnverifiedOverride() const
-                    { return mRegionDenyAgeUnverifiedOverride; }
-    BOOL    getRegionAllowAccessOverride() const
-                    { return mRegionAllowAccessoverride; }
-    BOOL    getRegionAllowEnvironmentOverride() const
-                    { return mRegionAllowEnvironmentOverride; }
-    S32     getParcelEnvironmentVersion() const
-                    { return mCurrentEnvironmentVersion; }
-
-
-    BOOL    getAllowGroupAVSounds() const   { return mAllowGroupAVSounds;   }
-    BOOL    getAllowAnyAVSounds()   const   { return mAllowAnyAVSounds;     }
-
-    bool    getObscureMOAP() const { return mObscureMOAP; }
+    bool    getRegionPushOverride() const              { return mRegionPushOverride; }
+    bool    getRegionDenyAnonymousOverride() const     { return mRegionDenyAnonymousOverride; }
+    bool    getRegionDenyAgeUnverifiedOverride() const { return mRegionDenyAgeUnverifiedOverride; }
+    bool    getRegionAllowAccessOverride() const       { return mRegionAllowAccessoverride; }
+    bool    getRegionAllowEnvironmentOverride() const  { return mRegionAllowEnvironmentOverride; }
+    S32     getParcelEnvironmentVersion() const        { return mCurrentEnvironmentVersion; }
+    bool    getAllowGroupAVSounds() const              { return mAllowGroupAVSounds; }
+    bool    getAllowAnyAVSounds() const                { return mAllowAnyAVSounds; }
+    bool    getObscureMOAP() const                     { return mObscureMOAP; }
 
     F32     getDrawDistance() const         { return mDrawDistance; }
     S32     getSalePrice() const            { return mSalePrice; }
@@ -537,10 +505,10 @@ public:
     S32     getClaimPrice() const           { return mClaimPricePerMeter * mArea; }
 
     // Can this agent create objects here?
-    BOOL    allowModifyBy(const LLUUID &agent_id, const LLUUID &group_id) const;
+    bool    allowModifyBy(const LLUUID &agent_id, const LLUUID &group_id) const;
 
     // Can this agent change the shape of the land?
-    BOOL    allowTerraformBy(const LLUUID &agent_id) const;
+    bool    allowTerraformBy(const LLUUID &agent_id) const;
 
     bool    operator==(const LLParcel &rhs) const;
 
@@ -582,30 +550,30 @@ public:
     void    setParcelPrimBonus(F32 bonus)   { mParcelPrimBonus = bonus; }
 
     void    setCleanOtherTime(S32 time)                 { mCleanOtherTime = time; }
-    void    setRegionPushOverride(BOOL override) {mRegionPushOverride = override; }
-    void    setRegionDenyAnonymousOverride(BOOL override)   { mRegionDenyAnonymousOverride = override; }
-    void    setRegionDenyAgeUnverifiedOverride(BOOL override)   { mRegionDenyAgeUnverifiedOverride = override; }
-    void    setRegionAllowAccessOverride(BOOL override) { mRegionAllowAccessoverride = override; }
-    void    setRegionAllowEnvironmentOverride(BOOL override) { mRegionAllowEnvironmentOverride = override; }
+    void    setRegionPushOverride(bool override) {mRegionPushOverride = override; }
+    void    setRegionDenyAnonymousOverride(bool override)   { mRegionDenyAnonymousOverride = override; }
+    void    setRegionDenyAgeUnverifiedOverride(bool override)   { mRegionDenyAgeUnverifiedOverride = override; }
+    void    setRegionAllowAccessOverride(bool override) { mRegionAllowAccessoverride = override; }
+    void    setRegionAllowEnvironmentOverride(bool override) { mRegionAllowEnvironmentOverride = override; }
 
     void    setParcelEnvironmentVersion(S32 version) { mCurrentEnvironmentVersion = version; }
 
     // Accessors for parcel sellWithObjects
     void    setPreviousOwnerID(LLUUID prev_owner)   { mPreviousOwnerID = prev_owner; }
-    void    setPreviouslyGroupOwned(BOOL b)         { mPreviouslyGroupOwned = b; }
-    void    setSellWithObjects(BOOL b)              { setParcelFlag(PF_SELL_PARCEL_OBJECTS, b); }
+    void    setPreviouslyGroupOwned(bool b)         { mPreviouslyGroupOwned = b; }
+    void    setSellWithObjects(bool b)              { setParcelFlag(PF_SELL_PARCEL_OBJECTS, b); }
 
     LLUUID  getPreviousOwnerID() const      { return mPreviousOwnerID; }
-    BOOL    getPreviouslyGroupOwned() const { return mPreviouslyGroupOwned; }
-    BOOL    getSellWithObjects() const      { return (mParcelFlags & PF_SELL_PARCEL_OBJECTS) ? TRUE : FALSE; }
+    bool    getPreviouslyGroupOwned() const { return mPreviouslyGroupOwned; }
+    bool    getSellWithObjects() const      { return getParcelFlag(PF_SELL_PARCEL_OBJECTS); }
 
 protected:
     LLUUID mID;
     LLUUID              mOwnerID;
     LLUUID              mGroupID;
-    BOOL                mGroupOwned; // TRUE if mOwnerID is a group_id
+    bool                mGroupOwned; // true if mOwnerID is a group_id
     LLUUID              mPreviousOwnerID;
-    BOOL                mPreviouslyGroupOwned;
+    bool                mPreviouslyGroupOwned;
 
     EOwnershipStatus mStatus;
     ECategory mCategory;
@@ -614,8 +582,8 @@ protected:
     LLVector3 mUserLocation;
     LLVector3 mUserLookAt;
     ELandingType mLandingType;
-    BOOL mSeeAVs;                           // Avatars on this parcel are visible from outside it
-    BOOL mHaveNewParcelLimitData;           // Remove once hidden AV feature is grid-wide
+    bool mSeeAVs;                           // Avatars on this parcel are visible from outside it
+    bool mHaveNewParcelLimitData;           // Remove once hidden AV feature is grid-wide
     LLTimer mSaleTimerExpires;
     LLTimer mMediaResetTimer;
 
@@ -666,13 +634,13 @@ protected:
     S32                 mTempPrimCount;
     F32                 mParcelPrimBonus;
     S32                 mCleanOtherTime;
-    BOOL                mRegionPushOverride;
-    BOOL                mRegionDenyAnonymousOverride;
-    BOOL                mRegionDenyAgeUnverifiedOverride;
-    BOOL                mRegionAllowAccessoverride;
-    BOOL                mRegionAllowEnvironmentOverride;
-    BOOL                mAllowGroupAVSounds;
-    BOOL                mAllowAnyAVSounds;
+    bool                mRegionPushOverride;
+    bool                mRegionDenyAnonymousOverride;
+    bool                mRegionDenyAgeUnverifiedOverride;
+    bool                mRegionAllowAccessoverride;
+    bool                mRegionAllowEnvironmentOverride;
+    bool                mAllowGroupAVSounds;
+    bool                mAllowAnyAVSounds;
     bool                mObscureMOAP;
     S32                 mCurrentEnvironmentVersion;
 
@@ -692,13 +660,11 @@ public:
 
     void setExperienceKeyType(const LLUUID& experience_key, U32 type);
     U32 countExperienceKeyType(U32 type);
-    U32 getExperienceKeyType(const LLUUID& experience_key)const;
     LLAccessEntry::map getExperienceKeysByType(U32 type)const;
     void clearExperienceKeysByType(U32 type);
 
 private:
     xp_type_map_t mExperienceKeys;
-
 };
 
 

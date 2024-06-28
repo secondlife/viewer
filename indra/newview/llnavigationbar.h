@@ -60,9 +60,9 @@ public:
         }
     };
 
-    /*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
+    /*virtual*/ bool handleMouseDown(S32 x, S32 y, MASK mask);
 
-    /*virtual*/ BOOL handleMouseUp(S32 x, S32 y, MASK mask);
+    /*virtual*/ bool handleMouseUp(S32 x, S32 y, MASK mask);
 
     /*virtual*/ void onMouseLeave(S32 x, S32 y, MASK mask);
 
@@ -93,9 +93,9 @@ class LLNavigationBar
 public:
 
     /*virtual*/ void    draw() override;
-    /*virtual*/ BOOL handleRightMouseDown(S32 x, S32 y, MASK mask) override;
-    /*virtual*/ BOOL    postBuild() override;
-    /*virtual*/ void    setVisible(BOOL visible) override;
+    /*virtual*/ bool handleRightMouseDown(S32 x, S32 y, MASK mask) override;
+    /*virtual*/ bool    postBuild() override;
+    /*virtual*/ void    setVisible(bool visible) override;
 
     void handleLoginComplete();
     void clearHistoryCache();
@@ -138,7 +138,7 @@ private:
     {
         if (LLNavigationBar::instanceExists())
         {
-            LLNavigationBar::getInstance()->setEnabled(FALSE);
+            LLNavigationBar::getInstance()->setEnabled(false);
         }
     }
 

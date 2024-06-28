@@ -47,8 +47,8 @@ class LLFloaterAuction : public LLFloater
     friend class LLFloaterReg;
 public:
     // LLFloater interface
-    /*virtual*/ void onOpen(const LLSD& key);
-    /*virtual*/ void draw();
+    void onOpen(const LLSD& key) override;
+    void draw() override;
 
 private:
 
@@ -63,7 +63,7 @@ private:
     bool onSellToAnyoneConfirmed(const LLSD& notification, const LLSD& response);   // Sell confirmation clicked
     static void onClickStartAuction(void* data);
 
-    /*virtual*/ BOOL postBuild();
+    bool postBuild() override;
 
     void doResetParcel();
     void doSellToAnyone();

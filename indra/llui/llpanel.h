@@ -40,8 +40,8 @@
 #include <queue>
 
 const S32 LLPANEL_BORDER_WIDTH = 1;
-const BOOL BORDER_YES = TRUE;
-const BOOL BORDER_NO = FALSE;
+const bool BORDER_YES = true;
+const bool BORDER_NO = false;
 
 class LLButton;
 class LLUIImage;
@@ -107,20 +107,20 @@ protected:
 public:
     typedef std::vector<class LLUICtrl *>               ctrl_list_t;
 
-    BOOL buildFromFile(const std::string &filename, const LLPanel::Params& default_params = getDefaultParams());
+    bool buildFromFile(const std::string &filename, const LLPanel::Params& default_params = getDefaultParams());
 
     static LLPanel* createFactoryPanel(const std::string& name);
 
     /*virtual*/ ~LLPanel();
 
     // LLView interface
-    /*virtual*/ BOOL    isPanel() const;
+    /*virtual*/ bool    isPanel() const;
     /*virtual*/ void    draw();
-    /*virtual*/ BOOL    handleKeyHere( KEY key, MASK mask );
-    /*virtual*/ void    onVisibilityChange ( BOOL new_visibility );
+    /*virtual*/ bool    handleKeyHere( KEY key, MASK mask );
+    /*virtual*/ void    onVisibilityChange ( bool new_visibility );
 
     // From LLFocusableElement
-    /*virtual*/ void    setFocus( BOOL b );
+    /*virtual*/ void    setFocus( bool b );
 
     // New virtuals
     virtual     void    refresh();  // called in setFocus()
@@ -131,8 +131,8 @@ public:
     void addBorder( LLViewBorder::Params p);
     void addBorder();
     void            removeBorder();
-    BOOL            hasBorder() const { return mBorder != NULL; }
-    void            setBorderVisible( BOOL b );
+    bool            hasBorder() const { return mBorder != NULL; }
+    void            setBorderVisible( bool b );
 
     void            setBackgroundColor( const LLColor4& color ) { mBgOpaqueColor = color; }
     const LLColor4& getBackgroundColor() const { return mBgOpaqueColor; }
@@ -144,10 +144,10 @@ public:
     LLPointer<LLUIImage> getTransparentImage() const { return mBgAlphaImage; }
     LLColor4        getBackgroundImageOverlay() { return mBgOpaqueImageOverlay; }
     LLColor4        getTransparentImageOverlay() { return mBgAlphaImageOverlay; }
-    void            setBackgroundVisible( BOOL b )  { mBgVisible = b; }
-    BOOL            isBackgroundVisible() const { return mBgVisible; }
-    void            setBackgroundOpaque(BOOL b)     { mBgOpaque = b; }
-    BOOL            isBackgroundOpaque() const { return mBgOpaque; }
+    void            setBackgroundVisible( bool b )  { mBgVisible = b; }
+    bool            isBackgroundVisible() const { return mBgVisible; }
+    void            setBackgroundOpaque(bool b)     { mBgOpaque = b; }
+    bool            isBackgroundOpaque() const { return mBgOpaque; }
     void            setDefaultBtn(LLButton* btn = NULL);
     void            setDefaultBtn(const std::string& id);
     void            updateDefaultBtn();
@@ -156,7 +156,7 @@ public:
     void            setHelpTopic(const std::string& help_topic) { mHelpTopic = help_topic; }
     std::string     getHelpTopic() const { return mHelpTopic; }
 
-    void            setCtrlsEnabled(BOOL b);
+    void            setCtrlsEnabled(bool b);
     ctrl_list_t     getCtrlList() const;
 
     LLHandle<LLPanel>   getHandle() const { return getDerivedHandle<LLPanel>(); }
@@ -167,7 +167,7 @@ public:
     EnableCallbackRegistry::ScopedRegistrar& getEnableCallbackRegistrar() { return mEnableCallbackRegistrar; }
 
     void initFromParams(const Params& p);
-    BOOL initPanelXML(  LLXMLNodePtr node, LLView *parent, LLXMLNodePtr output_node, const LLPanel::Params& default_params);
+    bool initPanelXML(  LLXMLNodePtr node, LLView *parent, LLXMLNodePtr output_node, const LLPanel::Params& default_params);
 
     bool hasString(const std::string& name);
     std::string getString(const std::string& name, const LLStringUtil::format_map_t& args) const;
@@ -184,8 +184,8 @@ public:
     void childDisable(const std::string& name) { childSetEnabled(name, false); };
 
     // LLUICtrl
-    void childSetFocus(const std::string& id, BOOL focus = TRUE);
-    BOOL childHasFocus(const std::string& id);
+    void childSetFocus(const std::string& id, bool focus = true);
+    bool childHasFocus(const std::string& id);
 
     // *TODO: Deprecate; for backwards compatability only:
     // Prefer getChild<LLUICtrl>("foo")->setCommitCallback(boost:bind(...)),
@@ -203,9 +203,9 @@ public:
     LLSD childGetValue(const std::string& id) const;
 
     // For setting text / label replacement params, e.g. "Hello [NAME]"
-    // Not implemented for all types, defaults to noop, returns FALSE if not applicaple
-    BOOL childSetTextArg(const std::string& id, const std::string& key, const LLStringExplicit& text);
-    BOOL childSetLabelArg(const std::string& id, const std::string& key, const LLStringExplicit& text);
+    // Not implemented for all types, defaults to noop, returns false if not applicaple
+    bool childSetTextArg(const std::string& id, const std::string& key, const LLStringExplicit& text);
+    bool childSetLabelArg(const std::string& id, const std::string& key, const LLStringExplicit& text);
 
     // LLButton
     void childSetAction(const std::string& id, boost::function<void(void*)> function, void* value);
@@ -238,8 +238,8 @@ protected:
     std::string     mXMLFilename;
 
 private:
-    BOOL            mBgVisible;             // any background at all?
-    BOOL            mBgOpaque;              // use opaque color or image
+    bool            mBgVisible;             // any background at all?
+    bool            mBgOpaque;              // use opaque color or image
     LLUIColor       mBgOpaqueColor;
     LLUIColor       mBgAlphaColor;
     LLUIColor       mBgOpaqueImageOverlay;
@@ -259,7 +259,7 @@ private:
 // Build time optimization, generate once in .cpp file
 #ifndef LLPANEL_CPP
 extern template class LLPanel* LLView::getChild<class LLPanel>(
-    const std::string& name, BOOL recurse) const;
+    const std::string& name, bool recurse) const;
 #endif
 
 typedef boost::function<LLPanel* (void)> LLPanelClassCreatorFunc;

@@ -44,7 +44,7 @@ class LLXfer_VFile : public LLXfer
 
     std::string mName;
 
-    BOOL    mDeleteTempFile;
+    bool    mDeleteTempFile;
 
  public:
     LLXfer_VFile ();
@@ -72,8 +72,8 @@ class LLXfer_VFile : public LLXfer
     virtual S32 suck(S32 start_position);
     virtual S32 flush();
 
-    virtual BOOL matchesLocalFile(const LLUUID &id, LLAssetType::EType type);
-    virtual BOOL matchesRemoteFile(const LLUUID &id, LLAssetType::EType type);
+    virtual bool matchesLocalFile(const LLUUID &id, LLAssetType::EType type);
+    virtual bool matchesRemoteFile(const LLUUID &id, LLAssetType::EType type);
 
     virtual void setXferSize(S32 xfer_size);
     virtual S32  getMaxBufferSize();

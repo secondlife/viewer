@@ -42,7 +42,7 @@ LLFloaterSavePrefPreset::LLFloaterSavePrefPreset(const LLSD &key)
 }
 
 // virtual
-BOOL LLFloaterSavePrefPreset::postBuild()
+bool LLFloaterSavePrefPreset::postBuild()
 {
     LLFloaterPreference* preferences = LLFloaterReg::getTypedInstance<LLFloaterPreference>("preferences");
     if (preferences)
@@ -61,7 +61,7 @@ BOOL LLFloaterSavePrefPreset::postBuild()
     mSaveButton = getChild<LLButton>("save");
     mPresetCombo = getChild<LLComboBox>("preset_combo");
 
-    return TRUE;
+    return true;
 }
 
 void LLFloaterSavePrefPreset::onPresetNameEdited()

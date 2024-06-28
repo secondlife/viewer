@@ -418,9 +418,9 @@ LLMediaDataClient::QueueTimer::QueueTimer(F32 time, LLMediaDataClient *mdc)
 }
 
 // virtual
-BOOL LLMediaDataClient::QueueTimer::tick()
+bool LLMediaDataClient::QueueTimer::tick()
 {
-    BOOL result = TRUE;
+    bool result = true;
 
     if (!mMDC.isNull())
     {
@@ -451,7 +451,7 @@ LLMediaDataClient::RetryTimer::RetryTimer(F32 time, Request::ptr_t request)
 }
 
 // virtual
-BOOL LLMediaDataClient::RetryTimer::tick()
+bool LLMediaDataClient::RetryTimer::tick()
 {
     mRequest->stopTracking();
 
@@ -469,7 +469,7 @@ BOOL LLMediaDataClient::RetryTimer::tick()
     mRequest.reset();
 
     // Don't fire again
-    return TRUE;
+    return true;
 }
 
 
@@ -692,7 +692,7 @@ void LLObjectMediaDataClient::sortQueue()
         mQueue.sort(compareRequestScores);
 
         // ...then cull items over the max
-        U32 size = mQueue.size();
+        U32 size = static_cast<U32>(mQueue.size());
         if (size > mMaxSortedQueueSize)
         {
             U32 num_to_cull = (size - mMaxSortedQueueSize);

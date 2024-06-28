@@ -54,7 +54,7 @@ const S32 IM_TTL = 1;
 void pack_instant_message(
     LLMessageSystem* msg,
     const LLUUID& from_id,
-    BOOL from_group,
+    bool from_group,
     const LLUUID& session_id,
     const LLUUID& to_id,
     const std::string& name,
@@ -93,7 +93,7 @@ void pack_instant_message(
 void pack_instant_message_block(
     LLMessageSystem* msg,
     const LLUUID& from_id,
-    BOOL from_group,
+    bool from_group,
     const LLUUID& session_id,
     const LLUUID& to_id,
     const std::string& name,

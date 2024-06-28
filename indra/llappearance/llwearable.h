@@ -80,9 +80,9 @@ public:
         SUCCESS,
         BAD_HEADER
     };
-    BOOL                exportFile(const std::string& filename) const;
+    bool                exportFile(const std::string& filename) const;
     EImportResult       importFile(const std::string& filename, LLAvatarAppearance* avatarp );
-    virtual BOOL                exportStream( std::ostream& output_stream ) const;
+    virtual bool                exportStream( std::ostream& output_stream ) const;
     virtual EImportResult       importStream( std::istream& input_stream, LLAvatarAppearance* avatarp );
 
     static void         setCurrentDefinitionVersion( S32 version ) { LLWearable::sCurrentDefinitionVersion = version; }
@@ -118,7 +118,7 @@ protected:
     void                destroyTextures();
     void                createVisualParams(LLAvatarAppearance *avatarp);
     void                createLayers(S32 te, LLAvatarAppearance *avatarp);
-    BOOL                getNextPopulatedLine(std::istream& input_stream, char* buffer, U32 buffer_size);
+    bool                getNextPopulatedLine(std::istream& input_stream, char* buffer, U32 buffer_size);
 
     static S32          sCurrentDefinitionVersion;  // Depends on the current state of the avatar_lad.xml.
     S32                 mDefinitionVersion;         // Depends on the state of the avatar_lad.xml when this asset was created.

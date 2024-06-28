@@ -74,11 +74,13 @@ public:
     // Convert world coordinates to mipmap grid coordinates at a given level
     static void globalToMipmap(F64 global_x, F64 global_y, S32 level, U32* grid_x, U32* grid_y);
 
+    // Load the relevant tile from S3
+    static LLPointer<LLViewerFetchedTexture> loadObjectsTile(U32 grid_x, U32 grid_y, S32 level);
+
 private:
     // Get a handle (key) from grid coordinates
     U64     convertGridToHandle(U32 grid_x, U32 grid_y) { return to_region_handle(grid_x * REGION_WIDTH_UNITS, grid_y * REGION_WIDTH_UNITS); }
-    // Load the relevant tile from S3
-    LLPointer<LLViewerFetchedTexture> loadObjectsTile(U32 grid_x, U32 grid_y, S32 level);
+
     // Clear a level from its "missing" tiles
     void cleanMissedTilesFromLevel(S32 level);
 

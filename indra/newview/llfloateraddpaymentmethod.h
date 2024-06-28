@@ -34,8 +34,8 @@ class LLFloaterAddPaymentMethod:
 {
     friend class LLFloaterReg;
 public:
-    /*virtual*/ BOOL postBuild();
-    /*virtual*/ void onOpen(const LLSD& key);
+    bool postBuild() override;
+    void onOpen(const LLSD& key) override;
 
 private:
     LLFloaterAddPaymentMethod(const LLSD& key);

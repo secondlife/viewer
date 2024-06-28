@@ -50,18 +50,18 @@ void LLMetricPerformanceTesterBasic::cleanupClass()
 }
 
 /*static*/
-BOOL LLMetricPerformanceTesterBasic::addTester(LLMetricPerformanceTesterBasic* tester)
+bool LLMetricPerformanceTesterBasic::addTester(LLMetricPerformanceTesterBasic* tester)
 {
     llassert_always(tester != NULL);
     std::string name = tester->getTesterName() ;
     if (getTester(name))
     {
         LL_ERRS() << "Tester name is already used by some other tester : " << name << LL_ENDL ;
-        return FALSE;
+        return false;
     }
 
     sTesterMap.insert(std::make_pair(name, tester));
-    return TRUE;
+    return true;
 }
 
 /*static*/
@@ -88,8 +88,8 @@ LLMetricPerformanceTesterBasic* LLMetricPerformanceTesterBasic::getTester(std::s
 }
 
 /*static*/
-// Return TRUE if this metric is requested or if the general default "catch all" metric is requested
-BOOL LLMetricPerformanceTesterBasic::isMetricLogRequested(std::string name)
+// Return true if this metric is requested or if the general default "catch all" metric is requested
+bool LLMetricPerformanceTesterBasic::isMetricLogRequested(std::string name)
 {
     return (LLTrace::BlockTimer::sMetricLog && ((LLTrace::BlockTimer::sLogName == name) || (LLTrace::BlockTimer::sLogName == DEFAULT_METRIC_NAME)));
 }
@@ -215,8 +215,8 @@ void LLMetricPerformanceTesterBasic::analyzePerformance(llofstream* os, LLSD* ba
     resetCurrentCount() ;
 
     std::string current_label = getCurrentLabelName();
-    BOOL in_base = (*base).has(current_label) ;
-    BOOL in_current = (*current).has(current_label) ;
+    bool in_base = (*base).has(current_label) ;
+    bool in_current = (*current).has(current_label) ;
 
     while(in_base || in_current)
     {

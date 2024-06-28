@@ -60,7 +60,7 @@ private:
     static S32      sCurrent;
 
 public:
-    void bindTexture(BOOL curr = TRUE);
+    void bindTexture(bool curr = true);
 
 protected:
     LLSkyTex();
@@ -75,7 +75,7 @@ protected:
     static S32 getCurrent();
     static S32 stepCurrent();
     static S32 getNext();
-    static S32 getWhich(const BOOL curr);
+    static S32 getWhich(const bool curr);
 
     void initEmpty(const S32 tex);
 
@@ -101,6 +101,7 @@ protected:
 
     void setPixel(const LLColor4U &col, const S32 i, const S32 j)
     {
+        LLImageDataSharedLock lock(mImageRaw[sCurrent]);
         S32 offset = (i * SKYTEX_RESOLUTION + j) * SKYTEX_COMPONENTS;
         U32* pix = (U32*) &(mImageRaw[sCurrent]->getData()[offset]);
         *pix = col.asRGBA();
@@ -109,14 +110,15 @@ protected:
     LLColor4U getPixel(const S32 i, const S32 j)
     {
         LLColor4U col;
+        LLImageDataSharedLock lock(mImageRaw[sCurrent]);
         S32 offset = (i * SKYTEX_RESOLUTION + j) * SKYTEX_COMPONENTS;
         U32* pix = (U32*) &(mImageRaw[sCurrent]->getData()[offset]);
         col.fromRGBA( *pix );
         return col;
     }
 
-    LLImageRaw* getImageRaw(BOOL curr=TRUE);
-    void createGLImage(BOOL curr=TRUE);
+    LLImageRaw* getImageRaw(bool curr=true);
+    void createGLImage(S32 which);
 
     bool mIsShiny;
 };
@@ -135,7 +137,7 @@ protected:
     LLVector3       mAngularVelocity;       // velocity of the local heavenly body
 
     F32             mDiskRadius;
-    bool            mDraw;                  // FALSE - do not draw.
+    bool            mDraw;                  // false - do not draw.
     F32             mHorizonVisibility;     // number [0, 1] due to how horizon
     F32             mVisibility;            // same but due to other objects being in throng.
     bool            mVisible;
@@ -229,7 +231,7 @@ public:
     // later?
     /*virtual*/ void updateTextures();
     /*virtual*/ LLDrawable* createDrawable(LLPipeline *pipeline);
-    /*virtual*/ BOOL        updateGeometry(LLDrawable *drawable);
+    /*virtual*/ bool        updateGeometry(LLDrawable *drawable);
 
     const LLHeavenBody& getSun() const                      { return mSun;  }
     const LLHeavenBody& getMoon() const                     { return mMoon; }

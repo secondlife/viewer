@@ -61,7 +61,7 @@ LLPanelVoiceEffect::~LLPanelVoiceEffect()
 }
 
 // virtual
-BOOL LLPanelVoiceEffect::postBuild()
+bool LLPanelVoiceEffect::postBuild()
 {
     mVoiceEffectCombo = getChild<LLComboBox>("voice_effect");
 
@@ -78,7 +78,7 @@ BOOL LLPanelVoiceEffect::postBuild()
 
     update(true);
 
-    return TRUE;
+    return true;
 }
 
 //////////////////////////////////////////////////////////////////////////

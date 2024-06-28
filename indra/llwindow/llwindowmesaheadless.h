@@ -39,38 +39,38 @@ public:
     /*virtual*/ void show() {};
     /*virtual*/ void hide() {};
     /*virtual*/ void close() {};
-    /*virtual*/ BOOL getVisible() {return FALSE;};
-    /*virtual*/ BOOL getMinimized() {return FALSE;};
-    /*virtual*/ BOOL getMaximized() {return FALSE;};
-    /*virtual*/ BOOL maximize() {return FALSE;};
+    /*virtual*/ bool getVisible() {return false;};
+    /*virtual*/ bool getMinimized() {return false;};
+    /*virtual*/ bool getMaximized() {return false;};
+    /*virtual*/ bool maximize() {return false;};
     /*virtual*/ void minimize() {};
     /*virtual*/ void restore() {};
-    /*virtual*/ BOOL getFullscreen() {return FALSE;};
-    /*virtual*/ BOOL getPosition(LLCoordScreen *position) {return FALSE;};
-    /*virtual*/ BOOL getSize(LLCoordScreen *size) {return FALSE;};
-    /*virtual*/ BOOL getSize(LLCoordWindow *size) {return FALSE;};
-    /*virtual*/ BOOL setPosition(LLCoordScreen position) {return FALSE;};
-    /*virtual*/ BOOL setSizeImpl(LLCoordScreen size) {return FALSE;};
-    /*virtual*/ BOOL switchContext(BOOL fullscreen, const LLCoordScreen &size, BOOL disable_vsync, const LLCoordScreen * const posp = NULL) {return FALSE;};
-    /*virtual*/ BOOL setCursorPosition(LLCoordWindow position) {return FALSE;};
-    /*virtual*/ BOOL getCursorPosition(LLCoordWindow *position) {return FALSE;};
+    /*virtual*/ bool getFullscreen() {return false;};
+    /*virtual*/ bool getPosition(LLCoordScreen *position) {return false;};
+    /*virtual*/ bool getSize(LLCoordScreen *size) {return false;};
+    /*virtual*/ bool getSize(LLCoordWindow *size) {return false;};
+    /*virtual*/ bool setPosition(LLCoordScreen position) {return false;};
+    /*virtual*/ bool setSizeImpl(LLCoordScreen size) {return false;};
+    /*virtual*/ bool switchContext(bool fullscreen, const LLCoordScreen &size, bool disable_vsync, const LLCoordScreen * const posp = NULL) {return false;};
+    /*virtual*/ bool setCursorPosition(LLCoordWindow position) {return false;};
+    /*virtual*/ bool getCursorPosition(LLCoordWindow *position) {return false;};
     /*virtual*/ void showCursor() {};
     /*virtual*/ void hideCursor() {};
     /*virtual*/ void showCursorFromMouseMove() {};
     /*virtual*/ void hideCursorUntilMouseMove() {};
-    /*virtual*/ BOOL isCursorHidden() {return FALSE;};
+    /*virtual*/ bool isCursorHidden() {return false;};
     /*virtual*/ void updateCursor() {};
     //virtual ECursorType getCursor() { return mCurrentCursor; };
     /*virtual*/ void captureMouse() {};
     /*virtual*/ void releaseMouse() {};
-    /*virtual*/ void setMouseClipping( BOOL b ) {};
-    /*virtual*/ BOOL isClipboardTextAvailable() {return FALSE; };
-    /*virtual*/ BOOL pasteTextFromClipboard(LLWString &dst) {return FALSE; };
-    /*virtual*/ BOOL copyTextToClipboard(const LLWString &src) {return FALSE; };
+    /*virtual*/ void setMouseClipping( bool b ) {};
+    /*virtual*/ bool isClipboardTextAvailable() {return false; };
+    /*virtual*/ bool pasteTextFromClipboard(LLWString &dst) {return false; };
+    /*virtual*/ bool copyTextToClipboard(const LLWString &src) {return false; };
     /*virtual*/ void flashIcon(F32 seconds) {};
     /*virtual*/ F32 getGamma() {return 1.0f; };
-    /*virtual*/ BOOL setGamma(const F32 gamma) {return FALSE; }; // Set the gamma
-    /*virtual*/ BOOL restoreGamma() {return FALSE; };   // Restore original gamma table (before updating gamma)
+    /*virtual*/ bool setGamma(const F32 gamma) {return false; }; // Set the gamma
+    /*virtual*/ bool restoreGamma() {return false; };   // Restore original gamma table (before updating gamma)
     /*virtual*/ void setFSAASamples(const U32 fsaa_samples) { /* FSAA not supported yet on Mesa headless.*/ }
     /*virtual*/ U32  getFSAASamples() { return 0; }
     //virtual ESwapMethod getSwapMethod() { return mSwapMethod; }
@@ -80,12 +80,12 @@ public:
     /*virtual*/ void restoreGLContext() {};
 
     // handy coordinate space conversion routines
-    /*virtual*/ BOOL convertCoords(LLCoordScreen from, LLCoordWindow *to) { return FALSE; };
-    /*virtual*/ BOOL convertCoords(LLCoordWindow from, LLCoordScreen *to) { return FALSE; };
-    /*virtual*/ BOOL convertCoords(LLCoordWindow from, LLCoordGL *to) { return FALSE; };
-    /*virtual*/ BOOL convertCoords(LLCoordGL from, LLCoordWindow *to) { return FALSE; };
-    /*virtual*/ BOOL convertCoords(LLCoordScreen from, LLCoordGL *to) { return FALSE; };
-    /*virtual*/ BOOL convertCoords(LLCoordGL from, LLCoordScreen *to) { return FALSE; };
+    /*virtual*/ bool convertCoords(LLCoordScreen from, LLCoordWindow *to) { return false; };
+    /*virtual*/ bool convertCoords(LLCoordWindow from, LLCoordScreen *to) { return false; };
+    /*virtual*/ bool convertCoords(LLCoordWindow from, LLCoordGL *to) { return false; };
+    /*virtual*/ bool convertCoords(LLCoordGL from, LLCoordWindow *to) { return false; };
+    /*virtual*/ bool convertCoords(LLCoordScreen from, LLCoordGL *to) { return false; };
+    /*virtual*/ bool convertCoords(LLCoordGL from, LLCoordScreen *to) { return false; };
 
     /*virtual*/ LLWindowResolution* getSupportedResolutions(S32 &num_resolutions) { return NULL; };
     /*virtual*/ F32 getNativeAspectRatio() { return 1.0f; };
@@ -97,8 +97,8 @@ public:
 
     LLWindowMesaHeadless(LLWindowCallbacks* callbacks,
                          const std::string& title, const std::string& name, S32 x, S32 y, S32 width, S32 height,
-                  U32 flags,  BOOL fullscreen, BOOL clearBg,
-                  BOOL disable_vsync, BOOL use_gl, BOOL ignore_pixel_depth);
+                  U32 flags,  bool fullscreen, bool clearBg,
+                  bool disable_vsync, bool use_gl, bool ignore_pixel_depth);
     ~LLWindowMesaHeadless();
 
 private:

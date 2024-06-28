@@ -83,8 +83,8 @@ public:
 
     void requestGetCharacters(request_id_t pRequestId, object_request_callback_t pCharactersCallback) const;
 
-    typedef boost::function<void (BOOL)>         agent_state_callback_t;
-    typedef boost::signals2::signal<void (BOOL)> agent_state_signal_t;
+    typedef boost::function<void (bool)>         agent_state_callback_t;
+    typedef boost::signals2::signal<void (bool)> agent_state_signal_t;
     typedef boost::signals2::connection          agent_state_slot_t;
 
     agent_state_slot_t registerAgentStateListener(agent_state_callback_t pAgentStateCallback);
@@ -114,7 +114,7 @@ private:
     //void handleNavMeshStatusRequest(const LLPathfindingNavMeshStatus &pNavMeshStatus, LLViewerRegion *pRegion, bool pIsGetStatusOnly);
     void handleNavMeshStatusUpdate(const LLPathfindingNavMeshStatus &pNavMeshStatus);
 
-    void handleAgentState(BOOL pCanRebakeRegion);
+    void handleAgentState(bool pCanRebakeRegion);
 
     LLPathfindingNavMeshPtr getNavMeshForRegion(const LLUUID &pRegionUUID);
     LLPathfindingNavMeshPtr getNavMeshForRegion(LLViewerRegion *pRegion);

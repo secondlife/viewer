@@ -52,11 +52,11 @@ LLViewerTexLayerSetBuffer::LLViewerTexLayerSetBuffer(LLTexLayerSet* const owner,
                                          S32 width, S32 height) :
     // ORDER_LAST => must render these after the hints are created.
     LLTexLayerSetBuffer(owner),
-    LLViewerDynamicTexture(width, height, 4, LLViewerDynamicTexture::ORDER_LAST, FALSE),
-    mNeedsUpdate(TRUE),
+    LLViewerDynamicTexture(width, height, 4, LLViewerDynamicTexture::ORDER_LAST, false),
+    mNeedsUpdate(true),
     mNumLowresUpdates(0)
 {
-    mGLTexturep->setNeedsAlphaAndPickMask(FALSE);
+    mGLTexturep->setNeedsAlphaAndPickMask(false);
 
     LLViewerTexLayerSetBuffer::sGLByteCount += getSize();
     mNeedsUpdateTimer.start();
@@ -99,7 +99,7 @@ void LLViewerTexLayerSetBuffer::dumpTotalByteCount()
 void LLViewerTexLayerSetBuffer::requestUpdate()
 {
     restartUpdateTimer();
-    mNeedsUpdate = TRUE;
+    mNeedsUpdate = true;
     mNumLowresUpdates = 0;
 }
 
@@ -110,30 +110,30 @@ void LLViewerTexLayerSetBuffer::restartUpdateTimer()
 }
 
 // virtual
-BOOL LLViewerTexLayerSetBuffer::needsRender()
+bool LLViewerTexLayerSetBuffer::needsRender()
 {
     llassert(mTexLayerSet->getAvatarAppearance() == gAgentAvatarp);
-    if (!isAgentAvatarValid()) return FALSE;
+    if (!isAgentAvatarValid()) return false;
 
-    const BOOL update_now = mNeedsUpdate && isReadyToUpdate();
+    const bool update_now = mNeedsUpdate && isReadyToUpdate();
 
     // Don't render if we don't want to (or aren't ready to) update.
     if (!update_now)
     {
-        return FALSE;
+        return false;
     }
 
     // Don't render if we're animating our appearance.
     if (gAgentAvatarp->getIsAppearanceAnimating())
     {
-        return FALSE;
+        return false;
     }
 
     // Don't render if we are trying to create a skirt texture but aren't wearing a skirt.
     if (gAgentAvatarp->getBakedTE(getViewerTexLayerSet()) == LLAvatarAppearanceDefines::TEX_SKIRT_BAKED &&
         !gAgentAvatarp->isWearingWearableType(LLWearableType::WT_SKIRT))
     {
-        return FALSE;
+        return false;
     }
 
     // Render if we have at least minimal level of detail for each local texture.
@@ -146,11 +146,11 @@ void LLViewerTexLayerSetBuffer::preRenderTexLayerSet()
     LLTexLayerSetBuffer::preRenderTexLayerSet();
 
     // keep depth buffer, we don't need to clear it
-    LLViewerDynamicTexture::preRender(FALSE);
+    LLViewerDynamicTexture::preRender(false);
 }
 
 // virtual
-void LLViewerTexLayerSetBuffer::postRenderTexLayerSet(BOOL success)
+void LLViewerTexLayerSetBuffer::postRenderTexLayerSet(bool success)
 {
 
     LLTexLayerSetBuffer::postRenderTexLayerSet(success);
@@ -158,9 +158,9 @@ void LLViewerTexLayerSetBuffer::postRenderTexLayerSet(BOOL success)
 }
 
 // virtual
-void LLViewerTexLayerSetBuffer::midRenderTexLayerSet(BOOL success)
+void LLViewerTexLayerSetBuffer::midRenderTexLayerSet(bool success)
 {
-    const BOOL update_now = mNeedsUpdate && isReadyToUpdate();
+    const bool update_now = mNeedsUpdate && isReadyToUpdate();
     if (update_now)
     {
         doUpdate();
@@ -171,18 +171,18 @@ void LLViewerTexLayerSetBuffer::midRenderTexLayerSet(BOOL success)
     mGLTexturep->setGLTextureCreated(true);
 }
 
-BOOL LLViewerTexLayerSetBuffer::isInitialized(void) const
+bool LLViewerTexLayerSetBuffer::isInitialized(void) const
 {
     return mGLTexturep.notNull() && mGLTexturep->isGLTextureCreated();
 }
 
-BOOL LLViewerTexLayerSetBuffer::isReadyToUpdate() const
+bool LLViewerTexLayerSetBuffer::isReadyToUpdate() const
 {
     // If we requested an update and have the final LOD ready, then update.
-    if (getViewerTexLayerSet()->isLocalTextureDataFinal()) return TRUE;
+    if (getViewerTexLayerSet()->isLocalTextureDataFinal()) return true;
 
     // If we haven't done an update yet, then just do one now regardless of state of textures.
-    if (mNumLowresUpdates == 0) return TRUE;
+    if (mNumLowresUpdates == 0) return true;
 
     // Update if we've hit a timeout.  Unlike for uploads, we can make this timeout fairly small
     // since render unnecessarily doesn't cost much.
@@ -190,22 +190,22 @@ BOOL LLViewerTexLayerSetBuffer::isReadyToUpdate() const
     if (TEXTURE_TIMEOUT != 0)
     {
         // If we hit our timeout and have textures available at even lower resolution, then update.
-        const BOOL is_update_textures_timeout = mNeedsUpdateTimer.getElapsedTimeF32() >= TEXTURE_TIMEOUT;
-        const BOOL has_lower_lod = getViewerTexLayerSet()->isLocalTextureDataAvailable();
-        if (has_lower_lod && is_update_textures_timeout) return TRUE;
+        const bool is_update_textures_timeout = mNeedsUpdateTimer.getElapsedTimeF32() >= TEXTURE_TIMEOUT;
+        const bool has_lower_lod = getViewerTexLayerSet()->isLocalTextureDataAvailable();
+        if (has_lower_lod && is_update_textures_timeout) return true;
     }
 
-    return FALSE;
+    return false;
 }
 
-BOOL LLViewerTexLayerSetBuffer::requestUpdateImmediate()
+bool LLViewerTexLayerSetBuffer::requestUpdateImmediate()
 {
-    mNeedsUpdate = TRUE;
-    BOOL result = FALSE;
+    mNeedsUpdate = true;
+    bool result = false;
 
     if (needsRender())
     {
-        preRender(FALSE);
+        preRender(false);
         result = render();
         postRender(result);
     }
@@ -218,10 +218,10 @@ BOOL LLViewerTexLayerSetBuffer::requestUpdateImmediate()
 void LLViewerTexLayerSetBuffer::doUpdate()
 {
     LLViewerTexLayerSet* layer_set = getViewerTexLayerSet();
-    const BOOL highest_lod = layer_set->isLocalTextureDataFinal();
+    const bool highest_lod = layer_set->isLocalTextureDataFinal();
     if (highest_lod)
     {
-        mNeedsUpdate = FALSE;
+        mNeedsUpdate = false;
     }
     else
     {
@@ -237,7 +237,7 @@ void LLViewerTexLayerSetBuffer::doUpdate()
     // Print out notification that we updated this texture.
     if (gSavedSettings.getBOOL("DebugAvatarRezTime"))
     {
-        const BOOL highest_lod = layer_set->isLocalTextureDataFinal();
+        const bool highest_lod = layer_set->isLocalTextureDataFinal();
         const std::string lod_str = highest_lod ? "HighRes" : "LowRes";
         LLSD args;
         args["EXISTENCE"] = llformat("%d",(U32)layer_set->getAvatar()->debugGetExistenceTimeElapsedF32());
@@ -256,7 +256,7 @@ void LLViewerTexLayerSetBuffer::doUpdate()
 
 LLViewerTexLayerSet::LLViewerTexLayerSet(LLAvatarAppearance* const appearance) :
     LLTexLayerSet(appearance),
-    mUpdatesEnabled( FALSE )
+    mUpdatesEnabled( false )
 {
 }
 
@@ -265,18 +265,18 @@ LLViewerTexLayerSet::~LLViewerTexLayerSet()
 {
 }
 
-// Returns TRUE if at least one packet of data has been received for each of the textures that this layerset depends on.
-BOOL LLViewerTexLayerSet::isLocalTextureDataAvailable() const
+// Returns true if at least one packet of data has been received for each of the textures that this layerset depends on.
+bool LLViewerTexLayerSet::isLocalTextureDataAvailable() const
 {
-    if (!mAvatarAppearance->isSelf()) return FALSE;
+    if (!mAvatarAppearance->isSelf()) return false;
     return getAvatar()->isLocalTextureDataAvailable(this);
 }
 
 
-// Returns TRUE if all of the data for the textures that this layerset depends on have arrived.
-BOOL LLViewerTexLayerSet::isLocalTextureDataFinal() const
+// Returns true if all of the data for the textures that this layerset depends on have arrived.
+bool LLViewerTexLayerSet::isLocalTextureDataFinal() const
 {
-    if (!mAvatarAppearance->isSelf()) return FALSE;
+    if (!mAvatarAppearance->isSelf()) return false;
     return getAvatar()->isLocalTextureDataFinal(this);
 }
 
@@ -312,7 +312,7 @@ void LLViewerTexLayerSet::createComposite()
     }
 }
 
-void LLViewerTexLayerSet::setUpdatesEnabled( BOOL b )
+void LLViewerTexLayerSet::setUpdatesEnabled( bool b )
 {
     mUpdatesEnabled = b;
 }
@@ -342,7 +342,7 @@ const std::string LLViewerTexLayerSetBuffer::dumpTextureInfo() const
 {
     if (!isAgentAvatarValid()) return "";
 
-    const BOOL is_high_res = TRUE;
+    const bool is_high_res = true;
     const U32 num_low_res = 0;
     const std::string local_texture_info = gAgentAvatarp->debugDumpLocalTextureDataInfo(getViewerTexLayerSet());
 

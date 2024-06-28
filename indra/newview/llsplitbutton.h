@@ -71,8 +71,8 @@ public:
 
     //Overridden
     virtual void    onFocusLost();
-    virtual void    setFocus(BOOL b);
-    virtual void    setEnabled(BOOL enabled);
+    virtual void    setFocus(bool b);
+    virtual void    setEnabled(bool enabled);
 
     //Callbacks
     void    onArrowBtnDown();
@@ -80,7 +80,7 @@ public:
     void    onItemSelected(LLUICtrl* ctrl);
     void    setSelectionCallback(commit_callback_t cb) { mSelectionCallback = cb; }
 
-    virtual BOOL handleMouseUp(S32 x, S32 y, MASK mask);
+    virtual bool handleMouseUp(S32 x, S32 y, MASK mask);
 
     virtual void    showButtons();
     virtual void    hideButtons();
