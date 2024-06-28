@@ -70,13 +70,10 @@ public:
 
     /*virtual*/ bool isActive() const; // Whether this object needs to do an idleUpdate.
 
-    void setUseTexture(const bool use_texture);
     void setIsEdgePatch(const bool edge_patch);
-    bool getUseTexture() const { return mUseTexture; }
     bool getIsEdgePatch() const { return mIsEdgePatch; }
 
 protected:
-    bool mUseTexture;
     bool mIsEdgePatch;
     S32  mRenderType;
 };

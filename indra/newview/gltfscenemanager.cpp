@@ -144,7 +144,7 @@ void GLTFSceneManager::uploadSelection()
                 }
                 else
                 {
-                    raw = image.mTexture->getCachedRawImage();
+                    raw = image.mTexture->getRawImage();
                 }
 
                 if (raw.notNull())
@@ -339,6 +339,7 @@ void GLTFSceneManager::renderAlpha()
 
 void GLTFSceneManager::addGLTFObject(LLViewerObject* obj, LLUUID gltf_id)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_GLTF;
     llassert(obj->getVolume()->getParams().getSculptID() == gltf_id);
     llassert(obj->getVolume()->getParams().getSculptType() == LL_SCULPT_TYPE_GLTF);
 

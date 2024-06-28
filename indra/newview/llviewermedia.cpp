@@ -1253,40 +1253,45 @@ void LLViewerMedia::getOpenIDCookieCoro(std::string url)
         hostEnd = authority.size();
     }
 
-    LLViewerMedia* inst = getInstance();
     if (url.length())
     {
-        LLMediaCtrl* media_instance = LLFloaterReg::getInstance("destinations")->getChild<LLMediaCtrl>("destination_guide_contents");
-        if (media_instance)
-        {
-            std::string cookie_host = authority.substr(hostStart, hostEnd - hostStart);
-            std::string cookie_name = "";
-            std::string cookie_value = "";
-            std::string cookie_path = "";
-            bool httponly = true;
-            bool secure = true;
-            if (inst->parseRawCookie(inst->mOpenIDCookie, cookie_name, cookie_value, cookie_path, httponly, secure) &&
-                media_instance->getMediaPlugin())
+        LLAppViewer::instance()->postToMainCoro([=]()
             {
-                // MAINT-5711 - inexplicably, the CEF setCookie function will no longer set the cookie if the
-                // url and domain are not the same. This used to be my.sl.com and id.sl.com respectively and worked.
-                // For now, we use the URL for the OpenID POST request since it will have the same authority
-                // as the domain field.
-                // (Feels like there must be a less dirty way to construct a URL from component LLURL parts)
-                // MAINT-6392 - Rider: Do not change, however, the original URI requested, since it is used further
-                // down.
-                std::string cefUrl(std::string(inst->mOpenIDURL.mURI) + "://" + std::string(inst->mOpenIDURL.mAuthority));
+                LLMediaCtrl* media_instance = LLFloaterReg::getInstance("destinations")->getChild<LLMediaCtrl>("destination_guide_contents");
+                if (media_instance)
+                {
+                    LLViewerMedia* inst = getInstance();
+                    std::string cookie_host = authority.substr(hostStart, hostEnd - hostStart);
+                    std::string cookie_name = "";
+                    std::string cookie_value = "";
+                    std::string cookie_path = "";
+                    bool httponly = true;
+                    bool secure = true;
+                    if (inst->parseRawCookie(inst->mOpenIDCookie, cookie_name, cookie_value, cookie_path, httponly, secure) &&
+                        media_instance->getMediaPlugin())
+                    {
+                        // MAINT-5711 - inexplicably, the CEF setCookie function will no longer set the cookie if the
+                        // url and domain are not the same. This used to be my.sl.com and id.sl.com respectively and worked.
+                        // For now, we use the URL for the OpenID POST request since it will have the same authority
+                        // as the domain field.
+                        // (Feels like there must be a less dirty way to construct a URL from component LLURL parts)
+                        // MAINT-6392 - Rider: Do not change, however, the original URI requested, since it is used further
+                        // down.
+                        std::string cefUrl(std::string(inst->mOpenIDURL.mURI) + "://" + std::string(inst->mOpenIDURL.mAuthority));
 
-                media_instance->getMediaPlugin()->setCookie(cefUrl, cookie_name, cookie_value, cookie_host,
-                    cookie_path, httponly, secure);
+                        media_instance->getMediaPlugin()->setCookie(cefUrl, cookie_name, cookie_value, cookie_host,
+                            cookie_path, httponly, secure);
 
-                // Now that we have parsed the raw cookie, we must store it so that each new media instance
-                // can also get a copy and faciliate logging into internal SL sites.
-                media_instance->getMediaPlugin()->storeOpenIDCookie(cefUrl, cookie_name, cookie_value,
-                    cookie_host, cookie_path, httponly, secure);
-            }
-        }
+                        // Now that we have parsed the raw cookie, we must store it so that each new media instance
+                        // can also get a copy and faciliate logging into internal SL sites.
+                        media_instance->getMediaPlugin()->storeOpenIDCookie(cefUrl, cookie_name, cookie_value,
+                            cookie_host, cookie_path, httponly, secure);
+                    }
+                }
+            });
     }
+
+    LLViewerMedia* inst = getInstance();
 
     // Note: Rider: MAINT-6392 - Some viewer code requires access to the my.sl.com openid cookie for such
     // actions as posting snapshots to the feed.  This is handled through HTTPCore rather than CEF and so

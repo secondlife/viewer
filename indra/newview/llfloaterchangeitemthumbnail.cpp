@@ -951,8 +951,8 @@ void LLFloaterChangeItemThumbnail::onTexturePickerCommit()
             || texturep->getFullWidth() == 0)
         {
             if (texturep->isFullyLoaded()
-                && (texturep->getCachedRawImageLevel() == 0 || texturep->getRawImageLevel() == 0)
-                && (texturep->isCachedRawImageReady() || texturep->isRawImageValid()))
+                && (texturep->getRawImageLevel() == 0)
+                && (texturep->isRawImageValid()))
             {
                 LLUUID task_id = mTaskId;
                 uuid_set_t inventory_ids = mItemList;
@@ -962,20 +962,10 @@ void LLFloaterChangeItemThumbnail::onTexturePickerCommit()
                     {
                         onUploadComplete(asset_id, task_id, inventory_ids, handle);
                     };
-                if (texturep->isRawImageValid())
-                {
-                    LLFloaterSimpleSnapshot::uploadThumbnail(texturep->getRawImage(),
-                                                             *mItemList.begin(),
-                                                             mTaskId,
-                                                             callback);
-                }
-                else
-                {
-                    LLFloaterSimpleSnapshot::uploadThumbnail(texturep->getCachedRawImage(),
-                                                             *mItemList.begin(),
-                                                             mTaskId,
-                                                             callback);
-                }
+                LLFloaterSimpleSnapshot::uploadThumbnail(texturep->getRawImage(),
+                                                            *mItemList.begin(),
+                                                            mTaskId,
+                                                            callback);
             }
             else
             {

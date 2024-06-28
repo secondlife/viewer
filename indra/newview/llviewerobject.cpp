@@ -3676,7 +3676,9 @@ bool LLViewerObject::updateLOD()
 
 bool LLViewerObject::updateGeometry(LLDrawable *drawable)
 {
-    return false;
+    // return true means "update complete", return false means "try again next frame"
+    // default should be return true
+    return true;
 }
 
 void LLViewerObject::updateGL()

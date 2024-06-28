@@ -906,15 +906,8 @@ void LLSurfacePatch::updateGL()
 
     updateCompositionStats();
     F32 tex_patch_size = meters_per_grid*grids_per_patch_edge;
-    if (comp->generateMinimapTileLand((F32)origin_region[VX], (F32)origin_region[VY],
-                              tex_patch_size, tex_patch_size))
-    {
-        mSTexUpdate = false;
 
-        // Also generate the water texture
-        mSurfacep->generateWaterTexture((F32)origin_region.mdV[VX], (F32)origin_region.mdV[VY],
-                                        tex_patch_size, tex_patch_size);
-    }
+    mSTexUpdate = false;
 }
 
 void LLSurfacePatch::dirtyZ()
