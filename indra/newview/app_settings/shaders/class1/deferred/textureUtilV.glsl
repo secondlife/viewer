@@ -94,36 +94,48 @@ vec2 terrain_texture_transform(vec2 vertex_texcoord, vec4[2] khr_gltf_transform)
 // Take the rotation only from both transforms and apply to the tangent. This
 // accounts for the change of the topology of the normal texture when a texture
 // rotation is applied to it.
+// In practice, this applies the inverse of the texture transform to the tangent.
+// It is effectively an inverse of the rotation
 // *HACK: Assume the imported GLTF model did not have both normal texture
 // transforms and tangent vertices. The use of this function is inconsistent
 // with the GLTF sample viewer when that is the case. See getNormalInfo in
 // https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Viewer/47a191931461a6f2e14de48d6da0f0eb6ec2d147/source/Renderer/shaders/material_info.glsl
 // We may want to account for this case during GLTF model import.
 // -Cosmic,2023-06-06
-vec3 tangent_space_transform(vec4 vertex_tangent, vec3 vertex_normal, vec4[2] khr_gltf_transform, mat4 sl_animation_transform)
+vec4 tangent_space_transform(vec4 vertex_tangent, vec3 vertex_normal, vec4[2] khr_gltf_transform, mat4 sl_animation_transform)
 {
-    vec2 weights = vec2(0, 1);
+    // Immediately convert to left-handed coordinate system, but it has no
+    // effect here because y is 0 ((1,0) -> (1,0))
+    vec2 weights = vec2(1, 0);
 
-    // Apply texture animation first to avoid shearing and other artifacts (rotation only)
-    mat2 sl_rot_scale;
-    sl_rot_scale[0][0] = sl_animation_transform[0][0];
-    sl_rot_scale[0][1] = sl_animation_transform[0][1];
-    sl_rot_scale[1][0] = sl_animation_transform[1][0];
-    sl_rot_scale[1][1] = sl_animation_transform[1][1];
-    weights = sl_rot_scale * weights;
-    // Remove scale
-    weights = normalize(weights);
-
-    // Convert to left-handed coordinate system
-    weights.y = -weights.y;
-
-    // Apply KHR_texture_transform (rotation only)
-    float khr_rotation = khr_gltf_transform[0].z;
+    // Apply inverse KHR_texture_transform (rotation and scale sign only)
+    float khr_rotation = -khr_gltf_transform[0].z;
     mat2 khr_rotation_mat = mat2(
         cos(khr_rotation),-sin(khr_rotation),
         sin(khr_rotation), cos(khr_rotation)
     );
     weights = khr_rotation_mat * weights;
+    vec2 khr_scale_sign = sign(khr_gltf_transform[0].xy);
+    weights *= khr_scale_sign.xy;
+
+    // *NOTE: Delay conversion to right-handed coordinate system here, to
+    // remove the need for computing the inverse of the SL texture animation
+    // matrix.
+
+    // Apply texture animation last to avoid shearing and other artifacts (rotation only)
+    mat2 inv_sl_rot_scale;
+    inv_sl_rot_scale[0][0] = sl_animation_transform[0][0];
+    inv_sl_rot_scale[0][1] = sl_animation_transform[0][1];
+    inv_sl_rot_scale[1][0] = sl_animation_transform[1][0];
+    inv_sl_rot_scale[1][1] = sl_animation_transform[1][1];
+    weights = inv_sl_rot_scale * weights;
+    // *NOTE: Scale to be removed later
+
+    // Set weights to default if 0 for some reason
+    weights.x += 1.0 - abs(sign(sign(weights.x) + (0.5 * sign(weights.y))));
+
+    // Remove scale from SL texture animation transform
+    weights = normalize(weights);
 
     // Convert back to right-handed coordinate system
     weights.y = -weights.y;
@@ -132,27 +144,41 @@ vec3 tangent_space_transform(vec4 vertex_tangent, vec3 vertex_normal, vec4[2] kh
     // from the normal and tangent, as seen in the fragment shader
     vec3 vertex_binormal = vertex_tangent.w * cross(vertex_normal, vertex_tangent.xyz);
 
-    return (weights.x * vertex_binormal.xyz) + (weights.y * vertex_tangent.xyz);
+    // An additional sign flip prevents the binormal from being flipped as a
+    // result of a propagation of the tangent sign during the cross product.
+    float sign_flip = khr_scale_sign.x * khr_scale_sign.y;
+    return vec4((weights.x * vertex_tangent.xyz) + (weights.y * vertex_binormal.xyz), vertex_tangent.w * sign_flip);
 }
 
 // Similar to tangent_space_transform but no texture animation support.
-vec3 terrain_tangent_space_transform(vec4 vertex_tangent, vec3 vertex_normal, vec4[2] khr_gltf_transform)
+vec4 terrain_tangent_space_transform(vec4 vertex_tangent, vec3 vertex_normal, vec4[2] khr_gltf_transform)
 {
-    // Immediately convert to left-handed coordinate system ((0,1) -> (0, -1))
-    vec2 weights = vec2(0, -1);
+    // Immediately convert to left-handed coordinate system, but it has no
+    // effect here because y is 0 ((1,0) -> (1,0))
+    vec2 weights = vec2(1, 0);
 
-    // Apply KHR_texture_transform (rotation only)
-    float khr_rotation = khr_gltf_transform[0].z;
+    // Apply inverse KHR_texture_transform (rotation and scale sign only)
+    float khr_rotation = -khr_gltf_transform[0].z;
     mat2 khr_rotation_mat = mat2(
         cos(khr_rotation),-sin(khr_rotation),
         sin(khr_rotation), cos(khr_rotation)
     );
     weights = khr_rotation_mat * weights;
+    vec2 khr_scale_sign = sign(khr_gltf_transform[0].xy);
+    weights *= khr_scale_sign.xy;
+
+    // Set weights to default if 0 for some reason
+    weights.x += 1.0 - abs(sign(sign(weights.x) + (0.5 * sign(weights.y))));
 
     // Convert back to right-handed coordinate system
     weights.y = -weights.y;
 
+    // Similar to the MikkTSpace-compatible method of extracting the binormal
+    // from the normal and tangent, as seen in the fragment shader
     vec3 vertex_binormal = vertex_tangent.w * cross(vertex_normal, vertex_tangent.xyz);
 
-    return (weights.x * vertex_binormal.xyz) + (weights.y * vertex_tangent.xyz);
+    // An additional sign flip prevents the binormal from being flipped as a
+    // result of a propagation of the tangent sign during the cross product.
+    float sign_flip = khr_scale_sign.x * khr_scale_sign.y;
+    return vec4((weights.x * vertex_tangent.xyz) + (weights.y * vertex_binormal.xyz), vertex_tangent.w * sign_flip);
 }
