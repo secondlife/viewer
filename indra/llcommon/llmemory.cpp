@@ -86,7 +86,7 @@ void LLMemory::initMaxHeapSizeGB(F32Gigabytes max_heap_size)
 void LLMemory::updateMemoryInfo()
 {
     LL_PROFILE_ZONE_SCOPED
-    U32Kilobytes avail_phys; 
+    U32Kilobytes avail_phys;
 #if LL_WINDOWS
     PROCESS_MEMORY_COUNTERS counters;
 
@@ -99,7 +99,7 @@ void LLMemory::updateMemoryInfo()
     sAllocatedMemInKB = U32Kilobytes::convert(U64Bytes(counters.WorkingSetSize));
     sAllocatedPageSizeInKB = U32Kilobytes::convert(U64Bytes(counters.PagefileUsage));
     sample(sVirtualMem, sAllocatedPageSizeInKB);
-    U32Kilobytes avail_virtual; 
+    U32Kilobytes avail_virtual;
     LLMemoryInfo::getAvailableMemoryKB(avail_phys, avail_virtual) ;
 
 #elif defined(LL_DARWIN)
@@ -160,7 +160,7 @@ void LLMemory::updateMemoryInfo()
 #endif
     sample(sAllocatedMem, sAllocatedMemInKB);
     // sMaxPhysicalMem - max this process can use = the lesser of (what we already have + what's available) or MaxHeap
-    sMaxPhysicalMemInKB = llmin(avail_phys + sAllocatedMemInKB, sMaxHeapSizeInKB); 
+    sMaxPhysicalMemInKB = llmin(avail_phys + sAllocatedMemInKB, sMaxHeapSizeInKB);
 
     if(sMaxPhysicalMemInKB > sAllocatedMemInKB)
     {
