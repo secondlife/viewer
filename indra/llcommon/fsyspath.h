@@ -69,6 +69,11 @@ public:
 
     // shadow base-class string() method with UTF-8 aware method
     std::string string() const { return super::u8string(); }
+    // On Posix systems, where value_type is already char, this operator
+    // std::string() method shadows the base class operator string_type()
+    // method. But on Windows, where value_type is wchar_t, the base class
+    // doesn't have operator std::string(). Provide it.
+    operator std::string() const { return string(); }
 };
 
 #endif /* ! defined(LL_FSYSPATH_H) */
