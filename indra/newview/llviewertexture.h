@@ -102,7 +102,6 @@ public:
         DYNAMIC_TEXTURE,
         FETCHED_TEXTURE,
         LOD_TEXTURE,
-        ATLAS_TEXTURE,
         INVALID_TEXTURE_TYPE
     };
 
@@ -414,6 +413,8 @@ public:
 
     /*virtual*/bool  isActiveFetching() override; //is actively in fetching by the fetching pipeline.
 
+    bool mCreatePending = false;    // if true, this is in gTextureList.mCreateTextureList
+
 protected:
     S32 getCurrentDiscardLevelForFetching() ;
     void forceToRefetchTexture(S32 desired_discard = 0, F32 kept_time = 60.f);
@@ -423,11 +424,6 @@ private:
     void cleanup() ;
 
     void saveRawImage() ;
-
-    //for atlas
-    void resetFaceAtlas() ;
-    void invalidateAtlas(bool rebuild_geom) ;
-    bool insertToAtlas() ;
 
 private:
     bool  mFullyLoaded;
@@ -539,9 +535,10 @@ public:
     /*virtual*/ void processTextureStats();
     bool isUpdateFrozen() ;
 
+    bool scaleDown();
+
 private:
     void init(bool firstinit) ;
-    bool scaleDown() ;
 
 private:
     F32 mDiscardVirtualSize;        // Virtual size used to calculate desired discard

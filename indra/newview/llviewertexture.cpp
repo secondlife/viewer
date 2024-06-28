@@ -513,10 +513,13 @@ void LLViewerTexture::updateClass()
     F32 target = llmax(budget - 512.f, MIN_VRAM_BUDGET);
     sFreeVRAMMegabytes = target - used;
 
-    F32 over_pct = llmax((used-target) / target, 0.f);
+    F32 over_pct = (used - target) / target;
+
+    bool is_low = over_pct > 0.f;
 
     if (isSystemMemoryLow())
     {
+        is_low = true;
         // System RAM is low -> ramp up discard bias over time to free memory
         if (sEvaluationTimer.getElapsedTimeF32() > MEMORY_CHECK_WAIT_TIME)
         {
@@ -529,11 +532,42 @@ void LLViewerTexture::updateClass()
     {
         sDesiredDiscardBias = llmax(sDesiredDiscardBias, 1.f + over_pct);
 
-        if (sDesiredDiscardBias > 1.f)
+        if (sDesiredDiscardBias > 1.f && over_pct < 0.f)
         {
             sDesiredDiscardBias -= gFrameIntervalSeconds * 0.01;
         }
     }
+
+    static bool was_low = false;
+    if (is_low && !was_low)
+    {
+        LL_WARNS() << "Low system memory detected, emergency downrezzing off screen textures" << LL_ENDL;
+        sDesiredDiscardBias = llmax(sDesiredDiscardBias, 1.25f);
+
+        F64 texture_bytes_before = LLImageGL::getTextureBytesAllocated() / 1024.0 / 1024.0 * 1.3333;
+
+        for (auto& image : gTextureList)
+        {
+            if (image->getType() == LLViewerTexture::LOD_TEXTURE &&
+                !image->getDontDiscard() &&
+                !image->isJustBound())
+            {
+                LLImageGL* img  = image->getGLTexture();
+                if (img && img->getHasGLTexture())
+                {
+                    img->scaleDown(img->getDiscardLevel() + 1);
+                }
+            }
+        }
+
+        F64 texture_bytes_after = LLImageGL::getTextureBytesAllocated() / 1024.0 / 1024.0 * 1.3333;
+
+        LL_WARNS() << "Freed " << llformat("%.2f", texture_bytes_before - texture_bytes_after) << " MB of textures" << LL_ENDL;
+    }
+
+    was_low = is_low;
+
+    sDesiredDiscardBias = llclamp(sDesiredDiscardBias, 1.f, 5.f);
 
     LLViewerTexture::sFreezeImageUpdates = false;
 }
@@ -1608,7 +1642,11 @@ void LLViewerFetchedTexture::scheduleCreateTexture()
             }
             else
             {
-                gTextureList.mCreateTextureList.insert(this);
+                if (!mCreatePending)
+                {
+                    mCreatePending = true;
+                    gTextureList.mCreateTextureList.push(this);
+                }
             }
         }
     }
@@ -2981,7 +3019,7 @@ void LLViewerLODTexture::processTextureStats()
 
 bool LLViewerLODTexture::scaleDown()
 {
-    if (mGLTexturep.isNull())
+    if (mGLTexturep.isNull() || !mGLTexturep->getHasGLTexture())
     {
         return false;
     }

@@ -352,8 +352,11 @@ void LLViewerTextureList::shutdown()
     mCallbackList.clear();
 
     // Flush all of the references
-    mLoadingStreamList.clear();
-    mCreateTextureList.clear();
+    while (!mCreateTextureList.empty())
+    {
+        mCreateTextureList.front()->mCreatePending = false;
+        mCreateTextureList.pop();
+    }
     mFastCacheList.clear();
 
     mUUIDMap.clear();
@@ -944,7 +947,7 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
                     min_scale = llclamp(min_scale*min_scale, texture_scale_min(), texture_scale_max());
 
                     vsize /= min_scale;
-                    vsize /= LLViewerTexture::sDesiredDiscardBias;
+                    vsize = powf(vsize, 1.f/LLViewerTexture::sDesiredDiscardBias);
                     vsize /= llmax(1.f, (LLViewerTexture::sDesiredDiscardBias-1.f) * (1.f + face->getDrawable()->mDistanceWRTCamera * bias_distance_scale));
 
                     F32 radius;
@@ -952,7 +955,7 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
                     bool in_frustum = face->calcPixelArea(cos_angle_to_view_dir, radius);
                     if (!in_frustum || !face->getDrawable()->isVisible())
                     { // further reduce by discard bias when off screen or occluded
-                        vsize /= LLViewerTexture::sDesiredDiscardBias;
+                        vsize = powf(vsize, 1.f/LLViewerTexture::sDesiredDiscardBias);
                     }
                     // if a GLTF material is present, ignore that face
                     // as far as this texture stats go, but update the GLTF material
@@ -1068,22 +1071,26 @@ F32 LLViewerTextureList::updateImagesCreateTextures(F32 max_time)
     //
 
     LLTimer create_timer;
-    image_list_t::iterator enditer = mCreateTextureList.begin();
-    for (image_list_t::iterator iter = mCreateTextureList.begin();
-         iter != mCreateTextureList.end();)
+
+    // do at least 5 and make sure we don't get too far behind even if it violates
+    // the time limit.  Textures pending creation have a copy of their texture data
+    // in system memory, so we don't want to let them pile up.
+    S32 min_count = (S32) mCreateTextureList.size() / 20 + 5;
+
+    while (!mCreateTextureList.empty())
     {
-        image_list_t::iterator curiter = iter++;
-        enditer = iter;
-        LLViewerFetchedTexture *imagep = *curiter;
+        LLViewerFetchedTexture *imagep =  mCreateTextureList.front();
+        llassert(imagep->mCreatePending);
         imagep->createTexture();
         imagep->postCreateTexture();
+        imagep->mCreatePending = false;
+        mCreateTextureList.pop();
 
-        if (create_timer.getElapsedTimeF32() > max_time)
+        if (create_timer.getElapsedTimeF32() > max_time && --min_count <= 0)
         {
             break;
         }
     }
-    mCreateTextureList.erase(mCreateTextureList.begin(), enditer);
     return create_timer.getElapsedTimeF32();
 }
 

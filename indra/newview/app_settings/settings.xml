@@ -7725,7 +7725,7 @@
     <key>Type</key>
     <string>U32</string>
     <key>Value</key>
-    <integer>512</integer>
+    <integer>256</integer>
   </map>
   <key>RenderLowMemMinDiscardIncrement</key>
   <map>

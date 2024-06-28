@@ -211,8 +211,8 @@ private:
 
 public:
     typedef std::unordered_set<LLPointer<LLViewerFetchedTexture> > image_list_t;
-    image_list_t mLoadingStreamList;
-    image_list_t mCreateTextureList;
+    typedef std::queue<LLPointer<LLViewerFetchedTexture> > image_queue_t;
+    image_queue_t mCreateTextureList;
     image_list_t mCallbackList;
     image_list_t mFastCacheList;
 
