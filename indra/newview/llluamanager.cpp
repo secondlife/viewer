@@ -265,27 +265,6 @@ void LLLUAmanager::runScriptLine(LuaState& L, const std::string& chunk, script_r
     });
 }
 
-void LLLUAmanager::runScriptOnLogin()
-{
-#ifndef LL_TEST
-    std::string filename = gSavedSettings.getString("AutorunLuaScriptName");
-    if (filename.empty()) 
-    {
-        LL_INFOS() << "Script name wasn't set." << LL_ENDL;
-        return;
-    }
-
-    filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, filename);
-    if (!gDirUtilp->fileExists(filename)) 
-    {
-        LL_INFOS() << filename << " was not found." << LL_ENDL;
-        return;
-    }
-
-    runScriptFile(filename);
-#endif // ! LL_TEST
-}
-
 std::string read_file(const std::string &name)
 {
     llifstream in_file;
