@@ -776,9 +776,11 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
     if (mRT == &mMainRT)
     { // hacky -- allocate auxillary buffer
+
+        gCubeSnapshot = TRUE;
+
         if (sReflectionProbesEnabled)
         {
-            gCubeSnapshot = true;
             mReflectionMapManager.initReflectionMaps();
         }
 
