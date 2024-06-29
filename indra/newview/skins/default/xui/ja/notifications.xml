@@ -180,6 +180,11 @@
 '[ERROR_CODE]'
 		<usetemplate name="okbutton" yestext="ＯＫ"/>
 	</notification>
+	<notification name="InvalidKeystroke">
+		無効なキーストロークが入力されました：
+[REASON]
+有効なテキストを入力してください。
+  </notification>
 	<notification name="MerchantForceValidateListing">
 		出品リストを作成するために、出品リストするコンテンツの階層を固定しました。
 		<tag>confirm</tag>
@@ -945,7 +950,7 @@ L$が不足しているので、このグループに参加することができ
 		[AVATAR_NAME]をフリーズしますか？
 アバターは一時的に動けなくなり、チャットを含めインワールドで何もできなくなります。
 		<tag>confirm</tag>
-		<usetemplate canceltext="キャンセル" name="yesnocancelbuttons" notext="フリーズ解除" yestext="フリーズ"/>
+		<usetemplate canceltext="キャンセル" name="yesnocancelbuttons" notext="解除" yestext="フリーズ"/>
 	</notification>
 	<notification name="EjectAvatarFullname">
 		あなたの土地から[AVATAR_NAMES]を追放しますか？
@@ -1813,13 +1818,13 @@ https://wiki.secondlife.com/wiki/Adding_Spelling_Dictionaries
 		<usetemplate ignoretext="ＨＵＤが複雑すぎる場合の警告" name="notifyignore"/>
 	</notification>
 	<notification name="FirstRun">
-[APP_NAME]のインストールが完了しました。
+		[APP_NAME]のインストールが完了しました。
 [SECOND_LIFE]を使ったことがない場合は、ログインする前にアカウントの作成を行ってください。
 		<tag>confirm</tag>
 		<usetemplate name="okcancelbuttons" notext="続行" yestext="アカウントを作成…"/>
 	</notification>
 	<notification name="LoginCantRemoveUsername">
-		すでに記憶されているユーザーは「私」メニューの「初期設定」＞「拡張設定」＞「記憶されたユーザー名」から削除することができます。
+		すでに記憶されているユーザーは「私」メニューの「初期設定」＞「高度な設定」＞「記憶されたユーザー名」から削除することができます。
 		<tag>fail</tag>
 	</notification>
 	<notification name="LoginCantRemoveCurUsername">
@@ -1938,11 +1943,59 @@ https://wiki.secondlife.com/wiki/Adding_Spelling_Dictionaries
 
 テクスチャは、２４ビットの[MAX_SIZE]x[MAX_SIZE]以下の画像を選択し、「適用」ボタンを再度クリックしてください。
 	</notification>
+	<notification name="InvalidTerrainAlphaNotFullyLoaded">
+		<unique combine="cancel_old" />
+		リージョンテクスチャを設定できませんでした：
+地形テクスチャ[TEXTURE_NUM]は完全には読み込まれていませんが、ビット深度が[TEXTURE_BIT_DEPTH]であるため透明度が含まれていると想定されます。現在、地形テクスチャでは透明度はサポートされていません。
+
+テクスチャ[TEXTURE_NUM] が不透明な場合は、テクスチャが完全に読み込まれるまで待ってから、もう一度「適用」をクリックしてください。
+
+透明度は、地形マテリアル（ＰＢＲメタリック粗さ）でalphaMode="MASK"かつdoubleSided=falseの場合のみサポートされます。
+		<tag>fail</tag>
+	</notification>
+	<notification name="InvalidTerrainAlpha">
+		<unique combine="cancel_old" />
+		リージョンテクスチャを設定できませんでした：
+地形テクスチャ[TEXTURE_NUM]には透明度が含まれています。現在、地形テクスチャでは透明度はサポートされていません。
+
+テクスチャ[TEXTURE_NUM]を不透明なＲＧＢ画像に置き換えてから、もう一度「適用」をクリックしてください。
+
+透明度は、地形マテリアル（ＰＢＲメタリック粗さ）でalphaMode="MASK"かつdoubleSided=falseの場合のみサポートされます。
+	<tag>fail</tag>
+	</notification>
 	<notification name="InvalidTerrainSize">
 		リージョンの地形テクスチャを設定できませんでした：
 地形テクスチャ「[TEXTURE_NUM]」は、[TEXTURE_SIZE_X]×[TEXTURE_SIZE_Y]では大きすぎます。
 
 テクスチャは、２４ビットの[MAX_SIZE]×[MAX_SIZE]以下の画像を選択し、「適用」ボタンを再度クリックしてください。
+	</notification>
+	<notification name="InvalidTerrainMaterialNotLoaded">
+		<unique combine="cancel_old" />
+		リージョンマテリアルを設定できませんでした：
+地形マテリアル[MATERIAL_NUM]が読み込まれていません。
+
+マテリアルが読み込まれるまで待つか、マテリアル[MATERIAL_NUM]を有効なマテリアルに置き換えてください。
+	</notification>
+	<notification name="InvalidTerrainMaterialLoadFailed">
+		<unique combine="cancel_old" />
+		リージョンマテリアルを設定できませんでした：
+地形マテリアル[MATERIAL_NUM]の読み込みに失敗しました。
+
+マテリアル[MATERIAL_NUM]を有効なマテリアルに置き換えてください。
+	</notification>
+	<notification name="InvalidTerrainMaterialDoubleSided">
+		<unique combine="cancel_old" />
+		リージョンマテリアルを設定できませんでした:
+地形マテリアル[MATERIAL_NUM]は両面です。両面マテリアルは現在ＰＢＲ地形ではサポートされていません。
+
+マテリアル[MATERIAL_NUM]をdoubleSided=falseのマテリアルに置き換えてください。
+	</notification>
+	<notification name="InvalidTerrainMaterialAlphaMode">
+		<unique combine="cancel_old" />
+		リージョンマテリアルを設定できませんでした:
+地形マテリアル[MATERIAL_NUM]はサポートされていないalphaMode="[MATERIAL_ALPHA_MODE]を使用しています。
+
+マテリアル[MATERIAL_NUM]をalphaMode="OPAQUE"またはalphaMode="MASK"のマテリアルに置き換えてください。
 	</notification>
 	<notification name="RawUploadStarted">
 		アップロードを開始しました。接続速度によっては、最大２分程度かかります。
@@ -2016,7 +2069,8 @@ https://wiki.secondlife.com/wiki/Adding_Spelling_Dictionaries
 	<notification name="FinishedRawDownload">
 		未加工の地形ファイルをダウンロードしました：[DOWNLOAD_PATH]
 	</notification>
-	<notification name="RequiredUpdate">ログインするには、バージョン[VERSION]が必要です。以下からダウンロードしてください。
+	<notification name="RequiredUpdate">
+		ログインするには、バージョン[VERSION]が必要です。以下からダウンロードしてください。
 https://secondlife.com/support/downloads/
 		<tag>confirm</tag>
 		<usetemplate name="okbutton" yestext="ＯＫ"/>
@@ -2069,17 +2123,17 @@ OKをクリックして、ダウンロードとインストールを開始しま
 		<usetemplate ignoretext="ブラウザを起動して、アカウントを管理するとき" name="okcancelignore" notext="キャンセル" yestext="ＯＫ"/>
 	</notification>
 	<notification name="WebLaunchSecurityIssues">
-		[SECOND_LIFE] Wikiで、セキュリティ問題を報告する方法をご覧ください。
+		[CURRENT_GRID] Wikiで、セキュリティ問題を報告する方法をご覧ください。
 		<tag>confirm</tag>
 		<usetemplate ignoretext="ブラウザを起動して、セキュリティ問題の報告方法を確認するとき" name="okcancelignore" notext="キャンセル" yestext="ＯＫ"/>
 	</notification>
 	<notification name="WebLaunchQAWiki">
-		[SECOND_LIFE] QA（品質保証）Wikiをご覧ください。
+		[CURRENT_GRID] QA（品質保証）Wikiをご覧ください。
 		<tag>confirm</tag>
 		<usetemplate ignoretext="ブラウザを起動して、QA Wikiを閲覧するとき" name="okcancelignore" notext="キャンセル" yestext="ＯＫ"/>
 	</notification>
 	<notification name="WebLaunchPublicIssue">
-		[SECOND_LIFE] Public Issue Trackerにアクセスして、バグやその他の問題を報告できます。
+		[CURRENT_GRID] Public Issue Trackerにアクセスして、バグやその他の問題を報告できます。
 		<tag>confirm</tag>
 		<usetemplate ignoretext="ブラウザを起動して、Public Issue Trackerにアクセスするとき" name="okcancelignore" notext="キャンセル" yestext="ページへ行く"/>
 	</notification>
@@ -2111,6 +2165,13 @@ OKをクリックして、ダウンロードとインストールを開始しま
 		<tag>confirm</tag>
 		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="ＯＫ"/>
 	</notification>
+	<notification name="GroupLeaveConfirmMemberNoFee">
+		グループ「&lt;nolink&gt;[GROUP]&lt;/nolink&gt;」から脱退しますか？
+現在、このグループに参加するのに料金はかかりません。
+    <tag>group</tag>
+    <tag>confirm</tag>
+    <usetemplate name="okcancelbuttons" notext="キャンセル" yestext="脱退する"/>
+  </notification>
 	<notification name="OwnerCannotLeaveGroup">
 		グループを抜けることができません。グループの最後のオーナーであるため、グループを抜けることができません。最初に、別のメンバーをオーナーの役割に割り当ててください。
 		<usetemplate name="okbutton" yestext="ＯＫ"/>
@@ -3036,10 +3097,6 @@ Linden Lab
 		ゴミ箱があふれています。これはログイン時に問題を引き起こします。
 		<tag>confirm</tag>
 		<usetemplate name="okcancelbuttons" notext="後でゴミ箱を空にする" yestext="ごみ箱フォルダを確認する"/>
-	</notification>
-	<notification name="InventoryLimitReachedAIS">
-		インベントリに問題が発生しています。お手数ですが、サポートにお問い合わせください。
-		<tag>fail</tag>
 	</notification>
 	<notification name="InventoryLimitReachedAISAlert">
 		インベントリに問題が発生しています。お手数ですが、サポートにお問い合わせください。
@@ -4324,6 +4381,11 @@ UDP：3478, 3479, 5060, 5062, 6250, 12000-32000
 [REASON]
 		<tag>fail</tag>
 	</notification>
+	<notification name="CannotLoad">
+		[WHAT]を読み込むことができませんでした。
+[REASON]
+		<tag>fail</tag>
+	</notification>
 	<notification name="CannotUploadMaterial">
 		ファイルアップロード時に問題が発生しました。
 		<tag>fail</tag>
@@ -4525,77 +4587,77 @@ UDP：3478, 3479, 5060, 5062, 6250, 12000-32000
 		</form>
 	</notification>
 	<notification label="" name="NoClassifieds">
-		クラシファイド広告の作成と編集は、拡張モードでのみ利用できます。終了してモードを変更しますか？モードはログイン画面で選択できます。
+		クラシファイド広告の作成と編集は、高度な操作モードでのみ利用できます。終了してモードを変更しますか？モードはログイン画面で選択できます。
 		<unique/>
 		<tag>fail</tag>
 		<tag>confirm</tag>
 		<usetemplate name="okcancelbuttons" notext="終了しない" yestext="終了"/>
 	</notification>
 	<notification label="" name="NoGroupInfo">
-		グループの作成と編集は拡張モードでのみ利用できます。終了してモードを変更しますか？モードはログイン画面で選択できます。
+		グループの作成と編集は高度な操作モードでのみ利用できます。終了してモードを変更しますか？モードはログイン画面で選択できます。
 		<unique/>
 		<tag>fail</tag>
 		<tag>confirm</tag>
 		<usetemplate name="okcancelbuttons" notext="終了しない" yestext="終了"/>
 	</notification>
 	<notification label="" name="NoPlaceInfo">
-		場所のプロフィールの表示は拡張モードでのみ利用できます。終了してモードを変更しますか？モードはログイン画面で選択できます。
+		場所のプロフィールの表示は高度な操作モードでのみ利用できます。終了してモードを変更しますか？モードはログイン画面で選択できます。
 		<unique/>
 		<tag>fail</tag>
 		<tag>confirm</tag>
 		<usetemplate name="okcancelbuttons" notext="終了しない" yestext="終了"/>
 	</notification>
 	<notification label="" name="NoPicks">
-		ピックの作成と編集は拡張モードでのみ利用できます。終了してモードを変更しますか？モードはログイン画面で選択できます。
+		ピックの作成と編集は高度な操作モードでのみ利用できます。終了してモードを変更しますか？モードはログイン画面で選択できます。
 		<unique/>
 		<tag>fail</tag>
 		<tag>confirm</tag>
 		<usetemplate name="okcancelbuttons" notext="終了しない" yestext="終了"/>
 	</notification>
 	<notification label="" name="NoWorldMap">
-		ワールドマップの表示は拡張モードでのみ利用できます。終了してモードを変更しますか？モードはログイン画面で選択できます。
+		ワールドマップの表示は高度な操作モードでのみ利用できます。終了してモードを変更しますか？モードはログイン画面で選択できます。
 		<unique/>
 		<tag>fail</tag>
 		<tag>confirm</tag>
 		<usetemplate name="okcancelbuttons" notext="終了しない" yestext="終了"/>
 	</notification>
 	<notification label="" name="NoVoiceCall">
-		ボイスコールは拡張モードでのみ利用できます。ログアウトしてモードを変更しますか？
+		ボイスコールは高度な操作モードでのみ利用できます。ログアウトしてモードを変更しますか？
 		<unique/>
 		<tag>fail</tag>
 		<tag>confirm</tag>
 		<usetemplate name="okcancelbuttons" notext="終了しない" yestext="終了"/>
 	</notification>
 	<notification label="" name="NoAvatarShare">
-		共有は拡張モードでのみ利用できます。ログアウトしてモードを変更しますか？
+		共有は高度な操作モードでのみ利用できます。ログアウトしてモードを変更しますか？
 		<unique/>
 		<tag>fail</tag>
 		<tag>confirm</tag>
 		<usetemplate name="okcancelbuttons" notext="終了しない" yestext="終了"/>
 	</notification>
 	<notification label="" name="NoAvatarPay">他
-		の住人への支払いは拡張モードでのみ利用できます。ログアウトしてモードを変更しますか？
+		の住人への支払いは高度な操作モードでのみ利用できます。ログアウトしてモードを変更しますか？
 		<unique/>
 		<tag>fail</tag>
 		<tag>confirm</tag>
 		<usetemplate name="okcancelbuttons" notext="終了しない" yestext="終了"/>
 	</notification>
 	<notification label="" name="NoInventory">
-		インベントリの表示は拡張モードでのみ利用できます。ログアウトしてモードを変更しますか？
+		インベントリの表示は高度な操作モードでのみ利用できます。ログアウトしてモードを変更しますか？
 		<unique/>
 		<tag>fail</tag>
 		<tag>confirm</tag>
 		<usetemplate name="okcancelbuttons" notext="終了しない" yestext="終了"/>
 	</notification>
 	<notification label="" name="NoAppearance">
-		容姿エディタは拡張モードでのみ利用できます。ログアウトしてモードを変更しますか？
+		容姿エディタは高度な操作モードでのみ利用できます。ログアウトしてモードを変更しますか？
 		<unique/>
 		<tag>fail</tag>
 		<tag>confirm</tag>
 		<usetemplate name="okcancelbuttons" notext="終了しない" yestext="終了"/>
 	</notification>
 	<notification label="" name="NoSearch">
-		検索は拡張モードでのみ利用できます。ログアウトしてモードを変更しますか？
+		検索は高度な操作モードでのみ利用できます。ログアウトしてモードを変更しますか？
 		<unique/>
 		<tag>fail</tag>
 		<tag>confirm</tag>
@@ -5795,6 +5857,14 @@ Intelドライバーのウェブサイトを確認しますか？
 		<tag>confirm</tag>
 		<usetemplate name="okcancelbuttons" notext="いいえ" yestext="はい"/>
 	</notification>
+	<notification name="ConfirmOverwriteOutfit">
+		<unique/>
+		これにより、選択したアウトフィットの
+アイテムが現在着ているアイテムに
+置き換えられます。
+		<tag>confirm</tag>
+		<usetemplate ignoretext="Confirm before overwriting outfit" name="okcancelignore" notext="キャンセル" yestext="保存"/>
+	</notification>
 	<notification name="ClearInventoryThumbnailsWarning">
 		リスト内のインベントリのアイテムからサムネイル画像を削除しようとしています。この変更は元に戻すことはできません。
 
@@ -5818,5 +5888,10 @@ Intelドライバーのウェブサイトを確認しますか？
 	<notification name="AutoAdjustHDRSky">
 		編集中の非ＨＤＲの空の設定は自動的にＨＤＲの設定に変換されます。ＨＤＲとトーンマッピングを削除する場合は、反射プローブ環境の値を０にしてください。
 		<usetemplate ignoretext="ＨＤＲの空の調整時の警告" name="okignore" yestext="ＯＫ"/>
+	</notification>
+	<notification name="GLTFPreviewSelection">
+		プレビューしているＧＬＴＦアセットへのハンドルとして機能するオブジェクトを選択する必要があります。
+		<tag>fail</tag>
+		<usetemplate name="okbutton" yestext="ＯＫ"/>
 	</notification>
 </notifications>

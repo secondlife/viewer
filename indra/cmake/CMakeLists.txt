@@ -30,7 +30,6 @@ set(cmake_SOURCE_FILES
         GoogleMock.cmake
         Havok.cmake
         Hunspell.cmake
-        ICU4C.cmake
         JsonCpp.cmake
         LLAddBuildTest.cmake
         LLAppearance.cmake
@@ -56,6 +55,8 @@ set(cmake_SOURCE_FILES
         PulseAudio.cmake
         Python.cmake
         TemplateCheck.cmake
+        TinyEXR.cmake
+        TinyGLTF.cmake
         Tut.cmake
         UI.cmake
         UnixInstall.cmake

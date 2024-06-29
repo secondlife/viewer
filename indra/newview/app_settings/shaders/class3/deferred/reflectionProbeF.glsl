@@ -31,6 +31,7 @@ float tapScreenSpaceReflection(int totalSamples, vec2 tc, vec3 viewPos, vec3 n, 
 
 uniform samplerCubeArray   reflectionProbes;
 uniform samplerCubeArray   irradianceProbes;
+
 uniform sampler2D sceneMap;
 uniform int cube_snapshot;
 uniform float max_probe_lod;
@@ -47,6 +48,7 @@ layout (std140) uniform ReflectionProbes
     /// box[0..2] - plane 0 .. 2 in [A,B,C,D] notation
     //  box[3][0..2] - plane thickness
     mat4 refBox[MAX_REFMAP_COUNT];
+    mat4 heroBox;
     // list of bounding spheres for reflection probes sorted by distance to camera (closest first)
     vec4 refSphere[MAX_REFMAP_COUNT];
     // extra parameters 
@@ -55,6 +57,7 @@ layout (std140) uniform ReflectionProbes
     //  z - fade in
     //  w - znear
     vec4 refParams[MAX_REFMAP_COUNT];
+    vec4 heroSphere;
     // index  of cube map in reflectionProbes for a corresponding reflection probe
     // e.g. cube map channel of refSphere[2] is stored in refIndex[2]
     // refIndex.x - cubemap channel in reflectionProbes
@@ -70,6 +73,10 @@ layout (std140) uniform ReflectionProbes
 
     // number of reflection probes present in refSphere
     int refmapCount;
+
+    int heroShape;
+    int heroMipCount;
+    int heroProbeCount;
 };
 
 // Inputs
@@ -365,11 +372,11 @@ return texCUBE(envMap, ReflDirectionWS);
 // i - probe index in refBox/refSphere
 // d - distance to nearest wall in clip space
 // scale - scale of box, default 1.0
-vec3 boxIntersect(vec3 origin, vec3 dir, int i, out float d, float scale)
+vec3 boxIntersect(vec3 origin, vec3 dir, mat4 i, out float d, float scale)
 {
     // Intersection with OBB convert to unit box space
     // Transform in local unit parallax cube space (scaled and rotated)
-    mat4 clipToLocal = refBox[i];
+    mat4 clipToLocal = i;
 
     vec3 RayLS = mat3(clipToLocal) * dir;
     vec3 PositionLS = (clipToLocal * vec4(origin, 1.0)).xyz;
@@ -388,7 +395,7 @@ vec3 boxIntersect(vec3 origin, vec3 dir, int i, out float d, float scale)
     return IntersectPositionCS;
 }
 
-vec3 boxIntersect(vec3 origin, vec3 dir, int i, out float d)
+vec3 boxIntersect(vec3 origin, vec3 dir, mat4 i, out float d)
 {
     return boxIntersect(origin, dir, i, d, 1.0);
 }
@@ -443,9 +450,9 @@ void boxIntersectionDebug( in vec3 ro, in vec3 p, vec3 boxSize, inout vec4 col)
 }
 
 
-void boxIntersectDebug(vec3 origin, vec3 pos, int i, inout vec4 col)
+void boxIntersectDebug(vec3 origin, vec3 pos, mat4 i, inout vec4 col)
 {
-    mat4 clipToLocal = refBox[i];
+    mat4 clipToLocal = i;
     
     // transform into unit cube space
     origin = (clipToLocal * vec4(origin, 1.0)).xyz;
@@ -462,7 +469,7 @@ void boxIntersectDebug(vec3 origin, vec3 pos, int i, inout vec4 col)
 //  r - radius of probe influence volume
 // i - index of probe in refSphere
 // dw - distance weight
-float sphereWeight(vec3 pos, vec3 dir, vec3 origin, float r, int i, out float dw)
+float sphereWeight(vec3 pos, vec3 dir, vec3 origin, float r, vec4 i, out float dw)
 {
     float r1 = r * 0.5; // 50% of radius (outer sphere to start interpolating down) 
     vec3 delta = pos.xyz - origin;
@@ -471,7 +478,7 @@ float sphereWeight(vec3 pos, vec3 dir, vec3 origin, float r, int i, out float dw
     float atten = 1.0 - max(d2 - r1, 0.0) / max((r - r1), 0.001);
     float w = 1.0 / d2;
 
-    w *= refParams[i].z;
+    w *= i.z;
 
     dw = w * atten * max(r, 1.0)*4;
 
@@ -497,7 +504,7 @@ vec3 tapRefMap(vec3 pos, vec3 dir, out float w, out float dw, float lod, vec3 c,
     if (refIndex[i].w < 0)
     {  // box probe
         float d = 0;
-        v = boxIntersect(pos, dir, i, d);
+        v = boxIntersect(pos, dir, refBox[i], d);
 
         w = max(d, 0.001);
     }
@@ -511,7 +518,7 @@ vec3 tapRefMap(vec3 pos, vec3 dir, out float w, out float dw, float lod, vec3 c,
         refIndex[i].w < 1 ? 4096.0*4096.0 : // <== effectively disable parallax correction for automatically placed probes to keep from bombing the world with obvious spheres
                 rr);
 
-        w = sphereWeight(pos, dir, refSphere[i].xyz, r, i, dw);
+        w = sphereWeight(pos, dir, refSphere[i].xyz, r, refParams[i], dw);
     }
 
     v -= c;
@@ -537,7 +544,7 @@ vec3 tapIrradianceMap(vec3 pos, vec3 dir, out float w, out float dw, vec3 c, int
     if (refIndex[i].w < 0)
     {
         float d = 0.0;
-        v = boxIntersect(pos, dir, i, d, 3.0);
+        v = boxIntersect(pos, dir, refBox[i], d, 3.0);
         w = max(d, 0.001);
     }
     else
@@ -551,7 +558,7 @@ vec3 tapIrradianceMap(vec3 pos, vec3 dir, out float w, out float dw, vec3 c, int
         refIndex[i].w < 1 ? 4096.0*4096.0 : // <== effectively disable parallax correction for automatically placed probes to keep from bombing the world with obvious spheres
                 rr);
 
-        w = sphereWeight(pos, dir, refSphere[i].xyz, r, i, dw);
+        w = sphereWeight(pos, dir, refSphere[i].xyz, r, refParams[i], dw);
     }
 
     v -= c;
@@ -681,6 +688,49 @@ vec3 sampleProbeAmbient(vec3 pos, vec3 dir, vec3 amblit)
     return col[1]+col[0];
 }
 
+#if defined(HERO_PROBES)
+
+uniform vec4 clipPlane;
+uniform samplerCubeArray   heroProbes;
+
+void tapHeroProbe(inout vec3 glossenv, vec3 pos, vec3 norm, float glossiness)
+{
+    float clipDist = dot(pos.xyz, clipPlane.xyz) + clipPlane.w;
+    float w = 0;
+    float dw = 0;
+    float falloffMult = 10;
+    vec3 refnormpersp = reflect(pos.xyz, norm.xyz);
+    if (heroShape < 1)
+    {
+        float d = 0;
+        boxIntersect(pos, norm, heroBox, d, 1.0);
+        
+        w = max(d, 0);
+    }
+    else
+    {
+        float r = heroSphere.w;
+        
+        w = sphereWeight(pos, refnormpersp, heroSphere.xyz, r, vec4(1), dw);
+    }
+
+    clipDist = clipDist * 0.95 + 0.05;
+    clipDist = clamp(clipDist * falloffMult, 0, 1);
+    w = clamp(w * falloffMult * clipDist, 0, 1);
+    w = mix(0, w, clamp(glossiness - 0.75, 0, 1) * 4); // We only generate a quarter of the mips for the hero probes.  Linearly interpolate between normal probes and hero probes based upon glossiness.
+    glossenv = mix(glossenv, textureLod(heroProbes, vec4(env_mat * refnormpersp, 0), (1.0-glossiness)*heroMipCount).xyz, w);
+}
+
+#else
+
+void tapHeroProbe(inout vec3 glossenv, vec3 pos, vec3 norm, float glossiness)
+{
+}
+
+#endif
+
+
+
 void doProbeSample(inout vec3 ambenv, inout vec3 glossenv,
         vec2 tc, vec3 pos, vec3 norm, float glossiness, bool transparent, vec3 amblit)
 {
@@ -712,6 +762,8 @@ void doProbeSample(inout vec3 ambenv, inout vec3 glossenv,
         glossenv = mix(glossenv, ssr.rgb, ssr.a);
     }
 #endif
+
+    tapHeroProbe(glossenv, pos, norm, glossiness);
 }
 
 void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
@@ -747,7 +799,7 @@ void debugTapRefMap(vec3 pos, vec3 dir, float depth, int i, inout vec4 col)
     {
         if (refIndex[i].w < 0)
         {
-            boxIntersectDebug(origin, pos, i, col);
+            boxIntersectDebug(origin, pos, refBox[i], col);
         }
         else
         {
@@ -799,6 +851,7 @@ void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout 
     {
         float lod = (1.0-glossiness)*reflection_lods;
         glossenv = sampleProbes(pos, normalize(refnormpersp), lod);
+        
     }
     
     if (envIntensity > 0.0)
@@ -825,6 +878,9 @@ void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout 
         legacyenv = mix(legacyenv, ssr.rgb, ssr.a);
     }
 #endif
+
+    tapHeroProbe(glossenv, pos, norm, glossiness);
+    tapHeroProbe(legacyenv, pos, norm, 1.0);
 
     glossenv = clamp(glossenv, vec3(0), vec3(10));
 }

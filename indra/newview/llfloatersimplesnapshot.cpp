@@ -1,25 +1,25 @@
-/** 
+/**
 * @file llfloatersimplesnapshot.cpp
 * @brief Snapshot preview window for saving as a thumbnail
 *
 * $LicenseInfo:firstyear=2022&license=viewerlgpl$
 * Second Life Viewer Source Code
 * Copyright (C) 2022, Linden Research, Inc.
-* 
+*
 * This library is free software; you can redistribute it and/or
 * modify it under the terms of the GNU Lesser General Public
 * License as published by the Free Software Foundation;
 * version 2.1 of the License only.
-* 
+*
 * This library is distributed in the hope that it will be useful,
 * but WITHOUT ANY WARRANTY; without even the implied warranty of
 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 * Lesser General Public License for more details.
-* 
+*
 * You should have received a copy of the GNU Lesser General Public
 * License along with this library; if not, write to the Free Software
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-* 
+*
 * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 * $/LicenseInfo$
 */
@@ -310,7 +310,7 @@ void LLFloaterSimpleSnapshot::draw()
     LLFloater::draw();
 
     if (previewp && !isMinimized() && mThumbnailPlaceholder->getVisible())
-    {		
+    {
         if(previewp->getThumbnailImage())
         {
             bool working = impl->getStatus() == ImplBase::STATUS_WORKING;
@@ -325,7 +325,7 @@ void LLFloaterSimpleSnapshot::draw()
             // Apply floater transparency to the texture unless the floater is focused.
             F32 alpha = getTransparencyType() == TT_ACTIVE ? 1.0f : getCurrentTransparency();
             LLColor4 color = working ? LLColor4::grey4 : LLColor4::white;
-            gl_draw_scaled_image(offset_x, offset_y, 
+            gl_draw_scaled_image(offset_x, offset_y,
                 thumbnail_w, thumbnail_h,
                 previewp->getThumbnailImage(), color % alpha);
         }
@@ -370,7 +370,7 @@ void LLFloaterSimpleSnapshot::onSend()
     else
     {
         LLSD notif_args;
-        notif_args["REASON"] = LLImage::getLastError().c_str();
+        notif_args["REASON"] = LLImage::getLastThreadError().c_str();
         LLNotificationsUtil::add("CannotUploadTexture", notif_args);
     }
 }
@@ -389,7 +389,7 @@ void LLFloaterSimpleSnapshot::uploadThumbnail(const std::string &file_path, cons
     if (!LLViewerTextureList::createUploadFile(file_path, temp_file, codec, THUMBNAIL_SNAPSHOT_DIM_MAX, THUMBNAIL_SNAPSHOT_DIM_MIN, true))
     {
         LLSD notif_args;
-        notif_args["REASON"] = LLImage::getLastError().c_str();
+        notif_args["REASON"] = LLImage::getLastThreadError().c_str();
         LLNotificationsUtil::add("CannotUploadTexture", notif_args);
         LL_WARNS("Thumbnail") << "Failed to upload thumbnail for " << inventory_id << " " << task_id << ", reason: " << notif_args["REASON"].asString() << LL_ENDL;
         return;
@@ -404,7 +404,7 @@ void LLFloaterSimpleSnapshot::uploadThumbnail(LLPointer<LLImageRaw> raw_image, c
     if (!LLViewerTextureList::createUploadFile(raw_image, temp_file, THUMBNAIL_SNAPSHOT_DIM_MAX, THUMBNAIL_SNAPSHOT_DIM_MIN))
     {
         LLSD notif_args;
-        notif_args["REASON"] = LLImage::getLastError().c_str();
+        notif_args["REASON"] = LLImage::getLastThreadError().c_str();
         LLNotificationsUtil::add("CannotUploadTexture", notif_args);
         LL_WARNS("Thumbnail") << "Failed to upload thumbnail for " << inventory_id << " " << task_id << ", reason: " << notif_args["REASON"].asString() << LL_ENDL;
         return;

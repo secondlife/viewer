@@ -39,7 +39,7 @@ const std::string LLDensityCtrl::DENSITY_MIE("density_mie");
 const std::string LLDensityCtrl::DENSITY_ABSORPTION("density_absorption");
 
 namespace
-{   
+{
     const std::string   FIELD_SKY_DENSITY_PROFILE_EXPONENTIAL("level_exponential");
     const std::string   FIELD_SKY_DENSITY_PROFILE_EXPONENTIAL_SCALE("exponential_scale");
     const std::string   FIELD_SKY_DENSITY_PROFILE_LINEAR("level_linear");
@@ -151,7 +151,7 @@ void LLDensityCtrl::refresh()
     getChild<LLSliderCtrl>(FIELD_SKY_DENSITY_MAX_ALTITUDE)->setValue(config[LLSettingsSky::SETTING_DENSITY_PROFILE_WIDTH]);
 
     if (mProfileType == Mie)
-    {        
+    {
         getChild<LLSliderCtrl>(FIELD_SKY_DENSITY_ANISO_FACTOR)->setValue(config[LLSettingsSky::SETTING_MIE_ANISOTROPY_FACTOR]);
     }
 }

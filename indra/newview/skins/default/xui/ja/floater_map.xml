@@ -24,9 +24,6 @@
 	<floater.string name="AltToolTipHintMsg">
 		ダブルクリックでテレポート
 	</floater.string>
-	<floater.string name="ToolTipMsg">
-		[REGION]（ダブルクリックでマップを表示。Shift＋ドラッグで水平・垂直移動）
-	</floater.string>
 	<floater.string name="mini_map_caption">
 		ミニマップ
 	</floater.string>

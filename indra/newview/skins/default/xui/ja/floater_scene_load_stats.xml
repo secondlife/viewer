@@ -7,7 +7,7 @@
 				<stat_bar label="ＵＤＰデータの受信量" name="bandwidth" unit_label="kbps"/>
 				<stat_bar label="パケットロス" name="packet_loss" unit_label="％"/>
 			</stat_view>
-			<stat_view name="advanced" label="拡張">
+			<stat_view name="advanced" label="高度">
 				<stat_view name="render" label="描画">
 					<stat_bar name="objs" label="オブジェクト合計"/>
 					<stat_bar name="newobjs" label="新しいオブジェクト" unit_label="／秒"/>

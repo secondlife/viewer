@@ -40,7 +40,7 @@
 		土地をクリックし、ドラッグして選択します。
 	</floater.string>
 	<floater.string name="status_selectcount">
-		選択したオブジェクトは[OBJ_COUNT]個で、ランドインパクトは[LAND_IMPACT]です。
+		選択オブジェクトは[OBJ_COUNT]個でランドインパクトは[LAND_IMPACT]です。
 	</floater.string>
 	<floater.string name="status_remaining_capacity">
 		残りの許容数は[LAND_CAPACITY]です。
@@ -292,7 +292,7 @@
 			<combo_box name="comboBaseType">
 				<combo_box.item label="箱（ボックス）" name="Box"/>
 				<combo_box.item label="円柱（シリンダー）" name="Cylinder"/>
-				<combo_box.item label="三角錐（プリズム）" name="Prism"/>
+				<combo_box.item label="三角柱（プリズム）" name="Prism"/>
 				<combo_box.item label="球体（スフィア）" name="Sphere"/>
 				<combo_box.item label="円環体（トーラス）" name="Torus"/>
 				<combo_box.item label="円筒（チューブ）" name="Tube"/>
@@ -408,19 +408,28 @@
 			<color_swatch name="colorswatch" tool_tip="クリックしてカラーピッカーを開きます"/>
 			<texture_picker label="射影画像" name="light texture control" tool_tip="クリックで射影テクスチャを選択します。（遅延レンダリング有効時のみ）"/>
 			<menu_button name="clipboard_light_params_btn" tool_tip="ペースト時のオプションを指定します。"/>
-			<spinner label="輝度" name="Light Intensity"/>
+			<spinner label="強度" name="Light Intensity"/>
 			<spinner label="ＦｏＶ" name="Light FOV"/>
 			<spinner label="半径" name="Light Radius"/>
 			<spinner label="焦点" name="Light Focus"/>
 			<spinner label="光の弱まり" name="Light Falloff"/>
-			<spinner label="光の雰囲気" name="Light Ambiance"/>
-			<check_box label="反射プローブ" name="Reflection Probe" tool_tip="ＰＢＲが有効な場合に、このボリューム内のオブジェクトが光の反射をどのように受け取るかを調整します。"/>
+			<spinner label="周辺環境光" name="Light Ambiance"/>
+			<check_box label="反射プローブ" name="Reflection Probe" tool_tip="ＰＢＲが有効な場合に、この範囲内のオブジェクトが光の反射をどのように受け取るかを調整します。"/>
 			<combo_box name="Probe Volume Type" tool_tip="プローブの影響量を選択してください。">
 				<combo_box.item label="球状（スフィア）" name="Sphere" value="Sphere"/>
 				<combo_box.item label="箱状（ボックス）" name="Box" value="Box"/>
 			</combo_box>
 			<check_box label="動的" name="Probe Dynamic" tool_tip="有効にすると、アバターはこのプローブ範囲内の反射に影響されて表示されます。"/>
-			<spinner label="雰囲気" name="Probe Ambiance"/>
+			<text name="Probe Update Label">
+				プローブの更新
+			</text>
+			<combo_box name="Probe Update Type" tool_tip="プローブの更新方法を決定します。静的は更新が最も遅く、アバターは表示されません。動的では更新頻度が高く、プローブにアバターが表示されます。ミラー (環境) では、このプローブがリアルタイムの平面投影プローブになります。このプローブは環境のみを反射しますが、周辺環境は計算しません。ミラー（すべて）はミラー (環境) と似ていますが、パーティクルとアバターを反射します。">
+				<combo_box.item label="静的" name="Static" value="Static" />
+				<combo_box.item label="動的" name="Dynamic" value="Dynamic"/>
+				<combo_box.item label="ミラー（環境）" name="Mirror" value="Mirror"/>
+				<combo_box.item label="ミラー（すべて）" name="Dynamic Mirror" value="Dynamic Mirror"/>
+			</combo_box>
+			<spinner label="周辺環境" name="Probe Ambiance"/>
 			<spinner label="ニアクリップ" name="Probe Near Clip"/>
 			<text name="label physicsshapetype">
 				物理的形状の種類：

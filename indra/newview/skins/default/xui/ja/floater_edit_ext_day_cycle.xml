@@ -16,7 +16,7 @@
 		（[HH]：[MM]）
 	</string>
 	<string name="sky_track_label">
-		空[ALT]
+		スカイ[ALT]
 	</string>
 	<string name="sky_label">
 		空
@@ -42,9 +42,9 @@
 			<layout_stack name="content_stack">
 				<layout_panel name="timeline_track_selection">
 					<panel name="timeline_layers">
-						<button label="空４" name="sky4_track"/>
-						<button label="空３" name="sky3_track"/>
-						<button label="空２" name="sky2_track"/>
+						<button label="スカイ４" name="sky4_track"/>
+						<button label="スカイ３" name="sky3_track"/>
+						<button label="スカイ２" name="sky2_track"/>
 						<button label="地表" name="sky1_track"/>
 						<button label="水面" name="water_track"/>
 					</panel>

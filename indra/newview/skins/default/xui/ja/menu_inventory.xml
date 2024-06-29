@@ -18,6 +18,7 @@
 	<menu_item_call label="削除" name="Task Remove"/>
 	<menu_item_call label="ごみ箱を空に" name="Empty Trash"/>
 	<menu_item_call label="遺失物フォルダを空に" name="Empty Lost And Found"/>
+	<menu_item_call label="新しいフォルダ" name="New Listing Folder"/>
 	<menu_item_call label="新しいアウトフィット" name="New Outfit"/>
 	<menu label="種類を変更" name="Change Type">
 		<menu_item_call label="デフォルト" name="Default"/>

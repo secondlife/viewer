@@ -291,10 +291,10 @@
 					<text name="results_text">
 						結果：
 					</text>
-					<text name="physics_triangles">
+					<text name="physics_triangles" width="130">
 						三角形：[TRIANGLES]，
 					</text>
-					<text name="physics_points">
+					<text name="physics_points" width="130">
 						頂点数：[POINTS]，
 					</text>
 					<text name="physics_hulls">
@@ -303,8 +303,8 @@
 				</panel>
 			</panel>
 			<panel label="アップロードオプション" name="modifiers_panel">
-				<text name="scale_label">
-					スケール（１＝拡大縮小なし）：
+				<text name="scale_label" width="160">
+					スケール（1＝拡大縮小なし）：
 				</text>
 				<spinner name="import_scale" value="1.0"/>
 				<text name="dimensions_label">
@@ -318,7 +318,7 @@
 				<check_box label="ジョイント位置を含む" name="upload_joints"/>
 				<check_box label="ジョイント位置が定義されている場合、スケールをロックします。" name="lock_scale_if_joint_position"/>
 				<text name="pelvis_offset_label">
-					Ｚオフセット（アバターを上下調整）：
+					Ｚオフセット（アバターの上下調整）：
 				</text>
 				<spinner name="pelvis_offset" value="0.0"/>
 			</panel>
@@ -326,7 +326,7 @@
 				<view_border name="avatar_tab_border"/>
 				<check_box label="スキンのウエイトを含める" name="upload_skin"/>
 				<check_box label="ジョイント位置を含める" name="upload_joints"/>
-				<check_box label="ジョイント位置が定義されている場合はスケールをロック" name="lock_scale_if_joint_position"/>
+				<check_box label="スケールをロック" name="lock_scale_if_joint_position"/>
 				<text name="pelvis_offset_label">
 					Ｚオフセット（アバターの上下調整）：
 				</text>
@@ -341,7 +341,7 @@
 					ジョイント数：
 				</text>
 				<scroll_list name="joints_list"/>
-				<text name="conflicts_description">
+				<text name="conflicts_description" width="230">
 					[JOINTS_COUNT]個のジョイントに[CONFLICTS]箇所の競合があります。
 				</text>
 				<text name="pos_overrides_descr">
@@ -365,27 +365,27 @@
 			<button label="キャンセル" name="cancel_btn"/>
 			<button label="アップロード" name="ok_btn" tool_tip="シミュレーターにアップロードします。"/>
 			<button label="設定をクリアしてフォームをリセット" name="reset_btn"/>
-			<text name="upload_fee">
+			<text name="upload_fee" width="170">
 				アップロード料金：L$ [FEE]
 			</text>
-			<text name="prim_weight">
+			<text name="prim_weight" width="160">
 				ランドインパクト：[EQ]
 			</text>
-			<text name="download_weight">
+			<text name="download_weight" width="130">
 				ダウンロード：[ST]
 			</text>
-			<text name="physics_weight">
-				物理演算：[PH]
+			<text name="physics_weight" width="90">
+				物理：[PH]
 			</text>
 			<text name="server_weight">
-				サーバー負荷：[SIM]
+				負荷：[SIM]
 			</text>
-			<panel name="price_breakdown_panel">
+			<panel name="price_breakdown_panel" width="150">
 				<text>
 					費用の内訳
 				</text>
 				<view_border name="price_breakdown_border"/>
-				<text name="price_breakdown_labels">
+				<text name="price_breakdown_labels" width="100">
 					ダウンロード：
 物理効果数：
 インスタンス数：
@@ -465,7 +465,7 @@
 		<check_box label="ジョイント位置のオーバーライド" name="show_joint_overrides"/>
 		<check_box label="ジョイント数" name="show_joint_positions"/>
 		<text name="physics_explode_label">
-			スプレッドのプレビュー：
+			展開プレビュー：
 		</text>
 	</panel>
 </floater>

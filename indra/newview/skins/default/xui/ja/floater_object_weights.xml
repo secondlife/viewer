@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="object_weights" title="拡張">
+<floater name="object_weights" title="高度">
 	<floater.string name="nothing_selected" value="‐"/>
 	<text name="selected_text" value="選択済"/>
 	<text name="objects" value="‐"/>

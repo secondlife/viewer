@@ -62,15 +62,6 @@ if(WINDOWS)
         uriparser.dll
         )
 
-    # ICU4C (same filenames for 32 and 64 bit builds)
-    set(release_files ${release_files} icudt48.dll)
-    set(release_files ${release_files} icuin48.dll)
-    set(release_files ${release_files} icuio48.dll)
-    set(release_files ${release_files} icule48.dll)
-    set(release_files ${release_files} iculx48.dll)
-    set(release_files ${release_files} icutu48.dll)
-    set(release_files ${release_files} icuuc48.dll)
-
     # OpenSSL
     if(ADDRESS_SIZE EQUAL 64)
         set(release_files ${release_files} libcrypto-1_1-x64.dll)
@@ -116,7 +107,7 @@ if(WINDOWS)
         set(MSVC_VER 140)
     elseif (MSVC_VERSION GREATER_EQUAL 1920 AND MSVC_VERSION LESS 1930) # Visual Studio 2019
         set(MSVC_VER 140)
-    elseif (MSVC_VERSION GREATER_EQUAL 1930 AND MSVC_VERSION LESS 1940) # Visual Studio 2022
+    elseif (MSVC_VERSION GREATER_EQUAL 1930 AND MSVC_VERSION LESS 1950) # Visual Studio 2022
         set(MSVC_VER 140)
     else (MSVC80)
         MESSAGE(WARNING "New MSVC_VERSION ${MSVC_VERSION} of MSVC: adapt Copy3rdPartyLibs.cmake")

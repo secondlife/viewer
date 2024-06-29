@@ -1249,6 +1249,42 @@ support@secondlife.com にお問い合わせください。
 	<string name="dictionary_files">
 		辞書
 	</string>
+	<string name="Validator_InvalidNumericString">
+		無効な数字の文字列です：『[STR]』
+	</string>
+	<string name="Validator_ShouldNotBeMinus">
+		無効な先頭文字です：「[CH]」（マイナスでは使用できません）
+	</string>
+	<string name="Validator_ShouldNotBeMinusOrZero">
+		無効な先頭文字です：「[CH]」（マイナスまたはゼロは使用できません）
+	</string>
+	<string name="Validator_ShouldBeDigit">
+		無効な文字[NR]です：「[CH]」（数字のみにする必要があります）
+	</string>
+	<string name="Validator_ShouldBeDigitOrDot">
+		無効な文字[NR]です：「[CH]」（数字または小数点のみを指定してください）
+	</string>
+	<string name="Validator_ShouldBeDigitOrAlpha">
+		無効な文字[NR]です：「[CH]」（数字または英数字のアスキー文字のみを使用してください）
+	</string>
+	<string name="Validator_ShouldBeDigitOrAlphaOrSpace">
+		無効な文字[NR]です：「[CH]」（数字、英数字のアスキー文字、またはスペースのみを使用してください）
+	</string>
+	<string name="Validator_ShouldBeDigitOrAlphaOrPunct">
+		無効な文字[NR]です：「[CH]」（数字、英数字のアスキー文字、または句読点のみを使用してください）
+	</string>
+	<string name="Validator_ShouldBeDigitOrAlphaOrPunctNotSpace">
+		無効な文字[NR]です：「[CH]」（数字、英数字のアスキー文字、またはスペースを含まない句読点のみを使用してください）
+	</string>
+	<string name="Validator_ShouldBeDigitNotSpace">
+		無効な文字[NR]です：「[CH]」（スペースを含まない数字のみにする必要があります）
+	</string>
+	<string name="Validator_ShouldBeASCII">
+		無効な文字[NR]です：「[CH]」（アスキー文字のみを使用してください）
+	</string>
+	<string name="Validator_ShouldBeNewLineOrASCII">
+		無効な文字[NR]です：「[CH]」（アスキー文字または改行のみを使用してください）
+	</string>
 	<string name="LSLTipSleepTime" translate="false">
 		Sleeps script for [SLEEP_TIME] seconds.
 	</string>
@@ -6696,8 +6732,11 @@ https://secondlife.com/support/downloads/ からビューアを再インスト�
 	<string name="dance8">
 		ダンス８
 	</string>
-	<string name="AvatarBirthDateFormat">
+	<string name="AvatarBirthDateFormatFull">
 		[year,datetime,slt]年[mthnum,datetime,slt]月[day,datetime,slt]日
+	</string>
+	<string name="AvatarBirthDateFormatShort">
+		[mthnum,datetime,slt]月[day,datetime,slt]日
 	</string>
 	<string name="DefaultMimeType">
 		none/none

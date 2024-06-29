@@ -38,10 +38,11 @@ in vec3 vary_normal;
 in vec4 vary_texcoord0;
 in vec4 vary_texcoord1;
 
-vec2 encode_normal(vec3 n);
+void mirrorClip(vec3 position);
 
 void main()
 {
+    mirrorClip(pos);
     /// Note: This should duplicate the blending functionality currently used for the terrain rendering.
     
     vec4 color0 = texture(detail_0, vary_texcoord0.xy);
@@ -59,7 +60,7 @@ void main()
     frag_data[0] = outColor;
     frag_data[1] = vec4(0.0,0.0,0.0,-1.0);
     vec3 nvn = normalize(vary_normal);
-    frag_data[2] = vec4(encode_normal(nvn.xyz), 0.0, GBUFFER_FLAG_HAS_ATMOS);
+    frag_data[2] = vec4(nvn.xyz, GBUFFER_FLAG_HAS_ATMOS);
     frag_data[3] = vec4(0);
 }
 

@@ -87,7 +87,7 @@ if (WINDOWS)
   if( ADDRESS_SIZE EQUAL 32 )
     add_compile_options( /arch:SSE2 )
   endif()
-     
+
   # Are we using the crummy Visual Studio KDU build workaround?
   if (NOT VS_DISABLE_FATAL_WARNINGS)
     add_compile_options(/WX)
@@ -103,6 +103,11 @@ if (WINDOWS)
     string(REPLACE "/Zi" "/Z7" CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO}")
     string(REPLACE "/Zi" "/Z7" CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
   endif()
+
+  # workaround for github runner image breakage:
+  # https://github.com/actions/runner-images/issues/10004#issuecomment-2153445161
+  # can be removed after the above issue is resolved and deployed across GHA
+  add_compile_definitions(_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR)
 endif (WINDOWS)
 
 

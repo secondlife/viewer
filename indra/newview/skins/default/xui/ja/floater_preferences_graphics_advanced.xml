@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="prefs_graphics_advanced" title="拡張グラフィック設定">
+<floater name="prefs_graphics_advanced" title="高度なグラフィック設定">
 	<text name="GeneralText">
 		全般
 	</text>
@@ -43,15 +43,8 @@
 	</text>
 	<combo_box label="アンチエイリアシング" name="fsaa">
 		<combo_box.item label="無効" name="FSAADisabled" value="0"/>
-		<combo_box.item label="低" name="2x" value="2"/>
-		<combo_box.item label="中" name="4x" value="4"/>
-		<combo_box.item label="高" name="8x" value="8"/>
-		<combo_box.item label="最大" name="16x" value="16"/>
+		<combo_box.item label="ＦＸＡＡ" name="FXAA" value="2"/>
 	</combo_box>
-	<text name="antialiasing restart">
-		（再起動後に反映）
-	</text>
-	<view_border name="vert_border"/>
 	<text name="MeshText">
 		メッシュ
 	</text>
@@ -71,6 +64,10 @@
 	<text name="FlexibleMeshDetailText">
 		低
 	</text>
+	<text name="antialiasing restart">
+		（再起動後に反映）
+	</text>
+	<view_border name="vert_border"/>
 	<text name="ShadersText">
 		シェーダー
 	</text>
@@ -108,7 +105,25 @@
 		<combo_box.item label="全てのシーン" name="3" value="3"/>
 	</combo_box>
 	<slider label="露光：" name="RenderExposure"/>
-	<!-- End of Advanced Settings block -->
+	<check_box label="ミラー" name="Mirrors"/>
+	<text name="MirrorResolutionText">
+		ミラーの解像度：
+	</text>
+	<combo_box name="MirrorResolution">
+		<combo_box.item label="256" name="0" value="256"/>
+		<combo_box.item label="512" name="1" value="512"/>
+		<combo_box.item label="1024" name="2" value="1024"/>
+		<combo_box.item label="2048" name="3" value="2048"/>
+	</combo_box>
+	<text name="HeroProbeUpdateText">
+		ミラーの更新頻度：
+	</text>
+	<combo_box name="HeroProbeUpdateRate">
+		<combo_box.item label="毎フレーム" name="0" value="1"/>
+		<combo_box.item label="毎２フレーム" name="1" value="2"/>
+		<combo_box.item label="毎３フレーム" name="2" value="3"/>
+		<combo_box.item label="毎４フレーム" name="3" value="4"/>
+	</combo_box>	
 	<view_border name="horiz_border"/>
 	<button label="推奨設定値にリセット" name="Defaults"/>
 	<button label="ＯＫ" label_selected="ＯＫ" name="OK"/>

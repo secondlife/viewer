@@ -3,7 +3,7 @@
  * @author Nat Goodspeed
  * @date   2012-02-20
  * @brief  Class that implements "LLSD Event API Plugin"
- * 
+ *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Copyright (c) 2012, Linden Research, Inc.
  * $/LicenseInfo$

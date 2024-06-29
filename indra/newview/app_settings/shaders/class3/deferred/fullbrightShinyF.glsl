@@ -1,28 +1,28 @@
-/** 
+/**
  * @file fullbrightShinyF.glsl
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2007, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
+
 /*[EXTRA_CODE_HERE]*/
 
 out vec4 frag_color;
@@ -53,19 +53,22 @@ void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout 
 
 void applyLegacyEnv(inout vec3 color, vec3 legacyenv, vec4 spec, vec3 pos, vec3 norm, float envIntensity);
 
+void mirrorClip(vec3 pos);
+
 void main()
 {
+    mirrorClip(vary_position);
 #ifdef HAS_DIFFUSE_LOOKUP
-	vec4 color = diffuseLookup(vary_texcoord0.xy);
+    vec4 color = diffuseLookup(vary_texcoord0.xy);
 #else
-	vec4 color = texture(diffuseMap, vary_texcoord0.xy);
+    vec4 color = texture(diffuseMap, vary_texcoord0.xy);
 #endif
-	
-	color.rgb *= vertex_color.rgb;
 
-	// SL-9632 HUDs are affected by Atmosphere
+    color.rgb *= vertex_color.rgb;
+
+    // SL-9632 HUDs are affected by Atmosphere
 #ifndef IS_HUD
-	
+
     vec3 sunlit;
     vec3 amblit;
     vec3 additive;
@@ -87,8 +90,8 @@ void main()
     applyLegacyEnv(color.rgb, legacyenv, spec, pos, norm, env_intensity);
 #endif
 
-	color.a = 1.0;
+    color.a = 1.0;
 
-	frag_color = max(color, vec4(0));
+    frag_color = max(color, vec4(0));
 }
 

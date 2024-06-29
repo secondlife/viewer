@@ -20,7 +20,7 @@
 			<accordion_tab name="physics_butt_leftright_tab" title="尻の揺れ">
 				<scrolling_panel_list name="physics_butt_leftright_param_list"/>
 			</accordion_tab>
-			<accordion_tab name="physics_advanced_tab" title="拡張パラメータ">
+			<accordion_tab name="physics_advanced_tab" title="高度なパラメータ">
 				<scrolling_panel_list name="physics_advanced_param_list"/>
 			</accordion_tab>
 		</accordion>

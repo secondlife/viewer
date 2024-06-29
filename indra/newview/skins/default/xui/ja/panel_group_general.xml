@@ -18,9 +18,9 @@
 		</text>
 		<name_box name="founder_name"/>
 		<text name="join_cost_text">
-			無料
+			入会費はかかりません
 		</text>
-		<button label="参加します！" name="btn_join"/>
+		<button label="加入する" name="btn_join"/>
 	</panel>
 	<text_editor name="charter">
 		グループの理念、指針を記入してください。

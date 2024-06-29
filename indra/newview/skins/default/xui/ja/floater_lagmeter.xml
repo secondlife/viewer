@@ -147,5 +147,5 @@
 	<text name="server_text">
 		標準
 	</text>
-	<button label="≫" name="minimize" tool_tip="フローターの拡張／最小化切り替え"/>
+	<button label="≫" name="minimize" tool_tip="フローターの最大化／最小化切り替え"/>
 </floater>

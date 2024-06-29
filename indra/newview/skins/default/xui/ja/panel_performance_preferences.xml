@@ -7,7 +7,7 @@
 	<text name="settings_title">
 		グラフィック設定
 	</text>
-	<button label="拡張設定を開く" name="advanced_btn"/>
+	<button label="高度な設定を開く" name="advanced_btn"/>
 	<button label="推奨設定にリセット" name="defaults_btn"/>
 	<view_border name="border0"/>
 	<text name="quality_lbl">

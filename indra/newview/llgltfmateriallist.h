@@ -40,8 +40,6 @@ class LLGLTFOverrideCacheEntry;
 class LLGLTFMaterialList
 {
 public:
-    static const LLUUID BLANK_MATERIAL_ASSET_ID;
-
     LLGLTFMaterialList() {}
 
 

@@ -62,6 +62,7 @@
 		<radio_item label="開始" name="start"/>
 		<radio_item label="停止" name="stop"/>
 	</radio_group>
+	<check_box label="キーを離すまで" name="wait_key_release_check"/>
 	<check_box label="アニメーションが完了するまで" name="wait_anim_check"/>
 	<check_box label="時間（秒）：" name="wait_time_check"/>
 	<text name="help_label">

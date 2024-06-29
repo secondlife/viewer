@@ -54,5 +54,5 @@
 	<button label="プリセットを読み込む…" name="PrefLoadButton"/>
 	<button label="プリセットを削除…" name="PrefDeleteButton"/>
 	<button label="推奨設定にリセット" name="Defaults"/>
-	<button label="拡張設定…" name="AdvancedSettings"/>
+	<button label="高度な設定…" name="AdvancedSettings"/>
 </panel>

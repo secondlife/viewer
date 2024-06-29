@@ -1,4 +1,4 @@
-/** 
+/**
  * @file llbase32.cpp
  * @brief base32 encoding that returns a std::string
  * @author James Cook
@@ -10,21 +10,21 @@
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -118,9 +118,9 @@ base32_encode(char *dst, size_t size, const void *data, size_t len)
   |     6 | 1 0 7 6 5 | 3-4    |
   |     7 | 4 3 2 1 0 | 4      |
   +-------+-----------+--------+
-  
+
 */
-    
+
     s[0] =  (x[0] >> 3);
     s[1] = ((x[0] & 0x07) << 2) | (x[1] >> 6);
     s[2] =  (x[1] >> 1) & 0x1f;
@@ -167,12 +167,12 @@ base32_decode(char *dst, size_t size, const void *data, size_t len)
   if (0 == base32_map[0]) {
     for (i = 0; i < LL_ARRAY_SIZE(base32_map); i++) {
       const char *x;
-      
+
       x = memchr(base32_alphabet, ascii_toupper(i), sizeof base32_alphabet);
       base32_map[i] = x ? (x - base32_alphabet) : (unsigned char) -1;
     }
   }
-  
+
   for (i = 0; i < len && max_pad > 0; i++) {
     unsigned char c;
     char s[8];
@@ -219,20 +219,20 @@ base32_decode(char *dst, size_t size, const void *data, size_t len)
 // static
 std::string LLBase32::encode(const U8* input, size_t input_size)
 {
-	std::string output;
-	if (input)
-	{
-		// Each 5 byte chunk of input is represented by an
-		// 8 byte chunk of output.
-		size_t input_chunks = (input_size + 4) / 5;
-		size_t output_size = input_chunks * 8;
+    std::string output;
+    if (input)
+    {
+        // Each 5 byte chunk of input is represented by an
+        // 8 byte chunk of output.
+        size_t input_chunks = (input_size + 4) / 5;
+        size_t output_size = input_chunks * 8;
 
-		output.resize(output_size);
+        output.resize(output_size);
 
-		size_t encoded = base32_encode(&output[0], output_size, input, input_size);
+        size_t encoded = base32_encode(&output[0], output_size, input, input_size);
 
-		LL_INFOS() << "encoded " << encoded << " into buffer of size "
-			<< output_size << LL_ENDL;
-	}
-	return output;
+        LL_INFOS() << "encoded " << encoded << " into buffer of size "
+            << output_size << LL_ENDL;
+    }
+    return output;
 }

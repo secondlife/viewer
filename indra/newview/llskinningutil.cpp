@@ -1,4 +1,4 @@
-/** 
+/**
 * @file llskinningutil.cpp
 * @brief  Functions for mesh object skinning
 * @author vir@lindenlab.com
@@ -45,14 +45,14 @@ void dump_avatar_and_skin_state(const std::string& reason, LLVOAvatar *avatar, c
     if (dump_count < max_dump)
     {
         LL_WARNS("Avatar") << avatar->getFullname() << " dumping, reason " << reason
-                           << " avatar build state: isBuilt() " << avatar->isBuilt() 
+                           << " avatar build state: isBuilt() " << avatar->isBuilt()
                            << " mInitFlags " << avatar->mInitFlags << LL_ENDL;
         LL_WARNS("Avatar") << "Skin num joints " << skin->mJointNames.size() << " " << skin->mJointNums.size() << LL_ENDL;
-        LL_WARNS("Avatar") << "Skin scrubbed " << skin->mInvalidJointsScrubbed 
+        LL_WARNS("Avatar") << "Skin scrubbed " << skin->mInvalidJointsScrubbed
                            << " nums init " << skin->mJointNumsInitialized << LL_ENDL;
         for (S32 j=0; j<skin->mJointNames.size(); j++)
         {
-            LL_WARNS("Avatar") << "skin joint idx " << j << " name [" << skin->mJointNames[j] 
+            LL_WARNS("Avatar") << "skin joint idx " << j << " name [" << skin->mJointNames[j]
                                << "] num " << skin->mJointNums[j] << LL_ENDL;
             const std::string& name = skin->mJointNames[j];
             S32 joint_num = skin->mJointNums[j];
@@ -61,11 +61,11 @@ void dump_avatar_and_skin_state(const std::string& reason, LLVOAvatar *avatar, c
             LLJoint *num_joint = avatar->getJoint(joint_num);
             if (!name_joint)
             {
-                LL_WARNS("Avatar") << "failed to find joint by name" << LL_ENDL; 
+                LL_WARNS("Avatar") << "failed to find joint by name" << LL_ENDL;
             }
             if (!num_joint)
             {
-                LL_WARNS("Avatar") << "failed to find joint by num" << LL_ENDL; 
+                LL_WARNS("Avatar") << "failed to find joint by num" << LL_ENDL;
             }
             if (num_joint != name_joint)
             {
@@ -94,7 +94,7 @@ S32 LLSkinningUtil::getMaxJointCount()
 
 U32 LLSkinningUtil::getMeshJointCount(const LLMeshSkinInfo *skin)
 {
-	return llmin((U32)getMaxJointCount(), (U32)skin->mJointNames.size());
+    return llmin((U32)getMaxJointCount(), (U32)skin->mJointNames.size());
 }
 
 void LLSkinningUtil::scrubInvalidJoints(LLVOAvatar *avatar, LLMeshSkinInfo* skin)
@@ -121,7 +121,7 @@ void LLSkinningUtil::scrubInvalidJoints(LLVOAvatar *avatar, LLMeshSkinInfo* skin
 
 void LLSkinningUtil::initSkinningMatrixPalette(
     LLMatrix4a* mat,
-    S32 count, 
+    S32 count,
     const LLMeshSkinInfo* skin,
     LLVOAvatar *avatar)
 {
@@ -174,11 +174,11 @@ void LLSkinningUtil::initSkinningMatrixPalette(
 void LLSkinningUtil::checkSkinWeights(LLVector4a* weights, U32 num_vertices, const LLMeshSkinInfo* skin)
 {
 #if DEBUG_SKINNING
-	const S32 max_joints = skin->mJointNames.size();
+    const S32 max_joints = skin->mJointNames.size();
     for (U32 j=0; j<num_vertices; j++)
     {
         F32 *w = weights[j].getF32ptr();
-            
+
         F32 wsum = 0.0;
         for (U32 k=0; k<4; ++k)
         {
@@ -207,7 +207,7 @@ void LLSkinningUtil::scrubSkinWeights(LLVector4a* weights, U32 num_vertices, con
             w[k] = i + f;
         }
     }
-	checkSkinWeights(weights, num_vertices, skin);
+    checkSkinWeights(weights, num_vertices, skin);
 }
 
 void LLSkinningUtil::getPerVertexSkinMatrix(
@@ -276,7 +276,7 @@ void LLSkinningUtil::initJointNums(LLMeshSkinInfo* skin, LLVOAvatar *avatar)
         LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
         for (U32 j = 0; j < skin->mJointNames.size(); ++j)
         {
-    #if DEBUG_SKINNING     
+    #if DEBUG_SKINNING
             LLJoint *joint = NULL;
             if (skin->mJointNums[j] == -1)
             {
@@ -300,7 +300,7 @@ void LLSkinningUtil::initJointNums(LLMeshSkinInfo* skin, LLVOAvatar *avatar)
             }
     #else
             LLJoint *joint = (skin->mJointNums[j] == -1) ? avatar->getJoint(skin->mJointNames[j]) : avatar->getJoint(skin->mJointNums[j]);
-            skin->mJointNums[j] = joint ? joint->getJointNum() : 0;            
+            skin->mJointNums[j] = joint ? joint->getJointNum() : 0;
     #endif
             // insure we have *a* valid joint to reference
             llassert(skin->mJointNums[j] >= 0);
@@ -352,7 +352,7 @@ void LLSkinningUtil::updateRiggingInfo(const LLMeshSkinInfo* skin, LLVOAvatar *a
                     }
                     for (U32 k=0; k<4; ++k)
                     {
-						S32 joint_index = idx[k];
+                        S32 joint_index = idx[k];
                         if (wght[k] > 0.0f && num_joints > joint_index)
                         {
                             S32 joint_num = skin->mJointNums[joint_index];
@@ -377,11 +377,11 @@ void LLSkinningUtil::updateRiggingInfo(const LLMeshSkinInfo* skin, LLVOAvatar *a
                         }
                     }
                 }
-                //LL_DEBUGS("RigSpammish") << "built rigging info for vf " << &vol_face 
+                //LL_DEBUGS("RigSpammish") << "built rigging info for vf " << &vol_face
                 //                         << " num_verts " << vol_face.mNumVertices
                 //                         << " active joints " << active_joints.size()
                 //                         << " active verts " << active_verts
-                //                         << LL_ENDL; 
+                //                         << LL_ENDL;
                 vol_face.mJointRiggingInfoTab.setNeedsUpdate(false);
             }
         }
@@ -389,13 +389,13 @@ void LLSkinningUtil::updateRiggingInfo(const LLMeshSkinInfo* skin, LLVOAvatar *a
 #if DEBUG_SKINNING
         if (vol_face.mJointRiggingInfoTab.size()!=0)
         {
-            LL_DEBUGS("RigSpammish") << "we have rigging info for vf " << &vol_face 
-                                     << " num_verts " << vol_face.mNumVertices << LL_ENDL; 
+            LL_DEBUGS("RigSpammish") << "we have rigging info for vf " << &vol_face
+                                     << " num_verts " << vol_face.mNumVertices << LL_ENDL;
         }
         else
         {
-            LL_DEBUGS("RigSpammish") << "no rigging info for vf " << &vol_face 
-                                     << " num_verts " << vol_face.mNumVertices << LL_ENDL; 
+            LL_DEBUGS("RigSpammish") << "no rigging info for vf " << &vol_face
+                                     << " num_verts " << vol_face.mNumVertices << LL_ENDL;
         }
 #endif
 

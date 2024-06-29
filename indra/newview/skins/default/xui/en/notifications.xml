@@ -415,6 +415,15 @@ Initialization with the Marketplace failed because of a system or network error.
     </notification>
 
     <notification
+     icon="notifytip.tga"
+     name="InvalidKeystroke"
+     type="notifytip">
+There was an invalid keystroke entered.
+[REASON].
+Please input a valid text.
+    </notification>
+
+    <notification
         icon="alertmodal.tga"
         name="MerchantForceValidateListing"
         type="alertmodal">
@@ -4002,10 +4011,39 @@ Are you sure you want to return objects owned by [USER_NAME]?
    icon="alertmodal.tga"
    name="InvalidTerrainBitDepth"
    type="alertmodal">
+    <unique combine="cancel_old" />
 Couldn&apos;t set region textures:
 Terrain texture [TEXTURE_NUM] has an invalid bit depth of [TEXTURE_BIT_DEPTH].
 
-Replace texture [TEXTURE_NUM] with a 24-bit [MAX_SIZE]x[MAX_SIZE] or smaller image then click &quot;Apply&quot; again.
+Replace texture [TEXTURE_NUM] with an RGB [MAX_SIZE]x[MAX_SIZE] or smaller image then click &quot;Apply&quot; again.
+  <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="InvalidTerrainAlphaNotFullyLoaded"
+   type="alertmodal">
+    <unique combine="cancel_old" />
+Couldn&apos;t set region textures:
+Terrain texture [TEXTURE_NUM] is not fully loaded, but is assumed to contain transparency due to a bit depth of [TEXTURE_BIT_DEPTH]. Transparency is not currently supported for terrain textures.
+
+If texture [TEXTURE_NUM] is opaque, wait for the texture to fully load and then click &quot;Apply&quot; again.
+
+Alpha is only supported for terrain materials (PBR Metallic Roughness), when alphaMode="MASK" and doubleSided=false.
+  <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="InvalidTerrainAlpha"
+   type="alertmodal">
+    <unique combine="cancel_old" />
+Couldn&apos;t set region textures:
+Terrain texture [TEXTURE_NUM] contains transparency. Transparency is not currently supported for terrain textures.
+
+Replace texture [TEXTURE_NUM] with an opaque RGB image, then click &quot;Apply&quot; again.
+
+Alpha is only supported for terrain materials (PBR Metallic Roughness), when alphaMode="MASK" and doubleSided=false.
   <tag>fail</tag>
   </notification>
 
@@ -4013,10 +4051,55 @@ Replace texture [TEXTURE_NUM] with a 24-bit [MAX_SIZE]x[MAX_SIZE] or smaller ima
    icon="alertmodal.tga"
    name="InvalidTerrainSize"
    type="alertmodal">
+    <unique combine="cancel_old" />
 Couldn&apos;t set region textures:
 Terrain texture [TEXTURE_NUM] is too large at [TEXTURE_SIZE_X]x[TEXTURE_SIZE_Y].
 
-Replace texture [TEXTURE_NUM] with a 24-bit [MAX_SIZE]x[MAX_SIZE] or smaller image then click &quot;Apply&quot; again.
+Replace texture [TEXTURE_NUM] with an RGB [MAX_SIZE]x[MAX_SIZE] or smaller image then click &quot;Apply&quot; again.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="InvalidTerrainMaterialNotLoaded"
+   type="alertmodal">
+    <unique combine="cancel_old" />
+Couldn&apos;t set region materials:
+Terrain material [MATERIAL_NUM] is not loaded.
+
+Wait for the material to load, or replace material [MATERIAL_NUM] with a valid material.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="InvalidTerrainMaterialLoadFailed"
+   type="alertmodal">
+    <unique combine="cancel_old" />
+Couldn&apos;t set region materials:
+Terrain material [MATERIAL_NUM] failed to load.
+
+Replace material [MATERIAL_NUM] with a valid material.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="InvalidTerrainMaterialDoubleSided"
+   type="alertmodal">
+    <unique combine="cancel_old" />
+Couldn&apos;t set region materials:
+Terrain material [MATERIAL_NUM] is double-sided. Double-sided materials are not currently supported for PBR terrain.
+
+Replace material [MATERIAL_NUM] with a material with doubleSided=false.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="InvalidTerrainMaterialAlphaMode"
+   type="alertmodal">
+    <unique combine="cancel_old" />
+Couldn&apos;t set region materials:
+Terrain material [MATERIAL_NUM] is using the unsupported alphaMode="[MATERIAL_ALPHA_MODE]".
+
+Replace material [MATERIAL_NUM] with a material with alphaMode="OPAQUE" or alphaMode="MASK".
   </notification>
 
   <notification
@@ -4400,14 +4483,28 @@ Are you sure you want to return the selected objects to their owners? Transferab
    icon="alert.tga"
    name="GroupLeaveConfirmMember"
    type="alert">
-You are currently a member of the group &lt;nolink&gt;[GROUP]&lt;/nolink&gt;.
-Leave Group?
+Leave the group &apos;&lt;nolink&gt;[GROUP]&lt;/nolink&gt;&apos;?
+Currently, the fee to join this &quot;group&quot; is L$ [COST].
     <tag>group</tag>
     <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
-     yestext="OK"/>
+     yestext="Leave"/>
+  </notification>
+
+  <notification
+   icon="alert.tga"
+   name="GroupLeaveConfirmMemberNoFee"
+   type="alert">
+Leave the group &apos;&lt;nolink&gt;[GROUP]&lt;/nolink&gt;&apos;?
+There is currently no fee to join this group.
+    <tag>group</tag>
+    <tag>confirm</tag>
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="Leave"/>
   </notification>
 
 
@@ -6170,6 +6267,33 @@ Are you sure you want to delete them?
      notext="Cancel"
      yestext="OK"/>
   </notification>
+    
+  <notification
+   icon="alertmodal.tga"
+   name="DeleteWornItems"
+   type="alertmodal">
+    <unique/>
+Some item(s) you wish to delete are being worn on your avatar.
+Remove these items from your avatar?
+    <tag>confirm</tag>
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="Remove item(s) and delete"/>
+  </notification>
+    
+  <notification
+   icon="alertmodal.tga"
+   name="CantDeleteRequiredClothing"
+   type="alertmodal">
+    <unique/>
+Some item(s) you wish to delete are required clothing layers (skin, shape, hair, eyes).
+You must replace those layers before deleting them.
+    <tag>confirm</tag>
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
 
   <notification
    icon="alertmodal.tga"
@@ -6455,14 +6579,6 @@ Your trash is overflowing. This may cause problems logging in.
          name="okcancelbuttons"
          notext="I will empty trash later"
          yestext="Check trash folder"/>
-  </notification>
-
-  <notification
-   icon="notifytip.tga"
-   name="InventoryLimitReachedAIS"
-   type="notifytip">
-Your inventory is experiencing issues. Please, contact support.
-  <tag>fail</tag>
   </notification>
 
   <notification
@@ -9250,6 +9366,15 @@ You locally updated a [RESOLUTION] baked texture for '[BODYREGION]' after [TIME]
 Unable to upload texture: &apos;[NAME]&apos;
 [REASON]   
   <tag>fail</tag>  
+  </notification>
+
+  <notification
+ icon="alertmodal.tga"
+ name="CannotLoad"
+ type="alertmodal">
+    Unable to load [WHAT].
+    [REASON]
+    <tag>fail</tag>
   </notification>
 
   <notification
@@ -12322,5 +12447,16 @@ are wearing now.
         name="okignore"
         yestext="OK"/>
   </notification>
-  
+
+  <notification
+   icon="alertmodal.tga"
+   name="GLTFPreviewSelection"
+   type="alert">
+    You must select an object to act as a handle to the GLTF asset you are previewing.
+    <tag>fail</tag>
+    <usetemplate
+      name="okbutton"
+      yestext="OK"/>
+  </notification>
+
 </notifications>
