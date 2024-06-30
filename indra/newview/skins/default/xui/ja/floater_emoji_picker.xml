@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="emojipicker" title="絵文字を選択">
+	<floater.string name="title_for_recently_used" value="最近使用した"/>
+	<floater.string name="title_for_frequently_used" value="よく使用する"/>
+	<floater.string name="text_no_emoji_for_filter" value="「[FILTER]」に一致する絵文字は見つかりませんでした。"/>
+	<scroll_container name="EmojiGridContainer">
+		<scrolling_panel_list name="EmojiGrid"/>
+	</scroll_container>
+	<panel name="Groups">
+		<panel name="Badge" />
+	</panel>
+	<text name="Dummy">
+		絵文字が選択されていません。
+	</text>
+</floater>

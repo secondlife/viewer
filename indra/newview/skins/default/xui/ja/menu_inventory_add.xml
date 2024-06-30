@@ -4,13 +4,15 @@
 		<menu_item_call label="画像 （L$ [COST]）…" name="Upload Image"/>
 		<menu_item_call label="サウンド （L$ [COST]）…" name="Upload Sound"/>
 		<menu_item_call label="アニメーション （L$ [COST]）…" name="Upload Animation"/>
-		<menu_item_call label="モデル" name="Upload Model"/>
-		<menu_item_call label="一括 （ファイルにつき L$ [COST]）…" name="Bulk Upload"/>
+		<menu_item_call label="モデル…" name="Upload Model"/>
+		<menu_item_call label="マテリアル…" name="Upload Material"/>
+		<menu_item_call label="一括…" name="Bulk Upload"/>
 	</menu>
-	<menu_item_call label="新規フォルダ" name="New Folder"/>
-	<menu_item_call label="新規スクリプト" name="New Script"/>
+	<menu_item_call label="新しいフォルダ" name="New Folder"/>
+	<menu_item_call label="新しいスクリプト" name="New Script"/>
 	<menu_item_call label="新しいノートカード" name="New Note"/>
-	<menu_item_call label="新規ジェスチャー" name="New Gesture"/>
+	<menu_item_call label="新しいジェスチャー" name="New Gesture"/>
+	<menu_item_call label="新しいマテリアル" name="New Material"/>
 	<menu label="新しい服装" name="New Clothes">
 		<menu_item_call label="新しいシャツ" name="New Shirt"/>
 		<menu_item_call label="新しいズボン" name="New Pants"/>
@@ -32,9 +34,11 @@
 		<menu_item_call label="新しい髪" name="New Hair"/>
 		<menu_item_call label="新しい目" name="New Eyes"/>
 	</menu>
-	<menu label="新しい環境設定" name="New Settings">
+	<menu label="新しい自然環境の設定" name="New Settings">
 		<menu_item_call label="新しい空" name="New Sky"/>
 		<menu_item_call label="新しい水面" name="New Water"/>
 		<menu_item_call label="新しいデイサイクル" name="New Day Cycle"/>
 	</menu>
+	<menu_item_separator/>
+	<menu_item_call label="ショップ…" name="Shop"/>
 </menu>

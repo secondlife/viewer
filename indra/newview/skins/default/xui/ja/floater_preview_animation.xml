@@ -7,5 +7,23 @@
 		説明：
 	</text>
 	<button label="インワールドで再生" label_selected="停止" name="Inworld" tool_tip="他人から見えるように再生します。"/>
+	<text name="desc inworld">
+		他の人から見えます。
+	</text>
 	<button label="ローカル再生" label_selected="停止" name="Locally" tool_tip="自分だけが見えるように再生します。"/>
+	<text name="desc local">
+		あなただけに見えます。
+	</text>
+	<line_editor name="desc"/>
+	<text name="adv_trigger">
+		高度な設定
+	</text>
+	<text name="AdvancedStats">
+		優先度：[PRIORITY]
+長さ：[DURATION]秒
+イースイン：[EASE_IN]秒
+イースアウト：[EASE_OUT]秒
+ループ：[IS_LOOP]
+ジョイント数：[NUM_JOINTS]箇所
+	</text>
 </floater>

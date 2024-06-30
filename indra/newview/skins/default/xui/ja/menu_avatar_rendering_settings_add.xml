@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <toggleable_menu name="menu_settings_add.xml">
 	<menu_item_call label="常に詳細まで全て描画…" name="add_avatar_always_render"/>
-	<menu_item_call label="詳細まで全て描画しない…" name="add_avatar_never_render"/>
+	<menu_item_call label="詳細まで描画しない…" name="add_avatar_never_render"/>
 </toggleable_menu>

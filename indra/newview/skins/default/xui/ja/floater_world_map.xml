@@ -2,13 +2,13 @@
 <floater name="worldmap" title="ワールドマップ">
 	<string name="collapse_icon" value="map_ui_collapse_icon.png"/>
 	<string name="expand_icon" value="map_ui_expand_icon.png"/>
-	<string name="collapse_tooltip" value="マップ操作パネルを隠す"/>
-	<string name="expand_tooltip" value="マップ操作を表示"/>
+	<string name="collapse_tooltip" value="マップ操作パネルを隠します。"/>
+	<string name="expand_tooltip" value="マップ操作パネルを表示します。"/>
 	<layout_stack name="floater_map_stack">
 		<layout_panel name="map_lp">
-			<panel filename="panel_world_map.xml" name="objects_mapview"/>
-			<panel name="expand_btn_panel" tool_tip="マップ操作パネルを隠す">
-				<icon name="expand_collapse_icon" tool_tip="マップ操作パネルを隠す"/>
+			<panel name="objects_mapview"/>
+			<panel name="expand_btn_panel" tool_tip="マップ操作パネルを隠します。">
+				<icon name="expand_collapse_icon" tool_tip="マップ操作パネルを隠します。"/>
 			</panel>
 		</layout_panel>
 		<layout_panel name="controls_lp">
@@ -18,7 +18,7 @@
 				</text>
 			</panel>
 			<panel name="layout_panel_2">
-				<button name="Show My Location" tool_tip="現在、自分のアバターがいる場所をマップの中心にする。"/>
+				<button name="Show My Location" tool_tip="現在、自分のアバターがいる場所をマップの中心にします。"/>
 				<text name="me_label">
 					自分
 				</text>
@@ -35,17 +35,15 @@
 				<check_box name="land_for_sale_chk"/>
 				<icon name="landforsale"/>
 				<text name="land_sale_label">
-					販売中の土地
+					販売中
 				</text>
-				<icon name="square2"/>
 				<text name="auction_label">
-					オークション中の土地
+					オークション中
 				</text>
-				<icon name="square2"/>
 				<text name="by_owner_label">
 					所有者で
 				</text>
-				<button name="Go Home" tool_tip="自分のホームの場所にテレポート"/>
+				<button name="Go Home" tool_tip="自分のホームの場所にテレポートします。"/>
 				<text name="Home_label">
 					ホーム
 				</text>
@@ -75,23 +73,20 @@
 			</panel>
 			<panel name="layout_panel_4">
 				<icon name="friends_icon"/>
-				<combo_box label="オンラインのフレンド" name="friend combo" tool_tip="マップにフレンドを表示する。">
+				<combo_box label="オンラインのフレンド" name="friend combo" tool_tip="マップにフレンドを表示します。">
 					<combo_box.item label="オンラインのフレンド" name="item1" value="None"/>
-					<combo_box.commit_callback function="WMap.AvatarCombo"/>
 				</combo_box>
 				<icon name="landmark_icon"/>
-				<combo_box label="ランドマーク" name="landmark combo" tool_tip="マップにランドマークを表示する。">
+				<combo_box label="ランドマーク" name="landmark combo" tool_tip="マップにランドマークを表示します。">
 					<combo_box.item label="ランドマーク" name="item1" value="None"/>
-					<combo_box.commit_callback function="WMap.Landmark"/>
 				</combo_box>
 				<icon name="location_icon"/>
-				<search_editor label="リージョン（地域）名で" tool_tip="リージョン（地域）名を入力してください"/>
-				<button label="探す" name="DoSearch" tool_tip="リージョン（地域）を検索する。"/>
-				<button name="Clear" tool_tip="追跡ラインをクリアしてマップをリセットする。"/>
+				<search_editor label="リージョン名で" name="location" tool_tip="リージョン名を入力してください。"/>
+				<button label="探す" name="DoSearch" tool_tip="リージョンを検索します。"/>
+				<button name="Clear" tool_tip="追跡ラインをクリアしてマップをリセットします。"/>
 				<scroll_list name="search_results">
 					<scroll_list.columns label="" name="icon"/>
 					<scroll_list.columns label="" name="sim_name"/>
-					<scroll_list.commit_callback function="WMap.SearchResult"/>
 				</scroll_list>
 				<text name="events_label">
 					場所：
@@ -99,9 +94,9 @@
 				<spinner name="teleport_coordinate_x"/>
 				<spinner name="teleport_coordinate_y"/>
 				<spinner name="teleport_coordinate_z"/>
-				<button label="テレポート" name="Teleport" tool_tip="選択した場所にテレポートする。"/>
-				<button label="SLurlをコピー" layout="topleft" name="copy_slurl" tool_tip="現在の場所をWebで使えるSLurlにしてコピーする。"/>
-				<button label="選択を表示" name="Show Destination" tool_tip="選択した場所をマップの中心にする。"/>
+				<button label="テレポート" name="Teleport" tool_tip="選択した場所にテレポートします。"/>
+				<button label="SLurlをコピー" name="copy_slurl" tool_tip="現在の場所をWebで使えるSLurlにしてコピーします。"/>
+				<button label="選択を表示" name="Show Destination" tool_tip="選択した場所をマップの中心にします。"/>
 			</panel>
 			<panel name="layout_panel_5">
 				<text name="zoom_label">

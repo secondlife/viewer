@@ -11,7 +11,7 @@
 				<stat_bar label="パケットロス" name="packet_loss"/>
 				<stat_bar label="シムのPing" name="ping"/>
 			</stat_view>
-			<stat_view label="拡張" name="advanced">
+			<stat_view label="高度な情報" name="advanced">
 				<stat_view label="描画" name="render">
 					<stat_bar label="フレームあたりのKTris" name="ktrisframe" unit_label="ktris／フレーム"/>
 					<stat_bar label="秒あたりのKTris" name="ktrissec"/>
@@ -32,6 +32,9 @@
 					<stat_bar label="フォーマット済メモリ" name="formattedmemstat"/>
 					<stat_bar label="ＲＡＷメモリ" name="rawmemstat"/>
 					<stat_bar label="統合メモリ" name="glboundmemstat"/>
+					<stat_view name="material" label="マテリアル">
+						<stat_bar name="nummaterials" label="個"/>
+					</stat_view>
 				</stat_view>
 				<stat_view label="メモリ使用量" name="memory">
 					<stat_bar label="ＬＬトレース" name="LLTrace"/>

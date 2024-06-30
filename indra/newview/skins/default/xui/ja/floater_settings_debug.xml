@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="settings_debug" title="デバッグ設定">
-	<filter_editor name="filter_input"/>
+	<filter_editor name="filter_input" label="検索語句を入力"/>
 	<scroll_list name="setting_list">
 		<scroll_list.columns name="changed_setting"/>
 		<scroll_list.columns label="設定" name="setting"/>

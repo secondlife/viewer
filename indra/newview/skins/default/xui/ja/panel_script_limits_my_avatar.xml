@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="自分のアバター" name="script_limits_my_avatar_panel">
 	<text name="script_memory">
-		アバターのスクリプト使用
+		アバタースクリプトの使用メモリ
 	</text>
 	<text name="loading_text">
 		読み込んでいます…
