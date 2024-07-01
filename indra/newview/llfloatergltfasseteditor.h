@@ -40,6 +40,9 @@ namespace LL
     }
 }
 
+class LLSpinCtrl;
+class LLMenuButton;
+
 class LLFloaterGLTFAssetEditor : public LLFloater
 {
 public:
@@ -48,6 +51,7 @@ public:
 
     bool postBuild() override;
     void onOpen(const LLSD& key) override;
+    void initFolderRoot();
 
     LLGLTFViewModel& getRootViewModel() { return mGLTFViewModel; }
 
@@ -56,14 +60,42 @@ public:
     void loadFromNode(S32 node, LLFolderViewFolder* parent);
     void loadFromSelection();
 
-private:
-    LLGLTFViewModel mGLTFViewModel;
-    LLUIColor mUIColor;
+protected:
+    void onFolderSelectionChanged(const std::deque<LLFolderViewItem*>& items, bool user_action);
+    void onCommitTransform();
+    void onMenuDoToSelected(const LLSD& userdata);
+    bool onMenuEnableItem(const LLSD& userdata);
 
+    void setTransformsEnabled(bool val);
+    void loadNodeTransforms(S32 id);
+
+private:
+
+    std::shared_ptr<LL::GLTF::Asset> mAsset;
+
+    // Folder view related
+    LLUIColor mUIColor;
+    LLGLTFViewModel mGLTFViewModel;
     LLPanel* mItemListPanel = nullptr;
     LLFolderView* mFolderRoot = nullptr;
     LLScrollContainer* mScroller = nullptr;
-    std::shared_ptr<LL::GLTF::Asset> mAsset;
+
+    // Transforms panel
+    LLVector3       mLastEulerDegrees;
+
+    LLPanel* mTransformsPanel = nullptr;
+    LLMenuButton* mMenuClipboardPos = nullptr;
+    LLSpinCtrl* mCtrlPosX = nullptr;
+    LLSpinCtrl* mCtrlPosY = nullptr;
+    LLSpinCtrl* mCtrlPosZ = nullptr;
+    LLMenuButton* mMenuClipboardScale = nullptr;
+    LLSpinCtrl* mCtrlScaleX = nullptr;
+    LLSpinCtrl* mCtrlScaleY = nullptr;
+    LLSpinCtrl* mCtrlScaleZ = nullptr;
+    LLMenuButton* mMenuClipboardRot = nullptr;
+    LLSpinCtrl* mCtrlRotX = nullptr;
+    LLSpinCtrl* mCtrlRotY = nullptr;
+    LLSpinCtrl* mCtrlRotZ = nullptr;
 };
 
 #endif LL_LLFLOATERGLTFASSETEDITOR_H

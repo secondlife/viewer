@@ -31,7 +31,9 @@
 
 #include "gltf/asset.h"
 #include "llcallbacklist.h"
+#include "llmenubutton.h"
 #include "llselectmgr.h"
+#include "llspinctrl.h"
 #include "llviewerobject.h"
 
 const LLColor4U DEFAULT_WHITE(255, 255, 255);
@@ -43,16 +45,69 @@ LLFloaterGLTFAssetEditor::LLFloaterGLTFAssetEditor(const LLSD& key)
     , mUIColor(LLUIColorTable::instance().getColor("MenuItemEnabledColor", DEFAULT_WHITE))
 {
     setTitle("GLTF Asset Editor (WIP)");
+
+    mCommitCallbackRegistrar.add("PanelObject.menuDoToSelected", [this](LLUICtrl* ctrl, const LLSD& data) { onMenuDoToSelected(data); });
+    mEnableCallbackRegistrar.add("PanelObject.menuEnable", [this](LLUICtrl* ctrl, const LLSD& data) { return onMenuEnableItem(data); });
 }
 
 LLFloaterGLTFAssetEditor::~LLFloaterGLTFAssetEditor()
 {
     gIdleCallbacks.deleteFunction(idle, this);
+
+    if (mScroller)
+    {
+        removeChild(mScroller);
+        delete mScroller;
+        mScroller = NULL;
+    }
 }
 
 bool LLFloaterGLTFAssetEditor::postBuild()
 {
-    mItemListPanel = getChild<LLPanel>("item_list_panel");
+    // Position
+    mMenuClipboardPos = getChild<LLMenuButton>("clipboard_pos_btn");
+    mCtrlPosX = getChild<LLSpinCtrl>("Pos X", true);
+    mCtrlPosX->setCommitCallback([this](LLUICtrl* ctrl, const LLSD& param) { onCommitTransform(); });
+    mCtrlPosY = getChild<LLSpinCtrl>("Pos Y", true);
+    mCtrlPosY->setCommitCallback([this](LLUICtrl* ctrl, const LLSD& param) { onCommitTransform(); });
+    mCtrlPosZ = getChild<LLSpinCtrl>("Pos Z", true);
+    mCtrlPosZ->setCommitCallback([this](LLUICtrl* ctrl, const LLSD& param) { onCommitTransform(); });
+
+    // Scale
+    mMenuClipboardScale = getChild<LLMenuButton>("clipboard_size_btn");
+    mCtrlScaleX = getChild<LLSpinCtrl>("Scale X", true);
+    mCtrlScaleX->setCommitCallback([this](LLUICtrl* ctrl, const LLSD& param) { onCommitTransform(); });
+    mCtrlScaleY = getChild<LLSpinCtrl>("Scale Y", true);
+    mCtrlScaleY->setCommitCallback([this](LLUICtrl* ctrl, const LLSD& param) { onCommitTransform(); });
+    mCtrlScaleZ = getChild<LLSpinCtrl>("Scale Z", true);
+    mCtrlScaleZ->setCommitCallback([this](LLUICtrl* ctrl, const LLSD& param) { onCommitTransform(); });
+
+    // Rotation
+    mMenuClipboardRot = getChild<LLMenuButton>("clipboard_rot_btn");
+    mCtrlRotX = getChild<LLSpinCtrl>("Rot X", true);
+    mCtrlRotX->setCommitCallback([this](LLUICtrl* ctrl, const LLSD& param) { onCommitTransform(); });
+    mCtrlRotY = getChild<LLSpinCtrl>("Rot Y", true);
+    mCtrlRotY->setCommitCallback([this](LLUICtrl* ctrl, const LLSD& param) { onCommitTransform(); });
+    mCtrlRotZ = getChild<LLSpinCtrl>("Rot Z", true);
+    mCtrlPosZ->setCommitCallback([this](LLUICtrl* ctrl, const LLSD& param) { onCommitTransform(); });
+    setTransformsEnabled(false);
+    // todo: do multiple panels based on selected element.
+    mTransformsPanel = getChild<LLPanel>("transform_panel", true);
+    mTransformsPanel->setVisible(false);
+
+    mItemListPanel = getChild<LLPanel>("item_list_panel", true);
+    initFolderRoot();
+
+    return true;
+}
+
+void LLFloaterGLTFAssetEditor::initFolderRoot()
+{
+    if (mScroller || mFolderRoot)
+    {
+        LL_ERRS() << "Folder root already initialized" << LL_ENDL;
+        return;
+    }
 
     LLRect scroller_view_rect = mItemListPanel->getRect();
     scroller_view_rect.translate(-scroller_view_rect.mLeft, -scroller_view_rect.mBottom);
@@ -87,11 +142,10 @@ bool LLFloaterGLTFAssetEditor::postBuild()
     mFolderRoot->setScrollContainer(mScroller);
     mFolderRoot->setFollowsAll();
     mFolderRoot->setOpen(true);
+    mFolderRoot->setSelectCallback([this](const std::deque<LLFolderViewItem*>& items, bool user_action) { onFolderSelectionChanged(items, user_action); });
     mScroller->setVisible(true);
 
     gIdleCallbacks.addFunction(idle, this);
-
-    return true;
 }
 
 void LLFloaterGLTFAssetEditor::onOpen(const LLSD& key)
@@ -250,5 +304,214 @@ void LLFloaterGLTFAssetEditor::loadFromSelection()
     mFolderRoot->setChildrenInited(true);
     mFolderRoot->arrangeAll();
     mFolderRoot->update();
+}
+
+void LLFloaterGLTFAssetEditor::onFolderSelectionChanged(const std::deque<LLFolderViewItem*>& items, bool user_action)
+{
+    if (items.empty())
+    {
+        setTransformsEnabled(false);
+        return;
+    }
+
+    LLFolderViewItem* item = items.front();
+    LLGLTFFolderItem* vmi = static_cast<LLGLTFFolderItem*>(item->getViewModelItem());
+
+    switch (vmi->getType())
+    {
+    case LLGLTFFolderItem::TYPE_NODE:
+        {
+            setTransformsEnabled(true);
+            loadNodeTransforms(vmi->getItemId());
+            break;
+        }
+    default:
+        {
+            setTransformsEnabled(false);
+            break;
+        }
+    }
+}
+
+void LLFloaterGLTFAssetEditor::setTransformsEnabled(bool val)
+{
+    mMenuClipboardPos->setEnabled(val);
+    mCtrlPosX->setEnabled(val);
+    mCtrlPosY->setEnabled(val);
+    mCtrlPosZ->setEnabled(val);
+    mMenuClipboardScale->setEnabled(val);
+    mCtrlScaleX->setEnabled(val);
+    mCtrlScaleY->setEnabled(val);
+    mCtrlScaleZ->setEnabled(val);
+    mMenuClipboardRot->setEnabled(val);
+    mCtrlRotX->setEnabled(val);
+    mCtrlRotY->setEnabled(val);
+    mCtrlRotZ->setEnabled(val);
+}
+
+void LLFloaterGLTFAssetEditor::loadNodeTransforms(S32 node_id)
+{
+    if (node_id < 0 || node_id >= mAsset->mNodes.size())
+    {
+        LL_ERRS() << "Node id out of range: " << node_id << LL_ENDL;
+        return;
+    }
+
+    LL::GLTF::Node& node = mAsset->mNodes[node_id];
+
+    mCtrlPosX->set(node.mTranslation[0]);
+    mCtrlPosY->set(node.mTranslation[1]);
+    mCtrlPosZ->set(node.mTranslation[2]);
+
+    mCtrlScaleX->set(node.mScale[0]);
+    mCtrlScaleY->set(node.mScale[1]);
+    mCtrlScaleZ->set(node.mScale[2]);
+
+    LLQuaternion object_rot = LLQuaternion(node.mRotation[0], node.mRotation[1], node.mRotation[2], node.mRotation[3]);
+    object_rot.getEulerAngles(&(mLastEulerDegrees.mV[VX]), &(mLastEulerDegrees.mV[VY]), &(mLastEulerDegrees.mV[VZ]));
+    mLastEulerDegrees *= RAD_TO_DEG;
+    mLastEulerDegrees.mV[VX] = fmod(ll_round(mLastEulerDegrees.mV[VX], OBJECT_ROTATION_PRECISION) + 360.f, 360.f);
+    mLastEulerDegrees.mV[VY] = fmod(ll_round(mLastEulerDegrees.mV[VY], OBJECT_ROTATION_PRECISION) + 360.f, 360.f);
+    mLastEulerDegrees.mV[VZ] = fmod(ll_round(mLastEulerDegrees.mV[VZ], OBJECT_ROTATION_PRECISION) + 360.f, 360.f);
+
+    mCtrlRotX->set(mLastEulerDegrees.mV[VX]);
+    mCtrlRotY->set(mLastEulerDegrees.mV[VY]);
+    mCtrlRotZ->set(mLastEulerDegrees.mV[VZ]);
+}
+
+void LLFloaterGLTFAssetEditor::onCommitTransform()
+{
+    if (!mFolderRoot)
+    {
+        LL_ERRS() << "Folder root not initialized" << LL_ENDL;
+        return;
+    }
+
+    LLFolderViewItem* item = mFolderRoot->getCurSelectedItem();
+    if (!item)
+    {
+        LL_ERRS() << "Nothing selected" << LL_ENDL;
+        return;
+    }
+
+    LLGLTFFolderItem* vmi = static_cast<LLGLTFFolderItem*>(item->getViewModelItem());
+
+    if (!vmi || vmi->getType() != LLGLTFFolderItem::TYPE_NODE)
+    {
+        LL_ERRS() << "Only nodes implemented" << LL_ENDL;
+        return;
+    }
+    S32 node_id = vmi->getItemId();
+    LL::GLTF::Node& node = mAsset->mNodes[node_id];
+
+    LL::GLTF::vec3 tr(mCtrlPosX->get(), mCtrlPosY->get(), mCtrlPosZ->get());
+    node.setTranslation(tr);
+
+    LL::GLTF::vec3 scale(mCtrlScaleX->get(), mCtrlScaleY->get(), mCtrlScaleZ->get());
+    node.setScale(scale);
+
+    LLVector3 new_rot(mCtrlRotX->get(), mCtrlRotY->get(), mCtrlRotZ->get());
+    new_rot.mV[VX] = ll_round(new_rot.mV[VX], OBJECT_ROTATION_PRECISION);
+    new_rot.mV[VY] = ll_round(new_rot.mV[VY], OBJECT_ROTATION_PRECISION);
+    new_rot.mV[VZ] = ll_round(new_rot.mV[VZ], OBJECT_ROTATION_PRECISION);
+
+    // Note: must compare before conversion to radians, some value can go 'around' 360
+    LLVector3 delta = new_rot - mLastEulerDegrees;
+
+    if (delta.magVec() >= 0.0005f)
+    {
+        mLastEulerDegrees = new_rot;
+        new_rot *= DEG_TO_RAD;
+
+        LLQuaternion rotation;
+        rotation.setQuat(new_rot.mV[VX], new_rot.mV[VY], new_rot.mV[VZ]);
+        LL::GLTF::quat q;
+        q[0] = rotation.mQ[VX];
+        q[1] = rotation.mQ[VY];
+        q[2] = rotation.mQ[VZ];
+        q[3] = rotation.mQ[VW];
+
+        node.setRotation(q);
+    }
+
+    mAsset->updateTransforms();
+}
+
+void LLFloaterGLTFAssetEditor::onMenuDoToSelected(const LLSD& userdata)
+{
+    std::string command = userdata.asString();
+
+    if (command == "psr_paste")
+    {
+        // todo: implement
+        // onPastePos();
+        // onPasteSize();
+        // onPasteRot();
+    }
+    else if (command == "pos_paste")
+    {
+        // todo: implement
+    }
+    else if (command == "size_paste")
+    {
+        // todo: implement
+    }
+    else if (command == "rot_paste")
+    {
+        // todo: implement
+    }
+    else if (command == "psr_copy")
+    {
+        // onCopyPos();
+        // onCopySize();
+        // onCopyRot();
+    }
+    else if (command == "pos_copy")
+    {
+        // todo: implement
+    }
+    else if (command == "size_copy")
+    {
+        // todo: implement
+    }
+    else if (command == "rot_copy")
+    {
+        // todo: implement
+    }
+}
+
+bool LLFloaterGLTFAssetEditor::onMenuEnableItem(const LLSD& userdata)
+{
+    if (!mFolderRoot)
+    {
+        return false;
+    }
+
+    LLFolderViewItem* item = mFolderRoot->getCurSelectedItem();
+    if (!item)
+    {
+        return false;
+    }
+
+    LLGLTFFolderItem* vmi = static_cast<LLGLTFFolderItem*>(item->getViewModelItem());
+
+    if (!vmi || vmi->getType() != LLGLTFFolderItem::TYPE_NODE)
+    {
+        return false;
+    }
+
+    std::string command = userdata.asString();
+    if (command == "pos_paste" || command == "size_paste" || command == "rot_paste")
+    {
+        // todo: implement
+        return true;
+    }
+    if (command == "psr_copy")
+    {
+        // todo: implement
+        return true;
+    }
+
+    return false;
 }
 
