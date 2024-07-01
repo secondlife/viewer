@@ -100,7 +100,7 @@ void LLAppearanceListener::wearOutfitByName(LLSD const &data)
 {
     Response response(LLSD(), data);
     std::string error_msg;
-    if (!LLAppearanceMgr::instance().wearOutfitByName(data["folder_name"].asString(), data["append"].asBoolean(), error_msg))
+    if (!LLAppearanceMgr::instance().wearOutfitByName(data["folder_name"].asString(), error_msg, data["append"].asBoolean()))
     {
         response.error(error_msg);
     }
@@ -147,7 +147,8 @@ void LLAppearanceListener::getOutfitItems(LLSD const &data)
     LLInventoryModel::cat_array_t  cat_array;
     LLInventoryModel::item_array_t item_array;
 
-    gInventory.collectDescendentsIf(outfit_id, cat_array, item_array, LLInventoryModel::EXCLUDE_TRASH, LLFindOutfitItems());
+    LLFindOutfitItems collector = LLFindOutfitItems();
+    gInventory.collectDescendentsIf(outfit_id, cat_array, item_array, LLInventoryModel::EXCLUDE_TRASH, collector);
 
     LLSD items_data;
     for (const LLPointer<LLViewerInventoryItem> &it : item_array)

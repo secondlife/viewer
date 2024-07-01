@@ -2904,7 +2904,7 @@ void LLAppearanceMgr::wearInventoryCategoryOnAvatar( LLInventoryCategory* catego
     LLAppearanceMgr::changeOutfit(TRUE, category->getUUID(), append);
 }
 
-bool LLAppearanceMgr::wearOutfitByName(const std::string& name, bool append, std::string& error_msg)
+bool LLAppearanceMgr::wearOutfitByName(const std::string& name, std::string& error_msg, bool append)
 {
     LL_INFOS("Avatar") << self_av_string() << "Wearing category " << name << LL_ENDL;
 
@@ -2950,7 +2950,6 @@ bool LLAppearanceMgr::wearOutfitByName(const std::string& name, bool append, std
         {
             std::string msg = append ? LLTrans::getString("OutfitNotAdded") : LLTrans::getString("OutfitNotReplaced");
             error_msg = stringize(msg, std::quoted(name), ", id: ", cat->getUUID());
-            LL_WARNS() << error_msg << LL_ENDL;
             return false;
         }
         LLAppearanceMgr::wearInventoryCategory(cat, copy_items, append);
@@ -2958,6 +2957,16 @@ bool LLAppearanceMgr::wearOutfitByName(const std::string& name, bool append, std
     else
     {
         error_msg = stringize(LLTrans::getString("OutfitNotFound"), std::quoted(name));
+        return false;
+    }
+    return true;
+}
+
+bool LLAppearanceMgr::wearOutfitByName(const std::string& name, bool append)
+{
+    std::string error_msg;
+    if(!wearOutfitByName(name, error_msg, append))
+    {
         LL_WARNS() << error_msg << LL_ENDL;
         return false;
     }
