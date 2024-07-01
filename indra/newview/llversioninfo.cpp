@@ -76,37 +76,37 @@ LLVersionInfo::~LLVersionInfo()
 {
 }
 
-S32 LLVersionInfo::getMajor()
+S32 LLVersionInfo::getMajor() const
 {
     return LL_VIEWER_VERSION_MAJOR;
 }
 
-S32 LLVersionInfo::getMinor()
+S32 LLVersionInfo::getMinor() const
 {
     return LL_VIEWER_VERSION_MINOR;
 }
 
-S32 LLVersionInfo::getPatch()
+S32 LLVersionInfo::getPatch() const
 {
     return LL_VIEWER_VERSION_PATCH;
 }
 
-U64 LLVersionInfo::getBuild()
+U64 LLVersionInfo::getBuild() const
 {
     return LL_VIEWER_VERSION_BUILD;
 }
 
-std::string LLVersionInfo::getVersion()
+std::string LLVersionInfo::getVersion() const
 {
     return version;
 }
 
-std::string LLVersionInfo::getShortVersion()
+std::string LLVersionInfo::getShortVersion() const
 {
     return short_version;
 }
 
-std::string LLVersionInfo::getChannelAndVersion()
+std::string LLVersionInfo::getChannelAndVersion() const
 {
     if (mVersionChannel.empty())
     {
@@ -117,7 +117,7 @@ std::string LLVersionInfo::getChannelAndVersion()
     return mVersionChannel;
 }
 
-std::string LLVersionInfo::getChannel()
+std::string LLVersionInfo::getChannel() const
 {
     return mWorkingChannelName;
 }
@@ -128,7 +128,7 @@ void LLVersionInfo::resetChannel(const std::string& channel)
     mVersionChannel.clear(); // Reset version and channel string til next use.
 }
 
-LLVersionInfo::ViewerMaturity LLVersionInfo::getViewerMaturity()
+LLVersionInfo::ViewerMaturity LLVersionInfo::getViewerMaturity() const
 {
     ViewerMaturity maturity;
 
@@ -166,12 +166,12 @@ LLVersionInfo::ViewerMaturity LLVersionInfo::getViewerMaturity()
 }
 
 
-std::string LLVersionInfo::getBuildConfig()
+std::string LLVersionInfo::getBuildConfig() const
 {
     return build_configuration;
 }
 
-std::string LLVersionInfo::getReleaseNotes()
+std::string LLVersionInfo::getReleaseNotes() const
 {
     return mReleaseNotes;
 }
