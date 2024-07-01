@@ -101,6 +101,15 @@ LLLuaFloater::LLLuaFloater(const LLSD &key) :
         }
     }, requiredParams);
 
+    mDispatchListener.add("clear_list", "", [this](const LLSD &event) 
+    { 
+        LLScrollListCtrl *ctrl = getChild<LLScrollListCtrl>(event["ctrl_name"].asString());
+        if(ctrl) 
+        {
+            ctrl->deleteAllItems();
+        }
+    }, llsd::map("ctrl_name", LLSD()));
+
     mDispatchListener.add("add_text", "", [this](const LLSD &event) 
     { 
         LLTextEditor *editor = getChild<LLTextEditor>(event["ctrl_name"].asString());
@@ -111,14 +120,34 @@ LLLuaFloater::LLLuaFloater(const LLSD &key) :
         }
     }, requiredParams);
 
+    mDispatchListener.add("set_label", "", [this](const LLSD &event) 
+    { 
+        LLButton *btn = getChild<LLButton>(event["ctrl_name"].asString());
+        if (btn)
+        {
+            btn->setLabel((event["value"]).asString());
+        }
+    }, requiredParams);
+
     mDispatchListener.add("set_title", "", [this](const LLSD &event) 
     { 
         setTitle(event["value"].asString());
     }, llsd::map("value", LLSD()));
-
+    
     mDispatchListener.add("get_value", "", [ctrl_lookup](const LLSD &event) 
     { 
         return ctrl_lookup(event, [](LLUICtrl *ctrl, const LLSD &event) { return llsd::map("value", ctrl->getValue()); });
+    }, llsd::map("ctrl_name", LLSD(), "reqid", LLSD()));
+
+    mDispatchListener.add("get_selected_id", "", [this](const LLSD &event) 
+    {
+        LLScrollListCtrl *ctrl = getChild<LLScrollListCtrl>(event["ctrl_name"].asString());
+        if (!ctrl)
+        {
+            LL_WARNS("LuaFloater") << "Control not found: " << event["ctrl_name"] << LL_ENDL;
+            return LLSD();
+        }
+        return llsd::map("value", ctrl->getCurrentID());
     }, llsd::map("ctrl_name", LLSD(), "reqid", LLSD()));
 }
 

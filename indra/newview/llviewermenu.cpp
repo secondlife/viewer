@@ -9745,8 +9745,8 @@ void initialize_menus()
     view_listener_t::addMenu(new LLAdvancedEnableAppearanceToXML(), "Advanced.EnableAppearanceToXML");
     view_listener_t::addMenu(new LLAdvancedToggleCharacterGeometry(), "Advanced.ToggleCharacterGeometry");
 
-    view_listener_t::addMenu(new LLAdvancedTestMale(), "Advanced.TestMale");
-    view_listener_t::addMenu(new LLAdvancedTestFemale(), "Advanced.TestFemale");
+    view_listener_t::addMenu(new LLAdvancedTestMale(), "Advanced.TestMale", cb_info::UNTRUSTED_THROTTLE);
+    view_listener_t::addMenu(new LLAdvancedTestFemale(), "Advanced.TestFemale", cb_info::UNTRUSTED_THROTTLE);
 
     // Advanced > Character > Animation Speed
     view_listener_t::addMenu(new LLAdvancedAnimTenFaster(), "Advanced.AnimTenFaster");
