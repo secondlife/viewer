@@ -3,7 +3,7 @@
  * @author Nat Goodspeed
  * @date   2012-02-21
  * @brief  Test for llleap.
- *
+ * 
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Copyright (c) 2012, Linden Research, Inc.
  * $/LicenseInfo$
@@ -18,6 +18,7 @@
 #include <functional>
 // external library headers
 // other Linden headers
+#include "StringVec.h"
 #include "../test/lltut.h"
 #include "../test/namedtempfile.h"
 #include "../test/catch_and_store_what_in.h"
@@ -26,7 +27,6 @@
 #include "llprocess.h"
 #include "llstring.h"
 #include "stringize.h"
-#include "StringVec.h"
 
 #if defined(LL_WINDOWS)
 #define sleep(secs) _sleep((secs) * 1000)
@@ -385,8 +385,7 @@ namespace tut
                                 "result = '' if resp == dict(pump=replypump(), data='ack')\\\n"
                                 "            else 'bad: ' + str(resp)\n"
                                 "send(pump='" << result.getName() << "', data=result)\n";});
-        waitfor(LLLeap::create(get_test_name(),
-                               StringVec{PYTHON, script.getName()}));
+        waitfor(LLLeap::create(get_test_name(), StringVec{PYTHON, script.getName()}));
         result.ensure();
     }
 

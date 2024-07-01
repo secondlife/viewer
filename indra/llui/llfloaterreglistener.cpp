@@ -3,25 +3,25 @@
  * @author Nat Goodspeed
  * @date   2009-08-12
  * @brief  Implementation for llfloaterreglistener.
- *
+ * 
  * $LicenseInfo:firstyear=2009&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- *
+ * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- *
+ * 
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- *
+ * 
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -37,6 +37,7 @@
 #include "llfloaterreg.h"
 #include "llfloater.h"
 #include "llbutton.h"
+#include "llluafloater.h"
 
 LLFloaterRegListener::LLFloaterRegListener():
     LLEventAPI("LLFloaterReg",
@@ -72,6 +73,13 @@ LLFloaterRegListener::LLFloaterRegListener():
         "Simulate clicking the named [\"button\"] in the visible floater named in [\"name\"]",
         &LLFloaterRegListener::clickButton,
         requiredNameButton);
+
+    add("showLuaFloater",
+        "Open the new floater using XML file specified in [\"xml_path\"] with ID in [\"reqid\"]",
+        &LLLuaFloater::showLuaFloater, {llsd::map("xml_path", LLSD(), "reqid", LLSD())});
+    add("getFloaterEvents",
+        "Return the table of Lua Floater events which are send to the script",
+        &LLFloaterRegListener::getLuaFloaterEvents);
 }
 
 void LLFloaterRegListener::getBuildMap(const LLSD& event) const
@@ -154,3 +162,9 @@ void LLFloaterRegListener::clickButton(const LLSD& event) const
         LLEventPumps::instance().obtain(replyPump).post(reply);
     }
 }
+
+void LLFloaterRegListener::getLuaFloaterEvents(const LLSD &event) const
+{
+    Response response(llsd::map("events", LLLuaFloater::getEventsData()), event);
+}
+

@@ -1744,7 +1744,7 @@ void LLInventoryModel::changeItemParent(LLViewerInventoryItem* item,
             << " from " << make_inventory_info(item->getParentUUID())
             << " to " << make_inventory_info(new_parent_id) << LL_ENDL;
 
-        LLInventoryModel::LLCategoryUpdate old_folder(item->getParentUUID(), -1);
+        LLInventoryModel::LLCategoryUpdate old_folder(item->getParentUUID(),-1);
         accountForUpdate(old_folder);
         LLInventoryModel::LLCategoryUpdate new_folder(new_parent_id, 1, false);
         accountForUpdate(new_folder);
@@ -2540,7 +2540,7 @@ void LLInventoryModel::accountForUpdate(const LLCategoryUpdate& update) const
                 cat->setDescendentCount(descendents_actual);
                 if (update.mChangeVersion)
                 {
-                    cat->setVersion(++version);
+                cat->setVersion(++version);
                 }
                 LL_DEBUGS(LOG_INV) << "accounted: '" << cat->getName() << "' "
                                    << version << " with " << descendents_actual
@@ -4844,6 +4844,17 @@ std::string LLInventoryModel::getFullPath(const LLInventoryObject *obj) const
     std::string result = "/" + boost::algorithm::join(path_elts, delim);
     return result;
 }
+
+/*
+const LLInventoryObject* LLInventoryModel::findByFullPath(const std::string& path)
+{
+    vector<std::string> path_elts;
+    boost::algorithm::split(path_elts, path, boost::is_any_of("/"));
+    for(path_elts, auto e)
+    {
+    }
+}
+*/
 
 ///----------------------------------------------------------------------------
 /// Local function definitions

@@ -1,9 +1,9 @@
 /**
  * @file   hexdump.h
  * @author Nat Goodspeed
- * @date   2023-09-08
- * @brief  Provide hexdump() and hexmix() ostream formatters
- *
+ * @date   2023-10-03
+ * @brief  iostream manipulators to stream hex, or string with nonprinting chars
+ * 
  * $LicenseInfo:firstyear=2023&license=viewerlgpl$
  * Copyright (c) 2023, Linden Research, Inc.
  * $/LicenseInfo$
@@ -17,6 +17,9 @@
 #include <iostream>
 #include <string_view>
 
+namespace LL
+{
+
 // Format a given byte string as 2-digit hex values, no separators
 // Usage: std::cout << hexdump(somestring) << ...
 class hexdump
@@ -28,6 +31,10 @@ public:
 
     hexdump(const char* data, size_t len):
         hexdump(reinterpret_cast<const unsigned char*>(data), len)
+    {}
+
+    hexdump(const std::vector<unsigned char>& data):
+        hexdump(data.data(), data.size())
     {}
 
     hexdump(const unsigned char* data, size_t len):
@@ -93,5 +100,7 @@ public:
 private:
     std::string mData;
 };
+
+} // namespace LL
 
 #endif /* ! defined(LL_HEXDUMP_H) */

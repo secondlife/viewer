@@ -48,12 +48,12 @@ LLFloaterMemLeak::LLFloaterMemLeak(const LLSD& key)
     : LLFloater(key)
 {
     setTitle("Memory Leaking Simulation Floater");
-    mCommitCallbackRegistrar.add("MemLeak.ChangeLeakingSpeed",  boost::bind(&LLFloaterMemLeak::onChangeLeakingSpeed, this));
-    mCommitCallbackRegistrar.add("MemLeak.ChangeMaxMemLeaking", boost::bind(&LLFloaterMemLeak::onChangeMaxMemLeaking, this));
-    mCommitCallbackRegistrar.add("MemLeak.Start",   boost::bind(&LLFloaterMemLeak::onClickStart, this));
-    mCommitCallbackRegistrar.add("MemLeak.Stop",    boost::bind(&LLFloaterMemLeak::onClickStop, this));
-    mCommitCallbackRegistrar.add("MemLeak.Release", boost::bind(&LLFloaterMemLeak::onClickRelease, this));
-    mCommitCallbackRegistrar.add("MemLeak.Close",   boost::bind(&LLFloaterMemLeak::onClickClose, this));
+    mCommitCallbackRegistrar.add("MemLeak.ChangeLeakingSpeed",  { boost::bind(&LLFloaterMemLeak::onChangeLeakingSpeed, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("MemLeak.ChangeMaxMemLeaking", { boost::bind(&LLFloaterMemLeak::onChangeMaxMemLeaking, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("MemLeak.Start",   { boost::bind(&LLFloaterMemLeak::onClickStart, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("MemLeak.Stop",    { boost::bind(&LLFloaterMemLeak::onClickStop, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("MemLeak.Release", { boost::bind(&LLFloaterMemLeak::onClickRelease, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("MemLeak.Close",   { boost::bind(&LLFloaterMemLeak::onClickClose, this), cb_info::UNTRUSTED_BLOCK });
 }
 //----------------------------------------------
 

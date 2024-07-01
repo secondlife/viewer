@@ -208,6 +208,7 @@
 #include "llstacktrace.h"
 
 #include "threadpool.h"
+#include "llluamanager.h"
 #include "llperfstats.h"
 
 
@@ -2421,6 +2422,8 @@ bool idle_startup()
 
         LLPerfStats::StatsRecorder::setAutotuneInit();
 
+        LLLUAmanager::runScriptOnLogin();
+
         return TRUE;
     }
 
@@ -2990,7 +2993,7 @@ std::string LLStartUp::startupStateToString(EStartupState state)
         RTNENUM( STATE_AGENT_SEND );
         RTNENUM( STATE_AGENT_WAIT );
         RTNENUM( STATE_INVENTORY_SEND );
-        RTNENUM( STATE_INVENTORY_CALLBACKS );
+        RTNENUM(STATE_INVENTORY_CALLBACKS );
         RTNENUM( STATE_INVENTORY_SKEL );
         RTNENUM( STATE_INVENTORY_SEND2 );
         RTNENUM( STATE_MISC );

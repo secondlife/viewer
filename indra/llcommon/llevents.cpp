@@ -3,25 +3,25 @@
  * @author Nat Goodspeed
  * @date   2008-09-12
  * @brief  Implementation for llevents.
- *
+ * 
  * $LicenseInfo:firstyear=2008&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- *
+ * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- *
+ * 
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- *
+ * 
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -43,6 +43,7 @@
 #include <typeinfo>
 #include <cmath>
 #include <cctype>
+#include <iomanip>                  // std::quoted
 // external library headers
 #include <boost/range/iterator_range.hpp>
 #if LL_WINDOWS
@@ -54,10 +55,11 @@
 #pragma warning (pop)
 #endif
 // other Linden headers
-#include "stringize.h"
 #include "llerror.h"
-#include "llsdutil.h"
+#include "lleventfilter.h"
 #include "llexception.h"
+#include "llsdutil.h"
+#include "stringize.h"
 #if LL_MSVC
 #pragma warning (disable : 4702)
 #endif
@@ -71,7 +73,9 @@ LLEventPumps::LLEventPumps():
         { "LLEventStream",   [](const std::string& name, bool tweak, const std::string& /*type*/)
                              { return new LLEventStream(name, tweak); } },
         { "LLEventMailDrop", [](const std::string& name, bool tweak, const std::string& /*type*/)
-                             { return new LLEventMailDrop(name, tweak); } }
+                             { return new LLEventMailDrop(name, tweak); } },
+        { "LLEventLogProxy", [](const std::string& name, bool tweak, const std::string& /*type*/)
+                             { return new LLEventLogProxyFor<LLEventStream>(name, tweak); } }
     },
     mTypes
     {
@@ -186,8 +190,13 @@ bool LLEventPumps::post(const std::string&name, const LLSD&message)
     PumpMap::iterator found = mPumpMap.find(name);
 
     if (found == mPumpMap.end())
+    {
+        LL_DEBUGS("LLEventPumps") << "LLEventPump(" << std::quoted(name) << ") not found"
+                                  << LL_ENDL;
         return false;
+    }
 
+//  LL_DEBUGS("LLEventPumps") << "posting to " << name << ": " << message << LL_ENDL;
     return (*found).second->post(message);
 }
 
@@ -350,8 +359,7 @@ const std::string LLEventPump::ANONYMOUS = std::string();
 
 LLEventPump::LLEventPump(const std::string& name, bool tweak):
     // Register every new instance with LLEventPumps
-    mRegistry(LLEventPumps::instance().getHandle()),
-    mName(mRegistry.get()->registerNew(*this, name, tweak)),
+    mName(LLEventPumps::instance().registerNew(*this, name, tweak)),
     mSignal(std::make_shared<LLStandardSignal>()),
     mEnabled(true)
 {}
@@ -364,10 +372,9 @@ LLEventPump::~LLEventPump()
 {
     // Unregister this doomed instance from LLEventPumps -- but only if
     // LLEventPumps is still around!
-    LLEventPumps* registry = mRegistry.get();
-    if (registry)
+    if (LLEventPumps::instanceExists())
     {
-        registry->unregister(*this);
+        LLEventPumps::instance().unregister(*this);
     }
 }
 
@@ -414,7 +421,7 @@ LLBoundListener LLEventPump::listen_impl(const std::string& name, const LLEventL
 {
     if (!mSignal)
     {
-        LL_WARNS() << "Can't connect listener" << LL_ENDL;
+        LL_WARNS("LLEventPump") << "Can't connect listener" << LL_ENDL;
         // connect will fail, return dummy
         return LLBoundListener();
     }
@@ -423,8 +430,8 @@ LLBoundListener LLEventPump::listen_impl(const std::string& name, const LLEventL
 
     float nodePosition = 1.0;
 
-    // if the supplied name is empty we are not interested in the ordering mechanism
-    // and can bypass attempting to find the optimal location to insert the new
+    // if the supplied name is empty we are not interested in the ordering mechanism 
+    // and can bypass attempting to find the optimal location to insert the new 
     // listener.  We'll just tack it on to the end.
     if (!name.empty()) // should be the same as testing against ANONYMOUS
     {
@@ -569,12 +576,12 @@ LLBoundListener LLEventPump::listen_impl(const std::string& name, const LLEventL
     // Now that newNode has a value that places it appropriately in mSignal,
     // connect it.
     LLBoundListener bound = mSignal->connect(nodePosition, listener);
-
+    
     if (!name.empty())
     {   // note that we are not tracking anonymous listeners here either.
-        // This means that it is the caller's responsibility to either assign
-        // to a TempBoundListerer (scoped_connection) or manually disconnect
-        // when done.
+        // This means that it is the caller's responsibility to either assign 
+        // to a TempBoundListerer (scoped_connection) or manually disconnect 
+        // when done. 
         mConnections[name] = bound;
     }
     return bound;
@@ -641,9 +648,9 @@ bool LLEventMailDrop::post(const LLSD& event)
 {
     // forward the call to our base class
     bool posted = LLEventStream::post(event);
-
+    
     if (!posted)
-    {   // if the event was not handled we will save it for later so that it can
+    {   // if the event was not handled we will save it for later so that it can 
         // be posted to any future listeners when they attach.
         mEventHistory.push_back(event);
     }
@@ -733,7 +740,7 @@ void LLReqID::stamp(LLSD& response) const
     response["reqid"] = mReqid;
 }
 
-bool sendReply(const LLSD& reply, const LLSD& request, const std::string& replyKey)
+bool sendReply(LLSD reply, const LLSD& request, const std::string& replyKey)
 {
     // If the original request has no value for replyKey, it's pointless to
     // construct or send a reply event: on which LLEventPump should we send
@@ -746,13 +753,13 @@ bool sendReply(const LLSD& reply, const LLSD& request, const std::string& replyK
 
     // Here the request definitely contains replyKey; reasonable to proceed.
 
-    // Copy 'reply' to modify it.
-    LLSD newreply(reply);
     // Get the ["reqid"] element from request
     LLReqID reqID(request);
-    // and copy it to 'newreply'.
-    reqID.stamp(newreply);
-    // Send reply on LLEventPump named in request[replyKey]. Don't forget to
-    // send the modified 'newreply' instead of the original 'reply'.
-    return LLEventPumps::instance().obtain(request[replyKey]).post(newreply);
+    // and copy it to 'reply'.
+    reqID.stamp(reply);
+    // Send reply on LLEventPump named in request[replyKey] -- if that
+    // LLEventPump exists. If it does not, don't create it.
+    // This addresses the case in which a requester goes away before a
+    // particular LLEventAPI responds.
+    return LLEventPumps::instance().post(request[replyKey], reply);
 }

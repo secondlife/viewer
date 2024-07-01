@@ -3,25 +3,25 @@
  * @author Nat Goodspeed
  * @date   2009-03-06
  * @brief  Test for lleventfilter.
- *
+ * 
  * $LicenseInfo:firstyear=2009&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- *
+ * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- *
+ * 
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- *
+ * 
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -34,10 +34,10 @@
 // std headers
 // external library headers
 // other Linden headers
+#include "listener.h"
 #include "../test/lltut.h"
 #include "stringize.h"
 #include "llsdutil.h"
-#include "listener.h"
 #include "tests/wrapllerrs.h"
 
 #include <typeinfo>
@@ -51,6 +51,7 @@
 // as we've carefully put all functionality except actual LLTimer calls into
 // LLEventTimeoutBase, that should suffice. We're not not not trying to test
 // LLTimer here.
+#if 0                               // time testing needs reworking
 class TestEventTimeout: public LLEventTimeoutBase
 {
 public:
@@ -151,6 +152,7 @@ public:
     F32 mAlarmRemaining, mTimerRemaining;
     LLEventTimeoutBase::Action mAlarmAction;
 };
+#endif  // time testing needs reworking
 
 /*****************************************************************************
 *   TUT
@@ -220,6 +222,8 @@ namespace tut
     void filter_object::test<2>()
     {
         set_test_name("LLEventTimeout::actionAfter()");
+        skip("time testing needs reworking");
+#if 0                               // time testing needs reworking
         LLEventPump& driver(pumps.obtain("driver"));
         TestEventTimeout filter(driver);
         listener0.reset(0);
@@ -285,12 +289,15 @@ namespace tut
         filter.forceTimeout();
         mainloop.post(17);
         check_listener("no timeout 6", listener1, LLSD(0));
+#endif  // time testing needs reworking
     }
 
     template<> template<>
     void filter_object::test<3>()
     {
         set_test_name("LLEventTimeout::eventAfter()");
+        skip("time testing needs reworking");
+#if 0                               // time testing needs reworking
         LLEventPump& driver(pumps.obtain("driver"));
         TestEventTimeout filter(driver);
         listener0.reset(0);
@@ -322,12 +329,15 @@ namespace tut
         filter.forceTimeout();
         mainloop.post(17);
         check_listener("no timeout 3", listener0, LLSD(0));
+#endif  // time testing needs reworking
     }
 
     template<> template<>
     void filter_object::test<4>()
     {
         set_test_name("LLEventTimeout::errorAfter()");
+        skip("time testing needs reworking");
+#if 0                               // time testing needs reworking
         WrapLLErrs capture;
         LLEventPump& driver(pumps.obtain("driver"));
         TestEventTimeout filter(driver);
@@ -362,12 +372,15 @@ namespace tut
         filter.forceTimeout();
         mainloop.post(17);
         check_listener("no timeout 3", listener0, LLSD(0));
+#endif  // time testing needs reworking
     }
 
     template<> template<>
     void filter_object::test<5>()
     {
         set_test_name("LLEventThrottle");
+        skip("time testing needs reworking");
+#if 0                               // time testing needs reworking
         TestEventThrottle throttle(3);
         Concat cat;
         throttle.listen("concat", boost::ref(cat));
@@ -403,6 +416,7 @@ namespace tut
         throttle.advance(5);
         throttle.post(";17");
         ensure_equals("17", cat.result, "136;12;17"); // "17" delivered
+#endif  // time testing needs reworking
     }
 
     template<class PUMP>

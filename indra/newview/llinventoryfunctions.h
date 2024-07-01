@@ -392,6 +392,22 @@ protected:
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Class LLNameItemCollector
+//
+// Collects items based on case-insensitive match of prefix
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+class LLNameItemCollector : public LLInventoryCollectFunctor
+{
+public:
+    LLNameItemCollector(const std::string& name) : mName(name) {}
+    virtual ~LLNameItemCollector() {}
+    virtual bool operator()(LLInventoryCategory* cat,
+                            LLInventoryItem* item);
+protected:
+    std::string mName;
+};
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLFindCOFValidItems
 //
 // Collects items that can be legitimately linked to in the COF.

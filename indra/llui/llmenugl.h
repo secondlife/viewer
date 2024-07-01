@@ -562,16 +562,17 @@ public:
     // add a context menu branch
     BOOL appendContextSubMenu(LLMenuGL *menu);
 
-    const LLFontGL *getFont() const { return mFont; }
-
-  protected:
-    void createSpilloverBranch();
-    void cleanupSpilloverBranch();
     // Add the menu item to this menu.
     virtual BOOL append( LLMenuItemGL* item );
 
     // add a menu - this will create a cascading menu
-    virtual BOOL appendMenu( LLMenuGL* menu );
+    virtual BOOL appendMenu(LLMenuGL *menu);
+
+    const LLFontGL *getFont() const { return mFont; }
+
+protected:
+    void createSpilloverBranch();
+    void cleanupSpilloverBranch();
 
     // Used in LLContextMenu and in LLTogleableMenu
     // to add an item of context menu branch
@@ -810,9 +811,10 @@ public:
 
     void resetMenuTrigger() { mAltKeyTrigger = FALSE; }
 
-private:
     // add a menu - this will create a drop down menu.
-    virtual BOOL appendMenu( LLMenuGL* menu );
+    virtual BOOL appendMenu(LLMenuGL *menu);
+
+private:
     // rearrange the child rects so they fit the shape of the menu
     // bar.
     virtual void arrange( void );
@@ -948,16 +950,18 @@ public:
         LLUICtrl::EnableCallbackRegistry::currentRegistrar().add(name, boost::bind(&view_listener_t::handleEvent, listener, _2));
     }
 
-    static void addCommit(view_listener_t* listener, const std::string& name)
+    typedef LLUICtrl::CommitCallbackInfo cb_info;
+    static void addCommit(view_listener_t *listener, const std::string &name, cb_info::EUntrustedCall handle_untrusted = cb_info::UNTRUSTED_ALLOW)
     {
-        LLUICtrl::CommitCallbackRegistry::currentRegistrar().add(name, boost::bind(&view_listener_t::handleEvent, listener, _2));
+        LLUICtrl::CommitCallbackRegistry::currentRegistrar().add(name, 
+            cb_info([listener](LLUICtrl*, const LLSD& param){ return listener->handleEvent(param); }, handle_untrusted));
     }
 
-    static void addMenu(view_listener_t* listener, const std::string& name)
+    static void addMenu(view_listener_t *listener, const std::string &name, cb_info::EUntrustedCall handle_untrusted = cb_info::UNTRUSTED_ALLOW)
     {
         // For now, add to both click and enable registries
         addEnable(listener, name);
-        addCommit(listener, name);
+        addCommit(listener, name, handle_untrusted);
     }
 
     static void cleanup()

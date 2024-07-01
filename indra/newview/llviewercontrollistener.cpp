@@ -141,7 +141,8 @@ void LLViewerControlListener::set(LLSD const & request)
 
     if (request.has("value"))
     {
-        info.control->setValue(request["value"]);
+        LL_WARNS("LLViewerControlListener") << "Changing debug setting " << std::quoted(info.key) << " to " << request["value"] << LL_ENDL;
+        info.control->setValue(request["value"], false);
     }
     else
     {
@@ -158,7 +159,9 @@ void LLViewerControlListener::toggle(LLSD const & request)
 
     if (info.control->isType(TYPE_BOOLEAN))
     {
-        info.control->set(! info.control->get().asBoolean());
+        bool value = !info.control->get().asBoolean();
+        LL_WARNS("LLViewerControlListener") << "Toggling debug setting " << std::quoted(info.key) << " to " << value << LL_ENDL;
+        info.control->set(value, false);
     }
     else
     {

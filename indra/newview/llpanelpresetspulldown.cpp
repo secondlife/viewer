@@ -50,9 +50,9 @@ LLPanelPresetsPulldown::LLPanelPresetsPulldown()
 {
     mHoverTimer.stop();
 
-    mCommitCallbackRegistrar.add("Presets.GoGraphicsPrefs", boost::bind(&LLPanelPresetsPulldown::onGraphicsButtonClick, this, _2));
-    mCommitCallbackRegistrar.add("Presets.GoAutofpsPrefs", boost::bind(&LLPanelPresetsPulldown::onAutofpsButtonClick, this, _2));
-    mCommitCallbackRegistrar.add("Presets.RowClick", boost::bind(&LLPanelPresetsPulldown::onRowClick, this, _2));
+    mCommitCallbackRegistrar.add("Presets.GoGraphicsPrefs", { boost::bind(&LLPanelPresetsPulldown::onGraphicsButtonClick, this, _2) });
+    mCommitCallbackRegistrar.add("Presets.GoAutofpsPrefs", { boost::bind(&LLPanelPresetsPulldown::onAutofpsButtonClick, this, _2) });
+    mCommitCallbackRegistrar.add("Presets.RowClick", { boost::bind(&LLPanelPresetsPulldown::onRowClick, this, _2) });
 
     buildFromFile( "panel_presets_pulldown.xml");
 }

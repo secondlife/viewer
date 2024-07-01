@@ -107,9 +107,9 @@ static bool mCapSent = false;
 LLFloaterPermsDefault::LLFloaterPermsDefault(const LLSD& seed)
     : LLFloater(seed)
 {
-    mCommitCallbackRegistrar.add("PermsDefault.Copy", boost::bind(&LLFloaterPermsDefault::onCommitCopy, this, _2));
-    mCommitCallbackRegistrar.add("PermsDefault.OK", boost::bind(&LLFloaterPermsDefault::onClickOK, this));
-    mCommitCallbackRegistrar.add("PermsDefault.Cancel", boost::bind(&LLFloaterPermsDefault::onClickCancel, this));
+    mCommitCallbackRegistrar.add("PermsDefault.Copy", { boost::bind(&LLFloaterPermsDefault::onCommitCopy, this, _2), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("PermsDefault.OK", { boost::bind(&LLFloaterPermsDefault::onClickOK, this), cb_info::UNTRUSTED_BLOCK });
+    mCommitCallbackRegistrar.add("PermsDefault.Cancel", { boost::bind(&LLFloaterPermsDefault::onClickCancel, this), cb_info::UNTRUSTED_BLOCK });
 }
 
 

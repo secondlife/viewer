@@ -3,25 +3,25 @@
  * @author Nat Goodspeed
  * @date   2008-12-17
  * @brief  stringize(item) template function and STRINGIZE(expression) macro
- *
+ * 
  * $LicenseInfo:firstyear=2008&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- *
+ * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- *
+ * 
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- *
+ * 
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -88,13 +88,13 @@ struct gstringize_impl
 };
 
 // partially specialize for a single STRING argument -
-// note that ll_convert<T>(T) already handles the trivial case
+// note that ll_convert_to<T>(T) already handles the trivial case
 template <typename OUTCHAR, typename INCHAR>
 struct gstringize_impl<OUTCHAR, std::basic_string<INCHAR>>
 {
     auto operator()(const std::basic_string<INCHAR>& arg)
     {
-        return ll_convert<std::basic_string<OUTCHAR>>(arg);
+        return ll_convert_to<std::basic_string<OUTCHAR>>(arg);
     }
 };
 
@@ -105,7 +105,7 @@ struct gstringize_impl<OUTCHAR, INCHAR*>
 {
     auto operator()(const INCHAR* arg)
     {
-        return ll_convert<std::basic_string<OUTCHAR>>(arg);
+        return ll_convert_to<std::basic_string<OUTCHAR>>(arg);
     }
 };
 

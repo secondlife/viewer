@@ -3,25 +3,25 @@
  * @author Nat Goodspeed
  * @date   2009-06-02
  * @brief  Manage running boost::coroutine instances
- *
+ * 
  * $LicenseInfo:firstyear=2009&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- *
+ * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- *
+ * 
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- *
+ * 
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -29,17 +29,18 @@
 #if ! defined(LL_LLCOROS_H)
 #define LL_LLCOROS_H
 
+#include "llevents.h"
 #include "llexception.h"
+#include "llinstancetracker.h"
+#include "llsingleton.h"
+#include "mutex.h"
 #include <boost/fiber/fss.hpp>
 #include <boost/fiber/future/promise.hpp>
 #include <boost/fiber/future/future.hpp>
-#include "mutex.h"
-#include "llsingleton.h"
-#include "llinstancetracker.h"
-#include <boost/function.hpp>
-#include <string>
 #include <exception>
+#include <functional>
 #include <queue>
+#include <string>
 
 // e.g. #include LLCOROS_MUTEX_HEADER
 #define LLCOROS_MUTEX_HEADER   <boost/fiber/mutex.hpp>
@@ -101,7 +102,7 @@ public:
     /// stuck with the term "coroutine."
     typedef boost::fibers::fiber coro;
     /// Canonical callable type
-    typedef boost::function<void()> callable_t;
+    typedef std::function<void()> callable_t;
 
     /**
      * Create and start running a new coroutine with specified name. The name
@@ -143,13 +144,13 @@ public:
     std::string launch(const std::string& prefix, const callable_t& callable);
 
     /**
-     * Abort a running coroutine by name. Normally, when a coroutine either
+     * Ask the named coroutine to abort. Normally, when a coroutine either
      * runs to completion or terminates with an exception, LLCoros quietly
      * cleans it up. This is for use only when you must explicitly interrupt
      * one prematurely. Returns @c true if the specified name was found and
      * still running at the time.
      */
-//  bool kill(const std::string& name);
+    bool killreq(const std::string& name);
 
     /**
      * From within a coroutine, look up the (tweaked) name string by which
@@ -158,7 +159,7 @@ public:
      * LLCoros::launch()).
      */
     static std::string getName();
-
+    
     /**
      * rethrow() is called by the thread's main fiber to propagate an
      * exception from any coroutine into the main fiber, where it can engage
@@ -251,15 +252,21 @@ public:
     /// thrown by checkStop()
     // It may sound ironic that Stop is derived from LLContinueError, but the
     // point is that LLContinueError is the category of exception that should
-    // not immediately crash the viewer. Stop and its subclasses are to notify
-    // coroutines that the viewer intends to shut down. The expected response
-    // is to terminate the coroutine, rather than abort the viewer.
+    // not immediately crash the viewer. Stop and its subclasses are to tell
+    // coroutines to terminate, e.g. because the viewer is shutting down. We
+    // do not want any such exception to crash the viewer.
     struct Stop: public LLContinueError
     {
         Stop(const std::string& what): LLContinueError(what) {}
     };
 
-    /// early stages
+    /// someone wants to kill this specific coroutine
+    struct Killed: public Stop
+    {
+        Killed(const std::string& what): Stop(what) {}
+    };
+
+    /// early shutdown stages
     struct Stopping: public Stop
     {
         Stopping(const std::string& what): Stop(what) {}
@@ -278,9 +285,31 @@ public:
     };
 
     /// Call this intermittently if there's a chance your coroutine might
-    /// continue running into application shutdown. Throws Stop if LLCoros has
-    /// been cleaned up.
-    static void checkStop();
+    /// still be running at application shutdown. Throws one of the Stop
+    /// subclasses if the caller needs to terminate. Pass a cleanup function
+    /// if you need to execute that cleanup before terminating.
+    /// Of course, if your cleanup function throws, that will be the exception
+    /// propagated by checkStop().
+    static void checkStop(callable_t cleanup={});
+
+    /// Call getStopListener() at the source end of a queue, promise or other
+    /// resource on which coroutines will wait, so that shutdown can wake up
+    /// consuming coroutines. @a caller should distinguish who's calling. The
+    /// passed @a cleanup function must close the queue, break the promise or
+    /// otherwise cause waiting consumers to wake up in an abnormal way. It's
+    /// advisable to store the returned LLBoundListener in an
+    /// LLTempBoundListener, or otherwise arrange to disconnect it.
+    static LLBoundListener getStopListener(const std::string& caller, LLVoidListener cleanup);
+
+    /// This getStopListener() overload is like the two-argument one, for use
+    /// when we know the name of the only coroutine that will wait on the
+    /// resource in question. Pass @a consumer as the empty string if the
+    /// consumer coroutine is the same as the calling coroutine. Unlike the
+    /// two-argument getStopListener(), this one also responds to
+    /// killreq(target).
+    static LLBoundListener getStopListener(const std::string& caller,
+                                           const std::string& consumer,
+                                           LLVoidListener cleanup);
 
     /**
      * Aliases for promise and future. An older underlying future implementation
@@ -312,6 +341,8 @@ private:
     static CoroData& get_CoroData(const std::string& caller);
     void saveException(const std::string& name, std::exception_ptr exc);
 
+    LLTempBoundListener mConn;
+
     struct ExceptionData
     {
         ExceptionData(const std::string& nm, std::exception_ptr exc):
@@ -335,8 +366,10 @@ private:
 
         // tweaked name of the current coroutine
         const std::string mName;
-        // set_consuming() state
-        bool mConsuming;
+        // set_consuming() state -- don't consume events unless specifically directed
+        bool mConsuming{ false };
+        // killed by which coroutine
+        std::string mKilledBy;
         // setStatus() state
         std::string mStatus;
         F64 mCreationTime; // since epoch

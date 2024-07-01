@@ -159,7 +159,7 @@ public:
      *
      * If action callback is not specified returns true. Instance will be deleted by LLEventTimer::updateClass().
      */
-    virtual BOOL tick();
+    bool tick() override;
 
     /**
      * Clears the callback.

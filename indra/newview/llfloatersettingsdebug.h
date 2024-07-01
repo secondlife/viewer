@@ -31,6 +31,7 @@
 #include "llfloater.h"
 
 class LLScrollListCtrl;
+class LLTextBox;
 
 class LLFloaterSettingsDebug
 :   public LLFloater
@@ -46,6 +47,7 @@ public:
 
     void onCommitSettings();
     void onClickDefault();
+    void onClickCopy();
 
     bool matchesSearchFilter(std::string setting_name);
     bool isSettingHidden(LLControlVariable* control);
@@ -67,6 +69,8 @@ private:
 
 protected:
     class LLTextEditor* mComment;
+    LLTextBox* mSettingName;
+    LLButton* mCopyBtn;
 
     std::string mSearchFilter;
 };

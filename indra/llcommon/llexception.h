@@ -3,7 +3,7 @@
  * @author Nat Goodspeed
  * @date   2016-06-29
  * @brief  Types needed for generic exception handling
- *
+ * 
  * $LicenseInfo:firstyear=2016&license=viewerlgpl$
  * Copyright (c) 2016, Linden Research, Inc.
  * $/LicenseInfo$
@@ -12,6 +12,7 @@
 #if ! defined(LL_LLEXCEPTION_H)
 #define LL_LLEXCEPTION_H
 
+#include "stdtypes.h"
 #include <stdexcept>
 #include <boost/exception/exception.hpp>
 #include <boost/throw_exception.hpp>

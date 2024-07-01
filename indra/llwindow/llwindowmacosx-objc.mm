@@ -463,6 +463,13 @@ long showAlert(std::string text, std::string title, int type)
     return ret;
 }
 
+void openFolderWithFinder(const char *folder_path)
+{
+    @autoreleasepool {
+        NSString *folderPathString = [NSString stringWithUTF8String:folder_path];
+        [[NSWorkspace sharedWorkspace] openFile:folderPathString withApplication:@"Finder"];
+    }
+}
 /*
  GLViewRef getGLView()
  {

@@ -42,12 +42,21 @@ LLAppViewerListener::LLAppViewerListener(const LLAppViewerGetter& getter):
     mAppViewerGetter(getter)
 {
     // add() every method we want to be able to invoke via this event API.
+    add("userQuit",
+        "Ask to quit with user confirmation prompt",
+        &LLAppViewerListener::userQuit);
     add("requestQuit",
         "Ask to quit nicely",
         &LLAppViewerListener::requestQuit);
     add("forceQuit",
         "Quit abruptly",
         &LLAppViewerListener::forceQuit);
+}
+
+void LLAppViewerListener::userQuit(const LLSD& event)
+{
+    LL_INFOS() << "Listener requested user quit" << LL_ENDL;
+    mAppViewerGetter()->userQuit();
 }
 
 void LLAppViewerListener::requestQuit(const LLSD& event)

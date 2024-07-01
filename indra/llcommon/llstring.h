@@ -37,7 +37,9 @@
 #include <algorithm>
 #include <vector>
 #include <map>
+#include <type_traits>
 #include "llformat.h"
+#include "stdtypes.h"
 
 #if LL_LINUX
 #include <wctype.h>
@@ -313,6 +315,14 @@ public:
     static void trim(string_type& string)   { trimHead(string); trimTail(string); }
     static void truncate(string_type& string, size_type count);
 
+    // if string startsWith prefix, remove it and return true
+    static bool removePrefix(string_type& string, const string_type& prefix);
+    // if string startsWith prefix, return (string without prefix, true), else (string, false)
+    static std::pair<string_type, bool> withoutPrefix(const string_type& string, const string_type& prefix);
+    // like removePrefix()
+    static bool removeSuffix(string_type& string, const string_type& suffix);
+    static std::pair<string_type, bool> withoutSuffix(const string_type& string, const string_type& suffix);
+
     static void toUpper(string_type& string);
     static void toLower(string_type& string);
 
@@ -520,11 +530,38 @@ struct ll_convert_impl
     TO operator()(const FROM& in) const;
 };
 
-// Use a function template to get the nice ll_convert<TO>(from_value) API.
-template<typename TO, typename FROM>
-TO ll_convert(const FROM& in)
+/**
+ * somefunction(ll_convert(data))
+ * target = ll_convert(data)
+ * totype otherfunc(const fromtype& data)
+ * {
+ *     // ...
+ *     return ll_convert(data);
+ * }
+ * all infer both the FROM type and the TO type.
+ */
+template <typename FROM>
+class ll_convert
 {
-    return ll_convert_impl<TO, FROM>()(in);
+private:
+    const FROM& mRef;
+
+public:
+    ll_convert(const FROM& ref): mRef(ref) {}
+
+    template <typename TO>
+    inline operator TO() const
+    {
+        return ll_convert_impl<TO, std::decay_t<const FROM>>()(mRef);
+    }
+};
+
+// When the TO type must be explicit, use a function template to get
+// ll_convert_to<TO>(from_value) API.
+template<typename TO, typename FROM>
+TO ll_convert_to(const FROM& in)
+{
+    return ll_convert_impl<TO, std::decay_t<const FROM>>()(in);
 }
 
 // degenerate case
@@ -578,8 +615,8 @@ inline size_t ll_convert_length<char>   (const char*    zstr) { return std::strl
 // and longname(const string&, len) so calls written pre-ll_convert() will
 // work. Most of these overloads will be unified once we turn on C++17 and can
 // use std::string_view.
-// It also uses aliasmacro to ensure that both ll_convert<OUTSTR>(const char*)
-// and ll_convert<OUTSTR>(const string&) will work.
+// It also uses aliasmacro to ensure that both ll_convert(const char*)
+// and ll_convert(const string&) will work.
 #define ll_convert_forms(aliasmacro, OUTSTR, INSTR, longname)           \
 LL_COMMON_API OUTSTR longname(const INSTR::value_type* in, size_t len); \
 inline auto longname(const INSTR& in, size_t len)                       \
@@ -822,7 +859,7 @@ LL_COMMON_API std::string ll_convert_string_to_utf8_string(const std::string& in
 template<typename STRING>
 STRING windows_message(unsigned long error)
 {
-    return ll_convert<STRING>(windows_message<std::wstring>(error));
+    return ll_convert(windows_message<std::wstring>(error));
 }
 
 /// There's only one real implementation
@@ -1450,6 +1487,60 @@ void LLStringUtilBase<T>::trimTail(string_type& string)
     }
 }
 
+// if string startsWith prefix, remove it and return true
+template<class T>
+bool LLStringUtilBase<T>::removePrefix(string_type& string, const string_type& prefix)
+{
+    bool found{ startsWith(string, prefix) };
+    if (found)
+    {
+        string.erase(0, prefix.length());
+    }
+    return found;
+}
+
+// if string startsWith prefix, return (string without prefix, true), else (string, false)
+template<class T>
+std::pair<typename LLStringUtilBase<T>::string_type, bool>
+LLStringUtilBase<T>::withoutPrefix(const string_type& string, const string_type& prefix)
+{
+    bool found{ startsWith(string, prefix) };
+    if (! found)
+    {
+        return { string, false };
+    }
+    else
+    {
+        return { string.substr(prefix.length()), true };
+    }
+}
+
+// like removePrefix()
+template<class T>
+bool LLStringUtilBase<T>::removeSuffix(string_type& string, const string_type& suffix)
+{
+    bool found{ endsWith(string, suffix) };
+    if (found)
+    {
+        string.erase(string.length() - suffix.length());
+    }
+    return found;
+}
+
+template<class T>
+std::pair<typename LLStringUtilBase<T>::string_type, bool>
+LLStringUtilBase<T>::withoutSuffix(const string_type& string, const string_type& suffix)
+{
+    bool found{ endsWith(string, suffix) };
+    if (! found)
+    {
+        return { string, false };
+    }
+    else
+    {
+        return { string.substr(0, string.length() - suffix.length()), true };
+    }
+}
 
 // Replace line feeds with carriage return-line feed pairs.
 //static
@@ -1818,7 +1909,7 @@ auto LLStringUtilBase<T>::getoptenv(const std::string& key) -> boost::optional<s
     if (found)
     {
         // return populated boost::optional
-        return { ll_convert<string_type>(*found) };
+        return { ll_convert_to<string_type>(*found) };
     }
     else
     {

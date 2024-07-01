@@ -730,7 +730,7 @@ void LLControlGroup::setLLSD(const std::string& name, const LLSD& val)
     set(name, val);
 }
 
-void LLControlGroup::setUntypedValue(const std::string& name, const LLSD& val)
+void LLControlGroup::setUntypedValue(const std::string& name, const LLSD& val, bool saved_value)
 {
     if (name.empty())
     {
@@ -741,7 +741,7 @@ void LLControlGroup::setUntypedValue(const std::string& name, const LLSD& val)
 
     if (control)
     {
-        control->setValue(val);
+        control->setValue(val, saved_value);
     }
     else
     {

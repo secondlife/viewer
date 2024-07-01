@@ -1434,6 +1434,7 @@ namespace LLError
 
         if (site.mLevel == LEVEL_ERROR)
         {
+            writeToRecorders(site, stringize(boost::stacktrace::stacktrace()));
             g->mFatalMessage = message;
             if (s->mCrashFunction)
             {

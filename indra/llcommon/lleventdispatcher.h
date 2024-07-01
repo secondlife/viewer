@@ -6,25 +6,25 @@
  *         useful when you have a single LLEventPump listener on which you can
  *         request different operations, vs. instantiating a different
  *         LLEventPump for each such operation.
- *
+ * 
  * $LicenseInfo:firstyear=2009&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- *
+ * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- *
+ * 
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- *
+ * 
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -35,7 +35,6 @@
 #include <boost/fiber/fss.hpp>
 #include <boost/function_types/is_member_function_pointer.hpp>
 #include <boost/function_types/is_nonmember_callable_builtin.hpp>
-#include <boost/hof/is_invocable.hpp> // until C++17, when we get std::is_invocable
 #include <boost/iterator/transform_iterator.hpp>
 #include <functional>               // std::function
 #include <memory>                   // std::unique_ptr
@@ -48,6 +47,7 @@
 #include "llevents.h"
 #include "llptrto.h"
 #include "llsdutil.h"
+#include "stringize.h"
 
 class LLSD;
 
@@ -99,7 +99,7 @@ public:
 
     template <typename CALLABLE,
               typename=typename std::enable_if<
-                  boost::hof::is_invocable<CALLABLE, LLSD>::value
+                  std::is_invocable<CALLABLE, LLSD>::value
              >::type>
     void add(const std::string& name,
              const std::string& desc,
@@ -201,7 +201,7 @@ public:
     template <typename R, class CLASS, typename ARG,
               typename = typename std::enable_if<
                   ! std::is_same<typename std::decay<ARG>::type, LLSD>::value
-             >::type>
+             >::type>    
     void add(const std::string& name,
              const std::string& desc,
              R (CLASS::*method)(ARG))
@@ -213,7 +213,7 @@ public:
     template <typename R, class CLASS, typename ARG,
               typename = typename std::enable_if<
                   ! std::is_same<typename std::decay<ARG>::type, LLSD>::value
-             >::type>
+             >::type>    
     void add(const std::string& name,
              const std::string& desc,
              R (CLASS::*method)(ARG) const)
@@ -226,7 +226,7 @@ public:
     template <class CLASS, typename ARG,
               typename = typename std::enable_if<
                   ! std::is_same<typename std::decay<ARG>::type, LLSD>::value
-             >::type>
+             >::type>    
     void add(const std::string& name,
              const std::string& desc,
              void (CLASS::*method)(ARG))
@@ -238,7 +238,7 @@ public:
     template <class CLASS, typename ARG,
               typename = typename std::enable_if<
                   ! std::is_same<typename std::decay<ARG>::type, LLSD>::value
-             >::type>
+             >::type>    
     void add(const std::string& name,
              const std::string& desc,
              void (CLASS::*method)(ARG) const)
@@ -247,7 +247,7 @@ public:
     }
 
     // non-const binary (or more) method
-    template <typename R, class CLASS, typename ARG0, typename ARG1, typename... ARGS>
+    template <typename R, class CLASS, typename ARG0, typename ARG1, typename... ARGS>    
     void add(const std::string& name,
              const std::string& desc,
              R (CLASS::*method)(ARG0, ARG1, ARGS...))
@@ -256,7 +256,7 @@ public:
     }
 
     // const binary (or more) method
-    template <typename R, class CLASS, typename ARG0, typename ARG1, typename... ARGS>
+    template <typename R, class CLASS, typename ARG0, typename ARG1, typename... ARGS>    
     void add(const std::string& name,
              const std::string& desc,
              R (CLASS::*method)(ARG0, ARG1, ARGS...) const)
@@ -265,7 +265,7 @@ public:
     }
 
     // non-const binary (or more) method returning void
-    template <class CLASS, typename ARG0, typename ARG1, typename... ARGS>
+    template <class CLASS, typename ARG0, typename ARG1, typename... ARGS>    
     void add(const std::string& name,
              const std::string& desc,
              void (CLASS::*method)(ARG0, ARG1, ARGS...))
@@ -274,7 +274,7 @@ public:
     }
 
     // const binary (or more) method returning void
-    template <class CLASS, typename ARG0, typename ARG1, typename... ARGS>
+    template <class CLASS, typename ARG0, typename ARG1, typename... ARGS>    
     void add(const std::string& name,
              const std::string& desc,
              void (CLASS::*method)(ARG0, ARG1, ARGS...) const)
@@ -296,7 +296,7 @@ public:
      */
     template <typename CALLABLE,
               typename=typename std::enable_if<
-                  ! boost::hof::is_invocable<CALLABLE, LLSD>()
+                  ! std::is_invocable<CALLABLE, LLSD>()
              >::type>
     void add(const std::string& name,
              const std::string& desc,
@@ -338,7 +338,7 @@ public:
     template<typename Function,
              typename = typename std::enable_if<
                  boost::function_types::is_nonmember_callable_builtin<Function>::value &&
-                 ! boost::hof::is_invocable<Function, LLSD>::value
+                 ! std::is_invocable<Function, LLSD>::value
              >::type>
     void add(const std::string& name, const std::string& desc, Function f,
              const LLSD& params, const LLSD& defaults=LLSD());
@@ -371,7 +371,7 @@ public:
              const InstanceGetter& getter, const LLSD& params,
              const LLSD& defaults=LLSD());
 
-    //@}
+    //@}    
 
     /// Unregister a callable
     bool remove(const std::string& name);
@@ -850,6 +850,8 @@ public:
     LLDispatchListener(const std::string& pumpname, const std::string& key,
                        ARGS&&... args);
     virtual ~LLDispatchListener() {}
+
+    std::string getPumpName() const { return getName(); }
 
 private:
     bool process(const LLSD& event) const;

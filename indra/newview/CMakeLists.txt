@@ -48,6 +48,7 @@ include(VulkanGltf)
 include(ZLIBNG)
 include(URIPARSER)
 include(LLPrimitive)
+include(Lualibs)
 
 if (NOT HAVOK_TPV)
    # When using HAVOK_TPV, the library is precompiled, so no need for this
@@ -246,6 +247,8 @@ set(viewer_SOURCE_FILES
     llfloaterlandholdings.cpp
     llfloaterlinkreplace.cpp
     llfloaterloadprefpreset.cpp
+    llfloaterluadebug.cpp
+    llfloaterluascripts.cpp
     llfloatermarketplacelistings.cpp
     llfloatermap.cpp
     llfloatermediasettings.cpp
@@ -376,6 +379,7 @@ set(viewer_SOURCE_FILES
     lllogchat.cpp
     llloginhandler.cpp
     lllogininstance.cpp
+    llluamanager.cpp
     llmachineid.cpp
     llmanip.cpp
     llmaniprotate.cpp
@@ -911,6 +915,8 @@ set(viewer_HEADER_FILES
     llfloaterlandholdings.h
     llfloaterlinkreplace.h
     llfloaterloadprefpreset.h
+    llfloaterluadebug.h
+    llfloaterluascripts.h
     llfloatermap.h
     llfloatermarketplacelistings.h
     llfloatermediasettings.h
@@ -1039,6 +1045,7 @@ set(viewer_HEADER_FILES
     lllogchat.h
     llloginhandler.h
     lllogininstance.h
+    llluamanager.h
     llmachineid.h
     llmanip.h
     llmaniprotate.h
@@ -1820,20 +1827,6 @@ if (WINDOWS)
 
     if (PACKAGE)
       add_custom_command(
-        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/event_host.tar.xz
-        COMMAND ${PYTHON_EXECUTABLE}
-        ARGS
-          ${CMAKE_CURRENT_SOURCE_DIR}/event_host_manifest.py
-          ${CMAKE_CURRENT_SOURCE_DIR}/..
-          ${CMAKE_CURRENT_BINARY_DIR}
-          ${CMAKE_CFG_INTDIR}
-        DEPENDS
-          lleventhost
-          ${EVENT_HOST_SCRIPTS}
-          ${CMAKE_CURRENT_SOURCE_DIR}/event_host_manifest.py
-        )
-
-      add_custom_command(
         OUTPUT ${CMAKE_CFG_INTDIR}/touched.bat
         COMMAND ${PYTHON_EXECUTABLE}
         ARGS
@@ -1862,9 +1855,6 @@ if (WINDOWS)
       add_custom_target(llpackage ALL DEPENDS
               ${CMAKE_CFG_INTDIR}/touched.bat
         )
-        # temporarily disable packaging of event_host until hg subrepos get
-        # sorted out on the parabuild cluster...
-        #${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/event_host.tar.xz)
 
     endif (PACKAGE)
 elseif (DARWIN)
@@ -1925,12 +1915,13 @@ target_link_libraries(${VIEWER_BINARY_NAME}
         llcorehttp
         llcommon
         llmeshoptimizer
-        ll::ndof
         lllogin
         llprimitive
         llappearance
         ${LLPHYSICSEXTENSIONS_LIBRARIES}
         ll::bugsplat
+        ll::lualibs
+        ll::ndof
         ll::tracy
         )
 
@@ -2330,6 +2321,11 @@ if (LL_TESTS)
     "${test_libs}"
     )
 
+  LL_ADD_INTEGRATION_TEST(llluamanager
+    "llluamanager.cpp"
+    "${test_libs};ll::lualibs"
+    )
+
   LL_ADD_INTEGRATION_TEST(llsechandler_basic
     llsechandler_basic.cpp
     "${test_libs}"
@@ -2384,4 +2380,3 @@ if (LL_TESTS)
 endif (LL_TESTS)
 
 check_message_template(${VIEWER_BINARY_NAME})
-

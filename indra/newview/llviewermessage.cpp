@@ -2600,8 +2600,11 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 
         BOOL ircstyle = FALSE;
 
+        auto [message, is_script] = LLStringUtil::withoutPrefix(mesg, LUA_PREFIX);
+        chat.mIsScript = is_script;
+
         // Look for IRC-style emotes here so chatbubbles work
-        std::string prefix = mesg.substr(0, 4);
+        std::string prefix = message.substr(0, 4);
         if (prefix == "/me " || prefix == "/me'")
         {
             ircstyle = TRUE;
@@ -2746,6 +2749,11 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
             msg_notify["from_id"] = chat.mFromID;
             msg_notify["source_type"] = chat.mSourceType;
             on_new_message(msg_notify);
+
+
+            msg_notify["chat_type"] = chat.mChatType;
+            msg_notify["message"] = mesg;
+            LLEventPumps::instance().obtain("LLNearbyChat").post(msg_notify);
         }
 
     }
@@ -2891,7 +2899,7 @@ public:
     virtual ~LLPostTeleportNotifiers();
 
     //function to be called at the supplied frequency
-    virtual BOOL tick();
+    bool tick() override;
 };
 
 LLPostTeleportNotifiers::LLPostTeleportNotifiers() : LLEventTimer( 2.0 )
@@ -2902,9 +2910,9 @@ LLPostTeleportNotifiers::~LLPostTeleportNotifiers()
 {
 }
 
-BOOL LLPostTeleportNotifiers::tick()
+bool LLPostTeleportNotifiers::tick()
 {
-    BOOL all_done = FALSE;
+    bool all_done = false;
     if ( gAgent.getTeleportState() == LLAgent::TELEPORT_NONE )
     {
         // get callingcards and landmarks available to the user arriving.
@@ -2928,7 +2936,7 @@ BOOL LLPostTeleportNotifiers::tick()
                 gInventory.addObserver(fetcher);
             }
         }
-        all_done = TRUE;
+        all_done = true;
     }
 
     return all_done;

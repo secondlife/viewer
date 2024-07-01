@@ -72,6 +72,8 @@ void assign_defaults_and_show_upload_message(
     const std::string& display_name,
     std::string& description);
 
+void close_all_windows();
+
 //consider moving all file pickers below to more suitable place
 class LLFilePickerThread : public LLThread
 { //multi-threaded file picker (runs system specific file picker in background and calls "notify" from main thread)
