@@ -112,7 +112,7 @@ public:
     bool filter(LLFolderViewFilter& filter) override;
 
     EType getType() const { return mItemType; }
-    S32 getId() const { return mItemId; }
+    S32 getItemId() const { return mItemId; }
 
 private:
     LLUIImagePtr pIcon;
