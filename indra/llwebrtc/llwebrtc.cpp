@@ -458,7 +458,7 @@ void ll_set_device_module_render_device(rtc::scoped_refptr<webrtc::AudioDeviceMo
     {
         device_module->SetPlayoutDevice(webrtc::AudioDeviceModule::kDefaultDevice);
     }
-    else 
+    else
     {
         device_module->SetPlayoutDevice(device);
     }
@@ -656,7 +656,7 @@ void LLWebRTCImpl::freePeerConnection(LLWebRTCPeerConnectionInterface* peer_conn
 // Most peer connection (signaling) happens on
 // the signaling thread.
 
-LLWebRTCPeerConnectionImpl::LLWebRTCPeerConnectionImpl() : 
+LLWebRTCPeerConnectionImpl::LLWebRTCPeerConnectionImpl() :
     mWebRTCImpl(nullptr),
     mPeerConnection(nullptr),
     mMute(false),
@@ -1171,7 +1171,7 @@ void LLWebRTCPeerConnectionImpl::OnSuccess(webrtc::SessionDescriptionInterface *
     {
         observer->OnOfferAvailable(mangled_sdp);
     }
-    
+
    mPeerConnection->SetLocalDescription(std::unique_ptr<webrtc::SessionDescriptionInterface>(
                                                      webrtc::CreateSessionDescription(webrtc::SdpType::kOffer, mangled_sdp)),
                                                  rtc::scoped_refptr<webrtc::SetLocalDescriptionObserverInterface>(this));
