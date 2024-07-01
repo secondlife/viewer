@@ -33,9 +33,6 @@
 #include "stringize.h"
 #include "llsdserialize.h"
 
-// llmessage (!)
-#include "llfiltersd2xmlrpc.h" // for xml_escape_string()
-
 // login
 #include "lllogin.h"
 
@@ -612,7 +609,7 @@ std::string construct_start_string()
                         << position[VX] << "&"
                         << position[VY] << "&"
                         << position[VZ]);
-            start = xml_escape_string(unescaped_start);
+            start = LLStringFn::xml_encode(unescaped_start, true);
             break;
         }
         case LLSLURL::HOME_LOCATION:
