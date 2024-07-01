@@ -49,6 +49,7 @@
 #include "lloutfitslist.h"
 #include "llselectmgr.h"
 #include "llsidepanelappearance.h"
+#include "lltransutil.h"
 #include "llviewerobjectlist.h"
 #include "llvoavatar.h"
 #include "llvoavatarself.h"
@@ -2941,14 +2942,14 @@ bool LLAppearanceMgr::wearOutfitByName(const std::string& name, bool append, std
         bool is_system_folder = LLFolderType::lookupIsProtectedType(cat->getPreferredType());
         if (is_system_folder)
         {
-            error_msg = stringize("Can't wear system folder ", std::quoted(name));
+            error_msg = stringize(LLTrans::getString("SystemFolderNotWorn"), std::quoted(name));
             return false;
         }
         bool can_wear = append ? getCanAddToCOF(cat->getUUID()) : getCanReplaceCOF(cat->getUUID());
         if (!can_wear)
         {
-            std::string msg = append ? "Can't add to COF outfit " : "Can't replace COF with outfit ";
-            error_msg = stringize(msg, std::quoted(name), " , id: ", cat->getUUID());
+            std::string msg = append ? LLTrans::getString("OutfitNotAdded") : LLTrans::getString("OutfitNotReplaced");
+            error_msg = stringize(msg, std::quoted(name), ", id: ", cat->getUUID());
             LL_WARNS() << error_msg << LL_ENDL;
             return false;
         }
@@ -2956,7 +2957,7 @@ bool LLAppearanceMgr::wearOutfitByName(const std::string& name, bool append, std
     }
     else
     {
-        error_msg = stringize("Couldn't find outfit ", std::quoted(name));
+        error_msg = stringize(LLTrans::getString("OutfitNotFound"), std::quoted(name));
         LL_WARNS() << error_msg << LL_ENDL;
         return false;
     }

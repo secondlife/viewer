@@ -29,8 +29,9 @@
 
 #include "llappearancemgr.h"
 #include "llinventoryfunctions.h"
-#include "stringize.h"
+#include "lltransutil.h"
 #include "llwearableitemslist.h"
+#include "stringize.h"
 
 LLAppearanceListener::LLAppearanceListener()
   : LLEventAPI("LLAppearance",
@@ -65,7 +66,7 @@ LLAppearanceListener::LLAppearanceListener()
          &LLAppearanceListener::getOutfitsList);
 
     add("getOutfitItems",
-        "Return the table of items(id and name) inside specified outfit folder",
+        "Return the table of items with info(id : name, wearable_type, is_worn) inside specified outfit folder",
          &LLAppearanceListener::getOutfitItems);
 }
 
@@ -76,19 +77,19 @@ void LLAppearanceListener::wearOutfit(LLSD const &data)
     LLViewerInventoryCategory* cat = gInventory.getCategory(data["folder_id"].asUUID());
     if (!cat)
     {
-        response.error(stringize("Couldn't find outfit ", data["folder_id"].asUUID()));
+        response.error(stringize(LLTrans::getString("OutfitNotFound"), data["folder_id"].asUUID()));
         return;
     }
     if (LLFolderType::lookupIsProtectedType(cat->getPreferredType()))
     {
-        response.error(stringize("Can't wear system folder ", data["folder_id"].asUUID()));
+        response.error(stringize(LLTrans::getString("SystemFolderNotWorn"), data["folder_id"].asUUID()));
         return;
     }
     bool append = data["append"].asBoolean();
     bool can_wear = append ? LLAppearanceMgr::instance().getCanAddToCOF(cat->getUUID()) : LLAppearanceMgr::instance().getCanReplaceCOF(cat->getUUID());
     if (!can_wear)
     {
-        std::string msg = append ? "Can't add to COF outfit " : "Can't replace COF with outfit ";
+        std::string msg = append ? LLTrans::getString("OutfitNotAdded") : LLTrans::getString("OutfitNotReplaced");
         response.error(stringize(msg, std::quoted(cat->getName()), " , id: ", cat->getUUID()));
         return;
     }
@@ -141,7 +142,7 @@ void LLAppearanceListener::getOutfitItems(LLSD const &data)
     LLViewerInventoryCategory *cat = gInventory.getCategory(outfit_id);
     if (!cat || cat->getPreferredType() != LLFolderType::FT_OUTFIT)
     {
-        response.error(stringize("Can't find outfit folder with id: ", outfit_id.asString()));
+        response.error(stringize(LLTrans::getString("OutfitNotFound"), outfit_id.asString()));
     }
     LLInventoryModel::cat_array_t  cat_array;
     LLInventoryModel::item_array_t item_array;
@@ -151,7 +152,12 @@ void LLAppearanceListener::getOutfitItems(LLSD const &data)
     LLSD items_data;
     for (const LLPointer<LLViewerInventoryItem> &it : item_array)
     {
-        items_data[it->getUUID().asString()] = it->getName();
+        LLSD info;
+        info["name"] = it->getName();
+        info["wearable_type"] = LLWearableType::getInstance()->getTypeName(it->isWearableType() ? it->getWearableType() : LLWearableType::WT_NONE);
+        info["is_worn"] = get_is_item_worn(it);
+
+        items_data[it->getUUID().asString()] = info;
     }
 
     response["items"] = items_data;

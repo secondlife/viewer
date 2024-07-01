@@ -4028,6 +4028,10 @@ Please check http://status.secondlifegrid.net to see if there is a known problem
   <string name="DeleteItem">Delete selected item?</string>
 
   <string name="EmptyOutfitText">There are no items in this outfit</string>
+  <string name="OutfitNotFound" value="Couldn't find outfit "/>
+  <string name="OutfitNotAdded" value="Can't add to COF outfit "/>
+  <string name="OutfitNotReplaced" value="Can't replace COF with outfit "/>
+  <string name="SystemFolderNotWorn" value="Can't wear system folder "/>
 
  <!-- External editor status codes -->
  <string name="ExternalEditorNotSet">Select an editor by setting the environment variable LL_SCRIPT_EDITOR or the ExternalEditor setting.

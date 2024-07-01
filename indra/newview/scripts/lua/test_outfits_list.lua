@@ -34,7 +34,13 @@ function populate_list()
     action_data.action = "add_list_element"
     action_data.ctrl_name = "outfits_list"
     local outfits = {}
-    for uuid, name in pairs(DATA_MAP) do
+    for uuid, info in pairs(DATA_MAP) do
+      name = {}
+      if SHOW_OUTFITS then
+        name = info
+      else
+        name = info.name
+      end
       table.insert(outfits, {value = uuid, columns={column = "outfit_name", value = name}})
     end
     action_data.value = outfits
