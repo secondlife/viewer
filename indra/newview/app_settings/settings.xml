@@ -7721,11 +7721,11 @@
     <key>Comment</key>
     <string>Minimum of available physical memory in MB before textures get scaled down</string>
     <key>Persist</key>
-    <integer>1</integer>
+    <integer>0</integer>
     <key>Type</key>
     <string>U32</string>
     <key>Value</key>
-    <integer>256</integer>
+    <integer>512</integer>
   </map>
   <key>RenderLowMemMinDiscardIncrement</key>
   <map>

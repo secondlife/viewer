@@ -414,6 +414,7 @@ public:
     /*virtual*/bool  isActiveFetching() override; //is actively in fetching by the fetching pipeline.
 
     bool mCreatePending = false;    // if true, this is in gTextureList.mCreateTextureList
+    mutable bool mDownScalePending = false; // if true, this is in gTextureList.mDownScaleQueue
 
 protected:
     S32 getCurrentDiscardLevelForFetching() ;

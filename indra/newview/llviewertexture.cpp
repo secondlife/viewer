@@ -524,7 +524,7 @@ void LLViewerTexture::updateClass()
         if (sEvaluationTimer.getElapsedTimeF32() > MEMORY_CHECK_WAIT_TIME)
         {
             static LLCachedControl<F32> low_mem_min_discard_increment(gSavedSettings, "RenderLowMemMinDiscardIncrement", .1f);
-            sDesiredDiscardBias += llmax(low_mem_min_discard_increment, over_pct);
+            sDesiredDiscardBias += (F32) low_mem_min_discard_increment * (F32) gFrameIntervalSeconds;
             sEvaluationTimer.reset();
         }
     }
@@ -544,30 +544,26 @@ void LLViewerTexture::updateClass()
         LL_WARNS() << "Low system memory detected, emergency downrezzing off screen textures" << LL_ENDL;
         sDesiredDiscardBias = llmax(sDesiredDiscardBias, 1.25f);
 
-        F64 texture_bytes_before = LLImageGL::getTextureBytesAllocated() / 1024.0 / 1024.0 * 1.3333;
-
         for (auto& image : gTextureList)
         {
-            if (image->getType() == LLViewerTexture::LOD_TEXTURE &&
+            if (!image->mDownScalePending &&
+                image->getType() == LLViewerTexture::LOD_TEXTURE &&
                 !image->getDontDiscard() &&
                 !image->isJustBound())
             {
                 LLImageGL* img  = image->getGLTexture();
                 if (img && img->getHasGLTexture())
                 {
-                    img->scaleDown(img->getDiscardLevel() + 1);
+                    image->mDownScalePending = true;
+                    gTextureList.mDownScaleQueue.push(image);
                 }
             }
         }
-
-        F64 texture_bytes_after = LLImageGL::getTextureBytesAllocated() / 1024.0 / 1024.0 * 1.3333;
-
-        LL_WARNS() << "Freed " << llformat("%.2f", texture_bytes_before - texture_bytes_after) << " MB of textures" << LL_ENDL;
     }
 
     was_low = is_low;
 
-    sDesiredDiscardBias = llclamp(sDesiredDiscardBias, 1.f, 5.f);
+    sDesiredDiscardBias = llclamp(sDesiredDiscardBias, 1.f, 3.f);
 
     LLViewerTexture::sFreezeImageUpdates = false;
 }
@@ -2897,6 +2893,8 @@ void LLViewerLODTexture::processTextureStats()
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
     updateVirtualSize();
 
+    bool did_downscale = false;
+
     static LLCachedControl<bool> textures_fullres(gSavedSettings,"TextureLoadFullRes", false);
 
     { // restrict texture resolution to download based on RenderMaxTextureResolution
@@ -3017,6 +3015,8 @@ void LLViewerLODTexture::processTextureStats()
     }
 }
 
+extern LLGLSLShader gCopyProgram;
+
 bool LLViewerLODTexture::scaleDown()
 {
     if (mGLTexturep.isNull() || !mGLTexturep->getHasGLTexture())
@@ -3024,7 +3024,13 @@ bool LLViewerLODTexture::scaleDown()
         return false;
     }
 
-    return mGLTexturep->scaleDown(mDesiredDiscardLevel);
+    if (!mDownScalePending)
+    {
+        mDownScalePending = true;
+        gTextureList.mDownScaleQueue.push(this);
+    }
+
+    return true;
 }
 
 //----------------------------------------------------------------------------------------------

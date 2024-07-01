@@ -426,14 +426,17 @@ void LLRenderTarget::bindTarget()
                             GL_COLOR_ATTACHMENT1,
                             GL_COLOR_ATTACHMENT2,
                             GL_COLOR_ATTACHMENT3};
-    glDrawBuffers(static_cast<GLsizei>(mTex.size()), drawbuffers);
 
     if (mTex.empty())
     { //no color buffer to draw to
         glDrawBuffer(GL_NONE);
         glReadBuffer(GL_NONE);
     }
-
+    else
+    {
+        glDrawBuffers(static_cast<GLsizei>(mTex.size()), drawbuffers);
+        glReadBuffer(GL_COLOR_ATTACHMENT0);
+    }
     check_framebuffer_status();
 
     glViewport(0, 0, mResX, mResY);
@@ -519,7 +522,8 @@ void LLRenderTarget::flush()
     llassert(sCurFBO == mFBO);
     llassert(sBoundTarget == this);
 
-    if (mGenerateMipMaps == LLTexUnit::TMG_AUTO) {
+    if (mGenerateMipMaps == LLTexUnit::TMG_AUTO)
+    {
         LL_PROFILE_GPU_ZONE("rt generate mipmaps");
         bindTexture(0, 0, LLTexUnit::TFO_TRILINEAR);
         glGenerateMipmap(GL_TEXTURE_2D);
@@ -540,6 +544,8 @@ void LLRenderTarget::flush()
         glViewport(gGLViewport[0], gGLViewport[1], gGLViewport[2], gGLViewport[3]);
         sCurResX = gGLViewport[2];
         sCurResY = gGLViewport[3];
+        glReadBuffer(GL_BACK);
+        glDrawBuffer(GL_BACK);
     }
 }
 

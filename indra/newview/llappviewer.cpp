@@ -2210,8 +2210,10 @@ bool LLAppViewer::initThreads()
         cores = llmin(cores, (S32) max_cores);
     }
 
-    // use half the cores for image decode (up to 16)
-    S32 image_decode_count = llclamp(cores / 2, 2, 16);
+    // always use at least 2 threads for image decoding to prevent
+    // a single texture blocking all other textures from decoding
+    S32 image_decode_count = llclamp(cores - 6, 2, 16);
+
     threadCounts["ImageDecode"] = image_decode_count;
     gSavedSettings.setLLSD("ThreadPoolSizes", threadCounts);
 

@@ -70,6 +70,8 @@ S32 LLViewerTextureList::sNumImages = 0;
 
 LLViewerTextureList gTextureList;
 
+extern LLGLSLShader gCopyProgram;
+
 ETexListType get_element_type(S32 priority)
 {
     return (priority == LLViewerFetchedTexture::BOOST_ICON || priority == LLViewerFetchedTexture::BOOST_THUMBNAIL) ? TEX_LIST_SCALE : TEX_LIST_STANDARD;
@@ -947,7 +949,7 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
                     min_scale = llclamp(min_scale*min_scale, texture_scale_min(), texture_scale_max());
 
                     vsize /= min_scale;
-                    vsize = powf(vsize, 1.f/LLViewerTexture::sDesiredDiscardBias);
+                    vsize /= powf(4, LLViewerTexture::sDesiredDiscardBias - 1.f);
                     vsize /= llmax(1.f, (LLViewerTexture::sDesiredDiscardBias-1.f) * (1.f + face->getDrawable()->mDistanceWRTCamera * bias_distance_scale));
 
                     F32 radius;
@@ -955,7 +957,7 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
                     bool in_frustum = face->calcPixelArea(cos_angle_to_view_dir, radius);
                     if (!in_frustum || !face->getDrawable()->isVisible())
                     { // further reduce by discard bias when off screen or occluded
-                        vsize = powf(vsize, 1.f/LLViewerTexture::sDesiredDiscardBias);
+                        vsize /= LLViewerTexture::sDesiredDiscardBias;
                     }
                     // if a GLTF material is present, ignore that face
                     // as far as this texture stats go, but update the GLTF material
@@ -1072,6 +1074,45 @@ F32 LLViewerTextureList::updateImagesCreateTextures(F32 max_time)
 
     LLTimer create_timer;
 
+    if (!mDownScaleQueue.empty() && gPipeline.mDownResMap.isComplete())
+    {
+        // just in case we downres textures, bind downresmap and copy program
+        gPipeline.mDownResMap.bindTarget();
+        gCopyProgram.bind();
+        gPipeline.mScreenTriangleVB->setBuffer();
+
+        // give time to downscaling first -- if mDownScaleQueue is not empty, we're running out of memory and need
+        // to free up memory by discarding off screen textures quickly
+
+        // do at least 5 and make sure we don't get too far behind even if it violates
+        // the time limit.  If we don't downscale quickly the viewer will hit swap and may
+        // freeze.
+        S32 min_count = (S32)mCreateTextureList.size() / 20 + 5;
+
+        while (!mDownScaleQueue.empty())
+        {
+            LLViewerFetchedTexture* image = mDownScaleQueue.front();
+            llassert(image->mDownScalePending);
+
+            LLImageGL* img = image->getGLTexture();
+            if (img && img->getHasGLTexture())
+            {
+                img->scaleDown(llmax(img->getDiscardLevel() + 1, image->getDesiredDiscardLevel()));
+            }
+
+            image->mDownScalePending = false;
+            mDownScaleQueue.pop();
+
+            if (create_timer.getElapsedTimeF32() > max_time && --min_count <= 0)
+            {
+                break;
+            }
+        }
+
+        gCopyProgram.unbind();
+        gPipeline.mDownResMap.flush();
+    }
+
     // do at least 5 and make sure we don't get too far behind even if it violates
     // the time limit.  Textures pending creation have a copy of their texture data
     // in system memory, so we don't want to let them pile up.
@@ -1143,6 +1184,7 @@ void LLViewerTextureList::forceImmediateUpdate(LLViewerFetchedTexture* imagep)
 F32 LLViewerTextureList::updateImagesFetchTextures(F32 max_time)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
+
     typedef std::vector<LLPointer<LLViewerFetchedTexture> > entries_list_t;
     entries_list_t entries;
 

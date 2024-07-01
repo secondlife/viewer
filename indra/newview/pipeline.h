@@ -725,6 +725,9 @@ public:
     // tonemapped and gamma corrected render ready for post
     LLRenderTarget          mPostMap;
 
+    // downres scratch space for GPU downscaling of textures
+    LLRenderTarget          mDownResMap;
+
     LLCullResult            mSky;
     LLCullResult            mReflectedObjects;
     LLCullResult            mRefractedObjects;
