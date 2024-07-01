@@ -379,12 +379,10 @@ void LLAccordionCtrl::initNoTabsWidget(const LLTextBox::Params& tb_params)
 
 void LLAccordionCtrl::updateNoTabsHelpTextVisibility()
 {
-    bool visible_exists = false;
-    std::vector<LLAccordionCtrlTab*>::const_iterator it = mAccordionTabs.begin();
-    const std::vector<LLAccordionCtrlTab*>::const_iterator it_end = mAccordionTabs.end();
-    while (it < it_end)
+    bool visible_exists{ false };
+    for (auto accordion_tab : mAccordionTabs)
     {
-        if ((*(it++))->getVisible())
+        if (accordion_tab->getVisible())
         {
             visible_exists = true;
             break;
