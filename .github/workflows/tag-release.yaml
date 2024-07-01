@@ -26,23 +26,22 @@ on:
 jobs:
   tag-release:
     runs-on: ubuntu-latest
-    env:
-      GITHUB_TAG_TOKEN: ${{ secrets.GITHUB_TAG_TOKEN }}
     steps:
       - name: Setup Env Vars
         run: |
           CHANNEL="${{ inputs.channel }}"
           echo VIEWER_CHANNEL="Second_Life_${CHANNEL:-Develop}" >> ${GITHUB_ENV}
-          echo NIGHTLY_DATE=$(date --rfc-3339=date) >> ${GITHUB_ENV}
+          NIGHTLY_DATE=$(date --rfc-3339=date)
+          echo NIGHTLY_DATE=${NIGHTLY_DATE} >> ${GITHUB_ENV}
+          echo TAG_ID="$(echo ${{ github.sha }} | cut -c1-8)-${{ inputs.project || '${NIGHTLY_DATE}' }}" >> ${GITHUB_ENV}
       - name: Update Tag
         uses: actions/github-script@v7.0.1
-        if: env.GITHUB_TAG_TOKEN
         with:
-          github-token: ${{ env.GITHUB_TAG_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            github.rest.git.createRef(
+            github.rest.git.createRef({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              ref: "refs/tags/${{ env.VIEWER_CHANNEL }}#${{ env.NIGHTLY_DATE }}",
+              ref: "refs/tags/${{ env.VIEWER_CHANNEL }}#${{ env.TAG_ID }}",
               sha: context.sha
-            )
+            })
