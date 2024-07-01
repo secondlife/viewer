@@ -98,4 +98,4 @@ private:
     LLSpinCtrl* mCtrlRotZ = nullptr;
 };
 
-#endif LL_LLFLOATERGLTFASSETEDITOR_H
+#endif

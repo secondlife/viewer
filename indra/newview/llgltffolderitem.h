@@ -59,8 +59,8 @@ public:
     std::string getSearchableUUIDString() const override { return std::string(); }
 
     LLPointer<LLUIImage> getIcon() const override { return pIcon; }
-    LLPointer<LLUIImage> getIconOpen() const { return getIcon(); }
-    LLPointer<LLUIImage> getIconOverlay() const { return NULL; }
+    LLPointer<LLUIImage> getIconOpen() const override { return getIcon(); }
+    LLPointer<LLUIImage> getIconOverlay() const override { return NULL; }
 
     LLFontGL::StyleFlags getLabelStyle() const override { return LLFontGL::NORMAL; }
     std::string getLabelSuffix() const override { return std::string(); }
@@ -71,7 +71,7 @@ public:
 
     void navigateToFolder(bool new_window = false, bool change_mode = false) override {}
 
-    bool isItemWearable() const { return false; }
+    bool isItemWearable() const override { return false; }
 
     bool isItemRenameable() const override { return false; }
     bool renameItem(const std::string& new_name) override { return false; }
@@ -86,7 +86,7 @@ public:
     bool isItemCopyable(bool can_copy_as_link = true) const override { return false; }
     bool copyToClipboard() const override { return false; }
     bool cutToClipboard() override { return false; }
-    bool isCutToClipboard() { return false; }
+    bool isCutToClipboard() override { return false; }
 
     bool isClipboardPasteable() const override { return false; }
     void pasteFromClipboard() override {}
@@ -125,4 +125,4 @@ private:
     S32 mItemId = -1;
 };
 
-#endif LL_LLGLTFFOLDERITEM_H
+#endif

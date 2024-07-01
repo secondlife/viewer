@@ -3,9 +3,9 @@
  * @author Andrii Kleshchev
  * @brief LLFloaterGltfAssetEditor class implementation
  *
- * $LicenseInfo:firstyear=2008&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2024&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2024, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -251,7 +251,8 @@ void LLFloaterGLTFAssetEditor::loadFromSelection()
         return;
     }
 
-    LLViewerObject* objectp = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
+    LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstNode(NULL);
+    LLViewerObject* objectp = node->getObject();
     if (!objectp)
     {
         return;
@@ -261,6 +262,15 @@ void LLFloaterGLTFAssetEditor::loadFromSelection()
     if (!mAsset)
     {
         return;
+    }
+
+    if (node->mName.empty())
+    {
+        setTitle(getString("floater_title"));
+    }
+    else
+    {
+        setTitle(node->mName);
     }
 
     LLUIColor item_color = LLUIColorTable::instance().getColor("MenuItemEnabledColor", DEFAULT_WHITE);
