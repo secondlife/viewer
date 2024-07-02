@@ -2752,7 +2752,7 @@ void LLMenuGL::setEnabledSubMenus(bool enable)
 
 // setItemEnabled() - pass the label and the enable flag for a menu
 // item. true will make sure it's enabled, false will disable it.
-void LLMenuGL::setItemEnabled( const std::string& name, bool enable )
+void LLMenuGL::setItemEnabled(std::string_view name, bool enable )
 {
     item_list_t::iterator item_iter;
     for (item_iter = mItems.begin(); item_iter != mItems.end(); ++item_iter)
@@ -2766,7 +2766,7 @@ void LLMenuGL::setItemEnabled( const std::string& name, bool enable )
     }
 }
 
-void LLMenuGL::setItemVisible( const std::string& name, bool visible )
+void LLMenuGL::setItemVisible(std::string_view name, bool visible )
 {
     item_list_t::iterator item_iter;
     for (item_iter = mItems.begin(); item_iter != mItems.end(); ++item_iter)
@@ -3277,7 +3277,7 @@ void LLMenuGL::setVisible(bool visible)
     }
 }
 
-LLMenuGL* LLMenuGL::findChildMenuByName(const std::string& name, bool recurse) const
+LLMenuGL* LLMenuGL::findChildMenuByName(std::string_view name, bool recurse) const
 {
     LLView* view = findChildView(name, recurse);
     if (view)
