@@ -87,6 +87,12 @@ If saving the terrain fails for any reason, the terrain should not be updated.
 
 Unlike a viewer without PBR terrain support, the new viewer will no longer treat textures with alpha channels as invalid.
 
+### Saving PBR Terrain Texture Transforms
+
+If "PBR Metallic Roughness" checkbox is checked, a user with saving composition permissions should also be allowed to edit and save PBR texture transforms.
+
+One texture transform may be set for each material swatch. Setting texture transforms for each individual texture on the material is not currently supported.
+
 ## Graphics Features
 
 Texture terrain with transparency is not permitted to be applied in the viewer.
