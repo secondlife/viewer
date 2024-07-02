@@ -55,7 +55,7 @@
              height="30"
              right="-20"
              wrap="true">
-                Because of their dimentions one or more selected textures will be scaled to 2048px.
+                By default, one or more selected textures will be scaled to 2048px.
             </text>
         </layout_panel>
         <layout_panel
