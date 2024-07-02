@@ -70,6 +70,8 @@ S32 LLViewerTextureList::sNumImages = 0;
 
 LLViewerTextureList gTextureList;
 
+extern LLGLSLShader gCopyProgram;
+
 ETexListType get_element_type(S32 priority)
 {
     return (priority == LLViewerFetchedTexture::BOOST_ICON || priority == LLViewerFetchedTexture::BOOST_THUMBNAIL) ? TEX_LIST_SCALE : TEX_LIST_STANDARD;
@@ -352,8 +354,11 @@ void LLViewerTextureList::shutdown()
     mCallbackList.clear();
 
     // Flush all of the references
-    mLoadingStreamList.clear();
-    mCreateTextureList.clear();
+    while (!mCreateTextureList.empty())
+    {
+        mCreateTextureList.front()->mCreatePending = false;
+        mCreateTextureList.pop();
+    }
     mFastCacheList.clear();
 
     mUUIDMap.clear();
@@ -944,7 +949,7 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
                     min_scale = llclamp(min_scale*min_scale, texture_scale_min(), texture_scale_max());
 
                     vsize /= min_scale;
-                    vsize /= LLViewerTexture::sDesiredDiscardBias;
+                    vsize /= powf(4, LLViewerTexture::sDesiredDiscardBias - 1.f);
                     vsize /= llmax(1.f, (LLViewerTexture::sDesiredDiscardBias-1.f) * (1.f + face->getDrawable()->mDistanceWRTCamera * bias_distance_scale));
 
                     F32 radius;
@@ -1068,22 +1073,65 @@ F32 LLViewerTextureList::updateImagesCreateTextures(F32 max_time)
     //
 
     LLTimer create_timer;
-    image_list_t::iterator enditer = mCreateTextureList.begin();
-    for (image_list_t::iterator iter = mCreateTextureList.begin();
-         iter != mCreateTextureList.end();)
+
+    if (!mDownScaleQueue.empty() && gPipeline.mDownResMap.isComplete())
     {
-        image_list_t::iterator curiter = iter++;
-        enditer = iter;
-        LLViewerFetchedTexture *imagep = *curiter;
+        // just in case we downres textures, bind downresmap and copy program
+        gPipeline.mDownResMap.bindTarget();
+        gCopyProgram.bind();
+        gPipeline.mScreenTriangleVB->setBuffer();
+
+        // give time to downscaling first -- if mDownScaleQueue is not empty, we're running out of memory and need
+        // to free up memory by discarding off screen textures quickly
+
+        // do at least 5 and make sure we don't get too far behind even if it violates
+        // the time limit.  If we don't downscale quickly the viewer will hit swap and may
+        // freeze.
+        S32 min_count = (S32)mCreateTextureList.size() / 20 + 5;
+
+        while (!mDownScaleQueue.empty())
+        {
+            LLViewerFetchedTexture* image = mDownScaleQueue.front();
+            llassert(image->mDownScalePending);
+
+            LLImageGL* img = image->getGLTexture();
+            if (img && img->getHasGLTexture())
+            {
+                img->scaleDown(llmax(img->getDiscardLevel() + 1, image->getDesiredDiscardLevel()));
+            }
+
+            image->mDownScalePending = false;
+            mDownScaleQueue.pop();
+
+            if (create_timer.getElapsedTimeF32() > max_time && --min_count <= 0)
+            {
+                break;
+            }
+        }
+
+        gCopyProgram.unbind();
+        gPipeline.mDownResMap.flush();
+    }
+
+    // do at least 5 and make sure we don't get too far behind even if it violates
+    // the time limit.  Textures pending creation have a copy of their texture data
+    // in system memory, so we don't want to let them pile up.
+    S32 min_count = (S32) mCreateTextureList.size() / 20 + 5;
+
+    while (!mCreateTextureList.empty())
+    {
+        LLViewerFetchedTexture *imagep =  mCreateTextureList.front();
+        llassert(imagep->mCreatePending);
         imagep->createTexture();
         imagep->postCreateTexture();
+        imagep->mCreatePending = false;
+        mCreateTextureList.pop();
 
-        if (create_timer.getElapsedTimeF32() > max_time)
+        if (create_timer.getElapsedTimeF32() > max_time && --min_count <= 0)
         {
             break;
         }
     }
-    mCreateTextureList.erase(mCreateTextureList.begin(), enditer);
     return create_timer.getElapsedTimeF32();
 }
 
@@ -1136,6 +1184,7 @@ void LLViewerTextureList::forceImmediateUpdate(LLViewerFetchedTexture* imagep)
 F32 LLViewerTextureList::updateImagesFetchTextures(F32 max_time)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
+
     typedef std::vector<LLPointer<LLViewerFetchedTexture> > entries_list_t;
     entries_list_t entries;
 

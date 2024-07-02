@@ -484,6 +484,8 @@ void LLAssetStorage::getAssetData(const LLUUID uuid,
                                   void *user_data,
                                   bool is_priority)
 {
+    LL_PROFILE_ZONE_SCOPED;
+
     LL_DEBUGS("AssetStorage") << "LLAssetStorage::getAssetData() - " << uuid << "," << LLAssetType::lookup(type) << LL_ENDL;
 
     LL_DEBUGS("AssetStorage") << "ASSET_TRACE requesting " << uuid << " type " << LLAssetType::lookup(type) << LL_ENDL;
@@ -529,6 +531,7 @@ void LLAssetStorage::getAssetData(const LLUUID uuid,
 
     if (size > 0)
     {
+        LL_PROFILE_ZONE_NAMED("gad - file in cache");
         // we've already got the file
         // theoretically, partial files w/o a pending request shouldn't happen
         // unless there's a weird error
@@ -548,7 +551,7 @@ void LLAssetStorage::getAssetData(const LLUUID uuid,
         }
 
         bool duplicate = false;
-
+        LL_PROFILE_ZONE_NAMED("gad - check pending downloads");
         // check to see if there's a pending download of this uuid already
         for (request_list_t::iterator iter = mPendingDownloads.begin();
              iter != mPendingDownloads.end(); ++iter )

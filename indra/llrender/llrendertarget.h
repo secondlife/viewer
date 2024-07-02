@@ -172,6 +172,8 @@ public:
     // *HACK
     void swapFBORefs(LLRenderTarget& other);
 
+    static LLRenderTarget* sBoundTarget;
+
 protected:
     U32 mResX;
     U32 mResY;
@@ -186,8 +188,6 @@ protected:
     U32 mMipLevels;
 
     LLTexUnit::eTextureType mUsage;
-
-    static LLRenderTarget* sBoundTarget;
 };
 
 #endif

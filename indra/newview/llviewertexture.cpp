@@ -513,15 +513,18 @@ void LLViewerTexture::updateClass()
     F32 target = llmax(budget - 512.f, MIN_VRAM_BUDGET);
     sFreeVRAMMegabytes = target - used;
 
-    F32 over_pct = llmax((used-target) / target, 0.f);
+    F32 over_pct = (used - target) / target;
+
+    bool is_low = over_pct > 0.f;
 
     if (isSystemMemoryLow())
     {
+        is_low = true;
         // System RAM is low -> ramp up discard bias over time to free memory
         if (sEvaluationTimer.getElapsedTimeF32() > MEMORY_CHECK_WAIT_TIME)
         {
             static LLCachedControl<F32> low_mem_min_discard_increment(gSavedSettings, "RenderLowMemMinDiscardIncrement", .1f);
-            sDesiredDiscardBias += llmax(low_mem_min_discard_increment, over_pct);
+            sDesiredDiscardBias += (F32) low_mem_min_discard_increment * (F32) gFrameIntervalSeconds;
             sEvaluationTimer.reset();
         }
     }
@@ -529,11 +532,38 @@ void LLViewerTexture::updateClass()
     {
         sDesiredDiscardBias = llmax(sDesiredDiscardBias, 1.f + over_pct);
 
-        if (sDesiredDiscardBias > 1.f)
+        if (sDesiredDiscardBias > 1.f && over_pct < 0.f)
         {
             sDesiredDiscardBias -= gFrameIntervalSeconds * 0.01;
         }
     }
+
+    static bool was_low = false;
+    if (is_low && !was_low)
+    {
+        LL_WARNS() << "Low system memory detected, emergency downrezzing off screen textures" << LL_ENDL;
+        sDesiredDiscardBias = llmax(sDesiredDiscardBias, 1.25f);
+
+        for (auto& image : gTextureList)
+        {
+            if (!image->mDownScalePending &&
+                image->getType() == LLViewerTexture::LOD_TEXTURE &&
+                !image->getDontDiscard() &&
+                !image->isJustBound())
+            {
+                LLImageGL* img  = image->getGLTexture();
+                if (img && img->getHasGLTexture())
+                {
+                    image->mDownScalePending = true;
+                    gTextureList.mDownScaleQueue.push(image);
+                }
+            }
+        }
+    }
+
+    was_low = is_low;
+
+    sDesiredDiscardBias = llclamp(sDesiredDiscardBias, 1.f, 3.f);
 
     LLViewerTexture::sFreezeImageUpdates = false;
 }
@@ -1608,7 +1638,11 @@ void LLViewerFetchedTexture::scheduleCreateTexture()
             }
             else
             {
-                gTextureList.mCreateTextureList.insert(this);
+                if (!mCreatePending)
+                {
+                    mCreatePending = true;
+                    gTextureList.mCreateTextureList.push(this);
+                }
             }
         }
     }
@@ -2859,6 +2893,8 @@ void LLViewerLODTexture::processTextureStats()
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
     updateVirtualSize();
 
+    bool did_downscale = false;
+
     static LLCachedControl<bool> textures_fullres(gSavedSettings,"TextureLoadFullRes", false);
 
     { // restrict texture resolution to download based on RenderMaxTextureResolution
@@ -2979,14 +3015,22 @@ void LLViewerLODTexture::processTextureStats()
     }
 }
 
+extern LLGLSLShader gCopyProgram;
+
 bool LLViewerLODTexture::scaleDown()
 {
-    if (mGLTexturep.isNull())
+    if (mGLTexturep.isNull() || !mGLTexturep->getHasGLTexture())
     {
         return false;
     }
 
-    return mGLTexturep->scaleDown(mDesiredDiscardLevel);
+    if (!mDownScalePending)
+    {
+        mDownScalePending = true;
+        gTextureList.mDownScaleQueue.push(this);
+    }
+
+    return true;
 }
 
 //----------------------------------------------------------------------------------------------

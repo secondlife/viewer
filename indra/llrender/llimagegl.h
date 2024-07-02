@@ -62,6 +62,9 @@ class LLImageGL : public LLRefCount
     friend class LLTexUnit;
 public:
 
+    // call once per frame
+    static void updateClass();
+
     // Get an estimate of how many bytes have been allocated in vram for textures.
     // Does not include mipmaps.
     // NOTE: multiplying this number by two gives a good estimate for total
@@ -276,7 +279,7 @@ protected:
 public:
     static std::unordered_set<LLImageGL*> sImageList;
     static S32 sCount;
-
+    static U32 sFrameCount;
     static F32 sLastFrameTime;
 
     // Global memory statistics

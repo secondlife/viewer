@@ -79,6 +79,7 @@ LLFileSystem::~LLFileSystem()
 // static
 bool LLFileSystem::getExists(const LLUUID& file_id, const LLAssetType::EType file_type)
 {
+    LL_PROFILE_ZONE_SCOPED;
     std::string id_str;
     file_id.toString(id_str);
     const std::string extra_info = "";
