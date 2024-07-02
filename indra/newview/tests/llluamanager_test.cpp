@@ -21,6 +21,7 @@
 #include "../llcommon/tests/StringVec.h"
 #include "../test/lltut.h"
 #include "llapp.h"
+#include "llcontrol.h"
 #include "lldate.h"
 #include "llevents.h"
 #include "lleventcoro.h"
@@ -38,6 +39,8 @@ public:
     bool cleanup() override { return true; }
     bool frame()   override { return true; }
 };
+
+LLControlGroup gSavedSettings("Global");
 
 template <typename CALLABLE>
 auto listener(CALLABLE&& callable)
@@ -57,6 +60,36 @@ namespace tut
 {
     struct llluamanager_data
     {
+        llluamanager_data()
+        {
+            // Load gSavedSettings from source tree
+            // indra/newview/tests/llluamanager_test.cpp =>
+            // indra/newview
+            auto newview{ fsyspath(__FILE__).parent_path().parent_path() };
+            auto settings{ newview / "app_settings" / "settings.xml" };
+            // true suppresses implicit declare; implicit declare requires
+            // that every variable in settings.xml has a Comment, which many don't.
+            gSavedSettings.loadFromFile(settings.u8string(), true);
+            // At test time, since we don't have the app bundle available,
+            // extend LuaRequirePath to include the require directory in the
+            // source tree.
+            auto require{ (newview / "scripts" / "lua" / "require").u8string() };
+            auto paths{ gSavedSettings.getLLSD("LuaRequirePath") };
+            bool found = false;
+            for (const auto& path : llsd::inArray(paths))
+            {
+                if (path.asString() == require)
+                {
+                    found = true;
+                    break;
+                }
+            }
+            if (! found)
+            {
+                paths.append(require);
+                gSavedSettings.setLLSD("LuaRequirePath", paths);
+            }
+        }
         // We need an LLApp instance because LLLUAmanager uses coroutines,
         // which suspend, and when a coroutine suspends it checks LLApp state,
         // and if it's not APP_STATUS_RUNNING the coroutine terminates.
