@@ -3134,6 +3134,13 @@ U32 LLModelPreview::loadTextures(LLImportMaterial& material, void* opaque)
         LLPointer< LLViewerFetchedTexture >& tex = (*reinterpret_cast< LLPointer< LLViewerFetchedTexture > * >(material.mOpaqueData));
 
         tex = LLViewerTextureManager::getFetchedTextureFromUrl("file://" + LLURI::unescape(material.mDiffuseMapFilename), FTT_LOCAL_FILE, true, LLGLTexture::BOOST_PREVIEW);
+        if (tex->getDiscardLevel() < tex->getMaxDiscardLevel())
+        {
+            // file was loaded previosly, reload image to get potential changes
+            tex->clearFetchedResults();
+        }
+        // Todo: might cause a crash if preview gets closed before we get the callback.
+        // Use a callback list or guard callback in some way
         tex->setLoadedCallback(LLModelPreview::textureLoadedCallback, 0, true, false, opaque, NULL, false);
         tex->forceToSaveRawImage(0, F32_MAX);
         material.setDiffuseMap(tex->getID()); // record tex ID
