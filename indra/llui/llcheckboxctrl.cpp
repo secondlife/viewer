@@ -45,7 +45,7 @@ static LLDefaultChildRegistry::Register<LLCheckBoxCtrl> r("check_box");
 
 // Compiler optimization, generate extern template
 template class LLCheckBoxCtrl* LLView::getChild<class LLCheckBoxCtrl>(
-    const std::string& name, bool recurse) const;
+    std::string_view name, bool recurse) const;
 
 void LLCheckBoxCtrl::WordWrap::declareValues()
 {

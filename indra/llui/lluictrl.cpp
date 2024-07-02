@@ -44,7 +44,7 @@ F32 LLUICtrl::sInactiveControlTransparency = 1.0f;
 
 // Compiler optimization, generate extern template
 template class LLUICtrl* LLView::getChild<class LLUICtrl>(
-    const std::string& name, bool recurse) const;
+    std::string_view name, bool recurse) const;
 
 LLUICtrl::CallbackParam::CallbackParam()
 :   name("name"),

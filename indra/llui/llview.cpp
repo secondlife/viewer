@@ -85,7 +85,7 @@ bool LLView::sIsDrawing = false;
 
 // Compiler optimization, generate extern template
 template class LLView* LLView::getChild<class LLView>(
-    const std::string& name, bool recurse) const;
+    std::string_view name, bool recurse) const;
 
 static LLDefaultChildRegistry::Register<LLView> r("view");
 
@@ -729,7 +729,7 @@ void LLView::logMouseEvent()
 }
 
 template <typename METHOD, typename CHARTYPE>
-LLView* LLView::childrenHandleCharEvent(const std::string& desc, const METHOD& method,
+LLView* LLView::childrenHandleCharEvent(std::string_view desc, const METHOD& method,
                                         CHARTYPE c, MASK mask)
 {
     if ( getVisible() && getEnabled() )
@@ -1613,7 +1613,7 @@ bool LLView::hasAncestor(const LLView* parentp) const
 
 //-----------------------------------------------------------------------------
 
-bool LLView::childHasKeyboardFocus( const std::string& childname ) const
+bool LLView::childHasKeyboardFocus(std::string_view childname) const
 {
     LLView *focus = dynamic_cast<LLView *>(gFocusMgr.getKeyboardFocus());
 
@@ -1632,7 +1632,7 @@ bool LLView::childHasKeyboardFocus( const std::string& childname ) const
 
 //-----------------------------------------------------------------------------
 
-bool LLView::hasChild(const std::string& childname, bool recurse) const
+bool LLView::hasChild(std::string_view childname, bool recurse) const
 {
     return findChildView(childname, recurse) != NULL;
 }
@@ -1640,12 +1640,12 @@ bool LLView::hasChild(const std::string& childname, bool recurse) const
 //-----------------------------------------------------------------------------
 // getChildView()
 //-----------------------------------------------------------------------------
-LLView* LLView::getChildView(const std::string& name, bool recurse) const
+LLView* LLView::getChildView(std::string_view name, bool recurse) const
 {
     return getChild<LLView>(name, recurse);
 }
 
-LLView* LLView::findChildView(const std::string& name, bool recurse) const
+LLView* LLView::findChildView(std::string_view name, bool recurse) const
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
 

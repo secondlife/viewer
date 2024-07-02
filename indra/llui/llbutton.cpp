@@ -56,7 +56,7 @@ static LLDefaultChildRegistry::Register<LLButton> r("button");
 
 // Compiler optimization, generate extern template
 template class LLButton* LLView::getChild<class LLButton>(
-    const std::string& name, bool recurse) const;
+    std::string_view name, bool recurse) const;
 
 // globals
 S32 LLBUTTON_H_PAD  = 4;

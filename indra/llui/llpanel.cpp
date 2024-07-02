@@ -55,7 +55,7 @@ LLPanel::factory_stack_t    LLPanel::sFactoryStack;
 
 // Compiler optimization, generate extern template
 template class LLPanel* LLView::getChild<class LLPanel>(
-    const std::string& name, bool recurse) const;
+    std::string_view name, bool recurse) const;
 
 LLPanel::LocalizedString::LocalizedString()
 :   name("name"),

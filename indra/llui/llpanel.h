@@ -259,7 +259,7 @@ private:
 // Build time optimization, generate once in .cpp file
 #ifndef LLPANEL_CPP
 extern template class LLPanel* LLView::getChild<class LLPanel>(
-    const std::string& name, bool recurse) const;
+    std::string_view name, bool recurse) const;
 #endif
 
 typedef boost::function<LLPanel* (void)> LLPanelClassCreatorFunc;

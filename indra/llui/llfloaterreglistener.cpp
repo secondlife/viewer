@@ -131,7 +131,7 @@ void LLFloaterRegListener::clickButton(const LLSD& event) const
     {
         // Here 'floater' points to an LLFloater instance with the specified
         // name and key which isShown().
-        LLButton* button = floater->findChild<LLButton>(event["button"]);
+        LLButton* button = floater->findChild<LLButton>(event["button"].asString());
         if (! LLButton::isAvailable(button))
         {
             reply["type"]  = "LLButton";
