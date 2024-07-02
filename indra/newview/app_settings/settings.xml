@@ -1094,6 +1094,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>BulkUpload2KTextures</key>
+    <map>
+        <key>Comment</key>
+        <string>Bulk upload scales textures to 2K if true, to 1K if false</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>1</integer>
+    </map>
     <key>EnableButtonFlashing</key>
     <map>
       <key>Comment</key>

@@ -370,7 +370,8 @@ LLNewFileResourceUploadInfo::LLNewFileResourceUploadInfo(
     LLResourceUploadInfo(name, description, compressionInfo,
     destinationType, inventoryType,
     nextOWnerPerms, groupPerms, everyonePerms, expectedCost, show_inventory),
-    mFileName(fileName)
+    mFileName(fileName),
+    mMaxImageSize(LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT)
 {
 }
 
@@ -422,7 +423,7 @@ LLSD LLNewFileResourceUploadInfo::exportTempFile()
     else if (assetType == LLAssetType::AT_TEXTURE)
     {
         // It's an image file, the upload procedure is the same for all
-        if (!LLViewerTextureList::createUploadFile(getFileName(), filename, codec))
+        if (!LLViewerTextureList::createUploadFile(getFileName(), filename, codec, mMaxImageSize))
         {
             errorMessage = llformat("Problem with file %s:\n\n%s\n",
                 getFileName().c_str(), LLImage::getLastThreadError().c_str());
