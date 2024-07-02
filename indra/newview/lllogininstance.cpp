@@ -447,7 +447,7 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
             gViewerWindow->setShowProgress(false);
         }
 
-        showMFAChallange(LLTrans::getString(response["message_id"]));
+        showMFAChallange(LLTrans::getString(response["message_id"].asString()));
     }
     else if(   reason_response == "key"
             || reason_response == "presence"
