@@ -69,7 +69,7 @@ namespace tut
             auto settings{ newview / "app_settings" / "settings.xml" };
             // true suppresses implicit declare; implicit declare requires
             // that every variable in settings.xml has a Comment, which many don't.
-            gSavedSettings.loadFromFile(settings.u8string().c_str(), true);
+            gSavedSettings.loadFromFile(settings.u8string(), true);
             // At test time, since we don't have the app bundle available,
             // extend LuaRequirePath to include the require directory in the
             // source tree.
