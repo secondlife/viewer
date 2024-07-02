@@ -24,7 +24,6 @@
  * $/LicenseInfo$
  */
 #include <algorithm>
-#include <format>
 #include "llvoicewebrtc.h"
 
 #include "llsdutil.h"
@@ -86,7 +85,7 @@ namespace {
     const F32 VOLUME_SCALE_WEBRTC = 0.01f;
     const F32 LEVEL_SCALE_WEBRTC  = 0.008f;
 
-    const F32 SPEAKING_AUDIO_LEVEL = 0.35;
+    const F32 SPEAKING_AUDIO_LEVEL = 0.30;
 
     static const std::string REPORTED_VOICE_SERVER_TYPE = "Secondlife WebRTC Gateway";
 
@@ -1486,14 +1485,10 @@ void LLWebRTCVoiceClient::setMicGain(F32 gain)
     if (gain != mMicGain)
     {
         mMicGain = gain;
-        sessionState::for_each(boost::bind(predSetMicGain, _1, gain));
+        mWebRTCDeviceInterface->setPeerConnectionGain(gain);
     }
 }
 
-void LLWebRTCVoiceClient::predSetMicGain(const LLWebRTCVoiceClient::sessionStatePtr_t &session, F32 gain)
-{
-    session->setMicGain(gain);
-}
 
 void LLWebRTCVoiceClient::setVoiceEnabled(bool enabled)
 {
@@ -1692,7 +1687,6 @@ std::map<std::string, LLWebRTCVoiceClient::sessionState::ptr_t> LLWebRTCVoiceCli
 LLWebRTCVoiceClient::sessionState::sessionState() :
     mHangupOnLastLeave(false),
     mNotifyOnFirstJoin(false),
-    mMicGain(1.0),
     mMuted(false),
     mSpeakerVolume(1.0),
     mShuttingDown(false)
@@ -1734,15 +1728,6 @@ void LLWebRTCVoiceClient::sessionState::setMuteMic(bool muted)
     for (auto &connection : mWebRTCConnections)
     {
         connection->setMuteMic(muted);
-    }
-}
-
-void LLWebRTCVoiceClient::sessionState::setMicGain(F32 gain)
-{
-    mMicGain = gain;
-    for (auto &connection : mWebRTCConnections)
-    {
-        connection->setMicGain(gain);
     }
 }
 
@@ -1850,7 +1835,6 @@ LLWebRTCVoiceClient::sessionStatePtr_t LLWebRTCVoiceClient::addSession(const std
 
         LL_DEBUGS("Voice") << "adding new session with channel: " << channel_id << LL_ENDL;
         session->setMuteMic(mMuteMic);
-        session->setMicGain(mMicGain);
         session->setSpeakerVolume(mSpeakerVolume);
 
         sessionState::addSession(channel_id, session);
@@ -1976,7 +1960,6 @@ bool LLWebRTCVoiceClient::estateSessionState::processConnectionStates()
             connectionPtr_t connection(new LLVoiceWebRTCSpatialConnection(neighbor, INVALID_PARCEL_ID, mChannelID));
 
             mWebRTCConnections.push_back(connection);
-            connection->setMicGain(mMicGain);
             connection->setMuteMic(mMuted);
             connection->setSpeakerVolume(mSpeakerVolume);
         }
@@ -2106,7 +2089,6 @@ LLVoiceWebRTCConnection::LLVoiceWebRTCConnection(const LLUUID &regionID, const s
     mShutDown(false),
     mIceCompleted(false),
     mSpeakerVolume(0.0),
-    mMicGain(0.0),
     mOutstandingRequests(0),
     mChannelID(channelID),
     mRegionID(regionID),
@@ -2366,15 +2348,6 @@ void LLVoiceWebRTCConnection::setMuteMic(bool muted)
     if (mWebRTCAudioInterface)
     {
         mWebRTCAudioInterface->setMute(muted);
-    }
-}
-
-void LLVoiceWebRTCConnection::setMicGain(F32 gain)
-{
-    mMicGain = gain;
-    if (mWebRTCAudioInterface)
-    {
-        mWebRTCAudioInterface->setSendVolume(gain);
     }
 }
 
@@ -2677,7 +2650,6 @@ bool LLVoiceWebRTCConnection::connectionStateMachine()
             // this connection.
             mWebRTCAudioInterface->setMute(mMuted);
             mWebRTCAudioInterface->setReceiveVolume(mSpeakerVolume);
-            mWebRTCAudioInterface->setSendVolume(mMicGain);
             LLWebRTCVoiceClient::getInstance()->OnConnectionEstablished(mChannelID, mRegionID);
             setVoiceConnectionState(VOICE_STATE_WAIT_FOR_DATA_CHANNEL);
             break;

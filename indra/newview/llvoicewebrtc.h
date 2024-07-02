@@ -282,7 +282,6 @@ public:
         virtual void sendData(const std::string &data);
 
         void setMuteMic(bool muted);
-        void setMicGain(F32 volume);
         void setSpeakerVolume(F32 volume);
         void setUserVolume(const LLUUID& id, F32 volume);
 
@@ -303,7 +302,6 @@ public:
         std::string mName;
 
         bool    mMuted;          // this session is muted.
-        F32     mMicGain;        // gain for this session.
         F32     mSpeakerVolume;  // volume for this session.
 
         bool        mShuttingDown;
@@ -382,7 +380,6 @@ public:
     static void predSendData(const LLWebRTCVoiceClient::sessionStatePtr_t &session, const std::string& spatial_data);
     static void predUpdateOwnVolume(const LLWebRTCVoiceClient::sessionStatePtr_t &session, F32 audio_level);
     static void predSetMuteMic(const LLWebRTCVoiceClient::sessionStatePtr_t &session, bool mute);
-    static void predSetMicGain(const LLWebRTCVoiceClient::sessionStatePtr_t &session, F32 volume);
     static void predSetSpeakerVolume(const LLWebRTCVoiceClient::sessionStatePtr_t &session, F32 volume);
     static void predShutdownSession(const LLWebRTCVoiceClient::sessionStatePtr_t &session);
     static void predSetUserMute(const LLWebRTCVoiceClient::sessionStatePtr_t &session, const LLUUID& id, bool mute);
@@ -607,7 +604,6 @@ class LLVoiceWebRTCConnection :
     void processIceUpdatesCoro();
 
     virtual void setMuteMic(bool muted);
-    virtual void setMicGain(F32 volume);
     virtual void setSpeakerVolume(F32 volume);
 
     void setUserVolume(const LLUUID& id, F32 volume);
@@ -686,7 +682,6 @@ class LLVoiceWebRTCConnection :
     std::string mRemoteChannelSDP;
 
     bool mMuted;
-    F32  mMicGain;
     F32  mSpeakerVolume;
 
     bool mShutDown;

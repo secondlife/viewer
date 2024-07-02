@@ -40,12 +40,6 @@
 		<menu_item_call label="臉書…" name="Facebook"/>
 		<menu_item_call label="推特…" name="Twitter"/>
 		<menu_item_call label="Flickr…" name="Flickr"/>
-		<menu label="語音變聲" name="VoiceMorphing">
-			<menu_item_check label="沒有變聲效果" name="NoVoiceMorphing"/>
-			<menu_item_check label="預覽……" name="Preview"/>
-			<menu_item_call label="訂閱……" name="Subscribe"/>
-			<menu_item_call label="付費會員獨享…" name="PremiumPerk"/>
-		</menu>
 		<menu_item_check label="姿勢…" name="Gestures"/>
 		<menu_item_check label="朋友" name="My Friends"/>
 		<menu_item_check label="群組" name="My Groups"/>

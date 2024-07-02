@@ -400,7 +400,7 @@ protected:
 // Build time optimization, generate once in .cpp file
 #ifndef LLBUTTON_CPP
 extern template class LLButton* LLView::getChild<class LLButton>(
-    const std::string& name, bool recurse) const;
+    std::string_view name, bool recurse) const;
 #endif
 
 #endif  // LL_LLBUTTON_H

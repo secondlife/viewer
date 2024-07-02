@@ -50,3 +50,14 @@ If triplanar mapping is enabled, and an avatar faces an axially-aligned wall, th
 Textures of materials should not appear mirrored.
 
 When triplanar mapping is enabled, rotations on the axially aligned walls should apply in the same direction as they would on flat ground.
+
+## PBR Terrain Normal Textures
+
+This section assumes terrain normal maps are enabled at the current graphics setting.
+
+PBR terrain should have approximately correct lighting based on the normal texture:
+
+- When on flat ground
+- On cliffs, when triplanar mapping is enabled. Lighting will be somewhat less accurate when the cliff face is not axially aligned.
+- If no Terrain Texture Transform is applied.
+- If a Terrain Texture Transform is applied, especially for rotation or negative scale.

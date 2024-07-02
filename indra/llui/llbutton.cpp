@@ -56,7 +56,7 @@ static LLDefaultChildRegistry::Register<LLButton> r("button");
 
 // Compiler optimization, generate extern template
 template class LLButton* LLView::getChild<class LLButton>(
-    const std::string& name, bool recurse) const;
+    std::string_view name, bool recurse) const;
 
 // globals
 S32 LLBUTTON_H_PAD  = 4;
@@ -1273,7 +1273,7 @@ void LLButton::setFloaterToggle(LLUICtrl* ctrl, const LLSD& sdname)
     // Set the button control value (toggle state) to the floater visibility control (Sets the value as well)
     button->setControlVariable(LLFloater::getControlGroup()->getControl(vis_control_name));
     // Set the clicked callback to toggle the floater
-    button->setClickedCallback(boost::bind(&LLFloaterReg::toggleInstance, sdname, LLSD()));
+    button->setClickedCallback([=](LLUICtrl* ctrl, const LLSD& param) -> void { LLFloaterReg::toggleInstance(sdname.asString(), LLSD()); });
 }
 
 // static

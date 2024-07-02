@@ -5107,25 +5107,31 @@ void LLVivoxVoiceClient::processChannels(bool process)
 
 bool LLVivoxVoiceClient::isCurrentChannel(const LLSD &channelInfo)
 {
-    if (!mProcessChannels || (channelInfo["voice_server_type"].asString() != VIVOX_VOICE_SERVER_TYPE))
+    if (!mProcessChannels || (channelInfo.has("voice_server_type") && channelInfo["voice_server_type"].asString() != VIVOX_VOICE_SERVER_TYPE))
     {
         return false;
     }
-    if (mAudioSession)
+    // favor the next audio session, as that's the one we're bringing up.
+    sessionStatePtr_t session = mNextAudioSession;
+    if (!session)
+    {
+        session = mAudioSession;
+    }
+    if (session)
     {
         if (!channelInfo["session_handle"].asString().empty())
         {
-            return mAudioSession->mHandle == channelInfo["session_handle"].asString();
+            return session->mHandle == channelInfo["session_handle"].asString();
         }
-        return channelInfo["channel_uri"].asString() == mAudioSession->mSIPURI;
+        return channelInfo["channel_uri"].asString() == session->mSIPURI;
     }
     return false;
 }
 
 bool LLVivoxVoiceClient::compareChannels(const LLSD& channelInfo1, const LLSD& channelInfo2)
 {
-    return (channelInfo1["voice_server_type"] == VIVOX_VOICE_SERVER_TYPE) &&
-           (channelInfo1["voice_server_type"] == channelInfo2["voice_server_type"]) &&
+    return (!channelInfo1.has("voice_server_type") || (channelInfo1["voice_server_type"] == VIVOX_VOICE_SERVER_TYPE)) &&
+           (!channelInfo2.has("voice_server_type") || (channelInfo2["voice_server_type"] == VIVOX_VOICE_SERVER_TYPE)) &&
            (channelInfo1["channel_uri"] == channelInfo2["channel_uri"]);
 }
 

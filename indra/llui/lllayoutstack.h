@@ -111,7 +111,7 @@ private:
     e_panel_list_t mPanels;
 
     LLLayoutPanel* findEmbeddedPanel(LLPanel* panelp) const;
-    LLLayoutPanel* findEmbeddedPanelByName(const std::string& name) const;
+    LLLayoutPanel* findEmbeddedPanelByName(std::string_view name) const;
     void updateFractionalSizes();
     void normalizeFractionalSizes();
     void updatePanelRect( LLLayoutPanel* param1, const LLRect& new_rect );
