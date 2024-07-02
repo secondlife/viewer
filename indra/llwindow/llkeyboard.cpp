@@ -359,7 +359,7 @@ std::string LLKeyboard::stringFromKey(KEY key, bool translate)
         LLKeyStringTranslatorFunc *trans = gKeyboard->mStringTranslator;
         if (trans != NULL)
         {
-            res = trans(res.c_str());
+            res = trans(res);
         }
     }
 
@@ -399,7 +399,7 @@ std::string LLKeyboard::stringFromMouse(EMouseClickType click, bool translate)
         LLKeyStringTranslatorFunc* trans = gKeyboard->mStringTranslator;
         if (trans != NULL)
         {
-            res = trans(res.c_str());
+            res = trans(res);
         }
     }
     return res;

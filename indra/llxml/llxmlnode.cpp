@@ -653,32 +653,24 @@ bool LLXMLNode::updateNode(
 // static
 bool LLXMLNode::parseFile(const std::string& filename, LLXMLNodePtr& node, LLXMLNode* defaults_tree)
 {
-    // Read file
-    LL_DEBUGS("XMLNode") << "parsing XML file: " << filename << LL_ENDL;
-    LLFILE* fp = LLFile::fopen(filename, "rb");     /* Flawfinder: ignore */
-    if (fp == NULL)
+    std::string xml = LLFile::getContents(filename);
+    if (xml.empty())
     {
-        node = NULL ;
-        return false;
+        LL_WARNS("XMLNode") << "no XML file: " << filename << LL_ENDL;
     }
-    fseek(fp, 0, SEEK_END);
-    U32 length = ftell(fp);
-    fseek(fp, 0, SEEK_SET);
+    else if (parseBuffer(xml.data(), xml.size(), node, defaults_tree))
+    {
+        return true;
+    }
 
-    U8* buffer = new U8[length+1];
-    size_t nread = fread(buffer, 1, length, fp);
-    buffer[nread] = 0;
-    fclose(fp);
-
-    bool rv = parseBuffer(buffer, static_cast<U32>(nread), node, defaults_tree);
-    delete [] buffer;
-    return rv;
+    node = nullptr;
+    return false;
 }
 
 // static
 bool LLXMLNode::parseBuffer(
-    U8* buffer,
-    U32 length,
+    const char* buffer,
+    U64 length,
     LLXMLNodePtr& node,
     LLXMLNode* defaults)
 {
@@ -693,19 +685,24 @@ bool LLXMLNode::parseBuffer(
 
     file_node->mParser = &my_parser;
 
-    XML_SetUserData(my_parser, (void *)file_node_ptr);
+    XML_SetUserData(my_parser, file_node_ptr);
 
     // Do the parsing
-    if (XML_Parse(my_parser, (const char *)buffer, length, true) != XML_STATUS_OK)
+    bool success = XML_STATUS_OK == XML_Parse(my_parser, buffer, (int)length, true);
+    if (!success)
     {
         LL_WARNS() << "Error parsing xml error code: "
                 << XML_ErrorString(XML_GetErrorCode(my_parser))
                 << " on line " << XML_GetCurrentLineNumber(my_parser)
+                << ", column " << XML_GetCurrentColumnNumber(my_parser)
                 << LL_ENDL;
     }
 
     // Deinit
     XML_ParserFree(my_parser);
+
+    if (!success)
+        return false;
 
     if (!file_node->mChildren || file_node->mChildren->map.size() != 1)
     {

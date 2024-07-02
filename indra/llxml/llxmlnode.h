@@ -129,20 +129,20 @@ public:
     void addChild(LLXMLNodePtr& new_child);
     void setParent(LLXMLNodePtr& new_parent); // reparent if necessary
 
-    // Serialization
+    // Deserialization
     static bool parseFile(
         const std::string& filename,
         LLXMLNodePtr& node,
-        LLXMLNode* defaults_tree);
+        LLXMLNode* defaults = nullptr);
     static bool parseBuffer(
-        U8* buffer,
-        U32 length,
+        const char* buffer,
+        U64 length,
         LLXMLNodePtr& node,
-        LLXMLNode* defaults);
+        LLXMLNode* defaults = nullptr);
     static bool parseStream(
         std::istream& str,
         LLXMLNodePtr& node,
-        LLXMLNode* defaults);
+        LLXMLNode* defaults = nullptr);
     static bool updateNode(
         LLXMLNodePtr& node,
         LLXMLNodePtr& update_node);

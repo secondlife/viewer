@@ -39,7 +39,7 @@ static LLDefaultChildRegistry::Register<LLTextBox> r("text");
 
 // Compiler optimization, generate extern template
 template class LLTextBox* LLView::getChild<class LLTextBox>(
-    const std::string& name, bool recurse) const;
+    std::string_view name, bool recurse) const;
 
 LLTextBox::LLTextBox(const LLTextBox::Params& p)
 :   LLTextBase(p),

@@ -42,6 +42,7 @@
 #include "llviewertexturelist.h"
 #include "llimagej2c.h"
 #include "llfloaterperms.h"
+#include "llfloaterreg.h"
 #include "llagentbenefits.h"
 #include "llfilesystem.h"
 #include "boost/json.hpp"
@@ -314,6 +315,7 @@ void GLTFSceneManager::load(const std::string& filename)
             {
                 mObjects.push_back(obj);
             }
+            LLFloaterReg::showInstance("gltf_asset_editor");
         }
     }
     else

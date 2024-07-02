@@ -602,15 +602,13 @@ void LLAccordionCtrlTab::setSelected(bool is_selected)
 
 LLView* LLAccordionCtrlTab::findContainerView()
 {
-    child_list_const_iter_t it = getChildList()->begin(), it_end = getChildList()->end();
-    while (it != it_end)
+    for (auto child : *getChildList())
     {
-        LLView* child = *(it++);
         if (DD_HEADER_NAME != child->getName() && child->getVisible())
             return child;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 void LLAccordionCtrlTab::selectOnFocusReceived()

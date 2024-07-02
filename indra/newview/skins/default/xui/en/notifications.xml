@@ -8842,6 +8842,20 @@ New Voice Morphs are available!
   </notification>
 
   <notification
+    icon="alertmodal.tga"
+    name="VoiceEffectsNotSupported"
+    sound="UISndAlert"
+    persist="true"
+    type="alertmodal">
+Voice Morphs are not supported by this viewer.
+    <usetemplate
+        notext="Cancel"
+        name="okcancelbuttons"
+        yestext="Disable Voice Morphing"/>
+    <tag>voice</tag>
+  </notification>
+
+  <notification
    icon="notifytip.tga"
    name="Cannot enter parcel: not a group member"
    type="notifytip">

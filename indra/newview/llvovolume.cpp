@@ -2043,6 +2043,7 @@ bool LLVOVolume::updateGeometry(LLDrawable *drawable)
 
     if (mDrawable->isState(LLDrawable::REBUILD_RIGGED))
     {
+        LL_PROFILE_ZONE_NAMED_CATEGORY_VOLUME("rebuild rigged");
         updateRiggedVolume(false);
         genBBoxes(false);
         mDrawable->clearState(LLDrawable::REBUILD_RIGGED);
