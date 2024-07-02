@@ -51,6 +51,7 @@
 #include "llagentui.h"
 #include "llagentwearables.h"
 #include "llagentpilot.h"
+#include "llavataractions.h"
 #include "llcompilequeue.h"
 #include "llconsole.h"
 #include "lldebugview.h"
@@ -77,9 +78,9 @@
 #include "llfloatertools.h"
 #include "llfloaterworldmap.h"
 #include "llfloaterbuildoptions.h"
-#include "llavataractions.h"
-#include "lllandmarkactions.h"
+#include "llgamecontrol.h"
 #include "llgroupmgr.h"
+#include "lllandmarkactions.h"
 #include "lltooltip.h"
 #include "lltoolface.h"
 #include "llhints.h"
@@ -914,17 +915,45 @@ class LLAdvancedToggleFeature : public view_listener_t
 class LLAdvancedCheckFeature : public view_listener_t
 {
     bool handleEvent(const LLSD& userdata)
-{
-    U32 feature = feature_from_string( userdata.asString() );
-    bool new_value = false;
-
-    if ( feature != 0 )
     {
-        new_value = LLPipeline::toggleRenderDebugFeatureControl( feature );
-    }
+        U32 feature = feature_from_string( userdata.asString() );
+        bool new_value = false;
 
-    return new_value;
-}
+        if ( feature != 0 )
+        {
+            new_value = LLPipeline::toggleRenderDebugFeatureControl( feature );
+        }
+
+        return new_value;
+    }
+};
+
+class LLAdvancedToggleExperiment : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata)
+    {
+        std::string feature = userdata.asString();
+        if (feature == "GameControl")
+        {
+            LLGameControl::setEnabled(! LLGameControl::isEnabled());
+            return true;
+        }
+        return false;
+    }
+};
+
+class LLAdvancedCheckExperiment : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata)
+    {
+        bool value = false;
+        std::string feature = userdata.asString();
+        if (feature == "GameControl")
+        {
+            value = LLGameControl::isEnabled();
+        }
+        return value;
+    }
 };
 
 class LLAdvancedCheckDisplayTextureDensity : public view_listener_t
@@ -9778,6 +9807,9 @@ void initialize_menus()
     //// Advanced > Render > Features
     view_listener_t::addMenu(new LLAdvancedToggleFeature(), "Advanced.ToggleFeature");
     view_listener_t::addMenu(new LLAdvancedCheckFeature(), "Advanced.CheckFeature");
+
+    view_listener_t::addMenu(new LLAdvancedToggleExperiment(), "Advanced.ToggleExperiment");
+    view_listener_t::addMenu(new LLAdvancedCheckExperiment(), "Advanced.CheckExperiment");
 
     view_listener_t::addMenu(new LLAdvancedCheckDisplayTextureDensity(), "Advanced.CheckDisplayTextureDensity");
     view_listener_t::addMenu(new LLAdvancedSetDisplayTextureDensity(), "Advanced.SetDisplayTextureDensity");
