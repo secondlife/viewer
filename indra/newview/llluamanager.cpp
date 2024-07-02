@@ -32,6 +32,7 @@
 #include "llcoros.h"
 #include "llerror.h"
 #include "lleventcoro.h"
+#include "llsdutil.h"
 #include "llviewercontrol.h"
 #include "lua_function.h"
 #include "lualistener.h"
@@ -265,27 +266,6 @@ void LLLUAmanager::runScriptLine(LuaState& L, const std::string& chunk, script_r
     });
 }
 
-void LLLUAmanager::runScriptOnLogin()
-{
-#ifndef LL_TEST
-    std::string filename = gSavedSettings.getString("AutorunLuaScriptName");
-    if (filename.empty()) 
-    {
-        LL_INFOS() << "Script name wasn't set." << LL_ENDL;
-        return;
-    }
-
-    filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, filename);
-    if (!gDirUtilp->fileExists(filename)) 
-    {
-        LL_INFOS() << filename << " was not found." << LL_ENDL;
-        return;
-    }
-
-    runScriptFile(filename);
-#endif // ! LL_TEST
-}
-
 std::string read_file(const std::string &name)
 {
     llifstream in_file;
@@ -330,31 +310,6 @@ LLRequireResolver::LLRequireResolver(lua_State *L, const std::string& path) :
         luaL_argerrorL(L, 1, "cannot require a full path");
 }
 
-/**
- * Remove a particular stack index on exit from enclosing scope.
- * If you pass a negative index (meaning relative to the current stack top),
- * converts to an absolute index. The point of LuaRemover is to remove the
- * entry at the specified index regardless of subsequent pushes to the stack.
- */
-class LuaRemover
-{
-public:
-    LuaRemover(lua_State* L, int index):
-        mState(L),
-        mIndex(lua_absindex(L, index))
-    {}
-    LuaRemover(const LuaRemover&) = delete;
-    LuaRemover& operator=(const LuaRemover&) = delete;
-    ~LuaRemover()
-    {
-        lua_remove(mState, mIndex);
-    }
-
-private:
-    lua_State* mState;
-    int mIndex;
-};
-
 // push the loaded module or throw a Lua error
 void LLRequireResolver::findModule()
 {
@@ -384,18 +339,13 @@ void LLRequireResolver::findModule()
         fail();
     }
 
-    std::vector<fsyspath> lib_paths
+    LLSD lib_paths(gSavedSettings.getLLSD("LuaRequirePath"));
+    LL_DEBUGS("Lua") << "LuaRequirePath = " << lib_paths << LL_ENDL;
+    for (const auto& path : llsd::inArray(lib_paths))
     {
-        gDirUtilp->getExpandedFilename(LL_PATH_SCRIPTS, "lua", "require"),
-#ifdef LL_TEST
-        // Build-time tests don't have the app bundle - use source tree.
-        fsyspath(__FILE__).parent_path() / "scripts" / "lua" / "require",
-#endif
-    };
-
-    for (const auto& path : lib_paths)
-    {
-        std::string absolutePathOpt = (path / mPathToResolve).u8string();
+        // if path is already absolute, operator/() preserves it
+        auto abspath(fsyspath(gDirUtilp->getAppRODataDir()) / path.asString());
+        std::string absolutePathOpt = (abspath / mPathToResolve).u8string();
 
         if (absolutePathOpt.empty())
             luaL_error(L, "error requiring module '%s'", mPathToResolve.u8string().data());

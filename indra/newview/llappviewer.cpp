@@ -117,6 +117,7 @@
 #include "lldiriterator.h"
 #include "llexperiencecache.h"
 #include "llimagej2c.h"
+#include "llluamanager.h"
 #include "llmemory.h"
 #include "llprimitive.h"
 #include "llurlaction.h"
@@ -1217,6 +1218,24 @@ bool LLAppViewer::init()
         {
             // no completion callback: we don't need to know
             LLLUAmanager::runScriptFile(script);
+        });
+    processComposeSwitch(
+        "LuaAutorunPath", "LuaAutorunPath",
+        [](const LLSD& directory)
+        {
+            // each directory can be relative to the viewer's install
+            // directory -- if directory is already absolute, operator/()
+            // preserves it
+            auto abspath(fsyspath(gDirUtilp->getAppRODataDir()) / directory.asString());
+            std::string absdir(abspath.string());
+            LL_DEBUGS("InitInfo") << "LuaAutorunPath: " << absdir << LL_ENDL;
+            LLDirIterator scripts(absdir, "*.lua");
+            std::string script;
+            while (scripts.next(script))
+            {
+                LL_DEBUGS("InitInfo") << "LuaAutorunPath: " << absdir << ": " << script << LL_ENDL;
+                LLLUAmanager::runScriptFile((abspath / script).string());
+            }
         });
 
     if (gSavedSettings.getBOOL("QAMode") && gSavedSettings.getS32("QAModeEventHostPort") > 0)

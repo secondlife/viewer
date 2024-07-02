@@ -118,11 +118,12 @@ private:
 *   LuaPopper
 *****************************************************************************/
 /**
- * LuaPopper is an RAII struct whose role is to pop some number of entries
+ * LuaPopper is an RAII class whose role is to pop some number of entries
  * from the Lua stack if the calling function exits early.
  */
-struct LuaPopper
+class LuaPopper
 {
+public:
     LuaPopper(lua_State* L, int count):
         mState(L),
         mCount(count)
@@ -136,8 +137,37 @@ struct LuaPopper
     void disarm() { set(0); }
     void set(int count) { mCount = count; }
 
+private:
     lua_State* mState;
     int mCount;
+};
+
+/*****************************************************************************
+*   LuaRemover
+*****************************************************************************/
+/**
+ * Remove a particular stack index on exit from enclosing scope.
+ * If you pass a negative index (meaning relative to the current stack top),
+ * converts to an absolute index. The point of LuaRemover is to remove the
+ * entry at the specified index regardless of subsequent pushes to the stack.
+ */
+class LuaRemover
+{
+public:
+    LuaRemover(lua_State* L, int index):
+        mState(L),
+        mIndex(lua_absindex(L, index))
+    {}
+    LuaRemover(const LuaRemover&) = delete;
+    LuaRemover& operator=(const LuaRemover&) = delete;
+    ~LuaRemover()
+    {
+        lua_remove(mState, mIndex);
+    }
+
+private:
+    lua_State* mState;
+    int mIndex;
 };
 
 /*****************************************************************************
