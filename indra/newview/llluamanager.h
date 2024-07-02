@@ -82,8 +82,6 @@ public:
     // The return value is the (count, result) pair described above.
     static std::pair<int, LLSD> waitScriptLine(LuaState& L, const std::string& chunk);
 
-    static void runScriptOnLogin();
-
     static const std::map<std::string, std::string> getScriptNames() { return sScriptNames; }
 
  private:
