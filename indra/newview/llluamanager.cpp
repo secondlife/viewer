@@ -309,31 +309,6 @@ LLRequireResolver::LLRequireResolver(lua_State *L, const std::string& path) :
         luaL_argerrorL(L, 1, "cannot require a full path");
 }
 
-/**
- * Remove a particular stack index on exit from enclosing scope.
- * If you pass a negative index (meaning relative to the current stack top),
- * converts to an absolute index. The point of LuaRemover is to remove the
- * entry at the specified index regardless of subsequent pushes to the stack.
- */
-class LuaRemover
-{
-public:
-    LuaRemover(lua_State* L, int index):
-        mState(L),
-        mIndex(lua_absindex(L, index))
-    {}
-    LuaRemover(const LuaRemover&) = delete;
-    LuaRemover& operator=(const LuaRemover&) = delete;
-    ~LuaRemover()
-    {
-        lua_remove(mState, mIndex);
-    }
-
-private:
-    lua_State* mState;
-    int mIndex;
-};
-
 // push the loaded module or throw a Lua error
 void LLRequireResolver::findModule()
 {
