@@ -439,7 +439,7 @@ LLNotificationTemplate::LLNotificationTemplate(const LLNotificationTemplate::Par
     mSoundName("")
 {
     if (p.sound.isProvided()
-        && LLUI::getInstance()->mSettingGroups["config"]->controlExists(p.sound))
+        && LLUI::getInstance()->mSettingGroups["config"]->controlExists(p.sound()))
     {
         mSoundName = p.sound;
     }

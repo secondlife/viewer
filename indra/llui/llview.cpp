@@ -2312,18 +2312,20 @@ LLView* LLView::findSnapEdge(S32& new_edge_val, const LLCoordGL& mouse_dir, ESna
 //-----------------------------------------------------------------------------
 
 
-LLControlVariable *LLView::findControl(const std::string& name)
+LLControlVariable *LLView::findControl(std::string_view name)
 {
+    auto uiInst = LLUI::getInstance();
     // parse the name to locate which group it belongs to
     std::size_t key_pos= name.find(".");
-    if(key_pos!=  std::string::npos )
+    if(key_pos !=  std::string_view::npos )
     {
-        std::string control_group_key = name.substr(0, key_pos);
+        std::string_view control_group_key = name.substr(0, key_pos);
         LLControlVariable* control;
         // check if it's in the control group that name indicated
-        if(LLUI::getInstance()->mSettingGroups[control_group_key])
+        auto it = uiInst->mSettingGroups.find(control_group_key);
+        if(it != uiInst->mSettingGroups.end() && it->second)
         {
-            control = LLUI::getInstance()->mSettingGroups[control_group_key]->getControl(name);
+            control = it->second->getControl(name);
             if (control)
             {
                 return control;
@@ -2331,7 +2333,7 @@ LLControlVariable *LLView::findControl(const std::string& name)
         }
     }
 
-    LLControlGroup& control_group = LLUI::getInstance()->getControlControlGroup(name);
+    LLControlGroup& control_group = uiInst->getControlControlGroup(name);
     return control_group.getControl(name);
 }
 

@@ -416,7 +416,7 @@ public:
     void screenRectToLocal( const LLRect& screen, LLRect* local ) const;
     void localRectToScreen( const LLRect& local, LLRect* screen ) const;
 
-    LLControlVariable *findControl(const std::string& name);
+    LLControlVariable *findControl(std::string_view name);
 
     const child_list_t* getChildList() const { return &mChildList; }
     child_list_const_iter_t beginChild() const { return mChildList.begin(); }

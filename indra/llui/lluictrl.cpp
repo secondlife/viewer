@@ -135,7 +135,7 @@ void LLUICtrl::initFromParams(const Params& p)
     {
         if (p.enabled_controls.enabled.isChosen())
         {
-            LLControlVariable* control = findControl(p.enabled_controls.enabled);
+            LLControlVariable* control = findControl(p.enabled_controls.enabled());
             if (control)
             {
                 setEnabledControlVariable(control);
@@ -149,7 +149,7 @@ void LLUICtrl::initFromParams(const Params& p)
         }
         else if(p.enabled_controls.disabled.isChosen())
         {
-            LLControlVariable* control = findControl(p.enabled_controls.disabled);
+            LLControlVariable* control = findControl(p.enabled_controls.disabled());
             if (control)
             {
                 setDisabledControlVariable(control);
@@ -166,7 +166,7 @@ void LLUICtrl::initFromParams(const Params& p)
     {
         if (p.controls_visibility.visible.isChosen())
         {
-            LLControlVariable* control = findControl(p.controls_visibility.visible);
+            LLControlVariable* control = findControl(p.controls_visibility.visible());
             if (control)
             {
                 setMakeVisibleControlVariable(control);
@@ -180,7 +180,7 @@ void LLUICtrl::initFromParams(const Params& p)
         }
         else if (p.controls_visibility.invisible.isChosen())
         {
-            LLControlVariable* control = findControl(p.controls_visibility.invisible);
+            LLControlVariable* control = findControl(p.controls_visibility.invisible());
             if (control)
             {
                 setMakeInvisibleControlVariable(control);

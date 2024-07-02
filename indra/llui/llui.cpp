@@ -367,7 +367,7 @@ void LLUI::glRectToScreen(const LLRect& gl, LLRect *screen)
 }
 
 
-LLControlGroup& LLUI::getControlControlGroup (const std::string& controlname)
+LLControlGroup& LLUI::getControlControlGroup (std::string_view controlname)
 {
     for (settings_map_t::iterator itor = mSettingGroups.begin();
          itor != mSettingGroups.end(); ++itor)
