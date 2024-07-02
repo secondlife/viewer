@@ -220,7 +220,7 @@ void LLFloaterWebContent::preCreate(LLFloaterWebContent::Params& p)
         // showInstance will open a new window.  Figure out how many web browsers are already open,
         // and close the least recently opened one if this will put us over the limit.
 
-        LLFloaterReg::const_instance_list_t &instances = LLFloaterReg::getFloaterList(p.window_class);
+        LLFloaterReg::const_instance_list_t &instances = LLFloaterReg::getFloaterList(p.window_class());
 
         if(instances.size() >= (size_t)browser_window_limit)
         {

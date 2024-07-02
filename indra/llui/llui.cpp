@@ -170,11 +170,11 @@ mHelpImpl(NULL)
     LLUICtrl::CommitCallbackRegistry::Registrar& reg = LLUICtrl::CommitCallbackRegistry::defaultRegistrar();
 
     // Callbacks for associating controls with floater visibility:
-    reg.add("Floater.Toggle", boost::bind(&LLFloaterReg::toggleInstance, _2, LLSD()));
-    reg.add("Floater.ToggleOrBringToFront", boost::bind(&LLFloaterReg::toggleInstanceOrBringToFront, _2, LLSD()));
-    reg.add("Floater.Show", boost::bind(&LLFloaterReg::showInstance, _2, LLSD(), false));
-    reg.add("Floater.ShowOrBringToFront", boost::bind(&LLFloaterReg::showInstanceOrBringToFront, _2, LLSD()));
-    reg.add("Floater.Hide", boost::bind(&LLFloaterReg::hideInstance, _2, LLSD()));
+    reg.add("Floater.Toggle", [](LLUICtrl* ctrl, const LLSD& param) -> void { LLFloaterReg::toggleInstance(param.asStringRef()); });
+    reg.add("Floater.ToggleOrBringToFront", [](LLUICtrl* ctrl, const LLSD& param) -> void { LLFloaterReg::toggleInstanceOrBringToFront(param.asStringRef()); });
+    reg.add("Floater.Show", [](LLUICtrl* ctrl, const LLSD& param) -> void { LLFloaterReg::showInstance(param.asStringRef(), LLSD(), false); });
+    reg.add("Floater.ShowOrBringToFront", [](LLUICtrl* ctrl, const LLSD& param) -> void { LLFloaterReg::showInstanceOrBringToFront(param.asStringRef(), LLSD()); });
+    reg.add("Floater.Hide", [](LLUICtrl* ctrl, const LLSD& param) -> void { LLFloaterReg::hideInstance(param.asStringRef()); });
 
     // Button initialization callback for toggle buttons
     reg.add("Button.SetFloaterToggle", boost::bind(&LLButton::setFloaterToggle, _1, _2));
@@ -189,8 +189,8 @@ mHelpImpl(NULL)
     reg.add("Button.ToggleFloater", boost::bind(&LLButton::toggleFloaterAndSetToggleState, _1, _2));
 
     // Used by menus along with Floater.Toggle to display visibility as a check-mark
-    LLUICtrl::EnableCallbackRegistry::defaultRegistrar().add("Floater.Visible", boost::bind(&LLFloaterReg::instanceVisible, _2, LLSD()));
-    LLUICtrl::EnableCallbackRegistry::defaultRegistrar().add("Floater.IsOpen", boost::bind(&LLFloaterReg::instanceVisible, _2, LLSD()));
+    LLUICtrl::EnableCallbackRegistry::defaultRegistrar().add("Floater.Visible", [](LLUICtrl* ctrl, const LLSD& param) -> bool { return LLFloaterReg::instanceVisible(param.asStringRef(), LLSD()); });
+    LLUICtrl::EnableCallbackRegistry::defaultRegistrar().add("Floater.IsOpen",  [](LLUICtrl* ctrl, const LLSD& param) -> bool { return LLFloaterReg::instanceVisible(param.asStringRef(), LLSD()); });
 
     // Parse the master list of commands
     LLCommandManager::load();
