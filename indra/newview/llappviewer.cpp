@@ -4608,6 +4608,7 @@ void LLAppViewer::idle()
     F32 dt_raw = idle_timer.getElapsedTimeAndResetF32();
 
     LLGLTFMaterialList::flushUpdates();
+    LLImageGL::updateClass();
 
     // Service the WorkQueue we use for replies from worker threads.
     // Use function statics for the timeslice setting so we only have to fetch

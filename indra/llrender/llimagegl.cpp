@@ -57,6 +57,9 @@ const F32 MIN_TEXTURE_LIFETIME = 10.f;
 U32 wpo2(U32 i);
 
 
+U32 LLImageGL::sFrameCount = 0;
+
+
 // texture memory accounting (for macOS)
 static LLMutex sTexMemMutex;
 static std::unordered_map<U32, U64> sTextureAllocs;
@@ -1185,7 +1188,11 @@ void LLImageGL::generateTextures(S32 numTextures, U32 *textures)
     }
 }
 
-extern U32 gFrameCount;
+// static
+void LLImageGL::updateClass()
+{
+    sFrameCount++;
+}
 
 // static
 void LLImageGL::deleteTextures(S32 numTextures, const U32 *textures)
@@ -1197,14 +1204,14 @@ void LLImageGL::deleteTextures(S32 numTextures, const U32 *textures)
     if (gGLManager.mInited)
     {
         LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
-        U32 idx = gFrameCount % 4;
+        U32 idx = sFrameCount % 4;
 
         for (S32 i = 0; i < numTextures; ++i)
         {
             sFreeList[idx].push_back(textures[i]);
         }
 
-        idx = (gFrameCount + 3) % 4;
+        idx = (sFrameCount + 3) % 4;
 
         if (!sFreeList[idx].empty())
         {

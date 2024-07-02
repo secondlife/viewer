@@ -863,8 +863,9 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
     const U32 post_color_fmt = post_hdr ? GL_RGBA16F : GL_RGBA;
     mPostMap.allocate(resX, resY, post_color_fmt);
 
-    // 2k is our maximum texture size (for now), so we'll never need to downres more than 1024
-    mDownResMap.allocate(1024, 1024, GL_RGBA);
+    // used to scale down textures
+    // See LLViwerTextureList::updateImagesCreateTextures and LLImageGL::scaleDown
+    mDownResMap.allocate(4, 4, GL_RGBA);
 
     //HACK make screenbuffer allocations start failing after 30 seconds
     if (gSavedSettings.getBOOL("SimulateFBOFailure"))
