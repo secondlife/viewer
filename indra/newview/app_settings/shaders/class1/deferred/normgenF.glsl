@@ -64,14 +64,14 @@ float getBumpValue(vec2 texcoord)
 
 void main()
 {
-    float c = getBumpValue(vary_texcoord0).r;
+    float c = getBumpValue(vary_texcoord0);
 
     float scaler = 512.0;
 
-    vec3 right = vec3(norm_scale, 0, (getBumpValue(vary_texcoord0+vec2(stepX, 0)).r-c)*scaler);
-    vec3 left = vec3(-norm_scale, 0, (getBumpValue(vary_texcoord0-vec2(stepX, 0)).r-c)*scaler);
-    vec3 up = vec3(0, -norm_scale, (getBumpValue(vary_texcoord0-vec2(0, stepY)).r-c)*scaler);
-    vec3 down = vec3(0, norm_scale, (getBumpValue(vary_texcoord0+vec2(0, stepY)).r-c)*scaler);
+    vec3 right = vec3(norm_scale, 0, (getBumpValue(vary_texcoord0+vec2(stepX, 0))-c)*scaler);
+    vec3 left = vec3(-norm_scale, 0, (getBumpValue(vary_texcoord0-vec2(stepX, 0))-c)*scaler);
+    vec3 up = vec3(0, -norm_scale, (getBumpValue(vary_texcoord0-vec2(0, stepY))-c)*scaler);
+    vec3 down = vec3(0, norm_scale, (getBumpValue(vary_texcoord0+vec2(0, stepY))-c)*scaler);
 
     vec3 norm = cross(right, down) + cross(down, left) + cross(left,up) + cross(up, right);
 
