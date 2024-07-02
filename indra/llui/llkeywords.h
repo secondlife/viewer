@@ -111,7 +111,7 @@ public:
     ~LLKeywords();
 
     void        clearLoaded() { mLoaded = false; }
-    LLColor4    getColorGroup(const std::string& key_in);
+    LLColor4    getColorGroup(std::string_view key_in);
     bool        isLoaded() const    { return mLoaded; }
 
     void        findSegments(std::vector<LLTextSegmentPtr> *seg_list,
@@ -170,7 +170,7 @@ public:
 #endif
 
 protected:
-    void        processTokensGroup(const LLSD& Tokens, const std::string& Group);
+    void        processTokensGroup(const LLSD& Tokens, std::string_view Group);
     void        insertSegment(std::vector<LLTextSegmentPtr>& seg_list,
                               LLTextSegmentPtr new_segment,
                               S32 text_len,
@@ -194,10 +194,10 @@ protected:
     token_list_t mLineTokenList;
     token_list_t mDelimiterTokenList;
 
-    typedef  std::map<std::string, std::string> element_attributes_t;
+    typedef  std::map<std::string, std::string, std::less<>> element_attributes_t;
     typedef element_attributes_t::const_iterator attribute_iterator_t;
     element_attributes_t mAttributes;
-    std::string getAttribute(const std::string& key);
+    std::string getAttribute(std::string_view key);
 
     std::string getArguments(LLSD& arguments);
 };

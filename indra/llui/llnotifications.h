@@ -251,11 +251,11 @@ public:
 
     S32 getNumElements() { return static_cast<S32>(mFormData.size()); }
     LLSD getElement(S32 index) { return mFormData.get(index); }
-    LLSD getElement(const std::string& element_name);
+    LLSD getElement(std::string_view element_name);
     void getElements(LLSD& elements, S32 offset = 0);
-    bool hasElement(const std::string& element_name) const;
-    bool getElementEnabled(const std::string& element_name) const;
-    void setElementEnabled(const std::string& element_name, bool enabled);
+    bool hasElement(std::string_view element_name) const;
+    bool getElementEnabled(std::string_view element_name) const;
+    void setElementEnabled(std::string_view element_name, bool enabled);
     void addElement(const std::string& type, const std::string& name, const LLSD& value = LLSD(), bool enabled = true);
     void formatElements(const LLSD& substitutions);
     // appends form elements from another form serialized as LLSD
@@ -641,7 +641,7 @@ public:
 
     bool hasUniquenessConstraints() const;
 
-    bool matchesTag(const std::string& tag);
+    bool matchesTag(std::string_view tag);
 
     virtual ~LLNotification() {}
 };
@@ -926,7 +926,7 @@ public:
     void add(const LLNotificationPtr pNotif);
     void load(const LLNotificationPtr pNotif);
     void cancel(LLNotificationPtr pNotif);
-    void cancelByName(const std::string& name);
+    void cancelByName(std::string_view name);
     void cancelByOwner(const LLUUID ownerId);
     void update(const LLNotificationPtr pNotif);
 
@@ -934,19 +934,19 @@ public:
 
     // This is all stuff for managing the templates
     // take your template out
-    LLNotificationTemplatePtr getTemplate(const std::string& name);
+    LLNotificationTemplatePtr getTemplate(std::string_view name);
 
     // get the whole collection
     typedef std::vector<std::string> TemplateNames;
     TemplateNames getTemplateNames() const;  // returns a list of notification names
 
-    typedef std::map<std::string, LLNotificationTemplatePtr> TemplateMap;
+    typedef std::map<std::string, LLNotificationTemplatePtr, std::less<>> TemplateMap;
 
     TemplateMap::const_iterator templatesBegin() { return mTemplates.begin(); }
     TemplateMap::const_iterator templatesEnd() { return mTemplates.end(); }
 
     // test for existence
-    bool templateExists(const std::string& name);
+    bool templateExists(std::string_view name);
 
     typedef std::list<LLNotificationVisibilityRulePtr> VisibilityRuleList;
 
@@ -956,13 +956,13 @@ public:
 
     LLNotificationChannelPtr getChannel(const std::string& channelName);
 
-    std::string getGlobalString(const std::string& key) const;
+    std::string getGlobalString(std::string_view key) const;
 
     void setIgnoreAllNotifications(bool ignore);
     bool getIgnoreAllNotifications();
 
-    void setIgnored(const std::string& name, bool ignored);
-    bool getIgnored(const std::string& name);
+    void setIgnored(std::string_view name, bool ignored);
+    bool getIgnored(std::string_view name);
 
     bool isVisibleByRules(LLNotificationPtr pNotification);
 
@@ -988,7 +988,7 @@ private:
 
     LLNotificationMap mUniqueNotifications;
 
-    typedef std::map<std::string, std::string> GlobalStringMap;
+    typedef std::map<std::string, std::string, std::less<>> GlobalStringMap;
     GlobalStringMap mGlobalStrings;
 
     bool mIgnoreAllNotifications;

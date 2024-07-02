@@ -548,7 +548,7 @@ LLLayoutPanel* LLLayoutStack::findEmbeddedPanel(LLPanel* panelp) const
     return NULL;
 }
 
-LLLayoutPanel* LLLayoutStack::findEmbeddedPanelByName(const std::string& name) const
+LLLayoutPanel* LLLayoutStack::findEmbeddedPanelByName(std::string_view name) const
 {
     LLLayoutPanel* result = NULL;
 
