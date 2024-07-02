@@ -39,7 +39,7 @@ PBR terrain does not support materials with alpha blend or double-sided. In addi
 
 ## PBR Terrain Texture Transforms
 
-Like PBR materials on prims, PBR terrain repeats are based on the [KHR\_texture\_transform](https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_texture_transform) spec, and thus should be expected to behave the same way.
+Like PBR materials on prims, PBR terrain repeats are based on the [KHR\_texture\_transform](https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_texture_transform) spec, and thus should be expected to behave the same way. We currently suport offset, rotation, and scale from the spec. texCoord is not currently supported.
 
 The southwest corner of a region, at z=0, is the UV origin for all texture coordinates of the whole region. Unless an offset is also applied, scale and rotation of the terrain texture transforms are relative to that point.
 
