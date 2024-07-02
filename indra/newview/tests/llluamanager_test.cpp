@@ -465,4 +465,39 @@ namespace tut
         ensure_equals(desc + " count: " + result.asString(), count, -1);
         ensure_contains(desc + " result", result.asString(), "terminated");
     }
+
+    template <typename T>
+    struct Visible
+    {
+        Visible(T name): name(name)
+        {
+            LL_INFOS() << "Visible<" << LLError::Log::classname<T>() << ">('" << name << "')" << LL_ENDL;
+        }
+        Visible(const Visible&) = delete;
+        Visible& operator=(const Visible&) = delete;
+        ~Visible()
+        {
+            LL_INFOS() << "~Visible<" << LLError::Log::classname<T>() << ">('" << name << "')" << LL_ENDL;
+        }
+        T name;
+    };
+
+    template<> template<>
+    void object::test<9>()
+    {
+        set_test_name("track distinct lua_emplace<T>() types");
+        LuaState L;
+        lua_emplace<Visible<std::string>>(L, "std::string 0");
+        int st0tag = lua_userdatatag(L, -1);
+        lua_emplace<Visible<const char*>>(L, "const char* 0");
+        int cp0tag = lua_userdatatag(L, -1);
+        lua_emplace<Visible<std::string>>(L, "std::string 1");
+        int st1tag = lua_userdatatag(L, -1);
+        lua_emplace<Visible<const char*>>(L, "const char* 1");
+        int cp1tag = lua_userdatatag(L, -1);
+        lua_settop(L, 0);
+        ensure_equals("lua_emplace<std::string>() tags diverge", st0tag, st1tag);
+        ensure_equals("lua_emplace<const char*>() tags diverge", cp0tag, cp1tag);
+        ensure_not_equals("lua_emplace<>() tags collide", st0tag, cp0tag);
+    }
 } // namespace tut
