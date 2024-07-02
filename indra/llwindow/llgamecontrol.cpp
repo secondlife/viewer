@@ -443,6 +443,7 @@ namespace
     U64 g_lastSend = 0;
     U64 g_nextResendPeriod = FIRST_RESEND_PERIOD;
 
+    bool g_enabled = false;
     bool g_sendToServer = false;
     bool g_controlAgent = false;
     bool g_translateAgentActions = false;
@@ -457,6 +458,7 @@ namespace
     std::function<LLSD(const std::string&)> s_loadObject;
     std::function<void(const std::string&, LLSD&)> s_saveObject;
 
+    std::string SETTING_ENABLE("EnableGameControl");
     std::string SETTING_SENDTOSERVER("GameControlToServer");
     std::string SETTING_CONTROLAGENT("GameControlToAgent");
     std::string SETTING_TRANSLATEACTIONS("AgentToGameControl");
@@ -1490,6 +1492,21 @@ void onControllerAxis(const SDL_Event& event)
 }
 
 // static
+bool LLGameControl::isEnabled()
+{
+    return g_enabled;
+}
+
+void LLGameControl::setEnabled(bool enable)
+{
+    if (enable != g_enabled)
+    {
+        g_enabled = enable;
+        s_saveBoolean(SETTING_ENABLE, g_enabled);
+    }
+}
+
+// static
 bool LLGameControl::isInitialized()
 {
     return g_gameControl != nullptr;
@@ -1593,7 +1610,7 @@ bool LLGameControl::computeFinalStateAndCheckForChanges()
     //     g_lastSend has "expired"
     //         either because g_nextResendPeriod has been zeroed
     //         or the last send really has expired.
-    return g_sendToServer && (g_lastSend + g_nextResendPeriod < get_now_nsec());
+    return g_enabled && g_sendToServer && (g_lastSend + g_nextResendPeriod < get_now_nsec());
 }
 
 // static
@@ -1732,19 +1749,19 @@ void LLGameControl::setAgentControlMode(LLGameControl::AgentControlMode mode)
 // static
 bool LLGameControl::getSendToServer()
 {
-    return g_sendToServer;
+    return g_enabled && g_sendToServer;
 }
 
 // static
 bool LLGameControl::getControlAgent()
 {
-    return g_controlAgent;
+    return g_enabled && g_controlAgent;
 }
 
 // static
 bool LLGameControl::getTranslateAgentActions()
 {
-    return g_translateAgentActions;
+    return g_enabled && g_translateAgentActions;
 }
 
 // static
@@ -1762,7 +1779,7 @@ LLGameControl::ActionNameType LLGameControl::getActionNameType(const std::string
 // static
 bool LLGameControl::willControlAvatar()
 {
-    return g_controlAgent && g_agentControlMode == CONTROL_MODE_AVATAR;
+    return g_enabled && g_controlAgent && g_agentControlMode == CONTROL_MODE_AVATAR;
 }
 
 // static
@@ -2040,6 +2057,7 @@ void LLGameControl::initByDefault()
 void LLGameControl::loadFromSettings()
 {
     // In case of absence of the required setting the default value is assigned
+    g_enabled = s_loadBoolean(SETTING_ENABLE);
     g_sendToServer = s_loadBoolean(SETTING_SENDTOSERVER);
     g_controlAgent = s_loadBoolean(SETTING_CONTROLAGENT);
     g_translateAgentActions = s_loadBoolean(SETTING_TRANSLATEACTIONS);
@@ -2068,6 +2086,7 @@ void LLGameControl::loadFromSettings()
 // static
 void LLGameControl::saveToSettings()
 {
+    s_saveBoolean(SETTING_ENABLE, g_enabled);
     s_saveBoolean(SETTING_SENDTOSERVER, g_sendToServer);
     s_saveBoolean(SETTING_CONTROLAGENT, g_controlAgent);
     s_saveBoolean(SETTING_TRANSLATEACTIONS, g_translateAgentActions);

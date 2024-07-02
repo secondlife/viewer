@@ -44,6 +44,7 @@
 #include "llwindow.h"
 #include "llcheckboxctrl.h"
 #include "llcombobox.h"
+#include "llgamecontrol.h"
 
 #if LL_WINDOWS && !LL_MESA_HEADLESS
 // Require DirectInput version 8
@@ -78,8 +79,12 @@ BOOL CALLBACK di8_list_devices_callback(LPCDIDEVICEINSTANCE device_instance_ptr,
     // Capable of detecting devices like Oculus Rift
     if (device_instance_ptr && pvRef)
     {
+        // We always include the device if it is from 3DConnexion, otherwise
+        // if the GameControl feature is enabled then we perfer to route other devices to it.
         std::string product_name = utf16str_to_utf8str(llutf16string(device_instance_ptr->tszProductName));
-        if (LLViewerJoystick::is3DConnexionDevice(product_name))
+        bool include_device = LLViewerJoystick::is3DConnexionDevice(product_name) || !LLGameControl::isEnabled();
+
+        if (include_device)
         {
             S32 size = sizeof(GUID);
             LLSD::Binary data; //just an std::vector
@@ -301,11 +306,13 @@ void LLFloaterJoystick::refreshListOfDevices()
 #if LL_WINDOWS && !LL_MESA_HEADLESS
         LL_WARNS() << "NDOF connected to device without using SL provided handle" << LL_ENDL;
 #endif
-        // This feature used to support various gamepad devices however
-        // going forward we will restrict it to 3DConnexion devices (SpaceMouse, etc)
-        // and will handle gamepads with the GameControl feature.
+        // We always include the device if it is from 3DConnexion, otherwise we only
+        // support the device in this context when GameControl feature is disabled.
         std::string desc = LLViewerJoystick::getInstance()->getDescription();
-        if (LLViewerJoystick::is3DConnexionDevice(desc))
+        bool include_device = LLViewerJoystick::is3DConnexionDevice(desc) ||
+            (!LLGameControl::isEnabled() && !desc.empty());
+
+        if (include_device)
         {
             LLSD value = LLSD::Integer(1); // value for selection
             addDevice(desc, value);

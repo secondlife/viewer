@@ -4762,6 +4762,7 @@ void LLAppViewer::idle()
 
         static LLFrameTimer agent_update_timer;
 
+        // Some GameControl stuff needs to be executed even when the feature is not enabled
         // Note: we process game_control before sending AgentUpdate
         // because it may translate to control flags that control avatar motion.
         LLGameControl::processEvents(gFocusMgr.getAppHasFocus());
@@ -4783,7 +4784,11 @@ void LLAppViewer::idle()
             sendGameControlInput();
         }
 
-        gAgent.setExternalActionFlags(action_flags);
+        // This GameControl stuff should NOT be executed when it isn't enabled
+        if (LLGameControl::isEnabled())
+        {
+            gAgent.setExternalActionFlags(action_flags);
+        }
 
         // When appropriate, update agent location to the simulator.
         F32 agent_update_time = agent_update_timer.getElapsedTimeF32();
