@@ -32,6 +32,7 @@
 #include "llcoros.h"
 #include "llerror.h"
 #include "lleventcoro.h"
+#include "llsdutil.h"
 #include "llviewercontrol.h"
 #include "lua_function.h"
 #include "lualistener.h"
@@ -338,18 +339,13 @@ void LLRequireResolver::findModule()
         fail();
     }
 
-    std::vector<fsyspath> lib_paths
+    LLSD lib_paths(gSavedSettings.getLLSD("LuaRequirePath"));
+    LL_DEBUGS("Lua") << "LuaRequirePath = " << lib_paths << LL_ENDL;
+    for (const auto& path : llsd::inArray(lib_paths))
     {
-        gDirUtilp->getExpandedFilename(LL_PATH_SCRIPTS, "lua", "require"),
-#ifdef LL_TEST
-        // Build-time tests don't have the app bundle - use source tree.
-        fsyspath(__FILE__).parent_path() / "scripts" / "lua" / "require",
-#endif
-    };
-
-    for (const auto& path : lib_paths)
-    {
-        std::string absolutePathOpt = (path / mPathToResolve).u8string();
+        // if path is already absolute, operator/() preserves it
+        auto abspath(fsyspath(gDirUtilp->getAppRODataDir()) / path.asString());
+        std::string absolutePathOpt = (abspath / mPathToResolve).u8string();
 
         if (absolutePathOpt.empty())
             luaL_error(L, "error requiring module '%s'", mPathToResolve.u8string().data());
