@@ -931,6 +931,10 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
 
                 if (face && face->getViewerObject() && face->getTextureEntry())
                 {
+                    F32 radius;
+                    F32 cos_angle_to_view_dir;
+                    BOOL in_frustum = face->calcPixelArea(cos_angle_to_view_dir, radius);
+                    static LLCachedControl<F32> bias_unimportant_threshold(gSavedSettings, "TextureBiasUnimportantFactor", 0.25f);
                     F32 vsize = face->getPixelArea();
 
                     // Scale desired texture resolution higher or lower depending on texture scale
@@ -944,13 +948,7 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
                     min_scale = llclamp(min_scale*min_scale, texture_scale_min(), texture_scale_max());
 
                     vsize /= min_scale;
-                    vsize /= LLViewerTexture::sDesiredDiscardBias;
-                    vsize /= llmax(1.f, (LLViewerTexture::sDesiredDiscardBias-1.f) * (1.f + face->getDrawable()->mDistanceWRTCamera * bias_distance_scale));
-
-                    F32 radius;
-                    F32 cos_angle_to_view_dir;
-                    bool in_frustum = face->calcPixelArea(cos_angle_to_view_dir, radius);
-                    if (!in_frustum || !face->getDrawable()->isVisible())
+                    if (!in_frustum || !face->getDrawable()->isVisible() || face->getImportanceToCamera() < bias_unimportant_threshold)
                     { // further reduce by discard bias when off screen or occluded
                         vsize /= LLViewerTexture::sDesiredDiscardBias;
                     }
