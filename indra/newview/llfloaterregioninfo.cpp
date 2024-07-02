@@ -1561,7 +1561,7 @@ bool LLPanelRegionTerrainInfo::postBuild()
         {
             mTextureDetailCtrl[i]->setBakeTextureEnabled(false);
         }
-        initAndSetCtrl(mMaterialDetailCtrl[i], llformat("material_detail_%d", i));
+        initMaterialCtrl(mMaterialDetailCtrl[i], llformat("material_detail_%d", i), i);
 
         initAndSetCtrl(mMaterialScaleUCtrl[i], llformat("terrain%dScaleU", i));
         initAndSetCtrl(mMaterialScaleVCtrl[i], llformat("terrain%dScaleV", i));
@@ -1956,6 +1956,31 @@ bool LLPanelRegionTerrainInfo::sendUpdate()
     }
 
     return true;
+}
+
+void LLPanelRegionTerrainInfo::initMaterialCtrl(LLTextureCtrl*& ctrl, const std::string& name, S32 index)
+{
+    ctrl = findChild<LLTextureCtrl>(name, true);
+    if (!ctrl) return;
+
+    // consume cancel events, otherwise they will trigger commit callbacks
+    ctrl->setOnCancelCallback([](LLUICtrl* ctrl, const LLSD& param) {});
+    ctrl->setCommitCallback(
+        [this, index](LLUICtrl* ctrl, const LLSD& param)
+    {
+        if (!mMaterialScaleUCtrl[index]
+            || !mMaterialScaleVCtrl[index]
+            || !mMaterialRotationCtrl[index]
+            || !mMaterialOffsetUCtrl[index]
+            || !mMaterialOffsetVCtrl[index]) return;
+
+        mMaterialScaleUCtrl[index]->setValue(1.f);
+        mMaterialScaleVCtrl[index]->setValue(1.f);
+        mMaterialRotationCtrl[index]->setValue(0.f);
+        mMaterialOffsetUCtrl[index]->setValue(0.f);
+        mMaterialOffsetVCtrl[index]->setValue(0.f);
+        onChangeAnything();
+    });
 }
 
 bool LLPanelRegionTerrainInfo::callbackTextureHeights(const LLSD& notification, const LLSD& response)
