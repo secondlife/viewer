@@ -47,6 +47,7 @@
 #include "llfloaterbeacons.h"
 #include "llfloaterbuildoptions.h"
 #include "llfloaterbulkpermission.h"
+#include "llfloaterbulkupload.h"
 #include "llfloaterbump.h"
 #include "llfloaterbuy.h"
 #include "llfloaterbuycontents.h"
@@ -207,6 +208,7 @@ public:
                 "camera_presets",
                 "delete_pref_preset",
                 "forget_username",
+                "gltf_asset_editor",
                 "god_tools",
                 "group_picker",
                 "hud",
@@ -223,7 +225,8 @@ public:
                 "upload_image",
                 "upload_model",
                 "upload_script",
-                "upload_sound"
+                "upload_sound",
+                "bulk_upload"
             };
             return std::find(blacklist_clicked.begin(), blacklist_clicked.end(), fl_name) == blacklist_clicked.end();
         }
@@ -247,6 +250,7 @@ public:
                 "env_edit_extdaycycle",
                 "font_test",
                 "forget_username",
+                "gltf_asset_editor",
                 "god_tools",
                 "group_picker",
                 "hud",
@@ -272,7 +276,8 @@ public:
                 "upload_image",
                 "upload_model",
                 "upload_script",
-                "upload_sound"
+                "upload_sound",
+                "bulk_upload"
             };
             return std::find(blacklist_untrusted.begin(), blacklist_untrusted.end(), fl_name) == blacklist_untrusted.end();
         }
@@ -337,6 +342,7 @@ void LLViewerFloaterReg::registerFloaters()
     LLFloaterReg::add("buy_object_contents", "floater_buy_contents.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterBuyContents>);
     LLFloaterReg::add("build", "floater_tools.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterTools>);
     LLFloaterReg::add("build_options", "floater_build_options.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterBuildOptions>);
+    LLFloaterReg::add("bulk_upload", "floater_bulk_upload.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterBulkUpload>);
     LLFloaterReg::add("bumps", "floater_bumps.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterBump>);
 
     LLFloaterReg::add("camera", "floater_camera.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterCamera>);
