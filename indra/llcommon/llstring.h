@@ -890,6 +890,20 @@ namespace LLStringFn
 
 
     /**
+     * @brief Replace all characters that are not allowed in XML 1.0
+     * with corresponding literals: [ < > & ] => [ &lt; &gt; &amp; ]
+     */
+    LL_COMMON_API std::string xml_encode(const std::string& input, bool for_attribute = false);
+
+
+    /**
+     * @brief Replace some of XML literals that are defined in XML 1.0
+     * with corresponding characters: [ &lt; &gt; &amp; ] => [ < > & ]
+     */
+    LL_COMMON_API std::string xml_decode(const std::string& input, bool for_attribute = false);
+
+
+    /**
      * @brief Replace all control characters (0 <= c < 0x20) with replacement in
      * string.   This is safe for utf-8
      *

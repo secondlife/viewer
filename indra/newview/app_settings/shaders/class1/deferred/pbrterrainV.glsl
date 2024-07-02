@@ -43,7 +43,7 @@ out vec3 vary_vertex_normal; // Used by pbrterrainUtilF.glsl
 out vec3 vary_normal;
 #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_NORMAL)
 out vec3 vary_tangents[4];
-flat out float vary_sign;
+flat out float vary_signs[4];
 #endif
 out vec4 vary_texcoord0;
 out vec4 vary_texcoord1;
@@ -60,7 +60,7 @@ out vec3 vary_position;
 uniform vec4[5] terrain_texture_transforms;
 
 vec2 terrain_texture_transform(vec2 vertex_texcoord, vec4[2] khr_gltf_transform);
-vec3 terrain_tangent_space_transform(vec4 vertex_tangent, vec3 vertex_normal, vec4[2] khr_gltf_transform);
+vec4 terrain_tangent_space_transform(vec4 vertex_tangent, vec3 vertex_normal, vec4[2] khr_gltf_transform);
 
 void main()
 {
@@ -75,28 +75,35 @@ void main()
 #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_NORMAL)
     {
         vec4[2] ttt;
+        vec4 transformed_tangent;
         // material 1
         ttt[0].xyz = terrain_texture_transforms[0].xyz;
         ttt[1].x = terrain_texture_transforms[0].w;
         ttt[1].y = terrain_texture_transforms[1].x;
-        vary_tangents[0] = normalize(terrain_tangent_space_transform(vec4(t, tangent.w), n, ttt));
+        transformed_tangent = terrain_tangent_space_transform(vec4(t, tangent.w), n, ttt);
+        vary_tangents[0] = normalize(transformed_tangent.xyz);
+        vary_signs[0] = transformed_tangent.w;
         // material 2
         ttt[0].xyz = terrain_texture_transforms[1].yzw;
         ttt[1].xy = terrain_texture_transforms[2].xy;
-        vary_tangents[1] = normalize(terrain_tangent_space_transform(vec4(t, tangent.w), n, ttt));
+        transformed_tangent = terrain_tangent_space_transform(vec4(t, tangent.w), n, ttt);
+        vary_tangents[1] = normalize(transformed_tangent.xyz);
+        vary_signs[1] = transformed_tangent.w;
         // material 3
         ttt[0].xy = terrain_texture_transforms[2].zw;
         ttt[0].z = terrain_texture_transforms[3].x;
         ttt[1].xy = terrain_texture_transforms[3].yz;
-        vary_tangents[2] = normalize(terrain_tangent_space_transform(vec4(t, tangent.w), n, ttt));
+        transformed_tangent = terrain_tangent_space_transform(vec4(t, tangent.w), n, ttt);
+        vary_tangents[2] = normalize(transformed_tangent.xyz);
+        vary_signs[2] = transformed_tangent.w;
         // material 4
         ttt[0].x = terrain_texture_transforms[3].w;
         ttt[0].yz = terrain_texture_transforms[4].xy;
         ttt[1].xy = terrain_texture_transforms[4].zw;
-        vary_tangents[3] = normalize(terrain_tangent_space_transform(vec4(t, tangent.w), n, ttt));
+        transformed_tangent = terrain_tangent_space_transform(vec4(t, tangent.w), n, ttt);
+        vary_tangents[3] = normalize(transformed_tangent.xyz);
+        vary_signs[3] = transformed_tangent.w;
     }
-
-    vary_sign = tangent.w;
 #endif
     vary_normal = normalize(n);
 

@@ -273,6 +273,8 @@ public:
 protected:
     bool sendUpdate() override;
 
+    void initMaterialCtrl(LLTextureCtrl*& ctrl, const std::string& name, S32 index);
+
 private:
     bool mConfirmedTextureHeights;
     bool mAskedTextureHeights;

@@ -45,10 +45,10 @@ static const char * const TEST_FILENAME("llviewernetwork_test.xml");
 class LLTrans
 {
 public:
-    static std::string getString(const std::string &xml_desc, const LLStringUtil::format_map_t& args, bool def_string = false);
+    static std::string getString(std::string_view xml_desc, const LLStringUtil::format_map_t& args, bool def_string = false);
 };
 
-std::string LLTrans::getString(const std::string &xml_desc, const LLStringUtil::format_map_t& args, bool def_string)
+std::string LLTrans::getString(std::string_view xml_desc, const LLStringUtil::format_map_t& args, bool def_string)
 {
     std::string grid_label = std::string();
     if(xml_desc == "AgniGridLabel")

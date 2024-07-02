@@ -63,7 +63,7 @@ void LLUIColorTable::insertFromParams(const Params& p, string_color_map_t& table
         ColorEntryParams color_entry = *it;
         if(color_entry.color.value.isChosen())
         {
-            setColor(color_entry.name, color_entry.color.value, table);
+            setColor(color_entry.name(), color_entry.color.value, table);
         }
         else
         {
@@ -176,7 +176,7 @@ void LLUIColorTable::clear()
     clearTable(mUserSetColors);
 }
 
-LLUIColor LLUIColorTable::getColor(const std::string& name, const LLColor4& default_color) const
+LLUIColor LLUIColorTable::getColor(std::string_view name, const LLColor4& default_color) const
 {
     string_color_map_t::const_iterator iter = mUserSetColors.find(name);
 
@@ -196,7 +196,7 @@ LLUIColor LLUIColorTable::getColor(const std::string& name, const LLColor4& defa
 }
 
 // update user color, loaded colors are parsed on initialization
-void LLUIColorTable::setColor(const std::string& name, const LLColor4& color)
+void LLUIColorTable::setColor(std::string_view name, const LLColor4& color)
 {
     setColor(name, color, mUserSetColors);
 }
@@ -258,7 +258,7 @@ void LLUIColorTable::saveUserSettings() const
     }
 }
 
-bool LLUIColorTable::colorExists(const std::string& color_name) const
+bool LLUIColorTable::colorExists(std::string_view color_name) const
 {
     return ((mLoadedColors.find(color_name) != mLoadedColors.end())
          || (mUserSetColors.find(color_name) != mUserSetColors.end()));
@@ -276,7 +276,7 @@ void LLUIColorTable::clearTable(string_color_map_t& table)
 
 // this method inserts a color into the table if it does not exist
 // if the color already exists it changes the color
-void LLUIColorTable::setColor(const std::string& name, const LLColor4& color, string_color_map_t& table)
+void LLUIColorTable::setColor(std::string_view name, const LLColor4& color, string_color_map_t& table)
 {
     string_color_map_t::iterator it = table.lower_bound(name);
     if(it != table.end()

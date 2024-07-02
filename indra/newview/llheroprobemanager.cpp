@@ -121,6 +121,7 @@ void LLHeroProbeManager::update()
         // Find our nearest hero candidate.
         float last_distance = 99999.f;
         float camera_center_distance = 99999.f;
+        mNearestHero = nullptr;
         for (auto vo : mHeroVOList)
         {
             if (vo && !vo->isDead() && vo->mDrawable.notNull() && vo->isReflectionProbe() && vo->getReflectionProbeIsBox())
@@ -194,11 +195,17 @@ void LLHeroProbeManager::update()
         else
         {
             mNearestHero = nullptr;
+            mDefaultProbe->mViewerObject = nullptr;
         }
 
         mHeroProbeStrength = 1;
     }
+    else
+    {
+        mNearestHero = nullptr;
+        mDefaultProbe->mViewerObject = nullptr;
     }
+}
 
 void LLHeroProbeManager::renderProbes()
 {

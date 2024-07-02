@@ -164,13 +164,13 @@ std::string LLKeywords::getArguments(LLSD& arguments)
     return argString;
 }
 
-std::string LLKeywords::getAttribute(const std::string& key)
+std::string LLKeywords::getAttribute(std::string_view key)
 {
     attribute_iterator_t it = mAttributes.find(key);
     return (it != mAttributes.end()) ? it->second : "";
 }
 
-LLColor4 LLKeywords::getColorGroup(const std::string& key_in)
+LLColor4 LLKeywords::getColorGroup(std::string_view key_in)
 {
     std::string color_group = "ScriptText";
     if (key_in == "functions")
@@ -261,7 +261,7 @@ void LLKeywords::processTokens()
     LL_INFOS("SyntaxLSL") << "Finished processing tokens." << LL_ENDL;
 }
 
-void LLKeywords::processTokensGroup(const LLSD& tokens, const std::string& group)
+void LLKeywords::processTokensGroup(const LLSD& tokens, std::string_view group)
 {
     LLColor4 color;
     LLColor4 color_group;
@@ -333,7 +333,7 @@ void LLKeywords::processTokensGroup(const LLSD& tokens, const std::string& group
                     case LLKeywordToken::TT_CONSTANT:
                         if (getAttribute("type").length() > 0)
                         {
-                            color_group = getColorGroup(group + "-" + getAttribute("type"));
+                            color_group = getColorGroup(std::string(group) + "-" + getAttribute("type"));
                         }
                         else
                         {

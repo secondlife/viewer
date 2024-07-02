@@ -466,7 +466,7 @@ private:
 // Build time optimization, generate once in .cpp file
 #ifndef LLLINEEDITOR_CPP
 extern template class LLLineEditor* LLView::getChild<class LLLineEditor>(
-    const std::string& name, bool recurse) const;
+    std::string_view name, bool recurse) const;
 #endif
 
 #endif  // LL_LINEEDITOR_

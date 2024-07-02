@@ -36,7 +36,7 @@ static LLDefaultChildRegistry::Register<LLBadge> r("badge");
 static const S32 BADGE_OFFSET_NOT_SPECIFIED = 0x7FFFFFFF;
 
 // Compiler optimization, generate extern template
-template class LLBadge* LLView::getChild<class LLBadge>(const std::string& name, bool recurse) const;
+template class LLBadge* LLView::getChild<class LLBadge>(std::string_view name, bool recurse) const;
 
 
 LLBadge::Params::Params()

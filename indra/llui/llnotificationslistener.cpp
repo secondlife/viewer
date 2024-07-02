@@ -191,7 +191,7 @@ void LLNotificationsListener::ignore(const LLSD& params) const
     if (params["name"].isDefined())
     {
         // ["name"] was passed: ignore just that notification
-        LLNotificationTemplatePtr templatep = mNotifications.getTemplate(params["name"]);
+        LLNotificationTemplatePtr templatep = mNotifications.getTemplate(params["name"].asStringRef());
         if (templatep)
         {
             templatep->mForm->setIgnored(ignore);

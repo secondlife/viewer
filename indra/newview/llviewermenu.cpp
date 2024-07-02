@@ -8139,6 +8139,15 @@ class LLAdvancedClickGLTFUpload: public view_listener_t
     }
 };
 
+class LLAdvancedClickGLTFEdit : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata)
+    {
+        LLFloaterReg::showInstance("gltf_asset_editor");
+        return true;
+    }
+};
+
 class LLAdvancedClickResizeWindow : public view_listener_t
 {
     bool handleEvent(const LLSD& userdata)
@@ -9794,6 +9803,7 @@ void initialize_menus()
     view_listener_t::addMenu(new LLAdvancedClickGLTFOpen(), "Advanced.ClickGLTFOpen");
     view_listener_t::addMenu(new LLAdvancedClickGLTFSaveAs(), "Advanced.ClickGLTFSaveAs");
     view_listener_t::addMenu(new LLAdvancedClickGLTFUpload(), "Advanced.ClickGLTFUpload");
+    view_listener_t::addMenu(new LLAdvancedClickGLTFEdit(), "Advanced.ClickGLTFEdit");
     view_listener_t::addMenu(new LLAdvancedClickResizeWindow(), "Advanced.ClickResizeWindow");
     view_listener_t::addMenu(new LLAdvancedPurgeShaderCache(), "Advanced.ClearShaderCache");
     view_listener_t::addMenu(new LLAdvancedRebuildTerrain(), "Advanced.RebuildTerrain");
