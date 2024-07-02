@@ -245,10 +245,13 @@ bool PeopleContextMenu::enableContextMenuItem(const LLSD& userdata)
     {
         return LLLogChat::isTranscriptExist(mUUIDs.front());
     }
-    else if (item == std::string("can_im") || item == std::string("can_invite") ||
-             item == std::string("can_share") || item == std::string("can_pay"))
+    else if (item == std::string("can_im") || item == std::string("can_invite"))
     {
         return true;
+    }
+    else if (item == std::string("can_share") || item == std::string("can_pay"))
+    {
+        return mUUIDs.size() == 1;
     }
     return false;
 }
