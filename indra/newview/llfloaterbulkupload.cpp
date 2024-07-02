@@ -98,16 +98,13 @@ void LLFloaterBulkUpload::update()
 
     mCheckboxPanel->setVisible(mHas2kTextures);
     mLinkPanel->setVisible(mHas2kTextures);
-    mWarningPanel->setVisible(mAllow2kTextures);
+    mWarningPanel->setVisible(mHas2kTextures);
 
     S32 new_height = MAX_HEIGH;
     if (!mHas2kTextures)
     {
         new_height -= mCheckboxPanel->getRect().getHeight();
         new_height -= mLinkPanel->getRect().getHeight();
-    }
-    if (!mAllow2kTextures)
-    {
         new_height -= mWarningPanel->getRect().getHeight();
     }
     reshape(getRect().getWidth(), new_height, false);
