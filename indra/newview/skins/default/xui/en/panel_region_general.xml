@@ -101,21 +101,14 @@
      tool_tip="Extend access checks upwards to prevent flying over a parcel"
      top="110"
      width="90" />
-  <check_box
-     height="20"
-     label="Allow Damage"
-     layout="topleft"
-     left="10"
-     name="allow_damage_check"
-     top="130"
-     width="80" />
+
     <check_box
      height="20"
      label="Restrict Pushing"
      layout="topleft"
      left="10"
      name="restrict_pushobject"
-     top="150"
+     top="130"
      width="80" />
     <check_box
      height="20"
@@ -123,7 +116,7 @@
      layout="topleft"
      left="10"
      name="allow_land_resell_check"
-     top="170"
+     top="150"
      width="80" />
     <check_box
      height="20"
@@ -131,7 +124,7 @@
      layout="topleft"
      left="10"
      name="allow_parcel_changes_check"
-     top="190"
+     top="170"
      width="80" />
     <check_box
      height="20"
@@ -140,7 +133,7 @@
      left="10"
      name="block_parcel_search_check"
      tool_tip="Let people see this region and its parcels in search results"
-     top="210"
+     top="190"
      width="80" />
 	<spinner
      decimal_digits="0"
@@ -274,4 +267,128 @@
 		<button.commit_callback
          function="RegionInfo.ManageTelehub" />
     </button>
+    
+    <panel
+     border="true"
+     follows="top|left"
+     height="218"
+     help_topic="panel_region_combat"
+     label="Combat"
+     layout="topleft"
+     left="250"
+     name="Combat"
+     top="110"
+     width="220">
+        <check_box
+         height="20"
+         label="Enable Combat"
+         layout="topleft"
+         left="5"
+         name="allow_damage_check"
+         top="10"
+         width="80" />
+        <check_box 
+            height = "20"
+            label = "Restrict Combat Log"
+            layout = "topleft"
+            left = "5"
+            name = "combat_restrict_log"
+            top = "40"
+            width = "80" />
+        <check_box 
+            height = "20"
+            label = "Allow Damage Adjustments"
+            layout = "topleft"
+            left = "5"
+            name = "combat_allow_damage_adjust"
+            top = "60"
+            width = "80" />
+        <check_box 
+            height = "20"
+            label = "Restore Health on Death"
+            layout = "topleft"
+            left = "5"
+            name = "combat_restore_health"
+            top = "80"
+            width = "80" />
+        <text
+            follows="left|top"
+            height="20"
+            label="On Death"
+            layout="topleft"
+            left="5"
+            name="access_text"
+            top="110"
+            width="80">
+                On Death:
+        </text>
+        <combo_box
+            enabled="true"
+            height="23"
+            layout="topleft"
+            left="85"
+            top="110"
+            name="combat_on_death"
+            follows="left|top"
+            visible="true"
+            width="130">
+            <combo_box.item
+                label="Teleport Home"
+                name="item0"
+                value="0" />
+            <combo_box.item
+                label="Parcel Landing Point"
+                name="item1"
+                value="1" />
+            <combo_box.item
+                label="Region Telehub"
+                name="item2"
+                value="2" />
+            <combo_box.item
+                label="No Action"
+                name="item3"
+                value="3" />
+        </combo_box>
+
+        <spinner
+            follows="left|top"
+            height="25"
+            increment="0.5"
+            label="Damage Throttle (DPS):"
+            label_width="145"
+            layout="topleft"
+            left="5"
+            max_val="1000"
+            min_val="0"
+            name="combat_dps_spin"
+            top="138"
+            width="210" />
+        <spinner
+            follows="left|top"
+            height="25"
+            increment="0.5"
+            label="Health Regen (HPS):"
+            label_width="145"
+            layout="topleft"
+            left="5"
+            max_val="100"
+            min_val="0"
+            name="combat_hps_spin"
+            top="163"
+            width="210" />
+        <spinner
+            follows="left|top"
+            height="25"
+            increment="0.5"
+            label="Invulnerability Time (sec):"
+            label_width="145"
+            layout="topleft"
+            left="5"
+            max_val="30"
+            min_val="0"
+            name="combat_invuln_spin"
+            top="188"
+            width="210" />
+     
+    </panel>
 </panel>
