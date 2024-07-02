@@ -230,7 +230,7 @@ template <typename T>
 inline typename T::mapped_type get_ptr_in_map(const T& inmap, typename T::key_type const& key)
 {
     // Typedef here avoids warnings because of new c++ naming rules.
-    typedef T::const_iterator map_iter;
+    typedef typename T::const_iterator map_iter;
     map_iter iter = inmap.find(key);
     if(iter == inmap.end())
     {
