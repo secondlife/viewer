@@ -83,12 +83,16 @@ vec4 getPosition(vec2 pos_screen);
 
 const float M_PI = 3.14159265;
 
-vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor, 
-                    float perceptualRoughness, 
+vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
+                    float perceptualRoughness,
                     float metallic,
                     vec3 n, // normal
                     vec3 v, // surface point to camera
-                    vec3 l); //surface point to light
+                    vec3 l, // surface point to light
+                    vec3 tr, // Transmission ray.
+                    inout vec3 transmission_light, // Transmissive lighting.
+                    vec3 intensity
+                    );
 
 void main()
 {
@@ -163,7 +167,7 @@ void main()
             float amb_da = 0.0;
 
             lv = normalize(lv);
-
+            vec3 t_light = vec3(0);
             if (nl > 0.0)
             {
                 amb_da += (nl*0.5 + 0.5) * proj_ambiance;
@@ -171,11 +175,11 @@ void main()
                 dlit = getProjectedLightDiffuseColor( l_dist, proj_tc.xy );
 
                 vec3 intensity = dist_atten * dlit * 3.25 * shadow; // Legacy attenuation, magic number to balance with legacy materials
-                final_color += intensity*pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, n.xyz, v, lv);
+                final_color += intensity*pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, n.xyz, v, lv, vec3(0), t_light, vec3(0));
             }
 
             amb_rgb = getProjectedLightAmbiance( amb_da, dist_atten, lit, nl, 1.0, proj_tc.xy ) * 3.25; //magic number to balance with legacy ambiance
-            final_color += amb_rgb * pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, n.xyz, v, -lv);
+            final_color += amb_rgb * pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, n.xyz, v, -lv, vec3(0), t_light, vec3(0));
         }
     }
     else

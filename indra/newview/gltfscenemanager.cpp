@@ -706,6 +706,13 @@ void GLTFSceneManager::bind(Asset& asset, Material& material)
             }
         }
         shader->uniform1f(LLShaderMgr::MINIMUM_ALPHA, min_alpha);
+
+        shader->uniform1f(LLShaderMgr::TRANSMISSION_FACTOR, material.mTransmission.mTransmissionFactor);
+        shader->uniform1f(LLShaderMgr::IOR_FACTOR, material.mIOR.mIOR);
+        shader->uniform3fv(LLShaderMgr::ATTENUATION_COLOR, 1, glm::value_ptr(material.mVolume.mAttenuationColor));
+        shader->uniform1f(LLShaderMgr::ATTENUATION_DISTANCE, material.mVolume.mAttenuationDistance);
+        shader->uniform1f(LLShaderMgr::THICKNESS_FACTOR, material.mVolume.mThicknessFactor);
+        shader->uniform1f(LLShaderMgr::DISPERSION_FACTOR, material.mDispersion.mDispersion);
     }
 
     bindTexture(asset, LLShaderMgr::DIFFUSE_MAP, material.mPbrMetallicRoughness.mBaseColorTexture, LLViewerFetchedTexture::sWhiteImagep);

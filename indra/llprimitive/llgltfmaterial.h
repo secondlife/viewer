@@ -166,6 +166,13 @@ public:
     static LLVector2 getDefaultTextureScale();
     static F32 getDefaultTextureRotation();
 
+    static F32 getDefaultTransmissionFactor();
+    static F32 getDefaultIORFactor();
+    static LLColor3 getDefaultAttenuationColor();
+    static F32 getDefaultAttenuationDistance();
+    static F32 getDefaultThicknessFactor();
+    static F32 getDefaultDispersionFactor();
+
     static void hackOverrideUUID(LLUUID& id);
     static void applyOverrideUUID(LLUUID& dst_id, const LLUUID& override_id);
 
@@ -271,6 +278,13 @@ public:
     F32 mMetallicFactor;
     F32 mRoughnessFactor;
     F32 mAlphaCutoff;
+
+    F32 mTransmissionFactor = 0.f;
+    F32 mIORFactor = 1.5f;
+    LLColor3 mAttenuationColor = LLColor3::white;
+    F32 mAttenuationDistance = std::numeric_limits<F32>::infinity();
+    F32 mThicknessFactor = 0.f;
+    F32 mDispersionFactor = 0.f;
 
     AlphaMode mAlphaMode;
     

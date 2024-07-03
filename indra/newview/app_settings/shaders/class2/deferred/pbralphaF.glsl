@@ -36,6 +36,13 @@ uniform float metallicFactor;
 uniform float roughnessFactor;
 uniform vec3 emissiveColor;
 
+uniform float transmissionFactor;
+uniform float iorFactor;
+uniform vec3 attenuationColor;
+uniform float attenuationDistance;
+uniform float thicknessFactor;
+uniform float dispersionFactor;
+
 #if defined(HAS_SUN_SHADOW) || defined(HAS_SSAO)
 uniform sampler2D lightMap;
 #endif
@@ -58,6 +65,11 @@ in vec2 base_color_texcoord;
 in vec2 normal_texcoord;
 in vec2 metallic_roughness_texcoord;
 in vec2 emissive_texcoord;
+in vec3 screen_coord;
+
+uniform mat4 modelview_matrix;
+uniform mat4 projection_matrix;
+uniform mat4 modelview_projection_matrix;
 
 in vec4 vertex_color;
 
@@ -89,6 +101,9 @@ float calcLegacyDistanceAttenuation(float distance, float falloff);
 float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen);
 void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
         vec2 tc, vec3 pos, vec3 norm, float glossiness, bool transparent, vec3 amblit_linear);
+        
+vec3 getIBLVolumeRefraction(vec3 n, vec3 v, vec2 viewCoord, float perceptualRoughness, vec3 baseColor, vec3 f0, vec3 f90,
+    vec3 position, float ior, float thickness, vec3 attenuationColor, float attenuationDistance, float dispersion);
 
 void mirrorClip(vec3 pos);
 void waterClip(vec3 pos);
@@ -109,14 +124,20 @@ vec3 pbrBaseLight(vec3 diffuseColor,
                   vec3 colorEmissive,
                   float ao,
                   vec3 additive,
-                  vec3 atten);
+                  vec3 atten,
+                  vec3 tr,
+                  inout vec3 t_light);
 
 vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
                     float perceptualRoughness,
                     float metallic,
                     vec3 n, // normal
                     vec3 v, // surface point to camera
-                    vec3 l); //surface point to light
+                    vec3 l, // surface point to light
+                    vec3 tr, // Transmission ray.
+                    inout vec3 transmission_light, // Transmissive lighting.
+                    vec3 intensity
+                    ) ; 
 
 vec3 pbrCalcPointLightOrSpotLight(vec3 diffuseColor, vec3 specularColor,
                     float perceptualRoughness,
@@ -127,8 +148,7 @@ vec3 pbrCalcPointLightOrSpotLight(vec3 diffuseColor, vec3 specularColor,
                     vec3 lp, // light position
                     vec3 ld, // light direction (for spotlights)
                     vec3 lightColor,
-                    float lightSize, float falloff, float is_pointlight, float ambiance);
-
+                    float lightSize, float falloff, float is_pointlight, float ambiance, vec3 tr, inout vec3 transmissive_light);
 void main()
 {
     mirrorClip(vary_position);
@@ -199,12 +219,17 @@ void main()
 
     vec3 v = -normalize(pos.xyz);
 
-    color = pbrBaseLight(diffuseColor, specularColor, metallic, v, norm.xyz, perceptualRoughness, light_dir, sunlit_linear, scol, radiance, irradiance, colorEmissive, ao, additive, atten);
+    float tf = 0.5;
 
+    vec3 transmission = getIBLVolumeRefraction(norm.xyz, v, screen_coord.xy / screen_coord.z, perceptualRoughness, basecolor.rgb, vec3(0.04), vec3(1), pos.xyz, iorFactor, thicknessFactor, attenuationColor, attenuationDistance, dispersionFactor);
+    vec3 t_light = vec3(0);
     vec3 light = vec3(0);
+    vec3 tl_ray = vec3(0);
+
+    color = pbrBaseLight(diffuseColor, specularColor, metallic, v, norm.xyz, perceptualRoughness, light_dir, sunlit_linear, scol, radiance, irradiance, colorEmissive, ao, additive, atten, tl_ray, t_light);
 
     // Punctual lights
-#define LIGHT_LOOP(i) light += pbrCalcPointLightOrSpotLight(diffuseColor, specularColor, perceptualRoughness, metallic, norm.xyz, pos.xyz, v, light_position[i].xyz, light_direction[i].xyz, light_diffuse[i].rgb, light_deferred_attenuation[i].x, light_deferred_attenuation[i].y, light_attenuation[i].z, light_attenuation[i].w);
+#define LIGHT_LOOP(i) light += pbrCalcPointLightOrSpotLight(diffuseColor, specularColor, perceptualRoughness, metallic, norm.xyz, pos.xyz, v, light_position[i].xyz, light_direction[i].xyz, light_diffuse[i].rgb, light_deferred_attenuation[i].x, light_deferred_attenuation[i].y, light_attenuation[i].z, light_attenuation[i].w, tl_ray, t_light);
 
     LIGHT_LOOP(1)
     LIGHT_LOOP(2)
@@ -214,7 +239,11 @@ void main()
     LIGHT_LOOP(6)
     LIGHT_LOOP(7)
 
+    transmission.rgb += t_light.rgb;
+
     color.rgb += light.rgb;
+
+    color.rgb = mix(color.rgb, transmission.rgb, tf);
 
     color.rgb = applySkyAndWaterFog(pos.xyz, additive, atten, vec4(color, 1.0)).rgb;
 

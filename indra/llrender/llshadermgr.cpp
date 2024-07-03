@@ -1219,6 +1219,12 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("emissiveColor");
     mReservedUniforms.push_back("metallicFactor");
     mReservedUniforms.push_back("roughnessFactor");
+    mReservedUniforms.push_back("transmissionFactor");
+    mReservedUniforms.push_back("iorFactor");
+    mReservedUniforms.push_back("attenuationColor");
+    mReservedUniforms.push_back("attenuationDistance");
+    mReservedUniforms.push_back("thicknessFactor");
+    mReservedUniforms.push_back("dispersionFactor");
     mReservedUniforms.push_back("mirror_flag");
     mReservedUniforms.push_back("clipPlane");
     mReservedUniforms.push_back("clipSign");

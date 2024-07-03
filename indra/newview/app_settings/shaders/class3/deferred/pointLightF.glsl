@@ -59,12 +59,16 @@ vec2 getScreenCoord(vec4 clip);
 vec3 srgb_to_linear(vec3 c);
 float getDepth(vec2 tc);
 
-vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor, 
-                    float perceptualRoughness, 
+vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
+                    float perceptualRoughness,
                     float metallic,
                     vec3 n, // normal
                     vec3 v, // surface point to camera
-                    vec3 l); //surface point to light
+                    vec3 l, // surface point to light
+                    vec3 tr, // Transmission ray.
+                    inout vec3 transmission_light, // Transmissive lighting.
+                    vec3 intensity
+                    ) ; 
 
 void main()
 {
@@ -105,8 +109,9 @@ void main()
 
         vec3 specularColor = mix(f0, baseColor.rgb, metallic);
 
+        vec3 t_light = vec3(0.0);
         vec3 intensity = dist_atten * color * 3.25; // Legacy attenuation, magic number to balance with legacy materials
-        final_color += intensity*pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, n.xyz, v, normalize(lv));
+        final_color += intensity*pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, n.xyz, v, normalize(lv), vec3(0), t_light, vec3(0));
     }
     else
     {

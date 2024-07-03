@@ -141,6 +141,8 @@ void LLFetchedGLTFMaterial::bind(LLViewerTexture* media_tex)
         F32 emissive_packed[8];
         mTextureTransform[GLTF_TEXTURE_INFO_EMISSIVE].getPacked(emissive_packed);
         shader->uniform4fv(LLShaderMgr::TEXTURE_EMISSIVE_TRANSFORM, 2, (F32*)emissive_packed);
+
+        shader->bindTexture(LLShaderMgr::SCENE_MAP, &gPipeline.mWaterDis);
     }
 }
 

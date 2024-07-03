@@ -53,6 +53,7 @@ uniform sampler2D   depthMap;
 uniform sampler2D emissiveRect;
 uniform sampler2D projectionMap; // rgba
 uniform sampler2D brdfLut;
+uniform sampler2D sceneMap;
 
 // projected lighted params
 uniform mat4 proj_mat; //screen space to light space projector
@@ -427,12 +428,36 @@ float microfacetDistribution(PBRInfo pbrInputs)
     return roughnessSq / (M_PI * f * f);
 }
 
+float applyIorToRoughness(float roughness, float ior)
+{
+    // Scale roughness with IOR so that an IOR of 1.0 results in no microfacet refraction and
+    // an IOR of 1.5 results in the default amount of microfacet refraction.
+    return roughness * clamp(ior * 2.0 - 2.0, 0.0, 1.0);
+}
+
+
+vec3 getVolumeTransmissionRay(vec3 n, vec3 v, float thickness, float ior)
+{
+    // Direction of refracted light.
+    vec3 refractionVector = refract(-v, normalize(n), 1.0 / ior);
+
+    // Compute rotation-independant scaling of the model matrix.
+    vec3 modelScale = vec3(0.5);
+
+    // The thickness is specified in local space.
+    return normalize(refractionVector) * thickness * modelScale;
+}
+
 vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
                     float perceptualRoughness,
                     float metallic,
                     vec3 n, // normal
                     vec3 v, // surface point to camera
-                    vec3 l) //surface point to light
+                    vec3 l, // surface point to light
+                    vec3 tr, // Transmission ray.
+                    inout vec3 transmission_light, // Transmissive lighting.
+                    vec3 intensity
+                    ) 
 {
     // make sure specular highlights from punctual lights don't fall off of polished surfaces
     perceptualRoughness = max(perceptualRoughness, 8.0/255.0);
@@ -478,6 +503,25 @@ vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
     float G = geometricOcclusion(pbrInputs);
     float D = microfacetDistribution(pbrInputs);
 
+    vec3 lt = l - tr;
+
+    // We use modified light and half vectors for the BTDF calculation, but the math is the same at the end of the day.
+    float transmissionRougness = applyIorToRoughness(perceptualRoughness, 1.5);
+
+    vec3 l_mirror = normalize(lt + 2.0 * n * dot(-lt, n));     // Mirror light reflection vector on surface
+    h = normalize(l_mirror + v);            // Halfway vector between transmission light vector and v
+
+    pbrInputs.NdotH = clamp(dot(n, h), 0.0, 1.0);
+    pbrInputs.LdotH = clamp(dot(l_mirror, h), 0.0, 1.0);
+    pbrInputs.NdotL = clamp(dot(n, l_mirror), 0.0, 1.0);
+    pbrInputs.VdotH = clamp(dot(h, v), 0.0, 1.0);
+
+    float G_transmission = geometricOcclusion(pbrInputs);
+    vec3 F_transmission = specularReflection(pbrInputs);
+    float D_transmission = microfacetDistribution(pbrInputs);
+
+    transmission_light += intensity * (1.0 - F_transmission) * diffuseColor * D_transmission * G_transmission;
+
     // Calculation of analytical lighting contribution
     vec3 diffuseContrib = (1.0 - F) * diffuse(pbrInputs);
     vec3 specContrib = F * G * D / (4.0 * NdotL * NdotV);
@@ -496,7 +540,7 @@ vec3 pbrCalcPointLightOrSpotLight(vec3 diffuseColor, vec3 specularColor,
                     vec3 lp, // light position
                     vec3 ld, // light direction (for spotlights)
                     vec3 lightColor,
-                    float lightSize, float falloff, float is_pointlight, float ambiance)
+                    float lightSize, float falloff, float is_pointlight, float ambiance, vec3 tr, inout vec3 transmissive_light)
 {
     vec3 color = vec3(0,0,0);
 
@@ -518,7 +562,7 @@ vec3 pbrCalcPointLightOrSpotLight(vec3 diffuseColor, vec3 specularColor,
 
         vec3 intensity = spot_atten * dist_atten * lightColor * 3.0; //magic number to balance with legacy materials
 
-        color = intensity*pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, n.xyz, v, lv);
+        color = intensity*pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, n.xyz, v, lv, tr, transmissive_light, intensity);
     }
 
     return color;
@@ -532,7 +576,74 @@ void calcDiffuseSpecular(vec3 baseColor, float metallic, inout vec3 diffuseColor
     specularColor = mix(f0, baseColor, metallic);
 }
 
-vec3 pbrBaseLight(vec3 diffuseColor, vec3 specularColor, float metallic, vec3 v, vec3 norm, float perceptualRoughness, vec3 light_dir, vec3 sunlit, float scol, vec3 radiance, vec3 irradiance, vec3 colorEmissive, float ao, vec3 additive, vec3 atten)
+
+vec3 getTransmissionSample(vec2 fragCoord, float roughness, float ior)
+{
+    float framebufferLod = log2(float(1024)) * applyIorToRoughness(roughness, ior);
+    vec3 transmittedLight = textureLod(sceneMap, fragCoord.xy, framebufferLod).rgb;
+
+    return transmittedLight;
+}
+
+vec3 applyVolumeAttenuation(vec3 radiance, float transmissionDistance, vec3 attenuationColor, float attenuationDistance)
+{
+    if (attenuationDistance == 0.0)
+    {
+        // Attenuation distance is +∞ (which we indicate by zero), i.e. the transmitted color is not attenuated at all.
+        return radiance;
+    }
+    else
+    {
+        // Compute light attenuation using Beer's law.
+        vec3 transmittance = pow(attenuationColor, vec3(transmissionDistance / attenuationDistance));
+        return transmittance * radiance;
+    }
+}
+
+vec3 getIBLVolumeRefraction(vec3 n, vec3 v, vec2 viewCoord, float perceptualRoughness, vec3 baseColor, vec3 f0, vec3 f90,
+    vec3 position, float ior, float thickness, vec3 attenuationColor, float attenuationDistance, float dispersion)
+{
+    // Dispersion will spread out the ior values for each r,g,b channel
+    float halfSpread = (ior - 1.0) * 0.025 * dispersion;
+    vec3 iors = vec3(ior - halfSpread, ior, ior + halfSpread);
+
+    vec3 transmittedLight;
+    float transmissionRayLength;
+    for (int i = 0; i < 3; i++)
+    {
+        vec3 transmissionRay = getVolumeTransmissionRay(n, v, thickness, iors[i]);
+        // TODO: taking length of blue ray, ideally we would take the length of the green ray. For now overwriting seems ok
+        transmissionRayLength = length(transmissionRay);
+        vec3 refractedRayExit = position + transmissionRay;
+
+        // Project refracted vector on the framebuffer, while mapping to normalized device coordinates.
+        vec3 ndcPos = getPositionWithNDC(refractedRayExit);
+        vec2 refractionCoords = viewCoord + ndcPos.xy;
+        refractionCoords += 1.0;
+        refractionCoords /= 2.0;
+
+        // Sample framebuffer to get pixel the refracted ray hits for this color channel.
+        transmittedLight[i] = getTransmissionSample(refractionCoords, perceptualRoughness, iors[i])[i];
+    }
+    vec3 attenuatedColor = applyVolumeAttenuation(transmittedLight, transmissionRayLength, attenuationColor, attenuationDistance);
+
+    // Sample GGX LUT to get the specular component.
+    float NdotV = max(0, dot(n, v));
+    vec2 brdfSamplePoint = clamp(vec2(NdotV, perceptualRoughness), vec2(0.0, 0.0), vec2(1.0, 1.0));
+
+    vec2 brdf = BRDF(brdfSamplePoint.x, brdfSamplePoint.y);
+    vec3 specularColor = f0 * brdf.x + f90 * brdf.y;
+
+    //return (1.0 - specularColor);
+
+    //return attenuatedColor;
+
+    //return baseColor;
+
+    return (1.0 - specularColor) * attenuatedColor * baseColor;
+}
+
+vec3 pbrBaseLight(vec3 diffuseColor, vec3 specularColor, float metallic, vec3 v, vec3 norm, float perceptualRoughness, vec3 light_dir, vec3 sunlit, float scol, vec3 radiance, vec3 irradiance, vec3 colorEmissive, float ao, vec3 additive, vec3 atten, vec3 tr, inout vec3 t_light)
 {
     vec3 color = vec3(0);
 
@@ -540,7 +651,7 @@ vec3 pbrBaseLight(vec3 diffuseColor, vec3 specularColor, float metallic, vec3 v,
 
     color += pbrIbl(diffuseColor, specularColor, radiance, irradiance, ao, NdotV, perceptualRoughness);
 
-    color += pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, norm, v, normalize(light_dir)) * sunlit * 3.0 * scol; //magic number to balance with legacy materials
+    color += pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, norm, v, normalize(light_dir), tr, t_light, vec3(1)) * sunlit * 3.0 * scol; //magic number to balance with legacy materials
 
     color += colorEmissive;
 

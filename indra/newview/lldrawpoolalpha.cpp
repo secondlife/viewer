@@ -691,6 +691,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
                     // shader must be bound before LLGLTFMaterial::bind
                     if (current_shader != target_shader)
                     {
+
                         gPipeline.bindDeferredShaderFast(*target_shader);
                     }
 

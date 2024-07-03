@@ -34,9 +34,9 @@ uniform mat4 projection_matrix;
 mat4 getObjectSkinnedTransform();
 #else
 uniform mat3 normal_matrix;
-uniform mat4 modelview_projection_matrix;
 #endif
 uniform mat4 texture_matrix0;
+uniform mat4 modelview_projection_matrix;
 
 #if !defined(HAS_SKIN)
 uniform mat4 modelview_matrix;
@@ -50,6 +50,7 @@ uniform vec4[2] texture_metallic_roughness_transform;
 uniform vec4[2] texture_emissive_transform;
 
 out vec3 vary_fragcoord;
+out vec3 screen_coord;
 
 in vec3 position;
 in vec4 diffuse_color;
@@ -87,6 +88,8 @@ void main()
     gl_Position = vert;
 
     vary_fragcoord.xyz = vert.xyz;
+
+    screen_coord = vert.xyw;
 
     base_color_texcoord = texture_transform(texcoord0, texture_base_color_transform, texture_matrix0);
     normal_texcoord = texture_transform(texcoord0, texture_normal_transform, texture_matrix0);

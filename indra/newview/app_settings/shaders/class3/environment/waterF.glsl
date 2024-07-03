@@ -51,11 +51,15 @@ vec3 pbrIbl(vec3 diffuseColor,
     float perceptualRoughness);
 
 vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
-    float perceptualRoughness,
-    float metallic,
-    vec3 n, // normal
-    vec3 v, // surface point to camera
-    vec3 l); //surface point to light
+                    float perceptualRoughness,
+                    float metallic,
+                    vec3 n, // normal
+                    vec3 v, // surface point to camera
+                    vec3 l, // surface point to light
+                    vec3 tr, // Transmission ray.
+                    inout vec3 transmission_light, // Transmissive lighting.
+                    vec3 intensity
+                    );
 
 vec3 pbrBaseLight(vec3 diffuseColor,
                   vec3 specularColor,
@@ -71,7 +75,9 @@ vec3 pbrBaseLight(vec3 diffuseColor,
                   vec3 colorEmissive,
                   float ao,
                   vec3 additive,
-                  vec3 atten);
+                  vec3 atten,
+                  vec3 tr,
+                  inout vec3 t_light);
 
 uniform sampler2D bumpMap;
 uniform sampler2D bumpMap2;
@@ -256,8 +262,8 @@ void main()
     metallic = 1.0;
 
     float NdotV = clamp(abs(dot(norm, v)), 0.001, 1.0);
-
-    vec3 punctual = pbrPunctual(vec3(0), specularColor, 0.1, metallic, normalize(wavef+up*max(dist, 32.0)/32.0*(1.0-vdu)), v, normalize(light_dir));
+    vec3 t_light = vec3(0);
+    vec3 punctual = pbrPunctual(vec3(0), specularColor, 0.1, metallic, normalize(wavef+up*max(dist, 32.0)/32.0*(1.0-vdu)), v, normalize(light_dir), vec3(0), t_light, vec3(0));
 
     vec3 color = punctual * sunlit_linear * 2.75 * shadow;
 

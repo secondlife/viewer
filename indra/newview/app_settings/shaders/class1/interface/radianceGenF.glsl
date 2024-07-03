@@ -28,8 +28,13 @@
 
 out vec4 frag_color;
 
+#ifdef SCREEN_SPACE
+uniform sampler2D          sceneMap;
+uniform vec2               screenRes;
+#else
 uniform samplerCubeArray   reflectionProbes;
 uniform int sourceIdx;
+#endif
 
 in vec3 vary_dir;
 
@@ -128,7 +133,13 @@ vec4 prefilterEnvMap(vec3 R)
     vec3 V = R;
     vec4 color = vec4(0.0);
     float totalWeight = 0.0;
+
+#ifdef SCREEN_SPACE
+    float envMapDim = float(textureSize(sceneMap, 0).s);
+#else
     float envMapDim = float(textureSize(reflectionProbes, 0).s);
+#endif
+
     float roughness = mipLevel/max_probe_lod;
     int numSamples = max(int(PROBE_FILTER_SAMPLES*roughness), 1);
 
@@ -153,7 +164,11 @@ vec4 prefilterEnvMap(vec3 R)
             float omegaP = 4.0 * PI / (6.0 * envMapDim * envMapDim);
             // Biased (+1.0) mip level for better result
             float mipLevel = roughness == 0.0 ? 0.0 : clamp(0.5 * log2(omegaS / omegaP) + 1.0, 0.0f, max_probe_lod);
+#ifdef SCREEN_SPACE
+            color += textureLod(sceneMap, vec2(0.5 * L.x + 0.5, 0.5 * L.y + 0.5), mipLevel) * dotNL;
+#else
             color += textureLod(reflectionProbes, vec4(L, sourceIdx), mipLevel) * dotNL;
+#endif
             totalWeight += dotNL;
         }
     }

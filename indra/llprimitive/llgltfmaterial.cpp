@@ -125,6 +125,13 @@ LLGLTFMaterial& LLGLTFMaterial::operator=(const LLGLTFMaterial& rhs)
     mRoughnessFactor = rhs.mRoughnessFactor;
     mAlphaCutoff = rhs.mAlphaCutoff;
 
+    mTransmissionFactor = rhs.mTransmissionFactor;
+    mIORFactor = rhs.mIORFactor;
+    mAttenuationColor = rhs.mAttenuationColor;
+    mAttenuationDistance = rhs.mAttenuationDistance;
+    mThicknessFactor = rhs.mThicknessFactor;
+    mDispersionFactor = rhs.mDispersionFactor;
+
     mDoubleSided = rhs.mDoubleSided;
     mAlphaMode = rhs.mAlphaMode;
 
@@ -174,6 +181,13 @@ bool LLGLTFMaterial::operator==(const LLGLTFMaterial& rhs) const
         mMetallicFactor == rhs.mMetallicFactor &&
         mRoughnessFactor == rhs.mRoughnessFactor &&
         mAlphaCutoff == rhs.mAlphaCutoff &&
+
+        mTransmissionFactor == rhs.mTransmissionFactor &&
+        mIORFactor == rhs.mIORFactor &&
+        mAttenuationColor == rhs.mAttenuationColor &&
+        mAttenuationDistance == rhs.mAttenuationDistance &&
+        mThicknessFactor == rhs.mThicknessFactor &&
+        mDispersionFactor == rhs.mDispersionFactor &&
 
         mDoubleSided == rhs.mDoubleSided &&
         mAlphaMode == rhs.mAlphaMode &&
@@ -591,6 +605,36 @@ LLVector2 LLGLTFMaterial::getDefaultTextureScale()
 F32 LLGLTFMaterial::getDefaultTextureRotation()
 {
     return sDefault.mTextureTransform[0].mRotation;
+}
+
+F32 LLGLTFMaterial::getDefaultTransmissionFactor()
+{
+    return sDefault.mTransmissionFactor;
+}
+
+F32 LLGLTFMaterial::getDefaultIORFactor()
+{
+    return sDefault.mIORFactor;
+}
+
+LLColor3 LLGLTFMaterial::getDefaultAttenuationColor()
+{
+    return sDefault.mAttenuationColor;
+}
+
+F32 LLGLTFMaterial::getDefaultAttenuationDistance()
+{
+    return sDefault.mAttenuationDistance;
+}
+
+F32 LLGLTFMaterial::getDefaultThicknessFactor()
+{
+    return sDefault.mThicknessFactor;
+}
+
+F32 LLGLTFMaterial::getDefaultDispersionFactor()
+{
+    return sDefault.mDispersionFactor;
 }
 
 // static
