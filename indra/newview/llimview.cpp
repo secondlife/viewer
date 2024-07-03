@@ -1302,8 +1302,19 @@ void LLIMModel::LLIMSession::addMessagesFromServerHistory(const LLSD& history,  
 void LLIMModel::LLIMSession::addMessagesFromIMHistory(LLSD & messages)
 {
     // This is very basic, and doesn't yet fully take into account for
-    // a message that opened the chat window and is already added at the front.
+    // a message that opened the chat window and is already added at the front.  Local
+    // chat storages is also not taken into account.
+
     // See the group chat addMessagesFromServerHistory() for a more complete implementation.
+
+    // Example - getting offline messages delivered at when logging on looks like this:
+    // The same messages are added twice - once for offline delivery, once from chat history data:
+
+    // [14:13] Simon Linden: (Saved Fri Jun 21 14:13:43 2024)I'm adding another chat to the new server
+    // [14:13] Simon Linden: (Saved Fri Jun 21 14:13:56 2024)that's offline - should be interesting to see how that goes
+    //     <snipped other messages from server-side history>
+    // [2024/06/21 14:13] ???: I'm adding another chat to the new server
+    // [2024/06/21 14:13] ???: that's offline - should be interesting to see how that goes
 
     if (messages.size() == 0)
     {
@@ -1311,11 +1322,16 @@ void LLIMModel::LLIMSession::addMessagesFromIMHistory(LLSD & messages)
         return;
     }
 
+    // Find where to insert the history messages by popping off a few in the session.
+    // The most common case is one duplciate message, the one that opens a chat session
+    // This is a hack, and limiting to the magic number of 5 just prevents it blowing up
+    // if locally saved IM history has filled up the window.  This needs to be done better.
     chat_message_list_t shift_msgs;
-    if (mMsgs.size() == 1)
+    while (mMsgs.size() > 0 && shift_msgs.size() < 5)
     {   // Easy implementation to deal with the case of a message opening the session
         // and and already at the front of the list
         LLSD cur_msg = mMsgs.front();    // Get most recent message from the chat display (front of mMsgs list)
+        LL_DEBUGS("ChatHistory") << "shifting chat message in window: " << cur_msg << LL_ENDL;
         shift_msgs.push_front(cur_msg);  // Move chat message to temp list.
         mMsgs.pop_front();               // Normally this is just one message
     }
@@ -1339,6 +1355,9 @@ void LLIMModel::LLIMSession::addMessagesFromIMHistory(LLSD & messages)
             LLDate msg_time((*cur_im_hist)["timestamp"].asString());
             message["time"] = LLLogChat::timestamp2LogString((U32) msg_time.secondsSinceEpoch(), true);
 
+            // Better name lookup is needed.  For example, opening the IM
+            // from the friends list will already show the name there,
+            // but that same name won't be in the cache yet.
             LLAvatarName av_name;
             if (LLAvatarNameCache::get((*cur_im_hist)["sender_id"], &av_name))
             {
@@ -1361,9 +1380,11 @@ void LLIMModel::LLIMSession::addMessagesFromIMHistory(LLSD & messages)
         }
     }
 
-    // Get rid of the last one, which _should_ be the original that opened chat
-    if (shift_msgs.size() == 1)
-    {   // Restore the original message to the front
+    // Get rid of the last one(s), which _should_ be the original that opened chat
+    // This may get totally confused if the chat window is opened multiple times or
+    // if the local history files are loaded
+    while (shift_msgs.size() > 0)
+    {   // Restore the original messages to the front
         LLSD cur_msg = shift_msgs.front();
         mMsgs.pop_front();
         mMsgs.push_front(cur_msg);
