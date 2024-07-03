@@ -577,7 +577,7 @@ bool LLVoiceClient::onVoiceEffectsNotSupported(const LLSD &notification, const L
     switch (option)
     {
         case 0:  // "Okay"
-            gSavedSettings.setBOOL("VoiceMorphingEnabled", FALSE);
+            gSavedPerAccountSettings.setString("VoiceEffectDefault", LLUUID::null.asString());
             break;
 
         case 1:  // "Cancel"
