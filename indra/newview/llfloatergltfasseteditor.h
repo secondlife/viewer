@@ -42,6 +42,7 @@ namespace LL
 
 class LLSpinCtrl;
 class LLMenuButton;
+class LLViewerObject;
 
 class LLFloaterGLTFAssetEditor : public LLFloater
 {
@@ -51,6 +52,7 @@ public:
 
     bool postBuild() override;
     void onOpen(const LLSD& key) override;
+    void onClose(bool app_quitting) override;
     void initFolderRoot();
 
     LLGLTFViewModel& getRootViewModel() { return mGLTFViewModel; }
@@ -59,6 +61,8 @@ public:
     void loadItem(S32 id, const std::string& name, LLGLTFFolderItem::EType type, LLFolderViewFolder* parent);
     void loadFromNode(S32 node, LLFolderViewFolder* parent);
     void loadFromSelection();
+
+    void dirty();
 
 protected:
     void onFolderSelectionChanged(const std::deque<LLFolderViewItem*>& items, bool user_action);
@@ -69,8 +73,11 @@ protected:
     void setTransformsEnabled(bool val);
     void loadNodeTransforms(S32 id);
 
+    void clearRoot();
+
 private:
 
+    LLPointer<LLViewerObject> mObject;
     std::shared_ptr<LL::GLTF::Asset> mAsset;
 
     // Folder view related
@@ -79,6 +86,7 @@ private:
     LLPanel* mItemListPanel = nullptr;
     LLFolderView* mFolderRoot = nullptr;
     LLScrollContainer* mScroller = nullptr;
+    std::map<S32, LLFolderViewItem*> mNodeToItemMap;
 
     // Transforms panel
     LLVector3       mLastEulerDegrees;

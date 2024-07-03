@@ -56,6 +56,7 @@
 #include "llattachmentsmgr.h"
 #include "llviewerwindow.h"
 #include "lldrawable.h"
+#include "llfloatergltfasseteditor.h"
 #include "llfloaterinspect.h"
 #include "llfloaterreporter.h"
 #include "llfloaterreg.h"
@@ -467,6 +468,11 @@ LLObjectSelectionHandle LLSelectMgr::selectObjectOnly(LLViewerObject* object, S3
     if (object->isSelected() ) {
         // make sure point at position is updated
         updatePointAt();
+        LLSelectNode* nodep = mSelectedObjects->findNode(object);
+        if (nodep)
+        {
+            nodep->selectGLTFNode(gltf_node, gltf_primitive, true);
+        }
         gEditMenuHandler = this;
         return NULL;
     }
@@ -7186,6 +7192,12 @@ void dialog_refresh_all()
     if (panel_task_info)
     {
         panel_task_info->dirty();
+    }
+
+    LLFloaterGLTFAssetEditor * gltf_editor = LLFloaterReg::getTypedInstance<LLFloaterGLTFAssetEditor>("gltf_asset_editor");
+    if (gltf_editor)
+    {
+        gltf_editor->dirty();
     }
 }
 
