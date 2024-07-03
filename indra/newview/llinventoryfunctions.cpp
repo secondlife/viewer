@@ -2458,12 +2458,6 @@ private:
 
 void favorite_send(LLInventoryObject* obj, const LLUUID& obj_id, bool favorite)
 {
-    LLSD val;
-    if (favorite)
-    {
-        val = true;
-    } // else leave undefined to remove unneeded metadata field
-
     LLSD updates;
     if (favorite)
     {
@@ -2517,6 +2511,13 @@ void set_favorite(const LLUUID& obj_id, bool favorite)
 
     if (obj && obj->getIsLinkType())
     {
+        if (!favorite && obj->getIsFavorite())
+        {
+            // Links currently aren't supposed to be favorites,
+            // instead should show state of the original
+            LL_INFOS("Inventory") << "Recovering proper 'favorites' state of a link " << obj_id << LL_ENDL;
+            favorite_send(obj, obj_id, false);
+        }
         obj = gInventory.getObject(obj->getLinkedUUID());
     }
 
@@ -2537,6 +2538,25 @@ void toggle_favorite(const LLUUID& obj_id)
     if (obj)
     {
         favorite_send(obj, obj->getUUID(), !obj->getIsFavorite());
+    }
+}
+
+void toggle_favorites(const uuid_vec_t& ids)
+{
+    if (ids.size() == 0)
+    {
+        return;
+    }
+    if (ids.size() == 1)
+    {
+        toggle_favorite(ids[0]);
+        return;
+    }
+
+    bool new_val = !get_is_favorite(ids.front());
+    for (uuid_vec_t::const_iterator it = ids.begin(); it != ids.end(); ++it)
+    {
+        set_favorite(*it, new_val);
     }
 }
 
