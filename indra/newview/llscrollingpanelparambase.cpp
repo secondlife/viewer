@@ -40,7 +40,7 @@
 #include "llvoavatarself.h"
 
 LLScrollingPanelParamBase::LLScrollingPanelParamBase( const LLPanel::Params& panel_params,
-                              LLViewerJointMesh* mesh, LLViewerVisualParam* param, BOOL allow_modify, LLWearable* wearable, LLJoint* jointp, BOOL use_hints)
+                              LLViewerJointMesh* mesh, LLViewerVisualParam* param, bool allow_modify, LLWearable* wearable, LLJoint* jointp, bool use_hints)
     : LLScrollingPanel( panel_params ),
       mParam(param),
       mAllowModify(allow_modify),
@@ -58,15 +58,15 @@ LLScrollingPanelParamBase::LLScrollingPanelParamBase( const LLPanel::Params& pan
     getChildView("param slider")->setEnabled(mAllowModify);
     childSetCommitCallback("param slider", LLScrollingPanelParamBase::onSliderMoved, this);
 
-    setVisible(FALSE);
-    setBorderVisible( FALSE );
+    setVisible(false);
+    setBorderVisible( false );
 }
 
 LLScrollingPanelParamBase::~LLScrollingPanelParamBase()
 {
 }
 
-void LLScrollingPanelParamBase::updatePanel(BOOL allow_modify)
+void LLScrollingPanelParamBase::updatePanel(bool allow_modify)
 {
     LLViewerVisualParam* param = mParam;
 

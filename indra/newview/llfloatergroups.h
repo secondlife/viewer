@@ -60,11 +60,7 @@ public:
     typedef boost::signals2::signal<void (LLUUID id)> signal_t;
     void setSelectGroupCallback(const signal_t::slot_type& cb) { mGroupSelectSignal.connect(cb); }
     void setPowersMask(U64 powers_mask);
-    BOOL postBuild();
-
-    // implementation of factory policy
-    static LLFloaterGroupPicker* findInstance(const LLSD& seed);
-    static LLFloaterGroupPicker* createInstance(const LLSD& seed);
+    bool postBuild();
 
     // for cases like inviting avatar to group we don't want the none option
     void removeNoneOption();
@@ -97,7 +93,7 @@ public:
 
 protected:
     // initialize based on the type
-    BOOL postBuild();
+    bool postBuild();
 
     // highlight_id is a group id to highlight
     void enableButtons();
@@ -109,8 +105,6 @@ protected:
     static void onBtnIM(void* userdata);
     static void onBtnLeave(void* userdata);
     static void onBtnSearch(void* userdata);
-    static void onBtnVote(void* userdata);
-    static void onDoubleClickGroup(void* userdata);
 
     void create();
     void activate();
@@ -118,10 +112,6 @@ protected:
     void startIM();
     void leave();
     void search();
-    void callVote();
-
-    static bool callbackLeaveGroup(const LLSD& notification, const LLSD& response);
-
 };
 
 

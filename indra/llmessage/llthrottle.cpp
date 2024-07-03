@@ -37,7 +37,7 @@ LLThrottle::LLThrottle(const F32 rate)
     mRate = rate;
     mAvailable = 0.f;
     mLookaheadSecs = 0.25f;
-    mLastSendTime = LLMessageSystem::getMessageTimeSeconds(TRUE);
+    mLastSendTime = LLMessageSystem::getMessageTimeSeconds(true);
 }
 
 
@@ -57,9 +57,9 @@ F32 LLThrottle::getAvailable()
     return mAvailable + (mRate * elapsed_time.value());
 }
 
-BOOL LLThrottle::checkOverflow(const F32 amount)
+bool LLThrottle::checkOverflow(const F32 amount)
 {
-    BOOL retval = TRUE;
+    bool retval = true;
 
     F32 lookahead_amount = mRate * mLookaheadSecs;
 
@@ -72,17 +72,17 @@ BOOL LLThrottle::checkOverflow(const F32 amount)
     {
         // ...enough space to send this message
         // Also do if > lookahead so we can use if amount > capped amount.
-        retval = FALSE;
+        retval = false;
     }
 
     return retval;
 }
 
-BOOL LLThrottle::throttleOverflow(const F32 amount)
+bool LLThrottle::throttleOverflow(const F32 amount)
 {
     F32Seconds elapsed_time;
     F32 lookahead_amount;
-    BOOL retval = TRUE;
+    bool retval = true;
 
     lookahead_amount = mRate * mLookaheadSecs;
 
@@ -97,12 +97,12 @@ BOOL LLThrottle::throttleOverflow(const F32 amount)
         // ...channel completely open, so allow send regardless
         // of size.  This allows sends on very low BPS channels.
         mAvailable = lookahead_amount;
-        retval = FALSE;
+        retval = false;
     }
     else if (mAvailable > amount)
     {
         // ...enough space to send this message
-        retval = FALSE;
+        retval = false;
     }
 
     // We actually already sent the bits.
@@ -236,15 +236,15 @@ void LLThrottleGroup::resetDynamicAdjust()
 }
 
 
-BOOL LLThrottleGroup::setNominalBPS(F32* throttle_vec)
+bool LLThrottleGroup::setNominalBPS(F32* throttle_vec)
 {
-    BOOL changed = FALSE;
+    bool changed = false;
     S32 i;
     for (i = 0; i < TC_EOF; i++)
     {
         if (mNominalBPS[i] != throttle_vec[i])
         {
-            changed = TRUE;
+            changed = true;
             mNominalBPS[i] = throttle_vec[i];
         }
     }
@@ -285,9 +285,9 @@ S32     LLThrottleGroup::getAvailable(S32 throttle_cat)
 }
 
 
-BOOL LLThrottleGroup::checkOverflow(S32 throttle_cat, F32 bits)
+bool LLThrottleGroup::checkOverflow(S32 throttle_cat, F32 bits)
 {
-    BOOL retval = TRUE;
+    bool retval = true;
 
     F32 category_bps = mCurrentBPS[throttle_cat];
     F32 lookahead_bits = category_bps * THROTTLE_LOOKAHEAD_TIME;
@@ -302,23 +302,23 @@ BOOL LLThrottleGroup::checkOverflow(S32 throttle_cat, F32 bits)
         // ...channel completely open, so allow send regardless
         // of size.  This allows sends on very low BPS channels.
         mBitsAvailable[throttle_cat] = lookahead_bits;
-        retval = FALSE;
+        retval = false;
     }
     else if ( bits_available > bits )
     {
         // ...enough space to send this message
-        retval = FALSE;
+        retval = false;
     }
 
     return retval;
 }
 
-BOOL LLThrottleGroup::throttleOverflow(S32 throttle_cat, F32 bits)
+bool LLThrottleGroup::throttleOverflow(S32 throttle_cat, F32 bits)
 {
     F32Seconds elapsed_time;
     F32 category_bps;
     F32 lookahead_bits;
-    BOOL retval = TRUE;
+    bool retval = true;
 
     category_bps = mCurrentBPS[throttle_cat];
     lookahead_bits = category_bps * THROTTLE_LOOKAHEAD_TIME;
@@ -333,12 +333,12 @@ BOOL LLThrottleGroup::throttleOverflow(S32 throttle_cat, F32 bits)
         // ...channel completely open, so allow send regardless
         // of size.  This allows sends on very low BPS channels.
         mBitsAvailable[throttle_cat] = lookahead_bits;
-        retval = FALSE;
+        retval = false;
     }
     else if ( mBitsAvailable[throttle_cat] > bits )
     {
         // ...enough space to send this message
-        retval = FALSE;
+        retval = false;
     }
 
     // We actually already sent the bits.
@@ -354,7 +354,7 @@ BOOL LLThrottleGroup::throttleOverflow(S32 throttle_cat, F32 bits)
 }
 
 
-BOOL LLThrottleGroup::dynamicAdjust()
+bool LLThrottleGroup::dynamicAdjust()
 {
     const F32Seconds DYNAMIC_ADJUST_TIME(1.0f);
     const F32 CURRENT_PERIOD_WEIGHT = .25f;     // how much weight to give to last period while determining BPS utilization
@@ -370,7 +370,7 @@ BOOL LLThrottleGroup::dynamicAdjust()
     // Only dynamically adjust every few seconds
     if ((mt_sec - mDynamicAdjustTime) < DYNAMIC_ADJUST_TIME)
     {
-        return FALSE;
+        return false;
     }
     mDynamicAdjustTime = mt_sec;
 
@@ -394,11 +394,11 @@ BOOL LLThrottleGroup::dynamicAdjust()
 
     // Look for busy channels
     // TODO: Fold into loop above.
-    BOOL channels_busy = FALSE;
+    bool channels_busy = false;
     F32  busy_nominal_sum = 0;
-    BOOL channel_busy[TC_EOF];
-    BOOL channel_idle[TC_EOF];
-    BOOL channel_over_nominal[TC_EOF];
+    bool channel_busy[TC_EOF];
+    bool channel_idle[TC_EOF];
+    bool channel_over_nominal[TC_EOF];
 
     for (i = 0; i < TC_EOF; i++)
     {
@@ -406,34 +406,34 @@ BOOL LLThrottleGroup::dynamicAdjust()
         if (mBitsSentHistory[i] >= BUSY_PERCENT * DYNAMIC_ADJUST_TIME.value() * mCurrentBPS[i])
         {
             // this channel is busy
-            channels_busy = TRUE;
+            channels_busy = true;
             busy_nominal_sum += mNominalBPS[i];     // use for allocation of pooled idle bandwidth
-            channel_busy[i] = TRUE;
+            channel_busy[i] = true;
         }
         else
         {
-            channel_busy[i] = FALSE;
+            channel_busy[i] = false;
         }
 
         // Is this an idle channel?
         if ((mBitsSentHistory[i] < IDLE_PERCENT * DYNAMIC_ADJUST_TIME.value() * mCurrentBPS[i]) &&
             (mBitsAvailable[i] > 0))
         {
-            channel_idle[i] = TRUE;
+            channel_idle[i] = true;
         }
         else
         {
-            channel_idle[i] = FALSE;
+            channel_idle[i] = false;
         }
 
         // Is this an overpumped channel?
         if (mCurrentBPS[i] > mNominalBPS[i])
         {
-            channel_over_nominal[i] = TRUE;
+            channel_over_nominal[i] = true;
         }
         else
         {
-            channel_over_nominal[i] = FALSE;
+            channel_over_nominal[i] = false;
         }
     }
 
@@ -573,5 +573,5 @@ BOOL LLThrottleGroup::dynamicAdjust()
             }
         }
     }
-    return TRUE;
+    return true;
 }

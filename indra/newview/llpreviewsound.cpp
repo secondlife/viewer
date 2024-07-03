@@ -48,7 +48,7 @@ LLPreviewSound::LLPreviewSound(const LLSD& key)
 }
 
 // virtual
-BOOL    LLPreviewSound::postBuild()
+bool    LLPreviewSound::postBuild()
 {
     const LLInventoryItem* item = getItem();
     if (item)

@@ -74,12 +74,12 @@ static LLSD gLoginCreds;
 static bool gDisconnectCalled = false;
 
 #include "../llviewerwindow.h"
-void LLViewerWindow::setShowProgress(BOOL show) {}
+void LLViewerWindow::setShowProgress(bool show) {}
 LLProgressView * LLViewerWindow::getProgressView(void) const { return 0; }
 
 LLViewerWindow* gViewerWindow;
 
-std::string LLTrans::getString(const std::string &xml_desc, const LLStringUtil::format_map_t& args, bool def_string)
+std::string LLTrans::getString(std::string_view xml_desc, const LLStringUtil::format_map_t& args, bool def_string)
 {
     return std::string("test_trans");
 }
@@ -198,13 +198,13 @@ LLControlGroup gSavedSettings("Global");
 LLControlGroup::LLControlGroup(const std::string& name) :
     LLInstanceTracker<LLControlGroup, std::string>(name){}
 LLControlGroup::~LLControlGroup() {}
-void LLControlGroup::setBOOL(const std::string& name, BOOL val) {}
-BOOL LLControlGroup::getBOOL(const std::string& name) { return FALSE; }
-F32 LLControlGroup::getF32(const std::string& name) { return 0.0f; }
-U32 LLControlGroup::saveToFile(const std::string& filename, BOOL nondefault_only) { return 1; }
-void LLControlGroup::setString(const std::string& name, const std::string& val) {}
-std::string LLControlGroup::getString(const std::string& name) { return "test_string"; }
-LLControlVariable* LLControlGroup::declareBOOL(const std::string& name, BOOL initial_val, const std::string& comment, LLControlVariable::ePersist persist) { return NULL; }
+void LLControlGroup::setBOOL(std::string_view name, bool val) {}
+bool LLControlGroup::getBOOL(std::string_view name) { return false; }
+F32 LLControlGroup::getF32(std::string_view name) { return 0.0f; }
+U32 LLControlGroup::saveToFile(const std::string& filename, bool nondefault_only) { return 1; }
+void LLControlGroup::setString(std::string_view name, const std::string& val) {}
+std::string LLControlGroup::getString(std::string_view name) { return "test_string"; }
+LLControlVariable* LLControlGroup::declareBOOL(const std::string& name, bool initial_val, const std::string& comment, LLControlVariable::ePersist persist) { return NULL; }
 LLControlVariable* LLControlGroup::declareString(const std::string& name, const std::string &initial_val, const std::string& comment, LLControlVariable::ePersist persist) { return NULL; }
 
 #include "lluicolortable.h"
@@ -235,7 +235,7 @@ static LLEventPump * gTOSReplyPump = NULL;
 LLPointer<LLSecAPIHandler> gSecAPIHandler;
 
 //static
-LLFloater* LLFloaterReg::showInstance(const std::string& name, const LLSD& key, BOOL focus)
+LLFloater* LLFloaterReg::showInstance(std::string_view name, const LLSD& key, bool focus)
 {
     gTOSType = name;
     gTOSReplyPump = &LLEventPumps::instance().obtain(key["reply_pump"]);
@@ -345,13 +345,13 @@ namespace tut
             gTOSReplyPump = 0; // clear the callback.
 
 
-            gSavedSettings.declareBOOL("NoInventoryLibrary", FALSE, "", LLControlVariable::PERSIST_NO);
-            gSavedSettings.declareBOOL("ConnectAsGod", FALSE, "", LLControlVariable::PERSIST_NO);
-            gSavedSettings.declareBOOL("UseDebugMenus", FALSE, "", LLControlVariable::PERSIST_NO);
+            gSavedSettings.declareBOOL("NoInventoryLibrary", false, "", LLControlVariable::PERSIST_NO);
+            gSavedSettings.declareBOOL("ConnectAsGod", false, "", LLControlVariable::PERSIST_NO);
+            gSavedSettings.declareBOOL("UseDebugMenus", false, "", LLControlVariable::PERSIST_NO);
             gSavedSettings.declareString("ClientSettingsFile", "test_settings.xml", "", LLControlVariable::PERSIST_NO);
             gSavedSettings.declareString("NextLoginLocation", "", "", LLControlVariable::PERSIST_NO);
-            gSavedSettings.declareBOOL("LoginLastLocation", FALSE, "", LLControlVariable::PERSIST_NO);
-            gSavedSettings.declareBOOL("CmdLineSkipUpdater", TRUE, "", LLControlVariable::PERSIST_NO);
+            gSavedSettings.declareBOOL("LoginLastLocation", false, "", LLControlVariable::PERSIST_NO);
+            gSavedSettings.declareBOOL("CmdLineSkipUpdater", true, "", LLControlVariable::PERSIST_NO);
 
             LLSD authenticator = LLSD::emptyMap();
             LLSD identifier = LLSD::emptyMap();

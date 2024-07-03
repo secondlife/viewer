@@ -37,7 +37,7 @@ LLFloaterPreviewTrash::LLFloaterPreviewTrash(const LLSD& key)
 {
 }
 
-BOOL LLFloaterPreviewTrash::postBuild()
+bool LLFloaterPreviewTrash::postBuild()
 {
     getChild<LLUICtrl>("empty_btn")->setCommitCallback(
         boost::bind(&LLFloaterPreviewTrash::onClickEmpty, this));
@@ -49,7 +49,7 @@ BOOL LLFloaterPreviewTrash::postBuild()
     // mid-session and the saved rect is off-center.
     center();
 
-    return TRUE;
+    return true;
 }
 
 LLFloaterPreviewTrash::~LLFloaterPreviewTrash()
@@ -60,7 +60,7 @@ LLFloaterPreviewTrash::~LLFloaterPreviewTrash()
 // static
 void LLFloaterPreviewTrash::show()
 {
-    LLFloaterReg::showTypedInstance<LLFloaterPreviewTrash>("preview_trash", LLSD(), TRUE);
+    LLFloaterReg::showTypedInstance<LLFloaterPreviewTrash>("preview_trash", LLSD(), true);
 }
 
 // static

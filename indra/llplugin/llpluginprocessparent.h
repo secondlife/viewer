@@ -207,7 +207,7 @@ private:
     apr_pollfd_t mPollFD;
     static apr_pollset_t *sPollSet;
     static bool sPollsetNeedsRebuild;
-    static LLMutex *sInstancesMutex;
+    static LLCoros::Mutex *sInstancesMutex;
     static mapInstances_t sInstances;
     static void dirtyPollSet();
     static void updatePollset();

@@ -121,7 +121,7 @@ public:
 
     LLTransferSource *findTransferSource(const LLUUID &transfer_id);
 
-    BOOL                        isValid() const         { return mValid; }
+    bool                        isValid() const         { return mValid; }
 
     static void processTransferRequest(LLMessageSystem *mesgsys, void **);
     static void processTransferInfo(LLMessageSystem *mesgsys, void **);
@@ -138,13 +138,13 @@ public:
     void addTransferBitsOut(const LLTransferChannelType tctype, const S32 bits) { mTransferBitsOut[tctype] += bits; }
 protected:
     LLTransferConnection        *getTransferConnection(const LLHost &host);
-    BOOL                        removeTransferConnection(const LLHost &host);
+    bool                        removeTransferConnection(const LLHost &host);
 
 protected:
     // Convenient typedefs
     typedef std::map<LLHost, LLTransferConnection *> host_tc_map;
 
-    BOOL    mValid;
+    bool    mValid;
     LLHost  mHost;
 
     S32     mTransferBitsIn[LLTTT_NUM_TYPES];
@@ -263,7 +263,7 @@ public:
     virtual ~LLTransferSourceParams();
 
     virtual void packParams(LLDataPacker &dp) const = 0;
-    virtual BOOL unpackParams(LLDataPacker &dp) = 0;
+    virtual bool unpackParams(LLDataPacker &dp) = 0;
 
     LLTransferSourceType getType() const            { return mType; }
 
@@ -300,13 +300,13 @@ protected:
                                          const S32 max_bytes,
                                          U8 **datap,
                                          S32 &returned_bytes,
-                                         BOOL &delete_returned) = 0;
+                                         bool &delete_returned) = 0;
 
     // The completionCallback is GUARANTEED to be called before the destructor.
     virtual void            completionCallback(const LLTSCode status) = 0;
 
     virtual void packParams(LLDataPacker& dp) const = 0;
-    virtual BOOL unpackParams(LLDataPacker& dp) = 0;
+    virtual bool unpackParams(LLDataPacker& dp) = 0;
 
     virtual S32             getNextPacketID()                       { return mLastPacketID + 1; }
     virtual void            setLastPacketID(const S32 packet_id)    { mLastPacketID = packet_id; }
@@ -408,8 +408,8 @@ protected:
     virtual S32             getNextPacketID()                       { return mLastPacketID + 1; }
     virtual void            setLastPacketID(const S32 packet_id)    { mLastPacketID = packet_id; }
     void                    setSize(const S32 size)                 { mSize = size; }
-    void                    setGotInfo(const BOOL got_info)         { mGotInfo = got_info; }
-    BOOL                    gotInfo() const                         { return mGotInfo; }
+    void                    setGotInfo(const bool got_info)         { mGotInfo = got_info; }
+    bool                    gotInfo() const                         { return mGotInfo; }
 
     bool addDelayedPacket(
         const S32 packet_id,
@@ -425,7 +425,7 @@ protected:
     LLTransferSourceType mSourceType;
     LLUUID                  mID;
     LLTransferTargetChannel *mChannelp;
-    BOOL                    mGotInfo;
+    bool                    mGotInfo;
     S32                     mSize;
     S32                     mLastPacketID;
 
@@ -440,7 +440,7 @@ public:
     LLTransferSourceParamsInvItem();
     virtual ~LLTransferSourceParamsInvItem() {}
     /*virtual*/ void packParams(LLDataPacker &dp) const;
-    /*virtual*/ BOOL unpackParams(LLDataPacker &dp);
+    /*virtual*/ bool unpackParams(LLDataPacker &dp);
 
     void setAgentSession(const LLUUID &agent_id, const LLUUID &session_id);
     void setInvItem(const LLUUID &owner_id, const LLUUID &task_id, const LLUUID &item_id);
@@ -472,7 +472,7 @@ public:
     LLTransferSourceParamsEstate();
     virtual ~LLTransferSourceParamsEstate() {}
     /*virtual*/ void packParams(LLDataPacker &dp) const;
-    /*virtual*/ BOOL unpackParams(LLDataPacker &dp);
+    /*virtual*/ bool unpackParams(LLDataPacker &dp);
 
     void setAgentSession(const LLUUID &agent_id, const LLUUID &session_id);
     void setEstateAssetType(const EstateAssetType etype);

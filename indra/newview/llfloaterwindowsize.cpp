@@ -63,7 +63,7 @@ LLFloaterWindowSize::LLFloaterWindowSize(const LLSD& key)
 LLFloaterWindowSize::~LLFloaterWindowSize()
 {}
 
-BOOL LLFloaterWindowSize::postBuild()
+bool LLFloaterWindowSize::postBuild()
 {
     center();
     initWindowSizeControls();
@@ -72,7 +72,7 @@ BOOL LLFloaterWindowSize::postBuild()
     getChild<LLUICtrl>("cancel_btn")->setCommitCallback(
         boost::bind(&LLFloaterWindowSize::onClickCancel, this));
     setDefaultBtn("set_btn");
-    return TRUE;
+    return true;
 }
 
 void LLFloaterWindowSize::initWindowSizeControls()

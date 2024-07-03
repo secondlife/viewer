@@ -56,15 +56,15 @@ public:
 
     inline bool        isTerrain() const                   {return mIsTerrain;};
     inline U32         getLandImpact() const               {return mLandImpact;};
-    BOOL               isModifiable() const                {return mIsModifiable;};
-    BOOL               isPhantom() const;
-    BOOL               canBeVolume() const                 {return mCanBeVolume;};
+    bool               isModifiable() const                {return mIsModifiable;};
+    bool               isPhantom() const;
+    bool               canBeVolume() const                 {return mCanBeVolume;};
     static ELinksetUse getLinksetUseWithToggledPhantom(ELinksetUse pLinksetUse);
 
     inline ELinksetUse getLinksetUse() const               {return mLinksetUse;};
 
-    inline BOOL        isScripted() const                  {return mIsScripted;};
-    inline BOOL        hasIsScripted() const               {return mHasIsScripted;};
+    inline bool        isScripted() const                  {return mIsScripted;};
+    inline bool        hasIsScripted() const               {return mHasIsScripted;};
 
     inline S32         getWalkabilityCoefficientA() const  {return mWalkabilityCoefficientA;};
     inline S32         getWalkabilityCoefficientB() const  {return mWalkabilityCoefficientB;};
@@ -92,7 +92,7 @@ private:
     void                              parseLinksetData(const LLSD &pLinksetData);
     void                              parsePathfindingData(const LLSD &pLinksetData);
 
-    static BOOL                       isPhantom(ELinksetUse pLinksetUse);
+    static bool                       isPhantom(ELinksetUse pLinksetUse);
     static ELinksetUse                getLinksetUse(bool pIsPhantom, ENavMeshGenerationCategory pNavMeshGenerationCategory);
     static ENavMeshGenerationCategory getNavMeshGenerationCategory(ELinksetUse pLinksetUse);
     static LLSD                       convertCategoryToLLSD(ENavMeshGenerationCategory pNavMeshGenerationCategory);
@@ -100,10 +100,10 @@ private:
 
     bool         mIsTerrain;
     U32          mLandImpact;
-    BOOL         mIsModifiable;
-    BOOL         mCanBeVolume;
-    BOOL         mIsScripted;
-    BOOL         mHasIsScripted;
+    bool         mIsModifiable;
+    bool         mCanBeVolume;
+    bool         mIsScripted;
+    bool         mHasIsScripted;
     ELinksetUse  mLinksetUse;
     S32          mWalkabilityCoefficientA;
     S32          mWalkabilityCoefficientB;

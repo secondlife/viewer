@@ -38,7 +38,7 @@ class LLCipher
 public:
     virtual ~LLCipher() {}
 
-    // encrypt src and place result into dst. returns TRUE if
+    // encrypt src and place result into dst. returns true if
     // Returns number of bytes written into dst, or 0 on error.
     virtual U32 encrypt(const U8* src, U32 src_len, U8* dst, U32 dst_len) = 0;
 

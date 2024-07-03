@@ -97,8 +97,10 @@ LLAssetDictionary::LLAssetDictionary()
     addEntry(LLAssetType::AT_PERSON,            new AssetEntry("PERSON",            "person",   "person",           false,      false,      false));
     addEntry(LLAssetType::AT_SETTINGS,          new AssetEntry("SETTINGS",          "settings", "settings blob",    true,       true,       true));
     addEntry(LLAssetType::AT_MATERIAL,          new AssetEntry("MATERIAL",          "material", "render material",  true,       true,       true));
+    addEntry(LLAssetType::AT_GLTF,              new AssetEntry("GLTF",              "gltf",     "GLTF",             true,       true,       true));
+    addEntry(LLAssetType::AT_GLTF_BIN,          new AssetEntry("GLTF_BIN",          "glbin",    "GLTF binary",      true,       true,        true));
     addEntry(LLAssetType::AT_UNKNOWN,           new AssetEntry("UNKNOWN",           "invalid",  NULL,               false,      false,      false));
-    addEntry(LLAssetType::AT_NONE,              new AssetEntry("NONE",              "-1",       NULL,               FALSE,      FALSE,      FALSE));
+    addEntry(LLAssetType::AT_NONE,              new AssetEntry("NONE",              "-1",       NULL,               false,      false,      false));
 
 };
 

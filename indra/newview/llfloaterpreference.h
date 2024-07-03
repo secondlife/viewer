@@ -79,9 +79,9 @@ public:
     ~LLFloaterPreference();
 
     void apply();
-    void cancel();
+    void cancel(const std::vector<std::string> settings_to_skip = {});
     /*virtual*/ void draw();
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
     /*virtual*/ void onOpen(const LLSD& key);
     /*virtual*/ void onClose(bool app_quitting);
     /*virtual*/ void changed();
@@ -164,7 +164,6 @@ public:
     void onClickLogPath();
     void changeLogPath(const std::vector<std::string>& filenames, std::string proposed_name);
     bool moveTranscriptsAndLog();
-    void enableHistory();
     void setPersonalInfo(const std::string& visibility);
     void refreshEnabledState();
     void onCommitWindowedMode();
@@ -174,10 +173,8 @@ public:
 
     void refreshUI();
 
-    void onCommitMediaEnabled();
-    void onCommitMusicEnabled();
-    void applyResolution();
     void onChangeMaturity();
+    void onChangeComplexityMode(const LLSD& newvalue);
     void onChangeModelFolder();
     void onChangePBRFolder();
     void onChangeTextureFolder();
@@ -199,7 +196,6 @@ public:
     void buildPopupLists();
     static void refreshSkin(void* data);
     void selectPanel(const LLSD& name);
-    void saveCameraPreset(std::string& preset);
     void saveGraphicsPreset(std::string& preset);
 
     void setRecommendedSettings();
@@ -246,12 +242,12 @@ class LLPanelPreference : public LLPanel
 {
 public:
     LLPanelPreference();
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
 
     virtual ~LLPanelPreference();
 
     virtual void apply();
-    virtual void cancel();
+    virtual void cancel(const std::vector<std::string> settings_to_skip = {});
     void setControlFalse(const LLSD& user_data);
     virtual void setHardwareDefaults();
 
@@ -292,15 +288,13 @@ private:
 class LLPanelPreferenceGraphics : public LLPanelPreference
 {
 public:
-    BOOL postBuild();
+    bool postBuild();
     void draw();
-    void cancel();
+    void cancel(const std::vector<std::string> settings_to_skip = {});
     void saveSettings();
     void resetDirtyChilds();
     void setHardwareDefaults();
     void setPresetText();
-
-    static const std::string getPresetsPath();
 
 protected:
     bool hasDirtyChilds();
@@ -317,10 +311,10 @@ public:
     LLPanelPreferenceControls();
     virtual ~LLPanelPreferenceControls();
 
-    BOOL postBuild();
+    bool postBuild();
 
     void apply();
-    void cancel();
+    void cancel(const std::vector<std::string> settings_to_skip = {});
     void saveSettings();
     void resetDirtyChilds();
 
@@ -388,7 +382,7 @@ public:
     void cancel();
 
 protected:
-    BOOL postBuild();
+    bool postBuild();
     void onOpen(const LLSD& key);
     void onClose(bool app_quitting);
     void saveSettings();

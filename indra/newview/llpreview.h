@@ -68,7 +68,7 @@ public:
     LLPreview(const LLSD& key );
     virtual ~LLPreview();
 
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
 
     virtual void setObjectID(const LLUUID& object_id);
     void setItem( LLInventoryItem* item );
@@ -76,29 +76,26 @@ public:
     void setAssetId(const LLUUID& asset_id);
     const LLInventoryItem* getItem() const; // searches if not constructed with it
 
-    static void hide(const LLUUID& item_uuid, BOOL no_saving = FALSE );
+    static void hide(const LLUUID& item_uuid, bool no_saving = false );
     static void dirty(const LLUUID& item_uuid);
 
-    virtual BOOL handleMouseDown(S32 x, S32 y, MASK mask);
-    virtual BOOL handleMouseUp(S32 x, S32 y, MASK mask);
-    virtual BOOL handleHover(S32 x, S32 y, MASK mask);
+    virtual bool handleMouseDown(S32 x, S32 y, MASK mask);
+    virtual bool handleMouseUp(S32 x, S32 y, MASK mask);
+    virtual bool handleHover(S32 x, S32 y, MASK mask);
     virtual void onOpen(const LLSD& key);
 
     virtual void setAuxItem( const LLInventoryItem* item );
 
     static void         onBtnCopyToInv(void* userdata);
 
-    void                addKeepDiscardButtons();
     static void         onKeepBtn(void* data);
     static void         onDiscardBtn(void* data);
     /*virtual*/ void    handleReshape(const LLRect& new_rect, bool by_user = false);
 
-    void userResized() { mUserResized = TRUE; };
+    void userResized() { mUserResized = true; };
 
     virtual void loadAsset() { mAssetStatus = PREVIEW_ASSET_LOADED; }
     virtual EAssetStatus getAssetStatus() { return mAssetStatus;}
-
-    static LLPreview* getFirstPreviewForSource(const LLUUID& source_id);
 
     // Why is this at the LLPreview level?  JC
     void setNotecardInfo(const LLUUID& notecard_inv_id, const LLUUID& object_id);
@@ -109,21 +106,19 @@ public:
 
     // We can't modify Item or description in preview if either in-world Object
     // or Item  itself is unmodifiable
-    static BOOL canModify(const LLUUID taskUUID, const LLInventoryItem* item);
-    static BOOL canModify(const LLViewerObject* object, const LLInventoryItem* item);
+    static bool canModify(const LLUUID taskUUID, const LLInventoryItem* item);
+    static bool canModify(const LLViewerObject* object, const LLInventoryItem* item);
 
 protected:
     virtual void onCommit();
-
-    void addDescriptionUI();
 
     static void onText(LLUICtrl*, void* userdata);
     static void onRadio(LLUICtrl*, void* userdata);
 
     // for LLInventoryObserver
     virtual void changed(U32 mask);
-    BOOL mDirty;
-    BOOL mSaveDialogShown;
+    bool mDirty;
+    bool mSaveDialogShown;
 
 protected:
     LLUUID mItemUUID;
@@ -140,13 +135,13 @@ protected:
     LLButton* mCopyToInvBtn;
 
     // Close without saving changes
-    BOOL mForceClose;
+    bool mForceClose;
 
-    BOOL mUserResized;
+    bool mUserResized;
 
     // When closing springs a "Want to save?" dialog, we want
     // to keep the preview open until the save completes.
-    BOOL mCloseAfterSave;
+    bool mCloseAfterSave;
 
     EAssetStatus mAssetStatus;
 

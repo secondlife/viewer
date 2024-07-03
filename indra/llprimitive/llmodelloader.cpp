@@ -37,7 +37,7 @@
 
 std::list<LLModelLoader*> LLModelLoader::sActiveLoaderList;
 
-void stretch_extents(LLModel* model, LLMatrix4a& mat, LLVector4a& min, LLVector4a& max, BOOL& first_transform)
+void stretch_extents(LLModel* model, LLMatrix4a& mat, LLVector4a& min, LLVector4a& max, bool& first_transform)
 {
     LLVector4a box[] =
     {
@@ -74,7 +74,7 @@ void stretch_extents(LLModel* model, LLMatrix4a& mat, LLVector4a& min, LLVector4
 
             if (first_transform)
             {
-                first_transform = FALSE;
+                first_transform = false;
                 min = max = v;
             }
             else
@@ -85,7 +85,7 @@ void stretch_extents(LLModel* model, LLMatrix4a& mat, LLVector4a& min, LLVector4
     }
 }
 
-void stretch_extents(LLModel* model, LLMatrix4& mat, LLVector3& min, LLVector3& max, BOOL& first_transform)
+void stretch_extents(LLModel* model, LLMatrix4& mat, LLVector3& min, LLVector3& max, bool& first_transform)
 {
     LLVector4a mina, maxa;
     LLMatrix4a mata;
@@ -121,7 +121,7 @@ LLModelLoader::LLModelLoader(
 , mFilename(filename)
 , mLod(lod)
 , mTrySLM(false)
-, mFirstTransform(TRUE)
+, mFirstTransform(true)
 , mNumOfFetchingTextures(0)
 , mLoadCallback(load_cb)
 , mJointLookupFunc(joint_lookup_func)
@@ -337,7 +337,7 @@ bool LLModelLoader::loadFromSLM(const std::string& filename)
 
 
     //convert instance_list to mScene
-    mFirstTransform = TRUE;
+    mFirstTransform = true;
     for (U32 i = 0; i < instance_list.size(); ++i)
     {
         LLModelInstance& cur_instance = instance_list[i];
@@ -478,7 +478,7 @@ bool LLModelLoader::isRigSuitableForJointPositionUpload( const std::vector<std::
 //called in the main thread
 void LLModelLoader::loadTextures()
 {
-    BOOL is_paused = isPaused() ;
+    bool is_paused = isPaused() ;
     pause() ; //pause the loader
 
     for(scene::iterator iter = mScene.begin(); iter != mScene.end(); ++iter)

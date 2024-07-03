@@ -66,13 +66,13 @@ public:
     void noTarget();
     void target(const std::string& name, S32 price);
 
-    virtual BOOL postBuild();
+    virtual bool postBuild();
 
     void updateUI();
     void collapsePanels(bool collapse);
 
     virtual void draw();
-    virtual BOOL canClose();
+    virtual bool canClose();
 
     void onClickBuy();
     void onClickCancel();
@@ -135,7 +135,7 @@ void LLFloaterBuyCurrencyUI::target(const std::string& name, S32 price)
 
 
 // virtual
-BOOL LLFloaterBuyCurrencyUI::postBuild()
+bool LLFloaterBuyCurrencyUI::postBuild()
 {
     mManager.prepare();
 
@@ -146,7 +146,7 @@ BOOL LLFloaterBuyCurrencyUI::postBuild()
 
     updateUI();
 
-    return TRUE;
+    return true;
 }
 
 void LLFloaterBuyCurrencyUI::draw()
@@ -169,7 +169,7 @@ void LLFloaterBuyCurrencyUI::draw()
     LLFloater::draw();
 }
 
-BOOL LLFloaterBuyCurrencyUI::canClose()
+bool LLFloaterBuyCurrencyUI::canClose()
 {
     return mManager.canCancel();
 }
@@ -180,11 +180,11 @@ void LLFloaterBuyCurrencyUI::updateUI()
     mManager.updateUI(!hasError && !mManager.buying());
 
     // hide most widgets - we'll turn them on as needed next
-    getChildView("info_buying")->setVisible(FALSE);
-    getChildView("info_need_more")->setVisible(FALSE);
-    getChildView("purchase_warning_repurchase")->setVisible(FALSE);
-    getChildView("purchase_warning_notenough")->setVisible(FALSE);
-    getChildView("contacting")->setVisible(FALSE);
+    getChildView("info_buying")->setVisible(false);
+    getChildView("info_need_more")->setVisible(false);
+    getChildView("purchase_warning_repurchase")->setVisible(false);
+    getChildView("purchase_warning_notenough")->setVisible(false);
+    getChildView("contacting")->setVisible(false);
 
     if (hasError)
     {
@@ -199,15 +199,15 @@ void LLFloaterBuyCurrencyUI::updateUI()
     else
     {
         // display the main Buy L$ interface
-        getChildView("normal_background")->setVisible(TRUE);
+        getChildView("normal_background")->setVisible(true);
 
         if (mHasTarget)
         {
-            getChildView("info_need_more")->setVisible(TRUE);
+            getChildView("info_need_more")->setVisible(true);
         }
         else
         {
-            getChildView("info_buying")->setVisible(TRUE);
+            getChildView("info_buying")->setVisible(true);
         }
 
         if (mManager.buying())
@@ -224,18 +224,18 @@ void LLFloaterBuyCurrencyUI::updateUI()
         }
 
         S32 balance = gStatusBar->getBalance();
-        getChildView("balance_label")->setVisible(TRUE);
-        getChildView("balance_amount")->setVisible(TRUE);
+        getChildView("balance_label")->setVisible(true);
+        getChildView("balance_amount")->setVisible(true);
         getChild<LLUICtrl>("balance_amount")->setTextArg("[AMT]", llformat("%d", balance));
 
         S32 buying = mManager.getAmount();
-        getChildView("buying_label")->setVisible(TRUE);
-        getChildView("buying_amount")->setVisible(TRUE);
+        getChildView("buying_label")->setVisible(true);
+        getChildView("buying_amount")->setVisible(true);
         getChild<LLUICtrl>("buying_amount")->setTextArg("[AMT]", llformat("%d", buying));
 
         S32 total = balance + buying;
-        getChildView("total_label")->setVisible(TRUE);
-        getChildView("total_amount")->setVisible(TRUE);
+        getChildView("total_label")->setVisible(true);
+        getChildView("total_amount")->setVisible(true);
         getChild<LLUICtrl>("total_amount")->setTextArg("[AMT]", llformat("%d", total));
 
         if (mHasTarget)

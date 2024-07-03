@@ -30,6 +30,7 @@
 
 #include <map>
 #include <vector>
+#include <deque>
 
 //fir CGSize
 #include <CoreGraphics/CGGeometry.h>
@@ -37,7 +38,7 @@
 typedef std::vector<std::pair<int, bool> > segment_t;
 
 typedef std::vector<int> segment_lengths;
-typedef std::vector<int> segment_standouts;
+typedef std::deque<bool> segment_standouts;
 
 struct attributedStringInfo {
     segment_lengths seg_lengths;

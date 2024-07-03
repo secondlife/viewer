@@ -37,8 +37,8 @@ class LLFloaterAvatar:
     friend class LLFloaterReg;
 private:
     LLFloaterAvatar(const LLSD& key);
-    /*virtual*/ ~LLFloaterAvatar();
-    /*virtual*/ BOOL postBuild();
+    ~LLFloaterAvatar();
+    bool postBuild() override;
 
     LLMediaCtrl* mAvatarPicker;
 };

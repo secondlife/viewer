@@ -38,7 +38,7 @@ public:
     LLPanelGroupBulkBan(const LLUUID& group_id);
     ~LLPanelGroupBulkBan() {}
 
-    virtual BOOL postBuild();
+    virtual bool postBuild();
 
     static void callbackClickSubmit(void* userdata);
     virtual void submit();

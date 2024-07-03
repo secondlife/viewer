@@ -1,6 +1,6 @@
 llappearance:
   - indra/llappearance/**/*
-  
+
 llaudio:
   - indra/llaudio/**/*
 
@@ -76,3 +76,6 @@ c/cpp:
   - '**/*.i'
   - '**/*.inl'
   - '**/*.y'
+
+'team:viewer':
+  - '*'

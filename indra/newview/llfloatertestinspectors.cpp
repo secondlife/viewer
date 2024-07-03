@@ -45,7 +45,7 @@ LLFloaterTestInspectors::LLFloaterTestInspectors(const LLSD& seed)
 LLFloaterTestInspectors::~LLFloaterTestInspectors()
 {}
 
-BOOL LLFloaterTestInspectors::postBuild()
+bool LLFloaterTestInspectors::postBuild()
 {
     // Test the dummy widget construction code
     getChild<LLUICtrl>("intentionally-not-found")->setEnabled(true);

@@ -51,8 +51,6 @@ uniform vec4[2] texture_emissive_transform;
 
 out vec3 vary_fragcoord;
 
-uniform float near_clip;
-
 in vec3 position;
 in vec4 diffuse_color;
 in vec3 normal;
@@ -71,7 +69,7 @@ flat out float vary_sign;
 out vec3 vary_normal;
 
 vec2 texture_transform(vec2 vertex_texcoord, vec4[2] khr_gltf_transform, mat4 sl_animation_transform);
-vec3 tangent_space_transform(vec4 vertex_tangent, vec3 vertex_normal, vec4[2] khr_gltf_transform, mat4 sl_animation_transform);
+vec4 tangent_space_transform(vec4 vertex_tangent, vec3 vertex_normal, vec4[2] khr_gltf_transform, mat4 sl_animation_transform);
 
 
 void main()
@@ -88,7 +86,7 @@ void main()
 #endif
     gl_Position = vert;
 
-    vary_fragcoord.xyz = vert.xyz + vec3(0,0,near_clip);
+    vary_fragcoord.xyz = vert.xyz;
 
     base_color_texcoord = texture_transform(texcoord0, texture_base_color_transform, texture_matrix0);
     normal_texcoord = texture_transform(texcoord0, texture_normal_transform, texture_matrix0);
@@ -105,8 +103,9 @@ void main()
 
     n = normalize(n);
 
-    vary_tangent = normalize(tangent_space_transform(vec4(t, tangent.w), n, texture_normal_transform, texture_matrix0));
-    vary_sign = tangent.w;
+    vec4 transformed_tangent = tangent_space_transform(vec4(t, tangent.w), n, texture_normal_transform, texture_matrix0);
+    vary_tangent = normalize(transformed_tangent.xyz);
+    vary_sign = transformed_tangent.w;
     vary_normal = n;
 
     vertex_color = diffuse_color;

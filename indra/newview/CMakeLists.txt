@@ -16,10 +16,8 @@ include(CubemapToEquirectangularJS)
 include(DBusGlib)
 include(DragDrop)
 include(EXPAT)
-include(FMODSTUDIO)
 include(Hunspell)
 include(JPEGEncoderBasic)
-include(JsonCpp)
 include(LLAppearance)
 include(LLAudio)
 include(LLCA)
@@ -110,7 +108,6 @@ set(viewer_SOURCE_FILES
     llblockedlistitem.cpp
     llblocklist.cpp
     llbox.cpp
-    llbreadcrumbview.cpp
     llbrowsernotification.cpp
     llbuycurrencyhtml.cpp
     llcallingcard.cpp
@@ -192,6 +189,7 @@ set(viewer_SOURCE_FILES
     llfloaterbigpreview.cpp
     llfloaterbuildoptions.cpp
     llfloaterbulkpermission.cpp
+    llfloaterbulkupload.cpp
     llfloaterbump.cpp
     llfloaterbuy.cpp
     llfloaterbuycontents.cpp
@@ -222,6 +220,7 @@ set(viewer_SOURCE_FILES
     llfloaterfonttest.cpp
     llfloaterforgetuser.cpp
     llfloatergesture.cpp
+    llfloatergltfasseteditor.cpp
     llfloatergodtools.cpp
     llfloatergotoline.cpp
     llfloatergridstatus.cpp
@@ -316,6 +315,8 @@ set(viewer_SOURCE_FILES
     llgesturemgr.cpp
     llgiveinventory.cpp
     llglsandbox.cpp
+    llgltffolderitem.cpp
+    llgltffoldermodel.cpp
     llgltfmateriallist.cpp
     llgltfmaterialpreviewmgr.cpp
     llgroupactions.cpp
@@ -366,7 +367,6 @@ set(viewer_SOURCE_FILES
     lllandmarkactions.cpp
     lllandmarklist.cpp
     lllegacyatmospherics.cpp
-    lllistbrowser.cpp
     lllistcontextmenu.cpp
     lllistview.cpp
     lllocalbitmaps.cpp
@@ -506,6 +506,7 @@ set(viewer_SOURCE_FILES
     llpathfindingobject.cpp
     llpathfindingobjectlist.cpp
     llpathfindingpathtool.cpp
+    llpbrterrainfeatures.cpp
     llpersistentnotificationstorage.cpp
     llphysicsmotion.cpp
     llphysicsshapebuilderutil.cpp
@@ -532,7 +533,6 @@ set(viewer_SOURCE_FILES
     llregioninfomodel.cpp
     llregionposition.cpp
     llremoteparcelrequest.cpp
-    llsavedsettingsglue.cpp
     llsaveoutfitcombobtn.cpp
     llscenemonitor.cpp
     llsceneview.cpp
@@ -629,7 +629,6 @@ set(viewer_SOURCE_FILES
     llurlhistory.cpp
     llurllineeditorctrl.cpp
     llurlwhitelist.cpp
-    llvectorperfoptions.cpp
     llversioninfo.cpp
     llviewchildren.cpp
     llviewerassetstats.cpp
@@ -699,6 +698,7 @@ set(viewer_SOURCE_FILES
     llvoiceclient.cpp
     llvoicevisualizer.cpp
     llvoicevivox.cpp
+    llvoicewebrtc.cpp
     llvoinventorylistener.cpp
     llvopartgroup.cpp
     llvosky.cpp
@@ -772,7 +772,6 @@ set(viewer_HEADER_FILES
     llblockedlistitem.h
     llblocklist.h
     llbox.h
-    llbreadcrumbview.h
     llbuycurrencyhtml.h
     llcallingcard.h
     llcapabilityprovider.h
@@ -854,6 +853,7 @@ set(viewer_HEADER_FILES
     llfloaterbigpreview.h
     llfloaterbuildoptions.h
     llfloaterbulkpermission.h
+    llfloaterbulkupload.h
     llfloaterbump.h
     llfloaterbuy.h
     llfloaterbuycontents.h
@@ -884,6 +884,7 @@ set(viewer_HEADER_FILES
     llfloaterfonttest.h
     llfloaterforgetuser.h
     llfloatergesture.h
+    llfloatergltfasseteditor.h
     llfloatergodtools.h
     llfloatergotoline.h
     llfloatergridstatus.h
@@ -980,6 +981,8 @@ set(viewer_HEADER_FILES
     llgesturelistener.h
     llgesturemgr.h
     llgiveinventory.h
+    llgltffolderitem.h
+    llgltffoldermodel.h
     llgltfmateriallist.h
     llgltfmaterialpreviewmgr.h
     llgroupactions.h
@@ -1029,7 +1032,6 @@ set(viewer_HEADER_FILES
     lllandmarkactions.h
     lllandmarklist.h
     lllightconstants.h
-    lllistbrowser.h
     lllistcontextmenu.h
     lllistview.h
     lllocalbitmaps.h
@@ -1156,6 +1158,7 @@ set(viewer_HEADER_FILES
     llpathfindingobject.h
     llpathfindingobjectlist.h
     llpathfindingpathtool.h
+    llpbrterrainfeatures.h
     llpersistentnotificationstorage.h
     llphysicsmotion.h
     llphysicsshapebuilderutil.h
@@ -1184,7 +1187,6 @@ set(viewer_HEADER_FILES
     llremoteparcelrequest.h
     llresourcedata.h
     llrootview.h
-    llsavedsettingsglue.h
     llsaveoutfitcombobtn.h
     llscenemonitor.h
     llsceneview.h
@@ -1285,7 +1287,6 @@ set(viewer_HEADER_FILES
     llurlhistory.h
     llurllineeditorctrl.h
     llurlwhitelist.h
-    llvectorperfoptions.h
     llversioninfo.h
     llviewchildren.h
     llviewerassetstats.h
@@ -1354,6 +1355,7 @@ set(viewer_HEADER_FILES
     llvoiceclient.h
     llvoicevisualizer.h
     llvoicevivox.h
+    llvoicewebrtc.h
     llvoinventorylistener.h
     llvopartgroup.h
     llvosky.h
@@ -1377,7 +1379,6 @@ set(viewer_HEADER_FILES
     llworldmapview.h
     llxmlrpclistener.h
     llxmlrpctransaction.h
-    macmain.h
     noise.h
     pipeline.h
     roles_constants.h
@@ -1426,7 +1427,6 @@ if (DARWIN)
   # Add resource files to the project.
   set(viewer_RESOURCE_FILES
     secondlife.icns
-    macview.r
     Info-SecondLife.plist
     SecondLife.xib/
     # CMake doesn't seem to support Xcode language variants well just yet
@@ -1454,6 +1454,7 @@ if (LINUX)
 endif (LINUX)
 
 if (WINDOWS)
+
     list(APPEND viewer_SOURCE_FILES
          llappviewerwin32.cpp
          llwindebug.cpp
@@ -1729,6 +1730,7 @@ if (WINDOWS)
       ${SHARED_LIB_STAGING_DIR}/openjp2.dll
       ${SHARED_LIB_STAGING_DIR}/libhunspell.dll
       ${SHARED_LIB_STAGING_DIR}/uriparser.dll
+      ${SHARED_LIB_STAGING_DIR}/llwebrtc.dll
       #${SHARED_LIB_STAGING_DIR}/${LL_INTDIR}/SLVoice.exe
       #${SHARED_LIB_STAGING_DIR}/${LL_INTDIR}/libsndfile-1.dll
       #${SHARED_LIB_STAGING_DIR}/${LL_INTDIR}/vivoxoal.dll
@@ -1758,13 +1760,6 @@ if (WINDOWS)
                )
     endif (ADDRESS_SIZE EQUAL 64)
 
-    if (TARGET ll::fmodstudio)
-      list(APPEND COPY_INPUT_DEPENDENCIES
-           ${SHARED_LIB_STAGING_DIR}/fmod.dll
-           ${SHARED_LIB_STAGING_DIR}/fmodL.dll
-          )
-    endif ()
-
     if (TARGET ll::openal)
       list(APPEND COPY_INPUT_DEPENDENCIES
            ${SHARED_LIB_STAGING_DIR}/OpenAL32.dll
@@ -1781,7 +1776,6 @@ if (WINDOWS)
         --arch=${ARCH}
         --artwork=${ARTWORK_DIR}
         "--bugsplat=${BUGSPLAT_DB}"
-        "--fmodstudio=${USE_FMODSTUDIO}"
         "--openal=${USE_OPENAL}"
         --build=${CMAKE_CURRENT_BINARY_DIR}
         --buildtype=$<CONFIG>
@@ -1795,13 +1789,14 @@ if (WINDOWS)
       DEPENDS
         ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
         stage_third_party_libs
+        llwebrtc
         ${COPY_INPUT_DEPENDENCIES}
       COMMENT "Performing viewer_manifest copy"
       )
 
     add_custom_target(copy_w_viewer_manifest ALL DEPENDS ${CMAKE_CFG_INTDIR}/copy_touched.bat)
 
-    add_dependencies(${VIEWER_BINARY_NAME} stage_third_party_libs llcommon copy_w_viewer_manifest)
+    add_dependencies(${VIEWER_BINARY_NAME} stage_third_party_libs llcommon llwebrtc copy_w_viewer_manifest)
 
     if (EXISTS ${CMAKE_SOURCE_DIR}/copy_win_scripts)
       add_dependencies(${VIEWER_BINARY_NAME} copy_win_scripts)
@@ -1841,7 +1836,6 @@ if (WINDOWS)
               --arch=${ARCH}
               --artwork=${ARTWORK_DIR}
               "--bugsplat=${BUGSPLAT_DB}"
-              "--fmodstudio=${USE_FMODSTUDIO}"
               "--openal=${USE_OPENAL}"
               --build=${CMAKE_CURRENT_BINARY_DIR}
               --buildtype=$<CONFIG>
@@ -1925,6 +1919,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
         llcorehttp
         llcommon
         llmeshoptimizer
+        llwebrtc
         ll::ndof
         lllogin
         llprimitive
@@ -1990,7 +1985,6 @@ if (LINUX)
         --arch=${ARCH}
         --artwork=${ARTWORK_DIR}
         "--bugsplat=${BUGSPLAT_DB}"
-        "--fmodstudio=${USE_FMODSTUDIO}"
         "--openal=${USE_OPENAL}"
         --build=${CMAKE_CURRENT_BINARY_DIR}
         --buildtype=${CMAKE_BUILD_TYPE}
@@ -2018,7 +2012,6 @@ if (LINUX)
       --arch=${ARCH}
       --artwork=${ARTWORK_DIR}
       "--bugsplat=${BUGSPLAT_DB}"
-      "--fmodstudio=${USE_FMODSTUDIO}"
       "--openal=${USE_OPENAL}"
       --build=${CMAKE_CURRENT_BINARY_DIR}
       --buildtype=${CMAKE_BUILD_TYPE}
@@ -2096,7 +2089,6 @@ if (DARWIN)
       --arch=${ARCH}
       --artwork=${ARTWORK_DIR}
       "--bugsplat=${BUGSPLAT_DB}"
-      "--fmodstudio=${USE_FMODSTUDIO}"
       "--openal=${USE_OPENAL}"
       --build=${CMAKE_CURRENT_BINARY_DIR}
       --buildtype=$<CONFIG>
@@ -2131,7 +2123,6 @@ if (DARWIN)
               --arch=${ARCH}
               --artwork=${ARTWORK_DIR}
               "--bugsplat=${BUGSPLAT_DB}"
-              "--fmodstudio=${USE_FMODSTUDIO}"
               "--openal=${USE_OPENAL}"
               --build=${CMAKE_CURRENT_BINARY_DIR}
               --buildtype=$<CONFIG>
@@ -2168,7 +2159,7 @@ if (PACKAGE AND (RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING) AND VIE
         OUTPUT_VARIABLE PARENT_DIRECTORY_CYGWIN
         OUTPUT_STRIP_TRAILING_WHITESPACE)
       add_custom_command(OUTPUT "${VIEWER_SYMBOL_FILE}"
-        # Use of 'tar ...j' here assumes VIEWER_SYMBOL_FILE endswith .tar.xz;
+        # Use of 'tar ...J' here assumes VIEWER_SYMBOL_FILE endswith .tar.xz;
         # testing a string suffix is painful enough in CMake language that
         # we'll continue assuming it until forced to generalize.
         COMMAND "tar"

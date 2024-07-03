@@ -30,6 +30,7 @@
 #include "linden_common.h"
 #include "llsd.h"
 
+#include "llbase64.h"
 #include "llerror.h"
 #include "../llmath/llmath.h"
 #include "llformat.h"
@@ -142,6 +143,8 @@ public:
 
     virtual const String& asStringRef() const { static const std::string empty; return empty; }
 
+    virtual String asXMLRPCValue() const { return "<nil/>"; }
+
     virtual bool has(const String&) const       { return false; }
     virtual LLSD get(const String&) const       { return LLSD(); }
     virtual LLSD getKeys() const                { return LLSD::emptyArray(); }
@@ -222,6 +225,8 @@ namespace
         virtual LLSD::Integer   asInteger() const   { return mValue ? 1 : 0; }
         virtual LLSD::Real      asReal() const      { return mValue ? 1 : 0; }
         virtual LLSD::String    asString() const;
+
+        virtual LLSD::String asXMLRPCValue() const { return mValue ? "<boolean>1</boolean>" : "<boolean>0</boolean>"; }
     };
 
     LLSD::String ImplBoolean::asString() const
@@ -243,6 +248,8 @@ namespace
         virtual LLSD::Integer   asInteger() const   { return mValue; }
         virtual LLSD::Real      asReal() const      { return mValue; }
         virtual LLSD::String    asString() const;
+
+        virtual LLSD::String asXMLRPCValue() const { return "<int>" + std::to_string(mValue) + "</int>"; }
     };
 
     LLSD::String ImplInteger::asString() const
@@ -259,6 +266,8 @@ namespace
         virtual LLSD::Integer   asInteger() const;
         virtual LLSD::Real      asReal() const      { return mValue; }
         virtual LLSD::String    asString() const;
+
+        virtual LLSD::String asXMLRPCValue() const { return "<double>" + std::to_string(mValue) + "</double>"; }
     };
 
     LLSD::Boolean ImplReal::asBoolean() const
@@ -286,9 +295,11 @@ namespace
         virtual LLSD::URI       asURI() const   { return LLURI(mValue); }
         virtual size_t          size() const    { return mValue.size(); }
         virtual const LLSD::String& asStringRef() const { return mValue; }
+
+        virtual LLSD::String asXMLRPCValue() const { return "<string>" + LLStringFn::xml_encode(mValue) + "</string>"; }
     };
 
-    LLSD::Integer   ImplString::asInteger() const
+    LLSD::Integer ImplString::asInteger() const
     {
         // This must treat "1.23" not as an error, but as a number, which is
         // then truncated down to an integer.  Hence, this code doesn't call
@@ -298,7 +309,7 @@ namespace
         return (int)asReal();
     }
 
-    LLSD::Real      ImplString::asReal() const
+    LLSD::Real ImplString::asReal() const
     {
         F64 v = 0.0;
         std::istringstream i_stream(mValue);
@@ -323,6 +334,8 @@ namespace
 
         virtual LLSD::String    asString() const{ return mValue.asString(); }
         virtual LLSD::UUID      asUUID() const  { return mValue; }
+
+        virtual LLSD::String asXMLRPCValue() const { return "<string>" + mValue.asString() + "</string>"; }
     };
 
 
@@ -344,6 +357,8 @@ namespace
         }
         virtual LLSD::String    asString() const{ return mValue.asString(); }
         virtual LLSD::Date      asDate() const  { return mValue; }
+
+        virtual LLSD::String asXMLRPCValue() const { return "<dateTime.iso8601>" + mValue.toHTTPDateString("%FT%T") + "</dateTime.iso8601>"; }
     };
 
 
@@ -355,6 +370,8 @@ namespace
 
         virtual LLSD::String    asString() const{ return mValue.asString(); }
         virtual LLSD::URI       asURI() const   { return mValue; }
+
+        virtual LLSD::String asXMLRPCValue() const { return "<string>" + LLStringFn::xml_encode(mValue.asString()) + "</string>"; }
     };
 
 
@@ -365,13 +382,15 @@ namespace
         ImplBinary(const LLSD::Binary& v) : Base(v) { }
 
         virtual const LLSD::Binary& asBinary() const{ return mValue; }
+
+        virtual LLSD::String asXMLRPCValue() const { return "<base64>" + LLBase64::encode(mValue.data(), mValue.size()) + "</base64>"; }
     };
 
 
     class ImplMap : public LLSD::Impl
     {
     private:
-        typedef std::map<LLSD::String, LLSD>    DataMap;
+        typedef std::map<LLSD::String, LLSD> DataMap;
 
         DataMap mData;
 
@@ -386,6 +405,19 @@ namespace
         virtual LLSD::Type type() const { return LLSD::TypeMap; }
 
         virtual LLSD::Boolean asBoolean() const { return !mData.empty(); }
+
+        virtual LLSD::String asXMLRPCValue() const
+        {
+            std::ostringstream os;
+            os << "<struct>";
+            for (const auto& it : mData)
+            {
+                os << "<member><name>" << LLStringFn::xml_encode(it.first) << "</name>"
+                    << it.second.asXMLRPCValue() << "</member>";
+            }
+            os << "</struct>";
+            return os.str();
+        }
 
         virtual bool has(const LLSD::String&) const;
 
@@ -511,7 +543,7 @@ namespace
     class ImplArray : public LLSD::Impl
     {
     private:
-        typedef std::vector<LLSD>   DataVector;
+        typedef std::vector<LLSD> DataVector;
 
         DataVector mData;
 
@@ -526,6 +558,18 @@ namespace
         virtual LLSD::Type type() const { return LLSD::TypeArray; }
 
         virtual LLSD::Boolean asBoolean() const { return !mData.empty(); }
+
+        virtual LLSD::String asXMLRPCValue() const
+        {
+            std::ostringstream os;
+            os << "<array><data>";
+            for (const auto& it : mData)
+            {
+                os << it.asXMLRPCValue();
+            }
+            os << "</data></array>";
+            return os.str();
+        }
 
         using LLSD::Impl::get; // Unhiding get(LLSD::String)
         using LLSD::Impl::erase; // Unhiding erase(LLSD::String)
@@ -871,6 +915,155 @@ LLSD::URI       LLSD::asURI() const     { return safe(impl).asURI(); }
 const LLSD::Binary& LLSD::asBinary() const  { return safe(impl).asBinary(); }
 
 const LLSD::String& LLSD::asStringRef() const { return safe(impl).asStringRef(); }
+
+LLSD::String LLSD::asXMLRPCValue() const { return "<value>" + safe(impl).asXMLRPCValue() + "</value>"; }
+
+static bool inline check(bool condition, const char* warning_message)
+{
+    if (!condition)
+    {
+        LL_WARNS() << warning_message << LL_ENDL;
+    }
+
+    return condition;
+}
+
+static bool parseXMLRPCArrayValue(LLSD& target, LLSD::TreeNode* node)
+{
+    LLSD::TreeNode* data = node->getFirstChild();
+    if (!check(data, "No array inner XML element (<data> expected)") ||
+        !check(data->hasName("data"), "Invalid array inner XML element (<data> expected)") ||
+        !check(!data->getNextSibling(), "Multiple array inner XML elements (single <data> expected)"))
+        return false;
+
+    for (LLSD::TreeNode* item = data->getFirstChild(); item; item = item->getNextSibling())
+    {
+        LLSD value;
+        if (!value.fromXMLRPCValue(item))
+            return false;
+
+        target.append(value);
+    }
+
+    return true;
+}
+
+static bool parseXMLRPCStructValue(LLSD& target, LLSD::TreeNode* node)
+{
+    for (LLSD::TreeNode* item = node->getFirstChild(); item; item = item->getNextSibling())
+    {
+        if (!check(item->hasName("member"), "Invalid struct inner XML element (<member> expected)"))
+            return false;
+
+        std::string name;
+        LLSD value;
+        for (LLSD::TreeNode* subitem = item->getFirstChild(); subitem; subitem = subitem->getNextSibling())
+        {
+            if (subitem->hasName("name"))
+            {
+                name = LLStringFn::xml_decode(subitem->getTextContents());
+            }
+            else if (!value.fromXMLRPCValue(subitem))
+            {
+                return false;
+            }
+        }
+        if (!check(!name.empty(), "Empty struct member name"))
+            return false;
+
+        target.insert(name, value);
+    }
+
+    return true;
+}
+
+bool LLSD::fromXMLRPCValue(TreeNode* node)
+{
+    clear();
+
+    llassert(node);
+    if (!node)
+        return false;
+
+    if (!check(node->hasName("value"), "Invalid XML element (<value> expected)"))
+        return false;
+
+    TreeNode* inner = node->getFirstChild();
+    if (!inner)
+    {
+        check(false, "No inner XML element (value type expected)");
+        // Value with no type qualifier is treated as string
+        assign(LLStringFn::xml_decode(node->getTextContents()));
+        return true;
+    }
+
+    if (!check(!inner->getNextSibling(), "Multiple inner XML elements (single expected)"))
+        return false;
+
+    if (inner->hasName("string"))
+    {
+        assign(LLStringFn::xml_decode(inner->getTextContents()));
+        return true;
+    }
+
+    if (inner->hasName("int") || inner->hasName("i4"))
+    {
+        assign(std::stoi(inner->getTextContents()));
+        return true;
+    }
+
+    if (inner->hasName("double"))
+    {
+        assign(std::stod(inner->getTextContents()));
+        return true;
+    }
+
+    if (inner->hasName("boolean"))
+    {
+        assign(!!std::stoi(inner->getTextContents()));
+        return true;
+    }
+
+    if (inner->hasName("dateTime.iso8601"))
+    {
+        assign(Date(inner->getTextContents()));
+        return true;
+    }
+
+    if (inner->hasName("base64"))
+    {
+        std::string decoded = LLBase64::decodeAsString(inner->getTextContents());
+        Binary binary(decoded.size());
+        memcpy(binary.data(), decoded.data(), decoded.size());
+        assign(binary);
+        return true;
+    }
+
+    if (inner->hasName("array"))
+    {
+        if (!parseXMLRPCArrayValue(*this, inner))
+        {
+            clear();
+            return false;
+        }
+        return true;
+    }
+
+    if (inner->hasName("struct"))
+    {
+        if (!parseXMLRPCStructValue(*this, inner))
+        {
+            clear();
+            return false;
+        }
+        return true;
+    }
+
+    check(false, "Unknown inner XML element (known value type expected)");
+    // Value with unknown type qualifier is treated as string
+    assign(LLStringFn::xml_decode(inner->getTextContents()));
+    return true;
+}
 
 // const char * helpers
 LLSD::LLSD(const char* v) : impl(0)     { ALLOC_LLSD_OBJECT;    assign(v); }

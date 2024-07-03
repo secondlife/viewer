@@ -51,7 +51,7 @@ LLFloaterWhiteListEntry::~LLFloaterWhiteListEntry()
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-BOOL LLFloaterWhiteListEntry::postBuild()
+bool LLFloaterWhiteListEntry::postBuild()
 {
     mWhiteListEdit = getChild<LLLineEditor>("whitelist_entry");
 
@@ -60,7 +60,7 @@ BOOL LLFloaterWhiteListEntry::postBuild()
 
     setDefaultBtn("ok_btn");
 
-    return TRUE;
+    return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

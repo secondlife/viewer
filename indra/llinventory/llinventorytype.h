@@ -66,7 +66,9 @@ public:
         IT_PERSON = 24,
         IT_SETTINGS = 25,
         IT_MATERIAL = 26,
-        IT_COUNT = 27,
+        IT_GLTF = 27,
+        IT_GLTF_BIN = 28,
+        IT_COUNT = 29,
 
         IT_UNKNOWN = 255,
         IT_NONE = -1

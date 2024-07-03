@@ -181,12 +181,13 @@ bool LLPumpIO::prime(apr_pool_t* pool)
 {
     cleanup();
     initialize(pool);
-    return ((pool == NULL) ? false : true);
+    return pool != nullptr;
 }
 
 bool LLPumpIO::addChain(const chain_t& chain, F32 timeout, bool has_curl_request)
 {
-    if(chain.empty()) return false;
+    if (chain.empty())
+        return false;
 
     LLChainInfo info;
     info.mHasCurlRequest = has_curl_request;
@@ -218,12 +219,13 @@ bool LLPumpIO::addChain(
     LLSD context,
     F32 timeout)
 {
-
     // remember that if the caller is providing a full link
     // description, we need to have that description matched to a
     // particular buffer.
-    if(!data) return false;
-    if(links.empty()) return false;
+    if (!data)
+        return false;
+    if (links.empty())
+        return false;
 
 #if LL_DEBUG_PIPE_TYPE_IN_PUMP
     LL_DEBUGS() << "LLPumpIO::addChain() " << links[0].mPipe << " '"
@@ -243,10 +245,11 @@ bool LLPumpIO::addChain(
 bool LLPumpIO::setTimeoutSeconds(F32 timeout)
 {
     // If no chain is running, return failure.
-    if(mRunningChains.end() == mCurrentChain)
+    if (mRunningChains.end() == mCurrentChain)
     {
         return false;
     }
+
     (*mCurrentChain).setTimeoutSeconds(timeout);
     return true;
 }
@@ -254,7 +257,7 @@ bool LLPumpIO::setTimeoutSeconds(F32 timeout)
 void LLPumpIO::adjustTimeoutSeconds(F32 delta)
 {
     // Ensure a chain is running
-    if(mRunningChains.end() != mCurrentChain)
+    if (mRunningChains.end() != mCurrentChain)
     {
         (*mCurrentChain).adjustTimeoutSeconds(delta);
     }
@@ -263,27 +266,27 @@ void LLPumpIO::adjustTimeoutSeconds(F32 delta)
 static std::string events_2_string(apr_int16_t events)
 {
     std::ostringstream ostr;
-    if(events & APR_POLLIN)
+    if (events & APR_POLLIN)
     {
         ostr << "read,";
     }
-    if(events & APR_POLLPRI)
+    if (events & APR_POLLPRI)
     {
         ostr << "priority,";
     }
-    if(events & APR_POLLOUT)
+    if (events & APR_POLLOUT)
     {
         ostr << "write,";
     }
-    if(events & APR_POLLERR)
+    if (events & APR_POLLERR)
     {
         ostr << "error,";
     }
-    if(events & APR_POLLHUP)
+    if (events & APR_POLLHUP)
     {
         ostr << "hangup,";
     }
-    if(events & APR_POLLNVAL)
+    if (events & APR_POLLNVAL)
     {
         ostr << "invalid,";
     }
@@ -292,7 +295,8 @@ static std::string events_2_string(apr_int16_t events)
 
 bool LLPumpIO::setConditional(LLIOPipe* pipe, const apr_pollfd_t* poll)
 {
-    if(!pipe) return false;
+    if (!pipe)
+        return false;
     ll_debug_poll_fd("Set conditional", poll);
 
     LL_DEBUGS() << "Setting conditionals (" << (poll ? events_2_string(poll->reqevents) :"null")
@@ -814,7 +818,7 @@ void LLPumpIO::rebuildPollset()
     running_chains_t::iterator run_end = mRunningChains.end();
     for(; run_it != run_end; ++run_it)
     {
-        size += (*run_it).mDescriptors.size();
+        size += static_cast<U32>((*run_it).mDescriptors.size());
     }
     //LL_DEBUGS() << "found " << size << " descriptors." << LL_ENDL;
     if(size)

@@ -92,8 +92,8 @@ void LLRegionInfoModel::sendRegionTerrain(const LLUUID& invoice) const
     // strings[8] = from estate, float sun_hour
 
     // *NOTE: this resets estate sun info.
-    BOOL estate_global_time = true;
-    BOOL estate_fixed_sun = false;
+    bool estate_global_time = true;
+    bool estate_fixed_sun = false;
     F32 estate_sun_hour = 0.f;
 
     buffer = llformat("%f", mWaterHeight);

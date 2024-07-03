@@ -75,7 +75,7 @@ void LLFloaterPathfindingObjects::onOpen(const LLSD &pKey)
     LLFloater::onOpen(pKey);
 
     selectNoneObjects();
-    mObjectsScrollList->setCommitOnSelectionChange(TRUE);
+    mObjectsScrollList->setCommitOnSelectionChange(true);
 
     if (!mSelectionUpdateSlot.connected())
     {
@@ -112,7 +112,7 @@ void LLFloaterPathfindingObjects::onClose(bool pIsAppQuitting)
         mSelectionUpdateSlot.disconnect();
     }
 
-    mObjectsScrollList->setCommitOnSelectionChange(FALSE);
+    mObjectsScrollList->setCommitOnSelectionChange(false);
     selectNoneObjects();
 
     if (mObjectsSelection.notNull())
@@ -135,7 +135,7 @@ void LLFloaterPathfindingObjects::draw()
         std::vector<LLScrollListItem *> selectedItems = mObjectsScrollList->getAllSelected();
         if (!selectedItems.empty())
         {
-            int numSelectedItems = selectedItems.size();
+            auto numSelectedItems = selectedItems.size();
             S32 nameColumnIndex = getNameColumnIndex();
             const LLColor4 &beaconColor = getBeaconColor();
             const LLColor4 &beaconTextColor = getBeaconTextColor();
@@ -194,7 +194,7 @@ LLFloaterPathfindingObjects::~LLFloaterPathfindingObjects()
     clearAllObjects();
 }
 
-BOOL LLFloaterPathfindingObjects::postBuild()
+bool LLFloaterPathfindingObjects::postBuild()
 {
     mDefaultBeaconColor = LLUIColorTable::getInstance()->getColor("PathfindingDefaultBeaconColor");
     mDefaultBeaconTextColor = LLUIColorTable::getInstance()->getColor("PathfindingDefaultBeaconTextColor");
@@ -204,7 +204,7 @@ BOOL LLFloaterPathfindingObjects::postBuild()
     mObjectsScrollList = findChild<LLScrollListCtrl>("objects_scroll_list");
     llassert(mObjectsScrollList != NULL);
     mObjectsScrollList->setCommitCallback(boost::bind(&LLFloaterPathfindingObjects::onScrollListSelectionChanged, this));
-    mObjectsScrollList->sortByColumnIndex(static_cast<U32>(getNameColumnIndex()), TRUE);
+    mObjectsScrollList->sortByColumnIndex(static_cast<U32>(getNameColumnIndex()), true);
 
     mMessagingStatus = findChild<LLTextBase>("messaging_status");
     llassert(mMessagingStatus != NULL);
@@ -334,7 +334,7 @@ void LLFloaterPathfindingObjects::rebuildObjectsScrollList(bool update_if_needed
     if (!mHasObjectsToBeSelected)
     {
         std::vector<LLScrollListItem*> selectedItems = mObjectsScrollList->getAllSelected();
-        int numSelectedItems = selectedItems.size();
+        auto numSelectedItems = selectedItems.size();
         if (numSelectedItems > 0)
         {
             mObjectsToBeSelected.reserve(selectedItems.size());
@@ -494,14 +494,14 @@ void LLFloaterPathfindingObjects::showFloaterWithSelectionObjects()
         rebuildObjectsScrollList(true);
         if (isMinimized())
         {
-            setMinimized(FALSE);
+            setMinimized(false);
         }
         setVisibleAndFrontmost();
     }
-    setFocus(TRUE);
+    setFocus(true);
 }
 
-BOOL LLFloaterPathfindingObjects::isShowBeacons() const
+bool LLFloaterPathfindingObjects::isShowBeacons() const
 {
     return mShowBeaconCheckBox->get();
 }
@@ -788,22 +788,22 @@ void LLFloaterPathfindingObjects::updateStateOnListControls()
     case kMessagingUnknown:
     case kMessagingGetRequestSent :
     case kMessagingSetRequestSent :
-        mRefreshListButton->setEnabled(FALSE);
-        mSelectAllButton->setEnabled(FALSE);
-        mSelectNoneButton->setEnabled(FALSE);
+        mRefreshListButton->setEnabled(false);
+        mSelectAllButton->setEnabled(false);
+        mSelectNoneButton->setEnabled(false);
         break;
     case kMessagingGetError :
     case kMessagingSetError :
     case kMessagingNotEnabled :
-        mRefreshListButton->setEnabled(TRUE);
-        mSelectAllButton->setEnabled(FALSE);
-        mSelectNoneButton->setEnabled(FALSE);
+        mRefreshListButton->setEnabled(true);
+        mSelectAllButton->setEnabled(false);
+        mSelectNoneButton->setEnabled(false);
         break;
     case kMessagingComplete :
         {
             int numItems = mObjectsScrollList->getItemCount();
             int numSelectedItems = mObjectsScrollList->getNumSelected();
-            mRefreshListButton->setEnabled(TRUE);
+            mRefreshListButton->setEnabled(true);
             mSelectAllButton->setEnabled(numSelectedItems < numItems);
             mSelectNoneButton->setEnabled(numSelectedItems > 0);
         }
@@ -835,7 +835,7 @@ void LLFloaterPathfindingObjects::selectScrollListItemsInWorld()
     std::vector<LLScrollListItem *> selectedItems = mObjectsScrollList->getAllSelected();
     if (!selectedItems.empty())
     {
-        int numSelectedItems = selectedItems.size();
+        auto numSelectedItems = selectedItems.size();
 
         std::vector<LLViewerObject *>viewerObjects;
         viewerObjects.reserve(numSelectedItems);

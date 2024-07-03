@@ -80,7 +80,7 @@ protected:
 public:
     virtual LLTransientFloaterMgr::ETransientGroup getGroup() = 0;
     bool isTransientDocked() { return mFloater->isDocked(); };
-    void setTransientVisible(BOOL visible) {mFloater->setVisible(visible); }
+    void setTransientVisible(bool visible) {mFloater->setVisible(visible); }
 
 private:
     LLFloater* mFloater;

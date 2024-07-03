@@ -151,7 +151,7 @@ namespace tut
         ensure("LLImageDecodeThread: threaded constructor failed", mThread != NULL);
         // Insert something in the queue
         bool done = false;
-        LLImageDecodeThread::handle_t decodeHandle = mThread->decodeImage(NULL, 0, FALSE, new responder_test(&done));
+        LLImageDecodeThread::handle_t decodeHandle = mThread->decodeImage(NULL, 0, false, new responder_test(&done));
         // Verifies we get back a valid handle
         ensure("LLImageDecodeThread:  threaded decodeImage(), returned handle is null", decodeHandle != 0);
         // Wait till the thread has time to handle the work order (though it doesn't do much per work order...)

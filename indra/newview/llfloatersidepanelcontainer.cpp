@@ -113,7 +113,7 @@ LLFloater* LLFloaterSidePanelContainer::getTopmostInventoryFloater()
     return topmost_floater;
 }
 
-LLPanel* LLFloaterSidePanelContainer::openChildPanel(const std::string& panel_name, const LLSD& params)
+LLPanel* LLFloaterSidePanelContainer::openChildPanel(std::string_view panel_name, const LLSD& params)
 {
     LLView* view = findChildView(panel_name, true);
     if (!view)
@@ -125,7 +125,7 @@ LLPanel* LLFloaterSidePanelContainer::openChildPanel(const std::string& panel_na
     }
     else if (!hasFocus())
     {
-        setFocus(TRUE);
+        setFocus(true);
     }
 
     LLPanel* panel = NULL;
@@ -144,7 +144,7 @@ LLPanel* LLFloaterSidePanelContainer::openChildPanel(const std::string& panel_na
     return panel;
 }
 
-void LLFloaterSidePanelContainer::showPanel(const std::string& floater_name, const LLSD& key)
+void LLFloaterSidePanelContainer::showPanel(std::string_view floater_name, const LLSD& key)
 {
     LLFloaterSidePanelContainer* floaterp = LLFloaterReg::getTypedInstance<LLFloaterSidePanelContainer>(floater_name);
     if (floaterp)
@@ -153,7 +153,7 @@ void LLFloaterSidePanelContainer::showPanel(const std::string& floater_name, con
     }
 }
 
-void LLFloaterSidePanelContainer::showPanel(const std::string& floater_name, const std::string& panel_name, const LLSD& key)
+void LLFloaterSidePanelContainer::showPanel(std::string_view floater_name, std::string_view panel_name, const LLSD& key)
 {
     LLFloaterSidePanelContainer* floaterp = LLFloaterReg::getTypedInstance<LLFloaterSidePanelContainer>(floater_name);
     if (floaterp)
@@ -162,7 +162,7 @@ void LLFloaterSidePanelContainer::showPanel(const std::string& floater_name, con
     }
 }
 
-LLPanel* LLFloaterSidePanelContainer::getPanel(const std::string& floater_name, const std::string& panel_name)
+LLPanel* LLFloaterSidePanelContainer::getPanel(std::string_view floater_name, std::string_view panel_name)
 {
     LLFloaterSidePanelContainer* floaterp = LLFloaterReg::getTypedInstance<LLFloaterSidePanelContainer>(floater_name);
 
@@ -174,7 +174,7 @@ LLPanel* LLFloaterSidePanelContainer::getPanel(const std::string& floater_name, 
     return NULL;
 }
 
-LLPanel* LLFloaterSidePanelContainer::findPanel(const std::string& floater_name, const std::string& panel_name)
+LLPanel* LLFloaterSidePanelContainer::findPanel(std::string_view floater_name, std::string_view panel_name)
 {
     LLFloaterSidePanelContainer* floaterp = LLFloaterReg::findTypedInstance<LLFloaterSidePanelContainer>(floater_name);
 

@@ -65,7 +65,7 @@ protected:
 private:
     void setMode(ERebakeNavMeshMode pRebakeNavMeshMode);
 
-    void handleAgentState(BOOL pCanRebakeRegion);
+    void handleAgentState(bool pCanRebakeRegion);
     void handleRebakeNavMeshResponse(bool pResponseStatus);
     void handleNavMeshStatus(const LLPathfindingNavMeshStatus &pNavMeshStatus);
     void handleRegionBoundaryCrossed();

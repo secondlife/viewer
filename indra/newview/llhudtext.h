@@ -97,9 +97,9 @@ public:
     void setFont(const LLFontGL* font);
     void setColor(const LLColor4 &color);
     void setAlpha(F32 alpha);
-    void setZCompare(const BOOL zcompare);
-    void setDoFade(const BOOL do_fade);
-//  void setVisibleOffScreen(BOOL visible) { mVisibleOffScreen = visible; }
+    void setZCompare(const bool zcompare);
+    void setDoFade(const bool do_fade);
+//  void setVisibleOffScreen(bool visible) { mVisibleOffScreen = visible; }
 
     // mMaxLines of -1 means unlimited lines.
     void setMaxLines(S32 max_lines) { mMaxLines = max_lines; }
@@ -113,16 +113,16 @@ public:
     /*virtual*/ void markDead();
     friend class LLHUDObject;
     /*virtual*/ F32 getDistance() const { return mLastDistance; }
-    BOOL getVisible() { return mVisible; }
-    BOOL getHidden() const { return mHidden; }
-    void setHidden( BOOL hide ) { mHidden = hide; }
-    void setOnHUDAttachment(BOOL on_hud) { mOnHUDAttachment = on_hud; }
+    bool getVisible() { return mVisible; }
+    bool getHidden() const { return mHidden; }
+    void setHidden( bool hide ) { mHidden = hide; }
+    void setOnHUDAttachment(bool on_hud) { mOnHUDAttachment = on_hud; }
     void shift(const LLVector3& offset);
 
     static void shiftAll(const LLVector3& offset);
     static void renderAllHUD();
     static void reshape();
-    static void setDisplayText(BOOL flag) { sDisplayText = flag ; }
+    static void setDisplayText(bool flag) { sDisplayText = flag ; }
 
 protected:
     LLHUDText(const U8 type);
@@ -134,14 +134,14 @@ protected:
 
 private:
     ~LLHUDText();
-    BOOL            mOnHUDAttachment;
-    BOOL            mDoFade;
+    bool            mOnHUDAttachment;
+    bool            mDoFade;
     F32             mFadeRange;
     F32             mFadeDistance;
     F32             mLastDistance;
-    BOOL            mZCompare;
-//  BOOL            mVisibleOffScreen;
-    BOOL            mOffscreen;
+    bool            mZCompare;
+//  bool            mVisibleOffScreen;
+    bool            mOffscreen;
     LLColor4        mColor;
     LLVector3       mScale;
     F32             mWidth;
@@ -160,9 +160,9 @@ private:
     std::vector<LLHUDTextSegment> mTextSegments;
     ETextAlignment  mTextAlignment;
     EVertAlignment  mVertAlignment;
-    BOOL            mHidden;
+    bool            mHidden;
 
-    static BOOL    sDisplayText ;
+    static bool    sDisplayText ;
     static std::set<LLPointer<LLHUDText> > sTextObjects;
     static std::vector<LLPointer<LLHUDText> > sVisibleTextObjects;
     static std::vector<LLPointer<LLHUDText> > sVisibleHUDTextObjects;

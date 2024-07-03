@@ -56,11 +56,10 @@ LLVOWater::LLVOWater(const LLUUID &id,
     mRenderType(LLPipeline::RENDER_TYPE_WATER)
 {
     // Terrain must draw during selection passes so it can block objects behind it.
-    mbCanSelect = FALSE;
+    mbCanSelect = false;
     setScale(LLVector3(256.f, 256.f, 0.f)); // Hack for setting scale for bounding boxes/visibility.
 
-    mUseTexture = TRUE;
-    mIsEdgePatch = FALSE;
+    mIsEdgePatch = false;
 }
 
 
@@ -70,9 +69,9 @@ void LLVOWater::markDead()
 }
 
 
-BOOL LLVOWater::isActive() const
+bool LLVOWater::isActive() const
 {
-    return FALSE;
+    return false;
 }
 
 
@@ -96,24 +95,17 @@ void  LLVOWater::idleUpdate(LLAgent &agent, const F64 &time)
 LLDrawable *LLVOWater::createDrawable(LLPipeline *pipeline)
 {
     pipeline->allocDrawable(this);
-    mDrawable->setLit(FALSE);
+    mDrawable->setLit(false);
     mDrawable->setRenderType(mRenderType);
 
     LLDrawPoolWater *pool = (LLDrawPoolWater*) gPipeline.getPool(LLDrawPool::POOL_WATER);
 
-    if (mUseTexture)
-    {
-        mDrawable->setNumFaces(1, pool, mRegionp->getLand().getWaterTexture());
-    }
-    else
-    {
-        mDrawable->setNumFaces(1, pool, LLWorld::getInstance()->getDefaultWaterTexture());
-    }
+    mDrawable->setNumFaces(1, pool, LLWorld::getInstance()->getDefaultWaterTexture());
 
     return mDrawable;
 }
 
-BOOL LLVOWater::updateGeometry(LLDrawable *drawable)
+bool LLVOWater::updateGeometry(LLDrawable *drawable)
 {
     LL_PROFILE_ZONE_SCOPED;
     LLFace *face;
@@ -126,7 +118,7 @@ BOOL LLVOWater::updateGeometry(LLDrawable *drawable)
     face = drawable->getFace(0);
     if (!face)
     {
-        return TRUE;
+        return true;
     }
 
 //  LLVector2 uvs[4];
@@ -231,7 +223,7 @@ BOOL LLVOWater::updateGeometry(LLDrawable *drawable)
 
     mDrawable->movePartition();
     LLPipeline::sCompiles++;
-    return TRUE;
+    return true;
 }
 
 void LLVOWater::initClass()
@@ -249,12 +241,7 @@ void setVecZ(LLVector3& v)
     v.mV[VZ] = 1;
 }
 
-void LLVOWater::setUseTexture(const BOOL use_texture)
-{
-    mUseTexture = use_texture;
-}
-
-void LLVOWater::setIsEdgePatch(const BOOL edge_patch)
+void LLVOWater::setIsEdgePatch(const bool edge_patch)
 {
     mIsEdgePatch = edge_patch;
 }
@@ -292,16 +279,16 @@ U32 LLVOVoidWater::getPartitionType() const
 }
 
 LLWaterPartition::LLWaterPartition(LLViewerRegion* regionp)
-: LLSpatialPartition(0, FALSE, regionp)
+: LLSpatialPartition(0, false, regionp)
 {
-    mInfiniteFarClip = TRUE;
+    mInfiniteFarClip = true;
     mDrawableType = LLPipeline::RENDER_TYPE_WATER;
     mPartitionType = LLViewerRegion::PARTITION_WATER;
 }
 
 LLVoidWaterPartition::LLVoidWaterPartition(LLViewerRegion* regionp) : LLWaterPartition(regionp)
 {
-    mOcclusionEnabled = FALSE;
+    mOcclusionEnabled = false;
     mDrawableType = LLPipeline::RENDER_TYPE_VOIDWATER;
     mPartitionType = LLViewerRegion::PARTITION_VOIDWATER;
 }

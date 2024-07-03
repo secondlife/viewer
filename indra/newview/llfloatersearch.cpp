@@ -100,12 +100,12 @@ LLFloaterSearch::LLFloaterSearch(const Params& key) :
     mCollectionType.insert("people");
 }
 
-BOOL LLFloaterSearch::postBuild()
+bool LLFloaterSearch::postBuild()
 {
     LLFloaterWebContent::postBuild();
     mWebBrowser->addObserver(this);
 
-    return TRUE;
+    return true;
 }
 
 void LLFloaterSearch::onOpen(const LLSD& key)
@@ -115,7 +115,7 @@ void LLFloaterSearch::onOpen(const LLSD& key)
     p.allow_address_entry = false;
 
     LLFloaterWebContent::onOpen(p);
-    mWebBrowser->setFocus(TRUE);
+    mWebBrowser->setFocus(true);
     search(p.search);
 }
 
@@ -147,7 +147,7 @@ void LLFloaterSearch::search(const SearchQuery &p)
     }
 
     // reset the god level warning as we're sending the latest state
-    getChildView("refresh_search")->setVisible(FALSE);
+    getChildView("refresh_search")->setVisible(false);
     mSearchGodLevel = gAgent.getGodLevel();
 
     // work out the subdir to use based on the requested category

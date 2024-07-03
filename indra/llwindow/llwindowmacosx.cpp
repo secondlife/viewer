@@ -50,8 +50,8 @@
 #include <IOKit/hid/IOHIDLib.h>
 #include <IOKit/usb/IOUSBLib.h>
 
-extern BOOL gDebugWindowProc;
-BOOL gHiDPISupport = TRUE;
+extern bool gDebugWindowProc;
+bool gHiDPISupport = true;
 
 const S32   BITS_PER_PIXEL = 32;
 const S32   MAX_NUM_RESOLUTIONS = 32;
@@ -66,11 +66,11 @@ namespace
 // LLWindowMacOSX
 //
 
-BOOL LLWindowMacOSX::sUseMultGL = FALSE;
+bool LLWindowMacOSX::sUseMultGL = false;
 
 // Cross-platform bits:
 
-BOOL check_for_card(const char* RENDERER, const char* bad_card)
+bool check_for_card(const char* RENDERER, const char* bad_card)
 {
     if (!strnicmp(RENDERER, bad_card, strlen(bad_card)))
     {
@@ -91,15 +91,15 @@ BOOL check_for_card(const char* RENDERER, const char* bad_card)
         S32 button = OSMessageBox(buffer.c_str(), "Unsupported video card", OSMB_YESNO);
         if (OSBTN_YES == button)
         {
-            return FALSE;
+            return false;
         }
         else
         {
-            return TRUE;
+            return true;
         }
     }
 
-    return FALSE;
+    return false;
 }
 
 // Switch to determine whether we capture all displays, or just the main one.
@@ -119,9 +119,9 @@ static LLWindowMacOSX *gWindowImplementation = NULL;
 LLWindowMacOSX::LLWindowMacOSX(LLWindowCallbacks* callbacks,
                                const std::string& title, const std::string& name, S32 x, S32 y, S32 width,
                                S32 height, U32 flags,
-                               BOOL fullscreen, BOOL clearBg,
-                               BOOL enable_vsync, BOOL use_gl,
-                               BOOL ignore_pixel_depth,
+                               bool fullscreen, bool clearBg,
+                               bool enable_vsync, bool use_gl,
+                               bool ignore_pixel_depth,
                                U32 fsaa_samples)
     : LLWindow(NULL, fullscreen, flags)
 {
@@ -143,21 +143,21 @@ LLWindowMacOSX::LLWindowMacOSX(LLWindowCallbacks* callbacks,
     mContext = NULL;
     mPixelFormat = NULL;
     mDisplay = CGMainDisplayID();
-    mSimulatedRightClick = FALSE;
+    mSimulatedRightClick = false;
     mLastModifiers = 0;
-    mHandsOffEvents = FALSE;
-    mCursorDecoupled = FALSE;
+    mHandsOffEvents = false;
+    mCursorDecoupled = false;
     mCursorLastEventDeltaX = 0;
     mCursorLastEventDeltaY = 0;
-    mCursorIgnoreNextDelta = FALSE;
-    mNeedsResize = FALSE;
+    mCursorIgnoreNextDelta = false;
+    mNeedsResize = false;
     mOverrideAspectRatio = 0.f;
-    mMaximized = FALSE;
-    mMinimized = FALSE;
-    mLanguageTextInputAllowed = FALSE;
+    mMaximized = false;
+    mMinimized = false;
+    mLanguageTextInputAllowed = false;
     mPreeditor = NULL;
     mFSAASamples = fsaa_samples;
-    mForceRebuild = FALSE;
+    mForceRebuild = false;
 
     // Get the original aspect ratio of the main device.
     mOriginalAspectRatio = (double)CGDisplayPixelsWide(mDisplay) / (double)CGDisplayPixelsHigh(mDisplay);
@@ -197,7 +197,7 @@ LLWindowMacOSX::LLWindowMacOSX(LLWindowCallbacks* callbacks,
         initCursors();
         setCursor( UI_CURSOR_ARROW );
 
-        allowLanguageTextInput(NULL, FALSE);
+        allowLanguageTextInput(NULL, false);
     }
 
     mCallbacks = callbacks;
@@ -289,7 +289,7 @@ void callRightMouseDown(float *pos, MASK mask)
     LLCoordGL       outCoords;
     outCoords.mX = ll_round(pos[0]);
     outCoords.mY = ll_round(pos[1]);
-    gWindowImplementation->getCallbacks()->handleRightMouseDown(gWindowImplementation, outCoords, gKeyboard->currentMask(TRUE));
+    gWindowImplementation->getCallbacks()->handleRightMouseDown(gWindowImplementation, outCoords, gKeyboard->currentMask(true));
 }
 
 void callRightMouseUp(float *pos, MASK mask)
@@ -302,7 +302,7 @@ void callRightMouseUp(float *pos, MASK mask)
     LLCoordGL       outCoords;
     outCoords.mX = ll_round(pos[0]);
     outCoords.mY = ll_round(pos[1]);
-    gWindowImplementation->getCallbacks()->handleRightMouseUp(gWindowImplementation, outCoords, gKeyboard->currentMask(TRUE));
+    gWindowImplementation->getCallbacks()->handleRightMouseUp(gWindowImplementation, outCoords, gKeyboard->currentMask(true));
 }
 
 void callLeftMouseDown(float *pos, MASK mask)
@@ -315,7 +315,7 @@ void callLeftMouseDown(float *pos, MASK mask)
     LLCoordGL       outCoords;
     outCoords.mX = ll_round(pos[0]);
     outCoords.mY = ll_round(pos[1]);
-    gWindowImplementation->getCallbacks()->handleMouseDown(gWindowImplementation, outCoords, gKeyboard->currentMask(TRUE));
+    gWindowImplementation->getCallbacks()->handleMouseDown(gWindowImplementation, outCoords, gKeyboard->currentMask(true));
 }
 
 void callLeftMouseUp(float *pos, MASK mask)
@@ -328,7 +328,7 @@ void callLeftMouseUp(float *pos, MASK mask)
     LLCoordGL       outCoords;
     outCoords.mX = ll_round(pos[0]);
     outCoords.mY = ll_round(pos[1]);
-    gWindowImplementation->getCallbacks()->handleMouseUp(gWindowImplementation, outCoords, gKeyboard->currentMask(TRUE));
+    gWindowImplementation->getCallbacks()->handleMouseUp(gWindowImplementation, outCoords, gKeyboard->currentMask(true));
 
 }
 
@@ -342,7 +342,7 @@ void callDoubleClick(float *pos, MASK mask)
     LLCoordGL   outCoords;
     outCoords.mX = ll_round(pos[0]);
     outCoords.mY = ll_round(pos[1]);
-    gWindowImplementation->getCallbacks()->handleDoubleClick(gWindowImplementation, outCoords, gKeyboard->currentMask(TRUE));
+    gWindowImplementation->getCallbacks()->handleDoubleClick(gWindowImplementation, outCoords, gKeyboard->currentMask(true));
 }
 
 void callResize(unsigned int width, unsigned int height)
@@ -362,7 +362,7 @@ void callMouseMoved(float *pos, MASK mask)
     gWindowImplementation->getMouseDeltas(deltas);
     outCoords.mX += deltas[0];
     outCoords.mY += deltas[1];
-    gWindowImplementation->getCallbacks()->handleMouseMove(gWindowImplementation, outCoords, gKeyboard->currentMask(TRUE));
+    gWindowImplementation->getCallbacks()->handleMouseMove(gWindowImplementation, outCoords, gKeyboard->currentMask(true));
     //gWindowImplementation->getCallbacks()->handleScrollWheel(gWindowImplementation, 0);
 }
 
@@ -375,7 +375,7 @@ void callMouseDragged(float *pos, MASK mask)
     gWindowImplementation->getMouseDeltas(deltas);
     outCoords.mX += deltas[0];
     outCoords.mY += deltas[1];
-    gWindowImplementation->getCallbacks()->handleMouseDragged(gWindowImplementation, outCoords, gKeyboard->currentMask(TRUE));
+    gWindowImplementation->getCallbacks()->handleMouseDragged(gWindowImplementation, outCoords, gKeyboard->currentMask(true));
 }
 
 void callScrollMoved(float deltaX, float deltaY)
@@ -617,7 +617,7 @@ void LLWindowMacOSX::updateMouseDeltas(float* deltas)
         {
             mCursorLastEventDeltaX = 0;
             mCursorLastEventDeltaY = 0;
-            mCursorIgnoreNextDelta = FALSE;
+            mCursorIgnoreNextDelta = false;
         }
     } else {
         mCursorLastEventDeltaX = 0;
@@ -631,7 +631,7 @@ void LLWindowMacOSX::getMouseDeltas(float* delta)
     delta[1] = mCursorLastEventDeltaY;
 }
 
-BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits, BOOL fullscreen, BOOL enable_vsync)
+bool LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits, bool fullscreen, bool enable_vsync)
 {
     mFullscreen = fullscreen;
 
@@ -690,7 +690,7 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
         if (err != kCGLNoError)
         {
             setupFailure("Can't activate GL rendering context", "Error", OSMB_OK);
-            return FALSE;
+            return false;
         }
     }
 
@@ -723,15 +723,15 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
     }
     makeFirstResponder(mWindow, mGLView);
 
-    return TRUE;
+    return true;
 }
 
 
 // We only support OS X 10.7's fullscreen app mode which is literally a full screen window that fills a virtual desktop.
 // This makes this method obsolete.
-BOOL LLWindowMacOSX::switchContext(BOOL fullscreen, const LLCoordScreen &size, BOOL enable_vsync, const LLCoordScreen * const posp)
+bool LLWindowMacOSX::switchContext(bool fullscreen, const LLCoordScreen &size, bool enable_vsync, const LLCoordScreen * const posp)
 {
-    return FALSE;
+    return false;
 }
 
 void LLWindowMacOSX::destroyContext()
@@ -801,13 +801,13 @@ void LLWindowMacOSX::show()
 
 void LLWindowMacOSX::hide()
 {
-    setMouseClipping(FALSE);
+    setMouseClipping(false);
 }
 
 //virtual
 void LLWindowMacOSX::minimize()
 {
-    setMouseClipping(FALSE);
+    setMouseClipping(false);
     showCursor();
 }
 
@@ -829,48 +829,48 @@ void LLWindowMacOSX::close()
     //  }
 
     // Make sure cursor is visible and we haven't mangled the clipping state.
-    setMouseClipping(FALSE);
+    setMouseClipping(false);
     showCursor();
 
     destroyContext();
 }
 
-BOOL LLWindowMacOSX::isValid()
+bool LLWindowMacOSX::isValid()
 {
     if(mFullscreen)
     {
-        return(TRUE);
+        return(true);
     }
 
     return (mWindow != NULL);
 }
 
-BOOL LLWindowMacOSX::getVisible()
+bool LLWindowMacOSX::getVisible()
 {
-    BOOL result = FALSE;
+    bool result = false;
 
     if(mFullscreen)
     {
-        result = TRUE;
+        result = true;
     }if (mWindow)
     {
-            result = TRUE;
+            result = true;
     }
 
     return(result);
 }
 
-BOOL LLWindowMacOSX::getMinimized()
+bool LLWindowMacOSX::getMinimized()
 {
     return mMinimized;
 }
 
-BOOL LLWindowMacOSX::getMaximized()
+bool LLWindowMacOSX::getMaximized()
 {
     return mMaximized;
 }
 
-BOOL LLWindowMacOSX::maximize()
+bool LLWindowMacOSX::maximize()
 {
     if (mWindow && !mMaximized)
     {
@@ -879,7 +879,7 @@ BOOL LLWindowMacOSX::maximize()
     return mMaximized;
 }
 
-BOOL LLWindowMacOSX::getFullscreen()
+bool LLWindowMacOSX::getFullscreen()
 {
     return mFullscreen;
 }
@@ -889,7 +889,7 @@ void LLWindowMacOSX::gatherInput()
     updateCursor();
 }
 
-BOOL LLWindowMacOSX::getPosition(LLCoordScreen *position)
+bool LLWindowMacOSX::getPosition(LLCoordScreen *position)
 {
     S32 err = -1;
 
@@ -916,7 +916,7 @@ BOOL LLWindowMacOSX::getPosition(LLCoordScreen *position)
     return (err == noErr);
 }
 
-BOOL LLWindowMacOSX::getSize(LLCoordScreen *size)
+bool LLWindowMacOSX::getSize(LLCoordScreen *size)
 {
     S32 err = -1;
 
@@ -942,7 +942,7 @@ BOOL LLWindowMacOSX::getSize(LLCoordScreen *size)
     return (err == noErr);
 }
 
-BOOL LLWindowMacOSX::getSize(LLCoordWindow *size)
+bool LLWindowMacOSX::getSize(LLCoordWindow *size)
 {
     S32 err = -1;
 
@@ -970,7 +970,7 @@ BOOL LLWindowMacOSX::getSize(LLCoordWindow *size)
     return (err == noErr);
 }
 
-BOOL LLWindowMacOSX::setPosition(const LLCoordScreen position)
+bool LLWindowMacOSX::setPosition(const LLCoordScreen position)
 {
     if(mWindow)
     {
@@ -978,32 +978,32 @@ BOOL LLWindowMacOSX::setPosition(const LLCoordScreen position)
         setWindowPos(mWindow, pos);
     }
 
-    return TRUE;
+    return true;
 }
 
-BOOL LLWindowMacOSX::setSizeImpl(const LLCoordScreen size)
+bool LLWindowMacOSX::setSizeImpl(const LLCoordScreen size)
 {
     if(mWindow)
     {
         LLCoordWindow to;
         convertCoords(size, &to);
         setWindowSize(mWindow, to.mX, to.mY);
-        return TRUE;
+        return true;
     }
 
-    return FALSE;
+    return false;
 }
 
-BOOL LLWindowMacOSX::setSizeImpl(const LLCoordWindow size)
+bool LLWindowMacOSX::setSizeImpl(const LLCoordWindow size)
 {
     if (mWindow)
     {
         const int titlePadding = 22;
         setWindowSize(mWindow, size.mX, size.mY + titlePadding);
-        return TRUE;
+        return true;
     }
 
-    return FALSE;
+    return false;
 }
 
 void LLWindowMacOSX::swapBuffers()
@@ -1058,16 +1058,16 @@ U32 LLWindowMacOSX::getFSAASamples()
 void LLWindowMacOSX::setFSAASamples(const U32 samples)
 {
     mFSAASamples = samples;
-    mForceRebuild = TRUE;
+    mForceRebuild = true;
 }
 
-BOOL LLWindowMacOSX::restoreGamma()
+bool LLWindowMacOSX::restoreGamma()
 {
     CGDisplayRestoreColorSyncSettings();
     return true;
 }
 
-BOOL LLWindowMacOSX::setGamma(const F32 gamma)
+bool LLWindowMacOSX::setGamma(const F32 gamma)
 {
     CGGammaValue redMin;
     CGGammaValue redMax;
@@ -1115,7 +1115,7 @@ BOOL LLWindowMacOSX::setGamma(const F32 gamma)
     return true;
 }
 
-BOOL LLWindowMacOSX::isCursorHidden()
+bool LLWindowMacOSX::isCursorHidden()
 {
     return mCursorHidden;
 }
@@ -1123,31 +1123,31 @@ BOOL LLWindowMacOSX::isCursorHidden()
 
 
 // Constrains the mouse to the window.
-void LLWindowMacOSX::setMouseClipping( BOOL b )
+void LLWindowMacOSX::setMouseClipping( bool b )
 {
     // Just stash the requested state.  We'll simulate this when the cursor is hidden by decoupling.
     mIsMouseClipping = b;
 
     if(b)
     {
-        //      LL_INFOS() << "setMouseClipping(TRUE)" << LL_ENDL;
+        //      LL_INFOS() << "setMouseClipping(true)" << LL_ENDL;
     }
     else
     {
-        //      LL_INFOS() << "setMouseClipping(FALSE)" << LL_ENDL;
+        //      LL_INFOS() << "setMouseClipping(false)" << LL_ENDL;
     }
 
     adjustCursorDecouple();
 }
 
-BOOL LLWindowMacOSX::setCursorPosition(const LLCoordWindow position)
+bool LLWindowMacOSX::setCursorPosition(const LLCoordWindow position)
 {
-    BOOL result = FALSE;
+    bool result = false;
     LLCoordScreen screen_pos;
 
     if (!convertCoords(position, &screen_pos))
     {
-        return FALSE;
+        return false;
     }
 
     CGPoint newPosition;
@@ -1160,7 +1160,7 @@ BOOL LLWindowMacOSX::setCursorPosition(const LLCoordWindow position)
     CGSetLocalEventsSuppressionInterval(0.0);
     if(CGWarpMouseCursorPosition(newPosition) == noErr)
     {
-        result = TRUE;
+        result = true;
     }
 
     // Under certain circumstances, this will trigger us to decouple the cursor.
@@ -1177,13 +1177,13 @@ BOOL LLWindowMacOSX::setCursorPosition(const LLCoordWindow position)
     return result;
 }
 
-BOOL LLWindowMacOSX::getCursorPosition(LLCoordWindow *position)
+bool LLWindowMacOSX::getCursorPosition(LLCoordWindow *position)
 {
     float cursor_point[2];
     LLCoordScreen screen_pos;
 
     if(mWindow == NULL)
-        return FALSE;
+        return false;
 
     getCursorPos(mWindow, cursor_point);
 
@@ -1206,7 +1206,7 @@ BOOL LLWindowMacOSX::getCursorPosition(LLCoordWindow *position)
     position->mX = cursor_point[0] * scale;
     position->mY = cursor_point[1] * scale;
 
-    return TRUE;
+    return true;
 }
 
 void LLWindowMacOSX::adjustCursorDecouple(bool warpingMouse)
@@ -1221,7 +1221,7 @@ void LLWindowMacOSX::adjustCursorDecouple(bool warpingMouse)
                 //          LL_INFOS() << "adjustCursorDecouple: decoupling cursor" << LL_ENDL;
                 CGAssociateMouseAndMouseCursorPosition(false);
                 mCursorDecoupled = true;
-                mCursorIgnoreNextDelta = TRUE;
+                mCursorIgnoreNextDelta = true;
             }
         }
     }
@@ -1259,18 +1259,8 @@ F32 LLWindowMacOSX::getNativeAspectRatio()
 
 F32 LLWindowMacOSX::getPixelAspectRatio()
 {
-    //OS X always enforces a 1:1 pixel aspect ratio, regardless of video mode
+    //macOS always enforces a 1:1 pixel aspect ratio, regardless of video mode
     return 1.f;
-}
-
-U32 LLWindowMacOSX::getAvailableVRAMMegabytes() {
-    // MTL (and MoltenVK) has some additional gpu data, such as recommendedMaxWorkingSetSize and currentAllocatedSize.
-    // But these are not available for OpenGL and/or our current mimimum OS version.
-    // So we will estimate.
-    static const U32 mb = 1024*1024;
-    // We're asked for total available gpu memory, but we only have allocation info on texture usage. So estimate by doubling that.
-    static const U32 total_factor = 2; // estimated total/textures
-    return gGLManager.mVRAM - (LLImageGL::getTextureBytesAllocated() * total_factor/mb);
 }
 
 //static SInt32 oldWindowLevel;
@@ -1291,17 +1281,17 @@ void LLWindowMacOSX::afterDialog()
 
 void LLWindowMacOSX::flashIcon(F32 seconds)
 {
-    // For consistency with OS X conventions, the number of seconds given is ignored and
+    // For consistency with macOS conventions, the number of seconds given is ignored and
     // left up to the OS (which will actually bounce it for one second).
     requestUserAttention();
 }
 
-BOOL LLWindowMacOSX::isClipboardTextAvailable()
+bool LLWindowMacOSX::isClipboardTextAvailable()
 {
     return pasteBoardAvailable();
 }
 
-BOOL LLWindowMacOSX::pasteTextFromClipboard(LLWString &dst)
+bool LLWindowMacOSX::pasteTextFromClipboard(LLWString &dst)
 {
     unsigned short* pboard_data = copyFromPBoard(); // must free returned data
     llutf16string str(pboard_data);
@@ -1316,9 +1306,9 @@ BOOL LLWindowMacOSX::pasteTextFromClipboard(LLWString &dst)
     }
 }
 
-BOOL LLWindowMacOSX::copyTextToClipboard(const LLWString &s)
+bool LLWindowMacOSX::copyTextToClipboard(const LLWString &s)
 {
-    BOOL result = false;
+    bool result = false;
     llutf16string utf16str = wstring_to_utf16str(s);
 
     result = copyToPBoard(utf16str.data(), utf16str.length());
@@ -1328,7 +1318,7 @@ BOOL LLWindowMacOSX::copyTextToClipboard(const LLWString &s)
 
 
 // protected
-BOOL LLWindowMacOSX::resetDisplayResolution()
+bool LLWindowMacOSX::resetDisplayResolution()
 {
     // This is only called from elsewhere in this class, and it's not used by the Mac implementation.
     return true;
@@ -1361,13 +1351,13 @@ LLWindow::LLWindowResolution* LLWindowMacOSX::getSupportedResolutions(S32 &num_r
 
                 if(bits == BITS_PER_PIXEL && width >= 800 && height >= 600)
                 {
-                    BOOL resolution_exists = FALSE;
+                    bool resolution_exists = false;
                     for(S32 i = 0; i < mNumSupportedResolutions; i++)
                     {
                         if (mSupportedResolutions[i].mWidth == width &&
                             mSupportedResolutions[i].mHeight == height)
                         {
-                            resolution_exists = TRUE;
+                            resolution_exists = true;
                         }
                     }
                     if (!resolution_exists)
@@ -1386,21 +1376,21 @@ LLWindow::LLWindowResolution* LLWindowMacOSX::getSupportedResolutions(S32 &num_r
     return mSupportedResolutions;
 }
 
-BOOL LLWindowMacOSX::convertCoords(LLCoordGL from, LLCoordWindow *to)
+bool LLWindowMacOSX::convertCoords(LLCoordGL from, LLCoordWindow *to)
 {
     to->mX = from.mX;
     to->mY = from.mY;
-    return TRUE;
+    return true;
 }
 
-BOOL LLWindowMacOSX::convertCoords(LLCoordWindow from, LLCoordGL* to)
+bool LLWindowMacOSX::convertCoords(LLCoordWindow from, LLCoordGL* to)
 {
     to->mX = from.mX;
     to->mY = from.mY;
-    return TRUE;
+    return true;
 }
 
-BOOL LLWindowMacOSX::convertCoords(LLCoordScreen from, LLCoordWindow* to)
+bool LLWindowMacOSX::convertCoords(LLCoordScreen from, LLCoordWindow* to)
 {
     if(mWindow)
     {
@@ -1414,12 +1404,12 @@ BOOL LLWindowMacOSX::convertCoords(LLCoordScreen from, LLCoordWindow* to)
         to->mX = mouse_point[0];
         to->mY = mouse_point[1];
 
-        return TRUE;
+        return true;
     }
-    return FALSE;
+    return false;
 }
 
-BOOL LLWindowMacOSX::convertCoords(LLCoordWindow from, LLCoordScreen *to)
+bool LLWindowMacOSX::convertCoords(LLCoordWindow from, LLCoordScreen *to)
 {
     if(mWindow)
     {
@@ -1433,19 +1423,19 @@ BOOL LLWindowMacOSX::convertCoords(LLCoordWindow from, LLCoordScreen *to)
         to->mX = mouse_point[0];
         to->mY = mouse_point[1];
 
-        return TRUE;
+        return true;
     }
-    return FALSE;
+    return false;
 }
 
-BOOL LLWindowMacOSX::convertCoords(LLCoordScreen from, LLCoordGL *to)
+bool LLWindowMacOSX::convertCoords(LLCoordScreen from, LLCoordGL *to)
 {
     LLCoordWindow window_coord;
 
     return(convertCoords(from, &window_coord) && convertCoords(window_coord, to));
 }
 
-BOOL LLWindowMacOSX::convertCoords(LLCoordGL from, LLCoordScreen *to)
+bool LLWindowMacOSX::convertCoords(LLCoordGL from, LLCoordScreen *to)
 {
     LLCoordWindow window_coord;
 
@@ -1707,8 +1697,8 @@ void LLWindowMacOSX::hideCursor()
     if(!mCursorHidden)
     {
         //      LL_INFOS() << "hideCursor: hiding" << LL_ENDL;
-        mCursorHidden = TRUE;
-        mHideCursorPermanent = TRUE;
+        mCursorHidden = true;
+        mHideCursorPermanent = true;
         hideNSCursor();
     }
     else
@@ -1724,8 +1714,8 @@ void LLWindowMacOSX::showCursor()
     if(mCursorHidden || !isCGCursorVisible())
     {
         //      LL_INFOS() << "showCursor: showing" << LL_ENDL;
-        mCursorHidden = FALSE;
-        mHideCursorPermanent = FALSE;
+        mCursorHidden = false;
+        mHideCursorPermanent = false;
         showNSCursor();
     }
     else
@@ -1749,7 +1739,7 @@ void LLWindowMacOSX::hideCursorUntilMouseMove()
     if (!mHideCursorPermanent)
     {
         hideCursor();
-        mHideCursorPermanent = FALSE;
+        mHideCursorPermanent = false;
     }
 }
 
@@ -2350,9 +2340,9 @@ LLSD LLWindowMacOSX::getNativeKeyData()
     return result;
 }
 
-BOOL LLWindowMacOSX::dialogColorPicker( F32 *r, F32 *g, F32 *b)
+bool LLWindowMacOSX::dialogColorPicker( F32 *r, F32 *g, F32 *b)
 {
-    BOOL    retval = FALSE;
+    bool    retval = false;
     OSErr   error = noErr;
     NColorPickerInfo    info;
 
@@ -2409,12 +2399,12 @@ static long getDictLong (CFDictionaryRef refDict, CFStringRef key)
     return int_value; // otherwise return the long value
 }
 
-void LLWindowMacOSX::allowLanguageTextInput(LLPreeditor *preeditor, BOOL b)
+void LLWindowMacOSX::allowLanguageTextInput(LLPreeditor *preeditor, bool b)
 {
     if (preeditor != mPreeditor && !b)
     {
         // This condition may occur by a call to
-        // setEnabled(BOOL) against LLTextEditor or LLLineEditor
+        // setEnabled(bool) against LLTextEditor or LLLineEditor
         // when the control is not focused.
         // We need to silently ignore the case so that
         // the language input status of the focused control

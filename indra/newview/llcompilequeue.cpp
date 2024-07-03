@@ -195,12 +195,12 @@ LLFloaterScriptQueue::~LLFloaterScriptQueue()
 {
 }
 
-BOOL LLFloaterScriptQueue::postBuild()
+bool LLFloaterScriptQueue::postBuild()
 {
     childSetAction("close",onCloseBtn,this);
-    getChildView("close")->setEnabled(FALSE);
+    getChildView("close")->setEnabled(false);
     setVisible(true);
-    return TRUE;
+    return true;
 }
 
 // static
@@ -216,7 +216,7 @@ void LLFloaterScriptQueue::addObject(const LLUUID& id, std::string name)
     mObjectList.push_back(obj);
 }
 
-BOOL LLFloaterScriptQueue::start()
+bool LLFloaterScriptQueue::start()
 {
     std::string buffer;
 
@@ -243,7 +243,7 @@ void LLFloaterScriptQueue::addStringMessage(const std::string &message)
 }
 
 
-BOOL LLFloaterScriptQueue::isDone() const
+bool LLFloaterScriptQueue::isDone() const
 {
     return (mCurrentObjectID.isNull() && (mObjectList.size() == 0));
 }
@@ -271,7 +271,7 @@ void LLFloaterCompileQueue::experienceIdsReceived( const LLSD& content )
     }
 }
 
-BOOL LLFloaterCompileQueue::hasExperience( const LLUUID& id ) const
+bool LLFloaterCompileQueue::hasExperience( const LLUUID& id ) const
 {
     return mExperienceIds.find(id) != mExperienceIds.end();
 }
@@ -536,7 +536,7 @@ bool LLFloaterCompileQueue::startQueue()
 
             LLCoreHttpUtil::HttpCoroutineAdapter::callbackHttpGet(lookup_url,
                 success, failure);
-            return TRUE;
+            return true;
         }
     }
 
@@ -637,7 +637,7 @@ bool LLFloaterRunQueue::runObjectScripts(LLHandle<LLFloaterScriptQueue> hfloater
     msg->nextBlockFast(_PREHASH_Script);
     msg->addUUIDFast(_PREHASH_ObjectID, object->getID());
     msg->addUUIDFast(_PREHASH_ItemID, inventory->getUUID());
-    msg->addBOOLFast(_PREHASH_Running, TRUE);
+    msg->addBOOLFast(_PREHASH_Running, true);
     msg->sendReliable(object->getRegion()->getHost());
 
     return true;
@@ -694,7 +694,7 @@ bool LLFloaterNotRunQueue::stopObjectScripts(LLHandle<LLFloaterScriptQueue> hflo
     msg->nextBlockFast(_PREHASH_Script);
     msg->addUUIDFast(_PREHASH_ObjectID, object->getID());
     msg->addUUIDFast(_PREHASH_ItemID, inventory->getUUID());
-    msg->addBOOLFast(_PREHASH_Running, FALSE);
+    msg->addBOOLFast(_PREHASH_Running, false);
     msg->sendReliable(object->getRegion()->getHost());
 
     return true;
@@ -815,7 +815,7 @@ void LLFloaterScriptQueue::objectScriptProcessingQueueCoro(std::string action, L
         }
 
         floater->addStringMessage("Done");
-        floater->getChildView("close")->setEnabled(TRUE);
+        floater->getChildView("close")->setEnabled(true);
     }
     catch (LLCheckedHandleBase::Stale &)
     {

@@ -56,9 +56,9 @@
 #include "llmenugl.h"
 
 // Globals
-BOOL gCameraBtnZoom = TRUE;
-BOOL gCameraBtnOrbit = FALSE;
-BOOL gCameraBtnPan = FALSE;
+bool gCameraBtnZoom = true;
+bool gCameraBtnOrbit = false;
+bool gCameraBtnPan = false;
 
 const S32 SLOP_RANGE = 4;
 
@@ -72,12 +72,12 @@ LLToolCamera::LLToolCamera()
     mAccumY(0),
     mMouseDownX(0),
     mMouseDownY(0),
-    mOutsideSlopX(FALSE),
-    mOutsideSlopY(FALSE),
-    mValidClickPoint(FALSE),
+    mOutsideSlopX(false),
+    mOutsideSlopY(false),
+    mValidClickPoint(false),
     mClickPickPending(false),
-    mValidSelection(FALSE),
-    mMouseSteering(FALSE),
+    mValidSelection(false),
+    mMouseSteering(false),
     mMouseUpX(0),
     mMouseUpY(0),
     mMouseUpMask(MASK_NONE)
@@ -101,10 +101,10 @@ void LLToolCamera::handleSelect()
 // virtual
 void LLToolCamera::handleDeselect()
 {
-//  gAgent.setLookingAtAvatar(FALSE);
+//  gAgent.setLookingAtAvatar(false);
 
     // Make sure that temporary selection won't pass anywhere except pie tool.
-    MASK override_mask = gKeyboard ? gKeyboard->currentMask(TRUE) : 0;
+    MASK override_mask = gKeyboard ? gKeyboard->currentMask(true) : 0;
     if (!mValidSelection && (override_mask != MASK_NONE || (gFloaterTools && gFloaterTools->getVisible())))
     {
         LLMenuGL::sMenuContainer->hideMenus();
@@ -112,10 +112,10 @@ void LLToolCamera::handleDeselect()
     }
 }
 
-BOOL LLToolCamera::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLToolCamera::handleMouseDown(S32 x, S32 y, MASK mask)
 {
     // Ensure a mouseup
-    setMouseCapture(TRUE);
+    setMouseCapture(true);
 
     // call the base class to propogate info to sim
     LLTool::handleMouseDown(x, y, mask);
@@ -123,10 +123,10 @@ BOOL LLToolCamera::handleMouseDown(S32 x, S32 y, MASK mask)
     mAccumX = 0;
     mAccumY = 0;
 
-    mOutsideSlopX = FALSE;
-    mOutsideSlopY = FALSE;
+    mOutsideSlopX = false;
+    mOutsideSlopY = false;
 
-    mValidClickPoint = FALSE;
+    mValidClickPoint = false;
 
     // Sometimes Windows issues down and up events near simultaneously
     // without giving async pick a chance to trigged
@@ -141,9 +141,9 @@ BOOL LLToolCamera::handleMouseDown(S32 x, S32 y, MASK mask)
 
     gViewerWindow->hideCursor();
 
-    gViewerWindow->pickAsync(x, y, mask, pickCallback, /*BOOL pick_transparent*/ FALSE, /*BOOL pick_rigged*/ FALSE, /*BOOL pick_unselectable*/ TRUE);
+    gViewerWindow->pickAsync(x, y, mask, pickCallback, /*bool pick_transparent*/ false, /*bool pick_rigged*/ false, /*bool pick_unselectable*/ true);
 
-    return TRUE;
+    return true;
 }
 
 void LLToolCamera::pickCallback(const LLPickInfo& pick_info)
@@ -166,7 +166,7 @@ void LLToolCamera::pickCallback(const LLPickInfo& pick_info)
     // Check for hit the sky, or some other invalid point
     if (!hit_obj && pick_info.mPosGlobal.isExactlyZero())
     {
-        camera->mValidClickPoint = FALSE;
+        camera->mValidClickPoint = false;
         return;
     }
 
@@ -176,37 +176,37 @@ void LLToolCamera::pickCallback(const LLPickInfo& pick_info)
         LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
         if (!selection->getObjectCount() || selection->getSelectType() != SELECT_TYPE_HUD)
         {
-            camera->mValidClickPoint = FALSE;
+            camera->mValidClickPoint = false;
             return;
         }
     }
 
     if( CAMERA_MODE_CUSTOMIZE_AVATAR == gAgentCamera.getCameraMode() )
     {
-        BOOL good_customize_avatar_hit = FALSE;
+        bool good_customize_avatar_hit = false;
         if( hit_obj )
         {
             if (isAgentAvatarValid() && (hit_obj == gAgentAvatarp))
             {
                 // It's you
-                good_customize_avatar_hit = TRUE;
+                good_customize_avatar_hit = true;
             }
             else if (hit_obj->isAttachment() && hit_obj->permYouOwner())
             {
                 // It's an attachment that you're wearing
-                good_customize_avatar_hit = TRUE;
+                good_customize_avatar_hit = true;
             }
         }
 
         if( !good_customize_avatar_hit )
         {
-            camera->mValidClickPoint = FALSE;
+            camera->mValidClickPoint = false;
             return;
         }
 
         if( gMorphView )
         {
-            gMorphView->setCameraDrivenByKeys( FALSE );
+            gMorphView->setCameraDrivenByKeys( false );
         }
     }
     //RN: check to see if this is mouse-driving as opposed to ALT-zoom or Focus tool
@@ -219,18 +219,18 @@ void LLToolCamera::pickCallback(const LLPickInfo& pick_info)
             // ...clicked on a world object, so focus at its position
             if (!hit_obj->isHUDAttachment())
             {
-                gAgentCamera.setFocusOnAvatar(FALSE, ANIMATE);
+                gAgentCamera.setFocusOnAvatar(false, ANIMATE);
                 gAgentCamera.setFocusGlobal(pick_info);
             }
         }
         else if (!pick_info.mPosGlobal.isExactlyZero())
         {
             // Hit the ground
-            gAgentCamera.setFocusOnAvatar(FALSE, ANIMATE);
+            gAgentCamera.setFocusOnAvatar(false, ANIMATE);
             gAgentCamera.setFocusGlobal(pick_info);
         }
 
-        BOOL zoom_tool = gCameraBtnZoom && (LLToolMgr::getInstance()->getBaseTool() == LLToolCamera::getInstance());
+        bool zoom_tool = gCameraBtnZoom && (LLToolMgr::getInstance()->getBaseTool() == LLToolCamera::getInstance());
         if (!(pick_info.mKeyMask & MASK_ALT) &&
             !LLFloaterCamera::inFreeCameraMode() &&
             !zoom_tool &&
@@ -240,16 +240,16 @@ void LLToolCamera::pickCallback(const LLPickInfo& pick_info)
             (hit_obj == gAgentAvatarp ||
              (hit_obj && hit_obj->isAttachment() && LLVOAvatar::findAvatarFromAttachment(hit_obj)->isSelf())))
         {
-            LLToolCamera::getInstance()->mMouseSteering = TRUE;
+            LLToolCamera::getInstance()->mMouseSteering = true;
         }
 
     }
 
-    camera->mValidClickPoint = TRUE;
+    camera->mValidClickPoint = true;
 
     if( CAMERA_MODE_CUSTOMIZE_AVATAR == gAgentCamera.getCameraMode() )
     {
-        gAgentCamera.setFocusOnAvatar(FALSE, FALSE);
+        gAgentCamera.setFocusOnAvatar(false, false);
 
         LLVector3d cam_pos = gAgentCamera.getCameraPositionGlobal();
 
@@ -276,14 +276,14 @@ void LLToolCamera::releaseMouse()
         LLToolMgr::getInstance()->clearTransientTool();
     }
 
-    mMouseSteering = FALSE;
-    mValidClickPoint = FALSE;
-    mOutsideSlopX = FALSE;
-    mOutsideSlopY = FALSE;
+    mMouseSteering = false;
+    mValidClickPoint = false;
+    mOutsideSlopX = false;
+    mOutsideSlopY = false;
 }
 
 
-BOOL LLToolCamera::handleMouseUp(S32 x, S32 y, MASK mask)
+bool LLToolCamera::handleMouseUp(S32 x, S32 y, MASK mask)
 {
     // Claim that we're mousing up somewhere
     mMouseUpX = x;
@@ -301,7 +301,7 @@ BOOL LLToolCamera::handleMouseUp(S32 x, S32 y, MASK mask)
                 {
                     LLCoordGL mouse_pos;
                     LLVector3 focus_pos = gAgent.getPosAgentFromGlobal(gAgentCamera.getFocusGlobal());
-                    BOOL success = LLViewerCamera::getInstance()->projectPosAgentToScreen(focus_pos, mouse_pos);
+                    bool success = LLViewerCamera::getInstance()->projectPosAgentToScreen(focus_pos, mouse_pos);
                     if (success)
                     {
                         LLUI::getInstance()->setMousePositionScreen(mouse_pos.mX, mouse_pos.mY);
@@ -324,18 +324,18 @@ BOOL LLToolCamera::handleMouseUp(S32 x, S32 y, MASK mask)
         }
 
         // calls releaseMouse() internally
-        setMouseCapture(FALSE);
+        setMouseCapture(false);
     }
     else
     {
         releaseMouse();
     }
 
-    return TRUE;
+    return true;
 }
 
 
-BOOL LLToolCamera::handleHover(S32 x, S32 y, MASK mask)
+bool LLToolCamera::handleHover(S32 x, S32 y, MASK mask)
 {
     S32 dx = gViewerWindow->getCurrentMouseDX();
     S32 dy = gViewerWindow->getCurrentMouseDY();
@@ -347,12 +347,12 @@ BOOL LLToolCamera::handleHover(S32 x, S32 y, MASK mask)
 
         if (mAccumX >= SLOP_RANGE)
         {
-            mOutsideSlopX = TRUE;
+            mOutsideSlopX = true;
         }
 
         if (mAccumY >= SLOP_RANGE)
         {
-            mOutsideSlopY = TRUE;
+            mOutsideSlopY = true;
         }
     }
 
@@ -363,7 +363,7 @@ BOOL LLToolCamera::handleHover(S32 x, S32 y, MASK mask)
             LL_DEBUGS("UserInput") << "hover handled by LLToolFocus [invalid point]" << LL_ENDL;
             gViewerWindow->setCursor(UI_CURSOR_NO);
             gViewerWindow->showCursor();
-            return TRUE;
+            return true;
         }
 
         if (gCameraBtnOrbit ||
@@ -468,7 +468,7 @@ BOOL LLToolCamera::handleHover(S32 x, S32 y, MASK mask)
         gViewerWindow->setCursor(UI_CURSOR_TOOLZOOMIN);
     }
 
-    return TRUE;
+    return true;
 }
 
 

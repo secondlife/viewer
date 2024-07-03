@@ -44,9 +44,9 @@ protected:
     LLPointer<LLViewerTexture> mOpaqueWaterImagep;
 
 public:
-    static BOOL sSkipScreenCopy;
-    static BOOL sNeedsReflectionUpdate;
-    static BOOL sNeedsDistortionUpdate;
+    static bool sSkipScreenCopy;
+    static bool sNeedsReflectionUpdate;
+    static bool sNeedsDistortionUpdate;
     static F32 sWaterFogEnd;
 
     enum

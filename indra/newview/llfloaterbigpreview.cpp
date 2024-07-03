@@ -61,7 +61,7 @@ void LLFloaterBigPreview::closeOnFloaterOwnerClosing(LLFloater* floaterp)
     }
 }
 
-BOOL LLFloaterBigPreview::postBuild()
+bool LLFloaterBigPreview::postBuild()
 {
     mPreviewPlaceholder = getChild<LLUICtrl>("big_preview_placeholder");
     return LLFloater::postBuild();

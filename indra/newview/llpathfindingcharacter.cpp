@@ -47,7 +47,7 @@
 LLPathfindingCharacter::LLPathfindingCharacter(const std::string &pUUID, const LLSD& pCharacterData)
     : LLPathfindingObject(pUUID, pCharacterData),
     mCPUTime(0U),
-    mIsHorizontal(FALSE),
+    mIsHorizontal(false),
     mLength(0.0f),
     mRadius(0.0f)
 {

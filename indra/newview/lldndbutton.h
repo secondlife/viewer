@@ -48,7 +48,7 @@ public:
     LLDragAndDropButton(const Params& params);
 
     typedef boost::function<bool (
-        S32 /*x*/, S32 /*y*/, MASK /*mask*/, BOOL /*drop*/,
+        S32 /*x*/, S32 /*y*/, MASK /*mask*/, bool /*drop*/,
         EDragAndDropType /*cargo_type*/,
         void* /*cargo_data*/,
         EAcceptance* /*accept*/,
@@ -64,9 +64,9 @@ public:
     /**
      * Process Drag-And-Drop by delegating the event to drag_drop_handler_t.
      *
-     * @return BOOL - value returned by drag_drop_handler_t if it is set, FALSE otherwise.
+     * @return bool - value returned by drag_drop_handler_t if it is set, false otherwise.
      */
-    /*virtual*/ BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+    /*virtual*/ bool handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
         EDragAndDropType cargo_type,
         void* cargo_data,
         EAcceptance* accept,

@@ -121,7 +121,7 @@ class LLLocalBitmapTimer : public LLEventTimer
         void startTimer();
         void stopTimer();
         bool isRunning();
-        BOOL tick();
+        bool tick();
 
 };
 
@@ -135,6 +135,7 @@ public:
     void         delUnit(LLUUID tracking_id);
     bool        checkTextureDimensions(std::string filename);
 
+    LLUUID       getTrackingID(const LLUUID& world_id) const;
     LLUUID       getWorldID(const LLUUID &tracking_id) const;
     bool         isLocal(const LLUUID& world_id) const;
     std::string  getFilename(const LLUUID &tracking_id) const;

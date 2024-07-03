@@ -27,11 +27,11 @@
 
 float random (vec2 uv)
 {
-    return 0;
+    return 0.f;
 }
 
 float tapScreenSpaceReflection(int totalSamples, vec2 tc, vec3 viewPos, vec3 n, inout vec4 collectedColor, sampler2D source, float glossiness)
 {
     collectedColor = vec4(0);
-    return 0;
+    return 0.f;
 }

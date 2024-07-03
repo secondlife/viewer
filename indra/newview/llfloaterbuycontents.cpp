@@ -57,15 +57,15 @@ LLFloaterBuyContents::LLFloaterBuyContents(const LLSD& key)
 {
 }
 
-BOOL LLFloaterBuyContents::postBuild()
+bool LLFloaterBuyContents::postBuild()
 {
 
     getChild<LLUICtrl>("cancel_btn")->setCommitCallback( boost::bind(&LLFloaterBuyContents::onClickCancel, this));
     getChild<LLUICtrl>("buy_btn")->setCommitCallback( boost::bind(&LLFloaterBuyContents::onClickBuy, this));
 
-    getChildView("item_list")->setEnabled(FALSE);
-    getChildView("buy_btn")->setEnabled(FALSE);
-    getChildView("wear_check")->setEnabled(FALSE);
+    getChildView("item_list")->setEnabled(false);
+    getChildView("buy_btn")->setEnabled(false);
+    getChildView("wear_check")->setEnabled(false);
 
     setDefaultBtn("cancel_btn"); // to avoid accidental buy (SL-43130)
 
@@ -75,7 +75,7 @@ BOOL LLFloaterBuyContents::postBuild()
     // mid-session and the saved rect is off-center.
     center();
 
-    return TRUE;
+    return true;
 }
 
 LLFloaterBuyContents::~LLFloaterBuyContents()
@@ -107,7 +107,7 @@ void LLFloaterBuyContents::show(const LLSaleInfo& sale_info)
 
     LLUUID owner_id;
     std::string owner_name;
-    BOOL owners_identical = LLSelectMgr::getInstance()->selectGetOwner(owner_id, owner_name);
+    bool owners_identical = LLSelectMgr::getInstance()->selectGetOwner(owner_id, owner_name);
     if (!owners_identical)
     {
         LLNotificationsUtil::add("BuyContentsOneOwner");
@@ -167,10 +167,10 @@ void LLFloaterBuyContents::inventoryChanged(LLViewerObject* obj,
 
     // default to turning off the buy button.
     LLView* buy_btn = getChildView("buy_btn");
-    buy_btn->setEnabled(FALSE);
+    buy_btn->setEnabled(false);
 
     LLUUID owner_id;
-    BOOL is_group_owned;
+    bool is_group_owned;
     LLAssetType::EType asset_type;
     LLInventoryType::EType inv_type;
     S32 wearable_count = 0;
@@ -208,17 +208,17 @@ void LLFloaterBuyContents::inventoryChanged(LLViewerObject* obj,
 
         // There will be at least one item shown in the display, so go
         // ahead and enable the buy button.
-        buy_btn->setEnabled(TRUE);
+        buy_btn->setEnabled(true);
 
         // Create the line in the list
         LLSD row;
 
-        BOOL item_is_multi = FALSE;
+        bool item_is_multi = false;
         if ((inv_item->getFlags() & LLInventoryItemFlags::II_FLAGS_LANDMARK_VISITED
             || inv_item->getFlags() & LLInventoryItemFlags::II_FLAGS_OBJECT_HAS_MULTIPLE_ITEMS)
             && !(inv_item->getFlags() & LLInventoryItemFlags::II_FLAGS_SUBTYPE_MASK))
         {
-            item_is_multi = TRUE;
+            item_is_multi = true;
         }
 
         std::string icon_name = LLInventoryIcon::getIconName(inv_item->getType(),
@@ -256,7 +256,7 @@ void LLFloaterBuyContents::inventoryChanged(LLViewerObject* obj,
 
     if (wearable_count > 0)
     {
-        getChildView("wear_check")->setEnabled(TRUE);
+        getChildView("wear_check")->setEnabled(true);
         getChild<LLUICtrl>("wear_check")->setValue(LLSD(false) );
     }
 }
@@ -276,7 +276,7 @@ void LLFloaterBuyContents::onClickBuy()
     // We may want to wear this item
     if (getChild<LLUICtrl>("wear_check")->getValue())
     {
-        LLInventoryState::sWearNewClothing = TRUE;
+        LLInventoryState::sWearNewClothing = true;
     }
 
     // Put the items where we put new folders.

@@ -88,7 +88,7 @@ void HttpLibcurl::shutdown()
 
     if (mMultiHandles)
     {
-        for (int policy_class(0); policy_class < mPolicyCount; ++policy_class)
+        for (unsigned int policy_class(0); policy_class < mPolicyCount; ++policy_class)
         {
             if (mMultiHandles[policy_class])
             {
@@ -122,7 +122,7 @@ void HttpLibcurl::start(int policy_count)
     mActiveHandles = new int [mPolicyCount];
     mDirtyPolicy = new bool [mPolicyCount];
 
-    for (int policy_class(0); policy_class < mPolicyCount; ++policy_class)
+    for (unsigned int policy_class(0); policy_class < mPolicyCount; ++policy_class)
     {
         if (NULL == (mMultiHandles[policy_class] = curl_multi_init()))
         {
@@ -148,7 +148,7 @@ HttpService::ELoopSpeed HttpLibcurl::processTransport()
     HttpService::ELoopSpeed ret(HttpService::REQUEST_SLEEP);
 
     // Give libcurl some cycles to do I/O & callbacks
-    for (int policy_class(0); policy_class < mPolicyCount; ++policy_class)
+    for (unsigned int policy_class(0); policy_class < mPolicyCount; ++policy_class)
     {
         if (! mMultiHandles[policy_class])
         {
@@ -442,18 +442,18 @@ bool HttpLibcurl::completeRequest(CURLM * multi_handle, CURL * handle, CURLcode 
 
 int HttpLibcurl::getActiveCount() const
 {
-    return mActiveOps.size();
+    return static_cast<int>(mActiveOps.size());
 }
 
 
-int HttpLibcurl::getActiveCountInClass(int policy_class) const
+int HttpLibcurl::getActiveCountInClass(unsigned int policy_class) const
 {
     llassert_always(policy_class < mPolicyCount);
 
     return mActiveHandles ? mActiveHandles[policy_class] : 0;
 }
 
-void HttpLibcurl::policyUpdated(int policy_class)
+void HttpLibcurl::policyUpdated(unsigned int policy_class)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
     if (policy_class < 0 || policy_class >= mPolicyCount || ! mMultiHandles)

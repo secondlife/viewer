@@ -47,7 +47,7 @@ LLFloaterHelpBrowser::LLFloaterHelpBrowser(const LLSD& key)
 {
 }
 
-BOOL LLFloaterHelpBrowser::postBuild()
+bool LLFloaterHelpBrowser::postBuild()
 {
     mBrowser = getChild<LLMediaCtrl>("browser");
     mBrowser->addObserver(this);
@@ -56,7 +56,7 @@ BOOL LLFloaterHelpBrowser::postBuild()
     childSetAction("open_browser", onClickOpenWebBrowser, this);
 
     buildURLHistory();
-    return TRUE;
+    return true;
 }
 
 void LLFloaterHelpBrowser::buildURLHistory()
@@ -74,7 +74,7 @@ void LLFloaterHelpBrowser::buildURLHistory()
 
 void LLFloaterHelpBrowser::onOpen(const LLSD& key)
 {
-    gSavedSettings.setBOOL("HelpFloaterOpen", TRUE);
+    gSavedSettings.setBOOL("HelpFloaterOpen", true);
 
     std::string topic = key.asString();
     mBrowser->navigateTo(LLViewerHelp::instance().getURL(topic));
@@ -85,7 +85,7 @@ void LLFloaterHelpBrowser::onClose(bool app_quitting)
 {
     if (!app_quitting)
     {
-        gSavedSettings.setBOOL("HelpFloaterOpen", FALSE);
+        gSavedSettings.setBOOL("HelpFloaterOpen", false);
     }
     // really really destroy the help browser when it's closed, it'll be recreated.
     destroy(); // really destroy this dialog on closure, it's relatively heavyweight.

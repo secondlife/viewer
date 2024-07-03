@@ -117,7 +117,7 @@ public:
     /**
      * Inheritors need to call base implementation of postBuild()
      */
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
 
     /**
      * Handles item selection
@@ -130,7 +130,7 @@ public:
     /*virtual*/ S32  notify(const LLSD& info);
 
     /* Highlights item */
-    /*virtual*/ BOOL handleHover(S32 x, S32 y, MASK mask);
+    /*virtual*/ bool handleHover(S32 x, S32 y, MASK mask);
     /* Removes item highlight */
     /*virtual*/ void onMouseLeave(S32 x, S32 y, MASK mask);
 
@@ -153,7 +153,7 @@ public:
     LLViewerInventoryItem* getItem() const;
 
     void setSeparatorVisible(bool visible) { mSeparatorVisible = visible; }
-    void resetHighlight() { mHovered = FALSE; }
+    void resetHighlight() { mHovered = false; }
 
     virtual ~LLPanelInventoryListItemBase(){}
 
@@ -194,7 +194,7 @@ protected:
     /**
      * Show tool tip if item name text size > panel size
      */
-    virtual BOOL handleToolTip( S32 x, S32 y, MASK mask);
+    virtual bool handleToolTip( S32 x, S32 y, MASK mask);
 
     const LLUUID mInventoryItemUUID;
     bool mHovered;

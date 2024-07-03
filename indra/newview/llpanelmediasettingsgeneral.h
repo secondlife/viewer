@@ -53,7 +53,7 @@ public:
     // Hook that the floater calls after applying changes to the panel
     void postApply();
 
-    BOOL postBuild();
+    bool postBuild();
     /*virtual*/ void draw();
     /*virtual*/ void onClose(bool app_quitting);
 

@@ -55,10 +55,10 @@ LLKeyboard::LLKeyboard() : mCallbacks(NULL)
     for (i = 0; i < KEY_COUNT; i++)
     {
         mKeyLevelFrameCount[i] = 0;
-        mKeyLevel[i] = FALSE;
-        mKeyUp[i]    = FALSE;
-        mKeyDown[i]  = FALSE;
-        mKeyRepeated[i] = FALSE;
+        mKeyLevel[i] = false;
+        mKeyUp[i]    = false;
+        mKeyDown[i]  = false;
+        mKeyRepeated[i] = false;
     }
 
     mInsertMode = LL_KIM_INSERT;
@@ -150,14 +150,14 @@ void LLKeyboard::addKeyName(KEY key, const std::string& name)
 
 void LLKeyboard::resetKeyDownAndHandle()
 {
-    MASK mask = currentMask(FALSE);
+    MASK mask = currentMask(false);
     for (S32 i = 0; i < KEY_COUNT; i++)
     {
         if (mKeyLevel[i])
         {
-            mKeyDown[i] = FALSE;
-            mKeyLevel[i] = FALSE;
-            mKeyUp[i] = TRUE;
+            mKeyDown[i] = false;
+            mKeyLevel[i] = false;
+            mKeyUp[i] = true;
             mCurTranslatedKey = (KEY)i;
             mCallbacks->handleTranslatedKeyUp(i, mask);
         }
@@ -174,28 +174,28 @@ void LLKeyboard::resetKeys()
     {
         if( mKeyLevel[i] )
         {
-            mKeyLevel[i] = FALSE;
+            mKeyLevel[i] = false;
         }
     }
 
     for (i = 0; i < KEY_COUNT; i++)
     {
-        mKeyUp[i] = FALSE;
+        mKeyUp[i] = false;
     }
 
     for (i = 0; i < KEY_COUNT; i++)
     {
-        mKeyDown[i] = FALSE;
+        mKeyDown[i] = false;
     }
 
     for (i = 0; i < KEY_COUNT; i++)
     {
-        mKeyRepeated[i] = FALSE;
+        mKeyRepeated[i] = false;
     }
 }
 
 
-BOOL LLKeyboard::translateKey(const U16 os_key, KEY *out_key)
+bool LLKeyboard::translateKey(const U16 os_key, KEY *out_key)
 {
     std::map<U16, KEY>::iterator iter;
 
@@ -205,12 +205,12 @@ BOOL LLKeyboard::translateKey(const U16 os_key, KEY *out_key)
     {
         //LL_WARNS() << "Unknown virtual key " << os_key << LL_ENDL;
         *out_key = 0;
-        return FALSE;
+        return false;
     }
     else
     {
         *out_key = iter->second;
-        return TRUE;
+        return true;
     }
 }
 
@@ -230,47 +230,47 @@ U16 LLKeyboard::inverseTranslateKey(const KEY translated_key)
 }
 
 
-BOOL LLKeyboard::handleTranslatedKeyDown(KEY translated_key, U32 translated_mask)
+bool LLKeyboard::handleTranslatedKeyDown(KEY translated_key, U32 translated_mask)
 {
-    BOOL handled = FALSE;
-    BOOL repeated = FALSE;
+    bool handled = false;
+    bool repeated = false;
 
     // is this the first time the key went down?
     // if so, generate "character" message
     if( !mKeyLevel[translated_key] )
     {
-        mKeyLevel[translated_key] = TRUE;
+        mKeyLevel[translated_key] = true;
         mKeyLevelTimer[translated_key].reset();
         mKeyLevelFrameCount[translated_key] = 0;
-        mKeyRepeated[translated_key] = FALSE;
+        mKeyRepeated[translated_key] = false;
     }
     else
     {
         // Level is already down, assume it's repeated.
-        repeated = TRUE;
-        mKeyRepeated[translated_key] = TRUE;
+        repeated = true;
+        mKeyRepeated[translated_key] = true;
     }
 
-    mKeyDown[translated_key] = TRUE;
+    mKeyDown[translated_key] = true;
     mCurTranslatedKey = (KEY)translated_key;
     handled = mCallbacks->handleTranslatedKeyDown(translated_key, translated_mask, repeated);
     return handled;
 }
 
 
-BOOL LLKeyboard::handleTranslatedKeyUp(KEY translated_key, U32 translated_mask)
+bool LLKeyboard::handleTranslatedKeyUp(KEY translated_key, U32 translated_mask)
 {
-    BOOL handled = FALSE;
+    bool handled = false;
     if( mKeyLevel[translated_key] )
     {
-        mKeyLevel[translated_key] = FALSE;
+        mKeyLevel[translated_key] = false;
 
         // Only generate key up events if the key is thought to
         // be down.  This allows you to call resetKeys() in the
         // middle of a frame and ignore subsequent KEY_UP
         // messages in the same frame.  This was causing the
         // sequence W<return> in chat to move agents forward. JC
-        mKeyUp[translated_key] = TRUE;
+        mKeyUp[translated_key] = true;
         handled = mCallbacks->handleTranslatedKeyUp(translated_key, translated_mask);
     }
 
@@ -306,14 +306,14 @@ S32 LLKeyboard::getKeyElapsedFrameCount(KEY key)
 }
 
 // static
-BOOL LLKeyboard::keyFromString(const std::string& str, KEY *key)
+bool LLKeyboard::keyFromString(const std::string& str, KEY *key)
 {
     std::string instring(str);
     size_t length = instring.size();
 
     if (length < 1)
     {
-        return FALSE;
+        return false;
     }
     if (length == 1)
     {
@@ -326,7 +326,7 @@ BOOL LLKeyboard::keyFromString(const std::string& str, KEY *key)
             ('{' <= ch && ch <= '~'))   // {|}~
         {
             *key = ch;
-            return TRUE;
+            return true;
         }
     }
 
@@ -335,10 +335,10 @@ BOOL LLKeyboard::keyFromString(const std::string& str, KEY *key)
     if (res != 0)
     {
         *key = res;
-        return TRUE;
+        return true;
     }
     LL_WARNS() << "keyFromString failed: " << str << LL_ENDL;
-    return FALSE;
+    return false;
 }
 
 
@@ -359,7 +359,7 @@ std::string LLKeyboard::stringFromKey(KEY key, bool translate)
         LLKeyStringTranslatorFunc *trans = gKeyboard->mStringTranslator;
         if (trans != NULL)
         {
-            res = trans(res.c_str());
+            res = trans(res);
         }
     }
 
@@ -399,7 +399,7 @@ std::string LLKeyboard::stringFromMouse(EMouseClickType click, bool translate)
         LLKeyStringTranslatorFunc* trans = gKeyboard->mStringTranslator;
         if (trans != NULL)
         {
-            res = trans(res.c_str());
+            res = trans(res);
         }
     }
     return res;
@@ -486,52 +486,52 @@ std::string LLKeyboard::stringFromAccelerator(MASK accel_mask, EMouseClickType c
 }
 
 //static
-BOOL LLKeyboard::maskFromString(const std::string& str, MASK *mask)
+bool LLKeyboard::maskFromString(const std::string& str, MASK *mask)
 {
     std::string instring(str);
     if (instring == "NONE")
     {
         *mask = MASK_NONE;
-        return TRUE;
+        return true;
     }
     else if (instring == "SHIFT")
     {
         *mask = MASK_SHIFT;
-        return TRUE;
+        return true;
     }
     else if (instring == "CTL")
     {
         *mask = MASK_CONTROL;
-        return TRUE;
+        return true;
     }
     else if (instring == "ALT")
     {
         *mask = MASK_ALT;
-        return TRUE;
+        return true;
     }
     else if (instring == "CTL_SHIFT")
     {
         *mask = MASK_CONTROL | MASK_SHIFT;
-        return TRUE;
+        return true;
     }
     else if (instring == "ALT_SHIFT")
     {
         *mask = MASK_ALT | MASK_SHIFT;
-        return TRUE;
+        return true;
     }
     else if (instring == "CTL_ALT")
     {
         *mask = MASK_CONTROL | MASK_ALT;
-        return TRUE;
+        return true;
     }
     else if (instring == "CTL_ALT_SHIFT")
     {
         *mask = MASK_CONTROL | MASK_ALT | MASK_SHIFT;
-        return TRUE;
+        return true;
     }
     else
     {
-        return FALSE;
+        return false;
     }
 }
 

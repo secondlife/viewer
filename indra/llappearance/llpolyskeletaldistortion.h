@@ -51,7 +51,7 @@ class LLAvatarAppearance;
 //-----------------------------------------------------------------------------
 struct LLPolySkeletalBoneInfo
 {
-    LLPolySkeletalBoneInfo(std::string &name, LLVector3 &scale, LLVector3 &pos, BOOL haspos)
+    LLPolySkeletalBoneInfo(std::string &name, LLVector3 &scale, LLVector3 &pos, bool haspos)
         : mBoneName(name),
           mScaleDeformation(scale),
           mPositionDeformation(pos),
@@ -59,7 +59,7 @@ struct LLPolySkeletalBoneInfo
     std::string mBoneName;
     LLVector3 mScaleDeformation;
     LLVector3 mPositionDeformation;
-    BOOL mHasPositionDeformation;
+    bool mHasPositionDeformation;
 };
 
 class alignas(16) LLPolySkeletalDistortionInfo : public LLViewerVisualParamInfo
@@ -71,7 +71,7 @@ public:
     LLPolySkeletalDistortionInfo();
     /*virtual*/ ~LLPolySkeletalDistortionInfo() {};
 
-    /*virtual*/ BOOL parseXml(LLXmlTreeNode* node);
+    /*virtual*/ bool parseXml(LLXmlTreeNode* node);
 
 protected:
     typedef std::vector<LLPolySkeletalBoneInfo> bone_info_list_t;
@@ -92,12 +92,12 @@ public:
     // Special: These functions are overridden by child classes
     LLPolySkeletalDistortionInfo*   getInfo() const { return (LLPolySkeletalDistortionInfo*)mInfo; }
     //   This sets mInfo and calls initialization functions
-    BOOL                            setInfo(LLPolySkeletalDistortionInfo *info);
+    bool                            setInfo(LLPolySkeletalDistortionInfo *info);
 
     /*virtual*/ LLViewerVisualParam* cloneParam(LLWearable* wearable) const;
 
     // LLVisualParam Virtual functions
-    ///*virtual*/ BOOL              parseData(LLXmlTreeNode* node);
+    ///*virtual*/ bool              parseData(LLXmlTreeNode* node);
     /*virtual*/ void                apply( ESex sex );
 
     // LLViewerVisualParam Virtual functions

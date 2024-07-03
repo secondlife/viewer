@@ -49,8 +49,8 @@ public:
     LLSidepanelTaskInfo();
     virtual ~LLSidepanelTaskInfo();
 
-    BOOL postBuild() override;
-    void onVisibilityChange ( BOOL new_visibility ) override;
+    bool postBuild() override;
+    void onVisibilityChange (bool new_visibility) override;
 
     void setObjectSelection(LLObjectSelectionHandle selection);
 

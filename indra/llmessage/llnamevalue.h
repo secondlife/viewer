@@ -139,8 +139,8 @@ public:
     const char      *getClass() const       { return mStringClass; }
     const char      *getSendto() const      { return mStringSendto; }
 
-    BOOL            sendToData() const;
-    BOOL            sendToViewer() const;
+    bool            sendToData() const;
+    bool            sendToViewer() const;
 
     void            callCallback();
     std::string     printNameValue() const;

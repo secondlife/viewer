@@ -56,10 +56,11 @@ public:
     virtual bool insert(T* data);
     virtual bool remove(T* data);
     virtual void notifyRemoval(T* data);
-    virtual U32 getListenerCount()                  { return mListeners.size(); }
+    virtual U32 hasListeners() const { return !mListeners.empty(); }
+    virtual U32 getListenerCount() const { return static_cast<U32>(mListeners.size()); }
     virtual LLTreeListener<T>* getListener(U32 index) const
     {
-        if(index < mListeners.size())
+        if (index < mListeners.size())
         {
             return mListeners[index];
         }

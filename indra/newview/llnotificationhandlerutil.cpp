@@ -60,11 +60,9 @@ bool LLHandlerUtil::isIMFloaterOpened(const LLNotificationPtr& notification)
 
     LLUUID from_id = notification->getPayload()["from_id"];
     LLUUID session_id = LLIMMgr::computeSessionID(IM_NOTHING_SPECIAL, from_id);
-    LLFloaterIMSession* im_floater = LLFloaterReg::findTypedInstance<LLFloaterIMSession>("impanel", session_id);
-
-    if (im_floater != NULL)
+    if (LLFloaterIMSession* im_floater = LLFloaterReg::findTypedInstance<LLFloaterIMSession>("impanel", session_id))
     {
-        res = im_floater->getVisible() == TRUE;
+        res = im_floater->getVisible();
     }
 
     return res;

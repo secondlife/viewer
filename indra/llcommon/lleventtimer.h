@@ -43,7 +43,7 @@ public:
 
     //function to be called at the supplied frequency
     // Normally return FALSE; TRUE will delete the timer after the function returns.
-    virtual BOOL tick() = 0;
+    virtual bool tick() = 0;
 
     static void updateClass();
 
@@ -86,7 +86,7 @@ public:
         mOnce(once),
         mCallable(callable)
     {}
-    BOOL tick() override
+    bool tick() override
     {
         mCallable();
         // true tells updateClass() to delete this instance
