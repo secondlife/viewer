@@ -306,25 +306,23 @@ public:
     //@{
         static LLSD emptyMap();
 
-        bool has(const String&) const;
-        LLSD get(const String&) const;
+        bool has(const std::string_view) const;
+        LLSD get(const std::string_view) const;
         LLSD getKeys() const;               // Return an LLSD array with keys as strings
-        void insert(const String&, const LLSD&);
+        void insert(std::string_view, const LLSD&);
         void erase(const String&);
-        LLSD& with(const String&, const LLSD&);
+        LLSD& with(std::string_view, const LLSD&);
 
-        LLSD& operator[](const String&);
+        LLSD& operator[](const std::string_view);
         LLSD& operator[](const char* c)
-        {
-            LL_PROFILE_ZONE_SCOPED_CATEGORY_LLSD;
-            return (*this)[String(c)];
-        }
-        const LLSD& operator[](const String&) const;
-        const LLSD& operator[](const char* c) const
-        {
-            LL_PROFILE_ZONE_SCOPED_CATEGORY_LLSD;
-            return (*this)[String(c)];
-        }
+		{
+			return c ? (*this)[std::string_view(c)] : *this;
+		}
+        const LLSD& operator[](const std::string_view) const;
+        const LLSD& operator[](const char* c) const 
+		{
+			return c ? (*this)[std::string_view(c)] : *this;
+		}
     //@}
 
     /** @name Array Values */

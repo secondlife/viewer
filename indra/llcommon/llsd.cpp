@@ -145,11 +145,11 @@ public:
 
     virtual String asXMLRPCValue() const { return "<nil/>"; }
 
-    virtual bool has(const String&) const       { return false; }
-    virtual LLSD get(const String&) const       { return LLSD(); }
+    virtual bool has(std::string_view) const      { return false; }
+    virtual LLSD get(std::string_view) const      { return LLSD(); }
     virtual LLSD getKeys() const                { return LLSD::emptyArray(); }
     virtual void erase(const String&)           { }
-    virtual const LLSD& ref(const String&) const{ return undef(); }
+    virtual const LLSD& ref(std::string_view) const{ return undef(); }
 
     virtual size_t size() const                 { return 0; }
     virtual LLSD get(size_t) const              { return LLSD(); }
@@ -390,7 +390,7 @@ namespace
     class ImplMap : public LLSD::Impl
     {
     private:
-        typedef std::map<LLSD::String, LLSD> DataMap;
+        typedef std::map<LLSD::String, LLSD, std::less<>> DataMap;
 
         DataMap mData;
 
@@ -419,17 +419,17 @@ namespace
             return os.str();
         }
 
-        virtual bool has(const LLSD::String&) const;
+        virtual bool has(std::string_view) const;
 
         using LLSD::Impl::get; // Unhiding get(size_t)
         using LLSD::Impl::erase; // Unhiding erase(size_t)
         using LLSD::Impl::ref; // Unhiding ref(size_t)
-        virtual LLSD get(const LLSD::String&) const;
+        virtual LLSD get(std::string_view) const;
         virtual LLSD getKeys() const;
-                void insert(const LLSD::String& k, const LLSD& v);
+        void insert(std::string_view k, const LLSD& v);
         virtual void erase(const LLSD::String&);
-                      LLSD& ref(const LLSD::String&);
-        virtual const LLSD& ref(const LLSD::String&) const;
+                      LLSD& ref(std::string_view);
+        virtual const LLSD& ref(std::string_view) const;
 
         virtual size_t size() const { return mData.size(); }
 
@@ -457,14 +457,14 @@ namespace
         }
     }
 
-    bool ImplMap::has(const LLSD::String& k) const
+    bool ImplMap::has(const std::string_view k) const
     {
         LL_PROFILE_ZONE_SCOPED_CATEGORY_LLSD;
         DataMap::const_iterator i = mData.find(k);
         return i != mData.end();
     }
 
-    LLSD ImplMap::get(const LLSD::String& k) const
+    LLSD ImplMap::get(const std::string_view k) const
     {
         LL_PROFILE_ZONE_SCOPED_CATEGORY_LLSD;
         DataMap::const_iterator i = mData.find(k);
@@ -484,10 +484,10 @@ namespace
         return keys;
     }
 
-    void ImplMap::insert(const LLSD::String& k, const LLSD& v)
+    void ImplMap::insert(std::string_view k, const LLSD& v)
     {
         LL_PROFILE_ZONE_SCOPED_CATEGORY_LLSD;
-        mData.insert(DataMap::value_type(k, v));
+        mData.emplace(k, v);
     }
 
     void ImplMap::erase(const LLSD::String& k)
@@ -496,15 +496,22 @@ namespace
         mData.erase(k);
     }
 
-    LLSD& ImplMap::ref(const LLSD::String& k)
+    LLSD& ImplMap::ref(std::string_view k)
     {
-        return mData[k];
+        DataMap::iterator i = mData.lower_bound(k);
+        if (i == mData.end() || mData.key_comp()(k, i->first))
+        {
+            
+            return mData.emplace_hint(i, std::make_pair(k, LLSD()))->second;
+        }
+
+        return i->second;
     }
 
-    const LLSD& ImplMap::ref(const LLSD::String& k) const
+    const LLSD& ImplMap::ref(std::string_view k) const
     {
         DataMap::const_iterator i = mData.lower_bound(k);
-        if (i == mData.end()  ||  mData.key_comp()(k, i->first))
+        if (i == mData.end() || mData.key_comp()(k, i->first))
         {
             return undef();
         }
@@ -691,7 +698,7 @@ namespace
         while (iter != endArray())
         {   // Add values for all items held in the array
             Impl::calcStats((*iter), type_counts, share_counts);
-            iter++;
+            ++iter;
         }
 
         // Add in the values for this array
@@ -1081,24 +1088,24 @@ LLSD LLSD::emptyMap()
     return v;
 }
 
-bool LLSD::has(const String& k) const   { return safe(impl).has(k); }
-LLSD LLSD::get(const String& k) const   { return safe(impl).get(k); }
+bool LLSD::has(const std::string_view k) const  { return safe(impl).has(k); }
+LLSD LLSD::get(const std::string_view k) const  { return safe(impl).get(k); }
 LLSD LLSD::getKeys() const              { return safe(impl).getKeys(); }
-void LLSD::insert(const String& k, const LLSD& v) { makeMap(impl).insert(k, v); }
+void LLSD::insert(std::string_view k, const LLSD& v) { makeMap(impl).insert(k, v); }
 
-LLSD& LLSD::with(const String& k, const LLSD& v)
+LLSD& LLSD::with(std::string_view k, const LLSD& v)
                                         {
                                             makeMap(impl).insert(k, v);
                                             return *this;
                                         }
 void LLSD::erase(const String& k)       { makeMap(impl).erase(k); }
 
-LLSD& LLSD::operator[](const String& k)
+LLSD& LLSD::operator[](const std::string_view k)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_LLSD;
     return makeMap(impl).ref(k);
 }
-const LLSD& LLSD::operator[](const String& k) const
+const LLSD& LLSD::operator[](const std::string_view k) const
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_LLSD;
     return safe(impl).ref(k);
