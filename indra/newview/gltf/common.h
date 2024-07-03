@@ -43,6 +43,8 @@ namespace LL
 {
     namespace GLTF
     {
+        constexpr S32 INVALID_INDEX = -1;
+
         using Value = boost::json::value;
 
         using mat4 = glm::mat4;

@@ -345,6 +345,12 @@ void GLTFSceneManager::addGLTFObject(LLViewerObject* obj, LLUUID gltf_id)
     llassert(obj->getVolume()->getParams().getSculptID() == gltf_id);
     llassert(obj->getVolume()->getParams().getSculptType() == LL_SCULPT_TYPE_GLTF);
 
+    if (obj->mGLTFAsset)
+    { // object already has a GLTF asset, don't reload it
+        llassert(std::find(mObjects.begin(), mObjects.end(), obj) != mObjects.end());
+        return;
+    }
+
     obj->ref();
     gAssetStorage->getAssetData(gltf_id, LLAssetType::AT_GLTF, onGLTFLoadComplete, obj);
 }

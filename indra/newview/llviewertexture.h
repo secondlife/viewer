@@ -37,6 +37,7 @@
 #include "llmetricperformancetester.h"
 #include "httpcommon.h"
 #include "workqueue.h"
+#include "gltf/common.h"
 
 #include <map>
 #include <list>
@@ -172,6 +173,15 @@ public:
     LLViewerMediaTexture* getParcelMedia() const { return mParcelMedia;}
 
     /*virtual*/ void updateBindStatsForTester() ;
+
+    struct MaterialEntry
+    {
+        S32 mIndex = LL::GLTF::INVALID_INDEX;
+        std::shared_ptr<LL::GLTF::Asset> mAsset;
+    };
+    typedef std::vector<MaterialEntry> material_list_t;
+    material_list_t   mMaterialList;  // reverse pointer pointing to LL::GLTF::Materials using this image as texture
+
 protected:
     void cleanup() ;
     void init(bool firstinit) ;
