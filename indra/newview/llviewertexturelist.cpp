@@ -902,14 +902,6 @@ void LLViewerTextureList::clearFetchingRequests()
     }
 }
 
-static void touch_texture(LLViewerFetchedTexture* tex, F32 vsize)
-{
-    if (tex)
-    {
-        tex->addTextureStats(vsize);
-    }
-}
-
 extern bool gCubeSnapshot;
 
 void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imagep)
