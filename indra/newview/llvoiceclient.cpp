@@ -137,7 +137,7 @@ LLVoiceClient::LLVoiceClient(LLPumpIO *pump)
     mSpatialVoiceModule(NULL),
     mNonSpatialVoiceModule(NULL),
     m_servicePump(NULL),
-    mVoiceEffectEnabled(LLCachedControl<bool>(gSavedSettings, "VoiceMorphingEnabled", false)),
+    mVoiceEffectEnabled(LLCachedControl<bool>(gSavedSettings, "VoiceMorphingEnabled", true)),
     mVoiceEffectDefault(LLCachedControl<std::string>(gSavedPerAccountSettings, "VoiceEffectDefault", "00000000-0000-0000-0000-000000000000")),
     mVoiceEffectSupportNotified(false),
     mPTTDirty(true),
@@ -577,7 +577,7 @@ bool LLVoiceClient::onVoiceEffectsNotSupported(const LLSD &notification, const L
     switch (option)
     {
         case 0:  // "Okay"
-            gSavedSettings.setBOOL("VoiceMorphingEnabled", FALSE);
+            gSavedPerAccountSettings.setString("VoiceEffectDefault", LLUUID::null.asString());
             break;
 
         case 1:  // "Cancel"
