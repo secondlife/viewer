@@ -454,8 +454,8 @@ public:
     // force reflow of text
     void                    needsReflow(S32 index = 0);
 
-    S32                     getLength() const { return getWText().length(); }
-    S32                     getLineCount() const { return mLineInfoList.size(); }
+    S32                     getLength() const { return static_cast<S32>(getWText().length()); }
+    S32                     getLineCount() const { return static_cast<S32>(mLineInfoList.size()); }
     S32                     removeFirstLine(); // returns removed length
 
     void                    addDocumentChild(LLView* view);

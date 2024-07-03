@@ -1,4 +1,4 @@
-/** 
+/**
  * @file llfloaterregioninfo.h
  * @author Aaron Brashears
  * @brief Declaration of the region info and controls floater and panels.
@@ -6,21 +6,21 @@
  * $LicenseInfo:firstyear=2004&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -102,14 +102,14 @@ public:
 
     // from LLPanel
     void refresh() override;
-    
+
     void onRegionChanged();
     void requestRegionInfo();
     void enableTopButtons();
     void disableTopButtons();
 
 private:
-    
+
     LLFloaterRegionInfo(const LLSD& seed);
     ~LLFloaterRegionInfo();
 
@@ -138,31 +138,31 @@ class LLPanelRegionInfo : public LLPanel
 {
 public:
     LLPanelRegionInfo();
-    
+
     void onBtnSet();
     void onChangeChildCtrl(LLUICtrl* ctrl);
     void onChangeAnything();
     static void onChangeText(LLLineEditor* caller, void* user_data);
-    
+
     virtual bool refreshFromRegion(LLViewerRegion* region);
     virtual bool estateUpdate(LLMessageSystem* msg) { return true; }
-    
+
     bool postBuild() override;
     virtual void updateChild(LLUICtrl* child_ctrl);
-    
+
     void enableButton(const std::string& btn_name, bool enable = true);
     void disableButton(const std::string& btn_name);
-    
+
     void onClickManageTelehub();
-    
+
 protected:
     void initCtrl(const std::string& name);
     template<typename CTRL> void initAndSetCtrl(CTRL*& ctrl, const std::string& name);
-    
+
     // Returns true if update sent and apply button should be
     // disabled.
     virtual bool sendUpdate() { return true; }
-    
+
     typedef std::vector<std::string> strings_t;
     //typedef std::vector<U32> integers_t;
     void sendEstateOwnerMessage(
@@ -170,8 +170,8 @@ protected:
                      const std::string& request,
                      const LLUUID& invoice,
                      const strings_t& strings);
-    
-    
+
+
     // member data
     LLHost mHost;
 };
@@ -182,16 +182,16 @@ protected:
 
 class LLPanelRegionGeneralInfo : public LLPanelRegionInfo
 {
-    
+
 public:
     LLPanelRegionGeneralInfo()
         :   LLPanelRegionInfo() {}
     ~LLPanelRegionGeneralInfo() {}
-    
+
     bool refreshFromRegion(LLViewerRegion* region) override;
-    
+
     bool postBuild() override;
-    
+
     void onBtnSet();
     void setObjBonusFactor(F32 object_bonus_factor) {mObjBonusFactor = object_bonus_factor;}
 
@@ -219,9 +219,9 @@ public:
     ~LLPanelRegionDebugInfo() {}
 
     bool postBuild() override;
-    
+
     bool refreshFromRegion(LLViewerRegion* region) override;
-    
+
 protected:
     bool sendUpdate() override;
 
@@ -235,7 +235,7 @@ protected:
     bool callbackRestart(const LLSD& notification, const LLSD& response);
     static void onClickCancelRestart(void* data);
     static void onClickDebugConsole(void* data);
-    
+
 private:
     LLUUID mTargetAvatar;
 };
@@ -249,9 +249,9 @@ class LLPanelRegionTerrainInfo : public LLPanelRegionInfo
 public:
     LLPanelRegionTerrainInfo();
     ~LLPanelRegionTerrainInfo() {}
-    
+
     bool postBuild() override;
-    
+
     bool refreshFromRegion(LLViewerRegion* region) override;                // refresh local settings from region update from simulator
     void setEnvControls(bool available);                                    // Whether environment settings are available for this region
 
@@ -260,7 +260,7 @@ public:
     bool validateTextureHeights();
 
     //static void onChangeAnything(LLUICtrl* ctrl, void* userData);         // callback for any change, to enable commit button
-    
+
     void onSelectMaterialType();
     void updateForMaterialType();
 
@@ -272,6 +272,8 @@ public:
 
 protected:
     bool sendUpdate() override;
+
+    void initMaterialCtrl(LLTextureCtrl*& ctrl, const std::string& name, S32 index);
 
 private:
     bool mConfirmedTextureHeights;
@@ -296,13 +298,13 @@ class LLPanelEstateInfo : public LLPanelRegionInfo
 {
 public:
     static void initDispatch(LLDispatcher& dispatch);
-    
+
     void onChangeFixedSun();
     void onChangeUseGlobalTime();
     void onChangeAccessOverride();
-    
+
     void onClickEditSky();
-    void onClickEditSkyHelp();  
+    void onClickEditSkyHelp();
     void onClickEditDayCycle();
     void onClickEditDayCycleHelp();
 
@@ -314,26 +316,26 @@ public:
     void onKickUserCommit(const uuid_vec_t& ids);
     static void onClickMessageEstate(void* data);
     bool onMessageCommit(const LLSD& notification, const LLSD& response);
-    
+
     LLPanelEstateInfo();
     ~LLPanelEstateInfo() {}
-    
+
     void updateControls(LLViewerRegion* region);
-    
+
     static void updateEstateName(const std::string& name);
     static void updateEstateOwnerName(const std::string& name);
 
     bool refreshFromRegion(LLViewerRegion* region) override;
     bool estateUpdate(LLMessageSystem* msg) override;
-    
+
     bool postBuild() override;
     void updateChild(LLUICtrl* child_ctrl) override;
     void refresh() override;
 
     void refreshFromEstate();
-    
+
     static bool isLindenEstate();
-    
+
     const std::string getOwnerName() const;
     void setOwnerName(const std::string& name);
 
@@ -344,7 +346,7 @@ protected:
 
     void commitEstateAccess();
     void commitEstateManagers();
-    
+
     bool checkSunHourSlider(LLUICtrl* child_ctrl);
 
     U32 mEstateID;
@@ -357,7 +359,7 @@ class LLPanelEstateCovenant : public LLPanelRegionInfo
 public:
     LLPanelEstateCovenant();
     ~LLPanelEstateCovenant() {}
-    
+
     bool postBuild() override;
     void updateChild(LLUICtrl* child_ctrl) override;
     bool refreshFromRegion(LLViewerRegion* region) override;
@@ -420,7 +422,7 @@ class LLPanelRegionExperiences : public LLPanelRegionInfo
 public:
     LLPanelRegionExperiences(){}
     bool postBuild() override;
-    
+
     static bool experienceCoreConfirm(const LLSD& notification, const LLSD& response);
     static void sendEstateExperienceDelta(U32 flags, const LLUUID& agent_id);
 
@@ -482,7 +484,7 @@ private:
     void onAllowedSearchEdit(const std::string& search_string);
     void onAllowedGroupsSearchEdit(const std::string& search_string);
     void onBannedSearchEdit(const std::string& search_string);
-    
+
     // Group picker callback is different, can't use core methods below
     bool addAllowedGroup(const LLSD& notification, const LLSD& response);
     void addAllowedGroup2(LLUUID id);

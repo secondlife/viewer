@@ -63,7 +63,7 @@ const LLColor3& LLColor3::operator=(const LLColor4 &a)
 
 std::ostream& operator<<(std::ostream& s, const LLColor3 &a)
 {
-    s << "{ " << a.mV[VX] << ", " << a.mV[VY] << ", " << a.mV[VZ] << " }";
+    s << "{ " << a.mV[VRED] << ", " << a.mV[VGREEN] << ", " << a.mV[VBLUE] << " }";
     return s;
 }
 

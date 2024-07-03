@@ -202,7 +202,7 @@ void LLDrawPoolTerrain::drawLoop()
 
 void LLDrawPoolTerrain::renderFullShader()
 {
-    const bool use_local_materials = gLocalTerrainMaterials.materialsReady(true, false);
+    const bool use_local_materials = gLocalTerrainMaterials.makeMaterialsReady(true, false);
     // Hack! Get the region that this draw pool is rendering from!
     LLViewerRegion *regionp = mDrawFace[0]->getDrawable()->getVObj()->getRegion();
     LLVLComposition *compp = regionp->getComposition();

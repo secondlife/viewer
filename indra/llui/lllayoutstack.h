@@ -86,7 +86,7 @@ public:
 
     void addPanel(LLLayoutPanel* panel, EAnimate animate = NO_ANIMATE);
     void collapsePanel(LLPanel* panel, bool collapsed = true);
-    S32 getNumPanels() { return mPanels.size(); }
+    S32 getNumPanels() { return static_cast<S32>(mPanels.size()); }
 
     void updateLayout();
 
@@ -111,7 +111,7 @@ private:
     e_panel_list_t mPanels;
 
     LLLayoutPanel* findEmbeddedPanel(LLPanel* panelp) const;
-    LLLayoutPanel* findEmbeddedPanelByName(const std::string& name) const;
+    LLLayoutPanel* findEmbeddedPanelByName(std::string_view name) const;
     void updateFractionalSizes();
     void normalizeFractionalSizes();
     void updatePanelRect( LLLayoutPanel* param1, const LLRect& new_rect );

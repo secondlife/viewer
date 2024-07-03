@@ -616,7 +616,8 @@ bool LLVOAvatar::sShowAnimationDebug = false;
 bool LLVOAvatar::sVisibleInFirstPerson = false;
 F32 LLVOAvatar::sLODFactor = 1.f;
 F32 LLVOAvatar::sPhysicsLODFactor = 1.f;
-bool LLVOAvatar::sJointDebug = false;
+bool LLVOAvatar::sJointDebug            = false;
+bool LLVOAvatar::sLipSyncEnabled        = false;
 F32 LLVOAvatar::sUnbakedTime = 0.f;
 F32 LLVOAvatar::sUnbakedUpdateTime = 0.f;
 F32 LLVOAvatar::sGreyTime = 0.f;
@@ -1179,11 +1180,18 @@ void LLVOAvatar::initClass()
     LLControlAvatar::sRegionChangedSlot = gAgent.addRegionChangedCallback(&LLControlAvatar::onRegionChanged);
 
     sCloudTexture = LLViewerTextureManager::getFetchedTextureFromFile("cloud-particle.j2c");
+    gSavedSettings.getControl("LipSyncEnabled")->getSignal()->connect(boost::bind(&LLVOAvatar::handleVOAvatarPrefsChanged, _2));
 }
 
 
 void LLVOAvatar::cleanupClass()
 {
+}
+
+bool LLVOAvatar::handleVOAvatarPrefsChanged(const LLSD &newvalue)
+{
+    sLipSyncEnabled = gSavedSettings.getBOOL("LipSyncEnabled");
+    return true;
 }
 
 // virtual
@@ -2327,7 +2335,7 @@ void LLVOAvatar::updateMeshData()
 
         S32 f_num = 0 ;
         const U32 VERTEX_NUMBER_THRESHOLD = 128 ;//small number of this means each part of an avatar has its own vertex buffer.
-        const S32 num_parts = mMeshLOD.size();
+        const auto num_parts = mMeshLOD.size();
 
         // this order is determined by number of LODS
         // if a mesh earlier in this list changed LODs while a later mesh doesn't,
@@ -2587,7 +2595,7 @@ void LLVOAvatar::idleUpdate(LLAgent &agent, const F64 &time)
         return;
     }
 
-    LLCachedControl<bool> friends_only(gSavedSettings, "RenderAvatarFriendsOnly", false);
+    static LLCachedControl<bool> friends_only(gSavedSettings, "RenderAvatarFriendsOnly", false);
     if (friends_only()
         && !isUIAvatar()
         && !isControlAvatar()
@@ -3103,7 +3111,7 @@ void LLVOAvatar::idleUpdateLipSync(bool voice_enabled)
     // Use the Lipsync_Ooh and Lipsync_Aah morphs for lip sync
     if ( voice_enabled
         && mLastRezzedStatus > 0 // no point updating lip-sync for clouds
-        && (LLVoiceClient::getInstance()->lipSyncEnabled())
+        && sLipSyncEnabled
         && LLVoiceClient::getInstance()->getIsSpeaking( mID ) )
     {
         F32 ooh_morph_amount = 0.0f;
@@ -5715,7 +5723,7 @@ void LLVOAvatar::checkTextureLoading()
         return ; //have not been invisible for enough time.
     }
 
-    mLoadedCallbackTextures = pause ? mCallbackTextureList.size() : 0;
+    mLoadedCallbackTextures = pause ? static_cast<S32>(mCallbackTextureList.size()) : 0;
 
     for(LLLoadedCallbackEntry::source_callback_list_t::iterator iter = mCallbackTextureList.begin();
         iter != mCallbackTextureList.end(); ++iter)
@@ -6594,8 +6602,8 @@ void LLVOAvatar::addAttachmentOverridesForObject(LLViewerObject *vo, std::set<LL
 
     if ( vobj && vobj->isMesh() && pSkinData )
     {
-        const int bindCnt = pSkinData->mAlternateBindMatrix.size();
-        const int jointCnt = pSkinData->mJointNames.size();
+        const unsigned int bindCnt = static_cast<unsigned int>(pSkinData->mAlternateBindMatrix.size());
+        const unsigned int jointCnt = static_cast<unsigned int>(pSkinData->mJointNames.size());
         if ((bindCnt > 0) && (bindCnt != jointCnt))
         {
             LL_WARNS_ONCE() << "invalid mesh, bindCnt " << bindCnt << "!= jointCnt " << jointCnt << ", joint overrides will be ignored." << LL_ENDL;
@@ -6622,10 +6630,10 @@ void LLVOAvatar::addAttachmentOverridesForObject(LLViewerObject *vo, std::set<LL
                 LL_DEBUGS("AnimatedObjects") << "adding attachment overrides for " << mesh_id
                                              << " to root object " << root_object->getID() << LL_ENDL;
             }
-            bool fullRig = jointCnt>=JOINT_COUNT_REQUIRED_FOR_FULLRIG;
+            bool fullRig = jointCnt >= JOINT_COUNT_REQUIRED_FOR_FULLRIG;
             if ( fullRig && !mesh_overrides_loaded )
             {
-                for ( int i=0; i<jointCnt; ++i )
+                for (unsigned int i = 0; i < jointCnt; ++i)
                 {
                     std::string lookingForJoint = pSkinData->mJointNames[i].c_str();
                     LLJoint* pJoint = getJoint( lookingForJoint );
@@ -7496,7 +7504,7 @@ S32 LLVOAvatar::getMaxAttachments() const
 //-----------------------------------------------------------------------------
 bool LLVOAvatar::canAttachMoreObjects(U32 n) const
 {
-    return (getNumAttachments() + n) <= getMaxAttachments();
+    return (getNumAttachments() + n) <= (U32)getMaxAttachments();
 }
 
 //-----------------------------------------------------------------------------
@@ -7530,7 +7538,7 @@ S32 LLVOAvatar::getMaxAnimatedObjectAttachments() const
 //-----------------------------------------------------------------------------
 bool LLVOAvatar::canAttachMoreAnimatedObjects(U32 n) const
 {
-    return (getNumAnimatedObjectAttachments() + n) <= getMaxAnimatedObjectAttachments();
+    return (getNumAnimatedObjectAttachments() + n) <= (U32)getMaxAnimatedObjectAttachments();
 }
 
 //-----------------------------------------------------------------------------
@@ -7942,7 +7950,7 @@ LLVOAvatar* LLVOAvatar::findAvatarFromAttachment( LLViewerObject* obj )
 
 S32 LLVOAvatar::getAttachmentCount() const
 {
-    S32 count = 0;
+    size_t count = 0;
 
     for (attachment_map_t::const_iterator iter = mAttachmentPoints.begin(); iter != mAttachmentPoints.end(); ++iter)
     {
@@ -7950,7 +7958,7 @@ S32 LLVOAvatar::getAttachmentCount() const
         count += pAttachment->mAttachedObjects.size();
     }
 
-    return count;
+    return static_cast<S32>(count);
 }
 
 bool LLVOAvatar::isWearingWearableType(LLWearableType::EType type) const
@@ -8473,17 +8481,29 @@ bool LLVOAvatar::isTooComplex() const
 
 bool LLVOAvatar::isTooSlow() const
 {
+    if (mIsControlAvatar)
+    {
+        return mTooSlow;
+    }
+
     static LLCachedControl<S32> compelxity_render_mode(gSavedSettings, "RenderAvatarComplexityMode");
-    bool render_friend =  (LLAvatarTracker::instance().isBuddy(getID()) && compelxity_render_mode > AV_RENDER_LIMIT_BY_COMPLEXITY);
+    static LLCachedControl<bool> friends_only(gSavedSettings, "RenderAvatarFriendsOnly", false);
+    bool is_friend = LLAvatarTracker::instance().isBuddy(getID());
+    bool render_friend = is_friend && compelxity_render_mode > AV_RENDER_LIMIT_BY_COMPLEXITY;
 
     if (render_friend || mVisuallyMuteSetting == AV_ALWAYS_RENDER)
     {
         return false;
     }
-    else if (compelxity_render_mode == AV_RENDER_ONLY_SHOW_FRIENDS && !mIsControlAvatar)
+    else if (compelxity_render_mode == AV_RENDER_ONLY_SHOW_FRIENDS)
     {
         return true;
     }
+    else if (!is_friend && friends_only())
+    {
+        return true;
+    }
+
     return mTooSlow;
 }
 
@@ -8979,7 +8999,7 @@ void LLVOAvatar::addChat(const LLChat& chat)
 
     mChats.push_back(chat);
 
-    S32 chat_length = 0;
+    size_t chat_length = 0;
     for( chat_iter = mChats.begin(); chat_iter != mChats.end(); ++chat_iter)
     {
         chat_length += chat_iter->mText.size();
@@ -9591,7 +9611,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
     }
 
     // SUNSHINE CLEANUP - is this case OK now?
-    S32 num_params = contents->mParamWeights.size();
+    auto num_params = contents->mParamWeights.size();
     if (num_params <= 1)
     {
         // In this case, we have no reliable basis for knowing
@@ -9635,7 +9655,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 
 void LLVOAvatar::applyParsedAppearanceMessage(LLAppearanceMessageContents& contents, bool slam_params)
 {
-    S32 num_params = contents.mParamWeights.size();
+    auto num_params = contents.mParamWeights.size();
     ESex old_sex = getSex();
 
     if (applyParsedTEMessage(contents.mTEContents) > 0 && isChanged(TEXTURE))
@@ -9686,7 +9706,7 @@ void LLVOAvatar::applyParsedAppearanceMessage(LLAppearanceMessageContents& conte
         bool interp_params = false;
         S32 params_changed_count = 0;
 
-        for( S32 i = 0; i < num_params; i++ )
+        for( size_t i = 0; i < num_params; i++ )
         {
             LLVisualParam* param = contents.mParams[i];
             F32 newWeight = contents.mParamWeights[i];
@@ -11135,7 +11155,7 @@ void LLVOAvatar::accountRenderComplexityForObject(
                 attached_object->mRiggedAttachedWarned = true;
             }
 
-            hud_object_complexity.texturesCount += textures.size();
+            hud_object_complexity.texturesCount += static_cast<U32>(textures.size());
 
             for (LLVOVolume::texture_cost_t::iterator volume_texture = textures.begin();
                 volume_texture != textures.end();

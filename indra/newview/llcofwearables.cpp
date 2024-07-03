@@ -618,13 +618,13 @@ void LLCOFWearables::populateClothingList(LLAppearanceMgr::wearables_by_type_t& 
 
     for (U32 type = LLWearableType::WT_SHIRT; type < LLWearableType::WT_COUNT; ++type)
     {
-        U32 size = clothing_by_type[type].size();
+        auto size = clothing_by_type[type].size();
         if (!size) continue;
 
         LLAppearanceMgr::sortItemsByActualDescription(clothing_by_type[type]);
 
         //clothing items are displayed in reverse order, from furthest ones to closest ones (relatively to the body)
-        for (U32 i = size; i != 0; --i)
+        for (size_t i = size; i != 0; --i)
         {
             LLViewerInventoryItem* item = clothing_by_type[type][i-1];
 
@@ -647,8 +647,8 @@ void LLCOFWearables::addClothingTypesDummies(const LLAppearanceMgr::wearables_by
 
     for (U32 type = LLWearableType::WT_SHIRT; type < LLWearableType::WT_COUNT; type++)
     {
-        U32 size = clothing_by_type[type].size();
-        if (size) continue;
+        if (clothing_by_type[type].empty())
+            continue;
 
         LLWearableType::EType w_type = static_cast<LLWearableType::EType>(type);
         LLPanelInventoryListItemBase* item_panel = LLPanelDummyClothingListItem::create(w_type);

@@ -1,12 +1,6 @@
 name: Build
 
 on:
-  workflow_dispatch:
-    inputs:
-      release_run:
-        type: boolean
-        description: Do a release of this build
-        default: false
   pull_request:
   push:
     branches: ["main", "release/*", "project/*"]
@@ -231,6 +225,9 @@ jobs:
           elif  [[ "$prefix" == "release" || "$prefix" == "main" ]];
           then
               export viewer_channel="Second Life Release"
+          elif  [[ "$branch" == "develop" ]];
+          then
+              export viewer_channel="Second Life Develop"
           else
               export viewer_channel="Second Life Test"
           fi
@@ -312,7 +309,7 @@ jobs:
       AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
       AZURE_TENANT_ID:     ${{ secrets.AZURE_TENANT_ID }}
     needs: build
-    runs-on: windows
+    runs-on: windows-large
     steps:
       - name: Sign and package Windows viewer
         if: env.AZURE_KEY_VAULT_URI && env.AZURE_CERT_NAME && env.AZURE_CLIENT_ID && env.AZURE_CLIENT_SECRET && env.AZURE_TENANT_ID
@@ -412,7 +409,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           pattern: "*-metadata"
-      
+
       - name: Rename metadata
         run: |
           cp Windows-metadata/autobuild-package.xml Windows-autobuild-package.xml
@@ -441,7 +438,7 @@ jobs:
           append_body: true
           fail_on_unmatched_files: true
           files: |
-            macOS-installer/*.dmg 
+            macOS-installer/*.dmg
             Windows-installer/*.exe
             *-autobuild-package.xml
             *-viewer_version.txt

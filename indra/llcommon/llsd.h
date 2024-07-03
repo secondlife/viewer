@@ -259,10 +259,24 @@ public:
         UUID    asUUID() const;
         Date    asDate() const;
         URI     asURI() const;
-        const Binary&   asBinary() const;
+        const Binary& asBinary() const;
 
         // asStringRef on any non-string type will return a ref to an empty string.
-        const String&   asStringRef() const;
+        const String& asStringRef() const;
+
+        // Return "<value><((type))>((scalar value or recursive calls))</((type))></value>"
+        // See http://xmlrpc.com/spec.md
+        String asXMLRPCValue() const;
+
+        struct TreeNode
+        {
+            virtual bool hasName(const String& name) const = 0;
+            virtual String getTextContents() const = 0;
+            virtual TreeNode* getFirstChild() const = 0;
+            virtual TreeNode* getNextSibling() const = 0;
+        };
+
+        bool fromXMLRPCValue(TreeNode* node);
 
         operator Boolean() const    { return asBoolean(); }
         operator Integer() const    { return asInteger(); }
@@ -275,7 +289,7 @@ public:
 
         // This is needed because most platforms do not automatically
         // convert the boolean negation as a bool in an if statement.
-        bool operator!() const {return !asBoolean();}
+        bool operator!() const { return !asBoolean(); }
     //@}
 
     /** @name Character Pointer Helpers

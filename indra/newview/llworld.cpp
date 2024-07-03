@@ -961,7 +961,6 @@ void LLWorld::updateWaterObjects()
             if (!getRegionFromHandle(region_handle))
             {   // No region at that area, so make water
                 LLVOWater* waterp = (LLVOWater *)gObjectList.createObjectViewer(LLViewerObject::LL_VO_WATER, gAgent.getRegion());
-                waterp->setUseTexture(false);
                 waterp->setPositionGlobal(LLVector3d(x + rwidth/2,
                                                      y + rwidth/2,
                                                      256.f + water_height));
@@ -1015,7 +1014,6 @@ void LLWorld::updateWaterObjects()
             mEdgeWaterObjects[dir] = (LLVOWater *)gObjectList.createObjectViewer(LLViewerObject::LL_VO_VOID_WATER,
                                                                                  gAgent.getRegion());
             waterp = mEdgeWaterObjects[dir];
-            waterp->setUseTexture(false);
             waterp->setIsEdgePatch(true);
             gPipeline.createObject(waterp);
         }
@@ -1352,8 +1350,8 @@ void LLWorld::getAvatars(uuid_vec_t* avatar_ids, std::vector<LLVector3d>* positi
     {
         LLViewerRegion* regionp = *iter;
         const LLVector3d& origin_global = regionp->getOriginGlobal();
-        S32 count = regionp->mMapAvatars.size();
-        for (S32 i = 0; i < count; i++)
+        auto count = regionp->mMapAvatars.size();
+        for (size_t i = 0; i < count; i++)
         {
             LLVector3d pos_global = unpackLocalToGlobalPosition(regionp->mMapAvatars.at(i), origin_global);
             if(dist_vec_squared(pos_global, relative_to) <= radius_squared)

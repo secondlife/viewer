@@ -83,7 +83,7 @@ LLFloater360Capture::~LLFloater360Capture()
     // Normally LLFloater360Capture tells the Simulator send everything
     // and now reverts to the regular "keyhole" frustum of interest
     // list updates.
-    if (!LLApp::isExiting() && 
+    if (!LLApp::isExiting() &&
         gSavedSettings.getBOOL("360CaptureUseInterestListCap") &&
         mStartILMode != gAgent.getInterestListMode())
     {
@@ -419,9 +419,9 @@ void LLFloater360Capture::mockSnapShot(LLImageRaw* raw)
     unsigned int depth = raw->getComponents();
     unsigned char* pixels = raw->getData();
 
-    for (int y = 0; y < height; y++)
+    for (unsigned int y = 0; y < height; y++)
     {
-        for (int x = 0; x < width; x++)
+        for (unsigned int x = 0; x < width; x++)
         {
             unsigned long offset = y * width * depth + x * depth;
             unsigned char red = x * 256 / width;
@@ -582,7 +582,7 @@ void LLFloater360Capture::capture360Images()
 
         LLViewerStats::instance().getRecording().resume();
         LLAppViewer::instance()->resumeMainloopTimeout();
-        
+
         // update main loop timeout state
         LLAppViewer::instance()->pingMainloopTimeout("LLFloater360Capture::capture360Images");
     }

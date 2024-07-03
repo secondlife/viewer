@@ -1250,7 +1250,7 @@ void LLFavoritesBarCtrl::fitLabelWidth(LLMenuItemCallGL* menu_item)
     // Check whether item name wider than menu
     if (menu_item->getNominalWidth() > max_width)
     {
-        S32 chars_total = item_name.length();
+        S32 chars_total = static_cast<S32>(item_name.length());
         S32 chars_fitted = 1;
         menu_item->setLabel(LLStringExplicit(""));
         S32 label_space = max_width - menu_item->getFont()->getWidth("...") -
@@ -1375,7 +1375,7 @@ bool LLFavoritesBarCtrl::handleRightMouseDown(S32 x, S32 y, MASK mask)
 }
 void copy_slurl_to_clipboard_cb(std::string& slurl)
 {
-    LLClipboard::instance().copyToClipboard(utf8str_to_wstring(slurl),0,slurl.size());
+    LLClipboard::instance().copyToClipboard(utf8str_to_wstring(slurl), 0, static_cast<S32>(slurl.size()));
 
     LLSD args;
     args["SLURL"] = slurl;
@@ -1522,8 +1522,8 @@ bool LLFavoritesBarCtrl::isClipboardPasteable() const
 
     std::vector<LLUUID> objects;
     LLClipboard::instance().pasteFromClipboard(objects);
-    S32 count = objects.size();
-    for(S32 i = 0; i < count; i++)
+    auto count = objects.size();
+    for(size_t i = 0; i < count; i++)
     {
         const LLUUID &item_id = objects.at(i);
 
@@ -1551,9 +1551,9 @@ void LLFavoritesBarCtrl::pasteFromClipboard() const
         LLInventoryItem* item = NULL;
         std::vector<LLUUID> objects;
         LLClipboard::instance().pasteFromClipboard(objects);
-        S32 count = objects.size();
+        auto count = objects.size();
         LLUUID parent_id(mFavoriteFolderId);
-        for(S32 i = 0; i < count; i++)
+        for(size_t i = 0; i < count; i++)
         {
             item = model->getItem(objects.at(i));
             if (item)

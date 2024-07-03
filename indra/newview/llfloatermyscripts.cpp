@@ -137,7 +137,7 @@ void LLFloaterMyScripts::setAttachmentDetails(LLSD content)
         return;
     }
 
-    S32 number_attachments = content["attachments"].size();
+    S32 number_attachments = static_cast<S32>(content["attachments"].size());
 
     for(int i = 0; i < number_attachments; i++)
     {
@@ -148,7 +148,7 @@ void LLFloaterMyScripts::setAttachmentDetails(LLSD content)
             humanReadableLocation = LLTrans::getString(actualLocation.c_str());
         }
 
-        S32 number_objects = content["attachments"][i]["objects"].size();
+        S32 number_objects = static_cast<S32>(content["attachments"][i]["objects"].size());
         for(int j = 0; j < number_objects; j++)
         {
             LLUUID task_id = content["attachments"][i]["objects"][j]["id"].asUUID();

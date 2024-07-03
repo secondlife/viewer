@@ -1195,7 +1195,7 @@ void LLFloaterEditExtDayCycle::updateButtons()
         }
         else
         {
-            for (S32 track = 1; track < LLSettingsDay::TRACK_MAX; ++track)
+            for (U32 track = 1; track < LLSettingsDay::TRACK_MAX; ++track)
             {
                 if (track == mCurrentTrack)
                     continue;
@@ -1220,7 +1220,7 @@ void LLFloaterEditExtDayCycle::updateButtons()
 
     // update track buttons
     bool extended_env = LLEnvironment::instance().isExtendedEnvironmentEnabled();
-    for (S32 track = 0; track < LLSettingsDay::TRACK_MAX; ++track)
+    for (U32 track = 0; track < LLSettingsDay::TRACK_MAX; ++track)
     {
         LLButton* button = getChild<LLButton>(track_tabs[track], true);
         button->setEnabled(extended_env);

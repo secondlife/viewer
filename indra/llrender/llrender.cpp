@@ -991,6 +991,8 @@ void LLRender::syncLightState()
 void LLRender::syncMatrices()
 {
     STOP_GLERROR;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
+
     static const U32 name[] =
     {
         LLShaderMgr::MODELVIEW_MATRIX,
@@ -1686,7 +1688,7 @@ void LLRender::flush()
 
                 if (attribute_mask & LLVertexBuffer::MAP_TEXCOORD0)
                 {
-                    vb->setTexCoordData(mTexcoordsp.get());
+                    vb->setTexCoord0Data(mTexcoordsp.get());
                 }
 
                 if (attribute_mask & LLVertexBuffer::MAP_COLOR)

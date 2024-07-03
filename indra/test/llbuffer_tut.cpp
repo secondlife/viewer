@@ -128,7 +128,7 @@ namespace tut
     {
         LLBufferArray bufferArray;
         const char array[] = "SecondLife";
-        S32 len = strlen(array);
+        S32 len = static_cast<S32>(strlen(array));
         LLChannelDescriptors channelDescriptors = bufferArray.nextChannel();
         bufferArray.append(channelDescriptors.in(), (U8*)array, len);
         S32 count = bufferArray.countAfter(channelDescriptors.in(), NULL);
@@ -141,9 +141,9 @@ namespace tut
     {
         LLBufferArray bufferArray;
         const char array[] = "SecondLife";
-        S32 len = strlen(array);
+        S32 len = static_cast<S32>(strlen(array));
         const char array1[] = "LindenLabs";
-        S32 len1 = strlen(array1);
+        S32 len1 = static_cast<S32>(strlen(array1));
 
         std::string str(array1);
         str.append(array);
@@ -166,9 +166,9 @@ namespace tut
     {
         LLBufferArray bufferArray;
         const char array[] = "SecondLife";
-        S32 len = strlen(array);
+        S32 len = static_cast<S32>(strlen(array));
         const char array1[] = "LindenLabs";
-        S32 len1 = strlen(array1);
+        S32 len1 = static_cast<S32>(strlen(array1));
 
         std::string str(array);
         str.append(array1);
@@ -190,7 +190,7 @@ namespace tut
     {
         LLBufferArray bufferArray;
         const char array[] = "SecondLife";
-        S32 len = strlen(array) + 1;
+        S32 len = static_cast<S32>(strlen(array)) + 1;
         std::string str(array);
         LLChannelDescriptors channelDescriptors = bufferArray.nextChannel();
         bufferArray.append(channelDescriptors.in(), (U8*)array, len);
@@ -208,7 +208,7 @@ namespace tut
     void buffer_object_t::test<10>()
     {
         const char array[] = "SecondLife is a Virtual World";
-        S32 len = strlen(array);
+        S32 len = static_cast<S32>(strlen(array));
         LLBufferArray bufferArray;
         bufferArray.append(0, (U8*)array, len);
 
@@ -229,7 +229,7 @@ namespace tut
     void buffer_object_t::test<11>()
     {
         const char array[] = "SecondLife is a Virtual World";
-        S32 len = strlen(array);
+        S32 len = static_cast<S32>(strlen(array));
         LLBufferArray bufferArray;
         bufferArray.append(0, (U8*)array, len);
 

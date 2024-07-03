@@ -138,7 +138,7 @@ public:
     virtual iterator find(const LLSD& params);
 
     // return the number of certs in the store
-    virtual int size() const { return mCerts.size(); }
+    virtual int size() const { return static_cast<int>(mCerts.size()); }
 
     // insert the cert to the store.  if a copy of the cert already exists in the store, it is removed first
     virtual void  add(LLPointer<LLCertificate> cert) { insert(end(), cert); }

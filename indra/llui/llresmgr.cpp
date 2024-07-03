@@ -140,7 +140,7 @@ std::string LLResMgr::getMonetaryString( S32 input ) const
     S32 output_pos = 0;
 
     cur_group = 0;
-    S32 pos = digits.size()-1;
+    S32 pos = static_cast<S32>(digits.size()) - 1;
     S32 count_within_group = 0;
     while( (pos >= 0) && (groupings[cur_group] >= 0) )
     {

@@ -315,7 +315,7 @@ void LLFacePool::addFaceReference(LLFace *facep)
 {
     if (-1 == facep->getReferenceIndex())
     {
-        facep->setReferenceIndex(mReferences.size());
+        facep->setReferenceIndex(static_cast<S32>(mReferences.size()));
         mReferences.push_back(facep);
     }
 }
@@ -672,7 +672,7 @@ bool LLRenderPass::uploadMatrixPalette(LLVOAvatar* avatar, LLMeshSkinInfo* skinI
         return false;
     }
     const LLVOAvatar::MatrixPaletteCache& mpc = avatar->updateSkinInfoMatrixPalette(skinInfo);
-    U32 count = mpc.mMatrixPalette.size();
+    U32 count = static_cast<U32>(mpc.mMatrixPalette.size());
 
     if (count == 0)
     {
@@ -756,9 +756,12 @@ void LLRenderPass::pushGLTFBatch(LLDrawInfo& params)
 {
     auto& mat = params.mGLTFMaterial;
 
-    mat->bind(params.mTexture);
+    if (mat.notNull())
+    {
+        mat->bind(params.mTexture);
+    }
 
-    LLGLDisable cull_face(mat->mDoubleSided ? GL_CULL_FACE : 0);
+    LLGLDisable cull_face(mat.notNull() && mat->mDoubleSided ? GL_CULL_FACE : 0);
 
     setup_texture_matrix(params);
 

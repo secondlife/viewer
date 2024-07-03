@@ -1,24 +1,24 @@
-/** 
+/**
  * @file class1\deferred\terrainF.glsl
  *
  * $LicenseInfo:firstyear=2023&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2023, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -75,6 +75,9 @@ PBRMix terrain_sample_and_multiply_pbr(
 #endif
 #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_NORMAL)
     , sampler2D tex_vNt
+#if TERRAIN_PLANAR_TEXTURE_SAMPLE_COUNT == 3
+    , float transform_sign
+#endif
 #endif
 #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
     , sampler2D tex_emissive
@@ -139,7 +142,7 @@ in vec3 vary_position;
 in vec3 vary_normal;
 #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_NORMAL)
 in vec3 vary_tangents[4];
-flat in float vary_sign;
+flat in float vary_signs[4];
 #endif
 in vec4 vary_texcoord0;
 in vec4 vary_texcoord1;
@@ -150,11 +153,11 @@ float terrain_mix(TerrainMix tm, vec4 tms4);
 
 #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_NORMAL)
 // from mikktspace.com
-vec3 mikktspace(vec3 vNt, vec3 vT)
+vec3 mikktspace(vec3 vNt, vec3 vT, float sign)
 {
     vec3 vN = vary_normal;
-    
-    vec3 vB = vary_sign * cross(vN, vT);
+
+    vec3 vB = sign * cross(vN, vT);
     vec3 tnorm = normalize( vNt.x * vT + vNt.y * vB + vNt.z * vN );
 
     tnorm *= gl_FrontFacing ? 1.0 : -1.0;
@@ -216,6 +219,9 @@ void main()
 #endif
 #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_NORMAL)
             , detail_0_normal
+#if TERRAIN_PLANAR_TEXTURE_SAMPLE_COUNT == 3
+            , vary_signs[0]
+#endif
 #endif
 #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
             , detail_0_emissive
@@ -231,7 +237,7 @@ void main()
 #endif
         );
 #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_NORMAL)
-        mix2.vNt = mikktspace(mix2.vNt, vary_tangents[0]);
+        mix2.vNt = mikktspace(mix2.vNt, vary_tangents[0], vary_signs[0]);
 #endif
         pbr_mix = mix_pbr(pbr_mix, mix2, tm.weight.x);
         break;
@@ -258,6 +264,9 @@ void main()
 #endif
 #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_NORMAL)
             , detail_1_normal
+#if TERRAIN_PLANAR_TEXTURE_SAMPLE_COUNT == 3
+            , vary_signs[1]
+#endif
 #endif
 #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
             , detail_1_emissive
@@ -273,7 +282,7 @@ void main()
 #endif
         );
 #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_NORMAL)
-        mix2.vNt = mikktspace(mix2.vNt, vary_tangents[1]);
+        mix2.vNt = mikktspace(mix2.vNt, vary_tangents[1], vary_signs[1]);
 #endif
         pbr_mix = mix_pbr(pbr_mix, mix2, tm.weight.y);
         break;
@@ -300,6 +309,9 @@ void main()
 #endif
 #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_NORMAL)
             , detail_2_normal
+#if TERRAIN_PLANAR_TEXTURE_SAMPLE_COUNT == 3
+            , vary_signs[2]
+#endif
 #endif
 #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
             , detail_2_emissive
@@ -315,7 +327,7 @@ void main()
 #endif
         );
 #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_NORMAL)
-        mix2.vNt = mikktspace(mix2.vNt, vary_tangents[2]);
+        mix2.vNt = mikktspace(mix2.vNt, vary_tangents[2], vary_signs[2]);
 #endif
         pbr_mix = mix_pbr(pbr_mix, mix2, tm.weight.z);
         break;
@@ -342,6 +354,9 @@ void main()
 #endif
 #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_NORMAL)
             , detail_3_normal
+#if TERRAIN_PLANAR_TEXTURE_SAMPLE_COUNT == 3
+            , vary_signs[3]
+#endif
 #endif
 #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
             , detail_3_emissive
@@ -357,7 +372,7 @@ void main()
 #endif
         );
 #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_NORMAL)
-        mix2.vNt = mikktspace(mix2.vNt, vary_tangents[3]);
+        mix2.vNt = mikktspace(mix2.vNt, vary_tangents[3], vary_signs[3]);
 #endif
         pbr_mix = mix_pbr(pbr_mix, mix2, tm.weight.w);
         break;
@@ -378,7 +393,7 @@ void main()
     vec3 tnorm = vary_normal;
 #endif
     tnorm *= gl_FrontFacing ? 1.0 : -1.0;
-   
+
 
 #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
 #define mix_emissive pbr_mix.emissive

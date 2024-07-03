@@ -1,4 +1,4 @@
-name: Stale PRs 
+name: Stale PRs
 on:
   workflow_dispatch:
   schedule:

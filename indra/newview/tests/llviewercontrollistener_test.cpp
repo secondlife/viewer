@@ -3,7 +3,7 @@
  * @author Nat Goodspeed
  * @date   2022-06-09
  * @brief  Test for llviewercontrollistener.
- * 
+ *
  * $LicenseInfo:firstyear=2022&license=viewerlgpl$
  * Copyright (c) 2022, Linden Research, Inc.
  * $/LicenseInfo$

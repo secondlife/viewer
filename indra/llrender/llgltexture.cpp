@@ -351,32 +351,11 @@ void LLGLTexture::forceUpdateBindStats(void) const
     return mGLTexturep->forceUpdateBindStats() ;
 }
 
-U32 LLGLTexture::getTexelsInAtlas() const
-{
-    llassert(mGLTexturep.notNull()) ;
-
-    return mGLTexturep->getTexelsInAtlas() ;
-}
-
-U32 LLGLTexture::getTexelsInGLTexture() const
-{
-    llassert(mGLTexturep.notNull()) ;
-
-    return mGLTexturep->getTexelsInGLTexture() ;
-}
-
 bool LLGLTexture::isGLTextureCreated() const
 {
     llassert(mGLTexturep.notNull()) ;
 
     return mGLTexturep->isGLTextureCreated() ;
-}
-
-S32  LLGLTexture::getDiscardLevelInAtlas() const
-{
-    llassert(mGLTexturep.notNull()) ;
-
-    return mGLTexturep->getDiscardLevelInAtlas() ;
 }
 
 void LLGLTexture::destroyGLTexture()

@@ -302,7 +302,7 @@ namespace LLPerfStats
         std::vector<LLVector3d> positions;
         uuid_vec_t avatar_ids;
         LLWorld::getInstance()->getAvatars(&avatar_ids, &positions, our_pos, distance);
-        return positions.size();
+        return static_cast<int>(positions.size());
     }
 
     const U32 NUM_PERIODS = 50;
@@ -378,7 +378,7 @@ namespace LLPerfStats
             auto count = countNearbyAvatars(std::min(LLPipeline::RenderFarClip, tunables.userImpostorDistance));
             if( count != tunables.nonImpostors )
             {
-                tunables.updateNonImposters( (count < LLVOAvatar::NON_IMPOSTORS_MAX_SLIDER)?count : 0 );
+                tunables.updateNonImposters(((U32)count < LLVOAvatar::NON_IMPOSTORS_MAX_SLIDER) ? count : 0);
                 LL_DEBUGS("AutoTune") << "There are " << count << "avatars within " << std::min(LLPipeline::RenderFarClip, tunables.userImpostorDistance) << "m of the camera" << LL_ENDL;
             }
         }

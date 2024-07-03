@@ -23,8 +23,7 @@
  * $/LicenseInfo$
  */
 
-uniform sampler2D       noiseMap;
-uniform sampler2D   normalMap;
+uniform sampler2D   noiseMap;
 uniform sampler2D   depthMap;
 
 uniform float ssao_radius;

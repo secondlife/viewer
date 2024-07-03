@@ -109,7 +109,7 @@ LLTexLayer* LLLocalTextureObject::getTexLayer(const std::string &name)
 
 U32 LLLocalTextureObject::getNumTexLayers() const
 {
-    return mTexLayers.size();
+    return static_cast<U32>(mTexLayers.size());
 }
 
 LLUUID LLLocalTextureObject::getID() const

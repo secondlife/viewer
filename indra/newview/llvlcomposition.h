@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llvlcomposition.h
  * @brief Viewer-side representation of a composition layer...
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -74,18 +74,18 @@ public:
     const LLGLTFMaterial* getMaterialOverride(S32 asset) const override;
     virtual void setMaterialOverride(S32 asset, LLGLTFMaterial* mat_override);
     Type getMaterialType();
-    bool texturesReady(bool boost, bool strict);
+    bool makeTexturesReady(bool boost, bool strict);
     // strict = true -> all materials must be sufficiently loaded
     // strict = false -> at least one material must be loaded
-    bool materialsReady(bool boost, bool strict);
+    bool makeMaterialsReady(bool boost, bool strict);
 
 protected:
     void unboost();
-    static bool textureReady(LLPointer<LLViewerFetchedTexture>& tex, bool boost);
+    static bool makeTextureReady(LLPointer<LLViewerFetchedTexture>& tex, bool boost);
     // strict = true -> all materials must be sufficiently loaded
     // strict = false -> at least one material must be loaded
-    static bool materialReady(LLPointer<LLFetchedGLTFMaterial>& mat, bool& textures_set, bool boost, bool strict);
-    // *NOTE: Prefer calling materialReady if mat is known to be LLFetchedGLTFMaterial
+    static bool makeMaterialReady(LLPointer<LLFetchedGLTFMaterial>& mat, bool& textures_set, bool boost, bool strict);
+    // *NOTE: Prefer calling makeMaterialReady if mat is known to be LLFetchedGLTFMaterial
     static bool materialTexturesReady(LLPointer<LLFetchedGLTFMaterial>& mat, bool& textures_set, bool boost, bool strict);
 
     LLPointer<LLViewerFetchedTexture> mDetailTextures[ASSET_COUNT];
@@ -114,9 +114,6 @@ public:
     // Viewer side hack to generate composition values
     bool generateHeights(const F32 x, const F32 y, const F32 width, const F32 height);
     bool generateComposition();
-    // Generate texture from composition values.
-    bool generateMinimapTileLand(const F32 x, const F32 y, const F32 width, const F32 height);      
-    bool generateTexture(const F32 x, const F32 y, const F32 width, const F32 height);      
 
     // Use these as indeces ito the get/setters below that use 'corner'
     enum ECorner

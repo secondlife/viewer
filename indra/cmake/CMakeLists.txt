@@ -62,7 +62,7 @@ set(cmake_SOURCE_FILES
         ViewerMiscLibs.cmake
         VisualLeakDetector.cmake
         LibVLCPlugin.cmake
-        XmlRpcEpi.cmake
+        WebRTC.cmake
         xxHash.cmake
         ZLIBNG.cmake
         )

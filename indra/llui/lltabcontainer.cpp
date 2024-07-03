@@ -315,7 +315,7 @@ void LLTabContainer::reshape(S32 width, S32 height, bool called_from_parent)
 }
 
 //virtual
-LLView* LLTabContainer::getChildView(const std::string& name, bool recurse) const
+LLView* LLTabContainer::getChildView(std::string_view name, bool recurse) const
 {
     tuple_list_t::const_iterator itor;
     for (itor = mTabList.begin(); itor != mTabList.end(); ++itor)
@@ -343,7 +343,7 @@ LLView* LLTabContainer::getChildView(const std::string& name, bool recurse) cons
 }
 
 //virtual
-LLView* LLTabContainer::findChildView(const std::string& name, bool recurse) const
+LLView* LLTabContainer::findChildView(std::string_view name, bool recurse) const
 {
     tuple_list_t::const_iterator itor;
     for (itor = mTabList.begin(); itor != mTabList.end(); ++itor)
@@ -1298,7 +1298,7 @@ void LLTabContainer::removeTabPanel(LLPanel* child)
 
     if (mCurrentTabIdx >= (S32)mTabList.size())
     {
-        mCurrentTabIdx = mTabList.size()-1;
+        mCurrentTabIdx = static_cast<S32>(mTabList.size()) - 1;
     }
     selectTab(mCurrentTabIdx);
     if (has_focus)
@@ -1377,7 +1377,7 @@ S32 LLTabContainer::getCurrentPanelIndex()
 
 S32 LLTabContainer::getTabCount()
 {
-    return mTabList.size();
+    return static_cast<S32>(mTabList.size());
 }
 
 LLPanel* LLTabContainer::getPanelByIndex(S32 index)
@@ -1401,7 +1401,7 @@ S32 LLTabContainer::getIndexForPanel(LLPanel* panel)
     return -1;
 }
 
-S32 LLTabContainer::getPanelIndexByTitle(const std::string& title)
+S32 LLTabContainer::getPanelIndexByTitle(std::string_view title)
 {
     for (S32 index = 0 ; index < (S32)mTabList.size(); index++)
     {
@@ -1413,7 +1413,7 @@ S32 LLTabContainer::getPanelIndexByTitle(const std::string& title)
     return -1;
 }
 
-LLPanel* LLTabContainer::getPanelByName(const std::string& name)
+LLPanel* LLTabContainer::getPanelByName(std::string_view name)
 {
     for (S32 index = 0 ; index < (S32)mTabList.size(); index++)
     {
@@ -1444,7 +1444,7 @@ void LLTabContainer::selectFirstTab()
 
 void LLTabContainer::selectLastTab()
 {
-    selectTab( mTabList.size()-1 );
+    selectTab(static_cast<S32>(mTabList.size()) - 1);
 }
 
 void LLTabContainer::selectNextTab()
@@ -1482,12 +1482,12 @@ void LLTabContainer::selectPrevTab()
     }
     S32 idx = mCurrentTabIdx-1;
     if (idx < 0)
-        idx = mTabList.size()-1;
+        idx = static_cast<S32>(mTabList.size()) - 1;
     while (!selectTab(idx) && idx != mCurrentTabIdx)
     {
         idx = idx - 1;
         if (idx < 0)
-            idx = mTabList.size()-1;
+            idx = static_cast<S32>(mTabList.size()) - 1;
     }
     if (tab_has_focus)
     {
@@ -1637,7 +1637,7 @@ bool LLTabContainer::setTab(S32 which)
     return is_visible;
 }
 
-bool LLTabContainer::selectTabByName(const std::string& name)
+bool LLTabContainer::selectTabByName(std::string_view name)
 {
     LLPanel* panel = getPanelByName(name);
     if (!panel)

@@ -373,7 +373,7 @@ S32 LLScrollListCtrl::isEmpty() const
 
 S32 LLScrollListCtrl::getItemCount() const
 {
-    return mItemList.size();
+    return static_cast<S32>(mItemList.size());
 }
 
 bool LLScrollListCtrl::hasSelectedItem() const
@@ -1325,7 +1325,7 @@ bool LLScrollListCtrl::selectItemByPrefix(const LLWString& target, bool case_sen
     bool found = false;
 
     LLWString target_trimmed( target );
-    S32 target_len = target_trimmed.size();
+    auto target_len = target_trimmed.size();
 
     if( 0 == target_len )
     {
@@ -1377,8 +1377,8 @@ bool LLScrollListCtrl::selectItemByPrefix(const LLWString& target, bool case_sen
             if (select)
             {
                 // find offset of matching text (might have leading whitespace)
-                S32 offset = item_label.find(target_trimmed);
-                cellp->highlightText(offset, target_trimmed.size());
+                auto offset = item_label.find(target_trimmed);
+                cellp->highlightText(static_cast<S32>(offset), static_cast<S32>(target_trimmed.size()));
                 selectItem(item, -1);
                 found = true;
                 break;
@@ -1404,7 +1404,7 @@ U32 LLScrollListCtrl::searchItems(const LLWString& substring, bool case_sensitiv
     U32 found = 0;
 
     LLWString substring_trimmed(substring);
-    S32 len = substring_trimmed.size();
+    auto len = substring_trimmed.size();
 
     if (0 == len)
     {
@@ -1446,7 +1446,7 @@ U32 LLScrollListCtrl::searchItems(const LLWString& substring, bool case_sensitiv
             if (found_iter != std::string::npos)
             {
                 // find offset of matching text
-                cellp->highlightText(found_iter, substring_trimmed.size());
+                cellp->highlightText(static_cast<S32>(found_iter), static_cast<S32>(substring_trimmed.size()));
                 selectItem(item, -1, false);
 
                 found++;
@@ -2897,7 +2897,7 @@ void    LLScrollListCtrl::copy()
     {
         buffer += (*itor)->getContentsCSV() + "\n";
     }
-    LLClipboard::instance().copyToClipboard(utf8str_to_wstring(buffer), 0, buffer.length());
+    LLClipboard::instance().copyToClipboard(utf8str_to_wstring(buffer), 0, static_cast<S32>(buffer.length()));
 }
 
 // virtual
@@ -2981,7 +2981,7 @@ void LLScrollListCtrl::addColumn(const LLScrollListColumn::Params& column_params
         // Add column
         mColumns[name] = new LLScrollListColumn(column_params, this);
         LLScrollListColumn* new_column = mColumns[name];
-        new_column->mIndex = mColumns.size()-1;
+        new_column->mIndex = static_cast<S32>(mColumns.size()) - 1;
 
         // Add button
         if (new_column->getWidth() > 0 || new_column->mRelWidth > 0 || new_column->mDynamicWidth)
@@ -3177,7 +3177,7 @@ LLScrollListItem* LLScrollListCtrl::addRow(LLScrollListItem *new_item, const LLS
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
     if (!item_p.validateBlock() || !new_item) return NULL;
-    new_item->setNumColumns(mColumns.size());
+    new_item->setNumColumns(static_cast<S32>(mColumns.size()));
 
     // Add any columns we don't already have
     S32 col_index = 0;
@@ -3212,7 +3212,7 @@ LLScrollListItem* LLScrollListCtrl::addRow(LLScrollListItem *new_item, const LLS
             }
             addColumn(new_column);
             columnp = mColumns[column];
-            new_item->setNumColumns(mColumns.size());
+            new_item->setNumColumns(static_cast<S32>(mColumns.size()));
         }
 
         S32 index = columnp->mIndex;
@@ -3245,7 +3245,7 @@ LLScrollListItem* LLScrollListCtrl::addRow(LLScrollListItem *new_item, const LLS
             new_column.name = "0";
 
             addColumn(new_column);
-            new_item->setNumColumns(mColumns.size());
+            new_item->setNumColumns(static_cast<S32>(mColumns.size()));
         }
 
         LLScrollListCell* cell = LLScrollListCell::create(LLScrollListCell::Params().value(item_p.value));

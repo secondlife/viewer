@@ -348,7 +348,7 @@ LLPointer<LLControlVariable> LLControlGroup::getControl(std::string_view name)
         incrCount(name);
     }
 
-    ctrl_name_table_t::iterator iter = mNameTable.find(name.data());
+    ctrl_name_table_t::iterator iter = mNameTable.find(name);
     return iter == mNameTable.end() ? LLPointer<LLControlVariable>() : iter->second;
 }
 
@@ -657,7 +657,7 @@ LLSD LLControlGroup::asLLSD(bool diffs_only)
     return result;
 }
 
-bool LLControlGroup::controlExists(const std::string& name)
+bool LLControlGroup::controlExists(std::string_view name)
 {
     ctrl_name_table_t::iterator iter = mNameTable.find(name);
     return iter != mNameTable.end();

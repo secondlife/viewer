@@ -335,7 +335,7 @@ void LLPanelLogin::addFavoritesToStartLocation()
     {
         // first login panel has no favorites, just update name length and buttons
         std::string user_defined_name = getChild<LLComboBox>("username_combo")->getSimple();
-        mUsernameLength = user_defined_name.length();
+        mUsernameLength = static_cast<unsigned int>(user_defined_name.length());
         updateLoginButtons();
         return;
     }
@@ -355,7 +355,7 @@ void LLPanelLogin::addFavoritesToStartLocation()
     LLStringUtil::toLower(user_defined_name);
     std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "stored_favorites_" + LLGridManager::getInstance()->getGrid() + ".xml");
     std::string old_filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "stored_favorites.xml");
-    mUsernameLength = user_defined_name.length();
+    mUsernameLength = static_cast<unsigned int>(user_defined_name.length());
     updateLoginButtons();
 
     std::string::size_type index = user_defined_name.find_first_of(" ._");
@@ -597,13 +597,13 @@ void LLPanelLogin::setFields(LLPointer<LLCredential> credential)
             login_id += lastname;
         }
         sInstance->getChild<LLComboBox>("username_combo")->setLabel(login_id);
-        sInstance->mUsernameLength = login_id.length();
+        sInstance->mUsernameLength = static_cast<unsigned int>(login_id.length());
     }
     else if(identifier.has("type") && (std::string)identifier["type"] == "account")
     {
         std::string login_id = identifier["account_name"].asString();
         sInstance->getChild<LLComboBox>("username_combo")->setLabel(login_id);
-        sInstance->mUsernameLength = login_id.length();
+        sInstance->mUsernameLength = static_cast<unsigned int>(login_id.length());
     }
     else
     {
@@ -627,7 +627,7 @@ void LLPanelLogin::setFields(LLPointer<LLCredential> credential)
         // nice row of asterisks.
         const std::string filler("123456789!123456");
         sInstance->getChild<LLUICtrl>("password_edit")->setValue(filler);
-        sInstance->mPasswordLength = filler.length();
+        sInstance->mPasswordLength = static_cast<unsigned int>(filler.length());
         sInstance->updateLoginButtons();
     }
     else
@@ -793,7 +793,7 @@ void LLPanelLogin::onUpdateStartSLURL(const LLSLURL& new_start_slurl)
             {
 
                 location_combo->setLabel(new_start_slurl.getLocationString());
-                sInstance->mLocationLength = new_start_slurl.getLocationString().length();
+                sInstance->mLocationLength = static_cast<unsigned int>(new_start_slurl.getLocationString().length());
                 sInstance->updateLoginButtons();
             }
         }
@@ -1124,7 +1124,7 @@ void LLPanelLogin::onPassKey(LLLineEditor* caller, void* user_data)
     }
 
     LLLineEditor* password_edit(self->getChild<LLLineEditor>("password_edit"));
-    self->mPasswordLength = password_edit->getText().length();
+    self->mPasswordLength = static_cast<unsigned int>(password_edit->getText().length());
     self->updateLoginButtons();
 }
 
@@ -1158,8 +1158,8 @@ void LLPanelLogin::updateServer()
                 // restore creds
                 user_combo->setTextEntry(username);
                 pswd_edit->setValue(password);
-                sInstance->mUsernameLength = username.length();
-                sInstance->mPasswordLength = password.length();
+                sInstance->mUsernameLength = static_cast<unsigned int>(username.length());
+                sInstance->mPasswordLength = static_cast<unsigned int>(password.length());
             }
             else
             {

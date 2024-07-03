@@ -178,7 +178,7 @@ public:
     virtual bool    preProcessChildNode(LLXMLNodePtr child);
     virtual LLScrollListColumn* getColumn(S32 index);
     virtual LLScrollListColumn* getColumn(const std::string& name);
-    virtual S32 getNumColumns() const { return mColumnsIndexed.size(); }
+    virtual S32 getNumColumns() const { return static_cast<S32>(mColumnsIndexed.size()); }
 
     // Adds a single element, from an array of:
     // "columns" => [ "column" => column name, "value" => value, "type" => type, "font" => font, "font-style" => style ], "id" => uuid

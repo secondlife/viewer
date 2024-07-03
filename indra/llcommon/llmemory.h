@@ -134,7 +134,7 @@ public:                                     \
     void ll_aligned_free_fallback( void* ptr );
 //------------------------------------------------------------------------------------------------
 #else
-    inline void* ll_aligned_malloc_fallback( size_t size, int align )
+    inline void* ll_aligned_malloc_fallback( size_t size, size_t align )
     {
         LL_PROFILE_ZONE_SCOPED_CATEGORY_MEMORY;
     #if defined(LL_WINDOWS)

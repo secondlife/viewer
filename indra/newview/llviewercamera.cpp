@@ -94,7 +94,13 @@ LLViewerCamera::LLViewerCamera() : LLCamera()
     mZoomSubregion = 1;
     mAverageSpeed = 0.f;
     mAverageAngularSpeed = 0.f;
-    gSavedSettings.getControl("CameraAngle")->getCommitSignal()->connect(boost::bind(&LLViewerCamera::updateCameraAngle, this, _2));
+
+    mCameraAngleChangedSignal = gSavedSettings.getControl("CameraAngle")->getCommitSignal()->connect(boost::bind(&LLViewerCamera::updateCameraAngle, this, _2));
+}
+
+LLViewerCamera::~LLViewerCamera()
+{
+    mCameraAngleChangedSignal.disconnect();
 }
 
 void LLViewerCamera::updateCameraLocation(const LLVector3 &center, const LLVector3 &up_direction, const LLVector3 &point_of_interest)
@@ -816,7 +822,7 @@ bool LLViewerCamera::areVertsVisible(LLViewerObject* volumep, bool all_verts)
     {
         const LLVolumeFace& face = volume->getVolumeFace(i);
 
-        for (U32 v = 0; v < face.mNumVertices; v++)
+        for (S32 v = 0; v < face.mNumVertices; v++)
         {
             const LLVector4a& src_vec = face.mPositions[v];
             LLVector4a vec;
@@ -895,10 +901,8 @@ bool LLViewerCamera::isDefaultFOVChanged()
     return false;
 }
 
-// static
-void LLViewerCamera::updateCameraAngle( void* user_data, const LLSD& value)
+void LLViewerCamera::updateCameraAngle(const LLSD& value)
 {
-    LLViewerCamera* self=(LLViewerCamera*)user_data;
-    self->setDefaultFOV(value.asReal());
+    setDefaultFOV(value.asReal());
 }
 

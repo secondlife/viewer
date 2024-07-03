@@ -454,8 +454,8 @@ void LLInvFVBridge::removeBatch(std::vector<LLFolderViewModelItem*>& batch)
     LLViewerInventoryCategory* cat = NULL;
     LLInventoryModel::cat_array_t   descendent_categories;
     LLInventoryModel::item_array_t  descendent_items;
-    S32 count = batch.size();
-    S32 i,j;
+    size_t count = batch.size();
+    size_t i,j;
     for(i = 0; i < count; ++i)
     {
         bridge = (LLInvFVBridge*)(batch[i]);
@@ -506,8 +506,8 @@ void  LLInvFVBridge::removeBatchNoCheck(std::vector<LLFolderViewModelItem*>&  ba
     uuid_vec_t move_ids;
     LLInventoryModel::update_map_t update;
     bool start_new_message = true;
-    S32 count = batch.size();
-    S32 i;
+    size_t count = batch.size();
+    size_t i;
 
     // first, hide any 'preview' floaters that correspond to the items
     // being deleted.
@@ -642,11 +642,8 @@ bool LLInvFVBridge::isClipboardPasteable() const
     // In normal mode, we need to check each element of the clipboard to know if we can paste or not
     std::vector<LLUUID> objects;
     LLClipboard::instance().pasteFromClipboard(objects);
-    S32 count = objects.size();
-    for(S32 i = 0; i < count; i++)
+    for (const auto& item_id : objects)
     {
-        const LLUUID &item_id = objects.at(i);
-
         // Folders are pastable if all items in there are copyable
         const LLInventoryCategory *cat = model->getCategory(item_id);
         if (cat)
@@ -682,10 +679,9 @@ bool LLInvFVBridge::isClipboardPasteableAsLink() const
 
     std::vector<LLUUID> objects;
     LLClipboard::instance().pasteFromClipboard(objects);
-    S32 count = objects.size();
-    for(S32 i = 0; i < count; i++)
+    for (const auto& item_id : objects)
     {
-        const LLInventoryItem *item = model->getItem(objects.at(i));
+        const LLInventoryItem *item = model->getItem(item_id);
         if (item)
         {
             if (!LLAssetType::lookupCanLink(item->getActualType()))
@@ -698,7 +694,7 @@ bool LLInvFVBridge::isClipboardPasteableAsLink() const
                 return false;
             }
         }
-        const LLViewerInventoryCategory *cat = model->getCategory(objects.at(i));
+        const LLViewerInventoryCategory *cat = model->getCategory(item_id);
         if (cat && LLFolderType::lookupIsProtectedType(cat->getPreferredType()))
         {
             return false;
@@ -1190,8 +1186,8 @@ void LLInvFVBridge::addMarketplaceContextMenuOptions(U32 flags,
         gInventory.collectDescendents(local_version_folder_id, categories, items, false);
         static LLCachedControl<U32> max_depth(gSavedSettings, "InventoryOutboxMaxFolderDepth", 4);
         static LLCachedControl<U32> max_count(gSavedSettings, "InventoryOutboxMaxFolderCount", 20);
-        if (categories.size() >= max_count
-            || depth > (max_depth + 1))
+        if (categories.size() >= (size_t)max_count
+            || (U32)depth > (max_depth + 1))
         {
             disabled_items.push_back(std::string("New Folder"));
         }
@@ -2175,8 +2171,7 @@ bool LLItemBridge::removeItem()
         if (!item->getIsLinkType())
         {
             LLInventoryModel::item_array_t item_array = gInventory.collectLinksTo(mUUID);
-            const U32 num_links = item_array.size();
-            if (num_links > 0)
+            if (!item_array.empty())
             {
                 // Warn if the user is will break any links when deleting this item.
                 LLNotifications::instance().add(params);
@@ -2375,8 +2370,8 @@ std::string LLFolderBridge::getLabelSuffix() const
         LLInventoryModel::cat_array_t cat_array;
         LLInventoryModel::item_array_t item_array;
         gInventory.collectDescendents(getUUID(), cat_array, item_array, true);
-        S32 count = item_array.size();
-        if(count > 0)
+        auto count = item_array.size();
+        if (count > 0)
         {
             std::ostringstream oss;
             oss << count;
@@ -2514,7 +2509,7 @@ bool LLFolderBridge::isClipboardPasteable() const
 
         // Search for the direct descendent of current Friends subfolder among all pasted items,
         // and return false if is found.
-        for(S32 i = objects.size() - 1; i >= 0; --i)
+        for (S32 i = static_cast<S32>(objects.size()) - 1; i >= 0; --i)
         {
             const LLUUID &obj_id = objects.at(i);
             if ( LLFriendCardsManager::instance().isObjDirectDescendentOfCategory(model->getObject(obj_id), current_cat) )
@@ -2548,10 +2543,8 @@ bool LLFolderBridge::isClipboardPasteableAsLink() const
         const LLUUID &current_cat_id = current_cat->getUUID();
         std::vector<LLUUID> objects;
         LLClipboard::instance().pasteFromClipboard(objects);
-        S32 count = objects.size();
-        for(S32 i = 0; i < count; i++)
+        for (const auto& obj_id : objects)
         {
-            const LLUUID &obj_id = objects.at(i);
             const LLInventoryCategory *cat = model->getCategory(obj_id);
             if (cat)
             {
@@ -3193,13 +3186,13 @@ void LLRightClickInventoryFetchDescendentsObserver::execute(bool clear_observer)
         LLInventoryModel::item_array_t* item_array;
         gInventory.getDirectDescendentsOf(*current_folder, cat_array, item_array);
 
-        S32 item_count(0);
+        size_t item_count(0);
         if( item_array )
         {
             item_count = item_array->size();
         }
 
-        S32 cat_count(0);
+        size_t cat_count(0);
         if( cat_array )
         {
             cat_count = cat_array->size();
@@ -3218,18 +3211,18 @@ void LLRightClickInventoryFetchDescendentsObserver::execute(bool clear_observer)
         // Fetch the items
         if (item_count)
         {
-            for (S32 i = 0; i < item_count; ++i)
+            for (size_t i = 0; i < item_count; ++i)
             {
-                ids.push_back(item_array->at(i)->getUUID());
+                ids.emplace_back(item_array->at(i)->getUUID());
             }
             outfit = new LLRightClickInventoryFetchObserver(ids);
         }
         // Fetch the subfolders
         if (cat_count)
         {
-            for (S32 i = 0; i < cat_count; ++i)
+            for (size_t i = 0; i < cat_count; ++i)
             {
-                ids.push_back(cat_array->at(i)->getUUID());
+                ids.emplace_back(cat_array->at(i)->getUUID());
             }
             categories = new LLRightClickInventoryFetchDescendentsObserver(ids);
         }
@@ -3614,7 +3607,7 @@ void LLFolderBridge::copyOutfitToClipboard()
     LLInventoryModel::item_array_t* item_array;
     gInventory.getDirectDescendentsOf(mUUID, cat_array, item_array);
 
-    S32 item_count(0);
+    size_t item_count(0);
     if( item_array )
     {
         item_count = item_array->size();
@@ -3622,7 +3615,7 @@ void LLFolderBridge::copyOutfitToClipboard()
 
     if (item_count)
     {
-        for (S32 i = 0; i < item_count;)
+        for (size_t i = 0; i < item_count;)
         {
             LLSD uuid =item_array->at(i)->getUUID();
             LLViewerInventoryItem* item = gInventory.getItem(uuid);
@@ -3636,7 +3629,7 @@ void LLFolderBridge::copyOutfitToClipboard()
         }
     }
 
-    LLClipboard::instance().copyToClipboard(utf8str_to_wstring(text),0,text.size());
+    LLClipboard::instance().copyToClipboard(utf8str_to_wstring(text), 0, static_cast<S32>(text.size()));
 }
 
 void LLFolderBridge::openItem()
@@ -3929,11 +3922,11 @@ void LLFolderBridge::perform_pasteFromClipboard()
                 LLInventoryItem *item = model->getItem(item_id);
                 LLInventoryCategory *cat = model->getCategory(item_id);
 
-                if (item && !can_move_item_to_marketplace(master_folder, dest_folder, item, error_msg, objects.size() - index, true))
+                if (item && !can_move_item_to_marketplace(master_folder, dest_folder, item, error_msg, static_cast<S32>(objects.size()) - index, true))
                 {
                     break;
                 }
-                if (cat && !can_move_folder_to_marketplace(master_folder, dest_folder, cat, error_msg, objects.size() - index, true, true))
+                if (cat && !can_move_folder_to_marketplace(master_folder, dest_folder, cat, error_msg, static_cast<S32>(objects.size()) - index, true, true))
                 {
                     break;
                 }
@@ -5193,7 +5186,7 @@ bool move_task_inventory_callback(const LLSD& notification, const LLSD& response
         {
             LLInventoryObject::object_list_t inventory_objects;
             object->getInventoryContents(inventory_objects);
-            int contents_count = inventory_objects.size();
+            int contents_count = static_cast<int>(inventory_objects.size());
             LLInventoryCopyAndWearObserver* inventoryObserver = new LLInventoryCopyAndWearObserver(cat_and_wear->mCatID, contents_count, cat_and_wear->mFolderResponded,
                                                                                                     cat_and_wear->mReplace);
 
@@ -5822,8 +5815,8 @@ bool check_category(LLInventoryModel* model,
     LLInventoryModel::item_array_t descendent_items;
     model->collectDescendents(cat_id, descendent_categories, descendent_items, true);
 
-    S32 num_descendent_categories = descendent_categories.size();
-    S32 num_descendent_items = descendent_items.size();
+    auto num_descendent_categories = descendent_categories.size();
+    auto num_descendent_items = descendent_items.size();
 
     if (num_descendent_categories + num_descendent_items == 0)
     {
@@ -5833,7 +5826,7 @@ bool check_category(LLInventoryModel* model,
         return check_item(cat_id, active_panel, filter);
     }
 
-    for (S32 i = 0; i < num_descendent_categories; ++i)
+    for (size_t i = 0; i < num_descendent_categories; ++i)
     {
         LLInventoryCategory* category = descendent_categories[i];
         if(!check_category(model, category->getUUID(), active_panel, filter))
@@ -5842,7 +5835,7 @@ bool check_category(LLInventoryModel* model,
         }
     }
 
-    for (S32 i = 0; i < num_descendent_items; ++i)
+    for (size_t i = 0; i < num_descendent_items; ++i)
     {
         LLViewerInventoryItem* item = descendent_items[i];
         if(!check_item(item->getUUID(), active_panel, filter))
@@ -6256,8 +6249,8 @@ void LLCallingCardBridge::checkSearchBySuffixChanges()
         // changes in mDisplayName are processed by rename function and here it will be always same
         // suffixes are also of fixed length, and we are processing change of one at a time,
         // so it should be safe to use length (note: mSearchableName is capitalized)
-        S32 old_length = mSearchableName.length();
-        S32 new_length = mDisplayName.length() + getLabelSuffix().length();
+        auto old_length = mSearchableName.length();
+        auto new_length = mDisplayName.length() + getLabelSuffix().length();
         if (old_length == new_length)
         {
             return;

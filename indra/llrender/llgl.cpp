@@ -1173,7 +1173,7 @@ bool LLGLManager::initGL()
     // This is called here because it depends on the setting of mIsGF2or4MX, and sets up mHasMultitexture.
     initExtensions();
 
-    S32 old_vram = mVRAM;
+    U32 old_vram = mVRAM;
     mVRAM = 0;
 
 #if LL_WINDOWS
@@ -1215,7 +1215,7 @@ bool LLGLManager::initGL()
         // Function will check all GPUs WMI knows of and will pick up the one with most
         // memory. We need to check all GPUs because system can switch active GPU to
         // weaker one, to preserve power when not under load.
-        S32 mem = LLDXHardware::getMBVideoMemoryViaWMI();
+        U32 mem = LLDXHardware::getMBVideoMemoryViaWMI();
         if (mem != 0)
         {
             mVRAM = mem;
@@ -1240,7 +1240,7 @@ bool LLGLManager::initGL()
     glGetIntegerv(GL_MAX_SAMPLES, &mMaxSamples);
     glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &mMaxUniformBlockSize);
 
-    // sanity clamp max uniform block size to 64k just in case 
+    // sanity clamp max uniform block size to 64k just in case
     // there's some implementation that reports a crazy value
     mMaxUniformBlockSize = llmin(mMaxUniformBlockSize, 65536);
 
@@ -1350,7 +1350,7 @@ void LLGLManager::asLLSD(LLSD& info)
     info["gpu_version"] = mDriverVersionVendorString;
     info["opengl_version"] = mGLVersionString;
 
-    info["vram"] = mVRAM;
+    info["vram"] = LLSD::Integer(mVRAM);
 
     // OpenGL limits
     info["max_samples"] = mMaxSamples;

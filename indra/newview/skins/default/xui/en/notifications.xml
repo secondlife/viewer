@@ -8842,6 +8842,20 @@ New Voice Morphs are available!
   </notification>
 
   <notification
+    icon="alertmodal.tga"
+    name="VoiceEffectsNotSupported"
+    sound="UISndAlert"
+    persist="true"
+    type="alertmodal">
+Voice Morphs are not supported by this viewer.
+    <usetemplate
+        notext="Cancel"
+        name="okcancelbuttons"
+        yestext="Disable Voice Morphing"/>
+    <tag>voice</tag>
+  </notification>
+
+  <notification
    icon="notifytip.tga"
    name="Cannot enter parcel: not a group member"
    type="notifytip">
@@ -9046,17 +9060,6 @@ Your voice has been muted by moderator.
           name="okbutton"
           yestext="OK"/>
     </notification>
-
-   <notification
-    icon="alertmodal.tga"
-    name="BulkUploadCostConfirmation"
-    type="alertmodal">
-This will upload [COUNT] items at a total cost of L$[COST]. Do you wish to continue with the upload?
-    <usetemplate
-     name="okcancelbuttons"
-     notext="Cancel"
-     yestext="Upload"/>
-   </notification>
   
    <notification
     icon="alertmodal.tga"

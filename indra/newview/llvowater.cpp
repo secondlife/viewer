@@ -59,7 +59,6 @@ LLVOWater::LLVOWater(const LLUUID &id,
     mbCanSelect = false;
     setScale(LLVector3(256.f, 256.f, 0.f)); // Hack for setting scale for bounding boxes/visibility.
 
-    mUseTexture = true;
     mIsEdgePatch = false;
 }
 
@@ -101,14 +100,7 @@ LLDrawable *LLVOWater::createDrawable(LLPipeline *pipeline)
 
     LLDrawPoolWater *pool = (LLDrawPoolWater*) gPipeline.getPool(LLDrawPool::POOL_WATER);
 
-    if (mUseTexture)
-    {
-        mDrawable->setNumFaces(1, pool, mRegionp->getLand().getWaterTexture());
-    }
-    else
-    {
-        mDrawable->setNumFaces(1, pool, LLWorld::getInstance()->getDefaultWaterTexture());
-    }
+    mDrawable->setNumFaces(1, pool, LLWorld::getInstance()->getDefaultWaterTexture());
 
     return mDrawable;
 }
@@ -247,11 +239,6 @@ void setVecZ(LLVector3& v)
     v.mV[VX] = 0;
     v.mV[VY] = 0;
     v.mV[VZ] = 1;
-}
-
-void LLVOWater::setUseTexture(const bool use_texture)
-{
-    mUseTexture = use_texture;
 }
 
 void LLVOWater::setIsEdgePatch(const bool edge_patch)

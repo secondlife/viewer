@@ -94,6 +94,7 @@ LLFloaterIMSession::LLFloaterIMSession(const LLUUID& session_id)
     mEnableCallbackRegistrar.add("Avatar.EnableGearItem", boost::bind(&LLFloaterIMSession::enableGearMenuItem, this, _2));
     mCommitCallbackRegistrar.add("Avatar.GearDoToSelected", boost::bind(&LLFloaterIMSession::GearDoToSelected, this, _2));
     mEnableCallbackRegistrar.add("Avatar.CheckGearItem", boost::bind(&LLFloaterIMSession::checkGearMenuItem, this, _2));
+    mVoiceChannelChanged = LLVoiceChannel::setCurrentVoiceChannelChangedCallback(boost::bind(&LLFloaterIMSession::onVoiceChannelChanged, this, _1));
 
     setDocked(true);
 }
@@ -292,6 +293,8 @@ LLFloaterIMSession::~LLFloaterIMSession()
     }
 
     LLTransientFloaterMgr::getInstance()->removeControlView(LLTransientFloaterMgr::IM, this);
+
+    mVoiceChannelChanged.disconnect();
 }
 
 
@@ -521,6 +524,14 @@ void LLFloaterIMSession::sendParticipantsAddedNotification(const uuid_vec_t& uui
     sendMsg(getString(uuids.size() > 1 ? "multiple_participants_added" : "participant_added", args));
 }
 
+void LLFloaterIMSession::onVoiceChannelChanged(const LLUUID &session_id)
+{
+    if (session_id == mSessionID)
+    {
+        boundVoiceChannel();
+    }
+}
+
 void LLFloaterIMSession::boundVoiceChannel()
 {
     LLVoiceChannel* voice_channel = LLIMModel::getInstance()->getVoiceChannel(mSessionID);
@@ -552,7 +563,7 @@ void LLFloaterIMSession::onCallButtonClicked()
     }
 }
 
-void LLFloaterIMSession::onChange(EStatusType status, const std::string &channelURI, bool proximal)
+void LLFloaterIMSession::onChange(EStatusType status, const LLSD& channelInfo, bool proximal)
 {
     if(status != STATUS_JOINING && status != STATUS_LEFT_CHANNEL)
     {
@@ -1190,7 +1201,7 @@ bool LLFloaterIMSession::inviteToSession(const uuid_vec_t& ids)
 
     if (is_region_exist)
     {
-        S32 count = ids.size();
+        auto count = ids.size();
 
         if( isInviteAllowed() && (count > 0) )
         {
@@ -1200,7 +1211,7 @@ bool LLFloaterIMSession::inviteToSession(const uuid_vec_t& ids)
 
             LLSD data;
             data["params"] = LLSD::emptyArray();
-            for (int i = 0; i < count; i++)
+            for (size_t i = 0; i < count; i++)
             {
                 data["params"].append(ids[i]);
             }

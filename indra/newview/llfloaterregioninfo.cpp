@@ -356,7 +356,7 @@ void LLFloaterRegionInfo::requestRegionInfo()
     {
         tab->getChild<LLPanel>("General")->setCtrlsEnabled(false);
         tab->getChild<LLPanel>("Debug")->setCtrlsEnabled(false);
-        tab->getChild<LLPanel>("Terrain")->setCtrlsEnabled(false);
+        tab->getChild<LLPanel>("Terrain")->setAllChildrenEnabled(false, true);
         tab->getChild<LLPanel>("Estate")->setCtrlsEnabled(false);
         tab->getChild<LLPanel>("Access")->setCtrlsEnabled(false);
     }
@@ -553,7 +553,7 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
     panel->getChild<LLUICtrl>("terrain_raise_spin")->setValue(region_info.mTerrainRaiseLimit);
     panel->getChild<LLUICtrl>("terrain_lower_spin")->setValue(region_info.mTerrainLowerLimit);
 
-    panel->setCtrlsEnabled(allow_modify);
+    panel->setAllChildrenEnabled(allow_modify, true);
 
     if (floater->getVisible())
     {
@@ -668,7 +668,7 @@ void LLFloaterRegionInfo::disableTabCtrls()
 
     tab->getChild<LLPanel>("General")->setCtrlsEnabled(false);
     tab->getChild<LLPanel>("Debug")->setCtrlsEnabled(false);
-    tab->getChild<LLPanel>("Terrain")->setCtrlsEnabled(false);
+    tab->getChild<LLPanel>("Terrain")->setAllChildrenEnabled(false, true);
     tab->getChild<LLPanel>("panel_env_info")->setCtrlsEnabled(false);
     tab->getChild<LLPanel>("Estate")->setCtrlsEnabled(false);
     tab->getChild<LLPanel>("Access")->setCtrlsEnabled(false);
@@ -1561,7 +1561,7 @@ bool LLPanelRegionTerrainInfo::postBuild()
         {
             mTextureDetailCtrl[i]->setBakeTextureEnabled(false);
         }
-        initAndSetCtrl(mMaterialDetailCtrl[i], llformat("material_detail_%d", i));
+        initMaterialCtrl(mMaterialDetailCtrl[i], llformat("material_detail_%d", i), i);
 
         initAndSetCtrl(mMaterialScaleUCtrl[i], llformat("terrain%dScaleU", i));
         initAndSetCtrl(mMaterialScaleVCtrl[i], llformat("terrain%dScaleV", i));
@@ -1657,7 +1657,7 @@ bool LLPanelRegionTerrainInfo::refreshFromRegion(LLViewerRegion* region)
                         || (region && (region->getOwner() == gAgent.getID()));
     bool owner_or_god_or_manager = owner_or_god
                         || (region && region->isEstateManager());
-    setCtrlsEnabled(owner_or_god_or_manager);
+    setAllChildrenEnabled(owner_or_god_or_manager, true);
 
     getChildView("apply_btn")->setEnabled(false);
 
@@ -1669,8 +1669,8 @@ bool LLPanelRegionTerrainInfo::refreshFromRegion(LLViewerRegion* region)
 
         static LLCachedControl<bool> feature_pbr_terrain_enabled(gSavedSettings, "RenderTerrainPBREnabled", false);
 
-        const bool textures_ready = compp->texturesReady(false, false);
-        const bool materials_ready = feature_pbr_terrain_enabled && compp->materialsReady(false, false);
+        const bool textures_ready = compp->makeTexturesReady(false, false);
+        const bool materials_ready = feature_pbr_terrain_enabled && compp->makeMaterialsReady(false, false);
 
         bool set_texture_swatches;
         bool set_material_swatches;
@@ -1787,7 +1787,7 @@ bool LLPanelRegionTerrainInfo::refreshFromRegion(LLViewerRegion* region)
         LL_DEBUGS() << "no region set" << LL_ENDL;
         getChild<LLUICtrl>("region_text")->setValue(LLSD(""));
     }
-    
+
     // Update visibility of terrain swatches, etc
     refresh();
 
@@ -1920,7 +1920,7 @@ bool LLPanelRegionTerrainInfo::sendUpdate()
         for (S32 i = 0; i < LLTerrainMaterials::ASSET_COUNT; ++i)
         {
             LLPointer<LLGLTFMaterial> mat_override = new LLGLTFMaterial();
-            
+
             const bool transform_controls_valid = mMaterialScaleUCtrl[i] && mMaterialScaleVCtrl[i] && mMaterialRotationCtrl[i] && mMaterialOffsetUCtrl[i] && mMaterialOffsetVCtrl[i];
             if (transform_controls_valid)
             {
@@ -1956,6 +1956,31 @@ bool LLPanelRegionTerrainInfo::sendUpdate()
     }
 
     return true;
+}
+
+void LLPanelRegionTerrainInfo::initMaterialCtrl(LLTextureCtrl*& ctrl, const std::string& name, S32 index)
+{
+    ctrl = findChild<LLTextureCtrl>(name, true);
+    if (!ctrl) return;
+
+    // consume cancel events, otherwise they will trigger commit callbacks
+    ctrl->setOnCancelCallback([](LLUICtrl* ctrl, const LLSD& param) {});
+    ctrl->setCommitCallback(
+        [this, index](LLUICtrl* ctrl, const LLSD& param)
+    {
+        if (!mMaterialScaleUCtrl[index]
+            || !mMaterialScaleVCtrl[index]
+            || !mMaterialRotationCtrl[index]
+            || !mMaterialOffsetUCtrl[index]
+            || !mMaterialOffsetVCtrl[index]) return;
+
+        mMaterialScaleUCtrl[index]->setValue(1.f);
+        mMaterialScaleVCtrl[index]->setValue(1.f);
+        mMaterialRotationCtrl[index]->setValue(0.f);
+        mMaterialOffsetUCtrl[index]->setValue(0.f);
+        mMaterialOffsetVCtrl[index]->setValue(0.f);
+        onChangeAnything();
+    });
 }
 
 bool LLPanelRegionTerrainInfo::callbackTextureHeights(const LLSD& notification, const LLSD& response)
@@ -4145,7 +4170,7 @@ void LLPanelEstateAccess::copyListToClipboard(std::string list_name)
         }
     }
 
-    LLClipboard::instance().copyToClipboard(utf8str_to_wstring(list_to_copy), 0, list_to_copy.length());
+    LLClipboard::instance().copyToClipboard(utf8str_to_wstring(list_to_copy), 0, static_cast<S32>(list_to_copy.length()));
 }
 
 bool LLPanelEstateAccess::refreshFromRegion(LLViewerRegion* region)

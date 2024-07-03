@@ -618,7 +618,7 @@ public:
                     LLViewerRegion* region = gAgent.getRegion();
                     if (region)
                     {
-                        for (U32 i = 0; i < gObjectList.getNumObjects(); ++i)
+                        for (S32 i = 0; i < gObjectList.getNumObjects(); ++i)
                         {
                             LLViewerObject* object = gObjectList.getObject(i);
                             if (object &&
@@ -1666,13 +1666,13 @@ bool LLViewerWindow::handlePaint(LLWindow *window,  S32 x,  S32 y, S32 width,  S
                 recording.getPerSec(LLStatViewer::FPS), //mFPSStat.getMeanPerSec(),
                 recording.getLastValue(LLStatViewer::SIM_PHYSICS_FPS),
                 recording.getLastValue(LLStatViewer::SIM_TIME_DILATION));
-        S32 len = temp_str.length();
+        int len = static_cast<int>(temp_str.length());
         TextOutA(hdc, 0, 0, temp_str.c_str(), len);
 
 
         LLVector3d pos_global = gAgent.getPositionGlobal();
         temp_str = llformat( "Avatar pos %6.1lf %6.1lf %6.1lf", pos_global.mdV[0], pos_global.mdV[1], pos_global.mdV[2]);
-        len = temp_str.length();
+        len = static_cast<S32>(temp_str.length());
         TextOutA(hdc, 0, 25, temp_str.c_str(), len);
 
         TextOutA(hdc, 0, 50, "Set \"HeadlessClient FALSE\" in settings.ini file to reenable", 61);
@@ -1827,10 +1827,8 @@ LLViewerWindow::LLViewerWindow(const Params& p)
     mToolStored( NULL ),
     mHideCursorPermanent( false ),
     mCursorHidden(false),
-    mIgnoreActivate( false ),
     mResDirty(false),
     mStatesDirty(false),
-    mCurrResolutionIndex(0),
     mProgressView(NULL)
 {
     // gKeyboard is still NULL, so it doesn't do LLWindowListener any good to
@@ -1867,15 +1865,6 @@ LLViewerWindow::LLViewerWindow(const Params& p)
     U32 max_core_count = gSavedSettings.getU32("EmulateCoreCount");
     F32 max_gl_version = gSavedSettings.getF32("RenderMaxOpenGLVersion");
 
-    LLControlVariable* vram_control = gSavedSettings.getControl("RenderMaxVRAMBudget");
-    U32 max_vram = vram_control->getValue().asInteger();
-    mMaxVRAMControlConnection = vram_control->getSignal()->connect(
-        [this](LLControlVariable* control, const LLSD& new_val, const LLSD& old_val)
-        {
-            if (mWindow) mWindow->setMaxVRAMMegabytes(new_val.asInteger());
-        });
-
-
     mWindow = LLWindowManager::createWindow(this,
         p.title, p.name, p.x, p.y, p.width, p.height, 0,
         p.fullscreen,
@@ -1885,7 +1874,6 @@ LLViewerWindow::LLViewerWindow(const Params& p)
         p.ignore_pixel_depth,
         0,
         max_core_count,
-        max_vram,
         max_gl_version); //don't use window level anti-aliasing
 
     if (NULL == mWindow)
@@ -2412,7 +2400,7 @@ void LLViewerWindow::shutdownGL()
     LLSelectMgr::getInstance()->cleanup();
 
     LL_INFOS() << "Stopping GL during shutdown" << LL_ENDL;
-    stopGL(false);
+    stopGL();
     stop_glerror();
 
     gGL.shutdown();
@@ -2436,8 +2424,6 @@ LLViewerWindow::~LLViewerWindow()
         LLViewerShaderMgr::releaseInstance();
         LLViewerShaderMgr::sInitialized = false;
     }
-
-    mMaxVRAMControlConnection.disconnect();
 }
 
 
@@ -5727,7 +5713,7 @@ void LLViewerWindow::dumpState()
         << LL_ENDL;
 }
 
-void LLViewerWindow::stopGL(bool save_state)
+void LLViewerWindow::stopGL()
 {
     //Note: --bao
     //if not necessary, do not change the order of the function calls in this function.
@@ -5773,7 +5759,7 @@ void LLViewerWindow::stopGL(bool save_state)
             gPostProcess->invalidate();
         }
 
-        gTextureList.destroyGL(save_state);
+        gTextureList.destroyGL();
         stop_glerror();
 
         gGLManager.mIsDisabled = true;
@@ -5790,6 +5776,14 @@ void LLViewerWindow::stopGL(bool save_state)
 
 void LLViewerWindow::restoreGL(const std::string& progress_message)
 {
+    llassert(false);
+    // DEPRECATED -- this is left over from when we would completely destroy and restore a GL context
+    // when switching from windowed to fullscreen.  None of this machinery has been exercised in years
+    // and is unreliable.  If we ever *do* have another use case where completely unloading and reloading
+    // everthing is necessary, requiring a viewer restart for that operation is a fine thing to do.
+    // -- davep
+
+
     //Note: --bao
     //if not necessary, do not change the order of the function calls in this function.
     //if change something, make sure it will not break anything.
@@ -5801,8 +5795,6 @@ void LLViewerWindow::restoreGL(const std::string& progress_message)
 
         initGLDefaults();
         LLGLState::restoreGL();
-
-        gTextureList.restoreGL();
 
         // for future support of non-square pixels, and fonts that are properly stretched
         //LLFontGL::destroyDefaultFonts();
@@ -5877,122 +5869,6 @@ void LLViewerWindow::checkSettings()
         reshape(getWindowWidthRaw(), getWindowHeightRaw());
         mResDirty = false;
     }
-}
-
-void LLViewerWindow::restartDisplay(bool show_progress_bar)
-{
-    LL_INFOS() << "Restaring GL" << LL_ENDL;
-    stopGL();
-    if (show_progress_bar)
-    {
-        restoreGL(LLTrans::getString("ProgressChangingResolution"));
-    }
-    else
-    {
-        restoreGL();
-    }
-}
-
-bool LLViewerWindow::changeDisplaySettings(LLCoordScreen size, bool enable_vsync, bool show_progress_bar)
-{
-    //bool was_maximized = gSavedSettings.getBOOL("WindowMaximized");
-
-    //gResizeScreenTexture = true;
-
-
-    //U32 fsaa = gSavedSettings.getU32("RenderFSAASamples");
-    //U32 old_fsaa = mWindow->getFSAASamples();
-
-    // if not maximized, use the request size
-    if (!mWindow->getMaximized())
-    {
-        mWindow->setSize(size);
-    }
-
-    //if (fsaa == old_fsaa)
-    {
-        return true;
-    }
-
-/*
-
-    // Close floaters that don't handle settings change
-    LLFloaterReg::hideInstance("snapshot");
-
-    bool result_first_try = false;
-    bool result_second_try = false;
-
-    LLFocusableElement* keyboard_focus = gFocusMgr.getKeyboardFocus();
-    send_agent_pause();
-    LL_INFOS() << "Stopping GL during changeDisplaySettings" << LL_ENDL;
-    stopGL();
-    mIgnoreActivate = true;
-    LLCoordScreen old_size;
-    LLCoordScreen old_pos;
-    mWindow->getSize(&old_size);
-
-    //mWindow->setFSAASamples(fsaa);
-
-    result_first_try = mWindow->switchContext(false, size, disable_vsync);
-    if (!result_first_try)
-    {
-        // try to switch back
-        //mWindow->setFSAASamples(old_fsaa);
-        result_second_try = mWindow->switchContext(false, old_size, disable_vsync);
-
-        if (!result_second_try)
-        {
-            // we are stuck...try once again with a minimal resolution?
-            send_agent_resume();
-            mIgnoreActivate = false;
-            return false;
-        }
-    }
-    send_agent_resume();
-
-    LL_INFOS() << "Restoring GL during resolution change" << LL_ENDL;
-    if (show_progress_bar)
-    {
-        restoreGL(LLTrans::getString("ProgressChangingResolution"));
-    }
-    else
-    {
-        restoreGL();
-    }
-
-    if (!result_first_try)
-    {
-        LLSD args;
-        args["RESX"] = llformat("%d",size.mX);
-        args["RESY"] = llformat("%d",size.mY);
-        LLNotificationsUtil::add("ResolutionSwitchFail", args);
-        size = old_size; // for reshape below
-    }
-
-    bool success = result_first_try || result_second_try;
-
-    if (success)
-    {
-        // maximize window if was maximized, else reposition
-        if (was_maximized)
-        {
-            mWindow->maximize();
-        }
-        else
-        {
-            S32 windowX = gSavedSettings.getS32("WindowX");
-            S32 windowY = gSavedSettings.getS32("WindowY");
-
-            mWindow->setPosition(LLCoordScreen ( windowX, windowY ) );
-        }
-    }
-
-    mIgnoreActivate = false;
-    gFocusMgr.setKeyboardFocus(keyboard_focus);
-
-    return success;
-
-    */
 }
 
 F32 LLViewerWindow::getWorldViewAspectRatio() const

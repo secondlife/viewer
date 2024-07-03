@@ -40,12 +40,6 @@
 		<menu_item_call label="Facebook..." name="Facebook"/>
 		<menu_item_call label="Twitter..." name="Twitter"/>
 		<menu_item_call label="Flickr..." name="Flickr"/>
-		<menu label="Изменение голоса" name="VoiceMorphing">
-			<menu_item_check label="Без изменения голоса" name="NoVoiceMorphing"/>
-			<menu_item_check label="Просмотр..." name="Preview"/>
-			<menu_item_call label="Подписаться..." name="Subscribe"/>
-			<menu_item_call label="Премиум-бонус..." name="PremiumPerk"/>
-		</menu>
 		<menu_item_check label="Жесты..." name="Gestures"/>
 		<menu_item_check label="Друзья" name="My Friends"/>
 		<menu_item_check label="Группы" name="My Groups"/>

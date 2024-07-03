@@ -149,8 +149,8 @@ public:
     /*virtual*/ bool handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
                                        EDragAndDropType type, void* cargo_data,
                                        EAcceptance* accept, std::string& tooltip);
-    /*virtual*/ LLView* getChildView(const std::string& name, bool recurse = true) const;
-    /*virtual*/ LLView* findChildView(const std::string& name, bool recurse = true) const;
+    /*virtual*/ LLView* getChildView(std::string_view name, bool recurse = true) const;
+    /*virtual*/ LLView* findChildView(std::string_view name, bool recurse = true) const;
     /*virtual*/ void initFromParams(const LLPanel::Params& p);
     /*virtual*/ bool addChild(LLView* view, S32 tab_group = 0);
     /*virtual*/ bool postBuild();
@@ -190,8 +190,8 @@ public:
     S32         getTabCount();
     LLPanel*    getPanelByIndex(S32 index);
     S32         getIndexForPanel(LLPanel* panel);
-    S32         getPanelIndexByTitle(const std::string& title);
-    LLPanel*    getPanelByName(const std::string& name);
+    S32         getPanelIndexByTitle(std::string_view title);
+    LLPanel*    getPanelByName(std::string_view name);
     S32         getTotalTabWidth() const;
     void        setCurrentTabName(const std::string& name);
 
@@ -201,7 +201,7 @@ public:
     void        selectPrevTab();
     bool        selectTabPanel( LLPanel* child );
     bool        selectTab(S32 which);
-    bool        selectTabByName(const std::string& title);
+    bool        selectTabByName(std::string_view title);
     void        setCurrentPanelIndex(S32 index) { mCurrentTabIdx = index; }
 
     bool        getTabPanelFlashing(LLPanel* child);

@@ -77,6 +77,7 @@
 #include "BugSplat.h"
 #include "boost/json.hpp"                 // Boost.Json
 #include "llagent.h"                // for agent location
+#include "llstartup.h"
 #include "llviewerregion.h"
 #include "llvoavatarself.h"         // for agent name
 
@@ -138,8 +139,7 @@ namespace
             // We don't have an email address for any user. Hijack this
             // metadata field for the platform identifier.
             sBugSplatSender->setDefaultUserEmail(
-                WCSTR(STRINGIZE(LLOSInfo::instance().getOSStringSimple() << " ("
-                                << ADDRESS_SIZE << "-bit)")));
+                WCSTR(LLOSInfo::instance().getOSStringSimple()));
 
             if (gAgentAvatarp)
             {
@@ -152,6 +152,8 @@ namespace
 
             // LL_ERRS message, when there is one
             sBugSplatSender->setDefaultUserDescription(WCSTR(LLError::getFatalMessage()));
+            // App state
+            sBugSplatSender->setAttribute(WCSTR(L"AppState"), WCSTR(LLStartUp::getStartupStateString()));
 
             if (gAgent.getRegion())
             {
@@ -964,7 +966,7 @@ bool LLAppViewerWin32::sendURLToOtherInstance(const std::string& url)
         COPYDATASTRUCT cds;
         const S32 SLURL_MESSAGE_TYPE = 0;
         cds.dwData = SLURL_MESSAGE_TYPE;
-        cds.cbData = url.length() + 1;
+        cds.cbData = static_cast<DWORD>(url.length()) + 1;
         cds.lpData = (void*)url.c_str();
 
         LRESULT msg_result = SendMessage(other_window, WM_COPYDATA, NULL, (LPARAM)&cds);

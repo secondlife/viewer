@@ -809,7 +809,7 @@ std::string ll_convert_wide_to_string(const wchar_t* in, size_t len_in, unsigned
             code_page,
             0,
             in,
-            len_in,
+            static_cast<int>(len_in),
             NULL,
             0,
             0,
@@ -824,7 +824,7 @@ std::string ll_convert_wide_to_string(const wchar_t* in, size_t len_in, unsigned
                 code_page,
                 0,
                 in,
-                len_in,
+                static_cast<int>(len_in),
                 pout,
                 len_out,
                 0,
@@ -851,8 +851,8 @@ std::wstring ll_convert_string_to_wide(const char* in, size_t len, unsigned int 
     std::vector<wchar_t> w_out(len + 1);
 
     memset(&w_out[0], 0, w_out.size());
-    int real_output_str_len = MultiByteToWideChar(code_page, 0, in, len,
-                                                  &w_out[0], w_out.size() - 1);
+    int real_output_str_len = MultiByteToWideChar(code_page, 0, in, static_cast<int>(len),
+                                                  &w_out[0], static_cast<int>(w_out.size() - 1));
 
     //looks like MultiByteToWideChar didn't add null terminator to converted string, see EXT-4858.
     w_out[real_output_str_len] = 0;
@@ -943,7 +943,7 @@ std::optional<std::wstring> llstring_getoptenv(const std::string& key)
     auto wkey = ll_convert_string_to_wide(key);
     // Take a wild guess as to how big the buffer should be.
     std::vector<wchar_t> buffer(1024);
-    auto n = GetEnvironmentVariableW(wkey.c_str(), &buffer[0], buffer.size());
+    auto n = GetEnvironmentVariableW(wkey.c_str(), &buffer[0], static_cast<DWORD>(buffer.size()));
     // If our initial guess was too short, n will indicate the size (in
     // wchar_t's) that buffer should have been, including the terminating nul.
     if (n > (buffer.size() - 1))
@@ -951,7 +951,7 @@ std::optional<std::wstring> llstring_getoptenv(const std::string& key)
         // make it big enough
         buffer.resize(n);
         // and try again
-        n = GetEnvironmentVariableW(wkey.c_str(), &buffer[0], buffer.size());
+        n = GetEnvironmentVariableW(wkey.c_str(), &buffer[0], static_cast<DWORD>(buffer.size()));
     }
     // did that (ultimately) succeed?
     if (n)
@@ -1206,6 +1206,75 @@ namespace LLStringFn
             ++it;
         }
         return output;
+    }
+
+    using literals_t = std::map<char, std::string>;
+    static const literals_t xml_elem_literals =
+    {
+        { '<', "&lt;" },
+        { '>', "&gt;" },
+        { '&', "&amp;" }
+    };
+    static const literals_t xml_attr_literals =
+    {
+        { '"', "&quot;" },
+        { '\'', "&apos;" }
+    };
+
+    static void literals_encode(std::string& text, const literals_t& literals)
+    {
+        for (const std::pair<char, std::string> it : literals)
+        {
+            std::string::size_type pos = 0;
+            while ((pos = text.find(it.first, pos)) != std::string::npos)
+            {
+                text.replace(pos, 1, it.second);
+                pos += it.second.size();
+            }
+        }
+    }
+
+    static void literals_decode(std::string& text, const literals_t& literals)
+    {
+        for (const std::pair<char, std::string> it : literals)
+        {
+            std::string::size_type pos = 0;
+            while ((pos = text.find(it.second, pos)) != std::string::npos)
+            {
+                text[pos++] = it.first;
+                text.erase(pos, it.second.size() - 1);
+            }
+        }
+    }
+
+    /**
+     * @brief Replace all characters that are not allowed in XML 1.0
+     * with corresponding literals: [ < > & ] => [ &lt; &gt; &amp; ]
+     */
+    std::string xml_encode(const std::string& input, bool for_attribute)
+    {
+        std::string result(input);
+        literals_encode(result, xml_elem_literals);
+        if (for_attribute)
+        {
+            literals_encode(result, xml_attr_literals);
+        }
+        return result;
+    }
+
+    /**
+     * @brief Replace some of XML literals that are defined in XML 1.0
+     * with corresponding characters: [ &lt; &gt; &amp; ] => [ < > & ]
+     */
+    std::string xml_decode(const std::string& input, bool for_attribute)
+    {
+        std::string result(input);
+        literals_decode(result, xml_elem_literals);
+        if (for_attribute)
+        {
+            literals_decode(result, xml_attr_literals);
+        }
+        return result;
     }
 
     /**

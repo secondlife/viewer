@@ -370,7 +370,8 @@ LLNewFileResourceUploadInfo::LLNewFileResourceUploadInfo(
     LLResourceUploadInfo(name, description, compressionInfo,
     destinationType, inventoryType,
     nextOWnerPerms, groupPerms, everyonePerms, expectedCost, show_inventory),
-    mFileName(fileName)
+    mFileName(fileName),
+    mMaxImageSize(LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT)
 {
 }
 
@@ -422,7 +423,7 @@ LLSD LLNewFileResourceUploadInfo::exportTempFile()
     else if (assetType == LLAssetType::AT_TEXTURE)
     {
         // It's an image file, the upload procedure is the same for all
-        if (!LLViewerTextureList::createUploadFile(getFileName(), filename, codec))
+        if (!LLViewerTextureList::createUploadFile(getFileName(), filename, codec, mMaxImageSize))
         {
             errorMessage = llformat("Problem with file %s:\n\n%s\n",
                 getFileName().c_str(), LLImage::getLastThreadError().c_str());
@@ -606,7 +607,7 @@ LLSD LLNewBufferedResourceUploadInfo::exportTempFile()
 
     // copy buffer to the cache for upload
     LLFileSystem file(getAssetId(), getAssetType(), LLFileSystem::APPEND);
-    file.write((U8*) mBuffer.c_str(), mBuffer.size());
+    file.write((U8*) mBuffer.c_str(), static_cast<S32>(mBuffer.size()));
 
     return LLSD();
 }
@@ -708,7 +709,7 @@ LLSD LLBufferedAssetUploadInfo::prepareUpload()
 
     LLFileSystem file(getAssetId(), getAssetType(), LLFileSystem::APPEND);
 
-    S32 size = mContents.length() + 1;
+    S32 size = static_cast<S32>(mContents.length()) + 1;
     file.write((U8*)mContents.c_str(), size);
 
     mStoredToCache = true;

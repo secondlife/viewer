@@ -67,6 +67,8 @@ public:
 
     static  int     close(LLFILE * file);
 
+    static std::string getContents(const std::string& filename);
+
     // perms is a permissions mask like 0777 or 0700.  In most cases it will
     // be overridden by the user's umask.  It is ignored on Windows.
     // mkdir() considers "directory already exists" to be SUCCESS.
@@ -97,7 +99,7 @@ public:
     // no copy
     LLUniqueFile(const LLUniqueFile&) = delete;
     // move construction
-    LLUniqueFile(LLUniqueFile&& other)
+    LLUniqueFile(LLUniqueFile&& other) noexcept
     {
         mFileHandle = other.mFileHandle;
         other.mFileHandle = nullptr;
@@ -118,7 +120,7 @@ public:
     // copy assignment deleted
     LLUniqueFile& operator=(const LLUniqueFile&) = delete;
     // move assignment
-    LLUniqueFile& operator=(LLUniqueFile&& other)
+    LLUniqueFile& operator=(LLUniqueFile&& other) noexcept
     {
         close();
         std::swap(mFileHandle, other.mFileHandle);

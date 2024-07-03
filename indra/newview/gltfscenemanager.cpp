@@ -42,6 +42,7 @@
 #include "llviewertexturelist.h"
 #include "llimagej2c.h"
 #include "llfloaterperms.h"
+#include "llfloaterreg.h"
 #include "llagentbenefits.h"
 #include "llfilesystem.h"
 #include "boost/json.hpp"
@@ -144,7 +145,7 @@ void GLTFSceneManager::uploadSelection()
                 }
                 else
                 {
-                    raw = image.mTexture->getCachedRawImage();
+                    raw = image.mTexture->getRawImage();
                 }
 
                 if (raw.notNull())
@@ -244,7 +245,8 @@ void GLTFSceneManager::uploadSelection()
                         LLFileSystem cache(assetId, LLAssetType::AT_GLTF_BIN, LLFileSystem::WRITE);
                         auto& data = mUploadingAsset->mBuffers[idx].mData;
 
-                        cache.write((const U8*)data.data(), data.size());
+                        llassert(data.size() <= size_t(S32_MAX));
+                        cache.write((const U8 *) data.data(), S32(data.size()));
                     }
                 };
 #if GLTF_SIM_SUPPORT
@@ -313,6 +315,7 @@ void GLTFSceneManager::load(const std::string& filename)
             {
                 mObjects.push_back(obj);
             }
+            LLFloaterReg::showInstance("gltf_asset_editor");
         }
     }
     else
@@ -338,6 +341,7 @@ void GLTFSceneManager::renderAlpha()
 
 void GLTFSceneManager::addGLTFObject(LLViewerObject* obj, LLUUID gltf_id)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_GLTF;
     llassert(obj->getVolume()->getParams().getSculptID() == gltf_id);
     llassert(obj->getVolume()->getParams().getSculptType() == LL_SCULPT_TYPE_GLTF);
 
@@ -399,8 +403,9 @@ void GLTFSceneManager::onGLTFLoadComplete(const LLUUID& id, LLAssetType::EType a
         {
             LLFileSystem file(id, asset_type, LLFileSystem::READ);
             std::string data;
-            data.resize(file.getSize());
-            file.read((U8*)data.data(), data.size());
+            S32 file_size = file.getSize();
+            data.resize(file_size);
+            file.read((U8*)data.data(), file_size);
 
             boost::json::value json = boost::json::parse(data);
 
@@ -435,6 +440,8 @@ void GLTFSceneManager::onGLTFLoadComplete(const LLUUID& id, LLAssetType::EType a
 
 void GLTFSceneManager::update()
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_GLTF;
+
     for (U32 i = 0; i < mObjects.size(); ++i)
     {
         if (mObjects[i]->isDead() || mObjects[i]->mGLTFAsset == nullptr)
@@ -479,7 +486,8 @@ void GLTFSceneManager::update()
                             LLFileSystem cache(assetId, LLAssetType::AT_GLTF, LLFileSystem::WRITE);
 
                             LL_INFOS("GLTF") << "Uploaded GLTF json: " << assetId << LL_ENDL;
-                            cache.write((const U8 *) buffer.c_str(), buffer.size());
+                            llassert(buffer.size() <= size_t(S32_MAX));
+                            cache.write((const U8 *) buffer.c_str(), S32(buffer.size()));
 
                             mUploadingAsset = nullptr;
                         }
@@ -549,12 +557,17 @@ void GLTFSceneManager::render(bool opaque, bool rigged, bool unlit)
 
 void GLTFSceneManager::render(U8 variant)
 {
-    // for debugging, just render the whole scene as opaque
-    // by traversing the whole scenegraph
-    // Assumes camera transform is already set and
-    // appropriate shader is already boundd
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_GLTF;
+    // just render the whole scene by traversing the whole scenegraph
+    // Assumes camera transform is already set and appropriate shader is already bound.
+    // Eventually we'll want a smarter render pipe that has pre-sorted the scene graph
+    // into buckets by material and shader.
 
-    gGL.matrixMode(LLRender::MM_MODELVIEW);
+    // HACK -- implicitly render multi-uv variant
+    if (!(variant & LLGLSLShader::GLTFVariant::MULTI_UV))
+    {
+        render((U8) (variant | LLGLSLShader::GLTFVariant::MULTI_UV));
+    }
 
     bool rigged = variant & LLGLSLShader::GLTFVariant::RIGGED;
 
@@ -572,19 +585,11 @@ void GLTFSceneManager::render(U8 variant)
 
         LLMatrix4a mat = mObjects[i]->getGLTFAssetToAgentTransform();
 
-        LLMatrix4a modelview;
-        modelview.loadu(gGLModelView);
+        // provide a modelview matrix that goes from asset to camera space
+        // (matrix palettes are in asset space)
+        gGL.loadMatrix(gGLModelView);
+        gGL.multMatrix(mat.getF32ptr());
 
-        matMul(mat, modelview, modelview);
-
-        mat4 mdv = glm::make_mat4(modelview.getF32ptr());
-        asset->updateRenderTransforms(mdv);
-
-        if (rigged)
-        { // provide a modelview matrix that goes from asset to camera space for rigged render passes
-            // (matrix palettes are in asset space)
-            gGL.loadMatrix(glm::value_ptr(mdv));
-        }
         render(*asset, variant);
 
         gGL.popMatrix();
@@ -593,163 +598,185 @@ void GLTFSceneManager::render(U8 variant)
 
 void GLTFSceneManager::render(Asset& asset, U8 variant)
 {
-    bool opaque = !(variant & LLGLSLShader::GLTFVariant::ALPHA_BLEND);
-    bool rigged = variant & LLGLSLShader::GLTFVariant::RIGGED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_GLTF;
 
-    if (opaque)
+    for (U32 ds = 0; ds < 2; ++ds)
     {
-        gGLTFPBRMetallicRoughnessProgram.bind(variant);
-    }
-    else
-    { // alpha shaders need all the shadow map setup etc
-        gPipeline.bindDeferredShader(gGLTFPBRMetallicRoughnessProgram.mGLTFVariants[variant]);
-    }
+        RenderData& rd = asset.mRenderData[ds];
+        auto& batches = rd.mBatches[variant];
 
-    for (auto& node : asset.mNodes)
-    {
-        if (node.mSkin != INVALID_INDEX)
+        if (batches.empty())
         {
-            if (rigged)
-            {
-                Skin& skin = asset.mSkins[node.mSkin];
-                glBindBufferBase(GL_UNIFORM_BUFFER, LLGLSLShader::UB_GLTF_JOINTS, skin.mUBO);
-            }
+            return;
         }
 
-        if (node.mMesh != INVALID_INDEX)
+        LLGLDisable cull_face(ds == 1 ? GL_CULL_FACE : 0);
+
+        bool opaque = !(variant & LLGLSLShader::GLTFVariant::ALPHA_BLEND);
+        bool rigged = variant & LLGLSLShader::GLTFVariant::RIGGED;
+
+        bool shader_bound = false;
+
+        for (U32 i = 0; i < batches.size(); ++i)
         {
-            Mesh& mesh = asset.mMeshes[node.mMesh];
-            for (auto& primitive : mesh.mPrimitives)
+            if (batches[i].mPrimitives.empty() || batches[i].mVertexBuffer.isNull())
             {
-                if (primitive.mShaderVariant != variant)
+                continue;
+            }
+
+            if (!shader_bound)
+            { // don't bind the shader until we know we have somthing to render
+                if (opaque)
                 {
-                    continue;
+                    gGLTFPBRMetallicRoughnessProgram.bind(variant);
+                }
+                else
+                { // alpha shaders need all the shadow map setup etc
+                    gPipeline.bindDeferredShader(gGLTFPBRMetallicRoughnessProgram.mGLTFVariants[variant]);
                 }
 
                 if (!rigged)
                 {
-                    gGL.loadMatrix((F32*)glm::value_ptr(node.mRenderMatrix));
+                    glBindBufferBase(GL_UNIFORM_BUFFER, LLGLSLShader::UB_GLTF_NODES, asset.mNodesUBO);
                 }
-                bool cull = true;
-                if (primitive.mMaterial != INVALID_INDEX)
-                {
-                    Material& material = asset.mMaterials[primitive.mMaterial];
-                    bind(asset, material);
 
-                    cull = !material.mDoubleSided;
+                glBindBufferBase(GL_UNIFORM_BUFFER, LLGLSLShader::UB_GLTF_MATERIALS, asset.mMaterialsUBO);
+
+                for (U32 i = 0; i < TEXTURE_TYPE_COUNT; ++i)
+                {
+                    mLastTexture[i] = -2;
+                }
+
+                gGL.syncMatrices();
+                shader_bound = true;
+            }
+
+            {
+                LL_PROFILE_ZONE_NAMED_CATEGORY_GLTF("gltfdc - set vb");
+                batches[i].mVertexBuffer->setBuffer();
+            }
+
+            S32 mat_idx = i - 1;
+            if (mat_idx != INVALID_INDEX)
+            {
+                Material& material = asset.mMaterials[mat_idx];
+                bind(asset, material);
+            }
+            else
+            {
+                LLFetchedGLTFMaterial::sDefault.bind();
+                LLGLSLShader::sCurBoundShaderPtr->uniform1i(LLShaderMgr::GLTF_MATERIAL_ID, -1);
+            }
+
+            for (auto& pdata : batches[i].mPrimitives)
+            {
+                LL_PROFILE_ZONE_NAMED_CATEGORY_GLTF("GLTF draw call");
+                Node& node = asset.mNodes[pdata.mNodeIndex];
+                Mesh& mesh = asset.mMeshes[node.mMesh];
+                Primitive& primitive = mesh.mPrimitives[pdata.mPrimitiveIndex];
+
+                if (rigged)
+                {
+                    LL_PROFILE_ZONE_NAMED_CATEGORY_GLTF("gltfdc - bind skin");
+                    llassert(node.mSkin != INVALID_INDEX);
+                    Skin& skin = asset.mSkins[node.mSkin];
+                    glBindBufferBase(GL_UNIFORM_BUFFER, LLGLSLShader::UB_GLTF_JOINTS, skin.mUBO);
                 }
                 else
                 {
-                    LLFetchedGLTFMaterial::sDefault.bind();
+                    LLGLSLShader::sCurBoundShaderPtr->uniform1i(LLShaderMgr::GLTF_NODE_ID, pdata.mNodeIndex);
                 }
 
-                LLGLDisable cull_face(!cull ? GL_CULL_FACE : 0);
+                {
+                    LL_PROFILE_ZONE_NAMED_CATEGORY_GLTF("gltfdc - push vb");
 
-                primitive.mVertexBuffer->setBuffer();
-                if (primitive.mVertexBuffer->getNumIndices() > 0)
-                {
-                    primitive.mVertexBuffer->draw(primitive.mGLMode, primitive.mVertexBuffer->getNumIndices(), 0);
-                }
-                else
-                {
-                    primitive.mVertexBuffer->drawArrays(primitive.mGLMode, 0, primitive.mVertexBuffer->getNumVerts());
+                    primitive.mVertexBuffer->drawRangeFast(primitive.mGLMode, primitive.mVertexOffset, primitive.mVertexOffset + primitive.getVertexCount() - 1, primitive.getIndexCount(), primitive.mIndexOffset);
                 }
             }
         }
     }
 }
 
-static void bindTexture(Asset& asset, S32 uniform, Material::TextureInfo& info, LLViewerTexture* fallback)
+void GLTFSceneManager::bindTexture(Asset& asset, TextureType texture_type, TextureInfo& info, LLViewerTexture* fallback)
 {
-    if (info.mIndex != INVALID_INDEX)
+    U8 type_idx = (U8)texture_type;
+
+    if (info.mIndex == mLastTexture[type_idx])
+    { //already bound
+        return;
+    }
+
+    S32 uniform[] =
     {
-        LLViewerTexture* tex = asset.mImages[asset.mTextures[info.mIndex].mSource].mTexture;
-        if (tex)
+        LLShaderMgr::DIFFUSE_MAP,
+        LLShaderMgr::NORMAL_MAP,
+        LLShaderMgr::METALLIC_ROUGHNESS_MAP,
+        LLShaderMgr::OCCLUSION_MAP,
+        LLShaderMgr::EMISSIVE_MAP
+    };
+
+    S32 channel = LLGLSLShader::sCurBoundShaderPtr->getTextureChannel(uniform[(U8)type_idx]);
+
+    if (channel > -1)
+    {
+        glActiveTexture(GL_TEXTURE0 + channel);
+
+        if (info.mIndex != INVALID_INDEX)
         {
-            tex->addTextureStats(2048.f * 2048.f);
-            LLGLSLShader::sCurBoundShaderPtr->bindTexture(uniform, tex);
+            Texture& texture = asset.mTextures[info.mIndex];
+
+            LLViewerTexture* tex = asset.mImages[texture.mSource].mTexture;
+            if (tex)
+            {
+                LL_PROFILE_ZONE_NAMED_CATEGORY_GLTF("gl bind texture");
+                glBindTexture(GL_TEXTURE_2D, tex->getTexName());
+
+                if (channel != -1 && texture.mSampler != -1)
+                { // set sampler state
+                    Sampler& sampler = asset.mSamplers[texture.mSampler];
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, sampler.mWrapS);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, sampler.mWrapT);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, sampler.mMagFilter);
+
+                    // NOTE: do not set min filter.  Always respect client preference for min filter
+                }
+                else
+                {
+                    // set default sampler state
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                }
+            }
+            else
+            {
+                glBindTexture(GL_TEXTURE_2D, fallback->getTexName());
+            }
         }
         else
         {
-            LLGLSLShader::sCurBoundShaderPtr->bindTexture(uniform, fallback);
+            glBindTexture(GL_TEXTURE_2D, fallback->getTexName());
         }
-    }
-    else
-    {
-        LLGLSLShader::sCurBoundShaderPtr->bindTexture(uniform, fallback);
     }
 }
 
 
 void GLTFSceneManager::bind(Asset& asset, Material& material)
 {
-    // bind for rendering (derived from LLFetchedGLTFMaterial::bind)
-    // glTF 2.0 Specification 3.9.4. Alpha Coverage
-    // mAlphaCutoff is only valid for LLGLTFMaterial::ALPHA_MODE_MASK
-    F32 min_alpha = -1.0;
-
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_GLTF;
     LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
 
-    if (!LLPipeline::sShadowRender || (material.mAlphaMode == Material::AlphaMode::BLEND))
-    {
-        if (material.mAlphaMode == Material::AlphaMode::MASK)
-        {
-            // dividing the alpha cutoff by transparency here allows the shader to compare against
-            // the alpha value of the texture without needing the transparency value
-            if (material.mPbrMetallicRoughness.mBaseColorFactor.a > 0.f)
-            {
-                min_alpha = material.mAlphaCutoff / material.mPbrMetallicRoughness.mBaseColorFactor.a;
-            }
-            else
-            {
-                min_alpha = 1024.f;
-            }
-        }
-        shader->uniform1f(LLShaderMgr::MINIMUM_ALPHA, min_alpha);
-
-        shader->uniform1f(LLShaderMgr::TRANSMISSION_FACTOR, material.mTransmission.mTransmissionFactor);
-        shader->uniform1f(LLShaderMgr::IOR_FACTOR, material.mIOR.mIOR);
-        shader->uniform3fv(LLShaderMgr::ATTENUATION_COLOR, 1, glm::value_ptr(material.mVolume.mAttenuationColor));
-        shader->uniform1f(LLShaderMgr::ATTENUATION_DISTANCE, material.mVolume.mAttenuationDistance);
-        shader->uniform1f(LLShaderMgr::THICKNESS_FACTOR, material.mVolume.mThicknessFactor);
-        shader->uniform1f(LLShaderMgr::DISPERSION_FACTOR, material.mDispersion.mDispersion);
-    }
-
-    bindTexture(asset, LLShaderMgr::DIFFUSE_MAP, material.mPbrMetallicRoughness.mBaseColorTexture, LLViewerFetchedTexture::sWhiteImagep);
-
-    F32 base_color_packed[8];
-    //mTextureTransform[GLTF_TEXTURE_INFO_BASE_COLOR].getPacked(base_color_packed);
-    LLGLTFMaterial::sDefault.mTextureTransform[LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR].getPacked(base_color_packed);
-    shader->uniform4fv(LLShaderMgr::TEXTURE_BASE_COLOR_TRANSFORM, 2, (F32*)base_color_packed);
+    bindTexture(asset, TextureType::BASE_COLOR, material.mPbrMetallicRoughness.mBaseColorTexture, LLViewerFetchedTexture::sWhiteImagep);
 
     if (!LLPipeline::sShadowRender)
     {
-        bindTexture(asset, LLShaderMgr::NORMAL_MAP, material.mNormalTexture, LLViewerFetchedTexture::sFlatNormalImagep);
-        bindTexture(asset, LLShaderMgr::METALLIC_ROUGHNESS_MAP, material.mPbrMetallicRoughness.mMetallicRoughnessTexture, LLViewerFetchedTexture::sWhiteImagep);
-        bindTexture(asset, LLShaderMgr::OCCLUSION_MAP, material.mOcclusionTexture, LLViewerFetchedTexture::sWhiteImagep);
-        bindTexture(asset, LLShaderMgr::EMISSIVE_MAP, material.mEmissiveTexture, LLViewerFetchedTexture::sWhiteImagep);
-
-        // NOTE: base color factor is baked into vertex stream
-
-        shader->uniform1f(LLShaderMgr::ROUGHNESS_FACTOR, material.mPbrMetallicRoughness.mRoughnessFactor);
-        shader->uniform1f(LLShaderMgr::METALLIC_FACTOR, material.mPbrMetallicRoughness.mMetallicFactor);
-        shader->uniform3fv(LLShaderMgr::EMISSIVE_COLOR, 1, glm::value_ptr(material.mEmissiveFactor));
-
-        F32 normal_packed[8];
-        //mTextureTransform[GLTF_TEXTURE_INFO_NORMAL].getPacked(normal_packed);
-        LLGLTFMaterial::sDefault.mTextureTransform[LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL].getPacked(normal_packed);
-        shader->uniform4fv(LLShaderMgr::TEXTURE_NORMAL_TRANSFORM, 2, (F32*)normal_packed);
-
-        F32 metallic_roughness_packed[8];
-        //mTextureTransform[GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS].getPacked(metallic_roughness_packed);
-        LLGLTFMaterial::sDefault.mTextureTransform[LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS].getPacked(metallic_roughness_packed);
-        shader->uniform4fv(LLShaderMgr::TEXTURE_METALLIC_ROUGHNESS_TRANSFORM, 2, (F32*)metallic_roughness_packed);
-
-        F32 emissive_packed[8];
-        //mTextureTransform[GLTF_TEXTURE_INFO_EMISSIVE].getPacked(emissive_packed);
-        LLGLTFMaterial::sDefault.mTextureTransform[LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE].getPacked(emissive_packed);
-        shader->uniform4fv(LLShaderMgr::TEXTURE_EMISSIVE_TRANSFORM, 2, (F32*)emissive_packed);
+        bindTexture(asset, TextureType::NORMAL, material.mNormalTexture, LLViewerFetchedTexture::sFlatNormalImagep);
+        bindTexture(asset, TextureType::METALLIC_ROUGHNESS, material.mPbrMetallicRoughness.mMetallicRoughnessTexture, LLViewerFetchedTexture::sWhiteImagep);
+        bindTexture(asset, TextureType::OCCLUSION, material.mOcclusionTexture, LLViewerFetchedTexture::sWhiteImagep);
+        bindTexture(asset, TextureType::EMISSIVE, material.mEmissiveTexture, LLViewerFetchedTexture::sWhiteImagep);
     }
+
+    shader->uniform1i(LLShaderMgr::GLTF_MATERIAL_ID, &material - &asset.mMaterials[0]);
 }
 
 LLMatrix4a inverse(const LLMatrix4a& mat)
@@ -909,9 +936,10 @@ void renderAssetDebug(LLViewerObject* obj, Asset* asset)
     // assumes modelview matrix is already set
 
     gGL.pushMatrix();
-
     // get raycast in asset space
     LLMatrix4a agent_to_asset = obj->getAgentToGLTFAssetTransform();
+
+    gGL.multMatrix(agent_to_asset.getF32ptr());
 
     vec4 start;
     vec4 end;
@@ -930,7 +958,8 @@ void renderAssetDebug(LLViewerObject* obj, Asset* asset)
 
         if (node.mMesh != INVALID_INDEX)
         {
-            gGL.loadMatrix((F32*)glm::value_ptr(node.mRenderMatrix));
+            gGL.pushMatrix();
+            gGL.multMatrix((F32*)glm::value_ptr(node.mAssetMatrix));
 
             // draw bounding box of mesh primitives
             if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_BBOXES))
@@ -973,6 +1002,7 @@ void renderAssetDebug(LLViewerObject* obj, Asset* asset)
                 glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
             }
 #endif
+            gGL.popMatrix();
         }
     }
 
@@ -991,34 +1021,14 @@ void GLTFSceneManager::renderDebug()
 
     gDebugProgram.bind();
 
+    gGL.pushMatrix();
+    gGL.loadMatrix(gGLModelView);
+
     LLGLDisable cullface(GL_CULL_FACE);
     LLGLEnable blend(GL_BLEND);
     gGL.setSceneBlendType(LLRender::BT_ALPHA);
     gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
     gPipeline.disableLights();
-
-    // force update all mRenderMatrix, not just nodes with meshes
-    for (auto& obj : mObjects)
-    {
-        if (obj->isDead() || obj->mGLTFAsset == nullptr)
-        {
-            continue;
-        }
-
-        mat4 mat = glm::make_mat4(obj->getGLTFAssetToAgentTransform().getF32ptr());
-
-        mat4 modelview = glm::make_mat4(gGLModelView);
-
-
-        modelview = modelview * mat;
-
-        Asset* asset = obj->mGLTFAsset.get();
-
-        for (auto& node : asset->mNodes)
-        {
-            node.mRenderMatrix = modelview * node.mAssetMatrix;
-        }
-    }
 
     for (auto& obj : mObjects)
     {
@@ -1040,9 +1050,6 @@ void GLTFSceneManager::renderDebug()
             LLGLDepthTest depth(GL_TRUE, i == 0 ? GL_FALSE : GL_TRUE, i == 0 ? GL_GREATER : GL_LEQUAL);
             LLGLState blend(GL_BLEND, i == 0 ? GL_TRUE : GL_FALSE);
 
-
-            gGL.pushMatrix();
-
             for (auto& obj : mObjects)
             {
                 if (obj->isDead() || obj->mGLTFAsset == nullptr)
@@ -1050,20 +1057,16 @@ void GLTFSceneManager::renderDebug()
                     continue;
                 }
 
-                mat4 mat = glm::make_mat4(obj->getGLTFAssetToAgentTransform().getF32ptr());
+                gGL.pushMatrix();
 
-                mat4 modelview = glm::make_mat4(gGLModelView);
-
-                modelview = modelview * mat;
+                gGL.multMatrix(obj->getGLTFAssetToAgentTransform().getF32ptr());
 
                 Asset* asset = obj->mGLTFAsset.get();
 
                 for (auto& node : asset->mNodes)
                 {
-                    // force update all mRenderMatrix, not just nodes with meshes
-                    node.mRenderMatrix = modelview * node.mAssetMatrix;
-
-                    gGL.loadMatrix(glm::value_ptr(node.mRenderMatrix));
+                    gGL.pushMatrix();
+                    gGL.multMatrix(glm::value_ptr(node.mAssetMatrix));
                     // render x-axis red, y-axis green, z-axis blue
                     gGL.color4f(1.f, 0.f, 0.f, 0.5f);
                     gGL.begin(LLRender::LINES);
@@ -1099,12 +1102,12 @@ void GLTFSceneManager::renderDebug()
                     }
                     gGL.end();
                     gGL.flush();
+                    gGL.popMatrix();
                 }
+
+                gGL.popMatrix();
             }
-
-            gGL.popMatrix();
         }
-
     }
 
 
@@ -1118,28 +1121,36 @@ void GLTFSceneManager::renderDebug()
 
         if (drawable)
         {
-            gGL.pushMatrix();
-            Asset* asset = drawable->getVObj()->mGLTFAsset.get();
-            Node* node = &asset->mNodes[node_hit];
-            Primitive* primitive = &asset->mMeshes[node->mMesh].mPrimitives[primitive_hit];
 
-            gGL.flush();
-            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-            gGL.color3f(1, 0, 1);
-            drawBoxOutline(intersection, LLVector4a(0.1f, 0.1f, 0.1f, 0.f));
+            LLViewerObject* obj = drawable->getVObj();
+            if (obj)
+            {
+                gGL.pushMatrix();
+                gGL.multMatrix(obj->getGLTFAssetToAgentTransform().getF32ptr());
+                Asset* asset = obj->mGLTFAsset.get();
+                Node* node = &asset->mNodes[node_hit];
+                Primitive* primitive = &asset->mMeshes[node->mMesh].mPrimitives[primitive_hit];
 
-            gGL.loadMatrix(glm::value_ptr(node->mRenderMatrix));
+                gGL.flush();
+                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+                gGL.color3f(1, 0, 1);
+                drawBoxOutline(intersection, LLVector4a(0.1f, 0.1f, 0.1f, 0.f));
 
+                gGL.multMatrix(glm::value_ptr(node->mAssetMatrix));
 
-            auto* listener = (LLVolumeOctreeListener*) primitive->mOctree->getListener(0);
-            drawBoxOutline(listener->mBounds[0], listener->mBounds[1]);
+                auto* listener = (LLVolumeOctreeListener*)primitive->mOctree->getListener(0);
+                drawBoxOutline(listener->mBounds[0], listener->mBounds[1]);
 
-            gGL.flush();
-            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-            gGL.popMatrix();
+                gGL.flush();
+                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+                gGL.popMatrix();
+            }
         }
     }
+
+    gGL.popMatrix();
     gDebugProgram.unbind();
+
 }
 
 

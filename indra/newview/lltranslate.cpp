@@ -1148,7 +1148,7 @@ std::string LLTranslate::addNoTranslateTags(std::string mesg)
             upd_msg.insert(dif + match.getStart(), AZURE_NOTRANSLATE_OPENING_TAG);
             upd_msg.insert(dif + AZURE_NOTRANSLATE_OPENING_TAG.size() + match.getEnd() + 1, AZURE_NOTRANSLATE_CLOSING_TAG);
             mesg.erase(match.getStart(), match.getEnd() - match.getStart());
-            dif += match.getEnd() - match.getStart() + AZURE_NOTRANSLATE_OPENING_TAG.size() + AZURE_NOTRANSLATE_CLOSING_TAG.size();
+            dif += match.getEnd() - match.getStart() + static_cast<S32>(AZURE_NOTRANSLATE_OPENING_TAG.size() + AZURE_NOTRANSLATE_CLOSING_TAG.size());
         }
         return upd_msg;
     }
@@ -1170,9 +1170,9 @@ std::string LLTranslate::removeNoTranslateTags(std::string mesg)
     {
         std::string upd_msg(mesg);
         LLUrlMatch match;
-        S32 opening_tag_size = AZURE_NOTRANSLATE_OPENING_TAG.size();
-        S32 closing_tag_size = AZURE_NOTRANSLATE_CLOSING_TAG.size();
-        S32 dif = 0;
+        auto opening_tag_size = AZURE_NOTRANSLATE_OPENING_TAG.size();
+        auto closing_tag_size = AZURE_NOTRANSLATE_CLOSING_TAG.size();
+        size_t dif = 0;
         //remove 'no-translate' tags we added to the links before
         while (LLUrlRegistry::instance().findUrl(mesg, match))
         {

@@ -52,7 +52,6 @@ public:
     bool hasSrgb = false;
     bool isDeferred = false;
     bool hasScreenSpaceReflections = false;
-    bool disableTextureIndex = false;
     bool hasAlphaMask = false;
     bool hasReflectionProbes = false;
     bool attachNothing = false;
@@ -70,8 +69,8 @@ public:
     template<typename T>
     struct UniformSetting
     {
-        S32 mUniform;
-        T mValue;
+        S32 mUniform{ 0 };
+        T mValue{};
     };
 
     typedef UniformSetting<S32> IntSetting;
@@ -148,8 +147,10 @@ public:
 
     enum UniformBlock : GLuint
     {
-        UB_REFLECTION_PROBES,
-        UB_GLTF_JOINTS,
+        UB_REFLECTION_PROBES,   // "ReflectionProbes"
+        UB_GLTF_JOINTS,         // "GLTFJoints"
+        UB_GLTF_NODES,          // "GLTFNodes"
+        UB_GLTF_MATERIALS,      // "GLTFMaterials"
         NUM_UNIFORM_BLOCKS
     };
 
@@ -163,6 +164,9 @@ public:
     static GLuint sCurBoundShader;
     static LLGLSLShader* sCurBoundShaderPtr;
     static S32 sIndexedTextureChannels;
+
+    static U32 sMaxGLTFMaterials;
+    static U32 sMaxGLTFNodes;
 
     static void initProfile();
     static void finishProfile(bool emit_report = true);
@@ -328,14 +332,16 @@ public:
     // bit 0 = alpha mode blend (1) or opaque (0)
     // bit 1 = rigged (1) or static (0)
     // bit 2 = unlit (1) or lit (0)
+    // bit 3 = single (0) or multi (1) uv coordinates
     struct GLTFVariant
     {
         constexpr static U8 ALPHA_BLEND = 1;
         constexpr static U8 RIGGED = 2;
         constexpr static U8 UNLIT = 4;
+        constexpr static U8 MULTI_UV = 8;
     };
 
-    constexpr static U8 NUM_GLTF_VARIANTS = 8;
+    constexpr static U8 NUM_GLTF_VARIANTS = 16;
 
     std::vector<LLGLSLShader> mGLTFVariants;
 

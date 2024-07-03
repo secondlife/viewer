@@ -851,19 +851,9 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
 
         if (mSculptTexture.notNull())
         {
-            mSculptTexture->setBoostLevel(llmax((S32)mSculptTexture->getBoostLevel(),
-                                                (S32)LLGLTexture::BOOST_SCULPTED));
             mSculptTexture->setForSculpt() ;
 
-            if(!mSculptTexture->isCachedRawImageReady())
-            {
-                S32 lod = llmin(mLOD, 3);
-                F32 lodf = ((F32)(lod + 1.0f)/4.f);
-                F32 tex_size = lodf * LLViewerTexture::sMaxSculptRez ;
-                mSculptTexture->addTextureStats(2.f * tex_size * tex_size, false);
-            }
-
-            S32 texture_discard = mSculptTexture->getCachedRawImageLevel(); //try to match the texture
+            S32 texture_discard = mSculptTexture->getRawImageLevel(); //try to match the texture
             S32 current_discard = getVolume() ? getVolume()->getSculptLevel() : -2 ;
 
             if (texture_discard >= 0 && //texture has some data available
@@ -1159,7 +1149,9 @@ void LLVOVolume::updateSculptTexture()
         LLUUID id =  sculpt_params->getSculptTexture();
         if (id.notNull())
         {
-            mSculptTexture = LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, true, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+            mSculptTexture = LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, true, LLGLTexture::BOOST_SCULPTED, LLViewerTexture::LOD_TEXTURE);
+            mSculptTexture->forceToSaveRawImage(0, F32_MAX);
+            mSculptTexture->addTextureStats(256.f*256.f);
         }
 
         mSkinInfoUnavaliable = false;
@@ -1252,8 +1244,22 @@ void LLVOVolume::sculpt()
         S8 sculpt_components = 0;
         const U8* sculpt_data = NULL;
 
-        S32 discard_level = mSculptTexture->getCachedRawImageLevel() ;
-        LLImageRaw* raw_image = mSculptTexture->getCachedRawImage() ;
+        S32 discard_level = mSculptTexture->getRawImageLevel() ;
+        LLImageRaw* raw_image = mSculptTexture->getRawImage() ;
+
+        if (!raw_image)
+        {
+            raw_image = mSculptTexture->getSavedRawImage();
+            S32 discard_level = mSculptTexture->getSavedRawImageLevel();
+        }
+
+        if (!raw_image)
+        {
+            // last resort, read back from GL
+            mSculptTexture->readbackRawImage();
+            raw_image = mSculptTexture->getRawImage();
+            discard_level = mSculptTexture->getRawImageLevel();
+        }
 
         S32 max_discard = mSculptTexture->getMaxDiscardLevel();
         if (discard_level > max_discard)
@@ -1310,8 +1316,6 @@ void LLVOVolume::sculpt()
 
         if(!raw_image)
         {
-            llassert(discard_level < 0) ;
-
             sculpt_width = 0;
             sculpt_height = 0;
             sculpt_data = NULL ;
@@ -2039,6 +2043,7 @@ bool LLVOVolume::updateGeometry(LLDrawable *drawable)
 
     if (mDrawable->isState(LLDrawable::REBUILD_RIGGED))
     {
+        LL_PROFILE_ZONE_NAMED_CATEGORY_VOLUME("rebuild rigged");
         updateRiggedVolume(false);
         genBBoxes(false);
         mDrawable->clearState(LLDrawable::REBUILD_RIGGED);
@@ -4036,7 +4041,7 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
     U32 media_faces = 0;
 
     const LLDrawable* drawablep = mDrawable;
-    U32 num_faces = drawablep->getNumFaces();
+    S32 num_faces = drawablep->getNumFaces();
 
     const LLVolumeParams& volume_params = getVolume()->getParams();
 
@@ -5021,7 +5026,7 @@ void LLRiggedVolume::update(
                 else
             #endif
                 {
-                    for (U32 j = 0; j < dst_face.mNumVertices; ++j)
+                    for (S32 j = 0; j < dst_face.mNumVertices; ++j)
                     {
                         LLMatrix4a final_mat;
                         LLSkinningUtil::getPerVertexSkinMatrix(weight[j].getF32ptr(), mat, false, final_mat, max_joints);
@@ -5048,7 +5053,7 @@ void LLRiggedVolume::update(
                     box_max = max;
                 }
 
-                for (U32 j = 1; j < dst_face.mNumVertices; ++j)
+                for (S32 j = 1; j < dst_face.mNumVertices; ++j)
                 {
                     min.setMin(min, pos[j]);
                     max.setMax(max, pos[j]);
@@ -5267,7 +5272,7 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
     //add face to drawmap
     LLSpatialGroup::drawmap_elem_t& draw_vec = group->mDrawMap[passType];
 
-    S32 idx = draw_vec.size()-1;
+    S32 idx = static_cast<S32>(draw_vec.size()) - 1;
 
     bool fullbright = (type == LLRenderPass::PASS_FULLBRIGHT) ||
         (type == LLRenderPass::PASS_INVISIBLE) ||

@@ -776,13 +776,11 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
     if (mRT == &mMainRT)
     { // hacky -- allocate auxillary buffer
-        gCubeSnapshot = true;
-        mReflectionMapManager.initReflectionMaps();
-        mHeroProbeManager.initReflectionMaps();
+
+        gCubeSnapshot = TRUE;
 
         if (sReflectionProbesEnabled)
         {
-            gCubeSnapshot = true;
             mReflectionMapManager.initReflectionMaps();
         }
 
@@ -2440,6 +2438,7 @@ void LLPipeline::doOcclusion(LLCamera& camera)
         mCubeVB->setBuffer();
 
         mReflectionMapManager.doOcclusion();
+        mHeroProbeManager.doOcclusion();
         gOcclusionCubeProgram.unbind();
 
         gGL.setColorMask(true, true);
@@ -3682,10 +3681,8 @@ void LLPipeline::renderHighlights()
         // Make sure the selection image gets downloaded and decoded
         mFaceSelectImagep->addTextureStats((F32)MAX_IMAGE_AREA);
 
-        U32 count = mSelectedFaces.size();
-        for (U32 i = 0; i < count; i++)
+        for (auto facep : mSelectedFaces)
         {
-            LLFace *facep = mSelectedFaces[i];
             if (!facep || facep->getDrawable()->isDead())
             {
                 LL_ERRS() << "Bad face on selection" << LL_ENDL;
@@ -3701,10 +3698,8 @@ void LLPipeline::renderHighlights()
         // Paint 'em red!
         color.setVec(1.f, 0.f, 0.f, 0.5f);
 
-        int count = mHighlightFaces.size();
-        for (S32 i = 0; i < count; i++)
+        for (auto facep : mHighlightFaces)
         {
-            LLFace* facep = mHighlightFaces[i];
             facep->renderSelected(LLViewerTexture::sNullImagep, color);
         }
     }
@@ -3730,10 +3725,8 @@ void LLPipeline::renderHighlights()
 
         mFaceSelectImagep->addTextureStats((F32)MAX_IMAGE_AREA);
 
-        U32 count = mSelectedFaces.size();
-        for (U32 i = 0; i < count; i++)
+        for (auto facep : mSelectedFaces)
         {
-            LLFace *facep = mSelectedFaces[i];
             if (!facep || facep->getDrawable()->isDead())
             {
                 LL_ERRS() << "Bad face on selection" << LL_ENDL;
@@ -3760,10 +3753,8 @@ void LLPipeline::renderHighlights()
 
         mFaceSelectImagep->addTextureStats((F32)MAX_IMAGE_AREA);
 
-        U32 count = mSelectedFaces.size();
-        for (U32 i = 0; i < count; i++)
+        for (auto facep : mSelectedFaces)
         {
-            LLFace *facep = mSelectedFaces[i];
             if (!facep || facep->getDrawable()->isDead())
             {
                 LL_ERRS() << "Bad face on selection" << LL_ENDL;
@@ -4804,7 +4795,7 @@ void LLPipeline::rebuildPools()
 
     assertInitialized();
 
-    S32 max_count = mPools.size();
+    auto max_count = mPools.size();
     pool_set_t::iterator iter1 = mPools.upper_bound(mLastRebuildPool);
     while(max_count > 0 && mPools.size() > 0) // && num_rebuilds < MAX_REBUILDS)
     {
@@ -10241,7 +10232,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar, bool preview_avatar, bool 
     result.clear();
     grabReferences(result);
 
-    if (!avatar || !avatar->mDrawable)
+    if (!avatar || avatar->isDead() || !avatar->mDrawable)
     {
         LL_WARNS_ONCE("AvatarRenderPipeline") << "Avatar is " << (avatar ? "not drawable" : "null") << LL_ENDL;
         return;

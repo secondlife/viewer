@@ -43,6 +43,7 @@
 #ifndef LL_LLAPPVIEWER_H
 #define LL_LLAPPVIEWER_H
 
+#include "llapp.h"
 #include "llallocator.h"
 #include "llapr.h"
 #include "llcontrol.h"
@@ -337,7 +338,7 @@ private:
 };
 
 // consts from viewer.h
-const S32 AGENT_UPDATES_PER_SECOND  = 10;
+const S32 AGENT_UPDATES_PER_SECOND  = 125; // Value derived experimentally to avoid Input Delays with latest PBR-Capable Viewers when viewer FPS is highly volatile.
 const S32 AGENT_FORCE_UPDATES_PER_SECOND  = 1;
 
 // Globals with external linkage. From viewer.h

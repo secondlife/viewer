@@ -108,8 +108,8 @@ void LLPanelExperienceLog::refresh()
     bool waiting = false;
     LLUUID waiting_id;
 
-    int itemsToSkip = mPageSize*mCurrentPage;
-    int items = 0;
+    unsigned int itemsToSkip = mPageSize*mCurrentPage;
+    unsigned int items = 0;
     bool moreItems = false;
     LLSD events_to_save = events;
     if (events.isMap() && events.size() != 0)
@@ -126,7 +126,7 @@ void LLPanelExperienceLog::refresh()
                 events_to_save.erase(day->first);
                 continue;
             }
-            int size = dayArray.size();
+            unsigned int size = static_cast<unsigned int>(dayArray.size());
             if(itemsToSkip > size)
             {
                 itemsToSkip -= size;
@@ -137,7 +137,7 @@ void LLPanelExperienceLog::refresh()
                 moreItems = true;
                 break;
             }
-            for(int i = dayArray.size() - itemsToSkip - 1; i >= 0; i--)
+            for(int i = static_cast<int>(dayArray.size()) - itemsToSkip - 1; i >= 0; i--)
             {
                 if(items >= mPageSize)
                 {

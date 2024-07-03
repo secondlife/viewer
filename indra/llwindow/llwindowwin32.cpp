@@ -404,7 +404,6 @@ struct LLWindowWin32::LLWindowWin32Thread : public LL::ThreadPool
 
     using FuncType = std::function<void()>;
     // call GetMessage() and pull enqueue messages for later processing
-    void gatherInput();
     HWND mWindowHandleThrd = NULL;
     HDC mhDCThrd = 0;
 
@@ -412,8 +411,6 @@ struct LLWindowWin32::LLWindowWin32Thread : public LL::ThreadPool
     // until after some graphics setup. See SL-20177. -Cosmic,2023-09-18
     bool mGLReady = false;
     bool mGotGLBuffer = false;
-
-    U32 mMaxVRAM = 0; // maximum amount of vram to allow in the "budget", or 0 for no maximum (see updateVRAMUsage)
 };
 
 
@@ -425,7 +422,6 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
                              bool ignore_pixel_depth,
                              U32 fsaa_samples,
                              U32 max_cores,
-                             U32 max_vram,
                              F32 max_gl_version)
     :
     LLWindow(callbacks, fullscreen, flags),
@@ -434,7 +430,6 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 {
     sMainThreadId = LLThread::currentID();
     mWindowThread = new LLWindowWin32Thread();
-    mWindowThread->mMaxVRAM = max_vram;
 
     //MAINT-516 -- force a load of opengl32.dll just in case windows went sideways
     LoadLibrary(L"opengl32.dll");
@@ -446,7 +441,7 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
         mMaxCores = llmin(mMaxCores, (U32) 64);
         DWORD_PTR mask = 0;
 
-        for (int i = 0; i < mMaxCores; ++i)
+        for (U32 i = 0; i < mMaxCores; ++i)
         {
             mask |= ((DWORD_PTR) 1) << i;
         }
@@ -3625,13 +3620,13 @@ void LLSplashScreenWin32::updateImpl(const std::string& mesg)
 {
     if (!mWindow) return;
 
-    int output_str_len = MultiByteToWideChar(CP_UTF8, 0, mesg.c_str(), mesg.length(), NULL, 0);
+    int output_str_len = MultiByteToWideChar(CP_UTF8, 0, mesg.c_str(), static_cast<int>(mesg.length()), NULL, 0);
     if( output_str_len>1024 )
         return;
 
     WCHAR w_mesg[1025];//big enought to keep null terminatos
 
-    MultiByteToWideChar (CP_UTF8, 0, mesg.c_str(), mesg.length(), w_mesg, output_str_len);
+    MultiByteToWideChar (CP_UTF8, 0, mesg.c_str(), static_cast<int>(mesg.length()), w_mesg, output_str_len);
 
     //looks like MultiByteToWideChar didn't add null terminator to converted string, see EXT-4858
     w_mesg[output_str_len] = 0;
@@ -4025,14 +4020,14 @@ U32 LLWindowWin32::fillReconvertString(const LLWString &text,
     S32 focus, S32 focus_length, RECONVERTSTRING *reconvert_string)
 {
     const llutf16string text_utf16 = wstring_to_utf16str(text);
-    const DWORD required_size = sizeof(RECONVERTSTRING) + (text_utf16.length() + 1) * sizeof(WCHAR);
+    const DWORD required_size = sizeof(RECONVERTSTRING) + (static_cast<DWORD>(text_utf16.length()) + 1) * sizeof(WCHAR);
     if (reconvert_string && reconvert_string->dwSize >= required_size)
     {
         const DWORD focus_utf16_at = wstring_utf16_length(text, 0, focus);
         const DWORD focus_utf16_length = wstring_utf16_length(text, focus, focus_length);
 
         reconvert_string->dwVersion = 0;
-        reconvert_string->dwStrLen = text_utf16.length();
+        reconvert_string->dwStrLen = static_cast<DWORD>(text_utf16.length());
         reconvert_string->dwStrOffset = sizeof(RECONVERTSTRING);
         reconvert_string->dwCompStrLen = focus_utf16_length;
         reconvert_string->dwCompStrOffset = focus_utf16_at * sizeof(WCHAR);
@@ -4195,7 +4190,7 @@ void LLWindowWin32::handleCompositionMessage(const U32 indexes)
         }
     }
 
-    S32 caret_position = preedit_string.length();
+    S32 caret_position = static_cast<S32>(preedit_string.length());
     if (indexes & GCS_CURSORPOS)
     {
         const S32 caret_position_utf16 = LLWinImm::getCompositionString(himc, GCS_CURSORPOS, NULL, 0);
@@ -4241,7 +4236,7 @@ void LLWindowWin32::handleCompositionMessage(const U32 indexes)
         {
             if (preedit_segment_lengths.size() == 0)
             {
-                preedit_segment_lengths.assign(1, preedit_string.length());
+                preedit_segment_lengths.assign(1, static_cast<S32>(preedit_string.length()));
             }
             if (preedit_standouts.size() == 0)
             {
@@ -4545,15 +4540,6 @@ std::vector<std::string> LLWindowWin32::getDynamicFallbackFontList()
     // Fonts previously in getFontListSans() have moved to fonts.xml.
     return std::vector<std::string>();
 }
-
-void LLWindowWin32::setMaxVRAMMegabytes(U32 max_vram)
-{
-    if (mWindowThread)
-    {
-        mWindowThread->mMaxVRAM = max_vram;
-    }
-}
-
 #endif // LL_WINDOWS
 
 inline LLWindowWin32::LLWindowWin32Thread::LLWindowWin32Thread()

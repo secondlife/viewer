@@ -422,7 +422,7 @@ bool LLVorbisDecodeState::finishDecode()
         ov_clear(&mVF);
 
         // write "data" chunk length, in little-endian format
-        S32 data_length = mWAVBuffer.size() - WAV_HEADER_SIZE;
+        S32 data_length = static_cast<S32>(mWAVBuffer.size()) - WAV_HEADER_SIZE;
         mWAVBuffer[40] = (data_length) & 0x000000FF;
         mWAVBuffer[41] = (data_length >> 8) & 0x000000FF;
         mWAVBuffer[42] = (data_length >> 16) & 0x000000FF;
@@ -463,7 +463,7 @@ bool LLVorbisDecodeState::finishDecode()
             {
                 memcpy(&mWAVBuffer[WAV_HEADER_SIZE], pcmout, (2 * fade_length));    /*Flawfinder: ignore*/
             }
-            S32 near_end = mWAVBuffer.size() - (2 * fade_length);
+            S32 near_end = static_cast<S32>(mWAVBuffer.size()) - (2 * fade_length);
             if ((S32)mWAVBuffer.size() >= ( near_end + 2* fade_length))
             {
                 memcpy(pcmout, &mWAVBuffer[near_end], (2 * fade_length));   /*Flawfinder: ignore*/
@@ -491,7 +491,7 @@ bool LLVorbisDecodeState::finishDecode()
             return true; // we've finished
         }
         mBytesRead = -1;
-        mFileHandle = LLLFSThread::sLocal->write(mOutFilename, &mWAVBuffer[0], 0, mWAVBuffer.size(),
+        mFileHandle = LLLFSThread::sLocal->write(mOutFilename, &mWAVBuffer[0], 0, static_cast<S32>(mWAVBuffer.size()),
                              new WriteResponder(this));
     }
 

@@ -284,7 +284,7 @@ void LLFloaterPathfindingCharacters::showCapsule() const
             if (LLPathingLib::getInstance() != NULL)
             {
                 LLPathingLib::getInstance()->createPhysicsCapsuleRep(character->getLength(), character->getRadius(),
-                    character->isHorizontal(), character->getUUID());
+                    (BOOL)character->isHorizontal(), character->getUUID());
             }
         }
 

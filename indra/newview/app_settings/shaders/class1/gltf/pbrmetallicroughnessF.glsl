@@ -28,18 +28,40 @@
 
 // GLTF pbrMetallicRoughness implementation
 
+uniform int gltf_material_id;
+
+vec3 emissiveColor = vec3(0,0,0);
+float metallicFactor = 1.0;
+float roughnessFactor = 1.0;
+float minimum_alpha = -1.0;
+
+layout (std140) uniform GLTFMaterials
+{
+    // see pbrmetallicroughnessV.glsl for packing
+    vec4 gltf_material_data[MAX_UBO_VEC4S];
+};
+
+void unpackMaterial()
+{
+    if (gltf_material_id > -1)
+    {
+        int idx = gltf_material_id*12;
+        emissiveColor = gltf_material_data[idx+10].rgb;
+        roughnessFactor = gltf_material_data[idx+11].g;
+        metallicFactor = gltf_material_data[idx+11].b;
+        minimum_alpha -= gltf_material_data[idx+11].a;
+    }
+}
 
 // ==================================
 // needed by all variants
 // ==================================
 uniform sampler2D diffuseMap;  //always in sRGB space
 uniform sampler2D emissiveMap;
-uniform vec3 emissiveColor;
 in vec3 vary_position;
 in vec4 vertex_color;
-in vec2 base_color_texcoord;
-in vec2 emissive_texcoord;
-uniform float minimum_alpha;
+in vec2 base_color_uv;
+in vec2 emissive_uv;
 
 void mirrorClip(vec3 pos);
 vec3 linear_to_srgb(vec3 c);
@@ -54,13 +76,12 @@ vec3 srgb_to_linear(vec3 c);
 uniform sampler2D normalMap;
 uniform sampler2D metallicRoughnessMap;
 uniform sampler2D occlusionMap;
-uniform float metallicFactor;
-uniform float roughnessFactor;
 in vec3 vary_normal;
 in vec3 vary_tangent;
 flat in float vary_sign;
-in vec2 normal_texcoord;
-in vec2 metallic_roughness_texcoord;
+in vec2 normal_uv;
+in vec2 metallic_roughness_uv;
+in vec2 occlusion_uv;
 #endif
 // ==================================
 
@@ -155,7 +176,7 @@ out vec4 frag_data[4];
 
 void main()
 {
-
+    unpackMaterial();
 // ==================================
 // all variants
 //   mirror clip
@@ -166,7 +187,11 @@ void main()
     vec3 pos = vary_position;
     mirrorClip(pos);
 
-    vec4 basecolor = texture(diffuseMap, base_color_texcoord.xy).rgba;
+#ifdef ALPHA_BLEND
+    //waterClip(pos);
+#endif
+
+    vec4 basecolor = texture(diffuseMap, base_color_uv.xy).rgba;
     basecolor.rgb = srgb_to_linear(basecolor.rgb);
     basecolor *= vertex_color;
 
@@ -176,7 +201,7 @@ void main()
     }
 
     vec3 emissive = emissiveColor;
-    emissive *= srgb_to_linear(texture(emissiveMap, emissive_texcoord.xy).rgb);
+    emissive *= srgb_to_linear(texture(emissiveMap, emissive_uv.xy).rgb);
 // ==================================
 
 // ==================================
@@ -186,7 +211,7 @@ void main()
 // ==================================
 #ifndef UNLIT
     // from mikktspace.com
-    vec3 vNt = texture(normalMap, normal_texcoord.xy).xyz*2.0-1.0;
+    vec3 vNt = texture(normalMap, normal_uv.xy).xyz*2.0-1.0;
     float sign = vary_sign;
     vec3 vN = vary_normal;
     vec3 vT = vary_tangent.xyz;
@@ -200,8 +225,8 @@ void main()
     //   occlusion 1.0
     //   roughness 0.0
     //   metal     0.0
-    vec3 orm = texture(metallicRoughnessMap, metallic_roughness_texcoord.xy).rgb;
-    orm.r = texture(occlusionMap, metallic_roughness_texcoord.xy).r;
+    vec3 orm = texture(metallicRoughnessMap, metallic_roughness_uv.xy).rgb;
+    orm.r = texture(occlusionMap, occlusion_uv.xy).r;
     orm.g *= roughnessFactor;
     orm.b *= metallicFactor;
 #endif

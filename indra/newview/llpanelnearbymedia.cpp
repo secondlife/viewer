@@ -1241,7 +1241,7 @@ void LLPanelNearByMedia::onMenuAction(const LLSD& userdata)
 
         if (!url.empty())
         {
-            LLClipboard::instance().copyToClipboard(utf8str_to_wstring(url), 0, url.size());
+            LLClipboard::instance().copyToClipboard(utf8str_to_wstring(url), 0, static_cast<S32>(url.size()));
         }
     }
     else if ("copy_data" == command_name)
@@ -1254,12 +1254,12 @@ void LLPanelNearByMedia::onMenuAction(const LLSD& userdata)
         {
             pos += encoding_specifier.size();
             std::string res = LLBase64::decodeAsString(url.substr(pos));
-            LLClipboard::instance().copyToClipboard(utf8str_to_wstring(res), 0, res.size());
+            LLClipboard::instance().copyToClipboard(utf8str_to_wstring(res), 0, static_cast<S32>(res.size()));
         }
         else
         {
             url = LLURI::unescape(url);
-            LLClipboard::instance().copyToClipboard(utf8str_to_wstring(url), 0, url.size());
+            LLClipboard::instance().copyToClipboard(utf8str_to_wstring(url), 0, static_cast<S32>(url.size()));
         }
     }
 }

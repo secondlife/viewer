@@ -64,6 +64,9 @@ namespace LL
 
         class Asset;
         class Material;
+        class TextureInfo;
+        class NormalTextureInfo;
+        class OcclusionTextureInfo;
         class Mesh;
         class Node;
         class Scene;
@@ -78,6 +81,17 @@ namespace LL
         class Accessor;
         class BufferView;
         class Buffer;
+
+        enum class TextureType : U8
+        {
+            BASE_COLOR = 0,
+            NORMAL,
+            METALLIC_ROUGHNESS,
+            OCCLUSION,
+            EMISSIVE
+        };
+
+        constexpr U32 TEXTURE_TYPE_COUNT = 5;
     }
 }
 

@@ -379,12 +379,10 @@ void LLAccordionCtrl::initNoTabsWidget(const LLTextBox::Params& tb_params)
 
 void LLAccordionCtrl::updateNoTabsHelpTextVisibility()
 {
-    bool visible_exists = false;
-    std::vector<LLAccordionCtrlTab*>::const_iterator it = mAccordionTabs.begin();
-    const std::vector<LLAccordionCtrlTab*>::const_iterator it_end = mAccordionTabs.end();
-    while (it < it_end)
+    bool visible_exists{ false };
+    for (auto accordion_tab : mAccordionTabs)
     {
-        if ((*(it++))->getVisible())
+        if (accordion_tab->getVisible())
         {
             visible_exists = true;
             break;
@@ -484,7 +482,7 @@ void LLAccordionCtrl::arrangeMultiple()
             if (mFitParent)
             {
                 // All expanded tabs will have equal height
-                panel_height = calcExpandedTabHeight(i, panel_top);
+                panel_height = calcExpandedTabHeight(static_cast<S32>(i), panel_top);
                 ctrlSetLeftTopAndSize(accordion_tab, panel_left, panel_top, panel_width, panel_height);
 
                 // Try to make accordion tab fit accordion view height.

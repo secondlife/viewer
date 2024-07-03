@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llfloaterchangeitemthumbnail.cpp
  * @brief LLFloaterChangeItemThumbnail class implementation
  *
  * $LicenseInfo:firstyear=2023&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2023, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -96,7 +96,7 @@ void LLThumbnailImagePicker::notify(const std::vector<std::string>& filenames)
     {
         return;
     }
-    
+
     LLFloaterSimpleSnapshot::uploadThumbnail(file_path, mInventoryId, mTaskId, mCallback);
 }
 
@@ -636,7 +636,7 @@ void LLFloaterChangeItemThumbnail::onRemove(void *userdata)
     LLNotificationsUtil::add("DeleteThumbnail", LLSD(), payload, boost::bind(&LLFloaterChangeItemThumbnail::onRemovalConfirmation, _1, _2, self->getHandle()));
 }
 
-// static 
+// static
 void LLFloaterChangeItemThumbnail::onRemovalConfirmation(const LLSD& notification, const LLSD& response, LLHandle<LLFloater> handle)
 {
     S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
@@ -951,8 +951,8 @@ void LLFloaterChangeItemThumbnail::onTexturePickerCommit()
             || texturep->getFullWidth() == 0)
         {
             if (texturep->isFullyLoaded()
-                && (texturep->getCachedRawImageLevel() == 0 || texturep->getRawImageLevel() == 0)
-                && (texturep->isCachedRawImageReady() || texturep->isRawImageValid()))
+                && (texturep->getRawImageLevel() == 0)
+                && (texturep->isRawImageValid()))
             {
                 LLUUID task_id = mTaskId;
                 uuid_set_t inventory_ids = mItemList;
@@ -962,20 +962,10 @@ void LLFloaterChangeItemThumbnail::onTexturePickerCommit()
                     {
                         onUploadComplete(asset_id, task_id, inventory_ids, handle);
                     };
-                if (texturep->isRawImageValid())
-                {
-                    LLFloaterSimpleSnapshot::uploadThumbnail(texturep->getRawImage(),
-                                                             *mItemList.begin(),
-                                                             mTaskId,
-                                                             callback);
-                }
-                else
-                {
-                    LLFloaterSimpleSnapshot::uploadThumbnail(texturep->getCachedRawImage(),
-                                                             *mItemList.begin(),
-                                                             mTaskId,
-                                                             callback);
-                }
+                LLFloaterSimpleSnapshot::uploadThumbnail(texturep->getRawImage(),
+                                                            *mItemList.begin(),
+                                                            mTaskId,
+                                                            callback);
             }
             else
             {
