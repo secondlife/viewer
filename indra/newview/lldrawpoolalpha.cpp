@@ -81,10 +81,6 @@ LLDrawPoolAlpha::~LLDrawPoolAlpha()
 void LLDrawPoolAlpha::prerender()
 {
     mShaderLevel = LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_OBJECT);
-
-    // TODO: is this even necessay?  These are probably set to never discard
-    LLViewerFetchedTexture::sFlatNormalImagep->addTextureStats(1024.f*1024.f);
-    LLViewerFetchedTexture::sWhiteImagep->addTextureStats(1024.f * 1024.f);
 }
 
 S32 LLDrawPoolAlpha::getNumPostDeferredPasses()

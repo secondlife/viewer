@@ -4608,6 +4608,9 @@ void LLAppViewer::idle()
     F32 dt_raw = idle_timer.getElapsedTimeAndResetF32();
 
     LLGLTFMaterialList::flushUpdates();
+
+    static LLCachedControl<U32> downscale_method(gSavedSettings, "RenderDownScaleMethod");
+    gGLManager.mDownScaleMethod = downscale_method;
     LLImageGL::updateClass();
 
     // Service the WorkQueue we use for replies from worker threads.

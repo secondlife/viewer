@@ -169,6 +169,8 @@ void LLFace::init(LLDrawable* drawablep, LLViewerObject* objp)
     mImportanceToCamera = 0.f ;
     mBoundingSphereRadius = 0.0f ;
 
+    mTexExtents[0].set(0, 0);
+    mTexExtents[1].set(1, 1);
     mHasMedia = false ;
     mIsMediaAllowed = true;
 }
@@ -2047,9 +2049,11 @@ void LLFace::resetVirtualSize()
 F32 LLFace::getTextureVirtualSize()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
+
     F32 radius;
     F32 cos_angle_to_view_dir;
     bool in_frustum = calcPixelArea(cos_angle_to_view_dir, radius);
+
 
     if (mPixelArea < F_ALMOST_ZERO || !in_frustum)
     {

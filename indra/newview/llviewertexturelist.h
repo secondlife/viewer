@@ -144,12 +144,13 @@ public:
     void clearFetchingRequests();
     void setDebugFetching(LLViewerFetchedTexture* tex, S32 debug_level);
 
-private:
     // do some book keeping on the specified texture
     // - updates decode priority
     // - updates desired discard level
     // - cleans up textures that haven't been referenced in awhile
     void updateImageDecodePriority(LLViewerFetchedTexture* imagep);
+
+private:
     F32  updateImagesCreateTextures(F32 max_time);
     F32  updateImagesFetchTextures(F32 max_time);
     void updateImagesUpdateStats();

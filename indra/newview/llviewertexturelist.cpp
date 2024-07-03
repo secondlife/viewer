@@ -926,58 +926,65 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
     static LLCachedControl<F32> texture_scale_min(gSavedSettings, "TextureScaleMinAreaFactor", 0.04f);
     static LLCachedControl<F32> texture_scale_max(gSavedSettings, "TextureScaleMaxAreaFactor", 25.f);
 
+    if (imagep->getType() == LLViewerTexture::LOD_TEXTURE && imagep->getBoostLevel() == LLViewerTexture::BOOST_NONE)
+    { // reset max virtual size for unboosted LOD_TEXTURES
+        // this is an alternative to decaying mMaxVirtualSize over time
+        // that keeps textures from continously downrezzing and uprezzing in the background
+        imagep->mMaxVirtualSize = 0.f;
+    }
+
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE
+    for (U32 i = 0; i < LLRender::NUM_TEXTURE_CHANNELS; ++i)
     {
-        for (U32 i = 0; i < LLRender::NUM_TEXTURE_CHANNELS; ++i)
+        for (S32 fi = 0; fi < imagep->getNumFaces(i); ++fi)
         {
-            for (S32 fi = 0; fi < imagep->getNumFaces(i); ++fi)
+            LLFace* face = (*(imagep->getFaceList(i)))[fi];
+
+            if (face && face->getViewerObject())
             {
-                LLFace* face = (*(imagep->getFaceList(i)))[fi];
+                F32 radius;
+                F32 cos_angle_to_view_dir;
+                bool in_frustum = face->calcPixelArea(cos_angle_to_view_dir, radius);
+                static LLCachedControl<F32> bias_unimportant_threshold(gSavedSettings, "TextureBiasUnimportantFactor", 0.25f);
+                F32 vsize = face->getPixelArea();
 
-                if (face && face->getViewerObject() && face->getTextureEntry())
-                {
-                    F32 radius;
-                    F32 cos_angle_to_view_dir;
-                    bool in_frustum = face->calcPixelArea(cos_angle_to_view_dir, radius);
-                    static LLCachedControl<F32> bias_unimportant_threshold(gSavedSettings, "TextureBiasUnimportantFactor", 0.25f);
-                    F32 vsize = face->getPixelArea();
+                // Scale desired texture resolution higher or lower depending on texture scale
+                //
+                // Minimum usage examples: a 1024x1024 texture with aplhabet, runing string
+                // shows one letter at a time
+                //
+                // Maximum usage examples: huge chunk of terrain repeats texture
+                const LLTextureEntry* te = face->getTextureEntry();
+                F32 min_scale = te ? llmin(fabsf(te->getScaleS()), fabsf(te->getScaleT())) : 1.f;
+                min_scale = llclamp(min_scale * min_scale, texture_scale_min(), texture_scale_max());
+                vsize /= min_scale;
 
-                    // Scale desired texture resolution higher or lower depending on texture scale
-                    //
-                    // Minimum usage examples: a 1024x1024 texture with aplhabet, runing string
-                    // shows one letter at a time
-                    //
-                    // Maximum usage examples: huge chunk of terrain repeats texture
-                    const LLTextureEntry* te = face->getTextureEntry();
-                    F32 min_scale = te ? llmin(fabsf(te->getScaleS()), fabsf(te->getScaleT())) : 1.f;
-                    min_scale = llclamp(min_scale*min_scale, texture_scale_min(), texture_scale_max());
+                // if bias is > 2, apply to on-screen textures as well
+                bool apply_bias = LLViewerTexture::sDesiredDiscardBias > 2.f;
 
-                    vsize /= min_scale;
-                    vsize /= powf(4, LLViewerTexture::sDesiredDiscardBias - 1.f);
-
-                    if (!in_frustum || !face->getDrawable()->isVisible() || face->getImportanceToCamera() < bias_unimportant_threshold)
-                    { // further reduce by discard bias when off screen or occluded
-                        vsize /= LLViewerTexture::sDesiredDiscardBias;
-                    }
-                    // if a GLTF material is present, ignore that face
-                    // as far as this texture stats go, but update the GLTF material
-                    // stats
-                    LLFetchedGLTFMaterial* mat = te ? (LLFetchedGLTFMaterial*)te->getGLTFRenderMaterial() : nullptr;
-                    llassert(mat == nullptr || dynamic_cast<LLFetchedGLTFMaterial*>(te->getGLTFRenderMaterial()) != nullptr);
-                    if (mat)
-                    {
-                        touch_texture(mat->mBaseColorTexture, vsize);
-                        touch_texture(mat->mNormalTexture, vsize);
-                        touch_texture(mat->mMetallicRoughnessTexture, vsize);
-                        touch_texture(mat->mEmissiveTexture, vsize);
-                    }
-                    else
-                    {
-                        imagep->addTextureStats(vsize);
-                    }
+                // apply bias to off screen objects or objects that are small on screen all the time
+                if (!in_frustum || !face->getDrawable()->isVisible() || face->getImportanceToCamera() < bias_unimportant_threshold)
+                { // further reduce by discard bias when off screen or occluded
+                    apply_bias = true;
                 }
+
+                if (apply_bias)
+                {
+                    F32 bias = powf(4, LLViewerTexture::sDesiredDiscardBias - 1.f);
+                    bias = llround(bias);
+                    vsize /= bias;
+                }
+
+                imagep->addTextureStats(vsize);
             }
         }
+    }
+
+    // make sure to addTextureStats for any spotlights that are using this texture
+    for (S32 vi = 0; vi < imagep->getNumVolumes(LLRender::LIGHT_TEX); ++vi)
+    {
+        LLVOVolume* volume = (*imagep->getVolumeList(LLRender::LIGHT_TEX))[vi];
+        volume->updateSpotLightPriority();
     }
 
     //imagep->setDebugText(llformat("%.3f - %d", sqrtf(imagep->getMaxVirtualSize()), imagep->getBoostLevel()));
@@ -1097,7 +1104,7 @@ F32 LLViewerTextureList::updateImagesCreateTextures(F32 max_time)
             LLImageGL* img = image->getGLTexture();
             if (img && img->getHasGLTexture())
             {
-                img->scaleDown(llmax(img->getDiscardLevel() + 1, image->getDesiredDiscardLevel()));
+                img->scaleDown(image->getDesiredDiscardLevel());
             }
 
             image->mDownScalePending = false;
@@ -1174,7 +1181,10 @@ void LLViewerTextureList::forceImmediateUpdate(LLViewerFetchedTexture* imagep)
         removeImageFromList(imagep);
     }
 
-    imagep->processTextureStats();
+    if (!gCubeSnapshot)
+    { // never call processTextureStats in a cube snapshot
+        imagep->processTextureStats();
+    }
     imagep->sMaxVirtualSize = LLViewerFetchedTexture::sMaxVirtualSize;
     addImageToList(imagep);
 

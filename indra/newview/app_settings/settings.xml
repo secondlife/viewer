@@ -7760,6 +7760,17 @@
     <key>Value</key>
     <integer>2048</integer>
   </map>
+    <key>RenderDownScaleMethod</key>
+    <map>
+        <key>Comment</key>
+        <string>Method to use to downscale images.  0 - FBO, 1 - PBO</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>U32</string>
+        <key>Value</key>
+        <integer>1</integer>
+    </map>
     <key>RenderDebugTextureBind</key>
     <map>
       <key>Comment</key>

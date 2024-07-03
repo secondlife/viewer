@@ -89,7 +89,7 @@ S32 LLViewerTexture::sRawCount = 0;
 S32 LLViewerTexture::sAuxCount = 0;
 LLFrameTimer LLViewerTexture::sEvaluationTimer;
 F32 LLViewerTexture::sDesiredDiscardBias = 0.f;
-F32 LLViewerTexture::sDesiredDiscardScale = 1.1f;
+
 S32 LLViewerTexture::sMaxSculptRez = 128; //max sculpt image size
 const S32 MAX_CACHED_RAW_IMAGE_AREA = 64 * 64;
 const S32 MAX_CACHED_RAW_SCULPT_IMAGE_AREA = LLViewerTexture::sMaxSculptRez * LLViewerTexture::sMaxSculptRez;
@@ -542,22 +542,11 @@ void LLViewerTexture::updateClass()
     if (is_low && !was_low)
     {
         LL_WARNS() << "Low system memory detected, emergency downrezzing off screen textures" << LL_ENDL;
-        sDesiredDiscardBias = llmax(sDesiredDiscardBias, 1.25f);
+        sDesiredDiscardBias = llmax(sDesiredDiscardBias, 1.5f);
 
-        for (auto& image : gTextureList)
+        for (auto image : gTextureList)
         {
-            if (!image->mDownScalePending &&
-                image->getType() == LLViewerTexture::LOD_TEXTURE &&
-                !image->getDontDiscard() &&
-                !image->isJustBound())
-            {
-                LLImageGL* img  = image->getGLTexture();
-                if (img && img->getHasGLTexture())
-                {
-                    image->mDownScalePending = true;
-                    gTextureList.mDownScaleQueue.push(image);
-                }
-            }
+            gTextureList.updateImageDecodePriority(image);
         }
     }
 
@@ -645,15 +634,14 @@ void LLViewerTexture::init(bool firstinit)
     mParcelMedia = NULL;
 
     memset(&mNumVolumes, 0, sizeof(U32)* LLRender::NUM_VOLUME_TEXTURE_CHANNELS);
-    mFaceList[LLRender::DIFFUSE_MAP].clear();
-    mFaceList[LLRender::NORMAL_MAP].clear();
-    mFaceList[LLRender::SPECULAR_MAP].clear();
-    mNumFaces[LLRender::DIFFUSE_MAP] =
-    mNumFaces[LLRender::NORMAL_MAP] =
-    mNumFaces[LLRender::SPECULAR_MAP] = 0;
-
     mVolumeList[LLRender::LIGHT_TEX].clear();
     mVolumeList[LLRender::SCULPT_TEX].clear();
+
+    for (U32 i = 0; i < LLRender::NUM_TEXTURE_CHANNELS; i++)
+    {
+        mNumFaces[i] = 0;
+        mFaceList[i].clear();
+    }
 
     mMainQueue  = LL::WorkQueue::getInstance("mainloop");
     mImageQueue = LL::WorkQueue::getInstance("LLImageGL");
@@ -1666,13 +1654,12 @@ void LLViewerFetchedTexture::setKnownDrawSize(S32 width, S32 height)
 
 void LLViewerFetchedTexture::setDebugText(const std::string& text)
 {
-    for (U32 ch = 0; ch < LLRender::NUM_TEXTURE_CHANNELS; ++ch)
+    for (U32 i = 0; i < LLRender::NUM_TEXTURE_CHANNELS; ++i)
     {
-        llassert(mNumFaces[ch] <= mFaceList[ch].size());
-
-        for (U32 i = 0; i < mNumFaces[ch]; i++)
+        for (S32 fi = 0; fi < getNumFaces(i); ++fi)
         {
-            LLFace* facep = mFaceList[ch][i];
+            LLFace* facep = (*(getFaceList(i)))[fi];
+
             if (facep)
             {
                 LLDrawable* drawable = facep->getDrawable();
@@ -1685,10 +1672,15 @@ void LLViewerFetchedTexture::setDebugText(const std::string& text)
     }
 }
 
+extern bool gCubeSnapshot;
+
 //virtual
 void LLViewerFetchedTexture::processTextureStats()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
+    llassert(!gCubeSnapshot);  // should only be called when the main camera is active
+    llassert(!LLPipeline::sShadowRender);
+
     if(mFullyLoaded)
     {
         if(mDesiredDiscardLevel > mMinDesiredDiscardLevel)//need to load more
@@ -2952,10 +2944,7 @@ void LLViewerLODTexture::processTextureStats()
             mDiscardVirtualSize = mMaxVirtualSize;
             mCalculatedDiscardLevel = discard_level;
         }
-        if (mBoostLevel < LLGLTexture::BOOST_SCULPTED)
-        {
-            discard_level *= sDesiredDiscardScale; // scale (default 1.1f)
-        }
+
         discard_level = floorf(discard_level);
 
         F32 min_discard = 0.f;
@@ -2981,10 +2970,9 @@ void LLViewerLODTexture::processTextureStats()
         //
 
         S32 current_discard = getDiscardLevel();
-        if (mBoostLevel < LLGLTexture::BOOST_AVATAR_BAKED &&
-            current_discard >= 0)
+        if (mBoostLevel < LLGLTexture::BOOST_AVATAR_BAKED)
         {
-            if (current_discard < (mDesiredDiscardLevel-1) && !mForceToSaveRawImage)
+            if (current_discard < mDesiredDiscardLevel && !mForceToSaveRawImage)
             { // should scale down
                 scaleDown();
             }
@@ -3003,9 +2991,6 @@ void LLViewerLODTexture::processTextureStats()
     {
         mDesiredDiscardLevel = llmin(mDesiredDiscardLevel, (S8)mDesiredSavedRawDiscardLevel);
     }
-
-    // decay max virtual size over time
-    mMaxVirtualSize *= 0.8f;
 
     // selection manager will immediately reset BOOST_SELECTED but never unsets it
     // unset it immediately after we consume it
