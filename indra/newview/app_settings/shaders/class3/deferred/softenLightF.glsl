@@ -103,7 +103,8 @@ vec3 pbrBaseLight(vec3 diffuseColor,
                   vec3 additive,
                   vec3 atten,
                   vec3 tr,
-                  inout vec3 t_light);
+                  inout vec3 t_light,
+                  float ior);
 
 vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
                     float perceptualRoughness,
@@ -113,8 +114,9 @@ vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
                     vec3 l, // surface point to light
                     vec3 tr, // Transmission ray.
                     inout vec3 transmission_light, // Transmissive lighting.
-                    vec3 intensity
-                    );
+                    vec3 intensity,
+                    float ior
+                    ) ;
 
 void adjustIrradiance(inout vec3 irradiance, float ambocc)
 {
@@ -191,7 +193,7 @@ void main()
 
         vec3 v = -normalize(pos.xyz);
         vec3 t_light = vec3(0);
-        color = pbrBaseLight(diffuseColor, specularColor, metallic, v, norm.xyz, perceptualRoughness, light_dir, sunlit_linear, scol, radiance, irradiance, colorEmissive, ao, additive, atten, vec3(0), t_light);
+        color = pbrBaseLight(diffuseColor, specularColor, metallic, v, norm.xyz, perceptualRoughness, light_dir, sunlit_linear, scol, radiance, irradiance, colorEmissive, ao, additive, atten, vec3(0), t_light, 1.5);
     }
     else if (GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_HDRI))
     {

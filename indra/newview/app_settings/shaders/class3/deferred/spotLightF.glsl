@@ -88,8 +88,9 @@ vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
                     vec3 l, // surface point to light
                     vec3 tr, // Transmission ray.
                     inout vec3 transmission_light, // Transmissive lighting.
-                    vec3 intensity
-                    );
+                    vec3 intensity,
+                    float ior
+                    ) ;
 
 void main()
 {
@@ -172,11 +173,11 @@ void main()
                 dlit = getProjectedLightDiffuseColor( l_dist, proj_tc.xy );
 
                 vec3 intensity = dist_atten * dlit * 3.25 * shadow; // Legacy attenuation, magic number to balance with legacy materials
-                final_color += intensity*pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, n.xyz, v, lv, vec3(0), t_light, vec3(0));
+                final_color += intensity*pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, n.xyz, v, lv, vec3(0), t_light, vec3(0), 1.5);
             }
 
             amb_rgb = getProjectedLightAmbiance( amb_da, dist_atten, lit, nl, 1.0, proj_tc.xy ) * 3.25; //magic number to balance with legacy ambiance
-            final_color += amb_rgb * pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, n.xyz, v, -lv, vec3(0), t_light, vec3(0));
+            final_color += amb_rgb * pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, n.xyz, v, -lv, vec3(0), t_light, vec3(0), 1.5);
         }
     }
     else

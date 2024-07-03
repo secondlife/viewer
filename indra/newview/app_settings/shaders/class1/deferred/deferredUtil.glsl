@@ -455,7 +455,8 @@ vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
                     vec3 l, // surface point to light
                     vec3 tr, // Transmission ray.
                     inout vec3 transmission_light, // Transmissive lighting.
-                    vec3 intensity
+                    vec3 intensity,
+                    float ior
                     ) 
 {
     // make sure specular highlights from punctual lights don't fall off of polished surfaces
@@ -505,7 +506,7 @@ vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
     vec3 lt = l - tr;
 
     // We use modified light and half vectors for the BTDF calculation, but the math is the same at the end of the day.
-    float transmissionRougness = applyIorToRoughness(perceptualRoughness, 1.5);
+    float transmissionRougness = applyIorToRoughness(perceptualRoughness, ior);
 
     vec3 l_mirror = normalize(lt + 2.0 * n * dot(-lt, n));     // Mirror light reflection vector on surface
     h = normalize(l_mirror + v);            // Halfway vector between transmission light vector and v
@@ -539,7 +540,13 @@ vec3 pbrCalcPointLightOrSpotLight(vec3 diffuseColor, vec3 specularColor,
                     vec3 lp, // light position
                     vec3 ld, // light direction (for spotlights)
                     vec3 lightColor,
-                    float lightSize, float falloff, float is_pointlight, float ambiance, vec3 tr, inout vec3 transmissive_light)
+                    float lightSize,
+                    float falloff,
+                    float is_pointlight,
+                    float ambiance,
+                    vec3 tr,
+                    inout vec3 transmissive_light,
+                    float ior)
 {
     vec3 color = vec3(0,0,0);
 
@@ -561,7 +568,7 @@ vec3 pbrCalcPointLightOrSpotLight(vec3 diffuseColor, vec3 specularColor,
 
         vec3 intensity = spot_atten * dist_atten * lightColor * 3.0; //magic number to balance with legacy materials
 
-        color = intensity*pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, n.xyz, v, lv, tr, transmissive_light, intensity);
+        color = intensity*pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, n.xyz, v, lv, tr, transmissive_light, intensity, ior);
     }
 
     return color;
@@ -642,15 +649,32 @@ vec3 getIBLVolumeRefraction(vec3 n, vec3 v, vec2 viewCoord, float perceptualRoug
     return (1.0 - specularColor) * attenuatedColor * baseColor;
 }
 
-vec3 pbrBaseLight(vec3 diffuseColor, vec3 specularColor, float metallic, vec3 v, vec3 norm, float perceptualRoughness, vec3 light_dir, vec3 sunlit, float scol, vec3 radiance, vec3 irradiance, vec3 colorEmissive, float ao, vec3 additive, vec3 atten, vec3 tr, inout vec3 t_light)
+vec3 pbrBaseLight(vec3 diffuseColor,
+                  vec3 specularColor,
+                  float metallic,
+                  vec3 pos,
+                  vec3 norm,
+                  float perceptualRoughness,
+                  vec3 light_dir,
+                  vec3 sunlit,
+                  float scol,
+                  vec3 radiance,
+                  vec3 irradiance,
+                  vec3 colorEmissive,
+                  float ao,
+                  vec3 additive,
+                  vec3 atten,
+                  vec3 tr,
+                  inout vec3 t_light,
+                  float ior)
 {
     vec3 color = vec3(0);
 
-    float NdotV = clamp(abs(dot(norm, v)), 0.001, 1.0);
+    float NdotV = clamp(abs(dot(norm, pos)), 0.001, 1.0);
 
     color += pbrIbl(diffuseColor, specularColor, radiance, irradiance, ao, NdotV, perceptualRoughness);
 
-    color += pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, norm, v, normalize(light_dir), tr, t_light, vec3(1)) * sunlit * 3.0 * scol; //magic number to balance with legacy materials
+    color += pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, norm, pos, normalize(light_dir), tr, t_light, vec3(1), ior) * sunlit * 3.0 * scol; //magic number to balance with legacy materials
 
     color += colorEmissive;
 
