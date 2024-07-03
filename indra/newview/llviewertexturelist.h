@@ -144,12 +144,13 @@ public:
     void clearFetchingRequests();
     void setDebugFetching(LLViewerFetchedTexture* tex, S32 debug_level);
 
-private:
     // do some book keeping on the specified texture
     // - updates decode priority
     // - updates desired discard level
     // - cleans up textures that haven't been referenced in awhile
     void updateImageDecodePriority(LLViewerFetchedTexture* imagep);
+
+private:
     F32  updateImagesCreateTextures(F32 max_time);
     F32  updateImagesFetchTextures(F32 max_time);
     void updateImagesUpdateStats();
@@ -211,8 +212,14 @@ private:
 
 public:
     typedef std::unordered_set<LLPointer<LLViewerFetchedTexture> > image_list_t;
-    image_list_t mLoadingStreamList;
-    image_list_t mCreateTextureList;
+    typedef std::queue<LLPointer<LLViewerFetchedTexture> > image_queue_t;
+
+    // images that have been loaded but are waiting to be uploaded to GL
+    image_queue_t mCreateTextureList;
+
+    // images that must be downscaled quickly so we don't run out of memory
+    image_queue_t mDownScaleQueue;
+
     image_list_t mCallbackList;
     image_list_t mFastCacheList;
 

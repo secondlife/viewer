@@ -476,6 +476,7 @@ void Asset::update()
                 { // HACK - force texture to be loaded full rez
                     // TODO: calculate actual vsize
                     image.mTexture->addTextureStats(2048.f * 2048.f);
+                    image.mTexture->setBoostLevel(LLViewerTexture::BOOST_HIGH);
                 }
             }
         }
