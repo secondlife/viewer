@@ -52,8 +52,6 @@ LLFloaterGLTFAssetEditor::LLFloaterGLTFAssetEditor(const LLSD& key)
 
 LLFloaterGLTFAssetEditor::~LLFloaterGLTFAssetEditor()
 {
-    gIdleCallbacks.deleteFunction(idle, this);
-
     if (mScroller)
     {
         removeChild(mScroller);
@@ -120,7 +118,7 @@ void LLFloaterGLTFAssetEditor::initFolderRoot()
     // Insert that scroller into the panel widgets hierarchy
     mItemListPanel->addChild(mScroller);
 
-    // Create the root model and view for all conversation sessions
+    // Create the root model
     LLGLTFFolderItem* base_item = new LLGLTFFolderItem(mGLTFViewModel);
 
     LLFolderView::Params p(LLUICtrlFactory::getDefaultParams<LLFolderView>());
@@ -144,13 +142,31 @@ void LLFloaterGLTFAssetEditor::initFolderRoot()
     mFolderRoot->setOpen(true);
     mFolderRoot->setSelectCallback([this](const std::deque<LLFolderViewItem*>& items, bool user_action) { onFolderSelectionChanged(items, user_action); });
     mScroller->setVisible(true);
-
-    gIdleCallbacks.addFunction(idle, this);
 }
 
 void LLFloaterGLTFAssetEditor::onOpen(const LLSD& key)
 {
+    gIdleCallbacks.addFunction(idle, this);
     loadFromSelection();
+}
+
+void LLFloaterGLTFAssetEditor::onClose(bool app_quitting)
+{
+    gIdleCallbacks.deleteFunction(idle, this);
+    mAsset = nullptr;
+    mObject = nullptr;
+
+}
+
+void LLFloaterGLTFAssetEditor::clearRoot()
+{
+    LLFolderViewFolder::folders_t::iterator folders_it = mFolderRoot->getFoldersBegin();
+    while (folders_it != mFolderRoot->getFoldersEnd())
+    {
+        (*folders_it)->destroyView();
+        folders_it = mFolderRoot->getFoldersBegin();
+    }
+    mNodeToItemMap.clear();
 }
 
 void LLFloaterGLTFAssetEditor::idle(void* user_data)
@@ -216,6 +232,8 @@ void LLFloaterGLTFAssetEditor::loadFromNode(S32 node_id, LLFolderViewFolder* par
     view->setVisible(true);
     view->setOpen(true);
 
+    mNodeToItemMap[node_id] = view;
+
     for (S32& node_id : node.mChildren)
     {
         loadFromNode(node_id, view);
@@ -246,8 +264,12 @@ void LLFloaterGLTFAssetEditor::loadFromNode(S32 node_id, LLFolderViewFolder* par
 
 void LLFloaterGLTFAssetEditor::loadFromSelection()
 {
-    if (!mFolderRoot || LLSelectMgr::getInstance()->getSelection()->getObjectCount() != 1)
+    clearRoot();
+
+    if (LLSelectMgr::getInstance()->getSelection()->getObjectCount() != 1)
     {
+        mAsset = nullptr;
+        mObject = nullptr;
         return;
     }
 
@@ -255,14 +277,19 @@ void LLFloaterGLTFAssetEditor::loadFromSelection()
     LLViewerObject* objectp = node->getObject();
     if (!objectp)
     {
+        mAsset = nullptr;
+        mObject = nullptr;
         return;
     }
 
-    mAsset = objectp->mGLTFAsset;
-    if (!mAsset)
+    if (!objectp->mGLTFAsset)
     {
+        mAsset = nullptr;
+        mObject = nullptr;
         return;
     }
+    mAsset = objectp->mGLTFAsset;
+    mObject = objectp;
 
     if (node->mName.empty())
     {
@@ -288,7 +315,6 @@ void LLFloaterGLTFAssetEditor::loadFromSelection()
         }
 
         LLGLTFFolderItem* listener = new LLGLTFFolderItem(i, name, LLGLTFFolderItem::TYPE_SCENE, mGLTFViewModel);
-
 
         LLFolderViewFolder::Params p;
         p.name = name;
@@ -316,6 +342,50 @@ void LLFloaterGLTFAssetEditor::loadFromSelection()
     mFolderRoot->update();
 }
 
+void LLFloaterGLTFAssetEditor::dirty()
+{
+    if (!mObject || !mAsset || !mFolderRoot)
+    {
+        closeFloater();
+        return;
+    }
+
+    if (LLSelectMgr::getInstance()->getSelection()->getObjectCount() > 1)
+    {
+        closeFloater();
+        return;
+    }
+
+    LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstNode(NULL);
+    if (!node)
+    {
+        // not yet updated?
+        // Todo: Subscribe to deletion in some way
+        return;
+    }
+
+    LLViewerObject* objectp = node->getObject();
+    if (mObject != objectp || !objectp->mGLTFAsset)
+    {
+        closeFloater();
+        return;
+    }
+
+    if (mAsset != objectp->mGLTFAsset)
+    {
+        loadFromSelection();
+        return;
+    }
+
+    auto found = mNodeToItemMap.find(node->mSelectedGLTFNode);
+    if (found != mNodeToItemMap.end())
+    {
+        LLFolderViewItem* itemp = found->second;
+        itemp->arrangeAndSet(true, false);
+        loadNodeTransforms(node->mSelectedGLTFNode);
+    }
+}
+
 void LLFloaterGLTFAssetEditor::onFolderSelectionChanged(const std::deque<LLFolderViewItem*>& items, bool user_action)
 {
     if (items.empty())
@@ -329,10 +399,30 @@ void LLFloaterGLTFAssetEditor::onFolderSelectionChanged(const std::deque<LLFolde
 
     switch (vmi->getType())
     {
+    case LLGLTFFolderItem::TYPE_SCENE:
+        {
+            setTransformsEnabled(false);
+            LLSelectMgr::getInstance()->selectObjectOnly(mObject, SELECT_ALL_TES, -1, -1);
+            break;
+        }
     case LLGLTFFolderItem::TYPE_NODE:
         {
             setTransformsEnabled(true);
             loadNodeTransforms(vmi->getItemId());
+            LLSelectMgr::getInstance()->selectObjectOnly(mObject, SELECT_ALL_TES, vmi->getItemId(), 0);
+            break;
+        }
+    case LLGLTFFolderItem::TYPE_MESH:
+    case LLGLTFFolderItem::TYPE_SKIN:
+        {
+            if (item->getParent()) // should be a node
+            {
+                LLFolderViewFolder* parent = item->getParentFolder();
+                LLGLTFFolderItem* parent_vmi = static_cast<LLGLTFFolderItem*>(parent->getViewModelItem());
+                LLSelectMgr::getInstance()->selectObjectOnly(mObject, SELECT_ALL_TES, parent_vmi->getItemId(), 0);
+            }
+
+            setTransformsEnabled(false);
             break;
         }
     default:
