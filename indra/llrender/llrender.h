@@ -297,7 +297,11 @@ public:
         ALTERNATE_DIFFUSE_MAP = 1,
         NORMAL_MAP            = 1,
         SPECULAR_MAP          = 2,
-        NUM_TEXTURE_CHANNELS  = 3,
+        BASECOLOR_MAP         = 3,
+        METALLIC_ROUGHNESS_MAP = 4,
+        GLTF_NORMAL_MAP           = 5,
+        EMISSIVE_MAP          = 6,
+        NUM_TEXTURE_CHANNELS  = 7,
     };
 
     enum eVolumeTexIndex : U8

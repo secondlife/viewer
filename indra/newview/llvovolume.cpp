@@ -5745,18 +5745,23 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
                 {
                     continue;
                 }
-#if 0
-#if LL_RELEASE_WITH_DEBUG_INFO
-                const LLUUID pbr_id( "49c88210-7238-2a6b-70ac-92d4f35963cf" );
-                const LLUUID obj_id( vobj->getID() );
-                bool is_pbr = (obj_id == pbr_id);
-#else
-                bool is_pbr = false;
-#endif
-#else
-                LLGLTFMaterial *gltf_mat = facep->getTextureEntry()->getGLTFRenderMaterial();
+
+                LLFetchedGLTFMaterial *gltf_mat = (LLFetchedGLTFMaterial*) facep->getTextureEntry()->getGLTFRenderMaterial();
                 bool is_pbr = gltf_mat != nullptr;
-#endif
+
+                if (is_pbr)
+                {
+                    // tell texture streaming system to ignore blinn-phong textures
+                    facep->setTexture(LLRender::DIFFUSE_MAP, nullptr);
+                    facep->setTexture(LLRender::NORMAL_MAP, nullptr);
+                    facep->setTexture(LLRender::SPECULAR_MAP, nullptr);
+
+                    // let texture streaming system know about PBR textures
+                    facep->setTexture(LLRender::BASECOLOR_MAP, gltf_mat->mBaseColorTexture);
+                    facep->setTexture(LLRender::GLTF_NORMAL_MAP, gltf_mat->mNormalTexture);
+                    facep->setTexture(LLRender::METALLIC_ROUGHNESS_MAP, gltf_mat->mMetallicRoughnessTexture);
+                    facep->setTexture(LLRender::EMISSIVE_MAP, gltf_mat->mEmissiveTexture);
+                }
 
                 //ALWAYS null out vertex buffer on rebuild -- if the face lands in a render
                 // batch, it will recover its vertex buffer reference from the spatial group

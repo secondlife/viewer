@@ -57,6 +57,9 @@ const F32 MIN_TEXTURE_LIFETIME = 10.f;
 U32 wpo2(U32 i);
 
 
+U32 LLImageGL::sFrameCount = 0;
+
+
 // texture memory accounting (for macOS)
 static LLMutex sTexMemMutex;
 static std::unordered_map<U32, U64> sTextureAllocs;
@@ -1003,7 +1006,7 @@ bool should_stagger_image_set(bool compressed)
 #else
     // glTexSubImage2D doesn't work with compressed textures on select tested Nvidia GPUs on Windows 10 -Cosmic,2023-03-08
     // Setting media textures off-thread seems faster when not using sub_image_lines (Nvidia/Windows 10) -Cosmic,2023-03-31
-    return !compressed && on_main_thread();
+    return !compressed && on_main_thread() && !gGLManager.mIsIntel;
 #endif
 }
 
@@ -1186,12 +1189,36 @@ void LLImageGL::generateTextures(S32 numTextures, U32 *textures)
 }
 
 // static
+void LLImageGL::updateClass()
+{
+    sFrameCount++;
+}
+
+// static
 void LLImageGL::deleteTextures(S32 numTextures, const U32 *textures)
 {
+    // wait a few frames before actually deleting the textures to avoid
+    // synchronization issues with the GPU
+    static std::vector<U32> sFreeList[4];
+
     if (gGLManager.mInited)
     {
-        free_tex_images(numTextures, textures);
-        glDeleteTextures(numTextures, textures);
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
+        U32 idx = sFrameCount % 4;
+
+        for (S32 i = 0; i < numTextures; ++i)
+        {
+            sFreeList[idx].push_back(textures[i]);
+        }
+
+        idx = (sFrameCount + 3) % 4;
+
+        if (!sFreeList[idx].empty())
+        {
+            glDeleteTextures((GLsizei) sFreeList[idx].size(), sFreeList[idx].data());
+            free_tex_images((GLsizei) sFreeList[idx].size(), sFreeList[idx].data());
+            sFreeList[idx].resize(0);
+        }
     }
 }
 
@@ -2335,44 +2362,85 @@ bool LLImageGL::scaleDown(S32 desired_discard)
     S32 desired_width = getWidth(desired_discard);
     S32 desired_height = getHeight(desired_discard);
 
-    U64 size = getBytes(desired_discard);
-    llassert(size <= 2048*2048*4); // we shouldn't be using this method to downscale huge textures, but it'll work
-    gGL.getTexUnit(0)->bind(this);
+    if (gGLManager.mDownScaleMethod == 0)
+    { // use an FBO to downscale the texture
+        // allocate new texture
+        U32 temp_texname = 0;
+        generateTextures(1, &temp_texname);
+        gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, temp_texname, true);
+        {
+            LL_PROFILE_ZONE_NAMED_CATEGORY_TEXTURE("scaleDown - glTexImage2D");
+            glTexImage2D(mTarget, 0, mFormatPrimary, desired_width, desired_height, 0, mFormatPrimary, mFormatType, NULL);
+        }
 
+        // account for new texture getting created
+        alloc_tex_image(desired_width, desired_height, mFormatPrimary);
 
-    if (sScratchPBO == 0)
-    {
-        glGenBuffers(1, &sScratchPBO);
-        sScratchPBOSize = 0;
+        // Use render-to-texture to scale down the texture
+        {
+            LL_PROFILE_ZONE_NAMED_CATEGORY_TEXTURE("scaleDown - glFramebufferTexture2D");
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, mTarget, temp_texname, 0);
+        }
+
+        glViewport(0, 0, desired_width, desired_height);
+
+        // draw a full screen triangle
+        gGL.getTexUnit(0)->bind(this);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
+        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+
+        // delete old texture and assign new texture name
+        deleteTextures(1, &mTexName);
+        mTexName = temp_texname;
+
+        if (mHasMipMaps)
+        { // generate mipmaps if needed
+            LL_PROFILE_ZONE_NAMED_CATEGORY_TEXTURE("scaleDown - glGenerateMipmap");
+            gGL.getTexUnit(0)->bind(this);
+            glGenerateMipmap(mTarget);
+            gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+        }
     }
+    else
+    { // use a PBO to downscale the texture
+        U64 size = getBytes(desired_discard);
+        llassert(size <= 2048 * 2048 * 4); // we shouldn't be using this method to downscale huge textures, but it'll work
+        gGL.getTexUnit(0)->bind(this);
 
-    glBindBuffer(GL_PIXEL_PACK_BUFFER, sScratchPBO);
+        if (sScratchPBO == 0)
+        {
+            glGenBuffers(1, &sScratchPBO);
+            sScratchPBOSize = 0;
+        }
 
-    if (size > sScratchPBOSize)
-    {
-        glBufferData(GL_PIXEL_PACK_BUFFER, size, NULL, GL_STREAM_COPY);
-        sScratchPBOSize = size;
+        glBindBuffer(GL_PIXEL_PACK_BUFFER, sScratchPBO);
+
+        if (size > sScratchPBOSize)
+        {
+            glBufferData(GL_PIXEL_PACK_BUFFER, size, NULL, GL_STREAM_COPY);
+            sScratchPBOSize = size;
+        }
+
+        glGetTexImage(mTarget, mip, mFormatPrimary, mFormatType, nullptr);
+
+        free_tex_image(mTexName);
+
+        glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
+
+        glBindBuffer(GL_PIXEL_UNPACK_BUFFER, sScratchPBO);
+        glTexImage2D(mTarget, 0, mFormatPrimary, desired_width, desired_height, 0, mFormatPrimary, mFormatType, nullptr);
+        glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+
+        alloc_tex_image(desired_width, desired_height, mFormatPrimary);
+
+        if (mHasMipMaps)
+        {
+            LL_PROFILE_ZONE_NAMED_CATEGORY_TEXTURE("scaleDown - glGenerateMipmap");
+            glGenerateMipmap(mTarget);
+        }
+
+        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
     }
-
-    glGetTexImage(mTarget, mip, mFormatPrimary, mFormatType, nullptr);
-
-    free_tex_image(mTexName);
-
-    glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
-
-    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, sScratchPBO);
-    glTexImage2D(mTarget, 0, mFormatPrimary, desired_width, desired_height, 0, mFormatPrimary, mFormatType, nullptr);
-    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
-
-    alloc_tex_image(desired_width, desired_height, mFormatPrimary);
-
-    if (mHasMipMaps)
-    {
-        LL_PROFILE_ZONE_NAMED_CATEGORY_TEXTURE("scaleDown - glGenerateMipmap");
-        glGenerateMipmap(mTarget);
-    }
-
-    gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
     mCurrentDiscardLevel = desired_discard;
 

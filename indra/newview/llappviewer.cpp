@@ -2210,10 +2210,10 @@ bool LLAppViewer::initThreads()
         cores = llmin(cores, (S32) max_cores);
     }
 
-    // The only configurable thread count right now is ImageDecode
-    // The viewer typically starts around 8 threads not including image decode,
-    // so try to leave at least one core free
-    S32 image_decode_count = llclamp(cores - 9, 1, 8);
+    // always use at least 2 threads for image decoding to prevent
+    // a single texture blocking all other textures from decoding
+    S32 image_decode_count = llclamp(cores - 6, 2, 16);
+
     threadCounts["ImageDecode"] = image_decode_count;
     gSavedSettings.setLLSD("ThreadPoolSizes", threadCounts);
 
@@ -4608,6 +4608,10 @@ void LLAppViewer::idle()
     F32 dt_raw = idle_timer.getElapsedTimeAndResetF32();
 
     LLGLTFMaterialList::flushUpdates();
+
+    static LLCachedControl<U32> downscale_method(gSavedSettings, "RenderDownScaleMethod");
+    gGLManager.mDownScaleMethod = downscale_method;
+    LLImageGL::updateClass();
 
     // Service the WorkQueue we use for replies from worker threads.
     // Use function statics for the timeslice setting so we only have to fetch

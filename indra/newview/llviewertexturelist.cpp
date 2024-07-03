@@ -70,6 +70,8 @@ S32 LLViewerTextureList::sNumImages = 0;
 
 LLViewerTextureList gTextureList;
 
+extern LLGLSLShader gCopyProgram;
+
 ETexListType get_element_type(S32 priority)
 {
     return (priority == LLViewerFetchedTexture::BOOST_ICON || priority == LLViewerFetchedTexture::BOOST_THUMBNAIL) ? TEX_LIST_SCALE : TEX_LIST_STANDARD;
@@ -352,8 +354,11 @@ void LLViewerTextureList::shutdown()
     mCallbackList.clear();
 
     // Flush all of the references
-    mLoadingStreamList.clear();
-    mCreateTextureList.clear();
+    while (!mCreateTextureList.empty())
+    {
+        mCreateTextureList.front()->mCreatePending = false;
+        mCreateTextureList.pop();
+    }
     mFastCacheList.clear();
 
     mUUIDMap.clear();
@@ -897,14 +902,6 @@ void LLViewerTextureList::clearFetchingRequests()
     }
 }
 
-static void touch_texture(LLViewerFetchedTexture* tex, F32 vsize)
-{
-    if (tex)
-    {
-        tex->addTextureStats(vsize);
-    }
-}
-
 extern bool gCubeSnapshot;
 
 void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imagep)
@@ -921,56 +918,65 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
     static LLCachedControl<F32> texture_scale_min(gSavedSettings, "TextureScaleMinAreaFactor", 0.04f);
     static LLCachedControl<F32> texture_scale_max(gSavedSettings, "TextureScaleMaxAreaFactor", 25.f);
 
+    if (imagep->getType() == LLViewerTexture::LOD_TEXTURE && imagep->getBoostLevel() == LLViewerTexture::BOOST_NONE)
+    { // reset max virtual size for unboosted LOD_TEXTURES
+        // this is an alternative to decaying mMaxVirtualSize over time
+        // that keeps textures from continously downrezzing and uprezzing in the background
+        imagep->mMaxVirtualSize = 0.f;
+    }
+
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE
+    for (U32 i = 0; i < LLRender::NUM_TEXTURE_CHANNELS; ++i)
     {
-        for (U32 i = 0; i < LLRender::NUM_TEXTURE_CHANNELS; ++i)
+        for (S32 fi = 0; fi < imagep->getNumFaces(i); ++fi)
         {
-            for (S32 fi = 0; fi < imagep->getNumFaces(i); ++fi)
+            LLFace* face = (*(imagep->getFaceList(i)))[fi];
+
+            if (face && face->getViewerObject())
             {
-                LLFace* face = (*(imagep->getFaceList(i)))[fi];
+                F32 radius;
+                F32 cos_angle_to_view_dir;
+                bool in_frustum = face->calcPixelArea(cos_angle_to_view_dir, radius);
+                static LLCachedControl<F32> bias_unimportant_threshold(gSavedSettings, "TextureBiasUnimportantFactor", 0.25f);
+                F32 vsize = face->getPixelArea();
 
-                if (face && face->getViewerObject() && face->getTextureEntry())
-                {
-                    F32 radius;
-                    F32 cos_angle_to_view_dir;
-                    BOOL in_frustum = face->calcPixelArea(cos_angle_to_view_dir, radius);
-                    static LLCachedControl<F32> bias_unimportant_threshold(gSavedSettings, "TextureBiasUnimportantFactor", 0.25f);
-                    F32 vsize = face->getPixelArea();
+                // Scale desired texture resolution higher or lower depending on texture scale
+                //
+                // Minimum usage examples: a 1024x1024 texture with aplhabet, runing string
+                // shows one letter at a time
+                //
+                // Maximum usage examples: huge chunk of terrain repeats texture
+                const LLTextureEntry* te = face->getTextureEntry();
+                F32 min_scale = te ? llmin(fabsf(te->getScaleS()), fabsf(te->getScaleT())) : 1.f;
+                min_scale = llclamp(min_scale * min_scale, texture_scale_min(), texture_scale_max());
+                vsize /= min_scale;
 
-                    // Scale desired texture resolution higher or lower depending on texture scale
-                    //
-                    // Minimum usage examples: a 1024x1024 texture with aplhabet, runing string
-                    // shows one letter at a time
-                    //
-                    // Maximum usage examples: huge chunk of terrain repeats texture
-                    const LLTextureEntry* te = face->getTextureEntry();
-                    F32 min_scale = te ? llmin(fabsf(te->getScaleS()), fabsf(te->getScaleT())) : 1.f;
-                    min_scale = llclamp(min_scale*min_scale, texture_scale_min(), texture_scale_max());
+                // if bias is > 2, apply to on-screen textures as well
+                bool apply_bias = LLViewerTexture::sDesiredDiscardBias > 2.f;
 
-                    vsize /= min_scale;
-                    if (!in_frustum || !face->getDrawable()->isVisible() || face->getImportanceToCamera() < bias_unimportant_threshold)
-                    { // further reduce by discard bias when off screen or occluded
-                        vsize /= LLViewerTexture::sDesiredDiscardBias;
-                    }
-                    // if a GLTF material is present, ignore that face
-                    // as far as this texture stats go, but update the GLTF material
-                    // stats
-                    LLFetchedGLTFMaterial* mat = te ? (LLFetchedGLTFMaterial*)te->getGLTFRenderMaterial() : nullptr;
-                    llassert(mat == nullptr || dynamic_cast<LLFetchedGLTFMaterial*>(te->getGLTFRenderMaterial()) != nullptr);
-                    if (mat)
-                    {
-                        touch_texture(mat->mBaseColorTexture, vsize);
-                        touch_texture(mat->mNormalTexture, vsize);
-                        touch_texture(mat->mMetallicRoughnessTexture, vsize);
-                        touch_texture(mat->mEmissiveTexture, vsize);
-                    }
-                    else
-                    {
-                        imagep->addTextureStats(vsize);
-                    }
+                // apply bias to off screen objects or objects that are small on screen all the time
+                if (!in_frustum || !face->getDrawable()->isVisible() || face->getImportanceToCamera() < bias_unimportant_threshold)
+                { // further reduce by discard bias when off screen or occluded
+                    apply_bias = true;
                 }
+
+                if (apply_bias)
+                {
+                    F32 bias = powf(4, LLViewerTexture::sDesiredDiscardBias - 1.f);
+                    bias = llround(bias);
+                    vsize /= bias;
+                }
+
+                imagep->addTextureStats(vsize);
             }
         }
+    }
+
+    // make sure to addTextureStats for any spotlights that are using this texture
+    for (S32 vi = 0; vi < imagep->getNumVolumes(LLRender::LIGHT_TEX); ++vi)
+    {
+        LLVOVolume* volume = (*imagep->getVolumeList(LLRender::LIGHT_TEX))[vi];
+        volume->updateSpotLightPriority();
     }
 
     //imagep->setDebugText(llformat("%.3f - %d", sqrtf(imagep->getMaxVirtualSize()), imagep->getBoostLevel()));
@@ -1066,22 +1072,65 @@ F32 LLViewerTextureList::updateImagesCreateTextures(F32 max_time)
     //
 
     LLTimer create_timer;
-    image_list_t::iterator enditer = mCreateTextureList.begin();
-    for (image_list_t::iterator iter = mCreateTextureList.begin();
-         iter != mCreateTextureList.end();)
+
+    if (!mDownScaleQueue.empty() && gPipeline.mDownResMap.isComplete())
     {
-        image_list_t::iterator curiter = iter++;
-        enditer = iter;
-        LLViewerFetchedTexture *imagep = *curiter;
+        // just in case we downres textures, bind downresmap and copy program
+        gPipeline.mDownResMap.bindTarget();
+        gCopyProgram.bind();
+        gPipeline.mScreenTriangleVB->setBuffer();
+
+        // give time to downscaling first -- if mDownScaleQueue is not empty, we're running out of memory and need
+        // to free up memory by discarding off screen textures quickly
+
+        // do at least 5 and make sure we don't get too far behind even if it violates
+        // the time limit.  If we don't downscale quickly the viewer will hit swap and may
+        // freeze.
+        S32 min_count = (S32)mCreateTextureList.size() / 20 + 5;
+
+        while (!mDownScaleQueue.empty())
+        {
+            LLViewerFetchedTexture* image = mDownScaleQueue.front();
+            llassert(image->mDownScalePending);
+
+            LLImageGL* img = image->getGLTexture();
+            if (img && img->getHasGLTexture())
+            {
+                img->scaleDown(image->getDesiredDiscardLevel());
+            }
+
+            image->mDownScalePending = false;
+            mDownScaleQueue.pop();
+
+            if (create_timer.getElapsedTimeF32() > max_time && --min_count <= 0)
+            {
+                break;
+            }
+        }
+
+        gCopyProgram.unbind();
+        gPipeline.mDownResMap.flush();
+    }
+
+    // do at least 5 and make sure we don't get too far behind even if it violates
+    // the time limit.  Textures pending creation have a copy of their texture data
+    // in system memory, so we don't want to let them pile up.
+    S32 min_count = (S32) mCreateTextureList.size() / 20 + 5;
+
+    while (!mCreateTextureList.empty())
+    {
+        LLViewerFetchedTexture *imagep =  mCreateTextureList.front();
+        llassert(imagep->mCreatePending);
         imagep->createTexture();
         imagep->postCreateTexture();
+        imagep->mCreatePending = false;
+        mCreateTextureList.pop();
 
-        if (create_timer.getElapsedTimeF32() > max_time)
+        if (create_timer.getElapsedTimeF32() > max_time && --min_count <= 0)
         {
             break;
         }
     }
-    mCreateTextureList.erase(mCreateTextureList.begin(), enditer);
     return create_timer.getElapsedTimeF32();
 }
 
@@ -1124,7 +1173,10 @@ void LLViewerTextureList::forceImmediateUpdate(LLViewerFetchedTexture* imagep)
         removeImageFromList(imagep);
     }
 
-    imagep->processTextureStats();
+    if (!gCubeSnapshot)
+    { // never call processTextureStats in a cube snapshot
+        imagep->processTextureStats();
+    }
     imagep->sMaxVirtualSize = LLViewerFetchedTexture::sMaxVirtualSize;
     addImageToList(imagep);
 
@@ -1134,6 +1186,7 @@ void LLViewerTextureList::forceImmediateUpdate(LLViewerFetchedTexture* imagep)
 F32 LLViewerTextureList::updateImagesFetchTextures(F32 max_time)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
+
     typedef std::vector<LLPointer<LLViewerFetchedTexture> > entries_list_t;
     entries_list_t entries;
 

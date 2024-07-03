@@ -865,6 +865,10 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
     const U32 post_color_fmt = post_hdr ? GL_RGBA16F : GL_RGBA;
     mPostMap.allocate(resX, resY, post_color_fmt);
 
+    // used to scale down textures
+    // See LLViwerTextureList::updateImagesCreateTextures and LLImageGL::scaleDown
+    mDownResMap.allocate(4, 4, GL_RGBA);
+
     //HACK make screenbuffer allocations start failing after 30 seconds
     if (gSavedSettings.getBOOL("SimulateFBOFailure"))
     {
@@ -1110,6 +1114,8 @@ void LLPipeline::releaseGLBuffers()
     mSceneMap.release();
 
     mPostMap.release();
+
+    mDownResMap.release();
 
     for (U32 i = 0; i < 3; i++)
     {
