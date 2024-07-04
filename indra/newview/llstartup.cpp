@@ -1508,7 +1508,11 @@ bool idle_startup()
 
         // create a container's instance for start a controlling conversation windows
         // by the voice's events
-        LLFloaterIMContainer::getInstance();
+        LLFloaterIMContainer *im_inst = LLFloaterIMContainer::getInstance();
+        if(gAgent.isFirstLogin())
+        {
+            im_inst->openFloater(im_inst->getKey());
+        }
         if (gSavedSettings.getS32("ParcelMediaAutoPlayEnable") == 2)
         {
             LLViewerParcelAskPlay::getInstance()->loadSettings();
