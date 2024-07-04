@@ -188,6 +188,11 @@ public:
         LLSD(const Date&);
         LLSD(const URI&);
         LLSD(const Binary&);
+        LLSD(String&&);
+        LLSD(UUID&&);
+        LLSD(Date&&);
+        LLSD(URI&&);
+        LLSD(Binary&&);
     //@}
 
     /** @name Convenience Constructors */
@@ -215,6 +220,11 @@ public:
         void assign(const Date&);
         void assign(const URI&);
         void assign(const Binary&);
+        void assign(String&&);
+        void assign(UUID&&);
+        void assign(Date&&);
+        void assign(URI&&);
+        void assign(Binary&&);
 
         LLSD& operator=(Boolean v)          { assign(v); return *this; }
         LLSD& operator=(Integer v)          { assign(v); return *this; }
@@ -224,6 +234,11 @@ public:
         LLSD& operator=(const Date& v)      { assign(v); return *this; }
         LLSD& operator=(const URI& v)       { assign(v); return *this; }
         LLSD& operator=(const Binary& v)    { assign(v); return *this; }
+        LLSD& operator=(String&& v)         { assign(std::move(v)); return *this; }
+        LLSD& operator=(UUID&& v)               { assign(std::move(v)); return *this; }
+        LLSD& operator=(Date&& v)               { assign(std::move(v)); return *this; }
+        LLSD& operator=(URI&& v)                { assign(std::move(v)); return *this; }
+        LLSD& operator=(Binary&& v)         { assign(std::move(v)); return *this; }
     //@}
 
     /**
