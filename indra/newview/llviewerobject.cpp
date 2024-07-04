@@ -4418,6 +4418,7 @@ void LLViewerObject::moveGLTFNode(S32 node_index, const LLVector3& offset)
         matMul(trans, mat, mat);
 
         node.mMatrix = glm::make_mat4(mat.getF32ptr());
+        node.mTRSValid = false;
 
         // TODO -- only update transforms for this node and its children (or use a dirty flag)
         mGLTFAsset->updateTransforms();

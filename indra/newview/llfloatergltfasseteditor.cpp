@@ -155,7 +155,6 @@ void LLFloaterGLTFAssetEditor::onClose(bool app_quitting)
     gIdleCallbacks.deleteFunction(idle, this);
     mAsset = nullptr;
     mObject = nullptr;
-
 }
 
 void LLFloaterGLTFAssetEditor::clearRoot()
@@ -458,6 +457,7 @@ void LLFloaterGLTFAssetEditor::loadNodeTransforms(S32 node_id)
     }
 
     LL::GLTF::Node& node = mAsset->mNodes[node_id];
+    node.makeTRSValid();
 
     mCtrlPosX->set(node.mTranslation[0]);
     mCtrlPosY->set(node.mTranslation[1]);
