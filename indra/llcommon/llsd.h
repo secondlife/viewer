@@ -161,6 +161,13 @@ public:
 
     //@}
 
+    /** @name Movable */
+    //@{
+        LLSD(LLSD&& other) noexcept;
+        void  assign(LLSD&& other);
+        LLSD& operator=(LLSD&& other) noexcept;
+    //@}
+
     void clear();   ///< resets to Undefined
 
 
@@ -330,14 +337,14 @@ public:
 
         LLSD& operator[](const std::string_view);
         LLSD& operator[](const char* c)
-		{
-			return c ? (*this)[std::string_view(c)] : *this;
-		}
+        {
+            return c ? (*this)[std::string_view(c)] : *this;
+        }
         const LLSD& operator[](const std::string_view) const;
-        const LLSD& operator[](const char* c) const 
-		{
-			return c ? (*this)[std::string_view(c)] : *this;
-		}
+        const LLSD& operator[](const char* c) const
+        {
+            return c ? (*this)[std::string_view(c)] : *this;
+        }
     //@}
 
     /** @name Array Values */

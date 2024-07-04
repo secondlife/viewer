@@ -106,6 +106,9 @@ public:
     static void reset(Impl*& var, Impl* impl);
         ///< safely set var to refer to the new impl (possibly shared)
 
+    static void move(Impl*& var, Impl*& impl);
+        ///< safely move impl from one object to another
+
     static       Impl& safe(      Impl*);
     static const Impl& safe(const Impl*);
         ///< since a NULL Impl* is used for undefined, this ensures there is
@@ -232,7 +235,7 @@ namespace
     };
 
 
-    class ImplBoolean
+    class ImplBoolean final
         : public ImplBase<LLSD::TypeBoolean, LLSD::Boolean, LLSD::Boolean, LLSD::Boolean&&>
     {
     public:
@@ -255,7 +258,7 @@ namespace
         { return mValue ? "true" : ""; }
 
 
-    class ImplInteger
+    class ImplInteger final
         : public ImplBase<LLSD::TypeInteger, LLSD::Integer, LLSD::Integer, LLSD::Integer&&>
     {
     public:
@@ -273,7 +276,7 @@ namespace
         { return llformat("%d", mValue); }
 
 
-    class ImplReal
+    class ImplReal final
         : public ImplBase<LLSD::TypeReal, LLSD::Real, LLSD::Real, LLSD::Real&&>
     {
     public:
@@ -297,7 +300,7 @@ namespace
         { return llformat("%lg", mValue); }
 
 
-    class ImplString
+    class ImplString final
         : public ImplBase<LLSD::TypeString, LLSD::String, const LLSD::String&, LLSD::String&&>
     {
     public:
@@ -357,7 +360,7 @@ namespace
     }
 
 
-    class ImplUUID
+    class ImplUUID final
         : public ImplBase<LLSD::TypeUUID, LLSD::UUID, const LLSD::UUID&, LLSD::UUID&&>
     {
     public:
@@ -371,7 +374,7 @@ namespace
     };
 
 
-    class ImplDate
+    class ImplDate final
         : public ImplBase<LLSD::TypeDate, LLSD::Date, const LLSD::Date&, LLSD::Date&&>
     {
     public:
@@ -398,7 +401,7 @@ namespace
     };
 
 
-    class ImplURI
+    class ImplURI final
         : public ImplBase<LLSD::TypeURI, LLSD::URI, const LLSD::URI&, LLSD::URI&&>
     {
     public:
@@ -412,7 +415,7 @@ namespace
     };
 
 
-    class ImplBinary
+    class ImplBinary final
         : public ImplBase<LLSD::TypeBinary, LLSD::Binary, const LLSD::Binary&, LLSD::Binary&&>
     {
     public:
@@ -425,7 +428,7 @@ namespace
     };
 
 
-    class ImplMap : public LLSD::Impl
+    class ImplMap final : public LLSD::Impl
     {
     private:
         typedef std::map<LLSD::String, LLSD, std::less<>> DataMap;
@@ -539,7 +542,6 @@ namespace
         DataMap::iterator i = mData.lower_bound(k);
         if (i == mData.end() || mData.key_comp()(k, i->first))
         {
-            
             return mData.emplace_hint(i, std::make_pair(k, LLSD()))->second;
         }
 
@@ -577,7 +579,7 @@ namespace
         {
             //std::cout << "  " << (*iter).first << ": " << (*iter).second << std::endl;
             Impl::calcStats((*iter).second, type_counts, share_counts);
-            iter++;
+            ++iter;
         }
 
         // Add in the values for this map
@@ -774,6 +776,16 @@ void LLSD::Impl::reset(Impl*& var, Impl* impl)
     var = impl;
 }
 
+void LLSD::Impl::move(Impl*& var, Impl*& impl)
+{
+    if (var && var->mUseCount != STATIC_USAGE_COUNT && --var->mUseCount == 0)
+    {
+        delete var; // destroy var if usage falls to 0 and not static
+    }
+    var = impl; // Steal impl to var without incrementing use since this is a move
+    impl = nullptr; // null out old-impl pointer
+}
+
 LLSD::Impl& LLSD::Impl::safe(Impl* impl)
 {
     static Impl theUndefined(STATIC_USAGE_COUNT);
@@ -954,6 +966,9 @@ LLSD::~LLSD()                           { FREE_LLSD_OBJECT; Impl::reset(impl, 0)
 LLSD::LLSD(const LLSD& other) : impl(0) { ALLOC_LLSD_OBJECT;  assign(other); }
 void LLSD::assign(const LLSD& other)    { Impl::assign(impl, other.impl); }
 
+LLSD::LLSD(LLSD&& other) noexcept : impl(nullptr) { ALLOC_LLSD_OBJECT;  Impl::move(impl, other.impl); }
+void  LLSD::assign(LLSD&& other) { Impl::move(impl, other.impl); }
+LLSD& LLSD::operator=(LLSD&& other) noexcept { Impl::move(impl, other.impl); return *this; }
 
 void LLSD::clear()                      { Impl::assignUndefined(impl); }
 
