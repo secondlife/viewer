@@ -127,12 +127,9 @@ void LLAppearanceListener::getOutfitsList(LLSD const &data)
     LLIsType is_category(LLAssetType::AT_CATEGORY);
     gInventory.collectDescendentsIf(outfits_id, cat_array, item_array, LLInventoryModel::EXCLUDE_TRASH, is_category);
 
-    LLSD outfits_data;
-    for (const LLPointer<LLViewerInventoryCategory> &cat : cat_array)
-    {
-        outfits_data[cat->getUUID().asString()] = cat->getName();
-    }
-    response["outfits"] = outfits_data;
+    response["outfits"] = llsd::toMap(cat_array,
+        [](const LLPointer<LLViewerInventoryCategory> &cat)
+        { return std::make_pair(cat->getUUID().asString(), cat->getName()); });
 }
 
 void LLAppearanceListener::getOutfitItems(LLSD const &data)
@@ -150,16 +147,14 @@ void LLAppearanceListener::getOutfitItems(LLSD const &data)
     LLFindOutfitItems collector = LLFindOutfitItems();
     gInventory.collectDescendentsIf(outfit_id, cat_array, item_array, LLInventoryModel::EXCLUDE_TRASH, collector);
 
-    LLSD items_data;
-    for (const LLPointer<LLViewerInventoryItem> &it : item_array)
-    {
-        LLSD info;
-        info["name"] = it->getName();
-        info["wearable_type"] = LLWearableType::getInstance()->getTypeName(it->isWearableType() ? it->getWearableType() : LLWearableType::WT_NONE);
-        info["is_worn"] = get_is_item_worn(it);
-
-        items_data[it->getUUID().asString()] = info;
-    }
-
-    response["items"] = items_data;
+    response["items"] = llsd::toMap(item_array,
+        [](const LLPointer<LLViewerInventoryItem> &it)
+        {
+            return std::make_pair(
+                it->getUUID().asString(),
+                llsd::map(
+                    "name", it->getName(),
+                    "wearable_type", LLWearableType::getInstance()->getTypeName(it->isWearableType() ? it->getWearableType() : LLWearableType::WT_NONE),
+                    "is_worn", get_is_item_worn(it)));
+        });
 }
