@@ -2041,7 +2041,7 @@ bool LLAppViewer::cleanup()
 
     sTextureFetch->shutDownTextureCacheThread() ;
     LLLFSThread::sLocal->shutdown();
-    ms_sleep(200);
+
     LL_INFOS() << "Shutting down OpenGL" << LL_ENDL;
 
     // Shut down OpenGL
