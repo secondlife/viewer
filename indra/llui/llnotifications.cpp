@@ -861,7 +861,7 @@ void LLNotification::init(const std::string& template_name, const LLSD& form_ele
     for (LLStringUtil::format_map_t::const_iterator iter = default_args.begin();
          iter != default_args.end(); ++iter)
     {
-        mSubstitutions[iter->first] = iter->second;
+        mSubstitutions[std::string(iter->first)] = iter->second;
     }
     mSubstitutions["_URL"] = getURL();
     mSubstitutions["_NAME"] = template_name;
