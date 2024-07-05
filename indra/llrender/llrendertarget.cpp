@@ -50,6 +50,7 @@ void check_framebuffer_status()
     }
 }
 
+bool LLRenderTarget::sInitFailed = false;
 bool LLRenderTarget::sUseFBO = false;
 U32 LLRenderTarget::sCurFBO = 0;
 
@@ -351,6 +352,9 @@ void LLRenderTarget::release()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
     llassert(!isBoundInStack());
+
+    if (sInitFailed)
+        return;
 
     if (mDepth)
     {
