@@ -172,7 +172,7 @@ public:
     void setPersonalInfo(const std::string& visibility);
     void refreshEnabledState();
     void onCommitWindowedMode();
-    void refresh(); // Refresh enable/disable
+    void refresh() override; // Refresh enable/disable
     // if the quality radio buttons are changed
     void onChangeQuality(const LLSD& data);
 
