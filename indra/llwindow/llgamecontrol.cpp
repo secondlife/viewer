@@ -1749,19 +1749,19 @@ void LLGameControl::setAgentControlMode(LLGameControl::AgentControlMode mode)
 // static
 bool LLGameControl::getSendToServer()
 {
-    return g_enabled && g_sendToServer;
+    return g_sendToServer;
 }
 
 // static
 bool LLGameControl::getControlAgent()
 {
-    return g_enabled && g_controlAgent;
+    return g_controlAgent;
 }
 
 // static
 bool LLGameControl::getTranslateAgentActions()
 {
-    return g_enabled && g_translateAgentActions;
+    return g_translateAgentActions;
 }
 
 // static
