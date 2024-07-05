@@ -3406,10 +3406,12 @@ void LLPanelPreferenceGameControl::onCommitNumericValue()
 bool LLPanelPreferenceGameControl::postBuild()
 {
     // Above the tab container
+    mCheckEnableGameControl = getChild<LLCheckBoxCtrl>("enable_game_control");
     mCheckGameControlToServer = getChild<LLCheckBoxCtrl>("game_control_to_server");
     mCheckGameControlToAgent = getChild<LLCheckBoxCtrl>("game_control_to_agent");
     mCheckAgentToGameControl = getChild<LLCheckBoxCtrl>("agent_to_game_control");
 
+    mCheckEnableGameControl->setCommitCallback([this](LLUICtrl*, const LLSD&) { updateEnable(); });
     mCheckGameControlToAgent->setCommitCallback([this](LLUICtrl*, const LLSD&) { updateActionTableState(); });
     mCheckAgentToGameControl->setCommitCallback([this](LLUICtrl*, const LLSD&) { updateActionTableState(); });
 
@@ -3486,6 +3488,7 @@ bool LLPanelPreferenceGameControl::postBuild()
 // This function is called before floater is shown
 void LLPanelPreferenceGameControl::onOpen(const LLSD& key)
 {
+    mCheckEnableGameControl->setValue(LLGameControl::isEnabled());
     mCheckGameControlToServer->setValue(LLGameControl::getSendToServer());
     mCheckGameControlToAgent->setValue(LLGameControl::getControlAgent());
     mCheckAgentToGameControl->setValue(LLGameControl::getTranslateAgentActions());
@@ -3515,6 +3518,8 @@ void LLPanelPreferenceGameControl::onOpen(const LLSD& key)
 
     mCheckShowAllDevices->setValue(false);
     populateDeviceTitle();
+
+    updateEnable();
 }
 
 void LLPanelPreferenceGameControl::populateActionTableRows(const std::string& filename)
@@ -3841,10 +3846,34 @@ void LLPanelPreferenceGameControl::addActionTableSeparator()
     mActionTable->addRow(separator_params, EAddPosition::ADD_BOTTOM);
 }
 
+void LLPanelPreferenceGameControl::updateEnable()
+{
+    bool enabled = mCheckEnableGameControl->get();
+    LLGameControl::setEnabled(enabled);
+
+    mCheckGameControlToServer->setEnabled(enabled);
+    mCheckGameControlToAgent->setEnabled(enabled);
+    mCheckAgentToGameControl->setEnabled(enabled);
+
+    mActionTable->setEnabled(enabled);
+    mAxisOptions->setEnabled(enabled);
+    mAxisMappings->setEnabled(enabled);
+    mButtonMappings->setEnabled(enabled);
+    mDeviceList->setEnabled(enabled);
+
+    if (!enabled)
+    {
+        //mActionTable->deselectAllItems();
+        mAnalogChannelSelector->setVisible(false);
+        mBinaryChannelSelector->setVisible(false);
+        clearSelectionState();
+    }
+}
+
 void LLPanelPreferenceGameControl::updateActionTableState()
 {
     // Enable the table if at least one of the GameControl<-->Agent options is enabled
-    bool enable_table = mCheckGameControlToAgent->get() || mCheckAgentToGameControl->get();
+    bool enable_table = LLGameControl::isEnabled() && (mCheckGameControlToAgent->get() || mCheckAgentToGameControl->get());
 
     mActionTable->deselectAllItems();
     mActionTable->setEnabled(enable_table);
