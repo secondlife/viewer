@@ -38,28 +38,20 @@ LLAppearanceListener::LLAppearanceListener()
                "API to wear a specified outfit and wear/remove individual items")
 {
     add("wearOutfit",
-        "Wear outfit by folder id: [folder_id]"
+        "Wear outfit by folder id: [folder_id] OR by folder name: [folder_name]\n"
         "When [\"append\"] is true, outfit will be added to COF\n"
         "otherwise it will replace current oufit",
-        &LLAppearanceListener::wearOutfit,
-        llsd::map("folder_id", LLSD(), "append", LLSD()));
+        &LLAppearanceListener::wearOutfit);
 
-    add("wearOutfitByName",
-        "Wear outfit by folder name: [folder_name]"
-        "When [\"append\"] is true, outfit will be added to COF\n"
-        "otherwise it will replace current oufit",
-        &LLAppearanceListener::wearOutfitByName,
-        llsd::map("folder_name", LLSD(), "append", LLSD()));
+    add("wearItems",
+        "Wear items by id: [items_id]",
+        &LLAppearanceListener::wearItems,
+        llsd::map("items_id", LLSD(), "replace", LLSD()));
 
-    add("wearItem",
-        "Wear item by item id: [item_id]",
-        &LLAppearanceListener::wearItem,
-        llsd::map("item_id", LLSD(), "replace", LLSD()));
-
-    add("detachItem",
-        "Detach item by item id: [item_id]",
-        &LLAppearanceListener::detachItem,
-        llsd::map("item_id", LLSD()));
+    add("detachItems",
+        "Detach items by id: [items_id]",
+        &LLAppearanceListener::detachItems,
+        llsd::map("items_id", LLSD()));
 
     add("getOutfitsList",
         "Return the table with Outfits info(id and name)",
@@ -74,46 +66,61 @@ LLAppearanceListener::LLAppearanceListener()
 void LLAppearanceListener::wearOutfit(LLSD const &data)
 {
     Response response(LLSD(), data);
-    LLViewerInventoryCategory* cat = gInventory.getCategory(data["folder_id"].asUUID());
-    if (!cat)
+    if (!data.has("folder_id") && !data.has("folder_name"))
     {
-        response.error(stringize(LLTrans::getString("OutfitNotFound"), data["folder_id"].asUUID()));
-        return;
+        return response.error("Either [folder_id] or [folder_name] is required");
     }
-    if (LLFolderType::lookupIsProtectedType(cat->getPreferredType()))
-    {
-        response.error(stringize(LLTrans::getString("SystemFolderNotWorn"), data["folder_id"].asUUID()));
-        return;
-    }
-    bool append = data["append"].asBoolean();
-    bool can_wear = append ? LLAppearanceMgr::instance().getCanAddToCOF(cat->getUUID()) : LLAppearanceMgr::instance().getCanReplaceCOF(cat->getUUID());
-    if (!can_wear)
-    {
-        std::string msg = append ? LLTrans::getString("OutfitNotAdded") : LLTrans::getString("OutfitNotReplaced");
-        response.error(stringize(msg, std::quoted(cat->getName()), " , id: ", cat->getUUID()));
-        return;
-    }
-    LLAppearanceMgr::instance().wearInventoryCategory(cat, false, append);
-}
 
-void LLAppearanceListener::wearOutfitByName(LLSD const &data)
-{
-    Response response(LLSD(), data);
     std::string error_msg;
-    if (!LLAppearanceMgr::instance().wearOutfitByName(data["folder_name"].asString(), error_msg, data["append"].asBoolean()))
+    bool result(false);
+    bool append = data.has("append") ? data["append"].asBoolean() : false;
+    if (data.has("folder_id"))
+    {
+        result = LLAppearanceMgr::instance().wearOutfit(data["folder_id"].asUUID(), error_msg, append);
+    }
+    else
+    {
+        result = LLAppearanceMgr::instance().wearOutfitByName(data["folder_name"].asString(), error_msg, append);
+    }
+
+    if (!result)
     {
         response.error(error_msg);
     }
 }
 
-void LLAppearanceListener::wearItem(LLSD const &data)
+void LLAppearanceListener::wearItems(LLSD const &data)
 {
-    LLAppearanceMgr::instance().wearItemOnAvatar(data["item_id"].asUUID(), true, data["replace"].asBoolean());
+    if (data["items_id"].isArray())
+    {
+        uuid_vec_t ids;
+        for (const auto &id : llsd::inArray(data["items_id"]))
+        {
+            ids.push_back(id);
+        }
+        LLAppearanceMgr::instance().wearItemsOnAvatar(ids, true, data["replace"].asBoolean());
+    }
+    else
+    {
+        LLAppearanceMgr::instance().wearItemOnAvatar(data["items_id"].asUUID(), true, data["replace"].asBoolean());
+    }
 }
 
-void LLAppearanceListener::detachItem(LLSD const &data)
+void LLAppearanceListener::detachItems(LLSD const &data)
 {
-    LLAppearanceMgr::instance().removeItemFromAvatar(data["item_id"].asUUID());
+    if (data["items_id"].isArray())
+    {
+        uuid_vec_t ids;
+        for (const auto &id : llsd::inArray(data["items_id"]))
+        {
+            ids.push_back(id);
+        }
+        LLAppearanceMgr::instance().removeItemsFromAvatar(ids);
+    }
+    else
+    {
+        LLAppearanceMgr::instance().removeItemFromAvatar(data["items_id"].asUUID());
+    }
 }
 
 void LLAppearanceListener::getOutfitsList(LLSD const &data)
@@ -139,7 +146,7 @@ void LLAppearanceListener::getOutfitItems(LLSD const &data)
     LLViewerInventoryCategory *cat = gInventory.getCategory(outfit_id);
     if (!cat || cat->getPreferredType() != LLFolderType::FT_OUTFIT)
     {
-        response.error(stringize(LLTrans::getString("OutfitNotFound"), outfit_id.asString()));
+        return response.error(stringize(LLTrans::getString("OutfitNotFound"), outfit_id.asString()));
     }
     LLInventoryModel::cat_array_t  cat_array;
     LLInventoryModel::item_array_t item_array;

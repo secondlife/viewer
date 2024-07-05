@@ -82,17 +82,17 @@ end
 
 function flt:commit_replace_btn(event_data)
     if SHOW_OUTFITS then
-      LLAppearance.replaceOutfit(get_selected_id())
+      LLAppearance.wearOutfit(get_selected_id(), 'replace')
     else
-      LLAppearance.wearItem(get_selected_id(), false)
+      LLAppearance.wearItems(get_selected_id(), false)
     end
 end
 
 function flt:commit_add_btn(event_data)
     if SHOW_OUTFITS then
-      LLAppearance.addOutfit(get_selected_id())
+      LLAppearance.wearOutfit(get_selected_id(), 'add')
     else
-      LLAppearance.detachItem(get_selected_id())
+      LLAppearance.detachItems(get_selected_id())
     end
 end
 

@@ -1,29 +1,23 @@
-leap = require 'leap'
+local leap = require 'leap'
 
 local LLAppearance = {}
 
-function LLAppearance.addOutfit(folder)
-    leap.request('LLAppearance', {op='wearOutfit', append = true, folder_id=folder})
+function LLAppearance.wearOutfit(folder, action)
+    action = action or 'add'
+    leap.request('LLAppearance', {op='wearOutfit', append = (action == 'add'), folder_id=folder})
 end
 
-function LLAppearance.replaceOutfit(folder)
-    leap.request('LLAppearance', {op='wearOutfit', append = false, folder_id=folder})
+function LLAppearance.wearOutfitByName(folder, action)
+    action = action or 'add'
+    leap.request('LLAppearance', {op='wearOutfit', append = (action == 'add'), folder_name=folder})
 end
 
-function LLAppearance.addOutfitByName(folder)
-    leap.request('LLAppearance', {op='wearOutfitByName', append = true, folder_name=folder})
+function LLAppearance.wearItems(items_id, replace)
+    leap.send('LLAppearance', {op='wearItems', replace = replace, items_id=items_id})
 end
 
-function LLAppearance.replaceOutfitByName(folder)
-    leap.request('LLAppearance', {op='wearOutfitByName', append = false, folder_name=folder})
-end
-
-function LLAppearance.wearItem(item_id, replace)
-    leap.send('LLAppearance', {op='wearItem', replace = replace, item_id=item_id})
-end
-
-function LLAppearance.detachItem(item_id)
-    leap.send('LLAppearance', {op='detachItem', item_id=item_id})
+function LLAppearance.detachItems(items_id)
+    leap.send('LLAppearance', {op='detachItems', items_id=items_id})
 end
 
 function LLAppearance.getOutfitsList()

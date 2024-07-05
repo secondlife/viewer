@@ -2939,8 +2939,8 @@ bool LLAppearanceMgr::wearOutfitByName(const std::string& name, std::string& err
 
     if(cat)
     {
-        bool is_system_folder = LLFolderType::lookupIsProtectedType(cat->getPreferredType());
-        if (is_system_folder)
+        // don't allow wearing a system folder
+        if (LLFolderType::lookupIsProtectedType(cat->getPreferredType()))
         {
             error_msg = stringize(LLTrans::getString("SystemFolderNotWorn"), std::quoted(name));
             return false;
@@ -2959,6 +2959,30 @@ bool LLAppearanceMgr::wearOutfitByName(const std::string& name, std::string& err
         error_msg = stringize(LLTrans::getString("OutfitNotFound"), std::quoted(name));
         return false;
     }
+    return true;
+}
+
+bool LLAppearanceMgr::wearOutfit(const LLUUID &cat_id, std::string &error_msg, bool append)
+{
+    LLViewerInventoryCategory *cat = gInventory.getCategory(cat_id);
+    if (!cat)
+    {
+        error_msg = stringize(LLTrans::getString("OutfitNotFound"), cat_id);
+        return false;
+    }
+    if (LLFolderType::lookupIsProtectedType(cat->getPreferredType()))
+    {
+        error_msg = stringize(LLTrans::getString("SystemFolderNotWorn"), cat_id);
+        return false;
+    }
+    bool can_wear = append ? LLAppearanceMgr::instance().getCanAddToCOF(cat_id) : LLAppearanceMgr::instance().getCanReplaceCOF(cat_id);
+    if (!can_wear)
+    {
+        std::string msg = append ? LLTrans::getString("OutfitNotAdded") : LLTrans::getString("OutfitNotReplaced");
+        error_msg =  stringize(msg, std::quoted(cat->getName()), " , id: ", cat_id);
+        return false;
+    }
+    LLAppearanceMgr::instance().wearInventoryCategory(cat, false, append);
     return true;
 }
 

@@ -506,9 +506,8 @@ protected:
     LLWearableType::EType mMenuWearableType;
 };
 
-class LLFindOutfitItems : public LLInventoryCollectFunctor
+struct LLFindOutfitItems : public LLInventoryCollectFunctor
 {
-  public:
     LLFindOutfitItems() {}
     virtual ~LLFindOutfitItems() {}
     virtual bool operator()(LLInventoryCategory *cat, LLInventoryItem *item);
