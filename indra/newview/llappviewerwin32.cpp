@@ -240,7 +240,7 @@ bool create_app_mutex()
     LPCWSTR unique_mutex_name = L"SecondLifeAppMutex";
     HANDLE hMutex;
     hMutex = CreateMutex(NULL, TRUE, unique_mutex_name);
-    if(GetLastError() == ERROR_ALREADY_EXISTS)
+    if (GetLastError() == ERROR_ALREADY_EXISTS)
     {
         result = false;
     }
@@ -464,7 +464,7 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
     gDebugInfo["FoundOtherInstanceAtStartup"] = LLSD::Boolean(found_other_instance);
 
     bool ok = viewer_app_ptr->init();
-    if(!ok)
+    if (!ok)
     {
         LL_WARNS() << "Application init failed." << LL_ENDL;
         return -1;
