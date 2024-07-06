@@ -627,10 +627,14 @@ void directIMHistoryCoro(std::string url,
                         LLUUID session_id,
                         LLUUID with_id)
 {   // Fetch chat history for a one-on-one IM session
+
+    // needs discussion and paging design
+    constexpr S32 IM_HISTORY_READ_LINE_LIMIT = 500;     // max total lines to read
+    constexpr S32 IM_HISTORY_READ_PAGE_SIZE  = 100;     // size of each page to fetch
+
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
 
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("IMHistory", httpPolicy));
-    LLCore::HttpRequest::ptr_t                  httpRequest(new LLCore::HttpRequest);
 
     LLSD postData = LLSD::emptyMap();
     postData["method"]     = "fetch im history";
@@ -638,66 +642,93 @@ void directIMHistoryCoro(std::string url,
 
     LLSD & param_data = (postData["params"] = LLSD::emptyMap());
     param_data["agent_id"] = with_id;             // the other person in the chat
-    param_data["count"]    = LLSD::Integer(10);   // how many messages in the page - make a pref?
-    param_data["reverse"] = LLSD::Integer(1);     // reverse order of messages: fetch most recent chat
-    // param_data["last"] = LLSD::String("");     // key to start from when doing successive page requests
+    param_data["count"]    = LLSD::Integer(IM_HISTORY_READ_PAGE_SIZE);  // how many messages in each page fetch
+    param_data["new_to_old"] = LLSD::String("true"); // sort order of messages: fetch most recent chat
 
-    LL_DEBUGS("ChatHistory") << "Fetching IM chat history with data " << postData
-        << " to " << url << LL_ENDL;
+    // First collect pages of chat history
+    LLSD messages = LLSD::emptyArray();     // Accumulates all messages
+    LLSD last_key;                          // Last key from previous page fetch
+    while (true)
+    {  // fetch pages of chat history from server until error, limit or no more pages
+        if (messages.size() + IM_HISTORY_READ_PAGE_SIZE > IM_HISTORY_READ_LINE_LIMIT)
+        {   // Will reach the limit
+            param_data["count"] = LLSD::Integer(IM_HISTORY_READ_LINE_LIMIT - messages.size());
+        }
+        LL_DEBUGS("ChatHistory") << "Fetching IM chat history with data " << postData << " to " << url << LL_ENDL;
 
-    LLSD result = httpAdapter->postAndSuspend(httpRequest, url, postData);
+        if (last_key.size() > 0)
+        {   // set key to start from when doing successive page requests
+            param_data["last"] = last_key;
+        }
 
-    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
-    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
-    if (!status)
-    {
-        LL_WARNS("ChatHistory") << "Bad HTTP response in directIMHistoryCoro"
-                                << ", results: " << httpResults << LL_ENDL;
-        return;
-    }
+        LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+        LLSD                       result = httpAdapter->postAndSuspend(httpRequest, url, postData);
 
-    if (LLApp::isExiting() || gDisconnected)
-    {
-        LL_DEBUGS("ChatHistory") << "Ignoring IM history response"
+        LLSD               httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+        LLCore::HttpStatus status      = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+        if (!status)
+        {
+            LL_WARNS("ChatHistory") << "Bad HTTP response in directIMHistoryCoro"
+                                    << ", results: " << httpResults << LL_ENDL;
+            return;
+        }
+
+        if (LLApp::isExiting() || gDisconnected)
+        {
+            LL_DEBUGS("ChatHistory") << "Ignoring IM history response"
+                                     << " for session " << session_id << LL_ENDL;
+            return;
+        }
+
+        LL_DEBUGS("ChatHistoryXtraLogs") << "IM history fetch has results " << result << " for session " << session_id << LL_ENDL;
+        result.erase(LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS);
+
+        if (!result.has("messages") || !result["messages"].isArray() || result["messages"].size() == 0)
+        {
+            LL_DEBUGS("ChatHistory") << "No messages in IM history response"
+                                     << " for session " << session_id << LL_ENDL;
+            return;
+        }
+        LLSD new_messages = result["messages"];
+        for (LLSD::array_iterator cur_chat = new_messages.beginArray(); cur_chat != new_messages.endArray(); cur_chat++)
+        {
+            messages.append(*cur_chat);
+        }
+        LL_DEBUGS("ChatHistory") << "IM history response has " << new_messages.size()
+                                 << " messages, total now " << messages.size()
                                  << " for session " << session_id << LL_ENDL;
-        return;
+        if (!result.has("last"))
+        {
+            LL_DEBUGS("ChatHistory") << "No 'last' value, exiting page loop" << LL_ENDL;
+            break;  // At end of data, "last" should be omitted in results
+        }
+        last_key = result["last"].asString();
+        if (last_key.size() == 0)
+        {   // Double-check that there was something returned
+            LL_DEBUGS("ChatHistory") << "Empty 'last' string, exiting page loop" << LL_ENDL;
+            break;
+        }
+
+        if (messages.size() >= IM_HISTORY_READ_LINE_LIMIT)
+        {
+            LL_DEBUGS("ChatHistory") << "Reached message limit, exiting loop" << LL_ENDL;
+            break;  // Hit the limit
+        }
     }
-
-    LL_DEBUGS("ChatHistory") << "IM history fetch has results " << result
-        << " for session " << session_id << LL_ENDL;
-    result.erase(LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS);
-
-    if (!result.has("messages") ||
-        !result["messages"].isArray() ||
-        result["messages"].size() == 0)
-    {
-        LL_DEBUGS("ChatHistory") << "No messages in IM history response"
-                                 << " for session " << session_id << LL_ENDL;
-        return;
-    }
-
-    // Add history messages to IM session
-    LLSD messages = result["messages"];
 
     LLIMModel::LLIMSession *session = LLIMModel::getInstance()->findIMSession(session_id);
     if (session)
     {
-        try
-        {
-            session->addMessagesFromIMHistory(messages);
+        session->addMessagesFromIMHistory(messages);
 
-            // Display the newly added messages
-            LLFloaterIMSession *floater = LLFloaterReg::findTypedInstance<LLFloaterIMSession>("impanel", session_id);
-            if (floater && floater->isInVisibleChain())
-            {
-                floater->updateMessages();
-            }
-        }
-        catch (...)
+        // Display the newly added messages
+        LLFloaterIMSession *floater = LLFloaterReg::findTypedInstance<LLFloaterIMSession>("impanel", session_id);
+        if (floater && floater->isInVisibleChain())
         {
-            LOG_UNHANDLED_EXCEPTION("directIMHistoryCoro");
-            LL_WARNS("ChatHistory") << "directIMHistoryCoro unhandled exception while processing data for session " << session_id
-                                    << LL_ENDL;
+            // Note - these steps are buggy and need fixing to use the floater API
+            // properly.   The messages are added and displayed in the floater, but
+            // then end up repeated due to subsequent calls to updateMessages()
+            floater->updateMessages();
         }
     }
     else
@@ -1432,73 +1463,56 @@ void LLIMModel::LLIMSession::addMessagesFromIMHistory(LLSD & messages)
         return;
     }
 
-    // Find where to insert the history messages by popping off a few in the session.
-    // The most common case is one duplciate message, the one that opens a chat session
-    // This is a hack, and limiting to the magic number of 5 just prevents it blowing up
-    // if locally saved IM history has filled up the window.  This needs to be done better.
-    chat_message_list_t shift_msgs;
-    while (mMsgs.size() > 0 && shift_msgs.size() < 5)
-    {   // Easy implementation to deal with the case of a message opening the session
-        // and and already at the front of the list
-        LLSD cur_msg = mMsgs.front();    // Get most recent message from the chat display (front of mMsgs list)
-        LL_DEBUGS("ChatHistory") << "shifting chat message in window: " << cur_msg << LL_ENDL;
-        shift_msgs.push_front(cur_msg);  // Move chat message to temp list.
-        mMsgs.pop_front();               // Normally this is just one message
-    }
+    S32 start_panel_size = (S32) mMsgs.size();
 
+    // The messages array is in newest first order.   We want to add from the oldest
+    //   to the newest, so iterate in reverse.
     for (LLSD::reverse_array_iterator cur_im_hist = messages.rbeginArray();
             cur_im_hist != messages.rendArray();
             cur_im_hist++)
-    {   // Messages come in with most recent first
+    {
         if ((*cur_im_hist).isMap())
-        {   // {'language':'en','message':'I really hope this works','sender_id':'77e48a07-06f1-4ae4-9d33-6eab4d445e2d','timestamp':'2024-06-11T18:38:03.461853Z','translations':{}}
-            LL_DEBUGS("ChatHistory") << "Adding IM history message " << (*cur_im_hist) << LL_ENDL;
-
+        {   // {'message':'I really hope this works','sender_id':'77e48a07-06f1-4ae4-9d33-6eab4d445e2d','timestamp':'2024-06-11T18:38:03.461853Z'}
             LLSD message          = LLSD::emptyMap();
             message["from_id"]    = (*cur_im_hist)["sender_id"].asString();
             message["message"]    = (*cur_im_hist)["message"].asString();
             message["index"]      = (LLSD::Integer) mMsgs.size();
             message["is_history"] = true;
 
-            // Clean up time string - needs to be done properly with integration
-            //   and resolution with LLLogChat
+            // Make the time string that gets displayed in the chat window
             LLDate msg_time((*cur_im_hist)["timestamp"].asString());
             message["time"] = LLLogChat::timestamp2LogString((U32) msg_time.secondsSinceEpoch(), true);
 
-            // Better name lookup is needed.  For example, opening the IM
-            // from the friends list will already show the name there,
-            // but that same name won't be in the cache yet.
+            // Find the name of the sender
             LLAvatarName av_name;
-            if (LLAvatarNameCache::get((*cur_im_hist)["sender_id"], &av_name))
-            {
-                message["from"] = av_name.getCompleteName();
-            }
             if ((*cur_im_hist)["sender_id"] == gAgent.getID())
-            {   // Know thyself
+            {  // Know thyself
                 message["from"] = gAgentAvatarp->getFullname();
             }
-            else // Name isn't cached yet, happens on initial login
-            {   // and IM opening due to an offline message
+            else if (LLAvatarNameCache::get((*cur_im_hist)["sender_id"], &av_name))
+            {   // Got the name from cache
+                message["from"] = av_name.getCompleteName();
+            }
+            else                          // Name isn't cached yet, happens on initial login
+            {                             // and IM opening due to an offline message
                 message["from"] = "???";  // Need something better?
             }
-            // TBD - is this needed?
+
+            // Make the timestamp S32 value
             // timestamp from server is iso8601 format, convert to LLDate and timestamp int
             LLDate adjust_ts((*cur_im_hist)["timestamp"].asString());
             message["timestamp"] = (S32) adjust_ts.secondsSinceEpoch();
+
+            LL_DEBUGS("ChatHistoryXtraLogs") << "Adding IM history message " << message << LL_ENDL;
 
             mMsgs.push_front(message);
         }
     }
 
-    // Get rid of the last one(s), which _should_ be the original that opened chat
-    // This may get totally confused if the chat window is opened multiple times or
-    // if the local history files are loaded
-    while (shift_msgs.size() > 0)
-    {   // Restore the original messages to the front
-        LLSD cur_msg = shift_msgs.front();
-        mMsgs.pop_front();
-        mMsgs.push_front(cur_msg);
-    }
+    // If chat opened due to an incoming message(s), then there are going to be duplicates
+    // and full implemenation needs to handle it
+    LL_DEBUGS("ChatHistory") << "Chat panel now has " << mMsgs.size()
+        << " messages, started with " << start_panel_size << LL_ENDL;
 }
 
 
