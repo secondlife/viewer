@@ -61,8 +61,6 @@
 class LLRenderTarget
 {
 public:
-    // Whether app initialization failed
-    static bool sInitFailed;
     // Whether or not to use FBO implementation
     static bool sUseFBO;
     static U32 sBytesAllocated;

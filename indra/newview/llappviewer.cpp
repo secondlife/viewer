@@ -723,19 +723,6 @@ public:
 
 bool LLAppViewer::init()
 {
-    struct ResultHandler
-    {
-        bool success = false; // Should be set in case of successful result
-        ~ResultHandler()
-        {
-            if (!success)
-            {
-                // Mark critical flags in case of unsuccessful initialization
-                LLRenderTarget::sInitFailed = true;
-            }
-        }
-    } result_handler;
-
     setupErrorHandling(mSecondInstance);
 
     //
@@ -766,8 +753,7 @@ bool LLAppViewer::init()
     // inits from settings.xml and from strings.xml
     if (!initConfiguration())
     {
-        LL_WARNS("InitInfo") << "initConfiguration() failed." << LL_ENDL;
-        return false;
+        LL_ERRS("InitInfo") << "initConfiguration() failed." << LL_ENDL;
     }
 
     LL_INFOS("InitInfo") << "Configuration initialized." << LL_ENDL ;
@@ -921,9 +907,8 @@ bool LLAppViewer::init()
 
     if (!initHardwareTest())
     {
-        LL_WARNS("InitInfo") << "initHardwareTest() failed." << LL_ENDL;
         // Early out from user choice.
-        return false;
+        LL_ERRS("InitInfo") << "initHardwareTest() failed." << LL_ENDL;
     }
     LL_INFOS("InitInfo") << "Hardware test initialization done." << LL_ENDL ;
 
@@ -937,11 +922,9 @@ bool LLAppViewer::init()
 
     if (!initCache())
     {
-        LL_WARNS("InitInfo") << "Failed to init cache" << LL_ENDL;
-        std::ostringstream msg;
-        msg << LLTrans::getString("MBUnableToAccessFile");
-        OSMessageBox(msg.str(),LLStringUtil::null,OSMB_OK);
-        return false;
+        std::string msg = LLTrans::getString("MBUnableToAccessFile");
+        OSMessageBox(msg.c_str(), LLStringUtil::null, OSMB_OK);
+        LL_ERRS("InitInfo") << "Failed to init cache" << LL_ENDL;
     }
     LL_INFOS("InitInfo") << "Cache initialization is done." << LL_ENDL ;
 
@@ -970,11 +953,11 @@ bool LLAppViewer::init()
     gGLManager.printGLInfoString();
 
     // If we don't have the right GL requirements, exit.
+    // ? AG: It seems we never set mHasRequirements to false
     if (!gGLManager.mHasRequirements)
     {
-        LL_WARNS("InitInfo") << "gGLManager.mHasRequirements is false." << LL_ENDL;
-        // already handled with a MBVideoDrvErr
-        return false;
+        // Already handled with a MBVideoDrvErr
+        LL_ERRS("InitInfo") << "gGLManager.mHasRequirements is false." << LL_ENDL;
     }
 
     // Without SSE2 support we will crash almost immediately, warn here.
@@ -982,11 +965,9 @@ bool LLAppViewer::init()
     {
         // can't use an alert here since we're exiting and
         // all hell breaks lose.
-        OSMessageBox(
-            LLNotifications::instance().getGlobalString("UnsupportedCPUSSE2"),
-            LLStringUtil::null,
-            OSMB_OK);
-        return false;
+        std::string msg = LLNotifications::instance().getGlobalString("UnsupportedCPUSSE2");
+        OSMessageBox(msg.c_str(), LLStringUtil::null, OSMB_OK);
+        LL_ERRS("InitInfo") << "SSE2 is not supported" << LL_ENDL;
     }
 
     // alert the user if they are using unsupported hardware
@@ -1012,12 +993,14 @@ bool LLAppViewer::init()
             minSpecs += "\n";
             unsupported = true;
         }
+
         if (gSysCPU.getMHz() < minCPU)
         {
             minSpecs += LLNotifications::instance().getGlobalString("UnsupportedCPU");
             minSpecs += "\n";
             unsupported = true;
         }
+
         if (gSysMemory.getPhysicalMemoryKB() < minRAM)
         {
             minSpecs += LLNotifications::instance().getGlobalString("UnsupportedRAM");
@@ -1298,8 +1281,6 @@ bool LLAppViewer::init()
         gDirUtilp->deleteDirAndContents(gDirUtilp->getDumpLogsDirPath());
     }
 #endif
-
-    result_handler.success = true;
 
     return true;
 }
