@@ -38,7 +38,7 @@ LLAppearanceListener::LLAppearanceListener()
                "API to wear a specified outfit and wear/remove individual items")
 {
     add("wearOutfit",
-        "Wear outfit by folder id: [folder_id] OR by folder name: [folder_name]\n"
+        "Wear outfit by folder id: [\"folder_id\"] OR by folder name: [\"folder_name\"]\n"
         "When [\"append\"] is true, outfit will be added to COF\n"
         "otherwise it will replace current oufit",
         &LLAppearanceListener::wearOutfit);
