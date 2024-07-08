@@ -4840,7 +4840,7 @@ BOOL LLViewerWindow::saveSnapshot(const std::string& filepath, S32 image_width, 
     LL_INFOS() << "Saving snapshot to: " << filepath << LL_ENDL;
 
     LLPointer<LLImageRaw> raw = new LLImageRaw;
-    BOOL success = rawSnapshot(raw, image_width, image_height, TRUE, FALSE, show_ui, show_hud, do_rebuild);
+    BOOL success = rawSnapshot(raw, image_width, image_height, TRUE, FALSE, show_ui, show_hud, do_rebuild, 0, type);
 
     if (success)
     {

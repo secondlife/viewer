@@ -122,4 +122,19 @@ function UI.type(...)
     end
 end
 
+-- ***************************************************************************
+--  Snapshot
+-- ***************************************************************************
+-- UI.snapshot{filename=filename            -- extension may be specified: bmp, jpeg, png
+--          [, type='COLOR' | 'DEPTH']
+--          [, width=width][, height=height]  -- uses current window size if not specified
+--          [, showui=true][, showhud=true]
+--          [, rebuild=false]}
+function UI.snapshot(...)
+    local args = mapargs('filename,width,height,showui,showhud,rebuild,type', ...)
+    leap.request('LLViewerWindow', {op='saveSnapshot', filename = args.filename,
+                                    width=args.width, height=args.height,
+                                    showui=args.showui, showhud=args.showhud,
+                                    rebuild=args.rebuild, type=args.type})
+end
 return UI
