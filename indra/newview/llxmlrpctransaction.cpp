@@ -100,8 +100,8 @@ public:
 
     std::string         mResponseText;
     LLSD                mResponseData;
-	bool                mHasResponse;
-	bool                mResponseParsed;
+    bool                mHasResponse;
+    bool                mResponseParsed;
 
     std::string         mCertStore;
     LLSD                mErrorCertData;
