@@ -7194,7 +7194,7 @@ void dialog_refresh_all()
         panel_task_info->dirty();
     }
 
-    LLFloaterGLTFAssetEditor * gltf_editor = LLFloaterReg::getTypedInstance<LLFloaterGLTFAssetEditor>("gltf_asset_editor");
+    LLFloaterGLTFAssetEditor * gltf_editor = LLFloaterReg::findTypedInstance<LLFloaterGLTFAssetEditor>("gltf_asset_editor");
     if (gltf_editor)
     {
         gltf_editor->dirty();

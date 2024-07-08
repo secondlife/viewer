@@ -54,7 +54,7 @@ LLFloaterGLTFAssetEditor::~LLFloaterGLTFAssetEditor()
 {
     if (mScroller)
     {
-        removeChild(mScroller);
+        mItemListPanel->removeChild(mScroller);
         delete mScroller;
         mScroller = NULL;
     }
@@ -345,13 +345,15 @@ void LLFloaterGLTFAssetEditor::dirty()
 {
     if (!mObject || !mAsset || !mFolderRoot)
     {
-        closeFloater();
         return;
     }
 
     if (LLSelectMgr::getInstance()->getSelection()->getObjectCount() > 1)
     {
-        closeFloater();
+        if (getVisible())
+        {
+            closeFloater();
+        }
         return;
     }
 
@@ -366,7 +368,10 @@ void LLFloaterGLTFAssetEditor::dirty()
     LLViewerObject* objectp = node->getObject();
     if (mObject != objectp || !objectp->mGLTFAsset)
     {
-        closeFloater();
+        if (getVisible())
+        {
+            closeFloater();
+        }
         return;
     }
 
