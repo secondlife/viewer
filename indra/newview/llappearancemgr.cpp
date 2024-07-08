@@ -2948,7 +2948,7 @@ bool LLAppearanceMgr::wearOutfitByName(const std::string& name, std::string& err
         }
     }
 
-    return wearOutfit(std::quoted(name), cat, error_msg, copy_items, append);
+    return wearOutfit(stringize(std::quoted(name)), cat, error_msg, copy_items, append);
 }
 
 bool LLAppearanceMgr::wearOutfit(const LLUUID &cat_id, std::string &error_msg, bool append)
