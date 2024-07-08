@@ -3286,7 +3286,6 @@ bool LLXMLNode::parseXmlRpcArrayValue(LLSD& target)
                    << LL_ENDL;
         return false;
     }
-    U32 i = 0;
     for (LLXMLNode* itemp = datap->getFirstChild().get(); itemp;
          itemp = itemp->getNextSibling().get())
     {
@@ -3296,7 +3295,6 @@ bool LLXMLNode::parseXmlRpcArrayValue(LLSD& target)
             return false;
         }
         target.append(value);
-        ++i;
     }
     return true;
 }
