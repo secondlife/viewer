@@ -2346,7 +2346,7 @@ LLSD summarize_by_buckets(std::vector<LLSD> in_records,
             key[field] = record[field];
         }
         LLViewerStats::StatsAccumulator& stats = accum[key];
-        F32 value = record[val_field].asReal();
+        F32 value = (F32)record[val_field].asReal();
         stats.push(value);
     }
     for (std::map<LLSD,LLViewerStats::StatsAccumulator>::iterator accum_it = accum.begin();

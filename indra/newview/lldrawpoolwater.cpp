@@ -215,7 +215,7 @@ void LLDrawPoolWater::renderPostDeferred(S32 pass)
         LLViewerTexture* tex_a = mWaterNormp[0];
         LLViewerTexture* tex_b = mWaterNormp[1];
 
-        F32 blend_factor = pwater->getBlendFactor();
+        F32 blend_factor = (F32)pwater->getBlendFactor();
 
         gGL.getTexUnit(bumpTex)->unbind(LLTexUnit::TT_TEXTURE);
         gGL.getTexUnit(bumpTex2)->unbind(LLTexUnit::TT_TEXTURE);
@@ -256,7 +256,7 @@ void LLDrawPoolWater::renderPostDeferred(S32 pass)
 
         if (mShaderLevel == 1)
         {
-            fog_color.mV[VALPHA] = log(fog_density) / log(2);
+            fog_color.mV[VALPHA] = (F32)(log(fog_density) / log(2));
         }
 
         F32 water_height = environment.getWaterHeight();

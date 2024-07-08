@@ -483,7 +483,7 @@ void LLQueuedThread::processRequest(LLQueuedThread::QueuedRequest* req)
 
                             if (sleep_time.count() > 0)
                             {
-                                ms_sleep(sleep_time.count());
+                                ms_sleep((U32)sleep_time.count());
                             }
                         }
                         processRequest(req);

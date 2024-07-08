@@ -805,10 +805,10 @@ void LLWorld::updateNetStats()
     add(LLStatViewer::PACKETS_OUT, packets_out);
     add(LLStatViewer::PACKETS_LOST, packets_lost);
 
-    F32 total_packets_in = LLViewerStats::instance().getRecording().getSum(LLStatViewer::PACKETS_IN);
-    if (total_packets_in > 0)
+    F32 total_packets_in = (F32)LLViewerStats::instance().getRecording().getSum(LLStatViewer::PACKETS_IN);
+    if (total_packets_in > 0.f)
     {
-        F32 total_packets_lost = LLViewerStats::instance().getRecording().getSum(LLStatViewer::PACKETS_LOST);
+        F32 total_packets_lost = (F32)LLViewerStats::instance().getRecording().getSum(LLStatViewer::PACKETS_LOST);
         sample(LLStatViewer::PACKETS_LOST_PERCENT, LLUnits::Ratio::fromValue((F32)total_packets_lost/(F32)total_packets_in));
     }
 

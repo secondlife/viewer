@@ -112,7 +112,7 @@ S32 LLFontGL::getNumFaces(const std::string& filename)
 S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, const LLRect& rect, const LLColor4 &color, HAlign halign, VAlign valign, U8 style,
     ShadowType shadow, S32 max_chars, F32* right_x, bool use_ellipses, bool use_color) const
 {
-    LLRectf rect_float(rect.mLeft, rect.mTop, rect.mRight, rect.mBottom);
+    LLRectf rect_float((F32)rect.mLeft, (F32)rect.mTop, (F32)rect.mRight, (F32)rect.mBottom);
     return render(wstr, begin_offset, rect_float, color, halign, valign, style, shadow, max_chars, right_x, use_ellipses, use_color);
 }
 
@@ -138,7 +138,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, const LLRectf& rec
         y = rect.mBottom;
         break;
     }
-    return render(wstr, begin_offset, x, y, color, halign, valign, style, shadow, max_chars, rect.getWidth(), right_x, use_ellipses, use_color);
+    return render(wstr, begin_offset, x, y, color, halign, valign, style, shadow, max_chars, (S32)rect.getWidth(), right_x, use_ellipses, use_color);
 }
 
 

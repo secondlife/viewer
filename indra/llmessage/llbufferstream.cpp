@@ -273,7 +273,7 @@ streampos LLBufferStreamBuf::seekoff(
         }
 
         LLMutexLock lock(mBuffer->getMutex());
-        address = mBuffer->seek(mChannels.in(), base_addr, off);
+        address = mBuffer->seek(mChannels.in(), base_addr, (S32)off);
         if(address)
         {
             LLBufferArray::segment_iterator_t iter;
@@ -306,7 +306,7 @@ streampos LLBufferStreamBuf::seekoff(
         }
 
         LLMutexLock lock(mBuffer->getMutex());
-        address = mBuffer->seek(mChannels.out(), base_addr, off);
+        address = mBuffer->seek(mChannels.out(), base_addr, (S32)off);
         if(address)
         {
             LLBufferArray::segment_iterator_t iter;

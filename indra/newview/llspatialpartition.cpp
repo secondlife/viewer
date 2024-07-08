@@ -2035,7 +2035,7 @@ void renderNormals(LLDrawable *drawablep)
             obj_scale.normalize3();
 
             // Create inverse-scale vector for normals
-            inv_scale.set(1.0 / scale_v3.mV[VX], 1.0 / scale_v3.mV[VY], 1.0 / scale_v3.mV[VZ], 0.0);
+            inv_scale.set(1.0f / scale_v3.mV[VX], 1.0f / scale_v3.mV[VY], 1.0f/ scale_v3.mV[VZ], 0.0f);
             inv_scale.mul(inv_scale);  // Squared, to apply inverse scale twice
 
             inv_scale.normalize3fast();
@@ -2763,7 +2763,7 @@ void renderTexelDensity(LLDrawable* drawable)
             break;
         }
 
-        checkerboard_matrix.initScale(LLVector3(texturep->getWidth(discard_level) / 8, texturep->getHeight(discard_level) / 8, 1.f));
+        checkerboard_matrix.initScale(LLVector3((F32)texturep->getWidth(discard_level) / 8.f, (F32)texturep->getHeight(discard_level) / 8.f, 1.f));
 
         gGL.getTexUnit(0)->bind(LLViewerTexture::sCheckerBoardImagep, true);
         gGL.matrixMode(LLRender::MM_TEXTURE);

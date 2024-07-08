@@ -131,10 +131,10 @@ void LLFloaterSettingsDebug::onCommitSettings()
         controlp->set(vectord.getValue());
         break;
       case TYPE_QUAT:
-        quat.mQ[VX] = getChild<LLUICtrl>("val_spinner_1")->getValue().asReal();
-        quat.mQ[VY] = getChild<LLUICtrl>("val_spinner_2")->getValue().asReal();
-        quat.mQ[VZ] = getChild<LLUICtrl>("val_spinner_3")->getValue().asReal();
-        quat.mQ[VS] = getChild<LLUICtrl>("val_spinner_4")->getValue().asReal();;
+        quat.mQ[VX] = (F32)getChild<LLUICtrl>("val_spinner_1")->getValue().asReal();
+        quat.mQ[VY] = (F32)getChild<LLUICtrl>("val_spinner_2")->getValue().asReal();
+        quat.mQ[VZ] = (F32)getChild<LLUICtrl>("val_spinner_3")->getValue().asReal();
+        quat.mQ[VS] = (F32)getChild<LLUICtrl>("val_spinner_4")->getValue().asReal();;
         controlp->set(quat.getValue());
         break;
       case TYPE_RECT:

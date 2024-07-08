@@ -3210,7 +3210,7 @@ S32 LLTextureFetch::getFetchState(const LLUUID& id, F32& data_progress_p, F32& r
         {
             requested_priority = worker->mImagePriority;
         }
-        fetch_priority = worker->getImagePriority();
+        fetch_priority = (U32)worker->getImagePriority();
         can_use_http = worker->getCanUseHTTP() ;
         worker->unlockWorkMutex();                                      // -Mw
     }

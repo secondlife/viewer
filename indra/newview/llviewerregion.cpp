@@ -1282,7 +1282,7 @@ void LLViewerRegion::updateReflectionProbes(bool full_update)
 
     F32 start = probe_spacing * 0.5f;
 
-    U32 grid_width = REGION_WIDTH_METERS / probe_spacing;
+    U32 grid_width = (U32)(REGION_WIDTH_METERS / probe_spacing);
 
     mReflectionMaps.resize(grid_width * grid_width);
 
@@ -3739,7 +3739,7 @@ void LLViewerRegion::resetMaterialsCapThrottle()
     if (   mSimulatorFeatures.has("RenderMaterialsCapability")
         && mSimulatorFeatures["RenderMaterialsCapability"].isReal() )
     {
-        requests_per_sec = mSimulatorFeatures["RenderMaterialsCapability"].asReal();
+        requests_per_sec = (F32)mSimulatorFeatures["RenderMaterialsCapability"].asReal();
         if ( requests_per_sec == 0.0f )
         {
             requests_per_sec = 1.0f;

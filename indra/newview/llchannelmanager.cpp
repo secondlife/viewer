@@ -148,7 +148,7 @@ void LLChannelManager::onLoginCompleted()
             mStartUpChannel->setMouseDownCallback(boost::bind(&LLFloaterNotificationsTabbed::onStartUpToastClick, LLFloaterNotificationsTabbed::getInstance(), _2, _3, _4));
 
             mStartUpChannel->setCommitCallback(boost::bind(&LLChannelManager::onStartUpToastClose, this));
-            mStartUpChannel->createStartUpToast(away_notifications, gSavedSettings.getS32("StartUpToastLifeTime"));
+            mStartUpChannel->createStartUpToast(away_notifications, (F32)gSavedSettings.getS32("StartUpToastLifeTime"));
         }
     }
 

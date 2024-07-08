@@ -1275,8 +1275,8 @@ void LLVOVolume::sculpt()
         if(current_discard < -2)
         {
             static S32 low_sculpty_discard_warning_count = 1;
-            S32 exponent = llmax(1, llfloor( log10((F64) low_sculpty_discard_warning_count) ));
-            S32 interval = pow(10.0, exponent);
+            S32 exponent = llmax(1, llfloor((F32)log10((F64) low_sculpty_discard_warning_count)));
+            S32 interval = (S32)pow(10.0, exponent);
             if ( low_sculpty_discard_warning_count < 10 ||
                 (low_sculpty_discard_warning_count % interval) == 0)
             {   // Log first 10 time, then decreasing intervals afterwards otherwise this can flood the logs
@@ -1294,8 +1294,8 @@ void LLVOVolume::sculpt()
         else if (current_discard > MAX_DISCARD_LEVEL)
         {
             static S32 high_sculpty_discard_warning_count = 1;
-            S32 exponent = llmax(1, llfloor( log10((F64) high_sculpty_discard_warning_count) ));
-            S32 interval = pow(10.0, exponent);
+            S32 exponent = llmax(1, llfloor((F32)log10((F64) high_sculpty_discard_warning_count)));
+            S32 interval = (S32)pow(10.0, exponent);
             if ( high_sculpty_discard_warning_count < 10 ||
                 (high_sculpty_discard_warning_count % interval) == 0)
             {   // Log first 10 time, then decreasing intervals afterwards otherwise this can flood the logs
@@ -1541,7 +1541,7 @@ bool LLVOVolume::calcLOD()
         if (isRootEdit())
         {
             S32 total_tris = recursiveGetTriangleCount();
-            S32 est_max_tris = recursiveGetEstTrianglesMax();
+            S32 est_max_tris = (S32)recursiveGetEstTrianglesMax();
             setDebugText(llformat("TRIS SHOWN %d EST %d", total_tris, est_max_tris));
         }
     }
@@ -4053,12 +4053,12 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
             // Scaling here is to make animated object vs
             // non-animated object ARC proportional to the
             // corresponding calculations for streaming cost.
-            num_triangles = (ANIMATED_OBJECT_COST_PER_KTRI * 0.001 * costs.getEstTrisForStreamingCost())/0.06;
+            num_triangles = (U32)((ANIMATED_OBJECT_COST_PER_KTRI * 0.001f * costs.getEstTrisForStreamingCost())/0.06f);
         }
         else
         {
             F32 radius = getScale().length()*0.5f;
-            num_triangles = costs.getRadiusWeightedTris(radius);
+            num_triangles = (U32)costs.getRadiusWeightedTris(radius);
         }
     }
 
@@ -4534,7 +4534,7 @@ F32 LLVOVolume::getBinRadius()
     }
     else
     {
-        F32 szf = size_factor;
+        F32 szf = (F32)size_factor;
         radius = llmax(mDrawable->getRadius(), szf);
         //radius = llmax(radius, mDrawable->mDistanceWRTCamera * distance_factor[0]);
     }
@@ -5879,7 +5879,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
                             F32 alpha;
                             if (is_pbr)
                             {
-                                alpha = gltf_mat ? gltf_mat->mBaseColor.mV[3] : 1.0;
+                                alpha = gltf_mat ? gltf_mat->mBaseColor.mV[3] : 1.0f;
                             }
                             else
                             {

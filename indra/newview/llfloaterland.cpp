@@ -1706,7 +1706,7 @@ void LLPanelLandObjects::processParcelObjectOwnersReply(LLMessageSystem *msg, vo
 
         object_count_str = llformat("%d", object_count);
         item_params.columns.add().value(object_count_str).font(FONT).column("count");
-        item_params.columns.add().value(LLDate((time_t)most_recent_time)).font(FONT).column("mostrecent").type("date");
+        item_params.columns.add().value(LLDate((double)most_recent_time)).font(FONT).column("mostrecent").type("date");
 
         self->mOwnerList->addNameItemRow(item_params);
         LL_DEBUGS() << "object owner " << owner_id << " (" << (is_group_owned ? "group" : "agent")
@@ -2527,7 +2527,7 @@ void LLPanelLandAccess::refresh()
                 if (entry.mTime != 0)
                 {
                     LLStringUtil::format_map_t args;
-                    S32 now = time(NULL);
+                    S32 now = (S32)time(NULL);
                     S32 seconds = entry.mTime - now;
                     if (seconds < 0) seconds = 0;
                     prefix.assign(" (");
@@ -2576,7 +2576,7 @@ void LLPanelLandAccess::refresh()
                 if (entry.mTime != 0)
                 {
                     LLStringUtil::format_map_t args;
-                    S32 now = time(NULL);
+                    S32 now = (S32)time(NULL);
                     seconds = entry.mTime - now;
                     if (seconds < 0) seconds = 0;
 

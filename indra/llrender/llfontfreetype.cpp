@@ -178,7 +178,7 @@ unsigned long ft_read_cb(FT_Stream stream, unsigned long offset, unsigned char *
     llifstream *file_stream = static_cast<llifstream *>(stream->descriptor.pointer);
     file_stream->seekg(offset, std::ios::beg);
     file_stream->read((char*)buffer, count);
-    return file_stream->gcount();
+    return (unsigned long)file_stream->gcount();
 }
 
 void ft_close_cb(FT_Stream stream) {

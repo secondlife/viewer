@@ -625,7 +625,7 @@ bool LLHTTPResponder::readHeaderLine(
         }
         return false;
     }
-    S32 offset = -((len - 1) - (newline - dest));
+    S32 offset = -((len - 1) - (S32)(newline - dest));
     ++newline;
     *newline = '\0';
     mLastRead = buffer->seek(channels.in(), last, offset);

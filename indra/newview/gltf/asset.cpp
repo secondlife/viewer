@@ -105,7 +105,7 @@ void Node::updateTransforms(Asset& asset, const mat4& parentMatrix)
 
     mAssetMatrixInv = glm::inverse(mAssetMatrix);
 
-    S32 my_index = this - &asset.mNodes[0];
+    S32 my_index = (S32)(this - &asset.mNodes[0]);
 
     for (auto& childIndex : mChildren)
     {
@@ -271,11 +271,11 @@ S32 Asset::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
                     local_end = p;
 
                     // pointer math to get the node index
-                    node_hit = &node - &mNodes[0];
+                    node_hit = (S32)(&node - &mNodes[0]);
                     llassert(&mNodes[node_hit] == &node);
 
                     //pointer math to get the primitive index
-                    primitive_hit = &primitive - &mesh.mPrimitives[0];
+                    primitive_hit = (S32)(&primitive - &mesh.mPrimitives[0]);
                     llassert(&mesh.mPrimitives[primitive_hit] == &primitive);
                 }
             }
@@ -1028,7 +1028,7 @@ bool Image::save(Asset& asset, const std::string& folder)
     const std::string& delim = gDirUtilp->getDirDelimiter();
     if (name.empty())
     {
-        S32 idx = this - asset.mImages.data();
+        S32 idx = (S32)(this - asset.mImages.data());
         name = llformat("image_%d", idx);
     }
 

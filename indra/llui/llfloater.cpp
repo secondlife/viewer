@@ -960,8 +960,8 @@ bool LLFloater::applyRectControl()
             && !x_control->isDefault()
             && !y_control->isDefault())
         {
-            mPosition.mX = x_control->getValue().asReal();
-            mPosition.mY = y_control->getValue().asReal();
+            mPosition.mX = (LL_COORD_FLOATER::value_t)x_control->getValue().asReal();
+            mPosition.mY = (LL_COORD_FLOATER::value_t)y_control->getValue().asReal();
             mPositioning = LLFloaterEnums::POSITIONING_RELATIVE;
             applyRelativePosition();
 
@@ -3618,7 +3618,7 @@ void LLFloater::applyRelativePosition()
 
 
 LLCoordFloater::LLCoordFloater(F32 x, F32 y, LLFloater& floater)
-:   coord_t((S32)x, (S32)y)
+:   coord_t(x, y)
 {
     mFloater = floater.getHandle();
 }
@@ -3661,28 +3661,28 @@ LLCoordCommon LL_COORD_FLOATER::convertToCommon() const
     LLCoordCommon out;
     if (self.mX < -0.5f)
     {
-        out.mX = ll_round(rescale(self.mX, -1.f, -0.5f, snap_rect.mLeft - (floater_width - FLOATER_MIN_VISIBLE_PIXELS), snap_rect.mLeft));
+        out.mX = ll_round(rescale(self.mX, -1.f, -0.5f, (F32)(snap_rect.mLeft - (floater_width - FLOATER_MIN_VISIBLE_PIXELS)), (F32)snap_rect.mLeft));
     }
     else if (self.mX > 0.5f)
     {
-        out.mX = ll_round(rescale(self.mX, 0.5f, 1.f, snap_rect.mRight - floater_width, snap_rect.mRight - FLOATER_MIN_VISIBLE_PIXELS));
+        out.mX = ll_round(rescale(self.mX, 0.5f, 1.f, (F32)(snap_rect.mRight - floater_width), (F32)(snap_rect.mRight - FLOATER_MIN_VISIBLE_PIXELS)));
     }
     else
     {
-        out.mX = ll_round(rescale(self.mX, -0.5f, 0.5f, snap_rect.mLeft, snap_rect.mRight - floater_width));
+        out.mX = ll_round(rescale(self.mX, -0.5f, 0.5f, (F32)snap_rect.mLeft, (F32)(snap_rect.mRight - floater_width)));
     }
 
     if (self.mY < -0.5f)
     {
-        out.mY = ll_round(rescale(self.mY, -1.f, -0.5f, snap_rect.mBottom - (floater_height - FLOATER_MIN_VISIBLE_PIXELS), snap_rect.mBottom));
+        out.mY = ll_round(rescale(self.mY, -1.f, -0.5f, (F32)(snap_rect.mBottom - (floater_height - FLOATER_MIN_VISIBLE_PIXELS)), (F32)snap_rect.mBottom));
     }
     else if (self.mY > 0.5f)
     {
-        out.mY = ll_round(rescale(self.mY, 0.5f, 1.f, snap_rect.mTop - floater_height, snap_rect.mTop - FLOATER_MIN_VISIBLE_PIXELS));
+        out.mY = ll_round(rescale(self.mY, 0.5f, 1.f, (F32)(snap_rect.mTop - floater_height), (F32)(snap_rect.mTop - FLOATER_MIN_VISIBLE_PIXELS)));
     }
     else
     {
-        out.mY = ll_round(rescale(self.mY, -0.5f, 0.5f, snap_rect.mBottom, snap_rect.mTop - floater_height));
+        out.mY = ll_round(rescale(self.mY, -0.5f, 0.5f, (F32)snap_rect.mBottom, (F32)(snap_rect.mTop - floater_height)));
     }
 
     // return center point instead of lower left
@@ -3709,27 +3709,27 @@ void LL_COORD_FLOATER::convertFromCommon(const LLCoordCommon& from)
 
     if (from_x < snap_rect.mLeft)
     {
-        self.mX = rescale(from_x, snap_rect.mLeft - (floater_width - FLOATER_MIN_VISIBLE_PIXELS), snap_rect.mLeft, -1.f, -0.5f);
+        self.mX = rescale((F32)from_x, (F32)(snap_rect.mLeft - (floater_width - FLOATER_MIN_VISIBLE_PIXELS)), (F32)snap_rect.mLeft, -1.f, -0.5f);
     }
     else if (from_x + floater_width > snap_rect.mRight)
     {
-        self.mX = rescale(from_x, snap_rect.mRight - floater_width, snap_rect.mRight - FLOATER_MIN_VISIBLE_PIXELS, 0.5f, 1.f);
+        self.mX = rescale((F32)from_x, (F32)(snap_rect.mRight - floater_width), (F32)(snap_rect.mRight - FLOATER_MIN_VISIBLE_PIXELS), 0.5f, 1.f);
     }
     else
     {
-        self.mX = rescale(from_x, snap_rect.mLeft, snap_rect.mRight - floater_width, -0.5f, 0.5f);
+        self.mX = rescale((F32)from_x, (F32)snap_rect.mLeft, (F32)(snap_rect.mRight - floater_width), -0.5f, 0.5f);
     }
 
     if (from_y < snap_rect.mBottom)
     {
-        self.mY = rescale(from_y, snap_rect.mBottom - (floater_height - FLOATER_MIN_VISIBLE_PIXELS), snap_rect.mBottom, -1.f, -0.5f);
+        self.mY = rescale((F32)from_y, (F32)(snap_rect.mBottom - (floater_height - FLOATER_MIN_VISIBLE_PIXELS)), (F32)snap_rect.mBottom, -1.f, -0.5f);
     }
     else if (from_y + floater_height > snap_rect.mTop)
     {
-        self.mY = rescale(from_y, snap_rect.mTop - floater_height, snap_rect.mTop - FLOATER_MIN_VISIBLE_PIXELS, 0.5f, 1.f);
+        self.mY = rescale((F32)from_y, (F32)(snap_rect.mTop - floater_height), (F32)(snap_rect.mTop - FLOATER_MIN_VISIBLE_PIXELS), 0.5f, 1.f);
     }
     else
     {
-        self.mY = rescale(from_y, snap_rect.mBottom, snap_rect.mTop - floater_height, -0.5f, 0.5f);
+        self.mY = rescale((F32)from_y, (F32)snap_rect.mBottom, (F32)(snap_rect.mTop - floater_height), -0.5f, 0.5f);
     }
 }

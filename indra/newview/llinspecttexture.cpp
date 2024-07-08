@@ -152,7 +152,7 @@ void LLTexturePreviewView::draw()
 
         bool isLoading = (!m_Image->isFullyLoaded()) && (m_Image->getDiscardLevel() > 0);
         if (isLoading)
-            LLFontGL::getFontSansSerif()->renderUTF8(mLoadingText, 0, llfloor(rctClient.mLeft + 3),  llfloor(rctClient.mTop - 25), LLColor4::white, LLFontGL::LEFT, LLFontGL::BASELINE, LLFontGL::DROP_SHADOW);
+            LLFontGL::getFontSansSerif()->renderUTF8(mLoadingText, 0, rctClient.mLeft + 3, rctClient.mTop - 25, LLColor4::white, LLFontGL::LEFT, LLFontGL::BASELINE, LLFontGL::DROP_SHADOW);
         m_Image->addTextureStats((isLoading) ? MAX_IMAGE_AREA : (F32)(rctClient.getWidth() * rctClient.getHeight()));
     }
 }

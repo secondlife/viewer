@@ -2189,7 +2189,7 @@ void LLTabContainer::setTabVisibility( LLPanel const *aPanel, bool aVisible )
         LLTabTuple const *pTT = *itr;
         if( pTT->mVisible )
         {
-            this->selectTab( itr - mTabList.begin() );
+            this->selectTab((S32)(itr - mTabList.begin()));
             foundTab = true;
             break;
         }

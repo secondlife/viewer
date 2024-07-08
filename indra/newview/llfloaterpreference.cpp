@@ -1101,7 +1101,7 @@ void LLFloaterPreference::onNameTagOpacityChange(const LLSD& newvalue)
     if (color_swatch)
     {
         LLColor4 new_color = color_swatch->get();
-        color_swatch->set( new_color.setAlpha(newvalue.asReal()) );
+        color_swatch->set(new_color.setAlpha((F32)newvalue.asReal()));
     }
 }
 

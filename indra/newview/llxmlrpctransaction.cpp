@@ -278,8 +278,8 @@ LLXMLRPCTransaction::Impl::Impl
     httpOpts = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions());
 
     // Delay between repeats will start from 5 sec and grow to 20 sec with each repeat
-    httpOpts->setMinBackoff(5E6L);
-    httpOpts->setMaxBackoff(20E6L);
+    httpOpts->setMinBackoff((LLCore::HttpTime)5E6L);
+    httpOpts->setMaxBackoff((LLCore::HttpTime)20E6L);
 
     httpOpts->setTimeout(http_params.has("timeout") ? http_params["timeout"].asInteger() : 40L);
     if (http_params.has("retries"))
