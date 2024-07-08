@@ -75,6 +75,10 @@ RenderReflectionProbeDetail	1	2
 RenderScreenSpaceReflections 1  1
 RenderReflectionProbeLevel  1   3
 RenderMirrors				1	1
+RenderHeroProbeResolution	1	2048
+RenderHeroProbeDistance		1	16
+RenderHeroProbeUpdateRate	1	4
+RenderHeroProbeConservativeUpdateMultiplier 1 16
 
 //
 // Low Graphics Settings
