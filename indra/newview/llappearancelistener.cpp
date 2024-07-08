@@ -91,36 +91,38 @@ void LLAppearanceListener::wearOutfit(LLSD const &data)
 
 void LLAppearanceListener::wearItems(LLSD const &data)
 {
-    if (data["items_id"].isArray())
+    const LLSD& items_id{ data["items_id"] };
+    uuid_vec_t ids;
+    if (! items_id.isArray())
     {
-        uuid_vec_t ids;
-        for (const auto &id : llsd::inArray(data["items_id"]))
+        ids.push_back(items_id.asUUID());
+    }
+    else                            // array
+    {
+        for (const auto &id : llsd::inArray(items_id))
         {
             ids.push_back(id);
         }
-        LLAppearanceMgr::instance().wearItemsOnAvatar(ids, true, data["replace"].asBoolean());
     }
-    else
-    {
-        LLAppearanceMgr::instance().wearItemOnAvatar(data["items_id"].asUUID(), true, data["replace"].asBoolean());
-    }
+    LLAppearanceMgr::instance().wearItemsOnAvatar(ids, true, data["replace"].asBoolean());
 }
 
 void LLAppearanceListener::detachItems(LLSD const &data)
 {
-    if (data["items_id"].isArray())
+    const LLSD& items_id{ data["items_id"] };
+    uuid_vec_t ids;
+    if (! items_id.isArray())
     {
-        uuid_vec_t ids;
-        for (const auto &id : llsd::inArray(data["items_id"]))
+        ids.push_back(items_id.asUUID());
+    }
+    else                            // array
+    {
+        for (const auto &id : llsd::inArray(items_id))
         {
             ids.push_back(id);
         }
-        LLAppearanceMgr::instance().removeItemsFromAvatar(ids);
     }
-    else
-    {
-        LLAppearanceMgr::instance().removeItemFromAvatar(data["items_id"].asUUID());
-    }
+    LLAppearanceMgr::instance().removeItemsFromAvatar(ids);
 }
 
 void LLAppearanceListener::getOutfitsList(LLSD const &data)
