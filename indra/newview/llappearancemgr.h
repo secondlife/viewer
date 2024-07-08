@@ -263,6 +263,10 @@ private:
 
     static void onOutfitRename(const LLSD& notification, const LLSD& response);
 
+    // used by both wearOutfit(LLUUID) and wearOutfitByName(std::string)
+    bool wearOutfit(const std::string &desc, LLInventoryCategory* cat, 
+                    std::string &error_msg, bool copy_items, bool append);
+
     bool mAttachmentInvLinkEnabled;
     bool mOutfitIsDirty;
     bool mIsInUpdateAppearanceFromCOF; // to detect recursive calls.
