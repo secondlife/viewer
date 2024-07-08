@@ -124,7 +124,7 @@ bool LLRenderTarget::allocate(U32 resx, U32 resy, U32 color_fmt, bool depth, LLT
 
     if (mGenerateMipMaps != LLTexUnit::TMG_NONE) {
         // Calculate the number of mip levels based upon resolution that we should have.
-        mMipLevels = 1 + floor(log10((float)llmax(mResX, mResY))/log10(2.0));
+        mMipLevels = 1 + (U32)floor(log10((float)llmax(mResX, mResY)) / log10(2.0));
     }
 
     if (depth)

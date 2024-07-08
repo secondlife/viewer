@@ -500,7 +500,7 @@ LLFontGL *LLFontRegistry::createFont(const LLFontDescriptor& desc)
         // *HACK: Fallback fonts don't render, so we can use that to suppress
         // creation of OpenGL textures for test apps. JC
         bool is_fallback = !is_first_found || !mCreateGLTextures;
-        F32 extra_scale = (is_fallback)?fallback_scale:1.0;
+        F32 extra_scale = (is_fallback) ? fallback_scale : 1.0f;
         F32 point_size_scale = extra_scale * point_size;
         bool is_font_loaded = false;
         for(string_vec_t::iterator font_search_path_it = font_search_paths.begin();

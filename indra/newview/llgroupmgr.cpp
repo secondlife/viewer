@@ -190,7 +190,7 @@ S32 LLGroupRoleData::getMembersInRole(uuid_vec_t members,
     in_role_end = std::set_intersection(mMemberIDs.begin(), mMemberIDs.end(),
                                     members.begin(), members.end(),
                                     in_role.begin());
-    return in_role_end - in_role.begin();
+    return (S32)(in_role_end - in_role.begin());
 }
 
 void LLGroupRoleData::addMember(const LLUUID& member)
@@ -1569,7 +1569,7 @@ void LLGroupMgr::addGroup(LLGroupMgrGroupData* group_datap)
     {
         // LRU: Remove the oldest un-observed group from cache until group size is small enough
 
-        F32 oldest_access = LLFrameTimer::getTotalSeconds();
+        F32 oldest_access = (F32)LLFrameTimer::getTotalSeconds();
         group_map_t::iterator oldest_gi = mGroups.end();
 
         for (group_map_t::iterator gi = mGroups.begin(); gi != mGroups.end(); ++gi )

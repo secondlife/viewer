@@ -131,7 +131,7 @@ void LLLayoutPanel::setTargetDim(S32 value)
 
 S32 LLLayoutPanel::getVisibleDim() const
 {
-    F32 min_dim = getRelevantMinDim();
+    F32 min_dim = (F32)getRelevantMinDim();
     return ll_round(mVisibleAmt
                     * (min_dim
                         + (((F32)mTargetDim - min_dim) * (1.f - mCollapseAmt))));
@@ -445,7 +445,7 @@ void LLLayoutStack::updateLayout()
 
     for (LLLayoutPanel* panelp : mPanels)
     {
-        F32 panel_dim = llmax(panelp->getExpandedMinDim(), panelp->mTargetDim);
+        F32 panel_dim = (F32)llmax(panelp->getExpandedMinDim(), panelp->mTargetDim);
 
         LLRect panel_rect;
         if (mOrientation == HORIZONTAL)
@@ -465,7 +465,7 @@ void LLLayoutStack::updateLayout()
 
         LLRect resize_bar_rect(panel_rect);
         F32 panel_spacing = (F32)mPanelSpacing * panelp->getVisibleAmount();
-        F32 panel_visible_dim = panelp->getVisibleDim();
+        F32 panel_visible_dim = (F32)panelp->getVisibleDim();
         S32 panel_spacing_round = (S32)(ll_round(panel_spacing));
 
         if (mOrientation == HORIZONTAL)

@@ -217,7 +217,7 @@ S32 LLViewerTextureAnim::animateTextures(F32 &off_s, F32 &off_t,
                 result |= SCALE;
                 mScaleS = scale_s = 1.f/mSizeX;
                 mScaleT = scale_t = 1.f/mSizeY;
-                x_frame = fmod(frame_counter, mSizeX);
+                x_frame = fmodf(frame_counter, mSizeX);
                 y_frame = (S32)(frame_counter / mSizeX);
                 x_pos = x_frame * scale_s;
                 y_pos = y_frame * scale_t;

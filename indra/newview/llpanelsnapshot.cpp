@@ -211,12 +211,12 @@ void LLPanelSnapshot::onCustomResolutionCommit()
         S32 width = widthSpinner->getValue().asInteger();
         width = power_of_two(width, MAX_TEXTURE_SIZE);
         info["w"] = width;
-        widthSpinner->setIncrement(width >> 1);
+        widthSpinner->setIncrement((F32)(width >> 1));
         widthSpinner->forceSetValue(width);
         S32 height =  heightSpinner->getValue().asInteger();
         height = power_of_two(height, MAX_TEXTURE_SIZE);
-        heightSpinner->setIncrement(height >> 1);
-        heightSpinner->forceSetValue(height);
+        heightSpinner->setIncrement((F32)(height >> 1));
+        heightSpinner->forceSetValue((F32)height);
         info["h"] = height;
     }
     else

@@ -2308,8 +2308,8 @@ void LLTextureCtrl::draw()
             font->renderUTF8(
                 mLoadingPlaceholderString,
                 0,
-                llfloor(interior.mLeft+3),
-                llfloor(interior.mTop-v_offset),
+                (interior.mLeft+3),
+                (interior.mTop-v_offset),
                 LLColor4::white,
                 LLFontGL::LEFT,
                 LLFontGL::BASELINE,
@@ -2325,17 +2325,17 @@ void LLTextureCtrl::draw()
 
             v_offset += 12;
             tdesc = llformat("  PK  : %d%%", U32(mTexturep->getDownloadProgress()*100.0));
-            font->renderUTF8(tdesc, 0, llfloor(interior.mLeft+3), llfloor(interior.mTop-v_offset),
+            font->renderUTF8(tdesc, 0, interior.mLeft+3, interior.mTop-v_offset,
                              LLColor4::white, LLFontGL::LEFT, LLFontGL::BASELINE, LLFontGL::DROP_SHADOW);
 
             v_offset += 12;
             tdesc = llformat("  LVL: %d", mTexturep->getDiscardLevel());
-            font->renderUTF8(tdesc, 0, llfloor(interior.mLeft+3), llfloor(interior.mTop-v_offset),
+            font->renderUTF8(tdesc, 0, interior.mLeft+3, interior.mTop-v_offset,
                              LLColor4::white, LLFontGL::LEFT, LLFontGL::BASELINE, LLFontGL::DROP_SHADOW);
 
             v_offset += 12;
             tdesc = llformat("  ID  : %s...", (mImageAssetID.asString().substr(0,7)).c_str());
-            font->renderUTF8(tdesc, 0, llfloor(interior.mLeft+3), llfloor(interior.mTop-v_offset),
+            font->renderUTF8(tdesc, 0, interior.mLeft+3, interior.mTop-v_offset,
                              LLColor4::white, LLFontGL::LEFT, LLFontGL::BASELINE, LLFontGL::DROP_SHADOW);
         }
     }

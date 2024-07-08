@@ -66,7 +66,7 @@ F32 calc_tick_value(F32 min, F32 max)
         S32 num_whole_digits = llceil(logf(llabs(min + possible_tick_value)) * OO_LN10);
         for (S32 digit_count = -(num_whole_digits - 1); digit_count < 6; digit_count++)
         {
-            F32 test_tick_value = min + (possible_tick_value * pow(10.0, digit_count));
+            F32 test_tick_value = min + (possible_tick_value * (F32)pow(10.0, digit_count));
 
             if (is_approx_equal((F32)(S32)test_tick_value, test_tick_value))
             {
@@ -99,7 +99,7 @@ void calc_auto_scale_range(F32& min, F32& max, F32& tick)
                             : llceil(logf(llabs(min)) * OO_LN10);
 
     const S32 num_digits = llmax(num_digits_max, num_digits_min);
-    const F32 power_of_10 = pow(10.0, num_digits - 1);
+    const F32 power_of_10 = (F32)pow(10.0, num_digits - 1);
     const F32 starting_max = power_of_10 * ((max < 0.f) ? -1 : 1);
     const F32 starting_min = power_of_10 * ((min < 0.f) ? -1 : 1);
 
@@ -313,13 +313,13 @@ void LLStatBar::draw()
             const LLTrace::StatType<LLTrace::CountAccumulator>& count_stat = *mStat.countStatp;
 
             unit_label    = std::string(count_stat.getUnitLabel()) + "/s";
-            current       = last_frame_recording.getPerSec(count_stat);
-            min           = frame_recording.getPeriodMinPerSec(count_stat, num_frames);
-            max           = frame_recording.getPeriodMaxPerSec(count_stat, num_frames);
-            mean          = frame_recording.getPeriodMeanPerSec(count_stat, num_frames);
+            current       = (F32)last_frame_recording.getPerSec(count_stat);
+            min           = (F32)frame_recording.getPeriodMinPerSec(count_stat, num_frames);
+            max           = (F32)frame_recording.getPeriodMaxPerSec(count_stat, num_frames);
+            mean          = (F32)frame_recording.getPeriodMeanPerSec(count_stat, num_frames);
             if (mShowMedian)
             {
-                display_value = frame_recording.getPeriodMedianPerSec(count_stat, num_frames);
+                display_value = (F32)frame_recording.getPeriodMedianPerSec(count_stat, num_frames);
             }
             else
             {
@@ -332,10 +332,10 @@ void LLStatBar::draw()
             const LLTrace::StatType<LLTrace::EventAccumulator>& event_stat = *mStat.eventStatp;
 
             unit_label        = mUnitLabel.empty() ? event_stat.getUnitLabel() : mUnitLabel;
-            current           = last_frame_recording.getLastValue(event_stat);
-            min               = frame_recording.getPeriodMin(event_stat, num_frames);
-            max               = frame_recording.getPeriodMax(event_stat, num_frames);
-            mean              = frame_recording.getPeriodMean(event_stat, num_frames);
+            current           = (F32)last_frame_recording.getLastValue(event_stat);
+            min               = (F32)frame_recording.getPeriodMin(event_stat, num_frames);
+            max               = (F32)frame_recording.getPeriodMax(event_stat, num_frames);
+            mean              = (F32)frame_recording.getPeriodMean(event_stat, num_frames);
             display_value     = mean;
         }
         break;
@@ -344,15 +344,15 @@ void LLStatBar::draw()
             const LLTrace::StatType<LLTrace::SampleAccumulator>& sample_stat = *mStat.sampleStatp;
 
             unit_label        = mUnitLabel.empty() ? sample_stat.getUnitLabel() : mUnitLabel;
-            current           = last_frame_recording.getLastValue(sample_stat);
-            min               = frame_recording.getPeriodMin(sample_stat, num_frames);
-            max               = frame_recording.getPeriodMax(sample_stat, num_frames);
-            mean              = frame_recording.getPeriodMean(sample_stat, num_frames);
+            current           = (F32)last_frame_recording.getLastValue(sample_stat);
+            min               = (F32)frame_recording.getPeriodMin(sample_stat, num_frames);
+            max               = (F32)frame_recording.getPeriodMax(sample_stat, num_frames);
+            mean              = (F32)frame_recording.getPeriodMean(sample_stat, num_frames);
             num_rapid_changes = calc_num_rapid_changes(frame_recording, sample_stat, RAPID_CHANGE_WINDOW);
 
             if (mShowMedian)
             {
-                display_value = frame_recording.getPeriodMedian(sample_stat, num_frames);
+                display_value = (F32)frame_recording.getPeriodMedian(sample_stat, num_frames);
             }
             else if (num_rapid_changes / RAPID_CHANGE_WINDOW.value() > MAX_RAPID_CHANGES_PER_SEC)
             {
@@ -450,8 +450,8 @@ void LLStatBar::draw()
             }
 
             F32 span = (mOrientation == HORIZONTAL)
-                    ? (bar_rect.getWidth())
-                    : (bar_rect.getHeight());
+                    ? (F32)(bar_rect.getWidth())
+                    : (F32)(bar_rect.getHeight());
 
             if (mDisplayHistory && mStat.valid)
             {
@@ -471,18 +471,18 @@ void LLStatBar::draw()
                     switch(mStatType)
                     {
                         case STAT_COUNT:
-                            min_value       = recording.getPerSec(*mStat.countStatp);
+                            min_value       = (F32)recording.getPerSec(*mStat.countStatp);
                             max_value       = min_value;
                             num_samples     = recording.getSampleCount(*mStat.countStatp);
                             break;
                         case STAT_EVENT:
-                            min_value       = recording.getMin(*mStat.eventStatp);
-                            max_value       = recording.getMax(*mStat.eventStatp);
+                            min_value       = (F32)recording.getMin(*mStat.eventStatp);
+                            max_value       = (F32)recording.getMax(*mStat.eventStatp);
                             num_samples     = recording.getSampleCount(*mStat.eventStatp);
                             break;
                         case STAT_SAMPLE:
-                            min_value       = recording.getMin(*mStat.sampleStatp);
-                            max_value       = recording.getMax(*mStat.sampleStatp);
+                            min_value       = (F32)recording.getMin(*mStat.sampleStatp);
+                            max_value       = (F32)recording.getMax(*mStat.sampleStatp);
                             num_samples     = recording.getSampleCount(*mStat.sampleStatp);
                             break;
                         default:

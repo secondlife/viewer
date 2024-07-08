@@ -4242,7 +4242,7 @@ public:
                 message_params["region_id"].asUUID(),
                 ll_vector3_from_sd(message_params["position"]),
                 false,      // is_region_message
-                timestamp);
+                (U32)timestamp);
 
             if (LLMuteList::getInstance()->isMuted(from_id, name, LLMute::flagTextChat))
             {

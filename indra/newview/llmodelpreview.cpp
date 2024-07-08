@@ -242,7 +242,7 @@ void LLModelPreview::updateDimentionsAndOffsets()
 
     std::set<LLModel*> accounted;
 
-    mPelvisZOffset = mFMP ? mFMP->childGetValue("pelvis_offset").asReal() : 3.0f;
+    mPelvisZOffset = mFMP ? (F32)mFMP->childGetValue("pelvis_offset").asReal() : 3.0f;
 
     if (mFMP && mFMP->childGetValue("upload_joints").asBoolean())
     {
@@ -272,7 +272,7 @@ void LLModelPreview::updateDimentionsAndOffsets()
         }
     }
 
-    F32 scale = mFMP ? mFMP->childGetValue("import_scale").asReal()*2.f : 2.f;
+    F32 scale = mFMP ? (F32)mFMP->childGetValue("import_scale").asReal()*2.f : 2.f;
 
     mDetailsSignal((F32)(mPreviewScale[0] * scale), (F32)(mPreviewScale[1] * scale), (F32)(mPreviewScale[2] * scale));
 
@@ -293,7 +293,7 @@ void LLModelPreview::rebuildUploadData()
 
     LLSpinCtrl* scale_spinner = mFMP->getChild<LLSpinCtrl>("import_scale");
 
-    F32 scale = scale_spinner->getValue().asReal();
+    F32 scale = (F32)scale_spinner->getValue().asReal();
 
     LLMatrix4 scale_mat;
     scale_mat.initScale(LLVector3(scale, scale, scale));
@@ -1290,7 +1290,7 @@ void LLModelPreview::generateNormals()
         return;
     }
 
-    F32 angle_cutoff = mFMP->childGetValue("crease_angle").asReal();
+    F32 angle_cutoff = (F32)mFMP->childGetValue("crease_angle").asReal();
 
     mRequestedCreaseAngle[which_lod] = angle_cutoff;
 
@@ -1489,7 +1489,7 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
         target_indices = 3;
     }
 
-    size_new_indices = LLMeshOptimizer::simplifyU32(
+    size_new_indices = (S32)LLMeshOptimizer::simplifyU32(
         output_indices,
         source_indices,
         size_indices,
@@ -1730,7 +1730,7 @@ F32 LLModelPreview::genMeshOptimizerPerFace(LLModel *base_model, LLModel *target
         target_indices = 3;
     }
 
-    size_new_indices = LLMeshOptimizer::simplify(
+    size_new_indices = (S32)LLMeshOptimizer::simplify(
         output_indices,
         source_indices,
         size_indices,
@@ -1851,7 +1851,7 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
         {
             if (!enforce_tri_limit)
             {
-                triangle_limit = base_triangle_count;
+                triangle_limit = (F32)base_triangle_count;
                 // reset to default value for this lod
                 F32 pw = pow((F32)decimation, (F32)(LLModel::LOD_HIGH - which_lod));
 
@@ -1861,7 +1861,7 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
             {
 
                 // UI spacifies limit for all models of single lod
-                triangle_limit = mFMP->childGetValue("lod_triangle_limit_" + lod_name[which_lod]).asInteger();
+                triangle_limit = (F32)mFMP->childGetValue("lod_triangle_limit_" + lod_name[which_lod]).asReal();
 
             }
             // meshoptimizer doesn't use triangle limit, it uses indices limit, so convert it to aproximate ratio
@@ -1871,14 +1871,14 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
         else
         {
             // UI shows 0 to 100%, but meshoptimizer works with 0 to 1
-            lod_error_threshold = mFMP->childGetValue("lod_error_threshold_" + lod_name[which_lod]).asReal() / 100.f;
+            lod_error_threshold = (F32)mFMP->childGetValue("lod_error_threshold_" + lod_name[which_lod]).asReal() / 100.f;
         }
     }
     else
     {
         // we are genrating all lods and each lod will get own indices_decimator
         indices_decimator = 1;
-        triangle_limit = base_triangle_count;
+        triangle_limit = (F32)base_triangle_count;
     }
 
     mMaxTriangleLimit = base_triangle_count;
@@ -1906,7 +1906,7 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
             }
         }
 
-        mRequestedTriangleCount[lod] = triangle_limit;
+        mRequestedTriangleCount[lod] = (S32)triangle_limit;
         mRequestedErrorThreshold[lod] = lod_error_threshold * 100;
         mRequestedLoDMode[lod] = lod_mode;
 
@@ -2748,7 +2748,7 @@ void LLModelPreview::updateLodControls(S32 lod)
         LLSpinCtrl* threshold = mFMP->getChild<LLSpinCtrl>("lod_error_threshold_" + lod_name[lod]);
         LLSpinCtrl* limit = mFMP->getChild<LLSpinCtrl>("lod_triangle_limit_" + lod_name[lod]);
 
-        limit->setMaxValue(mMaxTriangleLimit);
+        limit->setMaxValue((F32)mMaxTriangleLimit);
         limit->forceSetValue(mRequestedTriangleCount[lod]);
 
         threshold->forceSetValue(mRequestedErrorThreshold[lod]);
@@ -2760,8 +2760,8 @@ void LLModelPreview::updateLodControls(S32 lod)
             limit->setVisible(true);
             threshold->setVisible(false);
 
-            limit->setMaxValue(mMaxTriangleLimit);
-            limit->setIncrement(llmax((U32)1, mMaxTriangleLimit / 32));
+            limit->setMaxValue((F32)mMaxTriangleLimit);
+            limit->setIncrement((F32)llmax((U32)1, mMaxTriangleLimit / 32));
         }
         else
         {
@@ -3222,7 +3222,7 @@ bool LLModelPreview::render()
         gGL.matrixMode(LLRender::MM_PROJECTION);
         gGL.pushMatrix();
         gGL.loadIdentity();
-        gGL.ortho(0.0f, width, 0.0f, height, -1.0f, 1.0f);
+        gGL.ortho(0.0f, (F32)width, 0.0f, (F32)height, -1.0f, 1.0f);
 
         gGL.matrixMode(LLRender::MM_MODELVIEW);
         gGL.pushMatrix();
@@ -3360,7 +3360,7 @@ bool LLModelPreview::render()
         mFMP->childSetEnabled("upload_joints", upload_skin);
     }
 
-    F32 explode = mFMP->childGetValue("physics_explode").asReal();
+    F32 explode = (F32)mFMP->childGetValue("physics_explode").asReal();
 
     LLGLDepthTest gls_depth(GL_TRUE); // SL-12781 re-enable z-buffer for 3D model preview
 

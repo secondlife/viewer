@@ -130,8 +130,6 @@
 #endif
 
 // level 4 warnings that we need to disable:
-#pragma warning (disable : 4244) // possible loss of data on conversions
-#pragma warning (disable : 4396) // the inline specifier cannot be used when a friend declaration refers to a specialization of a function template
 #pragma warning (disable : 4251) // member needs to have dll-interface to be used by clients of class
 #pragma warning (disable : 4275) // non dll-interface class used as base for dll-interface class
 #endif  //  LL_MSVC

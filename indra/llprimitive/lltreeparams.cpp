@@ -178,7 +178,7 @@ F32 LLTreeParams::ShapeRatio(EShapeRatio shape, F32 ratio)
         case (SR_SPHERICAL):
             return (.2f + .8f * sinf(F_PI*ratio));
         case (SR_HEMISPHERICAL):
-            return (.2f + .8f * sinf(.5*F_PI*ratio));
+            return (.2f + .8f * sinf(.5f*F_PI*ratio));
         case (SR_CYLINDRICAL):
             return (1);
         case (SR_TAPERED_CYLINDRICAL):

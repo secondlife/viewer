@@ -525,13 +525,13 @@ void LLCircuitData::checkPeriodTime()
     F64Seconds period_length = mt_sec - mPeriodTime;
     if ( period_length > TARGET_PERIOD_LENGTH)
     {
-        F32 bps_in = F32Bits(mBytesInThisPeriod).value() / period_length.value();
+        F32 bps_in = F32Bits(mBytesInThisPeriod).value() / (F32)period_length.value();
         if (bps_in > mPeakBPSIn)
         {
             mPeakBPSIn = bps_in;
         }
 
-        F32 bps_out = F32Bits(mBytesOutThisPeriod).value() / period_length.value();
+        F32 bps_out = F32Bits(mBytesOutThisPeriod).value() / (F32)period_length.value();
         if (bps_out > mPeakBPSOut)
         {
             mPeakBPSOut = bps_out;

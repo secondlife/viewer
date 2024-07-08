@@ -190,7 +190,7 @@ void LLGLSLShader::dumpStats()
         tris_sec /= seconds;
 
         F32 pct_samples = (F32)((F64)mSamplesDrawn / (F64)sTotalSamplesDrawn) * 100.f;
-        F32 samples_sec = (F32)mSamplesDrawn / 1000000000.0;
+        F32 samples_sec = (F32)(mSamplesDrawn / 1000000000.0);
         samples_sec /= seconds;
 
         F32 pct_binds = (F32)mBinds / (F32)sTotalBinds * 100.f;
@@ -1265,7 +1265,7 @@ void LLGLSLShader::uniform1i(U32 index, GLint x)
             if (iter == mValue.end() || iter->second.mV[0] != x)
             {
                 glUniform1i(mUniform[index], x);
-                mValue[mUniform[index]] = LLVector4(x, 0.f, 0.f, 0.f);
+                mValue[mUniform[index]] = LLVector4((F32)x, 0.f, 0.f, 0.f);
             }
         }
     }
@@ -1405,7 +1405,7 @@ void LLGLSLShader::uniform1iv(U32 index, U32 count, const GLint* v)
         if (mUniform[index] >= 0)
         {
             const auto& iter = mValue.find(mUniform[index]);
-            LLVector4 vec(v[0], 0.f, 0.f, 0.f);
+            LLVector4 vec((F32)v[0], 0.f, 0.f, 0.f);
             if (iter == mValue.end() || shouldChange(iter->second, vec) || count != 1)
             {
                 glUniform1iv(mUniform[index], count, v);
@@ -1432,7 +1432,7 @@ void LLGLSLShader::uniform4iv(U32 index, U32 count, const GLint* v)
         if (mUniform[index] >= 0)
         {
             const auto& iter = mValue.find(mUniform[index]);
-            LLVector4 vec(v[0], v[1], v[2], v[3]);
+            LLVector4 vec((F32)v[0], (F32)v[1], (F32)v[2], (F32)v[3]);
             if (iter == mValue.end() || shouldChange(iter->second, vec) || count != 1)
             {
                 glUniform1iv(mUniform[index], count, v);
@@ -1702,7 +1702,7 @@ void LLGLSLShader::uniform1i(const LLStaticHashedString& uniform, GLint v)
     if (location >= 0)
     {
         const auto& iter = mValue.find(location);
-        LLVector4 vec(v, 0.f, 0.f, 0.f);
+        LLVector4 vec((F32)v, 0.f, 0.f, 0.f);
         if (iter == mValue.end() || shouldChange(iter->second, vec))
         {
             glUniform1i(location, v);
@@ -1718,7 +1718,7 @@ void LLGLSLShader::uniform1iv(const LLStaticHashedString& uniform, U32 count, co
 
     if (location >= 0)
     {
-        LLVector4 vec(v[0], 0, 0, 0);
+        LLVector4 vec((F32)v[0], 0.f, 0.f, 0.f);
         const auto& iter = mValue.find(location);
         if (iter == mValue.end() || shouldChange(iter->second, vec) || count != 1)
         {
@@ -1736,7 +1736,7 @@ void LLGLSLShader::uniform4iv(const LLStaticHashedString& uniform, U32 count, co
 
     if (location >= 0)
     {
-        LLVector4 vec(v[0], v[1], v[2], v[3]);
+        LLVector4 vec((F32)v[0], (F32)v[1], (F32)v[2], (F32)v[3]);
         const auto& iter = mValue.find(location);
         if (iter == mValue.end() || shouldChange(iter->second, vec) || count != 1)
         {
@@ -1755,7 +1755,7 @@ void LLGLSLShader::uniform2i(const LLStaticHashedString& uniform, GLint i, GLint
     if (location >= 0)
     {
         const auto& iter = mValue.find(location);
-        LLVector4 vec(i, j, 0.f, 0.f);
+        LLVector4 vec((F32)i, (F32)j, 0.f, 0.f);
         if (iter == mValue.end() || shouldChange(iter->second, vec))
         {
             glUniform2i(location, i, j);

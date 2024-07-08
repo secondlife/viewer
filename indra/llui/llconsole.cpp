@@ -80,7 +80,7 @@ void LLConsole::setLinePersistTime(F32 seconds)
 void LLConsole::reshape(S32 width, S32 height, bool called_from_parent)
 {
     S32 new_width = llmax(50, llmin(getRect().getWidth(), width));
-    S32 new_height = llmax(llfloor(mFont->getLineHeight()) + 15, llmin(getRect().getHeight(), height));
+    S32 new_height = llmax(mFont->getLineHeight() + 15, llmin(getRect().getHeight(), height));
 
     if (   mConsoleWidth == new_width
         && mConsoleHeight == new_height )
@@ -186,7 +186,7 @@ void LLConsole::draw()
     LLColor4 color = LLUIColorTable::instance().getColor("ConsoleBackground");
     color.mV[VALPHA] *= console_opacity;
 
-    F32 line_height = mFont->getLineHeight();
+    F32 line_height = (F32)mFont->getLineHeight();
 
     for(paragraph_it = mParagraphs.rbegin(); paragraph_it != mParagraphs.rend(); paragraph_it++)
     {

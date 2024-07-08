@@ -1003,7 +1003,7 @@ void LLShaderMgr::initShaderCache(bool enabled, const LLUUID& old_cache_version,
                     ProgramBinaryData binary_info = ProgramBinaryData();
                     binary_info.mBinaryFormat = data_pair.second["binary_format"].asInteger();
                     binary_info.mBinaryLength = data_pair.second["binary_size"].asInteger();
-                    binary_info.mLastUsedTime = data_pair.second["last_used"].asReal();
+                    binary_info.mLastUsedTime = (F32)data_pair.second["last_used"].asReal();
                     mShaderBinaryCache.insert_or_assign(LLUUID(data_pair.first), binary_info);
                 }
             }
@@ -1034,7 +1034,7 @@ void LLShaderMgr::persistShaderCacheMetadata()
     LLSD out = LLSD::emptyMap();
 
     static const F32 LRU_TIME = (60.f * 60.f) * 24.f * 7.f; // 14 days
-    const F32 current_time = LLTimer::getTotalSeconds();
+    const F32 current_time = (F32)LLTimer::getTotalSeconds();
     for (auto it = mShaderBinaryCache.begin(); it != mShaderBinaryCache.end();)
     {
         const ProgramBinaryData& shader_metadata = it->second;
@@ -1093,7 +1093,7 @@ bool LLShaderMgr::loadCachedProgramBinary(LLGLSLShader* shader)
                     glGetProgramiv(shader->mProgramObject, GL_LINK_STATUS, &success);
                     if (error == GL_NO_ERROR && success == GL_TRUE)
                     {
-                        binary_iter->second.mLastUsedTime = LLTimer::getTotalSeconds();
+                        binary_iter->second.mLastUsedTime = (F32)LLTimer::getTotalSeconds();
                         LL_INFOS() << "Loaded cached binary for shader: " << shader->mName << LL_ENDL;
                         return true;
                     }
@@ -1131,7 +1131,7 @@ bool LLShaderMgr::saveCachedProgramBinary(LLGLSLShader* shader)
                 fwrite(program_binary.data(), sizeof(U8), program_binary.size(), outfile);
                 outfile.close();
 
-                binary_info.mLastUsedTime = LLTimer::getTotalSeconds();
+                binary_info.mLastUsedTime = (F32)LLTimer::getTotalSeconds();
 
                 mShaderBinaryCache.insert_or_assign(shader->mShaderHash, binary_info);
                 return true;

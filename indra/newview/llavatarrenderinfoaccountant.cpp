@@ -84,7 +84,7 @@ void LLAvatarRenderInfoAccountant::avatarRenderInfoGetCoro(std::string url, U64 
     // Going to request each 15 seconds either way, so don't wait
     // too long and don't repeat
     httpOpts->setRetries(0);
-    httpOpts->setTimeout(SECS_BETWEEN_REGION_REQUEST);
+    httpOpts->setTimeout((unsigned int)SECS_BETWEEN_REGION_REQUEST);
 
     LLSD result = httpAdapter->getAndSuspend(httpRequest, url, httpOpts);
 

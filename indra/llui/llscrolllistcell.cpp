@@ -209,7 +209,7 @@ void LLScrollListBar::setValue(const LLSD& value)
 {
     if (value.has("ratio"))
     {
-        mRatio = value["ratio"].asReal();
+        mRatio = (F32)value["ratio"].asReal();
     }
     if (value.has("bottom"))
     {
@@ -239,7 +239,7 @@ S32 LLScrollListBar::getWidth() const
 void LLScrollListBar::draw(const LLColor4& color, const LLColor4& highlight_color)   const
 {
     S32 bar_width = getWidth() - mLeftPad - mRightPad;
-    S32 left = bar_width - bar_width * mRatio;
+    S32 left = (S32)(bar_width - bar_width * mRatio);
     left = llclamp(left, mLeftPad, getWidth() - mRightPad - 1);
 
     gl_rect_2d(left, mBottom, getWidth() - mRightPad, mBottom - 1, mColor);
@@ -637,7 +637,7 @@ void LLScrollListIconText::draw(const LLColor4& color, const LLColor4& highlight
     switch (mFontAlignment)
     {
     case LLFontGL::LEFT:
-        start_text_x = icon_space + 1;
+        start_text_x = icon_space + 1.f;
         start_icon_x = 1;
         break;
     case LLFontGL::RIGHT:
@@ -647,7 +647,7 @@ void LLScrollListIconText::draw(const LLColor4& color, const LLColor4& highlight
     case LLFontGL::HCENTER:
         F32 center = (F32)getWidth()* 0.5f;
         start_text_x = center + ((F32)icon_space * 0.5f);
-        start_icon_x = center - (((F32)icon_space + mFont->getWidth(mText.getString())) * 0.5f);
+        start_icon_x = (S32)(center - (((F32)icon_space + mFont->getWidth(mText.getString())) * 0.5f));
         break;
     }
     mFont->render(mText.getWString(), 0,

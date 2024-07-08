@@ -2451,7 +2451,7 @@ void LLViewerObject::idleUpdate(LLAgent &agent, const F64 &frame_time)
         {
             // calculate dt from last update
             F32 time_dilation = mRegionp ? mRegionp->getTimeDilation() : 1.0f;
-            F32 dt_raw = ((F64Seconds)frame_time - mLastInterpUpdateSecs).value();
+            F32 dt_raw = (F32)((F64Seconds)frame_time - mLastInterpUpdateSecs).value();
             F32 dt = time_dilation * dt_raw;
 
             applyAngularVelocity(dt);
@@ -2950,7 +2950,7 @@ void LLViewerObject::fetchInventoryDelayed(const F64 &time_seconds)
 //static
 void LLViewerObject::fetchInventoryDelayedCoro(const LLUUID task_inv, const F64 time_seconds)
 {
-    llcoro::suspendUntilTimeout(time_seconds);
+    llcoro::suspendUntilTimeout((float)time_seconds);
     LLViewerObject *obj = gObjectList.findObject(task_inv);
     if (obj)
     {

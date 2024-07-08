@@ -1598,7 +1598,7 @@ void LLOverlapPanel::draw()
 
     if(!LLView::sPreviewClickedElement)
     {
-        LLUI::translate(5,getRect().getHeight()-20);    // translate to top-5,left-5
+        LLUI::translate(5.f, (F32)getRect().getHeight() - 20.f);    // translate to top-5,left-5
         LLView::sDrawPreviewHighlights = false;
         LLFontGL::getFontSansSerifSmall()->renderUTF8(current_selection_text, 0, 0, 0, text_color,
                 LLFontGL::LEFT, LLFontGL::BASELINE, LLFontGL::NORMAL, LLFontGL::NO_SHADOW);
@@ -1614,7 +1614,7 @@ void LLOverlapPanel::draw()
         std::list<LLView*> overlappers = mOverlapMap[LLView::sPreviewClickedElement];
         if(overlappers.size() == 0)
         {
-            LLUI::translate(5,getRect().getHeight()-20);    // translate to top-5,left-5
+            LLUI::translate(5.f, (F32)getRect().getHeight() - 20.f);    // translate to top-5,left-5
             LLView::sDrawPreviewHighlights = false;
             std::string current_selection = std::string(current_selection_text + LLView::sPreviewClickedElement->getName() + " (no elements overlap)");
             S32 text_width = LLFontGL::getFontSansSerifSmall()->getWidth(current_selection) + 10;
@@ -1679,14 +1679,14 @@ void LLOverlapPanel::draw()
             setRect(LLRect(rect.mLeft,rect.mTop,rect.mRight,rect.mTop-height_sum));
         }
 
-        LLUI::translate(5,getRect().getHeight()-10);    // translate to top left
+        LLUI::translate(5.f, (F32)getRect().getHeight() - 10.f);    // translate to top left
         LLView::sDrawPreviewHighlights = false;
 
         // draw currently-selected element at top of overlappers
-        LLUI::translate(0,-mSpacing);
+        LLUI::translate(0.f, -(F32)mSpacing);
         LLFontGL::getFontSansSerifSmall()->renderUTF8(current_selection_text + LLView::sPreviewClickedElement->getName(), 0, 0, 0, text_color,
                 LLFontGL::LEFT, LLFontGL::BASELINE, LLFontGL::NORMAL, LLFontGL::NO_SHADOW);
-        LLUI::translate(0,-mSpacing-LLView::sPreviewClickedElement->getRect().getHeight()); // skip spacing distance + height
+        LLUI::translate(0.f, -(F32)mSpacing - (F32)LLView::sPreviewClickedElement->getRect().getHeight()); // skip spacing distance + height
         LLView::sPreviewClickedElement->draw();
 
         for(std::list<LLView*>::iterator overlap_it = overlappers.begin(); overlap_it != overlappers.end(); ++overlap_it)
@@ -1694,16 +1694,16 @@ void LLOverlapPanel::draw()
             LLView* viewp = *overlap_it;
 
             // draw separating line
-            LLUI::translate(0,-mSpacing);
+            LLUI::translate(0.f, -(F32)mSpacing);
             gl_line_2d(0,0,getRect().getWidth()-10,0,LLColor4(192.0f/255.0f,192.0f/255.0f,192.0f/255.0f));
 
             // draw name
-            LLUI::translate(0,-mSpacing);
+            LLUI::translate(0.f, -(F32)mSpacing);
             LLFontGL::getFontSansSerifSmall()->renderUTF8(overlapper_text + viewp->getName(), 0, 0, 0, text_color,
                     LLFontGL::LEFT, LLFontGL::BASELINE, LLFontGL::NORMAL, LLFontGL::NO_SHADOW);
 
             // draw element
-            LLUI::translate(0,-mSpacing-viewp->getRect().getHeight());  // skip spacing distance + height
+            LLUI::translate(0.f, -(F32)mSpacing - (F32)viewp->getRect().getHeight());  // skip spacing distance + height
             viewp->draw();
         }
         mLastClickedElement = LLView::sPreviewClickedElement;

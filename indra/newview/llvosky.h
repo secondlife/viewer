@@ -83,26 +83,26 @@ protected:
 
     void setDir(const LLVector3 &dir, const S32 i, const S32 j)
     {
-        S32 offset = i * SKYTEX_RESOLUTION + j;
+        S32 offset = (S32)(i * SKYTEX_RESOLUTION + j);
         mSkyDirs[offset] = dir;
     }
 
     const LLVector3 &getDir(const S32 i, const S32 j) const
     {
-        S32 offset = i * SKYTEX_RESOLUTION + j;
+        S32 offset = (S32)(i * SKYTEX_RESOLUTION + j);
         return mSkyDirs[offset];
     }
 
     void setPixel(const LLColor4 &col, const S32 i, const S32 j)
     {
-        S32 offset = i * SKYTEX_RESOLUTION + j;
+        S32 offset = (S32)(i * SKYTEX_RESOLUTION + j);
         mSkyData[offset] = col;
     }
 
     void setPixel(const LLColor4U &col, const S32 i, const S32 j)
     {
         LLImageDataSharedLock lock(mImageRaw[sCurrent]);
-        S32 offset = (i * SKYTEX_RESOLUTION + j) * SKYTEX_COMPONENTS;
+        S32 offset = (S32)((i * SKYTEX_RESOLUTION + j) * SKYTEX_COMPONENTS);
         U32* pix = (U32*) &(mImageRaw[sCurrent]->getData()[offset]);
         *pix = col.asRGBA();
     }
@@ -111,7 +111,7 @@ protected:
     {
         LLColor4U col;
         LLImageDataSharedLock lock(mImageRaw[sCurrent]);
-        S32 offset = (i * SKYTEX_RESOLUTION + j) * SKYTEX_COMPONENTS;
+        S32 offset = (S32)((i * SKYTEX_RESOLUTION + j) * SKYTEX_COMPONENTS);
         U32* pix = (U32*) &(mImageRaw[sCurrent]->getData()[offset]);
         col.fromRGBA( *pix );
         return col;

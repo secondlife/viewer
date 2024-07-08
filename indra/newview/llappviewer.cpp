@@ -456,7 +456,7 @@ void idle_afk_check()
 {
     // check idle timers
     F32 current_idle = gAwayTriggerTimer.getElapsedTimeF32();
-    F32 afk_timeout  = gSavedSettings.getS32("AFKTimeout");
+    F32 afk_timeout  = (F32)gSavedSettings.getS32("AFKTimeout");
     if (afk_timeout && (current_idle > afk_timeout) && ! gAgent.getAFK())
     {
         LL_INFOS("IdleAway") << "Idle more than " << afk_timeout << " seconds: automatically changing to Away status" << LL_ENDL;
@@ -1959,7 +1959,7 @@ bool LLAppViewer::cleanup()
     LL_INFOS() << "Saving Data" << LL_ENDL;
 
     // Store the time of our current logoff
-    gSavedPerAccountSettings.setU32("LastLogoff", time_corrected());
+    gSavedPerAccountSettings.setU32("LastLogoff", (U32)time_corrected());
 
     if (LLEnvironment::instanceExists())
     {
@@ -2332,7 +2332,7 @@ void LLAppViewer::initLoggingAndGetLastDuration()
         int log_stat_result = LLFile::stat(log_file, &log_file_stat);
         if (0 == start_stat_result && 0 == log_stat_result)
         {
-            int elapsed_seconds = log_file_stat.st_ctime - start_marker_stat.st_ctime;
+            int elapsed_seconds = (int)(log_file_stat.st_ctime - start_marker_stat.st_ctime);
             // only report a last run time if the last viewer was the same version
             // because this stat will be counted against this version
             if (markerIsSameVersion(start_marker_file_name))
@@ -3434,7 +3434,7 @@ LLSD LLAppViewer::getViewerInfo() const
     info["LIBVLC_VERSION"] = "Undefined";
 #endif
 
-    S32 packets_in = LLViewerStats::instance().getRecording().getSum(LLStatViewer::PACKETS_IN);
+    S32 packets_in = (S32)LLViewerStats::instance().getRecording().getSum(LLStatViewer::PACKETS_IN);
     if (packets_in > 0)
     {
         info["PACKETS_LOST"] = LLViewerStats::instance().getRecording().getSum(LLStatViewer::PACKETS_LOST);
