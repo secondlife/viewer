@@ -85,6 +85,7 @@ const char MEMINFO_FILE[] = "/proc/meminfo";
 #endif
 
 LLCPUInfo gSysCPU;
+LLMemoryInfo gSysMemory;
 
 // Don't log memory info any more often than this. It also serves as our
 // framerate sample size.
@@ -977,7 +978,7 @@ LLSD LLMemoryInfo::loadStatsMap()
     // specifically accepts PROCESS_MEMORY_COUNTERS*, and since this is a
     // classic-C API, PROCESS_MEMORY_COUNTERS_EX isn't a subclass. Cast the
     // pointer.
-    GetProcessMemoryInfo(GetCurrentProcess(), PPROCESS_MEMORY_COUNTERS(&pmem), sizeof(pmem));
+    GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*) &pmem, sizeof(pmem));
 
     stats.add("Page Fault Count",              pmem.PageFaultCount);
     stats.add("PeakWorkingSetSize KB",         pmem.PeakWorkingSetSize/div);

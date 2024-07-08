@@ -169,6 +169,7 @@ bool LL_COMMON_API gunzip_file(const std::string& srcfile, const std::string& ds
 // gzip srcfile into dstfile.  Returns false on error.
 bool LL_COMMON_API gzip_file(const std::string& srcfile, const std::string& dstfile);
 
+extern LL_COMMON_API LLMemoryInfo gSysMemory;
 extern LL_COMMON_API LLCPUInfo gSysCPU;
 
 #endif // LL_LLSYS_H

@@ -347,7 +347,6 @@ LLFrameTimer gRestoreGLTimer;
 bool gRestoreGL = false;
 bool gUseWireframe = false;
 
-LLMemoryInfo gSysMemory;
 U64Bytes gMemoryAllocated(0); // updated in display_stats() in llviewerdisplay.cpp
 
 std::string gLastVersionChannel;
