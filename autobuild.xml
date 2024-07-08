@@ -2387,9 +2387,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9b6e1a1f4b0969d38a1ca8ee00aeb548</string>
+              <string>a901a14066daf8c8796c8d2914917129427fd80b</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/110584/960613/tracy-v0.8.1.578241-darwin64-578241.tar.bz2</string>
+              <string>https://github.com/secondlife/3p-tracy/releases/download/v0.10.0%2Br1/tracy-v0.10.0.9845715133-darwin64-9845715133.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2399,14 +2401,28 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>05b72ae5d733aed7d3bf142287601cc6</string>
+              <string>ca5fc66e3431278f20286261ffe85192bbd9a2ca</string>
               <key>hash_algorithm</key>
-              <string>md5</string>
+              <string>sha1</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/110586/960637/tracy-v0.8.1.578241-windows64-578241.tar.bz2</string>
+              <string>https://github.com/secondlife/3p-tracy/releases/download/v0.10.0%2Br1/tracy-v0.10.0.9845715133-windows64-9845715133.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
+          </map>
+          <key>linux64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>e6f53d513c238ad599b75a8b5f94b8b0d1315438</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
+              <key>url</key>
+              <string>https://github.com/secondlife/3p-tracy/releases/download/v0.10.0%2Br1/tracy-v0.10.0.9845715133-linux64-9845715133.tar.zst</string>
+            </map>
+            <key>name</key>
+            <string>linux64</string>
           </map>
         </map>
         <key>license</key>
@@ -2416,7 +2432,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>copyright</key>
         <string>Copyright (c) 2017-2022, Bartosz Taudul (wolf@nereid.pl)</string>
         <key>version</key>
-        <string>v0.8.1.578241</string>
+        <string>v0.10.0.9845715133</string>
         <key>name</key>
         <string>tracy</string>
         <key>canonical_repo</key>

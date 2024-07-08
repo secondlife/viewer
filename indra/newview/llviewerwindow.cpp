@@ -5623,7 +5623,7 @@ void LLViewerWindow::setup3DRender()
 
 void LLViewerWindow::setup3DViewport(S32 x_offset, S32 y_offset)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_UI
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
     gGLViewport[0] = mWorldViewRectRaw.mLeft + x_offset;
     gGLViewport[1] = mWorldViewRectRaw.mBottom + y_offset;
     gGLViewport[2] = mWorldViewRectRaw.getWidth();

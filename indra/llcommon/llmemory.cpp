@@ -85,7 +85,7 @@ void LLMemory::initMaxHeapSizeGB(F32Gigabytes max_heap_size)
 //static
 void LLMemory::updateMemoryInfo()
 {
-    LL_PROFILE_ZONE_SCOPED
+    LL_PROFILE_ZONE_SCOPED;
     U32Kilobytes avail_phys;
 #if LL_WINDOWS
     PROCESS_MEMORY_COUNTERS counters;
@@ -200,7 +200,7 @@ void* LLMemory::tryToAlloc(void* address, U32 size)
 //static
 void LLMemory::logMemoryInfo(bool update)
 {
-    LL_PROFILE_ZONE_SCOPED
+    LL_PROFILE_ZONE_SCOPED;
     if(update)
     {
         updateMemoryInfo() ;

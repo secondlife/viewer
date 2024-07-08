@@ -409,7 +409,7 @@ LLSpatialGroup* LLSpatialGroup::getParent()
 
 bool LLSpatialGroup::removeObject(LLDrawable *drawablep, bool from_octree)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_SPATIAL
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SPATIAL;
 
     if(!drawablep)
     {
@@ -634,7 +634,7 @@ void LLSpatialGroup::updateDistance(LLCamera &camera)
 
 F32 LLSpatialPartition::calcDistance(LLSpatialGroup* group, LLCamera& camera)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_SPATIAL
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SPATIAL;
 
     LLVector4a eye;
     LLVector4a origin;
@@ -729,7 +729,7 @@ F32 LLSpatialGroup::getUpdateUrgency() const
 
 bool LLSpatialGroup::changeLOD()
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_SPATIAL
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SPATIAL;
 
     if (hasState(ALPHA_DIRTY | OBJECT_DIRTY))
     {
@@ -818,7 +818,7 @@ void LLSpatialGroup::handleDestruction(const TreeNode* node)
 
 void LLSpatialGroup::handleChildAddition(const OctreeNode* parent, OctreeNode* child)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_SPATIAL
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SPATIAL;
 
     if (child->getListenerCount() == 0)
     {
