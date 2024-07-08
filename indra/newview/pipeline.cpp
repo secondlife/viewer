@@ -1072,12 +1072,7 @@ void LLPipeline::refreshCachedSettings()
     RenderScreenSpaceReflectionAdaptiveStepMultiplier = gSavedSettings.getF32("RenderScreenSpaceReflectionAdaptiveStepMultiplier");
     RenderScreenSpaceReflectionGlossySamples = gSavedSettings.getS32("RenderScreenSpaceReflectionGlossySamples");
     RenderBufferVisualization = gSavedSettings.getS32("RenderBufferVisualization");
-    if (gSavedSettings.getBOOL("RenderMirrors") != RenderMirrors)
-    {
-        RenderMirrors = gSavedSettings.getBOOL("RenderMirrors");
-        LLViewerShaderMgr::instance()->clearShaderCache();
-        LLViewerShaderMgr::instance()->setShaders();
-    }
+    RenderMirrors = gSavedSettings.getBOOL("RenderMirrors");
     RenderHeroProbeUpdateRate = gSavedSettings.getS32("RenderHeroProbeUpdateRate");
     RenderHeroProbeConservativeUpdateMultiplier = gSavedSettings.getS32("RenderHeroProbeConservativeUpdateMultiplier");
 

@@ -495,8 +495,6 @@ void LLViewerShaderMgr::setShaders()
 
     mShaderList.clear();
 
-    LLShaderMgr::sMirrorsEnabled = LLPipeline::RenderMirrors;
-
     if (!gGLManager.mHasRequirements)
     {
         // Viewer will show 'hardware requirements' warning later
@@ -755,6 +753,8 @@ std::string LLViewerShaderMgr::loadBasicShaders()
 
     bool ssr = gSavedSettings.getBOOL("RenderScreenSpaceReflections");
 
+    bool mirrors = gSavedSettings.getBOOL("RenderMirrors");
+
     bool has_reflection_probes = gSavedSettings.getBOOL("RenderReflectionsEnabled") && gGLManager.mGLVersion > 3.99f;
 
     S32 probe_level = llclamp(gSavedSettings.getS32("RenderReflectionProbeLevel"), 0, 3);
@@ -780,6 +780,11 @@ std::string LLViewerShaderMgr::loadBasicShaders()
     {
         attribs["REFMAP_LEVEL"] = std::to_string(probe_level);
         attribs["REF_SAMPLE_COUNT"] = "32";
+    }
+
+    if (mirrors)
+    {
+        attribs["HERO_PROBES"] = "1";
     }
 
     { // PBR terrain
