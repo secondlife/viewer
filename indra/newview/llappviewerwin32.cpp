@@ -197,19 +197,6 @@ LONG WINAPI catchallCrashHandler(EXCEPTION_POINTERS * /*ExceptionInfo*/)
     return 0;
 }
 
-// *FIX:Mani - This hack is to fix a linker issue with libndofdev.lib
-// The lib was compiled under VS2005 - in VS2003 we need to remap assert
-#ifdef LL_DEBUG
-#ifdef LL_MSVC7
-extern "C" {
-    void _wassert(const wchar_t * _Message, const wchar_t *_File, unsigned _Line)
-    {
-        LL_ERRS() << _Message << LL_ENDL;
-    }
-}
-#endif
-#endif
-
 const std::string LLAppViewerWin32::sWindowClass = "Second Life";
 
 /*

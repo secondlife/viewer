@@ -74,9 +74,6 @@
     #ifndef LL_MSVC
         #define LL_MSVC 1
     #endif
-    #if _MSC_VER < 1400
-        #define LL_MSVC7 //Visual C++ 2003 or earlier
-    #endif
 #endif
 
 // Deal with minor differences on Unixy OSes.
