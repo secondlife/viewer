@@ -782,7 +782,7 @@ void GLTFSceneManager::bind(Asset& asset, Material& material)
         bindTexture(asset, TextureType::EMISSIVE, material.mEmissiveTexture, LLViewerFetchedTexture::sWhiteImagep);
     }
 
-    shader->uniform1i(LLShaderMgr::GLTF_MATERIAL_ID, &material - &asset.mMaterials[0]);
+    shader->uniform1i(LLShaderMgr::GLTF_MATERIAL_ID, (GLint)(&material - &asset.mMaterials[0]));
 }
 
 LLMatrix4a inverse(const LLMatrix4a& mat)

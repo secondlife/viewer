@@ -239,6 +239,7 @@ public:
     uuid_vec_t      mSavedGLTFMaterialIds;
     gltf_materials_vec_t mSavedGLTFOverrideMaterials;
     std::vector<LLVector3>  mTextureScaleRatios;
+    std::vector< std::vector<LLVector3> >  mGLTFScaleRatios;
     std::vector<LLVector3>  mSilhouetteVertices;    // array of vertices to render silhouette of object
     std::vector<LLVector3>  mSilhouetteNormals; // array of normals to render silhouette of object
     bool                    mSilhouetteExists;  // need to generate silhouette?

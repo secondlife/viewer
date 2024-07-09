@@ -4531,7 +4531,7 @@ void LLVOAvatar::updateRootPositionAndRotation(LLAgent& agent, F32 speed, bool w
             root_pos += LLVector3d(getHoverOffset());
             if (getOverallAppearance() == AOA_JELLYDOLL)
             {
-                F32 offz = -0.5 * (getScale()[VZ] - mBodySize.mV[VZ]);
+                F32 offz = -0.5f * (getScale()[VZ] - mBodySize.mV[VZ]);
                 root_pos[2] += offz;
                 // if (!isSelf() && !isControlAvatar())
                 // {
@@ -4778,8 +4778,8 @@ bool LLVOAvatar::updateCharacter(LLAgent &agent)
     if (!getParent() && (isSitting() || was_sit_ground_constrained))
     {
 
-        F32 off_z = LLVector3d(getHoverOffset()).mdV[VZ];
-        if (off_z != 0.0)
+        F32 off_z = (F32)LLVector3d(getHoverOffset()).mdV[VZ];
+        if (off_z != 0.0f)
         {
             LLVector3 pos = mRoot->getWorldPosition();
             pos.mV[VZ] += off_z;
@@ -8529,7 +8529,7 @@ void LLVOAvatar::updateTooSlow()
         auto it = std::find(sAVsIgnoringARTLimit.begin(), sAVsIgnoringARTLimit.end(), mID);
         if (it != sAVsIgnoringARTLimit.end())
         {
-            S32 index = it - sAVsIgnoringARTLimit.begin();
+            S32 index = (S32)(it - sAVsIgnoringARTLimit.begin());
             ignore_tune = (index < (MIN_NONTUNED_AVS - sAvatarsNearby + 1 + LLPerfStats::tunedAvatars));
         }
     }
@@ -9505,7 +9505,7 @@ void LLVOAvatar::parseAppearanceMessage(LLMessageSystem* mesgsys, LLAppearanceMe
         std::vector<LLVisualParam*>::iterator it = std::find(contents.mParams.begin(), contents.mParams.end(),appearance_version_param);
         if (it != contents.mParams.end())
         {
-            S32 index = it - contents.mParams.begin();
+            S32 index = (S32)(it - contents.mParams.begin());
             contents.mParamAppearanceVersion = ll_round(contents.mParamWeights[index]);
             //LL_DEBUGS("Avatar") << "appversion req by appearance_version param: " << contents.mParamAppearanceVersion << LL_ENDL;
         }
@@ -11101,7 +11101,7 @@ void LLVOAvatar::accountRenderComplexityForObject(
                     LLObjectComplexity object_complexity;
                     object_complexity.objectName = attached_object->getAttachmentItemName();
                     object_complexity.objectId = attached_object->getAttachmentItemID();
-                    object_complexity.objectCost = attachment_total_cost;
+                    object_complexity.objectCost = (U32)attachment_total_cost;
                     object_complexity_list.push_back(object_complexity);
                 }
             }

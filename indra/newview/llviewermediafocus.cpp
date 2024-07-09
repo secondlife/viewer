@@ -241,19 +241,19 @@ LLVector3d LLViewerMediaFocus::setCameraZoom(LLViewerObject* object, LLVector3 n
         if(camera_aspect < 1.0f || invert)
         {
             angle_of_view = llmax(0.1f, LLViewerCamera::getInstance()->getView() * LLViewerCamera::getInstance()->getAspect());
-            distance = width * 0.5 * padding_factor / tan(angle_of_view * 0.5f );
+            distance = width * 0.5f * padding_factor / tanf(angle_of_view * 0.5f );
 
             LL_DEBUGS() << "using width (" << width << "), angle_of_view = " << angle_of_view << ", distance = " << distance << LL_ENDL;
         }
         else
         {
             angle_of_view = llmax(0.1f, LLViewerCamera::getInstance()->getView());
-            distance = height * 0.5 * padding_factor / tan(angle_of_view * 0.5f );
+            distance = height * 0.5f * padding_factor / tanf(angle_of_view * 0.5f );
 
             LL_DEBUGS() << "using height (" << height << "), angle_of_view = " << angle_of_view << ", distance = " << distance << LL_ENDL;
         }
 
-        distance += depth * 0.5;
+        distance += depth * 0.5f;
 
         // Finally animate the camera to this new position and focal point
         LLVector3d target_pos;

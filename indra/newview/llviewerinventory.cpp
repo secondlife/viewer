@@ -334,7 +334,7 @@ LLViewerInventoryItem::LLViewerInventoryItem(const LLUUID& uuid,
                                              U32 flags,
                                              time_t creation_date_utc) :
     LLInventoryItem(uuid, parent_uuid, perm, asset_uuid, type, inv_type,
-                    name, desc, sale_info, flags, creation_date_utc),
+                    name, desc, sale_info, flags, (S32)creation_date_utc),
     mIsComplete(true)
 {
 }
@@ -534,7 +534,7 @@ void LLViewerInventoryItem::packMessage(LLMessageSystem* msg) const
     mSaleInfo.packMessage(msg);
     msg->addStringFast(_PREHASH_Name, mName);
     msg->addStringFast(_PREHASH_Description, mDescription);
-    msg->addS32Fast(_PREHASH_CreationDate, mCreationDate);
+    msg->addS32Fast(_PREHASH_CreationDate, (S32)mCreationDate);
     U32 crc = getCRC32();
     msg->addU32Fast(_PREHASH_CRC, crc);
 }
@@ -675,7 +675,7 @@ bool LLViewerInventoryCategory::fetch(S32 expiry_seconds)
     {
         LL_DEBUGS(LOG_INV) << "Fetching category children: " << mName << ", UUID: " << mUUID << LL_ENDL;
         mDescendentsRequested.reset();
-        mDescendentsRequested.setTimerExpirySec(expiry_seconds);
+        mDescendentsRequested.setTimerExpirySec((F32)expiry_seconds);
 
         std::string url;
         if (gAgent.getRegion())
@@ -721,7 +721,7 @@ void LLViewerInventoryCategory::setFetching(LLViewerInventoryCategory::EFetchTyp
             mDescendentsRequested.reset();
             if (AISAPI::isAvailable())
             {
-                mDescendentsRequested.setTimerExpirySec(AISAPI::HTTP_TIMEOUT);
+                mDescendentsRequested.setTimerExpirySec((F32)AISAPI::HTTP_TIMEOUT);
             }
             else
             {

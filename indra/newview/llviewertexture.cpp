@@ -507,7 +507,7 @@ void LLViewerTexture::updateClass()
     // NOTE: our metrics miss about half the vram we use, so this biases high but turns out to typically be within 5% of the real number
     F32 used = (F32)ll_round(texture_bytes_alloc + vertex_bytes_alloc + render_bytes_alloc);
 
-    F32 budget = max_vram_budget == 0 ? gGLManager.mVRAM : max_vram_budget;
+    F32 budget = max_vram_budget == 0 ? (F32)gGLManager.mVRAM : (F32)max_vram_budget;
 
     // try to leave half a GB for everyone else, but keep at least 768MB for ourselves
     F32 target = llmax(budget - 512.f, MIN_VRAM_BUDGET);
@@ -534,7 +534,7 @@ void LLViewerTexture::updateClass()
 
         if (sDesiredDiscardBias > 1.f && over_pct < 0.f)
         {
-            sDesiredDiscardBias -= gFrameIntervalSeconds * 0.01;
+            sDesiredDiscardBias -= gFrameIntervalSeconds * 0.01f;
         }
     }
 
@@ -2862,7 +2862,7 @@ LLViewerLODTexture::LLViewerLODTexture(const std::string& url, FTType f_type, co
 
 void LLViewerLODTexture::init(bool firstinit)
 {
-    mTexelsPerImage = 64.f*64.f;
+    mTexelsPerImage = 64*64;
     mDiscardVirtualSize = 0.f;
     mCalculatedDiscardLevel = -1.f;
 }
@@ -3489,7 +3489,19 @@ void LLViewerMediaTexture::setPlaying(bool playing)
 
         for(std::list< LLFace* >::iterator iter = mMediaFaceList.begin(); iter!= mMediaFaceList.end(); ++iter)
         {
-            switchTexture(LLRender::DIFFUSE_MAP, *iter);
+            LLFace* facep = *iter;
+            const LLTextureEntry* te = facep->getTextureEntry();
+            if (te->getGLTFMaterial())
+            {
+                // PBR material, switch emissive and basecolor
+                switchTexture(LLRender::EMISSIVE_MAP, *iter);
+                switchTexture(LLRender::BASECOLOR_MAP, *iter);
+            }
+            else
+            {
+                // blinn-phong material, switch diffuse map only
+                switchTexture(LLRender::DIFFUSE_MAP, *iter);
+            }
         }
     }
     else //stop playing this media
@@ -3857,8 +3869,8 @@ LLMetricPerformanceTesterWithSession::LLTestSession* LLTexturePipelineTester::lo
         }
 
         //time
-        F32 start_time = (*log)[label]["StartFetchingTime"].asReal();
-        F32 cur_time   = (*log)[label]["Time"].asReal();
+        F32 start_time = (F32)(*log)[label]["StartFetchingTime"].asReal();
+        F32 cur_time   = (F32)(*log)[label]["Time"].asReal();
         if(start_time - start_fetching_time > F_ALMOST_ZERO) //fetching has paused for a while
         {
             sessionp->mTotalGrayTime += total_gray_time;
@@ -3874,13 +3886,13 @@ LLMetricPerformanceTesterWithSession::LLTestSession* LLTexturePipelineTester::lo
         }
         else
         {
-            total_gray_time = (*log)[label]["TotalGrayTime"].asReal();
-            total_stablizing_time = (*log)[label]["TotalStablizingTime"].asReal();
+            total_gray_time = (F32)(*log)[label]["TotalGrayTime"].asReal();
+            total_stablizing_time = (F32)(*log)[label]["TotalStablizingTime"].asReal();
 
-            total_loading_sculpties_time = (*log)[label]["EndTimeLoadingSculpties"].asReal() - (*log)[label]["StartTimeLoadingSculpties"].asReal();
+            total_loading_sculpties_time = (F32)(*log)[label]["EndTimeLoadingSculpties"].asReal() - (F32)(*log)[label]["StartTimeLoadingSculpties"].asReal();
             if(start_fetching_sculpties_time < 0.f && total_loading_sculpties_time > 0.f)
             {
-                start_fetching_sculpties_time = (*log)[label]["StartTimeLoadingSculpties"].asReal();
+                start_fetching_sculpties_time = (F32)(*log)[label]["StartTimeLoadingSculpties"].asReal();
             }
         }
 
@@ -3896,7 +3908,7 @@ LLMetricPerformanceTesterWithSession::LLTestSession* LLTexturePipelineTester::lo
         sessionp->mInstantPerformanceList[sessionp->mInstantPerformanceListCounter].mAverageBytesUsedForLargeImagePerSecond +=
             (*log)[label]["TotalBytesBoundForLargeImage"].asInteger();
         sessionp->mInstantPerformanceList[sessionp->mInstantPerformanceListCounter].mAveragePercentageBytesUsedPerSecond +=
-            (*log)[label]["PercentageBytesBound"].asReal();
+            (F32)(*log)[label]["PercentageBytesBound"].asReal();
         frame_count++;
         if(cur_time - last_time >= 1.0f)
         {

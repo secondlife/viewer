@@ -1906,7 +1906,7 @@ void LLViewerMediaImpl::loadURI()
         // or a seek happened before the media loaded.  In either case, seek to the saved time.
         if(mPreviousMediaTime != 0.0f)
         {
-            seek(mPreviousMediaTime);
+            seek((F32)mPreviousMediaTime);
         }
 
         if(mPreviousMediaState == MEDIA_PLAYING)
@@ -2041,7 +2041,7 @@ void LLViewerMediaImpl::skipBack(F32 step_scale)
             {
                 back_step = 0.0;
             }
-            mMediaSource->seek(back_step);
+            mMediaSource->seek((F32)back_step);
         }
     }
 }
@@ -2058,7 +2058,7 @@ void LLViewerMediaImpl::skipForward(F32 step_scale)
             {
                 forward_step = mMediaSource->getDuration();
             }
-            mMediaSource->seek(forward_step);
+            mMediaSource->seek((F32)forward_step);
         }
     }
 }
@@ -2107,7 +2107,7 @@ void LLViewerMediaImpl::updateVolume()
                 F64 attenuation = 1.0 + (gSavedSettings.getF32("MediaRollOffRate") * adjusted_distance);
                 attenuation = 1.0 / (attenuation * attenuation);
                 // the attenuation multiplier should never be more than one since that would increase volume
-                volume = volume * llmin(1.0, attenuation);
+                volume = volume * (F32)llmin(1.0, attenuation);
             }
         }
 
@@ -2237,11 +2237,11 @@ void LLViewerMediaImpl::scaleTextureCoords(const LLVector2& texture_coords, S32 
     // Deal with repeating textures by wrapping the coordinates into the range [0, 1.0)
     texture_x = fmodf(texture_x, 1.0f);
     if(texture_x < 0.0f)
-        texture_x = 1.0 + texture_x;
+        texture_x = 1.0f + texture_x;
 
     texture_y = fmodf(texture_y, 1.0f);
     if(texture_y < 0.0f)
-        texture_y = 1.0 + texture_y;
+        texture_y = 1.0f + texture_y;
 
     // scale x and y to texel units.
     *x = ll_round(texture_x * mMediaSource->getTextureWidth());

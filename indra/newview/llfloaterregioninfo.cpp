@@ -519,7 +519,7 @@ void LLFloaterRegionInfo::processRegionInfo(LLMessageSystem* msg)
     panel->getChild<LLUICtrl>("object_bonus_spin")->setValue(LLSD(object_bonus_factor));
     panel->getChild<LLUICtrl>("access_combo")->setValue(LLSD(sim_access));
 
-    panel->getChild<LLSpinCtrl>("agent_limit_spin")->setMaxValue(hard_agent_limit);
+    panel->getChild<LLSpinCtrl>("agent_limit_spin")->setMaxValue((F32)hard_agent_limit);
 
     LLPanelRegionGeneralInfo* panel_general = LLFloaterRegionInfo::getPanelGeneral();
     if (panel)
@@ -1931,11 +1931,11 @@ bool LLPanelRegionTerrainInfo::sendUpdate()
                 for (U32 tt = 0; tt < LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT; ++tt)
                 {
                     LLGLTFMaterial::TextureTransform& transform = mat_override->mTextureTransform[tt];
-                    transform.mScale.mV[VX] = mMaterialScaleUCtrl[i]->getValue().asReal();
-                    transform.mScale.mV[VY] = mMaterialScaleVCtrl[i]->getValue().asReal();
-                    transform.mRotation = mMaterialRotationCtrl[i]->getValue().asReal() * DEG_TO_RAD;
-                    transform.mOffset.mV[VX] = mMaterialOffsetUCtrl[i]->getValue().asReal();
-                    transform.mOffset.mV[VY] = mMaterialOffsetVCtrl[i]->getValue().asReal();
+                    transform.mScale.mV[VX] = (F32)mMaterialScaleUCtrl[i]->getValue().asReal();
+                    transform.mScale.mV[VY] = (F32)mMaterialScaleVCtrl[i]->getValue().asReal();
+                    transform.mRotation = (F32)mMaterialRotationCtrl[i]->getValue().asReal() * DEG_TO_RAD;
+                    transform.mOffset.mV[VX] = (F32)mMaterialOffsetUCtrl[i]->getValue().asReal();
+                    transform.mOffset.mV[VY] = (F32)mMaterialOffsetVCtrl[i]->getValue().asReal();
                 }
             }
 

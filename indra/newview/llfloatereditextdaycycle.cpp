@@ -313,7 +313,7 @@ void LLFloaterEditExtDayCycle::onOpen(const LLSD& key)
     mDayLength.value(0);
     if (key.has(KEY_DAY_LENGTH))
     {
-        mDayLength.value(key[KEY_DAY_LENGTH].asReal());
+        mDayLength.value(key[KEY_DAY_LENGTH].asInteger());
     }
 
     // Time&Percentage labels
@@ -352,7 +352,7 @@ void LLFloaterEditExtDayCycle::onOpen(const LLSD& key)
 
     // Adjust Time&Percentage labels' location according to length
     LLRect label_rect = getChild<LLTextBox>("p0", true)->getRect();
-    F32 slider_width = mFramesSlider->getRect().getWidth();
+    F32 slider_width = (F32)mFramesSlider->getRect().getWidth();
     for (int i = 1; i < max_elm; i++)
     {
         LLTextBox *pcnt_label = getChild<LLTextBox>("p" + llformat("%d", i), true);
@@ -705,7 +705,7 @@ void LLFloaterEditExtDayCycle::onAddFrame()
         LL_WARNS("ENVDAYEDIT") << "Attempt to add new frame while waiting for day(asset) to load." << LL_ENDL;
         return;
     }
-    if ((mEditDay->getSettingsNearKeyframe(frame, mCurrentTrack, LLSettingsDay::DEFAULT_FRAME_SLOP_FACTOR)).second)
+    if ((mEditDay->getSettingsNearKeyframe((LLSettingsBase::TrackPosition)frame, mCurrentTrack, LLSettingsDay::DEFAULT_FRAME_SLOP_FACTOR)).second)
     {
         LL_WARNS("ENVDAYEDIT") << "Attempt to add new frame too close to existing frame." << LL_ENDL;
         return;
@@ -722,17 +722,17 @@ void LLFloaterEditExtDayCycle::onAddFrame()
         // scratch water should always have the current water settings.
         LLSettingsWater::ptr_t water(mScratchWater->buildClone());
         setting = water;
-        mEditDay->setWaterAtKeyframe( std::static_pointer_cast<LLSettingsWater>(setting), frame);
+        mEditDay->setWaterAtKeyframe( std::static_pointer_cast<LLSettingsWater>(setting), (LLSettingsBase::TrackPosition)frame);
     }
     else
     {
         // scratch sky should always have the current sky settings.
         LLSettingsSky::ptr_t sky(mScratchSky->buildClone());
         setting = sky;
-        mEditDay->setSkyAtKeyframe(sky, frame, mCurrentTrack);
+        mEditDay->setSkyAtKeyframe(sky, (LLSettingsBase::TrackPosition)frame, mCurrentTrack);
     }
     setDirtyFlag();
-    addSliderFrame(frame, setting);
+    addSliderFrame((F32)frame, setting);
     updateTabs();
 }
 
@@ -1316,7 +1316,7 @@ void LLFloaterEditExtDayCycle::removeCurrentSliderFrame()
     {
         LL_DEBUGS("ENVDAYEDIT") << "Removing frame from " << iter->second.mFrame << LL_ENDL;
         LLSettingsBase::Seconds seconds(iter->second.mFrame);
-        mEditDay->removeTrackKeyframe(mCurrentTrack, seconds);
+        mEditDay->removeTrackKeyframe(mCurrentTrack, (LLSettingsBase::TrackPosition)seconds);
         mSliderKeyMap.erase(iter);
     }
 
@@ -1474,17 +1474,17 @@ void LLFloaterEditExtDayCycle::reblendSettings()
     {
         if ((mSkyBlender->getTrack() != mCurrentTrack) && (mCurrentTrack != LLSettingsDay::TRACK_WATER))
         {
-            mSkyBlender->switchTrack(mCurrentTrack, position);
+            mSkyBlender->switchTrack(mCurrentTrack, (LLSettingsBase::TrackPosition)position);
         }
         else
         {
-            mSkyBlender->setPosition(position);
+            mSkyBlender->setPosition((LLSettingsBase::TrackPosition)position);
         }
     }
 
     if (mWaterBlender)
     {
-        mWaterBlender->setPosition(position);
+        mWaterBlender->setPosition((LLSettingsBase::TrackPosition)position);
     }
 }
 
@@ -1517,7 +1517,7 @@ bool LLFloaterEditExtDayCycle::isAddingFrameAllowed()
     if (!mFramesSlider->getCurSlider().empty() || !mEditDay) return false;
 
     LLSettingsBase::Seconds frame(mTimeSlider->getCurSliderValue());
-    if ((mEditDay->getSettingsNearKeyframe(frame, mCurrentTrack, LLSettingsDay::DEFAULT_FRAME_SLOP_FACTOR)).second)
+    if ((mEditDay->getSettingsNearKeyframe((LLSettingsBase::TrackPosition)frame, mCurrentTrack, LLSettingsDay::DEFAULT_FRAME_SLOP_FACTOR)).second)
     {
         return false;
     }

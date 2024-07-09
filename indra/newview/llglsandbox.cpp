@@ -893,7 +893,7 @@ void LLSky::renderSunMoonBeacons(const LLVector3& pos_agent, const LLVector3& di
     {
         pos_end.mV[i] = pos_agent.mV[i] + (50 * direction.mV[i]);
     }
-    glLineWidth(LLPipeline::DebugBeaconLineWidth);
+    glLineWidth((GLfloat)LLPipeline::DebugBeaconLineWidth);
     gGL.begin(LLRender::LINES);
     color.mV[3] *= 0.5f;
     gGL.color4fv(color.mV);
@@ -1190,8 +1190,8 @@ F32 gpu_benchmark()
     F32 ms = gBenchmarkProgram.mTimeElapsed/1000000.f;
     F32 seconds = ms/1000.f;
 
-    F64 samples_drawn = gBenchmarkProgram.mSamplesDrawn;
-    F32 samples_sec = (samples_drawn/1000000000.0)/seconds;
+    F64 samples_drawn = (F64)gBenchmarkProgram.mSamplesDrawn;
+    F32 samples_sec = (F32)((samples_drawn/1000000000.0)/seconds);
     gbps = samples_sec*4;  // 4 bytes per sample
 
     LL_INFOS("Benchmark") << "Memory bandwidth is " << llformat("%.3f", gbps) << " GB/sec according to ARB_timer_query, total time " << seconds << " seconds" << LL_ENDL;

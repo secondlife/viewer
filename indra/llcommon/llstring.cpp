@@ -250,7 +250,7 @@ LLWString utf16str_to_wstring(const U16* utf16str, size_t len)
     while (i < len)
     {
         llwchar cur_char;
-        i += utf16chars_to_wchar(chars16+i, &cur_char);
+        i += (S32)utf16chars_to_wchar(chars16+i, &cur_char);
         wout += cur_char;
     }
     return wout;

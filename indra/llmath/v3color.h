@@ -517,9 +517,9 @@ inline const LLVector3 linearColor3v(const T& a) {
 template<typename T>
 const LLColor3& LLColor3::set(const std::vector<T>& v)
 {
-    for (S32 i = 0; i < llmin((S32)v.size(), 3); ++i)
+    for (size_t i = 0; i < llmin(v.size(), 3); ++i)
     {
-        mV[i] = v[i];
+        mV[i] = (F32)v[i];
     }
 
     return *this;
@@ -530,9 +530,9 @@ const LLColor3& LLColor3::set(const std::vector<T>& v)
 template<typename T>
 void LLColor3::write(std::vector<T>& v) const
 {
-    for (int i = 0; i < llmin((S32)v.size(), 3); ++i)
+    for (size_t i = 0; i < llmin(v.size(), 3); ++i)
     {
-        v[i] = mV[i];
+        v[i] = (T)mV[i];
     }
 }
 

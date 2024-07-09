@@ -101,7 +101,7 @@ U32 micro_sleep(U64 us, U32 max_yields)
     WaitForSingleObject(timer, INFINITE);
     CloseHandle(timer);
 #else
-    Sleep(us / 1000);
+    Sleep((DWORD)(us / 1000));
 #endif
 
     return 0;

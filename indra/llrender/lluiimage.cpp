@@ -83,7 +83,7 @@ void LLUIImage::draw3D(const LLVector3& origin_agent, const LLVector3& x_axis, c
 
     LLRender2D::getInstance()->pushMatrix();
     {
-        LLVector3 rect_origin = origin_agent + (rect.mLeft * x_axis) + (rect.mBottom * y_axis);
+        LLVector3 rect_origin = origin_agent + ((F32)rect.mLeft * x_axis) + ((F32)rect.mBottom * y_axis);
         LLRender2D::getInstance()->translate(rect_origin.mV[VX],
                                             rect_origin.mV[VY],
                                             rect_origin.mV[VZ]);
@@ -100,8 +100,8 @@ void LLUIImage::draw3D(const LLVector3& origin_agent, const LLVector3& x_axis, c
                                         (rect.getHeight() - (border_height * border_scale * 0.5f)) / (F32)rect.getHeight(),
                                         (rect.getWidth() - (border_width * border_scale * 0.5f)) / (F32)rect.getWidth(),
                                         (border_height * border_scale * 0.5f) / (F32)rect.getHeight()),
-                                rect.getWidth() * x_axis,
-                                rect.getHeight() * y_axis);
+                                (F32)rect.getWidth() * x_axis,
+                                (F32)rect.getHeight() * y_axis);
 
     } LLRender2D::getInstance()->popMatrix();
 }

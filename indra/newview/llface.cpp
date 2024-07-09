@@ -2275,7 +2275,7 @@ F32 LLFace::adjustPixelArea(F32 importance, F32 pixel_area)
         {
             if(importance < LEAST_IMPORTANCE_FOR_LARGE_IMAGE)//if the face is not important, do not load hi-res.
             {
-                pixel_area = LLViewerTexture::sMinLargeImageSize ;
+                pixel_area = (F32)LLViewerTexture::sMinLargeImageSize ;
             }
         }
     }

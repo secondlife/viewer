@@ -168,10 +168,10 @@ void LLFloaterSnapshotBase::ImplBase::updateLayout(LLFloaterSnapshotBase* floate
         panel_width = 700.f;
     }
 
-    S32 floater_width = 224.f;
+    S32 floater_width{ 224 };
     if(mAdvanced)
     {
-        floater_width = floater_width + panel_width;
+        floater_width = floater_width + (S32)panel_width;
     }
 
     LLUICtrl* thumbnail_placeholder = floaterp->getChild<LLUICtrl>("thumbnail_placeholder");
@@ -185,7 +185,7 @@ void LLFloaterSnapshotBase::ImplBase::updateLayout(LLFloaterSnapshotBase* floate
     }
     if (!mSkipReshaping)
     {
-        thumbnail_placeholder->reshape(panel_width, thumbnail_placeholder->getRect().getHeight());
+        thumbnail_placeholder->reshape((S32)panel_width, thumbnail_placeholder->getRect().getHeight());
         if (!floaterp->isMinimized())
         {
             floaterp->reshape(floater_width, floaterp->getRect().getHeight());
@@ -283,7 +283,7 @@ void LLFloaterSnapshot::Impl::updateControls(LLFloaterSnapshotBase* floater)
             width_ctrl->setValue(w);
             if (getActiveSnapshotType(floater) == LLSnapshotModel::SNAPSHOT_TEXTURE)
             {
-                width_ctrl->setIncrement(w >> 1);
+                width_ctrl->setIncrement((F32)(w >> 1));
             }
         }
         if (height_ctrl->getValue().asInteger() == 0)
@@ -293,7 +293,7 @@ void LLFloaterSnapshot::Impl::updateControls(LLFloaterSnapshotBase* floater)
             height_ctrl->setValue(h);
             if (getActiveSnapshotType(floater) == LLSnapshotModel::SNAPSHOT_TEXTURE)
             {
-                height_ctrl->setIncrement(h >> 1);
+                height_ctrl->setIncrement((F32)(h >> 1));
             }
         }
 
@@ -303,9 +303,9 @@ void LLFloaterSnapshot::Impl::updateControls(LLFloaterSnapshotBase* floater)
             S32 width = gViewerWindow->getWindowWidthRaw();
             S32 height = gViewerWindow->getWindowHeightRaw();
 
-            width_ctrl->setMaxValue(width);
+            width_ctrl->setMaxValue((F32)width);
 
-            height_ctrl->setMaxValue(height);
+            height_ctrl->setMaxValue((F32)height);
 
             if (width_ctrl->getValue().asInteger() > width)
             {
@@ -761,8 +761,8 @@ void LLFloaterSnapshot::Impl::updateResolution(LLUICtrl* ctrl, void* data, bool 
             getHeightSpinner(view)->setValue(height);
             if (getActiveSnapshotType(view) == LLSnapshotModel::SNAPSHOT_TEXTURE)
             {
-                getWidthSpinner(view)->setIncrement(width >> 1);
-                getHeightSpinner(view)->setIncrement(height >> 1);
+                getWidthSpinner(view)->setIncrement((F32)(width >> 1));
+                getHeightSpinner(view)->setIncrement((F32)(height >> 1));
             }
         }
 
@@ -882,8 +882,8 @@ void LLFloaterSnapshot::Impl::setImageSizeSpinnersValues(LLFloaterSnapshotBase* 
     getHeightSpinner(view)->forceSetValue(height);
     if (getActiveSnapshotType(view) == LLSnapshotModel::SNAPSHOT_TEXTURE)
     {
-        getWidthSpinner(view)->setIncrement(width >> 1);
-        getHeightSpinner(view)->setIncrement(height >> 1);
+        getWidthSpinner(view)->setIncrement((F32)(width >> 1));
+        getHeightSpinner(view)->setIncrement((F32)(height >> 1));
     }
 }
 

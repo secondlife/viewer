@@ -140,7 +140,7 @@ LLColor4 LLTinyGLTFHelper::getColor(const std::vector<double>& in)
     LLColor4 out;
     for (S32 i = 0; i < llmin((S32)in.size(), 4); ++i)
     {
-        out.mV[i] = in[i];
+        out.mV[i] = (F32)in[i];
     }
 
     return out;

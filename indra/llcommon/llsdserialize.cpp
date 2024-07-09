@@ -231,7 +231,7 @@ bool LLSDSerialize::deserialize(LLSD& sd, std::istream& str, llssize max_bytes)
         }
         // Since we've already read 'inbuf' bytes into 'hdr_buf', prepend that
         // data to whatever remains in 'str'.
-        LLMemoryStreamBuf already(reinterpret_cast<const U8*>(hdr_buf), inbuf);
+        LLMemoryStreamBuf already(reinterpret_cast<const U8*>(hdr_buf), (S32)inbuf);
         cat_streambuf prebuff(&already, str.rdbuf());
         std::istream  prepend(&prebuff);
 #if 1
@@ -566,7 +566,7 @@ S32 LLSDNotationParser::doParse(std::istream& istr, LLSD& data, S32 max_depth) c
                 data,
                 NOTATION_FALSE_SERIAL,
                 false);
-            if(PARSE_FAILURE == cnt) parse_count = cnt;
+            if(PARSE_FAILURE == cnt) parse_count = (S32)cnt;
             else account(cnt);
         }
         else
@@ -592,7 +592,7 @@ S32 LLSDNotationParser::doParse(std::istream& istr, LLSD& data, S32 max_depth) c
         if(isalpha(c))
         {
             auto cnt = deserialize_boolean(istr,data,NOTATION_TRUE_SERIAL,true);
-            if(PARSE_FAILURE == cnt) parse_count = cnt;
+            if(PARSE_FAILURE == cnt) parse_count = (S32)cnt;
             else account(cnt);
         }
         else

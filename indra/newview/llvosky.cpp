@@ -107,7 +107,7 @@ void LLSkyTex::init(bool isShiny)
     {
         mTexture[i] = LLViewerTextureManager::getLocalTexture(false);
         mTexture[i]->setAddressMode(LLTexUnit::TAM_CLAMP);
-        mImageRaw[i] = new LLImageRaw(SKYTEX_RESOLUTION, SKYTEX_RESOLUTION, SKYTEX_COMPONENTS);
+        mImageRaw[i] = new LLImageRaw((U16)SKYTEX_RESOLUTION, (U16)SKYTEX_RESOLUTION, (S8)SKYTEX_COMPONENTS);
 
         initEmpty(i);
     }
@@ -139,7 +139,7 @@ LLSkyTex::~LLSkyTex()
 
 S32 LLSkyTex::getResolution()
 {
-    return SKYTEX_RESOLUTION;
+    return (S32)SKYTEX_RESOLUTION;
 }
 
 S32 LLSkyTex::getCurrent()
@@ -172,8 +172,8 @@ void LLSkyTex::initEmpty(const S32 tex)
     {
         for (S32 j = 0; j < SKYTEX_RESOLUTION; ++j)
         {
-            const S32 basic_offset = (i * SKYTEX_RESOLUTION + j);
-            S32 offset = basic_offset * SKYTEX_COMPONENTS;
+            const S32 basic_offset = (i * (S32)SKYTEX_RESOLUTION + j);
+            S32 offset = basic_offset * (S32)SKYTEX_COMPONENTS;
             data[offset] = 0;
             data[offset+1] = 0;
             data[offset+2] = 0;
@@ -194,8 +194,8 @@ void LLSkyTex::create()
     {
         for (S32 j = 0; j < SKYTEX_RESOLUTION; ++j)
         {
-            const S32 basic_offset = (i * SKYTEX_RESOLUTION + j);
-            S32 offset = basic_offset * SKYTEX_COMPONENTS;
+            const S32 basic_offset = (i * (S32)SKYTEX_RESOLUTION + j);
+            S32 offset = basic_offset * (S32)SKYTEX_COMPONENTS;
             U32* pix = (U32*)(data + offset);
             LLColor4U temp = LLColor4U(mSkyData[basic_offset]);
             *pix = temp.asRGBA();
@@ -392,8 +392,8 @@ const LLVector3* LLHeavenBody::corners() const
         Sky
 ***************************************/
 
-const S32 SKYTEX_TILE_RES_X = SKYTEX_RESOLUTION / NUM_TILES_X;
-const S32 SKYTEX_TILE_RES_Y = SKYTEX_RESOLUTION / NUM_TILES_Y;
+const S32 SKYTEX_TILE_RES_X = (S32)SKYTEX_RESOLUTION / NUM_TILES_X;
+const S32 SKYTEX_TILE_RES_Y = (S32)SKYTEX_RESOLUTION / NUM_TILES_Y;
 
 LLVOSky::LLVOSky(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
 :   LLStaticViewerObject(id, pcode, regionp, true),

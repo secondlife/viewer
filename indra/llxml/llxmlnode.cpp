@@ -38,7 +38,9 @@
 #include "v3math.h"
 #include "v3dmath.h"
 #include "v4math.h"
+#include "llbase64.h"
 #include "llquaternion.h"
+#include "llsd.h"
 #include "llstring.h"
 #include "lluuid.h"
 #include "lldir.h"
@@ -3262,4 +3264,172 @@ void LLXMLNode::setLineNumber(S32 line_number)
 S32 LLXMLNode::getLineNumber()
 {
     return mLineNumber;
+}
+
+bool LLXMLNode::parseXmlRpcArrayValue(LLSD& target)
+{
+    LLXMLNode* datap = getFirstChild().get();
+    if (!datap)
+    {
+        LL_WARNS() << "No inner XML element." << LL_ENDL;
+        return false;
+    }
+    if (!datap->hasName("data"))
+    {
+        LL_WARNS() << "No inner XML element (<data> expected, got: "
+                   << datap->mName->mString << ")" << LL_ENDL;
+        return false;
+    }
+    if (datap->getNextSibling().get())
+    {
+        LL_WARNS() << "Multiple inner XML elements (single <data> expected)"
+                   << LL_ENDL;
+        return false;
+    }
+    for (LLXMLNode* itemp = datap->getFirstChild().get(); itemp;
+         itemp = itemp->getNextSibling().get())
+    {
+        LLSD value;
+        if (!itemp->fromXMLRPCValue(value))
+        {
+            return false;
+        }
+        target.append(value);
+    }
+    return true;
+}
+
+bool LLXMLNode::parseXmlRpcStructValue(LLSD& target)
+{
+    std::string name;
+    LLSD value;
+    for (LLXMLNode* itemp = getFirstChild().get(); itemp;
+         itemp = itemp->getNextSibling().get())
+    {
+        if (!itemp->hasName("member"))
+        {
+            LL_WARNS() << "Invalid inner XML element (<member> expected, got: <"
+                       << itemp->mName->mString << ">" << LL_ENDL;
+            return false;
+        }
+        name.clear();
+        value.clear();
+        for (LLXMLNode* chilp = itemp->getFirstChild().get(); chilp;
+             chilp = chilp->getNextSibling().get())
+        {
+            if (chilp->hasName("name"))
+            {
+                name = LLStringFn::xml_decode(chilp->getTextContents());
+            }
+            else if (!chilp->fromXMLRPCValue(value))
+            {
+                return false;
+            }
+        }
+        if (name.empty())
+        {
+            LL_WARNS() << "Empty struct member name" << LL_ENDL;
+            return false;
+        }
+        target.insert(name, value);
+    }
+    return true;
+}
+
+bool LLXMLNode::fromXMLRPCValue(LLSD& target)
+{
+    target.clear();
+
+    if (!hasName("value"))
+    {
+        LL_WARNS() << "Invalid XML element (<value> expected), got: <"
+                   << mName->mString << ">" << LL_ENDL;
+        return false;
+    }
+
+    LLXMLNode* childp = getFirstChild().get();
+    if (!childp)
+    {
+        LL_WARNS() << "No inner XML element (value type expected)" << LL_ENDL;
+        // Value with no type qualifier is treated as string
+        target.assign(LLStringFn::xml_decode(getTextContents()));
+        return true;
+    }
+
+    if (childp->getNextSibling())
+    {
+        LL_WARNS() << "Multiple inner XML elements (single expected)"
+                   << LL_ENDL;
+        return false;
+    }
+
+    if (childp->hasName("string"))
+    {
+        target.assign(LLStringFn::xml_decode(childp->getTextContents()));
+        return true;
+    }
+
+    if (childp->hasName("int") || childp->hasName("i4"))
+    {
+        target.assign(std::stoi(childp->getTextContents()));
+        return true;
+    }
+
+    if (childp->hasName("double"))
+    {
+        target.assign(std::stod(childp->getTextContents()));
+        return true;
+    }
+
+    if (childp->hasName("boolean"))
+    {
+        target.assign(std::stoi(childp->getTextContents()) != 0);
+        return true;
+    }
+
+    if (childp->hasName("dateTime.iso8601"))
+    {
+        target.assign(LLSD::Date(childp->getTextContents()));
+        return true;
+    }
+
+    if (childp->hasName("base64"))
+    {
+        std::string decoded =
+            LLBase64::decodeAsString(childp->getTextContents());
+        size_t size = decoded.size();
+        LLSD::Binary binary(size);
+        if (size)
+        {
+            memcpy((void*)binary.data(), (void*)decoded.data(), size);
+        }
+        target.assign(binary);
+        return true;
+    }
+
+    if (childp->hasName("array"))
+    {
+        if (!childp->parseXmlRpcArrayValue(target))
+        {
+            target.clear();
+            return false;
+        }
+        return true;
+    }
+
+    if (childp->hasName("struct"))
+    {
+        if (!childp->parseXmlRpcStructValue(target))
+        {
+            target.clear();
+            return false;
+        }
+        return true;
+    }
+
+    LL_WARNS() << "Unknown inner XML element (known value type expected)"
+               << LL_ENDL;
+    // Value with unknown type qualifier is treated as string
+    target.assign(LLStringFn::xml_decode(childp->getTextContents()));
+    return true;
 }

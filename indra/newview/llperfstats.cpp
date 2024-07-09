@@ -91,7 +91,7 @@ namespace LLPerfStats
         const auto newval = gSavedSettings.getF32("RenderAvatarMaxART");
         if(newval < log10(LLPerfStats::ART_UNLIMITED_NANOS/1000))
         {
-            LLPerfStats::renderAvatarMaxART_ns = pow(10,newval)*1000;
+            LLPerfStats::renderAvatarMaxART_ns = (U64)pow(10,newval)*1000;
         }
         else
         {
@@ -301,7 +301,7 @@ namespace LLPerfStats
 
         std::vector<LLVector3d> positions;
         uuid_vec_t avatar_ids;
-        LLWorld::getInstance()->getAvatars(&avatar_ids, &positions, our_pos, distance);
+        LLWorld::getInstance()->getAvatars(&avatar_ids, &positions, our_pos, (F32)distance);
         return static_cast<int>(positions.size());
     }
 
@@ -375,7 +375,7 @@ namespace LLPerfStats
         {
             // if we have less than the user's "max Non-Impostors" avatars within the desired range then adjust the limit.
             // also adjusts back up again for nearby crowds.
-            auto count = countNearbyAvatars(std::min(LLPipeline::RenderFarClip, tunables.userImpostorDistance));
+            auto count = countNearbyAvatars((S32)std::min(LLPipeline::RenderFarClip, tunables.userImpostorDistance));
             if( count != tunables.nonImpostors )
             {
                 tunables.updateNonImposters(((U32)count < LLVOAvatar::NON_IMPOSTORS_MAX_SLIDER) ? count : 0);
@@ -476,7 +476,7 @@ namespace LLPerfStats
                 // max render this frame may be higher than the last (cos new entrants and jitter) so make sure we are heading in the right direction
                 if( new_render_limit_ns > renderAvatarMaxART_ns )
                 {
-                    new_render_limit_ns = renderAvatarMaxART_ns;
+                    new_render_limit_ns = (double)renderAvatarMaxART_ns;
                 }
 
                 if (new_render_limit_ns > LLPerfStats::ART_MIN_ADJUST_DOWN_NANOS)
@@ -485,12 +485,12 @@ namespace LLPerfStats
                 }
 
                 // bounce at the bottom to prevent "no limit"
-                new_render_limit_ns = std::max((U64)new_render_limit_ns, (U64)LLPerfStats::ART_MINIMUM_NANOS);
+                new_render_limit_ns = (double)std::max((U64)new_render_limit_ns, (U64)LLPerfStats::ART_MINIMUM_NANOS);
 
                 // assign the new value
                 if (renderAvatarMaxART_ns != new_render_limit_ns)
                 {
-                    renderAvatarMaxART_ns = new_render_limit_ns;
+                    renderAvatarMaxART_ns = (U64)new_render_limit_ns;
                     tunables.updateSettingsFromRenderCostLimit();
                 }
                 // LL_DEBUGS() << "AUTO_TUNE: avatar_budget adjusted to:" << new_render_limit_ns << LL_ENDL;

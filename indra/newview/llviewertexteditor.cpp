@@ -220,7 +220,7 @@ public:
         LLRectf image_rect = draw_rect;
         image_rect.mRight = image_rect.mLeft + mImage->getWidth();
         image_rect.mTop = image_rect.mBottom + mImage->getHeight();
-        mImage->draw(LLRect(image_rect.mLeft, image_rect.mTop, image_rect.mRight, image_rect.mBottom));
+        mImage->draw(LLRect((S32)image_rect.mLeft, (S32)image_rect.mTop, (S32)image_rect.mRight, (S32)image_rect.mBottom));
 
         LLColor4 color;
         if (mEditor.getReadOnly())

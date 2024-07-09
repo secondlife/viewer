@@ -290,16 +290,6 @@ public:
         // See http://xmlrpc.com/spec.md
         String asXMLRPCValue() const;
 
-        struct TreeNode
-        {
-            virtual bool hasName(const String& name) const = 0;
-            virtual String getTextContents() const = 0;
-            virtual TreeNode* getFirstChild() const = 0;
-            virtual TreeNode* getNextSibling() const = 0;
-        };
-
-        bool fromXMLRPCValue(TreeNode* node);
-
         operator Boolean() const    { return asBoolean(); }
         operator Integer() const    { return asInteger(); }
         operator Real() const       { return asReal(); }

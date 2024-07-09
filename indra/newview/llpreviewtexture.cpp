@@ -657,7 +657,7 @@ void LLPreviewTexture::adjustAspectRatio()
     S32 num = mImage->getFullWidth() / divisor;
     S32 denom = mImage->getFullHeight() / divisor;
 
-    if (setAspectRatio(num, denom))
+    if (setAspectRatio((F32)num, (F32)denom))
     {
         // Select corresponding ratio entry in the combo list
         LLComboBox* combo = getChild<LLComboBox>("combo_aspect_ratio");
@@ -677,7 +677,7 @@ void LLPreviewTexture::adjustAspectRatio()
             }
             else
             {
-                combo->setCurrentByIndex(found - mRatiosList.begin());
+                combo->setCurrentByIndex((S32)(found - mRatiosList.begin()));
             }
         }
     }
