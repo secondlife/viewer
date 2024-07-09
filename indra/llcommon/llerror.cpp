@@ -1045,7 +1045,7 @@ namespace LLError
             return;
         }
         SettingsConfigPtr s = Globals::getInstance()->getSettingsConfig();
-        std::unique_lock<boost::fibers::recursive_mutex> lock(s->mRecorderMutex);
+        std::unique_lock lock(s->mRecorderMutex);
         s->mRecorders.push_back(recorder);
     }
 
@@ -1056,7 +1056,7 @@ namespace LLError
             return;
         }
         SettingsConfigPtr s = Globals::getInstance()->getSettingsConfig();
-        std::unique_lock<boost::fibers::recursive_mutex> lock(s->mRecorderMutex);
+        std::unique_lock lock(s->mRecorderMutex);
         s->mRecorders.erase(std::remove(s->mRecorders.begin(), s->mRecorders.end(), recorder),
                             s->mRecorders.end());
     }
@@ -1105,7 +1105,7 @@ namespace LLError
     std::shared_ptr<RECORDER> findRecorder()
     {
         SettingsConfigPtr s = Globals::getInstance()->getSettingsConfig();
-        std::unique_lock<boost::fibers::recursive_mutex> lock(s->mRecorderMutex);
+        std::unique_lock lock(s->mRecorderMutex);
         return findRecorderPos<RECORDER>(s).first;
     }
 
@@ -1116,7 +1116,7 @@ namespace LLError
     bool removeRecorder()
     {
         SettingsConfigPtr s = Globals::getInstance()->getSettingsConfig();
-        std::unique_lock<boost::fibers::recursive_mutex> lock(s->mRecorderMutex);
+        std::unique_lock lock(s->mRecorderMutex);
         auto found = findRecorderPos<RECORDER>(s);
         if (found.first)
         {
@@ -1222,7 +1222,7 @@ namespace
 
         std::string escaped_message;
 
-        std::unique_lock<boost::fibers::recursive_mutex> lock(s->mRecorderMutex);
+        std::unique_lock lock(s->mRecorderMutex);
         for (LLError::RecorderPtr& r : s->mRecorders)
         {
             if (!r->enabled())
