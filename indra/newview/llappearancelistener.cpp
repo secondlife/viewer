@@ -38,7 +38,7 @@ LLAppearanceListener::LLAppearanceListener()
                "API to wear a specified outfit and wear/remove individual items")
 {
     add("wearOutfit",
-        "Wear outfit by folder id: [folder_id] OR by folder name: [folder_name]\n"
+        "Wear outfit by folder id: [\"folder_id\"] OR by folder name: [\"folder_name\"]\n"
         "When [\"append\"] is true, outfit will be added to COF\n"
         "otherwise it will replace current oufit",
         &LLAppearanceListener::wearOutfit);
@@ -91,36 +91,15 @@ void LLAppearanceListener::wearOutfit(LLSD const &data)
 
 void LLAppearanceListener::wearItems(LLSD const &data)
 {
-    if (data["items_id"].isArray())
-    {
-        uuid_vec_t ids;
-        for (const auto &id : llsd::inArray(data["items_id"]))
-        {
-            ids.push_back(id);
-        }
-        LLAppearanceMgr::instance().wearItemsOnAvatar(ids, true, data["replace"].asBoolean());
-    }
-    else
-    {
-        LLAppearanceMgr::instance().wearItemOnAvatar(data["items_id"].asUUID(), true, data["replace"].asBoolean());
-    }
+    LLAppearanceMgr::instance().wearItemsOnAvatar(
+        LLSDParam<uuid_vec_t>(data["items_id"]),
+        true, data["replace"].asBoolean());
 }
 
 void LLAppearanceListener::detachItems(LLSD const &data)
 {
-    if (data["items_id"].isArray())
-    {
-        uuid_vec_t ids;
-        for (const auto &id : llsd::inArray(data["items_id"]))
-        {
-            ids.push_back(id);
-        }
-        LLAppearanceMgr::instance().removeItemsFromAvatar(ids);
-    }
-    else
-    {
-        LLAppearanceMgr::instance().removeItemFromAvatar(data["items_id"].asUUID());
-    }
+    LLAppearanceMgr::instance().removeItemsFromAvatar(
+        LLSDParam<uuid_vec_t>(data["items_id"]));
 }
 
 void LLAppearanceListener::getOutfitsList(LLSD const &data)

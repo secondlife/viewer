@@ -525,6 +525,67 @@ private:
 } // namespace llsd
 
 /*****************************************************************************
+*   LLSDParam<std::vector<T>>
+*****************************************************************************/
+// Given an LLSD array, return a const std::vector<T>&, where T is a type
+// supported by LLSDParam. Bonus: if the LLSD value is actually a scalar,
+// return a single-element vector containing the converted value.
+template <typename T>
+class LLSDParam<std::vector<T>>: public LLSDParamBase
+{
+public:
+    LLSDParam(const LLSD& array)
+    {
+        // treat undefined "array" as empty vector
+        if (array.isDefined())
+        {
+            // what if it's a scalar?
+            if (! array.isArray())
+            {
+                v.push_back(LLSDParam<T>(array));
+            }
+            else                        // really is an array
+            {
+                // reserve space for the array entries
+                v.reserve(array.size());
+                for (const auto& item : llsd::inArray(array))
+                {
+                    v.push_back(LLSDParam<T>(item));
+                }
+            }
+        }
+    }
+
+    operator const std::vector<T>&() const { return v; }
+
+private:
+    std::vector<T> v;
+};
+
+/*****************************************************************************
+*   LLSDParam<std::map<std::string, T>>
+*****************************************************************************/
+// Given an LLSD map, return a const std::map<std::string, T>&, where T is a
+// type supported by LLSDParam.
+template <typename T>
+class LLSDParam<std::map<std::string, T>>: public LLSDParamBase
+{
+public:
+    LLSDParam(const LLSD& map)
+    {
+        for (const auto& pair : llsd::inMap(map))
+        {
+            m[pair.first] = LLSDParam<T>(pair.second);
+        }
+    }
+
+    operator const std::map<std::string, T>&() const { return m; }
+
+private:
+    std::map<std::string, T> m;
+};
+
+/*****************************************************************************
 *   deep and shallow clone
 *****************************************************************************/
 // Creates a deep clone of an LLSD object.  Maps, Arrays and binary objects
