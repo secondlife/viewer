@@ -59,7 +59,9 @@ public:
     void wearInventoryCategory(LLInventoryCategory* category, bool copy, bool append);
     void wearInventoryCategoryOnAvatar(LLInventoryCategory* category, bool append);
     void wearCategoryFinal(const LLUUID& cat_id, bool copy_items, bool append);
-    void wearOutfitByName(const std::string& name);
+    bool wearOutfit(const LLUUID &cat_id, std::string &error_msg, bool append = false);
+    bool wearOutfitByName(const std::string &name, std::string &error_msg, bool append = false);
+    bool wearOutfitByName(const std::string &name, bool append = false);
     void changeOutfit(bool proceed, const LLUUID& category, bool append);
     void replaceCurrentOutfit(const LLUUID& new_outfit);
     void renameOutfit(const LLUUID& outfit_id);
