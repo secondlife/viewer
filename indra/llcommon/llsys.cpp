@@ -818,7 +818,7 @@ void LLMemoryInfo::getAvailableMemoryKB(U32Kilobytes& avail_mem_kb)
     vm_size_t page_size;
     host_page_size(host, &page_size);
     kern_return_t result = host_statistics64(host, HOST_VM_INFO64, reinterpret_cast<host_info_t>(&vmstat), &count);
-    if (result == KERN_SUCCESS) 
+    if (result == KERN_SUCCESS)
     {
         avail_mem_kb = U64Bytes((vmstat.free_count + vmstat.inactive_count) * page_size);
     }
