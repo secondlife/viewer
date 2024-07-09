@@ -3396,7 +3396,7 @@ bool LLXMLNode::fromXMLRPCValue(LLSD& target)
     if (childp->hasName("base64"))
     {
         std::string decoded =
-            LLBase64::decodeAsString(inner->getTextContents());
+            LLBase64::decodeAsString(childp->getTextContents());
         size_t size = decoded.size();
         LLSD::Binary binary(size);
         if (size)
