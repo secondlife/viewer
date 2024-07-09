@@ -101,7 +101,14 @@ void LLMemory::initMaxHeapSizeGB(F32Gigabytes max_heap_size)
 void LLMemory::updateMemoryInfo()
 {
     LL_PROFILE_ZONE_SCOPED
-    U32Kilobytes avail_phys;
+    
+
+    sMaxPhysicalMemInKB = gSysMemory.getPhysicalMemoryKB();
+
+    U32Kilobytes avail_mem;
+    LLMemoryInfo::getAvailableMemoryKB(avail_mem);
+    sAvailPhysicalMemInKB = avail_mem;
+
 #if LL_WINDOWS
     PROCESS_MEMORY_COUNTERS counters;
 
@@ -114,10 +121,6 @@ void LLMemory::updateMemoryInfo()
     sAllocatedMemInKB = U32Kilobytes::convert(U64Bytes(counters.WorkingSetSize));
     sAllocatedPageSizeInKB = U32Kilobytes::convert(U64Bytes(counters.PagefileUsage));
     sample(sVirtualMem, sAllocatedPageSizeInKB);
-    U32Kilobytes avail_virtual;
-    LLMemoryInfo::getAvailableMemoryKB(avail_phys, avail_virtual) ;
-    sAvailPhysicalMemInKB = avail_phys;
-    sMaxPhysicalMemInKB = gSysMemory.getPhysicalMemoryKB();
 
 #elif defined(LL_DARWIN)
     task_vm_info info;

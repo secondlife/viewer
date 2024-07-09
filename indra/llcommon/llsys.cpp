@@ -74,6 +74,8 @@ using namespace llsd;
 #   include <mach/mach_host.h>
 #   include <mach/task.h>
 #   include <mach/task_info.h>
+#   include <sys/types.h>
+#   include <mach/mach_init.h>
 #elif LL_LINUX
 #   include <errno.h>
 #   include <sys/utsname.h>
@@ -798,33 +800,32 @@ U32Kilobytes LLMemoryInfo::getPhysicalMemoryKB() const
 }
 
 //static
-void LLMemoryInfo::getAvailableMemoryKB(U32Kilobytes& avail_physical_mem_kb, U32Kilobytes& avail_virtual_mem_kb)
+void LLMemoryInfo::getAvailableMemoryKB(U32Kilobytes& avail_mem_kb)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_MEMORY;
 #if LL_WINDOWS
     // Sigh, this shouldn't be a static method, then we wouldn't have to
     // reload this data separately from refresh()
     LLSD statsMap(loadStatsMap());
 
-    avail_physical_mem_kb = (U32Kilobytes)statsMap["Avail Physical KB"].asInteger();
-    avail_virtual_mem_kb  = (U32Kilobytes)statsMap["Avail Virtual KB"].asInteger();
+    avail_mem_kb = (U32Kilobytes)statsMap["Avail Physical KB"].asInteger();
 
 #elif LL_DARWIN
-    // mStatsMap is derived from vm_stat, look for (e.g.) "kb free":
-    // $ vm_stat
-    // Mach Virtual Memory Statistics: (page size of 4096 bytes)
-    // Pages free:                   462078.
-    // Pages active:                 142010.
-    // Pages inactive:               220007.
-    // Pages wired down:             159552.
-    // "Translation faults":      220825184.
-    // Pages copy-on-write:         2104153.
-    // Pages zero filled:         167034876.
-    // Pages reactivated:             65153.
-    // Pageins:                     2097212.
-    // Pageouts:                      41759.
-    // Object cache: 841598 hits of 7629869 lookups (11% hit rate)
-    avail_physical_mem_kb = (U32Kilobytes)-1 ;
-    avail_virtual_mem_kb = (U32Kilobytes)-1 ;
+    // use host_statistics64 to get memory info
+    vm_statistics64_data_t vmstat;
+    mach_msg_type_number_t count = HOST_VM_INFO64_COUNT;
+    mach_port_t host = mach_host_self();
+    vm_size_t page_size;
+    host_page_size(host, &page_size);
+    kern_return_t result = host_statistics64(host, HOST_VM_INFO64, reinterpret_cast<host_info_t>(&vmstat), &count);
+    if (result == KERN_SUCCESS) 
+    {
+        avail_mem_kb = U64Bytes((vmstat.free_count + vmstat.inactive_count) * page_size);
+    }
+    else
+    {
+        avail_mem_kb = (U32Kilobytes)-1;
+    }
 
 #elif LL_LINUX
     // mStatsMap is derived from MEMINFO_FILE:
@@ -875,15 +876,14 @@ void LLMemoryInfo::getAvailableMemoryKB(U32Kilobytes& avail_physical_mem_kb, U32
     // DirectMap4k:      434168 kB
     // DirectMap2M:      477184 kB
     // (could also run 'free', but easier to read a file than run a program)
-    avail_physical_mem_kb = (U32Kilobytes)-1 ;
-    avail_virtual_mem_kb = (U32Kilobytes)-1 ;
+    LLSD statsMap(loadStatsMap());
 
+    avail_mem_kb = (U32Kilobytes)statsMap["MemFree"].asInteger();
 #else
     //do not know how to collect available memory info for other systems.
     //leave it blank here for now.
 
-    avail_physical_mem_kb = (U32Kilobytes)-1 ;
-    avail_virtual_mem_kb = (U32Kilobytes)-1 ;
+    avail_mem_kb = (U32Kilobytes)-1 ;
 #endif
 }
 

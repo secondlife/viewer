@@ -134,8 +134,8 @@ public:
     static U32Kilobytes getHardwareMemSize(); // Because some Mac linkers won't let us reference extern gSysMemory from a different lib.
 #endif
 
-    //get the available memory infomation in KiloBytes.
-    static void getAvailableMemoryKB(U32Kilobytes& avail_physical_mem_kb, U32Kilobytes& avail_virtual_mem_kb);
+    //get the available memory in KiloBytes.
+    static void getAvailableMemoryKB(U32Kilobytes& avail_mem_kb);
 
     // Retrieve a map of memory statistics. The keys of the map are platform-
     // dependent. The values are in kilobytes to try to avoid integer overflow.
