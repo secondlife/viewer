@@ -101,7 +101,7 @@ void LLMemory::initMaxHeapSizeGB(F32Gigabytes max_heap_size)
 void LLMemory::updateMemoryInfo()
 {
     LL_PROFILE_ZONE_SCOPED;
-    
+
     sMaxPhysicalMemInKB = gSysMemory.getPhysicalMemoryKB();
 
     U32Kilobytes avail_mem;
