@@ -33,7 +33,6 @@
 
 #include "llagentwearables.h"
 #include "llappearancemgr.h"
-#include "llinventoryfunctions.h"
 #include "llinventoryicon.h"
 #include "llgesturemgr.h"
 #include "lltransutil.h"
@@ -41,14 +40,6 @@
 #include "llviewermenu.h"
 #include "llvoavatarself.h"
 
-class LLFindOutfitItems : public LLInventoryCollectFunctor
-{
-public:
-    LLFindOutfitItems() {}
-    virtual ~LLFindOutfitItems() {}
-    virtual bool operator()(LLInventoryCategory* cat,
-                            LLInventoryItem* item);
-};
 
 bool LLFindOutfitItems::operator()(LLInventoryCategory* cat,
                                    LLInventoryItem* item)
@@ -60,10 +51,10 @@ bool LLFindOutfitItems::operator()(LLInventoryCategory* cat,
            || (item->getType() == LLAssetType::AT_OBJECT)
            || (item->getType() == LLAssetType::AT_GESTURE))
         {
-            return TRUE;
+            return true;
         }
     }
-    return FALSE;
+    return false;
 }
 
 //////////////////////////////////////////////////////////////////////////
