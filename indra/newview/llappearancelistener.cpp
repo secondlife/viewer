@@ -91,38 +91,15 @@ void LLAppearanceListener::wearOutfit(LLSD const &data)
 
 void LLAppearanceListener::wearItems(LLSD const &data)
 {
-    const LLSD& items_id{ data["items_id"] };
-    uuid_vec_t ids;
-    if (! items_id.isArray())
-    {
-        ids.push_back(items_id.asUUID());
-    }
-    else                            // array
-    {
-        for (const auto &id : llsd::inArray(items_id))
-        {
-            ids.push_back(id);
-        }
-    }
-    LLAppearanceMgr::instance().wearItemsOnAvatar(ids, true, data["replace"].asBoolean());
+    LLAppearanceMgr::instance().wearItemsOnAvatar(
+        LLSDParam<uuid_vec_t>(data["items_id"]),
+        true, data["replace"].asBoolean());
 }
 
 void LLAppearanceListener::detachItems(LLSD const &data)
 {
-    const LLSD& items_id{ data["items_id"] };
-    uuid_vec_t ids;
-    if (! items_id.isArray())
-    {
-        ids.push_back(items_id.asUUID());
-    }
-    else                            // array
-    {
-        for (const auto &id : llsd::inArray(items_id))
-        {
-            ids.push_back(id);
-        }
-    }
-    LLAppearanceMgr::instance().removeItemsFromAvatar(ids);
+    LLAppearanceMgr::instance().removeItemsFromAvatar(
+        LLSDParam<uuid_vec_t>(data["items_id"]));
 }
 
 void LLAppearanceListener::getOutfitsList(LLSD const &data)
