@@ -925,7 +925,7 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
         imagep->mMaxVirtualSize = 0.f;
     }
 
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
     for (U32 i = 0; i < LLRender::NUM_TEXTURE_CHANNELS; ++i)
     {
         for (S32 fi = 0; fi < imagep->getNumFaces(i); ++fi)

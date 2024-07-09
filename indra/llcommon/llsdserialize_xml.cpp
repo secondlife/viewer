@@ -930,7 +930,7 @@ void LLSDXMLParser::parsePart(const char *buf, llssize len)
 // virtual
 S32 LLSDXMLParser::doParse(std::istream& input, LLSD& data, S32 max_depth) const
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_LLSD
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_LLSD;
 
     #ifdef XML_PARSER_PERFORMANCE_TESTS
     XML_Timer timer( &parseTime );

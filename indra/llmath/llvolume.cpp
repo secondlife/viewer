@@ -734,7 +734,7 @@ S32 LLProfile::getNumPoints(const LLProfileParams& params, bool path_open,F32 de
 bool LLProfile::generate(const LLProfileParams& params, bool path_open,F32 detail, S32 split,
                          bool is_sculpted, S32 sculpt_size)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
 
     if ((!mDirty) && (!is_sculpted))
     {
@@ -1216,7 +1216,7 @@ S32 LLPath::getNumNGonPoints(const LLPathParams& params, S32 sides, F32 startOff
 
 void LLPath::genNGon(const LLPathParams& params, S32 sides, F32 startOff, F32 end_scale, F32 twist_scale)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
 
     // Generates a circular path, starting at (1, 0, 0), counterclockwise along the xz plane.
     constexpr F32 tableScale[] = { 1, 1, 1, 0.5f, 0.707107f, 0.53f, 0.525f, 0.5f };
@@ -1452,7 +1452,7 @@ S32 LLPath::getNumPoints(const LLPathParams& params, F32 detail)
 bool LLPath::generate(const LLPathParams& params, F32 detail, S32 split,
                       bool is_sculpted, S32 sculpt_size)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
 
     if ((!mDirty) && (!is_sculpted))
     {
@@ -2029,7 +2029,7 @@ LLVolume::~LLVolume()
 
 bool LLVolume::generate()
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
 
     LL_CHECK_MEMORY
     llassert_always(mProfilep);
@@ -2289,7 +2289,7 @@ bool LLVolumeFace::VertexData::compareNormal(const LLVolumeFace::VertexData& rhs
 
 bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
 
     //input stream is now pointing at a zlib compressed block of LLSD
     //decompress block
@@ -2776,7 +2776,7 @@ S32 LLVolume::getNumFaces() const
 
 void LLVolume::createVolumeFaces()
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
 
     if (mGenerateSingleFace)
     {
@@ -3741,7 +3741,7 @@ void LLVolume::generateSilhouetteVertices(std::vector<LLVector3> &vertices,
                                           const LLMatrix3& norm_mat_in,
                                           S32 face_mask)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
 
     LLMatrix4a mat;
     mat.loadu(mat_in);
@@ -4870,7 +4870,7 @@ void LLVolumeFace::freeData()
 
 bool LLVolumeFace::create(LLVolume* volume, bool partial_build)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
 
     //tree for this face is no longer valid
     destroyOctree();
@@ -5545,7 +5545,7 @@ bool LLVolumeFace::cacheOptimize(bool gen_tangents)
 
 void LLVolumeFace::createOctree(F32 scaler, const LLVector4a& center, const LLVector4a& size)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
 
     if (getOctree())
     {
@@ -6556,7 +6556,7 @@ void LLVolumeFace::fillFromLegacyData(std::vector<LLVolumeFace::VertexData>& v, 
 
 bool LLVolumeFace::createSide(LLVolume* volume, bool partial_build)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
 
     LL_CHECK_MEMORY
     bool flat = mTypeMask & FLAT_MASK;
@@ -7090,7 +7090,7 @@ bool LLVolumeFace::createSide(LLVolume* volume, bool partial_build)
 void LLCalculateTangentArray(U32 vertexCount, const LLVector4a *vertex, const LLVector4a *normal,
         const LLVector2 *texcoord, U32 triangleCount, const U16* index_array, LLVector4a *tangent)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
 
     //LLVector4a *tan1 = new LLVector4a[vertexCount * 2];
     LLVector4a* tan1 = (LLVector4a*) ll_aligned_malloc_16(vertexCount*2*sizeof(LLVector4a));

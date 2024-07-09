@@ -1428,13 +1428,13 @@ bool LLAppViewer::doFrame()
             }
 
             {
-                LL_PROFILE_ZONE_NAMED_CATEGORY_APP("df mainloop")
+                LL_PROFILE_ZONE_NAMED_CATEGORY_APP("df mainloop");
                 // canonical per-frame event
                 mainloop.post(newFrame);
             }
 
             {
-                LL_PROFILE_ZONE_NAMED_CATEGORY_APP("df suspend")
+                LL_PROFILE_ZONE_NAMED_CATEGORY_APP("df suspend");
                 // give listeners a chance to run
                 llcoro::suspend();
                 // if one of our coroutines threw an uncaught exception, rethrow it now
@@ -1444,7 +1444,7 @@ bool LLAppViewer::doFrame()
 
         if (!LLApp::isExiting())
         {
-            LL_PROFILE_ZONE_NAMED_CATEGORY_APP( "df JoystickKeyboard" )
+            LL_PROFILE_ZONE_NAMED_CATEGORY_APP("df JoystickKeyboard");
             pingMainloopTimeout("Main:JoystickKeyboard");
 
             // Scan keyboard for movement keys.  Command keys and typing
@@ -1467,7 +1467,7 @@ bool LLAppViewer::doFrame()
             // Update state based on messages, user input, object idle.
             {
                 {
-                    LL_PROFILE_ZONE_NAMED_CATEGORY_APP( "df pauseMainloopTimeout" )
+                    LL_PROFILE_ZONE_NAMED_CATEGORY_APP("df pauseMainloopTimeout");
                     pauseMainloopTimeout(); // *TODO: Remove. Messages shouldn't be stalling for 20+ seconds!
                 }
 
@@ -1478,7 +1478,7 @@ bool LLAppViewer::doFrame()
                 }
 
                 {
-                    LL_PROFILE_ZONE_NAMED_CATEGORY_APP( "df resumeMainloopTimeout" )
+                    LL_PROFILE_ZONE_NAMED_CATEGORY_APP("df resumeMainloopTimeout");
                     resumeMainloopTimeout();
                 }
             }
@@ -1525,7 +1525,7 @@ bool LLAppViewer::doFrame()
         }
 
         {
-            LL_PROFILE_ZONE_NAMED_CATEGORY_APP( "df pauseMainloopTimeout" )
+            LL_PROFILE_ZONE_NAMED_CATEGORY_APP("df pauseMainloopTimeout");
         pingMainloopTimeout("Main:Sleep");
 
         pauseMainloopTimeout();
@@ -1534,14 +1534,14 @@ bool LLAppViewer::doFrame()
         // Sleep and run background threads
         {
             //LL_RECORD_BLOCK_TIME(SLEEP2);
-            LL_PROFILE_ZONE_WARN( "Sleep2" )
+            LL_PROFILE_ZONE_WARN("Sleep2");
 
             // yield some time to the os based on command line option
             static LLCachedControl<S32> yield_time(gSavedSettings, "YieldTime", -1);
             if(yield_time >= 0)
             {
                 LL_PROFILE_ZONE_NAMED_CATEGORY_APP("Yield");
-                LL_PROFILE_ZONE_NUM( yield_time )
+                LL_PROFILE_ZONE_NUM(yield_time);
                 ms_sleep(yield_time);
             }
 
@@ -1609,24 +1609,24 @@ bool LLAppViewer::doFrame()
             }
 
             {
-                LL_PROFILE_ZONE_NAMED_CATEGORY_APP( "df gMeshRepo" )
+                LL_PROFILE_ZONE_NAMED_CATEGORY_APP("df gMeshRepo");
             gMeshRepo.update() ;
             }
 
             if(!total_work_pending) //pause texture fetching threads if nothing to process.
             {
-                LL_PROFILE_ZONE_NAMED_CATEGORY_APP( "df getTextureCache" )
+                LL_PROFILE_ZONE_NAMED_CATEGORY_APP("df getTextureCache");
                 LLAppViewer::getTextureCache()->pause();
                 LLAppViewer::getTextureFetch()->pause();
             }
             if(!total_io_pending) //pause file threads if nothing to process.
             {
-                LL_PROFILE_ZONE_NAMED_CATEGORY_APP( "df LLVFSThread" )
+                LL_PROFILE_ZONE_NAMED_CATEGORY_APP("df LLVFSThread");
                 LLLFSThread::sLocal->pause();
             }
 
             {
-                LL_PROFILE_ZONE_NAMED_CATEGORY_APP( "df resumeMainloopTimeout" )
+                LL_PROFILE_ZONE_NAMED_CATEGORY_APP("df resumeMainloopTimeout");
                 resumeMainloopTimeout();
             }
             pingMainloopTimeout("Main:End");
@@ -1654,7 +1654,7 @@ bool LLAppViewer::doFrame()
         LL_INFOS() << "Exiting main_loop" << LL_ENDL;
     }
     }LLPerfStats::StatsRecorder::endFrame();
-    LL_PROFILER_FRAME_END
+    LL_PROFILER_FRAME_END;
 
     return ! LLApp::isRunning();
 }

@@ -143,7 +143,7 @@ public:
     virtual void visit(const LLOctreeNode<LLVolumeTriangle, LLVolumeTriangle*>* branch)
     { //this is a depth first traversal, so it's safe to assum all children have complete
         //bounding data
-        LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
 
             LLVolumeOctreeListener* node = (LLVolumeOctreeListener*)branch->getListener(0);
 

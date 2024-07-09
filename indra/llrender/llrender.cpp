@@ -1514,7 +1514,7 @@ LLLightState* LLRender::getLight(U32 index)
 
 void LLRender::setAmbientLightColor(const LLColor4& color)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
     if (color != mAmbientLightColor)
     {
         ++mLightHash;
