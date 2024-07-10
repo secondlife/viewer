@@ -485,7 +485,6 @@ public:
     // Send message to simulator to force grabbed controls to be
     // released, in case of a poorly written script.
     void            forceReleaseControls();
-    void            setFlagsDirty() { mbFlagsDirty = true; }
 
 private:
     S32             mControlsTakenCount[TOTAL_CONTROLS];
@@ -494,7 +493,6 @@ private:
     // transmission to the server.  It does NOT represent "input", rather
     // the consequences of it, which will sometimes depend on "state".
     U32             mControlFlags;                  // Replacement for the mFooKey's
-    bool            mbFlagsDirty;
     bool            mbFlagsNeedReset;               // ! HACK ! For preventing incorrect flags sent when crossing region boundaries
 
     //--------------------------------------------------------------------
@@ -508,8 +506,7 @@ public:
     // computed as a function of input and state, and are sent to the server
     // to steer its character controller for the avatar.
     //
-    void setExternalActionFlags(U32 flags);
-    void applyExternalActionFlags();
+    void applyExternalActionFlags(U32 flags);
     void updateFlycam();
 
     void pressGameControlButton(U8 button);
