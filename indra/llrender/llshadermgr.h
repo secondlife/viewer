@@ -378,7 +378,6 @@ public:
     bool mShaderCacheInitialized = false;
     bool mShaderCacheEnabled = false;
     std::string mShaderCacheDir;
-    static bool sMirrorsEnabled;
 
 protected:
 

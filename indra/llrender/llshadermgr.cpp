@@ -44,7 +44,6 @@ using std::make_pair;
 using std::string;
 
 LLShaderMgr * LLShaderMgr::sInstance = NULL;
-bool LLShaderMgr::sMirrorsEnabled = false;
 
 LLShaderMgr::LLShaderMgr()
 {
@@ -598,11 +597,6 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
         }
 
         extra_code_text[extra_code_count++] = strdup("#define FXAA_GLSL_130 1\n");
-    }
-
-    if (sMirrorsEnabled)
-    {
-        extra_code_text[extra_code_count++] = strdup("#define HERO_PROBES 1\n");
     }
 
     // Use alpha float to store bit flags
