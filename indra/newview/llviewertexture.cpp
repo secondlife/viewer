@@ -63,23 +63,18 @@
 #include "llwindow.h"
 ///////////////////////////////////////////////////////////////////////////////
 
-// extern
-const S32Megabytes gMinVideoRam(32);
-const S32Megabytes gMaxVideoRam(512);
-
-
 // statics
-LLPointer<LLViewerTexture>        LLViewerTexture::sNullImagep = NULL;
-LLPointer<LLViewerTexture>        LLViewerTexture::sBlackImagep = NULL;
-LLPointer<LLViewerTexture>        LLViewerTexture::sCheckerBoardImagep = NULL;
-LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sMissingAssetImagep = NULL;
-LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sWhiteImagep = NULL;
-LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sDefaultImagep = NULL;
-LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sSmokeImagep = NULL;
-LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sFlatNormalImagep = NULL;
+LLPointer<LLViewerTexture>        LLViewerTexture::sNullImagep = nullptr;
+LLPointer<LLViewerTexture>        LLViewerTexture::sBlackImagep = nullptr;
+LLPointer<LLViewerTexture>        LLViewerTexture::sCheckerBoardImagep = nullptr;
+LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sMissingAssetImagep = nullptr;
+LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sWhiteImagep = nullptr;
+LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sDefaultImagep = nullptr;
+LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sSmokeImagep = nullptr;
+LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sFlatNormalImagep = nullptr;
 LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sDefaultIrradiancePBRp;
 LLViewerMediaTexture::media_map_t LLViewerMediaTexture::sMediaMap;
-LLTexturePipelineTester* LLViewerTextureManager::sTesterp = NULL;
+LLTexturePipelineTester* LLViewerTextureManager::sTesterp = nullptr;
 F32 LLViewerFetchedTexture::sMaxVirtualSize = 8192.f*8192.f;
 
 const std::string sTesterName("TextureTester");
@@ -91,11 +86,11 @@ LLFrameTimer LLViewerTexture::sEvaluationTimer;
 F32 LLViewerTexture::sDesiredDiscardBias = 0.f;
 
 S32 LLViewerTexture::sMaxSculptRez = 128; //max sculpt image size
-const S32 MAX_CACHED_RAW_IMAGE_AREA = 64 * 64;
+constexpr S32 MAX_CACHED_RAW_IMAGE_AREA = 64 * 64;
 const S32 MAX_CACHED_RAW_SCULPT_IMAGE_AREA = LLViewerTexture::sMaxSculptRez * LLViewerTexture::sMaxSculptRez;
-const S32 MAX_CACHED_RAW_TERRAIN_IMAGE_AREA = 128 * 128;
-const S32 DEFAULT_ICON_DIMENSIONS = 32;
-const S32 DEFAULT_THUMBNAIL_DIMENSIONS = 256;
+constexpr S32 MAX_CACHED_RAW_TERRAIN_IMAGE_AREA = 128 * 128;
+constexpr S32 DEFAULT_ICON_DIMENSIONS = 32;
+constexpr S32 DEFAULT_THUMBNAIL_DIMENSIONS = 256;
 U32 LLViewerTexture::sMinLargeImageSize = 65536; //256 * 256.
 U32 LLViewerTexture::sMaxSmallImageSize = MAX_CACHED_RAW_IMAGE_AREA;
 bool LLViewerTexture::sFreezeImageUpdates = false;
