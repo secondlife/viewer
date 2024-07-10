@@ -47,9 +47,9 @@ LLViewerWindowListener::LLViewerWindowListener(LLViewerWindow* llviewerwindow):
         "Save screenshot: [\"filename\"] (extension may be specified: bmp, jpeg, png)\n"
         "[\"width\"], [\"height\"], [\"showui\"], [\"showhud\"], [\"rebuild\"], [\"type\"]\n"
         "type: \"COLOR\", \"DEPTH\"\n"
-        "Post on [\"reply\"] an event containing [\"ok\"]",
+        "Post on [\"reply\"] an event containing [\"result\"]",
         &LLViewerWindowListener::saveSnapshot,
-        llsd::map("filename", LLSD(), "reply", LLSD()));
+        llsd::map("filename", LLSD::String(), "reply", LLSD()));
     add("requestReshape",
         "Resize the window: [\"w\"], [\"h\"]",
         &LLViewerWindowListener::requestReshape);

@@ -132,9 +132,7 @@ end
 --          [, rebuild=false]}
 function UI.snapshot(...)
     local args = mapargs('filename,width,height,showui,showhud,rebuild,type', ...)
-    leap.request('LLViewerWindow', {op='saveSnapshot', filename = args.filename,
-                                    width=args.width, height=args.height,
-                                    showui=args.showui, showhud=args.showhud,
-                                    rebuild=args.rebuild, type=args.type})
+    args.op = 'saveSnapshot'
+    return leap.request('LLViewerWindow', args).result
 end
 return UI
