@@ -413,6 +413,12 @@ namespace tut
             "fiber.launch('catch_special', drain, catch_special)\n"
             "fiber.launch('requester(a)', requester, 'a')\n"
             "fiber.launch('requester(b)', requester, 'b')\n"
+            // A script can normally count on an implicit fiber.run() call
+            // because fiber.lua calls LL.atexit(fiber.run). But atexit()
+            // functions are called by ~LuaState(), which (in the code below)
+            // won't be called until *after* we expect to interact with the
+            // various fibers. So make an explicit call for test purposes.
+            "fiber.run()\n"
         );
 
         LLSD requests;
