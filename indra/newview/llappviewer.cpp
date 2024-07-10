@@ -4809,18 +4809,17 @@ void LLAppViewer::idle()
             gAgent.autoPilot(&yaw);
         }
 
-        send_agent_update(false);
-
-        // Some GameControl stuff needs to be executed even when the feature is not enabled
+        // Some GameControl logic needs to run even when the feature is not enabled
         // Note: we process game_control before sending AgentUpdate
         // because it may translate to control flags that control avatar motion.
         LLGameControl::processEvents(gFocusMgr.getAppHasFocus());
 
-        // trade flags between gAgent and LLGameControl
+        // get control flags from each side
         U32 control_flags = gAgent.getControlFlags();
-        U32 action_flags = LLGameControl::computeInternalActionFlags();
-        LLGameControl::setExternalInput(control_flags, gAgent.getGameControlButtonsFromKeys());
+        U32 game_control_action_flags = LLGameControl::computeInternalActionFlags();
 
+        // apply to GameControl
+        LLGameControl::setExternalInput(control_flags, gAgent.getGameControlButtonsFromKeys());
         bool should_send_game_control = LLGameControl::computeFinalStateAndCheckForChanges();
         if (LLPanelPreferenceGameControl::isWaitingForInputChannel())
         {
@@ -4833,28 +4832,13 @@ void LLAppViewer::idle()
             sendGameControlInput();
         }
 
-        // This GameControl stuff should NOT be executed when it isn't enabled
-        if (LLGameControl::isEnabled())
+        // apply to AvatarControl
+        if (LLGameControl::isEnabled() && LLGameControl::willControlAvatar())
         {
-            gAgent.setExternalActionFlags(action_flags);
+            gAgent.applyExternalActionFlags(game_control_action_flags);
         }
 
-        // When appropriate, update agent location to the simulator.
-        F32 agent_update_time = agent_update_timer.getElapsedTimeF32();
-        F32 agent_force_update_time = mLastAgentForceUpdate + agent_update_time;
-        bool force_update = gAgent.controlFlagsDirty()
-                            || (mLastAgentControlFlags != gAgent.getControlFlags())
-                            || (agent_force_update_time > (1.0f / (F32) AGENT_FORCE_UPDATES_PER_SECOND));
-        if (force_update || (agent_update_time > (1.0f / (F32) AGENT_UPDATES_PER_SECOND)))
-        {
-            gAgent.applyExternalActionFlags();
-            LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
-            // Send avatar and camera info
-            mLastAgentControlFlags = gAgent.getControlFlags();
-            mLastAgentForceUpdate = force_update ? 0 : agent_force_update_time;
-            send_agent_update(force_update);
-            agent_update_timer.reset();
-        }
+        send_agent_update(false);
     }
 
     //////////////////////////////////////

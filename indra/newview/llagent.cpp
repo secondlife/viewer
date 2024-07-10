@@ -4982,28 +4982,15 @@ void LLAgent::renderAutoPilotTarget()
     }
 }
 
-void LLAgent::setExternalActionFlags(U32 outer_flags)
-{
-    if (LLGameControl::willControlAvatar())
-    {
-        // save these flags for later, for when we're ready
-        // to actually send an AgentUpdate packet
-        mExternalActionFlags = outer_flags;
-        mbFlagsDirty = TRUE;
-    }
-}
-
 static U64 g_lastUpdateTime { 0 };
 static F32 g_deltaTime { 0.0f };
 static S32 g_lastUpdateFrame { 0 };
 static S32 g_deltaFrame { 0 };
 
-void LLAgent::applyExternalActionFlags()
+void LLAgent::applyExternalActionFlags(U32 outer_flags)
 {
-    if (! LLGameControl::isEnabled() || ! LLGameControl::willControlAvatar())
-    {
-        return;
-    }
+    assert(LLGameControl::isEnabled() && LLGameControl::willControlAvatar());
+    mExternalActionFlags = outer_flags;
 
     // HACK: AGENT_CONTROL_NUDGE_AT_NEG is used to toggle Flycam
     if ((mExternalActionFlags & AGENT_CONTROL_NUDGE_AT_NEG) > 0)

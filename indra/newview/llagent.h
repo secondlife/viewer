@@ -511,8 +511,7 @@ public:
     // computed as a function of input and state, and are sent to the server
     // to steer its character controller for the avatar.
     //
-    void setExternalActionFlags(U32 flags);
-    void applyExternalActionFlags();
+    void applyExternalActionFlags(U32 flags);
     void updateFlycam();
 
     void pressGameControlButton(U8 button);
