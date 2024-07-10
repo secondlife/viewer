@@ -55,7 +55,6 @@
 #include "llsingleton.h"
 #include "llstl.h"
 #include "lltimer.h"
-#include <boost/fiber/recursive_mutex.hpp>
 
 // On Mac, got:
 // #error "Boost.Stacktrace requires `_Unwind_Backtrace` function. Define
@@ -507,7 +506,7 @@ namespace
         LLError::TimeFunction               mTimeFunction;
 
         Recorders                           mRecorders;
-        boost::fibers::recursive_mutex      mRecorderMutex;
+        LLCoros::RMutex                     mRecorderMutex;
 
         int                                 mShouldLogCallCounter;
 
