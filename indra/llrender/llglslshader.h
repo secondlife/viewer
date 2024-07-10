@@ -343,7 +343,7 @@ public:
         constexpr static U8 TRANSMISSIVE = 16;
     };
 
-    constexpr static U8 NUM_GLTF_VARIANTS = 16;
+    constexpr static U8 NUM_GLTF_VARIANTS = 32;
 
     std::vector<LLGLSLShader> mGLTFVariants;
 

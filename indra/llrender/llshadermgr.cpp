@@ -1238,6 +1238,7 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("normalMap");
     mReservedUniforms.push_back("occlusionMap");
     mReservedUniforms.push_back("emissiveMap");
+    mReservedUniforms.push_back("transmissionMap");
     mReservedUniforms.push_back("bumpMap");
     mReservedUniforms.push_back("bumpMap2");
     mReservedUniforms.push_back("environmentMap");

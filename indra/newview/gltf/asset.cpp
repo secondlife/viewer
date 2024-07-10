@@ -216,7 +216,7 @@ void Asset::uploadMaterials()
         // add material properties
         F32 min_alpha = material.mAlphaMode == Material::AlphaMode::MASK ? material.mAlphaCutoff : -1.0f;
         md[i + 10] = vec4(material.mEmissiveFactor, 1.f);
-        md[i + 11] = vec4(0.f,
+        md[i + 11] = vec4(material.mTransmission.mTransmissionFactor,
             material.mPbrMetallicRoughness.mRoughnessFactor,
             material.mPbrMetallicRoughness.mMetallicFactor,
             min_alpha);

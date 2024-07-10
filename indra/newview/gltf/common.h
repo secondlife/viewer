@@ -90,10 +90,11 @@ namespace LL
             NORMAL,
             METALLIC_ROUGHNESS,
             OCCLUSION,
-            EMISSIVE
+            EMISSIVE,
+            TRANSMISSION,
         };
 
-        constexpr U32 TEXTURE_TYPE_COUNT = 5;
+        constexpr U32 TEXTURE_TYPE_COUNT = 6;
     }
 }
 

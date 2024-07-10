@@ -34,6 +34,7 @@ vec3 emissiveColor = vec3(0,0,0);
 float metallicFactor = 1.0;
 float roughnessFactor = 1.0;
 float minimum_alpha = -1.0;
+float transmissiveFactor = 0.0;
 
 layout (std140) uniform GLTFMaterials
 {
@@ -50,6 +51,7 @@ void unpackMaterial()
         roughnessFactor = gltf_material_data[idx+11].g;
         metallicFactor = gltf_material_data[idx+11].b;
         minimum_alpha -= gltf_material_data[idx+11].a;
+        transmissiveFactor = gltf_material_data[idx+11].r;
     }
 }
 
@@ -89,7 +91,12 @@ in vec2 occlusion_uv;
 // ==================================
 // needed by all alpha variants
 // ==================================
-#ifdef ALPHA_BLEND
+#if defined(ALPHA_BLEND) || defined(TRANSMISSIVE)
+
+#ifdef TRANSMISSIVE
+uniform sampler2D transmissiveMap;
+#endif
+
 in vec3 vary_fragcoord;
 uniform vec4 clipPlane;
 uniform float clipSign;
@@ -103,7 +110,7 @@ vec4 applySkyAndWaterFog(vec3 pos, vec3 additive, vec3 atten, vec4 color);
 // ==================================
 // needed by lit alpha
 // ==================================
-#if defined(ALPHA_BLEND) && !defined(UNLIT)
+#if (defined(ALPHA_BLEND) || defined(TRANSMISSIVE)) && !defined(UNLIT)
 
 #ifdef HAS_SUN_SHADOW
 uniform sampler2D lightMap;
@@ -177,7 +184,7 @@ vec3 pbrCalcPointLightOrSpotLight(vec3 diffuseColor, vec3 specularColor,
 // ==================================
 // output definition
 // ==================================
-#if defined(ALPHA_BLEND) || defined(UNLIT)
+#if defined(ALPHA_BLEND) || defined(TRANSMISSIVE) || defined(UNLIT)
 out vec4 frag_color;
 #else
 out vec4 frag_data[4];
@@ -246,7 +253,7 @@ void main()
 // ==================================
 // non alpha output
 // ==================================
-#ifndef ALPHA_BLEND
+#if !defined(ALPHA_BLEND) && !defined(TRANSMISSIVE)
 #ifdef UNLIT
     vec4 color = basecolor;
     color.rgb += emissive.rgb;
@@ -263,7 +270,7 @@ void main()
 // ==================================
 // alpha implementation
 // ==================================
-#ifdef ALPHA_BLEND
+#if defined(ALPHA_BLEND) || defined(TRANSMISSIVE)
 
     float scol = 1.0;
     vec3 sunlit;
@@ -327,13 +334,17 @@ void main()
     color.rgb = applySkyAndWaterFog(pos.xyz, additive, atten, vec4(color, 1.0)).rgb;
 
     float a = basecolor.a*vertex_color.a;
-
+    #if defined(TRANSMISSIVE)
+    float transmission_map = texture(transmissiveMap, base_color_uv.xy).r;
+    frag_color = vec4(transmissiveFactor * transmission_map);
+    #else
     frag_color = max(vec4(color.rgb,a), vec4(0));
+    #endif
 #else // UNLIT
     vec4 color = basecolor;
     color.rgb += emissive.rgb;
     frag_color = color;
 #endif
-#endif  // ALPHA_BLEND
+#endif  // ALPHA_BLEND || TRANSMISSIVE
 }
 

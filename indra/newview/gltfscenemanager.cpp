@@ -334,6 +334,11 @@ void GLTFSceneManager::renderOpaque()
     render(true);
 }
 
+void GLTFSceneManager::renderTransmissive()
+{
+    render(false, false, false, true);
+}
+
 void GLTFSceneManager::renderAlpha()
 {
     render(false);
@@ -542,20 +547,25 @@ void GLTFSceneManager::update()
     }
 }
 
-void GLTFSceneManager::render(bool opaque, bool rigged, bool unlit)
+void GLTFSceneManager::render(bool opaque, bool rigged, bool unlit, bool transmissive)
 {
     U8 variant = 0;
     if (rigged)
     {
         variant |= LLGLSLShader::GLTFVariant::RIGGED;
     }
-    if (!opaque)
+    if (!opaque && !transmissive)
     {
         variant |= LLGLSLShader::GLTFVariant::ALPHA_BLEND;
     }
     if (unlit)
     {
         variant |= LLGLSLShader::GLTFVariant::UNLIT;
+    }
+
+    if (transmissive)
+    {
+        variant |= LLGLSLShader::GLTFVariant::TRANSMISSIVE;
     }
 
     render(variant);
@@ -625,7 +635,7 @@ void GLTFSceneManager::render(Asset& asset, U8 variant)
 
         for (U32 i = 0; i < batches.size(); ++i)
         {
-            if (batches[i].mPrimitives.empty() || batches[i].mVertexBuffer.isNull())
+            if (batches[i].mVertexBuffer.isNull() || batches[i].mPrimitives.empty())
             {
                 continue;
             }
@@ -718,7 +728,8 @@ void GLTFSceneManager::bindTexture(Asset& asset, TextureType texture_type, Textu
         LLShaderMgr::NORMAL_MAP,
         LLShaderMgr::METALLIC_ROUGHNESS_MAP,
         LLShaderMgr::OCCLUSION_MAP,
-        LLShaderMgr::EMISSIVE_MAP
+        LLShaderMgr::EMISSIVE_MAP,
+        LLShaderMgr::TRANSMISSION_MAP,
     };
 
     S32 channel = LLGLSLShader::sCurBoundShaderPtr->getTextureChannel(uniform[(U8)type_idx]);
@@ -780,9 +791,9 @@ void GLTFSceneManager::bind(Asset& asset, Material& material)
         bindTexture(asset, TextureType::METALLIC_ROUGHNESS, material.mPbrMetallicRoughness.mMetallicRoughnessTexture, LLViewerFetchedTexture::sWhiteImagep);
         bindTexture(asset, TextureType::OCCLUSION, material.mOcclusionTexture, LLViewerFetchedTexture::sWhiteImagep);
         bindTexture(asset, TextureType::EMISSIVE, material.mEmissiveTexture, LLViewerFetchedTexture::sWhiteImagep);
+        bindTexture(asset, TextureType::TRANSMISSION, material.mTransmission.mTransmissionTexture, LLViewerFetchedTexture::sWhiteImagep);
     }
     
-    shader->uniform1f(LLShaderMgr::TRANSMISSION_FACTOR, material.mTransmission.mTransmissionFactor);
     shader->uniform1f(LLShaderMgr::IOR_FACTOR, material.mIOR.mIOR);
     shader->uniform3fv(LLShaderMgr::ATTENUATION_COLOR, 1, glm::value_ptr(material.mVolume.mAttenuationColor));
     shader->uniform1f(LLShaderMgr::ATTENUATION_DISTANCE, material.mVolume.mAttenuationDistance);

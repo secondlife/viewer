@@ -49,7 +49,7 @@ namespace LL
         void uploadSelection(); // decompose selected asset and upload to simulator
 
         void update();
-        void render(bool opaque, bool rigged = false, bool unlit = false);
+        void render(bool opaque, bool rigged = false, bool unlit = false, bool transmissive = false);
 
         // render the given variant of all assets
         // variant - bitmask according to LLGLSLShader::GLTFVariant flags
@@ -62,6 +62,7 @@ namespace LL
         void bindTexture(LL::GLTF::Asset& asset, LL::GLTF::TextureType texture_type, LL::GLTF::TextureInfo& info, LLViewerTexture* fallback);
         void renderOpaque();
         void renderAlpha();
+        void renderTransmissive();
 
         LLDrawable* lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
             bool pick_transparent,

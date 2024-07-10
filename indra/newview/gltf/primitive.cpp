@@ -441,6 +441,11 @@ bool Primitive::prep(Asset& asset)
         {
             mShaderVariant |= LLGLSLShader::GLTFVariant::MULTI_UV;
         }
+
+        if (material.mTransmission.mPresent)
+        {
+            mShaderVariant |= LLGLSLShader::GLTFVariant::TRANSMISSIVE;
+        }
     }
 
     if (mNormals.empty() && !unlit)

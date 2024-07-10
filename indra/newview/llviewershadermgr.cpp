@@ -282,18 +282,16 @@ static bool make_gltf_variant(LLGLSLShader& shader, LLGLSLShader& variant, bool 
         variant.addPermutation("UNLIT", "1");
     }
 
-    if (transmissive)
-    {
-        variant.addPermutation("TRANSMISSIVE", "1");
-    }
-
     if (multi_uv)
     {
         variant.addPermutation("MULTI_UV", "1");
     }
 
-    if (alpha_blend)
+    if (alpha_blend || transmissive)
     {
+        if (transmissive)
+            variant.addPermutation("TRANSMISSIVE", "1");
+
         variant.addPermutation("ALPHA_BLEND", "1");
 
         variant.mFeatures.calculatesLighting = false;

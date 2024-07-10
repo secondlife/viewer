@@ -189,7 +189,7 @@ vec3 gltf_tangent_space_transform(vec4 vertex_tangent, vec3 vertex_normal, vec4[
 }
 #endif
 
-#ifdef ALPHA_BLEND
+#if defined(ALPHA_BLEND) || defined(TRANSMISSIVE)
 out vec3 vary_fragcoord;
 #endif
 
@@ -320,7 +320,7 @@ void main()
 #endif
 
     vertex_color = diffuse_color;
-#ifdef ALPHA_BLEND
+#if defined(ALPHA_BLEND) || defined(TRANSMISSIVE)
     vary_fragcoord = vert.xyz;
 #endif
 }

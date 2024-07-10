@@ -7611,11 +7611,11 @@
       <key>Comment</key>
       <string>Enable strict GL debugging on the start of next session.</string>
       <key>Persist</key>
-      <integer>1</integer>
+      <integer>0</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
   <key>RenderDebugNormalScale</key>
   <map>

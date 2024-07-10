@@ -111,6 +111,7 @@ public:
         NORMAL_MAP,                         //  "normalMap"
         OCCLUSION_MAP,                      //  "occlusionMap"
         EMISSIVE_MAP,                       //  "emissiveMap"
+        TRANSMISSION_MAP,                   //  "transmissionMap"
         BUMP_MAP,                           //  "bumpMap"
         BUMP_MAP2,                          //  "bumpMap2"
         ENVIRONMENT_MAP,                    //  "environmentMap"
