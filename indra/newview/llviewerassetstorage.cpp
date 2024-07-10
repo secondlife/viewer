@@ -582,8 +582,11 @@ void LLViewerAssetStorage::assetRequestCoro(
         }
     }
 
-    // Clean up pending downloads and trigger callbacks
-    removeAndCallbackPendingDownloads(uuid, atype, uuid, atype, result_code, ext_status);
+    LLAppViewer::instance()->postToMainCoro(
+        [=]()
+    {
+        removeAndCallbackPendingDownloads(uuid, atype, uuid, atype, result_code, ext_status);
+    });
 }
 
 std::string LLViewerAssetStorage::getAssetURL(const std::string& cap_url, const LLUUID& uuid, LLAssetType::EType atype)
