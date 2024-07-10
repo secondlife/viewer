@@ -534,14 +534,23 @@ namespace LL
 
         // for internal use only, use copy_extensions instead
         template<typename T>
-        inline bool _copy_extension(const boost::json::object& extensions, std::string_view member, T* dst)
+        inline void _copy_extension(bool& success, const boost::json::object& extensions, std::string_view member, T* dst)
         {
             if (extensions.contains(member))
             {
-                return copy(extensions.at(member), *dst);
+                if (copy(extensions.at(member), *dst))
+                {
+                    success = true;
+                }
             }
+        }
 
-            return false;
+        // for internal use only, use copy_extensions instead
+        template<typename T, class... Types>
+        inline void _copy_extension(bool& success, const boost::json::object& extensions, std::string_view member, T* dst, Types... args)
+        {
+            _copy_extension(success, extensions, member, dst);
+            _copy_extension(success, extensions, args...);
         }
 
         // Copy all extensions from src.extensions to provided destinations
@@ -550,10 +559,12 @@ namespace LL
         //                  "KHR_materials_unlit", &mUnlit,
         //                  "KHR_materials_pbrSpecularGlossiness", &mPbrSpecularGlossiness);
         // returns true if any of the extensions are copied
-        template<class... Types>
+        template<typename... Types>
         inline bool copy_extensions(const boost::json::value& src, Types... args)
         {
             // extract the extensions object (don't assume it exists and verify that it is an object)
+            bool success = false;
+
             if (src.is_object())
             {
                 boost::json::object obj = src.get_object();
@@ -563,27 +574,17 @@ namespace LL
                     if (extensions.is_object())
                     {
                         const boost::json::object& ext_obj = extensions.as_object();
-                        bool success = false;
-                        // copy each extension, return true if any of them succeed, do not short circuit on success
-                        U32 count = sizeof...(args);
-                        for (U32 i = 0; i < count; i += 2)
-                        {
-                            if (_copy_extension(ext_obj, args...))
-                            {
-                                success = true;
-                            }
-                        }
-                        return success;
+                        _copy_extension(success, ext_obj, args...);
                     }
                 }
             }
 
-            return false;
+            return success;
         }
 
-        // internal use aonly, use write_extensions instead
+        // internal use only, use write_extensions instead
         template<typename T>
-        inline bool _write_extension(boost::json::object& extensions, const T* src, string_view member)
+        inline void _write_extension(bool &success, boost::json::object& extensions, const T* src, string_view member)
         {
             if (src->mPresent)
             {
@@ -591,11 +592,19 @@ namespace LL
                 if (write(*src, v))
                 {
                     extensions[member] = v;
-                    return true;
+                    success = true;
                 }
             }
-            return false;
         }
+
+        // for internal use only, use write_extensions instead
+        template<typename T, class... Types>
+        inline void _write_extension(bool &success, boost::json::object& extensions, const T* src, string_view member, Types... args)
+        {
+            _write_extension(success, extensions, src, member);
+            _write_extension(success, extensions, args...);
+        }
+
 
         // Write all extensions to dst.extensions
         // Usage:
@@ -609,15 +618,7 @@ namespace LL
             bool success = false;
 
             boost::json::object extensions;
-            U32 count = sizeof...(args) - 1;
-
-            for (U32 i = 0; i < count; i += 2)
-            {
-                if (_write_extension(extensions, args...))
-                {
-                    success = true;
-                }
-            }
+            _write_extension(success, extensions, args...);
 
             if (success)
             {

@@ -1417,11 +1417,11 @@ void Material::serialize(object& dst) const
     write(mAlphaMode, "alphaMode", dst, Material::AlphaMode::OPAQUE);
     write(mAlphaCutoff, "alphaCutoff", dst, 0.5f);
     write(mDoubleSided, "doubleSided", dst, false);
-    write_extensions(dst, &mUnlit, "KHR_materials_unlit");
-    write_extensions(dst, &mTransmission, "KHR_materials_transmission");
-    write_extensions(dst, &mIOR, "KHR_materials_ior");
-    write_extensions(dst, &mVolume, "KHR_materials_volume");
-    write_extensions(dst, &mDispersion, "KHR_materials_dispersion");
+    write_extensions(dst, &mUnlit, "KHR_materials_unlit",
+                          &mTransmission, "KHR_materials_transmission",
+                          &mIOR, "KHR_materials_ior",
+                          &mVolume, "KHR_materials_volume",
+                          &mDispersion, "KHR_materials_dispersion");
 }
 
 const Material& Material::operator=(const Value& src)
@@ -1437,11 +1437,11 @@ const Material& Material::operator=(const Value& src)
         copy(src, "alphaMode", mAlphaMode);
         copy(src, "alphaCutoff", mAlphaCutoff);
         copy(src, "doubleSided", mDoubleSided);
-        copy_extensions(src, "KHR_materials_unlit", &mUnlit);
-        copy_extensions(src, "KHR_materials_transmission", &mTransmission);
-        copy_extensions(src, "KHR_materials_ior", &mIOR);
-        copy_extensions(src, "KHR_materials_volume", &mVolume);
-        copy_extensions(src, "KHR_materials_dispersion", &mDispersion);
+        copy_extensions(src, "KHR_materials_unlit", &mUnlit,
+                             "KHR_materials_transmission", &mTransmission,
+                             "KHR_materials_ior", &mIOR,
+                             "KHR_materials_volume", &mVolume,
+                             "KHR_materials_dispersion", &mDispersion);
     }
     return *this;
 }
