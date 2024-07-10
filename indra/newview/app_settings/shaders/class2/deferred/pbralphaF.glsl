@@ -231,8 +231,8 @@ void main()
 
     vec3 v = -normalize(pos.xyz);
 
-    float tf = 1;
-    float ior = 1;
+    float tf = transmissionFactor;
+    float ior = iorFactor;
 
     color = pbrBaseLight(diffuseColor, specularColor, metallic, pos.xyz, v, norm.xyz, perceptualRoughness, light_dir, sunlit_linear, scol, radiance, irradiance, colorEmissive, ao, additive, atten, thicknessFactor, attenuationColor, attenuationDistance, iorFactor, dispersionFactor, tf);
 

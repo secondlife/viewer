@@ -621,21 +621,25 @@ vec3 getIBLVolumeRefraction(vec3 n, vec3 v, float perceptualRoughness, vec3 base
     // Dispersion will spread out the ior values for each r,g,b channel
     float halfSpread = (ior - 1.0) * 0.025 * dispersion;
     vec3 iors = vec3(ior - halfSpread, ior, ior + halfSpread);
-
+    thickness = 0;
+    ior = 1.5;
+    dispersion = 20;
     vec3 transmittedLight;
     float transmissionRayLength;
+
+    position = -position;
+
+    vec2 screenpos = 1 - (position.xy / position.z * 0.5 + 0.5);
     for (int i = 0; i < 3; i++)
     {
         vec3 transmissionRay = getVolumeTransmissionRay(n, v, thickness, iors[i]);
         // TODO: taking length of blue ray, ideally we would take the length of the green ray. For now overwriting seems ok
         transmissionRayLength = length(transmissionRay);
-        vec3 refractedRayExit = position + transmissionRay;
+        vec2 refractedRayExit = screenpos;// + transmissionRay.xy;
 
         // Project refracted vector on the framebuffer, while mapping to normalized device coordinates.
-        vec3 ndcPos = getPositionWithNDC(refractedRayExit);
-        vec2 refractionCoords = -(position.xy / position.z) + ndcPos.xy;
-        refractionCoords += 1.0;
-        refractionCoords /= 2.0;
+        vec3 ndcPos = getPositionWithNDC(vec3(refractedRayExit, 1.0));
+        vec2 refractionCoords = screenpos.xy;
 
         // Sample framebuffer to get pixel the refracted ray hits for this color channel.
         transmittedLight[i] = getTransmissionSample(refractionCoords, perceptualRoughness, iors[i])[i];

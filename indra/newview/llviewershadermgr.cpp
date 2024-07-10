@@ -249,7 +249,7 @@ static bool make_rigged_variant(LLGLSLShader& shader, LLGLSLShader& riggedShader
 }
 
 
-static bool make_gltf_variant(LLGLSLShader& shader, LLGLSLShader& variant, bool alpha_blend, bool rigged, bool unlit, bool multi_uv, bool use_sun_shadow)
+static bool make_gltf_variant(LLGLSLShader& shader, LLGLSLShader& variant, bool alpha_blend, bool rigged, bool unlit, bool multi_uv, bool use_sun_shadow, bool transmissive)
 {
     variant.mName = shader.mName.c_str();
     variant.mFeatures = shader.mFeatures;
@@ -280,6 +280,11 @@ static bool make_gltf_variant(LLGLSLShader& shader, LLGLSLShader& variant, bool 
     if (unlit)
     {
         variant.addPermutation("UNLIT", "1");
+    }
+
+    if (transmissive)
+    {
+        variant.addPermutation("TRANSMISSIVE", "1");
     }
 
     if (multi_uv)
@@ -334,8 +339,9 @@ static bool make_gltf_variants(LLGLSLShader& shader, bool use_sun_shadow)
         bool rigged = i & LLGLSLShader::GLTFVariant::RIGGED;
         bool unlit = i & LLGLSLShader::GLTFVariant::UNLIT;
         bool multi_uv = i & LLGLSLShader::GLTFVariant::MULTI_UV;
+        bool transmissive = i & LLGLSLShader::GLTFVariant::TRANSMISSIVE;
 
-        if (!make_gltf_variant(shader, shader.mGLTFVariants[i], alpha_blend, rigged, unlit, multi_uv, use_sun_shadow))
+        if (!make_gltf_variant(shader, shader.mGLTFVariants[i], alpha_blend, rigged, unlit, multi_uv, use_sun_shadow, transmissive))
         {
             return false;
         }
