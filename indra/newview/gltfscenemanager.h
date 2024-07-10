@@ -62,7 +62,7 @@ namespace LL
         void bindTexture(LL::GLTF::Asset& asset, LL::GLTF::TextureType texture_type, LL::GLTF::TextureInfo& info, LLViewerTexture* fallback);
         void renderOpaque();
         void renderAlpha();
-        void renderTransmissive();
+        void renderTransmissive(bool opaque);
 
         LLDrawable* lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
             bool pick_transparent,

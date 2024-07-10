@@ -334,9 +334,9 @@ void GLTFSceneManager::renderOpaque()
     render(true);
 }
 
-void GLTFSceneManager::renderTransmissive()
+void GLTFSceneManager::renderTransmissive(bool opaque)
 {
-    render(false, false, false, true);
+    render(opaque, false, false, true);
 }
 
 void GLTFSceneManager::renderAlpha()
@@ -630,6 +630,7 @@ void GLTFSceneManager::render(Asset& asset, U8 variant)
 
         bool opaque = !(variant & LLGLSLShader::GLTFVariant::ALPHA_BLEND);
         bool rigged = variant & LLGLSLShader::GLTFVariant::RIGGED;
+        bool transmissive = variant & LLGLSLShader::GLTFVariant::TRANSMISSIVE;
 
         bool shader_bound = false;
 
@@ -642,13 +643,18 @@ void GLTFSceneManager::render(Asset& asset, U8 variant)
 
             if (!shader_bound)
             { // don't bind the shader until we know we have somthing to render
-                if (opaque)
+                if (opaque && !transmissive)
                 {
                     gGLTFPBRMetallicRoughnessProgram.bind(variant);
                 }
                 else
                 { // alpha shaders need all the shadow map setup etc
                     gPipeline.bindDeferredShader(gGLTFPBRMetallicRoughnessProgram.mGLTFVariants[variant]);
+
+                    if (transmissive)
+                    { // bind distortion map needed by transmissive objects
+                        LLGLSLShader::sCurBoundShaderPtr->bindTexture(LLShaderMgr::SCENE_MAP, &gPipeline.mWaterDis);
+                    }
                 }
 
                 if (!rigged)
@@ -793,7 +799,7 @@ void GLTFSceneManager::bind(Asset& asset, Material& material)
         bindTexture(asset, TextureType::EMISSIVE, material.mEmissiveTexture, LLViewerFetchedTexture::sWhiteImagep);
         bindTexture(asset, TextureType::TRANSMISSION, material.mTransmission.mTransmissionTexture, LLViewerFetchedTexture::sWhiteImagep);
     }
-    
+
     shader->uniform1f(LLShaderMgr::IOR_FACTOR, material.mIOR.mIOR);
     shader->uniform3fv(LLShaderMgr::ATTENUATION_COLOR, 1, glm::value_ptr(material.mVolume.mAttenuationColor));
     shader->uniform1f(LLShaderMgr::ATTENUATION_DISTANCE, material.mVolume.mAttenuationDistance);
