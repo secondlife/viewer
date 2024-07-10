@@ -316,8 +316,6 @@ private:
 
     bool mQuitRequested;                // User wants to quit, may have modified documents open.
     bool mLogoutRequestSent;            // Disconnect message sent to simulator, no longer safe to send messages to the sim.
-    U32 mLastAgentControlFlags;
-    F32 mLastAgentForceUpdate;
     struct SettingsFiles* mSettingsLocationList;
 
     LLWatchdogTimeout* mMainloopTimeout;
@@ -336,10 +334,6 @@ private:
 
     bool mIsFirstRun;
 };
-
-// consts from viewer.h
-const S32 AGENT_UPDATES_PER_SECOND  = 125; // Value derived experimentally to avoid Input Delays with latest PBR-Capable Viewers when viewer FPS is highly volatile.
-const S32 AGENT_FORCE_UPDATES_PER_SECOND  = 1;
 
 // Globals with external linkage. From viewer.h
 // *NOTE:Mani - These will be removed as the Viewer App Cleanup project continues.

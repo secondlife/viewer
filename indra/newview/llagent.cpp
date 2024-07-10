@@ -425,7 +425,6 @@ LLAgent::LLAgent() :
     mIsDoNotDisturb(false),
 
     mControlFlags(0x00000000),
-    mbFlagsDirty(false),
     mbFlagsNeedReset(false),
 
     mAutoPilot(false),
@@ -922,8 +921,6 @@ void LLAgent::setFlying(bool fly, bool fail_sound)
 
     // Update Movement Controls according to Fly mode
     LLFloaterMove::setFlyingMode(fly);
-
-    mbFlagsDirty = true;
 }
 
 
@@ -1537,7 +1534,6 @@ U32 LLAgent::getControlFlags()
 void LLAgent::setControlFlags(U32 mask)
 {
     mControlFlags |= mask;
-    mbFlagsDirty = true;
 }
 
 
@@ -1548,18 +1544,6 @@ void LLAgent::clearControlFlags(U32 mask)
 {
     U32 old_flags = mControlFlags;
     mControlFlags &= ~mask;
-    if (old_flags != mControlFlags)
-    {
-        mbFlagsDirty = true;
-    }
-}
-
-//-----------------------------------------------------------------------------
-// controlFlagsDirty()
-//-----------------------------------------------------------------------------
-bool LLAgent::controlFlagsDirty() const
-{
-    return mbFlagsDirty;
 }
 
 //-----------------------------------------------------------------------------
@@ -1578,7 +1562,6 @@ void LLAgent::resetControlFlags()
     if (mbFlagsNeedReset)
     {
         mbFlagsNeedReset = false;
-        mbFlagsDirty = false;
         // reset all of the ephemeral flags
         // some flags are managed elsewhere
         mControlFlags &= AGENT_CONTROL_AWAY | AGENT_CONTROL_FLY | AGENT_CONTROL_MOUSELOOK;
@@ -4999,28 +4982,15 @@ void LLAgent::renderAutoPilotTarget()
     }
 }
 
-void LLAgent::setExternalActionFlags(U32 outer_flags)
-{
-    if (LLGameControl::willControlAvatar())
-    {
-        // save these flags for later, for when we're ready
-        // to actually send an AgentUpdate packet
-        mExternalActionFlags = outer_flags;
-        mbFlagsDirty = TRUE;
-    }
-}
-
 static U64 g_lastUpdateTime { 0 };
 static F32 g_deltaTime { 0.0f };
 static S32 g_lastUpdateFrame { 0 };
 static S32 g_deltaFrame { 0 };
 
-void LLAgent::applyExternalActionFlags()
+void LLAgent::applyExternalActionFlags(U32 outer_flags)
 {
-    if (! LLGameControl::isEnabled() || ! LLGameControl::willControlAvatar())
-    {
-        return;
-    }
+    assert(LLGameControl::isEnabled() && LLGameControl::willControlAvatar());
+    mExternalActionFlags = outer_flags;
 
     // HACK: AGENT_CONTROL_NUDGE_AT_NEG is used to toggle Flycam
     if ((mExternalActionFlags & AGENT_CONTROL_NUDGE_AT_NEG) > 0)
