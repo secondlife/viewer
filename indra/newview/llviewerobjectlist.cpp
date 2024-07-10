@@ -1129,10 +1129,10 @@ void LLViewerObjectList::fetchObjectCostsCoro(std::string url)
         {
             LLSD objectData = result[it->asString()];
 
-            F32 linkCost = objectData["linked_set_resource_cost"].asReal();
-            F32 objectCost = objectData["resource_cost"].asReal();
-            F32 physicsCost = objectData["physics_cost"].asReal();
-            F32 linkPhysicsCost = objectData["linked_set_physics_cost"].asReal();
+            F32 linkCost = (F32)objectData["linked_set_resource_cost"].asReal();
+            F32 objectCost = (F32)objectData["resource_cost"].asReal();
+            F32 physicsCost = (F32)objectData["physics_cost"].asReal();
+            F32 linkPhysicsCost = (F32)objectData["linked_set_physics_cost"].asReal();
 
             gObjectList.updateObjectCost(objectId, objectCost, linkCost, physicsCost, linkPhysicsCost);
         }
@@ -1257,10 +1257,10 @@ void LLViewerObjectList::fetchPhisicsFlagsCoro(std::string url)
 
             if (data.has("Density"))
             {
-                F32 density = data["Density"].asReal();
-                F32 friction = data["Friction"].asReal();
-                F32 restitution = data["Restitution"].asReal();
-                F32 gravityMult = data["GravityMultiplier"].asReal();
+                F32 density = (F32)data["Density"].asReal();
+                F32 friction = (F32)data["Friction"].asReal();
+                F32 restitution = (F32)data["Restitution"].asReal();
+                F32 gravityMult = (F32)data["GravityMultiplier"].asReal();
 
                 gObjectList.updatePhysicsProperties(objectId, density,
                     friction, restitution, gravityMult);

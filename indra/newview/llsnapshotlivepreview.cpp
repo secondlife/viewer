@@ -906,7 +906,7 @@ void LLSnapshotLivePreview::estimateDataSize()
                 break;
             case LLSnapshotModel::SNAPSHOT_FORMAT_JPEG:
                 // Observed from JPG compression tests
-                ratio = (110 - mSnapshotQuality) / 2;
+                ratio = (F32)(110 - mSnapshotQuality) / 2.f;
                 break;
             case LLSnapshotModel::SNAPSHOT_FORMAT_BMP:
                 ratio = 1.0;    // No compression with BMP

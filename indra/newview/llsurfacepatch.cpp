@@ -895,7 +895,7 @@ bool LLSurfacePatch::updateTexture()
 
 void LLSurfacePatch::updateGL()
 {
-    LL_PROFILE_ZONE_SCOPED
+    LL_PROFILE_ZONE_SCOPED;
     F32 meters_per_grid = getSurface()->getMetersPerGrid();
     F32 grids_per_patch_edge = (F32)getSurface()->getGridsPerPatchEdge();
 

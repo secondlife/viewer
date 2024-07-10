@@ -523,7 +523,7 @@ LLSD HttpCoroRawHandler::handleSuccess(LLCore::HttpResponse * response, LLCore::
     bas >> std::noskipws;
     data.assign(std::istream_iterator<U8>(bas), std::istream_iterator<U8>());
 
-    result[HttpCoroutineAdapter::HTTP_RESULTS_RAW] = data;
+    result[HttpCoroutineAdapter::HTTP_RESULTS_RAW] = std::move(data);
 
 #else
     // This is disabled because it's dangerous.  See the other case for an

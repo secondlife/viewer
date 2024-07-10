@@ -901,7 +901,7 @@ void _validateCert(int validation_policy,
 
     if (validation_policy & VALIDATION_POLICY_TIME)
     {
-        LLDate validation_date(time(NULL));
+        LLDate validation_date((double)time(NULL));
         if(validation_params.has(CERT_VALIDATION_DATE))
         {
             validation_date = validation_params[CERT_VALIDATION_DATE];
@@ -1111,7 +1111,7 @@ void LLBasicCertificateStore::validate(int validation_policy,
             }
             else
             {
-                validation_date = LLDate(time(NULL)); // current time
+                validation_date = LLDate((double)time(NULL)); // current time
             }
 
             if((validation_date < cache_entry->second.first) ||
@@ -1358,8 +1358,8 @@ void LLSecAPIBasicHandler::_readProtectedData(unsigned char *unique_id, U32 id_l
             protected_data_stream.read((char *)buffer, BUFFER_READ_SIZE);
 
             EVP_DecryptUpdate(ctx, decrypted_buffer, &decrypted_length,
-                              buffer, protected_data_stream.gcount());
-            decrypted_data.append((const char *)decrypted_buffer, protected_data_stream.gcount());
+                              buffer, (int)protected_data_stream.gcount());
+            decrypted_data.append((const char *)decrypted_buffer, (int)protected_data_stream.gcount());
         }
 
         // RC4 is a stream cipher, so we don't bother to EVP_DecryptFinal, as there is
@@ -1447,7 +1447,7 @@ void LLSecAPIBasicHandler::_writeProtectedData()
             }
             int encrypted_length;
             EVP_EncryptUpdate(ctx, encrypted_buffer, &encrypted_length,
-                          buffer, formatted_data_istream.gcount());
+                          buffer, (int)formatted_data_istream.gcount());
             protected_data_stream.write((const char *)encrypted_buffer, encrypted_length);
         }
 

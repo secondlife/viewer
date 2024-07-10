@@ -100,7 +100,7 @@ void LLMutex::unlock()
 
 bool LLMutex::isLocked()
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
     if (!mMutex.try_lock())
     {
         return true;
@@ -124,7 +124,7 @@ LLThread::id_t LLMutex::lockingThread() const
 
 bool LLMutex::trylock()
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
     if (isSelfLocked())
     { //redundant lock
         mCount++;
@@ -161,7 +161,7 @@ LLSharedMutex::LLSharedMutex()
 
 bool LLSharedMutex::isLocked() const
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
     std::lock_guard<std::mutex> lock(mLockMutex);
 
     return !mLockingThreads.empty();
@@ -169,7 +169,7 @@ bool LLSharedMutex::isLocked() const
 
 bool LLSharedMutex::isThreadLocked() const
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
     LLThread::id_t current_thread = LLThread::currentID();
     std::lock_guard<std::mutex> lock(mLockMutex);
 
@@ -179,7 +179,7 @@ bool LLSharedMutex::isThreadLocked() const
 
 void LLSharedMutex::lockShared()
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
     LLThread::id_t current_thread = LLThread::currentID();
 
     mLockMutex.lock();
@@ -204,7 +204,7 @@ void LLSharedMutex::lockShared()
 
 void LLSharedMutex::lockExclusive()
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
     LLThread::id_t current_thread = LLThread::currentID();
 
     mLockMutex.lock();
@@ -237,7 +237,7 @@ void LLSharedMutex::lockExclusive()
 
 bool LLSharedMutex::trylockShared()
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
     LLThread::id_t current_thread = LLThread::currentID();
     std::lock_guard<std::mutex> lock(mLockMutex);
 
@@ -260,7 +260,7 @@ bool LLSharedMutex::trylockShared()
 
 bool LLSharedMutex::trylockExclusive()
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
     LLThread::id_t current_thread = LLThread::currentID();
     std::lock_guard<std::mutex> lock(mLockMutex);
 
@@ -282,7 +282,7 @@ bool LLSharedMutex::trylockExclusive()
 
 void LLSharedMutex::unlockShared()
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
     LLThread::id_t current_thread = LLThread::currentID();
     std::lock_guard<std::mutex> lock(mLockMutex);
 
@@ -303,7 +303,7 @@ void LLSharedMutex::unlockShared()
 
 void LLSharedMutex::unlockExclusive()
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
     LLThread::id_t current_thread = LLThread::currentID();
     std::lock_guard<std::mutex> lock(mLockMutex);
 
@@ -338,20 +338,20 @@ LLCondition::~LLCondition()
 
 void LLCondition::wait()
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
     std::unique_lock< std::mutex > lock(mMutex);
     mCond.wait(lock);
 }
 
 void LLCondition::signal()
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
     mCond.notify_one();
 }
 
 void LLCondition::broadcast()
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
     mCond.notify_all();
 }
 
@@ -364,7 +364,7 @@ LLMutexTrylock::LLMutexTrylock(LLMutex* mutex)
     : mMutex(mutex),
     mLocked(false)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
     if (mMutex)
         mLocked = mMutex->trylock();
 }
@@ -373,7 +373,7 @@ LLMutexTrylock::LLMutexTrylock(LLMutex* mutex, U32 aTries, U32 delay_ms)
     : mMutex(mutex),
     mLocked(false)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
     if (!mMutex)
         return;
 
@@ -388,7 +388,7 @@ LLMutexTrylock::LLMutexTrylock(LLMutex* mutex, U32 aTries, U32 delay_ms)
 
 LLMutexTrylock::~LLMutexTrylock()
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
     if (mMutex && mLocked)
         mMutex->unlock();
 }
@@ -400,7 +400,7 @@ LLMutexTrylock::~LLMutexTrylock()
 //
 LLScopedLock::LLScopedLock(std::mutex* mutex) : mMutex(mutex)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
     if(mutex)
     {
         mutex->lock();
@@ -419,7 +419,7 @@ LLScopedLock::~LLScopedLock()
 
 void LLScopedLock::unlock()
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
     if(mLocked)
     {
         mMutex->unlock();

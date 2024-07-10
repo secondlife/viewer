@@ -343,7 +343,7 @@ std::string LLDXHardware::getDriverVersionWMI(EGPUVendor vendor)
 
             //convert BSTR to std::string
             std::wstring ws(caption, SysStringLen(caption));
-            std::string caption_str(ws.begin(), ws.end());
+            std::string caption_str = ll_convert_wide_to_string(ws);
             LLStringUtil::toLower(caption_str);
 
             bool found = false;
@@ -395,7 +395,7 @@ std::string LLDXHardware::getDriverVersionWMI(EGPUVendor vendor)
 
         //convert BSTR to std::string
         std::wstring ws(driverVersion, SysStringLen(driverVersion));
-        std::string str(ws.begin(), ws.end());
+        std::string str = ll_convert_wide_to_string(ws);
         LL_INFOS("AppInit") << " DriverVersion : " << str << LL_ENDL;
 
         if (mDriverVersion.empty())

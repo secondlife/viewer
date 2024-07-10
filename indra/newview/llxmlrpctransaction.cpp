@@ -68,17 +68,13 @@ class LLXMLRPCTransaction::Handler : public LLCore::HttpHandler
 {
 public:
     Handler(LLCore::HttpRequest::ptr_t &request, LLXMLRPCTransaction::Impl *impl);
-    virtual ~Handler();
 
-    virtual void onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response);
+    void onCompleted(LLCore::HttpHandle handle,
+                     LLCore::HttpResponse* response) override;
 
     typedef std::shared_ptr<LLXMLRPCTransaction::Handler> ptr_t;
 
 private:
-
-    bool parseResponse(LLXMLNodePtr root);
-    bool parseValue(LLSD& target, LLXMLNodePtr source);
-
     LLXMLRPCTransaction::Impl *mImpl;
     LLCore::HttpRequest::ptr_t mRequest;
 };
@@ -104,6 +100,8 @@ public:
 
     std::string         mResponseText;
     LLSD                mResponseData;
+    bool                mHasResponse;
+    bool                mResponseParsed;
 
     std::string         mCertStore;
     LLSD                mErrorCertData;
@@ -120,16 +118,16 @@ public:
 
     void setStatus(EStatus code, const std::string& message = "", const std::string& uri = "");
     void setHttpStatus(const LLCore::HttpStatus &status);
+
+private:
+    bool parseResponse(LLXMLNodePtr root);
+    bool parseValue(LLSD& target, LLXMLNodePtr source);
 };
 
 LLXMLRPCTransaction::Handler::Handler(LLCore::HttpRequest::ptr_t &request,
         LLXMLRPCTransaction::Impl *impl) :
     mImpl(impl),
     mRequest(request)
-{
-}
-
-LLXMLRPCTransaction::Handler::~Handler()
 {
 }
 
@@ -159,7 +157,6 @@ void LLXMLRPCTransaction::Handler::onCompleted(LLCore::HttpHandle handle,
         return;
     }
 
-    mImpl->setStatus(LLXMLRPCTransaction::StatusComplete);
     mImpl->mTransferStats = response->getTransferStats();
 
     // The contents of a buffer array are potentially noncontiguous, so we
@@ -169,88 +166,12 @@ void LLXMLRPCTransaction::Handler::onCompleted(LLCore::HttpHandle handle,
 
     body->read(0, mImpl->mResponseText.data(), body->size());
 
-    LLXMLNodePtr root;
-    if (!LLXMLNode::parseBuffer(mImpl->mResponseText.data(), body->size(), root, nullptr))
-    {
-        LL_WARNS() << "Failed parsing XML response; request URI: " << mImpl->mURI << LL_ENDL;
-        return;
-    }
-
-    if (!parseResponse(root))
-        return;
-
-    LL_INFOS() << "XML response parsed successfully; request URI: " << mImpl->mURI << LL_ENDL;
-}
-
-struct XMLTreeNode final : public LLSD::TreeNode
-{
-    XMLTreeNode(const LLXMLNodePtr impl)
-        : mImpl(impl)
-        , mFirstChild(impl ? create(impl->getFirstChild()) : nullptr)
-        , mNextSibling(impl ? create(impl->getNextSibling()) : nullptr)
-    {
-    }
-
-    static XMLTreeNode* create(LLXMLNodePtr node) { return node ? new XMLTreeNode(node) : nullptr; }
-
-    virtual bool hasName(const LLSD::String& name) const override { return mImpl && mImpl->hasName(name); }
-    virtual LLSD::String getTextContents() const override { return mImpl ? mImpl->getTextContents() : LLStringUtil::null; }
-    virtual TreeNode* getFirstChild() const override { return mFirstChild.get(); }
-    virtual TreeNode* getNextSibling() const override { return mNextSibling.get(); }
-
-private:
-    const LLXMLNodePtr mImpl;
-    const std::shared_ptr<XMLTreeNode> mFirstChild;
-    const std::shared_ptr<XMLTreeNode> mNextSibling;
-};
-
-bool LLXMLRPCTransaction::Handler::parseResponse(LLXMLNodePtr root)
-{
-    // We have alreasy checked in LLXMLNode::parseBuffer()
-    // that root contains exactly one child
-    if (!root->hasName("methodResponse"))
-    {
-        LL_WARNS() << "Invalid root element in XML response; request URI: " << mImpl->mURI << LL_ENDL;
-        return false;
-    }
-
-    LLXMLNodePtr first = root->getFirstChild();
-    LLXMLNodePtr second = first->getFirstChild();
-    if (!first->getNextSibling() && second && !second->getNextSibling())
-    {
-        if (first->hasName("fault"))
-        {
-            LLSD fault;
-            if (parseValue(fault, second) &&
-                fault.isMap() && fault.has("faultCode") && fault.has("faultString"))
-            {
-                LL_WARNS() << "Request failed;"
-                    << " faultCode: '" << fault.get("faultCode").asString() << "',"
-                    << " faultString: '" << fault.get("faultString").asString() << "',"
-                    << " request URI: " << mImpl->mURI << LL_ENDL;
-                return false;
-            }
-        }
-        else if (first->hasName("params") &&
-            second->hasName("param") && !second->getNextSibling())
-        {
-            LLXMLNodePtr third = second->getFirstChild();
-            if (third && !third->getNextSibling() && parseValue(mImpl->mResponseData, third))
-            {
-                return true;
-            }
-        }
-    }
-
-    LL_WARNS() << "Invalid response format; request URI: " << mImpl->mURI << LL_ENDL;
-
-    return false;
-}
-
-bool LLXMLRPCTransaction::Handler::parseValue(LLSD& target, LLXMLNodePtr source)
-{
-    XMLTreeNode tn(source);
-    return target.fromXMLRPCValue(&tn);
+    // We do not do the parsing in the HTTP coroutine, since it could exhaust
+    // the coroutine stack in extreme cases. Instead, we flag the data buffer
+    // as ready, and let mImpl decode it in its process() method, on the main
+    // coroutine. HB
+    mImpl->mHasResponse = true;
+    mImpl->setStatus(LLXMLRPCTransaction::StatusComplete);
 }
 
 //=========================================================================
@@ -265,6 +186,8 @@ LLXMLRPCTransaction::Impl::Impl
     : mHttpRequest()
     , mStatus(LLXMLRPCTransaction::StatusNotStarted)
     , mURI(uri)
+    , mHasResponse(false)
+    , mResponseParsed(false)
 {
     LLCore::HttpOptions::ptr_t httpOpts;
     LLCore::HttpHeaders::ptr_t httpHeaders;
@@ -278,8 +201,8 @@ LLXMLRPCTransaction::Impl::Impl
     httpOpts = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions());
 
     // Delay between repeats will start from 5 sec and grow to 20 sec with each repeat
-    httpOpts->setMinBackoff(5E6L);
-    httpOpts->setMaxBackoff(20E6L);
+    httpOpts->setMinBackoff((LLCore::HttpTime)5E6L);
+    httpOpts->setMaxBackoff((LLCore::HttpTime)20E6L);
 
     httpOpts->setTimeout(http_params.has("timeout") ? http_params["timeout"].asInteger() : 40L);
     if (http_params.has("retries"))
@@ -327,12 +250,86 @@ LLXMLRPCTransaction::Impl::Impl
         mURI, body.get(), httpOpts, httpHeaders, mHandler);
 }
 
+bool LLXMLRPCTransaction::Impl::parseResponse(LLXMLNodePtr root)
+{
+    // We have already checked in LLXMLNode::parseBuffer() that root contains
+    // exactly one child.
+    if (!root->hasName("methodResponse"))
+    {
+        LL_WARNS() << "Invalid root element in XML response; request URI: "
+                   << mURI << LL_ENDL;
+        return false;
+    }
+
+    LLXMLNodePtr first = root->getFirstChild();
+    LLXMLNodePtr second = first->getFirstChild();
+    if (first && !first->getNextSibling() && second &&
+        !second->getNextSibling())
+    {
+        if (first->hasName("fault"))
+        {
+            LLSD fault;
+            if (parseValue(fault, second) && fault.isMap() &&
+                fault.has("faultCode") && fault.has("faultString"))
+            {
+                LL_WARNS() << "Request failed. faultCode: '"
+                        << fault.get("faultCode").asString()
+                        << "', faultString: '"
+                        << fault.get("faultString").asString()
+                        << "', request URI: " << mURI << LL_ENDL;
+                return false;
+            }
+        }
+        else if (first->hasName("params") &&
+                 second->hasName("param") && !second->getNextSibling())
+        {
+            LLXMLNodePtr third = second->getFirstChild();
+            if (third && !third->getNextSibling() &&
+                parseValue(mResponseData, third))
+            {
+                return true;
+            }
+        }
+    }
+
+    LL_WARNS() << "Invalid response format; request URI: " << mURI << LL_ENDL;
+    return false;
+}
+
+bool LLXMLRPCTransaction::Impl::parseValue(LLSD& target, LLXMLNodePtr src)
+{
+    return src->fromXMLRPCValue(target);
+}
+
 bool LLXMLRPCTransaction::Impl::process()
 {
     if (!mPostH || !mHttpRequest)
     {
         LL_WARNS() << "transaction failed." << LL_ENDL;
         return true; //failed, quit.
+    }
+
+    // Parse the response when we have one and it has not yet been parsed. HB
+    if (mHasResponse && !mResponseParsed)
+    {
+        LLXMLNodePtr root;
+        if (!LLXMLNode::parseBuffer(mResponseText.data(), mResponseText.size(),
+                                    root, nullptr))
+        {
+ 	        LL_WARNS() << "Failed parsing XML in response; request URI: "
+                       << mURI << LL_ENDL;
+        }
+        else if (parseResponse(root))
+        {
+            LL_INFOS() << "XMLRPC response parsed successfully; request URI: "
+                       << mURI << LL_ENDL;
+        }
+        else
+        {
+            LL_WARNS() << "XMLRPC response parsing failed; request URI: "
+                       << mURI << LL_ENDL;
+        }
+        mResponseParsed = true;
     }
 
     switch (mStatus)

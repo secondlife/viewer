@@ -263,8 +263,8 @@ bool    LLFloaterIMNearbyChatScreenChannel::createPoolToast()
 
     LLToast::Params p;
     p.panel = panel;
-    p.lifetime_secs = gSavedSettings.getS32("NearbyToastLifeTime");
-    p.fading_time_secs = gSavedSettings.getS32("NearbyToastFadingTime");
+    p.lifetime_secs = (F32)gSavedSettings.getS32("NearbyToastLifeTime");
+    p.fading_time_secs = (F32)gSavedSettings.getS32("NearbyToastFadingTime");
 
     LLToast* toast = new LLFloaterIMNearbyChatToast(p, this);
 
@@ -643,8 +643,18 @@ void LLFloaterIMNearbyChatHandler::processChat(const LLChat& chat_msg,
             }
         }
 
+        std::string user_preferences;
+        if (chat_msg.mSourceType == CHAT_SOURCE_OBJECT)
+        {
+            user_preferences = gSavedSettings.getString("NotificationObjectIMOptions");
+        }
+        else
+        {
+            user_preferences = gSavedSettings.getString("NotificationNearbyChatOptions");
+        }
+
         //Will show toast when chat preference is set
-        if((gSavedSettings.getString("NotificationNearbyChatOptions") == "toast") || !nearby_chat->isMessagePaneExpanded())
+        if((user_preferences == "toast") || !nearby_chat->isMessagePaneExpanded())
         {
             // Add a nearby chat toast.
             LLUUID id;

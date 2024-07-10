@@ -244,8 +244,8 @@ void LLFloaterProfileTexture::updateDimensions()
     if (biggest_dim > MAX_DIMENTIONS)
     {
         F32 scale_down = MAX_DIMENTIONS / (F32)biggest_dim;
-        width *= scale_down;
-        height *= scale_down;
+        width = (S32)(width * scale_down);
+        height = (S32)(height * scale_down);
     }
 
     //reshape floater

@@ -425,7 +425,7 @@ void LLInventoryPanel::setFilterWorn()
 
 U32 LLInventoryPanel::getFilterObjectTypes() const
 {
-    return getFilter().getFilterObjectTypes();
+    return (U32)getFilter().getFilterObjectTypes();
 }
 
 U32 LLInventoryPanel::getFilterPermMask() const

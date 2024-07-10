@@ -738,7 +738,7 @@ bool LLImageGL::setImage(const U8* data_in, bool data_hasmips /* = false */, S32
                 }
                 if (is_compressed)
                 {
-                    S32 tex_size = dataFormatBytes(mFormatPrimary, w, h);
+                    GLsizei tex_size = (GLsizei)dataFormatBytes(mFormatPrimary, w, h);
                     glCompressedTexImage2D(mTarget, gl_level, mFormatPrimary, w, h, 0, tex_size, (GLvoid *)data_in);
                     stop_glerror();
                 }
@@ -941,7 +941,7 @@ bool LLImageGL::setImage(const U8* data_in, bool data_hasmips /* = false */, S32
         S32 h = getHeight();
         if (is_compressed)
         {
-            S32 tex_size = dataFormatBytes(mFormatPrimary, w, h);
+            GLsizei tex_size = (GLsizei)dataFormatBytes(mFormatPrimary, w, h);
             glCompressedTexImage2D(mTarget, 0, mFormatPrimary, w, h, 0, tex_size, (GLvoid *)data_in);
             stop_glerror();
         }
@@ -2418,7 +2418,7 @@ bool LLImageGL::scaleDown(S32 desired_discard)
         if (size > sScratchPBOSize)
         {
             glBufferData(GL_PIXEL_PACK_BUFFER, size, NULL, GL_STREAM_COPY);
-            sScratchPBOSize = size;
+            sScratchPBOSize = (U32)size;
         }
 
         glGetTexImage(mTarget, mip, mFormatPrimary, mFormatType, nullptr);

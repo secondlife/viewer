@@ -516,7 +516,7 @@ void LLTracker::drawBeacon(LLVector3 pos_agent, std::string direction, LLColor4 
         height = pos_agent.mV[2];
     }
 
-    nRows = ceil((BEACON_ROWS * height) / MAX_HEIGHT);
+    nRows = (U32)ceil((BEACON_ROWS * height) / MAX_HEIGHT);
     if(nRows<2) nRows=2;
     rowHeight = height / nRows;
 

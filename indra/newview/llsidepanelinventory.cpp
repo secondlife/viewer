@@ -372,7 +372,7 @@ void LLSidepanelInventory::onToggleInboxBtn()
         mInboxLayoutPanel->setTargetDim(gSavedPerAccountSettings.getS32("InventoryInboxHeight"));
         if (mInboxLayoutPanel->isInVisibleChain())
     {
-        gSavedPerAccountSettings.setU32("LastInventoryInboxActivity", time_corrected());
+        gSavedPerAccountSettings.setU32("LastInventoryInboxActivity", (U32)time_corrected());
     }
 }
     else
@@ -397,7 +397,7 @@ void LLSidepanelInventory::onOpen(const LLSD& key)
 #else
     if (mInboxEnabled && getChild<LLButton>(INBOX_BUTTON_NAME)->getToggleState())
     {
-        gSavedPerAccountSettings.setU32("LastInventoryInboxActivity", time_corrected());
+        gSavedPerAccountSettings.setU32("LastInventoryInboxActivity", (U32)time_corrected());
     }
 #endif
 

@@ -167,7 +167,7 @@ namespace {
         virtual void recordMessage(LLError::ELevel level,
                                     const std::string& message) override
         {
-            LL_PROFILE_ZONE_SCOPED_CATEGORY_LOGGING
+            LL_PROFILE_ZONE_SCOPED_CATEGORY_LOGGING;
             if (LLError::getAlwaysFlush())
             {
                 mFile << message << std::endl;
@@ -234,7 +234,7 @@ namespace {
         virtual void recordMessage(LLError::ELevel level,
                        const std::string& message) override
         {
-            LL_PROFILE_ZONE_SCOPED_CATEGORY_LOGGING
+            LL_PROFILE_ZONE_SCOPED_CATEGORY_LOGGING;
             // The default colors for error, warn and debug are now a bit more pastel
             // and easier to read on the default (black) terminal background but you
             // now have the option to set the color of each via an environment variables:
@@ -274,7 +274,7 @@ namespace {
 
         LL_FORCE_INLINE void writeANSI(const std::string& ansi_code, const std::string& message)
         {
-            LL_PROFILE_ZONE_SCOPED_CATEGORY_LOGGING
+            LL_PROFILE_ZONE_SCOPED_CATEGORY_LOGGING;
             static std::string s_ansi_bold = createBoldANSI();  // bold text
             static std::string s_ansi_reset = createResetANSI();  // reset
             // ANSI color code escape sequence, message, and reset in one fprintf call
@@ -311,7 +311,7 @@ namespace {
         virtual void recordMessage(LLError::ELevel level,
                                    const std::string& message) override
         {
-            LL_PROFILE_ZONE_SCOPED_CATEGORY_LOGGING
+            LL_PROFILE_ZONE_SCOPED_CATEGORY_LOGGING;
             mBuffer->addLine(message);
         }
 
@@ -338,7 +338,7 @@ namespace {
         virtual void recordMessage(LLError::ELevel level,
                                    const std::string& message) override
         {
-            LL_PROFILE_ZONE_SCOPED_CATEGORY_LOGGING
+            LL_PROFILE_ZONE_SCOPED_CATEGORY_LOGGING;
             debugger_print(message);
         }
     };
@@ -506,7 +506,7 @@ namespace
         LLError::TimeFunction               mTimeFunction;
 
         Recorders                           mRecorders;
-        LLCoros::Mutex                      mRecorderMutex;
+        LLCoros::RMutex                     mRecorderMutex;
 
         int                                 mShouldLogCallCounter;
 
@@ -1044,7 +1044,7 @@ namespace LLError
             return;
         }
         SettingsConfigPtr s = Globals::getInstance()->getSettingsConfig();
-        LLCoros::LockType lock(s->mRecorderMutex);
+        std::unique_lock lock(s->mRecorderMutex);
         s->mRecorders.push_back(recorder);
     }
 
@@ -1055,7 +1055,7 @@ namespace LLError
             return;
         }
         SettingsConfigPtr s = Globals::getInstance()->getSettingsConfig();
-        LLCoros::LockType lock(s->mRecorderMutex);
+        std::unique_lock lock(s->mRecorderMutex);
         s->mRecorders.erase(std::remove(s->mRecorders.begin(), s->mRecorders.end(), recorder),
                             s->mRecorders.end());
     }
@@ -1104,7 +1104,7 @@ namespace LLError
     std::shared_ptr<RECORDER> findRecorder()
     {
         SettingsConfigPtr s = Globals::getInstance()->getSettingsConfig();
-        LLCoros::LockType lock(s->mRecorderMutex);
+        std::unique_lock lock(s->mRecorderMutex);
         return findRecorderPos<RECORDER>(s).first;
     }
 
@@ -1115,7 +1115,7 @@ namespace LLError
     bool removeRecorder()
     {
         SettingsConfigPtr s = Globals::getInstance()->getSettingsConfig();
-        LLCoros::LockType lock(s->mRecorderMutex);
+        std::unique_lock lock(s->mRecorderMutex);
         auto found = findRecorderPos<RECORDER>(s);
         if (found.first)
         {
@@ -1215,13 +1215,13 @@ namespace
 
     void writeToRecorders(const LLError::CallSite& site, const std::string& message)
     {
-        LL_PROFILE_ZONE_SCOPED_CATEGORY_LOGGING
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_LOGGING;
         LLError::ELevel level = site.mLevel;
         SettingsConfigPtr s = Globals::getInstance()->getSettingsConfig();
 
         std::string escaped_message;
 
-        LLCoros::LockType lock(s->mRecorderMutex);
+        std::unique_lock lock(s->mRecorderMutex);
         for (LLError::RecorderPtr& r : s->mRecorders)
         {
             if (!r->enabled())
@@ -1346,7 +1346,7 @@ namespace LLError
 
     bool Log::shouldLog(CallSite& site)
     {
-        LL_PROFILE_ZONE_SCOPED_CATEGORY_LOGGING
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_LOGGING;
         LLMutexTrylock lock(getMutex<LOG_MUTEX>(), 5);
         if (!lock.isLocked())
         {
@@ -1391,7 +1391,7 @@ namespace LLError
 
     void Log::flush(const std::ostringstream& out, const CallSite& site)
     {
-        LL_PROFILE_ZONE_SCOPED_CATEGORY_LOGGING
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_LOGGING;
         LLMutexTrylock lock(getMutex<LOG_MUTEX>(),5);
         if (!lock.isLocked())
         {

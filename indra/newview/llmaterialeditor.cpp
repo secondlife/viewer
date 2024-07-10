@@ -648,7 +648,7 @@ void LLMaterialEditor::setBaseColor(const LLColor4& color)
 
 F32 LLMaterialEditor::getTransparency()
 {
-    return childGetValue("transparency").asReal();
+    return (F32)childGetValue("transparency").asReal();
 }
 
 void LLMaterialEditor::setTransparency(F32 transparency)
@@ -668,7 +668,7 @@ void LLMaterialEditor::setAlphaMode(const std::string& alpha_mode)
 
 F32 LLMaterialEditor::getAlphaCutoff()
 {
-    return childGetValue("alpha cutoff").asReal();
+    return (F32)childGetValue("alpha cutoff").asReal();
 }
 
 void LLMaterialEditor::setAlphaCutoff(F32 alpha_cutoff)
@@ -708,7 +708,7 @@ void LLMaterialEditor::setMetallicRoughnessUploadId(const LLUUID& id)
 
 F32 LLMaterialEditor::getMetalnessFactor()
 {
-    return childGetValue("metalness factor").asReal();
+    return (F32)childGetValue("metalness factor").asReal();
 }
 
 void LLMaterialEditor::setMetalnessFactor(F32 factor)
@@ -718,7 +718,7 @@ void LLMaterialEditor::setMetalnessFactor(F32 factor)
 
 F32 LLMaterialEditor::getRoughnessFactor()
 {
-    return childGetValue("roughness factor").asReal();
+    return (F32)childGetValue("roughness factor").asReal();
 }
 
 void LLMaterialEditor::setRoughnessFactor(F32 factor)
@@ -2618,13 +2618,13 @@ bool LLMaterialEditor::setFromGltfModel(const tinygltf::Model& model, S32 index,
         }
 
         setAlphaMode(material_in.alphaMode);
-        setAlphaCutoff(material_in.alphaCutoff);
+        setAlphaCutoff((F32)material_in.alphaCutoff);
 
         setBaseColor(LLTinyGLTFHelper::getColor(material_in.pbrMetallicRoughness.baseColorFactor));
         setEmissiveColor(LLTinyGLTFHelper::getColor(material_in.emissiveFactor));
 
-        setMetalnessFactor(material_in.pbrMetallicRoughness.metallicFactor);
-        setRoughnessFactor(material_in.pbrMetallicRoughness.roughnessFactor);
+        setMetalnessFactor((F32)material_in.pbrMetallicRoughness.metallicFactor);
+        setRoughnessFactor((F32)material_in.pbrMetallicRoughness.roughnessFactor);
 
         setDoubleSided(material_in.doubleSided);
     }

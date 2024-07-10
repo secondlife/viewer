@@ -899,25 +899,25 @@ void LLPanelVolume::sendPhysicsShapeType(LLUICtrl* ctrl, void* userdata)
 
 void LLPanelVolume::sendPhysicsGravity(LLUICtrl* ctrl, void* userdata)
 {
-    F32 val = ctrl->getValue().asReal();
+    F32 val = (F32)ctrl->getValue().asReal();
     LLSelectMgr::getInstance()->selectionSetGravity(val);
 }
 
 void LLPanelVolume::sendPhysicsFriction(LLUICtrl* ctrl, void* userdata)
 {
-    F32 val = ctrl->getValue().asReal();
+    F32 val = (F32)ctrl->getValue().asReal();
     LLSelectMgr::getInstance()->selectionSetFriction(val);
 }
 
 void LLPanelVolume::sendPhysicsRestitution(LLUICtrl* ctrl, void* userdata)
 {
-    F32 val = ctrl->getValue().asReal();
+    F32 val = (F32)ctrl->getValue().asReal();
     LLSelectMgr::getInstance()->selectionSetRestitution(val);
 }
 
 void LLPanelVolume::sendPhysicsDensity(LLUICtrl* ctrl, void* userdata)
 {
-    F32 val = ctrl->getValue().asReal();
+    F32 val = (F32)ctrl->getValue().asReal();
     LLSelectMgr::getInstance()->selectionSetDensity(val);
 }
 
@@ -1099,10 +1099,10 @@ void LLPanelVolume::onPasteFeatures()
 
         objectp->setMaterial(material);
         objectp->sendMaterialUpdate();
-        objectp->setPhysicsGravity(clipboard["physics"]["gravity"].asReal());
-        objectp->setPhysicsFriction(clipboard["physics"]["friction"].asReal());
-        objectp->setPhysicsDensity(clipboard["physics"]["density"].asReal());
-        objectp->setPhysicsRestitution(clipboard["physics"]["restitution"].asReal());
+        objectp->setPhysicsGravity((F32)clipboard["physics"]["gravity"].asReal());
+        objectp->setPhysicsFriction((F32)clipboard["physics"]["friction"].asReal());
+        objectp->setPhysicsDensity((F32)clipboard["physics"]["density"].asReal());
+        objectp->setPhysicsRestitution((F32)clipboard["physics"]["restitution"].asReal());
         objectp->updateFlags(true);
     }
 
@@ -1127,10 +1127,10 @@ void LLPanelVolume::onPasteFeatures()
             LLFlexibleObjectData new_attributes;
             new_attributes = *attributes;
             new_attributes.setSimulateLOD(clipboard["flex"]["lod"].asInteger());
-            new_attributes.setGravity(clipboard["flex"]["gav"].asReal());
-            new_attributes.setTension(clipboard["flex"]["ten"].asReal());
-            new_attributes.setAirFriction(clipboard["flex"]["fri"].asReal());
-            new_attributes.setWindSensitivity(clipboard["flex"]["sen"].asReal());
+            new_attributes.setGravity((F32)clipboard["flex"]["gav"].asReal());
+            new_attributes.setTension((F32)clipboard["flex"]["ten"].asReal());
+            new_attributes.setAirFriction((F32)clipboard["flex"]["fri"].asReal());
+            new_attributes.setWindSensitivity((F32)clipboard["flex"]["sen"].asReal());
             F32 fx = (F32)clipboard["flex"]["forx"].asReal();
             F32 fy = (F32)clipboard["flex"]["fory"].asReal();
             F32 fz = (F32)clipboard["flex"]["forz"].asReal();

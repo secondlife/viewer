@@ -84,7 +84,7 @@ extern thread_local bool gProfilerEnabled;
 //      #define TRACY_NO_BROADCAST   1
 //      #define TRACY_ONLY_LOCALHOST 1
         #define TRACY_ONLY_IPV4      1
-        #include "Tracy.hpp"
+        #include "tracy/Tracy.hpp"
 
         // Enable OpenGL profiling
         #define LL_PROFILER_ENABLE_TRACY_OPENGL 0

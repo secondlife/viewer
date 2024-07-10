@@ -479,8 +479,8 @@ void LLVOCacheEntry::updateDebugSettings()
     LLMemory::updateMemoryInfo() ;
     U32 allocated_mem = LLMemory::getAllocatedMemKB().value();
     static const F32 KB_to_MB = 1.f / 1024.f;
-    U32 clamped_memory = llclamp(allocated_mem * KB_to_MB, (F32) low_mem_bound_MB, (F32) high_mem_bound_MB);
-    const F32 adjust_range = high_mem_bound_MB - low_mem_bound_MB;
+    U32 clamped_memory = (U32)llclamp(allocated_mem * KB_to_MB, (F32) low_mem_bound_MB, (F32) high_mem_bound_MB);
+    const F32 adjust_range = (F32)(high_mem_bound_MB - low_mem_bound_MB);
     const F32 adjust_factor = (high_mem_bound_MB - clamped_memory) / adjust_range; // [0, 1]
 
     //min radius: all objects within this radius remain loaded in memory
@@ -502,7 +502,7 @@ void LLVOCacheEntry::updateDebugSettings()
     static const U32 MIN_FRAMES = 10;
     static const U32 MAX_FRAMES = 64;
     const U32 clamped_frames = inv_obj_time ? llclamp((U32) inv_obj_time, MIN_FRAMES, MAX_FRAMES) : MAX_FRAMES; // [10, 64], with zero => 64
-    sMinFrameRange = MIN_FRAMES + ((clamped_frames - MIN_FRAMES) * adjust_factor);
+    sMinFrameRange = MIN_FRAMES + (U32)((clamped_frames - MIN_FRAMES) * adjust_factor);
 }
 #endif // LL_TEST
 
@@ -1762,7 +1762,7 @@ void LLVOCache::writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry:
 
         entry = new HeaderEntryInfo();
         entry->mHandle = handle ;
-        entry->mTime = time(NULL) ;
+        entry->mTime = (U32)time(NULL) ;
         entry->mIndex = mNumEntries++;
         mHeaderEntryQueue.insert(entry) ;
         mHandleEntryMap[handle] = entry ;
@@ -1775,7 +1775,7 @@ void LLVOCache::writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry:
         //resort
         mHeaderEntryQueue.erase(entry) ;
 
-        entry->mTime = time(NULL) ;
+        entry->mTime = (U32)time(NULL) ;
         mHeaderEntryQueue.insert(entry) ;
     }
 

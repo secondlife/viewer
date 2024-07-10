@@ -101,7 +101,7 @@ public:
         LLScrollingPanel::draw();
 
         F32 x = 4; // padding-left
-        F32 y = getRect().getHeight() / 2;
+        F32 y = (F32)(getRect().getHeight() / 2);
         LLFontGL::getFontSansSerif()->render(
             mText,                           // wstr
             0,                               // begin_offset
@@ -137,8 +137,8 @@ public:
     {
         LLScrollingPanel::draw();
 
-        F32 x = getRect().getWidth() / 2;
-        F32 y = getRect().getHeight() / 2;
+        F32 x = (F32)(getRect().getWidth() / 2);
+        F32 y = (F32)(getRect().getHeight() / 2);
         LLFontGL::getFontEmojiLarge()->render(
             mChar,                      // wstr
             0,                          // begin_offset
@@ -206,7 +206,7 @@ public:
         static LLColor4 defaultColor(0.75f, 0.75f, 0.75f, 1.0f);
         LLColor4 textColor = LLUIColorTable::instance().getColor("MenuItemEnabledColor", defaultColor);
         S32 max_pixels = clientWidth - iconWidth;
-        drawName(iconWidth, centerY, max_pixels, textColor);
+        drawName((F32)iconWidth, centerY, max_pixels, textColor);
     }
 
 protected:
@@ -229,7 +229,7 @@ protected:
     void drawName(F32 x, F32 y, S32 max_pixels, LLColor4& color)
     {
         F32 x0 = x;
-        F32 x1 = max_pixels;
+        F32 x1 = (F32)max_pixels;
         LLFontGL* font = LLFontGL::getFontEmojiLarge();
         if (mBegin)
         {
@@ -245,7 +245,7 @@ protected:
                 LLFontGL::NORMAL,              // style
                 LLFontGL::DROP_SHADOW_SOFT,    // shadow
                 static_cast<S32>(text.size()), // max_chars
-                x1);                           // max_pixels
+                (S32)x1);                      // max_pixels
             F32 dx = font->getWidthF32(text);
             x0 += dx;
             x1 -= dx;
@@ -264,7 +264,7 @@ protected:
                 LLFontGL::NORMAL,              // style
                 LLFontGL::DROP_SHADOW_SOFT,    // shadow
                 static_cast<S32>(text.size()), // max_chars
-                x1);                           // max_pixels
+                (S32)x1);                      // max_pixels
             F32 dx = font->getWidthF32(text);
             x0 += dx;
             x1 -= dx;
@@ -283,7 +283,7 @@ protected:
                 LLFontGL::NORMAL,              // style
                 LLFontGL::DROP_SHADOW_SOFT,    // shadow
                 static_cast<S32>(text.size()), // max_chars
-                x1);                           // max_pixels
+                (S32)x1);                      // max_pixels
         }
     }
 
@@ -864,7 +864,7 @@ void LLFloaterEmojiPicker::onGroupButtonClick(LLUICtrl* ctrl)
         if (it == mGroupButtons.end())
             return;
 
-        selectEmojiGroup(it - mGroupButtons.begin());
+        selectEmojiGroup((U32)(it - mGroupButtons.begin()));
     }
 }
 

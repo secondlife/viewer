@@ -225,7 +225,7 @@ void LLInboxFolderViewFolder::deFreshify()
 {
     mFresh = false;
 
-    gSavedPerAccountSettings.setU32("LastInventoryInboxActivity", time_corrected());
+    gSavedPerAccountSettings.setU32("LastInventoryInboxActivity", (U32)time_corrected());
     LLInboxNewItemsStorage::getInstance()->removeItem(static_cast<LLFolderViewModelItemInventory*>(getViewModelItem())->getUUID());
 }
 
@@ -304,7 +304,7 @@ void LLInboxFolderViewItem::deFreshify()
 {
     mFresh = false;
 
-    gSavedPerAccountSettings.setU32("LastInventoryInboxActivity", time_corrected());
+    gSavedPerAccountSettings.setU32("LastInventoryInboxActivity", (U32)time_corrected());
 }
 
 LLInboxNewItemsStorage::LLInboxNewItemsStorage()

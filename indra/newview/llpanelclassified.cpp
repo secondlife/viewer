@@ -479,8 +479,8 @@ void LLPanelClassifiedInfo::stretchSnapshot()
     // Lets increase texture height to force texture look as expected.
     rc.mBottom -= BTN_HEIGHT_SMALL;
 
-    F32 t_width = texture->getFullWidth();
-    F32 t_height = texture->getFullHeight();
+    F32 t_width = (F32)texture->getFullWidth();
+    F32 t_height = (F32)texture->getFullHeight();
 
     F32 ratio = llmin<F32>( (rc.getWidth() / t_width), (rc.getHeight() / t_height) );
 

@@ -833,7 +833,7 @@ void LLViewerTextureList::updateImages(F32 max_time)
     }
     cleared = false;
 
-    LLAppViewer::getTextureFetch()->setTextureBandwidth(LLTrace::get_frame_recording().getPeriodMeanPerSec(LLStatViewer::TEXTURE_NETWORK_DATA_RECEIVED).value());
+    LLAppViewer::getTextureFetch()->setTextureBandwidth((F32)LLTrace::get_frame_recording().getPeriodMeanPerSec(LLStatViewer::TEXTURE_NETWORK_DATA_RECEIVED).value());
 
     {
         using namespace LLStatViewer;
@@ -925,7 +925,7 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
         imagep->mMaxVirtualSize = 0.f;
     }
 
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
     for (U32 i = 0; i < LLRender::NUM_TEXTURE_CHANNELS; ++i)
     {
         for (S32 fi = 0; fi < imagep->getNumFaces(i); ++fi)
@@ -963,7 +963,7 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
                 if (apply_bias)
                 {
                     F32 bias = powf(4, LLViewerTexture::sDesiredDiscardBias - 1.f);
-                    bias = llround(bias);
+                    bias = (F32)llround(bias);
                     vsize /= bias;
                 }
 

@@ -449,7 +449,7 @@ void LLHUDNameTag::addLine(const std::string &text_utf8,
                         // token does does not fit into signle line, need to draw "...".
                         // Use four dots for ellipsis width to generate padding
                         const LLWString dots_pad(utf8str_to_wstring(std::string("....")));
-                        S32 elipses_width = font->getWidthF32(dots_pad.c_str());
+                        S32 elipses_width = (S32)font->getWidthF32(dots_pad.c_str());
                         // truncated string length
                         segment_length = font->maxDrawableChars(iter->substr(line_length).c_str(), max_pixels - elipses_width, static_cast<S32>(wline.length()), LLFontGL::ANYWHERE);
                         const LLWString dots(utf8str_to_wstring(std::string("...")));
@@ -780,7 +780,7 @@ void LLHUDNameTag::updateAll()
     }
 
     LLTrace::CountStatHandle<>* camera_vel_stat = LLViewerCamera::getVelocityStat();
-    F32 camera_vel = LLTrace::get_frame_recording().getLastRecording().getPerSec(*camera_vel_stat);
+    F32 camera_vel = (F32)LLTrace::get_frame_recording().getLastRecording().getPerSec(*camera_vel_stat);
     if (camera_vel > MAX_STABLE_CAMERA_VELOCITY)
     {
         return;

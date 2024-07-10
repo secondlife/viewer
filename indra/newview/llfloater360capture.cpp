@@ -488,7 +488,7 @@ void LLFloater360Capture::capture360Images()
     // 'GPano:InitialViewHeadingDegrees' field.
     // We need to convert from the angle getYaw() gives us into something
     // the XMP data field wants (N=0, E=90, S=180, W= 270 etc.)
-    mInitialHeadingDeg  = (360 + 90 - (int)(camera->getYaw() * RAD_TO_DEG)) % 360;
+    mInitialHeadingDeg  = (float)((360 + 90 - (int)(camera->getYaw() * RAD_TO_DEG)) % 360);
     LL_INFOS("360Capture") << "Recording a heading of " << (int)(mInitialHeadingDeg)
         << " Image size: " << (S32)mSourceImageSize << LL_ENDL;
 

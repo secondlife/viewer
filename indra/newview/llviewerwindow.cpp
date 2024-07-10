@@ -805,8 +805,8 @@ public:
             LLCoordGL coord = gViewerWindow->getCurrentMouse();
 
             // Convert x,y to raw pixel coords
-            S32 x_raw = llround(coord.mX * gViewerWindow->getWindowWidthRaw() / (F32) gViewerWindow->getWindowWidthScaled());
-            S32 y_raw = llround(coord.mY * gViewerWindow->getWindowHeightRaw() / (F32) gViewerWindow->getWindowHeightScaled());
+            S32 x_raw = (S32)llround(coord.mX * gViewerWindow->getWindowWidthRaw() / (F32) gViewerWindow->getWindowWidthScaled());
+            S32 y_raw = (S32)llround(coord.mY * gViewerWindow->getWindowHeightRaw() / (F32) gViewerWindow->getWindowHeightScaled());
 
             glReadPixels(x_raw, y_raw, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, color);
             addText(xpos, ypos, llformat("Pixel <%1d, %1d> R:%1d G:%1d B:%1d A:%1d", x_raw, y_raw, color[0], color[1], color[2], color[3]));
@@ -4479,8 +4479,8 @@ LLVector3 LLViewerWindow::mouseDirectionGlobal(const S32 x, const S32 y) const
     F32         fov = LLViewerCamera::getInstance()->getView();
 
     // find world view center in scaled ui coordinates
-    F32         center_x = getWorldViewRectScaled().getCenterX();
-    F32         center_y = getWorldViewRectScaled().getCenterY();
+    F32         center_x = (F32)getWorldViewRectScaled().getCenterX();
+    F32         center_y = (F32)getWorldViewRectScaled().getCenterY();
 
     // calculate pixel distance to screen
     F32         distance = ((F32)getWorldViewHeightScaled() * 0.5f) / (tan(fov / 2.f));
@@ -4505,8 +4505,8 @@ LLVector3 LLViewerWindow::mousePointHUD(const S32 x, const S32 y) const
     S32         height = getWorldViewHeightScaled();
 
     // find world view center
-    F32         center_x = getWorldViewRectScaled().getCenterX();
-    F32         center_y = getWorldViewRectScaled().getCenterY();
+    F32         center_x = (F32)getWorldViewRectScaled().getCenterX();
+    F32         center_y = (F32)getWorldViewRectScaled().getCenterY();
 
     // remap with uniform scale (1/height) so that top is -0.5, bottom is +0.5
     F32 hud_x = -((F32)x - center_x)  / height;
@@ -4528,8 +4528,8 @@ LLVector3 LLViewerWindow::mouseDirectionCamera(const S32 x, const S32 y) const
     S32         width = getWorldViewWidthScaled();
 
     // find world view center
-    F32         center_x = getWorldViewRectScaled().getCenterX();
-    F32         center_y = getWorldViewRectScaled().getCenterY();
+    F32         center_x = (F32)getWorldViewRectScaled().getCenterX();
+    F32         center_y = (F32)getWorldViewRectScaled().getCenterY();
 
     // calculate click point relative to middle of screen
     F32         click_x = (((F32)x - center_x) / (F32)width) * fov_width * -1.f;
@@ -4777,7 +4777,7 @@ void LLViewerWindow::saveImageLocal(LLImageFormatted *image, const snapshot_save
         args["NEED_MEMORY"] = needM_bytes_string;
 
         std::string freeM_bytes_string;
-        LLResMgr::getInstance()->getIntegerString(freeM_bytes_string, (b_space.free) >> 10);
+        LLResMgr::getInstance()->getIntegerString(freeM_bytes_string, (S32)(b_space.free >> 10));
         args["FREE_MEMORY"] = freeM_bytes_string;
 
         LLNotificationsUtil::add("SnapshotToComputerFailed", args);
@@ -5623,7 +5623,7 @@ void LLViewerWindow::setup3DRender()
 
 void LLViewerWindow::setup3DViewport(S32 x_offset, S32 y_offset)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_UI
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
     gGLViewport[0] = mWorldViewRectRaw.mLeft + x_offset;
     gGLViewport[1] = mWorldViewRectRaw.mBottom + y_offset;
     gGLViewport[2] = mWorldViewRectRaw.getWidth();

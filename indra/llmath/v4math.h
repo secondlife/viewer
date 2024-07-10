@@ -67,10 +67,10 @@ class LLVector4
 
         void setValue(const LLSD& sd)
         {
-            mV[0] = sd[0].asReal();
-            mV[1] = sd[1].asReal();
-            mV[2] = sd[2].asReal();
-            mV[3] = sd[3].asReal();
+            mV[0] = (F32)sd[0].asReal();
+            mV[1] = (F32)sd[1].asReal();
+            mV[2] = (F32)sd[2].asReal();
+            mV[3] = (F32)sd[3].asReal();
         }
 
 

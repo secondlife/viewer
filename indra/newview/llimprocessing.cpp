@@ -1607,7 +1607,7 @@ void LLIMProcessing::requestOfflineMessagesCoro(std::string url)
         }
         else
         {
-            position.set(message_data["local_x"].asReal(), message_data["local_y"].asReal(), message_data["local_z"].asReal());
+            position.set((F32)message_data["local_x"].asReal(), (F32)message_data["local_y"].asReal(), (F32)message_data["local_z"].asReal());
         }
 
         std::vector<U8> bin_bucket;

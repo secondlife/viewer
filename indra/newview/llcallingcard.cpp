@@ -491,7 +491,7 @@ void LLAvatarTracker::notifyObservers()
         // new masks and ids will be processed later from idle.
         return;
     }
-    LL_PROFILE_ZONE_SCOPED
+    LL_PROFILE_ZONE_SCOPED;
     mIsNotifyObservers = true;
 
     observer_list_t observers(mObservers);
@@ -678,7 +678,7 @@ void LLAvatarTracker::processChangeUserRights(LLMessageSystem* msg, void**)
 
 void LLAvatarTracker::processNotify(LLMessageSystem* msg, bool online)
 {
-    LL_PROFILE_ZONE_SCOPED
+    LL_PROFILE_ZONE_SCOPED;
     S32 count = msg->getNumberOfBlocksFast(_PREHASH_AgentBlock);
     bool chat_notify = gSavedSettings.getBOOL("ChatOnlineNotification");
 

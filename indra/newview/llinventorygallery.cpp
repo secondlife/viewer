@@ -2641,7 +2641,7 @@ bool LLInventoryGallery::checkAgainstFilterType(const LLUUID& object_id)
     {
         object_type = inv_item->getInventoryType();
     }
-    const U32 filterTypes = mFilter->getFilterTypes();
+    const U32 filterTypes = (U32)mFilter->getFilterTypes();
 
     if ((filterTypes & LLInventoryFilter::FILTERTYPE_OBJECT) && inv_item)
     {

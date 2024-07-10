@@ -54,7 +54,7 @@ LLFloaterGLTFAssetEditor::~LLFloaterGLTFAssetEditor()
 {
     if (mScroller)
     {
-        removeChild(mScroller);
+        mItemListPanel->removeChild(mScroller);
         delete mScroller;
         mScroller = NULL;
     }
@@ -155,7 +155,6 @@ void LLFloaterGLTFAssetEditor::onClose(bool app_quitting)
     gIdleCallbacks.deleteFunction(idle, this);
     mAsset = nullptr;
     mObject = nullptr;
-
 }
 
 void LLFloaterGLTFAssetEditor::clearRoot()
@@ -346,13 +345,15 @@ void LLFloaterGLTFAssetEditor::dirty()
 {
     if (!mObject || !mAsset || !mFolderRoot)
     {
-        closeFloater();
         return;
     }
 
     if (LLSelectMgr::getInstance()->getSelection()->getObjectCount() > 1)
     {
-        closeFloater();
+        if (getVisible())
+        {
+            closeFloater();
+        }
         return;
     }
 
@@ -367,7 +368,10 @@ void LLFloaterGLTFAssetEditor::dirty()
     LLViewerObject* objectp = node->getObject();
     if (mObject != objectp || !objectp->mGLTFAsset)
     {
-        closeFloater();
+        if (getVisible())
+        {
+            closeFloater();
+        }
         return;
     }
 
@@ -458,6 +462,7 @@ void LLFloaterGLTFAssetEditor::loadNodeTransforms(S32 node_id)
     }
 
     LL::GLTF::Node& node = mAsset->mNodes[node_id];
+    node.makeTRSValid();
 
     mCtrlPosX->set(node.mTranslation[0]);
     mCtrlPosY->set(node.mTranslation[1]);

@@ -197,10 +197,10 @@ void renderBadgeBackground(F32 centerX, F32 centerY, F32 width, F32 height, cons
     F32 x = LLFontGL::sCurOrigin.mX + centerX - width * 0.5f;
     F32 y = LLFontGL::sCurOrigin.mY + centerY - height * 0.5f;
 
-    LLRectf screen_rect(ll_round(x),
-                        ll_round(y),
-                        ll_round(x) + width,
-                        ll_round(y) + height);
+    LLRectf screen_rect((F32)ll_round(x),
+                        (F32)ll_round(y),
+                        (F32)ll_round(x) + width,
+                        (F32)ll_round(y) + height);
 
     LLVector3 vertices[4];
     vertices[0] = LLVector3(screen_rect.mRight, screen_rect.mTop,    1.0f);
@@ -302,7 +302,7 @@ void LLBadge::draw()
             }
             else
             {
-                badge_center_x = location_offset_horiz;
+                badge_center_x = (F32)location_offset_horiz;
             }
 
             // Compute y position
@@ -319,7 +319,7 @@ void LLBadge::draw()
             }
             else
             {
-                badge_center_y = location_offset_vert;
+                badge_center_y = (F32)location_offset_vert;
             }
 
             //

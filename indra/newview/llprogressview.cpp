@@ -388,7 +388,7 @@ void LLProgressView::initLogos()
 
     // We don't know final screen rect yet, so we can't precalculate position fully
     LLTextBox *logos_label = getChild<LLTextBox>("logos_lbl");
-    S32 texture_start_x = logos_label->getFont()->getWidthF32(logos_label->getText()) + default_pad;
+    S32 texture_start_x = (S32)logos_label->getFont()->getWidthF32(logos_label->getText()) + default_pad;
     S32 texture_start_y = -7;
 
     // Normally we would just preload these textures from textures.xml,
@@ -590,7 +590,7 @@ bool LLProgressView::handleUpdate(const LLSD& event_data)
 
     if(percent.isDefined())
     {
-        setPercent(percent.asReal());
+        setPercent((F32)percent.asReal());
     }
     return false;
 }

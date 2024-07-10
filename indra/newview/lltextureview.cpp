@@ -481,8 +481,8 @@ private:
 void LLGLTexMemBar::draw()
 {
     F32 discard_bias = LLViewerTexture::sDesiredDiscardBias;
-    F32 cache_usage = LLAppViewer::getTextureCache()->getUsage().valueInUnits<LLUnits::Megabytes>();
-    F32 cache_max_usage = LLAppViewer::getTextureCache()->getMaxUsage().valueInUnits<LLUnits::Megabytes>();
+    F32 cache_usage = (F32)LLAppViewer::getTextureCache()->getUsage().valueInUnits<LLUnits::Megabytes>();
+    F32 cache_max_usage = (F32)LLAppViewer::getTextureCache()->getMaxUsage().valueInUnits<LLUnits::Megabytes>();
     S32 line_height = LLFontGL::getFontMonospace()->getLineHeight();
     S32 v_offset = 0;//(S32)((texture_bar_height + 2.2f) * mTextureView->mNumTextureBars + 2.0f);
     F32Bytes total_texture_downloaded = gTotalTextureData;
@@ -631,8 +631,8 @@ void LLGLTexMemBar::draw()
                     LLAppViewer::getImageDecodeThread()->getPending(),
                     gTextureList.mCreateTextureList.size());
 
-    x_right = 550.0;
-    LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, v_offset + line_height*3,
+    x_right = 550.0f;
+    LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0.f, (F32)(v_offset + line_height*3),
                                              text_color, LLFontGL::LEFT, LLFontGL::TOP,
                                              LLFontGL::NORMAL, LLFontGL::NO_SHADOW, S32_MAX, S32_MAX, &x_right);
 
@@ -641,7 +641,7 @@ void LLGLTexMemBar::draw()
     color = bandwidth > max_bandwidth ? LLColor4::red : bandwidth > max_bandwidth*.75f ? LLColor4::yellow : text_color;
     color[VALPHA] = text_color[VALPHA];
     text = llformat("BW:%.0f/%.0f",bandwidth.value(), max_bandwidth.value());
-    LLFontGL::getFontMonospace()->renderUTF8(text, 0, x_right, v_offset + line_height*3,
+    LLFontGL::getFontMonospace()->renderUTF8(text, 0, (S32)x_right, v_offset + line_height*3,
                                              color, LLFontGL::LEFT, LLFontGL::TOP);
 
     // Mesh status line

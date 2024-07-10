@@ -429,7 +429,7 @@ public:
     // path, then stores it to mTarget.
     virtual bool post(const LLSD& event)
     {
-        LL_PROFILE_ZONE_SCOPED
+        LL_PROFILE_ZONE_SCOPED;
 
         // Extract the element specified by 'mPath' from 'event'. To perform a
         // generic type-appropriate store through mTarget, construct an

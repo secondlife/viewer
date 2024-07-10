@@ -781,15 +781,15 @@ void GLTFSceneManager::bind(Asset& asset, Material& material)
         bindTexture(asset, TextureType::OCCLUSION, material.mOcclusionTexture, LLViewerFetchedTexture::sWhiteImagep);
         bindTexture(asset, TextureType::EMISSIVE, material.mEmissiveTexture, LLViewerFetchedTexture::sWhiteImagep);
     }
-    shader->uniform1i(LLShaderMgr::GLTF_MATERIAL_ID, &material - &asset.mMaterials[0]);
-
-
+    
     shader->uniform1f(LLShaderMgr::TRANSMISSION_FACTOR, material.mTransmission.mTransmissionFactor);
     shader->uniform1f(LLShaderMgr::IOR_FACTOR, material.mIOR.mIOR);
     shader->uniform3fv(LLShaderMgr::ATTENUATION_COLOR, 1, glm::value_ptr(material.mVolume.mAttenuationColor));
     shader->uniform1f(LLShaderMgr::ATTENUATION_DISTANCE, material.mVolume.mAttenuationDistance);
     shader->uniform1f(LLShaderMgr::THICKNESS_FACTOR, material.mVolume.mThicknessFactor);
     shader->uniform1f(LLShaderMgr::DISPERSION_FACTOR, material.mDispersion.mDispersion);
+
+    shader->uniform1i(LLShaderMgr::GLTF_MATERIAL_ID, (GLint)(&material - &asset.mMaterials[0]));
 }
 
 LLMatrix4a inverse(const LLMatrix4a& mat)

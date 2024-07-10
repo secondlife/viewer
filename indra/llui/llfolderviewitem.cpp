@@ -950,7 +950,7 @@ void LLFolderViewItem::draw()
     S32 filter_offset = static_cast<S32>(mViewModelItem->getFilterStringOffset());
     if (filter_string_length > 0)
     {
-        S32 bottom = llfloor(getRect().getHeight() - font->getLineHeight() - 3 - TOP_PAD);
+        S32 bottom = getRect().getHeight() - font->getLineHeight() - 3 - TOP_PAD;
         S32 top = getRect().getHeight() - TOP_PAD;
         if(mLabelSuffix.empty() || (font == suffix_font))
         {
@@ -966,8 +966,8 @@ void LLFolderViewItem::draw()
             S32 label_filter_length = llmin((S32)mLabel.size() - filter_offset, (S32)filter_string_length);
             if(label_filter_length > 0)
             {
-                S32 left = ll_round(text_left) + font->getWidthF32(mLabel, 0, llmin(filter_offset, (S32)mLabel.size())) - 2;
-                S32 right = left + font->getWidthF32(mLabel, filter_offset, label_filter_length) + 2;
+                S32 left = (S32)(ll_round(text_left) + font->getWidthF32(mLabel, 0, llmin(filter_offset, (S32)mLabel.size()))) - 2;
+                S32 right = left + (S32)font->getWidthF32(mLabel, filter_offset, label_filter_length) + 2;
                 LLUIImage* box_image = default_params.selection_image;
                 LLRect box_rect(left, top, right, bottom);
                 box_image->draw(box_rect, sFilterBGColor);
@@ -976,8 +976,8 @@ void LLFolderViewItem::draw()
             if(suffix_filter_length > 0)
             {
                 S32 suffix_offset = llmax(0, filter_offset - (S32)mLabel.size());
-                S32 left = ll_round(text_left) + font->getWidthF32(mLabel, 0, static_cast<S32>(mLabel.size())) + suffix_font->getWidthF32(mLabelSuffix, 0, suffix_offset) - 2;
-                S32 right = left + suffix_font->getWidthF32(mLabelSuffix, suffix_offset, suffix_filter_length) + 2;
+                S32 left = (S32)(ll_round(text_left) + font->getWidthF32(mLabel, 0, static_cast<S32>(mLabel.size())) + suffix_font->getWidthF32(mLabelSuffix, 0, suffix_offset))- 2;
+                S32 right = left + (S32)suffix_font->getWidthF32(mLabelSuffix, suffix_offset, suffix_filter_length) + 2;
                 LLUIImage* box_image = default_params.selection_image;
                 LLRect box_rect(left, top, right, bottom);
                 box_image->draw(box_rect, sFilterBGColor);

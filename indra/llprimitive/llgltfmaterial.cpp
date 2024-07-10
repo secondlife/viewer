@@ -834,7 +834,7 @@ void LLGLTFMaterial::applyOverrideLLSD(const LLSD& data)
     const LLSD& mf = data["mf"];
     if (mf.isReal())
     {
-        mMetallicFactor = mf.asReal();
+        mMetallicFactor = (F32)mf.asReal();
         if (mMetallicFactor == getDefaultMetallicFactor())
         {
             // HACK -- nudge by epsilon if we receive a default value (indicates override to default)
@@ -845,7 +845,7 @@ void LLGLTFMaterial::applyOverrideLLSD(const LLSD& data)
     const LLSD& rf = data["rf"];
     if (rf.isReal())
     {
-        mRoughnessFactor = rf.asReal();
+        mRoughnessFactor = (F32)rf.asReal();
         if (mRoughnessFactor == getDefaultRoughnessFactor())
         {
             // HACK -- nudge by epsilon if we receive a default value (indicates override to default)
@@ -863,7 +863,7 @@ void LLGLTFMaterial::applyOverrideLLSD(const LLSD& data)
     const LLSD& ac = data["ac"];
     if (ac.isReal())
     {
-        mAlphaCutoff = ac.asReal();
+        mAlphaCutoff = (F32)ac.asReal();
         if (mAlphaCutoff == getDefaultAlphaCutoff())
         {
             // HACK -- nudge by epsilon if we receive a default value (indicates override to default)
@@ -898,7 +898,7 @@ void LLGLTFMaterial::applyOverrideLLSD(const LLSD& data)
             const LLSD& r = ti[i]["r"];
             if (r.isReal())
             {
-                mTextureTransform[i].mRotation = r.asReal();
+                mTextureTransform[i].mRotation = (F32)r.asReal();
             }
         }
     }

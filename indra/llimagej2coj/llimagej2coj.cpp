@@ -557,7 +557,7 @@ public:
         {
             // "append" (set) the data we "streamed" (memcopied) for writing to the formatted image
             // with side-effect of setting the actually encoded size  to same
-            compressedImageOut.allocateData(offset);
+            compressedImageOut.allocateData((S32)offset);
             memcpy(compressedImageOut.getData(), buffer, offset);
             compressedImageOut.updateData(); // update width, height etc from header
         }

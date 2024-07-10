@@ -159,15 +159,15 @@ void drawArrow(S32 tailX, S32 tailY, S32 tipX, S32 tipY, LLColor4 color)
 
     S32 arrowLength = (abs(dx) < ARROW_LENGTH_LONG && abs(dy) < ARROW_LENGTH_LONG) ? ARROW_LENGTH_SHORT : ARROW_LENGTH_LONG;
 
-    F32 theta = std::atan2(dy, dx);
+    F32 theta = (F32)std::atan2(dy, dx);
 
-    F32 rad = ARROW_ANGLE * std::atan(1) * 4 / 180;
+    F32 rad = (F32)(ARROW_ANGLE * std::atan(1) * 4 / 180);
     F32 x = tipX - arrowLength * cos(theta + rad);
     F32 y = tipY - arrowLength * sin(theta + rad);
-    F32 rad2 = -1 * ARROW_ANGLE * std::atan(1) * 4 / 180;
+    F32 rad2 = (F32)(-1 * ARROW_ANGLE * std::atan(1) * 4 / 180);
     F32 x2 = tipX - arrowLength * cos(theta + rad2);
     F32 y2 = tipY - arrowLength * sin(theta + rad2);
-    gl_triangle_2d(tipX, tipY, x, y, x2, y2, color, true);
+    gl_triangle_2d(tipX, tipY, (S32)x, (S32)y, (S32)x2, (S32)y2, color, true);
 }
 
 void LLXYVector::draw()
@@ -179,18 +179,18 @@ void LLXYVector::draw()
 
     if (mLogarithmic)
     {
-        pointX = (log(llabs(mValueX) + 1)) / mLogScaleX;
+        pointX = (S32)((log(llabs(mValueX) + 1)) / mLogScaleX);
         pointX *= (mValueX < 0) ? -1 : 1;
         pointX += centerX;
 
-        pointY = (log(llabs(mValueY) + 1)) / mLogScaleY;
+        pointY = (S32)((log(llabs(mValueY) + 1)) / mLogScaleY);
         pointY *= (mValueY < 0) ? -1 : 1;
         pointY += centerY;
     }
     else // linear
     {
-        pointX = centerX + (mValueX * mTouchArea->getRect().getWidth() / (2 * mMaxValueX));
-        pointY = centerY + (mValueY * mTouchArea->getRect().getHeight() / (2 * mMaxValueY));
+        pointX = centerX + (S32)(mValueX * mTouchArea->getRect().getWidth() / (2 * mMaxValueX));
+        pointY = centerY + (S32)(mValueY * mTouchArea->getRect().getHeight() / (2 * mMaxValueY));
     }
 
     // fill
@@ -223,7 +223,7 @@ void LLXYVector::draw()
     }
 
     // draw center circle
-    gl_circle_2d(centerX, centerY, CENTER_CIRCLE_RADIUS, 12, true);
+    gl_circle_2d((F32)centerX, (F32)centerY, CENTER_CIRCLE_RADIUS, 12, true);
 
     LLView::draw();
 }
@@ -232,7 +232,7 @@ void LLXYVector::onEditChange()
 {
     if (getEnabled())
     {
-        setValueAndCommit(mXEntry->getValue().asReal(), mYEntry->getValue().asReal());
+        setValueAndCommit((F32)mXEntry->getValue().asReal(), (F32)mYEntry->getValue().asReal());
     }
 }
 
@@ -240,7 +240,7 @@ void LLXYVector::setValue(const LLSD& value)
 {
     if (value.isArray())
     {
-        setValue(value[0].asReal(), value[1].asReal());
+        setValue((F32)value[0].asReal(), (F32)value[1].asReal());
     }
 }
 

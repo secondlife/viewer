@@ -42,9 +42,6 @@
 #include <map>
 #include <list>
 
-extern const S32Megabytes gMinVideoRam;
-extern const S32Megabytes gMaxVideoRam;
-
 class LLFace;
 class LLImageGL ;
 class LLImageRaw;
