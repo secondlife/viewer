@@ -65,7 +65,7 @@ vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
                     inout vec3 transmission_light, // Transmissive lighting.
                     vec3 intensity,
                     float ior
-                    ) ; 
+                    ) ;
 
 
 void main()
@@ -119,7 +119,6 @@ void main()
 
                 vec3 intensity = dist_atten * lightColor * 3.25;
                 vec3 t_light = vec3(0.0);
-                final_color += intensity*pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, n.xyz, v, lv, vec3(0), t_light, vec3(0), 1.5);
             }
         }
     }

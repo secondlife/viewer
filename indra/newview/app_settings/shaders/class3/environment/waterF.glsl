@@ -42,13 +42,16 @@ vec2 BRDF(float NoV, float roughness);
 
 void calcDiffuseSpecular(vec3 baseColor, float metallic, inout vec3 diffuseColor, inout vec3 specularColor);
 
+// set colorDiffuse and colorSpec to the results of GLTF PBR style IBL
 vec3 pbrIbl(vec3 diffuseColor,
-    vec3 specularColor,
-    vec3 radiance, // radiance map sample
-    vec3 irradiance, // irradiance map sample
-    float ao,       // ambient occlusion factor
-    float nv,       // normal dot view vector
-    float perceptualRoughness);
+            vec3 specularColor,
+            vec3 radiance, // radiance map sample
+            vec3 irradiance, // irradiance map sample
+            float ao,       // ambient occlusion factor
+            float nv,       // normal dot view vector
+            float perceptualRough,
+            float transmission,
+            vec3 transmission_btdf);
 
 vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
                     float perceptualRoughness,
@@ -66,6 +69,7 @@ vec3 pbrBaseLight(vec3 diffuseColor,
                   vec3 specularColor,
                   float metallic,
                   vec3 pos,
+                  vec3 view,
                   vec3 norm,
                   float perceptualRoughness,
                   vec3 light_dir,
@@ -77,9 +81,12 @@ vec3 pbrBaseLight(vec3 diffuseColor,
                   float ao,
                   vec3 additive,
                   vec3 atten,
-                  vec3 tr,
-                  inout vec3 t_light,
-                  float ior);
+                  float thickness,
+                  vec3 atten_color,
+                  float atten_dist,
+                  float ior,
+                  float dispersion,
+                  float transmission);
 
 uniform sampler2D bumpMap;
 uniform sampler2D bumpMap2;
@@ -264,12 +271,14 @@ void main()
     metallic = 1.0;
 
     float NdotV = clamp(abs(dot(norm, v)), 0.001, 1.0);
+
     vec3 t_light = vec3(0);
+
     vec3 punctual = pbrPunctual(vec3(0), specularColor, 0.1, metallic, normalize(wavef+up*max(dist, 32.0)/32.0*(1.0-vdu)), v, normalize(light_dir), vec3(0), t_light, vec3(0), 1.5);
 
     vec3 color = punctual * sunlit_linear * 2.75 * shadow;
 
-    vec3 ibl = pbrIbl(vec3(0), vec3(1), radiance, vec3(0), ao, NdotV, 0.0);
+    vec3 ibl = pbrIbl(vec3(0), vec3(1), radiance, vec3(0), ao, NdotV, 0.0, 0.0, vec3(0));
 
     color += ibl;
 

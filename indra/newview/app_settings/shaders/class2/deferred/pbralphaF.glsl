@@ -114,6 +114,7 @@ vec3 pbrBaseLight(vec3 diffuseColor,
                   vec3 specularColor,
                   float metallic,
                   vec3 pos,
+                  vec3 view,
                   vec3 norm,
                   float perceptualRoughness,
                   vec3 light_dir,
@@ -125,9 +126,12 @@ vec3 pbrBaseLight(vec3 diffuseColor,
                   float ao,
                   vec3 additive,
                   vec3 atten,
-                  vec3 tr,
-                  inout vec3 t_light,
-                  float ior);
+                  float thickness,
+                  vec3 atten_color,
+                  float atten_dist,
+                  float ior,
+                  float dispersion,
+                  float transmission);
 
 vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
                     float perceptualRoughness,
@@ -139,7 +143,7 @@ vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
                     inout vec3 transmission_light, // Transmissive lighting.
                     vec3 intensity,
                     float ior
-                    );
+                    ) ;
 
 vec3 pbrCalcPointLightOrSpotLight(vec3 diffuseColor, vec3 specularColor,
                     float perceptualRoughness,
@@ -154,9 +158,9 @@ vec3 pbrCalcPointLightOrSpotLight(vec3 diffuseColor, vec3 specularColor,
                     float falloff,
                     float is_pointlight,
                     float ambiance,
-                    vec3 tr,
-                    inout vec3 transmissive_light,
-                    float ior);
+                    float ior,
+                    float thickness,
+                    float transmissiveness);
 void main()
 {
     mirrorClip(vary_position);
@@ -230,18 +234,13 @@ void main()
     float tf = 1;
     float ior = 1;
 
-    vec3 transmission = getIBLVolumeRefraction(norm.xyz, v, screen_coord.xy / screen_coord.z, perceptualRoughness, basecolor.rgb, vec3(0.04), vec3(1), pos.xyz, ior, thicknessFactor, attenuationColor, attenuationDistance, 20);
-    vec3 t_light = vec3(0);
-    vec3 light = vec3(0);
-    vec3 tl_ray = vec3(0);
-    
-    diffuseColor.rgb = mix(diffuseColor.rgb, transmission.rgb, tf);
+    color = pbrBaseLight(diffuseColor, specularColor, metallic, pos.xyz, v, norm.xyz, perceptualRoughness, light_dir, sunlit_linear, scol, radiance, irradiance, colorEmissive, ao, additive, atten, thicknessFactor, attenuationColor, attenuationDistance, iorFactor, dispersionFactor, tf);
 
-    color = pbrBaseLight(diffuseColor, specularColor, metallic, v, norm.xyz, perceptualRoughness, light_dir, sunlit_linear, scol, radiance, irradiance, colorEmissive, ao, additive, atten, tl_ray, t_light, ior);
+    vec3 light = vec3(0);
 
     // Punctual lights
-#define LIGHT_LOOP(i) light += pbrCalcPointLightOrSpotLight(diffuseColor, specularColor, perceptualRoughness, metallic, norm.xyz, pos.xyz, v, light_position[i].xyz, light_direction[i].xyz, light_diffuse[i].rgb, light_deferred_attenuation[i].x, light_deferred_attenuation[i].y, light_attenuation[i].z, light_attenuation[i].w, tl_ray, t_light, ior);
-
+#define LIGHT_LOOP(i) light += pbrCalcPointLightOrSpotLight(diffuseColor, specularColor, perceptualRoughness, metallic, norm.xyz, pos.xyz, v, light_position[i].xyz, light_direction[i].xyz, light_diffuse[i].rgb, light_deferred_attenuation[i].x, light_deferred_attenuation[i].y, light_attenuation[i].z, light_attenuation[i].w, ior, thicknessFactor, tf);
+    
     LIGHT_LOOP(1)
     LIGHT_LOOP(2)
     LIGHT_LOOP(3)
@@ -249,8 +248,6 @@ void main()
     LIGHT_LOOP(5)
     LIGHT_LOOP(6)
     LIGHT_LOOP(7)
-
-    transmission.rgb += t_light.rgb;
 
     color.rgb += light.rgb;
 

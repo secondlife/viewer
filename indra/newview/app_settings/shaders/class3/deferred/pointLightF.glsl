@@ -67,7 +67,7 @@ vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
                     inout vec3 transmission_light, // Transmissive lighting.
                     vec3 intensity,
                     float ior
-                    ) ; 
+                    ) ;
 
 void main()
 {

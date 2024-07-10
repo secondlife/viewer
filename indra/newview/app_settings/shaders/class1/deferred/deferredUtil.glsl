@@ -354,7 +354,9 @@ vec3 pbrIbl(vec3 diffuseColor,
             vec3 irradiance, // irradiance map sample
             float ao,       // ambient occlusion factor
             float nv,       // normal dot view vector
-            float perceptualRough)
+            float perceptualRough,
+            float transmission,
+            vec3 transmission_btdf)
 {
     // retrieve a scale and bias to F0. See [1], Figure 3
     vec2 brdf = BRDF(clamp(nv, 0, 1), 1.0-perceptualRough);
@@ -362,6 +364,7 @@ vec3 pbrIbl(vec3 diffuseColor,
     vec3 specularLight = radiance;
 
     vec3 diffuse = diffuseLight * diffuseColor;
+    diffuse = mix(diffuse, transmission_btdf, transmission);
     vec3 specular = specularLight * (specularColor * brdf.x + brdf.y);
 
     return (diffuse + specular) * ao;
@@ -544,9 +547,9 @@ vec3 pbrCalcPointLightOrSpotLight(vec3 diffuseColor, vec3 specularColor,
                     float falloff,
                     float is_pointlight,
                     float ambiance,
-                    vec3 tr,
-                    inout vec3 transmissive_light,
-                    float ior)
+                    float ior,
+                    float thickness,
+                    float transmissiveness)
 {
     vec3 color = vec3(0,0,0);
 
@@ -568,7 +571,13 @@ vec3 pbrCalcPointLightOrSpotLight(vec3 diffuseColor, vec3 specularColor,
 
         vec3 intensity = spot_atten * dist_atten * lightColor * 3.0; //magic number to balance with legacy materials
 
+        vec3 tr = getVolumeTransmissionRay(n, v, thickness, ior);
+
+        vec3 transmissive_light = vec3(0);
+
         color = intensity*pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, n.xyz, v, lv, tr, transmissive_light, intensity, ior);
+
+        color = mix(color, transmissive_light, transmissiveness);
     }
 
     return color;
@@ -606,7 +615,7 @@ vec3 applyVolumeAttenuation(vec3 radiance, float transmissionDistance, vec3 atte
     }
 }
 
-vec3 getIBLVolumeRefraction(vec3 n, vec3 v, vec2 viewCoord, float perceptualRoughness, vec3 baseColor, vec3 f0, vec3 f90,
+vec3 getIBLVolumeRefraction(vec3 n, vec3 v, float perceptualRoughness, vec3 baseColor, vec3 f0, vec3 f90,
     vec3 position, float ior, float thickness, vec3 attenuationColor, float attenuationDistance, float dispersion)
 {
     // Dispersion will spread out the ior values for each r,g,b channel
@@ -624,7 +633,7 @@ vec3 getIBLVolumeRefraction(vec3 n, vec3 v, vec2 viewCoord, float perceptualRoug
 
         // Project refracted vector on the framebuffer, while mapping to normalized device coordinates.
         vec3 ndcPos = getPositionWithNDC(refractedRayExit);
-        vec2 refractionCoords = viewCoord + ndcPos.xy;
+        vec2 refractionCoords = -(position.xy / position.z) + ndcPos.xy;
         refractionCoords += 1.0;
         refractionCoords /= 2.0;
 
@@ -653,6 +662,7 @@ vec3 pbrBaseLight(vec3 diffuseColor,
                   vec3 specularColor,
                   float metallic,
                   vec3 pos,
+                  vec3 view,
                   vec3 norm,
                   float perceptualRoughness,
                   vec3 light_dir,
@@ -664,17 +674,28 @@ vec3 pbrBaseLight(vec3 diffuseColor,
                   float ao,
                   vec3 additive,
                   vec3 atten,
-                  vec3 tr,
-                  inout vec3 t_light,
-                  float ior)
+                  float thickness,
+                  vec3 atten_color,
+                  float atten_dist,
+                  float ior,
+                  float dispersion,
+                  float transmission)
 {
     vec3 color = vec3(0);
 
-    float NdotV = clamp(abs(dot(norm, pos)), 0.001, 1.0);
+    float NdotV = clamp(abs(dot(norm, view)), 0.001, 1.0);
 
-    color += pbrIbl(diffuseColor, specularColor, radiance, irradiance, ao, NdotV, perceptualRoughness);
+    vec3 btdf = vec3(0);
+    if (transmission > 0.0)
+        btdf = getIBLVolumeRefraction(norm, view, perceptualRoughness, diffuseColor, vec3(0.04), vec3(1), pos, ior, thickness, atten_color, atten_dist, dispersion);
 
-    color += pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, norm, pos, normalize(light_dir), tr, t_light, vec3(1), ior) * sunlit * 3.0 * scol; //magic number to balance with legacy materials
+    color += pbrIbl(diffuseColor, specularColor, radiance, irradiance, ao, NdotV, perceptualRoughness, transmission, btdf);
+
+    vec3 tr = getVolumeTransmissionRay(norm, view, thickness, ior);
+
+    vec3 transmissive_light = vec3(0);
+
+    color += pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, norm, pos, normalize(light_dir), tr, transmissive_light, vec3(1), ior) * sunlit * 3.0 * scol; //magic number to balance with legacy materials
 
     color += colorEmissive;
 
