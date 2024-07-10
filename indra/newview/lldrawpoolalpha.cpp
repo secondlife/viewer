@@ -255,11 +255,16 @@ void LLDrawPoolAlpha::forwardRender(bool rigged)
 
     if (mType == LLDrawPool::POOL_ALPHA_POST_WATER)
     {
-        LL::GLTFSceneManager::instance().renderTransmissive();
-
         if (rigged)
         {
             // draw GLTF scene to depth buffer before rigged alpha
+            {
+                LLGLDisable blend(GL_BLEND);
+                gGL.setColorMask(true, false);
+                LL::GLTFSceneManager::instance().renderTransmissive(true);
+                gGL.setColorMask(true, true);
+            }
+
             LL::GLTFSceneManager::instance().render(false, false);
             LL::GLTFSceneManager::instance().render(false, true);
             LL::GLTFSceneManager::instance().render(false, false, true);

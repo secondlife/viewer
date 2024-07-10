@@ -318,8 +318,13 @@ void main()
 
     vec3 light = vec3(0);
 
+    float transmissiveness = 0.0;
+#if defined(TRANSMISSIVE)
+    float transmission_map = texture(transmissiveMap, base_color_uv.xy).r;
+    transmissiveness = transmissiveFactor * transmission_map;
+#endif
     // Punctual lights
-#define LIGHT_LOOP(i) light += pbrCalcPointLightOrSpotLight(diffuseColor, specularColor, perceptualRoughness, metallic, norm.xyz, pos.xyz, v, light_position[i].xyz, light_direction[i].xyz, light_diffuse[i].rgb, light_deferred_attenuation[i].x, light_deferred_attenuation[i].y, light_attenuation[i].z, light_attenuation[i].w, 1.5, 0.0, 0.0);
+#define LIGHT_LOOP(i) light += pbrCalcPointLightOrSpotLight(diffuseColor, specularColor, perceptualRoughness, metallic, norm.xyz, pos.xyz, v, light_position[i].xyz, light_direction[i].xyz, light_diffuse[i].rgb, light_deferred_attenuation[i].x, light_deferred_attenuation[i].y, light_attenuation[i].z, light_attenuation[i].w, 1.5, 0.0, transmissiveness);
 
     LIGHT_LOOP(1)
     LIGHT_LOOP(2)
@@ -334,12 +339,7 @@ void main()
     color.rgb = applySkyAndWaterFog(pos.xyz, additive, atten, vec4(color, 1.0)).rgb;
 
     float a = basecolor.a*vertex_color.a;
-    #if defined(TRANSMISSIVE)
-    float transmission_map = texture(transmissiveMap, base_color_uv.xy).r;
-    frag_color = vec4(transmissiveFactor * transmission_map);
-    #else
     frag_color = max(vec4(color.rgb,a), vec4(0));
-    #endif
 #else // UNLIT
     vec4 color = basecolor;
     color.rgb += emissive.rgb;
