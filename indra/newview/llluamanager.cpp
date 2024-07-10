@@ -162,24 +162,25 @@ lua_function(get_event_next,
     return 2;
 }
 
-LLCoros::Future<std::pair<int, LLSD>>
+LLCoros::Future<LLLUAmanager::script_result>
 LLLUAmanager::startScriptFile(const std::string& filename)
 {
     // Despite returning from startScriptFile(), we need this Promise to
     // remain alive until the callback has fired.
-    auto promise{ std::make_shared<LLCoros::Promise<std::pair<int, LLSD>>>() };
+    auto promise{ std::make_shared<LLCoros::Promise<script_result>>() };
     runScriptFile(filename,
                   [promise](int count, LLSD result)
                   { promise->set_value({ count, result }); });
     return LLCoros::getFuture(*promise);
 }
 
-std::pair<int, LLSD> LLLUAmanager::waitScriptFile(const std::string& filename)
+LLLUAmanager::script_result LLLUAmanager::waitScriptFile(const std::string& filename)
 {
     return startScriptFile(filename).get();
 }
 
-void LLLUAmanager::runScriptFile(const std::string &filename, script_result_fn result_cb, script_finished_fn finished_cb)
+void LLLUAmanager::runScriptFile(const std::string &filename, script_result_fn result_cb,
+                                 script_finished_fn finished_cb)
 {
     // A script_result_fn will be called when LuaState::expr() completes.
     LLCoros::instance().launch(filename, [filename, result_cb, finished_cb]()
@@ -212,39 +213,25 @@ void LLLUAmanager::runScriptFile(const std::string &filename, script_result_fn r
     });
 }
 
-void LLLUAmanager::runScriptLine(const std::string& chunk, script_finished_fn cb)
-{
-    // A script_finished_fn is used to initialize the LuaState.
-    // It will be called when the LuaState is destroyed.
-    LuaState L(cb);
-    runScriptLine(L, chunk);
-}
-
-void LLLUAmanager::runScriptLine(const std::string& chunk, script_result_fn cb)
-{
-    LuaState L;
-    // A script_result_fn will be called when LuaState::expr() completes.
-    runScriptLine(L, chunk, cb);
-}
-
-LLCoros::Future<std::pair<int, LLSD>>
-LLLUAmanager::startScriptLine(LuaState& L, const std::string& chunk)
+LLCoros::Future<LLLUAmanager::script_result>
+LLLUAmanager::startScriptLine(const std::string& chunk)
 {
     // Despite returning from startScriptLine(), we need this Promise to
     // remain alive until the callback has fired.
-    auto promise{ std::make_shared<LLCoros::Promise<std::pair<int, LLSD>>>() };
-    runScriptLine(L, chunk,
+    auto promise{ std::make_shared<LLCoros::Promise<script_result>>() };
+    runScriptLine(chunk,
                   [promise](int count, LLSD result)
                   { promise->set_value({ count, result }); });
     return LLCoros::getFuture(*promise);
 }
 
-std::pair<int, LLSD> LLLUAmanager::waitScriptLine(LuaState& L, const std::string& chunk)
+LLLUAmanager::script_result LLLUAmanager::waitScriptLine(const std::string& chunk)
 {
-    return startScriptLine(L, chunk).get();
+    return startScriptLine(chunk).get();
 }
 
-void LLLUAmanager::runScriptLine(LuaState& L, const std::string& chunk, script_result_fn cb)
+void LLLUAmanager::runScriptLine(const std::string& chunk, script_result_fn result_cb,
+                                 script_finished_fn finished_cb)
 {
     // find a suitable abbreviation for the chunk string
     std::string shortchunk{ chunk };
@@ -256,12 +243,15 @@ void LLLUAmanager::runScriptLine(LuaState& L, const std::string& chunk, script_r
         shortchunk = stringize(shortchunk.substr(0, shortlen), "...");
 
     std::string desc{ "lua: " + shortchunk };
-    LLCoros::instance().launch(desc, [&L, desc, chunk, cb]()
+    LLCoros::instance().launch(desc, [desc, chunk, result_cb, finished_cb]()
     {
+        // A script_finished_fn is used to initialize the LuaState.
+        // It will be called when the LuaState is destroyed.
+        LuaState L(finished_cb);
         auto [count, result] = L.expr(desc, chunk);
-        if (cb)
+        if (result_cb)
         {
-            cb(count, result);
+            result_cb(count, result);
         }
     });
 }

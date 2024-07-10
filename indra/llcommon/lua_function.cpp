@@ -478,19 +478,11 @@ void lua_pushllsd(lua_State* L, const LLSD& data)
 *****************************************************************************/
 LuaState::LuaState(script_finished_fn cb):
     mCallback(cb),
-    mState(nullptr)
+    mState(luaL_newstate())
 {
-    initLuaState();
-}
-
-void LuaState::initLuaState() 
-{
-    if (mState)
-    {
-        lua_close(mState);
-    }
-    mState = luaL_newstate();
     luaL_openlibs(mState);
+    // publish to this new lua_State all the LL entry points we defined using
+    // the lua_function() macro
     LuaFunction::init(mState);
     // Try to make print() write to our log.
     lua_register(mState, "print", LuaFunction::get("print_info"));
@@ -607,8 +599,7 @@ std::pair<int, LLSD> LuaState::expr(const std::string& desc, const std::string& 
                 // we instead of the Lua runtime catch it, our lua_State retains
                 // its internal error status. Any subsequent lua_pcall() calls
                 // with this lua_State will report error regardless of whether the
-                // chunk runs successfully. Get a new lua_State().
-                initLuaState();
+                // chunk runs successfully.
                 return { -1, stringize(LLError::Log::classname(error), ": ", error.what()) };
             }
         }
@@ -628,7 +619,6 @@ std::pair<int, LLSD> LuaState::expr(const std::string& desc, const std::string& 
                 LL_WARNS("Lua") << desc << " error converting result " << index << ": "
                                 << error.what() << LL_ENDL;
                 // see above comments regarding lua_State's error status
-                initLuaState();
                 return { -1, stringize(LLError::Log::classname(error), ": ", error.what()) };
             }
         }

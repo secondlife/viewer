@@ -58,14 +58,12 @@ class LLFloaterLUADebug :
 
 private:
     void completion(int count, const LLSD& result);
-    void cleanLuaState();
 
     LLTempBoundListener mOutConnection;
 
     LLTextEditor* mResultOutput;
     LLLineEditor* mLineInput;
     LLLineEditor* mScriptPath;
-    LuaState mState;
     U32 mAck{ 0 };
     bool mExecuting{ false };
 };

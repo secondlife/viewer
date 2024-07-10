@@ -27,7 +27,6 @@
 
 #include "llfloaterluadebug.h"
 
-#include "llcheckboxctrl.h"
 #include "lllineeditor.h"
 #include "lltexteditor.h"
 #include "llviewermenufile.h" // LLFilePickerReplyThread
@@ -92,8 +91,7 @@ void LLFloaterLUADebug::onExecuteClicked()
     mResultOutput->setValue("");
 
     std::string cmd = mLineInput->getText();
-    cleanLuaState();
-    LLLUAmanager::runScriptLine(mState, cmd, [this](int count, const LLSD& result)
+    LLLUAmanager::runScriptLine(cmd, [this](int count, const LLSD& result)
         {
             completion(count, result);
         });
@@ -172,14 +170,5 @@ void LLFloaterLUADebug::completion(int count, const LLSD& result)
         mResultOutput->insertText(sep);
         mResultOutput->pasteTextWithLinebreaks(stringize(item));
         sep = ", ";
-    }
-}
-
-void LLFloaterLUADebug::cleanLuaState()
-{
-    if(getChild<LLCheckBoxCtrl>("clean_lua_state")->get())
-    {
-        //Reinit to clean lua_State
-        mState.initLuaState();
     }
 }
