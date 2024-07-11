@@ -443,11 +443,8 @@ vec3 getVolumeTransmissionRay(vec3 n, vec3 v, float thickness, float ior)
     // Direction of refracted light.
     vec3 refractionVector = refract(-v, normalize(n), 1.0 / ior);
 
-    // Compute rotation-independant scaling of the model matrix.
-    vec3 modelScale = vec3(0.5);
-
     // The thickness is specified in local space.
-    return normalize(refractionVector) * thickness * modelScale;
+    return normalize(refractionVector) * thickness;
 }
 
 vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
@@ -730,10 +727,19 @@ float random (vec2 uv);
 
 vec3 getTransmissionSample(vec2 fragCoord, float roughness, float ior)
 {
-    float framebufferLod = log2(float(1024)) * applyIorToRoughness(roughness, ior);
-    vec3 transmittedLight = textureLod(sceneMap, fragCoord.xy, framebufferLod).rgb;
+    float framebufferLod = log2(float(screen_res.x)) * applyIorToRoughness(roughness, ior);
 
-    return transmittedLight;
+    vec3 totalColor = textureLod(sceneMap, fragCoord.xy, framebufferLod).rgb;
+    int samples = 8;
+    for (int i = 0; i < samples; i++)
+    {
+        vec2 pixelScale = ((getPoissonSample(i).xy * 2 - 1) / screen_res) * framebufferLod * 2;
+        totalColor += textureLod(sceneMap, fragCoord.xy + pixelScale, framebufferLod).rgb;
+    }
+
+    totalColor /= samples + 1;
+
+    return totalColor;
 }
 
 vec3 applyVolumeAttenuation(vec3 radiance, float transmissionDistance, vec3 attenuationColor, float attenuationDistance)
@@ -754,12 +760,12 @@ vec3 applyVolumeAttenuation(vec3 radiance, float transmissionDistance, vec3 atte
 vec3 getIBLVolumeRefraction(vec3 n, vec3 v, float perceptualRoughness, vec3 baseColor, vec3 f0, vec3 f90,
     vec4 position, float ior, float thickness, vec3 attenuationColor, float attenuationDistance, float dispersion)
 {
+    ior = 1.5;
+    thickness = 0;
+    dispersion = 0;
     // Dispersion will spread out the ior values for each r,g,b channel
     float halfSpread = (ior - 1.0) * 0.025 * dispersion;
     vec3 iors = vec3(ior - halfSpread, ior, ior + halfSpread);
-    thickness = 0;
-    ior = 1.5;
-    dispersion = 20;
     vec3 transmittedLight;
     float transmissionRayLength;
 
@@ -768,11 +774,10 @@ vec3 getIBLVolumeRefraction(vec3 n, vec3 v, float perceptualRoughness, vec3 base
         vec3 transmissionRay = getVolumeTransmissionRay(n, v, thickness, iors[i]);
         // TODO: taking length of blue ray, ideally we would take the length of the green ray. For now overwriting seems ok
         transmissionRayLength = length(transmissionRay);
-        vec3 refractedRayExit = position.xyz + transmissionRay;
+        vec3 refractedRayExit = vec3(getScreenCoord(position), 1) + transmissionRay;
 
         // Project refracted vector on the framebuffer, while mapping to normalized device coordinates.
-        vec3 ndcPos = getPositionWithNDC(refractedRayExit);
-        vec2 refractionCoords = getScreenCoord(position);
+        vec2 refractionCoords = refractedRayExit.xy;
 
         // Sample framebuffer to get pixel the refracted ray hits for this color channel.
         transmittedLight[i] = getTransmissionSample(refractionCoords, perceptualRoughness, iors[i])[i];
@@ -824,7 +829,7 @@ vec3 pbrBaseLight(vec3 diffuseColor,
 
     vec3 btdf = vec3(0);
 
-    btdf = getIBLVolumeRefraction(norm, view, perceptualRoughness, diffuseColor, vec3(0.04), vec3(1), pos, 1.5, thickness, atten_color, atten_dist, dispersion);
+    btdf = getIBLVolumeRefraction(norm, view, perceptualRoughness, diffuseColor, vec3(0.04), vec3(1), pos, 1.0, thickness, atten_color, atten_dist, dispersion);
 
     color += pbrIbl(diffuseColor, specularColor, radiance, irradiance, ao, NdotV, perceptualRoughness, transmission, btdf);
 
