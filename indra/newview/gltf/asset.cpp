@@ -991,6 +991,12 @@ bool Image::prep(Asset& asset)
         return false;
     }
 
+    if (!asset.mFilename.empty())
+    { // local preview, boost image so it doesn't discard and force to save raw image in case we save out or upload
+        mTexture->setBoostLevel(LLViewerTexture::BOOST_PREVIEW);
+        mTexture->forceToSaveRawImage(0, F32_MAX);
+    }
+
     return true;
 }
 
