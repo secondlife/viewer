@@ -653,7 +653,7 @@ void GLTFSceneManager::render(Asset& asset, U8 variant)
 
                     if (transmissive)
                     { // bind distortion map needed by transmissive objects
-                        LLGLSLShader::sCurBoundShaderPtr->bindTexture(LLShaderMgr::SCENE_MAP, &gPipeline.mWaterDis);
+                        LLGLSLShader::sCurBoundShaderPtr->bindTexture(LLShaderMgr::SCENE_MAP, &gPipeline.mWaterDis, false, LLTexUnit::TFO_TRILINEAR);
                     }
                 }
 
