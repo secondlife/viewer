@@ -1419,11 +1419,11 @@
               <key>creds</key>
               <string>github</string>
               <key>hash</key>
-              <string>755a3de464149ae88b048f976828a8c0c46e3bdb</string>
+              <string>9e59c93c7110e87b4ff3db330f11a23c50e5000f</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/llphysicsextensions_source/releases/assets/172966323</string>
+              <string>https://api.github.com/repos/secondlife/llphysicsextensions_source/releases/assets/178910560</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1435,11 +1435,11 @@
               <key>creds</key>
               <string>github</string>
               <key>hash</key>
-              <string>813e7b5e294d7958e3d69e2252752ff346953b0c</string>
+              <string>7ed994db5bafa9a7ad09a1b53da850a84715c65e</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/llphysicsextensions_source/releases/assets/172966322</string>
+              <string>https://api.github.com/repos/secondlife/llphysicsextensions_source/releases/assets/178910561</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -1451,18 +1451,18 @@
               <key>creds</key>
               <string>github</string>
               <key>hash</key>
-              <string>67f647538b1b49d0152fd9d03cfb9bdf978e33d1</string>
+              <string>66824c02e0e5eabbfbe37bfb173360195f89697c</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://api.github.com/repos/secondlife/llphysicsextensions_source/releases/assets/172966328</string>
+              <string>https://api.github.com/repos/secondlife/llphysicsextensions_source/releases/assets/178910562</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.0.b8b1f73</string>
+        <string>1.0.66e6919</string>
       </map>
       <key>llphysicsextensions_stub</key>
       <map>
