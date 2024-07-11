@@ -148,6 +148,16 @@ void GLTFSceneManager::uploadSelection()
                     raw = image.mTexture->getRawImage();
                 }
 
+                if (raw.isNull())
+                {
+                    raw = image.mTexture->getSavedRawImage();
+                }
+
+                if (raw.isNull())
+                {
+                    image.mTexture->readbackRawImage();
+                }
+
                 if (raw.notNull())
                 {
                     LLPointer<LLImageJ2C> j2c = LLViewerTextureList::convertToUploadFile(raw);
