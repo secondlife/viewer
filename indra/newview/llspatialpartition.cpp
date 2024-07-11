@@ -498,7 +498,7 @@ public:
 
 void LLSpatialGroup::setState(U32 state, S32 mode)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_SPATIAL
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SPATIAL;
 
     llassert(state <= LLSpatialGroup::STATE_MASK);
 
@@ -547,7 +547,7 @@ public:
 
 void LLSpatialGroup::clearState(U32 state, S32 mode)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_SPATIAL
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SPATIAL;
 
     llassert(state <= LLSpatialGroup::STATE_MASK);
 

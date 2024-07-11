@@ -950,7 +950,7 @@ LLSDBinaryParser::~LLSDBinaryParser()
 // virtual
 S32 LLSDBinaryParser::doParse(std::istream& istr, LLSD& data, S32 max_depth) const
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_LLSD
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_LLSD;
 /**
  * Undefined: '!'<br>
  * Boolean: '1' for true '0' for false<br>
