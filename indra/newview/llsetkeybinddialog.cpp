@@ -337,8 +337,8 @@ void LLSetKeyBindDialog::onCancel(void* user_data)
 void LLSetKeyBindDialog::onBlank(void* user_data)
 {
     LLSetKeyBindDialog* self = (LLSetKeyBindDialog*)user_data;
-    // tmp needs 'no key' button
-    self->setKeyBind(CLICK_NONE, KEY_NONE, MASK_NONE, false);
+
+    self->setKeyBind(CLICK_NONE, KEY_NONE, MASK_NONE, self->pCheckBox->getValue().asBoolean());
     self->closeFloater();
 }
 
