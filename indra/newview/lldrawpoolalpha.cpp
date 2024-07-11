@@ -260,6 +260,33 @@ void LLDrawPoolAlpha::forwardRender(bool rigged)
             // draw GLTF scene to depth buffer before rigged alpha
             {
                 LLGLDisable blend(GL_BLEND);
+
+                {
+                    // copy framebuffer contents so far to a texture to be used for
+                    // transmissive effects
+                    LLGLDepthTest depth(GL_TRUE, GL_TRUE, GL_ALWAYS);
+
+                    LLRenderTarget& src = *LLRenderTarget::sBoundTarget;
+
+                    LLRenderTarget& dst = gPipeline.mWaterDis;
+
+                    dst.bindTarget();
+                    gCopyDepthProgram.bind();
+
+                    gGL.getTexUnit(0)->bind(&src);
+
+                    gPipeline.mScreenTriangleVB->setBuffer();
+                    gPipeline.mScreenTriangleVB->drawArrays(LLRender::TRIANGLES, 0, 3);
+
+                    dst.flush();
+
+                    gGL.getTexUnit(0)->bind(&dst);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+                    glGenerateMipmap(GL_TEXTURE_2D);
+                    gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+                }
+
                 gGL.setColorMask(true, false);
                 LL::GLTFSceneManager::instance().renderTransmissive(true);
                 gGL.setColorMask(true, true);
