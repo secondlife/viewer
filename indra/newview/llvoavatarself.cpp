@@ -699,7 +699,7 @@ bool LLVOAvatarSelf::isValid() const
 // virtual
 void LLVOAvatarSelf::idleUpdate(LLAgent &agent, const F64 &time)
 {
-    if (isValid())
+    if (isAgentAvatarValid())
     {
         LLVOAvatar::idleUpdate(agent, time);
         idleUpdateTractorBeam();
@@ -1238,7 +1238,7 @@ bool LLVOAvatarSelf::detachObject(LLViewerObject *viewer_object)
         // Make sure the inventory is in sync with the avatar.
 
         // Update COF contents, don't trigger appearance update.
-        if (!isValid())
+        if (!isAgentAvatarValid())
         {
             LL_INFOS() << "removeItemLinks skipped, avatar is under destruction" << LL_ENDL;
         }
