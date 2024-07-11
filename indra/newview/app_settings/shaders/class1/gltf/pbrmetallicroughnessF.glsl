@@ -84,6 +84,8 @@ flat in float vary_sign;
 in vec2 normal_uv;
 in vec2 metallic_roughness_uv;
 in vec2 occlusion_uv;
+
+in vec4 vary_fragcoord_t;
 #endif
 // ==================================
 
@@ -140,7 +142,7 @@ void calcDiffuseSpecular(vec3 baseColor, float metallic, inout vec3 diffuseColor
 vec3 pbrBaseLight(vec3 diffuseColor,
                   vec3 specularColor,
                   float metallic,
-                  vec3 pos,
+                  vec4 pos,
                   vec3 view,
                   vec3 norm,
                   float perceptualRoughness,
@@ -320,7 +322,7 @@ void main()
 #endif
 
     vec3 t_light = vec3(0);
-    vec3 color = pbrBaseLight(diffuseColor, specularColor, metallic, vary_fragcoord.xyz, v, norm.xyz, perceptualRoughness, light_dir, sunlit_linear, scol, radiance, irradiance, emissive, orm.r, additive, atten, 0, vec3(0), 0, 1.5, 0, transmissiveness);
+    vec3 color = pbrBaseLight(diffuseColor, specularColor, metallic, vary_fragcoord_t, v, norm.xyz, perceptualRoughness, light_dir, sunlit_linear, scol, radiance, irradiance, emissive, orm.r, additive, atten, 0, vec3(0), 0, 1.5, 0, transmissiveness);
 
     vec3 light = vec3(0);
 

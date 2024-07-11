@@ -124,6 +124,8 @@ out vec2 emissive_uv;
 out vec4 vertex_color;
 out vec3 vary_position;
 
+out vec4 vary_fragcoord_t;
+
 #ifndef UNLIT
 in vec3 normal;
 in vec4 tangent;
@@ -272,6 +274,8 @@ void main()
 
     vec4 vert = projection_matrix * vec4(pos, 1.0);
     gl_Position = vert;
+
+    vary_fragcoord_t = vert;
 
     vec2 bcuv;
     vec2 emuv;

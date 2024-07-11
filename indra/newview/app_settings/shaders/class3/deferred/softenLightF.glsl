@@ -90,7 +90,7 @@ void calcDiffuseSpecular(vec3 baseColor, float metallic, inout vec3 diffuseColor
 vec3 pbrBaseLight(vec3 diffuseColor,
                   vec3 specularColor,
                   float metallic,
-                  vec3 pos,
+                  vec4 pos,
                   vec3 view,
                   vec3 norm,
                   float perceptualRoughness,
@@ -196,7 +196,7 @@ void main()
         calcDiffuseSpecular(baseColor.rgb, metallic, diffuseColor, specularColor);
 
         vec3 v = -normalize(pos.xyz);
-        color = pbrBaseLight(diffuseColor, specularColor, metallic, pos.xyz, v, norm.xyz, perceptualRoughness, light_dir, sunlit_linear, scol, radiance, irradiance, colorEmissive, ao, additive, atten, 0, vec3(0), 0, 1.5, 0, 0);
+        color = pbrBaseLight(diffuseColor, specularColor, metallic, vec4(pos.xyz, 1.0), v, norm.xyz, perceptualRoughness, light_dir, sunlit_linear, scol, radiance, irradiance, colorEmissive, ao, additive, atten, 0, vec3(0), 0, 1.5, 0, 0);
     }
     else if (GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_HDRI))
     {

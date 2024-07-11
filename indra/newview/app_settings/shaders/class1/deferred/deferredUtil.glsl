@@ -752,7 +752,7 @@ vec3 applyVolumeAttenuation(vec3 radiance, float transmissionDistance, vec3 atte
 }
 
 vec3 getIBLVolumeRefraction(vec3 n, vec3 v, float perceptualRoughness, vec3 baseColor, vec3 f0, vec3 f90,
-    vec3 position, float ior, float thickness, vec3 attenuationColor, float attenuationDistance, float dispersion)
+    vec4 position, float ior, float thickness, vec3 attenuationColor, float attenuationDistance, float dispersion)
 {
     // Dispersion will spread out the ior values for each r,g,b channel
     float halfSpread = (ior - 1.0) * 0.025 * dispersion;
@@ -768,13 +768,11 @@ vec3 getIBLVolumeRefraction(vec3 n, vec3 v, float perceptualRoughness, vec3 base
         vec3 transmissionRay = getVolumeTransmissionRay(n, v, thickness, iors[i]);
         // TODO: taking length of blue ray, ideally we would take the length of the green ray. For now overwriting seems ok
         transmissionRayLength = length(transmissionRay);
-        vec3 refractedRayExit = position + transmissionRay;
+        vec3 refractedRayExit = position.xyz + transmissionRay;
 
         // Project refracted vector on the framebuffer, while mapping to normalized device coordinates.
         vec3 ndcPos = getPositionWithNDC(refractedRayExit);
-        vec2 refractionCoords = position.xy / position.z;
-        refractionCoords += 1;
-        refractionCoords /= 2;
+        vec2 refractionCoords = getScreenCoord(position);
 
         // Sample framebuffer to get pixel the refracted ray hits for this color channel.
         transmittedLight[i] = getTransmissionSample(refractionCoords, perceptualRoughness, iors[i])[i];
@@ -800,7 +798,7 @@ vec3 getIBLVolumeRefraction(vec3 n, vec3 v, float perceptualRoughness, vec3 base
 vec3 pbrBaseLight(vec3 diffuseColor,
                   vec3 specularColor,
                   float metallic,
-                  vec3 pos,
+                  vec4 pos,
                   vec3 view,
                   vec3 norm,
                   float perceptualRoughness,
@@ -834,7 +832,7 @@ vec3 pbrBaseLight(vec3 diffuseColor,
 
     vec3 transmissive_light = vec3(0);
 
-    vec3 puncLight = pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, norm, pos, normalize(light_dir), tr, transmissive_light, vec3(1), ior);
+    vec3 puncLight = pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, norm, pos.xyz, normalize(light_dir), tr, transmissive_light, vec3(1), ior);
 
     color += mix(puncLight, transmissive_light, vec3(transmission)) * sunlit * 3.0 * scol;
 

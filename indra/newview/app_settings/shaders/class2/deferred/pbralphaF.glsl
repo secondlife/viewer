@@ -113,7 +113,7 @@ void calcDiffuseSpecular(vec3 baseColor, float metallic, inout vec3 diffuseColor
 vec3 pbrBaseLight(vec3 diffuseColor,
                   vec3 specularColor,
                   float metallic,
-                  vec3 pos,
+                  vec4 pos,
                   vec3 view,
                   vec3 norm,
                   float perceptualRoughness,
@@ -234,7 +234,7 @@ void main()
     float tf = transmissionFactor;
     float ior = iorFactor;
 
-    color = pbrBaseLight(diffuseColor, specularColor, metallic, pos.xyz, v, norm.xyz, perceptualRoughness, light_dir, sunlit_linear, scol, radiance, irradiance, colorEmissive, ao, additive, atten, thicknessFactor, attenuationColor, attenuationDistance, iorFactor, dispersionFactor, tf);
+    color = pbrBaseLight(diffuseColor, specularColor, metallic, vec4(pos.xyz, 1.0), v, norm.xyz, perceptualRoughness, light_dir, sunlit_linear, scol, radiance, irradiance, colorEmissive, ao, additive, atten, thicknessFactor, attenuationColor, attenuationDistance, iorFactor, dispersionFactor, tf);
 
     vec3 light = vec3(0);
 
