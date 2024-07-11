@@ -457,7 +457,7 @@ vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
                     inout vec3 transmission_light, // Transmissive lighting.
                     vec3 intensity,
                     float ior
-                    ) 
+                    )
 {
     // make sure specular highlights from punctual lights don't fall off of polished surfaces
     perceptualRoughness = max(perceptualRoughness, 8.0/255.0);
@@ -837,7 +837,7 @@ vec3 pbrBaseLight(vec3 diffuseColor,
 
     vec3 transmissive_light = vec3(0);
 
-    vec3 puncLight = pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, norm, pos.xyz, normalize(light_dir), tr, transmissive_light, vec3(1), ior);
+    vec3 puncLight = pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, norm, view, normalize(light_dir), tr, transmissive_light, vec3(1), ior);
 
     color += mix(puncLight, transmissive_light, vec3(transmission)) * sunlit * 3.0 * scol;
 
