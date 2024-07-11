@@ -14966,6 +14966,39 @@
       <key>Value</key>
       <real>0.0</real>
     </map>
+    <key>LocalTerrainPaintEnabled</key>
+    <map>
+      <key>Comment</key>
+      <string>Enables local paintmap if LocalTerrainAsset1, etc are set</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>TerrainPaintBitDepth</key>
+    <map>
+      <key>Comment</key>
+      <string>Bit depth for future terrain paint map operations. Min: 1. Max: 8. Takes effect when the paint map is created or modified. Modifications to an existing paintmap of different bit depth will have lower precision.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>5</integer>
+    </map>
+    <key>TerrainPaintResolution</key>
+    <map>
+      <key>Comment</key>
+      <string>Resolution of the terrain paint map in pixels. Rounded to a power of two. Min: 16. Max: RenderMaxTextureResolution. Takes effect when the paint map is created.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>2048</integer>
+    </map>
 	<key>PathfindingRetrieveNeighboringRegion</key>
     <map>
       <key>Comment</key>
