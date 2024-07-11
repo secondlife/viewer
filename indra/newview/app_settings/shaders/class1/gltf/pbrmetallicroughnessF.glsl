@@ -312,17 +312,18 @@ void main()
     calcDiffuseSpecular(basecolor.rgb, metallic, diffuseColor, specularColor);
 
     vec3 v = -normalize(pos.xyz);
-
-    vec3 t_light = vec3(0);
-    vec3 color = pbrBaseLight(diffuseColor, specularColor, metallic, pos.xyz, v, norm.xyz, perceptualRoughness, light_dir, sunlit_linear, scol, radiance, irradiance, emissive, orm.r, additive, atten, 0, vec3(0), 0, 0, 0, 0);
-
-    vec3 light = vec3(0);
-
+    
     float transmissiveness = 0.0;
 #if defined(TRANSMISSIVE)
     float transmission_map = texture(transmissiveMap, base_color_uv.xy).r;
     transmissiveness = transmissiveFactor * transmission_map;
 #endif
+
+    vec3 t_light = vec3(0);
+    vec3 color = pbrBaseLight(diffuseColor, specularColor, metallic, vary_fragcoord.xyz, v, norm.xyz, perceptualRoughness, light_dir, sunlit_linear, scol, radiance, irradiance, emissive, orm.r, additive, atten, 0, vec3(0), 0, 1.5, 0, transmissiveness);
+
+    vec3 light = vec3(0);
+
     // Punctual lights
 #define LIGHT_LOOP(i) light += pbrCalcPointLightOrSpotLight(diffuseColor, specularColor, perceptualRoughness, metallic, norm.xyz, pos.xyz, v, light_position[i].xyz, light_direction[i].xyz, light_diffuse[i].rgb, light_deferred_attenuation[i].x, light_deferred_attenuation[i].y, light_attenuation[i].z, light_attenuation[i].w, 1.5, 0.0, transmissiveness);
 
