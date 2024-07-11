@@ -123,11 +123,10 @@ namespace tut
     void object::test<1>()
     {
         set_test_name("test Lua results");
-        LuaState L;
         for (auto& luax : lua_expressions)
         {
             auto [count, result] =
-                LLLUAmanager::waitScriptLine(L, "return " + luax.expr);
+                LLLUAmanager::waitScriptLine("return " + luax.expr);
             auto desc{ stringize("waitScriptLine(", luax.desc, "): ") };
             // if count < 0, report Lua error message
             ensure_equals(desc + result.asString(), count, 1);
@@ -144,8 +143,7 @@ namespace tut
             "data = ", construct, "\n"
             "LL.post_on('testpump', data)\n"
         ));
-        LuaState L;
-        auto [count, result] = LLLUAmanager::waitScriptLine(L, lua);
+        auto [count, result] = LLLUAmanager::waitScriptLine(lua);
         // We woke up again ourselves because the coroutine running Lua has
         // finished. But our Lua chunk didn't actually return anything, so we
         // expect count to be 0 and result to be undefined.
@@ -182,11 +180,10 @@ namespace tut
             "LL.post_on('testpump', data)\n"
             "LL.post_on('testpump', 'exit')\n"
         );
-        LuaState L;
         // It's important to let the startScriptLine() coroutine run
         // concurrently with ours until we've had a chance to post() our
         // reply.
-        auto future = LLLUAmanager::startScriptLine(L, lua);
+        auto future = LLLUAmanager::startScriptLine(lua);
         StringVec expected{
             "entry",
             "get_event_pumps()",
@@ -217,8 +214,7 @@ namespace tut
             "pump, data = LL.get_event_next()\n"
             "return data\n"
         );
-        LuaState L;
-        auto future = LLLUAmanager::startScriptLine(L, lua);
+        auto future = LLLUAmanager::startScriptLine(lua);
         // We woke up again ourselves because the coroutine running Lua has
         // reached the get_event_next() call, which suspends the calling C++
         // coroutine (including the Lua code running on it) until we post
@@ -356,8 +352,7 @@ namespace tut
                 sendReply(data, data);
             }));
 
-        LuaState L;
-        auto [count, result] = LLLUAmanager::waitScriptLine(L, lua);
+        auto [count, result] = LLLUAmanager::waitScriptLine(lua);
         ensure_equals("Lua script didn't return item", count, 1);
         ensure_equals("echo failed", result, llsd::map("a", "a", "b", "b"));
     }
@@ -371,18 +366,18 @@ namespace tut
             "\n"
             "fiber = require('fiber')\n"
             "leap = require('leap')\n"
-            "-- debug = require('printf')\n"
             "local function debug(...) end\n"
+            "-- debug = require('printf')\n"
             "\n"
             "-- negative priority ensures catchall is always last\n"
-            "catchall = leap.WaitFor:new(-1, 'catchall')\n"
+            "catchall = leap.WaitFor(-1, 'catchall')\n"
             "function catchall:filter(pump, data)\n"
             "    debug('catchall:filter(%s, %s)', pump, data)\n"
             "    return data\n"
             "end\n"
             "\n"
             "-- but first, catch events with 'special' key\n"
-            "catch_special = leap.WaitFor:new(2, 'catch_special')\n"
+            "catch_special = leap.WaitFor(2, 'catch_special')\n"
             "function catch_special:filter(pump, data)\n"
             "    debug('catch_special:filter(%s, %s)', pump, data)\n"
             "    return if data['special'] ~= nil then data else nil\n"
@@ -418,6 +413,12 @@ namespace tut
             "fiber.launch('catch_special', drain, catch_special)\n"
             "fiber.launch('requester(a)', requester, 'a')\n"
             "fiber.launch('requester(b)', requester, 'b')\n"
+            // A script can normally count on an implicit fiber.run() call
+            // because fiber.lua calls LL.atexit(fiber.run). But atexit()
+            // functions are called by ~LuaState(), which (in the code below)
+            // won't be called until *after* we expect to interact with the
+            // various fibers. So make an explicit call for test purposes.
+            "fiber.run()\n"
         );
 
         LLSD requests;
@@ -429,10 +430,7 @@ namespace tut
                 requests.append(data);
             }));
 
-        LuaState L;
-        auto future = LLLUAmanager::startScriptLine(L, lua);
-        auto replyname{ L.obtainListener().getReplyName() };
-        auto& replypump{ LLEventPumps::instance().obtain(replyname) };
+        auto future = LLLUAmanager::startScriptLine(lua);
         // LuaState::expr() periodically interrupts a running chunk to ensure
         // the rest of our coroutines get cycles. Nonetheless, for this test
         // we have to wait until both requester() coroutines have posted and
@@ -444,6 +442,8 @@ namespace tut
             llcoro::suspend();
         }
         ensure_equals("didn't get both requests", requests.size(), 2);
+        auto replyname{ requests[0]["reply"].asString() };
+        auto& replypump{ LLEventPumps::instance().obtain(replyname) };
         // moreover, we expect they arrived in the order they were created
         ensure_equals("a wasn't first",  requests[0]["name"].asString(), "a");
         ensure_equals("b wasn't second", requests[1]["name"].asString(), "b");
@@ -468,8 +468,7 @@ namespace tut
             "\n"
             "LL.get_event_next()\n"
         );
-        LuaState L;
-        auto future = LLLUAmanager::startScriptLine(L, lua);
+        auto future = LLLUAmanager::startScriptLine(lua);
         // Poke LLTestApp to send its preliminary shutdown message.
         mApp.setQuitting();
         // but now we have to give the startScriptLine() coroutine a chance to run
@@ -491,8 +490,7 @@ namespace tut
             "    x = 1\n"
             "end\n"
         );
-        LuaState L;
-        auto [count, result] = LLLUAmanager::waitScriptLine(L, lua);
+        auto [count, result] = LLLUAmanager::waitScriptLine(lua);
         // We expect the above erroneous script has been forcibly terminated
         // because it ran too long without doing any actual work.
         ensure_equals(desc + " count: " + result.asString(), count, -1);

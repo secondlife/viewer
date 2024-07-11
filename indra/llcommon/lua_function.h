@@ -87,8 +87,6 @@ public:
 
     ~LuaState();
 
-    void initLuaState();
-
     bool checkLua(const std::string& desc, int r);
 
     // expr() is for when we want to capture any results left on the stack

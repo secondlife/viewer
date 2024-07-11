@@ -478,19 +478,11 @@ void lua_pushllsd(lua_State* L, const LLSD& data)
 *****************************************************************************/
 LuaState::LuaState(script_finished_fn cb):
     mCallback(cb),
-    mState(nullptr)
+    mState(luaL_newstate())
 {
-    initLuaState();
-}
-
-void LuaState::initLuaState() 
-{
-    if (mState)
-    {
-        lua_close(mState);
-    }
-    mState = luaL_newstate();
     luaL_openlibs(mState);
+    // publish to this new lua_State all the LL entry points we defined using
+    // the lua_function() macro
     LuaFunction::init(mState);
     // Try to make print() write to our log.
     lua_register(mState, "print", LuaFunction::get("print_info"));
@@ -607,8 +599,7 @@ std::pair<int, LLSD> LuaState::expr(const std::string& desc, const std::string& 
                 // we instead of the Lua runtime catch it, our lua_State retains
                 // its internal error status. Any subsequent lua_pcall() calls
                 // with this lua_State will report error regardless of whether the
-                // chunk runs successfully. Get a new lua_State().
-                initLuaState();
+                // chunk runs successfully.
                 return { -1, stringize(LLError::Log::classname(error), ": ", error.what()) };
             }
         }
@@ -628,64 +619,11 @@ std::pair<int, LLSD> LuaState::expr(const std::string& desc, const std::string& 
                 LL_WARNS("Lua") << desc << " error converting result " << index << ": "
                                 << error.what() << LL_ENDL;
                 // see above comments regarding lua_State's error status
-                initLuaState();
                 return { -1, stringize(LLError::Log::classname(error), ": ", error.what()) };
             }
         }
     }
     // pop everything
-    lua_settop(mState, 0);
-
-    // If we ran a script that loaded the fiber module, finish up with a call
-    // to fiber.run(). That allows a script to kick off some number of fibers,
-    // do some work on the main thread and then fall off the end of the script
-    // without explicitly appending a call to fiber.run(). run() ensures the
-    // rest of the fibers run to completion (or error).
-    luaL_checkstack(mState, 4, nullptr);
-    // Push _MODULES table on stack
-    luaL_findtable(mState, LUA_REGISTRYINDEX, "_MODULES", 1);
-    int index = lua_gettop(mState);
-    bool found = false;
-    // Did this chunk already require('fiber')? To find out, we must search
-    // the _MODULES table, because our require() implementation uses the
-    // pathname of the module file as the key. Push nil key to start.
-    lua_pushnil(mState);
-    while (lua_next(mState, index) != 0)
-    {
-        // key is at index -2, value at index -1
-        // "While traversing a table, do not call lua_tolstring directly on a
-        // key, unless you know that the key is actually a string. Recall that
-        // lua_tolstring changes the value at the given index; this confuses
-        // the next call to lua_next."
-        // https://www.lua.org/manual/5.1/manual.html#lua_next
-        if (lua_type(mState, -2) == LUA_TSTRING &&
-            fsyspath(lua_tostdstring(mState, -2)).stem() == "fiber")
-        {
-            found = true;
-            break;
-        }
-        // pop value so key is at top for lua_next()
-        lua_pop(mState, 1);
-    }
-    if (found)
-    {
-        // okay, index -1 is a table loaded from a file 'fiber.xxx' --
-        // does it have a function named 'run'?
-        auto run_type{ lua_getfield(mState, -1, "run") };
-        if (run_type == LUA_TFUNCTION)
-        {
-            // there's a fiber.run() function sitting on the top of the stack
-            // -- call it with no arguments, discarding anything it returns
-            LL_INFOS("Lua") << desc << " p.s. fiber.run()" << LL_ENDL;
-            if (! checkLua(desc, lua_pcall(mState, 0, 0, 0)))
-            {
-                LL_WARNS("Lua") << desc << " p.s. fiber.run() error: " << mError << LL_ENDL;
-                return { -1, mError };
-            }
-            LL_INFOS("Lua") << desc << " p.s. done." << LL_ENDL;
-        }
-    }
-    // pop everything again
     lua_settop(mState, 0);
     return result;
 }
