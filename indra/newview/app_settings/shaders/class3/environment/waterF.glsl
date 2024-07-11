@@ -227,7 +227,7 @@ void main()
     vec3 sunlit_linear = srgb_to_linear(sunlit);
 
 #ifdef TRANSPARENT_WATER
-    vec4 fb = texture(screenTex, distort2);
+    vec4 fb = textureLod(screenTex, distort2, 0);
     float depth = texture(depthMap, distort2).r;
     vec3 refPos = getPositionWithNDC(vec3(distort2*2.0-vec2(1.0), depth*2.0-1.0));
 
@@ -235,7 +235,7 @@ void main()
     {
         //we sampled an above water sample, don't distort
         distort2 = distort;
-        fb = texture(screenTex, distort2);
+        fb = textureLod(screenTex, distort2, 0);
         depth = texture(depthMap, distort2).r;
         refPos = getPositionWithNDC(vec3(distort2 * 2.0 - vec2(1.0), depth * 2.0 - 1.0));
     }
