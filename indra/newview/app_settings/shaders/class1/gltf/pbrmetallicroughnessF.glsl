@@ -96,7 +96,7 @@ in vec4 vary_fragcoord_t;
 #if defined(ALPHA_BLEND) || defined(TRANSMISSIVE)
 
 #ifdef TRANSMISSIVE
-uniform sampler2D transmissiveMap;
+uniform sampler2D transmissionMap;
 #endif
 
 in vec3 vary_fragcoord;
@@ -314,10 +314,10 @@ void main()
     calcDiffuseSpecular(basecolor.rgb, metallic, diffuseColor, specularColor);
 
     vec3 v = -normalize(pos.xyz);
-    
+
     float transmissiveness = 0.0;
 #if defined(TRANSMISSIVE)
-    float transmission_map = texture(transmissiveMap, base_color_uv.xy).r;
+    float transmission_map = texture(transmissionMap, base_color_uv.xy).r;
     transmissiveness = transmissiveFactor * transmission_map;
 #endif
 
