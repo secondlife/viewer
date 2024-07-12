@@ -331,9 +331,6 @@ void main()
     transmissiveness = transmissiveFactor * transmission_map;
 #endif
 
-        volumeThickness = 0.1;
-        dispersion = 20;
-        ior = 2;
     vec3 t_light = vec3(0);
     vec3 color = pbrBaseLight(diffuseColor, specularColor, metallic, vary_fragcoord_t, v, norm.xyz, perceptualRoughness, light_dir, sunlit_linear, scol, radiance, irradiance, emissive, orm.r, additive, atten, volumeThickness, volumeAttenuationColor, volumeAttenuationDistance, ior, dispersion, transmissiveness);
 

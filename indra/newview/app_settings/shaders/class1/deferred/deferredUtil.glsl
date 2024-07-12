@@ -444,7 +444,7 @@ vec3 getVolumeTransmissionRay(vec3 n, vec3 v, float thickness, float ior)
     vec3 refractionVector = refract(-v, normalize(n), 1.0 / ior);
 
     // The thickness is specified in local space.
-    return normalize(refractionVector) * thickness;
+    return normalize(refractionVector) * thickness * 0.2;
 }
 
 vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
@@ -760,9 +760,6 @@ vec3 applyVolumeAttenuation(vec3 radiance, float transmissionDistance, vec3 atte
 vec3 getIBLVolumeRefraction(vec3 n, vec3 v, float perceptualRoughness, vec3 baseColor, vec3 f0, vec3 f90,
     vec4 position, float ior, float thickness, vec3 attenuationColor, float attenuationDistance, float dispersion)
 {
-    ior = 1.5;
-    thickness = 0;
-    dispersion = 0;
     // Dispersion will spread out the ior values for each r,g,b channel
     float halfSpread = (ior - 1.0) * 0.025 * dispersion;
     vec3 iors = vec3(ior - halfSpread, ior, ior + halfSpread);
@@ -829,7 +826,7 @@ vec3 pbrBaseLight(vec3 diffuseColor,
 
     vec3 btdf = vec3(0);
 
-    btdf = getIBLVolumeRefraction(norm, view, perceptualRoughness, diffuseColor, vec3(0.04), vec3(1), pos, 1.0, thickness, atten_color, atten_dist, dispersion);
+    btdf = getIBLVolumeRefraction(norm, view, perceptualRoughness, diffuseColor, vec3(0.04), vec3(1), pos, ior, thickness, atten_color, atten_dist, dispersion);
 
     color += pbrIbl(diffuseColor, specularColor, radiance, irradiance, ao, NdotV, perceptualRoughness, transmission, btdf);
 
