@@ -332,6 +332,12 @@ void main()
 #endif
 
     vec3 t_light = vec3(0);
+
+    if (volumeAttenuationDistance == 0.0)
+    {
+        volumeThickness = 0.01;
+    }
+        
     vec3 color = pbrBaseLight(diffuseColor, specularColor, metallic, vary_fragcoord_t, v, norm.xyz, perceptualRoughness, light_dir, sunlit_linear, scol, radiance, irradiance, emissive, orm.r, additive, atten, volumeThickness, volumeAttenuationColor, volumeAttenuationDistance, ior, dispersion, transmissiveness);
 
     vec3 light = vec3(0);

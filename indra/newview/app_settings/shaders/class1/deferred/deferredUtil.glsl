@@ -444,7 +444,7 @@ vec3 getVolumeTransmissionRay(vec3 n, vec3 v, float thickness, float ior)
     vec3 refractionVector = refract(-v, normalize(n), 1.0 / ior);
 
     // The thickness is specified in local space.
-    return normalize(refractionVector) * thickness * 0.2;
+    return normalize(refractionVector) * thickness * 0.01;
 }
 
 vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
