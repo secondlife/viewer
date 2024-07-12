@@ -8395,12 +8395,6 @@ void LLPipeline::doAtmospherics()
 
             dst.flush();
             mRT->screen.bindTarget();
-
-            gGL.getTexUnit(0)->bind(&gPipeline.mWaterDis);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-            glGenerateMipmap(GL_TEXTURE_2D);
-            gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
         }
 
         LLGLEnable blend(GL_BLEND);

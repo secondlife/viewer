@@ -119,6 +119,8 @@ void main()
 
                 vec3 intensity = dist_atten * lightColor * 3.25;
                 vec3 t_light = vec3(0.0);
+                final_color += intensity*pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, n.xyz, v, lv, vec3(0), t_light, vec3(0), 1.5);
+
             }
         }
     }
