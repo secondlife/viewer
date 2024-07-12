@@ -299,9 +299,9 @@ LLEditWearableDictionary::Subparts::Subparts()
         addEntry(SUBPART_UNDERSHIRT,      new SubpartEntry(SUBPART_UNDERSHIRT, "mTorso", "undershirt", "undershirt_main_param_list", "undershirt_main_tab", LLVector3d(0.f, 0.f, 0.3f), LLVector3d(-1.f, 0.15f, 0.3f),SEX_BOTH));
         addEntry(SUBPART_UNDERPANTS,      new SubpartEntry(SUBPART_UNDERPANTS, "mPelvis", "underpants", "underpants_main_param_list", "underpants_main_tab", LLVector3d(0.f, 0.f, -0.5f), LLVector3d(-1.6f, 0.15f, -0.5f),SEX_BOTH));
         addEntry(SUBPART_SKIRT,           new SubpartEntry(SUBPART_SKIRT, "mPelvis", "skirt", "skirt_main_param_list", "skirt_main_tab", LLVector3d(0.f, 0.f, -0.5f), LLVector3d(-1.6f, 0.15f, -0.5f),SEX_BOTH));
-        addEntry(SUBPART_ALPHA,           new SubpartEntry(SUBPART_ALPHA, "mPelvis", "alpha", "alpha_main_param_list", "alpha_main_tab", LLVector3d(0.f, 0.f, 0.1f), LLVector3d(-2.5f, 0.5f, 0.8f),SEX_BOTH));
-        addEntry(SUBPART_TATTOO,          new SubpartEntry(SUBPART_TATTOO, "mPelvis", "tattoo", "tattoo_main_param_list", "tattoo_main_tab", LLVector3d(0.f, 0.f, 0.1f), LLVector3d(-2.5f, 0.5f, 0.8f),SEX_BOTH));
-        addEntry(SUBPART_UNIVERSAL,       new SubpartEntry(SUBPART_UNIVERSAL, "mPelvis", "universal", "universal_main_param_list", "universal_main_tab", LLVector3d(0.f, 0.f, 0.1f), LLVector3d(-2.5f, 0.5f, 0.8f), SEX_BOTH));
+        addEntry(SUBPART_ALPHA,           new SubpartEntry(SUBPART_ALPHA, "mPelvis", "alpha", "", "", LLVector3d(0.f, 0.f, 0.1f), LLVector3d(-2.5f, 0.5f, 0.8f),SEX_BOTH));
+        addEntry(SUBPART_TATTOO,          new SubpartEntry(SUBPART_TATTOO, "mPelvis", "tattoo", "", "", LLVector3d(0.f, 0.f, 0.1f), LLVector3d(-2.5f, 0.5f, 0.8f),SEX_BOTH));
+        addEntry(SUBPART_UNIVERSAL,       new SubpartEntry(SUBPART_UNIVERSAL, "mPelvis", "universal", "", "", LLVector3d(0.f, 0.f, 0.1f), LLVector3d(-2.5f, 0.5f, 0.8f), SEX_BOTH));
 
         // WT_PHYSICS
         addEntry(SUBPART_PHYSICS_BREASTS_UPDOWN,    new SubpartEntry(SUBPART_PHYSICS_BREASTS_UPDOWN, "mTorso", "physics_breasts_updown", "physics_breasts_updown_param_list", "physics_breasts_updown_tab", LLVector3d(0.f, 0.f, 0.3f), LLVector3d(0.f, 0.f, 0.f), SEX_FEMALE));
@@ -794,8 +794,12 @@ bool LLPanelEditWearable::postBuild()
                                 continue;
                         }
 
-                        const std::string accordion_tab = subpart_entry->mAccordionTab;
-                        LLAccordionCtrlTab *tab = getChild<LLAccordionCtrlTab>(accordion_tab);
+                        const std::string& accordion_tab = subpart_entry->mAccordionTab;
+                        if (accordion_tab.empty())
+                        {
+                            continue;
+                        }
+                        LLAccordionCtrlTab *tab = findChild<LLAccordionCtrlTab>(accordion_tab);
                         if (!tab)
                         {
                                 LL_WARNS() << "could not get llaccordionctrltab from UI with name: " << accordion_tab << LL_ENDL;
@@ -1199,12 +1203,16 @@ void LLPanelEditWearable::showWearable(LLViewerWearable* wearable, bool show, bo
                                 continue;
                         }
 
-                        const std::string scrolling_panel = subpart_entry->mParamList;
-                        const std::string accordion_tab = subpart_entry->mAccordionTab;
+                        const std::string& scrolling_panel = subpart_entry->mParamList;
+                        const std::string& accordion_tab = subpart_entry->mAccordionTab;
 
-                        LLScrollingPanelList *panel_list = getChild<LLScrollingPanelList>(scrolling_panel);
-                        LLAccordionCtrlTab *tab = getChild<LLAccordionCtrlTab>(accordion_tab);
+                        if (scrolling_panel.empty() || accordion_tab.empty())
+                        {
+                            continue;
+                        }
 
+                        LLScrollingPanelList *panel_list = findChild<LLScrollingPanelList>(scrolling_panel);
+                        LLAccordionCtrlTab *tab = findChild<LLAccordionCtrlTab>(accordion_tab);
                         if (!panel_list)
                         {
                                 LL_WARNS() << "could not get scrolling panel list: " << scrolling_panel << LL_ENDL;
