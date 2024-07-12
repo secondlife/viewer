@@ -9289,7 +9289,7 @@
     <key>RenderTerrainPBREnabled</key>
     <map>
       <key>Comment</key>
-      <string>EXPERIMENTAL: Enable PBR Terrain features.</string>
+      <string>Enable PBR Terrain features.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

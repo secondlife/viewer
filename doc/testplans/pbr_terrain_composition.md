@@ -44,6 +44,8 @@ The PBR terrain texture transform flag should be set automatically when logging 
 
 When the PBR terrain texture transform feature is enabled, the UI of the Terrain tab should be overhauled. Availability of features depends on the type of terrain.
 
+**Known issue:** The Region/Estate floater may have to be closed/reopened a second time in order for the UI overhaul to take effect, after teleporting between regions that do and do not have the feature flag set.
+
 When "PBR Metallic Roughness" is checked:
 
 - There should be a way for the user to change the texture transforms for the terrain in the current region

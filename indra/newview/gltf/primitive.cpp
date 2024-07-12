@@ -109,7 +109,7 @@ struct MikktMesh
 
         for (U32 tri_idx = 0; tri_idx < U32(triangle_count); ++tri_idx)
         {
-            U32 idx[3];
+            U32 idx[3] = {0, 0, 0};
 
             if (prim->mMode == Primitive::Mode::TRIANGLES)
             {

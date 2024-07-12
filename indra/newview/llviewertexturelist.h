@@ -229,8 +229,8 @@ public:
     bool mForceResetTextureStats;
 
     // to make "for (auto& imagep : gTextureList)" work
-    const image_list_t::iterator begin() const { return mImageList.begin(); }
-    const image_list_t::iterator end() const { return mImageList.end(); }
+    const image_list_t::const_iterator begin() const { return mImageList.cbegin(); }
+    const image_list_t::const_iterator end() const { return mImageList.cend(); }
 
 private:
     typedef std::map< LLTextureKey, LLPointer<LLViewerFetchedTexture> > uuid_map_t;
