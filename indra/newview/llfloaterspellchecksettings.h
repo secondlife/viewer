@@ -45,6 +45,8 @@ protected:
     void onBtnRemove();
     void onSpellCheckSettingsChange();
     void refreshDictionaries(bool from_settings);
+
+    bool mMainSelectionChanged{ false };
 };
 
 class LLFloaterSpellCheckerImport : public LLFloater

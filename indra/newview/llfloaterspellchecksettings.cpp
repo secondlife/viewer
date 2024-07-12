@@ -67,7 +67,11 @@ bool LLFloaterSpellCheckerSettings::postBuild(void)
     LLSpellChecker::setSettingsChangeCallback(boost::bind(&LLFloaterSpellCheckerSettings::onSpellCheckSettingsChange, this));
     getChild<LLUICtrl>("spellcheck_remove_btn")->setCommitCallback(boost::bind(&LLFloaterSpellCheckerSettings::onBtnRemove, this));
     getChild<LLUICtrl>("spellcheck_import_btn")->setCommitCallback(boost::bind(&LLFloaterSpellCheckerSettings::onBtnImport, this));
-    getChild<LLUICtrl>("spellcheck_main_combo")->setCommitCallback(boost::bind(&LLFloaterSpellCheckerSettings::refreshDictionaries, this, false));
+    getChild<LLUICtrl>("spellcheck_main_combo")->setCommitCallback([this](LLUICtrl* ctrl, const LLSD& data)
+    {
+        mMainSelectionChanged = true;
+        refreshDictionaries(false);
+    });
     getChild<LLUICtrl>("spellcheck_moveleft_btn")->setCommitCallback(boost::bind(&LLFloaterSpellCheckerSettings::onBtnMove, this, "spellcheck_active_list", "spellcheck_available_list"));
     getChild<LLUICtrl>("spellcheck_moveright_btn")->setCommitCallback(boost::bind(&LLFloaterSpellCheckerSettings::onBtnMove, this, "spellcheck_available_list", "spellcheck_active_list"));
     center();
@@ -146,7 +150,7 @@ void LLFloaterSpellCheckerSettings::onBtnRemove()
 
 void LLFloaterSpellCheckerSettings::onSpellCheckSettingsChange()
 {
-    refreshDictionaries(true);
+    refreshDictionaries(!mMainSelectionChanged);
 }
 
 void LLFloaterSpellCheckerSettings::refreshDictionaries(bool from_settings)
