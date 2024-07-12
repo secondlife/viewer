@@ -189,17 +189,17 @@ void Asset::uploadMaterials()
     // see pbrmetallicroughnessV.glsl for the layout of the material UBO
     std::vector<vec4> md;
 
-    U32 material_size = sizeof(vec4) * 12;
+    U32 material_size = sizeof(vec4) * sMaxParams;
     U32 max_materials = gGLManager.mMaxUniformBlockSize / material_size;
 
     U32 mat_count = (U32)mMaterials.size();
     mat_count = llmin(mat_count, max_materials);
 
-    md.resize(mat_count * 12);
+    md.resize(mat_count * sMaxParams);
 
-    for (U32 i = 0; i < mat_count*12; i += 12)
+    for (U32 i = 0; i < mat_count* sMaxParams; i += sMaxParams)
     {
-        Material& material = mMaterials[i/12];
+        Material& material = mMaterials[i/ sMaxParams];
 
         // add texture transforms and UV indices
         material.mPbrMetallicRoughness.mBaseColorTexture.mTextureTransform.getPacked(&md[i+0]);
@@ -220,6 +220,9 @@ void Asset::uploadMaterials()
             material.mPbrMetallicRoughness.mRoughnessFactor,
             material.mPbrMetallicRoughness.mMetallicFactor,
             min_alpha);
+
+        md[i + 12] = vec4(material.mVolume.mAttenuationColor, material.mVolume.mAttenuationDistance);
+        md[i + 13] = vec4(material.mVolume.mThicknessFactor, material.mIOR.mIOR, material.mDispersion.mDispersion, 0.f);
     }
 
     if (mMaterialsUBO == 0)

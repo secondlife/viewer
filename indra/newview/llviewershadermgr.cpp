@@ -41,6 +41,8 @@
 #include "llworld.h"
 #include "llsky.h"
 
+#include "gltf/asset.h"
+
 #include "pipeline.h"
 
 #include "llfile.h"
@@ -263,7 +265,7 @@ static bool make_gltf_variant(LLGLSLShader& shader, LLGLSLShader& variant, bool 
     U32 max_nodes = gGLManager.mMaxUniformBlockSize / node_size;
     variant.addPermutation("MAX_NODES_PER_GLTF_OBJECT", std::to_string(max_nodes));
 
-    U32 material_size = 16 * 12;
+    U32 material_size = 16 * LL::GLTF::Asset::sMaxParams;
     U32 max_materials = gGLManager.mMaxUniformBlockSize / material_size;
     LLGLSLShader::sMaxGLTFMaterials = max_materials;
 

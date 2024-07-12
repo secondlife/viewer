@@ -43,7 +43,7 @@ uniform int gltf_material_id;
 
 layout (std140) uniform GLTFMaterials
 {
-    // index by gltf_material_id*12
+    // index by gltf_material_id*14
 
     // [gltf_material_id + [0-1]] -  base color transform
     // [gltf_material_id + [2-3]] -  normal transform
@@ -51,7 +51,9 @@ layout (std140) uniform GLTFMaterials
     // [gltf_material_id + [6-7]] -  emissive transform
     // [gltf_material_id + [8-9]] -  occlusion transform
     // [gltf_material_id + 10]    -  emissive factor
-    // [gltf_material_id + 11]    -  .r unused, .g roughness, .b metalness, .a minimum alpha
+    // [gltf_material_id + 11]    -  .r transmission factor, .g roughness, .b metalness, .a minimum alpha
+    // [gltf_material_id + 12]    -  .rgb volume attenuation color, .a volume attenuation distance
+    // [gltf_material_id + 13]    -  .r volume thickness, .g IOR, .b dispersion, .a unused
 
     // Transforms are packed as follows
     // packed[0] = vec4(scale.x, scale.y, rotation, offset.x)
@@ -69,7 +71,7 @@ void unpackTextureTransforms()
 {
     if (gltf_material_id != -1)
     {
-        int idx = gltf_material_id*12;
+        int idx = gltf_material_id*14;
 
         texture_base_color_transform[0] = gltf_material_data[idx+0];
         texture_base_color_transform[1] = gltf_material_data[idx+1];

@@ -35,6 +35,11 @@ float metallicFactor = 1.0;
 float roughnessFactor = 1.0;
 float minimum_alpha = -1.0;
 float transmissiveFactor = 0.0;
+vec3 volumeAttenuationColor = vec3(0.0);
+float volumeAttenuationDistance = 0.0;
+float volumeThickness = 0.0;
+float ior = 1.5;
+float dispersion = 0.0;
 
 layout (std140) uniform GLTFMaterials
 {
@@ -46,12 +51,17 @@ void unpackMaterial()
 {
     if (gltf_material_id > -1)
     {
-        int idx = gltf_material_id*12;
+        int idx = gltf_material_id*14;
         emissiveColor = gltf_material_data[idx+10].rgb;
         roughnessFactor = gltf_material_data[idx+11].g;
         metallicFactor = gltf_material_data[idx+11].b;
-        minimum_alpha -= gltf_material_data[idx+11].a;
+        minimum_alpha = gltf_material_data[idx+11].a;
         transmissiveFactor = gltf_material_data[idx+11].r;
+        volumeAttenuationColor = gltf_material_data[idx+12].rgb;
+        volumeAttenuationDistance = gltf_material_data[idx+12].a;
+        volumeThickness = gltf_material_data[idx+13].r;
+        ior = gltf_material_data[idx+13].g;
+        dispersion = gltf_material_data[idx+13].b;
     }
 }
 
@@ -321,13 +331,16 @@ void main()
     transmissiveness = transmissiveFactor * transmission_map;
 #endif
 
+        volumeThickness = 0.1;
+        dispersion = 20;
+        ior = 2;
     vec3 t_light = vec3(0);
-    vec3 color = pbrBaseLight(diffuseColor, specularColor, metallic, vary_fragcoord_t, v, norm.xyz, perceptualRoughness, light_dir, sunlit_linear, scol, radiance, irradiance, emissive, orm.r, additive, atten, 0, vec3(0), 0, 1.5, 0, transmissiveness);
+    vec3 color = pbrBaseLight(diffuseColor, specularColor, metallic, vary_fragcoord_t, v, norm.xyz, perceptualRoughness, light_dir, sunlit_linear, scol, radiance, irradiance, emissive, orm.r, additive, atten, volumeThickness, volumeAttenuationColor, volumeAttenuationDistance, ior, dispersion, transmissiveness);
 
     vec3 light = vec3(0);
 
     // Punctual lights
-#define LIGHT_LOOP(i) light += pbrCalcPointLightOrSpotLight(diffuseColor, specularColor, perceptualRoughness, metallic, norm.xyz, pos.xyz, v, light_position[i].xyz, light_direction[i].xyz, light_diffuse[i].rgb, light_deferred_attenuation[i].x, light_deferred_attenuation[i].y, light_attenuation[i].z, light_attenuation[i].w, 1.5, 0.0, transmissiveness);
+#define LIGHT_LOOP(i) light += pbrCalcPointLightOrSpotLight(diffuseColor, specularColor, perceptualRoughness, metallic, norm.xyz, pos.xyz, v, light_position[i].xyz, light_direction[i].xyz, light_diffuse[i].rgb, light_deferred_attenuation[i].x, light_deferred_attenuation[i].y, light_attenuation[i].z, light_attenuation[i].w, ior, volumeThickness, transmissiveness);
 
     LIGHT_LOOP(1)
     LIGHT_LOOP(2)

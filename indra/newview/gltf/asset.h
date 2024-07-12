@@ -443,6 +443,8 @@ namespace LL
             // UBO for storing material data
             U32 mMaterialsUBO = 0;
 
+            static const U32 sMaxParams = 14;
+
             // prepare for first time use
             bool prep();
 
