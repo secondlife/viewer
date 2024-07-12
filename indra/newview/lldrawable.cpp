@@ -944,7 +944,7 @@ void LLDrawable::updateTexture()
 
 bool LLDrawable::updateGeometry()
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWABLE
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWABLE;
 
     llassert(mVObjp.notNull());
     bool res = mVObjp && mVObjp->updateGeometry(this);
