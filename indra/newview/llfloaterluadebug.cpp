@@ -104,12 +104,6 @@ void LLFloaterLUADebug::onBtnBrowse()
 
 void LLFloaterLUADebug::onBtnRun()
 {
-    if (mExecuting)
-    {
-        LL_DEBUGS("Lua") << "recursive call to onBtnRun()" << LL_ENDL;
-        return;
-    }
-    TempSet executing(mExecuting, true);
     std::vector<std::string> filenames;
     std::string filepath = mScriptPath->getText();
     if (!filepath.empty())

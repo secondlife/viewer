@@ -69,7 +69,7 @@
    visible="false"
    use_ellipses="true"
    text_color="White"
-   width="240">
+   width="225">
     Debug setting name
   </text>
   <text_editor
@@ -212,4 +212,15 @@
       name="hide_default"
       width="330">
     </check_box>
+    <text_editor
+      read_only="true"
+      visible="false"
+      height="115"
+      layout="topleft"
+      name="llsd_text"
+      follows="left|top"
+      width="240"
+      left="320"
+      top="180"
+      word_wrap="true" />
 </floater>

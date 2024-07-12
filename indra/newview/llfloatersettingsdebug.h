@@ -69,6 +69,7 @@ private:
 
 protected:
     class LLTextEditor* mComment;
+    LLTextEditor* mLLSDVal;
     LLTextBox* mSettingName;
     LLButton* mCopyBtn;
 

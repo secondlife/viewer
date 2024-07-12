@@ -35,6 +35,7 @@
 #include "llviewercontrol.h"
 #include "lltexteditor.h"
 #include "llclipboard.h"
+#include "llsdutil.h"
 
 
 LLFloaterSettingsDebug::LLFloaterSettingsDebug(const LLSD& key)
@@ -54,6 +55,7 @@ BOOL LLFloaterSettingsDebug::postBuild()
 
     mComment = getChild<LLTextEditor>("comment_text");
     mSettingName = getChild<LLTextBox>("setting_name_txt");
+    mLLSDVal = getChild<LLTextEditor>("llsd_text");
     mCopyBtn = getChild<LLButton>("copy_btn");
 
     getChild<LLFilterEditor>("filter_input")->setCommitCallback(boost::bind(&LLFloaterSettingsDebug::setSearchFilter, this, _2));
@@ -472,6 +474,17 @@ void LLFloaterSettingsDebug::updateControl(LLControlVariable* controlp)
             color_swatch->setValue(sd);
             break;
           }
+          case TYPE_LLSD:
+          {
+            mLLSDVal->setVisible(true);
+            std::string new_text = ll_pretty_print_sd(sd);
+            // Don't setText if not nessesary, it will reset scroll
+            if (mLLSDVal->getText() != new_text)
+            {
+                mLLSDVal->setText(new_text);
+            }
+            break;
+          }
           default:
             mComment->setText(std::string("unknown"));
             break;
@@ -638,6 +651,7 @@ void LLFloaterSettingsDebug::hideUIControls()
     getChildView("val_text")->setVisible(false);
     getChildView("default_btn")->setVisible(false);
     getChildView("boolean_combo")->setVisible(false);
+    mLLSDVal->setVisible(false);
     mSettingName->setVisible(false);
     mCopyBtn->setVisible(false);
     mComment->setVisible(false);
