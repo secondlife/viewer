@@ -161,7 +161,7 @@ void LLFloaterExperiences::onOpen( const LLSD& key )
 {
     LLEventPumps::instance().obtain("experience_permission").stopListening("LLFloaterExperiences");
     LLEventPumps::instance().obtain("experience_permission").listen("LLFloaterExperiences",
-        boost::bind(&LLFloaterExperiences::updatePermissions, this, _1));
+        LLEventListener(&LLFloaterExperiences::updatePermissions, this, _1));
 
     LLViewerRegion* region = gAgent.getRegion();
     if(region)

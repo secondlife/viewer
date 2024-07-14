@@ -1077,7 +1077,7 @@ namespace tut
         EventListener(LLEventPump& pump)
         {
             mConnection =
-                pump.listen("EventListener", boost::bind(&EventListener::tick, this, _1));
+                pump.listen("EventListener", LLEventListener(&EventListener::tick, this, _1));
         }
 
         bool tick(const LLSD& data)
@@ -1124,7 +1124,7 @@ namespace tut
         // also listen with a function that prompts the child to continue
         // every time we see output
         LLTempBoundListener connection(
-            childout.getPump().listen("ack", boost::bind(ack, boost::ref(childin), _1)));
+            childout.getPump().listen("ack", LLEventListener(ack, boost::ref(childin), _1)));
         int i, timeout = 60;
         // wait through stuttering first line
         for (i = 0; i < timeout && py.mPy->isRunning() && ! childout.contains("\n"); ++i)
@@ -1331,7 +1331,7 @@ namespace tut
             mTriggered(false)
         {
             LLEventPumps::instance().obtain(pumpname)
-                .listen("PostendListener", boost::bind(&PostendListener::postend, this, _1));
+                .listen("PostendListener", LLEventListener(&PostendListener::postend, this, _1));
         }
 
         bool postend(const LLSD&)

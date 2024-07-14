@@ -32,6 +32,8 @@
 // associated header
 #include "llxmlrpclistener.h"
 // STL headers
+#include <functional>
+namespace stn = std::placeholders;  // _1, _2 et al.
 #include <map>
 #include <set>
 // std headers
@@ -181,7 +183,7 @@ static const CURLcodeMapper sCURLcodeMapper;
 LLXMLRPCListener::LLXMLRPCListener(const std::string& pumpname):
     mBoundListener(LLEventPumps::instance().
                    obtain(pumpname).
-                   listen("LLXMLRPCListener", boost::bind(&LLXMLRPCListener::process, this, _1)))
+                   listen("LLXMLRPCListener", std::bind(&LLXMLRPCListener::process, this, stn::_1)))
 {
 }
 
@@ -294,7 +296,7 @@ public:
         mBoundListener =
             LLEventPumps::instance().
             obtain("mainloop").
-            listen(LLEventPump::ANONYMOUS, boost::bind(&Poller::poll, this, _1));
+            listen(LLEventPump::ANONYMOUS, std::bind(&Poller::poll, this, stn::_1));
 
         LL_INFOS("LLXMLRPCListener") << mMethod << " request sent to " << mUri << LL_ENDL;
     }

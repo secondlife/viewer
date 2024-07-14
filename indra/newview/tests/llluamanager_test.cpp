@@ -42,17 +42,6 @@ public:
 
 LLControlGroup gSavedSettings("Global");
 
-template <typename CALLABLE>
-auto listener(CALLABLE&& callable)
-{
-    return [callable=std::forward<CALLABLE>(callable)]
-    (const LLSD& data)
-    {
-        callable(data);
-        return false;
-    };
-}
-
 /*****************************************************************************
 *   TUT
 *****************************************************************************/
@@ -138,7 +127,7 @@ namespace tut
     {
         LLSD fromlua;
         LLStreamListener pump("testpump",
-                              listener([&fromlua](const LLSD& data){ fromlua = data; }));
+                              [&fromlua](const LLSD& data){ fromlua = data; });
         const std::string lua(stringize(
             "data = ", construct, "\n"
             "LL.post_on('testpump', data)\n"
@@ -167,8 +156,8 @@ namespace tut
         set_test_name("test post_on(), get_event_pumps(), get_event_next()");
         StringVec posts;
         LLStreamListener pump("testpump",
-                              listener([&posts](const LLSD& data)
-                              { posts.push_back(data.asString()); }));
+                              [&posts](const LLSD& data)
+                              { posts.push_back(data.asString()); });
         const std::string lua(
             "-- test post_on,get_event_pumps,get_event_next\n"
             "LL.post_on('testpump', 'entry')\n"
@@ -346,11 +335,11 @@ namespace tut
 
         LLStreamListener pump(
             "echo",
-            listener([](const LLSD& data)
+            [](const LLSD& data)
             {
                 LL_DEBUGS("Lua") << "echo pump got: " << data << LL_ENDL;
                 sendReply(data, data);
-            }));
+            });
 
         auto [count, result] = LLLUAmanager::waitScriptLine(lua);
         ensure_equals("Lua script didn't return item", count, 1);
@@ -424,11 +413,11 @@ namespace tut
         LLSD requests;
         LLStreamListener pump(
             "testpump",
-            listener([&requests](const LLSD& data)
+            [&requests](const LLSD& data)
             {
                 LL_DEBUGS("Lua") << "testpump got: " << data << LL_ENDL;
                 requests.append(data);
-            }));
+            });
 
         auto future = LLLUAmanager::startScriptLine(lua);
         // LuaState::expr() periodically interrupts a running chunk to ensure

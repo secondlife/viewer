@@ -32,12 +32,13 @@
 #if ! defined(LL_LLEVENTS_H)
 #define LL_LLEVENTS_H
 
-#include <string>
-#include <map>
-#include <set>
-#include <vector>
 #include <deque>
 #include <functional>
+#include <map>
+#include <set>
+#include <string>
+#include <type_traits>
+#include <vector>
 #if LL_WINDOWS
     #pragma warning (push)
     #pragma warning (disable : 4263) // boost::signals2::expired_slot::what() has const mismatch
@@ -137,6 +138,10 @@ typedef boost::signals2::signal<bool(const LLSD&), LLStopWhenHandled, float>  LL
 /// Methods that forward listeners (e.g. constructed with
 /// <tt>boost::bind()</tt>) should accept (const LLEventListener&)
 typedef LLStandardSignal::slot_type LLEventListener;
+/// Support a listener accepting (const LLBoundListener&, const LLSD&).
+/// Note that LLBoundListener::disconnect() is a const method: this feature is
+/// specifically intended to allow a listener to disconnect itself when done.
+typedef LLStandardSignal::extended_slot_type LLAwareListener;
 /// Accept a void listener too
 typedef std::function<void(const LLSD&)> LLVoidListener;
 /// Result of registering a listener, supports <tt>connected()</tt>,
@@ -528,12 +533,31 @@ public:
      * manually disconnected when no longer needed since there will be no
      * way to later find and disconnect this listener manually.
      */
+    template <typename LISTENER>
     LLBoundListener listen(const std::string& name,
-                           const LLEventListener& listener,
+                           LISTENER&& listener,
                            const NameList& after=NameList(),
                            const NameList& before=NameList())
     {
-        return listen_impl(name, listener, after, before);
+        if constexpr (std::is_invocable_v<LISTENER, LLBoundListener, const LLSD&>)
+        {
+            return listenb(name, std::forward<LISTENER>(listener), after, before);
+        }
+        else
+        {
+            static_assert(std::is_invocable_v<LISTENER, const LLSD&>,
+                          "LLEventPump::listen() listener has bad parameter signature");
+            // wrap classic LLEventListener in LLAwareListener lambda
+            return listenb(
+                name,
+                [listener=std::move(listener)]
+                (const LLBoundListener&, const LLSD& event)
+                {
+                    return listener(event);
+                },
+                after,
+                before);
+        }
     }
 
     /// Get the LLBoundListener associated with the passed name (dummy
@@ -579,7 +603,35 @@ private:
     LLMutex mConnectionListMutex;
 
 protected:
-    virtual LLBoundListener listen_impl(const std::string& name, const LLEventListener&,
+    template <typename LISTENER>
+    LLBoundListener listenb(const std::string& name,
+                            LISTENER&& listener,
+                            const NameList& after=NameList(),
+                            const NameList& before=NameList())
+    {
+        using result_t = std::decay_t<decltype(listener(LLBoundListener(), LLSD()))>;
+        if constexpr (std::is_same_v<bool, result_t>)
+        {
+            return listen_impl(name, std::forward<LISTENER>(listener), after, before);
+        }
+        else
+        {
+            static_assert(std::is_same_v<void, result_t>,
+                          "LLEventPump::listen() listener has bad return type");
+            // wrap void listener in one that returns bool
+            return listen_impl(
+                name,
+                [listener=std::move(listener)]
+                (const LLBoundListener& conn, const LLSD& event)
+                {
+                    listener(conn, event);
+                    return false;
+                },
+                after,
+                before);
+        }
+    }
+    virtual LLBoundListener listen_impl(const std::string& name, const LLAwareListener&,
                                         const NameList& after,
                                         const NameList& before);
 
@@ -654,7 +706,7 @@ public:
     void discard();
 
 protected:
-    virtual LLBoundListener listen_impl(const std::string& name, const LLEventListener&,
+    virtual LLBoundListener listen_impl(const std::string& name, const LLAwareListener&,
                                         const NameList& after,
                                         const NameList& before) override;
 

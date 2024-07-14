@@ -93,7 +93,7 @@ LLLoginInstance::LLLoginInstance() :
     mDispatcher("LLLoginInstance", "change")
 {
     mLoginModule->getEventPump().listen("lllogininstance",
-        boost::bind(&LLLoginInstance::handleLoginEvent, this, _1));
+        LLEventListener(&LLLoginInstance::handleLoginEvent, this, _1));
     // This internal use of LLEventDispatcher doesn't really need
     // per-function descriptions.
     mDispatcher.add("fail.login", "", boost::bind(&LLLoginInstance::handleLoginFailure, this, _1));
@@ -349,7 +349,7 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
         LLFloaterReg::showInstance("message_tos", data);
         LLEventPumps::instance().obtain(TOS_REPLY_PUMP)
             .listen(TOS_LISTENER_NAME,
-                    boost::bind(&LLLoginInstance::handleTOSResponse,
+                    LLEventListener(&LLLoginInstance::handleTOSResponse,
                                 this, _1, "agree_to_tos"));
     }
     else if(reason_response == "critical")
@@ -374,7 +374,7 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
         LLFloaterReg::showInstance("message_critical", data);
         LLEventPumps::instance().obtain(TOS_REPLY_PUMP)
             .listen(TOS_LISTENER_NAME,
-                    boost::bind(&LLLoginInstance::handleTOSResponse,
+                    LLEventListener(&LLLoginInstance::handleTOSResponse,
                                 this, _1, "read_critical"));
     }
     else if(reason_response == "update")

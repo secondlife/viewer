@@ -89,7 +89,7 @@ public:
 
     LLBoundListener listenTo(LLEventPump& pump)
     {
-        return pump.listen(mName, boost::bind(&LoginListener::call, this, _1));
+        return pump.listen(mName, LLEventListener(&LoginListener::call, this, _1));
     }
 
     LLSD lastEvent() const { return mLastEvent; }
@@ -188,7 +188,7 @@ public:
 
     LLBoundListener listenTo(LLEventPump& pump)
     {
-        return pump.listen(mName, boost::bind(&LLXMLRPCListener::handle_event, this, _1));
+        return pump.listen(mName, LLEventListener(&LLXMLRPCListener::handle_event, this, _1));
     }
 
     friend std::ostream& operator<<(std::ostream& out, const LLXMLRPCListener& listener)

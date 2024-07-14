@@ -36,7 +36,6 @@
 #include "llevents.h"
 #include "llexception.h"
 
-#include <boost/bind.hpp>
 #include <boost/asio/streambuf.hpp>
 #include <boost/asio/buffers_iterator.hpp>
 #include <iostream>
@@ -83,7 +82,7 @@ public:
         {
             LL_DEBUGS("LLProcess") << "listening on \"mainloop\"" << LL_ENDL;
             mConnection = LLEventPumps::instance().obtain("mainloop")
-                .listen("LLProcessListener", boost::bind(&LLProcessListener::tick, this, _1));
+                .listen("LLProcessListener", LLEventListener(&LLProcessListener::tick, this, _1));
         }
     }
 
@@ -150,7 +149,7 @@ public:
     {
         mConnection = LLEventPumps::instance().obtain("mainloop")
             .listen(LLEventPump::inventName("WritePipe"),
-                    boost::bind(&WritePipeImpl::tick, this, _1));
+                    LLEventListener(&WritePipeImpl::tick, this, _1));
 
 #if ! LL_WINDOWS
         // We can't count on every child process reading everything we try to
@@ -268,7 +267,7 @@ public:
     {
         mConnection = LLEventPumps::instance().obtain("mainloop")
             .listen(LLEventPump::inventName("ReadPipe"),
-                    boost::bind(&ReadPipeImpl::tick, this, _1));
+                    LLEventListener(&ReadPipeImpl::tick, this, _1));
     }
 
     ~ReadPipeImpl()

@@ -89,14 +89,14 @@ public:
      * This helper method is only because our test code makes so many
      * repetitive listen() calls to ListenerMethods. In real code, you should
      * call LLEventPump::listen() directly so it can examine the specific
-     * object you pass to boost::bind().
+     * object.
      */
     LLBoundListener listenTo(LLEventPump& pump,
                              ListenMethod method=&Listener::call,
                              const LLEventPump::NameList& after=LLEventPump::empty,
                              const LLEventPump::NameList& before=LLEventPump::empty)
     {
-        return pump.listen(getName(), boost::bind(method, this, _1), after, before);
+        return pump.listen(getName(), LLEventListener(method, this, _1), after, before);
     }
     /// Both call() and callstop() set mLastEvent. Retrieve it.
     LLSD getLastEvent() const

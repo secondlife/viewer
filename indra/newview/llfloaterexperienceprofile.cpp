@@ -182,7 +182,7 @@ BOOL LLFloaterExperienceProfile::postBuild()
 
 
     LLEventPumps::instance().obtain("experience_permission").listen(mExperienceId.asString()+"-profile",
-        boost::bind(&LLFloaterExperienceProfile::experiencePermission, getDerivedHandle<LLFloaterExperienceProfile>(this), _1));
+        LLEventListener(&LLFloaterExperienceProfile::experiencePermission, getDerivedHandle<LLFloaterExperienceProfile>(this), _1));
 
     if (mPostEdit && mExperienceId.notNull())
     {
