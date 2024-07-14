@@ -719,7 +719,7 @@ public:
     }
 };
 
-
+// override
 bool LLAppViewer::init()
 {
     setupErrorHandling(mSecondInstance);
@@ -1312,6 +1312,7 @@ void LLAppViewer::initMaxHeapSize()
 // externally visible timers
 LLTrace::BlockTimerStatHandle FTM_FRAME("Frame");
 
+// override
 bool LLAppViewer::frame()
 {
     bool ret = false;
@@ -1695,6 +1696,7 @@ void LLAppViewer::flushLFSIO()
     }
 }
 
+// override
 bool LLAppViewer::cleanup()
 {
     LLAtmosphere::cleanupClass();
@@ -3958,12 +3960,13 @@ void LLAppViewer::removeDumpDir()
     }
 }
 
+// override
 void LLAppViewer::forceQuit()
 {
     LLApp::setQuitting();
 }
 
-//TODO: remove
+// TODO: remove
 void LLAppViewer::fastQuit(S32 error_code)
 {
     // finish pending transfers
@@ -3980,6 +3983,7 @@ void LLAppViewer::fastQuit(S32 error_code)
     _exit(final_error_code);
 }
 
+// override
 void LLAppViewer::requestQuit()
 {
     LL_INFOS() << "requestQuit" << LL_ENDL;

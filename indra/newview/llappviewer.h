@@ -84,15 +84,15 @@ public:
     //
     // Main application logic
     //
-    virtual bool init();            // Override to do application initialization
-    virtual bool cleanup();         // Override to do application cleanup
-    virtual bool frame(); // Override for application body logic
+    virtual bool init() override;    // Overridden to do application initialization
+    virtual bool cleanup() override; // Overridden to do application cleanup
+    virtual bool frame() override;   // Overridden for application body logic
 
     // Application control
     void flushLFSIO(); // waits for lfs transfers to complete
-    void forceQuit(); // Puts the viewer into 'shutting down without error' mode.
+    virtual void forceQuit() override; // Puts the viewer into 'shutting down without error' mode.
     void fastQuit(S32 error_code = 0); // Shuts down the viewer immediately after sending a logout message
-    void requestQuit(); // Request a quit. A kinder, gentler quit.
+    virtual void requestQuit() override; // Request a quit. A kinder, gentler quit.
     void userQuit(); // The users asks to quit. Confirm, then requestQuit()
     void earlyExit(const std::string& name,
                    const LLSD& substitutions = LLSD()); // Display an error dialog and forcibly quit.

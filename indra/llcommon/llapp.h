@@ -189,6 +189,8 @@ public:
     void disableCrashlogger();              // Let the OS handle the crashes
     static bool isCrashloggerDisabled();    // Get the here above set value
 
+    static void quit(bool force = false); // Request a quit. A kinder, gentler quit.
+
     //
     // Application status
     //
@@ -288,6 +290,8 @@ public:
     string_map mOptionMap;  // Contains all command-line options and arguments in a map
 
 protected:
+    virtual void forceQuit(); // Puts the viewer into 'shutting down without error' mode.
+    virtual void requestQuit(); // Request a quit. A kinder, gentler quit.
 
     static void setStatus(EAppStatus status);       // Use this to change the application status.
     static LLScalarCond<EAppStatus> sStatus; // Reflects current application status

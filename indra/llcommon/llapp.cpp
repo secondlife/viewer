@@ -370,6 +370,18 @@ static std::map<LLApp::EAppStatus, const char*> statusDesc
 
 } // anonymous namespace
 
+// virtual
+void LLApp::forceQuit()
+{
+    llassert_always_msg(false, "Not implemented"); // Should be overridden
+}
+
+// virtual
+void LLApp::requestQuit()
+{
+    llassert_always_msg(false, "Not implemented"); // Should be overridden
+}
+
 // static
 void LLApp::setStatus(EAppStatus status)
 {
@@ -412,6 +424,27 @@ void LLApp::setDebugFileNames(const std::string &path)
 
 void LLApp::writeMiniDump()
 {
+}
+
+// static
+void LLApp::quit(bool force)
+{
+    if (LLApp* app = instance())
+    {
+        if (force)
+        {
+            app->forceQuit(); // Puts the viewer into 'shutting down without error' mode.
+        }
+        else
+        {
+            app->requestQuit(); // Request a quit. A kinder, gentler quit.
+        }
+    }
+    else
+    {
+        LL_WARNS() << "No app instance" << LL_ENDL;
+        std::exit(0);
+    }
 }
 
 // static
