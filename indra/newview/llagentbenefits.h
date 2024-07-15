@@ -54,6 +54,9 @@ public:
     S32 getTextureUploadCost() const;
     S32 getTextureUploadCost(const LLViewerTexture* tex) const;
     S32 getTextureUploadCost(const LLImageBase* tex) const;
+    // <FS:Chanayane> 2048x2048 snapshots upload to inventory
+    S32 getTextureUploadCost(S32 w, S32 h) const;
+    // </FS:Chanayane>
     S32 get2KTextureUploadCost(S32 area) const;
 
     bool findUploadCost(LLAssetType::EType& asset_type, S32& cost) const;

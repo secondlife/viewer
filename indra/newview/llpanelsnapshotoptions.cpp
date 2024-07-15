@@ -30,6 +30,7 @@
 #include "llsidetraypanelcontainer.h"
 
 #include "llfloatersnapshot.h" // FIXME: create a snapshot model
++#include "llsnapshotlivepreview.h" // <FS:Chanayane> 2048x2048 snapshots upload to inventory
 #include "llfloaterreg.h"
 
 #include "llagentbenefits.h"
@@ -89,7 +90,22 @@ void LLPanelSnapshotOptions::onOpen(const LLSD& key)
 
 void LLPanelSnapshotOptions::updateUploadCost()
 {
-    S32 upload_cost = LLAgentBenefitsMgr::current().getTextureUploadCost();
+    // <FS:Chanayane> 2048x2048 snapshots upload to inventory
+    //S32 upload_cost = LLAgentBenefitsMgr::current().getTextureUploadCost();
+    S32 w = 0;
+    S32 h = 0;
+
+    if( mSnapshotFloater )
+    {
+        LLSnapshotLivePreview* preview = mSnapshotFloater->getPreviewView();
+        if( preview )
+        {
+            preview->getSize(w, h);
+        }
+    }
+
+    S32 upload_cost = LLAgentBenefitsMgr::current().getTextureUploadCost(w, h);
+    // </FS:Chanayane>
     getChild<LLUICtrl>("save_to_inventory_btn")->setLabelArg("[AMOUNT]", llformat("%d", upload_cost));
 }
 
