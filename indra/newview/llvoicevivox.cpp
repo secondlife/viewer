@@ -26,8 +26,6 @@
 
 #include "llviewerprecompiledheaders.h"
 #include <algorithm>
-#include <functional>
-namespace stn = std::placeholders;  // _1, _2 et al.
 #include "llvoicevivox.h"
 
 #include "llsdutil.h"
@@ -401,7 +399,7 @@ void LLVivoxVoiceClient::init(LLPumpIO *pump)
     sPump = pump;
 
 //     LLCoros::instance().launch("LLVivoxVoiceClient::voiceControlCoro",
-//         std::bind(&LLVivoxVoiceClient::voiceControlCoro, LLVivoxVoiceClient::getInstance()));
+//         boost::bind(&LLVivoxVoiceClient::voiceControlCoro, LLVivoxVoiceClient::getInstance()));
 
 }
 
@@ -828,10 +826,10 @@ void LLVivoxVoiceClient::voiceControlStateMachine(S32 &coro_state)
                 setupVADParams(vad_auto, vad_hangover, vad_noise_floor, vad_sensitivity);
 
                 // watch for changes to the VAD settings via Debug Settings UI and act on them accordingly
-                gSavedSettings.getControl("VivoxVadAuto")->getSignal()->connect(std::bind(&LLVivoxVoiceClient::onVADSettingsChange, this));
-                gSavedSettings.getControl("VivoxVadHangover")->getSignal()->connect(std::bind(&LLVivoxVoiceClient::onVADSettingsChange, this));
-                gSavedSettings.getControl("VivoxVadNoiseFloor")->getSignal()->connect(std::bind(&LLVivoxVoiceClient::onVADSettingsChange, this));
-                gSavedSettings.getControl("VivoxVadSensitivity")->getSignal()->connect(std::bind(&LLVivoxVoiceClient::onVADSettingsChange, this));
+                gSavedSettings.getControl("VivoxVadAuto")->getSignal()->connect(boost::bind(&LLVivoxVoiceClient::onVADSettingsChange, this));
+                gSavedSettings.getControl("VivoxVadHangover")->getSignal()->connect(boost::bind(&LLVivoxVoiceClient::onVADSettingsChange, this));
+                gSavedSettings.getControl("VivoxVadNoiseFloor")->getSignal()->connect(boost::bind(&LLVivoxVoiceClient::onVADSettingsChange, this));
+                gSavedSettings.getControl("VivoxVadSensitivity")->getSignal()->connect(boost::bind(&LLVivoxVoiceClient::onVADSettingsChange, this));
 
                 if (mTuningMode)
                 {
@@ -1030,7 +1028,7 @@ bool LLVivoxVoiceClient::startAndLaunchDaemon()
 #           endif // VIVOX_HANDLE_ARGS
 
             params.postend = sGatewayPump.getName();
-            sGatewayPump.listen("VivoxDaemonPump", std::bind(&LLVivoxVoiceClient::callbackEndDaemon, this, stn::_1));
+            sGatewayPump.listen("VivoxDaemonPump", boost::bind(&LLVivoxVoiceClient::callbackEndDaemon, this, _1));
 
             LL_INFOS("Voice") << "Launching SLVoice" << LL_ENDL;
             LL_DEBUGS("Voice") << "SLVoice params " << params << LL_ENDL;
@@ -2940,7 +2938,7 @@ void LLVivoxVoiceClient::tuningStart()
     if (!mIsCoroutineActive)
     {
         LLCoros::instance().launch("LLVivoxVoiceClient::voiceControlCoro",
-            std::bind(&LLVivoxVoiceClient::voiceControlCoro, LLVivoxVoiceClient::getInstance()));
+            boost::bind(&LLVivoxVoiceClient::voiceControlCoro, LLVivoxVoiceClient::getInstance()));
     }
     else if (mIsInChannel)
     {
@@ -5618,7 +5616,7 @@ void LLVivoxVoiceClient::setVoiceEnabled(bool enabled)
             if (!mIsCoroutineActive)
             {
                 LLCoros::instance().launch("LLVivoxVoiceClient::voiceControlCoro",
-                    std::bind(&LLVivoxVoiceClient::voiceControlCoro, LLVivoxVoiceClient::getInstance()));
+                    boost::bind(&LLVivoxVoiceClient::voiceControlCoro, LLVivoxVoiceClient::getInstance()));
             }
             else
             {
@@ -6039,7 +6037,7 @@ LLVivoxVoiceClient::sessionState::ptr_t LLVivoxVoiceClient::sessionState::matchS
     sessionStatePtr_t result;
 
     // *TODO: My kingdom for a lambda!
-    std::set<wptr_t>::iterator it = std::find_if(mSession.begin(), mSession.end(), std::bind(testByHandle, stn::_1, handle));
+    std::set<wptr_t>::iterator it = std::find_if(mSession.begin(), mSession.end(), boost::bind(testByHandle, _1, handle));
 
     if (it != mSession.end())
         result = (*it).lock();
@@ -6053,7 +6051,7 @@ LLVivoxVoiceClient::sessionState::ptr_t LLVivoxVoiceClient::sessionState::matchC
     sessionStatePtr_t result;
 
     // *TODO: My kingdom for a lambda!
-    std::set<wptr_t>::iterator it = std::find_if(mSession.begin(), mSession.end(), std::bind(testByCreatingURI, stn::_1, uri));
+    std::set<wptr_t>::iterator it = std::find_if(mSession.begin(), mSession.end(), boost::bind(testByCreatingURI, _1, uri));
 
     if (it != mSession.end())
         result = (*it).lock();
@@ -6067,7 +6065,7 @@ LLVivoxVoiceClient::sessionState::ptr_t LLVivoxVoiceClient::sessionState::matchS
     sessionStatePtr_t result;
 
     // *TODO: My kingdom for a lambda!
-    std::set<wptr_t>::iterator it = std::find_if(mSession.begin(), mSession.end(), std::bind(testBySIPOrAlterateURI, stn::_1, uri));
+    std::set<wptr_t>::iterator it = std::find_if(mSession.begin(), mSession.end(), boost::bind(testBySIPOrAlterateURI, _1, uri));
 
     if (it != mSession.end())
         result = (*it).lock();
@@ -6081,7 +6079,7 @@ LLVivoxVoiceClient::sessionState::ptr_t LLVivoxVoiceClient::sessionState::matchS
     sessionStatePtr_t result;
 
     // *TODO: My kingdom for a lambda!
-    std::set<wptr_t>::iterator it = std::find_if(mSession.begin(), mSession.end(), std::bind(testByCallerId, stn::_1, participant_id));
+    std::set<wptr_t>::iterator it = std::find_if(mSession.begin(), mSession.end(), boost::bind(testByCallerId, _1, participant_id));
 
     if (it != mSession.end())
         result = (*it).lock();
@@ -6091,7 +6089,7 @@ LLVivoxVoiceClient::sessionState::ptr_t LLVivoxVoiceClient::sessionState::matchS
 
 void LLVivoxVoiceClient::sessionState::for_each(sessionFunc_t func)
 {
-    std::for_each(mSession.begin(), mSession.end(), std::bind(for_eachPredicate, stn::_1, func));
+    std::for_each(mSession.begin(), mSession.end(), boost::bind(for_eachPredicate, _1, func));
 }
 
 // simple test predicates.
@@ -6501,7 +6499,7 @@ void LLVivoxVoiceClient::lookupName(const LLUUID &id)
     {
         mAvatarNameCacheConnection.disconnect();
     }
-    mAvatarNameCacheConnection = LLAvatarNameCache::get(id, std::bind(&LLVivoxVoiceClient::onAvatarNameCache, this, stn::_1, stn::_2));
+    mAvatarNameCacheConnection = LLAvatarNameCache::get(id, boost::bind(&LLVivoxVoiceClient::onAvatarNameCache, this, _1, _2));
 }
 
 void LLVivoxVoiceClient::onAvatarNameCache(const LLUUID& agent_id,
@@ -6554,7 +6552,7 @@ void LLVivoxVoiceClient::predAvatarNameResolution(const LLVivoxVoiceClient::sess
 
 void LLVivoxVoiceClient::avatarNameResolved(const LLUUID &id, const std::string &name)
 {
-    sessionState::for_each(std::bind(predAvatarNameResolution, stn::_1, id, name));
+    sessionState::for_each(boost::bind(predAvatarNameResolution, _1, id, name));
 }
 
 bool LLVivoxVoiceClient::setVoiceEffect(const LLUUID& id)
@@ -7115,8 +7113,8 @@ void LLVivoxVoiceClient::updateVoiceMorphingMenu()
                             LLMenuItemCheckGL::Params p;
                             p.name = it->first;
                             p.label = it->first;
-                            p.on_check.function(std::bind(&LLVivoxVoiceClient::onCheckVoiceEffect, this, it->first));
-                            p.on_click.function(std::bind(&LLVivoxVoiceClient::onClickVoiceEffect, this, it->first));
+                            p.on_check.function(boost::bind(&LLVivoxVoiceClient::onCheckVoiceEffect, this, it->first));
+                            p.on_click.function(boost::bind(&LLVivoxVoiceClient::onClickVoiceEffect, this, it->first));
                             LLMenuItemCheckGL * voice_effect_itemp = LLUICtrlFactory::create<LLMenuItemCheckGL>(p);
                             voice_morphing_menup->insert(pos++, voice_effect_itemp, false);
                         }
