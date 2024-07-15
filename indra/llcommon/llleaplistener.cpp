@@ -178,7 +178,7 @@ void LLLeapListener::listen(const LLSD& request)
                 LLEventPump & dest = LLEventPumps::instance().obtain(dest_name);
                 saveListener(source_name, listener_name,
                              source.listen(listener_name,
-                                           LLEventListener(&LLEventPump::post, &dest, _1)));
+                                           boost::bind(&LLEventPump::post, &dest, _1)));
             }
             else
             {

@@ -136,7 +136,7 @@ struct LLStopWhenHandled
  */
 typedef boost::signals2::signal<bool(const LLSD&), LLStopWhenHandled, float>  LLStandardSignal;
 /// Methods that forward listeners (e.g. constructed with
-/// <tt>std::bind()</tt>) should accept (const LLEventListener&)
+/// <tt>boost::bind()</tt>) should accept (const LLEventListener&)
 typedef LLStandardSignal::slot_type LLEventListener;
 /// Support a listener accepting (const LLBoundListener&, const LLSD&).
 /// Note that LLBoundListener::disconnect() is a const method: this feature is
@@ -175,9 +175,9 @@ public:
     /// double conversion)
     LLListenerOrPumpName(const char* pumpname);
     /// passing listener -- the "anything else" catch-all case. The type of an
-    /// object constructed by std::bind() isn't intended to be written out.
+    /// object constructed by boost::bind() isn't intended to be written out.
     /// Normally we'd just accept 'const LLEventListener&', but that would
-    /// require double implicit conversion: std::bind() object to
+    /// require double implicit conversion: boost::bind() object to
     /// LLEventListener, LLEventListener to LLListenerOrPumpName. So use a
     /// template to forward anything.
     template<typename T>
@@ -370,7 +370,7 @@ testable:
  * LLEventTrackable wraps boost::signals2::trackable, which resembles
  * boost::trackable. Derive your listener class from LLEventTrackable instead,
  * and use something like
- * <tt>LLEventPump::listen(LLEventListener(&YourTrackableSubclass::method,
+ * <tt>LLEventPump::listen(boost::bind(&YourTrackableSubclass::method,
  * instance, _1))</tt>. This will implicitly disconnect when the object
  * referenced by @c instance is destroyed.
  *
@@ -532,13 +532,6 @@ public:
      * the result be assigned to a LLTempBoundListener or the listener is
      * manually disconnected when no longer needed, since there will be no
      * way to later find and disconnect this listener manually.
-     *
-     * Do not pass listen() a boost::bind() expression as the listener.
-     * listen() distinguishes LLEventListener from LLAwareListener by testing
-     * whether the passed listener can be called with (LLBoundListener, LLSD).
-     * A boost::bind() object can be called with either signature, even though
-     * only one is correct: you will get a cascade of errors. Use std::bind()
-     * instead, or better still, pass a lambda.
      */
     template <typename LISTENER>
     LLBoundListener listen(const std::string& name,
@@ -546,14 +539,8 @@ public:
                            const NameList& after=NameList(),
                            const NameList& before=NameList())
     {
-        if constexpr (std::is_invocable_v<LISTENER, LLBoundListener, const LLSD&>)
+        if constexpr (std::is_invocable_v<LISTENER, const LLSD&>)
         {
-            return listenb(name, std::forward<LISTENER>(listener), after, before);
-        }
-        else
-        {
-            static_assert(std::is_invocable_v<LISTENER, const LLSD&>,
-                          "LLEventPump::listen() listener has bad parameter signature");
             // wrap classic LLEventListener in LLAwareListener lambda
             return listenb(
                 name,
@@ -564,6 +551,12 @@ public:
                 },
                 after,
                 before);
+        }
+        else
+        {
+            static_assert(std::is_invocable_v<LISTENER, LLBoundListener, const LLSD&>,
+                          "LLEventPump::listen() listener has bad parameter signature");
+            return listenb(name, std::forward<LISTENER>(listener), after, before);
         }
     }
 

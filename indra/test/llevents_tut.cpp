@@ -138,7 +138,7 @@ void events_object::test<1>()
             // to an internal copy of that instance! Use boost::ref() to
             // capture a reference instead.
             per_frame.listen(listener0.getName(), // note bug, dup name
-                             LLEventListener(&Listener::call, boost::ref(listener1), _1));
+                             boost::bind(&Listener::call, boost::ref(listener1), _1));
         });
     ensure_equals(threw,
                   std::string("DupListenerName: "
@@ -254,8 +254,8 @@ void events_object::test<5>()
     // and off in groups.
     LLEventPump& filter0(pumps.obtain("filter0"));
     LLEventPump& filter1(pumps.obtain("filter1"));
-    upstream.listen(filter0.getName(), LLEventListener(&LLEventPump::post, boost::ref(filter0), _1));
-    upstream.listen(filter1.getName(), LLEventListener(&LLEventPump::post, boost::ref(filter1), _1));
+    upstream.listen(filter0.getName(), boost::bind(&LLEventPump::post, boost::ref(filter0), _1));
+    upstream.listen(filter1.getName(), boost::bind(&LLEventPump::post, boost::ref(filter1), _1));
     listener0.listenTo(filter0);
     listener1.listenTo(filter1);
     listener0.reset(0);
@@ -277,21 +277,21 @@ void events_object::test<6>()
     LLEventPump& button(pumps.obtain("button"));
     Collect collector;
     button.listen("Mary",
-                  LLEventListener(&Collect::add, boost::ref(collector), "Mary", _1),
+                  boost::bind(&Collect::add, boost::ref(collector), "Mary", _1),
                   // state that "Mary" must come after "checked"
                   make<NameList> (list_of("checked")));
     button.listen("checked",
-                  LLEventListener(&Collect::add, boost::ref(collector), "checked", _1),
+                  boost::bind(&Collect::add, boost::ref(collector), "checked", _1),
                   // "checked" must come after "spot"
                   make<NameList> (list_of("spot")));
     button.listen("spot",
-                  LLEventListener(&Collect::add, boost::ref(collector), "spot", _1));
+                  boost::bind(&Collect::add, boost::ref(collector), "spot", _1));
     button.post(1);
     ensure_equals(collector.result, make<StringVec>(list_of("spot")("checked")("Mary")));
     collector.clear();
     button.stopListening("Mary");
     button.listen("Mary",
-            LLEventListener(&Collect::add, boost::ref(collector), "Mary", _1),
+            boost::bind(&Collect::add, boost::ref(collector), "Mary", _1),
             LLEventPump::empty, // no after dependencies
             // now "Mary" must come before "spot"
             make<NameList>(list_of("spot")));
@@ -302,7 +302,7 @@ void events_object::test<6>()
     std::string threw = catch_what<LLEventPump::Cycle>(
         [&button, &collector](){
             button.listen("spot",
-                          LLEventListener(&Collect::add, boost::ref(collector), "spot", _1),
+                          boost::bind(&Collect::add, boost::ref(collector), "spot", _1),
                           // after "Mary" and "checked" -- whoops!
                           make<NameList>(list_of("Mary")("checked")));
         });
@@ -322,10 +322,10 @@ void events_object::test<6>()
     ensure_contains("cyclic dependencies", threw,
                     "after (\"Mary\", \"checked\") -> \"spot\"");
     button.listen("yellow",
-                  LLEventListener(&Collect::add, boost::ref(collector), "yellow", _1),
+                  boost::bind(&Collect::add, boost::ref(collector), "yellow", _1),
                   make<NameList>(list_of("checked")));
     button.listen("shoelaces",
-                  LLEventListener(&Collect::add, boost::ref(collector), "shoelaces", _1),
+                  boost::bind(&Collect::add, boost::ref(collector), "shoelaces", _1),
                   make<NameList>(list_of("checked")));
     button.post(3);
     ensure_equals(collector.result, make<StringVec>(list_of("Mary")("checked")("yellow")("shoelaces")));
@@ -333,7 +333,7 @@ void events_object::test<6>()
     threw = catch_what<LLEventPump::OrderChange>(
         [&button, &collector](){
             button.listen("of",
-                          LLEventListener(&Collect::add, boost::ref(collector), "of", _1),
+                          boost::bind(&Collect::add, boost::ref(collector), "of", _1),
                           make<NameList>(list_of("shoelaces")),
                           make<NameList>(list_of("yellow")));
         });
@@ -387,9 +387,9 @@ template<> template<>
 void events_object::test<8>()
 {
     set_test_name("LLListenerOrPumpName");
-    // Passing an LLEventListener() expression to LLListenerOrPumpName
+    // Passing a boost::bind() expression to LLListenerOrPumpName
     listener0.reset(0);
-    eventSource(LLEventListener(&Listener::call, boost::ref(listener0), _1));
+    eventSource(boost::bind(&Listener::call, boost::ref(listener0), _1));
     check_listener("got by listener", listener0, 17);
     // Passing a string LLEventPump name to LLListenerOrPumpName
     listener0.reset(0);
@@ -427,7 +427,7 @@ private:
 template<> template<>
 void events_object::test<9>()
 {
-    set_test_name("listen(LLEventListener(...TempListener...))");
+    set_test_name("listen(boost::bind(...TempListener...))");
     // listen() can't do anything about a plain TempListener instance:
     // it's not managed with shared_ptr, nor is it an LLEventTrackable subclass
     bool live = false;
@@ -437,9 +437,9 @@ void events_object::test<9>()
         TempListener tempListener("temp", live);
         ensure("TempListener constructed", live);
         connection = heaptest.listen(tempListener.getName(),
-                                     LLEventListener(&Listener::call,
-                                                     boost::ref(tempListener),
-                                                     _1));
+                                     boost::bind(&Listener::call,
+                                                 boost::ref(tempListener),
+                                                 _1));
         heaptest.post(1);
         check_listener("received", tempListener, 1);
     } // presumably this will make newListener go away?
@@ -464,7 +464,7 @@ public:
 template<> template<>
 void events_object::test<10>()
 {
-    set_test_name("listen(LLEventListener(...TempTrackableListener ref...))");
+    set_test_name("listen(boost::bind(...TempTrackableListener ref...))");
     bool live = false;
     LLEventPump& heaptest(pumps.obtain("heaptest"));
     LLBoundListener connection;
@@ -472,8 +472,8 @@ void events_object::test<10>()
         TempTrackableListener tempListener("temp", live);
         ensure("TempTrackableListener constructed", live);
         connection = heaptest.listen(tempListener.getName(),
-                                     LLEventListener(&TempTrackableListener::call,
-                                                     boost::ref(tempListener), _1));
+                                     boost::bind(&TempTrackableListener::call,
+                                                 boost::ref(tempListener), _1));
         heaptest.post(1);
         check_listener("received", tempListener, 1);
     } // presumably this will make tempListener go away?
@@ -487,7 +487,7 @@ void events_object::test<10>()
 template<> template<>
 void events_object::test<11>()
 {
-    set_test_name("listen(LLEventListener(...TempTrackableListener pointer...))");
+    set_test_name("listen(boost::bind(...TempTrackableListener pointer...))");
     bool live = false;
     LLEventPump& heaptest(pumps.obtain("heaptest"));
     LLBoundListener connection;
@@ -495,8 +495,8 @@ void events_object::test<11>()
         TempTrackableListener* newListener(new TempTrackableListener("temp", live));
         ensure("TempTrackableListener constructed", live);
         connection = heaptest.listen(newListener->getName(),
-                                     LLEventListener(&TempTrackableListener::call,
-                                                     newListener, _1));
+                                     boost::bind(&TempTrackableListener::call,
+                                                 newListener, _1));
         heaptest.post(1);
         check_listener("received", *newListener, 1);
         // explicitly destroy newListener

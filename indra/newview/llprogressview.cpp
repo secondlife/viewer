@@ -72,7 +72,7 @@ LLProgressView::LLProgressView()
     mFadeFromLoginTimer(),
     mStartupComplete(false)
 {
-    mUpdateEvents.listen("self", LLEventListener(&LLProgressView::handleUpdate, this, _1));
+    mUpdateEvents.listen("self", boost::bind(&LLProgressView::handleUpdate, this, _1));
     mFadeToWorldTimer.stop();
     mFadeFromLoginTimer.stop();
 }

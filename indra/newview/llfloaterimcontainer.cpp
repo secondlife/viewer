@@ -227,7 +227,7 @@ BOOL LLFloaterIMContainer::postBuild()
     mConversationsRoot->setEnableRegistrar(&mEnableCallbackRegistrar);
 
     // Add listener to conversation model events
-    mConversationsEventStream.listen("ConversationsRefresh", LLEventListener(&LLFloaterIMContainer::onConversationModelEvent, this, _1));
+    mConversationsEventStream.listen("ConversationsRefresh", boost::bind(&LLFloaterIMContainer::onConversationModelEvent, this, _1));
 
     // a scroller for folder view
     LLRect scroller_view_rect = mConversationsListPanel->getRect();

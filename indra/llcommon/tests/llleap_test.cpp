@@ -316,7 +316,7 @@ namespace tut
         ListenerBase(const std::string& name):
             mPump(name, true)
         {
-            mPump.listen(name, LLEventListener(&ListenerBase::call, this, _1));
+            mPump.listen(name, boost::bind(&ListenerBase::call, this, _1));
         }
 
         virtual ~ListenerBase() {}  // pacify MSVC

@@ -66,7 +66,7 @@ public:
         mPump("immediate", true),
         mSync(sync)
     {
-        mPump.listen("API", LLEventListener(&ImmediateAPI::operator(), this, _1));
+        mPump.listen("API", boost::bind(&ImmediateAPI::operator(), this, _1));
     }
 
     LLEventPump& getPump() { return mPump; }
