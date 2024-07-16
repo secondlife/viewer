@@ -155,8 +155,6 @@ void LLPanelSnapshotInventory::onResolutionCommit(LLUICtrl* ctrl)
 
 void LLPanelSnapshotInventoryBase::onSend()
 {
-    // <FS:Chanayane> 2048x2048 snapshots upload to inventory
-    //S32 expected_upload_cost = LLAgentBenefitsMgr::current().getTextureUploadCost();
     S32 w = 0;
     S32 h = 0;
 
@@ -170,7 +168,6 @@ void LLPanelSnapshotInventoryBase::onSend()
     }
 
     S32 expected_upload_cost = LLAgentBenefitsMgr::current().getTextureUploadCost(w, h);
-    // </FS:Chanayane>
     if (can_afford_transaction(expected_upload_cost))
     {
         if (mSnapshotFloater)

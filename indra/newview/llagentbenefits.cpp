@@ -195,7 +195,6 @@ S32 LLAgentBenefits::getTextureUploadCost(const LLImageBase* tex) const
     return getTextureUploadCost();
 }
 
-// <FS:Chanayane> 2048x2048 snapshots upload to inventory
 S32 LLAgentBenefits::getTextureUploadCost(S32 w, S32 h) const
 {
     if (w > 0 && h > 0)
@@ -205,14 +204,9 @@ S32 LLAgentBenefits::getTextureUploadCost(S32 w, S32 h) const
         {
             return get2KTextureUploadCost(area);
         }
-        else
-        {
-            return getTextureUploadCost();
-        }
     }
     return getTextureUploadCost();
 }
-// </FS:Chanayane>
 
 S32 LLAgentBenefits::get2KTextureUploadCost(S32 area) const
 {
