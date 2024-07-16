@@ -195,6 +195,19 @@ S32 LLAgentBenefits::getTextureUploadCost(const LLImageBase* tex) const
     return getTextureUploadCost();
 }
 
+S32 LLAgentBenefits::getTextureUploadCost(S32 w, S32 h) const
+{
+    if (w > 0 && h > 0)
+    {
+        S32 area = w * h;
+        if (area >= MIN_2K_TEXTURE_AREA)
+        {
+            return get2KTextureUploadCost(area);
+        }
+    }
+    return getTextureUploadCost();
+}
+
 S32 LLAgentBenefits::get2KTextureUploadCost(S32 area) const
 {
     if (m_2k_texture_upload_cost.empty())
