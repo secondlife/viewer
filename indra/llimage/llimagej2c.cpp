@@ -283,7 +283,7 @@ S32 LLImageJ2C::calcDataSizeJ2C(S32 w, S32 h, S32 comp, S32 discard_level, F32 r
     while (surface > s)
     {
         if (nb_layers <= (5 - discard_level))
-            totalbytes += s * comp * precision * rate;
+            totalbytes += (S32)(s * comp * precision * rate);
         nb_layers++;
         s *= 4;
     }
