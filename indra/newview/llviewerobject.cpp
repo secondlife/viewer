@@ -6382,38 +6382,29 @@ LLViewerObject::ExtraParameter* LLViewerObject::getExtraParameterEntry(U16 param
 
 LLViewerObject::ExtraParameter* LLViewerObject::getExtraParameterEntryCreate(U16 param_type)
 {
-    ExtraParameter* param = getExtraParameterEntry(param_type);
-    if (!param)
+    if (ExtraParameter* param = getExtraParameterEntry(param_type))
     {
-        param = createNewParameterEntry(param_type);
+        return param;
     }
-    return param;
+    return createNewParameterEntry(param_type);
 }
 
 LLNetworkData* LLViewerObject::getParameterEntry(U16 param_type) const
 {
-    ExtraParameter* param = getExtraParameterEntry(param_type);
-    if (param)
+    if (ExtraParameter* param = getExtraParameterEntry(param_type))
     {
         return param->data;
     }
-    else
-    {
-        return NULL;
-    }
+    return NULL;
 }
 
 bool LLViewerObject::getParameterEntryInUse(U16 param_type) const
 {
-    ExtraParameter* param = getExtraParameterEntry(param_type);
-    if (param)
+    if (ExtraParameter* param = getExtraParameterEntry(param_type))
     {
         return param->in_use;
     }
-    else
-    {
-        return false;
-    }
+    return false;
 }
 
 bool LLViewerObject::setParameterEntry(U16 param_type, const LLNetworkData& new_value, bool local_origin)
@@ -6430,10 +6421,7 @@ bool LLViewerObject::setParameterEntry(U16 param_type, const LLNetworkData& new_
         parameterChanged(param_type, param->data, true, local_origin);
         return true;
     }
-    else
-    {
-        return false;
-    }
+    return false;
 }
 
 // Assumed to be called locally

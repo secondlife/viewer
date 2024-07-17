@@ -3462,29 +3462,25 @@ F32 LLVOVolume::getReflectionProbeAmbiance() const
     {
         return param_block->getAmbiance();
     }
-    else
-    {
-        return 0.f;
-    }
+
+    return 0.f;
 }
 
 F32 LLVOVolume::getReflectionProbeNearClip() const
 {
-    const LLReflectionProbeParams* param_block = (const LLReflectionProbeParams*)getParameterEntry(LLNetworkData::PARAMS_REFLECTION_PROBE);
-    if (param_block)
+    if (const LLReflectionProbeParams* param_block = dynamic_cast<const LLReflectionProbeParams*>(
+        getParameterEntry(LLNetworkData::PARAMS_REFLECTION_PROBE)))
     {
         return param_block->getClipDistance();
     }
-    else
-    {
-        return 0.f;
-    }
+
+    return 0.f;
 }
 
 bool LLVOVolume::getReflectionProbeIsBox() const
 {
-    const LLReflectionProbeParams* param_block = (const LLReflectionProbeParams*)getParameterEntry(LLNetworkData::PARAMS_REFLECTION_PROBE);
-    if (param_block)
+    if (const LLReflectionProbeParams* param_block = dynamic_cast<const LLReflectionProbeParams*>(
+        getParameterEntry(LLNetworkData::PARAMS_REFLECTION_PROBE)))
     {
         return param_block->getIsBox();
     }
@@ -3494,8 +3490,8 @@ bool LLVOVolume::getReflectionProbeIsBox() const
 
 bool LLVOVolume::getReflectionProbeIsDynamic() const
 {
-    const LLReflectionProbeParams* param_block = (const LLReflectionProbeParams*)getParameterEntry(LLNetworkData::PARAMS_REFLECTION_PROBE);
-    if (param_block)
+    if (const LLReflectionProbeParams* param_block = dynamic_cast<const LLReflectionProbeParams*>(
+        getParameterEntry(LLNetworkData::PARAMS_REFLECTION_PROBE)))
     {
         return param_block->getIsDynamic();
     }
