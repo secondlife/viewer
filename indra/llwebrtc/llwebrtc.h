@@ -230,7 +230,7 @@ class LLWebRTCSignalingObserver
 // allows for management of this peer connection.
 class LLWebRTCPeerConnectionInterface
 {
-  public:
+public:
 
     struct InitOptions
     {

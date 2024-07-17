@@ -90,7 +90,7 @@ bool LLApp::sDisableCrashlogger = false;
 
 // Local flag for whether or not to do logging in signal handlers.
 //static
-bool LLApp::sLogInSignal = false;
+bool LLApp::sLogInSignal = true;
 
 // static
 // Keeps track of application status
@@ -373,6 +373,9 @@ static std::map<LLApp::EAppStatus, const char*> statusDesc
 // static
 void LLApp::setStatus(EAppStatus status)
 {
+    auto status_it = statusDesc.find(status);
+    std::string status_text = status_it != statusDesc.end() ? std::string(status_it->second) : std::to_string(status);
+    LL_INFOS() << "status: " << status_text << LL_ENDL;
     // notify everyone waiting on sStatus any time its value changes
     sStatus.set_all(status);
 
@@ -381,18 +384,7 @@ void LLApp::setStatus(EAppStatus status)
     if (! LLEventPumps::wasDeleted())
     {
         // notify interested parties of status change
-        LLSD statsd;
-        auto found = statusDesc.find(status);
-        if (found != statusDesc.end())
-        {
-            statsd = found->second;
-        }
-        else
-        {
-            // unknown status? at least report value
-            statsd = LLSD::Integer(status);
-        }
-        LLEventPumps::instance().obtain("LLApp").post(llsd::map("status", statsd));
+        LLEventPumps::instance().obtain("LLApp").post(llsd::map("status", status_text));
     }
 }
 
@@ -681,6 +673,7 @@ void default_unix_signal_handler(int signum, siginfo_t *info, void *)
             {
                 LL_WARNS() << "Signal handler - Handling fatal signal!" << LL_ENDL;
             }
+
             if (LLApp::isError())
             {
                 // Received second fatal signal while handling first, just die right now
@@ -718,11 +711,11 @@ void default_unix_signal_handler(int signum, siginfo_t *info, void *)
             clear_signals();
             raise(signum);
             return;
-        } else {
-            if (LLApp::sLogInSignal)
-            {
-                LL_INFOS() << "Signal handler - Unhandled signal " << signum << ", ignoring!" << LL_ENDL;
-            }
+        }
+
+        if (LLApp::sLogInSignal)
+        {
+            LL_INFOS() << "Signal handler - Unhandled signal " << signum << ", ignoring!" << LL_ENDL;
         }
     }
 }
