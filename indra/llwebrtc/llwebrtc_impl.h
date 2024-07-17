@@ -235,7 +235,7 @@ class LLWebRTCImpl : public LLWebRTCDeviceInterface, public webrtc::AudioDeviceS
 
     // The factory that allows creation of native webrtc PeerConnections.
     rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> mPeerConnectionFactory;
-
+    
     rtc::scoped_refptr<webrtc::AudioProcessing>                mAudioProcessingModule;
 
     // more native webrtc stuff
