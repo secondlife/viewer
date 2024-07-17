@@ -58,7 +58,9 @@ public:
     // NOTE: do not use to revert to asset when applying a new asset id, use queueApply below
     static void queueModify(const LLViewerObject* obj, S32 side, const LLGLTFMaterial* mat);
 
-    // Queue an application of a material asset we want to send to the simulator.  Call "flushUpdates" to flush pending updates.
+    // Queue an application of a material asset we want to send to the simulator.
+    //  Call "flushUpdates" to flush pending updates immediately.
+    //  Will be flushed automatically if queue is full.
     //  object_id - ID of object to apply material asset to
     //  side - TextureEntry index to apply material to, or -1 for all sides
     //  asset_id - ID of material asset to apply, or LLUUID::null to disassociate current material asset
@@ -66,7 +68,9 @@ public:
     // NOTE: Implicitly clears most override data if present
     static void queueApply(const LLViewerObject* obj, S32 side, const LLUUID& asset_id);
 
-    // Queue an application of a material asset we want to send to the simulator.  Call "flushUpdates" to flush pending updates.
+    // Queue an application of a material asset we want to send to the simulator.
+    //  Call "flushUpdates" to flush pending updates immediately.
+    //  Will be flushed automatically if queue is full.
     //  object_id - ID of object to apply material asset to
     //  side - TextureEntry index to apply material to, or -1 for all sides
     //  asset_id - ID of material asset to apply, or LLUUID::null to disassociate current material asset
@@ -104,7 +108,22 @@ private:
     // NOTE: this is NOT for applying overrides from the UI, see queueModifyMaterial above
     void queueOverrideUpdate(const LLUUID& id, S32 side, LLGLTFMaterial* override_data);
 
-    static void modifyMaterialCoro(std::string cap_url, LLSD overrides, void(*done_callback)(bool));
+
+    class CallbackHolder
+    {
+    public:
+        CallbackHolder(void(*done_callback)(bool))
+            : mCallback(done_callback)
+        {}
+        ~CallbackHolder()
+        {
+            if (mCallback) mCallback(mSuccess);
+        }
+        std::function<void(bool)> mCallback = nullptr;
+        bool mSuccess = true;
+    };
+    static void flushUpdatesOnce(std::shared_ptr<CallbackHolder> callback_holder);
+    static void modifyMaterialCoro(std::string cap_url, LLSD overrides, std::shared_ptr<CallbackHolder> callback_holder);
 
 protected:
     static void onAssetLoadComplete(
