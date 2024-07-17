@@ -92,6 +92,8 @@ public:
     virtual void changed() override;
     virtual void changed(const LLUUID& session_id, U32 mask) override {};
 
+    static void refreshInstance();
+
     // static data update, called from message handler
     static void updateUserInfo(const std::string& visibility);
 
@@ -201,6 +203,7 @@ public:
     void buildPopupLists();
     static void refreshSkin(void* data);
     void selectPanel(const LLSD& name);
+    void setPanelVisibility(const LLSD& name, bool visible);
     void saveGraphicsPreset(std::string& preset);
 
     void setRecommendedSettings();
@@ -327,6 +330,8 @@ public:
 
     bool postBuild() override;
 
+    void refresh() override;
+
     void apply() override;
     void cancel(const std::vector<std::string> settings_to_skip = {}) override;
     void saveSettings() override;
@@ -349,6 +354,9 @@ public:
     void onDefaultKeyBind(bool all_modes) override;
     void onCancelKeyBind() override;
 
+    // Cleans content and then adds content from xml files according to current mEditingMode
+    void populateControlTable();
+
 private:
     // reloads settings, discards current changes, updates table
     void regenerateControls();
@@ -357,9 +365,6 @@ private:
     bool addControlTableColumns(const std::string &filename);
     bool addControlTableRows(const std::string &filename);
     void addControlTableSeparator();
-
-    // Cleans content and then adds content from xml files according to current mEditingMode
-    void populateControlTable();
 
     // Updates keybindings from storage to table
     void updateTable();
@@ -435,7 +440,6 @@ private:
     void resetButtonMappingsToDefaults();
 
     // Above the tab container
-    LLCheckBoxCtrl  *mCheckEnableGameControl;
     LLCheckBoxCtrl  *mCheckGameControlToServer; // send game_control data to server
     LLCheckBoxCtrl  *mCheckGameControlToAgent; // use game_control data to move avatar
     LLCheckBoxCtrl  *mCheckAgentToGameControl; // translate external avatar actions to game_control data
