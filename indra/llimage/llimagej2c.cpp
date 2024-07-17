@@ -279,7 +279,7 @@ S32 LLImageJ2C::calcDataSizeJ2C(S32 w, S32 h, S32 comp, S32 discard_level, F32 r
     S32 surface = w*h;
     S32 s = 64*64;
     S32 precision = 8; // assumed bitrate per component channel, might change in future for HDR support
-    S32 totalbytes = s * comp * precision * rate; // first level computed before loop
+    S32 totalbytes = (S32)(s * comp * precision * rate); // first level computed before loop
     while (surface > s)
     {
         if (nb_layers <= (5 - discard_level))
