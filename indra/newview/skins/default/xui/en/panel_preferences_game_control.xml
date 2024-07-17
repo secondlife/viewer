@@ -6,17 +6,9 @@
     label="Game Controls"
     layout="topleft"
     left="102"
-    name="gamecontrol"
+    name="game_control_panel"
     top="1"
     width="517">
-    <check_box
-        name="enable_game_control"
-        control_name="EnableGameControl"
-        label="Enable GameControl"
-        layout="topleft"
-        height="15"
-        left="10"
-        top="10"/>
     <check_box
         name="game_control_to_server"
         control_name="GameControlToServer"
@@ -24,7 +16,7 @@
         layout="topleft"
         height="15"
         left="10"
-        top="30"/>
+        top="10"/>
     <check_box
         name="game_control_to_agent"
         control_name="GameControlToAgent"
@@ -32,7 +24,7 @@
         layout="topleft"
         height="15"
         left="10"
-        top="50"/>
+        top="30"/>
     <check_box
         name="agent_to_game_control"
         control_name="AgentToGameControl"
@@ -40,12 +32,12 @@
         layout="topleft"
         height="15"
         left="10"
-        top="70"/>
+        top="50"/>
     <tab_container
         name="game_control_tabs"
         layout="topleft"
         follows="all"
-        top="90"
+        top="70"
         left="2"
         right="-2"
         bottom="-32">

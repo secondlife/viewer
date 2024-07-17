@@ -71,6 +71,7 @@
 #include "llfloaterpathfindingcharacters.h"
 #include "llfloaterpathfindinglinksets.h"
 #include "llfloaterpay.h"
+#include "llfloaterpreference.h"
 #include "llfloaterreporter.h"
 #include "llfloatersearch.h"
 #include "llfloaterscriptdebug.h"
@@ -936,6 +937,7 @@ class LLAdvancedToggleExperiment : public view_listener_t
         if (feature == "GameControl")
         {
             LLGameControl::setEnabled(! LLGameControl::isEnabled());
+            LLFloaterPreference::refreshInstance();
             return true;
         }
         return false;

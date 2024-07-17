@@ -2445,22 +2445,6 @@ function="World.EnvPreset"
 
         <menu_item_separator/>
 
-        <menu
-         create_jump_keys="true"
-         label="Experimental Features"
-         name="Experimental Features"
-         tear_off="true">
-            <menu_item_check
-             label="GameControl"
-             name="ToggleGameControl">
-             <menu_item_check.on_check
-                 function="Advanced.CheckExperiment"
-                 parameter="GameControl" />
-             <menu_item_check.on_click
-                 function="Advanced.ToggleExperiment"
-                 parameter="GameControl" />
-            </menu_item_check>
-        </menu>
         <menu_item_call
          label="Show Debug Settings"
          name="Debug Settings">
@@ -2486,6 +2470,22 @@ function="World.EnvPreset"
      name="Develop"
      tear_off="true"
      visible="false">
+        <menu
+         create_jump_keys="true"
+         label="Experimental Features"
+         name="Experimental Features"
+         tear_off="true">
+            <menu_item_check
+             label="GameControl"
+             name="ToggleGameControl">
+             <menu_item_check.on_check
+                 function="Advanced.CheckExperiment"
+                 parameter="GameControl" />
+             <menu_item_check.on_click
+                 function="Advanced.ToggleExperiment"
+                 parameter="GameControl" />
+            </menu_item_check>
+        </menu>
         <menu
          create_jump_keys="true"
          label="Consoles"

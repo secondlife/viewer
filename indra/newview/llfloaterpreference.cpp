@@ -400,6 +400,7 @@ void LLFloaterPreference::saveAvatarProperties( void )
     }
 }
 
+// static
 void LLFloaterPreference::saveAvatarPropertiesCoro(const std::string cap_url, bool allow_publish)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
@@ -431,6 +432,8 @@ void LLFloaterPreference::saveAvatarPropertiesCoro(const std::string cap_url, bo
 
 bool LLFloaterPreference::postBuild()
 {
+    setPanelVisibility("game_control", LLGameControl::isEnabled());
+
     gSavedSettings.getControl("ChatFontSize")->getSignal()->connect(boost::bind(&LLFloaterIMSessionTab::processChatHistoryStyleUpdate, false));
 
     gSavedSettings.getControl("ChatFontSize")->getSignal()->connect(boost::bind(&LLViewerChat::signalChatFontChanged));
@@ -1038,6 +1041,15 @@ void LLFloaterPreference::onBtnCancel(const LLSD& userdata)
     }
 }
 
+//static
+void LLFloaterPreference::refreshInstance()
+{
+    if (LLFloaterPreference* instance = LLFloaterReg::findTypedInstance<LLFloaterPreference>("preferences"))
+    {
+        instance->refresh();
+    }
+}
+
 // static
 void LLFloaterPreference::updateUserInfo(const std::string& visibility)
 {
@@ -1047,6 +1059,7 @@ void LLFloaterPreference::updateUserInfo(const std::string& visibility)
     }
 }
 
+// static
 void LLFloaterPreference::refreshEnabledGraphics()
 {
     if (LLFloaterPreference* instance = LLFloaterReg::findTypedInstance<LLFloaterPreference>("preferences"))
@@ -1292,6 +1305,16 @@ void LLAvatarComplexityControls::setIndirectMaxArc()
 
 void LLFloaterPreference::refresh()
 {
+    setPanelVisibility("game_control", LLGameControl::isEnabled());
+    LLTabContainer* tabcontainer = getChild<LLTabContainer>("pref core");
+    for (LLView* view : *tabcontainer->getChildList())
+    {
+        if (LLPanelPreferenceControls* panel = dynamic_cast<LLPanelPreferenceControls*>(view))
+        {
+            panel->refresh();
+            break;
+        }
+    }
     LLFloater::refresh();
     LLAvatarComplexityControls::setText(
         gSavedSettings.getU32("RenderAvatarMaxComplexity"),
@@ -1910,6 +1933,16 @@ void LLFloaterPreference::selectPanel(const LLSD& name)
     }
 }
 
+void LLFloaterPreference::setPanelVisibility(const LLSD& name, bool visible)
+{
+    LLTabContainer * tab_containerp = getChild<LLTabContainer>("pref core");
+    LLPanel * panel = tab_containerp->getPanelByName(name.asStringRef());
+    if (NULL != panel)
+    {
+        tab_containerp->setTabVisibility(panel, visible);
+    }
+}
+
 void LLFloaterPreference::selectPrivacyPanel()
 {
     selectPanel("im");
@@ -2498,6 +2531,12 @@ LLPanelPreferenceControls::~LLPanelPreferenceControls()
 {
 }
 
+void LLPanelPreferenceControls::refresh()
+{
+    populateControlTable();
+    LLPanelPreference::refresh();
+}
+
 bool LLPanelPreferenceControls::postBuild()
 {
     // populate list of controls
@@ -2676,7 +2715,10 @@ void LLPanelPreferenceControls::populateControlTable()
         addControlTableSeparator();
         addControlTableRows("control_table_contents_media.xml");
         addControlTableSeparator();
-        addControlTableRows("control_table_contents_game_control.xml");
+        if (LLGameControl::isEnabled())
+        {
+            addControlTableRows("control_table_contents_game_control.xml");
+        }
     }
     // MODE_THIRD_PERSON; MODE_EDIT_AVATAR; MODE_SITTING
     else if (mEditingMode < LLKeyConflictHandler::MODE_SAVED_SETTINGS)
@@ -2695,7 +2737,10 @@ void LLPanelPreferenceControls::populateControlTable()
         addControlTableRows("control_table_contents_media.xml");
         addControlTableSeparator();
 
-        addControlTableRows("control_table_contents_game_control.xml");
+        if (LLGameControl::isEnabled())
+        {
+            addControlTableRows("control_table_contents_game_control.xml");
+        }
     }
     else
     {
@@ -3406,12 +3451,10 @@ void LLPanelPreferenceGameControl::onCommitNumericValue()
 bool LLPanelPreferenceGameControl::postBuild()
 {
     // Above the tab container
-    mCheckEnableGameControl = getChild<LLCheckBoxCtrl>("enable_game_control");
     mCheckGameControlToServer = getChild<LLCheckBoxCtrl>("game_control_to_server");
     mCheckGameControlToAgent = getChild<LLCheckBoxCtrl>("game_control_to_agent");
     mCheckAgentToGameControl = getChild<LLCheckBoxCtrl>("agent_to_game_control");
 
-    mCheckEnableGameControl->setCommitCallback([this](LLUICtrl*, const LLSD&) { updateEnable(); });
     mCheckGameControlToAgent->setCommitCallback([this](LLUICtrl*, const LLSD&) { updateActionTableState(); });
     mCheckAgentToGameControl->setCommitCallback([this](LLUICtrl*, const LLSD&) { updateActionTableState(); });
 
@@ -3488,7 +3531,6 @@ bool LLPanelPreferenceGameControl::postBuild()
 // This function is called before floater is shown
 void LLPanelPreferenceGameControl::onOpen(const LLSD& key)
 {
-    mCheckEnableGameControl->setValue(LLGameControl::isEnabled());
     mCheckGameControlToServer->setValue(LLGameControl::getSendToServer());
     mCheckGameControlToAgent->setValue(LLGameControl::getControlAgent());
     mCheckAgentToGameControl->setValue(LLGameControl::getTranslateAgentActions());
@@ -3848,7 +3890,7 @@ void LLPanelPreferenceGameControl::addActionTableSeparator()
 
 void LLPanelPreferenceGameControl::updateEnable()
 {
-    bool enabled = mCheckEnableGameControl->get();
+    bool enabled = LLGameControl::isEnabled();
     LLGameControl::setEnabled(enabled);
 
     mCheckGameControlToServer->setEnabled(enabled);
