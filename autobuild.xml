@@ -164,11 +164,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>cd1f1d55a2488657ec2253774b3a414621f81b24</string>
+              <string>d152f19f4a5a9c8013f006e19b1fcd88692bccf1</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-bugsplat/releases/download/v1.1.5-71fc41e/bugsplat-1.1.1-9599607655-darwin64-9599607655.tar.zst</string>
+              <string>https://github.com/secondlife/3p-bugsplat/releases/download/v1.0.7-527603a/bugsplat-1.0.7-527603a-darwin64-527603a.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
