@@ -2171,18 +2171,18 @@ S32 LLTabContainer::getTotalTabWidth() const
     return mTotalTabWidth;
 }
 
-void LLTabContainer::setTabVisibility( const LLPanel* panel, bool visible )
+void LLTabContainer::setTabVisibility( LLPanel const *aPanel, bool aVisible )
 {
     S32 num_tabs = S32(mTabList.size());
     for (S32 i = 0; i < num_tabs; ++i)
     {
         LLTabTuple* tuple = mTabList[i];
-        if( tuple->mTabPanel == panel )
+        if( tuple->mTabPanel == aPanel )
         {
-            if (tuple->mVisible != visible)
+            if (tuple->mVisible != aVisible)
             {
-                tuple->mVisible = visible;
-                if (visible)
+                tuple->mVisible = aVisible;
+                if (aVisible)
                 {
                     this->selectTab(i);
                     this->setVisible(true);
