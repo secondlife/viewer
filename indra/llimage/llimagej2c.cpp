@@ -275,10 +275,10 @@ S32 LLImageJ2C::calcDataSizeJ2C(S32 w, S32 h, S32 comp, S32 discard_level, F32 r
     // For details about the equation used here, see https://wiki.lindenlab.com/wiki/THX1138_KDU_Improvements#Byte_Range_Study
 
     // Estimate the number of layers. This is consistent with what's done for j2c encoding in LLImageJ2CKDU::encodeImpl().
+    constexpr S32 precision = 8; // assumed bitrate per component channel, might change in future for HDR support
     S32 nb_layers = 1;
-    S32 surface = w*h;
+    const S32 surface = w*h;
     S32 s = 64*64;
-    S32 precision = 8; // assumed bitrate per component channel, might change in future for HDR support
     S32 totalbytes = (S32)(s * comp * precision * rate); // first level computed before loop
     while (surface > s)
     {
@@ -287,27 +287,11 @@ S32 LLImageJ2C::calcDataSizeJ2C(S32 w, S32 h, S32 comp, S32 discard_level, F32 r
         nb_layers++;
         s *= 4;
     }
-    F32 layer_factor =  3.0f * (7 - llclamp(nb_layers,1,6));
 
     totalbytes /= 8; // to bytes
     totalbytes += calcHeaderSizeJ2C();  // header
 
-    // Compute w/pow(2,discard_level) and h/pow(2,discard_level)
-    w >>= discard_level;
-    h >>= discard_level;
-    w = llmax(w, 1);
-    h = llmax(h, 1);
-
-    // Temporary: compute both new and old range and pick one according to the settings TextureNewByteRange
-    // *TODO: Take the old code out once we have enough tests done
-    S32 bytes;
-    S32 new_bytes = (S32) (sqrt((F32)(w*h))*(F32)(comp)*rate*1000.f/layer_factor);
-    S32 old_bytes = (S32)((F32)(w*h*comp)*rate);
-    bytes = (LLImage::useNewByteRange() && (new_bytes < old_bytes) ? new_bytes : old_bytes);
-    bytes = llmax(totalbytes, calcHeaderSizeJ2C());
-    //LL_WARNS() << "calcDataSizeJ2C w-h-c-d-p " << w << "-" << h << "-" << comp << "-" << discard_level << "-" << precision
-    //           << " Pyramid: " << (S32)totalbytes << " LayerFactored: " << new_bytes << " WJCR: " << old_bytes << LL_ENDL;
-    return bytes;
+    return totalbytes;
 }
 
 S32 LLImageJ2C::calcHeaderSize()

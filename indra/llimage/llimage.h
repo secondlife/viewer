@@ -32,37 +32,37 @@
 #include "llpointer.h"
 #include "lltrace.h"
 
-const S32 MIN_IMAGE_MIP =  2; // 4x4, only used for expand/contract power of 2
-const S32 MAX_IMAGE_MIP = 12; // 4096x4096
+constexpr S32 MIN_IMAGE_MIP =  2; // 4x4, only used for expand/contract power of 2
+constexpr S32 MAX_IMAGE_MIP = 12; // 4096x4096
 
 // *TODO : Use MAX_IMAGE_MIP as max discard level and modify j2c management so that the number
 // of levels is read from the header's file, not inferred from its size.
-const S32 MAX_DISCARD_LEVEL = 5;
+constexpr S32 MAX_DISCARD_LEVEL = 5;
 
 // JPEG2000 size constraints
 // Those are declared here as they are germane to other image constraints used in the viewer
 // and declared right here. Some come from the JPEG2000 spec, some conventions specific to SL.
-const S32 MAX_DECOMPOSITION_LEVELS = 32;    // Number of decomposition levels cannot exceed 32 according to jpeg2000 spec
-const S32 MIN_DECOMPOSITION_LEVELS = 5;     // the SL viewer will *crash* trying to decode images with fewer than 5 decomposition levels (unless image is small that is)
-const S32 MAX_PRECINCT_SIZE = 4096;         // No reason to be bigger than MAX_IMAGE_SIZE
-const S32 MIN_PRECINCT_SIZE = 4;            // Can't be smaller than MIN_BLOCK_SIZE
-const S32 MAX_BLOCK_SIZE = 64;              // Max total block size is 4096, hence 64x64 when using square blocks
-const S32 MIN_BLOCK_SIZE = 4;               // Min block dim is 4 according to jpeg2000 spec
-const S32 MIN_LAYER_SIZE = 2000;            // Size of the first quality layer (after header). Must be > to FIRST_PACKET_SIZE!!
-const S32 MAX_NB_LAYERS = 64;               // Max number of layers we'll entertain in SL (practical limit)
+constexpr S32 MAX_DECOMPOSITION_LEVELS = 32;    // Number of decomposition levels cannot exceed 32 according to jpeg2000 spec
+constexpr S32 MIN_DECOMPOSITION_LEVELS = 5;     // the SL viewer will *crash* trying to decode images with fewer than 5 decomposition levels (unless image is small that is)
+constexpr S32 MAX_PRECINCT_SIZE = 4096;         // No reason to be bigger than MAX_IMAGE_SIZE
+constexpr S32 MIN_PRECINCT_SIZE = 4;            // Can't be smaller than MIN_BLOCK_SIZE
+constexpr S32 MAX_BLOCK_SIZE = 64;              // Max total block size is 4096, hence 64x64 when using square blocks
+constexpr S32 MIN_BLOCK_SIZE = 4;               // Min block dim is 4 according to jpeg2000 spec
+constexpr S32 MIN_LAYER_SIZE = 2000;            // Size of the first quality layer (after header). Must be > to FIRST_PACKET_SIZE!!
+constexpr S32 MAX_NB_LAYERS = 64;               // Max number of layers we'll entertain in SL (practical limit)
 
-const S32 MIN_IMAGE_SIZE = (1<<MIN_IMAGE_MIP); // 4, only used for expand/contract power of 2
-const S32 MAX_IMAGE_SIZE = (1<<MAX_IMAGE_MIP); // 4096
-const S32 MIN_IMAGE_AREA = MIN_IMAGE_SIZE * MIN_IMAGE_SIZE;
-const S32 MAX_IMAGE_AREA = MAX_IMAGE_SIZE * MAX_IMAGE_SIZE;
-const S32 MAX_IMAGE_COMPONENTS = 8;
-const S32 MAX_IMAGE_DATA_SIZE = MAX_IMAGE_AREA * MAX_IMAGE_COMPONENTS; //4096 * 4096 * 8 = 128 MB
+constexpr S32 MIN_IMAGE_SIZE = (1<<MIN_IMAGE_MIP); // 4, only used for expand/contract power of 2
+constexpr S32 MAX_IMAGE_SIZE = (1<<MAX_IMAGE_MIP); // 4096
+constexpr S32 MIN_IMAGE_AREA = MIN_IMAGE_SIZE * MIN_IMAGE_SIZE;
+constexpr S32 MAX_IMAGE_AREA = MAX_IMAGE_SIZE * MAX_IMAGE_SIZE;
+constexpr S32 MAX_IMAGE_COMPONENTS = 8;
+constexpr S32 MAX_IMAGE_DATA_SIZE = MAX_IMAGE_AREA * MAX_IMAGE_COMPONENTS; //4096 * 4096 * 8 = 128 MB
 
 // Note!  These CANNOT be changed without modifying simulator code
 // *TODO: change both to 1024 when SIM texture fetching is deprecated
-const S32 FIRST_PACKET_SIZE = 600;
-const S32 MAX_IMG_PACKET_SIZE = 1000;
-const S32 HTTP_PACKET_SIZE = 1496;
+constexpr S32 FIRST_PACKET_SIZE = 600;
+constexpr S32 MAX_IMG_PACKET_SIZE = 1000;
+constexpr S32 HTTP_PACKET_SIZE = 1496;
 
 // Base classes for images.
 // There are two major parts for the image:
