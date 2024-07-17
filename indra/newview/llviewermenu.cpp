@@ -9481,15 +9481,6 @@ class LLUpdateMembershipLabel : public view_listener_t
     }
 };
 
-void handle_voice_morphing_subscribe()
-{
-    LLWeb::loadURL(LLTrans::getString("voice_morphing_url"));
-}
-
-void handle_premium_voice_morphing_subscribe()
-{
-    LLWeb::loadURL(LLTrans::getString("premium_voice_morphing_url"));
-}
 
 class LLToggleUIHints : public view_listener_t
 {
@@ -9689,16 +9680,6 @@ void initialize_menus()
 
     //Communicate Nearby chat
     view_listener_t::addMenu(new LLCommunicateNearbyChat(), "Communicate.NearbyChat");
-
-    // Communicate > Voice morphing > Subscribe...
-    commit.add("Communicate.VoiceMorphing.Subscribe", boost::bind(&handle_voice_morphing_subscribe));
-    // Communicate > Voice morphing > Premium perk...
-    commit.add("Communicate.VoiceMorphing.PremiumPerk", boost::bind(&handle_premium_voice_morphing_subscribe));
-    LLVivoxVoiceClient * voice_clientp = LLVivoxVoiceClient::getInstance();
-    enable.add("Communicate.VoiceMorphing.NoVoiceMorphing.Check"
-        , boost::bind(&LLVivoxVoiceClient::onCheckVoiceEffect, voice_clientp, "NoVoiceMorphing"));
-    commit.add("Communicate.VoiceMorphing.NoVoiceMorphing.Click"
-        , boost::bind(&LLVivoxVoiceClient::onClickVoiceEffect, voice_clientp, "NoVoiceMorphing"));
 
     // World menu
     view_listener_t::addMenu(new LLWorldAlwaysRun(), "World.AlwaysRun");

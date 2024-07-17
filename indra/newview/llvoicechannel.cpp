@@ -96,7 +96,7 @@ void LLVoiceChannel::setChannelInfo(const LLSD &channelInfo)
 
     if (mState == STATE_NO_CHANNEL_INFO)
     {
-        if (mChannelInfo.isUndefined())
+        if (mChannelInfo.isUndefined() || !mChannelInfo.isMap() || mChannelInfo.size() == 0)
         {
             LLNotificationsUtil::add("VoiceChannelJoinFailed", mNotifyArgs);
             LL_WARNS("Voice") << "Received empty channel info for channel " << mSessionName << LL_ENDL;
@@ -122,7 +122,7 @@ void LLVoiceChannel::onChange(EStatusType type, const LLSD& channelInfo, bool pr
 {
     LL_DEBUGS("Voice") << "Incoming channel info: " << channelInfo << LL_ENDL;
     LL_DEBUGS("Voice") << "Current channel info: " << mChannelInfo << LL_ENDL;
-    if (mChannelInfo.isUndefined())
+    if (mChannelInfo.isUndefined() || (mChannelInfo.isMap() && mChannelInfo.size() == 0))
     {
         mChannelInfo = channelInfo;
     }
@@ -477,7 +477,7 @@ void LLVoiceChannelGroup::setChannelInfo(const LLSD& channelInfo)
 
     if (mState == STATE_NO_CHANNEL_INFO)
     {
-        if(!mChannelInfo.isUndefined())
+        if(mChannelInfo.isDefined() && mChannelInfo.isMap())
         {
             setState(STATE_READY);
 
@@ -676,9 +676,9 @@ void LLVoiceChannelProximal::activate()
         // we're connected to a non-spatial channel, so disconnect.
         LLVoiceClient::getInstance()->leaveNonSpatialChannel();
     }
+
     LLVoiceClient::getInstance()->activateSpatialChannel(true);
     LLVoiceChannel::activate();
-
 }
 
 void LLVoiceChannelProximal::onChange(EStatusType type, const LLSD& channelInfo, bool proximal)
@@ -751,7 +751,7 @@ void LLVoiceChannelProximal::deactivate()
     {
         setState(STATE_HUNG_UP);
     }
-
+    LLVoiceClient::getInstance()->removeObserver(this);
     LLVoiceClient::getInstance()->activateSpatialChannel(false);
 }
 
@@ -907,7 +907,7 @@ void LLVoiceChannelP2P::setChannelInfo(const LLSD& channel_info)
     }
 
     mReceivedCall = true;
-    if (!channel_info.isUndefined())
+    if (channel_info.isDefined() && channel_info.isMap())
     {
         mIncomingCallInterface = LLVoiceClient::getInstance()->getIncomingCallInterface(channel_info);
     }

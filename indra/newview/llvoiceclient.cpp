@@ -139,6 +139,7 @@ LLVoiceClient::LLVoiceClient(LLPumpIO *pump)
     m_servicePump(NULL),
     mVoiceEffectEnabled(LLCachedControl<bool>(gSavedSettings, "VoiceMorphingEnabled", true)),
     mVoiceEffectDefault(LLCachedControl<std::string>(gSavedPerAccountSettings, "VoiceEffectDefault", "00000000-0000-0000-0000-000000000000")),
+    mVoiceEffectSupportNotified(false),
     mPTTDirty(true),
     mPTT(true),
     mUsePTT(true),
@@ -569,11 +570,37 @@ void LLVoiceClient::setMicGain(F32 gain)
 //------------------------------------------
 // enable/disable voice features
 
+// static
+bool LLVoiceClient::onVoiceEffectsNotSupported(const LLSD &notification, const LLSD &response)
+{
+    S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+    switch (option)
+    {
+        case 0:  // "Okay"
+            gSavedPerAccountSettings.setString("VoiceEffectDefault", LLUUID::null.asString());
+            break;
+
+        case 1:  // "Cancel"
+            break;
+
+        default:
+            llassert(0);
+            break;
+    }
+    return false;
+}
+
 bool LLVoiceClient::voiceEnabled()
 {
     static LLCachedControl<bool> enable_voice_chat(gSavedSettings, "EnableVoiceChat");
     static LLCachedControl<bool> cmd_line_disable_voice(gSavedSettings, "CmdLineDisableVoice");
-    return enable_voice_chat && !cmd_line_disable_voice && !gNonInteractive;
+    bool enabled = enable_voice_chat && !cmd_line_disable_voice && !gNonInteractive;
+    if (enabled && !mVoiceEffectSupportNotified && getVoiceEffectEnabled() && !getVoiceEffectDefault().isNull())
+    {
+        LLNotificationsUtil::add("VoiceEffectsNotSupported", LLSD(), LLSD(), &LLVoiceClient::onVoiceEffectsNotSupported);
+        mVoiceEffectSupportNotified = true;
+    }
+    return enabled;
 }
 
 void LLVoiceClient::setVoiceEnabled(bool enabled)
@@ -812,7 +839,7 @@ std::string LLVoiceClient::sipURIFromID(const LLUUID &id)
 
 LLVoiceEffectInterface* LLVoiceClient::getVoiceEffectInterface() const
 {
-    return getVoiceEffectEnabled() ? dynamic_cast<LLVoiceEffectInterface*>(mSpatialVoiceModule) : NULL;
+    return NULL;
 }
 
 ///////////////////

@@ -3412,11 +3412,11 @@ LLUUID LLIMMgr::addSession(
         ((IM_NOTHING_SPECIAL == dialog) || (IM_SESSION_P2P_INVITE == dialog) || (IM_SESSION_CONFERENCE_START == dialog)) &&
         ids.size())
     {
-        LLIMModel::LLIMSession* ad_hoc_found = LLIMModel::getInstance()->findAdHocIMSession(ids);
-        if (ad_hoc_found)
+        session = LLIMModel::getInstance()->findAdHocIMSession(ids);
+        if (session)
         {
             new_session = false;
-            session_id = ad_hoc_found->mSessionID;
+            session_id = session->mSessionID;
         }
     }
 
@@ -3852,7 +3852,7 @@ bool LLIMMgr::startCall(const LLUUID& session_id, LLVoiceChannel::EDirection dir
 {
     LLVoiceChannel* voice_channel = LLIMModel::getInstance()->getVoiceChannel(session_id);
     if (!voice_channel) return false;
-    if (!voice_channel_info.isUndefined())
+    if (voice_channel_info.isDefined() && voice_channel_info.isMap() && voice_channel_info.size() > 0)
     {
         voice_channel->setChannelInfo(voice_channel_info);
     }
