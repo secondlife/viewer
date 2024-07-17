@@ -654,7 +654,7 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
 
     gPipeline.resetFrameStats();    // Reset per-frame statistics.
 
-    if (!gDisconnected)
+    if (!gDisconnected && !LLApp::isExiting())
     {
         // Render mirrors and associated hero probes before we render the rest of the scene.
         // This ensures the scene state in the hero probes are exactly the same as the rest of the scene before we render it.
