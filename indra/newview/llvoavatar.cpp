@@ -2589,6 +2589,9 @@ void LLVOAvatar::idleUpdate(LLAgent &agent, const F64 &time)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
 
+    if (LLApp::isExiting())
+        return;
+
     if (isDead())
     {
         LL_INFOS() << "Warning!  Idle on dead avatar" << LL_ENDL;
