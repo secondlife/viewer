@@ -55,6 +55,8 @@ LLGLTFMaterialList::modify_queue_t LLGLTFMaterialList::sModifyQueue;
 LLGLTFMaterialList::apply_queue_t LLGLTFMaterialList::sApplyQueue;
 LLSD LLGLTFMaterialList::sUpdates;
 
+const size_t MAX_TASK_UPDATES = 255;
+
 #ifdef SHOW_ASSERT
 // return true if given data is (probably) valid update message for ModifyMaterialParams capability
 static bool is_valid_update(const LLSD& data)
@@ -362,6 +364,17 @@ void LLGLTFMaterialList::queueApply(const LLViewerObject* obj, S32 side, const L
         LLGLTFMaterial* material = new LLGLTFMaterial(*material_override);
         sApplyQueue.push_back({ obj->getID(), side, asset_id, material });
     }
+
+    if (sUpdates.size() >= MAX_TASK_UPDATES)
+    {
+        LLCoros::instance().launch("modifyMaterialCoro",
+            std::bind(&LLGLTFMaterialList::modifyMaterialCoro,
+                gAgent.getRegionCapability("ModifyMaterialParams"),
+                sUpdates,
+                std::shared_ptr<CallbackHolder>(nullptr)));
+
+        sUpdates = LLSD::emptyArray();
+    }
 }
 
 void LLGLTFMaterialList::queueUpdate(const LLSD& data)
@@ -374,16 +387,41 @@ void LLGLTFMaterialList::queueUpdate(const LLSD& data)
     }
 
     sUpdates[sUpdates.size()] = data;
+
+    if (sUpdates.size() >= MAX_TASK_UPDATES)
+    {
+        LLCoros::instance().launch("modifyMaterialCoro",
+            std::bind(&LLGLTFMaterialList::modifyMaterialCoro,
+                gAgent.getRegionCapability("ModifyMaterialParams"),
+                sUpdates,
+                std::shared_ptr<CallbackHolder>(nullptr)));
+
+        sUpdates = LLSD::emptyArray();
+    }
 }
 
 void LLGLTFMaterialList::flushUpdates(void(*done_callback)(bool))
 {
+    std::shared_ptr<CallbackHolder> callback_holder;
+    if (done_callback)
+    {
+        callback_holder = std::make_shared<CallbackHolder>(done_callback);
+    }
+    while (!sModifyQueue.empty() || !sApplyQueue.empty())
+    {
+        flushUpdatesOnce(callback_holder);
+    }
+}
+
+void LLGLTFMaterialList::flushUpdatesOnce(std::shared_ptr<CallbackHolder> callback_holder)
+{
     LLSD& data = sUpdates;
 
-    auto i = data.size();
+    size_t i = data.size();
 
-    for (ModifyMaterialData& e : sModifyQueue)
+    while (!sModifyQueue.empty() && i < MAX_TASK_UPDATES)
     {
+        ModifyMaterialData& e = sModifyQueue.front();
 #ifdef SHOW_ASSERT
         // validate object has a material id
         LLViewerObject* obj = gObjectList.findObject(e.object_id);
@@ -405,11 +443,12 @@ void LLGLTFMaterialList::flushUpdates(void(*done_callback)(bool))
 
         llassert(is_valid_update(data[i]));
         ++i;
+        sModifyQueue.pop_front();
     }
-    sModifyQueue.clear();
 
-    for (ApplyMaterialAssetData& e : sApplyQueue)
+    while (!sApplyQueue.empty() && i < MAX_TASK_UPDATES)
     {
+        ApplyMaterialAssetData& e = sApplyQueue.front();
         data[i]["object_id"] = e.object_id;
         data[i]["side"] = e.side;
         data[i]["asset_id"] = e.asset_id;
@@ -425,8 +464,8 @@ void LLGLTFMaterialList::flushUpdates(void(*done_callback)(bool))
 
         llassert(is_valid_update(data[i]));
         ++i;
+        sApplyQueue.pop_front();
     }
-    sApplyQueue.clear();
 
 #if 0 // debug output of data being sent to capability
     std::stringstream str;
@@ -440,7 +479,7 @@ void LLGLTFMaterialList::flushUpdates(void(*done_callback)(bool))
             std::bind(&LLGLTFMaterialList::modifyMaterialCoro,
                 gAgent.getRegionCapability("ModifyMaterialParams"),
                 sUpdates,
-                done_callback));
+                callback_holder));
 
         sUpdates = LLSD::emptyArray();
     }
@@ -661,7 +700,7 @@ void LLGLTFMaterialList::flushMaterials()
 }
 
 // static
-void LLGLTFMaterialList::modifyMaterialCoro(std::string cap_url, LLSD overrides, void(*done_callback)(bool) )
+void LLGLTFMaterialList::modifyMaterialCoro(std::string cap_url, LLSD overrides, std::shared_ptr<CallbackHolder> callback_holder)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -691,9 +730,12 @@ void LLGLTFMaterialList::modifyMaterialCoro(std::string cap_url, LLSD overrides,
         success = false;
     }
 
-    if (done_callback)
+    if (callback_holder)
     {
-        done_callback(success);
+        // Set to false even if something went through
+        // since at the moment it get used to refresh UI
+        // if update failed
+        callback_holder->mSuccess &= success;
     }
 }
 
