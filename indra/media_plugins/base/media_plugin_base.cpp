@@ -270,13 +270,13 @@ pid_t getParentPid( pid_t aPid )
     {
         std::string line;
         line.resize( 1024, 0 );
-        in.getline( &line[0], line.length() );	
+        in.getline( &line[0], line.length() );
 
         auto i = line.find( "PPid:"  );
-        
+
         if( i == std::string::npos )
             continue;
-        
+
         char const *pIn = line.c_str() + 5; // Skip over pid;
         while( *pIn != 0 && isspace( *pIn ) )
                ++pIn;
