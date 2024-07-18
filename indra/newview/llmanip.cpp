@@ -574,9 +574,6 @@ void LLManip::renderTickValue(const LLVector3& pos, F32 value, const std::string
             gGL.scalef(inv_zoom_amt, inv_zoom_amt, inv_zoom_amt);
         }
 
-        LLColor4 shadow_color = LLColor4::black;
-        shadow_color.mV[VALPHA] = color.mV[VALPHA] * 0.5f;
-
         if (fractional_portion != 0)
         {
             fraction_string = llformat("%c%02d%s", LLResMgr::getInstance()->getDecimalPoint(), fractional_portion, suffix.c_str());

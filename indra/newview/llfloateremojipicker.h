@@ -60,7 +60,6 @@ public:
 private:
     void initialize();
     void fillGroups();
-    void fillCategoryRecentlyUsed(std::map<std::string, std::vector<LLEmojiSearchResult>>& cats);
     void fillCategoryFrequentlyUsed(std::map<std::string, std::vector<LLEmojiSearchResult>>& cats);
     void fillGroupEmojis(std::map<std::string, std::vector<LLEmojiSearchResult>>& cats, U32 index);
     void createGroupButton(LLButton::Params& params, const LLRect& rect, llwchar emoji);

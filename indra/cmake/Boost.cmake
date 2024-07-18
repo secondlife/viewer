@@ -27,14 +27,14 @@ if (WINDOWS)
           libboost_thread-mt${addrsfx})
 elseif (LINUX)
   target_link_libraries( ll::boost INTERFACE
-          boost_context-mt${addrsfx}
           boost_fiber-mt${addrsfx}
+          boost_context-mt${addrsfx}
           boost_filesystem-mt${addrsfx}
           boost_program_options-mt${addrsfx}
           boost_regex-mt${addrsfx}
-          boost_signals-mt${addrsfx}
+          boost_thread-mt${addrsfx}
           boost_system-mt${addrsfx}
-          boost_thread-mt${addrsfx})
+  )
 elseif (DARWIN)
   target_link_libraries( ll::boost INTERFACE
           boost_context-mt${addrsfx}

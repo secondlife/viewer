@@ -4307,7 +4307,6 @@ void LLPanelRegionEnvironment::onChkAllowOverride(bool value)
     mAllowOverrideRestore = mAllowOverride;
     mAllowOverride = value;
 
-
     std::string notification("EstateParcelEnvironmentOverride");
     if (LLPanelEstateInfo::isLindenEstate())
         notification = "ChangeLindenEstate";

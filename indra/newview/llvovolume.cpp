@@ -5832,8 +5832,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
                     {
                         type = LLDrawPool::POOL_GLTF_PBR;
                     }
-                    else
-                    if (type != LLDrawPool::POOL_ALPHA && force_simple)
+                    else if (type != LLDrawPool::POOL_ALPHA && force_simple)
                     {
                         type = LLDrawPool::POOL_SIMPLE;
                     }

@@ -504,57 +504,46 @@ const S32 LLOSInfo::getOSBitness() const
     return mOSBitness;
 }
 
+namespace {
+
+    U32 readFromProcStat( std::string entryName )
+    {
+        U32 val{};
+#if LL_LINUX
+        constexpr U32 STATUS_SIZE  = 2048;
+
+        LLFILE* status_filep = LLFile::fopen("/proc/self/status", "rb");
+        if (status_filep)
+        {
+            char buff[STATUS_SIZE];     /* Flawfinder: ignore */
+
+            size_t nbytes = fread(buff, 1, STATUS_SIZE-1, status_filep);
+            buff[nbytes] = '\0';
+
+            // All these guys return numbers in KB
+            char *memp = strstr(buff, entryName.c_str());
+            if (memp)
+            {
+                (void) sscanf(memp, "%*s %u", &val);
+            }
+            fclose(status_filep);
+        }
+#endif
+        return val;
+    }
+
+}
+
 //static
 U32 LLOSInfo::getProcessVirtualSizeKB()
 {
-    U32 virtual_size = 0;
-#if LL_LINUX
-#   define STATUS_SIZE 2048
-    LLFILE* status_filep = LLFile::fopen("/proc/self/status", "rb");
-    if (status_filep)
-    {
-        S32 numRead = 0;
-        char buff[STATUS_SIZE];     /* Flawfinder: ignore */
-
-        size_t nbytes = fread(buff, 1, STATUS_SIZE-1, status_filep);
-        buff[nbytes] = '\0';
-
-        // All these guys return numbers in KB
-        char *memp = strstr(buff, "VmSize:");
-        if (memp)
-        {
-            numRead += sscanf(memp, "%*s %u", &virtual_size);
-        }
-        fclose(status_filep);
-    }
-#endif
-    return virtual_size;
+    return readFromProcStat( "VmSize:" );
 }
 
 //static
 U32 LLOSInfo::getProcessResidentSizeKB()
 {
-    U32 resident_size = 0;
-#if LL_LINUX
-    LLFILE* status_filep = LLFile::fopen("/proc/self/status", "rb");
-    if (status_filep != NULL)
-    {
-        S32 numRead = 0;
-        char buff[STATUS_SIZE];     /* Flawfinder: ignore */
-
-        size_t nbytes = fread(buff, 1, STATUS_SIZE-1, status_filep);
-        buff[nbytes] = '\0';
-
-        // All these guys return numbers in KB
-        char *memp = strstr(buff, "VmRSS:");
-        if (memp)
-        {
-            numRead += sscanf(memp, "%*s %u", &resident_size);
-        }
-        fclose(status_filep);
-    }
-#endif
-    return resident_size;
+    return readFromProcStat( "VmRSS:" );
 }
 
 //static

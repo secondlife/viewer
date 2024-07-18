@@ -15,13 +15,19 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       release_run: ${{ steps.setvar.outputs.release_run }}
+      branch:   ${{ steps.which-branch.outputs.branch }}
+      relnotes: ${{ steps.which-branch.outputs.relnotes }}
     env:
       # Build with a tag like "Second_Life#abcdef0" to generate a release page
       # (used for builds we are planning to deploy).
+      # Even though inputs.release_run is specified with type boolean, which
+      # correctly presents a checkbox, its *value* is a GH workflow string
+      # 'true' or 'false'. If you simply test github.event.inputs.release_run,
+      # it always evaluates as true because it's a non-empty string either way.
       # When you want to use a string variable as a workflow YAML boolean, it's
       # important to ensure it's the empty string when false. If you omit || '',
-      # its value when false is "false", which is interpreted as true.
-      RELEASE_RUN: ${{ (github.event.inputs.release_run || github.ref_type == 'tag' && startsWith(github.ref_name, 'Second_Life')) && 'Y' || '' }}
+      # its value when false is "false", which (again) is interpreted as true.
+      RELEASE_RUN: ${{ (github.event.inputs.release_run != 'false' || (github.ref_type == 'tag' && startsWith(github.ref_name, 'Second_Life'))) && 'Y' || '' }}
     steps:
       - name: Set Variable
         id: setvar
@@ -29,25 +35,33 @@ jobs:
         run: |
           echo "release_run=$RELEASE_RUN" >> "$GITHUB_OUTPUT"
 
+      - name: Determine source branch
+        id: which-branch
+        uses: secondlife/viewer-build-util/which-branch@v2
+        with:
+          token: ${{ github.token }}
+
   build:
     needs: setvar
     strategy:
       matrix:
-        runner: [windows-large, macos-12-xl]
-        configuration: [Release]
+        runner: [windows-large, macos-12-xl, linux-large]
+        configuration: [Release, ReleaseOS]
         Linden: [true]
         include:
           - runner: macos-12-xl
             developer_dir: "/Applications/Xcode_14.0.1.app/Contents/Developer"
+        exclude:
           - runner: windows-large
             configuration: ReleaseOS
-            Linden: false
+          - runner: macos-12-xl
+            configuration: ReleaseOS
+          - runner: linux-large
+            configuration: Release
     runs-on: ${{ matrix.runner }}
     outputs:
       viewer_channel: ${{ steps.build.outputs.viewer_channel }}
       viewer_version: ${{ steps.build.outputs.viewer_version }}
-      viewer_branch:  ${{ steps.which-branch.outputs.branch }}
-      relnotes:       ${{ steps.which-branch.outputs.relnotes }}
       imagename: ${{ steps.build.outputs.imagename }}
     env:
       AUTOBUILD_ADDRSIZE: 64
@@ -126,23 +140,27 @@ jobs:
             ${{ runner.os }}-64-${{ matrix.configuration }}-
             ${{ runner.os }}-64-
 
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt update
+          sudo apt install -y \
+            libpulse-dev libunwind-dev \
+            libgl1-mesa-dev libglu1-mesa-dev libxinerama-dev \
+            libxcursor-dev libxfixes-dev libgstreamer1.0-dev \
+            libgstreamer-plugins-base1.0-dev ninja-build libxft-dev \
+            llvm mold libpipewire-0.3-dev
+
       - name: Install windows dependencies
         if: env.BUILD && runner.os == 'Windows'
         run: choco install nsis-unicode
-
-      - name: Determine source branch
-        id: which-branch
-        if: env.BUILD
-        uses: secondlife/viewer-build-util/which-branch@v2
-        with:
-          token: ${{ github.token }}
 
       - name: Build
         id: build
         if: env.BUILD
         shell: bash
         env:
-          AUTOBUILD_VCS_BRANCH: ${{ steps.which-branch.outputs.branch }}
+          AUTOBUILD_VCS_BRANCH: ${{ needs.setvar.outputs.branch }}
           RUNNER_OS: ${{ runner.os }}
         run: |
           # set up things the viewer's build.sh script expects
@@ -244,6 +262,13 @@ jobs:
           fi
           export PYTHON_COMMAND_NATIVE="$(native_path "$PYTHON_COMMAND")"
 
+          # Compile with clang, link with mold on linux.
+          if [[ "$RUNNER_OS" == "Linux" ]]; then
+            export CC=clang
+            export CXX=clang++
+            export CMAKE_OPTIONS='-DLINK_WITH_MOLD=ON'
+          fi
+
           ./build.sh
 
           # Each artifact is downloaded as a distinct .zip file. Multiple jobs
@@ -265,12 +290,13 @@ jobs:
           echo "artifact=$RUNNER_OS$cfg_suffix" >> $GITHUB_OUTPUT
 
       - name: Upload executable
-        if: matrix.Linden && steps.build.outputs.viewer_app
+        if: (matrix.Linden && steps.build.outputs.viewer_app) || runner.os == 'Linux'
         uses: actions/upload-artifact@v4
         with:
           name: "${{ steps.build.outputs.artifact }}-app"
           path: |
             ${{ steps.build.outputs.viewer_app }}
+
 
       # The other upload of nontrivial size is the symbol file. Use a distinct
       # artifact for that too.
@@ -400,7 +426,11 @@ jobs:
   release:
     needs: [setvar, build, sign-and-package-windows, sign-and-package-mac]
     runs-on: ubuntu-latest
-    if: needs.setvar.outputs.release_run
+    # action-gh-release requires a tag (presumably for automatic generation of
+    # release notes). Possible TODO: if we arrive here but do not have a
+    # suitable tag for github.sha, create one? If we do that, of course remove
+    # this == 'tag' condition.
+    if: needs.setvar.outputs.release_run && github.ref_type == 'tag'
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -409,6 +439,10 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           pattern: "*-metadata"
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: "LinuxOS-app"
 
       - name: Rename metadata
         run: |
@@ -430,7 +464,7 @@ jobs:
             Build ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
             ${{ needs.build.outputs.viewer_channel }}
             ${{ needs.build.outputs.viewer_version }}
-            ${{ needs.build.outputs.relnotes }}
+            ${{ needs.setvar.outputs.relnotes }}
           prerelease: true
           generate_release_notes: true
           target_commitish: ${{ github.sha }}
