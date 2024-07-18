@@ -32,12 +32,13 @@
 #if ! defined(LL_LLEVENTS_H)
 #define LL_LLEVENTS_H
 
-#include <string>
-#include <map>
-#include <set>
-#include <vector>
 #include <deque>
 #include <functional>
+#include <map>
+#include <set>
+#include <string>
+#include <type_traits>
+#include <vector>
 #if LL_WINDOWS
     #pragma warning (push)
     #pragma warning (disable : 4263) // boost::signals2::expired_slot::what() has const mismatch
@@ -137,6 +138,10 @@ typedef boost::signals2::signal<bool(const LLSD&), LLStopWhenHandled, float>  LL
 /// Methods that forward listeners (e.g. constructed with
 /// <tt>boost::bind()</tt>) should accept (const LLEventListener&)
 typedef LLStandardSignal::slot_type LLEventListener;
+/// Support a listener accepting (const LLBoundListener&, const LLSD&).
+/// Note that LLBoundListener::disconnect() is a const method: this feature is
+/// specifically intended to allow a listener to disconnect itself when done.
+typedef LLStandardSignal::extended_slot_type LLAwareListener;
 /// Accept a void listener too
 typedef std::function<void(const LLSD&)> LLVoidListener;
 /// Result of registering a listener, supports <tt>connected()</tt>,
@@ -359,56 +364,13 @@ testable:
 };
 
 /*****************************************************************************
-*   LLEventTrackable
-*****************************************************************************/
-/**
- * LLEventTrackable wraps boost::signals2::trackable, which resembles
- * boost::trackable. Derive your listener class from LLEventTrackable instead,
- * and use something like
- * <tt>LLEventPump::listen(boost::bind(&YourTrackableSubclass::method,
- * instance, _1))</tt>. This will implicitly disconnect when the object
- * referenced by @c instance is destroyed.
- *
- * @note
- * LLEventTrackable doesn't address a couple of cases:
- * * Object destroyed during call
- *   - You enter a slot call in thread A.
- *   - Thread B destroys the object, which of course disconnects it from any
- *     future slot calls.
- *   - Thread A's call uses 'this', which now refers to a defunct object.
- *     Undefined behavior results.
- * * Call during destruction
- *   - @c MySubclass is derived from LLEventTrackable.
- *   - @c MySubclass registers one of its own methods using
- *     <tt>LLEventPump::listen()</tt>.
- *   - The @c MySubclass object begins destruction. <tt>~MySubclass()</tt>
- *     runs, destroying state specific to the subclass. (For instance, a
- *     <tt>Foo*</tt> data member is <tt>delete</tt>d but not zeroed.)
- *   - The listening method will not be disconnected until
- *     <tt>~LLEventTrackable()</tt> runs.
- *   - Before we get there, another thread posts data to the @c LLEventPump
- *     instance, calling the @c MySubclass method.
- *   - The method in question relies on valid @c MySubclass state. (For
- *     instance, it attempts to dereference the <tt>Foo*</tt> pointer that was
- *     <tt>delete</tt>d but not zeroed.)
- *   - Undefined behavior results.
- */
-typedef boost::signals2::trackable LLEventTrackable;
-
-/*****************************************************************************
 *   LLEventPump
 *****************************************************************************/
 /**
  * LLEventPump is the base class interface through which we access the
  * concrete subclasses such as LLEventStream.
- *
- * @NOTE
- * LLEventPump derives from LLEventTrackable so that when you "chain"
- * LLEventPump instances together, they will automatically disconnect on
- * destruction. Please see LLEventTrackable documentation for situations in
- * which this may be perilous across threads.
  */
-class LL_COMMON_API LLEventPump: public LLEventTrackable
+class LL_COMMON_API LLEventPump
 {
 public:
     static const std::string ANONYMOUS; // constant for anonymous listeners.
@@ -522,18 +484,37 @@ public:
      * call, allows us to optimize away the second and subsequent dependency
      * sorts.
      *
-     * If name is set to LLEventPump::ANONYMOUS listen will bypass the entire
+     * If name is set to LLEventPump::ANONYMOUS, listen() will bypass the entire
      * dependency and ordering calculation. In this case, it is critical that
      * the result be assigned to a LLTempBoundListener or the listener is
-     * manually disconnected when no longer needed since there will be no
+     * manually disconnected when no longer needed, since there will be no
      * way to later find and disconnect this listener manually.
      */
+    template <typename LISTENER>
     LLBoundListener listen(const std::string& name,
-                           const LLEventListener& listener,
+                           LISTENER&& listener,
                            const NameList& after=NameList(),
                            const NameList& before=NameList())
     {
-        return listen_impl(name, listener, after, before);
+        if constexpr (std::is_invocable_v<LISTENER, const LLSD&>)
+        {
+            // wrap classic LLEventListener in LLAwareListener lambda
+            return listenb(
+                name,
+                [listener=std::move(listener)]
+                (const LLBoundListener&, const LLSD& event)
+                {
+                    return listener(event);
+                },
+                after,
+                before);
+        }
+        else
+        {
+            static_assert(std::is_invocable_v<LISTENER, LLBoundListener, const LLSD&>,
+                          "LLEventPump::listen() listener has bad parameter signature");
+            return listenb(name, std::forward<LISTENER>(listener), after, before);
+        }
     }
 
     /// Get the LLBoundListener associated with the passed name (dummy
@@ -579,7 +560,35 @@ private:
     LLMutex mConnectionListMutex;
 
 protected:
-    virtual LLBoundListener listen_impl(const std::string& name, const LLEventListener&,
+    template <typename LISTENER>
+    LLBoundListener listenb(const std::string& name,
+                            LISTENER&& listener,
+                            const NameList& after=NameList(),
+                            const NameList& before=NameList())
+    {
+        using result_t = std::decay_t<decltype(listener(LLBoundListener(), LLSD()))>;
+        if constexpr (std::is_same_v<bool, result_t>)
+        {
+            return listen_impl(name, std::forward<LISTENER>(listener), after, before);
+        }
+        else
+        {
+            static_assert(std::is_same_v<void, result_t>,
+                          "LLEventPump::listen() listener has bad return type");
+            // wrap void listener in one that returns bool
+            return listen_impl(
+                name,
+                [listener=std::move(listener)]
+                (const LLBoundListener& conn, const LLSD& event)
+                {
+                    listener(conn, event);
+                    return false;
+                },
+                after,
+                before);
+        }
+    }
+    virtual LLBoundListener listen_impl(const std::string& name, const LLAwareListener&,
                                         const NameList& after,
                                         const NameList& before);
 
@@ -654,7 +663,7 @@ public:
     void discard();
 
 protected:
-    virtual LLBoundListener listen_impl(const std::string& name, const LLEventListener&,
+    virtual LLBoundListener listen_impl(const std::string& name, const LLAwareListener&,
                                         const NameList& after,
                                         const NameList& before) override;
 

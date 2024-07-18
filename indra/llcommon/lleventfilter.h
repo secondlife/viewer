@@ -459,7 +459,7 @@ public:
     LLEventLogProxy(LLEventPump& source, const std::string& name, bool tweak=false);
 
     /// register a new listener
-    LLBoundListener listen_impl(const std::string& name, const LLEventListener& target,
+    LLBoundListener listen_impl(const std::string& name, const LLAwareListener& target,
                                 const NameList& after, const NameList& before);
 
     /// Post an event to all listeners
@@ -469,8 +469,9 @@ private:
     /// This method intercepts each call to any target listener. We pass it
     /// the listener name and the caller's intended target listener plus the
     /// posted LLSD event.
-    bool listener(const std::string& name,
-                  const LLEventListener& target,
+    bool listener(const LLBoundListener& conn,
+                  const std::string& name,
+                  const LLAwareListener& target,
                   const LLSD& event) const;
 
     LLEventPump& mPump;

@@ -37,7 +37,7 @@ class LLSpeakerMgr;
 class LLAvatarName;
 
 // data for a given participant in a voice channel
-class LLSpeaker : public LLRefCount, public LLOldEvents::LLObservable, public LLHandleProvider<LLSpeaker>, public boost::signals2::trackable
+class LLSpeaker : public LLRefCount, public LLOldEvents::LLObservable, public LLHandleProvider<LLSpeaker>
 {
 public:
     typedef enum e_speaker_type

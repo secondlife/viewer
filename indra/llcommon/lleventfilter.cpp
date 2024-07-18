@@ -365,21 +365,22 @@ bool LLEventLogProxy::post(const LLSD& event) /* override */
 }
 
 LLBoundListener LLEventLogProxy::listen_impl(const std::string& name,
-                                             const LLEventListener& target,
+                                             const LLAwareListener& target,
                                              const NameList& after,
                                              const NameList& before)
 {
     LL_DEBUGS("LogProxy") << "LLEventLogProxy('" << getName() << "').listen('"
                           << name << "')" << LL_ENDL;
     return mPump.listen(name,
-                        [this, name, target](const LLSD& event)->bool
-                        { return listener(name, target, event); },
+                        [this, name, target](const LLBoundListener& conn, const LLSD& event)
+                        { return listener(conn, name, target, event); },
                         after,
                         before);
 }
 
-bool LLEventLogProxy::listener(const std::string& name,
-                               const LLEventListener& target,
+bool LLEventLogProxy::listener(const LLBoundListener& conn,
+                               const std::string& name,
+                               const LLAwareListener& target,
                                const LLSD& event) const
 {
     auto eventminus = event;
@@ -391,7 +392,7 @@ bool LLEventLogProxy::listener(const std::string& name,
     }
     std::string hdr{STRINGIZE(getName() << " to " << name << " " << counter)};
     LL_INFOS("LogProxy") << hdr << ": " << eventminus << LL_ENDL;
-    bool result = target(eventminus);
+    bool result = target(conn, eventminus);
     LL_INFOS("LogProxy") << hdr << " => " << result << LL_ENDL;
     return result;
 }
