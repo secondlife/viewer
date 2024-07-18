@@ -414,7 +414,13 @@ LLScriptEdCore::~LLScriptEdCore()
     if (script_search && script_search->getEditorCore() == this)
     {
         script_search->closeFloater();
-        delete script_search;
+        // closeFloater can delete instance since it's not reusable nor single instance
+        // so make sure instance is still there before deleting
+        script_search = LLFloaterScriptSearch::getInstance();
+        if (script_search)
+        {
+            delete script_search;
+        }
     }
 
     delete mLiveFile;
