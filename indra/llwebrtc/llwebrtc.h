@@ -129,7 +129,7 @@ class LLWebRTCDeviceInterface
     };
 
     virtual void setAudioConfig(AudioConfig config) = 0;
-    
+
     // instructs webrtc to refresh the device list.
     virtual void refreshDevices() = 0;
 
@@ -231,7 +231,7 @@ class LLWebRTCSignalingObserver
 class LLWebRTCPeerConnectionInterface
 {
   public:
-    
+
     struct InitOptions
     {
         // equivalent of PeerConnectionInterface::IceServer
