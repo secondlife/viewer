@@ -4263,6 +4263,20 @@ Can&apos;t change appearance until clothing and shape are loaded.
 
   <notification
    icon="alertmodal.tga"
+   name="UsavedWearableChanges"
+   type="alertmodal">
+You have unsaved changes.
+      <tag>group</tag>
+    <tag>confirm</tag>
+    <usetemplate
+     ignoretext="Confirm before I discard unsaved wearable changes"
+     name="okcancelignore"
+     notext="Keep Editing"
+     yestext="Discard"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="ClassifiedMustBeAlphanumeric"
    type="alertmodal">
 The name of your classified must start with a letter from A to Z or a number.  No punctuation is allowed.
