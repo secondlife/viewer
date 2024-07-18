@@ -364,56 +364,13 @@ testable:
 };
 
 /*****************************************************************************
-*   LLEventTrackable
-*****************************************************************************/
-/**
- * LLEventTrackable wraps boost::signals2::trackable, which resembles
- * boost::trackable. Derive your listener class from LLEventTrackable instead,
- * and use something like
- * <tt>LLEventPump::listen(boost::bind(&YourTrackableSubclass::method,
- * instance, _1))</tt>. This will implicitly disconnect when the object
- * referenced by @c instance is destroyed.
- *
- * @note
- * LLEventTrackable doesn't address a couple of cases:
- * * Object destroyed during call
- *   - You enter a slot call in thread A.
- *   - Thread B destroys the object, which of course disconnects it from any
- *     future slot calls.
- *   - Thread A's call uses 'this', which now refers to a defunct object.
- *     Undefined behavior results.
- * * Call during destruction
- *   - @c MySubclass is derived from LLEventTrackable.
- *   - @c MySubclass registers one of its own methods using
- *     <tt>LLEventPump::listen()</tt>.
- *   - The @c MySubclass object begins destruction. <tt>~MySubclass()</tt>
- *     runs, destroying state specific to the subclass. (For instance, a
- *     <tt>Foo*</tt> data member is <tt>delete</tt>d but not zeroed.)
- *   - The listening method will not be disconnected until
- *     <tt>~LLEventTrackable()</tt> runs.
- *   - Before we get there, another thread posts data to the @c LLEventPump
- *     instance, calling the @c MySubclass method.
- *   - The method in question relies on valid @c MySubclass state. (For
- *     instance, it attempts to dereference the <tt>Foo*</tt> pointer that was
- *     <tt>delete</tt>d but not zeroed.)
- *   - Undefined behavior results.
- */
-typedef boost::signals2::trackable LLEventTrackable;
-
-/*****************************************************************************
 *   LLEventPump
 *****************************************************************************/
 /**
  * LLEventPump is the base class interface through which we access the
  * concrete subclasses such as LLEventStream.
- *
- * @NOTE
- * LLEventPump derives from LLEventTrackable so that when you "chain"
- * LLEventPump instances together, they will automatically disconnect on
- * destruction. Please see LLEventTrackable documentation for situations in
- * which this may be perilous across threads.
  */
-class LL_COMMON_API LLEventPump: public LLEventTrackable
+class LL_COMMON_API LLEventPump
 {
 public:
     static const std::string ANONYMOUS; // constant for anonymous listeners.
