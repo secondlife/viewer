@@ -65,10 +65,10 @@ constexpr F32 FALL_TIME = 0.6f;
 constexpr S32 BORDER_WIDTH = 6;
 constexpr S32 TOP_PANEL_HEIGHT = 30;
 
-const S32 MAX_TEXTURE_SIZE = 2048 ; //max upload texture size 2048 * 2048
+constexpr S32 MAX_TEXTURE_SIZE = 2048 ; //max upload texture size 2048 * 2048
 
 std::set<LLSnapshotLivePreview*> LLSnapshotLivePreview::sList;
-LLPointer<LLImageFormatted> LLSnapshotLivePreview::sSaveLocalImage = NULL;
+LLPointer<LLImageFormatted> LLSnapshotLivePreview::sSaveLocalImage = nullptr;
 
 LLSnapshotLivePreview::LLSnapshotLivePreview (const LLSnapshotLivePreview::Params& p)
     :   LLView(p),
