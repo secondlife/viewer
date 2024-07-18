@@ -437,7 +437,7 @@ public:
             parameters.max_cs_size = 0; // do not limit size for reversible compression
             parameters.irreversible = 0; // should be the default, but, just in case
             parameters.tcp_numlayers = 1;
-            /* documentation seems to be wrong, should be 0.0f for lossless, not 1.0f 
+            /* documentation seems to be wrong, should be 0.0f for lossless, not 1.0f
                see https://github.com/uclouvain/openjpeg/blob/39e8c50a2f9bdcf36810ee3d41bcbf1cc78968ae/src/lib/openjp2/j2k.c#L7755
             */
             parameters.tcp_rates[0] = 0.0f;
@@ -538,7 +538,7 @@ public:
 
             //ensure that we have at least a minimal size
             max_cs_size = llmax(max_cs_size, (U32)FIRST_PACKET_SIZE);
-           
+
             parameters.max_cs_size = max_cs_size;
         }
 
