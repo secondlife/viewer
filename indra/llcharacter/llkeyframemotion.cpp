@@ -2227,7 +2227,12 @@ bool LLKeyframeMotion::dumpToFile(const std::string& name)
         }
 
         S32 file_size = getFileSize();
-        U8* buffer = new U8[file_size];
+        U8* buffer = new(std::nothrow) U8[file_size];
+        if (!buffer)
+        {
+            LLError::LLUserWarningMsg::showOutOfMemory();
+            LL_ERRS() << "Bad memory allocation for buffer, file: " << name << " " << file_size << LL_ENDL;
+        }
 
         LL_DEBUGS("BVH") << "Dumping " << outfilename << LL_ENDL;
         LLDataPackerBinaryBuffer dp(buffer, file_size);
@@ -2435,7 +2440,12 @@ void LLKeyframeMotion::onLoadComplete(const LLUUID& asset_uuid,
             LLFileSystem file(asset_uuid, type, LLFileSystem::READ);
             S32 size = file.getSize();
 
-            U8* buffer = new U8[size];
+            U8* buffer = new(std::nothrow) U8[size];
+            if (!buffer)
+            {
+                LLError::LLUserWarningMsg::showOutOfMemory();
+                LL_ERRS() << "Bad memory allocation for buffer of size: " << size << LL_ENDL;
+            }
             file.read((U8*)buffer, size);   /*Flawfinder: ignore*/
 
             LL_DEBUGS("Animation") << "Loading keyframe data for: " << motionp->getName() << ":" << motionp->getID() << " (" << size << " bytes)" << LL_ENDL;
