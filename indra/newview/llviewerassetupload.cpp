@@ -479,7 +479,12 @@ LLSD LLNewFileResourceUploadInfo::exportTempFile()
         else
         {
             S32 size = LLAPRFile::size(getFileName());
-            U8* buffer = new U8[size];
+            U8* buffer = new(std::nothrow) U8[size];
+            if (!buffer)
+            {
+                LLError::LLUserWarningMsg::showOutOfMemory();
+                LL_ERRS() << "Bad memory allocation for buffer, size: " << size << LL_ENDL;
+            }
             S32 size_read = infile.read(buffer,size);
             if (size_read != size)
             {
