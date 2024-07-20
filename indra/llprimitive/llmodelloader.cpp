@@ -31,7 +31,6 @@
 #include "lljoint.h"
 #include "llcallbacklist.h"
 
-#include "glh/glh_linear.h"
 #include "llmatrix4a.h"
 #include <boost/bind.hpp>
 

@@ -38,6 +38,7 @@
 #include <set>
 #include <vector>
 #include <list>
+#include <glm/gtc/matrix_transform.hpp>
 
 #define LL_MAX_VERTEX_ATTRIB_LOCATION 64
 
@@ -63,8 +64,11 @@ public:
         , mMode(0)
         , mCount(0)
         , mTexName(0)
+        , mProjection(glm::identity<glm::mat4>())
+        , mModelView(glm::identity<glm::mat4>())
+        , mTexture0(glm::identity<glm::mat4>())
     {}
-    LLVertexBufferData(LLVertexBuffer* buffer, U8 mode, U32 count, U32 tex_name, glh::matrix4f model_view, glh::matrix4f projection, glh::matrix4f texture0)
+    LLVertexBufferData(LLVertexBuffer* buffer, U8 mode, U32 count, U32 tex_name, const glm::mat4& model_view, const glm::mat4& projection, const glm::mat4& texture0)
         : mVB(buffer)
         , mMode(mode)
         , mCount(count)
@@ -78,9 +82,9 @@ public:
     U8 mMode;
     U32 mCount;
     U32 mTexName;
-    glh::matrix4f mProjection;
-    glh::matrix4f mModelView;
-    glh::matrix4f mTexture0;
+    glm::mat4 mProjection;
+    glm::mat4 mModelView;
+    glm::mat4 mTexture0;
 };
 typedef std::list<LLVertexBufferData> buffer_data_list_t;
 
