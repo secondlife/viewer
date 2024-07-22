@@ -61,6 +61,7 @@
 #include "llfloatergroups.h"
 #include "llfloaterreg.h"
 #include "llfloaterregiondebugconsole.h"
+#include "llfloaterregionrestartschedule.h"
 #include "llfloatertelehub.h"
 #include "llgltfmateriallist.h"
 #include "llinventorymodel.h"
@@ -259,6 +260,7 @@ bool LLFloaterRegionInfo::postBuild()
     panel = new LLPanelRegionGeneralInfo;
     mInfoPanels.push_back(panel);
     panel->getCommitCallbackRegistrar().add("RegionInfo.ManageTelehub", boost::bind(&LLPanelRegionInfo::onClickManageTelehub, panel));
+    panel->getCommitCallbackRegistrar().add("RegionInfo.ManageRestart", boost::bind(&LLPanelRegionInfo::onClickManageRestartSchedule, panel));
     panel->buildFromFile("panel_region_general.xml");
     mTab->addTabPanel(panel);
 
@@ -862,6 +864,25 @@ void LLPanelRegionInfo::onClickManageTelehub()
     LLFloaterReg::showInstance("telehubs");
 }
 
+void LLPanelRegionInfo::onClickManageRestartSchedule()
+{
+    LLFloater* floaterp = mFloaterRestartScheduleHandle.get();
+    // Show the dialog
+    if (!floaterp)
+    {
+        floaterp = new LLFloaterRegionRestartSchedule(this);
+    }
+
+    if (floaterp->getVisible())
+    {
+        floaterp->closeFloater();
+    }
+    else
+    {
+        floaterp->openFloater();
+    }
+}
+
 /////////////////////////////////////////////////////////////////////////////
 // LLPanelRegionGeneralInfo
 //
@@ -877,6 +898,8 @@ bool LLPanelRegionGeneralInfo::refreshFromRegion(LLViewerRegion* region)
     getChildView("kick_all_btn")->setEnabled(allow_modify);
     getChildView("im_btn")->setEnabled(allow_modify);
     getChildView("manage_telehub_btn")->setEnabled(allow_modify);
+    getChildView("manage_restart_btn")->setEnabled(allow_modify);
+    getChildView("manage_restart_btn")->setVisible(LLFloaterRegionRestartSchedule::canUse());
 
     // Data gets filled in by processRegionInfo
 
