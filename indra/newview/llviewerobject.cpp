@@ -1940,14 +1940,14 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 
                 if(mesgsys != NULL)
                 {
-                LLViewerObjectList::getUUIDFromLocal(parent_uuid,
+                    gObjectList.getUUIDFromLocal(parent_uuid,
                                                         parent_id,
                                                         mesgsys->getSenderIP(),
                                                         mesgsys->getSenderPort());
                 }
                 else
                 {
-                    LLViewerObjectList::getUUIDFromLocal(parent_uuid,
+                    gObjectList.getUUIDFromLocal(parent_uuid,
                                                         parent_id,
                                                         mRegionp->getHost().getAddress(),
                                                         mRegionp->getHost().getPort());
@@ -2062,7 +2062,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 
                 // Debugging for suspected problems with local ids.
                 //LLUUID parent_uuid;
-                //LLViewerObjectList::getUUIDFromLocal(parent_uuid, parent_id, mesgsys->getSenderIP(), mesgsys->getSenderPort() );
+                //gObjectList.getUUIDFromLocal(parent_uuid, parent_id, mesgsys->getSenderIP(), mesgsys->getSenderPort() );
                 //if (parent_uuid != cur_parentp->getID() )
                 //{
                 //  LL_ERRS() << "Local ID match but UUID mismatch of viewer object" << LL_ENDL;
@@ -2085,14 +2085,14 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 
                     if(mesgsys != NULL)
                     {
-                    LLViewerObjectList::getUUIDFromLocal(parent_uuid,
+                        gObjectList.getUUIDFromLocal(parent_uuid,
                                                         parent_id,
                                                         gMessageSystem->getSenderIP(),
                                                         gMessageSystem->getSenderPort());
                     }
                     else
                     {
-                        LLViewerObjectList::getUUIDFromLocal(parent_uuid,
+                        gObjectList.getUUIDFromLocal(parent_uuid,
                                                         parent_id,
                                                         mRegionp->getHost().getAddress(),
                                                         mRegionp->getHost().getPort());
