@@ -961,7 +961,7 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
         }
     }
 
-    if (obj->getType() != LLAssetType::AT_CATEGORY)
+    if (obj && obj->getType() != LLAssetType::AT_CATEGORY)
     {
         items.push_back(std::string("Paste Separator"));
     }
