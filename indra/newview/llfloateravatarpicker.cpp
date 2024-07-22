@@ -300,7 +300,7 @@ void LLFloaterAvatarPicker::populateNearMe()
         if (!LLAvatarNameCache::get(av, &av_name))
         {
             element["columns"][0]["column"] = "name";
-            element["columns"][0]["value"] = LLCacheName::getDefaultName();
+            element["columns"][0]["value"] = gCacheName->getDefaultName();
             all_loaded = false;
         }
         else
