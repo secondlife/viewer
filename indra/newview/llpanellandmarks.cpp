@@ -647,10 +647,18 @@ bool LLLandmarksPanel::isActionEnabled(const LLSD& userdata) const
 
     if ("collapse_all" == command_name)
     {
+        if (!mCurrentSelectedList)
+        {
+            return false;
+        }
         return has_expanded_folders(mCurrentSelectedList->getRootFolder());
     }
     else if ("expand_all" == command_name)
     {
+        if (!mCurrentSelectedList)
+        {
+            return false;
+        }
         return has_collapsed_folders(mCurrentSelectedList->getRootFolder());
     }
     else if ("sort_by_date" == command_name)
