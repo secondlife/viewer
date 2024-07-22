@@ -6293,7 +6293,7 @@ void LLCallingCardBridge::performAction(LLInventoryModel* model, std::string act
         if (item && (item->getCreatorUUID() != gAgent.getID()) &&
             (!item->getCreatorUUID().isNull()))
         {
-            std::string callingcard_name = LLCacheName::getDefaultName();
+            std::string callingcard_name = gCacheName->getDefaultName();
             LLAvatarName av_name;
             if (LLAvatarNameCache::get(item->getCreatorUUID(), &av_name))
             {
