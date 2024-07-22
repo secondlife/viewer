@@ -1596,7 +1596,7 @@ void render_ui_2d()
     }
 
 
-    if (gSavedSettings.getBOOL("RenderUIBuffer"))
+    if (LLPipeline::RenderUIBuffer)
     {
         if (LLView::sIsRectDirty)
         {
