@@ -2675,7 +2675,7 @@ void LLViewerWindow::draw()
 
     //S32 screen_x, screen_y;
 
-    if (!gSavedSettings.getBOOL("RenderUIBuffer"))
+    if (!LLPipeline::RenderUIBuffer)
     {
         LLView::sDirtyRect = getWindowRectScaled();
     }

@@ -1931,7 +1931,7 @@ LLVector3d LLAgentCamera::calcCameraPositionTargetGlobal(bool *hit_limit)
                     }
                     else
                     {
-                        LLCachedControl<F32> dynamic_camera_strength(gSavedSettings, "DynamicCameraStrength");
+                        static LLCachedControl<F32> dynamic_camera_strength(gSavedSettings, "DynamicCameraStrength");
                         target_lag = vel * dynamic_camera_strength / 30.f;
                     }
 
