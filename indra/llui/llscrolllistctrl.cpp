@@ -1479,10 +1479,9 @@ const std::string LLScrollListCtrl::getSelectedItemLabel(S32 column) const
     item = getFirstSelected();
     if (item)
     {
-        auto col = item->getColumn(column);
-        if(col)
+        if (LLScrollListCell* cell = item->getColumn(column))
         {
-            return col->getValue().asString();
+            return cell->getValue().asString();
         }
     }
 
@@ -2720,7 +2719,8 @@ struct SameSortColumn
 bool LLScrollListCtrl::setSort(S32 column_idx, bool ascending)
 {
     LLScrollListColumn* sort_column = getColumn(column_idx);
-    if (!sort_column) return false;
+    if (!sort_column)
+        return false;
 
     sort_column->mSortDirection = ascending ? LLScrollListColumn::ASCENDING : LLScrollListColumn::DESCENDING;
 
@@ -2733,32 +2733,28 @@ bool LLScrollListCtrl::setSort(S32 column_idx, bool ascending)
         mSortColumns.push_back(new_sort_column);
         return true;
     }
-    else
-    {
-        // grab current sort column
-        sort_column_t cur_sort_column = mSortColumns.back();
 
-        // remove any existing sort criterion referencing this column
-        // and add the new one
-        mSortColumns.erase(remove_if(mSortColumns.begin(), mSortColumns.end(), SameSortColumn(column_idx)), mSortColumns.end());
-        mSortColumns.push_back(new_sort_column);
+    // grab current sort column
+    sort_column_t cur_sort_column = mSortColumns.back();
 
-        // did the sort criteria change?
-        return (cur_sort_column != new_sort_column);
-    }
+    // remove any existing sort criterion referencing this column
+    // and add the new one
+    mSortColumns.erase(remove_if(mSortColumns.begin(), mSortColumns.end(), SameSortColumn(column_idx)), mSortColumns.end());
+    mSortColumns.push_back(new_sort_column);
+
+    // did the sort criteria change?
+    return cur_sort_column != new_sort_column;
 }
 
 S32 LLScrollListCtrl::getLinesPerPage()
 {
-    //if mPageLines is NOT provided display all item
     if (mPageLines)
     {
         return mPageLines;
     }
-    else
-    {
-        return mLineHeight ? mItemListRect.getHeight() / mLineHeight : getItemCount();
-    }
+
+    // If mPageLines is NOT provided then display all items
+    return mLineHeight ? mItemListRect.getHeight() / mLineHeight : getItemCount();
 }
 
 
@@ -2774,7 +2770,7 @@ void LLScrollListCtrl::sortByColumn(const std::string& name, bool ascending)
     column_map_t::iterator itor = mColumns.find(name);
     if (itor != mColumns.end())
     {
-        sortByColumnIndex((*itor).second->mIndex, ascending);
+        sortByColumnIndex(itor->second->mIndex, ascending);
     }
 }
 
@@ -3093,8 +3089,7 @@ std::string LLScrollListCtrl::getSortColumnName()
 {
     LLScrollListColumn* column = mSortColumns.empty() ? NULL : mColumnsIndexed[mSortColumns.back().first];
 
-    if (column) return column->mName;
-    else return "";
+    return column ? column->mName : LLStringUtil::null;
 }
 
 bool LLScrollListCtrl::hasSortOrder() const
