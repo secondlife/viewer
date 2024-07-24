@@ -10763,17 +10763,18 @@ void LLVOAvatar::updateImpostors()
     LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WORLD;
 
     std::vector<LLCharacter*> instances_copy = LLCharacter::sInstances;
-    for (std::vector<LLCharacter*>::iterator iter = instances_copy.begin();
-        iter != instances_copy.end(); ++iter)
+    for (LLCharacter* instance : instances_copy)
     {
-        LLVOAvatar* avatar = (LLVOAvatar*) *iter;
-        if (!avatar->isDead()
-            && avatar->isVisible()
-            && avatar->isImpostor()
-            && avatar->needsImpostorUpdate())
+        if (LLVOAvatar* avatar = dynamic_cast<LLVOAvatar*>(instance))
         {
-            avatar->calcMutedAVColor();
-            gPipeline.generateImpostor(avatar);
+            if (!avatar->isDead()
+                && avatar->isVisible()
+                && avatar->isImpostor()
+                && avatar->needsImpostorUpdate())
+            {
+                avatar->calcMutedAVColor();
+                gPipeline.generateImpostor(avatar);
+            }
         }
     }
 
