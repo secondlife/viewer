@@ -8837,10 +8837,10 @@ New Voice Morphs are available!
     persist="true"
     type="alertmodal">
 Voice Morphs are not supported by this viewer.
+For more information about other voice morph tools, see [[FAQ_URL] this article].
     <usetemplate
-        notext="Cancel"
-        name="okcancelbuttons"
-        yestext="Disable Voice Morphing"/>
+        name="okignore"
+        yestext="OK"/>
     <tag>voice</tag>
   </notification>
 

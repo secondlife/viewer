@@ -37,6 +37,7 @@
 #include "llui.h"
 #include "llkeyboard.h"
 #include "llagent.h"
+#include "lltrans.h"
 #include "lluiusage.h"
 
 const F32 LLVoiceClient::OVERDRIVEN_POWER_LEVEL = 0.7f;
@@ -597,7 +598,11 @@ bool LLVoiceClient::voiceEnabled()
     bool enabled = enable_voice_chat && !cmd_line_disable_voice && !gNonInteractive;
     if (enabled && !mVoiceEffectSupportNotified && getVoiceEffectEnabled() && !getVoiceEffectDefault().isNull())
     {
-        LLNotificationsUtil::add("VoiceEffectsNotSupported", LLSD(), LLSD(), &LLVoiceClient::onVoiceEffectsNotSupported);
+        static const LLSD args = llsd::map(
+            "FAQ_URL", LLTrans::getString("no_voice_morphing_faq_url")
+        );
+
+        LLNotificationsUtil::add("VoiceEffectsNotSupported", args, LLSD(), &LLVoiceClient::onVoiceEffectsNotSupported);
         mVoiceEffectSupportNotified = true;
     }
     return enabled;
