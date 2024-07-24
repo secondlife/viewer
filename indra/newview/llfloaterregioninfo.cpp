@@ -2331,7 +2331,6 @@ void LLPanelEstateInfo::refresh()
     // Disable access restriction controls if they make no sense.
     bool public_access = ("estate_public_access" == getChild<LLUICtrl>("externally_visible_radio")->getValue().asString());
 
-    getChildView("Only Allow")->setEnabled(public_access);
     getChildView("limit_payment")->setEnabled(public_access);
     getChildView("limit_age_verified")->setEnabled(public_access);
     getChildView("limit_bots")->setEnabled(public_access);
