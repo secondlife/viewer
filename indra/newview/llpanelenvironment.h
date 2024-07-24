@@ -39,6 +39,7 @@
 #include "llestateinfomodel.h"
 
 class LLViewerRegion;
+class LLIconCtrl;
 
 class LLPanelEnvironmentInfo : public LLPanel
 {
@@ -62,6 +63,10 @@ public:
 
 protected:
     LOG_CLASS(LLPanelEnvironmentInfo);
+
+    static constexpr U32 ALTITUDE_SLIDER_COUNT = 3;
+    static constexpr U32 ALTITUDE_MARKERS_COUNT = 3;
+    static constexpr U32 ALTITUDE_PREFIXERS_COUNT = 5;
 
     static const std::string    BTN_SELECTINV;
     static const std::string    BTN_EDIT;
@@ -167,6 +172,33 @@ protected:
     typedef std::map<std::string, AltitudeData>      altitudes_data_t;
     altitudes_data_t                mAltitudes;
     S32                             mCurEnvVersion; // used to filter duplicate callbacks/refreshes
+
+    LLUICtrl* mPanelEnvAltitudes = nullptr;
+    LLUICtrl* mPanelEnvConfig = nullptr;
+    LLUICtrl* mPanelEnvButtons = nullptr;
+    LLUICtrl* mPanelEnvDisabled = nullptr;
+    LLUICtrl* mPanelEnvRegionMsg = nullptr;
+
+    LLButton* mBtnSelectInv = nullptr;
+    LLButton* mBtnEdit = nullptr;
+    LLButton* mBtnUseDefault = nullptr;
+    LLButton* mBtnResetAltitudes = nullptr;
+
+    LLMultiSliderCtrl* mMultiSliderAltitudes = nullptr;
+
+    LLSliderCtrl* mSliderDayLength = nullptr;
+    LLSliderCtrl* mSliderDayOffset = nullptr;
+
+    LLTextBox* mEnvironmentDisabledText = nullptr;
+    LLTextBox* mLabelApparentTime = nullptr;
+
+    LLCheckBoxCtrl* mCheckAllowOverride = nullptr;
+
+    LLIconCtrl* mIconGround = nullptr;
+    LLIconCtrl* mIconWater = nullptr;
+
+    std::array<LLUICtrl*, ALTITUDE_MARKERS_COUNT> mAltitudeMarkers;
+    std::array<LLSettingsDropTarget*, ALTITUDE_PREFIXERS_COUNT> mAltitudePrefixers;
 
 protected:
     typedef boost::signals2::connection connection_t;

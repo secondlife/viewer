@@ -3331,10 +3331,10 @@ bool LLPanelLandEnvironment::postBuild()
     if (!LLPanelEnvironmentInfo::postBuild())
         return false;
 
-    getChild<LLUICtrl>(BTN_USEDEFAULT)->setLabelArg("[USEDEFAULT]", getString(STR_LABEL_USEREGION));
-    getChild<LLUICtrl>(CHK_ALLOWOVERRIDE)->setVisible(false);
-    getChild<LLUICtrl>(PNL_REGION_MSG)->setVisible(false);
-    getChild<LLUICtrl>(PNL_ENVIRONMENT_ALTITUDES)->setVisible(true);
+    mBtnUseDefault->setLabelArg("[USEDEFAULT]", getString(STR_LABEL_USEREGION));
+    mCheckAllowOverride->setVisible(false);
+    mPanelEnvRegionMsg->setVisible(false);
+    mPanelEnvAltitudes->setVisible(true);
 
     return true;
 }
