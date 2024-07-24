@@ -350,7 +350,10 @@ class LLMenuParcelObserver : public LLParcelObserver
 public:
     LLMenuParcelObserver();
     ~LLMenuParcelObserver();
-    virtual void changed();
+    void changed() override;
+private:
+    LLHandle<LLUICtrl> mLandBuyHandle;
+    LLHandle<LLUICtrl> mLandBuyPassHandle;
 };
 
 static LLMenuParcelObserver* gMenuParcelObserver = NULL;
@@ -359,6 +362,8 @@ static LLUIListener sUIListener;
 
 LLMenuParcelObserver::LLMenuParcelObserver()
 {
+    mLandBuyHandle = gMenuLand->getChild<LLMenuItemCallGL>("Land Buy")->getHandle();
+    mLandBuyPassHandle = gMenuLand->getChild<LLMenuItemCallGL>("Land Buy Pass")->getHandle();
     LLViewerParcelMgr::getInstance()->addObserver(this);
 }
 
@@ -372,18 +377,17 @@ void LLMenuParcelObserver::changed()
     LLParcel *parcel = LLViewerParcelMgr::getInstance()->getParcelSelection()->getParcel();
     if (gMenuLand && parcel)
     {
-        LLView* child = gMenuLand->findChild<LLView>("Land Buy Pass");
-        if (child)
-        {
-            child->setEnabled(LLPanelLandGeneral::enableBuyPass(NULL) && !(parcel->getOwnerID() == gAgent.getID()));
-        }
+	    if (!mLandBuyPassHandle.isDead())
+	    {
+	        LLParcel *parcel = LLViewerParcelMgr::getInstance()->getParcelSelection()->getParcel();
+	        static_cast<LLMenuItemCallGL*>(mLandBuyPassHandle.get())->setEnabled(LLPanelLandGeneral::enableBuyPass(NULL) && !(parcel->getOwnerID() == gAgent.getID()));
+	    }
 
-        child = gMenuLand->findChild<LLView>("Land Buy");
-        if (child)
-        {
-            bool buyable = enable_buy_land(NULL);
-            child->setEnabled(buyable);
-        }
+	    if (!mLandBuyHandle.isDead())
+	    {
+	        bool buyable = enable_buy_land(NULL);
+	        static_cast<LLMenuItemCallGL*>(mLandBuyHandle.get())->setEnabled(buyable);
+	    }
     }
 }
 
@@ -402,10 +406,34 @@ void initialize_menus();
 // Break up groups of more than 6 items with separators
 //-----------------------------------------------------------------------------
 
-void set_merchant_SLM_menu()
+void set_merchant_SLM_menu();
+
+class LLSLMMenuUpdater
+{
+public:
+    LLSLMMenuUpdater();
+    ~LLSLMMenuUpdater() = default;
+
+    void setMerchantMenu();
+    void checkMerchantStatus(bool force);
+
+private:
+    LLHandle<LLView> mMarketplaceListingsItem;
+};
+
+static LLSLMMenuUpdater* gSLMMenuUpdater = NULL;
+
+LLSLMMenuUpdater::LLSLMMenuUpdater()
+{
+    mMarketplaceListingsItem = gMenuHolder->getChild<LLView>("MarketplaceListings")->getHandle();
+}
+void LLSLMMenuUpdater::setMerchantMenu()
 {
     // All other cases (new merchant, not merchant, migrated merchant): show the new Marketplace Listings menu and enable the tool
-    gMenuHolder->getChild<LLView>("MarketplaceListings")->setVisible(true);
+    if(!mMarketplaceListingsItem.isDead())
+    {
+        mMarketplaceListingsItem.get()->setVisible(true);
+    }
     LLCommand* command = LLCommandManager::instance().getCommand("marketplacelistings");
     gToolBarView->enableCommand(command->id(), true);
 
@@ -422,7 +450,7 @@ void set_merchant_SLM_menu()
     }
 }
 
-void check_merchant_status(bool force)
+void LLSLMMenuUpdater::checkMerchantStatus(bool force)
 {
     if (force)
     {
@@ -430,7 +458,10 @@ void check_merchant_status(bool force)
         LLMarketplaceData::instance().setSLMStatus(MarketplaceStatusCodes::MARKET_PLACE_NOT_INITIALIZED);
     }
     // Hide SLM related menu item
-    gMenuHolder->getChild<LLView>("MarketplaceListings")->setVisible(false);
+    if(!mMarketplaceListingsItem.isDead())
+    {
+        mMarketplaceListingsItem.get()->setVisible(false);
+    }
 
     // Also disable the toolbar button for Marketplace Listings
     LLCommand* command = LLCommandManager::instance().getCommand("marketplacelistings");
@@ -438,6 +469,16 @@ void check_merchant_status(bool force)
 
     // Launch an SLM test connection to get the merchant status
     LLMarketplaceData::instance().initializeSLM(boost::bind(&set_merchant_SLM_menu));
+}
+
+void set_merchant_SLM_menu()
+{
+   if(gSLMMenuUpdater) gSLMMenuUpdater->setMerchantMenu();
+}
+
+void check_merchant_status(bool force)
+{
+   if(gSLMMenuUpdater) gSLMMenuUpdater->checkMerchantStatus(force);
 }
 
 void init_menus()
@@ -554,6 +595,8 @@ void init_menus()
 
     // Let land based option enable when parcel changes
     gMenuParcelObserver = new LLMenuParcelObserver();
+
+    gSLMMenuUpdater = new LLSLMMenuUpdater();
 
     gLoginMenuBarView = LLUICtrlFactory::getInstance()->createFromFile<LLMenuBarGL>("menu_login.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
     gLoginMenuBarView->arrangeAndClear();
