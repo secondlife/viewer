@@ -192,7 +192,7 @@ void LLFloaterSnapshotBase::ImplBase::updateLayout(LLFloaterSnapshotBase* floate
         }
     }
 
-    bool use_freeze_frame = floaterp->getChild<LLUICtrl>("freeze_frame_check")->getValue().asBoolean();
+    bool use_freeze_frame = floaterp->mFreezeFrameCheck && floaterp->mFreezeFrameCheck->getValue().asBoolean();
 
     if (use_freeze_frame)
     {
@@ -720,7 +720,7 @@ void LLFloaterSnapshot::Impl::updateResolution(LLUICtrl* ctrl, void* data, bool 
                 new_width = spanel->getTypedPreviewWidth();
                 new_height = spanel->getTypedPreviewHeight();
 
-                // Limit custom size for inventory snapshots to 512x512 px.
+                // Limit custom size for inventory snapshots to 2048x2048 px.
                 if (getActiveSnapshotType(view) == LLSnapshotModel::SNAPSHOT_TEXTURE)
                 {
                     new_width = llmin(new_width, MAX_TEXTURE_SIZE);
@@ -1002,8 +1002,9 @@ bool LLFloaterSnapshot::postBuild()
     getChild<LLUICtrl>("layer_types")->setValue("colors");
     getChildView("layer_types")->setEnabled(false);
 
-    getChild<LLUICtrl>("freeze_frame_check")->setValue(gSavedSettings.getBOOL("UseFreezeFrame"));
-    childSetCommitCallback("freeze_frame_check", ImplBase::onCommitFreezeFrame, this);
+    mFreezeFrameCheck = getChild<LLUICtrl>("freeze_frame_check");
+    mFreezeFrameCheck->setValue(gSavedSettings.getBOOL("UseFreezeFrame"));
+    mFreezeFrameCheck->setCommitCallback(&ImplBase::onCommitFreezeFrame, this);
 
     getChild<LLUICtrl>("auto_snapshot_check")->setValue(gSavedSettings.getBOOL("AutoSnapshot"));
     childSetCommitCallback("auto_snapshot_check", ImplBase::onClickAutoSnap, this);
