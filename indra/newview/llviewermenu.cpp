@@ -2795,6 +2795,9 @@ class LLAdminOnSaveState: public view_listener_t
 //-----------------------------------------------------------------------------
 void cleanup_menus()
 {
+    delete gSLMMenuUpdater;
+    gSLMMenuUpdater = nullptr;
+
     delete gMenuParcelObserver;
     gMenuParcelObserver = NULL;
 
@@ -2811,7 +2814,7 @@ void cleanup_menus()
     gMenuAttachmentSelf = NULL;
 
     delete gMenuAttachmentOther;
-    gMenuAttachmentSelf = NULL;
+    gMenuAttachmentOther = NULL;
 
     delete gMenuLand;
     gMenuLand = NULL;
