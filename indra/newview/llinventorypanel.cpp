@@ -643,7 +643,7 @@ void LLInventoryPanel::itemChanged(const LLUUID& item_id, U32 mask, const LLInve
             }
 
             // Select any newly created object that has the auto rename at top of folder root set.
-            if(mFolderRoot.get()->getRoot()->needsAutoRename())
+            if(mFolderRoot.get() && mFolderRoot.get()->getRoot()->needsAutoRename())
             {
                 setSelection(item_id, false);
             }

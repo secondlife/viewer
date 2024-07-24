@@ -3071,6 +3071,13 @@ bool LLAppViewer::meetsRequirementsForMaximizedStart()
     return maximizedOk;
 }
 
+// virtual
+void LLAppViewer::sendOutOfDiskSpaceNotification()
+{
+    LL_WARNS() << "Out of disk space notification requested" << LL_ENDL;
+    LLNotificationsUtil::add("OutOfDiskSpace");
+}
+
 bool LLAppViewer::initWindow()
 {
     LL_INFOS("AppInit") << "Initializing window..." << LL_ENDL;

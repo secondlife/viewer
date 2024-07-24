@@ -1271,7 +1271,7 @@ LLWindowCallbacks::DragNDropResult LLViewerWindow::handleDragNDrop( LLWindow *wi
                         LLTextureEntry *te = obj->getTE(object_face);
 
                         // can modify URL if we can modify the object or we have navigate permissions
-                        bool allow_modify_url = obj->permModify() || obj->hasMediaPermission( te->getMediaData(), LLVOVolume::MEDIA_PERM_INTERACT );
+                        bool allow_modify_url = obj->permModify() || (te && obj->hasMediaPermission( te->getMediaData(), LLVOVolume::MEDIA_PERM_INTERACT ));
 
                         if (te && allow_modify_url )
                         {
@@ -2675,7 +2675,7 @@ void LLViewerWindow::draw()
 
     //S32 screen_x, screen_y;
 
-    if (!gSavedSettings.getBOOL("RenderUIBuffer"))
+    if (!LLPipeline::RenderUIBuffer)
     {
         LLView::sDirtyRect = getWindowRectScaled();
     }

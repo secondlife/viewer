@@ -961,7 +961,7 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
         }
     }
 
-    if (obj->getType() != LLAssetType::AT_CATEGORY)
+    if (obj && obj->getType() != LLAssetType::AT_CATEGORY)
     {
         items.push_back(std::string("Paste Separator"));
     }
@@ -6307,7 +6307,7 @@ void LLCallingCardBridge::performAction(LLInventoryModel* model, std::string act
         if (item && (item->getCreatorUUID() != gAgent.getID()) &&
             (!item->getCreatorUUID().isNull()))
         {
-            std::string callingcard_name = LLCacheName::getDefaultName();
+            std::string callingcard_name = gCacheName->getDefaultName();
             LLAvatarName av_name;
             if (LLAvatarNameCache::get(item->getCreatorUUID(), &av_name))
             {

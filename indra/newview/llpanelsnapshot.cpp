@@ -41,7 +41,7 @@
 
 #include "llagentbenefits.h"
 
-const S32 MAX_TEXTURE_SIZE = 2048 ; //max upload texture size 2048 * 2048
+constexpr S32 MAX_TEXTURE_SIZE = 2048 ; //max upload texture size 2048 * 2048
 
 S32 power_of_two(S32 sz, S32 upper)
 {

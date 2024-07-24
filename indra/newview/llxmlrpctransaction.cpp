@@ -316,7 +316,7 @@ bool LLXMLRPCTransaction::Impl::process()
         if (!LLXMLNode::parseBuffer(mResponseText.data(), mResponseText.size(),
                                     root, nullptr))
         {
- 	        LL_WARNS() << "Failed parsing XML in response; request URI: "
+            LL_WARNS() << "Failed parsing XML in response; request URI: "
                        << mURI << LL_ENDL;
         }
         else if (parseResponse(root))

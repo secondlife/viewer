@@ -422,7 +422,7 @@ jobs:
           password: ${{ env.BUGSPLAT_PASS }}
           database: "SecondLife_Viewer_2018"
           channel: ${{ needs.build.outputs.viewer_channel }}
-          version: ${{ needs.build.outputs.viewer_version }}
+          version: ${{ needs.build.outputs.viewer_version }} (${{ needs.build.outputs.viewer_version }})
 
   release:
     needs: [setvar, build, sign-and-package-windows, sign-and-package-mac]
