@@ -377,17 +377,17 @@ void LLMenuParcelObserver::changed()
     LLParcel *parcel = LLViewerParcelMgr::getInstance()->getParcelSelection()->getParcel();
     if (gMenuLand && parcel)
     {
-	    if (!mLandBuyPassHandle.isDead())
-	    {
-	        LLParcel *parcel = LLViewerParcelMgr::getInstance()->getParcelSelection()->getParcel();
-	        static_cast<LLMenuItemCallGL*>(mLandBuyPassHandle.get())->setEnabled(LLPanelLandGeneral::enableBuyPass(NULL) && !(parcel->getOwnerID() == gAgent.getID()));
-	    }
+        if (!mLandBuyPassHandle.isDead())
+        {
+            LLParcel *parcel = LLViewerParcelMgr::getInstance()->getParcelSelection()->getParcel();
+            static_cast<LLMenuItemCallGL*>(mLandBuyPassHandle.get())->setEnabled(LLPanelLandGeneral::enableBuyPass(NULL) && !(parcel->getOwnerID() == gAgent.getID()));
+        }
 
-	    if (!mLandBuyHandle.isDead())
-	    {
-	        bool buyable = enable_buy_land(NULL);
-	        static_cast<LLMenuItemCallGL*>(mLandBuyHandle.get())->setEnabled(buyable);
-	    }
+        if (!mLandBuyHandle.isDead())
+        {
+            bool buyable = enable_buy_land(NULL);
+            static_cast<LLMenuItemCallGL*>(mLandBuyHandle.get())->setEnabled(buyable);
+        }
     }
 }
 
