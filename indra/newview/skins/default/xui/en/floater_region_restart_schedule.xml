@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+  height="180"
+  layout="topleft"
+  name="floater_region_restart_schedule"
+  help_topic="Preferences_Graphics_Advanced"
+  single_instance="true"
+  save_rect="true"
+  title="REGION RESTART SCHEDULE"
+  width="300">
+
+<!-- This block shows Advanced Settings -->
+  <floater.string name="am_string">am</floater.string>
+  <floater.string name="pm_string">pm</floater.string>
+
+  <text
+    name="days_general"
+    type="string"
+    follows="left|top"
+    layout="topleft"
+    height="16"
+    top="15"
+    left="20"
+    width="328">
+     Restart the region on following days:
+  </text>
+
+  <check_box
+   name="s_chk"
+   label=""
+   tool_tip="Sunday"
+   follows="left|top"
+   layout="topleft"
+   height="20"
+   width="20"
+   left="60"
+   top_pad="5" />
+
+  <check_box
+   name="m_chk"
+   label=""
+   tool_tip="Monday"
+   follows="left|top"
+   layout="topleft"
+   height="20"
+   width="20"
+   left_pad="5"
+   top_delta="0" />
+
+  <check_box
+   name="t_chk"
+   label=""
+   tool_tip="Tuesday"
+   follows="left|top"
+   layout="topleft"
+   height="20"
+   width="20"
+   left_pad="5"
+   top_delta="0" />
+
+  <check_box
+   name="w_chk"
+   label=""
+   tool_tip="Wednesday"
+   follows="left|top"
+   layout="topleft"
+   height="20"
+   width="20"
+   left_pad="5"
+   top_delta="0" />
+
+  <check_box
+   name="r_chk"
+   label=""
+   tool_tip="Thursday"
+   follows="left|top"
+   layout="topleft"
+   height="20"
+   width="20"
+   left_pad="5"
+   top_delta="0" />
+
+  <check_box
+   name="f_chk"
+   label=""
+   tool_tip="Friday"
+   follows="left|top"
+   layout="topleft"
+   height="20"
+   width="20"
+   left_pad="5"
+   top_delta="0" />
+
+  <check_box
+   name="a_chk"
+   label=""
+   tool_tip="Saturday"
+   follows="left|top"
+   layout="topleft"
+   height="20"
+   width="20"
+   left_pad="5"
+   top_delta="0" />
+
+  <text
+   name="su_label"
+   type="string"
+   follows="left|top"
+   layout="topleft"
+   halign="center"
+   height="16"
+   top_pad="5"
+   left="57"
+   width="25">
+     Su
+  </text>
+
+  <text
+   name="mo_label"
+   type="string"
+   follows="left|top"
+   layout="topleft"
+   halign="center"
+   height="16"
+   top_delta="0"
+   left_pad="0"
+   width="25">
+     Mo
+  </text>
+
+  <text
+   name="tu_label"
+   type="string"
+   follows="left|top"
+   layout="topleft"
+   halign="center"
+   height="16"
+   top_delta="0"
+   left_pad="0"
+   width="25">
+     Tu
+  </text>
+
+  <text
+   name="we_label"
+   type="string"
+   follows="left|top"
+   layout="topleft"
+   halign="center"
+   height="16"
+   top_delta="0"
+   left_pad="1"
+   width="25">
+     We
+  </text>
+
+  <text
+   name="th_label"
+   type="string"
+   follows="left|top"
+   layout="topleft"
+   halign="center"
+   height="16"
+   top_delta="0"
+   left_pad="0"
+   width="25">
+     Th
+  </text>
+
+  <text
+   name="fr_label"
+   type="string"
+   follows="left|top"
+   layout="topleft"
+   halign="center"
+   height="16"
+   top_delta="0"
+   left_pad="0"
+   width="25">
+     Fr
+  </text>
+
+  <text
+   name="sa_label"
+   type="string"
+   follows="left|top"
+   layout="topleft"
+   halign="center"
+   height="16"
+   top_delta="0"
+   left_pad="0"
+   width="25">
+     Sa
+  </text>
+
+  <text
+   name="at_label"
+   type="string"
+   follows="left|top"
+   layout="topleft"
+   halign="right"
+   height="16"
+   top_pad="15"
+   left="30"
+   width="40">
+     at
+  </text>
+  <line_editor
+   name="hours_edt"
+   max_length_bytes="2"
+   follows="left|top"
+   layout="topleft"
+   commit_on_focus_lost="true"
+   height="23"
+   width="40"
+   left_pad="4"
+   top_delta="-5"/>
+  <text
+   name="separator_label"
+   type="string"
+   follows="left|top"
+   layout="topleft"
+   halign="center"
+   height="16"
+   top_delta="5"
+   left_pad="0"
+   width="12">
+     :
+  </text>
+  <line_editor
+   name="minutes_edt"
+   max_length_bytes="2"
+   follows="left|top"
+   layout="topleft"
+   commit_on_focus_lost="true"
+   height="23"
+   width="40"
+   left_pad="0"
+   top_delta="-5"/>
+  <button
+   name="am_pm_btn"
+   label="am"
+   follows="left|top"
+   layout="topleft"
+   height="23"
+   width="40"
+   left_pad="1"
+   top_delta="0"/>
+  <text
+   name="utc_label"
+   type="string"
+   follows="left|top"
+   layout="topleft"
+   height="16"
+   top_delta="5"
+   left_pad="5"
+   width="22">
+     UTC
+  </text>
+  <button
+   name="save_btn"
+   label="Save"
+   follows="top|left"
+   layout="topleft"
+   top="145"
+   left="25"
+   height="25"
+   width="110"/>
+  <button
+   name="cancel_btn"
+   label="Cancel"
+   follows="bottom|right"
+   layout="topleft"
+   left_pad="20"
+   top_delta="0"
+   height="25"
+   width="110"/>
+</floater>
