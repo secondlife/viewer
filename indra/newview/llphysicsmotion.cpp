@@ -454,25 +454,26 @@ F32 LLPhysicsMotion::calculateAcceleration_local(const F32 velocity_local, const
 bool LLPhysicsMotionController::onUpdate(F32 time, U8* joint_mask)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
-        // Skip if disabled globally.
-        if (!gSavedSettings.getBOOL("AvatarPhysics"))
-        {
-                return true;
-        }
+    // Skip if disabled globally.
+    static LLCachedControl<bool> av_physics(gSavedSettings, "AvatarPhysics");
+    if (!av_physics)
+    {
+            return true;
+    }
 
-        bool update_visuals = false;
-        for (motion_vec_t::iterator iter = mMotions.begin();
-             iter != mMotions.end();
-             ++iter)
-        {
-                LLPhysicsMotion *motion = (*iter);
-                update_visuals |= motion->onUpdate(time);
-        }
+    bool update_visuals = false;
+    for (motion_vec_t::iterator iter = mMotions.begin();
+            iter != mMotions.end();
+            ++iter)
+    {
+            LLPhysicsMotion *motion = (*iter);
+            update_visuals |= motion->onUpdate(time);
+    }
 
-        if (update_visuals)
-                mCharacter->updateVisualParams();
+    if (update_visuals)
+            mCharacter->updateVisualParams();
 
-        return true;
+    return true;
 }
 
 // Return true if character has to update visual params.

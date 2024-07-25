@@ -1424,7 +1424,8 @@ void LLToolPie::handleDeselect()
 
 LLTool* LLToolPie::getOverrideTool(MASK mask)
 {
-    if (gSavedSettings.getBOOL("EnableGrab"))
+    static LLCachedControl<bool> enable_grab(gSavedSettings, "EnableGrab");
+    if (enable_grab)
     {
         if (mask == DEFAULT_GRAB_MASK)
         {
