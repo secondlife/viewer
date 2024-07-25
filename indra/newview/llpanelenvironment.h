@@ -113,7 +113,7 @@ protected:
     bool                        getIsDirty() const                  { return (mDirtyFlag != 0); }
     bool                        getIsDirtyFlag(U32 flag) const      { return ((mDirtyFlag & flag) != 0); }
     U32                         getDirtyFlag() const                { return mDirtyFlag; }
-    void                        updateAltLabel(const std::string &alt_prefix, U32 sky_index, F32 alt_value);
+    void                        updateAltLabel(U32 alt_index, U32 sky_index, F32 alt_value);
     void                        readjustAltLabels();
 
     void                        onSldDayLengthChanged(F32 value);
@@ -198,7 +198,11 @@ protected:
     LLIconCtrl* mIconWater = nullptr;
 
     std::array<LLUICtrl*, ALTITUDE_MARKERS_COUNT> mAltitudeMarkers;
-    std::array<LLSettingsDropTarget*, ALTITUDE_PREFIXERS_COUNT> mAltitudePrefixers;
+    std::array<LLSettingsDropTarget*, ALTITUDE_PREFIXERS_COUNT> mAltitudeDropTarget;
+
+    std::array<LLTextBox*, ALTITUDE_PREFIXERS_COUNT> mAltitudeLabels;
+    std::array<LLLineEditor*, ALTITUDE_PREFIXERS_COUNT> mAltitudeEditor;
+    std::array<LLView*, ALTITUDE_PREFIXERS_COUNT> mAltitudePanels;
 
 protected:
     typedef boost::signals2::connection connection_t;

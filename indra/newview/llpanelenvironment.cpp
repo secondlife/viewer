@@ -214,7 +214,10 @@ bool LLPanelEnvironmentInfo::postBuild()
 
     for (U32 idx = 0; idx < ALTITUDE_PREFIXERS_COUNT; idx++)
     {
-        mAltitudePrefixers[idx] = findChild<LLSettingsDropTarget>("sdt_" + alt_prefixes[idx]);
+        mAltitudeDropTarget[idx] = findChild<LLSettingsDropTarget>("sdt_" + alt_prefixes[idx]);
+        mAltitudeLabels[idx] = findChild<LLTextBox>("txt_" + alt_prefixes[idx]);
+        mAltitudeEditor[idx] = findChild<LLLineEditor>("edt_invname_" + alt_prefixes[idx]);
+        mAltitudePanels[idx] = findChild<LLView>("pnl_" + alt_prefixes[idx]);
     }
 
     for (U32 idx = 0; idx < ALTITUDE_SLIDER_COUNT; idx++)
@@ -224,11 +227,12 @@ bool LLPanelEnvironmentInfo::postBuild()
         {
             drop_target->setPanel(this, alt_sliders[idx]);
         }
+
         // set initial values to prevent [ALTITUDE] from displaying
-        updateAltLabel(alt_prefixes[idx], idx + 2, (F32)(idx * 1000));
+        updateAltLabel(idx, idx + 2, (F32)(idx * 1000));
     }
-    getChild<LLSettingsDropTarget>("sdt_" + alt_prefixes[3])->setPanel(this, alt_prefixes[3]);
-    getChild<LLSettingsDropTarget>("sdt_" + alt_prefixes[4])->setPanel(this, alt_prefixes[4]);
+    mAltitudeDropTarget[3]->setPanel(this, alt_prefixes[3]);
+    mAltitudeDropTarget[4]->setPanel(this, alt_prefixes[4]);
 
     return true;
 }
@@ -344,7 +348,7 @@ void LLPanelEnvironmentInfo::refresh()
                 // Something is very very wrong
                 LL_WARNS_ONCE("ENVPANEL") << "Failed to set up altitudes for parcel id " << getParcelId() << LL_ENDL;
             }
-            updateAltLabel(alt_prefixes[idx], idx + 2, altitude);
+            updateAltLabel(idx, idx + 2, altitude);
             mAltitudes[alt_sliders[idx]] = AltitudeData(idx + 2, idx, altitude);
         }
         if (mMultiSliderAltitudes->getCurNumSliders() != ALTITUDE_SLIDER_COUNT)
@@ -355,8 +359,8 @@ void LLPanelEnvironmentInfo::refresh()
         mMultiSliderAltitudes->resetCurSlider();
     }
 
-    updateAltLabel(alt_prefixes[3], 1, 0); // ground
-    updateAltLabel(alt_prefixes[4], 0, 0); // water
+    updateAltLabel(3, 1, 0); // ground
+    updateAltLabel(4, 0, 0); // water
 
 }
 
@@ -552,9 +556,9 @@ bool LLPanelEnvironmentInfo::setControlsEnabled(bool enabled)
 
     for (U32 idx = 0; idx < ALTITUDE_PREFIXERS_COUNT; idx++)
     {
-        if (mAltitudePrefixers[idx])
+        if (mAltitudeDropTarget[idx])
         {
-            mAltitudePrefixers[idx]->setDndEnabled(can_enable);
+            mAltitudeDropTarget[idx]->setDndEnabled(can_enable);
         }
     }
 
@@ -571,7 +575,7 @@ void LLPanelEnvironmentInfo::clearDirtyFlag(U32 flag)
     mDirtyFlag &= ~flag;
 }
 
-void LLPanelEnvironmentInfo::updateAltLabel(const std::string &alt_prefix, U32 sky_index, F32 alt_value)
+void LLPanelEnvironmentInfo::updateAltLabel(U32 alt_index, U32 sky_index, F32 alt_value)
 {
     LLRect sld_rect = mMultiSliderAltitudes->getRect();
     S32 sld_range = sld_rect.getHeight();
@@ -580,9 +584,9 @@ void LLPanelEnvironmentInfo::updateAltLabel(const std::string &alt_prefix, U32 s
     S32 pos = (S32)((sld_range - sld_offset) * ((alt_value - 100) / (4000 - 100)));
 
     // get related views
-    LLTextBox* text = findChild<LLTextBox>("txt_" + alt_prefix);
-    LLLineEditor *field = findChild<LLLineEditor>("edt_invname_" + alt_prefix);
-    LLView *alt_panel = findChild<LLView>("pnl_" + alt_prefix);
+    LLTextBox* text = mAltitudeLabels[alt_index];
+    LLLineEditor* field = mAltitudeEditor[alt_index];
+    LLView* alt_panel = mAltitudePanels[alt_index];
 
     if (text && (sky_index > 1))
     {
@@ -628,7 +632,7 @@ void LLPanelEnvironmentInfo::readjustAltLabels()
     // Find the middle one
     for (U32 i = 0; i < ALTITUDE_SLIDER_COUNT; i++)
     {
-        LLView* cmp_view = findChild<LLView>(alt_panels[i], true);
+        LLView* cmp_view = mAltitudePanels[i];
         if (!cmp_view) return;
         LLRect cmp_rect = cmp_view->getRect();
         S32 pos = 0;
@@ -639,7 +643,7 @@ void LLPanelEnvironmentInfo::readjustAltLabels()
         {
             if (i != j)
             {
-                LLView* intr_view = findChild<LLView>(alt_panels[j], true);
+                LLView* intr_view = mAltitudePanels[j];
                 if (!intr_view) return;
                 LLRect intr_rect = intr_view->getRect();
                 if (cmp_rect.mBottom >= intr_rect.mBottom)
@@ -687,7 +691,7 @@ void LLPanelEnvironmentInfo::readjustAltLabels()
     {
         if (i != midle_ind)
         {
-            LLView* trn_view = findChild<LLView>(alt_panels[i], true);
+            LLView* trn_view = mAltitudePanels[i];
             LLRect trn_rect = trn_view->getRect();
 
             if (trn_rect.mBottom <= midle_rect.mTop && trn_rect.mBottom >= midle_rect.mBottom)
@@ -807,7 +811,7 @@ void LLPanelEnvironmentInfo::onAltSliderCallback(LLUICtrl *cntrl, const LLSD &da
         }
         iter->second.mTrackIndex = new_index;
 
-        updateAltLabel(alt_prefixes[iter->second.mLabelIndex], iter->second.mTrackIndex, iter->second.mAltitude);
+        updateAltLabel(iter->second.mLabelIndex, iter->second.mTrackIndex, iter->second.mAltitude);
         iter++;
     }
 
