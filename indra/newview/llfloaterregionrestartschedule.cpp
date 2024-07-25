@@ -68,12 +68,18 @@ bool LLFloaterRegionRestartSchedule::postBuild()
     mPMAMButton = getChild<LLButton>("am_pm_btn");
     mPMAMButton->setClickedCallback([this](LLUICtrl*, const LLSD&) { onPMAMButtonClicked(); });
 
-    bool use_24h_format = gSavedSettings.getBOOL("Use24HourClock");
-    if (use_24h_format)
+    // By default mPMAMButton is supposed to be visible.
+    // If localized xml set mPMAMButton to be invisible, assume
+    // 24h format and prealligned "UTC" label
+    if (mPMAMButton->getVisible())
     {
-        mPMAMButton->setVisible(false);
-        LLUICtrl* lbl = getChild<LLUICtrl>("utc_label");
-        lbl->translate(-mPMAMButton->getRect().getWidth(), 0);
+        bool use_24h_format = gSavedSettings.getBOOL("Use24HourClock");
+        if (use_24h_format)
+        {
+            mPMAMButton->setVisible(false);
+            LLUICtrl* lbl = getChild<LLUICtrl>("utc_label");
+            lbl->translate(-mPMAMButton->getRect().getWidth(), 0);
+        }
     }
 
     mSaveButton = getChild<LLButton>("save_btn");
@@ -158,6 +164,7 @@ void LLFloaterRegionRestartSchedule::onSaveButtonClicked()
         {
             LLStringUtil::toUpper(days);
             restart["type"] = "W";
+            // if days are empty, will reset schedule
             restart["days"] = days;
         }
         else
