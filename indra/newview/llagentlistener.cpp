@@ -31,6 +31,7 @@
 #include "llagentlistener.h"
 
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "llvoavatar.h"
 #include "llcommandhandler.h"
 #include "llslurl.h"
@@ -69,13 +70,6 @@ LLAgentListener::LLAgentListener(LLAgent &agent)
     add("resetAxes",
         "Set the agent to a fixed orientation (optionally specify [\"lookat\"] = array of [x, y, z])",
         &LLAgentListener::resetAxes);
-    add("getAxes",
-        "Obsolete - use getPosition instead\n"
-        "Send information about the agent's orientation on [\"reply\"]:\n"
-        "[\"euler\"]: map of {roll, pitch, yaw}\n"
-        "[\"quat\"]:  array of [x, y, z, w] quaternion values",
-        &LLAgentListener::getAxes,
-        LLSDMap("reply", LLSD()));
     add("getPosition",
         "Send information about the agent's position and orientation on [\"reply\"]:\n"
         "[\"region\"]: array of region {x, y, z} position\n"
@@ -138,6 +132,21 @@ LLAgentListener::LLAgentListener(LLAgent &agent)
         "[\"contrib\"]: user's land contribution to this group\n",
         &LLAgentListener::getGroups,
         LLSDMap("reply", LLSD()));
+    add("setCameraParams",
+        "Set Follow camera params, and then activate it:\n"
+        "[\"camera_pos\"]: vector3\n"
+        "[\"focus_pos\"]: vector3\n"
+        "[\"focus_offset\"]: vector3\n"
+        "[\"camera_locked\"]: boolean\n"
+        "[\"focus_locked\"]: boolean",
+        &LLAgentListener::setFollowCamParams);
+    add("setFollowCamActive",
+        "Set Follow camera active or deactivate it using boolean [\"active\"]",
+        &LLAgentListener::setFollowCamActive,
+        llsd::map("active", LLSD()));
+    add("removeCameraParams",
+        "Reset Follow camera params",
+        &LLAgentListener::removeFollowCamParams);
 }
 
 void LLAgentListener::requestTeleport(LLSD const & event_data) const
@@ -294,22 +303,6 @@ void LLAgentListener::resetAxes(const LLSD& event_data) const
         // no "lookat", default call
         mAgent.resetAxes();
     }
-}
-
-void LLAgentListener::getAxes(const LLSD& event_data) const
-{
-    LLQuaternion quat(mAgent.getQuat());
-    F32 roll, pitch, yaw;
-    quat.getEulerAngles(&roll, &pitch, &yaw);
-    // The official query API for LLQuaternion's [x, y, z, w] values is its
-    // public member mQ...
-    LLSD reply = LLSD::emptyMap();
-    reply["quat"] = llsd_copy_array(boost::begin(quat.mQ), boost::end(quat.mQ));
-    reply["euler"] = LLSD::emptyMap();
-    reply["euler"]["roll"] = roll;
-    reply["euler"]["pitch"] = pitch;
-    reply["euler"]["yaw"] = yaw;
-    sendReply(reply, event_data);
 }
 
 void LLAgentListener::getPosition(const LLSD& event_data) const
@@ -518,4 +511,39 @@ void LLAgentListener::getGroups(const LLSD& event) const
                      ("contrib", gi->mContribution));
     }
     sendReply(LLSDMap("groups", reply), event);
+}
+
+void LLAgentListener::setFollowCamParams(const LLSD& event) const
+{
+    if (event.has("camera_pos"))
+    {
+        LLFollowCamMgr::getInstance()->setPosition(gAgentID, LLVector3(event["camera_pos"]));
+    }
+    if (event.has("focus_pos"))
+    {
+        LLFollowCamMgr::getInstance()->setFocus(gAgentID, LLVector3(event["focus_pos"]));
+    }
+    if (event.has("focus_offset"))
+    {
+        LLFollowCamMgr::getInstance()->setFocusOffset(gAgentID, LLVector3(event["focus_offset"]));
+    }
+    if (event.has("camera_locked"))
+    {
+        LLFollowCamMgr::getInstance()->setPositionLocked(gAgentID, event["camera_locked"]);
+    }
+    if (event.has("focus_locked"))
+    {
+        LLFollowCamMgr::getInstance()->setFocusLocked(gAgentID, event["focus_locked"]);
+    }
+    LLFollowCamMgr::getInstance()->setCameraActive(gAgentID, true);
+}
+
+void LLAgentListener::setFollowCamActive(LLSD const & event) const
+{
+    LLFollowCamMgr::getInstance()->setCameraActive(gAgentID, event["active"]);
+}
+
+void LLAgentListener::removeFollowCamParams(LLSD const & event) const
+{
+    LLFollowCamMgr::getInstance()->removeFollowCamParams(gAgentID);
 }

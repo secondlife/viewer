@@ -48,7 +48,6 @@ private:
     void requestStand(LLSD const & event_data) const;
     void requestTouch(LLSD const & event_data) const;
     void resetAxes(const LLSD& event_data) const;
-    void getAxes(const LLSD& event_data) const;
     void getGroups(const LLSD& event) const;
     void getPosition(const LLSD& event_data) const;
     void startAutoPilot(const LLSD& event_data);
@@ -57,6 +56,10 @@ private:
     void setAutoPilotTarget(const LLSD& event_data) const;
     void stopAutoPilot(const LLSD& event_data) const;
     void lookAt(LLSD const & event_data) const;
+
+    void setFollowCamParams(LLSD const & event_data) const;
+    void setFollowCamActive(LLSD const & event_data) const;
+    void removeFollowCamParams(LLSD const & event_data) const;
 
     LLViewerObject * findObjectClosestTo( const LLVector3 & position ) const;
 
