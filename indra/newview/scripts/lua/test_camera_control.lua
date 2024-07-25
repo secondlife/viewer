@@ -1,8 +1,6 @@
 local Floater = require 'Floater'
 local LLAgent = require 'LLAgent'
-local leap = require 'leap'
 local startup = require 'startup'
-local inspect = require 'inspect'
 
 local flt = Floater('luafloater_camera_control.xml')
 
@@ -16,17 +14,16 @@ end
 
 function flt:commit_update_btn(event_data)
     lock_focus = getValue('lock_focus_ctrl')
-    lock_camera = self:request({action="get_value", ctrl_name='lock_camera_ctrl'}).value
+    lock_camera = getValue('lock_camera_ctrl')
+    local camera_pos = {getValue('cam_x'), getValue('cam_y'), getValue('cam_z')}
+    local focus_pos = {getValue('focus_x'), getValue('focus_y'), getValue('focus_z')}
 
-    local camera_pos = {getValue('cam_x'),getValue('cam_y'),getValue('cam_z')}
-    local focus_pos = {getValue('focus_x'),getValue('focus_y'),getValue('focus_z')}
-
-
-    LLAgent.setCamera{camera_pos=camera_pos,focus_pos=focus_pos,
-                        focus_locked = lock_focus,camera_locked = lock_camera}
+    LLAgent.setCamera{camera_pos=camera_pos, focus_pos=focus_pos,
+                      focus_locked=lock_focus, camera_locked=lock_camera}
 
     self:post({action="add_text", ctrl_name="events_editor",
-                value = {'Updating FollowCam params', 'camera_pos:', camera_pos, 'focus_pos:', focus_pos, 'lock_focus:', lock_focus, 'lock_camera:', lock_camera}})
+                value = {'Updating FollowCam params', 'camera_pos:', camera_pos, 'focus_pos:', focus_pos,
+                          'lock_focus:', lock_focus, 'lock_camera:', lock_camera}})
 end
 
 function flt:commit_agent_cam_btn(event_data)
