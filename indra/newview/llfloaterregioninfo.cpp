@@ -2331,7 +2331,6 @@ void LLPanelEstateInfo::refresh()
     // Disable access restriction controls if they make no sense.
     bool public_access = ("estate_public_access" == getChild<LLUICtrl>("externally_visible_radio")->getValue().asString());
 
-    getChildView("Only Allow")->setEnabled(public_access);
     getChildView("limit_payment")->setEnabled(public_access);
     getChildView("limit_age_verified")->setEnabled(public_access);
     getChildView("limit_bots")->setEnabled(public_access);
@@ -4201,11 +4200,11 @@ bool LLPanelRegionEnvironment::postBuild()
     if (!LLPanelEnvironmentInfo::postBuild())
         return false;
 
-    getChild<LLUICtrl>(BTN_USEDEFAULT)->setLabelArg("[USEDEFAULT]", getString(STR_LABEL_USEDEFAULT));
-    getChild<LLUICtrl>(CHK_ALLOWOVERRIDE)->setVisible(true);
-    getChild<LLUICtrl>(PNL_ENVIRONMENT_ALTITUDES)->setVisible(true);
+    mBtnUseDefault->setLabelArg("[USEDEFAULT]", getString(STR_LABEL_USEDEFAULT));
+    mCheckAllowOverride->setVisible(true);
+    mPanelEnvAltitudes->setVisible(true);
 
-    getChild<LLUICtrl>(CHK_ALLOWOVERRIDE)->setCommitCallback([this](LLUICtrl *, const LLSD &value){ onChkAllowOverride(value.asBoolean()); });
+    mCheckAllowOverride->setCommitCallback([this](LLUICtrl *, const LLSD &value){ onChkAllowOverride(value.asBoolean()); });
 
     mCommitConnect = estate_info.setCommitCallback(boost::bind(&LLPanelRegionEnvironment::refreshFromEstate, this));
     return true;
@@ -4227,7 +4226,7 @@ void LLPanelRegionEnvironment::refresh()
 
     LLPanelEnvironmentInfo::refresh();
 
-    getChild<LLUICtrl>(CHK_ALLOWOVERRIDE)->setValue(mAllowOverride);
+    mCheckAllowOverride->setValue(mAllowOverride);
 }
 
 bool LLPanelRegionEnvironment::refreshFromRegion(LLViewerRegion* region)
@@ -4293,7 +4292,7 @@ bool LLPanelRegionEnvironment::confirmUpdateEstateEnvironment(const LLSD& notifi
 
     case 1:
         mAllowOverride = mAllowOverrideRestore;
-        getChild<LLUICtrl>(CHK_ALLOWOVERRIDE)->setValue(mAllowOverride);
+        mCheckAllowOverride->setValue(mAllowOverride);
         break;
     default:
         break;

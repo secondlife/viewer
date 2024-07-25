@@ -196,7 +196,6 @@ LLScrollListCtrl::LLScrollListCtrl(const LLScrollListCtrl::Params& p)
     mHighlightedItem(-1),
     mBorder(NULL),
     mSortCallback(NULL),
-    mCommentTextView(NULL),
     mNumDynamicWidthColumns(0),
     mTotalStaticColumnWidth(0),
     mTotalColumnPadding(0),
@@ -288,13 +287,6 @@ LLScrollListCtrl::LLScrollListCtrl(const LLScrollListCtrl::Params& p)
         addColumn(*row_it);
     }
 
-    for (LLInitParam::ParamIterator<LLScrollListItem::Params>::const_iterator row_it = p.contents.rows.begin();
-        row_it != p.contents.rows.end();
-        ++row_it)
-    {
-        addRow(*row_it);
-    }
-
     LLTextBox::Params text_p;
     text_p.name("comment_text");
     text_p.border_visible(false);
@@ -302,7 +294,15 @@ LLScrollListCtrl::LLScrollListCtrl(const LLScrollListCtrl::Params& p)
     text_p.follows.flags(FOLLOWS_ALL);
     // word wrap was added accroding to the EXT-6841
     text_p.wrap(true);
-    addChild(LLUICtrlFactory::create<LLTextBox>(text_p));
+    mCommentText = LLUICtrlFactory::create<LLTextBox>(text_p);
+    addChild(mCommentText);
+
+    for (LLInitParam::ParamIterator<LLScrollListItem::Params>::const_iterator row_it = p.contents.rows.begin();
+        row_it != p.contents.rows.end();
+        ++row_it)
+    {
+        addRow(*row_it);
+    }
 }
 
 S32 LLScrollListCtrl::getSearchColumn()
@@ -541,12 +541,7 @@ void LLScrollListCtrl::updateLayout()
         getRect().getWidth() - 2 * mBorderThickness,
         getRect().getHeight() - (2 * mBorderThickness ) - heading_size );
 
-    if (mCommentTextView == NULL)
-    {
-        mCommentTextView = getChildView("comment_text");
-    }
-
-    mCommentTextView->setShape(mItemListRect);
+    mCommentText->setShape(mItemListRect);
 
     // how many lines of content in a single "page"
     S32 page_lines =  getLinesPerPage();
@@ -1244,7 +1239,7 @@ void LLScrollListCtrl::deselectAllItems(bool no_commit_on_change)
 
 void LLScrollListCtrl::setCommentText(const std::string& comment_text)
 {
-    getChild<LLTextBox>("comment_text")->setValue(comment_text);
+    mCommentText->setValue(comment_text);
 }
 
 LLScrollListItem* LLScrollListCtrl::addSeparator(EAddPosition pos)
@@ -1727,7 +1722,7 @@ void LLScrollListCtrl::draw()
 
     updateColumns();
 
-    getChildView("comment_text")->setVisible(mItemList.empty());
+    mCommentText->setVisible(mItemList.empty());
 
     drawItems();
 

@@ -45,6 +45,11 @@ class LLItemInfo;
 class LLLineEditor;
 class LLTabContainer;
 class LLWorldMapView;
+class LLButton;
+class LLCheckBoxCtrl;
+class LLSliderCtrl;
+class LLSpinCtrl;
+class LLSearchEditor;
 
 class LLFloaterWorldMap : public LLFloater
 {
@@ -142,7 +147,6 @@ protected:
     void            buildLandmarkIDLists();
     void            flyToLandmark();
     void            teleportToLandmark();
-    void            setLandmarkVisited();
 
     void            buildAvatarIDList();
     void            flyToAvatar();
@@ -194,6 +198,30 @@ private:
     LLCtrlListInterface *   mListFriendCombo;
     LLCtrlListInterface *   mListLandmarkCombo;
     LLCtrlListInterface *   mListSearchResults;
+
+    LLButton*               mTeleportButton = nullptr;
+    LLButton*               mShowDestinationButton = nullptr;
+    LLButton*               mCopySlurlButton = nullptr;
+    LLButton*               mGoHomeButton = nullptr;
+
+    LLCheckBoxCtrl*         mPeopleCheck = nullptr;
+    LLCheckBoxCtrl*         mInfohubCheck = nullptr;
+    LLCheckBoxCtrl*         mTelehubCheck = nullptr;
+    LLCheckBoxCtrl*         mLandSaleCheck = nullptr;
+    LLCheckBoxCtrl*         mEventsCheck = nullptr;
+    LLCheckBoxCtrl*         mEventsMatureCheck = nullptr;
+    LLCheckBoxCtrl*         mEventsAdultCheck = nullptr;
+
+    LLUICtrl*               mAvatarIcon = nullptr;
+    LLUICtrl*               mLandmarkIcon = nullptr;
+    LLUICtrl*               mLocationIcon = nullptr;
+
+    LLSearchEditor*         mLocationEditor = nullptr;
+    LLUICtrl*               mTeleportCoordSpinX = nullptr;
+    LLUICtrl*               mTeleportCoordSpinY = nullptr;
+    LLUICtrl*               mTeleportCoordSpinZ = nullptr;
+
+    LLSliderCtrl*           mZoomSlider = nullptr;
 
     boost::signals2::connection mTeleportFinishConnection;
 };
