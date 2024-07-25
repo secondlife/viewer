@@ -983,13 +983,18 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
 
     //imagep->setDebugText(llformat("%.3f - %d", sqrtf(imagep->getMaxVirtualSize()), imagep->getBoostLevel()));
 
-    F32 lazy_flush_timeout = 30.f; // stop decoding
-    F32 max_inactive_time = 20.f; // actually delete
+    F32 lazy_flush_timeout = 0.f;   // Delete after n seconds, or 0 to not delete until VRAM threshold reached.
+    F32 max_inactive_time = 60.f;   // Stop making changes to texture after n seconds.
+    F32 vram_max_percent = 0.95f;  // If vram reaches this percentage, we consider it full.
+    U32 current_free_vram = gViewerWindow->getWindow()->getAvailableVRAMMegabytes();
+    bool vram_full = (current_free_vram < gGLManager.mVRAMDetected * (1 - vram_max_percent));
     S32 min_refs = 3; // 1 for mImageList, 1 for mUUIDMap, 1 for local reference
 
     //
     // Flush formatted images using a lazy flush
     //
+    // Reset texture state if found on a face or not.
+    imagep->setInactive(onFace);
     S32 num_refs = imagep->getNumRefs();
     if (num_refs == min_refs)
     {
@@ -1015,7 +1020,9 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
         {
             return;
         }
-        else if (imagep->isDeletionCandidate())
+        else if (imagep->isDeletionCandidate() &&
+            ((lazy_flush_timeout > 0 && imagep->getLastReferencedTimer()->getElapsedTimeF32() > lazy_flush_timeout)
+                || vram_full))
         {
             imagep->destroyTexture();
             return;
@@ -1031,10 +1038,6 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
         else
         {
             imagep->getLastReferencedTimer()->reset();
-
-            //reset texture state.
-            if(!onFace)
-                imagep->setInactive();
         }
     }
 

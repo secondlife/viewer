@@ -1252,13 +1252,21 @@ void LLViewerFetchedTexture::setDeletionCandidate()
 }
 
 //set the texture inactive
-void LLViewerFetchedTexture::setInactive()
+// <TS:3T> Adjusted function to allow mTextureState to be flipped back to Active if sent a true bool.
+void LLViewerFetchedTexture::setInactive(bool found)
 {
-    if(mTextureState == ACTIVE && mGLTexturep.notNull() && mGLTexturep->getTexName() && !mGLTexturep->getBoundRecently())
+    if(mTextureState > DELETED && mTextureState != NO_DELETE && mGLTexturep.notNull() && mGLTexturep->getTexName() && !mGLTexturep->getBoundRecently())
     {
-        mTextureState = INACTIVE;
+        if (found) {
+            mTextureState = ACTIVE;
+        }
+        else {
+            if (mTextureState == ACTIVE) // Only active textures will be set inactive.
+                mTextureState = INACTIVE;
+        }
     }
 }
+// </TS:3T>
 
 bool LLViewerFetchedTexture::isFullyLoaded() const
 {
