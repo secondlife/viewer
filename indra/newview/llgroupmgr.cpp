@@ -2332,14 +2332,16 @@ void LLGroupMgr::processCapGroupMembersResponse(const LLSD& response, U32 page_s
         group_datap->mMembers[member_id] = data;
     }
 
-    group_datap->mMemberCount = (S32)group_datap->mMembers.size();
+    U32 member_count = (U32)group_datap->mMembers.size();
+
+    group_datap->mMemberCount = (S32)member_count;
     group_datap->mMemberDataComplete = true;
     group_datap->mMemberRequestID.setNull();
     group_datap->mMemberVersion.generate();
 
     LL_INFOS("GrpMgr") << "members before: " << members_before
         << ", members loaded: " << members_loaded
-        << ", members now: " << group_datap->mMemberCount << LL_ENDL;
+        << ", members now: " << member_count << LL_ENDL;
 
     // Technically, we have this data, but to prevent completely overhauling
     // this entire system (it would be nice, but I don't have the time),
@@ -2353,9 +2355,9 @@ void LLGroupMgr::processCapGroupMembersResponse(const LLSD& response, U32 page_s
         sendGroupTitlesRequest(group_id);
     }
 
-    if (page_size && members_loaded >= page_size)
+    if (page_size && members_loaded >= page_size && member_count > members_before)
     {
-        sendCapGroupMembersRequest(group_id, page_size, (U32)group_datap->mMemberCount, sort_column);
+        sendCapGroupMembersRequest(group_id, page_size, member_count, sort_column);
     }
 
     // Make the role-member data request
