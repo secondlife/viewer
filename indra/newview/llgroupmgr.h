@@ -414,7 +414,7 @@ public:
 
 
     void sendCapGroupMembersRequest(const LLUUID& group_id,
-        U32 page_size = 0, U32 page_start = 0, const std::string& sort_column = LLStringUtil::null);
+        U32 page_size = 0, U32 page_start = 0, const std::string& sort_column_name = LLStringUtil::null, bool sort_descending = false);
 
     void cancelGroupRoleChanges(const LLUUID& group_id);
 
@@ -437,8 +437,8 @@ public:
     void clearGroupData(const LLUUID& group_id);
 
 private:
-    void groupMembersRequestCoro(std::string url, LLUUID group_id, U32 page_size, U32 page_start, std::string sort_column);
-    void processCapGroupMembersResponse(const LLSD& response, U32 page_size, U32 page_start, const std::string& sort_column);
+    void groupMembersRequestCoro(std::string url, LLUUID group_id, U32 page_size, U32 page_start, U32 sort_column, bool sort_descending);
+    void processCapGroupMembersResponse(const LLSD& response, const std::string& url, U32 page_size, U32 page_start, U32 sort_column, bool sort_descending);
 
     void getGroupBanRequestCoro(std::string url, LLUUID group_id);
     void postGroupBanRequestCoro(std::string url, LLUUID group_id, U32 action, uuid_vec_t ban_list, bool update);
