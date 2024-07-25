@@ -84,7 +84,7 @@ private:
     bool                    isItemsFreeOfFriends(const uuid_vec_t& uuids);
 
     void                    updateButtons();
-    std::string             getActiveTabName() const;
+    const std::string&      getActiveTabName() const;
     LLUUID                  getCurrentItemID() const;
     void                    getCurrentItemIDs(uuid_vec_t& selected_uuids) const;
     void                    setSortOrder(LLAvatarList* list, ESortOrder order, bool save = true);
@@ -138,6 +138,17 @@ private:
     LLAvatarList*           mRecentList;
     LLGroupList*            mGroupList;
     LLNetMap*               mMiniMap;
+
+    LLButton*               mNearbyGearBtn = nullptr;
+    LLButton*               mFriendsGearBtn = nullptr;
+    LLButton*               mRecentGearBtn = nullptr;
+    LLButton*               mGroupDelBtn = nullptr;
+
+    LLButton*               mNearbyAddFriendBtn = nullptr;
+    LLButton*               mRecentAddFriendBtn = nullptr;
+    LLUICtrl*               mFriendsDelFriendBtn = nullptr;
+
+    LLTextBox*              mGroupCountText = nullptr;
 
     std::vector<std::string> mSavedOriginalFilters;
     std::vector<std::string> mSavedFilters;
