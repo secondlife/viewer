@@ -169,6 +169,8 @@ bool LLPanelGroup::postBuild()
 
     mButtonCancel = getChild<LLButton>("btn_cancel");
 
+    mGroupNameCtrl = getChild<LLUICtrl>("group_name");
+
     childSetCommitCallback("back",boost::bind(&LLPanelGroup::onBackBtnClick,this),NULL);
 
     LLPanelGroupTab* panel_general = findChild<LLPanelGroupTab>("group_general_tab_panel");
@@ -311,9 +313,8 @@ void LLPanelGroup::update(LLGroupChange gc)
     if(gdatap)
     {
         std::string group_name =  gdatap->mName.empty() ? LLTrans::getString("LoadingData") : gdatap->mName;
-        LLUICtrl* group_name_ctrl = getChild<LLUICtrl>("group_name");
-        group_name_ctrl->setValue(group_name);
-        group_name_ctrl->setToolTip(group_name);
+        mGroupNameCtrl->setValue(group_name);
+        mGroupNameCtrl->setToolTip(group_name);
 
         LLGroupData agent_gdatap;
         bool is_member = gAgent.getGroupData(mID,agent_gdatap) || gAgent.isGodlikeWithoutAdminMenuFakery();
@@ -365,9 +366,8 @@ void LLPanelGroup::setGroupID(const LLUUID& group_id)
     if(gdatap)
     {
         std::string group_name =  gdatap->mName.empty() ? LLTrans::getString("LoadingData") : gdatap->mName;
-        LLUICtrl* group_name_ctrl = getChild<LLUICtrl>("group_name");
-        group_name_ctrl->setValue(group_name);
-        group_name_ctrl->setToolTip(group_name);
+        mGroupNameCtrl->setValue(group_name);
+        mGroupNameCtrl->setToolTip(group_name);
     }
 
     bool is_null_group_id = group_id == LLUUID::null;
@@ -417,7 +417,7 @@ void LLPanelGroup::setGroupID(const LLUUID& group_id)
         tab_land->setVisible(false);
         tab_experiences->setVisible(false);
 
-        getChild<LLUICtrl>("group_name")->setVisible(false);
+        mGroupNameCtrl->setVisible(false);
         getChild<LLUICtrl>("group_name_editor")->setVisible(true);
 
         if(mButtonCall)
@@ -449,7 +449,7 @@ void LLPanelGroup::setGroupID(const LLUUID& group_id)
         tab_land->setVisible(is_member);
         tab_experiences->setVisible(is_member);
 
-        getChild<LLUICtrl>("group_name")->setVisible(true);
+        mGroupNameCtrl->setVisible(true);
         getChild<LLUICtrl>("group_name_editor")->setVisible(false);
 
         if(mButtonApply)

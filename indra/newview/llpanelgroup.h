@@ -117,6 +117,7 @@ protected:
 
     LLAccordionCtrl* mGroupsAccordion = nullptr;
 
+    LLUICtrl*       mGroupNameCtrl = nullptr;
     LLButton*       mButtonJoin = nullptr;
     LLButton*       mButtonApply = nullptr;
     LLButton*       mButtonCall = nullptr;
