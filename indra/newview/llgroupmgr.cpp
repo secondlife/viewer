@@ -2145,9 +2145,11 @@ void LLGroupMgr::processGroupBanRequest(const LLSD& content)
     LLGroupMgr::getInstance()->notifyObservers(GC_BANLIST);
 }
 
-void LLGroupMgr::groupMembersRequestCoro(std::string url, LLUUID group_id, U32 page_size, U32 page_start, std::string sort_column)
+void LLGroupMgr::groupMembersRequestCoro(std::string url, LLUUID group_id, U32 page_size, U32 page_start, U32 sort_column, bool sort_descending)
 {
-    LL_INFOS("GrpMgr") << "group_id: '" << group_id << "', sort_column: '" << sort_column << "', page_size: " << page_size << ", page_start: " << page_start << LL_ENDL;
+    LL_INFOS("GrpMgr") << "group_id: '" << group_id << "'"
+        << ", page_size: " << page_size << ", page_start: " << page_start
+        << ", sort_column: " << sort_column << ", sort_descending: " << sort_descending << LL_ENDL;
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("groupMembersRequest", httpPolicy));
@@ -2156,6 +2158,7 @@ void LLGroupMgr::groupMembersRequestCoro(std::string url, LLUUID group_id, U32 p
 
     LLSD postData = LLSD::emptyMap();
     postData["group_id"] = group_id;
+
     if (page_size)
     {
         postData["page_size"] = LLSD::Integer(page_size);
@@ -2163,11 +2166,18 @@ void LLGroupMgr::groupMembersRequestCoro(std::string url, LLUUID group_id, U32 p
         {
             postData["page_start"] = LLSD::Integer(page_start);
         }
-        if (!sort_column.empty())
+    }
+
+    if (sort_column)
+    {
+        postData["sort_column"] = LLSD::Integer(sort_column);
+        if (sort_descending)
         {
-            postData["sort_column"] = sort_column;
+            postData["sort_descending"] = 1;
         }
     }
+
+    mMemberRequestInFlight = true;
 
     LLSD response = httpAdapter->postAndSuspend(httpRequest, url, postData, httpOpts);
 
@@ -2183,10 +2193,10 @@ void LLGroupMgr::groupMembersRequestCoro(std::string url, LLUUID group_id, U32 p
     }
 
     response.erase(LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS);
-    processCapGroupMembersResponse(response, page_size, page_start, sort_column);
+    processCapGroupMembersResponse(response, url, page_size, page_start, sort_column, sort_descending);
 }
 
-void LLGroupMgr::sendCapGroupMembersRequest(const LLUUID& group_id, U32 page_size, U32 page_start, const std::string& sort_column)
+void LLGroupMgr::sendCapGroupMembersRequest(const LLUUID& group_id, U32 page_size, U32 page_start, const std::string& sort_column_name, bool sort_descending)
 {
     static U32 lastGroupMemberRequestFrame = 0;
 
@@ -2194,6 +2204,10 @@ void LLGroupMgr::sendCapGroupMembersRequest(const LLUUID& group_id, U32 page_siz
     // Todo: make this per group, we can invite to one group and simultaneously be checking another one
     if ((lastGroupMemberRequestFrame == gFrameCount) || mMemberRequestInFlight)
         return;
+
+    LL_INFOS("GrpMgr") << "group_id: '" << group_id << "'"
+        << ", page_size: " << page_size << ", page_start: " << page_start
+        << ", sort_column_name: '" << sort_column_name << "', sort_descending: " << sort_descending << LL_ENDL;
 
     LLViewerRegion* currentRegion = gAgent.getRegion();
     // Thank you FS:Ansariel!
@@ -2226,18 +2240,34 @@ void LLGroupMgr::sendCapGroupMembersRequest(const LLUUID& group_id, U32 page_siz
 
     lastGroupMemberRequestFrame = gFrameCount;
 
-    mMemberRequestInFlight = true;
+    U32 sort_column = 0; // No sorting by default
+    if (!sort_column_name.empty())
+    {
+        static const std::vector<std::string> column_names = { "name", "donated", "online", "title" };
+        auto it = std::find(column_names.begin(), column_names.end(), sort_column_name);
+        if (it == column_names.end())
+        {
+            LL_WARNS("GrpMgr") << "Invalid column name: '" << sort_column_name << "'" << LL_ENDL;
+        }
+        else
+        {
+            // Use offset (1) because 0 means "no sorting"
+            sort_column = 1 + (U32)std::distance(column_names.begin(), it);
+        }
+    }
 
     LLCoros::instance().launch("LLGroupMgr::groupMembersRequestCoro", [&]()
         {
-            groupMembersRequestCoro(cap_url, group_id, page_size, page_start, sort_column);
+            groupMembersRequestCoro(cap_url, group_id, page_size, page_start, sort_column, sort_descending);
         });
 }
 
-void LLGroupMgr::processCapGroupMembersResponse(const LLSD& response, U32 page_size, U32 page_start, const std::string& sort_column)
+void LLGroupMgr::processCapGroupMembersResponse(const LLSD& response, const std::string& url, U32 page_size, U32 page_start, U32 sort_column, bool sort_descending)
 {
     LLUUID group_id = response["group_id"].asUUID();
-    LL_INFOS("GrpMgr") << "group_id: '" << group_id << "', sort_column: '" << sort_column << "', page_size: " << page_size << ", page_start: " << page_start << LL_ENDL;
+    LL_INFOS("GrpMgr") << "group_id: '" << group_id << "'"
+        << ", page_size: " << page_size << ", page_start: " << page_start
+        << ", sort_column: " << sort_column << ", sort_descending: " << sort_descending << LL_ENDL;
 
     // Did we get anything in content?
     if (!response.size())
@@ -2357,7 +2387,10 @@ void LLGroupMgr::processCapGroupMembersResponse(const LLSD& response, U32 page_s
 
     if (page_size && members_loaded >= page_size && member_count > members_before)
     {
-        sendCapGroupMembersRequest(group_id, page_size, member_count, sort_column);
+        LLCoros::instance().launch("LLGroupMgr::groupMembersRequestCoro", [&]()
+            {
+                groupMembersRequestCoro(url, group_id, page_size, page_start, sort_column, sort_descending);
+            });
     }
 
     // Make the role-member data request

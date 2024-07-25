@@ -1361,8 +1361,9 @@ void LLPanelGroupMembersSubTab::activate()
         if (!gdatap || !gdatap->isMemberDataComplete())
         {
             const U32 page_size = 50;
-            std::string sort_column = mMembersList->getSortColumnName();
-            LLGroupMgr::getInstance()->sendCapGroupMembersRequest(mGroupID, page_size, 0, sort_column);
+            std::string sort_column_name = mMembersList->getSortColumnName();
+            bool sort_descending = !mMembersList->getSortAscending();
+            LLGroupMgr::getInstance()->sendCapGroupMembersRequest(mGroupID, page_size, 0, sort_column_name, sort_descending);
         }
 
         if (!gdatap || !gdatap->isRoleMemberDataComplete())
