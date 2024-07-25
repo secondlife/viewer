@@ -40,6 +40,7 @@
 
 class LLViewerRegion;
 class LLIconCtrl;
+class LLSettingsDropTarget;
 
 class LLPanelEnvironmentInfo : public LLPanel
 {
