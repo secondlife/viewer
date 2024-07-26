@@ -793,12 +793,9 @@ void LLFloater360Capture::freezeWorld(bool enable)
         LLEnvironment::instance().pauseCloudScroll();
 
         // freeze all avatars
-        LLCharacter* avatarp;
-        for (std::vector<LLCharacter*>::iterator iter = LLCharacter::sInstances.begin();
-                iter != LLCharacter::sInstances.end(); ++iter)
+        for (LLCharacter* character : LLCharacter::sInstances)
         {
-            avatarp = *iter;
-            mAvatarPauseHandles.push_back(avatarp->requestPause());
+            mAvatarPauseHandles.push_back(character->requestPause());
         }
 
         // freeze everything else
