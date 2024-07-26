@@ -45,8 +45,7 @@ jobs:
     needs: setvar
     strategy:
       matrix:
-        # runner: [windows-large, macos-12-xl, linux-large]
-        runner: [windows-large, macos-12-xl]
+        runner: [windows-large, macos-12-xl, linux-large]
         configuration: [Release, ReleaseOS]
         Linden: [true]
         include:
