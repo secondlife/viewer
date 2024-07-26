@@ -55,6 +55,7 @@ public:
 public:
     LLViewerVisualParam* mParam;
 protected:
+    LLUICtrl* mParamSlider = nullptr;
     bool mAllowModify;
     LLWearable *mWearable;
 };

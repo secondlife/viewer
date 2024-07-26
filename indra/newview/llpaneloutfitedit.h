@@ -59,6 +59,7 @@ class LLMenuGL;
 class LLFindNonLinksByMask;
 class LLFindWearablesOfType;
 class LLWearableItemTypeNameComparator;
+class LLLoadingIndicator;
 
 class LLPanelOutfitEdit : public LLPanel
 {
@@ -218,7 +219,14 @@ private:
     LLButton*           mFolderViewBtn;
     LLButton*           mListViewBtn;
     LLButton*           mPlusBtn;
+    LLButton*           mShowAddWearablesBtn = nullptr;
+    LLButton*           mFilterBtn = nullptr;
     LLPanel*            mAddWearablesPanel;
+    LLPanel*            mOutfitNameStatusPanel = nullptr;
+    LLLoadingIndicator* mLoadingIndicator = nullptr;
+    LLView*             mFilterPanel = nullptr;
+    LLUICtrl*           mNoAddWearablesButtonBar = nullptr;
+    LLUICtrl*           mAddWearablesButtonBar = nullptr;
 
     LLComboBox*         mFolderViewFilterCmbBox;
     LLComboBox*         mListViewFilterCmbBox;
