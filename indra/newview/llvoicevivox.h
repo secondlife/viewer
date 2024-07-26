@@ -221,7 +221,8 @@ public:
     void removeObserver(LLVoiceClientParticipantObserver* observer) override;
     //@}
 
-    std::string sipURIFromID(const LLUUID &id) override;
+    std::string sipURIFromID(const LLUUID &id) const override;
+    LLSD getP2PChannelInfoTemplate(const LLUUID& id) const override;
     //@}
 
     /// @name LLVoiceEffectInterface virtual implementations
@@ -747,7 +748,7 @@ private:
     bool switchChannel(std::string uri = std::string(), bool spatial = true, bool no_reconnect = false, bool is_p2p = false, std::string hash = "");
     void joinSession(const sessionStatePtr_t &session);
 
-    std::string nameFromID(const LLUUID &id);
+    std::string nameFromID(const LLUUID &id) const;
     bool IDFromName(const std::string name, LLUUID &uuid);
     std::string sipURIFromAvatar(LLVOAvatar *avatar);
     std::string sipURIFromName(std::string &name);

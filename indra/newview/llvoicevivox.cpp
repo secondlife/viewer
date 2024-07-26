@@ -5138,7 +5138,7 @@ bool LLVivoxVoiceClient::inProximalChannel()
     return result;
 }
 
-std::string LLVivoxVoiceClient::sipURIFromID(const LLUUID &id)
+std::string LLVivoxVoiceClient::sipURIFromID(const LLUUID &id) const
 {
     std::string result;
     result = "sip:";
@@ -5146,6 +5146,14 @@ std::string LLVivoxVoiceClient::sipURIFromID(const LLUUID &id)
     result += "@";
     result += mVoiceSIPURIHostName;
 
+    return result;
+}
+
+LLSD LLVivoxVoiceClient::getP2PChannelInfoTemplate(const LLUUID& id) const
+{
+    LLSD result;
+    result["channel_uri"] = sipURIFromID(id);
+    result["voice_server_type"] = VIVOX_VOICE_SERVER_TYPE;
     return result;
 }
 
@@ -5163,7 +5171,7 @@ std::string LLVivoxVoiceClient::sipURIFromAvatar(LLVOAvatar *avatar)
     return result;
 }
 
-std::string LLVivoxVoiceClient::nameFromID(const LLUUID &uuid)
+std::string LLVivoxVoiceClient::nameFromID(const LLUUID &uuid) const
 {
     std::string result;
 
