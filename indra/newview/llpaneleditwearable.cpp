@@ -48,6 +48,7 @@
 #include "llscrollingpanelparam.h"
 #include "llradiogroup.h"
 #include "llnotificationsutil.h"
+#include "lliconctrl.h"
 
 #include "llcolorswatch.h"
 #include "lltexturectrl.h"
@@ -307,8 +308,8 @@ LLEditWearableDictionary::Subparts::Subparts()
         addEntry(SUBPART_PHYSICS_BREASTS_UPDOWN,    new SubpartEntry(SUBPART_PHYSICS_BREASTS_UPDOWN, "mTorso", "physics_breasts_updown", "physics_breasts_updown_param_list", "physics_breasts_updown_tab", LLVector3d(0.f, 0.f, 0.3f), LLVector3d(0.f, 0.f, 0.f), SEX_FEMALE));
         addEntry(SUBPART_PHYSICS_BREASTS_INOUT,     new SubpartEntry(SUBPART_PHYSICS_BREASTS_INOUT, "mTorso", "physics_breasts_inout", "physics_breasts_inout_param_list", "physics_breasts_inout_tab", LLVector3d(0.f, 0.f, 0.3f), LLVector3d(0.f, 0.f, 0.f),SEX_FEMALE));
         addEntry(SUBPART_PHYSICS_BREASTS_LEFTRIGHT, new SubpartEntry(SUBPART_PHYSICS_BREASTS_LEFTRIGHT, "mTorso", "physics_breasts_leftright", "physics_breasts_leftright_param_list", "physics_breasts_leftright_tab", LLVector3d(0.f, 0.f, 0.3f), LLVector3d(0.f, 0.f, 0.f),SEX_FEMALE));
-        addEntry(SUBPART_PHYSICS_BELLY_UPDOWN,      new SubpartEntry(SUBPART_PHYSICS_BELLY_UPDOWN, "mTorso", "physics_belly_updown", "physics_belly_updown_param_list", "physics_belly_updown_tab", LLVector3d(0.f, 0.f, 0.3f), LLVector3d(0.f, 0.f, 0.f),SEX_BOTH));
-        addEntry(SUBPART_PHYSICS_BUTT_UPDOWN,       new SubpartEntry(SUBPART_PHYSICS_BUTT_UPDOWN, "mTorso", "physics_butt_updown", "physics_butt_updown_param_list", "physics_butt_updown_tab", LLVector3d(0.f, 0.f, 0.3f), LLVector3d(0.f, 0.f, 0.f),SEX_BOTH));
+        addEntry(SUBPART_PHYSICS_BELLY_UPDOWN,      new SubpartEntry(SUBPART_PHYSICS_BELLY_UPDOWN, "mTorso", "physics_belly_updown", "physics_belly_updown_param_list", "physics_belly_tab", LLVector3d(0.f, 0.f, 0.3f), LLVector3d(0.f, 0.f, 0.f),SEX_BOTH));
+        addEntry(SUBPART_PHYSICS_BUTT_UPDOWN,       new SubpartEntry(SUBPART_PHYSICS_BUTT_UPDOWN, "mTorso", "physics_butt_updown", "physics_butt_updown_param_list", "physics_butt_tab", LLVector3d(0.f, 0.f, 0.3f), LLVector3d(0.f, 0.f, 0.f),SEX_BOTH));
         addEntry(SUBPART_PHYSICS_BUTT_LEFTRIGHT,    new SubpartEntry(SUBPART_PHYSICS_BUTT_LEFTRIGHT, "mTorso", "physics_butt_leftright", "physics_butt_leftright_param_list", "physics_butt_leftright_tab", LLVector3d(0.f, 0.f, 0.f), LLVector3d(0.f, 0.f, 0.f),SEX_BOTH));
         addEntry(SUBPART_PHYSICS_ADVANCED,          new SubpartEntry(SUBPART_PHYSICS_ADVANCED, "mTorso", "physics_advanced", "physics_advanced_param_list", "physics_advanced_tab", LLVector3d(0.f, 0.f, 0.f), LLVector3d(0.f, 0.f, 0.f),SEX_BOTH));
 }
@@ -727,8 +728,14 @@ bool LLPanelEditWearable::postBuild()
         mPanelTitle = getChild<LLTextBox>("edit_wearable_title");
         mDescTitle = getChild<LLTextBox>("description_text");
 
-        getChild<LLRadioGroup>("sex_radio")->setCommitCallback(boost::bind(&LLPanelEditWearable::onCommitSexChange, this));
-        getChild<LLButton>("save_as_button")->setCommitCallback(boost::bind(&LLPanelEditWearable::onSaveAsButtonClicked, this));
+        mSexRadio = getChild<LLRadioGroup>("sex_radio");
+        mSexRadio->setCommitCallback(boost::bind(&LLPanelEditWearable::onCommitSexChange, this));
+
+        mMaleIcon = getChild<LLIconCtrl>("male_icon");
+        mFemaleIcon = getChild<LLIconCtrl>("female_icon");
+
+        mBtnSaveAs = getChild<LLButton>("save_as_button");
+        mBtnSaveAs->setCommitCallback(boost::bind(&LLPanelEditWearable::onSaveAsButtonClicked, this));
 
         // The following panels will be shown/hidden based on what wearable we're editing
         // body parts
@@ -806,8 +813,20 @@ bool LLPanelEditWearable::postBuild()
                                 continue;
                         }
 
+                        mAccordionTabs.emplace(accordion_tab, tab);
+
                         // initialize callback to ensure camera view changes appropriately.
                         tab->setDropDownStateChangedCallback(boost::bind(&LLPanelEditWearable::onTabExpandedCollapsed,this,_2,index));
+
+                        const std::string& scrolling_panel = subpart_entry->mParamList;
+                        if (!scrolling_panel.empty())
+                        {
+                            LLScrollingPanelList* panel_list = tab->findChild<LLScrollingPanelList>(scrolling_panel);
+                            if (panel_list)
+                            {
+                                mParamPanels.emplace(scrolling_panel, panel_list);
+                            }
+                        }
                 }
 
                 // initialize texture and color picker controls
@@ -1211,19 +1230,21 @@ void LLPanelEditWearable::showWearable(LLViewerWearable* wearable, bool show, bo
                             continue;
                         }
 
-                        LLScrollingPanelList *panel_list = findChild<LLScrollingPanelList>(scrolling_panel);
-                        LLAccordionCtrlTab *tab = findChild<LLAccordionCtrlTab>(accordion_tab);
-                        if (!panel_list)
+                        auto accord_it = mAccordionTabs.find(accordion_tab);
+                        if (accord_it == mAccordionTabs.end())
                         {
-                                LL_WARNS() << "could not get scrolling panel list: " << scrolling_panel << LL_ENDL;
-                                continue;
+                            LL_WARNS() << "could not get llaccordionctrltab from UI with name: " << accordion_tab << LL_ENDL;
+                            continue;
                         }
+                        LLAccordionCtrlTab* tab = accord_it->second;
 
-                        if (!tab)
+                        auto panel_it = mParamPanels.find(scrolling_panel);
+                        if (panel_it == mParamPanels.end())
                         {
-                                LL_WARNS() << "could not get llaccordionctrltab from UI with name: " << accordion_tab << LL_ENDL;
-                                continue;
+                            LL_WARNS() << "could not get scrolling panel list: " << scrolling_panel << LL_ENDL;
+                            continue;
                         }
+                        LLScrollingPanelList *panel_list = panel_it->second;
 
                         // Don't show female subparts if you're not female, etc.
                         if (!(gAgentAvatarp->getSex() & subpart_entry->mSex))
@@ -1237,7 +1258,7 @@ void LLPanelEditWearable::showWearable(LLViewerWearable* wearable, bool show, bo
                         }
 
                         // what edit group do we want to extract params for?
-                        const std::string edit_group = subpart_entry->mEditGroup;
+                        const std::string& edit_group = subpart_entry->mEditGroup;
 
                         // storage for ordered list of visual params
                         value_map_t sorted_params;
@@ -1337,9 +1358,9 @@ void LLPanelEditWearable::toggleTypeSpecificControls(LLWearableType::EType type)
         // Toggle controls specific to shape editing panel.
         {
                 bool is_shape = (type == LLWearableType::WT_SHAPE);
-                getChildView("sex_radio")->setVisible( is_shape);
-                getChildView("female_icon")->setVisible( is_shape);
-                getChildView("male_icon")->setVisible( is_shape);
+                mSexRadio->setVisible(is_shape);
+                mFemaleIcon->setVisible(is_shape);
+                mMaleIcon->setVisible(is_shape);
         }
 }
 
@@ -1400,15 +1421,15 @@ void LLPanelEditWearable::updateScrollingPanelUI()
                         ESubpart subpart_e = wearable_entry->mSubparts[index];
                         const LLEditWearableDictionary::SubpartEntry *subpart_entry = LLEditWearableDictionary::getInstance()->getSubpart(subpart_e);
 
-                        const std::string scrolling_panel = subpart_entry->mParamList;
+                        const std::string& scrolling_panel = subpart_entry->mParamList;
 
-                        LLScrollingPanelList *panel_list = getChild<LLScrollingPanelList>(scrolling_panel);
-
-                        if (!panel_list)
+                        auto panel_it = mParamPanels.find(scrolling_panel);
+                        if (panel_it == mParamPanels.end())
                         {
-                                LL_WARNS() << "could not get scrolling panel list: " << scrolling_panel << LL_ENDL;
-                                continue;
+                            LL_WARNS() << "could not get scrolling panel list: " << scrolling_panel << LL_ENDL;
+                            continue;
                         }
+                        LLScrollingPanelList* panel_list = panel_it->second;
 
                         panel_list->updatePanels(true);
                 }
@@ -1542,7 +1563,7 @@ void LLPanelEditWearable::updateVerbs()
         bool is_dirty = isDirty();
 
         mBtnRevert->setEnabled(is_dirty);
-        getChildView("save_as_button")->setEnabled(is_dirty && can_copy);
+        mBtnSaveAs->setEnabled(is_dirty && can_copy);
 
         if (isAgentAvatarValid())
         {
@@ -1580,7 +1601,7 @@ void LLPanelEditWearable::configureAlphaCheckbox(LLAvatarAppearanceDefines::ETex
         LLCheckBoxCtrl* checkbox = mPanelAlpha->getChild<LLCheckBoxCtrl>(name);
         checkbox->setCommitCallback(boost::bind(&LLPanelEditWearable::onInvisibilityCommit, this, checkbox, te));
 
-        mAlphaCheckbox2Index[name] = te;
+        mAlphaCheckbox2Index.push_back(std::make_pair(checkbox,te));
 }
 
 void LLPanelEditWearable::onInvisibilityCommit(LLCheckBoxCtrl* checkbox_ctrl, LLAvatarAppearanceDefines::ETextureIndex te)
@@ -1637,11 +1658,10 @@ void LLPanelEditWearable::onInvisibilityCommit(LLCheckBoxCtrl* checkbox_ctrl, LL
 
 void LLPanelEditWearable::updateAlphaCheckboxes()
 {
-        for (string_texture_index_map_t::iterator iter = mAlphaCheckbox2Index.begin();
-                iter != mAlphaCheckbox2Index.end(); ++iter )
+        for (const auto& check_pair : mAlphaCheckbox2Index)
         {
-                LLAvatarAppearanceDefines::ETextureIndex te = (LLAvatarAppearanceDefines::ETextureIndex)iter->second;
-                LLCheckBoxCtrl* ctrl = mPanelAlpha->getChild<LLCheckBoxCtrl>(iter->first);
+                LLAvatarAppearanceDefines::ETextureIndex te = (LLAvatarAppearanceDefines::ETextureIndex)check_pair.second;
+                LLCheckBoxCtrl* ctrl = check_pair.first;
                 if (ctrl)
                 {
                         ctrl->set(!gAgentAvatarp->isTextureVisible(te, mWearablePtr));
