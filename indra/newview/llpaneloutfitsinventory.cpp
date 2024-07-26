@@ -264,7 +264,6 @@ void LLPanelOutfitsInventory::updateListCommands()
     bool wear_enabled =  isActionEnabled("wear");
     bool wear_visible = !isCOFPanelActive();
     bool make_outfit_enabled = isActionEnabled("save_outfit");
-    
     mMyOutfitsPanel->childSetEnabled("trash_btn", trash_enabled);
     mOutfitGalleryPanel->childSetEnabled("trash_btn", trash_enabled);
     mWearBtn->setEnabled(wear_enabled);

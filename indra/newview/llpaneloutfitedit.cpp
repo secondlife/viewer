@@ -478,7 +478,6 @@ bool LLPanelOutfitEdit::postBuild()
 
     mFolderViewBtn = getChild<LLButton>("folder_view_btn");
     mListViewBtn = getChild<LLButton>("list_view_btn");
-    
     mFilterPanel = getChild<LLView>("filter_panel");
     mFilterBtn = getChild<LLButton>("filter_button");
     mFilterBtn->setCommitCallback(boost::bind(&LLPanelOutfitEdit::showWearablesFilter, this));
