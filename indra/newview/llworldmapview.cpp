@@ -1023,18 +1023,20 @@ void LLWorldMapView::drawTracking(const LLVector3d& pos_global, const LLColor4& 
         drawImage(pos_global, sTrackCircleImage, color);
     }
 
-    // clamp text position to on-screen
-    const S32 TEXT_PADDING = DEFAULT_TRACKING_ARROW_SIZE + 2;
-    S32 half_text_width = llfloor(font->getWidthF32(label) * 0.5f);
-    text_x = llclamp(text_x, half_text_width + TEXT_PADDING, getRect().getWidth() - half_text_width - TEXT_PADDING);
-    text_y = llclamp(text_y + vert_offset, TEXT_PADDING + vert_offset, getRect().getHeight() - font->getLineHeight() - TEXT_PADDING - vert_offset);
-
     if (label != "")
     {
-        font->renderUTF8(
-            label, 0,
-            text_x,
-            text_y,
+        // clamp text position to on-screen
+        const S32 TEXT_PADDING = DEFAULT_TRACKING_ARROW_SIZE + 2;
+
+        LLWString wlabel = utf8string_to_wstring(label);
+        S32 half_text_width = llfloor(font->getWidthF32(wlabel.c_str()) * 0.5f);
+        text_x = llclamp(text_x, half_text_width + TEXT_PADDING, getRect().getWidth() - half_text_width - TEXT_PADDING);
+        text_y = llclamp(text_y + vert_offset, TEXT_PADDING + vert_offset, getRect().getHeight() - font->getLineHeight() - TEXT_PADDING - vert_offset);
+
+        font->render(
+            wlabel, 0,
+            (F32)text_x,
+            (F32)text_y,
             LLColor4::white, LLFontGL::HCENTER,
             LLFontGL::BASELINE, LLFontGL::NORMAL, LLFontGL::DROP_SHADOW);
 
