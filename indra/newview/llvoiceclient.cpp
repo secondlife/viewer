@@ -826,7 +826,7 @@ void LLVoiceClient::removeObserver(LLVoiceClientParticipantObserver* observer)
     LLWebRTCVoiceClient::getInstance()->removeObserver(observer);
 }
 
-std::string LLVoiceClient::sipURIFromID(const LLUUID &id)
+std::string LLVoiceClient::sipURIFromID(const LLUUID &id) const
 {
     if (mNonSpatialVoiceModule)
     {
@@ -839,6 +839,22 @@ std::string LLVoiceClient::sipURIFromID(const LLUUID &id)
     else
     {
         return std::string();
+    }
+}
+
+LLSD LLVoiceClient::getP2PChannelInfoTemplate(const LLUUID& id) const
+{
+    if (mNonSpatialVoiceModule)
+    {
+        return mNonSpatialVoiceModule->getP2PChannelInfoTemplate(id);
+    }
+    else if (mSpatialVoiceModule)
+    {
+        return mSpatialVoiceModule->getP2PChannelInfoTemplate(id);
+    }
+    else
+    {
+        return LLSD();
     }
 }
 

@@ -2066,9 +2066,14 @@ void LLWebRTCVoiceClient::avatarNameResolved(const LLUUID &id, const std::string
 }
 
 // Leftover from vivox PTSN
-std::string LLWebRTCVoiceClient::sipURIFromID(const LLUUID& id)
+std::string LLWebRTCVoiceClient::sipURIFromID(const LLUUID& id) const
 {
     return id.asString();
+}
+
+LLSD LLWebRTCVoiceClient::getP2PChannelInfoTemplate(const LLUUID& id) const
+{
+    return LLSD();
 }
 
 
