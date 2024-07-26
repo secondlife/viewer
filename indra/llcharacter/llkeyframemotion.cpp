@@ -2407,13 +2407,10 @@ void LLKeyframeMotion::onLoadComplete(const LLUUID& asset_uuid,
 {
     LLUUID* id = (LLUUID*)user_data;
 
-    std::vector<LLCharacter* >::iterator char_iter = LLCharacter::sInstances.begin();
-
-    while(char_iter != LLCharacter::sInstances.end() &&
-            (*char_iter)->getID() != *id)
-    {
-        ++char_iter;
-    }
+    auto char_iter = std::find_if(LLCharacter::sInstances.begin(), LLCharacter::sInstances.end(), [&](LLCharacter* c)
+        {
+            return c->getID() == *id;
+        });
 
     delete id;
 

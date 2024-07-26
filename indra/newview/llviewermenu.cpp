@@ -1892,10 +1892,9 @@ class LLAdvancedForceParamsToDefault : public view_listener_t
 static void set_all_animation_time_factors(F32  time_factor)
 {
     LLMotionController::setCurrentTimeFactor(time_factor);
-    for (std::vector<LLCharacter*>::iterator iter = LLCharacter::sInstances.begin();
-        iter != LLCharacter::sInstances.end(); ++iter)
+    for (LLCharacter* character : LLCharacter::sInstances)
     {
-        (*iter)->setAnimTimeFactor(time_factor);
+        character->setAnimTimeFactor(time_factor);
     }
 }
 

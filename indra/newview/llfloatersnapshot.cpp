@@ -210,13 +210,10 @@ void LLFloaterSnapshotBase::ImplBase::updateLayout(LLFloaterSnapshotBase* floate
             previewp->setEnabled(true);
         }
 
-        //RN: freeze all avatars
-        LLCharacter* avatarp;
-        for (std::vector<LLCharacter*>::iterator iter = LLCharacter::sInstances.begin();
-            iter != LLCharacter::sInstances.end(); ++iter)
+        // RN: freeze all avatars
+        for (LLCharacter* character : LLCharacter::sInstances)
         {
-            avatarp = *iter;
-            floaterp->impl->mAvatarPauseHandles.push_back(avatarp->requestPause());
+            floaterp->impl->mAvatarPauseHandles.push_back(character->requestPause());
         }
 
         // freeze everything else

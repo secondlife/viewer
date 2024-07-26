@@ -741,18 +741,16 @@ public:
         if (gSavedSettings.getBOOL("DebugShowAvatarRenderInfo"))
         {
             std::map<std::string, LLVOAvatar*> sorted_avs;
-
-            std::vector<LLCharacter*>::iterator sort_iter = LLCharacter::sInstances.begin();
-            while (sort_iter != LLCharacter::sInstances.end())
             {
-                LLVOAvatar* avatar = dynamic_cast<LLVOAvatar*>(*sort_iter);
-                if (avatar &&
-                    !avatar->isDead())                      // Not dead yet
+                for (LLCharacter* character : LLCharacter::sInstances)
                 {
-                    // Stuff into a sorted map so the display is ordered
-                    sorted_avs[avatar->getFullname()] = avatar;
+                    LLVOAvatar* avatar = (LLVOAvatar*)character;
+                    if (!avatar->isDead()) // Not dead yet
+                    {
+                        // Stuff into a sorted map so the display is ordered
+                        sorted_avs[avatar->getFullname()] = avatar;
+                    }
                 }
-                sort_iter++;
             }
 
             std::string trunc_name;
