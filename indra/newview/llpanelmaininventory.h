@@ -184,7 +184,9 @@ private:
     LLUICtrl*                   mCounterCtrl;
     LLHandle<LLFloater>         mFinderHandle;
     LLInventoryPanel*           mActivePanel;
-    LLInventoryPanel*           mWornItemsPanel;
+    LLInventoryPanel*           mAllItemsPanel = nullptr;
+    LLInventoryPanel*           mRecentPanel = nullptr;
+    LLInventoryPanel*           mWornItemsPanel = nullptr;
     bool                        mResortActivePanel;
     LLSaveFolderState*          mSavedFolderState;
     std::string                 mFilterText;
