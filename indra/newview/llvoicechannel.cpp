@@ -122,7 +122,13 @@ void LLVoiceChannel::onChange(EStatusType type, const LLSD& channelInfo, bool pr
 {
     LL_DEBUGS("Voice") << "Incoming channel info: " << channelInfo << LL_ENDL;
     LL_DEBUGS("Voice") << "Current channel info: " << mChannelInfo << LL_ENDL;
-    if (mChannelInfo.isUndefined() || (mChannelInfo.isMap() && mChannelInfo.size() == 0))
+    if (mChannelInfo.has("channel_uri")
+        && (!channelInfo.has("channel_uri") || mChannelInfo["channel_uri"] != channelInfo["channel_uri"]))
+    {
+        return;
+    }
+    if (mChannelInfo.isUndefined()
+        || (mChannelInfo.isMap() && mChannelInfo.size() <= 1)) // p2p will have uri beforehand
     {
         mChannelInfo = channelInfo;
     }
@@ -768,6 +774,11 @@ LLVoiceChannelP2P::LLVoiceChannelP2P(const LLUUID      &session_id,
     mReceivedCall(FALSE),
     mOutgoingCallInterface(outgoing_call_interface)
 {
+    std::string sip_uri = LLVoiceClient::getInstance()->sipURIFromID(other_user_id);
+    if (!sip_uri.empty())
+    {
+        mChannelInfo["channel_uri"] = sip_uri;
+    }
 }
 
 void LLVoiceChannelP2P::handleStatusChange(EStatusType type)
