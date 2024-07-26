@@ -706,7 +706,6 @@ private:
 
     std::string mChannelName;           // Name of the channel to be looked up
     sessionStatePtr_t mAudioSession;        // Session state for the current audio session
-    bool mAudioSessionChanged;          // set to true when the above pointer gets changed, so observers can be notified.
 
     sessionStatePtr_t mNextAudioSession;    // Session state for the audio session we're trying to join
 
