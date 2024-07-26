@@ -132,16 +132,25 @@ LLAgentListener::LLAgentListener(LLAgent &agent)
         "[\"contrib\"]: user's land contribution to this group\n",
         &LLAgentListener::getGroups,
         LLSDMap("reply", LLSD()));
+    //camera params are similar to LSL, see https://wiki.secondlife.com/wiki/LlSetCameraParams
     add("setCameraParams",
         "Set Follow camera params, and then activate it:\n"
-        "[\"camera_pos\"]: vector3\n"
-        "[\"focus_pos\"]: vector3\n"
-        "[\"focus_offset\"]: vector3\n"
-        "[\"camera_locked\"]: boolean\n"
-        "[\"focus_locked\"]: boolean",
+        "[\"camera_pos\"]: vector3, camera position in region coordinates\n"
+        "[\"focus_pos\"]: vector3, what the camera is aimed at (in region coordinates)\n"
+        "[\"focus_offset\"]: vector3, adjusts the camera focus position relative to the target, default is (1, 0, 0)\n"
+        "[\"distance\"]: float (meters), distance the camera wants to be from its target, default is 3\n"
+        "[\"focus_threshold\"]: float (meters), sets the radius of a sphere around the camera's target position within which its focus is not affected by target motion, default is 1\n"
+        "[\"camera_threshold\"]: float (meters), sets the radius of a sphere around the camera's ideal position within which it is not affected by target motion, default is 1\n"
+        "[\"focus_lag\"]: float (seconds), how much the camera lags as it tries to aim towards the target, default is 0.1\n"
+        "[\"camera_lag\"]: float (seconds), how much the camera lags as it tries to move towards its 'ideal' position, default is 0.1\n"
+        "[\"camera_pitch\"]: float (degrees), adjusts the angular amount that the camera aims straight ahead vs. straight down, maintaining the same distance, default is 0\n"
+        "[\"behindness_angle\"]: float (degrees), sets the angle in degrees within which the camera is not constrained by changes in target rotation, default is 10\n"
+        "[\"behindness_lag\"]: float (seconds), sets how strongly the camera is forced to stay behind the target if outside of behindness angle, default is 0\n"
+        "[\"camera_locked\"]: bool, locks the camera position so it will not move\n"
+        "[\"focus_locked\"]: bool, locks the camera focus so it will not move",
         &LLAgentListener::setFollowCamParams);
     add("setFollowCamActive",
-        "Set Follow camera active or deactivate it using boolean [\"active\"]",
+        "Turns on or off scripted control of the camera using boolean [\"active\"]",
         &LLAgentListener::setFollowCamActive,
         llsd::map("active", LLSD()));
     add("removeCameraParams",
@@ -535,6 +544,39 @@ void LLAgentListener::setFollowCamParams(const LLSD& event) const
     {
         LLFollowCamMgr::getInstance()->setFocusLocked(gAgentID, event["focus_locked"]);
     }
+    if (event.has("distance"))
+    {
+        LLFollowCamMgr::getInstance()->setDistance(gAgentID, event["distance"].asReal());
+    }
+    if (event.has("focus_threshold"))
+    {
+        LLFollowCamMgr::getInstance()->setFocusThreshold(gAgentID, event["focus_threshold"].asReal());
+    }
+    if (event.has("camera_threshold"))
+    {
+        LLFollowCamMgr::getInstance()->setPositionThreshold(gAgentID, event["camera_threshold"].asReal());
+    }
+    if (event.has("focus_lag"))
+    {
+        LLFollowCamMgr::getInstance()->setFocusLag(gAgentID, event["focus_lag"].asReal());
+    }
+    if (event.has("camera_lag"))
+    {
+        LLFollowCamMgr::getInstance()->setPositionLag(gAgentID, event["camera_lag"].asReal());
+    }
+    if (event.has("camera_pitch"))
+    {
+        LLFollowCamMgr::getInstance()->setPitch(gAgentID, event["camera_pitch"].asReal());
+    }
+    if (event.has("behindness_lag"))
+    {
+        LLFollowCamMgr::getInstance()->setBehindnessLag(gAgentID, event["behindness_lag"].asReal());
+    }
+    if (event.has("behindness_angle"))
+    {
+        LLFollowCamMgr::getInstance()->setBehindnessAngle(gAgentID, event["behindness_angle"].asReal());
+    }
+ 
     LLFollowCamMgr::getInstance()->setCameraActive(gAgentID, true);
 }
 
