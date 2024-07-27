@@ -536,7 +536,7 @@ void LLGestureMgr::playGesture(LLMultiGesture* gesture, bool fromKeyPress)
     if (!gesture) return;
 
     // Reset gesture to first step
-    gesture->mCurrentStep = 0;
+    gesture->reset();
     gesture->mTriggeredByKey = fromKeyPress;
 
     // Add to list of playing
