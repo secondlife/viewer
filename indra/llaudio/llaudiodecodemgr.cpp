@@ -790,9 +790,12 @@ bool LLAudioDecodeMgr::addDecodeRequest(const LLUUID &uuid)
 
     if (gAssetStorage->hasLocalAsset(uuid, LLAssetType::AT_SOUND))
     {
-        // Just put it on the decode queue.
+        // Just put it on the decode queue it if it's not already in the queue
         LL_DEBUGS("AudioEngine") << "addDecodeRequest for " << uuid << " has local asset file already" << LL_ENDL;
-        mImpl->mDecodeQueue.push_back(uuid);
+        if (std::find(mImpl->mDecodeQueue.begin(), mImpl->mDecodeQueue.end(), uuid) == mImpl->mDecodeQueue.end())
+        {
+            mImpl->mDecodeQueue.emplace_back(uuid);
+        }
         return true;
     }
 
