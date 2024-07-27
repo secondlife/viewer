@@ -123,7 +123,6 @@ protected:
     LLButton*       mButtonCall = nullptr;
     LLButton*       mButtonChat = nullptr;
     LLButton*       mButtonRefresh = nullptr;
-    LLButton*       mButtonCancel = nullptr;
     LLUICtrl*       mJoinText;
 };
 

@@ -206,7 +206,6 @@ private:
 
     LLCheckBoxCtrl*         mPeopleCheck = nullptr;
     LLCheckBoxCtrl*         mInfohubCheck = nullptr;
-    LLCheckBoxCtrl*         mTelehubCheck = nullptr;
     LLCheckBoxCtrl*         mLandSaleCheck = nullptr;
     LLCheckBoxCtrl*         mEventsCheck = nullptr;
     LLCheckBoxCtrl*         mEventsMatureCheck = nullptr;
