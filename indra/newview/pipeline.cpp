@@ -10574,10 +10574,13 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar, bool preview_avatar, bool 
     sShadowRender = false;
     popRenderTypeMask();
 
-    gGL.matrixMode(LLRender::MM_PROJECTION);
-    gGL.popMatrix();
-    gGL.matrixMode(LLRender::MM_MODELVIEW);
-    gGL.popMatrix();
+    if (!preview_avatar)
+    {
+        gGL.matrixMode(LLRender::MM_PROJECTION);
+        gGL.popMatrix();
+        gGL.matrixMode(LLRender::MM_MODELVIEW);
+        gGL.popMatrix();
+    }
 
     if (!preview_avatar && !for_profile)
     {

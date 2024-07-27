@@ -2334,14 +2334,14 @@ void LLInventorySingleFolderPanel::clearNavigationHistory()
     mBackwardFolders.clear();
 }
 
-bool LLInventorySingleFolderPanel::isBackwardAvailable()
+bool LLInventorySingleFolderPanel::isBackwardAvailable() const
 {
-    return (!mBackwardFolders.empty() && (mFolderID != mBackwardFolders.back()));
+    return !mBackwardFolders.empty() && (mFolderID != mBackwardFolders.back());
 }
 
-bool LLInventorySingleFolderPanel::isForwardAvailable()
+bool LLInventorySingleFolderPanel::isForwardAvailable() const
 {
-    return (!mForwardFolders.empty() && (mFolderID != mForwardFolders.back()));
+    return !mForwardFolders.empty() && (mFolderID != mForwardFolders.back());
 }
 
 boost::signals2::connection LLInventorySingleFolderPanel::setRootChangedCallback(root_changed_callback_t cb)
@@ -2406,9 +2406,14 @@ void LLInventorySingleFolderPanel::updateSingleFolderRoot()
     }
 }
 
-bool LLInventorySingleFolderPanel::hasVisibleItems()
+bool LLInventorySingleFolderPanel::hasVisibleItems() const
 {
-    return mFolderRoot.get()->hasVisibleChildren();
+    if (const LLFolderView* root = mFolderRoot.get())
+    {
+        return root->hasVisibleChildren();
+    }
+
+    return false;
 }
 
 void LLInventorySingleFolderPanel::doCreate(const LLSD& userdata)

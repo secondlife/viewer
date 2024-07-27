@@ -31,6 +31,9 @@
 #include "llnotifications.h"
 #include "lluiimage.h"
 
+class LLLayoutPanel;
+class LLTextBox;
+
 class LLWindowShade : public LLUICtrl
 {
 public:
@@ -67,6 +70,10 @@ private:
     void onClickNotificationButton(const std::string& name);
     void onEnterNotificationText(LLUICtrl* ctrl, const std::string& name);
     void onClickIgnore(LLUICtrl* ctrl);
+
+    LLLayoutPanel* mBackgroundArea = nullptr;
+    LLLayoutPanel* mNotificationsArea = nullptr;
+    LLTextBox* mNotificationsText = nullptr;
 
     std::vector<LLNotificationPtr>  mNotifications;
     LLSD                mNotificationResponse;

@@ -270,8 +270,20 @@
      left="250"
      name="manage_telehub_btn"
      top="70"
-     width="150">
+     width="160">
 		<button.commit_callback
          function="RegionInfo.ManageTelehub" />
+    </button>
+    <button
+     follows="left|top"
+     height="20"
+     label="Manage Restart Schedule..."
+     layout="topleft"
+     name="manage_restart_btn"
+     top_pad="5"
+     left_delta="0"
+     width="160">
+        <button.commit_callback
+         function="RegionInfo.ManageRestart" />
     </button>
 </panel>

@@ -375,13 +375,13 @@ public:
     static void onCommitPublicAccess(LLUICtrl* ctrl, void *userdata);
     static void onCommitAny(LLUICtrl* ctrl, void *userdata);
     static void onCommitGroupCheck(LLUICtrl* ctrl, void *userdata);
-    static void onClickRemoveAccess(void*);
-    static void onClickRemoveBanned(void*);
 
     virtual bool postBuild();
 
     void onClickAddAccess();
     void onClickAddBanned();
+    void onClickRemoveAccess();
+    void onClickRemoveBanned();
     void callbackAvatarCBBanned(const uuid_vec_t& ids);
     void callbackAvatarCBBanned2(const uuid_vec_t& ids, S32 duration);
     void callbackAvatarCBAccess(const uuid_vec_t& ids);
@@ -389,6 +389,20 @@ public:
 protected:
     LLNameListCtrl*     mListAccess;
     LLNameListCtrl*     mListBanned;
+    LLUICtrl*           mAllowText = nullptr;
+    LLUICtrl*           mBanText = nullptr;
+    LLUICtrl*           mPublicAccessCheck = nullptr;
+    LLUICtrl*           mGroupAccessCheck = nullptr;
+    LLUICtrl*           mPaymentInfoCheck = nullptr;
+    LLUICtrl*           mAgeVerifiedCheck = nullptr;
+    LLUICtrl*           mTemporaryPassCheck = nullptr;
+    LLComboBox*         mTemporaryPassCombo = nullptr;
+    LLUICtrl*           mTemporaryPassPriceSpin = nullptr;
+    LLUICtrl*           mTemporaryPassHourSpin = nullptr;
+    LLButton*           mBtnAddAllowed = nullptr;
+    LLButton*           mBtnRemoveAllowed = nullptr;
+    LLButton*           mBtnAddBanned = nullptr;
+    LLButton*           mBtnRemoveBanned = nullptr;
 
     LLSafeHandle<LLParcelSelection>&    mParcel;
 };
