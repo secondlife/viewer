@@ -239,7 +239,7 @@ std::string LLUrlEntryBase::urlToLabelWithGreyQuery(const std::string &url) cons
         return url;
     }
     LLUriParser up(escapeUrl(url));
-    if (up.normalize() == 0)
+    if (up.normalize())
     {
         std::string label;
         up.extractParts();
