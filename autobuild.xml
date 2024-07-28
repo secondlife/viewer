@@ -2508,66 +2508,6 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>description</key>
         <string>TUT is a small and portable unit test framework for C++.</string>
       </map>
-      <key>uriparser</key>
-      <map>
-        <key>platforms</key>
-        <map>
-          <key>darwin64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>4b6ee5113b1368ec9ff5b59e195adde370b9f585</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
-              <key>url</key>
-              <string>https://github.com/secondlife/3p-uriparser/releases/download/v0.9.4-8fff38a/uriparser-0.9.4-darwin64-8fff38a.tar.zst</string>
-            </map>
-            <key>name</key>
-            <string>darwin64</string>
-          </map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>44dc74ec73e37c56bef6317d12a29d0435cb4bbb</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
-              <key>url</key>
-              <string>https://github.com/secondlife/3p-uriparser/releases/download/v0.9.4-8fff38a/uriparser-0.9.4-linux64-8fff38a.tar.zst</string>
-            </map>
-            <key>name</key>
-            <string>linux64</string>
-          </map>
-          <key>windows64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>e8b20edfc624f1d09bc83480932a9c844d47fc13</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
-              <key>url</key>
-              <string>https://github.com/secondlife/3p-uriparser/releases/download/v0.9.4-8fff38a/uriparser-0.9.4-windows64-8fff38a.tar.zst</string>
-            </map>
-            <key>name</key>
-            <string>windows64</string>
-          </map>
-        </map>
-        <key>license</key>
-        <string>New BSD license</string>
-        <key>license_file</key>
-        <string>LICENSES/uriparser.txt</string>
-        <key>copyright</key>
-        <string>Copyright (C) 2007, Weijia Song &lt;songweijia@gmail.com&gt;, Sebastian Pipping &lt;webmaster@hartwork.org&gt;</string>
-        <key>version</key>
-        <string>0.9.4</string>
-        <key>name</key>
-        <string>uriparser</string>
-        <key>description</key>
-        <string>uriparser is a strictly RFC 3986 compliant URI parsing and handling library written in C. uriparser is cross-platform, fast, supports Unicode and is licensed under the New BSD license.</string>
-      </map>
       <key>viewer-fonts</key>
       <map>
         <key>platforms</key>
