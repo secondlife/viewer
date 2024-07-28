@@ -108,11 +108,6 @@ if (WINDOWS)
     string(REPLACE "/Zi" "/Z7" CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
   endif()
 
-  # workaround for github runner image breakage:
-  # https://github.com/actions/runner-images/issues/10004#issuecomment-2153445161
-  # can be removed after the above issue is resolved and deployed across GHA
-  add_compile_definitions(_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR)
-
   # Allow use of sprintf etc
   add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
 endif (WINDOWS)
