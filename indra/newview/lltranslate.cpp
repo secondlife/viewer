@@ -398,7 +398,7 @@ bool LLGoogleTranslationHandler::parseResponse(
 {
     const std::string& text = !body.empty() ? body : http_response["error_body"].asStringRef();
 
-    boost::json::error_code ec;
+    boost::system::error_code ec;
     boost::json::value root = boost::json::parse(text, ec);
     if (ec.failed())
     {
@@ -431,7 +431,7 @@ void LLGoogleTranslationHandler::parseErrorResponse(
     int& status,
     std::string& err_msg)
 {
-    boost::json::error_code ec;
+    boost::system::error_code ec;
     auto message = root.find_pointer("/data/message", ec);
     auto code = root.find_pointer("/data/code", ec);
     if (!message || !code)
@@ -456,7 +456,7 @@ bool LLGoogleTranslationHandler::parseTranslation(
     std::string& translation,
     std::string& detected_lang)
 {
-    boost::json::error_code ec;
+    boost::system::error_code ec;
     auto translated_text = root.find_pointer("/data/translations/0/translatedText", ec);
     if (!translated_text) return false;
 
@@ -656,7 +656,7 @@ bool LLAzureTranslationHandler::checkVerificationResponse(
     // Expected: "{\"error\":{\"code\":400000,\"message\":\"One of the request inputs is not valid.\"}}"
     // But for now just verify response is a valid json
 
-    boost::json::error_code ec;
+    boost::system::error_code ec;
     boost::json::value root = boost::json::parse(response["error_body"].asString(), ec);
     if (ec.failed())
     {
@@ -686,7 +686,7 @@ bool LLAzureTranslationHandler::parseResponse(
     //Example:
     // "[{\"detectedLanguage\":{\"language\":\"en\",\"score\":1.0},\"translations\":[{\"text\":\"Hello, what is your name?\",\"to\":\"en\"}]}]"
 
-    boost::json::error_code ec;
+    boost::system::error_code ec;
     boost::json::value root = boost::json::parse(body, ec);
     if (ec.failed())
     {
@@ -726,7 +726,7 @@ std::string LLAzureTranslationHandler::parseErrorResponse(
     // Expected: "{\"error\":{\"code\":400000,\"message\":\"One of the request inputs is not valid.\"}}"
     // But for now just verify response is a valid json with an error
 
-    boost::json::error_code ec;
+    boost::system::error_code ec;
     boost::json::value root = boost::json::parse(body, ec);
     if (ec.failed())
     {
@@ -956,7 +956,7 @@ bool LLDeepLTranslationHandler::parseResponse(
     //Example:
     // "{\"translations\":[{\"detected_source_language\":\"EN\",\"text\":\"test\"}]}"
 
-    boost::json::error_code ec;
+    boost::system::error_code ec;
     boost::json::value root = boost::json::parse(body, ec);
     if (ec.failed())
     {
@@ -1004,7 +1004,7 @@ std::string LLDeepLTranslationHandler::parseErrorResponse(
     const std::string& body)
 {
     // Example: "{\"message\":\"One of the request inputs is not valid.\"}"
-    boost::json::error_code ec;
+    boost::system::error_code ec;
     boost::json::value root = boost::json::parse(body, ec);
     if (ec.failed())
     {

@@ -585,7 +585,7 @@ LLSD HttpCoroJSONHandler::handleSuccess(LLCore::HttpResponse * response, LLCore:
 
     LLCore::BufferArrayStream bas(body);
 
-    boost::json::error_code ec;
+    boost::system::error_code ec;
     boost::json::value jsonRoot = boost::json::parse(bas, ec);
     if(ec.failed())
     {   // deserialization failed.  Record the reason and pass back an empty map for markup.
@@ -610,7 +610,7 @@ LLSD HttpCoroJSONHandler::parseBody(LLCore::HttpResponse *response, bool &succes
 
     LLCore::BufferArrayStream bas(body);
 
-    boost::json::error_code ec;
+    boost::system::error_code ec;
     boost::json::value jsonRoot = boost::json::parse(bas, ec);
     if (ec.failed())
     {

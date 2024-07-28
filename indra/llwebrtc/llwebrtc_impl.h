@@ -41,6 +41,7 @@
 #include "llwebrtc.h"
 // WebRTC Includes
 #ifdef WEBRTC_WIN
+#pragma warning(push)
 #pragma warning(disable : 4996) // ignore 'deprecated.'  We don't use the functions marked
                                 // deprecated in the webrtc headers, but msvc complains anyway.
                                 // Clang doesn't, and that's generally what webrtc uses.
@@ -62,7 +63,6 @@
 #include "api/task_queue/task_queue_factory.h"
 #include "api/task_queue/default_task_queue_factory.h"
 #include "modules/audio_device/include/audio_device_defines.h"
-
 
 namespace llwebrtc
 {
@@ -378,5 +378,9 @@ class LLWebRTCPeerConnectionImpl : public LLWebRTCPeerConnectionInterface,
 };
 
 }
+
+#if WEBRTC_WIN
+#pragma warning(pop)
+#endif
 
 #endif // LLWEBRTC_IMPL_H
