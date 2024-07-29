@@ -1253,10 +1253,12 @@ class LinuxManifest(ViewerManifest):
             with self.prefix(dst="res-sdl") :
                 self.path("secondlife_256.BMP","ll_icon.BMP")
 
+        with self.prefix(src=os.path.join(self.args['build'], os.pardir, "llwebrtc" ), dst="lib"):
+            self.path("libllwebrtc.so")
+
         # plugins
         with self.prefix(src=os.path.join(self.args['build'], os.pardir, 'media_plugins'), dst="bin/llplugin"):
             self.path("gstreamer10/libmedia_plugin_gstreamer10.so", "libmedia_plugin_gstreamer.so")
-
 
         with self.prefix(src=os.path.join(self.args['build'], os.pardir, 'media_plugins'), dst="bin/llplugin"):
             self.path("cef/libmedia_plugin_cef.so", "libmedia_plugin_cef.so" )
