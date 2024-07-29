@@ -2249,7 +2249,9 @@ void errorCallback(LLError::ELevel level, const std::string &error_string)
     if (level == LLError::LEVEL_ERROR)
     {
 #ifndef LL_RELEASE_FOR_DOWNLOAD
-        OSMessageBox(error_string, LLTrans::getString("MBFatalError"), OSMB_OK);
+        std::string message = error_string +
+            "\n\n\nThis is a developer-only notification!\nThis notification won't be present in Release for download build";
+        OSMessageBox(message, LLTrans::getString("MBFatalError"), OSMB_OK);
 #endif
 
         gDebugInfo["FatalMessage"] = error_string;
