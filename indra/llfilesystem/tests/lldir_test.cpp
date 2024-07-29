@@ -432,7 +432,7 @@ namespace tut
       auto p = NamedTempFile::temp_path();
       std::filesystem::create_directories(p.native());
 
-      auto ret { p.native() };
+      std::string ret = p.string();
 
       // There's an implicit assumtion all over this code that the returned path ends with "/" (or "\")
 
