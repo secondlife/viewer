@@ -66,9 +66,6 @@ jobs:
       DEVELOPER_DIR: "/Applications/Xcode_14.0.1.app/Contents/Developer"
       # Ensure that Linden viewer builds engage Bugsplat.
       BUGSPLAT_DB: ${{ needs.setup.outputs.bugsplat_db }}
-      # Run BUILD steps for Release configuration.
-      # Run BUILD steps for ReleaseOS configuration only for release runs.
-      BUILD: ${{ needs.setup.outputs.build }}
       build_coverity: false
       build_log_dir: ${{ github.workspace }}/.logs
       build_viewer: true
