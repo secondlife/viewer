@@ -128,7 +128,7 @@ void LLOutfitGallery::onOpen(const LLSD& info)
         mScrollPanel->addChild(mGalleryPanel);
         for (int i = 0; i < n; i++)
         {
-            addToGallery(mOutfitMap[cats[i]]);
+            addToGallery(getItem(cats[i]));
         }
         reArrangeRows();
         mGalleryCreated = true;
@@ -377,7 +377,7 @@ void LLOutfitGallery::onOutfitsRemovalConfirmation(const LLSD& notification, con
 
 void LLOutfitGallery::scrollToShowItem(const LLUUID& item_id)
 {
-    LLOutfitGalleryItem* item = mOutfitMap[item_id];
+    LLOutfitGalleryItem* item = getItem(item_id);
     if (item)
     {
         const LLRect visible_content_rect = mScrollPanel->getVisibleContentRect();
@@ -524,6 +524,10 @@ LLPanel* LLOutfitGallery::addToRow(LLPanel* row_stack, LLOutfitGalleryItem* item
 
 void LLOutfitGallery::addToGallery(LLOutfitGalleryItem* item)
 {
+    if (!item)
+    {
+        return;
+    }
     if(item->isHidden())
     {
         mHiddenItems.push_back(item);
@@ -631,9 +635,19 @@ LLOutfitGalleryItem* LLOutfitGallery::buildGalleryItem(std::string name, LLUUID 
     return gitem;
 }
 
-LLOutfitGalleryItem* LLOutfitGallery::getSelectedItem()
+LLOutfitGalleryItem* LLOutfitGallery::getSelectedItem() const
 {
-    return mOutfitMap[mSelectedOutfitUUID];
+    return getItem(mSelectedOutfitUUID);
+}
+
+LLOutfitGalleryItem* LLOutfitGallery::getItem(const LLUUID& id) const
+{
+    auto it = mOutfitMap.find(id);
+    if (it != mOutfitMap.end())
+    {
+        return it->second;
+    }
+    return nullptr;
 }
 
 void LLOutfitGallery::buildGalleryPanel(int row_count)
@@ -1264,7 +1278,15 @@ void LLOutfitGallery::refreshOutfit(const LLUUID& category_id)
                 }
                 if (asset_id.notNull())
                 {
-                    photo_loaded |= mOutfitMap[category_id]->setImageAssetId(asset_id);
+                    LLOutfitGalleryItem* item = getItem(category_id);
+                    if (item)
+                    {
+                        photo_loaded |= item->setImageAssetId(asset_id);
+                    }
+                    else
+                    {
+                        photo_loaded = true;
+                    }
                     // Rename links
                     if (!mOutfitRenamePending.isNull() && mOutfitRenamePending.asString() == item_name)
                     {
@@ -1290,13 +1312,21 @@ void LLOutfitGallery::refreshOutfit(const LLUUID& category_id)
                 }
                 if (!photo_loaded)
                 {
-                    mOutfitMap[category_id]->setDefaultImage();
+                    LLOutfitGalleryItem* item = getItem(category_id);
+                    if (item)
+                    {
+                        item->setDefaultImage();
+                    }
                 }
             }
         }
         else
         {
-            mOutfitMap[category_id]->setImageAssetId(asset_id);
+            LLOutfitGalleryItem* item = getItem(category_id);
+            if (item)
+            {
+                item->setImageAssetId(asset_id);
+            }
         }
     }
 
