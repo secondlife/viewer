@@ -230,6 +230,12 @@ public:
     // post given work to the "mainloop" work queue for handling on the main thread
     void postToMainCoro(const LL::WorkQueue::Work& work);
 
+    // Attempt a 'soft' quit with disconnect and saving of settings/cache.
+    // Intended to be thread safe.
+    // Good chance of viewer crashing either way, but better than alternatives.
+    // Note: mQuitRequested can be aborted by user.
+    void outOfMemorySoftQuit();
+
 protected:
     virtual bool initWindow(); // Initialize the viewer's window.
     virtual void initLoggingAndGetLastDuration(); // Initialize log files, logging system
@@ -317,6 +323,7 @@ private:
     boost::optional<U32> mForceGraphicsLevel;
 
     bool mQuitRequested;                // User wants to quit, may have modified documents open.
+    bool mClosingFloaters;
     bool mLogoutRequestSent;            // Disconnect message sent to simulator, no longer safe to send messages to the sim.
     U32 mLastAgentControlFlags;
     F32 mLastAgentForceUpdate;

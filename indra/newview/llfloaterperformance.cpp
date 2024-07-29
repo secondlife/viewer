@@ -435,15 +435,12 @@ void LLFloaterPerformance::populateNearbyList()
     mNearbyList->updateColumns(true);
 
     static LLCachedControl<U32> max_render_cost(gSavedSettings, "RenderAvatarMaxComplexity", 0);
-    std::vector<LLCharacter*> valid_nearby_avs;
+    std::vector<LLVOAvatar*> valid_nearby_avs;
     mNearbyMaxGPUTime = LLWorld::getInstance()->getNearbyAvatarsAndMaxGPUTime(valid_nearby_avs);
 
-    std::vector<LLCharacter*>::iterator char_iter = valid_nearby_avs.begin();
-
-    while (char_iter != valid_nearby_avs.end())
+    for (LLVOAvatar* avatar : valid_nearby_avs)
     {
-        LLVOAvatar* avatar = dynamic_cast<LLVOAvatar*>(*char_iter);
-        if (avatar && (LLVOAvatar::AOA_INVISIBLE != avatar->getOverallAppearance()))
+        if (LLVOAvatar::AOA_INVISIBLE != avatar->getOverallAppearance())
         {
             F32 render_av_gpu_ms = avatar->getGPURenderTime();
 
@@ -508,7 +505,6 @@ void LLFloaterPerformance::populateNearbyList()
                 }
             }
         }
-        char_iter++;
     }
     mNearbyList->sortByColumnIndex(1, false);
     mNearbyList->setScrollPos(prev_pos);

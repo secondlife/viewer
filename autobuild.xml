@@ -104,11 +104,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d8d9e1e15ec09c81acfa9ffb80c3f20435373543</string>
+              <string>d600779da508fbb64eb85957f2866fd2b039b674</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-boost/releases/download/v1.84.0-r1/boost-1.84-darwin64-8499892512.tar.zst</string>
+              <string>https://github.com/secondlife/3p-boost/releases/download/v1.85.0-r1/boost-1.85-darwin64-10124675220.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -118,11 +118,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a5552fcd343179c4c7d6dd6289675431a8c0fe8d</string>
+              <string>ce39890fe263358d99c45f1b697107b72e3b6870</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-boost/releases/download/v1.84.0-r1/boost-1.84-linux64-8499892512.tar.zst</string>
+              <string>https://github.com/secondlife/3p-boost/releases/download/v1.85.0-r1/boost-1.85-linux64-10124675220.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -132,11 +132,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>5af9c69093e171eda552720a7acd570496db17db</string>
+              <string>2b0b0b0aaf3bdb1d36809db7d08bd60ae7e8fed1</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-boost/releases/download/v1.84.0-r1/boost-1.84-windows64-8499892512.tar.zst</string>
+              <string>https://github.com/secondlife/3p-boost/releases/download/v1.85.0-r1/boost-1.85-windows64-10124675220.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -149,7 +149,7 @@
         <key>copyright</key>
         <string>(see individual source files)</string>
         <key>version</key>
-        <string>1.81-09d25a7</string>
+        <string>1.85</string>
         <key>name</key>
         <string>boost</string>
         <key>description</key>
@@ -210,11 +210,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>fd656d2478728c4fc268478ec40d33b0ed1b7d83</string>
+              <string>a29852f41b77a26a2c10af1d179bf7c4b6a1b12b</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-colladadom/releases/download/v2.3-r4/colladadom-2.3.8500178177-darwin64-8500178177.tar.zst</string>
+              <string>https://github.com/secondlife/3p-colladadom/releases/download/v2.3-r6/colladadom-2.3.10129939866-darwin64-10129939866.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -224,11 +224,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>aebc0ddcae18852e78143fbac793cd4a32f0f251</string>
+              <string>933c31aa8da53731c75c272b90a64dde08dc1f4d</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-colladadom/releases/download/v2.3-r4/colladadom-2.3.8500178177-linux64-8500178177.tar.zst</string>
+              <string>https://github.com/secondlife/3p-colladadom/releases/download/v2.3-r6/colladadom-2.3.10129939866-linux64-10129939866.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -238,11 +238,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>3b25739b1a923c2edcf19864a1c82aeb5042567b</string>
+              <string>c01f1692a48d26436297bd5ac4b54fd3c71f7651</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-colladadom/releases/download/v2.3-r4/colladadom-2.3.8500178177-windows64-8500178177.tar.zst</string>
+              <string>https://github.com/secondlife/3p-colladadom/releases/download/v2.3-r6/colladadom-2.3.10129939866-windows64-10129939866.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -255,7 +255,7 @@
         <key>copyright</key>
         <string>Copyright 2006 Sony Computer Entertainment Inc.</string>
         <key>version</key>
-        <string>2.3.ab0c124</string>
+        <string>2.3.10129939866</string>
         <key>name</key>
         <string>colladadom</string>
       </map>
@@ -2507,66 +2507,6 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <string>tut</string>
         <key>description</key>
         <string>TUT is a small and portable unit test framework for C++.</string>
-      </map>
-      <key>uriparser</key>
-      <map>
-        <key>platforms</key>
-        <map>
-          <key>darwin64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>4b6ee5113b1368ec9ff5b59e195adde370b9f585</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
-              <key>url</key>
-              <string>https://github.com/secondlife/3p-uriparser/releases/download/v0.9.4-8fff38a/uriparser-0.9.4-darwin64-8fff38a.tar.zst</string>
-            </map>
-            <key>name</key>
-            <string>darwin64</string>
-          </map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>44dc74ec73e37c56bef6317d12a29d0435cb4bbb</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
-              <key>url</key>
-              <string>https://github.com/secondlife/3p-uriparser/releases/download/v0.9.4-8fff38a/uriparser-0.9.4-linux64-8fff38a.tar.zst</string>
-            </map>
-            <key>name</key>
-            <string>linux64</string>
-          </map>
-          <key>windows64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>e8b20edfc624f1d09bc83480932a9c844d47fc13</string>
-              <key>hash_algorithm</key>
-              <string>sha1</string>
-              <key>url</key>
-              <string>https://github.com/secondlife/3p-uriparser/releases/download/v0.9.4-8fff38a/uriparser-0.9.4-windows64-8fff38a.tar.zst</string>
-            </map>
-            <key>name</key>
-            <string>windows64</string>
-          </map>
-        </map>
-        <key>license</key>
-        <string>New BSD license</string>
-        <key>license_file</key>
-        <string>LICENSES/uriparser.txt</string>
-        <key>copyright</key>
-        <string>Copyright (C) 2007, Weijia Song &lt;songweijia@gmail.com&gt;, Sebastian Pipping &lt;webmaster@hartwork.org&gt;</string>
-        <key>version</key>
-        <string>0.9.4</string>
-        <key>name</key>
-        <string>uriparser</string>
-        <key>description</key>
-        <string>uriparser is a strictly RFC 3986 compliant URI parsing and handling library written in C. uriparser is cross-platform, fast, supports Unicode and is licensed under the New BSD license.</string>
       </map>
       <key>viewer-fonts</key>
       <map>

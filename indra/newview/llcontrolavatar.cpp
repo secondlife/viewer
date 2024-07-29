@@ -699,14 +699,14 @@ bool LLControlAvatar::isImpostor()
     return LLVOAvatar::isImpostor();
 }
 
-//static
+// static
 void LLControlAvatar::onRegionChanged()
 {
-    std::vector<LLCharacter*>::iterator it = LLCharacter::sInstances.begin();
-    for ( ; it != LLCharacter::sInstances.end(); ++it)
+    for (LLCharacter* character : LLCharacter::sInstances)
     {
-        LLControlAvatar* cav = dynamic_cast<LLControlAvatar*>(*it);
-        if (!cav) continue;
-        cav->mRegionChanged = true;
+        if (LLControlAvatar* cav = dynamic_cast<LLControlAvatar*>(character))
+        {
+            cav->mRegionChanged = true;
+        }
     }
 }

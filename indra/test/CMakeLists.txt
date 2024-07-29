@@ -71,6 +71,7 @@ if (WINDOWS)
           PROPERTIES 
           LINK_FLAGS "/NODEFAULTLIB:LIBCMT"
           LINK_FLAGS_DEBUG "/NODEFAULTLIB:\"LIBCMT;LIBCMTD;MSVCRT\""
+          RUNTIME_OUTPUT_DIRECTORY "${EXE_STAGING_DIR}"
           )
 elseif (DARWIN)
   # Support our "@executable_path/../Resources" load path for our test

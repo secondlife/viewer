@@ -2789,7 +2789,7 @@ void LLVoiceWebRTCConnection::OnDataReceivedImpl(const std::string &data, bool b
         return;
     }
 
-    boost::json::error_code ec;
+    boost::system::error_code ec;
     boost::json::value voice_data_parsed = boost::json::parse(data, ec);
     if (!ec)  // don't collect comments
     {

@@ -1361,7 +1361,17 @@ bool LLMeshRepoThread::fetchMeshSkinInfo(const LLUUID& mesh_id, bool can_retry)
                 if (!buffer)
                 {
                     LL_WARNS(LOG_MESH) << "Failed to allocate memory for skin info, size: " << size << LL_ENDL;
-                    return false;
+
+                    // Not sure what size is reasonable for skin info,
+                    // but if 20MB allocation failed, we definetely have issues
+                    const S32 MAX_SIZE = 30 * 1024 * 1024; //30MB
+                    if (size < MAX_SIZE)
+                    {
+                        LLAppViewer::instance()->outOfMemorySoftQuit();
+                    } // else ignore failures for anomalously large data
+                    LLMutexLock locker(mMutex);
+                    mSkinUnavailableQ.emplace_back(mesh_id);
+                    return true;
                 }
                 LLMeshRepository::sCacheBytesRead += size;
                 ++LLMeshRepository::sCacheReads;
@@ -1474,7 +1484,15 @@ bool LLMeshRepoThread::fetchMeshDecomposition(const LLUUID& mesh_id)
                 if (!buffer)
                 {
                     LL_WARNS(LOG_MESH) << "Failed to allocate memory for mesh decomposition, size: " << size << LL_ENDL;
-                    return false;
+
+                    // Not sure what size is reasonable for decomposition
+                    // but if 20MB allocation failed, we definetely have issues
+                    const S32 MAX_SIZE = 30 * 1024 * 1024; //30MB
+                    if (size < MAX_SIZE)
+                    {
+                        LLAppViewer::instance()->outOfMemorySoftQuit();
+                    } // else ignore failures for anomalously large decompositiions
+                    return true;
                 }
                 LLMeshRepository::sCacheBytesRead += size;
                 ++LLMeshRepository::sCacheReads;
@@ -1575,8 +1593,16 @@ bool LLMeshRepoThread::fetchMeshPhysicsShape(const LLUUID& mesh_id)
                 U8* buffer = new(std::nothrow) U8[size];
                 if (!buffer)
                 {
-                    LL_WARNS(LOG_MESH) << "Failed to allocate memory for physics shape, size: " << size << LL_ENDL;
-                    return false;
+                    LL_WARNS(LOG_MESH) << "Failed to allocate memory for mesh decomposition, size: " << size << LL_ENDL;
+
+                    // Not sure what size is reasonable for physcis
+                    // but if 20MB allocation failed, we definetely have issues
+                    const S32 MAX_SIZE = 30 * 1024 * 1024; //30MB
+                    if (size < MAX_SIZE)
+                    {
+                        LLAppViewer::instance()->outOfMemorySoftQuit();
+                    } // else ignore failures for anomalously large data
+                    return true;
                 }
                 file.read(buffer, size);
 
@@ -1767,9 +1793,17 @@ bool LLMeshRepoThread::fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod, 
                 if (!buffer)
                 {
                     LL_WARNS(LOG_MESH) << "Can't allocate memory for mesh " << mesh_id << " LOD " << lod << ", size: " << size << LL_ENDL;
-                    // todo: for now it will result in indefinite constant retries, should result in timeout
-                    // or in retry-count and disabling mesh. (but usually viewer is beyond saving at this point)
-                    return false;
+
+                    // Not sure what size is reasonable for a mesh,
+                    // but if 20MB allocation failed, we definetely have issues
+                    const S32 MAX_SIZE = 30 * 1024 * 1024; //30MB
+                    if (size < MAX_SIZE)
+                    {
+                        LLAppViewer::instance()->outOfMemorySoftQuit();
+                    } // else ignore failures for anomalously large data
+                    LLMutexLock lock(mMutex);
+                    mUnavailableQ.push_back(LODRequest(mesh_params, lod));
+                    return true;
                 }
                 LLMeshRepository::sCacheBytesRead += size;
                 ++LLMeshRepository::sCacheReads;
