@@ -415,7 +415,7 @@ void LLEventPump::reset()
     //mDeps.clear();
 }
 
-LLBoundListener LLEventPump::listen_impl(const std::string& name, const LLEventListener& listener,
+LLBoundListener LLEventPump::listen_impl(const std::string& name, const LLAwareListener& listener,
                                          const NameList& after,
                                          const NameList& before)
 {
@@ -575,7 +575,7 @@ LLBoundListener LLEventPump::listen_impl(const std::string& name, const LLEventL
     }
     // Now that newNode has a value that places it appropriately in mSignal,
     // connect it.
-    LLBoundListener bound = mSignal->connect(nodePosition, listener);
+    LLBoundListener bound = mSignal->connect_extended(nodePosition, listener);
     
     if (!name.empty())
     {   // note that we are not tracking anonymous listeners here either.
@@ -659,7 +659,7 @@ bool LLEventMailDrop::post(const LLSD& event)
 }
 
 LLBoundListener LLEventMailDrop::listen_impl(const std::string& name,
-                                    const LLEventListener& listener,
+                                    const LLAwareListener& listener,
                                     const NameList& after,
                                     const NameList& before)
 {
@@ -668,7 +668,10 @@ LLBoundListener LLEventMailDrop::listen_impl(const std::string& name,
     // Remove any that this listener consumes -- Effective STL, Item 9.
     for (auto hi(mEventHistory.begin()), hend(mEventHistory.end()); hi != hend; )
     {
-        if (listener(*hi))
+        // We don't actually have an LLBoundListener in hand, and we won't
+        // until the base-class listen_impl() call below. Pass an empty
+        // instance.
+        if (listener({}, *hi))
         {
             // new listener consumed this event, erase it
             hi = mEventHistory.erase(hi);
