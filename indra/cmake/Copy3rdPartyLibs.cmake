@@ -58,7 +58,6 @@ if(WINDOWS)
         libaprutil-1.dll
         nghttp2.dll
         libhunspell.dll
-        uriparser.dll
         )
 
     # OpenSSL
@@ -190,9 +189,6 @@ elseif(DARWIN)
         libndofdev.dylib
         libnghttp2.dylib
         libnghttp2.14.dylib
-        liburiparser.dylib
-        liburiparser.1.dylib
-        liburiparser.1.0.27.dylib
        )
 
     if (TARGET ll::openal)

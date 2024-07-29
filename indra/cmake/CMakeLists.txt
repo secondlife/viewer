@@ -56,7 +56,6 @@ set(cmake_SOURCE_FILES
         Tut.cmake
         UI.cmake
         UnixInstall.cmake
-        URIPARSER.cmake
         Variables.cmake
         ViewerMiscLibs.cmake
         VisualLeakDetector.cmake

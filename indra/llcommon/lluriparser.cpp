@@ -29,12 +29,7 @@
 #include "linden_common.h"
 #include "lluriparser.h"
 
-#if LL_DARWIN
-#include <signal.h>
-#include <setjmp.h>
-#endif
-
-LLUriParser::LLUriParser(const std::string& u) : mTmpScheme(false), mNormalizedTmp(false), mRes(0)
+LLUriParser::LLUriParser(const std::string& u) : mTmpScheme(false), mNormalizedTmp(false), mRes(false)
 {
     if (u.find("://") == std::string::npos)
     {
@@ -42,36 +37,52 @@ LLUriParser::LLUriParser(const std::string& u) : mTmpScheme(false), mNormalizedT
         mTmpScheme = true;
     }
 
-    mNormalizedUri += u.c_str();
+    mNormalizedUri.append(u);
 
     mRes = parse();
 }
 
 LLUriParser::~LLUriParser()
 {
-    uriFreeUriMembersA(&mUri);
 }
 
-S32 LLUriParser::parse()
+bool LLUriParser::parse()
 {
-    mRes = uriParseSingleUriA(&mUri, mNormalizedUri.c_str(), NULL);
+    try
+    {
+        auto res = boost::urls::parse_uri(mNormalizedUri);
+        if (res)
+        {
+            mUri = *res;
+            mRes = true;
+        }
+        else
+        {
+            mRes = false;
+        }
+    }
+    catch (const std::length_error&)
+    {
+        LL_WARNS() << "Failed to parse uri due to exceeding uri_view max_size" << LL_ENDL;
+        mRes = false;
+    }
     return mRes;
 }
 
-const char * LLUriParser::scheme() const
+const std::string& LLUriParser::scheme() const
 {
-    return mScheme.c_str();
+    return mScheme;
 }
 
-void LLUriParser::sheme(const std::string& s)
+void LLUriParser::scheme(const std::string& s)
 {
     mTmpScheme = !s.size();
     mScheme = s;
 }
 
-const char * LLUriParser::port() const
+const std::string& LLUriParser::port() const
 {
-    return mPort.c_str();
+    return mPort;
 }
 
 void LLUriParser::port(const std::string& s)
@@ -79,9 +90,9 @@ void LLUriParser::port(const std::string& s)
     mPort = s;
 }
 
-const char * LLUriParser::host() const
+const std::string& LLUriParser::host() const
 {
-    return mHost.c_str();
+    return mHost;
 }
 
 void LLUriParser::host(const std::string& s)
@@ -89,9 +100,9 @@ void LLUriParser::host(const std::string& s)
     mHost = s;
 }
 
-const char * LLUriParser::path() const
+const std::string& LLUriParser::path() const
 {
-    return mPath.c_str();
+    return mPath;
 }
 
 void LLUriParser::path(const std::string& s)
@@ -99,9 +110,9 @@ void LLUriParser::path(const std::string& s)
     mPath = s;
 }
 
-const char * LLUriParser::query() const
+const std::string& LLUriParser::query() const
 {
-    return mQuery.c_str();
+    return mQuery;
 }
 
 void LLUriParser::query(const std::string& s)
@@ -109,27 +120,14 @@ void LLUriParser::query(const std::string& s)
     mQuery = s;
 }
 
-const char * LLUriParser::fragment() const
+const std::string& LLUriParser::fragment() const
 {
-    return mFragment.c_str();
+    return mFragment;
 }
 
 void LLUriParser::fragment(const std::string& s)
 {
     mFragment = s;
-}
-
-void LLUriParser::textRangeToString(UriTextRangeA& textRange, std::string& str)
-{
-    if (textRange.first != NULL && textRange.afterLast != NULL && textRange.first < textRange.afterLast)
-    {
-        const ptrdiff_t len = textRange.afterLast - textRange.first;
-        str.assign(textRange.first, static_cast<std::string::size_type>(len));
-    }
-    else
-    {
-        str = LLStringUtil::null;
-    }
 }
 
 void LLUriParser::extractParts()
@@ -140,96 +138,24 @@ void LLUriParser::extractParts()
     }
     else
     {
-        textRangeToString(mUri.scheme, mScheme);
+        mScheme = mUri.scheme();
     }
 
-    textRangeToString(mUri.hostText, mHost);
-    textRangeToString(mUri.portText, mPort);
-    textRangeToString(mUri.query, mQuery);
-    textRangeToString(mUri.fragment, mFragment);
-
-    UriPathSegmentA * pathHead = mUri.pathHead;
-    while (pathHead)
-    {
-        std::string partOfPath;
-        textRangeToString(pathHead->text, partOfPath);
-
-        mPath += '/';
-        mPath += partOfPath;
-
-        pathHead = pathHead->next;
-    }
+    mHost = mUri.host();
+    mPort = mUri.port();
+    mQuery = mUri.query();
+    mFragment = mUri.fragment();
+    mPath = mUri.path();
 }
 
-#if LL_DARWIN
-typedef void(*sighandler_t)(int);
-jmp_buf return_to_normalize;
-static int sLastSignal = 0;
-void uri_signal_handler(int signal)
-{
-    sLastSignal = signal;
-    // Apparently signal handler throwing an exception doesn't work.
-    // This is ugly and unsafe due to not unwinding content of uriparser library,
-    // but unless we have a way to catch this as NSexception, jump appears to be the only option.
-    longjmp(return_to_normalize, 1 /*setjmp will return this value*/);
-}
-#endif
-
-S32 LLUriParser::normalize()
+bool LLUriParser::normalize()
 {
     mNormalizedTmp = mTmpScheme;
-    if (!mRes)
+    if (mRes)
     {
-#if LL_DARWIN
-        sighandler_t last_sigill_handler, last_sigbus_handler;
-        last_sigill_handler = signal(SIGILL, &uri_signal_handler);      // illegal instruction
-        last_sigbus_handler = signal(SIGBUS, &uri_signal_handler);
-
-        if (setjmp(return_to_normalize))
-        {
-            // Issue: external library crashed via signal
-            // If you encountered this, please try to figure out what's wrong:
-            // 1. Verify that library's input is 'sane'
-            // 2. Check if we have an NSexception to work with (unlikely)
-            // 3. See if passing same string causes exception to repeat
-            //
-            // Crash happens at uriNormalizeSyntaxExA
-            // Warning!!! This does not properly unwind stack,
-            // if this can be handled by NSexception, it needs to be remade
-            llassert(0);
-
-            LL_WARNS() << "Uriparser crashed with " << sLastSignal << " , while processing: " << mNormalizedUri << LL_ENDL;
-            signal(SIGILL, last_sigill_handler);
-            signal(SIGBUS, last_sigbus_handler);
-            return 1;
-        }
-#endif
-
-        mRes = uriNormalizeSyntaxExA(&mUri, URI_NORMALIZE_SCHEME | URI_NORMALIZE_HOST);
-
-#if LL_DARWIN
-        signal(SIGILL, last_sigill_handler);
-        signal(SIGBUS, last_sigbus_handler);
-#endif
-
-        if (!mRes)
-        {
-            S32 chars_required;
-            mRes = uriToStringCharsRequiredA(&mUri, &chars_required);
-
-            if (!mRes)
-            {
-                chars_required++;
-                std::vector<char> label_buf(chars_required);
-                mRes = uriToStringA(&label_buf[0], &mUri, chars_required, NULL);
-
-                if (!mRes)
-                {
-                    mNormalizedUri = &label_buf[mTmpScheme ? 7 : 0];
-                    mTmpScheme = false;
-                }
-            }
-        }
+        mUri.normalize_scheme().normalize_authority();
+        mNormalizedUri = mUri.buffer().substr(mTmpScheme ? 7 : 0);
+        mTmpScheme = false;
     }
 
     if(mTmpScheme && mNormalizedUri.size() > 7)
@@ -302,7 +228,7 @@ bool LLUriParser::test() const
     return uri == mNormalizedUri;
 }
 
-const char * LLUriParser::normalizedUri() const
+const std::string& LLUriParser::normalizedUri() const
 {
-    return mNormalizedUri.c_str();
+    return mNormalizedUri;
 }
