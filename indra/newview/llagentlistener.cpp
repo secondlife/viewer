@@ -45,6 +45,7 @@
 #include "lltoolgrab.h"
 #include "llhudeffectlookat.h"
 #include "llagentcamera.h"
+#include <functional>
 
 LLAgentListener::LLAgentListener(LLAgent &agent)
   : LLEventAPI("LLAgent",
@@ -522,62 +523,63 @@ void LLAgentListener::getGroups(const LLSD& event) const
     sendReply(LLSDMap("groups", reply), event);
 }
 
+/*----------------------------- camera control -----------------------------*/
+// specialize LLSDParam to support (const LLVector3&) arguments -- this
+// wouldn't even be necessary except that the relevant LLVector3 constructor
+// is explicitly explicit
+template <>
+class LLSDParam<const LLVector3&>: public LLSDParamBase
+{
+public:
+    LLSDParam(const LLSD& value): value(LLVector3(value)) {}
+
+    operator const LLVector3&() const { return value; }
+
+private:
+    LLVector3 value;
+};
+
+// accept any of a number of similar LLFollowCamMgr methods with different
+// argument types, and return a wrapper lambda that accepts LLSD and converts
+// to the target argument type
+template <typename T>
+auto wrap(void (LLFollowCamMgr::*method)(const LLUUID& source, T arg))
+{
+    return [method](LLFollowCamMgr& followcam, const LLUUID& source, const LLSD& arg)
+    { (followcam.*method)(source, LLSDParam<T>(arg)); };
+}
+
+// table of supported LLFollowCamMgr methods,
+// with the corresponding setFollowCamParams() argument keys
+static std::pair<std::string, std::function<void(LLFollowCamMgr&, const LLUUID&, const LLSD&)>>
+cam_params[] =
+{
+    { "camera_pos",       wrap(&LLFollowCamMgr::setPosition) },
+    { "focus_pos",        wrap(&LLFollowCamMgr::setFocus) },
+    { "focus_offset",     wrap(&LLFollowCamMgr::setFocusOffset) },
+    { "camera_locked",    wrap(&LLFollowCamMgr::setPositionLocked) },
+    { "focus_locked",     wrap(&LLFollowCamMgr::setFocusLocked) },
+    { "distance",         wrap(&LLFollowCamMgr::setDistance) },
+    { "focus_threshold",  wrap(&LLFollowCamMgr::setFocusThreshold) },
+    { "camera_threshold", wrap(&LLFollowCamMgr::setPositionThreshold) },
+    { "focus_lag",        wrap(&LLFollowCamMgr::setFocusLag) },
+    { "camera_lag",       wrap(&LLFollowCamMgr::setPositionLag) },
+    { "camera_pitch",     wrap(&LLFollowCamMgr::setPitch) },
+    { "behindness_lag",   wrap(&LLFollowCamMgr::setBehindnessLag) },
+    { "behindness_angle", wrap(&LLFollowCamMgr::setBehindnessAngle) },
+};
+
 void LLAgentListener::setFollowCamParams(const LLSD& event) const
 {
-    if (event.has("camera_pos"))
+    auto& followcam{ LLFollowCamMgr::instance() };
+    for (const auto& pair : cam_params)
     {
-        LLFollowCamMgr::getInstance()->setPosition(gAgentID, LLVector3(event["camera_pos"]));
+        if (event.has(pair.first))
+        {
+            pair.second(followcam, gAgentID, event[pair.first]);
+        }
     }
-    if (event.has("focus_pos"))
-    {
-        LLFollowCamMgr::getInstance()->setFocus(gAgentID, LLVector3(event["focus_pos"]));
-    }
-    if (event.has("focus_offset"))
-    {
-        LLFollowCamMgr::getInstance()->setFocusOffset(gAgentID, LLVector3(event["focus_offset"]));
-    }
-    if (event.has("camera_locked"))
-    {
-        LLFollowCamMgr::getInstance()->setPositionLocked(gAgentID, event["camera_locked"]);
-    }
-    if (event.has("focus_locked"))
-    {
-        LLFollowCamMgr::getInstance()->setFocusLocked(gAgentID, event["focus_locked"]);
-    }
-    if (event.has("distance"))
-    {
-        LLFollowCamMgr::getInstance()->setDistance(gAgentID, event["distance"].asReal());
-    }
-    if (event.has("focus_threshold"))
-    {
-        LLFollowCamMgr::getInstance()->setFocusThreshold(gAgentID, event["focus_threshold"].asReal());
-    }
-    if (event.has("camera_threshold"))
-    {
-        LLFollowCamMgr::getInstance()->setPositionThreshold(gAgentID, event["camera_threshold"].asReal());
-    }
-    if (event.has("focus_lag"))
-    {
-        LLFollowCamMgr::getInstance()->setFocusLag(gAgentID, event["focus_lag"].asReal());
-    }
-    if (event.has("camera_lag"))
-    {
-        LLFollowCamMgr::getInstance()->setPositionLag(gAgentID, event["camera_lag"].asReal());
-    }
-    if (event.has("camera_pitch"))
-    {
-        LLFollowCamMgr::getInstance()->setPitch(gAgentID, event["camera_pitch"].asReal());
-    }
-    if (event.has("behindness_lag"))
-    {
-        LLFollowCamMgr::getInstance()->setBehindnessLag(gAgentID, event["behindness_lag"].asReal());
-    }
-    if (event.has("behindness_angle"))
-    {
-        LLFollowCamMgr::getInstance()->setBehindnessAngle(gAgentID, event["behindness_angle"].asReal());
-    }
- 
-    LLFollowCamMgr::getInstance()->setCameraActive(gAgentID, true);
+    followcam.setCameraActive(gAgentID, true);
 }
 
 void LLAgentListener::setFollowCamActive(LLSD const & event) const
