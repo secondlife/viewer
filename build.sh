@@ -149,8 +149,10 @@ pre_build()
     RELEASE_CRASH_REPORTING=OFF
     HAVOK=OFF
     SIGNING=()
-    if [[ "$variant" == "Release" ]]
+    if [[ "$variant" != *OS ]]
     then
+        # Proprietary builds
+
         RELEASE_CRASH_REPORTING=ON
         HAVOK=ON
 
