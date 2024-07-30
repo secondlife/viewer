@@ -149,7 +149,38 @@ void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
 
 void calcDiffuseSpecular(vec3 baseColor, float metallic, inout vec3 diffuseColor, inout vec3 specularColor);
 
+
+#ifndef TRANSMISSIVE
+
 vec3 pbrBaseLight(vec3 diffuseColor,
+                  vec3 specularColor,
+                  float metallic,
+                  vec3 pos,
+                  vec3 norm,
+                  float perceptualRoughness,
+                  vec3 light_dir,
+                  vec3 sunlit,
+                  float scol,
+                  vec3 radiance,
+                  vec3 irradiance,
+                  vec3 colorEmissive,
+                  float ao,
+                  vec3 additive,
+                  vec3 atten);
+
+vec3 pbrCalcPointLightOrSpotLight(vec3 diffuseColor, vec3 specularColor,
+                    float perceptualRoughness,
+                    float metallic,
+                    vec3 n, // normal
+                    vec3 p, // pixel position
+                    vec3 v, // view vector (negative normalized pixel position)
+                    vec3 lp, // light position
+                    vec3 ld, // light direction (for spotlights)
+                    vec3 lightColor,
+                    float lightSize, float falloff, float is_pointlight, float ambiance);
+#else
+
+vec3 pbrBaseLightTransmission(vec3 diffuseColor,
                   vec3 specularColor,
                   float metallic,
                   vec4 pos,
@@ -172,7 +203,7 @@ vec3 pbrBaseLight(vec3 diffuseColor,
                   float dispersion,
                   float transmission);
 
-vec3 pbrCalcPointLightOrSpotLight(vec3 diffuseColor, vec3 specularColor,
+vec3 pbrCalcPointLightOrSpotLightTransmission(vec3 diffuseColor, vec3 specularColor,
                     float perceptualRoughness,
                     float metallic,
                     vec3 n, // normal
@@ -190,13 +221,15 @@ vec3 pbrCalcPointLightOrSpotLight(vec3 diffuseColor, vec3 specularColor,
                     float transmissiveness);
 
 #endif
+
+#endif
 // ==================================
 
 
 // ==================================
 // output definition
 // ==================================
-#if defined(ALPHA_BLEND) || defined(TRANSMISSIVE) || defined(UNLIT)
+#if defined(ALPHA_BLEND) || defined(UNLIT)
 out vec4 frag_color;
 #else
 out vec4 frag_data[4];
@@ -265,7 +298,7 @@ void main()
 // ==================================
 // non alpha output
 // ==================================
-#if !defined(ALPHA_BLEND) && !defined(TRANSMISSIVE)
+#ifndef ALPHA_BLEND
 #ifdef UNLIT
     vec4 color = basecolor;
     color.rgb += emissive.rgb;
@@ -282,7 +315,7 @@ void main()
 // ==================================
 // alpha implementation
 // ==================================
-#if defined(ALPHA_BLEND) || defined(TRANSMISSIVE)
+#ifdef ALPHA_BLEND
 
     float scol = 1.0;
     vec3 sunlit;
@@ -324,26 +357,26 @@ void main()
     calcDiffuseSpecular(basecolor.rgb, metallic, diffuseColor, specularColor);
 
     vec3 v = -normalize(pos.xyz);
-
-    float transmissiveness = 0.0;
-#if defined(TRANSMISSIVE)
-    float transmission_map = texture(transmissionMap, base_color_uv.xy).r;
-    transmissiveness = transmissiveFactor * transmission_map;
-#endif
-
-    vec3 t_light = vec3(0);
-
-    if (volumeAttenuationDistance == 0.0)
-    {
-        volumeThickness = 0.01;
-    }
-        
-    vec3 color = pbrBaseLight(diffuseColor, specularColor, metallic, vary_fragcoord_t, v, norm.xyz, perceptualRoughness, light_dir, sunlit_linear, scol, radiance, irradiance, emissive, orm.r, additive, atten, volumeThickness, volumeAttenuationColor, volumeAttenuationDistance, ior, dispersion, transmissiveness);
-
+    
     vec3 light = vec3(0);
+    vec3 color = vec3(0);
+#ifndef TRANSMISSIVE
+    color = pbrBaseLight(diffuseColor, specularColor, metallic, v, norm.xyz, perceptualRoughness, light_dir, sunlit_linear, scol, radiance, irradiance, emissive, orm.r, additive, atten);
+
 
     // Punctual lights
-#define LIGHT_LOOP(i) light += pbrCalcPointLightOrSpotLight(diffuseColor, specularColor, perceptualRoughness, metallic, norm.xyz, pos.xyz, v, light_position[i].xyz, light_direction[i].xyz, light_diffuse[i].rgb, light_deferred_attenuation[i].x, light_deferred_attenuation[i].y, light_attenuation[i].z, light_attenuation[i].w, ior, volumeThickness, transmissiveness);
+#define LIGHT_LOOP(i) light += pbrCalcPointLightOrSpotLight(diffuseColor, specularColor, perceptualRoughness, metallic, norm.xyz, pos.xyz, v, light_position[i].xyz, light_direction[i].xyz, light_diffuse[i].rgb, light_deferred_attenuation[i].x, light_deferred_attenuation[i].y, light_attenuation[i].z, light_attenuation[i].w);
+
+#else
+    float transmissiveness = 0.0;
+    float transmission_map = texture(transmissionMap, base_color_uv.xy).r;
+    transmissiveness = transmissiveFactor * transmission_map;
+        
+    color = pbrBaseLightTransmission(diffuseColor, specularColor, metallic, vary_fragcoord_t, v, norm.xyz, perceptualRoughness, light_dir, sunlit_linear, scol, radiance, irradiance, emissive, orm.r, additive, atten, volumeThickness, volumeAttenuationColor, volumeAttenuationDistance, ior, dispersion, transmissiveness);
+
+#define LIGHT_LOOP(i) light += pbrCalcPointLightOrSpotLightTransmission(diffuseColor, specularColor, perceptualRoughness, metallic, norm.xyz, pos.xyz, v, light_position[i].xyz, light_direction[i].xyz, light_diffuse[i].rgb, light_deferred_attenuation[i].x, light_deferred_attenuation[i].y, light_attenuation[i].z, light_attenuation[i].w, ior, volumeThickness, transmissiveness);
+    
+#endif
 
     LIGHT_LOOP(1)
     LIGHT_LOOP(2)
@@ -358,6 +391,7 @@ void main()
     color.rgb = applySkyAndWaterFog(pos.xyz, additive, atten, vec4(color, 1.0)).rgb;
 
     float a = basecolor.a*vertex_color.a;
+
     frag_color = max(vec4(color.rgb,a), vec4(0));
 #else // UNLIT
     vec4 color = basecolor;

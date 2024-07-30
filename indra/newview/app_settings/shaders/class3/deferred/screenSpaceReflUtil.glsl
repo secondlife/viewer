@@ -36,7 +36,10 @@ uniform mat4 inv_modelview_delta;
 
 vec4 getPositionWithDepth(vec2 pos_screen, float depth);
 
-float random (vec2 uv);
+float random (vec2 uv)
+{
+    return fract(sin(dot(uv, vec2(12.9898, 78.233))) * 43758.5453123); //simple random function
+}
 
 // Based off of https://github.com/RoundedGlint585/ScreenSpaceReflection/
 // A few tweaks here and there to suit our needs.

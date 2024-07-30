@@ -90,8 +90,7 @@ void calcDiffuseSpecular(vec3 baseColor, float metallic, inout vec3 diffuseColor
 vec3 pbrBaseLight(vec3 diffuseColor,
                   vec3 specularColor,
                   float metallic,
-                  vec4 pos,
-                  vec3 view,
+                  vec3 pos,
                   vec3 norm,
                   float perceptualRoughness,
                   vec3 light_dir,
@@ -102,25 +101,15 @@ vec3 pbrBaseLight(vec3 diffuseColor,
                   vec3 colorEmissive,
                   float ao,
                   vec3 additive,
-                  vec3 atten,
-                  float thickness,
-                  vec3 atten_color,
-                  float atten_dist,
-                  float ior,
-                  float dispersion,
-                  float transmission);
+                  vec3 atten);
 
 vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
                     float perceptualRoughness,
                     float metallic,
                     vec3 n, // normal
                     vec3 v, // surface point to camera
-                    vec3 l, // surface point to light
-                    vec3 tr, // Transmission ray.
-                    inout vec3 transmission_light, // Transmissive lighting.
-                    vec3 intensity,
-                    float ior
-                    ) ;
+                    vec3 l); //surface point to light
+
 
 void adjustIrradiance(inout vec3 irradiance, float ambocc)
 {
@@ -196,7 +185,7 @@ void main()
         calcDiffuseSpecular(baseColor.rgb, metallic, diffuseColor, specularColor);
 
         vec3 v = -normalize(pos.xyz);
-        color = pbrBaseLight(diffuseColor, specularColor, metallic, vec4(pos.xyz, 1.0), v, norm.xyz, perceptualRoughness, light_dir, sunlit_linear, scol, radiance, irradiance, colorEmissive, ao, additive, atten, 0, vec3(0), 0, 1.5, 0, 0);
+        color = pbrBaseLight(diffuseColor, specularColor, metallic, v, norm.xyz, perceptualRoughness, light_dir, sunlit_linear, scol, radiance, irradiance, colorEmissive, ao, additive, atten);
     }
     else if (GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_HDRI))
     {

@@ -60,12 +60,7 @@ vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
                     float metallic,
                     vec3 n, // normal
                     vec3 v, // surface point to camera
-                    vec3 l, // surface point to light
-                    vec3 tr, // Transmission ray.
-                    inout vec3 transmission_light, // Transmissive lighting.
-                    vec3 intensity,
-                    float ior
-                    ) ;
+                    vec3 l); //surface point to light
 
 
 void main()
@@ -118,9 +113,8 @@ void main()
                 float dist_atten = calcLegacyDistanceAttenuation(dist, falloff);
 
                 vec3 intensity = dist_atten * lightColor * 3.25;
-                vec3 t_light = vec3(0.0);
-                final_color += intensity*pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, n.xyz, v, lv, vec3(0), t_light, vec3(0), 1.5);
 
+                final_color += intensity*pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, n.xyz, v, lv);
             }
         }
     }

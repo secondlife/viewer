@@ -223,6 +223,14 @@ bool LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
         }
     }
 
+    if (features->hasTransmission)
+    {
+        if (!shader->attachFragmentObject("gltf/transmissiveUtil.glsl"))
+        {
+            return false;
+        }
+    }
+
     if (features->hasScreenSpaceReflections || features->hasReflectionProbes)
     {
         if (!shader->attachFragmentObject("deferred/screenSpaceReflUtil.glsl"))

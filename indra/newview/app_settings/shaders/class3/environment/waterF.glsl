@@ -42,34 +42,25 @@ vec2 BRDF(float NoV, float roughness);
 
 void calcDiffuseSpecular(vec3 baseColor, float metallic, inout vec3 diffuseColor, inout vec3 specularColor);
 
-// set colorDiffuse and colorSpec to the results of GLTF PBR style IBL
 vec3 pbrIbl(vec3 diffuseColor,
-            vec3 specularColor,
-            vec3 radiance, // radiance map sample
-            vec3 irradiance, // irradiance map sample
-            float ao,       // ambient occlusion factor
-            float nv,       // normal dot view vector
-            float perceptualRough,
-            float transmission,
-            vec3 transmission_btdf);
+    vec3 specularColor,
+    vec3 radiance, // radiance map sample
+    vec3 irradiance, // irradiance map sample
+    float ao,       // ambient occlusion factor
+    float nv,       // normal dot view vector
+    float perceptualRoughness);
 
 vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
-                    float perceptualRoughness,
-                    float metallic,
-                    vec3 n, // normal
-                    vec3 v, // surface point to camera
-                    vec3 l, // surface point to light
-                    vec3 tr, // Transmission ray.
-                    inout vec3 transmission_light, // Transmissive lighting.
-                    vec3 intensity,
-                    float ior
-                    ) ;
+    float perceptualRoughness,
+    float metallic,
+    vec3 n, // normal
+    vec3 v, // surface point to camera
+    vec3 l); //surface point to light
 
 vec3 pbrBaseLight(vec3 diffuseColor,
                   vec3 specularColor,
                   float metallic,
-                  vec4 pos,
-                  vec3 view,
+                  vec3 pos,
                   vec3 norm,
                   float perceptualRoughness,
                   vec3 light_dir,
@@ -80,13 +71,7 @@ vec3 pbrBaseLight(vec3 diffuseColor,
                   vec3 colorEmissive,
                   float ao,
                   vec3 additive,
-                  vec3 atten,
-                  float thickness,
-                  vec3 atten_color,
-                  float atten_dist,
-                  float ior,
-                  float dispersion,
-                  float transmission);
+                  vec3 atten);
 
 uniform sampler2D bumpMap;
 uniform sampler2D bumpMap2;
@@ -227,7 +212,7 @@ void main()
     vec3 sunlit_linear = srgb_to_linear(sunlit);
 
 #ifdef TRANSPARENT_WATER
-    vec4 fb = textureLod(screenTex, distort2, 0);
+    vec4 fb = texture(screenTex, distort2);
     float depth = texture(depthMap, distort2).r;
     vec3 refPos = getPositionWithNDC(vec3(distort2*2.0-vec2(1.0), depth*2.0-1.0));
 
@@ -235,7 +220,7 @@ void main()
     {
         //we sampled an above water sample, don't distort
         distort2 = distort;
-        fb = textureLod(screenTex, distort2, 0);
+        fb = texture(screenTex, distort2);
         depth = texture(depthMap, distort2).r;
         refPos = getPositionWithNDC(vec3(distort2 * 2.0 - vec2(1.0), depth * 2.0 - 1.0));
     }
@@ -272,13 +257,11 @@ void main()
 
     float NdotV = clamp(abs(dot(norm, v)), 0.001, 1.0);
 
-    vec3 t_light = vec3(0);
-
-    vec3 punctual = pbrPunctual(vec3(0), specularColor, 0.1, metallic, normalize(wavef+up*max(dist, 32.0)/32.0*(1.0-vdu)), v, normalize(light_dir), vec3(0), t_light, vec3(0), 1.5);
+    vec3 punctual = pbrPunctual(vec3(0), specularColor, 0.1, metallic, normalize(wavef+up*max(dist, 32.0)/32.0*(1.0-vdu)), v, normalize(light_dir));
 
     vec3 color = punctual * sunlit_linear * 2.75 * shadow;
 
-    vec3 ibl = pbrIbl(vec3(0), vec3(1), radiance, vec3(0), ao, NdotV, 0.0, 0.0, vec3(0));
+    vec3 ibl = pbrIbl(vec3(0), vec3(1), radiance, vec3(0), ao, NdotV, 0.0);
 
     color += ibl;
 

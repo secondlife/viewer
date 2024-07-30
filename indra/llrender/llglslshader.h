@@ -51,6 +51,7 @@ public:
     bool hasAmbientOcclusion = false;
     bool hasSrgb = false;
     bool isDeferred = false;
+    bool hasTransmission = false;
     bool hasScreenSpaceReflections = false;
     bool hasAlphaMask = false;
     bool hasReflectionProbes = false;
