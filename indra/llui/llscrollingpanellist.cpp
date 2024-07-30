@@ -84,42 +84,35 @@ void LLScrollingPanelList::removePanel(LLScrollingPanel* panel)
 
     if (!mPanelList.empty())
     {
-        for (iter = mPanelList.begin(); iter != mPanelList.end(); ++iter, ++index)
-        {
-            if (*iter == panel)
-            {
-                break;
-            }
-        }
+        LLScrollingPanelList::panel_list_t::const_iterator iter =
+            std::find(mPanelList.begin(), mPanelList.end(), panel);
         if (iter != mPanelList.end())
         {
-            removePanel(index);
+            removeChild(panel);
+            mPanelList.erase(iter);
+            rearrange();
         }
     }
 }
 
-void LLScrollingPanelList::removePanel( U32 panel_index )
+void LLScrollingPanelList::removePanel(U32 panel_index)
 {
-    if ( mPanelList.empty() || panel_index >= mPanelList.size() )
+    if (panel_index >= mPanelList.size())
     {
         LL_WARNS() << "Panel index " << panel_index << " is out of range!" << LL_ENDL;
         return;
     }
-    else
-    {
-        removeChild( mPanelList.at(panel_index) );
-        mPanelList.erase( mPanelList.begin() + panel_index );
-    }
 
+    LLScrollingPanelList::panel_list_t::const_iterator iter = mPanelList.begin() + panel_index;
+    removeChild(*iter);
+    mPanelList.erase(iter);
     rearrange();
 }
 
 void LLScrollingPanelList::updatePanels(bool allow_modify)
 {
-    for (std::deque<LLScrollingPanel*>::iterator iter = mPanelList.begin();
-         iter != mPanelList.end(); ++iter)
+    for (LLScrollingPanel* childp : mPanelList)
     {
-        LLScrollingPanel *childp = *iter;
         childp->updatePanel(allow_modify);
     }
 }
@@ -131,10 +124,8 @@ void LLScrollingPanelList::rearrange()
     if (!mPanelList.empty())
     {
         new_width = new_height = mPadding * 2;
-        for (std::deque<LLScrollingPanel*>::iterator iter = mPanelList.begin();
-            iter != mPanelList.end(); ++iter)
+        for (LLScrollingPanel* childp : mPanelList)
         {
-            LLScrollingPanel* childp = *iter;
             const LLRect& rect = childp->getRect();
             if (mIsHorizontal)
             {
@@ -180,10 +171,8 @@ void LLScrollingPanelList::rearrange()
 
     // Reposition each of the child views
     S32 pos = mIsHorizontal ? mPadding : rc.getHeight() - mPadding;
-    for (std::deque<LLScrollingPanel*>::iterator iter = mPanelList.begin();
-        iter != mPanelList.end(); ++iter)
+    for (LLScrollingPanel* childp : mPanelList)
     {
-        LLScrollingPanel* childp = *iter;
         const LLRect& rect = childp->getRect();
         if (mIsHorizontal)
         {
@@ -211,10 +200,11 @@ void LLScrollingPanelList::updatePanelVisiblilty()
         getParent()->getRect().getHeight() - mPadding,
         &parent_screen_rect.mRight, &parent_screen_rect.mTop );
 
-    for (std::deque<LLScrollingPanel*>::iterator iter = mPanelList.begin();
-         iter != mPanelList.end(); ++iter)
+    for (LLScrollingPanel* childp : mPanelList)
     {
-        LLScrollingPanel *childp = *iter;
+        if (childp->isDead())
+            continue;
+
         const LLRect& local_rect = childp->getRect();
         LLRect screen_rect;
         childp->localPointToScreen(

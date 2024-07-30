@@ -961,7 +961,7 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
         }
     }
 
-    if (obj->getType() != LLAssetType::AT_CATEGORY)
+    if (obj && obj->getType() != LLAssetType::AT_CATEGORY)
     {
         items.push_back(std::string("Paste Separator"));
     }
@@ -1190,6 +1190,7 @@ void LLInvFVBridge::addMarketplaceContextMenuOptions(U32 flags,
             || (U32)depth > (max_depth + 1))
         {
             disabled_items.push_back(std::string("New Folder"));
+            disabled_items.push_back(std::string("New Listing Folder"));
         }
     }
 
@@ -4268,6 +4269,7 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
         if (LLMarketplaceData::instance().isUpdating(mUUID))
         {
             disabled_items.push_back(std::string("New Folder"));
+            disabled_items.push_back(std::string("New Listing Folder"));
             disabled_items.push_back(std::string("Rename"));
             disabled_items.push_back(std::string("Cut"));
             disabled_items.push_back(std::string("Copy"));
@@ -4278,12 +4280,14 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
     if (getPreferredType() == LLFolderType::FT_MARKETPLACE_STOCK)
     {
         disabled_items.push_back(std::string("New Folder"));
+        disabled_items.push_back(std::string("New Listing Folder"));
         disabled_items.push_back(std::string("upload_def"));
         disabled_items.push_back(std::string("create_new"));
     }
     if (marketplace_listings_id == mUUID)
     {
         disabled_items.push_back(std::string("New Folder"));
+        disabled_items.push_back(std::string("New Listing Folder"));
         disabled_items.push_back(std::string("Rename"));
         disabled_items.push_back(std::string("Cut"));
         disabled_items.push_back(std::string("Delete"));
@@ -6289,7 +6293,7 @@ void LLCallingCardBridge::performAction(LLInventoryModel* model, std::string act
         if (item && (item->getCreatorUUID() != gAgent.getID()) &&
             (!item->getCreatorUUID().isNull()))
         {
-            std::string callingcard_name = LLCacheName::getDefaultName();
+            std::string callingcard_name = gCacheName->getDefaultName();
             LLAvatarName av_name;
             if (LLAvatarNameCache::get(item->getCreatorUUID(), &av_name))
             {

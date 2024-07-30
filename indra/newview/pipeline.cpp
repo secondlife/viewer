@@ -4565,7 +4565,8 @@ void LLPipeline::renderDebug()
         mReflectionMapManager.renderDebug();
     }
 
-    if (gSavedSettings.getBOOL("RenderReflectionProbeVolumes") && !hud_only)
+    static LLCachedControl<bool> render_ref_probe_volumes(gSavedSettings, "RenderReflectionProbeVolumes");
+    if (render_ref_probe_volumes && !hud_only)
     {
         LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("probe debug display");
 
@@ -5287,7 +5288,7 @@ void LLPipeline::calcNearbyLights(LLCamera& camera)
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
     assertInitialized();
 
-    if (LLPipeline::sReflectionRender || gCubeSnapshot || LLPipeline::sRenderingHUDs)
+    if (LLPipeline::sReflectionRender || gCubeSnapshot || LLPipeline::sRenderingHUDs || LLApp::isExiting())
     {
         return;
     }
@@ -6437,16 +6438,14 @@ LLViewerObject* LLPipeline::lineSegmentIntersectInWorld(const LLVector4a& start,
         }
     }
 
-    //check all avatar nametags (silly, isn't it?)
-    for (std::vector< LLCharacter* >::iterator iter = LLCharacter::sInstances.begin();
-        iter != LLCharacter::sInstances.end();
-        ++iter)
+    // check all avatar nametags (silly, isn't it?)
+    for (LLCharacter* character : LLCharacter::sInstances)
     {
-        LLVOAvatar* av = (LLVOAvatar*) *iter;
-        if (av->mNameText.notNull()
-            && av->mNameText->lineSegmentIntersect(start, local_end, position))
+        LLVOAvatar* avatar = (LLVOAvatar*)character;
+        if (avatar->mNameText.notNull() &&
+            avatar->mNameText->lineSegmentIntersect(start, local_end, position))
         {
-            drawable = av->mDrawable;
+            drawable = avatar->mDrawable;
             local_end = position;
         }
     }
@@ -8960,7 +8959,7 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 
         gGL.diffuseColor4f(1, 1, 1, 1);
 
-        S32 shadow_detail = gSavedSettings.getS32("RenderShadowDetail");
+        S32 shadow_detail = RenderShadowDetail;
 
         // if not using VSM, disable color writes
         if (shadow_detail <= 2)
@@ -10573,10 +10572,13 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar, bool preview_avatar, bool 
     sShadowRender = false;
     popRenderTypeMask();
 
-    gGL.matrixMode(LLRender::MM_PROJECTION);
-    gGL.popMatrix();
-    gGL.matrixMode(LLRender::MM_MODELVIEW);
-    gGL.popMatrix();
+    if (!preview_avatar)
+    {
+        gGL.matrixMode(LLRender::MM_PROJECTION);
+        gGL.popMatrix();
+        gGL.matrixMode(LLRender::MM_MODELVIEW);
+        gGL.popMatrix();
+    }
 
     if (!preview_avatar && !for_profile)
     {

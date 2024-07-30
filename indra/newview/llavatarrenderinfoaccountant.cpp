@@ -226,14 +226,12 @@ void LLAvatarRenderInfoAccountant::avatarRenderInfoReportCoro(std::string url, U
     // Build the render info to POST to the region
     LLSD agents = LLSD::emptyMap();
 
-    std::vector<LLCharacter*>::iterator iter = LLCharacter::sInstances.begin();
-    while( iter != LLCharacter::sInstances.end() )
+    for (LLCharacter* character : LLCharacter::sInstances)
     {
-        LLVOAvatar* avatar = dynamic_cast<LLVOAvatar*>(*iter);
-        if (avatar &&
-            avatar->getRezzedStatus() >= 2 &&                   // Mostly rezzed (maybe without baked textures downloaded)
-            !avatar->isDead() &&                                // Not dead yet
+        LLVOAvatar* avatar = (LLVOAvatar*)character;
+        if (!avatar->isDead() &&                                // Not dead yet
             !avatar->isControlAvatar() &&                       // Not part of an animated object
+            avatar->getRezzedStatus() >= 2 &&                   // Mostly rezzed (maybe without baked textures downloaded)
             avatar->getObjectHost() == regionp->getHost())      // Ensure it's on the same region
         {
             LLSD info = LLSD::emptyMap();
@@ -243,15 +241,14 @@ void LLAvatarRenderInfoAccountant::avatarRenderInfoReportCoro(std::string url, U
                 // the weight/complexity is unsigned, but LLSD only stores signed integers,
                 // so if it's over that (which would be ridiculously high), just store the maximum signed int value
                 info[KEY_WEIGHT] = (S32)(avatar_complexity < S32_MAX ? avatar_complexity : S32_MAX);
-                info[KEY_TOO_COMPLEX]  = LLSD::Boolean(avatar->isTooComplex());
+                info[KEY_TOO_COMPLEX] = LLSD::Boolean(avatar->isTooComplex());
                 agents[avatar->getID().asString()] = info;
 
                 LL_DEBUGS("AvatarRenderInfo") << "Sending avatar render info for " << avatar->getID()
-                                              << ": " << info << LL_ENDL;
+                    << ": " << info << LL_ENDL;
                 num_avs++;
             }
         }
-        iter++;
     }
 
     // Reset this regions timer, moving to longer intervals if there are lots of avatars around

@@ -39,6 +39,7 @@
 #include "llfloaterreg.h"
 #include "llfloaterworldmap.h"
 #include "llfolderviewmodel.h"
+#include "llloadingindicator.h"
 #include "lloutfitobserver.h"
 #include "llpaneleditwearable.h"
 #include "llpaneloutfitsinventory.h"
@@ -137,6 +138,8 @@ bool LLSidepanelAppearance::postBuild()
 
     mCurrOutfitPanel = getChild<LLPanel>("panel_currentlook");
 
+    mWearableLoadingIndicator = getChild<LLLoadingIndicator>("wearables_loading_indicator");
+    mEditOutfitBtn = getChild<LLButton>("edit_outfit_btn");
 
     setVisibleCallback(boost::bind(&LLSidepanelAppearance::onVisibilityChanged,this,_2));
 
@@ -541,8 +544,8 @@ void LLSidepanelAppearance::inventoryFetched()
 
 void LLSidepanelAppearance::setWearablesLoading(bool val)
 {
-    getChildView("wearables_loading_indicator")->setVisible( val);
-    getChildView("edit_outfit_btn")->setVisible( !val);
+    mWearableLoadingIndicator->setVisible(val);
+    mEditOutfitBtn->setVisible(!val);
 
     if (!val)
     {

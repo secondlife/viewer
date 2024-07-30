@@ -44,6 +44,8 @@ class LLViewerJointMesh;
 class LLAccordionCtrlTab;
 class LLJoint;
 class LLLineEditor;
+class LLRadioGroup;
+class LLIconCtrl;
 
 class LLPanelEditWearable : public LLPanel
 {
@@ -123,6 +125,7 @@ private:
     LLViewerInventoryItem* mWearableItem;
 
     // these are constant no matter what wearable we're editing
+    LLButton* mBtnSaveAs;
     LLButton *mBtnRevert;
     LLButton *mBtnBack;
     std::string mBackBtnLabel;
@@ -131,6 +134,9 @@ private:
     LLTextBox *mDescTitle;
     LLTextBox *mTxtAvatarHeight;
 
+    LLRadioGroup* mSexRadio = nullptr;
+    LLIconCtrl*   mMaleIcon = nullptr;
+    LLIconCtrl*   mFemaleIcon = nullptr;
 
     // localized and parameterized strings that used to build avatar_height_label
     std::string mMeters;
@@ -170,8 +176,11 @@ private:
     LLPanel *mPanelUniversal;
     LLPanel *mPanelPhysics;
 
-    typedef std::map<std::string, LLAvatarAppearanceDefines::ETextureIndex> string_texture_index_map_t;
-    string_texture_index_map_t mAlphaCheckbox2Index;
+    std::unordered_map<std::string, LLAccordionCtrlTab*> mAccordionTabs;
+    std::unordered_map<std::string, LLScrollingPanelList*> mParamPanels;
+
+    typedef std::vector<std::pair<LLCheckBoxCtrl*, LLAvatarAppearanceDefines::ETextureIndex>> checkbox_texture_index_vec_t;
+    checkbox_texture_index_vec_t mAlphaCheckbox2Index;
 
     typedef std::map<LLAvatarAppearanceDefines::ETextureIndex, LLUUID> s32_uuid_map_t;
     s32_uuid_map_t mPreviousAlphaTexture;

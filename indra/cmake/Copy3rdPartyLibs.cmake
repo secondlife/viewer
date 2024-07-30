@@ -58,7 +58,6 @@ if(WINDOWS)
         libaprutil-1.dll
         nghttp2.dll
         libhunspell.dll
-        uriparser.dll
         )
 
     # OpenSSL
@@ -137,9 +136,14 @@ if(WINDOWS)
     # Check each of them.
     foreach(release_msvc_file
             msvcp${MSVC_VER}.dll
+            msvcp${MSVC_VER}_1.dll
+            msvcp${MSVC_VER}_2.dll
+            msvcp${MSVC_VER}_atomic_wait.dll
+            msvcp${MSVC_VER}_codecvt_ids.dll
             msvcr${MSVC_VER}.dll
             vcruntime${MSVC_VER}.dll
             vcruntime${MSVC_VER}_1.dll
+            vcruntime${MSVC_VER}_threads.dll
             )
         if(redist_path AND EXISTS "${redist_path}/${release_msvc_file}")
             MESSAGE(STATUS "Copying redist file from ${redist_path}/${release_msvc_file}")
@@ -185,9 +189,6 @@ elseif(DARWIN)
         libndofdev.dylib
         libnghttp2.dylib
         libnghttp2.14.dylib
-        liburiparser.dylib
-        liburiparser.1.dylib
-        liburiparser.1.0.27.dylib
        )
 
     if (TARGET ll::openal)

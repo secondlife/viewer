@@ -741,18 +741,16 @@ public:
         if (gSavedSettings.getBOOL("DebugShowAvatarRenderInfo"))
         {
             std::map<std::string, LLVOAvatar*> sorted_avs;
-
-            std::vector<LLCharacter*>::iterator sort_iter = LLCharacter::sInstances.begin();
-            while (sort_iter != LLCharacter::sInstances.end())
             {
-                LLVOAvatar* avatar = dynamic_cast<LLVOAvatar*>(*sort_iter);
-                if (avatar &&
-                    !avatar->isDead())                      // Not dead yet
+                for (LLCharacter* character : LLCharacter::sInstances)
                 {
-                    // Stuff into a sorted map so the display is ordered
-                    sorted_avs[avatar->getFullname()] = avatar;
+                    LLVOAvatar* avatar = (LLVOAvatar*)character;
+                    if (!avatar->isDead()) // Not dead yet
+                    {
+                        // Stuff into a sorted map so the display is ordered
+                        sorted_avs[avatar->getFullname()] = avatar;
+                    }
                 }
-                sort_iter++;
             }
 
             std::string trunc_name;
@@ -1271,7 +1269,7 @@ LLWindowCallbacks::DragNDropResult LLViewerWindow::handleDragNDrop( LLWindow *wi
                         LLTextureEntry *te = obj->getTE(object_face);
 
                         // can modify URL if we can modify the object or we have navigate permissions
-                        bool allow_modify_url = obj->permModify() || obj->hasMediaPermission( te->getMediaData(), LLVOVolume::MEDIA_PERM_INTERACT );
+                        bool allow_modify_url = obj->permModify() || (te && obj->hasMediaPermission( te->getMediaData(), LLVOVolume::MEDIA_PERM_INTERACT ));
 
                         if (te && allow_modify_url )
                         {
@@ -2675,7 +2673,7 @@ void LLViewerWindow::draw()
 
     //S32 screen_x, screen_y;
 
-    if (!gSavedSettings.getBOOL("RenderUIBuffer"))
+    if (!LLPipeline::RenderUIBuffer)
     {
         LLView::sDirtyRect = getWindowRectScaled();
     }

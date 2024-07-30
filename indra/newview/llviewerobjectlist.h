@@ -171,18 +171,18 @@ public:
     // used to discount stats from this frame
     bool mWasPaused;
 
-    static void getUUIDFromLocal(LLUUID &id,
+    void getUUIDFromLocal(LLUUID &id,
                                 const U32 local_id,
                                 const U32 ip,
                                 const U32 port);
-    static void setUUIDAndLocal(const LLUUID &id,
+    void setUUIDAndLocal(const LLUUID &id,
                                 const U32 local_id,
                                 const U32 ip,
                                 const U32 port); // Requires knowledge of message system info!
 
-    static bool removeFromLocalIDTable(const LLViewerObject* objectp);
+    bool removeFromLocalIDTable(const LLViewerObject* objectp);
     // Used ONLY by the orphaned object code.
-    static U64 getIndex(const U32 local_id, const U32 ip, const U32 port);
+    U64 getIndex(const U32 local_id, const U32 ip, const U32 port);
 
     S32 mNumUnknownUpdates;
     S32 mNumDeadObjectUpdates;
@@ -216,9 +216,9 @@ protected:
     S32 mCurLazyUpdateIndex;
 
     static U32 sSimulatorMachineIndex;
-    static std::map<U64, U32> sIPAndPortToIndex;
+    std::map<U64, U32> mIPAndPortToIndex;
 
-    static std::map<U64, LLUUID> sIndexAndLocalIDToUUID;
+    std::map<U64, LLUUID> mIndexAndLocalIDToUUID;
 
     friend class LLViewerObject;
 
@@ -257,7 +257,7 @@ extern LLViewerObjectList gObjectList;
  */
 inline LLViewerObject *LLViewerObjectList::findObject(const LLUUID &id)
 {
-    std::map<LLUUID, LLPointer<LLViewerObject> >::iterator iter = mUUIDObjectMap.find(id);
+    auto iter = mUUIDObjectMap.find(id);
     if(iter != mUUIDObjectMap.end())
     {
         return iter->second;

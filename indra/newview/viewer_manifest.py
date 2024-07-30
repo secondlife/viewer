@@ -561,14 +561,16 @@ class Windows_x86_64_Manifest(ViewerManifest):
             # For textures
             self.path("openjp2.dll")
 
-            # Uriparser
-            self.path("uriparser.dll")
-
             # These need to be installed as a SxS assembly, currently a 'private' assembly.
             # See http://msdn.microsoft.com/en-us/library/ms235291(VS.80).aspx
             self.path("msvcp140.dll")
+            self.path_optional("msvcp140_1.dll")
+            self.path_optional("msvcp140_2.dll")
+            self.path_optional("msvcp140_atomic_wait.dll")
+            self.path_optional("msvcp140_codecvt_ids.dll")
             self.path("vcruntime140.dll")
             self.path_optional("vcruntime140_1.dll")
+            self.path_optional("vcruntime140_threads.dll")
 
             # SLVoice executable
             with self.prefix(src=os.path.join(pkgdir, 'bin', 'release')):
@@ -1017,7 +1019,6 @@ class Darwin_x86_64_Manifest(ViewerManifest):
                                 # libnghttp2.major.dylib, which is a symlink to
                                 # libnghttp2.version.dylib. Get all of them.
                                 "libnghttp2.*dylib",
-                                "liburiparser.*dylib",
                                 ):
                     dylibs += path_optional(os.path.join(relpkgdir, libfile), libfile)
 

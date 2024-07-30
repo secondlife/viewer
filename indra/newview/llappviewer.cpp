@@ -646,6 +646,7 @@ LLAppViewer::LLAppViewer()
     mSavedFinalSnapshot(false),
     mSavePerAccountSettings(false),     // don't save settings on logout unless login succeeded.
     mQuitRequested(false),
+    mClosingFloaters(false),
     mLogoutRequestSent(false),
     mLastAgentControlFlags(0),
     mLastAgentForceUpdate(0),
@@ -2248,7 +2249,9 @@ void errorCallback(LLError::ELevel level, const std::string &error_string)
     if (level == LLError::LEVEL_ERROR)
     {
 #ifndef LL_RELEASE_FOR_DOWNLOAD
-        OSMessageBox(error_string, LLTrans::getString("MBFatalError"), OSMB_OK);
+        std::string message = error_string +
+            "\n\n\nThis is a developer-only notification!\nThis notification won't be present in Release for download build";
+        OSMessageBox(message, LLTrans::getString("MBFatalError"), OSMB_OK);
 #endif
 
         gDebugInfo["FatalMessage"] = error_string;
@@ -3065,6 +3068,13 @@ bool LLAppViewer::meetsRequirementsForMaximizedStart()
     bool maximizedOk = (gSysMemory.getPhysicalMemoryKB() >= U32Gigabytes(1));
 
     return maximizedOk;
+}
+
+// virtual
+void LLAppViewer::sendOutOfDiskSpaceNotification()
+{
+    LL_WARNS() << "Out of disk space notification requested" << LL_ENDL;
+    LLNotificationsUtil::add("OutOfDiskSpace");
 }
 
 bool LLAppViewer::initWindow()
@@ -4021,6 +4031,7 @@ void LLAppViewer::requestQuit()
     {
         // application is quitting
         gFloaterView->closeAllChildren(true);
+        mClosingFloaters = true;
     }
 
     // Send preferences once, when exiting
@@ -4084,6 +4095,7 @@ void LLAppViewer::abortQuit()
 {
     LL_INFOS() << "abortQuit()" << LL_ENDL;
     mQuitRequested = false;
+    mClosingFloaters = false;
 }
 
 void LLAppViewer::migrateCacheDirectory()
@@ -5033,10 +5045,19 @@ void LLAppViewer::idleShutdown()
     }
 
     // Wait for all floaters to get resolved
-    if (gFloaterView
-        && !gFloaterView->allChildrenClosed())
+    if (gFloaterView)
     {
-        return;
+        if (!mClosingFloaters)
+        {
+            // application is quitting
+            gFloaterView->closeAllChildren(true);
+            mClosingFloaters = true;
+            return;
+        }
+        if (!gFloaterView->allChildrenClosed())
+        {
+            return;
+        }
     }
 
     // ProductEngine: Try moving this code to where we shut down sTextureCache in cleanup()
@@ -5195,6 +5216,23 @@ void LLAppViewer::updateNameLookupUrl(const LLViewerRegion * regionp)
 void LLAppViewer::postToMainCoro(const LL::WorkQueue::Work& work)
 {
     gMainloopWork.post(work);
+}
+
+void LLAppViewer::outOfMemorySoftQuit()
+{
+    if (!mQuitRequested)
+    {
+        // Todo:
+        // Find a way to free at least some memory to make it safer
+        // Pause decoding and mesh repositorie
+        getTextureCache()->pause();
+        getTextureFetch()->pause();
+        LLLFSThread::sLocal->pause();
+        gLogoutTimer.reset();
+        mQuitRequested = true;
+
+        LLError::LLUserWarningMsg::showOutOfMemory();
+    }
 }
 
 void LLAppViewer::idleNameCache()

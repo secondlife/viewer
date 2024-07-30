@@ -50,7 +50,6 @@
 #include "llviewerwindow.h"
 #include "llnotificationsutil.h"
 #include "lluriparser.h"
-#include "uriparser/Uri.h"
 
 bool on_load_url_external_response(const LLSD& notification, const LLSD& response, bool async );
 

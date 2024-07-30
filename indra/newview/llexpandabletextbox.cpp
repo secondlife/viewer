@@ -41,7 +41,7 @@ public:
     :   LLTextSegment(start, end),
         mEditor(editor),
         mStyle(style),
-        mExpanderLabel(more_text)
+        mExpanderLabel(utf8str_to_wstring(more_text))
     {}
 
     /*virtual*/ bool    getDimensionsF32(S32 first_char, S32 num_chars, F32& width, S32& height) const
@@ -80,7 +80,7 @@ public:
     /*virtual*/ F32     draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRectf& draw_rect)
     {
         F32 right_x;
-        mStyle->getFont()->renderUTF8(mExpanderLabel, start,
+        mStyle->getFont()->render(mExpanderLabel, start,
                                     draw_rect.mRight, draw_rect.mTop,
                                     mStyle->getColor(),
                                     LLFontGL::RIGHT, LLFontGL::TOP,
@@ -103,7 +103,7 @@ public:
 private:
     LLTextBase& mEditor;
     LLStyleSP   mStyle;
-    std::string mExpanderLabel;
+    LLWString mExpanderLabel;
 };
 
 LLExpandableTextBox::LLTextBoxEx::Params::Params()

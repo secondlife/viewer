@@ -98,6 +98,7 @@ void LLViewerEventRecorder::setMouseGlobalCoords(S32 x, S32 y) {
 }
 
 void LLViewerEventRecorder::updateMouseEventInfo(S32 local_x, S32 local_y, S32 global_x, S32 global_y, std::string mName) {
+    if (!logEvents) return;
 
   LLView * target_view = LLUI::getInstance()->resolvePath(LLUI::getInstance()->getRootView(), xui);
   if (! target_view) {
@@ -125,6 +126,8 @@ void LLViewerEventRecorder::updateMouseEventInfo(S32 local_x, S32 local_y, S32 g
 }
 
 void LLViewerEventRecorder::logVisibilityChange(std::string xui, std::string name, bool visibility, std::string event_subtype) {
+
+    if (!logEvents) return;
 
   LLSD  event=LLSD::emptyMap();
 
@@ -167,6 +170,7 @@ void LLViewerEventRecorder::update_xui(std::string xui) {
 
 void LLViewerEventRecorder::logKeyEvent(KEY key, MASK mask) {
 
+    if (!logEvents) return;
   // NOTE: Event recording only logs keydown events - the viewer itself hides keyup events at a fairly low level in the code and does not appear to care about them anywhere
 
   LLSD event = LLSD::emptyMap();

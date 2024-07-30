@@ -403,7 +403,7 @@ public:
                                        bool mature_publish);
 
     static void sendGroupMemberJoin(const LLUUID& group_id);
-    static void sendGroupMemberInvites(const LLUUID& group_id, std::map<LLUUID,LLUUID>& role_member_pairs);
+    static void sendGroupMemberInvites(const LLUUID& group_id, std::map<LLUUID, LLUUID>& role_member_pairs);
     static void sendGroupMemberEjects(const LLUUID& group_id,
                                       uuid_vec_t& member_ids);
 
@@ -413,7 +413,8 @@ public:
                                     const uuid_vec_t &ban_list = uuid_vec_t());
 
 
-    void sendCapGroupMembersRequest(const LLUUID& group_id);
+    void sendCapGroupMembersRequest(const LLUUID& group_id,
+        U32 page_size = 0, U32 page_start = 0, const std::string& sort_column_name = LLStringUtil::null, bool sort_descending = false);
 
     void cancelGroupRoleChanges(const LLUUID& group_id);
 
@@ -436,16 +437,15 @@ public:
     void clearGroupData(const LLUUID& group_id);
 
 private:
-    void groupMembersRequestCoro(std::string url, LLUUID groupId);
-    void processCapGroupMembersRequest(const LLSD& content);
+    void groupMembersRequestCoro(std::string url, LLUUID group_id, U32 page_size, U32 page_start, U32 sort_column, bool sort_descending);
+    void processCapGroupMembersResponse(const LLSD& response, const std::string& url, U32 page_size, U32 page_start, U32 sort_column, bool sort_descending);
 
-    void getGroupBanRequestCoro(std::string url, LLUUID groupId);
-    void postGroupBanRequestCoro(std::string url, LLUUID groupId, U32 action, uuid_vec_t banList, bool update);
+    void getGroupBanRequestCoro(std::string url, LLUUID group_id);
+    void postGroupBanRequestCoro(std::string url, LLUUID group_id, U32 action, uuid_vec_t ban_list, bool update);
 
     static void processGroupBanRequest(const LLSD& content);
 
     void notifyObservers(LLGroupChange gc);
-    void notifyObserver(const LLUUID& group_id, LLGroupChange gc);
     void addGroup(LLGroupMgrGroupData* group_datap);
     LLGroupMgrGroupData* createGroupData(const LLUUID &id);
     bool hasPendingPropertyRequest(const LLUUID& id);
@@ -465,7 +465,7 @@ private:
     typedef std::map<LLUUID,observer_set_t> observer_map_t;
     observer_map_t mParticularObservers;
 
-    bool mMemberRequestInFlight;
+    bool mMemberRequestInFlight { false };
 };
 
 

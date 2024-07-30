@@ -46,12 +46,12 @@
 ///----------------------------------------------------------------------------
 /// Local function declarations, constants, enums, and typedefs
 ///----------------------------------------------------------------------------
-LLSnapshotFloaterView* gSnapshotFloaterView = NULL;
+LLSnapshotFloaterView* gSnapshotFloaterView = nullptr;
 
-const F32 AUTO_SNAPSHOT_TIME_DELAY = 1.f;
+constexpr F32 AUTO_SNAPSHOT_TIME_DELAY = 1.f;
 
-const S32 MAX_POSTCARD_DATASIZE = 1572864; // 1.5 megabyte, similar to simulator limit
-const S32 MAX_TEXTURE_SIZE = 512 ; //max upload texture size 512 * 512
+constexpr S32 MAX_POSTCARD_DATASIZE = 1572864; // 1.5 megabyte, similar to simulator limit
+constexpr S32 MAX_TEXTURE_SIZE = 2048 ; //max upload texture size 2048 * 2048
 
 static LLDefaultChildRegistry::Register<LLSnapshotFloaterView> r("snapshot_floater_view");
 
@@ -192,7 +192,7 @@ void LLFloaterSnapshotBase::ImplBase::updateLayout(LLFloaterSnapshotBase* floate
         }
     }
 
-    bool use_freeze_frame = floaterp->getChild<LLUICtrl>("freeze_frame_check")->getValue().asBoolean();
+    bool use_freeze_frame = floaterp->mFreezeFrameCheck && floaterp->mFreezeFrameCheck->getValue().asBoolean();
 
     if (use_freeze_frame)
     {
@@ -210,13 +210,10 @@ void LLFloaterSnapshotBase::ImplBase::updateLayout(LLFloaterSnapshotBase* floate
             previewp->setEnabled(true);
         }
 
-        //RN: freeze all avatars
-        LLCharacter* avatarp;
-        for (std::vector<LLCharacter*>::iterator iter = LLCharacter::sInstances.begin();
-            iter != LLCharacter::sInstances.end(); ++iter)
+        // RN: freeze all avatars
+        for (LLCharacter* character : LLCharacter::sInstances)
         {
-            avatarp = *iter;
-            floaterp->impl->mAvatarPauseHandles.push_back(avatarp->requestPause());
+            floaterp->impl->mAvatarPauseHandles.push_back(character->requestPause());
         }
 
         // freeze everything else
@@ -720,7 +717,7 @@ void LLFloaterSnapshot::Impl::updateResolution(LLUICtrl* ctrl, void* data, bool 
                 new_width = spanel->getTypedPreviewWidth();
                 new_height = spanel->getTypedPreviewHeight();
 
-                // Limit custom size for inventory snapshots to 512x512 px.
+                // Limit custom size for inventory snapshots to 2048x2048 px.
                 if (getActiveSnapshotType(view) == LLSnapshotModel::SNAPSHOT_TEXTURE)
                 {
                     new_width = llmin(new_width, MAX_TEXTURE_SIZE);
@@ -1002,8 +999,9 @@ bool LLFloaterSnapshot::postBuild()
     getChild<LLUICtrl>("layer_types")->setValue("colors");
     getChildView("layer_types")->setEnabled(false);
 
-    getChild<LLUICtrl>("freeze_frame_check")->setValue(gSavedSettings.getBOOL("UseFreezeFrame"));
-    childSetCommitCallback("freeze_frame_check", ImplBase::onCommitFreezeFrame, this);
+    mFreezeFrameCheck = getChild<LLUICtrl>("freeze_frame_check");
+    mFreezeFrameCheck->setValue(gSavedSettings.getBOOL("UseFreezeFrame"));
+    mFreezeFrameCheck->setCommitCallback(&ImplBase::onCommitFreezeFrame, this);
 
     getChild<LLUICtrl>("auto_snapshot_check")->setValue(gSavedSettings.getBOOL("AutoSnapshot"));
     childSetCommitCallback("auto_snapshot_check", ImplBase::onClickAutoSnap, this);

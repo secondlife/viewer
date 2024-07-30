@@ -598,7 +598,7 @@ LLRect LLStatBar::getRequiredRect()
 
 void LLStatBar::drawLabelAndValue( F32 value, std::string &label, LLRect &bar_rect, S32 decimal_digits )
 {
-    LLFontGL::getFontMonospace()->renderUTF8(mLabel, 0, 0, getRect().getHeight(), LLColor4(1.f, 1.f, 1.f, 1.f),
+    LLFontGL::getFontMonospace()->render(mLabel.getWString(), 0, 0.F, (F32)getRect().getHeight(), LLColor4(1.f, 1.f, 1.f, 1.f),
         LLFontGL::LEFT, LLFontGL::TOP);
 
     std::string value_str   = !llisnan(value)
@@ -673,14 +673,14 @@ void LLStatBar::drawTicks( F32 min, F32 max, F32 value_scale, LLRect &bar_rect )
             {
                 decimal_digits = 0;
             }
-            std::string tick_label = llformat("%.*f", decimal_digits, tick_value);
-            S32 tick_label_width = LLFontGL::getFontMonospace()->getWidth(tick_label);
+            LLWString tick_label = utf8str_to_wstring(llformat("%.*f", decimal_digits, tick_value));
+            S32 tick_label_width = LLFontGL::getFontMonospace()->getWidth(tick_label.c_str());
             if (mOrientation == HORIZONTAL)
             {
                 if (tick_begin > last_label + MIN_LABEL_SPACING)
                 {
                     gl_rect_2d(bar_rect.mLeft, tick_end, bar_rect.mRight - TICK_LENGTH, tick_begin, LLColor4(1.f, 1.f, 1.f, 0.25f));
-                    LLFontGL::getFontMonospace()->renderUTF8(tick_label, 0, bar_rect.mRight, tick_begin,
+                    LLFontGL::getFontMonospace()->render(tick_label, 0, (F32)bar_rect.mRight, (F32)tick_begin,
                         LLColor4(1.f, 1.f, 1.f, 0.5f),
                         LLFontGL::LEFT, LLFontGL::VCENTER);
                     last_label = tick_begin;
@@ -696,7 +696,7 @@ void LLStatBar::drawTicks( F32 min, F32 max, F32 value_scale, LLRect &bar_rect )
                 {
                     gl_rect_2d(tick_begin, bar_rect.mTop, tick_end, bar_rect.mBottom - TICK_LENGTH, LLColor4(1.f, 1.f, 1.f, 0.25f));
                     S32 label_pos = tick_begin - ll_round((F32)tick_label_width * ((F32)tick_begin / (F32)bar_rect.getWidth()));
-                    LLFontGL::getFontMonospace()->renderUTF8(tick_label, 0, label_pos, bar_rect.mBottom - TICK_LENGTH,
+                    LLFontGL::getFontMonospace()->render(tick_label, 0, (F32)label_pos, (F32)(bar_rect.mBottom - TICK_LENGTH),
                         LLColor4(1.f, 1.f, 1.f, 0.5f),
                         LLFontGL::LEFT, LLFontGL::TOP);
                     last_label = label_pos;

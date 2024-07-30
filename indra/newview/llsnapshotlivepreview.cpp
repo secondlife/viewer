@@ -65,10 +65,10 @@ constexpr F32 FALL_TIME = 0.6f;
 constexpr S32 BORDER_WIDTH = 6;
 constexpr S32 TOP_PANEL_HEIGHT = 30;
 
-constexpr S32 MAX_TEXTURE_SIZE = 512 ; //max upload texture size 512 * 512
+constexpr S32 MAX_TEXTURE_SIZE = 2048 ; //max upload texture size 2048 * 2048
 
 std::set<LLSnapshotLivePreview*> LLSnapshotLivePreview::sList;
-LLPointer<LLImageFormatted> LLSnapshotLivePreview::sSaveLocalImage = NULL;
+LLPointer<LLImageFormatted> LLSnapshotLivePreview::sSaveLocalImage = nullptr;
 
 LLSnapshotLivePreview::LLSnapshotLivePreview (const LLSnapshotLivePreview::Params& p)
     :   LLView(p),
@@ -1024,7 +1024,7 @@ void LLSnapshotLivePreview::saveTexture(bool outfit_snapshot, std::string name)
         LLAgentUI::buildLocationString(pos_string, LLAgentUI::LOCATION_FORMAT_FULL);
         std::string who_took_it;
         LLAgentUI::buildFullname(who_took_it);
-        S32 expected_upload_cost = LLAgentBenefitsMgr::current().getTextureUploadCost();
+        S32 expected_upload_cost = LLAgentBenefitsMgr::current().getTextureUploadCost(scaled->getWidth(), scaled->getHeight());
         std::string res_name = outfit_snapshot ? name : "Snapshot : " + pos_string;
         std::string res_desc = outfit_snapshot ? "" : "Taken by " + who_took_it + " at " + pos_string;
         LLFolderType::EType folder_type = outfit_snapshot ? LLFolderType::FT_NONE : LLFolderType::FT_SNAPSHOT_CATEGORY;
