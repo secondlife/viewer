@@ -3395,7 +3395,7 @@ void LLVOAvatar::idleUpdateNameTagText(bool new_name)
     {
         is_muted = isInMuteList();
     }
-    bool is_friend = LLAvatarTracker::instance().isBuddy(getID());
+    bool is_friend = isBuddy();
     bool is_cloud = getIsCloud();
 
     if (is_appearance != mNameAppearance)
@@ -8452,7 +8452,7 @@ bool LLVOAvatar::isTooComplex() const
 {
     bool too_complex;
     static LLCachedControl<S32> compelxity_render_mode(gSavedSettings, "RenderAvatarComplexityMode");
-    bool render_friend =  (LLAvatarTracker::instance().isBuddy(getID()) && compelxity_render_mode > AV_RENDER_LIMIT_BY_COMPLEXITY);
+    bool render_friend =  (isBuddy() && compelxity_render_mode > AV_RENDER_LIMIT_BY_COMPLEXITY);
 
     if (isSelf() || render_friend || mVisuallyMuteSetting == AV_ALWAYS_RENDER)
     {
@@ -8488,7 +8488,7 @@ bool LLVOAvatar::isTooSlow() const
 
     static LLCachedControl<S32> compelxity_render_mode(gSavedSettings, "RenderAvatarComplexityMode");
     static LLCachedControl<bool> friends_only(gSavedSettings, "RenderAvatarFriendsOnly", false);
-    bool is_friend = LLAvatarTracker::instance().isBuddy(getID());
+    bool is_friend = isBuddy();
     bool render_friend = is_friend && compelxity_render_mode > AV_RENDER_LIMIT_BY_COMPLEXITY;
 
     if (render_friend || mVisuallyMuteSetting == AV_ALWAYS_RENDER)
@@ -8545,7 +8545,7 @@ void LLVOAvatar::updateTooSlow()
         if(!mTooSlowWithoutShadows) // if we were not previously above the full impostor cap
         {
             bool always_render_friends = compelxity_render_mode > AV_RENDER_LIMIT_BY_COMPLEXITY;
-            bool render_friend_or_exception =   (always_render_friends && LLAvatarTracker::instance().isBuddy( id ) ) ||
+            bool render_friend_or_exception =   (always_render_friends && isBuddy()) ||
                 ( getVisualMuteSettings() == LLVOAvatar::AV_ALWAYS_RENDER );
             if( (!isSelf() || allowSelfImpostor) && !render_friend_or_exception)
             {
@@ -11489,7 +11489,7 @@ void LLVOAvatar::calcMutedAVColor()
         new_color = LLColor4::grey4;
         change_msg = " not rendered: color is grey4";
     }
-    else if (LLMuteList::getInstance()->isMuted(av_id)) // the user blocked them
+    else if (isInMuteList()) // the user blocked them
     {
         // blocked avatars are dark grey
         new_color = LLColor4::grey4;
@@ -11738,6 +11738,20 @@ F32 LLVOAvatar::getAverageGPURenderTime()
 
 bool LLVOAvatar::isBuddy() const
 {
-    return LLAvatarTracker::instance().isBuddy(getID());
+    bool is_friend = false;
+    F64 now = LLFrameTimer::getTotalSeconds();
+    if (now < mCachedBuddyListUpdateTime)
+    {
+        is_friend = mCachedInBuddyList;
+    }
+    else
+    {
+        is_friend = LLAvatarTracker::instance().isBuddy(getID());
+
+        const F64 SECONDS_BETWEEN_BUDDY_UPDATES = 1;
+        mCachedBuddyListUpdateTime = now + SECONDS_BETWEEN_BUDDY_UPDATES;
+        mCachedInBuddyList = is_friend;
+    }
+    return is_friend;
 }
 
