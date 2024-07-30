@@ -156,8 +156,6 @@ pre_build()
 
         if [[ "$arch" == "Darwin" ]]
         then
-            RELEASE_CRASH_REPORTING=ON
-            HAVOK=ON
             SIGNING=("-DENABLE_SIGNING:BOOL=YES" \
                           "-DSIGNING_IDENTITY:STRING=Developer ID Application: Linden Research, Inc.")
         fi
