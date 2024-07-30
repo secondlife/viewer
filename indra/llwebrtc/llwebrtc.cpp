@@ -571,6 +571,7 @@ void LLWebRTCImpl::setTuningMode(bool enable)
         [this, enable] {
             if (enable)
             {
+                RTC_CHECK(false);
                 mPeerDeviceModule->StopRecording();
                 mPeerDeviceModule->StopPlayout();
                 ll_set_device_module_render_device(mTuningDeviceModule, mPlayoutDevice);
