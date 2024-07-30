@@ -76,10 +76,18 @@ void LLImageGLMemory::alloc_tex_image(U32 width, U32 height, U32 pixformat)
     llassert(size >= 0);
 
     sTexMemMutex.lock();
-    llassert(sTextureAllocs.find(texName) == sTextureAllocs.end());
 
-    sTextureAllocs[texName] = size;
-    sTextureBytes += size;
+    auto iter = sTextureAllocs.find(texName);
+    if (iter == sTextureAllocs.end())
+    {
+        sTextureBytes += size;
+        sTextureAllocs.emplace(texName, size);
+    }
+    else
+    {
+        sTextureBytes += size - iter->second;
+        iter->second = size;
+    }
 
     sTexMemMutex.unlock();
 }
