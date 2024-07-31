@@ -45,5 +45,5 @@ function flt:commit_reset_btn(event_data)
     LLAgent.setFollowCamActive(false)
 end
 
-startup.wait('STATE_LOGIN_WAIT')
+startup.wait('STATE_STARTED')
 flt:show()
