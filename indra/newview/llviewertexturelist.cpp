@@ -948,7 +948,9 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
                 // shows one letter at a time
                 //
                 // Maximum usage examples: huge chunk of terrain repeats texture
-                const LLTextureEntry* te = face->getTextureEntry();
+                S32 te_offset = face->getTEOffset();  // offset is -1 if not inited
+                LLViewerObject* objp = face->getViewerObject();
+                const LLTextureEntry* te = (te_offset < 0 || te_offset >= objp->getNumTEs()) ? nullptr : objp->getTE(te_offset);
                 F32 min_scale = te ? llmin(fabsf(te->getScaleS()), fabsf(te->getScaleT())) : 1.f;
                 min_scale = llclamp(min_scale * min_scale, texture_scale_min(), texture_scale_max());
                 vsize /= min_scale;
