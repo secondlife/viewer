@@ -62,7 +62,8 @@ extern const std::string WEBRTC_VOICE_SERVER_TYPE;
 class LLWebRTCVoiceClient : public LLSingleton<LLWebRTCVoiceClient>,
                             virtual public LLVoiceModuleInterface,
                             public llwebrtc::LLWebRTCDevicesObserver,
-                            public LLMuteListObserver
+                            public LLMuteListObserver,
+                            public llwebrtc::LLWebRTCLogCallback
 {
     LLSINGLETON_C11(LLWebRTCVoiceClient);
     LOG_CLASS(LLWebRTCVoiceClient);
@@ -87,6 +88,12 @@ public:
     std::string sipURIFromID(const LLUUID &id) const override;
     LLSD getP2PChannelInfoTemplate(const LLUUID& id) const override;
 
+
+    ///////////////////
+    /// @name Logging
+    /// @{
+    void LogMessage(llwebrtc::LLWebRTCLogCallback::LogLevel level, const std::string& message) override;
+    //@}
 
     /////////////////////
     /// @name Tuning
