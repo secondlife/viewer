@@ -154,7 +154,8 @@ void LLCustomProcessor::Process(webrtc::AudioBuffer *audio_in)
 // LLWebRTCImpl implementation
 //
 
-LLWebRTCImpl::LLWebRTCImpl() :
+LLWebRTCImpl::LLWebRTCImpl(LLWebRTCLogCallback* logCallback) :
+    mLogSink(new LLWebRTCLogSink(logCallback)),
     mPeerCustomProcessor(nullptr),
     mMute(true),
     mTuningMode(false),
@@ -173,6 +174,7 @@ void LLWebRTCImpl::init()
     // Normal logging is rather spammy, so turn it off.
     rtc::LogMessage::LogToDebug(rtc::LS_NONE);
     rtc::LogMessage::SetLogToStderr(true);
+    rtc::LogMessage::AddLogToStream(mLogSink, rtc::LS_VERBOSE);
 
     mTaskQueueFactory = webrtc::CreateDefaultTaskQueueFactory();
 
@@ -312,6 +314,7 @@ void LLWebRTCImpl::terminate()
             mPeerDeviceModule   = nullptr;
             mTaskQueueFactory   = nullptr;
         });
+    rtc::LogMessage::RemoveLogToStream(mLogSink);
 }
 
 //
@@ -1328,9 +1331,9 @@ void freePeerConnection(LLWebRTCPeerConnectionInterface* peer_connection)
 }
 
 
-void init()
+void init(LLWebRTCLogCallback* logCallback)
 {
-    gWebRTCImpl = new LLWebRTCImpl();
+    gWebRTCImpl = new LLWebRTCImpl(logCallback);
     gWebRTCImpl->init();
 }
 
