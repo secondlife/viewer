@@ -429,6 +429,7 @@ void LLFloaterEmojiPicker::fillGroups()
     for (LLButton* button : mGroupButtons)
     {
         mGroups->removeChild(button);
+        button->die();
     }
     mFilteredEmojiGroups.clear();
     mFilteredEmojis.clear();
@@ -442,6 +443,7 @@ void LLFloaterEmojiPicker::fillGroups()
     rect.mBottom = mBadge->getRect().getHeight();
 
     // Create button for "All categories"
+    params.name = "all_categories";
     createGroupButton(params, rect, ALL_EMOJIS_IMAGE_INDEX);
 
     // Create group and button for "Recently used" and/or "Frequently used"
@@ -455,6 +457,7 @@ void LLFloaterEmojiPicker::fillGroups()
         {
             mFilteredEmojiGroups.push_back(USED_EMOJIS_GROUP_INDEX);
             mFilteredEmojis.emplace_back(cats);
+            params.name = "used_categories";
             createGroupButton(params, rect, USED_EMOJIS_IMAGE_INDEX);
         }
     }
@@ -472,6 +475,7 @@ void LLFloaterEmojiPicker::fillGroups()
         {
             mFilteredEmojiGroups.push_back(i);
             mFilteredEmojis.emplace_back(cats);
+            params.name = "group_" + std::to_string(i);
             createGroupButton(params, rect, groups[i].Character);
         }
     }
