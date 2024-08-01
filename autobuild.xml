@@ -1660,18 +1660,6 @@
       </map>
       <key>mikktspace</key>
       <map>
-        <key>canonical_repo</key>
-        <string>https://bitbucket.org/lindenlab/3p-mikktspace</string>
-        <key>copyright</key>
-        <string>Copyright (C) 2011 by Morten S. Mikkelsen, Copyright (C) 2022 Blender Authors</string>
-        <key>description</key>
-        <string>Mikktspace Tangent Generator</string>
-        <key>license</key>
-        <string>Apache 2.0</string>
-        <key>license_file</key>
-        <string>mikktspace.txt</string>
-        <key>name</key>
-        <string>mikktspace</string>
         <key>platforms</key>
         <map>
           <key>darwin64</key>
@@ -1717,8 +1705,20 @@
             <string>windows64</string>
           </map>
         </map>
+        <key>license</key>
+        <string>Apache 2.0</string>
+        <key>license_file</key>
+        <string>mikktspace.txt</string>
+        <key>copyright</key>
+        <string>Copyright (C) 2011 by Morten S. Mikkelsen, Copyright (C) 2022 Blender Authors</string>
         <key>version</key>
         <string>1</string>
+        <key>name</key>
+        <string>mikktspace</string>
+        <key>canonical_repo</key>
+        <string>https://bitbucket.org/lindenlab/3p-mikktspace</string>
+        <key>description</key>
+        <string>Mikktspace Tangent Generator</string>
       </map>
       <key>minizip-ng</key>
       <map>
@@ -2635,6 +2635,8 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <string>LICENSE</string>
         <key>copyright</key>
         <string>Copyright (c) 2000-2012, Linden Research, Inc.</string>
+        <key>version</key>
+        <string>3.0-f14b5ec</string>
         <key>name</key>
         <string>viewer-manager</string>
         <key>description</key>
@@ -2643,8 +2645,6 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <string>https://bitbucket.org/lindenlab/vmp-standalone</string>
         <key>source_type</key>
         <string>hg</string>
-        <key>version</key>
-        <string>3.0-f14b5ec</string>
       </map>
       <key>vlc-bin</key>
       <map>
@@ -2793,11 +2793,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>0a0a972036f2b2c9c97dead40c91f7443b8ab339</string>
+              <string>baabb11f324be350253b1fb58cf262c1aa19fa70</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-webrtc-build/releases/download/m114.5735.08.61-debug/webrtc-m114.5735.08.61-debug.9571929057-darwin64-9571929057.tar.zst</string>
+              <string>https://github.com/secondlife/3p-webrtc-build/releases/download/m114.5735.08.67-debug/webrtc-m114.5735.08.67-debug.10190042668-darwin64-10190042668.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2807,11 +2807,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8725ad23f33d946bd5a4e5f28e8c8324925c71a7</string>
+              <string>a13776c8f99f8975665be66ff8b51a80ba46c718</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-webrtc-build/releases/download/m114.5735.08.61-debug/webrtc-m114.5735.08.61-debug.9571929057-linux64-9571929057.tar.zst</string>
+              <string>https://github.com/secondlife/3p-webrtc-build/releases/download/m114.5735.08.67-debug/webrtc-m114.5735.08.67-debug.10190042668-linux64-10190042668.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -2821,11 +2821,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>db560661807db276a3c7d1e7d9531198c9268f68</string>
+              <string>965ef5d65a14191a52ee9ec6a9a8a1d2ce3f2ffb</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-webrtc-build/releases/download/m114.5735.08.61-debug/webrtc-m114.5735.08.61-debug.9571929057-windows64-9571929057.tar.zst</string>
+              <string>https://github.com/secondlife/3p-webrtc-build/releases/download/m114.5735.08.67-debug/webrtc-m114.5735.08.67-debug.10190042668-windows64-10190042668.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -2838,7 +2838,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>copyright</key>
         <string>Copyright (c) 2011, The WebRTC project authors. All rights reserved.</string>
         <key>version</key>
-        <string>m114.5735.08.61-debug.9571929057</string>
+        <string>m114.5735.08.67-debug.10190042668</string>
         <key>name</key>
         <string>webrtc</string>
         <key>vcs_branch</key>
