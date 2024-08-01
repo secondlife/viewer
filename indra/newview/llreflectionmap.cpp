@@ -220,7 +220,7 @@ F32 LLReflectionMap::getNearClip()
 
     if (mViewerObject && mViewerObject->getVolume())
     {
-        ret = ((LLVOVolume*)mViewerObject)->getReflectionProbeNearClip();
+        ret = mViewerObject->getReflectionProbeNearClip();
     }
     else if (mGroup)
     {
@@ -240,7 +240,7 @@ bool LLReflectionMap::getIsDynamic()
         mViewerObject &&
         mViewerObject->getVolume())
     {
-        return ((LLVOVolume*)mViewerObject)->getReflectionProbeIsDynamic();
+        return mViewerObject->getReflectionProbeIsDynamic();
     }
 
     return false;
