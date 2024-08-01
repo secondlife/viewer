@@ -57,7 +57,6 @@ if(WINDOWS)
         libapr-1.dll
         libaprutil-1.dll
         nghttp2.dll
-        libhunspell.dll
         )
 
     # OpenSSL
@@ -185,7 +184,6 @@ elseif(DARWIN)
         libaprutil-1.0.dylib
         libaprutil-1.dylib
         ${EXPAT_COPY}
-        libhunspell-1.3.0.dylib
         libndofdev.dylib
         libnghttp2.dylib
         libnghttp2.14.dylib
@@ -231,7 +229,6 @@ elseif(LINUX)
                  libatk-1.0.so
                  libfreetype.so.6.6.2
                  libfreetype.so.6
-                 libhunspell-1.3.so.0.0.0
                  libopenjp2.so
                  libuuid.so.16
                  libuuid.so.16.0.22

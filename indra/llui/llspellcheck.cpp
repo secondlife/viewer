@@ -30,12 +30,7 @@
 #include "llsdserialize.h"
 
 #include "llspellcheck.h"
-#if LL_WINDOWS
-    #include <hunspell/hunspelldll.h>
-    #pragma comment(lib, "libhunspell.lib")
-#else
-    #include <hunspell/hunspell.hxx>
-#endif
+#include <hunspell/hunspell.hxx>
 
 static const std::string DICT_DIR = "dictionaries";
 static const std::string DICT_FILE_CUSTOM = "user_custom.dic";
@@ -64,11 +59,11 @@ void LLSpellChecker::initSingleton()
 
 bool LLSpellChecker::checkSpelling(const std::string& word) const
 {
-    if ( (!mHunspell) || (word.length() < 3) || (0 != mHunspell->spell(word.c_str())) )
+    if ( (!mHunspell) || (word.length() < 3) || (0 != mHunspell->spell(word)) )
     {
         return true;
     }
-    if (mIgnoreList.size() > 0)
+    if (!mIgnoreList.empty())
     {
         std::string word_lower(word);
         LLStringUtil::toLower(word_lower);
@@ -85,15 +80,8 @@ S32 LLSpellChecker::getSuggestions(const std::string& word, std::vector<std::str
         return 0;
     }
 
-    char** suggestion_list; int suggestion_cnt = 0;
-    if ( (suggestion_cnt = mHunspell->suggest(&suggestion_list, word.c_str())) != 0 )
-    {
-        for (int suggestion_index = 0; suggestion_index < suggestion_cnt; suggestion_index++)
-        {
-            suggestions.push_back(suggestion_list[suggestion_index]);
-        }
-        mHunspell->free_list(&suggestion_list, suggestion_cnt);
-    }
+    suggestions = mHunspell->suggest(word);
+
     return static_cast<S32>(suggestions.size());
 }
 
@@ -194,7 +182,7 @@ void LLSpellChecker::addToCustomDictionary(const std::string& word)
 {
     if (mHunspell)
     {
-        mHunspell->add(word.c_str());
+        mHunspell->add(word);
     }
     addToDictFile(getDictionaryUserPath() + DICT_FILE_CUSTOM, word);
     sSettingsChangeSignal();
@@ -422,7 +410,7 @@ bool LLSpellChecker::canRemoveDictionary(const std::string& dict_language)
     const LLSD dict_info = getDictionaryData(dict_language);
     return
         (dict_info["user_installed"].asBoolean()) &&
-        ( (!getUseSpellCheck()) || (!LLSpellChecker::instance().isActiveDictionary(dict_language)) );
+        ( (!getUseSpellCheck()) || (!isActiveDictionary(dict_language)) );
 }
 
 void LLSpellChecker::removeDictionary(const std::string& dict_language)
