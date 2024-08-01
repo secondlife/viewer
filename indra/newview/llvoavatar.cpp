@@ -2818,7 +2818,7 @@ void LLVOAvatar::idleUpdateVoiceVisualizer(bool voice_enabled, const LLVector3 &
         // Notice the calls to "gAwayTimer.reset()". This resets the timer that determines how long the avatar has been
         // "away", so that the avatar doesn't lapse into away-mode (and slump over) while the user is still talking.
         //-----------------------------------------------------------------------------------------------------------------
-        if (LLVoiceClient::getInstance()->getIsSpeaking( mID ))
+        if (LLVoiceClient::getInstance()->getIsSpeaking( mID ) && (!isInMuteList() || isSelf()))
         {
             if (!mVoiceVisualizer->getCurrentlySpeaking())
             {

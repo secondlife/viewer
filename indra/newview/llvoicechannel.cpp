@@ -768,6 +768,7 @@ LLVoiceChannelP2P::LLVoiceChannelP2P(const LLUUID      &session_id,
     mReceivedCall(false),
     mOutgoingCallInterface(outgoing_call_interface)
 {
+    mChannelInfo = LLVoiceClient::getInstance()->getP2PChannelInfoTemplate(other_user_id);
 }
 
 void LLVoiceChannelP2P::handleStatusChange(EStatusType type)

@@ -248,7 +248,7 @@ LLWebRTCVoiceClient::~LLWebRTCVoiceClient()
 void LLWebRTCVoiceClient::init(LLPumpIO* pump)
 {
     // constructor will set up LLVoiceClient::getInstance()
-    llwebrtc::init();
+    llwebrtc::init(this);
 
     mWebRTCDeviceInterface = llwebrtc::getDeviceInterface();
     mWebRTCDeviceInterface->setDevicesObserver(this);
@@ -277,6 +277,29 @@ void LLWebRTCVoiceClient::cleanUp()
     mNeighboringRegions.clear();
     sessionState::for_each(boost::bind(predShutdownSession, _1));
     LL_DEBUGS("Voice") << "Exiting" << LL_ENDL;
+}
+
+void LLWebRTCVoiceClient::LogMessage(llwebrtc::LLWebRTCLogCallback::LogLevel level, const std::string& message)
+{
+    switch (level)
+    {
+    case llwebrtc::LLWebRTCLogCallback::LOG_LEVEL_VERBOSE:
+        LL_DEBUGS("Voice") << message << LL_ENDL;
+        break;
+    case llwebrtc::LLWebRTCLogCallback::LOG_LEVEL_INFO:
+        LL_INFOS("Voice") << message << LL_ENDL;
+        break;
+    case llwebrtc::LLWebRTCLogCallback::LOG_LEVEL_WARNING:
+        LL_WARNS("Voice") << message << LL_ENDL;
+        break;
+    case llwebrtc::LLWebRTCLogCallback::LOG_LEVEL_ERROR:
+        // use WARN so that we don't crash on a webrtc error.
+        // webrtc will force a crash on a fatal error.
+        LL_WARNS("Voice") << message << LL_ENDL;
+        break;
+    default:
+        break;
+    }
 }
 
 // --------------------------------------------------
@@ -2067,9 +2090,14 @@ void LLWebRTCVoiceClient::avatarNameResolved(const LLUUID &id, const std::string
 }
 
 // Leftover from vivox PTSN
-std::string LLWebRTCVoiceClient::sipURIFromID(const LLUUID& id)
+std::string LLWebRTCVoiceClient::sipURIFromID(const LLUUID& id) const
 {
     return id.asString();
+}
+
+LLSD LLWebRTCVoiceClient::getP2PChannelInfoTemplate(const LLUUID& id) const
+{
+    return LLSD();
 }
 
 
