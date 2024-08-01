@@ -904,7 +904,7 @@ void LLViewerTextureList::clearFetchingRequests()
 
 extern bool gCubeSnapshot;
 
-void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imagep)
+void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imagep, bool flush_images)
 {
     if (imagep->isInDebug() || imagep->isUnremovable())
     {
@@ -993,7 +993,7 @@ void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imag
     // Flush formatted images using a lazy flush
     //
     S32 num_refs = imagep->getNumRefs();
-    if (num_refs == min_refs)
+    if (num_refs == min_refs && flush_images)
     {
         if (imagep->getLastReferencedTimer()->getElapsedTimeF32() > lazy_flush_timeout)
         {
