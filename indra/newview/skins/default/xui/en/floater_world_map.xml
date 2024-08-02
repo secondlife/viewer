@@ -14,6 +14,9 @@
  single_instance="true"
  title="WORLD MAP"
  width="650">
+  <string name="UnnamedParcel">
+    (Unnamed Parcel)
+  </string>
   <string
    name="collapse_icon"
    value="map_ui_collapse_icon.png"/>
