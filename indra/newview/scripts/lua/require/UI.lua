@@ -199,4 +199,27 @@ function UI.getToolbarBtnNames()
     return leap.request('UI', {op = 'getToolbarBtnNames'}).cmd_names
 end
 
+-- ***************************************************************************
+--  Floaters
+-- ***************************************************************************
+function UI.showFloater(floater_name)
+    leap.send("LLFloaterReg", {op = "showInstance", name = floater_name})
+end
+
+function UI.hideFloater(floater_name)
+    leap.send("LLFloaterReg", {op = "hideInstance", name = floater_name})
+end
+
+function UI.toggleFloater(floater_name)
+    leap.send("LLFloaterReg", {op = "toggleInstance", name = floater_name})
+end
+
+function UI.isFloaterVisible(floater_name)
+    return leap.request("LLFloaterReg", {op = "instanceVisible", name = floater_name}).visible
+end
+
+function UI.closeAllFloaters()
+    return leap.send("UI", {op = "closeAllFloaters"})
+end
+
 return UI

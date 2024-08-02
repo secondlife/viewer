@@ -39,6 +39,7 @@
 #include "llui.h" // getRootView(), resolvePath()
 #include "lluictrl.h"
 #include "llerror.h"
+#include "llviewermenufile.h" // close_all_windows()
 
 extern LLMenuBarGL* gMenuBarView;
 
@@ -124,6 +125,10 @@ LLUIListener::LLUIListener():
         "Return the table of Toolbar buttons names",
         &LLUIListener::getToolbarBtnNames,
         llsd::map("reply", LLSD()));
+
+    add("closeAllFloaters",
+        "Close all the floaters",
+        &LLUIListener::closeAllFloaters);
 }
 
 typedef LLUICtrl::CommitCallbackInfo cb_info;
@@ -347,4 +352,9 @@ void LLUIListener::removeToolbarBtn(const LLSD &event) const
 void LLUIListener::getToolbarBtnNames(const LLSD &event) const
 {
     Response response(llsd::map("cmd_names", LLCommandManager::instance().getCommandNames()), event);
+}
+
+void LLUIListener::closeAllFloaters(const LLSD &event) const
+{
+    close_all_windows();
 }

@@ -56,6 +56,8 @@ private:
     void removeToolbarBtn(const LLSD &event) const;
     void getToolbarBtnNames(const LLSD &event) const;
 
+    void closeAllFloaters(const LLSD &event) const;
+
     F64 mLastUntrustedThrottle {0};
     F64 mLastMinThrottle {0};
 };
