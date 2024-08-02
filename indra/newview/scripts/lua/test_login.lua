@@ -1,7 +1,7 @@
-startup = require 'startup'
+inspect = require 'inspect'
 login = require 'login'
 
-startup.wait('STATE_LOGIN_WAIT')
-login()
--- Fill in valid credentials as they would be entered on the login screen
--- login('My Username', 'password')
+print(inspect(login{
+    username='Nat Linden',
+--    grid='agni'
+    }))
