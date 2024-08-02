@@ -35,6 +35,7 @@
 // external library headers
 // other Linden headers
 #include "llmenugl.h"
+#include "lltoolbarview.h"
 #include "llui.h" // getRootView(), resolvePath()
 #include "lluictrl.h"
 #include "llerror.h"
@@ -97,6 +98,32 @@ LLUIListener::LLUIListener():
         "Add menu separator to the [\"parent_menu\"] within the Top menu.",
         &LLUIListener::addMenuSeparator,
         llsd::map("parent_menu", LLSD(), "reply", LLSD()));
+
+    add("defaultToolbars",
+        "todo: defaultToolbars desc",
+        &LLUIListener::restoreDefaultToolbars);
+
+    add("clearToolbars",
+        "Clear all buttons off the toolbars",
+        &LLUIListener::clearAllToolbars);
+
+    add("addToolbarBtn",
+        "Add [\"btn_name\"] toolbar button to the [\"toolbar\"]\n"
+        "[1 (left toolbar), 2 (right toolbar), 3 (bottom toolbar)]\n"
+        "Position of the command in the original list can be specified as [\"rank\"]",
+        &LLUIListener::addToolbarBtn,
+        llsd::map("btn_name", LLSD(), "reply", LLSD()));
+
+    add("removeToolbarBtn",
+        "Remove [\"btn_name\"] toolbar button off the toolbar,\n"
+        "return [\"rank\"] (old position) of the command in the original list",
+        &LLUIListener::removeToolbarBtn,
+        llsd::map("btn_name", LLSD(), "reply", LLSD()));
+
+    add("getToolbarBtnNames",
+        "Return the table of Toolbar buttons names",
+        &LLUIListener::getToolbarBtnNames,
+        llsd::map("reply", LLSD()));
 }
 
 typedef LLUICtrl::CommitCallbackInfo cb_info;
@@ -279,4 +306,45 @@ void LLUIListener::addMenuSeparator(const LLSD&event) const
             response.error("Separator was not added");
         }
     }
+}
+
+void LLUIListener::restoreDefaultToolbars(const LLSD &event) const
+{
+    LLToolBarView::loadDefaultToolbars();
+}
+
+void LLUIListener::clearAllToolbars(const LLSD &event) const
+{
+    LLToolBarView::clearAllToolbars();
+}
+
+void LLUIListener::addToolbarBtn(const LLSD &event) const
+{
+    Response response(LLSD(), event);
+
+    typedef LLToolBarEnums::EToolBarLocation ToolBarLocation;
+    ToolBarLocation toolbar = ToolBarLocation::TOOLBAR_BOTTOM;
+    if (event.has("toolbar"))
+    {
+        toolbar = llclamp((ToolBarLocation)event["toolbar"].asInteger(), ToolBarLocation::TOOLBAR_NONE, ToolBarLocation::TOOLBAR_BOTTOM);
+    }
+    S32 rank = event.has("rank") ? event["rank"].asInteger() : - 1;
+    if(!gToolBarView->addCommand(event["btn_name"].asString(), toolbar, rank))
+    {
+        response.error(stringize("Toolbar button ", std::quoted(event["btn_name"].asString()), " was not found"));
+    }
+}
+
+void LLUIListener::removeToolbarBtn(const LLSD &event) const
+{
+    Response response(LLSD(), event);
+
+    S32 old_rank = LLToolBar::RANK_NONE;
+    gToolBarView->removeCommand(event["btn_name"].asString(), old_rank);
+    response["rank"] = old_rank;
+}
+
+void LLUIListener::getToolbarBtnNames(const LLSD &event) const
+{
+    Response response(llsd::map("cmd_names", LLCommandManager::instance().getCommandNames()), event);
 }

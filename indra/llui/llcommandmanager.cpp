@@ -189,3 +189,13 @@ bool LLCommandManager::load()
 
     return true;
 }
+
+LLSD LLCommandManager::getCommandNames()
+{
+    LLSD cmd_names;
+    for (auto &it : mCommands)
+    {
+        cmd_names.append(it->name());
+    }
+    return cmd_names;
+ }

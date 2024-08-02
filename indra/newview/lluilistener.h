@@ -50,6 +50,12 @@ private:
     void addMenuItem(const LLSD&event) const;
     void addMenuSeparator(const LLSD&event) const;
 
+    void restoreDefaultToolbars(const LLSD &event) const;
+    void clearAllToolbars(const LLSD &event) const;
+    void addToolbarBtn(const LLSD &event) const;
+    void removeToolbarBtn(const LLSD &event) const;
+    void getToolbarBtnNames(const LLSD &event) const;
+
     F64 mLastUntrustedThrottle {0};
     F64 mLastMinThrottle {0};
 };

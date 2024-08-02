@@ -169,4 +169,34 @@ function UI.addMenuSeparator(...)
     return leap.request('UI', args)
 end
 
+-- ***************************************************************************
+--  Toolbar buttons
+-- ***************************************************************************
+-- Clears all buttons off the toolbars
+function UI.clearToolbars()
+    leap.send('UI', {op='clearToolbars'})
+end
+
+function UI.defaultToolbars()
+    leap.send('UI', {op='defaultToolbars'})
+end
+
+-- UI.addToolbarBtn{btn_name=btn_name
+--          [, toolbar= 3] -- 1 [TOOLBAR_LEFT], 2 [TOOLBAR_RIGHT], 3 [TOOLBAR_BOTTOM]
+--          [, rank=1]} -- position on the toolbar
+function UI.addToolbarBtn(...)
+    local args = mapargs('btn_name,toolbar,rank', ...)
+    args.op = 'addToolbarBtn'
+    return leap.request('UI', args)
+end
+
+-- Returns the rank(position) of the command in the original list
+function UI.removeToolbarBtn(btn_name)
+    return leap.request('UI', {op = 'removeToolbarBtn', btn_name=btn_name}).rank
+end
+
+function UI.getToolbarBtnNames()
+    return leap.request('UI', {op = 'getToolbarBtnNames'}).cmd_names
+end
+
 return UI
