@@ -1112,11 +1112,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d5757ab84d934fa358f299ab91e2e297beaa3dac</string>
+              <string>e71ae7a645603fe967a69aa5beb5b3009185e177</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-libhunspell/releases/download/v1.3.2.650fb94/libhunspell-1.3.2.650fb94-darwin64-650fb94.tar.zst</string>
+              <string>https://github.com/secondlife/3p-libhunspell/releases/download/v1.7.2-r1/libhunspell-1.7.2.10207243663-darwin64-10207243663.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1126,11 +1126,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>6413d3bd4cd50c2a6b7f949eb4bd6f0c94feb984</string>
+              <string>275ffb7f60064d8008aed8406f80f34229f651fc</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-libhunspell/releases/download/v1.3.2.650fb94/libhunspell-1.3.2.650fb94-linux64-650fb94.tar.zst</string>
+              <string>https://github.com/secondlife/3p-libhunspell/releases/download/v1.7.2-r1/libhunspell-1.7.2.10207243663-linux64-10207243663.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -1140,11 +1140,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c1be4a79b20435030b2e0e01b582c61b462c8376</string>
+              <string>89ff24e93eaeca7949ccdb5cc368f938f5b1f307</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-libhunspell/releases/download/v1.3.2.650fb94/libhunspell-1.3.2.650fb94-windows64-650fb94.tar.zst</string>
+              <string>https://github.com/secondlife/3p-libhunspell/releases/download/v1.7.2-r1/libhunspell-1.7.2.10207243663-windows64-10207243663.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -1155,9 +1155,9 @@
         <key>license_file</key>
         <string>LICENSES/hunspell.txt</string>
         <key>copyright</key>
-        <string>See hunspell.txt</string>
+        <string>LGPL 2.1</string>
         <key>version</key>
-        <string>1.3.2.650fb94</string>
+        <string>1.7.2.10207243663</string>
         <key>name</key>
         <string>libhunspell</string>
         <key>description</key>

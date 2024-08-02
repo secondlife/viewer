@@ -587,9 +587,6 @@ class Windows_x86_64_Manifest(ViewerManifest):
             # HTTP/2
             self.path("nghttp2.dll")
 
-            # Hunspell
-            self.path("libhunspell.dll")
-
             # BugSplat
             if self.args.get('bugsplat'):
                 self.path("BsSndRpt64.exe")
@@ -930,7 +927,6 @@ class Darwin_x86_64_Manifest(ViewerManifest):
 
                 with self.prefix(src=relpkgdir, dst=""):
                     self.path("libndofdev.dylib")
-                    self.path("libhunspell-*.dylib")
 
                 with self.prefix(src_dst="cursors_mac"):
                     self.path("*.tif")
@@ -1336,7 +1332,6 @@ class Linux_i686_Manifest(LinuxManifest):
             self.path("libdirectfb-1.4.so.5")
             self.path("libfusion-1.4.so.5")
             self.path("libdirect-1.4.so.5*")
-            self.path("libhunspell-1.3.so*")
             self.path("libalut.so*")
             self.path("libopenal.so*")
             self.path("libopenal.so", "libvivoxoal.so.1") # vivox's sdk expects this soname
