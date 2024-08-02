@@ -39,12 +39,17 @@ class LLUIListener: public LLEventAPI
 public:
     LLUIListener();
 
-// FIXME These fields are intended to be private, changed here to support very hacky code in llluamanager.cpp 
-public:
+private:
     void call(const LLSD& event);
-    void getValue(const LLSD&event) const;
+    void callables(const LLSD& event) const;
+    void getValue(const LLSD& event) const;
+    void getParents(const LLSD& event) const;
 
- private:
+    void addMenu(const LLSD&event) const;
+    void addMenuBranch(const LLSD&event) const;
+    void addMenuItem(const LLSD&event) const;
+    void addMenuSeparator(const LLSD&event) const;
+
     F64 mLastUntrustedThrottle {0};
     F64 mLastMinThrottle {0};
 };

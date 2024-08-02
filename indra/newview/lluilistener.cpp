@@ -34,9 +34,12 @@
 // std headers
 // external library headers
 // other Linden headers
+#include "llmenugl.h"
 #include "llui.h" // getRootView(), resolvePath()
 #include "lluictrl.h"
 #include "llerror.h"
+
+extern LLMenuBarGL* gMenuBarView;
 
 #define THROTTLE_PERIOD 1.5 // required seconds between throttled functions
 #define MIN_THROTTLE 0.5
@@ -52,11 +55,48 @@ LLUIListener::LLUIListener():
         &LLUIListener::call,
         llsd::map("function", LLSD(), "reply", LLSD()));
 
+    add("callables",
+        "Return a list [\"callables\"] of dicts {name, access} of functions registered to\n"
+        "invoke with \"call\".\n"
+        "access has values \"allow\", \"block\" or \"throttle\".",
+        &LLUIListener::callables,
+        llsd::map("reply", LLSD::String()));
+
     add("getValue",
         "For the UI control identified by the path in [\"path\"], return the control's\n"
         "current value as [\"value\"] reply.",
         &LLUIListener::getValue,
         llsd::map("path", LLSD(), "reply", LLSD()));
+
+    add("getParents",
+        "List names of Top menus suitable for passing as \"parent_menu\"",
+        &LLUIListener::getParents,
+        llsd::map("reply", LLSD::String()));
+
+    LLSD required_args = llsd::map("name", LLSD(), "label", LLSD(), "reply", LLSD());
+    add("addMenu",
+        "Add new drop-down menu [\"name\"] with displayed [\"label\"] to the Top menu.",
+        &LLUIListener::addMenu,
+        required_args);
+
+    required_args.insert("parent_menu", LLSD());
+    add("addMenuBranch",
+        "Add new menu branch [\"name\"] with displayed [\"label\"]\n"
+        "to the [\"parent_menu\"] within the Top menu.",
+        &LLUIListener::addMenuBranch,
+        required_args);
+
+    add("addMenuItem",
+        "Add new menu item [\"name\"] with displayed [\"label\"]\n"
+        "and call-on-click UI function [\"func\"] with optional [\"param\"]\n"
+        "to the [\"parent_menu\"] within the Top menu.",
+        &LLUIListener::addMenuItem,
+        required_args.with("func", LLSD()));
+    
+    add("addMenuSeparator",
+        "Add menu separator to the [\"parent_menu\"] within the Top menu.",
+        &LLUIListener::addMenuSeparator,
+        llsd::map("parent_menu", LLSD(), "reply", LLSD()));
 }
 
 typedef LLUICtrl::CommitCallbackInfo cb_info;
@@ -103,7 +143,43 @@ void LLUIListener::call(const LLSD& event)
     (info->callback_func)(NULL, event["parameter"]);
 }
 
-void LLUIListener::getValue(const LLSD&event) const
+void LLUIListener::callables(const LLSD& event) const
+{
+    Response response(LLSD(), event);
+
+    using Registry = LLUICtrl::CommitCallbackRegistry;
+    using Method = Registry::Registrar& (*)();
+    static Method registrars[] =
+    {
+        &Registry::defaultRegistrar,
+        &Registry::currentRegistrar,
+    };
+    LLSD list;
+    for (auto method : registrars)
+    {
+        auto& registrar{ (*method)() };
+        for (auto it = registrar.beginItems(), end = registrar.endItems(); it != end; ++it)
+        {
+            LLSD entry{ llsd::map("name", it->first) };
+            switch (it->second.handle_untrusted)
+            {
+            case LLUICtrl::CommitCallbackInfo::UNTRUSTED_ALLOW:
+                entry["access"] = "allow";
+                break;
+            case LLUICtrl::CommitCallbackInfo::UNTRUSTED_BLOCK:
+                entry["access"] = "block";
+                break;
+            case LLUICtrl::CommitCallbackInfo::UNTRUSTED_THROTTLE:
+                entry["access"] = "throttle";
+                break;
+            }
+            list.append(entry);
+        }
+    }
+    response["callables"] = list;
+}
+
+void LLUIListener::getValue(const LLSD& event) const
 {
     Response response(LLSD(), event);
 
@@ -118,5 +194,89 @@ void LLUIListener::getValue(const LLSD&event) const
     else
     {
         response.error(stringize("UI control ", std::quoted(event["path"].asString()), " was not found"));
+    }
+}
+
+void LLUIListener::getParents(const LLSD& event) const
+{
+    Response response(LLSD(), event);
+    response["parents"] = llsd::toArray(
+        *gMenuBarView->getChildList(),
+        [](auto childp) {return childp->getName(); });
+}
+
+LLMenuGL::Params get_params(const LLSD&event)
+{
+    LLMenuGL::Params item_params;
+    item_params.name  = event["name"];
+    item_params.label = event["label"];
+    item_params.can_tear_off = true;
+    return item_params;
+}
+
+LLMenuGL* get_parent_menu(LLEventAPI::Response& response, const LLSD&event)
+{
+    LLMenuGL* parent_menu = gMenuBarView->findChildMenuByName(event["parent_menu"], true);
+    if(!parent_menu)
+    {
+        response.error(stringize("Parent menu ", std::quoted(event["parent_menu"].asString()), " was not found"));
+    }
+    return parent_menu;
+}
+
+void LLUIListener::addMenu(const LLSD&event) const
+{
+    Response response(LLSD(), event);
+    LLMenuGL::Params item_params = get_params(event);
+    if(!gMenuBarView->appendMenu(LLUICtrlFactory::create<LLMenuGL>(item_params)))
+    {
+        response.error(stringize("Menu ", std::quoted(event["name"].asString()), " was not added"));
+    }
+}
+
+void LLUIListener::addMenuBranch(const LLSD&event) const
+{
+    Response response(LLSD(), event);
+    if(LLMenuGL* parent_menu = get_parent_menu(response, event))
+    {
+        LLMenuGL::Params item_params = get_params(event);
+        if(!parent_menu->appendMenu(LLUICtrlFactory::create<LLMenuGL>(item_params)))
+        {
+            response.error(stringize("Menu branch ", std::quoted(event["name"].asString()), " was not added"));
+        }
+    }
+}
+
+void LLUIListener::addMenuItem(const LLSD&event) const
+{
+    Response response(LLSD(), event);
+    LLMenuItemCallGL::Params item_params;
+    item_params.name  = event["name"];
+    item_params.label = event["label"];
+    LLUICtrl::CommitCallbackParam item_func;
+    item_func.function_name = event["func"];
+    if (event.has("param"))
+    {
+        item_func.parameter = event["param"];
+    }
+    item_params.on_click = item_func;
+    if(LLMenuGL* parent_menu = get_parent_menu(response, event))
+    {
+        if(!parent_menu->append(LLUICtrlFactory::create<LLMenuItemCallGL>(item_params)))
+        {
+            response.error(stringize("Menu item ", std::quoted(event["name"].asString()), " was not added"));
+        }
+    }
+}
+
+void LLUIListener::addMenuSeparator(const LLSD&event) const
+{
+    Response response(LLSD(), event);
+    if(LLMenuGL* parent_menu = get_parent_menu(response, event))
+    {
+        if(!parent_menu->addSeparator())
+        {
+            response.error("Separator was not added");
+        }
     }
 }
