@@ -959,63 +959,65 @@
         <key>name</key>
         <string>jpegencoderbasic</string>
       </map>
-      <key>jpeglib</key>
+      <key>libjpeg-turbo</key>
       <map>
         <key>platforms</key>
         <map>
-          <key>darwin64</key>
+          <key>windows64</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>776d114aa1e3455bb13deaacd756deb07b53ecbe</string>
+              <string>36144272e381952a7c11f1d593c2916c5c7387d0</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-jpeglib/releases/download/v8c.7846234/jpeglib-8c.7846234-darwin64-7846234.tar.zst</string>
+              <string>https://github.com/secondlife/3p-libjpeg-turbo/releases/download/v3.0.3-r1/libjpeg_turbo-3.0.3-windows64-10204037839.tar.zst</string>
             </map>
             <key>name</key>
-            <string>darwin64</string>
+            <string>windows64</string>
           </map>
           <key>linux64</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b4b2278bd2fcae85619e2145a243cca388d760d7</string>
+              <string>f853a7d4fe842e7a661dd71a56a51f65b2ec25c7</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-jpeglib/releases/download/v8c.7846234/jpeglib-8c.7846234-linux64-7846234.tar.zst</string>
+              <string>https://github.com/secondlife/3p-libjpeg-turbo/releases/download/v3.0.3-r1/libjpeg_turbo-3.0.3-linux64-10204037839.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
           </map>
-          <key>windows64</key>
+          <key>darwin64</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d50fcac69eeb9404638da07db96ee3e1191ecf93</string>
+              <string>6fcbc2c3c91b5e9bfbbc57ddf27d2f3698fe7d99</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-jpeglib/releases/download/v8c.7846234/jpeglib-8c.7846234-windows64-7846234.tar.zst</string>
+              <string>https://github.com/secondlife/3p-libjpeg-turbo/releases/download/v3.0.3-r1/libjpeg_turbo-3.0.3-darwin64-10204037839.tar.zst</string>
             </map>
             <key>name</key>
-            <string>windows64</string>
+            <string>darwin64</string>
           </map>
         </map>
         <key>license</key>
-        <string>jpeglib</string>
+        <string>libjpeg-turbo</string>
         <key>license_file</key>
-        <string>LICENSES/jpeglib.txt</string>
+        <string>LICENSES/libjpeg-turbo.txt</string>
         <key>copyright</key>
-        <string>Copyright (C) 1991-2011, Thomas G. Lane, Guido Vollbeding.</string>
+        <string>Copyright (C)2009-2024 D. R. Commander. All Rights Reserved. Copyright (C)2015 Viktor Szathmáry. All Rights Reserved.</string>
         <key>version</key>
-        <string>8c.7846234</string>
+        <string>3.0.3</string>
         <key>name</key>
-        <string>jpeglib</string>
+        <string>libjpeg-turbo</string>
+        <key>canonical_repo</key>
+        <string>https://github.com/secondlife/3p-libjpeg-turbo</string>
         <key>description</key>
         <string>JPEG encoding, decoding library</string>
       </map>
