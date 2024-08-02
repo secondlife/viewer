@@ -113,6 +113,7 @@
 #include "llgltfmateriallist.h"
 
 // Linden library includes
+#include "fsyspath.h"
 #include "llavatarnamecache.h"
 #include "lldiriterator.h"
 #include "llexperiencecache.h"
@@ -1216,8 +1217,23 @@ bool LLAppViewer::init()
         "--luafile", "LuaScript",
         [](const LLSD& script)
         {
-            // no completion callback: we don't need to know
-            LLLUAmanager::runScriptFile(script);
+            LLSD paths(gSavedSettings.getLLSD("LuaCommandPath"));
+            LL_DEBUGS("Lua") << "LuaCommandPath = " << paths << LL_ENDL;
+            for (const auto& path : llsd::inArray(paths))
+            {
+                // if script path is already absolute, operator/() preserves it
+                auto abspath(fsyspath(gDirUtilp->getAppRODataDir()) / path.asString());
+                auto absscript{ (abspath / script.asString()) };
+                std::error_code ec;
+                if (std::filesystem::exists(absscript, ec))
+                {
+                    // no completion callback: we don't need to know
+                    LLLUAmanager::runScriptFile(absscript.u8string());
+                    return;         // from lambda
+                }
+            }
+            LL_WARNS("Lua") << "--luafile " << std::quoted(script.asString())
+                            << " not found on " << paths << LL_ENDL;
         });
     processComposeSwitch(
         "LuaAutorunPath", "LuaAutorunPath",
