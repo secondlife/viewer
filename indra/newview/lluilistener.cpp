@@ -68,6 +68,11 @@ LLUIListener::LLUIListener():
         &LLUIListener::getValue,
         llsd::map("path", LLSD(), "reply", LLSD()));
 
+    add("getParents",
+        "List names of Top menus suitable for passing as \"parent_menu\"",
+        &LLUIListener::getParents,
+        llsd::map("reply", LLSD::String()));
+
     LLSD required_args = llsd::map("name", LLSD(), "label", LLSD(), "reply", LLSD());
     add("addMenu",
         "Add new drop-down menu [\"name\"] with displayed [\"label\"] to the Top menu.",
@@ -174,7 +179,7 @@ void LLUIListener::callables(const LLSD& event) const
     response["callables"] = list;
 }
 
-void LLUIListener::getValue(const LLSD&event) const
+void LLUIListener::getValue(const LLSD& event) const
 {
     Response response(LLSD(), event);
 
@@ -190,6 +195,14 @@ void LLUIListener::getValue(const LLSD&event) const
     {
         response.error(stringize("UI control ", std::quoted(event["path"].asString()), " was not found"));
     }
+}
+
+void LLUIListener::getParents(const LLSD& event) const
+{
+    Response response(LLSD(), event);
+    response["parents"] = llsd::toArray(
+        *gMenuBarView->getChildList(),
+        [](auto childp) {return childp->getName(); });
 }
 
 LLMenuGL::Params get_params(const LLSD&event)
