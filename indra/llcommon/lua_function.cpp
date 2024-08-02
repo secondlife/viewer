@@ -32,6 +32,8 @@
 #include "lualistener.h"
 #include "stringize.h"
 
+using namespace std::literals;      // e.g. std::string_view literals: "this"sv
+
 const S32 INTERRUPTS_MAX_LIMIT = 20000;
 const S32 INTERRUPTS_SUSPEND_LIMIT = 100;
 
@@ -41,7 +43,7 @@ const S32 INTERRUPTS_SUSPEND_LIMIT = 100;
 int DistinctInt::mValues{0};
 
 /*****************************************************************************
-*   luau namespace
+*   lluau namespace
 *****************************************************************************/
 namespace
 {
@@ -93,21 +95,14 @@ fsyspath lluau::source_path(lua_State* L)
 
 void lluau::set_interrupts_counter(lua_State *L, S32 counter)
 {
-    luaL_checkstack(L, 2, nullptr);
-    lua_pushstring(L, "_INTERRUPTS");
-    lua_pushinteger(L, counter);
-    lua_rawset(L, LUA_REGISTRYINDEX);
+    lua_rawsetfield(L, LUA_REGISTRYINDEX, "_INTERRUPTS"sv, lua_Integer(counter));
 }
 
 void lluau::check_interrupts_counter(lua_State* L)
 {
-    luaL_checkstack(L, 1, nullptr);
-    lua_pushstring(L, "_INTERRUPTS");
-    lua_rawget(L, LUA_REGISTRYINDEX);
-    S32 counter = lua_tointeger(L, -1);
-    lua_pop(L, 1);
+    auto counter = lua_rawgetfield<lua_Integer>(L, LUA_REGISTRYINDEX, "_INTERRUPTS"sv);
 
-    lluau::set_interrupts_counter(L, ++counter);
+    set_interrupts_counter(L, ++counter);
     if (counter > INTERRUPTS_MAX_LIMIT) 
     {
         lluau::error(L, "Possible infinite loop, terminated.");

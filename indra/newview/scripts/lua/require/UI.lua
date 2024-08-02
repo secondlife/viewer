@@ -14,6 +14,10 @@ function UI.call(func, parameter)
     leap.request('UI', {op='call', ['function']=func, parameter=parameter})
 end
 
+function UI.callables()
+    return leap.request('UI', {op='callables'}).callables
+end
+
 function UI.getValue(path)
     return leap.request('UI', {op='getValue', path=path})['value']
 end
@@ -135,4 +139,34 @@ function UI.snapshot(...)
     args.op = 'saveSnapshot'
     return leap.request('LLViewerWindow', args).result
 end
+
+-- ***************************************************************************
+--  Top menu
+-- ***************************************************************************
+
+function UI.addMenu(...)
+    local args = mapargs('name,label', ...)
+    args.op = 'addMenu'
+    return leap.request('UI', args)
+end
+
+function UI.addMenuBranch(...)
+    local args = mapargs('name,label,parent_menu', ...)
+    args.op = 'addMenuBranch'
+    return leap.request('UI', args)
+end
+
+-- see UI.callables() for valid values of 'func'
+function UI.addMenuItem(...)
+    local args = mapargs('name,label,parent_menu,func,param', ...)
+    args.op = 'addMenuItem'
+    return leap.request('UI', args)
+end
+
+function UI.addMenuSeparator(...)
+    local args = mapargs('parent_menu', ...)
+    args.op = 'addMenuSeparator'
+    return leap.request('UI', args)
+end
+
 return UI

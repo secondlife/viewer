@@ -18,6 +18,7 @@
 #include "luau/lualib.h"
 #include "fsyspath.h"
 #include "llerror.h"
+#include "llsd.h"
 #include "stringize.h"
 #include <exception>                // std::uncaught_exceptions()
 #include <memory>                   // std::shared_ptr
@@ -167,6 +168,167 @@ private:
     lua_State* mState;
     int mIndex;
 };
+
+/*****************************************************************************
+*   lua_push() wrappers for generic code
+*****************************************************************************/
+inline
+void lua_push(lua_State* L, bool b)
+{
+    lua_pushboolean(L, int(b));
+}
+
+inline
+void lua_push(lua_State* L, lua_CFunction fn)
+{
+    lua_pushcfunction(L, fn, "");
+}
+
+inline
+void lua_push(lua_State* L, lua_Integer n)
+{
+    lua_pushinteger(L, n);
+}
+
+inline
+void lua_push(lua_State* L, void* p)
+{
+    lua_pushlightuserdata(L, p);
+}
+
+inline
+void lua_push(lua_State* L, const LLSD& data)
+{
+    lua_pushllsd(L, data);
+}
+
+inline
+void lua_push(lua_State* L, const char* s, size_t len)
+{
+    lua_pushlstring(L, s, len);
+}
+
+inline
+void lua_push(lua_State* L)
+{
+    lua_pushnil(L);
+}
+
+inline
+void lua_push(lua_State* L, lua_Number n)
+{
+    lua_pushnumber(L, n);
+}
+
+inline
+void lua_push(lua_State* L, const std::string& s)
+{
+    lua_pushstdstring(L, s);
+}
+
+inline
+void lua_push(lua_State* L, const char* s)
+{
+    lua_pushstring(L, s);
+}
+
+/*****************************************************************************
+*   lua_to() wrappers for generic code
+*****************************************************************************/
+template <typename T>
+auto lua_to(lua_State* L, int index);
+
+template <>
+inline
+auto lua_to<bool>(lua_State* L, int index)
+{
+    return lua_toboolean(L, index);
+}
+
+template <>
+inline
+auto lua_to<lua_CFunction>(lua_State* L, int index)
+{
+    return lua_tocfunction(L, index);
+}
+
+template <>
+inline
+auto lua_to<lua_Integer>(lua_State* L, int index)
+{
+    return lua_tointeger(L, index);
+}
+
+template <>
+inline
+auto lua_to<LLSD>(lua_State* L, int index)
+{
+    return lua_tollsd(L, index);
+}
+
+template <>
+inline
+auto lua_to<lua_Number>(lua_State* L, int index)
+{
+    return lua_tonumber(L, index);
+}
+
+template <>
+inline
+auto lua_to<std::string>(lua_State* L, int index)
+{
+    return lua_tostdstring(L, index);
+}
+
+template <>
+inline
+auto lua_to<void*>(lua_State* L, int index)
+{
+    return lua_touserdata(L, index);
+}
+
+/*****************************************************************************
+*   field operations
+*****************************************************************************/
+// return to C++, from table at index, the value of field k
+template <typename T>
+auto lua_getfieldv(lua_State* L, int index, const char* k)
+{
+    luaL_checkstack(L, 1, nullptr);
+    lua_getfield(L, index, k);
+    LuaPopper pop(L, 1);
+    return lua_to<T>(L, -1);
+}
+
+// set in table at index, as field k, the specified C++ value
+template <typename T>
+auto lua_setfieldv(lua_State* L, int index, const char* k, const T& value)
+{
+    luaL_checkstack(L, 1, nullptr);
+    lua_push(L, value);
+    lua_setfield(L, index, k);
+}
+
+// return to C++, from table at index, the value of field k (without metamethods)
+template <typename T>
+auto lua_rawgetfield(lua_State* L, int index, const std::string_view& k)
+{
+    luaL_checkstack(L, 1, nullptr);
+    lua_pushlstring(L, k.data(), k.length());
+    lua_rawget(L, index);
+    LuaPopper pop(L, 1);
+    return lua_to<T>(L, -1);
+}
+
+// set in table at index, as field k, the specified C++ value (without metamethods)
+template <typename T>
+void lua_rawsetfield(lua_State* L, int index, const std::string_view& k, const T& value)
+{
+    luaL_checkstack(L, 2, nullptr);
+    lua_pushlstring(L, k.data(), k.length());
+    lua_push(L, value);
+    lua_rawset(L, index);
+}
 
 /*****************************************************************************
 *   lua_function (and helper class LuaFunction)
