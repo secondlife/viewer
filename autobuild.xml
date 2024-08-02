@@ -2536,6 +2536,14 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
       </map>
       <key>vlc-bin</key>
       <map>
+        <key>copyright</key>
+        <string>Copyright (C) 1998-2016 VLC authors and VideoLAN</string>
+        <key>license</key>
+        <string>GPL2</string>
+        <key>license_file</key>
+        <string>LICENSES/vlc.txt</string>
+        <key>name</key>
+        <string>vlc-bin</string>
         <key>platforms</key>
         <map>
           <key>darwin64</key>
@@ -2543,11 +2551,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a26b47ab01a7e2c0add4c236886162c1135b3b79</string>
+              <string>f13c82042ef8311e57dd75a3b2bda02d70f711b5</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-vlc-bin/releases/download/v3.0.16.c219a5d/vlc_bin-3.0.16.c219a5d-darwin64-c219a5d.tar.zst</string>
+              <string>https://github.com/secondlife/3p-vlc-bin/releases/download/v3.0.21.e60ee26/vlc_bin-3.0.21.10218721728-darwin64-10218721728.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2557,26 +2565,18 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d56002da7435bab166c88d59eeaf69fd87cd897d</string>
+              <string>bd995441c1a229ed1432ddd837d7d1663b8c5548</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-vlc-bin/releases/download/v3.0.16.c219a5d/vlc_bin-3.0.16.c219a5d-windows64-c219a5d.tar.zst</string>
+              <string>https://github.com/secondlife/3p-vlc-bin/releases/download/v3.0.21.e60ee26/vlc_bin-3.0.21.10218721728-windows64-10218721728.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
-        <key>license</key>
-        <string>GPL2</string>
-        <key>license_file</key>
-        <string>LICENSES/vlc.txt</string>
-        <key>copyright</key>
-        <string>Copyright (C) 1998-2016 VLC authors and VideoLAN</string>
         <key>version</key>
-        <string>3.0.16.c219a5d</string>
-        <key>name</key>
-        <string>vlc-bin</string>
+        <string>3.0.21.10218721728</string>
       </map>
       <key>vulkan_gltf</key>
       <map>
