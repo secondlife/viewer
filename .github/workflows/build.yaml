@@ -22,7 +22,7 @@ jobs:
       # important to ensure it's the empty string when false. If you omit || '',
       # its value when false is "false", which is interpreted as true.
       RELEASE_RUN: ${{ (github.event.inputs.release_run || github.ref_type == 'tag' && startsWith(github.ref_name, 'Second_Life')) && 'Y' || '' }}
-      FROM_FORK: ${{ github.event.pull_request.head.repo.organization != 'secondlife' }}
+      FROM_FORK: ${{ github.event.pull_request.head.repo.fork }}
     steps:
       - name: Set Variables
         id: setvar
