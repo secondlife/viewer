@@ -41,6 +41,7 @@ public:
 
 private:
     void call(const LLSD& event);
+    void callables(const LLSD& event) const;
     void getValue(const LLSD&event) const;
 
     void addMenu(const LLSD&event) const;

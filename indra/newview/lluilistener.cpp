@@ -55,6 +55,13 @@ LLUIListener::LLUIListener():
         &LLUIListener::call,
         llsd::map("function", LLSD(), "reply", LLSD()));
 
+    add("callables",
+        "Return a list [\"callables\"] of dicts {name, access} of functions registered to\n"
+        "invoke with \"call\".\n"
+        "access has values \"allow\", \"block\" or \"throttle\".",
+        &LLUIListener::callables,
+        llsd::map("reply", LLSD::String()));
+
     add("getValue",
         "For the UI control identified by the path in [\"path\"], return the control's\n"
         "current value as [\"value\"] reply.",
@@ -129,6 +136,42 @@ void LLUIListener::call(const LLSD& event)
     // handleEvent(). Therefore we feel completely safe passing NULL for
     // the first parameter.
     (info->callback_func)(NULL, event["parameter"]);
+}
+
+void LLUIListener::callables(const LLSD& event) const
+{
+    Response response(LLSD(), event);
+
+    using Registry = LLUICtrl::CommitCallbackRegistry;
+    using Method = Registry::Registrar& (*)();
+    static Method registrars[] =
+    {
+        &Registry::defaultRegistrar,
+        &Registry::currentRegistrar,
+    };
+    LLSD list;
+    for (auto method : registrars)
+    {
+        auto& registrar{ (*method)() };
+        for (auto it = registrar.beginItems(), end = registrar.endItems(); it != end; ++it)
+        {
+            LLSD entry{ llsd::map("name", it->first) };
+            switch (it->second.handle_untrusted)
+            {
+            case LLUICtrl::CommitCallbackInfo::UNTRUSTED_ALLOW:
+                entry["access"] = "allow";
+                break;
+            case LLUICtrl::CommitCallbackInfo::UNTRUSTED_BLOCK:
+                entry["access"] = "block";
+                break;
+            case LLUICtrl::CommitCallbackInfo::UNTRUSTED_THROTTLE:
+                entry["access"] = "throttle";
+                break;
+            }
+            list.append(entry);
+        }
+    }
+    response["callables"] = list;
 }
 
 void LLUIListener::getValue(const LLSD&event) const
