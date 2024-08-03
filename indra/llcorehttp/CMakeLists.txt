@@ -157,7 +157,6 @@ if (DARWIN)
     libapr-1.0.dylib
     libaprutil-1.0.dylib
     libnghttp2*.dylib
-    liburiparser*.dylib
     ${EXPAT_COPY}
     )
 

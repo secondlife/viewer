@@ -89,6 +89,6 @@ public:
 
 protected:
     bool mDisplayChildren;
-    std::string mLabel;
+    LLWString mLabel;
 };
 #endif // LL_CONTAINERVIEW_

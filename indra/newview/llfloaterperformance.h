@@ -30,7 +30,9 @@
 #include "lllistcontextmenu.h"
 
 class LLCharacter;
+class LLCheckBoxCtrl;
 class LLNameListCtrl;
+class LLTextBox;
 
 class LLFloaterPerformance : public LLFloater
 {
@@ -89,6 +91,13 @@ private:
 
     LLButton* mStartAutotuneBtn;
     LLButton* mStopAutotuneBtn;
+
+    LLTextBox* mTextWIPDesc = nullptr;
+    LLTextBox* mTextDisplayDesc = nullptr;
+    LLTextBox* mTextFPSLabel = nullptr;
+    LLTextBox* mTextFPSValue = nullptr;
+
+    LLCheckBoxCtrl* mCheckTuneContinous = nullptr;
 
     LLListContextMenu* mContextMenu;
 

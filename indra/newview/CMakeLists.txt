@@ -44,7 +44,6 @@ include(ViewerManager)
 include(VisualLeakDetector)
 include(VulkanGltf)
 include(ZLIBNG)
-include(URIPARSER)
 include(LLPrimitive)
 
 if (NOT HAVOK_TPV)
@@ -278,6 +277,7 @@ set(viewer_SOURCE_FILES
     llfloaterregioninfo.cpp
     llfloaterreporter.cpp
     llfloaterregionrestarting.cpp
+    llfloaterregionrestartschedule.cpp
     llfloatersavecamerapreset.cpp
     llfloatersaveprefpreset.cpp
     llfloatersceneloadstats.cpp
@@ -945,6 +945,7 @@ set(viewer_HEADER_FILES
     llfloaterregioninfo.h
     llfloaterreporter.h
     llfloaterregionrestarting.h
+    llfloaterregionrestartschedule.h
     llfloatersavecamerapreset.h
     llfloatersaveprefpreset.h
     llfloatersceneloadstats.h
@@ -1728,7 +1729,6 @@ if (WINDOWS)
       ${CMAKE_SOURCE_DIR}/../scripts/messages/message_template.msg
       ${SHARED_LIB_STAGING_DIR}/openjp2.dll
       ${SHARED_LIB_STAGING_DIR}/libhunspell.dll
-      ${SHARED_LIB_STAGING_DIR}/uriparser.dll
       ${SHARED_LIB_STAGING_DIR}/llwebrtc.dll
       #${SHARED_LIB_STAGING_DIR}/${LL_INTDIR}/SLVoice.exe
       #${SHARED_LIB_STAGING_DIR}/${LL_INTDIR}/libsndfile-1.dll

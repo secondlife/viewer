@@ -420,10 +420,10 @@ public:
     void doToSelected(const LLSD& userdata);
     void doShare();
 
-    bool isBackwardAvailable();
-    bool isForwardAvailable();
+    bool isBackwardAvailable() const;
+    bool isForwardAvailable() const;
 
-    bool hasVisibleItems();
+    bool hasVisibleItems() const;
 
     void setNavBackwardList(std::list<LLUUID> backward_list) { mBackwardFolders = backward_list; }
     void setNavForwardList(std::list<LLUUID> forward_list) { mForwardFolders = forward_list; }

@@ -221,7 +221,7 @@ bool LLUrlRegistry::findUrl(const std::string &text, LLUrlMatch &match, const LL
         if (match_entry == mUrlEntryTrusted)
         {
             LLUriParser up(url);
-            if (up.normalize() == 0)
+            if (up.normalize())
             {
                 url = up.normalizedUri();
             }

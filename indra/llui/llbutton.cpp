@@ -796,9 +796,6 @@ void LLButton::draw()
     if( ll::ui::SearchableControl::getHighlighted() )
         label_color = ll::ui::SearchableControl::getHighlightColor();
 
-    // Unselected label assignments
-    LLWString label = getCurrentLabel();
-
     // overlay with keyboard focus border
     if (hasFocus())
     {
@@ -927,8 +924,9 @@ void LLButton::draw()
     }
 
     // Draw label
-    if( !label.empty() )
+    if( !getCurrentLabel().empty() )    // Unselected label assignments
     {
+        LLWString label = getCurrentLabel();
         LLWStringUtil::trim(label);
 
         S32 x;
@@ -1082,10 +1080,10 @@ void LLButton::autoResize()
     resize(getCurrentLabel());
 }
 
-void LLButton::resize(LLUIString label)
+void LLButton::resize(const LLUIString& label)
 {
     // get label length
-    S32 label_width = mGLFont->getWidth(label.getString());
+    S32 label_width = mGLFont->getWidth(label.getWString().c_str());
     // get current btn length
     S32 btn_width =getRect().getWidth();
     // check if it need resize

@@ -171,7 +171,7 @@ public:
     void *getPlatformWindow() override;
 
     void bringToFront() override;
-    
+
     void setLanguageTextInput(const LLCoordGL& pos) override;
 
     void spawnWebBrowser(const std::string &escaped_url, bool async) override;

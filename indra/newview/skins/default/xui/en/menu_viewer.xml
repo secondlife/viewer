@@ -3967,6 +3967,16 @@ function="World.EnvPreset"
                      parameter="AllowSelectAvatar" />
                 </menu_item_check>
                 <menu_item_check
+                 label="Disable Look At Animation"
+                 name="Disable Look At Animation">
+                    <menu_item_check.on_check
+                     function="CheckControl"
+                     parameter="DisableLookAtAnimation" />
+                    <menu_item_check.on_click
+                     function="ToggleControl"
+                     parameter="DisableLookAtAnimation" />
+                </menu_item_check>
+                <menu_item_check
                  label="Render Only Friends"
                  name="Render Only Friends">
                     <menu_item_check.on_check

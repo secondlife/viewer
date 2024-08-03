@@ -558,6 +558,7 @@ bool LLFloaterTexturePicker::postBuild()
     mResolutionLabel = getChild<LLTextBox>("size_lbl");
     mResolutionWarning = getChild<LLTextBox>("over_limit_lbl");
 
+    mPreviewWidget = getChild<LLView>("preview_widget");
 
     mDefaultBtn = getChild<LLButton>("Default");
     mNoneBtn = getChild<LLButton>("None");
@@ -653,7 +654,6 @@ void LLFloaterTexturePicker::draw()
     bool valid_dims = updateImageStats();
 
     // if we're inactive, gray out "apply immediate" checkbox
-    getChildView("show_folders_check")->setEnabled(mActive && mCanApplyImmediately && !mNoCopyTextureSelected);
     mSelectBtn->setEnabled(mActive && mCanApply && valid_dims);
     mPipetteBtn->setEnabled(mActive);
     mPipetteBtn->setValue(LLToolMgr::getInstance()->getCurrentTool() == LLToolPipette::getInstance());
@@ -731,7 +731,7 @@ void LLFloaterTexturePicker::draw()
         }
 
         // Border
-        LLRect border = getChildView("preview_widget")->getRect();
+        LLRect border = mPreviewWidget->getRect();
         gl_rect_2d( border, LLColor4::black, false );
 
 

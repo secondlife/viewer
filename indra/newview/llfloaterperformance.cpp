@@ -152,6 +152,13 @@ bool LLFloaterPerformance::postBuild()
     mStartAutotuneBtn->setCommitCallback(boost::bind(&LLFloaterPerformance::startAutotune, this));
     mStopAutotuneBtn->setCommitCallback(boost::bind(&LLFloaterPerformance::stopAutotune, this));
 
+    mCheckTuneContinous = mAutoadjustmentsPanel->getChild<LLCheckBoxCtrl>("AutoTuneContinuous");
+    mTextWIPDesc = mAutoadjustmentsPanel->getChild<LLTextBox>("wip_desc");
+    mTextDisplayDesc = mAutoadjustmentsPanel->getChild<LLTextBox>("display_desc");
+
+    mTextFPSLabel = getChild<LLTextBox>("fps_lbl");
+    mTextFPSValue = getChild<LLTextBox>("fps_value");
+
     gSavedPerAccountSettings.declareBOOL("HadEnabledAutoFPS", false, "User had enabled AutoFPS at least once", LLControlVariable::PERSIST_ALWAYS);
 
     return true;
@@ -512,7 +519,7 @@ void LLFloaterPerformance::setFPSText()
 {
     const S32 NUM_PERIODS = 50;
     S32 current_fps = (S32)llround(LLTrace::get_frame_recording().getPeriodMedianPerSec(LLStatViewer::FPS, NUM_PERIODS));
-    getChild<LLTextBox>("fps_value")->setValue(current_fps);
+    mTextFPSValue->setValue(current_fps);
 
     std::string fps_text = getString("fps_text");
     static LLCachedControl<bool> vsync_enabled(gSavedSettings, "RenderVSyncEnable", true);
@@ -521,7 +528,7 @@ void LLFloaterPerformance::setFPSText()
     {
         fps_text += getString("max_text");
     }
-    getChild<LLTextBox>("fps_lbl")->setValue(fps_text);
+    mTextFPSLabel->setValue(fps_text);
 }
 
 void LLFloaterPerformance::detachObject(const LLUUID& obj_id)
@@ -726,10 +733,10 @@ void LLFloaterPerformance::updateAutotuneCtrls(bool autotune_enabled)
     static LLCachedControl<bool> auto_tune_locked(gSavedSettings, "AutoTuneLock");
     mStartAutotuneBtn->setEnabled(!autotune_enabled && !auto_tune_locked);
     mStopAutotuneBtn->setEnabled(autotune_enabled && !auto_tune_locked);
-    getChild<LLCheckBoxCtrl>("AutoTuneContinuous")->setEnabled(!autotune_enabled || (autotune_enabled && auto_tune_locked));
+    mCheckTuneContinous->setEnabled(!autotune_enabled || (autotune_enabled && auto_tune_locked));
 
-    getChild<LLTextBox>("wip_desc")->setVisible(autotune_enabled && !auto_tune_locked);
-    getChild<LLTextBox>("display_desc")->setVisible(LLPerfStats::tunables.vsyncEnabled);
+    mTextWIPDesc->setVisible(autotune_enabled && !auto_tune_locked);
+    mTextDisplayDesc->setVisible(LLPerfStats::tunables.vsyncEnabled);
 }
 
 void LLFloaterPerformance::enableAutotuneWarning()
