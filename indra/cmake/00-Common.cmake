@@ -175,7 +175,6 @@ if (LINUX)
 
   set(GCC_WARNINGS
       ${GCC_CLANG_COMPATIBLE_WARNINGS}
-      -Wno-dangling-pointer
   )
 
   add_link_options(
