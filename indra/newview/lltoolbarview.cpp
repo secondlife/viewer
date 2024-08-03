@@ -566,7 +566,7 @@ void LLToolBarView::draw()
     // Draw drop zones if drop of a tool is active
     if (isToolDragged())
     {
-        LLColor4 drop_color = LLUIColorTable::instance().getColor( "ToolbarDropZoneColor" );
+        static const LLUIColor drop_color = LLUIColorTable::instance().getColor( "ToolbarDropZoneColor" );
 
         for (S32 i = LLToolBarEnums::TOOLBAR_FIRST; i <= LLToolBarEnums::TOOLBAR_LAST; i++)
         {

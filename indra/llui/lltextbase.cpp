@@ -584,9 +584,8 @@ void LLTextBase::drawCursor()
 
             if (LL_KIM_OVERWRITE == gKeyboard->getInsertMode() && !hasSelection() && text[mCursorPos] != '\n')
             {
-                LLColor4 text_color;
                 const LLFontGL* fontp;
-                text_color = segmentp->getColor();
+                const LLColor4& text_color = segmentp->getColor();
                 fontp = segmentp->getStyle()->getFont();
                 fontp->render(text, mCursorPos, cursor_rect,
                     LLColor4(1.f - text_color.mV[VRED], 1.f - text_color.mV[VGREEN], 1.f - text_color.mV[VBLUE], alpha),
@@ -1368,7 +1367,7 @@ void LLTextBase::draw()
         {
             bg_rect.intersectWith(text_rect);
         }
-        LLColor4 bg_color = mReadOnly
+        const LLColor4& bg_color = mReadOnly
                             ? mReadOnlyBgColor.get()
                             : hasFocus()
                                 ? mFocusBgColor.get()
@@ -1379,7 +1378,7 @@ void LLTextBase::draw()
     // Draw highlighted if needed
     if( ll::ui::SearchableControl::getHighlighted() )
     {
-        LLColor4 bg_color = ll::ui::SearchableControl::getHighlightColor();
+        const LLColor4& bg_color = ll::ui::SearchableControl::getHighlightColor();
         LLRect bg_rect = mVisibleTextRect;
         if( mScroller )
             bg_rect.intersectWith( text_rect );
