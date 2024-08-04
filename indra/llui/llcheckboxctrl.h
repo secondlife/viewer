@@ -110,8 +110,8 @@ public:
 
     void                setBtnFocus() { mButton->setFocus(true); }
 
-    void                setEnabledColor( const LLColor4 &color ) { mTextEnabledColor = color; }
-    void                setDisabledColor( const LLColor4 &color ) { mTextDisabledColor = color; }
+    void                setEnabledColor( const LLUIColor&color ) { mTextEnabledColor = color; }
+    void                setDisabledColor( const LLUIColor&color ) { mTextDisabledColor = color; }
 
     void                setLabel( const LLStringExplicit& label );
     std::string         getLabel() const;

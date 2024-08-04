@@ -1127,12 +1127,12 @@ void LLButton::setImageSelected(LLPointer<LLUIImage> image)
     mImageSelected = image;
 }
 
-void LLButton::setImageColor(const LLColor4& c)
+void LLButton::setImageColor(const LLUIColor& c)
 {
     mImageColor = c;
 }
 
-void LLButton::setColor(const LLColor4& color)
+void LLButton::setColor(const LLUIColor& color)
 {
     setImageColor(color);
 }

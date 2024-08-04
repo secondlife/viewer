@@ -85,7 +85,7 @@ LLKeywords::~LLKeywords()
 // Add the token as described
 void LLKeywords::addToken(LLKeywordToken::ETokenType type,
                           const std::string& key_in,
-                          const LLColor4& color,
+                          const LLUIColor& color,
                           const std::string& tool_tip_in,
                           const std::string& delimiter_in)
 {
@@ -170,7 +170,7 @@ std::string LLKeywords::getAttribute(std::string_view key)
     return (it != mAttributes.end()) ? it->second : "";
 }
 
-LLColor4 LLKeywords::getColorGroup(std::string_view key_in)
+LLUIColor LLKeywords::getColorGroup(std::string_view key_in)
 {
     std::string color_group = "ScriptText";
     if (key_in == "functions")
@@ -263,10 +263,10 @@ void LLKeywords::processTokens()
 
 void LLKeywords::processTokensGroup(const LLSD& tokens, std::string_view group)
 {
-    LLColor4 color;
-    LLColor4 color_group;
-    LLColor4 color_deprecated = getColorGroup("deprecated");
-    LLColor4 color_god_mode = getColorGroup("god-mode");
+    LLUIColor color;
+    LLUIColor color_group;
+    LLUIColor color_deprecated = getColorGroup("deprecated");
+    LLUIColor color_god_mode = getColorGroup("god-mode");
 
     LLKeywordToken::ETokenType token_type = LLKeywordToken::TT_UNKNOWN;
     // If a new token type is added here, it must also be added to the 'addToken' method
@@ -725,7 +725,7 @@ void LLKeywords::insertSegments(const LLWString& wtext, std::vector<LLTextSegmen
     insertSegment( seg_list, text_segment, text_len, style, editor);
 }
 
-void LLKeywords::insertSegment(std::vector<LLTextSegmentPtr>& seg_list, LLTextSegmentPtr new_segment, S32 text_len, const LLColor4 &defaultColor, LLTextEditor& editor )
+void LLKeywords::insertSegment(std::vector<LLTextSegmentPtr>& seg_list, LLTextSegmentPtr new_segment, S32 text_len, const LLUIColor& defaultColor, LLTextEditor& editor )
 {
     LLTextSegmentPtr last = seg_list.back();
     S32 new_seg_end = new_segment->getEnd();

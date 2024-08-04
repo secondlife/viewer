@@ -1023,7 +1023,7 @@ bool LLUICtrl::getTentative() const
 }
 
 // virtual
-void LLUICtrl::setColor(const LLColor4& color)
+void LLUICtrl::setColor(const LLUIColor& color)
 { }
 
 F32 LLUICtrl::getCurrentTransparency()

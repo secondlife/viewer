@@ -1411,14 +1411,14 @@ void LLTextBase::draw()
 
 
 //virtual
-void LLTextBase::setColor( const LLColor4& c )
+void LLTextBase::setColor( const LLUIColor& c )
 {
     mFgColor = c;
     mStyleDirty = true;
 }
 
 //virtual
-void LLTextBase::setReadOnlyColor(const LLColor4 &c)
+void LLTextBase::setReadOnlyColor(const LLUIColor &c)
 {
     mReadOnlyFgColor = c;
     mStyleDirty = true;

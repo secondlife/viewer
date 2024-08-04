@@ -224,12 +224,12 @@ public:
     void            setRevertOnEsc( bool b )        { mRevertOnEsc = b; }
     void            setKeystrokeOnEsc(bool b)       { mKeystrokeOnEsc = b; }
 
-    void setCursorColor(const LLColor4& c)          { mCursorColor = c; }
+    void setCursorColor(const LLUIColor& c)          { mCursorColor = c; }
     const LLColor4& getCursorColor() const          { return mCursorColor.get(); }
 
-    void setFgColor( const LLColor4& c )            { mFgColor = c; }
-    void setReadOnlyFgColor( const LLColor4& c )    { mReadOnlyFgColor = c; }
-    void setTentativeFgColor(const LLColor4& c)     { mTentativeFgColor = c; }
+    void setFgColor( const LLUIColor& c )            { mFgColor = c; }
+    void setReadOnlyFgColor( const LLUIColor& c )    { mReadOnlyFgColor = c; }
+    void setTentativeFgColor(const LLUIColor& c)     { mTentativeFgColor = c; }
 
     const LLColor4& getFgColor() const          { return mFgColor.get(); }
     const LLColor4& getReadOnlyFgColor() const  { return mReadOnlyFgColor.get(); }

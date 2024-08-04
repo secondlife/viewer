@@ -172,8 +172,8 @@ public:
 
     virtual void    onCommit();
 
-    void            setUnselectedLabelColor( const LLColor4& c )        { mUnselectedLabelColor = c; }
-    void            setSelectedLabelColor( const LLColor4& c )          { mSelectedLabelColor = c; }
+    void            setUnselectedLabelColor( const LLUIColor& c )        { mUnselectedLabelColor = c; }
+    void            setSelectedLabelColor( const LLUIColor& c )          { mSelectedLabelColor = c; }
     void            setUseEllipses( bool use_ellipses )                 { mUseEllipses = use_ellipses; }
     void            setUseFontColor( bool use_font_color)               { mUseFontColor = use_font_color; }
 
@@ -224,14 +224,14 @@ public:
     const std::string   getLabelSelected() const { return wstring_to_utf8str(mSelectedLabel); }
 
     void            setImageColor(const std::string& color_control);
-    void            setImageColor(const LLColor4& c);
-    /*virtual*/ void    setColor(const LLColor4& c);
+    void            setImageColor(const LLUIColor& c);
+    /*virtual*/ void    setColor(const LLUIColor& c);
 
     void            setImages(const std::string &image_name, const std::string &selected_name);
 
-    void            setDisabledImageColor(const LLColor4& c)        { mDisabledImageColor = c; }
+    void            setDisabledImageColor(const LLUIColor& c)        { mDisabledImageColor = c; }
 
-    void            setDisabledSelectedLabelColor( const LLColor4& c )  { mDisabledSelectedLabelColor = c; }
+    void            setDisabledSelectedLabelColor( const LLUIColor& c )  { mDisabledSelectedLabelColor = c; }
 
     void            setImageOverlay(const std::string& image_name, LLFontGL::HAlign alignment = LLFontGL::HCENTER, const LLColor4& color = LLColor4::white);
     void            setImageOverlay(const LLUUID& image_id, LLFontGL::HAlign alignment = LLFontGL::HCENTER, const LLColor4& color = LLColor4::white);
@@ -246,7 +246,7 @@ public:
     virtual bool    setLabelArg( const std::string& key, const LLStringExplicit& text );
     void            setLabelUnselected(const LLStringExplicit& label);
     void            setLabelSelected(const LLStringExplicit& label);
-    void            setDisabledLabelColor( const LLColor4& c )      { mDisabledLabelColor = c; }
+    void            setDisabledLabelColor( const LLUIColor& c )      { mDisabledLabelColor = c; }
 
     void            setFont(const LLFontGL *font)
         { mGLFont = ( font ? font : LLFontGL::getFontSansSerif()); }

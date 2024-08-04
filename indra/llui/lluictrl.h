@@ -216,7 +216,7 @@ public:
     // selected radio button, etc.).  Defaults to no-op.
     virtual void    clear();
 
-    virtual void    setColor(const LLColor4& color);
+    virtual void    setColor(const LLUIColor& color);
 
     // Ansariel: Changed to virtual. We might want to change the transparency ourself!
     virtual F32 getCurrentTransparency();
