@@ -222,14 +222,9 @@ void LLFloaterIMNearbyChatToastPanel::init(LLSD& notification)
         if (mSourceType == CHAT_SOURCE_AGENT || mSourceType == CHAT_SOURCE_OBJECT)
         {
             LLStyle::Params style_params_name;
-
-            LLColor4 user_name_color = LLUIColorTable::instance().getColor("HTMLLinkColor");
-            style_params_name.color(user_name_color);
-
-            std::string font_name = LLFontGL::nameFromFont(messageFont);
-            std::string font_style_size = LLFontGL::sizeFromFont(messageFont);
-            style_params_name.font.name(font_name);
-            style_params_name.font.size(font_style_size);
+            style_params_name.color = LLUIColorTable::instance().getColor("HTMLLinkColor");
+            style_params_name.font.name = LLFontGL::nameFromFont(messageFont);
+            style_params_name.font.size = LLFontGL::sizeFromFont(messageFont);
 
             style_params_name.link_href = notification["sender_slurl"].asString();
             style_params_name.is_link = true;

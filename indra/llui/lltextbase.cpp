@@ -2202,8 +2202,8 @@ static LLUIImagePtr image_from_icon_name(const std::string& icon_name)
 void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Params& input_params)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
-    LLStyle::Params style_params(input_params);
-    style_params.fillFrom(getStyleParams());
+    LLStyle::Params style_params(getStyleParams());
+    style_params.overwriteFrom(input_params);
 
     S32 part = (S32)LLTextParser::WHOLE;
     if (mParseHTML && !style_params.is_link) // Don't search for URLs inside a link segment (STORM-358).
@@ -3246,8 +3246,8 @@ F32 LLTextSegment::draw(S32 start, S32 end, S32 selection_start, S32 selection_e
 bool LLTextSegment::canEdit() const { return false; }
 void LLTextSegment::unlinkFromDocument(LLTextBase*) {}
 void LLTextSegment::linkToDocument(LLTextBase*) {}
-const LLColor4& LLTextSegment::getColor() const { return LLColor4::white; }
-//void LLTextSegment::setColor(const LLColor4 &color) {}
+const LLUIColor& LLTextSegment::getColor() const { static const LLUIColor white = LLUIColorTable::instance().getColor("White", LLColor4::white); return white; }
+//void LLTextSegment::setColor(const LLUIColor &color) {}
 LLStyleConstSP LLTextSegment::getStyle() const {static LLStyleConstSP sp(new LLStyle()); return sp; }
 void LLTextSegment::setStyle(LLStyleConstSP style) {}
 void LLTextSegment::setToken( LLKeywordToken* token ) {}
@@ -3293,7 +3293,7 @@ LLNormalTextSegment::LLNormalTextSegment( LLStyleConstSP style, S32 start, S32 e
     }
 }
 
-LLNormalTextSegment::LLNormalTextSegment( const LLColor4& color, S32 start, S32 end, LLTextBase& editor, bool is_visible)
+LLNormalTextSegment::LLNormalTextSegment( const LLUIColor& color, S32 start, S32 end, LLTextBase& editor, bool is_visible)
 :   LLTextSegment(start, end),
     mToken(NULL),
     mEditor(editor)
@@ -3603,7 +3603,7 @@ LLLabelTextSegment::LLLabelTextSegment( LLStyleConstSP style, S32 start, S32 end
 {
 }
 
-LLLabelTextSegment::LLLabelTextSegment( const LLColor4& color, S32 start, S32 end, LLTextBase& editor, bool is_visible)
+LLLabelTextSegment::LLLabelTextSegment( const LLUIColor& color, S32 start, S32 end, LLTextBase& editor, bool is_visible)
 :   LLNormalTextSegment(color, start, end, editor, is_visible)
 {
 }
@@ -3627,7 +3627,7 @@ LLEmojiTextSegment::LLEmojiTextSegment(LLStyleConstSP style, S32 start, S32 end,
 {
 }
 
-LLEmojiTextSegment::LLEmojiTextSegment(const LLColor4& color, S32 start, S32 end, LLTextBase& editor, bool is_visible)
+LLEmojiTextSegment::LLEmojiTextSegment(const LLUIColor& color, S32 start, S32 end, LLTextBase& editor, bool is_visible)
     : LLNormalTextSegment(color, start, end, editor, is_visible)
 {
 }
