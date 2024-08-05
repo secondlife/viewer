@@ -1,7 +1,10 @@
 inspect = require 'inspect'
 login = require 'login'
 
-print(inspect(login{
-    username='Nat Linden',
---    grid='agni'
+local grid = 'agni'
+print(inspect(login.savedLogins(grid)))
+
+print(inspect(login.login{
+    username='Your Username',
+    grid=grid
     }))

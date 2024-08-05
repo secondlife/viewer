@@ -72,6 +72,23 @@ void LLPanelLoginListener::onClickConnect(const LLSD&) const
     mPanel->onClickConnect(false);
 }
 
+namespace
+{
+
+    std::string gridkey(const std::string& grid)
+    {
+        if (grid.find('.') != std::string::npos)
+        {
+            return grid;
+        }
+        else
+        {
+            return stringize("util.", grid, ".lindenlab.com");
+        }
+    }
+
+} // anonymous namespace
+
 void LLPanelLoginListener::login(const LLSD& args) const
 {
     // Although we require a "reply" key, don't instantiate a Response object:
@@ -97,6 +114,7 @@ void LLPanelLoginListener::login(const LLSD& args) const
     auto& gridmgr{ LLGridManager::instance() };
     if (! grid.empty())
     {
+        grid = gridkey(grid);
         // setGridChoice() can throw LLInvalidGridName -- but if so, let it
         // propagate, trusting that LLEventAPI will catch it and send an
         // appropriate reply.
@@ -202,7 +220,7 @@ void LLPanelLoginListener::login(const LLSD& args) const
 LLSD LLPanelLoginListener::savedLogins(const LLSD& args) const
 {
     LL_INFOS() << "called with " << args << LL_ENDL;
-    std::string grid = (args.has("grid")? args["grid"].asString()
+    std::string grid = (args.has("grid")? gridkey(args["grid"].asString())
                         : LLGridManager::instance().getGrid());
     if (! gSecAPIHandler->hasCredentialMap("login_list", grid))
     {
@@ -211,7 +229,7 @@ LLSD LLPanelLoginListener::savedLogins(const LLSD& args) const
                          stringize("No saved logins for grid ", std::quoted(grid)));
     }
     LLSecAPIHandler::credential_map_t creds;
-    gSecAPIHandler->loadCredentialMap("login.list", grid, creds);
+    gSecAPIHandler->loadCredentialMap("login_list", grid, creds);
     auto result = llsd::map(
         "logins",
         llsd::toArray(
