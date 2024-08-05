@@ -2583,7 +2583,7 @@ void LLViewerWindow::setNormalControlsVisible( bool visible )
 void LLViewerWindow::setMenuBackgroundColor(bool god_mode, bool dev_grid)
 {
     LLSD args;
-    LLColor4 new_bg_color;
+    LLUIColor new_bg_color;
 
     // god more important than project, proj more important than grid
     if ( god_mode )

@@ -652,7 +652,7 @@ void LLConversationViewParticipant::draw()
     static LLUIColor sFlashBgColor = LLUIColorTable::instance().getColor("MenuItemFlashBgColor", DEFAULT_WHITE);
     static LLUIColor sFocusOutlineColor = LLUIColorTable::instance().getColor("InventoryFocusOutlineColor", DEFAULT_WHITE);
     static LLUIColor sMouseOverColor = LLUIColorTable::instance().getColor("InventoryMouseOverColor", DEFAULT_WHITE);
-    static LLUIColor sFriendColor = LLUIColorTable::instance().getColor("ConversationFriendColor");;
+    static LLUIColor sFriendColor = LLUIColorTable::instance().getColor("ConversationFriendColor");
 
     const bool show_context = (getRoot() ? getRoot()->getShowSelectionContext() : false);
 

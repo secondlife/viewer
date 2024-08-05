@@ -1239,10 +1239,11 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
         mMoreChatPanel->reshape(mMoreChatPanel->getRect().getWidth(), height);
     }
 
+    F32 alpha = 1.f;
     LLUIColor txt_color = LLUIColorTable::instance().getColor("White");
     LLUIColor name_color(txt_color);
+    LLViewerChat::getChatColor(chat, txt_color, alpha);
 
-    LLViewerChat::getChatColor(chat,txt_color);
     LLFontGL* fontp = LLViewerChat::getChatFont();
     std::string font_name = LLFontGL::nameFromFont(fontp);
     std::string font_size = LLFontGL::sizeFromFont(fontp);
@@ -1250,6 +1251,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
     LLStyle::Params body_message_params;
     body_message_params.color(txt_color);
     body_message_params.readonly_color(txt_color);
+    body_message_params.alpha(alpha);
     body_message_params.font.name(font_name);
     body_message_params.font.size(font_size);
     body_message_params.font.style(input_append_params.font.style);

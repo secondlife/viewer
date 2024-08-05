@@ -134,8 +134,8 @@ void LLFloaterIMNearbyChatToastPanel::addMessage(LLSD& notification)
 
     std::string color_name = notification["text_color"].asString();
 
-    LLColor4 textColor = LLUIColorTable::instance().getColor(color_name);
-    textColor.mV[VALPHA] = (F32)notification["color_alpha"].asReal();
+    LLUIColor textColor = LLUIColorTable::instance().getColor(color_name);
+    F32 textAlpha = (F32)notification["color_alpha"].asReal();
 
     S32 font_size = notification["font_size"].asInteger();
 
@@ -152,6 +152,7 @@ void LLFloaterIMNearbyChatToastPanel::addMessage(LLSD& notification)
     {
         LLStyle::Params style_params;
         style_params.color(textColor);
+        style_params.alpha(textAlpha);
         std::string font_name = LLFontGL::nameFromFont(messageFont);
         std::string font_style_size = LLFontGL::sizeFromFont(messageFont);
         style_params.font.name(font_name);
@@ -190,8 +191,8 @@ void LLFloaterIMNearbyChatToastPanel::init(LLSD& notification)
 
     std::string color_name = notification["text_color"].asString();
 
-    LLColor4 textColor = LLUIColorTable::instance().getColor(color_name);
-    textColor.mV[VALPHA] = (F32)notification["color_alpha"].asReal();
+    LLUIColor textColor = LLUIColorTable::instance().getColor(color_name);
+    F32 textAlpha = (F32)notification["color_alpha"].asReal();
 
     S32 font_size = notification["font_size"].asInteger();
 
@@ -269,6 +270,7 @@ void LLFloaterIMNearbyChatToastPanel::init(LLSD& notification)
     {
         LLStyle::Params style_params;
         style_params.color(textColor);
+        style_params.alpha(textAlpha);
         std::string font_name = LLFontGL::nameFromFont(messageFont);
         std::string font_style_size = LLFontGL::sizeFromFont(messageFont);
         style_params.font.name(font_name);

@@ -2417,16 +2417,14 @@ void LLTextBase::appendAndHighlightTextImpl(const std::string &new_text, S32 hig
     {
         LLStyle::Params highlight_params(style_params);
 
-        LLSD pieces = LLTextParser::instance().parsePartialLineHighlights(new_text, highlight_params.color(), (LLTextParser::EHighlightPosition)highlight_part);
+        auto pieces = LLTextParser::instance().parsePartialLineHighlights(new_text, highlight_params.color, (LLTextParser::EHighlightPosition)highlight_part);
         for (S32 i = 0; i < pieces.size(); i++)
         {
-            LLSD color_llsd = pieces[i]["color"];
-            LLColor4 lcolor;
-            lcolor.setValue(color_llsd);
-            highlight_params.color = lcolor;
+            const auto& piece_pair = pieces[i];
+            highlight_params.color = piece_pair.second;
 
             LLWString wide_text;
-            wide_text = utf8str_to_wstring(pieces[i]["text"].asString());
+            wide_text = utf8str_to_wstring(piece_pair.first);
 
             S32 cur_length = getLength();
             LLStyleConstSP sp(new LLStyle(highlight_params));
@@ -3333,7 +3331,7 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
 
     const LLFontGL* font = mStyle->getFont();
 
-    LLColor4 color = (mEditor.getReadOnly() ? mStyle->getReadOnlyColor() : mStyle->getColor())  % alpha;
+    LLColor4 color = (mEditor.getReadOnly() ? mStyle->getReadOnlyColor() : mStyle->getColor())  % (alpha * mStyle->getAlpha());
 
     if( selection_start > seg_start )
     {

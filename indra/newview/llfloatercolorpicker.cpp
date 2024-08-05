@@ -110,12 +110,6 @@ LLFloaterColorPicker::LLFloaterColorPicker (LLColorSwatchCtrl* swatch, bool show
 
     // create user interface for this picker
     createUI ();
-
-    if (!mCanApplyImmediately)
-    {
-        mApplyImmediateCheck->setEnabled(false);
-        mApplyImmediateCheck->set(false);
-    }
 }
 
 LLFloaterColorPicker::~LLFloaterColorPicker()
@@ -225,6 +219,12 @@ bool LLFloaterColorPicker::postBuild()
     mApplyImmediateCheck = getChild<LLCheckBoxCtrl>("apply_immediate");
     mApplyImmediateCheck->set(gSavedSettings.getBOOL("ApplyColorImmediately"));
     mApplyImmediateCheck->setCommitCallback(onImmediateCheck, this);
+
+    if (!mCanApplyImmediately)
+    {
+        mApplyImmediateCheck->setEnabled(false);
+        mApplyImmediateCheck->set(false);
+    }
 
     childSetCommitCallback("rspin", onTextCommit, (void*)this );
     childSetCommitCallback("gspin", onTextCommit, (void*)this );
