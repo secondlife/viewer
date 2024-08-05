@@ -222,15 +222,9 @@ public:
         image_rect.mTop = image_rect.mBottom + mImage->getHeight();
         mImage->draw(LLRect((S32)image_rect.mLeft, (S32)image_rect.mTop, (S32)image_rect.mRight, (S32)image_rect.mBottom));
 
-        LLColor4 color;
-        if (mEditor.getReadOnly())
-        {
-            color = LLUIColorTable::instance().getColor("TextEmbeddedItemReadOnlyColor");
-        }
-        else
-        {
-            color = LLUIColorTable::instance().getColor("TextEmbeddedItemColor");
-        }
+        static const LLUIColor embedded_item_readonly_col = LLUIColorTable::instance().getColor("TextEmbeddedItemReadOnlyColor");
+        static const LLUIColor embedded_item_col = LLUIColorTable::instance().getColor("TextEmbeddedItemColor");
+        const LLColor4& color = mEditor.getReadOnly() ? embedded_item_readonly_col : embedded_item_col;
 
         F32 right_x;
         mStyle->getFont()->render(mLabel, 0, image_rect.mRight + EMBEDDED_ITEM_LABEL_PADDING, draw_rect.mTop, color, LLFontGL::LEFT, LLFontGL::TOP, LLFontGL::UNDERLINE, LLFontGL::NO_SHADOW, static_cast<S32>(mLabel.length()), S32_MAX, &right_x);

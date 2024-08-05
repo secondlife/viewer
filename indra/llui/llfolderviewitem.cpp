@@ -784,7 +784,7 @@ void LLFolderViewItem::drawHighlight(const bool showContent, const bool hasKeybo
     const S32 FOCUS_LEFT = 1;
 
     // Determine which background color to use for highlighting
-    LLUIColor bgColor = (isFlashing() ? flashColor : selectColor);
+    const LLUIColor& bgColor = (isFlashing() ? flashColor : selectColor);
 
     //--------------------------------------------------------------------------------//
     // Draw highlight for selected items
@@ -999,7 +999,7 @@ void LLFolderViewItem::draw()
     //
     if (!mLabelSuffix.empty())
     {
-        suffix_font->render( mLabelSuffix, 0, right_x, y, isFadeItem() ? color : (LLColor4)sSuffixColor,
+        suffix_font->render( mLabelSuffix, 0, right_x, y, isFadeItem() ? color : sSuffixColor.get(),
                           LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
                           S32_MAX, S32_MAX, &right_x);
     }

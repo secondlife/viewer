@@ -652,6 +652,7 @@ void LLConversationViewParticipant::draw()
     static LLUIColor sFlashBgColor = LLUIColorTable::instance().getColor("MenuItemFlashBgColor", DEFAULT_WHITE);
     static LLUIColor sFocusOutlineColor = LLUIColorTable::instance().getColor("InventoryFocusOutlineColor", DEFAULT_WHITE);
     static LLUIColor sMouseOverColor = LLUIColorTable::instance().getColor("InventoryMouseOverColor", DEFAULT_WHITE);
+    static LLUIColor sFriendColor = LLUIColorTable::instance().getColor("ConversationFriendColor");
 
     const bool show_context = (getRoot() ? getRoot()->getShowSelectionContext() : false);
 
@@ -661,23 +662,23 @@ void LLConversationViewParticipant::draw()
     F32 y = (F32)getRect().getHeight() - font->getLineHeight() - (F32)mTextPad;
     F32 text_left = (F32)getLabelXPos();
 
-    LLColor4 color;
+    LLUIColor* color;
 
     LLLocalSpeakerMgr *speakerMgr = LLLocalSpeakerMgr::getInstance();
 
     if (speakerMgr && speakerMgr->isSpeakerToBeRemoved(mUUID))
     {
-        color = sFgDisabledColor;
+        color = &sFgDisabledColor;
     }
     else
     {
         if (LLAvatarActions::isFriend(mUUID))
         {
-            color = LLUIColorTable::instance().getColor("ConversationFriendColor");
+            color = &sFriendColor;
         }
         else
         {
-            color = mIsSelected ? sHighlightFgColor : sFgColor;
+            color = mIsSelected ? &sHighlightFgColor : &sFgColor;
         }
     }
 
@@ -688,7 +689,7 @@ void LLConversationViewParticipant::draw()
     }
 
     drawHighlight(show_context, mIsSelected, sHighlightBgColor, sFlashBgColor, sFocusOutlineColor, sMouseOverColor);
-    drawLabel(font, text_left, y, color, right_x);
+    drawLabel(font, text_left, y, color->get(), right_x);
 
     LLView::draw();
 }

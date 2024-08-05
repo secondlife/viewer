@@ -44,6 +44,7 @@
 #include "llcontrol.h"
 #include "llviewerobject.h" // LLObjectSelection::getSelectedTEValue template
 #include "llmaterial.h"
+#include "lluicolor.h"
 
 #include <deque>
 #include <boost/iterator/filter_iterator.hpp>
@@ -450,12 +451,12 @@ public:
     static F32                  sHighlightAlphaTest;
     static F32                  sHighlightUAnim;
     static F32                  sHighlightVAnim;
-    static LLColor4             sSilhouetteParentColor;
-    static LLColor4             sSilhouetteChildColor;
-    static LLColor4             sHighlightParentColor;
-    static LLColor4             sHighlightChildColor;
-    static LLColor4             sHighlightInspectColor;
-    static LLColor4             sContextSilhouetteColor;
+    static LLUIColor            sSilhouetteParentColor;
+    static LLUIColor            sSilhouetteChildColor;
+    static LLUIColor            sHighlightParentColor;
+    static LLUIColor            sHighlightChildColor;
+    static LLUIColor            sHighlightInspectColor;
+    static LLUIColor            sContextSilhouetteColor;
 
     LLCachedControl<bool>                   mHideSelectedObjects;
     LLCachedControl<bool>                   mRenderHighlightSelections;

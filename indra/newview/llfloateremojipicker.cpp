@@ -203,8 +203,7 @@ public:
         F32 centerY = 0.5f * clientHeight;
         drawIcon(centerX, centerY - 1, iconWidth);
 
-        static LLColor4 defaultColor(0.75f, 0.75f, 0.75f, 1.0f);
-        static LLUIColor textColor = LLUIColorTable::instance().getColor("MenuItemEnabledColor", defaultColor);
+        static LLUIColor textColor = LLUIColorTable::instance().getColor("MenuItemEnabledColor", LLColor4(0.75f, 0.75f, 0.75f, 1.0f));
         S32 max_pixels = clientWidth - iconWidth;
         drawName((F32)iconWidth, centerY, max_pixels, textColor.get());
     }
@@ -704,8 +703,7 @@ void LLFloaterEmojiPicker::fillEmojis(bool fromResize)
     LLPanel::Params icon_params;
     LLRect icon_rect(0, icon_size, icon_size, 0);
 
-    static LLColor4 default_color(0.75f, 0.75f, 0.75f, 1.0f);
-    LLColor4 bg_color = LLUIColorTable::instance().getColor("MenuItemHighlightBgColor", default_color);
+    static LLUIColor bg_color = LLUIColorTable::instance().getColor("MenuItemHighlightBgColor", LLColor4(0.75f, 0.75f, 0.75f, 1.0f));
 
     if (!mSelectedGroupIndex)
     {

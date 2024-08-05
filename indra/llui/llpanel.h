@@ -134,16 +134,16 @@ public:
     bool            hasBorder() const { return mBorder != NULL; }
     void            setBorderVisible( bool b );
 
-    void            setBackgroundColor( const LLColor4& color ) { mBgOpaqueColor = color; }
+    void            setBackgroundColor( const LLUIColor& color ) { mBgOpaqueColor = color; }
     const LLColor4& getBackgroundColor() const { return mBgOpaqueColor; }
-    void            setTransparentColor(const LLColor4& color) { mBgAlphaColor = color; }
+    void            setTransparentColor(const LLUIColor& color) { mBgAlphaColor = color; }
     const LLColor4& getTransparentColor() const { return mBgAlphaColor; }
     void            setBackgroundImage(LLUIImage* image) { mBgOpaqueImage = image; }
     void            setTransparentImage(LLUIImage* image) { mBgAlphaImage = image; }
     LLPointer<LLUIImage> getBackgroundImage() const { return mBgOpaqueImage; }
     LLPointer<LLUIImage> getTransparentImage() const { return mBgAlphaImage; }
-    LLColor4        getBackgroundImageOverlay() { return mBgOpaqueImageOverlay; }
-    LLColor4        getTransparentImageOverlay() { return mBgAlphaImageOverlay; }
+    const LLColor4&        getBackgroundImageOverlay() { return mBgOpaqueImageOverlay; }
+    const LLColor4&        getTransparentImageOverlay() { return mBgAlphaImageOverlay; }
     void            setBackgroundVisible( bool b )  { mBgVisible = b; }
     bool            isBackgroundVisible() const { return mBgVisible; }
     void            setBackgroundOpaque(bool b)     { mBgOpaque = b; }
@@ -192,7 +192,7 @@ public:
     // which takes a generic slot.  Or use mCommitCallbackRegistrar.add() with
     // a named callback and reference it in XML.
     void childSetCommitCallback(std::string_view id, boost::function<void (LLUICtrl*,void*)> cb, void* data);
-    void childSetColor(std::string_view id, const LLColor4& color);
+    void childSetColor(std::string_view id, const LLUIColor& color);
 
     LLCtrlSelectionInterface* childGetSelectionInterface(std::string_view id) const;
     LLCtrlListInterface* childGetListInterface(std::string_view id) const;

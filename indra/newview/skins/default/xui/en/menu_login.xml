@@ -149,6 +149,13 @@
              function="Advanced.ShowDebugSettings"
              parameter="all" />
         </menu_item_call>
+        <menu_item_call
+         label="Show Color settings"
+         name="Color Settings">
+            <menu_item_call.on_click
+             function="Floater.Toggle"
+             parameter="settings_color" />
+        </menu_item_call>
         <menu_item_separator />
         <menu_item_call
          label="XUI Preview Tool"
