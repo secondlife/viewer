@@ -83,11 +83,18 @@ public:
     // returns true if color_name exists in the table
     bool colorExists(std::string_view color_name) const;
 
+    bool isDefault(std::string_view color_name) const;
+
+    void resetToDefault(std::string_view color_name);
+
     // loads colors from settings files
     bool loadFromSettings();
 
     // saves colors specified by the user to the users skin directory
     void saveUserSettings() const;
+
+    const auto& getLoadedColors() { return mLoadedColors; }
+    const auto& getUserColors() { return mUserSetColors; }
 
 private:
     bool loadFromFilename(const std::string& filename, string_color_map_t& table);
