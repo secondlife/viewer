@@ -77,9 +77,9 @@ public:
     S32         getBorderWidth() const              { return mBorderWidth; }
     void        setBevel(EBevel bevel)              { mBevel = bevel; }
     EBevel      getBevel() const                    { return mBevel; }
-    void        setColors( const LLColor4& shadow_dark, const LLColor4& highlight_light );
-    void        setColorsExtended( const LLColor4& shadow_light, const LLColor4& shadow_dark,
-                                   const LLColor4& highlight_light, const LLColor4& highlight_dark );
+    void        setColors( const LLUIColor& shadow_dark, const LLUIColor& highlight_light );
+    void        setColorsExtended( const LLUIColor& shadow_light, const LLUIColor& shadow_dark,
+                                   const LLUIColor& highlight_light, const LLUIColor& highlight_dark );
     void        setTexture( const class LLUUID &image_id );
 
     LLColor4    getHighlightLight() {return mHighlightLight.get();}

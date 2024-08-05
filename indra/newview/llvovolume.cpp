@@ -5646,7 +5646,8 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
             }
 
             // HACK -- brute force this check every time a drawable gets rebuilt
-            for (S32 i = 0; i < drawablep->getNumFaces(); ++i)
+            S32 num_tex = llmin(vobj->getNumTEs(), drawablep->getNumFaces());
+            for (S32 i = 0; i < num_tex; ++i)
             {
                 vobj->updateTEMaterialTextures(i);
             }

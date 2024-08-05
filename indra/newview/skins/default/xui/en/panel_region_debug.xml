@@ -140,7 +140,7 @@
      layout="topleft"
      left_delta="0"
      name="return_other_land"
-     tool_tip="Return only objects which are on land belonging to someone else"
+     tool_tip="Return only objects which are on land that isn't owned by selected user"
      top_delta="20"
      width="80" />
     <check_box

@@ -304,11 +304,11 @@ public:
     bool setReflectionProbeIsMirror(bool is_mirror);
 
     bool isReflectionProbe() const override;
-    F32 getReflectionProbeAmbiance() const;
-    F32 getReflectionProbeNearClip() const;
+    F32 getReflectionProbeAmbiance() const override;
+    F32 getReflectionProbeNearClip() const override;
     bool getReflectionProbeIsBox() const override;
-    bool getReflectionProbeIsDynamic() const;
-    bool getReflectionProbeIsMirror() const;
+    bool getReflectionProbeIsDynamic() const override;
+    bool getReflectionProbeIsMirror() const override;
 
     // Flexible Objects
     U32 getVolumeInterfaceID() const;

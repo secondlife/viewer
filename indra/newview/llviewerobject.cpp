@@ -1521,7 +1521,12 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
                 S32 size = mesgsys->getSizeFast(_PREHASH_ObjectData, block_num, _PREHASH_ExtraParams);
                 if (size > 0)
                 {
-                    U8 *buffer = new U8[size];
+                    U8 *buffer = new(std::nothrow) U8[size];
+                    if (!buffer)
+                    {
+                        LLError::LLUserWarningMsg::showOutOfMemory();
+                        LL_ERRS() << "Bad memory allocation for buffer, size: " << size << LL_ENDL;
+                    }
                     mesgsys->getBinaryDataFast(_PREHASH_ObjectData, _PREHASH_ExtraParams, buffer, size, block_num);
                     LLDataPackerBinaryBuffer dp(buffer, size);
 

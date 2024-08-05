@@ -146,12 +146,21 @@ pre_build()
     && [ -r "$master_message_template_checkout/message_template.msg" ] \
     && template_verifier_master_url="-DTEMPLATE_VERIFIER_MASTER_URL=file://$master_message_template_checkout/message_template.msg"
 
-    RELEASE_CRASH_REPORTING=ON
-    HAVOK=ON
+    RELEASE_CRASH_REPORTING=OFF
+    HAVOK=OFF
     SIGNING=()
-    if [[ "$arch" == "Darwin" && "$variant" == "Release" ]]
-    then SIGNING=("-DENABLE_SIGNING:BOOL=YES" \
-                  "-DSIGNING_IDENTITY:STRING=Developer ID Application: Linden Research, Inc.")
+    if [[ "$variant" != *OS ]]
+    then
+        # Proprietary builds
+
+        RELEASE_CRASH_REPORTING=ON
+        HAVOK=ON
+
+        if [[ "$arch" == "Darwin" ]]
+        then
+            SIGNING=("-DENABLE_SIGNING:BOOL=YES" \
+                          "-DSIGNING_IDENTITY:STRING=Developer ID Application: Linden Research, Inc.")
+        fi
     fi
 
     if [[ "$arch" == "Linux" ]]

@@ -228,6 +228,7 @@ private:
     void updateGalleryWidth();
 
     LLInventoryGalleryItem* buildGalleryItem(std::string name, LLUUID item_id, LLAssetType::EType type, LLUUID thumbnail_id, LLInventoryType::EType inventory_type, U32 flags, time_t creation_date, bool is_link, bool is_worn);
+    LLInventoryGalleryItem* getItem(const LLUUID& id) const;
 
     void buildGalleryPanel(int row_count);
     void reshapeGalleryPanel(int row_count);

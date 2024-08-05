@@ -107,8 +107,8 @@ public:
     F32             getMaxValue() const { return mSlider->getMaxValue(); }
 
     void            setLabel(const LLStringExplicit& label)     { if (mLabelBox) mLabelBox->setText(label); }
-    void            setLabelColor(const LLColor4& c)            { mTextEnabledColor = c; }
-    void            setDisabledLabelColor(const LLColor4& c)    { mTextDisabledColor = c; }
+    void            setLabelColor(const LLUIColor& c)            { mTextEnabledColor = c; }
+    void            setDisabledLabelColor(const LLUIColor& c)    { mTextDisabledColor = c; }
 
     boost::signals2::connection setSliderMouseDownCallback( const commit_signal_t::slot_type& cb );
     boost::signals2::connection setSliderMouseUpCallback( const commit_signal_t::slot_type& cb );
