@@ -1,11 +1,22 @@
 local LLChatListener = require 'LLChatListener'
 local LLChat = require 'LLChat'
-local leap = require 'leap'
+local UI = require 'UI'
 
+-- Chat listener script allows to use the following commands in Nearby chat:
+-- open inventory   -- open defined floater by name
+-- close inventory  -- close defined floater by name
+-- closeall         -- close all floaters
+-- stop             -- close the script
+-- any other messages will be echoed.
 function openOrEcho(message)
-    local floater_name = string.match(message, "^open%s+(%w+)")
-    if floater_name then
-      leap.send("LLFloaterReg", {name = floater_name, op = "showInstance"})
+    local open_floater_name = string.match(message, "^open%s+(%w+)")
+    local close_floater_name = string.match(message, "^close%s+(%w+)")
+    if open_floater_name then
+      UI.showFloater(open_floater_name)
+    elseif close_floater_name then
+      UI.hideFloater(close_floater_name)
+    elseif message == 'closeall' then
+      UI.closeAllFloaters()
     else
       LLChat.sendNearby('Echo: ' .. message)
     end

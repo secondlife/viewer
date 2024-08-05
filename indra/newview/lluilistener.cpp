@@ -100,6 +100,11 @@ LLUIListener::LLUIListener():
         &LLUIListener::addMenuSeparator,
         llsd::map("parent_menu", LLSD(), "reply", LLSD()));
 
+    add("setMenuVisible",
+        "Set menu [\"name\"] visibility to [\"visible\"]",
+        &LLUIListener::setMenuVisible,
+        llsd::map("name", LLSD(), "visible", LLSD(), "reply", LLSD()));
+
     add("defaultToolbars",
         "todo: defaultToolbars desc",
         &LLUIListener::restoreDefaultToolbars);
@@ -311,6 +316,17 @@ void LLUIListener::addMenuSeparator(const LLSD&event) const
             response.error("Separator was not added");
         }
     }
+}
+
+void LLUIListener::setMenuVisible(const LLSD &event) const
+{
+    Response response(LLSD(), event);
+    std::string menu_name(event["name"]);
+    if (!gMenuBarView->getItem(menu_name))
+    {
+        return response.error(stringize("Menu ", std::quoted(menu_name), " was not found"));
+    }
+    gMenuBarView->setItemVisible(menu_name, event["visible"].asBoolean());
 }
 
 void LLUIListener::restoreDefaultToolbars(const LLSD &event) const

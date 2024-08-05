@@ -80,6 +80,11 @@ LLFloaterRegListener::LLFloaterRegListener():
     add("getFloaterEvents",
         "Return the table of Lua Floater events which are send to the script",
         &LLFloaterRegListener::getLuaFloaterEvents);
+
+    add("getFloaterNames",
+        "Return the table of all registered floaters",
+        &LLFloaterRegListener::getFloaterNames,
+        llsd::map("reply", LLSD()));
 }
 
 void LLFloaterRegListener::getBuildMap(const LLSD& event) const
@@ -119,6 +124,12 @@ void LLFloaterRegListener::instanceVisible(const LLSD& event) const
 {
     sendReply(LLSDMap("visible", LLFloaterReg::instanceVisible(event["name"], event["key"])),
               event);
+}
+
+
+void LLFloaterRegListener::getFloaterNames(const LLSD &event) const
+{
+    Response response(llsd::map("floaters", LLFloaterReg::getFloaterNames()), event);
 }
 
 void LLFloaterRegListener::clickButton(const LLSD& event) const

@@ -49,6 +49,7 @@ private:
     void addMenuBranch(const LLSD&event) const;
     void addMenuItem(const LLSD&event) const;
     void addMenuSeparator(const LLSD&event) const;
+    void setMenuVisible(const LLSD &event) const;
 
     void restoreDefaultToolbars(const LLSD &event) const;
     void clearAllToolbars(const LLSD &event) const;

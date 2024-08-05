@@ -607,3 +607,13 @@ U32 LLFloaterReg::getVisibleFloaterInstanceCount()
 
     return count;
 }
+
+LLSD LLFloaterReg::getFloaterNames()
+{
+    LLSD names;
+    for (auto &it : sGroupMap)
+    {
+        names.append(it.first);
+    }
+    return names;
+}

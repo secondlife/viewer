@@ -150,6 +150,10 @@ function UI.addMenu(...)
     return leap.request('UI', args)
 end
 
+function UI.setMenuVisible(name, visible)
+    return leap.request('UI', {op='setMenuVisible', name=name, visible=visible})
+end
+
 function UI.addMenuBranch(...)
     local args = mapargs('name,label,parent_menu', ...)
     args.op = 'addMenuBranch'
@@ -220,6 +224,10 @@ end
 
 function UI.closeAllFloaters()
     return leap.send("UI", {op = "closeAllFloaters"})
+end
+
+function UI.getFloaterNames()
+    return leap.request("LLFloaterReg", {op = "getFloaterNames"}).floaters
 end
 
 return UI
