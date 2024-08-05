@@ -296,7 +296,7 @@ void LLKeywords::processTokensGroup(const LLSD& tokens, std::string_view group)
     }
 
     color_group = getColorGroup(group);
-    LL_DEBUGS("SyntaxLSL") << "Group: '" << group << "', using color: '" << color_group << "'" << LL_ENDL;
+    LL_DEBUGS("SyntaxLSL") << "Group: '" << group << "', using color: '" << color_group.get() << "'" << LL_ENDL;
 
     if (tokens.isMap())
     {
@@ -378,7 +378,7 @@ void LLKeywords::processTokensGroup(const LLSD& tokens, std::string_view group)
     }
     else if (tokens.isArray())  // Currently nothing should need this, but it's here for completeness
     {
-        LL_INFOS("SyntaxLSL") << "Curious, shouldn't be an array here; adding all using color " << color << LL_ENDL;
+        LL_INFOS("SyntaxLSL") << "Curious, shouldn't be an array here; adding all using color " << color.get() << LL_ENDL;
         for (S32 count = 0; count < tokens.size(); ++count)
         {
             addToken(token_type, tokens[count], color, "");
