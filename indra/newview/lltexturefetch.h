@@ -293,8 +293,6 @@ public:
     LLUUID mDebugID;
     S32 mDebugCount;
     bool mDebugPause;
-    S32 mPacketCount;
-    S32 mBadPacketCount;
 
     static LLTrace::CountStatHandle<F64>        sCacheHit;
     static LLTrace::CountStatHandle<F64>        sCacheAttempt;
