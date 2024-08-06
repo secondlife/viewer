@@ -122,12 +122,13 @@ inline void gl_rect_2d_offset_local( const LLRect& rect, S32 pixel_offset, bool 
 
 class LLImageProviderInterface;
 
-class LLRender2D : public LLParamSingleton<LLRender2D>
+class LLRender2D : public LLSimpleton<LLRender2D>
 {
-    LLSINGLETON(LLRender2D, LLImageProviderInterface* image_provider);
     LOG_CLASS(LLRender2D);
-    ~LLRender2D();
 public:
+    LLRender2D(LLImageProviderInterface* image_provider);
+    ~LLRender2D();
+
     static void pushMatrix();
     static void popMatrix();
     static void loadIdentity();

@@ -156,7 +156,7 @@ mWindow(NULL), // set later in startup
 mRootView(NULL),
 mHelpImpl(NULL)
 {
-    LLRender2D::initParamSingleton(image_provider);
+    LLRender2D::createInstance(image_provider);
 
     if ((get_ptr_in_map(mSettingGroups, std::string("config")) == NULL) ||
         (get_ptr_in_map(mSettingGroups, std::string("floater")) == NULL) ||
@@ -194,6 +194,11 @@ mHelpImpl(NULL)
 
     // Parse the master list of commands
     LLCommandManager::load();
+}
+
+LLUI::~LLUI()
+{
+    LLRender2D::deleteSingleton();
 }
 
 void LLUI::setPopupFuncs(const add_popup_t& add_popup, const remove_popup_t& remove_popup,  const clear_popups_t& clear_popups)
