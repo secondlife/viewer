@@ -177,8 +177,8 @@ end
 --  Toolbar buttons
 -- ***************************************************************************
 -- Clears all buttons off the toolbars
-function UI.clearToolbars()
-    leap.send('UI', {op='clearToolbars'})
+function UI.clearAllToolbars()
+    leap.send('UI', {op='clearAllToolbars'})
 end
 
 function UI.defaultToolbars()
@@ -186,8 +186,8 @@ function UI.defaultToolbars()
 end
 
 -- UI.addToolbarBtn{btn_name=btn_name
---          [, toolbar= 3] -- 1 [TOOLBAR_LEFT], 2 [TOOLBAR_RIGHT], 3 [TOOLBAR_BOTTOM]
---          [, rank=1]} -- position on the toolbar
+--          [, toolbar= bottom] -- left, right, bottom -- default is bottom
+--          [, rank=1]} -- position on the toolbar, starts at 0 (0 - first position, 1 - second position etc.)
 function UI.addToolbarBtn(...)
     local args = mapargs('btn_name,toolbar,rank', ...)
     args.op = 'addToolbarBtn'

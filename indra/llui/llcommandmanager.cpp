@@ -32,6 +32,7 @@
 #include "llcommandmanager.h"
 #include "lldir.h"
 #include "llerror.h"
+#include "llsdutil.h"
 #include "llxuiparser.h"
 
 
@@ -192,10 +193,5 @@ bool LLCommandManager::load()
 
 LLSD LLCommandManager::getCommandNames()
 {
-    LLSD cmd_names;
-    for (auto &it : mCommands)
-    {
-        cmd_names.append(it->name());
-    }
-    return cmd_names;
+    return llsd::toArray(mCommands, [](const auto &cmd) { return cmd->name(); });
  }

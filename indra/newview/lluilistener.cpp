@@ -106,23 +106,24 @@ LLUIListener::LLUIListener():
         llsd::map("name", LLSD(), "visible", LLSD(), "reply", LLSD()));
 
     add("defaultToolbars",
-        "todo: defaultToolbars desc",
+        "Restore default toolbar buttons",
         &LLUIListener::restoreDefaultToolbars);
 
-    add("clearToolbars",
+    add("clearAllToolbars",
         "Clear all buttons off the toolbars",
         &LLUIListener::clearAllToolbars);
 
     add("addToolbarBtn",
-        "Add [\"btn_name\"] toolbar button to the [\"toolbar\"]\n"
-        "[1 (left toolbar), 2 (right toolbar), 3 (bottom toolbar)]\n"
+        "Add [\"btn_name\"] toolbar button to the [\"toolbar\"]:\n"
+        "\"left\", \"right\", \"bottom\" (default is \"bottom\")\n"
         "Position of the command in the original list can be specified as [\"rank\"]",
         &LLUIListener::addToolbarBtn,
         llsd::map("btn_name", LLSD(), "reply", LLSD()));
 
     add("removeToolbarBtn",
         "Remove [\"btn_name\"] toolbar button off the toolbar,\n"
-        "return [\"rank\"] (old position) of the command in the original list",
+        "return [\"rank\"] (old position) of the command in the original list,\n"
+        "rank -1 means that [\"btn_name\"] was not found",
         &LLUIListener::removeToolbarBtn,
         llsd::map("btn_name", LLSD(), "reply", LLSD()));
 
@@ -347,9 +348,20 @@ void LLUIListener::addToolbarBtn(const LLSD &event) const
     ToolBarLocation toolbar = ToolBarLocation::TOOLBAR_BOTTOM;
     if (event.has("toolbar"))
     {
-        toolbar = llclamp((ToolBarLocation)event["toolbar"].asInteger(), ToolBarLocation::TOOLBAR_NONE, ToolBarLocation::TOOLBAR_BOTTOM);
+        if (event["toolbar"] == "left")
+        {
+            toolbar = ToolBarLocation::TOOLBAR_LEFT;
+        }
+        else if (event["toolbar"] == "right")
+        {
+            toolbar = ToolBarLocation::TOOLBAR_RIGHT;
+        }
+        else if (event["toolbar"] != "bottom")
+        {
+            return response.error(stringize("Toolbar name ", std::quoted(event["toolbar"].asString()), " is not correct. Toolbar names are: left, right, bottom"));
+        }
     }
-    S32 rank = event.has("rank") ? event["rank"].asInteger() : - 1;
+    S32 rank = event.has("rank") ? event["rank"].asInteger() : LLToolBar::RANK_NONE;
     if(!gToolBarView->addCommand(event["btn_name"].asString(), toolbar, rank))
     {
         response.error(stringize("Toolbar button ", std::quoted(event["btn_name"].asString()), " was not found"));

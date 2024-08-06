@@ -610,10 +610,5 @@ U32 LLFloaterReg::getVisibleFloaterInstanceCount()
 
 LLSD LLFloaterReg::getFloaterNames()
 {
-    LLSD names;
-    for (auto &it : sGroupMap)
-    {
-        names.append(it.first);
-    }
-    return names;
+    return llsd::toArray(sGroupMap, [](const auto &pair) { return pair.first; });
 }
