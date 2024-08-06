@@ -1,7 +1,10 @@
-startup = require 'startup'
+inspect = require 'inspect'
 login = require 'login'
 
-startup.wait('STATE_LOGIN_WAIT')
-login()
--- Fill in valid credentials as they would be entered on the login screen
--- login('My Username', 'password')
+local grid = 'agni'
+print(inspect(login.savedLogins(grid)))
+
+print(inspect(login.login{
+    username='Your Username',
+    grid=grid
+    }))

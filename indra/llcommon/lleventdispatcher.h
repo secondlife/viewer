@@ -853,8 +853,10 @@ public:
 
     std::string getPumpName() const { return getName(); }
 
+protected:
+    virtual bool process(const LLSD& event) const;
+
 private:
-    bool process(const LLSD& event) const;
     void call_one(const LLSD& name, const LLSD& event) const;
     void call_map(const LLSD& reqmap, const LLSD& event) const;
     void call_array(const LLSD& reqarray, const LLSD& event) const;
