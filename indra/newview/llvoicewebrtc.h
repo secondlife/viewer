@@ -576,7 +576,8 @@ class LLVoiceWebRTCStats : public LLSingleton<LLVoiceWebRTCStats>
 
 class LLVoiceWebRTCConnection :
     public llwebrtc::LLWebRTCSignalingObserver,
-    public llwebrtc::LLWebRTCDataObserver
+    public llwebrtc::LLWebRTCDataObserver,
+    public boost::enable_shared_from_this<LLVoiceWebRTCConnection>
 {
   public:
     LLVoiceWebRTCConnection(const LLUUID &regionID, const std::string &channelID);
@@ -610,7 +611,7 @@ class LLVoiceWebRTCConnection :
 
     void processIceUpdates();
 
-    void processIceUpdatesCoro();
+    static void processIceUpdatesCoro(connectionPtr_t connection);
 
     virtual void setMuteMic(bool muted);
     virtual void setSpeakerVolume(F32 volume);
@@ -677,9 +678,9 @@ class LLVoiceWebRTCConnection :
     }
 
     virtual void requestVoiceConnection() = 0;
-    void requestVoiceConnectionCoro() { requestVoiceConnection(); }
+    static void requestVoiceConnectionCoro(connectionPtr_t connection) { connection->requestVoiceConnection(); }
 
-    void breakVoiceConnectionCoro();
+    static void breakVoiceConnectionCoro(connectionPtr_t connection);
 
     LLVoiceClientStatusObserver::EStatusType mCurrentStatus;
 
