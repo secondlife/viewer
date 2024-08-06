@@ -2149,7 +2149,6 @@ bool LLVivoxVoiceClient::runSession(const sessionStatePtr_t &session)
 
     mIsInChannel = true;
     mMuteMicDirty = true;
-    mSessionTerminateRequested = false;
 
     while (!sShuttingDown
            && mVoiceEnabled
@@ -5435,8 +5434,8 @@ void LLVivoxVoiceClient::leaveChannel(void)
     {
         LL_DEBUGS("Voice") << "leaving channel for teleport/logout" << LL_ENDL;
         mChannelName.clear();
-        sessionTerminate();
     }
+    sessionTerminate();
 }
 
 void LLVivoxVoiceClient::setMuteMic(bool muted)
