@@ -2086,7 +2086,7 @@ if (DARWIN)
   set(VIEWER_APP_BUNDLE "${CMAKE_CURRENT_BINARY_DIR}/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>/${product}.app")
   set(VIEWER_APP_EXE "${VIEWER_APP_BUNDLE}/Contents/MacOS/${product}")
   set(VIEWER_APP_DSYM "${VIEWER_APP_EXE}.dSYM")
-  set(VIEWER_APP_XCARCHIVE "${VIEWER_APP_BUNDLE}/../${product}.xcarchive.zip")
+  set(VIEWER_APP_SYMBOLS_ARCHIVE "${VIEWER_APP_BUNDLE}/../${product}.sym.tar.gz")
 
   configure_file(
      "${CMAKE_CURRENT_SOURCE_DIR}/Info-SecondLife.plist"
@@ -2191,41 +2191,33 @@ if (PACKAGE AND (RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING) AND VIE
       add_dependencies(generate_symbols ${VIEWER_BINARY_NAME})
     endif (WINDOWS)
     if (DARWIN)
-      # Have to run dsymutil first, then pack up the resulting .dSYM directory
-      add_custom_command(OUTPUT "${VIEWER_APP_DSYM}"
-        COMMAND "dsymutil"
+        set_target_properties(${VIEWER_BINARY_NAME}
+            PROPERTIES
+            XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT "dwarf-with-dsym"
+            XCODE_ATTRIBUTE_DWARF_DSYM_FOLDER_PATH "${SYMBOLS_STAGING_DIR}")
+        add_custom_command(OUTPUT "${VIEWER_APP_SYMBOLS_ARCHIVE}"
+        COMMAND "tar"
         ARGS
-          ${VIEWER_APP_EXE}
-        COMMENT "Generating ${VIEWER_APP_DSYM}"
-        )
-      add_custom_target(dsym_generate DEPENDS "${VIEWER_APP_DSYM}")
-      add_dependencies(dsym_generate ${VIEWER_BINARY_NAME})
-      add_custom_command(OUTPUT "${VIEWER_APP_XCARCHIVE}"
-        COMMAND "zip"
-        ARGS
-          "-r"
-          "${VIEWER_APP_XCARCHIVE}"
+          "-cJf"
+          "${VIEWER_APP_SYMBOLS_ARCHIVE}"
+          "-C"
+          "${SYMBOLS_STAGING_DIR}"
           "."
-        WORKING_DIRECTORY "${VIEWER_APP_DSYM}/.."
-        DEPENDS "${VIEWER_APP_DSYM}"
-        COMMENT "Generating xcarchive.zip for upload to BugSplat"
+        DEPENDS "${VIEWER_BINARY_NAME}"
+        COMMENT "Generating symbols archive for upload to BugSplat"
         )
-      add_custom_target(dsym_xcarchive DEPENDS "${VIEWER_APP_XCARCHIVE}")
-      add_dependencies(dsym_xcarchive dsym_generate)
       # Have to create a stamp file, and depend on it, to force CMake to run
       # the cleanup step.
       add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/dsym.stamp"
         COMMAND rm -rf "${VIEWER_APP_DSYM}"
         COMMAND touch "${CMAKE_CURRENT_BINARY_DIR}/dsym.stamp"
-        DEPENDS "${VIEWER_APP_XCARCHIVE}"
-        COMMENT "Cleaning up dSYM"
+        DEPENDS "${VIEWER_APP_SYMBOLS_ARCHIVE}"
+        COMMENT "Cleaning up symbols archive"
         )
       add_custom_target(generate_symbols DEPENDS
-        "${VIEWER_APP_DSYM}"
-        "${VIEWER_APP_XCARCHIVE}"
+        "${VIEWER_APP_SYMBOLS_ARCHIVE}"
         "${CMAKE_CURRENT_BINARY_DIR}/dsym.stamp"
         )
-      add_dependencies(generate_symbols dsym_xcarchive)
     endif (DARWIN)
     if (LINUX)
       # TBD

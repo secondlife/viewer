@@ -526,7 +526,6 @@ then
     # nat 2016-12-22: without RELEASE_CRASH_REPORTING, we have no symbol file.
     if [ "${RELEASE_CRASH_REPORTING:-}" != "OFF" ]
     then
-        # BugSplat wants to see xcarchive.zip
         # e.g. build-darwin-x86_64/newview/Release/Second Life Test.sym.tar.gz
         symbol_file="${build_dir}/newview/${variant}/${viewer_channel}.sym.tar.gz"
         if [[ ! -f "$symbol_file" ]]
