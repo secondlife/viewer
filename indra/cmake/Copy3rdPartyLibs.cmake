@@ -226,7 +226,6 @@ elseif(LINUX)
          list( APPEND release_files
                  libapr-1.so.0
                  libaprutil-1.so.0
-                 libhunspell-1.3.so.0.0.0
                  )
      endif()
 

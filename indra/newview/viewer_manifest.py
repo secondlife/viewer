@@ -1428,7 +1428,6 @@ class Linux_x86_64_Manifest(LinuxManifest):
 
             self.path_optional("libjemalloc*.so")
 
-            self.path("libhunspell-1.3.so*")
             self.path("libalut.so*")
             self.path("libopenal.so*")
             self.path("libopenal.so", "libvivoxoal.so.1") # vivox's sdk expects this soname
