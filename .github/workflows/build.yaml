@@ -399,7 +399,7 @@ jobs:
         run: |
           mkdir _extracted
           tar -xJf "${{ needs.build.outputs.viewer_channel }}.sym.tar.gz" -C _extracted
-      - name: Post Mac symbols
+      - name: Post Mac Executable symbols
         if: env.BUGSPLAT_USER && env.BUGSPLAT_PASS
         uses: Bugsplat-Git/symbol-upload@v9.1.1
         with:
@@ -409,7 +409,18 @@ jobs:
           application: ${{ needs.build.outputs.viewer_channel }}
           version: ${{ needs.build.outputs.viewer_version }}
           directory: _extracted
-          files: "**/*.dSYM" 
+          files: "**/*.app.dSYM"
+      - name: Post Mac Dylib symbols
+        if: env.BUGSPLAT_USER && env.BUGSPLAT_PASS
+        uses: Bugsplat-Git/symbol-upload@v9.1.1
+        with:
+          username: ${{ env.BUGSPLAT_USER }}
+          password: ${{ env.BUGSPLAT_PASS }}
+          database: "SecondLife_Viewer_2018"
+          application: ${{ needs.build.outputs.viewer_channel }}
+          version: ${{ needs.build.outputs.viewer_version }}
+          directory: _extracted
+          files: "**/*.dylib"
 
   release:
     needs: [setvar, build, sign-and-package-windows, sign-and-package-mac]
