@@ -528,7 +528,7 @@ then
     then
         # BugSplat wants to see xcarchive.zip
         # e.g. build-darwin-x86_64/newview/Release/Second Life Test.sym.tar.gz
-        symbol_file="${build_dir}/newview/${variant}/${viewer_channel}.sym.tar.gz
+        symbol_file="${build_dir}/newview/${variant}/${viewer_channel}.sym.tar.gz"
         if [[ ! -f "$symbol_file" ]]
         then
             # symbol tarball we prep for (e.g.) Breakpad
