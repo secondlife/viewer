@@ -48,6 +48,7 @@
 #include "llaudioengine_openal.h"
 #endif
 
+#include "coro_scheduler.h"
 #include "llavatarnamecache.h"
 #include "llexperiencecache.h"
 #include "lllandmark.h"
@@ -400,10 +401,12 @@ bool idle_startup()
         static bool first_call = true;
         if (first_call)
         {
+            first_call = false;
             // Other phases get handled when startup state changes,
             // need to capture the initial state as well.
             LLStartUp::getPhases().startPhase(LLStartUp::getStartupStateString());
-            first_call = false;
+            // Use our custom scheduler for coroutine scheduling.
+            llcoro::scheduler::use();
         }
 
         gViewerWindow->showCursor();
