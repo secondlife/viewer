@@ -172,7 +172,7 @@ public:
 
     // profile nearby avatars using gPipeline.profileAvatar and update their render times
     // return max GPU time
-    F32 getNearbyAvatarsAndMaxGPUTime(std::vector<LLCharacter*> &valid_nearby_avs);
+    F32 getNearbyAvatarsAndMaxGPUTime(std::vector<LLVOAvatar*> &valid_nearby_avs);
 
 private:
     void clearHoleWaterObjects();

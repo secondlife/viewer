@@ -490,8 +490,8 @@ void LLPanel::initFromParams(const LLPanel::Params& p)
 
     setBackgroundVisible(p.background_visible);
     setBackgroundOpaque(p.background_opaque);
-    setBackgroundColor(p.bg_opaque_color().get());
-    setTransparentColor(p.bg_alpha_color().get());
+    setBackgroundColor(p.bg_opaque_color);
+    setTransparentColor(p.bg_alpha_color);
     mBgOpaqueImage = p.bg_opaque_image();
     mBgAlphaImage = p.bg_alpha_image();
     mBgOpaqueImageOverlay = p.bg_opaque_image_overlay;
@@ -693,7 +693,7 @@ void LLPanel::childSetCommitCallback(std::string_view id, boost::function<void (
     }
 }
 
-void LLPanel::childSetColor(std::string_view id, const LLColor4& color)
+void LLPanel::childSetColor(std::string_view id, const LLUIColor& color)
 {
     LLUICtrl* child = findChild<LLUICtrl>(id);
     if (child)

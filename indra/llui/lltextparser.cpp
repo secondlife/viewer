@@ -36,6 +36,7 @@
 #include "llmath.h"
 #include "v4color.h"
 #include "lldir.h"
+#include "lluicolor.h"
 
 //
 // Member Functions
@@ -80,14 +81,14 @@ S32 LLTextParser::findPattern(const std::string &text, LLSD highlight)
     return static_cast<S32>(found);
 }
 
-LLSD LLTextParser::parsePartialLineHighlights(const std::string &text, const LLColor4 &color, EHighlightPosition part, S32 index)
+LLTextParser::parser_out_vec_t LLTextParser::parsePartialLineHighlights(const std::string &text, const LLUIColor& color, EHighlightPosition part, S32 index)
 {
     loadKeywords();
 
     //evil recursive string atomizer.
-    LLSD ret_llsd, start_llsd, middle_llsd, end_llsd;
+    parser_out_vec_t ret_vec, start_vec, middle_vec, end_vec;
 
-    for (S32 i=index;i<mHighlights.size();i++)
+    for (S32 i=index, size = (S32)mHighlights.size();i< size;i++)
     {
         S32 condition = mHighlights[i]["condition"];
         if ((S32)mHighlights[i]["highlight"]==PART && condition!=MATCHES)
@@ -104,72 +105,69 @@ LLSD LLTextParser::parsePartialLineHighlights(const std::string &text, const LLC
                     EHighlightPosition newpart;
                     if (start==0)
                     {
-                        start_llsd[0]["text"] =text.substr(0,end);
-                        start_llsd[0]["color"]=mHighlights[i]["color"];
+                        if (start_vec.empty())
+                        {
+                            start_vec.push_back(std::make_pair(text.substr(0, end), LLColor4(mHighlights[i]["color"])));
+                        }
+                        else
+                        {
+                            start_vec[0] = std::make_pair(text.substr(0, end), LLColor4(mHighlights[i]["color"]));
+                        }
 
                         if (end < len)
                         {
                             if (part==END   || part==WHOLE) newpart=END; else newpart=MIDDLE;
-                            end_llsd=parsePartialLineHighlights(text.substr( end ),color,newpart,i);
+                            end_vec = parsePartialLineHighlights(text.substr( end ),color,newpart,i);
                         }
                     }
                     else
                     {
                         if (part==START || part==WHOLE) newpart=START; else newpart=MIDDLE;
 
-                        start_llsd=parsePartialLineHighlights(text.substr(0,start),color,newpart,i+1);
+                        start_vec = parsePartialLineHighlights(text.substr(0,start),color,newpart,i+1);
 
                         if (end < len)
                         {
-                            middle_llsd[0]["text"] =text.substr(start,end);
-                            middle_llsd[0]["color"]=mHighlights[i]["color"];
+                            if (middle_vec.empty())
+                            {
+                                middle_vec.push_back(std::make_pair(text.substr(start, end), LLColor4(mHighlights[i]["color"])));
+                            }
+                            else
+                            {
+                                middle_vec[0] = std::make_pair(text.substr(start, end), LLColor4(mHighlights[i]["color"]));
+                            }
 
                             if (part==END   || part==WHOLE) newpart=END; else newpart=MIDDLE;
 
-                            end_llsd=parsePartialLineHighlights(text.substr( (start+end) ),color,newpart,i);
+                            end_vec = parsePartialLineHighlights(text.substr( (start+end) ),color,newpart,i);
                         }
                         else
                         {
-                            end_llsd[0]["text"] =text.substr(start,end);
-                            end_llsd[0]["color"]=mHighlights[i]["color"];
+                            if (end_vec.empty())
+                            {
+                                end_vec.push_back(std::make_pair(text.substr(start, end), LLColor4(mHighlights[i]["color"])));
+                            }
+                            else
+                            {
+                                end_vec[0] = std::make_pair(text.substr(start, end), LLColor4(mHighlights[i]["color"]));
+                            }
                         }
                     }
 
-                    S32 retcount=0;
+                    ret_vec.reserve(start_vec.size() + middle_vec.size() + end_vec.size());
+                    ret_vec.insert(ret_vec.end(), start_vec.begin(), start_vec.end());
+                    ret_vec.insert(ret_vec.end(), middle_vec.begin(), middle_vec.end());
+                    ret_vec.insert(ret_vec.end(), end_vec.begin(), end_vec.end());
 
-                    //FIXME These loops should be wrapped into a subroutine.
-                    for (LLSD::array_iterator iter = start_llsd.beginArray();
-                         iter != start_llsd.endArray();++iter)
-                    {
-                        LLSD highlight = *iter;
-                        ret_llsd[retcount++]=highlight;
-                    }
-
-                    for (LLSD::array_iterator iter = middle_llsd.beginArray();
-                         iter != middle_llsd.endArray();++iter)
-                    {
-                        LLSD highlight = *iter;
-                        ret_llsd[retcount++]=highlight;
-                    }
-
-                    for (LLSD::array_iterator iter = end_llsd.beginArray();
-                         iter != end_llsd.endArray();++iter)
-                    {
-                        LLSD highlight = *iter;
-                        ret_llsd[retcount++]=highlight;
-                    }
-
-                    return ret_llsd;
+                    return ret_vec;
                 }
             }
         }
     }
 
     //No patterns found.  Just send back what was passed in.
-    ret_llsd[0]["text"] =text;
-    LLSD color_sd = color.getValue();
-    ret_llsd[0]["color"]=color_sd;
-    return ret_llsd;
+    ret_vec.push_back(std::make_pair(text, color));
+    return ret_vec;
 }
 
 bool LLTextParser::parseFullLineHighlights(const std::string &text, LLColor4 *color)

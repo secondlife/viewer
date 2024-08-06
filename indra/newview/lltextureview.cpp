@@ -323,13 +323,6 @@ void LLTextureBar::draw()
 
     {
         LLGLSUIDefault gls_ui;
-        // draw the packet data
-//      {
-//          std::string num_str = llformat("%3d/%3d", mImagep->mLastPacket+1, mImagep->mPackets);
-//          LLFontGL::getFontMonospace()->renderUTF8(num_str, 0, bar_left + 100, getRect().getHeight(), color,
-//                                           LLFontGL::LEFT, LLFontGL::TOP);
-//      }
-
         // draw the image size at the end
         {
             std::string num_str = llformat("%3dx%3d (%2d) %7d", mImagep->getWidth(), mImagep->getHeight(),
@@ -620,10 +613,9 @@ void LLGLTexMemBar::draw()
 
     //----------------------------------------------------------------------------
 
-    text = llformat("Textures: %d Fetch: %d(%d) Pkts:%d(%d) Cache R/W: %d/%d LFS:%d RAW:%d HTP:%d DEC:%d CRE:%d ",
+    text = llformat("Textures: %d Fetch: %d(%d) Cache R/W: %d/%d LFS:%d RAW:%d HTP:%d DEC:%d CRE:%d ",
                     gTextureList.getNumImages(),
                     LLAppViewer::getTextureFetch()->getNumRequests(), LLAppViewer::getTextureFetch()->getNumDeletes(),
-                    LLAppViewer::getTextureFetch()->mPacketCount, LLAppViewer::getTextureFetch()->mBadPacketCount,
                     LLAppViewer::getTextureCache()->getNumReads(), LLAppViewer::getTextureCache()->getNumWrites(),
                     LLLFSThread::sLocal->getPending(),
                     LLImageRaw::sRawImageCount,

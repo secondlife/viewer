@@ -741,18 +741,16 @@ public:
         if (gSavedSettings.getBOOL("DebugShowAvatarRenderInfo"))
         {
             std::map<std::string, LLVOAvatar*> sorted_avs;
-
-            std::vector<LLCharacter*>::iterator sort_iter = LLCharacter::sInstances.begin();
-            while (sort_iter != LLCharacter::sInstances.end())
             {
-                LLVOAvatar* avatar = dynamic_cast<LLVOAvatar*>(*sort_iter);
-                if (avatar &&
-                    !avatar->isDead())                      // Not dead yet
+                for (LLCharacter* character : LLCharacter::sInstances)
                 {
-                    // Stuff into a sorted map so the display is ordered
-                    sorted_avs[avatar->getFullname()] = avatar;
+                    LLVOAvatar* avatar = (LLVOAvatar*)character;
+                    if (!avatar->isDead()) // Not dead yet
+                    {
+                        // Stuff into a sorted map so the display is ordered
+                        sorted_avs[avatar->getFullname()] = avatar;
+                    }
                 }
-                sort_iter++;
             }
 
             std::string trunc_name;
@@ -2192,7 +2190,7 @@ void LLViewerWindow::initWorldUI()
         gStatusBar->setFollows(FOLLOWS_LEFT | FOLLOWS_TOP | FOLLOWS_RIGHT);
         gStatusBar->setShape(status_bar_container->getLocalRect());
         // sync bg color with menu bar
-        gStatusBar->setBackgroundColor(gMenuBarView->getBackgroundColor().get());
+        gStatusBar->setBackgroundColor(gMenuBarView->getBackgroundColor());
         // add InBack so that gStatusBar won't be drawn over menu
         status_bar_container->addChildInBack(gStatusBar, 2/*tab order, after menu*/);
         status_bar_container->setVisible(true);
@@ -2201,7 +2199,7 @@ void LLViewerWindow::initWorldUI()
         LLView* nav_bar_container = getRootView()->getChild<LLView>("nav_bar_container");
 
         navbar->setShape(nav_bar_container->getLocalRect());
-        navbar->setBackgroundColor(gMenuBarView->getBackgroundColor().get());
+        navbar->setBackgroundColor(gMenuBarView->getBackgroundColor());
         nav_bar_container->addChild(navbar);
         nav_bar_container->setVisible(true);
     }
@@ -2585,7 +2583,7 @@ void LLViewerWindow::setNormalControlsVisible( bool visible )
 void LLViewerWindow::setMenuBackgroundColor(bool god_mode, bool dev_grid)
 {
     LLSD args;
-    LLColor4 new_bg_color;
+    LLUIColor new_bg_color;
 
     // god more important than project, proj more important than grid
     if ( god_mode )

@@ -589,9 +589,6 @@ class Windows_x86_64_Manifest(ViewerManifest):
             # HTTP/2
             self.path("nghttp2.dll")
 
-            # Hunspell
-            self.path("libhunspell.dll")
-
             # BugSplat
             if self.args.get('bugsplat'):
                 self.path("BsSndRpt64.exe")
@@ -932,7 +929,6 @@ class Darwin_x86_64_Manifest(ViewerManifest):
 
                 with self.prefix(src=relpkgdir, dst=""):
                     self.path("libndofdev.dylib")
-                    self.path("libhunspell-*.dylib")
 
                 with self.prefix(src_dst="cursors_mac"):
                     self.path("*.tif")

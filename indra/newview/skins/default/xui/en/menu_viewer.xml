@@ -3830,6 +3830,13 @@ function="World.EnvPreset"
          name="XUI"
          tear_off="true">
             <menu_item_call
+             label="Show Color settings"
+             name="Color Settings">
+                <menu_item_call.on_click
+                 function="Floater.Toggle"
+                 parameter="settings_color" />
+            </menu_item_call>
+            <menu_item_call
                label="Reload Color Settings"
                name="Reload Color Settings">
               <menu_item_call.on_click

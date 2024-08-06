@@ -261,6 +261,48 @@ void LLMapFriendObserver::changed(U32 mask)
     }
 }
 
+LLWorldMapParcelInfoObserver::LLWorldMapParcelInfoObserver(const LLVector3d& pos_global)
+    : LLRemoteParcelInfoObserver(),
+    mPosGlobal(pos_global),
+    mParcelID(LLUUID::null)
+{ }
+
+LLWorldMapParcelInfoObserver::~LLWorldMapParcelInfoObserver()
+{
+    if (mParcelID.notNull())
+    {
+        LLRemoteParcelInfoProcessor::getInstance()->removeObserver(mParcelID, this);
+    }
+}
+
+void LLWorldMapParcelInfoObserver::processParcelInfo(const LLParcelData& parcel_data)
+{
+    if (parcel_data.parcel_id == mParcelID)
+    {
+        LLRemoteParcelInfoProcessor::getInstance()->removeObserver(mParcelID, this);
+
+        if (gFloaterWorldMap)
+        {
+            gFloaterWorldMap->processParcelInfo(parcel_data, mPosGlobal);
+        }
+    }
+}
+
+// virtual
+void LLWorldMapParcelInfoObserver::setParcelID(const LLUUID& parcel_id)
+{
+    mParcelID = parcel_id;
+    auto instance = LLRemoteParcelInfoProcessor::getInstance();
+    instance->addObserver(mParcelID, this);
+    instance->sendParcelInfoRequest(mParcelID);
+}
+
+// virtual
+void LLWorldMapParcelInfoObserver::setErrorStatus(S32 status, const std::string& reason)
+{
+    LL_WARNS("LLWorldMapParcelInfoObserver") << "Can't handle remote parcel request." << " Http Status: " << status << ". Reason : " << reason << LL_ENDL;
+}
+
 //---------------------------------------------------------------------------
 // Statics
 //---------------------------------------------------------------------------
@@ -275,23 +317,25 @@ const LLUUID LLFloaterWorldMap::sHomeID( "10000000-0000-0000-0000-000000000001" 
 
 LLFloaterWorldMap::LLFloaterWorldMap(const LLSD& key)
 :   LLFloater(key),
-    mInventory(NULL),
-    mInventoryObserver(NULL),
-    mFriendObserver(NULL),
+    mInventory(nullptr),
+    mInventoryObserver(nullptr),
+    mFriendObserver(nullptr),
     mCompletingRegionName(),
     mCompletingRegionPos(),
     mWaitingForTracker(false),
     mIsClosing(false),
     mSetToUserPosition(true),
-    mTrackedLocation(0,0,0),
+    mTrackedLocation(0.0,0.0,0.0),
     mTrackedStatus(LLTracker::TRACKING_NOTHING),
-    mListFriendCombo(NULL),
-    mListLandmarkCombo(NULL),
-    mListSearchResults(NULL)
+    mListFriendCombo(nullptr),
+    mListLandmarkCombo(nullptr),
+    mListSearchResults(nullptr),
+    mParcelInfoObserver(nullptr),
+    mShowParcelInfo(false)
 {
     gFloaterWorldMap = this;
 
-    mFactoryMap["objects_mapview"] = LLCallbackMap(createWorldMapView, NULL);
+    mFactoryMap["objects_mapview"] = LLCallbackMap(createWorldMapView, nullptr);
 
     mCommitCallbackRegistrar.add("WMap.Coordinates",    boost::bind(&LLFloaterWorldMap::onCoordinatesCommit, this));
     mCommitCallbackRegistrar.add("WMap.Location",       boost::bind(&LLFloaterWorldMap::onLocationCommit, this));
@@ -374,6 +418,11 @@ bool LLFloaterWorldMap::postBuild()
 // virtual
 LLFloaterWorldMap::~LLFloaterWorldMap()
 {
+    if (mParcelInfoObserver)
+    {
+        delete mParcelInfoObserver;
+    }
+
     // All cleaned up by LLView destructor
     mMapView = NULL;
 
@@ -584,9 +633,73 @@ void LLFloaterWorldMap::draw()
 // Internal utility functions
 //-------------------------------------------------------------------------
 
+void LLFloaterWorldMap::processParcelInfo(const LLParcelData& parcel_data, const LLVector3d& pos_global) const
+{
+    LLVector3d tracker_pos = LLTracker::getTrackedPositionGlobal();
+    if (!mShowParcelInfo ||
+        (tracker_pos.mdV[VX] != pos_global.mdV[VX] && tracker_pos.mdV[VY] != pos_global.mdV[VY]) ||
+        LLTracker::getTrackedLocationType() != LLTracker::LOCATION_NOTHING ||
+        LLTracker::getTrackingStatus() != LLTracker::TRACKING_LOCATION)
+    {
+        return;
+    }
+
+    LLSimInfo* sim_info = LLWorldMap::getInstance()->simInfoFromPosGlobal(pos_global);
+    if (!sim_info)
+    {
+        return;
+    }
+
+    std::string sim_name = sim_info->getName();
+    U32 locX, locY;
+    from_region_handle(sim_info->getHandle(), &locX, &locY);
+    F32 region_x = (F32)(pos_global.mdV[VX] - locX);
+    F32 region_y = (F32)(pos_global.mdV[VY] - locY);
+    std::string full_name = llformat("%s (%d, %d, %d)",
+        sim_name.c_str(),
+        ll_round(region_x),
+        ll_round(region_y),
+        ll_round((F32)pos_global.mdV[VZ]));
+
+    LLTracker::trackLocation(pos_global, parcel_data.name.empty() ? getString("UnnamedParcel") : parcel_data.name, full_name);
+}
+
+void LLFloaterWorldMap::requestParcelInfo(const LLVector3d& pos_global, const LLVector3d& region_origin)
+{
+    if (pos_global == mRequestedGlobalPos)
+    {
+        return;
+    }
+
+    LLViewerRegion* region = gAgent.getRegion();
+    if (!region)
+    {
+        return;
+    }
+
+    if (std::string url = region->getCapability("RemoteParcelRequest"); !url.empty())
+    {
+        mRequestedGlobalPos = pos_global;
+        if (mParcelInfoObserver)
+        {
+            delete mParcelInfoObserver;
+        }
+        mParcelInfoObserver = new LLWorldMapParcelInfoObserver(pos_global);
+
+        auto pos_region = LLVector3(pos_global - region_origin);
+        LLRemoteParcelInfoProcessor::instance().requestRegionParcelInfo(url,
+            region->getRegionID(), pos_region, pos_global,
+            mParcelInfoObserver->getObserverHandle());
+    }
+    else
+    {
+        LL_WARNS() << "Cannot request parcel details: Cap not found" << LL_ENDL;
+    }
+}
 
 void LLFloaterWorldMap::trackAvatar( const LLUUID& avatar_id, const std::string& name )
 {
+    mShowParcelInfo = false;
     LLCtrlSelectionInterface *iface = childGetSelectionInterface("friend combo");
     if (!iface) return;
 
@@ -617,6 +730,7 @@ void LLFloaterWorldMap::trackAvatar( const LLUUID& avatar_id, const std::string&
 
 void LLFloaterWorldMap::trackLandmark( const LLUUID& landmark_item_id )
 {
+    mShowParcelInfo = false;
     LLCtrlSelectionInterface *iface = childGetSelectionInterface("landmark combo");
     if (!iface) return;
 
@@ -662,6 +776,7 @@ void LLFloaterWorldMap::trackLandmark( const LLUUID& landmark_item_id )
 
 void LLFloaterWorldMap::trackEvent(const LLItemInfo &event_info)
 {
+    mShowParcelInfo = false;
     mTrackedStatus = LLTracker::TRACKING_LOCATION;
     LLTracker::trackLocation(event_info.getGlobalPosition(), event_info.getName(), event_info.getToolTip(), LLTracker::LOCATION_EVENT);
     setDefaultBtn("Teleport");
@@ -669,6 +784,7 @@ void LLFloaterWorldMap::trackEvent(const LLItemInfo &event_info)
 
 void LLFloaterWorldMap::trackGenericItem(const LLItemInfo &item)
 {
+    mShowParcelInfo = false;
     mTrackedStatus = LLTracker::TRACKING_LOCATION;
     LLTracker::trackLocation(item.getGlobalPosition(), item.getName(), item.getToolTip(), LLTracker::LOCATION_ITEM);
     setDefaultBtn("Teleport");
@@ -720,6 +836,9 @@ void LLFloaterWorldMap::trackLocation(const LLVector3d& pos_global)
     mTrackedStatus = LLTracker::TRACKING_LOCATION;
     LLWorldMap::getInstance()->cancelTracking();        // The floater is taking over the tracking
     LLTracker::trackLocation(pos_global, full_name, tooltip);
+
+    mShowParcelInfo = true;
+    requestParcelInfo(pos_global, sim_info->getGlobalOrigin());
 
     LLVector3d coord_pos = LLTracker::getTrackedPositionGlobal();
     updateTeleportCoordsDisplay( coord_pos );

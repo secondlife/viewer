@@ -6438,16 +6438,14 @@ LLViewerObject* LLPipeline::lineSegmentIntersectInWorld(const LLVector4a& start,
         }
     }
 
-    //check all avatar nametags (silly, isn't it?)
-    for (std::vector< LLCharacter* >::iterator iter = LLCharacter::sInstances.begin();
-        iter != LLCharacter::sInstances.end();
-        ++iter)
+    // check all avatar nametags (silly, isn't it?)
+    for (LLCharacter* character : LLCharacter::sInstances)
     {
-        LLVOAvatar* av = (LLVOAvatar*) *iter;
-        if (av->mNameText.notNull()
-            && av->mNameText->lineSegmentIntersect(start, local_end, position))
+        LLVOAvatar* avatar = (LLVOAvatar*)character;
+        if (avatar->mNameText.notNull() &&
+            avatar->mNameText->lineSegmentIntersect(start, local_end, position))
         {
-            drawable = av->mDrawable;
+            drawable = avatar->mDrawable;
             local_end = position;
         }
     }

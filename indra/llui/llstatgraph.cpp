@@ -100,8 +100,8 @@ void LLStatGraph::draw()
         it--;
     }
 
-    static LLColor4 default_color = LLUIColorTable::instance().getColor( "MenuDefaultBgColor" );
-    gGL.color4fv(default_color.mV);
+    static LLUIColor default_color = LLUIColorTable::instance().getColor( "MenuDefaultBgColor" );
+    gGL.color4fv(default_color.get().mV);
     gl_rect_2d(0, getRect().getHeight(), getRect().getWidth(), 0, true);
 
     gGL.color4fv(LLColor4::black.mV);

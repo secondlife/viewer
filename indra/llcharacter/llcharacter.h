@@ -255,7 +255,7 @@ public:
     U32             getSkeletonSerialNum() const        { return mSkeletonSerialNum; }
     void            setSkeletonSerialNum( U32 num ) { mSkeletonSerialNum = num; }
 
-    static std::vector< LLCharacter* > sInstances;
+    static std::list< LLCharacter* > sInstances;
     static bool sAllowInstancesChange ; //debug use
 
     virtual void    setHoverOffset(const LLVector3& hover_offset, bool send_update=true) { mHoverOffset = hover_offset; }

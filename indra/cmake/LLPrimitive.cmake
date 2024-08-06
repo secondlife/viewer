@@ -6,7 +6,6 @@ include(Boost)
 
 include_guard()
 
-add_library( ll::pcre INTERFACE IMPORTED )
 add_library( ll::minizip-ng INTERFACE IMPORTED )
 add_library( ll::libxml INTERFACE IMPORTED )
 add_library( ll::colladadom INTERFACE IMPORTED )
@@ -22,10 +21,7 @@ use_system_binary( colladadom )
 
 use_prebuilt_binary(colladadom)
 use_prebuilt_binary(minizip-ng) # needed for colladadom
-use_prebuilt_binary(pcre)
 use_prebuilt_binary(libxml2)
-
-target_link_libraries( ll::pcre INTERFACE pcrecpp pcre )
 
 if (WINDOWS)
     target_link_libraries( ll::minizip-ng INTERFACE libminizip )

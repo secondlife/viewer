@@ -465,7 +465,7 @@ LLScrollListCheck::LLScrollListCheck(const LLScrollListCell::Params& p)
         setWidth(rect.getWidth()); //check_box->getWidth();
     }
 
-    mCheckBox->setColor(p.color);
+    mCheckBox->setColor(p.color());
 }
 
 

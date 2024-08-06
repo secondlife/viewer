@@ -726,7 +726,7 @@ void gl_line_3d( const LLVector3& start, const LLVector3& end, const LLColor4& c
     }
     gGL.end();
 
-    LLRender2D::getInstance()->setLineWidth(1.f);
+    LLRender2D::setLineWidth(1.f);
 }
 
 void gl_arc_2d(F32 center_x, F32 center_y, F32 radius, S32 steps, bool filled, F32 start_angle, F32 end_angle)

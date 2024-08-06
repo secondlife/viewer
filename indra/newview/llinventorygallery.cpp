@@ -221,9 +221,10 @@ void LLInventoryGallery::setRootFolder(const LLUUID cat_id)
 
     for (const LLUUID& id : mSelectedItemIDs)
     {
-        if (mItemMap[id])
+        LLInventoryGalleryItem* item = getItem(id);
+        if (item)
         {
-            mItemMap[id]->setSelected(false);
+            item->setSelected(false);
         }
     }
 
@@ -348,7 +349,7 @@ void LLInventoryGallery::initGallery()
         mScrollPanel->addChild(mGalleryPanel);
         for (int i = 0; i < n; i++)
         {
-            addToGallery(mItemMap[cats[i]]);
+            addToGallery(getItem(cats[i]));
         }
         reArrangeRows();
         mGalleryCreated = true;
@@ -654,6 +655,16 @@ LLInventoryGalleryItem* LLInventoryGallery::buildGalleryItem(std::string name, L
     gitem->setAssetIDStr(get_searchable_UUID(&gInventory, item_id));
     gitem->setCreationDate(creation_date);
     return gitem;
+}
+
+LLInventoryGalleryItem* LLInventoryGallery::getItem(const LLUUID& id) const
+{
+    auto it = mItemMap.find(id);
+    if (it != mItemMap.end())
+    {
+        return it->second;
+    }
+    return nullptr;
 }
 
 void LLInventoryGallery::buildGalleryPanel(int row_count)
@@ -1006,14 +1017,15 @@ void LLInventoryGallery::updateItemThumbnail(LLUUID item_id)
         thumbnail_id = getOutfitImageID(item_id);
     }
 
-    if (mItemMap[item_id])
+    LLInventoryGalleryItem* item = getItem(item_id);
+    if (item)
     {
-        mItemMap[item_id]->setLoadImmediately(mLoadThumbnailsImmediately);
-        mItemMap[item_id]->setThumbnail(thumbnail_id);
+        item->setLoadImmediately(mLoadThumbnailsImmediately);
+        item->setThumbnail(thumbnail_id);
 
-        bool passes_filter = checkAgainstFilters(mItemMap[item_id], mFilterSubString);
-        if((mItemMap[item_id]->isHidden() && passes_filter)
-           || (!mItemMap[item_id]->isHidden() && !passes_filter))
+        bool passes_filter = checkAgainstFilters(item, mFilterSubString);
+        if((item->isHidden() && passes_filter)
+           || (!item->isHidden() && !passes_filter))
         {
             reArrangeRows();
         }
@@ -1169,7 +1181,7 @@ void LLInventoryGallery::moveUp(MASK mask)
 
     if (mInventoryGalleryMenu && mSelectedItemIDs.size() > 0 && mItemsAddedCount > 1)
     {
-        LLInventoryGalleryItem* item = mItemMap[mLastInteractedUUID];
+        LLInventoryGalleryItem* item = getItem(mLastInteractedUUID);
         if (item)
         {
             if (mask == MASK_NONE || mask == MASK_CONTROL)
@@ -1214,7 +1226,7 @@ void LLInventoryGallery::moveDown(MASK mask)
 
     if (mInventoryGalleryMenu && mSelectedItemIDs.size() > 0 && mItemsAddedCount > 1)
     {
-        LLInventoryGalleryItem* item = mItemMap[mLastInteractedUUID];
+        LLInventoryGalleryItem* item = getItem(mLastInteractedUUID);
         if (item)
         {
             if (mask == MASK_NONE || mask == MASK_CONTROL)
@@ -1259,11 +1271,7 @@ void LLInventoryGallery::moveLeft(MASK mask)
 
     if (mInventoryGalleryMenu && mSelectedItemIDs.size() > 0 && mItemsAddedCount > 1)
     {
-        LLInventoryGalleryItem* item = mItemMap[mLastInteractedUUID];
-        if (mask == MASK_SHIFT)
-        {
-            item = mItemMap[mLastInteractedUUID];
-        }
+        LLInventoryGalleryItem* item = getItem(mLastInteractedUUID);
         if (item)
         {
             // Might be better to get item from panel
@@ -1307,7 +1315,7 @@ void LLInventoryGallery::moveRight(MASK mask)
 
     if (mInventoryGalleryMenu && mSelectedItemIDs.size() > 0 && mItemsAddedCount > 1)
     {
-        LLInventoryGalleryItem* item = mItemMap[mLastInteractedUUID];
+        LLInventoryGalleryItem* item = getItem(mLastInteractedUUID);
         if (item)
         {
             S32 n = mItemIndexMap[item];
@@ -1373,8 +1381,8 @@ void LLInventoryGallery::toggleSelectionRangeFromLast(const LLUUID target)
     {
         return;
     }
-    LLInventoryGalleryItem* last_item = mItemMap[mLastInteractedUUID];
-    LLInventoryGalleryItem* next_item = mItemMap[target];
+    LLInventoryGalleryItem* last_item = getItem(mLastInteractedUUID);
+    LLInventoryGalleryItem* next_item = getItem(target);
     if (last_item && next_item)
     {
         S32 last_idx = mItemIndexMap[last_item];
@@ -1417,9 +1425,10 @@ void LLInventoryGallery::onFocusLost()
 
     for (const LLUUID& id : mSelectedItemIDs)
     {
-        if (mItemMap[id])
+        LLInventoryGalleryItem* item = getItem(id);
+        if (item)
         {
-            mItemMap[id]->setSelected(false);
+            item->setSelected(false);
         }
     }
 }
@@ -1435,9 +1444,10 @@ void LLInventoryGallery::onFocusReceived()
         LLInventoryGalleryItem* focus_item = NULL;
         for (const LLUUID& id : mSelectedItemIDs)
         {
-            if (mItemMap[id] && !mItemMap[id]->isHidden())
+            LLInventoryGalleryItem* item = getItem(id);
+            if (item && !item->isHidden())
             {
-                focus_item = mItemMap[id];
+                focus_item = item;
                 focus_item->setSelected(true);
             }
         }
@@ -1478,9 +1488,10 @@ void LLInventoryGallery::changeItemSelection(const LLUUID& item_id, bool scroll_
 {
     for (const LLUUID& id : mSelectedItemIDs)
     {
-        if (mItemMap[id])
+        LLInventoryGalleryItem* item = getItem(id);
+        if (item)
         {
-            mItemMap[id]->setSelected(false);
+            item->setSelected(false);
         }
     }
     mSelectedItemIDs.clear();
@@ -1499,9 +1510,10 @@ void LLInventoryGallery::changeItemSelection(const LLUUID& item_id, bool scroll_
         return;
     }
 
-    if (mItemMap[item_id])
+    LLInventoryGalleryItem* item = getItem(item_id);
+    if (item)
     {
-        mItemMap[item_id]->setSelected(true);
+        item->setSelected(true);
     }
     mSelectedItemIDs.push_back(item_id);
     signalSelectionItemID(item_id);
@@ -1527,9 +1539,10 @@ void LLInventoryGallery::addItemSelection(const LLUUID& item_id, bool scroll_to_
         return;
     }
 
-    if (mItemMap[item_id])
+    LLInventoryGalleryItem* item = getItem(item_id);
+    if (item)
     {
-        mItemMap[item_id]->setSelected(true);
+        item->setSelected(true);
     }
     mSelectedItemIDs.push_back(item_id);
     signalSelectionItemID(item_id);
@@ -1552,18 +1565,20 @@ bool LLInventoryGallery::toggleItemSelection(const LLUUID& item_id, bool scroll_
     selection_deque::iterator found = std::find(mSelectedItemIDs.begin(), mSelectedItemIDs.end(), item_id);
     if (found != mSelectedItemIDs.end())
     {
-        if (mItemMap[item_id])
+        LLInventoryGalleryItem* item = getItem(item_id);
+        if (item)
         {
-            mItemMap[item_id]->setSelected(false);
+            item->setSelected(false);
         }
         mSelectedItemIDs.erase(found);
         result = false;
     }
     else
     {
-        if (mItemMap[item_id])
+        LLInventoryGalleryItem* item = getItem(item_id);
+        if (item)
         {
-            mItemMap[item_id]->setSelected(true);
+            item->setSelected(true);
         }
         mSelectedItemIDs.push_back(item_id);
         signalSelectionItemID(item_id);
@@ -1580,7 +1595,7 @@ bool LLInventoryGallery::toggleItemSelection(const LLUUID& item_id, bool scroll_
 
 void LLInventoryGallery::scrollToShowItem(const LLUUID& item_id)
 {
-    LLInventoryGalleryItem* item = mItemMap[item_id];
+    LLInventoryGalleryItem* item = getItem(item_id);
     if(item)
     {
         const LLRect visible_content_rect = mScrollPanel->getVisibleContentRect();
@@ -1610,7 +1625,7 @@ LLInventoryGalleryItem* LLInventoryGallery::getFirstSelectedItem()
     if (mSelectedItemIDs.size() > 0)
     {
         selection_deque::iterator iter = mSelectedItemIDs.begin();
-        return mItemMap[*iter];
+        return getItem(*iter);
     }
     return NULL;
 }
@@ -1768,9 +1783,10 @@ void LLInventoryGallery::paste()
     {
         for (const LLUUID& id : mSelectedItemIDs)
         {
-            if (mItemMap[id])
+            LLInventoryGalleryItem* item = getItem(id);
+            if (item)
             {
-                mItemMap[id]->setSelected(false);
+                item->setSelected(false);
             }
         }
         mSelectedItemIDs.clear();
@@ -2108,9 +2124,10 @@ void LLInventoryGallery::pasteAsLink()
     {
         for (const LLUUID& id : mSelectedItemIDs)
         {
-            if (mItemMap[id])
+            LLInventoryGalleryItem* item = getItem(id);
+            if (item)
             {
-                mItemMap[id]->setSelected(false);
+                item->setSelected(false);
             }
         }
         mSelectedItemIDs.clear();
@@ -2433,10 +2450,10 @@ void LLInventoryGallery::onGesturesChanged()
 void LLInventoryGallery::deselectItem(const LLUUID& category_id)
 {
     // Reset selection if the item is selected.
-    LLInventoryGalleryItem* item = mItemMap[category_id];
+    LLInventoryGalleryItem* item = getItem(category_id);
     if (item && item->isSelected())
     {
-        mItemMap[category_id]->setSelected(false);
+        item->setSelected(false);
         setFocus(true);
         // Todo: support multiselect
         // signalSelectionItemID(LLUUID::null);
@@ -2453,9 +2470,10 @@ void LLInventoryGallery::clearSelection()
 {
     for (const LLUUID& id: mSelectedItemIDs)
     {
-        if (mItemMap[id])
+        LLInventoryGalleryItem* item = getItem(id);
+        if (item)
         {
-            mItemMap[id]->setSelected(false);
+            item->setSelected(false);
         }
     }
     if (!mSelectedItemIDs.empty())
@@ -2863,11 +2881,13 @@ void LLInventoryGalleryItem::draw()
         LLPanel::draw();
 
         // Draw border
-        LLUIColor border_color = LLUIColorTable::instance().getColor(mSelected ? "MenuItemHighlightBgColor" : "TextFgTentativeColor", LLColor4::white);
+        static LLUIColor menu_highlighted_color = LLUIColorTable::instance().getColor("MenuItemHighlightBgColor", LLColor4::white);;
+        static LLUIColor text_fg_tentative_color = LLUIColorTable::instance().getColor("TextFgTentativeColor", LLColor4::white);;
+        const LLColor4& border_color = mSelected ? menu_highlighted_color : text_fg_tentative_color;
         LLRect border = mThumbnailCtrl->getRect();
         border.mRight = border.mRight + 1;
         border.mTop = border.mTop + 1;
-        gl_rect_2d(border, border_color.get(), false);
+        gl_rect_2d(border, border_color, false);
     }
 }
 
