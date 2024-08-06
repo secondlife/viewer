@@ -1,19 +1,33 @@
-local UI = require 'UI'
 local leap = require 'leap'
+local startup = require 'startup'
+local mapargs = require 'mapargs'
 
-local function login(username, password)
-    if username and password then
-        local userpath = '//username_combo/Combo Text Entry'
-        local passpath = '//password_edit'
-        -- first clear anything presently in those text fields
-        for _, path in pairs({userpath, passpath}) do
-            UI.click(path)
-            UI.keypress{keysym='Backsp', path=path}
-        end
-        UI.type{path=userpath, text=username}
-        UI.type{path=passpath, text=password}
+local login = {}
+
+local function ensure_login_state(op)
+    -- no point trying to login until the viewer is ready
+    startup.wait('STATE_LOGIN_WAIT')
+    -- Once we've actually started login, LLPanelLogin is destroyed, and so is
+    -- its "LLPanelLogin" listener. At that point,
+    -- leap.request("LLPanelLogin", ...) will hang indefinitely because no one
+    -- is listening on that LLEventPump any more. Intercept that case and
+    -- produce a sensible error.
+    local state = startup.state()
+    if startup.before('STATE_LOGIN_WAIT', state) then
+        error(`Can't engage login operation {op} once we've reached state {state}`, 2)
     end
-    leap.send('LLPanelLogin', {op='onClickConnect'})
+end
+
+function login.login(...)
+    ensure_login_state('login')
+    local args = mapargs('username,grid,slurl', ...)
+    args.op = 'login'
+    return leap.request('LLPanelLogin', args)
+end
+
+function login.savedLogins(grid)
+    ensure_login_state('savedLogins')
+    return leap.request('LLPanelLogin', {op='savedLogins'})['logins']
 end
 
 return login
