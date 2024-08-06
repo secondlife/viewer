@@ -112,18 +112,18 @@ class LLImageProviderInterface;
 
 typedef void (*LLUIAudioCallback)(const LLUUID& uuid);
 
-class LLUI : public LLParamSingleton<LLUI>
+class LLUI : public LLSimpleton<LLUI>
 {
+    LOG_CLASS(LLUI);
 public:
     typedef std::map<std::string, LLControlGroup*, std::less<> > settings_map_t;
 
-private:
-    LLSINGLETON(LLUI , const settings_map_t &settings,
+    LLUI(const settings_map_t &settings,
                            LLImageProviderInterface* image_provider,
                            LLUIAudioCallback audio_callback,
                            LLUIAudioCallback deferred_audio_callback);
-    LOG_CLASS(LLUI);
-public:
+    ~LLUI();
+
     //
     // Classes
     //

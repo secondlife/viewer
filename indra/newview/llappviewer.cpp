@@ -802,7 +802,7 @@ bool LLAppViewer::init()
     settings_map["floater"] = &gSavedSettings; // *TODO: New settings file
     settings_map["account"] = &gSavedPerAccountSettings;
 
-    LLUI::initParamSingleton(settings_map,
+    LLUI::createInstance(settings_map,
         LLUIImageList::getInstance(),
         ui_audio_callback,
         deferred_ui_audio_callback);
@@ -2155,6 +2155,7 @@ bool LLAppViewer::cleanup()
     LLViewerEventRecorder::deleteSingleton();
     LLWorld::deleteSingleton();
     LLVoiceClient::deleteSingleton();
+    LLUI::deleteSingleton();
 
     // It's not at first obvious where, in this long sequence, a generic cleanup
     // call OUGHT to go. So let's say this: as we migrate cleanup from
