@@ -53,7 +53,9 @@ class LLLogin::Impl
 {
 public:
     Impl():
-        mPump("login", true) // Create the module's event pump with a tweaked (unique) name.
+        // Create the module's event pump, and do not tweak the name. Multiple
+        // parties depend on this LLEventPump having exactly the name "login".
+        mPump("login", false)
     {
         mValidAuthResponse["status"]        = LLSD();
         mValidAuthResponse["errorcode"]     = LLSD();
