@@ -395,7 +395,6 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: macOS-symbols
-          path: _artifacts
       - name: Unpack Mac Symbols
         run: |
           mkdir _extracted
