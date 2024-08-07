@@ -48,8 +48,7 @@ extern LLMenuBarGL* gMenuBarView;
 
 LLUIListener::LLUIListener():
     LLEventAPI("UI",
-               "LLUICtrl::CommitCallbackRegistry listener.\n"
-               "Capable of invoking any function (with parameter) you can specify in XUI.")
+               "Operations to manipulate the viewer's user interface.")
 {
     add("call",
         "Invoke the operation named by [\"function\"], passing [\"parameter\"],\n"
@@ -70,9 +69,9 @@ LLUIListener::LLUIListener():
         &LLUIListener::getValue,
         llsd::map("path", LLSD(), "reply", LLSD()));
 
-    add("getParents",
+    add("getTopMenus",
         "List names of Top menus suitable for passing as \"parent_menu\"",
-        &LLUIListener::getParents,
+        &LLUIListener::getTopMenus,
         llsd::map("reply", LLSD::String()));
 
     LLSD required_args = llsd::map("name", LLSD(), "label", LLSD(), "reply", LLSD());
@@ -116,13 +115,15 @@ LLUIListener::LLUIListener():
     add("addToolbarBtn",
         "Add [\"btn_name\"] toolbar button to the [\"toolbar\"]:\n"
         "\"left\", \"right\", \"bottom\" (default is \"bottom\")\n"
-        "Position of the command in the original list can be specified as [\"rank\"]",
+        "Position of the command in the original list can be specified as [\"rank\"],\n"
+        "where 0 means the first item",
         &LLUIListener::addToolbarBtn,
         llsd::map("btn_name", LLSD(), "reply", LLSD()));
 
     add("removeToolbarBtn",
         "Remove [\"btn_name\"] toolbar button off the toolbar,\n"
         "return [\"rank\"] (old position) of the command in the original list,\n"
+        "rank 0 is the first position,\n"
         "rank -1 means that [\"btn_name\"] was not found",
         &LLUIListener::removeToolbarBtn,
         llsd::map("btn_name", LLSD(), "reply", LLSD()));
@@ -141,7 +142,7 @@ typedef LLUICtrl::CommitCallbackInfo cb_info;
 void LLUIListener::call(const LLSD& event)
 {
     Response response(LLSD(), event);
-    LLUICtrl::CommitCallbackInfo *info = LLUICtrl::CommitCallbackRegistry::getValue(event["function"]);
+    cb_info *info = LLUICtrl::CommitCallbackRegistry::getValue(event["function"]);
     if (!info || !info->callback_func)
     {
         return response.error(stringize("Function ", std::quoted(event["function"].asString()), " was not found"));
@@ -201,13 +202,13 @@ void LLUIListener::callables(const LLSD& event) const
             LLSD entry{ llsd::map("name", it->first) };
             switch (it->second.handle_untrusted)
             {
-            case LLUICtrl::CommitCallbackInfo::UNTRUSTED_ALLOW:
+            case cb_info::UNTRUSTED_ALLOW:
                 entry["access"] = "allow";
                 break;
-            case LLUICtrl::CommitCallbackInfo::UNTRUSTED_BLOCK:
+            case cb_info::UNTRUSTED_BLOCK:
                 entry["access"] = "block";
                 break;
-            case LLUICtrl::CommitCallbackInfo::UNTRUSTED_THROTTLE:
+            case cb_info::UNTRUSTED_THROTTLE:
                 entry["access"] = "throttle";
                 break;
             }
@@ -235,10 +236,10 @@ void LLUIListener::getValue(const LLSD& event) const
     }
 }
 
-void LLUIListener::getParents(const LLSD& event) const
+void LLUIListener::getTopMenus(const LLSD& event) const
 {
     Response response(LLSD(), event);
-    response["parents"] = llsd::toArray(
+    response["menus"] = llsd::toArray(
         *gMenuBarView->getChildList(),
         [](auto childp) {return childp->getName(); });
 }
