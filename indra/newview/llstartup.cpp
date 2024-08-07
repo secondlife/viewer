@@ -405,8 +405,6 @@ bool idle_startup()
             // Other phases get handled when startup state changes,
             // need to capture the initial state as well.
             LLStartUp::getPhases().startPhase(LLStartUp::getStartupStateString());
-            // Use our custom scheduler for coroutine scheduling.
-            llcoro::scheduler::use();
         }
 
         gViewerWindow->showCursor();
