@@ -342,6 +342,7 @@ public:
     void renderHighlight(const LLViewerObject* obj, F32 fade);
 
     void renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera& camera, LLCullResult& result, bool depth_clamp);
+    void renderSelectedFaces(const LLColor4& color);
     void renderHighlights();
     void renderDebug();
     void renderPhysicsDisplay();

@@ -3580,9 +3580,12 @@ void LLPipeline::postSort(LLCamera &camera)
     {
         mSelectedFaces.clear();
 
+        bool tex_index_changed = false;
         if (!gNonInteractive)
         {
-            LLPipeline::setRenderHighlightTextureChannel(gFloaterTools->getPanelFace()->getTextureChannelToEdit());
+            LLRender::eTexIndex tex_index = sRenderHighlightTextureChannel;
+            setRenderHighlightTextureChannel(gFloaterTools->getPanelFace()->getTextureChannelToEdit());
+            tex_index_changed = sRenderHighlightTextureChannel != tex_index;
         }
 
         // Draw face highlights for selected faces.
@@ -3604,6 +3607,24 @@ void LLPipeline::postSort(LLCamera &camera)
                 }
             } func;
             LLSelectMgr::getInstance()->getSelection()->applyToTEs(&func);
+
+            if (tex_index_changed)
+            {
+                // Rebuild geometry for all selected faces with PBR textures
+                for (const LLFace* face : gPipeline.mSelectedFaces)
+                {
+                    if (const LLViewerObject* vobj = face->getViewerObject())
+                    {
+                        if (const LLTextureEntry* tep = vobj->getTE(face->getTEOffset()))
+                        {
+                            if (tep->getGLTFRenderMaterial())
+                            {
+                                gPipeline.markRebuild(face->getDrawable(), LLDrawable::REBUILD_VOLUME);
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -3656,28 +3677,31 @@ void render_hud_elements()
     gUIProgram.unbind();
 }
 
-void LLPipeline::renderHighlights()
+static inline void bindHighlightProgram(LLGLSLShader& program)
 {
-    assertInitialized();
-
-    // Draw 3D UI elements here (before we clear the Z buffer in POOL_HUD)
-    // Render highlighted faces.
-    LLGLSPipelineAlpha gls_pipeline_alpha;
-    LLColor4 color(1.f, 1.f, 1.f, 0.5f);
-    disableLights();
-
     if ((LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_INTERFACE) > 0))
     {
-        gHighlightProgram.bind();
-        gGL.diffuseColor4f(1,1,1,0.5f);
+        program.bind();
+        gGL.diffuseColor4f(1, 1, 1, 0.5f);
+    }
+}
+
+static inline void unbindHighlightProgram(LLGLSLShader& program)
+{
+    if (LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_INTERFACE) > 0)
+    {
+        program.unbind();
+    }
+}
+
+void LLPipeline::renderSelectedFaces(const LLColor4& color)
+{
+    if (!mFaceSelectImagep)
+    {
+        mFaceSelectImagep = LLViewerTextureManager::getFetchedTexture(IMG_FACE_SELECT);
     }
 
-    if (hasRenderDebugFeatureMask(RENDER_DEBUG_FEATURE_SELECTED) && !mFaceSelectImagep)
-        {
-            mFaceSelectImagep = LLViewerTextureManager::getFetchedTexture(IMG_FACE_SELECT);
-        }
-
-    if (hasRenderDebugFeatureMask(RENDER_DEBUG_FEATURE_SELECTED) && (sRenderHighlightTextureChannel == LLRender::DIFFUSE_MAP))
+    if (mFaceSelectImagep)
     {
         // Make sure the selection image gets downloaded and decoded
         mFaceSelectImagep->addTextureStats((F32)MAX_IMAGE_AREA);
@@ -3693,81 +3717,61 @@ void LLPipeline::renderHighlights()
             facep->renderSelected(mFaceSelectImagep, color);
         }
     }
+}
+
+void LLPipeline::renderHighlights()
+{
+    assertInitialized();
+
+    // Draw 3D UI elements here (before we clear the Z buffer in POOL_HUD)
+    // Render highlighted faces.
+    LLGLSPipelineAlpha gls_pipeline_alpha;
+    disableLights();
 
     if (hasRenderDebugFeatureMask(RENDER_DEBUG_FEATURE_SELECTED))
     {
-        // Paint 'em red!
-        color.setVec(1.f, 0.f, 0.f, 0.5f);
+        bindHighlightProgram(gHighlightProgram);
 
+        if (sRenderHighlightTextureChannel == LLRender::DIFFUSE_MAP ||
+            sRenderHighlightTextureChannel == LLRender::BASECOLOR_MAP ||
+            sRenderHighlightTextureChannel == LLRender::METALLIC_ROUGHNESS_MAP ||
+            sRenderHighlightTextureChannel == LLRender::GLTF_NORMAL_MAP ||
+            sRenderHighlightTextureChannel == LLRender::EMISSIVE_MAP ||
+            sRenderHighlightTextureChannel == LLRender::NUM_TEXTURE_CHANNELS)
+        {
+            static const LLColor4 highlight_selected_color(1.f, 1.f, 1.f, 0.5f);
+            renderSelectedFaces(highlight_selected_color);
+        }
+
+        // Paint 'em red!
+        static const LLColor4 highlight_face_color(1.f, 0.f, 0.f, 0.5f);
         for (auto facep : mHighlightFaces)
         {
-            facep->renderSelected(LLViewerTexture::sNullImagep, color);
+            facep->renderSelected(LLViewerTexture::sNullImagep, highlight_face_color);
         }
+
+        unbindHighlightProgram(gHighlightProgram);
     }
 
     // Contains a list of the faces of objects that are physical or
     // have touch-handlers.
     mHighlightFaces.clear();
 
-    if (LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_INTERFACE) > 0)
+    if (hasRenderDebugFeatureMask(RENDER_DEBUG_FEATURE_SELECTED))
     {
-        gHighlightProgram.unbind();
-    }
-
-
-    if (hasRenderDebugFeatureMask(RENDER_DEBUG_FEATURE_SELECTED) && (sRenderHighlightTextureChannel == LLRender::NORMAL_MAP))
-    {
-        color.setVec(1.0f, 0.5f, 0.5f, 0.5f);
-        if ((LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_INTERFACE) > 0))
+        if (sRenderHighlightTextureChannel == LLRender::NORMAL_MAP)
         {
-            gHighlightNormalProgram.bind();
-            gGL.diffuseColor4f(1,1,1,0.5f);
+            static const LLColor4 highlight_normal_color(1.0f, 0.5f, 0.5f, 0.5f);
+            bindHighlightProgram(gHighlightNormalProgram);
+            renderSelectedFaces(highlight_normal_color);
+            unbindHighlightProgram(gHighlightNormalProgram);
         }
-
-        mFaceSelectImagep->addTextureStats((F32)MAX_IMAGE_AREA);
-
-        for (auto facep : mSelectedFaces)
+        else if (sRenderHighlightTextureChannel == LLRender::SPECULAR_MAP)
         {
-            if (!facep || facep->getDrawable()->isDead())
-            {
-                LL_ERRS() << "Bad face on selection" << LL_ENDL;
-                return;
-            }
-
-            facep->renderSelected(mFaceSelectImagep, color);
-        }
-
-        if ((LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_INTERFACE) > 0))
-        {
-            gHighlightNormalProgram.unbind();
-        }
-    }
-
-    if (hasRenderDebugFeatureMask(RENDER_DEBUG_FEATURE_SELECTED) && (sRenderHighlightTextureChannel == LLRender::SPECULAR_MAP))
-    {
-        color.setVec(0.0f, 0.3f, 1.0f, 0.8f);
-        if ((LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_INTERFACE) > 0))
-        {
-            gHighlightSpecularProgram.bind();
-            gGL.diffuseColor4f(1,1,1,0.5f);
-        }
-
-        mFaceSelectImagep->addTextureStats((F32)MAX_IMAGE_AREA);
-
-        for (auto facep : mSelectedFaces)
-        {
-            if (!facep || facep->getDrawable()->isDead())
-            {
-                LL_ERRS() << "Bad face on selection" << LL_ENDL;
-                return;
-            }
-
-            facep->renderSelected(mFaceSelectImagep, color);
-        }
-
-        if ((LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_INTERFACE) > 0))
-        {
-            gHighlightSpecularProgram.unbind();
+            static const LLColor4 highlight_specular_color(0.0f, 0.3f, 1.0f, 0.8f);
+            bindHighlightProgram(gHighlightSpecularProgram);
+            renderSelectedFaces(highlight_specular_color);
+            unbindHighlightProgram(gHighlightSpecularProgram);
         }
     }
 }
@@ -6256,7 +6260,10 @@ bool LLPipeline::getRenderHighlights()
 // static
 void LLPipeline::setRenderHighlightTextureChannel(LLRender::eTexIndex channel)
 {
-    sRenderHighlightTextureChannel = channel;
+    if (channel != sRenderHighlightTextureChannel)
+    {
+        sRenderHighlightTextureChannel = channel;
+    }
 }
 
 LLVOPartGroup* LLPipeline::lineSegmentIntersectParticle(const LLVector4a& start, const LLVector4a& end, LLVector4a* intersection,
