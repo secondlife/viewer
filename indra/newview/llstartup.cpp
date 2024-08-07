@@ -48,7 +48,6 @@
 #include "llaudioengine_openal.h"
 #endif
 
-#include "coro_scheduler.h"
 #include "llavatarnamecache.h"
 #include "llexperiencecache.h"
 #include "lllandmark.h"

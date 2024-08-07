@@ -29,6 +29,7 @@
 #include "llappviewer.h"
 
 // Viewer includes
+#include "coro_scheduler.h"
 #include "llversioninfo.h"
 #include "llfeaturemanager.h"
 #include "lluictrlfactory.h"
