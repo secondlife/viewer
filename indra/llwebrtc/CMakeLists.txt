@@ -31,7 +31,11 @@ add_library (llwebrtc SHARED ${llwebrtc_SOURCE_FILES})
 set_target_properties(llwebrtc PROPERTIES PUBLIC_HEADER llwebrtc.h)
 
 if (WINDOWS)
-    target_link_libraries(llwebrtc PRIVATE ll::webrtc 
+    set_target_properties(llwebrtc
+        PROPERTIES
+        LINK_FLAGS "/debug /LARGEADDRESSAWARE"
+        )
+	target_link_libraries(llwebrtc PRIVATE ll::webrtc 
                                        secur32
                                        winmm
                                        dmoguids

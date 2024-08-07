@@ -383,7 +383,7 @@ jobs:
         shell: bash
         run: |
           mkdir _artifacts
-          tar -xJf ${{ needs.build.outputs.viewer_channel }}.sym.tar.xz -C _artifacts
+          tar -xJf "${{ needs.build.outputs.viewer_channel }}.sym.tar.xz" -C _artifacts
       - name: Post Windows symbols
         if: env.BUGSPLAT_USER && env.BUGSPLAT_PASS
         uses: Bugsplat-Git/symbol-upload@v9.1.1
