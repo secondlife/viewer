@@ -395,7 +395,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: macOS-symbols
-      - name: Post Mac Executable symbols
+      - name: Post Mac symbols
         if: env.BUGSPLAT_USER && env.BUGSPLAT_PASS
         uses: Bugsplat-Git/symbol-upload@v9.1.1
         with:
@@ -406,17 +406,6 @@ jobs:
           version: ${{ needs.build.outputs.viewer_version }}
           directory: .
           files: "**/*.xcarchive.zip"
-      - name: Post Mac Dylib symbols
-        if: env.BUGSPLAT_USER && env.BUGSPLAT_PASS
-        uses: Bugsplat-Git/symbol-upload@v9.1.1
-        with:
-          username: ${{ env.BUGSPLAT_USER }}
-          password: ${{ env.BUGSPLAT_PASS }}
-          database: "SecondLife_Viewer_2018"
-          application: ${{ needs.build.outputs.viewer_channel }}
-          version: ${{ needs.build.outputs.viewer_version }}
-          directory: _extracted
-          files: "**/*.dylib"
 
   release:
     needs: [setvar, build, sign-and-package-windows, sign-and-package-mac]
