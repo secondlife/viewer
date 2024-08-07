@@ -290,27 +290,77 @@ private:
     F32     getCurrentShinyOffsetU();
     F32     getCurrentShinyOffsetV();
 
-    LLTextureCtrl* mPBRTextureCtrl = nullptr;
-    LLTextureCtrl* mTextureCtrl = nullptr;
-    LLTextureCtrl* mShinyTextureCtrl = nullptr;
-    LLTextureCtrl* mBumpyTextureCtrl = nullptr;
-    LLColorSwatchCtrl* mColorSwatch = nullptr;
-    LLColorSwatchCtrl* mShinyColorSwatch = nullptr;
+    LLTextureCtrl* mPBRTextureCtrl { nullptr };
+    LLTextureCtrl* mTextureCtrl { nullptr };
+    LLTextureCtrl* mShinyTextureCtrl { nullptr };
+    LLTextureCtrl* mBumpyTextureCtrl { nullptr };
+    LLTextBox* mLabelColor { nullptr };
+    LLColorSwatchCtrl* mColorSwatch { nullptr };
+    LLTextBox* mLabelShiniColor { nullptr };
+    LLColorSwatchCtrl* mShinyColorSwatch { nullptr };
 
-    LLComboBox* mComboTexGen = nullptr;
+    LLTextBox* mLabelTexGen { nullptr };
+    LLComboBox* mComboTexGen { nullptr };
 
-    LLRadioGroup* mRadioMaterialType = nullptr;
-    LLRadioGroup* mRadioPbrType = nullptr;
+    LLRadioGroup* mRadioMaterialType { nullptr };
+    LLRadioGroup* mRadioPbrType { nullptr };
 
-    LLCheckBoxCtrl* mCheckFullbright = nullptr;
+    LLCheckBoxCtrl* mCheckFullbright { nullptr };
 
-    LLTextBox* mLabelColorTransp = nullptr;
-    LLSpinCtrl* mCtrlColorTransp = nullptr;       // transparency = 1 - alpha
+    LLTextBox* mLabelColorTransp { nullptr };
+    LLSpinCtrl* mCtrlColorTransp { nullptr }; // transparency = 1 - alpha
 
-    LLSpinCtrl* mCtrlGlow = nullptr;
-    LLComboBox *mComboMatMedia = nullptr;
-    LLMediaCtrl *mTitleMedia = nullptr;
-    LLTextBox *mTitleMediaText = nullptr;
+    LLTextBox* mLabelGlow { nullptr };
+    LLSpinCtrl* mCtrlGlow { nullptr };
+    LLComboBox* mComboMatMedia { nullptr };
+    LLMediaCtrl* mTitleMedia { nullptr };
+    LLTextBox* mTitleMediaText { nullptr };
+
+    LLTextBox* mLabelMatPermLoading { nullptr };
+    LLCheckBoxCtrl* mCheckSyncSettings { nullptr };
+
+    LLTextBox* mLabelBumpiness { nullptr };
+    LLComboBox* mComboBumpiness { nullptr };
+    LLTextBox* mLabelShininess { nullptr };
+    LLComboBox* mComboShininess { nullptr };
+    LLTextBox* mLabelAlphaMode { nullptr };
+    LLComboBox* mComboAlphaMode { nullptr };
+    LLSpinCtrl* mTexScaleU { nullptr };
+    LLSpinCtrl* mTexScaleV { nullptr };
+    LLSpinCtrl* mTexRotate { nullptr };
+    LLSpinCtrl* mTexRepeat { nullptr };
+    LLSpinCtrl* mTexOffsetU { nullptr };
+    LLSpinCtrl* mTexOffsetV { nullptr };
+    LLCheckBoxCtrl* mPlanarAlign{ nullptr };
+    LLSpinCtrl* mBumpyScaleU { nullptr };
+    LLSpinCtrl* mBumpyScaleV { nullptr };
+    LLSpinCtrl* mBumpyRotate { nullptr };
+    LLSpinCtrl* mBumpyOffsetU { nullptr };
+    LLSpinCtrl* mBumpyOffsetV { nullptr };
+    LLSpinCtrl* mShinyScaleU { nullptr };
+    LLSpinCtrl* mShinyScaleV { nullptr };
+    LLSpinCtrl* mShinyRotate { nullptr };
+    LLSpinCtrl* mShinyOffsetU { nullptr };
+    LLSpinCtrl* mShinyOffsetV { nullptr };
+    LLTextBox* mLabelGlossiness { nullptr };
+    LLSpinCtrl* mGlossiness { nullptr };
+    LLTextBox* mLabelEnvironment { nullptr };
+    LLSpinCtrl* mEnvironment { nullptr };
+    LLTextBox* mLabelMaskCutoff { nullptr };
+    LLSpinCtrl* mMaskCutoff { nullptr };
+    LLButton* mAddMedia { nullptr };
+    LLButton* mDelMedia { nullptr };
+    LLSpinCtrl* mPBRScaleU { nullptr };
+    LLSpinCtrl* mPBRScaleV { nullptr };
+    LLSpinCtrl* mPBRRotate { nullptr };
+    LLSpinCtrl* mPBROffsetU { nullptr };
+    LLSpinCtrl* mPBROffsetV { nullptr };
+
+    LLButton* mBtnAlign { nullptr };
+    LLButton* mBtnAlignTex { nullptr };
+    LLButton* mBtnPbrFromInv { nullptr };
+    LLButton* mBtnEditBbr { nullptr };
+    LLButton* mBtnSaveBbr { nullptr };
 
     // Update visibility of controls to match current UI mode
     // (e.g. materials vs media editing)
@@ -321,6 +371,20 @@ private:
 
     // Hey look everyone, a type-safe alternative to copy and paste! :)
     //
+
+    template<class T>
+    void getChildSetCommitCallback(T*& ctrl, std::string_view name, std::function<void(LLUICtrl*, const LLSD&)> cb)
+    {
+        ctrl = this->getChild<T>(name);
+        ctrl->setCommitCallback(cb);
+    }
+
+    template<class T>
+    void getChildSetClickedCallback(T*& ctrl, std::string_view name, std::function<void(LLUICtrl*, const LLSD&)> cb)
+    {
+        ctrl = this->getChild<T>(name);
+        ctrl->setClickedCallback(cb);
+    }
 
     // Update material parameters by applying 'edit_func' to selected TEs
     //
@@ -636,6 +700,8 @@ public:
         DEF_GET_TE_STATE(LLTextureEntry::e_texgen,LLTextureEntry::e_texgen,getTexGen,LLTextureEntry::TEX_GEN_DEFAULT, false, LLTextureEntry::TEX_GEN_DEFAULT)
         DEF_GET_TE_STATE(LLColor4,const LLColor4&,getColor,LLColor4::white, false, LLColor4::black);
     };
+
+    friend struct LLPanelFaceSetTEFunctor;
 };
 
 #endif
