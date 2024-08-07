@@ -2689,11 +2689,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>1a73c476b371b62066d1c3eced249660e9467e53</string>
+              <string>fc9362865e33391d55c64d6101726da0a25d924e</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-xxhash/releases/download/v0.8.1-69ff69a/xxhash-0.8.1-69ff69a-common-69ff69a.tar.zst</string>
+              <string>https://github.com/secondlife/3p-xxhash/releases/download/v0.8.2-r1/xxhash-0.8.2-10285735820-common-10285735820.tar.zst</string>
             </map>
             <key>name</key>
             <string>common</string>
@@ -2706,7 +2706,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>copyright</key>
         <string>Copyright (c) 2012-2021 Yann Collet</string>
         <key>version</key>
-        <string>0.8.1-69ff69a</string>
+        <string>0.8.2-10285735820</string>
         <key>name</key>
         <string>xxhash</string>
         <key>description</key>
