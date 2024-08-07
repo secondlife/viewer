@@ -8839,6 +8839,7 @@ New Voice Morphs are available!
 Voice Morphs are not supported by this viewer.
 For more information about other voice morph tools, see [[FAQ_URL] this article].
     <usetemplate
+        ignoretext="Warn me about voice morph not being supported"
         name="okignore"
         yestext="OK"/>
     <tag>voice</tag>

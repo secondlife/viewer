@@ -390,15 +390,22 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
+      - name: Download Mac Symbols
+        if: env.BUGSPLAT_USER && env.BUGSPLAT_PASS
+        uses: actions/download-artifact@v4
+        with:
+          name: macOS-symbols
       - name: Post Mac symbols
         if: env.BUGSPLAT_USER && env.BUGSPLAT_PASS
-        uses: secondlife/viewer-build-util/post-bugsplat-mac@v2
+        uses: Bugsplat-Git/symbol-upload@v9.1.1
         with:
           username: ${{ env.BUGSPLAT_USER }}
           password: ${{ env.BUGSPLAT_PASS }}
           database: "SecondLife_Viewer_2018"
-          channel: ${{ needs.build.outputs.viewer_channel }}
+          application: ${{ needs.build.outputs.viewer_channel }}
           version: ${{ needs.build.outputs.viewer_version }}
+          directory: .
+          files: "**/*.xcarchive.zip"
 
   release:
     needs: [setvar, build, sign-and-package-windows, sign-and-package-mac]
