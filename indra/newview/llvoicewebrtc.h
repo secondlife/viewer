@@ -55,7 +55,7 @@ class LLWebRTCProtocolParser;
 
 class LLAvatarName;
 class LLVoiceWebRTCConnection;
-typedef boost::shared_ptr<LLVoiceWebRTCConnection> connectionPtr_t;
+typedef std::shared_ptr<LLVoiceWebRTCConnection> connectionPtr_t;
 
 extern const std::string WEBRTC_VOICE_SERVER_TYPE;
 
@@ -252,7 +252,7 @@ public:
         bool mIsModeratorMuted;
         LLUUID mRegion;
     };
-    typedef boost::shared_ptr<participantState> participantStatePtr_t;
+    typedef std::shared_ptr<participantState> participantStatePtr_t;
 
     participantStatePtr_t findParticipantByID(const std::string &channelID, const LLUUID &id);
     participantStatePtr_t addParticipantByID(const std::string& channelID, const LLUUID &id, const LLUUID& region);
@@ -265,10 +265,10 @@ public:
     class sessionState
     {
     public:
-        typedef boost::shared_ptr<sessionState> ptr_t;
-        typedef boost::weak_ptr<sessionState> wptr_t;
+        typedef std::shared_ptr<sessionState> ptr_t;
+        typedef std::weak_ptr<sessionState> wptr_t;
 
-        typedef boost::function<void(const ptr_t &)> sessionFunc_t;
+        typedef std::function<void(const ptr_t &)> sessionFunc_t;
 
         static void addSession(const std::string &channelID, ptr_t& session);
         virtual ~sessionState();
@@ -336,7 +336,7 @@ public:
                                       sessionFunc_t func);
     };
 
-    typedef boost::shared_ptr<sessionState> sessionStatePtr_t;
+    typedef std::shared_ptr<sessionState> sessionStatePtr_t;
     typedef std::map<std::string, sessionStatePtr_t> sessionMap;
 
     class estateSessionState : public sessionState
@@ -577,7 +577,7 @@ class LLVoiceWebRTCStats : public LLSingleton<LLVoiceWebRTCStats>
 class LLVoiceWebRTCConnection :
     public llwebrtc::LLWebRTCSignalingObserver,
     public llwebrtc::LLWebRTCDataObserver,
-    public boost::enable_shared_from_this<LLVoiceWebRTCConnection>
+    public std::enable_shared_from_this<LLVoiceWebRTCConnection>
 {
   public:
     LLVoiceWebRTCConnection(const LLUUID &regionID, const std::string &channelID);
