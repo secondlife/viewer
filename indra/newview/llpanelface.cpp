@@ -117,26 +117,23 @@ const S32 PBRTYPE_METALLIC_ROUGHNESS = 2; // PBR Metallic
 const S32 PBRTYPE_EMISSIVE = 3;     // PBR Emissive
 const S32 PBRTYPE_NORMAL = 4;       // PBR Normal
 
-LLGLTFMaterial::TextureInfo texture_info_from_pbrtype(S32 pbr_type)
+LLGLTFMaterial::TextureInfo LLPanelFace::getPBRTextureInfo()
 {
-    switch (pbr_type)
+    // Radiogroup [ "Complete material", "Base color", "Metallic/roughness", "Emissive", "Normal" ]
+    S32 radio_group_index = mRadioPbrType->getSelectedIndex();
+    switch (radio_group_index)
     {
     case PBRTYPE_BASE_COLOR:
         return LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR;
-        break;
     case PBRTYPE_NORMAL:
         return LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL;
-        break;
     case PBRTYPE_METALLIC_ROUGHNESS:
         return LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS;
-        break;
     case PBRTYPE_EMISSIVE:
         return LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE;
-        break;
-    default:
-        return LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT;
-        break;
     }
+    // The default value is used as a fallback
+    return LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT;
 }
 
 void LLPanelFace::updateSelectedGLTFMaterials(std::function<void(LLGLTFMaterial*)> func)
@@ -195,43 +192,77 @@ std::string USE_TEXTURE;
 
 LLRender::eTexIndex LLPanelFace::getTextureChannelToEdit()
 {
-    LLRender::eTexIndex channel_to_edit = LLRender::DIFFUSE_MAP;
-    if (mComboMatMedia)
+    S32 matmedia_selection = mComboMatMedia->getCurrentIndex();
+    switch (matmedia_selection)
     {
-        U32 matmedia_selection = mComboMatMedia->getCurrentIndex();
-        if (matmedia_selection == MATMEDIA_MATERIAL)
-        {
-            channel_to_edit = (LLRender::eTexIndex)mRadioMaterialType->getSelectedIndex();
-        }
-        if (matmedia_selection == MATMEDIA_PBR)
-        {
-            channel_to_edit = (LLRender::eTexIndex)mRadioPbrType->getSelectedIndex();
-        }
+    case MATMEDIA_MATERIAL:
+        return getMatTextureChannel();
+    case MATMEDIA_PBR:
+        return getPBRTextureChannel();
     }
+    return (LLRender::eTexIndex)0;
+}
 
-    channel_to_edit = (channel_to_edit == LLRender::NORMAL_MAP)     ? (getCurrentNormalMap().isNull()       ? LLRender::DIFFUSE_MAP : channel_to_edit) : channel_to_edit;
-    channel_to_edit = (channel_to_edit == LLRender::SPECULAR_MAP)   ? (getCurrentSpecularMap().isNull()     ? LLRender::DIFFUSE_MAP : channel_to_edit) : channel_to_edit;
-    return channel_to_edit;
+LLRender::eTexIndex LLPanelFace::getMatTextureChannel()
+{
+    // Radiogroup [ "Texture (diffuse)", "Bumpiness (normal)", "Shininess (specular)" ]
+    S32 radio_group_index = mRadioMaterialType->getSelectedIndex();
+    switch (radio_group_index)
+    {
+    case MATTYPE_DIFFUSE: // "Texture (diffuse)"
+        return LLRender::DIFFUSE_MAP;
+    case MATTYPE_NORMAL: // "Bumpiness (normal)"
+        if (getCurrentNormalMap().notNull())
+            return LLRender::NORMAL_MAP;
+        break;
+    case MATTYPE_SPECULAR: // "Shininess (specular)"
+        if (getCurrentNormalMap().notNull())
+            return LLRender::SPECULAR_MAP;
+        break;
+    }
+    // The default value is used as a fallback if no required texture is chosen
+    return (LLRender::eTexIndex)0;
+}
+
+LLRender::eTexIndex LLPanelFace::getPBRTextureChannel()
+{
+    // Radiogroup [ "Complete material", "Base color", "Metallic/roughness", "Emissive", "Normal" ]
+    S32 radio_group_index = mRadioPbrType->getSelectedIndex();
+    switch (radio_group_index)
+    {
+    case PBRTYPE_RENDER_MATERIAL_ID: // "Complete material"
+        return LLRender::NUM_TEXTURE_CHANNELS;
+    case PBRTYPE_BASE_COLOR: // "Base color"
+        return LLRender::BASECOLOR_MAP;
+    case PBRTYPE_METALLIC_ROUGHNESS: // "Metallic/roughness"
+        return LLRender::METALLIC_ROUGHNESS_MAP;
+    case PBRTYPE_EMISSIVE: // "Emissive"
+        return LLRender::EMISSIVE_MAP;
+    case PBRTYPE_NORMAL: // "Normal"
+        return LLRender::GLTF_NORMAL_MAP;
+    }
+    // The default value is used as a fallback
+    return LLRender::NUM_TEXTURE_CHANNELS;
 }
 
 LLRender::eTexIndex LLPanelFace::getTextureDropChannel()
 {
-    if (mComboMatMedia && mComboMatMedia->getCurrentIndex() == MATMEDIA_MATERIAL)
+    if (mComboMatMedia->getCurrentIndex() == MATMEDIA_MATERIAL)
     {
-        return LLRender::eTexIndex(mRadioMaterialType->getSelectedIndex());
+        return getMatTextureChannel();
     }
 
-    return LLRender::eTexIndex(MATTYPE_DIFFUSE);
+    return (LLRender::eTexIndex)0;
 }
 
 LLGLTFMaterial::TextureInfo LLPanelFace::getPBRDropChannel()
 {
     if (mComboMatMedia->getCurrentIndex() == MATMEDIA_PBR)
     {
-        return texture_info_from_pbrtype(mRadioPbrType->getSelectedIndex());
+        return getPBRTextureInfo();
     }
 
-    return texture_info_from_pbrtype(PBRTYPE_BASE_COLOR);
+    return (LLGLTFMaterial::TextureInfo)0;
 }
 
 // Things the UI provides...
@@ -388,29 +419,23 @@ bool LLPanelFace::postBuild()
     mCtrlColorTransp->setFollowsTop();
     mCtrlColorTransp->setFollowsLeft();
 
-    mCheckFullbright = getChild<LLCheckBoxCtrl>("checkbox fullbright");
-    mCheckFullbright->setCommitCallback([&](LLUICtrl*, const LLSD&) { onCommitFullbright(); });
+    getChildSetCommitCallback(mCheckFullbright, "checkbox fullbright", [&](LLUICtrl*, const LLSD&) { onCommitFullbright(); });
 
     mLabelTexGen = getChild<LLTextBox>("tex gen");
-    mComboTexGen = getChild<LLComboBox>("combobox texgen");
-    mComboTexGen->setCommitCallback([&](LLUICtrl*, const LLSD&) { onCommitTexGen(); });
+    getChildSetCommitCallback(mComboTexGen, "combobox texgen", [&](LLUICtrl*, const LLSD&) { onCommitTexGen(); });
     mComboTexGen->setFollows(FOLLOWS_LEFT | FOLLOWS_TOP);
 
-    mComboMatMedia = getChild<LLComboBox>("combobox matmedia");
-    mComboMatMedia->setCommitCallback([&](LLUICtrl*, const LLSD&) { onCommitMaterialsMedia(); });
+    getChildSetCommitCallback(mComboMatMedia, "combobox matmedia", [&](LLUICtrl*, const LLSD&) { onCommitMaterialsMedia(); });
     mComboMatMedia->selectNthItem(MATMEDIA_MATERIAL);
 
-    mRadioMaterialType = getChild<LLRadioGroup>("radio_material_type");
-    mRadioMaterialType->setCommitCallback([&](LLUICtrl*, const LLSD&) { onCommitMaterialType(); });
+    getChildSetCommitCallback(mRadioMaterialType, "radio_material_type", [&](LLUICtrl*, const LLSD&) { onCommitMaterialType(); });
     mRadioMaterialType->selectNthItem(MATTYPE_DIFFUSE);
 
-    mRadioPbrType = getChild<LLRadioGroup>("radio_pbr_type");
-    mRadioPbrType->setCommitCallback([&](LLUICtrl*, const LLSD&) { onCommitPbrType(); });
+    getChildSetCommitCallback(mRadioPbrType, "radio_pbr_type", [&](LLUICtrl*, const LLSD&) { onCommitPbrType(); });
     mRadioPbrType->selectNthItem(PBRTYPE_RENDER_MATERIAL_ID);
 
     mLabelGlow = getChild<LLTextBox>("glow label");
-    mCtrlGlow = getChild<LLSpinCtrl>("glow");
-    mCtrlGlow->setCommitCallback([&](LLUICtrl*, const LLSD&) { onCommitGlow(); });
+    getChildSetCommitCallback(mCtrlGlow, "glow", [&](LLUICtrl*, const LLSD&) { onCommitGlow(); });
 
     mMenuClipboardColor = getChild<LLMenuButton>("clipboard_color_params_btn");
     mMenuClipboardTexture = getChild<LLMenuButton>("clipboard_texture_params_btn");
@@ -2792,8 +2817,7 @@ void LLPanelFace::updateVisibility(LLViewerObject* objectp /* = nullptr */)
     bool show_bumpiness = show_material && (material_type == MATTYPE_NORMAL) && mComboMatMedia->getEnabled();
     bool show_shininess = show_material && (material_type == MATTYPE_SPECULAR) && mComboMatMedia->getEnabled();
     const bool show_pbr = mComboMatMedia->getCurrentIndex() == MATMEDIA_PBR && mComboMatMedia->getEnabled();
-    const U32 pbr_type = mRadioPbrType->getSelectedIndex();
-    const LLGLTFMaterial::TextureInfo texture_info = texture_info_from_pbrtype(pbr_type);
+    const LLGLTFMaterial::TextureInfo texture_info = getPBRTextureInfo();
     const bool show_pbr_asset = show_pbr && texture_info == LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT;
 
     mRadioMaterialType->setVisible(show_material);
@@ -4547,7 +4571,7 @@ void LLPanelFace::onCommitPlanarAlign()
 
 void LLPanelFace::updateGLTFTextureTransform(std::function<void(LLGLTFMaterial::TextureTransform*)> edit)
 {
-    const LLGLTFMaterial::TextureInfo texture_info = texture_info_from_pbrtype(mRadioPbrType->getSelectedIndex());
+    const LLGLTFMaterial::TextureInfo texture_info = getPBRTextureInfo();
     if (texture_info == LLGLTFMaterial::GLTF_TEXTURE_INFO_COUNT)
     {
         updateSelectedGLTFMaterials([&](LLGLTFMaterial* new_override)
@@ -4571,7 +4595,7 @@ void LLPanelFace::updateGLTFTextureTransform(std::function<void(LLGLTFMaterial::
 
 void LLPanelFace::setMaterialOverridesFromSelection()
 {
-    const LLGLTFMaterial::TextureInfo texture_info = texture_info_from_pbrtype(mRadioPbrType->getSelectedIndex());
+    const LLGLTFMaterial::TextureInfo texture_info = getPBRTextureInfo();
     U32 texture_info_start;
     U32 texture_info_end;
     if (texture_info == LLGLTFMaterial::TextureInfo::GLTF_TEXTURE_INFO_COUNT)
