@@ -408,13 +408,13 @@ const LLVoiceDeviceList& LLVoiceClient::getRenderDevices()
 //--------------------------------------------------
 // participants
 
-void LLVoiceClient::getParticipantList(std::set<LLUUID> &participants)
+void LLVoiceClient::getParticipantList(std::set<LLUUID> &participants) const
 {
     LLWebRTCVoiceClient::getInstance()->getParticipantList(participants);
     LLVivoxVoiceClient::getInstance()->getParticipantList(participants);
 }
 
-bool LLVoiceClient::isParticipant(const LLUUID &speaker_id)
+bool LLVoiceClient::isParticipant(const LLUUID &speaker_id) const
 {
     return LLWebRTCVoiceClient::getInstance()->isParticipant(speaker_id) ||
            LLVivoxVoiceClient::getInstance()->isParticipant(speaker_id);
@@ -718,12 +718,12 @@ void LLVoiceClient::toggleUserPTTState(void)
 //-------------------------------------------
 // nearby speaker accessors
 
-BOOL LLVoiceClient::getVoiceEnabled(const LLUUID& id)
+bool LLVoiceClient::getVoiceEnabled(const LLUUID& id) const
 {
-    return isParticipant(id) ? TRUE : FALSE;
+    return isParticipant(id);
 }
 
-std::string LLVoiceClient::getDisplayName(const LLUUID& id)
+std::string LLVoiceClient::getDisplayName(const LLUUID& id) const
 {
     std::string result = LLWebRTCVoiceClient::getInstance()->getDisplayName(id);
     if (result.empty())
