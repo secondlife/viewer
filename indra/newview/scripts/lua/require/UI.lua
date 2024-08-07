@@ -144,6 +144,10 @@ end
 --  Top menu
 -- ***************************************************************************
 
+function UI.getTopMenus()
+    return leap.request('UI', {op='getTopMenus'}).menus
+end
+
 function UI.addMenu(...)
     local args = mapargs('name,label', ...)
     args.op = 'addMenu'
