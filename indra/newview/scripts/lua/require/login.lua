@@ -27,7 +27,7 @@ end
 
 function login.savedLogins(grid)
     ensure_login_state('savedLogins')
-    return leap.request('LLPanelLogin', {op='savedLogins'})['logins']
+    return leap.request('LLPanelLogin', {op='savedLogins', grid=grid})['logins']
 end
 
 return login
