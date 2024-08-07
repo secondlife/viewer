@@ -42,7 +42,7 @@ if (WINDOWS)
 elseif (DARWIN)
     target_link_libraries(llwebrtc PRIVATE ll::webrtc)
     set_target_properties(llwebrtc PROPERTIES XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT "dwarf-with-dsym"
-                                              XCODE_ATTRIBUTE_DWARF_DSYM_FOLDER_PATH "${SYMBOLS_STAGING_DIR}")
+                                              XCODE_ATTRIBUTE_DWARF_DSYM_FOLDER_PATH "${SYMBOLS_STAGING_DIR}/${VIEWER_CHANNEL}/dSYMs")
 elseif (LINUX)
     target_link_libraries(llwebrtc PRIVATE ll::webrtc)
 endif (WINDOWS)
