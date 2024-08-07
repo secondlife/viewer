@@ -125,7 +125,10 @@ public:
         return new_material;
     }
 
+    LLGLTFMaterial::TextureInfo getPBRTextureInfo();
     LLRender::eTexIndex getTextureChannelToEdit();
+    LLRender::eTexIndex getMatTextureChannel();
+    LLRender::eTexIndex getPBRTextureChannel();
     LLRender::eTexIndex getTextureDropChannel();
     LLGLTFMaterial::TextureInfo getPBRDropChannel();
 
