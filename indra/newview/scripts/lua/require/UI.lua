@@ -150,6 +150,10 @@ function UI.addMenu(...)
     return leap.request('UI', args)
 end
 
+function UI.setMenuVisible(name, visible)
+    return leap.request('UI', {op='setMenuVisible', name=name, visible=visible})
+end
+
 function UI.addMenuBranch(...)
     local args = mapargs('name,label,parent_menu', ...)
     args.op = 'addMenuBranch'
@@ -167,6 +171,63 @@ function UI.addMenuSeparator(...)
     local args = mapargs('parent_menu', ...)
     args.op = 'addMenuSeparator'
     return leap.request('UI', args)
+end
+
+-- ***************************************************************************
+--  Toolbar buttons
+-- ***************************************************************************
+-- Clears all buttons off the toolbars
+function UI.clearAllToolbars()
+    leap.send('UI', {op='clearAllToolbars'})
+end
+
+function UI.defaultToolbars()
+    leap.send('UI', {op='defaultToolbars'})
+end
+
+-- UI.addToolbarBtn{btn_name=btn_name
+--          [, toolbar= bottom] -- left, right, bottom -- default is bottom
+--          [, rank=1]} -- position on the toolbar, starts at 0 (0 - first position, 1 - second position etc.)
+function UI.addToolbarBtn(...)
+    local args = mapargs('btn_name,toolbar,rank', ...)
+    args.op = 'addToolbarBtn'
+    return leap.request('UI', args)
+end
+
+-- Returns the rank(position) of the command in the original list
+function UI.removeToolbarBtn(btn_name)
+    return leap.request('UI', {op = 'removeToolbarBtn', btn_name=btn_name}).rank
+end
+
+function UI.getToolbarBtnNames()
+    return leap.request('UI', {op = 'getToolbarBtnNames'}).cmd_names
+end
+
+-- ***************************************************************************
+--  Floaters
+-- ***************************************************************************
+function UI.showFloater(floater_name)
+    leap.send("LLFloaterReg", {op = "showInstance", name = floater_name})
+end
+
+function UI.hideFloater(floater_name)
+    leap.send("LLFloaterReg", {op = "hideInstance", name = floater_name})
+end
+
+function UI.toggleFloater(floater_name)
+    leap.send("LLFloaterReg", {op = "toggleInstance", name = floater_name})
+end
+
+function UI.isFloaterVisible(floater_name)
+    return leap.request("LLFloaterReg", {op = "instanceVisible", name = floater_name}).visible
+end
+
+function UI.closeAllFloaters()
+    return leap.send("UI", {op = "closeAllFloaters"})
+end
+
+function UI.getFloaterNames()
+    return leap.request("LLFloaterReg", {op = "getFloaterNames"}).floaters
 end
 
 return UI
