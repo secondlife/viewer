@@ -434,7 +434,7 @@ namespace
     // data state. However, to keep the ambient resend bandwidth low we
     // expand the resend period at a geometric rate.
     //
-    constexpr U64 MSEC_PER_NSEC = 1e6;
+    constexpr U64 MSEC_PER_NSEC = 1000000;
     constexpr U64 FIRST_RESEND_PERIOD = 100 * MSEC_PER_NSEC;
     constexpr U64 RESEND_EXPANSION_RATE = 10;
     LLGameControl::State g_outerState; // from controller devices
