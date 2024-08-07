@@ -153,6 +153,8 @@ public:
     static void blockShowFloaters(bool value) { sBlockShowFloaters = value;}
 
     static U32 getVisibleFloaterInstanceCount();
+
+    static LLSD getFloaterNames();
 };
 
 #endif
