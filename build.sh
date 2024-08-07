@@ -170,7 +170,7 @@ pre_build()
         # This name is consumed by indra/newview/CMakeLists.txt. Make it
         # absolute because we've had troubles with relative pathnames.
         abs_build_dir="$(cd "$build_dir"; pwd)"
-        VIEWER_SYMBOL_FILE="$(native_path "$abs_build_dir/newview/$variant/secondlife-symbols-$symplat-${AUTOBUILD_ADDRSIZE}.tar.xz")"
+        VIEWER_SYMBOL_FILE="$(native_path "$abs_build_dir/symbols/$variant/${viewer_channel}.tar.xz")"
     fi
 
     # honor autobuild_configure_parameters same as sling-buildscripts
