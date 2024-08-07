@@ -395,10 +395,6 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: macOS-symbols
-      - name: Unpack Mac Symbols
-        run: |
-          mkdir _extracted
-          tar -xJf "${{ needs.build.outputs.viewer_channel }}.sym.tar.gz" -C _extracted
       - name: Post Mac Executable symbols
         if: env.BUGSPLAT_USER && env.BUGSPLAT_PASS
         uses: Bugsplat-Git/symbol-upload@v9.1.1
@@ -408,8 +404,8 @@ jobs:
           database: "SecondLife_Viewer_2018"
           application: ${{ needs.build.outputs.viewer_channel }}
           version: ${{ needs.build.outputs.viewer_version }}
-          directory: _extracted
-          files: "**/*.app.dSYM"
+          directory: .
+          files: "**/*.xcarchive.zip"
       - name: Post Mac Dylib symbols
         if: env.BUGSPLAT_USER && env.BUGSPLAT_PASS
         uses: Bugsplat-Git/symbol-upload@v9.1.1
