@@ -527,7 +527,7 @@ then
     if [ "${RELEASE_CRASH_REPORTING:-}" != "OFF" ]
     then
         # e.g. build-darwin-x86_64/symbols/Release/Second Life Test.xarchive.zip
-        symbol_file="${build_dir}/symbols/${variant}/${viewer_channel}.xarchive.zip"
+        symbol_file="${build_dir}/symbols/${variant}/${viewer_channel}.xcarchive.zip"
         if [[ ! -f "$symbol_file" ]]
         then
             # symbol tarball we prep for (e.g.) Breakpad
