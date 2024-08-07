@@ -1253,7 +1253,7 @@ void LLWebRTCVoiceClient::sessionState::removeParticipant(const LLWebRTCVoiceCli
                 LLWebRTCVoiceClient::getInstance()->notifyParticipantObservers();
             }
         }
-        if (mHangupOnLastLeave && (participantID != gAgentID) && (mParticipantsByUUID.size() <= 1))
+        if (mHangupOnLastLeave && (participantID != gAgentID) && (mParticipantsByUUID.size() <= 1) && LLWebRTCVoiceClient::instanceExists())
         {
             LLWebRTCVoiceClient::getInstance()->notifyStatusObservers(LLVoiceClientStatusObserver::STATUS_LEFT_CHANNEL);
         }
