@@ -1964,8 +1964,8 @@ bool LLWebRTCVoiceClient::estateSessionState::processConnectionStates()
 
         for (auto &connection : mWebRTCConnections)
         {
-            boost::shared_ptr<LLVoiceWebRTCSpatialConnection> spatialConnection =
-                boost::static_pointer_cast<LLVoiceWebRTCSpatialConnection>(connection);
+            std::shared_ptr<LLVoiceWebRTCSpatialConnection> spatialConnection =
+                std::static_pointer_cast<LLVoiceWebRTCSpatialConnection>(connection);
 
             LLUUID regionID = spatialConnection.get()->getRegionID();
 

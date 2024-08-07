@@ -29,8 +29,6 @@
 #include "llvovolume.h"
 #include "lldrawable.h"
 #include "llvoavatar.h"
-//boost
-#include "boost/make_shared.hpp"
 
 //...........
 

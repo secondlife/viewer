@@ -4973,7 +4973,7 @@ void LLVivoxVoiceClient::hangup() { leaveChannel(); }
 
 LLVoiceP2PIncomingCallInterfacePtr LLVivoxVoiceClient::getIncomingCallInterface(const LLSD &voice_call_info)
 {
-    return boost::make_shared<LLVivoxVoiceP2PIncomingCall>(voice_call_info);
+    return std::make_shared<LLVivoxVoiceP2PIncomingCall>(voice_call_info);
 }
 
 bool LLVivoxVoiceClient::answerInvite(const std::string &sessionHandle)
