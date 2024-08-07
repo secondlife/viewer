@@ -54,10 +54,13 @@ if(WINDOWS)
     set(release_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
     set(release_files
         openjp2.dll
-        libapr-1.dll
-        libaprutil-1.dll
         nghttp2.dll
         )
+
+    if(LLCOMMON_LINK_SHARED)
+        set(release_files ${release_files} libapr-1.dll)
+        set(release_files ${release_files} libaprutil-1.dll)
+    endif()
 
     # OpenSSL
     if(ADDRESS_SIZE EQUAL 64)
@@ -179,15 +182,19 @@ elseif(DARWIN)
        )
     set(release_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
     set(release_files
-        libapr-1.0.dylib
-        libapr-1.dylib
-        libaprutil-1.0.dylib
-        libaprutil-1.dylib
-        ${EXPAT_COPY}
         libndofdev.dylib
         libnghttp2.dylib
         libnghttp2.14.dylib
        )
+
+    if(LLCOMMON_LINK_SHARED)
+        set(release_files ${release_files}
+            libapr-1.0.dylib
+            libapr-1.dylib
+            libaprutil-1.0.dylib
+            libaprutil-1.dylib
+            )
+    endif()
 
     if (TARGET ll::openal)
       list(APPEND release_files libalut.dylib libopenal.dylib)
@@ -224,8 +231,6 @@ elseif(LINUX)
 
      if( USE_AUTOBUILD_3P )
          list( APPEND release_files
-                 libapr-1.so.0
-                 libaprutil-1.so.0
                  libatk-1.0.so
                  libfreetype.so.6.6.2
                  libfreetype.so.6
@@ -237,6 +242,13 @@ elseif(LINUX)
                  libgmodule-2.0.so
                  libgobject-2.0.so
                  )
+
+        if(LLCOMMON_LINK_SHARED)
+            set(release_files ${release_files}
+                libapr-1.so.0
+                libaprutil-1.so.0
+                )
+        endif()
      endif()
 
 else(WINDOWS)
