@@ -2640,6 +2640,16 @@ void LLVOAvatar::idleUpdate(LLAgent &agent, const F64 &time)
     if (thisFrame - lastRecalibrationFrame >= upd_freq)
     {
         // Only update at the start of a cycle. .
+        // update frequency = ((Num_Avatars -1 / NumberPerPeriod) + 1 ) * Periodicity
+        // Given NumberPerPeriod = 5 and Periodicity = 4
+        // | NumAvatars  | frequency |
+        // +-------------+-----------+
+        // |      1      |     4     |
+        // |      2      |     4     |
+        // |      5      |     4     |
+        // |     10      |     8     |
+        // |     25      |     20    |
+
         upd_freq = (((gObjectList.getAvatarCount() - 1) / refreshMaxPerPeriod) + 1)*refreshPeriod;
         lastRecalibrationFrame = thisFrame;
     }
@@ -2651,6 +2661,8 @@ void LLVOAvatar::idleUpdate(LLAgent &agent, const F64 &time)
     }
     else
     {
+        // Update extent if necessary.
+        // if the frame counnter + the first byte of the UUID % upd_freq = 0 then update the extent.
         mNeedsExtentUpdate = ((thisFrame + mID.mData[0]) % upd_freq == 0);        
     }
 
