@@ -3081,30 +3081,15 @@ void LLVOAvatar::idleUpdateAppearanceAnimation()
         }
         else
         {
-            F32 morph_amt = calcMorphAmount();
-            LLVisualParam *param;
-
             if (!isSelf())
             {
+                F32 morph_amt = calcMorphAmount();
                 // animate only top level params for non-self avatars
-                for (param = getFirstVisualParam();
-                     param;
-                     param = getNextVisualParam())
-                {
-                    if (param->isTweakable())
-                    {
-                        param->animate(morph_amt);
-                    }
-                }
+                animateTweakableVisualParams(morph_amt);
             }
 
             // apply all params
-            for (param = getFirstVisualParam();
-                 param;
-                 param = getNextVisualParam())
-            {
-                param->apply(avatar_sex);
-            }
+            applyAllVisualParams(avatar_sex);
 
             mLastAppearanceBlendTime = appearance_anim_time;
         }
@@ -3112,7 +3097,7 @@ void LLVOAvatar::idleUpdateAppearanceAnimation()
     }
 }
 
-F32 LLVOAvatar::calcMorphAmount()
+F32 LLVOAvatar::calcMorphAmount() const
 {
     F32 appearance_anim_time = mAppearanceMorphTimer.getElapsedTimeF32();
     F32 blend_frac = calc_bouncy_animation(appearance_anim_time / APPEARANCE_MORPH_TIME);
