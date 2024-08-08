@@ -38,18 +38,31 @@
 #include "llsurface.h"
 #include "llsurfacepatch.h"
 #include "llviewercamera.h"
+#include "llviewercontrol.h"
 #include "llviewerregion.h"
 #include "llviewershadermgr.h"
 #include "llviewertexture.h"
 
-// static
-bool LLTerrainPaintMap::bakeHeightNoiseIntoPBRPaintMapRGB(const LLViewerRegion& region, LLViewerTexture& tex)
+namespace
+{
+#ifdef SHOW_ASSERT
+void check_tex(const LLViewerTexture& tex)
 {
     llassert(tex.getComponents() == 3);
     llassert(tex.getWidth() > 0 && tex.getHeight() > 0);
     llassert(tex.getWidth() == tex.getHeight());
     llassert(tex.getPrimaryFormat() == GL_RGB);
     llassert(tex.getGLTexture());
+}
+#endif
+} // namespace
+
+// static
+bool LLTerrainPaintMap::bakeHeightNoiseIntoPBRPaintMapRGB(const LLViewerRegion& region, LLViewerTexture& tex)
+{
+#ifdef SHOW_ASSERT
+    check_tex(tex);
+#endif
 
     const LLSurface& surface = region.getLand();
     const U32 patch_count = surface.getPatchesPerEdge();
@@ -282,4 +295,105 @@ bool LLTerrainPaintMap::bakeHeightNoiseIntoPBRPaintMapRGB(const LLViewerRegion& 
     LLGLSLShader::unbind();
 
     return success;
+}
+
+// TODO: Decide when to apply the paint queue - ideally once per frame per region
+// Applies paints and then clears the paint queue
+// *NOTE The paint queue is also cleared when setting the paintmap texture
+void LLTerrainPaintMap::applyPaintQueue(LLViewerTexture& tex, LLTerrainPaintQueue& queue)
+{
+    if (queue.empty()) { return; }
+
+#ifdef SHOW_ASSERT
+    check_tex(tex);
+#endif
+
+    gGL.getTexUnit(0)->bind(tex.getGLTexture(), false, true);
+
+    const std::vector<LLTerrainPaint::ptr_t>& queue_list = queue.get();
+    for (size_t i = 0; i < queue_list.size(); ++i)
+    {
+        // It is currently the responsibility of the paint queue to convert
+        // incoming bits to the right bit depth for the paintmap (this could
+        // change in the future).
+        queue.convertBitDepths(i, 8);
+        const LLTerrainPaint::ptr_t& paint = queue_list[i];
+
+        if (paint->mData.empty()) { continue; }
+        constexpr GLint level = 0;
+        if ((paint->mStartX >= tex.getWidth() - 1) || (paint->mStartY >= tex.getHeight() - 1)) { continue; }
+        constexpr GLint miplevel = 0;
+        const S32 x_offset = paint->mStartX;
+        const S32 y_offset = paint->mStartY;
+        const S32 width = llmin(paint->mWidthX, tex.getWidth() - x_offset);
+        const S32 height = llmin(paint->mWidthY, tex.getHeight() - y_offset);
+        const U8* pixels = paint->mData.data();
+        constexpr GLenum pixformat = GL_RGB;
+        constexpr GLenum pixtype = GL_UNSIGNED_BYTE;
+        glTexSubImage2D(GL_TEXTURE_2D, miplevel, x_offset, y_offset, width, height, pixformat, pixtype, pixels);
+        stop_glerror();
+    }
+
+    // Generating mipmaps at the end...
+    glGenerateMipmap(GL_TEXTURE_2D);
+    stop_glerror();
+
+    gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+
+    queue.clear();
+}
+
+bool LLTerrainPaintQueue::enqueue(LLTerrainPaint::ptr_t& paint)
+{
+    llassert(paint);
+    if (!paint) { return false; }
+
+    // The paint struct should be pre-validated before this code is reached.
+    llassert(!paint->mData.empty());
+    // The internal paint map image is currently 8 bits, so that's the maximum
+    // allowed bit depth.
+    llassert(paint->mBitDepth > 0 && paint->mBitDepth <= 8);
+    llassert(paint->mData.size() == (LLTerrainPaint::COMPONENTS * paint->mWidthX * paint->mWidthY));
+    llassert(paint->mWidthX > 0);
+    llassert(paint->mWidthY > 0);
+#ifdef SHOW_ASSERT
+    static LLCachedControl<U32> max_texture_width(gSavedSettings, "RenderMaxTextureResolution", 2048);
+#endif
+    llassert(paint->mWidthX <= max_texture_width);
+    llassert(paint->mWidthY <= max_texture_width);
+    llassert(paint->mStartX < max_texture_width);
+    llassert(paint->mStartY < max_texture_width);
+
+    mList.push_back(paint);
+    return true;
+}
+
+bool LLTerrainPaintQueue::empty() const
+{
+    return mList.empty();
+}
+
+void LLTerrainPaintQueue::clear()
+{
+    mList.clear();
+}
+
+void LLTerrainPaintQueue::convertBitDepths(size_t index, U8 target_bit_depth)
+{
+    llassert(target_bit_depth > 0 && target_bit_depth <= 8);
+    llassert(index < mList.size());
+
+    LLTerrainPaint::ptr_t& paint = mList[index];
+    if (paint->mBitDepth == target_bit_depth) { return; }
+
+    const F32 old_bit_max = F32((1 << paint->mBitDepth) - 1);
+    const F32 new_bit_max = F32((1 << target_bit_depth) - 1);
+    const F32 bit_conversion_factor = new_bit_max / old_bit_max;
+
+    for (U8& color : paint->mData)
+    {
+        color = (U8)llround(F32(color) * bit_conversion_factor);
+    }
+
+    paint->mBitDepth = target_bit_depth;
 }

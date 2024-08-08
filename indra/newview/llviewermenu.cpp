@@ -117,6 +117,7 @@
 #include "lltoolmgr.h"
 #include "lltoolpie.h"
 #include "lltoolselectland.h"
+#include "llterrainpaintmap.h"
 #include "lltrans.h"
 #include "llviewerdisplay.h" //for gWindowResized
 #include "llviewergenericmessage.h"
@@ -1443,6 +1444,50 @@ class LLAdvancedTerrainCreateLocalPaintMap : public view_listener_t
         // causes LLDrawPoolTerrain to use a blank paintmap instead.
         if (!success) { tex = nullptr; }
         gLocalTerrainMaterials.setPaintMap(tex);
+
+        return true;
+    }
+};
+
+class LLAdvancedTerrainEditLocalPaintMap : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata)
+    {
+        LLViewerTexture* tex = gLocalTerrainMaterials.getPaintMap();
+        if (!tex)
+        {
+            LL_WARNS() << "No local paint map available to edit" << LL_ENDL;
+            return false;
+        }
+
+        LLTerrainPaintQueue& paint_queue = gLocalTerrainMaterials.getPaintQueue();
+
+        // Enqueue a paint
+        // Overrides an entire region patch with the material in the last slot
+        // It is currently the responsibility of the paint queue to convert
+        // incoming bits to the right bit depth for the paintmap (this could
+        // change in the future).
+        LLTerrainPaint::ptr_t paint = std::make_shared<LLTerrainPaint>();
+        const U16 width = U16(tex->getWidth() / 16);
+        paint->mStartX = width - 1;
+        paint->mStartY = width - 1;
+        paint->mWidthX = width;
+        paint->mWidthY = width;
+        constexpr U8 bit_depth = 5;
+        paint->mBitDepth = bit_depth;
+        constexpr U8 max_value = (1 << bit_depth) - 1;
+        const size_t pixel_count = width * width;
+        paint->mData.resize(LLTerrainPaint::COMPONENTS * pixel_count);
+        for (size_t pixel = 0; pixel < pixel_count; ++pixel)
+        {
+            paint->mData[(LLTerrainPaint::COMPONENTS*pixel) + LLTerrainPaint::COMPONENTS - 1] = max_value;
+        }
+        paint_queue.enqueue(paint);
+
+        // Apply the paint queue ad-hoc right here for now.
+        // *TODO: Eventually the paint queue should be applied at a predictable
+        // time in the viewer frame loop.
+        LLTerrainPaintMap::applyPaintQueue(*tex, paint_queue);
 
         return true;
     }
@@ -9813,6 +9858,7 @@ void initialize_menus()
     // Develop > Terrain
     view_listener_t::addMenu(new LLAdvancedRebuildTerrain(), "Advanced.RebuildTerrain");
     view_listener_t::addMenu(new LLAdvancedTerrainCreateLocalPaintMap(), "Advanced.TerrainCreateLocalPaintMap");
+    view_listener_t::addMenu(new LLAdvancedTerrainEditLocalPaintMap(), "Advanced.TerrainEditLocalPaintMap");
     view_listener_t::addMenu(new LLAdvancedTerrainDeleteLocalPaintMap(), "Advanced.TerrainDeleteLocalPaintMap");
 
     // Advanced > UI

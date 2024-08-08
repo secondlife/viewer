@@ -28,6 +28,7 @@
 
 class LLViewerRegion;
 class LLViewerTexture;
+class LLTerrainPaintQueue;
 
 class LLTerrainPaintMap
 {
@@ -39,4 +40,41 @@ public:
     // to type TERRAIN_PAINT_TYPE_PBR_PAINTMAP.
     // Returns true if successful
     static bool bakeHeightNoiseIntoPBRPaintMapRGB(const LLViewerRegion& region, LLViewerTexture& tex);
+
+    static void applyPaintQueue(LLViewerTexture& tex, LLTerrainPaintQueue& queue);
+};
+
+// Enqueued paint operations, in texture coordinates.
+// data is always RGB, with each U8 storing one color in the provided bit depth.
+class LLTerrainPaint
+{
+public:
+    using ptr_t = std::shared_ptr<LLTerrainPaint>;
+
+    U16 mStartX;
+    U16 mStartY;
+    U16 mWidthX;
+    U16 mWidthY;
+    U8 mBitDepth;
+    static const U8 COMPONENTS = 3;
+    std::vector<U8> mData;
+};
+
+class LLTerrainPaintQueue
+{
+public:
+    bool enqueue(LLTerrainPaint::ptr_t& paint);
+    bool empty() const;
+    void clear();
+
+    const std::vector<LLTerrainPaint::ptr_t>& get() const { return mList; }
+
+    // Convert mBitDepth for the LLTerrainPaint in the queue at index
+    // It is currently the responsibility of the paint queue to convert
+    // incoming bits to the right bit depth for the paintmap (this could
+    // change in the future).
+    void convertBitDepths(size_t index, U8 target_bit_depth);
+
+private:
+    std::vector<LLTerrainPaint::ptr_t> mList;
 };
