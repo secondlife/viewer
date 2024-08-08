@@ -46,11 +46,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>dc4a38439f90325b406ec3f7cc4fa66edf0eeec8</string>
+              <string>058ffb9080ac03abd8ecd1f57fcc1160351c71ed</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-apr_suite/releases/download/v1.7.2-e935465/apr_suite-1.7.2-e935465-darwin64-e935465.tar.zst</string>
+              <string>https://github.com/secondlife/3p-apr_suite/releases/download/v1.7.4-r1/apr_suite-1.7.4-10278668642-darwin64-10278668642.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -60,9 +60,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>84a1a140f20b25d714949185e854d14b</string>
+              <string>272d97471f6ecf6e1eb4802f353d1f8c6f024eb3</string>
+              <key>hash_algorithm</key>
+              <string>sha1</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/4811/15302/apr_suite-1.4.5.504800-linux64-504800.tar.bz2</string>
+              <string>https://github.com/secondlife/3p-apr_suite/releases/download/v1.7.4-r1/apr_suite-1.7.4-10278668642-linux64-10278668642.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -72,11 +74,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8233de9a11f323a03d569db1043ba5198176457b</string>
+              <string>587b0b61ecff2ac55cfbcb8e57a7b07c844a0069</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-apr_suite/releases/download/v1.7.2-e935465/apr_suite-1.7.2-e935465-windows64-e935465.tar.zst</string>
+              <string>https://github.com/secondlife/3p-apr_suite/releases/download/v1.7.4-r1/apr_suite-1.7.4-10278668642-windows64-10278668642.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -89,7 +91,7 @@
         <key>copyright</key>
         <string>Copyright © 2012 The Apache Software Foundation, Licensed under the Apache License, Version 2.0.</string>
         <key>version</key>
-        <string>1.7.2-e935465</string>
+        <string>1.7.4-10278668642</string>
         <key>name</key>
         <string>apr_suite</string>
         <key>description</key>
@@ -524,11 +526,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b85526ca80b6a7e73c7870285cf68d568f742095</string>
+              <string>bd61ec7787ea96d11f735afa5a6296ed175472b6</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-expat/releases/download/v2.1.1.1f36d02/expat-2.1.1.1f36d02-darwin64-1f36d02.tar.zst</string>
+              <string>https://github.com/secondlife/3p-expat/releases/download/v2.6.2-r4/expat-2.6.2-r4-darwin64-10278332617.tar.zst</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -538,11 +540,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4cd82e2dec06ddff19e9b3dc0254f2593ec80452</string>
+              <string>acf891bda4125a92f6347e69f0e7867f32cebd20</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-expat/releases/download/v2.1.1.1f36d02/expat-2.1.1.1f36d02-linux64-1f36d02.tar.zst</string>
+              <string>https://github.com/secondlife/3p-expat/releases/download/v2.6.2-r4/expat-2.6.2-r4-linux64-10278332617.tar.zst</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -552,11 +554,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>47c01a89bc32c5740efe51be43e459ffd9b7cd34</string>
+              <string>1b9c198626fca0f30fb2770856e65767a9951683</string>
               <key>hash_algorithm</key>
               <string>sha1</string>
               <key>url</key>
-              <string>https://github.com/secondlife/3p-expat/releases/download/v2.1.1.1f36d02/expat-2.1.1.1f36d02-windows64-1f36d02.tar.zst</string>
+              <string>https://github.com/secondlife/3p-expat/releases/download/v2.6.2-r4/expat-2.6.2-r4-windows64-10278332617.tar.zst</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -567,9 +569,9 @@
         <key>license_file</key>
         <string>LICENSES/expat.txt</string>
         <key>copyright</key>
-        <string>Copyright (c) 1998, 1999, 2000 Thai Open Source Software Center Ltd and Clark Cooper - Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006 Expat maintainers.</string>
+        <string>Copyright (c) 1998-2000 Thai Open Source Software Center Ltd and Clark Cooper - Copyright (c) 2001-2022 Expat maintainers.</string>
         <key>version</key>
-        <string>2.1.1.1f36d02</string>
+        <string>2.6.2-r4</string>
         <key>name</key>
         <string>expat</string>
         <key>description</key>
