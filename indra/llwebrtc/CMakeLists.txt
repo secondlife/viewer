@@ -31,7 +31,11 @@ add_library (llwebrtc SHARED ${llwebrtc_SOURCE_FILES})
 set_target_properties(llwebrtc PROPERTIES PUBLIC_HEADER llwebrtc.h)
 
 if (WINDOWS)
-    target_link_libraries(llwebrtc PRIVATE ll::webrtc 
+    set_target_properties(llwebrtc
+        PROPERTIES
+        LINK_FLAGS "/debug /LARGEADDRESSAWARE"
+        )
+	target_link_libraries(llwebrtc PRIVATE ll::webrtc 
                                        secur32
                                        winmm
                                        dmoguids
@@ -39,10 +43,15 @@ if (WINDOWS)
                                        msdmo
                                        strmiids
                                        iphlpapi)
+    if (USE_BUGSPLAT)
+        set_target_properties(llwebrtc PROPERTIES PDB_OUTPUT_DIRECTORY "${SYMBOLS_STAGING_DIR}/${VIEWER_CHANNEL}")
+    endif (USE_BUGSPLAT)
 elseif (DARWIN)
     target_link_libraries(llwebrtc PRIVATE ll::webrtc)
-    set_target_properties(llwebrtc PROPERTIES XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT "dwarf-with-dsym"
-                                              XCODE_ATTRIBUTE_DWARF_DSYM_FOLDER_PATH "${SYMBOLS_STAGING_DIR}/${VIEWER_CHANNEL}/dSYMs")
+    if (USE_BUGSPLAT)
+        set_target_properties(llwebrtc PROPERTIES XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT "dwarf-with-dsym"
+                                                  XCODE_ATTRIBUTE_DWARF_DSYM_FOLDER_PATH "${SYMBOLS_STAGING_DIR}/${VIEWER_CHANNEL}/dSYMs")
+    endif (USE_BUGSPLAT)
 elseif (LINUX)
     target_link_libraries(llwebrtc PRIVATE ll::webrtc)
 endif (WINDOWS)
