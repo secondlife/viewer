@@ -245,6 +245,24 @@ public:
     S32             getVisualParamCount() const { return (S32)mVisualParamIndexMap.size(); }
     LLVisualParam*  getVisualParam(const char *name);
 
+    void animateTweakableVisualParams(F32 delta)
+    {
+        for (auto& it : mVisualParamIndexMap)
+        {
+            if (it.second->isTweakable())
+            {
+                it.second->animate(delta);
+            }
+        }
+    }
+
+    void applyAllVisualParams(ESex avatar_sex)
+    {
+        for (auto& it : mVisualParamIndexMap)
+        {
+            it.second->apply(avatar_sex);
+        }
+    }
 
     ESex getSex() const         { return mSex; }
     void setSex( ESex sex )     { mSex = sex; }
