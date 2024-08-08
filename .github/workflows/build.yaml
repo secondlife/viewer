@@ -373,6 +373,11 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
+      - name: Download viewer exe
+        uses: actions/download-artifact@v4
+        with:
+          name: Windows-app
+          path: _artifacts
       - name: Download Windows Symbols
         if: env.BUGSPLAT_USER && env.BUGSPLAT_PASS
         uses: actions/download-artifact@v4
@@ -382,7 +387,6 @@ jobs:
         if: env.BUGSPLAT_USER && env.BUGSPLAT_PASS
         shell: bash
         run: |
-          mkdir _artifacts
           tar -xJf "${{ needs.build.outputs.viewer_channel }}.sym.tar.xz" -C _artifacts
       - name: Post Windows symbols
         if: env.BUGSPLAT_USER && env.BUGSPLAT_PASS
@@ -394,7 +398,7 @@ jobs:
           application: ${{ needs.build.outputs.viewer_channel }}
           version: ${{ needs.build.outputs.viewer_version }}
           directory: _artifacts
-          files: "**/*.pdb"
+          files: "**/{SecondLifeViewer.exe,*.pdb}"
 
   post-mac-symbols:
     env:
