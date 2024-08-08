@@ -1874,6 +1874,28 @@
     <key>Value</key>
     <real>64.0</real>
   </map>
+  <key>AvatarExtentRefreshPeriodBatch</key>
+  <map>
+    <key>Comment</key>
+    <string>how many frames do we spread over by default when refreshing extents (default is 4)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>S32</string>
+    <key>Value</key>
+    <integer>4</integer>
+  </map>
+  <key>AvatarExtentRefreshMaxPerBatch</key>
+  <map>
+    <key>Comment</key>
+    <string>how many avatars do we want to handle in total per batch (default is 5)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>S32</string>
+    <key>Value</key>
+    <integer>5</integer>
+  </map>
   <key>DebugAvatarAppearanceMessage</key>
   <map>
     <key>Comment</key>
