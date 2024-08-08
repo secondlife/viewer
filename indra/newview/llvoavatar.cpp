@@ -2663,7 +2663,7 @@ void LLVOAvatar::idleUpdate(LLAgent &agent, const F64 &time)
     {
         // Update extent if necessary.
         // if the frame counnter + the first byte of the UUID % upd_freq = 0 then update the extent.
-        mNeedsExtentUpdate = ((thisFrame + mID.mData[0]) % upd_freq == 0);        
+        mNeedsExtentUpdate = ((thisFrame + mID.mData[0]) % upd_freq == 0);
     }
 
     LLScopedContextString str("avatar_idle_update " + getFullname());
