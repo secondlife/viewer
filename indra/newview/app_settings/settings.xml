@@ -2578,7 +2578,7 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>GameControl</key>
+    <key>EnableGameControl</key>
     <map>
       <key>Comment</key>
       <string>Enable GameControl feature</string>
