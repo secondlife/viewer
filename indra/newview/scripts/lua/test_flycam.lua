@@ -4,7 +4,6 @@ local LLAgent = require 'LLAgent'
 local startup = require 'startup'
 local timers = require 'timers'
 
-local initial = LLAgent.getRegionPosition()
 local height = 2.0 -- meters
 local radius = 4.0 -- meters
 local speed = 1.0 -- meters/second along circle
@@ -12,11 +11,12 @@ local start = os.clock()
 local stop  = os.clock() + 30 -- seconds
 
 local function cameraPos(t)
+    local agent = LLAgent.getRegionPosition()
     local radians = speed * t
     return {
-        initial[1] + radius * math.cos(radians),
-        initial[2] + radius * math.sin(radians),
-        initial[3] + height
+        agent[1] + radius * math.cos(radians),
+        agent[2] + radius * math.sin(radians),
+        agent[3] + height
     }
 end
 
