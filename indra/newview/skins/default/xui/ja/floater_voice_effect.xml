@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater label="場所" name="voice_effects" title="ボイスモーフィングのプレビュー">
+<floater name="voice_effects" title="ボイスモーフィングのプレビュー" label="場所">
 	<string name="no_voice_effect">
-		（ボイスモーフィングなし）
+		(ボイスモーフィングなし)
 	</string>
 	<string name="active_voice_effect">
-		（アクティブ）
+		(アクティブ)
 	</string>
 	<string name="unsubscribed_voice_effect">
-		（取消し済み）
+		(取消し済み)
 	</string>
 	<string name="new_voice_effect">
-		（新登場！）
+		(新登場!)
 	</string>
 	<string name="effect_Arena">
 		アリーナ
@@ -133,7 +133,7 @@
 		艶かしい
 	</string>
 	<string name="effect_Thunder">
-		サンダー
+		雷
 	</string>
 	<string name="effect_Vixen">
 		性悪な
@@ -142,16 +142,16 @@
 		不機嫌ボット
 	</string>
 	<text name="preview_text">
-		プレビュー
-	</text>
+        プレビュー
+    </text>
 	<text name="status_text">
-		声をテスト録音してからボイスエフェクトを1つクリックして聞いてみます。
-	</text>
+        声をテスト録音してからボイスエフェクトを1つクリックして聞いてみます。
+    </text>
 	<button label="録音" name="record_btn" tool_tip="あなたの声を録音します。"/>
 	<button label="停止" name="record_stop_btn"/>
 	<text name="voice_morphing_link">
-		[[URL] 今すぐ申し込む]
-	</text>
+        [[URL] 今すぐ申し込む]
+    </text>
 	<scroll_list name="voice_effect_list" tool_tip="声を録音してボイスモーフィングを1つクリックすると、そのエフェクトをプレビューできます。">
 		<scroll_list.columns label="ボイス名" name="name"/>
 		<scroll_list.columns label="有効期限" name="expires"/>

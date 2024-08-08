@@ -1,2 +1,116 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Test Floater" title="レイアウトスタックテスト"/>
+<floater name="Test Floater" title="レイアウトスタックテスト">
+	<layout_stack name="test_stack">
+		<layout_panel name="flex">
+			<text>
+                可変
+            </text>
+		</layout_panel>
+		<layout_panel name="flex">
+			<text>
+                可変
+            </text>
+		</layout_panel>
+		<layout_panel name="flex">
+			<text>
+                可変
+            </text>
+		</layout_panel>
+		<layout_panel name="flex">
+			<text>
+                可変
+            </text>
+		</layout_panel>
+	</layout_stack>
+	<layout_stack name="test_stack">
+		<layout_panel name="flex">
+			<text>
+                可変
+            </text>
+		</layout_panel>
+		<layout_panel name="flex">
+			<text>
+                可変
+            </text>
+		</layout_panel>
+		<layout_panel name="fixed">
+			<text>
+                固定
+            </text>
+		</layout_panel>
+		<layout_panel name="fixed">
+			<text>
+                固定
+            </text>
+		</layout_panel>
+		<layout_panel name="flex">
+			<text>
+                可変
+            </text>
+		</layout_panel>
+		<layout_panel name="flex">
+			<text>
+                可変
+            </text>
+		</layout_panel>
+		<layout_panel name="flex">
+			<text>
+                可変
+            </text>
+		</layout_panel>
+		<layout_panel name="flex">
+			<text>
+                可変
+            </text>
+		</layout_panel>
+	</layout_stack>
+	<layout_stack name="test_stack">
+		<layout_panel name="flex">
+			<text>
+                可変
+            </text>
+		</layout_panel>
+		<layout_panel name="fixed">
+			<text>
+                固定
+            </text>
+		</layout_panel>
+		<layout_panel name="flex">
+			<text>
+                可変
+            </text>
+		</layout_panel>
+	</layout_stack>
+	<layout_stack name="test_stack">
+		<layout_panel name="fixed">
+			<text>
+                固定
+            </text>
+		</layout_panel>
+		<layout_panel name="fixed">
+			<text>
+                固定
+            </text>
+		</layout_panel>
+		<layout_panel name="fixed">
+			<text>
+                固定
+            </text>
+		</layout_panel>
+		<layout_panel name="flex">
+			<text>
+                可変
+            </text>
+		</layout_panel>
+		<layout_panel name="flex">
+			<text>
+                可変
+            </text>
+		</layout_panel>
+		<layout_panel name="flex">
+			<text>
+                可変
+            </text>
+		</layout_panel>
+	</layout_stack>
+</floater>

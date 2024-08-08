@@ -18,26 +18,26 @@
 	<panel name="controls">
 		<panel name="zoom">
 			<joystick_rotate name="cam_rotate_stick" tool_tip="対象にカメラを追尾"/>
-			<button name="zoom_plus_btn"/>
-			<slider_bar tool_tip="対象にカメラをズーム"/>
-			<button name="zoom_minus_btn"/>
-			<joystick_track tool_tip="カメラを上下左右に動かします。"/>
+			<slider_bar name="zoom_slider" tool_tip="向いている方向にカメラをズーム"/>
+			<joystick_track name="cam_track_stick" tool_tip="カメラを上下左右に移動"/>
 			<text name="precise_ctrs_label">
-				数値で角度方位を指定
-			</text>
+                数値で角度方位を指定
+            </text>
 		</panel>
 	</panel>
 	<panel name="buttons_panel">
 		<panel_camera_item name="front_view" tool_tip="前方視界"/>
 		<panel_camera_item name="group_view" tool_tip="斜方視界"/>
-		<panel_camera_item name="rear_view" tool_tip="後方視界"/>
+		<panel_camera_item name="rear_view" tool_tip="後方視界">
+			<panel_camera_item.mousedown_callback tool_tip="後方視界"/>
+		</panel_camera_item>
 		<panel_camera_item name="object_view" tool_tip="オブジェクト視点"/>
 		<panel_camera_item name="mouselook_view" tool_tip="マウスルックビュー"/>
 		<combo_box name="preset_combo">
 			<combo_list mouse_wheel_opaque="true"/>
-			<combo_box.item label="プリセットを使用" name="Use preset" value="default"/>
+			<combo_box.item label="プリセットを使用" name="Use preset" value="デフォルト"/>
 		</combo_box>
 		<button name="gear_btn" tool_tip="カメラのプリセット"/>
-		<button label="プリセットを保存…" name="save_preset_btn"/>
+		<button label="プリセットを保存..." name="save_preset_btn"/>
 	</panel>
 </floater>

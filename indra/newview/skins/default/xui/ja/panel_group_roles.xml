@@ -1,19 +1,28 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="メンバーと役割" name="roles_tab">
 	<panel.string name="default_needs_apply_text">
-		保存していない変更があります。
+		保存していない変更があります
 	</panel.string>
 	<panel.string name="want_apply_text">
-		変更を保存しますか？
+		変更を保存しますか?
 	</panel.string>
 	<tab_container name="roles_tab_container">
 		<panel label="メンバー" name="members_sub_tab" tool_tip="メンバー">
 			<panel.string name="help_text">
-				ここからメンバーに役割を付与したり、削除することができます。
-Ctrlキーを押しながら、メンバー名をクリックすることで複数の人を選択できます。
+				ここからメンバーに役割を付与したり、削除できます。
+				Ctrlキーを押しながら、メンバー名をクリックすることで複数の人を選択できます。
 			</panel.string>
 			<panel.string name="donation_area">
-				[AREA]㎡
+				[AREA]m²
+			</panel.string>
+			<panel.string name="power_folder_icon">
+				Inv_FolderClosed
+			</panel.string>
+			<panel.string name="power_all_have_icon">
+				Checkbox_On
+			</panel.string>
+			<panel.string name="power_partial_icon">
+				Checkbox_Off
 			</panel.string>
 			<filter_editor label="メンバーをフィルタ" name="filter_input"/>
 			<name_list name="member_list">
@@ -24,16 +33,16 @@ Ctrlキーを押しながら、メンバー名をクリックすることで複�
 			</name_list>
 			<button label="招待" name="member_invite"/>
 			<button label="追放" name="member_eject"/>
-			<button label="メンバーの立入禁止" name="member_ban"/>
+			<button label="メンバーをバンする" name="member_ban"/>
 		</panel>
 		<panel label="役割" name="roles_sub_tab">
 			<panel.string name="help_text">
 				役割には、タイトルと許可された能力が割り当てられています。
-メンバーは１つ以上の役割を持つことができます。
-グループで使える役割は１０個までで、「全員（Everyone）」と「所有者（Owner）」がそれに含まれています。
+				メンバーは1つ以上の役割を持つことができます。
+				グループで使える役割は10個までで、「全員(Everyone)」と「所有者(Owner)」がそれに含まれています。
 			</panel.string>
 			<panel.string name="cant_delete_role">
-				「全員（Everyone）」と「所有者（Owner）」の役割は削除することができません。
+				「全員(Everyone)」と「所有者(Owner)」の役割は削除できません。
 			</panel.string>
 			<panel.string name="power_folder_icon">
 				Inv_FolderClosed
@@ -48,16 +57,15 @@ Ctrlキーを押しながら、メンバー名をクリックすることで複�
 			<scroll_list name="role_list">
 				<scroll_list.columns label="役割" name="name"/>
 				<scroll_list.columns label="タイトル" name="title"/>
-				<scroll_list.columns label="＃" name="members"/>
 			</scroll_list>
 			<button label="新しい役割" name="role_create"/>
 			<button label="役割をコピー" name="role_copy"/>
 			<button label="役割を削除" name="role_delete"/>
 		</panel>
-		<panel label="能力" name="actions_sub_tab" tool_tip="能力の説明と、その能力を実行できるロールとメンバーを表示できます。">
+		<panel label="能力" name="actions_sub_tab" tool_tip="能力の説明と、その能力を実行できる役割とメンバーを表示できます。">
 			<panel.string name="help_text">
 				能力は、ロール内のメンバーはこのグループ内で特定のことを行うことができます。
-多種多様な能力が指定可能です。
+				多種多様な能力が指定可能です。
 			</panel.string>
 			<panel.string name="power_folder_icon">
 				Inv_FolderClosed
@@ -69,94 +77,74 @@ Ctrlキーを押しながら、メンバー名をクリックすることで複�
 				Checkbox_Off
 			</panel.string>
 			<filter_editor label="能力でフィルタ" name="filter_input"/>
-			<scroll_list name="action_list" tool_tip="詳細を見るには、能力を選んでください。">
-				<scroll_list.columns label="" name="icon"/>
-				<scroll_list.columns label="" name="checkbox"/>
-				<scroll_list.columns label="" name="action"/>
-			</scroll_list>
+			<scroll_list name="action_list" tool_tip="詳細を見るには、能力を選んでください"/>
 		</panel>
 		<panel label="バンされた住民" name="banlist_sub_tab" tool_tip="このグループからバンされた住人を表示します。">
 			<panel.string name="help_text">
 				バンリストに登録された住人は、グループに参加できません。
 			</panel.string>
 			<panel.string name="ban_count_template">
-				バンされた人数：[LIMIT]人中[COUNT]人
+				バンされた人数: [COUNT] / [LIMIT]
 			</panel.string>
 			<name_list name="ban_list">
 				<name_list.columns label="住人" name="name"/>
-				<name_list.columns label="バンした日付" name="ban_date"/>
+				<name_list.columns label="バンされた日付" name="ban_date"/>
 			</name_list>
-			<button label="住人をバンする" name="ban_create" tool_tip="グループから住人をバンします。"/>
-			<button label="バンの解除" name="ban_delete" tool_tip="選択した住人のバンを解除します。"/>
-			<button label="リフレッシュ" name="ban_refresh" tool_tip="バンリストをリフレッシュします。"/>
+			<button label="住人をバンする" name="ban_create" tool_tip="グループから住人をバンする"/>
+			<button label="バンの解除" name="ban_delete" tool_tip="選択した住人のバンを解除します"/>
+			<button name="ban_refresh" tool_tip="バンリストをリフレッシュします。"/>
 			<text name="ban_count" width="100"/>
 		</panel>
 	</tab_container>
 	<panel name="members_footer">
 		<text name="static">
-			割当られた役割
-		</text>
-		<scroll_list name="member_assigned_roles">
-			<scroll_list.columns label="" name="checkbox"/>
-			<scroll_list.columns label="" name="role"/>
-		</scroll_list>
+            割当られた役割
+        </text>
 		<text name="static2">
-			許可されたアクション
-		</text>
-		<scroll_list name="member_allowed_actions" tool_tip="各能力の詳細は、能力のタブをご覧ください。">
-			<scroll_list.columns label="" name="icon"/>
-			<scroll_list.columns label="" name="checkbox"/>
-			<scroll_list.columns label="" name="action"/>
-		</scroll_list>
+            許可されたアクション
+        </text>
+		<scroll_list name="member_allowed_actions" tool_tip="各能力の詳細は能力のタブをご覧ください。"/>
 	</panel>
 	<panel name="members_header">
 		<text_editor name="member_action_description">
-			これは「このグループからメンバーを追放」する能力です。「所有者」のみが他の「所有者」を追放できます。
-		</text_editor>
+            これは「このグループからメンバーを追放」する能力です。「所有者」のみが他の「所有者」を追放できます。
+        </text_editor>
 	</panel>
 	<panel name="roles_footer">
 		<text name="static">
-			役割名
-		</text>
-		<line_editor name="role_name"/>
+            役割名
+        </text>
 		<text name="static3">
-			役割タイトル
-		</text>
-		<line_editor name="role_title"/>
+            役割タイトル
+        </text>
 		<text name="static2">
-			説明
-		</text>
-		<text_editor name="role_description"/>
+            説明
+        </text>
 		<text name="static4">
-			割当られたメンバー
-		</text>
-		<check_box label="Reveal members" name="role_visible_in_list" tool_tip="グループ外の人が一般タブを見たときに、この役割のメンバーが表示されるかどうかを設定します。"/>
-		<text name="static5" tool_tip="現在選択されている役割で実行できる能力のリスト">
-			許可された能力
-		</text>
-		<scroll_list name="role_allowed_actions" tool_tip="各能力の詳細は、能力のタブをご覧ください。">
-			<scroll_list.columns label="" name="icon"/>
-			<scroll_list.columns label="" name="checkbox"/>
-			<scroll_list.columns label="" name="action"/>
-		</scroll_list>
+            割当られたメンバー
+        </text>
+		<check_box name="role_visible_in_list" tool_tip="グループ外の人が一般タブを見たときに、この役割のメンバーが表示されるかどうかを設定します。"/>
+		<text name="static5">
+            許可された能力
+        </text>
+		<scroll_list name="role_allowed_actions" tool_tip="各能力の詳細は能力のタブをご覧ください。"/>
 	</panel>
 	<panel name="roles_header">
 		<text_editor name="role_action_description">
-			これは「このグループからメンバーを追放」する能力です。
-「所有者」のみが他の「所有者」を追放できます。
-		</text_editor>
+            これは「このグループからメンバーを追放」する能力です。
+            「所有者」のみが他の「所有者」を追放できます。
+        </text_editor>
 	</panel>
 	<panel name="actions_footer">
 		<text_editor name="action_description">
-			これは「グループからメンバーを追放する」能力です。
-「所有者」を追放できるのは、別の「所有者」だけです。
-		</text_editor>
+            これは「グループからメンバーを追放する」能力です。
+            「所有者」を追放できるのは、別の「所有者」だけです。
+        </text_editor>
 		<text name="static2">
-			この能力を持つ役割
-		</text>
+            この能力を持つ役割
+        </text>
 		<text name="static3">
-			この能力を持つメンバー
-		</text>
-		<name_list name="action_members"/>
+            この能力を持つメンバー
+        </text>
 	</panel>
 </panel>

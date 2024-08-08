@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <contents>
-	<rows enabled="false" name="editing_actions" value="">
-		<columns label="編集中" name="lst_action" value="Tool_Dozer"/>
+	<rows enabled="false" name="editing_actions">
+		<columns label="編集中" name="lst_action"/>
 	</rows>
 	<rows name="edit_avatar_spin_ccw" value="edit_avatar_spin_ccw">
 		<columns name="lst_action" tool_tip="アバターを中心にカメラを反時計回りに回します。" value="反時計回り"/>

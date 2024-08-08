@@ -2,6 +2,6 @@
 <contents>
 	<columns label="アクション" name="lst_action"/>
 	<columns label="優先コントロール" name="lst_ctrl1"/>
-	<columns label="代わり１" name="lst_ctrl2"/>
-	<columns label="代わり２" name="lst_ctrl3"/>
+	<columns label="代替1" name="lst_ctrl2"/>
+	<columns label="代替2" name="lst_ctrl3"/>
 </contents>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="toast">
+	<panel name="wrapper_panel">
+		<text name="toast_text">
+            トーストテキスト;
+        </text>
+	</panel>
+</floater>

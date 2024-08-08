@@ -4,7 +4,7 @@
 		不明
 	</floater.string>
 	<string name="postcard_progress_str">
-		メール送信
+		メール送信中
 	</string>
 	<string name="profile_progress_str">
 		プロフィールに投稿
@@ -13,22 +13,22 @@
 		インベントリに保存
 	</string>
 	<string name="local_progress_str">
-		コンピュータに保存
+		コンピュータに保存中
 	</string>
 	<string name="profile_succeeded_str">
-		画像がアップロードされました。
+		画像がアップロードされました
 	</string>
 	<string name="postcard_succeeded_str">
-		メールが送信されました！
+		メールが送信されました!
 	</string>
 	<string name="inventory_succeeded_str">
-		インベントリに保存されました！
+		インベントリに保存されました!
 	</string>
 	<string name="local_succeeded_str">
-		コンピュータに保存されました！
+		コンピュータに保存されました!
 	</string>
 	<string name="profile_failed_str">
-		フィードにアップできませんでした。
+		プロフィールフィードに画像をアップロードできませんでした。
 	</string>
 	<string name="postcard_failed_str">
 		メール送信に失敗しました。
@@ -37,62 +37,58 @@
 		インベントリに保存できませんでした。
 	</string>
 	<string name="local_failed_str">
-		コンピュータへの保存に失敗しました。
+		コンピュータに保存できませんでした。
 	</string>
-	<button label="リフレッシュ" name="new_snapshot_btn"/>
+	<button label="更新" name="new_snapshot_btn"/>
 	<panel name="advanced_options_panel">
 		<text name="layer_type_label">
-			キャプチャーオプション：
-		</text>
+            キャプチャーオプション:
+        </text>
 		<combo_box label="画像レイヤー" name="layer_types">
-			<combo_box.item label="カラー" name="Colors" value="colors"/>
-			<combo_box.item label="色深度" name="Depth" value="depth"/>
+			<combo_box.item label="カラー" name="Colors" value="カラー"/>
+			<combo_box.item label="色深度" name="Depth"/>
 		</combo_box>
 		<check_box label="インターフェース" name="ui_check"/>
-		<check_box label="ＨＵＤ" name="hud_check"/>
-		<check_box label="フレームをフリーズ（全画面）" name="freeze_frame_check"/>
+		<check_box label="HUD" name="hud_check"/>
+		<check_box label="フレームをフリーズ(全画面)" name="freeze_frame_check"/>
 		<check_box label="自動リフレッシュ" name="auto_snapshot_check"/>
 		<text name="filter_list_label">
-			フィルタ：
-		</text>
+            フィルタ:
+        </text>
 		<combo_box name="filters_combobox" tool_tip="画像フィルタ">
-			<combo_box.item label="フィルタなし" name="NoFilter" value="NoFilter"/>
+			<combo_box.item label="フィルタなし" name="NoFilter"/>
 		</combo_box>
 	</panel>
 	<panel_container name="panel_container">
-		<panel name="panel_snapshot_options" filename="panel_snapshot_options.xml"/>
+		<panel filename="panel_snapshot_options.xml" name="panel_snapshot_options"/>
 		<panel name="panel_snapshot_profile" filename="panel_snapshot_profile.xml"/>
 		<panel name="panel_snapshot_postcard" filename="panel_snapshot_postcard.xml"/>
 		<panel name="panel_snapshot_inventory" filename="panel_snapshot_inventory.xml"/>
 		<panel name="panel_snapshot_local" filename="panel_snapshot_local.xml"/>
 	</panel_container>
-	<view_border name="status_hr"/>
 	<panel name="succeeded_panel">
 		<text name="succeeded_lbl">
-			成功
-		</text>
+            成功
+        </text>
 	</panel>
 	<panel name="failed_panel">
 		<text name="failed_lbl">
-			失敗
-		</text>
+            失敗
+        </text>
 	</panel>
-	<loading_indicator name="working_indicator"/>
 	<text name="working_lbl">
-		処理中
-	</text>
+        処理中
+    </text>
 	<text name="refresh_lbl">
-		リフレッシュして保存
-	</text>
-	<ui_ctrl name="thumbnail_placeholder"/>
-	<view_border name="img_info_border"/>
+        更新して保存
+    </text>
 	<text name="image_res_text">
-		[WIDTH]px（幅）✕[HEIGHT]px（高さ）
-	</text>
+        [WIDTH]px(幅) x [HEIGHT]px(高さ)
+    </text>
 	<text name="file_size_label">
-		[SIZE]㎅
-	</text>
+        [SIZE]KB
+    </text>
 	<text name="360_label">
-		３６０度Ｓショットを撮影
-	</text>
+        360度スナップショット撮影
+    </text>
 </floater>

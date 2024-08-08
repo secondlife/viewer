@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <menu name="Popup">
-	<menu_item_call label="ＵＲＬについて" name="about_url"/>
-	<menu_item_call label="ＵＲＬにテレポートする" name="teleport_to_url"/>
+	<menu_item_call label="URLについて" name="about_url"/>
+	<menu_item_call label="URLにテレポート" name="teleport_to_url"/>
 	<menu_item_call label="マップ" name="show_on_map"/>
 </menu>

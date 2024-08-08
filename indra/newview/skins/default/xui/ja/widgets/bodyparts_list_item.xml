@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <bodyparts_list_item name="wearable_item">
-	<item_icon name="item_icon"/>
-	<item_name name="item_name" value="…"/>
 	<lock_panel name="btn_lock" tool_tip="編集権限がありません。"/>
-	<lock_icon name="btn_lock1"/>
-	<edit_panel name="btn_edit_panel"/>
 	<edit_btn name="btn_edit" tool_tip="このシェイプを編集"/>
 </bodyparts_list_item>

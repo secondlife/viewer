@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="load_pref_preset" title="プリセット設定を読み込み">
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<floater name="load_pref_preset" title="プリセット設定を読込">
 	<string name="title_graphic">
 		グラフィックのプリセットを読み込む
 	</string>
@@ -7,8 +7,7 @@
 		カメラのプリセットを読み込む
 	</string>
 	<text name="Preset">
-		プリセットを選択
-	</text>
-	<button label="ＯＫ" name="ok"/>
+        プリセットを選択
+    </text>
 	<button label="キャンセル" name="cancel"/>
 </floater>

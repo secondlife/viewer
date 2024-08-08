@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <deletable_wearable_list_item name="deletable_wearable_item">
 	<delete_btn name="btn_delete" tool_tip="アウトフィットから削除"/>
-	<item_icon name="item_icon"/>
-	<item_name name="item_name" value="…"/>
 </deletable_wearable_list_item>

@@ -4,22 +4,22 @@
 		デフォルト
 	</panel.string>
 	<string name="name_no_device">
-		機器が設定されていません。
+		機器が設定されていません
 	</string>
 	<string name="name_default_system_device">
 		デフォルトのシステム機器
 	</string>
 	<text name="Input">
-		入力
-	</text>
+        入力
+    </text>
 	<text name="Output">
-		出力
-	</text>
+        出力
+    </text>
 	<text name="My volume label">
-		マイク音量：
-	</text>
-	<slider_bar name="mic_volume_slider" tool_tip="スライダーを使ってマイクレベルを調節します。"/>
+        マイク音量:
+    </text>
+	<slider_bar name="mic_volume_slider" tool_tip="スライダーを使ってマイクレベルを調節します"/>
 	<text name="wait_text">
-		しばらくお待ちください。
-	</text>
+        しばらくお待ちください。
+    </text>
 </panel>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_experience_log" label="イベント">
 	<string name="no_events" value="イベントはありません。"/>
-	<string name="loading" value="読み込んでいます…。"/>
+	<string name="loading" value="読込中..."/>
 	<layout_stack name="ls1">
 		<layout_panel name="list panel">
 			<scroll_list name="experience_log_list">
@@ -15,8 +15,7 @@
 			<button name="btn_report_xp" label="報告"/>
 		</layout_panel>
 		<layout_panel name="button_panel">
-			<check_box label="すべてのイベント日数を通知" name="notify_all"/>
-			<spinner name="logsizespinner"/>
+			<check_box label="全てのイベント日数を通知" name="notify_all"/>
 			<button name="btn_clear" label="クリア"/>
 			<button name="btn_prev" label="⇦"/>
 			<button name="btn_next" label="⇨"/>

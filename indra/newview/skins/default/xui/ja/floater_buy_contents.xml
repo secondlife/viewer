@@ -1,22 +1,21 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater_buy_contents" title="中身の購入">
+	<floater.string name="no_copy_text">
+		(コピー不可)
+	</floater.string>
+	<floater.string name="no_modify_text">
+		(修正不可)
+	</floater.string>
+	<floater.string name="no_transfer_text">
+		(再販・譲渡不可)
+	</floater.string>
 	<text name="contains_text">
-		&lt;nolink&gt;[NAME]&lt;/nolink&gt;に含まれるもの：
-	</text>
-	<scroll_list name="item_list"/>
+        &lt;nolink&gt;[NAME]&lt;/nolink&gt; に含まれるもの:
+    </text>
 	<text name="buy_text">
-		[NAME]から、L$ [AMOUNT]で購入しますか？
-	</text>
-	<button label="キャンセル" label_selected="キャンセル" name="cancel_btn"/>
-	<button label="購入" label_selected="購入" name="buy_btn"/>
+        [NAME] から、L$[AMOUNT]で購入しますか?
+    </text>
 	<check_box label="今すぐ着る" name="wear_check"/>
-	<text name="no_copy_text">
-		（コピー不可）
-	</text>
-	<text name="no_modify_text">
-		（修正不可）
-	</text>
-	<text name="no_transfer_text">
-		（再販・譲渡不可）
-	</text>
+	<button label="購入" label_selected="購入" name="buy_btn"/>
+	<button label="キャンセル" label_selected="キャンセル" name="cancel_btn"/>
 </floater>

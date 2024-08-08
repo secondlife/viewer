@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="change_item_thumbnail" title="アイテム画像の変更">
+	<floater.string name="title_item_thumbnail">
+		アイテム画像の変更
+	</floater.string>
+	<floater.string name="title_folder_thumbnail">
+		フォルダ画像の変更
+	</floater.string>
+	<floater.string name="tooltip_upload_local">
+		コンピュータからアップロード
+	</floater.string>
+	<floater.string name="tooltip_upload_snapshot">
+		スナップショットツールを使用
+	</floater.string>
+	<floater.string name="tooltip_use_texture">
+		テクスチャを選択
+	</floater.string>
+	<floater.string name="tooltip_copy_to_clipboard">
+		クリップボードにコピー
+	</floater.string>
+	<floater.string name="tooltip_paste_from_clipboard">
+		クリップボードからペースト
+	</floater.string>
+	<floater.string name="tooltip_remove_image">
+		イメージを削除
+	</floater.string>
+	<text name="tooltip_text">
+        ツールチップ
+    </text>
+</floater>

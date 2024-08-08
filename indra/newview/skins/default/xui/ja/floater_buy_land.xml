@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="buy land" title="土地の購入">
+<floater name="buy land" title="土地を購入">
 	<floater.string name="can_resell">
 		再販可能
 	</floater.string>
@@ -20,7 +20,7 @@
 	</floater.string>
 	<floater.string name="multiple_parcels_selected">
 		複数の異なった区画を選択しました。
-これより小さな範囲を選択してください。
+		これより小さな範囲を選択してください。
 	</floater.string>
 	<floater.string name="no_permission">
 		あなたはアクティブなグループ用の土地購入を許可されていません。
@@ -29,39 +29,39 @@
 		選択された区画は販売対象外です。
 	</floater.string>
 	<floater.string name="group_already_owns">
-		グループはすでにこの区画を所有しています。
+		グループは既にこの区画を所有しています。
 	</floater.string>
 	<floater.string name="you_already_own">
-		あなたはすでにこの区画を所有しています
+		あなたは既にこの区画を所有しています
 	</floater.string>
 	<floater.string name="set_to_sell_to_other">
-		選択された区画は、他の人への販売が決まっています。
+		選択された区画は他の人への販売が決まっています。
 	</floater.string>
 	<floater.string name="no_public_land">
 		選択された地域に、公共の土地はありません。
 	</floater.string>
 	<floater.string name="not_owned_by_you">
 		他の住人が所有する土地を選択しています。
-もっと狭い範囲を選択してみてください。
+		もっと狭い範囲を選択してみてください。
 	</floater.string>
 	<floater.string name="processing">
-		購入処理中…
-（数分かかることがあります）
+		購入処理中...
+		(数分かかることがあります)
 	</floater.string>
 	<floater.string name="fetching_error">
 		土地購入の情報入手中にエラーが起きました
 	</floater.string>
 	<floater.string name="buying_will">
-		この土地を買うと：
+		この土地を買うと:
 	</floater.string>
 	<floater.string name="buying_for_group">
-		グループ用の土地の購入：
+		グループ用の土地の購入:
 	</floater.string>
 	<floater.string name="cannot_buy_now">
-		現在購入不可：
+		現在購入不可:
 	</floater.string>
 	<floater.string name="not_for_sale">
-		販売対象外：
+		販売対象外:
 	</floater.string>
 	<floater.string name="none_needed">
 		一切必要なし
@@ -73,7 +73,7 @@
 		あなたのアカウントで土地を所有できます。
 	</floater.string>
 	<floater.string name="land_holdings">
-		あなたは、[BUYER]㎡の土地を所有しています。
+		あなたは[BUYER]m²の土地を所有しています。
 	</floater.string>
 	<floater.string name="pay_to_for_land">
 		この土地の代金として、[SELLER]にL$[AMOUNT]を支払う。
@@ -82,17 +82,17 @@
 		L$[AMOUNT]を、約[LOCAL_AMOUNT]で購入します。
 	</floater.string>
 	<floater.string name="parcel_meters">
-		この区画は[AMOUNT]㎡です。
+		この区画は[AMOUNT]m²です。
 	</floater.string>
 	<floater.string name="premium_land">
-		この土地は割り増し付です。[AMOUNT]㎡の料金がかかります。
+		この土地は割り増し付です。[AMOUNT]m²の料金がかかります。
 	</floater.string>
 	<floater.string name="discounted_land">
-		この土地はディスカウントされています。[AMOUNT]㎡の料金がかかります。
+		この土地はディスカウントされています。[AMOUNT]m²の料金がかかります。
 	</floater.string>
 	<floater.string name="meters_supports_object">
-		[AMOUNT]㎡
-オブジェクト[AMOUNT2]個サポート
+		[AMOUNT]m²
+		オブジェクト [AMOUNT2]個サポート
 	</floater.string>
 	<floater.string name="sold_with_objects">
 		オブジェクト込みで販売
@@ -101,132 +101,129 @@
 		オブジェクトは含まれていません。
 	</floater.string>
 	<floater.string name="info_price_string">
-		L$ [PRICE]
-（L$ [PRICE_PER_SQM]/㎡）
-[SOLD_WITH_OBJECTS]
+		L$[PRICE]
+		(L$[PRICE_PER_SQM]/m²)
+		[SOLD_WITH_OBJECTS]
 	</floater.string>
 	<floater.string name="insufficient_land_credits">
 		この[GROUP]が区画の購入手続きを完了するには、価格に見合うだけの寄付された土地の利用実績が必要です。
 	</floater.string>
 	<floater.string name="have_enough_lindens">
-		あなたの現在の所持金L$ [AMOUNT]で、この土地を購入できます。
+		あなたの現在の所持金L$[AMOUNT]で、この土地を購入できます。
 	</floater.string>
 	<floater.string name="not_enough_lindens">
-		あなたの現在の所持金は、L$ [AMOUNT]で、L$ [AMOUNT2]不足しています。
+		あなたの現在の所持金は、L$[AMOUNT]で、L$[AMOUNT2]不足しています。
 	</floater.string>
 	<floater.string name="balance_left">
-		購入後、残額はL$ [AMOUNT]になります。
+		購入後、残額はL$[AMOUNT]になります。
 	</floater.string>
 	<floater.string name="balance_needed">
-		この土地を買うには、少なくともL$ [AMOUNT]購入する必要があります。
+		この土地を買うには、少なくともL$[AMOUNT]購入する必要があります。
 	</floater.string>
 	<floater.string name="no_parcel_selected">
-		（区画が選定されていません）
+		(区画が選定されていません)
 	</floater.string>
 	<text name="region_name_label">
-		地域：
-	</text>
+        地域(リージョン):
+    </text>
 	<text name="region_name_text">
-		（不明）
-	</text>
+        (不明)
+    </text>
 	<text name="region_type_label">
-		種類：
-	</text>
+        種類:
+    </text>
 	<text name="region_type_text">
-		（不明）
-	</text>
+        (不明)
+    </text>
 	<text name="estate_name_label">
-		不動産：
-	</text>
+        不動産:
+    </text>
 	<text name="estate_name_text">
-		（不明）
-	</text>
+        (不明)
+    </text>
 	<text name="estate_owner_label">
-		不動産オーナー：
-	</text>
+        不動産所有者:
+    </text>
 	<text name="estate_owner_text">
-		（不明）
-	</text>
+        (不明)
+    </text>
 	<text name="resellable_changeable_label">
-		このリージョン（地域）で購入した土地：
-	</text>
+        この地域(リージョン)で購入した土地:
+    </text>
 	<text name="resellable_clause">
-		再販できる場合とできない場合があります。
-	</text>
+        再販できる場合と、できない場合があります。
+    </text>
 	<text name="changeable_clause">
-		統合または再分割できる場合とできない場合があります。
-	</text>
+        統合または再分割できる場合とできない場合があります。
+    </text>
 	<text name="covenant_text">
-		不動産約款に同意してください：
-	</text>
-	<text name="covenant_timestamp_text"/>
+        不動産約款に同意してください:
+    </text>
 	<text_editor name="covenant_editor">
-		読み込んでいます…。
-	</text_editor>
+        読込中...
+    </text_editor>
 	<check_box label="上記の約款に同意します" name="agree_covenant"/>
 	<text name="info_parcel_label">
-		区画：
-	</text>
-	<text name="info_parcel">
-		Scotopteryx138,204
-	</text>
+        区画:
+    </text>
 	<text name="info_size_label">
-		サイズ：
-	</text>
-	<text bottom_delta="-37" height="48" name="info_size">
-		1024㎡
-	</text>
+        サイズ:
+    </text>
+	<text height="32" name="info_size">
+        1024m²
+    </text>
 	<text name="info_price_label">
-		価格：
-	</text>
+        価格:
+    </text>
 	<text name="info_price">
-		L$ 1500
-（L$ 1.1／㎡）
-オブジェクトも土地販売価格に含まれます
-	</text>
+        L$1500
+        (L$ 1.1/m²)
+        オブジェクトも土地販売価格に含まれます
+    </text>
 	<text name="info_action">
-		この土地を買うと：
-	</text>
+        この土地を買うと:
+    </text>
 	<text name="error_message">
-		何か変です
-	</text>
+        何か変です。
+    </text>
 	<button label="Webサイトに移動" name="error_web"/>
 	<text name="account_action">
-		プレミアム会員にアップグレードする
-	</text>
+        プレミアム会員にアップグレード
+    </text>
 	<text name="account_reason">
-		土地を保有できるのはプレミアム会員だけです。
-	</text>
+        土地を保有できるのはプレミアム会員だけです。
+    </text>
 	<combo_box name="account_level">
 		<combo_box.item label="月額9.95米ドル、月払い" name="US$9.95/month,billedmonthly"/>
 		<combo_box.item label="月額7.50米ドル、四半期払い" name="US$7.50/month,billedquarterly"/>
 		<combo_box.item label="月額6.00米ドル、年間一括払い" name="US$6.00/month,billedannually"/>
 	</combo_box>
 	<text name="land_use_action">
-		毎月の土地使用料をUS $40に引き上げます
-	</text>
+        毎月の土地使用料をUS$40に引き上げます
+    </text>
 	<text name="land_use_reason">
-		あなたは、1309㎡の土地を所有しています。この区画の大きさは、512㎡です。
-	</text>
+        あなたは1309m²の土地を所有しています。
+        この区画の大きさは512 m²です。
+    </text>
 	<text name="purchase_action">
-		Joe ResidentにL$ 4000支払って土地を購入
-	</text>
+        Joe ResidentにL$4000支払って土地を購入
+    </text>
 	<text name="currency_reason">
-		所持金は、L$ 2,100です。
-	</text>
+        所持金はL$2,100です。
+    </text>
 	<text name="currency_action">
-		追加でL$の購入
-	</text>
+        追加でL$の購入
+    </text>
 	<line_editor name="currency_amt">
 		1000
 	</line_editor>
 	<text name="currency_est">
-		約[LOCAL_AMOUNT]
-	</text>
+        約[LOCAL_AMOUNT]
+    </text>
 	<text name="currency_balance">
-		所持金はL$ 2,100です。
-	</text>
-	<check_box label="グループから[AMOUNT]㎡の貢献を取り除きます。" name="remove_contribution"/>
+        所持金はL$2,100です。
+    </text>
 	<button label="購入" name="buy_btn"/>
+	<check_box label="グループから[AMOUNT]m²の貢献を取り除きます。" name="remove_contribution"/>
 	<button label="キャンセル" name="cancel_btn"/>
 </floater>

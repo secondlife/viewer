@@ -1,17 +1,15 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <floater name="save_camera_preset" title="カメラプリセットの保存">
 	<string name="btn_label_save">
 		保存
 	</string>
 	<string name="btn_label_replace">
-		置き換え
+		置換
 	</string>
 	<radio_group name="radio_save_preset">
 		<radio_item label="新しいプリセットとして保存" name="new_preset"/>
-		<radio_item label="プリセットを置き換え" name="replace_preset"/>
+		<radio_item label="プリセットを置換" name="replace_preset"/>
 	</radio_group>
-	<line_editor name="preset_txt_editor"/>
 	<button label="保存" name="save"/>
 	<button label="キャンセル" name="cancel"/>
-	<combo_box name="preset_combo"/>
 </floater>

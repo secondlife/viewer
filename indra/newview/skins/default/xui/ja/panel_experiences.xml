@@ -1,14 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_experiences" label="体験">
-	<string name="loading_experiences" value="体験を読み込んでいます…"/>
+	<string name="loading_experiences" value="体験を読み込んでいます..."/>
 	<string name="no_experiences" value="体験はありません。"/>
 	<string name="acquire" value="体験する"/>
-	<layout_stack>
-		<layout_panel>
-			<flat_list_view name="experiences_list"/>
-		</layout_panel>
-		<layout_panel name="button_panel">
-			<button name="btn_action"/>
-		</layout_panel>
-	</layout_stack>
 </panel>

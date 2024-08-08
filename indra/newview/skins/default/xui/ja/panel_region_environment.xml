@@ -1,121 +1,131 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="環境" name="panel_env_info">
+<panel label="景観" name="panel_env_info">
 	<string name="str_label_use_default">
 		既定の設定を使用
 	</string>
 	<string name="str_label_use_region">
-		リージョン（地域）の設定を使用
+		地域(リージョン)の設定を使用
 	</string>
 	<string name="str_altitude_desription">
-		空 [INDEX]（[ALTITUDE]ｍ）
+		空 [INDEX]([ALTITUDE]m)
 	</string>
 	<string name="str_no_parcel">
-		区画が選択されていません。環境の設定は無効になっています。
+		区画が選択されていません。景観設定が無効になっています。
 	</string>
 	<string name="str_cross_region">
-		リージョン（地域）の境界では環境の設定ができません。
+		地域(リージョン)の境界では景観設定ができません。
 	</string>
 	<string name="str_legacy">
-		このリージョン（地域）で環境の設定ができません。
+		この地域(リージョン)で景観設定はできません。
 	</string>
 	<string name="str_disallowed">
-		このリージョン（地域）の不動産マネージャーは、区画ごとの環境の変更を許可していません。
+		不動産マネージャーが、この地域(リージョン)で区画の環境を変更することを許可していません。
 	</string>
 	<string name="str_too_small">
-		環境を変更するには、最低でも128㎡の区画が必要です。
+		環境をサポートするには、最低でも128m²の区画が必要です。
 	</string>
 	<string name="str_empty">
-		（空）
+		(空)
 	</string>
 	<string name="str_region_env">
-		（リージョンの環境）
+		(リージョンの環境)
 	</string>
 	<layout_stack>
-		<layout_panel name="pnl_environment_disabled">
-			<text name="txt_environment_disabled">
-				…
-			</text>
+		<layout_panel name="pnl_environment_region_msg">
+			<text name="region_text_lbl">
+                地域(リージョン):
+            </text>
+			<text name="region_text">
+                不明
+            </text>
 		</layout_panel>
 		<layout_panel name="pnl_environment_config">
 			<layout_stack>
 				<layout_panel name="pnl_environment_config">
 					<layout_stack>
 						<layout_panel name="pnl_environment_current">
-							<button label="[USEDEFAULT]" name="btn_usedefault"/>
+							<text>
+                                景観を選択
+                            </text>
 							<button label="インベントリを使う" name="btn_select_inventory"/>
 							<button label="カスタマイズ" name="btn_edit"/>
-							<check_box label="区画所有者による環境を上書きを許可" name="chk_allow_override"/>
+							<check_box label="区画所有者による景観を上書きを許可" name="chk_allow_override"/>
 						</layout_panel>
 						<layout_panel name="pnl_environment_length">
+							<text>
+                                一日の設定
+                            </text>
+							<text>
+                                一日の長さ(時間)
+                            </text>
+							<text>
+                                一日のずれ(時間)
+                            </text>
+							<text>
+                                見かけの時刻:
+                            </text>
 							<text name="lbl_apparent_time">
-								[AP]　[HH]：[MM]（[PRC]％）
-							</text>
+                                [AP] [HH]:[MM]([PRC]%)
+                            </text>
 						</layout_panel>
-						<layout_panel name="pnl_environment_buttons"/>
 					</layout_stack>
 				</layout_panel>
 				<layout_panel name="pnl_environment_altitudes">
 					<panel name="pnl_alt1">
 						<text name="txt_alt1">
-							空[INDEX]　[ALTITUDE]ｍ
-						</text>
+                            空 [INDEX]
+                            [ALTITUDE]m
+                        </text>
 						<line_editor name="edt_invname_alt1">
 							不明
 						</line_editor>
-						<settings_drop_target name="sdt_alt1" tool_tip="インベントリからターゲットボックスに設定をドラッグし、現在の空として選択します。"/>
+						<settings_drop_target name="sdt_alt1" tool_tip="インベントリから設定をこのターゲットボックスにドラッグし、現在の空として選択する。"/>
 					</panel>
 					<panel name="pnl_alt2">
 						<text name="txt_alt2">
-							空[INDEX]　[ALTITUDE]ｍ
-						</text>
+                            空 [INDEX]
+                            [ALTITUDE]m
+                        </text>
 						<line_editor name="edt_invname_alt2">
 							不明
 						</line_editor>
-						<settings_drop_target name="sdt_alt2" tool_tip="インベントリからターゲットボックスに設定をドラッグし、現在の空として選択します。"/>
+						<settings_drop_target name="sdt_alt2" tool_tip="インベントリから設定をこのターゲットボックスにドラッグし、現在の空として選択する。"/>
 					</panel>
 					<panel name="pnl_alt3">
 						<text name="txt_alt3">
-							空[INDEX]　[ALTITUDE]ｍ
-						</text>
+                            空 [INDEX]
+                            [ALTITUDE]m
+                        </text>
 						<line_editor name="edt_invname_alt3">
 							不明
 						</line_editor>
-						<settings_drop_target name="sdt_alt3" tool_tip="インベントリからターゲットボックスに設定をドラッグし、現在の空として選択します。"/>
+						<settings_drop_target name="sdt_alt3" tool_tip="インベントリから設定をこのターゲットボックスにドラッグし、現在の空として選択する。"/>
 					</panel>
-					<multi_slider initial_value="0" name="sld_altitudes">
-						<slider name="sld1" value="1000"/>
-						<slider name="sld2" value="2000"/>
-						<slider name="sld3" value="3000"/>
-					</multi_slider>
+					<text>
+                        空の高度
+                    </text>
+					<multi_slider initial_value="0" name="sld_altitudes"/>
 					<panel name="pnl_ground">
 						<text name="txt_ground">
-							地面
-						</text>
+                            地面
+                        </text>
 						<line_editor name="edt_invname_ground">
 							不明
 						</line_editor>
-						<settings_drop_target name="sdt_ground" tool_tip="インベントリからターゲットボックスに設定をドラッグし、地面レベルの空として選択します。"/>
+						<settings_drop_target name="sdt_ground" tool_tip="インベントリから設定をこのターゲットボックスにドラッグし、地表レベルの空として選択する。"/>
 					</panel>
 					<panel name="pnl_water">
 						<text name="txt_water">
-							水面
-						</text>
+                            水面
+                        </text>
 						<line_editor name="edt_invname_water">
 							不明
 						</line_editor>
-						<settings_drop_target name="sdt_water" tool_tip="インベントリからターゲットボックスに設定をドラッグし、現在の水面として選択する"/>
+						<settings_drop_target name="sdt_water" tool_tip="インベントリから設定をこのターゲットボックスにドラッグし、現在の水として選択する。"/>
 					</panel>
-					<button label="リセット" name="btn_rst_altitudes" tool_tip="デフォルトの高度にリセット"/>
+					<button label="リセット" tool_tip="デフォルトの高度にリセット" name="btn_rst_altitudes"/>
 				</layout_panel>
 			</layout_stack>
 		</layout_panel>
 	</layout_stack>
-	<layout_panel name="pnl_environment_region_msg">
-		<text name="region_text_lbl">
-			リージョン（地域）：
-		</text>
-		<text name="region_text">
-			不明
-		</text>
-	</layout_panel>
 </panel>

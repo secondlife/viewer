@@ -1,13 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="conversation_list_item">
-	<icon name="nearby_chat_icon"/>
 	<layout_stack name="conversation_item_stack">
-		<layout_panel name="call_icon_panel">
-			<icon name="selected_icon"/>
-		</layout_panel>
 		<layout_panel name="conversation_title_panel">
-			<text name="conversation_title" value="（読み込み中）"/>
-			<output_monitor name="speaking_indicator"/>
+			<text name="conversation_title" value="(読込中)"/>
 		</layout_panel>
 	</layout_stack>
 </panel>
