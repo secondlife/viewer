@@ -2161,8 +2161,8 @@ if (PACKAGE AND (RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING) AND VIE
   if (USE_BUGSPLAT)
     # BugSplat symbol-file generation
     if (WINDOWS)
-      set(VIEWER_APP_SYMBOLS_ARCHIVE "${SYMBOLS_STAGING_DIR}/${VIEWER_CHANNEL}.sym.tar.xz")
-      set_target_properties( ${VIEWER_BINARY_NAME} PROPERTIES PDB_OUTPUT_DIRECTORY "${SYMBOLS_STAGING_DIR}/${VIEWER_CHANNEL}")
+      set(VIEWER_APP_SYMBOLS_ARCHIVE "${SYMBOLS_STAGING_DIR}.sym.tar.xz")
+      set_target_properties( ${VIEWER_BINARY_NAME} PROPERTIES PDB_OUTPUT_DIRECTORY "${SYMBOLS_STAGING_DIR}")
 
       # Just pack up a tarball containing only the .pdb files for the
       # executables.
@@ -2173,7 +2173,7 @@ if (PACKAGE AND (RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING) AND VIE
           "${VIEWER_CHANNEL}.sym.tar.xz"
           "${VIEWER_CHANNEL}"
         DEPENDS "${VIEWER_BINARY_NAME}" llwebrtc
-        WORKING_DIRECTORY "${SYMBOLS_STAGING_DIR}"
+        WORKING_DIRECTORY "${SYMBOLS_STAGING_DIR}/.."
         COMMENT "Packing viewer PDBs into ${VIEWER_APP_SYMBOLS_ARCHIVE}"
         )
       add_custom_target(generate_symbols DEPENDS "${VIEWER_APP_SYMBOLS_ARCHIVE}")
@@ -2181,21 +2181,21 @@ if (PACKAGE AND (RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING) AND VIE
 
     endif (WINDOWS)
     if (DARWIN)
-      set(VIEWER_APP_XCARCHIVE "${SYMBOLS_STAGING_DIR}/${VIEWER_CHANNEL}.xcarchive.zip")
+      set(VIEWER_APP_XCARCHIVE "${SYMBOLS_STAGING_DIR}.xcarchive.zip")
 
       # we only need an xcarchive with dSYMs (including the application)
       set_target_properties(${VIEWER_BINARY_NAME}
             PROPERTIES
             XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT "dwarf-with-dsym"
-            XCODE_ATTRIBUTE_DWARF_DSYM_FOLDER_PATH "${SYMBOLS_STAGING_DIR}/${product}/dSYMs")
+            XCODE_ATTRIBUTE_DWARF_DSYM_FOLDER_PATH "${SYMBOLS_STAGING_DIR}/dSYMs")
     
       add_custom_command(OUTPUT "${VIEWER_APP_XCARCHIVE}"
           COMMAND "zip"
           ARGS
             "-r"
             "${VIEWER_APP_XCARCHIVE}"
-            "${product}"
-          WORKING_DIRECTORY "${SYMBOLS_STAGING_DIR}"
+            "${VIEWER_CHANNEL}"
+          WORKING_DIRECTORY "${SYMBOLS_STAGING_DIR}/.."
           DEPENDS "${VIEWER_BINARY_NAME}" llwebrtc
           COMMENT "Generating ${VIEWER_APP_XCARCHIVE} for upload to BugSplat"
           )
