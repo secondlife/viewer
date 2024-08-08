@@ -398,7 +398,7 @@ jobs:
           application: ${{ needs.build.outputs.viewer_channel }}
           version: ${{ needs.build.outputs.viewer_version }}
           directory: _artifacts
-          files: "**/{SecondLifeViewer.exe,*.pdb}"
+          files: "**/{SecondLifeViewer.exe,llwebrtc.dll,*.pdb}"
 
   post-mac-symbols:
     env:
