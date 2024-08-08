@@ -27,10 +27,13 @@
 #ifndef LL_LLVLCOMPOSITION_H
 #define LL_LLVLCOMPOSITION_H
 
+#include <memory>
+
 #include "llviewerlayer.h"
 #include "llviewershadermgr.h"
 #include "llviewertexture.h"
 #include "llpointer.h"
+#include "llterrainpaintmap.h"
 
 #include "llimage.h"
 
@@ -87,6 +90,8 @@ public:
     void setPaintType(U32 paint_type) { mPaintType = paint_type; }
     LLViewerTexture* getPaintMap();
     void setPaintMap(LLViewerTexture* paint_map);
+    // Paint queue for current paint map
+    LLTerrainPaintQueue& getPaintQueue();
 
 protected:
     void unboost();
@@ -105,6 +110,7 @@ protected:
 
     U32 mPaintType = TERRAIN_PAINT_TYPE_HEIGHTMAP_WITH_NOISE;
     LLPointer<LLViewerTexture> mPaintMap;
+    LLTerrainPaintQueue mPaintQueue;
 };
 
 // Local materials to override all regions
