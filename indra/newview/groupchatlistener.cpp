@@ -56,7 +56,7 @@ LLGroupChatListener::LLGroupChatListener():
         &LLGroupChatListener::leaveGroupChat,
         llsd::map("group_id", LLSD()));
     add("sendGroupIM",
-        "send a groupchat IM",
+        "send a [\"message\"] to group with UUID [\"group_id\"]",
         &LLGroupChatListener::sendGroupIM,
         llsd::map("message", LLSD(), "group_id", LLSD()));
 }
@@ -114,5 +114,5 @@ void LLGroupChatListener::sendGroupIM(LLSD const &data)
     LLIMModel::sendMessage(LUA_PREFIX + data["message"].asString(),
                            gIMMgr->computeSessionID(IM_SESSION_GROUP_START, group_id),
                            group_id,
-                           IM_SESSION_GROUP_START);
+                           IM_SESSION_SEND);
 }

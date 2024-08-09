@@ -11,6 +11,17 @@ function LLAgent.getGlobalPosition()
     return leap.request('LLAgent', {op = 'getPosition'}).global
 end
 
+-- Return array information about the agent's groups
+-- id: group id\n"
+-- name: group name\n"
+-- insignia: group insignia texture id
+-- notices: bool indicating if this user accepts notices from this group
+-- display: bool indicating if this group is listed in the user's profile
+-- contrib: user's land contribution to this group
+function LLAgent.getGroups()
+    return leap.request('LLAgent', {op = 'getGroups'}).groups
+end
+
 -- Use LL.leaphelp('LLAgent') and see 'setCameraParams' to get more info about params
 --                                          -- TYPE               -- DEFAULT      -- RANGE
 -- LLAgent.setCamera{ [, camera_pos]        -- vector3
