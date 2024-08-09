@@ -4,9 +4,9 @@
  * @date   2011-04-11
  * @brief
  *
- * $LicenseInfo:firstyear=2011&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2024&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2011, Linden Research, Inc.
+ * Copyright (C) 2024, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,15 +26,22 @@
  * $/LicenseInfo$
  */
 
-#if ! defined(LL_GROUPCHATLISTENER_H)
-#define LL_GROUPCHATLISTENER_H
+#if ! defined(LL_LLGROUPCHATLISTENER_H)
+#define LL_LLGROUPCHATLISTENER_H
 
 #include "lleventapi.h"
 
-class GroupChatListener: public LLEventAPI
+class LLGroupChatListener: public LLEventAPI
 {
 public:
-    GroupChatListener();
+    LLGroupChatListener();
+
+private:
+    void startGroupChat(LLSD const &data);
+    void leaveGroupChat(LLSD const &data);
+    void sendGroupIM(LLSD const &data);
+
+    F64 mLastThrottleTime {0.0};
 };
 
-#endif /* ! defined(LL_GROUPCHATLISTENER_H) */
+#endif /* ! defined(LL_LLGROUPCHATLISTENER_H) */
