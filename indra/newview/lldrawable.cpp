@@ -1600,18 +1600,10 @@ void LLSpatialBridge::updateDistance(LLCamera& camera_in, bool force_update)
 
         mDrawable->updateDistance(camera, force_update);
 
-        LLViewerObject::const_child_list_t& child_list = mDrawable->getVObj()->getChildren();
-        for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
-             iter != child_list.end(); iter++)
+        for (LLViewerObject* child : mDrawable->getVObj()->getChildren())
         {
-            LLViewerObject* child = *iter;
             LLDrawable* drawable = child->mDrawable;
-            if (!drawable)
-            {
-                continue;
-            }
-
-            if (!drawable->isAvatar())
+            if (drawable && !drawable->isDead() && drawable->isAvatar())
             {
                 drawable->updateDistance(camera, force_update);
             }
