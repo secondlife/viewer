@@ -248,32 +248,28 @@ bool LLReflectionMap::getIsDynamic()
 
 bool LLReflectionMap::getBox(LLMatrix4& box)
 {
-    if (mViewerObject)
+    if (mViewerObject && !mViewerObject->isDead() &&
+        mViewerObject->mDrawable && !mViewerObject->mDrawable->isDead() &&
+        mViewerObject->getVolume() && mViewerObject->getReflectionProbeIsBox())
     {
-        LLVolume* volume = mViewerObject->getVolume();
-        if (volume && mViewerObject->getReflectionProbeIsBox())
-        {
-            glh::matrix4f mv(gGLModelView);
-            glh::matrix4f scale;
-            LLVector3 s = mViewerObject->getScale().scaledVec(LLVector3(0.5f, 0.5f, 0.5f));
-            mRadius = s.magVec();
-            scale.set_scale(glh::vec3f(s.mV));
-            if (mViewerObject->mDrawable != nullptr)
-            {
-                // object to agent space (no scale)
-                glh::matrix4f rm((F32*)mViewerObject->mDrawable->getWorldMatrix().mMatrix);
+        glh::matrix4f mv(gGLModelView);
+        glh::matrix4f scale;
+        LLVector3 s = mViewerObject->getScale().scaledVec(LLVector3(0.5f, 0.5f, 0.5f));
+        mRadius = s.magVec();
+        scale.set_scale(glh::vec3f(s.mV));
 
-                // construct object to camera space (with scale)
-                mv = mv * rm * scale;
+        // object to agent space (no scale)
+        glh::matrix4f rm((F32*)mViewerObject->mDrawable->getWorldMatrix().mMatrix);
 
-                // inverse is camera space to object unit cube
-                mv = mv.inverse();
+        // construct object to camera space (with scale)
+        mv = mv * rm * scale;
 
-                box = LLMatrix4(mv.m);
+        // inverse is camera space to object unit cube
+        mv = mv.inverse();
 
-                return true;
-            }
-        }
+        box = LLMatrix4(mv.m);
+
+        return true;
     }
 
     return false;
