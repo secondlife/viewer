@@ -2064,8 +2064,6 @@ if (DARWIN)
 
   set(VIEWER_APP_BUNDLE "${CMAKE_CURRENT_BINARY_DIR}/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>/${product}.app")
   set(VIEWER_APP_EXE "${VIEWER_APP_BUNDLE}/Contents/MacOS/${product}")
-  set(VIEWER_APP_DSYM "${VIEWER_APP_EXE}.dSYM")
-  set(VIEWER_APP_XCARCHIVE "${VIEWER_APP_BUNDLE}/../${product}.xcarchive.zip")
 
   configure_file(
      "${CMAKE_CURRENT_SOURCE_DIR}/Info-SecondLife.plist"
@@ -2136,73 +2134,51 @@ if (INSTALL)
   include(${CMAKE_CURRENT_SOURCE_DIR}/ViewerInstall.cmake)
 endif (INSTALL)
 
-# Note that the conventional VIEWER_SYMBOL_FILE is set by ../../build.sh
 if (PACKAGE AND (RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING) AND VIEWER_SYMBOL_FILE)
   if (USE_BUGSPLAT)
     # BugSplat symbol-file generation
     if (WINDOWS)
-      # Just pack up a tarball containing only the .pdb file for the
-      # executable. Because we intend to use cygwin tar, we must render
-      # VIEWER_SYMBOL_FILE in cygwin path syntax.
-      execute_process(COMMAND "cygpath" "-u" "${VIEWER_SYMBOL_FILE}"
-        OUTPUT_VARIABLE VIEWER_SYMBOL_FILE_CYGWIN
-        OUTPUT_STRIP_TRAILING_WHITESPACE)
-      execute_process(COMMAND "cygpath" "-u" "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}"
-        OUTPUT_VARIABLE PARENT_DIRECTORY_CYGWIN
-        OUTPUT_STRIP_TRAILING_WHITESPACE)
-      add_custom_command(OUTPUT "${VIEWER_SYMBOL_FILE}"
-        # Use of 'tar ...J' here assumes VIEWER_SYMBOL_FILE endswith .tar.xz;
-        # testing a string suffix is painful enough in CMake language that
-        # we'll continue assuming it until forced to generalize.
+      set(VIEWER_APP_SYMBOLS_ARCHIVE "${SYMBOLS_STAGING_DIR}.sym.tar.xz")
+      set_target_properties( ${VIEWER_BINARY_NAME} PROPERTIES PDB_OUTPUT_DIRECTORY "${SYMBOLS_STAGING_DIR}")
+
+      # Just pack up a tarball containing only the .pdb files for the
+      # executables.
+      add_custom_command(OUTPUT "${VIEWER_APP_SYMBOLS_ARCHIVE}"
         COMMAND "tar"
         ARGS
           "cJf"
-          "${VIEWER_SYMBOL_FILE_CYGWIN}"
-          "-C"
-          "${PARENT_DIRECTORY_CYGWIN}"
-          "secondlife-bin.pdb"
-        DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/secondlife-bin.pdb"
-        COMMENT "Packing viewer PDB into ${VIEWER_SYMBOL_FILE_CYGWIN}"
+          "${VIEWER_CHANNEL}.sym.tar.xz"
+          "${VIEWER_CHANNEL}"
+        DEPENDS "${VIEWER_BINARY_NAME}" llwebrtc
+        WORKING_DIRECTORY "${SYMBOLS_STAGING_DIR}/.."
+        COMMENT "Packing viewer PDBs into ${VIEWER_APP_SYMBOLS_ARCHIVE}"
         )
-      add_custom_target(generate_symbols DEPENDS "${VIEWER_SYMBOL_FILE}" ${VIEWER_BINARY_NAME})
-      add_dependencies(generate_symbols ${VIEWER_BINARY_NAME})
+      add_custom_target(generate_symbols DEPENDS "${VIEWER_APP_SYMBOLS_ARCHIVE}")
+      add_dependencies(generate_symbols ${VIEWER_BINARY_NAME} llwebrtc)
+
     endif (WINDOWS)
     if (DARWIN)
-      # Have to run dsymutil first, then pack up the resulting .dSYM directory
-      add_custom_command(OUTPUT "${VIEWER_APP_DSYM}"
-        COMMAND "dsymutil"
-        ARGS
-          ${VIEWER_APP_EXE}
-        COMMENT "Generating ${VIEWER_APP_DSYM}"
-        )
-      add_custom_target(dsym_generate DEPENDS "${VIEWER_APP_DSYM}")
-      add_dependencies(dsym_generate ${VIEWER_BINARY_NAME})
+      set(VIEWER_APP_XCARCHIVE "${SYMBOLS_STAGING_DIR}.xcarchive.zip")
+
+      # we only need an xcarchive with dSYMs (including the application)
+      set_target_properties(${VIEWER_BINARY_NAME}
+            PROPERTIES
+            XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT "dwarf-with-dsym"
+            XCODE_ATTRIBUTE_DWARF_DSYM_FOLDER_PATH "${SYMBOLS_STAGING_DIR}/dSYMs")
+    
       add_custom_command(OUTPUT "${VIEWER_APP_XCARCHIVE}"
-        COMMAND "zip"
-        ARGS
-          "-r"
-          "${VIEWER_APP_XCARCHIVE}"
-          "."
-        WORKING_DIRECTORY "${VIEWER_APP_DSYM}/.."
-        DEPENDS "${VIEWER_APP_DSYM}"
-        COMMENT "Generating xcarchive.zip for upload to BugSplat"
-        )
-      add_custom_target(dsym_xcarchive DEPENDS "${VIEWER_APP_XCARCHIVE}")
-      add_dependencies(dsym_xcarchive dsym_generate)
-      # Have to create a stamp file, and depend on it, to force CMake to run
-      # the cleanup step.
-      add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/dsym.stamp"
-        COMMAND rm -rf "${VIEWER_APP_DSYM}"
-        COMMAND touch "${CMAKE_CURRENT_BINARY_DIR}/dsym.stamp"
-        DEPENDS "${VIEWER_APP_XCARCHIVE}"
-        COMMENT "Cleaning up dSYM"
-        )
+          COMMAND "zip"
+          ARGS
+            "-r"
+            "${VIEWER_APP_XCARCHIVE}"
+            "${VIEWER_CHANNEL}"
+          WORKING_DIRECTORY "${SYMBOLS_STAGING_DIR}/.."
+          DEPENDS "${VIEWER_BINARY_NAME}" llwebrtc
+          COMMENT "Generating ${VIEWER_APP_XCARCHIVE} for upload to BugSplat"
+          )
       add_custom_target(generate_symbols DEPENDS
-        "${VIEWER_APP_DSYM}"
         "${VIEWER_APP_XCARCHIVE}"
-        "${CMAKE_CURRENT_BINARY_DIR}/dsym.stamp"
         )
-      add_dependencies(generate_symbols dsym_xcarchive)
     endif (DARWIN)
     if (LINUX)
       # TBD

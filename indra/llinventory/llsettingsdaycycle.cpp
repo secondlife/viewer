@@ -28,7 +28,6 @@
 #include "llsettingsdaycycle.h"
 #include "llerror.h"
 #include <algorithm>
-#include <boost/make_shared.hpp>
 #include "lltrace.h"
 #include "llfasttimer.h"
 #include "v3colorutil.h"

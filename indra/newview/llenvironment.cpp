@@ -54,8 +54,6 @@
 
 #include "llregioninfomodel.h"
 
-#include <boost/make_shared.hpp>
-
 #include "llatmosphere.h"
 #include "llagent.h"
 #include "roles_constants.h"
