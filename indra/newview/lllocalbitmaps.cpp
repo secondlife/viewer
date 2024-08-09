@@ -679,7 +679,7 @@ void LLLocalBitmap::updateGLTFMaterials(LLUUID old_id, LLUUID new_id)
                     }
                     else
                     {
-                        LL_WARNS_ONCE() << "Failed to apply local material override, render material not found" << LL_ENDL;                    
+                        LL_WARNS_ONCE() << "Failed to apply local material override, render material not found" << LL_ENDL;
                     }
                 }
             }
