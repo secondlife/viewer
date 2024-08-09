@@ -88,6 +88,7 @@ public:
     std::string sipURIFromID(const LLUUID &id) const override;
     LLSD getP2PChannelInfoTemplate(const LLUUID& id) const override;
 
+    void setHidden(bool hidden) override;  // virtual
 
     ///////////////////
     /// @name Logging
@@ -479,8 +480,6 @@ private:
     bool inEstateChannel();
 
     LLSD getAudioSessionChannelInfo();
-
-    void setHidden(bool hidden) override; //virtual
 
     void enforceTether();
 
