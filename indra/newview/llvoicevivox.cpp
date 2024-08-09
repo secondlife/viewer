@@ -5097,7 +5097,9 @@ void LLVivoxVoiceClient::processChannels(bool process)
 
 bool LLVivoxVoiceClient::isCurrentChannel(const LLSD &channelInfo)
 {
-    if (!mProcessChannels || (channelInfo.has("voice_server_type") && channelInfo["voice_server_type"].asString() != VIVOX_VOICE_SERVER_TYPE))
+    if (!mProcessChannels
+        || (channelInfo.has("voice_server_type") && channelInfo["voice_server_type"].asString() != VIVOX_VOICE_SERVER_TYPE)
+        || mSessionTerminateRequested)
     {
         return false;
     }
