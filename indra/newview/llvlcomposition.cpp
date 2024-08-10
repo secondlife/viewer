@@ -317,18 +317,14 @@ LLViewerTexture* LLTerrainMaterials::getPaintMap()
     return mPaintMap.get();
 }
 
-LLTerrainPaintQueue& LLTerrainMaterials::getPaintQueue()
-{
-    return mPaintQueue;
-}
-
 void LLTerrainMaterials::setPaintMap(LLViewerTexture* paint_map)
 {
     llassert(!paint_map || mPaintType == TERRAIN_PAINT_TYPE_PBR_PAINTMAP);
     const bool changed = paint_map != mPaintMap;
     mPaintMap = paint_map;
     // The paint map has changed, so edits are no longer valid
-    mPaintQueue.clear();
+    mPaintRequestQueue.clear();
+    mPaintMapQueue.clear();
 }
 
 // Boost the texture loading priority

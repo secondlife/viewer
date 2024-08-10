@@ -90,8 +90,14 @@ public:
     void setPaintType(U32 paint_type) { mPaintType = paint_type; }
     LLViewerTexture* getPaintMap();
     void setPaintMap(LLViewerTexture* paint_map);
-    // Paint queue for current paint map
-    LLTerrainPaintQueue& getPaintQueue();
+    // Queue of client-triggered paint operations that need to be converted
+    // into a form that can be sent to the server.
+    // Paints in this queue are in RGBA format.
+    LLTerrainPaintQueue& getPaintRequestQueue() { return mPaintRequestQueue; }
+    // Paint queue for current paint map - this queue gets applied directly to
+    // the paint map. Paints within are assumed to have already been sent to
+    // the server.  Paints in this queue are in RGB format.
+    LLTerrainPaintQueue& getPaintMapQueue() { return mPaintMapQueue; }
 
 protected:
     void unboost();
@@ -110,7 +116,8 @@ protected:
 
     U32 mPaintType = TERRAIN_PAINT_TYPE_HEIGHTMAP_WITH_NOISE;
     LLPointer<LLViewerTexture> mPaintMap;
-    LLTerrainPaintQueue mPaintQueue;
+    LLTerrainPaintQueue mPaintRequestQueue{U8(4)};
+    LLTerrainPaintQueue mPaintMapQueue{U8(3)};
 };
 
 // Local materials to override all regions

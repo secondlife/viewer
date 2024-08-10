@@ -26,6 +26,8 @@
 
 #pragma once
 
+#include "llviewerprecompiledheaders.h"
+
 class LLViewerRegion;
 class LLViewerTexture;
 class LLTerrainPaintQueue;
@@ -41,14 +43,15 @@ public:
     // Returns true if successful
     static bool bakeHeightNoiseIntoPBRPaintMapRGB(const LLViewerRegion& region, LLViewerTexture& tex);
 
-    static void applyPaintQueue(LLViewerTexture& tex, LLTerrainPaintQueue& queue);
+    static void applyPaintQueueRGB(LLViewerTexture& tex, LLTerrainPaintQueue& queue);
+    static LLTerrainPaintQueue convertPaintQueueRGBAToRGB(LLViewerTexture& tex, LLTerrainPaintQueue& queue_in);
 };
 
 // Enqueued paint operations, in texture coordinates.
-// data is always RGB, with each U8 storing one color in the provided bit depth.
-class LLTerrainPaint
+// mData is always RGB or RGBA (determined by mComponents), with each U8
+// storing one color with a max value of (1 >> mBitDepth) - 1
+struct LLTerrainPaint
 {
-public:
     using ptr_t = std::shared_ptr<LLTerrainPaint>;
 
     U16 mStartX;
@@ -56,25 +59,38 @@ public:
     U16 mWidthX;
     U16 mWidthY;
     U8 mBitDepth;
-    static const U8 COMPONENTS = 3;
+    U8 mComponents;
+    const static U8 RGB = 3;
+    const static U8 RGBA = 4;
     std::vector<U8> mData;
 };
 
 class LLTerrainPaintQueue
 {
 public:
-    bool enqueue(LLTerrainPaint::ptr_t& paint);
+    // components determines what type of LLTerrainPaint is allowed. Must be 3 (RGB) or 4 (RGBA)
+    LLTerrainPaintQueue(U8 components);
+    LLTerrainPaintQueue(const LLTerrainPaintQueue& other);
+    LLTerrainPaintQueue& operator=(const LLTerrainPaintQueue& other);
+
+    bool enqueue(LLTerrainPaint::ptr_t& paint, bool dry_run = false);
+    bool enqueue(LLTerrainPaintQueue& paint_queue);
+    size_t size() const;
     bool empty() const;
     void clear();
 
     const std::vector<LLTerrainPaint::ptr_t>& get() const { return mList; }
 
+    U8 getComponents() const { return mComponents; }
     // Convert mBitDepth for the LLTerrainPaint in the queue at index
+    // If mBitDepth is already equal to target_bit_depth, no conversion takes
+    // place.
     // It is currently the responsibility of the paint queue to convert
     // incoming bits to the right bit depth for the paintmap (this could
     // change in the future).
     void convertBitDepths(size_t index, U8 target_bit_depth);
 
 private:
+    U8 mComponents;
     std::vector<LLTerrainPaint::ptr_t> mList;
 };

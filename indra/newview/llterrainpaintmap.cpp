@@ -31,6 +31,8 @@
 // library includes
 #include "llglslshader.h"
 #include "llrendertarget.h"
+#include "llrender2dutils.h"
+#include "llshadermgr.h"
 #include "llvertexbuffer.h"
 
 // newview includes
@@ -89,8 +91,8 @@ bool LLTerrainPaintMap::bakeHeightNoiseIntoPBRPaintMapRGB(const LLViewerRegion& 
     // Bind the debug shader and render terrain to tex
     // Use a scratch render target because its dimensions may exceed the standard bake target, and this is a one-off bake
     LLRenderTarget scratch_target;
-    const S32 dim = llmin(tex.getWidth(), tex.getHeight());
-    scratch_target.allocate(dim, dim, GL_RGB, false, LLTexUnit::eTextureType::TT_TEXTURE,
+    const S32 max_dim = llmax(tex.getWidth(), tex.getHeight());
+    scratch_target.allocate(max_dim, max_dim, GL_RGB, false, LLTexUnit::eTextureType::TT_TEXTURE,
                                    LLTexUnit::eTextureMipGeneration::TMG_NONE);
     if (!scratch_target.isComplete())
     {
@@ -117,6 +119,7 @@ bool LLTerrainPaintMap::bakeHeightNoiseIntoPBRPaintMapRGB(const LLViewerRegion& 
     const F32 region_half_width = region_width / 2.0f;
     const F32 region_camera_height = surface.getMaxZ() + DEFAULT_NEAR_PLANE;
     LLViewerCamera camera;
+    // TODO: Huh... I just realized this view vector is not completely vertical
     const LLVector3 region_center = LLVector3(region_half_width, region_half_width, 0.0) + region.getOriginAgent();
     const LLVector3 camera_origin = LLVector3(0.0f, 0.0f, region_camera_height) + region_center;
     camera.lookAt(camera_origin, region_center, LLVector3::y_axis);
@@ -250,6 +253,7 @@ bool LLTerrainPaintMap::bakeHeightNoiseIntoPBRPaintMapRGB(const LLViewerRegion& 
 
         S32 alpha_ramp = shader.enableTexture(LLViewerShaderMgr::TERRAIN_ALPHARAMP);
         LLPointer<LLViewerTexture> alpha_ramp_texture = LLViewerTextureManager::getFetchedTexture(IMG_ALPHA_GRAD_2D);
+        // TODO: Consider using LLGLSLShader::bindTexture
         gGL.getTexUnit(alpha_ramp)->bind(alpha_ramp_texture);
         gGL.getTexUnit(alpha_ramp)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
 
@@ -263,6 +267,7 @@ bool LLTerrainPaintMap::bakeHeightNoiseIntoPBRPaintMapRGB(const LLViewerRegion& 
                 const U32 vertex_offset = n * patch_index;
                 llassert(index_offset + ni <= region_indices);
                 llassert(vertex_offset + n <= region_vertices);
+                // TODO: Try a single big drawRange and see if that still works
                 buf->drawRange(LLRender::TRIANGLES, vertex_offset, vertex_offset + n - 1, ni, index_offset);
             }
         }
@@ -282,7 +287,7 @@ bool LLTerrainPaintMap::bakeHeightNoiseIntoPBRPaintMapRGB(const LLViewerRegion& 
     gGL.flush();
     LLVertexBuffer::unbind();
     // Final step: Copy the output to the terrain paintmap
-    const bool success = tex.getGLTexture()->setSubImageFromFrameBuffer(0, 0, 0, 0, dim, dim);
+    const bool success = tex.getGLTexture()->setSubImageFromFrameBuffer(0, 0, 0, 0, tex.getWidth(), tex.getHeight());
     if (!success)
     {
         LL_WARNS() << "Failed to copy framebuffer to paintmap" << LL_ENDL;
@@ -297,10 +302,10 @@ bool LLTerrainPaintMap::bakeHeightNoiseIntoPBRPaintMapRGB(const LLViewerRegion& 
     return success;
 }
 
-// TODO: Decide when to apply the paint queue - ideally once per frame per region
+// *TODO: Decide when to apply the paint queue - ideally once per frame per region
 // Applies paints and then clears the paint queue
 // *NOTE The paint queue is also cleared when setting the paintmap texture
-void LLTerrainPaintMap::applyPaintQueue(LLViewerTexture& tex, LLTerrainPaintQueue& queue)
+void LLTerrainPaintMap::applyPaintQueueRGB(LLViewerTexture& tex, LLTerrainPaintQueue& queue)
 {
     if (queue.empty()) { return; }
 
@@ -309,6 +314,11 @@ void LLTerrainPaintMap::applyPaintQueue(LLViewerTexture& tex, LLTerrainPaintQueu
 #endif
 
     gGL.getTexUnit(0)->bind(tex.getGLTexture(), false, true);
+
+    // glTexSubImage2D replaces all pixels in the rectangular region. That
+    // makes it unsuitable for alpha.
+    llassert(queue.getComponents() == LLTerrainPaint::RGB);
+    constexpr GLenum pixformat = GL_RGB;
 
     const std::vector<LLTerrainPaint::ptr_t>& queue_list = queue.get();
     for (size_t i = 0; i < queue_list.size(); ++i)
@@ -328,8 +338,10 @@ void LLTerrainPaintMap::applyPaintQueue(LLViewerTexture& tex, LLTerrainPaintQueu
         const S32 width = llmin(paint->mWidthX, tex.getWidth() - x_offset);
         const S32 height = llmin(paint->mWidthY, tex.getHeight() - y_offset);
         const U8* pixels = paint->mData.data();
-        constexpr GLenum pixformat = GL_RGB;
         constexpr GLenum pixtype = GL_UNSIGNED_BYTE;
+        // *TODO: Performance suggestion: Use the sub-image utility function
+        // that LLImageGL::setSubImage uses to split texture updates into
+        // lines, if that's faster.
         glTexSubImage2D(GL_TEXTURE_2D, miplevel, x_offset, y_offset, width, height, pixformat, pixtype, pixels);
         stop_glerror();
     }
@@ -343,7 +355,284 @@ void LLTerrainPaintMap::applyPaintQueue(LLViewerTexture& tex, LLTerrainPaintQueu
     queue.clear();
 }
 
-bool LLTerrainPaintQueue::enqueue(LLTerrainPaint::ptr_t& paint)
+namespace
+{
+
+// A general-purpose vertex buffer of a quad for stamping textures on the z=0
+// plane.
+// *NOTE: Because we know the vertex XY coordinates go from 0 to 1
+// pre-transform, UVs can be calculated from the vertices
+LLVertexBuffer& get_paint_triangle_buffer()
+{
+    static LLPointer<LLVertexBuffer> buf = new LLVertexBuffer(LLVertexBuffer::MAP_VERTEX);
+    static bool initialized = false;
+    if (!initialized)
+    {
+        // Two triangles forming a square from (0,0) to (1,1)
+        buf->allocateBuffer(/*vertices =*/ 4, /*indices =*/ 6);
+        LLStrider<U16> indices;
+        LLStrider<LLVector3> vertices;
+        buf->getVertexStrider(vertices);
+        buf->getIndexStrider(indices);
+        // y
+        //    2....3
+        // ^  .    .
+        // |  0....1
+        // |
+        // ------->  x
+        //
+        // triangle 1: 0,1,2
+        // triangle 2: 1,3,2
+        (*(vertices++)).set(0.0f, 0.0f, 0.0f);
+        (*(vertices++)).set(1.0f, 0.0f, 0.0f);
+        (*(vertices++)).set(0.0f, 1.0f, 0.0f);
+        (*(vertices++)).set(1.0f, 1.0f, 0.0f);
+        *(indices++) = 0;
+        *(indices++) = 1;
+        *(indices++) = 2;
+        *(indices++) = 1;
+        *(indices++) = 3;
+        *(indices++) = 2;
+        buf->unmapBuffer();
+    }
+    return *buf;
+}
+
+};
+
+// static
+LLTerrainPaintQueue LLTerrainPaintMap::convertPaintQueueRGBAToRGB(LLViewerTexture& tex, LLTerrainPaintQueue& queue_in)
+{
+#ifdef SHOW_ASSERT
+    check_tex(tex);
+#endif
+    llassert(queue_in.getComponents() == LLTerrainPaint::RGBA);
+
+    // TODO: Avoid allocating a scratch render buffer and use mAuxillaryRT instead
+    // TODO: even if it means performing extra render operations to apply the paints, in rare cases where the paints can't all fit within an area that can be represented by the buffer
+    LLRenderTarget scratch_target;
+    const S32 max_dim = llmax(tex.getWidth(), tex.getHeight());
+    scratch_target.allocate(max_dim, max_dim, GL_RGB, false, LLTexUnit::eTextureType::TT_TEXTURE,
+                                   LLTexUnit::eTextureMipGeneration::TMG_NONE);
+    if (!scratch_target.isComplete())
+    {
+        llassert(false);
+        LL_WARNS() << "Failed to allocate render target" << LL_ENDL;
+        return false;
+    }
+    gGL.getTexUnit(0)->disable();
+    stop_glerror();
+
+    scratch_target.bindTarget();
+    glClearColor(0, 0, 0, 0);
+    scratch_target.clear();
+    const F32 target_half_width = (F32)scratch_target.getWidth() / 2.0f;
+    const F32 target_half_height = (F32)scratch_target.getHeight() / 2.0f;
+
+    LLVertexBuffer* buf = &get_paint_triangle_buffer();
+
+    // Update projection matrix and viewport
+    // *NOTE: gl_state_for_2d also sets the modelview matrix. This will be overridden later.
+    {
+        stop_glerror();
+        gGL.matrixMode(LLRender::MM_PROJECTION);
+        gGL.pushMatrix();
+        gGL.loadIdentity();
+        gGL.ortho(-target_half_width, target_half_width, -target_half_height, target_half_height, 0.25f, 1.0f);
+        stop_glerror();
+        const LLRect texture_rect(0, scratch_target.getHeight(), scratch_target.getWidth(), 0);
+        glViewport(texture_rect.mLeft, texture_rect.mBottom, texture_rect.getWidth(), texture_rect.getHeight());
+    }
+
+    // View matrix
+    // Coordinates should be in pixels. 1.0f = 1 pixel on the framebuffer.
+    // Camera is centered in the middle of the framebuffer.
+    glh::matrix4f view((GLfloat *) OGL_TO_CFR_ROTATION);
+    {
+        LLViewerCamera camera;
+        const LLVector3 camera_origin(target_half_width, target_half_height, 0.5f);
+        const LLVector3 camera_look_down(target_half_width, target_half_height, 0.0f);
+        camera.lookAt(camera_origin, camera_look_down, LLVector3::y_axis);
+        camera.setAspect(F32(scratch_target.getHeight()) / F32(scratch_target.getWidth()));
+        GLfloat ogl_matrix[16];
+        camera.getOpenGLTransform(ogl_matrix);
+        view *= glh::matrix4f(ogl_matrix);
+    }
+
+    LLGLDisable stencil(GL_STENCIL_TEST);
+    LLGLDisable scissor(GL_SCISSOR_TEST);
+    LLGLEnable cull_face(GL_CULL_FACE);
+    LLGLDepthTest depth_test(GL_FALSE, GL_FALSE, GL_ALWAYS);
+    LLGLEnable blend(GL_BLEND);
+    gGL.setSceneBlendType(LLRender::BT_ALPHA);
+
+    LLGLSLShader& shader = gTerrainStampProgram;
+    shader.bind();
+
+    // First, apply the paint map as the background
+    {
+        glh::matrix4f model;
+        {
+            model.set_scale(glh::vec3f((F32)tex.getWidth(), (F32)tex.getHeight(), 1.0f));
+            model.set_translate(glh::vec3f(0.0f, 0.0f, 0.0f));
+        }
+        glh::matrix4f modelview = view * model;
+        gGL.matrixMode(LLRender::MM_MODELVIEW);
+        gGL.loadMatrix(modelview.m);
+
+        shader.bindTexture(LLShaderMgr::DIFFUSE_MAP, &tex);
+        // We care about the whole paintmap, which is already a power of two.
+        // Hence, TERRAIN_STAMP_SCALE = (1.0,1.0)
+        shader.uniform2f(LLShaderMgr::TERRAIN_STAMP_SCALE, 1.0f, 1.0f);
+        buf->setBuffer();
+        buf->draw(LLRender::TRIANGLES, buf->getIndicesSize(), 0);
+    }
+
+    LLTerrainPaintQueue queue_out(LLTerrainPaint::RGB);
+
+    // Incrementally apply each RGBA paint to the render target, then extract
+    // the result back into memory as an RGB paint.
+    // Put each result in queue_out.
+    const std::vector<LLTerrainPaint::ptr_t>& queue_in_list = queue_in.get();
+    for (size_t i = 0; i < queue_in_list.size(); ++i)
+    {
+        // It is currently the responsibility of the paint queue to convert
+        // incoming bits to the right bit depth for paint operations (this
+        // could change in the future).
+        queue_in.convertBitDepths(i, 8);
+        const LLTerrainPaint::ptr_t& paint_in = queue_in_list[i];
+
+        // Modelview matrix for the current paint
+        // View matrix is already computed. Just need the model matrix.
+        // Orthographic projection matrix is already updated
+        glh::matrix4f model;
+        {
+            model.set_scale(glh::vec3f(paint_in->mWidthX, paint_in->mWidthY, 1.0f));
+            model.set_translate(glh::vec3f(paint_in->mStartX, paint_in->mStartY, 0.0f));
+        }
+        glh::matrix4f modelview = view * model;
+        gGL.matrixMode(LLRender::MM_MODELVIEW);
+        gGL.loadMatrix(modelview.m);
+
+        // Generate temporary stamp texture from paint contents.
+        // Our stamp image needs to be a power of two.
+        // Because the paint data may not cover a whole power-of-two region,
+        // allocate a bigger 2x2 image if needed, but set the image data later
+        // for a subset of the image.
+        // Pixel data outside this subset is left undefined. We will use
+        // TERRAIN_STAMP_SCALE in the stamp shader to define the subset of the
+        // image we care about.
+        const U32 width_rounded =  1 << U32(ceil(log2(F32(paint_in->mWidthX))));
+        const U32 height_rounded = 1 << U32(ceil(log2(F32(paint_in->mWidthY))));
+        LLPointer<LLImageGL> stamp_image;
+        {
+            // Create image object (dimensions not yet initialized in GL)
+            U32 stamp_tex_name;
+            LLImageGL::generateTextures(1, &stamp_tex_name);
+            const U32 components = paint_in->mComponents;
+            constexpr LLGLenum target = GL_TEXTURE_2D;
+            const LLGLenum internal_format = paint_in->mComponents == 4 ? GL_RGBA8 : GL_RGB8;
+            const LLGLenum format = paint_in->mComponents == 4 ? GL_RGBA : GL_RGB;
+            constexpr LLGLenum type = GL_UNSIGNED_BYTE;
+            stamp_image = new LLImageGL(stamp_tex_name, components, target, internal_format, format, type, LLTexUnit::TAM_WRAP);
+            // Nearest-neighbor filtering to reduce surprises
+            stamp_image->setFilteringOption(LLTexUnit::TFO_POINT);
+
+            // Initialize the image dimensions in GL
+            constexpr U8* undefined_data_for_now = nullptr;
+            gGL.getTexUnit(0)->bind(stamp_image, false, true);
+            glTexImage2D(GL_TEXTURE_2D, 0, internal_format, width_rounded, height_rounded, 0, format, type, undefined_data_for_now);
+            gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+            stamp_image->setSize(width_rounded, height_rounded, components);
+            stamp_image->setDiscardLevel(0);
+
+            // Manually set a subset of the image in GL
+            const U8* data = paint_in->mData.data();
+            const S32 data_width = paint_in->mWidthX;
+            const S32 data_height = paint_in->mWidthY;
+            constexpr S32 origin = 0;
+            // width = data_width; height = data_height. i.e.: Copy the full
+            // contents of data into the image.
+            stamp_image->setSubImage(data, data_width, data_height, origin, origin, /*width=*/data_width, /*height=*/data_height);
+        }
+
+        // Apply ("stamp") the paint to the render target
+        {
+            shader.bindTextureImageGL(LLShaderMgr::DIFFUSE_MAP, stamp_image);
+            const F32 width_fraction = F32(paint_in->mWidthX) / F32(width_rounded);
+            const F32 height_fraction = F32(paint_in->mWidthY) / F32(height_rounded);
+            shader.uniform2f(LLShaderMgr::TERRAIN_STAMP_SCALE, width_fraction, height_fraction);
+            buf->setBuffer();
+            buf->draw(LLRender::TRIANGLES, buf->getIndicesSize(), 0);
+        }
+
+        // Extract the result back into memory as an RGB paint
+        LLTerrainPaint::ptr_t paint_out = std::make_shared<LLTerrainPaint>();
+        {
+            paint_out->mStartX = paint_in->mStartX;
+            paint_out->mStartY = paint_in->mStartY;
+            paint_out->mWidthX = paint_in->mWidthX;
+            paint_out->mWidthY = paint_in->mWidthY;
+            paint_out->mBitDepth = 8; // Will be reduced to 5 bits later
+            paint_out->mComponents = LLTerrainPaint::RGB;
+            paint_out->mData.resize(paint_out->mComponents * paint_out->mWidthX * paint_out->mWidthY);
+            constexpr GLint miplevel = 0;
+            const S32 x_offset = paint_out->mStartX;
+            const S32 y_offset = paint_out->mStartY;
+            const S32 width = llmin(paint_out->mWidthX, tex.getWidth() - x_offset);
+            const S32 height = llmin(paint_out->mWidthY, tex.getHeight() - y_offset);
+            constexpr GLenum pixformat = GL_RGB;
+            constexpr GLenum pixtype = GL_UNSIGNED_BYTE;
+            llassert(paint_out->mData.size() <= std::numeric_limits<GLsizei>::max());
+            const GLsizei buf_size = (GLsizei)paint_out->mData.size();
+            U8* pixels = paint_out->mData.data();
+            glReadPixels(x_offset, y_offset, width, height, pixformat, pixtype, pixels);
+        }
+
+        // Enqueue the result to the new paint queue, with bit depths per color
+        // channel reduced from 8 to 5, and reduced from RGBA (paintmap
+        // sub-rectangle update with alpha mask) to RGB (paintmap sub-rectangle
+        // update without alpha mask). This format is suitable for sending
+        // over the network.
+        // *TODO: At some point, queue_out will pass through a network
+        // round-trip which will reduce the bit depth, making the
+        // pre-conversion step not necessary.
+        queue_out.enqueue(paint_out);
+        queue_out.convertBitDepths(queue_out.size()-1, 5);
+    }
+
+    queue_in.clear();
+
+    scratch_target.flush();
+
+    LLGLSLShader::unbind();
+
+    gGL.matrixMode(LLRender::MM_PROJECTION);
+    gGL.popMatrix();
+
+    return queue_out;
+}
+
+LLTerrainPaintQueue::LLTerrainPaintQueue(U8 components)
+: mComponents(components)
+{
+    llassert(mComponents == LLTerrainPaint::RGB || mComponents == LLTerrainPaint::RGBA);
+}
+
+LLTerrainPaintQueue::LLTerrainPaintQueue(const LLTerrainPaintQueue& other)
+{
+    *this = other;
+    llassert(mComponents == LLTerrainPaint::RGB || mComponents == LLTerrainPaint::RGBA);
+}
+
+LLTerrainPaintQueue& LLTerrainPaintQueue::operator=(const LLTerrainPaintQueue& other)
+{
+    mComponents = other.mComponents;
+    mList = other.mList;
+    return *this;
+}
+
+bool LLTerrainPaintQueue::enqueue(LLTerrainPaint::ptr_t& paint, bool dry_run)
 {
     llassert(paint);
     if (!paint) { return false; }
@@ -353,7 +642,7 @@ bool LLTerrainPaintQueue::enqueue(LLTerrainPaint::ptr_t& paint)
     // The internal paint map image is currently 8 bits, so that's the maximum
     // allowed bit depth.
     llassert(paint->mBitDepth > 0 && paint->mBitDepth <= 8);
-    llassert(paint->mData.size() == (LLTerrainPaint::COMPONENTS * paint->mWidthX * paint->mWidthY));
+    llassert(paint->mData.size() == (mComponents * paint->mWidthX * paint->mWidthY));
     llassert(paint->mWidthX > 0);
     llassert(paint->mWidthY > 0);
 #ifdef SHOW_ASSERT
@@ -364,8 +653,27 @@ bool LLTerrainPaintQueue::enqueue(LLTerrainPaint::ptr_t& paint)
     llassert(paint->mStartX < max_texture_width);
     llassert(paint->mStartY < max_texture_width);
 
-    mList.push_back(paint);
+    if (!dry_run) { mList.push_back(paint); }
     return true;
+}
+
+bool LLTerrainPaintQueue::enqueue(LLTerrainPaintQueue& paint_queue)
+{
+    constexpr bool dry_run = true;
+    for (LLTerrainPaint::ptr_t& paint : paint_queue.mList)
+    {
+        if (!enqueue(paint), dry_run) { return false; }
+    }
+    for (LLTerrainPaint::ptr_t& paint : paint_queue.mList)
+    {
+        enqueue(paint);
+    }
+    return true;
+}
+
+size_t LLTerrainPaintQueue::size() const
+{
+    return mList.size();
 }
 
 bool LLTerrainPaintQueue::empty() const
