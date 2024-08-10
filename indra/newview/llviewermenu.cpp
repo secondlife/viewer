@@ -1435,6 +1435,7 @@ class LLAdvancedTerrainCreateLocalPaintMap : public view_listener_t
         const U32 max_resolution = gSavedSettings.getU32("RenderMaxTextureResolution");
         dim = llclamp(dim, 16, max_resolution);
         dim = 1 << U32(std::ceil(std::log2(dim)));
+        // TODO: Could probably get away with not using image raw here, now that we aren't writing bits via the CPU (see load_exr for example)
         LLPointer<LLImageRaw> image_raw = new LLImageRaw(dim,dim,3);
         LLPointer<LLViewerTexture> tex = LLViewerTextureManager::getLocalTexture(image_raw.get(), true);
         const bool success = LLTerrainPaintMap::bakeHeightNoiseIntoPBRPaintMapRGB(*region, *tex);
@@ -1460,7 +1461,7 @@ class LLAdvancedTerrainEditLocalPaintMap : public view_listener_t
             return false;
         }
 
-        LLTerrainPaintQueue& paint_queue = gLocalTerrainMaterials.getPaintQueue();
+        LLTerrainPaintQueue& paint_request_queue = gLocalTerrainMaterials.getPaintRequestQueue();
 
         // Enqueue a paint
         // Overrides an entire region patch with the material in the last slot
@@ -1477,17 +1478,31 @@ class LLAdvancedTerrainEditLocalPaintMap : public view_listener_t
         paint->mBitDepth = bit_depth;
         constexpr U8 max_value = (1 << bit_depth) - 1;
         const size_t pixel_count = width * width;
-        paint->mData.resize(LLTerrainPaint::COMPONENTS * pixel_count);
-        for (size_t pixel = 0; pixel < pixel_count; ++pixel)
+        const U8 components = LLTerrainPaint::RGBA;
+        paint->mComponents = components;
+        paint->mData.resize(components * pixel_count);
+        for (size_t h = 0; h < paint->mWidthY; ++h)
         {
-            paint->mData[(LLTerrainPaint::COMPONENTS*pixel) + LLTerrainPaint::COMPONENTS - 1] = max_value;
+            for (size_t w = 0; w < paint->mWidthX; ++w)
+            {
+                const size_t pixel = (h * paint->mWidthX) + w;
+                // Solid blue color
+                paint->mData[(components*pixel) + components - 2] = max_value; // blue
+                // Alpha gradient from 0.0 to 1.0 along w
+                const U8 alpha = U8(F32(max_value) * F32(w+1) / F32(paint->mWidthX));
+                paint->mData[(components*pixel) + components - 1] = alpha; // alpha
+            }
         }
-        paint_queue.enqueue(paint);
+        paint_request_queue.enqueue(paint);
 
-        // Apply the paint queue ad-hoc right here for now.
-        // *TODO: Eventually the paint queue should be applied at a predictable
-        // time in the viewer frame loop.
-        LLTerrainPaintMap::applyPaintQueue(*tex, paint_queue);
+        // Apply the paint queues ad-hoc right here for now.
+        // *TODO: Eventually the paint queue(s) should be applied at a
+        // predictable time in the viewer frame loop.
+        // TODO: In hindsight... maybe we *should* bind the paintmap to the render buffer. That makes a lot more sense, and we wouldn't have to reduce its resolution by settling for the bake buffer. If we do that, make a comment above convertPaintQueueRGBAToRGB that the texture is modified!
+        LLTerrainPaintQueue paint_send_queue = LLTerrainPaintMap::convertPaintQueueRGBAToRGB(*tex, paint_request_queue);
+        LLTerrainPaintQueue& paint_map_queue = gLocalTerrainMaterials.getPaintMapQueue();
+        paint_map_queue.enqueue(paint_send_queue);
+        LLTerrainPaintMap::applyPaintQueueRGB(*tex, paint_map_queue);
 
         return true;
     }
