@@ -197,19 +197,6 @@ LONG WINAPI catchallCrashHandler(EXCEPTION_POINTERS * /*ExceptionInfo*/)
     return 0;
 }
 
-// *FIX:Mani - This hack is to fix a linker issue with libndofdev.lib
-// The lib was compiled under VS2005 - in VS2003 we need to remap assert
-#ifdef LL_DEBUG
-#ifdef LL_MSVC7
-extern "C" {
-    void _wassert(const wchar_t * _Message, const wchar_t *_File, unsigned _Line)
-    {
-        LL_ERRS() << _Message << LL_ENDL;
-    }
-}
-#endif
-#endif
-
 const std::string LLAppViewerWin32::sWindowClass = "Second Life";
 
 /*
@@ -240,7 +227,7 @@ bool create_app_mutex()
     LPCWSTR unique_mutex_name = L"SecondLifeAppMutex";
     HANDLE hMutex;
     hMutex = CreateMutex(NULL, TRUE, unique_mutex_name);
-    if(GetLastError() == ERROR_ALREADY_EXISTS)
+    if (GetLastError() == ERROR_ALREADY_EXISTS)
     {
         result = false;
     }
@@ -464,7 +451,7 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
     gDebugInfo["FoundOtherInstanceAtStartup"] = LLSD::Boolean(found_other_instance);
 
     bool ok = viewer_app_ptr->init();
-    if(!ok)
+    if (!ok)
     {
         LL_WARNS() << "Application init failed." << LL_ENDL;
         return -1;
@@ -724,7 +711,7 @@ bool LLAppViewerWin32::init()
         }
         else
         {
-            boost::json::error_code ec;
+            boost::system::error_code ec;
             boost::json::value build_data = boost::json::parse(inf, ec);
             if(ec.failed())
             {

@@ -67,6 +67,8 @@ public:
 
     static  int     close(LLFILE * file);
 
+    static std::string getContents(const std::string& filename);
+
     // perms is a permissions mask like 0777 or 0700.  In most cases it will
     // be overridden by the user's umask.  It is ignored on Windows.
     // mkdir() considers "directory already exists" to be SUCCESS.

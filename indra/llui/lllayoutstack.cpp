@@ -131,7 +131,7 @@ void LLLayoutPanel::setTargetDim(S32 value)
 
 S32 LLLayoutPanel::getVisibleDim() const
 {
-    F32 min_dim = getRelevantMinDim();
+    F32 min_dim = (F32)getRelevantMinDim();
     return ll_round(mVisibleAmt
                     * (min_dim
                         + (((F32)mTargetDim - min_dim) * (1.f - mCollapseAmt))));
@@ -209,7 +209,7 @@ LLLayoutStack::Params::Params()
     open_time_constant("open_time_constant", 0.02f),
     close_time_constant("close_time_constant", 0.03f),
     resize_bar_overlap("resize_bar_overlap", 1),
-    border_size("border_size", LLCachedControl<S32>(*LLUI::getInstance()->mSettingGroups["config"], "UIResizeBarHeight", 0)),
+    border_size("border_size", LLUI::getInstance()->mSettingGroups["config"]->getS32("UIResizeBarHeight")),
     show_drag_handle("show_drag_handle", false),
     drag_handle_first_indent("drag_handle_first_indent", 0),
     drag_handle_second_indent("drag_handle_second_indent", 0),
@@ -445,7 +445,7 @@ void LLLayoutStack::updateLayout()
 
     for (LLLayoutPanel* panelp : mPanels)
     {
-        F32 panel_dim = llmax(panelp->getExpandedMinDim(), panelp->mTargetDim);
+        F32 panel_dim = (F32)llmax(panelp->getExpandedMinDim(), panelp->mTargetDim);
 
         LLRect panel_rect;
         if (mOrientation == HORIZONTAL)
@@ -465,7 +465,7 @@ void LLLayoutStack::updateLayout()
 
         LLRect resize_bar_rect(panel_rect);
         F32 panel_spacing = (F32)mPanelSpacing * panelp->getVisibleAmount();
-        F32 panel_visible_dim = panelp->getVisibleDim();
+        F32 panel_visible_dim = (F32)panelp->getVisibleDim();
         S32 panel_spacing_round = (S32)(ll_round(panel_spacing));
 
         if (mOrientation == HORIZONTAL)
@@ -548,7 +548,7 @@ LLLayoutPanel* LLLayoutStack::findEmbeddedPanel(LLPanel* panelp) const
     return NULL;
 }
 
-LLLayoutPanel* LLLayoutStack::findEmbeddedPanelByName(const std::string& name) const
+LLLayoutPanel* LLLayoutStack::findEmbeddedPanelByName(std::string_view name) const
 {
     LLLayoutPanel* result = NULL;
 

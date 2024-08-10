@@ -151,6 +151,7 @@ bool    LLPanelVolume::postBuild()
     {
         childSetCommitCallback("Reflection Probe", onCommitIsReflectionProbe, this);
         childSetCommitCallback("Probe Update Type", onCommitProbe, this);
+        childSetCommitCallback("Probe Dynamic", onCommitProbe, this);
         childSetCommitCallback("Probe Volume Type", onCommitProbe, this);
         childSetCommitCallback("Probe Ambiance", onCommitProbe, this);
         childSetCommitCallback("Probe Near Clip", onCommitProbe, this);
@@ -412,6 +413,7 @@ void LLPanelVolume::getState( )
         getChild<LLSpinCtrl>("Probe Ambiance", true)->clear();
         getChild<LLSpinCtrl>("Probe Near Clip", true)->clear();
         getChild<LLComboBox>("Probe Update Type", true)->clear();
+        getChild<LLUICtrl>("Probe Dynamic")->setValue(false);
     }
     else
     {
@@ -446,6 +448,7 @@ void LLPanelVolume::getState( )
         getChild<LLSpinCtrl>("Probe Ambiance", true)->setValue(volobjp->getReflectionProbeAmbiance());
         getChild<LLSpinCtrl>("Probe Near Clip", true)->setValue(volobjp->getReflectionProbeNearClip());
         getChild<LLComboBox>("Probe Update Type", true)->setValue(update_type);
+        getChild<LLUICtrl>("Probe Dynamic")->setValue(volobjp->getReflectionProbeIsDynamic());
     }
 
     // Animated Mesh
@@ -733,6 +736,7 @@ void LLPanelVolume::clearCtrls()
     getChildView("Reflection Probe")->setEnabled(false);;
     getChildView("Probe Volume Type")->setEnabled(false);
     getChildView("Probe Update Type")->setEnabled(false);
+    getChildView("Probe Dynamic")->setEnabled(false);
     getChildView("Probe Ambiance")->setEnabled(false);
     getChildView("Probe Near Clip")->setEnabled(false);
     getChildView("Animated Mesh Checkbox Ctrl")->setEnabled(false);
@@ -895,25 +899,25 @@ void LLPanelVolume::sendPhysicsShapeType(LLUICtrl* ctrl, void* userdata)
 
 void LLPanelVolume::sendPhysicsGravity(LLUICtrl* ctrl, void* userdata)
 {
-    F32 val = ctrl->getValue().asReal();
+    F32 val = (F32)ctrl->getValue().asReal();
     LLSelectMgr::getInstance()->selectionSetGravity(val);
 }
 
 void LLPanelVolume::sendPhysicsFriction(LLUICtrl* ctrl, void* userdata)
 {
-    F32 val = ctrl->getValue().asReal();
+    F32 val = (F32)ctrl->getValue().asReal();
     LLSelectMgr::getInstance()->selectionSetFriction(val);
 }
 
 void LLPanelVolume::sendPhysicsRestitution(LLUICtrl* ctrl, void* userdata)
 {
-    F32 val = ctrl->getValue().asReal();
+    F32 val = (F32)ctrl->getValue().asReal();
     LLSelectMgr::getInstance()->selectionSetRestitution(val);
 }
 
 void LLPanelVolume::sendPhysicsDensity(LLUICtrl* ctrl, void* userdata)
 {
-    F32 val = ctrl->getValue().asReal();
+    F32 val = (F32)ctrl->getValue().asReal();
     LLSelectMgr::getInstance()->selectionSetDensity(val);
 }
 
@@ -1095,10 +1099,10 @@ void LLPanelVolume::onPasteFeatures()
 
         objectp->setMaterial(material);
         objectp->sendMaterialUpdate();
-        objectp->setPhysicsGravity(clipboard["physics"]["gravity"].asReal());
-        objectp->setPhysicsFriction(clipboard["physics"]["friction"].asReal());
-        objectp->setPhysicsDensity(clipboard["physics"]["density"].asReal());
-        objectp->setPhysicsRestitution(clipboard["physics"]["restitution"].asReal());
+        objectp->setPhysicsGravity((F32)clipboard["physics"]["gravity"].asReal());
+        objectp->setPhysicsFriction((F32)clipboard["physics"]["friction"].asReal());
+        objectp->setPhysicsDensity((F32)clipboard["physics"]["density"].asReal());
+        objectp->setPhysicsRestitution((F32)clipboard["physics"]["restitution"].asReal());
         objectp->updateFlags(true);
     }
 
@@ -1123,10 +1127,10 @@ void LLPanelVolume::onPasteFeatures()
             LLFlexibleObjectData new_attributes;
             new_attributes = *attributes;
             new_attributes.setSimulateLOD(clipboard["flex"]["lod"].asInteger());
-            new_attributes.setGravity(clipboard["flex"]["gav"].asReal());
-            new_attributes.setTension(clipboard["flex"]["ten"].asReal());
-            new_attributes.setAirFriction(clipboard["flex"]["fri"].asReal());
-            new_attributes.setWindSensitivity(clipboard["flex"]["sen"].asReal());
+            new_attributes.setGravity((F32)clipboard["flex"]["gav"].asReal());
+            new_attributes.setTension((F32)clipboard["flex"]["ten"].asReal());
+            new_attributes.setAirFriction((F32)clipboard["flex"]["fri"].asReal());
+            new_attributes.setWindSensitivity((F32)clipboard["flex"]["sen"].asReal());
             F32 fx = (F32)clipboard["flex"]["forx"].asReal();
             F32 fy = (F32)clipboard["flex"]["fory"].asReal();
             F32 fz = (F32)clipboard["flex"]["forz"].asReal();
@@ -1428,15 +1432,26 @@ void LLPanelVolume::onCommitProbe(LLUICtrl* ctrl, void* userdata)
     volobjp->setReflectionProbeAmbiance((F32)self->getChild<LLUICtrl>("Probe Ambiance")->getValue().asReal());
     volobjp->setReflectionProbeNearClip((F32)self->getChild<LLUICtrl>("Probe Near Clip")->getValue().asReal());
 
-    std::string update_type = self->getChild<LLUICtrl>("Probe Update Type")->getValue().asString();
+    bool mirrors_enabled = LLPipeline::RenderMirrors;
+    bool is_mirror = false;
 
-    bool is_mirror = update_type.find("Mirror") != std::string::npos;
+    if (mirrors_enabled)
+    {
+        std::string update_type = self->getChild<LLUICtrl>("Probe Update Type")->getValue().asString();
+
+        is_mirror = update_type.find("Mirror") != std::string::npos;
+
+        volobjp->setReflectionProbeIsDynamic(update_type.find("Dynamic") != std::string::npos);
+        volobjp->setReflectionProbeIsMirror(is_mirror);
+    }
+    else
+    {
+        is_mirror = volobjp->getReflectionProbeIsMirror();
+        bool is_dynamic = self->getChild<LLUICtrl>("Probe Dynamic")->getValue().asBoolean();
+        volobjp->setReflectionProbeIsDynamic(is_dynamic);
+    }
 
     self->getChildView("Probe Volume Type")->setEnabled(!is_mirror);
-
-    volobjp->setReflectionProbeIsDynamic(update_type.find("Dynamic") != std::string::npos);
-    volobjp->setReflectionProbeIsMirror(is_mirror);
-
     self->getChildView("Probe Ambiance")->setEnabled(!is_mirror);
     self->getChildView("Probe Near Clip")->setEnabled(!is_mirror);
 

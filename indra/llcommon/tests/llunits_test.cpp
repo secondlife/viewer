@@ -262,7 +262,7 @@ namespace tut
         F32 float_val = quatloos_implicit;
         ensure("implicit units convert implicitly to regular values", float_val == 16);
 
-        S32 int_val = quatloos_implicit;
+        S32 int_val = (S32)quatloos_implicit;
         ensure("implicit units convert implicitly to regular values", int_val == 16);
 
         // conversion of implicits

@@ -42,6 +42,7 @@
 #include "llviewertexturelist.h"
 #include "llimagej2c.h"
 #include "llfloaterperms.h"
+#include "llfloaterreg.h"
 #include "llagentbenefits.h"
 #include "llfilesystem.h"
 #include "boost/json.hpp"
@@ -144,7 +145,17 @@ void GLTFSceneManager::uploadSelection()
                 }
                 else
                 {
-                    raw = image.mTexture->getCachedRawImage();
+                    raw = image.mTexture->getRawImage();
+                }
+
+                if (raw.isNull())
+                {
+                    raw = image.mTexture->getSavedRawImage();
+                }
+
+                if (raw.isNull())
+                {
+                    image.mTexture->readbackRawImage();
                 }
 
                 if (raw.notNull())
@@ -314,6 +325,7 @@ void GLTFSceneManager::load(const std::string& filename)
             {
                 mObjects.push_back(obj);
             }
+            LLFloaterReg::showInstance("gltf_asset_editor");
         }
     }
     else
@@ -339,8 +351,15 @@ void GLTFSceneManager::renderAlpha()
 
 void GLTFSceneManager::addGLTFObject(LLViewerObject* obj, LLUUID gltf_id)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_GLTF;
     llassert(obj->getVolume()->getParams().getSculptID() == gltf_id);
     llassert(obj->getVolume()->getParams().getSculptType() == LL_SCULPT_TYPE_GLTF);
+
+    if (obj->mGLTFAsset)
+    { // object already has a GLTF asset, don't reload it
+        llassert(std::find(mObjects.begin(), mObjects.end(), obj) != mObjects.end());
+        return;
+    }
 
     obj->ref();
     gAssetStorage->getAssetData(gltf_id, LLAssetType::AT_GLTF, onGLTFLoadComplete, obj);
@@ -773,7 +792,7 @@ void GLTFSceneManager::bind(Asset& asset, Material& material)
         bindTexture(asset, TextureType::EMISSIVE, material.mEmissiveTexture, LLViewerFetchedTexture::sWhiteImagep);
     }
 
-    shader->uniform1i(LLShaderMgr::GLTF_MATERIAL_ID, &material - &asset.mMaterials[0]);
+    shader->uniform1i(LLShaderMgr::GLTF_MATERIAL_ID, (GLint)(&material - &asset.mMaterials[0]));
 }
 
 LLMatrix4a inverse(const LLMatrix4a& mat)

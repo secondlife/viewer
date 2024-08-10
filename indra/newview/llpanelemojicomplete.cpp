@@ -110,8 +110,8 @@ void LLPanelEmojiComplete::draw()
 
     F32 iconCenterX = mRenderRect.mLeft + (F32)mEmojiWidth / 2;
     F32 iconCenterY = mRenderRect.mTop - (F32)mEmojiHeight / 2;
-    F32 textLeft = mVertical ? mRenderRect.mLeft + mEmojiWidth + mPadding : 0;
-    F32 textWidth = mVertical ? getRect().getWidth() - textLeft - mPadding : 0;
+    F32 textLeft = mVertical ? (F32)(mRenderRect.mLeft + mEmojiWidth + mPadding) : 0.f;
+    F32 textWidth = mVertical ? (F32)(getRect().getWidth() - textLeft - mPadding) : 0.f;
 
     for (size_t curIdx = firstVisibleIdx; curIdx < lastVisibleIdx; curIdx++)
     {
@@ -129,7 +129,7 @@ void LLPanelEmojiComplete::draw()
                 std::string text = shortCode.substr(0, mEmojis[curIdx].Begin);
                 mTextFont->renderUTF8(text, 0, x0, iconCenterY, LLColor4::white,
                     LLFontGL::LEFT, LLFontGL::VCENTER, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
-                    static_cast<S32>(text.size()), x1);
+                    static_cast<S32>(text.size()), (S32)x1);
                 x0 += mTextFont->getWidthF32(text);
                 x1 = textLeft + textWidth - x0;
             }
@@ -138,7 +138,7 @@ void LLPanelEmojiComplete::draw()
                 std::string text = shortCode.substr(mEmojis[curIdx].Begin, mEmojis[curIdx].End - mEmojis[curIdx].Begin);
                 mTextFont->renderUTF8(text, 0, x0, iconCenterY, LLColor4::yellow6,
                     LLFontGL::LEFT, LLFontGL::VCENTER, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
-                    static_cast<S32>(text.size()), x1);
+                    static_cast<S32>(text.size()), (S32)x1);
                 x0 += mTextFont->getWidthF32(text);
                 x1 = textLeft + textWidth - x0;
             }
@@ -147,7 +147,7 @@ void LLPanelEmojiComplete::draw()
                 std::string text = shortCode.substr(mEmojis[curIdx].End);
                 mTextFont->renderUTF8(text, 0, x0, iconCenterY, LLColor4::white,
                     LLFontGL::LEFT, LLFontGL::VCENTER, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
-                    static_cast<S32>(text.size()), x1);
+                    static_cast<S32>(text.size()), (S32)x1);
             }
             iconCenterY -= mEmojiHeight;
         }
@@ -163,7 +163,7 @@ bool LLPanelEmojiComplete::handleHover(S32 x, S32 y, MASK mask)
     if (mScrollbar && mScrollbar->getVisible() && childrenHandleHover(x, y, mask))
         return true;
 
-    LLVector2 curHover(x, y);
+    LLVector2 curHover((F32)x, (F32)y);
     if ((mLastHover - curHover).lengthSquared() > MIN_MOUSE_MOVE_DELTA)
     {
         size_t index = posToIndex(x, y);
@@ -235,7 +235,7 @@ bool LLPanelEmojiComplete::handleMouseDown(S32 x, S32 y, MASK mask)
         return true;
 
     mCurSelected = posToIndex(x, y);
-    mLastHover = LLVector2(x, y);
+    mLastHover = LLVector2((F32)x, (F32)y);
 
     return true;
 }
@@ -438,7 +438,7 @@ void LLPanelEmojiComplete::updateConstraints()
 {
     mRenderRect = getLocalRect();
 
-    mEmojiWidth = mIconFont->getWidthF32(u8"\U0001F431") + mPadding * 2;
+    mEmojiWidth = (U16)(mIconFont->getWidthF32(u8"\U0001F431") + mPadding * 2);
     if (mVertical)
     {
         mEmojiHeight = mIconFont->getLineHeight() + mPadding * 2;
@@ -481,7 +481,7 @@ void LLPanelEmojiComplete::updateScrollPos()
     }
     else
     {
-        mScrollPos = mCurSelected - ((float)mCurSelected / (mTotalEmojis - 2) * (mVisibleEmojis - 2));
+        mScrollPos = (size_t)(mCurSelected - ((float)mCurSelected / (mTotalEmojis - 2) * (mVisibleEmojis - 2)));
     }
 
     if (mScrollbar && mScrollbar->getVisible())

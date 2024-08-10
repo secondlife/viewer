@@ -71,8 +71,8 @@ S32 OSMessageBox(const std::string& text, const std::string& caption, U32 type)
     }
 
     S32 result = 0;
-#if LL_MESA_HEADLESS // !!! *FIX: (?)
     LL_WARNS() << "OSMessageBox: " << text << LL_ENDL;
+#if LL_MESA_HEADLESS // !!! *FIX: (?)
     return OSBTN_OK;
 #elif LL_WINDOWS
     result = OSMessageBoxWin32(text, caption, type);

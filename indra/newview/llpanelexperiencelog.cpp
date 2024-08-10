@@ -76,7 +76,7 @@ bool LLPanelExperienceLog::postBuild()
 
 
     LLSpinCtrl* spin = getChild<LLSpinCtrl>("logsizespinner");
-    spin->set(log->getMaxDays());
+    spin->set((F32)log->getMaxDays());
     spin->setCommitCallback(boost::bind(&LLPanelExperienceLog::logSizeChanged, this));
 
     mPageSize = log->getPageSize();

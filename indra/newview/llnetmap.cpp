@@ -296,8 +296,6 @@ void LLNetMap::draw()
                 gGL.color4f(1.f, 0.5f, 0.5f, 1.f);
             }
 
-
-
             // Draw using texture.
             gGL.getTexUnit(0)->bind(regionp->getLand().getSTexture());
             gGL.begin(LLRender::QUADS);
@@ -311,24 +309,6 @@ void LLNetMap::draw()
                 gGL.vertex2f(right, top);
             gGL.end();
 
-            // Draw water
-            gGL.flush();
-            {
-                if (regionp->getLand().getWaterTexture())
-                {
-                    gGL.getTexUnit(0)->bind(regionp->getLand().getWaterTexture());
-                    gGL.begin(LLRender::QUADS);
-                        gGL.texCoord2f(0.f, 1.f);
-                        gGL.vertex2f(left, top);
-                        gGL.texCoord2f(0.f, 0.f);
-                        gGL.vertex2f(left, bottom);
-                        gGL.texCoord2f(1.f, 0.f);
-                        gGL.vertex2f(right, bottom);
-                        gGL.texCoord2f(1.f, 1.f);
-                        gGL.vertex2f(right, top);
-                    gGL.end();
-                }
-            }
             gGL.flush();
         }
 
@@ -455,7 +435,7 @@ void LLNetMap::draw()
             }
 
             F32 dist_to_cursor_squared = dist_vec_squared(LLVector2(pos_map.mV[VX], pos_map.mV[VY]),
-                                          LLVector2(local_mouse_x,local_mouse_y));
+                                          LLVector2((F32)local_mouse_x, (F32)local_mouse_y));
             if(dist_to_cursor_squared < min_pick_dist_squared && dist_to_cursor_squared < closest_dist_squared)
             {
                 closest_dist_squared = dist_to_cursor_squared;
@@ -495,7 +475,7 @@ void LLNetMap::draw()
                       dot_width);
 
             F32 dist_to_cursor_squared = dist_vec_squared(LLVector2(pos_map.mV[VX], pos_map.mV[VY]),
-                                          LLVector2(local_mouse_x,local_mouse_y));
+                                          LLVector2((F32)local_mouse_x, (F32)local_mouse_y));
             if(dist_to_cursor_squared < min_pick_dist_squared && dist_to_cursor_squared < closest_dist_squared)
             {
                 mClosestAgentToCursor = gAgent.getID();
@@ -691,7 +671,7 @@ LLVector3d LLNetMap::viewPosToGlobal( S32 x, S32 y )
 bool LLNetMap::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
     // note that clicks are reversed from what you'd think: i.e. > 0  means zoom out, < 0 means zoom in
-    F32 new_scale = mScale * pow(MAP_SCALE_ZOOM_FACTOR, -clicks);
+    F32 new_scale = mScale * (F32)pow(MAP_SCALE_ZOOM_FACTOR, -clicks);
     F32 old_scale = mScale;
 
     setScale(new_scale);
@@ -701,8 +681,8 @@ bool LLNetMap::handleScrollWheel(S32 x, S32 y, S32 clicks)
     {
         // Adjust pan to center the zoom on the mouse pointer
         LLVector2 zoom_offset;
-        zoom_offset.mV[VX] = x - getRect().getWidth() / 2;
-        zoom_offset.mV[VY] = y - getRect().getHeight() / 2;
+        zoom_offset.mV[VX] = (F32)(x - getRect().getWidth() / 2);
+        zoom_offset.mV[VY] = (F32)(y - getRect().getHeight() / 2);
         mCurPan -= zoom_offset * mScale / old_scale - zoom_offset;
     }
 

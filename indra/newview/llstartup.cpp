@@ -957,7 +957,7 @@ bool idle_startup()
         // and startup time is close enough if we don't have a real value.
         if (gSavedPerAccountSettings.getU32("LastLogoff") == 0)
         {
-            gSavedPerAccountSettings.setU32("LastLogoff", time_corrected());
+            gSavedPerAccountSettings.setU32("LastLogoff", (U32)time_corrected());
         }
 
         //Default the path if one isn't set.
@@ -1508,7 +1508,11 @@ bool idle_startup()
 
         // create a container's instance for start a controlling conversation windows
         // by the voice's events
-        LLFloaterIMContainer::getInstance();
+        LLFloaterIMContainer *im_inst = LLFloaterIMContainer::getInstance();
+        if(gAgent.isFirstLogin())
+        {
+            im_inst->openFloater(im_inst->getKey());
+        }
         if (gSavedSettings.getS32("ParcelMediaAutoPlayEnable") == 2)
         {
             LLViewerParcelAskPlay::getInstance()->loadSettings();
@@ -3665,7 +3669,7 @@ bool process_login_success_response()
         if(server_utc_time)
         {
             time_t now = time(NULL);
-            gUTCOffset = (server_utc_time - now);
+            gUTCOffset = (S32)(server_utc_time - now);
 
             // Print server timestamp
             LLSD substitution;

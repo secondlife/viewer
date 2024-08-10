@@ -422,7 +422,7 @@ protected:
     bool            updateIsFullyLoaded();
     bool            processFullyLoadedChange(bool loading);
     void            updateRuthTimer(bool loading);
-    F32             calcMorphAmount();
+    F32             calcMorphAmount() const;
 
 private:
     bool            mFirstFullyVisible;
@@ -587,6 +587,8 @@ private:
 
     mutable bool        mCachedInMuteList;
     mutable F64         mCachedMuteListUpdateTime;
+    mutable bool        mCachedInBuddyList = false;
+    mutable F64         mCachedBuddyListUpdateTime = 0.0;
 
     VisualMuteSettings      mVisuallyMuteSetting;           // Always or never visually mute this AV
 

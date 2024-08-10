@@ -248,6 +248,24 @@ int LLFile::close(LLFILE * file)
     return ret_value;
 }
 
+std::string LLFile::getContents(const std::string& filename)
+{
+    LLFILE* fp = fopen(filename, "rb"); /* Flawfinder: ignore */
+    if (fp)
+    {
+        fseek(fp, 0, SEEK_END);
+        U32 length = ftell(fp);
+        fseek(fp, 0, SEEK_SET);
+
+        std::vector<char> buffer(length);
+        size_t nread = fread(buffer.data(), 1, length, fp);
+        fclose(fp);
+
+        return std::string(buffer.data(), nread);
+    }
+
+    return LLStringUtil::null;
+}
 
 int LLFile::remove(const std::string& filename, int supress_error)
 {

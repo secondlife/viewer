@@ -169,6 +169,8 @@ void LLFace::init(LLDrawable* drawablep, LLViewerObject* objp)
     mImportanceToCamera = 0.f ;
     mBoundingSphereRadius = 0.0f ;
 
+    mTexExtents[0].set(0, 0);
+    mTexExtents[1].set(1, 1);
     mHasMedia = false ;
     mIsMediaAllowed = true;
 }
@@ -234,7 +236,7 @@ void LLFace::setPool(LLFacePool* pool)
 
 void LLFace::setPool(LLFacePool* new_pool, LLViewerTexture *texturep)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_FACE
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_FACE;
 
     if (!new_pool)
     {
@@ -315,7 +317,7 @@ void LLFace::setSpecularMap(LLViewerTexture* tex)
 
 void LLFace::dirtyTexture()
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_FACE
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_FACE;
 
     LLDrawable* drawablep = getDrawable();
 
@@ -502,7 +504,7 @@ void LLFace::updateCenterAgent()
 
 void LLFace::renderSelected(LLViewerTexture *imagep, const LLColor4& color)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_FACE
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_FACE;
 
     if (mDrawablep == NULL || mDrawablep->getSpatialGroup() == NULL)
     {
@@ -512,7 +514,7 @@ void LLFace::renderSelected(LLViewerTexture *imagep, const LLColor4& color)
     mDrawablep->getSpatialGroup()->rebuildGeom();
     mDrawablep->getSpatialGroup()->rebuildMesh();
 
-    if(mVertexBuffer.isNull())
+    if (mVertexBuffer.isNull())
     {
         return;
     }
@@ -565,8 +567,20 @@ void LLFace::renderSelected(LLViewerTexture *imagep, const LLColor4& color)
         {
             // cheaters sometimes prosper...
             //
-            mVertexBuffer->setBuffer();
-            mVertexBuffer->draw(LLRender::TRIANGLES, mIndicesCount, mIndicesIndex);
+            LLVertexBuffer* vertex_buffer = mVertexBuffer.get();
+            // To display selection markers (white squares with the rounded cross at the center)
+            // on faces with GLTF textures we use a spectal vertex buffer with other transforms
+            if (const LLTextureEntry* te = getTextureEntry())
+            {
+                if (LLGLTFMaterial* gltf_mat = te->getGLTFRenderMaterial())
+                {
+                    vertex_buffer = mVertexBufferGLTF.get();
+                    vertex_buffer->unmapBuffer();
+                }
+            }
+            // Draw the selection marker using the correctly chosen vertex buffer
+            vertex_buffer->setBuffer();
+            vertex_buffer->draw(LLRender::TRIANGLES, mIndicesCount, mIndicesIndex);
         }
 
         gGL.popMatrix();
@@ -576,7 +590,7 @@ void LLFace::renderSelected(LLViewerTexture *imagep, const LLColor4& color)
 
 void renderFace(LLDrawable* drawable, LLFace *face)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_FACE
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_FACE;
 
     LLVOVolume* vobj = drawable->getVOVolume();
     if (vobj)
@@ -803,7 +817,7 @@ bool less_than_max_mag(const LLVector4a& vec)
 bool LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
                              const LLMatrix4& mat_vert_in, bool global_volume)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_FACE
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_FACE;
 
     //get bounding box
     if (mDrawablep->isState(LLDrawable::REBUILD_VOLUME | LLDrawable::REBUILD_POSITION | LLDrawable::REBUILD_RIGGED))
@@ -1142,7 +1156,8 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
                                 const LLMatrix3& mat_norm_in,
                                 U16 index_offset,
                                 bool force_rebuild,
-                                bool no_debug_assert)
+                                bool no_debug_assert,
+                                bool rebuild_for_gltf)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_FACE;
     llassert(verify());
@@ -1200,6 +1215,58 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
         }
     }
 
+    const LLTextureEntry* tep = mVObjp->getTE(face_index);
+    llassert(tep);
+    if (!tep)
+        return false;
+
+    LLGLTFMaterial* gltf_mat = tep->getGLTFRenderMaterial();
+    // To display selection markers (white squares with the rounded cross at the center)
+    // on faces with GLTF textures we use a special vertex buffer with other transforms
+    if (gltf_mat && !rebuild_for_gltf && tep->isSelected() && mVertexBuffer.notNull())
+    {
+        // Create a temporary vertex buffer to provide transforms for GLTF textures
+        if (mVertexBufferGLTF.isNull())
+        {
+            mVertexBufferGLTF = new LLVertexBuffer(mVertexBuffer->getTypeMask());
+        }
+
+        // Clone the existing vertex buffer into the temporary one
+        mVertexBuffer->clone(*mVertexBufferGLTF);
+
+        // Recursive call the same function with the argument rebuild_for_gltf set to true
+        // This call will make geometry in mVertexBuffer but in fact for mVertexBufferGLTF
+        mVertexBufferGLTF.swap(mVertexBufferGLTF, mVertexBuffer);
+        getGeometryVolume(volume, face_index, mat_vert_in, mat_norm_in, index_offset, force_rebuild, no_debug_assert, true);
+        mVertexBufferGLTF.swap(mVertexBufferGLTF, mVertexBuffer);
+    }
+    else if (!tep->isSelected() && mVertexBufferGLTF.notNull())
+    {
+        // Free the temporary vertex buffer when it is not needed anymore
+        mVertexBufferGLTF = nullptr;
+    }
+
+    LLGLTFMaterial::TextureInfo gltf_info_index = (LLGLTFMaterial::TextureInfo)0;
+    if (gltf_mat && rebuild_for_gltf)
+    {
+        switch (LLPipeline::sRenderHighlightTextureChannel)
+        {
+        case LLRender::BASECOLOR_MAP:
+            gltf_info_index = LLGLTFMaterial::GLTF_TEXTURE_INFO_BASE_COLOR;
+            break;
+        case LLRender::METALLIC_ROUGHNESS_MAP:
+            gltf_info_index = LLGLTFMaterial::GLTF_TEXTURE_INFO_METALLIC_ROUGHNESS;
+            break;
+        case LLRender::GLTF_NORMAL_MAP:
+            gltf_info_index = LLGLTFMaterial::GLTF_TEXTURE_INFO_NORMAL;
+            break;
+        case LLRender::EMISSIVE_MAP:
+            gltf_info_index = LLGLTFMaterial::GLTF_TEXTURE_INFO_EMISSIVE;
+            break;
+        default:; // just to make clang happy
+        }
+    }
+
     LLStrider<LLVector3> vert;
     LLStrider<LLVector2> tex_coords0;
     LLStrider<LLVector2> tex_coords1;
@@ -1216,7 +1283,7 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
     LLVector3 scale;
     if (global_volume)
     {
-        scale.setVec(1,1,1);
+        scale.setVec(1, 1, 1);
     }
     else
     {
@@ -1231,7 +1298,6 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
     bool rebuild_tangent = rebuild_pos && mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_TANGENT);
     bool rebuild_weights = rebuild_pos && mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_WEIGHT4);
 
-    const LLTextureEntry *tep = mVObjp->getTE(face_index);
     const U8 bump_code = tep ? tep->getBumpmap() : 0;
 
     bool is_static = mDrawablep->isStatic();
@@ -1321,7 +1387,6 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
 
 
     LLMaterial* mat = tep->getMaterialParams().get();
-    LLGLTFMaterial* gltf_mat = tep->getGLTFRenderMaterial();
 
     F32 r = 0, os = 0, ot = 0, ms = 0, mt = 0, cos_ang = 0, sin_ang = 0;
 
@@ -1332,13 +1397,27 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
 
     S32 xforms = XFORM_NONE;
     // For GLTF, transforms will be applied later
-    if (rebuild_tcoord && tep && !gltf_mat)
+    if (rebuild_tcoord && tep && (!gltf_mat || rebuild_for_gltf))
     {
-        r  = tep->getRotation();
-        os = tep->mOffsetS;
-        ot = tep->mOffsetT;
-        ms = tep->mScaleS;
-        mt = tep->mScaleT;
+        if (gltf_mat && rebuild_for_gltf)
+        {
+            // Apply special transformations for mVertexBufferGLTF
+            // They are used only to display a face selection marker
+            // (white square with a rounded cross at the center)
+            const auto& tt = gltf_mat->mTextureTransform[gltf_info_index];
+            r = -tt.mRotation * 2;
+            ms = tt.mScale[VX];
+            mt = tt.mScale[VY];
+            os += tt.mOffset[VX] + (ms - 1) / 2;
+            ot -= tt.mOffset[VY] + (mt - 1) / 2;
+        }
+        else
+        {
+            r = tep->getRotation();
+            tep->getOffset(&os, &ot);
+            tep->getScale(&ms, &mt);
+        }
+
         cos_ang = cos(r);
         sin_ang = sin(r);
 
@@ -1479,12 +1558,9 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
                     break;
                 }
 
-                F32 s_scale = 1.f;
-                F32 t_scale = 1.f;
-                if( tep )
-                {
-                    tep->getScale( &s_scale, &t_scale );
-                }
+                F32 s_scale = tep->getScaleS();
+                F32 t_scale = tep->getScaleT();
+
                 // Use the nudged south when coming from above sun angle, such
                 // that emboss mapping always shows up on the upward faces of cubes when
                 // it's noon (since a lot of builders build with the sun forced to noon).
@@ -1506,8 +1582,8 @@ bool LLFace::getGeometryVolume(const LLVolume& volume,
 
             bool tex_anim = false;
 
-                LLVOVolume* vobj = (LLVOVolume*) (LLViewerObject*) mVObjp;
-                tex_mode = vobj->mTexAnimMode;
+            LLVOVolume* vobj = (LLVOVolume*)mVObjp.get();
+            tex_mode = vobj->mTexAnimMode;
 
             if (vobj->mTextureAnimp)
             { //texture animation is in play, override specular and normal map tex coords with diffuse texcoords
@@ -2047,9 +2123,11 @@ void LLFace::resetVirtualSize()
 F32 LLFace::getTextureVirtualSize()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
+
     F32 radius;
     F32 cos_angle_to_view_dir;
     bool in_frustum = calcPixelArea(cos_angle_to_view_dir, radius);
+
 
     if (mPixelArea < F_ALMOST_ZERO || !in_frustum)
     {
@@ -2271,7 +2349,7 @@ F32 LLFace::adjustPixelArea(F32 importance, F32 pixel_area)
         {
             if(importance < LEAST_IMPORTANCE_FOR_LARGE_IMAGE)//if the face is not important, do not load hi-res.
             {
-                pixel_area = LLViewerTexture::sMinLargeImageSize ;
+                pixel_area = (F32)LLViewerTexture::sMinLargeImageSize ;
             }
         }
     }

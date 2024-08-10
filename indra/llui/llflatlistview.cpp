@@ -1250,17 +1250,15 @@ void LLFlatListView::detachItems(std::vector<LLPanel*>& detached_items)
     detached_items.clear();
     // Go through items and detach valid items, remove them from items panel
     // and add to detached_items.
-    pairs_iterator_t iter = mItemPairs.begin(), iter_end = mItemPairs.end();
-    while (iter != iter_end)
+    for (auto item_pair : mItemPairs)
     {
-        LLPanel* pItem = (*iter)->first;
+        LLPanel* pItem = item_pair->first;
         if (1 == pItem->notify(action))
         {
-            selectItemPair((*iter), false);
+            selectItemPair(item_pair, false);
             mItemsPanel->removeChild(pItem);
-            detached_items.push_back(pItem);
+            detached_items.emplace_back(pItem);
         }
-        iter++;
     }
     if (!detached_items.empty())
     {
@@ -1268,12 +1266,10 @@ void LLFlatListView::detachItems(std::vector<LLPanel*>& detached_items)
         if (detached_items.size() == mItemPairs.size())
         {
             // This way will be faster if all items were disconnected
-            pairs_iterator_t iter = mItemPairs.begin(), iter_end = mItemPairs.end();
-            while (iter != iter_end)
+            for (auto item_pair : mItemPairs)
             {
-                (*iter)->first = NULL;
-                delete *iter;
-                iter++;
+                item_pair->first = nullptr;
+                delete item_pair;
             }
             mItemPairs.clear();
             // Also set items panel height to zero.
@@ -1286,26 +1282,16 @@ void LLFlatListView::detachItems(std::vector<LLPanel*>& detached_items)
         }
         else
         {
-            std::vector<LLPanel*>::const_iterator
-                detached_iter = detached_items.begin(),
-                detached_iter_end = detached_items.end();
-            while (detached_iter < detached_iter_end)
+            for (auto detached_item : detached_items)
             {
-                LLPanel* pDetachedItem = *detached_iter;
-                pairs_iterator_t iter = mItemPairs.begin(), iter_end = mItemPairs.end();
-                while (iter != iter_end)
+                auto found_pos = std::find_if(mItemPairs.begin(), mItemPairs.end(), [detached_item](auto item_pair) { return item_pair->first == detached_item; });
+                if (found_pos != mItemPairs.end())
                 {
-                    item_pair_t* item_pair = *iter;
-                    if (item_pair->first == pDetachedItem)
-                    {
-                        mItemPairs.erase(iter);
-                        item_pair->first = NULL;
-                        delete item_pair;
-                        break;
-                    }
-                    iter++;
+                    mItemPairs.erase(found_pos);
+                    auto item_pair = *found_pos;
+                    item_pair->first = nullptr;
+                    delete item_pair;
                 }
-                detached_iter++;
             }
             rearrangeItems();
         }
@@ -1412,11 +1398,10 @@ void LLFlatListViewEx::filterItems(bool re_sort, bool notify_parent)
     action.with("match_filter", cur_filter);
 
     mHasMatchedItems = false;
-    bool visibility_changed = false;
-    pairs_const_iterator_t iter = getItemPairs().begin(), iter_end = getItemPairs().end();
-    while (iter != iter_end)
+    bool visibility_changed{ false };
+    for (auto item_pair : getItemPairs())
     {
-        LLPanel* pItem = (*(iter++))->first;
+        LLPanel* pItem = item_pair->first;
         visibility_changed |= updateItemVisibility(pItem, action);
     }
 

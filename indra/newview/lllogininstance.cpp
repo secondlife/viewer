@@ -33,9 +33,6 @@
 #include "stringize.h"
 #include "llsdserialize.h"
 
-// llmessage (!)
-#include "llfiltersd2xmlrpc.h" // for xml_escape_string()
-
 // login
 #include "lllogin.h"
 
@@ -450,7 +447,7 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
             gViewerWindow->setShowProgress(false);
         }
 
-        showMFAChallange(LLTrans::getString(response["message_id"]));
+        showMFAChallange(LLTrans::getString(response["message_id"].asString()));
     }
     else if(   reason_response == "key"
             || reason_response == "presence"
@@ -612,7 +609,7 @@ std::string construct_start_string()
                         << position[VX] << "&"
                         << position[VY] << "&"
                         << position[VZ]);
-            start = xml_escape_string(unescaped_start);
+            start = LLStringFn::xml_encode(unescaped_start, true);
             break;
         }
         case LLSLURL::HOME_LOCATION:

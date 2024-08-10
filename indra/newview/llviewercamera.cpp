@@ -153,12 +153,12 @@ void LLViewerCamera::updateCameraLocation(const LLVector3 &center, const LLVecto
     add(sVelocityStat, dpos);
     add(sAngularVelocityStat, drot);
 
-    mAverageSpeed = LLTrace::get_frame_recording().getPeriodMeanPerSec(sVelocityStat, 50);
-    mAverageAngularSpeed = LLTrace::get_frame_recording().getPeriodMeanPerSec(sAngularVelocityStat);
+    mAverageSpeed = (F32)LLTrace::get_frame_recording().getPeriodMeanPerSec(sVelocityStat, 50);
+    mAverageAngularSpeed = (F32)LLTrace::get_frame_recording().getPeriodMeanPerSec(sAngularVelocityStat);
     mCosHalfCameraFOV = cosf(0.5f * getView() * llmax(1.0f, getAspect()));
 
     // update pixel meter ratio using default fov, not modified one
-    mPixelMeterRatio = getViewHeightInPixels()/ (2.f*tanf(mCameraFOVDefault*0.5));
+    mPixelMeterRatio = (F32)(getViewHeightInPixels()/ (2.f*tanf(mCameraFOVDefault*0.5f)));
     // update screen pixel area
     mScreenPixelArea =(S32)((F32)getViewHeightInPixels() * ((F32)getViewHeightInPixels() * getAspect()));
 }
@@ -903,6 +903,6 @@ bool LLViewerCamera::isDefaultFOVChanged()
 
 void LLViewerCamera::updateCameraAngle(const LLSD& value)
 {
-    setDefaultFOV(value.asReal());
+    setDefaultFOV((F32)value.asReal());
 }
 

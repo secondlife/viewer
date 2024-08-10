@@ -341,8 +341,8 @@ public:
     S32         getChildCount() const           { return (S32)mChildList.size(); }
     template<class _Pr3> void sortChildren(_Pr3 _Pred) { mChildList.sort(_Pred); }
     bool        hasAncestor(const LLView* parentp) const;
-    bool        hasChild(const std::string& childname, bool recurse = false) const;
-    bool        childHasKeyboardFocus( const std::string& childname ) const;
+    bool        hasChild(std::string_view childname, bool recurse = false) const;
+    bool        childHasKeyboardFocus( std::string_view childname ) const;
 
     // these iterators are used for collapsing various tree traversals into for loops
     typedef LLTreeDFSIter<LLView, child_list_const_iter_t> tree_iterator_t;
@@ -416,7 +416,7 @@ public:
     void screenRectToLocal( const LLRect& screen, LLRect* local ) const;
     void localRectToScreen( const LLRect& local, LLRect* screen ) const;
 
-    LLControlVariable *findControl(const std::string& name);
+    LLControlVariable *findControl(std::string_view name);
 
     const child_list_t* getChildList() const { return &mChildList; }
     child_list_const_iter_t beginChild() const { return mChildList.begin(); }
@@ -452,24 +452,24 @@ public:
     // static method handles NULL pointer too
     static std::string getPathname(const LLView*);
 
-    template <class T> T* findChild(const std::string& name, bool recurse = true) const
+    template <class T> T* findChild(std::string_view name, bool recurse = true) const
     {
         LLView* child = findChildView(name, recurse);
         T* result = dynamic_cast<T*>(child);
         return result;
     }
 
-    template <class T> T* getChild(const std::string& name, bool recurse = true) const;
+    template <class T> T* getChild(std::string_view name, bool recurse = true) const;
 
-    template <class T> T& getChildRef(const std::string& name, bool recurse = true) const
+    template <class T> T& getChildRef(std::string_view name, bool recurse = true) const
     {
         return *getChild<T>(name, recurse);
     }
 
-    virtual LLView* getChildView(const std::string& name, bool recurse = true) const;
-    virtual LLView* findChildView(const std::string& name, bool recurse = true) const;
+    virtual LLView* getChildView(std::string_view name, bool recurse = true) const;
+    virtual LLView* findChildView(std::string_view name, bool recurse = true) const;
 
-    template <class T> T* getDefaultWidget(const std::string& name) const
+    template <class T> T* getDefaultWidget(std::string_view name) const
     {
         LLView* widgetp = getDefaultWidgetContainer().findChildView(name);
         return dynamic_cast<T*>(widgetp);
@@ -576,7 +576,7 @@ private:
     LLView* childrenHandleMouseEvent(const METHOD& method, S32 x, S32 y, XDATA extra, bool allow_mouse_block = true);
 
     template <typename METHOD, typename CHARTYPE>
-    LLView* childrenHandleCharEvent(const std::string& desc, const METHOD& method,
+    LLView* childrenHandleCharEvent(std::string_view desc, const METHOD& method,
                                     CHARTYPE c, MASK mask);
 
     // adapter to blur distinction between handleKey() and handleUnicodeChar()
@@ -696,7 +696,7 @@ struct TypeValues<LLView::EOrientation> : public LLInitParam::TypeValuesHelper<L
 };
 }
 
-template <class T> T* LLView::getChild(const std::string& name, bool recurse) const
+template <class T> T* LLView::getChild(std::string_view name, bool recurse) const
 {
     LLView* child = findChildView(name, recurse);
     T* result = dynamic_cast<T*>(child);
@@ -731,7 +731,7 @@ template <class T> T* LLView::getChild(const std::string& name, bool recurse) co
 // require explicit specialization.  See llbutton.cpp for an example.
 #ifndef LLVIEW_CPP
 extern template class LLView* LLView::getChild<class LLView>(
-    const std::string& name, bool recurse) const;
+    std::string_view name, bool recurse) const;
 #endif
 
 #endif //LL_LLVIEW_H

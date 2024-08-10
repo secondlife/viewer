@@ -31,8 +31,9 @@
 
 #include "llexception.h"
 #include <boost/fiber/fss.hpp>
-#include <boost/fiber/future/promise.hpp>
 #include <boost/fiber/future/future.hpp>
+#include <boost/fiber/future/promise.hpp>
+#include <boost/fiber/recursive_mutex.hpp>
 #include "mutex.h"
 #include "llsingleton.h"
 #include "llinstancetracker.h"
@@ -307,6 +308,12 @@ public:
 
     // use mutex, lock, condition_variable suitable for coroutines
     using Mutex = boost::fibers::mutex;
+    using RMutex = boost::fibers::recursive_mutex;
+    // With C++17, LockType is deprecated: at this point we can directly
+    // declare 'std::unique_lock lk(some_mutex)' without explicitly stating
+    // the mutex type. Sadly, making LockType an alias template for
+    // std::unique_lock doesn't work the same way: Class Template Argument
+    // Deduction only works for class templates, not alias templates.
     using LockType = std::unique_lock<Mutex>;
     using cv_status = boost::fibers::cv_status;
     using ConditionVariable = boost::fibers::condition_variable;

@@ -851,19 +851,9 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
 
         if (mSculptTexture.notNull())
         {
-            mSculptTexture->setBoostLevel(llmax((S32)mSculptTexture->getBoostLevel(),
-                                                (S32)LLGLTexture::BOOST_SCULPTED));
             mSculptTexture->setForSculpt() ;
 
-            if(!mSculptTexture->isCachedRawImageReady())
-            {
-                S32 lod = llmin(mLOD, 3);
-                F32 lodf = ((F32)(lod + 1.0f)/4.f);
-                F32 tex_size = lodf * LLViewerTexture::sMaxSculptRez ;
-                mSculptTexture->addTextureStats(2.f * tex_size * tex_size, false);
-            }
-
-            S32 texture_discard = mSculptTexture->getCachedRawImageLevel(); //try to match the texture
+            S32 texture_discard = mSculptTexture->getRawImageLevel(); //try to match the texture
             S32 current_discard = getVolume() ? getVolume()->getSculptLevel() : -2 ;
 
             if (texture_discard >= 0 && //texture has some data available
@@ -1159,7 +1149,9 @@ void LLVOVolume::updateSculptTexture()
         LLUUID id =  sculpt_params->getSculptTexture();
         if (id.notNull())
         {
-            mSculptTexture = LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, true, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+            mSculptTexture = LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, true, LLGLTexture::BOOST_SCULPTED, LLViewerTexture::LOD_TEXTURE);
+            mSculptTexture->forceToSaveRawImage(0, F32_MAX);
+            mSculptTexture->addTextureStats(256.f*256.f);
         }
 
         mSkinInfoUnavaliable = false;
@@ -1252,8 +1244,22 @@ void LLVOVolume::sculpt()
         S8 sculpt_components = 0;
         const U8* sculpt_data = NULL;
 
-        S32 discard_level = mSculptTexture->getCachedRawImageLevel() ;
-        LLImageRaw* raw_image = mSculptTexture->getCachedRawImage() ;
+        S32 discard_level = mSculptTexture->getRawImageLevel() ;
+        LLImageRaw* raw_image = mSculptTexture->getRawImage() ;
+
+        if (!raw_image)
+        {
+            raw_image = mSculptTexture->getSavedRawImage();
+            S32 discard_level = mSculptTexture->getSavedRawImageLevel();
+        }
+
+        if (!raw_image)
+        {
+            // last resort, read back from GL
+            mSculptTexture->readbackRawImage();
+            raw_image = mSculptTexture->getRawImage();
+            discard_level = mSculptTexture->getRawImageLevel();
+        }
 
         S32 max_discard = mSculptTexture->getMaxDiscardLevel();
         if (discard_level > max_discard)
@@ -1269,8 +1275,8 @@ void LLVOVolume::sculpt()
         if(current_discard < -2)
         {
             static S32 low_sculpty_discard_warning_count = 1;
-            S32 exponent = llmax(1, llfloor( log10((F64) low_sculpty_discard_warning_count) ));
-            S32 interval = pow(10.0, exponent);
+            S32 exponent = llmax(1, llfloor((F32)log10((F64) low_sculpty_discard_warning_count)));
+            S32 interval = (S32)pow(10.0, exponent);
             if ( low_sculpty_discard_warning_count < 10 ||
                 (low_sculpty_discard_warning_count % interval) == 0)
             {   // Log first 10 time, then decreasing intervals afterwards otherwise this can flood the logs
@@ -1288,8 +1294,8 @@ void LLVOVolume::sculpt()
         else if (current_discard > MAX_DISCARD_LEVEL)
         {
             static S32 high_sculpty_discard_warning_count = 1;
-            S32 exponent = llmax(1, llfloor( log10((F64) high_sculpty_discard_warning_count) ));
-            S32 interval = pow(10.0, exponent);
+            S32 exponent = llmax(1, llfloor((F32)log10((F64) high_sculpty_discard_warning_count)));
+            S32 interval = (S32)pow(10.0, exponent);
             if ( high_sculpty_discard_warning_count < 10 ||
                 (high_sculpty_discard_warning_count % interval) == 0)
             {   // Log first 10 time, then decreasing intervals afterwards otherwise this can flood the logs
@@ -1310,8 +1316,6 @@ void LLVOVolume::sculpt()
 
         if(!raw_image)
         {
-            llassert(discard_level < 0) ;
-
             sculpt_width = 0;
             sculpt_height = 0;
             sculpt_data = NULL ;
@@ -1537,7 +1541,7 @@ bool LLVOVolume::calcLOD()
         if (isRootEdit())
         {
             S32 total_tris = recursiveGetTriangleCount();
-            S32 est_max_tris = recursiveGetEstTrianglesMax();
+            S32 est_max_tris = (S32)recursiveGetEstTrianglesMax();
             setDebugText(llformat("TRIS SHOWN %d EST %d", total_tris, est_max_tris));
         }
     }
@@ -4049,12 +4053,12 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
             // Scaling here is to make animated object vs
             // non-animated object ARC proportional to the
             // corresponding calculations for streaming cost.
-            num_triangles = (ANIMATED_OBJECT_COST_PER_KTRI * 0.001 * costs.getEstTrisForStreamingCost())/0.06;
+            num_triangles = (U32)((ANIMATED_OBJECT_COST_PER_KTRI * 0.001f * costs.getEstTrisForStreamingCost())/0.06f);
         }
         else
         {
             F32 radius = getScale().length()*0.5f;
-            num_triangles = costs.getRadiusWeightedTris(radius);
+            num_triangles = (U32)costs.getRadiusWeightedTris(radius);
         }
     }
 
@@ -4530,7 +4534,7 @@ F32 LLVOVolume::getBinRadius()
     }
     else
     {
-        F32 szf = size_factor;
+        F32 szf = (F32)size_factor;
         radius = llmax(mDrawable->getRadius(), szf);
         //radius = llmax(radius, mDrawable->mDistanceWRTCamera * distance_factor[0]);
     }
@@ -5742,18 +5746,23 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
                 {
                     continue;
                 }
-#if 0
-#if LL_RELEASE_WITH_DEBUG_INFO
-                const LLUUID pbr_id( "49c88210-7238-2a6b-70ac-92d4f35963cf" );
-                const LLUUID obj_id( vobj->getID() );
-                bool is_pbr = (obj_id == pbr_id);
-#else
-                bool is_pbr = false;
-#endif
-#else
-                LLGLTFMaterial *gltf_mat = facep->getTextureEntry()->getGLTFRenderMaterial();
+
+                LLFetchedGLTFMaterial *gltf_mat = (LLFetchedGLTFMaterial*) facep->getTextureEntry()->getGLTFRenderMaterial();
                 bool is_pbr = gltf_mat != nullptr;
-#endif
+
+                if (is_pbr)
+                {
+                    // tell texture streaming system to ignore blinn-phong textures
+                    facep->setTexture(LLRender::DIFFUSE_MAP, nullptr);
+                    facep->setTexture(LLRender::NORMAL_MAP, nullptr);
+                    facep->setTexture(LLRender::SPECULAR_MAP, nullptr);
+
+                    // let texture streaming system know about PBR textures
+                    facep->setTexture(LLRender::BASECOLOR_MAP, gltf_mat->mBaseColorTexture);
+                    facep->setTexture(LLRender::GLTF_NORMAL_MAP, gltf_mat->mNormalTexture);
+                    facep->setTexture(LLRender::METALLIC_ROUGHNESS_MAP, gltf_mat->mMetallicRoughnessTexture);
+                    facep->setTexture(LLRender::EMISSIVE_MAP, gltf_mat->mEmissiveTexture);
+                }
 
                 //ALWAYS null out vertex buffer on rebuild -- if the face lands in a render
                 // batch, it will recover its vertex buffer reference from the spatial group
@@ -5871,7 +5880,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
                             F32 alpha;
                             if (is_pbr)
                             {
-                                alpha = gltf_mat ? gltf_mat->mBaseColor.mV[3] : 1.0;
+                                alpha = gltf_mat ? gltf_mat->mBaseColor.mV[3] : 1.0f;
                             }
                             else
                             {

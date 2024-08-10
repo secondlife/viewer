@@ -128,7 +128,7 @@ public:
     F32 getWaterHeight() const;
 
     LLViewerTexture *getSTexture();
-    LLViewerTexture *getWaterTexture();
+
     bool hasZData() const                           { return mHasZData; }
 
     void dirtyAllPatches(); // Use this to dirty all patches when changing terrain parameters
@@ -171,18 +171,10 @@ public:
 
 protected:
     void createSTexture();
-    void createWaterTexture();
     void initTextures();
-    void initWater();
-
 
     void createPatchData();     // Allocates memory for patches.
     void destroyPatchData();    // Deallocates memory for patches.
-
-    bool generateWaterTexture(const F32 x, const F32 y,
-                        const F32 width, const F32 height);     // Generate texture from composition values.
-
-    //F32 updateTexture(LLSurfacePatch *ppatch);
 
     LLSurfacePatch *getPatch(const S32 x, const S32 y) const;
 
@@ -201,7 +193,6 @@ protected:
 
     // The textures should never be directly initialized - use the setter methods!
     LLPointer<LLViewerTexture> mSTexturep;      // Texture for surface
-    LLPointer<LLViewerTexture> mWaterTexturep;  // Water texture
 
     LLPointer<LLVOWater>    mWaterObjp;
 

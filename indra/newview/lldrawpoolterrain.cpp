@@ -107,7 +107,8 @@ U32 LLDrawPoolTerrain::getVertexDataMask()
 
 void LLDrawPoolTerrain::prerender()
 {
-    sPBRDetailMode = gSavedSettings.getS32("RenderTerrainPBRDetail");
+    static LLCachedControl<S32> render_terrain_pbr_detail(gSavedSettings, "RenderTerrainPBRDetail");
+    sPBRDetailMode = render_terrain_pbr_detail;
 }
 
 void LLDrawPoolTerrain::boostTerrainDetailTextures()

@@ -960,8 +960,8 @@ bool LLFloater::applyRectControl()
             && !x_control->isDefault()
             && !y_control->isDefault())
         {
-            mPosition.mX = x_control->getValue().asReal();
-            mPosition.mY = y_control->getValue().asReal();
+            mPosition.mX = (LL_COORD_FLOATER::value_t)x_control->getValue().asReal();
+            mPosition.mY = (LL_COORD_FLOATER::value_t)y_control->getValue().asReal();
             mPositioning = LLFloaterEnums::POSITIONING_RELATIVE;
             applyRelativePosition();
 
@@ -1205,24 +1205,64 @@ void LLFloater::handleReshape(const LLRect& new_rect, bool by_user)
             {
                 S32 delta_x = 0;
                 S32 delta_y = 0;
+
+                // take translation of dependee floater into account
+                delta_x += new_rect.mLeft - old_rect.mLeft;
+                delta_y += new_rect.mBottom - old_rect.mBottom;
+
                 // check to see if it snapped to right or top, and move if dependee floater is resizing
                 LLRect dependent_rect = floaterp->getRect();
-                if (dependent_rect.mLeft - getRect().mLeft >= old_rect.getWidth() || // dependent on my right?
-                    dependent_rect.mRight == getRect().mLeft + old_rect.getWidth()) // dependent aligned with my right
+                if ((dependent_rect.mLeft - getRect().mLeft >= old_rect.getWidth() || // dependent on my right?
+                     dependent_rect.mRight == getRect().mLeft + old_rect.getWidth()) // dependent aligned with my right
+                    && dependent_rect.mBottom <= old_rect.mTop + 1)
                 {
                     // was snapped directly onto right side or aligned with it
                     delta_x += new_rect.getWidth() - old_rect.getWidth();
+
+                    // make sure dependent still touches floater and din't go too high,
+                    // it can go over edge, but should't detach completely
+                    if (delta_y > 0
+                        && dependent_rect.mBottom + delta_y > new_rect.mTop)
+                    {
+                        delta_y = llmax(new_rect.mTop - dependent_rect.mBottom, 0);
+                    }
                 }
-                if (dependent_rect.mBottom - getRect().mBottom >= old_rect.getHeight() ||
-                    dependent_rect.mTop == getRect().mBottom + old_rect.getHeight())
+                else if (dependent_rect.mRight == old_rect.mLeft)
+                {
+                    // make sure dependent still touches floater and don't go too high
+                    if (delta_y > 0
+                        && dependent_rect.mBottom <= old_rect.mTop
+                        && dependent_rect.mBottom + delta_y > new_rect.mTop)
+                    {
+                        delta_y = llmax(new_rect.mTop - dependent_rect.mBottom, 0);
+                    }
+                }
+
+                if ((dependent_rect.mBottom - getRect().mBottom >= old_rect.getHeight() ||
+                     dependent_rect.mTop == getRect().mBottom + old_rect.getHeight())
+                    && dependent_rect.mLeft <= old_rect.mRight + 1)
                 {
                     // was snapped directly onto top side or aligned with it
                     delta_y += new_rect.getHeight() - old_rect.getHeight();
-                }
 
-                // take translation of dependee floater into account as well
-                delta_x += new_rect.mLeft - old_rect.mLeft;
-                delta_y += new_rect.mBottom - old_rect.mBottom;
+                    // make sure dependent still touches floater
+                    // and din't go too far to the right
+                    if (delta_x > 0
+                        && dependent_rect.mLeft + delta_x > new_rect.mRight)
+                    {
+                        delta_x = llmax(new_rect.mRight - dependent_rect.mLeft, 0);
+                    }
+                }
+                else if (dependent_rect.mTop == old_rect.mBottom)
+                {
+                    // make sure dependent still touches floater and don't go too far to the right
+                    if (delta_x > 0
+                        && dependent_rect.mLeft <= old_rect.mRight
+                        && dependent_rect.mLeft + delta_x > new_rect.mRight)
+                    {
+                        delta_x = llmax(new_rect.mRight - dependent_rect.mLeft, 0);
+                    }
+                }
 
                 dependent_rect.translate(delta_x, delta_y);
                 floaterp->setShape(dependent_rect, by_user);
@@ -3618,7 +3658,7 @@ void LLFloater::applyRelativePosition()
 
 
 LLCoordFloater::LLCoordFloater(F32 x, F32 y, LLFloater& floater)
-:   coord_t((S32)x, (S32)y)
+:   coord_t(x, y)
 {
     mFloater = floater.getHandle();
 }
@@ -3661,28 +3701,28 @@ LLCoordCommon LL_COORD_FLOATER::convertToCommon() const
     LLCoordCommon out;
     if (self.mX < -0.5f)
     {
-        out.mX = ll_round(rescale(self.mX, -1.f, -0.5f, snap_rect.mLeft - (floater_width - FLOATER_MIN_VISIBLE_PIXELS), snap_rect.mLeft));
+        out.mX = ll_round(rescale(self.mX, -1.f, -0.5f, (F32)(snap_rect.mLeft - (floater_width - FLOATER_MIN_VISIBLE_PIXELS)), (F32)snap_rect.mLeft));
     }
     else if (self.mX > 0.5f)
     {
-        out.mX = ll_round(rescale(self.mX, 0.5f, 1.f, snap_rect.mRight - floater_width, snap_rect.mRight - FLOATER_MIN_VISIBLE_PIXELS));
+        out.mX = ll_round(rescale(self.mX, 0.5f, 1.f, (F32)(snap_rect.mRight - floater_width), (F32)(snap_rect.mRight - FLOATER_MIN_VISIBLE_PIXELS)));
     }
     else
     {
-        out.mX = ll_round(rescale(self.mX, -0.5f, 0.5f, snap_rect.mLeft, snap_rect.mRight - floater_width));
+        out.mX = ll_round(rescale(self.mX, -0.5f, 0.5f, (F32)snap_rect.mLeft, (F32)(snap_rect.mRight - floater_width)));
     }
 
     if (self.mY < -0.5f)
     {
-        out.mY = ll_round(rescale(self.mY, -1.f, -0.5f, snap_rect.mBottom - (floater_height - FLOATER_MIN_VISIBLE_PIXELS), snap_rect.mBottom));
+        out.mY = ll_round(rescale(self.mY, -1.f, -0.5f, (F32)(snap_rect.mBottom - (floater_height - FLOATER_MIN_VISIBLE_PIXELS)), (F32)snap_rect.mBottom));
     }
     else if (self.mY > 0.5f)
     {
-        out.mY = ll_round(rescale(self.mY, 0.5f, 1.f, snap_rect.mTop - floater_height, snap_rect.mTop - FLOATER_MIN_VISIBLE_PIXELS));
+        out.mY = ll_round(rescale(self.mY, 0.5f, 1.f, (F32)(snap_rect.mTop - floater_height), (F32)(snap_rect.mTop - FLOATER_MIN_VISIBLE_PIXELS)));
     }
     else
     {
-        out.mY = ll_round(rescale(self.mY, -0.5f, 0.5f, snap_rect.mBottom, snap_rect.mTop - floater_height));
+        out.mY = ll_round(rescale(self.mY, -0.5f, 0.5f, (F32)snap_rect.mBottom, (F32)(snap_rect.mTop - floater_height)));
     }
 
     // return center point instead of lower left
@@ -3709,27 +3749,27 @@ void LL_COORD_FLOATER::convertFromCommon(const LLCoordCommon& from)
 
     if (from_x < snap_rect.mLeft)
     {
-        self.mX = rescale(from_x, snap_rect.mLeft - (floater_width - FLOATER_MIN_VISIBLE_PIXELS), snap_rect.mLeft, -1.f, -0.5f);
+        self.mX = rescale((F32)from_x, (F32)(snap_rect.mLeft - (floater_width - FLOATER_MIN_VISIBLE_PIXELS)), (F32)snap_rect.mLeft, -1.f, -0.5f);
     }
     else if (from_x + floater_width > snap_rect.mRight)
     {
-        self.mX = rescale(from_x, snap_rect.mRight - floater_width, snap_rect.mRight - FLOATER_MIN_VISIBLE_PIXELS, 0.5f, 1.f);
+        self.mX = rescale((F32)from_x, (F32)(snap_rect.mRight - floater_width), (F32)(snap_rect.mRight - FLOATER_MIN_VISIBLE_PIXELS), 0.5f, 1.f);
     }
     else
     {
-        self.mX = rescale(from_x, snap_rect.mLeft, snap_rect.mRight - floater_width, -0.5f, 0.5f);
+        self.mX = rescale((F32)from_x, (F32)snap_rect.mLeft, (F32)(snap_rect.mRight - floater_width), -0.5f, 0.5f);
     }
 
     if (from_y < snap_rect.mBottom)
     {
-        self.mY = rescale(from_y, snap_rect.mBottom - (floater_height - FLOATER_MIN_VISIBLE_PIXELS), snap_rect.mBottom, -1.f, -0.5f);
+        self.mY = rescale((F32)from_y, (F32)(snap_rect.mBottom - (floater_height - FLOATER_MIN_VISIBLE_PIXELS)), (F32)snap_rect.mBottom, -1.f, -0.5f);
     }
     else if (from_y + floater_height > snap_rect.mTop)
     {
-        self.mY = rescale(from_y, snap_rect.mTop - floater_height, snap_rect.mTop - FLOATER_MIN_VISIBLE_PIXELS, 0.5f, 1.f);
+        self.mY = rescale((F32)from_y, (F32)(snap_rect.mTop - floater_height), (F32)(snap_rect.mTop - FLOATER_MIN_VISIBLE_PIXELS), 0.5f, 1.f);
     }
     else
     {
-        self.mY = rescale(from_y, snap_rect.mBottom, snap_rect.mTop - floater_height, -0.5f, 0.5f);
+        self.mY = rescale((F32)from_y, (F32)snap_rect.mBottom, (F32)(snap_rect.mTop - floater_height), -0.5f, 0.5f);
     }
 }

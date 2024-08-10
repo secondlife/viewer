@@ -81,10 +81,6 @@ LLDrawPoolAlpha::~LLDrawPoolAlpha()
 void LLDrawPoolAlpha::prerender()
 {
     mShaderLevel = LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_OBJECT);
-
-    // TODO: is this even necessay?  These are probably set to never discard
-    LLViewerFetchedTexture::sFlatNormalImagep->addTextureStats(1024.f*1024.f);
-    LLViewerFetchedTexture::sWhiteImagep->addTextureStats(1024.f * 1024.f);
 }
 
 S32 LLDrawPoolAlpha::getNumPostDeferredPasses()
@@ -212,7 +208,7 @@ void LLDrawPoolAlpha::renderPostDeferred(S32 pass)
     forwardRender();
 
     // final pass, render to depth for depth of field effects
-    if (!LLPipeline::sImpostorRender && gSavedSettings.getBOOL("RenderDepthOfField") && !gCubeSnapshot && !LLPipeline::sRenderingHUDs && getType() == LLDrawPool::POOL_ALPHA_POST_WATER)
+    if (!LLPipeline::sImpostorRender && LLPipeline::RenderDepthOfField && !gCubeSnapshot && !LLPipeline::sRenderingHUDs && getType() == LLDrawPool::POOL_ALPHA_POST_WATER)
     {
         //update depth buffer sampler
         simple_shader = fullbright_shader = &gDeferredFullbrightAlphaMaskProgram;

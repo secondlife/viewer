@@ -1101,7 +1101,7 @@ void LLFloaterPreference::onNameTagOpacityChange(const LLSD& newvalue)
     if (color_swatch)
     {
         LLColor4 new_color = color_swatch->get();
-        color_swatch->set( new_color.setAlpha(newvalue.asReal()) );
+        color_swatch->set(new_color.setAlpha((F32)newvalue.asReal()));
     }
 }
 
@@ -1910,7 +1910,7 @@ void LLFloaterPreference::setCacheLocation(const LLStringExplicit& location)
 void LLFloaterPreference::selectPanel(const LLSD& name)
 {
     LLTabContainer * tab_containerp = getChild<LLTabContainer>("pref core");
-    LLPanel * panel = tab_containerp->getPanelByName(name);
+    LLPanel * panel = tab_containerp->getPanelByName(name.asStringRef());
     if (NULL != panel)
     {
         tab_containerp->selectTabPanel(panel);

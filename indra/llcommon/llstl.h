@@ -226,11 +226,11 @@ void delete_and_clear_array(T*& ptr)
 //  foo[2] = "hello";
 //  const char* bar = get_ptr_in_map(foo, 2); // bar -> "hello"
 //  const char* baz = get_ptr_in_map(foo, 3); // baz == NULL
-template <typename K, typename T>
-inline T* get_ptr_in_map(const std::map<K,T*>& inmap, const K& key)
+template <typename T>
+inline typename T::mapped_type get_ptr_in_map(const T& inmap, typename T::key_type const& key)
 {
     // Typedef here avoids warnings because of new c++ naming rules.
-    typedef typename std::map<K,T*>::const_iterator map_iter;
+    typedef typename T::const_iterator map_iter;
     map_iter iter = inmap.find(key);
     if(iter == inmap.end())
     {

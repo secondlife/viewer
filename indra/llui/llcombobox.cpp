@@ -875,6 +875,20 @@ bool LLComboBox::handleUnicodeCharHere(llwchar uni_char)
     return result;
 }
 
+// virtual
+bool LLComboBox::handleScrollWheel(S32 x, S32 y, S32 clicks)
+{
+    if (mList->getVisible()) return mList->handleScrollWheel(x, y, clicks);
+    if (mAllowTextEntry) // We might be editable
+        if (!mList->getFirstSelected()) // We aren't in the list, don't kill their text
+            return false;
+
+    setCurrentByIndex(llclamp(getCurrentIndex() + clicks, 0, getItemCount() - 1));
+    prearrangeList();
+    onCommit();
+    return true;
+}
+
 void LLComboBox::setTextEntry(const LLStringExplicit& text)
 {
     if (mTextEntry)

@@ -138,8 +138,10 @@ void LLHUDText::renderText()
     mOffsetY = lltrunc(mHeight * ((mVertAlignment == ALIGN_VERT_CENTER) ? 0.5f : 1.f));
 
     // *TODO: make this a per-text setting
-    LLColor4 bg_color = LLUIColorTable::instance().getColor("ObjectBubbleColor");
-    bg_color.setAlpha(gSavedSettings.getF32("ChatBubbleOpacity") * alpha_factor);
+    static LLCachedControl<F32> bubble_opacity(gSavedSettings, "ChatBubbleOpacity");
+    static LLUIColor nametag_bg_color = LLUIColorTable::instance().getColor("ObjectBubbleColor");
+    LLColor4 bg_color = nametag_bg_color;
+    bg_color.setAlpha(bubble_opacity * alpha_factor);
 
     const S32 border_height = 16;
     const S32 border_width = 16;
@@ -392,7 +394,8 @@ void LLHUDText::updateVisibility()
 
     LLVector3 pos_agent_center = gAgent.getPosAgentFromGlobal(mPositionGlobal) - dir_from_camera;
     F32 last_distance_center = (pos_agent_center - LLViewerCamera::getInstance()->getOrigin()).magVec();
-    F32 max_draw_distance = gSavedSettings.getF32("PrimTextMaxDrawDistance");
+    static LLCachedControl<F32> prim_text_max_dist(gSavedSettings, "PrimTextMaxDrawDistance");
+    F32 max_draw_distance = prim_text_max_dist;
 
     if(max_draw_distance < 0)
     {

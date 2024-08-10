@@ -100,7 +100,7 @@ bool AccumulatorBufferGroup::isCurrent() const
     return mCounts.isCurrent();
 }
 
-void AccumulatorBufferGroup::append( const AccumulatorBufferGroup& other )
+void AccumulatorBufferGroup::append(const AccumulatorBufferGroup& other)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
     mCounts.addSamples(other.mCounts, SEQUENTIAL);
@@ -109,7 +109,7 @@ void AccumulatorBufferGroup::append( const AccumulatorBufferGroup& other )
     mStackTimers.addSamples(other.mStackTimers, SEQUENTIAL);
 }
 
-void AccumulatorBufferGroup::merge( const AccumulatorBufferGroup& other)
+void AccumulatorBufferGroup::merge(const AccumulatorBufferGroup& other)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
     mCounts.addSamples(other.mCounts, NON_SEQUENTIAL);
@@ -140,7 +140,7 @@ void AccumulatorBufferGroup::sync()
 
 F64 SampleAccumulator::mergeSumsOfSquares(const SampleAccumulator& a, const SampleAccumulator& b)
 {
-    const F64 epsilon = 0.0000001;
+    constexpr F64 epsilon = 0.0000001;
 
     if (a.getSamplingTime() > epsilon && b.getSamplingTime() > epsilon)
     {
@@ -170,7 +170,7 @@ F64 SampleAccumulator::mergeSumsOfSquares(const SampleAccumulator& a, const Samp
     return a.getSumOfSquares();
 }
 
-void SampleAccumulator::addSamples( const SampleAccumulator& other, EBufferAppendType append_type )
+void SampleAccumulator::addSamples(const SampleAccumulator& other, EBufferAppendType append_type)
 {
     if (append_type == NON_SEQUENTIAL)
     {
@@ -205,7 +205,7 @@ void SampleAccumulator::addSamples( const SampleAccumulator& other, EBufferAppen
     }
 }
 
-void SampleAccumulator::reset( const SampleAccumulator* other )
+void SampleAccumulator::reset(const SampleAccumulator* other)
 {
     mLastValue = other ? other->mLastValue : NaN;
     mHasValue = other ? other->mHasValue : false;
@@ -243,7 +243,7 @@ F64 EventAccumulator::mergeSumsOfSquares(const EventAccumulator& a, const EventA
     return a.mSumOfSquares;
 }
 
-void EventAccumulator::addSamples( const EventAccumulator& other, EBufferAppendType append_type )
+void EventAccumulator::addSamples(const EventAccumulator& other, EBufferAppendType append_type)
 {
     if (other.mNumSamples)
     {
@@ -269,12 +269,12 @@ void EventAccumulator::addSamples( const EventAccumulator& other, EBufferAppendT
     }
 }
 
-void EventAccumulator::reset( const EventAccumulator* other )
+void EventAccumulator::reset(const EventAccumulator* other)
 {
     mNumSamples = 0;
     mSum = 0;
-    mMin = F32(NaN);
-    mMax = F32(NaN);
+    mMin = NaN;
+    mMax = NaN;
     mMean = NaN;
     mSumOfSquares = 0;
     mLastValue = other ? other->mLastValue : NaN;

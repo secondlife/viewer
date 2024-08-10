@@ -30,6 +30,7 @@
 
 #include "llsd.h"
 #include "llsingleton.h"
+#include "lluicolor.h"
 
 class LLUUID;
 class LLVector3d;
@@ -45,7 +46,9 @@ public:
     typedef enum e_highlight_position { WHOLE, START, MIDDLE, END } EHighlightPosition;
     typedef enum e_dialog_action { ACTION_NONE, ACTION_CLOSE, ACTION_ADD, ACTION_COPY, ACTION_UPDATE } EDialogAction;
 
-    LLSD parsePartialLineHighlights(const std::string &text,const LLColor4 &color, EHighlightPosition part=WHOLE, S32 index=0);
+    using parser_out_vec_t = std::vector<std::pair<std::string, LLUIColor>>;
+
+    parser_out_vec_t parsePartialLineHighlights(const std::string &text,const LLUIColor &color, EHighlightPosition part=WHOLE, S32 index=0);
     bool parseFullLineHighlights(const std::string &text, LLColor4 *color);
 
 private:

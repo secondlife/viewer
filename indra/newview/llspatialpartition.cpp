@@ -409,7 +409,7 @@ LLSpatialGroup* LLSpatialGroup::getParent()
 
 bool LLSpatialGroup::removeObject(LLDrawable *drawablep, bool from_octree)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_SPATIAL
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SPATIAL;
 
     if(!drawablep)
     {
@@ -498,7 +498,7 @@ public:
 
 void LLSpatialGroup::setState(U32 state, S32 mode)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_SPATIAL
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SPATIAL;
 
     llassert(state <= LLSpatialGroup::STATE_MASK);
 
@@ -547,7 +547,7 @@ public:
 
 void LLSpatialGroup::clearState(U32 state, S32 mode)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_SPATIAL
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SPATIAL;
 
     llassert(state <= LLSpatialGroup::STATE_MASK);
 
@@ -634,7 +634,7 @@ void LLSpatialGroup::updateDistance(LLCamera &camera)
 
 F32 LLSpatialPartition::calcDistance(LLSpatialGroup* group, LLCamera& camera)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_SPATIAL
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SPATIAL;
 
     LLVector4a eye;
     LLVector4a origin;
@@ -729,7 +729,7 @@ F32 LLSpatialGroup::getUpdateUrgency() const
 
 bool LLSpatialGroup::changeLOD()
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_SPATIAL
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SPATIAL;
 
     if (hasState(ALPHA_DIRTY | OBJECT_DIRTY))
     {
@@ -818,7 +818,7 @@ void LLSpatialGroup::handleDestruction(const TreeNode* node)
 
 void LLSpatialGroup::handleChildAddition(const OctreeNode* parent, OctreeNode* child)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_SPATIAL
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SPATIAL;
 
     if (child->getListenerCount() == 0)
     {
@@ -2035,7 +2035,7 @@ void renderNormals(LLDrawable *drawablep)
             obj_scale.normalize3();
 
             // Create inverse-scale vector for normals
-            inv_scale.set(1.0 / scale_v3.mV[VX], 1.0 / scale_v3.mV[VY], 1.0 / scale_v3.mV[VZ], 0.0);
+            inv_scale.set(1.0f / scale_v3.mV[VX], 1.0f / scale_v3.mV[VY], 1.0f/ scale_v3.mV[VZ], 0.0f);
             inv_scale.mul(inv_scale);  // Squared, to apply inverse scale twice
 
             inv_scale.normalize3fast();
@@ -2763,7 +2763,7 @@ void renderTexelDensity(LLDrawable* drawable)
             break;
         }
 
-        checkerboard_matrix.initScale(LLVector3(texturep->getWidth(discard_level) / 8, texturep->getHeight(discard_level) / 8, 1.f));
+        checkerboard_matrix.initScale(LLVector3((F32)texturep->getWidth(discard_level) / 8.f, (F32)texturep->getHeight(discard_level) / 8.f, 1.f));
 
         gGL.getTexUnit(0)->bind(LLViewerTexture::sCheckerBoardImagep, true);
         gGL.matrixMode(LLRender::MM_TEXTURE);
@@ -3978,12 +3978,14 @@ void LLCullResult::clear()
 
     for (U32 i = 0; i < LLRenderPass::NUM_RENDER_TYPES; i++)
     {
-        for (U32 j = 0; j < mRenderMapSize[i]; j++)
+        drawinfo_list_t& render_map = mRenderMap[i];
+        U32 render_map_size = llmin((U32)render_map.size(), mRenderMapSize[i]);
+        for (U32 j = 0; j < render_map_size; j++)
         {
-            mRenderMap[i][j] = 0;
+            render_map[j] = 0;
         }
         mRenderMapSize[i] = 0;
-        mRenderMapEnd[i] = &(mRenderMap[i][0]);
+        mRenderMapEnd[i] = &render_map.front();
     }
 }
 

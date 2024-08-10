@@ -884,7 +884,7 @@ void LLManipScale::dragCorner( S32 x, S32 y )
     {
         F32 drag_dist = mScaleDir * projected_drag_pos1; // Projecting the drag position allows for negative results, vs using the length which will result in a "reverse scaling" bug.
 
-        F32 cur_subdivisions = llclamp(getSubdivisionLevel(mScaleCenter + projected_drag_pos1, mScaleDir, mScaleSnapUnit1, mTickPixelSpacing1), sGridMinSubdivisionLevel, sGridMaxSubdivisionLevel);
+        F32 cur_subdivisions = llclamp(getSubdivisionLevel(mScaleCenter + projected_drag_pos1, mScaleDir, mScaleSnapUnit1, (S32)mTickPixelSpacing1), sGridMinSubdivisionLevel, sGridMaxSubdivisionLevel);
         F32 snap_dist = mScaleSnapUnit1 / (2.f * cur_subdivisions);
         F32 relative_snap_dist = fmodf(drag_dist + snap_dist, mScaleSnapUnit1 / cur_subdivisions);
 
@@ -902,7 +902,7 @@ void LLManipScale::dragCorner( S32 x, S32 y )
     {
         F32 drag_dist = mScaleDir * projected_drag_pos2; // Projecting the drag position allows for negative results, vs using the length which will result in a "reverse scaling" bug.
 
-        F32 cur_subdivisions = llclamp(getSubdivisionLevel(mScaleCenter + projected_drag_pos2, mScaleDir, mScaleSnapUnit2, mTickPixelSpacing2), sGridMinSubdivisionLevel, sGridMaxSubdivisionLevel);
+        F32 cur_subdivisions = llclamp(getSubdivisionLevel(mScaleCenter + projected_drag_pos2, mScaleDir, mScaleSnapUnit2, (S32)mTickPixelSpacing2), sGridMinSubdivisionLevel, sGridMaxSubdivisionLevel);
         F32 snap_dist = mScaleSnapUnit2 / (2.f * cur_subdivisions);
         F32 relative_snap_dist = fmodf(drag_dist + snap_dist, mScaleSnapUnit2 / cur_subdivisions);
 
@@ -1113,7 +1113,7 @@ void LLManipScale::dragFace( S32 x, S32 y )
         else
         {
             F32 drag_dist = scale_center_to_mouse * mScaleDir;
-            F32 cur_subdivisions = llclamp(getSubdivisionLevel(mScaleCenter + mScaleDir * drag_dist, mScaleDir, mScaleSnapUnit1, mTickPixelSpacing1), sGridMinSubdivisionLevel, sGridMaxSubdivisionLevel);
+            F32 cur_subdivisions = llclamp(getSubdivisionLevel(mScaleCenter + mScaleDir * drag_dist, mScaleDir, mScaleSnapUnit1, (S32)mTickPixelSpacing1), sGridMinSubdivisionLevel, sGridMaxSubdivisionLevel);
             F32 snap_dist = mScaleSnapUnit1 / (2.f * cur_subdivisions);
             F32 relative_snap_dist = fmodf(drag_dist + snap_dist, mScaleSnapUnit1 / cur_subdivisions);
             relative_snap_dist -= snap_dist;
@@ -1542,8 +1542,8 @@ void LLManipScale::updateSnapGuides(const LLBBox& bbox)
     mScaleSnapUnit1 = mScaleSnapUnit1 / (mSnapDir1 * mScaleDir);
     mScaleSnapUnit2 = mScaleSnapUnit2 / (mSnapDir2 * mScaleDir);
 
-    mTickPixelSpacing1 = ll_round((F32)MIN_DIVISION_PIXEL_WIDTH / (mScaleDir % mSnapGuideDir1).length());
-    mTickPixelSpacing2 = ll_round((F32)MIN_DIVISION_PIXEL_WIDTH / (mScaleDir % mSnapGuideDir2).length());
+    mTickPixelSpacing1 = (F32)ll_round((F32)MIN_DIVISION_PIXEL_WIDTH / (mScaleDir % mSnapGuideDir1).length());
+    mTickPixelSpacing2 = (F32)ll_round((F32)MIN_DIVISION_PIXEL_WIDTH / (mScaleDir % mSnapGuideDir2).length());
 
     if (uniform)
     {
@@ -1608,8 +1608,8 @@ void LLManipScale::renderSnapGuides(const LLBBox& bbox)
         F32 dist_scale_units_2 = dist_grid_axis / smallest_subdivision2;
 
         // find distance to nearest smallest grid unit
-        F32 grid_multiple1 = llfloor(dist_scale_units_1);
-        F32 grid_multiple2 = llfloor(dist_scale_units_2);
+        F32 grid_multiple1 = (F32)llfloor(dist_scale_units_1);
+        F32 grid_multiple2 = (F32)llfloor(dist_scale_units_2);
         F32 grid_offset1 = fmodf(dist_grid_axis, smallest_subdivision1);
         F32 grid_offset2 = fmodf(dist_grid_axis, smallest_subdivision2);
 

@@ -74,7 +74,7 @@ static LLDefaultChildRegistry::Register<LLLineEditor> r1("line_editor");
 
 // Compiler optimization, generate extern template
 template class LLLineEditor* LLView::getChild<class LLLineEditor>(
-    const std::string& name, bool recurse) const;
+    std::string_view name, bool recurse) const;
 
 //
 // Member functions
@@ -2109,7 +2109,7 @@ void LLLineEditor::draw()
         if (0 == mText.length() && (mReadOnly || mShowLabelFocused))
         {
             mGLFont->render(mLabel.getWString(), 0,
-                            mTextLeftEdge, (F32)text_bottom,
+                            (F32)mTextLeftEdge, (F32)text_bottom,
                             label_color,
                             LLFontGL::LEFT,
                             LLFontGL::BOTTOM,
@@ -2134,7 +2134,7 @@ void LLLineEditor::draw()
         if (0 == mText.length())
         {
             mGLFont->render(mLabel.getWString(), 0,
-                            mTextLeftEdge, (F32)text_bottom,
+                            (F32)mTextLeftEdge, (F32)text_bottom,
                             label_color,
                             LLFontGL::LEFT,
                             LLFontGL::BOTTOM,

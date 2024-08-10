@@ -51,12 +51,13 @@ LLScrollingPanelParamBase::LLScrollingPanelParamBase( const LLPanel::Params& pan
     else
         buildFromFile( "panel_scrolling_param_base.xml");
 
-    getChild<LLUICtrl>("param slider")->setValue(weightToPercent(param->getWeight()));
+    mParamSlider = getChild<LLUICtrl>("param slider");
+    mParamSlider->setValue(weightToPercent(param->getWeight()));
 
     std::string display_name = LLTrans::getString(param->getDisplayName());
-    getChild<LLUICtrl>("param slider")->setLabelArg("[DESC]", display_name);
-    getChildView("param slider")->setEnabled(mAllowModify);
-    childSetCommitCallback("param slider", LLScrollingPanelParamBase::onSliderMoved, this);
+    mParamSlider->setLabelArg("[DESC]", display_name);
+    mParamSlider->setEnabled(mAllowModify);
+    mParamSlider->setCommitCallback(LLScrollingPanelParamBase::onSliderMoved, this);
 
     setVisible(false);
     setBorderVisible( false );
@@ -77,9 +78,9 @@ void LLScrollingPanelParamBase::updatePanel(bool allow_modify)
     }
 
     F32 current_weight = mWearable->getVisualParamWeight( param->getID() );
-    getChild<LLUICtrl>("param slider")->setValue(weightToPercent( current_weight ) );
+    mParamSlider->setValue(weightToPercent( current_weight ) );
     mAllowModify = allow_modify;
-    getChildView("param slider")->setEnabled(mAllowModify);
+    mParamSlider->setEnabled(mAllowModify);
 }
 
 // static

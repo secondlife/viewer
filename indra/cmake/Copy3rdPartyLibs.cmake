@@ -54,12 +54,13 @@ if(WINDOWS)
     set(release_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
     set(release_files
         openjp2.dll
-        libapr-1.dll
-        libaprutil-1.dll
         nghttp2.dll
-        libhunspell.dll
-        uriparser.dll
         )
+
+    if(LLCOMMON_LINK_SHARED)
+        set(release_files ${release_files} libapr-1.dll)
+        set(release_files ${release_files} libaprutil-1.dll)
+    endif()
 
     # OpenSSL
     if(ADDRESS_SIZE EQUAL 64)
@@ -137,9 +138,14 @@ if(WINDOWS)
     # Check each of them.
     foreach(release_msvc_file
             msvcp${MSVC_VER}.dll
+            msvcp${MSVC_VER}_1.dll
+            msvcp${MSVC_VER}_2.dll
+            msvcp${MSVC_VER}_atomic_wait.dll
+            msvcp${MSVC_VER}_codecvt_ids.dll
             msvcr${MSVC_VER}.dll
             vcruntime${MSVC_VER}.dll
             vcruntime${MSVC_VER}_1.dll
+            vcruntime${MSVC_VER}_threads.dll
             )
         if(redist_path AND EXISTS "${redist_path}/${release_msvc_file}")
             MESSAGE(STATUS "Copying redist file from ${redist_path}/${release_msvc_file}")
@@ -176,19 +182,19 @@ elseif(DARWIN)
        )
     set(release_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
     set(release_files
-        libapr-1.0.dylib
-        libapr-1.dylib
-        libaprutil-1.0.dylib
-        libaprutil-1.dylib
-        ${EXPAT_COPY}
-        libhunspell-1.3.0.dylib
         libndofdev.dylib
         libnghttp2.dylib
         libnghttp2.14.dylib
-        liburiparser.dylib
-        liburiparser.1.dylib
-        liburiparser.1.0.27.dylib
        )
+
+    if(LLCOMMON_LINK_SHARED)
+        set(release_files ${release_files}
+            libapr-1.0.dylib
+            libapr-1.dylib
+            libaprutil-1.0.dylib
+            libaprutil-1.dylib
+            )
+    endif()
 
     if (TARGET ll::openal)
       list(APPEND release_files libalut.dylib libopenal.dylib)
@@ -225,12 +231,9 @@ elseif(LINUX)
 
      if( USE_AUTOBUILD_3P )
          list( APPEND release_files
-                 libapr-1.so.0
-                 libaprutil-1.so.0
                  libatk-1.0.so
                  libfreetype.so.6.6.2
                  libfreetype.so.6
-                 libhunspell-1.3.so.0.0.0
                  libopenjp2.so
                  libuuid.so.16
                  libuuid.so.16.0.22
@@ -239,6 +242,13 @@ elseif(LINUX)
                  libgmodule-2.0.so
                  libgobject-2.0.so
                  )
+
+        if(LLCOMMON_LINK_SHARED)
+            set(release_files ${release_files}
+                libapr-1.so.0
+                libaprutil-1.so.0
+                )
+        endif()
      endif()
 
 else(WINDOWS)

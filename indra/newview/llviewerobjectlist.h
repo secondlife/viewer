@@ -145,6 +145,7 @@ public:
 
     S32 getOrphanParentCount() const { return (S32) mOrphanParents.size(); }
     S32 getOrphanCount() const { return mNumOrphans; }
+    S32 getAvatarCount() const { return mNumAvatars; }
     void orphanize(LLViewerObject *childp, U32 parent_id, U32 ip, U32 port);
     void findOrphans(LLViewerObject* objectp, U32 ip, U32 port);
 
@@ -191,6 +192,7 @@ protected:
     std::vector<U64>    mOrphanParents; // LocalID/ip,port of orphaned objects
     std::vector<OrphanInfo> mOrphanChildren;    // UUID's of orphaned objects
     S32 mNumOrphans;
+    S32 mNumAvatars;
 
     typedef std::vector<LLPointer<LLViewerObject> > vobj_list_t;
 

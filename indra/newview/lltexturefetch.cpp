@@ -467,14 +467,6 @@ private:
     // Locks:  Mw (ctor invokes without lock)
     void setDesiredDiscard(S32 discard, S32 size);
 
-    // Threads:  T*
-    // Locks:  Mw
-    bool insertPacket(S32 index, U8* data, S32 size);
-
-    // Locks:  Mw
-    void clearPackets();
-
-
     // Locks:  Mw
     void removeFromCache();
 
@@ -592,21 +584,6 @@ private:
 
     // Work Data
     LLMutex mWorkMutex;
-    struct PacketData
-    {
-        PacketData(U8* data, S32 size)
-        :   mData(data), mSize(size)
-        {}
-        ~PacketData() { clearData(); }
-        void clearData() { delete[] mData; mData = NULL; }
-
-        U8* mData;
-        U32 mSize;
-    };
-    std::vector<PacketData*> mPackets;
-    S32 mFirstPacket;
-    S32 mLastPacket;
-    U16 mTotalPackets;
     U8 mImageCodec;
 
     LLViewerAssetStats::duration_t mMetricsStartTime;
@@ -922,9 +899,6 @@ LLTextureFetchWorker::LLTextureFetchWorker(LLTextureFetch* fetcher,
       mRetryAttempt(0),
       mActiveCount(0),
       mWorkMutex(),
-      mFirstPacket(0),
-      mLastPacket(-1),
-      mTotalPackets(0),
       mImageCodec(IMG_CODEC_INVALID),
       mMetricsStartTime(0),
       mHttpHandle(LLCORE_HTTP_HANDLE_INVALID),
@@ -980,7 +954,6 @@ LLTextureFetchWorker::~LLTextureFetchWorker()
         mFetcher->mTextureCache->writeComplete(mCacheWriteHandle, true);
     }
     mFormattedImage = NULL;
-    clearPackets();
     if (mHttpBufferArray)
     {
         mHttpBufferArray->release();
@@ -990,16 +963,6 @@ LLTextureFetchWorker::~LLTextureFetchWorker()
     mFetcher->removeFromHTTPQueue(mID, (S32Bytes)0);
     mFetcher->removeHttpWaiter(mID);
     mFetcher->updateStateStats(mCacheReadCount, mCacheWriteCount, mResourceWaitCount);
-}
-
-// Locks:  Mw
-void LLTextureFetchWorker::clearPackets()
-{
-    for_each(mPackets.begin(), mPackets.end(), DeletePointer());
-    mPackets.clear();
-    mTotalPackets = 0;
-    mLastPacket = -1;
-    mFirstPacket = 0;
 }
 
 // Locks:  Mw (ctor invokes without lock)
@@ -1164,7 +1127,6 @@ bool LLTextureFetchWorker::doWork(S32 param)
         mHttpReplySize = 0;
         mHttpReplyOffset = 0;
         mHaveAllData = false;
-        clearPackets(); // TODO: Shouldn't be necessary
         mCacheReadHandle = LLTextureCache::nullHandle();
         mCacheWriteHandle = LLTextureCache::nullHandle();
         setState(LOAD_FROM_TEXTURE_CACHE);
@@ -2441,8 +2403,6 @@ LLTextureFetch::LLTextureFetch(LLTextureCache* cache, bool threaded, bool qa_mod
     : LLWorkerThread("TextureFetch", threaded, true),
       mDebugCount(0),
       mDebugPause(false),
-      mPacketCount(0),
-      mBadPacketCount(0),
       mQueueMutex(),
       mNetworkQueueMutex(),
       mTextureCache(cache),
@@ -3066,43 +3026,6 @@ void LLTextureFetch::threadedUpdate()
 #endif
 }
 
-//////////////////////////////////////////////////////////////////////////////
-
-// Threads:  T*
-// Locks:  Mw
-bool LLTextureFetchWorker::insertPacket(S32 index, U8* data, S32 size)
-{
-    LL_PROFILE_ZONE_SCOPED;
-    mRequestedDeltaTimer.reset();
-    if (index >= mTotalPackets)
-    {
-//      LL_WARNS(LOG_TXT) << "Received Image Packet " << index << " > max: " << mTotalPackets << " for image: " << mID << LL_ENDL;
-        return false;
-    }
-    if (index > 0 && index < mTotalPackets-1 && size != MAX_IMG_PACKET_SIZE)
-    {
-//      LL_WARNS(LOG_TXT) << "Received bad sized packet: " << index << ", " << size << " != " << MAX_IMG_PACKET_SIZE << " for image: " << mID << LL_ENDL;
-        return false;
-    }
-
-    if (index >= (S32)mPackets.size())
-    {
-        mPackets.resize(index+1, (PacketData*)NULL); // initializes v to NULL pointers
-    }
-    else if (mPackets[index] != NULL)
-    {
-//      LL_WARNS(LOG_TXT) << "Received duplicate packet: " << index << " for image: " << mID << LL_ENDL;
-        return false;
-    }
-
-    mPackets[index] = new PacketData(data, size);
-    while (mLastPacket+1 < (S32)mPackets.size() && mPackets[mLastPacket+1] != NULL)
-    {
-        ++mLastPacket;
-    }
-    return true;
-}
-
 void LLTextureFetchWorker::setState(e_state new_state)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
@@ -3210,7 +3133,7 @@ S32 LLTextureFetch::getFetchState(const LLUUID& id, F32& data_progress_p, F32& r
         {
             requested_priority = worker->mImagePriority;
         }
-        fetch_priority = worker->getImagePriority();
+        fetch_priority = (U32)worker->getImagePriority();
         can_use_http = worker->getCanUseHTTP() ;
         worker->unlockWorkMutex();                                      // -Mw
     }

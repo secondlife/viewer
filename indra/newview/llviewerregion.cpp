@@ -1269,8 +1269,12 @@ U32 LLViewerRegion::getNumOfVisibleGroups() const
     return mImpl ? static_cast<U32>(mImpl->mVisibleGroups.size()) : 0;
 }
 
-void LLViewerRegion::updateReflectionProbes()
+void LLViewerRegion::updateReflectionProbes(bool full_update)
 {
+    if (!full_update && mReflectionMaps.empty())
+    {
+        return;
+    }
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
     const F32 probe_spacing = 32.f;
     const F32 probe_radius = sqrtf((probe_spacing * 0.5f) * (probe_spacing * 0.5f) * 3.f);
@@ -1278,7 +1282,7 @@ void LLViewerRegion::updateReflectionProbes()
 
     F32 start = probe_spacing * 0.5f;
 
-    U32 grid_width = REGION_WIDTH_METERS / probe_spacing;
+    U32 grid_width = (U32)(REGION_WIDTH_METERS / probe_spacing);
 
     mReflectionMaps.resize(grid_width * grid_width);
 
@@ -3143,16 +3147,24 @@ void LLViewerRegion::unpackRegionHandshake()
             compp->setParamsReady();
         }
 
-        LLPBRTerrainFeatures::queueQuery(*this, [](LLUUID region_id, bool success, const LLModifyRegion& composition_changes)
+        std::string cap = getCapability("ModifyRegion"); // needed for queueQuery
+        if (cap.empty())
         {
-            if (!success) { return; }
-            LLViewerRegion* region = LLWorld::getInstance()->getRegionFromID(region_id);
-            if (!region) { return; }
-            LLVLComposition* compp = region->getComposition();
-            if (!compp) { return; }
-            compp->apply(composition_changes);
-            LLFloaterRegionInfo::sRefreshFromRegion(region);
-        });
+            LLFloaterRegionInfo::sRefreshFromRegion(this);
+        }
+        else
+        {
+            LLPBRTerrainFeatures::queueQuery(*this, [](LLUUID region_id, bool success, const LLModifyRegion& composition_changes)
+            {
+                if (!success) { return; }
+                LLViewerRegion* region = LLWorld::getInstance()->getRegionFromID(region_id);
+                if (!region) { return; }
+                LLVLComposition* compp = region->getComposition();
+                if (!compp) { return; }
+                compp->apply(composition_changes);
+                LLFloaterRegionInfo::sRefreshFromRegion(region);
+            });
+        }
     }
 
 
@@ -3264,6 +3276,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
     capabilityNames.append("VoiceSignalingRequest");
     capabilityNames.append("ReadOfflineMsgs"); // Requires to respond reliably: AcceptFriendship, AcceptGroupInvite, DeclineFriendship, DeclineGroupInvite
     capabilityNames.append("RegionObjects");
+    capabilityNames.append("RegionSchedule");
     capabilityNames.append("RemoteParcelRequest");
     capabilityNames.append("RenderMaterials");
     capabilityNames.append("RequestTextureDownload");
@@ -3735,7 +3748,7 @@ void LLViewerRegion::resetMaterialsCapThrottle()
     if (   mSimulatorFeatures.has("RenderMaterialsCapability")
         && mSimulatorFeatures["RenderMaterialsCapability"].isReal() )
     {
-        requests_per_sec = mSimulatorFeatures["RenderMaterialsCapability"].asReal();
+        requests_per_sec = (F32)mSimulatorFeatures["RenderMaterialsCapability"].asReal();
         if ( requests_per_sec == 0.0f )
         {
             requests_per_sec = 1.0f;

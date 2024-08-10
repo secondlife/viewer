@@ -24,7 +24,6 @@
  * $/LicenseInfo$
  */
 #include <algorithm>
-#include <format>
 #include "llvoicewebrtc.h"
 
 #include "llsdutil.h"
@@ -314,7 +313,7 @@ const LLVoiceVersionInfo& LLWebRTCVoiceClient::getVersion()
 
 void LLWebRTCVoiceClient::updateSettings()
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE;
 
     setVoiceEnabled(LLVoiceClient::getInstance()->voiceEnabled());
     static LLCachedControl<S32> sVoiceEarLocation(gSavedSettings, "VoiceEarLocation");
@@ -359,7 +358,7 @@ void LLWebRTCVoiceClient::removeObserver(LLVoiceClientParticipantObserver *obser
 
 void LLWebRTCVoiceClient::notifyParticipantObservers()
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE;
     for (observer_set_t::iterator it = mParticipantObservers.begin(); it != mParticipantObservers.end();)
     {
         LLVoiceClientParticipantObserver *observer = *it;
@@ -381,7 +380,7 @@ void LLWebRTCVoiceClient::removeObserver(LLVoiceClientStatusObserver *observer)
 
 void LLWebRTCVoiceClient::notifyStatusObservers(LLVoiceClientStatusObserver::EStatusType status)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE;
 
     LL_DEBUGS("Voice") << "( " << LLVoiceClientStatusObserver::status2string(status) << " )"
                        << " mSession=" << mSession << LL_ENDL;
@@ -566,7 +565,7 @@ void LLWebRTCVoiceClient::voiceConnectionCoro()
 // for cross-region voice.
 void LLWebRTCVoiceClient::updateNeighboringRegions()
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE;
 
     static const std::vector<LLVector3d> neighbors {LLVector3d(0.0f, 1.0f, 0.0f),  LLVector3d(0.707f, 0.707f, 0.0f),
                                                     LLVector3d(1.0f, 0.0f, 0.0f),  LLVector3d(0.707f, -0.707f, 0.0f),
@@ -599,7 +598,7 @@ void LLWebRTCVoiceClient::updateNeighboringRegions()
 // shut down the current audio session to make room for the next one.
 void LLWebRTCVoiceClient::leaveAudioSession()
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE;
 
     if(mSession)
     {
@@ -655,7 +654,7 @@ void LLWebRTCVoiceClient::OnDevicesChanged(const llwebrtc::LLWebRTCVoiceDeviceLi
 void LLWebRTCVoiceClient::OnDevicesChangedImpl(const llwebrtc::LLWebRTCVoiceDeviceList &render_devices,
                                                const llwebrtc::LLWebRTCVoiceDeviceList &capture_devices)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE;
     std::string inputDevice = gSavedSettings.getString("VoiceInputAudioDevice");
     std::string outputDevice = gSavedSettings.getString("VoiceOutputAudioDevice");
 
@@ -735,7 +734,7 @@ void LLWebRTCVoiceClient::tuningSetSpeakerVolume(float volume)
 
     if (volume != mTuningSpeakerVolume)
     {
-        mTuningSpeakerVolume = volume;
+        mTuningSpeakerVolume = (int)volume;
     }
 }
 
@@ -743,11 +742,11 @@ float LLWebRTCVoiceClient::getAudioLevel()
 {
     if (mIsInTuningMode)
     {
-        return (1.0 - mWebRTCDeviceInterface->getTuningAudioLevel() * LEVEL_SCALE_WEBRTC) * mTuningMicGain / 2.1;
+        return (1.0f - mWebRTCDeviceInterface->getTuningAudioLevel() * LEVEL_SCALE_WEBRTC) * mTuningMicGain / 2.1f;
     }
     else
     {
-        return (1.0 - mWebRTCDeviceInterface->getPeerConnectionAudioLevel() * LEVEL_SCALE_WEBRTC) * mMicGain / 2.1;
+        return (1.0f - mWebRTCDeviceInterface->getPeerConnectionAudioLevel() * LEVEL_SCALE_WEBRTC) * mMicGain / 2.1f;
     }
 }
 
@@ -822,7 +821,7 @@ void LLWebRTCVoiceClient::setHidden(bool hidden)
 // notify the observers.
 void LLWebRTCVoiceClient::OnConnectionEstablished(const std::string &channelID, const LLUUID &regionID)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE;
 
     if (gAgent.getRegion()->getRegionID() == regionID)
     {
@@ -906,7 +905,7 @@ void LLWebRTCVoiceClient::setEarLocation(S32 loc)
 
 void LLWebRTCVoiceClient::updatePosition(void)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE;
 
     LLViewerRegion *region = gAgent.getRegion();
     if (region && isAgentAvatarValid())
@@ -1035,7 +1034,7 @@ void LLWebRTCVoiceClient::enforceTether()
 // standard 50m
 void LLWebRTCVoiceClient::sendPositionUpdate(bool force)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE;
 
     std::string      spatial_data;
 
@@ -1151,7 +1150,7 @@ LLWebRTCVoiceClient::participantStatePtr_t LLWebRTCVoiceClient::addParticipantBy
 
 void LLWebRTCVoiceClient::removeParticipantByID(const std::string &channelID, const LLUUID &id, const LLUUID& region)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE;
 
     participantStatePtr_t result;
     LLWebRTCVoiceClient::sessionState::ptr_t session = sessionState::matchSessionByChannelID(channelID);
@@ -1181,7 +1180,7 @@ LLWebRTCVoiceClient::participantState::participantState(const LLUUID& agent_id, 
 LLWebRTCVoiceClient::participantStatePtr_t LLWebRTCVoiceClient::sessionState::addParticipant(const LLUUID& agent_id, const LLUUID& region)
 {
 
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE;
 
     participantStatePtr_t result;
 
@@ -1219,7 +1218,7 @@ LLWebRTCVoiceClient::participantStatePtr_t LLWebRTCVoiceClient::sessionState::ad
 
 LLWebRTCVoiceClient::participantStatePtr_t LLWebRTCVoiceClient::sessionState::findParticipantByID(const LLUUID& id)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE;
 
     participantStatePtr_t result;
     participantUUIDMap::iterator iter = mParticipantsByUUID.find(id);
@@ -1234,7 +1233,7 @@ LLWebRTCVoiceClient::participantStatePtr_t LLWebRTCVoiceClient::sessionState::fi
 
 void LLWebRTCVoiceClient::sessionState::removeParticipant(const LLWebRTCVoiceClient::participantStatePtr_t &participant)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE;
 
     if (participant)
     {
@@ -1517,7 +1516,7 @@ void LLWebRTCVoiceClient::setMicGain(F32 gain)
 
 void LLWebRTCVoiceClient::setVoiceEnabled(bool enabled)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE;
 
     LL_DEBUGS("Voice")
         << "( " << (enabled ? "enabled" : "disabled") << " )"
@@ -1912,7 +1911,7 @@ void LLWebRTCVoiceClient::sessionState::revive()
 
 void LLWebRTCVoiceClient::sessionState::processSessionStates()
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE;
 
     auto iter = mSessions.begin();
     while (iter != mSessions.end())
@@ -1933,7 +1932,7 @@ void LLWebRTCVoiceClient::sessionState::processSessionStates()
 // process the states on each connection associated with a session.
 bool LLWebRTCVoiceClient::sessionState::processConnectionStates()
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE;
 
     std::list<connectionPtr_t>::iterator iter = mWebRTCConnections.begin();
     while (iter != mWebRTCConnections.end())
@@ -1957,7 +1956,7 @@ bool LLWebRTCVoiceClient::sessionState::processConnectionStates()
 // on our location.
 bool LLWebRTCVoiceClient::estateSessionState::processConnectionStates()
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE;
 
     if (!mShuttingDown)
     {
@@ -2126,7 +2125,7 @@ LLVoiceWebRTCConnection::LLVoiceWebRTCConnection(const LLUUID &regionID, const s
 {
     // retries wait a short period...randomize it so
     // all clients don't try to reconnect at once.
-    mRetryWaitSecs = ((F32) rand() / (RAND_MAX)) + 0.5;
+    mRetryWaitSecs = (F32)((F32) rand() / (RAND_MAX)) + 0.5f;
 
     mWebRTCPeerConnectionInterface = llwebrtc::newPeerConnection();
     mWebRTCPeerConnectionInterface->setSignalingObserver(this);
@@ -2198,7 +2197,7 @@ void LLVoiceWebRTCConnection::processIceUpdates()
 // will make the cap call to the server sending up the ICE candidates.
 void LLVoiceWebRTCConnection::processIceUpdatesCoro(connectionPtr_t connection)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE;
 
     if (connection->mShutDown || LLWebRTCVoiceClient::isShuttingDown())
     {
@@ -2425,7 +2424,7 @@ void LLVoiceWebRTCConnection::sendData(const std::string &data)
 // The simulator will pass this on to the Secondlife WebRTC server.
 void LLVoiceWebRTCConnection::breakVoiceConnectionCoro(connectionPtr_t connection)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE;
 
     LL_DEBUGS("Voice") << "Disconnecting voice." << LL_ENDL;
     if (connection->mWebRTCDataInterface)
@@ -2484,7 +2483,7 @@ void LLVoiceWebRTCConnection::breakVoiceConnectionCoro(connectionPtr_t connectio
 // will use the offer and answer to negotiate the session.
 void LLVoiceWebRTCSpatialConnection::requestVoiceConnection()
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE;
 
     LLViewerRegion *regionp = LLWorld::instance().getRegionFromID(mRegionID);
 
@@ -2557,7 +2556,7 @@ void LLVoiceWebRTCSpatialConnection::requestVoiceConnection()
 
 void LLVoiceWebRTCConnection::OnVoiceConnectionRequestSuccess(const LLSD &result)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE;
 
     if (LLWebRTCVoiceClient::isShuttingDown())
     {
@@ -2612,7 +2611,7 @@ static llwebrtc::LLWebRTCPeerConnectionInterface::InitOptions getConnectionOptio
 // Secondlife WebRTC server.
 bool LLVoiceWebRTCConnection::connectionStateMachine()
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE;
 
     processIceUpdates();
 
@@ -2708,7 +2707,7 @@ bool LLVoiceWebRTCConnection::connectionStateMachine()
         case VOICE_STATE_SESSION_UP:
         {
             mRetryWaitPeriod = 0;
-            mRetryWaitSecs   = ((F32) rand() / (RAND_MAX)) + 0.5;
+            mRetryWaitSecs   = (F32)((F32) rand() / (RAND_MAX)) + 0.5f;
 
             // we'll stay here as long as the session remains up.
             if (mShutDown)
@@ -2730,7 +2729,7 @@ bool LLVoiceWebRTCConnection::connectionStateMachine()
                 {
                     // back off the retry period, and do it by a small random
                     // bit so all clients don't reconnect at once.
-                    mRetryWaitSecs += ((F32) rand() / (RAND_MAX)) + 0.5;
+                    mRetryWaitSecs += (F32)((F32) rand() / (RAND_MAX)) + 0.5f;
                     mRetryWaitPeriod = 0;
                 }
             }
@@ -2806,7 +2805,7 @@ void LLVoiceWebRTCConnection::OnDataReceived(const std::string& data, bool binar
 // this pointer.
 void LLVoiceWebRTCConnection::OnDataReceivedImpl(const std::string &data, bool binary)
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE;
 
     if (mShutDown)
     {
@@ -2819,7 +2818,7 @@ void LLVoiceWebRTCConnection::OnDataReceivedImpl(const std::string &data, bool b
         return;
     }
 
-    boost::json::error_code ec;
+    boost::system::error_code ec;
     boost::json::value voice_data_parsed = boost::json::parse(data, ec);
     if (!ec)  // don't collect comments
     {
@@ -2973,7 +2972,7 @@ void LLVoiceWebRTCConnection::OnDataChannelReady(llwebrtc::LLWebRTCDataInterface
 // to peers.
 void LLVoiceWebRTCConnection::sendJoin()
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE;
 
 
     boost::json::object root;
@@ -3047,7 +3046,7 @@ LLVoiceWebRTCAdHocConnection::~LLVoiceWebRTCAdHocConnection()
 // So, we have a separate requestVoiceConnection call.
 void LLVoiceWebRTCAdHocConnection::requestVoiceConnection()
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE;
 
     LLViewerRegion *regionp = LLWorld::instance().getRegionFromID(mRegionID);
 

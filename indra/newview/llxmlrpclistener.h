@@ -42,9 +42,6 @@ public:
     /// Specify the pump name on which to listen
     LLXMLRPCListener(const std::string& pumpname);
 
-    /// Handle request events on the event pump specified at construction time
-    bool process(const LLSD& command);
-
 private:
     LLTempBoundListener mBoundListener;
 };

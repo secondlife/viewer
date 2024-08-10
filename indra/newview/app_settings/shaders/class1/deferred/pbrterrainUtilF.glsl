@@ -256,11 +256,12 @@ vec3 _t_normal_post_1(vec3 vNt0, float sign_or_zero)
 }
 
 // Triplanar-specific normal texture fixes
-vec3 _t_normal_post_x(vec3 vNt0)
+vec3 _t_normal_post_x(vec3 vNt0, float tangent_sign)
 {
     vec3 vNt_x = _t_normal_post_1(vNt0, sign(vary_vertex_normal.x));
     // *HACK: Transform normals according to orientation of the UVs
     vNt_x.xy = vec2(-vNt_x.y, vNt_x.x);
+    vNt_x.xy *= tangent_sign;
     return vNt_x;
 }
 vec3 _t_normal_post_y(vec3 vNt0)
@@ -285,6 +286,7 @@ PBRMix terrain_sample_pbr(
 #endif
 #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_NORMAL)
     , sampler2D tex_vNt
+    , float tangent_sign
 #endif
 #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
     , sampler2D tex_emissive
@@ -314,7 +316,7 @@ PBRMix terrain_sample_pbr(
             );
 #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_NORMAL)
         // Triplanar-specific normal texture fix
-        mix_x.vNt = _t_normal_post_x(mix_x.vNt);
+        mix_x.vNt = _t_normal_post_x(mix_x.vNt, tangent_sign);
 #endif
         mix = mix_pbr(mix, mix_x, tw.weight.x);
         break;
@@ -420,6 +422,9 @@ PBRMix terrain_sample_and_multiply_pbr(
 #endif
 #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_NORMAL)
     , sampler2D tex_vNt
+#if TERRAIN_PLANAR_TEXTURE_SAMPLE_COUNT == 3
+    , float tangent_sign
+#endif
 #endif
 #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
     , sampler2D tex_emissive
@@ -446,6 +451,9 @@ PBRMix terrain_sample_and_multiply_pbr(
 #endif
 #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_NORMAL)
         , tex_vNt
+#if TERRAIN_PLANAR_TEXTURE_SAMPLE_COUNT == 3
+        , tangent_sign
+#endif
 #endif
 #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
         , tex_emissive

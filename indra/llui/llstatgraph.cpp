@@ -70,11 +70,11 @@ void LLStatGraph::draw()
 
         if (mPerSec)
         {
-            mValue = recording.getPerSec(*mNewStatFloatp);
+            mValue = (F32)recording.getPerSec(*mNewStatFloatp);
         }
         else
         {
-            mValue = recording.getSum(*mNewStatFloatp);
+            mValue = (F32)recording.getSum(*mNewStatFloatp);
         }
     }
 
@@ -93,8 +93,6 @@ void LLStatGraph::draw()
         mUpdateTimer.reset();
     }
 
-    LLColor4 color;
-
     threshold_vec_t::iterator it = std::lower_bound(mThresholds.begin(), mThresholds.end(), Threshold(mValue / mMax, LLUIColor()));
 
     if (it != mThresholds.begin())
@@ -102,15 +100,14 @@ void LLStatGraph::draw()
         it--;
     }
 
-    color = LLUIColorTable::instance().getColor( "MenuDefaultBgColor" );
-    gGL.color4fv(color.mV);
+    static LLUIColor default_color = LLUIColorTable::instance().getColor( "MenuDefaultBgColor" );
+    gGL.color4fv(default_color.get().mV);
     gl_rect_2d(0, getRect().getHeight(), getRect().getWidth(), 0, true);
 
     gGL.color4fv(LLColor4::black.mV);
     gl_rect_2d(0, getRect().getHeight(), getRect().getWidth(), 0, false);
 
-    color = it->mColor;
-    gGL.color4fv(color.mV);
+    gGL.color4fv(it->mColor().mV);
     gl_rect_2d(1, ll_round(frac*getRect().getHeight()), getRect().getWidth() - 1, 0, true);
 }
 

@@ -107,7 +107,7 @@ public:
 
     virtual void recordMessage(LLError::ELevel level, const std::string& message)
     {
-        LL_PROFILE_ZONE_SCOPED
+        LL_PROFILE_ZONE_SCOPED;
         mFile << message << std::endl;
     }
 

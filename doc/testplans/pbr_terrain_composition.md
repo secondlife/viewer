@@ -44,6 +44,8 @@ The PBR terrain texture transform flag should be set automatically when logging 
 
 When the PBR terrain texture transform feature is enabled, the UI of the Terrain tab should be overhauled. Availability of features depends on the type of terrain.
 
+**Known issue:** The Region/Estate floater may have to be closed/reopened a second time in order for the UI overhaul to take effect, after teleporting between regions that do and do not have the feature flag set.
+
 When "PBR Metallic Roughness" is checked:
 
 - There should be a way for the user to change the texture transforms for the terrain in the current region
@@ -86,6 +88,12 @@ Saving may fail for the following reasons:
 If saving the terrain fails for any reason, the terrain should not be updated.
 
 Unlike a viewer without PBR terrain support, the new viewer will no longer treat textures with alpha channels as invalid.
+
+### Saving PBR Terrain Texture Transforms
+
+If "PBR Metallic Roughness" checkbox is checked, a user with saving composition permissions should also be allowed to edit and save PBR texture transforms.
+
+One texture transform may be set for each material swatch. Setting texture transforms for each individual texture on the material is not currently supported.
 
 ## Graphics Features
 

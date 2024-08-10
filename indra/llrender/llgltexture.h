@@ -51,10 +51,10 @@ public:
         BOOST_NONE          = 0,
         BOOST_AVATAR        ,
         BOOST_AVATAR_BAKED  ,
-        BOOST_SCULPTED      ,
         BOOST_TERRAIN       , // Needed for minimap generation for now. Lower than BOOST_HIGH so the texture stats don't get forced, i.e. texture stats are manually managed by minimap/terrain instead.
 
         BOOST_HIGH          = 10,
+        BOOST_SCULPTED      ,
         BOOST_BUMP          ,
         BOOST_UNUSED_1      , // Placeholder to avoid disrupting habits around texture debug
         BOOST_SELECTED      ,
@@ -75,7 +75,6 @@ public:
         AVATAR_SCRATCH_TEX,
         DYNAMIC_TEX,
         MEDIA,
-        ATLAS,
         OTHER,
         MAX_GL_IMAGE_CATEGORY
     };
@@ -156,10 +155,7 @@ public:
     bool       isJustBound()const ;
     void       forceUpdateBindStats(void) const;
 
-    U32        getTexelsInAtlas() const ;
-    U32        getTexelsInGLTexture() const ;
     bool       isGLTextureCreated() const ;
-    S32        getDiscardLevelInAtlas() const ;
     LLGLTextureState getTextureState() const { return mTextureState; }
 
     //---------------------------------------------------------------------------------------------

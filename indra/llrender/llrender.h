@@ -293,11 +293,18 @@ public:
 
     enum eTexIndex : U8
     {
-        DIFFUSE_MAP           = 0,
-        ALTERNATE_DIFFUSE_MAP = 1,
-        NORMAL_MAP            = 1,
-        SPECULAR_MAP          = 2,
-        NUM_TEXTURE_CHANNELS  = 3,
+        // Channels for material textures
+        DIFFUSE_MAP            = 0,
+        ALTERNATE_DIFFUSE_MAP  = 1,
+        NORMAL_MAP             = 1,
+        SPECULAR_MAP           = 2,
+        // Channels for PBR textures
+        BASECOLOR_MAP          = 3,
+        METALLIC_ROUGHNESS_MAP = 4,
+        GLTF_NORMAL_MAP        = 5,
+        EMISSIVE_MAP           = 6,
+        // Total number of channels
+        NUM_TEXTURE_CHANNELS   = 7,
     };
 
     enum eVolumeTexIndex : U8

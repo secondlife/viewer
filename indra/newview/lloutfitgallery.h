@@ -262,6 +262,7 @@ private:
     LLTextBox* mOutfitNameText;
     LLTextBox* mOutfitWornText;
     LLPanel* mTextBgPanel;
+    LLIconCtrl* mPreviewIcon = nullptr;
     bool     mSelected;
     bool     mWorn;
     bool     mDefaultImage;

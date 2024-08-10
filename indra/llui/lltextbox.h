@@ -81,7 +81,7 @@ protected:
 // Build time optimization, generate once in .cpp file
 #ifndef LLTEXTBOX_CPP
 extern template class LLTextBox* LLView::getChild<class LLTextBox>(
-    const std::string& name, bool recurse) const;
+    std::string_view name, bool recurse) const;
 #endif
 
 #endif

@@ -12,7 +12,7 @@
                           image_unselected="PushButton_Off"
                           image_selected="PushButton_Selected"
                           image_disabled="PushButton_Disabled"
-                          image_disabled_selected="PushButton_Disabled_Selected"
+                          image_disabled_selected="PushButton_Selected_Disabled"
                           image_overlay="Combobox_Over"
                           image_overlay_alignment="right" />
   <drop_down.combo_list bg_writeable_color="white" />

@@ -95,6 +95,8 @@ private:
     LLComboBox      *mJoysticksCombo;
 
     bool mHasDeviceList;
+    bool mJoystickInitialized;
+    LLUUID mCurrentDeviceId;
 
     // stats view
     LLStatBar* mAxisStatsBar[6];

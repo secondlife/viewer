@@ -18,6 +18,7 @@ if (WINDOWS)
           ${ARCH_PREBUILT_DIRS_RELEASE}/${APR_selector}apr-1.lib
           ${ARCH_PREBUILT_DIRS_RELEASE}/${APR_selector}aprutil-1.lib
           )
+  target_compile_definitions( ll::apr INTERFACE APR_DECLARE_STATIC=1 APU_DECLARE_STATIC=1 API_DECLARE_STATIC=1)
 elseif (DARWIN)
   if (LLCOMMON_LINK_SHARED)
     set(APR_selector     "0.dylib")
@@ -28,16 +29,15 @@ elseif (DARWIN)
   endif (LLCOMMON_LINK_SHARED)
 
   target_link_libraries( ll::apr INTERFACE
-          libapr-1.${APR_selector}
-          libaprutil-1.${APRUTIL_selector}
+          ${ARCH_PREBUILT_DIRS_RELEASE}/libapr-1.${APR_selector}
+          ${ARCH_PREBUILT_DIRS_RELEASE}/libaprutil-1.${APR_selector}
           iconv
           )
-else (WINDOWS)
+else()
   target_link_libraries( ll::apr INTERFACE
-          apr-1
-          aprutil-1
-          uuid
+          ${ARCH_PREBUILT_DIRS_RELEASE}/libapr-1.a
+          ${ARCH_PREBUILT_DIRS_RELEASE}/libaprutil-1.a
           rt
           )
-endif (WINDOWS)
+endif ()
 target_include_directories( ll::apr SYSTEM INTERFACE  ${LIBS_PREBUILT_DIR}/include/apr-1 )

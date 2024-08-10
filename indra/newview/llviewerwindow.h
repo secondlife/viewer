@@ -455,9 +455,7 @@ public:
     // handle shutting down GL and bringing it back up
     void            requestResolutionUpdate();
     void            checkSettings();
-    void            restartDisplay(bool show_progress_bar);
-    bool            changeDisplaySettings(LLCoordScreen size, bool enable_vsync, bool show_progress_bar);
-    bool            getIgnoreDestroyWindow() { return mIgnoreActivate; }
+
     F32             getWorldViewAspectRatio() const;
     const LLVector2& getDisplayScale() const { return mDisplayScale; }
     void            calcDisplayScale();
@@ -471,7 +469,7 @@ private:
     void            switchToolByMask(MASK mask);
     void            destroyWindow();
     void            drawMouselookInstructions();
-    void            stopGL(bool save_state = true);
+    void            stopGL();
     void            restoreGL(const std::string& progress_message = LLStringUtil::null);
     void            initFonts(F32 zoom_factor = 1.f);
     void            schedulePick(LLPickInfo& pick_info);
@@ -528,8 +526,6 @@ private:
 
     std::string     mOverlayTitle;      // Used for special titles such as "Second Life - Special E3 2003 Beta"
 
-    bool            mIgnoreActivate;
-
     std::string     mInitAlert;         // Window / GL initialization requires an alert
 
     LLHandle<LLView> mWorldViewPlaceholder; // widget that spans the portion of screen dedicated to rendering the 3d world
@@ -542,7 +538,6 @@ private:
 
     bool            mResDirty;
     bool            mStatesDirty;
-    U32         mCurrResolutionIndex;
 
     std::unique_ptr<LLWindowListener> mWindowListener;
     std::unique_ptr<LLViewerWindowListener> mViewerWindowListener;

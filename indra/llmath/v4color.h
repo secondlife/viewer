@@ -702,9 +702,9 @@ inline const LLColor4 linearColor4(const LLColor4 &a)
 template<typename T>
 const LLColor4& LLColor4::set(const std::vector<T>& v)
 {
-    for (S32 i = 0; i < llmin((S32)v.size(), 4); ++i)
+    for (size_t i = 0; i < llmin(v.size(), 4); ++i)
     {
-        mV[i] = v[i];
+        mV[i] = (F32)v[i];
     }
 
     return *this;
@@ -713,9 +713,9 @@ const LLColor4& LLColor4::set(const std::vector<T>& v)
 template<typename T>
 void LLColor4::write(std::vector<T>& v) const
 {
-    for (int i = 0; i < llmin((S32)v.size(), 4); ++i)
+    for (size_t i = 0; i < llmin(v.size(), 4); ++i)
     {
-        v[i] = mV[i];
+        v[i] = (T)mV[i];
     }
 }
 

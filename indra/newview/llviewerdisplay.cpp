@@ -213,7 +213,7 @@ void display_update_camera()
 // Write some stats to LL_INFOS()
 void display_stats()
 {
-    LL_PROFILE_ZONE_SCOPED
+    LL_PROFILE_ZONE_SCOPED;
     const F32 FPS_LOG_FREQUENCY = 10.f;
     if (gRecentFPSTime.getElapsedTimeF32() >= FPS_LOG_FREQUENCY)
     {
@@ -654,7 +654,7 @@ void display(bool rebuild, F32 zoom_factor, int subfield, bool for_snapshot)
 
     gPipeline.resetFrameStats();    // Reset per-frame statistics.
 
-    if (!gDisconnected)
+    if (!gDisconnected && !LLApp::isExiting())
     {
         // Render mirrors and associated hero probes before we render the rest of the scene.
         // This ensures the scene state in the hero probes are exactly the same as the rest of the scene before we render it.
@@ -1539,6 +1539,11 @@ void render_ui_3d()
         gObjectList.resetObjectBeacons();
         gSky.addSunMoonBeacons();
     }
+    else
+    {
+        // Make sure particle effects disappear
+        LLHUDObject::renderAllForTimer();
+    }
 
     stop_glerror();
 }
@@ -1591,7 +1596,7 @@ void render_ui_2d()
     }
 
 
-    if (gSavedSettings.getBOOL("RenderUIBuffer"))
+    if (LLPipeline::RenderUIBuffer)
     {
         if (LLView::sIsRectDirty)
         {
@@ -1642,11 +1647,11 @@ void render_ui_2d()
         S32 height = gViewerWindow->getWindowHeightScaled();
         gGL.getTexUnit(0)->bind(&gPipeline.mRT->uiScreen);
         gGL.begin(LLRender::TRIANGLE_STRIP);
-        gGL.color4f(1,1,1,1);
-        gGL.texCoord2f(0, 0);           gGL.vertex2i(0, 0);
-        gGL.texCoord2f(width, 0);       gGL.vertex2i(width, 0);
-        gGL.texCoord2f(0, height);      gGL.vertex2i(0, height);
-        gGL.texCoord2f(width, height);  gGL.vertex2i(width, height);
+        gGL.color4f(1.f,1.f,1.f,1.f);
+        gGL.texCoord2f(0.f, 0.f);                 gGL.vertex2i(0, 0);
+        gGL.texCoord2f((F32)width, 0.f);          gGL.vertex2i(width, 0);
+        gGL.texCoord2f(0.f, (F32)height);         gGL.vertex2i(0, height);
+        gGL.texCoord2f((F32)width, (F32)height);  gGL.vertex2i(width, height);
         gGL.end();
     }
     else

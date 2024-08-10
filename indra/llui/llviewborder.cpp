@@ -73,14 +73,14 @@ LLViewBorder::LLViewBorder(const LLViewBorder::Params& p)
     mStyle(p.render_style)
 {}
 
-void LLViewBorder::setColors( const LLColor4& shadow_dark, const LLColor4& highlight_light )
+void LLViewBorder::setColors( const LLUIColor& shadow_dark, const LLUIColor& highlight_light )
 {
     mShadowDark = shadow_dark;
     mHighlightLight = highlight_light;
 }
 
-void LLViewBorder::setColorsExtended( const LLColor4& shadow_light, const LLColor4& shadow_dark,
-                               const LLColor4& highlight_light, const LLColor4& highlight_dark )
+void LLViewBorder::setColorsExtended( const LLUIColor& shadow_light, const LLUIColor& shadow_dark,
+                               const LLUIColor& highlight_light, const LLUIColor& highlight_dark )
 {
     mShadowDark = shadow_dark;
     mShadowLight = shadow_light;

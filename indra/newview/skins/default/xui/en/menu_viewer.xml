@@ -2851,6 +2851,14 @@ function="World.EnvPreset"
           <menu_item_call.on_click
            function="Advanced.ClickGLTFUpload" />
         </menu_item_call>
+        <menu_item_call
+         label="Edit..."
+         name="Edit...">
+          <menu_item_call.on_enable
+             function="EnableGLTFUpload"/>
+          <menu_item_call.on_click
+           function="Advanced.ClickGLTFEdit" />
+        </menu_item_call>
       </menu>
       <menu
          create_jump_keys="true"
@@ -3822,6 +3830,13 @@ function="World.EnvPreset"
          name="XUI"
          tear_off="true">
             <menu_item_call
+             label="Show Color settings"
+             name="Color Settings">
+                <menu_item_call.on_click
+                 function="Floater.Toggle"
+                 parameter="settings_color" />
+            </menu_item_call>
+            <menu_item_call
                label="Reload Color Settings"
                name="Reload Color Settings">
               <menu_item_call.on_click
@@ -3957,6 +3972,16 @@ function="World.EnvPreset"
                     <menu_item_check.on_click
                      function="ToggleControl"
                      parameter="AllowSelectAvatar" />
+                </menu_item_check>
+                <menu_item_check
+                 label="Disable Look At Animation"
+                 name="Disable Look At Animation">
+                    <menu_item_check.on_check
+                     function="CheckControl"
+                     parameter="DisableLookAtAnimation" />
+                    <menu_item_check.on_click
+                     function="ToggleControl"
+                     parameter="DisableLookAtAnimation" />
                 </menu_item_check>
                 <menu_item_check
                  label="Render Only Friends"

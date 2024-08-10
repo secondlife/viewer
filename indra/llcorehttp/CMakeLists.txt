@@ -155,10 +155,7 @@ if (DARWIN)
   # for portability. This operation is Darwin-specific. We can count on the
   # 'cp' command.
   set(copy_dylibs
-    libapr-1.0.dylib
-    libaprutil-1.0.dylib
     libnghttp2*.dylib
-    liburiparser*.dylib
     ${EXPAT_COPY}
     )
 

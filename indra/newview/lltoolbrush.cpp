@@ -547,7 +547,7 @@ void LLToolBrushLand::renderOverlay(LLSurface& land, const LLVector3& pos_region
                 wz = land.getZ((i+di)+(j+dj)*land.mGridsPerEdge),
                 norm_dist = sqrt((float)di*di + dj*dj) / half_edge,
                 force_scale = sqrt(2.f) - norm_dist, // 1 at center, 0 at corner
-                wz2 = wz + .2 + (.2 + force/100) * force_scale, // top vertex
+                wz2 = wz + .2f + (.2f + force/100.f) * force_scale, // top vertex
                 tic = .075f; // arrowhead size
             // vertical line
             gGL.vertex3f(wx, wy, wz);

@@ -2659,7 +2659,7 @@ bool LLInventoryGallery::checkAgainstFilterType(const LLUUID& object_id)
     {
         object_type = inv_item->getInventoryType();
     }
-    const U32 filterTypes = mFilter->getFilterTypes();
+    const U32 filterTypes = (U32)mFilter->getFilterTypes();
 
     if ((filterTypes & LLInventoryFilter::FILTERTYPE_OBJECT) && inv_item)
     {
@@ -2881,11 +2881,13 @@ void LLInventoryGalleryItem::draw()
         LLPanel::draw();
 
         // Draw border
-        LLUIColor border_color = LLUIColorTable::instance().getColor(mSelected ? "MenuItemHighlightBgColor" : "TextFgTentativeColor", LLColor4::white);
+        static LLUIColor menu_highlighted_color = LLUIColorTable::instance().getColor("MenuItemHighlightBgColor", LLColor4::white);;
+        static LLUIColor text_fg_tentative_color = LLUIColorTable::instance().getColor("TextFgTentativeColor", LLColor4::white);;
+        const LLColor4& border_color = mSelected ? menu_highlighted_color : text_fg_tentative_color;
         LLRect border = mThumbnailCtrl->getRect();
         border.mRight = border.mRight + 1;
         border.mTop = border.mTop + 1;
-        gl_rect_2d(border, border_color.get(), false);
+        gl_rect_2d(border, border_color, false);
     }
 }
 

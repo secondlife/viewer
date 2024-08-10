@@ -204,7 +204,7 @@ public:
     void            setText(const LLStringExplicit &new_text);
 
     const std::string& getText() const override { return mText.getString(); }
-    LLWString       getWText() const    { return mText.getWString(); }
+    const LLWString&   getWText() const    { return mText.getWString(); }
     LLWString getConvertedText() const; // trimmed text with paragraphs converted to newlines
 
     S32             getLength() const   { return mText.length(); }
@@ -224,12 +224,12 @@ public:
     void            setRevertOnEsc( bool b )        { mRevertOnEsc = b; }
     void            setKeystrokeOnEsc(bool b)       { mKeystrokeOnEsc = b; }
 
-    void setCursorColor(const LLColor4& c)          { mCursorColor = c; }
+    void setCursorColor(const LLUIColor& c)          { mCursorColor = c; }
     const LLColor4& getCursorColor() const          { return mCursorColor.get(); }
 
-    void setFgColor( const LLColor4& c )            { mFgColor = c; }
-    void setReadOnlyFgColor( const LLColor4& c )    { mReadOnlyFgColor = c; }
-    void setTentativeFgColor(const LLColor4& c)     { mTentativeFgColor = c; }
+    void setFgColor( const LLUIColor& c )            { mFgColor = c; }
+    void setReadOnlyFgColor( const LLUIColor& c )    { mReadOnlyFgColor = c; }
+    void setTentativeFgColor(const LLUIColor& c)     { mTentativeFgColor = c; }
 
     const LLColor4& getFgColor() const          { return mFgColor.get(); }
     const LLColor4& getReadOnlyFgColor() const  { return mReadOnlyFgColor.get(); }
@@ -466,7 +466,7 @@ private:
 // Build time optimization, generate once in .cpp file
 #ifndef LLLINEEDITOR_CPP
 extern template class LLLineEditor* LLView::getChild<class LLLineEditor>(
-    const std::string& name, bool recurse) const;
+    std::string_view name, bool recurse) const;
 #endif
 
 #endif  // LL_LINEEDITOR_

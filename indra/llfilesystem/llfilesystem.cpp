@@ -79,6 +79,7 @@ LLFileSystem::~LLFileSystem()
 // static
 bool LLFileSystem::getExists(const LLUUID& file_id, const LLAssetType::EType file_type)
 {
+    LL_PROFILE_ZONE_SCOPED;
     std::string id_str;
     file_id.toString(id_str);
     const std::string extra_info = "";
@@ -147,7 +148,7 @@ S32 LLFileSystem::getFileSize(const LLUUID& file_id, const LLAssetType::EType fi
     if (file.is_open())
     {
         file.seekg(0, std::ios::end);
-        file_size = file.tellg();
+        file_size = (S32)file.tellg();
     }
 
     return file_size;
@@ -175,7 +176,7 @@ bool LLFileSystem::read(U8* buffer, S32 bytes)
         }
         else
         {
-            mBytesRead = file.gcount();
+            mBytesRead = (S32)file.gcount();
         }
 
         file.close();
@@ -216,7 +217,7 @@ bool LLFileSystem::write(const U8* buffer, S32 bytes)
         {
             ofs.write((const char*)buffer, bytes);
 
-            mPosition = ofs.tellp(); // <FS:Ansariel> Fix asset caching
+            mPosition = (S32)ofs.tellp(); // <FS:Ansariel> Fix asset caching
 
             success = true;
         }

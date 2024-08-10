@@ -142,7 +142,7 @@ void LLVOSurfacePatch::updateGL()
 {
     if (mPatchp)
     {
-        LL_PROFILE_ZONE_SCOPED
+        LL_PROFILE_ZONE_SCOPED;
         mPatchp->updateGL();
     }
 }
@@ -987,7 +987,7 @@ LLTerrainPartition::LLTerrainPartition(LLViewerRegion* regionp)
 }
 
 // Do not add vertices; honor strict vertex count specified by strider_vertex_count
-void gen_terrain_tangents(U16                    strider_vertex_count,
+void gen_terrain_tangents(U32                    strider_vertex_count,
                           U32                    strider_index_count,
                           LLStrider<LLVector3>  &verticesp,
                           LLStrider<LLVector3>  &normalsp,
@@ -995,7 +995,7 @@ void gen_terrain_tangents(U16                    strider_vertex_count,
                           LLStrider<LLVector2>  &texCoords0p,
                           LLStrider<U16>        &indicesp)
 {
-    LL_PROFILE_ZONE_SCOPED
+    LL_PROFILE_ZONE_SCOPED;
 
     LLVector4a            *vertices = new LLVector4a[strider_vertex_count];
     LLVector4a            *normals  = new LLVector4a[strider_vertex_count];
@@ -1003,7 +1003,7 @@ void gen_terrain_tangents(U16                    strider_vertex_count,
     std::vector<LLVector2> texcoords(strider_vertex_count);
     std::vector<U16>       indices(strider_index_count);
 
-    for (U16 v = 0; v < strider_vertex_count; ++v)
+    for (U32 v = 0; v < strider_vertex_count; ++v)
     {
         F32 *vert    = verticesp[v].mV;
         vertices[v]  = LLVector4a(vert[0], vert[1], vert[2], 1.f);
@@ -1019,7 +1019,7 @@ void gen_terrain_tangents(U16                    strider_vertex_count,
 
     LLCalculateTangentArray(strider_vertex_count, vertices, normals, texcoords.data(), strider_index_count / 3, indices.data(), tangents);
 
-    for (U16 v = 0; v < strider_vertex_count; ++v)
+    for (U32 v = 0; v < strider_vertex_count; ++v)
     {
         tangentsp[v] = tangents[v];
     }

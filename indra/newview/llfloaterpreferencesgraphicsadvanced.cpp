@@ -270,8 +270,6 @@ void LLFloaterPreferenceGraphicsAdvanced::disableUnavailableSettings()
 {
     LLComboBox* ctrl_reflections   = getChild<LLComboBox>("Reflections");
     LLTextBox* reflections_text = getChild<LLTextBox>("ReflectionsText");
-    LLCheckBoxCtrl* ctrl_avatar_vp     = getChild<LLCheckBoxCtrl>("AvatarVertexProgram");
-    LLCheckBoxCtrl* ctrl_avatar_cloth  = getChild<LLCheckBoxCtrl>("AvatarCloth");
     LLCheckBoxCtrl* ctrl_wind_light    = getChild<LLCheckBoxCtrl>("WindLightUseAtmosShaders");
     LLCheckBoxCtrl* ctrl_deferred = getChild<LLCheckBoxCtrl>("UseLightShaders");
     LLComboBox* ctrl_shadows = getChild<LLComboBox>("ShadowDetail");
@@ -336,45 +334,6 @@ void LLFloaterPreferenceGraphicsAdvanced::disableUnavailableSettings()
         ctrl_shadows->setValue(0);
         shadows_text->setEnabled(false);
     }
-
-    // disabled reflections
-    if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderReflectionDetail"))
-    {
-        ctrl_reflections->setEnabled(false);
-        ctrl_reflections->setValue(false);
-        reflections_text->setEnabled(false);
-    }
-
-    // disabled av
-    if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderAvatarVP"))
-    {
-        ctrl_avatar_vp->setEnabled(false);
-        ctrl_avatar_vp->setValue(false);
-
-        ctrl_avatar_cloth->setEnabled(false);
-        ctrl_avatar_cloth->setValue(false);
-
-        //deferred needs AvatarVP, disable deferred
-        ctrl_shadows->setEnabled(false);
-        ctrl_shadows->setValue(0);
-        shadows_text->setEnabled(false);
-
-        ctrl_ssao->setEnabled(false);
-        ctrl_ssao->setValue(false);
-
-        ctrl_dof->setEnabled(false);
-        ctrl_dof->setValue(false);
-
-        ctrl_deferred->setEnabled(false);
-        ctrl_deferred->setValue(false);
-    }
-
-    // disabled cloth
-    if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderAvatarCloth"))
-    {
-        ctrl_avatar_cloth->setEnabled(false);
-        ctrl_avatar_cloth->setValue(false);
-    }
 }
 
 void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
@@ -391,23 +350,6 @@ void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
     LLCheckBoxCtrl* bumpshiny_ctrl = getChild<LLCheckBoxCtrl>("BumpShiny");
     bool bumpshiny = LLCubeMap::sUseCubeMaps && LLFeatureManager::getInstance()->isFeatureAvailable("RenderObjectBump");
     bumpshiny_ctrl->setEnabled(bumpshiny);
-
-    // Avatar Mode
-    // Enable Avatar Shaders
-    LLCheckBoxCtrl* ctrl_avatar_vp = getChild<LLCheckBoxCtrl>("AvatarVertexProgram");
-    // Avatar Render Mode
-    LLCheckBoxCtrl* ctrl_avatar_cloth = getChild<LLCheckBoxCtrl>("AvatarCloth");
-
-    bool avatar_vp_enabled = LLFeatureManager::getInstance()->isFeatureAvailable("RenderAvatarVP");
-    if (LLViewerShaderMgr::sInitialized)
-    {
-        S32 max_avatar_shader = LLViewerShaderMgr::instance()->mMaxAvatarShaderLevel;
-        avatar_vp_enabled = max_avatar_shader > 0;
-    }
-
-    ctrl_avatar_vp->setEnabled(avatar_vp_enabled);
-
-    ctrl_avatar_cloth->setEnabled(gSavedSettings.getBOOL("RenderAvatarVP"));
 
     // Vertex Shaders, Global Shader Enable
     // SL-12594 Basic shaders are always enabled. DJH TODO clean up now-orphaned state handling code

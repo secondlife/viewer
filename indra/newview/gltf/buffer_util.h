@@ -161,7 +161,7 @@ namespace LL
         template<>
         inline void copyVec3<U16, LLColor4U>(U16* src, LLColor4U& dst)
         {
-            dst.set(src[0], src[1], src[2], 255);
+            dst.set((U8)(src[0]), (U8)(src[1]), (U8)(src[2]), 255);
         }
 
         template<>
@@ -181,15 +181,25 @@ namespace LL
         }
 
         template<>
+        inline void copyVec4<U8, U64>(U8* src, U64& dst)
+        {
+            U8* data = (U8*)&dst;
+            data[0] = src[0];
+            data[1] = src[1];
+            data[2] = src[2];
+            data[3] = src[3];
+        }
+
+        template<>
         inline void copyVec4<U16, LLColor4U>(U16* src, LLColor4U& dst)
         {
-            dst.set(src[0], src[1], src[2], src[3]);
+            dst.set((U8)(src[0]), (U8)(src[1]), (U8)(src[2]), ((U8)src[3]));
         }
 
         template<>
         inline void copyVec4<F32, LLColor4U>(F32* src, LLColor4U& dst)
         {
-            dst.set(src[0]*255, src[1]*255, src[2]*255, src[3]*255);
+            dst.set((U8)(src[0]*255.f), (U8)(src[1]*255.f), (U8)(src[2]*255.f), (U8)(src[3]*255.f));
         }
 
         template<>
@@ -892,7 +902,7 @@ namespace LL
         {
             if (src.is_int64())
             {
-                dst = src.get_int64();
+                dst = (U32)src.get_int64();
                 return true;
             }
             return false;
@@ -947,7 +957,7 @@ namespace LL
         {
             if (src.is_int64())
             {
-                dst = src.get_int64();
+                dst = (U32)src.get_int64();
                 return true;
             }
             return false;

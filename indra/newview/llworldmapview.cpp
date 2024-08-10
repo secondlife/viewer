@@ -255,7 +255,7 @@ void LLWorldMapView::zoom(F32 zoom)
 void LLWorldMapView::zoomWithPivot(F32 zoom, S32 x, S32 y)
 {
     mTargetMapScale = scaleFromZoom(zoom);
-    sZoomPivot      = LLVector2(x, y);
+    sZoomPivot      = LLVector2((F32)x, (F32)y);
     if (!sZoomTimer.getStarted() && mMapScale != mTargetMapScale)
     {
         sZoomTimer.start();
@@ -297,8 +297,8 @@ void LLWorldMapView::setScale(F32 scale, bool snap)
         if (!sZoomPivot.isExactlyZero())
         {
             LLVector2 relative_pivot;
-            relative_pivot.mV[VX]     = sZoomPivot.mV[VX] - (getRect().getWidth() / 2.0);
-            relative_pivot.mV[VY]     = sZoomPivot.mV[VY] - (getRect().getHeight() / 2.0);
+            relative_pivot.mV[VX]     = sZoomPivot.mV[VX] - (getRect().getWidth() / 2.0f);
+            relative_pivot.mV[VY]     = sZoomPivot.mV[VY] - (getRect().getHeight() / 2.0f);
             LLVector2 zoom_pan_offset = relative_pivot - (relative_pivot * scale / old_scale);
             mPanX += zoom_pan_offset.mV[VX];
             mPanY += zoom_pan_offset.mV[VY];
@@ -422,8 +422,8 @@ void LLWorldMapView::draw()
 
         // Find x and y position relative to camera's center.
         LLVector3d rel_region_pos = origin_global - camera_global;
-        F32 relative_x = (rel_region_pos.mdV[0] / REGION_WIDTH_METERS) * mMapScale;
-        F32 relative_y = (rel_region_pos.mdV[1] / REGION_WIDTH_METERS) * mMapScale;
+        F32 relative_x = (F32)(rel_region_pos.mdV[0] / REGION_WIDTH_METERS) * mMapScale;
+        F32 relative_y = (F32)(rel_region_pos.mdV[1] / REGION_WIDTH_METERS) * mMapScale;
 
         // Coordinates of the sim in pixels in the UI panel
         // When the view isn't panned, 0,0 = center of rectangle
@@ -514,11 +514,11 @@ void LLWorldMapView::draw()
             {
                 font->renderUTF8(
                     mesg, 0,
-                    llfloor(left + 3), llfloor(bottom + 2),
+                    (F32)llfloor(left + 3), (F32)llfloor(bottom + 2),
                     LLColor4::white,
                     LLFontGL::LEFT, LLFontGL::BASELINE, LLFontGL::NORMAL, LLFontGL::DROP_SHADOW,
                     S32_MAX, //max_chars
-                    mMapScale, //max_pixels
+                    (S32)mMapScale, //max_pixels
                     NULL,
                     /*use_ellipses*/true);
             }
@@ -1023,18 +1023,20 @@ void LLWorldMapView::drawTracking(const LLVector3d& pos_global, const LLColor4& 
         drawImage(pos_global, sTrackCircleImage, color);
     }
 
-    // clamp text position to on-screen
-    const S32 TEXT_PADDING = DEFAULT_TRACKING_ARROW_SIZE + 2;
-    S32 half_text_width = llfloor(font->getWidthF32(label) * 0.5f);
-    text_x = llclamp(text_x, half_text_width + TEXT_PADDING, getRect().getWidth() - half_text_width - TEXT_PADDING);
-    text_y = llclamp(text_y + vert_offset, TEXT_PADDING + vert_offset, getRect().getHeight() - font->getLineHeight() - TEXT_PADDING - vert_offset);
-
     if (label != "")
     {
-        font->renderUTF8(
-            label, 0,
-            text_x,
-            text_y,
+        // clamp text position to on-screen
+        const S32 TEXT_PADDING = DEFAULT_TRACKING_ARROW_SIZE + 2;
+
+        LLWString wlabel = utf8string_to_wstring(label);
+        S32 half_text_width = llfloor(font->getWidthF32(wlabel.c_str()) * 0.5f);
+        text_x = llclamp(text_x, half_text_width + TEXT_PADDING, getRect().getWidth() - half_text_width - TEXT_PADDING);
+        text_y = llclamp(text_y + vert_offset, TEXT_PADDING + vert_offset, getRect().getHeight() - font->getLineHeight() - TEXT_PADDING - vert_offset);
+
+        font->render(
+            wlabel, 0,
+            (F32)text_x,
+            (F32)text_y,
             LLColor4::white, LLFontGL::HCENTER,
             LLFontGL::BASELINE, LLFontGL::NORMAL, LLFontGL::DROP_SHADOW);
 

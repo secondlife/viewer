@@ -451,6 +451,9 @@ void LLVOGrass::plantBlades()
         face->setVertexBuffer(NULL);
         face->setTEOffset(0);
         face->mCenterLocal = mPosition + mRegionp->getOriginAgent();
+        const LLVector4a* ext = mDrawable->getSpatialExtents();
+        face->mExtents[0] = ext[0];
+        face->mExtents[1] = ext[1];
     }
 
     mDepth = (face->mCenterLocal - LLViewerCamera::getInstance()->getOrigin())*LLViewerCamera::getInstance()->getAtAxis();
