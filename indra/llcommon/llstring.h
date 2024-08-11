@@ -46,7 +46,6 @@
 #endif
 
 #include <string.h>
-#include <boost/scoped_ptr.hpp>
 
 const char LL_UNKNOWN_CHAR = '?';
 class LLSD;
@@ -832,8 +831,10 @@ template<>
 LL_COMMON_API std::wstring windows_message<std::wstring>(unsigned long error);
 
 /// Get Windows message string, implicitly calling GetLastError()
+LL_COMMON_API unsigned long windows_get_last_error();
+
 template<typename STRING>
-STRING windows_message() { return windows_message<STRING>(GetLastError()); }
+STRING windows_message() { return windows_message<STRING>(windows_get_last_error()); }
 
 //@}
 

@@ -195,7 +195,7 @@ BOOL CALLBACK di8_devices_callback(LPCDIDEVICEINSTANCE device_instance_ptr, LPVO
                 LLSD::Binary data; //just an std::vector
                 data.resize(size);
                 memcpy(&data[0], &device_instance_ptr->guidInstance /*POD _GUID*/, size);
-                LLViewerJoystick::getInstance()->initDevice(&device, product_name, LLSD(data));
+                LLViewerJoystick::getInstance()->initDevice((void*)&device, product_name, LLSD(data));
                 return DIENUM_STOP;
             }
         }
@@ -524,7 +524,7 @@ void LLViewerJoystick::initDevice(LLSD &guid)
 #endif
 }
 
-bool LLViewerJoystick::initDevice(void * preffered_device /*LPDIRECTINPUTDEVICE8*/, std::string &name, LLSD &guid)
+bool LLViewerJoystick::initDevice(void * preffered_device /*LPDIRECTINPUTDEVICE8*/, const std::string &name, const LLSD &guid)
 {
 #if LIB_NDOF
     mLastDeviceUUID = guid;

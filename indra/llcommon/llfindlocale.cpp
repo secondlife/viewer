@@ -185,7 +185,7 @@ canonise_fl(FL_Locale *l) {
 #define RML(pn,sn) MAKELANGID(LANG_##pn, SUBLANG_##sn)
 struct IDToCode {
   LANGID id;
-  char*  code;
+  const char*  code;
 };
 static const IDToCode both_to_code[] = {
   {ML(ENGLISH,US),           "en_US.ISO_8859-1"},

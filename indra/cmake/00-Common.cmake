@@ -85,6 +85,7 @@ if (WINDOWS)
           /Oy-
           /fp:fast
           /MP
+          /permissive-
       )
 
   # Nicky: x64 implies SSE2

@@ -56,7 +56,7 @@ public:
     void init(bool autoenable);
     void initDevice(LLSD &guid);
     bool initDevice(void * preffered_device /*LPDIRECTINPUTDEVICE8*/);
-    bool initDevice(void * preffered_device /*LPDIRECTINPUTDEVICE8*/, std::string &name, LLSD &guid);
+    bool initDevice(void * preffered_device /*LPDIRECTINPUTDEVICE8*/, const std::string &name, const LLSD &guid);
     void terminate();
 
     void updateStatus();
