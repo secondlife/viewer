@@ -54,22 +54,12 @@ if(WINDOWS)
     set(release_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
     set(release_files
         openjp2.dll
-        nghttp2.dll
         )
 
     if(LLCOMMON_LINK_SHARED)
         set(release_files ${release_files} libapr-1.dll)
         set(release_files ${release_files} libaprutil-1.dll)
     endif()
-
-    # OpenSSL
-    if(ADDRESS_SIZE EQUAL 64)
-        set(release_files ${release_files} libcrypto-1_1-x64.dll)
-        set(release_files ${release_files} libssl-1_1-x64.dll)
-    else(ADDRESS_SIZE EQUAL 64)
-        set(release_files ${release_files} libcrypto-1_1.dll)
-        set(release_files ${release_files} libssl-1_1.dll)
-    endif(ADDRESS_SIZE EQUAL 64)
 
     # Filenames are different for 32/64 bit BugSplat file and we don't
     # have any control over them so need to branch.
@@ -183,8 +173,6 @@ elseif(DARWIN)
     set(release_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
     set(release_files
         libndofdev.dylib
-        libnghttp2.dylib
-        libnghttp2.14.dylib
        )
 
     if(LLCOMMON_LINK_SHARED)
@@ -226,8 +214,7 @@ elseif(LINUX)
     set(release_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
     # *FIX - figure out what to do with duplicate libalut.so here -brad
     set(release_files
-            ${EXPAT_COPY}
-            )
+       )
 
      if( USE_AUTOBUILD_3P )
          list( APPEND release_files
