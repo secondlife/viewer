@@ -1250,7 +1250,7 @@ void LLVOVolume::sculpt()
         if (!raw_image)
         {
             raw_image = mSculptTexture->getSavedRawImage();
-            S32 discard_level = mSculptTexture->getSavedRawImageLevel();
+            discard_level = mSculptTexture->getSavedRawImageLevel();
         }
 
         if (!raw_image)
