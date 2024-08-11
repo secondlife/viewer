@@ -269,11 +269,6 @@ using namespace LL;
 #include "glib.h"
 #endif // (LL_LINUX) && LL_GTK
 
-#if LL_MSVC
-// disable boost::lexical_cast warning
-#pragma warning (disable:4702)
-#endif
-
 static LLAppViewerListener sAppViewerListener(LLAppViewer::instance);
 
 ////// Windows-specific includes to the bottom - nasty defines in these pollute the preprocessor

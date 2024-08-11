@@ -1059,7 +1059,7 @@ LLSD LLDXHardware::getDisplayInfo()
 
         // Dump the string as an int into the structure
         char *stopstring;
-        ret["VRAM"] = (LLSD::Integer)strtol(ram_str.c_str(), &stopstring, 10);
+        ret["VRAM"] = LLSD::Integer(strtol(ram_str.c_str(), &stopstring, 10));
         std::string device_name = get_string(device_containerp, L"szDescription");
         ret["DeviceName"] = device_name;
         std::string device_driver=  get_string(device_containerp, L"szDriverVersion");
