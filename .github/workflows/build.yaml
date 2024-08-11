@@ -120,10 +120,6 @@ jobs:
             ${{ runner.os }}-64-${{ matrix.configuration }}-
             ${{ runner.os }}-64-
 
-      - name: Install windows dependencies
-        if: runner.os == 'Windows'
-        run: choco install nsis-unicode
-
       - name: Determine source branch
         id: which-branch
         uses: secondlife/viewer-build-util/which-branch@v2
