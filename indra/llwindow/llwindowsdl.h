@@ -243,8 +243,8 @@ private:
     EServerProtocol mServerProtocol = Unknown;
 
     struct {
-        Window XWindowID = None;
-        Display *Display = nullptr;
+        Window mXWindowID = None;
+        Display *mDisplay = nullptr;
     } mX11Data;
 
 public:
