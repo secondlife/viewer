@@ -1051,7 +1051,8 @@ public:
         LLSpatialGroup* group = (LLSpatialGroup*)base_group;
         group->checkOcclusion();
 
-        if (group->getOctreeNode()->getParent() &&  //never occlusion cull the root node
+        if (group->getOctreeNode() &&
+            group->getOctreeNode()->getParent() &&  //never occlusion cull the root node
             LLPipeline::sUseOcclusion &&            //ignore occlusion if disabled
             group->isOcclusionState(LLSpatialGroup::OCCLUDED))
         {
