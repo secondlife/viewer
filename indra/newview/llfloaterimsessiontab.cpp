@@ -433,7 +433,7 @@ void LLFloaterIMSessionTab::draw()
 
 void LLFloaterIMSessionTab::enableDisableCallBtn()
 {
-    if (LLVoiceClient::instanceExists() && mVoiceButton)
+    if (!LLApp::isExiting() && LLVoiceClient::instanceExists() && mVoiceButton)
     {
         mVoiceButton->setEnabled(
             mSessionID.notNull()
