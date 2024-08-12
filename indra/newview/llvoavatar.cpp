@@ -10634,18 +10634,19 @@ void showRigInfoTabExtents(LLVOAvatar *avatar, LLJointRiggingInfoTab& tab, S32& 
 void LLVOAvatar::getAssociatedVolumes(std::vector<LLVOVolume*>& volumes)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
-    for ( LLVOAvatar::attachment_map_t::iterator iter = mAttachmentPoints.begin(); iter != mAttachmentPoints.end(); ++iter )
+    for (const auto& iter : mAttachmentPoints)
     {
-        LLViewerJointAttachment* attachment = iter->second;
+        LLViewerJointAttachment* attachment = iter.second;
         LLViewerJointAttachment::attachedobjs_vec_t::iterator attach_end = attachment->mAttachedObjects.end();
 
-        for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attach_iter = attachment->mAttachedObjects.begin();
-             attach_iter != attach_end; ++attach_iter)
+        for (LLViewerObject* attached_object : attachment->mAttachedObjects)
         {
-            LLViewerObject* attached_object =  attach_iter->get();
-            LLVOVolume *volume = dynamic_cast<LLVOVolume*>(attached_object);
-            if (volume)
+            if (attached_object->isDead())
+                continue;
+
+            if (attached_object->getPCode() == LL_PCODE_VOLUME)
             {
+                LLVOVolume* volume = (LLVOVolume*)attached_object;
                 volumes.push_back(volume);
                 if (volume->isAnimatedObject())
                 {
@@ -10655,15 +10656,12 @@ void LLVOAvatar::getAssociatedVolumes(std::vector<LLVOVolume*>& volumes)
                     continue;
                 }
             }
-            LLViewerObject::const_child_list_t& children = attached_object->getChildren();
-            for (LLViewerObject::const_child_list_t::const_iterator it = children.begin();
-                 it != children.end(); ++it)
+
+            for (LLViewerObject* childp : attached_object->getChildren())
             {
-                LLViewerObject *childp = *it;
-                LLVOVolume *volume = dynamic_cast<LLVOVolume*>(childp);
-                if (volume)
+                if (!childp->isDead() &&  childp->getPCode() == LL_PCODE_VOLUME)
                 {
-                    volumes.push_back(volume);
+                    volumes.push_back((LLVOVolume*)childp);
                 }
             }
         }
@@ -10702,33 +10700,30 @@ void LLVOAvatar::updateRiggingInfo()
 
     getAssociatedVolumes(volumes);
 
-    std::map<LLUUID,S32> curr_rigging_info_key;
-    {
-        // Get current rigging info key
-        for (std::vector<LLVOVolume*>::iterator it = volumes.begin(); it != volumes.end(); ++it)
-        {
-            LLVOVolume *vol = *it;
-            if (vol->isMesh() && vol->getVolume())
-            {
-                const LLUUID& mesh_id = vol->getVolume()->getParams().getSculptID();
-                S32 max_lod = llmax(vol->getLOD(), vol->mLastRiggingInfoLOD);
-                curr_rigging_info_key[mesh_id] = max_lod;
-            }
-        }
+    std::map<LLUUID, S32> curr_rigging_info_key;
 
-        // Check for key change, which indicates some change in volume composition or LOD.
-        if (curr_rigging_info_key == mLastRiggingInfoKey)
+    // Get current rigging info key
+    for (LLVOVolume* vol : volumes)
+    {
+        if (vol->isMesh() && vol->getVolume())
         {
-            return;
+            const LLUUID& mesh_id = vol->getVolume()->getParams().getSculptID();
+            S32 max_lod = llmax(vol->getLOD(), vol->mLastRiggingInfoLOD);
+            curr_rigging_info_key[mesh_id] = max_lod;
         }
+    }
+
+    // Check for key change, which indicates some change in volume composition or LOD.
+    if (curr_rigging_info_key == mLastRiggingInfoKey)
+    {
+        return;
     }
 
     // Something changed. Update.
     mLastRiggingInfoKey = curr_rigging_info_key;
     mJointRiggingInfoTab.clear();
-    for (std::vector<LLVOVolume*>::iterator it = volumes.begin(); it != volumes.end(); ++it)
+    for (LLVOVolume* vol : volumes)
     {
-        LLVOVolume *vol = *it;
         vol->updateRiggingInfo();
         mJointRiggingInfoTab.merge(vol->mJointRiggingInfoTab);
     }
