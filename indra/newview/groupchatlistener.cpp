@@ -43,7 +43,8 @@ static const F32 GROUP_CHAT_THROTTLE_PERIOD = 1.f;
 LLGroupChatListener::LLGroupChatListener():
     LLEventAPI("GroupChat",
                "API to enter, leave, send and intercept group chat messages"),
-    mLastThrottleTime(0)
+    mIMThrottle("sendGroupIM", &LLGroupChatListener::sendGroupIM_, this,
+                GROUP_CHAT_THROTTLE_PERIOD)
 {
     add("startGroupChat",
         "Enter a group chat in group with UUID [\"group_id\"]\n"
@@ -101,18 +102,14 @@ void LLGroupChatListener::sendGroupIM(LLSD const &data)
         return;
     }
 
-    F64 cur_time = LLTimer::getElapsedSeconds();
+    mIMThrottle(data["group_id"], data["message"]);
+}
 
-    if (cur_time < mLastThrottleTime + GROUP_CHAT_THROTTLE_PERIOD)
-    {
-        LL_DEBUGS("LLGroupChatListener") << "'sendGroupIM' was  throttled" << LL_ENDL;
-        return;
-    }
-    mLastThrottleTime = cur_time;
-
-    LLUUID group_id(data["group_id"]);
-    LLIMModel::sendMessage(LUA_PREFIX + data["message"].asString(),
+void LLGroupChatListener::sendGroupIM_(const LLUUID& group_id, const std::string& message)
+{
+    LLIMModel::sendMessage(LUA_PREFIX + message,
                            gIMMgr->computeSessionID(IM_SESSION_GROUP_START, group_id),
                            group_id,
                            IM_SESSION_SEND);
 }
+
