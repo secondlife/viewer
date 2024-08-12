@@ -18,6 +18,7 @@ include(Tracy)
 set(llcommon_SOURCE_FILES
     apply.cpp
     commoncontrol.cpp
+    coro_scheduler.cpp
     hbxxh.cpp
     indra_constants.cpp
     lazyeventapi.cpp
@@ -125,6 +126,7 @@ set(llcommon_HEADER_FILES
     chrono.h
     classic_callback.h
     commoncontrol.h
+    coro_scheduler.h
     ctype_workaround.h
     fix_macros.h
     fsyspath.h

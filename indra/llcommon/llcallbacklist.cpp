@@ -391,7 +391,7 @@ public:
     TimersListener(const LazyEventAPIParams& params): LLEventAPI(params) {}
 
     // Forbid a script from requesting callbacks too quickly.
-    static constexpr LLSD::Real MINTIMER{ 1.0 };
+    static constexpr LLSD::Real MINTIMER{ 0.010 };
 
     void scheduleAfter(const LLSD& params);
     void scheduleEvery(const LLSD& params);
