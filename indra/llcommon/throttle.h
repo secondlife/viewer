@@ -61,6 +61,7 @@ public:
     Throttle(const std::string& desc, R C::* method, const C* instance, F64 interval):
         Throttle(desc, LL::bind_front(method, instance), interval)
     {}
+    virtual ~Throttle() {}
 
     template <typename... ARGS>
     auto operator()(ARGS... args)
