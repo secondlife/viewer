@@ -400,10 +400,10 @@ bool idle_startup()
         static bool first_call = true;
         if (first_call)
         {
+            first_call = false;
             // Other phases get handled when startup state changes,
             // need to capture the initial state as well.
             LLStartUp::getPhases().startPhase(LLStartUp::getStartupStateString());
-            first_call = false;
         }
 
         gViewerWindow->showCursor();
