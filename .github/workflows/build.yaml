@@ -253,7 +253,7 @@ jobs:
           echo "artifact=$RUNNER_OS$cfg_suffix" >> $GITHUB_OUTPUT
 
       - name: Upload executable
-        if: matrix.configuration == 'Release' && steps.build.outputs.viewer_app
+        if: steps.build.outputs.viewer_app
         uses: actions/upload-artifact@v4
         with:
           name: "${{ steps.build.outputs.artifact }}-app"
@@ -264,7 +264,6 @@ jobs:
       # artifact for that too.
       - name: Upload symbol file
         uses: actions/upload-artifact@v4
-        if: matrix.configuration == 'Release'
         with:
           name: "${{ steps.build.outputs.artifact }}-symbols"
           path: ${{ steps.build.outputs.symbolfile }}
