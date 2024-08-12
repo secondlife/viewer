@@ -1749,15 +1749,11 @@ if (WINDOWS)
        list(APPEND COPY_INPUT_DEPENDENCIES
                ${SHARED_LIB_STAGING_DIR}/vivoxsdk_x64.dll
                ${SHARED_LIB_STAGING_DIR}/ortp_x64.dll
-               ${ARCH_PREBUILT_DIRS_RELEASE}/libcrypto-1_1-x64.dll
-               ${ARCH_PREBUILT_DIRS_RELEASE}/libssl-1_1-x64.dll
                )
     else (ADDRESS_SIZE EQUAL 64)
        list(APPEND COPY_INPUT_DEPENDENCIES
                ${SHARED_LIB_STAGING_DIR}/vivoxsdk.dll
                ${SHARED_LIB_STAGING_DIR}/ortp.dll
-               ${ARCH_PREBUILT_DIRS_RELEASE}/libcrypto-1_1.dll
-               ${ARCH_PREBUILT_DIRS_RELEASE}/libssl-1_1.dll
                )
     endif (ADDRESS_SIZE EQUAL 64)
 

@@ -580,13 +580,6 @@ class Windows_x86_64_Manifest(ViewerManifest):
             self.path("vivoxsdk_x64.dll")
             self.path("ortp_x64.dll")
 
-            # OpenSSL
-            self.path("libcrypto-1_1-x64.dll")
-            self.path("libssl-1_1-x64.dll")
-
-            # HTTP/2
-            self.path("nghttp2.dll")
-
             # BugSplat
             if self.args.get('bugsplat'):
                 self.path("BsSndRpt64.exe")
@@ -1007,14 +1000,6 @@ class Darwin_x86_64_Manifest(ViewerManifest):
                 # Need to get the llcommon dll from any of the build directories as well.
                 libfile_parent = self.get_dst_prefix()
                 dylibs=[]
-                for libfile in (
-                                # libnghttp2.dylib is a symlink to
-                                # libnghttp2.major.dylib, which is a symlink to
-                                # libnghttp2.version.dylib. Get all of them.
-                                "libnghttp2.*dylib",
-                                ):
-                    dylibs += path_optional(os.path.join(relpkgdir, libfile), libfile)
-
                 # SLVoice executable
                 with self.prefix(src=os.path.join(pkgdir, 'bin', 'release')):
                     self.path("SLVoice")
