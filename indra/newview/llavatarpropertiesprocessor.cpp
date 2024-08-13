@@ -228,7 +228,7 @@ std::string LLAvatarPropertiesProcessor::paymentInfo(const LLAvatarData* avatar_
     bool transacted = (avatar_data->flags & AVATAR_TRANSACTED);
     bool identified = (avatar_data->flags & AVATAR_IDENTIFIED);
     // Not currently getting set in dataserver/lldataavatar.cpp for privacy considerations
-    //BOOL age_verified = (avatar_data->flags & AVATAR_AGEVERIFIED);
+    //bool age_verified = (avatar_data->flags & AVATAR_AGEVERIFIED);
 
     const char* payment_text;
     if (transacted)
@@ -614,7 +614,7 @@ void LLAvatarPropertiesProcessor::sendPickInfoUpdate(const LLPickData* new_pick)
     msg->addUUID(_PREHASH_CreatorID, new_pick->creator_id);
 
     //legacy var need to be deleted
-    msg->addBOOL(_PREHASH_TopPick, FALSE);
+    msg->addBOOL(_PREHASH_TopPick, false);
 
     // fills in on simulator if null
     msg->addUUID(_PREHASH_ParcelID, new_pick->parcel_id);
@@ -695,7 +695,7 @@ bool LLAvatarPropertiesProcessor::isPendingRequest(const LLUUID& avatar_id, EAva
     if (it == mRequestTimestamps.end()) return false;
 
     // We found a request, check if it has timed out
-    U32 now = time(nullptr);
+    U32 now = (U32)time(nullptr);
     const U32 REQUEST_EXPIRE_SECS = 5;
     U32 expires = it->second + REQUEST_EXPIRE_SECS;
 
@@ -709,7 +709,7 @@ bool LLAvatarPropertiesProcessor::isPendingRequest(const LLUUID& avatar_id, EAva
 void LLAvatarPropertiesProcessor::addPendingRequest(const LLUUID& avatar_id, EAvatarProcessorType type)
 {
     timestamp_map_t::key_type key = std::make_pair(avatar_id, type);
-    U32 now = time(nullptr);
+    U32 now = (U32)time(nullptr);
     // Add or update existing (expired) request
     mRequestTimestamps[ key ] = now;
 }

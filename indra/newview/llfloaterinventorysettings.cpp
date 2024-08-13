@@ -36,9 +36,9 @@ LLFloaterInventorySettings::LLFloaterInventorySettings(const LLSD& key)
 LLFloaterInventorySettings::~LLFloaterInventorySettings()
 {}
 
-BOOL LLFloaterInventorySettings::postBuild()
+bool LLFloaterInventorySettings::postBuild()
 {
     getChild<LLButton>("ok_btn")->setCommitCallback(boost::bind(&LLFloater::closeFloater, this, false));
-    return TRUE;
+    return true;
 }
 

@@ -39,6 +39,8 @@
 #include "llestateinfomodel.h"
 
 class LLViewerRegion;
+class LLIconCtrl;
+class LLSettingsDropTarget;
 
 class LLPanelEnvironmentInfo : public LLPanel
 {
@@ -47,11 +49,11 @@ public:
                                 LLPanelEnvironmentInfo();
     virtual                     ~LLPanelEnvironmentInfo();
 
-    virtual BOOL                postBuild() override;
+    virtual bool                postBuild() override;
     virtual void                onOpen(const LLSD& key) override;
 
-    virtual BOOL                isDirty() const override            { return getIsDirty(); }
-    virtual void                onVisibilityChange(BOOL new_visibility) override;
+    virtual bool                isDirty() const override            { return getIsDirty(); }
+    virtual void                onVisibilityChange(bool new_visibility) override;
 
     virtual void                refresh() override;
 
@@ -62,6 +64,10 @@ public:
 
 protected:
     LOG_CLASS(LLPanelEnvironmentInfo);
+
+    static constexpr U32 ALTITUDE_SLIDER_COUNT = 3;
+    static constexpr U32 ALTITUDE_MARKERS_COUNT = 3;
+    static constexpr U32 ALTITUDE_PREFIXERS_COUNT = 5;
 
     static const std::string    BTN_SELECTINV;
     static const std::string    BTN_EDIT;
@@ -108,7 +114,7 @@ protected:
     bool                        getIsDirty() const                  { return (mDirtyFlag != 0); }
     bool                        getIsDirtyFlag(U32 flag) const      { return ((mDirtyFlag & flag) != 0); }
     U32                         getDirtyFlag() const                { return mDirtyFlag; }
-    void                        updateAltLabel(const std::string &alt_prefix, U32 sky_index, F32 alt_value);
+    void                        updateAltLabel(U32 alt_index, U32 sky_index, F32 alt_value);
     void                        readjustAltLabels();
 
     void                        onSldDayLengthChanged(F32 value);
@@ -136,7 +142,7 @@ protected:
     virtual bool                isLargeEnough() = 0;
     virtual void                refreshFromSource() = 0;
 
-    std::string                 getNameForTrackIndex(S32 index);
+    std::string                 getNameForTrackIndex(U32 index);
 
     LLFloaterSettingsPicker *   getSettingsPicker(bool create = true);
     LLFloaterEditExtDayCycle *  getEditFloater(bool create = true);
@@ -167,6 +173,37 @@ protected:
     typedef std::map<std::string, AltitudeData>      altitudes_data_t;
     altitudes_data_t                mAltitudes;
     S32                             mCurEnvVersion; // used to filter duplicate callbacks/refreshes
+
+    LLUICtrl* mPanelEnvAltitudes = nullptr;
+    LLUICtrl* mPanelEnvConfig = nullptr;
+    LLUICtrl* mPanelEnvButtons = nullptr;
+    LLUICtrl* mPanelEnvDisabled = nullptr;
+    LLUICtrl* mPanelEnvRegionMsg = nullptr;
+
+    LLButton* mBtnSelectInv = nullptr;
+    LLButton* mBtnEdit = nullptr;
+    LLButton* mBtnUseDefault = nullptr;
+    LLButton* mBtnResetAltitudes = nullptr;
+
+    LLMultiSliderCtrl* mMultiSliderAltitudes = nullptr;
+
+    LLSliderCtrl* mSliderDayLength = nullptr;
+    LLSliderCtrl* mSliderDayOffset = nullptr;
+
+    LLTextBox* mEnvironmentDisabledText = nullptr;
+    LLTextBox* mLabelApparentTime = nullptr;
+
+    LLCheckBoxCtrl* mCheckAllowOverride = nullptr;
+
+    LLIconCtrl* mIconGround = nullptr;
+    LLIconCtrl* mIconWater = nullptr;
+
+    std::array<LLUICtrl*, ALTITUDE_MARKERS_COUNT> mAltitudeMarkers;
+    std::array<LLSettingsDropTarget*, ALTITUDE_PREFIXERS_COUNT> mAltitudeDropTarget;
+
+    std::array<LLTextBox*, ALTITUDE_PREFIXERS_COUNT> mAltitudeLabels;
+    std::array<LLLineEditor*, ALTITUDE_PREFIXERS_COUNT> mAltitudeEditor;
+    std::array<LLView*, ALTITUDE_PREFIXERS_COUNT> mAltitudePanels;
 
 protected:
     typedef boost::signals2::connection connection_t;
@@ -206,7 +243,7 @@ public:
     LLSettingsDropTarget(const Params&);
     ~LLSettingsDropTarget() {};
 
-    virtual BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+    virtual bool handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
         EDragAndDropType cargo_type,
         void* cargo_data,
         EAcceptance* accept,

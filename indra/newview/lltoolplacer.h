@@ -42,8 +42,8 @@ class LLToolPlacer
 public:
     LLToolPlacer();
 
-    virtual BOOL    placeObject(S32 x, S32 y, MASK mask);
-    virtual BOOL    handleHover(S32 x, S32 y, MASK mask);
+    virtual bool    placeObject(S32 x, S32 y, MASK mask);
+    virtual bool    handleHover(S32 x, S32 y, MASK mask);
     virtual void    handleSelect(); // do stuff when your tool is selected
     virtual void    handleDeselect();   // clean up when your tool is deselected
 
@@ -54,10 +54,10 @@ protected:
     static LLPCode  sObjectType;
 
 private:
-    BOOL addObject( LLPCode pcode, S32 x, S32 y, U8 use_physics );
-    BOOL raycastForNewObjPos( S32 x, S32 y, LLViewerObject** hit_obj, S32* hit_face,
-                              BOOL* b_hit_land, LLVector3* ray_start_region, LLVector3* ray_end_region, LLViewerRegion** region );
-    BOOL addDuplicate(S32 x, S32 y);
+    bool addObject( LLPCode pcode, S32 x, S32 y, U8 use_physics );
+    bool raycastForNewObjPos( S32 x, S32 y, LLViewerObject** hit_obj, S32* hit_face,
+                              bool* b_hit_land, LLVector3* ray_start_region, LLVector3* ray_end_region, LLViewerRegion** region );
+    bool addDuplicate(S32 x, S32 y);
 };
 
 #endif

@@ -43,23 +43,30 @@ public:
     LLPanelLandInfo();
     virtual ~LLPanelLandInfo();
 
-    void refresh();
+    void refresh() override;
     static void refreshAll();
 
-    LLCheckBoxCtrl  *mCheckShowOwners;
+protected:
+    void onClickClaim();
+    void onClickRelease();
+    void onClickDivide();
+    void onClickJoin();
+    void onClickAbout();
 
 protected:
-    static void onClickClaim();
-    static void onClickRelease();
-    static void onClickDivide();
-    static void onClickJoin();
-    static void onClickAbout();
-
-protected:
-    virtual BOOL    postBuild();
+    bool postBuild() override;
 
     static LLPanelLandSelectObserver* sObserver;
     static LLPanelLandInfo* sInstance;
+private:
+    LLCheckBoxCtrl  *mCheckShowOwners = nullptr;
+    LLButton* mButtonBuyLand = nullptr;
+    LLButton* mButtonAbandonLand = nullptr;
+    LLButton* mButtonSubdivLand = nullptr;
+    LLButton* mButtonJoinLand = nullptr;
+    LLButton* mButtonAboutLand = nullptr;
+    LLTextBox* mTextArea = nullptr;
+    LLTextBox* mTextAreaPrice = nullptr;
 };
 
 #endif

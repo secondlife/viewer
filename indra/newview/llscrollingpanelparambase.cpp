@@ -40,7 +40,7 @@
 #include "llvoavatarself.h"
 
 LLScrollingPanelParamBase::LLScrollingPanelParamBase( const LLPanel::Params& panel_params,
-                              LLViewerJointMesh* mesh, LLViewerVisualParam* param, BOOL allow_modify, LLWearable* wearable, LLJoint* jointp, BOOL use_hints)
+                              LLViewerJointMesh* mesh, LLViewerVisualParam* param, bool allow_modify, LLWearable* wearable, LLJoint* jointp, bool use_hints)
     : LLScrollingPanel( panel_params ),
       mParam(param),
       mAllowModify(allow_modify),
@@ -51,22 +51,23 @@ LLScrollingPanelParamBase::LLScrollingPanelParamBase( const LLPanel::Params& pan
     else
         buildFromFile( "panel_scrolling_param_base.xml");
 
-    getChild<LLUICtrl>("param slider")->setValue(weightToPercent(param->getWeight()));
+    mParamSlider = getChild<LLUICtrl>("param slider");
+    mParamSlider->setValue(weightToPercent(param->getWeight()));
 
     std::string display_name = LLTrans::getString(param->getDisplayName());
-    getChild<LLUICtrl>("param slider")->setLabelArg("[DESC]", display_name);
-    getChildView("param slider")->setEnabled(mAllowModify);
-    childSetCommitCallback("param slider", LLScrollingPanelParamBase::onSliderMoved, this);
+    mParamSlider->setLabelArg("[DESC]", display_name);
+    mParamSlider->setEnabled(mAllowModify);
+    mParamSlider->setCommitCallback(LLScrollingPanelParamBase::onSliderMoved, this);
 
-    setVisible(FALSE);
-    setBorderVisible( FALSE );
+    setVisible(false);
+    setBorderVisible( false );
 }
 
 LLScrollingPanelParamBase::~LLScrollingPanelParamBase()
 {
 }
 
-void LLScrollingPanelParamBase::updatePanel(BOOL allow_modify)
+void LLScrollingPanelParamBase::updatePanel(bool allow_modify)
 {
     LLViewerVisualParam* param = mParam;
 
@@ -77,9 +78,9 @@ void LLScrollingPanelParamBase::updatePanel(BOOL allow_modify)
     }
 
     F32 current_weight = mWearable->getVisualParamWeight( param->getID() );
-    getChild<LLUICtrl>("param slider")->setValue(weightToPercent( current_weight ) );
+    mParamSlider->setValue(weightToPercent( current_weight ) );
     mAllowModify = allow_modify;
-    getChildView("param slider")->setEnabled(mAllowModify);
+    mParamSlider->setEnabled(mAllowModify);
 }
 
 // static

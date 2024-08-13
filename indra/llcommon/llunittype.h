@@ -31,6 +31,11 @@
 #include "llpreprocessor.h"
 #include "llerror.h"
 
+#ifdef LL_WINDOWS
+#pragma warning(push)
+#pragma warning(disable : 4244) // possible loss of data on conversions
+#endif
+
 //lightweight replacement of type traits for simple type equality check
 template<typename S, typename T>
 struct LLIsSameType
@@ -845,5 +850,9 @@ LL_FORCE_INLINE S2 ll_convert_units(LLUnit<S1, base_unit_name> in, LLUnit<S2, un
     typedef LLUnitImplicit<U32, ns::unit_name> U32##unit_name##Implicit;\
     typedef LLUnit<U64, ns::unit_name> U64##unit_name;                  \
     typedef LLUnitImplicit<U64, ns::unit_name> U64##unit_name##Implicit
+
+#ifdef LL_WINDOWS
+#pragma warning(pop)
+#endif
 
 #endif //LL_UNITTYPE_H

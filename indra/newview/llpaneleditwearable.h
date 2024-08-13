@@ -44,6 +44,8 @@ class LLViewerJointMesh;
 class LLAccordionCtrlTab;
 class LLJoint;
 class LLLineEditor;
+class LLRadioGroup;
+class LLIconCtrl;
 
 class LLPanelEditWearable : public LLPanel
 {
@@ -51,8 +53,8 @@ public:
     LLPanelEditWearable( );
     virtual ~LLPanelEditWearable();
 
-    /*virtual*/ BOOL        postBuild();
-    /*virtual*/ BOOL        isDirty() const;    // LLUICtrl
+    /*virtual*/ bool        postBuild();
+    /*virtual*/ bool        isDirty() const;    // LLUICtrl
     /*virtual*/ void        draw();
                 void        onClose();
 
@@ -60,7 +62,7 @@ public:
     void                changeCamera(U8 subpart);
 
     LLViewerWearable*   getWearable() { return mWearablePtr; }
-    void                setWearable(LLViewerWearable *wearable, BOOL disable_camera_switch = FALSE);
+    void                setWearable(LLViewerWearable *wearable, bool disable_camera_switch = false);
 
     void                saveChanges(bool force_save_as = false);
     void                revertChanges();
@@ -76,12 +78,12 @@ public:
     void                onSaveAsButtonClicked();
     void                saveAsCallback(const LLSD& notification, const LLSD& response);
 
-    virtual void        setVisible(BOOL visible);
+    virtual void        setVisible(bool visible);
 
 private:
     typedef std::map<F32, LLViewerVisualParam*> value_map_t;
 
-    void                showWearable(LLViewerWearable* wearable, BOOL show, BOOL disable_camera_switch = FALSE);
+    void                showWearable(LLViewerWearable* wearable, bool show, bool disable_camera_switch = false);
     void                updateScrollingPanelUI();
     LLPanel*            getPanel(LLWearableType::EType type);
     void                getSortedParams(value_map_t &sorted_params, const std::string &edit_group);
@@ -106,7 +108,7 @@ private:
     bool changeHeightUnits(const LLSD& new_value);
 
     // updates current metric and replacement metric label text
-    void updateMetricLayout(BOOL new_value);
+    void updateMetricLayout(bool new_value);
 
     // updates avatar height label
     void updateAvatarHeightLabel();
@@ -123,6 +125,7 @@ private:
     LLViewerInventoryItem* mWearableItem;
 
     // these are constant no matter what wearable we're editing
+    LLButton* mBtnSaveAs;
     LLButton *mBtnRevert;
     LLButton *mBtnBack;
     std::string mBackBtnLabel;
@@ -131,6 +134,9 @@ private:
     LLTextBox *mDescTitle;
     LLTextBox *mTxtAvatarHeight;
 
+    LLRadioGroup* mSexRadio = nullptr;
+    LLIconCtrl*   mMaleIcon = nullptr;
+    LLIconCtrl*   mFemaleIcon = nullptr;
 
     // localized and parameterized strings that used to build avatar_height_label
     std::string mMeters;
@@ -170,8 +176,11 @@ private:
     LLPanel *mPanelUniversal;
     LLPanel *mPanelPhysics;
 
-    typedef std::map<std::string, LLAvatarAppearanceDefines::ETextureIndex> string_texture_index_map_t;
-    string_texture_index_map_t mAlphaCheckbox2Index;
+    std::unordered_map<std::string, LLAccordionCtrlTab*> mAccordionTabs;
+    std::unordered_map<std::string, LLScrollingPanelList*> mParamPanels;
+
+    typedef std::vector<std::pair<LLCheckBoxCtrl*, LLAvatarAppearanceDefines::ETextureIndex>> checkbox_texture_index_vec_t;
+    checkbox_texture_index_vec_t mAlphaCheckbox2Index;
 
     typedef std::map<LLAvatarAppearanceDefines::ETextureIndex, LLUUID> s32_uuid_map_t;
     s32_uuid_map_t mPreviousAlphaTexture;

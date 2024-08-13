@@ -38,6 +38,7 @@ class LLCurrentlyWornFetchObserver;
 class LLPanelEditWearable;
 class LLViewerWearable;
 class LLPanelOutfitsInventory;
+class LLLoadingIndicator;
 
 class LLSidepanelAppearance : public LLPanel
 {
@@ -46,12 +47,12 @@ public:
     LLSidepanelAppearance();
     virtual ~LLSidepanelAppearance();
 
-    /*virtual*/ BOOL postBuild();
+    /*virtual*/ bool postBuild();
     /*virtual*/ void onOpen(const LLSD& key);
 
     void refreshCurrentOutfitName(const std::string& name = "");
 
-    static void editWearable(LLViewerWearable *wearable, LLView *data, BOOL disable_camera_switch = FALSE);
+    static void editWearable(LLViewerWearable *wearable, LLView *data, bool disable_camera_switch = false);
 
     void fetchInventory();
     void inventoryFetched();
@@ -59,7 +60,7 @@ public:
     void showOutfitsInventoryPanel(); // last selected
     void showOutfitsInventoryPanel(const std::string& tab_name);
     void showOutfitEditPanel();
-    void showWearableEditPanel(LLViewerWearable *wearable = NULL, BOOL disable_camera_switch = FALSE);
+    void showWearableEditPanel(LLViewerWearable *wearable = NULL, bool disable_camera_switch = false);
     void setWearablesLoading(bool val);
     void showDefaultSubpart();
     void updateScrollingPanelList();
@@ -75,9 +76,9 @@ private:
     void onOpenOutfitButtonClicked();
     void onEditAppearanceButtonClicked();
 
-    void toggleMyOutfitsPanel(BOOL visible, const std::string& tab_name);
-    void toggleOutfitEditPanel(BOOL visible, BOOL disable_camera_switch = FALSE);
-    void toggleWearableEditPanel(BOOL visible, LLViewerWearable* wearable = NULL, BOOL disable_camera_switch = FALSE);
+    void toggleMyOutfitsPanel(bool visible, const std::string& tab_name);
+    void toggleOutfitEditPanel(bool visible, bool disable_camera_switch = false);
+    void toggleWearableEditPanel(bool visible, LLViewerWearable* wearable = nullptr, bool disable_camera_switch = false);
 
     LLFilterEditor*         mFilterEditor;
     LLPanelOutfitsInventory* mPanelOutfitsInventory;
@@ -86,7 +87,10 @@ private:
 
     LLButton*                   mOpenOutfitBtn;
     LLButton*                   mEditAppearanceBtn;
+    LLButton*                   mEditOutfitBtn = nullptr;
     LLPanel*                    mCurrOutfitPanel;
+
+    LLLoadingIndicator*         mWearableLoadingIndicator = nullptr;
 
     LLTextBox*                  mCurrentLookName;
     LLTextBox*                  mOutfitStatus;

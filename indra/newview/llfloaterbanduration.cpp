@@ -35,16 +35,16 @@ LLFloaterBanDuration::LLFloaterBanDuration(const LLSD& target)
 {
 }
 
-BOOL LLFloaterBanDuration::postBuild()
+bool LLFloaterBanDuration::postBuild()
 {
     childSetAction("ok_btn", boost::bind(&LLFloaterBanDuration::onClickBan, this));
     childSetAction("cancel_btn", boost::bind(&LLFloaterBanDuration::onClickCancel, this));
 
     getChild<LLUICtrl>("ban_duration_radio")->setCommitCallback(boost::bind(&LLFloaterBanDuration::onClickRadio, this));
     getChild<LLRadioGroup>("ban_duration_radio")->setSelectedIndex(0);
-    getChild<LLUICtrl>("ban_hours")->setEnabled(FALSE);
+    getChild<LLUICtrl>("ban_hours")->setEnabled(false);
 
-    return TRUE;
+    return true;
 }
 
 LLFloaterBanDuration* LLFloaterBanDuration::show(select_callback_t callback, uuid_vec_t ids)
@@ -82,7 +82,7 @@ void LLFloaterBanDuration::onClickBan()
             LLSpinCtrl* hours_spin = getChild<LLSpinCtrl>("ban_hours");
             if (hours_spin)
             {
-                time = LLDate::now().secondsSinceEpoch() + (hours_spin->getValue().asInteger() * 3600);
+                time = (S32)(LLDate::now().secondsSinceEpoch() + (hours_spin->getValue().asInteger() * 3600));
             }
         }
         mSelectionCallback(mAvatar_ids, time);

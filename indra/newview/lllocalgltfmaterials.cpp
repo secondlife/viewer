@@ -177,6 +177,8 @@ bool LLLocalGLTFMaterial::updateSelf()
                         }
                     }
 
+                    materialBegin();
+                    materialComplete(true);
                     updated = true;
                 }
 
@@ -201,6 +203,8 @@ bool LLLocalGLTFMaterial::updateSelf()
                         LLNotificationsUtil::add("LocalBitmapsUpdateFailedFinal", notif_args);
 
                         mLinkStatus = LS_BROKEN;
+                        materialBegin();
+                        materialComplete(false);
                     }
                 }
             }
@@ -218,6 +222,8 @@ bool LLLocalGLTFMaterial::updateSelf()
             LLNotificationsUtil::add("LocalBitmapsUpdateFileNotFound", notif_args);
 
             mLinkStatus = LS_BROKEN;
+            materialBegin();
+            materialComplete(false);
         }
     }
 
@@ -301,11 +307,11 @@ bool LLLocalGLTFMaterialTimer::isRunning()
     return mEventTimer.getStarted();
 }
 
-BOOL LLLocalGLTFMaterialTimer::tick()
+bool LLLocalGLTFMaterialTimer::tick()
 {
     // todo: do on idle? No point in timer
     LLLocalGLTFMaterialMgr::getInstance()->doUpdates();
-    return FALSE;
+    return false;
 }
 
 /*=======================================*/
@@ -340,19 +346,19 @@ S32 LLLocalGLTFMaterialMgr::addUnit(const std::string& filename)
     tinygltf::Model model;
     LLTinyGLTFHelper::loadModel(filename, model);
 
-    S32 materials_in_file = model.materials.size();
+    auto materials_in_file = model.materials.size();
     if (materials_in_file <= 0)
     {
         return 0;
     }
 
     S32 loaded_materials = 0;
-    for (S32 i = 0; i < materials_in_file; i++)
+    for (size_t i = 0; i < materials_in_file; i++)
     {
         // Todo: this is rather inefficient, files will be spammed with
         // separate loads and date checks, find a way to improve this.
         // May be doUpdates() should be checking individual files.
-        LLPointer<LLLocalGLTFMaterial> unit = new LLLocalGLTFMaterial(filename, i);
+        LLPointer<LLLocalGLTFMaterial> unit = new LLLocalGLTFMaterial(filename, static_cast<S32>(i));
 
         // load material from file
         if (unit->updateSelf())

@@ -81,7 +81,7 @@ public:
     LLViewerRegion*         getRegionFromPosAgent(const LLVector3 &pos);
     LLViewerRegion*         getRegionFromHandle(const U64 &handle);
     LLViewerRegion*         getRegionFromID(const LLUUID& region_id);
-    BOOL                    positionRegionValidGlobal(const LLVector3d& pos);           // true if position is in valid region
+    bool                    positionRegionValidGlobal(const LLVector3d& pos);           // true if position is in valid region
     LLVector3d              clipToVisibleRegions(const LLVector3d &start_pos, const LLVector3d &end_pos);
 
     void                    updateAgentOffset(const LLVector3d &offset);
@@ -172,7 +172,7 @@ public:
 
     // profile nearby avatars using gPipeline.profileAvatar and update their render times
     // return max GPU time
-    F32 getNearbyAvatarsAndMaxGPUTime(std::vector<LLCharacter*> &valid_nearby_avs);
+    F32 getNearbyAvatarsAndMaxGPUTime(std::vector<LLVOAvatar*> &valid_nearby_avs);
 
 private:
     void clearHoleWaterObjects();

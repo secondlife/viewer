@@ -47,11 +47,11 @@ extern U64MicrosecondsImplicit gFrameTime;
 extern LLPipeline gPipeline;
 
 LLSurfacePatch::LLSurfacePatch()
-:   mHasReceivedData(FALSE),
-    mSTexUpdate(FALSE),
-    mDirty(FALSE),
-    mDirtyZStats(TRUE),
-    mHeightsGenerated(FALSE),
+:   mHasReceivedData(false),
+    mSTexUpdate(false),
+    mDirty(false),
+    mDirtyZStats(true),
+    mHeightsGenerated(false),
     mDataOffset(0),
     mDataZ(NULL),
     mDataNorm(NULL),
@@ -78,7 +78,7 @@ LLSurfacePatch::LLSurfacePatch()
     }
     for (i = 0; i < 9; i++)
     {
-        mNormalsInvalid[i] = TRUE;
+        mNormalsInvalid[i] = true;
     }
 }
 
@@ -102,12 +102,12 @@ void LLSurfacePatch::dirty()
         LL_WARNS("Terrain") << "No viewer object for this surface patch!" << LL_ENDL;
     }
 
-    mDirtyZStats = TRUE;
-    mHeightsGenerated = FALSE;
+    mDirtyZStats = true;
+    mHeightsGenerated = false;
 
     if (!mDirty)
     {
-        mDirty = TRUE;
+        mDirty = true;
         mSurfacep->dirtySurfacePatch(this);
     }
 }
@@ -137,7 +137,7 @@ void LLSurfacePatch::disconnectNeighbor(LLSurface *surfacep)
             if (getNeighborPatch(i)->mSurfacep == surfacep)
             {
                 setNeighborPatch(i, NULL);
-                mNormalsInvalid[i] = TRUE;
+                mNormalsInvalid[i] = true;
             }
         }
     }
@@ -201,13 +201,13 @@ LLVector2 LLSurfacePatch::getTexCoords(const U32 x, const U32 y) const
 
 
 void LLSurfacePatch::eval(const U32 x, const U32 y, const U32 stride, LLVector3 *vertex, LLVector3 *normal,
-                          LLVector2 *tex0, LLVector2 *tex1)
+                          LLVector2 *tex1) const
 {
     if (!mSurfacep || !mSurfacep->getRegion() || !mSurfacep->getGridsPerEdge() || !mVObjp)
     {
         return; // failsafe
     }
-    llassert_always(vertex && normal && tex0 && tex1);
+    llassert_always(vertex && normal && tex1);
 
     U32 surface_stride = mSurfacep->getGridsPerEdge();
     U32 point_offset = x + y*surface_stride;
@@ -220,12 +220,6 @@ void LLSurfacePatch::eval(const U32 x, const U32 y, const U32 stride, LLVector3 
     pos_agent.mV[VZ]  = *(mDataZ + point_offset);
     *vertex     = pos_agent-mVObjp->getRegion()->getOriginAgent();
 
-    LLVector3 rel_pos = pos_agent - mSurfacep->getOriginAgent();
-    // *NOTE: Only PBR terrain uses the UVs right now. Texture terrain just ignores it.
-    // *NOTE: In the future, UVs and horizontal position will no longer have a 1:1 relationship for PBR terrain
-    LLVector3 tex_pos = rel_pos;
-    tex0->mV[0]  = tex_pos.mV[0];
-    tex0->mV[1]  = tex_pos.mV[1];
     tex1->mV[0] = mSurfacep->getRegion()->getCompositionXY(llfloor(mOriginRegion.mV[0])+x, llfloor(mOriginRegion.mV[1])+y);
 
     const F32 xyScale = 4.9215f*7.f; //0.93284f;
@@ -603,14 +597,14 @@ void LLSurfacePatch::updateVerticalStats()
 
     mSurfacep->mMaxZ = llmax(mMaxZ, mSurfacep->mMaxZ);
     mSurfacep->mMinZ = llmin(mMinZ, mSurfacep->mMinZ);
-    mSurfacep->mHasZData = TRUE;
+    mSurfacep->mHasZData = true;
     mSurfacep->getRegion()->calculateCenterGlobal();
 
     if (mVObjp)
     {
         mVObjp->dirtyPatch();
     }
-    mDirtyZStats = FALSE;
+    mDirtyZStats = false;
 }
 
 
@@ -624,7 +618,7 @@ void LLSurfacePatch::updateNormals()
     U32 grids_per_patch_edge = mSurfacep->getGridsPerPatchEdge();
     U32 grids_per_edge = mSurfacep->getGridsPerEdge();
 
-    BOOL dirty_patch = FALSE;
+    bool dirty_patch = false;
 
     U32 i, j;
     // update the east edge
@@ -637,7 +631,7 @@ void LLSurfacePatch::updateNormals()
             calcNormal<PBR>(grids_per_patch_edge - 2, j, 2);
         }
 
-        dirty_patch = TRUE;
+        dirty_patch = true;
     }
 
     // update the north edge
@@ -650,7 +644,7 @@ void LLSurfacePatch::updateNormals()
             calcNormal<PBR>(i, grids_per_patch_edge - 2, 2);
         }
 
-        dirty_patch = TRUE;
+        dirty_patch = true;
     }
 
     // update the west edge
@@ -661,7 +655,7 @@ void LLSurfacePatch::updateNormals()
             calcNormal<PBR>(0, j, 2);
             calcNormal<PBR>(1, j, 2);
         }
-        dirty_patch = TRUE;
+        dirty_patch = true;
     }
 
     // update the south edge
@@ -672,7 +666,7 @@ void LLSurfacePatch::updateNormals()
             calcNormal<PBR>(i, 0, 2);
             calcNormal<PBR>(i, 1, 2);
         }
-        dirty_patch = TRUE;
+        dirty_patch = true;
     }
 
     // Invalidating the northeast corner is different, because depending on what the adjacent neighbors are,
@@ -750,7 +744,7 @@ void LLSurfacePatch::updateNormals()
         calcNormal<PBR>(grids_per_patch_edge, grids_per_patch_edge - 1, 2);
         calcNormal<PBR>(grids_per_patch_edge - 1, grids_per_patch_edge, 2);
         calcNormal<PBR>(grids_per_patch_edge - 1, grids_per_patch_edge - 1, 2);
-        dirty_patch = TRUE;
+        dirty_patch = true;
     }
 
     // update the middle normals
@@ -763,7 +757,7 @@ void LLSurfacePatch::updateNormals()
                 calcNormal<PBR>(i, j, 2);
             }
         }
-        dirty_patch = TRUE;
+        dirty_patch = true;
     }
 
     if (dirty_patch)
@@ -773,7 +767,7 @@ void LLSurfacePatch::updateNormals()
 
     for (i = 0; i < 9; i++)
     {
-        mNormalsInvalid[i] = FALSE;
+        mNormalsInvalid[i] = false;
     }
 }
 
@@ -844,7 +838,7 @@ void LLSurfacePatch::updateNorthEdge()
 }
 
 
-BOOL LLSurfacePatch::updateTexture()
+bool LLSurfacePatch::updateTexture()
 {
     if (mSTexUpdate)        //  Update texture as needed
     {
@@ -867,11 +861,11 @@ BOOL LLSurfacePatch::updateTexture()
                 if (comp->generateHeights((F32)origin_region[VX], (F32)origin_region[VY],
                                           patch_size, patch_size))
                 {
-                    mHeightsGenerated = TRUE;
+                    mHeightsGenerated = true;
                 }
                 else
                 {
-                    return FALSE;
+                    return false;
                 }
             }
 
@@ -885,17 +879,17 @@ BOOL LLSurfacePatch::updateTexture()
                 }
             }
         }
-        return FALSE;
+        return false;
     }
     else
     {
-        return TRUE;
+        return true;
     }
 }
 
 void LLSurfacePatch::updateGL()
 {
-    LL_PROFILE_ZONE_SCOPED
+    LL_PROFILE_ZONE_SCOPED;
     F32 meters_per_grid = getSurface()->getMetersPerGrid();
     F32 grids_per_patch_edge = (F32)getSurface()->getGridsPerPatchEdge();
 
@@ -906,26 +900,19 @@ void LLSurfacePatch::updateGL()
 
     updateCompositionStats();
     F32 tex_patch_size = meters_per_grid*grids_per_patch_edge;
-    if (comp->generateMinimapTileLand((F32)origin_region[VX], (F32)origin_region[VY],
-                              tex_patch_size, tex_patch_size))
-    {
-        mSTexUpdate = FALSE;
 
-        // Also generate the water texture
-        mSurfacep->generateWaterTexture((F32)origin_region.mdV[VX], (F32)origin_region.mdV[VY],
-                                        tex_patch_size, tex_patch_size);
-    }
+    mSTexUpdate = false;
 }
 
 void LLSurfacePatch::dirtyZ()
 {
-    mSTexUpdate = TRUE;
+    mSTexUpdate = true;
 
     // Invalidate all normals in this patch
     U32 i;
     for (i = 0; i < 9; i++)
     {
-        mNormalsInvalid[i] = TRUE;
+        mNormalsInvalid[i] = true;
     }
 
     // Invalidate normals in this and neighboring patches
@@ -933,12 +920,12 @@ void LLSurfacePatch::dirtyZ()
     {
         if (getNeighborPatch(i))
         {
-            getNeighborPatch(i)->mNormalsInvalid[gDirOpposite[i]] = TRUE;
+            getNeighborPatch(i)->mNormalsInvalid[gDirOpposite[i]] = true;
             getNeighborPatch(i)->dirty();
             if (i < 4)
             {
-                getNeighborPatch(i)->mNormalsInvalid[gDirAdjacent[gDirOpposite[i]][0]] = TRUE;
-                getNeighborPatch(i)->mNormalsInvalid[gDirAdjacent[gDirOpposite[i]][1]] = TRUE;
+                getNeighborPatch(i)->mNormalsInvalid[gDirAdjacent[gDirOpposite[i]][0]] = true;
+                getNeighborPatch(i)->mNormalsInvalid[gDirAdjacent[gDirOpposite[i]][1]] = true;
             }
         }
     }
@@ -974,7 +961,7 @@ void LLSurfacePatch::setOriginGlobal(const LLVector3d &origin_global)
     mCenterRegion.mV[VX] = origin_region.mV[VX] + 0.5f*mSurfacep->getGridsPerPatchEdge()*mSurfacep->getMetersPerGrid();
     mCenterRegion.mV[VY] = origin_region.mV[VY] + 0.5f*mSurfacep->getGridsPerPatchEdge()*mSurfacep->getMetersPerGrid();
 
-    mVisInfo.mbIsVisible = FALSE;
+    mVisInfo.mbIsVisible = false;
     mVisInfo.mDistance = 512.0f;
     mVisInfo.mRenderLevel = 0;
     mVisInfo.mRenderStride = mSurfacep->getGridsPerPatchEdge();
@@ -984,8 +971,8 @@ void LLSurfacePatch::setOriginGlobal(const LLVector3d &origin_global)
 void LLSurfacePatch::connectNeighbor(LLSurfacePatch *neighbor_patchp, const U32 direction)
 {
     llassert(neighbor_patchp);
-    mNormalsInvalid[direction] = TRUE;
-    neighbor_patchp->mNormalsInvalid[gDirOpposite[direction]] = TRUE;
+    mNormalsInvalid[direction] = true;
+    neighbor_patchp->mNormalsInvalid[gDirOpposite[direction]] = true;
 
     setNeighborPatch(direction, neighbor_patchp);
     neighbor_patchp->setNeighborPatch(gDirOpposite[direction], this);
@@ -1076,11 +1063,11 @@ void LLSurfacePatch::updateVisibility()
                 }
             }
         }
-        mVisInfo.mbIsVisible = TRUE;
+        mVisInfo.mbIsVisible = true;
     }
     else
     {
-        mVisInfo.mbIsVisible = FALSE;
+        mVisInfo.mbIsVisible = false;
     }
 }
 
@@ -1095,7 +1082,7 @@ LLVector3 LLSurfacePatch::getOriginAgent() const
     return gAgent.getPosAgentFromGlobal(mOriginGlobal);
 }
 
-BOOL LLSurfacePatch::getVisible() const
+bool LLSurfacePatch::getVisible() const
 {
     return mVisInfo.mbIsVisible;
 }
@@ -1112,10 +1099,10 @@ S32 LLSurfacePatch::getRenderLevel() const
 
 void LLSurfacePatch::setHasReceivedData()
 {
-    mHasReceivedData = TRUE;
+    mHasReceivedData = true;
 }
 
-BOOL LLSurfacePatch::getHasReceivedData() const
+bool LLSurfacePatch::getHasReceivedData() const
 {
     return mHasReceivedData;
 }
@@ -1180,11 +1167,11 @@ F32 LLSurfacePatch::getMaxComposition() const
 void LLSurfacePatch::setNeighborPatch(const U32 direction, LLSurfacePatch *neighborp)
 {
     mNeighborPatches[direction] = neighborp;
-    mNormalsInvalid[direction] = TRUE;
+    mNormalsInvalid[direction] = true;
     if (direction < 4)
     {
-        mNormalsInvalid[gDirAdjacent[direction][0]] = TRUE;
-        mNormalsInvalid[gDirAdjacent[direction][1]] = TRUE;
+        mNormalsInvalid[gDirAdjacent[direction][0]] = true;
+        mNormalsInvalid[gDirAdjacent[direction][1]] = true;
     }
 }
 

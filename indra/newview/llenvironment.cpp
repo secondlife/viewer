@@ -54,8 +54,6 @@
 
 #include "llregioninfomodel.h"
 
-#include <boost/make_shared.hpp>
-
 #include "llatmosphere.h"
 #include "llagent.h"
 #include "roles_constants.h"
@@ -209,7 +207,7 @@ namespace
 
             mInitial = (*initial.first).second;
             mFinal = (*initial.second).second;
-            mBlendSpan = getSpanTime(initial);
+            mBlendSpan = (LLSettingsBase::TrackPosition)getSpanTime(initial);
 
             initializeTarget(now);
             setOnFinished([this](const LLSettingsBlender::ptr_t &){ onFinishedSpan(); });
@@ -237,7 +235,7 @@ namespace
             LLSettingsBase::BlendFactor blendf = calculateBlend(targetpos, targetspan);
             pendsetting->blend((*bounds.second).second, blendf);
 
-            reset(pstartsetting, pendsetting, LLEnvironment::TRANSITION_ALTITUDE);
+            reset(pstartsetting, pendsetting, (LLSettingsBase::TrackPosition)LLEnvironment::TRANSITION_ALTITUDE);
         }
 
     protected:
@@ -304,7 +302,7 @@ namespace
             LLSettingsDay::TrackBound_t next = getBoundingEntries(adjusted_now);
             LLSettingsBase::Seconds nextspan = getSpanTime(next);
 
-            reset((*next.first).second, (*next.second).second, nextspan);
+            reset((*next.first).second, (*next.second).second, (LLSettingsBase::TrackPosition)nextspan);
 
             // Recalculate (reinitialize) position. Because:
             // - 'delta' from applyTimeDelta accumulates errors (probably should be fixed/changed to absolute time)
@@ -695,7 +693,7 @@ namespace
             // Ideally we need to check for texture in injection, but
             // in this case user is setting value explicitly, potentially
             // with different transitions, don't ignore it
-            F64 result = lerp(value, injection->mValue.asReal(), mix);
+            F64 result = lerp((F32)value, (F32)injection->mValue.asReal(), (F32)mix);
             injection->mLastValue = LLSD::Real(result);
             this->mSettings[injection->mKeyName] = injection->mLastValue;
         }
@@ -757,7 +755,7 @@ namespace
         LLEnvironment::DayInstance::ptr_t   getBaseDayInstance() const  { return mBaseDayInstance; }
         void                                setBaseDayInstance(const LLEnvironment::DayInstance::ptr_t &baseday);
 
-        S32                                 countExperiencesActive() const { return mActiveExperiences.size(); }
+        S32                                 countExperiencesActive() const { return static_cast<S32>(mActiveExperiences.size()); }
 
         bool                                isOverriddenSky() const { return !mSkyExperience.isNull(); }
         bool                                isOverriddenWater() const { return !mWaterExperience.isNull(); }
@@ -898,7 +896,7 @@ void LLEnvironment::initSingleton()
     gSavedSettings.getControl("RenderSkyAutoAdjustProbeAmbiance")->getSignal()->connect(
         [](LLControlVariable*, const LLSD& new_val, const LLSD& old_val)
         {
-            LLSettingsSky::sAutoAdjustProbeAmbiance = new_val.asReal();
+            LLSettingsSky::sAutoAdjustProbeAmbiance = (F32)new_val.asReal();
         }
     );
     LLSettingsSky::sAutoAdjustProbeAmbiance = gSavedSettings.getF32("RenderSkyAutoAdjustProbeAmbiance");
@@ -967,11 +965,11 @@ LLSettingsWater::ptr_t LLEnvironment::getCurrentWater() const
 
 void LayerConfigToDensityLayer(const LLSD& layerConfig, DensityLayer& layerOut)
 {
-    layerOut.constant_term  = layerConfig[LLSettingsSky::SETTING_DENSITY_PROFILE_CONSTANT_TERM].asReal();
-    layerOut.exp_scale      = layerConfig[LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR].asReal();
-    layerOut.exp_term       = layerConfig[LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_TERM].asReal();
-    layerOut.linear_term    = layerConfig[LLSettingsSky::SETTING_DENSITY_PROFILE_LINEAR_TERM].asReal();
-    layerOut.width          = layerConfig[LLSettingsSky::SETTING_DENSITY_PROFILE_WIDTH].asReal();
+    layerOut.constant_term  = (F32)layerConfig[LLSettingsSky::SETTING_DENSITY_PROFILE_CONSTANT_TERM].asReal();
+    layerOut.exp_scale      = (F32)layerConfig[LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_SCALE_FACTOR].asReal();
+    layerOut.exp_term       = (F32)layerConfig[LLSettingsSky::SETTING_DENSITY_PROFILE_EXP_TERM].asReal();
+    layerOut.linear_term    = (F32)layerConfig[LLSettingsSky::SETTING_DENSITY_PROFILE_LINEAR_TERM].asReal();
+    layerOut.width          = (F32)layerConfig[LLSettingsSky::SETTING_DENSITY_PROFILE_WIDTH].asReal();
 }
 
 void LLEnvironment::getAtmosphericModelSettings(AtmosphericModelSettings& settingsOut, const LLSettingsSky::ptr_t &psky)
@@ -1647,7 +1645,7 @@ LLVector4 LLEnvironment::getRotatedLightNorm() const
     return toLightNorm(light_direction);
 }
 
-extern BOOL gCubeSnapshot;
+extern bool gCubeSnapshot;
 
 //-------------------------------------------------------------------------
 void LLEnvironment::update(const LLViewerCamera * cam)
@@ -1680,15 +1678,15 @@ void LLEnvironment::update(const LLViewerCamera * cam)
         end_shaders = LLViewerShaderMgr::instance()->endShaders();
         for (shaders_iter = LLViewerShaderMgr::instance()->beginShaders(); shaders_iter != end_shaders; ++shaders_iter)
         {
-            if ((shaders_iter->mProgramObject != 0)
-                && (gPipeline.canUseWindLightShaders()
-                || shaders_iter->mShaderGroup == LLGLSLShader::SG_WATER))
+            shaders_iter->mUniformsDirty = true;
+            if (shaders_iter->mRiggedVariant)
             {
-                shaders_iter->mUniformsDirty = TRUE;
-                if (shaders_iter->mRiggedVariant)
-                {
-                    shaders_iter->mRiggedVariant->mUniformsDirty = TRUE;
-                }
+                shaders_iter->mRiggedVariant->mUniformsDirty = true;
+            }
+
+            for (auto& variant : shaders_iter->mGLTFVariants)
+            {
+                variant.mUniformsDirty = true;
             }
         }
     }
@@ -1758,7 +1756,7 @@ void LLEnvironment::updateGLVariablesForSettings(LLShaderUniforms* uniforms, con
             //_WARNS("RIDER") << "pushing '" << (*it).first << "' as " << value << LL_ENDL;
             break;
         case LLSD::TypeReal:
-            shader->uniform1f(it.second.getShaderKey(), value.asReal());
+            shader->uniform1f(it.second.getShaderKey(), (F32)value.asReal());
             //_WARNS("RIDER") << "pushing '" << (*it).first << "' as " << value << LL_ENDL;
             break;
 
@@ -1928,8 +1926,8 @@ void LLEnvironment::adjustRegionOffset(F32 adjust)
 
     if (mEnvironments[ENV_REGION])
     {
-        F32 day_length = mEnvironments[ENV_REGION]->getDayLength();
-        F32 day_offset = mEnvironments[ENV_REGION]->getDayOffset();
+        F32 day_length = (F32)mEnvironments[ENV_REGION]->getDayLength();
+        F32 day_offset = (F32)mEnvironments[ENV_REGION]->getDayOffset();
 
         F32 day_adjustment = adjust * day_length;
 
@@ -2125,8 +2123,11 @@ void LLEnvironment::coroRequestEnvironment(S32 parcel_id, LLEnvironment::environ
         LLSD environment = result[KEY_ENVIRONMENT];
         if (environment.isDefined() && apply)
         {
-            EnvironmentInfo::ptr_t envinfo = LLEnvironment::EnvironmentInfo::extract(environment);
-            apply(parcel_id, envinfo);
+            LLAppViewer::instance()->postToMainCoro([=]()
+                {
+                    EnvironmentInfo::ptr_t envinfo = LLEnvironment::EnvironmentInfo::extract(environment);
+                    apply(parcel_id, envinfo);
+                });
         }
     }
 
@@ -2345,7 +2346,7 @@ LLEnvironment::EnvironmentInfo::ptr_t LLEnvironment::EnvironmentInfo::extract(LL
     {
         for (int idx = 0; idx < 3; idx++)
         {
-            pinfo->mAltitudes[idx+1] = environment[KEY_TRACKALTS][idx].asReal();
+            pinfo->mAltitudes[idx+1] = (F32)environment[KEY_TRACKALTS][idx].asReal();
         }
         pinfo->mAltitudes[0] = 0;
     }
@@ -2512,7 +2513,7 @@ LLSettingsDay::ptr_t LLEnvironment::createDayCycleFromEnvironment(EnvSelection_t
 
     if (type == "sky")
     {
-        for (S32 idx = 1; idx < LLSettingsDay::TRACK_MAX; ++idx)
+        for (U32 idx = 1; idx < LLSettingsDay::TRACK_MAX; ++idx)
             day->clearCycleTrack(idx);
         day->setSettingsAtKeyframe(settings, 0.0f, 1);
     }
@@ -2569,7 +2570,7 @@ void LLEnvironment::handleEnvironmentPush(LLSD &message)
     std::string action = message[KEY_ACTION].asString();
     LLUUID experience_id = message[KEY_EXPERIENCEID].asUUID();
     LLSD action_data = message[KEY_ACTIONDATA];
-    F32 transition_time = action_data[KEY_TRANSITIONTIME].asReal();
+    F32 transition_time = (F32)action_data[KEY_TRANSITIONTIME].asReal();
 
     //TODO: Check here that the viewer thinks the experience is still valid.
 
@@ -2601,7 +2602,7 @@ void LLEnvironment::handleEnvironmentPushFull(LLUUID experience_id, LLSD &messag
 {
     LLUUID asset_id(message[KEY_ASSETID].asUUID());
 
-    setExperienceEnvironment(experience_id, asset_id, LLSettingsBase::Seconds(transition));
+    setExperienceEnvironment(experience_id, asset_id, (F32)LLSettingsBase::Seconds(transition));
 }
 
 void LLEnvironment::handleEnvironmentPushPartial(LLUUID experience_id, LLSD &message, F32 transition)
@@ -2611,7 +2612,7 @@ void LLEnvironment::handleEnvironmentPushPartial(LLUUID experience_id, LLSD &mes
     if (settings.isUndefined())
         return;
 
-    setExperienceEnvironment(experience_id, settings, LLSettingsBase::Seconds(transition));
+    setExperienceEnvironment(experience_id, settings, (F32)LLSettingsBase::Seconds(transition));
 }
 
 void LLEnvironment::clearExperienceEnvironment(LLUUID experience_id, LLSettingsBase::Seconds transition_time)
@@ -2968,7 +2969,7 @@ void LLEnvironment::DayTransition::animate()
 
 
     // pause probe updates and reset reflection maps on sky change
-    gPipeline.mReflectionMapManager.pause(mTransitionTime);
+    gPipeline.mReflectionMapManager.pause((F32)mTransitionTime);
     gPipeline.mReflectionMapManager.reset();
 
     mSky = mStartSky->buildClone();
@@ -3286,7 +3287,7 @@ void LLTrackBlenderLoopingManual::switchTrack(S32 trackno, const LLSettingsBase:
 {
     mTrackNo = trackno;
 
-    LLSettingsBase::TrackPosition useposition = (position < 0.0) ? mPosition : position;
+    LLSettingsBase::TrackPosition useposition = (position < 0.0) ? (LLSettingsBase::TrackPosition)mPosition : position;
 
     setPosition(useposition);
 }
@@ -3297,7 +3298,7 @@ LLSettingsDay::TrackBound_t LLTrackBlenderLoopingManual::getBoundingEntries(F64 
 
     mEndMarker = wtrack.end();
 
-    LLSettingsDay::TrackBound_t bounds = get_bounding_entries(wtrack, position);
+    LLSettingsDay::TrackBound_t bounds = get_bounding_entries(wtrack, (LLSettingsBase::TrackPosition)position);
     return bounds;
 }
 
@@ -3571,7 +3572,7 @@ namespace
             mInjectedSky->setSource(target_sky);
 
             // clear reflection probes and pause updates during sky change
-            gPipeline.mReflectionMapManager.pause(transition);
+            gPipeline.mReflectionMapManager.pause((F32)transition);
             gPipeline.mReflectionMapManager.reset();
 
             mBlenderSky = std::make_shared<LLSettingsBlenderTimeDelta>(target_sky, start_sky, psky, transition);

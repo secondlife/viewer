@@ -81,7 +81,7 @@ void LLAutoReplace::autoreplaceCallback(S32& replacement_start, S32& replacement
                         replacement_start = word_start;
                         replacement_length = word_end - word_start + 1;
                         replacement_string = utf8str_to_wstring(replacement_word);
-                        S32 size_change = replacement_string.size() - old_string.size();
+                        S32 size_change = static_cast<S32>(replacement_string.size() - old_string.size());
                         cursor_pos += size_change;
                     }
                 }

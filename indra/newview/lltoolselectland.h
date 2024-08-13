@@ -39,24 +39,24 @@ class LLToolSelectLand
     virtual ~LLToolSelectLand();
 
 public:
-    /*virtual*/ BOOL        handleMouseDown(S32 x, S32 y, MASK mask) override;
-    /*virtual*/ BOOL        handleDoubleClick(S32 x, S32 y, MASK mask) override;
-    /*virtual*/ BOOL        handleMouseUp(S32 x, S32 y, MASK mask) override;
-    /*virtual*/ BOOL        handleHover(S32 x, S32 y, MASK mask) override;
+    /*virtual*/ bool        handleMouseDown(S32 x, S32 y, MASK mask) override;
+    /*virtual*/ bool        handleDoubleClick(S32 x, S32 y, MASK mask) override;
+    /*virtual*/ bool        handleMouseUp(S32 x, S32 y, MASK mask) override;
+    /*virtual*/ bool        handleHover(S32 x, S32 y, MASK mask) override;
     /*virtual*/ void        render() override;              // draw the select rectangle
-    /*virtual*/ BOOL        isAlwaysRendered() override { return TRUE; }
+    /*virtual*/ bool        isAlwaysRendered() override { return true; }
 
     /*virtual*/ void        handleSelect() override;
     /*virtual*/ void        handleDeselect() override;
 
 protected:
-    BOOL            outsideSlop(S32 x, S32 y, S32 start_x, S32 start_y);
+    bool            outsideSlop(S32 x, S32 y, S32 start_x, S32 start_y);
     void            roundXY(LLVector3d& vec);
 
 protected:
     LLVector3d      mDragStartGlobal;       // global coords
     LLVector3d      mDragEndGlobal;         // global coords
-    BOOL            mDragEndValid;          // is drag end a valid point in the world?
+    bool            mDragEndValid;          // is drag end a valid point in the world?
 
     S32             mDragStartX;            // screen coords, from left
     S32             mDragStartY;            // screen coords, from bottom
@@ -64,7 +64,7 @@ protected:
     S32             mDragEndX;
     S32             mDragEndY;
 
-    BOOL            mMouseOutsideSlop;      // has mouse ever gone outside slop region?
+    bool            mMouseOutsideSlop;      // has mouse ever gone outside slop region?
 
     LLVector3d      mWestSouthBottom;       // global coords, from drag
     LLVector3d      mEastNorthTop;          // global coords, from drag

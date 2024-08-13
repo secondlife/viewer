@@ -188,7 +188,7 @@ void LLFilePickerThread::run()
 
 void LLFilePickerThread::runModeless()
 {
-    BOOL result = FALSE;
+    bool result = false;
     LLFilePicker picker;
 
     if (mIsSaveDialog)
@@ -440,7 +440,7 @@ const bool check_file_extension(const std::string& filename, LLFilePicker::ELoad
         //now grab the set of valid file extensions
         std::string valid_extensions = build_extensions_string(type);
 
-        BOOL ext_valid = FALSE;
+        bool ext_valid = false;
 
         typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
         boost::char_separator<char> sep(" ");
@@ -451,7 +451,7 @@ const bool check_file_extension(const std::string& filename, LLFilePicker::ELoad
         //and compare them to the extension of the file
         //to be uploaded
         for (token_iter = tokens.begin();
-            token_iter != tokens.end() && ext_valid != TRUE;
+            token_iter != tokens.end() && !ext_valid;
             ++token_iter)
         {
             const std::string& cur_token = *token_iter;
@@ -460,11 +460,11 @@ const bool check_file_extension(const std::string& filename, LLFilePicker::ELoad
             {
                 //valid extension
                 //or the acceptable extension is any
-                ext_valid = TRUE;
+                ext_valid = true;
             }
         }//end for (loop over all tokens)
 
-        if (ext_valid == FALSE)
+        if (!ext_valid)
         {
             //should only get here if the extension exists
             //but is invalid
@@ -523,15 +523,8 @@ const void upload_single_file(const std::vector<std::string>& filenames, LLFileP
     return;
 }
 
-void do_bulk_upload(std::vector<std::string> filenames, const LLSD& notification, const LLSD& response)
+void do_bulk_upload(std::vector<std::string> filenames, bool allow_2k)
 {
-    S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-    if (option != 0)
-    {
-        // Cancel upload
-        return;
-    }
-
     for (std::vector<std::string>::const_iterator in_iter = filenames.begin(); in_iter != filenames.end(); ++in_iter)
     {
         std::string filename = (*in_iter);
@@ -551,12 +544,14 @@ void do_bulk_upload(std::vector<std::string> filenames, const LLSD& notification
         if (LLResourceUploadInfo::findAssetTypeAndCodecOfExtension(ext, asset_type, codec))
         {
             bool resource_upload = false;
-            if (asset_type == LLAssetType::AT_TEXTURE)
+            if (asset_type == LLAssetType::AT_TEXTURE && allow_2k)
             {
                 LLPointer<LLImageFormatted> image_frmted = LLImageFormatted::createFromType(codec);
-                if (gDirUtilp->fileExists(filename) && image_frmted->load(filename))
+                if (gDirUtilp->fileExists(filename) && image_frmted && image_frmted->load(filename))
                 {
-                    expected_upload_cost = LLAgentBenefitsMgr::current().getTextureUploadCost(image_frmted);
+                    S32 biased_width = LLImageRaw::biasedDimToPowerOfTwo(image_frmted->getWidth(), LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT);
+                    S32 biased_height = LLImageRaw::biasedDimToPowerOfTwo(image_frmted->getHeight(), LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT);
+                    expected_upload_cost = LLAgentBenefitsMgr::current().getTextureUploadCost(biased_width, biased_height);
                     resource_upload = true;
                 }
             }
@@ -567,7 +562,7 @@ void do_bulk_upload(std::vector<std::string> filenames, const LLSD& notification
 
             if (resource_upload)
             {
-                LLResourceUploadInfo::ptr_t uploadInfo(new LLNewFileResourceUploadInfo(
+                LLNewFileResourceUploadInfo* info_p = new LLNewFileResourceUploadInfo(
                     filename,
                     asset_name,
                     asset_name, 0,
@@ -575,7 +570,13 @@ void do_bulk_upload(std::vector<std::string> filenames, const LLSD& notification
                     LLFloaterPerms::getNextOwnerPerms("Uploads"),
                     LLFloaterPerms::getGroupPerms("Uploads"),
                     LLFloaterPerms::getEveryonePerms("Uploads"),
-                    expected_upload_cost));
+                    expected_upload_cost);
+
+                if (!allow_2k)
+                {
+                    info_p->setMaxImageSize(1024);
+                }
+                LLResourceUploadInfo::ptr_t uploadInfo(info_p);
 
                 upload_new_resource(uploadInfo);
             }
@@ -587,7 +588,7 @@ void do_bulk_upload(std::vector<std::string> filenames, const LLSD& notification
             tinygltf::Model model;
             if (LLTinyGLTFHelper::loadModel(filename, model))
             {
-                S32 materials_in_file = model.materials.size();
+                S32 materials_in_file = static_cast<S32>(model.materials.size());
 
                 for (S32 i = 0; i < materials_in_file; i++)
                 {
@@ -601,11 +602,30 @@ void do_bulk_upload(std::vector<std::string> filenames, const LLSD& notification
     }
 }
 
-bool get_bulk_upload_expected_cost(const std::vector<std::string>& filenames, S32& total_cost, S32& file_count, S32& bvh_count)
+void do_bulk_upload(std::vector<std::string> filenames, bool allow_2k, const LLSD& notification, const LLSD& response)
+{
+    S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+    if (option != 0)
+    {
+        // Cancel upload
+        return;
+    }
+
+    do_bulk_upload(filenames, allow_2k);
+}
+
+bool get_bulk_upload_expected_cost(
+    const std::vector<std::string>& filenames,
+    bool allow_2k,
+    S32& total_cost,
+    S32& file_count,
+    S32& bvh_count,
+    S32& textures_2k_count)
 {
     total_cost = 0;
     file_count = 0;
     bvh_count = 0;
+    textures_2k_count = 0;
     for (std::vector<std::string>::const_iterator in_iter = filenames.begin(); in_iter != filenames.end(); ++in_iter)
     {
         std::string filename = (*in_iter);
@@ -622,12 +642,19 @@ bool get_bulk_upload_expected_cost(const std::vector<std::string>& filenames, S3
 
         if (LLResourceUploadInfo::findAssetTypeAndCodecOfExtension(ext, asset_type, codec))
         {
-            if (asset_type == LLAssetType::AT_TEXTURE)
+            if (asset_type == LLAssetType::AT_TEXTURE && allow_2k)
             {
                 LLPointer<LLImageFormatted> image_frmted = LLImageFormatted::createFromType(codec);
-                if (gDirUtilp->fileExists(filename) && image_frmted->load(filename))
+                if (gDirUtilp->fileExists(filename) && image_frmted && image_frmted->load(filename))
                 {
-                    total_cost += LLAgentBenefitsMgr::current().getTextureUploadCost(image_frmted);
+                    S32 biased_width = LLImageRaw::biasedDimToPowerOfTwo(image_frmted->getWidth(), LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT);
+                    S32 biased_height = LLImageRaw::biasedDimToPowerOfTwo(image_frmted->getHeight(), LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT);
+                    total_cost += LLAgentBenefitsMgr::current().getTextureUploadCost(biased_width, biased_height);
+                    S32 area = biased_width * biased_height;
+                    if (area >= LLAgentBenefits::MIN_2K_TEXTURE_AREA)
+                    {
+                        textures_2k_count++;
+                    }
                     file_count++;
                 }
             }
@@ -644,7 +671,7 @@ bool get_bulk_upload_expected_cost(const std::vector<std::string>& filenames, S3
 
             if (LLTinyGLTFHelper::loadModel(filename, model))
             {
-                S32 materials_in_file = model.materials.size();
+                S32 materials_in_file = static_cast<S32>(model.materials.size());
 
                 for (S32 i = 0; i < materials_in_file; i++)
                 {
@@ -682,38 +709,27 @@ bool get_bulk_upload_expected_cost(const std::vector<std::string>& filenames, S3
     return file_count > 0;
 }
 
-const void upload_bulk(const std::vector<std::string>& filenames, LLFilePicker::ELoadFilter type)
+const void upload_bulk(const std::vector<std::string>& filtered_filenames, bool allow_2k)
 {
-    // TODO:
-    // Check user balance for entire cost
-    // Charge user entire cost
-    // Loop, uploading
-    // If an upload fails, refund the user for that one
-    //
-    // Also fix single upload to charge first, then refund
-
-    // FIXME PREMIUM what about known types that can't be bulk uploaded
-    // (bvh)? These will fail in the item by item upload but won't be
-    // mentioned in the notification.
-    std::vector<std::string> filtered_filenames;
-    for (std::vector<std::string>::const_iterator in_iter = filenames.begin(); in_iter != filenames.end(); ++in_iter)
-    {
-        const std::string& filename = *in_iter;
-        if (check_file_extension(filename, type))
-        {
-            filtered_filenames.push_back(filename);
-        }
-    }
-
     S32 expected_upload_cost;
     S32 expected_upload_count;
     S32 bvh_count;
-    if (get_bulk_upload_expected_cost(filtered_filenames, expected_upload_cost, expected_upload_count, bvh_count))
+    S32 textures_2k_count;
+    if (get_bulk_upload_expected_cost(filtered_filenames, allow_2k, expected_upload_cost, expected_upload_count, bvh_count, textures_2k_count))
     {
-        LLSD args;
-        args["COST"] = expected_upload_cost;
-        args["COUNT"] = expected_upload_count;
-        LLNotificationsUtil::add("BulkUploadCostConfirmation",  args, LLSD(), boost::bind(do_bulk_upload, filtered_filenames, _1, _2));
+        LLSD key;
+        key["upload_cost"] = expected_upload_cost;
+        key["upload_count"] = expected_upload_count;
+        key["has_2k_textures"] = (textures_2k_count > 0);
+
+        LLSD array;
+        for (const std::string& str : filtered_filenames)
+        {
+            array.append(str);
+        }
+        key["files"] = array;
+
+        LLFloaterReg::showInstance("bulk_upload", key);
 
         if (filtered_filenames.size() > expected_upload_count)
         {
@@ -738,6 +754,31 @@ const void upload_bulk(const std::vector<std::string>& filenames, LLFilePicker::
 
 }
 
+const void upload_bulk(const std::vector<std::string>& filenames, LLFilePicker::ELoadFilter type, bool allow_2k)
+{
+    // TODO:
+    // Check user balance for entire cost
+    // Charge user entire cost
+    // Loop, uploading
+    // If an upload fails, refund the user for that one
+    //
+    // Also fix single upload to charge first, then refund
+
+    // FIXME PREMIUM what about known types that can't be bulk uploaded
+    // (bvh)? These will fail in the item by item upload but won't be
+    // mentioned in the notification.
+    std::vector<std::string> filtered_filenames;
+    for (std::vector<std::string>::const_iterator in_iter = filenames.begin(); in_iter != filenames.end(); ++in_iter)
+    {
+        const std::string& filename = *in_iter;
+        if (check_file_extension(filename, type))
+        {
+            filtered_filenames.push_back(filename);
+        }
+    }
+    upload_bulk(filtered_filenames, allow_2k);
+}
+
 class LLFileUploadImage : public view_listener_t
 {
     bool handleEvent(const LLSD& userdata)
@@ -756,7 +797,7 @@ class LLFileUploadModel : public view_listener_t
     bool handleEvent(const LLSD& userdata)
     {
         LLFloaterModelPreview::showModelPreview();
-        return TRUE;
+        return true;
     }
 };
 
@@ -765,7 +806,7 @@ class LLFileUploadMaterial : public view_listener_t
     bool handleEvent(const LLSD& userdata)
     {
         LLMaterialEditor::importMaterial();
-        return TRUE;
+        return true;
     }
 };
 
@@ -803,7 +844,7 @@ class LLFileUploadBulk : public view_listener_t
         {
             gAgentCamera.changeCameraToDefault();
         }
-        LLFilePickerReplyThread::startPicker(boost::bind(&upload_bulk, _1, _2), LLFilePicker::FFLOAD_ALL, true);
+        LLFilePickerReplyThread::startPicker(boost::bind(&upload_bulk, _1, _2, true), LLFilePicker::FFLOAD_ALL, true);
         return true;
     }
 };
@@ -888,11 +929,11 @@ class LLFileTakeSnapshotToDisk : public view_listener_t
         S32 width = gViewerWindow->getWindowWidthRaw();
         S32 height = gViewerWindow->getWindowHeightRaw();
 
-        BOOL render_ui = gSavedSettings.getBOOL("RenderUIInSnapshot");
-        BOOL render_hud = gSavedSettings.getBOOL("RenderHUDInSnapshot");
-        BOOL render_no_post = gSavedSettings.getBOOL("RenderSnapshotNoPost");
+        bool render_ui = gSavedSettings.getBOOL("RenderUIInSnapshot");
+        bool render_hud = gSavedSettings.getBOOL("RenderHUDInSnapshot");
+        bool render_no_post = gSavedSettings.getBOOL("RenderSnapshotNoPost");
 
-        BOOL high_res = gSavedSettings.getBOOL("HighResSnapshot");
+        bool high_res = gSavedSettings.getBOOL("HighResSnapshot");
         if (high_res)
         {
             width *= 2;
@@ -905,11 +946,11 @@ class LLFileTakeSnapshotToDisk : public view_listener_t
         if (gViewerWindow->rawSnapshot(raw,
                                        width,
                                        height,
-                                       TRUE,
-                                       FALSE,
+                                       true,
+                                       false,
                                        render_ui,
                                        render_hud,
-                                       FALSE,
+                                       false,
                                        render_no_post,
                                        LLSnapshotModel::SNAPSHOT_TYPE_COLOR,
                                        high_res ? S32_MAX : MAX_SNAPSHOT_IMAGE_SIZE)) //per side
@@ -962,7 +1003,7 @@ void handle_compress_image(void*)
             LL_INFOS() << "Input:  " << infile << LL_ENDL;
             LL_INFOS() << "Output: " << outfile << LL_ENDL;
 
-            BOOL success;
+            bool success;
 
             success = LLViewerTextureList::createUploadFile(infile, outfile, IMG_CODEC_TGA);
 
@@ -1012,7 +1053,7 @@ void handle_compress_file_test(void*)
 
             S64Bytes initial_size = S64Bytes(get_file_size(infile));
 
-            BOOL success;
+            bool success;
 
             F64 total_seconds = LLTimer::getTotalSeconds();
             success = gzip_file(infile, packfile);
@@ -1106,7 +1147,7 @@ void upload_done_callback(
     LLResourceData* data = (LLResourceData*)user_data;
     S32 expected_upload_cost = data ? data->mExpectedUploadCost : 0;
     //LLAssetType::EType pref_loc = data->mPreferredLocation;
-    BOOL is_balance_sufficient = TRUE;
+    bool is_balance_sufficient = true;
 
     if(data)
     {
@@ -1124,7 +1165,7 @@ void upload_done_callback(
                 if(!(can_afford_transaction(expected_upload_cost)))
                 {
                     LLBuyCurrencyHTML::openCurrencyFloater( "", expected_upload_cost );
-                    is_balance_sufficient = FALSE;
+                    is_balance_sufficient = false;
                 }
                 else if(region)
                 {
@@ -1285,7 +1326,7 @@ void upload_new_resource(
             data->mAssetInfo.mType,
             asset_callback,
             (void*)data,
-            FALSE);
+            false);
     }
 }
 

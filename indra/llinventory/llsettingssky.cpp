@@ -480,19 +480,19 @@ void LLSettingsSky::blend(const LLSettingsBase::ptr_t &end, F64 blendf)
             // If there is no cloud texture in destination, reduce coverage to imitate disappearance
             // See LLDrawPoolWLSky::renderSkyClouds... we don't blend present texture with null
             // Note: Probably can be done by shader
-            cloud_shadow = lerp(mSettings[SETTING_CLOUD_SHADOW].asReal(), (F64)0.f, blendf);
+            cloud_shadow = lerp((F32)mSettings[SETTING_CLOUD_SHADOW].asReal(), 0.f, (F32)blendf);
             cloud_noise_id_next = cloud_noise_id;
         }
         else if (cloud_noise_id.isNull() && !cloud_noise_id_next.isNull())
         {
             // Source has no cloud texture, reduce initial coverage to imitate appearance
             // use same texture as destination
-            cloud_shadow = lerp((F64)0.f, other->mSettings[SETTING_CLOUD_SHADOW].asReal(), blendf);
+            cloud_shadow = lerp(0.f, (F32)other->mSettings[SETTING_CLOUD_SHADOW].asReal(), (F32)blendf);
             setCloudNoiseTextureId(cloud_noise_id_next);
         }
         else
         {
-            cloud_shadow = lerp(mSettings[SETTING_CLOUD_SHADOW].asReal(), other->mSettings[SETTING_CLOUD_SHADOW].asReal(), blendf);
+            cloud_shadow = lerp((F32)mSettings[SETTING_CLOUD_SHADOW].asReal(), (F32)other->mSettings[SETTING_CLOUD_SHADOW].asReal(), (F32)blendf);
         }
 
         LLSD blenddata = interpolateSDMap(mSettings, other->mSettings, other->getParameterMap(), blendf);
@@ -923,8 +923,8 @@ LLSD LLSettingsSky::translateLegacySettings(const LLSD& legacy)
     if (legacy.has(SETTING_LEGACY_EAST_ANGLE) && legacy.has(SETTING_LEGACY_SUN_ANGLE))
     {
         // get counter-clockwise radian angle from clockwise legacy WL east angle...
-        F32 azimuth  = -legacy[SETTING_LEGACY_EAST_ANGLE].asReal();
-        F32 altitude =  legacy[SETTING_LEGACY_SUN_ANGLE].asReal();
+        F32 azimuth  = -(F32)legacy[SETTING_LEGACY_EAST_ANGLE].asReal();
+        F32 altitude = (F32)legacy[SETTING_LEGACY_SUN_ANGLE].asReal();
 
         LLQuaternion sunquat  = convert_azimuth_and_altitude_to_quat(azimuth, altitude);
         // original WL moon dir was diametrically opposed to the sun dir
@@ -958,7 +958,7 @@ void LLSettingsSky::updateSettings()
 F32 LLSettingsSky::getSunMoonGlowFactor() const
 {
     return getIsSunUp()  ? 1.0f  :
-           getIsMoonUp() ? getMoonBrightness() * 0.25 : 0.0f;
+           getIsMoonUp() ? getMoonBrightness() * 0.25f : 0.0f;
 }
 
 bool LLSettingsSky::getIsSunUp() const
@@ -1043,11 +1043,11 @@ F32 LLSettingsSky::getFloat(const std::string& key, F32 default_value) const
     LL_PROFILE_ZONE_SCOPED_CATEGORY_ENVIRONMENT;
     if (mSettings.has(SETTING_LEGACY_HAZE) && mSettings[SETTING_LEGACY_HAZE].has(key))
     {
-        return mSettings[SETTING_LEGACY_HAZE][key].asReal();
+        return (F32)mSettings[SETTING_LEGACY_HAZE][key].asReal();
     }
     if (mSettings.has(key))
     {
-        return mSettings[key].asReal();
+        return (F32)mSettings[key].asReal();
     }
     return default_value;
 }
@@ -1307,7 +1307,7 @@ void LLSettingsSky::clampColor(LLColor3& color, F32 gamma, F32 scale) const
         color *= scale/max_color;
     }
     LLColor3 linear(color);
-    linear *= 1.0 / scale;
+    linear *= 1.0f / scale;
     linear = smear(1.0f) - linear;
     linear = componentPow(linear, gamma);
     linear *= scale;
@@ -1353,7 +1353,7 @@ void LLSettingsSky::calculateLightSettings() const
 
     F32 haze_horizon = getHazeHorizon();
 
-    sunlight *= 1.0 - cloud_shadow;
+    sunlight *= 1.0f - cloud_shadow;
     sunlight += tmpAmbient;
 
     mHazeColor = getBlueHorizon() * getBlueDensity() * sunlight;
@@ -1415,22 +1415,22 @@ LLUUID LLSettingsSky::GetDefaultHaloTextureId()
 
 F32 LLSettingsSky::getPlanetRadius() const
 {
-    return mSettings[SETTING_PLANET_RADIUS].asReal();
+    return (F32)mSettings[SETTING_PLANET_RADIUS].asReal();
 }
 
 F32 LLSettingsSky::getSkyMoistureLevel() const
 {
-    return mSettings[SETTING_SKY_MOISTURE_LEVEL].asReal();
+    return (F32)mSettings[SETTING_SKY_MOISTURE_LEVEL].asReal();
 }
 
 F32 LLSettingsSky::getSkyDropletRadius() const
 {
-    return mSettings[SETTING_SKY_DROPLET_RADIUS].asReal();
+    return (F32)mSettings[SETTING_SKY_DROPLET_RADIUS].asReal();
 }
 
 F32 LLSettingsSky::getSkyIceLevel() const
 {
-    return mSettings[SETTING_SKY_ICE_LEVEL].asReal();
+    return (F32)mSettings[SETTING_SKY_ICE_LEVEL].asReal();
 }
 
 F32 LLSettingsSky::getReflectionProbeAmbiance(bool auto_adjust) const
@@ -1440,27 +1440,27 @@ F32 LLSettingsSky::getReflectionProbeAmbiance(bool auto_adjust) const
         return sAutoAdjustProbeAmbiance;
     }
 
-    return mSettings[SETTING_REFLECTION_PROBE_AMBIANCE].asReal();
+    return (F32)mSettings[SETTING_REFLECTION_PROBE_AMBIANCE].asReal();
 }
 
 F32 LLSettingsSky::getSkyBottomRadius() const
 {
-    return mSettings[SETTING_SKY_BOTTOM_RADIUS].asReal();
+    return (F32)mSettings[SETTING_SKY_BOTTOM_RADIUS].asReal();
 }
 
 F32 LLSettingsSky::getSkyTopRadius() const
 {
-    return mSettings[SETTING_SKY_TOP_RADIUS].asReal();
+    return (F32)mSettings[SETTING_SKY_TOP_RADIUS].asReal();
 }
 
 F32 LLSettingsSky::getSunArcRadians() const
 {
-    return mSettings[SETTING_SUN_ARC_RADIANS].asReal();
+    return (F32)mSettings[SETTING_SUN_ARC_RADIANS].asReal();
 }
 
 F32 LLSettingsSky::getMieAnisotropy() const
 {
-    return getMieConfig()[SETTING_MIE_ANISOTROPY_FACTOR].asReal();
+    return (F32)getMieConfig()[SETTING_MIE_ANISOTROPY_FACTOR].asReal();
 }
 
 LLSD LLSettingsSky::getRayleighConfig() const
@@ -1569,7 +1569,7 @@ void LLSettingsSky::setCloudPosDensity2(const LLColor3 &val)
 
 F32 LLSettingsSky::getCloudScale() const
 {
-    return mSettings[SETTING_CLOUD_SCALE].asReal();
+    return (F32)mSettings[SETTING_CLOUD_SCALE].asReal();
 }
 
 void LLSettingsSky::setCloudScale(F32 val)
@@ -1601,7 +1601,7 @@ void LLSettingsSky::setCloudScrollRateY(F32 val)
 
 F32 LLSettingsSky::getCloudShadow() const
 {
-    return mSettings[SETTING_CLOUD_SHADOW].asReal();
+    return (F32)mSettings[SETTING_CLOUD_SHADOW].asReal();
 }
 
 void LLSettingsSky::setCloudShadow(F32 val)
@@ -1611,7 +1611,7 @@ void LLSettingsSky::setCloudShadow(F32 val)
 
 F32 LLSettingsSky::getCloudVariance() const
 {
-    return mSettings[SETTING_CLOUD_VARIANCE].asReal();
+    return (F32)mSettings[SETTING_CLOUD_VARIANCE].asReal();
 }
 
 void LLSettingsSky::setCloudVariance(F32 val)
@@ -1621,7 +1621,7 @@ void LLSettingsSky::setCloudVariance(F32 val)
 
 F32 LLSettingsSky::getDomeOffset() const
 {
-    //return mSettings[SETTING_DOME_OFFSET].asReal();
+    //return (F32)mSettings[SETTING_DOME_OFFSET].asReal();
     return DOME_OFFSET;
 }
 
@@ -1633,7 +1633,7 @@ F32 LLSettingsSky::getDomeRadius() const
 
 F32 LLSettingsSky::getGamma() const
 {
-    return mSettings[SETTING_GAMMA].asReal();
+    return (F32)mSettings[SETTING_GAMMA].asReal();
 }
 
 void LLSettingsSky::setGamma(F32 val)
@@ -1654,7 +1654,7 @@ void LLSettingsSky::setGlow(const LLColor3 &val)
 
 F32 LLSettingsSky::getMaxY() const
 {
-    return mSettings[SETTING_MAX_Y].asReal();
+    return (F32)mSettings[SETTING_MAX_Y].asReal();
 }
 
 void LLSettingsSky::setMaxY(F32 val)
@@ -1674,7 +1674,7 @@ void LLSettingsSky::setMoonRotation(const LLQuaternion &val)
 
 F32 LLSettingsSky::getMoonScale() const
 {
-    return mSettings[SETTING_MOON_SCALE].asReal();
+    return (F32)mSettings[SETTING_MOON_SCALE].asReal();
 }
 
 void LLSettingsSky::setMoonScale(F32 val)
@@ -1692,9 +1692,9 @@ void LLSettingsSky::setMoonTextureId(LLUUID id)
     setValue(SETTING_MOON_TEXTUREID, id);
 }
 
-F32  LLSettingsSky::getMoonBrightness() const
+F32 LLSettingsSky::getMoonBrightness() const
 {
-    return mSettings[SETTING_MOON_BRIGHTNESS].asReal();
+    return (F32)mSettings[SETTING_MOON_BRIGHTNESS].asReal();
 }
 
 void LLSettingsSky::setMoonBrightness(F32 brightness_factor)
@@ -1704,7 +1704,7 @@ void LLSettingsSky::setMoonBrightness(F32 brightness_factor)
 
 F32 LLSettingsSky::getStarBrightness() const
 {
-    return mSettings[SETTING_STAR_BRIGHTNESS].asReal();
+    return (F32)mSettings[SETTING_STAR_BRIGHTNESS].asReal();
 }
 
 void LLSettingsSky::setStarBrightness(F32 val)
@@ -1749,7 +1749,7 @@ void LLSettingsSky::setSunRotation(const LLQuaternion &val)
 
 F32 LLSettingsSky::getSunScale() const
 {
-    return mSettings[SETTING_SUN_SCALE].asReal();
+    return (F32)mSettings[SETTING_SUN_SCALE].asReal();
 }
 
 void LLSettingsSky::setSunScale(F32 val)

@@ -1,24 +1,24 @@
-/** 
+/**
  * @file class1\deferred\pbrterrainUtilF.glsl
  *
  * $LicenseInfo:firstyear=2023&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2023, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -51,7 +51,12 @@
 #define TERRAIN_PBR_DETAIL_NORMAL -2
 #define TERRAIN_PBR_DETAIL_METALLIC_ROUGHNESS -3
 
+#define TERRAIN_PAINT_TYPE_HEIGHTMAP_WITH_NOISE 0
+#define TERRAIN_PAINT_TYPE_PBR_PAINTMAP 1
+
+#if TERRAIN_PLANAR_TEXTURE_SAMPLE_COUNT == 3
 in vec3 vary_vertex_normal;
+#endif
 
 vec3 srgb_to_linear(vec3 c);
 
@@ -202,6 +207,45 @@ TerrainMix get_terrain_mix_weights(float alpha1, float alpha2, float alphaFinal)
     return tm;
 }
 
+// A paintmap weight applier for 4 swatches. The input saves a channel by not
+// storing swatch 1, and assuming the weights of the 4 swatches add to 1.
+// The components of weight3 should be between 0 and 1
+// The sum of the components of weight3 should be between 0 and 1
+TerrainMix get_terrain_usage_from_weight3(vec3 weight3)
+{
+    // These steps ensure the output weights add to between 0 and 1
+    weight3.xyz = max(vec3(0.0), weight3.xyz);
+    weight3.xyz /= max(1.0, weight3.x + weight3.y + weight3.z);
+
+    TerrainMix tm;
+
+    // Extract the first weight from the other weights
+    tm.weight.x = 1.0 - (weight3.x + weight3.y + weight3.z);
+    tm.weight.yzw = weight3.xyz;
+    ivec4 usage = max(ivec4(0), ivec4(ceil(tm.weight)));
+
+    tm.type = (usage.x * MIX_X) |
+              (usage.y * MIX_Y) |
+              (usage.z * MIX_Z) |
+              (usage.w * MIX_W);
+    return tm;
+}
+
+// Inverse of get_terrain_usage_from_weight3, excluding usage flags
+// The components of weight should be between 0 and 1
+// The sum of the components of weight should be 1
+vec3 get_weight3_from_terrain_weight(vec4 weight)
+{
+    // These steps ensure the input weights add to 1
+    weight = max(vec4(0.0), weight);
+    weight.x += 1.0 - sign(weight.x + weight.y + weight.z + weight.w);
+    weight /= weight.x + weight.y + weight.z + weight.w;
+
+    // Then return the input weights with the first weight truncated
+    return weight.yzw;
+}
+
+#if TERRAIN_PLANAR_TEXTURE_SAMPLE_COUNT == 3
 TerrainTriplanar _t_triplanar()
 {
     float sharpness = TERRAIN_TRIPLANAR_BLEND_FACTOR;
@@ -219,6 +263,8 @@ TerrainTriplanar _t_triplanar()
               ((usage.z) * SAMPLE_Z);
     return tw;
 }
+#endif
+
 
 // Assume weights add to 1
 float terrain_mix(TerrainMix tm, vec4 tms4)
@@ -233,17 +279,12 @@ float terrain_mix(TerrainMix tm, vec4 tms4)
 // Triplanar mapping
 
 // Pre-transformed texture coordinates for each axial uv slice (Packing: xy, yz, (-x)z, unused)
-#define TerrainCoord vec4[2]
+#define TerrainCoord vec4[3]
 
-vec2 _t_uv(vec2 uv_unflipped, float sign_or_zero)
+// If sign_or_zero is positive, use uv_unflippped, otherwise use uv_flipped
+vec2 _t_uv(vec2 uv_unflipped, vec2 uv_flipped, float sign_or_zero)
 {
-    // Handle case where sign is 0
-    float sign = (2.0*sign_or_zero) + 1.0;
-    sign /= abs(sign);
-    // If the vertex normal is negative, flip the texture back
-    // right-side up.
-    vec2 uv = uv_unflipped * vec2(sign, 1);
-    return uv;
+    return mix(uv_flipped, uv_unflipped, max(0.0, sign_or_zero));
 }
 
 vec3 _t_normal_post_1(vec3 vNt0, float sign_or_zero)
@@ -261,11 +302,12 @@ vec3 _t_normal_post_1(vec3 vNt0, float sign_or_zero)
 }
 
 // Triplanar-specific normal texture fixes
-vec3 _t_normal_post_x(vec3 vNt0)
+vec3 _t_normal_post_x(vec3 vNt0, float tangent_sign)
 {
     vec3 vNt_x = _t_normal_post_1(vNt0, sign(vary_vertex_normal.x));
     // *HACK: Transform normals according to orientation of the UVs
     vNt_x.xy = vec2(-vNt_x.y, vNt_x.x);
+    vNt_x.xy *= tangent_sign;
     return vNt_x;
 }
 vec3 _t_normal_post_y(vec3 vNt0)
@@ -290,6 +332,7 @@ PBRMix terrain_sample_pbr(
 #endif
 #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_NORMAL)
     , sampler2D tex_vNt
+    , float tangent_sign
 #endif
 #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
     , sampler2D tex_emissive
@@ -298,9 +341,9 @@ PBRMix terrain_sample_pbr(
 {
     PBRMix mix = init_pbr_mix();
 
-#define get_uv_x() _t_uv(terrain_coord[0].zw, sign(vary_vertex_normal.x))
-#define get_uv_y() _t_uv(terrain_coord[1].xy, sign(vary_vertex_normal.y))
-#define get_uv_z() _t_uv(terrain_coord[0].xy, sign(vary_vertex_normal.z))
+#define get_uv_x() _t_uv(terrain_coord[0].zw, terrain_coord[1].zw, sign(vary_vertex_normal.x))
+#define get_uv_y() _t_uv(terrain_coord[1].xy, terrain_coord[2].xy, sign(vary_vertex_normal.y))
+#define get_uv_z() _t_uv(terrain_coord[0].xy, vec2(0),             sign(vary_vertex_normal.z))
     switch (tw.type & SAMPLE_X)
     {
     case SAMPLE_X:
@@ -319,7 +362,7 @@ PBRMix terrain_sample_pbr(
             );
 #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_NORMAL)
         // Triplanar-specific normal texture fix
-        mix_x.vNt = _t_normal_post_x(mix_x.vNt);
+        mix_x.vNt = _t_normal_post_x(mix_x.vNt, tangent_sign);
 #endif
         mix = mix_pbr(mix, mix_x, tw.weight.x);
         break;
@@ -379,7 +422,7 @@ PBRMix terrain_sample_pbr(
     default:
         break;
     }
-    
+
     return mix;
 }
 
@@ -425,6 +468,9 @@ PBRMix terrain_sample_and_multiply_pbr(
 #endif
 #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_NORMAL)
     , sampler2D tex_vNt
+#if TERRAIN_PLANAR_TEXTURE_SAMPLE_COUNT == 3
+    , float tangent_sign
+#endif
 #endif
 #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
     , sampler2D tex_emissive
@@ -451,6 +497,9 @@ PBRMix terrain_sample_and_multiply_pbr(
 #endif
 #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_NORMAL)
         , tex_vNt
+#if TERRAIN_PLANAR_TEXTURE_SAMPLE_COUNT == 3
+        , tangent_sign
+#endif
 #endif
 #if (TERRAIN_PBR_DETAIL >= TERRAIN_PBR_DETAIL_EMISSIVE)
         , tex_emissive

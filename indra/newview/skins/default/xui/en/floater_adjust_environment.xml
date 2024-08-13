@@ -12,7 +12,7 @@
          can_resize="false">
   <string name="hdr_string">HDR Scale:</string>
   <string name="brightness_string">Brightness:</string>
-  <string name="hdr_tooltip">Intensity of lightning effects such as realistically bright skies and dynamic exposure. 1.0 is the default, 0 is off, values between 0 and 1 are mixing Ambient with HDR.</string>
+  <string name="hdr_tooltip">Intensity of lighting effects such as realistically bright skies and dynamic exposure. 1.0 is the default, 0 is off, values between 0 and 1 are mixing Ambient with HDR.</string>
     <layout_stack name="outer_stack"
                   width="845"
                   height="275"

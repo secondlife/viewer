@@ -86,7 +86,7 @@ public:
 
     // is_fallback should be true for fallback fonts that aren't used
     // to render directly (Unicode backup, primarily)
-    BOOL loadFace(const std::string& filename, F32 point_size, F32 vert_dpi, F32 horz_dpi, bool is_fallback, S32 face_n);
+    bool loadFace(const std::string& filename, F32 point_size, F32 vert_dpi, F32 horz_dpi, bool is_fallback, S32 face_n);
 
     S32 getNumFaces(const std::string& filename);
 
@@ -153,7 +153,7 @@ private:
     void resetBitmapCache();
     void setSubImageLuminanceAlpha(U32 x, U32 y, U32 bitmap_num, U32 width, U32 height, U8 *data, S32 stride = 0) const;
     bool setSubImageBGRA(U32 x, U32 y, U32 bitmap_num, U16 width, U16 height, const U8* data, U32 stride) const;
-    BOOL hasGlyph(llwchar wch) const;       // Has a glyph for this character
+    bool hasGlyph(llwchar wch) const;       // Has a glyph for this character
     LLFontGlyphInfo* addGlyph(llwchar wch, EFontGlyphType glyph_type) const;        // Add a new character to the font if necessary
     LLFontGlyphInfo* addGlyphFromFont(const LLFontFreetype *fontp, llwchar wch, U32 glyph_index, EFontGlyphType bitmap_type) const; // Add a glyph from this font to the other (returns the glyph_index, 0 if not found)
     void renderGlyph(EFontGlyphType bitmap_type, U32 glyph_index) const;
@@ -175,7 +175,7 @@ private:
     LLFT_Stream *pFtStream;
 #endif
 
-    BOOL mIsFallback;
+    bool mIsFallback;
     typedef std::pair<LLPointer<LLFontFreetype>, char_functor_t> fallback_font_t;
     typedef std::vector<fallback_font_t> fallback_font_vector_t;
     fallback_font_vector_t mFallbackFonts; // A list of fallback fonts to look for glyphs in (for Unicode chars)

@@ -3,7 +3,6 @@
 project(llcorehttp)
 
 include(00-Common)
-include(GoogleMock)
 include(CURL)
 include(OpenSSL)
 include(NGHTTP2)
@@ -133,46 +132,6 @@ if (LL_TESTS AND LLCOREHTTP_TESTS)
                           "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_llcorehttp_peer.py"
                           )
  
-if (DARWIN)
-  # Path inside the app bundle where we'll need to copy libraries
-  set(LL_TEST_DESTINATION_DIR
-    ${CMAKE_BINARY_DIR}/sharedlibs/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,,../>Resources
-  )
-
-  # Create the Contents/Resources directory
-  add_custom_command(
-    TARGET INTEGRATION_TEST_llcorehttp PRE_BUILD
-    COMMAND ${CMAKE_COMMAND}
-    ARGS
-      -E
-      make_directory
-      ${LL_TEST_DESTINATION_DIR}
-    COMMENT "Creating Resources directory in app bundle."
-  )
-  
-  # Copy the required libraries to the package app. We used to use a sequence
-  # of '${CMAKE_COMMAND} -E copy' commands, but 'cmake -E copy' does only a
-  # single file at a time: it doesn't understand wildcards. 'cmake -E copy' is
-  # for portability. This operation is Darwin-specific. We can count on the
-  # 'cp' command.
-  set(copy_dylibs
-    libapr-1.0.dylib
-    libaprutil-1.0.dylib
-    libnghttp2*.dylib
-    liburiparser*.dylib
-    ${EXPAT_COPY}
-    )
-
-  add_custom_command(TARGET INTEGRATION_TEST_llcorehttp PRE_BUILD
-    WORKING_DIRECTORY "${AUTOBUILD_INSTALL_DIR}/lib/release"
-    COMMAND cp -v
-    ${copy_dylibs}
-    ${LL_TEST_DESTINATION_DIR}
-    DEPENDS ${copy_dylibs}
-  )
-
-endif (DARWIN)
-
   #
   # Example Programs
   #

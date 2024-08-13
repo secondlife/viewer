@@ -55,10 +55,10 @@ LLFloaterHUD::LLFloaterHUD(const LLSD& key)
     }
 
     // Opaque background since we never get the focus
-    setBackgroundOpaque(TRUE);
+    setBackgroundOpaque(true);
 }
 
-BOOL LLFloaterHUD::postBuild()
+bool LLFloaterHUD::postBuild()
 {
     mWebBrowser = getChild<LLMediaCtrl>("floater_hud_browser" );
     if (mWebBrowser)
@@ -75,7 +75,7 @@ BOOL LLFloaterHUD::postBuild()
         mWebBrowser->navigateTo(url);
     }
 
-    return TRUE;
+    return true;
 }
 
 // Destructor

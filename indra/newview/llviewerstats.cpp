@@ -284,13 +284,13 @@ void LLViewerStats::updateFrameStats(const F64Seconds time_diff)
         add(LLStatViewer::LOSS_5_PERCENT_TIME, time_diff);
     }
 
-    F32 sim_fps = getRecording().getLastValue(LLStatViewer::SIM_FPS);
+    F32 sim_fps = (F32)getRecording().getLastValue(LLStatViewer::SIM_FPS);
     if (0.f < sim_fps && sim_fps < 20.f)
     {
         add(LLStatViewer::SIM_20_FPS_TIME, time_diff);
     }
 
-    F32 sim_physics_fps = getRecording().getLastValue(LLStatViewer::SIM_PHYSICS_FPS);
+    F32 sim_physics_fps = (F32)getRecording().getLastValue(LLStatViewer::SIM_PHYSICS_FPS);
 
     if (0.f < sim_physics_fps && sim_physics_fps < 20.f)
     {
@@ -337,7 +337,7 @@ void LLViewerStats::addToMessage(LLSD &body)
 {
     LLSD &misc = body["misc"];
 
-    misc["Version"] = TRUE;
+    misc["Version"] = true;
     //TODO RN: get last value, not mean
     misc["Vertex Buffers Enabled"] = getRecording().getMean(LLStatViewer::ENABLE_VBO);
 

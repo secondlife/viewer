@@ -121,7 +121,7 @@ void doLoadDialogModeless(const std::vector<std::string>* allowed_types,
         [panel beginWithCompletionHandler:^(NSModalResponse result)
         {
             std::vector<std::string> outfiles;
-            if (result == NSOKButton)
+            if (result == NSModalResponseOK)
             {
                 NSArray *filesToOpen = [panel URLs];
                 int i, count = [filesToOpen count];

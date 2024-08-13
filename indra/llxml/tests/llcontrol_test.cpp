@@ -112,7 +112,7 @@ namespace tut
         LLControlGroup test_cg("foo2");
         std::string temp_test_file = (mTestConfigDir + "setting_llsd_temp.xml");
         mCleanups.push_back(temp_test_file);
-        mCG->saveToFile(temp_test_file.c_str(), TRUE);
+        mCG->saveToFile(temp_test_file.c_str(), true);
         results = test_cg.loadFromFile(temp_test_file.c_str());
         ensure("number of changed settings loaded", (results == 1));
         ensure("value of changed settings loaded", (test_cg.getU32("TestSetting") == 13));
@@ -129,12 +129,12 @@ namespace tut
         int results = mCG->loadFromFile(mTestConfigFile.c_str(), true);
         LLControlVariable* control = mCG->getControl("TestSetting");
         LLSD new_value = 13;
-        control->setValue(new_value, FALSE);
+        control->setValue(new_value, false);
         ensure_equals("value of changed setting", mCG->getU32("TestSetting"), 13);
         LLControlGroup test_cg("foo3");
         std::string temp_test_file = (mTestConfigDir + "setting_llsd_persist_temp.xml");
         mCleanups.push_back(temp_test_file);
-        mCG->saveToFile(temp_test_file.c_str(), TRUE);
+        mCG->saveToFile(temp_test_file.c_str(), true);
         results = test_cg.loadFromFile(temp_test_file.c_str());
         //If we haven't changed any settings, then we shouldn't have any settings to load
         ensure("number of non-persisted changed settings loaded", (results == 0));

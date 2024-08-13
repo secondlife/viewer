@@ -35,7 +35,7 @@
 class LLView;
 
 typedef std::list<LLView *>         viewList_t;
-typedef std::pair<BOOL, BOOL>       filterResult_t;
+typedef std::pair<bool, bool>       filterResult_t;
 
 // Abstract base class for all query filters.
 class LLQueryFilter
@@ -93,7 +93,7 @@ class LLWidgetTypeFilter : public LLQueryFilter
 {
     /*virtual*/ filterResult_t operator() (const LLView* const view, const viewList_t & children) const
     {
-        return filterResult_t(dynamic_cast<const T*>(view) != NULL, TRUE);
+        return filterResult_t(dynamic_cast<const T*>(view) != NULL, true);
     }
 
 };

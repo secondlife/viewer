@@ -61,7 +61,7 @@ bool LLTransUtil::parseStrings(const std::string& xml_filename, const std::set<s
 bool LLTransUtil::parseLanguageStrings(const std::string& xml_filename)
 {
     LLXMLNodePtr root;
-    BOOL success  = LLUICtrlFactory::getLayeredXMLNode(xml_filename, root);
+    bool success  = LLUICtrlFactory::getLayeredXMLNode(xml_filename, root);
 
     if (!success)
     {

@@ -36,7 +36,7 @@ class LLPanelPresetsPulldown : public LLPanelPulldown
 {
  public:
     LLPanelPresetsPulldown();
-    /*virtual*/ BOOL postBuild();
+    bool postBuild() override;
     void populatePanel();
 
  private:

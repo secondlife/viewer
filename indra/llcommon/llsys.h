@@ -134,8 +134,8 @@ public:
     static U32Kilobytes getHardwareMemSize(); // Because some Mac linkers won't let us reference extern gSysMemory from a different lib.
 #endif
 
-    //get the available memory infomation in KiloBytes.
-    static void getAvailableMemoryKB(U32Kilobytes& avail_physical_mem_kb, U32Kilobytes& avail_virtual_mem_kb);
+    //get the available memory in KiloBytes.
+    static void getAvailableMemoryKB(U32Kilobytes& avail_mem_kb);
 
     // Retrieve a map of memory statistics. The keys of the map are platform-
     // dependent. The values are in kilobytes to try to avoid integer overflow.
@@ -164,11 +164,12 @@ LL_COMMON_API std::ostream& operator<<(std::ostream& s, const LLOSInfo& info);
 LL_COMMON_API std::ostream& operator<<(std::ostream& s, const LLCPUInfo& info);
 LL_COMMON_API std::ostream& operator<<(std::ostream& s, const LLMemoryInfo& info);
 
-// gunzip srcfile into dstfile.  Returns FALSE on error.
-BOOL LL_COMMON_API gunzip_file(const std::string& srcfile, const std::string& dstfile);
-// gzip srcfile into dstfile.  Returns FALSE on error.
-BOOL LL_COMMON_API gzip_file(const std::string& srcfile, const std::string& dstfile);
+// gunzip srcfile into dstfile.  Returns false on error.
+bool LL_COMMON_API gunzip_file(const std::string& srcfile, const std::string& dstfile);
+// gzip srcfile into dstfile.  Returns false on error.
+bool LL_COMMON_API gzip_file(const std::string& srcfile, const std::string& dstfile);
 
+extern LL_COMMON_API LLMemoryInfo gSysMemory;
 extern LL_COMMON_API LLCPUInfo gSysCPU;
 
 #endif // LL_LLSYS_H

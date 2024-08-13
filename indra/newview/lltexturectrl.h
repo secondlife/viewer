@@ -50,7 +50,7 @@ class LLViewerFetchedTexture;
 class LLFetchedGLTFMaterial;
 
 // used for setting drag & drop callbacks.
-typedef boost::function<BOOL (LLUICtrl*, LLInventoryItem*)> drag_n_drop_callback;
+typedef boost::function<bool (LLUICtrl*, LLInventoryItem*)> drag_n_drop_callback;
 typedef boost::function<void (LLInventoryItem*)> texture_selected_callback;
 
 // Helper functions for UI that work with picker
@@ -148,21 +148,21 @@ public:
 
     // LLView interface
 
-    BOOL handleMouseDown(S32 x, S32 y, MASK mask) override;
-    BOOL handleDragAndDrop(S32 x, S32 y, MASK mask,
-        BOOL drop, EDragAndDropType cargo_type, void *cargo_data,
+    bool handleMouseDown(S32 x, S32 y, MASK mask) override;
+    bool handleDragAndDrop(S32 x, S32 y, MASK mask,
+        bool drop, EDragAndDropType cargo_type, void *cargo_data,
         EAcceptance *accept,
         std::string& tooltip_msg) override;
-    BOOL handleHover(S32 x, S32 y, MASK mask) override;
-    BOOL handleUnicodeCharHere(llwchar uni_char) override;
+    bool handleHover(S32 x, S32 y, MASK mask) override;
+    bool handleUnicodeCharHere(llwchar uni_char) override;
 
     void draw() override;
-    void setVisible( BOOL visible ) override;
-    void setEnabled( BOOL enabled ) override;
+    void setVisible( bool visible ) override;
+    void setEnabled( bool enabled ) override;
 
-    void onVisibilityChange(BOOL new_visibility) override;
+    void onVisibilityChange(bool new_visibility) override;
 
-    void setValid(BOOL valid);
+    void setValid(bool valid);
 
     // LLUICtrl interface
     void clear() override;
@@ -172,17 +172,17 @@ public:
     LLSD getValue() const override;
 
     // LLTextureCtrl interface
-    void            showPicker(BOOL take_focus);
+    void            showPicker(bool take_focus);
     bool            isPickerShown() { return !mFloaterHandle.isDead(); }
     void            setLabel(const std::string& label);
     void            setLabelWidth(S32 label_width) {mLabelWidth =label_width;}
     const std::string&  getLabel() const                            { return mLabel; }
 
-    void            setAllowNoTexture( BOOL b )                 { mAllowNoTexture = b; }
+    void            setAllowNoTexture( bool b )                 { mAllowNoTexture = b; }
     bool            getAllowNoTexture() const                   { return mAllowNoTexture; }
 
-    void            setAllowLocalTexture(BOOL b)                    { mAllowLocalTexture = b; }
-    BOOL            getAllowLocalTexture() const                    { return mAllowLocalTexture; }
+    void            setAllowLocalTexture(bool b)                    { mAllowLocalTexture = b; }
+    bool            getAllowLocalTexture() const                    { return mAllowLocalTexture; }
 
     const LLUUID&   getImageItemID() { return mImageItemID; }
 
@@ -202,7 +202,7 @@ public:
     void            setOpenTexPreview(bool open_preview) { mOpenTexPreview = open_preview; }
 
     void            setCaption(const std::string& caption);
-    void            setCanApplyImmediately(BOOL b);
+    void            setCanApplyImmediately(bool b);
 
     void            setCanApply(bool can_preview, bool can_apply);
 
@@ -222,10 +222,10 @@ public:
                                     const LLUUID& tracking_id);
 
     // This call is returned when a drag is detected. Your callback
-    // should return TRUE if the drag is acceptable.
+    // should return true if the drag is acceptable.
     void setDragCallback(drag_n_drop_callback cb)   { mDragCallback = cb; }
 
-    // This callback is called when the drop happens. Return TRUE if
+    // This callback is called when the drop happens. Return true if
     // the drop happened - resulting in an on commit callback, but not
     // necessariliy any other change.
     void setDropCallback(drag_n_drop_callback cb)   { mDropCallback = cb; }
@@ -239,7 +239,7 @@ public:
      */
     void setOnTextureSelectedCallback(texture_selected_callback cb);
 
-    void setShowLoadingPlaceholder(BOOL showLoadingPlaceholder);
+    void setShowLoadingPlaceholder(bool showLoadingPlaceholder);
 
     LLViewerFetchedTexture* getTexture() { return mTexturep; }
 
@@ -253,8 +253,8 @@ public:
     LLUUID getLocalTrackingID() { return mLocalTrackingID; }
 
 private:
-    BOOL allowDrop(LLInventoryItem* item, EDragAndDropType cargo_type, std::string& tooltip_msg);
-    BOOL doDrop(LLInventoryItem* item);
+    bool allowDrop(LLInventoryItem* item, EDragAndDropType cargo_type, std::string& tooltip_msg);
+    bool doDrop(LLInventoryItem* item);
 
 private:
     drag_n_drop_callback        mDragCallback;
@@ -278,16 +278,16 @@ private:
     LLTextBox*                  mTentativeLabel;
     LLTextBox*                  mCaption;
     std::string                 mLabel;
-    BOOL                        mAllowNoTexture; // If true, the user can select "none" as an option
-    BOOL                        mAllowLocalTexture;
+    bool                        mAllowNoTexture; // If true, the user can select "none" as an option
+    bool                        mAllowLocalTexture;
     PermissionMask              mImmediateFilterPermMask;
     PermissionMask              mDnDFilterPermMask;
-    BOOL                        mCanApplyImmediately;
-    BOOL                        mCommitOnSelection;
-    BOOL                        mNeedsRawImageData;
+    bool                        mCanApplyImmediately;
+    bool                        mCommitOnSelection;
+    bool                        mNeedsRawImageData;
     LLViewBorder*               mBorder;
-    BOOL                        mValid;
-    BOOL                        mShowLoadingPlaceholder;
+    bool                        mValid;
+    bool                        mShowLoadingPlaceholder;
     std::string                 mLoadingPlaceholderString;
     S32                         mLabelWidth;
     bool                        mOpenTexPreview;
@@ -310,27 +310,27 @@ public:
         LLUUID image_asset_id,
         LLUUID default_image_asset_id,
         LLUUID blank_image_asset_id,
-        BOOL tentative,
-        BOOL allow_no_texture,
+        bool tentative,
+        bool allow_no_texture,
         const std::string& label,
         PermissionMask immediate_filter_perm_mask,
         PermissionMask dnd_filter_perm_mask,
-        BOOL can_apply_immediately,
+        bool can_apply_immediately,
         LLUIImagePtr fallback_image_name,
         EPickInventoryType pick_type);
 
     virtual ~LLFloaterTexturePicker();
 
     // LLView overrides
-    /*virtual*/ BOOL    handleDragAndDrop(S32 x, S32 y, MASK mask,
-        BOOL drop, EDragAndDropType cargo_type, void *cargo_data,
+    /*virtual*/ bool    handleDragAndDrop(S32 x, S32 y, MASK mask,
+        bool drop, EDragAndDropType cargo_type, void *cargo_data,
         EAcceptance *accept,
         std::string& tooltip_msg);
     /*virtual*/ void    draw();
-    /*virtual*/ BOOL    handleKeyHere(KEY key, MASK mask);
+    /*virtual*/ bool    handleKeyHere(KEY key, MASK mask);
 
     // LLFloater overrides
-    /*virtual*/ BOOL    postBuild();
+    /*virtual*/ bool    postBuild();
     /*virtual*/ void    onOpen(const LLSD& key);
     /*virtual*/ void    onClose(bool app_settings);
 
@@ -338,10 +338,10 @@ public:
     void setImageID(const LLUUID& image_asset_id, bool set_selection = true);
     bool updateImageStats(); // true if within limits
     const LLUUID&   getAssetID() { return mImageAssetID; }
-    const LLUUID&   findItemID(const LLUUID& asset_id, BOOL copyable_only, BOOL ignore_library = FALSE);
-    void            setCanApplyImmediately(BOOL b);
+    const LLUUID&   findItemID(const LLUUID& asset_id, bool copyable_only, bool ignore_library = false);
+    void            setCanApplyImmediately(bool b);
 
-    void            setActive(BOOL active);
+    void            setActive(bool active);
 
     LLView*         getOwner() const { return mOwner; }
     void            setOwner(LLView* owner) { mOwner = owner; }
@@ -370,7 +370,7 @@ public:
     //static void       onBtnRevert( void* userdata );
     static void     onBtnBlank(void* userdata);
     static void     onBtnNone(void* userdata);
-    void            onSelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action);
+    void            onSelectionChange(const std::deque<LLFolderViewItem*> &items, bool user_action);
     static void     onApplyImmediateCheck(LLUICtrl* ctrl, void* userdata);
     void            onTextureSelect(const LLTextureEntry& te);
 
@@ -382,8 +382,8 @@ public:
 
     static void     onBakeTextureSelect(LLUICtrl* ctrl, void *userdata);
 
-    void            setLocalTextureEnabled(BOOL enabled);
-    void            setBakeTextureEnabled(BOOL enabled);
+    void            setLocalTextureEnabled(bool enabled);
+    void            setBakeTextureEnabled(bool enabled);
 
     void setInventoryPickType(EPickInventoryType type);
     void setImmediateFilterPermMask(PermissionMask mask);
@@ -405,8 +405,8 @@ protected:
     LLUIImagePtr        mFallbackImage; // What to show if currently selected texture is null.
     LLUUID              mDefaultImageAssetID;
     LLUUID              mBlankImageAssetID;
-    BOOL                mTentative;
-    BOOL                mAllowNoTexture;
+    bool                mTentative;
+    bool                mAllowNoTexture;
     LLUUID              mSpecialCurrentImageAssetID;  // Used when the asset id has no corresponding texture in the user's inventory.
     LLUUID              mOriginalImageAssetID;
 
@@ -417,17 +417,17 @@ protected:
     LLTextBox*          mResolutionWarning;
 
     std::string         mPendingName;
-    BOOL                mActive;
+    bool                mActive;
 
     LLFilterEditor*     mFilterEdit;
     LLInventoryPanel*   mInventoryPanel;
     PermissionMask      mImmediateFilterPermMask;
     PermissionMask      mDnDFilterPermMask;
-    BOOL                mCanApplyImmediately;
-    BOOL                mNoCopyTextureSelected;
+    bool                mCanApplyImmediately;
+    bool                mNoCopyTextureSelected;
     F32                 mContextConeOpacity;
     LLSaveFolderState   mSavedFolderState;
-    BOOL                mSelectedItemPinned;
+    bool                mSelectedItemPinned;
 
     LLComboBox*         mModeSelector;
     LLScrollListCtrl*   mLocalScrollCtrl;
@@ -437,6 +437,7 @@ protected:
     LLButton*           mPipetteBtn;
     LLButton*           mSelectBtn;
     LLButton*           mCancelBtn;
+    LLView*             mPreviewWidget = nullptr;
 
 private:
     bool mCanApply;
@@ -454,7 +455,7 @@ private:
     set_image_asset_id_callback mSetImageAssetIDCallback;
     set_on_update_image_stats_callback mOnUpdateImageStatsCallback;
 
-    BOOL mBakeTextureEnabled;
+    bool mBakeTextureEnabled;
 
     static S32 sLastPickerMode;
 };

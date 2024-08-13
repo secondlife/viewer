@@ -165,9 +165,9 @@ LLVirtualTrackball::~LLVirtualTrackball()
 {
 }
 
-BOOL LLVirtualTrackball::postBuild()
+bool LLVirtualTrackball::postBuild()
 {
-    return TRUE;
+    return true;
 }
 
 
@@ -217,23 +217,23 @@ void LLVirtualTrackball::draw()
 
     S32 halfwidth = mTouchArea->getRect().getWidth() / 2;
     S32 halfheight = mTouchArea->getRect().getHeight() / 2;
-    draw_point.mV[VX] = (draw_point.mV[VX] + 1.0) * halfwidth + mTouchArea->getRect().mLeft;
-    draw_point.mV[VY] = (draw_point.mV[VY] + 1.0) * halfheight + mTouchArea->getRect().mBottom;
+    draw_point.mV[VX] = (draw_point.mV[VX] + 1.0f) * halfwidth + mTouchArea->getRect().mLeft;
+    draw_point.mV[VY] = (draw_point.mV[VY] + 1.0f) * halfheight + mTouchArea->getRect().mBottom;
     bool upper_hemisphere = (draw_point.mV[VZ] >= 0.f);
 
     mImgSphere->draw(mTouchArea->getRect(), upper_hemisphere ? UI_VERTEX_COLOR : UI_VERTEX_COLOR % 0.5f);
-    drawThumb(draw_point.mV[VX], draw_point.mV[VY], mThumbMode, upper_hemisphere);
+    drawThumb((S32)draw_point.mV[VX], (S32)draw_point.mV[VY], mThumbMode, upper_hemisphere);
 
 
     if (LLView::sDebugRects)
     {
         gGL.color4fv(LLColor4::red.mV);
-        gl_circle_2d(mTouchArea->getRect().getCenterX(), mTouchArea->getRect().getCenterY(), mImgSphere->getWidth() / 2, 60, false);
-        gl_circle_2d(draw_point.mV[VX], draw_point.mV[VY], mImgSunFront->getWidth() / 2, 12, false);
+        gl_circle_2d((F32)mTouchArea->getRect().getCenterX(), (F32)mTouchArea->getRect().getCenterY(), (F32)mImgSphere->getWidth() / 2.f, 60, false);
+        gl_circle_2d(draw_point.mV[VX], draw_point.mV[VY], (F32)mImgSunFront->getWidth() / 2.f, 12, false);
     }
 
     // hide the direction labels when disabled
-    BOOL enabled = isInEnabledChain();
+    bool enabled = isInEnabledChain();
     mLabelN->setVisible(enabled);
     mLabelE->setVisible(enabled);
     mLabelS->setVisible(enabled);
@@ -384,7 +384,7 @@ void LLVirtualTrackball::getAzimuthAndElevationDeg(const LLQuaternion &quat, F32
     elevation *= RAD_TO_DEG;
 }
 
-BOOL LLVirtualTrackball::handleHover(S32 x, S32 y, MASK mask)
+bool LLVirtualTrackball::handleHover(S32 x, S32 y, MASK mask)
 {
     if (hasMouseCapture())
     {
@@ -392,20 +392,20 @@ BOOL LLVirtualTrackball::handleHover(S32 x, S32 y, MASK mask)
         { // trackball (move to roll) mode
             LLQuaternion delta;
 
-            F32 rotX = x - mPrevX;
-            F32 rotY = y - mPrevY;
+            F32 rotX = (F32)(x - mPrevX);
+            F32 rotY = (F32)(y - mPrevY);
 
             if (abs(rotX) > 1)
             {
-                F32 direction = (rotX < 0) ? -1 : 1;
-                delta.setAngleAxis(mIncrementMouse * abs(rotX), 0, direction, 0);  // changing X - rotate around Y axis
+                F32 direction = (rotX < 0) ? -1.f : 1.f;
+                delta.setAngleAxis(mIncrementMouse * abs(rotX), 0.f, direction, 0.f);  // changing X - rotate around Y axis
                 mValue *= delta;
             }
 
             if (abs(rotY) > 1)
             {
-                F32 direction = (rotY < 0) ? 1 : -1; // reverse for Y (value increases from bottom to top)
-                delta.setAngleAxis(mIncrementMouse * abs(rotY), direction, 0, 0);  // changing Y - rotate around X axis
+                F32 direction = (rotY < 0) ? 1.f : -1.f; // reverse for Y (value increases from bottom to top)
+                delta.setAngleAxis(mIncrementMouse * abs(rotY), direction, 0.f, 0.f);  // changing Y - rotate around X axis
                 mValue *= delta;
             }
         }
@@ -413,13 +413,13 @@ BOOL LLVirtualTrackball::handleHover(S32 x, S32 y, MASK mask)
         { // set on click mode
             if (!pointInTouchCircle(x, y))
             {
-                return TRUE; // don't drag outside the circle
+                return true; // don't drag outside the circle
             }
 
-            F32 radius = mTouchArea->getRect().getWidth() / 2;
-            F32 xx = x - mTouchArea->getRect().getCenterX();
-            F32 yy = y - mTouchArea->getRect().getCenterY();
-            F32 dist = sqrt(pow(xx, 2) + pow(yy, 2));
+            F32 radius = (F32)mTouchArea->getRect().getWidth() / 2.f;
+            F32 xx = (F32)(x - mTouchArea->getRect().getCenterX());
+            F32 yy = (F32)(y - mTouchArea->getRect().getCenterY());
+            F32 dist = (F32)(sqrt(pow(xx, 2) + pow(yy, 2)));
 
             F32 azimuth = llclamp(acosf(xx / dist), 0.0f, F_PI);
             F32 altitude = llclamp(acosf(dist / radius), 0.0f, F_PI_BY_TWO);
@@ -453,10 +453,10 @@ BOOL LLVirtualTrackball::handleHover(S32 x, S32 y, MASK mask)
         mPrevY = y;
         onCommit();
     }
-    return TRUE;
+    return true;
 }
 
-BOOL LLVirtualTrackball::handleMouseUp(S32 x, S32 y, MASK mask)
+bool LLVirtualTrackball::handleMouseUp(S32 x, S32 y, MASK mask)
 {
     if (hasMouseCapture())
     {
@@ -468,7 +468,7 @@ BOOL LLVirtualTrackball::handleMouseUp(S32 x, S32 y, MASK mask)
     return LLView::handleMouseUp(x, y, mask);
 }
 
-BOOL LLVirtualTrackball::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLVirtualTrackball::handleMouseDown(S32 x, S32 y, MASK mask)
 {
     if (pointInTouchCircle(x, y))
     {
@@ -481,7 +481,7 @@ BOOL LLVirtualTrackball::handleMouseDown(S32 x, S32 y, MASK mask)
     return LLView::handleMouseDown(x, y, mask);
 }
 
-BOOL LLVirtualTrackball::handleRightMouseDown(S32 x, S32 y, MASK mask)
+bool LLVirtualTrackball::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
     if (pointInTouchCircle(x, y))
     {
@@ -491,26 +491,26 @@ BOOL LLVirtualTrackball::handleRightMouseDown(S32 x, S32 y, MASK mask)
     return LLView::handleRightMouseDown(x, y, mask);
 }
 
-BOOL LLVirtualTrackball::handleKeyHere(KEY key, MASK mask)
+bool LLVirtualTrackball::handleKeyHere(KEY key, MASK mask)
 {
-    BOOL handled = FALSE;
+    bool handled = false;
     switch (key)
     {
     case KEY_DOWN:
         onRotateTopClick();
-        handled = TRUE;
+        handled = true;
         break;
     case KEY_LEFT:
         onRotateRightClick();
-        handled = TRUE;
+        handled = true;
         break;
     case KEY_UP:
         onRotateBottomClick();
-        handled = TRUE;
+        handled = true;
         break;
     case KEY_RIGHT:
         onRotateLeftClick();
-        handled = TRUE;
+        handled = true;
         break;
     default:
         break;

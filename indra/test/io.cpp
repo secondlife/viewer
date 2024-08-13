@@ -155,7 +155,7 @@ namespace tut
     void buffer_object::test<1>()
     {
         const char HELLO_WORLD[] = "hello world";
-        const S32 str_len = strlen(HELLO_WORLD);
+        const S32 str_len = static_cast<S32>(strlen(HELLO_WORLD));
         LLChannelDescriptors ch = mBuffer.nextChannel();
         mBuffer.append(ch.in(), (U8*)HELLO_WORLD, str_len);
         S32 count = mBuffer.countAfter(ch.in(), NULL);
@@ -170,7 +170,7 @@ namespace tut
     void buffer_object::test<2>()
     {
         const char HELLO_WORLD[] = "hello world";
-        const S32 str_len = strlen(HELLO_WORLD);        /* Flawfinder: ignore */
+        const S32 str_len = static_cast<S32>(strlen(HELLO_WORLD));        /* Flawfinder: ignore */
         LLChannelDescriptors ch = mBuffer.nextChannel();
         mBuffer.append(ch.in(), (U8*)HELLO_WORLD, str_len);
         mBuffer.append(ch.in(), (U8*)HELLO_WORLD, str_len);
@@ -249,15 +249,15 @@ namespace tut
         expected << "ContentLength: " << response.length() << "\r\n\r\n"
                  << response;
         LLChannelDescriptors ch = mBuffer.nextChannel();
-        mBuffer.append(ch.in(), (U8*)request.c_str(), request.length());
-        mBuffer.append(ch.out(), (U8*)response.c_str(), response.length());
+        mBuffer.append(ch.in(), (U8*)request.c_str(), static_cast<S32>(request.length()));
+        mBuffer.append(ch.out(), (U8*)response.c_str(), static_cast<S32>(response.length()));
         S32 count = mBuffer.countAfter(ch.out(), NULL);
         std::ostringstream header;
         header << "ContentLength: " << count << "\r\n\r\n";
         std::string head(header.str());
-        mBuffer.prepend(ch.out(), (U8*)head.c_str(), head.length());
+        mBuffer.prepend(ch.out(), (U8*)head.c_str(), static_cast<S32>(head.length()));
         char buffer[1024];  /* Flawfinder: ignore */
-        S32 len = response.size() + head.length();
+        S32 len = static_cast<S32>(response.size() + head.length());
         ensure_equals("same length", len, (S32)expected.str().length());
         mBuffer.readAfter(ch.out(), NULL, (U8*)buffer, len);
         buffer[len] = '\0';
@@ -282,7 +282,7 @@ namespace tut
             text.append(lines[i]);
         }
         LLChannelDescriptors ch = mBuffer.nextChannel();
-        mBuffer.append(ch.in(), (U8*)text.c_str(), text.length());
+        mBuffer.append(ch.in(), (U8*)text.c_str(), static_cast<S32>(text.length()));
         const S32 BUFFER_LEN = 1024;
         char buf[BUFFER_LEN];
         S32 len;
@@ -293,7 +293,7 @@ namespace tut
             len = BUFFER_LEN;
             last = mBuffer.readAfter(ch.in(), last, (U8*)buf, len);
             char* newline = strchr((char*)buf, '\n');
-            S32 offset = -((len - 1) - (newline - buf));
+            S32 offset = -((len - 1) - (S32)(newline - buf));
             ++newline;
             *newline = '\0';
             last_line.assign(buf);
@@ -411,7 +411,7 @@ namespace tut
     void bas_object::test<1>()
     {
         const char HELLO_WORLD[] = "hello world";
-        const S32 str_len = strlen(HELLO_WORLD);    /* Flawfinder: ignore */
+        const S32 str_len = static_cast<S32>(strlen(HELLO_WORLD));    /* Flawfinder: ignore */
         LLChannelDescriptors ch = mBuffer.nextChannel();
         LLBufferStream str(ch, &mBuffer);
         mBuffer.append(ch.in(), (U8*)HELLO_WORLD, str_len);
@@ -431,10 +431,10 @@ namespace tut
         std::string ignore("ignore me");
         LLChannelDescriptors ch = mBuffer.nextChannel();
         LLBufferStream str(ch, &mBuffer);
-        mBuffer.append(ch.in(), (U8*)part1.c_str(), part1.length());
-        mBuffer.append(ch.in(), (U8*)part2.c_str(), part2.length());
-        mBuffer.append(ch.out(), (U8*)ignore.c_str(), ignore.length());
-        mBuffer.append(ch.in(), (U8*)part3.c_str(), part3.length());
+        mBuffer.append(ch.in(), (U8*)part1.c_str(), static_cast<S32>(part1.length()));
+        mBuffer.append(ch.in(), (U8*)part2.c_str(), static_cast<S32>(part2.length()));
+        mBuffer.append(ch.out(), (U8*)ignore.c_str(), static_cast<S32>(ignore.length()));
+        mBuffer.append(ch.in(), (U8*)part3.c_str(), static_cast<S32>(part3.length()));
         std::string eat;
         std::string my;
         std::string shorts;
@@ -452,8 +452,8 @@ namespace tut
         std::string part1("junk in ");
         std::string part2("the trunk");
         const S32 CHANNEL = 0;
-        mBuffer.append(CHANNEL, (U8*)part1.c_str(), part1.length());
-        mBuffer.append(CHANNEL, (U8*)part2.c_str(), part2.length());
+        mBuffer.append(CHANNEL, (U8*)part1.c_str(), static_cast<S32>(part1.length()));
+        mBuffer.append(CHANNEL, (U8*)part2.c_str(), static_cast<S32>(part2.length()));
         U8* last = 0;
         const S32 BUF_LEN = 128;
         char buf[BUF_LEN];
@@ -475,7 +475,7 @@ namespace tut
     {
         std::string phrase("zippity do da!");
         const S32 CHANNEL = 0;
-        mBuffer.append(CHANNEL, (U8*)phrase.c_str(), phrase.length());
+        mBuffer.append(CHANNEL, (U8*)phrase.c_str(), static_cast<S32>(phrase.length()));
         const S32 BUF_LEN = 128;
         char buf[BUF_LEN];
         S32 len = 7;
@@ -506,7 +506,7 @@ namespace tut
         const S32 BUF_LEN = 128;
         char buf[BUF_LEN];
         S32 actual_len = BUF_LEN;
-        S32 expected_len = h1.size() + h2.size();
+        S32 expected_len = static_cast<S32>(h1.size() + h2.size());
         (void) mBuffer.readAfter(ch.out(), NULL, (U8*)buf, actual_len);
         ensure_equals("streamed size", actual_len, expected_len);
         buf[actual_len] = '\0';
@@ -728,7 +728,7 @@ namespace tut
                                         "'circuit_code': i124,'group_id': '8615c885-9cf0-bf0a-6e40-0c11462aa652','limited_to_estate': i1,'look_at': [ i0, i0, i0],"
                                         "'agent_id': '0e346d8b-4433-4d66-a6b0-fd37083abc4c','first_name': 'Kelly','start': 'url'}]}";
         LLChannelDescriptors ch = mBuffer.nextChannel();
-        mBuffer.append(ch.out(), (U8*)LOGIN_STREAM, strlen(LOGIN_STREAM));      /* Flawfinder: ignore */
+        mBuffer.append(ch.out(), (U8*)LOGIN_STREAM, static_cast<S32>(strlen(LOGIN_STREAM)));      /* Flawfinder: ignore */
         ch = mBuffer.nextChannel();
         LLBufferStream istr(ch, &mBuffer);
         LLSD data;
@@ -1130,7 +1130,7 @@ namespace tut
         mPump->addChain(chain, NEVER_CHAIN_EXPIRY_SECS);
         // We need to tickle the pump a little to set up the listen()
         pump_loop(mPump, 0.1f);
-        U32 count = mPump->runningChains();
+        auto count = mPump->runningChains();
         ensure_equals("server chain onboard", count, 1);
         LL_DEBUGS() << "** Server is up." << LL_ENDL;
 

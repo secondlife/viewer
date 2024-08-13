@@ -7,7 +7,6 @@
 include(CMakeCopyIfDifferent)
 include(Linking)
 include(OPENAL)
-include(FMODSTUDIO)
 
 # When we copy our dependent libraries, we almost always want to copy them to
 # both the Release and the RelWithDebInfo staging directories. This has
@@ -50,26 +49,17 @@ if(WINDOWS)
     endif (ADDRESS_SIZE EQUAL 64)
 
     #*******************************
-    # Misc shared libs 
+    # Misc shared libs
 
     set(release_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
     set(release_files
         openjp2.dll
-        libapr-1.dll
-        libaprutil-1.dll
-        nghttp2.dll
-        libhunspell.dll
-        uriparser.dll
         )
 
-    # OpenSSL
-    if(ADDRESS_SIZE EQUAL 64)
-        set(release_files ${release_files} libcrypto-1_1-x64.dll)
-        set(release_files ${release_files} libssl-1_1-x64.dll)
-    else(ADDRESS_SIZE EQUAL 64)
-        set(release_files ${release_files} libcrypto-1_1.dll)
-        set(release_files ${release_files} libssl-1_1.dll)
-    endif(ADDRESS_SIZE EQUAL 64)
+    if(LLCOMMON_LINK_SHARED)
+        set(release_files ${release_files} libapr-1.dll)
+        set(release_files ${release_files} libaprutil-1.dll)
+    endif()
 
     # Filenames are different for 32/64 bit BugSplat file and we don't
     # have any control over them so need to branch.
@@ -85,12 +75,6 @@ if(WINDOWS)
       endif(ADDRESS_SIZE EQUAL 32)
     endif (USE_BUGSPLAT)
 
-    if (TARGET ll::fmodstudio)
-        # fmodL is included for logging, only one should be picked by manifest
-        set(release_files ${release_files} fmodL.dll)
-        set(release_files ${release_files} fmod.dll)
-    endif ()
-
     if (TARGET ll::openal)
         list(APPEND release_files openal32.dll alut.dll)
     endif ()
@@ -105,13 +89,26 @@ if(WINDOWS)
         set(MSVC_VER 120)
     elseif (MSVC_VERSION GREATER_EQUAL 1910 AND MSVC_VERSION LESS 1920) # Visual Studio 2017
         set(MSVC_VER 140)
+        set(MSVC_TOOLSET_VER 141)
     elseif (MSVC_VERSION GREATER_EQUAL 1920 AND MSVC_VERSION LESS 1930) # Visual Studio 2019
         set(MSVC_VER 140)
+        set(MSVC_TOOLSET_VER 142)
     elseif (MSVC_VERSION GREATER_EQUAL 1930 AND MSVC_VERSION LESS 1950) # Visual Studio 2022
         set(MSVC_VER 140)
+        set(MSVC_TOOLSET_VER 143)
     else (MSVC80)
         MESSAGE(WARNING "New MSVC_VERSION ${MSVC_VERSION} of MSVC: adapt Copy3rdPartyLibs.cmake")
     endif (MSVC80)
+
+    if (MSVC_TOOLSET_VER AND DEFINED ENV{VCTOOLSREDISTDIR})
+        if(ADDRESS_SIZE EQUAL 32)
+            set(redist_find_path "$ENV{VCTOOLSREDISTDIR}x86\\Microsoft.VC${MSVC_TOOLSET_VER}.CRT")
+        else(ADDRESS_SIZE EQUAL 32)
+            set(redist_find_path "$ENV{VCTOOLSREDISTDIR}x64\\Microsoft.VC${MSVC_TOOLSET_VER}.CRT")
+        endif(ADDRESS_SIZE EQUAL 32)
+        get_filename_component(redist_path "${redist_find_path}" ABSOLUTE)
+        MESSAGE(STATUS "VC Runtime redist path: ${redist_path}")
+    endif (MSVC_TOOLSET_VER AND DEFINED ENV{VCTOOLSREDISTDIR})
 
     if(ADDRESS_SIZE EQUAL 32)
         # this folder contains the 32bit DLLs.. (yes really!)
@@ -131,11 +128,23 @@ if(WINDOWS)
     # Check each of them.
     foreach(release_msvc_file
             msvcp${MSVC_VER}.dll
+            msvcp${MSVC_VER}_1.dll
+            msvcp${MSVC_VER}_2.dll
+            msvcp${MSVC_VER}_atomic_wait.dll
+            msvcp${MSVC_VER}_codecvt_ids.dll
             msvcr${MSVC_VER}.dll
             vcruntime${MSVC_VER}.dll
             vcruntime${MSVC_VER}_1.dll
+            vcruntime${MSVC_VER}_threads.dll
             )
-        if(EXISTS "${registry_path}/${release_msvc_file}")
+        if(redist_path AND EXISTS "${redist_path}/${release_msvc_file}")
+            MESSAGE(STATUS "Copying redist file from ${redist_path}/${release_msvc_file}")
+            to_staging_dirs(
+                ${redist_path}
+                third_party_targets
+                ${release_msvc_file})
+        elseif(EXISTS "${registry_path}/${release_msvc_file}")
+            MESSAGE(STATUS "Copying redist file from ${registry_path}/${release_msvc_file}")
             to_staging_dirs(
                 ${registry_path}
                 third_party_targets
@@ -163,23 +172,20 @@ elseif(DARWIN)
        )
     set(release_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
     set(release_files
-        libapr-1.0.dylib
-        libapr-1.dylib
-        libaprutil-1.0.dylib
-        libaprutil-1.dylib
-        ${EXPAT_COPY}
-        libhunspell-1.3.0.dylib
         libndofdev.dylib
-        libnghttp2.dylib
-        libnghttp2.14.dylib
-        liburiparser.dylib
-        liburiparser.1.dylib
-        liburiparser.1.0.27.dylib
        )
 
-    if (TARGET ll::fmodstudio)
-      set(debug_files ${debug_files} libfmodL.dylib)
-      set(release_files ${release_files} libfmod.dylib)
+    if(LLCOMMON_LINK_SHARED)
+        set(release_files ${release_files}
+            libapr-1.0.dylib
+            libapr-1.dylib
+            libaprutil-1.0.dylib
+            libaprutil-1.dylib
+            )
+    endif()
+
+    if (TARGET ll::openal)
+      list(APPEND release_files libalut.dylib libopenal.dylib)
     endif ()
 
 elseif(LINUX)
@@ -208,17 +214,13 @@ elseif(LINUX)
     set(release_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
     # *FIX - figure out what to do with duplicate libalut.so here -brad
     set(release_files
-            ${EXPAT_COPY}
-            )
+       )
 
      if( USE_AUTOBUILD_3P )
          list( APPEND release_files
-                 libapr-1.so.0
-                 libaprutil-1.so.0
                  libatk-1.0.so
                  libfreetype.so.6.6.2
                  libfreetype.so.6
-                 libhunspell-1.3.so.0.0.0
                  libopenjp2.so
                  libuuid.so.16
                  libuuid.so.16.0.22
@@ -227,12 +229,14 @@ elseif(LINUX)
                  libgmodule-2.0.so
                  libgobject-2.0.so
                  )
-     endif()
 
-    if (TARGET ll::fmodstudio)
-      set(debug_files ${debug_files} "libfmodL.so")
-      set(release_files ${release_files} "libfmod.so")
-    endif ()
+        if(LLCOMMON_LINK_SHARED)
+            set(release_files ${release_files}
+                libapr-1.so.0
+                libaprutil-1.so.0
+                )
+        endif()
+     endif()
 
 else(WINDOWS)
     message(STATUS "WARNING: unrecognized platform for staging 3rd party libs, skipping...")

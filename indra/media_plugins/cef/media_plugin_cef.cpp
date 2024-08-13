@@ -816,7 +816,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
                 S32 y = message_in.getValueS32("y");
 
                 // only even send left mouse button events to the CEF library
-                // (partially prompted by crash in OS X CEF when sending right button events)
+                // (partially prompted by crash in macOS CEF when sending right button events)
                 // we catch the right click in viewer and display our own context menu anyway
                 S32 button = message_in.getValueS32("button");
                 dullahan::EMouseButton btn = dullahan::MB_MOUSE_BUTTON_LEFT;

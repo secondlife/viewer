@@ -34,7 +34,7 @@ class LLIMProcessing
 public:
     // Pre-process message for IM manager
     static void processNewMessage(LLUUID from_id,
-        BOOL from_group,
+        bool from_group,
         LLUUID to_id,
         U8 offline,
         EInstantMessage dialog, // U8

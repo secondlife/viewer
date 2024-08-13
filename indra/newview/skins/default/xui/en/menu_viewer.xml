@@ -561,42 +561,6 @@
              parameter="conversation" />
         </menu_item_check>
         <menu_item_separator/>
-        <menu
-         label="Voice morphing"
-         name="VoiceMorphing"
-         visibility_control="VoiceMorphingEnabled">
-            <menu_item_check
-             label="No voice morphing"
-             name="NoVoiceMorphing">
-                <menu_item_check.on_check
-                 function="Communicate.VoiceMorphing.NoVoiceMorphing.Check" />
-                <menu_item_check.on_click
-                 function="Communicate.VoiceMorphing.NoVoiceMorphing.Click" />
-            </menu_item_check>
-            <menu_item_separator/>
-            <menu_item_check
-             label="Preview..."
-             name="Preview">
-                <menu_item_check.on_check
-                 function="Floater.Visible"
-                 parameter="voice_effect" />
-                <menu_item_check.on_click
-                 function="Floater.Toggle"
-                 parameter="voice_effect" />
-            </menu_item_check>
-            <menu_item_call
-             label="Subscribe..."
-             name="Subscribe">
-                <menu_item_call.on_click
-                 function="Communicate.VoiceMorphing.Subscribe" />
-            </menu_item_call>
-            <menu_item_call
-             label="Premium perk..."
-             name="PremiumPerk">
-                <menu_item_call.on_click
-                 function="Communicate.VoiceMorphing.PremiumPerk" />
-            </menu_item_call>
-        </menu>
         <menu_item_check
          label="Gestures..."
          name="Gestures"
@@ -2858,6 +2822,78 @@ function="World.EnvPreset"
                 parameter="mem_leaking" />
                </menu_item_call>
         </menu>
+      <menu
+         create_jump_keys="true"
+         label="GLTF"
+         name="GLTF"
+         tear_off="true">
+        <menu_item_call
+         label="Open..."
+         name="Open...">
+            <!--<menu_item_call.on_enable
+             function="EnableGLTF"/>-->
+          <menu_item_call.on_click
+           function="Advanced.ClickGLTFOpen" />
+        </menu_item_call>
+        <menu_item_call
+         label="Save As..."
+         name="Save As...">
+          <menu_item_call.on_enable
+             function="EnableGLTFSaveAs"/>
+          <menu_item_call.on_click
+           function="Advanced.ClickGLTFSaveAs" />
+        </menu_item_call>
+        <menu_item_call
+         label="Upload..."
+         name="Upload...">
+          <menu_item_call.on_enable
+             function="EnableGLTFUpload"/>
+          <menu_item_call.on_click
+           function="Advanced.ClickGLTFUpload" />
+        </menu_item_call>
+        <menu_item_call
+         label="Edit..."
+         name="Edit...">
+          <menu_item_call.on_enable
+             function="EnableGLTFUpload"/>
+          <menu_item_call.on_click
+           function="Advanced.ClickGLTFEdit" />
+        </menu_item_call>
+      </menu>
+      <menu
+         create_jump_keys="true"
+         label="Video"
+         name="Video"
+         tear_off="true">
+        <menu_item_call
+         label="1080x1920"
+         name="1080x1920">
+          <menu_item_call.on_click
+           function="Advanced.ClickResizeWindow"
+            parameter="1080x1920"/>
+        </menu_item_call>
+        <menu_item_call
+         label="1920x1080"
+         name="1920x1080">
+          <menu_item_call.on_click
+           function="Advanced.ClickResizeWindow"
+            parameter="1920x1080"/>
+        </menu_item_call>
+        <menu_item_call
+         label="1280x720"
+         name="1280x720">
+          <menu_item_call.on_click
+           function="Advanced.ClickResizeWindow"
+            parameter="1280x720"/>
+          </menu_item_call>
+        <menu_item_call
+          label="720x1280"
+         name="720x1280">
+          <menu_item_call.on_click
+           function="Advanced.ClickResizeWindow"
+            parameter="720x1280"/>
+          </menu_item_call>
+      </menu>
         <menu
          create_jump_keys="true"
          label="Render Tests"
@@ -2909,12 +2945,6 @@ function="World.EnvPreset"
            name="HDRI Preview">
             <menu_item_call.on_click
              function="Advanced.ClickHDRIPreview" />
-          </menu_item_call>
-          <menu_item_call
-           label="GLTF Scene Preview"
-           name="GLTF Scene Preview">
-            <menu_item_call.on_click
-             function="Advanced.ClickGLTFScenePreview" />
           </menu_item_call>
         </menu>
       <menu
@@ -3405,13 +3435,6 @@ function="World.EnvPreset"
             <menu_item_call.on_click
              function="Advanced.ClearShaderCache" />
           </menu_item_call>
-          <menu_item_call
-            enabled="true"
-            label="Rebuild Terrain"
-            name="Rebuild Terrain">
-            <menu_item_call.on_click
-             function="Advanced.RebuildTerrain" />
-          </menu_item_call>
           <menu_item_separator />
           <menu_item_call
             enabled="true"
@@ -3632,6 +3655,37 @@ function="World.EnvPreset"
                  function="Advanced.ResetInterestLists" />
 			</menu_item_call>
 		</menu>
+        <!-- terrain -->
+        <menu
+         create_jump_keys="true"
+         label="Terrain"
+         name="DevelopTerrain"
+         tear_off="true">
+            <menu_item_call
+              enabled="true"
+              label="Rebuild Terrain"
+              name="Rebuild Terrain">
+              <menu_item_call.on_click
+               function="Advanced.RebuildTerrain" />
+            </menu_item_call>
+
+            <menu_item_separator/>
+
+            <menu_item_call
+              enabled="true"
+              label="Create Local Paintmap"
+              name="Create Local Paintmap">
+              <menu_item_call.on_click
+               function="Advanced.TerrainCreateLocalPaintMap" />
+            </menu_item_call>
+            <menu_item_call
+              enabled="true"
+              label="Delete Local Paintmap"
+              name="Delete Local Paintmap">
+              <menu_item_call.on_click
+               function="Advanced.TerrainDeleteLocalPaintMap" />
+            </menu_item_call>
+		</menu>
         <menu
          create_jump_keys="true"
          label="UI"
@@ -3800,6 +3854,13 @@ function="World.EnvPreset"
          name="XUI"
          tear_off="true">
             <menu_item_call
+             label="Show Color settings"
+             name="Color Settings">
+                <menu_item_call.on_click
+                 function="Floater.Toggle"
+                 parameter="settings_color" />
+            </menu_item_call>
+            <menu_item_call
                label="Reload Color Settings"
                name="Reload Color Settings">
               <menu_item_call.on_click
@@ -3936,6 +3997,26 @@ function="World.EnvPreset"
                      function="ToggleControl"
                      parameter="AllowSelectAvatar" />
                 </menu_item_check>
+                <menu_item_check
+                 label="Disable Look At Animation"
+                 name="Disable Look At Animation">
+                    <menu_item_check.on_check
+                     function="CheckControl"
+                     parameter="DisableLookAtAnimation" />
+                    <menu_item_check.on_click
+                     function="ToggleControl"
+                     parameter="DisableLookAtAnimation" />
+                </menu_item_check>
+                <menu_item_check
+                 label="Render Only Friends"
+                 name="Render Only Friends">
+                    <menu_item_check.on_check
+                     function="CheckControl"
+                     parameter="RenderAvatarFriendsOnly" />
+                    <menu_item_check.on_click
+                     function="ToggleControl"
+                     parameter="RenderAvatarFriendsOnly" />
+                </menu_item_check>
             </menu>
             <menu
              create_jump_keys="true"
@@ -4031,6 +4112,16 @@ function="World.EnvPreset"
                  parameter="DebugCharacterVis" />
                 <menu_item_check.on_click
                  function="Advanced.ToggleDebugCharacterVis" />
+            </menu_item_check>
+            <menu_item_check
+             label="Debug Character Rez State"
+             name="Debug Character Rez State">
+                <menu_item_check.on_check
+                 function="CheckControl"
+                 parameter="NameTagDebugAVRezState" />
+                <menu_item_check.on_click
+                 function="ToggleControl"
+                 parameter="NameTagDebugAVRezState" />
             </menu_item_check>
             <menu_item_check
              label="Show Collision Skeleton"

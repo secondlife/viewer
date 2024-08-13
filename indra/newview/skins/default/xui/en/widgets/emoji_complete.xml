@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <emoji_complete
   autosize="false"
-  hover_image="ListItem_Over"
   selected_image="ListItem_Select"
   max_visible="7"
   padding="8"

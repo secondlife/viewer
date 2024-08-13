@@ -59,8 +59,6 @@
 #include "llvoavatarself.h"
 #include "lltexlayer.h"
 
-extern F32 texmem_lower_bound_scale;
-
 LLTextureView *gTextureView = NULL;
 
 #define HIGH_PRIORITY 100000000.f
@@ -107,7 +105,7 @@ public:
     {}
 
     virtual void draw();
-    virtual BOOL handleMouseDown(S32 x, S32 y, MASK mask);
+    virtual bool handleMouseDown(S32 x, S32 y, MASK mask);
     virtual LLRect getRequiredRect();   // Return the height of this object, given the set options.
 
 // Used for sorting
@@ -325,13 +323,6 @@ void LLTextureBar::draw()
 
     {
         LLGLSUIDefault gls_ui;
-        // draw the packet data
-//      {
-//          std::string num_str = llformat("%3d/%3d", mImagep->mLastPacket+1, mImagep->mPackets);
-//          LLFontGL::getFontMonospace()->renderUTF8(num_str, 0, bar_left + 100, getRect().getHeight(), color,
-//                                           LLFontGL::LEFT, LLFontGL::TOP);
-//      }
-
         // draw the image size at the end
         {
             std::string num_str = llformat("%3dx%3d (%2d) %7d", mImagep->getWidth(), mImagep->getHeight(),
@@ -343,12 +334,12 @@ void LLTextureBar::draw()
 
 }
 
-BOOL LLTextureBar::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLTextureBar::handleMouseDown(S32 x, S32 y, MASK mask)
 {
     if ((mask & (MASK_CONTROL|MASK_SHIFT|MASK_ALT)) == MASK_ALT)
     {
         LLAppViewer::getTextureFetch()->mDebugID = mImagep->getID();
-        return TRUE;
+        return true;
     }
     return LLView::handleMouseDown(x,y,mask);
 }
@@ -384,7 +375,7 @@ public:
     {}
 
     virtual void draw();
-    virtual BOOL handleMouseDown(S32 x, S32 y, MASK mask);
+    virtual bool handleMouseDown(S32 x, S32 y, MASK mask);
     virtual LLRect getRequiredRect();   // Return the height of this object, given the set options.
 
 private:
@@ -438,9 +429,9 @@ void LLAvatarTexBar::draw()
                                              header_color, LLFontGL::LEFT, LLFontGL::TOP, LLFontGL::BOLD, LLFontGL::DROP_SHADOW_SOFT);
 }
 
-BOOL LLAvatarTexBar::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLAvatarTexBar::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-    return FALSE;
+    return false;
 }
 
 LLRect LLAvatarTexBar::getRequiredRect()
@@ -463,7 +454,7 @@ public:
         :   texture_view("texture_view")
         {
             S32 line_height = LLFontGL::getFontMonospace()->getLineHeight();
-            changeDefault(rect, LLRect(0,0,100,line_height * 4));
+            changeDefault(rect, LLRect(0,0,0,line_height * 7));
         }
     };
 
@@ -473,7 +464,7 @@ public:
     {}
 
     virtual void draw();
-    virtual BOOL handleMouseDown(S32 x, S32 y, MASK mask);
+    virtual bool handleMouseDown(S32 x, S32 y, MASK mask);
     virtual LLRect getRequiredRect();   // Return the height of this object, given the set options.
 
 private:
@@ -483,8 +474,8 @@ private:
 void LLGLTexMemBar::draw()
 {
     F32 discard_bias = LLViewerTexture::sDesiredDiscardBias;
-    F32 cache_usage = LLAppViewer::getTextureCache()->getUsage().valueInUnits<LLUnits::Megabytes>();
-    F32 cache_max_usage = LLAppViewer::getTextureCache()->getMaxUsage().valueInUnits<LLUnits::Megabytes>();
+    F32 cache_usage = (F32)LLAppViewer::getTextureCache()->getUsage().valueInUnits<LLUnits::Megabytes>();
+    F32 cache_max_usage = (F32)LLAppViewer::getTextureCache()->getMaxUsage().valueInUnits<LLUnits::Megabytes>();
     S32 line_height = LLFontGL::getFontMonospace()->getLineHeight();
     S32 v_offset = 0;//(S32)((texture_bar_height + 2.2f) * mTextureView->mNumTextureBars + 2.0f);
     F32Bytes total_texture_downloaded = gTotalTextureData;
@@ -494,19 +485,54 @@ void LLGLTexMemBar::draw()
     U32 total_objects = gObjectList.getNumObjects();
     F32 x_right = 0.0;
 
+    U32 image_count = gTextureList.getNumImages();
+    U32 raw_image_count = 0;
+    U64 raw_image_bytes = 0;
+
+    U32 saved_raw_image_count = 0;
+    U64 saved_raw_image_bytes = 0;
+
+    U32 aux_raw_image_count = 0;
+    U64 aux_raw_image_bytes = 0;
+
+    for (auto& image : gTextureList)
+    {
+        const LLImageRaw* raw_image = image->getRawImage();
+
+        if (raw_image)
+        {
+            raw_image_count++;
+            raw_image_bytes += raw_image->getDataSize();
+        }
+
+        raw_image = image->getSavedRawImage();
+        if (raw_image)
+        {
+            saved_raw_image_count++;
+            saved_raw_image_bytes += raw_image->getDataSize();
+        }
+
+        raw_image = image->getAuxRawImage();
+        if (raw_image)
+        {
+            aux_raw_image_count++;
+            aux_raw_image_bytes += raw_image->getDataSize();
+        }
+    }
+
+   F64 raw_image_bytes_MB = raw_image_bytes / (1024.0 * 1024.0);
+   F64 saved_raw_image_bytes_MB = saved_raw_image_bytes / (1024.0 * 1024.0);
+   F64 aux_raw_image_bytes_MB = aux_raw_image_bytes / (1024.0 * 1024.0);
+   F64 texture_bytes_alloc = LLImageGL::getTextureBytesAllocated() / 1024.0 / 1024.0 * 1.3333f; // add 33% for mipmaps
+   F64 vertex_bytes_alloc = LLVertexBuffer::getBytesAllocated() / 1024.0 / 1024.0;
+   F64 render_bytes_alloc = LLRenderTarget::sBytesAllocated / 1024.0 / 1024.0;
+
     //----------------------------------------------------------------------------
     LLGLSUIDefault gls_ui;
     LLColor4 text_color(1.f, 1.f, 1.f, 0.75f);
     LLColor4 color;
 
-    // Gray background using completely magic numbers
-    gGL.color4f(0.f, 0.f, 0.f, 0.25f);
-    // const LLRect & rect(getRect());
-    // gl_rect_2d(-4, v_offset, rect.mRight - rect.mLeft + 2, v_offset + line_height*4);
-
     std::string text = "";
-    LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, v_offset + line_height*6,
-                                             text_color, LLFontGL::LEFT, LLFontGL::TOP);
 
     LLTrace::Recording& recording = LLViewerStats::instance().getRecording();
 
@@ -527,17 +553,33 @@ void LLGLTexMemBar::draw()
     U32 texFetchLatMed = U32(recording.getMean(LLTextureFetch::sTexFetchLatency).value() * 1000.0f);
     U32 texFetchLatMax = U32(recording.getMax(LLTextureFetch::sTexFetchLatency).value() * 1000.0f);
 
-    text = llformat("GL Free: %d MB Sys Free: %d MB FBO: %d MB Bias: %.2f Cache: %.1f/%.1f MB",
-                    gViewerWindow->getWindow()->getAvailableVRAMMegabytes(),
+    // draw a background above first line.... no idea where the rest of the background comes from for the below text
+    gGL.color4f(0.f, 0.f, 0.f, 0.25f);
+    gl_rect_2d(-10, getRect().getHeight() + line_height*2 + 1, getRect().getWidth()+2, getRect().getHeight()+2);
+
+    text = llformat("Est. Free: %d MB Sys Free: %d MB FBO: %d MB Bias: %.2f Cache: %.1f/%.1f MB",
+                    (S32)LLViewerTexture::sFreeVRAMMegabytes,
                     LLMemory::getAvailableMemKB()/1024,
                     LLRenderTarget::sBytesAllocated/(1024*1024),
                     discard_bias,
                     cache_usage,
                     cache_max_usage);
-    //, cache_entries, cache_max_entries
-
-    LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, v_offset + line_height*6,
+    LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, v_offset + line_height*8,
                                              text_color, LLFontGL::LEFT, LLFontGL::TOP);
+
+    text = llformat("Images: %d   Raw: %d (%.2f MB)  Saved: %d (%.2f MB) Aux: %d (%.2f MB)", image_count, raw_image_count, raw_image_bytes_MB,
+        saved_raw_image_count, saved_raw_image_bytes_MB,
+        aux_raw_image_count, aux_raw_image_bytes_MB);
+    LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, v_offset + line_height * 7,
+        text_color, LLFontGL::LEFT, LLFontGL::TOP);
+
+    text = llformat("Textures: %.2f MB  Vertex: %.2f MB  Render: %.2f MB  Total: %.2f MB",
+                    texture_bytes_alloc,
+                    vertex_bytes_alloc,
+                    render_bytes_alloc,
+        texture_bytes_alloc+vertex_bytes_alloc+render_bytes_alloc);
+    LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, v_offset + line_height * 6,
+        text_color, LLFontGL::LEFT, LLFontGL::TOP);
 
     U32 cache_read(0U), cache_write(0U), res_wait(0U);
     LLAppViewer::getTextureFetch()->getStateStats(&cache_read, &cache_write, &res_wait);
@@ -551,7 +593,6 @@ void LLGLTexMemBar::draw()
                     cache_read,
                     cache_write,
                     res_wait);
-
     LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, v_offset + line_height*5,
                                              text_color, LLFontGL::LEFT, LLFontGL::TOP);
 
@@ -572,10 +613,9 @@ void LLGLTexMemBar::draw()
 
     //----------------------------------------------------------------------------
 
-    text = llformat("Textures: %d Fetch: %d(%d) Pkts:%d(%d) Cache R/W: %d/%d LFS:%d RAW:%d HTP:%d DEC:%d CRE:%d ",
+    text = llformat("Textures: %d Fetch: %d(%d) Cache R/W: %d/%d LFS:%d RAW:%d HTP:%d DEC:%d CRE:%d ",
                     gTextureList.getNumImages(),
                     LLAppViewer::getTextureFetch()->getNumRequests(), LLAppViewer::getTextureFetch()->getNumDeletes(),
-                    LLAppViewer::getTextureFetch()->mPacketCount, LLAppViewer::getTextureFetch()->mBadPacketCount,
                     LLAppViewer::getTextureCache()->getNumReads(), LLAppViewer::getTextureCache()->getNumWrites(),
                     LLLFSThread::sLocal->getPending(),
                     LLImageRaw::sRawImageCount,
@@ -583,8 +623,8 @@ void LLGLTexMemBar::draw()
                     LLAppViewer::getImageDecodeThread()->getPending(),
                     gTextureList.mCreateTextureList.size());
 
-    x_right = 550.0;
-    LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, v_offset + line_height*3,
+    x_right = 550.0f;
+    LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0.f, (F32)(v_offset + line_height*3),
                                              text_color, LLFontGL::LEFT, LLFontGL::TOP,
                                              LLFontGL::NORMAL, LLFontGL::NO_SHADOW, S32_MAX, S32_MAX, &x_right);
 
@@ -593,7 +633,7 @@ void LLGLTexMemBar::draw()
     color = bandwidth > max_bandwidth ? LLColor4::red : bandwidth > max_bandwidth*.75f ? LLColor4::yellow : text_color;
     color[VALPHA] = text_color[VALPHA];
     text = llformat("BW:%.0f/%.0f",bandwidth.value(), max_bandwidth.value());
-    LLFontGL::getFontMonospace()->renderUTF8(text, 0, x_right, v_offset + line_height*3,
+    LLFontGL::getFontMonospace()->renderUTF8(text, 0, (S32)x_right, v_offset + line_height*3,
                                              color, LLFontGL::LEFT, LLFontGL::TOP);
 
     // Mesh status line
@@ -640,9 +680,9 @@ void LLGLTexMemBar::draw()
                                      text_color, LLFontGL::LEFT, LLFontGL::TOP);
 }
 
-BOOL LLGLTexMemBar::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLGLTexMemBar::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-    return FALSE;
+    return false;
 }
 
 LLRect LLGLTexMemBar::getRequiredRect()
@@ -671,7 +711,7 @@ public:
     void setTop(S32 loaded, S32 bound, F32 scale) {mTopLoaded = loaded ; mTopBound = bound; mScale = scale ;}
 
     void draw();
-    BOOL handleHover(S32 x, S32 y, MASK mask, BOOL set_pick_size) ;
+    bool handleHover(S32 x, S32 y, MASK mask, bool set_pick_size) ;
 
 private:
     S32 mIndex ;
@@ -684,13 +724,13 @@ private:
     F32 mScale ;
 };
 
-BOOL LLGLTexSizeBar::handleHover(S32 x, S32 y, MASK mask, BOOL set_pick_size)
+bool LLGLTexSizeBar::handleHover(S32 x, S32 y, MASK mask, bool set_pick_size)
 {
     if(y > mBottom && (y < mBottom + (S32)(mTopLoaded * mScale) || y < mBottom + (S32)(mTopBound * mScale)))
     {
         LLImageGL::setCurTexSizebar(mIndex, set_pick_size);
     }
-    return TRUE ;
+    return true ;
 }
 void LLGLTexSizeBar::draw()
 {
@@ -719,14 +759,14 @@ void LLGLTexSizeBar::draw()
 
 LLTextureView::LLTextureView(const LLTextureView::Params& p)
     :   LLContainerView(p),
-        mFreezeView(FALSE),
-        mOrderFetch(FALSE),
-        mPrintList(FALSE),
+        mFreezeView(false),
+        mOrderFetch(false),
+        mPrintList(false),
         mNumTextureBars(0)
 {
-    setVisible(FALSE);
+    setVisible(false);
 
-    setDisplayChildren(TRUE);
+    setDisplayChildren(true);
     mGLTexMemBar = 0;
     mAvatarTexBar = 0;
 }
@@ -791,7 +831,7 @@ void LLTextureView::draw()
             LL_INFOS() << "ID\tMEM\tBOOST\tPRI\tWIDTH\tHEIGHT\tDISCARD" << LL_ENDL;
         }
 
-        for (LLViewerTextureList::image_priority_list_t::iterator iter = gTextureList.mImageList.begin();
+        for (LLViewerTextureList::image_list_t::iterator iter = gTextureList.mImageList.begin();
              iter != gTextureList.mImageList.end(); )
         {
             LLPointer<LLViewerFetchedTexture> imagep = *iter++;
@@ -898,7 +938,7 @@ void LLTextureView::draw()
 
         if (mPrintList)
         {
-            mPrintList = FALSE;
+            mPrintList = false;
         }
 
         static S32 max_count = 50;
@@ -947,7 +987,7 @@ void LLTextureView::draw()
         addChild(mAvatarTexBar);
         sendChildToFront(mAvatarTexBar);
 
-        reshape(getRect().getWidth(), getRect().getHeight(), TRUE);
+        reshape(getRect().getWidth(), getRect().getHeight(), true);
 
         LLUI::popMatrix();
         LLUI::pushMatrix();
@@ -959,7 +999,7 @@ void LLTextureView::draw()
             LLView *viewp = *child_iter;
             if (viewp->getRect().mBottom < 0)
             {
-                viewp->setVisible(FALSE);
+                viewp->setVisible(false);
             }
         }
     }
@@ -968,7 +1008,7 @@ void LLTextureView::draw()
 
 }
 
-BOOL LLTextureView::addBar(LLViewerFetchedTexture *imagep, S32 hilite)
+bool LLTextureView::addBar(LLViewerFetchedTexture *imagep, S32 hilite)
 {
     llassert(imagep);
 
@@ -988,42 +1028,42 @@ BOOL LLTextureView::addBar(LLViewerFetchedTexture *imagep, S32 hilite)
     addChild(barp);
     mTextureBars.push_back(barp);
 
-    return TRUE;
+    return true;
 }
 
-BOOL LLTextureView::handleMouseDown(S32 x, S32 y, MASK mask)
+bool LLTextureView::handleMouseDown(S32 x, S32 y, MASK mask)
 {
     if ((mask & (MASK_CONTROL|MASK_SHIFT|MASK_ALT)) == (MASK_ALT|MASK_SHIFT))
     {
-        mPrintList = TRUE;
-        return TRUE;
+        mPrintList = true;
+        return true;
     }
     if ((mask & (MASK_CONTROL|MASK_SHIFT|MASK_ALT)) == (MASK_CONTROL|MASK_SHIFT))
     {
         LLAppViewer::getTextureFetch()->mDebugPause = !LLAppViewer::getTextureFetch()->mDebugPause;
-        return TRUE;
+        return true;
     }
     if (mask & MASK_SHIFT)
     {
         mFreezeView = !mFreezeView;
-        return TRUE;
+        return true;
     }
     if (mask & MASK_CONTROL)
     {
         mOrderFetch = !mOrderFetch;
-        return TRUE;
+        return true;
     }
     return LLView::handleMouseDown(x,y,mask);
 }
 
-BOOL LLTextureView::handleMouseUp(S32 x, S32 y, MASK mask)
+bool LLTextureView::handleMouseUp(S32 x, S32 y, MASK mask)
 {
-    return FALSE;
+    return false;
 }
 
-BOOL LLTextureView::handleKey(KEY key, MASK mask, BOOL called_from_parent)
+bool LLTextureView::handleKey(KEY key, MASK mask, bool called_from_parent)
 {
-    return FALSE;
+    return false;
 }
 
 

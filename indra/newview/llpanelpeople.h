@@ -50,12 +50,12 @@ public:
     LLPanelPeople();
     virtual ~LLPanelPeople();
 
-    /*virtual*/ BOOL    postBuild();
-    /*virtual*/ void    onOpen(const LLSD& key);
-    /*virtual*/ bool    notifyChildren(const LLSD& info);
+    bool postBuild() override;
+    void onOpen(const LLSD& key) override;
+    bool notifyChildren(const LLSD& info) override;
     // Implements LLVoiceClientStatusObserver::onChange() to enable call buttons
     // when voice is available
-    /*virtual*/ void onChange(EStatusType status, const std::string &channelURI, bool proximal);
+    void onChange(EStatusType status, const LLSD& channelInfo, bool proximal) override;
 
     // internals
     class Updater;
@@ -84,10 +84,9 @@ private:
     bool                    isItemsFreeOfFriends(const uuid_vec_t& uuids);
 
     void                    updateButtons();
-    std::string             getActiveTabName() const;
+    const std::string&      getActiveTabName() const;
     LLUUID                  getCurrentItemID() const;
     void                    getCurrentItemIDs(uuid_vec_t& selected_uuids) const;
-    void                    showGroupMenu(LLMenuGL* menu);
     void                    setSortOrder(LLAvatarList* list, ESortOrder order, bool save = true);
 
     // UI callbacks
@@ -140,6 +139,17 @@ private:
     LLGroupList*            mGroupList;
     LLNetMap*               mMiniMap;
 
+    LLButton*               mNearbyGearBtn = nullptr;
+    LLButton*               mFriendsGearBtn = nullptr;
+    LLButton*               mRecentGearBtn = nullptr;
+    LLButton*               mGroupDelBtn = nullptr;
+
+    LLButton*               mNearbyAddFriendBtn = nullptr;
+    LLButton*               mRecentAddFriendBtn = nullptr;
+    LLUICtrl*               mFriendsDelFriendBtn = nullptr;
+
+    LLTextBox*              mGroupCountText = nullptr;
+
     std::vector<std::string> mSavedOriginalFilters;
     std::vector<std::string> mSavedFilters;
 
@@ -148,6 +158,11 @@ private:
     Updater*                mRecentListUpdater;
     Updater*                mButtonsUpdater;
     LLHandle< LLFloater >   mPicker;
+
+    boost::signals2::connection mNearbyFilterCommitConnection;
+    boost::signals2::connection mFriedsFilterCommitConnection;
+    boost::signals2::connection mGroupsFilterCommitConnection;
+    boost::signals2::connection mRecentFilterCommitConnection;
 };
 
 #endif //LL_LLPANELPEOPLE_H

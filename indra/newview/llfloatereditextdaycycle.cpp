@@ -203,7 +203,7 @@ LLFloaterEditExtDayCycle::~LLFloaterEditExtDayCycle()
 }
 
 // virtual
-BOOL LLFloaterEditExtDayCycle::postBuild()
+bool LLFloaterEditExtDayCycle::postBuild()
 {
     getChild<LLLineEditor>(TXT_DAY_NAME)->setKeystrokeCallback(boost::bind(&LLFloaterEditExtDayCycle::onCommitName, this, _1, _2), NULL);
 
@@ -264,7 +264,7 @@ BOOL LLFloaterEditExtDayCycle::postBuild()
             panel->setOnDirtyFlagChanged([this](LLPanel *, bool val) { onPanelDirtyFlagChanged(val); });
     }
 
-    return TRUE;
+    return true;
 }
 
 void LLFloaterEditExtDayCycle::onOpen(const LLSD& key)
@@ -313,7 +313,7 @@ void LLFloaterEditExtDayCycle::onOpen(const LLSD& key)
     mDayLength.value(0);
     if (key.has(KEY_DAY_LENGTH))
     {
-        mDayLength.value(key[KEY_DAY_LENGTH].asReal());
+        mDayLength.value(key[KEY_DAY_LENGTH].asInteger());
     }
 
     // Time&Percentage labels
@@ -352,7 +352,7 @@ void LLFloaterEditExtDayCycle::onOpen(const LLSD& key)
 
     // Adjust Time&Percentage labels' location according to length
     LLRect label_rect = getChild<LLTextBox>("p0", true)->getRect();
-    F32 slider_width = mFramesSlider->getRect().getWidth();
+    F32 slider_width = (F32)mFramesSlider->getRect().getWidth();
     for (int i = 1; i < max_elm; i++)
     {
         LLTextBox *pcnt_label = getChild<LLTextBox>("p" + llformat("%d", i), true);
@@ -423,7 +423,7 @@ void LLFloaterEditExtDayCycle::onClose(bool app_quitting)
 }
 
 
-void LLFloaterEditExtDayCycle::onVisibilityChange(BOOL new_visibility)
+void LLFloaterEditExtDayCycle::onVisibilityChange(bool new_visibility)
 {
 }
 
@@ -534,7 +534,7 @@ void LLFloaterEditExtDayCycle::setEditName(const std::string &name)
 }
 
 /* virtual */
-BOOL LLFloaterEditExtDayCycle::handleKeyUp(KEY key, MASK mask, BOOL called_from_parent)
+bool LLFloaterEditExtDayCycle::handleKeyUp(KEY key, MASK mask, bool called_from_parent)
 {
     if (!mEditDay)
     {
@@ -705,7 +705,7 @@ void LLFloaterEditExtDayCycle::onAddFrame()
         LL_WARNS("ENVDAYEDIT") << "Attempt to add new frame while waiting for day(asset) to load." << LL_ENDL;
         return;
     }
-    if ((mEditDay->getSettingsNearKeyframe(frame, mCurrentTrack, LLSettingsDay::DEFAULT_FRAME_SLOP_FACTOR)).second)
+    if ((mEditDay->getSettingsNearKeyframe((LLSettingsBase::TrackPosition)frame, mCurrentTrack, LLSettingsDay::DEFAULT_FRAME_SLOP_FACTOR)).second)
     {
         LL_WARNS("ENVDAYEDIT") << "Attempt to add new frame too close to existing frame." << LL_ENDL;
         return;
@@ -722,17 +722,17 @@ void LLFloaterEditExtDayCycle::onAddFrame()
         // scratch water should always have the current water settings.
         LLSettingsWater::ptr_t water(mScratchWater->buildClone());
         setting = water;
-        mEditDay->setWaterAtKeyframe( std::static_pointer_cast<LLSettingsWater>(setting), frame);
+        mEditDay->setWaterAtKeyframe( std::static_pointer_cast<LLSettingsWater>(setting), (LLSettingsBase::TrackPosition)frame);
     }
     else
     {
         // scratch sky should always have the current sky settings.
         LLSettingsSky::ptr_t sky(mScratchSky->buildClone());
         setting = sky;
-        mEditDay->setSkyAtKeyframe(sky, frame, mCurrentTrack);
+        mEditDay->setSkyAtKeyframe(sky, (LLSettingsBase::TrackPosition)frame, mCurrentTrack);
     }
     setDirtyFlag();
-    addSliderFrame(frame, setting);
+    addSliderFrame((F32)frame, setting);
     updateTabs();
 }
 
@@ -890,7 +890,7 @@ void LLFloaterEditExtDayCycle::onFrameSliderCallback(const LLSD &data)
         keymap_t::iterator it = mSliderKeyMap.find(curslider);
         if (it != mSliderKeyMap.end())
         {
-            if (gKeyboard->currentMask(TRUE) == MASK_SHIFT && mShiftCopyEnabled && mCanMod)
+            if (gKeyboard->currentMask(true) == MASK_SHIFT && mShiftCopyEnabled && mCanMod)
             {
                 // don't move the point/frame as long as shift is pressed and user is attempting to copy
                 // handleKeyUp will do the move if user releases key too early.
@@ -961,7 +961,7 @@ void LLFloaterEditExtDayCycle::onFrameSliderMouseDown(S32 x, S32 y, MASK mask)
 
     std::string slidername = mFramesSlider->getCurSlider();
 
-    mShiftCopyEnabled = !slidername.empty() && gKeyboard->currentMask(TRUE) == MASK_SHIFT;
+    mShiftCopyEnabled = !slidername.empty() && gKeyboard->currentMask(true) == MASK_SHIFT;
 
     if (!slidername.empty())
     {
@@ -1195,7 +1195,7 @@ void LLFloaterEditExtDayCycle::updateButtons()
         }
         else
         {
-            for (S32 track = 1; track < LLSettingsDay::TRACK_MAX; ++track)
+            for (U32 track = 1; track < LLSettingsDay::TRACK_MAX; ++track)
             {
                 if (track == mCurrentTrack)
                     continue;
@@ -1213,14 +1213,14 @@ void LLFloaterEditExtDayCycle::updateButtons()
     mDeleteFrameButton->setEnabled(can_manipulate && isRemovingFrameAllowed());
     mLoadFrame->setEnabled(can_manipulate);
 
-    BOOL enable_play = mEditDay ? TRUE : FALSE;
+    bool enable_play = (bool)mEditDay;
     childSetEnabled(BTN_PLAY, enable_play);
     childSetEnabled(BTN_SKIP_BACK, enable_play);
     childSetEnabled(BTN_SKIP_FORWARD, enable_play);
 
     // update track buttons
     bool extended_env = LLEnvironment::instance().isExtendedEnvironmentEnabled();
-    for (S32 track = 0; track < LLSettingsDay::TRACK_MAX; ++track)
+    for (U32 track = 0; track < LLSettingsDay::TRACK_MAX; ++track)
     {
         LLButton* button = getChild<LLButton>(track_tabs[track], true);
         button->setEnabled(extended_env);
@@ -1316,7 +1316,7 @@ void LLFloaterEditExtDayCycle::removeCurrentSliderFrame()
     {
         LL_DEBUGS("ENVDAYEDIT") << "Removing frame from " << iter->second.mFrame << LL_ENDL;
         LLSettingsBase::Seconds seconds(iter->second.mFrame);
-        mEditDay->removeTrackKeyframe(mCurrentTrack, seconds);
+        mEditDay->removeTrackKeyframe(mCurrentTrack, (LLSettingsBase::TrackPosition)seconds);
         mSliderKeyMap.erase(iter);
     }
 
@@ -1474,17 +1474,17 @@ void LLFloaterEditExtDayCycle::reblendSettings()
     {
         if ((mSkyBlender->getTrack() != mCurrentTrack) && (mCurrentTrack != LLSettingsDay::TRACK_WATER))
         {
-            mSkyBlender->switchTrack(mCurrentTrack, position);
+            mSkyBlender->switchTrack(mCurrentTrack, (LLSettingsBase::TrackPosition)position);
         }
         else
         {
-            mSkyBlender->setPosition(position);
+            mSkyBlender->setPosition((LLSettingsBase::TrackPosition)position);
         }
     }
 
     if (mWaterBlender)
     {
-        mWaterBlender->setPosition(position);
+        mWaterBlender->setPosition((LLSettingsBase::TrackPosition)position);
     }
 }
 
@@ -1517,7 +1517,7 @@ bool LLFloaterEditExtDayCycle::isAddingFrameAllowed()
     if (!mFramesSlider->getCurSlider().empty() || !mEditDay) return false;
 
     LLSettingsBase::Seconds frame(mTimeSlider->getCurSliderValue());
-    if ((mEditDay->getSettingsNearKeyframe(frame, mCurrentTrack, LLSettingsDay::DEFAULT_FRAME_SLOP_FACTOR)).second)
+    if ((mEditDay->getSettingsNearKeyframe((LLSettingsBase::TrackPosition)frame, mCurrentTrack, LLSettingsDay::DEFAULT_FRAME_SLOP_FACTOR)).second)
     {
         return false;
     }
@@ -1562,8 +1562,8 @@ void LLFloaterEditExtDayCycle::startPlay()
     gIdleCallbacks.addFunction(onIdlePlay, this);
     mPlayStartFrame = mTimeSlider->getCurSliderValue();
 
-    getChild<LLView>("play_layout", true)->setVisible(FALSE);
-    getChild<LLView>("pause_layout", true)->setVisible(TRUE);
+    getChild<LLView>("play_layout", true)->setVisible(false);
+    getChild<LLView>("pause_layout", true)->setVisible(true);
 }
 
 void LLFloaterEditExtDayCycle::stopPlay()
@@ -1577,8 +1577,8 @@ void LLFloaterEditExtDayCycle::stopPlay()
     F32 frame = mTimeSlider->getCurSliderValue();
     selectFrame(frame, LLSettingsDay::DEFAULT_FRAME_SLOP_FACTOR);
 
-    getChild<LLView>("play_layout", true)->setVisible(TRUE);
-    getChild<LLView>("pause_layout", true)->setVisible(FALSE);
+    getChild<LLView>("play_layout", true)->setVisible(true);
+    getChild<LLView>("pause_layout", true)->setVisible(false);
 }
 
 //static
@@ -1698,7 +1698,7 @@ void LLFloaterEditExtDayCycle::doOpenInventoryFloater(LLSettingsType::type_e typ
         picker->setTrackMode(LLFloaterSettingsPicker::TRACK_NONE);
     }
     picker->openFloater();
-    picker->setFocus(TRUE);
+    picker->setFocus(true);
 }
 
 void LLFloaterEditExtDayCycle::onPickerCommitSetting(LLUUID item_id, S32 track)

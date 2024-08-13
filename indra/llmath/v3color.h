@@ -196,22 +196,18 @@ inline LLColor3::LLColor3(void)
 
 inline LLColor3::LLColor3(F32 r, F32 g, F32 b)
 {
-    mV[VX] = r;
-    mV[VY] = g;
-    mV[VZ] = b;
+    mV[VRED] = r;
+    mV[VGREEN] = g;
+    mV[VBLUE] = b;
 }
 
 
 inline LLColor3::LLColor3(const F32 *vec)
 {
-    mV[VX] = vec[VX];
-    mV[VY] = vec[VY];
-    mV[VZ] = vec[VZ];
+    mV[VRED] = vec[VRED];
+    mV[VGREEN] = vec[VGREEN];
+    mV[VBLUE] = vec[VBLUE];
 }
-
-#if LL_WINDOWS
-# pragma warning( disable : 4996 ) // strncpy teh sux0r
-#endif
 
 inline LLColor3::LLColor3(const char* color_string) // takes a string of format "RRGGBB" where RR is hex 00..FF
 {
@@ -226,11 +222,11 @@ inline LLColor3::LLColor3(const char* color_string) // takes a string of format 
     char tempstr[7];
     strncpy(tempstr,color_string,6);        /* Flawfinder: ignore */
     tempstr[6] = '\0';
-    mV[VZ] = (F32)strtol(&tempstr[4],NULL,16)/255.f;
+    mV[VBLUE] = (F32)strtol(&tempstr[4],NULL,16)/255.f;
     tempstr[4] = '\0';
-    mV[VY] = (F32)strtol(&tempstr[2],NULL,16)/255.f;
+    mV[VGREEN] = (F32)strtol(&tempstr[2],NULL,16)/255.f;
     tempstr[2] = '\0';
-    mV[VX] = (F32)strtol(&tempstr[0],NULL,16)/255.f;
+    mV[VRED] = (F32)strtol(&tempstr[0],NULL,16)/255.f;
 }
 
 inline const LLColor3&  LLColor3::setToBlack(void)
@@ -517,9 +513,9 @@ inline const LLVector3 linearColor3v(const T& a) {
 template<typename T>
 const LLColor3& LLColor3::set(const std::vector<T>& v)
 {
-    for (S32 i = 0; i < llmin((S32)v.size(), 3); ++i)
+    for (size_t i = 0; i < llmin(v.size(), 3); ++i)
     {
-        mV[i] = v[i];
+        mV[i] = (F32)v[i];
     }
 
     return *this;
@@ -530,9 +526,9 @@ const LLColor3& LLColor3::set(const std::vector<T>& v)
 template<typename T>
 void LLColor3::write(std::vector<T>& v) const
 {
-    for (int i = 0; i < llmin((S32)v.size(), 3); ++i)
+    for (size_t i = 0; i < llmin(v.size(), 3); ++i)
     {
-        v[i] = mV[i];
+        v[i] = (T)mV[i];
     }
 }
 

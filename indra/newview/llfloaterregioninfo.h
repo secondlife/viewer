@@ -79,12 +79,13 @@ public:
 
     void onOpen(const LLSD& key) override;
     void onClose(bool app_quitting) override;
-    BOOL postBuild() override;
+    bool postBuild() override;
 
     static void processEstateOwnerRequest(LLMessageSystem* msg, void**);
 
     // get and process region info if necessary.
     static void processRegionInfo(LLMessageSystem* msg);
+    static void sRefreshFromRegion(LLViewerRegion* region);
 
     static const LLUUID& getLastInvoice() { return sRequestInvoice; }
     static void nextInvoice() { sRequestInvoice.generate(); }
@@ -146,20 +147,22 @@ public:
     virtual bool refreshFromRegion(LLViewerRegion* region);
     virtual bool estateUpdate(LLMessageSystem* msg) { return true; }
 
-    BOOL postBuild() override;
+    bool postBuild() override;
     virtual void updateChild(LLUICtrl* child_ctrl);
 
-    void enableButton(const std::string& btn_name, BOOL enable = TRUE);
+    void enableButton(const std::string& btn_name, bool enable = true);
     void disableButton(const std::string& btn_name);
 
     void onClickManageTelehub();
+    void onClickManageRestartSchedule();
 
 protected:
     void initCtrl(const std::string& name);
+    template<typename CTRL> void initAndSetCtrl(CTRL*& ctrl, const std::string& name);
 
-    // Returns TRUE if update sent and apply button should be
+    // Returns true if update sent and apply button should be
     // disabled.
-    virtual BOOL sendUpdate() { return TRUE; }
+    virtual bool sendUpdate() { return true; }
 
     typedef std::vector<std::string> strings_t;
     //typedef std::vector<U32> integers_t;
@@ -172,6 +175,7 @@ protected:
 
     // member data
     LLHost mHost;
+    LLHandle<LLFloater> mFloaterRestartScheduleHandle;
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -188,13 +192,13 @@ public:
 
     bool refreshFromRegion(LLViewerRegion* region) override;
 
-    BOOL postBuild() override;
+    bool postBuild() override;
 
     void onBtnSet();
     void setObjBonusFactor(F32 object_bonus_factor) {mObjBonusFactor = object_bonus_factor;}
 
 protected:
-    BOOL sendUpdate() override;
+    bool sendUpdate() override;
     void onClickKick();
     void onKickCommit(const uuid_vec_t& ids);
     static void onClickKickAll(void* userdata);
@@ -216,12 +220,12 @@ public:
         :   LLPanelRegionInfo(), mTargetAvatar() {}
     ~LLPanelRegionDebugInfo() {}
 
-    BOOL postBuild() override;
+    bool postBuild() override;
 
     bool refreshFromRegion(LLViewerRegion* region) override;
 
 protected:
-    BOOL sendUpdate() override;
+    bool sendUpdate() override;
 
     void onClickChooseAvatar();
     void callbackAvatarID(const uuid_vec_t& ids, const std::vector<LLAvatarName> names);
@@ -248,14 +252,14 @@ public:
     LLPanelRegionTerrainInfo();
     ~LLPanelRegionTerrainInfo() {}
 
-    BOOL postBuild() override;
+    bool postBuild() override;
 
     bool refreshFromRegion(LLViewerRegion* region) override;                // refresh local settings from region update from simulator
     void setEnvControls(bool available);                                    // Whether environment settings are available for this region
 
     bool validateTextureSizes();
     bool validateMaterials();
-    BOOL validateTextureHeights();
+    bool validateTextureHeights();
 
     //static void onChangeAnything(LLUICtrl* ctrl, void* userData);         // callback for any change, to enable commit button
 
@@ -269,7 +273,9 @@ public:
     bool callbackTextureHeights(const LLSD& notification, const LLSD& response);
 
 protected:
-    BOOL sendUpdate() override;
+    bool sendUpdate() override;
+
+    void initMaterialCtrl(LLTextureCtrl*& ctrl, const std::string& name, S32 index);
 
 private:
     bool mConfirmedTextureHeights;
@@ -277,8 +283,15 @@ private:
     LLCheckBoxCtrl* mMaterialTypeCtrl = nullptr;
     LLTextureCtrl* mTextureDetailCtrl[LLTerrainMaterials::ASSET_COUNT];
     LLTextureCtrl* mMaterialDetailCtrl[LLTerrainMaterials::ASSET_COUNT];
+
     LLUUID mLastSetTextures[LLTerrainMaterials::ASSET_COUNT];
     LLUUID mLastSetMaterials[LLTerrainMaterials::ASSET_COUNT];
+
+    LLSpinCtrl* mMaterialScaleUCtrl[LLTerrainMaterials::ASSET_COUNT];
+    LLSpinCtrl* mMaterialScaleVCtrl[LLTerrainMaterials::ASSET_COUNT];
+    LLSpinCtrl* mMaterialRotationCtrl[LLTerrainMaterials::ASSET_COUNT];
+    LLSpinCtrl* mMaterialOffsetUCtrl[LLTerrainMaterials::ASSET_COUNT];
+    LLSpinCtrl* mMaterialOffsetVCtrl[LLTerrainMaterials::ASSET_COUNT];
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -317,7 +330,7 @@ public:
     bool refreshFromRegion(LLViewerRegion* region) override;
     bool estateUpdate(LLMessageSystem* msg) override;
 
-    BOOL postBuild() override;
+    bool postBuild() override;
     void updateChild(LLUICtrl* child_ctrl) override;
     void refresh() override;
 
@@ -329,14 +342,14 @@ public:
     void setOwnerName(const std::string& name);
 
 protected:
-    BOOL sendUpdate() override;
+    bool sendUpdate() override;
     // confirmation dialog callback
     bool callbackChangeLindenEstate(const LLSD& notification, const LLSD& response);
 
     void commitEstateAccess();
     void commitEstateManagers();
 
-    BOOL checkSunHourSlider(LLUICtrl* child_ctrl);
+    bool checkSunHourSlider(LLUICtrl* child_ctrl);
 
     U32 mEstateID;
 };
@@ -349,14 +362,14 @@ public:
     LLPanelEstateCovenant();
     ~LLPanelEstateCovenant() {}
 
-    BOOL postBuild() override;
+    bool postBuild() override;
     void updateChild(LLUICtrl* child_ctrl) override;
     bool refreshFromRegion(LLViewerRegion* region) override;
     bool estateUpdate(LLMessageSystem* msg) override;
 
     // LLView overrides
-    BOOL handleDragAndDrop(S32 x, S32 y, MASK mask,
-                           BOOL drop, EDragAndDropType cargo_type,
+    bool handleDragAndDrop(S32 x, S32 y, MASK mask,
+                           bool drop, EDragAndDropType cargo_type,
                            void *cargo_data, EAcceptance *accept,
                            std::string& tooltip_msg) override;
     static bool confirmChangeCovenantCallback(const LLSD& notification, const LLSD& response);
@@ -391,7 +404,7 @@ public:
     } EAssetStatus;
 
 protected:
-    BOOL sendUpdate() override;
+    bool sendUpdate() override;
     LLTextBox*              mEstateNameText;
     LLTextBox*              mEstateOwnerText;
     LLTextBox*              mLastModifiedText;
@@ -410,7 +423,7 @@ class LLPanelRegionExperiences : public LLPanelRegionInfo
 
 public:
     LLPanelRegionExperiences(){}
-    BOOL postBuild() override;
+    bool postBuild() override;
 
     static bool experienceCoreConfirm(const LLSD& notification, const LLSD& response);
     static void sendEstateExperienceDelta(U32 flags, const LLUUID& agent_id);
@@ -421,7 +434,7 @@ public:
     void processResponse( const LLSD& content );
 
 protected:
-    BOOL sendUpdate() override;
+    bool sendUpdate() override;
 
 private:
     void refreshRegionExperiences();
@@ -447,7 +460,7 @@ class LLPanelEstateAccess : public LLPanelRegionInfo
 public:
     LLPanelEstateAccess();
 
-    BOOL postBuild() override;
+    bool postBuild() override;
     void updateChild(LLUICtrl* child_ctrl) override;
 
     void updateControls(LLViewerRegion* region);
@@ -498,7 +511,7 @@ private:
     void copyListToClipboard(std::string list_name);
 
     bool mPendingUpdate;
-    BOOL mCtrlsEnabled;
+    bool mCtrlsEnabled;
 };
 
 #endif

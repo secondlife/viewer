@@ -40,7 +40,7 @@ class LLHUDManager : public LLSingleton<LLHUDManager>
     ~LLHUDManager();
 
 public:
-    LLHUDEffect *createViewerEffect(const U8 type, BOOL send_to_sim = TRUE, BOOL originated_here = TRUE);
+    LLHUDEffect *createViewerEffect(const U8 type, bool send_to_sim = true, bool originated_here = true);
 
     void updateEffects();
     void sendEffects();

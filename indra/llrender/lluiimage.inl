@@ -36,7 +36,7 @@ void LLUIImage::draw(S32 x, S32 y, S32 width, S32 height, const LLColor4& color)
         width, height,
         mImage,
         color,
-        FALSE,
+        false,
         mClipRegion,
         mScaleRegion,
         mScaleStyle == SCALE_INNER);
@@ -49,7 +49,7 @@ void LLUIImage::drawSolid(S32 x, S32 y, S32 width, S32 height, const LLColor4& c
         width, height,
         mImage,
         color,
-        TRUE,
+        true,
         mClipRegion,
         mScaleRegion,
         mScaleStyle == SCALE_INNER);

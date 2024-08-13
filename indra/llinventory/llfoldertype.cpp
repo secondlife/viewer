@@ -84,47 +84,47 @@ protected:
 LLFolderDictionary::LLFolderDictionary()
 {
     //                                                              TYPE NAME, PROTECTED, AUTOMATIC, SINGLETON
-    addEntry(LLFolderType::FT_TEXTURE,              new FolderEntry("texture",  TRUE, TRUE, TRUE));
-    addEntry(LLFolderType::FT_SOUND,                new FolderEntry("sound",    TRUE, TRUE, TRUE));
-    addEntry(LLFolderType::FT_CALLINGCARD,          new FolderEntry("callcard", TRUE, TRUE, FALSE));
-    addEntry(LLFolderType::FT_LANDMARK,             new FolderEntry("landmark", TRUE, FALSE, FALSE));
-    addEntry(LLFolderType::FT_CLOTHING,             new FolderEntry("clothing", TRUE, TRUE, TRUE));
-    addEntry(LLFolderType::FT_OBJECT,               new FolderEntry("object",   TRUE, TRUE, TRUE));
-    addEntry(LLFolderType::FT_NOTECARD,             new FolderEntry("notecard", TRUE, TRUE, TRUE));
-    addEntry(LLFolderType::FT_ROOT_INVENTORY,       new FolderEntry("root_inv", TRUE, TRUE, TRUE));
-    addEntry(LLFolderType::FT_LSL_TEXT,             new FolderEntry("lsltext",  TRUE, TRUE, TRUE));
-    addEntry(LLFolderType::FT_BODYPART,             new FolderEntry("bodypart", TRUE, TRUE, TRUE));
-    addEntry(LLFolderType::FT_TRASH,                new FolderEntry("trash",    TRUE, FALSE, TRUE));
-    addEntry(LLFolderType::FT_SNAPSHOT_CATEGORY,    new FolderEntry("snapshot", TRUE, TRUE, TRUE));
-    addEntry(LLFolderType::FT_LOST_AND_FOUND,       new FolderEntry("lstndfnd", TRUE, TRUE, TRUE));
-    addEntry(LLFolderType::FT_ANIMATION,            new FolderEntry("animatn",  TRUE, TRUE, TRUE));
-    addEntry(LLFolderType::FT_GESTURE,              new FolderEntry("gesture",  TRUE, TRUE, TRUE));
-    addEntry(LLFolderType::FT_FAVORITE,             new FolderEntry("favorite", TRUE, FALSE, TRUE));
+    addEntry(LLFolderType::FT_TEXTURE,              new FolderEntry("texture",  true, true, true));
+    addEntry(LLFolderType::FT_SOUND,                new FolderEntry("sound",    true, true, true));
+    addEntry(LLFolderType::FT_CALLINGCARD,          new FolderEntry("callcard", true, true, false));
+    addEntry(LLFolderType::FT_LANDMARK,             new FolderEntry("landmark", true, false, false));
+    addEntry(LLFolderType::FT_CLOTHING,             new FolderEntry("clothing", true, true, true));
+    addEntry(LLFolderType::FT_OBJECT,               new FolderEntry("object",   true, true, true));
+    addEntry(LLFolderType::FT_NOTECARD,             new FolderEntry("notecard", true, true, true));
+    addEntry(LLFolderType::FT_ROOT_INVENTORY,       new FolderEntry("root_inv", true, true, true));
+    addEntry(LLFolderType::FT_LSL_TEXT,             new FolderEntry("lsltext",  true, true, true));
+    addEntry(LLFolderType::FT_BODYPART,             new FolderEntry("bodypart", true, true, true));
+    addEntry(LLFolderType::FT_TRASH,                new FolderEntry("trash",    true, false, true));
+    addEntry(LLFolderType::FT_SNAPSHOT_CATEGORY,    new FolderEntry("snapshot", true, true, true));
+    addEntry(LLFolderType::FT_LOST_AND_FOUND,       new FolderEntry("lstndfnd", true, true, true));
+    addEntry(LLFolderType::FT_ANIMATION,            new FolderEntry("animatn",  true, true, true));
+    addEntry(LLFolderType::FT_GESTURE,              new FolderEntry("gesture",  true, true, true));
+    addEntry(LLFolderType::FT_FAVORITE,             new FolderEntry("favorite", true, false, true));
 
     for (S32 ensemble_num = S32(LLFolderType::FT_ENSEMBLE_START); ensemble_num <= S32(LLFolderType::FT_ENSEMBLE_END); ensemble_num++)
     {
-        addEntry(LLFolderType::EType(ensemble_num), new FolderEntry("ensemble", FALSE, FALSE, FALSE)); // Not used
+        addEntry(LLFolderType::EType(ensemble_num), new FolderEntry("ensemble", false, false, false)); // Not used
     }
 
-    addEntry(LLFolderType::FT_CURRENT_OUTFIT,       new FolderEntry("current",  TRUE, FALSE, TRUE));
-    addEntry(LLFolderType::FT_OUTFIT,               new FolderEntry("outfit",   FALSE, FALSE, FALSE));
-    addEntry(LLFolderType::FT_MY_OUTFITS,           new FolderEntry("my_otfts", TRUE, FALSE, TRUE));
+    addEntry(LLFolderType::FT_CURRENT_OUTFIT,       new FolderEntry("current",  true, false, true));
+    addEntry(LLFolderType::FT_OUTFIT,               new FolderEntry("outfit",   false, false, false));
+    addEntry(LLFolderType::FT_MY_OUTFITS,           new FolderEntry("my_otfts", true, false, true));
 
-    addEntry(LLFolderType::FT_MESH,                 new FolderEntry("mesh",     TRUE, FALSE, FALSE)); // Not used?
+    addEntry(LLFolderType::FT_MESH,                 new FolderEntry("mesh",     true, false, false)); // Not used?
 
-    addEntry(LLFolderType::FT_INBOX,                new FolderEntry("inbox",    TRUE, FALSE, TRUE));
-    addEntry(LLFolderType::FT_OUTBOX,               new FolderEntry("outbox",   TRUE, FALSE, FALSE));
+    addEntry(LLFolderType::FT_INBOX,                new FolderEntry("inbox",    true, false, true));
+    addEntry(LLFolderType::FT_OUTBOX,               new FolderEntry("outbox",   true, false, false));
 
-    addEntry(LLFolderType::FT_BASIC_ROOT,           new FolderEntry("basic_rt", TRUE, FALSE, FALSE));
+    addEntry(LLFolderType::FT_BASIC_ROOT,           new FolderEntry("basic_rt", true, false, false));
 
-    addEntry(LLFolderType::FT_MARKETPLACE_LISTINGS, new FolderEntry("merchant", FALSE, FALSE, FALSE));
-    addEntry(LLFolderType::FT_MARKETPLACE_STOCK,    new FolderEntry("stock",    FALSE, FALSE, FALSE));
-    addEntry(LLFolderType::FT_MARKETPLACE_VERSION,  new FolderEntry("version",  FALSE, FALSE, FALSE));
+    addEntry(LLFolderType::FT_MARKETPLACE_LISTINGS, new FolderEntry("merchant", false, false, false));
+    addEntry(LLFolderType::FT_MARKETPLACE_STOCK,    new FolderEntry("stock",    false, false, false));
+    addEntry(LLFolderType::FT_MARKETPLACE_VERSION,  new FolderEntry("version",  false, false, false));
 
-    addEntry(LLFolderType::FT_SETTINGS,             new FolderEntry("settings", TRUE, FALSE, TRUE));
-    addEntry(LLFolderType::FT_MATERIAL,             new FolderEntry("material", TRUE, FALSE, TRUE));
+    addEntry(LLFolderType::FT_SETTINGS,             new FolderEntry("settings", true, false, true));
+    addEntry(LLFolderType::FT_MATERIAL,             new FolderEntry("material", true, false, true));
 
-    addEntry(LLFolderType::FT_NONE,                 new FolderEntry("-1",       FALSE, FALSE, FALSE));
+    addEntry(LLFolderType::FT_NONE,                 new FolderEntry("-1",       false, false, false));
 };
 
 // static

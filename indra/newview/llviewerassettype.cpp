@@ -89,6 +89,8 @@ LLViewerAssetDictionary::LLViewerAssetDictionary()
     addEntry(LLViewerAssetType::AT_NONE,                new ViewerAssetEntry(DAD_NONE));
     addEntry(LLViewerAssetType::AT_SETTINGS,            new ViewerAssetEntry(DAD_SETTINGS));
     addEntry(LLViewerAssetType::AT_MATERIAL,            new ViewerAssetEntry(DAD_MATERIAL));
+    addEntry(LLViewerAssetType::AT_GLTF,                new ViewerAssetEntry(DAD_GLTF));
+    addEntry(LLViewerAssetType::AT_GLTF_BIN,            new ViewerAssetEntry(DAD_GLTF_BIN));
 };
 
 EDragAndDropType LLViewerAssetType::lookupDragAndDropType(EType asset_type)

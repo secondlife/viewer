@@ -43,14 +43,14 @@ public:
     LLPanelVoiceEffect();
     virtual ~LLPanelVoiceEffect();
 
-    virtual BOOL postBuild();
+    bool postBuild() override;
 
 private:
     void onCommitVoiceEffect();
     void update(bool list_updated);
 
     /// Called by voice effect provider when voice effect list is changed.
-    virtual void onVoiceEffectChanged(bool effect_list_updated);
+    void onVoiceEffectChanged(bool effect_list_updated) override;
 
     // Fixed entries in the Voice Morph list
     typedef enum e_voice_effect_combo_items

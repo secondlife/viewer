@@ -32,7 +32,7 @@
 /*static*/ std::stack<LLRect> LLScreenClipRect::sClipRectStack;
 
 
-LLScreenClipRect::LLScreenClipRect(const LLRect& rect, BOOL enabled)
+LLScreenClipRect::LLScreenClipRect(const LLRect& rect, bool enabled)
 :   mScissorState(GL_SCISSOR_TEST),
     mEnabled(enabled)
 {
@@ -99,7 +99,7 @@ void LLScreenClipRect::updateScissorRegion()
 //---------------------------------------------------------------------------
 // LLLocalClipRect
 //---------------------------------------------------------------------------
-LLLocalClipRect::LLLocalClipRect(const LLRect& rect, BOOL enabled /* = TRUE */)
+LLLocalClipRect::LLLocalClipRect(const LLRect& rect, bool enabled /* = true */)
 :   LLScreenClipRect(LLRect(rect.mLeft + LLFontGL::sCurOrigin.mX,
                     rect.mTop + LLFontGL::sCurOrigin.mY,
                     rect.mRight + LLFontGL::sCurOrigin.mX,

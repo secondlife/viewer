@@ -173,6 +173,8 @@
         function="Object.Take"/>
     <menu_item_call.on_enable
         function="Object.VisibleTake"/>
+    <menu_item_call.on_visible
+        function="Object.VisibleTakeSingle"/>
   </menu_item_call>
   <menu_item_call
       enabled="false"
@@ -182,6 +184,52 @@
         function="Tools.TakeCopy" />
     <menu_item_call.on_enable
         function="Tools.EnableTakeCopy" />
+    <menu_item_call.on_visible
+        function="Object.VisibleTakeSingle"/>
+  </menu_item_call>
+  <menu_item_call
+      label="Take as combined item"
+      layout="topleft"
+      name="Take combined">
+      <menu_item_call.on_click
+        function="Object.Take"/>
+      <menu_item_call.on_enable
+        function="Object.VisibleTake"/>
+      <menu_item_call.on_visible
+        function="Object.VisibleTakeMultiple"/>
+  </menu_item_call>
+  <menu_item_call
+      enabled="false"
+      label="Take copy as combined item"
+      name="Take Copy combined">
+      <menu_item_call.on_click
+        function="Tools.TakeCopy" />
+      <menu_item_call.on_enable
+        function="Tools.EnableTakeCopy" />
+      <menu_item_call.on_visible
+        function="Object.VisibleTakeMultiple"/>
+  </menu_item_call>
+  <menu_item_call
+      label="Take as separate items"
+      layout="topleft"
+      name="Take Separate">
+      <menu_item_call.on_click
+        function="Object.TakeSeparate"/>
+      <menu_item_call.on_enable
+        function="Object.EnableTakeMultiple"/>
+      <menu_item_call.on_visible
+        function="Object.VisibleTakeMultiple"/>
+  </menu_item_call>
+  <menu_item_call
+      label="Take copies as separate items"
+      layout="topleft"
+       name="Take Copy Separate">
+       <menu_item_call.on_click
+        function="Object.TakeSeparateCopy"/>
+       <menu_item_call.on_enable
+        function="Tools.EnableCopySeparate"/>
+       <menu_item_call.on_visible
+        function="Object.VisibleTakeMultiple"/>
   </menu_item_call>
   <menu_item_call
       enabled="false"

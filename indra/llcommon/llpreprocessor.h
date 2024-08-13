@@ -74,9 +74,6 @@
     #ifndef LL_MSVC
         #define LL_MSVC 1
     #endif
-    #if _MSC_VER < 1400
-        #define LL_MSVC7 //Visual C++ 2003 or earlier
-    #endif
 #endif
 
 // Deal with minor differences on Unixy OSes.
@@ -120,44 +117,18 @@
 #endif  //  LL_WINDOWS
 
 
-// Deal with VC6 problems
+// Deal with VC++ problems
 #if LL_MSVC
-#pragma warning( 3       : 4701 )   // "local variable used without being initialized"  Treat this as level 3, not level 4.
-#pragma warning( 3       : 4702 )   // "unreachable code"  Treat this as level 3, not level 4.
-#pragma warning( 3       : 4189 )   // "local variable initialized but not referenced"  Treat this as level 3, not level 4.
-//#pragma warning( 3    : 4018 )    // "signed/unsigned mismatch"  Treat this as level 3, not level 4.
-#pragma warning( 3      :  4263 )   // 'function' : member function does not override any base class virtual member function
-#pragma warning( 3      :  4264 )   // "'virtual_function' : no override available for virtual member function from base 'class'; function is hidden"
-#pragma warning( 3       : 4265 )   // "class has virtual functions, but destructor is not virtual"
-#pragma warning( 3      :  4266 )   // 'function' : no override available for virtual member function from base 'type'; function is hidden
-#pragma warning (disable : 4180)    // qualifier applied to function type has no meaning; ignored
-//#pragma warning( disable : 4284 ) // silly MS warning deep inside their <map> include file
-
-#if ADDRESS_SIZE == 64
-// That one is all over the place for x64 builds.
-#pragma warning( disable : 4267 )   // 'var' : conversion from 'size_t' to 'type', possible loss of data)
+#ifndef _CRT_SECURE_NO_WARNINGS
+#define _CRT_SECURE_NO_WARNINGS // disable warnings for methods considered unsafe
+#endif
+#ifndef _WINSOCK_DEPRECATED_NO_WARNINGS
+#define _WINSOCK_DEPRECATED_NO_WARNINGS // disable deprecated WinSock API warnings
 #endif
 
-#pragma warning( disable : 4503 )   // 'decorated name length exceeded, name was truncated'. Does not seem to affect compilation.
-#pragma warning( disable : 4800 )   // 'BOOL' : forcing value to bool 'true' or 'false' (performance warning)
-#pragma warning( disable : 4996 )   // warning: deprecated
-
-// Linker optimization with "extern template" generates these warnings
-#pragma warning( disable : 4231 )   // nonstandard extension used : 'extern' before template explicit instantiation
-#pragma warning( disable : 4506 )   // no definition for inline function
-
 // level 4 warnings that we need to disable:
-#pragma warning (disable : 4100) // unreferenced formal parameter
-#pragma warning (disable : 4127) // conditional expression is constant (e.g. while(1) )
-#pragma warning (disable : 4244) // possible loss of data on conversions
-#pragma warning (disable : 4396) // the inline specifier cannot be used when a friend declaration refers to a specialization of a function template
-#pragma warning (disable : 4512) // assignment operator could not be generated
-#pragma warning (disable : 4706) // assignment within conditional (even if((x = y)) )
-
 #pragma warning (disable : 4251) // member needs to have dll-interface to be used by clients of class
 #pragma warning (disable : 4275) // non dll-interface class used as base for dll-interface class
-#pragma warning (disable : 4018) // '<' : signed/unsigned mismatch
-
 #endif  //  LL_MSVC
 
 #if LL_WINDOWS

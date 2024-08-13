@@ -30,7 +30,7 @@
 #define LL_LLURIPARSER_H
 
 #include <string>
-#include "uriparser/Uri.h"
+#include "boost/url.hpp"
 
 class LL_COMMON_API LLUriParser
 {
@@ -38,36 +38,35 @@ public:
     LLUriParser(const std::string& u);
     ~LLUriParser();
 
-    const char * scheme() const;
-    void sheme (const std::string& s);
+    const std::string& scheme() const;
+    void scheme (const std::string& s);
 
-    const char * port() const;
+    const std::string& port() const;
     void port (const std::string& s);
 
-    const char * host() const;
+    const std::string& host() const;
     void host (const std::string& s);
 
-    const char * path() const;
+    const std::string& path() const;
     void path (const std::string& s);
 
-    const char * query() const;
+    const std::string& query() const;
     void query (const std::string& s);
 
-    const char * fragment() const;
+    const std::string& fragment() const;
     void fragment (const std::string& s);
 
-    const char * normalizedUri() const;
+    const std::string& normalizedUri() const;
 
     void extractParts();
     void glue(std::string& uri) const;
     void glueFirst(std::string& uri, bool use_scheme = true) const;
     void glueSecond(std::string& uri) const;
     bool test() const;
-    S32 normalize();
+    bool normalize();
 
 private:
-    S32 parse();
-    void textRangeToString(UriTextRangeA& textRange, std::string& str);
+    bool parse();
     std::string mScheme;
     std::string mHost;
     std::string mPort;
@@ -76,9 +75,9 @@ private:
     std::string mFragment;
     std::string mNormalizedUri;
 
-    UriUriA mUri;
+    boost::url mUri;
 
-    S32 mRes;
+    bool mRes;
     bool mTmpScheme;
     bool mNormalizedTmp;
 };

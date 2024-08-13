@@ -40,18 +40,18 @@ class LLFileSystem
         LLFileSystem(const LLUUID& file_id, const LLAssetType::EType file_type, S32 mode = LLFileSystem::READ);
         ~LLFileSystem();
 
-        BOOL read(U8* buffer, S32 bytes);
+        bool read(U8* buffer, S32 bytes);
         S32  getLastBytesRead();
-        BOOL eof();
+        bool eof();
 
-        BOOL write(const U8* buffer, S32 bytes);
-        BOOL seek(S32 offset, S32 origin = -1);
+        bool write(const U8* buffer, S32 bytes);
+        bool seek(S32 offset, S32 origin = -1);
         S32  tell() const;
 
         S32 getSize();
         S32 getMaxSize();
-        BOOL rename(const LLUUID& new_id, const LLAssetType::EType new_type);
-        BOOL remove();
+        bool rename(const LLUUID& new_id, const LLAssetType::EType new_type);
+        bool remove();
 
         static bool getExists(const LLUUID& file_id, const LLAssetType::EType file_type);
         static bool removeFile(const LLUUID& file_id, const LLAssetType::EType file_type, int suppress_error = 0);

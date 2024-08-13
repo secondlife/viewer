@@ -77,10 +77,10 @@ void LLConsole::setLinePersistTime(F32 seconds)
     mFadeTime = mLinePersistTime - FADE_DURATION;
 }
 
-void LLConsole::reshape(S32 width, S32 height, BOOL called_from_parent)
+void LLConsole::reshape(S32 width, S32 height, bool called_from_parent)
 {
     S32 new_width = llmax(50, llmin(getRect().getWidth(), width));
-    S32 new_height = llmax(llfloor(mFont->getLineHeight()) + 15, llmin(getRect().getHeight(), height));
+    S32 new_height = llmax(mFont->getLineHeight() + 15, llmin(getRect().getHeight(), height));
 
     if (   mConsoleWidth == new_width
         && mConsoleHeight == new_height )
@@ -147,11 +147,11 @@ void LLConsole::draw()
         return;
     }
 
-    U32 num_lines=0;
+    size_t num_lines{ 0 };
 
     paragraph_t::reverse_iterator paragraph_it;
     paragraph_it = mParagraphs.rbegin();
-    U32 paragraph_num=mParagraphs.size();
+    auto paragraph_num=mParagraphs.size();
 
     while (!mParagraphs.empty() && paragraph_it != mParagraphs.rend())
     {
@@ -159,7 +159,7 @@ void LLConsole::draw()
         if(num_lines > mMaxLines
             || ( (mLinePersistTime > (F32)0.f) && ((*paragraph_it).mAddTime - skip_time)/(mLinePersistTime - mFadeTime) <= (F32)0.f))
         {                           //All lines above here are done.  Lose them.
-            for (U32 i=0;i<paragraph_num;i++)
+            for (size_t i = 0; i < paragraph_num; i++)
             {
                 if (!mParagraphs.empty())
                     mParagraphs.pop_front();
@@ -183,10 +183,11 @@ void LLConsole::draw()
     static LLCachedControl<F32> console_bg_opacity(*LLUI::getInstance()->mSettingGroups["config"], "ConsoleBackgroundOpacity", 0.7f);
     F32 console_opacity = llclamp(console_bg_opacity(), 0.f, 1.f);
 
-    LLColor4 color = LLUIColorTable::instance().getColor("ConsoleBackground");
+    static LLUIColor console_color = LLUIColorTable::instance().getColor("ConsoleBackground");
+    LLColor4 color = console_color;
     color.mV[VALPHA] *= console_opacity;
 
-    F32 line_height = mFont->getLineHeight();
+    F32 line_height = (F32)mFont->getLineHeight();
 
     for(paragraph_it = mParagraphs.rbegin(); paragraph_it != mParagraphs.rend(); paragraph_it++)
     {
@@ -258,7 +259,7 @@ void LLConsole::Paragraph::makeParagraphColorSegments (const LLColor4 &color)
         ParagraphColorSegment color_segment;
 
         color_segment.mColor.setValue(color_llsd);
-        color_segment.mNumChars = color_str.length();
+        color_segment.mNumChars = static_cast<S32>(color_str.length());
 
         mParagraphColorSegments.push_back(color_segment);
     }
@@ -310,7 +311,7 @@ void LLConsole::Paragraph::updateLines(F32 screen_width, const LLFontGL* font, b
             skip_chars = 0;
         }
 
-        U32 drawable = font->maxDrawableChars(mParagraphText.c_str()+paragraph_offset, screen_width, line_end - paragraph_offset, LLFontGL::WORD_BOUNDARY_IF_POSSIBLE);
+        U32 drawable = font->maxDrawableChars(mParagraphText.c_str()+paragraph_offset, screen_width, static_cast<S32>(line_end) - paragraph_offset, LLFontGL::WORD_BOUNDARY_IF_POSSIBLE);
 
         if (drawable != 0)
         {
@@ -380,7 +381,7 @@ void LLConsole::updateClass()
 void LLConsole::update()
 {
     {
-        LLMutexLock lock(&mMutex);
+        LLCoros::LockType lock(mMutex);
 
         while (!mLines.empty())
         {

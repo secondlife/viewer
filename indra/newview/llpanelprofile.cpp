@@ -46,6 +46,7 @@
 #include "lltexteditor.h"
 #include "lltexturectrl.h"
 #include "lltoggleablemenu.h"
+#include "lltooldraganddrop.h"
 #include "llgrouplist.h"
 #include "llurlaction.h"
 
@@ -321,7 +322,7 @@ public:
     {
         if (params.size() < 2) return false;
         LLUUID avatar_id;
-        if (!avatar_id.set(params[0], FALSE))
+        if (!avatar_id.set(params[0], false))
         {
             return false;
         }
@@ -448,7 +449,7 @@ class LLFloaterProfilePermissions
 public:
     LLFloaterProfilePermissions(LLView * owner, const LLUUID &avatar_id);
     ~LLFloaterProfilePermissions();
-    BOOL postBuild() override;
+    bool postBuild() override;
     void onOpen(const LLSD& key) override;
     void draw() override;
     void changed(U32 mask) override; // LLFriendObserver
@@ -500,7 +501,7 @@ LLFloaterProfilePermissions::~LLFloaterProfilePermissions()
     }
 }
 
-BOOL LLFloaterProfilePermissions::postBuild()
+bool LLFloaterProfilePermissions::postBuild()
 {
     mDescription = getChild<LLTextBase>("perm_description");
     mOnlineStatus = getChild<LLCheckBoxCtrl>("online_check");
@@ -515,7 +516,7 @@ BOOL LLFloaterProfilePermissions::postBuild()
     mOkBtn->setCommitCallback([this](LLUICtrl*, void*) { onApplyRights(); }, nullptr);
     mCancelBtn->setCommitCallback([this](LLUICtrl*, void*) { onCancel(); }, nullptr);
 
-    return TRUE;
+    return true;
 }
 
 void LLFloaterProfilePermissions::onOpen(const LLSD& key)
@@ -566,11 +567,11 @@ void LLFloaterProfilePermissions::fillRightsData()
     {
         S32 rights = relation->getRightsGrantedTo();
 
-        BOOL see_online = LLRelationship::GRANT_ONLINE_STATUS & rights ? TRUE : FALSE;
+        bool see_online = LLRelationship::GRANT_ONLINE_STATUS & rights;
         mOnlineStatus->setValue(see_online);
         mMapRights->setEnabled(see_online);
-        mMapRights->setValue(LLRelationship::GRANT_MAP_LOCATION & rights ? TRUE : FALSE);
-        mEditObjectRights->setValue(LLRelationship::GRANT_MODIFY_OBJECTS & rights ? TRUE : FALSE);
+        mMapRights->setValue(LLRelationship::GRANT_MAP_LOCATION & rights);
+        mEditObjectRights->setValue(LLRelationship::GRANT_MODIFY_OBJECTS & rights);
     }
     else
     {
@@ -585,7 +586,7 @@ void LLFloaterProfilePermissions::rightsConfirmationCallback(const LLSD& notific
     S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
     if (option != 0) // canceled
     {
-        mEditObjectRights->setValue(mEditObjectRights->getValue().asBoolean() ? FALSE : TRUE);
+        mEditObjectRights->setValue(!mEditObjectRights->getValue().asBoolean());
     }
     else
     {
@@ -611,7 +612,7 @@ void LLFloaterProfilePermissions::onCommitSeeOnlineRights()
         if (relation)
         {
             S32 rights = relation->getRightsGrantedTo();
-            mMapRights->setValue(LLRelationship::GRANT_MAP_LOCATION & rights ? TRUE : FALSE);
+            mMapRights->setValue(LLRelationship::GRANT_MAP_LOCATION & rights);
         }
         else
         {
@@ -621,7 +622,7 @@ void LLFloaterProfilePermissions::onCommitSeeOnlineRights()
     }
     else
     {
-        mMapRights->setValue(FALSE);
+        mMapRights->setValue(false);
     }
     mHasUnsavedPermChanges = true;
 }
@@ -713,7 +714,7 @@ LLPanelProfileSecondLife::~LLPanelProfileSecondLife()
     }
 }
 
-BOOL LLPanelProfileSecondLife::postBuild()
+bool LLPanelProfileSecondLife::postBuild()
 {
     mGroupList              = getChild<LLGroupList>("group_list");
     mShowInSearchCombo      = getChild<LLComboBox>("show_in_search");
@@ -747,7 +748,7 @@ BOOL LLPanelProfileSecondLife::postBuild()
     mCantEditObjectsIcon->setMouseUpCallback([this](LLUICtrl*, S32 x, S32 y, MASK mask) { onShowAgentPermissionsDialog(); });
     mSecondLifePic->setMouseUpCallback([this](LLUICtrl*, S32 x, S32 y, MASK mask) { onShowAgentProfileTexture(); });
 
-    return TRUE;
+    return true;
 }
 
 void LLPanelProfileSecondLife::onOpen(const LLSD& key)
@@ -758,7 +759,7 @@ void LLPanelProfileSecondLife::onOpen(const LLSD& key)
 
     LLUUID avatar_id = getAvatarId();
 
-    BOOL own_profile = getSelfProfile();
+    bool own_profile = getSelfProfile();
 
     mGroupList->setShowNone(!own_profile);
 
@@ -795,12 +796,57 @@ void LLPanelProfileSecondLife::onOpen(const LLSD& key)
 
     if (!own_profile)
     {
-        mVoiceStatus = LLAvatarActions::canCall() && (LLAvatarActions::isFriend(avatar_id) ? LLAvatarTracker::instance().isBuddyOnline(avatar_id) : TRUE);
+        mVoiceStatus = LLAvatarActions::canCall() && (LLAvatarActions::isFriend(avatar_id) ? LLAvatarTracker::instance().isBuddyOnline(avatar_id) : true);
         updateOnlineStatus();
         fillRightsData();
     }
 
     mAvatarNameCacheConnection = LLAvatarNameCache::get(getAvatarId(), boost::bind(&LLPanelProfileSecondLife::onAvatarNameCache, this, _1, _2));
+}
+
+
+bool LLPanelProfileSecondLife::handleDragAndDrop(S32 x, S32 y, MASK mask, bool drop,
+                                          EDragAndDropType cargo_type,
+                                          void* cargo_data,
+                                          EAcceptance* accept,
+                                          std::string& tooltip_msg)
+{
+    // Try children first
+    if (LLPanelProfileTab::handleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg)
+        && *accept != ACCEPT_NO)
+    {
+        return true;
+    }
+
+    // No point sharing with own profile
+    if (getSelfProfile())
+    {
+        return false;
+    }
+
+    // Exclude fields that look like they are editable.
+    S32 child_x = 0;
+    S32 child_y = 0;
+    if (localPointToOtherView(x, y, &child_x, &child_y, mDescriptionEdit)
+        && mDescriptionEdit->pointInView(child_x, child_y))
+    {
+        return false;
+    }
+
+    if (localPointToOtherView(x, y, &child_x, &child_y, mGroupList)
+        && mGroupList->pointInView(child_x, child_y))
+    {
+        return false;
+    }
+
+    // Share
+    LLToolDragAndDrop::handleGiveDragAndDrop(getAvatarId(),
+                                             LLUUID::null,
+                                             drop,
+                                             cargo_type,
+                                             cargo_data,
+                                             accept);
+    return true;
 }
 
 void LLPanelProfileSecondLife::refreshName()
@@ -840,9 +886,9 @@ void LLPanelProfileSecondLife::resetData()
     mCanEditObjectsIcon->setEnabled(false);
     mCantEditObjectsIcon->setEnabled(false);
 
-    childSetVisible("partner_layout", FALSE);
-    childSetVisible("badge_layout", FALSE);
-    childSetVisible("partner_spacer_layout", TRUE);
+    childSetVisible("partner_layout", false);
+    childSetVisible("badge_layout", false);
+    childSetVisible("partner_spacer_layout", true);
 }
 
 void LLPanelProfileSecondLife::processProperties(void* data, EAvatarProcessorType type)
@@ -979,7 +1025,7 @@ void LLPanelProfileSecondLife::fillCommonData(const LLAvatarData* avatar_data)
     if (getSelfProfile())
     {
         mAllowPublish = avatar_data->flags & AVATAR_ALLOW_PUBLISH;
-        mShowInSearchCombo->setValue(mAllowPublish ? TRUE : FALSE);
+        mShowInSearchCombo->setValue(mAllowPublish);
     }
 }
 
@@ -988,7 +1034,7 @@ void LLPanelProfileSecondLife::fillPartnerData(const LLAvatarData* avatar_data)
     LLTextBox* partner_text_ctrl = getChild<LLTextBox>("partner_link");
     if (avatar_data->partner_id.notNull())
     {
-        childSetVisible("partner_layout", TRUE);
+        childSetVisible("partner_layout", true);
         LLStringUtil::format_map_t args;
         args["[LINK]"] = LLSLURL("agent", avatar_data->partner_id, "inspect").getSLURLString();
         std::string partner_text = getString("partner_text", args);
@@ -996,7 +1042,7 @@ void LLPanelProfileSecondLife::fillPartnerData(const LLAvatarData* avatar_data)
     }
     else
     {
-        childSetVisible("partner_layout", FALSE);
+        childSetVisible("partner_layout", false);
     }
 }
 
@@ -1018,48 +1064,48 @@ void LLPanelProfileSecondLife::fillAccountStatus(const LLAvatarData* avatar_data
     {
         getChild<LLUICtrl>("badge_icon")->setValue("Profile_Badge_Linden");
         getChild<LLUICtrl>("badge_text")->setValue(getString("BadgeLinden"));
-        childSetVisible("badge_layout", TRUE);
-        childSetVisible("partner_spacer_layout", FALSE);
+        childSetVisible("badge_layout", true);
+        childSetVisible("partner_spacer_layout", false);
     }
     else if (avatar_data->born_on < sl_release)
     {
         getChild<LLUICtrl>("badge_icon")->setValue("Profile_Badge_Beta");
         getChild<LLUICtrl>("badge_text")->setValue(getString("BadgeBeta"));
-        childSetVisible("badge_layout", TRUE);
-        childSetVisible("partner_spacer_layout", FALSE);
+        childSetVisible("badge_layout", true);
+        childSetVisible("partner_spacer_layout", false);
     }
     else if (customer_lower == "beta_lifetime")
     {
         getChild<LLUICtrl>("badge_icon")->setValue("Profile_Badge_Beta_Lifetime");
         getChild<LLUICtrl>("badge_text")->setValue(getString("BadgeBetaLifetime"));
-        childSetVisible("badge_layout", TRUE);
-        childSetVisible("partner_spacer_layout", FALSE);
+        childSetVisible("badge_layout", true);
+        childSetVisible("partner_spacer_layout", false);
     }
     else if (customer_lower == "lifetime")
     {
         getChild<LLUICtrl>("badge_icon")->setValue("Profile_Badge_Lifetime");
         getChild<LLUICtrl>("badge_text")->setValue(getString("BadgeLifetime"));
-        childSetVisible("badge_layout", TRUE);
-        childSetVisible("partner_spacer_layout", FALSE);
+        childSetVisible("badge_layout", true);
+        childSetVisible("partner_spacer_layout", false);
     }
     else if (customer_lower == "secondlifetime_premium")
     {
         getChild<LLUICtrl>("badge_icon")->setValue("Profile_Badge_Premium_Lifetime");
         getChild<LLUICtrl>("badge_text")->setValue(getString("BadgePremiumLifetime"));
-        childSetVisible("badge_layout", TRUE);
-        childSetVisible("partner_spacer_layout", FALSE);
+        childSetVisible("badge_layout", true);
+        childSetVisible("partner_spacer_layout", false);
     }
     else if (customer_lower == "secondlifetime_premium_plus")
     {
         getChild<LLUICtrl>("badge_icon")->setValue("Profile_Badge_Pplus_Lifetime");
         getChild<LLUICtrl>("badge_text")->setValue(getString("BadgePremiumPlusLifetime"));
-        childSetVisible("badge_layout", TRUE);
-        childSetVisible("partner_spacer_layout", FALSE);
+        childSetVisible("badge_layout", true);
+        childSetVisible("partner_spacer_layout", false);
     }
     else
     {
-        childSetVisible("badge_layout", FALSE);
-        childSetVisible("partner_spacer_layout", TRUE);
+        childSetVisible("badge_layout", false);
+        childSetVisible("partner_spacer_layout", true);
     }
 }
 
@@ -1118,7 +1164,7 @@ void LLPanelProfileSecondLife::fillAgeData(const LLAvatarData* avatar_data)
     LLUICtrl* userAgeCtrl = getChild<LLUICtrl>("user_age");
     if (hide_age)
     {
-        userAgeCtrl->setVisible(FALSE);
+        userAgeCtrl->setVisible(false);
     }
     else
     {
@@ -1129,7 +1175,7 @@ void LLPanelProfileSecondLife::fillAgeData(const LLAvatarData* avatar_data)
         userAgeCtrl->setValue(register_date);
     }
 
-    BOOL showHideAgeCombo = FALSE;
+    bool showHideAgeCombo = false;
     if (getSelfProfile())
     {
         if (LLAvatarPropertiesProcessor::getInstance()->isHideAgeSupportedByServer())
@@ -1139,15 +1185,15 @@ void LLPanelProfileSecondLife::fillAgeData(const LLAvatarData* avatar_data)
             if (now - birth > 365 * 24 * 60 * 60)
             {
                 mHideAge = avatar_data->hide_age;
-                mHideAgeCombo->setValue(mHideAge ? TRUE : FALSE);
-                showHideAgeCombo = TRUE;
+                mHideAgeCombo->setValue(mHideAge);
+                showHideAgeCombo = true;
             }
         }
     }
     mHideAgeCombo->setVisible(showHideAgeCombo);
 }
 
-void LLPanelProfileSecondLife::onImageLoaded(BOOL success, LLViewerFetchedTexture *imagep)
+void LLPanelProfileSecondLife::onImageLoaded(bool success, LLViewerFetchedTexture *imagep)
 {
     LLRect imageRect = mSecondLifePicLayout->getRect();
     if (!success || imagep->getFullWidth() == imagep->getFullHeight())
@@ -1172,14 +1218,14 @@ void LLPanelProfileSecondLife::changed(U32 mask)
 }
 
 // virtual, called by LLVoiceClient
-void LLPanelProfileSecondLife::onChange(EStatusType status, const std::string &channelURI, bool proximal)
+void LLPanelProfileSecondLife::onChange(EStatusType status, const LLSD& channelInfo, bool proximal)
 {
     if(status == STATUS_JOINING || status == STATUS_LEFT_CHANNEL)
     {
         return;
     }
 
-    mVoiceStatus = LLAvatarActions::canCall() && (LLAvatarActions::isFriend(getAvatarId()) ? LLAvatarTracker::instance().isBuddyOnline(getAvatarId()) : TRUE);
+    mVoiceStatus = LLAvatarActions::canCall() && (LLAvatarActions::isFriend(getAvatarId()) ? LLAvatarTracker::instance().isBuddyOnline(getAvatarId()) : true);
 }
 
 void LLPanelProfileSecondLife::setAvatarId(const LLUUID& avatar_id)
@@ -1232,12 +1278,12 @@ void LLPanelProfileSecondLife::setLoaded()
 
     if (getSelfProfile())
     {
-        mShowInSearchCombo->setEnabled(TRUE);
+        mShowInSearchCombo->setEnabled(true);
         if (mHideAgeCombo->getVisible())
         {
-            mHideAgeCombo->setEnabled(TRUE);
+            mHideAgeCombo->setEnabled(true);
         }
-        mDescriptionEdit->setEnabled(TRUE);
+        mDescriptionEdit->setEnabled(true);
     }
 }
 
@@ -1384,7 +1430,7 @@ void LLPanelProfileSecondLife::onCommitMenu(const LLSD& userdata)
     else if (item_name == "copy_user_id")
     {
         LLWString wstr = utf8str_to_wstring(getAvatarId().asString());
-        LLClipboard::instance().copyToClipboard(wstr, 0, wstr.size());
+        LLClipboard::instance().copyToClipboard(wstr, 0, static_cast<S32>(wstr.size()));
     }
     else if (item_name == "agent_permissions")
     {
@@ -1409,7 +1455,7 @@ void LLPanelProfileSecondLife::onCommitMenu(const LLSD& userdata)
         {
             wstr = utf8str_to_wstring(av_name.getUserName());
         }
-        LLClipboard::instance().copyToClipboard(wstr, 0, wstr.size());
+        LLClipboard::instance().copyToClipboard(wstr, 0, static_cast<S32>(wstr.size()));
     }
     else if (item_name == "edit_display_name")
     {
@@ -1547,8 +1593,8 @@ void LLPanelProfileSecondLife::onAvatarNameCacheSetName(const LLUUID& agent_id, 
 
 void LLPanelProfileSecondLife::setDescriptionText(const std::string &text)
 {
-    mSaveDescriptionChanges->setEnabled(FALSE);
-    mDiscardDescriptionChanges->setEnabled(FALSE);
+    mSaveDescriptionChanges->setEnabled(false);
+    mDiscardDescriptionChanges->setEnabled(false);
     mHasUnsavedDescriptionChanges = false;
 
     mDescriptionText = text;
@@ -1557,8 +1603,8 @@ void LLPanelProfileSecondLife::setDescriptionText(const std::string &text)
 
 void LLPanelProfileSecondLife::onSetDescriptionDirty()
 {
-    mSaveDescriptionChanges->setEnabled(TRUE);
-    mDiscardDescriptionChanges->setEnabled(TRUE);
+    mSaveDescriptionChanges->setEnabled(true);
+    mDiscardDescriptionChanges->setEnabled(true);
     mHasUnsavedDescriptionChanges = true;
 }
 
@@ -1587,8 +1633,8 @@ void LLPanelProfileSecondLife::onSaveDescriptionChanges()
     mDescriptionText = mDescriptionEdit->getValue().asString();
     saveAgentUserInfoCoro("sl_about_text", mDescriptionText);
 
-    mSaveDescriptionChanges->setEnabled(FALSE);
-    mDiscardDescriptionChanges->setEnabled(FALSE);
+    mSaveDescriptionChanges->setEnabled(false);
+    mDiscardDescriptionChanges->setEnabled(false);
     mHasUnsavedDescriptionChanges = false;
 }
 
@@ -1608,15 +1654,15 @@ void LLPanelProfileSecondLife::onShowAgentPermissionsDialog()
             LLFloaterProfilePermissions * perms = new LLFloaterProfilePermissions(parent_floater, getAvatarId());
             mFloaterPermissionsHandle = perms->getHandle();
             perms->openFloater();
-            perms->setVisibleAndFrontmost(TRUE);
+            perms->setVisibleAndFrontmost(true);
 
             parent_floater->addDependentFloater(mFloaterPermissionsHandle);
         }
     }
     else // already open
     {
-        floater->setMinimized(FALSE);
-        floater->setVisibleAndFrontmost(TRUE);
+        floater->setMinimized(false);
+        floater->setVisibleAndFrontmost(true);
     }
 }
 
@@ -1644,7 +1690,7 @@ void LLPanelProfileSecondLife::onShowAgentProfileTexture()
                 texture_view->resetAsset();
             }
             texture_view->openFloater();
-            texture_view->setVisibleAndFrontmost(TRUE);
+            texture_view->setVisibleAndFrontmost(true);
 
             parent_floater->addDependentFloater(mFloaterProfileTextureHandle);
         }
@@ -1652,8 +1698,8 @@ void LLPanelProfileSecondLife::onShowAgentProfileTexture()
     else // already open
     {
         LLFloaterProfileTexture * texture_view = dynamic_cast<LLFloaterProfileTexture*>(floater);
-        texture_view->setMinimized(FALSE);
-        texture_view->setVisibleAndFrontmost(TRUE);
+        texture_view->setMinimized(false);
+        texture_view->setVisibleAndFrontmost(true);
         if (mSecondLifePic->getImageAssetId().notNull())
         {
             texture_view->loadAsset(mSecondLifePic->getImageAssetId());
@@ -1682,12 +1728,12 @@ void LLPanelProfileSecondLife::onShowTexturePicker()
                 mSecondLifePic->getImageAssetId(),
                 LLUUID::null,
                 mSecondLifePic->getImageAssetId(),
-                FALSE,
-                FALSE,
+                false,
+                false,
                 "SELECT PHOTO",
                 PERM_NONE,
                 PERM_NONE,
-                FALSE,
+                false,
                 NULL,
                 PICK_TEXTURE);
 
@@ -1700,20 +1746,20 @@ void LLPanelProfileSecondLife::onShowTexturePicker()
                     onCommitProfileImage(asset_id);
                 }
             });
-            texture_floaterp->setLocalTextureEnabled(FALSE);
-            texture_floaterp->setBakeTextureEnabled(FALSE);
+            texture_floaterp->setLocalTextureEnabled(false);
+            texture_floaterp->setBakeTextureEnabled(false);
             texture_floaterp->setCanApply(false, true, false);
 
             parent_floater->addDependentFloater(mFloaterTexturePickerHandle);
 
             texture_floaterp->openFloater();
-            texture_floaterp->setFocus(TRUE);
+            texture_floaterp->setFocus(true);
         }
     }
     else
     {
-        floaterp->setMinimized(FALSE);
-        floaterp->setVisibleAndFrontmost(TRUE);
+        floaterp->setMinimized(false);
+        floaterp->setVisibleAndFrontmost(true);
     }
 }
 
@@ -1779,13 +1825,13 @@ void LLPanelProfileWeb::onOpen(const LLSD& key)
     mAvatarNameCacheConnection = LLAvatarNameCache::get(getAvatarId(), boost::bind(&LLPanelProfileWeb::onAvatarNameCache, this, _1, _2));
 }
 
-BOOL LLPanelProfileWeb::postBuild()
+bool LLPanelProfileWeb::postBuild()
 {
     mWebBrowser = getChild<LLMediaCtrl>("profile_html");
     mWebBrowser->addObserver(this);
     mWebBrowser->setHomePageUrl("about:blank");
 
-    return TRUE;
+    return true;
 }
 
 void LLPanelProfileWeb::resetData()
@@ -1800,7 +1846,7 @@ void LLPanelProfileWeb::updateData()
     {
         setIsLoading();
 
-        mWebBrowser->setVisible(TRUE);
+        mWebBrowser->setVisible(true);
         mPerformanceTimer.start();
         mWebBrowser->navigateTo(mURLWebProfile, HTTP_CONTENT_TEXT_HTML);
     }
@@ -1837,7 +1883,7 @@ void LLPanelProfileWeb::onCommitLoad(LLUICtrl* ctrl)
         LLSD::String valstr = ctrl->getValue().asString();
         if (valstr.empty())
         {
-            mWebBrowser->setVisible(TRUE);
+            mWebBrowser->setVisible(true);
             mPerformanceTimer.start();
             mWebBrowser->navigateTo( mURLHome, HTTP_CONTENT_TEXT_HTML );
         }
@@ -1906,7 +1952,7 @@ LLPanelProfileFirstLife::~LLPanelProfileFirstLife()
 {
 }
 
-BOOL LLPanelProfileFirstLife::postBuild()
+bool LLPanelProfileFirstLife::postBuild()
 {
     mDescriptionEdit = getChild<LLTextEditor>("fl_description_edit");
     mPicture = getChild<LLProfileImageCtrl>("real_world_pic");
@@ -1924,7 +1970,7 @@ BOOL LLPanelProfileFirstLife::postBuild()
     mDiscardChanges->setCommitCallback([this](LLUICtrl*, void*) { onDiscardDescriptionChanges(); }, nullptr);
     mDescriptionEdit->setKeystrokeCallback([this](LLTextEditor* caller) { onSetDescriptionDirty(); });
 
-    return TRUE;
+    return true;
 }
 
 void LLPanelProfileFirstLife::onOpen(const LLSD& key)
@@ -1934,7 +1980,7 @@ void LLPanelProfileFirstLife::onOpen(const LLSD& key)
     if (!getSelfProfile())
     {
         // Otherwise as the only focusable element it will be selected
-        mDescriptionEdit->setTabStop(FALSE);
+        mDescriptionEdit->setTabStop(false);
     }
 
     resetData();
@@ -2000,12 +2046,12 @@ void LLPanelProfileFirstLife::onChangePhoto()
                 mPicture->getImageAssetId(),
                 LLUUID::null,
                 mPicture->getImageAssetId(),
-                FALSE,
-                FALSE,
+                false,
+                false,
                 "SELECT PHOTO",
                 PERM_NONE,
                 PERM_NONE,
-                FALSE,
+                false,
                 NULL,
                 PICK_TEXTURE);
 
@@ -2018,19 +2064,19 @@ void LLPanelProfileFirstLife::onChangePhoto()
                     onCommitPhoto(asset_id);
                 }
             });
-            texture_floaterp->setLocalTextureEnabled(FALSE);
+            texture_floaterp->setLocalTextureEnabled(false);
             texture_floaterp->setCanApply(false, true, false);
 
             parent_floater->addDependentFloater(mFloaterTexturePickerHandle);
 
             texture_floaterp->openFloater();
-            texture_floaterp->setFocus(TRUE);
+            texture_floaterp->setFocus(true);
         }
     }
     else
     {
-        floaterp->setMinimized(FALSE);
-        floaterp->setVisibleAndFrontmost(TRUE);
+        floaterp->setMinimized(false);
+        floaterp->setVisibleAndFrontmost(true);
     }
 }
 
@@ -2060,8 +2106,8 @@ void LLPanelProfileFirstLife::onCommitPhoto(const LLUUID& id)
 
 void LLPanelProfileFirstLife::setDescriptionText(const std::string &text)
 {
-    mSaveChanges->setEnabled(FALSE);
-    mDiscardChanges->setEnabled(FALSE);
+    mSaveChanges->setEnabled(false);
+    mDiscardChanges->setEnabled(false);
     mHasUnsavedChanges = false;
 
     mCurrentDescription = text;
@@ -2070,8 +2116,8 @@ void LLPanelProfileFirstLife::setDescriptionText(const std::string &text)
 
 void LLPanelProfileFirstLife::onSetDescriptionDirty()
 {
-    mSaveChanges->setEnabled(TRUE);
-    mDiscardChanges->setEnabled(TRUE);
+    mSaveChanges->setEnabled(true);
+    mDiscardChanges->setEnabled(true);
     mHasUnsavedChanges = true;
 }
 
@@ -2080,8 +2126,8 @@ void LLPanelProfileFirstLife::onSaveDescriptionChanges()
     mCurrentDescription = mDescriptionEdit->getValue().asString();
     saveAgentUserInfoCoro("fl_about_text", mCurrentDescription);
 
-    mSaveChanges->setEnabled(FALSE);
-    mDiscardChanges->setEnabled(FALSE);
+    mSaveChanges->setEnabled(false);
+    mDiscardChanges->setEnabled(false);
     mHasUnsavedChanges = false;
 }
 
@@ -2129,8 +2175,8 @@ void LLPanelProfileFirstLife::setLoaded()
 
     if (getSelfProfile())
     {
-        mDescriptionEdit->setEnabled(TRUE);
-        mPicture->setEnabled(TRUE);
+        mDescriptionEdit->setEnabled(true);
+        mPicture->setEnabled(true);
         mRemovePhoto->setEnabled(mPicture->getImageAssetId().notNull());
     }
 }
@@ -2158,7 +2204,7 @@ void LLPanelProfileNotes::commitUnsavedChanges()
     }
 }
 
-BOOL LLPanelProfileNotes::postBuild()
+bool LLPanelProfileNotes::postBuild()
 {
     mNotesEditor = getChild<LLTextEditor>("notes_edit");
     mSaveChanges = getChild<LLButton>("notes_save_changes");
@@ -2168,7 +2214,7 @@ BOOL LLPanelProfileNotes::postBuild()
     mDiscardChanges->setCommitCallback([this](LLUICtrl*, void*) { onDiscardNotesChanges(); }, nullptr);
     mNotesEditor->setKeystrokeCallback([this](LLTextEditor* caller) { onSetNotesDirty(); });
 
-    return TRUE;
+    return true;
 }
 
 void LLPanelProfileNotes::onOpen(const LLSD& key)
@@ -2180,8 +2226,8 @@ void LLPanelProfileNotes::onOpen(const LLSD& key)
 
 void LLPanelProfileNotes::setNotesText(const std::string &text)
 {
-    mSaveChanges->setEnabled(FALSE);
-    mDiscardChanges->setEnabled(FALSE);
+    mSaveChanges->setEnabled(false);
+    mDiscardChanges->setEnabled(false);
     mHasUnsavedChanges = false;
 
     mCurrentNotes = text;
@@ -2190,8 +2236,8 @@ void LLPanelProfileNotes::setNotesText(const std::string &text)
 
 void LLPanelProfileNotes::onSetNotesDirty()
 {
-    mSaveChanges->setEnabled(TRUE);
-    mDiscardChanges->setEnabled(TRUE);
+    mSaveChanges->setEnabled(true);
+    mDiscardChanges->setEnabled(true);
     mHasUnsavedChanges = true;
 }
 
@@ -2200,8 +2246,8 @@ void LLPanelProfileNotes::onSaveNotesChanges()
     mCurrentNotes = mNotesEditor->getValue().asString();
     saveAgentUserInfoCoro("notes", mCurrentNotes);
 
-    mSaveChanges->setEnabled(FALSE);
-    mDiscardChanges->setEnabled(FALSE);
+    mSaveChanges->setEnabled(false);
+    mDiscardChanges->setEnabled(false);
     mHasUnsavedChanges = false;
 }
 
@@ -2225,7 +2271,7 @@ void LLPanelProfileNotes::processProperties(void* data, EAvatarProcessorType typ
 void LLPanelProfileNotes::processProperties(const LLAvatarData* avatar_data)
 {
     setNotesText(avatar_data->notes);
-    mNotesEditor->setEnabled(TRUE);
+    mNotesEditor->setEnabled(true);
     setLoaded();
 }
 
@@ -2248,9 +2294,9 @@ LLPanelProfile::~LLPanelProfile()
 {
 }
 
-BOOL LLPanelProfile::postBuild()
+bool LLPanelProfile::postBuild()
 {
-    return TRUE;
+    return true;
 }
 
 void LLPanelProfile::onTabChange()

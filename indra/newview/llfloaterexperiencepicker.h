@@ -43,14 +43,14 @@ public:
     typedef boost::function<bool (const LLSD&)> filter_function;
     typedef std::vector<filter_function> filter_list;
 
-    static LLFloaterExperiencePicker* show( select_callback_t callback, const LLUUID& key, BOOL allow_multiple, BOOL close_on_select, filter_list filters, LLView * frustumOrigin);
+    static LLFloaterExperiencePicker* show( select_callback_t callback, const LLUUID& key, bool allow_multiple, bool close_on_select, filter_list filters, LLView * frustumOrigin);
 
     LLFloaterExperiencePicker(const LLSD& key);
     virtual ~LLFloaterExperiencePicker();
 
-    BOOL postBuild();
+    bool postBuild() override;
 
-    virtual void    draw();
+    void draw() override;
 private:
 
     LLPanelExperiencePicker* mSearchPanel;

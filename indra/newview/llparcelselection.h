@@ -57,18 +57,18 @@ public:
     bool    hasOthersSelected() const;
 
     // Does the selection have multiple land owners in it?
-    BOOL    getMultipleOwners() const;
+    bool    getMultipleOwners() const;
 
     // Is the entire parcel selected, or just a part?
-    BOOL    getWholeParcelSelected() const;
+    bool    getWholeParcelSelected() const;
 
 private:
     void setParcel(LLParcel* parcel) { mParcel = parcel; }
 
 private:
     LLParcel*   mParcel;
-    BOOL        mSelectedMultipleOwners;
-    BOOL        mWholeParcelSelected;
+    bool        mSelectedMultipleOwners;
+    bool        mWholeParcelSelected;
     S32         mSelectedSelfCount;
     S32         mSelectedOtherCount;
     S32         mSelectedPublicCount;

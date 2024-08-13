@@ -222,6 +222,8 @@ const std::string LLDiskCache::assetTypeToString(LLAssetType::EType at)
         { LLAssetType::AT_MESH, "MESH" },
         { LLAssetType::AT_SETTINGS, "SETTINGS" },
         { LLAssetType::AT_MATERIAL, "MATERIAL" },
+        { LLAssetType::AT_GLTF, "GLTF" },
+        { LLAssetType::AT_GLTF_BIN, "GLTF_BIN" },
         { LLAssetType::AT_UNKNOWN, "UNKNOWN" }
     };
 
@@ -323,8 +325,8 @@ const std::string LLDiskCache::getCacheInfo()
 {
     std::ostringstream cache_info;
 
-    F32 max_in_mb = (F32)mMaxSizeBytes / (1024.0 * 1024.0);
-    F32 percent_used = ((F32)dirFileSize(mCacheDir) / (F32)mMaxSizeBytes) * 100.0;
+    F32 max_in_mb = (F32)mMaxSizeBytes / (1024.0f * 1024.0f);
+    F32 percent_used = ((F32)dirFileSize(mCacheDir) / (F32)mMaxSizeBytes) * 100.0f;
 
     cache_info << std::fixed;
     cache_info << std::setprecision(1);

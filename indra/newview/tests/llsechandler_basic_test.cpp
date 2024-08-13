@@ -78,8 +78,8 @@ LLControlVariable* LLControlGroup::declareString(const std::string& name,
                                    const std::string& initial_val,
                                    const std::string& comment,
                                    LLControlVariable::ePersist persist) {return NULL;}
-void LLControlGroup::setString(const std::string& name, const std::string& val){}
-std::string LLControlGroup::getString(const std::string& name)
+void LLControlGroup::setString(std::string_view name, const std::string& val){}
+std::string LLControlGroup::getString(std::string_view name)
 {
 
     if (name == "FirstName")
@@ -90,7 +90,7 @@ std::string LLControlGroup::getString(const std::string& name)
 }
 
 // Stub for --no-verify-ssl-cert
-BOOL LLControlGroup::getBOOL(const std::string& name) { return FALSE; }
+bool LLControlGroup::getBOOL(std::string_view name) { return false; }
 
 LLSD LLCredential::getLoginParams()
 {
@@ -655,19 +655,19 @@ namespace tut
 
             // Read each of the 4 Pem certs and store in mX509*Cert pointers
             BIO * validation_bio;
-            validation_bio = BIO_new_mem_buf((void*)mPemTestCert.c_str(), mPemTestCert.length());
+            validation_bio = BIO_new_mem_buf((void*)mPemTestCert.c_str(), static_cast<S32>(mPemTestCert.length()));
             PEM_read_bio_X509(validation_bio, &mX509TestCert, 0, NULL);
             BIO_free(validation_bio);
 
-            validation_bio = BIO_new_mem_buf((void*)mPemRootCert.c_str(), mPemRootCert.length());
+            validation_bio = BIO_new_mem_buf((void*)mPemRootCert.c_str(), static_cast<S32>(mPemRootCert.length()));
             PEM_read_bio_X509(validation_bio, &mX509RootCert, 0, NULL);
             BIO_free(validation_bio);
 
-            validation_bio = BIO_new_mem_buf((void*)mPemIntermediateCert.c_str(), mPemIntermediateCert.length());
+            validation_bio = BIO_new_mem_buf((void*)mPemIntermediateCert.c_str(), static_cast<S32>(mPemIntermediateCert.length()));
             PEM_read_bio_X509(validation_bio, &mX509IntermediateCert, 0, NULL);
             BIO_free(validation_bio);
 
-            validation_bio = BIO_new_mem_buf((void*)mPemChildCert.c_str(), mPemChildCert.length());
+            validation_bio = BIO_new_mem_buf((void*)mPemChildCert.c_str(), static_cast<S32>(mPemChildCert.length()));
             PEM_read_bio_X509(validation_bio, &mX509ChildCert, 0, NULL);
             BIO_free(validation_bio);
         }
@@ -984,7 +984,7 @@ namespace tut
         // test creation of credentials
         my_cred = handler->createCredential("mysavedgrid", my_id, my_authenticator);
         // test save without saving authenticator.
-        handler->saveCredential(my_cred, FALSE);
+        handler->saveCredential(my_cred, false);
         my_new_cred = handler->loadCredential("mysavedgrid");
         ensure_equals("saved credential without auth",
                       (const std::string)my_new_cred->getIdentifier()["type"], "test_type");

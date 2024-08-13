@@ -62,7 +62,7 @@ namespace tut
         ensure("LLSegment get functions failed", (0 == segment.getChannel() && NULL == segment.data() && 0 == segment.size()));
         segment.setChannel(50);
         ensure_equals("LLSegment setChannel() function failed", segment.getChannel(), 50);
-        ensure("LLSegment isOnChannel() function failed", (TRUE == segment.isOnChannel(50)));
+        ensure("LLSegment isOnChannel() function failed", (true == segment.isOnChannel(50)));
     }
 
     template<> template<>
@@ -74,7 +74,7 @@ namespace tut
         LLSegment segment(channel, (U8*)str, len);
         ensure("LLSegment get functions failed", (30 == segment.getChannel() && len == segment.size() && (U8*)str == segment.data()));
         ensure_memory_matches("LLSegment::data() failed",  segment.data(), segment.size(), (U8*)str, len);
-        ensure("LLSegment isOnChannel() function failed", (TRUE == segment.isOnChannel(channel)));
+        ensure("LLSegment isOnChannel() function failed", (true == segment.isOnChannel(channel)));
     }
 
     template<> template<>
@@ -91,27 +91,27 @@ namespace tut
         S32 requestSize;
 
         requestSize = 16384-1;
-        ensure("1. LLHeapBuffer createSegment failed", (TRUE == buf.createSegment(channel, requestSize, segment)) && segment.size() == requestSize);
+        ensure("1. LLHeapBuffer createSegment failed", (true == buf.createSegment(channel, requestSize, segment)) && segment.size() == requestSize);
         // second request for remainign 1 byte
 
         requestSize = 1;
-        ensure("2. LLHeapBuffer createSegment failed", (TRUE == buf.createSegment(channel, requestSize, segment)) && segment.size() == requestSize);
+        ensure("2. LLHeapBuffer createSegment failed", (true == buf.createSegment(channel, requestSize, segment)) && segment.size() == requestSize);
 
         // it should fail now.
         requestSize = 1;
-        ensure("3. LLHeapBuffer createSegment failed", (FALSE == buf.createSegment(channel, requestSize, segment)));
+        ensure("3. LLHeapBuffer createSegment failed", (false == buf.createSegment(channel, requestSize, segment)));
 
         LLHeapBuffer buf1(bigSize);
 
         // requst for more than default size but less than total sizeit should fail now.
         requestSize = 16384 + 1;
-        ensure("4. LLHeapBuffer createSegment failed", (TRUE == buf1.createSegment(channel, requestSize, segment)) && segment.size() == requestSize);
+        ensure("4. LLHeapBuffer createSegment failed", (true == buf1.createSegment(channel, requestSize, segment)) && segment.size() == requestSize);
 
         LLHeapBuffer buf2((U8*) str, smallSize);
         requestSize = smallSize;
-        ensure("5. LLHeapBuffer createSegment failed", (TRUE == buf2.createSegment(channel, requestSize, segment)) && segment.size() == requestSize && memcmp(segment.data(), (U8*) str, requestSize) == 0);
+        ensure("5. LLHeapBuffer createSegment failed", (true == buf2.createSegment(channel, requestSize, segment)) && segment.size() == requestSize && memcmp(segment.data(), (U8*) str, requestSize) == 0);
         requestSize = smallSize+1;
-        ensure("6. LLHeapBuffer createSegment failed", (FALSE == buf2.createSegment(channel, requestSize, segment)));
+        ensure("6. LLHeapBuffer createSegment failed", (false == buf2.createSegment(channel, requestSize, segment)));
     }
 
     //makeChannelConsumer()
@@ -128,7 +128,7 @@ namespace tut
     {
         LLBufferArray bufferArray;
         const char array[] = "SecondLife";
-        S32 len = strlen(array);
+        S32 len = static_cast<S32>(strlen(array));
         LLChannelDescriptors channelDescriptors = bufferArray.nextChannel();
         bufferArray.append(channelDescriptors.in(), (U8*)array, len);
         S32 count = bufferArray.countAfter(channelDescriptors.in(), NULL);
@@ -141,9 +141,9 @@ namespace tut
     {
         LLBufferArray bufferArray;
         const char array[] = "SecondLife";
-        S32 len = strlen(array);
+        S32 len = static_cast<S32>(strlen(array));
         const char array1[] = "LindenLabs";
-        S32 len1 = strlen(array1);
+        S32 len1 = static_cast<S32>(strlen(array1));
 
         std::string str(array1);
         str.append(array);
@@ -166,9 +166,9 @@ namespace tut
     {
         LLBufferArray bufferArray;
         const char array[] = "SecondLife";
-        S32 len = strlen(array);
+        S32 len = static_cast<S32>(strlen(array));
         const char array1[] = "LindenLabs";
-        S32 len1 = strlen(array1);
+        S32 len1 = static_cast<S32>(strlen(array1));
 
         std::string str(array);
         str.append(array1);
@@ -190,7 +190,7 @@ namespace tut
     {
         LLBufferArray bufferArray;
         const char array[] = "SecondLife";
-        S32 len = strlen(array) + 1;
+        S32 len = static_cast<S32>(strlen(array)) + 1;
         std::string str(array);
         LLChannelDescriptors channelDescriptors = bufferArray.nextChannel();
         bufferArray.append(channelDescriptors.in(), (U8*)array, len);
@@ -208,7 +208,7 @@ namespace tut
     void buffer_object_t::test<10>()
     {
         const char array[] = "SecondLife is a Virtual World";
-        S32 len = strlen(array);
+        S32 len = static_cast<S32>(strlen(array));
         LLBufferArray bufferArray;
         bufferArray.append(0, (U8*)array, len);
 
@@ -229,7 +229,7 @@ namespace tut
     void buffer_object_t::test<11>()
     {
         const char array[] = "SecondLife is a Virtual World";
-        S32 len = strlen(array);
+        S32 len = static_cast<S32>(strlen(array));
         LLBufferArray bufferArray;
         bufferArray.append(0, (U8*)array, len);
 

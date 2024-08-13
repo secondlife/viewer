@@ -79,13 +79,13 @@ private:
             LLEventTimer(0),
             mTask(std::forward<CALLABLE>(callable))
         {}
-        BOOL tick() override
+        bool tick() override
         {
             // run the task on the main thread, will populate the future
             // obtained by get_future()
             mTask();
             // tell LLEventTimer we're done (one shot)
-            return TRUE;
+            return true;
         }
         // Given arbitrary CALLABLE, which might be a lambda, how are we
         // supposed to obtain its signature for std::packaged_task? It seems
