@@ -4185,15 +4185,17 @@ void LLViewerWindow::renderSelections( bool for_gl_pick, bool pick_parcel_walls,
                     }
                 }
             }
-            if (selection->getSelectType() == SELECT_TYPE_HUD && selection->getObjectCount())
-            {
-                gGL.matrixMode(LLRender::MM_PROJECTION);
-                gGL.popMatrix();
+        }
 
-                gGL.matrixMode(LLRender::MM_MODELVIEW);
-                gGL.popMatrix();
-                stop_glerror();
-            }
+        // un-setup HUD render
+        if (selection->getSelectType() == SELECT_TYPE_HUD && selection->getObjectCount())
+        {
+            gGL.matrixMode(LLRender::MM_PROJECTION);
+            gGL.popMatrix();
+
+            gGL.matrixMode(LLRender::MM_MODELVIEW);
+            gGL.popMatrix();
+            stop_glerror();
         }
     }
 }

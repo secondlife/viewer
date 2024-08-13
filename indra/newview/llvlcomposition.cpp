@@ -312,6 +312,17 @@ bool LLTerrainMaterials::makeMaterialsReady(bool boost, bool strict)
     return one_ready;
 }
 
+LLViewerTexture* LLTerrainMaterials::getPaintMap()
+{
+    return mPaintMap.get();
+}
+
+void LLTerrainMaterials::setPaintMap(LLViewerTexture* paint_map)
+{
+    llassert(!paint_map || mPaintType == TERRAIN_PAINT_TYPE_PBR_PAINTMAP);
+    mPaintMap = paint_map;
+}
+
 // Boost the texture loading priority
 // Return true when ready to use (i.e. texture is sufficiently loaded)
 // static

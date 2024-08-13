@@ -579,6 +579,7 @@ set(viewer_SOURCE_FILES
     llsyswellwindow.cpp
     llteleporthistory.cpp
     llteleporthistorystorage.cpp
+    llterrainpaintmap.cpp
     lltexturecache.cpp
     lltexturectrl.cpp
     lltexturefetch.cpp
@@ -1237,6 +1238,7 @@ set(viewer_HEADER_FILES
     lltable.h
     llteleporthistory.h
     llteleporthistorystorage.h
+    llterrainpaintmap.h
     lltexturecache.h
     lltexturectrl.h
     lltexturefetch.h
