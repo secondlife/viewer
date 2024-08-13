@@ -365,7 +365,7 @@ void LLConversationItemSession::clearAndDeparentModels()
             // it was waiting for an "add_participant" event to be processed
             delete child;
         }
-        else
+        else if (child->hasParent())
         {
             // Model is still assigned to some view/widget
             child->setParent(NULL);
