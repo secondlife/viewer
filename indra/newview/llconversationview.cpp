@@ -98,10 +98,7 @@ LLConversationViewSession::~LLConversationViewSession()
 
     if (mVoiceClientObserver)
     {
-        if (LLVoiceClient::instanceExists())
-        {
-            LLVoiceClient::getInstance()->removeObserver(mVoiceClientObserver);
-        }
+        LLVoiceClient::removeObserver(mVoiceClientObserver);
         delete mVoiceClientObserver;
     }
 
@@ -259,16 +256,15 @@ BOOL LLConversationViewSession::postBuild()
             icon->setVisible(true);
             mSpeakingIndicator->setSpeakerId(gAgentID, LLUUID::null, true);
             mIsInActiveVoiceChannel = true;
-            if(LLVoiceClient::instanceExists())
+
+            if (mVoiceClientObserver)
             {
-                if (mVoiceClientObserver)
-                {
-                    LLVoiceClient::getInstance()->removeObserver(mVoiceClientObserver);
-                    delete mVoiceClientObserver;
-                }
-                mVoiceClientObserver = new LLNearbyVoiceClientStatusObserver(this);
-                LLVoiceClient::getInstance()->addObserver(mVoiceClientObserver);
+                LLVoiceClient::removeObserver(mVoiceClientObserver);
+                delete mVoiceClientObserver;
             }
+            mVoiceClientObserver = new LLNearbyVoiceClientStatusObserver(this);
+            LLVoiceClient::addObserver(mVoiceClientObserver);
+
             break;
         }
         default:

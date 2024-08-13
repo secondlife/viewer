@@ -433,7 +433,7 @@ void LLFloaterIMSessionTab::draw()
 
 void LLFloaterIMSessionTab::enableDisableCallBtn()
 {
-    if (!LLApp::isExiting() && LLVoiceClient::instanceExists() && mVoiceButton)
+    if (LLVoiceClient::instanceExists() && mVoiceButton)
     {
         mVoiceButton->setEnabled(
             mSessionID.notNull()
@@ -544,6 +544,12 @@ void LLFloaterIMSessionTab::closeFloater(bool app_quitting)
 {
     LLFloaterEmojiPicker::saveState();
     super::closeFloater(app_quitting);
+}
+
+void LLFloaterIMSessionTab::deleteAllChildren()
+{
+    super::deleteAllChildren();
+    mVoiceButton = NULL;
 }
 
 std::string LLFloaterIMSessionTab::appendTime()
