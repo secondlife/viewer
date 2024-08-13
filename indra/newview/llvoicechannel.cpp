@@ -115,6 +115,12 @@ void LLVoiceChannel::setChannelInfo(const LLSD &channelInfo)
     }
 }
 
+void LLVoiceChannel::resetChannelInfo()
+{
+    mChannelInfo = LLSD();
+    mState = STATE_NO_CHANNEL_INFO;
+}
+
 void LLVoiceChannel::onChange(EStatusType type, const LLSD& channelInfo, bool proximal)
 {
     LL_DEBUGS("Voice") << "Incoming channel info: " << channelInfo << LL_ENDL;
@@ -913,6 +919,12 @@ void LLVoiceChannelP2P::setChannelInfo(const LLSD& channel_info)
     {
         activate();
     }
+}
+
+void LLVoiceChannelP2P::resetChannelInfo()
+{
+    mChannelInfo = LLVoiceClient::getInstance()->getP2PChannelInfoTemplate(mOtherUserID);
+    mState = STATE_NO_CHANNEL_INFO; // we have template, not full info
 }
 
 void LLVoiceChannelP2P::setState(EState state)
