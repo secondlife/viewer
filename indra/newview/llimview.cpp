@@ -3857,6 +3857,11 @@ bool LLIMMgr::startCall(const LLUUID& session_id, LLVoiceChannel::EDirection dir
     {
         voice_channel->setChannelInfo(voice_channel_info);
     }
+    else if (voice_channel->getState() < LLVoiceChannel::STATE_READY)
+    {
+        // restart if there wa an error or it was hang up
+        voice_channel->resetChannelInfo();
+    }
     voice_channel->setCallDirection(direction);
     voice_channel->activate();
     return true;
