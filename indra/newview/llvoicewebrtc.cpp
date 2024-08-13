@@ -238,11 +238,26 @@ LLWebRTCVoiceClient::LLWebRTCVoiceClient() :
 
 LLWebRTCVoiceClient::~LLWebRTCVoiceClient()
 {
+}
+
+void LLWebRTCVoiceClient::cleanupSingleton()
+{
     if (mAvatarNameCacheConnection.connected())
     {
         mAvatarNameCacheConnection.disconnect();
     }
+
     sShuttingDown = true;
+    if (mSession)
+    {
+        mSession->shutdownAllConnections();
+    }
+    if (mNextSession)
+    {
+        mNextSession->shutdownAllConnections();
+    }
+    cleanUp();
+    sessionState::clearSessions();
 }
 
 //---------------------------------------------------
@@ -656,6 +671,10 @@ void LLWebRTCVoiceClient::OnDevicesChanged(const llwebrtc::LLWebRTCVoiceDeviceLi
 void LLWebRTCVoiceClient::OnDevicesChangedImpl(const llwebrtc::LLWebRTCVoiceDeviceList &render_devices,
                                                const llwebrtc::LLWebRTCVoiceDeviceList &capture_devices)
 {
+    if (sShuttingDown)
+    {
+        return;
+    }
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE
     std::string inputDevice = gSavedSettings.getString("VoiceInputAudioDevice");
     std::string outputDevice = gSavedSettings.getString("VoiceOutputAudioDevice");
@@ -1704,7 +1723,7 @@ void LLWebRTCVoiceClient::predSetUserMute(const LLWebRTCVoiceClient::sessionStat
 //------------------------------------------------------------------------
 // Sessions
 
-std::map<std::string, LLWebRTCVoiceClient::sessionState::ptr_t> LLWebRTCVoiceClient::sessionState::mSessions;
+std::map<std::string, LLWebRTCVoiceClient::sessionState::ptr_t> LLWebRTCVoiceClient::sessionState::sSessions;
 
 
 LLWebRTCVoiceClient::sessionState::sessionState() :
@@ -1791,12 +1810,18 @@ void LLWebRTCVoiceClient::sessionState::addSession(
     const std::string & channelID,
     LLWebRTCVoiceClient::sessionState::ptr_t& session)
 {
-    mSessions[channelID] = session;
+    sSessions[channelID] = session;
 }
 
 LLWebRTCVoiceClient::sessionState::~sessionState()
 {
     LL_DEBUGS("Voice") << "Destroying session CHANNEL=" << mChannelID << LL_ENDL;
+
+    if (!mShuttingDown)
+    {
+        shutdownAllConnections();
+    }
+    mWebRTCConnections.clear();
 
     removeAllParticipants();
 }
@@ -1807,8 +1832,8 @@ LLWebRTCVoiceClient::sessionState::ptr_t LLWebRTCVoiceClient::sessionState::matc
     sessionStatePtr_t result;
 
     // *TODO: My kingdom for a lambda!
-    std::map<std::string, ptr_t>::iterator it = mSessions.find(channel_id);
-    if (it != mSessions.end())
+    std::map<std::string, ptr_t>::iterator it = sSessions.find(channel_id);
+    if (it != sSessions.end())
     {
         result = (*it).second;
     }
@@ -1817,17 +1842,17 @@ LLWebRTCVoiceClient::sessionState::ptr_t LLWebRTCVoiceClient::sessionState::matc
 
 void LLWebRTCVoiceClient::sessionState::for_each(sessionFunc_t func)
 {
-    std::for_each(mSessions.begin(), mSessions.end(), boost::bind(for_eachPredicate, _1, func));
+    std::for_each(sSessions.begin(), sSessions.end(), boost::bind(for_eachPredicate, _1, func));
 }
 
 void LLWebRTCVoiceClient::sessionState::reapEmptySessions()
 {
     std::map<std::string, ptr_t>::iterator iter;
-    for (iter = mSessions.begin(); iter != mSessions.end();)
+    for (iter = sSessions.begin(); iter != sSessions.end();)
     {
         if (iter->second->isEmpty())
         {
-            iter = mSessions.erase(iter);
+            iter = sSessions.erase(iter);
         }
         else
         {
@@ -1873,6 +1898,11 @@ LLWebRTCVoiceClient::sessionStatePtr_t LLWebRTCVoiceClient::addSession(const std
     }
 }
 
+void LLWebRTCVoiceClient::sessionState::clearSessions()
+{
+    sSessions.clear();
+}
+
 LLWebRTCVoiceClient::sessionStatePtr_t LLWebRTCVoiceClient::findP2PSession(const LLUUID &agent_id)
 {
     sessionStatePtr_t result = sessionState::matchSessionByChannelID(agent_id.asString());
@@ -1912,14 +1942,14 @@ void LLWebRTCVoiceClient::sessionState::processSessionStates()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOICE
 
-    auto iter = mSessions.begin();
-    while (iter != mSessions.end())
+    auto iter = sSessions.begin();
+    while (iter != sSessions.end())
     {
         if (!iter->second->processConnectionStates() && iter->second->mShuttingDown)
         {
             // if the connections associated with a session are gone,
             // and this session is shutting down, remove it.
-            iter = mSessions.erase(iter);
+            iter = sSessions.erase(iter);
         }
         else
         {
